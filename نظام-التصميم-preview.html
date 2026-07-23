@@ -28,7 +28,8 @@ a{text-decoration:none;color:inherit}
 body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
   background:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.04'/%3E%3C/svg%3E")}
 .dotgrid{background-image:radial-gradient(rgba(0,212,184,.07) 1px,transparent 1px);background-size:32px 32px}
-html.light body::after,html.light .dotgrid{opacity:0 !important}
+html.light body::after{opacity:0 !important}
+html.light .dotgrid{background-image:none !important}
 
 /* Gradient text */
 .grad{background:linear-gradient(135deg,#2de0ca 0%,#00d4b8 55%,#009e85 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
