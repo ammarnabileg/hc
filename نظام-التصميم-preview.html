@@ -150,6 +150,9 @@ html.light .pop-box{background:#fff}
 ::-webkit-scrollbar-track{background:var(--bg)}
 ::-webkit-scrollbar-thumb{background:var(--ta20);border-radius:3px}
 
+/* Scroll progress bar */
+#spbar{position:fixed;top:0;inset-inline-start:0;height:2px;width:0;z-index:9999;background:linear-gradient(90deg,#2de0ca,#009e85);transition:width .1s}
+
 /* Cursor */
 #cur{width:8px;height:8px;border-radius:50%;border:1.5px solid rgba(0,212,184,.6);background:rgba(0,212,184,.2);position:fixed;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:width .28s cubic-bezier(.22,1,.36,1),height .28s cubic-bezier(.22,1,.36,1),background .28s;display:none}
 #cur.big{width:40px;height:40px;background:transparent;border-color:rgba(0,212,184,.4)}
@@ -157,6 +160,7 @@ html.light .pop-box{background:#fff}
 </style>
 </head>
 <body class="dotgrid">
+<div id="spbar"></div>
 <div id="cur"></div>
 
 <!-- Top bar -->
@@ -346,6 +350,8 @@ function toggleTheme(){document.documentElement.classList.toggle('light');docume
 function calc(v){document.getElementById('rv').textContent=v;var p=(v*8*0.07);document.getElementById('rp').textContent='$'+p.toFixed(2)}
 function calcWithdraw(){var a=parseFloat(document.getElementById('w-amt').value)||0;var box=document.getElementById('w-prev');if(a<=0){box.style.display='none';return}box.style.display='flex';var fee=Math.max(a*0.01,0.5);document.getElementById('wp-amt').textContent='$'+a.toFixed(2);document.getElementById('wp-fee').textContent='-$'+fee.toFixed(2);document.getElementById('wp-net').textContent='$'+(a-fee).toFixed(2)}
 document.querySelectorAll('#chips .chip').forEach(function(c){c.onclick=function(){document.querySelectorAll('#chips .chip').forEach(function(x){x.classList.remove('on')});c.classList.add('on')}});
+// scroll progress bar
+window.addEventListener('scroll',function(){var sp=document.getElementById('spbar');var t=document.documentElement.scrollHeight-window.innerHeight;sp.style.width=(t>0?window.scrollY/t*100:0)+'%'},{passive:true});
 // cursor
 var cur=document.getElementById('cur');
 document.addEventListener('mousemove',function(e){cur.style.left=e.clientX+'px';cur.style.top=e.clientY+'px'});
