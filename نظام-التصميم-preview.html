@@ -82,7 +82,12 @@ html.light .ts-track{background:rgba(10,34,32,.15)}
 .pbar-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,#009e85,#2de0ca);transition:width 1s cubic-bezier(.22,1,.36,1)}
 
 /* Range */
-input[type=range]{width:100%;accent-color:#00d4b8;cursor:pointer}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;border-radius:999px;background:var(--ta12);border:none;outline:none;cursor:pointer}
+input[type=range]:focus{outline:none}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:16px;height:16px;border-radius:50%;background:#00d4b8;border:none;cursor:pointer}
+input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:#00d4b8;border:none;cursor:pointer}
+input[type=range]::-moz-range-track{height:6px;border-radius:999px;background:var(--ta12);border:none}
+input[type=range]::-moz-range-progress{height:6px;border-radius:999px;background:#00d4b8}
 
 /* Badge */
 .badge{font-size:.62rem;font-weight:700;padding:.25rem .7rem;border-radius:999px;border:1px solid;white-space:nowrap;display:inline-flex;align-items:center;gap:.3rem}
@@ -253,7 +258,7 @@ html.light .pop-box{background:#fff}
       <div class="scard"><div class="scard-head"><span class="font-bold text-sm">احسب أرباحك</span><span class="badge ok">تفاعليّ</span></div>
         <div class="scard-body space-y-3">
           <div class="flex items-center justify-between text-sm"><span style="color:var(--w60)">عدد المدعوّين</span><span class="grad font-extrabold" id="rv">249</span></div>
-          <input type="range" min="0" max="500" value="249" oninput="calc(this.value)">
+          <input type="range" min="0" max="500" value="249" oninput="calc(this.value);fillRange(this)">
           <div class="text-center pt-1"><div class="eyebrow">أرباحك الشهريّة</div><div class="text-2xl font-extrabold grad" id="rp">$139.44</div></div>
         </div>
       </div>
@@ -348,6 +353,8 @@ html.light .pop-box{background:#fff}
 <script>
 function toggleTheme(){document.documentElement.classList.toggle('light');document.getElementById('ico').textContent=document.documentElement.classList.contains('light')?'☀️ فاتح':'🌙 داكن'}
 function calc(v){document.getElementById('rv').textContent=v;var p=(v*8*0.07);document.getElementById('rp').textContent='$'+p.toFixed(2)}
+function fillRange(el){var mn=+el.min||0,mx=+el.max||100;var p=(el.value-mn)/(mx-mn)*100;var dir=document.documentElement.dir==='rtl'?'to left':'to right';el.style.background='linear-gradient('+dir+',#00d4b8 '+p+'%,var(--ta12) '+p+'%)'}
+document.querySelectorAll('input[type=range]').forEach(fillRange);
 function calcWithdraw(){var a=parseFloat(document.getElementById('w-amt').value)||0;var box=document.getElementById('w-prev');if(a<=0){box.style.display='none';return}box.style.display='flex';var fee=Math.max(a*0.01,0.5);document.getElementById('wp-amt').textContent='$'+a.toFixed(2);document.getElementById('wp-fee').textContent='-$'+fee.toFixed(2);document.getElementById('wp-net').textContent='$'+(a-fee).toFixed(2)}
 document.querySelectorAll('#chips .chip').forEach(function(c){c.onclick=function(){document.querySelectorAll('#chips .chip').forEach(function(x){x.classList.remove('on')});c.classList.add('on')}});
 // scroll progress bar
