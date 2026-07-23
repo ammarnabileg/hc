@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" class="scroll-smooth">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>نظام التصميم — استعراض الاستايل</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ── Tokens ── */
+:root{--bg:#030d17;--bg2:#04111e;--bg3:#071825;--t:#00d4b8;--tl:#2de0ca;--td:#009e85;
+  --ta30:rgba(0,212,184,.30);--ta25:rgba(0,212,184,.25);--ta20:rgba(0,212,184,.20);--ta15:rgba(0,212,184,.15);
+  --ta12:rgba(0,212,184,.12);--ta08:rgba(0,212,184,.08);
+  --w:#fff;--w80:rgba(255,255,255,.80);--w60:rgba(255,255,255,.60);
+  --w40:rgba(255,255,255,.40);--w20:rgba(255,255,255,.20);--w10:rgba(255,255,255,.10);--w06:rgba(255,255,255,.06);}
+html.light{--bg:#ffffff;--bg2:#ffffff;--bg3:#ffffff;--t:#009e85;--tl:#00b89e;--td:#007a68;
+  --ta30:rgba(0,212,184,.32);--ta25:rgba(0,212,184,.28);--ta20:rgba(0,212,184,.22);--ta15:rgba(0,212,184,.18);
+  --ta12:rgba(0,212,184,.14);--ta08:rgba(0,212,184,.06);
+  --w:#0a2220;--w80:rgba(10,34,32,.80);--w60:rgba(10,34,32,.58);
+  --w40:rgba(10,34,32,.38);--w20:rgba(10,34,32,.16);--w10:rgba(10,34,32,.09);--w06:rgba(10,34,32,.05);}
+
+*,*::before,*::after{box-sizing:border-box}
+body{font-family:'Cairo',sans-serif;background:var(--bg);color:var(--w);overflow-x:hidden;-webkit-font-smoothing:antialiased;line-height:1.65;transition:background .3s,color .3s}
+h1,h2,h3,h4{font-family:'Cairo',sans-serif;line-height:1.15;letter-spacing:0}
+a{text-decoration:none;color:inherit}
+
+/* Noise + grid */
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.04'/%3E%3C/svg%3E")}
+.dotgrid{background-image:radial-gradient(rgba(0,212,184,.07) 1px,transparent 1px);background-size:32px 32px}
+html.light body::after,html.light .dotgrid{opacity:0 !important}
+
+/* Gradient text */
+.grad{background:linear-gradient(135deg,#2de0ca 0%,#00d4b8 55%,#009e85 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.shimmer-text{background:linear-gradient(90deg,#2de0ca 0%,#009e85 30%,#2de0ca 60%,#009e85 100%);background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:text-shimmer 5s linear infinite}
+@keyframes text-shimmer{to{background-position:200% center}}
+
+/* Glass + cards */
+.glass{background:rgba(5,17,30,.8);border:1px solid var(--ta20);backdrop-filter:blur(20px)}
+html.light .glass{background:rgba(255,255,255,.92);border-color:var(--ta20)}
+.ds-card{border-radius:1rem;border:1px solid var(--ta15);background:rgba(5,14,26,.85);transition:border-color .2s,transform .25s;position:relative;overflow:hidden}
+.ds-card:hover{border-color:var(--ta25)}
+html.light .ds-card{background:#fff;border-color:rgba(0,212,184,.2)}
+.scard{background:rgba(5,14,26,.85);border:1px solid var(--ta12);border-radius:1.1rem;overflow:hidden}
+html.light .scard{background:#fff;border-color:rgba(0,212,184,.15)}
+.scard-head{display:flex;align-items:center;justify-content:space-between;padding:1rem 1.4rem;border-bottom:1px solid var(--ta08)}
+.scard-body{padding:1.4rem}
+.scard-icon{width:34px;height:34px;border-radius:.6rem;flex-shrink:0;background:var(--ta08);border:1px solid var(--ta12);display:flex;align-items:center;justify-content:center}
+
+/* Buttons */
+.btn-p{background:linear-gradient(135deg,#2de0ca,#009e85);color:#020e18;font-weight:700;border-radius:.72rem;cursor:pointer;border:none;display:inline-flex;align-items:center;justify-content:center;gap:.45rem;font-family:'Cairo';transition:opacity .18s,transform .18s;padding:.6rem 1.2rem}
+.btn-p:hover{opacity:.9;transform:scale(1.015)}
+.btn-g{border:1px solid var(--ta20);color:var(--w80);background:var(--ta08);border-radius:.72rem;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:.45rem;font-family:'Cairo';transition:all .18s;padding:.6rem 1.2rem}
+.btn-g:hover{border-color:var(--ta30);background:var(--ta12)}
+
+/* Inputs */
+.hc-input{background:rgba(5,14,26,.6);border:1.5px solid var(--ta15);border-radius:.72rem;color:var(--w);padding:.68rem 1rem;font-family:'Cairo';font-size:.88rem;outline:none;width:100%;transition:border-color .18s}
+.hc-input:focus{border-color:var(--t)}
+.hc-input::placeholder{color:var(--w40)}
+html.light .hc-input{background:#fff;border-color:rgba(0,212,184,.25);color:#111827}
+.hc-select{background:rgba(5,14,26,.6);border:1.5px solid var(--ta15);border-radius:.72rem;color:var(--w);padding:.68rem 1rem .68rem 2rem;font-family:'Cairo';font-size:.88rem;outline:none;cursor:pointer;-webkit-appearance:none;appearance:none;width:100%;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' fill='none' stroke='rgba(0,212,184,.5)' stroke-width='2' stroke-linecap='round' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:left 10px center;background-size:14px}
+html.light .hc-select{background-color:#fff;border-color:rgba(0,212,184,.25);color:#111827}
+.field-label{display:block;font-size:.76rem;font-weight:700;color:var(--w60);margin-bottom:.4rem}
+
+/* Chips */
+.chip{padding:.3rem .85rem;border-radius:999px;font-size:.75rem;font-weight:600;cursor:pointer;border:1px solid var(--ta15);color:var(--w60);background:transparent;transition:all .18s}
+.chip.on,.chip:hover{background:var(--ta12);border-color:var(--ta30);color:var(--tl)}
+
+/* Toggle */
+.ts{position:relative;cursor:pointer;flex-shrink:0;display:inline-block}
+.ts input{position:absolute;opacity:0;width:0;height:0}
+.ts-track{display:block;width:40px;height:22px;border-radius:999px;background:rgba(255,255,255,.15);transition:background .2s;position:relative}
+html.light .ts-track{background:rgba(10,34,32,.15)}
+.ts-thumb{position:absolute;top:3px;inset-inline-start:3px;width:16px;height:16px;border-radius:50%;background:#fff;transition:inset-inline-start .2s}
+.ts input:checked~.ts-track{background:var(--t)}
+.ts input:checked~.ts-track .ts-thumb{inset-inline-start:21px}
+
+/* Progress */
+.pbar{height:6px;border-radius:999px;background:var(--ta12);overflow:hidden}
+.pbar-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,#009e85,#2de0ca);transition:width 1s cubic-bezier(.22,1,.36,1)}
+
+/* Range */
+input[type=range]{width:100%;accent-color:#00d4b8;cursor:pointer}
+
+/* Badge */
+.badge{font-size:.62rem;font-weight:700;padding:.25rem .7rem;border-radius:999px;border:1px solid;white-space:nowrap;display:inline-flex;align-items:center;gap:.3rem}
+.badge.ok{color:var(--tl);border-color:var(--ta30);background:var(--ta08)}
+.badge.wait{color:var(--tl);border-color:var(--ta20);background:var(--ta08)}
+.badge.no{color:#f87171;border-color:rgba(248,113,113,.35);background:rgba(248,113,113,.08)}
+
+/* Avatar */
+.av-wrap{width:72px;height:72px;border-radius:50%;padding:3px;background:conic-gradient(#2de0ca 0%,#009e85 50%,#2de0ca 100%);box-shadow:0 0 0 4px rgba(0,212,184,.12),0 8px 32px rgba(0,0,0,.45);position:relative;flex-shrink:0}
+.av-inner{width:100%;height:100%;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1.4rem;background:linear-gradient(135deg,#2de0ca,#009e85);color:rgba(0,0,0,.65)}
+.av-dot{position:absolute;bottom:4px;inset-inline-end:4px;width:14px;height:14px;border-radius:50%;background:#22c55e;border:3px solid var(--bg2);animation:pulse-dot 2s ease-in-out infinite}
+
+/* Side nav */
+.side-nav{background:rgba(5,14,26,.85);border:1px solid var(--ta12);border-radius:1rem;padding:.45rem}
+html.light .side-nav{background:#fff;border-color:rgba(0,212,184,.12)}
+.side-link{display:flex;align-items:center;gap:.7rem;padding:.65rem .85rem;border-radius:.6rem;font-size:.88rem;font-weight:600;cursor:pointer;color:var(--w60);transition:all .18s;border:none;background:transparent;width:100%;text-align:start;font-family:'Cairo'}
+.side-link:hover{color:var(--w)}
+.side-link.act{color:var(--tl)}
+.side-icon{width:32px;height:32px;border-radius:.5rem;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:var(--ta08);transition:background .18s}
+.side-link.act .side-icon{background:var(--ta15)}
+
+/* Sticky demo bar */
+.cv-sticky{position:sticky;top:12px;z-index:20;display:flex;align-items:center;justify-content:space-between;padding:.9rem 1.2rem;border-radius:1rem;border:1px solid var(--ta15);background:rgba(5,17,30,.8);backdrop-filter:blur(20px)}
+html.light .cv-sticky{background:rgba(255,255,255,.92)}
+
+/* Modal */
+.mwrap{position:fixed;inset:0;z-index:200;display:none;align-items:center;justify-content:center;padding:1rem;background:rgba(0,0,0,.75);backdrop-filter:blur(16px)}
+.mwrap.open{display:flex}
+.mbox{background:var(--bg2);border:1px solid var(--ta20);border-radius:1.25rem;width:100%;max-width:420px;animation:fadeup .2s ease both;box-shadow:0 36px 72px rgba(0,0,0,.5)}
+html.light .mbox{background:#fff}
+
+/* Eyebrow / section head */
+.eyebrow{font-size:.65rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--td)}
+.sh{font-weight:700;font-size:1.15rem;color:var(--w);display:flex;align-items:center;gap:.6rem;padding-bottom:.65rem;border-bottom:1px solid var(--ta12);margin-bottom:1.25rem}
+.sh-dot{width:7px;height:7px;border-radius:50%;background:linear-gradient(135deg,#2de0ca,#009e85);flex-shrink:0}
+
+/* Swatch */
+.swatch{height:70px;border-radius:.75rem;border:1px solid var(--ta12);display:flex;align-items:flex-end;padding:.5rem;font-size:.62rem;font-weight:700}
+
+/* Animations */
+@keyframes fadeup{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+@keyframes pulse-dot{0%,100%{transform:scale(1);opacity:.7}50%{transform:scale(1.3);opacity:1}}
+.anim-float{animation:float 5s ease-in-out infinite}
+
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--ta20);border-radius:3px}
+
+/* Cursor */
+#cur{width:8px;height:8px;border-radius:50%;border:1.5px solid rgba(0,212,184,.6);background:rgba(0,212,184,.2);position:fixed;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:width .28s cubic-bezier(.22,1,.36,1),height .28s cubic-bezier(.22,1,.36,1),background .28s;display:none}
+#cur.big{width:40px;height:40px;background:transparent;border-color:rgba(0,212,184,.4)}
+@media(pointer:fine){#cur{display:block}}
+</style>
+</head>
+<body class="dotgrid">
+<div id="cur"></div>
+
+<!-- Top bar -->
+<div class="glass sticky top-0 z-50 flex items-center justify-between px-5 py-3" style="border-bottom:1px solid var(--ta12)">
+  <div class="flex items-center gap-3">
+    <div class="w-9 h-9 rounded-xl flex items-center justify-center anim-float" style="background:linear-gradient(135deg,#2de0ca,#009e85)">
+      <svg width="20" height="20" viewBox="0 0 56 56" fill="none"><path d="M8 28A20 20 0 1 1 28 48" stroke="#020e18" stroke-width="3" stroke-linecap="round"/><path d="M14 28A14 14 0 1 1 28 42" stroke="#020e18" stroke-width="3" stroke-linecap="round"/><circle cx="28" cy="28" r="4" fill="#020e18"/></svg>
+    </div>
+    <div>
+      <div class="font-bold text-[.95rem] leading-none">نظام التصميم</div>
+      <div class="eyebrow mt-0.5">Design System · مرجع الاستايل</div>
+    </div>
+  </div>
+  <button onclick="toggleTheme()" class="btn-g text-sm"><span id="ico">🌙 داكن</span></button>
+</div>
+
+<main class="relative z-10 max-w-[1000px] mx-auto px-5 py-10 space-y-14">
+
+  <!-- Hero -->
+  <section style="animation:fadeup .5s ease both">
+    <div class="eyebrow mb-2">الاستايل النهائيّ المعتمَد</div>
+    <h1 class="text-4xl md:text-5xl font-extrabold leading-tight">هذا هو <span class="shimmer-text">شكلنا</span> — لونٌ واحد، عمقٌ داكن، توهّجٌ تركوازيّ</h1>
+    <p class="mt-3 text-[.95rem]" style="color:var(--w60)">مرجع بصريّ فقط — الألوان والخطوط والمساحات والكروت والحركات. المحتوى الفعليّ يبقى من الدستور. بدّل الوضع من الزرّ بالأعلى.</p>
+  </section>
+
+  <!-- Colors -->
+  <section>
+    <div class="sh"><span class="sh-dot"></span> الألوان (Tokens)</div>
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      <div class="swatch" style="background:#030d17;color:#fff">‏#030d17<br>خلفيّة</div>
+      <div class="swatch" style="background:#04111e;color:#fff">‏#04111e<br>خلفيّة 2</div>
+      <div class="swatch" style="background:#00d4b8;color:#022">‏#00d4b8<br>أساسيّ</div>
+      <div class="swatch" style="background:#2de0ca;color:#022">‏#2de0ca<br>فاتح</div>
+      <div class="swatch" style="background:#009e85;color:#022">‏#009e85<br>غامق</div>
+      <div class="swatch" style="background:rgba(0,212,184,.15);color:var(--tl)">ta15</div>
+      <div class="swatch" style="background:rgba(0,212,184,.08);color:var(--tl)">ta08</div>
+      <div class="swatch" style="background:linear-gradient(135deg,#2de0ca,#009e85);color:#022">التدرّج</div>
+    </div>
+  </section>
+
+  <!-- Typography -->
+  <section>
+    <div class="sh"><span class="sh-dot"></span> الخطوط</div>
+    <div class="ds-card p-6 space-y-3">
+      <div class="eyebrow">Eyebrow · تسمية علويّة</div>
+      <h2 class="text-3xl font-extrabold">عنوان رئيسيّ بخطّ Cairo <span class="grad">Bold 800</span></h2>
+      <h3 class="text-xl font-bold" style="color:var(--w80)">عنوان فرعيّ 700</h3>
+      <p style="color:var(--w60)">نصّ الجسم بوزن عاديّ ومسافة أسطر مريحة (1.65). العربيّ كلّه بخطّ Cairo، والإنجليزيّ بـ Bricolage / Jakarta. This is Latin sample text.</p>
+    </div>
+  </section>
+
+  <!-- Buttons + chips -->
+  <section>
+    <div class="sh"><span class="sh-dot"></span> الأزرار والرقاقات</div>
+    <div class="ds-card p-6 space-y-5">
+      <div class="flex flex-wrap gap-3">
+        <button class="btn-p">زرّ أساسيّ</button>
+        <button class="btn-g">زرّ ثانويّ</button>
+        <button class="btn-p">حفظ CV</button>
+      </div>
+      <div class="flex flex-wrap gap-2" id="chips">
+        <span class="chip on">الكلّ</span>
+        <span class="chip">مكتمل</span>
+        <span class="chip">انتظار</span>
+        <span class="chip">مسحوبات</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Inputs -->
+  <section>
+    <div class="sh"><span class="sh-dot"></span> الحقول والقوائم</div>
+    <div class="ds-card p-6 grid sm:grid-cols-2 gap-4">
+      <div><label class="field-label">المسمى الوظيفيّ الحاليّ</label><input class="hc-input" placeholder="مثال: مدير مبيعات"></div>
+      <div><label class="field-label">سنوات الخبرة</label><select class="hc-select"><option>اختر</option><option>1–3</option><option>3–5</option><option>+5</option></select></div>
+      <div class="sm:col-span-2"><label class="field-label">ملخّص مهنيّ</label><textarea class="hc-input" rows="2" placeholder="فقرة تعريفيّة مختصرة..."></textarea></div>
+    </div>
+  </section>
+
+  <!-- Toggles + slider -->
+  <section>
+    <div class="sh"><span class="sh-dot"></span> السويتش والمنزلق</div>
+    <div class="grid sm:grid-cols-2 gap-4">
+      <div class="scard"><div class="scard-head"><span class="font-bold text-sm">الإشعارات</span><span class="scard-icon">🔔</span></div>
+        <div class="scard-body space-y-3">
+          <div class="flex items-center justify-between"><span class="text-sm" style="color:var(--w80)">إشعارات المنصّة</span><label class="ts"><input type="checkbox" checked><span class="ts-track"><span class="ts-thumb"></span></span></label></div>
+          <div class="flex items-center justify-between"><span class="text-sm" style="color:var(--w80)">البريد الإلكترونيّ</span><label class="ts"><input type="checkbox"><span class="ts-track"><span class="ts-thumb"></span></span></label></div>
+        </div>
+      </div>
+      <div class="scard"><div class="scard-head"><span class="font-bold text-sm">احسب أرباحك</span><span class="badge ok">تفاعليّ</span></div>
+        <div class="scard-body space-y-3">
+          <div class="flex items-center justify-between text-sm"><span style="color:var(--w60)">عدد المدعوّين</span><span class="grad font-extrabold" id="rv">249</span></div>
+          <input type="range" min="0" max="500" value="249" oninput="calc(this.value)">
+          <div class="text-center pt-1"><div class="eyebrow">أرباحك الشهريّة</div><div class="text-2xl font-extrabold grad" id="rp">$139.44</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Progress + badges -->
+  <section>
+    <div class="sh"><span class="sh-dot"></span> أشرطة التقدّم والحالات</div>
+    <div class="ds-card p-6 space-y-4">
+      <div><div class="flex justify-between text-xs mb-1"><span style="color:var(--w60)">المستوى 4</span><span class="grad font-bold">72%</span></div><div class="pbar"><div class="pbar-fill" style="width:72%"></div></div></div>
+      <div class="flex flex-wrap gap-2">
+        <span class="badge ok">✓ مكتمل</span>
+        <span class="badge wait">⏳ انتظار الاختبار</span>
+        <span class="badge no">✕ لم يكمل التسجيل</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Avatar + side nav + sticky -->
+  <section>
+    <div class="sh"><span class="sh-dot"></span> الأفاتار والتنقّل والشريط العائم</div>
+    <div class="cv-sticky mb-4"><div><div class="font-bold text-sm">السيرة الذاتية</div><div class="eyebrow">شريط عائم ينزل مع الاسكرول</div></div><button class="btn-p text-sm">حفظ CV</button></div>
+    <div class="grid sm:grid-cols-2 gap-4">
+      <div class="ds-card p-6 flex items-center gap-4">
+        <div class="av-wrap"><div class="av-inner">أ</div><span class="av-dot"></span></div>
+        <div><div class="font-bold">أحمد السيّد</div><div class="text-sm" style="color:var(--w60)">حلقة متدرّجة + نقطة حالة نابضة</div></div>
+      </div>
+      <div class="side-nav">
+        <button class="side-link"><span class="side-icon">👤</span> عام</button>
+        <button class="side-link act"><span class="side-icon">📄</span> السيرة الذاتية</button>
+        <button class="side-link"><span class="side-icon">🔒</span> الأمان</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Modal -->
+  <section>
+    <div class="sh"><span class="sh-dot"></span> النوافذ المنبثقة (Modal)</div>
+    <div class="ds-card p-6"><button class="btn-g" onclick="document.getElementById('m').classList.add('open')">افتح مودال تجريبيّ</button></div>
+  </section>
+
+  <p class="text-center text-xs pt-6" style="color:var(--w40)">مرجع الاستايل فقط · القيم مطابِقة لـ «نظام التصميم.md» · الهويّة النهائيّة لنا (شعار Placeholder)</p>
+</main>
+
+<!-- Modal -->
+<div class="mwrap" id="m" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="mbox p-6">
+    <div class="flex items-center justify-between mb-3"><h3 class="font-bold text-lg">تحويل العملة</h3><button onclick="document.getElementById('m').classList.remove('open')" style="color:var(--w40)">✕</button></div>
+    <p class="text-sm mb-4" style="color:var(--w60)">مثال على نافذة منبثقة بحوافّ 1.25rem وحركة ظهور fadeup وخلفيّة معتمة مموّهة.</p>
+    <input class="hc-input mb-3" placeholder="الكمية">
+    <button class="btn-p w-full">تأكيد التحويل</button>
+  </div>
+</div>
+
+<script>
+function toggleTheme(){document.documentElement.classList.toggle('light');document.getElementById('ico').textContent=document.documentElement.classList.contains('light')?'☀️ فاتح':'🌙 داكن'}
+function calc(v){document.getElementById('rv').textContent=v;var p=(v*8*0.07);document.getElementById('rp').textContent='$'+p.toFixed(2)}
+document.querySelectorAll('#chips .chip').forEach(function(c){c.onclick=function(){document.querySelectorAll('#chips .chip').forEach(function(x){x.classList.remove('on')});c.classList.add('on')}});
+// cursor
+var cur=document.getElementById('cur');
+document.addEventListener('mousemove',function(e){cur.style.left=e.clientX+'px';cur.style.top=e.clientY+'px'});
+document.querySelectorAll('button,a,input,select,.chip,.side-link,.ts,textarea').forEach(function(el){el.addEventListener('mouseenter',function(){cur.classList.add('big')});el.addEventListener('mouseleave',function(){cur.classList.remove('big')})});
+</script>
+</body>
+</html>
