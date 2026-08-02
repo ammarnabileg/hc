@@ -213,6 +213,9 @@ class BoardImageRenderer
         $avatarSize = (int) min($rowH * 0.66, $width * 0.09);
         $gap = (int) round($pad * 0.4);
 
+        // القائمة القصيرة على قماشٍ طويل (ستوري) تُتوسَّط بدل أن تعلق أعلى الصورة
+        $y += max(0, (int) round(($available - ($rowH * $count)) / 2));
+
         foreach ($rows as $row) {
             $rowTop = $y;
             $center = $rowTop + intdiv($rowH, 2);

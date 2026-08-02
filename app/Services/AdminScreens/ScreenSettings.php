@@ -95,6 +95,7 @@ class ScreenSettings
             'admin_meetings.max_window_hours' => [self::SCREEN_MEETINGS, 'meetings', 'سقف نافذة تسجيل الحضور (ساعات)', 'number', '48', '', false],
             'admin_meetings.exceptional_reason_required' => [self::SCREEN_MEETINGS, 'meetings', 'إلزام سبب الحضور الاستثنائيّ', 'bool', '1', 'المنح بلا سبب أثرٌ لا يُراجَع.', false],
             'admin_meetings.freeze_windows_in_maintenance' => [self::SCREEN_MEETINGS, 'meetings', 'تجميد النوافذ في وضع الصيانة', 'bool', '1', '', false],
+            'admin_meetings.stats_scan_limit' => [self::SCREEN_MEETINGS, 'meetings', 'سقف الاجتماعات في حساب الكروت', 'number', '200', 'حساب «المدعوّين» يمرّ على شجرة كلّ اجتماع — والسقف يمنع بطء الشاشة.', false],
             'admin_meetings.empty_text' => [self::SCREEN_MEETINGS, 'meetings', 'نصّ الحالة الفارغة', 'text', 'مافيش اجتماعات في النطاق ده.', '', false],
         ];
     }
