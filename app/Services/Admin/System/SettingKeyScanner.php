@@ -52,11 +52,16 @@ class SettingKeyScanner
      */
     private const LITERAL = '(?:\'(?:[^\'\\\\]|\\\\.)*\'|"(?:[^"\\\\$]|\\\\.)*"|-?\d+(?:\.\d+)?|true|false|\[\s*\])';
 
-    /** @var array{keys:array<string,list<string>>, dynamic:array<string,list<string>>, variable:int}|null */
-    private ?array $scan = null;
+    /**
+     * الكاش ساكنٌ لا لكلّ نسخة: المسح يقرأ ألوف الملفّات، والملفّات لا تتغيّر
+     * أثناء تشغيلٍ واحد — فنسخةٌ ثانية من الماسح لا تدفع الثمن مرّتين.
+     *
+     * @var array{keys:array<string,list<string>>, dynamic:array<string,list<string>>, variable:int}|null
+     */
+    private static ?array $scan = null;
 
     /** @var array<string,string>|null */
-    private ?array $defaults = null;
+    private static ?array $defaults = null;
 
     /**
      * المفاتيح الحرفيّة ⟵ مواضع قراءتها.
@@ -224,8 +229,8 @@ class SettingKeyScanner
     /** @return array{keys:array<string,list<string>>, dynamic:array<string,list<string>>, variable:int} */
     private function scan(): array
     {
-        if ($this->scan !== null) {
-            return $this->scan;
+        if (self::$scan !== null) {
+            return self::$scan;
         }
 
         $keys = [];
@@ -289,6 +294,6 @@ class SettingKeyScanner
         ksort($keys);
         ksort($dynamic);
 
-        return $this->scan = ['keys' => $keys, 'dynamic' => $dynamic, 'variable' => $variable];
+        return self::$scan = ['keys' => $keys, 'dynamic' => $dynamic, 'variable' => $variable];
     }
 }

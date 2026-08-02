@@ -191,10 +191,20 @@ class AdminSystemDemoSeeder extends Seeder
             ['system.maintenance.refresh_seconds', 'maintenance', 'تحديث صفحة الصيانة (ثوانٍ)', 'number', '120', false],
             ['system.maintenance.animation', 'maintenance', 'أنيميشن صفحة الصيانة', 'bool', '1', false],
             ['system.maintenance.allow_admin_ip', 'maintenance', 'استثناء IP الأدمن', 'bool', '1', false],
-            ['system.maintenance.admin_ips', 'maintenance', 'قائمة IP الأدمن', 'text', '127.0.0.1', false],
+            // ⚠️ قائمة الـIP مصدرها الوحيد `system.maintenance.exempt_ips` (يزرعه
+            // سيدر الأمان) — وكان لها مفتاح ثانٍ `admin_ips` هنا، فقائمةٌ أمنيّة
+            // بمصدرين تعني أنّ شيلَ IP من شاشةٍ لا يشيله من الأخرى (12.7-ج).
+            // ---------------- الصيانة المجدولة (12.7-ج: تبدأ تلقائيًّا)
+            ['system.maintenance.scheduled_at', 'maintenance', 'موعد بدء الصيانة المجدولة', 'string', '', false],
+            ['system.maintenance.scheduled_message', 'maintenance', 'رسالة الصيانة المجدولة', 'text', '', false],
+            ['system.maintenance.scheduled_hours', 'maintenance', 'ساعات الصيانة المجدولة', 'number', '0', false],
             ['system.maintenance.resume_toast_ar', 'maintenance', 'نصّ Toast تمديد المهلة', 'text', 'مهلتك امتدّت {hours} ساعة بسبب الصيانة.', false],
 
             // ---------------- مفاتيح المزايا والنظام
+            // ⭐ نطاقات القيم الرقميّة — من إعدادٍ لا مشتقّةً من اسم المفتاح (2.13).
+            // أدقّ بادئةٍ مطابقة هي الحاكمة، و`*` هي الافتراضيّ العامّ.
+            ['ux.settings_ranges', 'ux', 'نطاقات القيم الرقميّة المسموحة', 'json', '{"*":[0,1000000],"percent":[0,100],"hours":[0,8760],"days":[0,3650],"minutes":[0,525600]}', false],
+
             ['features.show_beta_badge', 'features', 'شارة «تجريبيّة» للمزايا الجديدة', 'bool', '1', false],
             ['features.disabled_behavior', 'features', 'سلوك الميزة الموقوفة (hide/message)', 'string', 'hide', false],
             ['features.disabled_message', 'features', 'نصّ الميزة الموقوفة', 'text', 'الميزة دي متوقّفة مؤقّتًا — هترجع قريب.', false],

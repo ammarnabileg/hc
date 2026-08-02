@@ -633,7 +633,7 @@ class SettingsRegistry
      */
     private function range(Setting $setting): array
     {
-        $map = setting('settings.ranges', []);
+        $map = setting('ux.settings_ranges', []);
         $map = is_array($map) ? $map : [];
 
         $best = null;
