@@ -13,6 +13,21 @@ use App\Models\HelpArticle;
  */
 class AdminContentGuidanceTest extends AdminContentTestCase
 {
+    /** شكوى جاهزة للاختبار — والسيدر لا يبني واحدة إلّا لو في مستخدمون. */
+    private function complaint(): Complaint
+    {
+        return Complaint::query()->first() ?? Complaint::create([
+            'number' => 'CMP-TEST-1',
+            'user_id' => $this->makeUser(['name' => 'صاحب الشكوى'])->id,
+            'type' => 'complaint',
+            'category' => 'المنصّة',
+            'title' => 'الصفحة بطيئة عندي',
+            'body' => 'بتاخد وقت طويل تفتح من الموبايل.',
+            'status' => 'open',
+            'wants_contact' => true,
+        ]);
+    }
+
     /** الصفحات الأربع تفتح لمن يملك الصلاحيّة وتُمنَع عمّن لا يملكها (12.2.1). */
     public function test_guidance_screens_require_permission(): void
     {
@@ -122,7 +137,7 @@ class AdminContentGuidanceTest extends AdminContentTestCase
     public function test_complaint_reply_and_close_with_reason(): void
     {
         $admin = $this->admin();
-        $complaint = Complaint::query()->firstOrFail();
+        $complaint = $this->complaint();
 
         // ردّ داخليّ: لا يصل للمستخدم
         $this->actingAs($admin)->post(route('admin.guidance.complaints.reply', $complaint), [

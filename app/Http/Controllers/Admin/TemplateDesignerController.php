@@ -65,7 +65,7 @@ class TemplateDesignerController extends Controller
         $layers = $this->designer->sanitizeLayers($data['layers']);
 
         $template->update([
-            'name' => $data['name'] ?: $template->name,
+            'name' => ($data['name'] ?? null) ?: $template->name,
             'width_px' => $data['width_px'] ?? $template->width_px,
             'height_px' => $data['height_px'] ?? $template->height_px,
             'layers' => $this->designer->forStorage($layers),

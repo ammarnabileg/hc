@@ -169,6 +169,20 @@ class VolunteerAdminController extends Controller
             : 'ما صدرتش: '.$result['reason']);
     }
 
+    /** الإصدار التلقائيّ لكلّ مستحقّ — واحتفال ذروة لكلّ صاحب شهادة (13.4-ع-د) */
+    public function autoIssueCertificates(Request $request): RedirectResponse
+    {
+        if (! setting('volunteer_cert.auto_issue', true)) {
+            return back()->with('status', 'الإصدار التلقائيّ موقوف من الإعدادات — فعّله الأوّل.');
+        }
+
+        $count = CertificateEligibility::autoIssue($request->user());
+
+        return back()->with('status', $count
+            ? 'صدرت '.$count.' شهادة ✓'
+            : 'مفيش مستحقّين جدد دلوقتي.');
+    }
+
     /** ⭐ الإلغاء للتزوير المثبَت وحده */
     public function revokeCertificate(Request $request, Certificate $certificate): RedirectResponse
     {

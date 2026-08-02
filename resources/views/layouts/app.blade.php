@@ -54,6 +54,8 @@
     </div>
 @endif
 
+@include('partials.consent-banner')
+
 @stack('modals')
 @stack('scripts')
 </body>

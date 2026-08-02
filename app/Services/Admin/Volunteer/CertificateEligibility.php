@@ -7,6 +7,7 @@ use App\Models\CertificateType;
 use App\Models\Membership;
 use App\Models\User;
 use Illuminate\Support\Collection;
+use Throwable;
 
 /**
  * شهادات التطوّع (13.4-ع).
@@ -165,6 +166,66 @@ class CertificateEligibility
         ]);
 
         return ['issued' => true, 'reason' => null, 'certificate' => $certificate];
+    }
+
+    private const ISSUER = 'App\Services\Certificates\CertificateIssuer';
+
+    /** التمرير لمُصدِر الشهادات القائم إن وُجد — بلا نظام موازٍ (13.4-ع) */
+    private static function issueViaIssuer(Membership $membership, CertificateType $type, array $snapshot, ?User $actor): ?Certificate
+    {
+        if (! class_exists(self::ISSUER) || ! $membership->user) {
+            return null;
+        }
+
+        try {
+            return app(self::ISSUER)->issue(
+                $membership->user, $type->key, $membership, $snapshot,
+                $actor ? 'manual' : 'auto', null, $actor,
+            );
+        } catch (Throwable) {
+            return null;
+        }
+    }
+
+    private static function issueDirectly(Membership $membership, CertificateType $type, array $snapshot, ?User $actor): Certificate
+    {
+        $code = ($type->numbering_prefix ?: 'VPS').'-'.str()->upper(str()->random(10));
+
+        return Certificate::create([
+            'code' => $code,
+            'hash' => hash('sha256', $code.'|'.$membership->user_id.'|'.$membership->position_id.'|'.$membership->entity_id),
+            'user_id' => $membership->user_id,
+            'certificate_type_id' => $type->id,
+            'subject_type' => $membership->getMorphClass(),
+            'subject_id' => $membership->id,
+            'language' => $type->lang_en_enabled && ! $type->lang_ar_enabled ? 'en' : 'ar',
+            'source' => $actor ? 'manual' : 'auto',
+            'issued_at' => now(),
+            'issued_by' => $actor?->id,
+            'status' => 'valid',
+            'data_snapshot' => $snapshot,
+        ]);
+    }
+
+    /**
+     * الإصدار التلقائيّ عند الاستيفاء (13.4-ع-د) — يمرّ على المستحقّين
+     * ويُصدر لهم، ويعيد عدد ما صدر.
+     */
+    public static function autoIssue(?User $actor = null, int $limit = 100): int
+    {
+        if (! (bool) setting('volunteer_cert.auto_issue', true)) {
+            return 0;
+        }
+
+        $issued = 0;
+
+        foreach (self::pending($limit) as $row) {
+            if (self::issueForMembership($row['membership'], $actor)['issued']) {
+                $issued++;
+            }
+        }
+
+        return $issued;
     }
 
     /** ⭐ الإلغاء للتزوير المثبَت وحده — والإقصاء لا يُلغي شهادة عن عمل حقيقيّ */

@@ -2,7 +2,7 @@
 
 <div class="card p-3 mb-4 text-sm space-y-1">
     <div>🔒 <strong>ثلاثة مستويات لا رابع</strong> — والحدّ اليوميّ لمستوى الذروة:
-        <strong>{{ setting('celebrations.peak_daily_limit', 3) }}</strong> كي تبقى الذروة ذروةً.</div>
+        <strong>{{ setting('celebrations.peak.daily_cap', 3) }}</strong> كي تبقى الذروة ذروةً.</div>
     <div>⭐ <strong>الأنيميشن حاضر دائمًا بلا توجل</strong> — والصوت وحده يخضع لتوجل الصوت في البروفايل.</div>
     <div>🔒 ممنوع الاحتفال بحدث سلبيّ أو بشراء بلا إنجاز — ولا تتراكم: يُعرَض الأعلى مستوى فقط.</div>
 </div>

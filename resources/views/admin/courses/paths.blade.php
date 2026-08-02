@@ -3,6 +3,21 @@
 @section('title', 'المسارات')
 
 @section('content')
+    @php
+        /** حمولة الصفّ لفورم البوب-أب — تُبنى هنا كي يبقى الجدول نظيفًا (2.15-أ-6) */
+        $pathPayload = fn ($path) => json_encode([
+            'name_ar' => $path->name_ar,
+            'name_en' => $path->name_en,
+            'description_ar' => $path->description_ar,
+            'description_en' => $path->description_en,
+            'sort_order' => $path->sort_order,
+            'status' => $path->status,
+            'forced_order' => (bool) $path->forced_order,
+            'exam_price_coins' => (float) $path->exam_price_coins,
+            'url' => route('admin.paths.update', $path),
+        ], JSON_UNESCAPED_UNICODE);
+    @endphp
+
     {{-- المسارات (12.4-أ · 24.1): تنظيم التدريبات في مسارات مرتّبة قابلة للنشر --}}
     <x-page-header
         title="المسارات"
@@ -93,18 +108,7 @@
                                         @can('paths.edit')
                                             <button type="button" class="block w-full text-start px-2 py-1 rounded-lg text-sm"
                                                     data-modal-open="path-form"
-                                                    data-path='@json([
-                                                        "id" => $path->id,
-                                                        "name_ar" => $path->name_ar,
-                                                        "name_en" => $path->name_en,
-                                                        "description_ar" => $path->description_ar,
-                                                        "description_en" => $path->description_en,
-                                                        "sort_order" => $path->sort_order,
-                                                        "status" => $path->status,
-                                                        "forced_order" => (bool) $path->forced_order,
-                                                        "exam_price_coins" => (float) $path->exam_price_coins,
-                                                        "url" => route("admin.paths.update", $path),
-                                                    ])'>تعديل</button>
+                                                    data-path="{{ $pathPayload($path) }}">تعديل</button>
                                         @endcan
                                         <a href="{{ route('admin.paths.courses', $path) }}"
                                            class="block px-2 py-1 rounded-lg text-sm">إدارة تدريباته</a>

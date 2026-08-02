@@ -99,6 +99,8 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
             ->middleware('permission:volunteer_certificates.edit')->name('certificates.settings.save');
         Route::post('/certificates/issue', [VolunteerAdminController::class, 'issueCertificate'])
             ->middleware('permission:volunteer_certificates.create')->name('certificates.issue');
+        Route::post('/certificates/auto-issue', [VolunteerAdminController::class, 'autoIssueCertificates'])
+            ->middleware('permission:volunteer_certificates.create')->name('certificates.auto-issue');
         Route::post('/certificates/{certificate}/revoke', [VolunteerAdminController::class, 'revokeCertificate'])
             ->middleware('permission:volunteer_certificates.edit')->name('certificates.revoke');
 

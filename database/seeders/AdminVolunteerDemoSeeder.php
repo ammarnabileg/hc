@@ -36,7 +36,23 @@ class AdminVolunteerDemoSeeder extends Seeder
     private function settings(): void
     {
         foreach (SettingsCatalog::all() as $key => [$group, $label, $type, $default]) {
-            Setting::updateOrCreate(['key' => $key], [
+            /*
+             | بعض المفاتيح تشترك فيها مجالات أخرى (الاحتفالات مثلًا — مصدر واحد
+             | لا نسختان)، فلا نلمس صفًّا قائمًا إلّا لملء قيمة فارغة — وإلّا
+             | داس سيدر مجالٍ على إعدادات مجالٍ آخر.
+             */
+            $existing = Setting::query()->where('key', $key)->first();
+
+            if ($existing) {
+                if ($existing->value === null) {
+                    $existing->forceFill(['value' => $default])->save();
+                }
+
+                continue;
+            }
+
+            Setting::create([
+                'key' => $key,
                 'group' => $group,
                 'label_ar' => $label,
                 'type' => $type,

@@ -6,7 +6,17 @@
     <x-page-header
         title="شهادات التطوّع"
         subtitle="أربعة أنواع لا خامس لها — مجّانيّة بالكامل، وبلا أيّ أرقام داخليّة على الورقة."
-        :breadcrumbs="[['label' => 'التطوّع', 'url' => route('admin.volunteer.index')], ['label' => 'الشهادات']]" />
+        :breadcrumbs="[['label' => 'التطوّع', 'url' => route('admin.volunteer.index')], ['label' => 'الشهادات']]">
+        <x-slot:action>
+            @can('volunteer_certificates.create')
+                <form method="post" action="{{ route('admin.volunteer.certificates.auto-issue') }}">
+                    @csrf
+                    <button type="submit" class="btn rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
+                            style="background: var(--color-brand-500); color: #04201c">شغّل الإصدار التلقائيّ</button>
+                </form>
+            @endcan
+        </x-slot:action>
+    </x-page-header>
 
     @include('admin.volunteer.partials.tabs', ['current' => 'certificates'])
 

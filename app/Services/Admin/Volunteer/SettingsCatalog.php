@@ -243,11 +243,12 @@ class SettingsCatalog
     {
         return [
             'celebrations.enabled' => ['gamification_celebrations', 'تفعيل نظام الاحتفالات', 'bool', '1'],
-            'celebrations.peak_daily_limit' => ['gamification_celebrations', 'الحدّ اليوميّ لمستوى الذروة', 'number', '3'],
+            // نفس مفاتيح خدمة الاحتفالات المشتركة — مصدر واحد لا نسختان (2.14-ب)
+            'celebrations.peak.daily_cap' => ['gamification_celebrations', 'الحدّ اليوميّ لمستوى الذروة', 'number', '3'],
             'celebrations.auto_dismiss_seconds' => ['gamification_celebrations', 'الانتهاء التلقائيّ (ثانية)', 'number', '6'],
             // ⭐ الأنيميشن دائم بلا توجل — الصوت وحده له توجل (2.14-ب)
             'celebrations.animation_always_on' => ['gamification_celebrations', 'الأنيميشن حاضر دائمًا — مقفول', 'bool', '1'],
-            'celebrations.sound_follows_profile_toggle' => ['gamification_celebrations', 'الصوت يخضع لتوجل البروفايل', 'bool', '1'],
+            'celebrations.sound.enabled' => ['gamification_celebrations', 'تفعيل الصوت (يخضع لتوجل البروفايل)', 'bool', '1'],
             'celebrations.tiers_locked' => ['gamification_celebrations', 'ثلاثة مستويات لا رابع — مقفول', 'bool', '1'],
             'celebrations.once_per_event' => ['gamification_celebrations', 'مرّة واحدة لكلّ حدث (Server-side) — مقفول', 'bool', '1'],
             'celebrations.share_button' => ['gamification_celebrations', 'زرّ المشاركة في مستوى الذروة', 'bool', '1'],
