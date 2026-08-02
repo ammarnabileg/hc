@@ -23,6 +23,7 @@ class ExamFlowTest extends ExamTestCase
     {
         $user = $this->trainee();
         $exam = $this->courseExam(passScore: 70);
+        $this->enroll($user, $exam);
         $questions = $this->questionsOf($exam);
         $attempt = $this->startedAttempt($exam, $user);
 
@@ -51,6 +52,7 @@ class ExamFlowTest extends ExamTestCase
     {
         $user = $this->trainee();
         $exam = $this->courseExam();
+        $this->enroll($user, $exam);
         $questions = $this->questionsOf($exam);
 
         $attempt = $this->startedAttempt($exam, $user, [
@@ -79,6 +81,7 @@ class ExamFlowTest extends ExamTestCase
     {
         $user = $this->trainee();
         $exam = $this->courseExam();
+        $this->enroll($user, $exam);
         $questions = $this->questionsOf($exam);
         $attempt = $this->startedAttempt($exam, $user);
 
@@ -104,6 +107,7 @@ class ExamFlowTest extends ExamTestCase
     {
         $user = $this->trainee();
         $exam = $this->courseExam();
+        $this->enroll($user, $exam);
         $attempt = $this->startedAttempt($exam, $user);
 
         $this->actingAs($user)->post(route('exams.submit', $exam), ['answers' => []]);
@@ -120,6 +124,7 @@ class ExamFlowTest extends ExamTestCase
     {
         $user = $this->trainee();
         $exam = $this->courseExam();
+        $this->enroll($user, $exam);
         $questions = $this->questionsOf($exam);
         $attempt = $this->startedAttempt($exam, $user);
 
@@ -210,6 +215,7 @@ class ExamFlowTest extends ExamTestCase
     {
         $user = $this->trainee();
         $exam = $this->courseExam();
+        $this->enroll($user, $exam);
         $questions = $this->questionsOf($exam);
         $this->startedAttempt($exam, $user);
 

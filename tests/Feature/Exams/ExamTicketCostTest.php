@@ -23,6 +23,7 @@ class ExamTicketCostTest extends ExamTestCase
     {
         $user = $this->trainee();
         $exam = $this->courseExam();
+        $this->enroll($user, $exam);
         $this->give($user, 'tickets', 3);
         $this->give($user, 'coins', 500);
 
@@ -49,6 +50,7 @@ class ExamTicketCostTest extends ExamTestCase
     {
         $user = $this->trainee();
         $exam = $this->courseExam();
+        $this->enroll($user, $exam);
         $this->give($user, 'tickets', 3);
 
         $this->actingAs($user)->post(route('exams.begin', $exam));
@@ -63,6 +65,7 @@ class ExamTicketCostTest extends ExamTestCase
     {
         $user = $this->trainee();
         $exam = $this->courseExam();
+        $this->enroll($user, $exam);
         $this->give($user, 'tickets', 0);
 
         $this->actingAs($user)
@@ -82,6 +85,7 @@ class ExamTicketCostTest extends ExamTestCase
     {
         $user = $this->trainee();
         $exam = $this->courseExam();
+        $this->enroll($user, $exam);
         $this->give($user, 'tickets', 4);
 
         $this->actingAs($user)
@@ -99,6 +103,7 @@ class ExamTicketCostTest extends ExamTestCase
     {
         $user = $this->trainee();
         $exam = $this->courseExam();
+        $this->enroll($user, $exam);
         $this->give($user, 'tickets', 10);
 
         $this->setSpendCost('course.exam', 3);
@@ -113,6 +118,7 @@ class ExamTicketCostTest extends ExamTestCase
     {
         $user = $this->trainee();
         $exam = $this->courseExam();
+        $this->enroll($user, $exam);
         $this->give($user, 'tickets', 0);
 
         $this->setSpendCost('course.exam', 1, enabled: false);

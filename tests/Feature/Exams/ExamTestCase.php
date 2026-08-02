@@ -3,6 +3,7 @@
 namespace Tests\Feature\Exams;
 
 use App\Models\Course;
+use App\Models\Enrollment;
 use App\Models\Exam;
 use App\Models\ExamQuestion;
 use App\Models\LearningPath;
@@ -94,6 +95,24 @@ abstract class ExamTestCase extends TestCase
         $this->seedQuestions($exam);
 
         return $exam;
+    }
+
+    /**
+     * تسجيل المستخدم في تدريب الامتحان — شرطٌ لدخوله (4.2).
+     *
+     * الحارس أُضيف بعد أن ثبت بالتشغيل أنّ غير المسجَّل كان يدخل الامتحان
+     * ويدفع تذكرة **ويحصل على شهادة بلا أيّ تعلّم**. فالتسجيل هنا ليس تفصيلًا
+     * إعداديًّا بل هو الحالة الواقعيّة التي تختبرها هذه الحزمة.
+     */
+    protected function enroll(User $user, Exam $exam): Enrollment
+    {
+        return Enrollment::firstOrCreate([
+            'user_id' => $user->id,
+            'course_id' => (int) $exam->examable_id,
+        ], [
+            'status' => 'active',
+            'started_at' => now(),
+        ]);
     }
 
     /** امتحان شهادة المسار — مدفوع بالكوينز (24.5) */

@@ -12,7 +12,12 @@ use App\Services\Learning\LessonQuestionService;
  */
 class LessonQuestionTest extends LearningTestCase
 {
-    public function test_xp_is_granted_once_per_question_however_many_times_it_is_answered(): void
+    /**
+     * 4.1: اختبار الدرس **بوّابة انتقال لا مصدر نقاط** — «ولا يؤثّر في الحساب».
+     * وكان يمنح XP ثابتة لا تخضع للتناقص الخطّيّ حتى الديدلاين، فيفتح مسارًا
+     * ثانيًا لكسب XP التعلّم يلتفّ على قاعدة الإنجاز المبكر (7).
+     */
+    public function test_answering_a_lesson_question_never_grants_xp(): void
     {
         $user = $this->trainee();
         $course = $this->makeCourse(lessons: 2);
@@ -33,14 +38,16 @@ class LessonQuestionTest extends LearningTestCase
         $second = $service->answer($user, $question, '3', $enrollment->refresh());
 
         $this->assertTrue($first['correct']);
-        $this->assertSame(15, $first['xp']);
+        $this->assertSame(0, $first['xp'], 'اختبار الدرس بوّابة لا مصدر نقاط (4.1).');
         $this->assertTrue($second['already']);
         $this->assertSame(0, $second['xp']);
-        $this->assertSame(15, (int) $enrollment->refresh()->xp_earned);
+        $this->assertSame(0, (int) $enrollment->refresh()->xp_earned);
+        $this->assertSame(0, (int) $user->refresh()->xp, 'ولا يمسّ رصيد الحساب.');
         $this->assertSame(1, LessonQuestionAnswer::where('user_id', $user->id)->where('lesson_question_id', $question->id)->count());
     }
 
-    public function test_wrong_answer_costs_nothing_and_a_later_correct_answer_still_pays(): void
+    /** الخطأ لا يكلّف شيئًا، والصواب بعده يفتح البوّابة — وكلاهما بلا XP (4.1) */
+    public function test_wrong_answer_costs_nothing_and_a_later_correct_answer_opens_the_gate(): void
     {
         $user = $this->trainee();
         $course = $this->makeCourse(lessons: 2);
@@ -63,7 +70,7 @@ class LessonQuestionTest extends LearningTestCase
 
         $right = $service->answer($user, $question, '12', $enrollment->refresh());
         $this->assertTrue($right['correct']);
-        $this->assertSame(10, (int) $enrollment->refresh()->xp_earned);
+        $this->assertSame(0, (int) $enrollment->refresh()->xp_earned);
         $this->assertSame(1, LessonQuestionAnswer::where('user_id', $user->id)->count());
     }
 
@@ -136,8 +143,8 @@ class LessonQuestionTest extends LearningTestCase
             'user_id' => $user->id,
             'lesson_question_id' => $question->id,
             'is_correct' => true,
-            'xp_awarded' => 12,
+            'xp_awarded' => 0,
         ]);
-        $this->assertSame(12, (int) $enrollment->refresh()->xp_earned);
+        $this->assertSame(0, (int) $enrollment->refresh()->xp_earned, 'البوّابة لا تمنح XP (4.1).');
     }
 }

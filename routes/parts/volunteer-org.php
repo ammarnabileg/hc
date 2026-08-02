@@ -18,8 +18,15 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth')->group(function () {
 
-    // ---------------------------------------------- الأعضاء والبوزشنز (24.4-7)
-    Route::middleware('permission:memberships.list')->group(function () {
+    /*
+    | ---------------------------------------------- الأعضاء والبوزشنز (24.4-7)
+    | تاب «قسمي» لكلّ عضوٍ في القسم — ولذلك يُحرَس بـ`org_chart.view` لا بـ
+    | `memberships.list`: الأخيرة أضيقُ نطاقٍ لها **TEAM** في المصفوفة (12.2.2)،
+    | بينما سقف الكوردنيتور **SELF** (12.2.3-ب) — فحراستها به كانت تُغلق الشاشة
+    | في وجه أصحابها أنفسهم، أو تُجبرنا على منحه نطاقًا يتجاوز سقفه.
+    | و`org_chart.view` تقبل SELF نصًّا، والبيانات تبقى محصورة بقسم صاحبها.
+    */
+    Route::middleware('permission:org_chart.view')->group(function () {
         Route::get('/volunteer/department', [DepartmentController::class, 'index'])
             ->name('volunteer.department');
 
