@@ -23,6 +23,9 @@ class AccessEngine
     /** كاش لكلّ طلب: user_id => Collection<Grant> */
     private array $cache = [];
 
+    /** مفاتيح المجموعة المحميّة (مالك المنصّة وحده) — تُمسَح مع الكاش */
+    private ?array $ownerOnly = null;
+
     public function __construct(
         private readonly ScopeResolver $scopes,
         private readonly ConditionEvaluator $conditions,
@@ -143,6 +146,7 @@ class AccessEngine
         }
 
         $this->cache = [];
+        $this->ownerOnly = null;
     }
 
     // ------------------------------------------------------------------ داخليّ
@@ -244,13 +248,16 @@ class AccessEngine
 
     private function isOwnerOnly(string $permissionKey): bool
     {
-        static $ownerOnly = null;
+        /*
+         | خاصّيّة لا `static`: القائمة المحميّة كانت تُحفَظ في متغيّر ساكن يعيش
+         | بعمر العمليّة كلّها، فلا يمسحه `forget()` ولا انتهاء الطلب. وفي عامل
+         | طوابير طويل العمر يعني ذلك أنّ صلاحيّةً وُسِمَت ماليّةً للتوّ **تبقى
+         | غير محميّة** في ذلك العامل حتى يُعاد تشغيله — وهو آخر ما نحتمله في
+         | مجموعةٍ عزلُها قاعدةٌ حمراء.
+         */
+        $this->ownerOnly ??= Permission::query()->where('is_owner_only', true)->pluck('key')->all();
 
-        if ($ownerOnly === null) {
-            $ownerOnly = Permission::query()->where('is_owner_only', true)->pluck('key')->all();
-        }
-
-        return in_array($permissionKey, $ownerOnly, true);
+        return in_array($permissionKey, $this->ownerOnly, true);
     }
 
     private function decode(mixed $value): array
