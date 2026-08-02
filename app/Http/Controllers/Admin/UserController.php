@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\AdAudience;
 use App\Models\Country;
+use App\Models\Governorate;
 use App\Models\Referral;
 use App\Models\User;
 use App\Models\UserDevice;
@@ -13,6 +14,7 @@ use App\Services\Admin\AccountApproval;
 use App\Services\Admin\AudienceSegments;
 use App\Services\Admin\AuditTrail;
 use App\Services\Admin\UserDirectory;
+use App\Support\Scope\ScopeFilter;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -94,7 +96,12 @@ class UserController extends Controller
                 'countries' => Country::query()->where('is_active', true)->orderBy('name_ar')->get(),
                 'lastChange' => $this->audit->lastChange($user),
             ],
-            default => [],
+            // التعديل اليدويّ يحتاج محافظات دولته وحدها — لا كلّ محافظات العالم
+            default => [
+                'governorates' => Governorate::query()
+                    ->when($user->country_id, fn ($q, $country) => $q->where('country_id', $country))
+                    ->orderBy('name_ar')->get(),
+            ],
         };
 
         return view('admin.users.show', $data);
@@ -133,6 +140,8 @@ class UserController extends Controller
         $search = trim((string) $request->query('q', ''));
 
         $pending = User::query()
+            // النطاق إلزاميّ مع كلّ صلاحيّة (12.2.1-ب) — القائمة تُحصَر بما يملكه فعلًا
+            ->tap(fn ($q) => app(ScopeFilter::class)->applyToUsers($q, $request->user(), 'user_approvals.list'))
             ->where('status', $request->query('state', 'pending'))
             ->when($search !== '', function ($q) use ($search) {
                 $like = '%'.$search.'%';

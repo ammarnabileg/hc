@@ -4,6 +4,7 @@ namespace App\Services\Admin;
 
 use App\Models\Role;
 use App\Models\User;
+use App\Support\Scope\ScopeFilter;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -44,8 +45,17 @@ class UserDirectory
     {
         $search = trim((string) $request->query('q', ''));
 
-        return User::query()
-            ->with('roles')
+        $query = User::query()->with('roles');
+
+        /*
+         | ⭐ النطاق إلزاميّ مع كلّ صلاحيّة (12.2.1-ب).
+         | الحارس على المسار يفحص «هل يستطيع مبدئيًّا؟» بلا هدف، فمَن مُنِح
+         | `users.list@TEAM` كان يفتح دليل المنصّة **كاملًا**. الحصر هنا على
+         | البيانات نفسها لا على الباب وحده.
+         */
+        app(ScopeFilter::class)->applyToUsers($query, $request->user(), 'users.list');
+
+        return $query
             // بحث موحّد بالكود والاسم والبريد والموبايل (24.1)
             ->when($search !== '', function ($q) use ($search) {
                 $like = '%'.$search.'%';

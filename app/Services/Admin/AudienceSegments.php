@@ -26,10 +26,16 @@ class AudienceSegments
         return AdAudience::orderByDesc('id')->get();
     }
 
-    /** بناء استعلام الشريحة من شروطها المحفوظة */
-    public function query(array $rule)
+    /**
+     * بناء استعلام الشريحة من شروطها المحفوظة.
+     *
+     * ومع `$viewer` تُحصَر الشريحة **بنطاقه** (12.2.1-ب) — فمَن يرى فريقه وحده
+     * لا يبني شريحةً بالمنصّة كلّها ثمّ يخاطبها.
+     */
+    public function query(array $rule, ?User $viewer = null)
     {
         return User::query()
+            ->when($viewer !== null, fn ($q) => app(ScopeFilter::class)->applyToUsers($q, $viewer, 'user_segments.list'))
             ->when($rule['status'] ?? null, fn ($q, $status) => $q->where('status', $status))
             ->when($rule['role'] ?? null, fn ($q, $role) => $q->whereHas('roles', fn ($r) => $r->where('key', $role)))
             ->when($rule['country_id'] ?? null, fn ($q, $country) => $q->where('country_id', $country))

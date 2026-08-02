@@ -8,6 +8,7 @@ use App\Models\Cv;
 use App\Models\Membership;
 use App\Models\RepScore;
 use App\Models\User;
+use App\Services\Library\CvBuilder;
 
 /**
  * بيانات تابات البروفايل (الدستور 10 · 10.0 · 24.5).
@@ -23,6 +24,7 @@ class ProfileTabs
     public function __construct(
         private readonly ProfileVisibility $visibility,
         private readonly AchievementTracks $tracks,
+        private readonly CvBuilder $cv,
     ) {}
 
     /** @return array<int, array{key:string,label:string}> */
@@ -119,14 +121,22 @@ class ProfileTabs
             ->get();
     }
 
-    /** «خبراتي» = الـCV معروضًا (قسم 9) */
+    /**
+     * «خبراتي» = الـCV معروضًا (قسم 9).
+     *
+     * والبيانات تُسلَّم **بمفاتيح المخزن نفسها** (`profile.summary` · `experience`
+     * · `skills` نصًّا) لا بمفاتيح مخترَعة — فأيّ اختلاف يُسقط القسم بصمت.
+     */
     public function experience(User $owner): array
     {
         $cv = Cv::where('user_id', $owner->id)->first();
+        $data = is_array($cv?->data) ? $cv->data : [];
 
         return [
             'cv' => $cv,
-            'data' => is_array($cv?->data) ? $cv->data : [],
+            'data' => $data,
+            // الربط التلقائيّ بالمنصّة: التدريبات المكتملة والشهادات (9)
+            'pulled' => $cv ? $this->cv->pulled($owner, $data) : ['certificates' => collect(), 'trainings' => collect()],
         ];
     }
 }

@@ -15,7 +15,51 @@ use Illuminate\Support\Collection;
  */
 class SettingsCoverage
 {
-    public function __construct(private readonly SettingsRegistry $registry) {}
+    public function __construct(
+        private readonly SettingsRegistry $registry,
+        private readonly SettingKeyScanner $scanner,
+    ) {}
+
+    // ================================================================ الفحص الأوّل:
+    // «كلّ مفتاح يقرؤه الكود له صفٌّ في القاعدة؟» — السؤال الذي يكشف الفجوة فعلًا.
+
+    /** المفاتيح المزروعة فعلًا — الحقيقة التي يراها المالك في لوحته */
+    public function seededKeys(): array
+    {
+        return Setting::query()->pluck('key')->all();
+    }
+
+    /**
+     * مفاتيح يقرؤها الكود بلا صفّ — كلّ واحدٍ منها قيمةٌ محروقة في الكود.
+     *
+     * @return Collection<string, list<string>>
+     */
+    public function missingKeys(): Collection
+    {
+        return $this->scanner->missing($this->seededKeys());
+    }
+
+    /** كم مفتاحًا يقرأ الكودُ نصًّا صريحًا (بلا الأنماط المركَّبة) */
+    public function readKeyCount(): int
+    {
+        return count($this->scanner->keys());
+    }
+
+    /** نسبة المفاتيح المقروءة التي لها صفّ — النسبة التي تعني شيئًا */
+    public function keyCoveragePercent(): float
+    {
+        $read = $this->readKeyCount();
+
+        return $read === 0 ? 100.0 : round(($read - $this->missingKeys()->count()) / $read * 100, 1);
+    }
+
+    public function scanner(): SettingKeyScanner
+    {
+        return $this->scanner;
+    }
+
+    // ================================================================ الفحص الثاني:
+    // «كلّ مجموعة مزروعة لها تاب؟» — فحصٌ لازم لكنّه لا يكفي وحده.
 
     /**
      * كلّ مجموعة معروفة للمنصّة بعدد مفاتيحها — من قاعدة البيانات **ومن الكتالوج**.
