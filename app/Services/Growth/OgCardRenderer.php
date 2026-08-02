@@ -12,7 +12,7 @@ namespace App\Services\Growth;
 class OgCardRenderer
 {
     /** أنواع الروابط المعتمَدة — قائمة مقفولة لا نوع حرّ */
-    public const TYPES = ['course', 'path', 'profile', 'leaderboard', 'article', 'certificate'];
+    public const TYPES = ['course', 'path', 'profile', 'leaderboard', 'article', 'certificate', 'tip'];
 
     /**
      * قالب النوع: التسمية الفوقيّة والأيقونة المرسومة والّلون المميّز.
@@ -28,6 +28,7 @@ class OgCardRenderer
             'leaderboard' => ['label' => 'لوحة الترتيب', 'accent' => '#ff8a5b', 'glyph' => 'trophy'],
             'article' => ['label' => 'مقال', 'accent' => '#9ad5a0', 'glyph' => 'quote'],
             'certificate' => ['label' => 'شهادة معتمدة', 'accent' => '#00d4b8', 'glyph' => 'seal'],
+            'tip' => ['label' => 'نصيحة الأسبوع', 'accent' => '#f0b429', 'glyph' => 'quote'],
         ];
 
         $configured = setting('growth.og.templates');

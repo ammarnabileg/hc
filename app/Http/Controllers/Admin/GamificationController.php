@@ -9,10 +9,12 @@ use App\Models\Challenge;
 use App\Models\Game;
 use App\Models\GameSession;
 use App\Models\Level;
+use App\Models\RewardQuestion;
 use App\Services\Admin\Volunteer\AuditTrail;
 use App\Services\Admin\Volunteer\SettingsWriter;
 use App\Services\Admin\Volunteer\WarSettingsService;
 use App\Services\Gamification\GamesAdminService;
+use App\Services\Gamification\RewardQuestionService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -254,6 +256,59 @@ class GamificationController extends Controller
         GamesAdminService::reverseSession($gameSession, $data['reason'], $request->user());
 
         return back()->with('status', 'اتعكست الجلسة ✓');
+    }
+
+    // ------------------------------------------------------------ أسئلة المكافآت (12.10-أ)
+
+    /**
+     * إنشاء/تعديل سؤال مكافأة.
+     * **الإجابة الصحيحة تُحفَظ ولا تُعرَض في أيّ صفحة يراها المتدرّب** — التصحيح
+     * في الخادم وحده، وإلّا فمن يفتح مصدر الصفحة يوزّع الإجابة على الجروب كلّه.
+     */
+    public function saveRewardQuestion(Request $request, RewardQuestionService $service): RedirectResponse
+    {
+        $data = $request->validate([
+            'id' => ['nullable', 'integer', 'exists:reward_questions,id'],
+            'prompt' => ['required', 'string', 'max:2000'],
+            'type' => ['required', 'string', 'in:choice,text,number'],
+            'options' => ['nullable', 'string', 'max:2000'],
+            'correct_answer' => ['required', 'string', 'max:500'],
+            'reward_xp' => ['nullable', 'integer', 'min:0'],
+            'reward_tickets' => ['nullable', 'integer', 'min:0'],
+            'active_minutes' => ['nullable', 'integer', 'min:1'],
+            'opens_at' => ['nullable', 'date'],
+            'status' => ['required', 'string', 'in:draft,published,archived'],
+        ]);
+
+        $question = isset($data['id']) ? RewardQuestion::findOrFail($data['id']) : null;
+        $old = $question?->only(['status', 'closes_at']) ?? [];
+
+        $saved = $service->save($data, $question, $request->user());
+
+        AuditTrail::log($request->user(), 'reward_question.save', $saved, $old, $saved->only(['status', 'opens_at', 'closes_at']));
+
+        return back()->with('status', 'اتحفظ ✓');
+    }
+
+    /** إغلاق فوريّ: الرابط يقفل الآن ويظهر «انتهى وقت الإجابة» (12.10-أ) */
+    public function closeRewardQuestion(Request $request, RewardQuestion $rewardQuestion, RewardQuestionService $service): RedirectResponse
+    {
+        $service->closeNow($rewardQuestion);
+
+        AuditTrail::log($request->user(), 'reward_question.close', $rewardQuestion, [], ['closes_at' => $rewardQuestion->closes_at]);
+
+        return back()->with('status', 'اتقفل السؤال ✓');
+    }
+
+    /** نتائج بعد الإغلاق: كم حلّه · نسبة الصحّ · أسرع مجيب (12.10-أ) */
+    public function rewardQuestionResults(RewardQuestion $rewardQuestion, RewardQuestionService $service): View
+    {
+        return view('admin.gamification.reward-questions.results', [
+            'question' => $rewardQuestion,
+            'results' => $service->results($rewardQuestion),
+            'state' => $service->liveState($rewardQuestion),
+            'link' => $service->url($rewardQuestion),
+        ]);
     }
 
     // ------------------------------------------------------------ الاحتفالات

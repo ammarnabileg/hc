@@ -3,20 +3,29 @@
 
 @section('content')
     @php
-        $rewards = $challenge->rewards ?? [];
-        $score = (int) $participation->score;
-        $percent = $total > 0 ? round($score / $total * 100) : 0;
-        $auto = (bool) ($participation->progress['auto_submitted'] ?? false);
+        $result = $side->result;
+        $moved = (float) ($match->settlement['moved'] ?? 0);
+        $penalty = (float) ($match->settlement['penalty'] ?? 0);
+        $isSurvival = $match->war_type === 'survival';
+        $myScore = $isSurvival ? (int) $side->reached_index : (int) $side->score;
+        $rivalScore = $isSurvival ? (int) $rivalSide->reached_index : (int) $rivalSide->score;
 
-        $headline = match ($participation->result) {
-            'win' => 'كسبت التحدّي 🎉',
-            'draw' => 'تعادل — قريّب أوي',
-            default => 'خلّصت التحدّي',
+        $headline = match (true) {
+            $waiting => 'مستنّيين خصمك يخلّص…',
+            $result === 'win' => 'كسبت المواجهة 🎉',
+            $result === 'draw' => 'تعادل ⚖️',
+            (bool) $side->withdrew => 'انسحبت من المواجهة',
+            default => 'خسرت المواجهة',
         };
 
-        // لقطة الإنجاز يبنيها استوديو الصور (مجال آخر) — نشير له بحماية Route::has
+        $delta = match (true) {
+            $result === 'win' => '+'.(int) $moved.' تذكرة',
+            $result === 'draw' => 'لا خصم ولا إضافة',
+            default => '−'.(int) ($moved + $penalty).' تذكرة',
+        };
+
         $shareUrl = \Illuminate\Support\Facades\Route::has('images.achievement')
-            ? route('images.achievement', ['type' => 'challenge', 'id' => $participation->id])
+            ? route('images.achievement', ['type' => 'war', 'id' => $match->id])
             : null;
     @endphp
 
@@ -30,73 +39,101 @@
         ]" />
 
     <div class="max-w-2xl">
-        @if ($auto)
-            <div class="card p-3 mb-4 text-sm flex items-center gap-2" style="border-color: var(--color-state-warn)">
+        @if ($waiting)
+            <div class="card p-4 mb-4 text-sm flex items-center gap-2" role="status" style="border-color: var(--color-state-warn)">
                 <span aria-hidden="true">▲</span>
-                <span>الوقت خلص فسلّمنا عنك تلقائيًّا — وكلّ إجاباتك المحفوظة اتحسبت.</span>
+                <span>
+                    سلّمت وخلّصت — باقي <b data-decision-left>{{ $decisionSecondsLeft ?? 0 }}</b> ثانية
+                    وتُقفَل المواجهة وتظهر النتيجة.
+                </span>
             </div>
         @endif
 
+        {{-- أربعة كروت KPI بحدّ أقصى (2.15-أ-3) --}}
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
-            <x-kpi label="درجتي" :value="$score" icon="🎯" />
-            <x-kpi label="من" :value="$total" icon="📋" />
-            <x-kpi label="نسبتي" :value="$percent" icon="📈" />
-            <x-kpi label="XP المكتسَب"
-                   :value="$participation->result === 'win' ? (int) ($rewards['xp'] ?? 0) : 0" icon="⭐" />
+            <x-kpi label="{{ $isSurvival ? 'نجوت لسؤال' : 'نقاطي' }}" :value="$myScore" icon="🎯" />
+            <x-kpi label="نقاط خصمي" :value="$rivalScore" icon="🛡️" />
+            <x-kpi label="عدد الأسئلة" :value="$total" icon="📋" />
+            <x-kpi label="تذاكري دلوقتي" :value="(int) $ticketsBalance" icon="🎟️" />
         </div>
 
         <div class="card p-5">
             <div class="flex items-center gap-3">
                 <span style="color: {{ $challenge->color ?: 'var(--color-brand-400)' }}">
-                    @include('challenges.components.war-icon', ['type' => $challenge->limits['type'] ?? 'default', 'size' => 40, 'label' => $challenge->name_ar])
+                    @include('challenges.components.war-icon', [
+                        'type' => $match->war_type, 'size' => 40, 'label' => $challenge->name_ar,
+                    ])
                 </span>
-                <div>
-                    <h2 class="font-bold">{{ $challenge->name_ar }}</h2>
+                <div class="min-w-0">
+                    <h2 class="font-bold truncate">{{ $challenge->name_ar }}</h2>
                     <p class="text-xs" style="color: var(--text-muted)">
-                        {{ $participation->finished_at?->diffForHumans() }}
+                        {{ $side->finished_at?->diffForHumans() }}
                     </p>
                 </div>
                 <span class="ms-auto">
-                    <x-state-badge :state="['win' => 'ok', 'draw' => 'warn'][$participation->result] ?? 'idle'"
-                                   :label="['win' => 'فوز', 'draw' => 'تعادل'][$participation->result] ?? 'مكتمل'" />
+                    <x-state-badge
+                        :state="$waiting ? 'warn' : (['win' => 'ok', 'draw' => 'warn'][$result] ?? 'idle')"
+                        :label="$waiting ? 'في انتظار الحسم' : (['win' => 'فوز', 'draw' => 'تعادل', 'lose' => 'خسارة'][$result] ?? 'مكتمل')" />
                 </span>
             </div>
 
-            <div class="mt-4 h-2 rounded-full overflow-hidden" style="background: var(--surface-sunken)">
-                <div class="h-full" style="width: {{ $percent }}%; background: var(--color-brand-500)"></div>
-            </div>
+            @unless ($waiting)
+                <div class="mt-5 rounded-xl p-4" style="background: var(--surface-sunken)">
+                    <div class="flex items-center justify-between text-sm">
+                        <span style="color: var(--text-muted)">محصّلة المواجهة</span>
+                        <span class="font-extrabold">{{ $delta }}</span>
+                    </div>
+                    {{-- شرح القاعدة صراحةً: ما يكسبه الفائز هو نفسه ما يخسره الخاسر (15.2-6) --}}
+                    <p class="text-xs mt-2" style="color: var(--text-muted)">
+                        اللي بيكسبه الفائز هو بعينه اللي بيخسره الخاسر — مفيش تذكرة بتتولد من العدم.
+                        @if ($penalty > 0)
+                            وعقوبة الانسحاب ({{ (int) $penalty }} تذاكر) بتتشال من الاقتصاد ومبتروحش لحدّ.
+                        @endif
+                    </p>
+                </div>
 
-            @if ($participation->result !== 'win')
-                {{-- رسالة محايدة تشرح وتعطي الخطوة التالية — بلا تجريح (2.17-ج) --}}
-                <p class="text-sm mt-4" style="color: var(--text-muted)">
-                    مجهودك مش رايح — كلّ محاولة بتقرّبك. جرّب تاني وانت أقوى.
-                </p>
-            @endif
+                @if ($result === 'draw')
+                    <p class="text-sm mt-4" style="color: var(--text-muted)">
+                        تعادل بعدد {{ $isSurvival ? 'الأسئلة اللي نجوتوا فيها' : 'الإجابات' }} — فمحدّش خسر ومحدّش كسب.
+                    </p>
+                @elseif ($result !== 'win')
+                    <p class="text-sm mt-4" style="color: var(--text-muted)">
+                        مجهودك مش رايح — كلّ مواجهة بتقرّبك. جهّز نفسك وارجع الساحة.
+                    </p>
+                @endif
+            @endunless
 
             <div class="mt-5 flex flex-wrap items-center gap-2">
-                @if ($shareUrl)
+                @if ($shareUrl && $result === 'win')
                     <a href="{{ $shareUrl }}"
                        class="btn rounded-xl px-4 py-2.5 text-sm font-semibold motion-standard"
-                       style="background: var(--color-brand-500); color: #04201c">لقطة إنجاز قابلة للمشاركة</a>
+                       style="background: var(--color-brand-500); color: #04201c; min-height: 44px">لقطة إنجاز قابلة للمشاركة</a>
                 @endif
 
-                @if ($challenge->is_active)
-                    <form method="post" action="{{ route('challenges.enter', $challenge) }}">
-                        @csrf
-                        <button type="submit" class="rounded-xl px-4 py-2.5 text-sm motion-standard"
-                                style="background: var(--surface-sunken); color: var(--text)">إعادة المحاولة</button>
-                    </form>
+                @if ($challenge->is_active && ! $waiting)
+                    <a href="{{ route('challenges.arena', $challenge) }}"
+                       class="btn rounded-xl px-4 py-2.5 text-sm font-semibold motion-standard"
+                       style="background: var(--color-brand-500); color: #04201c; min-height: 44px">ارجع الساحة</a>
                 @endif
 
                 <a href="{{ route('challenges.leaderboard') }}"
                    class="rounded-xl px-4 py-2.5 text-sm motion-standard"
-                   style="background: var(--surface-sunken); color: var(--text)">لوحة الأبطال</a>
+                   style="background: var(--surface-sunken); color: var(--text); min-height: 44px">لوحة الأبطال</a>
             </div>
         </div>
     </div>
 
     @if ($celebration)
         @include('challenges.components.celebration', ['celebration' => $celebration, 'shareUrl' => $shareUrl])
+    @endif
+
+    @if ($waiting)
+        @push('scripts')
+            <script>
+                // إعادة التحميل بعد الحسم — والخادم وحده يقرّر متى (15.1)
+                setTimeout(() => window.location.reload(), Math.max(2, {{ (int) ($decisionSecondsLeft ?? 5) }} + 1) * 1000);
+            </script>
+        @endpush
     @endif
 @endsection
 

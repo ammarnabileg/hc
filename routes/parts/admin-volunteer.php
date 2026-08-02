@@ -114,7 +114,7 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     // ------------------------------------------------------ التلعيب والتحديات 🎮
     Route::prefix('gamification')->name('gamification.')->group(function () {
         Route::get('/', [GamificationController::class, 'index'])
-            ->middleware('permission:xp_rules.view,badges.view,wars_settings.view,celebrations.view')->name('index');
+            ->middleware('permission:xp_rules.view,badges.view,wars_settings.view,celebrations.view,reward_questions.view')->name('index');
 
         Route::post('/settings', [GamificationController::class, 'saveSettings'])
             ->middleware('permission:xp_rules.edit,badges.edit,wars_settings.edit,celebrations.edit')->name('settings.save');
@@ -141,6 +141,14 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
 
         Route::post('/celebrations/{celebrationEvent}', [GamificationController::class, 'saveCelebration'])
             ->middleware('permission:celebrations.edit')->name('celebrations.save');
+
+        // أسئلة المكافآت (12.10-أ) — الإجابات والنتائج بصلاحيّتها وحدها
+        Route::post('/reward-questions', [GamificationController::class, 'saveRewardQuestion'])
+            ->middleware('permission:reward_questions.create,reward_questions.edit')->name('reward-questions.save');
+        Route::post('/reward-questions/{rewardQuestion}/close', [GamificationController::class, 'closeRewardQuestion'])
+            ->middleware('permission:reward_questions.edit')->name('reward-questions.close');
+        Route::get('/reward-questions/{rewardQuestion}/results', [GamificationController::class, 'rewardQuestionResults'])
+            ->middleware('permission:reward_questions.view')->name('reward-questions.results');
     });
 
     // ------------------------------------------------------ إدارة المكافآت 🎁

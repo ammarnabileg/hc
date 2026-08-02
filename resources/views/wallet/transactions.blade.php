@@ -33,6 +33,9 @@
         </x-slot:action>
     </x-page-header>
 
+    {{-- ثلاثة تابات (19.2): رصيدي / المعاملات / المسحوبات --}}
+    @include('wallet.components.tabs', ['current' => 'transactions'])
+
     {{-- ثلاثة فلاتر ظاهرة + بحث، والمدى الافتراضيّ آخر 30 يومًا (2.15-أ-4 · 2.15-د) --}}
     <x-filters :action="route('wallet.transactions')">
         <label class="block">
