@@ -1,0 +1,122 @@
+@php
+    /**
+     * بطاقة منشور (13.2): عنوان · نصّ · وسائط · زرّ CTA · تاريخ.
+     * تمييز غير المقروء بشريط جانبيّ + خلفية أعمق — لا بلون وحده.
+     */
+    use App\Services\Notifications\AnnouncementFeed;
+
+    $isRead = (bool) ($read?->read_at);
+    $isAcknowledged = (bool) ($read?->acknowledged_at);
+    $type = AnnouncementFeed::typeOf($announcement);
+    $typeLabel = AnnouncementFeed::types()[$type] ?? '';
+    $media = $announcement->media_path;
+    $isVideo = $media && preg_match('/\.(mp4|webm|ogg)$/i', $media);
+    $mediaUrl = $media ? (str_starts_with($media, 'http') ? $media : asset($media)) : null;
+    $publishedAt = $announcement->scheduled_at ?: $announcement->created_at;
+@endphp
+
+<article class="card p-4 animate-fadeup" data-announcement="{{ $announcement->id }}"
+         @if (! $isRead) data-unread="1" @endif
+         @style([
+             'border-inline-start: 3px solid var(--color-brand-500)' => ! $isRead,
+             'background: var(--surface-sunken)' => ! $isRead,
+         ])>
+
+    <header class="flex items-start gap-2 flex-wrap">
+        @if ($announcement->is_pinned)
+            <span class="text-sm" title="منشور مثبَّت" aria-label="مثبَّت">📌</span>
+        @endif
+
+        <h2 class="font-bold flex-1 min-w-40">{{ $announcement->title }}</h2>
+
+        @if (! $isRead)
+            <span class="rounded-full px-2 py-0.5 text-xs"
+                  style="background: var(--color-brand-600); color: #04201c">جديد</span>
+        @endif
+
+        @if ($typeLabel)
+            <span class="rounded-full px-2 py-0.5 text-xs"
+                  style="background: var(--surface-raised); color: var(--text-muted)">{{ $typeLabel }}</span>
+        @endif
+    </header>
+
+    {{-- تاريخ نسبيّ، والكامل بالضغط/الـHover (2.15-د) --}}
+    <div class="mt-1 text-xs" style="color: var(--text-muted)"
+         title="{{ $publishedAt?->format('Y-m-d H:i') }}">{{ $publishedAt?->diffForHumans() }}</div>
+
+    @if ($announcement->body)
+        <p class="announcement-body mt-3 text-sm leading-7 whitespace-pre-line">{{ $announcement->body }}</p>
+
+        <button type="button" class="mt-1 text-xs" style="color: var(--color-brand-500)"
+                data-announcement-details
+                data-title="{{ $announcement->title }}"
+                data-body="{{ $announcement->body }}"
+                data-cta-url="{{ $announcement->cta_url }}"
+                data-cta-label="{{ $announcement->cta_label }}">التفاصيل</button>
+    @endif
+
+    @if ($mediaUrl)
+        <div class="mt-3 overflow-hidden rounded-xl">
+            @if ($isVideo)
+                <video src="{{ $mediaUrl }}" controls class="w-full" preload="none"></video>
+            @else
+                <img src="{{ $mediaUrl }}" alt="{{ $announcement->title }}" class="w-full" loading="lazy">
+            @endif
+        </div>
+    @endif
+
+    @if ($announcement->cta_url)
+        <a href="{{ $announcement->cta_url }}" target="_blank" rel="noopener"
+           class="btn inline-flex items-center rounded-xl px-4 py-2 text-sm font-semibold mt-3 motion-standard"
+           style="background: var(--color-brand-500); color: #04201c">{{ $announcement->cta_label ?: 'افتح' }}</a>
+    @endif
+
+    {{-- تفاعل إيموجي: يظهر فقط لو الأدمن سمح به لهذا المنشور (13.2) --}}
+    @if ($announcement->reactions_enabled)
+        <div class="mt-3 flex flex-wrap items-center gap-2">
+            @foreach ($reactions as $emoji)
+                <form method="post" action="{{ route('announcements.react', $announcement) }}" data-ajax-form>
+                    @csrf
+                    <input type="hidden" name="reaction" value="{{ $emoji }}">
+                    <button type="submit" class="btn rounded-full px-3 py-1 text-sm motion-standard"
+                            aria-label="تفاعل {{ $emoji }}"
+                            @style([
+                                'background: var(--surface-raised)',
+                                'background: var(--color-brand-600); color: #04201c' => ($read?->reaction) === $emoji,
+                            ])>
+                        {{ $emoji }}
+                        @if (! empty($counts[$emoji]))
+                            <span class="text-xs opacity-70">{{ $counts[$emoji] }}</span>
+                        @endif
+                    </button>
+                </form>
+            @endforeach
+        </div>
+    @endif
+
+    <footer class="mt-3 flex flex-wrap items-center gap-2">
+        @if ($announcement->requires_acknowledge)
+            @if ($isAcknowledged)
+                <x-state-badge state="ok" label="أقررتَ بقراءته" />
+            @else
+                <form method="post" action="{{ route('announcements.acknowledge', $announcement) }}" data-ajax-form>
+                    @csrf
+                    <button type="submit" class="btn rounded-xl px-4 py-2 text-sm font-bold motion-standard"
+                            style="background: var(--color-brand-500); color: #04201c">{{ $ackLabel }}</button>
+                </form>
+            @endif
+
+            @if ($announcement->acknowledge_xp > 0 && ! $isAcknowledged)
+                <span class="text-xs" style="color: var(--text-muted)">+{{ $announcement->acknowledge_xp }} XP مرّة واحدة</span>
+            @endif
+        @endif
+
+        @unless ($isRead)
+            <form method="post" action="{{ route('announcements.read', $announcement) }}" data-ajax-form class="ms-auto">
+                @csrf
+                <button type="submit" class="btn rounded-xl px-3 py-2 text-xs motion-standard"
+                        style="background: var(--surface-raised); border: 1px solid var(--border)">تعليم كمقروء</button>
+            </form>
+        @endunless
+    </footer>
+</article>

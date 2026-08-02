@@ -1,0 +1,124 @@
+@php
+    /**
+     * ثلاثة فلاتر ظاهرة + بحث، والباقي مطويّ (2.15-أ-4).
+     * ونطاق السعر بمنزلق **بلا بوردر** (24.5 — والقاعدة مطبَّقة في app.css).
+     */
+    $selectedTypes = $filters['types'] ?? [];
+    $inputStyle = 'background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)';
+    $min = $filters['min'] ?? 0;
+    $max = $filters['max'] ?? $priceCeiling;
+@endphp
+
+<x-filters :action="$action">
+    <label class="block grow min-w-[12rem]">
+        <span class="block text-sm mb-1">بحث</span>
+        <input type="search" name="q" value="{{ $filters['q'] }}" placeholder="اكتب اسم اللي بتدوّر عليه"
+               class="w-full rounded-xl px-3 py-2 text-sm" style="{{ $inputStyle }}">
+    </label>
+
+    @isset($categories)
+        <label class="block min-w-[10rem]">
+            <span class="block text-sm mb-1">التصنيف</span>
+            <select name="category" class="w-full rounded-xl px-3 py-2 text-sm" style="{{ $inputStyle }}">
+                <option value="">الكلّ</option>
+                @foreach ($categories as $category)
+                    <option value="{{ $category->id }}" @selected($filters['category'] === $category->id)>{{ $category->name_ar }}</option>
+                @endforeach
+            </select>
+        </label>
+    @endisset
+
+    <div class="block min-w-[14rem] grow" data-price-range>
+        <span class="block text-sm mb-1">
+            نطاق السعر
+            <span class="text-xs" style="color: var(--text-muted)">
+                (<span data-price-min>{{ (int) $min }}</span> — <span data-price-max>{{ (int) $max }}</span>
+                {{ setting('store.currency.label', 'كوين') }})
+            </span>
+        </span>
+        {{-- منزلقان بلا بوردر: الأدنى والأعلى --}}
+        <input type="range" name="min" min="0" max="{{ (int) $priceCeiling }}" value="{{ (int) $min }}"
+               class="w-full" aria-label="أقلّ سعر" data-price-input="min">
+        <input type="range" name="max" min="0" max="{{ (int) $priceCeiling }}" value="{{ (int) $max }}"
+               class="w-full" aria-label="أعلى سعر" data-price-input="max">
+    </div>
+
+    @isset($typeOptions)
+        <fieldset class="min-w-[12rem]">
+            <legend class="block text-sm mb-1">النوع</legend>
+            <div class="flex flex-wrap gap-2">
+                @foreach ($typeOptions['visible'] as $key => $label)
+                    <label class="text-sm rounded-full px-3 py-1.5 cursor-pointer motion-standard"
+                           style="background: var(--surface-sunken); border: 1px solid var(--border)">
+                        <input type="checkbox" name="types[]" value="{{ $key }}" @checked(in_array($key, $selectedTypes, true))>
+                        <span>{{ $label }}</span>
+                    </label>
+                @endforeach
+            </div>
+        </fieldset>
+    @endisset
+
+    <button type="submit"
+            class="btn rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
+            style="background: var(--color-brand-500); color: #04201c">طبّق</button>
+
+    <x-slot:advanced>
+        @isset($typeOptions)
+            <fieldset class="min-w-[14rem]">
+                <legend class="block text-sm mb-1">أنواع أخرى</legend>
+                <div class="flex flex-wrap gap-2">
+                    @foreach ($typeOptions['folded'] as $key => $label)
+                        <label class="text-sm rounded-full px-3 py-1.5 cursor-pointer"
+                               style="background: var(--surface-sunken); border: 1px solid var(--border)">
+                            <input type="checkbox" name="types[]" value="{{ $key }}" @checked(in_array($key, $selectedTypes, true))>
+                            <span>{{ $label }}</span>
+                        </label>
+                    @endforeach
+                </div>
+            </fieldset>
+        @endisset
+
+        <label class="block min-w-[10rem]">
+            <span class="block text-sm mb-1">الفرز</span>
+            <select name="sort" class="w-full rounded-xl px-3 py-2 text-sm" style="{{ $inputStyle }}">
+                <option value="newest" @selected($filters['sort'] === 'newest')>الأحدث</option>
+                <option value="price_asc" @selected($filters['sort'] === 'price_asc')>الأرخص أوّلًا</option>
+                <option value="price_desc" @selected($filters['sort'] === 'price_desc')>الأغلى أوّلًا</option>
+            </select>
+        </label>
+
+        <label class="block min-w-[10rem]">
+            <span class="block text-sm mb-1">الملكيّة</span>
+            <select name="owned" class="w-full rounded-xl px-3 py-2 text-sm" style="{{ $inputStyle }}">
+                <option value="">الكلّ</option>
+                <option value="new" @selected($filters['owned'] === 'new')>اللي مش معايا</option>
+                <option value="mine" @selected($filters['owned'] === 'mine')>اللي معايا</option>
+            </select>
+        </label>
+    </x-slot:advanced>
+</x-filters>
+
+@push('scripts')
+    <script>
+        // ردّ فوريّ لحركة المنزلق (2.17-ب): الرقم يتحدّث وأنت بتسحب، والأدنى لا يتخطّى الأعلى
+        document.querySelectorAll('[data-price-range]').forEach((box) => {
+            const lo = box.querySelector('[data-price-input="min"]');
+            const hi = box.querySelector('[data-price-input="max"]');
+            const loLabel = box.querySelector('[data-price-min]');
+            const hiLabel = box.querySelector('[data-price-max]');
+            if (!lo || !hi) return;
+
+            const sync = () => {
+                if (Number(lo.value) > Number(hi.value)) {
+                    const swap = lo.value; lo.value = hi.value; hi.value = swap;
+                }
+                loLabel.textContent = lo.value;
+                hiLabel.textContent = hi.value;
+            };
+
+            lo.addEventListener('input', sync);
+            hi.addEventListener('input', sync);
+            sync();
+        });
+    </script>
+@endpush

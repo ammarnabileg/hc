@@ -32,4 +32,19 @@ class Meeting extends Model
     {
         return $this->belongsTo(User::class, 'owner_id');
     }
+
+    public function questions(): HasMany
+    {
+        return $this->hasMany(MeetingQuestion::class, 'meeting_id');
+    }
+
+    public function attendances(): HasMany
+    {
+        return $this->hasMany(MeetingAttendance::class, 'meeting_id');
+    }
+
+    public function posts(): HasMany
+    {
+        return $this->hasMany(MeetingPost::class, 'meeting_id');
+    }
 }

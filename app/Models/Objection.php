@@ -41,4 +41,9 @@ class Objection extends Model
     {
         return $this->belongsTo(Transaction::class, 'correction_transaction_id');
     }
+
+    public function messages(): HasMany
+    {
+        return $this->hasMany(ObjectionMessage::class, 'objection_id');
+    }
 }

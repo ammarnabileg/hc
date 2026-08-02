@@ -35,4 +35,14 @@ class MeetingPost extends Model
     {
         return $this->belongsTo(MeetingPost::class, 'parent_id');
     }
+
+    public function replies(): HasMany
+    {
+        return $this->hasMany(MeetingPost::class, 'parent_id');
+    }
+
+    public function votes(): MorphMany
+    {
+        return $this->morphMany(PostVote::class, 'votable');
+    }
 }
