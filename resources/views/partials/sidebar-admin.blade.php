@@ -34,9 +34,14 @@
 
         // 📚 إدارة التدريب (12.4)
         ['📚', 'إدارة التدريب', $filter([
-            ['المسارات والتدريبات', 'admin.courses.index', 'courses.list'],
+            ['المسارات', 'admin.paths.index', 'paths.list'],
+            ['التدريبات', 'admin.courses.index', 'courses.list'],
             // الإتاحة الزمنيّة: الفترات وأوقات التشغيل اليوميّة (5)
             ['الإتاحة والتوقيت', 'admin.availability.index', 'courses.list'],
+            // بنك الأسئلة المركزيّ — عرضيّ عبر التدريبات كلّها (24.1-3)
+            ['بنك الأسئلة والامتحانات', 'admin.question-bank.index', 'question_bank.list'],
+            // مكتبة الوسائط — بند صريح في خريطة 12.0
+            ['مكتبة الوسائط', 'admin.media.index', 'media_library.list'],
         ])],
 
         // 🎓 إدارة الشهادات (12.5)
@@ -47,16 +52,35 @@
         // 🤝 إدارة التطوّع
         ['🤝', 'إدارة التطوّع', $filter([
             ['الإدارة المركزيّة والهيكل', 'admin.volunteer.index', 'memberships.list'],
+            // مرآة إداريّة لاجتماعات التطوّع (24.2-أوّلًا)
+            ['اجتماعات التطوّع', 'admin.meetings.index', 'meetings.list'],
+            ['الهيكل والبوزشنز والسعة', 'admin.volunteer.org', 'org_chart.view'],
+            ['تقرير السعة', 'admin.volunteer.org.capacity', 'capacity.view'],
+            ['درجة الالتزام (Rep)', 'admin.volunteer.rep', 'rep_transactions.view'],
+            ['الخروج والعودة', 'admin.volunteer.offboarding', 'offboarding.view'],
+            ['شهادات التطوّع', 'admin.volunteer.certificates', 'volunteer_certificates.view'],
+            ['تحليلات التطوّع', 'admin.volunteer.analytics', 'reports_volunteer.view'],
         ])],
 
         // 🎮 التلعيب والتحديات (12.10)
         ['🎮', 'التلعيب والتحديات', $filter([
             ['XP والشارات والحروب', 'admin.gamification.index', 'badges.list'],
+            // الطرف الإداريّ للدعوات والألقاب (24.2)
+            ['الريفيرال والسفراء', 'admin.referrals.index', 'referrals.list'],
+            // الرسائل الإيجابيّة لأيقونة المفاجأة (2.6-ب · 12.0)
+            ['الرسائل الإيجابيّة', 'admin.positive.index', 'positive_messages.list'],
         ])],
 
         // 🛒 المتجر والماليّات (12.12)
         ['🛒', 'المتجر والماليّات', $filter([
             ['المنتجات والطلبات', 'admin.store.index', 'store_products.list'],
+            ['طلبات الشحن', 'admin.topups.index', 'topup_requests.list'],
+            // 🔒 الماليّات مجموعة محميّة **لمالك المنصّة وحده** (12.0 · 2.13-و):
+            // شرط الملكيّة فوق فحص الصلاحيّة — حزامٌ وحمّالة، والبند يُخفى لا يُعطَّل.
+            ...($u->isPlatformOwner() ? [
+                ['🔒 الماليّات', 'admin.finance.index', 'finance.view'],
+                ['🔒 سجلّ الماليّات', 'admin.finance.audit', 'finance.view'],
+            ] : []),
         ])],
 
         // 🎁 إدارة المكافآت (12.9)
@@ -72,17 +96,27 @@
         // 📣 التوجيه والدعم (12.6)
         ['📣', 'التوجيه والدعم', $filter([
             ['التعليمات والشكاوى', 'admin.guidance.index', 'announcements.list'],
+            // المحتوى التحريريّ وقنوات الأويرنس (21.2 · 21.3)
+            ['المقالات', 'admin.articles.index', 'articles.list'],
+            ['الإعلان المدفوع', 'admin.ads.index', 'ad_audiences.view'],
         ])],
 
         // 📊 الإحصائيّات (12.8)
         ['📊', 'الإحصائيّات', $filter([
             ['التقارير واللوحات', 'admin.stats.index', 'reports_users.list'],
+            // التقارير المجدولة وسجلّ إرسالها (24.3-خامسًا)
+            ['التقارير المجدولة', 'admin.report-schedules.index', 'report_schedules.list'],
         ])],
     ];
 
     // ⚙️ الإعدادات والنظام — آخر قسم دائمًا (12.0)
     $settingsItems = $filter([
         ['كلّ الإعدادات (تابات جانبيّة)', 'admin.settings.index', 'settings_general.view'],
+        // استوديو الصور والقوالب البصريّة (12.14) — محرّك واحد للهويّة البصريّة
+        ['استوديو الصور', 'admin.studio.index', 'image_templates.list'],
+        ['محتوى الـOnboarding', 'admin.ops.onboarding', 'onboarding.view'],
+        ['التحديثات والترحيل', 'admin.ops.updates', 'updates.view'],
+        ['النسخ الاحتياطيّ وصحّة النظام', 'admin.ops.system', 'system_health.view'],
     ]);
 @endphp
 

@@ -72,6 +72,31 @@ class AdminSystemStoreAndStatsTest extends SystemTestCase
         $this->assertSame(7, (int) $product->teaser_pages);
     }
 
+    /** شاشة الحماية تضبط أيضًا **العلامة المائيّة** و**الصلاحيّة الزمنيّة** والفهرس (20.5 · 20.3) */
+    public function test_protection_screen_sets_watermark_validity_and_reader_index(): void
+    {
+        $admin = $this->admin(self::STORE_ADMIN);
+        $product = Product::query()->where('slug', 'mulakhkhas-almusar')->firstOrFail();
+
+        $this->actingAs($admin)->post(route('admin.store.protection.update', $product), [
+            'protection' => 'flip',
+            'teaser_pages' => 5,
+            'watermark_enabled' => 0,
+            'access_days' => 60,
+            'toc' => "1 | المقدّمة\n4 | الفصل الأوّل\nسطر بلا رقم",
+        ])->assertRedirect();
+
+        $product->refresh();
+
+        $this->assertFalse((bool) $product->watermark_enabled);
+        $this->assertSame(60, (int) $product->access_days);
+        // السطر بلا رقمِ صفحةٍ صالح يُهمَل بلا كسر
+        $this->assertSame(
+            [['page' => 1, 'title' => 'المقدّمة'], ['page' => 4, 'title' => 'الفصل الأوّل']],
+            json_decode((string) $product->toc, true),
+        );
+    }
+
     /** المكتبة الرقميّة تنصّ صراحةً على أنّ التحليلات مجمّعة بلا سجلّ فتح فرديّ */
     public function test_library_tab_states_analytics_are_aggregate_only(): void
     {

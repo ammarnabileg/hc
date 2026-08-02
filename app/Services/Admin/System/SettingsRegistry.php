@@ -32,18 +32,23 @@ class SettingsRegistry
         return [
             'platform' => [
                 'label' => 'إعدادات المنصّة',
-                'groups' => ['system', 'accounts', 'integrations', 'ux', 'feel'],
-                'hint' => 'الاسم واللغة والبريد والتكاملات وسلوك الجلسات.',
+                'groups' => ['system', 'accounts', 'integrations', 'ux', 'feel', 'setup'],
+                'hint' => 'الاسم واللغة والبريد والتكاملات وسلوك الجلسات والتنصيب.',
             ],
             'identity' => [
                 'label' => 'الهويّة والمظهر',
-                'groups' => ['appearance'],
-                'hint' => 'توكنز الألوان والخطوط والمساحات والزخارف والسايد بار.',
+                'groups' => ['appearance', 'platform'],
+                'hint' => 'توكنز الألوان والخطوط والمساحات والزخارف والسايد بار والشعار.',
             ],
             'onboarding' => [
                 'label' => 'محتوى الـOnboarding',
                 'groups' => ['onboarding'],
                 'hint' => 'رحلة التسجيل من التعليمات إلى صفحة القبول.',
+            ],
+            'public' => [
+                'label' => 'الصفحة الرئيسيّة العامّة',
+                'groups' => ['home'],
+                'hint' => 'محتوى الواجهة العامّة قبل تسجيل الدخول وبيانات الميتا.',
             ],
             'account' => [
                 'label' => 'الحساب والخصوصيّة',
@@ -80,7 +85,8 @@ class SettingsRegistry
                 'groups' => [
                     'gamification_xp', 'gamification_badges', 'gamification_streaks',
                     'gamification_leaderboard', 'gamification_wars', 'gamification_celebrations',
-                    'challenges', 'kudos', 'games', 'rewards', 'events',
+                    'gamification_reward_questions',
+                    'challenges', 'kudos', 'games', 'rewards', 'events', 'engagement',
                     // أسماء قديمة أبقيناها مرساةً بعد مايجريشن التوحيد — فلا يتيتّم مفتاح لو أعاد سيدرٌ زرعها
                     'celebrations', 'streaks', 'leaderboard',
                 ],
@@ -108,8 +114,8 @@ class SettingsRegistry
             ],
             'growth' => [
                 'label' => 'النموّ والتسويق',
-                'groups' => ['growth', 'ads'],
-                'hint' => 'الدعوات والإحالات وبكسلات الإعلان وجماهيره.',
+                'groups' => ['growth', 'ads', 'ambassadors'],
+                'hint' => 'الدعوات والإحالات وألقاب السفراء وبكسلات الإعلان وجماهيره.',
             ],
             'governance' => [
                 'label' => 'المستخدمون والأدوار',
@@ -174,6 +180,11 @@ class SettingsRegistry
             'ux' => ['البساطة أوّلًا', 'حدود الكروت والفلاتر والأعمدة ومدد التراجع والـToast.'],
             'feel' => ['طبقة الإحساس', 'العدّادات والاهتزاز وصوت التوقيع.'],
             'appearance' => ['الهويّة البصريّة', 'الألوان والخطوط والمساحات والزخارف.'],
+            'platform' => ['شعار المنصّة', 'الشعار الظاهر في الواجهات والمستندات.'],
+            'setup' => ['التنصيب', 'خطوات التنصيب ومتطلّباته وحساب المالك الأوّل.'],
+            'home' => ['الصفحة الرئيسيّة', 'البطل والأقسام والميتا وSchema.org.'],
+            'engagement' => ['الرسائل الإيجابيّة', 'المفاجآت والتذاكر وسياقات الظهور.'],
+            'ambassadors' => ['ألقاب السفراء', 'العتبات ولوحة المتصدّرين وإشعار اللقب.'],
             'onboarding' => ['التعريف بالمنصّة', 'رحلة أوّل دخول.'],
             'account' => ['الحساب والخصوصيّة', 'مستويات الإظهار والموافقات وتحميل البيانات.'],
             'cv' => ['السيرة الذاتيّة', 'القوالب وتكلفتها وحدود الأقسام والرابط العامّ.'],
@@ -199,6 +210,7 @@ class SettingsRegistry
             'gamification_leaderboard' => ['الليدر بورد', 'النطاقات والتجميد وحدّ المشاركين.'],
             'gamification_wars' => ['حروب التركيز', 'الجولات والفرق والجوائز.'],
             'gamification_celebrations' => ['الاحتفالات', 'المستويات الثلاثة والصوت والمشاركة.'],
+            'gamification_reward_questions' => ['أسئلة المكافآت', 'بنك أسئلة المكافأة وشروط عرضها.'],
             'celebrations' => ['الاحتفالات (نصوص)', 'نصوص التهنئة والكونفيتي والإغلاق التلقائيّ.'],
             'streaks' => ['الستريك (عرض)', 'الخريطة الحراريّة ونافذة نادي الخامسة.'],
             'leaderboard' => ['الليدر بورد (عرض)', 'عدد الصفوف المعروضة.'],

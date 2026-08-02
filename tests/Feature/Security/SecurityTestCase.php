@@ -5,6 +5,7 @@ namespace Tests\Feature\Security;
 use App\Models\Permission;
 use App\Models\Role;
 use App\Models\User;
+use App\Services\Admin\System\MaintenanceService;
 use App\Support\Access\AccessEngine;
 use Database\Seeders\CoreSeeder;
 use Database\Seeders\RoleSeeder;
@@ -109,7 +110,7 @@ abstract class SecurityTestCase extends TestCase
         // حتى نختبر الجدار نفسه لا الاستثناء (والاستثناء له اختباره الخاصّ)
         DB::table('settings')->where('key', 'system.maintenance.exempt_ips')->update(['value' => '']);
 
-        app(\App\Services\Admin\System\MaintenanceService::class)
+        app(MaintenanceService::class)
             ->start($this->owner(), $message, $hours);
 
         Cache::forget('settings');

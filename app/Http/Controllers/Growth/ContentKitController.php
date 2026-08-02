@@ -40,11 +40,12 @@ class ContentKitController extends Controller
     {
         $card = $this->kit->currentCard();
 
+        // النصيحة نفسها هي العنوان فتُلَفّ على أسطر — والتسمية الفوقيّة تحمل نوع الكارت
         $svg = $this->renderer->card(
-            'article',
-            (string) setting('growth.weekly_card.title', 'نصيحة الأسبوع'),
-            [$card['tip']],
-            (string) setting('growth.weekly_card.footer', 'من '.config('app.name')),
+            'tip',
+            $card['tip'],
+            [$card['from']->translatedFormat('j F').' — '.$card['to']->translatedFormat('j F Y')],
+            (string) setting('growth.weekly_card.footer', 'اتعلّم معنا'),
         );
 
         return response($svg, 200, [

@@ -35,7 +35,7 @@
         @if ($stage === 'answer')
             <p class="text-sm mb-3" style="color: var(--text-muted)">{{ setting('learning.quiz.answer_hint') }}</p>
 
-            <form method="post" action="{{ route('learning.lesson.quiz.preview', [$course, $lesson]) }}"
+            <form id="quiz-form" method="post" action="{{ route('learning.lesson.quiz.preview', [$course, $lesson]) }}"
                   class="space-y-3" data-otp-form>
                 @csrf
 
@@ -84,7 +84,7 @@
             </div>
 
             <div class="flex items-center gap-2 flex-wrap mt-4">
-                <form method="post" action="{{ route('learning.lesson.quiz.submit', [$course, $lesson]) }}">
+                <form id="quiz-submit-form" method="post" action="{{ route('learning.lesson.quiz.submit', [$course, $lesson]) }}">
                     @csrf
                     <button class="btn rounded-xl px-5 py-3 text-sm font-semibold motion-standard"
                             style="background: var(--color-brand-500); color: #04201c">
@@ -169,6 +169,31 @@
             </div>
         @endif
     </div>
+@endsection
+
+@section('mobile_action')
+    {{-- فعل رئيسيّ واحد في متناول الإبهام (2.15-ج) — ويختلف بحسب المرحلة --}}
+    @if ($stage === 'answer')
+        <button form="quiz-form" class="btn w-full rounded-xl px-4 py-3 text-sm font-semibold"
+                style="background: var(--color-brand-500); color: #04201c">
+            {{ setting('learning.quiz.preview_cta') }}
+        </button>
+    @elseif ($stage === 'preview')
+        <button form="quiz-submit-form" class="btn w-full rounded-xl px-4 py-3 text-sm font-semibold"
+                style="background: var(--color-brand-500); color: #04201c">
+            {{ setting('learning.quiz.submit_cta') }}
+        </button>
+    @elseif (($attempt?->passed ?? $quiz_passed) || $wait_seconds <= 0)
+        <a href="{{ ($attempt?->passed ?? $quiz_passed)
+                ? route('learning.lesson', [$course, $lesson])
+                : route('learning.lesson.quiz', [$course, $lesson]) }}"
+           class="btn w-full flex items-center justify-center rounded-xl px-4 py-3 text-sm font-semibold"
+           style="background: var(--color-brand-500); color: #04201c">
+            {{ ($attempt?->passed ?? $quiz_passed)
+                ? setting('learning.quiz.back_to_lesson')
+                : setting('learning.quiz.retry_cta') }}
+        </a>
+    @endif
 @endsection
 
 @push('scripts')

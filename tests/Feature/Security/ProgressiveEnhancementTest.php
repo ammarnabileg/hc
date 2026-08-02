@@ -2,6 +2,9 @@
 
 namespace Tests\Feature\Security;
 
+use App\Models\Setting;
+use Illuminate\Support\Facades\Cache;
+
 /**
  * التحسين التدريجيّ (2.1): رسالة `<noscript>` عربيّة تشرح **ماذا ينقص**
  * و**كيف يُفعَّل الجافاسكربت خطوة بخطوة** — في ليَاوت الحساب وليَاوت الزوّار.
@@ -46,10 +49,10 @@ class ProgressiveEnhancementTest extends SecurityTestCase
     /** كلّ النصوص من الإعدادات — تتغيّر من اللوحة بلا تعديل كود (2.13) */
     public function test_all_texts_come_from_settings(): void
     {
-        \App\Models\Setting::query()->where('key', 'ux.noscript.title')
+        Setting::query()->where('key', 'ux.noscript.title')
             ->update(['value' => 'الجافاسكربت مقفول — كلّمنا لو محتاج مساعدة']);
 
-        \Illuminate\Support\Facades\Cache::forget('settings');
+        Cache::forget('settings');
 
         $this->get(route('login'))
             ->assertOk()

@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\WarQuestionController;
 use App\Http\Controllers\Trainee\AchievementController;
 use App\Http\Controllers\Trainee\ChallengeController;
 use App\Http\Controllers\Trainee\FocusWarController;
+use App\Http\Controllers\Trainee\RewardQuestionController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -79,6 +80,20 @@ Route::middleware('auth')->group(function () {
             ->middleware('permission:wars_matches.create')->name('duel');
     });
 
+    /*
+    | ------------------------------------------------------------ سؤال المكافأة 🎁
+    | 12.10-أ: رابط مؤقّت يُنشَر في جروبات المتدرّبين — يفتحه صاحب الحساب فيجد
+    | السؤال وفوقه تايمر الديدلاين. والصلاحيّة `achievements.view` لأنّها ما
+    | يملكه المتدرّب على مكاسبه، وحدّ إجابةٍ واحدة مضمون في قاعدة البيانات.
+    */
+    Route::prefix('q')->name('reward-questions.')->group(function () {
+        Route::get('/{token}', [RewardQuestionController::class, 'show'])
+            ->middleware('permission:achievements.view')->name('show');
+
+        Route::post('/{token}', [RewardQuestionController::class, 'answer'])
+            ->middleware('permission:achievements.view')->name('answer');
+    });
+
     // ------------------------------------------------------------ إنجازاتي 🏆
     Route::prefix('achievements')->name('achievements.')->group(function () {
         Route::get('/leaderboard', [AchievementController::class, 'leaderboard'])
@@ -92,6 +107,13 @@ Route::middleware('auth')->group(function () {
 
         Route::post('/streak/check-in', [AchievementController::class, 'checkIn'])
             ->middleware('permission:streaks.create')->name('streak.checkin');
+
+        // تذكرة مكافأة السلسلة ودرع التجميد (7.2) — الصرف والخصم في الخادم حصرًا
+        Route::post('/streak/reward', [AchievementController::class, 'claimStreakReward'])
+            ->middleware('permission:streaks.create')->name('streak.reward');
+
+        Route::post('/streak/freeze', [AchievementController::class, 'freezeStreak'])
+            ->middleware('permission:streaks.create')->name('streak.freeze');
 
         Route::get('/games', [AchievementController::class, 'games'])
             ->middleware('permission:games.view')->name('games');

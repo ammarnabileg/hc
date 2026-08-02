@@ -58,7 +58,7 @@ class UserModerationController extends Controller
 
         $this->moderation->suspend($request->user(), $user, $data['reason'], (int) $data['days']);
 
-        return $this->back($user, 'الحساب اتعلّق ' .$data['days'].' يوم ✓ — وبيرجع لوحده بعدها.');
+        return $this->back($user, 'الحساب اتعلّق '.$data['days'].' يوم ✓ — وبيرجع لوحده بعدها.');
     }
 
     public function release(Request $request, User $user): RedirectResponse

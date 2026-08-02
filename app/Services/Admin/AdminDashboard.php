@@ -107,8 +107,9 @@ class AdminDashboard
                     (int) round(Referral::whereBetween('updated_at', [$prevFrom, $prevTo])->sum('commission_earned')),
                     'العمولة المصروفة داخل الفترة'),
 
+                // نافذة «النشطون الآن» إعدادٌ لا رقمٌ محروق (2.13) — تختلف بحسب طبيعة المنصّة
                 $this->card('النشطون الآن', '💚',
-                    User::where('last_seen_at', '>=', now()->subMinutes(15))->count(),
+                    User::where('last_seen_at', '>=', now()->subMinutes((int) setting('admin_dashboard.online_window_minutes', 15)))->count(),
                     0,
                     'مستخدمون ظهروا في آخر ربع ساعة'),
             ],

@@ -50,7 +50,7 @@ class SettingsAdminController extends Controller
             'highlight' => $request->string('key')->toString(),
             'maintenance' => $this->maintenance,
             'window' => $this->maintenance->current(),
-            'windows' => MaintenanceWindow::query()->latest('id')->limit(10)->get(),
+            'windows' => MaintenanceWindow::query()->latest('id')->limit((int) setting('maintenance.windows_history_limit', 10))->get(),
             'logs' => $tab === 'audit'
                 ? AuditLog::query()->with('user')->latest('id')->paginate((int) setting('audit.per_page', 50))
                 : null,

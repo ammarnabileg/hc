@@ -6,8 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\AdAudience;
 use App\Models\AdAudienceExport;
 use App\Models\Setting;
-use App\Models\User;
 use App\Services\Admin\System\SettingsRegistry;
+use App\Services\Ads\AudienceResolver;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -23,7 +23,10 @@ use Illuminate\View\View;
  */
 class AdsController extends Controller
 {
-    public function __construct(private readonly SettingsRegistry $registry) {}
+    public function __construct(
+        private readonly SettingsRegistry $registry,
+        private readonly AudienceResolver $audiences,
+    ) {}
 
     public function index(Request $request): View
     {
@@ -42,13 +45,7 @@ class AdsController extends Controller
     /** الشروط المعتمَدة للشرائح — قائمة مقفولة لا شروط حرّة (21.3-ب) */
     public function rules(): array
     {
-        return [
-            'viewed_course_not_registered' => 'فتح صفحة تدريب ولم يسجّل خلال 7 أيّام',
-            'registered_no_first_lesson' => 'سجّل ولم يبدأ أوّل درس',
-            'checkout_not_completed' => 'فتح صفحة الشراء ولم يُتِمّه',
-            'completed_no_next_purchase' => 'أتمّ تدريبًا ولم يشترِ التالي',
-            'best_users' => 'أفضل المستخدمين (أكمل واشترى وعاد)',
-        ];
+        return AudienceResolver::rules();
     }
 
     public function store(Request $request): RedirectResponse
@@ -122,18 +119,20 @@ class AdsController extends Controller
     }
 
     /**
-     * بناء الشريحة من بياناتنا.
-     * ⭐ ومَن رفض التتبّع يُستبعَد فعليًّا لا شكليًّا (21.3-د).
+     * بناء الشريحة من بياناتنا — **شرط كلٍّ منفَّذٌ فعلًا** في `AudienceResolver` (21.3-ب).
+     * ⭐ ومَن لم يوافق صراحةً على غرض الإعلان يُستبعَد فعليًّا لا شكليًّا (21.3-د).
      */
     private function resolve(AdAudience $audience)
     {
-        $rule = $audience->rule['key'] ?? '';
+        return $this->audiences->resolve($audience);
+    }
 
-        return User::query()
-            ->where('status', 'active')
-            ->where(fn ($q) => $q->whereNull('tracking_consent')->orWhere('tracking_consent', '!=', 'rejected'))
-            ->when($rule === 'best_users', fn ($q) => $q->orderByDesc('xp'))
-            ->limit((int) setting('ads.audience.max_rows', 50000))
-            ->get(['id', 'email', 'phone']);
+    /** معاينة حجم الشريحة قبل التصدير — فلا يُصدَّر أحدٌ على غير علم */
+    public function preview(Request $request, AdAudience $audience): JsonResponse
+    {
+        return response()->json([
+            'rule' => (string) ($audience->rule['key'] ?? ''),
+            'size' => $this->audiences->resolve($audience)->count(),
+        ]);
     }
 }

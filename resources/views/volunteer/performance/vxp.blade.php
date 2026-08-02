@@ -2,11 +2,26 @@
 
 @section('title', 'VXP وترتيبي')
 
+@php
+    // لقطة اللوحة لزرّ [استخراج كصورة] (12.14-هـ)
+    $exportRows = collect($rows ?? [])->values()->map(fn ($row, $i) => [
+        'rank' => $row['rank'] ?? $i + 1,
+        'u' => $row['user']->id ?? null,
+        'name' => $row['user']->name ?? '',
+        'value' => number_format((float) ($row['vxp'] ?? 0), 1),
+    ])->all();
+@endphp
+
 @section('content')
     <x-page-header
         title="VXP وترتيبي"
         subtitle="رصيد الإنتاج التراكميّ وموقعك في الليدر بورد."
-        :breadcrumbs="[['label' => 'الأداء', 'url' => route('volunteer.performance.vxp')], ['label' => 'VXP وترتيبي']]" />
+        :breadcrumbs="[['label' => 'الأداء', 'url' => route('volunteer.performance.vxp')], ['label' => 'VXP وترتيبي']]">
+        {{-- ⭐ [استخراج كصورة] — ليدر بورد VXP والتطوّع (12.14-هـ) --}}
+        <x-slot:action>
+            <x-export-image title="ليدر بورد VXP" subtitle="إنتاج التطوّع" :rows="$exportRows" />
+        </x-slot:action>
+    </x-page-header>
 
     {{-- 4 كروت KPI بحدّ أقصى (2.15-أ-3) --}}
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">

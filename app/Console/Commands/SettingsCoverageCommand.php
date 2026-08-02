@@ -34,7 +34,7 @@ class SettingsCoverageCommand extends Command
 
         $this->newLine();
         $this->line("<options=bold>تغطية الإعدادات:</> {$coverage->coveragePercent()}%  ".
-            "(<fg=green>".($total - $coverage->orphanKeyCount())."</> من {$total} مفتاحًا لها شاشة)");
+            '(<fg=green>'.($total - $coverage->orphanKeyCount())."</> من {$total} مفتاحًا لها شاشة)");
         $this->newLine();
 
         if ($this->option('all')) {

@@ -76,6 +76,16 @@ class LibraryController extends Controller
                 'total' => (float) $order->total,
                 'currency' => $order->currency?->name_ar ?? '',
                 'status' => $order->status,
+                /*
+                 | حقول الفاتورة المنصوصة في 19.4 وقالب الفاتورة (24.3):
+                 | **الرسوم** و**طريقة الدفع** و**إشارة سياسة عدم الاسترجاع**.
+                 | والرسوم تُشتقّ في الخادم من أرقام الطلب نفسها لا من المتصفّح.
+                 */
+                'fees' => round((float) $order->total - ((float) $order->subtotal - (float) $order->discount), 2),
+                'payment_method' => 'خصم من رصيد المحفظة — '.($order->currency?->name_ar ?? ''),
+                'refund_note' => setting('finance.refund.show_on_invoice', true)
+                    ? (string) setting('library.invoice.refund_note', 'لا يوجد استرجاع نقديّ — ورصيدك يفضل في محفظتك تشتري بيه اللي انت عايزه من الموقع.')
+                    : null,
             ] : null,
             'recommend_url' => route('library.recommend', $entitlement),
         ]);

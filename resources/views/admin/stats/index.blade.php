@@ -2,6 +2,23 @@
 
 @section('title', 'الإحصائيّات')
 
+@php
+    /*
+     | لقطة لوحة الإحصاءات لزرّ [استخراج كصورة] (12.14-هـ):
+     | نأخذ كروت الـKPI كما تعرضها الشاشة — بلا حساب موازٍ ولا مصدر ثانٍ.
+     */
+    $exportRows = collect($data['kpis'] ?? $data['cards'] ?? [])
+        ->values()
+        ->map(fn ($card, $i) => [
+            'rank' => $i + 1,
+            'name' => (string) ($card['label'] ?? $card['title'] ?? ''),
+            'value' => (string) ($card['value'] ?? ''),
+        ])
+        ->filter(fn ($row) => $row['name'] !== '')
+        ->values()
+        ->all();
+@endphp
+
 @section('content')
     <x-page-header title="الإحصائيّات"
                    subtitle="أرقام للعرض فقط — بفلتر فترة واحد على كلّ التابات."
@@ -10,6 +27,11 @@
                        ['label' => 'الإحصائيّات'],
                    ]">
         <x-slot:action>
+            {{-- ⭐ «وكلّ اللوحات في المنصّة عمومًا قابلة للاستخراج كصورة» (12.14-هـ) --}}
+            <x-export-image kind="stats" :title="'إحصائيّات — '.($tabs[$tab] ?? $tab)"
+                            :subtitle="$period['from']->format('Y/m/d').' — '.$period['to']->format('Y/m/d')"
+                            :rows="$exportRows" />
+
             <a href="{{ route('admin.stats.export', array_filter([
                     'tab' => $tab,
                     'from' => $period['from']->toDateString(),

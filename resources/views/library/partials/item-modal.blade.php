@@ -5,6 +5,9 @@
         'number' => setting('library.modal.invoice_number', 'رقم الطلب'),
         'date' => setting('library.modal.invoice_date', 'التاريخ'),
         'total' => setting('library.modal.invoice_total', 'المبلغ'),
+        // حقول الفاتورة المنصوصة في 19.4: الرسوم · طريقة الدفع · سطر سياسة عدم الاسترجاع
+        'fees' => setting('library.modal.invoice_fees', 'الرسوم'),
+        'method' => setting('library.modal.invoice_method', 'طريقة الدفع'),
         'noInvoice' => setting('library.modal.no_invoice', 'العنصر ده مش مربوط بطلب شراء.'),
         'error' => setting('library.modal.error', 'مش قادرين نجيب التفاصيل دلوقتي — جرّب تاني.'),
         'copied' => setting('library.modal.copied', 'الرابط اتنسخ ✓'),
@@ -67,7 +70,12 @@
                      <dt style="color: var(--text-muted)">${texts.number}</dt><dd>${data.invoice.number}</dd>
                      <dt style="color: var(--text-muted)">${texts.date}</dt><dd>${data.invoice.date ?? '—'}</dd>
                      <dt style="color: var(--text-muted)">${texts.total}</dt><dd>${data.invoice.total} ${data.invoice.currency}</dd>
-                   </dl>`
+                     <dt style="color: var(--text-muted)">${texts.fees}</dt><dd>${data.invoice.fees ?? 0} ${data.invoice.currency}</dd>
+                     <dt style="color: var(--text-muted)">${texts.method}</dt><dd>${data.invoice.payment_method ?? '—'}</dd>
+                   </dl>
+                   ${data.invoice.refund_note
+                        ? `<p class="text-xs mt-2" style="color: var(--text-muted)">${data.invoice.refund_note}</p>`
+                        : ''}`
                 : `<p class="text-sm" style="color: var(--text-muted)">${texts.noInvoice}</p>`;
 
             const preview = data.preview

@@ -1,11 +1,28 @@
 @extends('layouts.app')
 @section('title', 'الليدر بورد')
 
+@php
+    // لقطة اللوحة لزرّ [استخراج كصورة] (12.14-هـ) — نفس ما تعرضه الشاشة تمامًا
+    $exportSubtitle = 'آخر '.$filters['days'].' يوم';
+    $exportRows = $board['rows']->map(fn ($row) => [
+        'rank' => $row['rank'],
+        'u' => $row['user']->id,
+        'name' => $row['user']->name,
+        'value' => number_format($row['xp']).' XP',
+        'me' => (bool) ($board['me'] && $board['me']['rank'] === $row['rank']),
+    ])->values()->all();
+@endphp
+
 @section('content')
     <x-page-header
         title="الليدر بورد"
         :subtitle="$board['me'] ? 'ترتيبك دلوقتي #'.$board['me']['rank'].' من '.number_format($board['total']) : 'ابدأ أوّل تدريب وهتظهر هنا.'"
-        :breadcrumbs="[['label' => 'إنجازاتي'], ['label' => 'الليدر بورد']]" />
+        :breadcrumbs="[['label' => 'إنجازاتي'], ['label' => 'الليدر بورد']]">
+        {{-- ⭐ [استخراج كصورة] في كلّ ليدر بورد (12.14-هـ) --}}
+        <x-slot:action>
+            <x-export-image title="الليدر بورد" :subtitle="$exportSubtitle" :rows="$exportRows" />
+        </x-slot:action>
+    </x-page-header>
 
     <x-filters :action="route('achievements.leaderboard')">
         <label class="block">

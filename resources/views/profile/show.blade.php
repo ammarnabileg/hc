@@ -5,6 +5,12 @@
 @section('content')
     @include('profile.partials.header')
 
+    {{-- سكشن الشارات **تحت الهيدر** مباشرةً (10) --}}
+    @include('profile.partials.badges')
+
+    {{-- بوب-أب مشاركة الحساب (10) --}}
+    @include('profile.partials.share')
+
     {{--
       تابات Sticky (2.10.1-14): نظرة عامّة · الإنجازات · الشهادات · خبراتي —
       ⭐ ثمّ تابات التطوّع (13.4-م) يحقنها **مجال التطوّع** في هذا الستاك،
@@ -46,7 +52,7 @@
 @push('scripts')
     <script>
         // [نسخ رابطي] — ردّ فوريّ لكلّ فعل (2.17-ب)
-        document.querySelector('[data-copy-profile]')?.addEventListener('click', async (e) => {
+        document.querySelectorAll('[data-copy-profile]').forEach((el) => el.addEventListener('click', async (e) => {
             const btn = e.currentTarget;
             const link = btn.dataset.copyProfile;
             try {
@@ -57,6 +63,57 @@
             const original = btn.textContent;
             btn.textContent = 'اتنسخ ✓';
             setTimeout(() => { btn.textContent = original; }, 2000);
+        }));
+
+        // النبذة (10): حفظ تلقائيّ مع «اتحفظ ✓» بجوار الحقل (2.17-ب)
+        (() => {
+            const field = document.querySelector('[data-bio-field]');
+            const saved = document.querySelector('[data-bio-saved]');
+            if (!field) return;
+
+            let timer = null;
+            field.addEventListener('input', () => {
+                clearTimeout(timer);
+                timer = setTimeout(async () => {
+                    const res = await fetch(@json(route('profile.bio')), {
+                        method: 'PATCH',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
+                            Accept: 'application/json',
+                        },
+                        body: JSON.stringify({ bio: field.value }),
+                    });
+                    const data = await res.json().catch(() => ({}));
+                    if (saved) {
+                        saved.textContent = res.ok ? (data.label || 'اتحفظ ✓') : (data.message?.bio?.[0] || 'مقدرناش نحفظ — جرّب تاني.');
+                        saved.style.visibility = 'visible';
+                        setTimeout(() => { saved.style.visibility = 'hidden'; }, 2500);
+                    }
+                }, 700);
+            });
+        })();
+
+        // بوب-أب الشارة: صورة + اسم + وصف (10)
+        document.querySelectorAll('[data-badge-open]').forEach((btn) => {
+            btn.addEventListener('click', () => {
+                const modal = document.getElementById('badge-detail');
+                if (!modal) return;
+                const icon = modal.querySelector('[data-badge-detail-icon]');
+                const locked = btn.dataset.badgeLocked === '1';
+                modal.querySelector('[data-badge-detail-name]').textContent = btn.dataset.badgeName || '';
+                modal.querySelector('[data-badge-detail-desc]').textContent = btn.dataset.badgeDesc || '';
+                modal.querySelector('[data-badge-detail-state]').textContent = locked ? '🔒 مقفولة — الشرط فوق' : '★ مفتوحة';
+                if (btn.dataset.badgeIcon) {
+                    icon.src = btn.dataset.badgeIcon;
+                    icon.classList.remove('hidden');
+                    icon.style.filter = locked ? 'grayscale(1)' : '';
+                } else {
+                    icon.classList.add('hidden');
+                }
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            });
         });
     </script>
 @endpush

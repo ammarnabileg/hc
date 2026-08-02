@@ -134,6 +134,8 @@ class WarQuestionFunnel
 
         $rows = DB::table('lesson_questions')
             ->where('is_general', true)
+            // بنك الأسئلة المركزيّ يعطّل السؤال بلا حذف — والمعطّل لا يدخل حربًا
+            ->when(Schema::hasColumn('lesson_questions', 'is_active'), fn ($q) => $q->where('is_active', true))
             ->whereNotNull('correct_answer')
             ->inRandomOrder()
             // نسحب أكثر من المطلوب لأنّ ترشيح «الرقميّة بالكامل» يتمّ في PHP

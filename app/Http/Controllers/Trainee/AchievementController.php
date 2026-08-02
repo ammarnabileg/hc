@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Trainee;
 
 use App\Http\Controllers\Controller;
+use App\Models\Game;
 use App\Services\Gamification\BadgeService;
 use App\Services\Gamification\LeaderboardService;
 use App\Services\Gamification\StreakService;
@@ -74,8 +75,11 @@ class AchievementController extends Controller
         $streak = $this->streaks->forUser($user);
 
         $months = max(1, min(6, (int) $request->query('months', (int) setting('streaks.heatmap.months', 3))));
-        $to = CarbonImmutable::now()->endOfMonth();
+        // الشهور تُقاس بساعة المستخدم كي لا تنزلق الخريطة يومًا كاملًا (5)
+        $to = CarbonImmutable::now($this->streaks->timezoneFor($user))->endOfMonth();
         $from = $to->subMonths($months - 1)->startOfMonth();
+
+        $clubTotal = $this->streaks->clubDaysCount($user);
 
         return view('achievements.streak', [
             'streak' => $streak,
@@ -83,7 +87,19 @@ class AchievementController extends Controller
             'recordedToday' => $this->streaks->recordedToday($user),
             'heatmap' => $this->streaks->heatmap($user, $from, $to),
             'window' => $this->streaks->clubWindow(),
+            'windowOpen' => $this->streaks->windowIsOpenFor($user),
+            'timezone' => $this->streaks->timezoneFor($user),
             'clubDays' => $this->streaks->clubDays($user),
+            'clubTotal' => $clubTotal,
+            // سلّم XP (7.2): ما يكسبه اليوم وما ينتظره في الدرجة التالية
+            'ladderXp' => $this->streaks->xpForClubDay(max(1, $clubTotal + ($this->streaks->recordedToday($user) ? 0 : 1))),
+            'nextStep' => $this->streaks->nextLadderStep($clubTotal),
+            'rewardDue' => $this->streaks->rewardIsDue($user, $streak),
+            'rewardEvery' => $this->streaks->rewardEveryDays(),
+            'freezableDay' => $this->streaks->freezableDay($user),
+            'freezeCost' => (float) setting('streaks.freeze_cost_tickets', 1),
+            'freezesUsed' => $this->streaks->freezesUsedThisMonth($user),
+            'freezeCap' => (int) setting('streaks.max_freezes_per_month', 2),
             'months' => $months,
             'from' => $from,
             'to' => $to,
@@ -93,20 +109,38 @@ class AchievementController extends Controller
     /** تسجيل يوم نشط — ردّ فوريّ لكلّ فعل (2.17-ب) */
     public function checkIn(Request $request): RedirectResponse
     {
-        $streak = $this->streaks->record($request->user());
+        $result = $this->streaks->checkIn($request->user());
         $this->badges->evaluate($request->user());
 
-        return back()->with('status', "اتسجّل ✓ — ستريكك دلوقتي {$streak->current_days} يوم.");
+        return back()->with('status', $result['message']);
     }
 
-    /** الألعاب: تُلعب بتذكرة وفائدتها كسب XP (7.5) */
+    /** تذكرة مكافأة السلسلة (7.2 · 7.1-2) — القرار والصرف في الخادم */
+    public function claimStreakReward(Request $request): RedirectResponse
+    {
+        $result = $this->streaks->claimReward($request->user());
+
+        return back()->with('status', $result['message']);
+    }
+
+    /** درع تجميد السلسلة بتذكرة (7.2 · 7.1-4) */
+    public function freezeStreak(Request $request): RedirectResponse
+    {
+        $result = $this->streaks->buyFreeze($request->user());
+
+        return back()->with('status', $result['message']);
+    }
+
+    /** الألعاب: تُلعب بتذكرة وفائدتها كسب XP (7.5 · 24.2) */
     public function games(Request $request): View
     {
-        $games = setting('games.catalog', []);
+        // القسم كلّه له توجل من لوحة التلعيب — والموقوف يُخفى لا يُعطَّل (2.15-أ-7)
+        $enabled = (bool) setting('games.enabled', true);
 
         return view('achievements.games', [
-            'games' => is_array($games) ? $games : [],
-            'ticketCost' => (float) setting('games.ticket_cost', 1),
+            'games' => $enabled
+                ? Game::query()->where('status', '!=', 'paused')->orderBy('sort_order')->orderBy('id')->get()
+                : collect(),
         ]);
     }
 }

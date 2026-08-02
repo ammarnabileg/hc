@@ -3,10 +3,12 @@
 namespace Tests\Feature;
 
 use App\Models\User;
+use App\Services\Security\OtpService;
 use Database\Seeders\CoreSeeder;
 use Database\Seeders\RoleSeeder;
 use Database\Seeders\SettingSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
 class AuthFlowTest extends TestCase
@@ -23,12 +25,23 @@ class AuthFlowTest extends TestCase
 
     public function test_registration_is_free_and_starts_pending(): void
     {
+        // التسجيل صار يمرّ بتحقّق البريد بـOTP قبل إنشاء الحساب (2.5-ب)
         $this->post('/register', [
             'name' => 'محمد أحمد',
             'email' => 'm@test.local',
             'password' => 'secret-password',
             'password_confirmation' => 'secret-password',
-        ])->assertRedirect(route('account.pending'));
+        ])->assertRedirect(route('register.verify'));
+
+        $this->post(route('register.verify.send'));
+
+        $code = decrypt(DB::table('security_otp_codes')
+            ->where('email', 'm@test.local')
+            ->where('purpose', OtpService::PURPOSE_REGISTER)
+            ->value('code'), false);
+
+        $this->post(route('register.verify.confirm'), ['code' => $code])
+            ->assertRedirect(route('account.pending'));
 
         $user = User::where('email', 'm@test.local')->firstOrFail();
 

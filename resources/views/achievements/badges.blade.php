@@ -7,7 +7,12 @@
     <x-page-header
         title="الشارات"
         :subtitle="$unlockedCount.' مفتوحة من '.$totalCount"
-        :breadcrumbs="[['label' => 'إنجازاتي'], ['label' => 'الشارات']]" />
+        :breadcrumbs="[['label' => 'إنجازاتي'], ['label' => 'الشارات']]">
+        {{-- ⭐ بطاقات الإنجاز قابلة للاستخراج كصورة كذلك (12.14-هـ) --}}
+        <x-slot:action>
+            <x-export-image kind="card" title="شاراتي" :subtitle="$exportSubtitle" :rows="$exportRows" />
+        </x-slot:action>
+    </x-page-header>
 
     {{-- بار الإنجاز --}}
     <div class="card p-4 mb-4">

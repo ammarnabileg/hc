@@ -40,6 +40,10 @@ class User extends Authenticatable
             'last_tabs' => 'array',
             // مقاسات الأفاتار الثلاثة المولَّدة عند الرفع (2.7)
             'avatar_sizes' => 'array',
+            // النموّ والخصوصيّة (21.1-ب · 21.1-ج · 21.3-د)
+            'profile_completion_rewarded_at' => 'datetime',
+            'invite_landing_seen_at' => 'datetime',
+            'tracking_scopes' => 'array',
         ];
     }
 

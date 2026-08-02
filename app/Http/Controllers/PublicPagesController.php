@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Offboarding;
+use App\Services\Ads\AdEvents;
+use App\Services\Ads\Consent;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -53,24 +55,44 @@ class PublicPagesController extends Controller
     }
 
     /**
-     * موافقة التتبّع (21.3-د): قبول · رفض · تخصيص.
-     * **والرفض يوقف البكسل وأحداث الخادم فعليًّا لا شكليًّا** — تُقرأ الحالة من المستخدم أو الكوكي.
+     * موافقة التتبّع (21.3-د): قبول · رفض · **تخصيص بأغراضٍ بعينها**.
+     *
+     * ⭐ **والرفض يوقف البكسل وأحداث الخادم فعليًّا لا شكليًّا**: الحالة تُخزَّن على
+     *    المستخدم وعلى الكوكي معًا، ويقرأها `Consent` قبل كلّ حدث — من المتصفّح ومن
+     *    الخادم. و«تخصيص» بلا اختيارٍ = **رفض**، لأنّ الصمت ليس موافقة.
      */
     public function storeConsent(Request $request): RedirectResponse
     {
-        $choice = $request->validate([
+        $data = $request->validate([
             'choice' => ['required', 'in:accepted,rejected,custom'],
-        ])['choice'];
+            'scopes' => ['array'],
+            'scopes.*' => ['string', 'in:'.implode(',', Consent::PURPOSES)],
+        ]);
+
+        $choice = $data['choice'];
+        $scopes = array_values(array_intersect((array) ($data['scopes'] ?? []), Consent::PURPOSES));
+
+        if ($choice === Consent::CUSTOM && $scopes === []) {
+            $choice = Consent::REJECTED;
+        }
+
+        $scopes = $choice === Consent::CUSTOM ? $scopes : [];
 
         if ($user = $request->user()) {
             $user->forceFill([
                 'tracking_consent' => $choice,
                 'tracking_consent_at' => now(),
+                'tracking_scopes' => $scopes,
             ])->saveQuietly();
         }
 
-        $days = (int) setting('ads.consent.remember_days', 180);
+        // السحب فعليّ: أيّ اختيارٍ جديد يفرّغ طابور الأحداث المنتظرة في المتصفّح
+        $request->session()->forget(AdEvents::QUEUE_KEY);
 
-        return back()->withCookie(cookie('tracking_consent', $choice, $days * 24 * 60));
+        $minutes = (int) setting('ads.consent.remember_days', 180) * 24 * 60;
+
+        return back()
+            ->withCookie(cookie('tracking_consent', $choice, $minutes))
+            ->withCookie(cookie('tracking_scopes', json_encode($scopes), $minutes));
     }
 }

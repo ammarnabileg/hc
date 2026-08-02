@@ -19,5 +19,11 @@
         </div>
     @endif
     @yield('content')
+
+    {{-- سهم العودة لأعلى في **كلّ الصفحات** — بلا استثناء (2.6-أ) --}}
+    @include('partials.floating')
+
+    {{-- الموافقة والبكسل على صفحات الدخول والتسجيل كذلك — «بدأ التسجيل» يقع هنا (21.3-أ/د) --}}
+    @include('partials.consent-banner')
 </body>
 </html>

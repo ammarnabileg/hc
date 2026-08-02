@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Course;
+use App\Models\CourseNote;
 use App\Models\Enrollment;
 use App\Models\LearningPath;
 use App\Models\Lesson;
@@ -12,6 +13,7 @@ use App\Models\MediaItem;
 use App\Models\Section;
 use App\Models\Setting;
 use App\Models\User;
+use App\Models\VideoComment;
 use App\Services\Admin\Volunteer\SettingsCatalog;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Carbon;
@@ -35,6 +37,8 @@ class LearningDemoSeeder extends Seeder
         $this->timeCourse($path);
 
         Cache::forget('settings');
+
+        $this->socialDemo();
 
         $this->command?->info('بذرة التعلّم: '.Course::count().' تدريبات · '.Lesson::count().' دروس');
     }
@@ -499,6 +503,36 @@ class LearningDemoSeeder extends Seeder
         LessonAttachment::updateOrCreate(
             ['lesson_id' => $lesson->id, 'media_item_id' => $media->id],
             ['sort_order' => 1],
+        );
+    }
+
+    /**
+     * تعليقات فيديو وملاحظة تدريب (3.1 · 3.2) — ليظهر القسمان مأهولين لا فارغين.
+     * وبلا مستخدم لا شيء: البذرة لا تخترع حسابات.
+     */
+    private function socialDemo(): void
+    {
+        $user = User::query()->orderBy('id')->first();
+        $lesson = Lesson::query()->where('type', 'video')->orderBy('id')->first();
+        $course = Course::query()->where('slug', 'maharat-al-tawasul')->first();
+
+        if (! $user || ! $lesson || ! $course) {
+            return;
+        }
+
+        $root = VideoComment::updateOrCreate(
+            ['lesson_id' => $lesson->id, 'user_id' => $user->id, 'parent_id' => null],
+            ['body' => 'أوضح جزء عندي كان مثال «الجملة الواحدة» — جرّبته في رسالة عمل وفرق فعلًا.', 'likes_count' => 0],
+        );
+
+        VideoComment::updateOrCreate(
+            ['lesson_id' => $lesson->id, 'user_id' => $user->id, 'parent_id' => $root->id],
+            ['body' => 'وأضيف: لو الجملة احتاجت شرحًا بعدها، فهي لم تنضج بعد.'],
+        );
+
+        CourseNote::updateOrCreate(
+            ['user_id' => $user->id, 'course_id' => $course->id],
+            ['body' => "خلاصتي حتى الآن:\n- ابدأ بالجملة الواحدة.\n- استمع لتفهم لا لتردّ.\n- راجع الرسالة قبل الإرسال بصوتٍ عالٍ."],
         );
     }
 

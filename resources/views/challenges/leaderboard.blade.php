@@ -1,11 +1,27 @@
 @extends('layouts.app')
 @section('title', 'لوحة الأبطال')
 
+@php
+    // لقطة اللوحة لزرّ [استخراج كصورة] (12.14-هـ)
+    $exportSubtitle = 'آخر '.$filters['days'].' يوم';
+    $exportRows = collect($board['rows'] ?? [])->values()->map(fn ($row, $i) => [
+        'rank' => $row['rank'] ?? $i + 1,
+        'u' => $row['user']->id ?? null,
+        'name' => $row['user']->name ?? '',
+        'value' => (string) ($row['points'] ?? $row['score'] ?? $row['wins'] ?? ''),
+    ])->all();
+@endphp
+
 @section('content')
     <x-page-header
         title="لوحة الأبطال"
         subtitle="ترتيب المتحدّين خلال آخر {{ $filters['days'] }} يوم."
-        :breadcrumbs="[['label' => 'التحديات', 'url' => route('challenges.index')], ['label' => 'لوحة الأبطال']]" />
+        :breadcrumbs="[['label' => 'التحديات', 'url' => route('challenges.index')], ['label' => 'لوحة الأبطال']]">
+        {{-- ⭐ [استخراج كصورة] — ليدر بورد التحديات (12.14-هـ) --}}
+        <x-slot:action>
+            <x-export-image title="لوحة الأبطال" :subtitle="$exportSubtitle" :rows="$exportRows" />
+        </x-slot:action>
+    </x-page-header>
 
     <x-filters :action="route('challenges.leaderboard')">
         <label class="block">

@@ -128,6 +128,16 @@
     })();
 </script>
 
+{{-- العناصر العائمة في كلّ الصفحات: سهم العودة لأعلى + الرسائل الإيجابيّة (2.6) --}}
+@include('partials.floating')
+
+@auth
+    {{-- البحث الموحّد (Ctrl+K) والتراجع خلال ثوانٍ — على كلّ الشاشات (2.15-د) --}}
+    <x-command-palette />
+    <x-undo-toast />
+    <x-first-run />
+@endauth
+
 @stack('scripts')
 </body>
 </html>

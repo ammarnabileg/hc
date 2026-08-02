@@ -46,6 +46,11 @@
             <x-toast :message="session('status')" />
         @endif
 
+        {{-- بار «أكمل ملفك» ومكافأته 3 تذاكر — يختفي عند 100% وله زرّ إيقاف (21.1-ب) --}}
+        @auth
+            @include('growth.components.completion-bar')
+        @endauth
+
         @yield('content')
     </main>
 </div>
@@ -58,6 +63,16 @@
 @endif
 
 @include('partials.consent-banner')
+
+{{-- العناصر العائمة في كلّ الصفحات: سهم العودة لأعلى + الرسائل الإيجابيّة (2.6) --}}
+@include('partials.floating')
+
+@auth
+    {{-- البحث الموحّد (Ctrl+K) والتراجع خلال ثوانٍ — على كلّ الشاشات (2.15-د) --}}
+    <x-command-palette />
+    <x-undo-toast />
+    <x-first-run />
+@endauth
 
 @stack('modals')
 @stack('scripts')

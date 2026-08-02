@@ -35,12 +35,24 @@
                    style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
         </form>
 
-        {{-- 📌 الصفحات المثبَّتة (2.15-د) --}}
+        {{--
+          📌 الصفحات المثبَّتة (2.15-د) — **بديل معتمَد عن «آخر ما زرت» المرفوض**.
+          بترتيب قابل للسحب، ويُحفَظ لكلّ مستخدم فور الإفلات.
+        --}}
         @if ($pinned->isNotEmpty())
-            <div class="space-y-1">
+            <div class="space-y-1" data-pins>
                 <div class="text-xs px-2" style="color: var(--text-muted)">📌 المثبَّتة</div>
                 @foreach ($pinned as $pin)
-                    <x-nav-link :href="$pin['url'] ?? '#'" :label="$pin['label'] ?? ''" icon="📌" />
+                    <div class="flex items-center gap-1" draggable="true"
+                         data-pin-item="{{ $pin['route'] ?? '' }}">
+                        <span class="flex-1 min-w-0">
+                            <x-nav-link :href="$pin['url'] ?? '#'" :label="$pin['label'] ?? ''" icon="📌" />
+                        </span>
+                        <button type="button" data-unpin="{{ $pin['route'] ?? '' }}" data-label="{{ $pin['label'] ?? '' }}"
+                                class="shrink-0 rounded-lg text-xs motion-standard"
+                                style="min-width: 44px; min-height: 44px; color: var(--text-muted)"
+                                aria-label="فكّ تثبيت {{ $pin['label'] ?? '' }}" title="فكّ التثبيت">✕</button>
+                    </div>
                 @endforeach
             </div>
         @endif

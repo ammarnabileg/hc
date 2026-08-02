@@ -40,6 +40,8 @@
                     $fill = match (true) {
                         ! $inRange => 'transparent',
                         (bool) ($day['club'] ?? false) => 'var(--color-state-honor)',
+                        // اليوم المحميّ بدرع تجميد يظهر بحاله الخاصّ لا كيومٍ نشط (7.2)
+                        (bool) ($day['freeze'] ?? false) => 'var(--color-state-warn)',
                         (bool) ($day['active'] ?? false) => 'var(--color-brand-500)',
                         default => 'var(--surface-sunken)',
                     };
@@ -56,7 +58,12 @@
                     <rect x="{{ ($weeks - 1 - $w) * $step }}" y="{{ $r * $step + 16 }}"
                           width="{{ $cell }}" height="{{ $cell }}" rx="3"
                           fill="{{ $fill }}" stroke="var(--border)" stroke-width="0.5">
-                        <title>{{ $date->translatedFormat('j F Y') }} — {{ ($day['club'] ?? false) ? 'نادي الخامسة ★' : (($day['active'] ?? false) ? 'يوم نشط ●' : 'بلا نشاط ○') }}</title>
+                        <title>{{ $date->translatedFormat('j F Y') }} — {{ match (true) {
+                            (bool) ($day['club'] ?? false) => 'نادي الخامسة ★',
+                            (bool) ($day['freeze'] ?? false) => 'يوم محميّ بدرع ▲',
+                            (bool) ($day['active'] ?? false) => 'يوم نشط ●',
+                            default => 'بلا نشاط ○',
+                        } }}</title>
                     </rect>
                 @endif
             @endfor
@@ -79,5 +86,8 @@
     </span>
     <span class="inline-flex items-center gap-1">
         <span class="inline-block w-3 h-3 rounded" style="background: var(--color-state-honor)"></span> ★ نادي الخامسة
+    </span>
+    <span class="inline-flex items-center gap-1">
+        <span class="inline-block w-3 h-3 rounded" style="background: var(--color-state-warn)"></span> ▲ يوم محميّ بدرع
     </span>
 </div>

@@ -19,9 +19,60 @@ class WalletDemoSeeder extends Seeder
     public function run(): void
     {
         $this->settings();
+        $this->financeSettings();
         $this->transferMethods();
         $this->offers();
         $this->demoWallet();
+    }
+
+    /**
+     * 🔒 أسعار الصرف ورسوم العمليّات الثلاث (19.1 · 19.3).
+     *
+     * `firstOrCreate` لا `updateOrCreate`: هذه إعدادات ماليّة قد يكون مالك المنصّة
+     * عدّلها فعلًا، فلا يجوز أن يعيدها سيدر تجريبيّ إلى الافتراضيّ بلا قرارٍ منه.
+     */
+    private function financeSettings(): void
+    {
+        $rows = [
+            ['finance.rates.usd_to_coins', '1$ = كام كوين', 'number', '50'],
+            ['finance.rates.ticket_to_coins', '1 تذكرة = كام كوين', 'number', '10'],
+            ['finance.rates.ticket_to_xp', '1 تذكرة = كام XP', 'number', '300'],
+            ['finance.transfer.coins_fee_percent', 'رسوم حوالة الكوينز (%)', 'number', '15'],
+            // مرتفعة عمدًا لتثبيط تبادل الـXP حفاظًا على نزاهة الليدر بورد (19.3)
+            ['finance.transfer.xp_fee_percent', 'رسوم حوالة الـXP (%)', 'number', '85'],
+            ['finance.transfer.tickets_fee_percent', 'رسوم حوالة التذاكر (%)', 'number', '0'],
+            ['finance.transfer.min_amount', 'أقلّ قيمة حوالة', 'number', '10'],
+            ['finance.transfer.rounding', 'تقريب صافي الحوالة', 'string', 'ceil'],
+            ['finance.exchange.fee_percent', 'رسوم تحويل العملة (%)', 'number', '5'],
+            ['finance.exchange.min_amount_usd', 'أقلّ قيمة تحويل (بالدولار)', 'number', '1'],
+            ['finance.withdraw.fee_percent', 'رسوم السحب (%)', 'number', '1'],
+            ['finance.withdraw.min_fee_usd', 'أدنى رسوم سحب بالدولار', 'number', '0.5'],
+            ['finance.withdraw.min_amount_usd', 'أقلّ قيمة سحب بالدولار', 'number', '5'],
+            ['finance.referral.commission_percent', 'عمولة الريفيرال (%)', 'number', '7'],
+        ];
+
+        foreach ($rows as [$key, $label, $type, $default]) {
+            Setting::firstOrCreate(['key' => $key], [
+                'group' => 'finance',
+                'label_ar' => $label,
+                'type' => $type,
+                'default_value' => $default,
+                'value' => $default,
+                'is_owner_only' => true,
+                'is_sensitive' => true,
+            ]);
+        }
+
+        // سطر السياسة في الفاتورة نصٌّ يحرّره **الأدمن** لا مالك المنصّة وحده (19.4)
+        Setting::firstOrCreate(['key' => 'library.invoice.refund_note'], [
+            'group' => 'store',
+            'label_ar' => 'سطر سياسة عدم الاسترجاع في الفاتورة',
+            'type' => 'text',
+            'default_value' => 'لا يوجد استرجاع نقديّ — ورصيدك يفضل في محفظتك تشتري بيه اللي انت عايزه من الموقع.',
+            'value' => 'لا يوجد استرجاع نقديّ — ورصيدك يفضل في محفظتك تشتري بيه اللي انت عايزه من الموقع.',
+        ]);
+
+        Cache::forget('settings');
     }
 
     /** إعدادات المجال — لا رقم ولا مفتاح محروق في الكود (2.13) */

@@ -1,7 +1,15 @@
 @php
+    use App\Http\Controllers\Ui\ProfileExtrasController;
     use App\Services\Account\ProfileVisibility;
 
     $isVolunteerHeader = (bool) $membership;
+
+    // زرّ «مشاركة الحساب» (10) — الروابط تُبنى على الخادم فلا تتسرّب صياغة خاطئة
+    $shareLinks = ProfileExtrasController::shareLinks($owner);
+    $bioMax = max(20, (int) setting('profile.bio.max_chars', 280));
+
+    // لقب السفير (7.6.1) — ألقاب بلا شارات (2.9-8)
+    $ambassadorTitle = trim((string) ($owner->ambassador_title ?? ''));
 @endphp
 
 {{--
@@ -45,6 +53,22 @@
                 @endif
             </div>
 
+            {{-- بايو (Bio) قابل للتعديل (10) — بحفظ تلقائيّ و«اتحفظ ✓» بجواره (2.17-ب) --}}
+            @if ($isOwner)
+                <div class="mt-3">
+                    <label class="block">
+                        <span class="sr-only">النبذة الشخصيّة</span>
+                        <textarea data-bio-field rows="2" maxlength="{{ $bioMax }}"
+                                  placeholder="اكتب نبذة قصيرة عنك — سطر واحد يكفي."
+                                  class="w-full rounded-xl px-3 py-2 text-sm"
+                                  style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">{{ $owner->bio }}</textarea>
+                    </label>
+                    <span data-bio-saved class="text-xs" style="color: var(--color-state-ok); visibility: hidden">اتحفظ ✓</span>
+                </div>
+            @elseif (trim((string) $owner->bio) !== '')
+                <p class="mt-3 text-sm" style="color: var(--text)">{{ $owner->bio }}</p>
+            @endif
+
             @if ($isVolunteerHeader)
                 <div class="mt-3 flex flex-wrap items-center gap-2">
                     {{-- البوزشن والكيان --}}
@@ -75,6 +99,13 @@
             <button type="button" data-copy-profile="{{ $profileUrl }}"
                     class="btn rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
                     style="background: var(--color-brand-500); color: #04201c">نسخ رابطي</button>
+
+            {{-- ⭐ «مشاركة الحساب» ⟵ بوب-أب فيه أزرار المشاركة + الرابط العامّ (10) --}}
+            <button type="button" data-modal-open="profile-share"
+                    class="btn rounded-xl px-4 py-2 text-sm motion-standard"
+                    style="min-height: 44px; background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
+                مشاركة الحساب
+            </button>
 
             @if ($isOwner)
                 <a href="{{ route('settings.index') }}"

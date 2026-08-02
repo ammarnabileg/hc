@@ -13,6 +13,23 @@
 
     <div class="flex-1"></div>
 
+    {{--
+      ⭐ البحث الموحّد (2.15-د): على الشاشات الكبيرة يفتح لوحة Ctrl+K،
+      وعلى الموبايل يفتح **شاشة البحث الكاملة** كما ينصّ البند حرفيًّا.
+    --}}
+    <a href="{{ \Illuminate\Support\Facades\Route::has('search') ? route('search') : '#' }}"
+       data-palette-open
+       class="inline-flex items-center justify-center rounded-xl motion-standard"
+       style="min-width: 44px; min-height: 44px; color: var(--text-muted)"
+       aria-label="بحث موحّد" title="بحث موحّد (Ctrl+K)">
+        {{-- أيقونة SVG مرسومة داخل المشروع — ممنوع أيّ مكتبة أيقونات (2.16-ج) --}}
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="1.8" stroke-linecap="round" aria-hidden="true" focusable="false">
+            <circle cx="11" cy="11" r="7" />
+            <path d="M20 20l-3.5-3.5" />
+        </svg>
+    </a>
+
     {{-- مبدّل سياق العضويّة (قسم/محافظة/ملفّ) — كلّ شيء يُقرأ داخل العضويّة النشطة --}}
     @volunteer
         @if (($userMemberships ?? collect())->count() > 1)

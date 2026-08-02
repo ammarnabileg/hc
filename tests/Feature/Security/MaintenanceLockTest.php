@@ -4,6 +4,7 @@ namespace Tests\Feature\Security;
 
 use App\Models\AppNotification;
 use App\Models\MaintenanceWindow;
+use App\Models\Setting;
 use App\Services\Security\MaintenanceAlert;
 use Illuminate\Support\Facades\Cache;
 
@@ -53,7 +54,7 @@ class MaintenanceLockTest extends SecurityTestCase
     {
         $this->startMaintenance();
 
-        \App\Models\Setting::query()->where('key', 'system.maintenance.exempt_ips')->update(['value' => '10.0.0.7']);
+        Setting::query()->where('key', 'system.maintenance.exempt_ips')->update(['value' => '10.0.0.7']);
         Cache::forget('settings');
 
         $trainee = $this->makeUser('متدرّب');

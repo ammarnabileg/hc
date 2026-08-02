@@ -356,7 +356,7 @@ class StatsService
             ->select('courses.name_ar as title', DB::raw('count(*) as total'))
             ->groupBy('courses.name_ar')
             ->orderByDesc('total')
-            ->limit(8)
+            ->limit((int) setting('stats.top_list_size', 8))
             ->get()
             ->map(fn ($r) => ['label' => (string) $r->title, 'value' => (float) $r->total])
             ->all();
@@ -428,7 +428,7 @@ class StatsService
             ? DB::table('challenge_participations')
                 ->join('challenges', 'challenges.id', '=', 'challenge_participations.challenge_id')
                 ->select('challenges.name_ar as title', DB::raw('count(*) as total'))
-                ->groupBy('challenges.name_ar')->orderByDesc('total')->limit(8)->get()
+                ->groupBy('challenges.name_ar')->orderByDesc('total')->limit((int) setting('stats.top_list_size', 8))->get()
                 ->map(fn ($r) => ['label' => (string) $r->title, 'value' => (float) $r->total])->all()
             : [];
 

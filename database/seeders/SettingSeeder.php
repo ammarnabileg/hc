@@ -30,6 +30,11 @@ class SettingSeeder extends Seeder
             ['ux.first_time.enabled_screens', 'ux', 'شاشات «أوّل مرّة» المفعَّلة', 'json', '[]'],
             ['ux.settings_search.max_results', 'ux', 'أقصى نتائج البحث الموحّد في الإعدادات', 'number', '40'],
 
+            // ---------------- حدود شاشات كانت أرقامًا محروقة (2.13)
+            ['admin_dashboard.online_window_minutes', 'admin_dashboard', 'نافذة «النشطون الآن» (دقيقة)', 'number', '15'],
+            ['stats.top_list_size', 'stats', 'عدد صفوف قوائم «الأعلى»', 'number', '8'],
+            ['maintenance.windows_history_limit', 'maintenance', 'عدد نوافذ الصيانة الظاهرة في السجلّ', 'number', '10'],
+
             // ---------------- قاموس الحالة (2.16): لكلّ لون رمزٌ وتسمية — ولا لون بلا رمز
             ['ux.state.ok.icon', 'ux', 'رمز حالة «سليم»', 'string', '●'],
             ['ux.state.ok.label', 'ux', 'تسمية حالة «سليم»', 'string', 'سليم'],

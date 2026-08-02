@@ -245,26 +245,40 @@ class StreakService
 
     // ------------------------------------------------------------------ درع التجميد (7.2 · 7.1-4)
 
-    /** اليوم الفايت القابل للحماية الآن — أو null إن لم يوجد */
+    /**
+     * اليوم الفايت الذي يستحقّ الحماية الآن — أو null.
+     *
+     * الدرع يحمي **يومًا فايتًا يصل ما انقطع**، لا أيّ يوم فارغ في التقويم:
+     * فلا بدّ أن يكون قبل بداية سلسلتك الحيّة مباشرةً، وأن يوجد قبله يوم حضور
+     * حقيقيّ يُوصَل به، وألّا يكون أقدم من الحدّ الذي يضبطه الأدمن.
+     */
     public function freezableDay(User $user): ?CarbonImmutable
     {
         $today = $this->clock->now($user)->startOfDay();
         $maxAge = max(1, (int) setting('streaks.freeze_max_age_days', 2));
+        $days = $this->recordedDays($user);
 
-        for ($i = 1; $i <= $maxAge; $i++) {
-            $day = $today->subDays($i);
+        $chainStart = $this->chainStart($days, $today);
 
-            $recorded = StreakDay::query()
-                ->where('user_id', $user->id)
-                ->whereDate('day', $day->toDateString())
-                ->exists();
-
-            if (! $recorded) {
-                return $day;
-            }
+        // بلا سلسلة حيّة لا شيء يُنقَذ اليوم — سجّل حضورك أوّلًا
+        if ($chainStart === null) {
+            return null;
         }
 
-        return null;
+        $candidate = CarbonImmutable::parse($chainStart)->subDay();
+
+        if (abs($today->diffInDays($candidate)) > $maxAge) {
+            return null;
+        }
+
+        if (in_array($candidate->toDateString(), $days, true)) {
+            return null;
+        }
+
+        // لا بدّ من حضورٍ أقدم يتّصل به الدرع، وإلّا فليس هناك سلسلة تُوصَل
+        $hasEarlier = collect($days)->contains(fn (string $d) => $d < $candidate->toDateString());
+
+        return $hasEarlier ? $candidate : null;
     }
 
     /** كم درعًا استُعمل هذا الشهر — السقف إعداد لا رقم محروق */
@@ -408,35 +422,12 @@ class StreakService
     public function recalculate(User $user, ?CarbonInterface $at = null): Streak
     {
         $now = $this->clock->now($user, $at);
+        $days = $this->recordedDays($user);
+        $chainStart = $this->chainStart($days, $now->startOfDay());
 
-        $days = StreakDay::query()
-            ->where('user_id', $user->id)
-            ->orderByDesc('day')
-            ->pluck('day')
-            ->map(fn ($d) => CarbonImmutable::parse($d)->toDateString())
-            ->values()
-            ->all();
-
-        $current = 0;
-        $expected = null;
-
-        foreach ($days as $day) {
-            if ($expected === null) {
-                // السلسلة حيّة إن كان آخر يوم هو اليوم أو أمس، وإلّا فقد انقطعت
-                if ($day !== $now->toDateString() && $day !== $now->subDay()->toDateString()) {
-                    break;
-                }
-
-                $expected = $day;
-            }
-
-            if ($day !== $expected) {
-                break;
-            }
-
-            $current++;
-            $expected = CarbonImmutable::parse($expected)->subDay()->toDateString();
-        }
+        $current = $chainStart === null
+            ? 0
+            : (int) abs(CarbonImmutable::parse($days[0])->diffInDays(CarbonImmutable::parse($chainStart))) + 1;
 
         $streak = $this->forUser($user);
 
@@ -448,6 +439,53 @@ class StreakService
         ])->save();
 
         return $streak->refresh();
+    }
+
+    /**
+     * أيّام الحضور المسجَّلة نزولًا (الأحدث أوّلًا) كسلاسل تواريخ.
+     *
+     * @return array<int, string>
+     */
+    private function recordedDays(User $user): array
+    {
+        return StreakDay::query()
+            ->where('user_id', $user->id)
+            ->orderByDesc('day')
+            ->pluck('day')
+            ->map(fn ($d) => CarbonImmutable::parse($d)->toDateString())
+            ->values()
+            ->all();
+    }
+
+    /**
+     * أوّل يوم في السلسلة الحيّة — أو null إن كانت منقطعة.
+     * السلسلة حيّة إن كان آخر يوم مسجَّل هو اليوم أو أمس.
+     *
+     * @param  array<int, string>  $days  نزولًا
+     */
+    private function chainStart(array $days, CarbonImmutable $today): ?string
+    {
+        $expected = null;
+        $start = null;
+
+        foreach ($days as $day) {
+            if ($expected === null) {
+                if ($day !== $today->toDateString() && $day !== $today->subDay()->toDateString()) {
+                    return null;
+                }
+
+                $expected = $day;
+            }
+
+            if ($day !== $expected) {
+                break;
+            }
+
+            $start = $day;
+            $expected = CarbonImmutable::parse($expected)->subDay()->toDateString();
+        }
+
+        return $start;
     }
 
     /** يوم الدورة المكتملة الذي تُنسَب إليه المكافأة */

@@ -7,11 +7,27 @@
     $num = fn ($v) => rtrim(rtrim(number_format((float) $v, 2), '0'), '.');
 @endphp
 
+@php
+    // لقطة بطاقة مشرف الشهر لزرّ [استخراج كصورة] (12.14-هـ)
+    $exportSubtitle = $nextUpdate->format('Y/m');
+    $exportRows = collect($board['rows'] ?? $board ?? [])->values()->map(fn ($row, $i) => [
+        'rank' => $i + 1,
+        'u' => $row['user']->id ?? null,
+        'name' => $row['user']->name ?? '',
+        'value' => (string) ($row['score'] ?? $row['vxp'] ?? ''),
+    ])->all();
+@endphp
+
 @section('content')
     <x-page-header
         title="مشرف الشهر"
         :subtitle="'التحديث القادم: '.$nextUpdate->format('Y/m/d H:i').' — واللوحة ثابتة حتى وقتها.'"
-        :breadcrumbs="[['label' => 'الأداء', 'url' => route('volunteer.performance.vxp')], ['label' => 'مشرف الشهر']]" />
+        :breadcrumbs="[['label' => 'الأداء', 'url' => route('volunteer.performance.vxp')], ['label' => 'مشرف الشهر']]">
+        {{-- ⭐ [استخراج كصورة] — بطاقة مشرف الشهر (12.14-هـ) --}}
+        <x-slot:action>
+            <x-export-image title="مشرف الشهر" :subtitle="$exportSubtitle" :rows="$exportRows" />
+        </x-slot:action>
+    </x-page-header>
 
     <x-filters :action="route('volunteer.performance.champion')">
         <label class="text-sm">

@@ -27,16 +27,20 @@ class EconomyRules
         return $this->row('xp_rules.spend', $key);
     }
 
-    /** قيمة الكسب — والصفّ الموقوف يعني «لا كسب من هذا المصدر» */
+    /**
+     * قيمة الكسب. والتمييز مقصود:
+     *  - **صفٌّ موقوف** = قرار أدمن صريح بإيقاف المصدر ⟵ صفر.
+     *  - **لا صفّ أصلًا** = المفتاح غير مُدرَج بعد ⟵ الافتراضيّ المرسَل.
+     */
     public function earnValue(string $key, int $default = 0): int
     {
         $row = $this->earn($key);
 
-        if (! $row || ! $this->enabled($row)) {
+        if (! $row) {
             return $default;
         }
 
-        return (int) ($row['value'] ?? $default);
+        return $this->enabled($row) ? (int) ($row['value'] ?? $default) : 0;
     }
 
     public function earnCurrency(string $key, string $default = 'xp'): string
@@ -50,21 +54,27 @@ class EconomyRules
         return max(0, (int) ($this->earn($key)['daily_cap'] ?? 0));
     }
 
-    /** تكلفة وجه الصرف — والصفّ الموقوف يعني «مجّانيّ الآن» */
+    /**
+     * تكلفة وجه الصرف. والتمييز نفسه:
+     *  - **صفٌّ موقوف** = قرار أدمن صريح ⟵ مجّانيّ الآن.
+     *  - **لا صفّ أصلًا** ⟵ الافتراضيّ المرسَل (وهو بدوره إعداد لا رقم محروق).
+     */
     public function spendCost(string $key, float $default = 0): float
     {
         $row = $this->spend($key);
 
-        if (! $row || ! $this->enabled($row)) {
-            return 0.0;
+        if (! $row) {
+            return $default;
         }
 
-        return (float) ($row['cost'] ?? $default);
+        return $this->enabled($row) ? (float) ($row['cost'] ?? $default) : 0.0;
     }
 
     public function spendCurrency(string $key, string $default = 'tickets'): string
     {
-        return (string) ($this->spend($key)['currency'] ?? $default);
+        $currency = $this->spend($key)['currency'] ?? null;
+
+        return $currency ? (string) $currency : $default;
     }
 
     /** لحظة الخصم المعلَنة (on_enter · on_export · on_use…) — للعرض والتوثيق */

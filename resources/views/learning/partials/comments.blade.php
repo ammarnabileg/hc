@@ -24,10 +24,8 @@
         </span>
     </summary>
 
-    <div class="mt-3"></div>
-
     @can('video_comments.create')
-        <form method="post" action="{{ route('learning.lesson.comments.store', [$course, $lesson]) }}" class="mb-4">
+        <form method="post" action="{{ route('learning.lesson.comments.store', [$course, $lesson]) }}" class="mt-3 mb-4">
             @csrf
             <label class="sr-only" for="comment-body">{{ setting('learning.comments.title') }}</label>
             <textarea id="comment-body" name="body" rows="3" required
@@ -52,7 +50,7 @@
         </form>
     @endcan
 
-    <div class="space-y-3" data-comments-list>
+    <div class="space-y-3 mt-3" data-comments-list>
         @if ($comments->total() === 0)
             {{-- الحالة الفارغة: سطر واحد يشجّع ولا يعاتب (2.17-ج) --}}
             <x-empty :message="setting('learning.comments.empty')" />

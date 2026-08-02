@@ -5,6 +5,7 @@ namespace App\Services\Gamification;
 use App\Models\RewardQuestion;
 use App\Models\RewardQuestionAnswer;
 use App\Models\User;
+use App\Services\Certificates\QrCode;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -77,6 +78,35 @@ class RewardQuestionService
     public function url(RewardQuestion $question): string
     {
         return route('reward-questions.show', $question->token);
+    }
+
+    /**
+     * ⭐ QR الرابط **مرسومًا داخل المشروع** (2.16-ج): مصفوفة من مولّدنا تتحوّل
+     * إلى مربّعات SVG — بلا أيّ مكتبة أيقونات أو باركود خارجيّة.
+     */
+    public function qrSvg(RewardQuestion $question, int $side = 132): string
+    {
+        $matrix = QrCode::matrix($this->url($question));
+        $modules = count($matrix);
+
+        if ($modules === 0) {
+            return '';
+        }
+
+        $rects = '';
+
+        foreach ($matrix as $y => $row) {
+            foreach ($row as $x => $on) {
+                if ($on) {
+                    $rects .= '<rect x="'.$x.'" y="'.$y.'" width="1" height="1" />';
+                }
+            }
+        }
+
+        return '<svg viewBox="0 0 '.$modules.' '.$modules.'" width="'.$side.'" height="'.$side.'" role="img" '
+            .'aria-label="QR رابط السؤال" shape-rendering="crispEdges">'
+            .'<rect width="'.$modules.'" height="'.$modules.'" fill="#ffffff" />'
+            .'<g fill="#000000">'.$rects.'</g></svg>';
     }
 
     /** نصّ رسالة الواتساب الجاهزة + الرابط */

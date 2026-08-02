@@ -171,6 +171,18 @@
             </div>
         </article>
 
+        {{-- ⭐ [احصل على شهادتك] — كلّ صفحة شهادة تصير قناة اكتساب (21.1-أ) --}}
+        <a href="{{ app(\App\Services\Growth\UtmBuilder::class)->tag(route('register'), 'certificate', 'verify_page', $certificate->code) }}"
+           class="card p-4 mt-4 flex items-center justify-between gap-3 motion-standard">
+            <span class="text-sm" style="color: var(--text-muted)">
+                {{ setting('growth.certificate.cta_hint', 'اتعلّم، امتحن، وخُد شهادة بكود تحقّق زيّ دي.') }}
+            </span>
+            <span class="rounded-xl px-4 py-2 text-sm font-semibold shrink-0"
+                  style="background: var(--color-brand-500); color: #04201c">
+                {{ setting('growth.certificate.cta_label', 'احصل على شهادتك') }}
+            </span>
+        </a>
+
         <x-modal id="report-modal" :title="setting('certificates.labels.report', 'أبلغ عن شهادة مشبوهة')">
             <form method="post" action="{{ route('verify.certificate.report') }}" class="space-y-3">
                 @csrf
