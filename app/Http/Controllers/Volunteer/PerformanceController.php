@@ -14,7 +14,6 @@ use App\Services\Volunteer\Goals\EntityScope;
 use App\Services\Volunteer\Goals\LeadershipService;
 use App\Services\Volunteer\Goals\RepService;
 use App\Services\Volunteer\Goals\VxpDistributionService;
-use Carbon\CarbonImmutable;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -99,7 +98,6 @@ class PerformanceController extends Controller
             'filters' => $filters,
             'sources' => $this->repSourceLabels(),
             'memberships' => $this->scope->memberships($user),
-            'service' => $this->rep,
         ]);
     }
 
@@ -148,16 +146,21 @@ class PerformanceController extends Controller
         $user = $request->user();
         $tab = $request->string('tab')->toString() ?: 'received';
         $upline = $this->leadership->uplineOf($user);
+        $summary = $this->leadership->receivedSummary($user);
 
         return view('volunteer.performance.evaluations', [
             'tab' => $tab,
             'upline' => $upline,
+            // أثر متوسّطي على Rep — من `rep_rule()` لا من رقم في الواجهة
+            'myImpact' => $summary['visible']
+                ? rep_rule($this->rep->leadershipRuleKeyFor((float) $summary['average']))
+                : null,
             'criteria' => $this->leadership->criteria(),
             'maxScore' => $this->leadership->maxScore(),
             'minRaters' => $this->leadership->minRaters(),
             'alreadyEvaluated' => $upline ? $this->leadership->alreadyEvaluated($user, $upline) : false,
             'weekStart' => $this->leadership->weekStart(),
-            'summary' => $this->leadership->receivedSummary($user),
+            'summary' => $summary,
             'series' => $this->leadership->weeklySeries($user),
             'given' => $this->leadership->givenBy($user),
             'impact' => $this->rep->leadershipImpactTable(),
@@ -320,11 +323,5 @@ class PerformanceController extends Controller
             'leadership' => 'مؤشّر القيادة',
             'behavior' => 'سلوك',
         ];
-    }
-
-    /** آخر تحديث لمشرف الشهر — يُستعمَل في نصّ العدّاد */
-    public static function humanCountdown(CarbonImmutable $target): string
-    {
-        return $target->diffForHumans(CarbonImmutable::now($target->timezone), ['syntax' => CarbonImmutable::DIFF_ABSOLUTE, 'parts' => 2]);
     }
 }

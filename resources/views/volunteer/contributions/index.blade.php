@@ -160,6 +160,16 @@
     @endif
 @endsection
 
+@section('mobile_action')
+    @if ($counters['invited'] > 0)
+        <a href="{{ route('volunteer.contributions', ['status' => 'invited']) }}"
+           class="btn block text-center rounded-xl px-4 py-3 text-sm font-semibold"
+           style="background: var(--color-brand-500); color: #04201c">
+            ردّ على الدعوات ({{ $counters['invited'] }})
+        </a>
+    @endif
+@endsection
+
 @push('modals')
     @foreach ($rows as $row)
         @php $task = $tasks[$row->task_id] ?? null; $owner = $owners[$row->invited_by] ?? null; @endphp

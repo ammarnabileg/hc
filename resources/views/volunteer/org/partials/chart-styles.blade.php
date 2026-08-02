@@ -19,8 +19,12 @@
     }
     .org-stage.is-panning { cursor: grabbing; }
 
-    .org-world { position: absolute; inset-block-start: 0; inset-inline-start: 0; transform-origin: 0 0; }
-    .org-links { position: absolute; inset-block-start: 0; inset-inline-start: 0; overflow: visible; pointer-events: none; }
+    /*
+     | هندسة الكانفاس فيزيائيّة عمدًا (top/left لا inset-inline):
+     | إحداثيّات العقد والخطوط واحدة، فلا ينقلب الأصل مع اتّجاه الصفحة RTL.
+     */
+    .org-world { position: absolute; top: 0; left: 0; transform-origin: 0 0; }
+    .org-links { position: absolute; top: 0; left: 0; overflow: visible; pointer-events: none; }
 
     .org-node {
         position: absolute;
@@ -60,7 +64,7 @@
     .org-bar > span { display: block; block-size: 100%; }
 
     .org-expand {
-        position: absolute; inset-block-end: -13px; inset-inline-start: 50%; transform: translateX(50%);
+        position: absolute; bottom: -13px; left: 50%; transform: translateX(-50%);
         font-size: 10px; border-radius: 999px; padding: 2px 8px; border: 1px solid var(--border);
         background: var(--surface); color: var(--text); cursor: pointer;
     }

@@ -1,0 +1,65 @@
+@extends('layouts.app')
+
+@section('title', '🔒 الماليّات')
+
+@section('content')
+    <x-page-header title="🔒 الماليّات"
+                   subtitle="مصدر الحقيقة الوحيد لكلّ رقم ماليّ — مجموعة محميّة لمالك المنصّة."
+                   :breadcrumbs="[
+                       ['label' => 'لوحة الإدارة', 'url' => url('/admin')],
+                       ['label' => 'المتجر والماليّات', 'url' => route('admin.store.index')],
+                       ['label' => '🔒 الماليّات'],
+                   ]">
+        <x-slot:action>
+            <a href="{{ route('admin.finance.audit') }}" class="rounded-xl px-3 py-2 text-sm"
+               style="background: var(--surface-raised)">سجلّ تدقيق الماليّات</a>
+        </x-slot:action>
+    </x-page-header>
+
+    <div class="grid gap-4 md:grid-cols-[220px_1fr]">
+        {{-- Side Nav لاصق بالمجموعات (24.3) — وعلى الموبايل رقائق أفقيّة --}}
+        <nav class="flex md:flex-col gap-2 overflow-x-auto no-scrollbar md:sticky md:top-4 md:self-start">
+            @foreach ($groups as $key => $meta)
+                <a href="{{ route('admin.finance.index', ['group' => $key]) }}"
+                   class="shrink-0 rounded-xl px-3 py-2 text-sm motion-standard"
+                   style="{{ $group === $key
+                        ? 'background: var(--color-brand-500); color:#04201c; font-weight:700'
+                        : 'background: var(--surface-raised); color: var(--text)' }}">{{ $meta['label'] }}</a>
+            @endforeach
+        </nav>
+
+        <div class="space-y-4">
+            <div class="card p-4">
+                <p class="text-sm" style="color: var(--text-muted)">{{ $groups[$group]['hint'] }}</p>
+            </div>
+
+            @if ($group === 'refund')
+                @include('admin.store.finance.refund-policy')
+            @else
+                <div class="card p-4 space-y-4">
+                    @forelse ($settings as $setting)
+                        @include('admin.settings.partials.field', [
+                            'setting' => $setting,
+                            'registry' => $registry,
+                            'endpoint' => route('admin.finance.save'),
+                            'requiresReason' => true,
+                        ])
+                    @empty
+                        <p class="text-sm" style="color: var(--text-muted)">مجموعة فاضية — ضيف مفاتيحها من سيدر المجال.</p>
+                    @endforelse
+                </div>
+
+                {{-- ⭐ صندوق معاينة لحظيّة: المطلوب · الرسوم · الصافي --}}
+                <div class="card p-4">
+                    <div class="text-xs mb-2" style="color: var(--text-muted)">معاينة لحظيّة</div>
+                    <div class="flex flex-wrap gap-4 text-sm">
+                        <div>المطلوب: <strong>{{ $preview['amount'] }}</strong></div>
+                        <div style="color: var(--color-state-danger)">الرسوم: {{ $preview['fee'] }}</div>
+                        <div style="color: var(--color-brand-500)">الصافي: {{ $preview['net'] }}</div>
+                    </div>
+                    <p class="text-xs mt-2" style="color: var(--text-muted)">{{ $preview['note'] }}</p>
+                </div>
+            @endif
+        </div>
+    </div>
+@endsection

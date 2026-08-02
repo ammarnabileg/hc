@@ -117,6 +117,13 @@
         </div>
     @endif
 
+    {{-- تفاصيل المرشّح في بوب-أب — لا صفحة جديدة، فلا يفقد مكانه في اللوحة (2.15-أ-6) --}}
+    <x-modal id="candidate-modal" title="المرشّح">
+        <div data-candidate-body class="text-sm">
+            <p style="color: var(--text-muted)">بنحمّل التفاصيل…</p>
+        </div>
+    </x-modal>
+
     {{-- سحب الكارت ⟵ تأكيد بسبب، والسبب يدخل سجلّ التدقيق (24.4-12) --}}
     @if ($canMove)
         <x-modal id="move-modal" title="نقل المرشّح">
@@ -188,6 +195,26 @@
             const card = document.querySelector(`[data-candidate="${id}"]`);
             if (!card || card.dataset.stage === column.dataset.column) return;
             ask(card, column.dataset.column, column.querySelector('h2').textContent.trim());
+        });
+    });
+
+    // فتح تفاصيل المرشّح داخل البوب-أب — والتحميل عند الطلب فقط (2.15-د)
+    const detail = document.getElementById('candidate-modal');
+    const detailBody = detail?.querySelector('[data-candidate-body]');
+
+    document.querySelectorAll('[data-detail-url]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+            if (!detail || !detailBody) return;
+            detailBody.innerHTML = '<p style="color: var(--text-muted)">بنحمّل التفاصيل…</p>';
+            detail.classList.remove('hidden');
+            detail.classList.add('flex');
+
+            fetch(btn.dataset.detailUrl, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                .then((r) => r.text())
+                .then((html) => { detailBody.innerHTML = html; })
+                .catch(() => {
+                    detailBody.innerHTML = '<p>تعذّر تحميل التفاصيل — جرّب تاني بعد شويّة.</p>';
+                });
         });
     });
 

@@ -59,7 +59,7 @@ class LibraryController extends Controller
         $user = $request->user();
         $item->load(['entity', 'owner', 'task']);
 
-        return view('volunteer.library.partials.item', [
+        return view('volunteer.library.item', [
             'item' => $item,
             'locked' => ! $this->library->canOpen($user, $item),
             'library' => $this->library,

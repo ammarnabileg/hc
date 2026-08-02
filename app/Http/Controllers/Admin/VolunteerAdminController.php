@@ -87,8 +87,10 @@ class VolunteerAdminController extends Controller
         $blocks = self::blocks();
         $block = ['type' => $data['type'], 'title' => $data['title'], 'body' => $data['body']];
 
-        if ($data['index'] !== null && isset($blocks[$data['index']])) {
-            $blocks[$data['index']] = $block;
+        $index = $data['index'] ?? null;
+
+        if ($index !== null && isset($blocks[$index])) {
+            $blocks[$index] = $block;
             $message = 'اتحفظ ✓ — الكتلة اتعدّلت.';
         } else {
             $blocks[] = $block;

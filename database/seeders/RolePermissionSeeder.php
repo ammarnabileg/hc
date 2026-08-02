@@ -49,10 +49,11 @@ class RolePermissionSeeder extends Seeder
             'meetings', 'meeting_attendance', 'meeting_minutes', 'meeting_posts',
             'objections', 'escalations', 'arbitration', 'delegations',
             'goals', 'milestones', 'work_packages', 'wp_items', 'operational_projects',
-            'memberships', 'departments', 'sub_departments', 'positions', 'org_chart', 'capacity',
-            'team_health', 'vacancies', 'promotion_ladder', 'internal_library', 'library_access_requests',
+            'memberships', 'departments', 'sub_departments', 'positions',
+            'vacancies', 'promotion_ladder', 'internal_library', 'library_access_requests',
             'kudos', 'thanks_wall', 'evaluations', 'supervisor_log', 'personal_reports',
             'rep_transactions', 'vxp_transactions', 'volunteer_certificates', 'calendar',
+            'public_board', 'personal_reports', 'task_comments', 'progress',
         ];
 
         $scaleByRole = [
@@ -67,6 +68,18 @@ class RolePermissionSeeder extends Seeder
         foreach ($scaleByRole as $roleKey => $scope) {
             $this->grantResources($roleKey, $volunteerResources, $scope, $expander);
         }
+
+        /*
+         | الرقابة (صحّة القسم · السعة · الهيكل) لسوبرفايزر فأعلى —
+         | فالكوردنيتور والتيم ليدر لا يريان مؤشّرات الفريق ولا مخاطر الفقدان (24.4).
+         */
+        foreach (['volunteer_gm' => 'ALL', 'track_supervisor' => 'TRACK', 'director' => 'ENTITY', 'supervisor' => 'SUBTREE'] as $roleKey => $scope) {
+            $this->grantResources($roleKey, ['org_chart', 'capacity', 'team_health', 'retention_risk'], $scope, $expander);
+        }
+
+        // والهيكل وحده (بلا رقابة) يراه التيم ليدر والكوردنيتور
+        $this->grantResources('team_leader', ['org_chart'], 'TEAM', $expander);
+        $this->grantResources('coordinator', ['org_chart'], 'SELF', $expander);
 
         $this->grantResources('recruiter', ['candidates', 'interviews', 'scorecards', 'scorecard_criteria', 'shortlists', 'placements', 'placement_test', 'recruitment_analytics', 'vacancies', 'qualifying_path'], 'ALL', $expander);
         $this->grantResources('academy_manager', ['academy_paths', 'academy_recordings', 'otp_verification', 'paths', 'courses'], 'TRACK', $expander);

@@ -100,6 +100,14 @@
     @endif
 @endsection
 
+@section('mobile_action')
+    <a href="{{ route('volunteer.escalations', ['urgent' => 1]) }}"
+       class="btn block text-center rounded-xl px-4 py-3 text-sm font-semibold"
+       style="background: var(--color-brand-500); color: #04201c">
+        الحالات الملحّة ({{ $counters['danger'] + $counters['warn'] }})
+    </a>
+@endsection
+
 @push('modals')
     @foreach ($rows as $case)
         @php $meta = $catalog[$case->case_type] ?? []; @endphp

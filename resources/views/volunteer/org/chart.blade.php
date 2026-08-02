@@ -440,6 +440,10 @@
         cv.width = w * ratio; cv.height = h * ratio;
         const ctx = cv.getContext('2d');
         ctx.scale(ratio, ratio);
+        // تدرّج آمن لو المتصفّح بلا roundRect — اللقطة تخرج بزوايا قائمة ولا تفشل (2.17-ب)
+        if (typeof ctx.roundRect !== 'function') {
+            ctx.roundRect = function (x, y, bw, bh) { this.rect(x, y, bw, bh); };
+        }
 
         ctx.fillStyle = val('--surface', '#0b1512');
         ctx.fillRect(0, 0, w, h);

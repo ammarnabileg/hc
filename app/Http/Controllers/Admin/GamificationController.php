@@ -52,7 +52,6 @@ class GamificationController extends Controller
     public function saveSettings(Request $request): RedirectResponse
     {
         $data = $request->validate([
-            'tab' => ['required', 'string', 'in:'.implode(',', array_keys(self::TABS))],
             'settings' => ['required', 'array'],
         ]);
 

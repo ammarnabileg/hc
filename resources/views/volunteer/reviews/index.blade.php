@@ -3,10 +3,23 @@
 @section('title', 'بانتظار مراجعتي')
 
 @section('content')
+@php
+    // أوّل دفعة صب-تاسكات في الطابور — زرّ «مراجعة دفعة» يفتحها مباشرةً
+    $batchRow = $rows->first(fn ($row) => ($row['escalation']->case_type ?? null) === 'subtask_batch' && $row['task']);
+@endphp
+
     <x-page-header
         title="بانتظار مراجعتي"
         subtitle="طابور ما ينتظر قرارك — بنافذة كلّ عنصر."
-        :breadcrumbs="[['label' => 'لوحة التطوّع', 'url' => url('/volunteer')], ['label' => 'بانتظار مراجعتي']]" />
+        :breadcrumbs="[['label' => 'لوحة التطوّع', 'url' => url('/volunteer')], ['label' => 'بانتظار مراجعتي']]">
+        @if ($batchRow)
+            <x-slot:action>
+                <a href="{{ route('volunteer.reviews.batch', $batchRow['task']) }}"
+                   class="btn rounded-xl px-4 py-2 text-sm font-semibold"
+                   style="background: var(--color-brand-500); color: #04201c">مراجعة دفعة</a>
+            </x-slot:action>
+        @endif
+    </x-page-header>
 
     {{-- تنبيه دائم: المراجِع مقيس ونافذته محسوبة (23 — القسم 5) --}}
     <p class="card p-3 mb-4 text-sm" style="border-inline-start: 3px solid var(--color-state-warn)">
@@ -120,6 +133,15 @@
             @endforeach
         </div>
     @endif
+@endsection
+
+{{-- الفعل الرئيسيّ على الموبايل في متناول الإبهام (2.15-ج) --}}
+@section('mobile_action')
+    <a href="{{ route('volunteer.reviews', ['urgent' => 1]) }}"
+       class="btn block text-center rounded-xl px-4 py-3 text-sm font-semibold"
+       style="background: var(--color-brand-500); color: #04201c">
+        ابدأ بالأقرب لانتهاء النافذة ({{ $counters['danger'] + $counters['warn'] }})
+    </a>
 @endsection
 
 @push('modals')

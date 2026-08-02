@@ -65,6 +65,13 @@
         </p>
     @endif
 
+    @if ($canSeePhone)
+        {{-- التفاصيل في بوب-أب لا صفحة جديدة (2.15-أ-6) --}}
+        <button type="button" class="btn mt-3 w-full rounded-xl px-3 py-2 text-xs"
+                style="background: var(--surface-sunken)"
+                data-detail-url="{{ route('volunteer.recruitment.show', $candidate) }}">التفاصيل</button>
+    @endif
+
     @if ($canMove)
         {{-- الموبايل: قائمة بدل السحب — والتأكيد بسبب هو هو (2.15-ج) --}}
         <label class="mt-3 block md:hidden text-xs">

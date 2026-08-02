@@ -397,16 +397,20 @@ class CertificateAdminController extends Controller
             'signature_path' => ['nullable', 'string', 'max:255'],
             'stamp_path' => ['nullable', 'string', 'max:255'],
             'is_active' => ['nullable', 'boolean'],
+            // كلّ ربط سطر واحد بصيغة «الجدول.العمود»
             'bindings' => ['nullable', 'array'],
-            'bindings.*.table' => ['required_with:bindings', 'string'],
-            'bindings.*.column' => ['required_with:bindings', 'string'],
+            'bindings.*' => ['string', 'max:128'],
         ]);
 
         // الربط بقاعدة البيانات لا يُقبَل خارج القائمة البيضاء — واجهة حسّاسة (24.1)
         $data['bindings'] = json_encode(
             collect($data['bindings'] ?? [])
-                ->filter(fn ($b) => $this->designer->bindingAllowed((string) $b['table'], (string) $b['column']))
-                ->map(fn ($b) => ['table' => $b['table'], 'column' => $b['column']])
+                ->map(function (string $pair) {
+                    [$table, $column] = array_pad(explode('.', $pair, 2), 2, '');
+
+                    return ['table' => $table, 'column' => $column];
+                })
+                ->filter(fn (array $b) => $this->designer->bindingAllowed($b['table'], $b['column']))
                 ->values()
                 ->all(),
             JSON_UNESCAPED_UNICODE,

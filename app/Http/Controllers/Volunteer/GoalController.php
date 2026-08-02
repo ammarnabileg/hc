@@ -57,7 +57,6 @@ class GoalController extends Controller
             'kpis' => $this->kpis($goals, $tree),
             'canDeclare' => $user->allows('wp_items.edit'),
             'canApprove' => $user->allows('milestones.edit'),
-            'rollup' => $this->rollup,
         ]);
     }
 

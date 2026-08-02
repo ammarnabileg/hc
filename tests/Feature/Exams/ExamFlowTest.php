@@ -169,6 +169,24 @@ class ExamFlowTest extends ExamTestCase
         $this->assertSame(1, Transaction::query()->where('user_id', $user->id)->count());
     }
 
+    /** بوب-أب ما قبل البدء: المدّة والمحاولات والسعر والرصيد قبل/بعد + تأكيد (24.5) */
+    public function test_pre_start_dialog_shows_duration_attempts_price_and_balance(): void
+    {
+        $user = $this->trainee();
+        $exam = $this->pathExam(price: 150);
+        $this->giveCoins($user, 400);
+
+        $this->actingAs($user)
+            ->get(route('exams.start', $exam))
+            ->assertOk()
+            ->assertSee(setting('exams.labels.confirm_title'), false)
+            ->assertSee((string) $exam->duration_minutes, false)
+            ->assertSee('150', false)   // السعر بالكوينز
+            ->assertSee('400', false)   // الرصيد قبل
+            ->assertSee('250', false)   // الرصيد بعد
+            ->assertSee(setting('exams.labels.ready'), false);
+    }
+
     /** الرصيد غير الكافي: لا محاولة ولا خصم، ويظهر [اشحن المحفظة] داخل البوب-أب */
     public function test_insufficient_balance_blocks_the_attempt(): void
     {

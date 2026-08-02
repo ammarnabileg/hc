@@ -180,6 +180,8 @@ class GuidanceController extends Controller
             'sla' => $complaints->getCollection()->mapWithKeys(
                 fn (Complaint $c) => [$c->id => $this->guidance->slaState($c)],
             ),
+            // اسم المعيَّن له من خريطة جاهزة — لأنّ `assigned_to` عمودٌ واسمُ علاقة معًا
+            'assigneeNames' => $this->assigneeNames(),
             'filters' => $filters,
             'statuses' => GuidanceComposer::COMPLAINT_STATUSES,
             'reasons' => $this->guidance->complaintReasons(),
@@ -193,7 +195,8 @@ class GuidanceController extends Controller
     public function showComplaint(Complaint $complaint): View
     {
         return view('admin.guidance.complaint', [
-            'complaint' => $complaint->load(['user', 'assigned_to']),
+            'complaint' => $complaint->load('user'),
+            'assigneeNames' => $this->assigneeNames(),
             'messages' => ComplaintMessage::query()->with('user')->where('complaint_id', $complaint->id)->oldest('id')->get(),
             'statuses' => GuidanceComposer::COMPLAINT_STATUSES,
             'assignees' => $this->assignees(),
@@ -261,6 +264,12 @@ class GuidanceController extends Controller
             'courses' => Course::query()->orderByDesc('id')->limit((int) setting('announcements.audience.picker_limit', 30))->get(['id', 'name_ar']),
             'paths' => LearningPath::query()->orderBy('sort_order')->get(['id', 'name_ar']),
         ];
+    }
+
+    /** @return array<int, string> */
+    private function assigneeNames(): array
+    {
+        return $this->assignees()->pluck('name', 'id')->all();
     }
 
     private function assignees()

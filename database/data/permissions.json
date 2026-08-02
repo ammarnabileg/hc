@@ -3794,8 +3794,8 @@
   "conditions": [
    "ليس نفسه"
   ],
-  "is_sensitive": false,
-  "is_owner_only": false
+  "is_sensitive": true,
+  "is_owner_only": true
  },
  {
   "key": "impersonation.view",
@@ -3810,8 +3810,8 @@
   "conditions": [
    "مالك المنصّة فقط"
   ],
-  "is_sensitive": false,
-  "is_owner_only": false
+  "is_sensitive": true,
+  "is_owner_only": true
  },
  {
   "key": "impersonation.delete",
@@ -3827,8 +3827,8 @@
   "conditions": [
    "المالك فقط"
   ],
-  "is_sensitive": false,
-  "is_owner_only": false
+  "is_sensitive": true,
+  "is_owner_only": true
  },
  {
   "key": "admin_user_detail.view",
@@ -8656,8 +8656,8 @@
    "ALL"
   ],
   "conditions": [],
-  "is_sensitive": false,
-  "is_owner_only": false
+  "is_sensitive": true,
+  "is_owner_only": true
  },
  {
   "key": "ownership_matrix.export",
@@ -8670,8 +8670,8 @@
    "ALL"
   ],
   "conditions": [],
-  "is_sensitive": false,
-  "is_owner_only": false
+  "is_sensitive": true,
+  "is_owner_only": true
  },
  {
   "key": "ownership_matrix.manage",
@@ -8686,8 +8686,8 @@
   "conditions": [
    "مالك المنصّة فقط"
   ],
-  "is_sensitive": false,
-  "is_owner_only": false
+  "is_sensitive": true,
+  "is_owner_only": true
  },
  {
   "key": "meetings.list",
@@ -11794,7 +11794,7 @@
    "الحالة = متاح للسحب"
   ],
   "is_sensitive": true,
-  "is_owner_only": false
+  "is_owner_only": true
  },
  {
   "key": "withdraw.list",
@@ -11812,7 +11812,7 @@
    "المالك فقط"
   ],
   "is_sensitive": true,
-  "is_owner_only": false
+  "is_owner_only": true
  },
  {
   "key": "withdraw.approve",
@@ -11828,7 +11828,7 @@
    "مالك المنصّة فقط"
   ],
   "is_sensitive": true,
-  "is_owner_only": false
+  "is_owner_only": true
  },
  {
   "key": "withdraw.reject",
@@ -11844,7 +11844,7 @@
    "مالك المنصّة فقط"
   ],
   "is_sensitive": true,
-  "is_owner_only": false
+  "is_owner_only": true
  },
  {
   "key": "withdraw.manage",
@@ -11860,7 +11860,7 @@
    "مالك المنصّة فقط"
   ],
   "is_sensitive": true,
-  "is_owner_only": false
+  "is_owner_only": true
  },
  {
   "key": "exchange_rates.view",
@@ -11874,7 +11874,7 @@
   ],
   "conditions": [],
   "is_sensitive": true,
-  "is_owner_only": false
+  "is_owner_only": true
  },
  {
   "key": "exchange_rates.edit",
@@ -11890,7 +11890,7 @@
    "مالك المنصّة فقط"
   ],
   "is_sensitive": true,
-  "is_owner_only": false
+  "is_owner_only": true
  },
  {
   "key": "exchange_rates.manage",
@@ -11906,7 +11906,7 @@
    "مالك المنصّة فقط"
   ],
   "is_sensitive": true,
-  "is_owner_only": false
+  "is_owner_only": true
  },
  {
   "key": "payment_gateway.view",
@@ -11922,7 +11922,7 @@
    "مالك المنصّة فقط"
   ],
   "is_sensitive": true,
-  "is_owner_only": false
+  "is_owner_only": true
  },
  {
   "key": "payment_gateway.manage",
@@ -11938,7 +11938,7 @@
    "مالك المنصّة فقط"
   ],
   "is_sensitive": true,
-  "is_owner_only": false
+  "is_owner_only": true
  },
  {
   "key": "invoices.view",
@@ -12550,7 +12550,7 @@
    "المالك فقط"
   ],
   "is_sensitive": true,
-  "is_owner_only": false
+  "is_owner_only": true
  },
  {
   "key": "earnings.list",
@@ -12567,7 +12567,7 @@
    "المالك فقط"
   ],
   "is_sensitive": true,
-  "is_owner_only": false
+  "is_owner_only": true
  },
  {
   "key": "earnings.export",
@@ -12583,7 +12583,7 @@
    "مالك المنصّة فقط"
   ],
   "is_sensitive": true,
-  "is_owner_only": false
+  "is_owner_only": true
  },
  {
   "key": "earnings.manage",
@@ -12599,7 +12599,7 @@
    "مالك المنصّة فقط"
   ],
   "is_sensitive": true,
-  "is_owner_only": false
+  "is_owner_only": true
  },
  {
   "key": "manual_rewards.create",
@@ -15150,7 +15150,7 @@
    "الحالة = غير مُنصَّب"
   ],
   "is_sensitive": true,
-  "is_owner_only": false
+  "is_owner_only": true
  },
  {
   "key": "setup_installer.manage",
@@ -15166,7 +15166,7 @@
    "الحالة = غير مُنصَّب"
   ],
   "is_sensitive": true,
-  "is_owner_only": false
+  "is_owner_only": true
  },
  {
   "key": "owner_only.view",
@@ -15182,7 +15182,7 @@
    "مالك المنصّة فقط"
   ],
   "is_sensitive": true,
-  "is_owner_only": false
+  "is_owner_only": true
  },
  {
   "key": "owner_only.manage",
@@ -15198,7 +15198,7 @@
    "مالك المنصّة فقط"
   ],
   "is_sensitive": true,
-  "is_owner_only": false
+  "is_owner_only": true
  },
  {
   "key": "reports_users.view",
@@ -15458,7 +15458,7 @@
    "مالك المنصّة فقط"
   ],
   "is_sensitive": true,
-  "is_owner_only": false
+  "is_owner_only": true
  },
  {
   "key": "reports_finance.list",
@@ -15474,7 +15474,7 @@
    "مالك المنصّة فقط"
   ],
   "is_sensitive": true,
-  "is_owner_only": false
+  "is_owner_only": true
  },
  {
   "key": "reports_finance.export",
@@ -15490,7 +15490,7 @@
    "مالك المنصّة فقط"
   ],
   "is_sensitive": true,
-  "is_owner_only": false
+  "is_owner_only": true
  },
  {
   "key": "reports_certificates.view",

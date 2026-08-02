@@ -7,6 +7,8 @@ use App\Models\ContributionCheckpoint;
 use App\Models\TaskContribution;
 use App\Services\Volunteer\Escalation\CaseCatalog;
 use App\Services\Volunteer\Escalation\EscalationEngine;
+use Illuminate\Support\Facades\View;
+use Illuminate\Support\ViewErrorBag;
 
 /**
  * الشاشات الأربع: تفتح لمن يملك الصلاحيّة، وتُرفَض 403 لمن لا يملكها (12.2.1).
@@ -47,6 +49,39 @@ class FlowScreensTest extends FlowTestCase
         $response->assertSee('اكتب المشاهد الثلاثة الأولى', false);
         // اسم المهمّة الأمّ شرط في كلّ صفّ
         $response->assertSee($task->title, false);
+    }
+
+    /** المعاينة قبل الإرسال ترفض الإرسال إن لم يكفِ الرصيد — وتُظهِر الرصيد بعد الخصم */
+    public function test_invite_preview_endpoint_blocks_an_unaffordable_invitation(): void
+    {
+        $this->grant($this->owner, 'contributions.create');
+
+        $task = $this->makeTask();
+
+        $response = $this->actingAs($this->owner)->getJson(route('volunteer.contributions.preview', $task).'?'.http_build_query([
+            'code' => $this->contributor->code,
+            'vxp_value' => 500,
+            'vxp_source' => 'owner_balance',
+        ]));
+
+        $response->assertOk();
+        $response->assertJsonPath('sufficient', false);
+        $this->assertSame(-500.0, (float) $response->json('balance_after'));
+        $this->assertNotNull($response->json('latest_internal_deadline'));
+    }
+
+    /** فورم الدعوة قابل للتضمين من صفحة المهمّة ويحمل السطر الصارم عن القيد */
+    public function test_invite_form_partial_renders_with_the_deadline_constraint(): void
+    {
+        $task = $this->makeTask();
+
+        View::share('errors', new ViewErrorBag);
+
+        $html = view('volunteer.contributions.partials.invite-form', ['task' => $task])->render();
+
+        $this->assertStringContainsString('الديدلاين الداخليّ', $html);
+        $this->assertStringContainsString('نقاط التفتيش (2 كحدّ أقصى)', $html);
+        $this->assertStringContainsString('معاينة قبل الإرسال', $html);
     }
 
     public function test_screens_are_forbidden_without_permission(): void

@@ -107,9 +107,7 @@
                 <x-kpi label="المتوسّط العامّ" :value="$summary['average'].' / '.$maxScore" icon="🧭" />
                 <x-kpi label="عدد المقيّمين" :value="$summary['raters']" icon="👥" />
                 <x-kpi label="نافذة العرض" :value="$windowWeeks.' أسبوعًا'" icon="📆" />
-                <x-kpi label="أثره على Rep"
-                       :value="$fmt(rep_rule(app(App\Services\Volunteer\Goals\RepService::class)->leadershipRuleKeyFor($summary['average'])))"
-                       icon="⚖️" />
+                <x-kpi label="أثره على Rep" :value="$fmt($myImpact)" icon="⚖️" />
             </div>
 
             @include('volunteer.performance.partials.line-chart', [

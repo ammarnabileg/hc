@@ -1,0 +1,142 @@
+@extends('layouts.app')
+
+@section('title', 'الإشعارات')
+
+@section('content')
+    {{-- الإشعارات (12.6-ب): أنواع + إرسال يدويّ برابط أو بدون + تجميع المتشابهة --}}
+    <x-page-header
+        title="الإشعارات"
+        subtitle="اضبط الأنواع، وابعت إشعارًا يدويًّا لجمهور محدَّد."
+        :breadcrumbs="[['label' => 'التوجيه والدعم', 'url' => route('admin.guidance.index')], ['label' => 'الإشعارات']]">
+        <x-slot:action>
+            @can('announcements.create')
+                <button type="button" data-modal-open="manual-notification"
+                        class="btn rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
+                        style="background: var(--color-brand-500); color: #04201c">إرسال إشعار يدويّ</button>
+            @endcan
+        </x-slot:action>
+    </x-page-header>
+
+    <x-tabs :tabs="$tabs" current="notifications" />
+
+    {{-- مصفوفة النوع × القناة (24.3) --}}
+    <div class="card p-4">
+        <h2 class="font-bold mb-3">أنواع الإشعارات وقنواتها</h2>
+
+        <div class="space-y-2">
+            @foreach ($types as $key => $label)
+                <div class="flex items-center gap-3 flex-wrap py-2" style="border-top: 1px solid var(--border)">
+                    <span class="flex-1 text-sm">{{ $label }}</span>
+                    @foreach ($channels as $channelKey => $channelLabel)
+                        <label class="flex items-center gap-1 text-xs">
+                            <input type="checkbox"
+                                   @checked(setting('notifications.matrix.'.$key.'.'.$channelKey, $channelKey === 'bell'))>
+                            {{ $channelLabel }}
+                        </label>
+                    @endforeach
+                </div>
+            @endforeach
+        </div>
+
+        <p class="text-xs mt-3" style="color: var(--text-muted)">
+            حدّ الهدوء: {{ $rateLimit }} إشعارات للمستخدم في اليوم — والزيادة تتأجّل أو تتجمّع بدل ما تنهال عليه.
+        </p>
+    </div>
+
+    {{-- تجميع الإشعارات المتشابهة في إشعار واحد بدل الإغراق (12.6-ب) --}}
+    <div class="card p-4 mt-4">
+        <h2 class="font-bold mb-2">التجميع الحاليّ</h2>
+        @if ($grouping->isEmpty())
+            <p class="text-sm" style="color: var(--text-muted)">مفيش إشعارات متشابهة في نافذة التجميع دلوقتي.</p>
+        @else
+            <ul class="text-sm space-y-1">
+                @foreach ($grouping as $group)
+                    <li>{{ $types[$group->category] ?? $group->category }}: {{ $group->total }} هيتجمّعوا في إشعار واحد</li>
+                @endforeach
+            </ul>
+        @endif
+    </div>
+
+    @can('announcements.create')
+        <x-modal id="manual-notification" title="إشعار يدويّ">
+            <form method="post" action="{{ route('admin.guidance.notifications.send') }}" class="space-y-3">
+                @csrf
+
+                <x-form.input name="title" label="العنوان" required />
+
+                <label class="block">
+                    <span class="block text-sm mb-1">النصّ</span>
+                    <textarea name="body" rows="3" class="w-full rounded-xl px-3 py-2 text-sm"
+                              style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)"></textarea>
+                </label>
+
+                {{-- برابط أو بدون (12.6-ب) --}}
+                <x-form.input name="url" label="رابط (اختياريّ)" hint="سيبه فاضي لو الإشعار بلا وجهة." />
+
+                <label class="block">
+                    <span class="block text-sm mb-1">النوع</span>
+                    <select name="category" class="w-full rounded-xl px-3 py-2 text-sm"
+                            style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
+                        @foreach ($types as $key => $label)
+                            <option value="{{ $key }}">{{ $label }}</option>
+                        @endforeach
+                    </select>
+                </label>
+
+                <label class="block">
+                    <span class="block text-sm mb-1">الجمهور</span>
+                    <select name="audience_type" data-audience class="w-full rounded-xl px-3 py-2 text-sm"
+                            style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
+                        <option value="all">الكلّ</option>
+                        <option value="role">حسب الدور</option>
+                        <option value="course">حسب التدريب</option>
+                        <option value="path">حسب المسار</option>
+                    </select>
+                </label>
+
+                <div class="hidden" data-audience-panel="role">
+                    <select name="audience_keys[]" multiple size="4" class="w-full rounded-xl px-3 py-2 text-sm"
+                            style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
+                        @foreach ($audiences['roles'] as $role)
+                            <option value="{{ $role->key }}">{{ $role->name_ar }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="hidden" data-audience-panel="course">
+                    <select name="audience_ids[]" multiple size="4" class="w-full rounded-xl px-3 py-2 text-sm"
+                            style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
+                        @foreach ($audiences['courses'] as $course)
+                            <option value="{{ $course->id }}">{{ $course->name_ar }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="hidden" data-audience-panel="path">
+                    <select name="audience_ids[]" multiple size="4" class="w-full rounded-xl px-3 py-2 text-sm"
+                            style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
+                        @foreach ($audiences['paths'] as $path)
+                            <option value="{{ $path->id }}">{{ $path->name_ar }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <button class="btn w-full rounded-xl px-4 py-3 text-sm font-semibold"
+                        style="background: var(--color-brand-500); color: #04201c">ابعت</button>
+            </form>
+        </x-modal>
+    @endcan
+
+    @include('admin.courses.partials.toast')
+
+    @push('scripts')
+        <script>
+            const audience = document.querySelector('[data-audience]');
+            audience?.addEventListener('change', () => {
+                document.querySelectorAll('[data-audience-panel]').forEach((panel) => {
+                    panel.classList.toggle('hidden', panel.dataset.audiencePanel !== audience.value);
+                });
+            });
+        </script>
+    @endpush
+@endsection

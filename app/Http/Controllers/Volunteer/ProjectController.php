@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Volunteer;
 use App\Http\Controllers\Controller;
 use App\Models\Project;
 use App\Models\Task;
-use App\Models\User;
 use App\Models\WorkItem;
 use App\Models\WorkPackage;
 use App\Services\Volunteer\Goals\EntityScope;
@@ -189,11 +188,5 @@ class ProjectController extends Controller
             'no_delivery' => 'فائتة',
             'closed' => 'مُغلَقة',
         ];
-    }
-
-    /** اسم المُسنَد إليه للعرض — بلا كشف زائد عن الحاجة */
-    public static function assigneeName(?User $user): string
-    {
-        return $user?->shortName() ?? '—';
     }
 }

@@ -95,7 +95,7 @@ class RewardController extends Controller
         // «تصحيح خطأ تقنيّ» يجعل مرجع المعاملة الأصليّة إلزاميًّا (12.9)
         $strict = (array) setting('rewards.reasons_requiring_reference_strict', []);
 
-        if (in_array($data['reason'], $strict, true) && ! $data['reference']) {
+        if (in_array($data['reason'], $strict, true) && empty($data['reference'])) {
             return back()->withInput()->with('status', 'السبب ده لازم معاه مرجع المعاملة الأصليّة — اكتبه وجرّب تاني.');
         }
 

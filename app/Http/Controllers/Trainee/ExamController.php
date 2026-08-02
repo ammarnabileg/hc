@@ -161,6 +161,18 @@ class ExamController extends Controller
             return response()->json(['saved' => false], 409);
         }
 
+        // انتهى الوقت وهو يكتب: نسلّم تلقائيًّا ونخبره بوضوح بدل الحفظ في الفراغ (24.5)
+        if ($this->secondsLeft($attempt) <= 0) {
+            $this->finish($attempt, 'expired');
+
+            return response()->json([
+                'saved' => false,
+                'expired' => true,
+                'message' => (string) setting('exams.messages.time_up', 'خلص الوقت — سلّمنا إجاباتك تلقائيًّا.'),
+                'redirect' => route('exams.result', $attempt),
+            ], 409);
+        }
+
         $validated = $request->validate([
             'question_id' => ['required', 'integer'],
             'value' => ['nullable', 'string', 'max:2000'],

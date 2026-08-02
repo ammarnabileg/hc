@@ -47,8 +47,8 @@ class PermissionSeeder extends Seeder
                     'allowed_scopes' => json_encode($row['allowed_scopes'], JSON_UNESCAPED_UNICODE),
                     'condition_key' => $row['conditions'][0] ?? null,
                     'is_sensitive' => (bool) $row['is_sensitive'],
-                    // عزل الحسّاس: الماليّ لمالك المنصّة وحده (12.2.1)
-                    'is_owner_only' => (bool) $row['is_owner_only'] || $row['resource'] === 'finance',
+                    // عزل الحسّاس: المجموعة المحميّة لمالك المنصّة وحده (12.2.1)
+                    'is_owner_only' => (bool) $row['is_owner_only'],
                     'created_at' => now(),
                     'updated_at' => now(),
                 ];

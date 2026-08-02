@@ -1,8 +1,24 @@
 <?php
 
-use Illuminate\Foundation\Inspiring;
-use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Schedule;
 
-Artisan::command('inspire', function () {
-    $this->comment(Inspiring::quote());
-})->purpose('Display an inspiring quote');
+/*
+|--------------------------------------------------------------------------
+| جدولة المهامّ الدوريّة
+|--------------------------------------------------------------------------
+| ملفّ مشترك — الأوامر نفسها يملكها أصحاب المجالات، والجدولة هنا.
+*/
+
+// محرّك التصعيد (23-8): يعالج النوافذ الفائتة ويطبّق التسويات الآليّة التسع،
+// والاعتماد التلقائيّ للمساهم، ونقاط التفتيش والديدلاينات الداخليّة الفائتة.
+Schedule::command('escalations:run')->everyFiveMinutes()->withoutOverlapping();
+
+// تصفير درجة الالتزام شهريًّا (13.4-ن): يوم 1 الساعة 5:00ص بتوقيت القاهرة —
+// والرقم الظاهر وحده يتصفّر، أمّا سجلّ المعاملات والمكتسَب التراكميّ فيبقيان.
+Schedule::command('rep:reset-monthly')
+    ->monthlyOn(1, '05:00')
+    ->timezone('Africa/Cairo')
+    ->withoutOverlapping();
+
+// توليد المهامّ من البنود المتكرّرة في المشروع التشغيليّ (23)
+Schedule::command('recurring:generate')->hourly()->withoutOverlapping();

@@ -133,8 +133,15 @@
                 headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': token, 'Accept': 'application/json' },
                 body: JSON.stringify({ question_id: questionId, value: value }),
             });
-            if (!response.ok) throw new Error('save failed');
             const data = await response.json();
+
+            // انتهى الوقت أثناء الكتابة: نروح لشاشة النتيجة برسالة واضحة
+            if (response.status === 409 && data.expired && data.redirect) {
+                window.location.href = data.redirect;
+                return;
+            }
+
+            if (!response.ok) throw new Error('save failed');
             pending.delete(questionId);
             offline(false);
             say(data.message || @json(setting('exams.messages.autosaved', 'اتحفظ ✓')));

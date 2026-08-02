@@ -286,7 +286,7 @@ class GuidanceComposer
     /** @param  array<string, mixed>  $filters */
     public function complaints(array $filters = []): LengthAwarePaginator
     {
-        $query = Complaint::query()->with(['user', 'assigned_to'])->latest('id');
+        $query = Complaint::query()->with('user')->latest('id');
 
         if (($q = trim((string) ($filters['q'] ?? ''))) !== '') {
             $query->where(fn ($i) => $i->where('title', 'like', '%'.$q.'%')

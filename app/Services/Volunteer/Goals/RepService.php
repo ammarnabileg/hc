@@ -24,6 +24,8 @@ class RepService
 {
     public const CURRENCY = 'rep';
 
+    private ?Currency $currency = null;
+
     // ------------------------------------------------------------------ الرقم الظاهر
 
     public function score(User $user): float
@@ -365,11 +367,10 @@ class RepService
 
     // ------------------------------------------------------------------ داخليّ
 
+    /** كاش لكلّ نسخة لا `static` — كي لا يتسرّب صفٌّ قديم بين الطلبات والاختبارات */
     private function currency(): Currency
     {
-        static $currency = null;
-
-        return $currency ??= Currency::query()->where('code', self::CURRENCY)->firstOrFail();
+        return $this->currency ??= Currency::query()->where('code', self::CURRENCY)->firstOrFail();
     }
 
     /**
