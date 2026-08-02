@@ -59,17 +59,10 @@
     --text-muted:     #56706a;
   }
 
-  @media (prefers-color-scheme: light) {
-    :root:not([data-theme]) {
-      color-scheme: light;
-      --surface:        #ffffff;
-      --surface-raised: #f6fbfa;
-      --surface-sunken: #eef6f4;
-      --border:         rgb(0 128 108 / 0.18);
-      --text:           #16241f;
-      --text-muted:     #56706a;
-    }
-  }
+  /*
+   | الوضع الداكن هو الافتراضيّ (2.10.1) — لا يتبع تفضيل النظام.
+   | والفاتح لا يُفعَّل إلّا باختيار المستخدم صراحةً (data-theme="light").
+   */
 
   html { scroll-behavior: smooth; }
 
