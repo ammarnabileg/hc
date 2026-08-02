@@ -30,7 +30,7 @@
                  action="اتفرّج على المتجر"
                  :href="$storeUrl" />
     @else
-        <form method="post" action="{{ route('store.cart.checkout') }}" data-cart-form
+        <form id="cart-checkout-form" method="post" action="{{ route('store.cart.checkout') }}" data-cart-form
               data-quote-url="{{ route('store.cart.quote') }}" class="grid gap-4 lg:grid-cols-3">
             @csrf
 
@@ -167,6 +167,15 @@
                 </form>
             @endunless
         @endforeach
+    @endif
+@endsection
+
+{{-- الفعل الرئيسيّ في شريط الموبايل الثابت (2.15-ج) — ويشغّل نفس الفورم --}}
+@section('mobile_action')
+    @if ($quote['lines'] !== [])
+        <button type="submit" form="cart-checkout-form"
+                class="btn w-full inline-flex items-center justify-center rounded-xl px-4 py-3 text-sm font-semibold"
+                style="background: var(--color-brand-500); color: #04201c">{{ setting('store.cart.submit_label') }}</button>
     @endif
 @endsection
 

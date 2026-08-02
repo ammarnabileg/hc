@@ -11,6 +11,7 @@ use App\Services\Gamification\CelebrationService;
 use App\Services\Gamification\StreakService;
 use App\Services\Gamification\WalletGateway;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -368,7 +369,7 @@ class WarMatchService
 
     // ------------------------------------------------------------------ داخليّ
 
-    /** @return \Illuminate\Support\Collection<int, ChallengeParticipation> */
+    /** @return Collection<int, ChallengeParticipation> */
     private function runningSides(WarMatch $match)
     {
         return ChallengeParticipation::query()

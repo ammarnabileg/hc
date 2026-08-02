@@ -188,10 +188,9 @@ class SettingsCatalog
     private static function streaksAndLeaderboard(): array
     {
         return [
-            // ⭐ مفتاح واحد لكلّ معنًى (7.2 · 2.13): كانت الشاشة تكتب `streaks.club5am.*`
-            // و`streaks.reward_days` بينما يقرأ الكود `streaks.club_5am.*`
-            // و`streaks.reward.every_days` — فيعدّل الأدمن قيمةً لا يراها النظام.
-            // المعتمَد الآن هو ما تراه هنا، ومايجريشن الترحيل يحذف اليتيم.
+            // ⭐ مفتاح واحد لكلّ معنًى (7.2 · 2.13): كانت الشاشة تكتب تهجئةً
+            // ويقرأ الكود أخرى، فيعدّل الأدمن قيمةً لا يراها النظام. المعتمَد
+            // هو ما تراه هنا، ومايجريشن `settings_unify_duplicates` يحذف اليتيم.
             'streaks.enabled' => ['gamification_streaks', 'تفعيل الستريك ونادي الخامسة', 'bool', '1'],
             'streaks.club5am.window_start' => ['gamification_streaks', 'بداية نافذة نادي الخامسة (توقيت المستخدم)', 'string', '04:50'],
             'streaks.club5am.window_end' => ['gamification_streaks', 'نهاية نافذة نادي الخامسة', 'string', '05:20'],

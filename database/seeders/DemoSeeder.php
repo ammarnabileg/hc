@@ -39,6 +39,7 @@ class DemoSeeder extends Seeder
             VolunteerMeetingsDemoSeeder::class,
             VolunteerOrgDemoSeeder::class,
             VolunteerPeopleDemoSeeder::class,
+            RetentionDemoSeeder::class,
 
             // الطبقة العامّة (تعمل للزائر)
             HomeDemoSeeder::class,

@@ -73,12 +73,15 @@ class ReferralAdmin
         return Referral::query()
             ->with(['referrer:id,name,code', 'referred:id,name,code,status'])
             ->whereBetween('referrals.created_at', [$from, $to])
+            // ⚠️ البحث مجموعٌ داخل قوسين: بغيرهما تهرب `or` من فلتر الفترة فيعود
+            // الجدول بصفوف خارج المدى المطلوب — وهو خطأ صامت لا تراه العين.
             ->when(($filters['q'] ?? '') !== '', function ($q) use ($filters) {
                 $term = '%'.$filters['q'].'%';
 
-                $q->where('referrals.code', 'like', $term)
+                $q->where(fn ($w) => $w
+                    ->where('referrals.code', 'like', $term)
                     ->orWhereHas('referrer', fn ($r) => $r->where('name', 'like', $term)->orWhere('code', 'like', $term))
-                    ->orWhereHas('referred', fn ($r) => $r->where('name', 'like', $term)->orWhere('code', 'like', $term));
+                    ->orWhereHas('referred', fn ($r) => $r->where('name', 'like', $term)->orWhere('code', 'like', $term)));
             })
             ->when(($filters['status'] ?? '') === 'completed', fn ($q) => $q->whereHas('referred', fn ($r) => $r->where('status', 'active')))
             ->when(($filters['status'] ?? '') === 'waiting', fn ($q) => $q->whereHas('referred', fn ($r) => $r->where('status', '!=', 'active')))

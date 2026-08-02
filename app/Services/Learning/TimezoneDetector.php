@@ -32,7 +32,8 @@ class TimezoneDetector
      */
     public function sync(Request $request, ?User $user): bool
     {
-        if (! $user) {
+        // التوجل من لوحة الإدارة: منصّة تعمل في دولة واحدة قد لا تريد الكشف أصلًا
+        if (! $user || ! setting('availability.detect.enabled', true)) {
             return false;
         }
 

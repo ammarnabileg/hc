@@ -25,6 +25,10 @@ class RepRuleWriter
         'task.contribution_no_delivery' => -0.2,
         'task.checkpoint_missed' => -0.2,
         'task.slowdown' => -0.1,
+        // الحالة الثامنة يدويّة (13.4-ن-أ): المدى +0.25 ↔ −0.5 يحكمه
+        // `workflow.repeated_return.rep_min/max`، وهذه قيمة البداية وحدها.
+        'task.state8_manual' => 0.25,
+        'task.committee_chance' => 1.0,
         'meeting.within_3h' => 1.0,
         'meeting.within_12h' => 0.5,
         'meeting.excused_absence' => 0.0,
