@@ -106,7 +106,8 @@ class AccountContainmentGate
                 'account.containment.support_line',
                 'إذا كنت تعتقد أنه بالخطأ رجاء التواصل مع دعم المنصة',
             ),
-            'noticeTitle' => (string) setting('account.containment.notice_title', 'رسالة إداريّة'),
+            // عنوان الكارت بنصّ 12.1 حرفيًّا: «رسالة إدارية»
+            'noticeTitle' => (string) setting('account.containment.notice_title', 'رسالة إدارية'),
             'message' => (string) ($user->containment_reason ?? ''),
             'until' => $banned || $user->suspended_until === null
                 ? null

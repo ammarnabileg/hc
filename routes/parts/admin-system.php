@@ -132,6 +132,8 @@ Route::middleware(['auth', 'admin.panel'])->prefix('admin')->name('admin.')->gro
         Route::post('/settings/maintenance/start', [MaintenanceController::class, 'start'])->name('settings.maintenance.start');
         Route::post('/settings/maintenance/extend', [MaintenanceController::class, 'extend'])->name('settings.maintenance.extend');
         Route::post('/settings/maintenance/lift', [MaintenanceController::class, 'lift'])->name('settings.maintenance.lift');
+        // إلغاء صيانة مجدولة قبل موعدها (12.7-ج)
+        Route::post('/settings/maintenance/unschedule', [MaintenanceController::class, 'unschedule'])->name('settings.maintenance.unschedule');
     });
 
     Route::middleware('permission:maintenance.view')

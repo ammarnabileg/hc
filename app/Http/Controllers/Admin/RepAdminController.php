@@ -162,6 +162,13 @@ class RepAdminController extends Controller
             'attachment_path' => ['nullable', 'string', 'max:255'],
         ]);
 
+        /*
+         | ⭐ `rep.behavior.attachment_enabled` كان مفتاحًا بلا قارئ: المالك يغلقه
+         | فيبقى المرفق يُقبَل ويُحفَظ. والإغلاق يُنفَّذ **في الخادم** لا في الفورم
+         | وحده، فلا يمرّ طلبٌ مصنوع يدويًّا (2.13 · 13.4-ن-هـ).
+         */
+        $attachmentsAllowed = (bool) setting('rep.behavior.attachment_enabled', true);
+
         $target = User::query()->where('code', mb_strtoupper($data['code']))->first();
 
         if (! $target) {
@@ -177,7 +184,9 @@ class RepAdminController extends Controller
             $record = BehaviorLedger::record(
                 $request->user(), $target,
                 BehaviorViolation::findOrFail($data['violation_id']),
-                $data['justification'], $data['attachment_path'] ?? null, $membership,
+                $data['justification'],
+                $attachmentsAllowed ? ($data['attachment_path'] ?? null) : null,
+                $membership,
             );
         } catch (RuntimeException $e) {
             return back()->withInput()->with('status', $e->getMessage());

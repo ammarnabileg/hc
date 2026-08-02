@@ -151,19 +151,22 @@
                     @endforelse
                 </div>
 
-                <div class="card p-4">
-                    <div class="text-sm font-bold mb-3">معاملات السلوك لكلّ مشرف</div>
-                    @forelse ($oversight['behavior_grantors'] as $row)
-                        <div class="flex items-center justify-between gap-2 py-2 text-sm" style="border-top: 1px solid var(--border)">
-                            <span class="min-w-0 truncate">{{ $row['name'] }}</span>
-                            <span class="text-xs shrink-0" style="color: var(--text-muted)">
-                                منح {{ $row['granted'] }} · اعتراضات مقبولة {{ $row['accepted_percent'] === null ? '—' : $row['accepted_percent'].'%' }}
-                            </span>
-                        </div>
-                    @empty
-                        <p class="text-sm" style="color: var(--text-muted)">مفيش معاملات سلوك في المدى.</p>
-                    @endforelse
-                </div>
+                {{-- الكارت كلّه **يُحذَف** لو أغلقه المالك من إعدادات Rep (13.4-ن-هـ · 2.15-أ-7) --}}
+                @if ($oversight['show_behavior_grantors'] ?? true)
+                    <div class="card p-4">
+                        <div class="text-sm font-bold mb-3">معاملات السلوك لكلّ مشرف</div>
+                        @forelse ($oversight['behavior_grantors'] as $row)
+                            <div class="flex items-center justify-between gap-2 py-2 text-sm" style="border-top: 1px solid var(--border)">
+                                <span class="min-w-0 truncate">{{ $row['name'] }}</span>
+                                <span class="text-xs shrink-0" style="color: var(--text-muted)">
+                                    منح {{ $row['granted'] }} · اعتراضات مقبولة {{ $row['accepted_percent'] === null ? '—' : $row['accepted_percent'].'%' }}
+                                </span>
+                            </div>
+                        @empty
+                            <p class="text-sm" style="color: var(--text-muted)">مفيش معاملات سلوك في المدى.</p>
+                        @endforelse
+                    </div>
+                @endif
 
                 <div class="card p-4">
                     <div class="text-sm font-bold mb-3">أعلام «متأخّر بسبب…»</div>

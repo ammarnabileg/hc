@@ -187,18 +187,89 @@ class MaintenanceService
     }
 
     /**
-     * ⭐ استثناء IP الأدمن ليكمل عمله والموقع مقفول.
-     * والقائمة إعداد (سطر لكلّ IP) لا قيمة محروقة.
+     * ⭐ استثناء IP الأدمن ليكمل عمله والموقع مقفول (12.7-ج).
+     *
+     * **مصدرٌ واحد للقائمة**: `system.maintenance.exempt_ips`. كان لها مصدران
+     * (`admin_ips` هنا و`exempt_ips` في البوّابة)، وقائمةٌ أمنيّة بمصدرين خطر:
+     * الأدمن يشيل IP من شاشةٍ فيبقى مسموحًا من الأخرى. و`allow_admin_ip` يبقى
+     * كما هو — فهو مفتاح تشغيل لا قائمة ثانية.
+     *
+     * @return array<int, string>
      */
+    public function exemptIps(): array
+    {
+        return array_values(array_filter(array_map(
+            'trim',
+            preg_split('/[\s,]+/', (string) setting('system.maintenance.exempt_ips', '')) ?: [],
+        )));
+    }
+
     public function ipAllowed(?string $ip): bool
     {
         if (! setting('system.maintenance.allow_admin_ip', true)) {
             return false;
         }
 
-        $list = array_filter(array_map('trim', preg_split('/[\s,]+/', (string) setting('system.maintenance.admin_ips', '')) ?: []));
+        return $ip !== null && in_array($ip, $this->exemptIps(), true);
+    }
 
-        return $ip !== null && in_array($ip, $list, true);
+    // ------------------------------------------------- الصيانة المجدولة (12.7-ج)
+
+    /**
+     * ⭐ «مجدول (يبدأ/ينتهي تلقائيًّا)» — كان الفورم رسالةً وساعاتٍ فقط بلا **وقت
+     * بدء**، فلا سبيل لجدولتها أصلًا. الآن: موعدٌ في المستقبل يُحفَظ ولا يُفعَّل،
+     * والمسحة الدوريّة تفعّله في وقته، والنهاية تلقائيّة كما هي بعدد الساعات.
+     *
+     * @return array{at: ?string, message: string, hours: int}
+     */
+    public function scheduled(): array
+    {
+        return [
+            'at' => (string) setting('system.maintenance.scheduled_at', '') ?: null,
+            'message' => (string) setting('system.maintenance.scheduled_message', ''),
+            'hours' => (int) setting('system.maintenance.scheduled_hours', 0),
+        ];
+    }
+
+    public function schedule(User $actor, string $message, int $hours, CarbonImmutable $startsAt): void
+    {
+        $this->write('system.maintenance.scheduled_at', $startsAt->toDateTimeString(), $actor);
+        $this->write('system.maintenance.scheduled_message', $message, $actor);
+        $this->write('system.maintenance.scheduled_hours', (string) max(1, $hours), $actor);
+    }
+
+    public function cancelSchedule(User $actor): void
+    {
+        $this->write('system.maintenance.scheduled_at', '', $actor);
+        $this->write('system.maintenance.scheduled_hours', '0', $actor);
+    }
+
+    /**
+     * تُنادى من المسحة الدوريّة: تبدأ الصيانة المجدولة حين يحلّ موعدها.
+     * والقرار هنا لا في تعبير الكرون — فالموعد إعدادٌ يغيّره الأدمن أيّ وقت.
+     */
+    public function startDueSchedule(?User $actor = null): ?MaintenanceWindow
+    {
+        $scheduled = $this->scheduled();
+
+        if (! $scheduled['at'] || $scheduled['hours'] <= 0 || $this->isActive()) {
+            return null;
+        }
+
+        if (CarbonImmutable::parse($scheduled['at'])->isFuture()) {
+            return null;
+        }
+
+        $actor ??= User::query()->whereNotNull('id')->orderBy('id')->first();
+
+        if (! $actor) {
+            return null;
+        }
+
+        $window = $this->start($actor, $scheduled['message'], $scheduled['hours']);
+        $this->cancelSchedule($actor);
+
+        return $window;
     }
 
     /**
@@ -274,6 +345,22 @@ class MaintenanceService
             'pgsql' => "{$column} + interval '{$seconds} seconds'",
             default => "DATE_ADD({$column}, INTERVAL {$seconds} SECOND)",
         };
+    }
+
+    /** كتابة إعدادٍ واحد بسطر تدقيقه — كلّ تغييرٍ مَن ومتى (12.7-ج). */
+    private function write(string $key, string $value, User $actor): void
+    {
+        $setting = Setting::query()->where('key', $key)->first();
+
+        if (! $setting) {
+            return;
+        }
+
+        $old = $setting->value;
+        $setting->update(['value' => $value]);
+        $this->registry->audit($setting, $old, $value, $actor, 'maintenance.schedule');
+
+        Cache::forget('settings');
     }
 
     private function flag(bool $on, string $message, User $actor): void

@@ -40,6 +40,56 @@ class WalletController extends Controller
     /** الكروت الثانويّة الثلاثة كما ينصّ 19.2 بالحرف: التذاكر / XP / الساعات */
     public const SECONDARY_CURRENCIES = ['tickets', 'xp', 'hours'];
 
+    /**
+     * ⭐ عمود **«من ← إلى»** كما ينصّ 19.2 بالحرف.
+     *
+     * لماذا يُشتقّ ولا يُخزَّن؟ لأنّ الجدول الموحّد يسجّل **طرفًا واحدًا** لكلّ حركة
+     * (صاحب المحفظة) وإشارةَ المبلغ؛ فالطرف الآخر يُقرَأ من مصدر الحركة ومرجعها.
+     * وكان العمود المعروض اسمه «المرجع» بينما يعرض **السبب** — عنوانٌ مضلِّل.
+     *
+     * @return array{from:string,to:string}
+     */
+    public static function flowOf(Transaction $row): array
+    {
+        $mine = (string) setting('wallet.flow.self_label', 'محفظتي');
+        $counterpart = (string) (
+            self::SOURCE_LABELS[$row->source] ?? setting('wallet.flow.platform_label', 'المنصّة')
+        );
+
+        // الحوالة تحمل الطرف الآخر في نصّ سببها («حوالة إلى U…» / «حوالة من U…») — 19.3
+        if ($row->source === 'transfer' && $row->reason) {
+            $counterpart = trim(str_replace(
+                (array) setting('wallet.flow.transfer_prefixes', ['حوالة إلى', 'حوالة من']),
+                '',
+                (string) $row->reason,
+            )) ?: $counterpart;
+        }
+
+        return (float) ($row->applied_amount ?? $row->amount) < 0
+            ? ['from' => $mine, 'to' => $counterpart]
+            : ['from' => $counterpart, 'to' => $mine];
+    }
+
+    /** عمود **«ملاحظات»** (19.2): ما يحتاج المستخدم معرفته عن الحركة بلا فتح البانل */
+    public static function notesOf(Transaction $row): string
+    {
+        $notes = [];
+
+        if ($row->exceeded_daily_cap) {
+            $notes[] = (string) setting('wallet.notes.capped', 'تعدّت الحدّ اليوميّ — اتطبّق منها المسموح.');
+        }
+
+        if ($row->is_correction) {
+            $notes[] = (string) setting('wallet.notes.correction', 'حركة تصحيح موثّقة.');
+        }
+
+        if ($note = ($row->meta['note'] ?? null)) {
+            $notes[] = (string) $note;
+        }
+
+        return implode(' · ', $notes);
+    }
+
     public function __construct(
         private readonly TransferService $transfers,
         private readonly ExchangeService $exchanges,
@@ -167,16 +217,21 @@ class WalletController extends Controller
             $out = fopen('php://output', 'w');
             // BOM حتى تفتح العربيّة سليمةً في إكسل
             fwrite($out, "\xEF\xBB\xBF");
-            fputcsv($out, ['التاريخ', 'النوع', 'العملة', 'القيمة', 'المرجع', 'الرصيد بعدها']);
+            // نفس أعمدة الشاشة بنصّ 19.2 — والكشف المصدَّر لا يخالف ما رآه صاحبه
+            fputcsv($out, ['#', 'العملة', 'الكمية', 'من ← إلى', 'السبب', 'ملاحظات', 'التاريخ', 'الرصيد بعدها']);
 
             $query->chunk(500, function ($chunk) use ($out) {
                 foreach ($chunk as $row) {
+                    $flow = self::flowOf($row);
+
                     fputcsv($out, [
-                        $row->created_at?->format('Y-m-d H:i'),
-                        self::SOURCE_LABELS[$row->source] ?? $row->source,
+                        $row->id,
                         $row->currency?->name_ar,
                         (float) ($row->applied_amount ?? $row->amount),
+                        $flow['from'].' ← '.$flow['to'],
                         $row->reason,
+                        self::notesOf($row),
+                        $row->created_at?->format('Y-m-d H:i'),
                         (float) $row->balance_after,
                     ]);
                 }

@@ -4,6 +4,7 @@ namespace Tests\Feature\Admin\Ops;
 
 use App\Services\Admin\Ops\BackupManager;
 use App\Services\Admin\Ops\BatchMigrator;
+use App\Services\Admin\Ops\SchemaLedger;
 use App\Services\Admin\Ops\UpdateLock;
 use App\Services\Admin\System\MaintenanceService;
 use Illuminate\Database\Schema\Blueprint;
@@ -248,6 +249,57 @@ class AdminOpsUpdatePipelineTest extends OpsTestCase
         $this->assertDatabaseCount('maintenance_windows', 1);
         $this->assertNotNull(DB::table('maintenance_windows')->latest('id')->first()->ended_at);
         $this->assertFalse(app(MaintenanceService::class)->isActive());
+    }
+
+    // ------------------------------------------------------------------ هـ) التحقّق بعد كلّ خطوة
+
+    /**
+     * ⭐ هجرة **تنجح** لكنّها تفقد صفوفًا ⟵ التحقّق يمسكها ويوقف كلّ شيء ويستعيد.
+     * وهذه أخطر من هجرة تنفجر، لأنّها كانت تمرّ بصمت قبل 2.11-هـ.
+     */
+    public function test_silent_row_loss_is_caught_by_the_after_step_verification(): void
+    {
+        $admin = $this->admin(self::MANAGER);
+        $this->set('updates.migrations_path', 'tests/Feature/Admin/Ops/fixtures/lossy');
+
+        $seeded = DB::table('app_version_history')->count();
+
+        $this->actingAs($admin)->post(route('admin.ops.updates.dry-run'));
+        $this->actingAs($admin)->post(route('admin.ops.updates.migrate'), ['confirm' => 'تنفيذ', 'understood' => '1']);
+
+        $run = DB::table('update_runs')->orderByDesc('id')->first();
+        $this->assertSame('failed', $run->status);
+        $this->assertSame('verify', $run->stage);
+        $this->assertStringContainsString('app_version_history', (string) $run->error);
+
+        // البيانات رجعت والإصدار ما ارتفعش والمنصّة مفتوحة
+        $this->assertSame($seeded, DB::table('app_version_history')->where('event', '!=', 'failed')->count());
+        $this->assertSame('1.0.0', (string) setting('updates.current_version'));
+        $this->assertFalse(app(MaintenanceService::class)->isActive());
+    }
+
+    /** والتحقّق النهائيّ يفحص العلاقات فعلًا — لا يرجع «تمام» بلا ما يبصّ */
+    public function test_final_verification_detects_broken_relations(): void
+    {
+        $ledger = app(SchemaLedger::class);
+
+        $this->assertSame([], $ledger->verifyRelations());
+
+        // صفّ يتيم: يشير لمستخدم غير موجود
+        DB::statement('PRAGMA defer_foreign_keys = ON');
+        DB::table('audit_logs')->insert([
+            'user_id' => 999999,
+            'action' => 'probe.orphan',
+            'auditable_type' => 'probe',
+            'auditable_id' => 0,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        $problems = $ledger->verifyRelations();
+
+        $this->assertNotEmpty($problems, 'التحقّق النهائيّ ما شافش صفًّا يتيمًا.');
+        $this->assertStringContainsString('audit_logs.user_id', implode(' ', $problems));
     }
 
     // ------------------------------------------------------------------ د) الدفعات القابلة للاستئناف

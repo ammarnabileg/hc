@@ -18,7 +18,7 @@
 - **شاشات/أجزاء بليد (2):**
   - `placeholder.blade.php`
   - `welcome.blade.php` — Schema.org — نتيجة غنيّة بلا مكتبة خارجيّة (21.2-ب)
-- **مجلّدات فرعيّة (31):** `account/` · `achievements/` · `admin/` · `announcements/` · `auth/` · `cards/` · `certificates/` · `challenges/` · `components/` · `cv/` · `dashboard/` · `events/` · `exams/` · `growth/` · `home/` · `layouts/` · `learning/` · `library/` · `maintenance/` · `notifications/` · `partials/` · `profile/` · `public/` · `referral/` · `reward-questions/` · `security/` · `setup/` · `store/` · `support/` · `volunteer/` · `wallet/` — ولكلٍّ منها وثيقتها.
+- **مجلّدات فرعيّة (32):** `account/` · `achievements/` · `admin/` · `announcements/` · `auth/` · `cards/` · `certificates/` · `challenges/` · `components/` · `cv/` · `dashboard/` · `events/` · `exams/` · `growth/` · `home/` · `layouts/` · `learning/` · `library/` · `maintenance/` · `notifications/` · `onboarding/` · `partials/` · `profile/` · `public/` · `referral/` · `reward-questions/` · `security/` · `setup/` · `store/` · `support/` · `volunteer/` · `wallet/` — ولكلٍّ منها وثيقتها.
 <!-- تلقائيّ:نهاية:المنجز -->
 
 ## ⬜ المتبقّي

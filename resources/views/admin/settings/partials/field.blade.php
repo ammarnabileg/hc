@@ -67,7 +67,10 @@
             <span>فعّل الميزة أوّلًا: <code>{{ $toggler }}</code></span>
         @else
             <span data-setting-example>{{ $example ?? $setting->hint }}</span>
-            <span class="opacity-70"> · {{ $registry->rangeHint($setting) }}</span>
+            {{-- النطاق الرقميّ للأرقام وحدها — لا «من 0 إلى 1000000» تحت نصّ (12.7-ج) --}}
+            @if ($range = $registry->rangeHint($setting))
+                <span class="opacity-70"> · {{ $range }}</span>
+            @endif
         @endif
     </div>
 

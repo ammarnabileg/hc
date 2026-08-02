@@ -87,22 +87,14 @@ class MaintenanceGate
     }
 
     /**
-     * ⭐ `system.maintenance.exempt_ips` — سطر أو فاصلة لكلّ IP.
-     * ونقبل كذلك القائمة القديمة `admin_ips` عبر الخدمة فلا يضيع ضبطٌ سابق.
+     * ⭐ **مصدرٌ واحد** لقائمة الاستثناء: `system.maintenance.exempt_ips`
+     * (سطر أو فاصلة لكلّ IP) — وقراءتها من `MaintenanceService` وحده.
+     *
+     * كانت هنا قائمةٌ تُقرأ مباشرةً وهناك أخرى (`admin_ips`) في الخدمة، فلو شال
+     * الأدمن IP من إحداهما بقي مسموحًا من الأخرى — وقائمةٌ أمنيّة بمصدرين خطر.
      */
     private function ipIsExempt(Request $request): bool
     {
-        $ip = $request->ip();
-
-        $list = array_filter(array_map(
-            'trim',
-            preg_split('/[\s,]+/', (string) setting('system.maintenance.exempt_ips', '')) ?: [],
-        ));
-
-        if ($ip !== null && in_array($ip, $list, true)) {
-            return true;
-        }
-
-        return $this->maintenance->ipAllowed($ip);
+        return $this->maintenance->ipAllowed($request->ip());
     }
 }

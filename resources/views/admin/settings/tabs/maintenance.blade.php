@@ -1,6 +1,7 @@
 @php
     $active = $maintenance->isActive();
     $state = $maintenance->publicState();
+    $scheduled = $maintenance->scheduled();
 @endphp
 
 {{-- بطاقة الحالة + العدّاد المتبقّي + مَن فعّلها ومنذ متى (24.3) --}}
@@ -74,13 +75,23 @@
                           placeholder="{{ setting('system.maintenance.message') }}">{{ old('message', setting('system.maintenance.message')) }}</textarea>
             </label>
 
-            <label class="block text-sm">
-                <span class="block mb-1">عدد الساعات</span>
-                <input type="number" name="hours" min="1" required
-                       value="{{ old('hours', (int) setting('system.maintenance.default_hours', 2)) }}"
-                       class="w-32 rounded-xl px-3 py-2 text-sm"
-                       style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
-            </label>
+            <div class="grid sm:grid-cols-2 gap-3">
+                <label class="block text-sm">
+                    <span class="block mb-1">عدد الساعات</span>
+                    <input type="number" name="hours" min="1" required
+                           value="{{ old('hours', (int) setting('system.maintenance.default_hours', 2)) }}"
+                           class="w-full rounded-xl px-3 py-2 text-sm"
+                           style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
+                </label>
+
+                {{-- ⭐ «مجدول — يبدأ تلقائيًّا» (12.7-ج): سيبه فاضي تشتغل حالًا --}}
+                <label class="block text-sm">
+                    <span class="block mb-1">وقت البدء (اختياريّ — سيبه فاضي تبدأ حالًا)</span>
+                    <input type="datetime-local" name="starts_at" value="{{ old('starts_at') }}"
+                           class="w-full rounded-xl px-3 py-2 text-sm"
+                           style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
+                </label>
+            </div>
 
             <button class="btn rounded-xl px-4 py-2 text-sm font-semibold"
                     style="background: color-mix(in srgb, var(--color-state-danger) 25%, transparent); color: var(--color-state-danger)">
@@ -94,6 +105,37 @@
         </form>
     @endcan
 @endunless
+
+{{-- صيانة مجدولة لسّه ما بدأتش — ظاهرة ويمكن إلغاؤها (12.7-ج) --}}
+@if ($scheduled['at'] && ! $active)
+    <div class="card p-4 flex flex-wrap items-center justify-between gap-3">
+        <div class="text-sm">
+            <x-state-badge state="warn" label="صيانة مجدولة" />
+            <span class="ms-2">هتبدأ لوحدها {{ $scheduled['at'] }} لمدّة {{ $scheduled['hours'] }} ساعة.</span>
+        </div>
+        @can('maintenance.manage')
+            <form method="post" action="{{ route('admin.settings.maintenance.unschedule') }}">
+                @csrf
+                <button class="rounded-xl px-3 py-2 text-sm" style="background: var(--surface-raised)">إلغاء الجدولة</button>
+            </form>
+        @endcan
+    </div>
+@endif
+
+{{-- ⭐ استثناء IP الأدمن — **مصدر واحد** يُحرَّر من هنا مباشرةً (12.7-ج).
+     كان الحقل يظهر في البحث فقط، وكانت للقائمة نسختان في مفتاحين. --}}
+@can('maintenance.manage')
+    @php($exemptSetting = \App\Models\Setting::query()->where('key', 'system.maintenance.exempt_ips')->first())
+    @if ($exemptSetting)
+        <div class="card p-4">
+            <h2 class="font-bold text-sm mb-2">استثناء IP الأدمن</h2>
+            <x-settings.field :setting="$exemptSetting" />
+            <p class="text-xs mt-2" style="color: var(--text-muted)">
+                سطر أو فاصلة لكلّ IP — دي القائمة الوحيدة اللي بتفتح الموقع وقت الصيانة.
+            </p>
+        </div>
+    @endif
+@endcan
 
 <div class="card overflow-hidden">
     <div class="p-3 text-sm font-bold" style="border-bottom: 1px solid var(--border)">فترات الصيانة السابقة</div>

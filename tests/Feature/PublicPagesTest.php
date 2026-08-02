@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\Offboarding;
 use App\Models\Setting;
 use App\Models\User;
+use App\Services\Admin\Volunteer\SettingsWriter;
 use Database\Seeders\CoreSeeder;
 use Database\Seeders\PermissionSeeder;
 use Database\Seeders\RolePermissionSeeder;
@@ -38,8 +39,11 @@ class PublicPagesTest extends TestCase
         return $u;
     }
 
+    /** ⭐ الزرّ الرئيسيّ نصُّه **ما كتبه الأدمن** في `volunteer_page.cta_label` (13.4-أ) */
     public function test_landing_shows_the_start_action_for_a_non_volunteer(): void
     {
+        SettingsWriter::put('volunteer_page.cta_label', 'ابدأ المسار التأهيليّ');
+
         $this->actingAs($this->trainee())->get(route('volunteering.landing'))
             ->assertOk()
             ->assertSee('ابدأ المسار التأهيليّ');
@@ -48,6 +52,8 @@ class PublicPagesTest extends TestCase
     /** داخل التبريد لا يُفتَح الزرّ أصلًا ويظهر موعد الإتاحة (13.4-س) */
     public function test_cooldown_hides_the_start_action_and_shows_the_date(): void
     {
+        SettingsWriter::put('volunteer_page.cta_label', 'ابدأ المسار التأهيليّ');
+
         $user = $this->trainee();
 
         Offboarding::create([
@@ -64,6 +70,8 @@ class PublicPagesTest extends TestCase
     /** بعد الإقصاء: العودة بقرار مشرف عام التطوّع وحده (13.4-ق) */
     public function test_exclusion_requires_a_general_supervisor_decision(): void
     {
+        SettingsWriter::put('volunteer_page.cta_label', 'ابدأ المسار التأهيليّ');
+
         $user = $this->trainee();
 
         Offboarding::create([

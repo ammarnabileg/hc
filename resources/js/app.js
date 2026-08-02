@@ -76,12 +76,28 @@ document.querySelectorAll('[data-stepper]').forEach((host) => {
     if (!body || !head || !nav) return;
 
     const size = Math.max(1, parseInt(host.dataset.stepperSize || '7', 10));
-    const fields = [...body.children];
-    if (fields.length <= size) return; // تحت الحدّ: الفورم يبقى كما هو
+    const blocks = [...body.children];
+
+    // العدّ بالحقول الحقيقيّة لا بالبلوكات: «فورم أطول من N حقلًا» (2.15-ب)
+    const fieldsIn = (el) => {
+        const inner = el.querySelectorAll('input:not([type="hidden"]), select, textarea').length;
+        return inner || (el.matches('input:not([type="hidden"]), select, textarea') ? 1 : 0);
+    };
+    const totalFields = blocks.reduce((sum, el) => sum + fieldsIn(el), 0);
+    if (totalFields <= size) return; // تحت الحدّ: الفورم يبقى كما هو
 
     const labels = JSON.parse(host.dataset.stepperLabels || '[]');
     const steps = [];
-    for (let i = 0; i < fields.length; i += size) steps.push(fields.slice(i, i + size));
+    let current = [];
+    let count = 0;
+    for (const el of blocks) {
+        const c = fieldsIn(el);
+        if (current.length && count + c > size) { steps.push(current); current = []; count = 0; }
+        current.push(el);
+        count += c;
+    }
+    if (current.length) steps.push(current);
+    if (steps.length < 2) return;
 
     const key = `hc.draft.${host.dataset.stepper}`;
     const form = host.closest('form');

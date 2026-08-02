@@ -166,32 +166,37 @@
             </section>
         @endif
 
-        {{-- فعل رئيسيّ واحد بارز (2.15-أ-2) — ووجهته **المسار التأهيليّ** لا قائمة المسارات --}}
-        @if ($charterAccepted || ! $charterText)
-            <div class="card p-6 text-center mb-6">
-                @if ($canEnterPipeline)
-                    <form method="post" action="{{ route('volunteering.next') }}">
-                        @csrf
-                        <button type="submit"
-                                class="btn inline-flex items-center justify-center rounded-xl px-6 py-3 font-semibold motion-standard"
-                                style="background: var(--color-brand-500); color: #04201c">{{ $nextCta }}</button>
-                    </form>
-                @elseif (! $candidate)
-                    @php
-                        $ctaHref = $qualifyingPath && \Illuminate\Support\Facades\Route::has('learning.path')
+        {{--
+          فعل رئيسيّ واحد بارز (2.15-أ-2) — ووجهته **المسار التأهيليّ نفسه**
+          لا قائمة المسارات العامّة. والزرّ **ظاهرٌ دائمًا** (13.4-أ: «CTA بارز
+          متكرّر»)، لكنّه قبل الموافقة على الميثاق ينقل إلى الميثاق لا إلى
+          المسار — فالبوّابة محفوظة والتوجيه واضح بلا حائطٍ صامت.
+        --}}
+        <div class="card p-6 text-center mb-6">
+            @if ($canEnterPipeline && $charterAccepted)
+                <form method="post" action="{{ route('volunteering.next') }}">
+                    @csrf
+                    <button type="submit"
+                            class="btn inline-flex items-center justify-center rounded-xl px-6 py-3 font-semibold motion-standard"
+                            style="background: var(--color-brand-500); color: #04201c">{{ $nextCta }}</button>
+                </form>
+            @elseif (! $candidate)
+                @php
+                    $ctaHref = ! $charterAccepted && $charterText
+                        ? '#charter'
+                        : ($qualifyingPath && \Illuminate\Support\Facades\Route::has('learning.path')
                             ? route('learning.path', $qualifyingPath->slug)
-                            : (\Illuminate\Support\Facades\Route::has('learning.paths') ? route('learning.paths') : '#');
-                    @endphp
-                    <a href="{{ $ctaHref }}"
-                       class="btn inline-flex items-center justify-center rounded-xl px-6 py-3 font-semibold motion-standard"
-                       style="background: var(--color-brand-500); color: #04201c">{{ $ctaLabel }}</a>
+                            : (\Illuminate\Support\Facades\Route::has('learning.paths') ? route('learning.paths') : '#'));
+                @endphp
+                <a href="{{ $ctaHref }}"
+                   class="btn inline-flex items-center justify-center rounded-xl px-6 py-3 font-semibold motion-standard"
+                   style="background: var(--color-brand-500); color: #04201c">{{ $ctaLabel }}</a>
+
+                @if (! $charterAccepted && $charterText)
+                    <p class="mt-2 text-xs" style="color: var(--text-muted)">{{ $gate['message'] }}</p>
                 @endif
-            </div>
-        @else
-            <div class="card p-4 mb-6 text-center text-sm" style="color: var(--text-muted)">
-                {{ $gate['message'] }}
-            </div>
-        @endif
+            @endif
+        </div>
     @endif
 
     {{-- ⭐ الأسئلة الشائعة بأكورديون (13.4-أ) --}}

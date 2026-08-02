@@ -27,7 +27,12 @@ class DashboardService
     // ------------------------------------------------------------ الكروت الأربعة
 
     /**
-     * صفّ الـKPI: **أربعة بحدّ أقصى** (2.15-أ-3) — والباقي في تاب «تفاصيل».
+     * صفّ الـKPI: **الستّة التي نصّ عليها 14-أ مبنيّةً كاملةً**، ويقصّها
+     * `ux.kpi.max_cards` عند العرض (2.15-أ-3 افتراضيًّا أربعة).
+     *
+     * لماذا نبنيها كلّها ثمّ نقصّ؟ لأنّ الإعداد كان يوهم بمرونة غير موجودة:
+     * كارتا «التدريبات» و«ترتيب الليدر بورد» لم تكونا مبنيّتين أصلًا، فرفعُ الحدّ
+     * من اللوحة لا يُظهر شيئًا. **الحدّ يقصّ لا يحذف** — فما زاد ينزل لتاب «تفاصيل».
      *
      * @return array<int, array<string, mixed>>
      */
@@ -37,39 +42,67 @@ class DashboardService
         $level = $this->level($xp);
         $streak = $user->streak;
         $certificates = $this->certificatesCount($user);
+        $rows = $this->progress($user);
+        $completed = $rows->where('is_completed', true)->count();
+        $active = $rows->where('is_completed', false)->count();
+        $rank = $this->leaderboardRank($user);
 
         $cards = [
             [
                 'label' => 'مستوى الحساب و XP',
                 'value' => $xp,
-                'icon' => '⭐',
+                'icon' => 'xp',
                 'hint' => 'المستوى '.($level['level'] ?? 1).' — '.($level['name'] ?? ''),
                 'state' => null,
             ],
             [
                 'label' => 'التذاكر',
                 'value' => (int) $this->balance($user, (string) setting('wallet.currency.tickets_code', 'tickets')),
-                'icon' => '🎟️',
+                'icon' => 'ticket',
                 'hint' => 'رصيدك المتاح للصرف',
                 'state' => null,
             ],
             [
                 'label' => 'الستريك',
                 'value' => (int) ($streak?->current_days ?? 0),
-                'icon' => '🔥',
+                'icon' => 'streak',
                 'hint' => 'أطول ستريك: '.(int) ($streak?->best_days ?? 0).' يوم',
                 'state' => ($streak?->current_days ?? 0) > 0 ? 'ok' : 'idle',
             ],
             [
                 'label' => 'الشهادات',
                 'value' => $certificates,
-                'icon' => '🎓',
+                'icon' => 'certificate',
                 'hint' => 'شهاداتك السارية',
                 'state' => $certificates > 0 ? 'honor' : 'idle',
             ],
+            // «التدريبات (مكتملة / جارية)» — كارتٌ منصوصٌ عليه في 14-أ
+            [
+                'label' => (string) setting('dashboard.kpi.courses_label', 'التدريبات (مكتملة / جارية)'),
+                'value' => $completed.' / '.$active,
+                'icon' => 'library',
+                'hint' => str_replace(
+                    ':total',
+                    (string) ($completed + $active),
+                    (string) setting('dashboard.kpi.courses_hint', 'إجماليّ تدريباتك: :total'),
+                ),
+                'state' => $active > 0 ? 'ok' : 'idle',
+            ],
+            // «ترتيب الليدر بورد #» — بمقياس XP (7.3)
+            [
+                'label' => (string) setting('dashboard.kpi.rank_label', 'ترتيب الليدر بورد'),
+                'value' => '#'.$rank,
+                'icon' => 'trophy',
+                'hint' => str_replace(
+                    ':peers',
+                    (string) $this->leaderboardSize(),
+                    (string) setting('dashboard.kpi.rank_hint', 'من بين :peers متدرّبًا'),
+                ),
+                'state' => $rank === 1 ? 'honor' : 'idle',
+            ],
         ];
 
-        return array_slice($cards, 0, (int) setting('ux.kpi.max_cards', 4));
+        return array_slice($cards, 0, max((int) setting('ux.kpi.max_cards', 4), 1));
     }
 
     /** الأرقام الثانويّة (تاب «تفاصيل») — خرجت من الصفّ الأوّل التزامًا بحدّ الأربعة */

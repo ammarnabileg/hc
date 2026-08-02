@@ -60,6 +60,65 @@ class EventDemoSeeder extends Seeder
             ['referral.link.param', 'growth', 'اسم بارامتر كود الدعوة', 'string', 'offer'],
             ['referral.share.text', 'growth', 'نصّ مشاركة الدعوة', 'text', 'انضمّ معايا على المنصّة — هتلاقي تدريبات وشهادات حقيقيّة:'],
             ['referral.deep_links.limit', 'growth', 'عدد روابط الدعوة المقترحة لكلّ محتوى', 'number', '3'],
+
+            /*
+             | ---- صيغة رابط الدعوة (7.6.2) — **حسم تعارض داخل الدستور**.
+             | 7.6 يكتبها `?offer=<user_id>` و7.6.2 يكتبها `/join?ref=CODE`.
+             | المعتمَد صيغة 7.6.2 لأنّها لا تكشف المعرّفات الرقميّة، و`?offer=`
+             | يبقى **مقبولًا عند الاستقبال** للتوافق مع الروابط القديمة.
+             */
+            ['referral.join.path', 'growth', 'مسار بوّابة الدعوة', 'string', '/join'],
+            ['referral.join.param', 'growth', 'اسم بارامتر كود الدعوة (المعتمَد)', 'string', 'ref'],
+
+            // ---- الهيرو (7.6.2): الرقم الضخم والنصّ النفسيّ
+            ['referral.hero.badge', 'growth', 'شارة الهيرو', 'string', 'عمولة مدى الحياة'],
+            ['referral.hero.title', 'growth', 'عنوان الهيرو', 'string', ':percent% من إجماليّ شحن كلّ من دعوتهم — مدى الحياة'],
+            ['referral.hero.note', 'growth', 'النصّ النفسيّ تحت الهيرو', 'text', 'مش مجرّد دعوة — كلّ شخص تجيبه بتكسب نسبة من كلّ ما يشحنه للأبد، سواء اشترى بعد سنة أو عشر سنين.'],
+
+            // ---- الآلة الحاسبة التفاعليّة (7.6.2 — «قلب التفاعل»)
+            ['referral.calc.title', 'growth', 'عنوان الآلة الحاسبة', 'string', 'احسب أرباحك المحتملة'],
+            ['referral.calc.disclaimer', 'growth', 'تنويه التقدير', 'string', 'تقديرات توضيحيّة للواجهة — مش التزام ماليّ.'],
+            ['referral.calc.monthly_label', 'growth', 'عنوان كارت الأرباح الشهريّة', 'string', 'أرباحك الشهريّة ($)'],
+            ['referral.calc.total_label', 'growth', 'عنوان كارت الأرباح الكليّة', 'string', 'الأرباح الكليّة ($)'],
+            ['referral.calc.egp_label', 'growth', 'عنوان كارت الجنيه المصريّ', 'string', 'بالجنيه المصريّ'],
+            ['referral.calc.invites_label', 'growth', 'عنوان منزلق المدعوّين', 'string', 'عدد المدعوّين'],
+            ['referral.calc.topup_label', 'growth', 'عنوان منزلق متوسّط الشحن', 'string', 'متوسّط الشحن الشهريّ ($)'],
+            ['referral.calc.months_label', 'growth', 'عنوان منزلق الفترة', 'string', 'الفترة (شهر)'],
+            ['referral.calc.invites_min', 'growth', 'أدنى عدد مدعوّين', 'number', '0'],
+            ['referral.calc.invites_max', 'growth', 'أقصى عدد مدعوّين', 'number', '500'],
+            ['referral.calc.invites_default', 'growth', 'القيمة الابتدائيّة للمدعوّين', 'number', '249'],
+            ['referral.calc.topup_min', 'growth', 'أدنى متوسّط شحن ($)', 'number', '1'],
+            ['referral.calc.topup_max', 'growth', 'أقصى متوسّط شحن ($)', 'number', '50'],
+            ['referral.calc.topup_default', 'growth', 'القيمة الابتدائيّة لمتوسّط الشحن', 'number', '8'],
+            ['referral.calc.months_min', 'growth', 'أدنى فترة (شهر)', 'number', '1'],
+            ['referral.calc.months_max', 'growth', 'أقصى فترة (شهر)', 'number', '24'],
+            ['referral.calc.months_default', 'growth', 'القيمة الابتدائيّة للفترة', 'number', '7'],
+            ['referral.calc.egp_rate', 'growth', 'سعر الصرف التقريبيّ للدولار', 'number', '50'],
+            ['referral.calc.passive_line', 'growth', 'شريط الدخل السلبيّ', 'string', 'دخل سلبيّ حقيقيّ — بدون أيّ مجهود بعد الدعوة'],
+
+            // ---- «كيف يعمل؟» بأربع خطوات (7.6.2) — والشرط مذكور صراحةً بلا إخفاء
+            ['referral.how.title', 'growth', 'عنوان «كيف يعمل؟»', 'string', 'كيف يعمل؟'],
+            ['referral.how.steps', 'growth', 'خطوات «كيف يعمل؟»', 'json', '[{"title": "انسخ رابطك", "body": "رابط دعوة خاصّ بك وحدك — من فوق بضغطة واحدة."}, {"title": "شاركه مع أصحابك", "body": "واتساب أو فيسبوك أو تيليجرام أو نسخ مباشر."}, {"title": "صاحبك يسجّل ويكمل", "body": "يستكمل بياناته ويعدّي الاختبار التمهيديّ، ثمّ يعتمده الأدمن."}, {"title": "الاتنين تكسبوا", "body": "تذكرة لك فور تفعيله، وتذكرة له — وليك :percent% على كلّ شحناته للأبد."}]'],
+
+            // ---- «شبكتي» (7.6.1)
+            ['referral.network.title', 'growth', 'عنوان شبكتي', 'string', 'شبكتي'],
+            ['referral.network.me', 'growth', 'وسم صاحب الشبكة', 'string', 'إنت'],
+            ['referral.network.unknown', 'growth', 'اسم المدعوّ غير المكتمل', 'string', 'ضيف'],
+            ['referral.network.empty', 'growth', 'الحالة الفارغة للشبكة', 'string', 'شبكتك لسّه فاضية — أوّل صاحب تجيبه هيبان هنا.'],
+            ['referral.network.max_nodes', 'growth', 'أقصى عدد عقد معروضة', 'number', '12'],
+            ['referral.network.next_prefix', 'growth', 'بادئة العتبة التالية', 'string', 'باقي'],
+            ['referral.network.next_suffix', 'growth', 'لاحقة العتبة التالية', 'string', 'دعوة مفعَّلة للّقب التالي'],
+
+            // ---- المشاركة والفلاتر (7.6.2)
+            ['referral.share.facebook_label', 'growth', 'اسم زرّ فيسبوك', 'string', 'فيسبوك'],
+            ['referral.share.telegram_label', 'growth', 'اسم زرّ تيليجرام', 'string', 'تيليجرام'],
+            ['referral.share.whatsapp_label', 'growth', 'اسم زرّ واتساب', 'string', 'واتساب'],
+            ['referral.list.title', 'growth', 'عنوان قائمة المدعوّين', 'string', ':count أشخاص دعوتهم'],
+            ['referral.filter.period_label', 'growth', 'عنوان فلتر الفترة', 'string', 'الفترة'],
+            ['referral.filter.status_label', 'growth', 'عنوان فلتر الحالة', 'string', 'الحالة'],
+            ['referral.filter.all', 'growth', 'فلتر: الكلّ', 'string', 'الكلّ'],
+            ['referral.filter.completed', 'growth', 'فلتر: مكتمل', 'string', 'مكتمل'],
+            ['referral.filter.pending', 'growth', 'فلتر: في الانتظار', 'string', 'في الانتظار'],
         ];
 
         foreach ($rows as [$key, $group, $label, $type, $default]) {

@@ -589,9 +589,18 @@ class SettingsRegistry
         };
     }
 
-    /** النطاق المسموح لكلّ نوع رقميّ — يُعرَض كسطر خفيف لا كخطأ أحمر صارخ */
-    public function rangeHint(Setting $setting): string
+    /**
+     * النطاق المسموح — **للأرقام وحدها** (12.7-ج · 2.13).
+     *
+     * كان يُطبَع تحت كلّ إعدادٍ أيًّا كان نوعه، فيظهر تحت «مصدر بيانات الدول»
+     * سطرُ «من 0 إلى 1000000» — نطاقٌ لا معنى له لنصّ.
+     */
+    public function rangeHint(Setting $setting): ?string
     {
+        if ($setting->type !== 'number') {
+            return null;
+        }
+
         [$min, $max] = $this->range($setting);
 
         return "من {$min} إلى {$max}";
@@ -611,15 +620,41 @@ class SettingsRegistry
         return $query->orderBy('key')->get();
     }
 
-    /** @return array{0:float,1:float} */
+    /**
+     * ⭐ النطاق المسموح **من إعدادٍ لا من اسم المفتاح** (2.13).
+     *
+     * كان يُشتقّ بـ`str_contains($key, 'hours')` وما شابه، ثمّ يرتدّ إلى
+     * `[0, 1000000]` محروقة. واشتقاق القاعدة من الاسم يرفض قيمةً مشروعة بصمت
+     * (مفتاحٌ اسمه فيه `days` وقيمته الصحيحة صفر مثلًا)، وهو عين ما تمنعه 2.13.
+     * فالخريطة الآن مفتاحُ إعداداتٍ يحرّره المالك: `بادئة => [أدنى, أقصى]`،
+     * وأدقّ بادئةٍ مطابقة هي الحاكمة، والافتراضيّ العامّ منها كذلك.
+     *
+     * @return array{0:float,1:float}
+     */
     private function range(Setting $setting): array
     {
-        return match (true) {
-            str_contains($setting->key, 'percent') => [0, 100],
-            str_contains($setting->key, 'hours') => [1, 8760],
-            str_contains($setting->key, 'days') => [1, 3650],
-            default => [0, 1000000],
-        };
+        $map = setting('settings.ranges', []);
+        $map = is_array($map) ? $map : [];
+
+        $best = null;
+        $bestLength = -1;
+
+        foreach ($map as $prefix => $bounds) {
+            $prefix = (string) $prefix;
+
+            if ($prefix === '*' || ! is_array($bounds) || count($bounds) < 2) {
+                continue;
+            }
+
+            if (str_contains($setting->key, $prefix) && mb_strlen($prefix) > $bestLength) {
+                $best = $bounds;
+                $bestLength = mb_strlen($prefix);
+            }
+        }
+
+        $bounds = $best ?? (is_array($map['*'] ?? null) ? $map['*'] : [0, 1000000]);
+
+        return [(float) $bounds[0], (float) $bounds[1]];
     }
 
     private function normalize(Setting $setting, mixed $value): ?string

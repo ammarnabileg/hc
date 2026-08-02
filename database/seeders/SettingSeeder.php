@@ -71,6 +71,19 @@ class SettingSeeder extends Seeder
             ['dashboard.achievements.learning.base', 'dashboard', 'عتبة استمراريّة التعلّم — الأساس', 'number', '5'],
             ['dashboard.achievements.learning.step', 'dashboard', 'عتبة استمراريّة التعلّم — الزيادة', 'number', '3'],
 
+            // ---------------- تاب المعاملات: عمود «من ← إلى» وعمود «ملاحظات» (19.2)
+            ['wallet.flow.self_label', 'wallet', 'تسمية طرف صاحب المحفظة', 'string', 'محفظتي'],
+            ['wallet.flow.platform_label', 'wallet', 'تسمية الطرف الآخر الافتراضيّ', 'string', 'المنصّة'],
+            ['wallet.flow.transfer_prefixes', 'wallet', 'بادئات نصّ الحوالة لاستخراج الطرف الآخر', 'json', '["حوالة إلى","حوالة من"]'],
+            ['wallet.notes.capped', 'wallet', 'ملاحظة تجاوز الحدّ اليوميّ', 'string', 'تعدّت الحدّ اليوميّ — اتطبّق منها المسموح.'],
+            ['wallet.notes.correction', 'wallet', 'ملاحظة حركة التصحيح', 'string', 'حركة تصحيح موثّقة.'],
+
+            // ---------------- كروت داشبورد المستخدم الستّة (14-أ) — والحدّ يقصّ لا يحذف
+            ['dashboard.kpi.courses_label', 'dashboard', 'عنوان كارت التدريبات', 'string', 'التدريبات (مكتملة / جارية)'],
+            ['dashboard.kpi.courses_hint', 'dashboard', 'شرح كارت التدريبات', 'string', 'إجماليّ تدريباتك: :total'],
+            ['dashboard.kpi.rank_label', 'dashboard', 'عنوان كارت ترتيب الليدر بورد', 'string', 'ترتيب الليدر بورد'],
+            ['dashboard.kpi.rank_hint', 'dashboard', 'شرح كارت ترتيب الليدر بورد', 'string', 'من بين :peers متدرّبًا'],
+
             // ---------------- الاحتفالات (2.14)
             ['celebrations.peak.daily_cap', 'gamification_celebrations', 'الحدّ اليوميّ لاحتفالات الذروة', 'number', '3'],
             ['celebrations.sound.enabled', 'gamification_celebrations', 'تفعيل الصوت (والأنيميشن دائم)', 'bool', '1'],
@@ -383,6 +396,7 @@ class SettingSeeder extends Seeder
             ['account.profile.experience.empty_message', 'account', 'رسالة لا سيرة ذاتيّة', 'text', 'لسّه مفيش سيرة ذاتيّة هنا.'],
             ['account.profile.experience.empty_action', 'account', 'زرّ بدء السيرة', 'string', 'ابدأ سيرتك'],
             ['leaderboard.profile_range_days', 'leaderboard', 'مدى ترتيب الليدربورد على البروفايل (أيّام)', 'number', '30'],
+            ['cv.public.empty_message', 'cv', 'رسالة السيرة العامّة الفارغة', 'text', 'السيرة لسّه فاضية — صاحبها بيجهّزها.'],
             ['platform.identity.logo_path', 'platform', 'مسار لوجو المنصّة (للعلامة المائيّة)', 'string', ''],
         ];
 

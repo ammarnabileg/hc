@@ -2,7 +2,9 @@
 
 namespace Tests\Feature\Account;
 
+use App\Models\Currency;
 use App\Models\Cv;
+use App\Models\WalletBalance;
 use App\Services\Account\AchievementTracks;
 use App\Services\Dashboard\DashboardStatsService;
 
@@ -62,13 +64,13 @@ class ProfileExperienceTest extends AccountTestCase
     {
         $owner = $this->trainee(['code' => 'ULEVEL01']);
 
-        $currency = \App\Models\Currency::firstOrCreate(
+        $currency = Currency::firstOrCreate(
             ['code' => 'tickets'],
             ['name_ar' => 'تذاكر', 'kind' => 'reward', 'is_active' => true],
         );
 
         // كسب 40 تذكرة ثمّ إنفاق 30 — المستوى محسوبٌ على المكتسب لا على الباقي
-        \App\Models\WalletBalance::updateOrCreate(
+        WalletBalance::updateOrCreate(
             ['user_id' => $owner->id, 'currency_id' => $currency->id],
             ['balance' => 10, 'lifetime_earned' => 40, 'lifetime_spent' => 30],
         );

@@ -18,7 +18,7 @@
 - **شاشات/أجزاء بليد (7):**
   - `filters.blade.php` — ثلاثة فلاتر ظاهرة + بحث، والباقي مطويّ (2.15-أ-4)
   - `new-item-modal.blade.php` — التفاصيل في بوب-أب لا صفحة جديدة — والمستخدم لا يفقد مكانه (2.15-أ-6)
-  - `table-bundles.blade.php`
+  - `table-bundles.blade.php` — إدارة عناصر الباقة وتسعير كلٍّ منها (18)
   - `table-coupons.blade.php` — Order-bump: أقصى عرضين في صفحة المراجعة — قاعدة مقفولة تُعرَض ولا تُعدَّل هنا (17)
   - `table-library.blade.php` — التفاصيل في بانل مطويّ لا صفحة جديدة (2.15-أ-6)
   - `table-orders.blade.php`

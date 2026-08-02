@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Services\Admin\System\MaintenanceService;
+use Carbon\CarbonImmutable;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -18,16 +19,37 @@ class MaintenanceController extends Controller
 {
     public function __construct(private readonly MaintenanceService $maintenance) {}
 
+    /**
+     * ⭐ التفعيل الآن **أو الجدولة** (12.7-ج: «مجدول — يبدأ/ينتهي تلقائيًّا»).
+     * كان الفورم رسالةً وساعاتٍ فقط بلا وقت بدء، فالجدولة وعدٌ بلا مدخل.
+     */
     public function start(Request $request): RedirectResponse
     {
         $data = $request->validate([
             'message' => ['required', 'string', 'max:2000'],
             'hours' => ['required', 'integer', 'min:1', 'max:'.(int) setting('system.maintenance.max_hours', 168)],
+            'starts_at' => ['nullable', 'date'],
         ]);
+
+        $startsAt = ($data['starts_at'] ?? null) ? CarbonImmutable::parse($data['starts_at']) : null;
+
+        if ($startsAt && $startsAt->isFuture()) {
+            $this->maintenance->schedule($request->user(), $data['message'], (int) $data['hours'], $startsAt);
+
+            return back()->with('status', 'اتجدولت الصيانة — هتبدأ لوحدها '.$startsAt->format('Y/m/d H:i').' ✓');
+        }
 
         $this->maintenance->start($request->user(), $data['message'], (int) $data['hours']);
 
         return back()->with('status', 'وضع الصيانة اشتغل — وكلّ المهل اتجمّدت من دلوقتي.');
+    }
+
+    /** إلغاء الصيانة المجدولة قبل موعدها. */
+    public function unschedule(Request $request): RedirectResponse
+    {
+        $this->maintenance->cancelSchedule($request->user());
+
+        return back()->with('status', 'اتلغت الجدولة ✓');
     }
 
     /** أزرار سريعة: +1 · +3 · مخصّص — والقيم من الإعدادات لا محروقة */

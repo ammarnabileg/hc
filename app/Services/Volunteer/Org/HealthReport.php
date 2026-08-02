@@ -107,7 +107,16 @@ final class HealthReport
             // ⭐ داخليّ بحت: لا يُعرَض للمتطوّع عن نفسه أبدًا (13.4-م-4)
             'retention_risk' => $this->retentionRisk($memberships, $tasks, $viewer),
 
-            'behavior_grantors' => $this->behaviorGrantors($memberships),
+            /*
+             | ⭐ كارت «معاملات السلوك لكلّ مشرف» **يُخفى بالكامل** حين يُغلقه المالك
+             | من `rep.behavior.show_granter_count_in_team_health` — كان المفتاح
+             | بلا قارئ فلا يُخفي شيئًا. والمخفيّ يُحذَف لا يُعطَّل (2.15-أ-7).
+             */
+            'behavior_grantors' => (bool) setting('rep.behavior.show_granter_count_in_team_health', true)
+                ? $this->behaviorGrantors($memberships)
+                : collect(),
+
+            'show_behavior_grantors' => (bool) setting('rep.behavior.show_granter_count_in_team_health', true),
 
             'late_due_to_child' => $tasks->where('late_due_to_child', true)
                 ->take((int) setting('volunteer.health.list_size', 10))

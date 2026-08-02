@@ -2,6 +2,7 @@
 
 namespace App\Services\Referral;
 
+use App\Http\Controllers\Onboarding\OnboardingController;
 use App\Models\Referral;
 use App\Models\Transaction;
 use App\Models\User;
@@ -25,8 +26,6 @@ class ReferralService
         private readonly Tracker $tracker,
     ) {}
 
-    /** مفتاح السيشن الذي يحمل كود الداعي — نصّ الدستور 7.6: «يُحفَظ الداعي في السيشن» */
-    public const SESSION_KEY = 'referral.code';
 
     /** نسبة العمولة — إعداد لا رقم محروق (2.13) */
     public function commissionPercent(): float
@@ -49,7 +48,7 @@ class ReferralService
     {
         $code = trim((string) $code);
 
-        if ($code === '' || session()->has(self::SESSION_KEY)) {
+        if ($code === '' || session()->has(OnboardingController::SESSION_CODE)) {
             return false;
         }
 
@@ -57,7 +56,16 @@ class ReferralService
             return false;
         }
 
-        session()->put(self::SESSION_KEY, $code);
+        /*
+         | مفتاحٌ واحد لا اثنان: نكتب في نفس مفتاح رحلة الأونبوردنج الذي يقرؤه
+         | التسجيل — فمفتاحان لنفس المعنى يعنيان دعوةً تنجو في مسارٍ وتضيع في آخر.
+         | و`ANSWERED` معه لأنّ 7.6 صريح: **مَن دخل عبر رابط دعوة لا تظهر له شاشة
+         | «هل دعاك شخص ما؟»**، والمكافأة تُحتسَب عادي.
+         */
+        session()->put([
+            OnboardingController::SESSION_CODE => $code,
+            OnboardingController::SESSION_ANSWERED => true,
+        ]);
 
         return true;
     }
@@ -80,7 +88,7 @@ class ReferralService
             }
         }
 
-        $stored = session(self::SESSION_KEY);
+        $stored = session(OnboardingController::SESSION_CODE);
 
         return is_string($stored) && $stored !== '' ? $stored : null;
     }
@@ -88,7 +96,7 @@ class ReferralService
     /** ينسى الدعوة بعد استهلاكها — فلا تُربَط بحسابٍ ثانٍ في نفس المتصفّح */
     public function forgetReferrerCode(): void
     {
-        session()->forget(self::SESSION_KEY);
+        session()->forget([OnboardingController::SESSION_CODE, OnboardingController::SESSION_ANSWERED]);
     }
 
     public function welcomeTickets(): int
@@ -368,6 +376,60 @@ class ReferralService
             'pending' => $invited->count() - $completed,
             'commission' => (float) $invited->sum(fn (Referral $r) => (float) $r->commission_earned),
             'percent' => $this->commissionPercent(),
+        ];
+    }
+
+    /**
+     * ⭐ فلاتر قائمة المدعوّين (7.6.2): الكلّ / مكتمل / في الانتظار.
+     *
+     * الفلترة هنا لا في الواجهة، فيبقى تعريف «مكتمل» واحدًا مع `statusOf()`
+     * ولا يختلف ما تعدّه الشاشة عمّا تُظهره الشارة.
+     *
+     * @param  Collection<int,Referral>  $invited
+     * @return Collection<int,Referral>
+     */
+    public function filterByStatus(Collection $invited, string $status): Collection
+    {
+        return match ($status) {
+            'completed' => $invited->filter(fn (Referral $r) => $r->referred?->isActive())->values(),
+            'pending' => $invited->reject(fn (Referral $r) => $r->referred?->isActive())->values(),
+            default => $invited,
+        };
+    }
+
+    /**
+     * ⭐ إعدادات الآلة الحاسبة التفاعليّة (7.6.2 — «قلب التفاعل»).
+     *
+     * كلّ حدٍّ وكلّ قيمة ابتدائيّة **إعداد** لا رقم محروق (2.13): المدى 0→500
+     * مدعوّ، و1$→50$ متوسّط شحن، و1→24 شهرًا — وسعر الصرف كذلك، فلو تغيّر
+     * لم يُلاحَق في الكود.
+     *
+     * والمعادلات توضيحيّة صراحةً: الشهريّة = المدعوّون × الشحن × النسبة،
+     * والكليّة = الشهريّة × الأشهر. **تقديرات واجهة لا التزام ماليّ** — والنصّ
+     * يقولها بصراحة، فلا وعدَ ضمنيّ (2.9، بلا Dark Patterns).
+     *
+     * @return array<string, mixed>
+     */
+    public function calculator(): array
+    {
+        return [
+            'percent' => $this->commissionPercent(),
+            'invites' => [
+                'min' => (int) setting('referral.calc.invites_min', 0),
+                'max' => (int) setting('referral.calc.invites_max', 500),
+                'value' => (int) setting('referral.calc.invites_default', 249),
+            ],
+            'topup' => [
+                'min' => (int) setting('referral.calc.topup_min', 1),
+                'max' => (int) setting('referral.calc.topup_max', 50),
+                'value' => (int) setting('referral.calc.topup_default', 8),
+            ],
+            'months' => [
+                'min' => (int) setting('referral.calc.months_min', 1),
+                'max' => (int) setting('referral.calc.months_max', 24),
+                'value' => (int) setting('referral.calc.months_default', 7),
+            ],
+            'egp_rate' => (float) setting('referral.calc.egp_rate', 50),
         ];
     }
 

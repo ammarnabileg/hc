@@ -23,6 +23,7 @@ class RecruitmentCandidate extends Model
             'previous_service_from' => 'datetime',
             'previous_service_to' => 'datetime',
             'qualifying_score' => 'decimal:2',
+            'readiness_renewed_at' => 'datetime',
             'renewed_readiness' => 'boolean',
             'stage_changed_at' => 'datetime',
         ];

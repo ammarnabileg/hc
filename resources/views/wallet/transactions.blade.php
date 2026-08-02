@@ -3,15 +3,25 @@
 @section('title', 'المعاملات والفواتير')
 
 @php
-    // بيانات بانل التفاصيل لكلّ صفّ — تُبنى مرّةً وتُستعمَل في الجدول وفي كروت الموبايل
+    use App\Http\Controllers\Trainee\WalletController;
+
+    /*
+     | أعمدة الجدول **بنصّ 19.2 حرفًا**: # / العملة / الكمية / من ← إلى / السبب /
+     | ملاحظات / التاريخ — سبعة، وهو أقصى ما يسمح به 2.15-أ-5.
+     | وبيانات بانل التفاصيل تُبنى مرّةً وتُستعمَل في الجدول وفي كروت الموبايل.
+     */
+    $flow = fn ($row) => WalletController::flowOf($row);
+
     $panel = fn ($row) => [
         'date' => $row->created_at?->format('Y-m-d H:i'),
-        'type' => \App\Http\Controllers\Trainee\WalletController::SOURCE_LABELS[$row->source] ?? $row->source,
+        'type' => WalletController::SOURCE_LABELS[$row->source] ?? $row->source,
         'currency' => $row->currency?->name_ar,
         'amount' => (float) $row->amount,
         'applied' => (float) ($row->applied_amount ?? $row->amount),
         'balance_after' => (float) $row->balance_after,
         'reason' => $row->reason,
+        'flow' => $flow($row)['from'].' ← '.$flow($row)['to'],
+        'notes' => WalletController::notesOf($row),
         'reference' => $row->reference_type ? class_basename($row->reference_type).'#'.$row->reference_id : null,
         'capped' => (bool) $row->exceeded_daily_cap,
         'correction' => (bool) $row->is_correction,
@@ -94,28 +104,38 @@
         <x-empty message="مافيش حركات في المدى ده — وسّع المدى أو ابدأ بشحن رصيدك."
                  action="اشحن رصيدك" :href="route('wallet.topup')" />
     @else
-        {{-- سطح المكتب: جدول بخمسة أعمدة (2.15-أ-5) --}}
-        <div class="card hidden md:block overflow-hidden">
+        {{-- سطح المكتب: الأعمدة السبعة المنصوصة في 19.2 --}}
+        <div class="card hidden md:block overflow-x-auto">
             <table class="w-full text-sm">
                 <thead>
                     <tr style="background: var(--surface-sunken)">
+                        <th class="text-start font-semibold px-4 py-3">#</th>
+                        <th class="text-start font-semibold px-4 py-3">العملة</th>
+                        <th class="text-start font-semibold px-4 py-3">الكمية</th>
+                        <th class="text-start font-semibold px-4 py-3">من ← إلى</th>
+                        <th class="text-start font-semibold px-4 py-3">السبب</th>
+                        <th class="text-start font-semibold px-4 py-3">ملاحظات</th>
                         <th class="text-start font-semibold px-4 py-3">التاريخ</th>
-                        <th class="text-start font-semibold px-4 py-3">النوع</th>
-                        <th class="text-start font-semibold px-4 py-3">القيمة</th>
-                        <th class="text-start font-semibold px-4 py-3">المرجع</th>
-                        <th class="text-start font-semibold px-4 py-3">الرصيد بعدها</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach ($rows as $row)
+                        @php($line = $flow($row))
                         <tr class="cursor-pointer motion-standard hover:opacity-90"
                             style="border-top: 1px solid var(--border)"
                             data-tx='@json($panel($row))'>
-                            <td class="px-4 py-3 whitespace-nowrap" title="{{ $row->created_at?->format('Y-m-d H:i') }}">
-                                {{ $row->created_at?->diffForHumans() }}
-                            </td>
+                            <td class="px-4 py-3 font-mono whitespace-nowrap">{{ $row->id }}</td>
+                            <td class="px-4 py-3 whitespace-nowrap">{{ $row->currency?->name_ar }}</td>
                             <td class="px-4 py-3">
-                                {{ \App\Http\Controllers\Trainee\WalletController::SOURCE_LABELS[$row->source] ?? $row->source }}
+                                @include('wallet.components.amount', [
+                                    'value' => $row->applied_amount ?? $row->amount,
+                                    'decimals' => (int) ($row->currency?->decimals ?? 0),
+                                ])
+                            </td>
+                            <td class="px-4 py-3 whitespace-nowrap">{{ $line['from'] }} ← {{ $line['to'] }}</td>
+                            <td class="px-4 py-3" style="color: var(--text-muted)">{{ $row->reason ?: '—' }}</td>
+                            <td class="px-4 py-3 text-xs" style="color: var(--text-muted)">
+                                {{ WalletController::notesOf($row) ?: '—' }}
                                 @if ($row->exceeded_daily_cap)
                                     <x-state-badge state="warn" label="تجاوز الحدّ اليوميّ" />
                                 @endif
@@ -123,14 +143,9 @@
                                     <x-state-badge state="idle" label="تصحيح" />
                                 @endif
                             </td>
-                            <td class="px-4 py-3">
-                                @include('wallet.components.amount', [
-                                    'value' => $row->applied_amount ?? $row->amount,
-                                    'decimals' => (int) ($row->currency?->decimals ?? 0),
-                                ])
+                            <td class="px-4 py-3 whitespace-nowrap" title="{{ $row->created_at?->format('Y-m-d H:i') }}">
+                                {{ $row->created_at?->diffForHumans() }}
                             </td>
-                            <td class="px-4 py-3" style="color: var(--text-muted)">{{ $row->reason ?: '—' }}</td>
-                            <td class="px-4 py-3 font-semibold">{{ number_format((float) $row->balance_after, (int) ($row->currency?->decimals ?? 0)) }}</td>
                         </tr>
                     @endforeach
                 </tbody>
@@ -143,12 +158,18 @@
                 <div class="card p-4 cursor-pointer"
                      data-tx='@json($panel($row))'>
                     <div class="flex items-center justify-between gap-3">
-                        <span class="text-sm font-semibold">{{ \App\Http\Controllers\Trainee\WalletController::SOURCE_LABELS[$row->source] ?? $row->source }}</span>
+                        <span class="text-sm font-semibold">{{ $row->currency?->name_ar }}</span>
                         @include('wallet.components.amount', [
                             'value' => $row->applied_amount ?? $row->amount,
                             'decimals' => (int) ($row->currency?->decimals ?? 0),
                         ])
                     </div>
+                    <div class="mt-1 text-xs" style="color: var(--text-muted)">
+                        {{ $flow($row)['from'] }} ← {{ $flow($row)['to'] }} · {{ $row->reason ?: '—' }}
+                    </div>
+                    @if ($notes = WalletController::notesOf($row))
+                        <div class="mt-1 text-xs" style="color: var(--text-muted)">{{ $notes }}</div>
+                    @endif
                     <div class="mt-2 text-xs flex items-center justify-between gap-2" style="color: var(--text-muted)">
                         <span>{{ $row->created_at?->format('Y-m-d H:i') }}</span>
                         <span>الرصيد بعدها: {{ number_format((float) $row->balance_after, (int) ($row->currency?->decimals ?? 0)) }}</span>
@@ -171,8 +192,11 @@
             <div class="flex justify-between gap-3"><dt style="color: var(--text-muted)">العملة</dt><dd data-tx-field="currency"></dd></div>
             <div class="flex justify-between gap-3"><dt style="color: var(--text-muted)">القيمة المسجَّلة</dt><dd data-tx-field="amount"></dd></div>
             <div class="flex justify-between gap-3"><dt style="color: var(--text-muted)">المطبَّق فعلًا</dt><dd data-tx-field="applied"></dd></div>
+            <div class="flex justify-between gap-3"><dt style="color: var(--text-muted)">من ← إلى</dt><dd data-tx-field="flow"></dd></div>
+            {{-- «المرجع» = مرجع الحركة فعلًا (الطلب/الحوالة)، لا السبب — والعنوانان كانا متبادلَين --}}
             <div class="flex justify-between gap-3"><dt style="color: var(--text-muted)">المرجع</dt><dd data-tx-field="reference"></dd></div>
             <div class="flex justify-between gap-3"><dt style="color: var(--text-muted)">السبب</dt><dd data-tx-field="reason"></dd></div>
+            <div class="flex justify-between gap-3"><dt style="color: var(--text-muted)">ملاحظات</dt><dd data-tx-field="notes"></dd></div>
             <div class="flex justify-between gap-3"><dt style="color: var(--text-muted)">الرصيد بعدها</dt><dd data-tx-field="balance_after"></dd></div>
             <p class="pt-2 text-xs" style="color: var(--text-muted)" data-tx-note></p>
         </dl>
@@ -198,7 +222,7 @@
                 let tx;
                 try { tx = JSON.parse(holder.dataset.tx); } catch { return; }
 
-                ['invoice', 'date', 'type', 'currency', 'reference', 'reason'].forEach((k) => set(k, tx[k]));
+                ['invoice', 'date', 'type', 'currency', 'flow', 'reference', 'reason', 'notes'].forEach((k) => set(k, tx[k]));
                 set('amount', tx.amount);
                 set('applied', tx.applied);
                 set('balance_after', tx.balance_after);

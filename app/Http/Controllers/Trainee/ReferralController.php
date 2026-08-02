@@ -67,7 +67,7 @@ class ReferralController extends Controller
             // ⭐ الآلة الحاسبة التفاعليّة «قلب التفاعل» (7.6.2)
             'calculator' => $this->referrals->calculator(),
             // «شبكتي» عرضًا بصريًّا + لقب السفير وتقدّمه للعتبة التالية (7.6.1)
-            'ambassador' => $this->ambassadors->progressFor($user),
+            'ambassador' => $this->ambassadorProgress($user),
             'celebration' => $celebration,
             // ⭐ روابط الدعوة لكلّ محتوى: فعاليّات **وتدريبات ومسارات** (21.1-ج)
             'deepLinks' => $this->contentDeepLinks($user),
@@ -96,6 +96,14 @@ class ReferralController extends Controller
         if ($request->user()) {
             return redirect()->to($landingUrl ?? route('events.index'));
         }
+
+        /*
+         | ⭐ الداعي يُحفَظ في السيشن **دائمًا** (7.6) — لا بشرط أن تكون الوجهة
+         | من الأنواع المدعومة. كان الحفظ معلّقًا على `rememberLanding()` التي
+         | تُرجِع null لأيّ نوعٍ غير مدعوم أو بلا معرّف، فتضيع الدعوة كلّها لأنّ
+         | **الوجهة** لم تكن معروفة — والوجهة تفصيل، أمّا الداعي فهو الأصل.
+         */
+        $this->referrals->rememberReferrerCode($referrer->code);
 
         if ($pending = $this->referrals->rememberLanding($referrer, $type ?: null, $id)) {
             $request->session()->put('referral.pending_id', $pending->id);
@@ -210,6 +218,33 @@ class ReferralController extends Controller
         }
 
         return (int) $value > 0 ? (int) $value : null;
+    }
+
+    /**
+     * ⭐ «شبكتي» ولقب السفير (7.6.1 · 2.9-8): العدد المفعَّل واللقب والعتبة التالية.
+     *
+     * التقدّم **مُهدى** لا يبدأ من صفر (2.9-2): البار يقيس من العتبة السابقة
+     * للتالية، فالمستخدم يرى نفسه دائمًا داخل الطريق لا خارجه.
+     *
+     * @return array{enabled:bool,count:int,tier:?array,next:?array,percent:int}
+     */
+    private function ambassadorProgress(User $user): array
+    {
+        $count = $this->ambassadors->activatedInvites($user);
+        $tier = $this->ambassadors->tierFor($count);
+        $next = $this->ambassadors->nextTier($count);
+
+        $from = (int) ($tier['threshold'] ?? 0);
+        $to = (int) ($next['threshold'] ?? max(1, $count));
+        $span = max(1, $to - $from);
+
+        return [
+            'enabled' => $this->ambassadors->enabled(),
+            'count' => $count,
+            'tier' => $tier,
+            'next' => $next,
+            'percent' => $next ? (int) round(max(0, $count - $from) / $span * 100) : 100,
+        ];
     }
 
     /** فلتر حالة المدعوّ (7.6.2): الكلّ / مكتمل / في الانتظار */

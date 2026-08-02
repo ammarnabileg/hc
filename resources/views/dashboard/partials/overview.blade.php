@@ -1,7 +1,12 @@
-{{-- نظرة عامّة: أربعة KPI ثمّ كروت التدريبات الجارية ثمّ أقرب المواعيد (24.5) --}}
+{{-- نظرة عامّة: كروت KPI ثمّ كروت التدريبات الجارية ثمّ أقرب المواعيد (24.5) --}}
 
-{{-- على الموبايل: صفّ متمرّر أفقيًّا بدل أربعة مضغوطة (2.15-ج) --}}
-<div class="flex gap-3 overflow-x-auto no-scrollbar pb-1 sm:grid sm:grid-cols-2 lg:grid-cols-4 sm:overflow-visible">
+@php
+    // الشبكة تتبع عدد الكروت الفعليّ — والحدّ من اللوحة يقصّ (2.15-أ-3 · 14-أ)
+    $kpiColumns = count($kpis) >= 6 ? 'lg:grid-cols-3' : 'lg:grid-cols-4';
+@endphp
+
+{{-- على الموبايل: صفّ متمرّر أفقيًّا بدل الكروت مضغوطة (2.15-ج) --}}
+<div class="flex gap-3 overflow-x-auto no-scrollbar pb-1 sm:grid sm:grid-cols-2 {{ $kpiColumns }} sm:overflow-visible">
     @foreach ($kpis as $kpi)
         <div class="min-w-[13rem] sm:min-w-0">
             <x-kpi :label="$kpi['label']" :value="$kpi['value']" :icon="$kpi['icon']" :hint="$kpi['hint']" :state="$kpi['state']" />

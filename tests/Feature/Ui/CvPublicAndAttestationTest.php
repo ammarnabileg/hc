@@ -49,6 +49,7 @@ class CvPublicAndAttestationTest extends UiTestCase
             'code' => 'CERT-77991',
             'status' => 'valid',
             'issued_at' => now()->subMonth(),
+            'hash' => hash('sha256', 'CERT-77991'),
         ]);
 
         Cv::updateOrCreate(['user_id' => $user->id], [

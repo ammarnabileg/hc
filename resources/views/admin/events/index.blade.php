@@ -141,6 +141,8 @@
                 @csrf
                 <input type="hidden" name="id" id="ev-id">
 
+                {{-- ⭐ الفورم الأطول من حدّ الإعدادات يتقسّم خطوات بحفظ تلقائيّ بينها (2.15-ب) --}}
+                <x-form.stepper id="event-form" :labels="['الأساسيّات', 'التفاصيل', 'الأجندة']">
                 <div class="grid sm:grid-cols-2 gap-3">
                     <label class="text-sm font-semibold">العنوان (عربيّ)
                         <input type="text" name="title_ar" id="ev-title" required maxlength="180"
@@ -319,6 +321,8 @@
                         @endfor
                     </div>
                 </details>
+
+                </x-form.stepper>
 
                 <button type="submit" class="btn mt-4 rounded-xl px-4 py-2 text-sm font-semibold"
                         style="background: var(--color-brand-500); color: #04201c">احفظ الفعاليّة</button>

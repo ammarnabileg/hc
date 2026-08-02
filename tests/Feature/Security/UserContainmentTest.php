@@ -234,20 +234,28 @@ class UserContainmentTest extends SecurityTestCase
         $this->assertDatabaseHas('audit_logs', ['action' => 'impersonation.stop', 'user_id' => $owner->id]);
     }
 
-    /** ⛔ الانتحال مجموعة محميّة: أدمن الدعم بلا الصلاحيّة يُرفَض على المسار نفسه */
-    public function test_impersonation_is_guarded_by_an_owner_only_permission(): void
+    /**
+     * ⛔ الانتحال محروسٌ بصلاحيّته على المسار نفسه — لا بإخفاء زرّ في الفيو.
+     *
+     * ودقّة المصفوفة كما في جدول 12.2.2 حرفيًّا: `impersonation.create` قيدُه
+     * **«ليس نفسه»** لا «مالك المنصّة فقط» (فمسؤول دعم المستخدمين يملك المورد
+     * كلّه بنصّ 12.2.3-5)، بينما **`impersonation.view`** — سجلّ مَن دخل كمَن —
+     * **لمالك المنصّة وحده**. وكان الاختبار يفرض العزل على الثلاثة جميعًا.
+     */
+    public function test_impersonation_is_guarded_by_its_permission_on_the_route(): void
     {
         $admin = $this->admin(self::SUPPORT, 'أدمن دعم');
         $target = $this->makeUser('مستخدم');
 
         $this->actingAs($admin)->post(route('admin.users.impersonate', $target))->assertForbidden();
 
-        // والمصفوفة المعتمَدة تُعرّفها مجموعةً محميّة لمالك المنصّة وحده (12.2.1-5)
         $matrix = collect(json_decode(file_get_contents(database_path('data/permissions.json')), true))
-            ->where('resource', 'impersonation');
+            ->where('resource', 'impersonation')
+            ->keyBy('key');
 
         $this->assertTrue($matrix->isNotEmpty());
-        $this->assertTrue($matrix->every(fn ($row) => (bool) $row['is_owner_only']));
+        // سجلّ جلسات الانتحال في المجموعة المحميّة (12.2.2 · 12.2.1-ز-3)
+        $this->assertTrue((bool) $matrix['impersonation.view']['is_owner_only']);
     }
 
     /** ⛔ ولا يُنتحَل مالك المنصّة */

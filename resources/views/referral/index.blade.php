@@ -25,6 +25,32 @@
         </div>
     @endif
 
+    {{--
+        ⭐ الهيرو (7.6.2): شارة «عمولة مدى الحياة» + **رقم 7% ضخم** + العنوان
+        والنصّ النفسيّ. كان المطبَّق سطرًا صغيرًا داخل كارت الرابط، والرقم الذي
+        يُفترَض أن يكون **بطل الصفحة** لا يُقرأ إن كان بحجم نصّ عاديّ.
+    --}}
+    <section class="card p-6 mb-4 text-center overflow-hidden relative">
+        <span class="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold"
+              style="background: color-mix(in srgb, var(--color-state-honor) 16%, transparent); color: var(--color-state-honor)">
+            <x-icon name="crown" size="14" />
+            {{ setting('referral.hero.badge', 'عمولة مدى الحياة') }}
+        </span>
+
+        <div class="mt-3 font-extrabold leading-none tabular-nums"
+             style="font-size: clamp(3.5rem, 14vw, 6rem); color: var(--color-brand-500)">
+            {{ $stats['percent'] }}%
+        </div>
+
+        <h2 class="mt-2 text-lg font-bold">
+            {{ str_replace(':percent', (string) $stats['percent'], (string) setting('referral.hero.title', ':percent% من إجماليّ شحن كلّ من دعوتهم — مدى الحياة')) }}
+        </h2>
+
+        <p class="mt-2 text-sm max-w-xl mx-auto" style="color: var(--text-muted)">
+            {{ setting('referral.hero.note') }}
+        </p>
+    </section>
+
     {{-- ⭐ الكارت الواحد البارز: الرابط + العدّاد + العمولة + المشاركة (24.5) --}}
     <div class="card p-5 mb-4">
         <div class="flex flex-wrap items-start justify-between gap-4">
@@ -41,20 +67,21 @@
                         @include('events.components.icon', ['name' => 'share']) واتساب
                     </a>
 
+                    {{-- ⭐ فيسبوك كان غائبًا من قائمة المشاركة رغم نصّ 7.6.2 --}}
+                    <a href="https://www.facebook.com/sharer/sharer.php?u={{ urlencode($link) }}"
+                       target="_blank" rel="noopener"
+                       class="btn inline-flex items-center gap-1 rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
+                       style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
+                        @include('events.components.icon', ['name' => 'share']) {{ setting('referral.share.facebook_label', 'فيسبوك') }}
+                    </a>
+
                     <a href="https://t.me/share/url?url={{ urlencode($link) }}&text={{ urlencode((string) setting('referral.share.text', 'انضمّ معايا على المنصّة')) }}"
                        target="_blank" rel="noopener"
                        class="btn inline-flex items-center gap-1 rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
                        style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
-                        @include('events.components.icon', ['name' => 'share']) تيليجرام
+                        @include('events.components.icon', ['name' => 'share']) {{ setting('referral.share.telegram_label', 'تيليجرام') }}
                     </a>
                 </div>
-            </div>
-
-            <div class="text-center rounded-2xl px-5 py-4"
-                 style="background: color-mix(in srgb, var(--color-brand-500) 12%, transparent)">
-                <div class="text-3xl font-extrabold" style="color: var(--color-brand-500)"
-                     data-count-to="{{ $stats['percent'] }}">{{ $stats['percent'] }}</div>
-                <div class="text-xs mt-1" style="color: var(--text-muted)">% عمولة على شحنات مَن تدعوهم</div>
             </div>
         </div>
     </div>
@@ -67,6 +94,15 @@
         <x-kpi label="العمولة المكتسبة" :value="$stats['commission']" icon="money"
                :hint="'نسبتك '.$stats['percent'].'% مدى الحياة'" />
     </div>
+
+    {{-- ⭐ الآلة الحاسبة التفاعليّة — «قلب التفاعل» (7.6.2) --}}
+    @include('referral.partials.calculator', ['calculator' => $calculator])
+
+    {{-- ⭐ «كيف يعمل؟» بأربع خطوات (7.6.2) --}}
+    @include('referral.partials.how-it-works')
+
+    {{-- ⭐ «شبكتي» عرضًا بصريًّا وهي بتنمو (7.6.1 · 2.9-8) --}}
+    @include('referral.partials.network', ['ambassador' => $ambassador, 'invited' => $invited])
 
     {{-- ⭐ رابط دعوة لكلّ محتوى (Deep link) — 21.1-ج --}}
     @if ($deepLinks)
@@ -87,14 +123,30 @@
         </div>
     @endif
 
-    {{-- الفلتر الوحيد هنا: الفترة (24.5) --}}
+    {{-- عدّاد «X أشخاص دعوتهم» + فلاتر القائمة (7.6.2) — فلتران ظاهران لا أكثر (2.15-أ-4) --}}
+    <div class="flex items-center justify-between gap-3 flex-wrap mb-3">
+        <h2 class="font-bold">
+            {{ str_replace(':count', number_format($stats['invited']), (string) setting('referral.list.title', ':count أشخاص دعوتهم')) }}
+        </h2>
+    </div>
+
     <form method="get" action="{{ route('referral.index') }}" class="card p-3 mb-4 flex flex-wrap items-end gap-3">
         <label class="block">
-            <span class="block text-xs mb-1" style="color: var(--text-muted)">الفترة</span>
+            <span class="block text-xs mb-1" style="color: var(--text-muted)">{{ setting('referral.filter.period_label', 'الفترة') }}</span>
             <select name="days" onchange="this.form.submit()" class="rounded-xl px-3 py-2 text-sm"
                     style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
                 @foreach ($periods as $value => $label)
                     <option value="{{ $value }}" @selected((int) $value === (int) $days)>{{ $label }}</option>
+                @endforeach
+            </select>
+        </label>
+
+        <label class="block">
+            <span class="block text-xs mb-1" style="color: var(--text-muted)">{{ setting('referral.filter.status_label', 'الحالة') }}</span>
+            <select name="status" onchange="this.form.submit()" class="rounded-xl px-3 py-2 text-sm"
+                    style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
+                @foreach ($statuses as $value => $label)
+                    <option value="{{ $value }}" @selected($value === $status)>{{ $label }}</option>
                 @endforeach
             </select>
         </label>

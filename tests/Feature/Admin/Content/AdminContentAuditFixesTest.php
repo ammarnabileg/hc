@@ -11,6 +11,7 @@ use App\Models\Exam;
 use App\Models\LearningPath;
 use App\Models\Setting;
 use App\Models\Transaction;
+use App\Services\Admin\Content\PathCourseService;
 use App\Services\Learning\CredentialService;
 use App\Services\Notifications\AnnouncementAcknowledger;
 use App\Services\Notifications\Notifier;
@@ -158,7 +159,7 @@ class AdminContentAuditFixesTest extends AdminContentTestCase
         $trainee = app(CredentialService::class)->pathExam($path);
 
         // شاشة الأدمن
-        $adminPrice = app(\App\Services\Admin\Content\PathCourseService::class)
+        $adminPrice = app(PathCourseService::class)
             ->examPricesFor(collect([$path]))[$path->id];
 
         $this->assertTrue($trainee['exists']);
