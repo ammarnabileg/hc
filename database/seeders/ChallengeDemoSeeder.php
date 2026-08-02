@@ -48,6 +48,9 @@ class ChallengeDemoSeeder extends Seeder
             ['wars.count.knowledge', 'gamification_wars', 'عدد أسئلة حرب المعلومات', 'number', '20'],
             ['wars.count.survival', 'gamification_wars', 'عدد أسئلة حرب البقاء', 'number', '12'],
             ['wars.count.estimation', 'gamification_wars', 'عدد أسئلة حرب التقدير', 'number', '7'],
+            // منع تكرار السؤال لنفس المستخدم + نافذة التكرار (24.2)
+            ['wars.bank.prevent_repeat', 'gamification_wars', 'منع تكرار السؤال لنفس المستخدم', 'bool', '1'],
+            ['wars.bank.repeat_window_matches', 'gamification_wars', 'نافذة التكرار (آخر كم مواجهة)', 'number', '5'],
             ['wars.focus.honesty_message', 'gamification_wars', 'رسالة الأمانة في حرب التركيز', 'string',
                 'هذا التحدي أمانة بينك وبين نفسك. لو سجّلت إنجازًا ما عملتوش، إنت ما غششتش المنصة — غششت نفسك، '
                 .'وعوّدتها تاخد مكسب مش من حقها؛ وده أخطر من إنك ما تعملش حاجة أصلًا. '

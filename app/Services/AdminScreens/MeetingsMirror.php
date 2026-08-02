@@ -89,7 +89,12 @@ class MeetingsMirror
     public function stats(User $viewer, array $filters): array
     {
         $base = $this->query($viewer, $filters);
-        $meetings = (clone $base)->get(['id', 'status', 'minutes', 'attendance_closes_at']);
+
+        // سقفٌ صريح: حساب «المدعوّين» يمرّ على شجرة كلّ اجتماع، فبلا سقفٍ تصير
+        // الكروت أبطأ من الجدول نفسه — والمدى الافتراضيّ 30 يومًا يبقى تحته دائمًا.
+        $meetings = (clone $base)
+            ->limit(max(1, (int) setting('admin_meetings.stats_scan_limit', 200)))
+            ->get(['id', 'status', 'minutes', 'attendance_closes_at', 'entity_id', 'audience', 'owner_id']);
 
         $registered = MeetingAttendance::query()
             ->whereIn('meeting_id', $meetings->pluck('id'))
@@ -99,7 +104,8 @@ class MeetingsMirror
         $invited = $meetings->sum(fn (Meeting $meeting) => count($this->scope->audienceUserIds($meeting)));
 
         return [
-            'total' => $meetings->count(),
+            // العدّ الحقيقيّ من قاعدة البيانات لا من العيّنة — الرقم الظاهر صادق دائمًا (2.9-7)
+            'total' => (int) (clone $base)->count(),
             'open_windows' => $meetings->filter(fn (Meeting $m) => $m->attendance_closes_at?->isFuture() ?? false)->count(),
             'without_minutes' => $meetings->filter(fn (Meeting $m) => $m->status === 'ended' && blank($m->minutes))->count(),
             'attendance_rate' => $invited > 0 ? (int) round($registered / $invited * 100) : 0,

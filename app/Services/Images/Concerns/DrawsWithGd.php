@@ -44,16 +44,9 @@ trait DrawsWithGd
 
         $text = implode(' · ', $parts);
         $color = $this->allocate($canvas, (string) setting('images.watermark.color', '#9fb3c8'));
-        $font = $this->fontPath();
         $size = max(10, (int) round($height * 0.018));
 
-        if ($font !== null && function_exists('imagettftext')) {
-            imagettftext($canvas, $size, 0, 24, $height - 24, $color, $font, $text);
-
-            return;
-        }
-
-        imagestring($canvas, 3, 24, $height - 30, $text, $color);
+        $this->writeText($canvas, $text, 24, $height - 24 - $size, $size, $color, 'left');
     }
 
     protected function allocate($canvas, string $hex): int
@@ -119,18 +112,40 @@ trait DrawsWithGd
         return [0, intdiv($srcH - $h, 2), $srcW, $h];
     }
 
+    /**
+     * ⭐ تشكيل النصّ العربيّ قبل الرسم (نفس محرّك القسم 9 — صفر ازدواج).
+     *
+     * **لماذا؟** لأنّ GD يرسم الحروف كما تُعطى له: بلا وصل وبلا ترتيب من اليمين،
+     * فتخرج «محمد» أربعة حروف مفكوكة مقلوبة. فنحوّل كلّ حرف إلى صورته المتّصلة
+     * ونرتّب السطر بصريًّا، **ولو غاب شكلٌ في الخطّ رجعنا للحرف الأصل** فيرسمه
+     * الخطّ منفردًا بدل مربّع فارغ.
+     */
+    protected function shapeRtl(string $text): string
+    {
+        if (! preg_match('/\p{Arabic}/u', $text)) {
+            return $text; // سطر لاتينيّ خالص — لا تشكيل ولا عكس
+        }
+
+        $font = $this->fontTables();
+        $out = '';
+
+        foreach (app(ArabicShaper::class)->shape($text) as $glyph) {
+            $code = $glyph['form'];
+
+            if ($font !== null && $font->glyphFor($code) === 0) {
+                $code = $glyph['logical'][0];
+            }
+
+            $out .= mb_chr($code, 'UTF-8');
+        }
+
+        return $out;
+    }
+
     /** عرض النصّ بالبكسل — لمحاذاة RTL الصحيحة */
     protected function textWidth(string $text, int $size): int
     {
-        $font = $this->fontPath();
-
-        if ($font === null || ! function_exists('imagettfbbox')) {
-            return (int) (mb_strlen($text) * $size * 0.55);
-        }
-
-        $box = imagettfbbox($size, 0, $font, $text);
-
-        return (int) abs($box[2] - $box[0]);
+        return $this->rawWidth($this->shapeRtl($text), $size);
     }
 
     /** كتابة نصّ بمحاذاة right|center|left — والافتراضيّ right لأنّ المنصّة RTL */
@@ -140,15 +155,16 @@ trait DrawsWithGd
             return;
         }
 
+        $shaped = $this->shapeRtl($text);
         $font = $this->fontPath();
 
         if ($font === null || ! function_exists('imagettftext')) {
-            imagestring($canvas, 5, $align === 'right' ? max(0, $x - (int) (mb_strlen($text) * 8)) : $x, $y, $text, $color);
+            imagestring($canvas, 5, $align === 'right' ? max(0, $x - (int) (mb_strlen($shaped) * 8)) : $x, $y, $shaped, $color);
 
             return;
         }
 
-        $width = $this->textWidth($text, $size);
+        $width = $this->rawWidth($shaped, $size);
 
         $x = match ($align) {
             'center' => $x - intdiv($width, 2),
@@ -156,6 +172,42 @@ trait DrawsWithGd
             default => $x - $width,
         };
 
-        imagettftext($canvas, $size, 0, $x, $y + $size, $color, $font, $text);
+        imagettftext($canvas, $size, 0, $x, $y + $size, $color, $font, $shaped);
+    }
+
+    protected function rawWidth(string $shaped, int $size): int
+    {
+        $font = $this->fontPath();
+
+        if ($font === null || ! function_exists('imagettfbbox')) {
+            return (int) (mb_strlen($shaped) * $size * 0.55);
+        }
+
+        $box = imagettfbbox($size, 0, $font, $shaped);
+
+        return (int) abs($box[2] - $box[0]);
+    }
+
+    /** جداول الخطّ تُقرأ مرّة واحدة — قراءتها لكلّ حرف مكلفة بلا داعٍ */
+    private function fontTables(): ?TrueTypeFont
+    {
+        static $cache = [];
+
+        $path = $this->fontPath();
+
+        if ($path === null) {
+            return null;
+        }
+
+        if (! array_key_exists($path, $cache)) {
+            try {
+                $cache[$path] = new TrueTypeFont($path);
+            } catch (Throwable) {
+                // خطّ غير مقروء: نرسم بلا فحص أشكال بدل أن نكسر الصورة
+                $cache[$path] = null;
+            }
+        }
+
+        return $cache[$path];
     }
 }

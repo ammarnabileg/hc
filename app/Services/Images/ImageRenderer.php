@@ -241,28 +241,11 @@ class ImageRenderer
         }
 
         $color = $this->allocate($canvas, (string) ($layer['color'] ?? '#ffffff'));
-        $font = $this->fontPath();
         $x = (int) ($layer['x'] ?? 0);
         $y = (int) ($layer['y'] ?? 0);
-        $angle = (int) ($layer['rotate'] ?? 0);
 
-        if ($font !== null && function_exists('imagettftext')) {
-            $box = imagettfbbox($size, 0, $font, $text);
-            $textWidth = abs($box[2] - $box[0]);
-
-            $x = match ($layer['align'] ?? 'right') {
-                'center' => $x - intdiv($textWidth, 2),
-                'left' => $x,
-                default => $x - $textWidth,
-            };
-
-            imagettftext($canvas, $size, $angle, $x, $y + $size, $color, $font, $text);
-
-            return;
-        }
-
-        // بلا خطّ TTF مضمَّن: خطّ GD الداخليّ — الصورة تخرج دائمًا ولا تفشل الشاشة
-        imagestring($canvas, 5, $x, $y, $text, $color);
+        // نفس مسار الرسم المشترك: تشكيل عربيّ + محاذاة RTL (12.14-و)
+        $this->writeText($canvas, $text, $x, $y, $size, $color, (string) ($layer['align'] ?? 'right'));
     }
 
     private function drawInitials($canvas, int $x, int $y, int $w, int $h, ?User $user): void
@@ -281,21 +264,8 @@ class ImageRenderer
             return;
         }
 
-        $font = $this->fontPath();
         $size = max(12, intdiv($w, 3));
 
-        if ($font !== null && function_exists('imagettftext')) {
-            $box = imagettfbbox($size, 0, $font, $initials);
-            imagettftext(
-                $canvas, $size, 0,
-                $x + intdiv($w - abs($box[2] - $box[0]), 2),
-                $y + intdiv($h + $size, 2),
-                $fg, $font, $initials,
-            );
-
-            return;
-        }
-
-        imagestring($canvas, 5, $x + intdiv($w, 3), $y + intdiv($h, 2), $initials, $fg);
+        $this->writeText($canvas, $initials, $x + intdiv($w, 2), $y + intdiv($h, 2) - intdiv($size, 2), $size, $fg, 'center');
     }
 }

@@ -46,10 +46,12 @@ class EventsReferralTest extends EventsTestCase
         app(ReferralService::class)->claimLanding($invited, $pending->id);
 
         $this->assertSame('event', $referral->refresh()->landing_type);
-        $this->assertSame(
-            route('events.show', $event->slug),
-            app(ReferralService::class)->landingUrlFor($invited),
-        );
+
+        // ⭐ الوجهة نفسها — موسومةً بـUTM لأنّ كلّ رابط تولّده المنصّة يُوسَم (21.2-ح)
+        $landing = (string) app(ReferralService::class)->landingUrlFor($invited);
+
+        $this->assertStringStartsWith(route('events.show', $event->slug), $landing);
+        $this->assertStringContainsString('utm_medium=invite', $landing);
     }
 
     public function test_welcome_ticket_is_granted_once_and_only_after_activation(): void

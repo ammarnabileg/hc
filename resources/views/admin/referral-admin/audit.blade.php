@@ -45,7 +45,7 @@
     @if ($audit['rows']->isEmpty())
         <x-empty message="مافيش دعوات مسجّلة للحساب ده." />
     @else
-        <div class="card p-0 overflow-hidden">
+        <div class="card p-0 overflow-hidden hidden md:block">
             <table class="w-full text-sm">
                 <thead>
                     <tr style="background: var(--surface-sunken)">
@@ -70,6 +70,23 @@
                     @endforeach
                 </tbody>
             </table>
+        </div>
+
+        {{-- الموبايل: كروت رأسيّة بلا تمرير أفقيّ (2.15-ج) --}}
+        <div class="grid gap-3 md:hidden">
+            @foreach ($audit['rows'] as $referral)
+                @php $status = $service->statusOf($referral); @endphp
+                <article class="card p-4">
+                    <div class="flex items-start justify-between gap-2">
+                        <p class="text-sm font-semibold">{{ $referral->referred?->name ?? 'لم يسجّل بعد' }}</p>
+                        <x-state-badge :state="match ($status) { 'completed' => 'ok', 'waiting' => 'warn', default => 'idle' }"
+                                       :label="$statuses[$status]" />
+                    </div>
+                    <p class="text-xs mt-2" style="color: var(--text-muted)">
+                        {{ $referral->created_at?->format('Y-m-d H:i') }} · المكافأة: {{ $referral->payout_status }}
+                    </p>
+                </article>
+            @endforeach
         </div>
     @endif
 @endsection

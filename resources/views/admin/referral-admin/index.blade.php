@@ -191,7 +191,7 @@
         @if ($ambassadors->isEmpty())
             <x-empty message="لسّه محدّش وصل لأوّل لقب — أوّل دعوة مفعّلة هي البداية." />
         @else
-            <div class="card p-0 overflow-hidden">
+            <div class="card p-0 overflow-hidden hidden md:block">
                 <table class="w-full text-sm">
                     <thead>
                         <tr style="background: var(--surface-sunken)">
@@ -224,6 +224,30 @@
                         @endforeach
                     </tbody>
                 </table>
+            </div>
+
+            {{-- الموبايل: كروت رأسيّة بلا تمرير أفقيّ (2.15-ج) --}}
+            <div class="grid gap-3 md:hidden">
+                @foreach ($ambassadors as $index => $ambassador)
+                    <article class="card p-4">
+                        <div class="flex items-start justify-between gap-2">
+                            <div>
+                                <p class="text-sm font-semibold">{{ $index + 1 }}. {{ $ambassador->name }}</p>
+                                <p class="text-xs" style="color: var(--text-muted)">{{ $ambassador->code }}</p>
+                            </div>
+                            @if ($ambassador->ambassador_title)
+                                <x-state-badge state="honor" :label="$ambassador->ambassador_title" />
+                            @endif
+                        </div>
+                        <p class="text-xs mt-2" style="color: var(--text-muted)">
+                            {{ $ambassador->ambassador_invites }} دعوة مفعَّلة
+                            @if ($ambassador->ambassador_granted_at) · {{ $ambassador->ambassador_granted_at->format('Y-m-d') }} @endif
+                        </p>
+                        <div class="mt-3 pt-3 text-xs" style="border-top: 1px solid var(--border)">
+                            <a class="underline" href="{{ route('admin.referrals.audit', $ambassador) }}">تدقيق شبكته</a>
+                        </div>
+                    </article>
+                @endforeach
             </div>
         @endif
     @else

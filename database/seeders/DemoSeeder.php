@@ -26,6 +26,7 @@ class DemoSeeder extends Seeder
             ExamDemoSeeder::class,
             StoreDemoSeeder::class,
             WalletDemoSeeder::class,
+            AvailabilityDemoSeeder::class,
             LibraryDemoSeeder::class,
             ChallengeDemoSeeder::class,
             EventDemoSeeder::class,

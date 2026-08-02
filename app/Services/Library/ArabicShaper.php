@@ -71,6 +71,12 @@ class ArabicShaper
         0x0627 => [0xFEFB, 0xFEFC],
     ];
 
+    /** أحرف بلا اتّجاه: الفراغ وعلامات الترقيم المشتركة بين اللغتين */
+    private const NEUTRALS = [
+        0x20, 0x2E, 0x2C, 0x3A, 0x3B, 0x21, 0x3F, 0x2D, 0x2013, 0x2014,
+        0x00B7, 0x060C, 0x061B, 0x061F, 0x28, 0x29, 0x2F, 0x7C,
+    ];
+
     /**
      * تشكيل سطر وترتيبه بصريًّا.
      *
@@ -202,9 +208,18 @@ class ArabicShaper
         $runs = [];
         $current = null;
 
+        /*
+         | المحايد (فراغ · نقطة · شرطة · فاصلة) لا اتّجاه له بذاته. القاعدة:
+         | يأخذ اتّجاه جارَيه لو اتّفقا، وإلّا فاتّجاه الفقرة (يمين) — وهي قاعدة
+         | خوارزميّة الاتّجاهين المعياريّة مختصرةً. بدونها ينطّ الفاصلُ بين
+         | كلمتين عربيّتين، أو تنقلب «5,000 XP» إلى «XP 5,000».
+         */
         foreach ($shaped as $glyph) {
-            $isArabic = $glyph['form'] >= 0x0600 && $glyph['form'] <= 0xFEFF;
-            $type = $isArabic ? 'rtl' : 'ltr';
+            $type = match (true) {
+                $glyph['form'] >= 0x0600 && $glyph['form'] <= 0xFEFF => 'rtl',
+                in_array($glyph['form'], self::NEUTRALS, true) => 'neutral',
+                default => 'ltr',
+            };
 
             if ($current === null || $current['type'] !== $type) {
                 if ($current !== null) {
@@ -221,6 +236,8 @@ class ArabicShaper
             $runs[] = $current;
         }
 
+        $runs = $this->resolveNeutrals($runs);
+
         // لا عربيّة في السطر ⟵ سطر لاتينيّ خالص يُترَك كما هو
         if (! collect($runs)->contains(fn ($run) => $run['type'] === 'rtl')) {
             return $shaped;
@@ -228,7 +245,7 @@ class ArabicShaper
 
         $out = [];
 
-        foreach (array_reverse($runs) as $run) {
+        foreach (array_reverse($this->mergeRuns($runs)) as $run) {
             $glyphs = $run['type'] === 'rtl' ? array_reverse($run['glyphs']) : $run['glyphs'];
 
             foreach ($glyphs as $glyph) {
@@ -237,5 +254,42 @@ class ArabicShaper
         }
 
         return $out;
+    }
+
+    /** المحايد يأخذ اتّجاه جارَيه لو اتّفقا، وإلّا اتّجاه الفقرة (يمين) */
+    private function resolveNeutrals(array $runs): array
+    {
+        foreach ($runs as $i => $run) {
+            if ($run['type'] !== 'neutral') {
+                continue;
+            }
+
+            $before = $runs[$i - 1]['type'] ?? 'rtl';
+            $after = $runs[$i + 1]['type'] ?? 'rtl';
+
+            $runs[$i]['type'] = ($before === $after && $before !== 'neutral') ? $before : 'rtl';
+        }
+
+        return $runs;
+    }
+
+    /** دمج المقاطع المتجاورة المتّفقة في الاتّجاه بعد حسم المحايد */
+    private function mergeRuns(array $runs): array
+    {
+        $merged = [];
+
+        foreach ($runs as $run) {
+            $last = array_key_last($merged);
+
+            if ($last !== null && $merged[$last]['type'] === $run['type']) {
+                $merged[$last]['glyphs'] = [...$merged[$last]['glyphs'], ...$run['glyphs']];
+
+                continue;
+            }
+
+            $merged[] = $run;
+        }
+
+        return $merged;
     }
 }

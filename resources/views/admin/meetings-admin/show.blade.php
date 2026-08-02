@@ -53,7 +53,7 @@
     @if ($attendees->isEmpty())
         <x-empty message="محدّش سجّل حضوره لسّه." />
     @else
-        <div class="card p-0 overflow-hidden">
+        <div class="card p-0 overflow-hidden hidden md:block">
             <table class="w-full text-sm">
                 <thead>
                     <tr style="background: var(--surface-sunken)">
@@ -77,6 +77,22 @@
                     @endforeach
                 </tbody>
             </table>
+        </div>
+
+        {{-- الموبايل: كروت رأسيّة بلا تمرير أفقيّ (2.15-ج) --}}
+        <div class="grid gap-3 md:hidden">
+            @foreach ($attendees as $row)
+                <article class="card p-4">
+                    <div class="flex items-start justify-between gap-2">
+                        <p class="text-sm font-semibold">{{ $row->user?->name }}</p>
+                        <x-state-badge :state="match ($row->status) { 'registered' => 'ok', 'excused_absence' => 'idle', default => 'danger' }"
+                                       :label="match ($row->status) { 'registered' => 'حاضر', 'excused_absence' => 'غياب باعتذار', default => 'غياب بلا اعتذار' }" />
+                    </div>
+                    <p class="text-xs mt-2" style="color: var(--text-muted)">
+                        {{ $row->registered_at?->format('Y-m-d H:i') ?? 'لم يسجّل' }} · {{ $attendance->valueLabel((float) $row->rep_value) }}
+                    </p>
+                </article>
+            @endforeach
         </div>
     @endif
 @endsection

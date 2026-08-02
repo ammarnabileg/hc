@@ -229,6 +229,32 @@ class WarMatchPlayTest extends ChallengeTestCase
         $this->assertCount(1, $matchmaking->fighters($me, $challenge));
     }
 
+    /** منع تكرار السؤال لنفس المستخدم داخل نافذة قابلة للضبط (24.2). */
+    public function test_recent_questions_are_not_repeated_for_the_same_fighters(): void
+    {
+        $a = $this->trainee(tickets: 60);
+        $b = $this->trainee(tickets: 60);
+
+        $first = $this->startMatch($a, $b, 'estimation_war');
+        app(WarMatchService::class)->withdraw($first, $a);
+
+        $second = $this->startMatch($a, $b, 'estimation_war');
+
+        $firstRefs = array_column((array) $first->refresh()->questions, 'ref');
+        $secondRefs = array_column((array) $second->questions, 'ref');
+
+        // البنك الرقميّ أوسع من جولتين، فلا يتكرّر سؤال على نفس الطرفين
+        $this->assertSame([], array_intersect($firstRefs, $secondRefs));
+    }
+
+    /** عدّاد «مرّات الاستخدام» في شاشة البنك يزيد مع كلّ سحب (24.2). */
+    public function test_drawing_increments_question_usage_count(): void
+    {
+        $this->startMatch($this->trainee(), $this->trainee());
+
+        $this->assertGreaterThan(0, WarQuestion::query()->where('usage_count', '>', 0)->count());
+    }
+
     /** القمع الموحّد يسحب من البنك والتدريبات معًا بنسبة 70/30 (15.0). */
     public function test_the_funnel_mixes_arena_and_training_questions(): void
     {

@@ -196,12 +196,22 @@ class BoardImageRenderer
         }
 
         $count = max(1, count($rows));
-        // المساحة المتبقيّة تُقسَّم على الصفوف — فالقائمة تملأ الصورة مهما كان العدد
+        // المساحة المتبقيّة تُقسَّم على الصفوف — والصفّ لا يتضخّم لو العدد قليل
         $available = $height - $y - (int) round($height * 0.09);
-        $rowH = (int) max(48, min($available / $count, $height * 0.14));
-        $nameSize = max(13, (int) round($rowH * 0.30));
-        $metaSize = max(10, (int) round($rowH * 0.20));
-        $avatarSize = (int) round($rowH * 0.66);
+        $rowH = (int) max(56, min($available / $count, $width * 0.13));
+
+        /*
+         | ⭐ حجم النصّ محكومٌ بحدّين معًا: **عرض الصورة** فلا يتضخّم في الستوري،
+         | و**ارتفاع الصفّ** فلا يتراكب الاسمُ والمحافظةُ حين تطول القائمة.
+         */
+        $textBox = $rowH - 16;                       // ما يتبقّى للسطرين داخل الصفّ
+        $nameSize = max(12, (int) min($width * 0.036, $textBox / 2.15));
+        $metaSize = max(9, (int) round($nameSize * 0.58));
+        // فجوة السطرين تتبع حجم الاسم — لخطّ Cairo نزولاتٌ عميقة تحت خطّ الأساس
+        $lineGap = (int) round($nameSize * 0.45);
+        $blockH = $nameSize + $lineGap + $metaSize;
+        $avatarSize = (int) min($rowH * 0.66, $width * 0.09);
+        $gap = (int) round($pad * 0.4);
 
         foreach ($rows as $row) {
             $rowTop = $y;
@@ -210,30 +220,55 @@ class BoardImageRenderer
             // خلفيّة خفيفة للصفّ، وأوضح لصفّ صاحب الاستخراج (خيار «صفّي أنا»)
             $this->rowPlate($canvas, $pad, $rowTop, $width - $pad, $rowTop + $rowH - 8, (bool) ($row['me'] ?? false));
 
-            $cursor = $right - (int) round($pad * 0.4);
+            $cursor = $right - $gap;
 
             // الترتيب — رقم بارز بلون الهويّة (والهويّة ليست حالة، 2.16)
             $rankText = '#'.(int) ($row['rank'] ?? 0);
             $this->writeText($canvas, $rankText, $cursor, $center - intdiv($nameSize, 2), $nameSize, $brand);
-            $cursor -= $this->textWidth($rankText, $nameSize) + (int) round($pad * 0.4);
+            $cursor -= $this->textWidth($rankText, $nameSize) + $gap;
 
             if ($avatars) {
                 $this->drawRowAvatar($canvas, $row['user'] ?? null, $cursor - $avatarSize, $center - intdiv($avatarSize, 2), $avatarSize);
-                $cursor -= $avatarSize + (int) round($pad * 0.35);
+                $cursor -= $avatarSize + (int) round($gap * 0.9);
             }
 
-            $this->writeText($canvas, (string) ($row['name'] ?? ''), $cursor, $rowTop + (int) round($rowH * 0.16), $nameSize, $ink);
+            // القيمة على يسار الصفّ — نرسمها أوّلًا لنعرف المساحة الباقية للاسم
+            $value = (string) ($row['value'] ?? '');
+            $valueLeft = $pad + $gap;
+            $this->writeText($canvas, $value, $valueLeft, $center - intdiv($nameSize, 2), $nameSize, $ink, 'left');
+
+            // ⭐ الاسم لا يزاحم القيمة أبدًا: يُصغَّر ثمّ يُقصّ عند الحاجة (12.14-ج)
+            $nameSpace = max(40, $cursor - ($valueLeft + $this->textWidth($value, $nameSize) + $gap));
+
+            $textTop = $rowTop + (int) round(($rowH - 8 - $blockH) / 2);
+
+            $this->writeFitted($canvas, (string) ($row['name'] ?? ''), $cursor, $textTop, $nameSize, $ink, $nameSpace);
 
             // ⭐ المحافظة تُطبَع دائمًا ولا يجوز إخفاؤها (12.14-د)
             if (($row['gov'] ?? '') !== '') {
-                $this->writeText($canvas, (string) $row['gov'], $cursor, $rowTop + (int) round($rowH * 0.52), $metaSize, $muted);
+                $this->writeFitted($canvas, (string) $row['gov'], $cursor, $textTop + $nameSize + $lineGap, $metaSize, $muted, $nameSpace);
             }
-
-            // القيمة على يسار الصفّ
-            $this->writeText($canvas, (string) ($row['value'] ?? ''), $pad + (int) round($pad * 0.4), $center - intdiv($nameSize, 2), $nameSize, $ink, 'left');
 
             $y += $rowH;
         }
+    }
+
+    /** كتابة تتّسع للمساحة: تصغير تلقائيّ ثمّ قصّ بثلاث نقاط (12.14-ج) */
+    private function writeFitted($canvas, string $text, int $x, int $y, int $size, int $color, int $maxWidth): void
+    {
+        if (trim($text) === '') {
+            return;
+        }
+
+        while ($size > 10 && $this->textWidth($text, $size) > $maxWidth) {
+            $size--;
+        }
+
+        while (mb_strlen($text) > 4 && $this->textWidth($text, $size) > $maxWidth) {
+            $text = mb_substr($text, 0, mb_strlen($text) - 2).'…';
+        }
+
+        $this->writeText($canvas, $text, $x, $y, $size, $color);
     }
 
     private function rowPlate($canvas, int $x1, int $y1, int $x2, int $y2, bool $highlight): void

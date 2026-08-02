@@ -156,7 +156,8 @@ class MatchmakingService
         }
 
         $gate = $this->rules->readyTickets($challenge);
-        $questions = $this->funnel->draw($challenge);
+        // منع تكرار السؤال لنفس المستخدم داخل نافذة قابلة للضبط (24.2)
+        $questions = $this->funnel->draw($challenge, null, [$challenger->id, $opponent->id]);
 
         if ($questions === []) {
             throw new WarRuleException('بنك أسئلة الحرب دي فاضي — بلّغ الإدارة وجرّب ساحة تانية.');
