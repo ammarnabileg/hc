@@ -16,6 +16,7 @@ use App\Models\Transaction;
 use App\Models\User;
 use App\Models\WalletBalance;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -309,7 +310,7 @@ class PurchaseService
      * الصلاحيّة الزمنيّة للمنتج الرقميّ (20.5): يضبطها الأدمن بالأيّام لكلّ منتج،
      * والافتراضيّ **وصولٌ دائم** لأنّ الدستور يفرض «بوصولٍ دائم» ما لم يُقيَّد صراحةً (20).
      */
-    private function accessUntil(Model $item): ?\Illuminate\Support\Carbon
+    private function accessUntil(Model $item): ?Carbon
     {
         $days = (int) ($item->access_days ?? 0);
 

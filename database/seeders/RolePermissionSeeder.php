@@ -91,6 +91,9 @@ class RolePermissionSeeder extends Seeder
             'video_comments',
             'courses', 'paths', 'certificates', 'certificate_verification', 'my_library', 'flip_reader',
             'wallet', 'purchases', 'orders', 'invoices', 'topup', 'transfer', 'cart', 'store_products', 'bundles',
+            // أرباحه هو ومسحوباته هو (19.2/19.3) — أمّا الاعتماد والرفض وتقارير
+            // الأرباح على مستوى المنصّة فتبقى معزولة لمالك المنصّة وحده.
+            'withdraw', 'earnings',
             'badges', 'streaks', 'five_am_club', 'achievements', 'games', 'leaderboards', 'public_leaderboard',
             'war_participation', 'events', 'event_registrations', 'event_attendance',
             'referrals', 'friend_invite', 'invitations_page', 'user_cv', 'cv_templates', 'user_attestation',

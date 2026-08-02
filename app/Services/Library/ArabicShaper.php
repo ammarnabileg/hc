@@ -74,8 +74,10 @@ class ArabicShaper
     /**
      * تشكيل سطر وترتيبه بصريًّا.
      *
-     * @return array<int, array{form:int, logical:array<int,int>}>
-     *                                                             كلّ عنصر: الشكل المرسوم + الحروف المنطقيّة التي يمثّلها (للـToUnicode)
+     * @return array<int, array{form:int, logical:array<int,int>, order:int}>
+     *                                                                        الشكل المرسوم + الحروف المنطقيّة التي يمثّلها (للـToUnicode)
+     *                                                                        + **رتبته المنطقيّة** — بها يكتب الـPDF النصّ بترتيب القراءة
+     *                                                                        بينما يرسمه بترتيب العين، فيقرأ الـATS «محمد» لا «دمحم».
      */
     public function shape(string $line): array
     {
@@ -90,6 +92,7 @@ class ArabicShaper
                 $shaped[] = [
                     'form' => self::LAM_ALEF[$unit['ligature']][$final ? 1 : 0],
                     'logical' => $unit['logical'],
+                    'order' => $i,
                 ];
 
                 continue;
@@ -98,7 +101,7 @@ class ArabicShaper
             $code = $unit['logical'][0];
 
             if (! isset(self::FORMS[$code])) {
-                $shaped[] = ['form' => $code, 'logical' => $unit['logical']];
+                $shaped[] = ['form' => $code, 'logical' => $unit['logical'], 'order' => $i];
 
                 continue;
             }
@@ -114,7 +117,7 @@ class ArabicShaper
                 default => 0,
             };
 
-            $shaped[] = ['form' => $forms[$index] ?? $code, 'logical' => $unit['logical']];
+            $shaped[] = ['form' => $forms[$index] ?? $code, 'logical' => $unit['logical'], 'order' => $i];
         }
 
         return $this->visualOrder($shaped);

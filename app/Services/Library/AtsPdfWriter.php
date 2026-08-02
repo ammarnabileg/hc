@@ -163,11 +163,35 @@ class AtsPdfWriter
         $total = 0.0;
 
         foreach ($this->shaper->shape($text) as $glyph) {
-            $gid = $this->font->glyphFor($glyph['form']);
-            $total += $this->font->widthOf($gid) * $size / 1000;
+            $total += $this->font->widthOf($this->glyphOf($glyph)) * $size / 1000;
         }
 
         return $total;
+    }
+
+    /**
+     * رقم الشكل مع بديلٍ آمن: كثيرٌ من الخطوط — ومنها Cairo — **لا تُدرج الأشكال
+     * المنفردة** في جدول الربط لأنّها تُشتقّ من الحرف الأصل عبر GSUB. فلو غاب
+     * الشكل رجعنا إلى الحرف نفسه، وهو ما يرسمه الخطّ منفردًا أصلًا — فلا يظهر
+     * مربّع فارغ ولا تتصادم خرائط `ToUnicode` على الشكل صفر.
+     */
+    private function glyphOf(array $glyph): int
+    {
+        $gid = $this->font->glyphFor($glyph['form']);
+
+        if ($gid !== 0) {
+            return $gid;
+        }
+
+        foreach ((array) $glyph['logical'] as $code) {
+            $fallback = $this->font->glyphFor($code);
+
+            if ($fallback !== 0) {
+                return $fallback;
+            }
+        }
+
+        return 0;
     }
 
     // ------------------------------------------------------------------ الملفّ
@@ -242,23 +266,39 @@ class AtsPdfWriter
             }
 
             $glyphs = $this->shaper->shape($item['text']);
-            $hex = '';
+            $placed = [];
             $lineWidth = 0.0;
 
             foreach ($glyphs as $glyph) {
-                $gid = $this->font->glyphFor($glyph['form']);
+                $gid = $this->glyphOf($glyph);
                 $this->usedGlyphs[$gid] = $glyph['logical'];
-                $hex .= sprintf('%04X', $gid);
-                $lineWidth += $this->font->widthOf($gid) * $item['size'] / 1000;
+                $advance = $this->font->widthOf($gid) * $item['size'] / 1000;
+                $placed[] = ['gid' => $gid, 'offset' => $lineWidth, 'advance' => $advance, 'order' => $glyph['order']];
+                $lineWidth += $advance;
             }
 
             // المحاذاة لليمين لأنّ المستند عربيّ — والسطر اللاتينيّ يبدأ من اليمين كذلك
-            $x = $item['x'] + $item['width'] - $lineWidth;
+            $start = max($item['x'], $item['x'] + $item['width'] - $lineWidth);
 
-            $out[] = sprintf(
-                'BT /F1 %.2F Tf 0.06 0.09 0.11 rg %.2F %.2F Td <%s> Tj ET',
-                $item['size'], max($item['x'], $x), $item['y'], $hex,
-            );
+            /*
+             | ⭐ نرسم كلّ شكلٍ في **موضعه البصريّ**، لكنّنا نكتبه في التدفّق
+             |   بـ**ترتيبه المنطقيّ**. لماذا؟ لأنّ برامج الـATS تستخرج النصّ
+             |   بترتيب ورودِه في التدفّق لا بمواضعه؛ فلو كتبناه بترتيب العين
+             |   خرج «دمحم» بدل «محمد». والوضع المطلق يجعل الشكل النهائيّ واحدًا
+             |   في الحالتين — فيقرأ الإنسان صحيحًا ويقرأ الـATS صحيحًا.
+             */
+            usort($placed, fn ($a, $b) => $a['order'] <=> $b['order']);
+
+            $body = sprintf('BT /F1 %.2F Tf 0.06 0.09 0.11 rg', $item['size']);
+
+            foreach ($placed as $glyph) {
+                $body .= sprintf(
+                    ' 1 0 0 1 %.2F %.2F Tm <%04X> Tj',
+                    $start + $glyph['offset'], $item['y'], $glyph['gid'],
+                );
+            }
+
+            $out[] = $body.' ET';
         }
 
         return implode("\n", $out);

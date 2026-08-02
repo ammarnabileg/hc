@@ -78,18 +78,20 @@ class ChallengeController extends Controller
     }
 
     /** شاشة الساحة: أيقونة ضخمة + هيدلاين + [استعداد] + المحاربون الجاهزون (15.1) */
-    public function arena(Request $request, Challenge $challenge): View
+    public function arena(Request $request, Challenge $challenge): View|RedirectResponse
     {
         $user = $request->user();
-        $type = $this->rules->typeOf($challenge);
 
-        // حرب التركيز ساحتها مختلفة تمامًا (15.3) — فتُحوَّل لشاشتها
+        // حرب التركيز ساحتها مختلفة تمامًا (15.3) — لها شاشتها المستقلّة
+        if ($this->rules->typeOf($challenge) === 'focus') {
+            return redirect()->route('challenges.focus.index');
+        }
+
         $readiness = $this->matchmaking->readinessOf($user);
         $isReadyHere = $readiness && (int) $readiness->challenge_id === (int) $challenge->id;
 
         return view('challenges.arena', [
             'challenge' => $challenge,
-            'type' => $type,
             'card' => $this->arenaCard($challenge),
             'readiness' => $readiness,
             'isReadyHere' => $isReadyHere,

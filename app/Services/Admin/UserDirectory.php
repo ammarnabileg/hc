@@ -159,7 +159,7 @@ class UserDirectory
 
         // الانتحال مجموعة محميّة، ولا يُنتحَل مالك المنصّة ولا المشاهد نفسه
         if ($viewer->allows('impersonation.create') && $subject->id !== $viewer->id && ! $subject->isPlatformOwner()) {
-            $actions[] = ['key' => 'impersonate', 'label' => 'تصفّح كـ' .$subject->shortName(1), 'danger' => false];
+            $actions[] = ['key' => 'impersonate', 'label' => 'تصفّح كـ'.$subject->shortName(1), 'danger' => false];
         }
 
         return $actions;

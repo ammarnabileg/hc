@@ -17,6 +17,9 @@ use Illuminate\Support\Facades\Cache;
  */
 class SettingsRegistry
 {
+    /** @var array<int, string>|null ذاكرة الطلب للمجموعات بلا تاب */
+    private ?array $unmapped = null;
+
     /**
      * التابات الجانبيّة: المفتاح ⟵ [العنوان · المجموعات · سطر تعريفيّ].
      * وترتيبها هو ترتيب العرض — ولا يُبنى من قاعدة البيانات حتى لا يتغيّر بالصدفة.
@@ -287,12 +290,19 @@ class SettingsRegistry
         return $map;
     }
 
-    /** المجموعات الموجودة في قاعدة البيانات بلا تاب مخصّص — تسقط في «متنوّعات» */
+    /**
+     * المجموعات الموجودة في قاعدة البيانات بلا تاب مخصّص — تسقط في «متنوّعات».
+     * وتُحسَب مرّةً واحدة في الطلب: `tabsFor()` تُستدعى أكثر من مرّة في الصفحة.
+     */
     public function unmappedGroups(): array
     {
+        if ($this->unmapped !== null) {
+            return $this->unmapped;
+        }
+
         $mapped = $this->groupToTab();
 
-        return Setting::query()
+        return $this->unmapped = Setting::query()
             ->select('group')
             ->distinct()
             ->pluck('group')
