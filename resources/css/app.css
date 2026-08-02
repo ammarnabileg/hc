@@ -1,0 +1,148 @@
+@import 'tailwindcss';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+
+/*
+| نظام التصميم (الدستور 2.10.1 · 2.16 · 2.17)
+| - الوضع الداكن افتراضيّ + وضع فاتح
+| - RTL وخطّ Cairo
+| - لون الهويّة تركوازيّ واحد #00d4b8 — ولا يُستخدَم كحالة أبدًا (2.16)
+*/
+
+@theme {
+  --font-sans: 'Cairo', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+    'Segoe UI Symbol', 'Noto Color Emoji';
+
+  /* لون الهويّة — للأفعال والعناصر فقط */
+  --color-brand-50:  #e6fffb;
+  --color-brand-100: #b8fff4;
+  --color-brand-200: #7cf7e6;
+  --color-brand-300: #45ecd7;
+  --color-brand-400: #16dcc5;
+  --color-brand-500: #00d4b8;
+  --color-brand-600: #00b39c;
+  --color-brand-700: #00806c;
+  --color-brand-800: #05423a;
+  --color-brand-900: #032b26;
+
+  /* قاموس الحالة (2.16) — معنًى واحد لكلّ لون في المنصّة كلّها */
+  --color-state-ok:     #22c55e; /* سليم · في الوقت · إيجابيّ */
+  --color-state-warn:   #eab308; /* انتبه · اقترب */
+  --color-state-danger: #ef4444; /* فات · خطر · سلبيّ */
+  --color-state-idle:   #94a3b8; /* غير نشط · مؤرشف · لا ينطبق */
+  --color-state-honor:  #d4af37; /* شرف وتميّز — لا حالة تشغيليّة */
+
+  /* الحركة (2.17-د): سرعة موحّدة ومنحنى واحد */
+  --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@layer base {
+  :root {
+    color-scheme: dark;
+    --surface:        #0b1512;
+    --surface-raised: #10201c;
+    --surface-sunken: #071110;
+    --border:         rgb(0 212 184 / 0.15);
+    --text:           #e8f5f2;
+    --text-muted:     #9bb3ad;
+    --header-h:       64px;
+  }
+
+  :root[data-theme='light'] {
+    color-scheme: light;
+    --surface:        #ffffff;
+    --surface-raised: #f6fbfa;
+    --surface-sunken: #eef6f4;
+    --border:         rgb(0 128 108 / 0.18);
+    --text:           #16241f;
+    --text-muted:     #56706a;
+  }
+
+  @media (prefers-color-scheme: light) {
+    :root:not([data-theme]) {
+      color-scheme: light;
+      --surface:        #ffffff;
+      --surface-raised: #f6fbfa;
+      --surface-sunken: #eef6f4;
+      --border:         rgb(0 128 108 / 0.18);
+      --text:           #16241f;
+      --text-muted:     #56706a;
+    }
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background-color: var(--surface);
+    color: var(--text);
+    font-family: var(--font-sans);
+  }
+
+  /* الأفاتار بلا هالة — قاعدة صريحة في الدستور */
+  .avatar { box-shadow: none !important; filter: none !important; }
+
+  /* المنزلقات بلا بوردر (2.10.1) */
+  input[type='range'] {
+    border: 0;
+    background: transparent;
+    accent-color: var(--color-brand-500);
+  }
+
+  /* الحدّ الأدنى لمساحة اللمس على الموبايل 44×44 (2.15-ج) */
+  @media (pointer: coarse) {
+    button, [role='button'], a.btn { min-block-size: 44px; min-inline-size: 44px; }
+  }
+}
+
+@layer components {
+  /* شريط تقدّم التمرير أعلى الصفحة (2.10.1-25) */
+  .scroll-progress {
+    position: fixed;
+    inset-block-start: 0;
+    inset-inline: 0;
+    block-size: 3px;
+    background: linear-gradient(90deg, var(--color-brand-400), var(--color-brand-600));
+    transform-origin: 0 50%;
+    z-index: 60;
+  }
+
+  /* الكارت: radius 1rem وحدّ خفيف */
+  .card {
+    background-color: var(--surface-raised);
+    border: 1px solid var(--border);
+    border-radius: 1rem;
+  }
+
+  /* بوب-أب: رأس ثابت وجسم متمرّر بحدّ أقصى 92vh (2.10.1-17) */
+  .modal-shell { display: flex; flex-direction: column; max-block-size: 92vh; border-radius: 1rem; }
+  .modal-head  { flex: 0 0 auto; }
+  .modal-body  { flex: 1 1 auto; overflow-y: auto; }
+
+  /* الأشرطة اللاصقة تبدأ تحت الهيدر بـ12px على الأقلّ (2.10.1-13/14) */
+  .sticky-bar {
+    position: sticky;
+    inset-block-start: calc(var(--header-h, 64px) + 12px);
+    z-index: 30;
+  }
+}
+
+@layer utilities {
+  .motion-standard { transition-timing-function: var(--ease-standard); transition-duration: 200ms; }
+
+  @keyframes fadeup {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: none; }
+  }
+  .animate-fadeup { animation: fadeup 250ms var(--ease-standard) both; }
+
+  @keyframes shimmer {
+    from { background-position: 200% 0; }
+    to   { background-position: -200% 0; }
+  }
+  .animate-shimmer {
+    background-image: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.12), transparent);
+    background-size: 200% 100%;
+    animation: shimmer 2s linear infinite;
+  }
+}
