@@ -57,7 +57,7 @@ class RetentionDemoSeeder extends Seeder
     }
 
     /** إعدادات المجال — دورة الخصم ونافذة المكتسَب التراكميّ */
-    private function settings(): void
+    public function settings(): void
     {
         $rows = [
             ['rep.inactivity.deduction_every_days', 'rep', 'دورة خصم الخمول (أيّام)', 'number', '7'],

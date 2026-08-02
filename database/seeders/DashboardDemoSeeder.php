@@ -50,7 +50,7 @@ class DashboardDemoSeeder extends Seeder
     // ------------------------------------------------------------ الإعدادات
 
     /** كلّ رقم ونصّ في اللوحة يُقرأ من هنا — ولا شيء محروق في الكود (2.13) */
-    private function settings(): void
+    public function settings(): void
     {
         $rows = [
             ['dashboard.header.greeting', 'dashboard', 'تحيّة رأس اللوحة (:name = اسم المستخدم)', 'string', 'أهلًا :name'],

@@ -33,7 +33,7 @@ class AccountDemoSeeder extends Seeder
     }
 
     /** إعدادات المجال — نمط المفتاح «المجال.الميزة.المفتاح» (2.13) */
-    private function settings(): void
+    public function settings(): void
     {
         $rows = [
             // الشكاوى والمقترحات (11)

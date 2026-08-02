@@ -33,7 +33,7 @@ class AdminVolunteerDemoSeeder extends Seeder
     }
 
     /** كلّ مفاتيح الكتالوج تُزرَع بقيمها الافتراضيّة المعتمَدة */
-    private function settings(): void
+    public function settings(): void
     {
         foreach (SettingsCatalog::all() as $key => [$group, $label, $type, $default]) {
             /*

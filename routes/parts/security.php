@@ -76,6 +76,20 @@ Route::middleware(['auth', 'permission:admin_panel.view'])
         Route::post('/users/{user}/password-link', [UserModerationController::class, 'passwordLink'])
             ->middleware('permission:users.edit')->name('users.password-link');
 
+        /*
+         | صفحة حساب المستخدم (12.1) — الصلاحيّات الثلاث المخصّصة لها في المصفوفة
+         | كانت **معرَّفة وغير مستعمَلة في مسار واحد**، فصارت هنا حارسًا حقيقيًّا:
+         | `admin_user_detail.edit` للتعديل اليدويّ وتثبيت الدولة، و`.export` للتصدير.
+         */
+        Route::put('/users/{user}', [UserModerationController::class, 'update'])
+            ->middleware('permission:admin_user_detail.edit')->name('users.update');
+
+        Route::post('/users/{user}/country', [UserModerationController::class, 'pinCountry'])
+            ->middleware('permission:admin_user_detail.edit')->name('users.country');
+
+        Route::get('/users/{user}/export', [UserModerationController::class, 'export'])
+            ->middleware('permission:admin_user_detail.export')->name('users.export');
+
         // الانتحال مجموعة محميّة لمالك المنصّة (12.2.1-5)
         Route::post('/users/{user}/impersonate', [UserModerationController::class, 'impersonate'])
             ->middleware('permission:impersonation.create')->name('users.impersonate');

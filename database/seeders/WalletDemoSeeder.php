@@ -31,7 +31,7 @@ class WalletDemoSeeder extends Seeder
      * `firstOrCreate` لا `updateOrCreate`: هذه إعدادات ماليّة قد يكون مالك المنصّة
      * عدّلها فعلًا، فلا يجوز أن يعيدها سيدر تجريبيّ إلى الافتراضيّ بلا قرارٍ منه.
      */
-    private function financeSettings(): void
+    public function financeSettings(): void
     {
         $rows = [
             ['finance.rates.usd_to_coins', '1$ = كام كوين', 'number', '50'],
@@ -76,7 +76,7 @@ class WalletDemoSeeder extends Seeder
     }
 
     /** إعدادات المجال — لا رقم ولا مفتاح محروق في الكود (2.13) */
-    private function settings(): void
+    public function settings(): void
     {
         $rows = [
             ['topup.credit_currency', 'store', 'عملة الشحن', 'string', 'coins'],

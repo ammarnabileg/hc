@@ -31,7 +31,7 @@ class AvailabilityDemoSeeder extends Seeder
     }
 
     /** الافتراضيّات من الكتالوج نفسه — مرجع واحد لا اثنان (2.13) */
-    private function settings(): void
+    public function settings(): void
     {
         foreach (SettingsCatalog::group('availability') as $key => [$group, $label, $type, $default]) {
             Setting::updateOrCreate(['key' => $key], [

@@ -163,7 +163,7 @@ class AdminSystemDemoSeeder extends Seeder
 
     // ---------------------------------------------------------------- الإعدادات
 
-    private function settings(): void
+    public function settings(): void
     {
         // [key, group, label, type, default, owner_only]
         $rows = [

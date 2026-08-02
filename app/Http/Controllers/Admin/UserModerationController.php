@@ -5,10 +5,13 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Services\Security\Impersonator;
+use App\Services\Security\UserDataExport;
 use App\Services\Security\UserModeration;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use RuntimeException;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
  * أدوات احتواء الحساب المسيء داخل صفحة المستخدم (12.1).
@@ -22,6 +25,7 @@ class UserModerationController extends Controller
     public function __construct(
         private readonly UserModeration $moderation,
         private readonly Impersonator $impersonator,
+        private readonly UserDataExport $export,
     ) {}
 
     public function ban(Request $request, User $user): RedirectResponse
@@ -93,6 +97,91 @@ class UserModerationController extends Controller
             ->with('moderation_password_link', $link);
     }
 
+    /**
+     * ⭐ **تعديل بيانات المستخدم يدويًّا** + **Checkbox تأكيد الإيميل** +
+     * **الملاحظات الإداريّة الداخليّة** (12.1-المعلومات الأساسيّة).
+     *
+     * كان تاب البيانات للقراءة فقط — فمَن أخطأ في اسمه أو بريده عند التسجيل
+     * ماكانش قدّامه غير حساب جديد. والحارس `admin_user_detail.edit` على المسار.
+     */
+    public function update(Request $request, User $user): RedirectResponse
+    {
+        $data = $request->validate([
+            'name' => ['required', 'string', 'max:120'],
+            'email' => ['required', 'email', 'max:190', Rule::unique('users', 'email')->ignore($user->id)],
+            'phone' => ['nullable', 'string', 'max:32', Rule::unique('users', 'phone')->ignore($user->id)],
+            'gender' => ['nullable', 'string', 'max:16'],
+            'birthdate' => ['nullable', 'date'],
+            'governorate_id' => ['nullable', 'exists:governorates,id'],
+            'admin_notes' => ['nullable', 'string', 'max:2000'],
+        ], [
+            'name.required' => 'الاسم مايصحّش يفضل فاضي.',
+            'email.email' => 'الصيغة دي مش بريد صحيح — راجعها وجرّب تاني.',
+            'email.unique' => 'البريد ده على حساب تاني — اختر غيره.',
+            'phone.unique' => 'الموبايل ده على حساب تاني — اختر غيره.',
+        ]);
+
+        $old = $user->only(array_keys($data));
+
+        $user->forceFill($data)->save();
+
+        // تأكيد الإيميل يدويًّا بـCheckbox — والإلغاء يرجّعه لغير مؤكَّد كذلك
+        $verified = $request->boolean('email_verified');
+
+        if ($verified && ! $user->email_verified_at) {
+            $this->moderation->verifyEmail($request->user(), $user);
+        } elseif (! $verified && $user->email_verified_at) {
+            $user->forceFill(['email_verified_at' => null])->save();
+            $this->moderation->log($request->user(), $user, 'user.email.unverify');
+        }
+
+        $this->moderation->log($request->user(), $user, 'user.updated', $old, $data);
+
+        return $this->back($user, 'اتحفظت بيانات الحساب ✓', 'profile');
+    }
+
+    /** تثبيت/تصحيح الدولة يدويًّا — تعلو الكشف التلقائيّ ولا تُدهَس (12.1-متقدّم-5) */
+    public function pinCountry(Request $request, User $user): RedirectResponse
+    {
+        $data = $request->validate([
+            'country_id' => ['nullable', 'exists:countries,id'],
+        ]);
+
+        $countryId = $data['country_id'] === null ? null : (int) $data['country_id'];
+
+        $this->moderation->pinCountry($request->user(), $user, $countryId);
+
+        return $this->back($user, $countryId === null
+            ? 'شِلنا التثبيت — الدولة رجعت للكشف التلقائيّ.'
+            : 'الدولة اتثبّتت ✓ — الكشف التلقائيّ مش هيدهسها تاني.');
+    }
+
+    /**
+     * **تصدير بيانات المستخدم كملفّ** (12.1-متقدّم-6) — بصلاحيّته `admin_user_detail.export`.
+     *
+     * الملفّ نصّيّ مقروء (JSON) لا نسخة قاعدة بيانات: بياناته وأرصدته ومعاملاته
+     * وشهاداته ودعواته — وما يخرج منه محدود بما تعرضه الشاشة نفسها، فلا يصير
+     * زرُّ التصدير بابًا خلفيًّا يتجاوز حراسة الصفحة.
+     */
+    public function export(Request $request, User $user): StreamedResponse
+    {
+        $payload = $this->export->for($user);
+
+        $filename = str_replace(
+            ['{code}', '{date}'],
+            [(string) $user->code, now()->format('Ymd-His')],
+            (string) setting('admin.users.export_filename', 'user-{code}-{date}.json'),
+        );
+
+        $this->moderation->log($request->user(), $user, 'user.data.export', [], ['file' => $filename]);
+
+        return response()->streamDownload(
+            fn () => print (json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT)),
+            $filename,
+            ['Content-Type' => 'application/json; charset=UTF-8'],
+        );
+    }
+
     public function impersonate(Request $request, User $user): RedirectResponse
     {
         try {
@@ -127,10 +216,10 @@ class UserModerationController extends Controller
         return $this->back($user, 'الحساب ده محميّ — مايتحظرش ولا يتعلّق من هنا.');
     }
 
-    private function back(User $user, string $status): RedirectResponse
+    private function back(User $user, string $status, string $tab = 'advanced'): RedirectResponse
     {
         return redirect()
-            ->route('admin.users.show', ['user' => $user, 'tab' => 'advanced'])
+            ->route('admin.users.show', ['user' => $user, 'tab' => $tab])
             ->with('status', $status);
     }
 }

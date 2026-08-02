@@ -24,7 +24,7 @@ class UiDemoSeeder extends Seeder
         $this->nameParticles();
     }
 
-    private function settings(): void
+    public function settings(): void
     {
         // [المفتاح, المجموعة, التسمية, النوع, الافتراضيّ]
         $rows = [

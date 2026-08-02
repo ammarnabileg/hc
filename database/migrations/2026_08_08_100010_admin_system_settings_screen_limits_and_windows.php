@@ -93,6 +93,25 @@ return new class extends Migration
         ['rep.movements_rows', 'volunteer_rep', 'عدد صفوف جدول حركات Rep', 'number', '200'],
         ['recruitment.card.course_scores_shown', 'recruitment', 'عدد درجات التدريبات على كارت المرشّح', 'number', '3'],
         ['performance.vxp.rows', 'performance', 'عدد صفوف لوحة VXP', 'number', '50'],
+
+        // ---------------- نصوص ساحات الحروب ورسائلها — كانت محروقة في المتحكّم
+        ['wars.arena.knowledge.headline', 'gamification_wars', 'عنوان ساحة حرب المعلومات', 'string', 'ساحة الحرب'],
+        ['wars.arena.knowledge.tagline', 'gamification_wars', 'سطر ساحة حرب المعلومات', 'text', 'اختبر مهاراتك الذهنية والسرعة، وواجه خصمك وجهًا لوجه!'],
+        ['wars.arena.survival.headline', 'gamification_wars', 'عنوان ساحة البقاء', 'string', 'ساحة البقاء'],
+        ['wars.arena.survival.tagline', 'gamification_wars', 'سطر ساحة البقاء', 'text', 'جاوب صح وابقى… أول غلطة تخرجك!'],
+        ['wars.arena.estimation.headline', 'gamification_wars', 'عنوان ساحة التقدير', 'string', 'ساحة التقدير'],
+        ['wars.arena.estimation.tagline', 'gamification_wars', 'سطر ساحة التقدير', 'text', 'قدّر الرقم الأقرب للصح واكسب!'],
+        ['wars.arena.focus.headline', 'gamification_wars', 'عنوان ساحة التركيز', 'string', 'ساحة التركيز'],
+        ['wars.arena.focus.tagline', 'gamification_wars', 'سطر ساحة التركيز', 'text', 'عمل عميق بلا مقاطعة — والعدّ مبنيّ على أمانتك.'],
+        ['wars.messages.ready', 'gamification_wars', 'رسالة الاستعداد', 'string', 'إنت دلوقتي مستعدّ ⚔️'],
+        ['wars.messages.ready_cancelled', 'gamification_wars', 'رسالة إلغاء الاستعداد', 'string', 'اتلغى استعدادك — ارجع للساحة وقت ما تحبّ.'],
+        ['wars.messages.withdrew_match', 'gamification_wars', 'رسالة الانسحاب من المواجهة', 'string', 'انسحبت من المواجهة — والخصم كسبها.'],
+        ['wars.messages.withdrew_penalty', 'gamification_wars', 'رسالة الانسحاب المكلِّف', 'string', 'انسحبت — والانسحاب بيكلّف، خلّي بالك المرّة الجاية.'],
+        ['wars.messages.not_your_match', 'gamification_wars', 'رسالة مواجهة ليست لك', 'string', 'دي مواجهة ناس تانية.'],
+        ['wars.messages.focus_started', 'gamification_wars', 'رسالة بدء حرب التركيز', 'string', 'التحدّي بدأ — ركّز وإحنا معاك 🧘'],
+        ['wars.messages.focus_joined', 'gamification_wars', 'رسالة الانضمام لحرب التركيز', 'string', 'انضممت — تذكرتك راحت لصاحب التحدّي 🎟️'],
+        ['wars.messages.focus_cancelled', 'gamification_wars', 'رسالة إلغاء حرب التركيز', 'string', 'اتلغى التحدّي ✓'],
+        ['wars.messages.focus_cancelled_refund', 'gamification_wars', 'رسالة الإلغاء مع ردّ التذاكر (:n للعدد)', 'string', 'اتلغى التحدّي ورجعت :n تذكرة للمنضمّين ✓'],
     ];
 
     public function up(): void

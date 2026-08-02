@@ -14,9 +14,15 @@ if (! function_exists('setting')) {
      */
     function setting(string $key, mixed $default = null, ?int $entityId = null): mixed
     {
-        $value = Cache::rememberForever('settings', function () {
-            return Setting::query()->pluck('value', 'key')->all();
-        })[$key] ?? null;
+        $rows = Cache::rememberForever('settings', function () {
+            return Setting::query()
+                ->get(['key', 'value', 'type'])
+                ->mapWithKeys(fn ($row) => [$row->key => ['value' => $row->value, 'type' => $row->type]])
+                ->all();
+        });
+
+        $value = $rows[$key]['value'] ?? null;
+        $type = $rows[$key]['type'] ?? null;
 
         if ($entityId) {
             $override = SettingOverride::query()
@@ -33,12 +39,27 @@ if (! function_exists('setting')) {
             return $default;
         }
 
-        return match (true) {
-            $value === '1' || $value === 'true' => true,
-            $value === '0' || $value === 'false' => false,
-            is_numeric($value) => $value + 0,
-            str_starts_with((string) $value, '{') || str_starts_with((string) $value, '[') => json_decode($value, true) ?? $value,
-            default => $value,
+        /*
+         | النوع المعلَن في الجدول هو الحاكم — لا شكل النصّ المخزَّن.
+         | قبل ذلك كان كلّ إعدادٍ قيمته «0» أو «1» يعود **بوليان**، فتذكرةٌ واحدة
+         | تعود `true` وصفرُ تذاكر يعود `false`. والنظام كان يعمل بالمصادفة وحدها
+         | لأنّ `(int) true === 1` — وأوّل شاشة تعرض القيمة أو تقارنها بـ`===`
+         | تنكسر: ضبطُ «تذاكر ما بعد نصف المهلة = 0» كان يُفرِغ الرقم من الشاشة.
+         | ومعظم أرقام الاقتصاد في الدستور تقع في 0 و1 و2.
+         */
+        return match ($type) {
+            'number' => is_numeric($value) ? $value + 0 : $value,
+            'bool' => filter_var($value, FILTER_VALIDATE_BOOLEAN),
+            'json' => json_decode((string) $value, true) ?? $value,
+            'string', 'text', 'color', 'media' => (string) $value,
+            // بلا نوع معلَن (إعداد قديم أو مُنشَأ خارج الكتالوج) — استنتاجٌ محافظ
+            default => match (true) {
+                $value === 'true' => true,
+                $value === 'false' => false,
+                is_numeric($value) => $value + 0,
+                str_starts_with((string) $value, '{') || str_starts_with((string) $value, '[') => json_decode($value, true) ?? $value,
+                default => $value,
+            },
         };
     }
 }

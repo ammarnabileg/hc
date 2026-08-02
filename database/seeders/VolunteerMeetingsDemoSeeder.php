@@ -57,7 +57,7 @@ class VolunteerMeetingsDemoSeeder extends Seeder
     // ------------------------------------------------------------------ الإعدادات
 
     /** إعدادات المجال بنمط «المجال.الميزة.المفتاح» ولكلّها قيمة افتراضيّة */
-    private function settings(): void
+    public function settings(): void
     {
         $rows = [
             ['meetings.attendance.tier1_hours', 'meetings', 'حدّ الشريحة الأولى لتسجيل الحضور (ساعات)', 'number', '3'],

@@ -70,7 +70,7 @@ class AdminCoreDemoSeeder extends Seeder
     }
 
     /** لكلّ ميزة إعدادات كاملة (2.13) — بنمط المفتاح «المجال.الميزة.المفتاح» */
-    private function settings(): void
+    public function settings(): void
     {
         $rows = [
             // ---------------- لوحة القيادة (12.3 · 24.1)
@@ -99,6 +99,12 @@ class AdminCoreDemoSeeder extends Seeder
             ['admin.users.default_columns', 'admin_users', 'الأعمدة الافتراضيّة للجدول', 'json', '["name","code","email","status","roles","last_seen"]'],
             ['admin.users.mask_sensitive', 'admin_users', 'تقنيع البريد والموبايل', 'bool', '1'],
             ['admin.users.empty_message', 'admin_users', 'نصّ الحالة الفارغة', 'string', 'مفيش نتائج — امسح الفلاتر وجرّب تاني'],
+            // صفحة حساب المستخدم (12.1): طول جداول التابات وتاب التطوّع وصيغة ملفّ التصدير
+            ['admin.users.tab_rows', 'admin_users', 'عدد صفوف جداول تابات صفحة المستخدم', 'number', '25'],
+            ['admin.user_tabs.volunteer_permission', 'admin_users', 'صلاحيّة إظهار تاب التطوّع', 'string', 'memberships.view'],
+            ['admin.users.export_filename', 'admin_users', 'اسم ملفّ تصدير بيانات المستخدم', 'string', 'user-{code}-{date}.json'],
+            ['admin.users.export_rows', 'admin_users', 'أقصى صفوف لكلّ جدول في ملفّ التصدير', 'number', '500'],
+            ['admin.users.notes_hint', 'admin_users', 'شرح الملاحظات الإداريّة الداخليّة', 'string', 'ملاحظات للفريق فقط — المستخدم مابيشوفهاش أبدًا.'],
 
             // ---------------- طلبات الاعتماد (2.5-د)
             ['admin.approvals.bulk_max', 'admin_approvals', 'حدّ الاعتماد المجمّع في العمليّة الواحدة', 'number', '50'],

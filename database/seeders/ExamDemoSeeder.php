@@ -32,7 +32,7 @@ class ExamDemoSeeder extends Seeder
     }
 
     /** كلّ رقم ونصّ في المجال إعدادٌ في لوحة الإدارة — لا شيء محروق في الكود (2.13) */
-    private function settings(): void
+    public function settings(): void
     {
         $rows = [
             // ---------------- الامتحان (4.2 · 24.5)

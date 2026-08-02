@@ -17,6 +17,9 @@ class DatabaseSeeder extends Seeder
             RoleSeeder::class,
             RolePermissionSeeder::class,
             SettingSeeder::class,
+            // ⭐ تعريفات إعدادات كلّ المجالات — بدونها يفتح المالك اللوحة فيجد
+            // عشرات الحقول بينما الكود يقرأ ألوفًا، فيأخذ الافتراضيّ المحروق (2.13)
+            SettingDefinitionsSeeder::class,
         ]);
     }
 }

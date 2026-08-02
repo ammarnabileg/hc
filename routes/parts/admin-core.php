@@ -51,8 +51,9 @@ Route::middleware(['auth', 'permission:admin_panel.view'])
         Route::post('/users/columns', [UserController::class, 'columns'])
             ->middleware('permission:users.list')->name('users.columns');
 
+        // صفحة حساب المستخدم (12.1): صلاحيّتها المخصّصة في المصفوفة أو صلاحيّة العرض العامّة
         Route::get('/users/{user}', [UserController::class, 'show'])
-            ->middleware('permission:users.view')->name('users.show');
+            ->middleware('permission:admin_user_detail.view,users.view')->name('users.show');
 
         // ---------------------------------------------- الأدوار والصلاحيّات
         Route::get('/roles', [RoleController::class, 'index'])

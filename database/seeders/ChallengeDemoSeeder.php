@@ -40,7 +40,7 @@ class ChallengeDemoSeeder extends Seeder
     }
 
     /** كلّ رقم ونصّ في المجال من الإعدادات — ممنوع الحرق (2.13) */
-    private function settings(): void
+    public function settings(): void
     {
         $rows = [
             // ---------------- الحروب (15)
@@ -96,7 +96,7 @@ class ChallengeDemoSeeder extends Seeder
      * إعدادات الستريكس ونادي الخامسة (7.2) — من **كتالوج الإعدادات نفسه**،
      * فمصدر الافتراضيّ واحد: ما يزرعه السيدر هو ما يرجّعه زرّ الـReset بالضبط.
      */
-    private function streakSettings(): void
+    public function streakSettings(): void
     {
         foreach (SettingsCatalog::group('gamification_streaks') as $key => [$group, $label, $type, $default]) {
             Setting::updateOrCreate(['key' => $key], [

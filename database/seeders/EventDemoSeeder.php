@@ -28,7 +28,7 @@ class EventDemoSeeder extends Seeder
     }
 
     /** لكلّ رقم ونصّ إعداد — ممنوع أيّ قيمة محروقة في الكود (2.13) */
-    private function settings(): void
+    public function settings(): void
     {
         $rows = [
             // ---------------- الفعاليّات (13.3)

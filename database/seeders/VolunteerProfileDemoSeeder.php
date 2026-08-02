@@ -31,7 +31,7 @@ class VolunteerProfileDemoSeeder extends Seeder
         $this->demoData();
     }
 
-    private function settings(): void
+    public function settings(): void
     {
         $rows = [
             // ---------------- التابات ومستويات المشاهدة (13.4-م)

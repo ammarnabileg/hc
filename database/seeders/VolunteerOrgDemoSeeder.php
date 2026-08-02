@@ -37,7 +37,7 @@ class VolunteerOrgDemoSeeder extends Seeder
     }
 
     /** كلّ رقم ونصّ في المجال إعدادٌ قابل للتعديل من لوحة الإدارة (2.13) */
-    private function settings(): void
+    public function settings(): void
     {
         $rows = [
             // ---------------- كانفاس الهيكل (13.4-م-3)

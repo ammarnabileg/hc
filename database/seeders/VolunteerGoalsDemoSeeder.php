@@ -51,7 +51,7 @@ class VolunteerGoalsDemoSeeder extends Seeder
     // ------------------------------------------------------------------ الإعدادات
 
     /** إعدادات المجال بنمط «المجال.الميزة.المفتاح» ولكلّ واحد قيمة افتراضيّة (2.13) */
-    private function settings(): void
+    public function settings(): void
     {
         $rows = [
             // الصعود الآليّ للنِّسَب — المُغلَقة مستبعَدة من المقام

@@ -6,9 +6,11 @@ use App\Models\Certificate;
 use App\Models\Currency;
 use App\Models\Cv;
 use App\Models\CvTemplate;
+use App\Models\Enrollment;
 use App\Models\Transaction;
 use App\Models\User;
 use App\Models\WalletBalance;
+use App\Services\Images\AvatarProcessor;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
@@ -20,13 +22,25 @@ use Illuminate\Support\Facades\DB;
  */
 class CvBuilder
 {
-    /** حقول كلّ خطوة — بيضاء صراحةً فلا يُحقَن ما ليس منها */
+    /**
+     * حقول كلّ خطوة — بيضاء صراحةً فلا يُحقَن ما ليس منها.
+     *
+     * والحقول `*_en` هي **ثنائيّة اللغة بصفر تكلفة** (9): حقلُ لغةٍ ثانية اختياريّ
+     * لكلّ نصٍّ حرّ، ولو تُرك فارغًا ظهر النصّ الأصليّ كما هو — بلا أيّ API ترجمة.
+     */
     private const FIELDS = [
-        'profile' => ['job_title', 'company', 'years', 'stage', 'major', 'native_language', 'summary', 'city', 'email', 'phone'],
-        'experience' => ['title', 'company', 'city', 'from', 'to', 'current', 'description'],
+        'profile' => ['job_title', 'job_title_en', 'company', 'years', 'stage', 'major', 'native_language', 'summary', 'summary_en', 'city', 'email', 'phone'],
+        'experience' => ['title', 'company', 'city', 'from', 'to', 'current', 'description', 'description_en'],
+        // 💖 الخبرة التطوّعيّة: الدور · المنظمة · المدينة · من · إلى · الوصف (9)
+        'volunteering' => ['role', 'organization', 'city', 'from', 'to', 'current', 'description', 'description_en'],
         'education' => ['degree', 'institution', 'major', 'from', 'to', 'current', 'gpa'],
+        // 🎓 الدورات التدريبيّة: الاسم · الجهة · التاريخ · رقم الشهادة · رابطها (9)
+        'courses' => ['name', 'provider', 'date', 'serial', 'url'],
         'languages' => ['language', 'level'],
     ];
+
+    /** الأقسام المتكرّرة التي يجوز إعادة ترتيبها بالسحب (9) */
+    public const REPEATERS = ['experience', 'volunteering', 'education', 'courses', 'languages'];
 
     /** الخطوات الخمس بالترتيب المعتمَد (24.5) */
     public function steps(): array
@@ -34,7 +48,9 @@ class CvBuilder
         return [
             'profile' => (string) setting('cv.step.profile_label', 'البيانات'),
             'experience' => (string) setting('cv.step.experience_label', 'الخبرات'),
+            'volunteering' => (string) setting('cv.step.volunteering_label', 'الخبرة التطوّعيّة'),
             'education' => (string) setting('cv.step.education_label', 'التعليم'),
+            'courses' => (string) setting('cv.step.courses_label', 'الدورات التدريبيّة'),
             'skills' => (string) setting('cv.step.skills_label', 'المهارات واللغات'),
             'certificates' => (string) setting('cv.step.certificates_label', 'الشهادات'),
         ];
@@ -60,12 +76,17 @@ class CvBuilder
         return [
             'profile' => [],
             'experience' => [],
+            'volunteering' => [],
             'education' => [],
+            'courses' => [],
             'skills' => '',
             'languages' => [],
             'hidden_certificates' => [],
-            'pull' => ['profile' => true, 'certificates' => true],
+            // ⭐ الربط التلقائيّ بالتدريبات المكتملة مفتوحٌ افتراضيًّا (9)
+            'pull' => ['profile' => true, 'certificates' => true, 'trainings' => true, 'photo' => true],
             'purchased_templates' => [],
+            // ثنائيّة اللغة: لغة العرض المختارة في المنشئ والمخرَج (9)
+            'lang' => 'ar',
         ];
     }
 
@@ -83,8 +104,16 @@ class CvBuilder
                 $data['experience'] = $this->rows($payload['experience'] ?? [], self::FIELDS['experience']);
                 break;
 
+            case 'volunteering':
+                $data['volunteering'] = $this->rows($payload['volunteering'] ?? [], self::FIELDS['volunteering']);
+                break;
+
             case 'education':
                 $data['education'] = $this->rows($payload['education'] ?? [], self::FIELDS['education']);
+                break;
+
+            case 'courses':
+                $data['courses'] = $this->rows($payload['courses'] ?? [], self::FIELDS['courses']);
                 break;
 
             case 'skills':
@@ -161,10 +190,15 @@ class CvBuilder
      *
      * @return array{profile:array,certificates:Collection}
      */
-    public function pulled(User $user, array $data): array
+    public function pulled(?User $user, array $data): array
     {
         $pull = (array) ($data['pull'] ?? []);
         $hidden = (array) ($data['hidden_certificates'] ?? []);
+
+        // المستخدم المحذوف Soft لا كيان له — فنُرجِع مغلّفًا فارغًا بدل الانفجار (10.0)
+        if (! $user || ! $user->exists) {
+            return ['profile' => [], 'certificates' => collect(), 'trainings' => collect(), 'photo' => null];
+        }
 
         $profile = ($pull['profile'] ?? true) ? array_filter([
             'name' => $user->name,
@@ -185,7 +219,57 @@ class CvBuilder
                 ->get()
             : collect();
 
-        return ['profile' => $profile, 'certificates' => $certificates];
+        return [
+            'profile' => $profile,
+            'certificates' => $certificates,
+            // ⭐ «التدريبات المكتملة تُضاف تلقائيًّا» (9) — من مصدر التسجيلات الواحد
+            'trainings' => ($pull['trainings'] ?? true) ? $this->completedTrainings($user) : collect(),
+            // الصورة الشخصيّة: لو موجودة تُعرَض، ولو غابت **لا تُحسَب في العرض** بلا Placeholder (9)
+            'photo' => ($pull['photo'] ?? true) ? $this->photoPath($user) : null,
+        ];
+    }
+
+    /**
+     * التدريبات المكتملة — تُضاف للسيرة تلقائيًّا (9)، ومصدرها جدول التسجيلات
+     * لا حسابٌ موازٍ.
+     */
+    public function completedTrainings(User $user): Collection
+    {
+        return Enrollment::query()
+            ->where('user_id', $user->id)
+            ->where(fn ($q) => $q->where('status', 'completed')->orWhere('progress_percent', '>=', 100))
+            ->with('course:id,name_ar,name_en')
+            ->orderByDesc('updated_at')
+            ->get();
+    }
+
+    /** مسار الصورة الشخصيّة بالمقاس المناسب — وتغييرها من تاب البيانات الأساسيّة (9) */
+    public function photoPath(User $user): ?string
+    {
+        return app(AvatarProcessor::class)->pick($user, (int) setting('cv.photo.size_px', 300));
+    }
+
+    /**
+     * ثنائيّة اللغة بصفر تكلفة (9): نأخذ حقل اللغة الثانية إن كُتِب،
+     * وإلّا فالنصّ الأصليّ كما هو — بلا أيّ API ترجمة.
+     */
+    public static function text(array $row, string $field, string $lang = 'ar'): string
+    {
+        if ($lang === 'en') {
+            $second = trim((string) ($row[$field.'_en'] ?? ''));
+
+            if ($second !== '') {
+                return $second;
+            }
+        }
+
+        return trim((string) ($row[$field] ?? ''));
+    }
+
+    /** لغة العرض المختارة — عربيّة افتراضًا */
+    public static function lang(array $data): string
+    {
+        return ($data['lang'] ?? 'ar') === 'en' ? 'en' : 'ar';
     }
 
     /** كلّ الشهادات (للإخفاء/الإظهار في الخطوة الخامسة) */

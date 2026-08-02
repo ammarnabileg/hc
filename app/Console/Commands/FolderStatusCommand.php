@@ -67,7 +67,9 @@ class FolderStatusCommand extends Command
             $current = is_file($path) ? (string) file_get_contents($path) : null;
             $next = $this->document($folder, $current);
 
-            if ($current === $next) {
+            // نقارن **المضمون** لا تاريخ التوليد: وثيقةٌ لم يتغيّر جردها ليست قديمة،
+            // فلا نلوّث الديف بسطر تاريخٍ يتحرّك كلّ يوم بلا سبب.
+            if ($current !== null && $this->contentOf($current) === $this->contentOf($next)) {
                 continue;
             }
 
@@ -110,7 +112,20 @@ class FolderStatusCommand extends Command
     private function folders(): array
     {
         $only = trim((string) $this->option('path'), '/');
-        $roots = $only !== '' ? [$only] : self::ROOTS;
+
+        return self::targets($only !== '' ? [$only] : null);
+    }
+
+    /**
+     * المجلّدات التي تسري عليها 2.12 — عامّة كي يفحصها الاختبار بنفس القائمة
+     * التي يولّد بها الأمر، فلا يفترق الحارس عن المولِّد.
+     *
+     * @param  array<int,string>|null  $roots
+     * @return array<int,string>
+     */
+    public static function targets(?array $roots = null): array
+    {
+        $roots ??= self::ROOTS;
         $found = [];
 
         foreach ($roots as $root) {
@@ -120,7 +135,7 @@ class FolderStatusCommand extends Command
 
             $found[] = $root;
 
-            foreach ($this->descend(base_path($root)) as $child) {
+            foreach (self::descend(base_path($root)) as $child) {
                 $found[] = ltrim(str_replace(base_path().'/', '', $child), '/');
             }
         }
@@ -132,13 +147,13 @@ class FolderStatusCommand extends Command
     }
 
     /** @return array<int,string> */
-    private function descend(string $absolute): array
+    private static function descend(string $absolute): array
     {
         $out = [];
 
         foreach ((array) glob($absolute.'/*', GLOB_ONLYDIR) as $child) {
             $out[] = $child;
-            $out = array_merge($out, $this->descend($child));
+            $out = array_merge($out, self::descend($child));
         }
 
         return $out;
@@ -179,6 +194,16 @@ class FolderStatusCommand extends Command
             $this->wrap('التحديث', $this->stamp($folder)),
             '',
         ]);
+    }
+
+    /** الوثيقة بلا بلوك «آخر تحديث» — لمقارنة المضمون وحده */
+    private function contentOf(string $document): string
+    {
+        return (string) preg_replace(
+            '/'.preg_quote(sprintf(self::AUTO_START, 'التحديث'), '/').'.*?'.preg_quote(sprintf(self::AUTO_END, 'التحديث'), '/').'/su',
+            '',
+            $document,
+        );
     }
 
     private function wrap(string $key, string $body): string
@@ -342,12 +367,12 @@ class FolderStatusCommand extends Command
         foreach ($this->files($folder, 'php') as $file) {
             $body = (string) file_get_contents(base_path($folder.'/'.$file));
 
-            if (preg_match('#/\*\*(.*?)\*/\s*(?:final\s+|abstract\s+)?(?:class|interface|trait|enum)\s#s', $body, $matches) !== 1) {
+            if (preg_match('#/\*\*(.*?)\*/\s*(?:final\s+|abstract\s+)?(?:class|interface|trait|enum)\s#su', $body, $matches) !== 1) {
                 continue;
             }
 
-            foreach (preg_split('/\R/', $matches[1]) ?: [] as $line) {
-                $clean = trim(preg_replace('/^\s*\*\s?/', '', $line) ?? '');
+            foreach (preg_split('/\R/u', $matches[1]) ?: [] as $line) {
+                $clean = trim(preg_replace('/^\s*\*\s?/u', '', $line) ?? '');
 
                 if ($clean !== '') {
                     return rtrim($clean, '.').'.';
@@ -371,7 +396,7 @@ class FolderStatusCommand extends Command
         foreach (array_merge($this->files($folder, 'php'), $this->files($folder, 'blade.php')) as $file) {
             $body = (string) file_get_contents(base_path($folder.'/'.$file));
 
-            foreach (preg_split('/\R/', $body) ?: [] as $line) {
+            foreach (preg_split('/\R/u', $body) ?: [] as $line) {
                 if (! preg_match('#(//|\*|\{\{--|\|)#', $line)) {
                     continue; // الأرقام خارج التعليقات ليست إحالات لبنود
                 }
@@ -402,8 +427,27 @@ class FolderStatusCommand extends Command
         $classes = array_values(array_filter($php, fn ($f) => ! str_ends_with($f, '.blade.php')));
 
         $lines = [];
+        $isRoutes = str_starts_with($folder, 'routes');
 
-        if ($classes !== []) {
+        if ($classes !== [] && $isRoutes) {
+            // ملفّات المسارات ليست أصنافًا — المفيد فيها عدد المسارات وبادئة أسمائها
+            $lines[] = '- **ملفّات مسارات ('.count($classes).'):**';
+
+            foreach ($classes as $file) {
+                $lines[] = '  - `'.$file.'` — '.$this->routeSummary($folder.'/'.$file);
+            }
+        } elseif ($classes !== [] && basename($folder) === 'migrations') {
+            // المايجريشنز تُقرأ من آخرها: الأقدم تاريخٌ مغلَق، والأحدث هو ما يُكمَل عليه
+            $recent = array_slice(array_reverse($classes), 0, self::MAX_ITEMS);
+
+            $lines[] = '- **مايجريشنز ('.count($classes).') — والقائم منها لا يُعدَّل (قاعدة البناء §1). الأحدث:**';
+
+            foreach ($recent as $file) {
+                $lines[] = '  - `'.$file.'`';
+            }
+
+            $lines[] = $this->more(count($classes));
+        } elseif ($classes !== []) {
             $lines[] = '- **أصناف ('.count($classes).'):**';
 
             foreach (array_slice($classes, 0, self::MAX_ITEMS) as $file) {
@@ -450,6 +494,31 @@ class FolderStatusCommand extends Command
         }
 
         return implode("\n", array_filter($lines, fn ($l) => $l !== ''));
+    }
+
+    /**
+     * ملخّص ملفّ مسارات: كم مسارًا، وبأيّ بادئة اسم، وكم منها بحارس صلاحيّة.
+     * ولماذا نعدّ الحرّاس؟ لأنّ «الصلاحيّة على كلّ مسار» (12.2.1) قاعدة تُفحَص
+     * بالعين كثيرًا — فليكن الرقم مكتوبًا أمام مَن يفتح المجلّد.
+     */
+    private function routeSummary(string $relative): string
+    {
+        $body = (string) @file_get_contents(base_path($relative));
+
+        preg_match_all("/->name\(\s*'([^']+)'/u", $body, $names);
+        $count = count($names[1] ?? []);
+
+        $prefixes = [];
+
+        if (preg_match_all("/->name\(\s*'([a-z0-9_-]+)\.'\s*\)/u", $body, $groups)) {
+            $prefixes = array_values(array_unique($groups[1]));
+        }
+
+        $guards = preg_match_all("/'permission:/u", $body);
+
+        return $count.' مسارًا'
+            .($prefixes !== [] ? ' · البادئة `'.implode('.` · `', $prefixes).'.`' : '')
+            .' · '.$guards.' حارس صلاحيّة.';
     }
 
     private function more(int $total): string
@@ -571,12 +640,12 @@ class FolderStatusCommand extends Command
     {
         $body = (string) @file_get_contents(base_path($relative));
 
-        if (preg_match('#/\*\*(.*?)\*/\s*(?:final\s+|abstract\s+)?(?:class|interface|trait|enum)\s#s', $body, $matches) !== 1) {
+        if (preg_match('#/\*\*(.*?)\*/\s*(?:final\s+|abstract\s+)?(?:class|interface|trait|enum)\s#su', $body, $matches) !== 1) {
             return null;
         }
 
-        foreach (preg_split('/\R/', $matches[1]) ?: [] as $line) {
-            $clean = trim(preg_replace('/^\s*\*\s?/', '', $line) ?? '');
+        foreach (preg_split('/\R/u', $matches[1]) ?: [] as $line) {
+            $clean = trim(preg_replace('/^\s*\*\s?/u', '', $line) ?? '');
 
             if ($clean !== '') {
                 return $this->shorten($clean);

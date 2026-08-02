@@ -47,7 +47,7 @@ class LibraryDemoSeeder extends Seeder
 
     // ------------------------------------------------------------------ الإعدادات
 
-    private function settings(): void
+    public function settings(): void
     {
         $rows = [
             // ---------------- مكتبتي (20)

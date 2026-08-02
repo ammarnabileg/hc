@@ -27,7 +27,7 @@ class HomeDemoSeeder extends Seeder
         Cache::forget('settings');
     }
 
-    private function settings(): void
+    public function settings(): void
     {
         $rows = [
             // ---------------- الصفحة الرئيسيّة العامّة: الفهرسة والميتا (21.2-ب)

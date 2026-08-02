@@ -110,7 +110,7 @@ class AnnouncementDemoSeeder extends Seeder
     }
 
     /** إعدادات المجال (2.13) — بنمط «المجال.الميزة.المفتاح» ولكلّ إعداد قيمة افتراضيّة. */
-    private function settings(): void
+    public function settings(): void
     {
         $rows = [
             // ---------------- التعليمات (13.2)

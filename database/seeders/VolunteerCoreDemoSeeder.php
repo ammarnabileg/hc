@@ -46,7 +46,7 @@ class VolunteerCoreDemoSeeder extends Seeder
     }
 
     /** إعدادات المجال (2.13) — كلّ رقم في الكود مصدره هنا */
-    private function settings(): void
+    public function settings(): void
     {
         $rows = [
             ['workflow.task_cap.personal_extra_percent', 'workflow', 'الزيادة على أعلى سقف دور للسقف الشخصيّ الكلّي (%)', 'number', '50'],

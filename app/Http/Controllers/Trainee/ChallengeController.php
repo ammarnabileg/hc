@@ -111,7 +111,7 @@ class ChallengeController extends Controller
             return back()->with('status', $e->getMessage())->with('topup_needed', $e->shortfall());
         }
 
-        return redirect()->route('challenges.arena', $challenge)->with('status', 'إنت دلوقتي مستعدّ ⚔️');
+        return redirect()->route('challenges.arena', $challenge)->with('status', (string) setting('wars.messages.ready', 'إنت دلوقتي مستعدّ ⚔️'));
     }
 
     /** إلغاء الاستعداد من الشريط العائم — من أيّ صفحة (15.0) */
@@ -126,12 +126,12 @@ class ChallengeController extends Controller
             $this->matchmaking->cancelReady($user);
 
             return redirect()->route('challenges.result', $match)
-                ->with('status', 'انسحبت من المواجهة — والخصم كسبها.');
+                ->with('status', (string) setting('wars.messages.withdrew_match', 'انسحبت من المواجهة — والخصم كسبها.'));
         }
 
         $this->matchmaking->cancelReady($user);
 
-        return back()->with('status', 'اتلغى استعدادك — ارجع للساحة وقت ما تحبّ.');
+        return back()->with('status', (string) setting('wars.messages.ready_cancelled', 'اتلغى استعدادك — ارجع للساحة وقت ما تحبّ.'));
     }
 
     /** القائمة تتحدّث تلقائيًّا لحظة دخول أحدهم حربًا أو إلغائه الاستعداد (15.1) */
@@ -252,7 +252,7 @@ class ChallengeController extends Controller
         $this->matches->withdraw($match, $user);
 
         return redirect()->route('challenges.result', $match)
-            ->with('status', 'انسحبت — والانسحاب بيكلّف، خلّي بالك المرّة الجاية.');
+            ->with('status', (string) setting('wars.messages.withdrew_penalty', 'انسحبت — والانسحاب بيكلّف، خلّي بالك المرّة الجاية.'));
     }
 
     /** شاشة النتيجة: فوز · خسارة · **تعادل** (15.2-5) */
@@ -341,7 +341,7 @@ class ChallengeController extends Controller
     {
         $user = $request->user();
 
-        abort_unless($match->involves($user->id), 403, 'دي مواجهة ناس تانية.');
+        abort_unless($match->involves($user->id), 403, (string) setting('wars.messages.not_your_match', 'دي مواجهة ناس تانية.'));
 
         return $user;
     }
@@ -351,14 +351,18 @@ class ChallengeController extends Controller
     {
         $type = $this->rules->typeOf($challenge);
 
-        $defaults = [
+        // عنوان الساحة وسطرها التعريفيّ إعدادان لكلّ نوع (2.13)، وOverride الحرب فوقهما
+        $anchors = [
             'knowledge' => ['ساحة الحرب', 'اختبر مهاراتك الذهنية والسرعة، وواجه خصمك وجهًا لوجه!'],
             'survival' => ['ساحة البقاء', 'جاوب صح وابقى… أول غلطة تخرجك!'],
             'estimation' => ['ساحة التقدير', 'قدّر الرقم الأقرب للصح واكسب!'],
             'focus' => ['ساحة التركيز', 'عمل عميق بلا مقاطعة — والعدّ مبنيّ على أمانتك.'],
         ];
 
-        [$headline, $tagline] = $defaults[$type] ?? $defaults['knowledge'];
+        [$anchorHeadline, $anchorTagline] = $anchors[$type] ?? $anchors['knowledge'];
+
+        $headline = (string) setting("wars.arena.{$type}.headline", $anchorHeadline);
+        $tagline = (string) setting("wars.arena.{$type}.tagline", $anchorTagline);
 
         return [
             'type' => $type,

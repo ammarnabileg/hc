@@ -26,7 +26,7 @@ class SecurityDemoSeeder extends Seeder
         Cache::forget('settings');
     }
 
-    private function settings(): void
+    public function settings(): void
     {
         $rows = [
             // ---------------- وضع الصيانة العامّ (12.7-و-1) — ولا صيانة جزئيّة
@@ -65,7 +65,9 @@ class SecurityDemoSeeder extends Seeder
             ['auth.otp.body', 'security', 'نصّ بريد الرمز', 'text', "رمز التأكيد بتاعك: {code}\nلو مش إنت اللي طلبته، اهمل الرسالة دي."],
 
             // ---------------- استرجاع كلمة السرّ (2.3)
-            ['auth.password.min_length', 'security', 'أدنى طول لكلمة السرّ', 'number', '8'],
+            // 12.1-الأمان حرفيًّا: «بدون شروط غير أن تكون **أكثر من 6 خانات**» ⟵ 7 فأكثر،
+            // ولا تعقيد ولا رموز ولا أحرف كبيرة — الشرط الوحيد هو الطول.
+            ['auth.password.min_length', 'security', 'أدنى طول لكلمة السرّ (أكثر من 6 خانات)', 'number', '7'],
             ['auth.password_reset.ttl_minutes', 'security', 'صلاحيّة رابط الاسترجاع (دقائق)', 'number', '60'],
             ['auth.password_reset.request_title', 'security', 'عنوان شاشة الطلب', 'string', 'نسيت كلمة السرّ؟'],
             ['auth.password_reset.request_hint', 'security', 'شرح شاشة الطلب', 'text', 'اكتب بريدك وهنبعتلك رابط ورمز — أيّهما أسهل عليك.'],
@@ -77,8 +79,13 @@ class SecurityDemoSeeder extends Seeder
             ['auth.password_reset.code_action', 'security', 'زرّ المتابعة بالرمز', 'string', 'كمّل بالرمز'],
             ['auth.password_reset.resend_label', 'security', 'زرّ إعادة الإرسال', 'string', 'ابعت تاني'],
             ['auth.password_reset.reset_title', 'security', 'عنوان شاشة التعيين', 'string', 'اختار كلمة سرّ جديدة'],
-            ['auth.password_reset.reset_hint', 'security', 'شرح شاشة التعيين', 'text', '{min} خانات على الأقلّ. وهنقفل كلّ الجلسات القديمة بعد التغيير.'],
+            ['auth.password_reset.reset_hint', 'security', 'شرح شاشة التعيين', 'text', '{min} خانات على الأقلّ ومفيش أيّ شرط تاني. وهنقفل كلّ الجلسات القديمة بعد التغيير.'],
             ['auth.password_reset.reset_action', 'security', 'زرّ التعيين', 'string', 'غيّرها'],
+            ['auth.password_reset.email_label', 'security', 'عنوان سطر البريد في شاشة التعيين', 'string', 'الحساب'],
+            ['auth.password_reset.show_label', 'security', 'تلميح زرّ إظهار كلمة السرّ', 'string', 'إظهار كلمة السرّ'],
+            ['auth.password_reset.hide_label', 'security', 'تلميح زرّ إخفاء كلمة السرّ', 'string', 'إخفاء كلمة السرّ'],
+            ['auth.password_reset.mismatch_text', 'security', 'سطر عدم تطابق الكلمتين', 'text', 'الكلمتان لسّه مش متطابقتين.'],
+            ['auth.password_reset.match_text', 'security', 'سطر تطابق الكلمتين', 'string', 'متطابقتين ✓'],
             ['auth.password_reset.expired_text', 'security', 'رسالة انتهاء الرابط', 'text', 'الرابط ده انتهت صلاحيّته. اطلب واحدًا جديدًا — بياخد ثانية.'],
             ['auth.password_reset.done_text', 'security', 'رسالة نجاح التغيير', 'text', 'كلمة السرّ اتغيّرت ✓ — ادخل بيها دلوقتي. وقفلنا كلّ الجلسات القديمة للأمان.'],
             ['auth.password_reset.mail_subject', 'security', 'عنوان بريد الاسترجاع', 'string', 'تغيير كلمة السرّ'],
@@ -115,8 +122,18 @@ class SecurityDemoSeeder extends Seeder
                 'محاولة اختراق أو تلاعب',
                 'حساب مكرّر',
             ], JSON_UNESCAPED_UNICODE)],
-            ['impersonation.banner_text', 'security', 'نصّ شريط الانتحال', 'text', 'إنت بتتصفّح كـ{target} (#{code}) — أيّ فعل هنا محسوب على {actor}.'],
+            // نصّ 12.1 حرفيًّا: «مرحبًا [اسم حساب الأدمن]، أنت تتصفح كحساب [اسم الحساب]»
+            ['impersonation.banner_text', 'security', 'نصّ شريط الانتحال', 'text', 'مرحبًا {actor}، أنت تتصفح كحساب {target} (#{code}).'],
             ['impersonation.stop_label', 'security', 'زرّ العودة من الانتحال', 'string', 'ارجع لحسابي'],
+
+            // ---------------- جدار الاحتواء: ما يراه المحظور والمعلَّق (12.1-متقدّم-1·3)
+            ['account.containment.banned_title', 'security', 'عنوان صفحة الحظر', 'string', 'تم حظر الحساب'],
+            ['account.containment.suspended_title', 'security', 'عنوان صفحة التعليق المؤقّت', 'string', 'الحساب موقوف مؤقّتًا'],
+            ['account.containment.support_line', 'security', 'سطر التواصل مع الدعم', 'text', 'إذا كنت تعتقد أنه بالخطأ رجاء التواصل مع دعم المنصة'],
+            ['account.containment.notice_title', 'security', 'عنوان كارت الرسالة الإداريّة', 'string', 'رسالة إدارية'],
+            ['account.containment.returns_at', 'security', 'سطر موعد رجوع الحساب', 'text', 'الحساب بيرجع لوحده يوم {date} — مش محتاج تعمل حاجة.'],
+            ['account.containment.logout_label', 'security', 'زرّ الخروج من صفحة الاحتواء', 'string', 'تسجيل الخروج'],
+            ['account.containment.exempt_paths', 'security', 'مسارات مستثناة من جدار الاحتواء', 'json', '["logout","impersonate\/stop","up","webhooks\/*"]'],
 
             // ---------------- التحسين التدريجيّ (2.1)
             ['ux.noscript.title', 'ux', 'عنوان رسالة noscript', 'string', 'الجافاسكربت مقفول في متصفّحك'],

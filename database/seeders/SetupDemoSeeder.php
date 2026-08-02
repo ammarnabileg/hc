@@ -14,6 +14,12 @@ class SetupDemoSeeder extends Seeder
 {
     public function run(): void
     {
+        $this->settings();
+    }
+
+    /** تعريفات إعدادات المعالج — يستدعيها سيدر الإنتاج فتُزرَع على كلّ تنصيب (2.13) */
+    public function settings(): void
+    {
         $rows = [
             // ---------------- فحص المتطلّبات
             ['setup.requirements.php_version', 'إصدار PHP الأدنى', 'string', '8.3', 'أقلّ إصدار تشتغل عليه المنصّة.'],

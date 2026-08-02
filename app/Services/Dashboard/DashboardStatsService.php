@@ -3,6 +3,7 @@
 namespace App\Services\Dashboard;
 
 use App\Models\User;
+use App\Services\Account\AchievementTracks;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -12,7 +13,10 @@ use Illuminate\Support\Facades\DB;
  */
 class DashboardStatsService
 {
-    public function __construct(private readonly DashboardService $dashboard) {}
+    public function __construct(
+        private readonly DashboardService $dashboard,
+        private readonly AchievementTracks $tracks,
+    ) {}
 
     /** المدى المسموح (7/30 يومًا) — والافتراضيّ آخر 30 يومًا (2.15-د) */
     public function rangeOptions(): array
@@ -146,38 +150,18 @@ class DashboardStatsService
      */
     public function achievementsRadar(User $user): array
     {
-        $ticketsCode = (string) setting('wallet.currency.tickets_code', 'tickets');
-
-        $ticketsEarned = (float) $user->balances()
-            ->whereHas('currency', fn ($q) => $q->where('code', $ticketsCode))
-            ->value('lifetime_earned');
-
-        // ⭐ القيمة وحدها من الكود؛ أمّا **العنوان والوحدة والعتبة** فمن الإعدادات (2.13)
-        // — كانت محروقةً هنا فلم يقدر المالك على تسمية مسارٍ ولا تعديل عتبته.
-        $values = [
-            'account' => $this->dashboard->xp($user),
-            'club_5am' => (int) ($user->streak?->club_5am_count ?? 0),
-            'referrals' => $this->successfulReferrals($user),
-            'tickets' => (int) $ticketsEarned,
-            'learning' => $this->lessonsCompleted($user),
-        ];
-
         $max = max(2, (int) setting('dashboard.achievements.radar_max_level', 6));
         $axes = [];
 
-        foreach ($this->radarTracks() as $key) {
-            $base = max(1, (int) setting("dashboard.achievements.{$key}.base", 1));
-            $step = max(1, (int) setting("dashboard.achievements.{$key}.step", 1));
-            $value = (int) ($values[$key] ?? 0);
-            $progress = $this->pathLevel($value, $base, $step);
-
+        // ⭐ القيم والعتبات من **المصدر الواحد** — فالمستوى واحد في البروفايل واللوحة (10.1)
+        foreach ($this->tracks->forUser($user) as $track) {
             $axes[] = [
-                'label' => (string) setting("dashboard.achievements.{$key}.label", $key),
-                'unit' => (string) setting("dashboard.achievements.{$key}.unit", ''),
-                'value' => $value,
-                'level' => $progress['level'],
-                'next_at' => $progress['next_at'],
-                'ratio' => min(1, ($progress['level'] - 1 + $progress['fraction']) / ($max - 1)),
+                'label' => $track['label'],
+                'unit' => $track['unit'],
+                'value' => $track['value'],
+                'level' => $track['level'],
+                'next_at' => $track['next_threshold'],
+                'ratio' => min(1, ($track['level'] - 1 + $track['fraction']) / ($max - 1)),
             ];
         }
 
@@ -185,47 +169,18 @@ class DashboardStatsService
     }
 
     /**
-     * مسارات الرادار وترتيبها — نفس الإعداد الذي يقرؤه تاب الإنجازات في البروفايل،
-     * فالمسار الواحد لا يكون خمسةً في اللوحة وأربعةً في البروفايل (10.1).
-     *
-     * @return array<int, string>
-     */
-    private function radarTracks(): array
-    {
-        $keys = setting('dashboard.achievements.tracks');
-
-        return is_array($keys) && $keys !== []
-            ? array_values(array_filter($keys, 'is_string'))
-            : ['account', 'club_5am', 'referrals', 'tickets', 'learning'];
-    }
-
-    /**
-     * عتبات مسارات الإنجازات (10.1): الزيادة للوصول للمستوى N = base + (N−2)×step،
-     * والرقم التراكميّ = مجموع الزيادات.
+     * عتبات مسارات الإنجازات (10.1) — واجهةٌ رفيعة فوق `AchievementTracks`،
+     * والصيغة نفسها لا تُكتَب هنا ثانيةً.
      */
     public function pathLevel(int $value, int $base, int $step): array
     {
-        $level = 1;
-        $cumulative = 0;
+        $progress = $this->tracks->progress($value, $base, $step);
 
-        while ($level < 200) {
-            $needed = $cumulative + $base + ($level - 1) * $step;
-
-            if ($value < $needed) {
-                $span = $needed - $cumulative;
-
-                return [
-                    'level' => $level,
-                    'next_at' => $needed,
-                    'fraction' => $span > 0 ? ($value - $cumulative) / $span : 0.0,
-                ];
-            }
-
-            $cumulative = $needed;
-            $level++;
-        }
-
-        return ['level' => $level, 'next_at' => null, 'fraction' => 1.0];
+        return [
+            'level' => $progress['level'],
+            'next_at' => $progress['next_at'],
+            'fraction' => $progress['fraction'],
+        ];
     }
 
     // ------------------------------------------------------------ 5) بارات التذاكر
@@ -272,20 +227,5 @@ class DashboardStatsService
         }
 
         return $buckets;
-    }
-
-    // ------------------------------------------------------------ داخليّ
-
-    private function successfulReferrals(User $user): int
-    {
-        return DB::table('referrals')
-            ->where('referrer_id', $user->id)
-            ->whereNotNull('referred_id')
-            ->count();
-    }
-
-    private function lessonsCompleted(User $user): int
-    {
-        return DB::table('lesson_completions')->where('user_id', $user->id)->count();
     }
 }

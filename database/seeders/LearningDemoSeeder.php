@@ -46,7 +46,7 @@ class LearningDemoSeeder extends Seeder
     // ------------------------------------------------------------ الإعدادات
 
     /** كلّ رقم ونصّ في هذا المجال يُقرأ من هنا — لا من الكود (2.13) */
-    private function settings(): void
+    public function settings(): void
     {
         $rows = [
             // ---- العناوين والتنقّل
@@ -328,7 +328,7 @@ class LearningDemoSeeder extends Seeder
      * إعدادات الإتاحة والتوقيت (5) — تُقرأ من **كتالوج الإعدادات نفسه** لا من
      * قائمة ثانية هنا، فلا تختلف القيمة الافتراضيّة بين السيدر وزرّ الـReset.
      */
-    private function availabilitySettings(): void
+    public function availabilitySettings(): void
     {
         foreach (SettingsCatalog::group('availability') as $key => [$group, $label, $type, $default]) {
             Setting::updateOrCreate(['key' => $key], [

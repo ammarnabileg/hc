@@ -41,7 +41,7 @@ class VolunteerPeopleDemoSeeder extends Seeder
     }
 
     /** إعدادات المجال بنمط «المجال.الميزة.المفتاح» مع قيمة افتراضيّة قابلة للاسترجاع */
-    private function settings(): void
+    public function settings(): void
     {
         $rows = [
             // ---------------- التوظيف (13.4-د)

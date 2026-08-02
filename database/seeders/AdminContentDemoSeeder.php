@@ -38,7 +38,7 @@ class AdminContentDemoSeeder extends Seeder
 
     // ============================================================== الإعدادات (2.13)
 
-    private function settings(): void
+    public function settings(): void
     {
         $rows = [
             // ---------------- المسارات (12.4-أ)

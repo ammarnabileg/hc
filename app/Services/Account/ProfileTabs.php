@@ -5,9 +5,7 @@ namespace App\Services\Account;
 use App\Models\BadgeUser;
 use App\Models\Certificate;
 use App\Models\Cv;
-use App\Models\LessonCompletion;
 use App\Models\Membership;
-use App\Models\Referral;
 use App\Models\RepScore;
 use App\Models\User;
 
@@ -22,7 +20,10 @@ class ProfileTabs
 {
     public const KEYS = ['overview', 'achievements', 'certificates', 'experience'];
 
-    public function __construct(private readonly ProfileVisibility $visibility) {}
+    public function __construct(
+        private readonly ProfileVisibility $visibility,
+        private readonly AchievementTracks $tracks,
+    ) {}
 
     /** @return array<int, array{key:string,label:string}> */
     public static function definitions(): array
@@ -96,62 +97,15 @@ class ProfileTabs
     }
 
     /**
-     * مسارات الإنجازات الخمسة وعتباتها (10.1): base + (N−2) × step تراكميًّا.
+     * مسارات الإنجازات الخمسة وعتباتها (10.1) — من **المصدر الواحد**
+     * `AchievementTracks`، وهو نفسه الذي يقرؤه رادار اللوحة.
      *
-     * ⭐ العتبات والعناوين والوحدات كلّها إعدادات `dashboard.achievements.*` (2.13)
-     * — وهي **نفس** مفاتيح رادار اللوحة، لأنّ العتبة واحدة في المنصّة كلّها؛
-     * فلو صارت هنا نسخةٌ ثانية اختلف «مستواك» بين بروفايلك ولوحتك.
+     * كان هنا حسابٌ موازٍ بقيمٍ مختلفة (رصيد التذاكر بدل المكتسب، وكلّ الدعوات
+     * بدل الناجحة، و`users.xp` بدل المحفظة) فاختلف «مستواك» بين بروفايلك ولوحتك.
      */
     public function achievements(User $owner): array
     {
-        $values = [
-            'account' => (int) $owner->xp,
-            'club_5am' => (int) ($owner->streak?->club_5am_count ?? 0),
-            'referrals' => Referral::where('referrer_id', $owner->id)->count(),
-            'tickets' => (int) $owner->balance('tickets'),
-            'learning' => LessonCompletion::where('user_id', $owner->id)->count(),
-        ];
-
-        $tracks = [];
-
-        foreach ($this->trackKeys() as $key) {
-            $tracks[] = [
-                'key' => $key,
-                'label' => (string) setting("dashboard.achievements.{$key}.label", $key),
-                'unit' => (string) setting("dashboard.achievements.{$key}.unit", ''),
-                'value' => $values[$key] ?? 0,
-                'base' => max(1, (int) setting("dashboard.achievements.{$key}.base", 1)),
-                'step' => max(1, (int) setting("dashboard.achievements.{$key}.step", 1)),
-            ];
-        }
-
-        return array_map(function (array $track) {
-            [$level, $current, $next] = $this->levelFor($track['value'], $track['base'], $track['step']);
-
-            return [
-                ...$track,
-                'level' => $level,
-                'current_threshold' => $current,
-                'next_threshold' => $next,
-                'percent' => $next > $current
-                    ? (int) max(0, min(100, round(($track['value'] - $current) / ($next - $current) * 100)))
-                    : 100,
-            ];
-        }, $tracks);
-    }
-
-    /**
-     * مسارات الرادار وترتيبها — إعداد واحد يخدم البروفايل واللوحة معًا (10.1 · 2.13).
-     *
-     * @return array<int, string>
-     */
-    private function trackKeys(): array
-    {
-        $keys = setting('dashboard.achievements.tracks');
-
-        return is_array($keys) && $keys !== []
-            ? array_values(array_filter($keys, 'is_string'))
-            : ['account', 'club_5am', 'referrals', 'tickets', 'learning'];
+        return $this->tracks->forUser($owner);
     }
 
     /** الشهادات من المصدر الواحد (12.5 / مكتبتي 20) — لا حساب موازٍ */
@@ -174,27 +128,5 @@ class ProfileTabs
             'cv' => $cv,
             'data' => is_array($cv?->data) ? $cv->data : [],
         ];
-    }
-
-    /**
-     * العتبة التراكميّة للوصول للمستوى N (10.1):
-     * الزيادة = base + (N − 2) × step، والمستويات مفتوحة بلا سقف.
-     *
-     * @return array{0:int,1:int,2:int} [المستوى, عتبة المستوى الحاليّ, عتبة التالي]
-     */
-    private function levelFor(int $value, int $base, int $step): array
-    {
-        $level = 1;
-        $cumulative = 0;
-        $next = $base;
-        $guard = 0;
-
-        while ($value >= $next && $guard++ < 200) {
-            $level++;
-            $cumulative = $next;
-            $next += $base + ($level - 1) * $step;
-        }
-
-        return [$level, $cumulative, $next];
     }
 }

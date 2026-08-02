@@ -4,8 +4,11 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\AdAudience;
+use App\Models\Country;
 use App\Models\Referral;
 use App\Models\User;
+use App\Models\UserDevice;
+use App\Models\WalletWithdrawal;
 use App\Services\Admin\AccountApproval;
 use App\Services\Admin\AudienceSegments;
 use App\Services\Admin\AuditTrail;
@@ -74,20 +77,53 @@ class UserController extends Controller
 
         // تحميل كسول لكلّ تاب — لا يُستعلَم إلّا عمّا يُفتَح فعلًا (2.15-ب)
         $data += match ($tab) {
-            'wallet' => [
-                'transactions' => $user->transactions()->with('currency')->latest('id')->limit($rows)->get(),
-                'balances' => $user->balances()->with('currency')->get(),
-            ],
+            // ⭐ تاب الجداول: الثلاثة **بفلتر من فترة لفترة** (12.1-الجداول)
+            'tables' => $this->tablesTab($request, $user, $rows),
+            'wallet' => ['balances' => $user->balances()->with('currency')->get()],
             'learning' => ['enrollments' => $user->enrollments()->with('course')->latest('id')->limit($rows)->get()],
             'certificates' => ['certificates' => $user->certificates()->latest('id')->limit($rows)->get()],
+            'security' => [
+                // الجلسات النشطة على الحساب — عرضها شرط قبل زرّ «إنهاء كلّ الجلسات»
+                'devices' => UserDevice::where('user_id', $user->id)->latest('last_active_at')->limit($rows)->get(),
+            ],
+            'admin' => [
+                'roleOptions' => $this->directory->roleOptions(),
+                'rejectReasons' => $this->approval->rejectReasons(),
+            ],
             'advanced' => [
-                'referrals' => Referral::where('referrer_id', $user->id)->with('referred')->latest('id')->limit($rows)->get(),
+                'countries' => Country::query()->where('is_active', true)->orderBy('name_ar')->get(),
                 'lastChange' => $this->audit->lastChange($user),
             ],
             default => [],
         };
 
         return view('admin.users.show', $data);
+    }
+
+    /**
+     * جداول 12.1 الثلاثة بفلتر الفترة: المعاملات · **السحوبات** · الدعوات.
+     *
+     * وجدول الدعوات يقول صراحةً **هل أخذوا هديتهم**، والهديّة لا تُصرَف إلّا
+     * **بعد قبول الحساب** — فحالة «لسّه» على حساب تحت المراجعة ليست تأخيرًا بل قاعدة.
+     */
+    private function tablesTab(Request $request, User $user, int $rows): array
+    {
+        $period = $this->directory->period($request);
+
+        return [
+            'period' => $period,
+            'transactions' => $user->transactions()
+                ->with('currency')
+                ->whereBetween('created_at', [$period['from'], $period['to']])
+                ->latest('id')->limit($rows)->get(),
+            'withdrawals' => WalletWithdrawal::where('user_id', $user->id)
+                ->whereBetween('created_at', [$period['from'], $period['to']])
+                ->latest('id')->limit($rows)->get(),
+            'referrals' => Referral::where('referrer_id', $user->id)
+                ->with('referred')
+                ->whereBetween('created_at', [$period['from'], $period['to']])
+                ->latest('id')->limit($rows)->get(),
+        ];
     }
 
     // ---------------------------------------------------------- طلبات الاعتماد
