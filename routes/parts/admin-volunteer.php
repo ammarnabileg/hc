@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\DelegationAdminController;
 use App\Http\Controllers\Admin\EventAdminController;
 use App\Http\Controllers\Admin\GamificationController;
 use App\Http\Controllers\Admin\OffboardingAdminController;
@@ -58,6 +59,17 @@ Route::middleware(['auth', 'admin.panel'])->prefix('admin')->name('admin.')->gro
             ->middleware('permission:capacity.edit')->name('org.override.drop');
         Route::get('/org/capacity', [OrgAdminController::class, 'capacityReport'])
             ->middleware('permission:capacity.view')->name('org.capacity');
+
+        /*
+        | ⭐ الغيابات والتفويض المؤقّت (23-6 · 24) — شاشة **إدارة** لا إضافة:
+        | الإضافة موضعها «الأعضاء والبوزشنز» بـ`delegations.create`، وهنا
+        | الاستعراض بـ`delegations.list` والإنهاء المبكّر بـ`delegations.edit`
+        | («تعديل مدّة الغياب أثناء سريانه» — 12.2.2). فلا يُنهي مَن يقرأ فقط.
+        */
+        Route::get('/delegations', [DelegationAdminController::class, 'index'])
+            ->middleware('permission:delegations.list')->name('delegations');
+        Route::post('/delegations/{membershipAbsence}/end', [DelegationAdminController::class, 'end'])
+            ->middleware('permission:delegations.edit')->name('delegations.end');
 
         // ضبط Rep — كلّ قيم rep_rules (13.4-ن)
         Route::get('/rep', [RepAdminController::class, 'index'])

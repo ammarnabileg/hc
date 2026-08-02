@@ -68,7 +68,12 @@ class StoreController extends Controller
         $user = $request->user();
         $quote = $this->pricing->quote($user, $type, $item);
 
-        return view('store.product', [
+        /*
+         | ⭐ الباقة لها **لاندنج بيدج مخصّصة** (18 — والبند المفتوح في القسم 22):
+         | كانت تُعرَض بقالب المنتج نفسه فتضيع Anchoring وميزان القيمة والبونص.
+         | والمسار واحد كما هو (`store.product`) — القالب وحده هو الذي يختلف.
+         */
+        return view($type === 'bundle' ? 'store.bundle' : 'store.product', [
             'type' => $type,
             'item' => $item,
             'quote' => $quote,

@@ -19,6 +19,8 @@ class Task extends Model
     {
         return [
             'approved_at' => 'datetime',
+            // نافذة التفكيك (23-3.9-١) — عمودٌ زمنيّ كإخوته، وكان بلا كاست
+            'breakdown_due_at' => 'datetime',
             'deadline_at' => 'datetime',
             'delivered_at' => 'datetime',
             'late_due_to_child' => 'boolean',

@@ -185,7 +185,13 @@ Route::middleware(['auth', 'admin.panel'])->prefix('admin')->name('admin.')->gro
     Route::middleware('permission:announcements.list,announcements.view')->group(function () {
         Route::get('/guidance', [GuidanceController::class, 'index'])->name('guidance.index');
         Route::get('/guidance/analytics/{announcement}', [GuidanceController::class, 'analytics'])->name('guidance.analytics');
+        // ⭐ معاينة على الأجهزة (موبايل ⇄ ديسكتوب) قبل النشر (12.6-أ · 24.3)
+        Route::get('/guidance/preview/{announcement}', [GuidanceController::class, 'preview'])->name('guidance.preview');
     });
+
+    // تصدير التحليلات — سلطةُ تصديرٍ مستقلّة عن سلطة العرض (12.2.2)
+    Route::middleware('permission:announcements.export')
+        ->get('/guidance/analytics/{announcement}/export', [GuidanceController::class, 'exportAnalytics'])->name('guidance.analytics.export');
 
     Route::middleware('permission:announcements.create')
         ->post('/guidance/announcements', [GuidanceController::class, 'storeAnnouncement'])->name('guidance.announcements.store');

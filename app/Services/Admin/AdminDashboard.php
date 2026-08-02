@@ -2,6 +2,8 @@
 
 namespace App\Services\Admin;
 
+use App\Models\Challenge;
+use App\Models\ChallengeParticipation;
 use App\Models\Complaint;
 use App\Models\Course;
 use App\Models\Event;
@@ -11,130 +13,227 @@ use App\Models\Transaction;
 use App\Models\User;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Schema;
 
 /**
  * لوحة القيادة (الدستور 12.3 · 24.1).
  *
  * سؤال الشاشة واحد: «إيه حالة المنصّة، وإيه اللي مستنّي قرارك؟»
- * فالصفّ الأوّل **أربعة كروت بحدّ أقصى** (2.15-أ-3) والباقي في تاب «تفاصيل».
- * وكلّ رقم يقارَن بالفترة السابقة ويُلوَّن بمعنى واحد من قاموس 2.16.
+ * فالصفّ الأوّل **أربعة كروت بحدّ أقصى** (2.15-أ-3) والباقي في تاب «تفاصيل»
+ * — والزائد **يُنقَل ولا يُحذَف**. وكلّ رقم يقارَن بالفترة السابقة ويُلوَّن
+ * بمعنى واحد من قاموس 2.16.
+ *
+ * ⭐ **فلتر الفترة موحَّد مع 12.8**: «من/إلى» مفهومٌ واحد فسلوكٌ واحد — وكانت
+ * اللوحة تعرض قائمة `[1,7,30,90]` بينما الإحصائيّات تعرض تاريخين، فيتعلّم
+ * الأدمن الفكرة نفسها مرّتين بشكلين. والقائمة بقيت **اختصارات** تملأ التاريخين.
+ *
+ * ⭐ **الماليّات لمالك المنصّة وحده**: كارت الإيرادات وAOV والأعلى مبيعًا
+ * والسحوبات وعمولة الريفيرال **لا تُحسَب ولا تُعرَض** لغيره — يُحذف الكارت
+ * ولا يُعطَّل (2.15-أ-7 · 12.7).
  */
 class AdminDashboard
 {
-    /** خيارات فلتر الفترة العامّ — إعداد لا قائمة محروقة (2.13) */
-    public function rangeOptions(): array
+    /**
+     * فلتر الفترة العامّ — **بنفس عقد 12.8 حرفيًّا** (من/إلى/مقارنة).
+     *
+     * @return array{from:CarbonImmutable, to:CarbonImmutable, prev_from:CarbonImmutable, prev_to:CarbonImmutable, days:int, compare:bool}
+     */
+    public function period(?string $from, ?string $to, bool $compare): array
     {
-        $options = setting('admin.dashboard.range_options', [1, 7, 30, 90]);
+        $defaultDays = max(1, (int) setting('admin.dashboard.default_days', 30));
 
-        return is_array($options) && $options !== [] ? array_map('intval', $options) : [1, 7, 30, 90];
-    }
+        $end = $this->parse($to)?->endOfDay() ?? CarbonImmutable::now()->endOfDay();
+        $start = $this->parse($from)?->startOfDay() ?? $end->subDays($defaultDays - 1)->startOfDay();
 
-    public function resolveDays(?int $requested): int
-    {
-        $options = $this->rangeOptions();
-        $default = (int) setting('admin.dashboard.default_days', 30);
+        // تاريخان مقلوبان خطأ إنسانيّ لا خطأ نظام — نصحّحه بلا رسالة عتاب (2.17-ب)
+        if ($start->greaterThan($end)) {
+            [$start, $end] = [$end->startOfDay(), $start->endOfDay()];
+        }
 
-        return in_array($requested, $options, true) ? $requested : ($default ?: 30);
+        $days = max(1, (int) $start->diffInDays($end) + 1);
+
+        return [
+            'from' => $start,
+            'to' => $end,
+            'prev_from' => $start->subDays($days),
+            'prev_to' => $start->subSecond(),
+            'days' => $days,
+            'compare' => $compare,
+        ];
     }
 
     /**
-     * أربعة كروت KPI بالحدّ الأقصى — ومعها سهم ونسبة تغيّر وتلوين صحّة (12.3-2 · 12.3-18).
+     * اختصارات الفترة (اليوم/أسبوع/شهر — 12.3-1): تملأ «من/إلى» ولا تستبدلهما،
+     * فالمفهوم يبقى واحدًا والاختصار مجرّد راحة.
+     *
+     * @return array<int, array{days:int, label:string, from:string, to:string, active:bool}>
+     */
+    public function quickRanges(array $period): array
+    {
+        $options = setting('admin.dashboard.range_options', [1, 7, 30, 90]);
+        $options = is_array($options) && $options !== [] ? array_map('intval', $options) : [1, 7, 30, 90];
+
+        $today = CarbonImmutable::now()->endOfDay();
+
+        return array_values(array_map(function (int $days) use ($today, $period) {
+            $from = $today->subDays(max($days, 1) - 1)->startOfDay();
+
+            return [
+                'days' => $days,
+                'label' => match ($days) {
+                    1 => 'اليوم',
+                    7 => 'أسبوع',
+                    30 => 'شهر',
+                    default => 'آخر '.$days.' يوم',
+                },
+                'from' => $from->toDateString(),
+                'to' => $today->toDateString(),
+                'active' => $period['days'] === $days
+                    && $period['to']->toDateString() === $today->toDateString(),
+            ];
+        }, $options));
+    }
+
+    /**
+     * كلّ كروت اللوحة مرتّبةً بتخصيص دور المستخدم — والمحظور محذوف لا معطَّل.
      *
      * @return array<int, array<string, mixed>>
      */
-    public function kpis(int $days): array
+    public function cards(array $period, User $user): array
     {
-        [$from, $to, $prevFrom, $prevTo] = $this->windows($days);
+        $from = $period['from'];
+        $to = $period['to'];
+        $prevFrom = $period['prev_from'];
+        $prevTo = $period['prev_to'];
 
-        $cards = [
-            $this->card('كلّ المستخدمين', '👥',
-                User::where('created_at', '<=', $to)->count(),
-                User::where('created_at', '<=', $prevTo)->count(),
-                'إجمالي الحسابات حتى نهاية الفترة'),
-
-            $this->card('مسجّلون جدد', '✨',
-                User::whereBetween('created_at', [$from, $to])->count(),
-                User::whereBetween('created_at', [$prevFrom, $prevTo])->count(),
-                'حسابات اتسجّلت داخل الفترة'),
-
-            $this->card('مبيعات (كوينز)', '🛒',
-                $this->sales($from, $to),
-                $this->sales($prevFrom, $prevTo),
-                'إجمالي الطلبات المدفوعة داخل الفترة'),
-
-            $this->card('تدريبات نشطة', '📚',
-                Course::where('status', 'published')->count(),
-                Course::where('status', 'published')->where('created_at', '<=', $prevTo)->count(),
-                'تدريبات منشورة ومتاحة دلوقتي'),
-        ];
-
-        return array_slice($cards, 0, max(1, (int) setting('admin.dashboard.kpi_max_cards', 4)));
-    }
-
-    /** أرقام تاب «تفاصيل» — كلّ ما زاد عن الأربعة ينتقل هنا (2.15-أ-3) */
-    public function details(int $days): array
-    {
-        [$from, $to, $prevFrom, $prevTo] = $this->windows($days);
+        $owner = $user->isPlatformOwner();
 
         $paid = Order::where('status', 'paid')->whereBetween('paid_at', [$from, $to]);
         $paidCount = (clone $paid)->count();
-        $revenue = (clone $paid)->sum('total');
+        $revenue = (float) (clone $paid)->sum('total');
+
+        $cards = [
+            $this->card('users', 'كلّ المستخدمين', 'people',
+                User::where('created_at', '<=', $to)->count(),
+                User::where('created_at', '<=', $prevTo)->count(),
+                'إجمالي الحسابات حتى نهاية الفترة',
+                $this->urlFor('admin.users.index', $user, 'users.list')),
+
+            $this->card('signups', 'مسجّلون جدد', 'user',
+                User::whereBetween('created_at', [$from, $to])->count(),
+                User::whereBetween('created_at', [$prevFrom, $prevTo])->count(),
+                'حسابات اتسجّلت داخل الفترة',
+                $this->urlFor('admin.users.approvals', $user, 'user_approvals.list')),
+
+            $this->card('sales', 'مبيعات (كوينز)', 'store',
+                (int) round($revenue),
+                (int) round((float) Order::where('status', 'paid')->whereBetween('paid_at', [$prevFrom, $prevTo])->sum('total')),
+                'إجمالي الطلبات المدفوعة داخل الفترة',
+                $this->urlFor('admin.store.index', $user, 'orders.list')),
+
+            $this->card('courses', 'تدريبات نشطة', 'training',
+                Course::where('status', 'published')->count(),
+                Course::where('status', 'published')->where('created_at', '<=', $prevTo)->count(),
+                'تدريبات منشورة ومتاحة دلوقتي',
+                $this->urlFor('admin.courses.index', $user, 'courses.list')),
+
+            $this->card('events', 'فعاليّات قادمة', 'event',
+                Event::where('starts_at', '>=', now())->where('status', 'published')->count(),
+                Event::where('starts_at', '>=', $prevTo)->where('status', 'published')->count(),
+                'فعاليّات لسّه ماجتش',
+                $this->urlFor('admin.events.index', $user, 'events.list')),
+
+            $this->card('online', 'النشطون الآن', 'eye',
+                User::where('last_seen_at', '>=', now()->subMinutes((int) setting('admin_dashboard.online_window_minutes', 15)))->count(),
+                0,
+                'مستخدمون ظهروا في آخر ربع ساعة',
+                $this->urlFor('admin.users.index', $user, 'users.list')),
+        ];
+
+        // 🔒 الكروت الماليّة (12.3-6 · 12.3-8 · 12.3-9): لمالك المنصّة وحده
+        if ($owner) {
+            $cards[] = $this->card('revenue', '🔒 الإيرادات', 'money', (int) round($revenue),
+                (int) round((float) Order::where('status', 'paid')->whereBetween('paid_at', [$prevFrom, $prevTo])->sum('total')),
+                'إجمالي المدفوع داخل الفترة',
+                $this->urlFor('admin.finance.index', $user, 'finance.view'));
+
+            $cards[] = $this->card('aov', '🔒 متوسّط قيمة الطلب', 'transaction',
+                $paidCount > 0 ? (int) round($revenue / $paidCount) : 0,
+                $this->previousAov($prevFrom, $prevTo),
+                'الإيرادات ÷ عدد الطلبات المدفوعة',
+                $this->urlFor('admin.finance.index', $user, 'finance.view'));
+
+            $cards[] = $this->card('withdrawals', '🔒 سحوبات مستحقّة', 'withdraw',
+                (int) round(abs((float) $this->pendingWithdrawQuery()->sum('amount'))), 0,
+                'إجمالي طلبات السحب اللي لسّه مستنّية',
+                $this->urlFor('admin.finance.index', $user, 'finance.view'));
+
+            $cards[] = $this->card('referral', '🔒 عمولة الريفيرال', 'referral',
+                (int) round((float) Referral::whereBetween('updated_at', [$from, $to])->sum('commission_earned')),
+                (int) round((float) Referral::whereBetween('updated_at', [$prevFrom, $prevTo])->sum('commission_earned')),
+                'العمولة المصروفة داخل الفترة',
+                $this->urlFor('admin.referrals.index', $user, 'referrals.list'));
+        }
+
+        return $this->applyLayout($cards, $this->layoutFor($user));
+    }
+
+    /**
+     * أربعة كروت بالحدّ الأقصى في الصفّ الأوّل (2.15-أ-3).
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    public function kpis(array $period, User $user): array
+    {
+        return array_slice(
+            $this->cards($period, $user),
+            0,
+            max(1, (int) setting('admin.dashboard.kpi_max_cards', 4)),
+        );
+    }
+
+    /**
+     * تاب «تفاصيل»: كلّ كارت زائد عن الأربعة **يُنقَل هنا لا يُحذَف** (2.15-أ-3)،
+     * ومعه اللوحات العميقة (قمع · خريطة · تلعيب · Drop-off · حروب · هدف شهريّ).
+     */
+    public function details(array $period, User $user): array
+    {
+        $all = $this->cards($period, $user);
+        $shown = max(1, (int) setting('admin.dashboard.kpi_max_cards', 4));
 
         return [
-            'cards' => [
-                $this->card('فعاليّات قادمة', '📅',
-                    Event::where('starts_at', '>=', now())->where('status', 'published')->count(),
-                    Event::where('starts_at', '>=', $prevTo)->where('status', 'published')->count(),
-                    'فعاليّات لسّه ماجتش'),
-
-                $this->card('الإيرادات', '💰', (int) round($revenue),
-                    (int) round(Order::where('status', 'paid')->whereBetween('paid_at', [$prevFrom, $prevTo])->sum('total')),
-                    'إجمالي المدفوع داخل الفترة'),
-
-                $this->card('متوسّط قيمة الطلب', '🧾',
-                    $paidCount > 0 ? (int) round($revenue / $paidCount) : 0,
-                    0,
-                    'الإيرادات ÷ عدد الطلبات المدفوعة'),
-
-                $this->card('سحوبات مستحقّة', '🏦',
-                    (int) round(abs((float) $this->pendingWithdrawQuery()->sum('amount'))),
-                    0,
-                    'إجمالي طلبات السحب اللي لسّه مستنّية'),
-
-                $this->card('عمولة الريفيرال', '🤝',
-                    (int) round(Referral::whereBetween('updated_at', [$from, $to])->sum('commission_earned')),
-                    (int) round(Referral::whereBetween('updated_at', [$prevFrom, $prevTo])->sum('commission_earned')),
-                    'العمولة المصروفة داخل الفترة'),
-
-                // نافذة «النشطون الآن» إعدادٌ لا رقمٌ محروق (2.13) — تختلف بحسب طبيعة المنصّة
-                $this->card('النشطون الآن', '💚',
-                    User::where('last_seen_at', '>=', now()->subMinutes((int) setting('admin_dashboard.online_window_minutes', 15)))->count(),
-                    0,
-                    'مستخدمون ظهروا في آخر ربع ساعة'),
-            ],
-            'funnel' => $this->funnel($from, $to),
+            'cards' => array_slice($all, $shown),
+            'funnel' => $this->funnel($period['from'], $period['to']),
             'topReferrers' => $this->topReferrers(),
+            'geo' => $this->geoHeat(),
+            'gamification' => $this->gamificationHealth(),
+            'dropoff' => $this->courseDropoff(),
+            'wars' => $this->runningWars(),
+            // 🔒 الهدف الشهريّ وأعلى مبيعًا رقمان ماليّان — لمالك المنصّة وحده
+            'target' => $user->isPlatformOwner() ? $this->monthlyTarget() : null,
+            'topSelling' => $user->isPlatformOwner() ? $this->topSelling($period) : collect(),
         ];
     }
 
     /** سلسلة زمنيّة للتسجيلات والمبيعات — تُرسَم SVG بأيدينا بلا مكتبة خارجيّة */
-    public function series(int $days): array
+    public function series(array $period): array
     {
-        [$from] = $this->windows($days);
+        $days = max(1, (int) $period['days']);
         $buckets = min($days, 30);
         $step = max(1, (int) ceil($days / $buckets));
         $points = [];
 
         for ($i = 0; $i < $buckets; $i++) {
-            $start = CarbonImmutable::parse($from)->addDays($i * $step);
+            $start = $period['from']->addDays($i * $step);
             $end = $start->addDays($step);
 
             $points[] = [
                 'label' => $start->translatedFormat('j M'),
                 'short' => $start->format('j/n'),
                 'signups' => User::whereBetween('created_at', [$start, $end])->count(),
-                'sales' => (int) round(Order::where('status', 'paid')->whereBetween('paid_at', [$start, $end])->sum('total')),
+                'sales' => (int) round((float) Order::where('status', 'paid')->whereBetween('paid_at', [$start, $end])->sum('total')),
             ];
         }
 
@@ -185,7 +284,7 @@ class AdminDashboard
             ->get()
             ->map(fn (Transaction $row) => [
                 'type' => 'سحب',
-                'icon' => '🏦',
+                'icon' => 'withdraw',
                 'title' => ($row->user?->shortName() ?? 'مستخدم').' — '.number_format(abs((float) $row->amount)).' كوينز',
                 'at' => $row->created_at,
                 'state' => $row->created_at->diffInHours(now()) >= $lateHours ? 'danger' : 'warn',
@@ -199,7 +298,7 @@ class AdminDashboard
             ->get()
             ->map(fn (Complaint $row) => [
                 'type' => $row->type === 'suggestion' ? 'مقترح' : 'شكوى',
-                'icon' => '📮',
+                'icon' => 'complaint',
                 'title' => $row->title,
                 'at' => $row->created_at,
                 'state' => $row->created_at->diffInDays(now()) >= 3 ? 'danger' : 'warn',
@@ -273,7 +372,287 @@ class AdminDashboard
             ->values();
     }
 
+    // ------------------------------------------------------- اللوحات العميقة (12.3)
+
+    /**
+     * 🔒 هدف شهريّ قابل للتخصيص مع بار تقدّم (12.3-10).
+     * الهدف إعدادٌ يكتبه الأدمن، والمتحقّق **يُحسَب من الطلبات المدفوعة** لا يُكتَب.
+     */
+    public function monthlyTarget(): array
+    {
+        $target = (float) setting('admin.dashboard.monthly_target', 0);
+        $monthStart = CarbonImmutable::now()->startOfMonth();
+
+        $achieved = (float) Order::where('status', 'paid')
+            ->whereBetween('paid_at', [$monthStart, CarbonImmutable::now()])
+            ->sum('total');
+
+        return [
+            'target' => round($target, 2),
+            'achieved' => round($achieved, 2),
+            'percent' => $target > 0 ? min(100, round($achieved / $target * 100, 1)) : 0.0,
+            'label' => (string) setting('admin.dashboard.target_label', 'الهدف الشهريّ'),
+            'month' => $monthStart->translatedFormat('F Y'),
+        ];
+    }
+
+    /**
+     * خريطة حراريّة جغرافيّة (12.3-13): الدولة · المحافظة ⟵ عدد المستخدمين.
+     * والحرارة **رقمٌ ونسبةٌ مكتوبان** لا لونًا وحده (2.16: اللون لا يحمل المعنى).
+     *
+     * @return array<int, array{label:string, value:int, percent:float}>
+     */
+    public function geoHeat(): array
+    {
+        if (! Schema::hasTable('countries')) {
+            return [];
+        }
+
+        $rows = DB::table('users')
+            ->leftJoin('countries', 'countries.id', '=', 'users.country_id')
+            ->leftJoin('governorates', 'governorates.id', '=', 'users.governorate_id')
+            ->whereNull('users.deleted_at')
+            ->select(
+                DB::raw("coalesce(countries.name_ar, 'غير محدّد') as country"),
+                DB::raw("coalesce(governorates.name_ar, 'غير محدّد') as governorate"),
+                DB::raw('count(*) as total'),
+            )
+            ->groupBy('country', 'governorate')
+            ->orderByDesc('total')
+            ->limit((int) setting('admin.dashboard.geo_rows', 8))
+            ->get();
+
+        $max = max(1, (int) $rows->max('total'));
+
+        return $rows->map(fn ($row) => [
+            'label' => $row->country.' · '.$row->governorate,
+            'value' => (int) $row->total,
+            'percent' => round((int) $row->total / $max * 100, 1),
+        ])->all();
+    }
+
+    /**
+     * صحّة التلعيب (12.3-14): الستريكات النشطة · نادي الخامسة اليوم · التذاكر المتداولة.
+     *
+     * @return array<int, array{label:string, value:int, hint:string}>
+     */
+    public function gamificationHealth(): array
+    {
+        $activeStreaks = Schema::hasTable('streaks')
+            ? (int) DB::table('streaks')->where('current_days', '>', 0)->count()
+            : 0;
+
+        $avgStreak = Schema::hasTable('streaks')
+            ? (float) DB::table('streaks')->where('current_days', '>', 0)->avg('current_days')
+            : 0.0;
+
+        $clubToday = Schema::hasTable('streak_days')
+            ? (int) DB::table('streak_days')
+                ->where('club_5am', true)
+                ->whereDate('day', CarbonImmutable::now()->toDateString())
+                ->count()
+            : 0;
+
+        $tickets = Schema::hasTable('wallet_balances')
+            ? (float) DB::table('wallet_balances')
+                ->join('currencies', 'currencies.id', '=', 'wallet_balances.currency_id')
+                ->where('currencies.code', 'tickets')
+                ->sum('wallet_balances.balance')
+            : 0.0;
+
+        return [
+            ['label' => 'ستريكات نشطة', 'value' => $activeStreaks, 'hint' => 'متوسّط الستريك: '.round($avgStreak, 1).' يوم'],
+            ['label' => 'نادي الخامسة اليوم', 'value' => $clubToday, 'hint' => 'حضور نافذة 4:50–5:20 ص'],
+            ['label' => 'تذاكر متداولة', 'value' => (int) round($tickets), 'hint' => 'رصيد التذاكر في المحافظ كلّها'],
+        ];
+    }
+
+    /**
+     * أكثر التدريبات تعثّرًا (12.3-15): تسجيلٌ بلا إتمام — لتحسين المحتوى.
+     *
+     * @return array<int, array{label:string, value:int, percent:float}>
+     */
+    public function courseDropoff(): array
+    {
+        if (! Schema::hasTable('enrollments') || ! Schema::hasTable('course_completions')) {
+            return [];
+        }
+
+        $rows = DB::table('enrollments')
+            ->join('courses', 'courses.id', '=', 'enrollments.course_id')
+            ->leftJoin('course_completions', function ($join) {
+                $join->on('course_completions.course_id', '=', 'enrollments.course_id')
+                    ->on('course_completions.user_id', '=', 'enrollments.user_id');
+            })
+            ->whereNull('course_completions.id')
+            ->select('courses.name_ar as title', DB::raw('count(*) as total'))
+            ->groupBy('courses.name_ar')
+            ->orderByDesc('total')
+            ->limit((int) setting('admin.dashboard.top_rows', 10))
+            ->get();
+
+        $max = max(1, (int) $rows->max('total'));
+
+        return $rows->map(fn ($row) => [
+            'label' => (string) $row->title,
+            'value' => (int) $row->total,
+            'percent' => round((int) $row->total / $max * 100, 1),
+        ])->all();
+    }
+
+    /**
+     * الحروب الجارية (12.3-11 — نبض المجتمع): مشاركات لسّه شغّالة الآن.
+     *
+     * @return array<int, array{label:string, value:int}>
+     */
+    public function runningWars(): array
+    {
+        if (! Schema::hasTable('challenge_participations')) {
+            return [];
+        }
+
+        return ChallengeParticipation::query()
+            ->where('challenge_participations.status', 'running')
+            ->join('challenges', 'challenges.id', '=', 'challenge_participations.challenge_id')
+            ->select('challenges.name_ar as title', DB::raw('count(*) as total'))
+            ->groupBy('challenges.name_ar')
+            ->orderByDesc('total')
+            ->limit((int) setting('admin.dashboard.top_rows', 10))
+            ->get()
+            ->map(fn ($row) => ['label' => (string) $row->title, 'value' => (int) $row->total])
+            ->all();
+    }
+
+    /**
+     * 🔒 أعلى التدريبات/المنتجات مبيعًا (12.3-6) — من أسطر الطلبات المدفوعة.
+     *
+     * @return Collection<int, array{label:string, value:float, count:int}>
+     */
+    public function topSelling(array $period): Collection
+    {
+        if (! Schema::hasTable('order_items')) {
+            return collect();
+        }
+
+        return DB::table('order_items')
+            ->join('orders', 'orders.id', '=', 'order_items.order_id')
+            ->where('orders.status', 'paid')
+            ->whereBetween('orders.paid_at', [$period['from'], $period['to']])
+            ->select('order_items.title', DB::raw('sum(order_items.price) as revenue'), DB::raw('count(*) as sold'))
+            ->groupBy('order_items.title')
+            ->orderByDesc('revenue')
+            ->limit((int) setting('admin.dashboard.top_rows', 10))
+            ->get()
+            ->map(fn ($row) => [
+                'label' => (string) $row->title,
+                'value' => round((float) $row->revenue, 2),
+                'count' => (int) $row->sold,
+            ]);
+    }
+
+    // ------------------------------------------------- تخصيص اللوحة لكلّ دور (12.3-3)
+
+    /**
+     * تخصيص اللوحة **لكلّ دور** — يعيش في جدول الإعدادات الواحد (2.13) لا في
+     * عمودٍ جديد: `{"<دور>": {"order": [...], "hidden": [...]}}`.
+     *
+     * @return array{order: array<int, string>, hidden: array<int, string>}
+     */
+    public function layoutFor(User $user): array
+    {
+        $stored = setting('admin.dashboard.role_layouts', []);
+        $stored = is_array($stored) ? $stored : [];
+
+        foreach ($user->roles()->pluck('key') as $roleKey) {
+            if (isset($stored[$roleKey]) && is_array($stored[$roleKey])) {
+                return [
+                    'order' => array_values(array_map('strval', (array) ($stored[$roleKey]['order'] ?? []))),
+                    'hidden' => array_values(array_map('strval', (array) ($stored[$roleKey]['hidden'] ?? []))),
+                ];
+            }
+        }
+
+        return ['order' => [], 'hidden' => []];
+    }
+
+    /** حفظ تخصيص دورٍ بعينه — والباقي كما هو فلا يدهس دورٌ دورًا */
+    public function saveLayout(string $roleKey, array $order, array $hidden): array
+    {
+        $stored = setting('admin.dashboard.role_layouts', []);
+        $stored = is_array($stored) ? $stored : [];
+
+        $stored[$roleKey] = [
+            'order' => array_values(array_unique(array_map('strval', $order))),
+            'hidden' => array_values(array_unique(array_map('strval', $hidden))),
+        ];
+
+        return $stored;
+    }
+
+    /**
+     * ترتيب/إخفاء الكروت بتخصيص الدور.
+     *
+     * @param  array<int, array<string, mixed>>  $cards
+     * @return array<int, array<string, mixed>>
+     */
+    private function applyLayout(array $cards, array $layout): array
+    {
+        $byKey = [];
+
+        foreach ($cards as $card) {
+            if (! in_array($card['key'], $layout['hidden'], true)) {
+                $byKey[$card['key']] = $card;
+            }
+        }
+
+        $ordered = [];
+
+        foreach ($layout['order'] as $key) {
+            if (isset($byKey[$key])) {
+                $ordered[] = $byKey[$key];
+                unset($byKey[$key]);
+            }
+        }
+
+        return array_merge($ordered, array_values($byKey));
+    }
+
     // ------------------------------------------------------------------ داخليّ
+
+    private function parse(?string $value): ?CarbonImmutable
+    {
+        if (! $value) {
+            return null;
+        }
+
+        try {
+            return CarbonImmutable::parse($value);
+        } catch (\Throwable) {
+            // تاريخ غير صالح يعود للافتراضيّ بلا انفجار — الشاشة لا تسقط بمدخلٍ سيّئ
+            return null;
+        }
+    }
+
+    /**
+     * وجهة الكارت عند النقر (12.3-4) — والرابط **لا يظهر لمن لا يملك الصفحة**،
+     * فيبقى الكارت رقمًا ولا يَعِد بباب مقفول (2.15-أ-7).
+     */
+    private function urlFor(string $route, User $user, string $permission): ?string
+    {
+        if (! Route::has($route) || ! $user->allows($permission)) {
+            return null;
+        }
+
+        return route($route);
+    }
+
+    private function previousAov(CarbonImmutable $from, CarbonImmutable $to): int
+    {
+        $query = Order::where('status', 'paid')->whereBetween('paid_at', [$from, $to]);
+        $count = (clone $query)->count();
+
+        return $count > 0 ? (int) round((float) (clone $query)->sum('total') / $count) : 0;
+    }
 
     /**
      * طلب السحب معاملةٌ من مصدر `withdraw` حالتها `pending` في الـmeta —
@@ -286,35 +665,23 @@ class AdminDashboard
             ->where('meta->status', 'pending');
     }
 
-    private function sales(CarbonImmutable $from, CarbonImmutable $to): int
-    {
-        return (int) round(Order::where('status', 'paid')->whereBetween('paid_at', [$from, $to])->sum('total'));
-    }
-
-    /** @return array{0: CarbonImmutable, 1: CarbonImmutable, 2: CarbonImmutable, 3: CarbonImmutable} */
-    private function windows(int $days): array
-    {
-        $to = CarbonImmutable::now();
-        $from = $to->subDays($days);
-
-        return [$from, $to, $from->subDays($days), $from];
-    }
-
     /**
-     * كارت واحد: القيمة + نسبة التغيّر + حالة اللون.
+     * كارت واحد: القيمة + نسبة التغيّر + حالة اللون + وجهة النقر.
      * التلوين معنًى واحد (2.16): أخضر = صعود صحّيّ · أصفر = ثابت · أحمر = هبوط.
      */
-    private function card(string $label, string $icon, int $value, int $previous, string $hint): array
+    private function card(string $key, string $label, string $icon, int $value, int $previous, string $hint, ?string $url = null): array
     {
         $delta = $previous > 0 ? round((($value - $previous) / $previous) * 100, 1) : null;
 
         return [
+            'key' => $key,
             'label' => $label,
             'icon' => $icon,
             'value' => $value,
             'previous' => $previous,
             'delta' => $delta,
             'hint' => $hint,
+            'url' => $url,
             'state' => $this->health($delta),
         ];
     }
@@ -333,5 +700,28 @@ class AdminDashboard
             $delta <= $red => 'danger',
             default => 'warn',
         };
+    }
+
+    /** أسماء كروت اللوحة كلّها — يستهلكها بوب-أب «تخصيص اللوحة» */
+    public function cardCatalog(): array
+    {
+        return [
+            'users' => 'كلّ المستخدمين',
+            'signups' => 'مسجّلون جدد',
+            'sales' => 'مبيعات (كوينز)',
+            'courses' => 'تدريبات نشطة',
+            'events' => 'فعاليّات قادمة',
+            'online' => 'النشطون الآن',
+            'revenue' => '🔒 الإيرادات',
+            'aov' => '🔒 متوسّط قيمة الطلب',
+            'withdrawals' => '🔒 سحوبات مستحقّة',
+            'referral' => '🔒 عمولة الريفيرال',
+        ];
+    }
+
+    /** الحروب المفعَّلة الآن — لعرض «الحروب الجارية» حتى قبل أوّل مشاركة */
+    public function activeWarsCount(): int
+    {
+        return Schema::hasTable('challenges') ? Challenge::where('is_active', true)->count() : 0;
     }
 }

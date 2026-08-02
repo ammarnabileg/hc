@@ -219,6 +219,12 @@ class AdminSystemDemoSeeder extends Seeder
             ['updates.forward_only', 'updates', 'منع الرجوع لإصدار أقدم', 'bool', '1', false],
             ['countries.source', 'countries', 'مصدر بيانات الدول', 'string', 'dr5hn', false],
             ['countries.no_auto_delete', 'countries', 'لا حذف تلقائيّ — المحذوف يُخفى فقط', 'bool', '1', false],
+            // ---------------- 12.7-د: فحص الفروق قبل الدمج بلا فقد
+            ['countries.source_url', 'countries', 'رابط المصدر', 'string', 'https://github.com/dr5hn/countries-states-cities-database', false],
+            ['countries.attribution', 'countries', 'نصّ الإسناد (ODbL)', 'text', 'بيانات الدول والمحافظات من dr5hn/countries-states-cities-database — برخصة ODbL v1.0.', false],
+            ['countries.admin.per_page', 'countries', 'عدد الدول في جدول الإدارة', 'number', '25', false],
+            ['countries.import.max_kb', 'countries', 'أقصى حجم لملفّ النسخة (KB)', 'number', '8192', false],
+            ['countries.default_timezone', 'countries', 'المنطقة الزمنيّة الافتراضيّة للدولة الجديدة', 'string', 'Africa/Cairo', false],
             ['audit.per_page', 'system', 'صفوف سجلّ التدقيق', 'number', '50', false],
             ['audit.retention_days', 'system', 'مدّة الاحتفاظ بالسجلّ (أيّام)', 'number', '365', false],
             ['audit.require_reason_on_finance', 'system', 'إلزام السبب في التغييرات الماليّة', 'bool', '1', true],

@@ -24,6 +24,14 @@ Route::middleware(['auth', 'admin.panel'])
         // ---------------------------------------------------- لوحة القيادة
         Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
+        // تصدير سجلّ النشاطات (12.3-20) — بصلاحيّته المستقلّة عن العرض
+        Route::get('/dashboard/activity/export', [DashboardController::class, 'exportActivity'])
+            ->middleware('permission:audit_logs.export')->name('dashboard.activity.export');
+
+        // تخصيص اللوحة لكلّ دور (12.3-3) — تعديل إعداد منصّة فبصلاحيّة الإعدادات
+        Route::post('/dashboard/layout', [DashboardController::class, 'saveLayout'])
+            ->middleware('permission:settings_general.edit')->name('dashboard.layout');
+
         // ------------------------------------------------- إدارة المستخدمين
         // المسارات الثابتة قبل `{user}` حتى لا تبتلعها معلمة المسار
         Route::get('/users/approvals', [UserController::class, 'approvals'])

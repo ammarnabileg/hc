@@ -61,6 +61,8 @@ class VolunteerGoalsDemoSeeder extends Seeder
             ['goals.deadline.soon_hours', 'goals', 'عتبة «اقترب» للعدّاد الملوّن (ساعات)', 'number', '48'],
             ['goals.verification.approval_hours', 'goals', 'نافذة اعتماد إعلان تحقّق المعيار (ساعات)', 'number', '24'],
             ['goals.objection.window_hours', 'goals', 'مهلة الاعتراض على نسخة الاعتماد (ساعات)', 'number', '24'],
+            // شاشة إطلاق الهدف — المعاينة النهائيّة و«إرسال للتنفيذ» (23 — 1.5)
+            ['goals.launch.rows', 'goals', 'عدد الأهداف المعروضة في شاشة الإطلاق', 'number', '20'],
 
             // البنود المتكرّرة والموازن
             ['recurring.default_relative_deadline_hours', 'goals', 'الديدلاين النسبيّ الافتراضيّ (ساعات)', 'number', '24'],

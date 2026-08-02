@@ -5,6 +5,11 @@
      */
     use App\Services\Notifications\AnnouncementFeed;
 
+    /*
+     | ⭐ وضع المعاينة (12.6-أ): نفس البطاقة بالضبط — لكن بلا أفعالٍ تكتب في
+     | القاعدة، فلا يصوّت الأدمن في استطلاعه وهو «بيتفرّج» ولا يفسد أرقامه.
+     */
+    $interactive = ! ($preview ?? false);
     $isRead = (bool) ($read?->read_at);
     $isAcknowledged = (bool) ($read?->acknowledged_at);
     $type = AnnouncementFeed::typeOf($announcement);
@@ -71,8 +76,64 @@
            style="background: var(--color-brand-500); color: #04201c">{{ $announcement->cta_label ?: 'افتح' }}</a>
     @endif
 
+    {{--
+     | استطلاع داخل المنشور (12.6-أ): عامّ النتيجة أو مخفيّها.
+     | ⛔ المخفيّ **لا رقم له هنا إطلاقًا** — `$poll['results']` تكون `null`
+     | فلا تُطبَع الأعداد ولا تُخبَّأ بـCSS ولا تُمرَّر في `data-` (2.9).
+     --}}
+    @if ($poll)
+        <section class="mt-3 rounded-xl p-3" style="background: var(--surface-raised); border: 1px solid var(--border)"
+                 aria-label="استطلاع">
+            <div class="text-sm font-semibold">{{ $poll['question'] }}</div>
+
+            <div class="mt-2 space-y-2">
+                @foreach ($poll['options'] as $index => $option)
+                    @php $isChoice = $poll['choice'] === $index; @endphp
+
+                    @if ($poll['closed'] || $poll['choice'] !== null)
+                        <div class="text-sm flex items-center justify-between gap-2 rounded-xl px-3 py-2"
+                             @style([
+                                 'min-height: 44px',
+                                 'background: var(--surface-sunken)',
+                                 'border: 1px solid var(--color-brand-500)' => $isChoice,
+                             ])>
+                            <span>{{ $option }} @if ($isChoice)<span class="text-xs">✓ اختيارك</span>@endif</span>
+                            @if ($poll['results'])
+                                <span class="text-xs" style="color: var(--text-muted)">{{ $poll['results']['counts'][$index] ?? 0 }}</span>
+                            @endif
+                        </div>
+                    @elseif ($interactive)
+                        <form method="post" action="{{ route('announcements.poll', $announcement) }}" data-ajax-form>
+                            @csrf
+                            <input type="hidden" name="option_index" value="{{ $index }}">
+                            <button type="submit" class="btn w-full text-start rounded-xl px-3 py-2 text-sm motion-standard"
+                                    style="min-height: 44px; background: var(--surface-sunken); border: 1px solid var(--border)">{{ $option }}</button>
+                        </form>
+                    @else
+                        <button type="button" class="btn w-full text-start rounded-xl px-3 py-2 text-sm"
+                                style="min-height: 44px; background: var(--surface-sunken); border: 1px solid var(--border)">{{ $option }}</button>
+                    @endif
+                @endforeach
+            </div>
+
+            <div class="mt-2 text-xs" style="color: var(--text-muted)">
+                @if ($poll['results'])
+                    إجماليّ الأصوات {{ $poll['results']['total'] }}
+                @else
+                    {{ $poll['hidden_notice'] }}
+                @endif
+            </div>
+        </section>
+    @endif
+
     {{-- تفاعل إيموجي: يظهر فقط لو الأدمن سمح به لهذا المنشور (13.2) --}}
-    @if ($announcement->reactions_enabled)
+    @if ($announcement->reactions_enabled && ! $interactive)
+        <div class="mt-3 flex flex-wrap items-center gap-2">
+            @foreach ($reactions as $emoji)
+                <span class="btn rounded-full px-3 py-1 text-sm" style="background: var(--surface-raised)">{{ $emoji }}</span>
+            @endforeach
+        </div>
+    @elseif ($announcement->reactions_enabled)
         <div class="mt-3 flex flex-wrap items-center gap-2">
             @foreach ($reactions as $emoji)
                 <form method="post" action="{{ route('announcements.react', $announcement) }}" data-ajax-form>
@@ -95,7 +156,10 @@
     @endif
 
     <footer class="mt-3 flex flex-wrap items-center gap-2">
-        @if ($announcement->requires_acknowledge)
+        @if ($announcement->requires_acknowledge && ! $interactive)
+            <span class="btn rounded-xl px-4 py-2 text-sm font-bold"
+                  style="background: var(--color-brand-500); color: #04201c">{{ $ackLabel }}</span>
+        @elseif ($announcement->requires_acknowledge)
             @if ($isAcknowledged)
                 <x-state-badge state="ok" label="أقررتَ بقراءته" />
             @else
@@ -111,12 +175,12 @@
             @endif
         @endif
 
-        @unless ($isRead)
+        @if (! $isRead && $interactive)
             <form method="post" action="{{ route('announcements.read', $announcement) }}" data-ajax-form class="ms-auto">
                 @csrf
                 <button type="submit" class="btn rounded-xl px-3 py-2 text-xs motion-standard"
                         style="background: var(--surface-raised); border: 1px solid var(--border)">تعليم كمقروء</button>
             </form>
-        @endunless
+        @endif
     </footer>
 </article>

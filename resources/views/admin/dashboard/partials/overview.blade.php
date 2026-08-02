@@ -57,7 +57,9 @@
         <ul class="mt-3 space-y-2 md:space-y-0 md:divide-y" style="border-color: var(--border)">
             @foreach ($pendingWork as $row)
                 <li class="card p-3 md:flex md:items-center md:gap-3" style="border-color: var(--border)">
-                    <span class="text-sm font-semibold md:w-24">{{ $row['icon'] }} {{ $row['type'] }}</span>
+                    <span class="text-sm font-semibold md:w-24 inline-flex items-center gap-1">
+                        <x-icon :name="$row['icon']" size="16" />{{ $row['type'] }}
+                    </span>
                     <span class="block md:flex-1 md:min-w-0 md:truncate text-sm mt-1 md:mt-0">{{ $row['title'] }}</span>
 
                     <span class="inline-flex items-center gap-2 mt-2 md:mt-0">
@@ -78,8 +80,27 @@
         <div class="flex items-baseline justify-between gap-2 flex-wrap">
             <h3 class="font-bold text-sm">آخر النشاطات</h3>
 
+            {{-- ⭐ تصدير السجلّ (12.3-20) — بصلاحيّته المستقلّة، ويحمل نفس فلاتر الشاشة --}}
+            @if ($canExportActivity)
+                <a href="{{ route('admin.dashboard.activity.export', array_filter([
+                        'from' => $period['from']->toDateString(),
+                        'to' => $period['to']->toDateString(),
+                        'actor' => request('actor'),
+                        'action' => request('action'),
+                   ])) }}"
+                   class="text-xs rounded-xl px-3 py-2 motion-standard"
+                   style="background: var(--surface-sunken); color: var(--text); min-height: 44px; display: inline-flex; align-items: center; gap: .35rem">
+                    <x-icon name="download" size="14" />
+                    <span>{{ setting('admin.dashboard.activity_export_label', 'تصدير السجلّ') }}</span>
+                </a>
+            @endif
+
             <form method="get" class="flex flex-wrap items-center gap-2">
-                <input type="hidden" name="days" value="{{ $days }}">
+                <input type="hidden" name="from" value="{{ $period['from']->toDateString() }}">
+                <input type="hidden" name="to" value="{{ $period['to']->toDateString() }}">
+                @if ($compare)
+                    <input type="hidden" name="compare" value="1">
+                @endif
 
                 <select name="actor" onchange="this.form.submit()" class="rounded-xl px-2 py-1 text-xs"
                         style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)"
@@ -102,7 +123,11 @@
         </div>
 
         @if ($activity->isEmpty())
-            <p class="mt-4 text-sm" style="color: var(--text-muted)">مافيش نشاط في الفلتر ده.</p>
+            {{-- الحالة الفارغة سطر واحد + زرّ واحد: «غيّر الفترة» (2.15-د · 24.1) --}}
+            <div class="mt-3">
+                <x-empty :message="setting('admin.dashboard.empty_message', 'مفيش بيانات في الفترة دي — وسّع المدى')"
+                         action="غيّر الفترة" :href="route('admin.dashboard')" />
+            </div>
         @else
             <ul class="mt-3 divide-y" style="border-color: var(--border)">
                 @foreach ($activity as $log)

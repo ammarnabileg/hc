@@ -7,6 +7,8 @@ use App\Models\Announcement;
 use App\Models\AnnouncementRead;
 use App\Services\Notifications\AnnouncementAcknowledger;
 use App\Services\Notifications\AnnouncementFeed;
+use App\Services\Notifications\AnnouncementPersonalizer;
+use App\Services\Notifications\AnnouncementPoll;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -21,7 +23,11 @@ use Illuminate\View\View;
  */
 class AnnouncementController extends Controller
 {
-    public function __construct(private readonly AnnouncementFeed $feed) {}
+    public function __construct(
+        private readonly AnnouncementFeed $feed,
+        private readonly AnnouncementPoll $poll,
+        private readonly AnnouncementPersonalizer $personalizer,
+    ) {}
 
     public function index(Request $request): View
     {
@@ -52,9 +58,18 @@ class AnnouncementController extends Controller
         $take = $perPage * max(1, (int) $request->integer('more', 1));
         $shown = $visible->take($take);
 
+        /*
+         | ⛔ الاستطلاع المخفيّ النتيجة: `viewModel` ترجع `results => null` فلا
+         | يصل رقمٌ واحد إلى الـHTML قبل الإغلاق — لا مخفيًّا بـCSS ولا في `data-`
+         | (2.9 · 12.6-أ). والتخصيص يقع **وقت العرض** فيخاطب كلّ قارئ باسمه.
+         */
+        $polls = $shown->mapWithKeys(fn (Announcement $a) => [$a->id => $this->poll->viewModel($a, $user)]);
+        $pendingAck = $this->feed->pendingAcknowledge($user);
+
         return view('announcements.index', [
-            'items' => $shown,
+            'items' => $shown->map(fn (Announcement $a) => $this->personalizer->apply($a, $user)),
             'reads' => $reads,
+            'polls' => $polls,
             'reactionCounts' => $this->reactionCounts($shown->pluck('id')->all()),
             'unread' => $unread,
             'total' => $visible->count(),
@@ -64,8 +79,49 @@ class AnnouncementController extends Controller
             'types' => AnnouncementFeed::types(),
             'reactions' => $this->allowedReactions(),
             // بوب-أب الإقرار الإلزاميّ يفتح تلقائيًّا لأوّل منشور حرج لم يُقَرّ (13.2)
-            'pendingAck' => $this->feed->pendingAcknowledge($user),
+            'pendingAck' => $pendingAck ? $this->personalizer->apply($pendingAck, $user) : null,
         ]);
+    }
+
+    /**
+     * تصويت في استطلاع داخل المنشور (12.6-أ).
+     *
+     * والردّ **لا يحمل النتيجة** إلّا لو كان الاستطلاع عامّ النتيجة أو مقفولًا —
+     * وإلّا كان الإخفاء شكليًّا يكشفه أوّل من يفتح تبويب الشبكة (2.9).
+     */
+    public function poll(Request $request, Announcement $announcement): JsonResponse|RedirectResponse
+    {
+        $user = $request->user();
+
+        abort_unless($this->feed->isVisibleTo($announcement, $user), 404);
+        abort_unless($this->poll->has($announcement), 404);
+
+        if ($this->poll->isClosed($announcement)) {
+            return $this->respond($request, [], 'الاستطلاع اتقفل — شكرًا لمشاركتك.');
+        }
+
+        $data = $request->validate([
+            'option_index' => ['required', 'integer', 'min:0', 'max:'.(count($this->poll->options($announcement)) - 1)],
+        ], [
+            'option_index.required' => 'اختر إجابة الأوّل — الاستطلاع محتاج اختيارك.',
+            'option_index.max' => 'الاختيار ده مش موجود في الاستطلاع — اختر من المعروض.',
+        ]);
+
+        $this->poll->vote($announcement, $user, (int) $data['option_index']);
+
+        AnnouncementRead::updateOrCreate(
+            ['announcement_id' => $announcement->id, 'user_id' => $user->id],
+            ['read_at' => now()],
+        );
+
+        return $this->respond(
+            $request,
+            array_filter([
+                'choice' => (int) $data['option_index'],
+                'results' => $this->poll->resultsFor($announcement),
+            ], fn ($value) => $value !== null),
+            'اتسجّل صوتك ✓',
+        );
     }
 
     /** تعليم منشور كمقروء — ردّ فوريّ للواجهة المتفائلة (2.17-ب). */

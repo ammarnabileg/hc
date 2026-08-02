@@ -3,6 +3,7 @@
 namespace App\Services\Admin\Content;
 
 use App\Models\Announcement;
+use App\Models\AnnouncementPollVote;
 use App\Models\AnnouncementRead;
 use App\Models\Complaint;
 use App\Models\ComplaintMessage;
@@ -11,8 +12,12 @@ use App\Models\Setting;
 use App\Models\User;
 use App\Services\Account\ComplaintService;
 use App\Services\Notifications\AnnouncementFeed;
+use App\Services\Notifications\AnnouncementPersonalizer;
+use App\Services\Notifications\AnnouncementPoll;
 use App\Services\Notifications\Notifier;
+use DateTimeInterface;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -95,6 +100,88 @@ class GuidanceComposer
             ->get();
     }
 
+    /**
+     * ⭐ «أفضل توقيت» (12.6-أ): متى يقرأ الناس فعلًا؟
+     *
+     * الحساب من **لحظات القراءة نفسها** لا من لحظات النشر — فالسؤال «امتى
+     * يفتحون؟» لا «امتى بعتنا؟». والتجميع في PHP لا في SQL لأنّ استخراج الساعة
+     * يختلف بين محرّكات القواعد، والصفوف محكومة بسقفٍ من الإعدادات.
+     *
+     * @return array{hours: array<int, int>, days: array<int, int>, best_hour: int|null, best_day: int|null, sample: int}
+     */
+    public function bestTime(): array
+    {
+        $days = (int) setting('announcements.analytics.best_time_days', 90);
+
+        $reads = AnnouncementRead::query()
+            ->whereNotNull('read_at')
+            ->where('read_at', '>=', now()->subDays($days))
+            ->orderByDesc('read_at')
+            ->limit((int) setting('announcements.analytics.best_time_rows', 5000))
+            ->pluck('read_at');
+
+        $hours = array_fill(0, 24, 0);
+        $weekdays = array_fill(0, 7, 0);
+
+        foreach ($reads as $readAt) {
+            $moment = $readAt instanceof DateTimeInterface ? $readAt : Carbon::parse($readAt);
+            $hours[(int) $moment->format('G')]++;
+            $weekdays[(int) $moment->format('w')]++;
+        }
+
+        $sample = array_sum($hours);
+
+        return [
+            'hours' => $hours,
+            'days' => $weekdays,
+            'best_hour' => $sample > 0 ? (int) array_search(max($hours), $hours, true) : null,
+            'best_day' => $sample > 0 ? (int) array_search(max($weekdays), $weekdays, true) : null,
+            'sample' => $sample,
+        ];
+    }
+
+    /**
+     * صفوف تصدير التحليلات (12.6-أ): مَن قرأ · مَن أقرّ · تفاعله · اختياره في الاستطلاع.
+     *
+     * @return array<int, array<int, string>>
+     */
+    public function analyticsExportRows(Announcement $announcement, bool $includePoll = true): array
+    {
+        $poll = app(AnnouncementPoll::class);
+        $options = $includePoll ? $poll->options($announcement) : [];
+
+        // عمود الاستطلاع سلطةٌ مستقلّة (`announcement_polls.export`) — فمن لا
+        // يملكها يصدّر القراءة والإقرار بلا اختيارات الناس.
+        $votes = $includePoll
+            ? AnnouncementPollVote::query()->where('announcement_id', $announcement->id)->pluck('option_index', 'user_id')
+            : collect();
+
+        $rows = [array_values(array_filter([
+            'الكود', 'الاسم', 'قرأ في', 'أقرّ في', 'التفاعل',
+            $includePoll ? 'اختيار الاستطلاع' : null,
+        ]))];
+
+        foreach ($this->readers($announcement) as $read) {
+            $choice = $votes[$read->user_id] ?? null;
+
+            $row = [
+                (string) ($read->user?->code ?? ''),
+                (string) ($read->user?->name ?? ''),
+                (string) ($read->read_at?->format('Y-m-d H:i') ?? ''),
+                (string) ($read->acknowledged_at?->format('Y-m-d H:i') ?? ''),
+                (string) ($read->reaction ?? ''),
+            ];
+
+            if ($includePoll) {
+                $row[] = $choice === null ? '' : (string) ($options[(int) $choice] ?? '');
+            }
+
+            $rows[] = $row;
+        }
+
+        return $rows;
+    }
+
     /** @param  array<string, mixed>  $data */
     public function saveAnnouncement(?Announcement $announcement, array $data): Announcement
     {
@@ -122,7 +209,7 @@ class GuidanceComposer
             // أرشفة تلقائيّة بعد مدّة من الإعدادات (12.6-أ)
             'expires_at' => $data['expires_at'] ?? $this->defaultExpiry($status),
             'status' => $status,
-        ];
+        ] + $this->pollPayload($data) + $this->schedulePayload($data);
 
         if ($isNew) {
             $payload['created_by'] = auth()->id();
@@ -148,6 +235,9 @@ class GuidanceComposer
         $copy->title = $announcement->title.(string) setting('announcements.duplicate.suffix', ' — نسخة');
         $copy->status = 'draft';
         $copy->is_pinned = false;
+        // النسخة تبدأ نظيفة: لا تَرِث أثر دورات أبيها ولا نسبَه لقالبٍ آخر (12.6-أ)
+        $copy->recurrence_last_at = null;
+        $copy->recurrence_parent_id = null;
         $copy->created_by = auth()->id();
         $copy->save();
 
@@ -480,6 +570,62 @@ class GuidanceComposer
 
     // ------------------------------------------------------------------ داخليّ
 
+    /**
+     * استطلاع داخل المنشور (12.6-أ): سؤال + خيارات + **عامّ النتيجة أو مخفيّها**.
+     * وبلا سؤالٍ أو بأقلّ من خيارين لا استطلاع أصلًا — فلا نخزّن نصفَ ميزة.
+     *
+     * @param  array<string, mixed>  $data
+     * @return array<string, mixed>
+     */
+    private function pollPayload(array $data): array
+    {
+        $question = trim((string) ($data['poll_question'] ?? ''));
+
+        $options = collect((array) ($data['poll_options'] ?? []))
+            ->map(fn ($option) => trim((string) $option))
+            ->filter()
+            ->values()
+            ->take((int) setting('announcements.poll.max_options', 6))
+            ->all();
+
+        if ($question === '' || count($options) < (int) setting('announcements.poll.min_options', 2)) {
+            return [
+                'poll_question' => null,
+                'poll_options' => null,
+                'poll_results_public' => false,
+                'poll_closes_at' => null,
+            ];
+        }
+
+        return [
+            'poll_question' => $question,
+            'poll_options' => $options,
+            'poll_results_public' => (bool) ($data['poll_results_public'] ?? setting('announcements.poll.results_public_default', false)),
+            'poll_closes_at' => $data['poll_closes_at'] ?? null,
+        ];
+    }
+
+    /**
+     * الجدولة المتكرّرة وسلسلة الـOnboarding (12.6-أ).
+     *
+     * @param  array<string, mixed>  $data
+     * @return array<string, mixed>
+     */
+    private function schedulePayload(array $data): array
+    {
+        $recurrence = (string) ($data['recurrence'] ?? '');
+        $recurrence = isset(AnnouncementRecurrence::frequencies()[$recurrence]) ? $recurrence : null;
+
+        $step = $data['onboarding_step'] ?? null;
+
+        return [
+            'recurrence' => $recurrence,
+            'recurrence_until' => $recurrence ? ($data['recurrence_until'] ?? null) : null,
+            'onboarding_step' => $step === null || $step === '' ? null : max(1, (int) $step),
+            'onboarding_delay_days' => (int) ($data['onboarding_delay_days'] ?? 0),
+        ];
+    }
+
     /** @param  array<string, mixed>  $data */
     private function audienceRule(array $data): array
     {
@@ -520,13 +666,23 @@ class GuidanceComposer
             ->get()
             ->filter(fn (User $user) => $feed->matches($announcement, $user));
 
-        Notifier::sendMany(
-            users: $users,
-            category: 'announcement',
-            title: $announcement->title,
-            body: Str::limit((string) $announcement->body, (int) setting('announcements.push.body_limit', 120)),
-            url: Route::has('announcements.index') ? route('announcements.index') : null,
-        );
+        $personalizer = app(AnnouncementPersonalizer::class);
+        $url = Route::has('announcements.index') ? route('announcements.index') : null;
+        $limit = (int) setting('announcements.push.body_limit', 120);
+
+        /*
+         | التخصيص الديناميكيّ يصل الجرس أيضًا (12.6-أ): لو بُثَّ الوسم كما هو
+         | لقرأ الناس «مرحبًا [اسم]» حرفيًّا في إشعارهم — فالنصّ يُركَّب لكلّ قارئ.
+         */
+        foreach ($users as $user) {
+            Notifier::send(
+                user: $user,
+                category: 'announcement',
+                title: $personalizer->render($announcement->title, $user),
+                body: Str::limit($personalizer->render($announcement->body, $user), $limit),
+                url: $url,
+            );
+        }
     }
 
     /** أقصى عدد منشورات مثبَّتة (افتراضيًّا 3) — الأقدم يُفكّ تثبيته (24.3). */

@@ -7,7 +7,9 @@ use App\Models\Goal;
 use App\Models\Milestone;
 use App\Models\User;
 use App\Models\WorkPackage;
+use App\Services\Admin\Volunteer\AuditTrail;
 use App\Services\Volunteer\Goals\EntityScope;
+use App\Services\Volunteer\Goals\GoalLaunchService;
 use App\Services\Volunteer\Goals\Integrations;
 use App\Services\Volunteer\Goals\RollupService;
 use Illuminate\Http\RedirectResponse;
@@ -29,6 +31,7 @@ class GoalController extends Controller
     public function __construct(
         private readonly RollupService $rollup,
         private readonly EntityScope $scope,
+        private readonly GoalLaunchService $launcher,
     ) {}
 
     public function index(Request $request): View
@@ -58,6 +61,56 @@ class GoalController extends Controller
             'canDeclare' => $user->allows('wp_items.edit'),
             'canApprove' => $user->allows('milestones.edit'),
         ]);
+    }
+
+    /**
+     * ⭐ شاشة إطلاق الهدف — المعاينة النهائيّة (23 — 1.5).
+     *
+     * سؤالها الواحد: «إيه الأهداف الجاهزة للإرسال للتنفيذ، وإيه اللي ناقصها؟»
+     * وفعلها الرئيسيّ واحد: **«إرسال للتنفيذ»** — ومعه فحص التغطية الآليّ،
+     * فلا تُرفَع للقمّة قائمة نواقص يكتشفها الناس بعد الإطلاق.
+     */
+    public function launch(Request $request): View
+    {
+        $goals = Goal::query()
+            // ما لم يُطلَق بعدُ وحده — وما أُطلِق مكانه شاشة «الأهداف والمَعالِم»
+            ->whereNull('sent_to_execution_at')
+            ->orderBy('end_date')
+            ->orderByDesc('id')
+            ->limit((int) setting('goals.launch.rows', 20))
+            ->get();
+
+        return view('volunteer.goals.launch', [
+            'rows' => $goals->map(fn (Goal $goal) => [
+                'goal' => $goal,
+                'gaps' => $this->launcher->gaps($goal),
+            ]),
+            'windowHours' => $this->launcher->windowHours(),
+        ]);
+    }
+
+    /**
+     * «إرسال للتنفيذ» — وبه **تبدأ نافذة التفكيك** فيُختَم `breakdown_due_at`
+     * على مهامّ الهدف (23-3.9-١). والزرّ يرفض الضغط بقائمة النواقص إن وُجدت.
+     */
+    public function send(Request $request, Goal $goal): RedirectResponse
+    {
+        $result = $this->launcher->launch($goal, $request->user());
+
+        if (! $result['ok']) {
+            return back()->with('status', 'مش هيتبعت: '.implode(' · ', $result['gaps']));
+        }
+
+        AuditTrail::log($request->user(), 'goal.sent_to_execution', $goal, [], [
+            'breakdown_due_at' => $result['due_at']?->toDateTimeString(),
+            'tasks_stamped' => $result['stamped'],
+        ]);
+
+        return redirect()->route('volunteer.goals')->with(
+            'status',
+            'اتبعت للتنفيذ ✓ — نافذة التفكيك بدأت لـ'.$result['stamped'].' مهمّة، وبتقفل '
+                .$result['due_at']?->format('Y-m-d H:i').'.',
+        );
     }
 
     /**

@@ -56,6 +56,21 @@
                 @include('admin.settings.tabs.maintenance')
             @elseif ($tab === 'audit')
                 @include('admin.settings.tabs.audit')
+            @elseif ($tab === 'countries')
+                {{-- 12.7-د: الشاشة الكاملة (جدول + فروق قبل الدمج) ثمّ مفاتيحها --}}
+                @include('admin.settings.tabs.countries')
+
+                <div class="space-y-3" id="settings-list">
+                    @foreach ($groups as $group => $rows)
+                        @include('admin.settings.partials.group-card', [
+                            'group' => $group,
+                            'rows' => $rows,
+                            'registry' => $registry,
+                            'endpoint' => route('admin.settings.field'),
+                            'open' => false,
+                        ])
+                    @endforeach
+                </div>
             @else
                 {{-- كلّ مجموعة كارت مطويّ بعنوان عربيّ — مولِّد عامّ لا 44 شاشة يدويّة --}}
                 <div class="space-y-3" id="settings-list">

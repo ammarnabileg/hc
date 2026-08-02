@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\AuditLog;
 use App\Models\MaintenanceWindow;
 use App\Models\Setting;
+use App\Services\Admin\System\CountryDataSync;
 use App\Services\Admin\System\MaintenanceService;
 use App\Services\Admin\System\SettingsRegistry;
 use Illuminate\Http\JsonResponse;
@@ -54,7 +55,38 @@ class SettingsAdminController extends Controller
             'logs' => $tab === 'audit'
                 ? AuditLog::query()->with('user')->latest('id')->paginate((int) setting('audit.per_page', 50))
                 : null,
+            // 12.7-د: جدول الدول + فروق النسخة الجديدة — تحميلٌ كسول للتاب (2.15-أ-10)
+            'countries' => $tab === 'countries' ? $this->countriesScreen($request) : null,
         ]);
+    }
+
+    /**
+     * بيانات تاب «بيانات الدول» (12.7-د): الجدول + **فروق النسخة قبل الدمج**.
+     *
+     * ثلاثة فلاتر ظاهرة فقط، وبأسماء خاصّة بها (`cq`) حتّى لا تصطدم ببحث
+     * الإعدادات الموحّد الذي يستعمل `q` في نفس الصفحة.
+     *
+     * @return array<string, mixed>
+     */
+    private function countriesScreen(Request $request): array
+    {
+        $sync = app(CountryDataSync::class);
+        $snapshot = $sync->latest();
+
+        $filters = [
+            'q' => trim($request->string('cq')->toString()),
+            'status' => $request->string('cstatus')->toString(),
+            'with_users' => $request->boolean('cusers'),
+        ];
+
+        return [
+            'filters' => $filters,
+            'rows' => $sync->table($filters),
+            'snapshot' => $snapshot,
+            // الفروق لا تُحسَب إلّا بعد فحصٍ صريح — فلا يفاجئ الشاشةَ حسابٌ ثقيل
+            'diff' => $snapshot && $snapshot->status === 'checked' ? $sync->diff($snapshot) : null,
+            'changes' => CountryDataSync::CHANGES,
+        ];
     }
 
     /** حفظ تلقائيّ لحقل واحد — والردّ يحمل رسالة «تم الحفظ ✓» لتظهر جنب الحقل */

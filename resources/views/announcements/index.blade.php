@@ -68,6 +68,7 @@
                 @include('announcements.partials.card', [
                     'announcement' => $announcement,
                     'read' => $reads[$announcement->id] ?? null,
+                    'poll' => $polls[$announcement->id] ?? null,
                     'counts' => $reactionCounts[$announcement->id] ?? [],
                     'reactions' => $reactions,
                     'ackLabel' => $ackLabel,

@@ -149,6 +149,22 @@ class AdminContentDemoSeeder extends Seeder
             ['announcements.push.body_limit', 'announcements', 'أقصى أحرف نصّ الإشعار', 'number', '120'],
             ['announcements.reactions.default_on', 'announcements', 'التفاعل مسموح افتراضيًّا', 'bool', '0'],
 
+            // ---------------- استطلاع داخل المنشور (12.6-أ)
+            ['announcements.poll.min_options', 'announcements', 'أقلّ خيارات للاستطلاع', 'number', '2'],
+            ['announcements.poll.max_options', 'announcements', 'أقصى خيارات للاستطلاع', 'number', '6'],
+            ['announcements.poll.results_public_default', 'announcements', 'نتيجة الاستطلاع عامّة افتراضيًّا', 'bool', '0'],
+
+            // ---------------- الجدولة المتكرّرة وسلسلة الـOnboarding (12.6-أ)
+            ['announcements.recurrence.frequencies', 'announcements', 'ترددات الجدولة المتكرّرة', 'json', '{"daily":"يوميًّا","weekly":"أسبوعيًّا","monthly":"شهريًّا"}'],
+            ['announcements.onboarding.max_steps', 'announcements', 'أقصى خطوات سلسلة الـOnboarding', 'number', '12'],
+            ['announcements.onboarding.max_delay_days', 'announcements', 'أقصى تأخير لخطوة السلسلة (أيّام)', 'number', '365'],
+
+            // ---------------- المعاينة على الأجهزة و«أفضل توقيت» (12.6-أ)
+            ['announcements.preview.devices', 'announcements', 'أجهزة المعاينة', 'json', '{"mobile":"موبايل","desktop":"ديسكتوب"}'],
+            ['announcements.preview.mobile_width', 'announcements', 'عرض إطار الموبايل في المعاينة (px)', 'number', '390'],
+            ['announcements.analytics.best_time_days', 'announcements', 'مدى حساب «أفضل توقيت» (أيّام)', 'number', '90'],
+            ['announcements.analytics.best_time_rows', 'announcements', 'أقصى قراءات في حساب «أفضل توقيت»', 'number', '5000'],
+
             ['notifications.types', 'notifications', 'أنواع الإشعارات', 'json', '{"account":"قبول الحساب","certificate":"إصدار شهادة","exam":"نتيجة امتحان","announcement":"رسالة إداريّة","wallet":"طلب سحب أو شحن","order":"اكتمال طلب"}'],
             ['notifications.channels', 'notifications', 'قنوات الإشعار', 'json', '{"bell":"الجرس","toast":"Toast","email":"بريد"}'],
             ['notifications.grouping.window_minutes', 'notifications', 'نافذة تجميع الإشعارات المتشابهة (دقائق)', 'number', '15'],

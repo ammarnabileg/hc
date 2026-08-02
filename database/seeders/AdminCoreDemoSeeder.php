@@ -60,6 +60,25 @@ class AdminCoreDemoSeeder extends Seeder
             ['admin.dashboard.alert_withdraw', 'admin_dashboard', 'نصّ تنبيه السحوبات المتأخّرة', 'string', 'في :count طلب سحب فات عليه :hours ساعة'],
             ['admin.dashboard.alert_approvals', 'admin_dashboard', 'نصّ تنبيه الاعتمادات المتأخّرة', 'string', 'في :count حساب مستنّي اعتماد من :days يوم'],
 
+            // ---------------- التحديث التلقائيّ ومؤشّر «آخر تحديث» (12.3-5)
+            ['admin.dashboard.auto_refresh', 'admin_dashboard', 'التحديث التلقائيّ للأرقام اللحظيّة', 'bool', '1'],
+
+            // ---------------- تخصيص اللوحة لكلّ دور (12.3-3)
+            ['admin.dashboard.role_layouts', 'admin_dashboard', 'تخصيص كروت لوحة القيادة لكلّ دور', 'json', '{}'],
+            ['admin.dashboard.default_layout_role', 'admin_dashboard', 'الدور الافتراضيّ لحفظ التخصيص', 'string', 'platform_owner'],
+            ['admin.dashboard.customize_hint', 'admin_dashboard', 'سطر شرح بوب-أب تخصيص اللوحة', 'string', 'رتّب الكروت بالسحب، وشيل اللي مش محتاجه — والترتيب ده بيتحفظ لدورك أنت.'],
+            ['admin.dashboard.layout_saved_text', 'admin_dashboard', 'نصّ حفظ تخصيص اللوحة', 'string', 'اتحفظ ✓ — ترتيب اللوحة للدور ده اتسجّل.'],
+
+            // ---------------- 🔒 الهدف الشهريّ (12.3-10)
+            ['admin.dashboard.monthly_target', 'admin_dashboard', 'الهدف الشهريّ للإيرادات (كوينز)', 'number', '0'],
+            ['admin.dashboard.target_label', 'admin_dashboard', 'تسمية الهدف الشهريّ', 'string', 'الهدف الشهريّ'],
+            ['admin.dashboard.target_empty_text', 'admin_dashboard', 'نصّ غياب الهدف الشهريّ', 'string', 'ماحدّدتش هدفًا للشهر لسّه — اضبطه من إعدادات لوحة القيادة.'],
+
+            // ---------------- الخريطة الحراريّة وسجلّ النشاطات (12.3-13 · 12.3-20)
+            ['admin.dashboard.geo_rows', 'admin_dashboard', 'صفوف الخريطة الحراريّة الجغرافيّة', 'number', '8'],
+            ['admin.dashboard.activity_export_rows', 'admin_dashboard', 'أقصى صفوف في ملفّ تصدير سجلّ النشاطات', 'number', '5000'],
+            ['admin.dashboard.activity_export_label', 'admin_dashboard', 'نصّ زرّ تصدير سجلّ النشاطات', 'string', 'تصدير السجلّ'],
+
             // ---------------- قائمة المستخدمين (24.1)
             ['admin.users.per_page', 'admin_users', 'عدد صفوف الجدول', 'number', '25'],
             ['admin.users.default_columns', 'admin_users', 'الأعمدة الافتراضيّة للجدول', 'json', '["name","code","email","status","roles","last_seen"]'],

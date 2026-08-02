@@ -12,11 +12,15 @@ use App\Models\LearningPath;
 use App\Models\Role;
 use App\Models\User;
 use App\Services\Account\ComplaintService;
+use App\Services\Admin\Content\AnnouncementRecurrence;
 use App\Services\Admin\Content\GuidanceComposer;
+use App\Services\Notifications\AnnouncementPersonalizer;
+use App\Services\Notifications\AnnouncementPoll;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
  * التوجيه والدعم (12.6 · 24.3) — دروب-داون بأربع صفحات:
@@ -37,6 +41,7 @@ class GuidanceController extends Controller
         ];
 
         $announcements = $this->guidance->announcements($filters);
+        $recurrence = app(AnnouncementRecurrence::class);
 
         return view('admin.guidance.index', [
             'announcements' => $announcements,
@@ -45,6 +50,13 @@ class GuidanceController extends Controller
             'statuses' => GuidanceComposer::STATUSES,
             'tabs' => $this->tabs('announcements'),
             'audiences' => $this->audienceOptions(),
+            // الجدولة المتكرّرة: الترددات + موعد الدورة القادمة لكلّ قالب (12.6-أ)
+            'frequencies' => AnnouncementRecurrence::frequencies(),
+            'nextRuns' => $announcements->getCollection()->mapWithKeys(
+                fn (Announcement $a) => [$a->id => $recurrence->nextRunAt($a)],
+            ),
+            // وسوم التخصيص الديناميكيّ كما تُعرَض في المحرّر (12.6-أ)
+            'tokens' => AnnouncementPersonalizer::tokens(),
         ]);
     }
 
@@ -78,13 +90,64 @@ class GuidanceController extends Controller
         return back()->with('status', 'اتأرشف المنشور ✓');
     }
 
-    /** تحليلات عميقة: نسبة القراءة ومَن قرأ ومَن أقرّ (12.6-أ). */
-    public function analytics(Announcement $announcement): View
+    /** تحليلات عميقة: نسبة القراءة ومَن قرأ ومَن أقرّ + **أفضل توقيت** (12.6-أ). */
+    public function analytics(Request $request, Announcement $announcement, AnnouncementPoll $poll): View
     {
         return view('admin.guidance.analytics', [
             'announcement' => $announcement,
             'readers' => $this->guidance->readers($announcement),
             'stats' => $this->guidance->readStats(collect([$announcement]))[$announcement->id] ?? [],
+            'bestTime' => $this->guidance->bestTime(),
+            // نتيجة الاستطلاع للأدمن سلطةٌ بصلاحيّتها (`announcement_polls.view`)،
+            // لا تسريبٌ للمستخدم — ومَن لا يملكها لا يرى البلوك أصلًا (2.15-أ-7)
+            'poll' => $poll->has($announcement) && $request->user()?->can('announcement_polls.view')
+                ? ['options' => $poll->options($announcement), 'tally' => $poll->tally($announcement), 'public' => (bool) $announcement->poll_results_public, 'closed' => $poll->isClosed($announcement)]
+                : null,
+        ]);
+    }
+
+    /** تصدير التحليلات CSV (12.6-أ) — مَن قرأ ومَن أقرّ واختياره في الاستطلاع. */
+    public function exportAnalytics(Request $request, Announcement $announcement): StreamedResponse
+    {
+        $rows = $this->guidance->analyticsExportRows(
+            $announcement,
+            (bool) $request->user()?->can('announcement_polls.export'),
+        );
+        $name = 'announcement-'.$announcement->id.'-'.now()->format('Ymd-His').'.csv';
+
+        return response()->streamDownload(function () use ($rows) {
+            $handle = fopen('php://output', 'w');
+            // BOM ليفتح إكسل العربيّة سليمةً بلا خطوة يدويّة
+            fwrite($handle, "\xEF\xBB\xBF");
+
+            foreach ($rows as $row) {
+                fputcsv($handle, $row);
+            }
+
+            fclose($handle);
+        }, $name, ['Content-Type' => 'text/csv; charset=UTF-8']);
+    }
+
+    /**
+     * ⭐ معاينة على الأجهزة قبل النشر (12.6-أ · 24.3): موبايل ⇄ ديسكتوب.
+     *
+     * والمعاينة تمرّ بنفس مسار العرض الحقيقيّ — التخصيص الديناميكيّ والاستطلاع
+     * كما يراهما القارئ — وإلّا كانت «معاينة» لشيءٍ آخر غير المنشور.
+     */
+    public function preview(Request $request, Announcement $announcement, AnnouncementPoll $poll, AnnouncementPersonalizer $personalizer): View
+    {
+        $devices = (array) setting('announcements.preview.devices', ['mobile' => 'موبايل', 'desktop' => 'ديسكتوب']);
+        $device = $request->string('device')->toString();
+        $device = array_key_exists($device, $devices) ? $device : (string) array_key_first($devices);
+
+        return view('admin.guidance.preview', [
+            'announcement' => $personalizer->apply($announcement, $request->user()),
+            'raw' => $announcement,
+            'poll' => $poll->viewModel($announcement, $request->user()),
+            'device' => $device,
+            'devices' => $devices,
+            'width' => (int) setting('announcements.preview.mobile_width', 390),
+            'tokens' => AnnouncementPersonalizer::tokens(),
         ]);
     }
 
@@ -323,7 +386,7 @@ class GuidanceController extends Controller
     /** @return array<string, mixed> */
     private function announcementRules(Request $request): array
     {
-        return $request->validate([
+        $data = $request->validate([
             'title' => ['required', 'string', 'max:190'],
             'body' => ['nullable', 'string'],
             'type' => ['nullable', 'string', 'max:32'],
@@ -347,7 +410,31 @@ class GuidanceController extends Controller
             'scheduled_at' => ['nullable', 'date'],
             'expires_at' => ['nullable', 'date'],
             'status' => ['required', 'string', 'in:draft,scheduled,published,archived'],
+
+            // ⭐ استطلاع داخل المنشور — والنتيجة **عامّة أو مخفيّة** (12.6-أ)
+            'poll_question' => ['nullable', 'string', 'max:190'],
+            'poll_options' => ['nullable', 'array', 'max:'.(int) setting('announcements.poll.max_options', 6)],
+            'poll_options.*' => ['nullable', 'string', 'max:120'],
+            'poll_results_public' => ['nullable', 'boolean'],
+            'poll_closes_at' => ['nullable', 'date'],
+
+            // ⭐ جدولة متكرّرة + سلسلة Onboarding متدرّجة (12.6-أ)
+            'recurrence' => ['nullable', 'string', Rule::in(array_keys(AnnouncementRecurrence::frequencies()))],
+            'recurrence_until' => ['nullable', 'date'],
+            'onboarding_step' => ['nullable', 'integer', 'min:1', 'max:'.(int) setting('announcements.onboarding.max_steps', 12)],
+            'onboarding_delay_days' => ['nullable', 'integer', 'min:0', 'max:'.(int) setting('announcements.onboarding.max_delay_days', 365)],
+        ], [
+            'poll_options.max' => 'خيارات الاستطلاع كتيرة — قلّلها عشان القرار يبقى سهل.',
+            'onboarding_step.max' => 'السلسلة طويلة — خلّيها خطوات معدودة يقدر المستخدم يكمّلها.',
         ]);
+
+        // بناء الاستطلاع صلاحيّةٌ مستقلّة في المصفوفة (`announcement_polls.create`):
+        // فمن لا يملكها لا يرى حقوله **ولا تُقبَل منه** لو أرسلها يدويًّا (12.2.1).
+        if (! $request->user()?->can('announcement_polls.create')) {
+            unset($data['poll_question'], $data['poll_options'], $data['poll_results_public'], $data['poll_closes_at']);
+        }
+
+        return $data;
     }
 
     /** @return array<string, mixed> */

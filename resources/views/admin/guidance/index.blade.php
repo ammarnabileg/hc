@@ -61,6 +61,18 @@
                                     · إقرار بـ{{ $announcement->acknowledge_xp }} XP (مرّة واحدة)
                                 @endif
                                 · التفاعل {{ $announcement->reactions_enabled ? 'مسموح' : 'ممنوع' }}
+                                @if ($announcement->poll_question)
+                                    · استطلاع ({{ $announcement->poll_results_public ? 'نتيجته عامّة' : 'نتيجته مخفيّة' }})
+                                @endif
+                                @if ($announcement->recurrence)
+                                    · {{ $frequencies[$announcement->recurrence] ?? 'متكرّر' }}
+                                    @if ($nextRuns[$announcement->id] ?? null)
+                                        — الدورة الجاية {{ $nextRuns[$announcement->id]->diffForHumans() }}
+                                    @endif
+                                @endif
+                                @if ($announcement->onboarding_step)
+                                    · خطوة {{ $announcement->onboarding_step }} في سلسلة التعريف
+                                @endif
                             </div>
                         </div>
                         <x-state-badge
@@ -81,6 +93,8 @@
 
                     <div class="flex gap-3 mt-3 text-xs flex-wrap">
                         <a href="{{ route('admin.guidance.analytics', $announcement) }}" class="underline">تحليلات</a>
+                        {{-- معاينة على الأجهزة قبل النشر (12.6-أ) --}}
+                        <a href="{{ route('admin.guidance.preview', $announcement) }}" class="underline">معاينة</a>
 
                         @can('announcements.edit')
                             <form method="post" action="{{ route('admin.guidance.announcements.duplicate', $announcement) }}">
@@ -188,6 +202,70 @@
                         <input type="checkbox" name="is_pinned" value="1"> ثبّته أعلى القناة
                     </label>
                 </fieldset>
+
+                {{-- ⭐ استطلاع داخل المنشور: عامّ النتيجة أو مخفيّها (12.6-أ) —
+                     وبناؤه صلاحيّة مستقلّة، ومن لا يملكها لا يرى الحقول أصلًا (2.15-أ-7) --}}
+                @can('announcement_polls.create')
+                <details class="card p-3">
+                    <summary class="text-sm cursor-pointer">استطلاع داخل المنشور (اختياريّ)</summary>
+                    <div class="mt-3 space-y-2">
+                        <x-form.input name="poll_question" label="سؤال الاستطلاع" />
+
+                        @for ($i = 0; $i < (int) setting('announcements.poll.max_options', 6); $i++)
+                            <label class="block">
+                                <span class="block text-sm mb-1" for="poll-option-{{ $i }}">خيار {{ $i + 1 }}</span>
+                                <input type="text" name="poll_options[]" id="poll-option-{{ $i }}"
+                                       value="{{ old('poll_options.'.$i) }}" maxlength="120"
+                                       class="w-full rounded-xl px-3 py-2 text-sm"
+                                       style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
+                            </label>
+                        @endfor
+
+                        <label class="flex items-center gap-2 text-sm">
+                            <input type="checkbox" name="poll_results_public" value="1"
+                                   @checked(setting('announcements.poll.results_public_default', false))>
+                            النتيجة عامّة يشوفها الكلّ
+                        </label>
+                        <p class="text-xs" style="color: var(--text-muted)">
+                            لو سِبتها مقفولة، النتيجة **مش هتوصل متصفّح المستخدم أصلًا** لحدّ ما الاستطلاع يقفل — إخفاء حقيقيّ لا شكليّ.
+                        </p>
+
+                        <x-form.input name="poll_closes_at" label="يقفل الاستطلاع في" type="datetime-local" />
+                    </div>
+                </details>
+                @endcan
+
+                {{-- ⭐ جدولة متكرّرة + سلسلة Onboarding متدرّجة (12.6-أ) --}}
+                <details class="card p-3">
+                    <summary class="text-sm cursor-pointer">تكرار وسلسلة تعريف (اختياريّ)</summary>
+                    <div class="mt-3 grid md:grid-cols-2 gap-3">
+                        <label class="block">
+                            <span class="block text-sm mb-1">التكرار</span>
+                            <select name="recurrence" class="w-full rounded-xl px-3 py-2 text-sm"
+                                    style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
+                                <option value="">بلا تكرار</option>
+                                @foreach ($frequencies as $key => $label)
+                                    <option value="{{ $key }}">{{ $label }}</option>
+                                @endforeach
+                            </select>
+                        </label>
+                        <x-form.input name="recurrence_until" label="يتكرّر حتّى" type="datetime-local" />
+                        <x-form.input name="onboarding_step" label="ترتيبه في سلسلة الـOnboarding" type="number" />
+                        <x-form.input name="onboarding_delay_days" label="يظهر بعد كام يوم من التسجيل" type="number" value="0" />
+                    </div>
+                    <p class="text-xs mt-2" style="color: var(--text-muted)">
+                        قالب التكرار نفسه ما بيتبعتش — كلّ دورة بتطلع كمنشور جديد، فالقراءة والإقرار يتجدّدوا.
+                        وخطوة السلسلة ما بتظهرش غير لمّا اللي قبلها تتقري.
+                    </p>
+                </details>
+
+                {{-- التخصيص الديناميكيّ: وسوم تُكتَب في النصّ (12.6-أ) --}}
+                <div class="text-xs card p-3" style="color: var(--text-muted)">
+                    وسوم التخصيص:
+                    @foreach ($tokens as $token => $meaning)
+                        <code>{{ $token }}</code>@if (! $loop->last) · @endif
+                    @endforeach
+                </div>
 
                 <div class="grid md:grid-cols-3 gap-3">
                     <label class="block">

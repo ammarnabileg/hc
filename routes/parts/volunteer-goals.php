@@ -27,6 +27,17 @@ Route::middleware('auth')->prefix('volunteer')->group(function () {
         Route::get('/goals', [GoalController::class, 'index'])->name('volunteer.goals');
     });
 
+    /*
+    | ⭐ شاشة إطلاق الهدف — المعاينة النهائيّة و«إرسال للتنفيذ» (23 — 1.5 · 1.6).
+    | المفتاح `goals.approve` ونطاقه **ALL** وحده في المصفوفة — وهو حرفيًّا
+    | مشرف عام التطوّع: «الوحيد الذي يوقف هدفًا معتمَدًا» وصاحب الضغطة.
+    | وبالضغطة تبدأ **نافذة التفكيك** فيُختَم `breakdown_due_at` (23-3.9-١).
+    */
+    Route::middleware('permission:goals.approve')->group(function () {
+        Route::get('/goals/launch', [GoalController::class, 'launch'])->name('volunteer.goals.launch');
+        Route::post('/goals/{goal}/launch', [GoalController::class, 'send'])->name('volunteer.goals.launch.send');
+    });
+
     // إعلان تحقّق المعيار بدليل مرفق — لدايركتور الكيان
     Route::middleware('permission:wp_items.edit')->group(function () {
         Route::post('/goals/milestones/{milestone}/declare', [GoalController::class, 'declare'])

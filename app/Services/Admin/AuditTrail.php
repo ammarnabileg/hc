@@ -77,13 +77,19 @@ class AuditTrail
             ->all();
     }
 
-    /** سجلّ النشاطات مفلتَرًا بالموظّف والنوع (12.3-20) */
-    public function feed(?int $userId = null, ?string $action = null, int $limit = 10)
+    /**
+     * سجلّ النشاطات مفلتَرًا بالموظّف والنوع **والفترة** (12.3-20).
+     *
+     * والفترة اختياريّة حتى يبقى النداء القديم (ثلاثة معاملات) سليمًا،
+     * ويستهلكها التصدير والشاشة معًا فيخرج الملفّ بنفس ما تراه العين.
+     */
+    public function feed(?int $userId = null, ?string $action = null, int $limit = 10, mixed $from = null, mixed $to = null)
     {
         return AuditLog::query()
             ->with('user')
             ->when($userId, fn ($q) => $q->where('user_id', $userId))
             ->when($action, fn ($q) => $q->where('action', $action))
+            ->when($from && $to, fn ($q) => $q->whereBetween('created_at', [$from, $to]))
             ->latest('id')
             ->limit($limit)
             ->get();

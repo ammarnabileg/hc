@@ -127,6 +127,20 @@ class AnnouncementDemoSeeder extends Seeder
             ['announcements.acknowledge.ledger_source', 'announcements', 'دلو مصدر الإقرار في دفتر الأستاذ', 'string', 'announcement'],
             ['announcements.types', 'announcements', 'أنواع المنشورات في الفلتر', 'json', '{"pinned":"مثبَّت","critical":"يحتاج إقرار","general":"عامّ"}'],
             ['announcements.empty.message', 'announcements', 'رسالة الحالة الفارغة', 'string', 'لا تعليمات جديدة'],
+            ['announcements.status.archived', 'announcements', 'حالة المنشور المؤرشف', 'string', 'archived'],
+
+            // ---------------- استطلاع داخل المنشور (12.6-أ): عامّ النتيجة أو مخفيّها
+            ['announcements.poll.hidden_notice', 'announcements', 'نصّ إخفاء نتيجة الاستطلاع', 'string', 'النتيجة مخفيّة لحدّ ما الاستطلاع يقفل.'],
+
+            // ---------------- سلسلة Onboarding متدرّجة (12.6-أ)
+            ['announcements.onboarding.enabled', 'announcements', 'تفعيل سلسلة الـOnboarding المتدرّجة', 'bool', '1'],
+
+            // ---------------- التخصيص الديناميكيّ في نصّ المنشور (12.6-أ)
+            ['announcements.personalization.tokens', 'announcements', 'وسوم التخصيص الديناميكيّ', 'json', '{"[اسم]":"الاسم الأوّل للقارئ","[الاسم]":"الاسم الكامل للقارئ","[الكود]":"كود المستخدم","[التدريب]":"اسم أحدث تدريب نشط","[الديدلاين]":"ديدلاين ذلك التدريب"}'],
+            ['announcements.personalization.fallback_name', 'announcements', 'بديل الاسم حين يغيب', 'string', 'صاحبنا'],
+            ['announcements.personalization.fallback_course', 'announcements', 'بديل اسم التدريب حين يغيب', 'string', 'تدريبك'],
+            ['announcements.personalization.fallback_deadline', 'announcements', 'بديل الديدلاين حين يغيب', 'string', 'الموعد المحدَّد'],
+            ['announcements.personalization.enrollment_status', 'announcements', 'حالة التسجيل المعتمَدة في التخصيص', 'string', 'active'],
 
             // ---------------- مركز الإشعارات (2.8)
             ['notifications.per_page', 'notifications', 'عدد الإشعارات في الدفعة', 'number', '20'],

@@ -8,6 +8,7 @@ use App\Models\Position;
 use App\Models\Task;
 use App\Models\User;
 use App\Services\Volunteer\Tasks\TaskStatus;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
@@ -59,10 +60,27 @@ class AbsenceService
 
         return MembershipAbsence::query()
             ->where('membership_id', $membershipId)
-            ->whereDate('from_date', '<=', today())
-            ->whereDate('to_date', '>=', today())
+            ->tap($this->runningToday(...))
             ->with('delegate_membership')
             ->first();
+    }
+
+    /**
+     * الغياب **الساري فعلًا اليوم**: بدأ ولم ينتهِ **ولم يُنهَ مبكّرًا**.
+     *
+     * لماذا شرطٌ ثالث؟ لأنّ العائد مبكّرًا يرجع بكلّ آثاره فورًا (تعود نوافذ
+     * قراره إليه ويعود قابلًا للإسناد) — ولو بقي `to_date` معلنًا في المستقبل.
+     *
+     * والأعمدة **مُسمّاة بجدولها**: `memberships` نفسه فيه `ended_at`، فالشاشة
+     * التي تصل الجدولين كانت تسقط على عمودٍ ملتبس.
+     *
+     * @param  Builder<MembershipAbsence>  $query
+     */
+    public function runningToday($query): void
+    {
+        $query->whereDate('membership_absences.from_date', '<=', today())
+            ->whereDate('membership_absences.to_date', '>=', today())
+            ->whereNull('membership_absences.ended_at');
     }
 
     /** الغياب الساري اليوم لشخص — في كيانٍ بعينه أو في أيّ عضويّة نشطة له */
@@ -85,8 +103,7 @@ class AbsenceService
 
         return MembershipAbsence::query()
             ->whereIn('membership_id', $membershipIds)
-            ->whereDate('from_date', '<=', today())
-            ->whereDate('to_date', '>=', today())
+            ->tap($this->runningToday(...))
             ->with('delegate_membership')
             ->first();
     }
@@ -137,6 +154,7 @@ class AbsenceService
             ->whereIn('memberships.user_id', $userIds)
             ->whereDate('membership_absences.from_date', '<=', today())
             ->whereDate('membership_absences.to_date', '>=', today())
+            ->whereNull('membership_absences.ended_at')
             ->pluck('memberships.user_id')
             ->map(fn ($id) => (int) $id)
             ->all();
@@ -202,6 +220,46 @@ class AbsenceService
         ]);
     }
 
+    /**
+     * ⭐ الإنهاء المبكّر: «رجع قبل ميعاده» — يُغلَق الغياب **لحظتَه** فتعود
+     * نوافذ قراره إليه ويعود قابلًا للإسناد، **وتُفَكّ ساعاته فورًا بالمدّة
+     * الفعليّة** لا بالمدّة المعلَنة (وإلّا أخذ إزاحةً على أيّامٍ عمل فيها).
+     *
+     * ولا يُنهيه صاحبه: نفس قاعدة الفتح (23-6) — الوضع بيد مَن فوقه لا بيده،
+     * وإلّا صار مفتاحًا يفتحه ويقفله حسب حاجته. أمّا **مَن يملك الإنهاء** فتحدّده
+     * صلاحيّة `delegations.edit` بنطاقها على المسار (12.2.1) لا قائمةُ بوزشنات:
+     * شاشة لوحة الإدارة يدخلها الأدمن ومالك المنصّة بلا عضويّة تطوّع أصلًا.
+     *
+     * @throws ValidationException
+     */
+    public function endEarly(MembershipAbsence $absence, User $actor, ?string $note = null): MembershipAbsence
+    {
+        if ($absence->ended_at !== null) {
+            throw ValidationException::withMessages([
+                'absence' => 'الغياب ده متقفل خلاص — مفيش حاجة تتعمل تاني.',
+            ]);
+        }
+
+        $membership = Membership::query()->find($absence->membership_id);
+
+        if ($membership && (int) $membership->user_id === (int) $actor->id) {
+            throw ValidationException::withMessages([
+                'absence' => 'وضع «غائب» بيقفله مشرفك مش إنت — كلّم دايركتور كيانك.',
+            ]);
+        }
+
+        $absence->forceFill([
+            'ended_at' => now(),
+            'ended_by' => $actor->id,
+            'ended_note' => $note,
+        ])->save();
+
+        // فكُّ التجميد الآن لا في مسحة الغد — العائد يجد مهله مُزاحةً من لحظتها
+        $this->thaw($absence);
+
+        return $absence->refresh();
+    }
+
     /** مَن يملك إضافة الغياب: مشرف عام التطوّع · مشرف المسار · دايركتور الكيان */
     public function canAdd(Membership $membership, User $actor): bool
     {
@@ -248,22 +306,40 @@ class AbsenceService
 
         $finished = MembershipAbsence::query()
             ->whereNull('thawed_at')
-            ->whereDate('to_date', '<', today())
+            ->where(fn ($q) => $q->whereDate('to_date', '<', today())->orWhereNotNull('ended_at'))
             ->get();
 
         foreach ($finished as $absence) {
-            $membership = Membership::query()->find($absence->membership_id);
-            $seconds = (int) Carbon::parse($absence->from_date)->startOfDay()
-                ->diffInSeconds(Carbon::parse($absence->to_date)->endOfDay());
-
-            if ($membership && $seconds > 0) {
-                $this->shiftClocks((int) $membership->user_id, Carbon::parse($absence->from_date)->startOfDay(), $seconds);
-            }
-
-            $absence->forceFill(['thawed_at' => now()])->save();
+            $this->thaw($absence);
         }
 
         return $finished->count();
+    }
+
+    /**
+     * فكّ تجميد غيابٍ بعينه — **بمدّته الفعليّة**: من بدايته حتى `ended_at`
+     * إن أُنهي مبكّرًا، وإلّا حتى نهاية `to_date`.
+     */
+    private function thaw(MembershipAbsence $absence): void
+    {
+        if ($absence->thawed_at !== null) {
+            return;
+        }
+
+        $membership = Membership::query()->find($absence->membership_id);
+
+        $from = Carbon::parse($absence->from_date)->startOfDay();
+        $until = $absence->ended_at
+            ? Carbon::parse($absence->ended_at)
+            : Carbon::parse($absence->to_date)->endOfDay();
+
+        $seconds = $until->greaterThan($from) ? (int) $from->diffInSeconds($until) : 0;
+
+        if ($membership && $seconds > 0) {
+            $this->shiftClocks((int) $membership->user_id, $from, $seconds);
+        }
+
+        $absence->forceFill(['thawed_at' => now()])->save();
     }
 
     /** إزاحة ساعات مهامّ الغائب المفتوحة بمدّة غيابه */

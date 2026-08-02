@@ -74,6 +74,8 @@
             ['الهيكل والبوزشنز والسعة', 'admin.volunteer.org', 'org_chart.view'],
             ['تقرير السعة', 'admin.volunteer.org.capacity', 'capacity.view'],
             ['درجة الالتزام (Rep)', 'admin.volunteer.rep', 'rep_transactions.view'],
+            // الغيابات والتفويض المؤقّت (23-6) — كان المنطق كاملًا بلا شاشة إدارة
+            ['الغيابات والتفويض', 'admin.volunteer.delegations', 'delegations.list'],
             // أنواع المهامّ: قالب وتشيك ليست وقيم مقترحة (23-0.3)
             ['أنواع المهامّ', 'admin.volunteer.task-types.index', 'task_types.list'],
             ['الخروج والعودة', 'admin.volunteer.offboarding', 'offboarding.view'],

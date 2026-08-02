@@ -23,6 +23,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/announcements/{announcement}/read', [AnnouncementController::class, 'read'])->name('announcements.read');
     Route::post('/announcements/{announcement}/acknowledge', [AnnouncementController::class, 'acknowledge'])->name('announcements.acknowledge');
     Route::post('/announcements/{announcement}/react', [AnnouncementController::class, 'react'])->name('announcements.react');
+    // استطلاع داخل المنشور (12.6-أ) — والحارس هو الاستهداف نفسه لا صلاحيّة إداريّة
+    Route::post('/announcements/{announcement}/poll', [AnnouncementController::class, 'poll'])->name('announcements.poll');
 
     // ---------------------------------------------------- مركز الإشعارات
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');

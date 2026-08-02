@@ -4,6 +4,8 @@
         ['key' => 'index', 'label' => 'اللوحة', 'route' => 'admin.volunteer.index', 'can' => 'volunteer_central_settings.view'],
         ['key' => 'org', 'label' => 'الهيكل والسعة', 'route' => 'admin.volunteer.org', 'can' => 'org_chart.view'],
         ['key' => 'rep', 'label' => 'ضبط Rep', 'route' => 'admin.volunteer.rep', 'can' => 'rep_transactions.view'],
+        // الغيابات والتفويض المؤقّت (23-6) — استعراضٌ وإنهاءٌ مبكّر، والإضافة في «الأعضاء والبوزشنز»
+        ['key' => 'delegations', 'label' => 'الغيابات والتفويض', 'route' => 'admin.volunteer.delegations', 'can' => 'delegations.list'],
         ['key' => 'offboarding', 'label' => 'الأوفبوردنج', 'route' => 'admin.volunteer.offboarding', 'can' => 'offboarding.view'],
         ['key' => 'reentries', 'label' => 'العائدون', 'route' => 'admin.volunteer.reentries', 'can' => 'offboarding.view'],
         ['key' => 'certificates', 'label' => 'الشهادات', 'route' => 'admin.volunteer.certificates', 'can' => 'volunteer_certificates.view'],
