@@ -14,7 +14,7 @@
 @if ($badges['earned']->isNotEmpty() || $badges['locked']->isNotEmpty() || $ambassadorTitle !== '')
     <section class="card p-4 mb-4">
         <div class="flex items-center justify-between gap-2 mb-3">
-            <h2 class="font-bold text-sm">الشارات</h2>
+            <h2 class="font-bold text-sm">{{ setting('account.profile.badges.title', 'الشارات') }}</h2>
 
             @if ($ambassadorTitle !== '')
                 {{-- لقب السفير: شرف لا حالة — ولذلك بالذهبيّ مع رمز (2.16) --}}
@@ -26,7 +26,7 @@
         </div>
 
         @if ($badges['earned']->isEmpty() && $badges['locked']->isEmpty())
-            <p class="text-xs" style="color: var(--text-muted)">لسّه بدري — أوّل شارة مستنّياك.</p>
+            <p class="text-xs" style="color: var(--text-muted)">{{ setting('account.profile.badges.empty_message', 'لسّه بدري — أوّل شارة مستنّياك.') }}</p>
         @else
             <div class="flex flex-wrap gap-3">
                 @foreach ($badges['earned'] as $badge)
@@ -37,7 +37,7 @@
                             data-badge-locked="0"
                             class="flex flex-col items-center gap-1 motion-standard"
                             style="min-width: 64px; min-height: 44px"
-                            aria-label="شارة {{ $badge->name_ar }} — مفتوحة">
+                            aria-label="{{ $badge->name_ar }} — {{ setting('account.profile.badges.unlocked_label', 'مفتوحة') }}">
                         <span class="inline-flex items-center justify-center rounded-full overflow-hidden"
                               style="width: 56px; height: 56px; background: color-mix(in srgb, var(--color-state-honor) 16%, transparent)">
                             @if ($badge->icon_path)
@@ -59,7 +59,7 @@
                             data-badge-locked="1"
                             class="flex flex-col items-center gap-1 motion-standard"
                             style="min-width: 64px; min-height: 44px"
-                            aria-label="شارة {{ $badge->name_ar }} — مقفولة">
+                            aria-label="{{ $badge->name_ar }} — {{ setting('account.profile.badges.locked_label', 'مقفولة') }}">
                         <span class="inline-flex items-center justify-center rounded-full overflow-hidden"
                               style="width: 56px; height: 56px; background: var(--surface-sunken); filter: grayscale(1); opacity: .55">
                             @if ($badge->icon_path)
@@ -82,7 +82,7 @@
         @endif
     </section>
 
-    <x-modal id="badge-detail" title="الشارة">
+    <x-modal id="badge-detail" :title="setting('account.profile.badges.modal_title', 'الشارة')">
         <div class="text-center space-y-3">
             <img data-badge-detail-icon src="" alt="" class="mx-auto rounded-full object-cover hidden"
                  style="width: 96px; height: 96px">

@@ -26,7 +26,6 @@ class ReferralService
         private readonly Tracker $tracker,
     ) {}
 
-
     /** نسبة العمولة — إعداد لا رقم محروق (2.13) */
     public function commissionPercent(): float
     {

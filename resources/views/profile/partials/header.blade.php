@@ -26,7 +26,7 @@
             @if (($overview['is_online'] ?? false))
                 <span class="absolute bottom-1 start-1 w-3 h-3 rounded-full animate-pulse"
                       style="background: var(--color-state-ok); outline: 2px solid var(--surface-raised)"
-                      title="نشط دلوقتي" aria-label="نشط دلوقتي"></span>
+                      title="{{ setting('account.profile.header.online_label', 'نشط دلوقتي') }}" aria-label="{{ setting('account.profile.header.online_label', 'نشط دلوقتي') }}"></span>
             @endif
         </div>
 
@@ -37,7 +37,7 @@
                 @if ($isVolunteerHeader)
                     {{-- لقب «مشرف» (10.0-ب) --}}
                     <span class="rounded-full px-2 py-0.5 text-xs font-semibold"
-                          style="background: color-mix(in srgb, var(--color-brand-500) 18%, transparent); color: var(--color-brand-500)">مشرف</span>
+                          style="background: color-mix(in srgb, var(--color-brand-500) 18%, transparent); color: var(--color-brand-500)">{{ setting('account.profile.header.supervisor_label', 'مشرف') }}</span>
                 @endif
             </div>
 
@@ -57,13 +57,13 @@
             @if ($isOwner)
                 <div class="mt-3">
                     <label class="block">
-                        <span class="sr-only">النبذة الشخصيّة</span>
+                        <span class="sr-only">{{ setting('account.profile.header.bio_label', 'النبذة الشخصيّة') }}</span>
                         <textarea data-bio-field rows="2" maxlength="{{ $bioMax }}"
-                                  placeholder="اكتب نبذة قصيرة عنك — سطر واحد يكفي."
+                                  placeholder="{{ setting('account.profile.header.bio_placeholder', 'اكتب نبذة قصيرة عنك — سطر واحد يكفي.') }}"
                                   class="w-full rounded-xl px-3 py-2 text-sm"
                                   style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">{{ $owner->bio }}</textarea>
                     </label>
-                    <span data-bio-saved class="text-xs" style="color: var(--color-state-ok); visibility: hidden">اتحفظ ✓</span>
+                    <span data-bio-saved class="text-xs" style="color: var(--color-state-ok); visibility: hidden">{{ setting('cv.autosave.saved_label', 'اتحفظ ✓') }}</span>
                 </div>
             @elseif (trim((string) $owner->bio) !== '')
                 <p class="mt-3 text-sm" style="color: var(--text)">{{ $owner->bio }}</p>
@@ -98,7 +98,7 @@
             {{-- [نسخ رابطي /u/CODE] — الرابط الدائم يعمل من كلّ مكان (13.4-م) --}}
             <button type="button" data-copy-profile="{{ $profileUrl }}"
                     class="btn rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
-                    style="background: var(--color-brand-500); color: #04201c">نسخ رابطي</button>
+                    style="background: var(--color-brand-500); color: #04201c">{{ setting('account.profile.header.copy_link_label', 'نسخ رابطي') }}</button>
 
             {{-- ⭐ «مشاركة الحساب» ⟵ بوب-أب فيه أزرار المشاركة + الرابط العامّ (10) --}}
             <button type="button" data-modal-open="profile-share"
@@ -110,7 +110,7 @@
             @if ($isOwner)
                 <a href="{{ route('settings.index') }}"
                    class="btn text-center rounded-xl px-4 py-2 text-sm motion-standard"
-                   style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">تعديل البروفايل</a>
+                   style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">{{ setting('account.profile.header.edit_label', 'تعديل البروفايل') }}</a>
             @endif
         </div>
     </div>

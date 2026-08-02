@@ -15,7 +15,7 @@
   بوب-أب المشاركة (10): أزرار المشاركة (تيليجرام / X / فيسبوك / واتساب)
   + **الرابط العامّ للحساب**. والأيقونات SVG مرسومة داخل المشروع (2.16-ج).
 --}}
-<x-modal id="profile-share" title="مشاركة الحساب">
+<x-modal id="profile-share" :title="setting('account.profile.share.title', 'مشاركة الحساب')">
     <div class="space-y-4 text-sm">
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
             @foreach ($shareLinks as $link)
@@ -58,14 +58,14 @@
         </div>
 
         <label class="block">
-            <span class="block text-xs mb-1" style="color: var(--text-muted)">رابط الحساب العامّ</span>
+            <span class="block text-xs mb-1" style="color: var(--text-muted)">{{ setting('account.profile.share.link_label', 'رابط الحساب العامّ') }}</span>
             <div class="flex gap-2">
                 <input type="text" readonly value="{{ $profileUrl }}" data-share-link
                        class="flex-1 rounded-xl px-3 text-sm font-mono"
                        style="min-height: 44px; background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
                 <button type="button" data-copy-profile="{{ $profileUrl }}"
                         class="btn rounded-xl px-4 text-sm font-semibold motion-standard"
-                        style="min-height: 44px; background: var(--color-brand-500); color: #04201c">انسخ</button>
+                        style="min-height: 44px; background: var(--color-brand-500); color: #04201c">{{ setting('account.profile.share.copy_label', 'انسخ') }}</button>
             </div>
         </label>
     </div>

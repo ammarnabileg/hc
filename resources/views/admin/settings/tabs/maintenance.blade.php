@@ -129,7 +129,11 @@
     @if ($exemptSetting)
         <div class="card p-4">
             <h2 class="font-bold text-sm mb-2">استثناء IP الأدمن</h2>
-            <x-settings.field :setting="$exemptSetting" />
+            @include('admin.settings.partials.field', [
+                'setting' => $exemptSetting,
+                'registry' => $registry,
+                'endpoint' => route('admin.settings.field'),
+            ])
             <p class="text-xs mt-2" style="color: var(--text-muted)">
                 سطر أو فاصلة لكلّ IP — دي القائمة الوحيدة اللي بتفتح الموقع وقت الصيانة.
             </p>

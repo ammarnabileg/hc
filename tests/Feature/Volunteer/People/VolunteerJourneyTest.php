@@ -16,7 +16,9 @@ use App\Models\Setting;
 use App\Models\User;
 use App\Models\VolunteerCard;
 use App\Services\Admin\Volunteer\OffboardingService;
+use App\Services\Volunteer\Org\CardIssuer;
 use App\Services\Volunteer\People\JourneyService;
+use App\Services\Volunteer\People\LandingContent;
 use App\Services\Volunteer\People\PlacementService;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -121,7 +123,7 @@ class VolunteerJourneyTest extends PeopleTestCase
         $this->setting('volunteer_page.stats_offset_volunteers', '0', 'number');
         $this->setting('volunteer_page.stats_trainees_label', 'متدرّب مستفيد');
 
-        $content = app(\App\Services\Volunteer\People\LandingContent::class);
+        $content = app(LandingContent::class);
         $base = $content->stats()['volunteers'];
 
         $member = $this->makeUser('متطوّع مُسكَّن');
@@ -313,7 +315,7 @@ class VolunteerJourneyTest extends PeopleTestCase
         $membership = $this->makeMembership($user, $this->makeEntity('قسم الخروج'));
         $membership->forceFill(['started_at' => now()->subMonths(8)])->save();
 
-        app(\App\Services\Volunteer\Org\CardIssuer::class)->issueFor($membership->fresh());
+        app(CardIssuer::class)->issueFor($membership->fresh());
 
         // موافقتان ساريتان: ما منحه وما مُنِح له
         ConsentRequest::create([
