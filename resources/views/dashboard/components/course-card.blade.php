@@ -6,7 +6,7 @@
     $timer = $row['timer'];
 @endphp
 
-<article class="card p-4 animate-fadeup">
+<article class="card p-4 min-w-0 animate-fadeup">
     <div class="flex items-start gap-4">
         @include('dashboard.components.progress-ring', ['percent' => $row['percent'], 'size' => 68])
 

@@ -20,7 +20,7 @@
     @include('dashboard.components.chart-heatmap', ['heatmap' => $heatmap])
     @include('dashboard.components.chart-radar', ['radar' => $radar])
 
-    <div class="xl:col-span-2">
+    <div class="xl:col-span-2 min-w-0">
         @include('dashboard.components.chart-bars', ['bars' => $ticketBars])
     </div>
 </div>

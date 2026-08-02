@@ -2,6 +2,7 @@
 
 namespace App\Services\Volunteer\Tasks;
 
+use App\Models\Escalation;
 use App\Models\Task;
 use App\Models\User;
 use Illuminate\Support\Carbon;
@@ -156,7 +157,7 @@ class SubtaskBatch
             return;
         }
 
-        \App\Models\Escalation::create([
+        Escalation::create([
             'case_type' => 'subtask_batch',
             'subject_type' => $parent->getMorphClass(),
             'subject_id' => $parent->getKey(),

@@ -66,7 +66,7 @@ class DashboardDemoSeeder extends Seeder
             ['dashboard.stats.range_options', 'dashboard', 'خيارات فلتر الفترة في الإحصائيّات', 'json', '[7,30]'],
             ['dashboard.heatmap.weeks', 'dashboard', 'عدد أسابيع خريطة الحضور', 'number', '12'],
             ['dashboard.tickets.daily_max_days', 'dashboard', 'أقصى مدى تُعرَض فيه بارات التذاكر يوميًّا', 'number', '7'],
-            ['dashboard.achievements.radar_max_level', 'dashboard', 'سقف الرادار المعروض (مستوى)', 'number', '10'],
+            ['dashboard.achievements.radar_max_level', 'dashboard', 'سقف الرادار المعروض (مستوى)', 'number', '6'],
             // عتبات مسارات الإنجاز الخمسة (10.1): الزيادة = base + (N−2) × step
             ['dashboard.achievements.account.base', 'dashboard', 'عتبة مستوى الحساب — الأساس (XP)', 'number', '500'],
             ['dashboard.achievements.account.step', 'dashboard', 'عتبة مستوى الحساب — الزيادة (XP)', 'number', '250'],
@@ -357,28 +357,31 @@ class DashboardDemoSeeder extends Seeder
 
     private function streak(User $user): void
     {
-        Streak::updateOrCreate(
-            ['user_id' => $user->id],
-            ['current_days' => 9, 'best_days' => 23, 'last_active_date' => today(), 'club_5am_count' => 14],
-        );
+        $clubDays = 0;
 
         // حضور مبعثر بشكل واقعيّ على 12 أسبوعًا، ونادي الخامسة في أيّام مختارة
         for ($day = 0; $day < 84; $day++) {
-            $date = Carbon::today()->subDays($day);
-
             if ($day % 7 === 5) {
                 continue; // إجازة أسبوعيّة
             }
 
-            if ($day > 20 && $day % 3 === 0) {
-                continue;
+            if ($day > 20 && in_array($day % 10, [3, 8], true)) {
+                continue; // أيّام انقطاع متفرّقة
             }
 
+            $club = $day % 4 === 1;
+            $clubDays += $club ? 1 : 0;
+
             StreakDay::updateOrCreate(
-                ['user_id' => $user->id, 'day' => $date->toDateString()],
-                ['club_5am' => $day % 6 === 0],
+                ['user_id' => $user->id, 'day' => Carbon::today()->subDays($day)->toDateString()],
+                ['club_5am' => $club],
             );
         }
+
+        Streak::updateOrCreate(
+            ['user_id' => $user->id],
+            ['current_days' => 9, 'best_days' => 23, 'last_active_date' => today(), 'club_5am_count' => $clubDays],
+        );
     }
 
     // ------------------------------------------------------------ الشهادة

@@ -2,6 +2,7 @@
 
 namespace App\Services\Volunteer\Tasks;
 
+use App\Models\Escalation;
 use App\Models\Task;
 use App\Models\TaskBlock;
 use App\Models\User;
@@ -135,7 +136,7 @@ class TaskBlockService
             return;
         }
 
-        \App\Models\Escalation::create([
+        Escalation::create([
             'case_type' => $caseType,
             'subject_type' => $subject->getMorphClass(),
             'subject_id' => $subject->getKey(),

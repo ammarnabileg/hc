@@ -36,11 +36,11 @@ class TopupController extends Controller
             $tab = $manualEnabled ? 'manual' : 'gateway';
         }
 
-        // [عدّل وأعد الإرسال]: يعيد ملء الفورم من طلبٍ ملغًى فلا يبدأ من الصفر (19.5-ب-5)
+        // [عدّل وأعد الإرسال]: يعيد ملء الفورم من طلبٍ مقفول فلا يبدأ من الصفر (19.5-ب-5)
         $resend = $request->filled('resend')
             ? TopupRequest::query()
                 ->where('user_id', $user->id)
-                ->where('status', TopupService::CANCELLED)
+                ->whereIn('status', [TopupService::CANCELLED, TopupService::DUPLICATE])
                 ->find($request->integer('resend'))
             : null;
 

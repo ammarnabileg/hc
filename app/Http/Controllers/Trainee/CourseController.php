@@ -69,7 +69,7 @@ class CourseController extends Controller
             'type' => setting('learning.report.ticket_type', 'complaint'),
             'category' => setting('learning.report.category', 'lesson'),
             'title' => $validated['problem_type'].' — '.$course->name_ar
-                .($validated['lesson_title'] ? ' / '.$validated['lesson_title'] : ''),
+                .(($validated['lesson_title'] ?? null) ? ' / '.$validated['lesson_title'] : ''),
             'body' => $validated['body'],
         ]);
 

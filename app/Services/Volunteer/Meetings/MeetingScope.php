@@ -2,6 +2,7 @@
 
 namespace App\Services\Volunteer\Meetings;
 
+use App\Models\Entity;
 use App\Models\Meeting;
 use App\Models\Membership;
 use App\Models\User;
@@ -39,7 +40,7 @@ class MeetingScope
         $frontier = $ids;
 
         while ($frontier !== []) {
-            $parents = \App\Models\Entity::query()
+            $parents = Entity::query()
                 ->whereIn('id', $frontier)
                 ->pluck('parent_id')
                 ->filter()

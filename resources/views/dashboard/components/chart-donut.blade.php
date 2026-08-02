@@ -10,7 +10,7 @@
     $offset = 0;
 @endphp
 
-<section class="card p-4">
+<section class="card p-4 min-w-0">
     <h3 class="font-bold text-sm">إكمال المسار</h3>
 
     <div class="mt-3 flex flex-wrap items-center gap-5">

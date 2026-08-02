@@ -16,7 +16,7 @@
     $shape = implode(' ', array_map(fn ($i) => $point($i, max(0.06, (float) $axes[$i]['ratio'])), range(0, $count - 1)));
 @endphp
 
-<section class="card p-4">
+<section class="card p-4 min-w-0">
     <div class="flex items-baseline justify-between gap-2">
         <h3 class="font-bold text-sm">مسارات الإنجاز الخمسة</h3>
         <span class="text-xs" style="color: var(--text-muted)">السقف المعروض: مستوى {{ $radar['max_level'] }}</span>

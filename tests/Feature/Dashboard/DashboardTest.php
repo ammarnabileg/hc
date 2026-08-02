@@ -277,8 +277,13 @@ class DashboardTest extends TestCase
         $this->actingAs($user)->get('/dashboard')
             ->assertOk()
             ->assertSee('سلمى عبد الرحمن')
-            ->assertSee('تصميم واجهات المستخدم')
-            ->assertSee('الشهادة صادرة');
+            ->assertSee('أساسيّات العمل التطوّعيّ')     // جارٍ ⟵ يظهر ككارت
+            ->assertDontSee('تصميم واجهات المستخدم')   // مكتمل ⟵ ليس من «الجارية»
+            ->assertSee('أقرب المواعيد');
+
+        // المكتمل والشهادة يظهران في تاب «تفاصيل» ولوحة الأرقام
+        $this->actingAs($user)->get('/dashboard?tab=details')->assertOk()->assertSee('تدريبات مكتملة');
+        $this->assertSame(1, app(DashboardService::class)->certificatesCount($user));
 
         $this->actingAs($user)->get('/dashboard?tab=stats&days=30')
             ->assertOk()

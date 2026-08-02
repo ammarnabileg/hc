@@ -6,6 +6,8 @@ use App\Models\Currency;
 use App\Models\Transaction;
 use App\Models\User;
 use App\Models\WalletBalance;
+use App\Services\Notifications\Notifier;
+use App\Services\Wallet\LedgerService;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
@@ -19,9 +21,9 @@ use Illuminate\Support\Facades\DB;
  */
 final class Integrations
 {
-    public const LEDGER = \App\Services\Wallet\LedgerService::class;
+    public const LEDGER = LedgerService::class;
 
-    public const NOTIFIER = \App\Services\Notifications\Notifier::class;
+    public const NOTIFIER = Notifier::class;
 
     /** طبقة التطوّع — كي لا تختلط معاملات التطوّع بمعاملات التدريب في العرض */
     public const LAYER = 'volunteer';

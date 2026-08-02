@@ -7,6 +7,7 @@ use App\Models\BadgeUser;
 use App\Models\ChallengeParticipation;
 use App\Models\Streak;
 use App\Models\User;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 
 /**
@@ -62,7 +63,7 @@ class BadgeService
      * كلّ الشارات مع حالة المستخدم فيها — الشبكة تظهر دائمًا:
      * المفتوح ملوّن، والمقفول رماديّ وشرطه مكتوب.
      *
-     * @return Collection<int, array{badge:Badge,unlocked:bool,awarded_at:?\Illuminate\Support\Carbon,progress:float}>
+     * @return Collection<int, array{badge:Badge,unlocked:bool,awarded_at:?Carbon,progress:float}>
      */
     public function board(User $user): Collection
     {

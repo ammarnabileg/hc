@@ -2,6 +2,7 @@
 
 namespace App\Services\Volunteer\Tasks;
 
+use App\Models\Escalation;
 use App\Models\Task;
 use App\Models\TaskSubmission;
 use App\Models\User;
@@ -290,7 +291,7 @@ class TaskWorkflow
             return;
         }
 
-        \App\Models\Escalation::create([
+        Escalation::create([
             'case_type' => $caseType,
             'subject_type' => $task->getMorphClass(),
             'subject_id' => $task->getKey(),

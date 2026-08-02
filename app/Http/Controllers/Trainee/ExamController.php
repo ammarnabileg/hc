@@ -15,6 +15,7 @@ use App\Services\Certificates\CertificateIssuer;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
@@ -262,7 +263,7 @@ class ExamController extends Controller
         return max(0, (int) now()->diffInSeconds($endsAt, false));
     }
 
-    private function cooldownUntil(Exam $exam, User $user): ?\Illuminate\Support\Carbon
+    private function cooldownUntil(Exam $exam, User $user): ?Carbon
     {
         $hours = (int) $exam->retry_cooldown_hours;
 
@@ -458,19 +459,7 @@ class ExamController extends Controller
             return;
         }
 
-        $map = setting('exams.certificate_type_map', [
-            'App\Models\Course' => 'course',
-            'App\Models\LearningPath' => 'path',
-        ]);
-
-        $typeKey = is_array($map) ? ($map[$subject->getMorphClass()] ?? null) : null;
-
-        // المسار التأهيليّ له نوعه الخاصّ (13.4-ق)
-        $qualifyingId = (int) setting('volunteer.qualifying.course_id', 0);
-
-        if ($qualifyingId > 0 && $subject->getMorphClass() === 'App\Models\Course' && (int) $subject->getKey() === $qualifyingId) {
-            $typeKey = (string) setting('exams.qualifying_certificate_type', 'qualifying');
-        }
+        $typeKey = $this->certificateTypeKey($exam);
 
         if (! $typeKey) {
             return;

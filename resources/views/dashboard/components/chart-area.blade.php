@@ -27,7 +27,7 @@
     $totalXp = array_sum(array_map(fn ($p) => $p['value'], $points));
 @endphp
 
-<section class="card p-4">
+<section class="card p-4 min-w-0">
     <div class="flex items-baseline justify-between gap-2">
         <h3 class="font-bold text-sm">XP عبر الزمن</h3>
         <span class="text-xs" style="color: var(--text-muted)">مجموع المدى: {{ number_format($totalXp) }} XP</span>

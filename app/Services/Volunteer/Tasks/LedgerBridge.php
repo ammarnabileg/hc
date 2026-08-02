@@ -20,7 +20,7 @@ class LedgerBridge
      * تسجيل حركة VXP أو Rep.
      *
      * @param  string  $currency  رمز العملة: vxp · rep
-     * @param  string  $source    مصدر الحركة في الجدول الموحّد: task · meeting · academy…
+     * @param  string  $source  مصدر الحركة في الجدول الموحّد: task · meeting · academy…
      */
     public function record(
         User $user,

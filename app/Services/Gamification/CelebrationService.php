@@ -21,8 +21,8 @@ class CelebrationService
     /**
      * تسجيل حدثٍ واستهلاكه مرّةً واحدة.
      *
-     * @return array{key:string,tier:int,label:string,message:string,sound:bool}|null
-     *                                                                                null = لا احتفال (حدث غير مفعَّل أو مستهلَك من قبل)
+     * @return array{key:string,tier:int,label:string,message:string,sound_path:?string,sound:bool}|null
+     *                                                                                                   null = لا احتفال (حدث غير مفعَّل أو مستهلَك من قبل)
      */
     public function fire(User $user, string $eventKey, ?Model $reference = null): ?array
     {
@@ -60,6 +60,7 @@ class CelebrationService
             'label' => $event->label_ar,
             // النداء بالاسم في لحظات الذروة (2.17-أ)
             'message' => $this->message($event, $user),
+            'sound_path' => $event->sound_path,
             'sound' => $tier > 1
                 && (bool) $user->sound_enabled
                 && (bool) setting('celebrations.sound.enabled', true),

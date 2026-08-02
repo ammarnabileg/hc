@@ -160,7 +160,7 @@ class DashboardStatsService
             ['key' => 'learning', 'label' => 'استمراريّة التعلّم', 'unit' => 'درس', 'value' => $this->lessonsCompleted($user), 'base' => 5, 'step' => 3],
         ];
 
-        $max = max(2, (int) setting('dashboard.achievements.radar_max_level', 10));
+        $max = max(2, (int) setting('dashboard.achievements.radar_max_level', 6));
         $axes = [];
 
         foreach ($paths as $path) {

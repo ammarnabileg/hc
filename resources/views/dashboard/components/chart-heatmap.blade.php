@@ -17,7 +17,7 @@
     };
 @endphp
 
-<section class="card p-4">
+<section class="card p-4 min-w-0">
     <div class="flex items-baseline justify-between gap-2">
         <h3 class="font-bold text-sm">خريطة الحضور</h3>
         <span class="text-xs" style="color: var(--text-muted)">{{ $heatmap['present'] }} يوم حضور · ★ {{ $heatmap['club'] }} في النادي</span>

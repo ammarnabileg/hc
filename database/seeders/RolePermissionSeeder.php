@@ -26,13 +26,13 @@ class RolePermissionSeeder extends Seeder
 
         // ---------------- أدوار المنصّة المتخصّصة: بمجموعات الموارد
         $map = [
-            'content_admin' => ['paths', 'courses', 'sections', 'lessons', 'lesson_questions', 'media', 'exams', 'exam_questions', 'enrollments'],
-            'certificates_admin' => ['certificates', 'certificate_types', 'certificate_templates', 'accreditations', 'certificate_verification'],
-            'support_admin' => ['users', 'accounts', 'complaints', 'help_articles', 'announcements'],
-            'marketing_admin' => ['products', 'bundles', 'coupons', 'articles', 'image_templates', 'events', 'referrals', 'acquisition_sources'],
-            'finance_admin' => ['orders', 'invoices', 'topup_requests', 'wallets', 'transactions'],
-            'gamification_admin' => ['badges', 'levels', 'streaks', 'leaderboard', 'challenges', 'tickets', 'xp'],
-            'tech_admin' => ['settings', 'maintenance', 'backups', 'system_health', 'updates', 'audit_logs', 'feature_flags'],
+            'content_admin' => ['paths', 'courses', 'sections', 'lessons', 'lesson_quiz', 'lesson_attachments', 'media_library', 'content_categories', 'course_exam', 'question_bank', 'general_questions', 'enrollments', 'progress', 'learning_ux', 'path_page_layout', 'availability', 'deadlines'],
+            'certificates_admin' => ['certificates', 'certificate_templates', 'certificate_ledger', 'certificate_verification', 'accreditations', 'reports_certificates'],
+            'support_admin' => ['users', 'user_approvals', 'user_profile', 'admin_user_detail', 'complaints', 'user_guide', 'announcements', 'announcement_ack', 'notifications', 'user_search', 'account_suspension', 'user_sessions'],
+            'marketing_admin' => ['store_products', 'product_categories', 'product_protection', 'bundles', 'coupons', 'order_bump', 'pricing', 'paywall', 'landing_pages', 'public_pages', 'share_links', 'referrals', 'ambassadors', 'invitations_page', 'events', 'event_registrations', 'event_recordings'],
+            'finance_admin' => ['orders', 'invoices', 'purchases', 'topup', 'transfer', 'wallet', 'currencies', 'exchange_rates', 'refunds', 'reports_sales', 'reports_finance'],
+            'gamification_admin' => ['badges', 'streaks', 'five_am_club', 'streak_freeze', 'leaderboards', 'public_leaderboard', 'achievements', 'games', 'tickets_xp', 'xp_rules', 'tickets_rules', 'wars_settings', 'war_types', 'wars_bank', 'wars_matches', 'reward_questions', 'celebrations', 'positive_messages'],
+            'tech_admin' => ['settings_general', 'settings_audit', 'maintenance', 'backups', 'system_health', 'updates', 'error_logs', 'scheduled_jobs', 'storage_files', 'audit_logs', 'feature_toggles', 'integrations', 'email_templates', 'rate_limits', 'localization', 'countries_data', 'password_policy', 'version_history', 'setup_installer'],
         ];
 
         foreach ($map as $roleKey => $resources) {
@@ -44,11 +44,15 @@ class RolePermissionSeeder extends Seeder
 
         // ---------------- أدوار التطوّع: نفس الموارد بنطاقات متدرّجة
         $volunteerResources = [
-            'tasks', 'subtasks', 'contributions', 'checkpoints', 'submissions', 'reviews',
-            'meetings', 'attendance', 'objections', 'escalations', 'arbitrations',
-            'goals', 'milestones', 'work_packages', 'work_items', 'projects',
-            'memberships', 'entities', 'positions', 'internal_library', 'kudos',
-            'rep', 'vxp', 'behavior', 'evaluations', 'volunteers', 'volunteer_cards',
+            'tasks', 'subtasks', 'todos', 'task_notes', 'task_comments', 'task_types', 'assignments',
+            'contributions', 'checkpoints', 'dependencies', 'public_board', 'recurring_items',
+            'meetings', 'meeting_attendance', 'meeting_minutes', 'meeting_posts',
+            'objections', 'escalations', 'arbitration', 'delegations',
+            'goals', 'milestones', 'work_packages', 'wp_items', 'operational_projects',
+            'memberships', 'departments', 'sub_departments', 'positions', 'org_chart', 'capacity',
+            'team_health', 'vacancies', 'promotion_ladder', 'internal_library', 'library_access_requests',
+            'kudos', 'thanks_wall', 'evaluations', 'supervisor_log', 'personal_reports',
+            'rep_transactions', 'vxp_transactions', 'volunteer_certificates', 'calendar',
         ];
 
         $scaleByRole = [
@@ -64,14 +68,24 @@ class RolePermissionSeeder extends Seeder
             $this->grantResources($roleKey, $volunteerResources, $scope, $expander);
         }
 
-        $this->grantResources('recruiter', ['candidates', 'interviews', 'scorecards', 'placements', 'recruitment'], 'ALL', $expander);
-        $this->grantResources('academy_manager', ['academy', 'recordings', 'paths', 'courses'], 'TRACK', $expander);
+        $this->grantResources('recruiter', ['candidates', 'interviews', 'scorecards', 'scorecard_criteria', 'shortlists', 'placements', 'placement_test', 'recruitment_analytics', 'vacancies', 'qualifying_path'], 'ALL', $expander);
+        $this->grantResources('academy_manager', ['academy_paths', 'academy_recordings', 'otp_verification', 'paths', 'courses'], 'TRACK', $expander);
 
         // ---------------- المتدرّب: ما يخصّه هو فقط
-        $this->grantResources('trainee', ['enrollments', 'lessons', 'exams', 'certificates', 'wallets', 'transactions', 'orders', 'library', 'cv', 'complaints', 'events', 'challenges'], 'SELF', $expander);
+        $this->grantResources('trainee', [
+            'user_dashboard', 'user_profile', 'privacy_settings', 'user_sessions', 'data_export', 'emergency_contact',
+            'enrollments', 'progress', 'lessons', 'lesson_quiz', 'lesson_attachments', 'course_notes', 'course_exam',
+            'courses', 'paths', 'certificates', 'certificate_verification', 'my_library', 'flip_reader',
+            'wallet', 'purchases', 'orders', 'invoices', 'topup', 'transfer', 'cart', 'store_products', 'bundles',
+            'badges', 'streaks', 'five_am_club', 'achievements', 'games', 'leaderboards', 'public_leaderboard',
+            'war_participation', 'events', 'event_registrations', 'event_attendance',
+            'referrals', 'friend_invite', 'invitations_page', 'user_cv', 'cv_templates', 'user_attestation',
+            'complaints', 'user_guide', 'announcements', 'announcement_ack', 'notifications',
+            'user_search', 'contact_consent', 'calendar', 'personal_reports', 'share_links', 'volunteer_page',
+        ], 'SELF', $expander);
 
         // ---------------- تحت المراجعة: قراءة محدودة جدًّا
-        $this->grantResources('pending_review', ['help_articles', 'announcements'], 'SELF', $expander);
+        $this->grantResources('pending_review', ['user_guide', 'announcements', 'notifications', 'user_profile'], 'SELF', $expander);
 
         $count = DB::table('permission_role')->count();
         $this->command?->info("أسطر ربط الأدوار بالصلاحيّات: {$count}");

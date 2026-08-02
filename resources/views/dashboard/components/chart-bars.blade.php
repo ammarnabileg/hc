@@ -22,7 +22,7 @@
     $totalSpent = array_sum(array_map(fn ($g) => (int) $g['spent'], $groups));
 @endphp
 
-<section class="card p-4">
+<section class="card p-4 min-w-0">
     <div class="flex items-baseline justify-between gap-2">
         <h3 class="font-bold text-sm">التذاكر: مكتسب ومصروف</h3>
         <span class="text-xs" style="color: var(--text-muted)">+{{ number_format($totalEarned) }} · −{{ number_format($totalSpent) }}</span>
