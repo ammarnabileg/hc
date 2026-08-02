@@ -309,7 +309,7 @@ class AdminCoreTest extends TestCase
      * ⭐ `manage` تُفرَد ظاهرةً عند الحفظ: سطر واحد يصير ثلاثة عشر (12.2.1-د).
      * مورد الاختبار يحمل الأفعال الثلاثة عشر كاملةً حتى يُقاس الفرد كاملًا لا منقوصًا.
      */
-    public function test_manage_expands_into_thirteen_visible_rows_on_save(): void
+    public function test_manage_expands_into_its_five_visible_rows_on_save(): void
     {
         $owner = $this->owner();
         $role = Role::create([
@@ -345,22 +345,33 @@ class AdminCoreTest extends TestCase
             ->pluck('permissions.action')
             ->all();
 
-        // الصلاحيّة نفسها + الاثنا عشر فعلًا المفرودة = ثلاثة عشر سطرًا ظاهرًا
-        $this->assertCount(13, $written, 'manage لازم تُفرَد ثلاثة عشر سطرًا ظاهرًا');
+        // الصلاحيّة نفسها + الأفعال الخمسة التي ينصّ عليها 12.2.1-د = ستّة أسطر ظاهرة
+        $this->assertCount(
+            count(config('access.manage_expands_to')) + 1,
+            $written,
+            'manage تُفرَد بأفعالها الخمسة وحدها (12.2.1-د) — لا بأوسع منها',
+        );
         $this->assertContains('manage', $written);
-        $this->assertContains('approve', $written);
         $this->assertContains('delete', $written);
+        $this->assertContains('assign', $written);
+        // و`approve` ليست منها: منحُها صامتةً مع `manage` توسيعُ صلاحيّةٍ بلا سند
+        $this->assertNotContains('approve', $written);
     }
 
-    /** ⭐ منع تصعيد الامتياز: الحفظ يُرفَض برسالة تشرح (12.2.1-ز-2). */
-    public function test_privilege_escalation_is_rejected_with_a_clear_message(): void
+    /**
+     * ⭐ منع تصعيد الامتياز (12.2.1-ز-2) — على طبقتين:
+     *
+     * (1) **الباب:** `roles.edit` منصوصة «مالك المنصّة فقط» في 12.2.2، فغير
+     *     المالك لا يصل إلى محرّر الأدوار أصلًا مهما أُسنِد إليه من أدوار.
+     * (2) **الحارس نفسه:** `canGrant` يرفض منح ما لا يملكه المانح — ويُفحَص
+     *     مباشرةً لأنّ الباب أعلاه يمنع الوصول إليه عبر HTTP لغير المالك.
+     */
+    public function test_the_role_editor_is_closed_to_anyone_but_the_platform_owner(): void
     {
-        // مسؤول الشهادات لا يملك صلاحيّات الشكاوى ⟵ فلا يمنحها لأحد
         $actor = $this->makeUser('مسؤول الشهادات');
         $actor->assignRole('certificates_admin');
-        app(AccessEngine::class)->forget();
 
-        // نمنحه صلاحيّة تحرير الأدوار حتى نصل للحفظ ونختبر الحارس نفسه لا البوّابة
+        // حتى لو أُسنِدت `roles.edit` لدوره، العزل يغلب الإسناد
         app(PermissionExpander::class)->attachToRole(
             Role::where('key', 'certificates_admin')->firstOrFail(), 'roles.edit', 'ALL',
         );
@@ -369,19 +380,30 @@ class AdminCoreTest extends TestCase
         $role = Role::create(['key' => 'test_escalation_role', 'name_ar' => 'دور اختبار التصعيد', 'layer' => 'platform']);
         $manage = Permission::where('key', 'complaints.manage')->firstOrFail();
 
-        $response = $this->actingAs($actor)
+        $this->actingAs($actor)
             ->put(route('admin.roles.update', $role), [
                 'group' => $manage->group,
                 'rows' => [$manage->id => ['on' => '1', 'scope' => 'ALL', 'effect' => 'allow']],
-            ]);
+            ])
+            ->assertForbidden();
 
-        $response->assertSessionHasErrors();
-
-        // ولا سطر واحد اتكتب
         $this->assertSame(0, DB::table('permission_role')->where('role_id', $role->id)->count());
+    }
 
-        $errors = session('errors')->all();
-        $this->assertStringContainsString('complaints.manage', implode(' ', $errors));
+    /** ولا يمنح أحدٌ ما لا يملك، ولا نطاقًا أوسع من نطاقه */
+    public function test_nobody_grants_what_they_do_not_hold(): void
+    {
+        $actor = $this->makeUser('مسؤول الشهادات');
+        $actor->assignRole('certificates_admin');
+        app(AccessEngine::class)->forget();
+
+        $engine = app(AccessEngine::class);
+
+        // لا يملك صلاحيّات الشكاوى إطلاقًا ⟵ لا يمنحها
+        $this->assertFalse($engine->canGrant($actor, 'complaints.manage', 'ALL'));
+
+        // ويملك صلاحيّات الشهادات بنطاق ALL ⟵ يمنحها في حدود ما يملك
+        $this->assertTrue($engine->canGrant($actor, 'certificates.view', 'ALL'));
     }
 
     /** ⭐ عزل الحسّاس: صلاحيّات مالك المنصّة لا تظهر لغيره أصلًا (12.2.1-ز-3). */
