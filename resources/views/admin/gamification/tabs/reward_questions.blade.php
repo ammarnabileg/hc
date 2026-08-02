@@ -7,11 +7,27 @@
 <section class="card p-4 md:p-5">
     <div class="flex items-center justify-between gap-3 flex-wrap mb-1">
         <h2 class="font-bold">بنك أسئلة المكافآت</h2>
-        @can('reward_questions.create')
-            <button type="button" data-modal-open="reward-question-modal"
-                    class="btn rounded-xl px-3 py-1.5 text-xs font-semibold"
-                    style="background: var(--color-brand-500); color: #04201c">+ سؤال</button>
-        @endcan
+        <div class="flex items-center gap-2">
+            @can('reward_questions.import')
+                @if (setting('reward_questions.csv_import_enabled', true))
+                    {{-- استيراد دفعة: الصفوف تدخل مسودّات فلا ينشر ملفٌّ سؤالًا بلا مراجعة --}}
+                    <form method="post" action="{{ route('admin.gamification.reward-questions.import') }}"
+                          enctype="multipart/form-data" class="flex items-center gap-2">
+                        @csrf
+                        <input type="file" name="file" accept=".csv,text/csv" required
+                               class="text-xs" style="color: var(--text-muted)">
+                        <button type="submit" class="rounded-xl px-3 py-1.5 text-xs"
+                                style="background: var(--surface-raised); color: var(--text)">استيراد CSV</button>
+                    </form>
+                @endif
+            @endcan
+
+            @can('reward_questions.create')
+                <button type="button" data-modal-open="reward-question-modal"
+                        class="btn rounded-xl px-3 py-1.5 text-xs font-semibold"
+                        style="background: var(--color-brand-500); color: #04201c">+ سؤال</button>
+            @endcan
+        </div>
     </div>
     <p class="text-xs mb-3" style="color: var(--text-muted)">
         لكلّ سؤال رابط مؤقّت + QR تشاركه مع المتدرّبين؛ وفوق السؤال تايمر نازل، وبعد انتهاء الوقت

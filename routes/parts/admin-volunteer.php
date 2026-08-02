@@ -145,6 +145,8 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
         // أسئلة المكافآت (12.10-أ) — الإجابات والنتائج بصلاحيّتها وحدها
         Route::post('/reward-questions', [GamificationController::class, 'saveRewardQuestion'])
             ->middleware('permission:reward_questions.create,reward_questions.edit')->name('reward-questions.save');
+        Route::post('/reward-questions/import', [GamificationController::class, 'importRewardQuestions'])
+            ->middleware('permission:reward_questions.import')->name('reward-questions.import');
         Route::post('/reward-questions/{rewardQuestion}/close', [GamificationController::class, 'closeRewardQuestion'])
             ->middleware('permission:reward_questions.edit')->name('reward-questions.close');
         Route::get('/reward-questions/{rewardQuestion}/results', [GamificationController::class, 'rewardQuestionResults'])

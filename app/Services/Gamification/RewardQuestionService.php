@@ -6,6 +6,7 @@ use App\Models\RewardQuestion;
 use App\Models\RewardQuestionAnswer;
 use App\Models\User;
 use App\Services\Certificates\QrCode;
+use App\Services\Notifications\Notifier;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -158,7 +159,67 @@ class RewardQuestionService
 
         $question->save();
 
+        // Toast/إشعار بفتح سؤال جديد — مرّة واحدة عند أوّل فتحٍ فعليّ لا مع كلّ حفظ
+        if (! $wasOpen && $this->isOpen($question)) {
+            $this->announce($question);
+        }
+
         return $question;
+    }
+
+    /**
+     * استيراد دفعة من ملفّ CSV (12.10-أ).
+     * الأعمدة: السؤال · النوع · الاختيارات (مفصولة بـ`|`) · الإجابة · XP · تذاكر · الدقائق.
+     * والصفوف تُستورَد **مسودّات** دائمًا — فلا ينشر ملفٌّ سؤالًا بلا مراجعة.
+     *
+     * @return array{imported:int,errors:array<int,string>}
+     */
+    public function importCsv(string $contents, ?User $actor = null): array
+    {
+        $imported = 0;
+        $errors = [];
+        $lines = preg_split('/\r\n|\r|\n/', trim($contents)) ?: [];
+
+        foreach ($lines as $index => $line) {
+            $line = trim($line);
+
+            if ($line === '') {
+                continue;
+            }
+
+            $columns = str_getcsv($line);
+
+            // سطر العناوين يُتخطّى بلا خطأ
+            if ($index === 0 && ! empty($columns[0]) && mb_strtolower(trim($columns[0])) === 'prompt') {
+                continue;
+            }
+
+            $prompt = trim((string) ($columns[0] ?? ''));
+            $answer = trim((string) ($columns[3] ?? ''));
+
+            if ($prompt === '' || $answer === '') {
+                $errors[] = 'الصفّ رقم '.($index + 1).': السؤال أو الإجابة ناقص.';
+
+                continue;
+            }
+
+            $this->save([
+                'prompt' => $prompt,
+                'type' => in_array(trim((string) ($columns[1] ?? '')), ['choice', 'text', 'number'], true)
+                    ? trim((string) $columns[1])
+                    : 'choice',
+                'options' => array_filter(explode('|', (string) ($columns[2] ?? ''))),
+                'correct_answer' => $answer,
+                'reward_xp' => (int) ($columns[4] ?? 0),
+                'reward_tickets' => (int) ($columns[5] ?? 0),
+                'active_minutes' => (int) ($columns[6] ?? setting('reward_questions.default_minutes', 60)),
+                'status' => 'draft',
+            ], null, $actor);
+
+            $imported++;
+        }
+
+        return ['imported' => $imported, 'errors' => $errors];
     }
 
     /** إغلاق فوريّ: الرابط يقفل الآن ويظهر «انتهى وقت الإجابة» */
@@ -289,6 +350,29 @@ class RewardQuestionService
     }
 
     // ------------------------------------------------------------ داخليّ
+
+    /**
+     * إشعار بفتح سؤال جديد (12.10-أ) — لأصحاب الحسابات المفعَّلة وحدهم،
+     * ويمرّ من **بوّابة الإشعارات الموحّدة** (2.8) لا بقناة خاصّة بهذا المجال.
+     */
+    private function announce(RewardQuestion $question): void
+    {
+        if (! setting('reward_questions.notify_on_open', true)) {
+            return;
+        }
+
+        $users = User::query()->where('status', 'active')->cursor();
+
+        Notifier::sendMany(
+            $users,
+            'reward_question',
+            (string) setting('reward_questions.page_title', 'سؤال المكافأة'),
+            Str::limit($question->prompt, 90),
+            $this->url($question),
+            'platform',
+            $question->closes_at,
+        );
+    }
 
     /** قيمة XP: قيمة السؤال أوّلًا، وإلّا فصفّ «سؤال مكافأة» في جدول الكسب (12.10) */
     private function rewardXp(RewardQuestion $question): int

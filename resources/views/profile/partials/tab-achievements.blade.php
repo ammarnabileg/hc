@@ -6,6 +6,20 @@
 @if (! $canSee)
     <x-empty message="الإنجازات مش متاحة على البروفايل ده." />
 @else
+    {{-- ⭐ بطاقة الإنجاز قابلة للاستخراج كصورة (12.14-هـ) --}}
+    <div class="flex justify-end mb-3">
+        <x-export-image
+            kind="card"
+            :title="$owner->shortName().' — إنجازاتي'"
+            :subtitle="'مستوى الحساب '.$owner->level"
+            :rows="collect($achievements)->values()->map(fn ($track, $i) => [
+                'rank' => $track['level'],
+                'u' => $owner->id,
+                'name' => $track['label'],
+                'value' => number_format($track['value']).' '.$track['unit'],
+            ])->all()" />
+    </div>
+
     <div class="space-y-3">
         @foreach ($achievements as $track)
             <section class="card p-4 animate-fadeup">

@@ -54,6 +54,7 @@ class DemoSeeder extends Seeder
             AdminContentDemoSeeder::class,
             AdminVolunteerDemoSeeder::class,
             AdminSystemDemoSeeder::class,
+            AdminScreens24DemoSeeder::class,
         ];
 
         foreach ($seeders as $seeder) {

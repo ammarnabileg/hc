@@ -290,6 +290,35 @@ class GamificationController extends Controller
         return back()->with('status', 'اتحفظ ✓');
     }
 
+    /**
+     * استيراد دفعة أسئلة من CSV (12.10-أ) — والصفوف تدخل **مسودّات**،
+     * فلا ينشر ملفٌّ سؤالًا قبل أن يراه إنسان.
+     */
+    public function importRewardQuestions(Request $request, RewardQuestionService $service): RedirectResponse
+    {
+        abort_unless((bool) setting('reward_questions.csv_import_enabled', true), 403);
+
+        $request->validate([
+            'file' => ['required', 'file', 'mimetypes:text/plain,text/csv,application/csv,application/vnd.ms-excel'],
+        ]);
+
+        $result = $service->importCsv(
+            (string) file_get_contents($request->file('file')->getRealPath()),
+            $request->user(),
+        );
+
+        AuditTrail::log($request->user(), 'reward_question.import', null, [], ['imported' => $result['imported']]);
+
+        // ماذا حدث + ماذا تفعل (2.17-ج): العدد المستورَد وأسطر الخطأ إن وُجدت
+        $message = 'اتستوردت '.$result['imported'].' أسئلة كمسودّات ✓';
+
+        if ($result['errors'] !== []) {
+            $message .= ' — تخطّينا: '.implode(' · ', array_slice($result['errors'], 0, 3));
+        }
+
+        return back()->with('status', $message);
+    }
+
     /** إغلاق فوريّ: الرابط يقفل الآن ويظهر «انتهى وقت الإجابة» (12.10-أ) */
     public function closeRewardQuestion(Request $request, RewardQuestion $rewardQuestion, RewardQuestionService $service): RedirectResponse
     {

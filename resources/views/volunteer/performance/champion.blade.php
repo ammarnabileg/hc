@@ -10,11 +10,13 @@
 @php
     // لقطة بطاقة مشرف الشهر لزرّ [استخراج كصورة] (12.14-هـ)
     $exportSubtitle = $nextUpdate->format('Y/m');
-    $exportRows = collect($board['rows'] ?? $board ?? [])->values()->map(fn ($row, $i) => [
-        'rank' => $i + 1,
-        'u' => $row['user']->id ?? null,
-        'name' => $row['user']->name ?? '',
-        'value' => (string) ($row['score'] ?? $row['vxp'] ?? ''),
+    // المفتاح `candidates` هو مصدر الصفوف (ChampionService::board) — و`$board`
+    // نفسه فيه تواريخ لا صفوف، فالرجوع إليه كان يكسر الشاشة.
+    $exportRows = collect($board['candidates'] ?? [])->values()->map(fn ($row, $i) => [
+        'rank' => $row['rank'] ?? $i + 1,
+        'u' => $row['user']?->id,
+        'name' => $row['user']?->name ?? '',
+        'value' => $num($row['rep_average'] ?? 0),
     ])->all();
 @endphp
 
