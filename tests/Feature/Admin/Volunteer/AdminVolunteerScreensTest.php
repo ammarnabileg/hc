@@ -2,7 +2,10 @@
 
 namespace Tests\Feature\Admin\Volunteer;
 
+use App\Models\Entity;
+use App\Models\Membership;
 use App\Models\Offboarding;
+use App\Models\Position;
 use App\Models\Setting;
 use App\Services\Admin\Volunteer\Integrations;
 use App\Services\Admin\Volunteer\OffboardingService;
@@ -143,6 +146,19 @@ class AdminVolunteerScreensTest extends AdminVolunteerTestCase
         $admin = $this->grant($this->makeUser(), 'offboarding.create', 'offboarding.approve');
         $target = $this->makeUser('مستقيل');
 
+        /*
+         | عضويّة فعليّة — فشهادة الخبرة تشهد **مدّة خدمة**، ومَن لا عضويّة له
+         | لا مدّة تُشهَد له (`issueExperience` ترفض بسببٍ صريح). والاختبار كان
+         | يستقيل بمن لم يتطوّع أصلًا، فيقيس علَمًا لا يمكن أن يُرفَع.
+         */
+        Membership::create([
+            'user_id' => $target->id,
+            'entity_id' => Entity::query()->value('id'),
+            'position_id' => Position::query()->where('key', 'coordinator')->value('id'),
+            'started_at' => now()->subMonths(8),
+            'status' => 'active',
+        ]);
+
         $record = OffboardingService::open($target, 'resignation', 'ظروف دراسة', $admin);
 
         $this->expectException(RuntimeException::class);
@@ -155,6 +171,19 @@ class AdminVolunteerScreensTest extends AdminVolunteerTestCase
     {
         $admin = $this->grant($this->makeUser(), 'offboarding.create', 'offboarding.approve');
         $target = $this->makeUser('مستقيل');
+
+        /*
+         | عضويّة فعليّة — فشهادة الخبرة تشهد **مدّة خدمة**، ومَن لا عضويّة له
+         | لا مدّة تُشهَد له (`issueExperience` ترفض بسببٍ صريح). والاختبار كان
+         | يستقيل بمن لم يتطوّع أصلًا، فيقيس علَمًا لا يمكن أن يُرفَع.
+         */
+        Membership::create([
+            'user_id' => $target->id,
+            'entity_id' => Entity::query()->value('id'),
+            'position_id' => Position::query()->where('key', 'coordinator')->value('id'),
+            'started_at' => now()->subMonths(8),
+            'status' => 'active',
+        ]);
 
         $checklist = array_fill(0, count(OffboardingService::clearanceItems()), true);
         $record = OffboardingService::open($target, 'resignation', 'ظروف دراسة', $admin, $checklist);
