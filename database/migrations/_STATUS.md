@@ -15,7 +15,10 @@
 
 ## ✅ المُنجَز
 <!-- تلقائيّ:بداية:المنجز -->
-- **مايجريشنز (209) — والقائم منها لا يُعدَّل (قاعدة البناء §1). الأحدث:**
+- **مايجريشنز (212) — والقائم منها لا يُعدَّل (قاعدة البناء §1). الأحدث:**
+  - `2026_08_16_100010_ui_retire_orphan_first_time_keys.php`
+  - `2026_08_15_100010_gamification_earn_rows_without_a_consumer.php`
+  - `2026_08_14_100010_volunteer_workflow_gaps.php`
   - `2026_08_13_100010_admin_content_drafts_notifications_and_exam_price.php`
   - `2026_08_12_100010_access_condition_keys_and_panel_gate.php`
   - `2026_08_11_100010_volunteer_journey_and_page_unification.php`
@@ -25,10 +28,7 @@
   - `2026_08_09_120030_onboarding_settings_and_first_run_unification.php`
   - `2026_08_09_120020_onboarding_placement_test_tables.php`
   - `2026_08_09_120010_onboarding_identity_and_journey_columns.php`
-  - `2026_08_09_100040_create_lesson_video_views_table.php`
-  - `2026_08_09_100030_badges_bilingual_name_and_description.php`
-  - `2026_08_09_100020_courses_single_max_lesson_xp_source.php`
-  - … و197 غيرها.
+  - … و200 غيرها.
 <!-- تلقائيّ:نهاية:المنجز -->
 
 ## ⬜ المتبقّي

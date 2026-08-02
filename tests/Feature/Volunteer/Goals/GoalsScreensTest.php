@@ -199,6 +199,20 @@ class GoalsScreensTest extends GoalsTestCase
         $this->assertSame(1, $missed);
         $this->assertSame(1, (int) $item->fresh()->missed_count);
         $this->assertSame(rep_rule('task.no_delivery'), app(RepService::class)->score($owner->fresh()));
+
+        /*
+         | ⭐ «لا تُقفَل بصمت — تدخل **مسار عدم التسليم (الحالة 4)** فورًا» (23-1.8):
+         | فالخصم وحده كان يترك المهمّة بلا مالك جديد ولا إغلاق. والحالة تُفتَح على
+         | مكتب الأبلاين، والخصم لا يتكرّر مهما أُعيد التشغيل.
+         */
+        $this->assertDatabaseHas('escalations', [
+            'case_type' => 'no_delivery',
+            'subject_id' => Task::query()->where('work_item_id', $item->id)->value('id'),
+            'status' => 'open',
+        ]);
+
+        $this->assertSame(0, app(RecurringGenerator::class)->markMissed($item));
+        $this->assertSame(rep_rule('task.no_delivery'), app(RepService::class)->score($owner->fresh()));
     }
 
     /** شاشة VXP تعرض التنويه الثابت وصفّ «أنا» المثبَّت */

@@ -42,7 +42,7 @@
 ## 🔗 التبعيّات والملفّات المهمّة
 <!-- تلقائيّ:بداية:التبعيات -->
 - **الطبقات الأخرى لنفس المجال:** `app/Http/Controllers/Growth` · `resources/views/growth` · `routes/parts` · `tests/Feature/Growth`
-- **الاختبارات:** 8 ملفّ Feature في `tests/Feature/Growth` — شغّلها بـ`php artisan test tests/Feature/Growth`.
+- **الاختبارات:** 9 ملفّ Feature في `tests/Feature/Growth` — شغّلها بـ`php artisan test tests/Feature/Growth`.
 - **المرجع الحاكم:** `دستور اساسي.md` · **وكيف نكتب:** `docs/BUILD.md`.
 - **المجلّد الأب:** `app/Services/_STATUS.md`.
 <!-- تلقائيّ:نهاية:التبعيات -->

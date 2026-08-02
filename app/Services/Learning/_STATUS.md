@@ -47,7 +47,7 @@
 ## 🔗 التبعيّات والملفّات المهمّة
 <!-- تلقائيّ:بداية:التبعيات -->
 - **الطبقات الأخرى لنفس المجال:** `resources/views/learning` · `routes/parts` · `tests/Feature/Learning`
-- **الاختبارات:** 15 ملفّ Feature في `tests/Feature/Learning` — شغّلها بـ`php artisan test tests/Feature/Learning`.
+- **الاختبارات:** 16 ملفّ Feature في `tests/Feature/Learning` — شغّلها بـ`php artisan test tests/Feature/Learning`.
 - **المرجع الحاكم:** `دستور اساسي.md` · **وكيف نكتب:** `docs/BUILD.md`.
 - **المجلّد الأب:** `app/Services/_STATUS.md`.
 <!-- تلقائيّ:نهاية:التبعيات -->

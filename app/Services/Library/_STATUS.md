@@ -47,7 +47,7 @@
 ## 🔗 التبعيّات والملفّات المهمّة
 <!-- تلقائيّ:بداية:التبعيات -->
 - **الطبقات الأخرى لنفس المجال:** `resources/views/library` · `routes/parts` · `tests/Feature/Library`
-- **الاختبارات:** 6 ملفّ Feature في `tests/Feature/Library` — شغّلها بـ`php artisan test tests/Feature/Library`.
+- **الاختبارات:** 7 ملفّ Feature في `tests/Feature/Library` — شغّلها بـ`php artisan test tests/Feature/Library`.
 - **المرجع الحاكم:** `دستور اساسي.md` · **وكيف نكتب:** `docs/BUILD.md`.
 - **المجلّد الأب:** `app/Services/_STATUS.md`.
 <!-- تلقائيّ:نهاية:التبعيات -->

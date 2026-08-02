@@ -2,12 +2,12 @@
 
 namespace Tests\Feature\Volunteer\Flow;
 
+use App\Models\Currency;
 use App\Models\Escalation;
 use App\Models\Membership;
 use App\Models\MembershipAbsence;
-use App\Models\Objection;
 use App\Models\Task;
-use App\Models\TaskSubmission;
+use App\Models\TaskTodo;
 use App\Models\Transaction;
 use App\Models\User;
 use App\Services\Volunteer\Contributions\ReviewService;
@@ -16,6 +16,7 @@ use App\Services\Volunteer\Escalation\EscalationEngine;
 use App\Services\Volunteer\Escalation\HandlerChain;
 use App\Services\Volunteer\Objections\ObjectionService;
 use App\Services\Volunteer\Tasks\NoDeliverySweeper;
+use App\Services\Volunteer\Tasks\SubtaskBatch;
 use App\Services\Volunteer\Tasks\TaskWorkflow;
 use Illuminate\Support\Facades\Artisan;
 
@@ -75,7 +76,7 @@ class WorkflowGapsTest extends FlowTestCase
     {
         $transaction = Transaction::create([
             'user_id' => $this->owner->id,
-            'currency_id' => \App\Models\Currency::where('code', 'rep')->value('id'),
+            'currency_id' => Currency::where('code', 'rep')->value('id'),
             'amount' => -0.25,
             'layer' => 'volunteer',
             'source' => 'task',
@@ -191,6 +192,30 @@ class WorkflowGapsTest extends FlowTestCase
         app(NoDeliverySweeper::class)->run();
 
         $this->assertEqualsWithDelta(rep_rule('task.no_delivery'), $this->repRows($this->owner), 0.001);
+    }
+
+    /** ⭐ نافذة التفكيك: −0.2 عن كلّ يوم تأخير بسقف −1 (23-3.9-1) */
+    public function test_late_breakdown_is_charged_per_day_with_a_cap(): void
+    {
+        $parent = $this->makeTask(attributes: ['deadline_at' => now()->addDays(10)]);
+        $parent->forceFill(['created_at' => now()->subDays(3)])->save();
+
+        app(SubtaskBatch::class)->save($parent, [
+            ['title' => 'ابن أوّل', 'deadline_at' => now()->addDays(5)->toDateTimeString()],
+        ], $this->owner);
+
+        // نافذة التفكيك 24 ساعة ⟵ التأخّر يومان ⟵ −0.4، وبالسقف لا يتجاوز −1
+        $charged = $this->repRows($this->owner);
+
+        $this->assertLessThan(0, $charged, 'التأخّر عن التفكيك له خصم — وإلّا صار عنق الزجاجة الخفيّ بلا تكلفة.');
+        $this->assertGreaterThanOrEqual((float) rep_rule('task.breakdown_delay_cap'), $charged);
+
+        // ولا يتكرّر على نفس المهمّة
+        app(SubtaskBatch::class)->save($parent, [
+            ['title' => 'ابن ثانٍ', 'deadline_at' => now()->addDays(5)->toDateTimeString()],
+        ], $this->owner);
+
+        $this->assertEqualsWithDelta($charged, $this->repRows($this->owner), 0.001);
     }
 
     /** وعلم «متأخّر بسبب ابن» يُقرأ فعلًا عند الخصم — فيحمي رافعه (23-3.9-4) */
@@ -341,7 +366,7 @@ class WorkflowGapsTest extends FlowTestCase
             ->post(route('volunteer.tasks.todos.store', $task), ['body' => 'أراجع المصادر'])
             ->assertRedirect();
 
-        $todo = \App\Models\TaskTodo::query()->firstOrFail();
+        $todo = TaskTodo::query()->firstOrFail();
         $this->assertSame($this->owner->id, (int) $todo->user_id);
 
         // انتقلت الملكيّة ⟵ المالك الجديد لا يحرّر قائمة السابق
