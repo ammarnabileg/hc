@@ -17,12 +17,11 @@ use Illuminate\Support\Facades\Route;
  *
  * فالباب الآن **يُحسَب** من جدول المسارات نفسه لا من قائمة محروقة:
  *   صلاحيّة إداريّة = تحرس مسارًا داخل `admin.*`
- *                  − ولا تحرس أيّ مسارٍ خارجها (وإلّا فهي مفتاح صفحةٍ عامّة)
  *                  − ولا تدخل في قالب المستخدم النهائيّ (طبقة `user` — 12.2.3).
  *
- * والاستثناءان ليسا تخفيفًا بل تشديد: بدونهما يفتح **المتدرّب** اللوحة لأنّه يحمل
- * `store_products.list` و`badges.view` (وهي مفاتيح صفحاتٍ عامّة يتصادف أن تحرس
- * شاشة إدارة كذلك). وبهما يبقى الباب حكرًا على من يملك سلطةً إداريّةً فعلًا.
+ * والاستثناء ليس تخفيفًا بل تشديد: بدونه يفتح **المتدرّب** اللوحة لأنّه يحمل
+ * مفاتيح صفحاتٍ عامّة يتصادف أن تحرس شاشة إدارة كذلك. وبه يبقى الباب حكرًا على
+ * من يملك سلطةً إداريّةً فعلًا.
  */
 final class AdminPanelSurface
 {
@@ -39,7 +38,6 @@ final class AdminPanelSurface
     {
         $prefix = (string) config('access.panel.route_prefix', 'admin.');
         $inside = [];
-        $outside = [];
 
         foreach (Route::getRoutes() as $route) {
             $keys = self::guardKeys($route->gatherMiddleware());
@@ -48,14 +46,29 @@ final class AdminPanelSurface
                 continue;
             }
 
-            $bucket = str_starts_with((string) $route->getName(), $prefix) ? 'inside' : 'outside';
+            if (! str_starts_with((string) $route->getName(), $prefix)) {
+                continue;
+            }
 
             foreach ($keys as $key) {
-                ${$bucket}[$key] = true;
+                $inside[$key] = true;
             }
         }
 
-        $keys = array_diff_key($inside, $outside);
+        /*
+         | ⭐ الاستبعاد بقالب المستخدم النهائيّ وحده — لا بـ«تحرس مسارًا خارج
+         | `admin.*`».
+         |
+         | كان الشرط الثاني يُسقِط كلّ مفتاحٍ يحرس شاشة إدارة **وشاشةَ طبقةٍ أخرى
+         | معًا**، فيخرج من الحساب `org_chart.view` و`rep_transactions.view`
+         | و`reports_volunteer.view` — وهي سلطاتٌ إداريّة حقيقيّة يقابلها في لوحة
+         | التطوّع عرضٌ لصاحبها. والنتيجة أنّ مَن يملكها **وحدها** يُردّ بـ403 عن
+         | شاشتها الإداريّة نفسها، وهو عكس 12.2.1-أ نصًّا.
+         |
+         | والحارس الحقيقيّ ضدّ فتح المتدرّب للّوحة هو `endUserKeys()`: مفاتيح
+         | قالب المستخدم النهائيّ (12.2.3) — وهي التي تُقصى، لا كلُّ مشترَك.
+         */
+        $keys = $inside;
 
         foreach (self::endUserKeys() as $key) {
             unset($keys[$key]);

@@ -7,6 +7,8 @@ use App\Models\User;
 use App\Support\Access\AccessEngine;
 use Database\Seeders\AdminVolunteerDemoSeeder;
 use Database\Seeders\CoreSeeder;
+use Database\Seeders\PermissionSeeder;
+use Database\Seeders\RoleSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
@@ -24,6 +26,13 @@ abstract class AdminVolunteerTestCase extends TestCase
         parent::setUp();
 
         $this->seed(CoreSeeder::class);
+        /*
+         | تُزرَع المصفوفة الحقيقيّة لا صفوفٌ تُخلَق وقت المنح: الصفّ المُخترَع
+         | يأتي بلا `is_owner_only` فتسقط قاعدة **عزل الحسّاس** (12.2.1-ز-3)
+         | بصمت، ويمرّ الاختبارُ على شاشةٍ يجب أن تُغلَق.
+         */
+        $this->seed(PermissionSeeder::class);
+        $this->seed(RoleSeeder::class);
         $this->seed(AdminVolunteerDemoSeeder::class);
     }
 

@@ -6,6 +6,7 @@ use App\Models\Offboarding;
 use App\Models\Setting;
 use App\Services\Admin\Volunteer\Integrations;
 use App\Services\Admin\Volunteer\OffboardingService;
+use App\Support\Access\AccessEngine;
 use RuntimeException;
 
 /**
@@ -26,7 +27,6 @@ class AdminVolunteerScreensTest extends AdminVolunteerTestCase
             'admin.volunteer.certificates' => 'volunteer_certificates.view',
             'admin.volunteer.analytics' => 'reports_volunteer.view',
             'admin.gamification.index' => 'xp_rules.view',
-            'admin.rewards.index' => 'manual_rewards.list',
             'admin.events.index' => 'events.list',
         ];
 
@@ -38,6 +38,23 @@ class AdminVolunteerScreensTest extends AdminVolunteerTestCase
             $allowed = $this->grant($this->makeUser(), $permission);
             $this->actingAs($allowed)->get(route($route))->assertOk();
         }
+    }
+
+    /**
+     * ⭐ شاشة المكافآت اليدويّة في **المجموعة المحميّة**: `manual_rewards.list`
+     * منصوصة «مالك المنصّة فقط» (12.2.2 · 12.2.1-ز-3)، فمنحُها لا يفتحها —
+     * العزل يغلب الإسناد، ولا يفتحها إلّا مالك المنصّة نفسه.
+     */
+    public function test_manual_rewards_stay_isolated_to_the_platform_owner(): void
+    {
+        $granted = $this->grant($this->makeUser(), 'manual_rewards.list');
+        $this->actingAs($granted)->get(route('admin.rewards.index'))->assertForbidden();
+
+        $owner = $this->makeUser('مالك المنصّة');
+        $owner->assignRole('platform_owner');
+        app(AccessEngine::class)->forget();
+
+        $this->actingAs($owner)->get(route('admin.rewards.index'))->assertOk();
     }
 
     /** تابات التلعيب السبعة تفتح كلّها بلا خطأ. */
