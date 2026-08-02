@@ -17,7 +17,8 @@ class AdminVolunteerRepSettingsTest extends AdminVolunteerTestCase
     /** ⭐ تعديل قيمة Rep من الشاشة ينعكس فورًا على `rep_rule()` بلا انتظار كاش. */
     public function test_editing_a_rep_value_reflects_immediately_on_rep_rule_helper(): void
     {
-        $admin = $this->grant($this->makeUser(), 'rep_transactions.view', 'volunteer_central_settings.edit');
+        // `volunteer_central_settings.edit` منصوصة «مالك المنصّة فقط» (12.2.2)
+        $admin = $this->platformOwner();
 
         $this->assertSame(1.0, rep_rule('meeting.within_3h'));
 
@@ -36,7 +37,7 @@ class AdminVolunteerRepSettingsTest extends AdminVolunteerTestCase
     /** ↺ Reset يرجّع القيمة لافتراضيّها المنصوص في الدستور. */
     public function test_reset_returns_a_rep_value_to_its_constitutional_default(): void
     {
-        $admin = $this->grant($this->makeUser(), 'volunteer_central_settings.edit', 'volunteer_central_settings.manage');
+        $admin = $this->platformOwner();
 
         RepRuleWriter::put('task.no_delivery', -0.1, $admin);
         $this->assertSame(-0.1, rep_rule('task.no_delivery'));
@@ -102,7 +103,7 @@ class AdminVolunteerRepSettingsTest extends AdminVolunteerTestCase
     /** قائمة المخالفات المكوَّدة تُضاف وتُعدَّل من الشاشة — لا نصّ حرّ. */
     public function test_admin_can_add_a_coded_violation(): void
     {
-        $admin = $this->grant($this->makeUser(), 'volunteer_central_settings.edit');
+        $admin = $this->platformOwner();
 
         $this->actingAs($admin)
             ->post(route('admin.volunteer.rep.violations.save'), [

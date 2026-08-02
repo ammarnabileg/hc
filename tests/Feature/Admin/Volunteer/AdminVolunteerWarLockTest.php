@@ -67,7 +67,8 @@ class AdminVolunteerWarLockTest extends AdminVolunteerTestCase
     /** ↺ Reset يمسح كلّ الـOverrides فتعود الحرب للقواعد العامّة. */
     public function test_reset_clears_all_overrides_for_a_war(): void
     {
-        $admin = $this->grant($this->makeUser(), 'wars_settings.edit', 'wars_settings.manage');
+        // `wars_settings.manage` منصوصة «مالك المنصّة فقط» (12.2.2) — والعزل يغلب الإسناد
+        $admin = $this->platformOwner();
         $war = Challenge::where('key', 'knowledge_war')->firstOrFail();
 
         WarSettingsService::save($war, ['rewards' => ['win' => 7]], $admin);

@@ -3,6 +3,7 @@
 namespace Tests\Feature\Admin\Volunteer;
 
 use App\Models\Permission;
+use App\Models\Role;
 use App\Models\User;
 use App\Support\Access\AccessEngine;
 use Database\Seeders\AdminVolunteerDemoSeeder;
@@ -45,6 +46,21 @@ abstract class AdminVolunteerTestCase extends TestCase
             'code' => str()->upper(str()->random(6)),
             'status' => 'active',
         ]);
+    }
+
+    /**
+     * مالك المنصّة — لِما هو داخل **المجموعة المحميّة** (12.2.1-ز-3).
+     * منحُ صلاحيّةٍ معزولة لا يفتحها: العزل يغلب الإسناد، فالفاعل الصحيح
+     * لهذه الشاشات هو المالك نفسه لا أدمنٌ ممنوح.
+     */
+    protected function platformOwner(string $name = 'مالك المنصّة'): User
+    {
+        $user = $this->makeUser($name);
+        $user->assignRole(Role::query()->where('key', config('access.owner_role'))->firstOrFail());
+
+        app(AccessEngine::class)->forget();
+
+        return $user;
     }
 
     /** منح صلاحيّات بنطاق ALL لهذا المستخدم وحده */
