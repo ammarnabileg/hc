@@ -4,6 +4,7 @@ namespace Tests\Feature\Events;
 
 use App\Models\Referral;
 use App\Models\Transaction;
+use App\Models\User;
 use App\Services\Referral\ReferralService;
 
 /**
@@ -84,7 +85,7 @@ class ReferrerTicketTest extends EventsTestCase
         $this->assertSame((float) setting('referral.referrer_tickets'), $this->balanceOf($referrer, 'tickets'));
     }
 
-    /** @return array{0:\App\Models\User,1:\App\Models\User} */
+    /** @return array{0:User,1:User} */
     private function pair(): array
     {
         $referrer = $this->trainee('الداعي');

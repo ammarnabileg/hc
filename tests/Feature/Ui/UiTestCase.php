@@ -12,6 +12,7 @@ use Database\Seeders\RoleSeeder;
 use Database\Seeders\SettingSeeder;
 use Database\Seeders\UiDemoSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Tests\TestCase;
 
@@ -69,7 +70,7 @@ abstract class UiTestCase extends TestCase
             ],
         );
 
-        \Illuminate\Support\Facades\DB::table('permission_role')->updateOrInsert(
+        DB::table('permission_role')->updateOrInsert(
             ['role_id' => $role->id, 'permission_id' => $permission->id, 'scope' => 'ALL'],
             ['effect' => 'allow', 'updated_at' => now(), 'created_at' => now()],
         );

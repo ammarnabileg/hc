@@ -56,7 +56,7 @@
                     {{-- أكوام الأفاتار: دليل اجتماعيّ يشجّع على الانضمام (15.3) --}}
                     @if ($joiners->isNotEmpty())
                         <div class="flex items-center gap-2">
-                            <div class="flex -space-i-3">
+                            <div class="flex items-center">
                                 @foreach ($joiners->take(4) as $member)
                                     <span class="inline-flex" style="margin-inline-start: {{ $loop->first ? 0 : '-0.6rem' }}">
                                         <x-avatar :user="$member->user" size="10" />
