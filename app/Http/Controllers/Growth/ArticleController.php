@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Growth;
 use App\Http\Controllers\Controller;
 use App\Models\Article;
 use App\Models\ArticleCategory;
+use App\Models\Course;
+use App\Models\LearningPath;
 use App\Services\Admin\System\ArticleWorkflow;
 use App\Services\Growth\SafeHtml;
 use App\Services\Growth\UtmBuilder;
@@ -126,8 +128,8 @@ class ArticleController extends Controller
         }
 
         $type = match ($related::class) {
-            \App\Models\Course::class => 'course',
-            \App\Models\LearningPath::class => 'path',
+            Course::class => 'course',
+            LearningPath::class => 'path',
             default => null,
         };
 

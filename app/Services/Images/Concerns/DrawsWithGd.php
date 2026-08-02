@@ -2,6 +2,10 @@
 
 namespace App\Services\Images\Concerns;
 
+use App\Services\Library\ArabicShaper;
+use App\Services\Library\TrueTypeFont;
+use Throwable;
+
 /**
  * أدوات الرسم المشتركة بـGD (12.14-و) — **محرّك واحد وصفر ازدواج**:
  * قوالب الاستوديو والاستخراج كصورة يرسمان بنفس الدوالّ بنفس الخطّ

@@ -382,7 +382,7 @@ class AtsPdfWriter
                 : "0000000000 65535 f \n";
         }
 
-        $out .= "trailer\n<< /Size ".($max + 1)." /Root 1 0 R /Info ".$infoObj." 0 R >>\nstartxref\n".$xrefAt."\n%%EOF";
+        $out .= "trailer\n<< /Size ".($max + 1).' /Root 1 0 R /Info '.$infoObj." 0 R >>\nstartxref\n".$xrefAt."\n%%EOF";
 
         return $out;
     }

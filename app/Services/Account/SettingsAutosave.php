@@ -4,6 +4,7 @@ namespace App\Services\Account;
 
 use App\Models\ConsentRequest;
 use App\Models\User;
+use App\Services\Images\AvatarProcessor;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
@@ -192,7 +193,7 @@ class SettingsAutosave
         $user->forceFill(['avatar_path' => $path])->save();
 
         // ⭐ قصّ مربّع + ثلاث نسخ (500 · 150 · 50) عند الرفع مباشرةً (2.7)
-        app(\App\Services\Images\AvatarProcessor::class)->apply($user, $path);
+        app(AvatarProcessor::class)->apply($user, $path);
 
         if ($old && $old !== $path) {
             Storage::disk('public')->delete($old);
