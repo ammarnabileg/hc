@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\OffboardingAdminController;
 use App\Http\Controllers\Admin\OrgAdminController;
 use App\Http\Controllers\Admin\RepAdminController;
 use App\Http\Controllers\Admin\RewardController;
+use App\Http\Controllers\Admin\TaskTypeController;
 use App\Http\Controllers\Admin\VolunteerAdminController;
 use Illuminate\Support\Facades\Route;
 
@@ -107,6 +108,14 @@ Route::middleware(['auth', 'admin.panel'])->prefix('admin')->name('admin.')->gro
             ->middleware('permission:volunteer_certificates.create')->name('certificates.auto-issue');
         Route::post('/certificates/{certificate}/revoke', [VolunteerAdminController::class, 'revokeCertificate'])
             ->middleware('permission:volunteer_certificates.edit')->name('certificates.revoke');
+
+        // ⭐ أنواع المهامّ (23-0.3): قالب وتشيك ليست وقيم مقترحة — بلا سلوك خاصّ
+        Route::get('/task-types', [TaskTypeController::class, 'index'])
+            ->middleware('permission:task_types.list')->name('task-types.index');
+        Route::post('/task-types', [TaskTypeController::class, 'save'])
+            ->middleware('permission:task_types.manage')->name('task-types.save');
+        Route::post('/task-types/{taskType}/toggle', [TaskTypeController::class, 'toggle'])
+            ->middleware('permission:task_types.manage')->name('task-types.toggle');
 
         // تحليلات التطوّع
         Route::get('/analytics', [VolunteerAdminController::class, 'analytics'])

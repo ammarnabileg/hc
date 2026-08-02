@@ -183,9 +183,12 @@ class AdminOpsDemoSeeder extends Seeder
 
     private function onboardingSlides(): void
     {
-        if (DB::table('onboarding_slides')->exists()) {
-            return;
-        }
+        /*
+         | الحارس **لكلّ شاشة على حدة** لا للجدول كلّه: بذور مجال آخر قد تكون
+         | كتبت شرائح شاشتها قبلنا (شرائح الرئيسيّة في `UiDemoSeeder`)، وحارسٌ
+         | عامّ كان يبتلع سلسلة الترحيب كلّها لمجرّد أنّ الجدول ليس فاضيًا.
+         */
+        $written = DB::table('onboarding_slides')->distinct()->pluck('screen')->all();
 
         $rows = [
             ['welcome', 'أهلًا بيك معانا 👋', 'المكان ده اتعمل عشانك: تتعلّم، تتدرّب، وتاخد شهادة تفتخر بيها.', 'ابدأ الجولة', null],
@@ -196,6 +199,10 @@ class AdminOpsDemoSeeder extends Seeder
         ];
 
         foreach ($rows as $index => [$screen, $title, $body, $actionLabel, $actionUrl]) {
+            if (in_array($screen, $written, true)) {
+                continue;
+            }
+
             DB::table('onboarding_slides')->insert([
                 'screen' => $screen,
                 'title_ar' => $title,

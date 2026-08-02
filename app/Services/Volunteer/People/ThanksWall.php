@@ -7,6 +7,7 @@ use App\Models\PostVote;
 use App\Models\RepScore;
 use App\Models\ThanksWallPost;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 
 /**
@@ -57,14 +58,9 @@ class ThanksWall
     /** أعضاء النادي هذا الشهر مرتّبين — الترتيب داخل النادي جزء من الشاشة */
     public function members(): Collection
     {
-        return RepScore::query()
-            ->with('user')
-            ->whereIn('user_id', $this->eligibleUserIds())
-            ->where('score', '>=', $this->threshold())
-            ->orderByDesc('score')
-            ->get()
-            ->filter(fn (RepScore $r) => $r->user !== null)
-            ->values();
+        return $this->ranked(
+            RepScore::query()->where('rep_scores.score', '>=', $this->threshold()),
+        );
     }
 
     /**
@@ -76,13 +72,35 @@ class ThanksWall
     {
         $gap = (float) setting('thanks_wall.approaching_gap', 1.5);
 
-        return RepScore::query()
+        return $this->ranked(
+            RepScore::query()
+                ->where('rep_scores.score', '<', $this->threshold())
+                ->where('rep_scores.score', '>=', $this->threshold() - $gap),
+        );
+    }
+
+    /**
+     * ⭐ ترتيبٌ **حاسم** لا يتركه لصدفة ترتيب الصفوف في القاعدة.
+     *
+     * الشاشة تعرض «ترتيبًا داخل النادي» (13.4-ي · 24.4-11)، وبـ`score` وحده
+     * يتساوى اثنان فيقرّر أيّهما الأوّل **رقمُ صفٍّ في قاعدة البيانات** — فيتغيّر
+     * التتويج بإعادة بذر البيانات لا بعمل صاحبه. فعند تساوي Rep يُرتَّب المتساوون
+     * **أبجديًّا بالاسم**: قاعدة محايدة ومعلَنة وثابتة عبر التشغيلات.
+     *
+     * وبابُ النادي واحد في الحالتين — العضويّة النشطة غير الشرفيّة (13.4-ص-ج).
+     *
+     * @param  Builder<RepScore>  $query
+     * @return Collection<int, RepScore>
+     */
+    private function ranked(Builder $query): Collection
+    {
+        return $query
             ->with('user')
-            // بلوك «اقتربت» بابُ النادي نفسه — فشرطه شرطه (13.4-ي · 13.4-ص)
-            ->whereIn('user_id', $this->eligibleUserIds())
-            ->where('score', '<', $this->threshold())
-            ->where('score', '>=', $this->threshold() - $gap)
-            ->orderByDesc('score')
+            ->join('users', 'users.id', '=', 'rep_scores.user_id')
+            ->select('rep_scores.*')
+            ->whereIn('rep_scores.user_id', $this->eligibleUserIds())
+            ->orderByDesc('rep_scores.score')
+            ->orderBy('users.name')
             ->get()
             ->filter(fn (RepScore $r) => $r->user !== null)
             ->values();

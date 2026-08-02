@@ -10,7 +10,6 @@ use App\Models\TaskSubmission;
 use App\Models\User;
 use App\Services\Volunteer\Escalation\CaseCatalog;
 use App\Services\Volunteer\Escalation\EscalationEngine;
-use App\Services\Volunteer\Escalation\FlowLedger;
 use App\Services\Volunteer\Escalation\FlowNotifier;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Collection;
@@ -194,13 +193,17 @@ class ReviewService
                 'reviewed_at' => now(),
             ])->save();
 
-            $alreadyApproved = $task->status === 'approved';
-
             $task->forceFill(['status' => 'approved', 'approved_at' => now()])->save();
 
-            if (! $alreadyApproved) {
-                $this->applyDeliveryRep($task, $reviewer);
-            }
+            /*
+             | ⭐ **ولا حركة Rep هنا إطلاقًا** (23-3.7 · 23-6): الساعة وقفت لحظة
+             | التسليم، والتقييم كُتب ساعتها بمصدره الواحد `TaskWorkflow`. وكتابته
+             | مرّةً ثانية عند الاعتماد كانت تضاعف الجدول كلّه (+0.50 بدل +0.25،
+             | و−1.50 بدل −0.75) فيبلغ المتطوّع عتبات الهبوط في نصف الوقت المنصوص.
+             */
+
+            // اعتماد آخر ابن يبدأ عدّاد الأب الشخصيّ فورًا (23-3.9-3)
+            $this->startParentMergeWindow($task);
 
             if (! empty($data['add_to_library'])) {
                 $this->addToLibrary($task, $reviewer, $data);
@@ -341,29 +344,51 @@ class ReviewService
     }
 
     /**
-     * سلّم درجة الالتزام على **وقت التسليم** لا وقت الاعتماد (23 — 3.7):
-     * قبل الموعد +0.25 · تأخير أقلّ من 24 ساعة −0.25 · بعدها عدم تسليم.
+     * ⭐ نافذة الدمج — **قلب النظام** (23-3.9-3): لحظة اعتماد **آخر** ابنٍ تحت أب
+     * يبدأ عدّاد الأب الشخصيّ فورًا وتلقائيًّا: يجمّع مخرجات أبنائه، يضيف
+     * شريحته، ويسلّم لأبيه. وفواتها خصمه هو بسلّم 3.7 — لا أحد ينتظر نهاية
+     * المهمّة الكبيرة ليُعرَف مَن عطّل.
+     *
+     * ولماذا لا تُثبَّت لحظة التفكيك؟ لأنّ تثبيتها على ديدلاين الأب يجعلها
+     * نافذةً وهميّة: مَن اعتُمد آخر أبنائه مبكّرًا يقعد على المخرجات بلا عدّاد.
      */
-    private function applyDeliveryRep(Task $task, User $reviewer): void
+    private function startParentMergeWindow(Task $task): void
     {
-        $owner = $task->owner_id ? User::query()->find($task->owner_id) : null;
+        $parent = $task->parent_task_id ? Task::query()->find($task->parent_task_id) : null;
 
-        if (! $owner || ! $task->delivered_at || ! $task->deadline_at) {
+        if (! $parent) {
             return;
         }
 
-        $delivered = CarbonImmutable::parse($task->delivered_at);
-        $deadline = CarbonImmutable::parse($task->deadline_at);
-        $lateHours = $delivered->greaterThan($deadline) ? $delivered->diffInHours($deadline, absolute: true) : 0;
-        $graceHours = (float) setting('workflow.escalation.window_hours', 24);
+        $pending = Task::query()
+            ->where('parent_task_id', $parent->id)
+            ->whereNotIn('status', ['approved', 'closed'])
+            ->exists();
 
-        $value = match (true) {
-            $lateHours === 0 => rep_rule('task.early'),
-            $lateHours < $graceHours => rep_rule('task.late_under_24h'),
-            default => rep_rule('task.no_delivery'),
-        };
+        if ($pending) {
+            return;
+        }
 
-        FlowLedger::rep($owner, $value, 'task.delivery', $task, 'تقييم التسليم على وقت التسليم', $reviewer->id);
+        $window = now()->addMinutes((int) round($this->mergeWindowHours() * 60));
+
+        $parent->forceFill(['merge_window_at' => $window])->save();
+
+        FlowNotifier::send(
+            $parent->owner_id ? User::query()->find($parent->owner_id) : null,
+            'task',
+            'اتعمد آخر ابن — عدّاد الدمج بدأ ⏱️',
+            'جمّع مخرجات أبنائك وسلّم قبل '.$window->format('Y-m-d H:i').' — العدّاد ده عليك إنت.',
+            route('volunteer.tasks.show', $parent),
+            $window,
+            requiresAction: true,
+            about: $parent,
+        );
+    }
+
+    /** نافذة الدمج والتسليم للأب بالساعات — إعداد لا رقم محروق (2.13) */
+    public function mergeWindowHours(): float
+    {
+        return (float) setting('workflow.merge_window_hours', 24);
     }
 
     private function addToLibrary(Task $task, User $reviewer, array $data): void

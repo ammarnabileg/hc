@@ -148,6 +148,14 @@
                                         +{{ $row['reward']['xp'] }} {{ setting('learning.xp.suffix') }}
                                         · +{{ $row['reward']['tickets'] }} {{ setting('learning.tickets.suffix', 'تذكرة') }}</span>
                                 </p>
+
+                                {{-- ⭐ نصف المهلة **للتذاكر وحدها** (7 · 7.1): متى تنزل التذاكر — تأطير خسارةٍ صادق (2.9-4) --}}
+                                @if ($row['reward']['before_half'] && $row['reward']['half_at'])
+                                    <p class="text-xs mt-0.5" style="color: var(--text-muted)">
+                                        {{ setting('learning.paths.half_point_label', 'التذاكر بتنزل لواحدة بعد') }}
+                                        <span class="tabular-nums" dir="ltr">{{ $row['reward']['half_at']->translatedFormat(setting('learning.paths.half_point_format', 'j M Y')) }}</span>
+                                    </p>
+                                @endif
                             @endif
                         @endif
 

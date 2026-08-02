@@ -137,17 +137,78 @@ class SubtaskBatch
                 ]));
             }
 
-            // نافذة دمج الأب تُثبَّت لحظة التفكيك — عليها يُحاسَب هو وحده (23-3.9)
-            $limit = $this->latestAllowedChildDeadline($parent);
+            /*
+             | ⭐ نافذة الدمج **لا تُثبَّت هنا**: عدّاد الأب الشخصيّ يبدأ لحظة
+             | اعتماد **آخر ابن** (23-3.9-3) لا لحظة التفكيك — وتثبيتها على
+             | ديدلاين الأب كان يجعلها نافذةً وهميّة بلا خصمٍ على فواتها.
+             | مكان بدئها: `ReviewService::startParentMergeWindow()`.
+             */
 
-            if ($limit) {
-                $parent->forceFill(['merge_window_at' => $parent->deadline_at])->save();
-            }
+            // ونافذة التفكيك نفسها تُحاسَب الآن: −0.2 عن كلّ يوم تأخير بسقف −1 (23-3.9-1)
+            $this->chargeBreakdownDelay($parent, $author);
 
             $this->openBatchEscalation($parent, $author);
 
             return $created;
         });
+    }
+
+    /** آخر موعد لتفكيك المهمّة وتوزيعها — من العمود، وإلّا من لحظة وصولها */
+    public function breakdownDueAt(Task $parent): ?Carbon
+    {
+        if ($parent->breakdown_due_at) {
+            return Carbon::parse($parent->breakdown_due_at);
+        }
+
+        return $parent->created_at
+            ? Carbon::parse($parent->created_at)->addHours($this->breakdownWindowHours())
+            : null;
+    }
+
+    /** نافذة التفكيك بالساعات — إعداد (2.13) */
+    public function breakdownWindowHours(): int
+    {
+        return (int) setting('workflow.breakdown_window_hours', 24);
+    }
+
+    /**
+     * ⭐ خصم تأخّر التفكيك (23-3.9-1): «التأخّر عن التفكيك نفسه = −0.2 عن كلّ
+     * يوم تأخير — كي لا تكون أوّل حلقة هي عنق الزجاجة الخفيّ — بسقف تراكميّ
+     * −1 لكلّ مهمّة، حتى لا يصير التأخّر في التفكيك أقسى من عدم التسليم نفسه».
+     *
+     * ولماذا يُحسَب لحظة التفكيك لا كلّ يوم؟ لأنّ المجموع واحد، ولأنّ مَن لم
+     * يفكّك أصلًا يمسكه **مسار عدم التسليم** عند ديدلاينه — فلا يُخصَم مرّتين
+     * ولا يُعاقَب مَن اختار التنفيذ الذاتيّ (حقّه المنصوص في 23-3.1).
+     */
+    private function chargeBreakdownDelay(Task $parent, User $author): void
+    {
+        $due = $this->breakdownDueAt($parent);
+
+        if (! $due || ! $due->isPast()) {
+            return;
+        }
+
+        $days = (int) ceil($due->diffInHours(now()) / 24);
+        $perDay = (float) rep_rule('task.breakdown_delay_per_day');
+        $cap = (float) rep_rule('task.breakdown_delay_cap');
+        $value = max($cap, $perDay * max(1, $days));
+
+        if ($value == 0.0) {
+            return;
+        }
+
+        RepOnce::record(
+            'task.breakdown_delay:'.$parent->id,
+            fn () => app(LedgerBridge::class)->record(
+                $author,
+                'rep',
+                $value,
+                'task',
+                'تأخّر التفكيك '.$days.' يومًا على: '.$parent->title,
+                $parent,
+                $parent->entity_id,
+            ),
+        );
     }
 
     /** مراجعة الدفعة حالةٌ على محرّك التصعيد — الحالة 9 (23-5) */

@@ -113,6 +113,57 @@ class AdminContentTrainingTest extends AdminContentTestCase
         $this->assertSame($status, $course->status);
     }
 
+    /**
+     * ⭐ مسوّدة التحرير المعلّقة **ترجع إلى حقول الفورم** (12.4-ب).
+     *
+     * الحفظ التلقائيّ على تدريبٍ حيّ لا يمسّ المنشور — ولو لم يرجع عمله إلى
+     * الحقول لضاع لحظة ضغطه «حفظ»، لأنّ الفورم كان سيرسل قيم النسخة المنشورة
+     * فوقه: فيصير «الحفظ التلقائيّ» وعدًا بلا وفاء.
+     */
+    public function test_a_pending_draft_comes_back_into_the_edit_form_and_saves(): void
+    {
+        $course = Course::query()->firstOrFail();
+        $course->update(['status' => 'published', 'published_at' => now()]);
+
+        $admin = $this->admin();
+
+        $this->actingAs($admin)->postJson(route('admin.courses.autosave', $course), [
+            'name_ar' => 'اسم تحت التجربة',
+        ])->assertOk();
+
+        // يرجع في الفورم — فالمحرّر يراه ويكمّل عليه
+        $this->actingAs($admin)
+            ->get(route('admin.courses.edit', $course))
+            ->assertOk()
+            ->assertSee('اسم تحت التجربة', false);
+
+        // وما زال المنشور بحاله حتى يضغط «حفظ»
+        $this->assertSame('published', $course->refresh()->status);
+    }
+
+    /** و«تجاهل المسودّة» يشيلها وحدها — المنشور وحالته لا يُمَسّان (12.4-ب). */
+    public function test_discarding_the_draft_leaves_the_published_version_untouched(): void
+    {
+        $course = Course::query()->firstOrFail();
+        $course->update(['status' => 'published', 'published_at' => now()]);
+        $original = $course->name_ar;
+
+        $admin = $this->admin();
+
+        $this->actingAs($admin)->postJson(route('admin.courses.autosave', $course), ['name_ar' => 'تجربة تتشال']);
+        $this->assertNotEmpty($course->refresh()->draft_payload);
+
+        $this->actingAs($admin)
+            ->delete(route('admin.courses.draft.discard', $course))
+            ->assertRedirect();
+
+        $course->refresh();
+
+        $this->assertNull($course->draft_payload);
+        $this->assertSame($original, $course->name_ar);
+        $this->assertSame('published', $course->status);
+    }
+
     /** «سؤال عامّ» يدخل بنك الامتحان النهائيّ ويظهر في المؤشّر (12.4-ج · 12.4-هـ). */
     public function test_general_question_toggle_feeds_the_exam_bank(): void
     {

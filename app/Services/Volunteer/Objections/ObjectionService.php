@@ -2,7 +2,6 @@
 
 namespace App\Services\Volunteer\Objections;
 
-use App\Models\Escalation;
 use App\Models\Objection;
 use App\Models\ObjectionMessage;
 use App\Models\Transaction;
@@ -21,11 +20,14 @@ use Illuminate\Support\Facades\DB;
  *    ويضيف صاحبه تفاصيل أيّ وقت ما دام ساريًا.
  *  - يذهب إلى **المسؤول المباشر عن المعترِض** — لا إلى مَن أضاف المعاملة.
  *  - ⭐ **لا أحد يعدّل المعاملة الأصليّة**: التصحيح بمعاملة عكسيّة موثّقة.
- *  - محرّك التصعيد مجالٌ آخر — هنا يُفتَح صفّ `escalations` بالنوع الصحيح فقط.
+ *  - ⭐ **مسار قائم بذاته لا يندرج ضمن الحالات التسع** (23-6): تصعيده هنا على
+ *    جدوله هو (`objections.sla_due_at` · `current_handler_id` · حالة «مُصعَّد»)،
+ *    **ولا يُكتَب له صفّ في `escalations`**. وكتابته هناك بنوع لا يعرفه
+ *    `CaseCatalog` كانت تُسقِط دورة العمل كلّها عند فوات نافذته.
  */
 class ObjectionService
 {
-    /** نوع الحالة في سجلّ التصعيد — مسار قائم بذاته لا يندرج في الحالات التسع (13.4-ط) */
+    /** حالات المسار المستقلّ — لا نوع على محرّك التصعيد (23-6) */
     public const CASE_TYPE = 'objection';
 
     /** الحالات الخمس بترتيبها */
@@ -99,33 +101,16 @@ class ObjectionService
 
         $handler = $this->scope->directManager($user);
 
-        $objection = DB::transaction(function () use ($transaction, $user, $reason, $attachmentPath, $handler) {
-            $objection = Objection::create([
-                'transaction_id' => $transaction->id,
-                'user_id' => $user->id,
-                'reason' => $reason,
-                'attachment_path' => $attachmentPath,
-                // ⟵ المسؤول المباشر عن المعترِض، لا مَن أضاف المعاملة (13.4-ط)
-                'current_handler_id' => $handler?->id,
-                'status' => 'open',
-                'sla_due_at' => now()->addHours($this->slaHours()),
-            ]);
-
-            // محرّك التصعيد يبنيه مجال آخر — هنا صفّ الحالة بنوعها الصحيح فقط
-            Escalation::create([
-                'case_type' => self::CASE_TYPE,
-                'subject_type' => $objection->getMorphClass(),
-                'subject_id' => $objection->id,
-                'requested_by' => $user->id,
-                'current_handler_id' => $handler?->id,
-                'level' => 1,
-                'window_due_at' => $objection->sla_due_at,
-                'is_top_level' => $handler === null,
-                'status' => 'open',
-            ]);
-
-            return $objection;
-        });
+        $objection = DB::transaction(fn () => Objection::create([
+            'transaction_id' => $transaction->id,
+            'user_id' => $user->id,
+            'reason' => $reason,
+            'attachment_path' => $attachmentPath,
+            // ⟵ المسؤول المباشر عن المعترِض، لا مَن أضاف المعاملة (13.4-ط)
+            'current_handler_id' => $handler?->id,
+            'status' => 'open',
+            'sla_due_at' => now()->addHours($this->slaHours()),
+        ]));
 
         $this->ledger->notify(
             $handler,
@@ -136,6 +121,66 @@ class ObjectionService
         );
 
         return ['ok' => true, 'message' => 'وصل اعتراضك لمسؤولك المباشر ✓', 'objection' => $objection];
+    }
+
+    /**
+     * ⭐ تصعيد الاعتراضات الفائتة **على مسارها المستقلّ** (13.4-ط · 23-6):
+     * فات الـSLA ⟵ يرتفع للأبلاين الأعلى بحالة «مُصعَّد» ومهلةٍ جديدة، حتى
+     * السقف فيبقى على مكتبه — **ولا تسوية آليّة هنا**: الاعتراض تصحيحُ معاملةٍ
+     * واقعة، وقراره بشريّ لا خوارزميّ.
+     *
+     * @return array{escalated:int, at_top:int}
+     */
+    public function runOverdue(): array
+    {
+        $result = ['escalated' => 0, 'at_top' => 0];
+
+        Objection::query()
+            ->whereNotIn('status', ['accepted', 'rejected'])
+            ->whereNotNull('sla_due_at')
+            ->where('sla_due_at', '<=', now())
+            ->with('user')
+            ->get()
+            ->each(function (Objection $objection) use (&$result) {
+                $handler = $objection->current_handler_id
+                    ? User::query()->find($objection->current_handler_id)
+                    : null;
+
+                $next = $handler ? $this->scope->directManager($handler) : $this->scope->directManager($objection->user);
+
+                if (! $next || (int) $next->id === (int) $objection->current_handler_id) {
+                    // بلغ السقف: يبقى على مكتبه بمهلةٍ جديدة ويُنبَّه — ولا يُقفَل بلا قرار
+                    $objection->forceFill(['sla_due_at' => now()->addHours($this->slaHours())])->save();
+                    $this->ledger->notify(
+                        $handler,
+                        'objection',
+                        'اعتراض فات مهلته وعندك',
+                        'الاعتراض ده وصل سقف السلسلة — محتاج قرارك أنت.',
+                        route('volunteer.objections', ['objection' => $objection->id]),
+                    );
+                    $result['at_top']++;
+
+                    return;
+                }
+
+                $objection->forceFill([
+                    'current_handler_id' => $next->id,
+                    'status' => 'escalated',
+                    'sla_due_at' => now()->addHours($this->slaHours()),
+                ])->save();
+
+                $this->ledger->notify(
+                    $next,
+                    'objection',
+                    'صعد إليك اعتراض على معاملة',
+                    'فاتت مهلة المستوى الأدنى — الاعتراض بقى عندك.',
+                    route('volunteer.objections', ['objection' => $objection->id]),
+                );
+
+                $result['escalated']++;
+            });
+
+        return $result;
     }
 
     /** الاعتراض ساري ما لم يُغلَق بقبول أو رفض */
@@ -258,12 +303,6 @@ class ObjectionService
             'closed_at' => now(),
         ])->save();
 
-        Escalation::query()
-            ->where('case_type', self::CASE_TYPE)
-            ->where('subject_type', $objection->getMorphClass())
-            ->where('subject_id', $objection->id)
-            ->update(['status' => 'decided', 'decision' => 'accepted', 'decided_at' => now()]);
-
         $this->ledger->notify(
             $objection->user,
             'objection',
@@ -287,12 +326,6 @@ class ObjectionService
             'decision_note' => $note,
             'closed_at' => now(),
         ])->save();
-
-        Escalation::query()
-            ->where('case_type', self::CASE_TYPE)
-            ->where('subject_type', $objection->getMorphClass())
-            ->where('subject_id', $objection->id)
-            ->update(['status' => 'decided', 'decision' => 'rejected', 'decided_at' => now()]);
 
         $this->ledger->notify(
             $objection->user,

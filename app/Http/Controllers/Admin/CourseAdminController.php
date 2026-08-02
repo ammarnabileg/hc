@@ -103,6 +103,17 @@ class CourseAdminController extends Controller
         ]);
     }
 
+    /** «تجاهل المسودّة»: المسوّدة الجانبيّة تُمسَح — والمنشور وحالته لا يُمَسّان (12.4-ب). */
+    public function discardDraft(Course $course): RedirectResponse
+    {
+        $this->courses->discardDraft($course);
+
+        return back()->with('status', (string) setting(
+            'courses.autosave.discarded_label',
+            'اتشالت مسوّدة التحرير — النسخة المنشورة زيّ ما هي ✓',
+        ));
+    }
+
     public function destroy(Course $course): RedirectResponse
     {
         $this->audit->record($course, 'course.deleted', ['name_ar' => $course->name_ar], []);

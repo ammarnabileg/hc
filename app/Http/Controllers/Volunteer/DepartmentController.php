@@ -7,6 +7,7 @@ use App\Models\ConsentRequest;
 use App\Models\Entity;
 use App\Models\Membership;
 use App\Models\Position;
+use App\Services\Volunteer\Org\AbsenceService;
 use App\Services\Volunteer\Org\DepartmentScope;
 use App\Services\Volunteer\Org\MemberDirectory;
 use App\Services\Volunteer\Profile\ConsentFlow;
@@ -84,6 +85,41 @@ class DepartmentController extends Controller
         $pool = $this->scope->memberships($this->scope->entityIds($root));
 
         return response()->json($this->directory->profile($membership, $viewer, $pool));
+    }
+
+    /**
+     * ⭐ فتح وضع «غائب» بتفويض مؤقّت (23-6): يضيفه **مشرف عام التطوّع أو مشرف
+     * المسار أو دايركتور الكيان — لا الشخص نفسه** (منعًا للتهرّب). وأثره:
+     * نوافذ القرار للبديل · لا أثر تباطؤ على الغائب · لا إسناد جديد له ·
+     * وساعات مهامّه مجمَّدة حتى يعود.
+     */
+    public function absence(Request $request, Membership $membership): RedirectResponse
+    {
+        $viewer = $request->user();
+        $root = $this->scope->rootFor($viewer);
+
+        abort_unless($root && $this->sharesDepartment($membership, $root), 403);
+
+        $data = $request->validate([
+            'from_date' => ['required', 'date'],
+            'to_date' => ['required', 'date'],
+            'delegate_membership_id' => ['nullable', 'integer', 'exists:memberships,id'],
+            'reason' => ['nullable', 'string', 'max:300'],
+        ], [], ['from_date' => 'تاريخ البداية', 'to_date' => 'تاريخ النهاية']);
+
+        $absence = app(AbsenceService::class)->open(
+            $membership,
+            $viewer,
+            $data['from_date'],
+            $data['to_date'],
+            $data['delegate_membership_id'] ?? null,
+            $data['reason'] ?? null,
+        );
+
+        $delegate = app(AbsenceService::class)->delegateOfAbsence($absence);
+
+        return back()->with('status', 'اتسجّل وضع «غائب» ✓'
+            .($delegate ? ' — البديل: '.$delegate->shortName().'، وكلّ القرارات هتروح له.' : ''));
     }
 
     /**

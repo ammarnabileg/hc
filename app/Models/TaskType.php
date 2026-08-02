@@ -16,6 +16,9 @@ class TaskType extends Model
     protected function casts(): array
     {
         return [
+            // تشيك ليست القالب: بنود تتعبّى تلقائيًّا عند اختيار النوع (23-0.3)
+            'checklist' => 'array',
+            'default_vxp' => 'decimal:2',
             'is_active' => 'boolean',
         ];
     }

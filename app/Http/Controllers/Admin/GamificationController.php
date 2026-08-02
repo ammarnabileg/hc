@@ -14,6 +14,7 @@ use App\Services\Admin\Volunteer\AuditTrail;
 use App\Services\Admin\Volunteer\SettingsWriter;
 use App\Services\Admin\Volunteer\WarSettingsService;
 use App\Services\Gamification\BadgeService;
+use App\Services\Gamification\EconomyRules;
 use App\Services\Gamification\GamesAdminService;
 use App\Services\Gamification\RewardQuestionService;
 use Illuminate\Http\RedirectResponse;
@@ -402,6 +403,8 @@ class GamificationController extends Controller
                 'settings' => SettingsWriter::groupRows('gamification_xp'),
                 'earn' => (array) setting('xp_rules.earn', []),
                 'spend' => (array) setting('xp_rules.spend', []),
+                // ⭐ أيّ صفٍّ لا يقرؤه الكود يُعلَّم في الشاشة — لا إعداد بلا أثر (2.13)
+                'earnConsumed' => EconomyRules::CONSUMED_EARN,
             ],
             'badges' => [
                 'settings' => SettingsWriter::groupRows('gamification_badges'),

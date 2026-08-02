@@ -389,29 +389,38 @@ class VolunteerPeopleDemoSeeder extends Seeder
 
     private function recognition(): void
     {
-        $threshold = rep_rule('limit.club_threshold', 9.5);
+        $threshold = (float) rep_rule('limit.club_threshold', 9.5);
+        $gap = (float) setting('thanks_wall.approaching_gap', 1.5);
         $users = User::query()->limit(3)->get();
 
-        foreach ($users as $index => $user) {
-            RepScore::updateOrCreate(['user_id' => $user->id], [
-                // أوّل مستخدم داخل النادي، والثاني «اقترب»، والثالث في أوّل الطريق
-                'score' => match ($index) {
-                    0 => $threshold + 0.2,
-                    1 => $threshold - 0.7,
-                    default => 4.0,
-                },
-            ]);
-        }
-
-        // عضويّة تجريبيّة حتى تعمل شاشات «حسب قسمي» و«نطاق المكتبة»
+        // ⭐ باب النادي عضويّة تطوّع نشطة غير شرفيّة (13.4-ي · 13.4-ص)، فرقمُ Rep
+        // بلا عضويّة **لا يظهر في أيّ بلوك** — ولذلك تأخذ الثلاثة عضويّاتها هنا،
+        // وإلّا صارت بيانات العرض تَعِد بحائطٍ لا يظهر منه شيء.
         $entity = Entity::query()->whereNotNull('parent_id')->first();
         $position = Position::firstWhere('key', 'coordinator');
 
-        if ($users->isNotEmpty() && $entity && $position) {
-            Membership::firstOrCreate(
-                ['user_id' => $users->first()->id, 'entity_id' => $entity->id],
-                ['position_id' => $position->id, 'started_at' => now()->subMonths(3), 'status' => 'active', 'is_primary' => true],
-            );
+        foreach ($users as $index => $user) {
+            RepScore::updateOrCreate(['user_id' => $user->id], [
+                // أوّل مستخدم داخل النادي، والثاني «اقترب» (داخل الفجوة المعلَنة)،
+                // والثالث في أوّل الطريق — والأرقام من العتبة نفسها لا محروقة (2.13)
+                'score' => match ($index) {
+                    0 => $threshold + 0.2,
+                    1 => $threshold - ($gap / 2),
+                    default => round($threshold / 2, 2),
+                },
+            ]);
+
+            if ($entity && $position) {
+                Membership::firstOrCreate(
+                    ['user_id' => $user->id, 'entity_id' => $entity->id],
+                    [
+                        'position_id' => $position->id,
+                        'started_at' => now()->subMonths(3 - $index),
+                        'status' => 'active',
+                        'is_primary' => true,
+                    ],
+                );
+            }
         }
     }
 }

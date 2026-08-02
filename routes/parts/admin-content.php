@@ -65,6 +65,8 @@ Route::middleware(['auth', 'admin.panel'])->prefix('admin')->name('admin.')->gro
         Route::put('/courses/{course}', [CourseAdminController::class, 'update'])->name('courses.update');
         // حفظ تلقائيّ كدرافت — «اتحفظ ✓» فلا يضيع عمل مهما حصل (12.4-ب · 2.17-ب)
         Route::post('/courses/{course}/autosave', [CourseAdminController::class, 'autosave'])->name('courses.autosave');
+        // وتجاهل مسوّدة التحرير المعلّقة — بلا أيّ أثر على المنشور وحالته (12.4-ب)
+        Route::delete('/courses/{course}/draft', [CourseAdminController::class, 'discardDraft'])->name('courses.draft.discard');
         // إجراءات جماعيّة تظهر عند الاختيار فقط (2.15-ب)
         Route::post('/courses/bulk', [CourseAdminController::class, 'bulk'])->name('courses.bulk');
     });

@@ -13,6 +13,7 @@ use App\Models\TaskTodo;
 use App\Models\TaskType;
 use App\Models\User;
 use App\Models\WorkItem;
+use App\Services\Volunteer\Org\AbsenceService;
 use App\Services\Volunteer\Tasks\ActivityWindow;
 use App\Services\Volunteer\Tasks\SubtaskBatch;
 use App\Services\Volunteer\Tasks\TaskBlockService;
@@ -109,6 +110,18 @@ class TaskController extends Controller
             'work_item_id' => 'البند التابع للمشروع',
         ]);
 
+        // «لا تُسنَد إليه مهامّ جديدة» طول غيابه المعذور (23-6)
+        $target = ! empty($data['owner_id']) ? User::query()->find($data['owner_id']) : null;
+
+        if ($target && app(AbsenceService::class)->isAbsent($target, $membership?->entity_id)) {
+            $delegate = app(AbsenceService::class)->delegateFor($target, $membership?->entity_id);
+
+            throw ValidationException::withMessages([
+                'owner_id' => $target->shortName().' في وضع «غائب» دلوقتي'
+                    .($delegate ? ' — البديل: '.$delegate->shortName() : '').'. اختار حدًّا تاني.',
+            ]);
+        }
+
         $task = Task::create([
             'title' => $data['title'],
             'task_type_id' => $data['task_type_id'] ?? null,
@@ -146,7 +159,14 @@ class TaskController extends Controller
             'user' => $user,
             'task' => $task,
             'tab' => $request->string('tab')->toString() ?: 'details',
-            'todos' => TaskTodo::query()->where('task_id', $task->id)->orderBy('sort_order')->orderBy('id')->get(),
+            /*
+             | التودو **شخصيّ**: «لا يظهر لأحد إلا صاحبه — ويطّلع عليه الأبلاين
+             | للقراءة فقط» (23-2.1). فالمالك يرى قائمته هو، والأبلاين يرى قائمة
+             | المالك الحاليّ قراءةً — **ولا يرث المالك الجديد قائمة السابق**.
+             */
+            'todos' => TaskTodo::query()->where('task_id', $task->id)
+                ->where('user_id', (int) $task->owner_id === (int) $user->id ? $user->id : $task->owner_id)
+                ->orderBy('sort_order')->orderBy('id')->get(),
             'subtasks' => $subtasks,
             'contributions' => TaskContribution::query()->with('contributor')->where('task_id', $task->id)->get(),
             'submissions' => TaskSubmission::query()->with('user')->where('task_id', $task->id)->latest('version')->get(),
@@ -288,6 +308,13 @@ class TaskController extends Controller
             throw ValidationException::withMessages(['code' => 'مفيش متطوّع بالكود ده — راجع الكود وجرّب تاني.']);
         }
 
+        // «ولا يُدعى مساهمًا» طول غيابه المعذور (23-6)
+        if (app(AbsenceService::class)->isAbsent($contributor)) {
+            throw ValidationException::withMessages([
+                'code' => $contributor->shortName().' في وضع «غائب» دلوقتي — ادعُ حدًّا تاني أو استنّى رجوعه.',
+            ]);
+        }
+
         $internal = Carbon::parse($data['internal_deadline_at']);
         $limit = $task->deadline_at ? Carbon::parse($task->deadline_at)->subDay() : null;
 
@@ -325,8 +352,10 @@ class TaskController extends Controller
 
         TaskTodo::create([
             'task_id' => $task->id,
+            'user_id' => $user->id,
             'body' => $data['body'],
-            'sort_order' => (int) TaskTodo::where('task_id', $task->id)->max('sort_order') + 1,
+            'sort_order' => (int) TaskTodo::where('task_id', $task->id)
+                ->where('user_id', $user->id)->max('sort_order') + 1,
         ]);
 
         return back()->with('status', 'اتحفظ ✓');
@@ -334,8 +363,7 @@ class TaskController extends Controller
 
     public function toggleTodo(Request $request, Task $task, TaskTodo $todo)
     {
-        $this->authorizeOwner($request->user(), $task);
-        abort_unless((int) $todo->task_id === (int) $task->id, 404);
+        $this->authorizeTodo($request->user(), $task, $todo);
 
         $todo->forceFill(['is_done' => ! $todo->is_done])->save();
 
@@ -344,8 +372,7 @@ class TaskController extends Controller
 
     public function destroyTodo(Request $request, Task $task, TaskTodo $todo)
     {
-        $this->authorizeOwner($request->user(), $task);
-        abort_unless((int) $todo->task_id === (int) $task->id, 404);
+        $this->authorizeTodo($request->user(), $task, $todo);
 
         $todo->delete();
 
@@ -353,6 +380,13 @@ class TaskController extends Controller
     }
 
     // ------------------------------------------------------------------ داخليّ
+
+    /** التودو لصاحبه وحده — والمالك الجديد لا يرث قائمة السابق (23-2.1) */
+    private function authorizeTodo(User $user, Task $task, TaskTodo $todo): void
+    {
+        abort_unless((int) $todo->task_id === (int) $task->id, 404);
+        abort_unless((int) $todo->user_id === (int) $user->id, 403, 'التودو ده شخصيّ لصاحبه.');
+    }
 
     private function authorizeOwner(User $user, Task $task): void
     {

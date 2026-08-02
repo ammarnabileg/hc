@@ -100,13 +100,18 @@ class MeetingsObjectionTest extends MeetingsTestCase
         $this->assertSame($manager->id, $objection->current_handler_id);
         $this->assertNotSame($stranger->id, $objection->current_handler_id);
 
-        // صفّ تصعيد بالنوع الصحيح — والمحرّك نفسه مجالٌ آخر
-        $this->assertDatabaseHas('escalations', [
+        /*
+         | ⭐ الاعتراض **مسار قائم بذاته لا يندرج ضمن الحالات التسع** (23-6):
+         | مهلته وحالته وصاحب قراره على جدوله هو، **ولا صفّ له في `escalations`**
+         | — فصفٌّ بنوعٍ لا يعرفه `CaseCatalog` كان يُسقِط دورة العمل كلّها.
+         */
+        $this->assertDatabaseMissing('escalations', [
             'case_type' => ObjectionService::CASE_TYPE,
             'subject_id' => $objection->id,
-            'current_handler_id' => $manager->id,
-            'status' => 'open',
         ]);
+
+        $this->assertNotNull($objection->sla_due_at);
+        $this->assertSame('open', $objection->status);
     }
 
     /** بعد انتهاء المهلة: لا زرّ اعتراض ولا قبول للطلب */

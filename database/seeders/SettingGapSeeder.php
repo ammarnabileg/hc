@@ -429,8 +429,14 @@ class SettingGapSeeder extends Seeder
             ['ux.advanced_mode.enabled', 'ux', 'إتاحة الوضع المتقدّم', 'bool', '1', 'إطفاؤه يُبقي الجميع على الوضع المبسّط (2.15).'],
             ['ux.advanced_mode.label', 'ux', 'تسمية الوضع المتقدّم', 'string', 'وضع متقدّم', ''],
             ['ux.advanced_mode.roles', 'ux', 'الأدوار التي يتاح لها الوضع المتقدّم', 'json', '[]', 'فاضية = متاح للجميع؛ وإلّا لا بدّ من أحد الأدوار.'],
-            ['ux.first_time.content', 'ux', 'خطوات «أوّل مرّة» لكلّ شاشة', 'json', '[]', 'شاشة ⟵ خطواتها. الفاضي يقع على القالب الافتراضيّ.'],
-            ['ux.first_time.default_template', 'ux', 'قالب «أوّل مرّة» الافتراضيّ', 'json', '[]', 'يُستعمَل لأيّ شاشة بلا خطواتٍ خاصّة بها.'],
+            /*
+             | ⛔ `ux.first_time.content` و`ux.first_time.default_template` **أُزيلا**:
+             | مصدر «شاشة أوّل مرّة» صار جدول `onboarding_slides` وحده (فهو الذي يملك
+             | شاشة الإدارة: ترتيب وتفعيل وقوالب ومعاينة)، وبديل القالب العامّ هو
+             | `onboarding.first_time.default_template` في مجموعة الـOnboarding.
+             | وإبقاؤهما هنا كان يعيد زرعهما بعد أن حذفتهما هجرة التوحيد — فيعود
+             | المفتاح اليتيم إلى اللوحة يوهم المالك أنّ ما يكتبه فيه يُقرَأ (2.13).
+             */
 
             ['attestations.public.opened_message', 'attestations', 'رسالة فتح رابط الإفادة العامّ', 'string', 'الرابط شغّال ✓', ''],
             ['attestations.public.closed_message', 'attestations', 'رسالة قفل رابط الإفادة العامّ', 'string', 'الرابط اتقفل ✓', ''],

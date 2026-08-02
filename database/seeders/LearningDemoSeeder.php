@@ -107,6 +107,11 @@ class LearningDemoSeeder extends Seeder
             ['learning.lesson.already_done_message', 'string', 'هذا الدرس مسجَّل مكتملًا من قبل'],
             ['learning.course.done_message', 'string', 'أحسنت — أنهيت هذا التدريب بالكامل'],
 
+            // ---- لافتة التهنئة عند نصّ التدريب (3.4-19)
+            ['learning.course.half_banner_percent', 'number', '50'],
+            ['learning.course.half_banner_title', 'string', 'نصّ الطريق خلص يا :name — أحسنت!'],
+            ['learning.course.half_banner_hint', 'string', 'باقي :count درس وتخلّص التدريب — كمّل وأنت في أقوى لحظاتك.'],
+
             // ---- الإتاحة والقفل: السبب مكتوب دائمًا ولا يُخفى العنصر (24.5)
             ['learning.course.published_status', 'string', 'published'],
             ['learning.lock.badge', 'string', 'مقفول'],
@@ -136,8 +141,13 @@ class LearningDemoSeeder extends Seeder
             ['learning.deadline.passed_label', 'string', 'انتهت المهلة'],
             ['learning.deadline.none_label', 'string', 'بلا موعد نهائيّ'],
             ['learning.ghost.title', 'string', 'الموعد النهائيّ'],
-            ['learning.ghost.hero_glyph', 'string', '🧑‍🎓'],
-            ['learning.ghost.glyph', 'string', '👻'],
+            /*
+             | ⭐ لا `hero_glyph` ولا `glyph` هنا (3 · 6 · 2.16-ج): كانا إيموجي
+             | (🧑‍🎓 و👻) يرسمهما خطّ نظام التشغيل فلا يتبعان `currentColor` ولا
+             | سُمك الخطّ. البديل **إليستريشن مرسومة** في `ghost-figure.blade.php`
+             | تتلوّن مع تدرّج الخطر — وشكلٌ لا يُضبَط من لوحة الإعدادات أصلًا،
+             | فالمفتاح الذي لا يقرؤه أحد وعدٌ كاذب للمالك (2.13).
+             */
             ['learning.ghost.hint', 'string', 'كلّما أنجزت أبكر ابتعد الشبح —'],
 
             // ---- نقاط الخبرة (7)
@@ -323,6 +333,9 @@ class LearningDemoSeeder extends Seeder
             ['learning.paths.due_format', 'string', 'j F Y'],
             ['learning.paths.certificate_cta', 'string', 'عرض الشهادة'],
             ['learning.paths.early_reward_label', 'string', 'لو أنهيت درسًا دلوقتي'],
+            // نصف المهلة **للتذاكر وحدها** (7) — القيمة من `XpCalculator::halfPoint()`
+            ['learning.paths.half_point_label', 'string', 'التذاكر بتنزل لواحدة بعد'],
+            ['learning.paths.half_point_format', 'string', 'j M Y'],
             ['learning.paths.rank_label', 'string', 'ترتيبك'],
             ['learning.paths.rank_of', 'string', 'من'],
             ['learning.paths.friends_limit', 'number', '12'],

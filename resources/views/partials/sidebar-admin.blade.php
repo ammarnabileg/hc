@@ -74,6 +74,8 @@
             ['الهيكل والبوزشنز والسعة', 'admin.volunteer.org', 'org_chart.view'],
             ['تقرير السعة', 'admin.volunteer.org.capacity', 'capacity.view'],
             ['درجة الالتزام (Rep)', 'admin.volunteer.rep', 'rep_transactions.view'],
+            // أنواع المهامّ: قالب وتشيك ليست وقيم مقترحة (23-0.3)
+            ['أنواع المهامّ', 'admin.volunteer.task-types.index', 'task_types.list'],
             ['الخروج والعودة', 'admin.volunteer.offboarding', 'offboarding.view'],
             ['شهادات التطوّع', 'admin.volunteer.certificates', 'volunteer_certificates.view'],
             ['تحليلات التطوّع', 'admin.volunteer.analytics', 'reports_volunteer.view'],

@@ -58,6 +58,8 @@ class AdminContentDemoSeeder extends Seeder
             ['courses.autosave.label', 'courses', 'نصّ الحفظ التلقائيّ', 'string', 'اتحفظ ✓'],
             // الحفظ التلقائيّ على تدريبٍ حيّ يكتب في مسوّدة تحريرٍ جانبيّة (12.4-ب)
             ['courses.autosave.draft_label', 'courses', 'نصّ الحفظ التلقائيّ للمنشور', 'string', 'اتحفظ كمسودّة تحرير ✓'],
+            ['courses.autosave.discarded_label', 'courses', 'نصّ تجاهل مسوّدة التحرير', 'string', 'اتشالت مسوّدة التحرير — النسخة المنشورة زيّ ما هي ✓'],
+            ['courses.autosave.draft_notice', 'courses', 'شرح بانر مسوّدة التحرير المعلّقة', 'string', 'التعديلات المحفوظة تلقائيًّا معروضة في الفورم — اضغط «حفظ» تسري على المنشور، أو تجاهلها وترجع النسخة المنشورة.'],
             ['courses.save.continue_label', 'courses', 'نصّ «حفظ واستمرار» للمسودّة', 'string', 'اتحفظ كمسودّة ✓'],
             ['courses.save.continue_published_label', 'courses', 'نصّ «حفظ واستمرار» للمنشور', 'string', 'اتحفظ وهو منشور ✓ — كمّل تحرير'],
             ['courses.autosave.debounce_ms', 'courses', 'مهلة الحفظ التلقائيّ (مللي ثانية)', 'number', '2000'],
@@ -245,12 +247,18 @@ class AdminContentDemoSeeder extends Seeder
 
     private function coursesFor(LearningPath $path, int $index): void
     {
+        /*
+         | ⭐ بيانات العرض لازم تحمل **أكثر من حالة** (12.4-هـ: مسودّة/مجدول/منشور
+         | /مؤرشف): بلا مسودّةٍ واحدة على الأقلّ يصير فلتر الحالة بلا مادّة،
+         | و«معاينة كطالب **قبل النشر**» بلا تدريبٍ غير منشور تُعايَن عليه.
+         | فالأوّل «تحت التجهيز» — مسودّة بلا تاريخ نشر، والباقي منشور.
+         */
         $definitions = [
-            ['مقدّمة في العمل التطوّعيّ', 'شهادة مقدّمة العمل التطوّعيّ', 0, true],
-            ['إدارة الوقت والمهامّ', 'شهادة إدارة الوقت', 60, false],
+            ['مقدّمة في العمل التطوّعيّ', 'شهادة مقدّمة العمل التطوّعيّ', 0, true, 'draft'],
+            ['إدارة الوقت والمهامّ', 'شهادة إدارة الوقت', 60, false, 'published'],
         ];
 
-        foreach ($definitions as $order => [$name, $certName, $price, $free]) {
+        foreach ($definitions as $order => [$name, $certName, $price, $free, $status]) {
             $course = Course::updateOrCreate(['slug' => Str::slug($name.'-'.$path->id)], [
                 'name_ar' => $name,
                 'cert_name_ar' => $certName,
@@ -258,8 +266,8 @@ class AdminContentDemoSeeder extends Seeder
                 'is_free' => $free,
                 'price_coins' => $price,
                 'xp_max' => 50,
-                'status' => 'published',
-                'published_at' => now(),
+                'status' => $status,
+                'published_at' => $status === 'published' ? now() : null,
             ]);
 
             CourseLearningPath::firstOrCreate(

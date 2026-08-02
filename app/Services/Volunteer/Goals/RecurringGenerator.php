@@ -7,6 +7,8 @@ use App\Models\Task;
 use App\Models\User;
 use App\Models\WorkItem;
 use App\Models\WorkPackage;
+use App\Services\Volunteer\Org\AbsenceService;
+use App\Services\Volunteer\Tasks\NoDeliverySweeper;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 
@@ -141,12 +143,17 @@ class RecurringGenerator
      */
     public function pickAssignee(WorkItem $item): array
     {
+        $absences = app(AbsenceService::class);
+
         if ($item->audience_mode === 'individual' && $item->assigned_user_id) {
-            return [User::query()->find($item->assigned_user_id), false];
+            $user = User::query()->find($item->assigned_user_id);
+
+            // «لا تُسنَد إليه مهامّ جديدة» طول غيابه المعذور (23-6)
+            return [$user && $absences->isAbsent($user) ? null : $user, false];
         }
 
         if ($item->audience_mode === 'rotation') {
-            $pool = $this->rotationPool($item);
+            $pool = $absences->withoutAbsent($this->rotationPool($item));
 
             if ($pool === []) {
                 return [null, false];
@@ -236,29 +243,27 @@ class RecurringGenerator
             return 0;
         }
 
+        $missed = 0;
+
         foreach ($stale as $task) {
-            $task->forceFill(['status' => 'no_delivery'])->save();
-
-            if ($task->owner_id && ($owner = User::query()->find($task->owner_id))) {
-                // خصم عدم التسليم من جدول Rep — لا رقم محروق (13.4-ن-أ)
-                Integrations::debit(
-                    user: $owner,
-                    currencyCode: RepService::CURRENCY,
-                    amount: rep_rule('task.no_delivery'),
-                    source: 'task',
-                    reference: $task,
-                    reason: 'بند متكرّر فائت: '.$item->name,
-                );
-
-                app(RepService::class)->syncScore($owner);
+            /*
+             | ⭐ المسار الواحد لا الخصم وحده (23-1.8): «لا تُقفَل بصمت — تدخل
+             | **مسار عدم التسليم (الحالة 4)** فورًا». والخصم كان يقع هنا بلا
+             | فتح حالة، فتبقى المهمّة بلا مالك جديد ولا إغلاق. والمسحة نفسها
+             | تحرس تكرار الخصم بمفتاح واقعته.
+             */
+            if (app(NoDeliverySweeper::class)->miss($task, 'بند متكرّر فائت: '.$item->name)) {
+                $missed++;
             }
 
-            app(RollupService::class)->recalcFromTask($task);
+            if ($task->owner_id && ($owner = User::query()->find($task->owner_id))) {
+                app(RepService::class)->syncScore($owner);
+            }
         }
 
-        $item->forceFill(['missed_count' => (int) $item->missed_count + $stale->count()])->save();
+        $item->forceFill(['missed_count' => (int) $item->missed_count + $missed])->save();
 
-        return $stale->count();
+        return $missed;
     }
 
     /** التوليد التالي بحسب التكرار — والتكرارات المتاحة إعداد قابل للتوسّع */

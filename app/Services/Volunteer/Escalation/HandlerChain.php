@@ -5,6 +5,7 @@ namespace App\Services\Volunteer\Escalation;
 use App\Models\Membership;
 use App\Models\Position;
 use App\Models\User;
+use App\Services\Volunteer\Org\AbsenceService;
 
 /**
  * سلسلة أصحاب القرار (الدستور 23 — القسم 5).
@@ -36,12 +37,41 @@ class HandlerChain
             ->first();
     }
 
-    /** أوّل صاحب قرار فوق هذا الشخص */
+    /**
+     * أوّل صاحب قرار فوق هذا الشخص — **وإن كان غائبًا فالقرار للبديل المفوَّض**
+     * (23-6): «كلّ نوافذ القرار الواردة إليه تُوجَّه للبديل مباشرةً وتُحتسَب عليه».
+     */
     public function firstHandlerFor(?User $user, ?int $entityId = null): ?User
     {
         $membership = $this->membershipOf($user, $entityId);
 
-        return $this->userOfUpline($membership);
+        return $this->substituteIfAbsent($this->userOfUpline($membership), $entityId);
+    }
+
+    /**
+     * البديل عن الغائب — بسلسلة محروسة: لو البديل نفسه غائب انتقلنا لبديله،
+     * ولو انقطع البدلاء رجعنا لأبلاين الغائب فلا تبقى نافذة بلا صاحب.
+     */
+    public function substituteIfAbsent(?User $handler, ?int $entityId = null, int $guard = 0): ?User
+    {
+        if (! $handler || $guard >= 5) {
+            return $handler;
+        }
+
+        $absences = app(AbsenceService::class);
+
+        if (! $absences->isAbsent($handler, $entityId)) {
+            return $handler;
+        }
+
+        $delegate = $absences->delegateFor($handler, $entityId)
+            ?? $this->userOfUpline($this->membershipOf($handler, $entityId));
+
+        if (! $delegate || (int) $delegate->id === (int) $handler->id) {
+            return $handler;
+        }
+
+        return $this->substituteIfAbsent($delegate, $entityId, $guard + 1);
     }
 
     /** الأبلاين التالي بعد صاحب القرار الحاليّ */

@@ -28,10 +28,14 @@ use Illuminate\Support\Facades\DB;
  */
 class StreakService
 {
+    /** دلو دفتر الأستاذ الذي تُنسَب إليه حركات الستريك — بندٌ في السجلّ لا إعداد */
+    private const LEDGER_SOURCE = 'streak';
+
     public function __construct(
         private readonly CelebrationService $celebrations,
         private readonly WalletGateway $wallet,
         private readonly UserClock $clock,
+        private readonly EconomyLedger $economy,
     ) {}
 
     /**
@@ -520,7 +524,19 @@ class StreakService
         return $streak->last_active_date?->toDateString() ?? $this->clock->now($user)->toDateString();
     }
 
-    /** منح XP الحضور وتسجيله على اليوم — فلا يتكرّر مهما أُعيد الضغط */
+    /**
+     * منح XP الحضور وتسجيله على اليوم — فلا يتكرّر مهما أُعيد الضغط.
+     *
+     * ⭐ **مصدرٌ واحد للقيمة ومسارٌ واحد للمنح** (7.2 · 7.3 · 2.13).
+     *
+     * القيمة من **سلّم الحضور المتدرّج** وحده كما ينصّ 7.2 (100 ⟵ 350 حسب
+     * إجمالي الأيّام) — لا من صفٍّ مسطّح في «مصادر كسب XP» يظنّ الأدمن أنّه
+     * يضبط به النادي فلا يتغيّر شيء.
+     *
+     * والمنح يمرّ من `EconomyLedger` كأيّ XP آخر: كان يودِع في المحفظة مباشرةً
+     * ويزيد `users.xp` بيده، فيخرج من دفتر الاقتصاد وحدوده **ولا يُزامَن معه
+     * المستوى** — مسارُ سكٍّ موازٍ يجعل مستوى المتدرّب متأخّرًا عن نقاطه.
+     */
     private function awardClubXp(User $user, StreakDay $streakDay): int
     {
         $total = $this->clubDaysCount($user);
@@ -530,13 +546,21 @@ class StreakService
             return 0;
         }
 
-        $streakDay->forceFill(['xp_awarded' => $xp])->save();
+        $awarded = $this->economy->awardXp(
+            user: $user,
+            amount: $xp,
+            source: self::LEDGER_SOURCE,
+            reference: $streakDay,
+            reason: (string) setting('streaks.club5am.xp_reason'),
+        );
 
-        $this->wallet->credit($user, 'xp', $xp, (string) setting('streaks.club5am.xp_reason'), $streakDay);
-        // عمود users.xp هو مصدر الترتيب في الليدر بورد (7.3) فيُحدَّث معه
-        $user->increment('xp', $xp);
+        if ($awarded <= 0) {
+            return 0;
+        }
 
-        return $xp;
+        $streakDay->forceFill(['xp_awarded' => $awarded])->save();
+
+        return $awarded;
     }
 
     private function checkInMessage(Streak $streak, bool $club, int $xp): string

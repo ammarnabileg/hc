@@ -153,11 +153,18 @@ class EscalationSettlementsTest extends FlowTestCase
 
         $this->engine()->run();
 
-        $this->assertTrue((bool) $escalation->refresh()->slowdown_penalty_applied);
         $this->assertDatabaseHas('transactions', [
             'user_id' => $this->reviewer->id,
             'source' => 'escalation.slowdown',
         ]);
+
+        /*
+         | ⭐ والعَلَم يُصفَّر مع الصعود: «اللي فوّتها ياخد أثر التباطؤ» بلا تخصيص
+         | (23-5) — فالمستوى الثاني ليس مجّانيًّا. وبقاؤه مرفوعًا كان يعفي كلّ مَن
+         | فوق المستوى الأوّل من أثره.
+         */
+        $this->assertFalse((bool) $escalation->refresh()->slowdown_penalty_applied);
+        $this->assertSame($this->top->id, (int) $escalation->current_handler_id);
     }
 
     // ------------------------------------------------------------ 5) تحكيم ⟵ تسوية 50%

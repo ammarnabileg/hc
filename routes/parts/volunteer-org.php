@@ -39,6 +39,12 @@ Route::middleware('auth')->group(function () {
             ->name('volunteer.department.consent');
     });
 
+    // ⭐ وضع «غائب» والتفويض المؤقّت (23-6) — يضيفه المشرف/الدايركتور لا الشخص نفسه
+    Route::middleware('permission:delegations.create')->group(function () {
+        Route::post('/volunteer/department/member/{membership}/absence', [DepartmentController::class, 'absence'])
+            ->name('volunteer.department.absence');
+    });
+
     // ---------------------------------------------- الهيكل التنظيميّ (كانفاس — 13.4-م-3)
     Route::middleware('permission:org_chart.view')->group(function () {
         Route::get('/volunteer/org', [OrgChartController::class, 'index'])->name('volunteer.org');

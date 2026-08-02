@@ -64,6 +64,9 @@
         </div>
     </div>
 
+    {{-- ⭐ لافتة تهنئة عند نصّ التدريب (3.4-19) --}}
+    @include('learning.partials.half-banner', ['half' => $outline['half_point'] ?? null])
+
     {{-- «مجّاني أوّل مرّة» انتهى بالامتحان والشهادة ⟵ Paywall نفسيّ (16) --}}
     @if (($outline['paywall']['locked'] ?? false))
         @include('learning.partials.paywall', ['paywall' => $outline['paywall']])

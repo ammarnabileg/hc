@@ -10,7 +10,16 @@
 
         <div class="space-y-2">
             @foreach (array_values($data['earn']) as $i => $row)
+                @php $consumed = array_key_exists($row['key'] ?? '', $data['earnConsumed'] ?? []); @endphp
                 <div class="rounded-xl p-3 grid grid-cols-2 md:grid-cols-5 gap-2 items-end" style="background: var(--surface-sunken)">
+                    {{-- ⭐ الصفّ الذي لا يقرؤه الكود يُقال فيه ذلك صراحةً — لا إعداد بلا أثر (2.13) --}}
+                    @unless ($consumed)
+                        <p class="col-span-2 md:col-span-5 text-xs -mt-1 mb-1 inline-flex items-start gap-1" style="color: var(--color-state-warn)">
+                            <x-icon name="warning" size="13" />
+                            <span>المفتاح ده مالوش مستهلك في الكود — تعديله مش هيغيّر حاجة.
+                                مكافآت النادي في تاب «الستريك» (سلّم الحضور)، ومكافأة الدعوة تذكرة مش XP.</span>
+                        </p>
+                    @endunless
                     <label class="text-xs">المصدر
                         <input type="text" name="rows[{{ $i }}][label]" value="{{ $row['label'] ?? '' }}"
                                class="w-full rounded-lg px-2 py-1.5 mt-1" style="background: var(--surface); border: 1px solid var(--border); color: var(--text)">

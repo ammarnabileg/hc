@@ -12,6 +12,26 @@
             'grading' => 'التقييم',
             'content' => 'المحتوى',
         ];
+
+        /* ⭐ مسوّدة التحرير المعلّقة **تُعاد إلى الحقول** (12.4-ب): الحفظ التلقائيّ
+           على تدريبٍ حيّ لا يمسّ المنشور، فلو لم ترجع هنا لضاع عمل المحرّر لحظة
+           ضغطه «حفظ» — لأنّ الفورم كان سيرسل قيم النسخة المنشورة فوقها. */
+        $draft = $pendingDraft ?? [];
+        $draftValue = fn (string $field, $fallback = null) => $draft[$field] ?? $fallback;
+        $draftLabels = [
+            'name_ar' => 'اسم العرض (عربيّ)',
+            'name_en' => 'اسم العرض (إنجليزيّ)',
+            'cert_name_ar' => 'اسم الشهادة (عربيّ)',
+            'cert_name_en' => 'اسم الشهادة (إنجليزيّ)',
+            'description_ar' => 'الوصف (عربيّ)',
+            'description_en' => 'الوصف (إنجليزيّ)',
+            'price_coins' => 'السعر الأساسيّ',
+            'offer_price_coins' => 'سعر العرض',
+            'paywall_text_ar' => 'نصّ الـPaywall (عربيّ)',
+            'paywall_text_en' => 'نصّ الـPaywall (إنجليزيّ)',
+            'deadline_days' => 'الديدلاين (أيّام)',
+            'xp_max' => 'أقصى XP للدرس',
+        ];
     @endphp
 
     <x-page-header
@@ -23,16 +43,26 @@
         ]" />
 
     {{-- ⭐ مسوّدة تحرير معلّقة على تدريبٍ حيّ (12.4-ب): الحفظ التلقائيّ لا يمسّ
-         المنشور، فيبقى شغلك محفوظًا هنا حتى تختار «حفظ» فيسري على الناس. --}}
-    @if (! empty($pendingDraft ?? []))
+         المنشور، فشغلك محفوظ هنا ومعروض في الحقول حتى تختار «حفظ» فيسري على
+         الناس، أو «تجاهل المسودّة» فترجع النسخة المنشورة كما هي. --}}
+    @if (! empty($draft))
         <div class="card p-3 mb-4 text-sm" style="background: var(--surface-raised); border-inline-start: 3px solid var(--color-warn-500, #d9a441)">
             <div class="flex items-center gap-2 flex-wrap">
                 <x-state-badge state="warn" label="مسودّة تحرير" />
-                <span>عندك تعديلات محفوظة تلقائيًّا لسّه ما سرَتش على النسخة المنشورة — راجعها واضغط «حفظ» تنشرها.</span>
+                <span class="flex-1">
+                    {{ setting('courses.autosave.draft_notice', 'التعديلات المحفوظة تلقائيًّا معروضة في الفورم — اضغط «حفظ» تسري على المنشور، أو تجاهلها وترجع النسخة المنشورة.') }}
+                    @if ($course->draft_saved_at)
+                        <span style="color: var(--text-muted)">(آخر حفظ تلقائيّ {{ $course->draft_saved_at->format('Y-m-d H:i') }})</span>
+                    @endif
+                </span>
+                <form method="post" action="{{ route('admin.courses.draft.discard', $course) }}">
+                    @csrf @method('delete')
+                    <button type="submit" class="btn rounded-xl px-3 py-2 text-sm" style="background: var(--surface-sunken)">تجاهل المسودّة</button>
+                </form>
             </div>
             <ul class="mt-2 space-y-1" style="color: var(--text-muted)">
-                @foreach ($pendingDraft as $field => $value)
-                    <li>{{ $field }}: {{ \Illuminate\Support\Str::limit((string) $value, 80) }}</li>
+                @foreach ($draft as $field => $value)
+                    <li>{{ $draftLabels[$field] ?? $field }}: {{ \Illuminate\Support\Str::limit((string) $value, 80) }}</li>
                 @endforeach
             </ul>
         </div>
@@ -69,16 +99,16 @@
         {{-- ------------------------------------------------ تاب البيانات --}}
         <section data-form-panel="data" class="space-y-4">
             <div class="grid md:grid-cols-2 gap-3">
-                <x-form.input name="name_ar" label="اسم العرض (عربيّ)" :value="$course->name_ar" required />
-                <x-form.input name="name_en" label="اسم العرض (إنجليزيّ)" :value="$course->name_en" />
-                <x-form.input name="cert_name_ar" label="اسم الشهادة (عربيّ)" :value="$course->cert_name_ar" />
-                <x-form.input name="cert_name_en" label="اسم الشهادة (إنجليزيّ)" :value="$course->cert_name_en" />
+                <x-form.input name="name_ar" label="اسم العرض (عربيّ)" :value="$draftValue('name_ar', $course->name_ar)" required />
+                <x-form.input name="name_en" label="اسم العرض (إنجليزيّ)" :value="$draftValue('name_en', $course->name_en)" />
+                <x-form.input name="cert_name_ar" label="اسم الشهادة (عربيّ)" :value="$draftValue('cert_name_ar', $course->cert_name_ar)" />
+                <x-form.input name="cert_name_en" label="اسم الشهادة (إنجليزيّ)" :value="$draftValue('cert_name_en', $course->cert_name_en)" />
             </div>
 
             <label class="block">
                 <span class="block text-sm mb-1">الوصف</span>
                 <textarea name="description_ar" rows="3" class="w-full rounded-xl px-3 py-2 text-sm"
-                          style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">{{ old('description_ar', $course->description_ar) }}</textarea>
+                          style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">{{ old('description_ar', $draftValue('description_ar', $course->description_ar)) }}</textarea>
             </label>
 
             {{-- ⭐ التدريب يقدر يكون في أكتر من مسار (12.4-أ) --}}
@@ -118,8 +148,8 @@
             </label>
 
             <div class="grid md:grid-cols-3 gap-3">
-                <x-form.input name="price_coins" label="السعر الأساسيّ (كوينز)" type="number" :value="(int) $course->price_coins" />
-                <x-form.input name="offer_price_coins" label="سعر العرض" type="number" :value="$course->offer_price_coins" />
+                <x-form.input name="price_coins" label="السعر الأساسيّ (كوينز)" type="number" :value="(int) $draftValue('price_coins', $course->price_coins)" />
+                <x-form.input name="offer_price_coins" label="سعر العرض" type="number" :value="$draftValue('offer_price_coins', $course->offer_price_coins)" />
                 <x-form.input name="offer_ends_at" label="ينتهي العرض في" type="date"
                               :value="$course->offer_ends_at?->format('Y-m-d')" />
             </div>
@@ -134,7 +164,7 @@
                 <label class="block mt-3">
                     <span class="block text-sm mb-1">النصّ (عربيّ)</span>
                     <textarea name="paywall_text_ar" rows="2" class="w-full rounded-xl px-3 py-2 text-sm"
-                              style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">{{ old('paywall_text_ar', $course->paywall_text_ar) }}</textarea>
+                              style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">{{ old('paywall_text_ar', $draftValue('paywall_text_ar', $course->paywall_text_ar)) }}</textarea>
                 </label>
             </details>
         </section>
@@ -157,7 +187,7 @@
                               :value="$availability['daily_from'] ?? null" />
                 <x-form.input name="availability[daily_to]" label="إلى" type="time"
                               :value="$availability['daily_to'] ?? null" />
-                <x-form.input name="deadline_days" label="الديدلاين (أيّام)" type="number" :value="$course->deadline_days" />
+                <x-form.input name="deadline_days" label="الديدلاين (أيّام)" type="number" :value="$draftValue('deadline_days', $course->deadline_days)" />
             </div>
         </section>
 
@@ -166,7 +196,7 @@
             <div class="grid md:grid-cols-3 gap-3">
                 {{-- ⭐ «أقصى XP للدرس» = `xp_max` وحده — وهو ما تقرؤه الحاسبة فعلًا (7) --}}
                 <x-form.input name="xp_max" label="أقصى XP للدرس" type="number"
-                              :value="$course->xp_max ?: setting('courses.xp.max_per_lesson', 50)"
+                              :value="$draftValue('xp_max', $course->xp_max ?: setting('courses.xp.max_per_lesson', 50))"
                               hint="نقطة بداية التناقص الخطّيّ — تنزل مع الوقت حتى الصفر عند الديدلاين." />
                 <x-form.input name="exam_pass_score" label="درجة نجاح الامتحان" type="number"
                               :value="$exam->pass_score ?? setting('exams.pass_score.default', 70)" />

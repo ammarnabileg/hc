@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\NameParticle;
 use App\Models\Setting;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 /**
  * إعدادات وبيانات مجال «الواجهة والبروفايل والاستوديو».
@@ -22,6 +23,7 @@ class UiDemoSeeder extends Seeder
     {
         $this->settings();
         $this->nameParticles();
+        $this->firstRunSlides();
     }
 
     public function settings(): void
@@ -88,6 +90,49 @@ class UiDemoSeeder extends Seeder
                     'default_value' => $default,
                 ],
             );
+        }
+    }
+
+    /**
+     * ⭐ شرائح «أوّل مرّة» للرئيسيّة — **محتوى عرض لا تعريف إعداد**.
+     *
+     * مصدر الشاشة صار جدول `onboarding_slides` وحده، والجدول في التنصيب الجديد
+     * **فاضي عن قصد**: لا يظهر للمستخدم شيءٌ لم يكتبه أدمن (حالة فارغة صادقة).
+     * فالبيئة التجريبيّة تحتاج شرائح حقيقيّة لتُرى الميزة — وهذه هي، بنفس الطريق
+     * الذي يسلكه الأدمن من شاشته: صفوف في الجدول لا نصوصٌ في الكود.
+     *
+     * والحارس **لكلّ شاشة على حدة**: مَن كتب شرائحه بنفسه لا نضيف فوقها، ولا
+     * نمنع بذور شاشةٍ أخرى لمجرّد أنّ الجدول ليس فاضيًا.
+     */
+    private function firstRunSlides(): void
+    {
+        $rows = [
+            ['dashboard', 'دي رئيسيّتك', 'من هنا تشوف تدريباتك ومهامّك وكلّ جديد — بلا لفّ ولا دوران.', null, null],
+            ['dashboard', 'كمّل اللي وقفت عنده', 'الكارت الأوّل بيرجّعك لآخر درس فتحته بضغطة واحدة.', 'خُدني هناك', '/learning/courses'],
+        ];
+
+        // الشاشات التي كُتِبت شرائحها بالفعل — تُحسَب مرّةً قبل الإدراج لا داخله
+        $written = DB::table('onboarding_slides')->distinct()->pluck('screen')->all();
+
+        foreach ($rows as $index => [$screen, $title, $body, $actionLabel, $actionUrl]) {
+            if (in_array($screen, $written, true)) {
+                continue;
+            }
+
+            DB::table('onboarding_slides')->insert([
+                'screen' => $screen,
+                'title_ar' => $title,
+                'body_ar' => $body,
+                'image_path' => null,
+                'action_label' => $actionLabel,
+                'action_url' => $actionUrl,
+                'sort_order' => $index + 1,
+                'is_active' => true,
+                'from_template' => false,
+                'created_by' => null,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
         }
     }
 

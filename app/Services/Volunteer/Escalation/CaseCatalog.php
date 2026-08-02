@@ -98,6 +98,9 @@ class CaseCatalog
                 'decisions' => ['link_works' => 'الرابط يعمل', 'link_broken' => 'الرابط معطّل فعلًا'],
                 'settlement' => 'link_works',
                 'settlement_label' => 'الرابط يعمل بلا خصم',
+                // ⭐ وحدها: خصم التباطؤ فيها **قيمة معلَّقة قابلة للاسترجاع** (23-5)
+                'suspended_slowdown' => true,
+                'notice' => 'خصم التباطؤ هنا معلَّق: يُشال عن الكلّ لو الرابط شغّال، ويُعتمَد لو معطّل فعلًا.',
             ],
             self::REPEATED_RETURN => [
                 'label' => 'إرجاع متكرّر',
@@ -177,5 +180,14 @@ class CaseCatalog
     public static function skipsSlowdown(string $type): bool
     {
         return (bool) (self::get($type)['no_slowdown'] ?? false);
+    }
+
+    /**
+     * هل أثر التباطؤ في هذا النوع **معلَّق قابل للاسترجاع** بدل أن يقع نهائيًّا؟
+     * (بلاغ الرابط المعطّل وحده — 23-5: «شغّال ⟵ المعلَّق يتشال عن الكل».)
+     */
+    public static function suspendsSlowdown(string $type): bool
+    {
+        return (bool) (self::get($type)['suspended_slowdown'] ?? false);
     }
 }

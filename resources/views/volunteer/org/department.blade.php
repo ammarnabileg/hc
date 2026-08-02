@@ -149,6 +149,64 @@
             </div>
         @endif
 
+        {{--
+            ⭐ وضع «غائب» والتفويض المؤقّت (23-6): يضيفه المشرف/الدايركتور لا الشخص
+            نفسه — ولذلك يُخفى تمامًا عمّن لا يملكه (2.15-أ-7). وبلا هذا الوضع يقع
+            نزيف خصومات تباطؤ على غائب معذور.
+        --}}
+        @can('delegations.create')
+            <details class="card p-4 mt-5">
+                <summary class="cursor-pointer text-sm font-semibold">تسجيل غياب وتفويض بديل</summary>
+
+                <form method="post" action="{{ url('/volunteer/department/member') }}"
+                      data-absence-form data-absence-base="{{ url('/volunteer/department/member') }}"
+                      class="grid gap-3 sm:grid-cols-2 mt-3">
+                    @csrf
+
+                    <label class="text-sm">
+                        <span class="block text-xs mb-1" style="color: var(--text-muted)">العضو الغائب</span>
+                        <select name="membership" required data-absence-member
+                                class="w-full rounded-xl px-3 py-2 text-sm"
+                                style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
+                            <option value="">اختار…</option>
+                            @foreach ($cards as $card)
+                                <option value="{{ $card['id'] }}">{{ $card['name'] }} — {{ $card['position'] }}</option>
+                            @endforeach
+                        </select>
+                    </label>
+
+                    <label class="text-sm">
+                        <span class="block text-xs mb-1" style="color: var(--text-muted)">البديل المفوَّض (فاضي = أبلاينه المباشر)</span>
+                        <select name="delegate_membership_id"
+                                class="w-full rounded-xl px-3 py-2 text-sm"
+                                style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
+                            <option value="">الأبلاين المباشر</option>
+                            @foreach ($cards as $card)
+                                <option value="{{ $card['id'] }}">{{ $card['name'] }} — {{ $card['position'] }}</option>
+                            @endforeach
+                        </select>
+                    </label>
+
+                    <x-form.input name="from_date" label="من" type="date" required />
+                    <x-form.input name="to_date" label="إلى" type="date" required />
+
+                    <label class="text-sm sm:col-span-2">
+                        <span class="block text-xs mb-1" style="color: var(--text-muted)">السبب (اختياريّ)</span>
+                        <input type="text" name="reason" class="w-full rounded-xl px-3 py-2 text-sm"
+                               style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
+                    </label>
+
+                    <div class="sm:col-span-2">
+                        <button type="submit" class="btn rounded-xl px-4 py-2 text-sm font-semibold"
+                                style="background: var(--color-brand-500); color: #04201c">تسجيل الغياب</button>
+                        <span class="block text-xs mt-2" style="color: var(--text-muted)">
+                            طول الغياب: القرارات تروح للبديل · مفيش أثر تباطؤ على الغائب · مفيش إسناد جديد له · وساعات مهامّه واقفة.
+                        </span>
+                    </div>
+                </form>
+            </details>
+        @endcan
+
         {{-- بوب-أب ملفّ عضو مختصر: رأس ثابت وجسم متمرّر (2.10.1-17) --}}
         <x-modal id="member-modal" title="ملفّ العضو">
             <div data-member-body class="text-sm">
@@ -160,6 +218,18 @@
 
 @push('scripts')
 <script>
+/* فورم الغياب: المسار يحمل عضويّة الغائب، فنبنيه من الاختيار قبل الإرسال */
+(() => {
+    const form = document.querySelector('[data-absence-form]');
+    if (!form) return;
+
+    form.addEventListener('submit', (e) => {
+        const membership = form.querySelector('[data-absence-member]')?.value;
+        if (!membership) { e.preventDefault(); return; }
+        form.action = `${form.dataset.absenceBase}/${membership}/absence`;
+    });
+})();
+
 /* بوب-أب ملفّ العضو — بلا مكتبات، وردّ فوريّ لكلّ فعل (2.17-ب) */
 (() => {
     const modal = document.getElementById('member-modal');

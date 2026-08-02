@@ -8,13 +8,18 @@ use App\Models\EscalationStep;
 use App\Models\Task;
 use App\Models\TaskBlock;
 use App\Models\TaskContribution;
+use App\Models\Transaction;
 use App\Models\User;
+use App\Services\Volunteer\Org\AbsenceService;
 use App\Services\Volunteer\Retention\BehaviorEscalation;
+use App\Services\Wallet\LedgerService;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Throwable;
 
 /**
  * محرّك التصعيد — قلب دورة العمل (الدستور 23 — القسم 5).
@@ -122,13 +127,19 @@ class EscalationEngine
                 : null;
 
             if ($missed && ! CaseCatalog::skipsSlowdown($escalation->case_type) && ! $escalation->slowdown_penalty_applied) {
-                FlowLedger::rep(
-                    $missed,
-                    rep_rule('task.slowdown'),
-                    'escalation.slowdown',
-                    $escalation,
-                    'فوات نافذة القرار في: '.CaseCatalog::label($escalation->case_type),
-                );
+                // الغائب المعذور لا يقع عليه أثر تباطؤ إطلاقًا (23-6 — وضع «غائب»)
+                if (! app(AbsenceService::class)->isAbsent($missed)) {
+                    CaseCatalog::suspendsSlowdown($escalation->case_type)
+                        // بلاغ الرابط: قيمة معلَّقة تُعتمَد أو تُشال بعد التحقّق (23-5)
+                        ? $this->suspendSlowdown($escalation, $missed, rep_rule('task.slowdown'))
+                        : FlowLedger::rep(
+                            $missed,
+                            rep_rule('task.slowdown'),
+                            'escalation.slowdown',
+                            $escalation,
+                            'فوات نافذة القرار في: '.CaseCatalog::label($escalation->case_type),
+                        );
+                }
 
                 $escalation->slowdown_penalty_applied = true;
             }
@@ -151,6 +162,14 @@ class EscalationEngine
                 'level' => $escalation->level + 1,
                 'is_top_level' => $isTop,
                 'window_due_at' => $due,
+                /*
+                 | ⭐ مستوًى جديد = نافذة جديدة = صاحبٌ جديد: و«اللي فوّتها ياخد أثر
+                 | التباطؤ» بلا تخصيص (23-5). فالعَلَم يُصفَّر مع كلّ صعود، ولا يبقى
+                 | مرفوعًا إلّا حين تنقطع السلسلة فيظلّ الأمر على مكتب صاحبه نفسه.
+                 */
+                'slowdown_penalty_applied' => $handler && $missed && (int) $handler->id === (int) $missed->id
+                    ? $escalation->slowdown_penalty_applied
+                    : false,
             ])->save();
 
             $this->openStep($escalation, $handler, (int) $escalation->level, $due);
@@ -205,11 +224,16 @@ class EscalationEngine
     /**
      * معالجة كلّ النوافذ الفائتة دفعةً — يستدعيها أمر `escalations:run`.
      *
-     * @return array{escalated:int, settled:int}
+     * ⭐ **حالةٌ واحدة تالفة لا تُسقِط الدورة كلّها.** المحرّك يعمل كلّ خمس دقائق
+     * على المنصّة بأسرها: التسويات التسع · الاعتماد التلقائيّ للمساهمين · خصم
+     * نقاط التفتيش · الديدلاينات الداخليّة. فصفٌّ بنوعٍ لا يعرفه `CaseCatalog`
+     * — أو أيّ استثناء آخر — يُعزَل ويُسجَّل ويُنبَّه عليه، **ويكمل الباقي**.
+     *
+     * @return array{escalated:int, settled:int, failed:int}
      */
     public function run(): array
     {
-        $result = ['escalated' => 0, 'settled' => 0];
+        $result = ['escalated' => 0, 'settled' => 0, 'failed' => 0];
 
         Escalation::query()
             ->where('status', 'open')
@@ -217,18 +241,71 @@ class EscalationEngine
             ->orderBy('window_due_at')
             ->get()
             ->each(function (Escalation $escalation) use (&$result) {
-                if ($escalation->is_top_level) {
-                    $this->autoSettle($escalation);
-                    $result['settled']++;
+                try {
+                    if (! CaseCatalog::exists($escalation->case_type)) {
+                        $this->quarantine($escalation, 'نوع حالة غير معروف: '.$escalation->case_type);
+                        $result['failed']++;
 
-                    return;
+                        return;
+                    }
+
+                    if ($escalation->is_top_level) {
+                        $this->autoSettle($escalation);
+                        $result['settled']++;
+
+                        return;
+                    }
+
+                    $this->escalate($escalation);
+                    $result['escalated']++;
+                } catch (Throwable $exception) {
+                    report($exception);
+                    $this->quarantine($escalation, 'تعذّرت المعالجة: '.$exception->getMessage());
+                    $result['failed']++;
                 }
-
-                $this->escalate($escalation);
-                $result['escalated']++;
             });
 
         return $result;
+    }
+
+    /**
+     * عزل صفٍّ تالف: يخرج من الطابور بحالة `failed` بسببٍ مكتوب، ويُنبَّه عليه
+     * صاحبه ومَن طلبه — فلا يبقى عالقًا يعيد إسقاط الدورة كلّ خمس دقائق،
+     * ولا يختفي بصمت.
+     */
+    private function quarantine(Escalation $escalation, string $reason): void
+    {
+        try {
+            Log::error('محرّك التصعيد: عزل حالة تالفة', [
+                'escalation_id' => $escalation->id,
+                'case_type' => $escalation->case_type,
+                'reason' => $reason,
+            ]);
+
+            $escalation->forceFill([
+                'status' => 'failed',
+                'decision_note' => $reason,
+            ])->save();
+
+            EscalationStep::query()
+                ->where('escalation_id', $escalation->id)
+                ->whereNull('closed_at')
+                ->update(['closed_at' => now(), 'outcome' => 'failed', 'updated_at' => now()]);
+
+            foreach (array_filter([$this->handlerOf($escalation), $this->requesterOf($escalation)]) as $user) {
+                FlowNotifier::send(
+                    $user,
+                    'escalation',
+                    'حالة اتوقفت وعايزة مراجعة يدويّة',
+                    $reason.' — كلّم الأدمن عشان يراجعها.',
+                    route('volunteer.escalations'),
+                    about: $escalation,
+                );
+            }
+        } catch (Throwable $exception) {
+            // العزل نفسه لا يجوز أن يُسقِط الدورة — يكفي أن يُسجَّل
+            report($exception);
+        }
     }
 
     // ------------------------------------------------------------------ استعلامات الشاشة
@@ -465,21 +542,100 @@ class EscalationEngine
     }
 
     /**
-     * 7) بلاغ الرابط: التسوية «الرابط يعمل بلا خصم» — والخصم المعلَّق يُشال عن
-     * الكلّ. أمّا «معطّل فعلًا» فيُعتمَد الخصم في سجلّ من أضاف التسجيل.
+     * 7) بلاغ الرابط: خصم التباطؤ فيه **قيمة معلَّقة قابلة للاسترجاع** (23-5).
+     *  - «الرابط يعمل» ⟵ المعلَّق **يتشال عن الكلّ**، وما وقع فعلًا (صفوف قديمة)
+     *    يُردّ بمعاملة عكسيّة موثّقة — لا تعديل للأصل.
+     *  - «معطّل فعلًا» ⟵ المعلَّق **يُعتمَد في سجلّ معاملاتهم**، ومعه مَن أضاف التسجيل.
      */
     private function applyBrokenLink(Escalation $escalation, string $decision): void
     {
+        $payload = $this->payload($escalation);
+        $suspended = array_values((array) ($payload['suspended_slowdown'] ?? []));
+
+        foreach ($suspended as $row) {
+            $user = User::query()->find($row['user_id'] ?? null);
+
+            if (! $user) {
+                continue;
+            }
+
+            $decision === 'link_broken'
+                ? FlowLedger::rep(
+                    $user,
+                    (float) ($row['value'] ?? rep_rule('task.slowdown')),
+                    'escalation.slowdown',
+                    $escalation,
+                    'اعتماد أثر التباطؤ المعلَّق بعد تأكيد بلاغ الرابط',
+                )
+                : FlowNotifier::send(
+                    $user,
+                    'escalation',
+                    'اترجّع لك الخصم المعلَّق ✓',
+                    'الرابط اتأكّد إنّه شغّال — فمفيش أثر تباطؤ عليك.',
+                    route('volunteer.escalations'),
+                    about: $escalation,
+                );
+        }
+
+        $payload['suspended_slowdown'] = [];
+        $escalation->payload = json_encode($payload, JSON_UNESCAPED_UNICODE);
+        $escalation->save();
+
         if ($decision !== 'link_broken') {
+            $this->refundSlowdown($escalation);
+
             return;
         }
 
-        $payload = $this->payload($escalation);
         $responsible = ! empty($payload['responsible_id']) ? User::query()->find($payload['responsible_id']) : null;
 
         if ($responsible) {
             FlowLedger::rep($responsible, rep_rule('task.slowdown'), 'link.broken_confirmed', $escalation, 'تأكيد بلاغ رابط معطّل');
         }
+    }
+
+    /** ردّ ما وقع فعلًا من خصم تباطؤ على هذه الحالة — بمعاملة عكسيّة لا بحذف */
+    private function refundSlowdown(Escalation $escalation): void
+    {
+        if (! FlowLedger::available()) {
+            return;
+        }
+
+        // ما رُدّ مرّةً لا يُردّ ثانية — والأصل يبقى في السجلّ كما هو
+        $alreadyReversed = Transaction::query()
+            ->whereNotNull('corrects_transaction_id')
+            ->pluck('corrects_transaction_id')
+            ->all();
+
+        Transaction::query()
+            ->where('reference_type', $escalation->getMorphClass())
+            ->where('reference_id', $escalation->getKey())
+            ->where('source', 'escalation.slowdown')
+            ->where('is_correction', false)
+            ->whereNotIn('id', $alreadyReversed ?: [0])
+            ->get()
+            ->each(fn (Transaction $transaction) => app(LedgerService::class)->reverse(
+                $transaction,
+                'ردّ أثر التباطؤ المعلَّق — الرابط شغّال (23-5)',
+            ));
+    }
+
+    /** أثر تباطؤ معلَّق: يُسجَّل في حمولة الحالة ولا يمسّ الدفتر حتى التحقّق */
+    private function suspendSlowdown(Escalation $escalation, User $missed, float $value): void
+    {
+        $payload = $this->payload($escalation);
+        $payload['suspended_slowdown'][] = ['user_id' => $missed->id, 'value' => $value];
+
+        $escalation->payload = json_encode($payload, JSON_UNESCAPED_UNICODE);
+
+        FlowNotifier::send(
+            $missed,
+            'escalation',
+            'أثر تباطؤ معلَّق على بلاغ رابط',
+            'القيمة معلَّقة لحدّ ما حد يتحقّق من الرابط — لو شغّال هتترفع عنك.',
+            route('volunteer.escalations'),
+            about: $escalation,
+        );
     }
 
     /** 8) الإرجاع المتكرّر: إرجاع/اعتماد/إنهاء بقيمة Rep يدويّة بمبرّر */

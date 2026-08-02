@@ -51,6 +51,9 @@ class VolunteerCoreDemoSeeder extends Seeder
         $rows = [
             ['workflow.task_cap.personal_extra_percent', 'workflow', 'الزيادة على أعلى سقف دور للسقف الشخصيّ الكلّي (%)', 'number', '50'],
             ['workflow.merge_window_hours', 'workflow', 'نافذة الدمج والتسليم للأب (ساعات)', 'number', '24'],
+            ['workflow.breakdown_window_hours', 'workflow', 'نافذة التفكيك والتوزيع لكلّ طبقة (ساعات)', 'number', '24'],
+            ['workflow.no_delivery.owner_positions', 'workflow', 'بوزشنات مَن تصعد إليه المهمّة العامّة الفائتة', 'json', '["director"]'],
+            ['workflow.task_types.delivery_kinds', 'workflow', 'أنواع التسليم المقترحة في قالب نوع المهمّة', 'json', '{"link":"رابط","file":"ملفّ","text":"نصّ","confirm":"تأكيد"}'],
             ['workflow.extension.max_per_task', 'workflow', 'أقصى عدد طلبات تمديد للمهمّة', 'number', '1'],
             ['workflow.blocked.max_retries', 'workflow', 'أقصى مرّات تعثّر للمهمّة', 'number', '2'],
             ['workflow.blocked.second_block_reward_multiplier', 'workflow', 'معامل مكافأة Rep بعد التعثّر الثاني', 'number', '0.5'],

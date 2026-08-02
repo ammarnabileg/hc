@@ -97,6 +97,14 @@ class SettingsController extends Controller
             'consentBars' => $consents->mapWithKeys(
                 fn ($c) => [$c->id => $this->consents->remainingPercent($c)]
             ),
+
+            /*
+             | ⭐ بلوك الأمان نفسه المعروض في تاب «الأمان» (2.3) — والبند 24.5 يذكره
+             | في هذه الشاشة نصًّا: تغيير كلمة المرور · **الجلسات النشطة** ·
+             | [تحميل بياناتي] · ومنطقة الخطر. مضمونٌ واحد من مدخلين لا نسختان.
+             */
+            'devices' => UserDevice::where('user_id', $user->id)->orderByDesc('last_active_at')->get(),
+            'currentSessionId' => $request->session()->getId(),
         ]);
     }
 

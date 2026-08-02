@@ -78,24 +78,55 @@ class TaskWorkflow
     }
 
     /**
+     * ⭐ العدّاد الذي يُحاسَب عليه صاحب المهمّة فعلًا (23-3.9-3):
+     * **الأقرب** بين ديدلاينه ونافذة دمجه. فمَن اعتُمد آخر أبنائه اليوم يبدأ
+     * عدّاده الشخصيّ فورًا — «المماطل في منتصف السلسلة مكشوف ومخصوم في يومه»،
+     * ولا ينتظر أحدٌ نهاية المهمّة الكبيرة ليُعرَف مَن عطّل.
+     */
+    public function effectiveDeadline(Task $task): ?Carbon
+    {
+        $deadline = $task->deadline_at ? Carbon::parse($task->deadline_at) : null;
+        $merge = $task->merge_window_at ? Carbon::parse($task->merge_window_at) : null;
+
+        if (! $deadline || ! $merge) {
+            return $deadline ?? $merge;
+        }
+
+        return $merge->lessThan($deadline) ? $merge : $deadline;
+    }
+
+    /**
      * قيمة Rep المستحقّة على التسليم — بجدول 13.4-ن-أ ومعامل التعثّر الثاني.
      * والقيم كلّها من `rep_rule()` — ولا رقم محروق.
+     *
+     * ⭐ ومَن رفع علم «متأخّر بسبب [ابن]» قبل فوات نافذته **لا يُخصَم منه شيء**
+     *    (23-3.9-4) — العلم بضوابطه الأربعة، وهنا موضع قراءته.
      */
     public function deliveryRepValue(Task $task): float
     {
         $deliveredAt = $task->delivered_at ? Carbon::parse($task->delivered_at) : now();
-        $deadline = $task->deadline_at ? Carbon::parse($task->deadline_at) : null;
+        $deadline = $this->effectiveDeadline($task);
 
         if (! $deadline || $deliveredAt->lessThanOrEqualTo($deadline)) {
             // المكافأة الموجبة وحدها تُنصَّف بعد التعثّر الثاني — الخصومات كما هي
             return round(rep_rule('task.early') * $this->blocks->repRewardMultiplier($task), 4);
         }
 
+        if ($task->late_due_to_child) {
+            return 0.0;
+        }
+
         $lateHours = $deadline->diffInHours($deliveredAt);
 
-        return $lateHours < 24
+        return $lateHours < $this->graceHours()
             ? rep_rule('task.late_under_24h')
             : rep_rule('task.no_delivery');
+    }
+
+    /** مهلة «تأخير أقلّ من 24 ساعة» — إعداد لا رقم محروق (2.13) */
+    public function graceHours(): float
+    {
+        return (float) setting('workflow.escalation.window_hours', 24);
     }
 
     /**
@@ -223,11 +254,11 @@ class TaskWorkflow
     /** هل المهمّة متأخّرة الآن؟ — الساعة تقف بالتسليم فلا تأخير بعده */
     public function isLate(Task $task): bool
     {
-        if (! $task->deadline_at) {
+        $deadline = $this->effectiveDeadline($task);
+
+        if (! $deadline) {
             return false;
         }
-
-        $deadline = Carbon::parse($task->deadline_at);
 
         if ($task->delivered_at) {
             return Carbon::parse($task->delivered_at)->greaterThan($deadline);
@@ -240,7 +271,9 @@ class TaskWorkflow
     /** حالة العدّاد الملوّن (2.16): أخضر متّسع · أصفر اقترب · أحمر فات */
     public function counterState(Task $task): string
     {
-        if (! $task->deadline_at) {
+        $deadline = $this->effectiveDeadline($task);
+
+        if (! $deadline) {
             return 'idle';
         }
 
@@ -254,33 +287,46 @@ class TaskWorkflow
 
         $soonHours = (float) setting('workflow.deadline.soon_hours', 24);
 
-        return now()->diffInHours(Carbon::parse($task->deadline_at), absolute: true) <= $soonHours ? 'warn' : 'ok';
+        return now()->diffInHours($deadline, absolute: true) <= $soonHours ? 'warn' : 'ok';
     }
 
+    /**
+     * ⭐ **المصدر الواحد لحركة تسليم المهمّة** (23-3.7): الساعة تقف هنا،
+     * والتقييم يُحسَب على وقت التسليم، والحركة تُكتَب **مرّةً واحدة** بمفتاح
+     * واقعتها (المهمّة + نسخة التسليم). ولا يكتب الاعتمادُ حركةً ثانية —
+     * زمن المراجعة لا يُحمَّل على المنفّذ أصلًا، فلا معنى لأن يعيد تقييمه.
+     */
     private function recordDeliveryRep(Task $task, User $user): void
     {
+        $version = (int) TaskSubmission::query()->where('task_id', $task->id)->max('version');
         $value = $this->deliveryRepValue($task);
         $halved = $this->blocks->repRewardMultiplier($task) < 1 && $value > 0;
 
-        $this->bridge->record(
-            $user,
-            'rep',
-            $value,
-            'task',
-            'تسليم مهمّة: '.$task->title.($halved ? ' (المكافأة منصَّفة بعد التعثّر الثاني)' : ''),
-            $task,
-            $task->entity_id,
+        RepOnce::record(
+            RepOnce::deliveryKey((int) $task->id, $version),
+            fn () => $this->bridge->record(
+                $user,
+                'rep',
+                $value,
+                'task',
+                'تسليم مهمّة: '.$task->title.($halved ? ' (المكافأة منصَّفة بعد التعثّر الثاني)' : ''),
+                $task,
+                $task->entity_id,
+            ),
         );
 
         if ((float) $task->vxp_value > 0 && $value > 0) {
-            $this->bridge->record(
-                $user,
-                'vxp',
-                (float) $task->vxp_value,
-                'task',
-                'مهمّة مُسلَّمة: '.$task->title,
-                $task,
-                $task->entity_id,
+            RepOnce::record(
+                'task.vxp:'.$task->id,
+                fn () => $this->bridge->record(
+                    $user,
+                    'vxp',
+                    (float) $task->vxp_value,
+                    'task',
+                    'مهمّة مُسلَّمة: '.$task->title,
+                    $task,
+                    $task->entity_id,
+                ),
             );
         }
     }

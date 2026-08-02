@@ -169,6 +169,33 @@ class ProgressService
             },
             // بيانات الـPaywall النفسيّ تُعرَض في صفحة التدريب (16) — والقفل نفسه وقع فوق
             'paywall' => $paywall,
+            // ⭐ لافتة التهنئة عند نصّ التدريب (3.4-19)
+            'half_point' => $this->halfPoint($total, count($done)),
+        ];
+    }
+
+    /**
+     * ⭐ نصّ التدريب: هل بلغه المتدرّب **الآن** بالضبط؟ (3.4-19)
+     *
+     * الدستور يقول «لافتة تهنئة **عند** نصّ التدريب» — عند، لا طوال النصف
+     * الثاني. فالشرط أن يكون عدد المكتمل هو **أوّل عدد** يبلغ العتبة: يظهر
+     * التهنئة عند الدرس الذي عبر بها، ويختفي مع الدرس التالي. وحسابٌ بلا
+     * حالةٍ مخزَّنة أصدق من علمٍ في القاعدة قد يفترق عن الواقع بعد إعادة حساب.
+     *
+     * ولا نهنّئ بالنصّ عند الإكمال الكامل: هناك احتفال `course.completed` وحده
+     * صاحب اللحظة، ولافتتان في شاشةٍ واحدة تُبهت الذروة (2.14).
+     *
+     * @return array{reached:bool, at:int, remaining:int}
+     */
+    private function halfPoint(int $total, int $completed): array
+    {
+        $percent = max(1, min(99, (int) setting('learning.course.half_banner_percent', 50)));
+        $at = (int) ceil($total * $percent / 100);
+
+        return [
+            'reached' => $total > 1 && $completed > 0 && $completed === $at && $completed < $total,
+            'at' => $at,
+            'remaining' => max(0, $total - $completed),
         ];
     }
 

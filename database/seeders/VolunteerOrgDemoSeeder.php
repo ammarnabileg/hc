@@ -86,6 +86,11 @@ class VolunteerOrgDemoSeeder extends Seeder
             ['volunteer_card.verify_hint', 'volunteer', 'سطر تحت الـQR', 'string', 'امسح الكود للتحقّق من البطاقة'],
             ['volunteer_card.verify.valid_text', 'volunteer', 'نصّ البطاقة السارية', 'text', 'البطاقة سارية، وصاحبها متطوّع مُسكَّن عندنا.'],
             ['volunteer_card.verify.expired_text', 'volunteer', 'نصّ البطاقة المنتهية', 'text', 'البطاقة منتهية — انتهت عضويّة صاحبها، والسجلّ محفوظ.'],
+
+            // ---------------- وضع «غائب» والتفويض المؤقّت (23-6)
+            ['volunteer.absence.max_days', 'volunteer', 'أقصى غياب متّصل (أيّام)', 'number', '14'],
+            ['volunteer.absence.max_per_month', 'volunteer', 'أقصى مرّات الغياب في الشهر', 'number', '2'],
+            ['volunteer.absence.adder_positions', 'volunteer', 'بوزشنات مَن يضيف وضع «غائب»', 'json', '["volunteer_gm","track_gm","director"]'],
         ];
 
         foreach ($rows as [$key, $group, $label, $type, $default]) {
