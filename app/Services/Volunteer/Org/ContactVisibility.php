@@ -4,6 +4,7 @@ namespace App\Services\Volunteer\Org;
 
 use App\Models\ConsentRequest;
 use App\Models\User;
+use App\Services\Account\ProfileVisibility;
 use Illuminate\Support\Collection;
 
 /**
@@ -16,16 +17,33 @@ use Illuminate\Support\Collection;
  */
 final class ContactVisibility
 {
+    public function __construct(private readonly ProfileVisibility $privacy) {}
+
     /** الموافقات السارية لهذا الطالب — استعلام واحد للصفحة كلّها */
-    public function grantedOwnerIds(User $viewer): Collection
+    public function grantedOwnerIds(User $viewer, string $field = 'phone'): Collection
     {
         return ConsentRequest::query()
             ->where('requester_id', $viewer->id)
-            ->where('field', 'phone')
+            ->where('field', $field)
             ->where('status', 'granted')
+            ->whereNull('revoked_at')
             ->where(fn ($q) => $q->whereNull('consent_expires_at')->orWhere('consent_expires_at', '>', now()))
             ->pluck('owner_id')
             ->unique();
+    }
+
+    /**
+     * الاستثناء (ب) في 13.4-م-2: **إعداد الخصوصيّة** يسمح بالإظهار بلا طلب —
+     * فالحقل الذي فتحه صاحبه «لكلّ المتطوّعين» أو «لكلّ المستخدمين» يُرى مباشرةً.
+     * وكان يُتجاهَل تمامًا فيُقنَّع رقمٌ فتحه صاحبه بيده.
+     */
+    public function openByPrivacy(?User $viewer, User $owner, string $field = 'phone'): bool
+    {
+        return match ($this->privacy->visibilityOf($owner, $field)) {
+            'all_users' => true,
+            'all_volunteers' => (bool) $viewer?->isVolunteer(),
+            default => false, // «مشرفيني فقط» — والزميل ليس مشرفًا
+        };
     }
 
     /**
@@ -39,7 +57,9 @@ final class ContactVisibility
         $phone = (string) ($owner->phone ?? '');
         $isSelf = $viewer->id === $owner->id;
         $isUpline = in_array($viewer->id, $uplineUserIds, true);
-        $visible = $phone !== '' && ($isSelf || $isUpline || $grantedOwnerIds->contains($owner->id));
+        $visible = $phone !== '' && ($isSelf || $isUpline
+            || $grantedOwnerIds->contains($owner->id)
+            || $this->openByPrivacy($viewer, $owner));
 
         return [
             'visible' => $visible,

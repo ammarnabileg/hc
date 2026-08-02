@@ -1,0 +1,176 @@
+<?php
+
+namespace App\Services\Engagement;
+
+use App\Models\Setting;
+use App\Models\User;
+use App\Services\Admin\Volunteer\AuditTrail;
+use Illuminate\Support\Facades\Cache;
+
+/**
+ * كاتب إعدادات الرسائل الإيجابيّة والسفراء (2.13-أ/د).
+ *
+ * لماذا كاتب مستقلّ؟ لأنّ الإعداد بلا شاشة يعدّله الأدمن = عجزٌ للمالك؛
+ * ولأنّ الكتابة لازم تمسح الكاش فورًا وإلّا صار للإعداد قيمتان: واحدة في
+ * الشاشة وأخرى في المنطق. ولكلّ تعديل **Audit** بقيمته القديمة والجديدة.
+ */
+class EngagementSettings
+{
+    /**
+     * الكتالوج: المفتاح ⟵ [المجموعة، اللافتة، النوع، الافتراضيّ، الشرح].
+     * ولا يُكتَب مفتاح خارجه منعًا لتلويث جدول الإعدادات.
+     *
+     * @return array<string,array{0:string,1:string,2:string,3:string,4:string}>
+     */
+    public static function catalog(): array
+    {
+        return [
+            'engagement.positive.enabled' => ['engagement', 'تفعيل الرسائل الإيجابيّة', 'bool', '1', 'إيقافها يخفي الأيقونة والرسائل كلّها بلا حذف.'],
+            'engagement.positive.icon_chance_percent' => ['engagement', 'احتمال ظهور الأيقونة (%)', 'number', '3', '3 = تظهر في 3 تحميلات من كلّ 100.'],
+            'engagement.positive.ticket_chance_percent' => ['engagement', 'احتمال زرّ التذكرة (%)', 'number', '20', '20 = خُمس ظهورات الأيقونة فيها تذكرة.'],
+            'engagement.positive.ticket_amount' => ['engagement', 'عدد تذاكر المفاجأة', 'number', '1', '1 = تذكرة واحدة لكلّ مرّة.'],
+            'engagement.positive.daily_ticket_cap' => ['engagement', 'حدّ تذاكر المفاجأة يوميًّا', 'number', '1', 'صفر = إيقاف التذكرة تمامًا.'],
+            'engagement.positive.no_repeat_last' => ['engagement', 'كم رسالة لا تتكرّر قبل إعادتها', 'number', '5', '5 = آخر خمس رسائل لا تتكرّر.'],
+            'engagement.positive.envelope_title' => ['engagement', 'عنوان ظرف الرسالة', 'string', 'وصلتك رسالة', ''],
+            'engagement.positive.open_label' => ['engagement', 'نصّ زرّ الفتح', 'string', 'افتح الظرف', ''],
+            'engagement.positive.close_label' => ['engagement', 'نصّ زرّ الإغلاق', 'string', 'تمام', ''],
+            'engagement.positive.ticket_label' => ['engagement', 'نصّ زرّ التذكرة', 'string', 'استلام تذكرة', ''],
+            'engagement.positive.icon_label' => ['engagement', 'وصف الأيقونة لقارئ الشاشة', 'string', 'رسالة إيجابيّة مستنّياك', ''],
+            // السياقات نفسها إعداد — يضيف الأدمن سياقًا جديدًا بلا سطر كود (2.13)
+            'engagement.positive.contexts' => ['engagement', 'السياقات المعتمَدة', 'lines', self::DEFAULT_CONTEXTS, 'سطر لكلّ سياق بصيغة: المفتاح = اللافتة.'],
+        ];
+    }
+
+    /** السياقات الافتراضيّة — نفس ما يزرعه سيدر المجال */
+    private const DEFAULT_CONTEXTS = '{"any":"أيّ لحظة","surprise":"الأيقونة المفاجئة","lesson_complete":"بعد إكمال درس","course_complete":"بعد إتمام تدريب","streak_broken":"بعد انكسار الستريك","exam_failed":"بعد محاولة امتحان غير موفّقة","empty_state":"في الشاشات الفاضية","first_login":"أوّل دخول بعد التفعيل"}';
+
+    /** تحويل خريطة السياقات إلى أسطر يقرأها الأدمن بسهولة (والعكس عند الحفظ) */
+    public static function mapToLines(string $json): string
+    {
+        $map = json_decode($json, true);
+
+        if (! is_array($map)) {
+            return '';
+        }
+
+        $lines = [];
+
+        foreach ($map as $key => $label) {
+            $lines[] = $key.' = '.$label;
+        }
+
+        return implode("\n", $lines);
+    }
+
+    public static function linesToMap(string $text): string
+    {
+        $map = [];
+
+        foreach (preg_split('/\r\n|\r|\n/', $text) ?: [] as $line) {
+            if (! str_contains($line, '=')) {
+                continue;
+            }
+
+            [$key, $label] = explode('=', $line, 2);
+            $key = trim($key);
+            $label = trim($label);
+
+            if ($key !== '' && $label !== '') {
+                $map[$key] = $label;
+            }
+        }
+
+        return json_encode($map ?: json_decode(self::DEFAULT_CONTEXTS, true), JSON_UNESCAPED_UNICODE);
+    }
+
+    /**
+     * صفوف العرض بقيمها الحاليّة وحالة «معدَّل» — والافتراضيّ يبقى ظاهرًا كمرساة (2.13-و).
+     *
+     * @return array<string,array{key:string,label:string,type:string,default:string,value:string,hint:string,modified:bool}>
+     */
+    public static function rows(): array
+    {
+        $stored = Setting::query()->whereIn('key', array_keys(self::catalog()))->pluck('value', 'key');
+        $rows = [];
+
+        foreach (self::catalog() as $key => [$group, $label, $type, $default, $hint]) {
+            $value = (string) ($stored[$key] ?? $default);
+
+            $rows[$key] = [
+                'key' => $key,
+                'label' => $label,
+                'type' => $type,
+                'default' => $type === 'lines' ? self::mapToLines($default) : $default,
+                'value' => $type === 'lines' ? self::mapToLines($value) : $value,
+                'hint' => $hint,
+                'modified' => $value !== (string) $default,
+            ];
+        }
+
+        return $rows;
+    }
+
+    /** كتابة دفعة من مفاتيح الكتالوج وحدها */
+    public static function putMany(array $values, ?User $actor = null): int
+    {
+        $catalog = self::catalog();
+        $count = 0;
+
+        foreach ($values as $key => $value) {
+            if (! isset($catalog[$key])) {
+                continue;
+            }
+
+            [$group, $label, $type, $default, $hint] = $catalog[$key];
+
+            $setting = Setting::firstOrNew(['key' => $key]);
+            $old = $setting->value;
+
+            $setting->fill([
+                'group' => $group,
+                'label_ar' => $label,
+                'type' => $type,
+                'default_value' => $default,
+                'hint' => $hint ?: null,
+                'value' => self::normalize($type, $value),
+            ])->save();
+
+            AuditTrail::log($actor, 'settings.update', $setting, ['value' => $old], ['key' => $key, 'value' => $setting->value]);
+            $count++;
+        }
+
+        Cache::forget('settings');
+
+        return $count;
+    }
+
+    /** ↺ رجوع كلّ مفاتيح الكتالوج لافتراضيّها */
+    public static function resetAll(?User $actor = null): int
+    {
+        $defaults = [];
+
+        foreach (self::catalog() as $key => $row) {
+            // النوع «أسطر» يُخزَّن JSON ويُعرَض أسطرًا — فالرجوع للافتراضيّ يمرّ بنفس التحويل
+            $defaults[$key] = $row[2] === 'lines' ? self::mapToLines($row[3]) : $row[3];
+        }
+
+        return self::putMany($defaults, $actor);
+    }
+
+    private static function normalize(string $type, mixed $value): string
+    {
+        if ($type === 'bool') {
+            return $value ? '1' : '0';
+        }
+
+        if ($type === 'number') {
+            return (string) (int) $value;
+        }
+
+        if ($type === 'lines') {
+            return self::linesToMap((string) $value);
+        }
+
+        return (string) $value;
+    }
+}

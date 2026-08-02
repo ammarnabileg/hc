@@ -89,7 +89,8 @@ class ProgressService
     {
         $lessons = $this->orderedLessons($course);
         $done = $this->completedLessonIds($user, $course);
-        $availability = $this->availability->forCourse($course, $enrollment);
+        // ⭐ الإتاحة تُحسَب بساعة صاحب الشاشة لا بساعة الخادم (5)
+        $availability = $this->availability->forCourse($course, $enrollment, $user);
 
         $forced = (bool) $course->forced_order;
         $previousDone = true;

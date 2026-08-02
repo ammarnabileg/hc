@@ -173,6 +173,8 @@ class ChampionService
     {
         return Membership::query()
             ->where('status', 'active')
+            // «أخوكم» لا يُحتسَب في الليدر بورد ومشرف الشهر (13.4-ص-ج)
+            ->whereDoesntHave('position', fn ($q) => $q->where('is_honorary', true))
             ->when($entityId, fn ($q) => $q->where('entity_id', $entityId))
             ->pluck('user_id')
             ->unique()

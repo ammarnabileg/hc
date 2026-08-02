@@ -9,6 +9,7 @@ use App\Models\Membership;
 use App\Models\Position;
 use App\Services\Volunteer\Org\DepartmentScope;
 use App\Services\Volunteer\Org\MemberDirectory;
+use App\Services\Volunteer\Profile\ConsentFlow;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -97,7 +98,6 @@ class DepartmentController extends Controller
         abort_if((int) $membership->user_id === $viewer->id, 403);
 
         $validity = (int) setting('volunteer.consent.request_hours', 72);
-        $cooldown = (int) setting('volunteer.consent.cooldown_hours', 72);
 
         $existing = ConsentRequest::query()
             ->where('requester_id', $viewer->id)
@@ -112,14 +112,19 @@ class DepartmentController extends Controller
                 || ($existing->cooldown_until && $existing->cooldown_until > now()));
 
         if (! $blocked) {
-            ConsentRequest::create([
+            $consent = ConsentRequest::create([
                 'requester_id' => $viewer->id,
                 'owner_id' => $membership->user_id,
                 'field' => 'phone',
+                'reason' => trim((string) $request->input('reason')) ?: null,
                 'status' => 'pending',
                 'request_expires_at' => now()->addHours($validity),
-                'cooldown_until' => now()->addHours($cooldown),
+                // ⛔ التبريد لا يبدأ من هنا: الدستور يبدأه **بعد انتهاء الطلب أو رفضه** (13.4-م-2)
+                'cooldown_until' => null,
             ]);
+
+            // إشعار صاحب البروفايل ليردّ — بلا إشعارٍ كان الطلب يظلّ معلّقًا أبدًا
+            app(ConsentFlow::class)->announce($consent);
         }
 
         // الردّ محايد دائمًا — لا يكشف قبولًا ولا رفضًا (حفظًا للعلاقة داخل الفريق)

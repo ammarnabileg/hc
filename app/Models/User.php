@@ -29,6 +29,8 @@ class User extends Authenticatable
             'activated_at' => 'datetime',
             'tracking_consent_at' => 'datetime',
             'last_seen_at' => 'datetime',
+            // آخر كشف تلقائيّ للمنطقة الزمنيّة (5)
+            'auto_timezone_at' => 'datetime',
             'birthdate' => 'date',
             'sound_enabled' => 'boolean',
             'simple_mode' => 'boolean',
@@ -36,6 +38,8 @@ class User extends Authenticatable
             'pinned_pages' => 'array',
             'table_columns' => 'array',
             'last_tabs' => 'array',
+            // مقاسات الأفاتار الثلاثة المولَّدة عند الرفع (2.7)
+            'avatar_sizes' => 'array',
         ];
     }
 

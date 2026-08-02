@@ -119,6 +119,12 @@ class LessonQuestionService
         ];
     }
 
+    /** هل هذه الإجابة صحيحة؟ — للعرض في شاشة النتيجة بلا إعادة تسجيل (4.1-3) */
+    public function isCorrect(LessonQuestion $question, string $submitted): bool
+    {
+        return $this->matches($question, $submitted);
+    }
+
     /** عدد خانات الإدخال الرقميّ = عدد أرقام الإجابة (4) */
     public function otpLength(LessonQuestion $question): int
     {

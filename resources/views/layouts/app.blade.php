@@ -26,6 +26,9 @@
 </head>
 <body class="min-h-screen">
 
+{{-- التحسين التدريجيّ: رسالة وخطوات تفعيل الجافاسكربت (2.1) --}}
+@include('security.noscript')
+
 {{-- شريط تقدّم التمرير (2.10.1-25) --}}
 <div class="scroll-progress" style="transform: scaleX(0)" data-scroll-progress></div>
 

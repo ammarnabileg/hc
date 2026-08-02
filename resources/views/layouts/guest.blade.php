@@ -9,6 +9,9 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="min-h-screen flex items-center justify-center p-4">
+    {{-- التحسين التدريجيّ: رسالة وخطوات تفعيل الجافاسكربت (2.1) --}}
+    @include('security.noscript')
+
     @if ($errors->any())
         <div class="fixed top-4 inset-x-4 md:inset-x-auto md:w-96 md:mx-auto card p-3 text-sm"
              style="border-color: var(--color-state-danger)">

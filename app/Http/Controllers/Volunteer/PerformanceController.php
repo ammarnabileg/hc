@@ -223,6 +223,8 @@ class PerformanceController extends Controller
         $users = User::query()->whereIn('id', $wallets->pluck('user_id'))->get()->keyBy('id');
         $memberships = Membership::query()
             ->whereIn('user_id', $wallets->pluck('user_id'))->where('status', 'active')
+            // «أخوكم» لا يُحتسَب في الليدر بورد (13.4-ص-ج)
+            ->whereDoesntHave('position', fn ($q) => $q->where('is_honorary', true))
             ->with('entity', 'position')->get()->keyBy('user_id');
 
         $gains = Transaction::query()
@@ -268,7 +270,9 @@ class PerformanceController extends Controller
 
     private function boardUserIds(User $user, string $scope): array
     {
-        $query = Membership::query()->where('status', 'active');
+        $query = Membership::query()->where('status', 'active')
+            // «أخوكم» خارج الليدر بورد ومشرف الشهر ونطاقات الإشراف (13.4-ص-ج)
+            ->whereDoesntHave('position', fn ($q) => $q->where('is_honorary', true));
 
         if ($scope === 'entity' && ($entityId = $user->activeMembership()?->entity_id)) {
             $query->whereIn('entity_id', $this->scope->withDescendants([(int) $entityId]));

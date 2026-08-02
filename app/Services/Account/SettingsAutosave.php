@@ -191,6 +191,9 @@ class SettingsAutosave
 
         $user->forceFill(['avatar_path' => $path])->save();
 
+        // ⭐ قصّ مربّع + ثلاث نسخ (500 · 150 · 50) عند الرفع مباشرةً (2.7)
+        app(\App\Services\Images\AvatarProcessor::class)->apply($user, $path);
+
         if ($old && $old !== $path) {
             Storage::disk('public')->delete($old);
         }

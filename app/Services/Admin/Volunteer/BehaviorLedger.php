@@ -6,6 +6,9 @@ use App\Models\BehaviorTransaction;
 use App\Models\BehaviorViolation;
 use App\Models\Membership;
 use App\Models\User;
+use App\Services\Volunteer\Escalation\EscalationEngine;
+use App\Services\Volunteer\Retention\BehaviorEscalation;
+use App\Services\Volunteer\Retention\BehaviorGuard;
 use App\Support\Access\AccessEngine;
 use RuntimeException;
 
@@ -67,7 +70,10 @@ class BehaviorLedger
     /**
      * تسجيل معاملة سلوك.
      *
-     * @throws RuntimeException عند غياب المبرّر أو تجاوز السقف الشهريّ
+     * @param  string|null  $incidentRef  مرجع الواقعة — «معاملة واحدة لكلّ واقعة» (13.4-ن-هـ)
+     *
+     * @throws RuntimeException عند غياب المبرّر أو تجاوز السقف الشهريّ أو
+     *                          خروج الهدف عن نطاق المانح أو تكرار الواقعة
      */
     public static function record(
         User $granter,
@@ -76,12 +82,22 @@ class BehaviorLedger
         string $justification,
         ?string $attachmentPath = null,
         ?Membership $membership = null,
+        ?string $incidentRef = null,
     ): BehaviorTransaction {
         $minChars = (int) setting('rep.behavior.justification_min_chars', 10);
 
         if (mb_strlen(trim($justification)) < $minChars) {
             throw new RuntimeException('المبرّر إلزاميّ — اكتب سببًا واضحًا لا يقلّ عن '.$minChars.' حرفًا.');
         }
+
+        $guard = app(BehaviorGuard::class);
+
+        // ⭐ قفص الكيان: لداونلاينه داخل عضويّته النشطة وحدهم (13.4-ن-هـ)
+        $guard->assertScope($granter, $target);
+
+        // ⭐ قفص الواقعة: لا معاملتان لنفس (العضو · المخالفة · المرجع)
+        $incidentRef = $guard->incidentRef($incidentRef);
+        $guard->assertNotDuplicated($target, $violation, $incidentRef);
 
         $remaining = self::remainingQuota($granter);
 
@@ -100,11 +116,17 @@ class BehaviorLedger
             'membership_id' => $membership?->id,
             'granted_by' => $granter->id,
             'behavior_violation_id' => $violation->id,
+            'incident_ref' => $incidentRef,
             'value' => $value,
             'justification' => trim($justification),
             'attachment_path' => $attachmentPath,
             'status' => $status,
         ]);
+
+        // الجسيمة حالة على محرّك التصعيد بنافذة معلومة، وفواتها = رفض
+        if ($severe) {
+            app(BehaviorEscalation::class)->open($record, $granter);
+        }
 
         // التنبيه يُنفَّذ فورًا، والجسيمة تنتظر موافقة المستوى الأعلى (نافذة 24 ساعة)
         if (! $severe) {

@@ -49,6 +49,15 @@ class CertificateEligibility
         $end = $membership->ended_at ?? now();
         $days = $start ? (int) $start->diffInDays($end) : 0;
 
+        // ⭐ «أخوكم» لا يُصدَر له شهادة بوزشن تطوّع (13.4-ص-ج) — مكانه شرفيّ لا وظيفيّ
+        if ($position?->is_honorary) {
+            return [
+                'eligible' => false,
+                'days' => $days,
+                'reason' => 'العنصر الشرفيّ مكانه تقديريّ لا بوزشن تطوّع — ولا تُصدَر له شهادة بوزشن.',
+            ];
+        }
+
         if ($days < $minDays) {
             return [
                 'eligible' => false,
