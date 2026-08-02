@@ -15,7 +15,8 @@ class EventsReferralTest extends EventsTestCase
         $this->actingAs($user)
             ->get(route('referral.index'))
             ->assertOk()
-            ->assertSee('offer='.$user->code)
+            // صيغة 7.6.2 المعتمَدة: `ref=CODE` — لا تكشف المعرّفات الرقميّة
+            ->assertSee('ref='.$user->code)
             ->assertSee('ادعُ أصدقاءك')
             ->assertSee((string) (int) setting('referral.commission_percent'));
     }

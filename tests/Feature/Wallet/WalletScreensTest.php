@@ -3,12 +3,14 @@
 namespace Tests\Feature\Wallet;
 
 use App\Models\GatewayInvoice;
+use App\Models\Role;
 use App\Models\TopupOffer;
 use App\Models\Transaction;
 use App\Models\TransferMethod;
 use App\Models\User;
 use App\Services\Wallet\FawaterkClient;
 use App\Services\Wallet\LedgerService;
+use App\Support\Access\AccessEngine;
 
 class WalletScreensTest extends WalletTestCase
 {
@@ -48,11 +50,29 @@ class WalletScreensTest extends WalletTestCase
             ->assertDontSee('حركة تطوّع', false);
     }
 
+    /**
+     * تصدير سجلّ المعاملات لمالك المنصّة (`wallet.export` — 12.2.2 «مالك المنصّة
+     * فقط»). أمّا تصدير المستخدم لبياناته هو فله مورده الخاصّ `data_export`،
+     * فالتمييز مقصود: قراءة محفظتك حقُّك، وتصديرُ دفتر الأستاذ سلطةٌ.
+     */
     public function test_transactions_can_be_exported_as_csv(): void
     {
-        app(LedgerService::class)->credit($this->user, 'coins', 100, 'topup', null, 'training', 'شحن الحساب');
+        $owner = User::create([
+            'name' => 'مالك المنصّة',
+            'email' => 'owner-export@test.local',
+            'password' => 'secret-password',
+            'code' => 'OWNEXP1',
+            'status' => 'active',
+        ]);
+        $owner->assignRole(Role::query()->firstOrCreate(
+            ['key' => config('access.owner_role')],
+            ['name_ar' => 'مالك المنصّة', 'layer' => 'platform'],
+        ));
+        app(AccessEngine::class)->forget();
 
-        $response = $this->actingAs($this->user)->get(route('wallet.transactions.export', ['all_time' => 1]));
+        app(LedgerService::class)->credit($owner, 'coins', 100, 'topup', null, 'training', 'شحن الحساب');
+
+        $response = $this->actingAs($owner)->get(route('wallet.transactions.export', ['all_time' => 1]));
 
         $response->assertOk();
         $this->assertStringContainsString('text/csv', (string) $response->headers->get('content-type'));
