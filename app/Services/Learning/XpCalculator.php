@@ -106,10 +106,12 @@ class XpCalculator
         /*
          | قيمة التدريب تغلب حين تُضبَط، وإلّا فالافتراضيّ العامّ من تاب
          | «XP والتذاكر» في لوحة الإدارة (12.10) لا رقمٌ محروق (2.13).
+         | و`??` لا `?:` عمدًا: **صفرٌ اختيارٌ صريح بلا تذاكر**، أمّا NULL وحده
+         | فمعناه «اتبع الإعداد العامّ».
          */
         return $this->isBeforeHalf($enrollment, $at)
-            ? (int) ($course->tickets_before_half ?: setting('tickets.before_half_deadline', 2))
-            : (int) ($course->tickets_after_half ?: setting('tickets.after_half_deadline', 1));
+            ? (int) ($course->tickets_before_half ?? setting('tickets.before_half_deadline', 2))
+            : (int) ($course->tickets_after_half ?? setting('tickets.after_half_deadline', 1));
     }
 
     private function startPoint(Enrollment $enrollment): ?Carbon
