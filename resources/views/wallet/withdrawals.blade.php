@@ -51,7 +51,9 @@
         @else
             {{-- سطح المكتب: جدول ستّة أعمدة (2.15-أ-5) ومنه عمود صورة الفاتورة (19.2) --}}
             <div class="card hidden md:block overflow-hidden">
-                <table class="w-full text-sm">
+                <table class="w-full text-sm"
+                   {{-- حدّ الأعمدة الافتراضيّ من الإعدادات، و«وضع متقدّم» يرفعه (2.15-أ-5) --}}
+                   @unless (advanced_mode()) data-columns-cap="{{ view_mode()->defaultColumns() }}" @endunless>
                     <thead>
                         <tr style="background: var(--surface-sunken)">
                             <th class="text-start font-semibold px-4 py-3">رقم الطلب</th>

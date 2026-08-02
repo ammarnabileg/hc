@@ -352,14 +352,19 @@ class SettingGapSeeder extends Seeder
 
     // ---------------------------------------------------------------- صفحة التطوّع العامّة
 
+    /**
+     * ⛔ فارغة بعد توحيد المفاتيح (2.13).
+     *
+     * كانت هنا `volunteering.landing.title/body/cta/sections` — **مفاتيح يتيمة**
+     * تقرؤها الصفحة الحيّة بينما الأدمن يكتب في `volunteer_page.*`، فكان المالك
+     * يكتب كتلةً وميثاقًا وعنوانًا والصفحة تعرض «محتوى الصفحة بيتجهّز».
+     * المفاتيح المعتمَدة كلّها الآن في `SettingsCatalog::volunteerPage()`،
+     * ومايجريشن `volunteer_journey_and_page_unification` يرحّل القيم القديمة
+     * إليها ثمّ يحذف اليتامى — **مفتاح واحد لكلّ معنًى**.
+     */
     private static function volunteering(): array
     {
-        return [
-            ['volunteering.landing.title', 'volunteer_page', 'عنوان صفحة «تطوّع معنا» العامّة', 'string', 'تطوّع معنا', 'أوّل ما يقرؤه الزائر قبل التسجيل.'],
-            ['volunteering.landing.body', 'volunteer_page', 'السطر التعريفيّ لصفحة التطوّع العامّة', 'text', 'انضمّ لفريقٍ بيتعلّم وبيبني.', ''],
-            ['volunteering.landing.cta', 'volunteer_page', 'نصّ زرّ صفحة التطوّع العامّة', 'string', 'ابدأ المسار التأهيليّ', 'الفعل الرئيسيّ الواحد للصفحة (2.15).'],
-            ['volunteering.landing.sections', 'volunteer_page', 'أقسام صفحة التطوّع العامّة', 'json', '[]', 'قائمة كتل المحتوى — فاضية = الصفحة بالهيرو وحده.'],
-        ];
+        return [];
     }
 
     // ---------------------------------------------------------------- متفرّقات

@@ -157,7 +157,9 @@
     @else
         {{-- جدول 6 أعمدة على الديسكتوب · كروت رأسيّة بلا تمرير أفقيّ على الموبايل (2.15-ج) --}}
         <div class="card p-0 overflow-hidden hidden md:block">
-            <table class="w-full text-sm">
+            <table class="w-full text-sm"
+                   {{-- حدّ الأعمدة الافتراضيّ من الإعدادات، و«وضع متقدّم» يرفعه (2.15-أ-5) --}}
+                   @unless (advanced_mode()) data-columns-cap="{{ view_mode()->defaultColumns() }}" @endunless>
                 <thead>
                     <tr style="background: var(--surface-sunken)">
                         <th class="text-start px-4 py-3 font-semibold">السؤال</th>

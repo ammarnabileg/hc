@@ -99,7 +99,9 @@
 
             {{-- ديسكتوب: جدول بأعمدته الافتراضيّة (5–7) --}}
             <div class="hidden md:block card overflow-hidden">
-                <table class="w-full text-sm">
+                <table class="w-full text-sm"
+                   {{-- حدّ الأعمدة الافتراضيّ من الإعدادات، و«وضع متقدّم» يرفعه (2.15-أ-5) --}}
+                   @unless (advanced_mode()) data-columns-cap="{{ view_mode()->defaultColumns() }}" @endunless>
                     <thead style="background: var(--surface-sunken)">
                         <tr>
                             <th class="p-3 w-8"><input type="checkbox" data-bulk-all aria-label="اختيار الكلّ"></th>

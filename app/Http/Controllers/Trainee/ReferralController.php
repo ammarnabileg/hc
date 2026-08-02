@@ -8,6 +8,7 @@ use App\Models\Event;
 use App\Models\EventRegistration;
 use App\Models\LearningPath;
 use App\Models\User;
+use App\Services\Engagement\AmbassadorService;
 use App\Services\Events\Tracker;
 use App\Services\Referral\DeepLink;
 use App\Services\Referral\ReferralService;
@@ -25,6 +26,7 @@ class ReferralController extends Controller
         private readonly ReferralService $referrals,
         private readonly DeepLink $deepLink,
         private readonly Tracker $tracker,
+        private readonly AmbassadorService $ambassadors,
     ) {}
 
     public function index(Request $request): View
@@ -40,16 +42,33 @@ class ReferralController extends Controller
             $request->session()->pull('referral.pending_id'),
         );
 
+        /*
+         | ⭐ مزامنة عدّاد السفير هنا أيضًا (7.6.1).
+         | كانت المزامنة في الصفحة الرئيسيّة وحدها، فبعد دعوة ناجحة تعرض `/`
+         | الرقم الجديد بينما `/referral` — وهي **صفحة الدعوات نفسها** — ما زالت
+         | تعرض القديم. ورقمان لنفس المعنى في شاشتين يهدم الثقة في العدّاد كلّه.
+         */
+        $celebration = $this->ambassadors->sync($user);
+
         $days = $this->days($request->query('days'));
         $invited = $this->referrals->invitedBy($user, $days);
+        $status = $this->status($request->query('status'));
 
         return view('referral.index', [
             'link' => $this->referrals->link($user),
             'stats' => $this->referrals->stats($invited),
-            'invited' => $invited,
+            // فلاتر القائمة: الكلّ / مكتمل / انتظار (7.6.2)
+            'invited' => $this->referrals->filterByStatus($invited, $status),
+            'status' => $status,
+            'statuses' => $this->statuses(),
             'service' => $this->referrals,
             'days' => $days,
             'periods' => $this->periods(),
+            // ⭐ الآلة الحاسبة التفاعليّة «قلب التفاعل» (7.6.2)
+            'calculator' => $this->referrals->calculator(),
+            // «شبكتي» عرضًا بصريًّا + لقب السفير وتقدّمه للعتبة التالية (7.6.1)
+            'ambassador' => $this->ambassadors->progressFor($user),
+            'celebration' => $celebration,
             // ⭐ روابط الدعوة لكلّ محتوى: فعاليّات **وتدريبات ومسارات** (21.1-ج)
             'deepLinks' => $this->contentDeepLinks($user),
             'landingUrl' => $this->referrals->landingUrlFor($user),
@@ -154,6 +173,33 @@ class ReferralController extends Controller
         ])->all();
     }
 
+    /**
+     * ⭐ بوّابة `/join?ref=CODE` (7.6.2) — والصيغة القديمة `?offer=` مقبولة للتوافق.
+     *
+     * وظيفتها الوحيدة: **تثبيت الداعي في السيشن** ثمّ إرسال الزائر للتسجيل. ومنذ
+     * صارت الدعوة في السيشن لم يعد فقدان الـQuery يُسقِطها.
+     */
+    public function join(Request $request): RedirectResponse
+    {
+        $code = (string) $request->query(
+            (string) setting('referral.join.param', 'ref'),
+            (string) $request->query((string) setting('referral.link.param', 'offer'), ''),
+        );
+
+        $referrer = $code !== '' ? User::query()->where('code', $code)->first() : null;
+
+        if ($referrer) {
+            $this->referrals->rememberReferrerCode($referrer->code);
+            $this->tracker->record('referral_link_open', $referrer, $request->user()?->id);
+        }
+
+        if ($request->user()) {
+            return redirect()->route('dashboard');
+        }
+
+        return redirect()->route('register');
+    }
+
     /** المدى الافتراضيّ آخر 30 يومًا (2.15-د) — و«من البداية» تعني بلا حدّ */
     private function days(mixed $value): ?int
     {
@@ -164,6 +210,22 @@ class ReferralController extends Controller
         }
 
         return (int) $value > 0 ? (int) $value : null;
+    }
+
+    /** فلتر حالة المدعوّ (7.6.2): الكلّ / مكتمل / في الانتظار */
+    private function status(mixed $value): string
+    {
+        return in_array($value, ['completed', 'pending'], true) ? (string) $value : 'all';
+    }
+
+    /** @return array<string,string> */
+    private function statuses(): array
+    {
+        return [
+            'all' => (string) setting('referral.filter.all', 'الكلّ'),
+            'completed' => (string) setting('referral.filter.completed', 'مكتمل'),
+            'pending' => (string) setting('referral.filter.pending', 'في الانتظار'),
+        ];
     }
 
     /**

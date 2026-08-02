@@ -149,7 +149,7 @@
     @else
         {{-- ⭐ ميثاق المتطوّع: الموافقة عليه **قبل** بدء التأهيليّ (13.4-أ) --}}
         @if (! $charterAccepted && $charterText)
-            <section class="card p-5 mb-4">
+            <section class="card p-5 mb-4" id="charter">
                 <h2 class="font-bold mb-2">{{ $charterTitle }}</h2>
                 <div class="text-sm leading-relaxed" style="color: var(--text-muted)">{!! nl2br(e($charterText)) !!}</div>
 

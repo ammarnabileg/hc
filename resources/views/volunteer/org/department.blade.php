@@ -101,7 +101,9 @@
         @elseif ($view === 'table')
             {{-- على الموبايل: كروت رأسيّة لا تمرير أفقيّ (2.15-ج) --}}
             <div class="hidden md:block card overflow-x-auto">
-                <table class="w-full text-sm">
+                <table class="w-full text-sm"
+                   {{-- حدّ الأعمدة الافتراضيّ من الإعدادات، و«وضع متقدّم» يرفعه (2.15-أ-5) --}}
+                   @unless (advanced_mode()) data-columns-cap="{{ view_mode()->defaultColumns() }}" @endunless>
                     <thead>
                         <tr style="color: var(--text-muted)">
                             <th class="text-start p-3">العضو</th>

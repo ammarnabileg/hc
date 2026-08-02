@@ -94,7 +94,9 @@
         <x-empty :message="setting('admin_meetings.empty_text', 'مافيش اجتماعات في النطاق ده.')" />
     @else
         <div class="card p-0 overflow-hidden hidden md:block">
-            <table class="w-full text-sm">
+            <table class="w-full text-sm"
+                   {{-- حدّ الأعمدة الافتراضيّ من الإعدادات، و«وضع متقدّم» يرفعه (2.15-أ-5) --}}
+                   @unless (advanced_mode()) data-columns-cap="{{ view_mode()->defaultColumns() }}" @endunless>
                 <thead>
                     <tr style="background: var(--surface-sunken)">
                         <th class="text-start px-4 py-3 font-semibold">الاجتماع</th>
