@@ -183,7 +183,8 @@ class StoreCatalog
             item: $bundle,
             title: $bundle->name_ar,
             price: (float) $bundle->price_coins,
-            listPrice: (float) $bundle->original_value,
+            // القيمة الإجماليّة **محسوبة من العناصر** لا من رقمٍ مكتوب (18 · 2.9)
+            listPrice: app(PricingService::class)->bundleItemsValue($bundle),
             owned: in_array($bundle->id, $owned['bundle'] ?? [], true),
             summary: $bundle->description,
         ));
@@ -239,18 +240,20 @@ class StoreCatalog
             }
         });
 
-        return $query->get()->map(function (Product $product) use ($owned) {
-            $offer = $this->activeOffer($product);
+        $pricing = app(PricingService::class);
 
+        return $query->get()->map(function (Product $product) use ($owned, $pricing) {
             return $this->card(
                 type: 'product',
                 item: $product,
                 title: $product->name_ar,
-                price: $offer ?? (float) $product->price_coins,
-                listPrice: (float) $product->price_coins,
+                // ⭐ السعر بعملة المنتج نفسه (17) — والتسعير مصدره واحد لا نسخة ثانية
+                price: $pricing->priceOf('product', $product),
+                listPrice: $pricing->listPriceOf('product', $product),
                 owned: in_array($product->id, $owned['product'] ?? [], true),
                 summary: $product->description,
                 categoryId: $product->product_category_id,
+                currency: $pricing->currencyOf('product', $product),
             );
         });
     }
@@ -284,7 +287,10 @@ class StoreCatalog
         bool $owned,
         ?string $summary = null,
         ?int $categoryId = null,
+        ?string $currency = null,
     ): array {
+        $currency = $currency ?: Coins::defaultCode();
+
         return [
             'type' => $type,
             'id' => $item->id,
@@ -292,6 +298,8 @@ class StoreCatalog
             'title' => $title,
             'summary' => $summary,
             'cover' => $item->cover_path,
+            'currency' => $currency,
+            'currency_label' => Coins::currencyLabel($currency),
             'price' => round($price, 2),
             'list_price' => round($listPrice, 2),
             // الخصم بقيمته الحقيقيّة فقط — بلا سعر مرجعيّ وهميّ (2.9 · 21.1-د)
@@ -303,18 +311,31 @@ class StoreCatalog
         ];
     }
 
-    /** الفلترة بالسعر ثمّ الفرز — بعد التوحيد لأنّ المصادر ثلاثة جداول */
+    /** الفلترة بالعملة ثمّ بالسعر ثمّ الفرز — بعد التوحيد لأنّ المصادر ثلاثة جداول */
     private function finish(Collection $cards, array $filters): Collection
     {
+        $currencies = array_values(array_filter((array) ($filters['currencies'] ?? [])));
+
+        /*
+         | ⭐ فلتر **نوع العملة** (Multi-select) وشريط السحب يتحرّك **ضمن العملة
+         | المختارة** (17): مقارنة «50 تذكرة» بـ«50 كوين» على منزلقٍ واحد بلا معنى،
+         | فنطاق السعر لا يُطبَّق إلّا حين تُختار عملة واحدة بعينها.
+         */
+        if ($currencies !== []) {
+            $cards = $cards->filter(fn ($c) => in_array($c['currency'], $currencies, true));
+        }
+
+        $range = $this->rangeCurrency($currencies);
         $min = $filters['min'] ?? null;
         $max = $filters['max'] ?? null;
 
+        // ما ليس بعملة المنزلق خارج نطاقه أصلًا فلا يُقصّ به
         if ($min !== null) {
-            $cards = $cards->filter(fn ($c) => $c['price'] >= (float) $min);
+            $cards = $cards->filter(fn ($c) => $c['currency'] !== $range || $c['price'] >= (float) $min);
         }
 
         if ($max !== null) {
-            $cards = $cards->filter(fn ($c) => $c['price'] <= (float) $max);
+            $cards = $cards->filter(fn ($c) => $c['currency'] !== $range || $c['price'] <= (float) $max);
         }
 
         if (($filters['owned'] ?? null) === 'mine') {
@@ -364,24 +385,69 @@ class StoreCatalog
             ->get();
     }
 
-    /** سقف منزلق السعر — من الإعدادات لا محروقًا (2.13 · 24.3) */
-    public function priceCeiling(): float
+    /**
+     * سقف منزلق السعر **لعملة المنزلق** — من الإعدادات لا محروقًا (2.13 · 24.3).
+     * سقف الكوينز لا يصلح للتذاكر (تذكرة = 10 كوينز — 19.1)، فلكلّ عملة سقفها.
+     */
+    public function priceCeiling(?string $currencyCode = null): float
     {
+        $code = $currencyCode ?: Coins::defaultCode();
+        $ceilings = (array) setting('store.filters.price_max', []);
+
+        if (isset($ceilings[$code])) {
+            return (float) $ceilings[$code];
+        }
+
         return (float) setting('store.filters.price_max_coins', 100000);
+    }
+
+    /**
+     * عملة منزلق السعر: العملة المختارة إن كانت واحدة، وإلّا عملة المتجر
+     * الافتراضيّة — فالمنزلق «يتحرّك ضمن العملة المختارة» (17).
+     *
+     * @param  array<int, string>  $selected
+     */
+    public function rangeCurrency(array $selected): string
+    {
+        return count($selected) === 1 ? (string) $selected[0] : Coins::defaultCode();
+    }
+
+    /**
+     * خيارات فلتر نوع العملة (Multi-select — 17): الكود ⟵ الاسم العربيّ.
+     *
+     * @return array<string, string>
+     */
+    public function currencyOptions(): array
+    {
+        $options = [];
+
+        foreach (app(PricingService::class)->currencies() as $code) {
+            $options[$code] = Coins::currencyLabel($code);
+        }
+
+        return $options;
     }
 
     public function coinsCurrency(): ?Currency
     {
-        return Currency::query()->where('code', 'coins')->first();
+        return $this->currency(Coins::defaultCode());
     }
 
-    public function balance(?User $user): float
+    /** عملةٌ بكودها — والمتجر صار يسعّر بثلاث عملات (17) */
+    public function currency(string $code): ?Currency
+    {
+        static $cache = [];
+
+        return $cache[$code] ??= Currency::query()->where('code', $code)->first();
+    }
+
+    public function balance(?User $user, ?string $currencyCode = null): float
     {
         if (! $user) {
             return 0.0;
         }
 
-        $currency = $this->coinsCurrency();
+        $currency = $this->currency($currencyCode ?: Coins::defaultCode());
 
         if (! $currency) {
             return 0.0;
@@ -393,7 +459,15 @@ class StoreCatalog
             ->value('balance');
     }
 
-    /** ما يشمله العنصر — لعرضه في صفحة المنتج */
+    /**
+     * ما يشمله العنصر — لعرضه في صفحة الباقة (18).
+     *
+     * لكلّ سطر رقمان لا واحد، وهذا ما يفرضه «قاعدة السعر السياقيّ» (18):
+     *  - `list_value`: **القيمة الطبيعيّة** للعنصر — وهي التي يُعرَض بها كبونص،
+     *    ومنها تُجمَع «القيمة الإجماليّة» المحسوبة تلقائيًّا مقابل سعر الباقة.
+     *  - `value`: **Override سعر العنصر داخل الباقة** إن ضبطه الأدمن، وإلّا الطبيعيّة —
+     *    ولا يظهر إلّا في صفحة الباقة نفسها.
+     */
     public function includes(string $type, Model $item): Collection
     {
         if ($type !== 'bundle') {
@@ -413,13 +487,17 @@ class StoreCatalog
 
                 $childType = array_search($row->itemable_type, self::TYPES, true) ?: 'product';
                 $offer = $this->activeOffer($child);
+                $listValue = round($offer ?? (float) ($child->price_coins ?? 0), 2);
+                $override = $row->price_coins === null ? null : round((float) $row->price_coins, 2);
 
                 return [
+                    'id' => $row->id,
                     'type' => $childType,
                     'slug' => $child->slug,
                     'title' => $child->name_ar,
-                    // قيمة العنصر الطبيعيّة — تُعرَض كبونص بقيمته الحقيقيّة (18)
-                    'value' => round($offer ?? (float) ($child->price_coins ?? 0), 2),
+                    'list_value' => $listValue,
+                    'value' => $override ?? $listValue,
+                    'has_override' => $override !== null,
                 ];
             })
             ->filter()

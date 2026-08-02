@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Services\Admin\Volunteer\AuditTrail;
 use App\Services\Engagement\AmbassadorService;
 use App\Services\Referral\ReferralService;
+use App\Support\Scope\ScopeFilter;
 use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
@@ -60,7 +61,7 @@ class ReferralAdmin
      *
      * @param  array{q?:string,status?:string,payout?:string,flagged?:string,from?:string,to?:string}  $filters
      */
-    public function invitesQuery(array $filters): Builder
+    public function invitesQuery(array $filters, ?User $viewer = null): Builder
     {
         $from = ($filters['from'] ?? '') !== ''
             ? CarbonImmutable::parse($filters['from'])->startOfDay()
@@ -71,6 +72,8 @@ class ReferralAdmin
             : CarbonImmutable::now()->endOfDay();
 
         return Referral::query()
+            // النطاق إلزاميّ مع كلّ صلاحيّة (12.2.1-ب) — دعوات مَن هم في نطاقه
+            ->when($viewer !== null, fn ($q) => app(ScopeFilter::class)->apply($q, $viewer, 'referrals.list', 'referrer_id'))
             ->with(['referrer:id,name,code', 'referred:id,name,code,status'])
             ->whereBetween('referrals.created_at', [$from, $to])
             // ⚠️ البحث مجموعٌ داخل قوسين: بغيرهما تهرب `or` من فلتر الفترة فيعود
@@ -91,9 +94,9 @@ class ReferralAdmin
             ->latest('referrals.id');
     }
 
-    public function invites(array $filters): LengthAwarePaginator
+    public function invites(array $filters, ?User $viewer = null): LengthAwarePaginator
     {
-        return $this->invitesQuery($filters)
+        return $this->invitesQuery($filters, $viewer)
             ->paginate(max(5, (int) setting('referral_admin.per_page', 20)))
             ->withQueryString();
     }

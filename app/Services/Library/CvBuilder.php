@@ -11,6 +11,7 @@ use App\Models\Transaction;
 use App\Models\User;
 use App\Models\WalletBalance;
 use App\Services\Images\AvatarProcessor;
+use App\Services\Onboarding\HolderIdentity;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
@@ -94,6 +95,11 @@ class CvBuilder
     public function merge(array $data, string $step, array $payload): array
     {
         $data = array_replace($this->blank(), $data);
+
+        // مفتاح تبديل AR/EN في المنشئ — يُحفَظ مع أيّ خطوة (9)
+        if (isset($payload['lang'])) {
+            $data['lang'] = $payload['lang'] === 'en' ? 'en' : 'ar';
+        }
 
         switch ($step) {
             case 'profile':
@@ -200,13 +206,21 @@ class CvBuilder
             return ['profile' => [], 'certificates' => collect(), 'trainings' => collect(), 'photo' => null];
         }
 
+        /*
+         | ⭐ السيرة تُسحَب من **بيانات الشهادات والإفادات** (2.5-ج) لا من `name`
+         | الواحد: الاسم بالعربيّ واللقب للنسخة العربيّة، والاسم بالإنجليزيّ لحقل
+         | اللغة الثانية المبنيّ أصلًا في القالب (9) — فتخرج السيرة بلغتين بلا ترجمة.
+         */
         $profile = ($pull['profile'] ?? true) ? array_filter([
-            'name' => $user->name,
+            'name' => HolderIdentity::nameIn($user, 'ar'),
+            'name_en' => HolderIdentity::nameIn($user, 'en'),
+            'title' => $user->title,
             'code' => $user->code,
             'email' => $user->email,
             'phone' => $user->phone,
             'country' => $user->country?->name_ar,
             'governorate' => $user->governorate?->name_ar,
+            'address' => $user->address_line,
         ], fn ($v) => filled($v)) : [];
 
         $certificates = ($pull['certificates'] ?? true)

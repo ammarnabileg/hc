@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Trainee;
 use App\Http\Controllers\Controller;
 use App\Models\Certificate;
 use App\Models\Course;
+use App\Models\Enrollment;
 use App\Models\Exam;
 use App\Models\ExamAttempt;
 use App\Models\ExamQuestion;
@@ -43,6 +44,11 @@ class ExamController extends Controller
     public function start(Exam $exam): View|RedirectResponse
     {
         $user = request()->user();
+
+        if ($denial = $this->enrollmentDenial($exam, $user)) {
+            return $denial;
+        }
+
         $running = $this->runningAttempt($exam, $user);
 
         if ($running) {
@@ -79,6 +85,10 @@ class ExamController extends Controller
     public function begin(Exam $exam, Request $request): RedirectResponse
     {
         $user = $request->user();
+
+        if ($denial = $this->enrollmentDenial($exam, $user)) {
+            return $denial;
+        }
 
         if ($this->runningAttempt($exam, $user)) {
             return redirect()->route('exams.take', $exam);
@@ -141,6 +151,11 @@ class ExamController extends Controller
     public function take(Exam $exam, Request $request): View|RedirectResponse
     {
         $user = $request->user();
+
+        if ($denial = $this->enrollmentDenial($exam, $user)) {
+            return $denial;
+        }
+
         $attempt = $this->runningAttempt($exam, $user);
 
         if (! $attempt) {
@@ -177,6 +192,10 @@ class ExamController extends Controller
     /** حفظ تدريجيّ: لو الشبكة اتقطعت «إجاباتك محفوظة» ويُستأنف من مكانه (2.17-ب) */
     public function answer(Exam $exam, Request $request): JsonResponse
     {
+        if ($this->enrollmentDenial($exam, $request->user())) {
+            return response()->json(['saved' => false], 403);
+        }
+
         $attempt = $this->runningAttempt($exam, $request->user());
 
         if (! $attempt) {
@@ -223,6 +242,10 @@ class ExamController extends Controller
     /** التسليم — والتصحيح في الخادم حصرًا (لا يُقبَل أيّ حساب من المتصفّح) */
     public function submit(Exam $exam, Request $request): RedirectResponse
     {
+        if ($denial = $this->enrollmentDenial($exam, $request->user())) {
+            return $denial;
+        }
+
         $attempt = $this->runningAttempt($exam, $request->user());
 
         if (! $attempt) {
@@ -264,6 +287,43 @@ class ExamController extends Controller
     }
 
     // ------------------------------------------------------------ الداخل
+
+    /**
+     * ⭐ حارس التسجيل — الصلاحيّة وحدها لا تكفي (4.2 · 8).
+     *
+     * «الامتحان النهائيّ **للتدريب**» امتحانُ تدريبٍ بعينه، واجتيازه **يُصدر
+     * الشهادة** (8). فمن لم يُسجَّل في التدريب أصلًا كان بوسعه دفع تذكرةٍ
+     * والحصول على شهادةٍ **بلا أيّ تعلّم** — وذلك خرق 4.2 و8 معًا، وهدمٌ
+     * لحجّية الوثيقة التي بُني عليها القسم 8.1 كلّه.
+     *
+     * والحارس محصورٌ في امتحان التدريب: امتحان شهادة المسار له بابه ودفعُه.
+     */
+    private function enrollmentDenial(Exam $exam, User $user): ?RedirectResponse
+    {
+        if (! $this->isCourseExam($exam) || $this->isEnrolled($exam, $user)) {
+            return null;
+        }
+
+        $message = (string) setting(
+            'exams.messages.not_enrolled',
+            'الامتحان ده لتدريبٍ لسّه ما سجّلتش فيه — ابدأ التدريب الأوّل وهيتفتحلك.',
+        );
+
+        $course = $exam->examable;
+
+        return $course instanceof Course
+            ? redirect()->route('learning.course', $course)->with('status', $message)
+            : redirect()->route('learning.courses')->with('status', $message);
+    }
+
+    /** التسجيل في التدريب صاحب الامتحان — من جدول التسجيلات لا من الجلسة */
+    private function isEnrolled(Exam $exam, User $user): bool
+    {
+        return Enrollment::query()
+            ->where('user_id', $user->id)
+            ->where('course_id', (int) $exam->examable_id)
+            ->exists();
+    }
 
     /**
      * ⭐ تكلفة دخول الامتحان بعملتها (4.2 · 7.1 · 16).
@@ -525,11 +585,16 @@ class ExamController extends Controller
             return;
         }
 
+        /*
+         | ⭐ اسم الشهادة **لا اسم العرض** (8 · 3): لكلّ تدريب اسمان، والذي
+         | يُكتَب على الوثيقة هو `cert_name_*`. ولا نمرّر الاسم من هنا أصلًا —
+         | المُصدِر يقرؤه من الكيان بلغة النسخة، فيبقى القرار في مكانٍ واحد
+         | ولا يخرج مسارُ إصدارٍ باسمٍ ومسارٌ آخر باسمٍ مختلف.
+         */
         $this->issuer->issue(
             user: $attempt->user,
             typeKey: $typeKey,
             subject: $subject,
-            data: ['certificate_name' => $subject->name_ar ?? $exam->title_ar],
         );
     }
 }

@@ -14,7 +14,7 @@
 
 ## ✅ المُنجَز
 <!-- تلقائيّ:بداية:المنجز -->
-- **مجلّدات فرعيّة (22):** `Account/` · `Admin/` · `AdminScreens/` · `Ads/` · `Certificates/` · `Dashboard/` · `Engagement/` · `Events/` · `Gamification/` · `Growth/` · `Home/` · `Images/` · `Learning/` · `Library/` · `Notifications/` · `Referral/` · `Security/` · `Setup/` · `Store/` · `Ui/` · `Volunteer/` · `Wallet/` — ولكلٍّ منها وثيقتها.
+- **مجلّدات فرعيّة (24):** `Account/` · `Admin/` · `AdminScreens/` · `Ads/` · `Certificates/` · `Dashboard/` · `Engagement/` · `Events/` · `Gamification/` · `Growth/` · `Home/` · `Images/` · `Learning/` · `Library/` · `Notifications/` · `Onboarding/` · `Referral/` · `Security/` · `Setup/` · `Store/` · `Ui/` · `Ux/` · `Volunteer/` · `Wallet/` — ولكلٍّ منها وثيقتها.
 <!-- تلقائيّ:نهاية:المنجز -->
 
 ## ⬜ المتبقّي

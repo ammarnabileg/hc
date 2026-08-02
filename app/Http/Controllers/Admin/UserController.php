@@ -228,8 +228,9 @@ class UserController extends Controller
             'segments' => $this->segments->all(),
             'service' => $this->segments,
             'rule' => $rule,
-            'previewCount' => $rule === [] ? null : $this->segments->count($rule),
-            'preview' => $rule === [] ? collect() : $this->segments->preview($rule),
+            // المعاينة والعدّ داخل نطاق صاحب الشاشة (12.2.1-ب)
+            'previewCount' => $rule === [] ? null : $this->segments->count($rule, $request->user()),
+            'preview' => $rule === [] ? collect() : $this->segments->preview($rule, $request->user()),
             'statuses' => UserDirectory::STATUSES,
             'roles' => $this->directory->roleOptions(),
             'criteria' => AudienceSegments::CRITERIA,

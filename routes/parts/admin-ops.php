@@ -41,6 +41,8 @@ Route::middleware('auth')->prefix('admin/ops')->name('admin.ops.')->group(functi
     Route::middleware('permission:updates.view')->group(function () {
         Route::get('/updates', [UpdatesController::class, 'index'])->name('updates');
         Route::post('/updates/check', [UpdatesController::class, 'check'])->name('updates.check');
+        // الفحوص القبليّة قراءةٌ لا تلمس شيئًا — فصلاحيّة العرض تكفي لتشغيلها (2.11-ب)
+        Route::post('/updates/preflight', [UpdatesController::class, 'preflight'])->name('updates.preflight');
     });
 
     Route::middleware('permission:version_history.list')
@@ -58,6 +60,11 @@ Route::middleware('auth')->prefix('admin/ops')->name('admin.ops.')->group(functi
 
     Route::middleware('permission:updates.restore')
         ->post('/updates/rollback', [UpdatesController::class, 'rollback'])->name('updates.rollback');
+
+    // ⛔ الاستعادة من نسخة تكتب فوق البيانات الحاليّة — صلاحيّة الاستعادة وتأكيد مكتوب (2.11-ح)
+    Route::middleware('permission:backups.restore')
+        ->post('/updates/restore/{backup}', [UpdatesController::class, 'restore'])
+        ->whereNumber('backup')->name('updates.restore');
 
     // ------------------------------------------------------------ النسخ وصحّة النظام
     Route::middleware('permission:system_health.view,backups.view')

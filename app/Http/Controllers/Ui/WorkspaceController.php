@@ -7,6 +7,7 @@ use App\Models\SavedView;
 use App\Models\UserFirstRun;
 use App\Services\Ui\FirstRunScreens;
 use App\Services\Ui\UndoStack;
+use App\Services\Ux\ViewMode;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -24,6 +25,7 @@ class WorkspaceController extends Controller
     public function __construct(
         private readonly UndoStack $undo,
         private readonly FirstRunScreens $firstRun,
+        private readonly ViewMode $viewMode,
     ) {}
 
     // ------------------------------------------------------------ التثبيت (Pin)
@@ -181,6 +183,23 @@ class WorkspaceController extends Controller
             'screen' => $screen,
             'steps' => $this->firstRun->stepsFor($screen),
         ]);
+    }
+
+    // -------------------------------------------------- وضع «متقدّم» (2.15)
+
+    /**
+     * تبديل سويتش «وضع متقدّم» من أيّ صفحة — ويُحفَظ لكلّ مستخدم (2.15-أ-9).
+     *
+     * يعود للصفحة نفسها لأنّ الوضع **يفتح ما أُخفي فيها**؛ فلو أرجعناه للوحة
+     * ضاع مكان المستخدم — وهو ما تمنعه 2.15-أ-6 («لا يفقد مكانه في القائمة»).
+     */
+    public function toggleMode(Request $request): RedirectResponse
+    {
+        $on = $this->viewMode->toggle($request->user());
+
+        return back()->with('status', $on
+            ? 'الوضع المتقدّم اتفتح ✓ — كلّ التفاصيل ظاهرة دلوقتي.'
+            : 'رجعنا للوضع المبسّط ✓ — التفاصيل موجودة ورا السويتش.');
     }
 
     // ------------------------------------------------------------- التراجع

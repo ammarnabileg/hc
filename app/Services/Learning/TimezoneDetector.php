@@ -57,8 +57,9 @@ class TimezoneDetector
 
         $attributes = ['auto_timezone' => $timezone, 'auto_timezone_at' => now()];
 
-        // الدولة تتبع المكان أيضًا — لكن لا نلمسها إن كان المستخدم قد اختارها
-        if (! $user->country_id) {
+        // الدولة تتبع المكان أيضًا — لكن لا نلمسها إن اختارها المستخدم
+        // ولا إن **ثبّتها الأدمن يدويًّا** (12.1-متقدّم-5): التثبيت يعلو الكشف.
+        if (! $user->country_id && ! $user->country_locked_at) {
             $country = Country::query()->where('timezone', $timezone)->where('is_active', true)->first();
 
             if ($country) {

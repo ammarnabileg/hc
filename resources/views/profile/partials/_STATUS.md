@@ -21,7 +21,7 @@
   - `share.blade.php`
   - `tab-achievements.blade.php` — ⭐ بطاقة الإنجاز قابلة للاستخراج كصورة (12.14-هـ)
   - `tab-certificates.blade.php` — شارة «شهادة معتمدة» ذهبيّة — شرف لا حالة تشغيليّة (2.16)
-  - `tab-experience.blade.php`
+  - `tab-experience.blade.php` — الخبرة العمليّة والتطوّعيّة: صفوفٌ بمسمّى وجهة وفترة ووصف (9)
   - `tab-overview.blade.php` — نظرة عامّة: أربعة كروت KPI بحدّ أقصى في صفّ واحد (2.15-أ-3)
 <!-- تلقائيّ:نهاية:المنجز -->
 

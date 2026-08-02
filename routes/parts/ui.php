@@ -39,6 +39,9 @@ Route::middleware('auth')->group(function () {
         // شاشة أوّل مرّة
         Route::post('/ui/first-run', [WorkspaceController::class, 'seenFirstRun'])->name('ui.first-run.seen');
 
+        // ⭐ سويتش «وضع متقدّم» الحاضر في كلّ صفحة — ويُحفَظ لكلّ مستخدم (2.15-أ-9)
+        Route::post('/ui/mode', [WorkspaceController::class, 'toggleMode'])->name('ui.mode.toggle');
+
         // ⭐ التراجع خلال 5 ثوانٍ بعد الأفعال القابلة للتراجع
         Route::post('/ui/undo/{token}', [WorkspaceController::class, 'undo'])->name('ui.undo');
     });

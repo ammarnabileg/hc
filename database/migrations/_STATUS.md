@@ -9,26 +9,26 @@
 ## 🎯 الغرض/المطلوب
 <!-- تلقائيّ:بداية:الغرض -->
 - **الوظيفة:** مخطّط قاعدة البيانات — المايجريشنز القائمة لا تُعدَّل، والنقص يُضاف بمايجريشن جديد — ضمن: المخطّط والبذور والمصانع.
-- **البنود الحاكمة (من تعليقات الكود نفسه):** 2.3 · 2.5-د · 2.5-ب · 2.6-ب · 2.7 · 2.9 · 2.9-8 · 2.11-هـ · 2.11-و · 2.11-ج · 2.11-د · 2.11-ح
+- **البنود الحاكمة (من تعليقات الكود نفسه):** 2.3 · 2.5-د · 2.5-ب · 2.5-ج · 2.5-أ · 2.5-د-1 · 2.5-د-2 · 2.5-د-3 · 2.5-د-4 · 2.6-ب · 2.7 · 2.9
 - **قواعد سارية على كلّ ما هنا:** الصلاحيّة على كلّ مسار (12.2.1) · المحظور يُخفى لا يُعطَّل (2.15-أ-7) · لا رقم ولا نصّ محروق (2.13) · 🔒 الماليّات لمالك المنصّة وحده (12.7).
 <!-- تلقائيّ:نهاية:الغرض -->
 
 ## ✅ المُنجَز
 <!-- تلقائيّ:بداية:المنجز -->
-- **مايجريشنز (193) — والقائم منها لا يُعدَّل (قاعدة البناء §1). الأحدث:**
+- **مايجريشنز (202) — والقائم منها لا يُعدَّل (قاعدة البناء §1). الأحدث:**
+  - `2026_08_12_100010_access_condition_keys_and_panel_gate.php`
+  - `2026_08_11_100010_volunteer_journey_and_page_unification.php`
+  - `2026_08_10_200010_store_multi_currency_pricing.php`
   - `2026_08_10_100010_ops_update_pipeline.php`
+  - `2026_08_09_120030_onboarding_settings_and_first_run_unification.php`
+  - `2026_08_09_120020_onboarding_placement_test_tables.php`
+  - `2026_08_09_120010_onboarding_identity_and_journey_columns.php`
   - `2026_08_09_100010_security_admin_user_detail_columns.php`
+  - `2026_08_09_100010_create_certificate_number_sequences_table.php`
   - `2026_08_08_100020_gamification_entity_costs_are_overrides.php`
   - `2026_08_08_100010_screens24_report_download_links.php`
   - `2026_08_08_100010_admin_system_settings_screen_limits_and_windows.php`
-  - `2026_08_07_200010_courses_ticket_columns_are_overrides.php`
-  - `2026_08_07_100030_screens24_referral_review_columns.php`
-  - `2026_08_07_100020_screens24_report_schedules.php`
-  - `2026_08_07_100010_store_library_protection_columns.php`
-  - `2026_08_07_100010_screens24_question_bank_columns.php`
-  - `2026_08_07_100010_growth_columns.php`
-  - `2026_08_06_200030_streaks_club_freeze_and_rewards.php`
-  - … و181 غيرها.
+  - … و190 غيرها.
 <!-- تلقائيّ:نهاية:المنجز -->
 
 ## ⬜ المتبقّي

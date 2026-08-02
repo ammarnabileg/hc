@@ -7,11 +7,14 @@ use App\Models\AnnouncementRead;
 use App\Models\Complaint;
 use App\Models\ComplaintMessage;
 use App\Models\HelpArticle;
+use App\Models\Setting;
 use App\Models\User;
+use App\Services\Account\ComplaintService;
 use App\Services\Notifications\AnnouncementFeed;
 use App\Services\Notifications\Notifier;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
@@ -280,8 +283,19 @@ class GuidanceComposer
 
     // ============================================================== الشكاوى
 
-    /** حالات طابور الشكاوى (24.3) */
-    public const COMPLAINT_STATUSES = ['open' => 'جديدة', 'in_review' => 'قيد المراجعة', 'closed' => 'مغلقة'];
+    /**
+     * حالات طابور الشكاوى (11 · 24.3) — **من المصدر الواحد** `ComplaintService`.
+     *
+     * كانت هنا قائمةٌ ثانية تسمّي `open` «جديدة» بينما يسمّيها المستخدم «مفتوحة»،
+     * و**تُسقِط `answered` كلّيًّا** فلا يقدر الأدمن على تقديم الحالة بردّه،
+     * فتبقى التذكرة «مفتوحة» بعد الردّ وعدّاد «تمّ الردّ» صفرٌ دائمًا.
+     *
+     * @return array<string, string>
+     */
+    public static function complaintStatuses(): array
+    {
+        return ComplaintService::statusLabels();
+    }
 
     /** @param  array<string, mixed>  $filters */
     public function complaints(array $filters = []): LengthAwarePaginator
@@ -294,7 +308,7 @@ class GuidanceComposer
                 ->orWhere('number', 'like', '%'.$q.'%'));
         }
 
-        if (($status = (string) ($filters['status'] ?? '')) !== '' && isset(self::COMPLAINT_STATUSES[$status])) {
+        if (($status = (string) ($filters['status'] ?? '')) !== '' && isset(self::complaintStatuses()[$status])) {
             $query->where('status', $status);
         }
 
@@ -305,13 +319,54 @@ class GuidanceComposer
         return $query->paginate((int) setting('complaints.admin.per_page', 15))->withQueryString();
     }
 
-    /** أسباب الشكوى الثمانية المعتمَدة — قائمة إعدادات لا كود (24.3). */
+    /**
+     * أسباب الشكوى الثمانية المعتمَدة — قائمة إعدادات لا كود (11 · 24.3).
+     * ومصدرها **نفس** المفتاح الذي يقرؤه فورم المستخدم، وإلّا كان تحرير الأدمن بلا أثر.
+     */
     public function complaintReasons(): Collection
     {
-        return collect((array) setting('complaints.reasons', [
-            'أحد المشرفين', 'الهيكل الإداريّ وأسلوب الإدارة', 'اللقاءات المباشرة', 'اللوائح والقوانين',
-            'المحتوى التدريبيّ', 'خدمة العملاء', 'المنصّة', 'أخرى',
-        ]));
+        return collect(ComplaintService::categories());
+    }
+
+    /**
+     * حفظ قائمة الأسباب من لوحة الأدمن — إضافة/تعديل/حذف (11).
+     *
+     * @param  array<int, string>  $reasons
+     * @return array<int, string>
+     */
+    public function saveComplaintReasons(array $reasons, ?User $actor = null): array
+    {
+        $clean = collect($reasons)
+            ->map(fn ($reason) => trim((string) $reason))
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
+
+        $before = ComplaintService::categories();
+
+        $setting = Setting::updateOrCreate(
+            ['key' => ComplaintService::REASONS_KEY],
+            [
+                'group' => 'complaints',
+                'label_ar' => 'أسباب الشكاوى والمقترحات',
+                'type' => 'json',
+                'default_value' => json_encode(ComplaintService::defaultReasons(), JSON_UNESCAPED_UNICODE),
+                'value' => json_encode($clean, JSON_UNESCAPED_UNICODE),
+            ],
+        );
+
+        Cache::forget('settings');
+
+        $this->audit->record(
+            $setting,
+            'complaints.reasons.updated',
+            ['reasons' => $before],
+            ['reasons' => $clean],
+            $actor,
+        );
+
+        return $clean;
     }
 
     /** ردّ **داخليّ** (ملاحظة للفريق) أو **خارجيّ** (يصل للمستخدم إشعارًا) — 24.3. */
@@ -324,8 +379,14 @@ class GuidanceComposer
             'is_internal' => $internal,
         ]);
 
-        if ($status && isset(self::COMPLAINT_STATUSES[$status])) {
-            $complaint->update(['status' => $status]);
+        // ⭐ الردّ الخارجيّ **يقدّم الحالة** إلى «تمّ الردّ» ما لم يختر الأدمن غيرها (11)
+        // — وإلّا بقيت التذكرة «مفتوحة» بعد الردّ وصار العدّاد صفرًا دائمًا.
+        $next = $status && isset(self::complaintStatuses()[$status])
+            ? $status
+            : (! $internal && $complaint->status !== 'closed' ? 'answered' : null);
+
+        if ($next !== null && $next !== $complaint->status) {
+            $complaint->update(['status' => $next]);
         }
 
         if (! $internal && setting('complaints.notify.on_reply', true)) {

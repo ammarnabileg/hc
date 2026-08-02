@@ -7,7 +7,18 @@
     <x-page-header
         title="الشكاوى والمقترحات"
         subtitle="طابور واضح بالحالات — والردّ في وقته."
-        :breadcrumbs="[['label' => 'التوجيه والدعم', 'url' => route('admin.guidance.index')], ['label' => 'الشكاوى']]" />
+        :breadcrumbs="[['label' => 'التوجيه والدعم', 'url' => route('admin.guidance.index')], ['label' => 'الشكاوى']]">
+        @can('complaints.edit')
+            <x-slot:action>
+                {{-- الأسباب تُدار من هنا: إضافة/تعديل/حذف (11) --}}
+                <a href="{{ route('admin.guidance.complaint_reasons') }}"
+                   class="btn inline-flex items-center rounded-xl px-4 text-sm font-semibold motion-standard"
+                   style="min-height: 44px; background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
+                    {{ setting('complaints.reasons.page_title', 'أسباب الشكاوى والمقترحات') }}
+                </a>
+            </x-slot:action>
+        @endcan
+    </x-page-header>
 
     <x-tabs :tabs="$tabs" current="complaints" />
 
@@ -66,7 +77,8 @@
                         </div>
 
                         <div class="flex flex-col items-end gap-2">
-                            <x-state-badge :state="$complaint->status === 'closed' ? 'idle' : ($complaint->status === 'in_review' ? 'warn' : 'ok')"
+                            {{-- قاموس الحالة واحد للمستخدم والأدمن (2.16 · 11) --}}
+                            <x-state-badge :state="\App\Services\Account\ComplaintService::stateOf($complaint->status)"
                                            :label="$statuses[$complaint->status] ?? $complaint->status" />
                             {{-- عمر الشكوى مقابل SLA — يتلوّن عند التأخّر (24.3) --}}
                             <x-state-badge :state="$sla[$complaint->id] ?? 'ok'"

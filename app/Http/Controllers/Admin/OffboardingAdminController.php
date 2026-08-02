@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Services\Admin\Volunteer\AuditTrail;
 use App\Services\Admin\Volunteer\OffboardingService;
 use App\Services\Admin\Volunteer\SettingsWriter;
+use App\Support\Scope\ScopeFilter;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -28,7 +29,9 @@ class OffboardingAdminController extends Controller
     {
         $type = $request->string('type')->toString();
 
+        // النطاق إلزاميّ مع كلّ صلاحيّة (12.2.1-ب) — سجلّات مَن هم في نطاقه وحدهم
         $records = Offboarding::query()
+            ->tap(fn ($q) => app(ScopeFilter::class)->apply($q, $request->user(), 'offboarding.view'))
             ->with(['user:id,name,code', 'initiated_by:id,name', 'approved_by:id,name'])
             ->when($type, fn ($q) => $q->where('type', $type))
             ->when($request->string('q')->toString(), fn ($q, $term) => $q->whereHas('user', fn ($u) => $u->where('code', mb_strtoupper($term))->orWhere('name', 'like', '%'.$term.'%')))
@@ -51,6 +54,7 @@ class OffboardingAdminController extends Controller
     public function reentries(Request $request): View
     {
         $records = Offboarding::query()
+            ->tap(fn ($q) => app(ScopeFilter::class)->apply($q, $request->user(), 'offboarding.view'))
             ->with('user:id,name,code')
             ->whereNotNull('completed_at')
             ->latest('completed_at')
@@ -60,7 +64,9 @@ class OffboardingAdminController extends Controller
 
         return view('admin.volunteer.reentries', [
             'records' => $records,
-            'open' => Reentry::query()->with('user:id,name,code')->latest('id')->limit((int) setting('volunteer.offboarding.reentry_rows', 30))->get(),
+            'open' => Reentry::query()
+                ->tap(fn ($q) => app(ScopeFilter::class)->apply($q, $request->user(), 'offboarding.view'))
+                ->with('user:id,name,code')->latest('id')->limit((int) setting('volunteer.offboarding.reentry_rows', 30))->get(),
             'examRequired' => (bool) setting('volunteer.offboarding.reentry_exam_required', true),
             'startsPosition' => (string) setting('volunteer.offboarding.reentry_starts_position', 'coordinator'),
         ]);

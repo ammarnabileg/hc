@@ -65,7 +65,7 @@ class StoreAdminController extends Controller
             'rows' => match ($tab) {
                 'bundles' => $this->store->bundles($filters),
                 'coupons' => $this->store->coupons($filters),
-                'orders' => $this->store->orders($filters),
+                'orders' => $this->store->orders($filters, $user),
                 'library' => $this->store->protectedItems($filters),
                 default => $this->store->products($filters),
             },

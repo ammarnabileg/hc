@@ -20,8 +20,13 @@
     $ticketAmount = (int) setting('engagement.positive.ticket_amount', 1);
 @endphp
 
+{{--
+  ⭐ العنصران العائمان على **يمين** الشاشة (2.6-أ و2.6-ب — مرّتين نصًّا).
+  ولذلك نستعمل `right` الفيزيائيّة لا `inset-inline-end`: الصفحة `dir="rtl"`،
+  و«نهاية السطر» فيها هي **اليسار** — فكان الاثنان يقعان في الجهة الخطأ.
+--}}
 <div class="fixed z-40 flex flex-col items-center gap-2 pointer-events-none"
-     style="inset-inline-end: 1rem; inset-block-end: 1rem" data-floating>
+     style="right: 1rem; bottom: 1rem" data-floating>
 
     @if ($surprise)
         <button type="button" data-surprise-open aria-label="{{ $iconLabel }}" title="{{ $iconLabel }}"
@@ -93,10 +98,8 @@
             to   { opacity: 1; transform: none; }
         }
         .surprise-sheet { animation: surprise-sheet-up 320ms var(--ease-standard) both; }
-
-        @media (prefers-reduced-motion: reduce) {
-            .surprise-flap, .surprise-sheet { animation: none; }
-        }
+        /* التحكّم في الحركة من إعداد المستخدم داخل المنصّة (app.css) لا من
+           `prefers-reduced-motion` — مرفوض نصًّا في 2.3 و2.14-ب. */
     </style>
     <script>
         (() => {

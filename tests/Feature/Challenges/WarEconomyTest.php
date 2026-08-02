@@ -3,8 +3,12 @@
 namespace Tests\Feature\Challenges;
 
 use App\Models\ChallengeParticipation;
+use App\Models\Transaction;
 use App\Models\WarMatch;
+use App\Services\Gamification\StreakService;
+use App\Services\Gamification\WalletGateway;
 use App\Services\Gamification\Wars\WarMatchService;
+use Carbon\CarbonImmutable;
 
 /**
  * اقتصاد الحروب (15.2) — أخطر جزء في المجال كلّه.
@@ -87,6 +91,45 @@ class WarEconomyTest extends ChallengeTestCase
         // العقوبة تُحرَق ولا تذهب لأحد — سحبٌ من الاقتصاد لا ضخّ فيه
         $this->assertEqualsWithDelta(10, (float) $match->settlement['penalty'], 0.001);
         $this->assertEqualsWithDelta(2, (float) $match->settlement['moved'], 0.001);
+    }
+
+    /**
+     * ⭐ **ثغرة فارمينج مغلقة (15.2-6 · 7.2):** تسوية مواجهة **داخل نافذة نادي
+     * الخامسة** لا تمنح XP ولا يوم حضور — فحسابان يتواجهان فجرًا كلّ يوم لا
+     * يحصدان ستريكًا ولا سلّم XP ولا يتصدّران الليدر بورد (7.3) بلا حضورٍ حقيقيّ.
+     */
+    public function test_settling_a_match_inside_the_club_window_grants_no_xp_and_no_attendance_day(): void
+    {
+        $a = $this->trainee(tickets: 20, attributes: ['timezone' => 'Africa/Cairo']);
+        $b = $this->trainee(tickets: 20, attributes: ['timezone' => 'Africa/Cairo']);
+
+        // 02:10 UTC = 05:10 بالقاهرة — قلب النافذة (04:50 ⟵ 05:20)
+        $this->travelTo(CarbonImmutable::parse('2026-07-01 02:10:00', 'UTC'));
+
+        $match = $this->startMatch($a, $b);
+        $service = app(WarMatchService::class);
+
+        // تعادل: بلا أيّ حركة تذاكر — فالمنحة الوحيدة الممكنة هي منحة النادي
+        $service->finishSide($match, $service->sideOf($match, $a));
+        $service->finishSide($match->refresh(), $service->sideOf($match, $b));
+
+        $this->assertSame('draw', $match->refresh()->outcome);
+
+        foreach ([$a, $b] as $user) {
+            $this->assertSame(0, (int) $user->refresh()->xp, 'المواجهة سكّت XP من مسار حرب');
+            $this->assertSame(0, (int) app(StreakService::class)->forUser($user)->club_5am_count);
+            $this->assertSame(0, (int) app(StreakService::class)->forUser($user)->current_days);
+        }
+
+        // ولا يوم حضور في السجلّ أصلًا — لا بعلم النادي ولا بدونه
+        $this->assertDatabaseCount('streak_days', 0);
+
+        // ولا معاملة XP واحدة
+        $this->assertSame(0, Transaction::query()
+            ->where('currency_id', app(WalletGateway::class)->currency('xp')?->id)
+            ->count());
+
+        $this->travelBack();
     }
 
     /** ⭐ 15.2-4: بوّابة ≥ 12 تذكرة — لا استعداد بأقلّ منها. */

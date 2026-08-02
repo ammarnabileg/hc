@@ -54,9 +54,13 @@
             </div>
         </div>
 
-        {{-- فعل رئيسيّ واحد بارز، والباقي في «⋯» (2.15-أ-2) --}}
-        @if ($action)
-            <div class="flex items-center gap-2">{{ $action }}</div>
-        @endif
+        {{-- فعل رئيسيّ واحد بارز، والباقي في «⋯» (2.15-أ-2) — وبجواره سويتش
+             «وضع متقدّم» فيكون حاضرًا في **كلّ صفحة** كما تنصّ 2.15-أ-9 --}}
+        <div class="flex items-center gap-2">
+            @if ($action)
+                {{ $action }}
+            @endif
+            <x-advanced-toggle />
+        </div>
     </div>
 </header>

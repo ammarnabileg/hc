@@ -59,6 +59,8 @@ Route::middleware('auth')->group(function () {
     Route::middleware('permission:user_attestation.view')->group(function () {
         Route::get('/attestations', [AttestationController::class, 'index'])->name('attestations.index');
         Route::post('/attestations', [AttestationController::class, 'store'])->name('attestations.store');
+        // ⭐ الموافقة على النشر ومفتاح الإغلاق — على غرار الـCV (9.1)
+        Route::post('/attestations/public', [AttestationController::class, 'togglePublic'])->name('attestations.public.toggle');
     });
 
     Route::get('/attestations/export', [AttestationController::class, 'export'])
@@ -79,4 +81,10 @@ Route::get('/library/teaser/{product}', [ReaderController::class, 'teaser'])->na
 Route::get('/library/teaser/{product}/page/{page}', [ReaderController::class, 'teaserPage'])
     ->whereNumber('page')->name('library.teaser.page');
 
-Route::get('/attestation/{code}', [AttestationController::class, 'public'])->name('attestations.public');
+/*
+| رابط الإفادة العامّ — **لمن وافق وحده**، وبـSlug عشوائيّ لا كود متسلسل
+| فلا يُعدّ الزائرُ الأكوادَ ليقرأ إفادات مَن لم يوافقوا (9.1).
+*/
+Route::get('/attestation/{code}', [AttestationController::class, 'public'])
+    ->where('code', '[A-Za-z0-9]{6,32}')
+    ->name('attestations.public');

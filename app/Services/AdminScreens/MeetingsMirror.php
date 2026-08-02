@@ -8,6 +8,7 @@ use App\Models\MeetingAttendance;
 use App\Models\User;
 use App\Services\Volunteer\Meetings\AttendanceService;
 use App\Services\Volunteer\Meetings\MeetingScope;
+use App\Support\Scope\ScopeFilter;
 use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
@@ -50,9 +51,21 @@ class MeetingsMirror
      */
     public function query(User $viewer, array $filters): Builder
     {
+        /*
+         | ⭐ النطاق يُطبَّق على البيانات لا على الباب وحده (12.2.1-ب).
+         | `ALL` يرى الكلّ، وما دونه يُقاطَع قيدان معًا: جمهور الاجتماع (مَن يخصّه)
+         | **و**النطاق الممنوح (TEAM ⟵ داونلاينه · ENTITY ⟵ كيانه وفروعه) —
+         | فلا يتّسع أحدهما على حساب الآخر.
+         */
         $base = $viewer->widestScope('meetings.list') === 'ALL'
             ? Meeting::query()
-            : $this->scope->visibleQuery($viewer);
+            : app(ScopeFilter::class)->apply(
+                $this->scope->visibleQuery($viewer),
+                $viewer,
+                'meetings.list',
+                'owner_id',
+                'entity_id',
+            );
 
         $from = ($filters['from'] ?? '') !== ''
             ? CarbonImmutable::parse($filters['from'])->startOfDay()

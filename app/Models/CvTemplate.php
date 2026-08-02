@@ -20,7 +20,30 @@ class CvTemplate extends Model
             'is_active' => 'boolean',
             'is_free' => 'boolean',
             'price_tickets' => 'decimal:2',
+            'ats_options' => 'array',
         ];
+    }
+
+    /**
+     * تباعد وأحجام هذا القالب في مخرَج الـATS (9) — فأثرُ القالب المدفوع
+     * يظهر في الملفّ لا في المعاينة وحدها. والمفاتيح المسموحة فقط تمرّ.
+     *
+     * @return array<string, float>
+     */
+    public function atsOptions(): array
+    {
+        $allowed = ['margin_pt', 'body_size_pt', 'heading_size_pt', 'title_size_pt', 'leading'];
+        $stored = (array) ($this->getAttribute('ats_options') ?? []);
+
+        $clean = [];
+
+        foreach ($allowed as $key) {
+            if (isset($stored[$key]) && is_numeric($stored[$key])) {
+                $clean[$key] = (float) $stored[$key];
+            }
+        }
+
+        return $clean;
     }
 
     /**

@@ -193,6 +193,16 @@ class QuestionBank
         $attached = 0;
         $skipped = 0;
 
+        /*
+         | ⭐ الامتحان النهائيّ يُبنى من الأسئلة المعلَّمة **«عام» وحدها** (4 · 4.2):
+         | «الأسئلة العامّة فقط هي المؤهّلة للدخول في الامتحان النهائيّ، لأنّ فيه
+         | أسئلة درسٍ لا تصلح له». وبلا هذا الفحص كانت خاصّيّة «سؤال عام» زينةً
+         | يتخطّاها هذا الباب، فيدخل سؤالُ درسٍ امتحانًا تُصدَر بنجاحه شهادة.
+         */
+        if (! $question->is_general) {
+            return ['attached' => 0, 'skipped' => count(array_unique(array_map('intval', $examIds)))];
+        }
+
         foreach (array_unique(array_map('intval', $examIds)) as $examId) {
             $exam = Exam::query()->find($examId);
 

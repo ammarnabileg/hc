@@ -1,4 +1,4 @@
-<div class="card p-3 grid gap-2 sm:grid-cols-2" data-repeat-row>
+<div class="card p-3 grid gap-2 sm:grid-cols-2" data-repeat-row draggable="true">
     <input type="text" name="data[education][{{ $i }}][degree]" value="{{ $row['degree'] ?? '' }}"
            placeholder="{{ setting('cv.field.degree_label', 'الدرجة العلميّة') }}"
            class="rounded-xl px-3 py-2 text-sm" style="{{ $field }}">

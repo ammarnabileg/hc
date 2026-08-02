@@ -8,6 +8,7 @@ use App\Models\ComplaintMessage;
 use App\Services\Account\ComplaintService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 /**
@@ -80,19 +81,23 @@ class ComplaintController extends Controller
     {
         $data = $request->validate([
             'type' => ['required', 'in:complaint,suggestion'],
-            'category' => ['required', 'string', 'max:48'],
+            // ⭐ الحقل رقم 1 في القسم 11 — **مطلوب** كبقيّة الحقول
+            'wants_contact' => ['required', 'boolean'],
+            'category' => ['required', 'string', 'max:48', Rule::in(ComplaintService::categories())],
             'title' => ['required', 'string', 'min:4', 'max:150'],
             'body' => ['required', 'string', 'min:10'],
             'attachment' => ['nullable', 'file', 'max:'.ComplaintService::attachmentMaxKb()],
         ], [
             'required' => 'الحقل ده مطلوب — اكتبه وجرّب تاني.',
             'category.required' => 'اختار السبب من القائمة.',
+            'wants_contact.required' => 'قول لنا: ترحب إننا نتواصل معاك ولا لأ؟',
             'title.min' => 'العنوان قصيّر — اكتب جملة توضّح الموضوع.',
             'body.min' => 'اكتب تفاصيل أكتر شوية عشان نقدر نساعدك.',
             'in' => 'الاختيار ده مش من الخيارات المتاحة.',
             'attachment.max' => 'المرفق كبير — اختار ملفّ أصغر.',
         ], [
             'type' => 'النوع',
+            'wants_contact' => 'الرغبة في التواصل',
             'category' => 'السبب',
             'title' => 'العنوان المختصر',
             'body' => 'نصّ الشكوى أو المقترح',

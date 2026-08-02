@@ -5,7 +5,7 @@
 
 <div class="card p-4" data-step-panel="education" hidden>
     <form data-step-form="education" onsubmit="return false" data-repeat>
-        <div class="space-y-3" data-repeat-list>
+        <div class="space-y-3" data-repeat-list data-sortable>
             @foreach ($rows as $i => $row)
                 @include('cv.partials.row-education', ['i' => $i, 'row' => $row, 'field' => $field])
             @endforeach

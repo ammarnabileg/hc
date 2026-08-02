@@ -35,6 +35,22 @@ class PageWatermark
     }
 
     /**
+     * علامة المنصّة نفسها — **لوجو المنصّة، أو اسمها لو اللوجو غير متوفّر** (9).
+     * تستعملها المعاينة المجّانيّة للسيرة قبل الخصم.
+     *
+     * @return array{logo:?string, text:string}
+     */
+    public function platformMark(): array
+    {
+        $logo = trim((string) setting('platform.identity.logo_path', ''));
+
+        return [
+            'logo' => $logo !== '' ? $logo : null,
+            'text' => (string) setting('platform.identity.name', config('app.name')),
+        ];
+    }
+
+    /**
      * الإعداد العامّ للمنصّة، و**المنتج يقرّر لنفسه** حين يُمرَّر (20.5).
      * فترتيب الحسم: المنتج أوّلًا ثمّ الإعداد العامّ.
      */

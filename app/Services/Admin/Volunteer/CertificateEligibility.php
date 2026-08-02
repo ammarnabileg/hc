@@ -6,6 +6,8 @@ use App\Models\Certificate;
 use App\Models\CertificateType;
 use App\Models\Membership;
 use App\Models\User;
+use App\Services\Certificates\CertificateRenderer;
+use App\Support\Scope\ScopeFilter;
 use Illuminate\Support\Collection;
 use Throwable;
 
@@ -250,15 +252,23 @@ class CertificateEligibility
             'revoked_reason' => $reason,
         ])->save();
 
+        // الصورة المرسومة تحمل حالتها، فالملغاة لا يجوز أن تُقدَّم من كاشٍ «سارية» (8.1)
+        app(CertificateRenderer::class)->forget($certificate);
+
         AuditTrail::log($actor, 'volunteer_certificate.revoke', $certificate, [], ['reason' => $reason]);
 
         return true;
     }
 
     /** المستحقّون الذين لم تُصدَر لهم بعد — مادّة تاب «مستحقّ ولم تُصدَر» */
-    public static function pending(int $limit = 50): Collection
+    /**
+     * المستحقّون لشهادة بوزشن — ومع `$viewer` تُحصَر القائمة **بنطاقه** (12.2.1-ب)،
+     * فلا يرى أحدٌ عضويّاتِ كيانٍ ليس له عليه سلطان.
+     */
+    public static function pending(int $limit = 50, ?User $viewer = null): Collection
     {
         return Membership::query()
+            ->when($viewer !== null, fn ($q) => app(ScopeFilter::class)->apply($q, $viewer, 'volunteer_certificates.view', 'user_id', 'entity_id'))
             ->with(['user:id,name,code', 'entity:id,name_ar', 'position'])
             ->where('status', 'active')
             ->limit((int) setting('volunteer_cert.pending_scan_limit', 200))

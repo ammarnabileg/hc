@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Services\Certificates\CertificateIssuer;
 use App\Services\Certificates\CertificateRenderer;
 use App\Services\Notifications\Notifier;
+use App\Support\Scope\ScopeFilter;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -246,9 +247,17 @@ class CertificateBulkIssuer
      *
      * @param  array<string, mixed>  $filters
      */
-    public function ledger(array $filters = []): LengthAwarePaginator
+    /**
+     * سجلّ الصادر — ومع `$viewer` يُحصَر **بنطاقه** (12.2.1-ب)،
+     * فسجلّ الشهادات دليلُ أشخاص لا جدولُ أكواد.
+     */
+    public function ledger(array $filters = [], ?User $viewer = null): LengthAwarePaginator
     {
         $query = Certificate::query()->with(['user', 'certificate_type'])->latest('issued_at');
+
+        if ($viewer !== null) {
+            app(ScopeFilter::class)->apply($query, $viewer, 'certificate_ledger.list');
+        }
 
         if (($q = trim((string) ($filters['q'] ?? ''))) !== '') {
             $query->where(function ($inner) use ($q) {

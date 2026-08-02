@@ -4,10 +4,14 @@ namespace App\Http\Controllers\Trainee;
 
 use App\Http\Controllers\Controller;
 use App\Models\Attestation;
+use App\Models\Cv;
 use App\Models\User;
 use App\Services\Library\AttestationBuilder;
+use App\Services\Library\CvBuilder;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 /**
@@ -18,19 +22,53 @@ use Illuminate\View\View;
  */
 class AttestationController extends Controller
 {
-    public function __construct(private readonly AttestationBuilder $builder) {}
+    public function __construct(
+        private readonly AttestationBuilder $builder,
+        private readonly CvBuilder $cv,
+    ) {}
 
     public function index(Request $request): View
     {
         $user = $request->user();
+        $cv = $this->cv->forUser($user);
 
         return view('cv.attestations', [
             'requests' => $this->builder->requests($user),
             'record' => $this->builder->platformRecord($user),
             'placements' => $this->builder->placements(),
             'limitReached' => $this->builder->openRequestsExceeded($user),
-            'publicUrl' => route('attestations.public', $user->code),
+            // ⭐ الرابط لا يوجد قبل الموافقة — والموافقة صريحة كالسيرة (9.1 · 10.0-ج)
+            'isPublic' => (bool) $cv->attestation_is_public,
+            'publicUrl' => $cv->attestation_slug ? route('attestations.public', $cv->attestation_slug) : null,
             'builder' => $this->builder,
+        ]);
+    }
+
+    /**
+     * فتح/غلق الرابط العامّ للإفادة — على غرار الـCV تمامًا (9.1).
+     *
+     * ولماذا Slug عشوائيّ لا كود المستخدم: الأكواد متسلسلة، فالرابط بالكود
+     * قابلٌ للتعداد — يُفتَح واحدٌ فيُخمَّن ما بعده.
+     */
+    public function togglePublic(Request $request): JsonResponse
+    {
+        $cv = $this->cv->forUser($request->user());
+        $enable = $request->boolean('enabled');
+
+        if ($enable && ! $cv->attestation_slug) {
+            $cv->attestation_slug = Str::lower(Str::random((int) setting('attestations.public.slug_length', 12)));
+        }
+
+        $cv->attestation_is_public = $enable;
+        $cv->save();
+
+        return response()->json([
+            'ok' => true,
+            'enabled' => (bool) $cv->attestation_is_public,
+            'url' => $cv->attestation_slug ? route('attestations.public', $cv->attestation_slug) : null,
+            'message' => $enable
+                ? (string) setting('attestations.public.opened_message', 'الرابط شغّال ✓')
+                : (string) setting('attestations.public.closed_message', 'الرابط اتقفل ✓'),
         ]);
     }
 
@@ -83,10 +121,24 @@ class AttestationController extends Controller
         ]);
     }
 
-    /** الرابط العامّ القابل للمشاركة (9.1) — بيانات المنصّة الموثّقة فقط */
+    /**
+     * الرابط العامّ القابل للمشاركة (9.1) — بيانات المنصّة الموثّقة فقط،
+     * و**لمن وافق وحده**. وبلا موافقةٍ فـ404 نظيف كبقيّة الواجهات.
+     */
     public function public(string $code): View
     {
-        $user = User::where('code', $code)->firstOrFail();
+        $cv = Cv::query()
+            ->with('user')
+            ->where('attestation_slug', $code)
+            ->where('attestation_is_public', true)
+            ->firstOrFail();
+
+        $user = $cv->user;
+
+        // صاحب الإفادة محذوفٌ Soft ⟵ 404 لا 500 (لا نُثبت وجود الرابط)
+        abort_if($user === null, 404);
+
+        $cv->increment('attestation_views');
 
         return view('cv.attestation-sheet', [
             'holder' => $user,

@@ -126,11 +126,11 @@ class CourseAdminController extends Controller
     }
 
     /** الضغط على «عدد المسجّلين» ⟵ مَن هم (12.4-ب). */
-    public function enrollees(Course $course): View
+    public function enrollees(Request $request, Course $course): View
     {
         return view('admin.courses.enrollees', [
             'course' => $course,
-            'enrollments' => $this->courses->enrollees($course),
+            'enrollments' => $this->courses->enrollees($course, $request->user()),
         ]);
     }
 

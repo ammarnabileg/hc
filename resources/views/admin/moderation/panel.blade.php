@@ -34,24 +34,6 @@
             </div>
         @endif
 
-        {{-- رابط تغيير كلمة السرّ: يظهر مرّة واحدة بعد توليده، بزرّ نسخ (12.1) --}}
-        @if (session('moderation_password_link'))
-            <div class="rounded-xl px-3 py-2 mb-4" style="background: var(--surface-sunken)">
-                <div class="text-xs mb-1" style="color: var(--text-muted)">
-                    {{ setting('admin.moderation.link_hint', 'الرابط ده بيظهر مرّة واحدة — انسخه دلوقتي.') }}
-                </div>
-                <div class="flex items-center gap-2">
-                    <input type="text" readonly value="{{ session('moderation_password_link') }}"
-                           data-copy-source
-                           class="w-full min-w-0 rounded-xl px-3 py-2 text-xs"
-                           style="background: var(--surface); border: 1px solid var(--border); color: var(--text)" dir="ltr">
-                    <button type="button" data-copy-button
-                            class="btn shrink-0 rounded-xl px-3 py-2 text-xs font-semibold motion-standard"
-                            style="background: var(--color-brand-500); color:#04201c">نسخ</button>
-                </div>
-            </div>
-        @endif
-
         <div class="grid gap-3 md:grid-cols-2">
             {{-- حظر بحالة ورسالة --}}
             @if ($actions->has('ban'))
@@ -92,46 +74,26 @@
             </datalist>
 
             {{-- الأفعال المباشرة: كلّ واحد فورم مستقلّ بمساحة لمس 44×44 على الموبايل --}}
-            @foreach (['release' => 'admin.users.release', 'sessions' => 'admin.users.sessions.end', 'verify-email' => 'admin.users.verify-email', 'password-link' => 'admin.users.password-link', 'impersonate' => 'admin.users.impersonate'] as $key => $route)
+            @foreach (['release' => 'admin.users.release', 'impersonate' => 'admin.users.impersonate'] as $key => $route)
                 @if ($actions->has($key))
                     <form method="post" action="{{ route($route, $user) }}" class="self-end">
                         @csrf
                         <button class="btn w-full rounded-xl py-2 text-sm font-semibold motion-standard"
-                                style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
+                                style="min-block-size: 44px; background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
                             {{ $actions[$key]['label'] }}
                         </button>
                     </form>
                 @endif
             @endforeach
+
+            {{-- تصدير بيانات المستخدم كملفّ — رابط تنزيل محروس بصلاحيّته (12.1-متقدّم-6) --}}
+            @if ($actions->has('export'))
+                <a href="{{ route('admin.users.export', $user) }}"
+                   class="btn self-end inline-flex items-center justify-center w-full rounded-xl py-2 text-sm font-semibold motion-standard"
+                   style="min-block-size: 44px; background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
+                    {{ $actions['export']['label'] }}
+                </a>
+            @endif
         </div>
     </section>
-
-    @push('scripts')
-        <script>
-            /* نسخ رابط تغيير كلمة السرّ — وردّ فوريّ على الزرّ (2.17-أ) */
-            (function () {
-                const field = document.querySelector('[data-copy-source]');
-                const button = document.querySelector('[data-copy-button]');
-                if (!field || !button) return;
-
-                button.addEventListener('click', function () {
-                    field.select();
-                    field.setSelectionRange(0, field.value.length);
-
-                    const done = () => {
-                        const label = button.textContent;
-                        button.textContent = 'اتنسخ ✓';
-                        setTimeout(() => { button.textContent = label; }, 2000);
-                    };
-
-                    if (navigator.clipboard) {
-                        navigator.clipboard.writeText(field.value).then(done, done);
-                    } else {
-                        document.execCommand('copy');
-                        done();
-                    }
-                });
-            })();
-        </script>
-    @endpush
 @endif

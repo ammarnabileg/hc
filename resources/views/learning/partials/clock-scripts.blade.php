@@ -1,29 +1,10 @@
-{{-- ساعة المستخدم (5): نداء الكشف + عدّاد الفتح — والقرار كلّه في الخادم --}}
+{{--
+    عدّاد الفتح (5). أمّا **كشف** المنطقة الزمنيّة فانتقل إلى التخطيط العامّ
+    (`learning.partials.timezone-detect`) لأنّه كان يعمل في صفحتين فقط بينما
+    الإتاحة تُحسَب في كلّ الشاشات — فلا يُكرَّر هنا.
+--}}
 <script>
     (() => {
-        const token = document.querySelector('meta[name="csrf-token"]')?.content;
-
-        /* الكشف التلقائيّ: المتصفّح **يقترح** منطقته، والخادم يتحقّق ويقرّر ويكتب.
-           ولا نُرسل إلّا حين تتغيّر عن المخزّنة — فلا نداء بلا سبب (2.7). */
-        const stored = @json($storedTimezone ?? '');
-        let detected = '';
-
-        try {
-            detected = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
-        } catch (e) {
-            detected = '';
-        }
-
-        if (token && detected && detected !== stored) {
-            fetch(@json(route('timezone.detect')), {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': token, 'Accept': 'application/json' },
-                body: JSON.stringify({ timezone: detected }),
-            }).then((r) => (r.ok ? r.json() : null))
-              .then((data) => { if (data && data.changed) window.location.reload(); })
-              .catch(() => {});
-        }
-
         /* عدّاد الفتح: يعرض «كم باقي» ويعيد التحميل عند الصفر فتُحسَب الحالة
            من جديد في الخادم — الواجهة لا تفتح شيئًا بنفسها أبدًا. */
         document.querySelectorAll('[data-availability-countdown]').forEach((node) => {

@@ -54,7 +54,10 @@ class AtsPdfWriter
      *
      * @param  array<int, array{heading:string, lines:array<int,string>}>  $sections
      */
-    public function build(string $fullName, string $headline, array $sections): string
+    /**
+     * @param  array<string, float>  $options  تجاوزات القالب المختار — فأثر القالب المدفوع يظهر في المخرَج (9)
+     */
+    public function build(string $fullName, string $headline, array $sections, array $options = []): string
     {
         $path = $this->fontFile();
 
@@ -67,11 +70,11 @@ class AtsPdfWriter
         $this->pages = [];
         $this->usedGlyphs = [];
 
-        $margin = (float) setting('cv.ats.margin_pt', 56);
-        $bodySize = (float) setting('cv.ats.body_size_pt', 11);
-        $headingSize = (float) setting('cv.ats.heading_size_pt', 13);
-        $titleSize = (float) setting('cv.ats.title_size_pt', 20);
-        $leading = (float) setting('cv.ats.leading', 1.55);
+        $margin = (float) ($options['margin_pt'] ?? setting('cv.ats.margin_pt', 56));
+        $bodySize = (float) ($options['body_size_pt'] ?? setting('cv.ats.body_size_pt', 11));
+        $headingSize = (float) ($options['heading_size_pt'] ?? setting('cv.ats.heading_size_pt', 13));
+        $titleSize = (float) ($options['title_size_pt'] ?? setting('cv.ats.title_size_pt', 20));
+        $leading = (float) ($options['leading'] ?? setting('cv.ats.leading', 1.55));
 
         $cursor = self::PAGE_H - $margin;
         $bottom = $margin;

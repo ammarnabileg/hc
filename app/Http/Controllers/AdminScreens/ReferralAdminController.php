@@ -47,7 +47,7 @@ class ReferralAdminController extends Controller
             'canSeeMoney' => $canSeeMoney,
             'service' => $this->referrals,
             // تحميل كسول: كلّ تاب يحسب بياناته وحده
-            'invites' => $tab === 'invites' ? $this->referrals->invites($filters) : null,
+            'invites' => $tab === 'invites' ? $this->referrals->invites($filters, $user) : null,
             'ambassadors' => $tab === 'ambassadors' ? $this->referrals->ambassadors($filters['q']) : null,
             'tiers' => $tab === 'tiers' ? $this->referrals->tiers() : [],
             'settings' => ScreenSettings::rows(ScreenSettings::SCREEN_REFERRAL, $user),

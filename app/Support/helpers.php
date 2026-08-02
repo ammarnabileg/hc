@@ -3,6 +3,8 @@
 use App\Models\RepRule;
 use App\Models\Setting;
 use App\Models\SettingOverride;
+use App\Models\User;
+use App\Services\Ux\ViewMode;
 use Illuminate\Support\Facades\Cache;
 
 if (! function_exists('setting')) {
@@ -73,6 +75,25 @@ if (! function_exists('rep_rule')) {
         });
 
         return (float) ($values[$key] ?? $default);
+    }
+}
+
+if (! function_exists('advanced_mode')) {
+    /**
+     * هل الصفحة تُعرَض بالوضع المتقدّم للمستخدم الحاليّ؟ (2.15-أ-9)
+     * قارئٌ واحد للعَلَم في الواجهة كلّها — فلا تفترق شاشةٌ عن أخرى.
+     */
+    function advanced_mode(?User $user = null): bool
+    {
+        return app(ViewMode::class)->isAdvanced($user ?? auth()->user());
+    }
+}
+
+if (! function_exists('view_mode')) {
+    /** خدمة وضعَي «مبسّط/متقدّم» وحدودهما من الإعدادات (2.15) */
+    function view_mode(): ViewMode
+    {
+        return app(ViewMode::class);
     }
 }
 

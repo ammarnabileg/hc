@@ -30,7 +30,7 @@ class RewardController extends Controller
             'notes' => (array) setting('rewards.notes', []),
             'segments' => (array) setting('rewards.segments', []),
             'settings' => SettingsWriter::groupRows('rewards'),
-            'ledger' => RewardGrantService::ledger($request->only(['code', 'currency', 'direction'])),
+            'ledger' => RewardGrantService::ledger($request->only(['code', 'currency', 'direction']), $request->user()),
             'audit' => AuditTrail::latest('manual_rewards', 10),
             'tab' => $request->string('tab')->toString() ?: 'form',
             'preview' => null,

@@ -78,7 +78,8 @@ class ImpersonationBanner
                 e($target?->shortName() ?? '—'),
                 e((string) ($target->code ?? '')),
             ],
-            e((string) setting('impersonation.banner_text', 'إنت بتتصفّح كـ{target} (#{code}) — أيّ فعل هنا محسوب على {actor}.')),
+            // ⭐ الصيغة الافتراضيّة بنصّ 12.1 حرفيًّا — وتبقى قابلة للتعديل من الإعدادات
+            e((string) setting('impersonation.banner_text', 'مرحبًا {actor}، أنت تتصفح كحساب {target} (#{code}).')),
         );
 
         $label = e((string) setting('impersonation.stop_label', 'ارجع لحسابي'));

@@ -8,17 +8,28 @@ use Illuminate\Console\Command;
 /**
  * `php artisan settings:coverage` — هل يقدر مالك المنصّة على تعديل كلّ إعداد؟
  *
- * القاعدة 2.13 تقول: لا رقم ولا نصّ محروق، ولكلّ ميزة إعدادات **في لوحة الإدارة**.
- * إعدادٌ مزروع في قاعدة البيانات بلا شاشة هو نصٌّ محروق بخطوة إضافيّة — لذلك
- * يخرج هذا الأمر بكود 1 عند وجود مجموعة يتيمة، فيكسر الـCI بدل أن يمرّ بصمت.
+ * فحصان لا فحصٌ واحد:
+ *
+ * **1) المفاتيح** — كلّ مفتاح يقرؤه الكود (`setting('…')` في `app/` و`resources/`
+ * و`routes/`) له صفٌّ بعد `DatabaseSeeder`؟ المفتاح بلا صفّ يأخذ الافتراضيّ
+ * المكتوب في الكود، وهو **رقمٌ محروق بخطوة إضافيّة** — عين ما تمنعه 2.13-ب.
+ *
+ * **2) المجموعات** — كلّ مجموعة مزروعة لها تابٌ في اللوحة؟ إعدادٌ في القاعدة بلا
+ * شاشة محروقٌ كذلك (2.13-و).
+ *
+ * وكان الفحص الأوّل غائبًا فكان الأمر يطبع 100% دائمًا: المجموعة لا توجد إلّا لو
+ * زُرِعت، والمزروع له تابه — سؤالٌ يمرّ مهما اتّسعت الفجوة. **وحارسٌ يمرّ دائمًا
+ * أسوأ من غياب حارس**، لأنّه يمنح ثقةً كاذبة ويوقف البحث.
  */
 class SettingsCoverageCommand extends Command
 {
     protected $signature = 'settings:coverage
                             {--all : اعرض كلّ المجموعات لا اليتيمة وحدها}
-                            {--prefixes : اعرض البادئات المتناثرة على أكثر من مجموعة}';
+                            {--prefixes : اعرض البادئات المتناثرة على أكثر من مجموعة}
+                            {--limit=40 : كم مفتاحًا ناقصًا يُطبَع (0 = الكلّ)}
+                            {--where : اعرض أوّل موضع يقرأ كلّ مفتاح ناقص}';
 
-    protected $description = 'فحص تغطية الإعدادات: كلّ مجموعة إعدادات ولها شاشة في لوحة الإدارة (2.13)';
+    protected $description = 'فحص تغطية الإعدادات: كلّ مفتاح يقرؤه الكود له صفّ، وكلّ مجموعة لها شاشة (2.13)';
 
     public function handle(SettingsCoverage $coverage): int
     {
@@ -27,14 +38,94 @@ class SettingsCoverageCommand extends Command
         if ($total === 0) {
             $this->warn('مافيش إعدادات في قاعدة البيانات — شغّل `php artisan db:seed` الأوّل.');
 
-            return self::SUCCESS;
+            return self::FAILURE;
         }
 
-        $orphans = $coverage->orphanGroups();
+        $failed = $this->reportKeys($coverage);
+        $failed = $this->reportGroups($coverage) || $failed;
+
+        return $failed ? self::FAILURE : self::SUCCESS;
+    }
+
+    /** الفحص الأوّل: مفاتيح يقرؤها الكود ولا صفّ لها */
+    private function reportKeys(SettingsCoverage $coverage): bool
+    {
+        $read = $coverage->readKeyCount();
+        $missing = $coverage->missingKeys();
+        $scanner = $coverage->scanner();
 
         $this->newLine();
-        $this->line("<options=bold>تغطية الإعدادات:</> {$coverage->coveragePercent()}%  ".
-            '(<fg=green>'.($total - $coverage->orphanKeyCount())."</> من {$total} مفتاحًا لها شاشة)");
+        $this->line('<options=bold>1) المفاتيح</> — '."{$coverage->keyCoveragePercent()}%  ".
+            '(<fg=green>'.($read - $missing->count())."</> من {$read} مفتاحًا يقرؤها الكود لها صفّ · ".
+            $coverage->totalKeys().' صفًّا مزروعًا)');
+
+        $this->reportDynamic($coverage);
+
+        if ($missing->isEmpty()) {
+            $this->info('كلّ مفتاح يقرؤه الكود له صفٌّ يعدّله المالك ✓');
+            $this->newLine();
+
+            return false;
+        }
+
+        $limit = (int) $this->option('limit');
+        $shown = $limit > 0 ? $missing->take($limit) : $missing;
+
+        $this->error('مفاتيح يقرؤها الكود بلا صفّ — قيمٌ محروقة بخطوة إضافيّة ('.$missing->count().' مفتاحًا):');
+
+        if ($this->option('where')) {
+            $this->table(
+                ['المفتاح', 'أوّل موضع يقرؤه'],
+                $shown->map(fn (array $places, string $key) => [$key, $places[0] ?? '—'])->values()->all(),
+            );
+        } else {
+            foreach ($shown->keys()->chunk(3) as $chunk) {
+                $this->line('  <fg=yellow>'.$chunk->implode('</>  ·  <fg=yellow>').'</>');
+            }
+        }
+
+        if ($missing->count() > $shown->count()) {
+            $this->line('  … و'.($missing->count() - $shown->count()).' غيرها (`--limit=0` يعرضها كلّها).');
+        }
+
+        $this->line('الإصلاح: عرّفها في <options=bold>ميثود `settings()` بسيدر مجالك</> — يستدعيها <options=bold>SettingDefinitionsSeeder</> في مسار الإنتاج.');
+        $this->newLine();
+
+        return true;
+    }
+
+    /** الأنماط المركَّبة وقتَ التشغيل — تُذكَر منفصلةً بدل أن تُعَدّ ناقصةً زورًا */
+    private function reportDynamic(SettingsCoverage $coverage): void
+    {
+        $scanner = $coverage->scanner();
+        $patterns = $scanner->dynamicPatterns();
+
+        if ($patterns === [] && $scanner->variableCallSites() === 0) {
+            return;
+        }
+
+        $unmatched = $scanner->unmatchedDynamicPatterns($coverage->seededKeys());
+
+        $this->line('   <fg=gray>مفاتيح مركَّبة وقت التشغيل: '.count($patterns).' نمطًا · '.
+            $scanner->variableCallSites().' موضعًا بمفتاح من متغيّر — تُفحَص بالنمط لا بالنصّ.</>');
+
+        foreach ($patterns as $pattern => $places) {
+            $ok = ! $unmatched->has($pattern);
+            $this->line('   '.($ok ? '<fg=green>✓</>' : '<fg=red>✗</>')."  <fg=gray>{$pattern}</>".
+                ($ok ? '' : '  <fg=red>— مافيش صفٌّ واحد يطابقه</>'));
+        }
+
+        $this->newLine();
+    }
+
+    /** الفحص الثاني: مجموعة مزروعة بلا تاب في اللوحة */
+    private function reportGroups(SettingsCoverage $coverage): bool
+    {
+        $total = $coverage->totalKeys();
+        $orphans = $coverage->orphanGroups();
+
+        $this->line('<options=bold>2) المجموعات</> — '."{$coverage->coveragePercent()}%  ".
+            '(<fg=green>'.($total - $coverage->orphanKeyCount())."</> من {$total} صفًّا له شاشة)");
         $this->newLine();
 
         if ($this->option('all')) {
@@ -77,7 +168,7 @@ class SettingsCoverageCommand extends Command
         if ($orphans->isEmpty()) {
             $this->info('كلّ مجموعة إعدادات لها تابها في لوحة الإدارة ✓');
 
-            return self::SUCCESS;
+            return false;
         }
 
         $this->error('مجموعات بلا شاشة — مخالفة 2.13 ('.$orphans->count().' مجموعة · '.$coverage->orphanKeyCount().' مفتاحًا):');
@@ -87,6 +178,6 @@ class SettingsCoverageCommand extends Command
         );
         $this->line('الإصلاح: أضِف المجموعة لتابها في <options=bold>SettingsRegistry::tabs()</> وعنوانها في <options=bold>groupCatalog()</>.');
 
-        return self::FAILURE;
+        return true;
     }
 }

@@ -20,6 +20,8 @@ class Cv extends Model
             'data' => 'array',
             // الرابط العامّ للسيرة (9)
             'is_public' => 'boolean',
+            // موافقة صاحب الإفادة على نشرها (9.1) — مخفيّة افتراضيًّا كالسيرة
+            'attestation_is_public' => 'boolean',
         ];
     }
 

@@ -6,6 +6,7 @@ use App\Models\Currency;
 use App\Models\Membership;
 use App\Models\Transaction;
 use App\Models\User;
+use App\Support\Scope\ScopeFilter;
 use Illuminate\Support\Collection;
 
 /**
@@ -167,9 +168,11 @@ class RewardGrantService
     }
 
     /** سجلّ المنح (تاب ثانٍ) */
-    public static function ledger(array $filters = [])
+    /** سجلّ المنح اليدويّ — ومع `$viewer` يُحصَر بنطاقه (12.2.1-ب) */
+    public static function ledger(array $filters = [], ?User $viewer = null)
     {
         return Transaction::query()
+            ->when($viewer !== null, fn ($q) => app(ScopeFilter::class)->apply($q, $viewer, 'manual_rewards.list'))
             ->with(['user:id,name,code', 'currency:id,name_ar,code,decimals'])
             ->where('source', 'admin')
             ->when($filters['code'] ?? null, fn ($q, $code) => $q->whereHas('user', fn ($u) => $u->where('code', mb_strtoupper($code))))

@@ -1,4 +1,4 @@
-<div class="flex items-center gap-2" data-repeat-row>
+<div class="flex items-center gap-2" data-repeat-row draggable="true">
     <input type="text" name="data[languages][{{ $i }}][language]" value="{{ $row['language'] ?? '' }}"
            placeholder="{{ setting('cv.field.language_label', 'اللغة') }}"
            class="grow rounded-xl px-3 py-2 text-sm" style="{{ $field }}">

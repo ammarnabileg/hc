@@ -8,9 +8,19 @@
                 <p class="text-sm">
                     هيتنفّذ <strong>{{ count($pending) }}</strong> هجرة على قاعدة البيانات الحيّة.
                     @if (setting('updates.backup_before_migrate', true))
-                        وهناخد نسخة احتياطيّة قبلها تلقائيًّا.
+                        هناخد نسخة احتياطيّة قبلها ونتأكّد إنّها سليمة.
+                    @endif
+                    @if (setting('updates.maintenance_enabled', true))
+                        والمنصّة هتدخل <strong>وضع الصيانة</strong> أثناء الترحيل وتخرج منه تلقائيًّا بعده.
                     @endif
                 </p>
+
+                @unless ($preflightOk)
+                    <div class="rounded-xl p-3 text-sm"
+                         style="background: color-mix(in srgb, var(--color-state-danger) 12%, transparent); color: var(--color-state-danger)">
+                        ✗ في فحص قبليّ ما عدّاش — التنفيذ هيتوقف قبل ما يلمس حاجة. صلّح الفحص الأوّل.
+                    </div>
+                @endunless
 
                 @if ($pending !== [])
                     <ul class="rounded-xl p-3 max-h-40 overflow-y-auto" style="background: var(--surface-sunken)">
@@ -33,6 +43,42 @@
             </form>
         </x-modal>
     @endpush
+@endcan
+
+@php($failureReport = session('ops.failure') ?? (($lastFailure?->report) ? json_decode($lastFailure->report, true) : null))
+
+@can('backups.restore')
+    @if (is_array($failureReport) && ! empty($failureReport['backup_file_id']))
+        @push('modals')
+            {{-- الاستعادة تكتب فوق البيانات الحاليّة — فتأكيدها مكتوب هي كمان (2.11-ح) --}}
+            <x-modal id="restore-confirm" title="استرجاع من النسخة الاحتياطيّة">
+                <form method="post" action="{{ route('admin.ops.updates.restore', $failureReport['backup_file_id']) }}" class="space-y-3">
+                    @csrf
+
+                    <div class="rounded-xl p-3 text-sm"
+                         style="background: color-mix(in srgb, var(--color-state-danger) 12%, transparent); color: var(--color-state-danger)">
+                        ◉ هنرجّع البيانات لحالتها لحظة النسخة <strong>{{ $failureReport['backup_file'] ?? '' }}</strong> —
+                        وأيّ حاجة اتكتبت بعد كده هتتشال. سجلّ التدقيق وسجلّ النسخ مابيتمسّوش.
+                    </div>
+
+                    <label class="block">
+                        <span class="block text-sm mb-1">اكتب «{{ $restorePhrase }}» للتأكيد</span>
+                        <input type="text" name="confirm" autocomplete="off"
+                               class="w-full rounded-xl px-3 py-2 text-sm"
+                               style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
+                    </label>
+
+                    <label class="flex items-start gap-2 text-sm" style="min-height: 44px">
+                        <input type="checkbox" name="understood" value="1" class="mt-1">
+                        <span>فاهم إنّ الاستعادة بتكتب فوق البيانات الحاليّة، ومسجَّلة باسمي.</span>
+                    </label>
+
+                    <button class="w-full rounded-xl px-4 py-3 text-sm font-semibold"
+                            style="background: var(--surface-raised); color: var(--color-state-danger)">استعِد دلوقتي</button>
+                </form>
+            </x-modal>
+        @endpush
+    @endif
 @endcan
 
 @can('updates.restore')

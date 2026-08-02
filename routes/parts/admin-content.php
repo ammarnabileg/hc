@@ -220,5 +220,9 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     Route::middleware('permission:complaints.edit,complaints.manage')->group(function () {
         Route::post('/guidance/complaints/{complaint}/reply', [GuidanceController::class, 'replyComplaint'])->name('guidance.complaints.reply');
         Route::post('/guidance/complaints/{complaint}/close', [GuidanceController::class, 'closeComplaint'])->name('guidance.complaints.close');
+
+        // ⭐ أسباب الشكوى: إضافة/تعديل/حذف من لوحة الأدمن (11) — لا دروب-داون فلترة فقط
+        Route::get('/guidance/complaint-reasons', [GuidanceController::class, 'complaintReasons'])->name('guidance.complaint_reasons');
+        Route::put('/guidance/complaint-reasons', [GuidanceController::class, 'updateComplaintReasons'])->name('guidance.complaint_reasons.update');
     });
 });

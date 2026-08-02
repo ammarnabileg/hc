@@ -9,6 +9,7 @@ use App\Models\Order;
 use App\Models\Product;
 use App\Models\ProductCategory;
 use App\Models\User;
+use App\Support\Scope\ScopeFilter;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 /**
@@ -89,9 +90,11 @@ class StoreAdminService
     }
 
     /** الطلبات — **بلا مسار استرجاع نقديّ** (19.4)، والتصحيح التقنيّ وحده البديل */
-    public function orders(array $filters): LengthAwarePaginator
+    /** الطلبات — ومع `$viewer` تُحصَر بنطاقه (12.2.1-ب) */
+    public function orders(array $filters, ?User $viewer = null): LengthAwarePaginator
     {
         return Order::query()
+            ->when($viewer !== null, fn ($q) => app(ScopeFilter::class)->apply($q, $viewer, 'orders.list'))
             ->with(['user'])
             ->when($filters['q'] ?? null, fn ($q, $term) => $q->where(
                 fn ($sub) => $sub->where('number', 'like', "%{$term}%")

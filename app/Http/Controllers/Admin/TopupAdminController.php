@@ -12,6 +12,7 @@ use App\Services\Admin\System\SettingsRegistry;
 use App\Services\Admin\System\TopupReviewService;
 use App\Services\Wallet\LedgerService;
 use App\Services\Wallet\TopupService;
+use App\Support\Scope\ScopeFilter;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -44,7 +45,9 @@ class TopupAdminController extends Controller
             'q' => $request->string('q')->toString() ?: null,
         ];
 
+        // النطاق إلزاميّ مع كلّ صلاحيّة (12.2.1-ب) — طلبات مَن هم في نطاقه وحدهم
         $rows = TopupRequest::query()
+            ->tap(fn ($q) => app(ScopeFilter::class)->apply($q, $request->user(), 'topup_requests.list'))
             ->with(['user', 'transfer_method', 'topup_offer'])
             ->when($filters['status'] !== 'all', fn ($q) => $q->where('status', $filters['status']))
             ->when($filters['method'], fn ($q, $id) => $q->where('transfer_method_id', $id))

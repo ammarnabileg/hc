@@ -32,8 +32,8 @@
                 <a href="{{ route('attestations.export') }}" target="_blank" rel="noopener"
                    class="btn rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
                    style="background: var(--surface-sunken)">{{ setting('attestations.export_label', 'استخراج') }}</a>
-                <button type="button" data-copy="{{ $publicUrl }}"
-                        class="btn rounded-xl px-4 py-2 text-sm motion-standard"
+                <button type="button" data-copy="{{ $publicUrl }}" data-attestation-copy
+                        class="btn rounded-xl px-4 py-2 text-sm motion-standard {{ $publicUrl ? '' : 'hidden' }}"
                         style="background: var(--surface-sunken)">{{ setting('attestations.share_label', 'نسخ الرابط العامّ') }}</button>
             </div>
         </div>
@@ -44,6 +44,22 @@
             <x-kpi :label="setting('attestations.kpi.badges', 'شارات')" :value="$record['badges']->count()" icon="🥇" />
             <x-kpi :label="setting('attestations.kpi.xp', 'نقاط الخبرة')" :value="$record['xp']" icon="⚡" />
         </div>
+
+        {{-- ⭐ الموافقة على النشر: مقفول افتراضيًّا، ويُقفَل بضغطة (9.1 · 10.0-ج) --}}
+        <div class="flex flex-wrap items-center gap-2 mt-4 pt-3" style="border-top: 1px solid var(--border)">
+            <label class="flex items-center gap-2 text-sm" style="min-height: 44px">
+                <input type="checkbox" data-attestation-public class="w-5 h-5" @checked($isPublic)>
+                <span>{{ setting('attestations.public.toggle_label', 'شغّل الرابط العامّ للإفادة') }}</span>
+            </label>
+
+            <input type="text" readonly data-attestation-url value="{{ $publicUrl }}"
+                   class="flex-1 min-w-48 rounded-xl px-3 text-xs font-mono {{ $publicUrl ? '' : 'hidden' }}"
+                   style="min-height: 44px; background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
+        </div>
+
+        <p class="text-xs mt-2" style="color: var(--text-muted)">
+            {{ setting('attestations.public.hint', 'الرابط مقفول لحدّ ما تشغّله بنفسك — وتقدر تقفله في أيّ وقت.') }}
+        </p>
 
         <p class="text-xs mt-3" data-copy-note style="color: var(--color-state-ok)"></p>
     </div>
@@ -138,5 +154,41 @@ document.querySelectorAll('[data-copy]').forEach((btn) => btn.addEventListener('
         note.textContent = btn.dataset.copy;
     }
 }));
+
+/* الموافقة على نشر الإفادة: ردٌّ فوريّ، والإغلاق فوريّ كذلك (9.1 · 2.17-ب) */
+(function () {
+    const toggle = document.querySelector('[data-attestation-public]');
+    if (!toggle) return;
+
+    const url = document.querySelector('[data-attestation-url]');
+    const copy = document.querySelector('[data-attestation-copy]');
+    const note = document.querySelector('[data-copy-note]');
+
+    toggle.addEventListener('change', async () => {
+        try {
+            const res = await fetch(@json(route('attestations.public.toggle')), {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
+                    Accept: 'application/json',
+                },
+                body: JSON.stringify({ enabled: toggle.checked }),
+            });
+            const data = await res.json();
+
+            if (data.url) {
+                url.value = data.url;
+                copy?.setAttribute('data-copy', data.url);
+            }
+            url.classList.toggle('hidden', !(data.enabled && data.url));
+            copy?.classList.toggle('hidden', !(data.enabled && data.url));
+            note.textContent = data.message || '';
+        } catch {
+            toggle.checked = !toggle.checked;
+            note.textContent = @json(setting('attestations.public.error_message', 'مقدرناش نغيّر الحالة — راجع النت وجرّب تاني.'));
+        }
+    });
+})();
 </script>
 @endpush

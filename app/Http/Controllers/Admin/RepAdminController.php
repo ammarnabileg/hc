@@ -12,6 +12,7 @@ use App\Services\Admin\Volunteer\AuditTrail;
 use App\Services\Admin\Volunteer\BehaviorLedger;
 use App\Services\Admin\Volunteer\RepRuleWriter;
 use App\Services\Admin\Volunteer\SettingsWriter;
+use App\Support\Scope\ScopeFilter;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -39,7 +40,9 @@ class RepAdminController extends Controller
             'settings' => SettingsWriter::groupRows('volunteer_rep'),
             'monthlyCap' => BehaviorLedger::monthlyCap(),
             'myQuota' => BehaviorLedger::remainingQuota($request->user()),
+            // النطاق إلزاميّ مع كلّ صلاحيّة (12.2.1-ب) — حركات Rep لمن هم في نطاقه
             'recent' => BehaviorTransaction::query()
+                ->tap(fn ($q) => app(ScopeFilter::class)->apply($q, $request->user(), 'rep_transactions.view'))
                 ->with(['user:id,name,code', 'granted_by:id,name,code', 'behavior_violation'])
                 ->latest('id')
                 ->limit((int) setting('rep.admin.recent_rows', 15))

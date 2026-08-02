@@ -13,7 +13,7 @@
 
         <span class="block text-sm mb-2">{{ setting('cv.field.languages_label', 'اللغات') }}</span>
 
-        <div class="space-y-2" data-repeat-list>
+        <div class="space-y-2" data-repeat-list data-sortable>
             @foreach ($rows as $i => $row)
                 @include('cv.partials.row-language', ['i' => $i, 'row' => $row, 'field' => $field])
             @endforeach

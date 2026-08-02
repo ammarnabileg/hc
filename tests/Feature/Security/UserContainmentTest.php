@@ -3,9 +3,11 @@
 namespace Tests\Feature\Security;
 
 use App\Models\AuditLog;
+use App\Models\Setting;
 use App\Models\User;
 use App\Models\UserDevice;
 use App\Services\Security\Impersonator;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -190,6 +192,31 @@ class UserContainmentTest extends SecurityTestCase
             ->assertOk()
             ->assertSee(setting('impersonation.stop_label'), false)
             ->assertSee(route('admin.impersonate.stop'), false);
+    }
+
+    /**
+     * ⭐ نصّ الشريط الافتراضيّ **بصيغة 12.1 حرفيًّا**:
+     * «مرحبًا [اسم حساب الأدمن]، أنت تتصفح كحساب [اسم الحساب]» — ويفضل قابلًا
+     * للتعديل من الإعدادات، فالنصّ إعدادٌ لا سطرٌ محروق (2.13).
+     */
+    public function test_the_banner_text_follows_the_constitution_wording_and_stays_editable(): void
+    {
+        $owner = $this->owner();
+        $target = $this->makeUser('نورهان سعيد');
+
+        $this->actingAs($owner)->post(route('admin.users.impersonate', $target));
+
+        $this->get('/help')
+            ->assertOk()
+            ->assertSee('مرحبًا '.$owner->shortName(), false)
+            ->assertSee('أنت تتصفح كحساب '.$target->shortName(), false);
+
+        // ونفس الشريط يتبع الإعداد لو عدّله المالك
+        Setting::query()->where('key', 'impersonation.banner_text')
+            ->update(['value' => 'صيغة المالك: {actor} ⟵ {target}']);
+        Cache::forget('settings');
+
+        $this->get('/help')->assertOk()->assertSee('صيغة المالك:', false);
     }
 
     /** زرّ العودة يرجّع الأدمن لحسابه — ويكتب سطر عودة في السجلّ */

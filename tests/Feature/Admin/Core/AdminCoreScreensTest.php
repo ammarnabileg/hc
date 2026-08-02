@@ -86,7 +86,7 @@ class AdminCoreScreensTest extends TestCase
             'status' => 'active',
         ]);
 
-        foreach (['profile', 'wallet', 'learning', 'certificates', 'advanced', 'volunteer'] as $tab) {
+        foreach (['profile', 'tables', 'wallet', 'learning', 'certificates', 'security', 'admin', 'advanced', 'volunteer'] as $tab) {
             $this->actingAs($this->owner)
                 ->get(route('admin.users.show', ['user' => $target, 'tab' => $tab]))
                 ->assertOk();

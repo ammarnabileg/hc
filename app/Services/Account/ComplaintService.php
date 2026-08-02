@@ -18,14 +18,19 @@ class ComplaintService
     /** حالات التذكرة بترتيب عرض العدّادات (2.16 يحكم ألوانها) */
     public const STATUSES = ['open', 'in_review', 'answered', 'closed'];
 
-    /** @return array<string, string> */
+    /**
+     * تسميات الحالات — **واحدة عند المستخدم والأدمن** (11).
+     * كانت `open` تُسمّى «مفتوحة» هنا و«جديدة» في لوحة الأدمن، فبدت حالتين.
+     *
+     * @return array<string, string>
+     */
     public static function statusLabels(): array
     {
         return [
-            'open' => 'مفتوحة',
-            'in_review' => 'قيد المراجعة',
-            'answered' => 'تمّ الردّ',
-            'closed' => 'مغلقة',
+            'open' => (string) setting('complaints.status.open_label', 'مفتوحة'),
+            'in_review' => (string) setting('complaints.status.in_review_label', 'قيد المراجعة'),
+            'answered' => (string) setting('complaints.status.answered_label', 'تمّ الردّ'),
+            'closed' => (string) setting('complaints.status.closed_label', 'مغلقة'),
         ];
     }
 
@@ -44,20 +49,23 @@ class ComplaintService
     public static function typeLabels(): array
     {
         return [
-            'complaint' => 'شكوى',
-            'suggestion' => 'مقترح',
+            'complaint' => (string) setting('complaints.type.complaint_label', 'شكوى'),
+            'suggestion' => (string) setting('complaints.type.suggestion_label', 'مقترح'),
         ];
     }
 
-    /** الأسباب/التصنيفات — افتراضها قائمة الدستور 11 وتُدار من لوحة الأدمن */
-    public static function categories(): array
+    /**
+     * الأسباب/التصنيفات — افتراضها قائمة الدستور 11 وتُدار من لوحة الأدمن.
+     *
+     * ⭐ **مفتاح واحد** `complaints.reasons` يقرؤه الفورم ولوحة الأدمن معًا.
+     * كان الفورم يقرأ `account.complaints.categories` والأدمن يقرأ غيره،
+     * فكان تحرير الأدمن بلا أثر على القائمة التي يراها المستخدم فعلًا.
+     */
+    public const REASONS_KEY = 'complaints.reasons';
+
+    /** @return array<int, string> */
+    public static function defaultReasons(): array
     {
-        $stored = setting('account.complaints.categories');
-
-        if (is_array($stored) && $stored !== []) {
-            return $stored;
-        }
-
         return [
             'أحد المشرفين',
             'الهيكل الإداريّ وأسلوب الإدارة',
@@ -68,6 +76,21 @@ class ComplaintService
             'المنصّة',
             'أخرى',
         ];
+    }
+
+    /** @return array<int, string> */
+    public static function categories(): array
+    {
+        $stored = setting(self::REASONS_KEY);
+
+        if (is_array($stored) && $stored !== []) {
+            return array_values(array_filter(array_map(
+                fn ($reason) => trim((string) $reason),
+                $stored,
+            ), fn ($reason) => $reason !== ''));
+        }
+
+        return self::defaultReasons();
     }
 
     public static function attachmentMaxKb(): int
@@ -90,6 +113,9 @@ class ComplaintService
                 'body' => $data['body'],
                 'attachment_path' => $path,
                 'status' => 'open',
+                // ⭐ الحقل رقم 1 في القسم 11: «هل ترغب في التواصل معك؟»
+                // — يُكتَب هنا وإلّا رأى الأدمن «لا أحد يطلب التواصل» أبدًا.
+                'wants_contact' => (bool) ($data['wants_contact'] ?? false),
             ]);
 
             ComplaintMessage::create([
@@ -113,7 +139,8 @@ class ComplaintService
             'attachment_path' => $attachment ? $this->store($attachment) : null,
         ]);
 
-        if ($complaint->status === 'answered') {
+        // ردّ صاحب التذكرة يُعيدها لطابور المراجعة — «تمّ الردّ» حالةُ الأدمن لا حالته
+        if (in_array($complaint->status, ['answered', 'open'], true)) {
             $complaint->update(['status' => 'in_review']);
         }
 

@@ -32,7 +32,7 @@ class CertificateRenderer
     {
         $language = $this->resolveLanguage($certificate, $language);
         $disk = Storage::disk('local');
-        $path = 'certificates/'.$certificate->code.'-'.$language.'.png';
+        $path = $this->path($certificate, $language);
 
         if ((bool) setting('certificates.render.cache_enabled', true) && $disk->exists($path)) {
             return (string) $disk->get($path);
@@ -42,6 +42,33 @@ class CertificateRenderer
         $disk->put($path, $png);
 
         return $png;
+    }
+
+    /**
+     * ⭐ مسار الكاش يحمل **بصمة اللقطة المجمَّدة** لا الكود وحده (8 · 8.1 · 12.5-هـ).
+     *
+     * لماذا؟ لأنّ الكود قد يُعاد استعماله بعد حذفٍ أو إعادة بذر، فتُقدَّم صورةٌ
+     * محفوظةٌ باسم شخصٍ آخر تحت نفس الكود — وصفحة التحقّق تقول شيئًا والصورة
+     * المنزَّلة تقول شيئًا آخر. وذلك بذاته **مسار تزوير**، وغرض القسمين 8 و8.1
+     * منعُه. فالبصمة تُشتقّ ممّا يُرسَم فعلًا: بيانات الشهادة المجمَّدة وقالبها
+     * وحالتها — فأيّ اختلافٍ في المحتوى = ملفٌّ مختلف، ولا تصادم ممكن.
+     */
+    private function path(Certificate $certificate, string $language): string
+    {
+        return 'certificates/'.$certificate->code.'/'.$language.'-'.$this->fingerprint($certificate).'.png';
+    }
+
+    /** بصمة ما يُرسَم: اللقطة المجمَّدة + القالب المجمَّد + الحالة (الشريط يتغيّر بها) */
+    public function fingerprint(Certificate $certificate): string
+    {
+        $payload = json_encode([
+            'data' => $certificate->data_snapshot,
+            'template' => $certificate->template_snapshot,
+            'status' => $certificate->status,
+            'hash' => $certificate->hash,
+        ], JSON_UNESCAPED_UNICODE) ?: '';
+
+        return substr(hash('sha256', $payload), 0, 20);
     }
 
     /** النسخة الأخرى لا تُعرَض إلّا إن فعّلها الأدمن لهذا النوع (12.5-ب) */
@@ -61,11 +88,19 @@ class CertificateRenderer
         return $enabled ? $language : $certificate->language;
     }
 
-    /** يمسح الصور المخزَّنة — تُستدعى عند تغيّر حالة الشهادة */
+    /**
+     * يمسح كلّ صور هذا الكود — تُستدعى عند **الإصدار وإعادة الإصدار والإلغاء
+     * والانتهاء**، لا عند تغيّر الحالة وحده. تمسح المجلّد كلّه لا بصمةً بعينها،
+     * فلا يبقى ملفٌّ قديم يجيب عن رابطٍ حيّ.
+     */
     public function forget(Certificate $certificate): void
     {
+        $disk = Storage::disk('local');
+        $disk->deleteDirectory('certificates/'.$certificate->code);
+
+        // ملفّات ما قبل البصمة (`certificates/CODE-ar.png`) — تُمسَح مرّةً ولا تعود
         foreach (['ar', 'en'] as $language) {
-            Storage::disk('local')->delete('certificates/'.$certificate->code.'-'.$language.'.png');
+            $disk->delete('certificates/'.$certificate->code.'-'.$language.'.png');
         }
     }
 
@@ -74,7 +109,7 @@ class CertificateRenderer
     private function draw(Certificate $certificate, string $language): string
     {
         $template = $this->templateFor($certificate, $language);
-        $data = (array) ($certificate->data_snapshot ?? []);
+        $data = $this->dataFor($certificate, $language);
 
         $width = (int) ($template['width_px'] ?? setting('certificates.render.default_width_px', 1754));
         $height = (int) ($template['height_px'] ?? setting('certificates.render.default_height_px', 1240));
@@ -133,6 +168,33 @@ class CertificateRenderer
             'background_path' => $template->background_path,
             'layers' => $template->layers ?? [],
         ]);
+    }
+
+    /**
+     * بيانات الشهادة للنسخة المطلوبة (12.5-ب): اللقطة المجمَّدة كما هي،
+     * وللنسخة الأخرى **يُبدَّل الاسم باسم تلك اللغة** — فالنسخة الإنجليزيّة
+     * لا تُطبَع بالاسم العربيّ. والاسمان محفوظان في اللقطة نفسها (2.5-ج)،
+     * فلا نعود للمستخدم بعد الإصدار ولا نكسر التجميد.
+     */
+    private function dataFor(Certificate $certificate, string $language): array
+    {
+        $data = (array) ($certificate->data_snapshot ?? []);
+
+        if ($language === $certificate->language) {
+            return $data;
+        }
+
+        $name = trim((string) ($data[$language === 'en' ? 'holder_name_en' : 'holder_name_ar'] ?? ''));
+
+        if ($name === '') {
+            return $data;
+        }
+
+        $title = trim((string) ($data['holder_title'] ?? ''));
+
+        return [...$data, 'holder_name' => trim($title !== '' && setting('certificates.render.title_with_name', true)
+            ? $title.' '.$name
+            : $name)];
     }
 
     /** @return list<array<string,mixed>> */

@@ -31,6 +31,134 @@ document.querySelectorAll('[data-count-to]').forEach((el) => {
     setTimeout(settle, 1500); // شبكة أمان: مهما حصل، الرقم الصحيح يظهر
 });
 
+/*
+ | المنزلقات (2.10.1-11): التعبئة تدرّجٌ على خلفيّة المنزلق **يتحدّث بالـJS**
+ | حسب القيمة — لا `accent-color` (يترك إطارًا نايتف لا يُزال بـ`border:none`).
+ | و«الاستجابة اللحظيّة» مطلوبة نصًّا: الرقم المرتبط يتغيّر فورًا مع السحب.
+ */
+(() => {
+    const paint = (input) => {
+        const min = parseFloat(input.min || '0');
+        const max = parseFloat(input.max || '100');
+        const value = parseFloat(input.value || '0');
+        const span = max - min;
+        const percent = span > 0 ? ((value - min) / span) * 100 : 0;
+        input.style.setProperty('--range-fill', `${Math.min(100, Math.max(0, percent))}%`);
+
+        // الرقم المرتبط (اختياريّ): <output data-range-for="ID">
+        const echo = input.id && document.querySelector(`[data-range-for="${input.id}"]`);
+        if (echo) echo.textContent = input.value;
+    };
+
+    const bind = (input) => {
+        paint(input);
+        input.addEventListener('input', () => paint(input));
+        input.addEventListener('change', () => paint(input));
+    };
+
+    document.querySelectorAll('input[type="range"]').forEach(bind);
+
+    // منزلقات تظهر لاحقًا (بوب-أب/تاب كسول) تتلوّن هي الأخرى
+    document.addEventListener('input', (e) => {
+        if (e.target instanceof HTMLInputElement && e.target.type === 'range') paint(e.target);
+    });
+})();
+
+/*
+ | الفورم الطويل يتقسّم خطوات بحفظ تلقائيّ بينها (2.15-ب).
+ | الحقول كلّها تبقى في الـDOM — الخطوة إخفاءٌ بصريّ لا حذف — فلا تضيع قيمة،
+ | والمسودّة تُحفَظ محلّيًّا فيرجع المستخدم لشغله كما تركه (2.17-ب).
+ */
+document.querySelectorAll('[data-stepper]').forEach((host) => {
+    const body = host.querySelector('[data-stepper-body]');
+    const head = host.querySelector('[data-stepper-head]');
+    const nav = host.querySelector('[data-stepper-nav]');
+    if (!body || !head || !nav) return;
+
+    const size = Math.max(1, parseInt(host.dataset.stepperSize || '7', 10));
+    const fields = [...body.children];
+    if (fields.length <= size) return; // تحت الحدّ: الفورم يبقى كما هو
+
+    const labels = JSON.parse(host.dataset.stepperLabels || '[]');
+    const steps = [];
+    for (let i = 0; i < fields.length; i += size) steps.push(fields.slice(i, i + size));
+
+    const key = `hc.draft.${host.dataset.stepper}`;
+    const form = host.closest('form');
+    const saved = host.querySelector('[data-stepper-saved]');
+    let at = 0;
+
+    // ---- المسودّة: استرجاعٌ عند الفتح وحفظٌ مع كلّ تغيير
+    const inputs = () => [...(form?.querySelectorAll('input, select, textarea') || [])]
+        .filter((el) => el.name && el.type !== 'password' && el.type !== 'file' && el.type !== 'hidden');
+
+    try {
+        const draft = JSON.parse(localStorage.getItem(key) || '{}');
+        inputs().forEach((el) => { if (draft[el.name] !== undefined && !el.value) el.value = draft[el.name]; });
+    } catch { /* مسودّة تالفة تُتجاهَل بصمت ولا تعطّل الفورم */ }
+
+    const saveDraft = () => {
+        try {
+            const draft = {};
+            inputs().forEach((el) => { draft[el.name] = el.value; });
+            localStorage.setItem(key, JSON.stringify(draft));
+            if (saved) saved.textContent = 'اتحفظ ✓';
+        } catch { /* مساحة ممتلئة: الفورم يكمل عادي */ }
+    };
+
+    form?.addEventListener('input', saveDraft);
+    form?.addEventListener('submit', () => { try { localStorage.removeItem(key); } catch { /* تجاهل */ } });
+
+    // ---- بناء صفّ الخطوات (2.10.1-24)
+    head.innerHTML = steps
+        .map((_, i) => `
+            <span class="flex items-center gap-2 shrink-0">
+                <span data-step-dot="${i}" class="inline-flex items-center justify-center rounded-full text-[11px] font-bold"
+                      style="width:24px;height:24px"></span>
+                <span data-step-label="${i}" class="text-xs whitespace-nowrap"></span>
+                ${i < steps.length - 1 ? '<span class="inline-block" style="width:28px;height:1px;background:rgb(0 212 184 / .12)"></span>' : ''}
+            </span>`)
+        .join('');
+    head.classList.remove('hidden');
+    head.classList.add('flex');
+    nav.classList.remove('hidden');
+    nav.classList.add('flex');
+
+    const prev = nav.querySelector('[data-stepper-prev]');
+    const next = nav.querySelector('[data-stepper-next]');
+
+    const paint = () => {
+        steps.forEach((group, i) => {
+            group.forEach((el) => el.classList.toggle('hidden', i !== at));
+
+            const dot = head.querySelector(`[data-step-dot="${i}"]`);
+            const label = head.querySelector(`[data-step-label="${i}"]`);
+            const done = i < at;
+            const active = i === at;
+
+            dot.textContent = done ? '' : String(i + 1);
+            dot.style.background = done ? 'var(--color-brand-500)' : active ? 'rgb(0 212 184 / .12)' : 'rgb(0 212 184 / .08)';
+            dot.style.border = `1px solid ${active ? 'var(--color-brand-500)' : 'rgb(0 212 184 / .2)'}`;
+            dot.style.color = done ? '#020e18' : active ? 'var(--color-brand-500)' : 'var(--text-muted)';
+            if (done) dot.innerHTML = '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor"'
+                + ' stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>';
+
+            label.textContent = labels[i] || `خطوة ${i + 1}`;
+            label.style.color = active ? 'var(--color-brand-500)' : 'var(--text-muted)';
+            label.style.fontWeight = active ? '700' : '400';
+        });
+
+        prev.disabled = at === 0;
+        prev.style.opacity = at === 0 ? '.5' : '1';
+        next.classList.toggle('hidden', at === steps.length - 1);
+    };
+
+    prev.addEventListener('click', () => { if (at > 0) { at -= 1; saveDraft(); paint(); } });
+    next.addEventListener('click', () => { if (at < steps.length - 1) { at += 1; saveDraft(); paint(); } });
+
+    paint();
+});
+
 // بوب-أب: فتح/إغلاق + ESC
 document.addEventListener('click', (e) => {
     const opener = e.target.closest('[data-modal-open]');

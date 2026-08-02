@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\CvTemplate;
 use App\Models\User;
 use App\Services\Library\CvBuilder;
+use App\Services\Library\CvExport;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -23,7 +24,10 @@ class CvController extends Controller
     /** مفتاح جلسة الزائر في القالب المجّانيّ بلا تسجيل (21.2-ج) */
     private const GUEST_KEY = 'cv.guest.draft';
 
-    public function __construct(private readonly CvBuilder $builder) {}
+    public function __construct(
+        private readonly CvBuilder $builder,
+        private readonly CvExport $export,
+    ) {}
 
     public function index(Request $request): View
     {
@@ -60,8 +64,11 @@ class CvController extends Controller
     }
 
     /**
-     * اختيار القالب — والمدفوع بالتذاكر بعلامة سعر واضحة، والشراء بالرصيد
-     * قبل/بعد داخل البوب-أب نفسه (24.5).
+     * اختيار القالب — **بلا خصم** (9).
+     *
+     * الخصم لحظة **الاستخراج النهائيّ** لا لحظة الاختيار، والمعاينة قبله
+     * بعلامة مائيّة. فالاختيار هنا مجّانيّ دائمًا، ونُعيد الرصيد قبل/بعد
+     * ليعرف المستخدم ما ينتظره عند التحميل.
      */
     public function chooseTemplate(Request $request, CvTemplate $template): JsonResponse
     {
@@ -71,45 +78,28 @@ class CvController extends Controller
         $cv = $this->builder->forUser($user);
         $data = array_replace($this->builder->blank(), (array) $cv->data);
 
-        if (! $this->builder->owns($template, $data)) {
-            if (! $request->boolean('confirm')) {
-                $balance = $this->builder->ticketBalance($user);
-
-                return response()->json([
-                    'ok' => false,
-                    'needs_purchase' => true,
-                    'price' => $template->priceTickets(),
-                    'balance_before' => $balance,
-                    'balance_after' => $balance - $template->priceTickets(),
-                ]);
-            }
-
-            $result = $this->builder->purchase($user, $template);
-
-            if (! $result['ok']) {
-                return response()->json([
-                    'ok' => false,
-                    'needs_purchase' => true,
-                    'message' => $result['message'],
-                    'balance_before' => $result['balance'],
-                    'topup_url' => Route::has('wallet.tickets') ? route('wallet.tickets') : null,
-                ], 422);
-            }
-
-            $data['purchased_templates'] = array_values(array_unique(array_merge(
-                array_map('intval', (array) ($data['purchased_templates'] ?? [])),
-                [$template->id],
-            )));
-        }
-
         $cv->data = $data;
         $cv->cv_template_id = $template->id;
         $cv->save();
 
+        $owned = $this->builder->owns($template, $data);
+        $price = $template->priceTickets();
+        $balance = $this->builder->ticketBalance($user);
+
         return response()->json([
             'ok' => true,
             'template_id' => $template->id,
-            'message' => (string) setting('cv.template.selected_message', 'اتغيّر القالب — شوف المعاينة.'),
+            'owned' => $owned,
+            'price' => $price,
+            'balance_before' => $balance,
+            'balance_after' => $owned ? $balance : max(0, $balance - $price),
+            'topup_url' => Route::has('wallet.tickets') ? route('wallet.tickets') : null,
+            'message' => $owned
+                ? (string) setting('cv.template.selected_message', 'اتغيّر القالب — شوف المعاينة.')
+                : str_replace(':price', (string) $price, (string) setting(
+                    'cv.template.selected_paid_message',
+                    'اتغيّر القالب — المعاينة بعلامة مائيّة، و:price تذكرة هتتخصم عند التحميل.',
+                )),
         ]);
     }
 
@@ -144,6 +134,8 @@ class CvController extends Controller
             'sheet' => $this->sheet($user, $data, $cv->cv_template_id),
             'standalone' => true,
             'print' => false,
+            // ⭐ «معاينة مجّانيّة بالبيانات مع علامة مائيّة … قبل الخصم» (9)
+            'watermark' => $this->export->resolve($user, $cv, $data, confirmed: false)['watermark'],
         ]);
     }
 
@@ -151,6 +143,9 @@ class CvController extends Controller
      * [تحميل PDF] كفعل رئيسيّ — بصفحة طباعة بمقاس A4 يحفظها المتصفّح PDF.
      * لماذا لا مكتبة PDF: كلّ مكتبات التوليد تُنزَّل من الشبكة وهي محجوبة هنا،
      * فنستعمل محرّك الطباعة المثبَّت في كلّ متصفّح — بلا تبعيّة ولا تكلفة.
+     *
+     * وهنا **لحظة الخصم** (9): بتأكيد صريح `?confirm=1`، وبلا تأكيد تظهر
+     * النسخة الموسومة مع سطر يقول كم ستكلّف ومتى.
      */
     public function download(Request $request): View
     {
@@ -158,10 +153,21 @@ class CvController extends Controller
         $cv = $this->builder->forUser($user);
         $data = array_replace($this->builder->blank(), (array) $cv->data);
 
+        $decision = $this->export->resolve($user, $cv, $data, $request->boolean('confirm'));
+
+        if ($decision['data'] !== $data) {
+            $cv->data = $decision['data'];
+            $cv->save();
+        }
+
         return view('cv.preview', [
-            'sheet' => $this->sheet($user, $data, $cv->cv_template_id),
+            'sheet' => $this->sheet($user, $decision['data'], $decision['template']?->id ?? $cv->cv_template_id),
             'standalone' => true,
-            'print' => true,
+            // الطباعة التلقائيّة للنسخة النظيفة وحدها — الموسومة معاينةٌ لا مخرَج
+            'print' => $decision['clean'],
+            'watermark' => $decision['watermark'],
+            'notice' => $decision['notice'],
+            'confirmUrl' => $decision['clean'] ? null : route('cv.download', ['confirm' => 1]),
         ]);
     }
 
@@ -196,6 +202,8 @@ class CvController extends Controller
             'sheet' => $this->sheet(new User, $data, $this->builder->freeTemplate()?->id),
             'standalone' => true,
             'print' => false,
+            // الزائر بلا حساب: معاينة موسومة دائمًا — والتحميل يطلب إنشاء حساب (21.2-ج · 9)
+            'watermark' => $this->export->mark(),
         ]);
     }
 

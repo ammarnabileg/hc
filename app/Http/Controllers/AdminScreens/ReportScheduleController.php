@@ -8,6 +8,7 @@ use App\Models\Role;
 use App\Services\Admin\Volunteer\AuditTrail;
 use App\Services\AdminScreens\ReportScheduler;
 use App\Services\AdminScreens\ScreenSettings;
+use App\Support\Scope\ScopeFilter;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -36,6 +37,8 @@ class ReportScheduleController extends Controller
         ];
 
         $schedules = ReportSchedule::query()
+            // النطاق إلزاميّ مع كلّ صلاحيّة (12.2.1-ب) — جداول مَن هم في نطاقه
+            ->tap(fn ($q) => app(ScopeFilter::class)->apply($q, $user, 'report_schedules.list', 'created_by'))
             ->with('creator:id,name')
             // 🔒 الجدولة الماليّة تختفي تمامًا لغير مالك المنصّة
             ->when(! $user->isPlatformOwner(), fn ($q) => $q->where('is_financial', false))

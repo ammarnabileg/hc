@@ -15,6 +15,12 @@ class BundleItem extends Model
 
     protected $guarded = [];
 
+    protected function casts(): array
+    {
+        // null = السعر الطبيعيّ للعنصر، ورقم = Override داخل صفحة البندل وحدها (18)
+        return ['price_coins' => 'decimal:2'];
+    }
+
     public function bundle(): BelongsTo
     {
         return $this->belongsTo(Bundle::class, 'bundle_id');

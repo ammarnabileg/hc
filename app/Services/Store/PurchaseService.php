@@ -58,9 +58,7 @@ class PurchaseService
                 throw PurchaseException::of('owned', 'store.owned_text', 'ده معاك بالفعل — تلاقيه في مكتبتك.');
             }
 
-            $wallet = $this->lockedWallet($user);
-
-            // ⭐ إعادة الحساب في الخادم بعد القفل — ولا رقم من المتصفّح
+            // ⭐ إعادة الحساب في الخادم — ولا رقم من المتصفّح؛ والعملة تُعرَف منه
             $quote = $this->pricing->quote(
                 user: $user,
                 type: $type,
@@ -68,6 +66,8 @@ class PurchaseService
                 couponCode: $input['coupon_code'] ?? null,
                 bumps: $this->bumpsOf($input),
             );
+
+            $wallet = $this->lockedWallet($user, $quote['currency']);
 
             return $this->commit($user, $wallet, $quote);
         });
@@ -86,9 +86,7 @@ class PurchaseService
         $this->assertPayable($input);
 
         return DB::transaction(function () use ($user, $rows, $input) {
-            $wallet = $this->lockedWallet($user);
-
-            // ⭐ السلّة تحمل هويّات فقط — والتسعير يقع هنا بعد القفل لا قبله
+            // ⭐ السلّة تحمل هويّات فقط — وكلّ رقمٍ يُعاد حسابه هنا
             $quote = $this->cart->quote(
                 user: $user,
                 rows: $rows,
@@ -99,6 +97,8 @@ class PurchaseService
             if ($quote['lines'] === []) {
                 throw PurchaseException::of('empty_cart', 'store.cart.empty_text', 'سلّتك فاضية — ضيف حاجة الأوّل.');
             }
+
+            $wallet = $this->lockedWallet($user, $quote['currency']);
 
             return $this->commit($user, $wallet, $quote);
         });

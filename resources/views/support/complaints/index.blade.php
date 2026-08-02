@@ -73,12 +73,12 @@
     </x-filters>
 
     @if ($tickets->isEmpty())
-        <x-empty message="مفيش تذاكر لسّه — واحنا مستنّيين نسمع منك." />
-        <div class="mt-3 text-center">
+        {{-- سطر واحد + زرّ واحد **داخل** الحالة الفارغة نفسها (2.15-د) --}}
+        <x-empty message="مفيش تذاكر لسّه — واحنا مستنّيين نسمع منك.">
             <button type="button" data-modal-open="new-ticket"
                     class="btn inline-flex items-center rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
                     style="background: var(--color-brand-500); color: #04201c">تذكرة جديدة</button>
-        </div>
+        </x-empty>
     @else
         {{-- نمط «قائمة + بانل» الموحَّد: يمين القائمة ويسار السلسلة (2.15-ب) --}}
         <div class="grid md:grid-cols-[minmax(0,22rem)_1fr] gap-4 items-start">
@@ -166,7 +166,7 @@
                                 <input type="file" name="attachment" class="text-xs" aria-label="مرفق">
                                 <div class="flex-1"></div>
                                 <button type="submit" class="btn rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
-                                        style="background: var(--color-brand-500); color: #04201c">إرسال</button>
+                                        style="background: var(--color-brand-500); color: #04201c">{{ setting('complaints.field.submit_label', 'إرسال') }}</button>
                             </div>
                         </form>
 
@@ -186,7 +186,7 @@
             @csrf
 
             <label class="block">
-                <span class="block text-sm mb-1">النوع</span>
+                <span class="block text-sm mb-1">{{ setting('complaints.field.type_label', 'النوع') }}</span>
                 <select name="type" class="w-full rounded-xl px-3 py-2 text-sm"
                         style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
                     @foreach ($types as $key => $label)
@@ -195,11 +195,22 @@
                 </select>
             </label>
 
+            {{-- ⭐ الحقل رقم 1 في القسم 11 — والأدمن يبني عليه قراره، فلا يُقرَأ بلا أن يُكتَب --}}
             <label class="block">
-                <span class="block text-sm mb-1">السبب</span>
+                <span class="block text-sm mb-1">{{ setting('complaints.field.wants_contact_label', 'هل ترغب في التواصل معك؟') }}</span>
+                <select name="wants_contact" required class="w-full rounded-xl px-3 py-2 text-sm"
+                        style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
+                    <option value="1" @selected(old('wants_contact', '1') === '1')>{{ setting('complaints.field.wants_contact_yes', 'نعم') }}</option>
+                    <option value="0" @selected(old('wants_contact') === '0')>{{ setting('complaints.field.wants_contact_no', 'لا') }}</option>
+                </select>
+                @error('wants_contact')<span class="block text-xs mt-1" style="color: var(--color-state-danger)">{{ $message }}</span>@enderror
+            </label>
+
+            <label class="block">
+                <span class="block text-sm mb-1">{{ setting('complaints.field.reason_label', 'السبب') }}</span>
                 <select name="category" required class="w-full rounded-xl px-3 py-2 text-sm"
                         style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
-                    <option value="">اختر السبب</option>
+                    <option value="">{{ setting('complaints.field.reason_placeholder', 'اختر السبب') }}</option>
                     @foreach ($categories as $category)
                         <option value="{{ $category }}" @selected(old('category') === $category)>{{ $category }}</option>
                     @endforeach
@@ -207,25 +218,25 @@
                 @error('category')<span class="block text-xs mt-1" style="color: var(--color-state-danger)">{{ $message }}</span>@enderror
             </label>
 
-            <x-form.input name="title" label="العنوان المختصر" :value="$prefillTitle" placeholder="مثال: اقتراح تحسين المنصّة" required />
+            <x-form.input name="title" :label="setting('complaints.field.title_label', 'العنوان المختصر')" :value="$prefillTitle" :placeholder="setting('complaints.field.title_placeholder', 'مثال: اقتراح تحسين المنصّة')" required />
 
             <label class="block">
-                <span class="block text-sm mb-1">نصّ الشكوى أو المقترح</span>
-                <textarea name="body" rows="5" required placeholder="اكتب رسالتك هنا…"
+                <span class="block text-sm mb-1">{{ setting('complaints.field.body_label', 'نصّ الشكوى أو المقترح') }}</span>
+                <textarea name="body" rows="5" required placeholder="{{ setting('complaints.field.body_placeholder', 'اكتب رسالتك هنا…') }}"
                           class="w-full rounded-xl px-3 py-2 text-sm"
                           style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">{{ old('body') }}</textarea>
                 @error('body')<span class="block text-xs mt-1" style="color: var(--color-state-danger)">{{ $message }}</span>@enderror
             </label>
 
             <label class="block">
-                <span class="block text-sm mb-1">مرفق (اختياريّ)</span>
+                <span class="block text-sm mb-1">{{ setting('complaints.field.attachment_label', 'مرفق (اختياريّ)') }}</span>
                 <input type="file" name="attachment" class="text-xs">
                 <span class="block text-xs mt-1" style="color: var(--text-muted)">أقصى حجم {{ $maxKb }} كيلوبايت.</span>
             </label>
 
             <div class="text-end">
                 <button type="submit" class="btn rounded-xl px-5 py-2 text-sm font-semibold motion-standard"
-                        style="background: var(--color-brand-500); color: #04201c">إرسال</button>
+                        style="background: var(--color-brand-500); color: #04201c">{{ setting('complaints.field.submit_label', 'إرسال') }}</button>
             </div>
         </form>
     </x-modal>

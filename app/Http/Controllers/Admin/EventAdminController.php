@@ -10,6 +10,7 @@ use App\Models\EventRegistration;
 use App\Services\Admin\Volunteer\AuditTrail;
 use App\Services\Admin\Volunteer\Integrations;
 use App\Services\Admin\Volunteer\SettingsWriter;
+use App\Support\Scope\ScopeFilter;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -153,7 +154,9 @@ class EventAdminController extends Controller
     /** المسجّلون والحضور: عدّادات + تشيك-إن يدويّ + درجة المكافأة المستحقّة */
     public function registrations(Request $request, Event $event): View
     {
+        // النطاق إلزاميّ مع كلّ صلاحيّة (12.2.1-ب) — مسجّلون داخل نطاقه وحدهم
         $registrations = EventRegistration::query()
+            ->tap(fn ($q) => app(ScopeFilter::class)->apply($q, $request->user(), 'event_registrations.list'))
             ->with('user:id,name,code')
             ->where('event_id', $event->id)
             ->when($request->string('q')->toString(), fn ($q, $term) => $q->whereHas('user', fn ($u) => $u->where('code', mb_strtoupper($term))->orWhere('name', 'like', '%'.$term.'%')))

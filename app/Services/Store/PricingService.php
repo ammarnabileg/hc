@@ -12,12 +12,48 @@ use Illuminate\Support\Carbon;
  * ⭐ التسعير في الخادم حصرًا (19.5-أ): لا يأتي سعرٌ ولا خصمٌ من المتصفّح إطلاقًا.
  * المتصفّح يرسل **هويّة العنصر وكود الكوبون واختيار الـBump فقط** — والباقي يُحسَب هنا.
  *
- * وبلا Dark Patterns (2.9): الخصم بقيمته الحقيقيّة، والتوفير محسوب من قيمةٍ مسجَّلة
- * في `bundles.original_value` أو من السعر الأساسيّ — لا من رقمٍ مخترَع.
+ * ⭐ **التسعير متعدّد العملات (17):** منتج المتجر يُسعَّر بـ Coins أو XP أو Tickets،
+ * والعملة قرارٌ معلَن في `products.price_currency` لا استنتاجًا من عمودٍ غير صفريّ.
+ * أمّا التدريب والمسار والباقة فبالكوينز دائمًا — «كلّ الأسعار الحقيقيّة بالـCoins» (16).
+ *
+ * وبلا Dark Patterns (2.9): الخصم بقيمته الحقيقيّة، و**«وفّرت X» في الباقة تُحسَب
+ * من مجموع أسعار عناصرها الفعليّة** لا من رقمٍ يكتبه الأدمن بلا تحقّق (18).
  */
 class PricingService
 {
     public function __construct(private readonly StoreCatalog $catalog) {}
+
+    /**
+     * عملة سعر العنصر (17 · 16).
+     *
+     * التدريب والمسار والباقة **بالكوينز حصرًا** لأنّها محتوًى حقيقيّ (16 · 19.1
+     * — «XP لا يُشترى بها محتوًى حقيقيّ»)، والمنتج وحده يقبل العملات الثلاث.
+     */
+    public function currencyOf(string $type, Model $item): string
+    {
+        $default = Coins::defaultCode();
+
+        if ($type !== 'product') {
+            return $default;
+        }
+
+        $code = (string) ($item->price_currency ?? $default);
+
+        return in_array($code, $this->currencies(), true) ? $code : $default;
+    }
+
+    /**
+     * العملات المقبولة في المتجر — إعدادٌ لا قائمة محروقة (2.13 · 17).
+     *
+     * @return array<int, string>
+     */
+    public function currencies(): array
+    {
+        $codes = setting('store.currencies', ['coins', 'tickets', 'xp']);
+        $codes = array_values(array_filter(array_map('strval', (array) $codes)));
+
+        return $codes !== [] ? $codes : ['coins'];
+    }
 
     /**
      * ملخّص شراءٍ كامل يُعرَض في البوب-أب ويُنفَّذ به الطلب.
@@ -28,6 +64,7 @@ class PricingService
      */
     public function quote(?User $user, string $type, Model $item, ?string $couponCode = null, bool|array $bumps = []): array
     {
+        $currency = $this->currencyOf($type, $item);
         $price = $this->priceOf($type, $item);
         $listPrice = $this->listPriceOf($type, $item);
 
@@ -59,13 +96,16 @@ class PricingService
         $discount = $coupon['amount'];
         $total = round(max($subtotal - $discount, 0), 2);
 
-        $balanceBefore = $this->catalog->balance($user);
+        $balanceBefore = $this->catalog->balance($user, $currency);
         $owned = $user ? $this->catalog->owns($user, $type, $item) : false;
 
         return [
             'type' => $type,
             'slug' => $item->slug,
             'title' => $item->name_ar,
+            // ⭐ العملة تسافر مع الملخّص كلّه — فلا يُخصَم من محفظةٍ غير التي سُعِّر بها
+            'currency' => $currency,
+            'currency_label' => Coins::currencyLabel($currency),
             'lines' => $lines,
             'bump' => $bump,
             'bumps' => $chosen,
@@ -85,7 +125,13 @@ class PricingService
         ];
     }
 
-    /** السعر الفعليّ الآن — سعر العرض إن كان ساريًا، وإلّا السعر الأساسيّ (16) */
+    /**
+     * السعر الفعليّ الآن **بعملة العنصر** — سعر العرض إن كان ساريًا، وإلّا الأساسيّ (16 · 17).
+     *
+     * سعر العرض (`offer_price_coins`) خاصّ بالكوينز وحدها، فمنتجٌ مسعَّر بالتذاكر
+     * أو الـXP يُقرأ من عموده مباشرةً — وهذا ما كان مفقودًا: العمود موجود ويُتجاهَل
+     * فيمرّ المنتج بسعر صفر ويُسلَّم مجّانًا.
+     */
     public function priceOf(string $type, Model $item): float
     {
         if ($type === 'path') {
@@ -100,21 +146,54 @@ class PricingService
             return round((float) $item->price_coins, 2);
         }
 
+        $currency = $this->currencyOf($type, $item);
+
+        if ($currency !== Coins::defaultCode()) {
+            return round((float) ($item->{$this->priceColumn($currency)} ?? 0), 2);
+        }
+
         return round($this->catalog->activeOffer($item) ?? (float) $item->price_coins, 2);
     }
 
-    /** السعر المرجعيّ المشطوب — من بيانات حقيقيّة فقط (Anchoring 18) */
+    /**
+     * السعر المرجعيّ المشطوب — **من بياناتٍ حقيقيّة محسوبة** (Anchoring 18).
+     *
+     * وباقةً: القيمة الإجماليّة **تُحسَب تلقائيًّا من عناصرها** كما ينصّ 18، لا من
+     * `bundles.original_value` الذي يكتبه الأدمن بلا تحقّق — فقد كان بندلٌ عناصره
+     * 500 و«قيمته الأصليّة» 5000 يعرض «وفّرت 4580» والحقيقة 80، وهو Dark Pattern
+     * يمنعه 2.9 صراحةً.
+     */
     public function listPriceOf(string $type, Model $item): float
     {
         if ($type === 'bundle') {
-            return round((float) $item->original_value, 2);
+            return $this->bundleItemsValue($item);
         }
 
         if ($type === 'path') {
             return 0.0;
         }
 
-        return round((float) $item->price_coins, 2);
+        $currency = $this->currencyOf($type, $item);
+
+        return round((float) ($item->{$this->priceColumn($currency)} ?? 0), 2);
+    }
+
+    /**
+     * مجموع القيمة الطبيعيّة لعناصر الباقة — المصدر الوحيد لـ«القيمة الإجماليّة» (18).
+     * وعناصرها بالكوينز لأنّ الباقة تُسعَّر بالكوينز (16).
+     */
+    public function bundleItemsValue(Model $bundle): float
+    {
+        return round(
+            (float) $this->catalog->includes('bundle', $bundle)->sum(fn (array $line) => (float) $line['list_value']),
+            2,
+        );
+    }
+
+    /** عمود السعر المقابل للعملة — coins · tickets · xp (17) */
+    private function priceColumn(string $currency): string
+    {
+        return 'price_'.$currency;
     }
 
     // ------------------------------------------------------------ الكوبون

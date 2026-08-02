@@ -21,17 +21,29 @@ class SettingKeyScanner
     /** المجلّدات التي يعيش فيها كود القراءة — نسبةً لجذر المشروع */
     private const ROOTS = ['app', 'resources', 'routes'];
 
-    /** `setting('key')` — القراءة المباشرة */
-    private const DIRECT = '/\bsetting\(\s*([\'"])((?:(?!\1).)*)\1/';
+    /** القراءة المباشرة — والمجموعة الثالثة تكشف الوصل (`'ads.events.'.$name`) */
+    private const DIRECT = '/\bsetting\(\s*([\'"])((?:(?!\1).)*)\1(\s*\.)?/';
 
     /**
-     * `SetupSettings::text('key', …)` — معالج التنصيب يقرأ الإعدادات نفسها
-     * بغلافٍ لا يكسر الشاشة قبل وجود القاعدة، فمفاتيحه مفاتيحُ إعدادات كاملة.
+     * معالج التنصيب يقرأ الإعدادات نفسها بغلافٍ لا يكسر الشاشة قبل وجود
+     * القاعدة، فمفاتيحه مفاتيحُ إعدادات كاملة.
      */
-    private const WRAPPED = '/\bSetupSettings::(?:get|text|number|flag|list)\(\s*([\'"])((?:(?!\1).)*)\1/';
+    private const WRAPPED = '/\bSetupSettings::(?:get|text|number|flag|list)\(\s*([\'"])((?:(?!\1).)*)\1(\s*\.)?/';
 
-    /** `setting($key)` — مفتاح من متغيّر: يُعَدّ ولا يُحسَب ناقصًا */
+    /** مفتاح من متغيّر — يُعَدّ ولا يُحسَب ناقصًا */
     private const VARIABLE = '/\bsetting\(\s*\$/';
+
+    /**
+     * شكل المفتاح المعتمَد (2.13-و): `المجال.الميزة.المفتاح` — حروفٌ صغيرة
+     * ونقاط. ما لا يطابقه ليس مفتاحًا (نصّ توثيق أو وسيط آخر) فلا يُحاسَب عليه.
+     */
+    private const KEY_SHAPE = '/^[a-z][a-z0-9_]*(\.[a-z0-9_]+)+$/';
+
+    /** موضع المتغيّر داخل نصّ مركَّب: `{$x}` أو `$x` أو `$x->y` أو `$x['y']` */
+    private const PLACEHOLDER = '/\{?\$[A-Za-z_][A-Za-z0-9_]*(?:(?:->|\[)[^\]}\s]*\]?)*\}?/';
+
+    /** علامة الوصل: `setting('ads.events.'.$name)` — بادئةٌ لا مفتاح */
+    private const CONCAT_MARK = '$…';
 
     /** @var array{keys:array<string,list<string>>, dynamic:array<string,list<string>>, variable:int}|null */
     private ?array $scan = null;
@@ -103,10 +115,20 @@ class SettingKeyScanner
     /** `dashboard.achievements.{$key}.base` ⟵ `/^dashboard\.achievements\.[^.]+\.base$/` */
     private function patternToRegex(string $pattern): string
     {
-        // الجزء المتغيّر جزءٌ واحد من المفتاح، فلا يبتلع النقاط
-        $literal = preg_replace('/\{?\$[A-Za-z_][A-Za-z0-9_\->\[\]\'"]*\}?/', "\0", $pattern) ?? $pattern;
+        // الذيل الموصول قد يحمل نقاطًا («ads.events.» + «course.viewed»)،
+        // أمّا المتغيّر داخل النصّ فجزءٌ واحد فلا يبتلع النقاط.
+        $tail = str_ends_with($pattern, self::CONCAT_MARK);
+        $body = $tail ? substr($pattern, 0, -strlen(self::CONCAT_MARK)) : $pattern;
 
-        return '/^'.str_replace("\0", '[^.]+', preg_quote($literal, '/')).'$/u';
+        $masked = preg_replace(self::PLACEHOLDER, "\0", $body) ?? $body;
+
+        // نقتطع أوّلًا ثمّ نهرّب كلّ قطعة: `preg_quote` يحوّل البايت الصفريّ نفسه
+        $parts = array_map(
+            fn (string $part) => preg_quote($part, '/'),
+            explode("\0", $masked),
+        );
+
+        return '/^'.implode('[^.]+', $parts).($tail ? '.+' : '').'$/u';
     }
 
     /** @return array{keys:array<string,list<string>>, dynamic:array<string,list<string>>, variable:int} */
@@ -149,11 +171,22 @@ class SettingKeyScanner
 
                     foreach ($matches as $match) {
                         $key = $match[2];
-                        $bucket = str_contains($key, '$') ? 'dynamic' : 'keys';
 
-                        if ($bucket === 'dynamic') {
+                        // نصٌّ موصولٌ بمتغيّر: `'ads.events.'.$name` — بادئةٌ لا مفتاح
+                        if (($match[3] ?? '') !== '') {
+                            $dynamic[$key.self::CONCAT_MARK][] = $place;
+
+                            continue;
+                        }
+
+                        if (str_contains($key, '$')) {
                             $dynamic[$key][] = $place;
-                        } else {
+
+                            continue;
+                        }
+
+                        // ما لا يطابق شكل المفتاح ليس مفتاحًا — لا يُحاسَب ولا يُهمَل زورًا
+                        if (preg_match(self::KEY_SHAPE, $key) === 1) {
                             $keys[$key][] = $place;
                         }
                     }

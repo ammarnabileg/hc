@@ -339,8 +339,15 @@ class WarMatchService
 
             $this->unlockSettings($fresh->challenge);
 
+            /*
+             | ⭐ بعد التسوية نحدّث **لقطة الستريك** فقط ونقيّم الشارات — ولا نسجّل
+             | حضورًا (7.2). كان هنا `record()` وهو يمرّ بـ`checkIn()`، فتسويةُ
+             | مواجهةٍ داخل نافذة الفجر كانت تمنح الطرفين XP النادي ويوم حضور
+             | بلا حضور: سكٌّ لعملةٍ من مسار حرب يخرق المحصّلة الصفريّة (15.2-6)
+             | ويشوّه الليدر بورد (7.3). الحضور من مساره وحده: `streak.checkin`.
+             */
             foreach ($sides as $side) {
-                $this->streaks->record($side->user);
+                $this->streaks->touchActivity($side->user);
                 $this->badges->evaluate($side->user);
             }
 

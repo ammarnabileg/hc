@@ -14,6 +14,7 @@ use App\Services\Admin\Volunteer\CapacityReport;
 use App\Services\Admin\Volunteer\CertificateEligibility;
 use App\Services\Admin\Volunteer\SettingsWriter;
 use App\Services\Admin\Volunteer\VolunteerAnalytics;
+use App\Support\Scope\ScopeFilter;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -35,7 +36,9 @@ class VolunteerAdminController extends Controller
         return view('admin.volunteer.index', [
             'kpis' => VolunteerAnalytics::kpis($days),
             'days' => $days,
+            // النطاق إلزاميّ مع كلّ صلاحيّة (12.2.1-ب) — التسكينات المعروضة نطاقُه هو
             'recentPlacements' => Membership::query()
+                ->tap(fn ($q) => app(ScopeFilter::class)->apply($q, $request->user(), 'memberships.list', 'user_id', 'entity_id'))
                 ->with(['user:id,name,code', 'entity:id,name_ar', 'position'])
                 ->where('status', 'active')
                 ->latest('started_at')
@@ -45,7 +48,7 @@ class VolunteerAdminController extends Controller
                 'overflows' => CapacityReport::overflows()->count(),
                 'unhealthy' => CapacityReport::unhealthy()->count(),
                 'pendingExits' => Offboarding::query()->whereNull('completed_at')->count(),
-                'pendingCertificates' => CertificateEligibility::pending((int) setting('volunteer_cert.pending_scan_limit', 200))->count(),
+                'pendingCertificates' => CertificateEligibility::pending((int) setting('volunteer_cert.pending_scan_limit', 200), $request->user())->count(),
             ],
             'loads' => VolunteerAnalytics::loads()->take((int) setting('volunteer.admin.loads_preview', 5)),
             'page' => SettingsWriter::groupRows('volunteer_page'),
@@ -130,8 +133,10 @@ class VolunteerAdminController extends Controller
             'types' => CertificateEligibility::enabledTypes(),
             'settings' => SettingsWriter::groupRows('volunteer_cert'),
             'minDays' => CertificateEligibility::minDays(),
-            'pending' => CertificateEligibility::pending((int) setting('volunteer_cert.pending_rows', 20)),
+            // المستحقّون والصادر — كلاهما داخل نطاق صاحب الشاشة (12.2.1-ب)
+            'pending' => CertificateEligibility::pending((int) setting('volunteer_cert.pending_rows', 20), $request->user()),
             'issued' => Certificate::query()
+                ->tap(fn ($q) => app(ScopeFilter::class)->apply($q, $request->user(), 'volunteer_certificates.view'))
                 ->with(['user:id,name,code'])
                 ->whereIn('certificate_type_id', $typeIds->values())
                 ->when($request->string('status')->toString(), fn ($q, $s) => $q->where('status', $s))

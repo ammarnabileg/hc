@@ -27,11 +27,24 @@ final class Grant
         return $this->effect === 'allow';
     }
 
-    /** ترتيب النطاق: الأضيق = 0 */
+    /**
+     * ترتيب النطاق: الأضيق = 0، و**النطاق التالف = -1**.
+     *
+     * كان `?: 0` يبتلع حالتين مختلفتين تمامًا: `SELF` (رتبتها 0) والنطاق المجهول
+     * (`array_search` تعيد `false`). فكان صفٌّ نطاقُه `"ALLL"` أو `""` يُصنَّف
+     * أضيقَ نطاق ويُعامَل معاملة `SELF` — أي **يُقرَأ إذنًا** بدل أن يُرفَض.
+     * الآن يُرفَض: المحرّك لا يمنح على صفٍّ لا يفهم نطاقه.
+     */
     public function scopeRank(): int
     {
-        $order = config('access.scopes');
+        $index = array_search($this->scope, config('access.scopes'), true);
 
-        return array_search($this->scope, $order, true) ?: 0;
+        return $index === false ? -1 : $index;
+    }
+
+    /** هل نطاق هذا الصفّ من القائمة المعتمَدة أصلًا؟ */
+    public function hasValidScope(): bool
+    {
+        return $this->scopeRank() >= 0;
     }
 }

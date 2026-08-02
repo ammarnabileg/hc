@@ -22,6 +22,7 @@ class Product extends Model
             'is_indexable' => 'boolean',
             'price_coins' => 'decimal:2',
             'price_tickets' => 'decimal:2',
+            'price_xp' => 'decimal:2',
         ];
     }
 

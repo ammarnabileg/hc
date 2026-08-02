@@ -3,10 +3,12 @@
 namespace App\Services\Admin\Ops;
 
 use App\Models\User;
+use App\Services\Admin\System\MaintenanceService;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Throwable;
 
 /**
  * التحديثات والترحيل (12.7-هـ · 2.11): **نقرة آمنة + Dry-run + استرجاع**.
@@ -17,10 +19,24 @@ use Illuminate\Support\Facades\DB;
  *     ومربوطة بنفس قائمة الهجرات المعلّقة — فلو تغيّرت القائمة سقط التصريح.
  *  3) **كلّ عمليّة تُسجَّل** بمن نفّذها ومتى، وتُقيَّد في سجلّ الإصدارات.
  *  4) **الاسترجاع يعرض ما سيُفقَد بالاسم** قبل أن يلمس شيئًا.
+ *
+ * ⭐ وخطّ التنفيذ نفسه (`run`) يمشي بالترتيب الذي فرضه 2.11 ولا يقفز خطوة:
+ *    قفل ⟵ فحوص قبليّة ⟵ صيانة ⟵ نسخة احتياطيّة متحقَّق منها ⟵ هجرة هجرة مع
+ *    تحقّق بعد كلّ خطوة ⟵ تحقّق نهائيّ ⟵ بذور افتراضيّة ⟵ رفع الإصدار وتفريغ
+ *    الكاش ⟵ خروج من الصيانة. وأيّ تعثّر في أيّ نقطة: **إيقاف فوريّ + استعادة
+ *    + خروج من الصيانة + تقرير يقول ماذا حدث وماذا يفعل المالك** (2.11-ح · 2.17).
  */
 class UpdateManager
 {
-    public function __construct(private readonly OpsAudit $audit) {}
+    public function __construct(
+        private readonly OpsAudit $audit,
+        private readonly BackupManager $backups,
+        private readonly MaintenanceService $maintenance,
+        private readonly UpdateLock $lock,
+        private readonly UpdatePreflight $preflight,
+        private readonly SchemaLedger $ledger,
+        private readonly BatchMigrator $batches,
+    ) {}
 
     // ------------------------------------------------------------------ قراءة
 
@@ -49,11 +65,28 @@ class UpdateManager
      */
     public function pending(): array
     {
+        return array_values(array_keys($this->pendingFiles()));
+    }
+
+    /**
+     * الهجرات المعلّقة **باسمها ومسار ملفّها** — لأنّ التنفيذ صار هجرةً هجرة،
+     * ولكلّ ملفّ بصمة تُسجَّل بعد تطبيقه (2.11-أ).
+     *
+     * @return array<string, string>
+     */
+    public function pendingFiles(): array
+    {
         $migrator = app('migrator');
         $files = $migrator->getMigrationFiles(array_map(fn ($p) => base_path($p), $this->paths()));
         $ran = $migrator->getRepository()->repositoryExists() ? $migrator->getRepository()->getRan() : [];
 
-        return array_values(array_diff(array_keys($files), $ran));
+        return array_diff_key($files, array_flip($ran));
+    }
+
+    /** مسارات الملفّات المطلقة — يقرؤها فحص البصمات ليقارن ملفًّا بملفّ */
+    public function absolutePaths(): array
+    {
+        return array_map(fn ($p) => base_path($p), $this->paths());
     }
 
     /**
@@ -80,6 +113,63 @@ class UpdateManager
         $repository = app('migrator')->getRepository();
 
         return $repository->repositoryExists() ? count($repository->getRan()) : 0;
+    }
+
+    /** الفحوص القبليّة كما تُعرَض في الشاشة — قراءة بلا أثر (2.11-ب) */
+    public function preflightChecks(): array
+    {
+        return $this->preflight->checks($this->absolutePaths());
+    }
+
+    public function preflightPasses(array $checks): bool
+    {
+        return $this->preflight->passes($checks);
+    }
+
+    public function lockState(): ?object
+    {
+        return $this->lock->current();
+    }
+
+    /** جدول `schema_migrations` بالبصمة — كما يطلبه 12.7-هـ حرفيًّا */
+    public function ledgerRows(int $perPage): LengthAwarePaginator
+    {
+        return $this->ledger->rows($perPage);
+    }
+
+    /**
+     * استعادة يدويّة من نسخة (زرّ «استرجاع من النسخة الاحتياطيّة» بعد الفشل).
+     * الاستعادة نفسها في `BackupManager` — وهنا نضيف أثرها في سجلّ الإصدارات.
+     */
+    public function restoreFromBackup(int $backupId, ?User $actor): array
+    {
+        $result = $this->backups->restore($backupId, $actor, 'استعادة يدويّة من شاشة التحديثات');
+
+        if (! $result['ok']) {
+            return $result;
+        }
+
+        $historyId = (int) DB::table('app_version_history')->insertGetId([
+            'version' => $this->currentVersion(),
+            'previous_version' => $this->currentVersion(),
+            'event' => 'restore',
+            'notes' => 'استعادة من نسخة احتياطيّة — '.$result['tables'].' جدول و'.$result['rows'].' صفّ.',
+            'migrations_count' => 0,
+            'migrations' => null,
+            'backup_file_id' => $backupId,
+            'performed_by' => $actor?->id,
+            'performed_at' => now(),
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        $this->audit->record($actor, 'ops.updates.restored', [
+            'backup_file_id' => $backupId,
+            'tables' => $result['tables'],
+            'rows' => $result['rows'],
+        ], 'ops.updates', $historyId);
+
+        return $result;
     }
 
     /** بصمة قائمة الهجرات المعلّقة — بها نربط تصريحَ الـDry-run بما فُحِص فعلًا */
@@ -179,30 +269,167 @@ class UpdateManager
     }
 
     /**
-     * تنفيذ الترحيل. لا يُستدعى إلّا بعد تأكيد مزدوج في الكنترولر،
-     * ويُقيَّد في سجلّ الإصدارات ليُعرَف من أيّ إصدار جئنا (2.11).
+     * ⭐ **خطّ التحديث الكامل** (2.11). لا يُستدعى إلّا بعد تأكيد مزدوج في الكنترولر.
      *
-     * @return array{ran:array<int,string>, output:string, history_id:int}
+     * لماذا هجرة هجرة لا `migrate` واحدة؟ لأنّ «الفشل في منتصف الترحيل» هو الحالة
+     * التي وُضِع 2.11 كلّه لأجلها: نحتاج أن نعرف **أيّ هجرة** سقطت، وأن نتحقّق
+     * **بعد كلّ خطوة** لا بعد الكلّ، وأن نسجّل بصمة كلّ ملفّ طُبِّق.
+     *
+     * @return array{ok:bool, stage:string, ran:array<int,string>, from:string, to:string, message:string, report:array, run_id:int, output:string}
      */
-    public function migrate(?User $actor, ?int $backupId = null): array
+    public function run(?User $actor): array
     {
-        $pending = $this->pending();
         $before = $this->currentVersion();
+        $pendingFiles = $this->pendingFiles();
 
-        Artisan::call('migrate', [
-            '--force' => true,
-            '--path' => $this->paths(),
+        if ($pendingFiles === []) {
+            return $this->result(true, 'idle', [], $before, $before, 'مافيش هجرات معلّقة — مالناش شغل هنا.', [], 0, '');
+        }
+
+        // 1) القفل قبل أيّ شيء — ولو كان محجوزًا فلا صيانة ولا نسخة ولا لمسة (2.11-ب)
+        $token = $this->lock->acquire($actor);
+
+        if ($token === null) {
+            $holder = $this->lock->current();
+
+            return $this->result(false, 'lock', [], $before, $before,
+                'في تحديث شغّال دلوقتي'.($holder?->holder_name ? ' بدأه '.$holder->holder_name : '').' — استنّاه يخلص.',
+                $this->report('lock', null, 'تحديث تاني ماسك القفل.', [], null, false, false), 0, '');
+        }
+
+        $runId = (int) DB::table('update_runs')->insertGetId([
+            'from_version' => $before,
+            'status' => 'running',
+            'stage' => 'preflight',
+            'migrations' => json_encode(array_keys($pendingFiles), JSON_UNESCAPED_UNICODE),
+            'performed_by' => $actor?->id,
+            'started_at' => now(),
+            'created_at' => now(),
+            'updated_at' => now(),
         ]);
 
-        $output = trim(Artisan::output());
+        $ran = [];
+        $output = [];
+        $backupId = null;
+        $startedMaintenance = false;
+        $stage = 'preflight';
+
+        try {
+            // 2) الفحوص القبليّة — فحصٌ فاشل يوقف كلّ شيء (2.11-ب)
+            $checks = $this->preflight->checks($this->absolutePaths());
+
+            if (! $this->preflight->passes($checks)) {
+                throw new UpdateHalt('preflight', 'الفحوص القبليّة وقفت التحديث: '.implode(' · ', $this->preflight->failures($checks)));
+            }
+
+            // 3) وضع الصيانة — عشان محدّش يكتب في جدول بيتحرّك تحت رجليه (2.11-ب)
+            $stage = 'maintenance';
+            $this->stage($runId, $stage);
+
+            if (setting('updates.maintenance_enabled', true) && $actor && ! $this->maintenance->isActive()) {
+                $this->maintenance->start(
+                    $actor,
+                    (string) setting('updates.maintenance_message', 'بنحدّث المنصّة دلوقتي — دقايق ونرجع.'),
+                    max(1, (int) setting('updates.maintenance_hours', 1)),
+                );
+                $startedMaintenance = true;
+            }
+
+            // 4) نسخة احتياطيّة إلزاميّة **متحقَّق منها** (2.11-ج)
+            $stage = 'backup';
+            $this->stage($runId, $stage);
+
+            if (setting('updates.backup_before_migrate', true)) {
+                $backup = $this->backups->create('database', $actor);
+
+                if (! $backup['ok']) {
+                    throw new UpdateHalt('backup', 'مقدرناش ناخد نسخة احتياطيّة قبل الترحيل — '.$backup['message']);
+                }
+
+                $backupId = $backup['id'];
+                DB::table('update_runs')->where('id', $runId)->update(['backup_file_id' => $backupId, 'updated_at' => now()]);
+
+                if (setting('backups.verify_before_migrate', true)) {
+                    $verified = $this->backups->verify($backupId);
+
+                    if (! $verified['ok']) {
+                        throw new UpdateHalt('backup', 'النسخة الاحتياطيّة مش صالحة — '.$verified['message']);
+                    }
+                }
+            }
+
+            // 5) الهجرات: واحدة واحدة، ببصمة وتحقّق بعد كلّ خطوة (2.11-د · هـ)
+            $stage = 'migrate';
+            $this->stage($runId, $stage);
+
+            $repository = app('migrator')->getRepository();
+            $batch = $repository->repositoryExists() ? (int) $repository->getNextBatchNumber() : 1;
+
+            foreach ($pendingFiles as $name => $file) {
+                $countsBefore = setting('updates.verify.after_each_step', true) ? $this->ledger->snapshotCounts() : [];
+                $startedAt = microtime(true);
+
+                Artisan::call('migrate', [
+                    '--force' => true,
+                    '--path' => [$file],
+                    '--realpath' => true,
+                ]);
+
+                $output[] = trim(Artisan::output());
+                $ran[] = $name;
+
+                $this->ledger->record($name, $batch, $file, (int) round((microtime(true) - $startedAt) * 1000));
+
+                if ($countsBefore !== []) {
+                    $problems = $this->ledger->verifyStep($countsBefore, $this->ledger->snapshotCounts(), $this->batches->verifiedSources());
+
+                    if ($problems !== []) {
+                        throw new UpdateHalt('verify', 'التحقّق بعد «'.$name.'» لقى فقد بيانات: '.implode(' · ', $problems), $name);
+                    }
+                }
+            }
+
+            // دفعة واحدة لكلّ التحديث — فالاسترجاع يرجّع التحديث كلّه لا آخر هجرة فيه
+            DB::table('migrations')->whereIn('migration', $ran)->update(['batch' => $batch]);
+            $this->ledger->setBatch($ran, $batch);
+
+            // 6) التحقّق النهائيّ الشامل (2.11-هـ)
+            $stage = 'verify';
+            $this->stage($runId, $stage);
+            $relations = $this->ledger->verifyRelations();
+
+            if ($relations !== []) {
+                throw new UpdateHalt('verify', 'التحقّق النهائيّ لقى علاقات مكسورة: '.implode(' · ', array_slice($relations, 0, 5)));
+            }
+
+            // 7) بذور القيم الافتراضيّة الجديدة + خريطة إعادة التسمية (2.11-و · ز)
+            $stage = 'seed';
+            $this->stage($runId, $stage);
+            $seeded = $this->seedDefaults();
+
+            // 8) رفع الإصدار وتفريغ الكاش (2.11-ط) — **بعد النجاح وحده**
+            $stage = 'finish';
+            $this->stage($runId, $stage);
+            $after = $this->bumpVersion($before);
+            $this->clearCaches();
+        } catch (Throwable $e) {
+            return $this->fail($e, $actor, $runId, $token, $ran, $before, $backupId, $startedMaintenance, $stage, $output);
+        }
+
+        // 9) الخروج من الصيانة وفكّ القفل
+        if ($startedMaintenance && $actor) {
+            $this->maintenance->lift($actor);
+        }
+
+        $this->lock->release($token);
 
         $historyId = (int) DB::table('app_version_history')->insertGetId([
-            'version' => $before,
+            'version' => $after,
             'previous_version' => $before,
             'event' => 'migrate',
-            'notes' => 'تنفيذ '.count($pending).' هجرة معلّقة.',
-            'migrations_count' => count($pending),
-            'migrations' => json_encode($pending, JSON_UNESCAPED_UNICODE),
+            'notes' => 'تنفيذ '.count($ran).' هجرة معلّقة بنجاح.',
+            'migrations_count' => count($ran),
+            'migrations' => json_encode($ran, JSON_UNESCAPED_UNICODE),
             'backup_file_id' => $backupId,
             'performed_by' => $actor?->id,
             'performed_at' => now(),
@@ -210,13 +437,417 @@ class UpdateManager
             'updated_at' => now(),
         ]);
 
+        $summary = [
+            'from' => $before,
+            'to' => $after,
+            'migrations' => $ran,
+            'backup' => $backupId,
+            'seeded' => $seeded,
+        ];
+
+        DB::table('update_runs')->where('id', $runId)->update([
+            'status' => 'success',
+            'stage' => 'finish',
+            'to_version' => $after,
+            'migrations' => json_encode($ran, JSON_UNESCAPED_UNICODE),
+            'maintenance_lifted' => $startedMaintenance,
+            'report' => json_encode($summary, JSON_UNESCAPED_UNICODE),
+            'finished_at' => now(),
+            'updated_at' => now(),
+        ]);
+
         $this->audit->record($actor, 'ops.updates.migrated', [
-            'count' => count($pending),
-            'migrations' => $pending,
+            'count' => count($ran),
+            'migrations' => $ran,
             'backup_file_id' => $backupId,
+            'from' => $before,
+            'to' => $after,
         ], 'ops.updates', $historyId);
 
-        return ['ran' => $pending, 'output' => $output, 'history_id' => $historyId];
+        $this->notify($actor, "التحديث تمّ ✓ — من {$before} لـ{$after} بـ".count($ran).' هجرة.');
+
+        return $this->result(true, 'finish', $ran, $before, $after,
+            'اتنفّذت '.count($ran)." هجرة ✓ — الإصدار بقى {$after}، والنسخة الاحتياطيّة محفوظة قبلها.",
+            $summary, $runId, implode("\n", $output));
+    }
+
+    /**
+     * الفشل (2.11-ح): **إيقاف فوريّ + تسجيل دقيق + استعادة + خروج من الصيانة + تقرير**.
+     *
+     * والترتيب مقصود: نُنزِل ما طُبِّق (`down`) أوّلًا لترجع الصورة الهيكليّة، ثمّ
+     * نستعيد البيانات من النسخة. ولا نعتمد على الـRollback وحده لأنّ أوامر DDL
+     * في MySQL خارج المعاملات أصلًا (2.11-د).
+     */
+    private function fail(
+        Throwable $e,
+        ?User $actor,
+        int $runId,
+        string $token,
+        array $ran,
+        string $before,
+        ?int $backupId,
+        bool $startedMaintenance,
+        string $stage,
+        array $output,
+    ): array {
+        $stage = $e instanceof UpdateHalt ? $e->stage : $stage;
+        $failedMigration = $e instanceof UpdateHalt ? $e->migration : ($ran !== [] ? end($ran) : null);
+
+        if (! $failedMigration && $stage === 'migrate') {
+            // الهجرة التي سقطت لم تُسجَّل في `$ran` أصلًا — نسمّيها من أوّل معلّقة بعد آخر ناجحة
+            $remaining = array_values(array_diff(array_keys($this->pendingFiles()), $ran));
+            $failedMigration = $remaining[0] ?? null;
+        }
+
+        $actions = [];
+
+        // (أ) إنزال ما طُبِّق في هذا التشغيل — بترتيب معكوس وبلا أن يمنع فشلٌ منه الاستعادة
+        if ($ran !== []) {
+            $downed = $this->rollbackApplied($ran);
+            $actions[] = $downed === []
+                ? 'مقدرناش نرجّع الهجرات المطبَّقة — الاعتماد على الاستعادة.'
+                : 'رجّعنا '.count($downed).' هجرة كانت اتطبّقت في التشغيل ده.';
+        }
+
+        // (ب) الاستعادة من النسخة — وهي شبكة الأمان الحقيقيّة
+        $restored = false;
+
+        if ($backupId && setting('updates.restore_on_failure', true)) {
+            try {
+                $result = $this->backups->restore($backupId, $actor, 'استعادة تلقائيّة بعد فشل تحديث');
+                $restored = (bool) $result['ok'];
+                $actions[] = $result['message'];
+            } catch (Throwable $restoreError) {
+                $actions[] = 'الاستعادة نفسها فشلت — '.$restoreError->getMessage();
+            }
+        } elseif (! $backupId) {
+            $actions[] = 'مفيش نسخة احتياطيّة في التشغيل ده — التوقّف حصل قبل ما تتاخد.';
+        }
+
+        // (ج) الخروج من الصيانة — المنصّة لا تُترَك مقفولة بسبب تحديث فشل
+        $lifted = false;
+
+        if ($startedMaintenance && $actor) {
+            try {
+                $this->maintenance->lift($actor);
+                $lifted = true;
+                $actions[] = 'رفعنا وضع الصيانة والمنصّة رجعت شغّالة.';
+            } catch (Throwable $liftError) {
+                $actions[] = 'تعذّر رفع الصيانة تلقائيًّا — ارفعها يدويًّا من شاشة الصيانة ('.$liftError->getMessage().').';
+            }
+        }
+
+        // (د) فكّ القفل — وإلّا بقيت المنصّة ممنوعة من التحديث حتى تنتهي المهلة
+        $this->lock->release($token);
+        $actions[] = 'فكّينا قفل التحديث.';
+
+        $this->ledger->markRolledBack($ran);
+
+        $report = $this->report($stage, $failedMigration, $e->getMessage(), $actions, $backupId, $restored, $lifted);
+
+        DB::table('update_runs')->where('id', $runId)->update([
+            'status' => 'failed',
+            'stage' => $stage,
+            'to_version' => $before,
+            'migrations' => json_encode($ran, JSON_UNESCAPED_UNICODE),
+            'failed_migration' => $failedMigration,
+            'error' => mb_substr($e->getMessage(), 0, 2000),
+            'restored' => $restored,
+            'maintenance_lifted' => $lifted,
+            'report' => json_encode($report, JSON_UNESCAPED_UNICODE),
+            'finished_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        $historyId = (int) DB::table('app_version_history')->insertGetId([
+            'version' => $before,
+            'previous_version' => $before,
+            'event' => 'failed',
+            'notes' => mb_substr('فشل التحديث عند: '.$report['what'], 0, 1000),
+            'migrations_count' => count($ran),
+            'migrations' => json_encode($ran, JSON_UNESCAPED_UNICODE),
+            'backup_file_id' => $backupId,
+            'performed_by' => $actor?->id,
+            'performed_at' => now(),
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        $this->audit->record($actor, 'ops.updates.failed', [
+            'stage' => $stage,
+            'migration' => $failedMigration,
+            'error' => mb_substr($e->getMessage(), 0, 500),
+            'restored' => $restored ? 'yes' : 'no',
+        ], 'ops.updates', $historyId);
+
+        $this->notify($actor, 'التحديث وقف: '.$report['what']);
+
+        return $this->result(false, $stage, $ran, $before, $before, $report['what'], $report, $runId, implode("\n", $output));
+    }
+
+    /**
+     * إنزال هجرات هذا التشغيل بترتيب معكوس. نستدعي `down()` مباشرةً بدل
+     * `migrate:rollback` لأنّ الأخير يعمل بالدفعة، ونحن هنا في تشغيل لم تكتمل
+     * دفعته أصلًا — فالدقّة أهمّ من الاختصار.
+     *
+     * @return array<int, string>
+     */
+    private function rollbackApplied(array $ran): array
+    {
+        $migrator = app('migrator');
+        $files = $migrator->getMigrationFiles($this->absolutePaths());
+        $downed = [];
+
+        foreach (array_reverse($ran) as $name) {
+            $path = $files[$name] ?? null;
+
+            if (! $path) {
+                continue;
+            }
+
+            try {
+                $instance = $migrator->resolvePath($path);
+
+                if (method_exists($instance, 'down')) {
+                    $instance->down();
+                }
+
+                DB::table('migrations')->where('migration', $name)->delete();
+                $downed[] = $name;
+            } catch (Throwable) {
+                // هجرة لا تنزل ليست نهاية الطريق — الاستعادة من النسخة هي الضمان
+                continue;
+            }
+        }
+
+        return $downed;
+    }
+
+    /**
+     * تقرير 2.17: **ماذا حدث** + **ماذا تفعل** — بلا لغة نظام ولا رقم خطأ عارٍ.
+     */
+    private function report(string $stage, ?string $migration, string $error, array $actions, ?int $backupId, bool $restored, bool $lifted): array
+    {
+        $stages = [
+            'lock' => 'قفل التحديث',
+            'preflight' => 'الفحوص القبليّة',
+            'maintenance' => 'تفعيل وضع الصيانة',
+            'backup' => 'النسخة الاحتياطيّة',
+            'migrate' => 'تنفيذ الهجرات',
+            'verify' => 'التحقّق من البيانات',
+            'seed' => 'زرع القيم الافتراضيّة',
+            'finish' => 'الإنهاء',
+        ];
+
+        $backup = $backupId ? $this->backups->find($backupId) : null;
+
+        return [
+            'stage' => $stage,
+            'stage_label' => $stages[$stage] ?? $stage,
+            'what' => 'وقفنا عند «'.($stages[$stage] ?? $stage).'»'.($migration ? ' في الهجرة '.$migration : '').' — '.$error,
+            'migration' => $migration,
+            'error' => $error,
+            'actions' => $actions,
+            'restored' => $restored,
+            'maintenance_lifted' => $lifted,
+            'backup_file' => $backup?->filename,
+            'backup_file_id' => $backupId,
+            'next_steps' => (string) setting('updates.failure_next_steps', 'راجع سبب الفشل وابعته لمطوّر المنصّة مع اسم الهجرة.'),
+        ];
+    }
+
+    /**
+     * بذور القيم الافتراضيّة عند التحديث (2.11-و · ز).
+     *
+     * ننادي **مسار الإنتاج** كما هو ولا نكتب سيدرًا موازيًا. لكنّنا نحمي قرار
+     * المالك: كلّ قيمة عدّلها بيده تُحفَظ قبل التشغيل وتعود بعده — «مفاتيحُ
+     * الإعداد الجديدة تُضاف بقيمٍ افتراضيّة **دون استبدال القديمة**».
+     *
+     * @return array{classes:array<int,string>, kept:int, renamed:int}
+     */
+    private function seedDefaults(): array
+    {
+        if (! setting('updates.seed_after_migrate', true)) {
+            return ['classes' => [], 'kept' => 0, 'renamed' => 0];
+        }
+
+        $renamed = $this->applyRenameMap();
+
+        $classes = setting('updates.seed_classes', ['Database\\Seeders\\SettingSeeder']);
+        $classes = is_array($classes) ? $classes : [];
+        $ran = [];
+
+        // قيم عدّلها المالك = كلّ ما يختلف عن افتراضيّه
+        $custom = DB::table('settings')->whereColumn('value', '!=', 'default_value')->pluck('value', 'key');
+
+        foreach ($classes as $class) {
+            $class = (string) $class;
+
+            if (! class_exists($class)) {
+                continue;
+            }
+
+            Artisan::call('db:seed', ['--class' => $class, '--force' => true]);
+            $ran[] = $class;
+        }
+
+        foreach ($custom as $key => $value) {
+            DB::table('settings')->where('key', $key)->update(['value' => $value, 'updated_at' => now()]);
+        }
+
+        Cache::forget('settings');
+
+        return ['classes' => $ran, 'kept' => $custom->count(), 'renamed' => $renamed];
+    }
+
+    /**
+     * خريطة إعادة تسمية مفاتيح الإعدادات Old→New (2.11-و) — وهي **نقل قبل حذف**:
+     * القيمة تنتقل للمفتاح الجديد، ولا يُحذَف القديم إلّا بعد التأكّد من وصولها.
+     */
+    private function applyRenameMap(): int
+    {
+        $map = setting('updates.settings_rename_map', []);
+
+        if (! is_array($map) || $map === []) {
+            return 0;
+        }
+
+        $count = 0;
+
+        foreach ($map as $old => $new) {
+            $old = (string) $old;
+            $new = (string) $new;
+
+            $source = DB::table('settings')->where('key', $old)->first();
+
+            if (! $source || $old === $new || $new === '') {
+                continue;
+            }
+
+            $target = DB::table('settings')->where('key', $new)->first();
+
+            if (! $target) {
+                DB::table('settings')->where('key', $old)->update(['key' => $new, 'updated_at' => now()]);
+                $count++;
+
+                continue;
+            }
+
+            // الهدف موجود: ننقل قيمة المالك إليه ما دام لسه على افتراضيّه
+            if ($target->value === $target->default_value && $source->value !== $source->default_value) {
+                DB::table('settings')->where('key', $new)->update(['value' => $source->value, 'updated_at' => now()]);
+            }
+
+            $landed = DB::table('settings')->where('key', $new)->value('value');
+
+            // ⛔ الحذف بعد التحقّق وحده (2.11-د)
+            if ($landed !== null) {
+                DB::table('settings')->where('key', $old)->delete();
+                $count++;
+            }
+        }
+
+        Cache::forget('settings');
+
+        return $count;
+    }
+
+    /**
+     * رفع `app_version` — **بعد النجاح وحده** (2.11-ط). كان الكود يكتب الإصدار
+     * القديم مكانه فيبقى كما هو للأبد مهما تعاقبت الترقيات.
+     */
+    private function bumpVersion(string $current): string
+    {
+        $target = trim((string) setting('updates.target_version', ''));
+
+        if ($target !== '' && $this->compare($target, $current) > 0) {
+            $next = ltrim($target, 'v');
+        } else {
+            [$major, $minor, $patch] = array_pad(array_map('intval', explode('.', ltrim($current, 'v'))), 3, 0);
+
+            $next = match ((string) setting('updates.auto_bump_segment', 'patch')) {
+                'major' => ($major + 1).'.0.0',
+                'minor' => $major.'.'.($minor + 1).'.0',
+                default => $major.'.'.$minor.'.'.($patch + 1),
+            };
+        }
+
+        DB::table('settings')->where('key', 'updates.current_version')->update([
+            'value' => $next,
+            'updated_at' => now(),
+        ]);
+
+        Cache::forget('settings');
+
+        return $next;
+    }
+
+    private function clearCaches(): void
+    {
+        Cache::forget('settings');
+        Cache::forget('rep_rules');
+
+        if (! setting('updates.clear_cache_after', true)) {
+            return;
+        }
+
+        foreach (['cache:clear', 'view:clear'] as $command) {
+            try {
+                Artisan::call($command);
+            } catch (Throwable) {
+                // تفريغ الكاش تحسينٌ لا شرطُ نجاح — لا يُسقِط تحديثًا نجح
+                continue;
+            }
+        }
+    }
+
+    /** إشعار الأدمن بالنتيجة (2.11-ط) — عبر بوّابة الإشعارات إن وُجدت */
+    private function notify(?User $actor, string $message): void
+    {
+        if (! setting('updates.notify_admin_result', true) || ! $actor) {
+            return;
+        }
+
+        $notifier = 'App\Services\Notifications\Notifier';
+
+        if (! class_exists($notifier)) {
+            return;
+        }
+
+        try {
+            $notifier::send($actor, 'system', 'التحديثات والترحيل', $message, route('admin.ops.updates'));
+        } catch (Throwable) {
+            // إشعارٌ لم يصل لا يغيّر نتيجة التحديث ولا يُبلَّع في تقريره
+        }
+    }
+
+    private function stage(int $runId, string $stage): void
+    {
+        DB::table('update_runs')->where('id', $runId)->update(['stage' => $stage, 'updated_at' => now()]);
+    }
+
+    private function result(bool $ok, string $stage, array $ran, string $from, string $to, string $message, array $report, int $runId, string $output): array
+    {
+        return compact('ok', 'stage', 'ran', 'from', 'to', 'message', 'report', 'output') + ['run_id' => $runId];
+    }
+
+    // ------------------------------------------------------------------ قراءة التشغيلات
+
+    /** آخر تشغيلات التحديث — الشاشة تعرض تقرير آخر فشل بلا بحث في السجلّات */
+    public function runs(int $limit): array
+    {
+        return DB::table('update_runs')
+            ->leftJoin('users', 'users.id', '=', 'update_runs.performed_by')
+            ->orderByDesc('update_runs.id')
+            ->limit(max(1, $limit))
+            ->select(['update_runs.*', 'users.name as performer_name'])
+            ->get()
+            ->all();
+    }
+
+    public function lastFailure(): ?object
+    {
+        return DB::table('update_runs')->where('status', 'failed')->orderByDesc('id')->first();
     }
 
     /**
@@ -236,6 +867,7 @@ class UpdateManager
         ]);
 
         $output = trim(Artisan::output());
+        $this->ledger->markRolledBack($batch);
 
         $historyId = (int) DB::table('app_version_history')->insertGetId([
             'version' => $this->currentVersion(),

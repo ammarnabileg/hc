@@ -45,7 +45,7 @@
 ## 🔗 التبعيّات والملفّات المهمّة
 <!-- تلقائيّ:بداية:التبعيات -->
 - **الطبقات الأخرى لنفس المجال:** `resources/views/security` · `routes/parts` · `tests/Feature/Security`
-- **الاختبارات:** 6 ملفّ Feature في `tests/Feature/Security` — شغّلها بـ`php artisan test tests/Feature/Security`.
+- **الاختبارات:** 9 ملفّ Feature في `tests/Feature/Security` — شغّلها بـ`php artisan test tests/Feature/Security`.
 - **المرجع الحاكم:** `دستور اساسي.md` · **وكيف نكتب:** `docs/BUILD.md`.
 - **المجلّد الأب:** `app/Services/_STATUS.md`.
 <!-- تلقائيّ:نهاية:التبعيات -->

@@ -4,6 +4,7 @@ namespace App\Services\Admin;
 
 use App\Models\AdAudience;
 use App\Models\User;
+use App\Support\Scope\ScopeFilter;
 use Illuminate\Support\Collection;
 
 /**
@@ -43,15 +44,15 @@ class AudienceSegments
             ->when($rule['registered_days'] ?? null, fn ($q, $days) => $q->where('created_at', '>=', now()->subDays((int) $days)));
     }
 
-    public function count(array $rule): int
+    public function count(array $rule, ?User $viewer = null): int
     {
-        return min($this->query($rule)->count(), (int) setting('admin.segments.max_members', 50000));
+        return min($this->query($rule, $viewer)->count(), (int) setting('admin.segments.max_members', 50000));
     }
 
     /** عيّنة أعضاء للمعاينة اللحظيّة — عددها إعداد لا رقم محروق */
-    public function preview(array $rule): Collection
+    public function preview(array $rule, ?User $viewer = null): Collection
     {
-        return $this->query($rule)
+        return $this->query($rule, $viewer)
             ->latest('id')
             ->limit((int) setting('admin.segments.preview_rows', 10))
             ->get();

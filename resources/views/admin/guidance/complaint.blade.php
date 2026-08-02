@@ -21,7 +21,7 @@
                     <div class="text-xs" style="color: var(--text-muted)">#{{ $complaint->user?->code }}</div>
                 </div>
                 <div class="ms-auto">
-                    <x-state-badge :state="$complaint->status === 'closed' ? 'idle' : 'warn'"
+                    <x-state-badge :state="\App\Services\Account\ComplaintService::stateOf($complaint->status)"
                                    :label="$statuses[$complaint->status] ?? $complaint->status" />
                 </div>
             </div>

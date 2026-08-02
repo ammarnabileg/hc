@@ -21,7 +21,13 @@
             ? $positive->forContext((string) setting('engagement.positive.surprise_context', 'surprise'))
             : null;
 
-        $floatingOffer = (bool) auth()->check();
+        /*
+         | ⭐ زرّ التذكرة **يخضع للسحبة الحقيقيّة** (2.6-ب: 20% من ظهورات
+         | الأيقونة). كان هنا `auth()->check()` فقط — أي أنّ الزرّ يظهر 100%
+         | مهما ضُبطت النسبة، وحتى لو كانت صفرًا. والسحبة نسبةٌ صادقة لا
+         | موجَّهة، فلا ندرة كاذبة ولا Dark Patterns (2.9).
+         */
+        $floatingOffer = auth()->check() && $positive->shouldOfferTicket();
     }
 @endphp
 

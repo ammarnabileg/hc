@@ -26,6 +26,12 @@ class AccessEngine
     /** مفاتيح المجموعة المحميّة (مالك المنصّة وحده) — تُمسَح مع الكاش */
     private ?array $ownerOnly = null;
 
+    /** شروط المصفوفة لكلّ صلاحيّة: key => string[] — تُمسَح مع الكاش */
+    private ?array $permissionConditions = null;
+
+    /** مفاتيح الصلاحيّات التي تفتح باب اللوحة — تُمسَح مع الكاش */
+    private ?array $adminKeys = null;
+
     public function __construct(
         private readonly ScopeResolver $scopes,
         private readonly ConditionEvaluator $conditions,
@@ -43,9 +49,10 @@ class AccessEngine
         $membership = $context ?? $this->context->for($user);
         $grants = $this->grantsFor($user)->where('permissionKey', $permissionKey);
 
-        // 3) Deny > Allow — يُفحَص المنع أوّلًا وقبل أيّ شيء
+        // 3) Deny > Allow — يُفحَص المنع أوّلًا وقبل أيّ شيء.
+        // وصفّ منعٍ بنطاقٍ تالف يُحسَب مانعًا: ما لا نفهمه لا نقرؤه إذنًا.
         foreach ($grants->where('effect', 'deny') as $deny) {
-            if ($this->matches($deny, $user, $target, $membership)) {
+            if (! $deny->hasValidScope() || $this->matches($deny, $user, $target, $membership)) {
                 return false;
             }
         }
@@ -77,6 +84,11 @@ class AccessEngine
     /**
      * 4) منع تصعيد الامتياز:
      * لا يُسنِد أحدٌ صلاحيّةً لا يملكها، ولا بنطاقٍ أوسع من نطاقه فيها.
+     *
+     * ⭐ ويفحص الشروط كذلك: صفٌّ مشروطٌ لا يتحقّق شرطُه في سياق المانح **لا يؤهّله
+     * للمنح**، وإلّا صار الشرط بابًا خلفيًّا يُغسَل به الامتياز (يملكها «داخل النافذة»
+     * فيمنحها بلا شرط). والفحص بلا هدف — فالشروط المقيسة على سجلٍّ بعينه لا معنى
+     * لها وقت الإسناد، أمّا شروط السياق (`active_membership` · `platform_owner`) فتُقاس.
      */
     public function canGrant(User $granter, string $permissionKey, string $scope, ?Membership $context = null): bool
     {
@@ -96,21 +108,67 @@ class AccessEngine
         }
 
         $grants = $this->grantsFor($granter)->where('permissionKey', $permissionKey);
+        $intrinsic = $this->conditionsOf($permissionKey);
 
-        // منعٌ صريح على الصلاحيّة يبطل المنح كلّه
+        // منعٌ صريح على الصلاحيّة يبطل المنح كلّه — والنطاق التالف يُحسَب مانعًا
         foreach ($grants->where('effect', 'deny') as $deny) {
-            if ($deny->scopeRank() >= $target) {
+            if (! $deny->hasValidScope() || $deny->scopeRank() >= $target) {
                 return false;
             }
         }
 
         foreach ($grants->where('effect', 'allow') as $allow) {
-            if ($allow->scopeRank() >= $target && $this->membershipApplies($allow, $membership)) {
+            if (! $allow->hasValidScope() || $allow->scopeRank() < $target) {
+                continue;
+            }
+
+            if (! $this->membershipApplies($allow, $membership)) {
+                continue;
+            }
+
+            if (! $this->conditions->passes([...$intrinsic, ...$allow->conditions], $granter, null, $membership)) {
+                continue;
+            }
+
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * ⭐ باب لوحة الإدارة (12.2.1-أ): «الشاشة نتيجةٌ للصلاحيّات لا صلاحيّةً بذاتها،
+     * ومنه: لوحة الإدارة تظهر لمن له **أيّ** صلاحيّة».
+     *
+     * فلا مفتاح `admin_panel.view` — الباب يُحسَب: هل يملك صاحبنا **أيّ صلاحيّة
+     * إداريّة**؟ ثمّ كلّ صفحةٍ بعدها تُحرَس بصلاحيّتها هي.
+     */
+    public function opensAdminPanel(User $user): bool
+    {
+        if ($this->isPlatformOwner($user)) {
+            return true;
+        }
+
+        foreach ($this->adminPermissionKeys() as $key) {
+            if ($this->allows($user, $key)) {
                 return true;
             }
         }
 
         return false;
+    }
+
+    /**
+     * مفاتيح الصلاحيّات الإداريّة — تُشتقّ من جدول المسارات نفسه لا من قائمة محروقة:
+     *   ما يحرس مسارًا داخل `admin.*`
+     *   − ولا يحرس أيّ مسارٍ خارجها (وإلّا فهو مفتاح صفحةٍ عامّة لا سلطةَ إدارة)
+     *   − ولا يدخل في قالب المستخدم النهائيّ (طبقة `user` — 12.2.3).
+     *
+     * @return array<int, string>
+     */
+    public function adminPermissionKeys(): array
+    {
+        return $this->adminKeys ??= AdminPanelSurface::keys();
     }
 
     /** أوسع نطاق يملكه المستخدم في صلاحيّة — يفيد في بناء الاستعلامات */
@@ -122,7 +180,8 @@ class AccessEngine
 
         $allows = $this->grantsFor($user)
             ->where('permissionKey', $permissionKey)
-            ->where('effect', 'allow');
+            ->where('effect', 'allow')
+            ->filter(fn (Grant $g) => $g->hasValidScope());
 
         if ($allows->isEmpty()) {
             return null;
@@ -147,6 +206,8 @@ class AccessEngine
 
         $this->cache = [];
         $this->ownerOnly = null;
+        $this->permissionConditions = null;
+        $this->adminKeys = null;
     }
 
     // ------------------------------------------------------------------ داخليّ
@@ -161,7 +222,32 @@ class AccessEngine
             return false;
         }
 
-        return $this->conditions->passes($grant->conditions, $user, $target, $membership);
+        /*
+         | ⭐ شرطان يُقيَّمان معًا:
+         |  (أ) شرط **المصفوفة** — عمود «الشرط» في 12.2.2 صفةٌ للصلاحيّة نفسها
+         |      («المالك فقط» · «ليس نفسه» · «الحالة = منشور»)، وكان يُخزَّن نصًّا
+         |      عربيًّا يُعرَض ولا يُقيَّم. صار مفاتيح مقفولةً تُقيَّم وقت الطلب.
+         |  (ب) شرط **الصفّ** — ما أضافه المسؤول على إسناد بعينه.
+         */
+        $conditions = [...$this->conditionsOf($grant->permissionKey), ...$grant->conditions];
+
+        return $this->conditions->passes($conditions, $user, $target, $membership);
+    }
+
+    /**
+     * شروط المصفوفة لصلاحيّة — مفاتيح مقفولة لا نصوص عربيّة.
+     *
+     * @return array<int, string>
+     */
+    private function conditionsOf(string $permissionKey): array
+    {
+        $this->permissionConditions ??= Permission::query()
+            ->whereNotNull('condition_keys')
+            ->pluck('condition_keys', 'key')
+            ->map(fn ($value) => is_array($value) ? $value : (json_decode((string) $value, true) ?: []))
+            ->all();
+
+        return $this->permissionConditions[$permissionKey] ?? [];
     }
 
     /**

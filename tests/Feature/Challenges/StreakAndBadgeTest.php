@@ -19,16 +19,16 @@ class StreakAndBadgeTest extends ChallengeTestCase
         $streaks = app(StreakService::class);
         $tz = 'Africa/Cairo';
 
-        $streaks->record($user, CarbonImmutable::parse('2026-07-01 09:00', $tz));
-        $streaks->record($user, CarbonImmutable::parse('2026-07-02 20:00', $tz));
+        $streaks->checkIn($user, CarbonImmutable::parse('2026-07-01 09:00', $tz));
+        $streaks->checkIn($user, CarbonImmutable::parse('2026-07-02 20:00', $tz));
         // نفس اليوم مرّة تانية لا يزيد العدّاد
-        $streak = $streaks->record($user, CarbonImmutable::parse('2026-07-02 22:00', $tz));
+        $streak = $streaks->checkIn($user, CarbonImmutable::parse('2026-07-02 22:00', $tz))['streak'];
 
         $this->assertSame(2, (int) $streak->current_days);
         $this->assertSame(2, (int) $streak->best_days);
 
         // انقطاع ⟵ العدّ يبدأ من جديد، وأطول ستريك يفضل محفوظًا
-        $streak = $streaks->record($user, CarbonImmutable::parse('2026-07-06 12:00', $tz));
+        $streak = $streaks->checkIn($user, CarbonImmutable::parse('2026-07-06 12:00', $tz))['streak'];
 
         $this->assertSame(1, (int) $streak->current_days);
         $this->assertSame(2, (int) $streak->best_days);
@@ -40,11 +40,11 @@ class StreakAndBadgeTest extends ChallengeTestCase
         $streaks = app(StreakService::class);
 
         $fresh = $this->trainee();
-        $streaks->record($fresh, CarbonImmutable::now('Africa/Cairo')->subDay());
+        $streaks->checkIn($fresh, CarbonImmutable::now('Africa/Cairo')->subDay());
         $this->assertFalse($streaks->isBroken($streaks->forUser($fresh)));
 
         $stale = $this->trainee();
-        $streaks->record($stale, CarbonImmutable::now('Africa/Cairo')->subDays(5));
+        $streaks->checkIn($stale, CarbonImmutable::now('Africa/Cairo')->subDays(5));
         $this->assertTrue($streaks->isBroken($streaks->forUser($stale)));
     }
 
@@ -54,9 +54,9 @@ class StreakAndBadgeTest extends ChallengeTestCase
         $streaks = app(StreakService::class);
         $tz = 'Africa/Cairo';
 
-        $streaks->record($user, CarbonImmutable::parse('2026-07-01 05:00', $tz)); // داخل النافذة
-        $streaks->record($user, CarbonImmutable::parse('2026-07-02 07:30', $tz)); // برّه النافذة
-        $streak = $streaks->record($user, CarbonImmutable::parse('2026-07-03 04:55', $tz)); // داخل النافذة
+        $streaks->checkIn($user, CarbonImmutable::parse('2026-07-01 05:00', $tz)); // داخل النافذة
+        $streaks->checkIn($user, CarbonImmutable::parse('2026-07-02 07:30', $tz)); // برّه النافذة
+        $streak = $streaks->checkIn($user, CarbonImmutable::parse('2026-07-03 04:55', $tz))['streak']; // داخل النافذة
 
         $this->assertSame(2, (int) $streak->club_5am_count);
         $this->assertDatabaseHas('streak_days', ['user_id' => $user->id, 'club_5am' => true]);
@@ -65,7 +65,7 @@ class StreakAndBadgeTest extends ChallengeTestCase
     public function test_broken_streak_shows_an_encouraging_neutral_message(): void
     {
         $user = $this->trainee();
-        app(StreakService::class)->record($user, CarbonImmutable::now()->subDays(9));
+        app(StreakService::class)->checkIn($user, CarbonImmutable::now()->subDays(9));
 
         $this->actingAs($user)
             ->get(route('achievements.streak'))

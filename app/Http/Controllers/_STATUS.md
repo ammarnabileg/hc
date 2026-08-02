@@ -20,7 +20,7 @@
   - `GatewayWebhookController.php` — ويب هوك بوّابة الدفع (19.5-ج-2) — مصدر الحقيقة الوحيد لإضافة رصيد الشحن.
   - `HomeController.php` — الواجهة العامّة للمنصّة (21.1 · 21.2).
   - `PublicPagesController.php` — صفحات مشتركة لا يملكها مجال بعينه.
-- **مجلّدات فرعيّة (8):** `Admin/` · `AdminScreens/` · `Auth/` · `Growth/` · `Setup/` · `Trainee/` · `Ui/` · `Volunteer/` — ولكلٍّ منها وثيقتها.
+- **مجلّدات فرعيّة (9):** `Admin/` · `AdminScreens/` · `Auth/` · `Growth/` · `Onboarding/` · `Setup/` · `Trainee/` · `Ui/` · `Volunteer/` — ولكلٍّ منها وثيقتها.
 <!-- تلقائيّ:نهاية:المنجز -->
 
 ## ⬜ المتبقّي

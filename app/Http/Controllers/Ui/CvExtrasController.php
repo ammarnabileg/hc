@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Cv;
 use App\Services\Library\AtsPdfWriter;
 use App\Services\Library\CvBuilder;
+use App\Services\Library\CvExport;
 use App\Services\Library\CvImporter;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -25,6 +26,7 @@ class CvExtrasController extends Controller
         private readonly CvBuilder $builder,
         private readonly CvImporter $importer,
         private readonly AtsPdfWriter $pdf,
+        private readonly CvExport $export,
     ) {}
 
     // ---------------------------------------------------- الاستيراد والتحليل
@@ -117,10 +119,27 @@ class CvExtrasController extends Controller
             return redirect()->route('cv.download')->with('status', $this->pdf->unavailableReason());
         }
 
+        // ⭐ **لحظة الخصم** هنا لا عند اختيار القالب (9) — وبلا تأكيد نعرض
+        // المعاينة الموسومة بدل أن نخصم من غير علم صاحب التذاكر.
+        $decision = $this->export->resolve($user, $cv, $data, $request->boolean('confirm'));
+
+        if (! $decision['clean']) {
+            return redirect()
+                ->route('cv.download')
+                ->with('status', $decision['notice']);
+        }
+
+        if ($decision['data'] !== $data) {
+            $cv->data = $decision['data'];
+            $cv->save();
+        }
+
         $binary = $this->pdf->build(
             (string) $user->name,
-            $this->headline($data),
-            $this->sections($user, $data),
+            $this->headline($decision['data']),
+            $this->sections($user, $decision['data']),
+            // ⭐ القالب المدفوع يظهر أثره في المخرَج — لا في المعاينة وحدها (9)
+            $decision['template']?->atsOptions() ?? [],
         );
 
         $name = 'CV-'.$user->code.'.pdf';
@@ -164,9 +183,14 @@ class CvExtrasController extends Controller
             ->where('is_public', true)
             ->firstOrFail();
 
-        $cv->increment('public_views');
-
+        // ⚠️ صاحب السيرة قد يكون محذوفًا Soft فـ`$cv->user` تُرجِع null.
+        // الـ500 هنا **يُثبت وجود الرابط** بينما ترجّع كلّ الواجهات الأخرى 404
+        // نظيفًا — فيصير الخطأ نفسه تسريبًا. نُوحّد السلوك: 404.
         $user = $cv->user;
+
+        abort_if($user === null, 404);
+
+        $cv->increment('public_views');
         $data = array_replace($this->builder->blank(), (array) $cv->data);
 
         // الرابط العامّ لا يحمل الموبايل ولا البريد — قاعدة خصوصيّة (10 · 13.4-م)
@@ -216,39 +240,82 @@ class CvExtrasController extends Controller
         $sections = [];
 
         if ($contact !== []) {
-            $sections[] = ['heading' => 'بيانات التواصل', 'lines' => [implode(' · ', $contact)]];
+            $sections[] = ['heading' => (string) setting('cv.section.contact_label', 'بيانات التواصل'), 'lines' => [implode(' · ', $contact)]];
         }
 
-        if (trim((string) ($profile['summary'] ?? '')) !== '') {
-            $sections[] = ['heading' => 'الملخّص المهنيّ', 'lines' => [(string) $profile['summary']]];
+        $lang = CvBuilder::lang($data);
+        $summary = CvBuilder::text($profile, 'summary', $lang);
+
+        if ($summary !== '') {
+            $sections[] = ['heading' => (string) setting('cv.section.summary_label', 'الملخّص المهنيّ'), 'lines' => [$summary]];
         }
 
         $experience = [];
 
         foreach ((array) ($data['experience'] ?? []) as $row) {
-            $experience[] = $this->entryLine($row, 'title', 'company');
+            $experience[] = $this->entryLine((array) $row, 'title', 'company');
 
-            if (trim((string) ($row['description'] ?? '')) !== '') {
-                $experience[] = (string) $row['description'];
+            if (($note = CvBuilder::text((array) $row, 'description', $lang)) !== '') {
+                $experience[] = $note;
             }
         }
 
         if ($experience !== []) {
-            $sections[] = ['heading' => 'الخبرة العمليّة', 'lines' => $experience];
+            $sections[] = ['heading' => (string) setting('cv.section.experience_label', 'الخبرة العمليّة'), 'lines' => $experience];
+        }
+
+        // 💖 الخبرة التطوّعيّة — بندٌ صريح في القسم 9 وكان غائبًا عن المخرَج
+        $volunteering = [];
+
+        foreach ((array) ($data['volunteering'] ?? []) as $row) {
+            $volunteering[] = $this->entryLine((array) $row, 'role', 'organization');
+
+            if (($note = CvBuilder::text((array) $row, 'description', $lang)) !== '') {
+                $volunteering[] = $note;
+            }
+        }
+
+        if ($volunteering !== []) {
+            $sections[] = ['heading' => (string) setting('cv.section.volunteering_label', 'الخبرة التطوّعيّة'), 'lines' => $volunteering];
         }
 
         $education = [];
 
         foreach ((array) ($data['education'] ?? []) as $row) {
-            $education[] = $this->entryLine($row, 'degree', 'institution');
+            // التخصّص لا المدينة — صفوف التعليم لا تحمل `city` (9)
+            $education[] = $this->entryLine($row, 'degree', 'institution', 'major');
         }
 
         if ($education !== []) {
-            $sections[] = ['heading' => 'التعليم', 'lines' => $education];
+            $sections[] = ['heading' => (string) setting('cv.section.education_label', 'التعليم'), 'lines' => $education];
+        }
+
+        // 🎓 الدورات التدريبيّة: اسم · جهة · تاريخ · رقم · رابط (9)
+        $courses = [];
+
+        foreach ((array) ($data['courses'] ?? []) as $row) {
+            $row = (array) $row;
+            $line = trim(implode(' — ', array_filter([
+                (string) ($row['name'] ?? ''),
+                (string) ($row['provider'] ?? ''),
+                (string) ($row['date'] ?? ''),
+                filled($row['serial'] ?? null)
+                    ? (string) setting('cv.section.certificate_number_prefix', 'رقم').' '.$row['serial']
+                    : '',
+                (string) ($row['url'] ?? ''),
+            ])));
+
+            if ($line !== '') {
+                $courses[] = $line;
+            }
+        }
+
+        if ($courses !== []) {
+            $sections[] = ['heading' => (string) setting('cv.section.courses_label', 'الدورات التدريبيّة'), 'lines' => $courses];
         }
 
         if (trim((string) ($data['skills'] ?? '')) !== '') {
-            $sections[] = ['heading' => 'المهارات', 'lines' => [(string) $data['skills']]];
+            $sections[] = ['heading' => (string) setting('cv.section.skills_label', 'المهارات'), 'lines' => [(string) $data['skills']]];
         }
 
         $languages = [];
@@ -265,33 +332,61 @@ class CvExtrasController extends Controller
         }
 
         if ($languages !== []) {
-            $sections[] = ['heading' => 'اللغات', 'lines' => $languages];
+            $sections[] = ['heading' => (string) setting('cv.section.languages_label', 'اللغات'), 'lines' => $languages];
         }
 
+        // ⭐ الربط التلقائيّ: التدريبات المكتملة تُضاف تلقائيًّا (9)
+        $trainings = ($pulled['trainings'] ?? collect())
+            ->map(fn ($enrollment) => trim((string) ($lang === 'en'
+                ? ($enrollment->course?->name_en ?: $enrollment->course?->name_ar)
+                : $enrollment->course?->name_ar)))
+            ->filter()
+            ->values()
+            ->all();
+
+        if ($trainings !== []) {
+            $sections[] = ['heading' => (string) setting('cv.section.trainings_label', 'تدريبات المنصّة المكتملة'), 'lines' => $trainings];
+        }
+
+        // ⭐ رقم الشهادة عمودُه **`code`** — لا `serial` (عمودٌ لا وجود له،
+        // فكان الرقم يخرج فارغًا دائمًا في الـPDF وفي الرابط العامّ).
         $certificates = $pulled['certificates']->map(
-            fn ($certificate) => trim(($certificate->certificate_type?->name_ar ?? 'شهادة')
-                .' — '.($certificate->issued_at?->format('Y/m') ?? '')
-                .' — رقم '.$certificate->serial)
+            fn ($certificate) => trim(implode(' — ', array_filter([
+                $certificate->certificate_type?->name_ar ?? (string) setting('cv.section.certificate_fallback', 'شهادة'),
+                (string) ($certificate->issued_at?->format('Y/m') ?? ''),
+                filled($certificate->code)
+                    ? (string) setting('cv.section.certificate_number_prefix', 'رقم').' '.$certificate->code
+                    : '',
+            ])))
         )->all();
 
         if ($certificates !== []) {
-            $sections[] = ['heading' => 'الشهادات', 'lines' => $certificates];
+            $sections[] = ['heading' => (string) setting('cv.section.certificates_label', 'الشهادات'), 'lines' => $certificates];
         }
 
         return $sections;
     }
 
-    private function entryLine(array $row, string $first, string $second): string
+    /**
+     * سطر صفٍّ متكرّر.
+     *
+     * ⚠️ `$extra` صريحٌ لأنّ الأعمدة تختلف بين الأقسام: صفوف **التعليم** لا
+     * تحمل `city` أصلًا بل `major` — وكان السطر يطبع مدينةً غير موجودة
+     * ويُسقط التخصّص، فيخرج المؤهّل بلا تخصّصه.
+     */
+    private function entryLine(array $row, string $first, string $second, string $extra = 'city'): string
     {
         $period = trim(implode(' – ', array_filter([
             (string) ($row['from'] ?? ''),
-            ($row['current'] ?? false) ? 'حتى الآن' : (string) ($row['to'] ?? ''),
+            ($row['current'] ?? false)
+                ? (string) setting('cv.until_now_label', 'حتى الآن')
+                : (string) ($row['to'] ?? ''),
         ])));
 
         return trim(implode(' — ', array_filter([
             (string) ($row[$first] ?? ''),
             (string) ($row[$second] ?? ''),
-            (string) ($row['city'] ?? ''),
+            (string) ($row[$extra] ?? ''),
             $period,
         ])));
     }

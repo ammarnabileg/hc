@@ -190,7 +190,10 @@ class AdminCoreTest extends TestCase
             ->assertOk()
             ->viewData('tabs'))->pluck('key')->all();
 
-        $this->assertSame(['profile', 'wallet', 'learning', 'certificates', 'advanced', 'volunteer'], $tabs);
+        $this->assertSame(
+            ['profile', 'tables', 'wallet', 'learning', 'certificates', 'security', 'admin', 'advanced', 'volunteer'],
+            $tabs,
+        );
 
         // مسؤول الدعم بلا صلاحيّة التطوّع ⟵ التاب مخفيّ تمامًا
         $supportTabs = collect($this->actingAs($this->supportAdmin())

@@ -3,12 +3,17 @@
 namespace App\Http\Controllers\Trainee;
 
 use App\Http\Controllers\Controller;
+use App\Models\Course;
 use App\Models\Enrollment;
 use App\Models\LearningPath;
 use App\Services\Learning\AvailabilityService;
 use App\Services\Learning\CredentialService;
+use App\Services\Learning\DeadlineService;
 use App\Services\Learning\PathService;
 use App\Services\Learning\ProgressService;
+use App\Services\Learning\TimezoneDetector;
+use App\Services\Learning\UserClock;
+use App\Services\Learning\XpCalculator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
@@ -26,6 +31,10 @@ class PathController extends Controller
         private readonly ProgressService $progress,
         private readonly AvailabilityService $availability,
         private readonly CredentialService $credentials,
+        private readonly DeadlineService $deadlines,
+        private readonly XpCalculator $xp,
+        private readonly TimezoneDetector $timezones,
+        private readonly UserClock $clock,
     ) {}
 
     public function index(Request $request): View
@@ -73,6 +82,9 @@ class PathController extends Controller
     {
         $user = $request->user();
 
+        // نفس كشف صفحتَي التدريب: المنطقة تتبع مكانه الآن قبل أيّ حساب إتاحة (5)
+        $this->timezones->sync($request, $user);
+
         $enrollments = Enrollment::query()
             ->where('user_id', $user->id)
             ->get()
@@ -87,6 +99,11 @@ class PathController extends Controller
         $courses = $this->paths->coursesOf($path);
         $summaries = $this->progress->summaries($user, $enrollments->values());
 
+        // ⭐ عناصر 3.3 و3.4 دفعةً واحدة: المدّة · الدليل الاجتماعيّ · تقدّم المدعوّين
+        $durations = $this->paths->durations($courses);
+        $social = $this->paths->socialProof($courses);
+        $friends = $this->paths->invitedProgress($user, $courses);
+
         $rows = [];
 
         foreach ($courses as $index => $course) {
@@ -100,7 +117,19 @@ class PathController extends Controller
                 'enrollment' => $enrollment,
                 'summary' => $summary,
                 'completed' => in_array($course->id, $completed, true),
-                'availability' => $this->availability->forCourse($course, $enrollment),
+                /*
+                 | ⭐ الإتاحة بساعة **صاحب الشاشة** لا بساعة الخادم (5).
+                 | كانت تُنادى بلا `$user` فتُحسَب بتوقيت الخادم، فتقول صفحة المسار
+                 | «مقفول — يفتح الاثنين» بينما صفحة التدريب نفسها مفتوحة ودروسها
+                 | متاحة؛ وكلمة «بتوقيتك» في الرسالة تجعل الكذبة أشدّ ضررًا.
+                 */
+                'availability' => $this->availability->forCourse($course, $enrollment, $user),
+                'deadline' => $enrollment ? $this->deadlines->forEnrollment($enrollment) : null,
+                'certificate' => $this->credentials->certificateBadge($user, $course),
+                'duration' => $durations[$course->id] ?? 0,
+                'reward' => $enrollment ? $this->earlyReward($course, $enrollment) : null,
+                'social' => $social[$course->id] ?? ['completed' => 0, 'learning_now' => 0],
+                'friends' => $friends[$course->id] ?? [],
             ];
         }
 
@@ -110,6 +139,29 @@ class PathController extends Controller
             'progress' => $this->paths->progress($user, $path),
             'exam' => $this->credentials->pathExam($path),
             'certificate' => $this->credentials->certificateBadge($user, $path),
+            // ⭐ إجماليّ مدّة المسار = مجموع دقائق دروس تدريباته (3.3 — الهيدر)
+            'totalMinutes' => array_sum($durations),
+            // ⭐ لمحة ترتيبك على صفحة المسار (3.4-46)
+            'glimpse' => $this->paths->rankGlimpse($user),
+            'clockTimezone' => $this->clock->timezoneFor($user),
         ]);
+    }
+
+    /**
+     * ⭐ العدّاد التنازليّ ومكافأة الإكمال المبكر إنلاين على الكارت (3.3).
+     *
+     * القيم من `XpCalculator` نفسه لا من حسابٍ ثانٍ هنا — فما يراه على الكارت
+     * هو بالضبط ما سيُكتَب له لحظة الإكمال، ولا يوجد رقمان لنفس المعنى.
+     *
+     * @return array{xp:int, tickets:int, before_half:bool, half_at:?\Illuminate\Support\Carbon}
+     */
+    private function earlyReward(Course $course, Enrollment $enrollment): array
+    {
+        return [
+            'xp' => $this->xp->previewXp($course, $enrollment),
+            'tickets' => $this->xp->lessonTickets($course, $enrollment),
+            'before_half' => $this->xp->isBeforeHalf($enrollment),
+            'half_at' => $this->xp->halfPoint($enrollment),
+        ];
     }
 }

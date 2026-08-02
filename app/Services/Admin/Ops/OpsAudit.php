@@ -27,9 +27,12 @@ class OpsAudit
         'ops.onboarding.first_time.updated' => 'تعديل شاشات «أوّل مرّة»',
         'ops.updates.dry_run' => 'Dry-run للترحيل',
         'ops.updates.migrated' => 'تنفيذ الترحيل',
+        'ops.updates.failed' => 'فشل تحديث واستعادة',
+        'ops.updates.restored' => 'استعادة من نسخة احتياطيّة',
         'ops.updates.rolled_back' => 'استرجاع آخر دفعة',
         'ops.updates.version_recorded' => 'تسجيل إصدار',
         'ops.backups.created' => 'نسخة احتياطيّة',
+        'ops.backups.restored' => 'استعادة بيانات من نسخة',
         'ops.backups.deleted' => 'حذف نسخة احتياطيّة',
         'ops.backups.downloaded' => 'تنزيل نسخة احتياطيّة',
         'ops.backups.schedule_updated' => 'تعديل جدولة النسخ',
@@ -41,6 +44,8 @@ class OpsAudit
     public const UPDATE_ACTIONS = [
         'ops.updates.dry_run',
         'ops.updates.migrated',
+        'ops.updates.failed',
+        'ops.updates.restored',
         'ops.updates.rolled_back',
         'ops.updates.version_recorded',
     ];
@@ -48,6 +53,7 @@ class OpsAudit
     /** أفعال النظام والنسخ — صفحة النسخ وصحّة النظام تعرض سجلّها فقط */
     public const SYSTEM_ACTIONS = [
         'ops.backups.created',
+        'ops.backups.restored',
         'ops.backups.deleted',
         'ops.backups.downloaded',
         'ops.backups.schedule_updated',

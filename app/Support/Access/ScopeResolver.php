@@ -16,6 +16,14 @@ class ScopeResolver
     /** هل يغطّي هذا النطاق الهدفَ المطلوب؟ */
     public function covers(string $scope, User $user, mixed $target, ?Membership $context): bool
     {
+        /*
+         | نطاقٌ خارج القائمة الستّة = صفٌّ تالف، ويُرفَض **قبل** اختصار «بلا هدف».
+         | فبدون هذا السطر كان الفحص المبدئيّ (بلا هدف) يمرّ لأيّ نصٍّ في العمود.
+         */
+        if (! in_array($scope, config('access.scopes'), true)) {
+            return false;
+        }
+
         // بلا هدف: النطاق يكفي بذاته (فحص «هل يستطيع مبدئيًّا؟»)
         if ($target === null) {
             return true;

@@ -9,6 +9,8 @@ use App\Models\Exam;
 use App\Models\Lesson;
 use App\Models\LessonQuestion;
 use App\Models\Section;
+use App\Models\User;
+use App\Support\Scope\ScopeFilter;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -261,9 +263,11 @@ class CourseFormService
     }
 
     /** المسجّلون في التدريب — «الضغط على العدد ⟵ مَن هم» (12.4-ب). */
-    public function enrollees(Course $course): LengthAwarePaginator
+    /** المسجّلون في تدريب — ومع `$viewer` يُحصَرون بنطاقه (12.2.1-ب) */
+    public function enrollees(Course $course, ?User $viewer = null): LengthAwarePaginator
     {
         return Enrollment::query()
+            ->when($viewer !== null, fn ($q) => app(ScopeFilter::class)->apply($q, $viewer, 'courses.view'))
             ->with('user')
             ->where('course_id', $course->id)
             ->latest('id')

@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Services\Admin\Ops\BackupManager;
 use App\Services\Admin\Ops\OpsAudit;
 use App\Services\Admin\Ops\UpdateManager;
 use Illuminate\Http\RedirectResponse;
@@ -23,24 +22,13 @@ class UpdatesController extends Controller
 {
     public function __construct(
         private readonly UpdateManager $updates,
-        private readonly BackupManager $backups,
         private readonly OpsAudit $audit,
     ) {}
 
     public function index(Request $request): View
     {
-        $pending = $this->updates->pending();
-
-        return view('admin.ops.updates', [
-            'tab' => 'overview',
-            'version' => $this->updates->currentVersion(),
-            'pending' => $pending,
-            'applied' => $this->updates->appliedCount(),
-            'lastBatch' => $this->updates->lastBatch(),
+        return view('admin.ops.updates', $this->shared($request, 'overview') + [
             'dryRun' => $request->session()->get('ops.dry_run'),
-            'hasFreshDryRun' => $this->updates->hasFreshDryRun($request->user(), $pending),
-            'confirmPhrase' => (string) setting('updates.confirm_phrase', 'تنفيذ'),
-            'rollbackPhrase' => (string) setting('updates.rollback_confirm_phrase', 'استرجاع'),
             'logs' => $this->audit->feed(OpsAudit::UPDATE_ACTIONS, (int) setting('updates.audit_per_page', 10)),
             'history' => null,
         ]);
@@ -49,21 +37,39 @@ class UpdatesController extends Controller
     /** سجلّ الإصدارات في تاب مستقلّ — تحميل كسول لا يُبنى إلّا عند فتحه (2.15-ب) */
     public function history(Request $request): View
     {
-        $pending = $this->updates->pending();
+        return view('admin.ops.updates', $this->shared($request, 'history') + [
+            'dryRun' => null,
+            'logs' => null,
+            'history' => $this->updates->history((int) setting('updates.history_per_page', 20)),
+        ]);
+    }
 
-        return view('admin.ops.updates', [
-            'tab' => 'history',
+    /**
+     * ما تشترك فيه التابّان — والفحوص القبليّة وجدول البصمات جزءٌ من الشاشة
+     * لا زرٌّ مخفيّ: المالك لازم يشوف **قبل** أن يضغط (12.7-هـ).
+     */
+    private function shared(Request $request, string $tab): array
+    {
+        $pending = $this->updates->pending();
+        $checks = $this->updates->preflightChecks();
+
+        return [
+            'tab' => $tab,
             'version' => $this->updates->currentVersion(),
             'pending' => $pending,
             'applied' => $this->updates->appliedCount(),
             'lastBatch' => $this->updates->lastBatch(),
-            'dryRun' => null,
             'hasFreshDryRun' => $this->updates->hasFreshDryRun($request->user(), $pending),
             'confirmPhrase' => (string) setting('updates.confirm_phrase', 'تنفيذ'),
             'rollbackPhrase' => (string) setting('updates.rollback_confirm_phrase', 'استرجاع'),
-            'logs' => null,
-            'history' => $this->updates->history((int) setting('updates.history_per_page', 20)),
-        ]);
+            'restorePhrase' => (string) setting('updates.restore_confirm_phrase', 'استعادة'),
+            'checks' => $checks,
+            'preflightOk' => $this->updates->preflightPasses($checks),
+            'lock' => $this->updates->lockState(),
+            'ledger' => $this->updates->ledgerRows((int) setting('updates.ledger_per_page', 15)),
+            'runs' => $this->updates->runs((int) setting('updates.runs_per_page', 5)),
+            'lastFailure' => $this->updates->lastFailure(),
+        ];
     }
 
     /** [فحص المايجريشنز المعلّقة] — يعرضها بالاسم، ولا ينفّذ حرفًا */
@@ -86,7 +92,12 @@ class UpdatesController extends Controller
             ->with('status', 'Dry-run خلص — ده بالظبط اللي هيتنفّذ، ولسه مافيش حاجة اتغيّرت.');
     }
 
-    /** [تنفيذ] — بتأكيد مزدوج، وبنسخة احتياطيّة قبله، وبتسجيل مَن نفّذ ومتى */
+    /**
+     * [تنفيذ] — بتأكيد مزدوج، وبخطّ 2.11 كامل خلفه: قفل · فحوص قبليّة · صيانة ·
+     * نسخة متحقَّق منها · هجرة هجرة بتحقّق · بذور · رفع إصدار · خروج من الصيانة.
+     * والفشل لا يرمي استثناءً بل **يرجع بتقرير** — لأنّ المالك يحتاج أن يقرأ
+     * ماذا حدث وماذا يفعل، لا أن يرى شاشة خطأ (2.17).
+     */
     public function migrate(Request $request): RedirectResponse
     {
         $this->requireConfirmation($request, (string) setting('updates.confirm_phrase', 'تنفيذ'));
@@ -103,24 +114,42 @@ class UpdatesController extends Controller
             ]);
         }
 
-        $backupId = null;
+        $result = $this->updates->run($request->user());
 
-        // نسخة احتياطيّة قبل أيّ ترحيل — بلا نسخة صالحة لا يبدأ شيء (12.7-و)
-        if (setting('updates.backup_before_migrate', true)) {
-            $backup = $this->backups->create('database', $request->user());
-
-            if (! $backup['ok']) {
-                throw ValidationException::withMessages([
-                    'confirm' => 'مقدرناش ناخد نسخة احتياطيّة قبل الترحيل — '.$backup['message'],
-                ]);
-            }
-
-            $backupId = $backup['id'];
+        if (! $result['ok']) {
+            return back()
+                ->with('ops.failure', $result['report'])
+                ->with('status', $result['message']);
         }
 
-        $result = $this->updates->migrate($request->user(), $backupId);
+        return back()->with('status', $result['message']);
+    }
 
-        return back()->with('status', 'اتنفّذت '.count($result['ran']).' هجرة ✓ — والنسخة الاحتياطيّة محفوظة قبلها.');
+    /** [الفحوص القبليّة] — تشغيلها بنفسها لا يلمس شيئًا، وهي شرط بدء التحديث (2.11-ب) */
+    public function preflight(Request $request): RedirectResponse
+    {
+        $checks = $this->updates->preflightChecks();
+
+        return back()->with('status', $this->updates->preflightPasses($checks)
+            ? 'كلّ الفحوص القبليّة عدّت ✓ — تقدر تكمّل.'
+            : 'في فحص قبليّ ما عدّاش — راجع القائمة تحت قبل ما تحدّث.');
+    }
+
+    /**
+     * [استعادة من نسخة احتياطيّة] — زرّ ما بعد الفشل (12.7-هـ).
+     * بعبارة تأكيد مكتوبة كذلك، فالاستعادة تكتب فوق البيانات الحاليّة.
+     */
+    public function restore(Request $request, int $backup): RedirectResponse
+    {
+        $this->requireConfirmation($request, (string) setting('updates.restore_confirm_phrase', 'استعادة'));
+
+        $result = $this->updates->restoreFromBackup($backup, $request->user());
+
+        if (! $result['ok']) {
+            throw ValidationException::withMessages(['confirm' => $result['message']]);
+        }
+
+        return back()->with('status', $result['message']);
     }
 
     /** [استرجاع] آخر دفعة — والتحذير بما سيُفقَد معروض في الشاشة قبل الضغط */

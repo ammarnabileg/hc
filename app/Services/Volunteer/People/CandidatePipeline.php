@@ -6,6 +6,7 @@ use App\Models\CandidateEntityFit;
 use App\Models\Entity;
 use App\Models\RecruitmentCandidate;
 use App\Models\User;
+use App\Support\Scope\ScopeFilter;
 use Illuminate\Support\Collection;
 
 /**
@@ -61,8 +62,15 @@ class CandidatePipeline
         $max = (float) ($filters['score_max'] ?? $this->scoreCeiling());
         $q = trim((string) ($filters['q'] ?? ''));
 
+        // ⭐ النطاق إلزاميّ مع كلّ صلاحيّة (12.2.1-ب): مَن نطاقه قسمٌ لا يرى
+        // مرشّحي المنصّة كلّها — والمرشّح يُقاس بأقسامه المناسبة لأنّه بلا عضويّة بعد.
+        $visibleEntities = app(ScopeFilter::class)->visibleEntityIds($viewer, 'candidates.list');
+
         return RecruitmentCandidate::query()
             ->with('user')
+            ->when($visibleEntities !== null, fn ($b) => $b->whereIn('id', CandidateEntityFit::query()
+                ->whereIn('entity_id', $visibleEntities === [] ? [0] : $visibleEntities)
+                ->select('recruitment_candidate_id')))
             ->when(! empty($filters['stage']), fn ($b) => $b->where('stage', $filters['stage']))
             ->when(isset($filters['score_min']) || isset($filters['score_max']), function ($b) use ($min, $max) {
                 // نطاق الدرجات بمنزلق مدى — والمرشّح بلا درجة لا يُقصى بصمت

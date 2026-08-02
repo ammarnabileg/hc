@@ -22,6 +22,10 @@ class PeopleBridge
 
     private const CELEBRATION = 'App\Services\Gamification\CelebrationService';
 
+    private const ECONOMY = 'App\Services\Gamification\EconomyLedger';
+
+    private const ECONOMY_RULES = 'App\Services\Gamification\EconomyRules';
+
     /** إضافة رصيد بعملة تطوّعيّة (vxp / rep) — بلا كسر لو غاب الدفتر */
     public function credit(User $user, string $currency, float $amount, string $source, ?Model $reference = null, ?string $reason = null): void
     {
@@ -34,6 +38,45 @@ class PeopleBridge
         } catch (\Throwable $e) {
             // الفشل هنا لا يُبطل الفعل نفسه — والمنطق مسجَّل عندنا
             Log::warning('People ledger credit failed: '.$e->getMessage());
+        }
+    }
+
+    /**
+     * منح XP من نقطة المنح الموحّدة (7 · 7.3) — فيظهر في الليدر بورد والمستوى
+     * والمحفظة معًا، لا في عمودٍ منعزل. و`$ruleKey` مفتاح صفّ الكسب في
+     * `xp_rules.earn` فتُقرأ قيمتُه وحدُّه اليوميّ من الإعدادات لا من الكود (2.13).
+     *
+     * @return int ما مُنِح فعلًا
+     */
+    public function awardXp(User $user, int $amount, string $source, ?Model $reference = null, ?string $reason = null, ?string $ruleKey = null): int
+    {
+        if ($amount <= 0 || ! class_exists(self::ECONOMY)) {
+            return 0;
+        }
+
+        try {
+            return (int) app(self::ECONOMY)->awardXp(
+                user: $user, amount: $amount, source: $source,
+                reference: $reference, reason: $reason, ruleKey: $ruleKey,
+            );
+        } catch (\Throwable $e) {
+            Log::warning('People xp award failed: '.$e->getMessage());
+
+            return 0;
+        }
+    }
+
+    /** قيمة صفّ الكسب من جدول XP المعلَن في لوحة الإدارة — لا رقم محروق (2.13) */
+    public function xpRuleValue(string $ruleKey, int $default): int
+    {
+        if (! class_exists(self::ECONOMY_RULES)) {
+            return $default;
+        }
+
+        try {
+            return (int) app(self::ECONOMY_RULES)->earnValue($ruleKey, $default);
+        } catch (\Throwable) {
+            return $default;
         }
     }
 

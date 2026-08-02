@@ -7,7 +7,9 @@ use App\Models\CelebrationEvent;
 use App\Models\Certificate;
 use App\Models\CertificateTemplate;
 use App\Models\CertificateType;
+use App\Models\Country;
 use App\Models\User;
+use App\Services\Onboarding\HolderIdentity;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 
@@ -60,7 +62,7 @@ class CertificateIssuer
                 'certificate_type_id' => $type->id,
                 'language' => $language,
                 'template_snapshot' => $this->templateSnapshot($type, $language),
-                'data_snapshot' => $this->dataSnapshot($user, $type, $subject, $data, $code, $issuedAt),
+                'data_snapshot' => $this->dataSnapshot($user, $type, $subject, $data, $code, $issuedAt, $language),
                 'source' => $source,
                 'issued_at' => $issuedAt,
                 'status' => 'valid',
@@ -72,6 +74,13 @@ class CertificateIssuer
             }
 
             $certificate->save();
+
+            /*
+             | ⭐ إبطال الكاش لحظة الإصدار (8 · 8.1): الكود قد يكون قد خدم شهادةً
+             | سابقةً بنفس الرقم، فلو بقي ملفّها المرسوم أجاب الرابطَ الجديد
+             | باسم صاحبها القديم — صفحة التحقّق تقول شيئًا والصورة تقول آخر.
+             */
+            $this->renderer->forget($certificate);
 
             return $certificate;
         });
@@ -210,22 +219,85 @@ class CertificateIssuer
         ];
     }
 
-    private function dataSnapshot(User $user, CertificateType $type, ?Model $subject, array $data, string $code, $issuedAt): array
+    private function dataSnapshot(User $user, CertificateType $type, ?Model $subject, array $data, string $code, $issuedAt, string $language = 'ar'): array
     {
-        $subjectName = $data['certificate_name']
-            ?? ($subject?->name_ar ?? $subject?->title_ar ?? $type->name_ar);
+        $subjectName = $data['certificate_name'] ?? $this->certificateName($subject, $type, $language);
 
         return array_merge([
-            'holder_name' => $user->name,
+            /*
+             | ⭐ اسم الشهادة من **بيانات الشهادات والإفادات** (2.5-ج): الاسم بلغة
+             | النسخة ومعه اللقب. واللقطة مجمَّدة لحظة الإصدار (12.5-ج)، فلو خرجت
+             | باسمٍ ناقص لا تُصلَح بعدها — ولذلك تُقرأ الحقول من مصدرها الواحد.
+             */
+            ...HolderIdentity::documentFields($user, $language),
             'holder_code' => $user->code,
             'certificate_name' => $subjectName,
             'type_key' => $type->key,
             'type_name' => $type->name_ar,
             'accreditation_name' => $type->accreditation?->name_ar ?? (string) setting('certificates.accreditation.default_name', 'اعتماد المنصّة'),
             'accreditation_logo' => $type->accreditation?->logo_path,
-            'country' => $user->country?->name_ar,
+            'country' => $this->holderCountry($user, $language),
             'issued_on' => $issuedAt->format((string) setting('certificates.render.date_format', 'Y/m/d')),
             'code' => $code,
         ], $data);
+    }
+
+    /**
+     * ⭐ **اسم الشهادة لا اسم العرض** (8 · 3).
+     *
+     * لكلّ تدريب اسمان: اسم عرضٍ يراه الناس على المنصّة، واسم شهادةٍ يُكتَب على
+     * الوثيقة — كلٌّ بالعربيّ والإنجليزيّ. والدستور صريح: «اسم التدريب (**اسم
+     * الشهادة** — مش اسم العرض)». فنقرأ `cert_name_*` أوّلًا، ولا نرتدّ إلى اسم
+     * العرض إلّا حين لا يكون للكيان اسم شهادةٍ أصلًا (فعاليّة أو بوزشن مثلًا).
+     */
+    private function certificateName(?Model $subject, CertificateType $type, string $language): string
+    {
+        $ordered = $language === 'en'
+            ? ['cert_name_en', 'cert_name_ar', 'name_en', 'name_ar', 'title_en', 'title_ar']
+            : ['cert_name_ar', 'cert_name_en', 'name_ar', 'name_en', 'title_ar', 'title_en'];
+
+        foreach ($subject ? $ordered : [] as $attribute) {
+            $value = trim((string) ($subject->getAttribute($attribute) ?? ''));
+
+            if ($value !== '') {
+                return $value;
+            }
+        }
+
+        return (string) ($language === 'en' ? ($type->name_en ?: $type->name_ar) : $type->name_ar);
+    }
+
+    /**
+     * الدولة **من ملفّ المستخدم لحظة الإصدار** (8): الدستور يعدّها من بيانات
+     * الشهادة، وكانت تخرج فارغةً كلّما لم يكن الكشف قد جرى بعد. فإن غابت
+     * صراحةً نستنتجها من منطقته الزمنيّة ونثبّتها في ملفّه — فتُصلَح مرّةً
+     * لكلّ وثائقه بدل أن تُترَك فارغةً في لقطةٍ لا تُصلَح بعد تجميدها.
+     */
+    private function holderCountry(User $user, string $language): ?string
+    {
+        $user->loadMissing('country');
+
+        if (! $user->country && ! $user->country_locked_at) {
+            $timezone = $user->timezone ?: $user->auto_timezone;
+
+            $country = $timezone
+                ? Country::query()->where('timezone', $timezone)->where('is_active', true)->first()
+                : null;
+
+            if ($country) {
+                $user->forceFill(['country_id' => $country->id])->saveQuietly();
+                $user->setRelation('country', $country);
+            }
+        }
+
+        $country = $user->country;
+
+        if (! $country) {
+            return null;
+        }
+
+        return $language === 'en'
+            ? (string) ($country->name_en ?: $country->name_ar)
+            : (string) ($country->name_ar ?: $country->name_en);
     }
 }

@@ -74,6 +74,11 @@
     <x-first-run />
 @endauth
 
+@auth
+    {{-- كشف المنطقة الزمنيّة على **كلّ** صفحة — الإتاحة كلّها مبنيّة عليه (5) --}}
+    @include('learning.partials.timezone-detect', ['storedTimezone' => auth()->user()->auto_timezone])
+@endauth
+
 @stack('modals')
 @stack('scripts')
 </body>

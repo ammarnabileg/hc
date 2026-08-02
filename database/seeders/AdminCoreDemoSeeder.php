@@ -104,6 +104,9 @@ class AdminCoreDemoSeeder extends Seeder
             ['admin.user_tabs.volunteer_permission', 'admin_users', 'صلاحيّة إظهار تاب التطوّع', 'string', 'memberships.view'],
             ['admin.users.export_filename', 'admin_users', 'اسم ملفّ تصدير بيانات المستخدم', 'string', 'user-{code}-{date}.json'],
             ['admin.users.export_rows', 'admin_users', 'أقصى صفوف لكلّ جدول في ملفّ التصدير', 'number', '500'],
+            ['admin.users.referral_gift_note', 'admin_users', 'سطر شرح توقيت صرف هديّة الدعوة', 'string', 'الهديّة بتتصرف للطرفين بعد قبول الحساب — مش وقت التسجيل.'],
+            ['admin.users.sessions_hint', 'admin_users', 'شرح الجلسات النشطة', 'string', 'الأجهزة المفتوح عليها الحساب دلوقتي — وإنهاء الجلسات بيقفلها كلّها.'],
+            ['admin.users.country_pin_hint', 'admin_users', 'شرح تثبيت الدولة يدويًّا', 'string', 'الكشف التلقائيّ بيتبع مكانه دلوقتي — والتثبيت اليدويّ بيعلو عليه ومابيتدهسش.'],
             ['admin.users.notes_hint', 'admin_users', 'شرح الملاحظات الإداريّة الداخليّة', 'string', 'ملاحظات للفريق فقط — المستخدم مابيشوفهاش أبدًا.'],
 
             // ---------------- طلبات الاعتماد (2.5-د)

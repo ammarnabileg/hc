@@ -78,14 +78,14 @@ class UserModerationController extends Controller
 
         return $this->back($user, $count > 0
             ? 'قفلنا '.$count.' جلسة ✓ — لازم يدخل تاني من كلّ أجهزته.'
-            : 'مافيش جلسات مفتوحة — بس أبطلنا «فكّرني» للأمان.');
+            : 'مافيش جلسات مفتوحة — بس أبطلنا «فكّرني» للأمان.', 'security');
     }
 
     public function verifyEmail(Request $request, User $user): RedirectResponse
     {
         $this->moderation->verifyEmail($request->user(), $user);
 
-        return $this->back($user, 'بريده اتأكّد يدويًّا ✓');
+        return $this->back($user, 'بريده اتأكّد يدويًّا ✓', 'security');
     }
 
     /** الرابط يُعرَض مرّة واحدة في الصفحة بزرّ نسخ — ولا يُخزَّن في أيّ مكان تاني */
@@ -93,7 +93,7 @@ class UserModerationController extends Controller
     {
         $link = $this->moderation->passwordLink($request->user(), $user);
 
-        return $this->back($user, 'الرابط جاهز — انسخه وابعته له على قناة موثوقة.')
+        return $this->back($user, 'الرابط جاهز — انسخه وابعته له على قناة موثوقة.', 'security')
             ->with('moderation_password_link', $link);
     }
 
@@ -176,7 +176,9 @@ class UserModerationController extends Controller
         $this->moderation->log($request->user(), $user, 'user.data.export', [], ['file' => $filename]);
 
         return response()->streamDownload(
-            fn () => print (json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT)),
+            function () use ($payload) {
+                echo json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+            },
             $filename,
             ['Content-Type' => 'application/json; charset=UTF-8'],
         );

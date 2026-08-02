@@ -11,6 +11,7 @@ use App\Services\Admin\Volunteer\AuditTrail;
 use App\Services\Admin\Volunteer\CapacityReport;
 use App\Services\Admin\Volunteer\SettingsWriter;
 use App\Support\Access\AccessEngine;
+use App\Support\Scope\ScopeFilter;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -27,7 +28,13 @@ class OrgAdminController extends Controller
     {
         $trackId = (int) $request->integer('track');
 
+        /*
+         | ⭐ النطاق إلزاميّ مع كلّ صلاحيّة (12.2.1-ب): الكيانات المعروضة كيانات
+         | صاحب الشاشة وفروعُها — لا شجرة المنصّة كلّها لمن نطاقه قسمٌ واحد.
+         | و`id` هنا هو عمود الكيان لأنّ الجدول جدولُ كيانات.
+         */
         $entities = Entity::query()
+            ->tap(fn ($q) => app(ScopeFilter::class)->apply($q, $request->user(), 'org_chart.view', null, 'id'))
             ->with('track')
             ->when($trackId, fn ($q) => $q->where('track_id', $trackId))
             ->when($request->string('q')->toString(), fn ($q, $term) => $q->where('name_ar', 'like', '%'.$term.'%'))
@@ -48,6 +55,7 @@ class OrgAdminController extends Controller
             'caseFileOpener' => (string) setting('volunteer.org.case_file_opener_position', 'volunteer_gm'),
             'canOpenCaseFile' => $this->canOpenCaseFile($request),
             'members' => Membership::query()
+                ->tap(fn ($q) => app(ScopeFilter::class)->apply($q, $request->user(), 'org_chart.view', 'user_id', 'entity_id'))
                 ->with(['user:id,name,code', 'entity:id,name_ar', 'position'])
                 ->where('status', 'active')
                 ->when($trackId, fn ($q) => $q->whereHas('entity', fn ($e) => $e->where('track_id', $trackId)))

@@ -76,5 +76,19 @@
                       style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">{{ $p['summary'] ?? '' }}</textarea>
             <span class="block text-xs mt-1" style="color: var(--text-muted)">{{ setting('cv.field.summary_hint', 'سطران عن مسيرتك وطموحك.') }}</span>
         </label>
+
+        {{-- ثنائيّة AR/EN بصفر تكلفة (9): حقلا لغةٍ ثانية اختياريّان، ولو فُرِّغا ظهر الأصل --}}
+        <label class="block" data-lang-en hidden>
+            <span class="block text-sm mb-1">{{ setting('cv.field.job_title_en_label', 'Job title (English) — optional') }}</span>
+            <input type="text" name="data[profile][job_title_en]" value="{{ $p['job_title_en'] ?? '' }}" dir="ltr"
+                   class="w-full rounded-xl px-3 py-2 text-sm"
+                   style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
+        </label>
+
+        <label class="block sm:col-span-2" data-lang-en hidden>
+            <span class="block text-sm mb-1">{{ setting('cv.field.summary_en_label', 'Professional summary (English) — optional') }}</span>
+            <textarea name="data[profile][summary_en]" rows="3" dir="ltr" class="w-full rounded-xl px-3 py-2 text-sm"
+                      style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">{{ $p['summary_en'] ?? '' }}</textarea>
+        </label>
     </form>
 </div>

@@ -336,7 +336,7 @@ class CertificateAdminController extends Controller
         ];
 
         return [
-            'certificates' => $this->issuer->ledger($filters),
+            'certificates' => $this->issuer->ledger($filters, $request->user()),
             'filters' => $filters,
             'types' => CertificateType::query()->orderBy('name_ar')->get(),
             'statuses' => CertificateBulkIssuer::STATUSES,

@@ -25,7 +25,11 @@
 <body>
 <div class="sheet">
     <h1>{{ setting('attestations.sheet.title', 'إفادة من المنصّة') }}</h1>
-    <p class="muted">{{ $holder->name }} · #{{ $holder->code }}</p>
+    {{-- اسم الإفادة = اسم بيانات الشهادات والإفادات ومعه اللقب (2.5-ج · 9.1) --}}
+    <p class="muted">{{ $record['holder']['holder_name'] ?: $holder->name }} · #{{ $holder->code }}</p>
+    @if ($record['holder']['holder_address'])
+        <p class="muted">{{ $record['holder']['holder_address'] }}</p>
+    @endif
 
     <div class="band">
         <div class="stat"><b>{{ $record['courses']->count() }}</b>{{ setting('attestations.kpi.courses', 'تدريبات مكتملة') }}</div>

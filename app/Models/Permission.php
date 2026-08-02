@@ -17,6 +17,8 @@ class Permission extends Model
     {
         return [
             'allowed_scopes' => 'array',
+            // `condition_key` نصٌّ عربيّ للعرض، و`condition_keys` مفاتيحُ تُقيَّم (12.2.1-ج)
+            'condition_keys' => 'array',
             'is_owner_only' => 'boolean',
             'is_sensitive' => 'boolean',
         ];

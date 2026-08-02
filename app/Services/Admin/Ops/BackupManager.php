@@ -4,6 +4,7 @@ namespace App\Services\Admin\Ops;
 
 use App\Models\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Throwable;
@@ -51,6 +52,14 @@ class BackupManager
     public function pathOf(object $backup): string
     {
         return $this->directory().DIRECTORY_SEPARATOR.$backup->filename;
+    }
+
+    /** مسار لقطة الاستعادة المرافقة — وهي ما يُستعاد منه فعلًا (2.11-ج) */
+    public function snapshotPathOf(object $backup): ?string
+    {
+        $name = (string) ($backup->data_file ?? '');
+
+        return $name !== '' ? $this->directory().DIRECTORY_SEPARATOR.$name : null;
     }
 
     /** أنواع النسخة — إعداد لا قائمة محروقة (2.13) */
@@ -138,11 +147,19 @@ class BackupManager
         $useZip = class_exists(ZipArchive::class) && $kind !== 'database';
         $filename = "backup-{$stamp}-{$kind}.".($useZip ? 'zip' : 'sql');
         $fullPath = $directory.DIRECTORY_SEPARATOR.$filename;
+        $dataFile = null;
 
         try {
             $useZip
                 ? $this->writeArchive($fullPath, $kind)
                 : file_put_contents($fullPath, $this->databaseDump());
+
+            // ⭐ لقطة الاستعادة (2.11-ج): ملفّ SQL للقراءة البشريّة لا يكفي — الاستعادة
+            //    تحتاج بيانات مُهيكَلة تُقرأ سطرًا سطرًا بلا تحليل جُمَل هشّ.
+            if ($kind !== 'files' && setting('backups.restore_snapshot', true)) {
+                $dataFile = str_replace(['.zip', '.sql'], '', $filename).'.data.jsonl';
+                $this->writeSnapshot($directory.DIRECTORY_SEPARATOR.$dataFile);
+            }
         } catch (Throwable $e) {
             $id = $this->record($filename, $kind, 'failed', 0, $startedAt, null, $actor, $scheduled, $e->getMessage());
 
@@ -150,7 +167,7 @@ class BackupManager
         }
 
         $size = (int) (@filesize($fullPath) ?: 0);
-        $id = $this->record($filename, $kind, 'done', $size, $startedAt, hash_file('sha256', $fullPath), $actor, $scheduled);
+        $id = $this->record($filename, $kind, 'done', $size, $startedAt, hash_file('sha256', $fullPath), $actor, $scheduled, null, $dataFile);
 
         $this->audit->record($actor, 'ops.backups.created', [
             'filename' => $filename,
@@ -178,6 +195,10 @@ class BackupManager
             @unlink($path);
         }
 
+        if (($snapshot = $this->snapshotPathOf($backup)) && is_file($snapshot)) {
+            @unlink($snapshot);
+        }
+
         DB::table('backup_files')->where('id', $id)->delete();
 
         $this->audit->record($actor, 'ops.backups.deleted', [
@@ -203,19 +224,190 @@ class BackupManager
             ->orderByDesc('id')
             ->skip($keep)
             ->take((int) setting('backups.prune_batch', 1000))
-            ->get(['id', 'filename']);
+            ->get(['id', 'filename', 'data_file']);
 
         foreach ($extra as $row) {
-            $path = $this->directory().DIRECTORY_SEPARATOR.$row->filename;
+            foreach ([$row->filename, $row->data_file] as $name) {
+                $path = $name ? $this->directory().DIRECTORY_SEPARATOR.$name : null;
 
-            if (is_file($path)) {
-                @unlink($path);
+                if ($path && is_file($path)) {
+                    @unlink($path);
+                }
             }
 
             DB::table('backup_files')->where('id', $row->id)->delete();
         }
 
         return $extra->count();
+    }
+
+    /**
+     * ⭐ **التحقّق من سلامة النسخة قبل المتابعة** (2.11-ج): لا تبدأ الهجرةُ إلّا بنسخةٍ صالحة.
+     *
+     * ثلاثة أسئلة لا رابع لها: الملفّ موجود بحجم؟ بصمته زيّ ما اتسجّلت؟ ولقطة
+     * الاستعادة مقروءة وفيها جداول؟ — الفشل في أيّ منها يعني أنّنا بلا شبكة أمان.
+     *
+     * @return array{ok:bool, message:string, tables:int, rows:int}
+     */
+    public function verify(int|object|null $backup): array
+    {
+        $backup = is_int($backup) ? $this->find($backup) : $backup;
+
+        if (! $backup) {
+            return ['ok' => false, 'message' => 'النسخة مش موجودة في السجلّ.', 'tables' => 0, 'rows' => 0];
+        }
+
+        if ((string) $backup->status !== 'done') {
+            return ['ok' => false, 'message' => 'النسخة دي مش مكتملة.', 'tables' => 0, 'rows' => 0];
+        }
+
+        $path = $this->pathOf($backup);
+
+        if (! is_file($path) || (int) @filesize($path) === 0) {
+            return ['ok' => false, 'message' => 'ملفّ النسخة مش موجود على القرص أو فاضي.', 'tables' => 0, 'rows' => 0];
+        }
+
+        if ($backup->checksum && hash_file('sha256', $path) !== (string) $backup->checksum) {
+            return ['ok' => false, 'message' => 'بصمة الملفّ مختلفة عن المسجَّلة — النسخة اتغيّرت أو اتلفت.', 'tables' => 0, 'rows' => 0];
+        }
+
+        $snapshot = $this->snapshotPathOf($backup);
+
+        if (! $snapshot || ! is_file($snapshot)) {
+            return ['ok' => false, 'message' => 'مافيش لقطة بيانات مع النسخة دي — يعني مفيش استعادة تلقائيّة منها.', 'tables' => 0, 'rows' => 0];
+        }
+
+        $header = $this->snapshotHeader($snapshot);
+
+        if (! $header || ! is_array($header['tables'] ?? null) || $header['tables'] === []) {
+            return ['ok' => false, 'message' => 'لقطة البيانات مش مقروءة.', 'tables' => 0, 'rows' => 0];
+        }
+
+        $this->markVerified($backup, 'تحقّق سليم: '.count($header['tables']).' جدول.');
+
+        return [
+            'ok' => true,
+            'message' => 'النسخة سليمة ✓ — '.count($header['tables']).' جدول.',
+            'tables' => count($header['tables']),
+            'rows' => (int) array_sum($header['tables']),
+        ];
+    }
+
+    /**
+     * ⭐ **الاستعادة** (2.11-ح): ترجيع البيانات لحالتها لحظةَ أخذ النسخة.
+     *
+     * لماذا لا نعيد تشغيل ملفّ الـSQL؟ لأنّ تحليل جُمَل مكتوبة للقراءة البشريّة
+     * هشّ (نصوص فيها فواصل وأسطر وعلامات اقتباس)، و«هشّ» كلمة لا تجوز في آخر خطّ
+     * دفاع. اللقطة سطر لكلّ صفّ، فالاستعادة قراءةٌ لا تخمين.
+     *
+     * وجداول الأثر **لا تُمسّ** (`backups.restore_skip_tables`): سجلّ التدقيق
+     * وتقرير الفشل وسجلّ النسخ لازم تنجو من الاستعادة، وإلّا محونا الدليل على
+     * ما حدث بينما نصلح ما حدث.
+     *
+     * @return array{ok:bool, message:string, tables:int, rows:int, skipped:array<int,string>}
+     */
+    public function restore(int|object|null $backup, ?User $actor, ?string $reason = null): array
+    {
+        $backup = is_int($backup) ? $this->find($backup) : $backup;
+        $check = $this->verify($backup);
+
+        if (! $check['ok']) {
+            return ['ok' => false, 'message' => 'مقدرناش نستعيد — '.$check['message'], 'tables' => 0, 'rows' => 0, 'skipped' => []];
+        }
+
+        $snapshot = (string) $this->snapshotPathOf($backup);
+        $header = (array) $this->snapshotHeader($snapshot);
+        $skip = setting('backups.restore_skip_tables', []);
+        $skip = is_array($skip) ? array_map('strval', $skip) : [];
+
+        $targets = [];
+        $skipped = [];
+
+        foreach (array_keys((array) $header['tables']) as $table) {
+            $table = (string) $table;
+
+            if (in_array($table, $skip, true)) {
+                $skipped[] = $table;
+
+                continue;
+            }
+
+            if (Schema::hasTable($table)) {
+                $targets[] = $table;
+            }
+        }
+
+        $rows = 0;
+        $chunk = max(1, (int) setting('updates.batch_rows', 1000));
+
+        // المفاتيح الأجنبيّة تُرخى أثناء الاستعادة: ترتيب الجداول في اللقطة أبجديّ
+        // لا شجريّ، ولو بقيت القيود مشدودة لسقط أوّل حذف على أوّل علاقة.
+        $this->relaxForeignKeys();
+
+        try {
+            foreach ($targets as $table) {
+                DB::table($table)->delete();
+            }
+
+            $handle = fopen($snapshot, 'r');
+            $buffer = [];
+            $columns = [];
+
+            fgets($handle); // سطر الترويسة قُرِئ سلفًا
+
+            while (($line = fgets($handle)) !== false) {
+                $entry = json_decode(trim($line), true);
+
+                if (! is_array($entry) || ! isset($entry['t'], $entry['r'])) {
+                    continue;
+                }
+
+                $table = (string) $entry['t'];
+
+                if (! in_array($table, $targets, true)) {
+                    continue;
+                }
+
+                $columns[$table] ??= Schema::getColumnListing($table);
+                $row = array_intersect_key((array) $entry['r'], array_flip($columns[$table]));
+
+                $buffer[$table][] = $row;
+
+                if (count($buffer[$table]) >= $chunk) {
+                    DB::table($table)->insert($buffer[$table]);
+                    $rows += count($buffer[$table]);
+                    $buffer[$table] = [];
+                }
+            }
+
+            fclose($handle);
+
+            foreach ($buffer as $table => $pending) {
+                if ($pending !== []) {
+                    DB::table($table)->insert($pending);
+                    $rows += count($pending);
+                }
+            }
+        } finally {
+            $this->restoreForeignKeys();
+        }
+
+        Cache::forget('settings');
+
+        $this->audit->record($actor, 'ops.backups.restored', [
+            'filename' => $backup->filename,
+            'tables' => count($targets),
+            'rows' => $rows,
+            'reason' => $reason ?? 'استعادة يدويّة',
+        ], 'backup_files', (int) $backup->id);
+
+        return [
+            'ok' => true,
+            'message' => 'الاستعادة تمّت ✓ — '.count($targets).' جدول و'.$rows.' صفّ رجعوا لحالتهم قبل التحديث.',
+            'tables' => count($targets),
+            'rows' => $rows,
+            'skipped' => $skipped,
+        ];
     }
 
     public function humanSize(int $bytes): string
@@ -243,9 +435,11 @@ class BackupManager
         ?User $actor,
         bool $scheduled,
         ?string $error = null,
+        ?string $dataFile = null,
     ): int {
         return (int) DB::table('backup_files')->insertGetId([
             'filename' => $filename,
+            'data_file' => $dataFile,
             'kind' => $kind,
             'status' => $status,
             'size_bytes' => $size,
@@ -257,6 +451,136 @@ class BackupManager
             'created_at' => now(),
             'updated_at' => now(),
         ]);
+    }
+
+    /**
+     * لقطة الاستعادة: سطر ترويسة ثمّ **سطر لكلّ صفّ** — تُكتب وتُقرأ بالتدفّق،
+     * فلا تُحمَّل قاعدة بيانات كاملة في الذاكرة لا عند النسخ ولا عند الاستعادة.
+     *
+     * @return array<string, int> الجدول ⟵ عدد صفوفه
+     */
+    private function writeSnapshot(string $path): array
+    {
+        $limit = max(1, (int) setting('backups.rows_per_table_max', 20000));
+        $tables = [];
+
+        foreach ($this->tables() as $table) {
+            $tables[$table] = min($limit, (int) DB::table($table)->count());
+        }
+
+        $handle = fopen($path, 'w');
+
+        if ($handle === false) {
+            throw new \RuntimeException('مش قادر أكتب لقطة الاستعادة — راجع صلاحيّات مجلّد النسخ.');
+        }
+
+        $flags = JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE;
+
+        fwrite($handle, json_encode([
+            'format' => 'hc-restore-1',
+            'taken_at' => now()->toDateTimeString(),
+            'driver' => DB::getDriverName(),
+            'app_version' => (string) setting('updates.current_version', '1.0.0'),
+            'tables' => $tables,
+        ], $flags)."\n");
+
+        $chunk = max(1, (int) setting('updates.batch_rows', 1000));
+
+        foreach (array_keys($tables) as $table) {
+            $written = 0;
+
+            DB::table($table)->orderBy($this->orderColumn($table))->chunk($chunk, function ($rows) use ($handle, $table, $flags, $limit, &$written) {
+                foreach ($rows as $row) {
+                    if ($written >= $limit) {
+                        return false;
+                    }
+
+                    fwrite($handle, json_encode(['t' => $table, 'r' => (array) $row], $flags)."\n");
+                    $written++;
+                }
+
+                return true;
+            });
+        }
+
+        fclose($handle);
+
+        return $tables;
+    }
+
+    /**
+     * إرخاء المفاتيح الأجنبيّة بحسب المحرّك.
+     *
+     * ولماذا أمران في SQLite لا واحد؟ لأنّ `foreign_keys` لا يُطفأ داخل معاملة
+     * جارية (وهو حال أيّ استعادة تجري داخل معاملة اختبار أو معاملة أوسع)،
+     * بينما `defer_foreign_keys` مصنوع لهذا بالضبط: يؤجّل الفحص للالتزام.
+     */
+    private function relaxForeignKeys(): void
+    {
+        $statements = match (DB::getDriverName()) {
+            'sqlite' => ['PRAGMA foreign_keys = OFF', 'PRAGMA defer_foreign_keys = ON'],
+            'pgsql' => ['SET CONSTRAINTS ALL DEFERRED'],
+            default => ['SET FOREIGN_KEY_CHECKS=0'],
+        };
+
+        foreach ($statements as $statement) {
+            try {
+                DB::statement($statement);
+            } catch (Throwable) {
+                continue;
+            }
+        }
+    }
+
+    private function restoreForeignKeys(): void
+    {
+        $statements = match (DB::getDriverName()) {
+            'sqlite' => ['PRAGMA foreign_keys = ON'],
+            'pgsql' => [],
+            default => ['SET FOREIGN_KEY_CHECKS=1'],
+        };
+
+        foreach ($statements as $statement) {
+            try {
+                DB::statement($statement);
+            } catch (Throwable) {
+                continue;
+            }
+        }
+    }
+
+    /** ترويسة اللقطة — أوّل سطر وحده، بلا تحميل الملفّ كلّه */
+    private function snapshotHeader(string $path): ?array
+    {
+        $handle = @fopen($path, 'r');
+
+        if ($handle === false) {
+            return null;
+        }
+
+        $line = fgets($handle);
+        fclose($handle);
+
+        $header = json_decode((string) $line, true);
+
+        return is_array($header) ? $header : null;
+    }
+
+    private function markVerified(object $backup, string $note): void
+    {
+        DB::table('backup_files')->where('id', $backup->id)->update([
+            'verified_at' => now(),
+            'verify_note' => mb_substr($note, 0, 255),
+            'updated_at' => now(),
+        ]);
+    }
+
+    /** عمود ترتيب مضمون للتقطيع — `id` إن وُجد وإلّا أوّل عمود */
+    private function orderColumn(string $table): string
+    {
+        $columns = Schema::getColumnListing($table);
+
+        return in_array('id', $columns, true) ? 'id' : ($columns[0] ?? 'rowid');
     }
 
     private function writeArchive(string $path, string $kind): void

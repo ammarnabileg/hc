@@ -8,6 +8,7 @@ use App\Models\Certificate;
 use App\Models\Course;
 use App\Models\CourseCompletion;
 use App\Models\User;
+use App\Services\Onboarding\HolderIdentity;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Route;
 
@@ -84,6 +85,12 @@ class AttestationBuilder
             ->get();
 
         return [
+            /*
+             | ⭐ الإفادة إثباتٌ موثّق يُقدَّم لجهة عمل (9.1) — فاسم صاحبها فيها
+             | لا يجوز أن يكون «الاسم المعروض»؛ هو **اسم بيانات الشهادات والإفادات**
+             | نفسه الذي تُطبَع به الشهادة (2.5-ج)، ومعه لقبه وعنوانه.
+             */
+            'holder' => HolderIdentity::documentFields($user),
             'courses' => $completions->map(fn (CourseCompletion $c) => [
                 'name' => $courses[$c->course_id]->name_ar ?? '',
                 'completed_at' => $c->completed_at,

@@ -114,16 +114,27 @@ class PasswordController extends Controller
         return redirect()->to($this->passwords->resetUrl($email, $token));
     }
 
+    /** أدنى طول لكلمة السرّ — إعدادٌ يعدّله المالك، وافتراضيّه «أكثر من 6» (12.1) */
+    private function minLength(): int
+    {
+        return max(1, (int) setting('auth.password.min_length', 7));
+    }
+
     public function update(Request $request): RedirectResponse
     {
         $data = $request->validate([
             'email' => ['required', 'email'],
             'token' => ['required', 'string'],
-            'password' => ['required', 'confirmed', Password::min((int) setting('auth.password.min_length', 8))],
+            /*
+             | 12.1-الأمان حرفيًّا: «**بدون شروط غير أن تكون أكثر من 6 خانات**».
+             | فلا `mixedCase()` ولا `symbols()` ولا `uncompromised()` — الطول وحده،
+             | وحدُّه من الإعدادات لا محروقًا (2.13). كان 8 بلا سندٍ من النصّ.
+             */
+            'password' => ['required', 'confirmed', Password::min($this->minLength())],
         ], [
             'password.required' => 'اكتب كلمة السرّ الجديدة.',
             'password.confirmed' => 'الكلمتان مش متطابقتين — راجعهم وجرّب تاني.',
-            'password.min' => 'كلمة السرّ لازم تبقى '.(int) setting('auth.password.min_length', 8).' خانات على الأقلّ.',
+            'password.min' => 'كلمة السرّ لازم تبقى '.$this->minLength().' خانات على الأقلّ ومفيش أيّ شرط تاني.',
         ]);
 
         $email = Str::lower(trim($data['email']));

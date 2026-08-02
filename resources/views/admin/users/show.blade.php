@@ -16,10 +16,22 @@
         </x-slot:action>
     </x-page-header>
 
-    {{-- تابات: بيانات · محفظة ومعاملات · تدريبات · شهادات · متقدّم · التطوّع (12.1) --}}
+    {{-- تابات 12.1: بيانات · الجداول · أرصدة · تدريبات · شهادات · الأمان · الإدارة · متقدّم · التطوّع --}}
     <x-tabs :tabs="$tabs" :current="$tab" />
 
     @switch($tab)
+        @case('tables')
+            @include('admin.users.partials.tab-tables')
+            @break
+
+        @case('security')
+            @include('admin.users.partials.tab-security')
+            @break
+
+        @case('admin')
+            @include('admin.users.partials.tab-admin')
+            @break
+
         @case('wallet')
             <section class="card p-4">
                 <h3 class="font-bold text-sm mb-3">الأرصدة</h3>
@@ -34,20 +46,11 @@
                     @endforelse
                 </div>
 
-                <h3 class="font-bold text-sm mt-5 mb-2">آخر المعاملات</h3>
-                @if ($transactions->isEmpty())
-                    <p class="text-sm" style="color: var(--text-muted)">مافيش معاملات في السجلّ.</p>
-                @else
-                    <ul class="divide-y" style="border-color: var(--border)">
-                        @foreach ($transactions as $transaction)
-                            <li class="flex flex-wrap items-center gap-2 py-2 text-sm" style="border-color: var(--border)">
-                                <span class="flex-1 min-w-0 truncate">{{ $transaction->reason ?? $transaction->source }}</span>
-                                <span class="font-semibold">{{ number_format((float) $transaction->amount, 2) }} {{ $transaction->currency?->name_ar }}</span>
-                                <span class="text-xs" style="color: var(--text-muted)">{{ $transaction->created_at?->diffForHumans() }}</span>
-                            </li>
-                        @endforeach
-                    </ul>
-                @endif
+                {{-- تفاصيل المعاملات والسحوبات في تاب «الجداول» بفلتر الفترة (12.1) --}}
+                <a href="{{ route('admin.users.show', ['user' => $user, 'tab' => 'tables']) }}"
+                   class="inline-block mt-4 text-xs hover:underline" style="color: var(--color-brand-500)">
+                    شوف المعاملات والسحوبات بفلتر الفترة
+                </a>
             </section>
             @break
 
@@ -90,52 +93,47 @@
 
         @case('advanced')
             <div class="grid gap-4 lg:grid-cols-2">
-                <section class="card p-4">
-                    <h3 class="font-bold text-sm mb-3">الأدوار</h3>
-                    <ul class="space-y-1 text-sm">
-                        @forelse ($user->roles as $role)
-                            <li class="flex items-center justify-between gap-2">
-                                <span>{{ $role->name_ar }}</span>
-                                <span class="text-xs" style="color: var(--text-muted)">
-                                    {{ $role->pivot->membership_id ? 'داخل عضويّة #'.$role->pivot->membership_id : 'دور منصّة' }}
-                                </span>
-                            </li>
-                        @empty
-                            <li style="color: var(--text-muted)">مافيش أدوار مسنَدة.</li>
-                        @endforelse
-                    </ul>
-
-                    @if (auth()->user()->allows('roles.assign'))
-                        <a href="{{ route('admin.roles.assign', ['user' => $user->id]) }}"
-                           class="inline-block mt-3 text-xs hover:underline" style="color: var(--color-brand-500)">إسناد دور</a>
-                    @endif
-                </section>
-
-                <section class="card p-4">
-                    <h3 class="font-bold text-sm mb-3">الدعوات</h3>
-                    @if ($referrals->isEmpty())
-                        <p class="text-sm" style="color: var(--text-muted)">مادعاش حدّ لسّه.</p>
-                    @else
-                        <ul class="divide-y" style="border-color: var(--border)">
-                            @foreach ($referrals as $referral)
-                                <li class="flex flex-wrap items-center gap-2 py-2 text-sm" style="border-color: var(--border)">
-                                    <span class="flex-1 min-w-0 truncate">{{ $referral->referred?->shortName() ?? 'لسّه ماسجّلش' }}</span>
-                                    <x-state-badge :state="$referral->welcome_ticket_granted ? 'ok' : 'idle'"
-                                                   :label="$referral->welcome_ticket_granted ? 'خد هديته' : 'لسّه'" />
-                                </li>
-                            @endforeach
-                        </ul>
-                    @endif
-
-                    @if ($lastChange)
-                        <div class="mt-4">
-                            @include('admin.roles.partials.audit-hover', ['log' => $lastChange])
-                        </div>
-                    @endif
-                </section>
-
-                {{-- أدوات احتواء الحساب المسيء (12.1) --}}
+                {{-- أدوات احتواء الحساب المسيء + التصفّح كمستخدم + التصدير (12.1-متقدّم) --}}
                 @include('admin.moderation.panel')
+
+                {{-- تثبيت/تصحيح الدولة يدويًّا (12.1-متقدّم-5) --}}
+                @if (auth()->user()->allows('admin_user_detail.edit'))
+                    <section class="card p-4">
+                        <h3 class="font-bold text-sm mb-1">الدولة</h3>
+                        <p class="text-xs mb-3" style="color: var(--text-muted)">
+                            {{ setting('admin.users.country_pin_hint', 'الكشف التلقائيّ بيتبع مكانه دلوقتي — والتثبيت اليدويّ بيعلو عليه ومابيتدهسش.') }}
+                        </p>
+
+                        <form method="post" action="{{ route('admin.users.country', $user) }}" class="space-y-2">
+                            @csrf
+                            <select name="country_id" class="w-full rounded-xl px-3 py-2 text-sm"
+                                    style="min-block-size: 44px; background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
+                                <option value="">— بلا تثبيت (كشف تلقائيّ) —</option>
+                                @foreach ($countries as $country)
+                                    <option value="{{ $country->id }}" @selected($user->country_id === $country->id)>{{ $country->name_ar }}</option>
+                                @endforeach
+                            </select>
+
+                            @if ($user->country_locked_at)
+                                <p class="text-xs" style="color: var(--text-muted)">
+                                    مثبَّتة من {{ \Illuminate\Support\Carbon::parse($user->country_locked_at)->translatedFormat('Y-m-d') }}
+                                </p>
+                            @endif
+
+                            <button class="btn w-full rounded-xl py-2 text-sm font-semibold motion-standard"
+                                    style="min-block-size: 44px; background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
+                                تثبيت الدولة
+                            </button>
+                        </form>
+                    </section>
+                @endif
+
+                @if ($lastChange)
+                    <section class="card p-4 lg:col-span-2">
+                        <h3 class="font-bold text-sm mb-3">آخر تغيير</h3>
+                        @include('admin.roles.partials.audit-hover', ['log' => $lastChange])
+                    </section>
+                @endif
             </div>
             @break
 
@@ -148,18 +146,6 @@
             @break
 
         @default
-            <section class="card p-4">
-                <h3 class="font-bold text-sm mb-3">البيانات الأساسيّة</h3>
-                <dl class="grid gap-3 sm:grid-cols-2 text-sm">
-                    <div><dt class="text-xs" style="color: var(--text-muted)">الاسم</dt><dd>{{ $user->name }}</dd></div>
-                    <div><dt class="text-xs" style="color: var(--text-muted)">الكود</dt><dd>#{{ $user->code }}</dd></div>
-                    <div><dt class="text-xs" style="color: var(--text-muted)">البريد</dt><dd>{{ $directory->mask($user->email, 'email') }}</dd></div>
-                    <div><dt class="text-xs" style="color: var(--text-muted)">الموبايل</dt><dd>{{ $directory->mask($user->phone, 'phone') }}</dd></div>
-                    <div><dt class="text-xs" style="color: var(--text-muted)">الدولة</dt><dd>{{ $user->country?->name_ar ?? '—' }}</dd></div>
-                    <div><dt class="text-xs" style="color: var(--text-muted)">المحافظة</dt><dd>{{ $user->governorate?->name_ar ?? '—' }}</dd></div>
-                    <div><dt class="text-xs" style="color: var(--text-muted)">XP</dt><dd>{{ number_format((int) $user->xp) }}</dd></div>
-                    <div><dt class="text-xs" style="color: var(--text-muted)">تاريخ التسجيل</dt><dd>{{ $user->created_at?->format('Y-m-d') }}</dd></div>
-                </dl>
-            </section>
+            @include('admin.users.partials.tab-profile')
     @endswitch
 @endsection

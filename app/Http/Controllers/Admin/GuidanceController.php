@@ -11,9 +11,11 @@ use App\Models\HelpArticle;
 use App\Models\LearningPath;
 use App\Models\Role;
 use App\Models\User;
+use App\Services\Account\ComplaintService;
 use App\Services\Admin\Content\GuidanceComposer;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 /**
@@ -183,7 +185,7 @@ class GuidanceController extends Controller
             // اسم المعيَّن له من خريطة جاهزة — لأنّ `assigned_to` عمودٌ واسمُ علاقة معًا
             'assigneeNames' => $this->assigneeNames(),
             'filters' => $filters,
-            'statuses' => GuidanceComposer::COMPLAINT_STATUSES,
+            'statuses' => GuidanceComposer::complaintStatuses(),
             'reasons' => $this->guidance->complaintReasons(),
             'assignees' => $this->assignees(),
             'closeReasons' => (array) setting('complaints.close_reasons', ['اتحلّت', 'مكرّرة', 'خارج نطاقنا']),
@@ -198,7 +200,7 @@ class GuidanceController extends Controller
             'complaint' => $complaint->load('user'),
             'assigneeNames' => $this->assigneeNames(),
             'messages' => ComplaintMessage::query()->with('user')->where('complaint_id', $complaint->id)->oldest('id')->get(),
-            'statuses' => GuidanceComposer::COMPLAINT_STATUSES,
+            'statuses' => GuidanceComposer::complaintStatuses(),
             'assignees' => $this->assignees(),
             'closeReasons' => (array) setting('complaints.close_reasons', ['اتحلّت', 'مكرّرة', 'خارج نطاقنا']),
         ]);
@@ -219,7 +221,8 @@ class GuidanceController extends Controller
         $data = $request->validate([
             'body' => ['required', 'string', 'max:'.(int) setting('complaints.reply.max_chars', 2000)],
             'is_internal' => ['nullable', 'boolean'],
-            'status' => ['nullable', 'string', 'in:open,in_review,closed'],
+            // ⭐ `answered` حالةٌ حقيقيّة في الدورة — وكانت محجوبةً هنا فصارت كودًا ميّتًا (11)
+            'status' => ['nullable', 'string', Rule::in(array_keys(GuidanceComposer::complaintStatuses()))],
         ]);
 
         $this->guidance->reply(
@@ -241,6 +244,40 @@ class GuidanceController extends Controller
         $this->guidance->close($complaint, $data['reason'], $request->user());
 
         return back()->with('status', 'اتقفلت الشكوى، والسبب متسجّل ✓');
+    }
+
+    /**
+     * شاشة تحرير أسباب الشكوى — **إضافة/تعديل/حذف من لوحة الأدمن** (11).
+     * كان الموجود دروب-داون فلترة فقط، فلم تكن القائمة قابلة للإدارة أصلًا.
+     */
+    public function complaintReasons(): View
+    {
+        return view('admin.guidance.complaint-reasons', [
+            'reasons' => $this->guidance->complaintReasons(),
+            'defaults' => ComplaintService::defaultReasons(),
+            'inUse' => Complaint::query()
+                ->selectRaw('category, count(*) as total')
+                ->whereNotNull('category')
+                ->groupBy('category')
+                ->pluck('total', 'category')
+                ->all(),
+            'tabs' => $this->tabs('complaints'),
+        ]);
+    }
+
+    public function updateComplaintReasons(Request $request): RedirectResponse
+    {
+        $data = $request->validate([
+            'reasons' => ['required', 'array', 'min:1'],
+            'reasons.*' => ['nullable', 'string', 'max:48'],
+        ], [
+            'reasons.required' => 'سيب سببًا واحدًا على الأقلّ — الفورم محتاج قائمة يختار منها.',
+            'reasons.*.max' => 'السبب طويل — خلّيه في كلمات.',
+        ]);
+
+        $saved = $this->guidance->saveComplaintReasons($data['reasons'], $request->user());
+
+        return back()->with('status', 'اتحفظت الأسباب ✓ ('.count($saved).')');
     }
 
     // ------------------------------------------------------------------ داخليّ
