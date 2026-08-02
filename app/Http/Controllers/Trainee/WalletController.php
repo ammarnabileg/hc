@@ -27,6 +27,8 @@ class WalletController extends Controller
         'purchase' => 'شراء',
         'referral' => 'عمولة دعوة',
         'academy' => 'تعلّم',
+        // XP نادي الخامسة صار يمرّ بالدفتر الموحّد (7.2 · 7.3) — فيلزمه اسمٌ عربيّ
+        'streak' => 'نادي الخامسة',
         'task' => 'مهمّة',
         'meeting' => 'اجتماع',
         'behavior' => 'سلوك',
