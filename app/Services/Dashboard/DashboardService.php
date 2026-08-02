@@ -338,9 +338,10 @@ class DashboardService
      */
     private function lessonUrl(Course $course, int $lessonId): string
     {
+        // نمرّر الموديل نفسه ليستخدم Laravel مفتاح المسار الصحيح (slug أو id)
         foreach (['learning.lesson', 'learning.lessons.show'] as $name) {
             if (Route::has($name)) {
-                return route($name, ['course' => $course->id, 'lesson' => $lessonId]);
+                return route($name, ['course' => $course, 'lesson' => $lessonId]);
             }
         }
 
@@ -351,7 +352,7 @@ class DashboardService
     {
         foreach (['learning.course', 'learning.courses.show'] as $name) {
             if (Route::has($name)) {
-                return route($name, ['course' => $course->id]);
+                return route($name, ['course' => $course]);
             }
         }
 

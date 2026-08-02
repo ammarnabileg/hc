@@ -14,25 +14,25 @@ use Illuminate\Support\Facades\Route;
 | المراجع: الشكاوى (11) · البروفايل بطبقتيه (10 · 10.0 · 13.4-م) ·
 | البحث الكبير (13.1) · شاشات الدعم وحسابي (24.5) · خصوصيّة الحقول (12.14-د).
 |
-| ملاحظة على الحراسة: صفحات هذا المجال **شخصيّة بطبيعتها** (بياناتي أنا)،
-| فالحارس فيها هو **الملكيّة** لا صلاحيّة إداريّة — إلّا الشكاوى فلها موردٌ
-| في مصفوفة الصلاحيّات (12.2.2) بنطاق SELF للمتدرّب، فنستعمله كما هو.
+| الحراسة: كلّ مسار بصلاحيّته من المصفوفة (12.2.1)، وكلّها هنا بنطاق **SELF**
+| لأنّ الشاشات شخصيّة: بياناتي أنا وتذاكري أنا وجلساتي أنا.
+| واستثناءان بلا صلاحيّة لأنّ مصفوفة 12.2.2 لا تُتيح لهما نطاقًا شخصيًّا:
+|  · **دليل المستخدم** — مرجع عامّ لكلّ مستخدم (24.5) ولا بيانات فيه أصلًا.
+|  · **البحث الكبير** — «يراها كلّ مستخدم مفعَّل» (24.5)، وشرط التفعيل يُفحَص
+|    في المتحكّم، والنتائج بروفايل عامّ بلا أيّ بيان حسّاس (13.1).
 */
 
 Route::middleware('auth')->group(function () {
 
     // ------------------------------------------------ الدعم ← الشكاوى والمقترحات (11)
-    Route::middleware('permission:complaints.list')->group(function () {
+    Route::middleware('permission:complaints.view')->group(function () {
         Route::get('/complaints', [ComplaintController::class, 'index'])->name('complaints.index');
+        Route::post('/complaints/{complaint}/close', [ComplaintController::class, 'close'])->name('complaints.close');
     });
 
     Route::middleware('permission:complaints.create')->group(function () {
         Route::post('/complaints', [ComplaintController::class, 'store'])->name('complaints.store');
         Route::post('/complaints/{complaint}/messages', [ComplaintController::class, 'reply'])->name('complaints.reply');
-    });
-
-    Route::middleware('permission:complaints.edit')->group(function () {
-        Route::post('/complaints/{complaint}/close', [ComplaintController::class, 'close'])->name('complaints.close');
     });
 
     // ------------------------------------------------ الدعم ← دليل المستخدم
@@ -41,22 +41,43 @@ Route::middleware('auth')->group(function () {
     Route::post('/help/{article:slug}/feedback', [HelpController::class, 'feedback'])->name('help.feedback');
 
     // ------------------------------------------------ حسابي ← بروفايلي (10)
-    Route::get('/profile', [ProfileController::class, 'me'])->name('profile.me');
+    Route::middleware('permission:user_profile.view')->group(function () {
+        Route::get('/profile', [ProfileController::class, 'me'])->name('profile.me');
+    });
 
     // ------------------------------------------------ حسابي ← الإعدادات (24.5)
-    Route::get('/settings', [SettingsController::class, 'index'])->name('settings.index');
-    Route::patch('/settings/field', [SettingsController::class, 'updateField'])->name('settings.field');
-    Route::post('/settings/avatar', [SettingsController::class, 'updateAvatar'])->name('settings.avatar');
-    Route::post('/settings/emergency', [SettingsController::class, 'storeEmergency'])->name('settings.emergency.store');
-    Route::delete('/settings/emergency/{contact}', [SettingsController::class, 'destroyEmergency'])->name('settings.emergency.destroy');
+    Route::middleware('permission:user_profile.edit')->group(function () {
+        Route::get('/settings', [SettingsController::class, 'index'])->name('settings.index');
+        Route::patch('/settings/field', [SettingsController::class, 'updateField'])->name('settings.field');
+        Route::post('/settings/avatar', [SettingsController::class, 'updateAvatar'])->name('settings.avatar');
+        Route::post('/settings/security/password', [SettingsController::class, 'updatePassword'])->name('settings.password');
+    });
+
+    Route::middleware('permission:emergency_contact.edit')->group(function () {
+        Route::post('/settings/emergency', [SettingsController::class, 'storeEmergency'])->name('settings.emergency.store');
+        Route::delete('/settings/emergency/{contact}', [SettingsController::class, 'destroyEmergency'])->name('settings.emergency.destroy');
+    });
 
     // ------------------------------------------------ حسابي ← الخصوصيّة والأمان (13.4-م)
-    Route::get('/settings/privacy', [SettingsController::class, 'privacy'])->name('settings.privacy');
-    Route::patch('/settings/privacy/field', [SettingsController::class, 'updatePrivacyField'])->name('settings.privacy.field');
-    Route::post('/settings/privacy/consents/{consent}/revoke', [SettingsController::class, 'revokeConsent'])->name('settings.privacy.revoke');
-    Route::post('/settings/security/password', [SettingsController::class, 'updatePassword'])->name('settings.password');
-    Route::delete('/settings/security/devices/{device}', [SettingsController::class, 'endSession'])->name('settings.devices.destroy');
-    Route::get('/settings/security/export', [SettingsController::class, 'exportData'])->name('settings.export');
+    Route::middleware('permission:privacy_settings.view')->group(function () {
+        Route::get('/settings/privacy', [SettingsController::class, 'privacy'])->name('settings.privacy');
+    });
+
+    Route::middleware('permission:privacy_settings.edit')->group(function () {
+        Route::patch('/settings/privacy/field', [SettingsController::class, 'updatePrivacyField'])->name('settings.privacy.field');
+    });
+
+    Route::middleware('permission:contact_consent.delete')->group(function () {
+        Route::post('/settings/privacy/consents/{consent}/revoke', [SettingsController::class, 'revokeConsent'])->name('settings.privacy.revoke');
+    });
+
+    Route::middleware('permission:user_sessions.delete')->group(function () {
+        Route::delete('/settings/security/devices/{device}', [SettingsController::class, 'endSession'])->name('settings.devices.destroy');
+    });
+
+    Route::middleware('permission:data_export.create')->group(function () {
+        Route::get('/settings/security/export', [SettingsController::class, 'exportData'])->name('settings.export');
+    });
 
     // ------------------------------------------------ صفحة البحث الكبيرة (13.1)
     Route::get('/search', [SearchController::class, 'index'])->name('search');

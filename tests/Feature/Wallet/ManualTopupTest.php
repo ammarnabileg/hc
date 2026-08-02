@@ -5,6 +5,7 @@ namespace Tests\Feature\Wallet;
 use App\Models\TopupOffer;
 use App\Models\TopupRequest;
 use App\Models\TransferMethod;
+use App\Services\Wallet\LedgerService;
 use App\Services\Wallet\TopupService;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -62,7 +63,7 @@ class ManualTopupTest extends WalletTestCase
         $this->assertSame($this->user->id, $request->user_id);
         $this->assertNotEmpty($request->receipt_hash);
         // ولا رصيد ينزل قبل مراجعة الأدمن
-        $this->assertSame(0.0, app(\App\Services\Wallet\LedgerService::class)->balance($this->user, 'coins'));
+        $this->assertSame(0.0, app(LedgerService::class)->balance($this->user, 'coins'));
     }
 
     public function test_receipt_is_mandatory(): void
@@ -109,25 +110,30 @@ class ManualTopupTest extends WalletTestCase
     /** ⭐ (5) قفل: طلب معلَّق واحد لكلّ مستخدم */
     public function test_only_one_pending_request_per_user(): void
     {
-        $this->submit(UploadedFile::fake()->image('one.png'));
-        $this->submit(UploadedFile::fake()->image('two.png'))->assertRedirect(route('wallet.topup.requests'));
+        $this->submit(UploadedFile::fake()->image('one.png', 10, 10));
+        $this->submit(UploadedFile::fake()->image('two.png', 20, 20))->assertRedirect(route('wallet.topup.requests'));
 
         $this->assertSame(1, TopupRequest::query()->where('user_id', $this->user->id)->count());
     }
 
     public function test_cancelled_request_can_be_edited_and_resent(): void
     {
-        $this->submit(UploadedFile::fake()->image('one.png'));
+        $this->submit(UploadedFile::fake()->image('one.png', 10, 10));
 
         $request = TopupRequest::query()->firstOrFail();
         $request->update(['status' => TopupService::CANCELLED, 'cancel_reason' => 'الإيصال غير واضح — ابعت صورة أوضح.']);
 
-        // القفل يُرفَع بمجرّد ألّا يبقى طلبٌ معلَّق
-        $this->actingAs($this->user)->get(route('wallet.topup', ['resend' => $request->id]))
+        // زرّ [عدّل وأعد الإرسال] يظهر في صفحة الطلبات…
+        $this->actingAs($this->user)->get(route('wallet.topup.requests'))
             ->assertOk()
             ->assertSee('عدّل وأعد الإرسال', false);
 
-        $this->submit(UploadedFile::fake()->image('three.png'));
+        // …ويفتح فورمًا مملوءًا سلفًا فلا يبدأ المستخدم من الصفر، والقفل مرفوع
+        $this->actingAs($this->user)->get(route('wallet.topup', ['resend' => $request->id]))
+            ->assertOk()
+            ->assertSee('value="500.00"', false);
+
+        $this->submit(UploadedFile::fake()->image('three.png', 30, 30));
 
         $this->assertSame(1, TopupRequest::query()->where('status', TopupService::PENDING)->count());
     }

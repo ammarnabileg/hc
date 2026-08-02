@@ -91,6 +91,5 @@
     }
 
     /* ممنوع التمرير الأفقيّ على الموبايل — شرط قبول (2.15-ج) */
-    .learning-scroll-x { overflow-x: auto; }
-    .learning-scroll-x::-webkit-scrollbar { block-size: 4px; }
+    .roadmap, .roadmap * { min-inline-size: 0; }
 </style>

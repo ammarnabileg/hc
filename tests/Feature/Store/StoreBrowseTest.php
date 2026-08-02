@@ -96,6 +96,37 @@ class StoreBrowseTest extends StoreTestCase
             ->assertSee('شراء بالكوينز');
     }
 
+    public function test_bundle_page_lists_what_it_includes_with_real_values(): void
+    {
+        $bundle = $this->bundle([$this->course(), $this->product()]);
+        $user = $this->trainee(1000);
+
+        $this->actingAs($user)
+            ->get(route('store.product', ['type' => 'bundle', 'slug' => $bundle->slug]))
+            ->assertOk()
+            ->assertSee('ما يشمله')
+            ->assertSee('بقيمة 400 كوين')
+            ->assertSee('إتمام الشراء')
+            ->assertSee('اشحن المحفظة')
+            ->assertSee('قرأت سياسة عدم الاسترجاع وموافق عليها.');
+    }
+
+    public function test_learning_path_is_sold_inside_bundles_only(): void
+    {
+        $path = LearningPath::create([
+            'slug' => 'masar-maharat-elmaktab',
+            'name_ar' => 'مسار مهارات المكتب',
+            'status' => 'published',
+        ]);
+        $user = $this->trainee(1000);
+
+        $this->actingAs($user)
+            ->get(route('store.product', ['type' => 'path', 'slug' => $path->slug]))
+            ->assertOk()
+            ->assertSee('يُفتَح ضمن الباقات')
+            ->assertDontSee('إتمام الشراء');
+    }
+
     public function test_draft_item_is_not_reachable(): void
     {
         $product = $this->product(['status' => 'draft']);

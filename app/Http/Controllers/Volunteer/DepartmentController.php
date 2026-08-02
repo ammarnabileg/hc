@@ -1,0 +1,135 @@
+<?php
+
+namespace App\Http\Controllers\Volunteer;
+
+use App\Http\Controllers\Controller;
+use App\Models\ConsentRequest;
+use App\Models\Membership;
+use App\Models\Position;
+use App\Services\Volunteer\Org\DepartmentScope;
+use App\Services\Volunteer\Org\MemberDirectory;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\View\View;
+
+/**
+ * «الأعضاء والبوزشنز» (24.4-7): سؤال واحد للشاشة — «مين معايا في القسم وبيعمل إيه؟».
+ *
+ * القسم **كاملًا حتى لو كنتُ في فرعيّ**، وكروت مضغوطة **بلا أرقام أداء تفصيليّة
+ * لغير المخوَّل**، والعنصر الشرفيّ «أخوكم» **سطر شرفيّ في الرأس** لا صفّ في القائمة
+ * ولا رقم في العدّاد (13.4-ص-ب).
+ */
+class DepartmentController extends Controller
+{
+    public function __construct(
+        private readonly DepartmentScope $scope,
+        private readonly MemberDirectory $directory,
+    ) {}
+
+    public function index(Request $request): View
+    {
+        $user = $request->user();
+        $root = $this->scope->rootFor($user, (int) $request->query('entity') ?: null);
+
+        if (! $root) {
+            return view('volunteer.org.department', [
+                'root' => null,
+                'roots' => collect(),
+                'cards' => collect(),
+                'counters' => ['members' => 0, 'sub_entities' => 0, 'vacancies' => 0],
+                'subEntities' => collect(),
+                'positions' => collect(),
+                'honorary' => null,
+                'filters' => [],
+                'view' => 'cards',
+            ]);
+        }
+
+        $memberships = $this->scope->memberships($this->scope->entityIds($root));
+        $cards = $this->directory->cards($memberships, $user);
+
+        $filters = [
+            'entity' => $request->query('sub'),
+            'position' => $request->query('position'),
+            'status' => $request->query('status'),
+            'q' => $request->query('q'),
+        ];
+
+        return view('volunteer.org.department', [
+            'root' => $root,
+            'roots' => $this->scope->rootsFor($user),
+            'cards' => $this->directory->filter($cards, $filters),
+            'counters' => $this->directory->counters($root, $memberships),
+            'subEntities' => $this->scope->subEntities($root),
+            'positions' => Position::where('is_honorary', false)->orderByDesc('rank')->get(),
+            'honorary' => $this->scope->honorary(),
+            'filters' => $filters,
+            // مبدّل عرض: كروت أو جدول — والاختيار يُحفَظ في الرابط
+            'view' => $request->query('view') === 'table' ? 'table' : 'cards',
+        ]);
+    }
+
+    /** بوب-أب ملفّ عضو مختصر — تفاصيل في بانل لا صفحة جديدة (2.15-أ-6) */
+    public function member(Request $request, Membership $membership): JsonResponse
+    {
+        $viewer = $request->user();
+        $root = $this->scope->rootFor($viewer);
+
+        abort_unless($root && $this->sharesDepartment($membership, $root), 403);
+
+        $pool = $this->scope->memberships($this->scope->entityIds($root));
+
+        return response()->json($this->directory->profile($membership, $viewer, $pool));
+    }
+
+    /**
+     * «اطلب إظهار الرقم» (13.4-م-2): الطلب على **البيانات** لا على الشخص.
+     * صالح 72 ساعة، وتبريد 72 ساعة بعد الرفض/الانتهاء، والردّ صامت دائمًا.
+     */
+    public function requestConsent(Request $request, Membership $membership): RedirectResponse
+    {
+        $viewer = $request->user();
+        $root = $this->scope->rootFor($viewer);
+
+        abort_unless($root && $this->sharesDepartment($membership, $root), 403);
+        abort_if((int) $membership->user_id === $viewer->id, 403);
+
+        $validity = (int) setting('volunteer.consent.request_hours', 72);
+        $cooldown = (int) setting('volunteer.consent.cooldown_hours', 72);
+
+        $existing = ConsentRequest::query()
+            ->where('requester_id', $viewer->id)
+            ->where('owner_id', $membership->user_id)
+            ->where('field', 'phone')
+            ->latest('id')
+            ->first();
+
+        // تبريد إعادة الطلب — منعًا لإزعاج صاحب البيانات
+        $blocked = $existing
+            && (($existing->status === 'pending' && $existing->request_expires_at > now())
+                || ($existing->cooldown_until && $existing->cooldown_until > now()));
+
+        if (! $blocked) {
+            ConsentRequest::create([
+                'requester_id' => $viewer->id,
+                'owner_id' => $membership->user_id,
+                'field' => 'phone',
+                'status' => 'pending',
+                'request_expires_at' => now()->addHours($validity),
+                'cooldown_until' => now()->addHours($cooldown),
+            ]);
+        }
+
+        // الردّ محايد دائمًا — لا يكشف قبولًا ولا رفضًا (حفظًا للعلاقة داخل الفريق)
+        return back()->with('status', (string) setting(
+            'volunteer.consent.request_sent',
+            'وصل طلبك — هيوصلك الردّ لمّا يتاح.',
+        ));
+    }
+
+    private function sharesDepartment(Membership $membership, \App\Models\Entity $root): bool
+    {
+        return in_array((int) $membership->entity_id, $this->scope->entityIds($root), true);
+    }
+}

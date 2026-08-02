@@ -67,7 +67,18 @@
         @include('learning.partials.ghost-timer', ['deadline' => $deadline])
     </div>
 
-    <h2 class="text-lg font-bold mb-3">{{ setting('learning.course.outline_title') }}</h2>
+    <div class="flex items-center justify-between gap-3 flex-wrap mb-3">
+        <h2 class="text-lg font-bold">{{ setting('learning.course.outline_title') }}</h2>
+
+        {{-- بحث داخل الدروس بالاسم — لا فلاتر أخرى على هذه الشاشة (24.5) --}}
+        <label class="block w-full sm:w-64">
+            <span class="sr-only">{{ setting('learning.course.lesson_search') }}</span>
+            <input type="search" data-lesson-search
+                   placeholder="{{ setting('learning.course.lesson_search') }}"
+                   class="w-full rounded-xl px-3 py-2 text-sm"
+                   style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
+        </label>
+    </div>
 
     {{-- Roadmap رأسيّ: السيكشنز وتحت كلّ سيكشن دروسه (24.5) --}}
     <div class="roadmap space-y-4">
@@ -90,6 +101,7 @@
                         @endphp
 
                         <li class="rounded-xl px-3 py-2 motion-standard"
+                            data-lesson-title="{{ $lessonRow['title'] }}"
                             @style([
                                 'background: var(--surface-sunken)',
                                 'outline: 2px solid var(--color-brand-500)' => $isCurrent,
@@ -162,6 +174,28 @@
            style="background: var(--color-brand-500); color: #04201c">{{ setting('learning.cta.continue') }}</a>
     @endsection
 @endif
+
+@push('scripts')
+    <script>
+        /* بحث داخل الدروس بالاسم — تصفية فوريّة بلا إعادة تحميل (2.17-ب) */
+        (() => {
+            const box = document.querySelector('[data-lesson-search]');
+            if (!box) return;
+
+            box.addEventListener('input', () => {
+                const term = box.value.trim();
+                document.querySelectorAll('[data-lesson-title]').forEach((row) => {
+                    row.style.display = !term || row.dataset.lessonTitle.includes(term) ? '' : 'none';
+                });
+                document.querySelectorAll('.roadmap-node').forEach((node) => {
+                    const visible = [...node.querySelectorAll('[data-lesson-title]')]
+                        .some((row) => row.style.display !== 'none');
+                    node.style.display = visible ? '' : 'none';
+                });
+            });
+        })();
+    </script>
+@endpush
 
 @push('modals')
     {{-- «الإبلاغ عن مشكلة في الدرس» ⟵ يفتح تذكرة دعم (24.5) --}}

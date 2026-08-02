@@ -231,6 +231,12 @@
             if (!article) bar.style.width = '100%';
         })();
 
+        /* بانل الدروس: مفتوح على الديسكتوب، ومطويّ على الموبايل يفتح كـBottom Sheet (24.5) */
+        (() => {
+            const panel = document.querySelector('.lesson-panel');
+            if (panel && window.matchMedia('(max-width: 767px)').matches) panel.open = false;
+        })();
+
         /* خانات OTP: انتقال تلقائيّ بين الخانات — والفورم يعمل كاملًا بدونه */
         document.querySelectorAll('[data-otp-form] .otp-row').forEach((row) => {
             const boxes = [...row.querySelectorAll('.otp-box')];

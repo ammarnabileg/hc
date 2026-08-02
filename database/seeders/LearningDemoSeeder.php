@@ -50,6 +50,7 @@ class LearningDemoSeeder extends Seeder
             ['learning.breadcrumb.root', 'string', 'تعلّمي'],
             ['learning.more.label', 'string', 'أفعال أخرى'],
             ['learning.course.outline_title', 'string', 'محتويات التدريب'],
+            ['learning.course.lesson_search', 'string', 'ابحث في الدروس'],
             ['learning.paths.contents_title', 'string', 'محتويات المسار'],
 
             // ---- الحالات والأفعال

@@ -127,7 +127,7 @@ class DashboardTest extends TestCase
     public function test_dashboard_shows_greeting_four_kpis_and_course_cards(): void
     {
         $user = $this->trainee('سلمى عبد الرحمن محمود');
-        $this->enrolledCourse($user, 'تصميم واجهات المستخدم', lessons: 4, done: 2);
+        $course = $this->enrolledCourse($user, 'تصميم واجهات المستخدم', lessons: 4, done: 2);
 
         $response = $this->actingAs($user)->get('/dashboard');
 
@@ -140,6 +140,11 @@ class DashboardTest extends TestCase
 
         // ⭐ أربعة كروت KPI بحدّ أقصى في الصفّ (2.15-أ-3)
         $this->assertCount(4, app(DashboardService::class)->kpis($user));
+
+        // الفعل الرئيسيّ يقود لآخر درس غير مكتمل بمفتاح المسار الصحيح
+        $next = app(DashboardService::class)->nextLesson($user);
+        $this->assertSame('الدرس 3', $next['lesson_title']);
+        $this->assertStringContainsString($course->slug, $next['url']);
     }
 
     public function test_progress_ring_and_ghost_timer_states_follow_the_state_dictionary(): void
