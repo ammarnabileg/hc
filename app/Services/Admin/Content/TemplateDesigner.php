@@ -162,7 +162,7 @@ class TemplateDesigner
                 continue;
             }
 
-            $type = in_array($layer['type'] ?? 'text', self::LAYER_TYPES, true) ? $layer['type'] : 'text';
+            $type = in_array($layer['type'] ?? 'text', self::LAYER_TYPES, true) ? (string) $layer['type'] : 'text';
             $binding = $this->sanitizeBinding($layer['binding'] ?? null);
             $field = $this->sanitizeField($layer['field'] ?? null, $binding);
 
@@ -184,7 +184,7 @@ class TemplateDesigner
                 'font' => mb_substr((string) ($layer['font'] ?? setting('certificates.designer.default_font', 'Cairo')), 0, 48),
                 'color' => $this->sanitizeColor($layer['color'] ?? null),
                 // 'start' = اليمين في RTL · 'end' = اليسار · الافتراضيّ توسيط (يطابق الراسم)
-                'align' => in_array($layer['align'] ?? 'center', ['start', 'center', 'end'], true) ? $layer['align'] : 'center',
+                'align' => in_array($layer['align'] ?? 'center', ['start', 'center', 'end'], true) ? (string) ($layer['align'] ?? 'center') : 'center',
                 'rotate' => round($this->clamp($layer['rotate'] ?? 0, -180, 180), 2),
                 'bold' => (bool) ($layer['bold'] ?? false),
                 'max_chars' => (int) $this->clamp($layer['max_chars'] ?? setting('certificates.render.max_chars_per_line', 48), 8, 200),

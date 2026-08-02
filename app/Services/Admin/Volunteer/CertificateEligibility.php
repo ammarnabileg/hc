@@ -125,34 +125,27 @@ class CertificateEligibility
         $start = $membership->started_at ?? $membership->created_at;
         $end = $membership->ended_at ?? now();
 
-        $code = ($type->numbering_prefix ?: 'VPS').'-'.str()->upper(str()->random(10));
+        /*
+         | بيانات الشهادة — وبلا أيّ أرقام داخليّة (لا Rep ولا VXP)، فهي لغة
+         | داخليّة لا معنى لها خارجًا وقد تضرّ صاحبها (13.4-ع-ب).
+         */
+        $snapshot = [
+            'position_id' => $membership->position_id,
+            'position' => $membership->position?->name_ar,
+            'entity_id' => $membership->entity_id,
+            'entity' => $membership->entity?->name_ar,
+            'from' => $start?->toDateString(),
+            'to' => $end?->toDateString(),
+            'days' => $check['days'],
+            'team_size' => $membership->id
+                ? Membership::query()->where('upline_id', $membership->id)->where('status', 'active')->count()
+                : 0,
+        ];
 
-        $certificate = Certificate::create([
-            'code' => $code,
-            'hash' => hash('sha256', $code.'|'.$membership->user_id.'|'.$membership->position_id.'|'.$membership->entity_id),
-            'user_id' => $membership->user_id,
-            'certificate_type_id' => $type->id,
-            'subject_type' => $membership->getMorphClass(),
-            'subject_id' => $membership->id,
-            'language' => $type->lang_en_enabled && ! $type->lang_ar_enabled ? 'en' : 'ar',
-            'source' => $actor ? 'manual' : 'auto',
-            'issued_at' => now(),
-            'issued_by' => $actor?->id,
-            'status' => 'valid',
-            // بيانات الشهادة: بلا Rep ولا VXP (لغة داخليّة لا معنى لها خارجًا)
-            'data_snapshot' => [
-                'position_id' => $membership->position_id,
-                'position' => $membership->position?->name_ar,
-                'entity_id' => $membership->entity_id,
-                'entity' => $membership->entity?->name_ar,
-                'from' => $start?->toDateString(),
-                'to' => $end?->toDateString(),
-                'days' => $check['days'],
-                'team_size' => $membership->id
-                    ? Membership::query()->where('upline_id', $membership->id)->where('status', 'active')->count()
-                    : 0,
-            ],
-        ]);
+        // مصدرٌ واحد للإصدار: نمرّر لمُصدِر الشهادات القائم متى وُجد (كود + Hash
+        // + تجميد نسخة القالب + لحظة الذروة)، وإلّا نكتب البديل الآمن بنفس الأثر.
+        $certificate = self::issueViaIssuer($membership, $type, $snapshot, $actor)
+            ?? self::issueDirectly($membership, $type, $snapshot, $actor);
 
         if ((bool) setting('volunteer_cert.notify_on_issue', true)) {
             $user = $membership->user;

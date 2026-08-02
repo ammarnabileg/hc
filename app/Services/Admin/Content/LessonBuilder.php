@@ -72,7 +72,7 @@ class LessonBuilder
     /** @param  array<string, mixed>  $data */
     public function saveLesson(Section $section, ?Lesson $lesson, array $data): Lesson
     {
-        $type = in_array($data['type'] ?? 'video', ['video', 'document'], true) ? $data['type'] : 'video';
+        $type = in_array($data['type'] ?? 'video', ['video', 'document'], true) ? (string) ($data['type'] ?? 'video') : 'video';
 
         $payload = [
             'section_id' => $section->id,
@@ -151,14 +151,14 @@ class LessonBuilder
      */
     public function saveQuestion(Lesson $lesson, ?LessonQuestion $question, array $data): LessonQuestion
     {
-        $type = in_array($data['type'] ?? 'otp', ['otp', 'choice', 'text'], true) ? $data['type'] : 'otp';
+        $type = in_array($data['type'] ?? 'otp', ['otp', 'choice', 'text'], true) ? (string) ($data['type'] ?? 'otp') : 'otp';
 
         $payload = [
             'lesson_id' => $lesson->id,
             'type' => $type,
             'prompt' => $data['prompt'],
             // Placeholder داخل الحقل — نصّه من الإعدادات لكلّ نوع حين لا يكتبه الأدمن (2.13)
-            'placeholder' => $data['placeholder'] ?: $this->defaultPlaceholder($type),
+            'placeholder' => ($data['placeholder'] ?? null) ?: $this->defaultPlaceholder($type),
             'options' => $type === 'choice' ? $this->cleanOptions($data['options'] ?? []) : null,
             'correct_answer' => $data['correct_answer'] ?? null,
             'is_general' => (bool) ($data['is_general'] ?? false),

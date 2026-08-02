@@ -101,16 +101,18 @@ class AdminVolunteerScreensTest extends AdminVolunteerTestCase
         $admin = $this->grant($this->makeUser(), 'offboarding.create');
         $target = $this->makeUser('متطوّع');
 
-        // دفعتان لأنّ حدّ الخسارة اليوميّ يمنع الهبوط الحادّ في يوم واحد (13.4-ن-و)
-        for ($i = 0; $i < 6; $i++) {
+        /*
+         | يومٌ لكلّ دفعة: حدّ الخسارة اليوميّ −2 يمنع الهبوط من 0 إلى −10 في يوم
+         | واحد عمدًا (13.4-ن-و)، فنمشي بالزمن كما يحدث فعلًا لا كما نشتهي.
+         */
+        for ($day = 0; $day < 6; $day++) {
+            $this->travel($day)->days();
             Integrations::post($target, 'rep', -2, 'behavior', 'اختبار العتبات', $admin, null, 'volunteer');
         }
 
         $target = $target->fresh();
 
-        if (! OffboardingService::reachedExclusionThreshold($target)) {
-            $this->markTestSkipped('حدّ الخسارة اليوميّ منع بلوغ العتبة في نفس اليوم.');
-        }
+        $this->assertTrue(OffboardingService::reachedExclusionThreshold($target));
 
         $record = OffboardingService::open($target, 'exclusion', 'بلغ سلّم العتبات', $admin);
 

@@ -1,0 +1,488 @@
+<?php
+
+namespace Database\Seeders;
+
+use App\Models\AdAudience;
+use App\Models\Article;
+use App\Models\ArticleCategory;
+use App\Models\Bundle;
+use App\Models\Coupon;
+use App\Models\ImageTemplate;
+use App\Models\Permission;
+use App\Models\Product;
+use App\Models\ProductCategory;
+use App\Models\Role;
+use App\Models\Setting;
+use App\Models\TopupOffer;
+use App\Models\TransferMethod;
+use App\Models\User;
+use App\Support\Access\PermissionExpander;
+use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
+
+/**
+ * بيانات مجال «المتجر والماليّات والإحصائيّات والإعدادات والنظام» التجريبيّة،
+ * ومعها **الصلاحيّات والإعدادات الناقصة** لهذا المجال.
+ *
+ * 🏆 القاعدة الذهبيّة (2.13): كلّ رقم وكلّ نصّ هنا **إعداد بقيمة افتراضيّة** —
+ *    ولا يوجد في كود المجال رقمٌ محروق واحد.
+ */
+class AdminSystemDemoSeeder extends Seeder
+{
+    public function run(): void
+    {
+        $this->permissions();
+        $this->settings();
+        $this->store();
+        $this->topup();
+        $this->studio();
+        $this->articles();
+        $this->ads();
+
+        Cache::forget('settings');
+        $this->command?->info('بيانات admin-system جاهزة.');
+    }
+
+    // ---------------------------------------------------------------- الصلاحيّات
+
+    /**
+     * موارد هذا المجال التي لم تكن في المصفوفة الأمّ.
+     * 🔒 و`finance` و`ad_pixels` و`ad_audiences.export` لمالك المنصّة وحده (12.2.1).
+     */
+    private function permissions(): void
+    {
+        $resources = [
+            'finance' => [
+                'group' => 'الماليّات', 'label' => 'الماليّات',
+                'actions' => ['view', 'edit', 'export', 'manage'], 'owner_only' => true,
+            ],
+            'topup_requests' => [
+                'group' => 'المتجر والماليّات', 'label' => 'طلبات الشحن',
+                'actions' => ['list', 'view', 'approve', 'reject'], 'owner_only' => false,
+            ],
+            'articles' => [
+                'group' => 'المحتوى التحريريّ', 'label' => 'المقالات',
+                'actions' => ['list', 'view', 'create', 'edit', 'review', 'publish', 'archive'], 'owner_only' => false,
+            ],
+            'image_templates' => [
+                'group' => 'استوديو الصور', 'label' => 'قوالب الصور',
+                'actions' => ['list', 'view', 'create', 'edit', 'delete', 'archive', 'publish', 'batch'], 'owner_only' => false,
+            ],
+            'image_export' => [
+                'group' => 'استوديو الصور', 'label' => 'استخراج الصور',
+                'actions' => ['use'], 'owner_only' => false,
+            ],
+            'ad_audiences' => [
+                'group' => 'الإعلان المدفوع', 'label' => 'شرائح الإعلان',
+                'actions' => ['view', 'create', 'edit'], 'owner_only' => false,
+            ],
+            'acquisition_sources' => [
+                'group' => 'الإحصائيّات', 'label' => 'مصادر الاكتساب',
+                'actions' => ['view'], 'owner_only' => false,
+            ],
+        ];
+
+        foreach ($resources as $resource => $meta) {
+            foreach ($meta['actions'] as $action) {
+                Permission::updateOrCreate(
+                    ['key' => $resource.'.'.$action],
+                    [
+                        'resource' => $resource,
+                        'action' => $action,
+                        'group' => $meta['group'],
+                        'label_ar' => $meta['label'].' — '.$action,
+                        'allowed_scopes' => ['ALL'],
+                        'is_sensitive' => $meta['owner_only'],
+                        'is_owner_only' => $meta['owner_only'],
+                    ],
+                );
+            }
+        }
+
+        // 🔒 حسّاسة إفرادًا: تصدير الشرائح يُخرِج بيانات من المنصّة (21.3-هـ)
+        Permission::updateOrCreate(
+            ['key' => 'ad_audiences.export'],
+            [
+                'resource' => 'ad_audiences', 'action' => 'export', 'group' => 'الإعلان المدفوع',
+                'label_ar' => 'تصدير شريحة إعلانيّة', 'allowed_scopes' => ['ALL'],
+                'is_sensitive' => true, 'is_owner_only' => true,
+            ],
+        );
+
+        Permission::updateOrCreate(
+            ['key' => 'ad_pixels.manage'],
+            [
+                'resource' => 'ad_pixels', 'action' => 'manage', 'group' => 'الإعلان المدفوع',
+                'label_ar' => 'معرّفات البكسل ومفاتيح الـAPI', 'allowed_scopes' => ['ALL'],
+                'is_sensitive' => true, 'is_owner_only' => true,
+            ],
+        );
+
+        $this->grantRoles();
+    }
+
+    /** ربط الأدوار القائمة بصلاحيّات المجال — والحسّاس يبقى لمالك المنصّة وحده */
+    private function grantRoles(): void
+    {
+        $map = [
+            'platform_owner' => ['finance', 'topup_requests', 'articles', 'image_templates', 'image_export', 'ad_audiences', 'ad_pixels', 'acquisition_sources'],
+            'super_admin' => ['topup_requests', 'articles', 'image_templates', 'image_export', 'ad_audiences', 'acquisition_sources'],
+            'finance_admin' => ['topup_requests'],
+            'marketing_admin' => ['articles', 'image_templates', 'image_export', 'ad_audiences', 'acquisition_sources'],
+            'tech_admin' => ['acquisition_sources'],
+        ];
+
+        foreach ($map as $roleKey => $resources) {
+            $role = Role::query()->where('key', $roleKey)->first();
+
+            if (! $role) {
+                continue;
+            }
+
+            $ids = Permission::query()
+                ->whereIn('resource', $resources)
+                // ⭐ منع تصعيد الامتياز: غير المالك لا يأخذ owner-only مهما كان الدور
+                ->when($roleKey !== 'platform_owner', fn ($q) => $q->where('is_owner_only', false))
+                ->pluck('id');
+
+            foreach ($ids as $id) {
+                DB::table('permission_role')->insertOrIgnore([
+                    'role_id' => $role->id,
+                    'permission_id' => $id,
+                    'scope' => 'ALL',
+                    'effect' => 'allow',
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
+        }
+
+        app(PermissionExpander::class);
+    }
+
+    // ---------------------------------------------------------------- الإعدادات
+
+    private function settings(): void
+    {
+        // [key, group, label, type, default, owner_only]
+        $rows = [
+            // ---------------- المتجر (24.3-أوّلًا)
+            ['store.enabled', 'store', 'تفعيل المتجر', 'bool', '1', false],
+            ['store.unified_grid', 'store', 'شبكة موحّدة بلا فصل حسب النوع', 'bool', '1', false],
+            ['store.admin.per_page', 'store', 'عدد الصفوف في صفحة الإدارة', 'number', '20', false],
+            ['store.products_per_page', 'store', 'عدد المنتجات لكلّ صفحة', 'number', '24', false],
+            ['store.empty.text', 'store', 'نصّ الحالة الفارغة', 'text', 'مفيش نتائج للفلتر ده — جرّب توسّع شويّة.', false],
+            ['bundles.enabled', 'store', 'تفعيل البندلز', 'bool', '1', false],
+            ['bundles.anchoring', 'store', 'شطب السعر الطبيعيّ (Anchoring)', 'bool', '1', false],
+            ['coupons.enabled', 'store', 'تفعيل الكوبونات', 'bool', '1', false],
+            ['order_bump.enabled', 'store', 'تفعيل Order-bump', 'bool', '1', false],
+            ['order_bump.max_per_checkout', 'store', 'أقصى عروض Bump في صفحة المراجعة', 'number', '2', false],
+            ['store.invoice.prefix', 'store', 'بادئة رقم الفاتورة', 'string', 'INV-', false],
+            ['store.invoice.digits', 'store', 'عدد خانات تسلسل الفاتورة', 'number', '6', false],
+            ['store.order.pending_expiry_minutes', 'store', 'مهلة انتهاء الطلب المعلّق (دقائق)', 'number', '30', false],
+            ['library.reader.session_minutes', 'store', 'صلاحيّة رابط جلسة القارئ (دقائق)', 'number', '15', false],
+            ['library.watermark.opacity_percent', 'store', 'شفافيّة العلامة المائيّة (%)', 'number', '12', false],
+            ['library.watermark.font_size', 'store', 'حجم خطّ العلامة المائيّة', 'number', '14', false],
+
+            // ---------------- 🔒 الماليّات (مجموعة معزولة لمالك المنصّة)
+            ['finance.rates.usd_to_coins', 'finance', '1$ = كام كوين', 'number', '50', true],
+            ['finance.rates.ticket_to_coins', 'finance', '1 تذكرة = كام كوين', 'number', '10', true],
+            ['finance.rates.ticket_to_xp', 'finance', '1 تذكرة = كام XP', 'number', '300', true],
+            ['finance.transfer.coins_fee_percent', 'finance', 'رسوم حوالة الكوينز (%)', 'number', '15', true],
+            ['finance.transfer.xp_fee_percent', 'finance', 'رسوم حوالة الـXP (%)', 'number', '85', true],
+            ['finance.transfer.tickets_fee_percent', 'finance', 'رسوم حوالة التذاكر (%)', 'number', '0', true],
+            ['finance.transfer.rounding', 'finance', 'سياسة التقريب', 'string', 'ceil', true],
+            ['finance.exchange.fee_percent', 'finance', 'رسوم تحويل العملة (%)', 'number', '5', true],
+            ['finance.topup.min_amount', 'finance', 'الحدّ الأدنى لعمليّة الشحن', 'number', '50', true],
+            ['finance.topup.max_amount', 'finance', 'الحدّ الأقصى لعمليّة الشحن', 'number', '20000', true],
+            ['finance.topup.daily_limit', 'finance', 'الحدّ اليوميّ للشحن', 'number', '50000', true],
+            ['finance.withdraw.fee_percent', 'finance', 'رسوم السحب (%)', 'number', '1', true],
+            ['finance.withdraw.min_fee_usd', 'finance', 'حدّ أدنى للرسوم بالدولار', 'number', '0.5', true],
+            ['finance.withdraw.sla_hours', 'finance', 'SLA معالجة السحب (ساعات)', 'number', '72', true],
+            ['finance.referral.commission_percent', 'finance', 'عمولة الريفيرال (%)', 'number', '7', true],
+            ['finance.pricing.default_currency', 'finance', 'العملة الافتراضيّة', 'string', 'coins', true],
+            ['finance.preview.example_amount', 'finance', 'قيمة المثال في المعاينة اللحظيّة', 'number', '1000', true],
+            ['finance.refund.policy_ar', 'finance', 'نصّ سياسة الاسترجاع (عربيّ)', 'text', 'لا يوجد استرجاع نقديّ للمدفوعات، ويبقى رصيدك في محفظتك تشتري به ما تشاء من الموقع.', true],
+            ['finance.refund.policy_en', 'finance', 'نصّ سياسة الاسترجاع (إنجليزيّ)', 'text', 'No cash refunds. Your balance stays in your wallet and can be spent on the platform.', true],
+            ['finance.refund.show_standalone_page', 'finance', 'صفحة سياسة مستقلّة دائمة', 'bool', '1', true],
+            ['finance.refund.show_before_payment', 'finance', 'إقرار قبل إتمام الدفع', 'bool', '1', true],
+            ['finance.refund.show_on_invoice', 'finance', 'إشارة في الفاتورة', 'bool', '1', true],
+            ['finance.invoice.footer_ar', 'finance', 'تذييل الفاتورة', 'text', 'شكرًا لثقتك — رصيدك يفضل معاك في محفظتك.', true],
+
+            // ---------------- الشحن والبوّابة (19.5)
+            ['topup.credit_currency', 'store', 'عملة الشحن', 'string', 'coins', false],
+            ['topup.admin.per_page', 'store', 'عدد طلبات الشحن لكلّ صفحة', 'number', '20', false],
+            ['topup.review.internal_late_hours', 'store', '⛔ عتبة «متأخّر» الداخليّة للأدمن (ساعات)', 'number', '24', false],
+            ['topup.manual_credit.min', 'store', 'أقلّ قيمة يدويّة', 'number', '1', false],
+            ['topup.manual_credit.max', 'store', 'أقصى قيمة يدويّة', 'number', '100000', false],
+            ['topup.gateway.currency', 'store', 'عملة البوّابة', 'string', 'EGP', false],
+            ['topup.gateway.success_url', 'store', 'رابط النجاح', 'string', '/wallet?topup=success', false],
+            ['topup.gateway.fail_url', 'store', 'رابط الفشل', 'string', '/wallet?topup=fail', false],
+            ['topup.gateway.pending_url', 'store', 'رابط المعلّق', 'string', '/wallet?topup=pending', false],
+            ['topup.gateway.methods', 'store', 'وسائل الدفع المفعَّلة', 'json', '["card","wallet","fawry"]', false],
+            ['topup.gateway.min_amount', 'store', 'الحدّ الأدنى لعمليّة البوّابة', 'number', '50', false],
+            ['topup.gateway.max_amount', 'store', 'الحدّ الأقصى لعمليّة البوّابة', 'number', '20000', false],
+            ['topup.gateway.fees_on', 'store', 'تحميل الرسوم (platform/user)', 'string', 'platform', false],
+            ['topup.gateway.timeout_seconds', 'store', 'مهلة نداء البوّابة (ثوانٍ)', 'number', '8', false],
+            ['topup.gateway.logs_per_page', 'store', 'صفوف سجلّ الويب هوك', 'number', '25', false],
+            ['topup.gateway.customer_address', 'store', 'عنوان العميل الافتراضيّ', 'string', '-', false],
+
+            // ---------------- الإحصائيّات (12.8)
+            ['stats.period.default_days', 'stats', 'الفترة الافتراضيّة (أيّام)', 'number', '30', false],
+            ['stats.compare.default_on', 'stats', 'المقارنة مفعَّلة افتراضيًّا', 'bool', '0', false],
+            ['stats.cohorts.months', 'stats', 'عدد شهور الـCohorts', 'number', '6', false],
+            ['stats.geo.max_rows', 'stats', 'أقصى صفوف الخريطة الجغرافيّة', 'number', '20', false],
+            ['stats.export.max_rows', 'stats', 'حدّ صفوف التصدير', 'number', '50000', false],
+            ['stats.cache_minutes', 'stats', 'مدّة كاش التقرير (دقائق)', 'number', '10', false],
+            ['stats.hide_finance_tab', 'stats', 'إخفاء التاب الماليّ عن غير المخوَّلين', 'bool', '1', true],
+
+            // ---------------- وضع الصيانة (12.7-و-1)
+            ['system.maintenance.default_hours', 'maintenance', 'المدّة الافتراضيّة (ساعات)', 'number', '2', false],
+            ['system.maintenance.max_hours', 'maintenance', 'أقصى مدّة صيانة (ساعات)', 'number', '168', false],
+            ['system.maintenance.max_extend_hours', 'maintenance', 'أقصى تمديد بالمرّة (ساعات)', 'number', '24', false],
+            ['system.maintenance.overrun_text', 'maintenance', 'نصّ ما بعد الصفر', 'string', 'قرّبنا ننتهي — دقايق', false],
+            ['system.maintenance.refresh_seconds', 'maintenance', 'تحديث صفحة الصيانة (ثوانٍ)', 'number', '120', false],
+            ['system.maintenance.animation', 'maintenance', 'أنيميشن صفحة الصيانة', 'bool', '1', false],
+            ['system.maintenance.allow_admin_ip', 'maintenance', 'استثناء IP الأدمن', 'bool', '1', false],
+            ['system.maintenance.admin_ips', 'maintenance', 'قائمة IP الأدمن', 'text', '127.0.0.1', false],
+            ['system.maintenance.resume_toast_ar', 'maintenance', 'نصّ Toast تمديد المهلة', 'text', 'مهلتك امتدّت {hours} ساعة بسبب الصيانة.', false],
+
+            // ---------------- مفاتيح المزايا والنظام
+            ['features.show_beta_badge', 'features', 'شارة «تجريبيّة» للمزايا الجديدة', 'bool', '1', false],
+            ['features.disabled_behavior', 'features', 'سلوك الميزة الموقوفة (hide/message)', 'string', 'hide', false],
+            ['features.disabled_message', 'features', 'نصّ الميزة الموقوفة', 'text', 'الميزة دي متوقّفة مؤقّتًا — هترجع قريب.', false],
+            ['articles.enabled', 'features', 'تفعيل مركز المقالات', 'bool', '1', false],
+            ['images.enabled', 'features', 'تفعيل استوديو الصور', 'bool', '1', false],
+            ['backups.keep_count', 'backups', 'عدد النسخ المحفوظة', 'number', '7', false],
+            ['backups.daily_time', 'backups', 'وقت النسخة الدوريّة', 'string', '03:00', false],
+            ['backups.disk_alert_percent', 'backups', 'عتبة تنبيه امتلاء القرص (%)', 'number', '85', false],
+            ['backups.cron_alert_hours', 'backups', 'عتبة تنبيه توقّف الكرون (ساعات)', 'number', '1', false],
+            ['updates.dry_run_required', 'updates', 'Dry-run إلزاميّ قبل التحديث', 'bool', '1', false],
+            ['updates.batch_rows', 'updates', 'حجم دفعة الترحيل (صفوف)', 'number', '1000', false],
+            ['updates.forward_only', 'updates', 'منع الرجوع لإصدار أقدم', 'bool', '1', false],
+            ['countries.source', 'countries', 'مصدر بيانات الدول', 'string', 'dr5hn', false],
+            ['countries.no_auto_delete', 'countries', 'لا حذف تلقائيّ — المحذوف يُخفى فقط', 'bool', '1', false],
+            ['audit.per_page', 'system', 'صفوف سجلّ التدقيق', 'number', '50', false],
+            ['audit.retention_days', 'system', 'مدّة الاحتفاظ بالسجلّ (أيّام)', 'number', '365', false],
+            ['audit.require_reason_on_finance', 'system', 'إلزام السبب في التغييرات الماليّة', 'bool', '1', true],
+            ['platform.identity.name', 'appearance', 'اسم المنصّة على الصور والفواتير', 'string', 'المنصّة', false],
+
+            // ---------------- استوديو الصور (12.14-ح)
+            ['images.admin.per_page', 'images', 'عدد القوالب لكلّ صفحة', 'number', '12', false],
+            ['images.short_name.units', 'images', 'عدد وحدات الاسم المختصر', 'number', '2', false],
+            ['images.text.default_max_chars', 'images', 'حدّ الأحرف الافتراضيّ', 'number', '28', false],
+            ['images.text.default_overflow', 'images', 'سلوك التجاوز الافتراضيّ', 'string', 'shrink', false],
+            ['images.font.path', 'images', 'مسار خطّ Cairo المضمَّن', 'string', 'fonts/Cairo-Regular.ttf', false],
+            ['images.batch.max_users', 'images', 'أقصى عدد صور في التوليد الجماعيّ', 'number', '200', false],
+            ['images.preview.cache_seconds', 'images', 'كاش المعاينة (ثوانٍ)', 'number', '60', false],
+            ['images.watermark.color', 'images', 'لون تاريخ اللقطة والشعار', 'color', '#9fb3c8', false],
+            ['images.avatar.fallback_bg', 'images', 'خلفيّة بديل الأفاتار', 'color', '#071825', false],
+            ['images.avatar.fallback_fg', 'images', 'لون أحرف بديل الأفاتار', 'color', '#00d4b8', false],
+            ['images.presets', 'images', 'المقاسات الجاهزة', 'json', '{"square":{"label":"بوست مربّع","width":1080,"height":1080},"story":{"label":"ستوري","width":1080,"height":1920},"cover":{"label":"كوفر","width":1640,"height":856},"whatsapp":{"label":"واتساب","width":1080,"height":1350}}', false],
+
+            // ---------------- المقالات (21.2-ي)
+            ['articles.admin.per_page', 'articles', 'عدد المقالات لكلّ صفحة', 'number', '20', false],
+            ['articles.show_author', 'articles', 'إظهار اسم الكاتب', 'bool', '1', false],
+            ['articles.index_public_pages', 'articles', 'فهرسة صفحات المقالات', 'bool', '1', false],
+            ['articles.meta_title_template', 'articles', 'قالب عنوان الميتا', 'string', '{title} — {platform}', false],
+
+            // ---------------- الإعلان المدفوع (21.3-و)
+            ['ads.audience.max_rows', 'ads', 'أقصى صفوف في تصدير الشريحة', 'number', '50000', false],
+            ['ads.consent.retention_days', 'ads', 'مدّة حفظ الموافقة (أيّام)', 'number', '180', false],
+        ];
+
+        foreach ($rows as [$key, $group, $label, $type, $default, $ownerOnly]) {
+            Setting::updateOrCreate(['key' => $key], [
+                'group' => $group,
+                'label_ar' => $label,
+                'type' => $type,
+                'default_value' => $default,
+                // القيمة الحاليّة لا تُدهَس لو الأدمن غيّرها بالفعل
+                'value' => Setting::query()->where('key', $key)->value('value') ?? $default,
+                'is_sensitive' => str_contains($key, 'api_key') || str_contains($key, 'vendor_key'),
+                'is_owner_only' => $ownerOnly,
+            ]);
+        }
+
+        // 🔒 مفاتيح البوّابة القائمة تبقى لمالك المنصّة وحده
+        Setting::query()
+            ->whereIn('key', ['topup.gateway.api_key', 'topup.gateway.vendor_key'])
+            ->update(['is_owner_only' => true, 'is_sensitive' => true]);
+    }
+
+    // ---------------------------------------------------------------- بيانات تجريبيّة
+
+    private function store(): void
+    {
+        $category = ProductCategory::updateOrCreate(
+            ['slug' => 'digital-books'],
+            ['name_ar' => 'كتب رقميّة', 'sort_order' => 1, 'is_active' => true],
+        );
+
+        Product::updateOrCreate(
+            ['slug' => 'dalil-almutatawwi'],
+            [
+                'product_category_id' => $category->id,
+                'name_ar' => 'دليل المتطوّع العمليّ',
+                'description' => 'كتيّب مختصر لكلّ مَن يبدأ رحلة التطوّع.',
+                'type' => 'protected_pdf',
+                'is_downloadable' => false,
+                'teaser_pages' => 5,
+                'price_coins' => 350,
+                'status' => 'published',
+            ],
+        );
+
+        Product::updateOrCreate(
+            ['slug' => 'mulakhkhas-almusar'],
+            [
+                'product_category_id' => $category->id,
+                'name_ar' => 'ملخّص المسار التأهيليّ',
+                'type' => 'digital',
+                'is_downloadable' => true,
+                'price_coins' => 120,
+                'status' => 'published',
+            ],
+        );
+
+        Bundle::updateOrCreate(
+            ['slug' => 'baqat-albidaya'],
+            [
+                'name_ar' => 'باقة البداية',
+                'description' => 'كلّ ما تحتاجه في أوّل شهر.',
+                'price_coins' => 400,
+                'original_value' => 620,
+                'status' => 'published',
+            ],
+        );
+
+        Coupon::updateOrCreate(
+            ['code' => 'AHLAN10'],
+            [
+                'type' => 'percent',
+                'value' => 10,
+                'max_uses' => 200,
+                'max_uses_per_user' => 1,
+                'is_active' => true,
+            ],
+        );
+    }
+
+    private function topup(): void
+    {
+        $methods = [
+            ['bank', 'حساب بنكيّ — بنك القاهرة', '1234567890123', 'مؤسّسة المنصّة'],
+            ['wallet', 'محفظة موبايل', '01000000000', 'المنصّة'],
+            ['instapay', 'إنستا باي', 'platform@instapay', 'المنصّة'],
+        ];
+
+        foreach ($methods as $index => [$type, $name, $account, $beneficiary]) {
+            TransferMethod::updateOrCreate(
+                ['name_ar' => $name],
+                [
+                    'type' => $type,
+                    'account_number' => $account,
+                    'beneficiary_name' => $beneficiary,
+                    'sort_order' => $index,
+                    'is_active' => true,
+                ],
+            );
+        }
+
+        // ⭐ العرض يعرض قيمته الحقيقيّة صراحةً — بلا مبالغة وبلا Dark Patterns (2.9)
+        $offers = [
+            ['manual', 'باقة 100', 100, 100, false],
+            ['manual', 'باقة 500', 500, 550, true],
+            ['manual', 'باقة 1000', 1000, 1150, false],
+            ['gateway', 'باقة البوّابة 500', 500, 540, true],
+        ];
+
+        foreach ($offers as $index => [$method, $label, $pay, $credit, $popular]) {
+            TopupOffer::updateOrCreate(
+                ['label_ar' => $label],
+                [
+                    'method' => $method,
+                    'pay_amount' => $pay,
+                    'credit_amount' => $credit,
+                    'bonus_percent' => $pay > 0 ? round((($credit - $pay) / $pay) * 100, 2) : 0,
+                    'is_popular' => $popular,
+                    'sort_order' => $index,
+                    'is_active' => true,
+                ],
+            );
+        }
+    }
+
+    private function studio(): void
+    {
+        ImageTemplate::updateOrCreate(
+            ['name' => 'كارت الإنجاز — مربّع'],
+            [
+                'purpose' => 'achievement',
+                'width_px' => 1080,
+                'height_px' => 1080,
+                'preset' => 'square',
+                'audience' => 'everyone',
+                'is_active' => true,
+                // الحقول كلّها من القائمة المقفولة — ولا حقل ممنوع أصلًا (12.14-د)
+                'layers' => [
+                    ['type' => 'avatar', 'name' => 'صورة المستخدم', 'x' => 400, 'y' => 180, 'w' => 280, 'h' => 280,
+                        'shape' => 'circle', 'fit' => 'cover', 'rotate' => 0, 'visible' => true, 'locked' => false],
+                    ['type' => 'text', 'name' => 'الاسم', 'field' => 'short_name', 'text' => '', 'x' => 540, 'y' => 520,
+                        'size' => 56, 'color' => '#ffffff', 'align' => 'center', 'max_chars' => 24,
+                        'overflow' => 'shrink', 'rotate' => 0, 'visible' => true, 'locked' => false],
+                    ['type' => 'text', 'name' => 'الكود', 'field' => 'code', 'text' => '', 'x' => 540, 'y' => 600,
+                        'size' => 32, 'color' => '#00d4b8', 'align' => 'center', 'max_chars' => 16,
+                        'overflow' => 'truncate', 'rotate' => 0, 'visible' => true, 'locked' => false],
+                    ['type' => 'text', 'name' => 'المحافظة', 'field' => 'governorate', 'text' => '', 'x' => 540, 'y' => 660,
+                        'size' => 28, 'color' => '#9fb3c8', 'align' => 'center', 'max_chars' => 24,
+                        'overflow' => 'shrink', 'rotate' => 0, 'visible' => true, 'locked' => false],
+                ],
+            ],
+        );
+    }
+
+    private function articles(): void
+    {
+        $category = ArticleCategory::updateOrCreate(
+            ['slug' => 'tatawwu'],
+            ['name_ar' => 'التطوّع', 'sort_order' => 1],
+        );
+
+        $author = User::query()->orderBy('id')->first();
+
+        if (! $author) {
+            return;
+        }
+
+        Article::updateOrCreate(
+            ['slug' => 'kayfa-tabda-tatawwuak'],
+            [
+                'article_category_id' => $category->id,
+                'author_id' => $author->id,
+                'title' => 'إزاي تبدأ تطوّعك صحّ من أوّل يوم',
+                'excerpt' => 'خطوات عمليّة تخلّي أوّل شهر ليك في التطوّع مثمر ومريح.',
+                'body' => '<p>ابدأ بخطوة صغيرة، وحدّد وقتك، واسأل من سبقك.</p>',
+                'meta_title' => 'إزاي تبدأ تطوّعك صحّ',
+                'meta_description' => 'دليل عمليّ لأوّل شهر في التطوّع.',
+                // ⭐ تبدأ مسودّةً دائمًا — والنشر بيد شخص آخر (21.2-أ)
+                'status' => 'draft',
+            ],
+        );
+    }
+
+    private function ads(): void
+    {
+        AdAudience::updateOrCreate(
+            ['name' => 'فتح صفحة تدريب ولم يسجّل'],
+            [
+                'kind' => 'retargeting',
+                'rule' => ['key' => 'viewed_course_not_registered'],
+                'ttl_days' => 30,
+                'refresh_hours' => 24,
+                'is_active' => true,
+            ],
+        );
+    }
+}

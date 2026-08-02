@@ -27,6 +27,16 @@
     @include('admin.volunteer.partials.tabs', ['current' => 'rep'])
 
     {{-- قيم Rep مجمَّعة: مجموعة لكلّ سكشن مطويّ (2.15-ب) --}}
+    @can('volunteer_central_settings.manage')
+        {{--
+          فورم الـReset منفصل خارج فورم الحفظ (الفورمات لا تتداخل)،
+          وأزرار الصفوف تشير إليه بـ`form=` فيمرّ مفتاح القيمة مع الضغطة.
+        --}}
+        <form method="post" action="{{ route('admin.volunteer.rep.rules.reset') }}" id="rep-reset-form" class="hidden">
+            @csrf
+        </form>
+    @endcan
+
     @can('volunteer_central_settings.edit')
         <form method="post" action="{{ route('admin.volunteer.rep.rules.save') }}">
             @csrf
@@ -54,7 +64,14 @@
                                            aria-label="{{ $rule->label_ar }}"
                                            class="w-28 rounded-xl px-3 py-2 text-sm text-center"
                                            style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
-                                    <span class="text-xs" style="color: var(--text-muted)" title="القيمة الافتراضيّة">↺ {{ $default !== null ? (float) $default : '—' }}</span>
+                                    {{-- ↺ Reset لهذه القيمة وحدها إلى افتراضيّها المنصوص --}}
+                                    @can('volunteer_central_settings.manage')
+                                        <button type="submit" form="rep-reset-form" name="key" value="{{ $rule->key }}"
+                                                class="text-xs underline" style="color: var(--text-muted)"
+                                                title="رجّع للافتراضيّ">↺ {{ $default !== null ? (float) $default : '—' }}</button>
+                                    @else
+                                        <span class="text-xs" style="color: var(--text-muted)" title="القيمة الافتراضيّة">↺ {{ $default !== null ? (float) $default : '—' }}</span>
+                                    @endcan
                                 </div>
                             </div>
                         @endforeach

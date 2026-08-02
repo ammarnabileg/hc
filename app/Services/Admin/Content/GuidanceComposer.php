@@ -96,7 +96,7 @@ class GuidanceComposer
     public function saveAnnouncement(?Announcement $announcement, array $data): Announcement
     {
         $isNew = $announcement === null;
-        $status = isset(self::STATUSES[$data['status'] ?? '']) ? $data['status'] : 'draft';
+        $status = isset(self::STATUSES[$data['status'] ?? '']) ? (string) $data['status'] : 'draft';
 
         $payload = [
             'title' => $data['title'],
@@ -248,7 +248,7 @@ class GuidanceComposer
             'category' => $data['category'] ?? null,
             'body' => $data['body'] ?? null,
             'tags' => $this->tags($data['tags'] ?? []),
-            'status' => in_array($data['status'] ?? 'draft', ['draft', 'published', 'archived'], true) ? $data['status'] : 'draft',
+            'status' => in_array($data['status'] ?? 'draft', ['draft', 'published', 'archived'], true) ? (string) ($data['status'] ?? 'draft') : 'draft',
         ];
 
         if ($article) {
