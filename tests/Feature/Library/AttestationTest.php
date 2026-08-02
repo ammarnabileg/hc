@@ -58,7 +58,17 @@ class AttestationTest extends LibraryTestCase
     {
         $user = $this->trainee('UATT0004', 'هدى كامل');
 
-        $this->get(route('attestations.public', $user->code))
+        /*
+         | الرابط العامّ **بموافقة صريحة** لا بالكود: كان `firstOrFail` على كود
+         | المستخدم يكشف الاسم وXP وسجلّ التدريبات لمن **لم يوافق**، والأكواد
+         | متسلسلة فالتعداد ممكن — بينما للسيرة `is_public` صريح (تناقضٌ داخل
+         | الميزة نفسها). فالتفعيل هنا جزءٌ من الحالة المختبَرة لا تهيئةٌ جانبيّة.
+         */
+        $slug = $this->actingAs($user)
+            ->post(route('attestations.public.toggle'), ['enabled' => 1])
+            ->json('url');
+
+        $this->get($slug)
             ->assertOk()
             ->assertSee('هدى كامل', false)
             ->assertSee(setting('attestations.sheet.title', 'إفادة من المنصّة'), false);
