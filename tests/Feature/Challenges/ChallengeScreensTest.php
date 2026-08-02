@@ -20,8 +20,9 @@ class ChallengeScreensTest extends ChallengeTestCase
             ->assertOk()
             ->assertSee('حرب المعلومات', false)
             ->assertSee('شرط الاستعداد', false)
-            ->assertSee('🏆 الفوز', false)
-            ->assertSee('💥 الخسارة', false)
+            // الأيقونات صارت SVG مرسومة داخل المشروع (2.16-ج) — فالنصّ وحده يُقاس
+            ->assertSee('الفوز', false)
+            ->assertSee('الخسارة', false)
             ->assertSee('الانسحاب', false);
     }
 
@@ -73,7 +74,8 @@ class ChallengeScreensTest extends ChallengeTestCase
             ->get(route('challenges.arena', $challenge))
             ->assertOk()
             ->assertSee('المحاربون الجاهزون', false)
-            ->assertSee('يبدو أنك قضيت على كل خصومك', false);
+            // تأطير الريادة حين يقلّ العدد (2.9-7)
+            ->assertSee('كن أوّل محارب فيها', false);
     }
 
     /** كارت المحارب: اسمه وفوزه وخسارته وزرّ [تحدّاه] (15.1). */

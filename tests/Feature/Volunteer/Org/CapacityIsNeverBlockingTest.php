@@ -84,10 +84,21 @@ class CapacityIsNeverBlockingTest extends OrgTestCase
     {
         $director = $this->actorWithRole('VOL-DIR', 'director');
 
+        /*
+         | القياس على **محتوى الشاشة** لا على الصفحة كلّها: التخطيط العامّ صار
+         | يحمل فورمات POST مشتركة (زرّ التذكرة العائم · بانر الموافقة)، فقياس
+         | `method="post"` على المستند كلّه صار يقيس اللياوت لا السعة.
+         | والمقصود من 24.4: السعة **عرضٌ ونصيحة لا بوّابة** — فلا فعل كتابةٍ
+         | يخصّها.
+         */
         foreach (['span', 'occupancy', 'gaps', 'loads'] as $tab) {
             $html = $this->actingAs($director)->get(route('volunteer.capacity', ['tab' => $tab]))->getContent();
 
-            $this->assertStringNotContainsString('method="post"', mb_strtolower($html));
+            $this->assertDoesNotMatchRegularExpression(
+                '#<form[^>]+action="[^"]*volunteer/(capacity|org)[^"]*"#i',
+                $html,
+                'شاشة السعة عرضٌ ونصيحة — بلا أيّ فعل كتابةٍ يخصّها (24.4).',
+            );
         }
     }
 
