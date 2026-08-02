@@ -7,6 +7,7 @@ use App\Models\Transaction;
 use App\Models\User;
 use App\Services\Events\LedgerBridge;
 use App\Services\Events\Tracker;
+use App\Services\Growth\UtmBuilder;
 use App\Services\Wallet\ReferralCommissionService;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -41,13 +42,18 @@ class ReferralService
         return (int) setting('referral.referrer_tickets', 1);
     }
 
-    /** رابط الدعوة العامّ بنمط `signup.php?offer=<code>` (7.6) */
+    /**
+     * رابط الدعوة العامّ بنمط `signup.php?offer=<code>` (7.6)
+     * ⭐ وموسومًا بـUTM كباقي ما تولّده المنصّة — وإلّا لم تعرف لوحة مصادر
+     *    الاكتساب عائد قناة الدعوات أصلًا (21.2-ح).
+     */
     public function link(User $user): string
     {
         $path = (string) setting('referral.link.path', '/register');
         $param = (string) setting('referral.link.param', 'offer');
+        $url = url($path).'?'.http_build_query([$param => $user->code]);
 
-        return url($path).'?'.http_build_query([$param => $user->code]);
+        return app(UtmBuilder::class)->tag($url, 'invite', 'referral_link', (string) $user->code);
     }
 
     /** ⭐ رابط دعوة لهذا المحتوى تحديدًا — يمرّ ببوّابتنا لتُخزَّن وجهته */

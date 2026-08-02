@@ -207,7 +207,15 @@ class ReferralAdmin
             ];
         }
 
-        $granted = $referral->referred ? $this->referrals->grantWelcomeTicket($referral->referred) : false;
+        /*
+         | ⭐ 7.6: «يحصل **كلٌ من الداعي والمدعو** على تذكرة» — فالصرف يمنح
+         | الطرفين، ولكلٍّ حارسه في سطر الدعوة فلا تتكرّر تذكرة أيّهما.
+         */
+        $settled = $referral->referred
+            ? $this->referrals->settleRewards($referral->referred)
+            : ['invited' => false, 'referrer' => false];
+
+        $granted = $settled['invited'];
 
         $referral->forceFill([
             'payout_status' => 'paid',
@@ -224,6 +232,7 @@ class ReferralAdmin
         AuditTrail::log($actor, 'referrals.payout', $referral, ['payout_status' => 'pending'], [
             'payout_status' => 'paid',
             'welcome_ticket' => $granted,
+            'referrer_ticket' => $settled['referrer'],
         ]);
 
         return ['ok' => true, 'message' => (string) setting('referral_admin.paid_text', 'اتصرفت المكافأة ✓')];

@@ -1,12 +1,25 @@
 @extends('layouts.app')
 @section('title', 'الستريك ونادي الخامسة')
 
+@php
+    // بطاقة الستريك قابلة للاستخراج كصورة (12.14-هـ)
+    $exportSubtitle = 'حتى '.now()->format('Y/m/d');
+    $exportRows = [
+        ['rank' => 1, 'u' => auth()->id(), 'name' => 'ستريكي الحاليّ', 'value' => (int) $streak->current_days.' يوم'],
+        ['rank' => 2, 'u' => auth()->id(), 'name' => 'أطول ستريك', 'value' => (int) $streak->best_days.' يوم'],
+        ['rank' => 3, 'u' => auth()->id(), 'name' => 'نادي الخامسة', 'value' => (int) $clubTotal.' يوم'],
+    ];
+@endphp
+
 @section('content')
     <x-page-header
         title="الستريك ونادي الخامسة"
         subtitle="استمراريّتك اليوميّة — يوم ورا يوم، والعادة بتتبني."
         :breadcrumbs="[['label' => 'إنجازاتي'], ['label' => 'الستريك']]">
         <x-slot:action>
+            {{-- ⭐ الستريك ونادي الخامسة ضمن قائمة الاستخراج كصورة (12.14-هـ) --}}
+            <x-export-image kind="card" title="الستريك ونادي الخامسة" :subtitle="$exportSubtitle" :rows="$exportRows" />
+
             @unless ($recordedToday)
                 <form method="post" action="{{ route('achievements.streak.checkin') }}">
                     @csrf

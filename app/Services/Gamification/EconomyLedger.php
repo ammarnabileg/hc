@@ -7,6 +7,7 @@ use App\Models\Enrollment;
 use App\Models\Transaction;
 use App\Models\User;
 use App\Services\Wallet\LedgerService;
+use App\Services\Wallet\WalletException;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 
@@ -120,19 +121,23 @@ class EconomyLedger
             return true;
         }
 
-        if ($this->balance($user, $currencyCode) < $amount) {
+        try {
+            /*
+             | `debitOrFail` يفحص ويخصم **داخل معاملة واحدة بقفل صفّ المحفظة**،
+             | فلا يمرّ نداءان على نفس الرصيد فيخصمان معًا أكثر ممّا فيه (19.3).
+             */
+            $this->ledger->debitOrFail(
+                user: $user,
+                currencyCode: $currencyCode,
+                amount: $amount,
+                source: $source,
+                reference: $reference,
+                layer: 'training',
+                reason: $reason,
+            );
+        } catch (WalletException) {
             return false;
         }
-
-        $this->ledger->debit(
-            user: $user,
-            currencyCode: $currencyCode,
-            amount: $amount,
-            source: $source,
-            reference: $reference,
-            layer: 'training',
-            reason: $reason,
-        );
 
         return true;
     }

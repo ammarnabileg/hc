@@ -10,6 +10,11 @@
     @section('noindex', '1')
 @endif
 
+{{-- ⭐ صورة OG بقالب نوع الرابط: تدريب أو مسار (21.1-أ · 12.14) --}}
+@if (in_array($type, ['course', 'path'], true))
+    @section('og_image', route('growth.og.'.$type, $item->slug))
+@endif
+
 @push('head')
     {{-- Schema.org: التدريب `Course` وغيره `Product` — لصفحة مفهرسة تجيب زوّارًا (21.1-أ) --}}
     <script type="application/ld+json">{!! json_encode($schema, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) !!}</script>

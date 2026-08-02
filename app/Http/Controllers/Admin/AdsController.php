@@ -126,13 +126,4 @@ class AdsController extends Controller
     {
         return $this->audiences->resolve($audience);
     }
-
-    /** معاينة حجم الشريحة قبل التصدير — فلا يُصدَّر أحدٌ على غير علم */
-    public function preview(Request $request, AdAudience $audience): JsonResponse
-    {
-        return response()->json([
-            'rule' => (string) ($audience->rule['key'] ?? ''),
-            'size' => $this->audiences->resolve($audience)->count(),
-        ]);
-    }
 }

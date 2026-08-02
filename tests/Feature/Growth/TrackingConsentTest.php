@@ -2,9 +2,13 @@
 
 namespace Tests\Feature\Growth;
 
+use App\Models\Currency;
+use App\Models\Lesson;
+use App\Models\Order;
 use App\Models\TrackingEvent;
 use App\Services\Ads\AdEvents;
 use App\Services\Ads\Consent;
+use Illuminate\Support\Str;
 
 /**
  * ⭐ القاعدة الحاكمة (21.3-د): **لا حدث يُرسَل بلا موافقة صريحة** — من المتصفّح
@@ -120,7 +124,7 @@ class TrackingConsentTest extends GrowthTestCase
     {
         $this->enableTracking();
         $course = $this->makeCourse();
-        $lesson = \App\Models\Lesson::query()->orderBy('sort_order')->firstOrFail();
+        $lesson = Lesson::query()->orderBy('sort_order')->firstOrFail();
         $user = $this->trainee(['tracking_consent' => Consent::ACCEPTED]);
 
         foreach (range(1, 3) as $ignored) {
@@ -141,10 +145,10 @@ class TrackingConsentTest extends GrowthTestCase
         $this->enableTracking();
         $user = $this->trainee(['tracking_consent' => Consent::ACCEPTED]);
 
-        \App\Models\Order::create([
-            'number' => 'ORD-'.\Illuminate\Support\Str::upper(\Illuminate\Support\Str::random(6)),
+        Order::create([
+            'number' => 'ORD-'.Str::upper(Str::random(6)),
             'user_id' => $user->id,
-            'currency_id' => \App\Models\Currency::query()->firstOrFail()->id,
+            'currency_id' => Currency::query()->firstOrFail()->id,
             'total' => 120,
             'status' => 'paid',
             'paid_at' => now(),

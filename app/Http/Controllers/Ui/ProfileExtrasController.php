@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Badge;
 use App\Models\BadgeUser;
 use App\Models\User;
+use App\Services\Ui\UndoStack;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -16,7 +17,14 @@ use Illuminate\Support\Collection;
  */
 class ProfileExtrasController extends Controller
 {
-    /** حفظ النبذة — تلقائيّ مع «اتحفظ ✓» بجوار الحقل (2.17-ب) */
+    public function __construct(private readonly UndoStack $undo) {}
+
+    /**
+     * حفظ النبذة — تلقائيّ مع «اتحفظ ✓» بجوار الحقل (2.17-ب).
+     *
+     * ⭐ وهو **فعل قابل للتراجع**، فيُنفَّذ فورًا بلا تأكيد ومعه رمز تراجع
+     *   يعمل خلال المهلة (2.15-د) — لا نافذة «هل أنت متأكّد؟».
+     */
     public function updateBio(Request $request): JsonResponse
     {
         $max = max(20, (int) setting('profile.bio.max_chars', 280));
@@ -27,11 +35,16 @@ class ProfileExtrasController extends Controller
             'bio.max' => 'النبذة أطول من '.$max.' حرف — اختصرها شويّة وجرّب تاني.',
         ], ['bio' => 'النبذة']);
 
-        $request->user()->forceFill(['bio' => trim((string) ($data['bio'] ?? '')) ?: null])->save();
+        $user = $request->user();
+        $token = $this->undo->capture($user, $user, ['bio'], 'تعديل النبذة');
+
+        $user->forceFill(['bio' => trim((string) ($data['bio'] ?? '')) ?: null])->save();
 
         return response()->json([
             'saved' => true,
             'label' => (string) setting('profile.bio.saved_label', 'اتحفظ ✓'),
+            'undo_token' => $token,
+            'undo_seconds' => $this->undo->seconds(),
         ]);
     }
 

@@ -2,6 +2,9 @@
 @section('title', $owner->shortName().' — بروفايل')
 @section('meta_description', 'بروفايل '.$owner->shortName().' على '.config('app.name'))
 
+{{-- ⭐ صورة OG لرابط البروفايل — فيظهر كبطاقة مصمَّمة لا رابطًا أصلع (21.1-أ) --}}
+@section('og_image', route('growth.og.profile', $owner->code))
+
 @section('content')
     @include('profile.partials.header')
 
@@ -89,6 +92,13 @@
                         saved.textContent = res.ok ? (data.label || 'اتحفظ ✓') : (data.message?.bio?.[0] || 'مقدرناش نحفظ — جرّب تاني.');
                         saved.style.visibility = 'visible';
                         setTimeout(() => { saved.style.visibility = 'hidden'; }, 2500);
+                    }
+
+                    // ⭐ فعل قابل للتراجع: يُنفَّذ فورًا ومعه «تراجع» في الـToast (2.15-د)
+                    if (res.ok && data.undo_token) {
+                        window.dispatchEvent(new CustomEvent('ui:undoable', {
+                            detail: { token: data.undo_token, message: 'النبذة اتحدّثت' },
+                        }));
                     }
                 }, 700);
             });

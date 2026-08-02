@@ -4,6 +4,7 @@ namespace Tests\Feature\Challenges;
 
 use App\Models\RewardQuestion;
 use App\Models\RewardQuestionAnswer;
+use App\Services\Admin\Volunteer\SettingsWriter;
 use App\Services\Gamification\RewardQuestionService;
 
 /**
@@ -188,6 +189,42 @@ class RewardQuestionTest extends ChallengeTestCase
             'active_minutes' => 30, 'status' => 'published'], $question);
 
         $this->assertSame(1, $user->notificationsFeed()->where('category', 'reward_question')->count());
+    }
+
+    /**
+     * ⭐ جدول «مصادر كسب XP» له **مستهلك حقيقيّ** (2.13): سؤالٌ بلا قيمة خاصّة
+     * يأخذ قيمة صفّ «سؤال مكافأة» من الشاشة — لا رقمًا محروقًا.
+     */
+    public function test_the_admin_earn_rule_feeds_questions_without_their_own_value(): void
+    {
+        SettingsWriter::put('xp_rules.earn', [
+            ['key' => RewardQuestionService::EARN_RULE, 'label' => 'سؤال مكافأة', 'value' => 90, 'daily_cap' => 0, 'enabled' => true],
+        ]);
+
+        $user = $this->trainee();
+        $question = $this->question(['reward_xp' => 0, 'reward_tickets' => 0]);
+
+        $this->actingAs($user)
+            ->post(route('reward-questions.answer', $question->token), ['answer' => 'تذكرتان']);
+
+        $this->assertSame(90, (int) $user->fresh()->xp, 'القيمة جاءت من جدول الكسب في لوحة الإدارة.');
+    }
+
+    /** والحدّ اليوميّ في نفس الجدول يقصّ ما زاد عنه */
+    public function test_the_daily_cap_of_the_earn_rule_is_enforced(): void
+    {
+        SettingsWriter::put('xp_rules.earn', [
+            ['key' => RewardQuestionService::EARN_RULE, 'label' => 'سؤال مكافأة', 'value' => 50, 'daily_cap' => 60, 'enabled' => true],
+        ]);
+
+        $user = $this->trainee();
+
+        foreach ([$this->question(), $this->question()] as $question) {
+            $this->actingAs($user)
+                ->post(route('reward-questions.answer', $question->token), ['answer' => 'تذكرتان']);
+        }
+
+        $this->assertSame(60, (int) $user->fresh()->xp, 'الحدّ اليوميّ 60 يقصّ الخمسين الثانية إلى عشرة.');
     }
 
     // ------------------------------------------------------------ أدوات

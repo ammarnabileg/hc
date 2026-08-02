@@ -146,12 +146,6 @@ class AdSignals
             ]));
     }
 
-    /** «أتمّ التسجيل» — يُنادى من مستمع الدخول لحظة إنشاء الحساب (21.3-أ) */
-    public function registrationCompleted(User $user): void
-    {
-        $this->events->record('registration_completed', $user, $user);
-    }
-
     public function alreadyRecorded(User $user, string $event): bool
     {
         return TrackingEvent::query()
