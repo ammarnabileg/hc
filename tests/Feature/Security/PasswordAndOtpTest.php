@@ -3,6 +3,7 @@
 namespace Tests\Feature\Security;
 
 use App\Models\User;
+use App\Services\Onboarding\OnboardingJourney;
 use App\Services\Security\OtpService;
 use App\Services\Security\RequireVerifiedEmail;
 use Illuminate\Support\Facades\DB;
@@ -109,7 +110,7 @@ class PasswordAndOtpTest extends SecurityTestCase
     {
         Mail::fake();
 
-        $this->post('/register', $this->registrationPayload('ياسمين طارق', 'yasmin@test.local'))->assertRedirect(route('register.verify'));
+        $this->post('/register', $this->registrationPayload('ياسمين طارق سعيد', 'yasmin@test.local'))->assertRedirect(route('register.verify'));
 
         $this->assertDatabaseMissing('users', ['email' => 'yasmin@test.local']);
 
@@ -121,16 +122,23 @@ class PasswordAndOtpTest extends SecurityTestCase
     {
         Mail::fake();
 
-        $this->post('/register', $this->registrationPayload('ياسمين طارق', 'yasmin@test.local'));
+        $this->post('/register', $this->registrationPayload('ياسمين طارق سعيد', 'yasmin@test.local'));
 
         $this->post(route('register.verify.send'))->assertRedirect();
 
         $code = $this->plainCode('yasmin@test.local', OtpService::PURPOSE_REGISTER);
 
-        $this->post(route('register.verify.confirm'), ['code' => $code])
-            ->assertRedirect(route('account.pending'));
+        $response = $this->post(route('register.verify.confirm'), ['code' => $code])
+            ->assertSessionHasNoErrors();
 
         $user = User::where('email', 'yasmin@test.local')->firstOrFail();
+
+        /*
+         | الوجهة تُقرأ من رحلة 2.5-د نفسها لا تُثبَّت على خطوةٍ بعينها: تعليمات
+         | (د-1) ثمّ اختبار تمهيديّ (د-2) ثمّ «تحت المراجعة» (د-3) — وإلّا كسر
+         | الاختبارُ نفسَه كلّما فعّل المالك خطوةً أو أطفأها من لوحته (2.13).
+         */
+        $response->assertRedirect(route(app(OnboardingJourney::class)->routeFor($user)));
 
         $this->assertSame('pending', $user->status);
         $this->assertSame('yasmin@test.local', session(RequireVerifiedEmail::SESSION_VERIFIED));
@@ -141,7 +149,7 @@ class PasswordAndOtpTest extends SecurityTestCase
     {
         Mail::fake();
 
-        $this->post('/register', $this->registrationPayload('حسن', 'hassan@test.local'));
+        $this->post('/register', $this->registrationPayload('حسن محمود إبراهيم', 'hassan@test.local'));
 
         $this->post(route('register.verify.send'));
 
@@ -229,6 +237,9 @@ class PasswordAndOtpTest extends SecurityTestCase
      * حمولة تسجيلٍ كاملة ببيانات **2.5-ج** (اللقب · الاسم بالعربيّ والإنجليزيّ ·
      * النوع · العنوان) — وبدونها لا تُصدَر شهادةٌ صحيحة، فهي جزءٌ من التسجيل
      * نفسه لا تفصيلٌ لاحق، والتحقّق يرفض ما دونها.
+     *
+     * والاسمان **ثلاثيّان** كما نصّ البند حرفيًّا — واسمٌ ثنائيّ هنا كان يمرّ من
+     * الحارس ثمّ يسقط في الإعادة، فيبدو العطل في الإعادة وهو في الحمولة.
      *
      * @return array<string, string>
      */

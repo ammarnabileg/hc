@@ -11,10 +11,12 @@ use App\Models\Role;
 use App\Models\User;
 use App\Services\Learning\TimezoneDetector;
 use App\Services\Onboarding\OnboardingJourney;
+use Illuminate\Contracts\Validation\Validator as ValidatorContract;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
@@ -148,6 +150,20 @@ class AuthController extends Controller
 
         // ⭐ الترتيب المنصوص: تعليمات ⟵ اختبار تمهيديّ ⟵ تحت المراجعة (2.5-د)
         return redirect()->route(app(OnboardingJourney::class)->routeFor($user));
+    }
+
+    /**
+     * تحقّقات التسجيل جاهزةً لمن يقف على الباب قبل المتحكّم.
+     *
+     * ⭐ لماذا تُنشَر؟ لأنّ حارس تأكيد البريد (2.5-ب) يسبق التحقّق، فكان يبعث
+     * رمزًا لفورمٍ **لن يكتمل بعده** — فيؤكّد المستخدم بريده ثمّ يُرَدّ للفورم.
+     * فالحارس يسأل بنفس القواعد **حرفيًّا** لا بنسخةٍ ثانية منها تتخلّف عنها.
+     *
+     * @param  array<string, mixed>  $data
+     */
+    public function registrationValidator(array $data): ValidatorContract
+    {
+        return Validator::make($data, $this->rules(), $this->messages(), $this->attributes());
     }
 
     /** صفحة «تحت المراجعة» (2.5-د-3) — ومحتواها HTML يكتبه الأدمن */

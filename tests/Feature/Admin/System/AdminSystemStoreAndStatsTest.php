@@ -40,14 +40,20 @@ class AdminSystemStoreAndStatsTest extends SystemTestCase
     {
         $admin = $this->admin(self::STORE_ADMIN);
 
+        // ⭐ التسعير متعدّد العملات (17): عملةٌ معلَنة وقيمةٌ واحدة — لا عمود سعرٍ
+        // لكلّ عملة، وإرسال `price_coins` وحده يسقط في التحقّق فلا يُنشَأ منتج
         $this->actingAs($admin)->post(route('admin.store.products.store'), [
             'name_ar' => 'منتج اختبار',
             'type' => 'digital',
-            'price_coins' => 90,
+            'price_currency' => 'coins',
+            'price' => 90,
             'status' => 'published',
-        ])->assertRedirect();
+        ])->assertRedirect()->assertSessionHasNoErrors();
 
         $product = Product::query()->where('name_ar', 'منتج اختبار')->firstOrFail();
+
+        // والقيمة تنزل في عمود العملة المعلَنة وحدها، فلا رقمٌ يتيمٌ يوهم بسعرٍ ثانٍ
+        $this->assertSame(90.0, (float) $product->price_coins);
 
         $this->actingAs($admin)->post(route('admin.store.products.archive', $product))->assertRedirect();
 

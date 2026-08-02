@@ -99,10 +99,17 @@ class EmailVerificationController extends Controller
         return $email === '' ? null : $email;
     }
 
-    /** إعادة تشغيل التسجيل بنفس المدخلات — ولو سقطت تحقّقات تانية نرجّعه للفورم برسائلها */
+    /**
+     * إعادة تشغيل التسجيل بنفس المدخلات — والحمولة تُقرأ ولا تُسحَب، فلا تضيع
+     * لو سقطت الإعادة (وهو ما كان يُفقِد المستخدم مدخلاته في أوّل تعثّر).
+     *
+     * والحارس صار يتحقّق من الفورم كاملًا قبل إرسال الرمز، فالسقوط هنا لم يعد
+     * خطأ كتابةٍ يقع فيه المستخدم، بل تغيّرٌ بين الخطوتين (رقمٌ سُجِّل قبله مثلًا)
+     * — فنقول له ماذا حدث وماذا يفعل بدل تحويلةٍ صامتة (2.17-ب).
+     */
     private function replayRegistration(Request $request, AuthController $auth): RedirectResponse
     {
-        $pending = (array) $request->session()->pull(RequireVerifiedEmail::SESSION_PENDING, []);
+        $pending = (array) $request->session()->get(RequireVerifiedEmail::SESSION_PENDING, []);
 
         // الريفيرال وباركامترات الحملة تُقرأ من الـQuery في متحكّم التسجيل — فنحفظها هناك
         $tracking = collect($pending)->only(['offer', 'utm_source', 'utm_medium', 'utm_campaign'])->filter()->all();
@@ -113,11 +120,21 @@ class EmailVerificationController extends Controller
         $replay->setUserResolver($request->getUserResolver());
 
         try {
-            return $auth->register($replay);
+            $response = $auth->register($replay);
+
+            $request->session()->forget(RequireVerifiedEmail::SESSION_PENDING);
+
+            return $response;
         } catch (ValidationException $exception) {
             return redirect()->route('register')
                 ->withInput(collect($pending)->except(['password', 'password_confirmation'])->all())
-                ->withErrors($exception->errors());
+                // نفس ما يفعله معالج Laravel نفسه: مزوّد الرسائل وحقيبته لا مصفوفة
+                // مسطّحة — فيصل الخطأ بشكله القياسيّ لكلّ من يقرؤه (بليد أو اختبار)
+                ->withErrors($exception->validator, $exception->errorBag)
+                ->with('status', (string) setting(
+                    'auth.otp.replay_failed_text',
+                    'بريدك اتأكّد ✓ بس فيه بيانات اتغيّرت وإحنا بنكمّل — صحّح المكتوب بالأحمر واضغط استكمال، ومش هنطلب منك الرمز تاني.',
+                ));
         }
     }
 }

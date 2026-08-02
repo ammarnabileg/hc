@@ -2,6 +2,7 @@
 
 namespace App\Services\Security;
 
+use App\Http\Controllers\Auth\AuthController;
 use App\Models\User;
 use Closure;
 use Illuminate\Http\Request;
@@ -18,6 +19,11 @@ use Symfony\Component\HttpFoundation\Response;
  *
  * وبريدٌ **غير صالح أو مستعمَل** يعدّي كما هو ليقول له المتحكّم رسالة الخطأ
  * الصحيحة، فلا نرسل رمزًا لبريد مرفوض أصلًا.
+ *
+ * ⭐ والقاعدة نفسها تسري على **كلّ** الفورم لا على البريد وحده: الحارس يسبق
+ * تحقّق المتحكّم، فلو مرّرنا حمولةً ناقصة كان المستخدم يؤكّد بريده ثمّ تسقط
+ * الإعادة في التحقّق فيُرَدّ للفورم بعد أن مشى الطريق كلّه. فنسأل **بنفس
+ * قواعد المتحكّم حرفيًّا** أوّلًا، والفاشل يعدّي ليقرأ خطأه فورًا (2.17-ب).
  */
 class RequireVerifiedEmail
 {
@@ -41,7 +47,15 @@ class RequireVerifiedEmail
             return $next($request);
         }
 
-        $request->session()->put(self::SESSION_PENDING, $request->except(['_token']));
+        $pending = $request->except(['_token']);
+
+        // ⭐ لا رمز لفورمٍ لن يكتمل: أيّ خطأ تحقّقٍ آخر يعدّي للمتحكّم ليقوله في
+        // الفورم فورًا، بدل تأكيدٍ للبريد ينتهي بردّ المستخدم من حيث أتى (2.17-ب)
+        if (app(AuthController::class)->registrationValidator($pending)->fails()) {
+            return $next($request);
+        }
+
+        $request->session()->put(self::SESSION_PENDING, $pending);
 
         return redirect()->route('register.verify');
     }

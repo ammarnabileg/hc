@@ -16,6 +16,11 @@
         البيانات دي هي اللي بتطلع على شهاداتك وإفاداتك — اكتبها زيّ ما تحبّ تشوفها عليها.
     </p>
 
+    {{-- تعثّرٌ بعد تأكيد البريد: نقول ماذا حدث وماذا يفعل، ومدخلاته كما تركها (2.17-ب) --}}
+    @if (session('status'))
+        <x-toast :message="session('status')" state="warn" />
+    @endif
+
     @if (session('referral_celebrate'))
         {{-- تفعيل هديّة الدعوة: صوت واحتفال (2.5-أ) — الصوت بتوجل المستخدم --}}
         @include('onboarding.partials.celebration', ['celebration' => ['tier' => 2, 'sound' => false, 'sound_path' => null]])

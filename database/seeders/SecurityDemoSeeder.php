@@ -59,6 +59,7 @@ class SecurityDemoSeeder extends Seeder
             ['auth.otp.error_locked', 'security', 'خطأ: محاولات كتير', 'text', 'جرّبت كتير. استنّى شويّة واطلب رمزًا جديدًا.'],
             ['auth.otp.error_expired', 'security', 'خطأ: رمز منتهي', 'text', 'الرمز ده انتهت صلاحيّته. اطلب رمزًا جديدًا.'],
             ['auth.otp.success', 'security', 'رسالة نجاح التحقّق', 'string', 'اتأكّد ✓'],
+            ['auth.otp.replay_failed_text', 'security', 'رسالة تعثّر استكمال التسجيل بعد التأكيد', 'text', 'بريدك اتأكّد ✓ بس فيه بيانات اتغيّرت وإحنا بنكمّل — صحّح المكتوب بالأحمر واضغط استكمال، ومش هنطلب منك الرمز تاني.'],
             ['auth.otp.subject_register', 'security', 'عنوان بريد رمز التسجيل', 'string', 'رمز تأكيد بريدك'],
             ['auth.otp.subject_delete', 'security', 'عنوان بريد رمز الحذف', 'string', 'رمز تأكيد حذف حسابك'],
             ['auth.otp.subject_password', 'security', 'عنوان بريد رمز الاسترجاع', 'string', 'رمز استرجاع كلمة السرّ'],
