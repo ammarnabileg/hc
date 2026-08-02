@@ -161,7 +161,9 @@ class PermissionArchitectureTest extends TestCase
 
         $isolated = Permission::where('is_owner_only', true)->pluck('key');
 
-        $this->assertGreaterThanOrEqual(90, $isolated->count());
+        // 89 = ما تنصّ عليه 12.2.2 بعبارة «مالك المنصّة فقط». (كانت 92 قبل أن
+        // تُحذَف صفوف `refunds` الثلاثة التي أبطلها قرار «لا استرجاع» — 19.4.)
+        $this->assertGreaterThanOrEqual(89, $isolated->count());
 
         foreach ($isolated as $key) {
             $this->assertFalse($admin->allows($key), "الأدمن العامّ كسب صلاحيّة معزولة: {$key}");
@@ -175,7 +177,8 @@ class PermissionArchitectureTest extends TestCase
         $mustBeIsolated = [
             'pricing.edit', 'pricing.manage',
             'coupons.create', 'coupons.edit', 'coupons.delete', 'coupons.export',
-            'refunds.approve', 'refunds.reject', 'refunds.manage',
+            // (`refunds.approve/reject/manage` حُذفت من المصفوفة: 19.4 يقصر المورد
+            //  على عرض نصّ السياسة وتحريره — بلا طلبات استرجاع ولا اعتماد ولا رفض.)
             'manual_rewards.list', 'manual_rewards.manage',
             'reports_sales.view', 'reports_sales.list', 'reports_sales.export',
             'order_bump.create', 'order_bump.edit', 'order_bump.delete',
@@ -366,7 +369,7 @@ class PermissionArchitectureTest extends TestCase
             ->all();
 
         $this->assertSame([], array_values(array_diff(Permission::pluck('key')->all(), $matrix)));
-        $this->assertSame(1036, count($matrix));
+        $this->assertSame(1033, count($matrix));
     }
 
     /** ⛔ ولا صلاحيّة باسم شاشة (12.2.1-أ) */

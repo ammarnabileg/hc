@@ -14935,8 +14935,8 @@
     "resource": "refunds",
     "action": "view",
     "group": "المال والمتجر والملكيّة",
-    "label_ar": "سياسة عدم الاسترجاع",
-    "description": "عرض نصّ سياسة عدم الاسترجاع المعتمَد (19.4).",
+    "label_ar": "refunds",
+    "description": "عرض نصّ سياسة عدم الاسترجاع بنسختيه ومعاينته.",
     "allowed_scopes": [
       "ALL"
     ],
@@ -14947,15 +14947,15 @@
       "platform_owner"
     ],
     "is_sensitive": true,
-    "is_owner_only": true
+    "is_owner_only": false
   },
   {
     "key": "refunds.edit",
     "resource": "refunds",
     "action": "edit",
     "group": "المال والمتجر والملكيّة",
-    "label_ar": "سياسة عدم الاسترجاع",
-    "description": "تحرير نصّ سياسة عدم الاسترجاع (عربيّ/إنجليزيّ) بمعاينة وAudit (19.4).",
+    "label_ar": "refunds",
+    "description": "تحرير نصّ السياسة وأماكن ظهوره — بـAudit على كلّ تعديل.",
     "allowed_scopes": [
       "ALL"
     ],
@@ -14966,7 +14966,7 @@
       "platform_owner"
     ],
     "is_sensitive": true,
-    "is_owner_only": true
+    "is_owner_only": false
   },
   {
     "key": "product_categories.list",

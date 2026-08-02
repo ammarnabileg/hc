@@ -267,9 +267,17 @@ class AccessEngineTest extends TestCase
         $role = Role::create(['key' => 'r_manage', 'name_ar' => 'دور', 'layer' => 'volunteer']);
         $written = app(PermissionExpander::class)->attachToRole($role, 'meetings.manage', 'ENTITY');
 
-        // الصلاحيّة نفسها + الاثنا عشر فعلًا
-        $this->assertSame(13, $written);
-        $this->assertSame(13, DB::table('permission_role')->where('role_id', $role->id)->count());
+        /*
+         | الصلاحيّة نفسها + الأفعال الخمسة التي ينصّ عليها 12.2.1-د:
+         | `create/edit/delete/archive/assign` — لا اثنا عشر. التوسيع الأوسع
+         | كان يمنح صامتًا `export` و`approve` و`reject` و`import` و`restore`،
+         | أي توسيعَ صلاحيّاتٍ بلا سندٍ في النصّ.
+         */
+        $expected = count(config('access.manage_expands_to')) + 1;
+
+        $this->assertSame(6, $expected, 'manage تشمل خمسة أفعال لا أكثر (12.2.1-د).');
+        $this->assertSame($expected, $written);
+        $this->assertSame($expected, DB::table('permission_role')->where('role_id', $role->id)->count());
     }
 
     /** الإسناد المرتبط بعضويّة لا يسري خارجها */
