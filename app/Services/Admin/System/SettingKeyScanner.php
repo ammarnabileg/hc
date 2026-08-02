@@ -150,8 +150,8 @@ class SettingKeyScanner
      */
     public function codeDefaults(): array
     {
-        if ($this->defaults !== null) {
-            return $this->defaults;
+        if (self::$defaults !== null) {
+            return self::$defaults;
         }
 
         $defaults = [];
@@ -174,7 +174,7 @@ class SettingKeyScanner
             }
         }
 
-        return $this->defaults = $defaults;
+        return self::$defaults = $defaults;
     }
 
     /** الحرفيّ كما كُتِب ⟵ نصُّ عمود `value` الذي يعيده `setting()` كما هو */
