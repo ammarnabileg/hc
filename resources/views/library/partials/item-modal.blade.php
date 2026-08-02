@@ -1,3 +1,16 @@
+@php
+    // كلّ نصوص البوب-أب من الإعدادات (2.13) — تُمرَّر للـJS كجسم واحد
+    $modalTexts = [
+        'invoice' => setting('library.modal.invoice_title', 'الفاتورة'),
+        'number' => setting('library.modal.invoice_number', 'رقم الطلب'),
+        'date' => setting('library.modal.invoice_date', 'التاريخ'),
+        'total' => setting('library.modal.invoice_total', 'المبلغ'),
+        'noInvoice' => setting('library.modal.no_invoice', 'العنصر ده مش مربوط بطلب شراء.'),
+        'error' => setting('library.modal.error', 'مش قادرين نجيب التفاصيل دلوقتي — جرّب تاني.'),
+        'copied' => setting('library.modal.copied', 'الرابط اتنسخ ✓'),
+    ];
+@endphp
+
 {{-- بوب-أب العنصر: معاينة + الفاتورة/الإيصال + «أوصِ بهذا» (20.1 · 20.4) --}}
 <x-modal id="library-item" :title="setting('library.modal.title', 'تفاصيل العنصر')">
     <div data-item-body class="space-y-4">
@@ -30,15 +43,7 @@
     const recommendBtn = modal.querySelector('[data-recommend]');
     const recommendUrl = modal.querySelector('[data-recommend-url]');
     const note = modal.querySelector('[data-recommend-note]');
-    const texts = @json([
-        'invoice' => setting('library.modal.invoice_title', 'الفاتورة'),
-        'number' => setting('library.modal.invoice_number', 'رقم الطلب'),
-        'date' => setting('library.modal.invoice_date', 'التاريخ'),
-        'total' => setting('library.modal.invoice_total', 'المبلغ'),
-        'noInvoice' => setting('library.modal.no_invoice', 'العنصر ده مش مربوط بطلب شراء.'),
-        'error' => setting('library.modal.error', 'مش قادرين نجيب التفاصيل دلوقتي — جرّب تاني.'),
-        'copied' => setting('library.modal.copied', 'الرابط اتنسخ ✓'),
-    ]);
+    const texts = {!! json_encode($modalTexts, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT) !!};
 
     let current = null;
 

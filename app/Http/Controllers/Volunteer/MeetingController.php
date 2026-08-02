@@ -415,6 +415,8 @@ class MeetingController extends Controller
             'entities' => $this->userEntities($user),
             'attendance' => $this->attendance,
             'scope' => $this->scope,
+            // مهلة الاعتراض على معاملة الحضور تُقرَأ من خدمتها لا من رقم محروق
+            'objections' => app(\App\Services\Volunteer\Objections\ObjectionService::class),
         ]);
     }
 

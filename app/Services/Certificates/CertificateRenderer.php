@@ -3,6 +3,7 @@
 namespace App\Services\Certificates;
 
 use App\Models\Certificate;
+use App\Models\CertificateTemplate;
 use Illuminate\Support\Facades\Storage;
 
 /**
@@ -22,33 +23,57 @@ class CertificateRenderer
         '/usr/share/fonts/truetype/freefont/FreeSerif.ttf',
     ];
 
-    /** صورة الشهادة PNG — مع كاش على القرص لأنّ الرسم أغلى من القراءة (2.7) */
-    public function png(Certificate $certificate): string
+    /**
+     * صورة الشهادة PNG — مع كاش على القرص لأنّ الرسم أغلى من القراءة (2.7).
+     *
+     * @param  string|null  $language  النسخة المطلوبة إن كانت الشهادة بنسختين (12.5-ب)
+     */
+    public function png(Certificate $certificate, ?string $language = null): string
     {
+        $language = $this->resolveLanguage($certificate, $language);
         $disk = Storage::disk('local');
-        $path = 'certificates/'.$certificate->code.'-'.$certificate->language.'.png';
+        $path = 'certificates/'.$certificate->code.'-'.$language.'.png';
 
         if ((bool) setting('certificates.render.cache_enabled', true) && $disk->exists($path)) {
             return (string) $disk->get($path);
         }
 
-        $png = $this->draw($certificate);
+        $png = $this->draw($certificate, $language);
         $disk->put($path, $png);
 
         return $png;
     }
 
-    /** يمسح الصورة المخزَّنة — تُستدعى عند تغيّر حالة الشهادة */
+    /** النسخة الأخرى لا تُعرَض إلّا إن فعّلها الأدمن لهذا النوع (12.5-ب) */
+    private function resolveLanguage(Certificate $certificate, ?string $language): string
+    {
+        if (! $language || $language === $certificate->language) {
+            return $certificate->language;
+        }
+
+        $type = $certificate->certificate_type;
+        $enabled = match ($language) {
+            'ar' => (bool) $type?->lang_ar_enabled,
+            'en' => (bool) $type?->lang_en_enabled,
+            default => false,
+        };
+
+        return $enabled ? $language : $certificate->language;
+    }
+
+    /** يمسح الصور المخزَّنة — تُستدعى عند تغيّر حالة الشهادة */
     public function forget(Certificate $certificate): void
     {
-        Storage::disk('local')->delete('certificates/'.$certificate->code.'-'.$certificate->language.'.png');
+        foreach (['ar', 'en'] as $language) {
+            Storage::disk('local')->delete('certificates/'.$certificate->code.'-'.$language.'.png');
+        }
     }
 
     // ------------------------------------------------------------ الرسم
 
-    private function draw(Certificate $certificate): string
+    private function draw(Certificate $certificate, string $language): string
     {
-        $template = (array) ($certificate->template_snapshot ?? []);
+        $template = $this->templateFor($certificate, $language);
         $data = (array) ($certificate->data_snapshot ?? []);
 
         $width = (int) ($template['width_px'] ?? setting('certificates.render.default_width_px', 1754));
@@ -76,6 +101,38 @@ class CertificateRenderer
         imagedestroy($image);
 
         return $png;
+    }
+
+    /**
+     * القالب المستعمَل: **النسخة المجمَّدة** لغة الشهادة (12.5-ج)،
+     * وللّغة الأخرى يُقرَأ قالبها الحاليّ لأنّها نسخةٌ عرضٍ لا نسخة إصدار.
+     */
+    private function templateFor(Certificate $certificate, string $language): array
+    {
+        $snapshot = (array) ($certificate->template_snapshot ?? []);
+
+        if ($language === $certificate->language) {
+            return $snapshot;
+        }
+
+        $template = CertificateTemplate::query()
+            ->where('certificate_type_id', $certificate->certificate_type_id)
+            ->where('language', $language)
+            ->orderByDesc('is_default')
+            ->orderByDesc('version')
+            ->first();
+
+        if (! $template) {
+            return $snapshot;
+        }
+
+        return array_merge($snapshot, [
+            'language' => $language,
+            'width_px' => $template->width_px,
+            'height_px' => $template->height_px,
+            'background_path' => $template->background_path,
+            'layers' => $template->layers ?? [],
+        ]);
     }
 
     /** @return list<array<string,mixed>> */

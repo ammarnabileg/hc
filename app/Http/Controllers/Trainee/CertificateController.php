@@ -56,25 +56,32 @@ class CertificateController extends Controller
     }
 
     /** صورة الشهادة المولَّدة على الخادم — عامّة لأنّ صفحة التحقّق تنزّلها (8.1) */
-    public function image(string $code): Response
+    public function image(string $code, Request $request): Response
     {
         $certificate = $this->find($code);
 
-        return response($this->renderer->png($certificate), 200, [
+        return response($this->renderer->png($certificate, $this->language($request)), 200, [
             'Content-Type' => 'image/png',
             'Content-Disposition' => 'inline; filename="'.$certificate->code.'.png"',
             'Cache-Control' => 'public, max-age='.(int) setting('certificates.render.http_cache_seconds', 3600),
         ]);
     }
 
-    public function download(string $code): Response
+    public function download(string $code, Request $request): Response
     {
         $certificate = $this->find($code);
 
-        return response($this->renderer->png($certificate), 200, [
+        return response($this->renderer->png($certificate, $this->language($request)), 200, [
             'Content-Type' => 'image/png',
             'Content-Disposition' => 'attachment; filename="'.$certificate->code.'.png"',
         ]);
+    }
+
+    private function language(Request $request): ?string
+    {
+        $language = $request->string('lang')->toString();
+
+        return in_array($language, ['ar', 'en'], true) ? $language : null;
     }
 
     /** البديل الطباعيّ (HTML قابل للطباعة كـPDF من المتصفّح) — بلا مكتبة خارجيّة */

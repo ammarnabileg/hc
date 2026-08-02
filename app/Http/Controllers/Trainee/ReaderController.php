@@ -115,7 +115,7 @@ class ReaderController extends Controller
             'thumbUrl' => route('library.teaser.page', ['product' => $product->id, 'page' => '__PAGE__']),
             'progressUrl' => null,
             'teaser' => true,
-            'buyUrl' => Route::has('store.product') ? route('store.product', $product->slug) : (Route::has('store.index') ? route('store.index') : url('/')),
+            'buyUrl' => Route::has('store.product') ? route('store.product', ['type' => 'product', 'slug' => $product->slug]) : (Route::has('store.index') ? route('store.index') : url('/')),
         ]);
     }
 

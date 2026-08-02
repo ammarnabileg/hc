@@ -1,0 +1,240 @@
+@extends('layouts.app')
+
+@section('title', 'الأعضاء والبوزشنز')
+
+@php
+    /**
+     * الأعضاء والبوزشنز (24.4-7 · 13.4-م).
+     * سؤال واحد للشاشة: «مين معايا في القسم وبيعمل إيه؟».
+     * والقسم يُعرَض **كاملًا حتى لو كنتُ في فرعيّ**.
+     */
+    $statuses = [
+        'active' => 'نشط',
+        'absent' => 'غائب',
+        'acting' => 'قائم بأعمال',
+        'suspended' => 'معلَّق',
+    ];
+@endphp
+
+@section('content')
+    <x-page-header
+        title="الأعضاء والبوزشنز"
+        :subtitle="$root ? $root->name_ar.' — القسم كامل بكلّ فرعيّاته' : null"
+        :breadcrumbs="[['label' => 'الرئيسيّة', 'url' => route('dashboard')], ['label' => 'قسمي'], ['label' => 'الأعضاء والبوزشنز']]">
+        <x-slot:action>
+            @include('volunteer.org.partials.entity-switcher', ['action' => route('volunteer.department')])
+        </x-slot:action>
+    </x-page-header>
+
+    @if (! $root)
+        <x-empty message="لسّه مش مُسكَّن في كيان — أوّل خطوة مستنّياك" action="الرجوع للرئيسيّة" :href="route('dashboard')" />
+    @else
+        {{-- سطر «أخوكم» الشرفيّ — خارج العدّاد وخارج الفلاتر (13.4-ص-ب) --}}
+        @include('volunteer.org.partials.honorary-line', ['honorary' => $honorary])
+
+        {{-- ثلاثة عدّادات فقط (2.15-أ-3) --}}
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-3 mb-4">
+            <x-kpi label="الأعضاء" :value="$counters['members']" icon="👥" />
+            <x-kpi label="الفرعيّات" :value="$counters['sub_entities']" icon="🏛️" />
+            <x-kpi label="الشواغر" :value="$counters['vacancies']" icon="🪑" />
+        </div>
+
+        <x-filters :action="route('volunteer.department')">
+            <label class="text-sm">
+                <span class="block text-xs mb-1" style="color: var(--text-muted)">الفرعيّ</span>
+                <select name="sub" onchange="this.form.submit()"
+                        class="rounded-xl px-3 py-2 text-sm"
+                        style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
+                    <option value="">الكلّ</option>
+                    @foreach ($subEntities as $sub)
+                        <option value="{{ $sub->id }}" @selected((int) ($filters['entity'] ?? 0) === $sub->id)>{{ $sub->name_ar }}</option>
+                    @endforeach
+                </select>
+            </label>
+
+            <label class="text-sm">
+                <span class="block text-xs mb-1" style="color: var(--text-muted)">البوزشن</span>
+                <select name="position" onchange="this.form.submit()"
+                        class="rounded-xl px-3 py-2 text-sm"
+                        style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
+                    <option value="">الكلّ</option>
+                    @foreach ($positions as $position)
+                        <option value="{{ $position->key }}" @selected(($filters['position'] ?? null) === $position->key)>{{ $position->name_ar }}</option>
+                    @endforeach
+                </select>
+            </label>
+
+            <label class="text-sm">
+                <span class="block text-xs mb-1" style="color: var(--text-muted)">الحالة</span>
+                <select name="status" onchange="this.form.submit()"
+                        class="rounded-xl px-3 py-2 text-sm"
+                        style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
+                    <option value="">الكلّ</option>
+                    @foreach ($statuses as $key => $label)
+                        <option value="{{ $key }}" @selected(($filters['status'] ?? null) === $key)>{{ $label }}</option>
+                    @endforeach
+                </select>
+            </label>
+
+            <label class="text-sm flex-1 min-w-40">
+                <span class="block text-xs mb-1" style="color: var(--text-muted)">بحث</span>
+                <input type="search" name="q" value="{{ $filters['q'] ?? '' }}" placeholder="بالاسم أو الكود…"
+                       class="w-full rounded-xl px-3 py-2 text-sm"
+                       style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
+            </label>
+
+            <x-slot:advanced>
+                <div class="flex items-center gap-2 text-sm">
+                    <span style="color: var(--text-muted)">العرض</span>
+                    <a href="{{ request()->fullUrlWithQuery(['view' => 'cards']) }}"
+                       class="rounded-full px-3 py-1 text-xs"
+                       style="{{ $view === 'cards' ? 'background: var(--color-brand-500); color:#04201c' : 'background: var(--surface-sunken)' }}">كروت</a>
+                    <a href="{{ request()->fullUrlWithQuery(['view' => 'table']) }}"
+                       class="rounded-full px-3 py-1 text-xs"
+                       style="{{ $view === 'table' ? 'background: var(--color-brand-500); color:#04201c' : 'background: var(--surface-sunken)' }}">جدول</a>
+                </div>
+            </x-slot:advanced>
+        </x-filters>
+
+        @if ($cards->isEmpty())
+            <x-empty message="مفيش أعضاء مطابقين للفلتر" action="امسح الفلاتر" :href="route('volunteer.department')" />
+        @elseif ($view === 'table')
+            {{-- على الموبايل: كروت رأسيّة لا تمرير أفقيّ (2.15-ج) --}}
+            <div class="hidden md:block card overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr style="color: var(--text-muted)">
+                            <th class="text-start p-3">العضو</th>
+                            <th class="text-start p-3">البوزشن</th>
+                            <th class="text-start p-3">الفرعيّ</th>
+                            <th class="text-start p-3">الأبلاين</th>
+                            <th class="text-start p-3">Rep</th>
+                            <th class="text-start p-3">الحالة</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($cards as $card)
+                            <tr class="cursor-pointer motion-standard hover:opacity-90"
+                                style="border-top: 1px solid var(--border)"
+                                data-member="{{ route('volunteer.department.member', $card['id']) }}"
+                                data-member-name="{{ $card['name'] }}">
+                                <td class="p-3 font-semibold">
+                                    {{ $card['short_name'] }}
+                                    @if ($card['is_club'])
+                                        <span style="color: var(--color-state-honor)">★</span>
+                                    @endif
+                                </td>
+                                <td class="p-3">{{ $card['position'] }}</td>
+                                <td class="p-3">{{ $card['entity'] }}</td>
+                                <td class="p-3">{{ $card['upline'] ?? '—' }}</td>
+                                <td class="p-3"><x-state-badge :state="$card['rep_state']" :label="$card['rep_label']" /></td>
+                                <td class="p-3">{{ $statuses[$card['status']] ?? '' }}</td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+            <div class="md:hidden grid gap-3">
+                @foreach ($cards as $card)
+                    @include('volunteer.org.partials.member-card', ['card' => $card])
+                @endforeach
+            </div>
+        @else
+            <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                @foreach ($cards as $card)
+                    @include('volunteer.org.partials.member-card', ['card' => $card])
+                @endforeach
+            </div>
+        @endif
+
+        {{-- بوب-أب ملفّ عضو مختصر: رأس ثابت وجسم متمرّر (2.10.1-17) --}}
+        <x-modal id="member-modal" title="ملفّ العضو">
+            <div data-member-body class="text-sm">
+                <p style="color: var(--text-muted)">جارٍ التحميل…</p>
+            </div>
+        </x-modal>
+    @endif
+@endsection
+
+@push('scripts')
+<script>
+/* بوب-أب ملفّ العضو — بلا مكتبات، وردّ فوريّ لكلّ فعل (2.17-ب) */
+(() => {
+    const modal = document.getElementById('member-modal');
+    if (!modal) return;
+    const body = modal.querySelector('[data-member-body]');
+    const csrf = document.querySelector('meta[name="csrf-token"]')?.content ?? '';
+    const consentBase = @json(url('/volunteer/department/member'));
+
+    const open = () => { modal.classList.remove('hidden'); modal.classList.add('flex'); };
+
+    const badge = (state, label) => {
+        const colors = { ok: '●', warn: '▲', danger: '◉', honor: '★', idle: '○' };
+        return `<span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs"
+            style="background: color-mix(in srgb, var(--color-state-${state}) 15%, transparent);
+                   color: var(--color-state-${state})">${colors[state] ?? '○'} ${label}</span>`;
+    };
+
+    const render = (d) => {
+        const c = d.contact;
+        // ⭐ الحقل المقفول لا يُعرَض فراغًا — يظهر زرّ الإجراء بدلًا منه (13.4-م-2)
+        let contactBlock;
+        if (!c.has_phone) {
+            contactBlock = `<p style="color: var(--text-muted)">ما سجّلش رقم تواصل لسّه.</p>`;
+        } else if (c.visible) {
+            contactBlock = `<div class="flex items-center gap-2 flex-wrap">
+                <span dir="ltr" class="font-semibold">${c.display}</span>
+                <a href="${c.whatsapp}" target="_blank" rel="noopener"
+                   class="btn rounded-xl px-3 py-2 text-xs font-semibold"
+                   style="background: var(--color-brand-500); color:#04201c">واتساب</a>
+            </div>`;
+        } else {
+            contactBlock = `<div class="flex items-center gap-2 flex-wrap">
+                <span dir="ltr" style="color: var(--text-muted)">${c.display}</span>
+                <form method="post" action="${consentBase}/${d.membership_id}/consent">
+                    <input type="hidden" name="_token" value="${csrf}">
+                    <button type="submit" class="btn rounded-xl px-3 py-2 text-xs font-semibold"
+                            style="background: var(--surface-sunken); color: var(--text)">اطلب إظهار الرقم</button>
+                </form>
+            </div>`;
+        }
+
+        body.innerHTML = `
+            <div class="flex items-center gap-3 mb-3">
+                <div class="min-w-0">
+                    <div class="font-bold flex items-center gap-2 flex-wrap">
+                        ${d.name} ${badge(d.rep_state, d.rep_label)}
+                        ${d.is_club ? '<span style="color: var(--color-state-honor)">★</span>' : ''}
+                    </div>
+                    <div class="text-xs" style="color: var(--text-muted)">#${d.code} · ${d.position} · ${d.entity}</div>
+                </div>
+            </div>
+            <div class="grid grid-cols-3 gap-2 mb-4">
+                <div class="card p-2 text-center"><div class="text-xs" style="color: var(--text-muted)">مدّة الخدمة</div><div class="font-bold text-sm mt-1">${d.service_duration}</div></div>
+                <div class="card p-2 text-center"><div class="text-xs" style="color: var(--text-muted)">Kudos</div><div class="font-bold text-sm mt-1">${d.kudos}</div></div>
+                <div class="card p-2 text-center"><div class="text-xs" style="color: var(--text-muted)">الشهادات</div><div class="font-bold text-sm mt-1">${d.certificates}</div></div>
+            </div>
+            <div class="mb-4">${contactBlock}</div>
+            <div class="flex items-center gap-2 flex-wrap">
+                <a href="${d.profile_url}" class="btn rounded-xl px-4 py-2 text-sm font-semibold"
+                   style="background: var(--color-brand-500); color:#04201c">فتح البروفايل</a>
+                <a href="${d.profile_url}#kudos" class="btn rounded-xl px-4 py-2 text-sm"
+                   style="background: var(--surface-sunken); color: var(--text)">شكر (Kudos)</a>
+            </div>`;
+    };
+
+    document.addEventListener('click', (e) => {
+        const trigger = e.target.closest('[data-member]');
+        if (!trigger) return;
+        open();
+        body.innerHTML = '<p style="color: var(--text-muted)">جارٍ التحميل…</p>';
+        fetch(trigger.dataset.member, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+            .then((r) => r.json())
+            .then(render)
+            .catch(() => {
+                body.innerHTML = '<p>تعذّر تحميل الملفّ — جرّب تاني.</p>';
+            });
+    });
+})();
+</script>
+@endpush

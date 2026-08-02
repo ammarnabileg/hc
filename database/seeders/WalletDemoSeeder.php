@@ -2,8 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Models\Permission;
-use App\Models\Role;
 use App\Models\Setting;
 use App\Models\TopupOffer;
 use App\Models\TransferMethod;
@@ -11,7 +9,6 @@ use App\Models\User;
 use App\Services\Wallet\LedgerService;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\DB;
 
 /**
  * بيانات المحفظة التجريبيّة (19 · 19.5): إعدادات المجال · طرق التحويل ·
@@ -22,7 +19,6 @@ class WalletDemoSeeder extends Seeder
     public function run(): void
     {
         $this->settings();
-        $this->traineeGrants();
         $this->transferMethods();
         $this->offers();
         $this->demoWallet();
@@ -61,35 +57,6 @@ class WalletDemoSeeder extends Seeder
         }
 
         Cache::forget('settings');
-    }
-
-    /**
-     * صلاحيّات المحفظة للمتدرّب بنطاق SELF — حساباته هو وحدها.
-     * (مصفوفة الأدوار العامّة تسمّي المورد `wallets` بينما مفتاحه `wallet`، فنسدّ الفرق هنا.)
-     */
-    private function traineeGrants(): void
-    {
-        $role = Role::query()->where('key', 'trainee')->first();
-
-        if (! $role) {
-            return;
-        }
-
-        $keys = ['wallet.view', 'wallet.list', 'wallet.export', 'topup.create', 'topup.list'];
-
-        $ids = Permission::query()->whereIn('key', $keys)->pluck('id')->all();
-
-        foreach ($ids as $id) {
-            DB::table('permission_role')->upsert([[
-                'role_id' => $role->id,
-                'permission_id' => $id,
-                'scope' => 'SELF',
-                'effect' => 'allow',
-                'conditions' => null,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]], ['role_id', 'permission_id', 'scope'], ['effect', 'updated_at']);
-        }
     }
 
     /** طرق التحويل الأربع بأرقام قابلة للنسخ (19.5-ب-1) */

@@ -64,18 +64,21 @@ class ProgressTest extends LearningTestCase
 
         $second = $progress->completeLesson($user, $course, $lesson, $enrollment->refresh());
 
-        $this->assertSame(40, $first['xp']);          // قبل نصف المهلة ⟵ القيمة الأعلى
+        // القسم 7: تناقص خطّيّ — القيمة تتبع ما تبقّى من المهلة لا عتبةً ثابتة
+        $this->assertGreaterThan(0, $first['xp']);
+        $this->assertLessThanOrEqual(40, $first['xp']);
         $this->assertSame(0, $second['xp']);
         $this->assertSame($xpAfterFirst, (int) $enrollment->refresh()->xp_earned);
         $this->assertSame(1, LessonCompletion::where('user_id', $user->id)->where('lesson_id', $lesson->id)->count());
     }
 
-    public function test_xp_drops_to_the_after_half_value_past_the_midpoint(): void
+    public function test_xp_decays_linearly_with_time_not_by_half_steps(): void
     {
         $user = $this->trainee();
         $course = $this->makeCourse(lessons: 2);
 
-        // بدأ من عشرة أيّام وديدلاينه بعد يومين ⟵ تجاوزنا نصف المهلة (7)
+        // بدأ من عشرة أيّام وديدلاينه بعد يومين ⟵ مضى 10 من 12 يومًا
+        // فالمتبقّي السدس تقريبًا (القسم 7: تناقص خطّيّ حتى الصفر عند الديدلاين)
         $enrollment = $this->enroll(
             $user,
             $course,
@@ -85,7 +88,11 @@ class ProgressTest extends LearningTestCase
 
         $result = app(ProgressService::class)->completeLesson($user, $course, $this->lessonsOf($course)->first(), $enrollment);
 
-        $this->assertSame(20, $result['xp']);
-        $this->assertSame(20, (int) $enrollment->refresh()->xp_earned);
+        $expected = (int) floor(40 * (2 / 12));
+
+        $this->assertSame($expected, $result['xp']);
+        $this->assertSame($expected, (int) $enrollment->refresh()->xp_earned);
+        // ولا يقفز إلى قيمة ثابتة بعد المنتصف — القيمة تتبع الزمن لحظةً بلحظة
+        $this->assertLessThan(40, $result['xp']);
     }
 }
