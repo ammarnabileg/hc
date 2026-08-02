@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Certificate;
+use App\Models\CertificateType;
 use App\Models\Membership;
 use App\Models\Offboarding;
+use App\Models\Position;
 use App\Models\Setting;
 use App\Services\Admin\Volunteer\AuditTrail;
 use App\Services\Admin\Volunteer\CapacityReport;
@@ -118,7 +120,7 @@ class VolunteerAdminController extends Controller
 
     public function certificates(Request $request): View
     {
-        $typeIds = \App\Models\CertificateType::query()
+        $typeIds = CertificateType::query()
             ->whereIn('key', array_keys(CertificateEligibility::TYPES))
             ->pluck('id', 'key');
 
@@ -134,7 +136,7 @@ class VolunteerAdminController extends Controller
                 ->latest('issued_at')
                 ->limit(30)
                 ->get(),
-            'positions' => \App\Models\Position::query()->where('is_honorary', false)->orderBy('rank')->get(),
+            'positions' => Position::query()->where('is_honorary', false)->orderBy('rank')->get(),
         ]);
     }
 

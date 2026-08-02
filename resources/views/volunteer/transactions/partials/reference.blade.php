@@ -12,6 +12,10 @@
     };
 @endphp
 
+@php
+    $entity = $row->entity_id ? \App\Models\Entity::find($row->entity_id) : null;
+@endphp
+
 <span class="inline-flex items-center gap-1 text-xs">
     @include('volunteer.meetings.partials.icon', ['name' => $isMeeting ? 'meeting' : 'transaction'])
     @if ($isMeeting && $row->reference_id)
@@ -21,5 +25,13 @@
         <span>{{ $label }} #{{ $row->reference_id }}</span>
     @else
         <span style="color: var(--text-muted)">—</span>
+    @endif
+
+    {{-- أيقونة الكيان بجوار المرجع (24.4) --}}
+    @if ($entity)
+        <span class="inline-flex items-center gap-1" style="color: var(--text-muted)" title="{{ $entity->name_ar }}">
+            @include('volunteer.meetings.partials.icon', ['name' => 'entity'])
+            {{ $entity->name_ar }}
+        </span>
     @endif
 </span>

@@ -12,6 +12,7 @@ use App\Services\Volunteer\Goals\Integrations;
 use App\Services\Volunteer\Goals\RollupService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\View\View;
 
@@ -273,7 +274,7 @@ class GoalController extends Controller
                 title: 'إعلان تحقّق معيار: '.$milestone->name,
                 body: 'محتاج اعتمادك خلال نافذة القرار.',
                 url: route('volunteer.goals'),
-                deadlineAt: $milestone->approval_due_at ? \Illuminate\Support\Carbon::parse($milestone->approval_due_at) : null,
+                deadlineAt: $milestone->approval_due_at ? Carbon::parse($milestone->approval_due_at) : null,
                 requiresAction: true,
             );
         }

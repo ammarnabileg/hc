@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Course;
+use App\Models\CourseLearningPath;
 use App\Models\LearningPath;
 use App\Services\Admin\Content\ContentAudit;
 use App\Services\Admin\Content\CourseFormService;
@@ -170,7 +171,7 @@ class CourseAdminController extends Controller
             'course' => $course,
             'paths' => LearningPath::query()->orderBy('sort_order')->get(),
             'selectedPaths' => $course->exists
-                ? \App\Models\CourseLearningPath::query()->where('course_id', $course->id)->pluck('learning_path_id')->all()
+                ? CourseLearningPath::query()->where('course_id', $course->id)->pluck('learning_path_id')->all()
                 : [],
             'sections' => $course->exists ? $this->lessons->tree($course) : collect(),
             'exam' => $course->exists ? $this->courses->exam($course) : null,

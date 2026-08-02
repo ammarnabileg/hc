@@ -2,6 +2,8 @@
 
 namespace Tests\Feature\Volunteer\Core;
 
+use App\Models\RepScore;
+
 /**
  * شاشات النظرة العامّة (24.4-1) وسايد بار لوحة التطوّع (13.4-ح):
  * ما لا يملكه المستخدم **يُخفى لا يُعطَّل** (2.15-أ-7)،
@@ -81,7 +83,7 @@ class OverviewScreensTest extends VolunteerCoreTestCase
         $this->makeMembership($user, $entity);
         $this->grant($user, ['personal_reports.view']);
 
-        \App\Models\RepScore::create([
+        RepScore::create([
             'user_id' => $user->id,
             'score' => rep_rule('limit.red_indicator', -8) - 0.5,
         ]);

@@ -11,6 +11,7 @@ use App\Models\Transaction;
 use App\Models\User;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Route;
 
 /**
  * لوحة القيادة (الدستور 12.3 · 24.1).
@@ -187,7 +188,7 @@ class AdminDashboard
                 'title' => ($row->user?->shortName() ?? 'مستخدم').' — '.number_format(abs((float) $row->amount)).' كوينز',
                 'at' => $row->created_at,
                 'state' => $row->created_at->diffInHours(now()) >= $lateHours ? 'danger' : 'warn',
-                'url' => \Illuminate\Support\Facades\Route::has('admin.store.index') ? route('admin.store.index') : null,
+                'url' => Route::has('admin.store.index') ? route('admin.store.index') : null,
             ]);
 
         $complaints = Complaint::where('status', 'open')
@@ -201,7 +202,7 @@ class AdminDashboard
                 'title' => $row->title,
                 'at' => $row->created_at,
                 'state' => $row->created_at->diffInDays(now()) >= 3 ? 'danger' : 'warn',
-                'url' => \Illuminate\Support\Facades\Route::has('admin.guidance.index') ? route('admin.guidance.index') : null,
+                'url' => Route::has('admin.guidance.index') ? route('admin.guidance.index') : null,
             ]);
 
         return $withdrawals->concat($complaints)->sortBy('at')->take($limit)->values();

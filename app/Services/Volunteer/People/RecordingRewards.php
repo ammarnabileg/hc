@@ -5,6 +5,7 @@ namespace App\Services\Volunteer\People;
 use App\Models\User;
 use App\Models\VolunteerRecording;
 use App\Models\VolunteerRecordingClaim;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
@@ -108,7 +109,7 @@ class RecordingRewards
                 'rep_awarded' => $this->repValue(),
                 'claimed_at' => now(),
             ]));
-        } catch (\Illuminate\Database\UniqueConstraintViolationException) {
+        } catch (UniqueConstraintViolationException) {
             // القيد الفريد هو الحارس — فحتى الطلبان المتزامنان لا يمنحان مرّتين
             return [
                 'result' => self::RESULT_ALREADY,

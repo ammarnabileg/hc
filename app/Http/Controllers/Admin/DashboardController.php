@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\AuditLog;
 use App\Models\User;
 use App\Services\Admin\AdminDashboard;
 use App\Services\Admin\AuditTrail;
@@ -79,7 +80,7 @@ class DashboardController extends Controller
         }
 
         return User::query()
-            ->whereIn('id', \App\Models\AuditLog::query()->distinct()->pluck('user_id')->filter())
+            ->whereIn('id', AuditLog::query()->distinct()->pluck('user_id')->filter())
             ->get(['id', 'name']);
     }
 

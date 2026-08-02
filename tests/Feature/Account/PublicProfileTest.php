@@ -109,7 +109,18 @@ class PublicProfileTest extends AccountTestCase
         // التابات تُحمَّل كسولًا: تاب واحد فقط هو المحمَّل (2.15-د)
         $this->actingAs($owner)->get(route('profile.me', ['tab' => 'certificates']))
             ->assertOk()
-            ->assertViewHas('certificates');
+            ->assertViewHas('certificates')
+            ->assertViewMissing('achievements');
+
+        // مسارات الإنجازات الخمسة بعتبات 10.1
+        $this->actingAs($owner)->get(route('profile.me', ['tab' => 'achievements']))
+            ->assertOk()
+            ->assertSee('نادي الخامسة صباحًا')
+            ->assertViewHas('achievements', fn ($tracks) => count($tracks) === 5);
+
+        $this->actingAs($owner)->get(route('profile.me', ['tab' => 'experience']))
+            ->assertOk()
+            ->assertViewHas('experience');
     }
 
     public function test_unknown_code_returns_not_found(): void

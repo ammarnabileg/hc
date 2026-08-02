@@ -212,7 +212,8 @@ class CertificateRenderer
 
         $box = imagettfbbox($size, 0, $font, $text);
         $textWidth = abs($box[2] - $box[0]);
-        imagettftext($image, $size, 0, (int) (($width - $textWidth) / 2), (int) ($height * 0.93), $color, $font, $text);
+        $y = (int) ($height * (float) setting('certificates.render.status_y', 0.13));
+        imagettftext($image, $size, 0, (int) (($width - $textWidth) / 2), $y, $color, $font, $text);
     }
 
     private function drawLayer(\GdImage $image, array $layer, array $data, Certificate $certificate, int $width, int $height): void
@@ -320,10 +321,10 @@ class CertificateRenderer
             ['type' => 'text', 'text' => (string) setting('certificates.render.completion_text', 'قد أتمّ بنجاح'), 'x' => 0.5, 'y' => 0.53, 'size' => 28, 'color' => '#9bb3ad'],
             ['type' => 'text', 'field' => 'certificate_name', 'x' => 0.5, 'y' => 0.62, 'size' => 40, 'color' => '#00d4b8'],
             ['type' => 'text', 'field' => 'accreditation_name', 'x' => 0.5, 'y' => 0.70, 'size' => 24, 'color' => '#9bb3ad'],
-            ['type' => 'text', 'field' => 'issued_on', 'x' => 0.25, 'y' => 0.85, 'size' => 24, 'color' => '#9bb3ad'],
-            ['type' => 'text', 'field' => 'country', 'x' => 0.25, 'y' => 0.89, 'size' => 24, 'color' => '#9bb3ad'],
-            ['type' => 'text', 'field' => 'code', 'x' => 0.75, 'y' => 0.85, 'size' => 24, 'color' => '#9bb3ad'],
-            ['type' => 'qr', 'x' => 0.85, 'y' => 0.80, 'size' => 0.12],
+            ['type' => 'text', 'field' => 'issued_on', 'x' => 0.22, 'y' => 0.85, 'size' => 24, 'color' => '#9bb3ad'],
+            ['type' => 'text', 'field' => 'country', 'x' => 0.22, 'y' => 0.90, 'size' => 24, 'color' => '#9bb3ad'],
+            ['type' => 'text', 'field' => 'code', 'x' => 0.5, 'y' => 0.90, 'size' => 24, 'color' => '#9bb3ad'],
+            ['type' => 'qr', 'x' => 0.84, 'y' => 0.82, 'size' => 0.12],
         ];
     }
 

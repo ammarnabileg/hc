@@ -8,6 +8,7 @@ use App\Models\ExamQuestion;
 use App\Models\LearningPath;
 use App\Models\Permission;
 use App\Models\User;
+use App\Support\Access\AccessEngine;
 use Database\Seeders\CoreSeeder;
 use Database\Seeders\ExamDemoSeeder;
 use Illuminate\Support\Facades\Cache;
@@ -63,7 +64,7 @@ abstract class ExamTestCase extends TestCase
             ]);
         }
 
-        app(\App\Support\Access\AccessEngine::class)->forget($user);
+        app(AccessEngine::class)->forget($user);
 
         return $user;
     }

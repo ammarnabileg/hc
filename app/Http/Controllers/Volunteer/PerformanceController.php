@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Volunteer;
 
 use App\Http\Controllers\Controller;
 use App\Models\Currency;
+use App\Models\Entity;
 use App\Models\Membership;
 use App\Models\Transaction;
 use App\Models\User;
@@ -233,7 +234,7 @@ class PerformanceController extends Controller
         $myRank = 0;
         $me = null;
 
-        $rows = $wallets->map(function ($wallet) use (&$rank, &$myRank, &$me, $users, $memberships, $gains, $user, $filters) {
+        $rows = $wallets->map(function ($wallet) use (&$rank, &$myRank, &$me, $users, $memberships, $gains, $user) {
             $rank++;
             $row = [
                 'rank' => $rank,
@@ -274,7 +275,7 @@ class PerformanceController extends Controller
             $trackId = $user->activeMembership()?->entity?->track_id;
 
             if ($trackId) {
-                $query->whereIn('entity_id', \App\Models\Entity::query()->where('track_id', $trackId)->select('id'));
+                $query->whereIn('entity_id', Entity::query()->where('track_id', $trackId)->select('id'));
             }
         }
 

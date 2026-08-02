@@ -3,6 +3,7 @@
 namespace App\Services\Admin\Volunteer;
 
 use App\Models\Currency;
+use App\Models\Membership;
 use App\Models\Transaction;
 use App\Models\User;
 use Illuminate\Support\Collection;
@@ -186,7 +187,7 @@ class RewardGrantService
         $query = User::query()->select('code');
 
         $query = match ($segment) {
-            'volunteers' => $query->whereIn('id', \App\Models\Membership::query()->where('status', 'active')->select('user_id')),
+            'volunteers' => $query->whereIn('id', Membership::query()->where('status', 'active')->select('user_id')),
             'zero_balance' => $query->whereDoesntHave('balances', fn ($q) => $q->where('balance', '>', 0)),
             default => $query->where('status', 'active'),
         };

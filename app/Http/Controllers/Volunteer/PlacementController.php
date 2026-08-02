@@ -11,6 +11,7 @@ use App\Services\Volunteer\People\CandidatePipeline;
 use App\Services\Volunteer\People\PlacementService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\View\View;
 
 /**
@@ -135,7 +136,7 @@ class PlacementController extends Controller
             : 'اتسجّل ✓ شكرًا لوضوحك.');
     }
 
-    /** @param  \Illuminate\Support\Collection  $requests */
+    /** @param  Collection  $requests */
     private function counts($requests): array
     {
         $flat = $requests->flatten(1);

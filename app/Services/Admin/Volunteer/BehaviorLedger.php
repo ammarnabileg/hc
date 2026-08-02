@@ -6,6 +6,7 @@ use App\Models\BehaviorTransaction;
 use App\Models\BehaviorViolation;
 use App\Models\Membership;
 use App\Models\User;
+use App\Support\Access\AccessEngine;
 use RuntimeException;
 
 /**
@@ -51,7 +52,7 @@ class BehaviorLedger
     /** الأدمن ومشرف عام التطوّع بلا سقف (13.4-ن-هـ) */
     public static function isUncapped(User $granter): bool
     {
-        return app(\App\Support\Access\AccessEngine::class)->allows($granter, 'rep_manual.approve');
+        return app(AccessEngine::class)->allows($granter, 'rep_manual.approve');
     }
 
     public static function remainingQuota(User $granter): ?int

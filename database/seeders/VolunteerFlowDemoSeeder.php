@@ -14,6 +14,7 @@ use App\Models\TaskSubmission;
 use App\Models\Track;
 use App\Models\User;
 use App\Services\Volunteer\Contributions\ActivityWindow;
+use App\Services\Volunteer\Escalation\ArbitrationService;
 use App\Services\Volunteer\Escalation\CaseCatalog;
 use App\Services\Volunteer\Escalation\EscalationEngine;
 use Illuminate\Database\Seeder;
@@ -238,7 +239,7 @@ class VolunteerFlowDemoSeeder extends Seeder
         $exists = Arbitration::query()->where('task_id', $task->id)->exists();
 
         if (! $exists) {
-            app(\App\Services\Volunteer\Escalation\ArbitrationService::class)->open($task, $contribution, $contributor, [
+            app(ArbitrationService::class)->open($task, $contribution, $contributor, [
                 'claim' => 'اترجّع البند مرّتين بلا سبب واضح، والمطلوب مكتوب في شكل المخرجات بالحرف.',
             ]);
         }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Volunteer;
 
 use App\Http\Controllers\Controller;
 use App\Models\ConsentRequest;
+use App\Models\Entity;
 use App\Models\Membership;
 use App\Models\Position;
 use App\Services\Volunteer\Org\DepartmentScope;
@@ -128,7 +129,7 @@ class DepartmentController extends Controller
         ));
     }
 
-    private function sharesDepartment(Membership $membership, \App\Models\Entity $root): bool
+    private function sharesDepartment(Membership $membership, Entity $root): bool
     {
         return in_array((int) $membership->entity_id, $this->scope->entityIds($root), true);
     }

@@ -13,6 +13,7 @@ use App\Services\Notifications\Notifier;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
 
 /**
@@ -440,7 +441,7 @@ class GuidanceComposer
             category: 'announcement',
             title: $announcement->title,
             body: Str::limit((string) $announcement->body, (int) setting('announcements.push.body_limit', 120)),
-            url: \Illuminate\Support\Facades\Route::has('announcements.index') ? route('announcements.index') : null,
+            url: Route::has('announcements.index') ? route('announcements.index') : null,
         );
     }
 

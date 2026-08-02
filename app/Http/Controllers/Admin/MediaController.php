@@ -8,6 +8,7 @@ use App\Services\Admin\Content\MediaLibrary;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
@@ -136,7 +137,7 @@ class MediaController extends Controller
     }
 
     /** @return array<int, int> */
-    private function usageMap(\Illuminate\Support\Collection $items): array
+    private function usageMap(Collection $items): array
     {
         $map = [];
 

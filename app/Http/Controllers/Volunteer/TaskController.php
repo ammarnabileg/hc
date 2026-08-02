@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Volunteer;
 
 use App\Http\Controllers\Controller;
 use App\Models\Arbitration;
+use App\Models\Membership;
 use App\Models\Task;
 use App\Models\TaskBlock;
 use App\Models\TaskContribution;
@@ -365,7 +366,7 @@ class TaskController extends Controller
             return false;
         }
 
-        return \App\Models\Membership::query()
+        return Membership::query()
             ->where('upline_id', $membership->id)
             ->where('status', 'active')
             ->exists();

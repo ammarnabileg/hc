@@ -2,6 +2,7 @@
 
 namespace App\Services\Volunteer\People;
 
+use App\Models\Entity;
 use App\Models\InternalLibraryItem;
 use App\Models\LibraryAccessRequest;
 use App\Models\Membership;
@@ -62,7 +63,7 @@ class LibrarySearch
             ->when(! empty($filters['type']), fn ($b) => $b->where('type', $filters['type']))
             ->when(! empty($filters['entity']), fn ($b) => $b->where('entity_id', (int) $filters['entity']))
             ->when(! empty($filters['track']), fn ($b) => $b->whereIn('entity_id',
-                \App\Models\Entity::query()->where('track_id', (int) $filters['track'])->select('id')))
+                Entity::query()->where('track_id', (int) $filters['track'])->select('id')))
             ->when(! empty($filters['access']), fn ($b) => $b->where('access_level', $filters['access']))
             ->when(! empty($filters['owner']), fn ($b) => $b->where('owner_id', (int) $filters['owner']))
             ->when(! empty($filters['from']), fn ($b) => $b->where('approved_at', '>=', $filters['from']))

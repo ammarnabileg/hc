@@ -17,6 +17,7 @@ use App\Models\Track;
 use App\Models\User;
 use App\Services\Volunteer\Org\CardIssuer;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
@@ -292,7 +293,7 @@ class VolunteerOrgDemoSeeder extends Seeder
         Entity $entity,
         int $positionId,
         ?Membership $upline,
-        \Illuminate\Support\Carbon $since,
+        Carbon $since,
         bool $acting = false,
     ): Membership {
         return Membership::updateOrCreate(

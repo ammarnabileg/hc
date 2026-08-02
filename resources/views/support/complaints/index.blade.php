@@ -238,11 +238,11 @@
             style="background: var(--color-brand-500); color: #04201c">تذكرة جديدة</button>
 @endsection
 
-@if ($openNew || $errors->any())
-    @push('scripts')
+@push('scripts')
+    @if ($openNew || $errors->any())
         <script>
-            // «لم أجد إجابتي» يفتح التذكرة بعنوان مملوء مسبقًا (24.5)
+            // «لم أجد إجابتي» في دليل المستخدم يفتح التذكرة بعنوان مملوء مسبقًا (24.5)
             document.getElementById('new-ticket')?.classList.replace('hidden', 'flex');
         </script>
-    @endpush
-@endif
+    @endif
+@endpush

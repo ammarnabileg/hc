@@ -11,6 +11,7 @@ use App\Services\Notifications\Notifier;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Route;
 
 /**
  * إصدار الشهادات من لوحة الإدارة (12.5-ج · 12.5-د · 24.1).
@@ -319,7 +320,7 @@ class CertificateBulkIssuer
             category: 'certificate',
             title: (string) setting('certificates.issue.notice_title', 'مبروك — صدرت شهادتك 🎓'),
             body: (string) ($certificate->data_snapshot['certificate_name'] ?? null),
-            url: \Illuminate\Support\Facades\Route::has('verify.certificate')
+            url: Route::has('verify.certificate')
                 ? route('verify.certificate', ['code' => $certificate->code])
                 : null,
         );

@@ -34,7 +34,7 @@
                 المحافظة بتفضل ظاهرة للكلّ على طول — دي قاعدة ثابتة في المنصّة.
             </p>
 
-            <div class="divide-y" style="--tw-divide-opacity: 1">
+            <div>
                 @foreach ($fields as $field)
                     <form method="post" action="{{ route('settings.privacy.field') }}"
                           data-privacy-form class="flex flex-wrap items-center gap-2 py-3"

@@ -10,6 +10,7 @@ use App\Models\Track;
 use App\Services\Admin\Volunteer\AuditTrail;
 use App\Services\Admin\Volunteer\CapacityReport;
 use App\Services\Admin\Volunteer\SettingsWriter;
+use App\Support\Access\AccessEngine;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -223,6 +224,6 @@ class OrgAdminController extends Controller
             ->exists();
 
         // الأدمن العامّ يعلو طبقة التطوّع (12.2.1-ز-5)
-        return $holdsPosition || app(\App\Support\Access\AccessEngine::class)->allows($user, 'case_files.archive');
+        return $holdsPosition || app(AccessEngine::class)->allows($user, 'case_files.archive');
     }
 }

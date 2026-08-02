@@ -87,6 +87,7 @@ class ExamDemoSeeder extends Seeder
             ['certificates.render.text_color', 'certificates', 'لون النصّ الافتراضيّ', 'color', '#e8f5f2'],
             ['certificates.render.expired_color', 'certificates', 'لون وسم «منتهية»', 'color', '#94a3b8'],
             ['certificates.render.revoked_color', 'certificates', 'لون وسم «ملغاة»', 'color', '#ef4444'],
+            ['certificates.render.status_y', 'certificates', 'موضع وسم الحالة رأسيًّا (نسبة)', 'number', '0.13'],
             ['certificates.render.heading', 'certificates', 'عنوان الشهادة', 'string', 'شهادة معتمدة'],
             ['certificates.render.subheading', 'certificates', 'سطر ما قبل الاسم', 'string', 'تشهد المنصّة بأنّ'],
             ['certificates.render.completion_text', 'certificates', 'سطر ما قبل اسم التدريب', 'string', 'قد أتمّ بنجاح'],

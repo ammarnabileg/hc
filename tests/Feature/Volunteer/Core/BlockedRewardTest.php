@@ -5,6 +5,7 @@ namespace Tests\Feature\Volunteer\Core;
 use App\Models\Task;
 use App\Services\Volunteer\Tasks\TaskBlockService;
 use App\Services\Volunteer\Tasks\TaskWorkflow;
+use Illuminate\Validation\ValidationException;
 
 /**
  * التعثّر (23-3.4): مرّتان فقط، والثانية **تُنصِّف مكافأة Rep** المستحقّة على المهمّة
@@ -51,7 +52,7 @@ class BlockedRewardTest extends VolunteerCoreTestCase
 
         $task = $this->makeTask($user, $entity, ['blocked_count' => 2]);
 
-        $this->expectException(\Illuminate\Validation\ValidationException::class);
+        $this->expectException(ValidationException::class);
 
         app(TaskBlockService::class)->block($task, $user, 'duration', 'سبب تالت', 1);
     }
@@ -64,7 +65,7 @@ class BlockedRewardTest extends VolunteerCoreTestCase
 
         $task = $this->makeTask($user, $entity);
 
-        $this->expectException(\Illuminate\Validation\ValidationException::class);
+        $this->expectException(ValidationException::class);
 
         app(TaskBlockService::class)->block(
             $task,
@@ -115,7 +116,7 @@ class BlockedRewardTest extends VolunteerCoreTestCase
             'deadline_at' => now()->addDays(2),
         ]);
 
-        $this->expectException(\Illuminate\Validation\ValidationException::class);
+        $this->expectException(ValidationException::class);
 
         app(TaskWorkflow::class)->flagLateDueToChild($parent, $child, $user);
     }

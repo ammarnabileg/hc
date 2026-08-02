@@ -42,6 +42,7 @@ class MeetingLedger
             ? $ledger->credit($user, LedgerService::REP, $value, $source, $reference, self::LAYER, $reason, $createdBy)
             : $ledger->debit($user, LedgerService::REP, abs($value), $source, $reference, self::LAYER, $reason, $createdBy);
 
+        $this->stampEntity($transaction, $reference);
         $this->syncRepScore($user);
 
         return $transaction;
@@ -93,6 +94,16 @@ class MeetingLedger
         }
 
         Notifier::send($user, $category, $title, $body, $url, self::LAYER);
+    }
+
+    /** ختم كيان المرجع على المعاملة — فتظهر أيقونة الكيان ويعمل فلترها (24.4) */
+    private function stampEntity(?Transaction $transaction, ?Model $reference): void
+    {
+        $entityId = $reference?->getAttribute('entity_id');
+
+        if ($transaction && $entityId) {
+            $transaction->forceFill(['entity_id' => $entityId])->save();
+        }
     }
 
     /** مرآة الرقم الظاهر في `rep_scores` — يقرأها الجيج والبروفايل */

@@ -74,6 +74,9 @@ class HelpGuideTest extends AccountTestCase
             ->get(route('complaints.index', ['new' => 1, 'title' => 'استفسار حول: '.$article->title]))
             ->assertOk()
             ->assertViewHas('prefillTitle', 'استفسار حول: '.$article->title)
-            ->assertViewHas('openNew', true);
+            ->assertViewHas('openNew', true)
+            // البوب-أب يفتح تلقائيًّا والعنوان جاهز في الحقل
+            ->assertSee("getElementById('new-ticket')", false)
+            ->assertSee('value="استفسار حول: '.$article->title.'"', false);
     }
 }
