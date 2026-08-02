@@ -7,6 +7,7 @@ use App\Models\Lesson;
 use App\Models\LessonQuestion;
 use App\Models\LessonQuestionAnswer;
 use App\Models\User;
+use App\Services\Gamification\EconomyLedger;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
@@ -20,6 +21,11 @@ use Illuminate\Support\Facades\DB;
  */
 class LessonQuestionService
 {
+    /** دلو المصدر في دفتر الأستاذ — «تعلّم» في شاشة المعاملات */
+    private const LEDGER_SOURCE = 'academy';
+
+    public function __construct(private readonly EconomyLedger $economy) {}
+
     /** @return Collection<int, LessonQuestion> */
     public function forLesson(Lesson $lesson): Collection
     {
@@ -106,9 +112,15 @@ class LessonQuestionService
                 ['is_correct' => true, 'xp_awarded' => $xp],
             );
 
-            if ($xp > 0 && $enrollment) {
-                $enrollment->increment('xp_earned', $xp);
-            }
+            // ⭐ XP من النقطة الموحّدة: users.xp + المحفظة + تسجيل التدريب (7.3)
+            $this->economy->awardXp(
+                user: $user,
+                amount: $xp,
+                source: self::LEDGER_SOURCE,
+                reference: $question,
+                reason: setting('learning.questions.xp_reason', 'إجابة صحيحة على سؤال درس'),
+                enrollment: $enrollment,
+            );
         });
 
         return [

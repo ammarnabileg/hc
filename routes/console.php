@@ -1,5 +1,7 @@
 <?php
 
+use App\Services\Admin\Ops\BackupManager;
+use App\Services\Admin\Ops\OpsSettings;
 use Illuminate\Support\Facades\Schedule;
 
 /*
@@ -22,3 +24,24 @@ Schedule::command('rep:reset-monthly')
 
 // توليد المهامّ من البنود المتكرّرة في المشروع التشغيليّ (23)
 Schedule::command('recurring:generate')->hourly()->withoutOverlapping();
+
+// سلّم الخمول وعتبات لجنة التحقيق — مسحة يوميّة (13.4-س-ب · 13.4-س-ج)
+Schedule::command('volunteers:inactivity')->dailyAt('05:30')->timezone('Africa/Cairo')->withoutOverlapping();
+
+// النسخة الاحتياطيّة المجدولة (2.11 · 12.7): المسحة كلّ ساعة، والقرار داخل
+// `isScheduleDue()` وحده — فالدوريّة والساعة إعدادان يحرّرهما الأدمن لا رقمٌ هنا.
+// والجدولة تسجّل آخر تشغيل لتقرأه لوحة صحّة النظام.
+Schedule::call(function () {
+    $backups = app(BackupManager::class);
+
+    if ($backups->isScheduleDue()) {
+        $backups->create((string) setting('backups.schedule.kind', 'full'), null, scheduled: true);
+    }
+
+    app(OpsSettings::class)
+        ->put('system.schedule.last_run_at', now()->toDateTimeString());
+})->hourly()->name('backups:scheduled')->withoutOverlapping();
+
+// التقارير المجدولة (24.3-خامسًا): مسحة كلّ ساعة تلتقط المستحقّ بساعته
+// ومنطقته الزمنيّة — والساعة أصغر وحدة تسمح بها شاشة الجدولة، فلا حاجة لأدقّ.
+Schedule::command('reports:dispatch')->hourly()->withoutOverlapping();

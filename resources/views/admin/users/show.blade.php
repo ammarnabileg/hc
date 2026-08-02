@@ -133,6 +133,9 @@
                         </div>
                     @endif
                 </section>
+
+                {{-- أدوات احتواء الحساب المسيء (12.1) --}}
+                @include('admin.moderation.panel')
             </div>
             @break
 

@@ -52,10 +52,10 @@ final class RepBadge
             return 'idle';
         }
 
-        if ($percent >= (int) setting('volunteer.org.occupancy.danger_percent', 100)) {
+        if ($percent >= (int) setting('volunteer.org.occupancy_danger_percent', 100)) {
             return 'danger';
         }
 
-        return $percent >= (int) setting('volunteer.org.occupancy.warn_percent', 80) ? 'warn' : 'ok';
+        return $percent >= (int) setting('volunteer.org.occupancy_warn_percent', 80) ? 'warn' : 'ok';
     }
 }

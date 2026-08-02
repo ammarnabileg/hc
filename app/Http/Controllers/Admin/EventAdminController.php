@@ -267,7 +267,7 @@ class EventAdminController extends Controller
 
     private function generateCode(): string
     {
-        $length = max(4, (int) setting('events.attendance_code_length', 6));
+        $length = max(4, (int) setting('events.attendance.code_length', 6));
 
         return (string) random_int((int) str_pad('1', $length, '0'), (int) str_repeat('9', $length));
     }

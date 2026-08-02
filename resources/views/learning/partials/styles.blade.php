@@ -92,4 +92,28 @@
 
     /* ممنوع التمرير الأفقيّ على الموبايل — شرط قبول (2.15-ج) */
     .roadmap, .roadmap * { min-inline-size: 0; }
+
+    /* Skeleton دفعة التعليقات (3.1): مكان محجوز بدل قفزة فراغ أثناء الجلب */
+    .skeleton-line {
+        block-size: 0.7rem;
+        inline-size: 100%;
+        border-radius: 999px;
+        background: linear-gradient(90deg, var(--surface-raised) 0 40%, var(--border) 50%, var(--surface-raised) 60% 100%);
+        background-size: 300% 100%;
+        animation: skeleton-sweep 1.4s ease-in-out infinite;
+    }
+    @keyframes skeleton-sweep { 0% { background-position: 100% 0; } 100% { background-position: -100% 0; } }
+
+    @media (prefers-reduced-motion: reduce) {
+        .skeleton-line { animation: none; }
+    }
+
+    /* قسم التعليقات: سهم الطيّ بدل مثلّث المتصفّح الافتراضيّ */
+    details[data-comments] > summary::-webkit-details-marker { display: none; }
+    details[data-comments] > summary::after {
+        content: '⌄';
+        margin-inline-start: auto;
+        transition: rotate 200ms var(--ease-standard);
+    }
+    details[data-comments][open] > summary::after { rotate: 180deg; }
 </style>

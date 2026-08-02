@@ -57,12 +57,15 @@
             @elseif ($tab === 'audit')
                 @include('admin.settings.tabs.audit')
             @else
-                <div class="card p-4 space-y-4" id="settings-list">
-                    @forelse ($settings as $setting)
-                        @include('admin.settings.partials.field', [
-                            'setting' => $setting,
+                {{-- كلّ مجموعة كارت مطويّ بعنوان عربيّ — مولِّد عامّ لا 44 شاشة يدويّة --}}
+                <div class="space-y-3" id="settings-list">
+                    @forelse ($groups as $group => $rows)
+                        @include('admin.settings.partials.group-card', [
+                            'group' => $group,
+                            'rows' => $rows,
                             'registry' => $registry,
                             'endpoint' => route('admin.settings.field'),
+                            'open' => $loop->first || $search !== '' || $rows->contains('key', $highlight),
                         ])
                     @empty
                         <x-empty message="مافيش إعدادات في التاب ده لسه." />

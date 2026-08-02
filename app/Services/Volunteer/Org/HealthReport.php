@@ -150,7 +150,7 @@ final class HealthReport
      */
     public function idleMembers(Collection $memberships): Collection
     {
-        $days = (int) setting('offboarding.inactivity.alert_days', 21);
+        $days = (int) setting('rep.inactivity.days_before_alert', 21);
         $weekly = rep_rule('inactivity.weekly', -0.5);
         $cutoff = now()->subDays($days);
 
@@ -219,7 +219,7 @@ final class HealthReport
     {
         $reps = RepScore::whereIn('user_id', $memberships->pluck('user_id')->all())->pluck('score', 'user_id');
         $lateByOwner = $tasks->filter(fn (Task $t) => $this->isLate($t))->groupBy('owner_id')->map->count();
-        $idleDays = (int) setting('offboarding.inactivity.alert_days', 21);
+        $idleDays = (int) setting('rep.inactivity.days_before_alert', 21);
         $threshold = (int) setting('volunteer.health.retention_risk.threshold', 2);
 
         return $memberships

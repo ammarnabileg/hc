@@ -30,7 +30,9 @@ class ReferralController extends Controller
         $user = $request->user();
 
         // تذكرة الترحيب تُمنَح عند التفعيل ومرّة واحدة — والنداء آمن للتكرار
-        $this->referrals->grantWelcomeTicket($user);
+        $this->referrals->settleRewards($user);
+        // ⭐ وتذاكر دعواته الناجحة كداعٍ (7.6) — لكلٍّ حارسه فلا تتكرّر
+        $this->referrals->settlePendingFor($user);
         $this->referrals->claimLanding(
             $user,
             $request->session()->pull('referral.pending_id'),

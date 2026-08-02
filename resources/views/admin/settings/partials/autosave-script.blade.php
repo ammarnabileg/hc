@@ -130,6 +130,10 @@
         var target = document.querySelector('[data-setting="' + highlight + '"]');
 
         if (target) {
+            // الحقل قد يكون داخل كارت مجموعة مطويّ — نفتحه أوّلًا وإلّا «انتقلنا» لعدم
+            var card = target.closest('details[data-group-card]');
+            if (card) { card.open = true; }
+
             target.scrollIntoView({ behavior: 'smooth', block: 'center' });
             target.style.transition = 'background-color 1.2s var(--ease-standard)';
             target.style.backgroundColor = 'color-mix(in srgb, var(--color-brand-500) 14%, transparent)';

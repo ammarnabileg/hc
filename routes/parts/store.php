@@ -31,4 +31,15 @@ Route::middleware(['auth', 'permission:orders.create'])->group(function () {
     // ملخّص محسوب في الخادم للبوب-أب (كوبون/Bump) — ولا سعر يأتي من المتصفّح
     Route::post('/store/quote', [CheckoutController::class, 'quote'])->name('store.quote');
     Route::post('/store/checkout', [CheckoutController::class, 'checkout'])->name('store.checkout');
+
+    /*
+    | السلّة **اختياريّة** وصفحة مراجعة الطلب (17): بوب-أب الشراء المباشر يبقى
+    | المسار الافتراضيّ لعنصرٍ واحد، والسلّة لمَن يشتري أكثر من عنصر.
+    | ⭐ ولا مسار منها يقبل سعرًا — الجلسة تحفظ (النوع + الـslug) فقط.
+    */
+    Route::get('/store/cart', [CheckoutController::class, 'cart'])->name('store.cart');
+    Route::post('/store/cart/add', [CheckoutController::class, 'addToCart'])->name('store.cart.add');
+    Route::post('/store/cart/remove', [CheckoutController::class, 'removeFromCart'])->name('store.cart.remove');
+    Route::post('/store/cart/quote', [CheckoutController::class, 'cartQuote'])->name('store.cart.quote');
+    Route::post('/store/cart/checkout', [CheckoutController::class, 'cartCheckout'])->name('store.cart.checkout');
 });

@@ -43,13 +43,13 @@
         </x-slot:action>
     </x-page-header>
 
-    {{-- خارج فترة الإتاحة: بانر يشرح، والمحتوى يبقى ظاهرًا بحالته (24.5) --}}
-    @unless ($availability['open'])
-        <div class="card p-4 mb-4 flex items-start gap-2">
-            <x-state-badge :state="$availability['state']" :label="setting('learning.lock.badge')" />
-            <p class="text-sm">{{ $availability['reason'] }}</p>
-        </div>
-    @endunless
+    {{-- «مجّاني أوّل مرّة» انتهى بالامتحان والشهادة ⟵ Paywall نفسيّ (16) --}}
+    @if (($outline['paywall']['locked'] ?? false))
+        @include('learning.partials.paywall', ['paywall' => $outline['paywall']])
+    @endif
+
+    {{-- خارج الإتاحة: ماذا حدث + متى يفتح بتوقيتك مع عدّاد، والمحتوى يبقى ظاهرًا (5 · 24.5) --}}
+    @include('learning.partials.availability-notice', ['availability' => $availability])
 
     <div class="grid gap-4 lg:grid-cols-3 mb-5">
         <div class="lg:col-span-2 card p-4">
@@ -176,6 +176,8 @@
 @endif
 
 @push('scripts')
+    @include('learning.partials.clock-scripts', ['storedTimezone' => $availability['timezone']])
+
     <script>
         /* بحث داخل الدروس بالاسم — تصفية فوريّة بلا إعادة تحميل (2.17-ب) */
         (() => {

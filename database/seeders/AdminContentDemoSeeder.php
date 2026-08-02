@@ -62,7 +62,8 @@ class AdminContentDemoSeeder extends Seeder
             ['courses.availability.max_windows', 'courses', 'أقصى فترات إتاحة', 'number', '3'],
 
             // ---------------- الامتحانات
-            ['exams.pass_score.default', 'exams', 'درجة النجاح الافتراضيّة', 'number', '60'],
+            // ⭐ 4.2 و8: درجة النجاح **70%+ افتراضيًّا** (أو حسب المحدَّد في لوحة الإدارة)
+            ['exams.pass_score.default', 'exams', 'درجة النجاح الافتراضيّة', 'number', '70'],
             ['exams.questions.default_count', 'exams', 'عدد أسئلة الامتحان الافتراضيّ', 'number', '20'],
             ['exams.duration.default_minutes', 'exams', 'مدّة الامتحان الافتراضيّة (دقائق)', 'number', '30'],
 

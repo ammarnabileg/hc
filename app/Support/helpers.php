@@ -64,22 +64,30 @@ if (! function_exists('state_color')) {
      */
     function state_color(string $state): array
     {
-        return match ($state) {
-            'ok', 'green', 'valid', 'approved', 'completed', 'active' => [
-                'color' => 'ok', 'icon' => '●', 'label' => 'سليم',
-            ],
-            'warn', 'yellow', 'pending', 'in_review', 'soon' => [
-                'color' => 'warn', 'icon' => '▲', 'label' => 'انتبه',
-            ],
-            'danger', 'red', 'late', 'rejected', 'failed', 'overdue' => [
-                'color' => 'danger', 'icon' => '◉', 'label' => 'خطر',
-            ],
-            'honor', 'gold' => [
-                'color' => 'honor', 'icon' => '★', 'label' => 'تميّز',
-            ],
-            default => [
-                'color' => 'idle', 'icon' => '○', 'label' => 'غير نشط',
-            ],
+        // ⭐ الرمز والتسمية إعدادان (`ux.state.*`) لا نصّان محروقان (2.13):
+        // «انتبه» في شاشة و«تحت المراجعة» في أخرى تفقد اللونَ معناه الواحد،
+        // فمن هنا يضبط المالك القاموسَ مرّةً واحدة للمنصّة كلّها.
+        $color = match ($state) {
+            'ok', 'green', 'valid', 'approved', 'completed', 'active' => 'ok',
+            'warn', 'yellow', 'pending', 'in_review', 'soon' => 'warn',
+            'danger', 'red', 'late', 'rejected', 'failed', 'overdue' => 'danger',
+            'honor', 'gold' => 'honor',
+            default => 'idle',
         };
+
+        // المرساة: قيم الدستور نفسها، فلو غابت الإعدادات (تنصيب جديد) لا تنكسر الشاشة
+        $fallback = [
+            'ok' => ['●', 'سليم'],
+            'warn' => ['▲', 'انتبه'],
+            'danger' => ['◉', 'خطر'],
+            'honor' => ['★', 'تميّز'],
+            'idle' => ['○', 'غير نشط'],
+        ][$color];
+
+        return [
+            'color' => $color,
+            'icon' => (string) setting("ux.state.{$color}.icon", $fallback[0]),
+            'label' => (string) setting("ux.state.{$color}.label", $fallback[1]),
+        ];
     }
 }

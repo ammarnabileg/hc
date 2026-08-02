@@ -38,7 +38,11 @@ class ExamDemoSeeder extends Seeder
             // ---------------- الامتحان (4.2 · 24.5)
             ['exams.questions.max', 'exams', 'أقصى عدد أسئلة في الامتحان', 'number', '20'],
             ['exams.timer.warn_seconds', 'exams', 'ثوانٍ تحذير قرب انتهاء الوقت', 'number', '60'],
-            ['exams.wallet.currency_code', 'exams', 'عملة رسوم الامتحان', 'string', 'coins'],
+            // ⭐ 4.2: امتحان التدريب **بتذكرة تُخصَم بمجرّد الدخول**، وامتحان شهادة المسار وحده بالكوينز (16)
+            ['exams.wallet.currency_code', 'exams', 'عملة امتحان شهادة المسار', 'string', 'coins'],
+            ['exams.wallet.tickets_currency_code', 'exams', 'عملة امتحان التدريب', 'string', 'tickets'],
+            ['exams.tickets.course_exam', 'exams', 'تذاكر دخول الامتحان النهائيّ للتدريب', 'number', '1'],
+            ['exams.pass_score.default', 'exams', 'درجة النجاح الافتراضيّة (%)', 'number', '70'],
             ['exams.wallet.charge_reason', 'exams', 'وصف معاملة رسوم الامتحان', 'string', 'دخول امتحان'],
             ['exams.certificate_type_map', 'exams', 'ربط نوع المحتوى بنوع الشهادة', 'json', '{"App\\\\Models\\\\Course":"course","App\\\\Models\\\\LearningPath":"path"}'],
             ['exams.qualifying_certificate_type', 'exams', 'نوع شهادة المسار التأهيليّ', 'string', 'qualifying'],
@@ -55,6 +59,8 @@ class ExamDemoSeeder extends Seeder
             ['exams.messages.cooldown', 'exams', 'رسالة مهلة المحاولة التالية', 'text', 'لسّه بدري على المحاولة الجاية — استنّى شويّة وراجع الدروس.'],
             ['exams.messages.no_attempts_left', 'exams', 'رسالة نفاد المحاولات', 'text', 'خلصت محاولاتك في الامتحان ده.'],
             ['exams.messages.insufficient_balance', 'exams', 'رسالة عدم كفاية الرصيد', 'text', 'رصيدك مايكفّيش لدخول الامتحان — اشحن محفظتك وارجع.'],
+            // التذاكر تُكتسَب ولا تُشحَن (7.1) — فالرسالة تدلّ على طريق الكسب لا على الشحن
+            ['exams.messages.insufficient_tickets', 'exams', 'رسالة نقص التذاكر', 'text', 'محتاج تذكرة عشان تدخل الامتحان — كمّل درسًا أو أكمل ستريكك وهترجع تلاقيها.'],
             ['exams.messages.closed', 'exams', 'رسالة الامتحان المقفول', 'text', 'الامتحان ده مقفول دلوقتي.'],
             ['exams.messages.reentry_notice', 'exams', 'نصّ بوب-أب ما قبل امتحان العائد (13.4-ق)', 'text', 'الامتحان ده بيثبت جاهزيّتك دلوقتي. أوّل ما تبدأ، شهادتك التأهيليّة القديمة هتتسجّل «منتهية» — مش هتتمسح، هتفضل في سجلّك بتاريخها، وبالنجاح هتصدرلك شهادة جديدة.'],
 
@@ -123,10 +129,10 @@ class ExamDemoSeeder extends Seeder
             ['certificates.seo.index_description', 'certificates', 'وصف صفحة التحقّق بلا كود', 'text', 'تحقّق من صحّة أيّ شهادة صادرة من المنصّة بكودها — بلا تسجيل دخول.'],
 
             // ---------------- الاحتفال (2.14-3)
-            ['celebrations.certificate.title', 'celebrations', 'عنوان احتفال الشهادة', 'string', 'مبروك يا [الاسم]'],
-            ['celebrations.certificate.message', 'celebrations', 'نصّ احتفال الشهادة', 'text', 'شهادتك الجديدة صدرت — تقدر تشاركها دلوقتي.'],
-            ['celebrations.confetti.pieces', 'celebrations', 'عدد قطع الكونفيتي', 'number', '80'],
-            ['celebrations.peak.auto_dismiss_ms', 'celebrations', 'مدّة إغلاق احتفال الذروة تلقائيًّا', 'number', '9000'],
+            ['celebrations.certificate.title', 'gamification_celebrations', 'عنوان احتفال الشهادة', 'string', 'مبروك يا [الاسم]'],
+            ['celebrations.certificate.message', 'gamification_celebrations', 'نصّ احتفال الشهادة', 'text', 'شهادتك الجديدة صدرت — تقدر تشاركها دلوقتي.'],
+            ['celebrations.confetti.pieces', 'gamification_celebrations', 'عدد قطع الكونفيتي', 'number', '80'],
+            ['celebrations.peak.auto_dismiss_ms', 'gamification_celebrations', 'مدّة إغلاق احتفال الذروة تلقائيًّا', 'number', '9000'],
         ];
 
         foreach ($rows as [$key, $group, $label, $type, $default]) {

@@ -126,6 +126,13 @@ class CourseFormService
 
             $this->syncExam($course, $data);
 
+            // ⭐ الإتاحة لها مخزنٌ معتمَد واحد (5): جدول الفترات وأعمدة النافذة
+            // اليوميّة — وهو ما تقرؤه AvailabilityService. فحفظُ التاب هنا ينعكس
+            // عليه فورًا، وإلّا صار للتدريب موعدان: واحد في الشاشة وآخر في المنطق.
+            if (array_key_exists('availability', $data)) {
+                $this->syncAvailability($course, $payload['availability']);
+            }
+
             return $course;
         });
 
@@ -318,6 +325,41 @@ class CourseFormService
         return is_array($raw) ? $raw : (json_decode((string) $raw, true) ?: []);
     }
 
+    /**
+     * مزامنة تاب الإتاحة مع مخزنه المعتمَد (5): الفترات في جدولها والنافذة
+     * اليوميّة في عموديها. والفترات تُستبدَل بالكامل لأنّ الفورم يرسل الصورة
+     * النهائيّة لها، فما اختفى منها اختفى بقصد الأدمن.
+     */
+    private function syncAvailability(Course $course, string $availabilityJson): void
+    {
+        $raw = json_decode($availabilityJson, true) ?: [];
+
+        DB::table('course_availability_periods')->where('course_id', $course->id)->delete();
+
+        foreach ((array) ($raw['windows'] ?? []) as $window) {
+            $from = $window['from'] ?? null;
+            $to = $window['to'] ?? null;
+
+            if (! $from || ! $to) {
+                continue;
+            }
+
+            DB::table('course_availability_periods')->insert([
+                'course_id' => $course->id,
+                'starts_on' => $from,
+                'ends_on' => $to,
+                'is_active' => true,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
+
+        $course->forceFill([
+            'daily_open_at' => $raw['daily_from'] ?: null,
+            'daily_close_at' => ($raw['daily_from'] ?? null) ? ($raw['daily_to'] ?: null) : null,
+        ])->save();
+    }
+
     // ------------------------------------------------------------------ داخليّ
 
     private function moveToPath(Course $course, int $pathId): void
@@ -366,7 +408,7 @@ class CourseFormService
         }
 
         $payload = [
-            'pass_score' => (int) ($data['exam_pass_score'] ?? setting('exams.pass_score.default', 60)),
+            'pass_score' => (int) ($data['exam_pass_score'] ?? setting('exams.pass_score.default', 70)),
             'questions_count' => (int) ($data['exam_questions_count'] ?? setting('exams.questions.default_count', 20)),
         ];
 

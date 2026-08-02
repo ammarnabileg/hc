@@ -6,6 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Models\Currency;
 use App\Models\Transaction;
 use App\Models\WalletBalance;
+use App\Models\WalletWithdrawal;
+use App\Services\Wallet\ExchangeRates;
+use App\Services\Wallet\ExchangeService;
+use App\Services\Wallet\TransferService;
+use App\Services\Wallet\WithdrawService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -28,8 +33,19 @@ class WalletController extends Controller
         'leadership' => 'قيادة',
         'transfer' => 'حوالة',
         'exchange' => 'تحويل عملة',
+        'withdraw' => 'سحب أرباح',
         'admin' => 'إجراء إداريّ',
     ];
+
+    /** الكروت الثانويّة الثلاثة كما ينصّ 19.2 بالحرف: التذاكر / XP / الساعات */
+    public const SECONDARY_CURRENCIES = ['tickets', 'xp', 'hours'];
+
+    public function __construct(
+        private readonly TransferService $transfers,
+        private readonly ExchangeService $exchanges,
+        private readonly WithdrawService $withdrawals,
+        private readonly ExchangeRates $rates,
+    ) {}
 
     /** 🖥️ رصيدي وشحن — الرصيد بعدّاد تصاعديّ وآخر 5 حركات */
     public function index(Request $request)
@@ -39,14 +55,16 @@ class WalletController extends Controller
 
         $main = Currency::query()->where('code', $mainCode)->first();
 
-        // ثلاثة كروت ثانويّة بحدّ أقصى — والحدّ الأعلى أربعة في الشاشة (2.15-أ-3)
+        /*
+         | ثلاثة كروت ثانويّة بالضبط: التذاكر / XP / **الساعات** (19.2).
+         | وترتيبها ثابت كنصّ الدستور لا بترتيب الـid، فلا يتبدّل بإضافة عملةٍ جديدة.
+         */
         $secondary = Currency::query()
-            ->where('layer', 'training')
+            ->whereIn('code', self::SECONDARY_CURRENCIES)
             ->where('is_active', true)
-            ->where('code', '!=', $mainCode)
-            ->orderBy('id')
-            ->take(3)
-            ->get();
+            ->get()
+            ->sortBy(fn ($c) => array_search($c->code, self::SECONDARY_CURRENCIES, true))
+            ->values();
 
         $balances = $this->balancesFor($request->user()->id);
 
@@ -58,13 +76,33 @@ class WalletController extends Controller
             ->take(5)
             ->get();
 
-        return view('wallet.index', [
+        return view('wallet.index', array_merge([
             'main' => $main,
             'mainBalance' => $balances[$main?->id] ?? 0.0,
             'secondary' => $secondary,
             'balances' => $balances,
             'recent' => $recent,
-        ]);
+        ], $this->operationsData($request)));
+    }
+
+    /**
+     * 🖥️ تاب «المسحوبات» (19.2): «متاح للسحب» + زرّ سحب + جدول المسحوبات
+     * ومنه عمود **صورة الفاتورة**.
+     */
+    public function withdrawals(Request $request)
+    {
+        $user = $request->user();
+
+        $rows = WalletWithdrawal::query()
+            ->where('user_id', $user->id)
+            ->latest('id')
+            ->paginate(20)
+            ->withQueryString();
+
+        return view('wallet.withdrawals', array_merge([
+            'rows' => $rows,
+            'methods' => WithdrawService::METHODS,
+        ], $this->operationsData($request)));
     }
 
     /** 🖥️ التذاكر 🎟️ — الرصيد ومصادر الكسب ومواضع الصرف (7.1) */
@@ -149,6 +187,60 @@ class WalletController extends Controller
     }
 
     // ------------------------------------------------------------------ داخليّ
+
+    /**
+     * البيانات المشتركة بين تابَي المحفظة: كروت الأرباح والعمليّات الثلاث وأسعار الصرف.
+     *
+     * ⭐ كلّ النِّسب والحدود هنا **من الخادم**، وتُعرَض للمستخدم قبل الفتح فيعرف
+     * تكلفة العمليّة قبل ما يبدأها — والملخّص النهائيّ يُطلَب من الخادم كذلك.
+     */
+    private function operationsData(Request $request): array
+    {
+        $user = $request->user();
+
+        // المحظور يُخفى ولا يُعطَّل (2.15-أ-7) — والأرباح والسحب 🔒 لمالك المنصّة
+        $canEarnings = $user->can('earnings.view');
+        $canWithdraw = $user->can('withdraw.create');
+
+        return [
+            'canTransfer' => $user->can('transfer.create'),
+            'canWithdraw' => $canWithdraw,
+            'canEarnings' => $canEarnings,
+            'earnings' => $canEarnings ? $this->withdrawals->earnings($user) : null,
+            'pendingWithdrawal' => $canWithdraw ? $this->withdrawals->pendingFor($user) : null,
+            'withdrawLimits' => [
+                'fee_percent' => $this->withdrawals->feePercent(),
+                'min_fee' => $this->withdrawals->minFee(),
+                'min_amount' => $this->withdrawals->minAmount(),
+            ],
+            'transferCurrencies' => Currency::query()
+                ->whereIn('code', TransferService::CURRENCIES)
+                ->get()
+                ->map(fn ($c) => [
+                    'code' => $c->code,
+                    'name' => $c->name_ar,
+                    'fee' => $this->transfers->feePercent($c->code),
+                ])
+                ->values()
+                ->all(),
+            'transferMin' => $this->transfers->minAmount(),
+            'exchangePaths' => collect($this->exchanges->paths())
+                ->map(fn ($p) => [
+                    'from' => $p['from'],
+                    'to' => $p['to'],
+                    'from_name' => $this->currencyName($p['from']),
+                    'to_name' => $this->currencyName($p['to']),
+                ])
+                ->all(),
+            'exchangeFee' => $this->exchanges->feePercent(),
+            'rateTable' => $this->rates->table(),
+        ];
+    }
+
+    private function currencyName(string $code): string
+    {
+        return (string) (Currency::query()->where('code', $code)->value('name_ar') ?? $code);
+    }
 
     /** @return array<int, float> */
     private function balancesFor(int $userId): array

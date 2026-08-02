@@ -28,6 +28,9 @@ class CaseCatalog
 
     public const SUBTASK_BATCH = 'subtask_batch';
 
+    /** المخالفة الجسيمة: موافقة مستوى أعلى بنافذة 24 ساعة (13.4-ن-هـ) */
+    public const BEHAVIOR_SEVERE = 'behavior_severe';
+
     /**
      * الحالات التسع بترتيب الدستور: النوع · الاسم · الأيقونة · القرارات المتاحة ·
      * التسوية الآليّة عند فوات نافذة السقف · وصفها المكتوب صراحةً في الشاشة.
@@ -117,6 +120,14 @@ class CaseCatalog
                 ],
                 'settlement' => 'approved',
                 'settlement_label' => 'اعتماد الدفعة كاملة',
+            ],
+            // ⭐ الجسيمة (−1) لا تُطبَّق إلّا بموافقة مستوى أعلى، والصمت رفض (13.4-ن-هـ)
+            self::BEHAVIOR_SEVERE => [
+                'label' => 'اعتماد مخالفة سلوك جسيمة',
+                'icon' => '⚖️',
+                'decisions' => ['approved' => 'اعتماد المخالفة', 'rejected' => 'رفض المخالفة'],
+                'settlement' => 'rejected',
+                'settlement_label' => 'رفض — لا تُطبَّق على درجة الالتزام',
             ],
         ];
     }

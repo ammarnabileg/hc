@@ -82,6 +82,33 @@ class StoreDemoSeeder extends Seeder
             ['store.topup.button_text', 'نصّ زرّ الشحن في الهيدر', 'string', 'شحن'],
             ['store.topup.sheet_button_text', 'نصّ زرّ الشحن داخل البوب-أب', 'string', 'اشحن المحفظة'],
 
+            // ---------------- السلّة وصفحة مراجعة الطلب (17) — مسارٌ اختياريّ بجانب بوب-أب الشراء
+            ['store.cart.enabled', 'تفعيل السلّة الاختياريّة', 'bool', '1'],
+            ['store.cart.max_items', 'أقصى عدد عناصر في السلّة', 'number', '10'],
+            ['store.cart.page_title', 'عنوان صفحة مراجعة الطلب', 'string', 'مراجعة الطلب'],
+            ['store.cart.page_subtitle', 'سطر صفحة المراجعة', 'string', 'راجع طلبك وادفع — وكلّ الأرقام محسوبة عندنا.'],
+            ['store.cart.order_title', 'اسم الطلب في المعاملة', 'string', 'طلب من السلّة'],
+            ['store.cart.add_label', 'زرّ الإضافة للسلّة', 'string', 'ضيفه للسلّة'],
+            ['store.cart.remove_label', 'زرّ الحذف من السلّة', 'string', 'شيله'],
+            ['store.cart.submit_label', 'زرّ الدفع في المراجعة', 'string', 'ادفع وأكمل'],
+            ['store.cart.added_text', 'نصّ الإضافة للسلّة', 'string', 'اتضاف للسلّة ✓'],
+            ['store.cart.removed_text', 'نصّ الحذف من السلّة', 'string', 'اتشال من السلّة ✓'],
+            ['store.cart.empty_text', 'نصّ السلّة الفارغة', 'string', 'سلّتك فاضية — ضيف حاجة الأوّل.'],
+            ['store.cart.full_text', 'نصّ امتلاء السلّة', 'string', 'السلّة وصلت أقصى عدد — أكمل الطلب ده الأوّل.'],
+            ['store.cart.bump_line_label', 'وسم سطر الـBump', 'string', 'إضافة للطلب'],
+            ['store.cart.coupon_label', 'عنوان حقل الكوبون في المراجعة', 'string', 'كود خصم (اختياريّ)'],
+            ['store.cart.subtotal_label', 'وسم المجموع', 'string', 'المجموع'],
+            ['store.cart.discount_label', 'وسم الخصم', 'string', 'الخصم'],
+            ['store.cart.total_label', 'وسم الإجماليّ', 'string', 'الإجماليّ'],
+            ['store.cart.balance_before_label', 'وسم الرصيد قبل', 'string', 'رصيدك قبل'],
+            ['store.cart.balance_after_label', 'وسم الرصيد بعد', 'string', 'رصيدك بعد'],
+
+            // ---------------- ⭐ أقرب عرض يكفّيك داخل بوب-أب الشراء (19.5-ب-2)
+            ['store.topup.suggest_offer', 'اقتراح أقرب عرض شحن', 'bool', '1'],
+            ['store.topup.suggest_methods', 'طرق الشحن المقترَحة', 'json', '["manual","gateway"]'],
+            ['store.topup.nearest_offer_text', 'نصّ أقرب عرض يكفّيك', 'text', 'ناقصك {needed} — أقرب عرض يكفّيك: ادفع {pay} وتاخد {credit} كوين (+{bonus}% إضافيّة).'],
+            ['store.topup.largest_offer_text', 'نصّ أكبر عرض متاح', 'text', 'ناقصك {needed} — وأكبر عرض عندنا دلوقتي: ادفع {pay} وتاخد {credit} كوين، وتقدر تشحن أكتر من مرّة.'],
+
             // ---------------- سياسة عدم الاسترجاع (19.4)
             ['store.refund.policy_title', 'عنوان صفحة سياسة الاسترجاع', 'string', 'سياسة عدم الاسترجاع'],
             ['store.refund.ack_text', 'نصّ الإقرار قبل الدفع', 'string', 'قرأت سياسة عدم الاسترجاع وموافق عليها.'],

@@ -151,6 +151,22 @@ class LibraryDemoSeeder extends Seeder
             ['reader.teaser.blocked_message', 'reader', 'رسالة تجاوز العيّنة', 'string', 'دي آخر صفحة في العيّنة — اشترِ المنتج لتكمل.'],
             ['reader.teaser.default_pages', 'reader', 'عدد صفحات العيّنة الافتراضيّ', 'number', '3'],
 
+            // ---------------- الفهرس (TOC) في القارئ (20.3)
+            ['reader.toc.title', 'reader', 'عنوان الفهرس', 'string', 'فهرس الملفّ'],
+            ['reader.toc.empty_text', 'reader', 'نصّ الفهرس الفارغ', 'string', 'الملفّ ده من غير فهرس — اتنقّل بالمصغّرات.'],
+            ['reader.toc.max_entries', 'reader', 'أقصى عدد مدخلات الفهرس', 'number', '200'],
+            ['reader.thumbs.title', 'reader', 'عنوان المصغّرات', 'string', 'المصغّرات'],
+
+            // ---------------- تحليلات المكتبة المجمّعة (20.5) — بلا سجلّ فتح فرديّ
+            ['library.analytics.title', 'library', 'عنوان تحليلات المكتبة', 'string', 'تحليلات المكتبة (مجمّعة)'],
+            ['library.analytics.note', 'library', 'ملاحظة التحليلات', 'text', 'أرقام مجمّعة توجّه الإنتاج — بدون أيّ سجلّ فتح فرديّ لأيّ ملفّ.'],
+            ['library.analytics.readers_label', 'library', 'وسم عدد القرّاء', 'string', 'قرّاء'],
+            ['library.analytics.completion_label', 'library', 'وسم نسبة الإكمال', 'string', 'متوسّط الإكمال'],
+            ['library.analytics.top_label', 'library', 'وسم الأكثر قراءةً', 'string', 'الأكثر قراءةً'],
+            ['library.analytics.empty_text', 'library', 'نصّ غياب بيانات القراءة', 'string', 'لسّه مفيش قراءات مسجّلة — الأرقام هتظهر أوّل ما الناس تقرأ.'],
+            ['library.analytics.top_limit', 'library', 'عدد عناصر الأكثر قراءةً', 'number', '5'],
+            ['library.analytics.min_readers', 'library', 'أدنى عدد قرّاء لعرض المنتج', 'number', '1'],
+
             // ---------------- السيرة الذاتيّة (9)
             ['cv.page.title', 'cv', 'عنوان صفحة السيرة', 'string', 'سيرتي الذاتيّة'],
             ['cv.page.subtitle', 'cv', 'سطر تعريف السيرة', 'string', 'املأ الخطوات، والمعاينة بتتحدّث معاك لحظة بلحظة.'],

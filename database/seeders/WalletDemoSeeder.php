@@ -32,13 +32,13 @@ class WalletDemoSeeder extends Seeder
             ['topup.min_amount', 'store', 'أدنى قيمة تحويل مقبولة', 'number', '10'],
             ['topup.gateway.currency', 'store', 'عملة البوّابة', 'string', 'EGP'],
             ['topup.gateway.customer_address', 'store', 'عنوان العميل المرسَل للبوّابة', 'string', '-'],
-            ['wallet.tickets.earn_sources', 'store', 'مصادر كسب التذاكر', 'json', json_encode([
+            ['wallet.tickets.earn_sources', 'wallet', 'مصادر كسب التذاكر', 'json', json_encode([
                 'إكمال درس قبل نصف الديدلاين',
                 'إكمال ستريك 7 أيّام متواصلة',
                 'الدعوات: تذكرة للداعي وتذكرة للمدعوّ',
                 'الاختبار التمهيديّ ومفاجآت الرسائل الإيجابيّة',
             ], JSON_UNESCAPED_UNICODE)],
-            ['wallet.tickets.spend_targets', 'store', 'مواضع صرف التذاكر', 'json', json_encode([
+            ['wallet.tickets.spend_targets', 'wallet', 'مواضع صرف التذاكر', 'json', json_encode([
                 'دخول الامتحان النهائيّ للتدريب',
                 'استخراج السيرة الذاتيّة',
                 'تجميد الستريك ليومٍ فايت',

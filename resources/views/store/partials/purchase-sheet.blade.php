@@ -8,11 +8,16 @@
      * ⭐ كلّ الأرقام هنا معروضة كما حسبها الخادم — والفورم لا يرسل سعرًا ولا خصمًا.
      * وعلى الموبايل يفتح كـBottom Sheet (2.15-ج).
      */
-    $bump = $quote['bump_offers'][0] ?? null;
+    // Order-bump: واحد أو اثنان كحدٍّ أقصى — والحدّ نفسه إعداد (17)
+    $bumps = array_slice($quote['bump_offers'] ?? [], 0, max((int) setting('store.order_bump.max', 2), 1));
     $topupUrl = \Illuminate\Support\Facades\Route::has('wallet.topup')
         ? route('wallet.topup')
         : (\Illuminate\Support\Facades\Route::has('wallet.index') ? route('wallet.index') : null);
     $reopen = session('checkout_reason') !== null;
+
+    // ⭐ أقرب عرض يكفّيك (19.5-ب-2): يُحسَب في الخادم ويُعرَض عند نقص الرصيد فقط
+    $suggestion = app(\App\Services\Store\NearestTopupOffer::class)->forDeficit($quote['total'] - $quote['balance_before']);
+    $suggestionText = app(\App\Services\Store\NearestTopupOffer::class)->sentence($suggestion);
 @endphp
 
 <div id="purchase-sheet"
@@ -43,10 +48,11 @@
                     @endforeach
                 </div>
 
-                {{-- Order-bump: يُضاف فورًا ويتحدّث الإجماليّ بلا مغادرة الصفحة (17) --}}
-                @if ($bump)
+                {{-- Order-bump: تشيك بوكس لكلّ عرض (واحد أو اثنان) يُضاف فورًا ويتحدّث الإجماليّ (17) --}}
+                @foreach ($bumps as $bump)
                     <label class="card p-3 flex items-start gap-3 cursor-pointer" style="background: var(--surface-sunken)">
-                        <input type="checkbox" name="add_bump" value="1" class="mt-1" data-quote-trigger>
+                        {{-- ⭐ القيمة slug لا سعر — والخادم يطابقها بعروضه هو --}}
+                        <input type="checkbox" name="bumps[]" value="{{ $bump['slug'] }}" class="mt-1" data-quote-trigger>
                         <span class="text-sm">
                             <span class="font-semibold">{{ $bump['title'] }}</span>
                             <span> — {{ Coins::label($bump['price']) }}</span>
@@ -58,7 +64,7 @@
                             @endif
                         </span>
                     </label>
-                @endif
+                @endforeach
 
                 {{-- الكوبون: يُتحقَّق منه في الخادم --}}
                 @if (setting('store.coupons.enabled', true))
@@ -99,11 +105,14 @@
                 <div class="card p-3 space-y-2 {{ $quote['sufficient'] ? 'hidden' : '' }}" data-topup-block
                      style="border-color: var(--color-state-warn)">
                     <p class="text-sm">{{ setting('store.insufficient_text', 'رصيدك أقلّ من قيمة الطلب — اشحن محفظتك وكمّل من نفس المكان.') }}</p>
-                    @if ($topupUrl)
-                        <a href="{{ $topupUrl }}"
-                           class="btn inline-flex items-center justify-center rounded-xl px-4 py-2 text-sm font-semibold"
-                           style="background: var(--color-brand-500); color: #04201c">{{ setting('store.topup.sheet_button_text', 'اشحن المحفظة') }}</a>
-                    @endif
+
+                    {{-- ⭐ أقرب عرض يكفّيك (19.5-ب-2): بقيمته الحقيقيّة صراحةً وبلا Dark Patterns (2.9) --}}
+                    <p class="text-sm {{ $suggestionText ? '' : 'hidden' }}" data-topup-suggestion
+                       style="color: var(--text-muted)">{{ $suggestionText }}</p>
+
+                    <a href="{{ $suggestion['offer']['url'] ?? $topupUrl }}" data-topup-link
+                       class="btn inline-flex items-center justify-center rounded-xl px-4 py-2 text-sm font-semibold {{ ($suggestion['offer']['url'] ?? $topupUrl) ? '' : 'hidden' }}"
+                       style="background: var(--color-brand-500); color: #04201c">{{ setting('store.topup.sheet_button_text', 'اشحن المحفظة') }}</a>
                 </div>
 
                 {{-- إقرار سياسة عدم الاسترجاع — إلزاميّ قبل الدفع (19.4) --}}
@@ -155,6 +164,8 @@
 
             const submit = form.querySelector('[data-purchase-submit]');
             const topupBlock = form.querySelector('[data-topup-block]');
+            const suggestion = form.querySelector('[data-topup-suggestion]');
+            const suggestionLink = form.querySelector('[data-topup-link]');
             const couponMessage = form.querySelector('[data-coupon-message]');
             const linesBox = form.querySelector('[data-quote-lines]');
             let timer = null;
@@ -181,6 +192,14 @@
 
                 if (couponMessage) couponMessage.textContent = data.coupon_message || '';
                 if (topupBlock) topupBlock.classList.toggle('hidden', !!data.sufficient);
+
+                /* أقرب عرض يكفّيك يتغيّر مع الإجماليّ — والنصّ كلّه من الخادم (19.5-ب-2) */
+                if (suggestion) {
+                    suggestion.textContent = data.suggestion || '';
+                    suggestion.classList.toggle('hidden', !data.suggestion);
+                }
+                if (suggestionLink && data.suggestion_url) suggestionLink.href = data.suggestion_url;
+
                 if (submit) submit.disabled = !data.sufficient;
                 if (submit) submit.style.opacity = data.sufficient ? '1' : '.5';
             };

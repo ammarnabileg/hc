@@ -31,27 +31,19 @@ class PurchaseService
     public function __construct(
         private readonly StoreCatalog $catalog,
         private readonly PricingService $pricing,
+        private readonly CartService $cart,
     ) {}
 
     /**
-     * @param  array{coupon_code?:?string,add_bump?:bool,refund_ack?:bool}  $input
+     * شراء عنصرٍ واحد من بوب-أب الشراء — المسار الافتراضيّ (24.5).
+     *
+     * @param  array{coupon_code?:?string,add_bump?:bool,bumps?:array<int,string>,refund_ack?:bool}  $input
      *
      * @throws PurchaseException
      */
     public function purchase(User $user, string $type, string $slug, array $input = []): Order
     {
-        if (! setting('store.enabled', true)) {
-            throw PurchaseException::of('disabled', 'store.disabled_text', 'المتجر مقفول مؤقّتًا — جرّب بعد شويّة.');
-        }
-
-        // ⭐ الإقرار بسياسة عدم الاسترجاع شرطٌ قبل الدفع (19.4)
-        if (! ($input['refund_ack'] ?? false)) {
-            throw PurchaseException::of(
-                'ack_required',
-                'store.refund.ack_required_text',
-                'محتاجين إقرارك بسياسة عدم الاسترجاع الأوّل، وبعدها نكمّل الشراء.',
-            );
-        }
+        $this->assertPayable($input);
 
         return DB::transaction(function () use ($user, $type, $slug, $input) {
             $item = $this->catalog->resolve($type, $slug);
@@ -73,42 +65,108 @@ class PurchaseService
                 type: $type,
                 item: $item,
                 couponCode: $input['coupon_code'] ?? null,
-                withBump: (bool) ($input['add_bump'] ?? false),
+                bumps: $this->bumpsOf($input),
             );
 
-            if ((float) $wallet->balance + 0.0001 < $quote['total']) {
-                throw PurchaseException::of(
-                    'insufficient',
-                    'store.insufficient_text',
-                    'رصيدك أقلّ من قيمة الطلب — اشحن محفظتك وكمّل من نفس المكان.',
-                );
-            }
-
-            $order = $this->createOrder($user, $quote);
-            $this->createItems($order, $quote);
-
-            $transaction = $this->debit($user, $wallet, $order, $quote);
-
-            $order->forceFill([
-                'transaction_id' => $transaction->id,
-                'status' => 'paid',
-                'paid_at' => now(),
-            ])->save();
-
-            foreach ($quote['lines'] as $line) {
-                $lineItem = $this->catalog->resolve($line['type'], $line['slug']);
-
-                if ($lineItem) {
-                    $this->grant($user, $line['type'], $lineItem, $order, 'purchase');
-                }
-            }
-
-            if ($quote['coupon']['valid'] && $quote['coupon']['id']) {
-                Coupon::query()->whereKey($quote['coupon']['id'])->increment('used_count');
-            }
-
-            return $order->refresh();
+            return $this->commit($user, $wallet, $quote);
         });
+    }
+
+    /**
+     * شراء سلّةٍ من صفحة مراجعة الطلب (17) — نفس المعاملة ونفس القواعد.
+     *
+     * @param  array<int, array{type:string,slug:string}>  $rows
+     * @param  array{coupon_code?:?string,bumps?:array<int,string>,refund_ack?:bool}  $input
+     *
+     * @throws PurchaseException
+     */
+    public function purchaseCart(User $user, array $rows, array $input = []): Order
+    {
+        $this->assertPayable($input);
+
+        return DB::transaction(function () use ($user, $rows, $input) {
+            $wallet = $this->lockedWallet($user);
+
+            // ⭐ السلّة تحمل هويّات فقط — والتسعير يقع هنا بعد القفل لا قبله
+            $quote = $this->cart->quote(
+                user: $user,
+                rows: $rows,
+                couponCode: $input['coupon_code'] ?? null,
+                bumpSlugs: (array) ($input['bumps'] ?? []),
+            );
+
+            if ($quote['lines'] === []) {
+                throw PurchaseException::of('empty_cart', 'store.cart.empty_text', 'سلّتك فاضية — ضيف حاجة الأوّل.');
+            }
+
+            return $this->commit($user, $wallet, $quote);
+        });
+    }
+
+    // ------------------------------------------------------------ المشترك
+
+    /** بوّابتان قبل أيّ دفع: المتجر مفتوح، والإقرار بسياسة عدم الاسترجاع (19.4) */
+    private function assertPayable(array $input): void
+    {
+        if (! setting('store.enabled', true)) {
+            throw PurchaseException::of('disabled', 'store.disabled_text', 'المتجر مقفول مؤقّتًا — جرّب بعد شويّة.');
+        }
+
+        if (! ($input['refund_ack'] ?? false)) {
+            throw PurchaseException::of(
+                'ack_required',
+                'store.refund.ack_required_text',
+                'محتاجين إقرارك بسياسة عدم الاسترجاع الأوّل، وبعدها نكمّل الشراء.',
+            );
+        }
+    }
+
+    /** @return bool|array<int, string> */
+    private function bumpsOf(array $input): bool|array
+    {
+        $slugs = array_values(array_filter(array_map('strval', (array) ($input['bumps'] ?? []))));
+
+        return $slugs !== [] ? $slugs : (bool) ($input['add_bump'] ?? false);
+    }
+
+    /**
+     * تنفيذ الطلب داخل المعاملة المقفولة: الخصم والطلب والسطور والملكيّة.
+     * **إمّا أن يتمّ كلّه أو لا شيء** — والرصيد مقفول بـ`lockForUpdate` قبل الوصول هنا.
+     */
+    private function commit(User $user, WalletBalance $wallet, array $quote): Order
+    {
+        if ((float) $wallet->balance + 0.0001 < $quote['total']) {
+            throw PurchaseException::of(
+                'insufficient',
+                'store.insufficient_text',
+                'رصيدك أقلّ من قيمة الطلب — اشحن محفظتك وكمّل من نفس المكان.',
+            );
+        }
+
+        $order = $this->createOrder($user, $quote);
+        $this->createItems($order, $quote);
+
+        $transaction = $this->debit($user, $wallet, $order, $quote);
+
+        $order->forceFill([
+            'transaction_id' => $transaction->id,
+            'status' => 'paid',
+            'paid_at' => now(),
+        ])->save();
+
+        foreach ($quote['lines'] as $line) {
+            $lineItem = $this->catalog->resolve($line['type'], $line['slug']);
+
+            if ($lineItem) {
+                $this->grant($user, $line['type'], $lineItem, $order, 'purchase');
+            }
+        }
+
+        if ($quote['coupon']['valid'] && $quote['coupon']['id']) {
+            Coupon::query()->whereKey($quote['coupon']['id'])->increment('used_count');
+        }
+
+        return $order->refresh();
     }
 
     // ------------------------------------------------------------ خطوات المعاملة
@@ -218,6 +276,8 @@ class PurchaseService
                 'order_id' => $order?->id,
                 'source' => $source,
                 'available_from' => now(),
+                // صلاحيّة زمنيّة لكلّ منتج من شاشة الحماية (20.5) — و`null` = وصول دائم
+                'available_until' => $this->accessUntil($item),
             ],
         );
 
@@ -243,6 +303,17 @@ class PurchaseService
                 }
             }
         }
+    }
+
+    /**
+     * الصلاحيّة الزمنيّة للمنتج الرقميّ (20.5): يضبطها الأدمن بالأيّام لكلّ منتج،
+     * والافتراضيّ **وصولٌ دائم** لأنّ الدستور يفرض «بوصولٍ دائم» ما لم يُقيَّد صراحةً (20).
+     */
+    private function accessUntil(Model $item): ?\Illuminate\Support\Carbon
+    {
+        $days = (int) ($item->access_days ?? 0);
+
+        return $days > 0 ? now()->addDays($days) : null;
     }
 
     private function enrollPath(User $user, LearningPath $path): void

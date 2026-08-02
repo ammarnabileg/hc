@@ -8,6 +8,7 @@ use App\Models\Enrollment;
 use App\Models\Lesson;
 use App\Models\LessonCompletion;
 use App\Models\User;
+use App\Services\Gamification\EconomyLedger;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -21,10 +22,18 @@ use Illuminate\Support\Facades\DB;
  */
 class ProgressService
 {
+    /** دلو المصدر في دفتر الأستاذ — «تعلّم» في شاشة المعاملات */
+    private const LEDGER_SOURCE = 'academy';
+
+    /** مفتاح صفّ الكسب في جدول «مصادر كسب XP» (12.10) — منه يأتي حدّه اليوميّ */
+    private const LESSON_RULE = 'lesson.completed';
+
     public function __construct(
         private readonly AvailabilityService $availability,
         private readonly XpCalculator $xp,
         private readonly LessonQuestionService $questions,
+        private readonly PaywallService $paywall,
+        private readonly EconomyLedger $economy,
     ) {}
 
     // ------------------------------------------------------------ قراءة
@@ -91,6 +100,8 @@ class ProgressService
         $done = $this->completedLessonIds($user, $course);
         // ⭐ الإتاحة تُحسَب بساعة صاحب الشاشة لا بساعة الخادم (5)
         $availability = $this->availability->forCourse($course, $enrollment, $user);
+        // ⭐ «مجّاني أوّل مرّة»: بعد (امتحان + شهادة) يُقفَل التدريب كلّه هنا في الخادم (16)
+        $paywall = $this->paywall->state($user, $course);
 
         $forced = (bool) $course->forced_order;
         $previousDone = true;
@@ -102,6 +113,8 @@ class ProgressService
 
             [$unlocked, $reason] = match (true) {
                 ! $availability['open'] => [false, $availability['reason']],
+                // القفل يشمل المكتمل أيضًا: «مشاهدة حرّة» انتهت بالامتحان والشهادة (16)
+                $paywall['locked'] => [false, $paywall['reason']],
                 $isDone || ! $forced || $previousDone => [true, null],
                 default => [false, setting('learning.lock.forced_order_reason')],
             };
@@ -140,7 +153,13 @@ class ProgressService
             'completed' => count($done),
             'percent' => $total > 0 ? (int) round(count($done) / $total * 100) : 0,
             'current_id' => $currentId,
-            'locked_reason' => $availability['open'] ? null : $availability['reason'],
+            'locked_reason' => match (true) {
+                ! $availability['open'] => $availability['reason'],
+                $paywall['locked'] => $paywall['reason'],
+                default => null,
+            },
+            // بيانات الـPaywall النفسيّ تُعرَض في صفحة التدريب (16) — والقفل نفسه وقع فوق
+            'paywall' => $paywall,
         ];
     }
 
@@ -221,21 +240,56 @@ class ProgressService
                 'ok' => true,
                 'message' => setting('learning.lesson.already_done_message'),
                 'xp' => 0,
+                'tickets' => 0,
                 'course_completed' => $enrollment->fresh()->status === 'completed',
             ];
         }
 
+        // القيمتان تُجمَّدان لحظة الكتابة لا لحظة العرض (7)
         $xp = $this->xp->lessonXp($course, $enrollment);
+        $tickets = $this->xp->lessonTickets($course, $enrollment);
 
-        DB::transaction(function () use ($user, $lesson, $enrollment, $xp) {
-            LessonCompletion::query()->firstOrCreate(
+        /*
+         | معاملة واحدة ذرّيّة: سجلّ الإكمال + XP + التذاكر.
+         | و`firstOrCreate` هو الحارس ضدّ التكرار: مَن سبقنا للسجلّ يأخذ المكافأة،
+         | ومَن جاء بعده لا يأخذ شيئًا — فلا تُمنَح مرّتين لو أُعيد إتمام الدرس (7.1).
+         */
+        [$xp, $tickets] = DB::transaction(function () use ($user, $course, $lesson, $enrollment, $xp, $tickets) {
+            $completion = LessonCompletion::query()->firstOrCreate(
                 ['user_id' => $user->id, 'lesson_id' => $lesson->id],
                 ['completed_at' => Carbon::now()],
             );
 
-            if ($xp > 0) {
-                $enrollment->increment('xp_earned', $xp);
+            if (! $completion->wasRecentlyCreated) {
+                return [0, 0];
             }
+
+            // ⭐ XP يمرّ من النقطة الموحّدة: users.xp + المحفظة + تسجيل التدريب (7.3)
+            $awardedXp = $this->economy->awardXp(
+                user: $user,
+                amount: $xp,
+                source: self::LEDGER_SOURCE,
+                reference: $lesson,
+                reason: setting('learning.lesson.xp_reason', 'إكمال درس').' — '.$course->name_ar,
+                enrollment: $enrollment,
+                ruleKey: self::LESSON_RULE,
+            );
+
+            // ⭐ تذاكر الدرس (7): تذكرتان قبل نصف الديدلاين وواحدة بعده
+            $awardedTickets = (int) $this->economy->awardTickets(
+                user: $user,
+                amount: $tickets,
+                source: self::LEDGER_SOURCE,
+                reference: $lesson,
+                reason: setting('learning.lesson.tickets_reason', 'تذاكر إتمام درس').' — '.$course->name_ar,
+            );
+
+            $completion->forceFill([
+                'xp_awarded' => $awardedXp,
+                'tickets_awarded' => $awardedTickets,
+            ])->save();
+
+            return [$awardedXp, $awardedTickets];
         });
 
         $completed = $this->recalculate($user, $course, $enrollment->refresh());
@@ -244,6 +298,7 @@ class ProgressService
             'ok' => true,
             'message' => setting('learning.lesson.done_message'),
             'xp' => $xp,
+            'tickets' => $tickets,
             'course_completed' => $completed,
         ];
     }
@@ -346,6 +401,7 @@ class ProgressService
             'ok' => false,
             'message' => $reason ?? setting('learning.lock.unpublished_reason'),
             'xp' => 0,
+            'tickets' => 0,
             'course_completed' => false,
         ];
     }

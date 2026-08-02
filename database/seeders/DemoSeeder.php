@@ -40,8 +40,13 @@ class DemoSeeder extends Seeder
             VolunteerOrgDemoSeeder::class,
             VolunteerPeopleDemoSeeder::class,
 
+            // الطبقة العامّة (تعمل للزائر)
+            HomeDemoSeeder::class,
+            SetupDemoSeeder::class,
+
             // لوحة الإدارة
             AdminCoreDemoSeeder::class,
+            AdminOpsDemoSeeder::class,
             AdminContentDemoSeeder::class,
             AdminVolunteerDemoSeeder::class,
             AdminSystemDemoSeeder::class,

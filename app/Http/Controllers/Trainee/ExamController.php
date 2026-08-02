@@ -4,14 +4,14 @@ namespace App\Http\Controllers\Trainee;
 
 use App\Http\Controllers\Controller;
 use App\Models\Certificate;
-use App\Models\Currency;
+use App\Models\Course;
 use App\Models\Exam;
 use App\Models\ExamAttempt;
 use App\Models\ExamQuestion;
-use App\Models\Transaction;
 use App\Models\User;
-use App\Models\WalletBalance;
 use App\Services\Certificates\CertificateIssuer;
+use App\Services\Gamification\EconomyLedger;
+use App\Services\Gamification\EconomyRules;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -22,12 +22,24 @@ use Illuminate\View\View;
 /**
  * الامتحان (24.5 · 4.2): **شاشة تركيز بلا سايد بار** — سؤال واحد في المرّة،
  * عدّاد تنازليّ، حفظ تدريجيّ، **والتصحيح والدرجة في الخادم حصرًا**.
+ *
+ * ⭐ عملتان لا واحدة (4.2 · 7.1 · 16):
+ *  - **الامتحان النهائيّ للتدريب** يكلّف **تذكرة** تُخصَم **بمجرّد الدخول**
+ *    (جاوب أو ما جاوبش) — وقيمتها من جدول «أوجه الصرف» في لوحة الإدارة.
+ *  - **امتحان شهادة المسار** وحده **مدفوع بالكوينز** بسعرٍ يحدّده الأدمن لكلّ مسار.
  */
 class ExamController extends Controller
 {
-    public function __construct(private readonly CertificateIssuer $issuer) {}
+    /** مفتاح وجه الصرف في جدول «أوجه الصرف» بلوحة الإدارة (12.10) */
+    private const EXAM_RULE = 'course.exam';
 
-    /** بوب-أب ما قبل البدء: المدّة · المحاولات · السعر بالكوينز والرصيد قبل/بعد (24.5) */
+    public function __construct(
+        private readonly CertificateIssuer $issuer,
+        private readonly EconomyRules $rules,
+        private readonly EconomyLedger $economy,
+    ) {}
+
+    /** بوب-أب ما قبل البدء: المدّة · المحاولات · التكلفة بعملتها والرصيد قبل/بعد (24.5) */
     public function start(Exam $exam): View|RedirectResponse
     {
         $user = request()->user();
@@ -43,23 +55,27 @@ class ExamController extends Controller
             ->whereIn('status', ['submitted', 'expired'])
             ->count();
 
-        $price = (float) $exam->price_coins;
-        $balance = $user->balance($this->currencyCode());
+        $cost = $this->cost($exam);
+        $balance = $this->economy->balance($user, $cost['currency']);
 
         return view('exams.start', [
             'exam' => $exam,
             'attemptsUsed' => $used,
             'attemptsLeft' => max(0, $exam->attempts_allowed - $used),
-            'price' => $price,
+            'price' => $cost['amount'],
+            'currencyLabel' => $cost['label'],
             'balance' => $balance,
-            'balanceAfter' => $balance - $price,
-            'affordable' => $balance >= $price,
+            'balanceAfter' => $balance - $cost['amount'],
+            'affordable' => $balance >= $cost['amount'],
+            // التذاكر تُكتسَب ولا تُشحَن (7.1) — فزرّ الشحن لامتحان الكوينز وحده
+            'canTopup' => ! $this->isCourseExam($exam),
+            'shortMessage' => $this->insufficientMessage($exam),
             'cooldownUntil' => $this->cooldownUntil($exam, $user),
             'expiringCertificates' => $this->certificatesThatWillExpire($exam, $user),
         ]);
     }
 
-    /** بدء المحاولة فعليًّا: خصم الكوينز وإنهاء الشهادة التأهيليّة القديمة (13.4-ق) */
+    /** بدء المحاولة فعليًّا: خصم التكلفة وإنهاء الشهادة التأهيليّة القديمة (13.4-ق) */
     public function begin(Exam $exam, Request $request): RedirectResponse
     {
         $user = $request->user();
@@ -84,15 +100,16 @@ class ExamController extends Controller
             return back()->with('status', (string) setting('exams.messages.cooldown', 'لسّه بدري على المحاولة الجاية — استنّى شويّة وراجع الدروس.'));
         }
 
-        $price = (float) $exam->price_coins;
+        $cost = $this->cost($exam);
 
-        if ($price > 0 && $user->balance($this->currencyCode()) < $price) {
-            return back()->with('status', (string) setting('exams.messages.insufficient_balance', 'رصيدك مايكفّيش لدخول الامتحان — اشحن محفظتك وارجع.'));
+        if ($cost['amount'] > 0 && $this->economy->balance($user, $cost['currency']) < $cost['amount']) {
+            return back()->with('status', $this->insufficientMessage($exam));
         }
 
-        $attempt = DB::transaction(function () use ($exam, $user, $price) {
-            if ($price > 0) {
-                $this->charge($user, $exam, $price);
+        $attempt = DB::transaction(function () use ($exam, $user, $cost) {
+            // ⭐ الخصم **بمجرّد الدخول** — سواء جاوب أو ما جاوبش (4.2)
+            if ($cost['amount'] > 0 && ! $this->charge($user, $exam, $cost)) {
+                return null;
             }
 
             // ⭐ 13.4-ق: بمجرّد دخوله الامتحان تنتقل شهادته القديمة من نوعه إلى «منتهية» — ولا تُمسَح
@@ -109,6 +126,11 @@ class ExamController extends Controller
                 'status' => 'in_progress',
             ]);
         });
+
+        // فشل الخصم في اللحظة الأخيرة (سباق على نفس الرصيد) ⟵ لا محاولة ولا خصم
+        if (! $attempt) {
+            return back()->with('status', $this->insufficientMessage($exam));
+        }
 
         return redirect()->route('exams.take', ['exam' => $exam, 'q' => 1])
             ->with('status', (string) setting('exams.messages.started', 'بالتوفيق — ركّز وخُد وقتك.'))
@@ -243,9 +265,48 @@ class ExamController extends Controller
 
     // ------------------------------------------------------------ الداخل
 
-    private function currencyCode(): string
+    /**
+     * ⭐ تكلفة دخول الامتحان بعملتها (4.2 · 7.1 · 16).
+     *
+     * امتحان **التدريب** بالتذاكر — تذكرة واحدة افتراضًا من جدول «أوجه الصرف»
+     * (`xp_rules.spend` ⟵ `course.exam`) لا رقمًا محروقًا؛ وامتحان **شهادة
+     * المسار** وحده بالكوينز بسعره المحفوظ لكلّ مسار.
+     *
+     * @return array{currency:string,amount:float,label:string}
+     */
+    private function cost(Exam $exam): array
     {
-        return (string) setting('exams.wallet.currency_code', 'coins');
+        if ($this->isCourseExam($exam)) {
+            $currency = $this->rules->spendCurrency(self::EXAM_RULE, (string) setting('exams.wallet.tickets_currency_code', 'tickets'));
+            $amount = $this->rules->spendCost(self::EXAM_RULE, (float) setting('exams.tickets.course_exam', 1));
+
+            return ['currency' => $currency, 'amount' => $amount, 'label' => $this->economy->label($currency)];
+        }
+
+        $currency = (string) setting('exams.wallet.currency_code', 'coins');
+
+        return [
+            'currency' => $currency,
+            'amount' => (float) $exam->price_coins,
+            'label' => $this->economy->label($currency),
+        ];
+    }
+
+    /** الامتحان النهائيّ للتدريب — وهو وحده الذي يُدفَع بالتذاكر (4.2) */
+    private function isCourseExam(Exam $exam): bool
+    {
+        return $exam->examable_type === (new Course)->getMorphClass();
+    }
+
+    /**
+     * رسالة نقص الرصيد: ماذا حدث + ماذا تفعل (2.17-ج).
+     * والتذاكر تُكتسَب بالتعلّم والستريك لا بالشحن — فالرسالة تختلف بالعملة.
+     */
+    private function insufficientMessage(Exam $exam): string
+    {
+        return $this->isCourseExam($exam)
+            ? (string) setting('exams.messages.insufficient_tickets', 'محتاج تذكرة عشان تدخل الامتحان — كمّل درسًا أو أكمل ستريكك وهترجع تلاقيها.')
+            : (string) setting('exams.messages.insufficient_balance', 'رصيدك مايكفّيش لدخول الامتحان — اشحن محفظتك وارجع.');
     }
 
     private function runningAttempt(Exam $exam, User $user): ?ExamAttempt
@@ -297,35 +358,22 @@ class ExamController extends Controller
         return $until->isFuture() ? $until : null;
     }
 
-    /** خصم كوينز امتحان المسار وتسجيله في الجدول الموحّد للمعاملات (19) */
-    private function charge(User $user, Exam $exam, float $price): void
+    /**
+     * خصم تكلفة الدخول وتسجيلها في الجدول الموحّد للمعاملات (19).
+     * والخصم يمرّ بدفتر الأستاذ وحده — فلا رصيد يتغيّر بلا سطرٍ يشرحه.
+     *
+     * @param  array{currency:string,amount:float,label:string}  $cost
+     */
+    private function charge(User $user, Exam $exam, array $cost): bool
     {
-        $currency = Currency::query()->where('code', $this->currencyCode())->first();
-
-        if (! $currency) {
-            return;
-        }
-
-        $wallet = WalletBalance::query()->firstOrCreate(
-            ['user_id' => $user->id, 'currency_id' => $currency->id],
-            ['balance' => 0],
+        return $this->economy->charge(
+            user: $user,
+            currencyCode: $cost['currency'],
+            amount: $cost['amount'],
+            source: 'academy',
+            reference: $exam,
+            reason: (string) setting('exams.wallet.charge_reason', 'دخول امتحان').' — '.$exam->title_ar,
         );
-
-        $wallet->balance = (float) $wallet->balance - $price;
-        $wallet->lifetime_spent = (float) $wallet->lifetime_spent + $price;
-        $wallet->save();
-
-        Transaction::create([
-            'user_id' => $user->id,
-            'currency_id' => $currency->id,
-            'amount' => -$price,
-            'balance_after' => $wallet->balance,
-            'layer' => 'training',
-            'source' => 'academy',
-            'reason' => (string) setting('exams.wallet.charge_reason', 'دخول امتحان').' — '.$exam->title_ar,
-            'reference_type' => $exam->getMorphClass(),
-            'reference_id' => $exam->id,
-        ]);
     }
 
     /**

@@ -95,16 +95,35 @@ class ProfileTabs
         ];
     }
 
-    /** مسارات الإنجازات الخمسة وعتباتها (10.1): base + (N−2) × step تراكميًّا */
+    /**
+     * مسارات الإنجازات الخمسة وعتباتها (10.1): base + (N−2) × step تراكميًّا.
+     *
+     * ⭐ العتبات والعناوين والوحدات كلّها إعدادات `dashboard.achievements.*` (2.13)
+     * — وهي **نفس** مفاتيح رادار اللوحة، لأنّ العتبة واحدة في المنصّة كلّها؛
+     * فلو صارت هنا نسخةٌ ثانية اختلف «مستواك» بين بروفايلك ولوحتك.
+     */
     public function achievements(User $owner): array
     {
-        $tracks = [
-            ['key' => 'level', 'label' => 'مستوى الحساب', 'unit' => 'XP', 'value' => (int) $owner->xp, 'base' => 500, 'step' => 250],
-            ['key' => 'club5', 'label' => 'نادي الخامسة صباحًا', 'unit' => 'يوم', 'value' => (int) ($owner->streak?->club_5am_count ?? 0), 'base' => 3, 'step' => 2],
-            ['key' => 'referrals', 'label' => 'دعوة الأصدقاء', 'unit' => 'دعوة', 'value' => Referral::where('referrer_id', $owner->id)->count(), 'base' => 5, 'step' => 2],
-            ['key' => 'tickets', 'label' => 'التذاكر', 'unit' => 'تذكرة', 'value' => (int) $owner->balance('tickets'), 'base' => 15, 'step' => 10],
-            ['key' => 'learning', 'label' => 'استمراريّة التعلّم', 'unit' => 'فيديو', 'value' => LessonCompletion::where('user_id', $owner->id)->count(), 'base' => 5, 'step' => 3],
+        $values = [
+            'account' => (int) $owner->xp,
+            'club_5am' => (int) ($owner->streak?->club_5am_count ?? 0),
+            'referrals' => Referral::where('referrer_id', $owner->id)->count(),
+            'tickets' => (int) $owner->balance('tickets'),
+            'learning' => LessonCompletion::where('user_id', $owner->id)->count(),
         ];
+
+        $tracks = [];
+
+        foreach ($this->trackKeys() as $key) {
+            $tracks[] = [
+                'key' => $key,
+                'label' => (string) setting("dashboard.achievements.{$key}.label", $key),
+                'unit' => (string) setting("dashboard.achievements.{$key}.unit", ''),
+                'value' => $values[$key] ?? 0,
+                'base' => max(1, (int) setting("dashboard.achievements.{$key}.base", 1)),
+                'step' => max(1, (int) setting("dashboard.achievements.{$key}.step", 1)),
+            ];
+        }
 
         return array_map(function (array $track) {
             [$level, $current, $next] = $this->levelFor($track['value'], $track['base'], $track['step']);
@@ -119,6 +138,20 @@ class ProfileTabs
                     : 100,
             ];
         }, $tracks);
+    }
+
+    /**
+     * مسارات الرادار وترتيبها — إعداد واحد يخدم البروفايل واللوحة معًا (10.1 · 2.13).
+     *
+     * @return array<int, string>
+     */
+    private function trackKeys(): array
+    {
+        $keys = setting('dashboard.achievements.tracks');
+
+        return is_array($keys) && $keys !== []
+            ? array_values(array_filter($keys, 'is_string'))
+            : ['account', 'club_5am', 'referrals', 'tickets', 'learning'];
     }
 
     /** الشهادات من المصدر الواحد (12.5 / مكتبتي 20) — لا حساب موازٍ */

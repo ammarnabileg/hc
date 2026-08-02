@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Referral;
 use App\Models\Role;
 use App\Models\User;
+use App\Services\Learning\TimezoneDetector;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -43,6 +44,9 @@ class AuthController extends Controller
 
         $request->session()->regenerate();
         $request->user()->forceFill(['last_seen_at' => now()])->saveQuietly();
+
+        // كشف الدولة/المنطقة الزمنيّة تلقائيًّا عند الدخول — والتعديل اليدويّ يبقى أعلى (5)
+        app(TimezoneDetector::class)->sync($request, $request->user());
 
         return redirect()->intended(route('dashboard'));
     }
@@ -95,6 +99,9 @@ class AuthController extends Controller
 
         Auth::login($user);
         $request->session()->regenerate();
+
+        // ونفس الكشف عند التسجيل — فأوّل شاشة يراها تُحسَب بساعته هو (5)
+        app(TimezoneDetector::class)->sync($request, $user);
 
         return redirect()->route('account.pending');
     }

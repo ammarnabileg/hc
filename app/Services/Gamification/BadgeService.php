@@ -7,6 +7,7 @@ use App\Models\BadgeUser;
 use App\Models\ChallengeParticipation;
 use App\Models\Streak;
 use App\Models\User;
+use App\Models\WarUserStat;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 
@@ -106,6 +107,9 @@ class BadgeService
                 ->where('user_id', $user->id)->where('status', 'finished')->count(),
             'challenges.wins' => (float) ChallengeParticipation::query()
                 ->where('user_id', $user->id)->where('result', 'win')->count(),
+            // دقائق حرب التركيز — شارة 24 ساعة تراكميّة (15.3)
+            'focus.minutes' => (float) WarUserStat::query()
+                ->where('user_id', $user->id)->value('focus_minutes'),
         ];
     }
 }

@@ -9,6 +9,7 @@ use App\Models\Task;
 use App\Models\TaskBlock;
 use App\Models\TaskContribution;
 use App\Models\User;
+use App\Services\Volunteer\Retention\BehaviorEscalation;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -341,6 +342,8 @@ class EscalationEngine
             CaseCatalog::BROKEN_LINK => $this->applyBrokenLink($escalation, $decision),
             CaseCatalog::REPEATED_RETURN => $this->applyRepeatedReturn($subject, $decision, $extra, $escalation),
             CaseCatalog::SUBTASK_BATCH => $this->applySubtaskBatch($subject, $decision, $extra),
+            // أثر المخالفة الجسيمة يعيش في مجاله — والمحرّك ينادي عليه (13.4-ن-هـ)
+            CaseCatalog::BEHAVIOR_SEVERE => app(BehaviorEscalation::class)->apply($subject, $decision, $decider),
             default => null,
         };
     }

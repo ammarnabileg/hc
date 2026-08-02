@@ -10,6 +10,8 @@ use App\Models\Order;
 use App\Models\Product;
 use App\Models\ProductCategory;
 use App\Services\Admin\System\StoreAdminService;
+use App\Services\Library\ProductToc;
+use App\Services\Library\ReadingAnalytics;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -53,6 +55,11 @@ class StoreAdminController extends Controller
             'kpis' => $this->store->kpis(),
             'categories' => $this->store->categories(),
             'protectionModes' => $this->store->protectionModes(),
+            // تحليلات المكتبة **مجمّعة فقط** (20.5) — تُحسَب لتاب المكتبة وحده
+            'analytics' => $tab === 'library'
+                ? app(ReadingAnalytics::class)->summary((int) setting('library.analytics.top_limit', 5))
+                : null,
+            'toc' => app(ProductToc::class),
             // 🔒 عنصر الماليّات لا يظهر أصلًا لغير مالك المنصّة (12.2.1)
             'financeVisible' => $this->store->financeVisible($user),
             'rows' => match ($tab) {
@@ -111,20 +118,41 @@ class StoreAdminController extends Controller
     }
 
     /**
-     * إعدادات حماية المنتج الرقميّ (20.5): قابل للتحميل ⇄ Flip-only محميّ،
-     * وعدد صفحات العيّنة — **ولا سجلّ فتح فرديّ لأيّ ملفّ** (مرفوض صراحةً في 20.5).
+     * إعدادات حماية المنتج الرقميّ (20.5): قابل للتحميل ⇄ Flip-only محميّ ·
+     * **تشغيل العلامة المائيّة** · **صلاحيّة زمنيّة** · عدد صفحات العيّنة · وفهرس القارئ (20.3)
+     * — **ولا سجلّ فتح فرديّ لأيّ ملفّ** (مرفوض صراحةً في 20.5).
      */
     public function updateProtection(Request $request, Product $product): RedirectResponse
     {
         $data = $request->validate([
             'protection' => ['required', 'in:download,flip'],
             'teaser_pages' => ['required', 'integer', 'min:0', 'max:200'],
+            'watermark_enabled' => ['nullable', 'boolean'],
+            // فارغ = وصولٌ دائم، وهو الأصل في «مكتبتي» (20)
+            'access_days' => ['nullable', 'integer', 'min:1', 'max:36500'],
+            'toc' => ['nullable', 'string', 'max:20000'],
         ]);
 
-        $old = ['is_downloadable' => $product->is_downloadable, 'teaser_pages' => $product->teaser_pages];
-        $new = ['is_downloadable' => $data['protection'] === 'download', 'teaser_pages' => $data['teaser_pages']];
+        $old = [
+            'is_downloadable' => $product->is_downloadable,
+            'teaser_pages' => $product->teaser_pages,
+            'watermark_enabled' => $product->watermark_enabled,
+            'access_days' => $product->access_days,
+        ];
 
-        $product->update($new);
+        $new = [
+            'is_downloadable' => $data['protection'] === 'download',
+            'teaser_pages' => $data['teaser_pages'],
+            'watermark_enabled' => (bool) ($data['watermark_enabled'] ?? false),
+            'access_days' => $data['access_days'] ?? null,
+        ];
+
+        $product->update($new + [
+            'toc' => array_key_exists('toc', $data)
+                ? app(ProductToc::class)->fromText($data['toc'])
+                : $product->toc,
+        ]);
+
         $this->audit($request, $product, 'product_protection.manage', $old, $new);
 
         return back()->with('status', 'إعدادات الحماية اتحفظت ✓');

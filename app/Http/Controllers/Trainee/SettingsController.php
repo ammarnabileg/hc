@@ -13,6 +13,7 @@ use App\Services\Account\AccountDataExport;
 use App\Services\Account\ConsentDirectory;
 use App\Services\Account\PrivacyFields;
 use App\Services\Account\SettingsAutosave;
+use App\Services\Security\AccountDeletion;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -274,6 +275,39 @@ class SettingsController extends Controller
         }
 
         return back()->with('status', 'اتقفلت ✓ — الجهاز ده مبقاش داخل على حسابك.');
+    }
+
+    /** منطقة الخطر (2.3): خطوة 1 — رمز تأكيد رباعيّ يوصل بريد صاحب الحساب نفسه */
+    public function sendDeletionCode(Request $request, AccountDeletion $deletion): RedirectResponse
+    {
+        $result = $deletion->requestCode($request->user());
+
+        return back()->with('status', $result['sent']
+            ? 'بعتنا رمز التأكيد على بريدك.'
+            : 'استنّى '.$result['wait'].' ثانية قبل ما تطلب رمزًا تاني.');
+    }
+
+    /** منطقة الخطر (2.3): خطوة 2 — Soft-delete بعد التأكيد، والحساب يفضل قابل للاسترجاع */
+    public function destroyAccount(Request $request, AccountDeletion $deletion): RedirectResponse
+    {
+        $data = $request->validate([
+            'code' => ['required', 'string'],
+        ], ['code.required' => 'اطلب الرمز الأوّل واكتبه هنا.']);
+
+        $user = $request->user();
+        $result = $deletion->verify($user, $data['code']);
+
+        if (! $result['ok']) {
+            return back()->withErrors(['code' => $result['message']]);
+        }
+
+        $deletion->delete($user);
+
+        auth()->logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect()->route('home')->with('status', 'حسابك اتقفل. لو غيّرت رأيك خلال '.$deletion->graceDays().' يوم كلّم الدعم.');
     }
 
     /** [تحميل بياناتي] — JSON (24.5) */

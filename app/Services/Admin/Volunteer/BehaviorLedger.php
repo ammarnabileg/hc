@@ -149,14 +149,45 @@ class BehaviorLedger
         }
 
         AuditTrail::log($granter, 'behavior.record', $record, [], [
-            'target' => $target->id, 'violation' => $violation->code, 'value' => $value, 'status' => $status,
+            'target' => $target->id, 'violation' => $violation->code, 'value' => $value,
+            'status' => $status, 'incident_ref' => $incidentRef,
         ]);
 
         return $record;
     }
 
-    /** اعتماد المخالفة الجسيمة من مستوى أعلى ⟵ تُطبَّق على Rep */
+    /**
+     * اعتماد المخالفة الجسيمة من مستوى أعلى ⟵ تُطبَّق على Rep.
+     *
+     * والقرار يمرّ من **محرّك التصعيد** لا من هنا مباشرةً متى كانت للمعاملة
+     * حالةٌ مفتوحة — فمصدر الحقيقة واحد ولا يُطبَّق الخصم مرّتين (13.4-ن-هـ).
+     */
     public static function approve(User $approver, BehaviorTransaction $record): void
+    {
+        if ($record->status !== 'pending_approval') {
+            return;
+        }
+
+        $case = app(BehaviorEscalation::class)->caseOf($record);
+
+        if ($case && $case->status === 'open') {
+            app(EscalationEngine::class)->decide($case, $approver, 'approved');
+
+            return;
+        }
+
+        // فاتت النافذة وتسوّت الحالة آليًّا ⟵ رفض، ولا تُطبَّق مهما تأخّر الزرّ
+        if ($case) {
+            self::rejectPending($record, 'فاتت نافذة الاعتماد وتسوّت الحالة آليًّا بالرفض.');
+
+            return;
+        }
+
+        self::applyPending($record, $approver);
+    }
+
+    /** تنفيذ المعاملة المعلَّقة على Rep — المنفذ الوحيد للاعتماد */
+    public static function applyPending(BehaviorTransaction $record, ?User $approver = null): void
     {
         if ($record->status !== 'pending_approval') {
             return;
@@ -171,7 +202,7 @@ class BehaviorLedger
 
         $record->forceFill([
             'status' => 'applied',
-            'approved_by' => $approver->id,
+            'approved_by' => $approver?->id,
             'approved_at' => now(),
             'transaction_id' => $transaction?->id,
         ])->save();
@@ -179,5 +210,23 @@ class BehaviorLedger
         Integrations::notify($target, 'objection', 'اعتُمدت معاملة سلوك على درجة الالتزام', $record->justification, null, 'volunteer');
 
         AuditTrail::log($approver, 'behavior.approve', $record, [], ['id' => $record->id]);
+    }
+
+    /** الرفض — صريحًا كان أو تسويةً آليّة بفوات النافذة: **لا تُطبَّق** على Rep */
+    public static function rejectPending(BehaviorTransaction $record, string $reason): void
+    {
+        if ($record->status !== 'pending_approval') {
+            return;
+        }
+
+        $record->forceFill(['status' => 'rejected'])->save();
+
+        $target = $record->user()->first();
+
+        if ($target) {
+            Integrations::notify($target, 'objection', 'اتقفلت معاملة سلوك بلا أثر على درجة الالتزام', $reason, null, 'volunteer');
+        }
+
+        AuditTrail::log(null, 'behavior.reject', $record, [], ['id' => $record->id, 'reason' => $reason]);
     }
 }

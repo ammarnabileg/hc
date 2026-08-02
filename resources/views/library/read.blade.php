@@ -97,13 +97,42 @@
         </div>
 
         <div class="flex min-h-0 gap-2 py-2">
-            {{-- المصغّرات + الفهرس مع بحث داخله (24.5) --}}
+            {{-- الفهرس (TOC) + المصغّرات مع بحث داخلهما (20.3 · 24.5) --}}
             <aside class="reader-thumbs shrink-0">
                 <input type="search" data-toc-search
                        placeholder="{{ setting('reader.toc.search_placeholder', 'رقم الصفحة…') }}"
                        aria-label="{{ setting('reader.toc.search_placeholder', 'رقم الصفحة…') }}"
                        class="w-full rounded-lg px-2 py-1 text-xs mb-2"
                        style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
+
+                {{-- فهرس الملفّ: عنوانٌ ورقم صفحة، والضغط يقفز إليها مباشرةً (20.3) --}}
+                <nav class="mb-3" data-toc aria-label="{{ setting('reader.toc.title', 'فهرس الملفّ') }}">
+                    <h2 class="text-xs font-semibold mb-1" style="color: var(--text-muted)">
+                        {{ setting('reader.toc.title', 'فهرس الملفّ') }}
+                    </h2>
+
+                    @if ($toc === [])
+                        {{-- حالة فارغة بسطر واحد لا تعاتب (2.17-ج) --}}
+                        <p class="text-xs" style="color: var(--text-muted)">{{ setting('reader.toc.empty_text') }}</p>
+                    @else
+                        <ul class="space-y-0.5 overflow-y-auto" style="max-block-size: 34vh" data-toc-list>
+                            @foreach ($toc as $entry)
+                                <li>
+                                    <button type="button" data-toc-entry="{{ $entry['page'] }}"
+                                            data-toc-title="{{ $entry['title'] }}"
+                                            class="w-full flex items-baseline justify-between gap-1 rounded-lg px-1.5 py-1 text-xs text-start motion-standard">
+                                        <span class="truncate">{{ $entry['title'] }}</span>
+                                        <span class="tabular-nums shrink-0" style="color: var(--text-muted)">{{ $entry['page'] }}</span>
+                                    </button>
+                                </li>
+                            @endforeach
+                        </ul>
+                    @endif
+                </nav>
+
+                <h2 class="text-xs font-semibold mb-1" style="color: var(--text-muted)">
+                    {{ setting('reader.thumbs.title', 'المصغّرات') }}
+                </h2>
                 <div class="overflow-y-auto space-y-2 pe-1" style="max-block-size: 100%" data-thumbs-list></div>
             </aside>
 
@@ -215,6 +244,7 @@
         thumbs.querySelectorAll('[data-thumb]').forEach((t) => {
             t.style.outline = parseInt(t.dataset.thumb, 10) === current ? '2px solid var(--color-brand-500)' : 'none';
         });
+        paintToc();
         saveProgress();
     }
 
@@ -251,10 +281,37 @@
         reader.requestFullscreen?.().catch(() => {});
     });
 
+    /* الفهرس: القفز لصفحة الفصل، وتمييز الفصل الحاليّ بنصّ لا بلون وحده (2.16) */
+    const tocEntries = Array.from(reader.querySelectorAll('[data-toc-entry]'));
+    tocEntries.forEach((btn) => btn.addEventListener('click', () => {
+        const page = parseInt(btn.dataset.tocEntry, 10);
+        show(page, page > current ? 'next' : 'prev');
+    }));
+
+    function paintToc() {
+        let activeIndex = -1;
+        tocEntries.forEach((btn, index) => {
+            if (parseInt(btn.dataset.tocEntry, 10) <= current) activeIndex = index;
+        });
+        tocEntries.forEach((btn, index) => {
+            const active = index === activeIndex;
+            btn.style.background = active ? 'var(--surface-sunken)' : 'transparent';
+            btn.style.fontWeight = active ? '700' : '400';
+            btn.setAttribute('aria-current', active ? 'true' : 'false');
+        });
+    }
+
+    /* بحثٌ واحد يفلتر الفهرس بالعنوان والمصغّرات برقم الصفحة معًا */
     reader.querySelector('[data-toc-search]').addEventListener('input', (e) => {
         const wanted = e.target.value.trim();
         thumbs.querySelectorAll('[data-thumb]').forEach((t) => {
             t.style.display = wanted === '' || t.dataset.thumb.startsWith(wanted) ? '' : 'none';
+        });
+        tocEntries.forEach((btn) => {
+            const hit = wanted === ''
+                || btn.dataset.tocEntry.startsWith(wanted)
+                || btn.dataset.tocTitle.includes(wanted);
+            btn.parentElement.style.display = hit ? '' : 'none';
         });
     });
 

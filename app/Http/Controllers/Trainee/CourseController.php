@@ -10,6 +10,7 @@ use App\Services\Learning\AvailabilityService;
 use App\Services\Learning\CredentialService;
 use App\Services\Learning\DeadlineService;
 use App\Services\Learning\ProgressService;
+use App\Services\Learning\TimezoneDetector;
 use App\Services\Learning\XpCalculator;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -28,6 +29,7 @@ class CourseController extends Controller
         private readonly AvailabilityService $availability,
         private readonly CredentialService $credentials,
         private readonly XpCalculator $xp,
+        private readonly TimezoneDetector $timezones,
     ) {}
 
     public function show(Request $request, Course $course): View
@@ -35,8 +37,11 @@ class CourseController extends Controller
         $user = $request->user();
         $enrollment = $this->enrollmentOrFail($user->id, $course->id);
 
+        // مكان المستخدم يتبعه أوّلًا بأوّل، فالإتاحة تُحسَب بساعته هو (5)
+        $this->timezones->sync($request, $user);
+
         $outline = $this->progress->outline($user, $course, $enrollment);
-        $availability = $this->availability->forCourse($course, $enrollment);
+        $availability = $this->availability->forCourse($course, $enrollment, $user);
 
         return view('learning.course', [
             'course' => $course,

@@ -45,6 +45,7 @@ class SettingsAdminController extends Controller
             'tab' => $tab,
             'search' => $search,
             'settings' => $this->registry->forTab($tab, $user, $search),
+            'groups' => $this->registry->groupedForTab($tab, $user, $search),
             'registry' => $this->registry,
             'highlight' => $request->string('key')->toString(),
             'maintenance' => $this->maintenance,

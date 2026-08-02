@@ -52,6 +52,48 @@ class LedgerService
     }
 
     /**
+     * ⭐ خصمٌ لا يُنتج رصيدًا سالبًا أبدًا (19.3).
+     *
+     * لماذا صنفٌ خاصّ بدل `debit()`؟ لأنّ `debit()` يقصّ ما زاد عن الحدّ بصمت
+     * (وهذا صحيح لعملات المكافآت)، أمّا العمليّات الماليّة الثلاث فلا يجوز أن
+     * تمرّ بنصف قيمة: إمّا تُنفَّذ كاملة أو تُرَدّ برسالةٍ تشرح الناقص.
+     *
+     * الفحص والخصم داخل معاملةٍ واحدة وبقفل صفّ المحفظة، فلا يمرّ نداءان
+     * على نفس الرصيد فيسحبان معًا أكثر ممّا فيه.
+     *
+     * @throws WalletException عند عدم كفاية الرصيد
+     */
+    public function debitOrFail(
+        User $user,
+        string $currencyCode,
+        float $amount,
+        string $source,
+        ?Model $reference = null,
+        string $layer = 'training',
+        ?string $reason = null,
+        ?int $createdBy = null,
+    ): Transaction {
+        $amount = abs($amount);
+
+        return DB::transaction(function () use ($user, $currencyCode, $amount, $source, $reference, $layer, $reason, $createdBy) {
+            $currency = Currency::query()->where('code', $currencyCode)->firstOrFail();
+            $wallet = $this->lockedWallet($user, (int) $currency->id);
+            $decimals = (int) $currency->decimals;
+
+            // هامش 0.001 يمنع رفضًا كاذبًا من فروق الفاصلة العائمة
+            if ((float) $wallet->balance + 0.001 < $amount) {
+                throw new WalletException(
+                    'رصيدك من '.$currency->name_ar.' مش مكفّي: عندك '
+                    .number_format((float) $wallet->balance, $decimals).' والمطلوب '
+                    .number_format($amount, $decimals).'. قلّل القيمة أو اشحن الأوّل.'
+                );
+            }
+
+            return $this->record($user, $currencyCode, -$amount, $source, $reference, $layer, $reason, $createdBy);
+        });
+    }
+
+    /**
      * معاملة عكسيّة موثّقة — لا تعديل للأصل ولا حذف (19.4).
      * تُستعمَل في حالة `refunded` من البوّابة وفي تصحيح الخطأ التقنيّ.
      */

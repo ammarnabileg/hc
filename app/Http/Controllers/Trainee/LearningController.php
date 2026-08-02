@@ -8,6 +8,8 @@ use App\Services\Learning\AvailabilityService;
 use App\Services\Learning\CredentialService;
 use App\Services\Learning\DeadlineService;
 use App\Services\Learning\ProgressService;
+use App\Services\Learning\TimezoneDetector;
+use App\Services\Learning\UserClock;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
@@ -23,11 +25,16 @@ class LearningController extends Controller
         private readonly DeadlineService $deadlines,
         private readonly AvailabilityService $availability,
         private readonly CredentialService $credentials,
+        private readonly TimezoneDetector $timezones,
+        private readonly UserClock $clock,
     ) {}
 
     public function index(Request $request): View
     {
         $user = $request->user();
+
+        // الكشف التلقائيّ ديناميكيّ: يتبع مكان المستخدم الآن لا دولته عند التسجيل (5)
+        $this->timezones->sync($request, $user);
 
         $query = Enrollment::query()
             ->with('course')
@@ -67,7 +74,7 @@ class LearningController extends Controller
             }
 
             $summary = $summaries[$course->id] ?? ['total' => 0, 'completed' => 0, 'percent' => 0, 'current_title' => null, 'section_title' => null];
-            $availability = $this->availability->forCourse($course, $enrollment);
+            $availability = $this->availability->forCourse($course, $enrollment, $user);
 
             $status = match (true) {
                 $summary['percent'] >= (int) setting('learning.progress.complete_percent', 100) => 'completed',
@@ -109,6 +116,14 @@ class LearningController extends Controller
                 'sort' => $sort,
             ],
             'resume' => $this->resumeTarget($cards),
+            // شريحة «توقيتك» فوق القائمة: يفهم منها لماذا فُتح تدريب وأُغلق آخر (5)
+            'clock' => [
+                'timezone' => $this->clock->timezoneFor($user),
+                'offset' => $this->clock->offsetLabel($user),
+                'source' => $this->clock->sourceFor($user),
+                'now' => $this->clock->now($user),
+            ],
+            'timezones' => $this->clock->options(),
         ]);
     }
 

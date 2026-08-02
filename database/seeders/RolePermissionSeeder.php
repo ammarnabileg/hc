@@ -26,7 +26,7 @@ class RolePermissionSeeder extends Seeder
 
         // ---------------- أدوار المنصّة المتخصّصة: بمجموعات الموارد
         $map = [
-            'content_admin' => ['paths', 'courses', 'sections', 'lessons', 'lesson_quiz', 'lesson_attachments', 'media_library', 'content_categories', 'course_exam', 'question_bank', 'general_questions', 'enrollments', 'progress', 'learning_ux', 'path_page_layout', 'availability', 'deadlines'],
+            'content_admin' => ['paths', 'courses', 'sections', 'lessons', 'lesson_quiz', 'lesson_attachments', 'media_library', 'content_categories', 'course_exam', 'question_bank', 'general_questions', 'enrollments', 'progress', 'learning_ux', 'path_page_layout', 'availability', 'deadlines', 'video_comments'],
             'certificates_admin' => ['certificates', 'certificate_templates', 'certificate_ledger', 'certificate_verification', 'accreditations', 'reports_certificates'],
             'support_admin' => ['users', 'user_approvals', 'user_profile', 'admin_user_detail', 'complaints', 'user_guide', 'announcements', 'announcement_ack', 'notifications', 'user_search', 'account_suspension', 'user_sessions'],
             'marketing_admin' => ['store_products', 'product_categories', 'product_protection', 'bundles', 'coupons', 'order_bump', 'pricing', 'paywall', 'landing_pages', 'public_pages', 'share_links', 'referrals', 'ambassadors', 'invitations_page', 'events', 'event_registrations', 'event_recordings'],
@@ -88,6 +88,7 @@ class RolePermissionSeeder extends Seeder
         $this->grantResources('trainee', [
             'user_dashboard', 'user_profile', 'privacy_settings', 'user_sessions', 'data_export', 'emergency_contact',
             'enrollments', 'progress', 'lessons', 'lesson_quiz', 'lesson_attachments', 'course_notes', 'course_exam',
+            'video_comments',
             'courses', 'paths', 'certificates', 'certificate_verification', 'my_library', 'flip_reader',
             'wallet', 'purchases', 'orders', 'invoices', 'topup', 'transfer', 'cart', 'store_products', 'bundles',
             'badges', 'streaks', 'five_am_club', 'achievements', 'games', 'leaderboards', 'public_leaderboard',

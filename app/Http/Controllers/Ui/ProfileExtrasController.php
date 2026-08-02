@@ -1,0 +1,84 @@
+<?php
+
+namespace App\Http\Controllers\Ui;
+
+use App\Http\Controllers\Controller;
+use App\Models\Badge;
+use App\Models\BadgeUser;
+use App\Models\User;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
+
+/**
+ * تعزيزات البروفايل الناقصة (الدستور 10):
+ * **النبذة (Bio)** · **زرّ المشاركة** · **قسم الشارات**.
+ */
+class ProfileExtrasController extends Controller
+{
+    /** حفظ النبذة — تلقائيّ مع «اتحفظ ✓» بجوار الحقل (2.17-ب) */
+    public function updateBio(Request $request): JsonResponse
+    {
+        $max = max(20, (int) setting('profile.bio.max_chars', 280));
+
+        $data = $request->validate([
+            'bio' => ['nullable', 'string', 'max:'.$max],
+        ], [
+            'bio.max' => 'النبذة أطول من '.$max.' حرف — اختصرها شويّة وجرّب تاني.',
+        ], ['bio' => 'النبذة']);
+
+        $request->user()->forceFill(['bio' => trim((string) ($data['bio'] ?? '')) ?: null])->save();
+
+        return response()->json([
+            'saved' => true,
+            'label' => (string) setting('profile.bio.saved_label', 'اتحفظ ✓'),
+        ]);
+    }
+
+    /**
+     * قسم الشارات (10): المفعَّلة بشكل مميّز وغير المفعَّلة **مقفولة** —
+     * وشرط الفتح مكتوب صراحةً لا لغزًا.
+     *
+     * @return array{earned:Collection,locked:Collection}
+     */
+    public static function badgesFor(User $owner): array
+    {
+        $earned = BadgeUser::query()
+            ->with('badge')
+            ->where('user_id', $owner->id)
+            ->get()
+            ->filter(fn (BadgeUser $row) => (bool) $row->badge)
+            ->keyBy(fn (BadgeUser $row) => (int) $row->badge_id);
+
+        $all = Badge::query()->where('is_active', true)->orderBy('id')->get();
+
+        return [
+            'earned' => $all->filter(fn (Badge $b) => $earned->has((int) $b->id))->values(),
+            'locked' => $all->reject(fn (Badge $b) => $earned->has((int) $b->id))->values(),
+            'awarded_at' => $earned->map(fn (BadgeUser $row) => $row->awarded_at),
+        ];
+    }
+
+    /**
+     * روابط المشاركة (10) — تيليجرام · X · فيسبوك · واتساب + الرابط العامّ.
+     * تُبنى على الخادم فلا تتسرّب صياغة خاطئة لرابط عامّ.
+     *
+     * @return array<int, array{key:string,label:string,url:string}>
+     */
+    public static function shareLinks(User $owner): array
+    {
+        $url = $owner->profileUrl();
+        $text = trim((string) setting('profile.share.text', 'شوف بروفايلي على :platform'));
+        $text = str_replace(':platform', (string) setting('platform.identity.name', config('app.name')), $text);
+
+        $encodedUrl = rawurlencode($url);
+        $encodedText = rawurlencode($text);
+
+        return [
+            ['key' => 'telegram', 'label' => 'تيليجرام', 'url' => "https://t.me/share/url?url={$encodedUrl}&text={$encodedText}"],
+            ['key' => 'x', 'label' => 'X', 'url' => "https://twitter.com/intent/tweet?url={$encodedUrl}&text={$encodedText}"],
+            ['key' => 'facebook', 'label' => 'فيسبوك', 'url' => "https://www.facebook.com/sharer/sharer.php?u={$encodedUrl}"],
+            ['key' => 'whatsapp', 'label' => 'واتساب', 'url' => "https://wa.me/?text={$encodedText}%20{$encodedUrl}"],
+        ];
+    }
+}

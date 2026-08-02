@@ -18,6 +18,8 @@ class StreakDay extends Model
     {
         return [
             'club_5am' => 'boolean',
+            // اليوم المغطّى بدرع تجميد: يَعبُر العدّ فوقه فلا تنكسر السلسلة (7.2)
+            'is_freeze' => 'boolean',
             'day' => 'date',
         ];
     }

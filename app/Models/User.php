@@ -127,33 +127,7 @@ class User extends Authenticatable
      */
     public function shortName(int $units = 2): string
     {
-        static $particles = null;
-
-        if ($particles === null) {
-            $particles = NameParticle::where('is_active', true)
-                ->pluck('particle')
-                ->map(fn ($p) => mb_strtolower(str_replace(['أ', 'إ', 'آ'], 'ا', $p)))
-                ->all();
-        }
-
-        $words = preg_split('/\s+/u', trim((string) $this->name), -1, PREG_SPLIT_NO_EMPTY) ?: [];
-        $chunks = [];
-        $buffer = [];
-
-        foreach ($words as $word) {
-            $buffer[] = $word;
-            $normalized = mb_strtolower(str_replace(['أ', 'إ', 'آ'], 'ا', $word));
-
-            if (! in_array($normalized, $particles, true)) {
-                $chunks[] = implode(' ', $buffer);
-                $buffer = [];
-            }
-        }
-
-        if ($buffer !== []) {
-            $chunks[] = implode(' ', $buffer);
-        }
-
-        return implode(' ', array_slice($chunks, 0, $units));
+        // القاعدة واحدة في الواجهة وقوالب الاستوديو والاستخراج — فمصدرها واحد
+        return \App\Services\Images\ShortName::of($this->name, $units);
     }
 }

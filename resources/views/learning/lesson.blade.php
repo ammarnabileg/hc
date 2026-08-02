@@ -52,6 +52,13 @@
                 </div>
             @endif
 
+            {{-- قسم تعليقات الفيديو تحت المشغّل مباشرةً (3.1) --}}
+            @if ($comments)
+                @can('video_comments.view')
+                    @include('learning.partials.comments')
+                @endcan
+            @endif
+
             @if ($lesson->content)
                 <article class="card p-5 leading-8 text-sm" data-lesson-content>
                     {!! nl2br(e($lesson->content)) !!}
@@ -91,23 +98,38 @@
 
             {{-- بلوك أسئلة الدرس — وهو بوّابة الانتقال لا مجرّد إثراء (4.1) --}}
             @if ($questions->isNotEmpty())
-                <section class="card p-4">
-                    <div class="flex items-center justify-between gap-2 flex-wrap mb-3">
-                        <h2 class="font-bold">{{ setting('learning.questions.block_title') }}</h2>
-                        <x-state-badge :state="$quiz_passed ? 'ok' : 'warn'"
-                                       :label="$quiz_passed ? setting('learning.questions.passed_label') : setting('learning.questions.gate_label')" />
-                    </div>
+                @can('lesson_quiz.view')
+                    <section class="card p-4">
+                        <div class="flex items-center justify-between gap-2 flex-wrap mb-3">
+                            <h2 class="font-bold">{{ setting('learning.questions.block_title') }}</h2>
+                            <x-state-badge :state="$quiz_passed ? 'ok' : 'warn'"
+                                           :label="$quiz_passed ? setting('learning.questions.passed_label') : setting('learning.questions.gate_label')" />
+                        </div>
 
-                    <p class="text-sm mb-3" style="color: var(--text-muted)">{{ setting('learning.questions.block_hint') }}</p>
+                        <p class="text-sm mb-3" style="color: var(--text-muted)">{{ setting('learning.questions.block_hint') }}</p>
 
-                    <button type="button" data-modal-open="lesson-questions"
-                            class="btn w-full rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
-                            style="background: {{ $quiz_passed ? 'var(--surface-sunken)' : 'var(--color-brand-500)' }};
-                                   color: {{ $quiz_passed ? 'var(--text)' : '#04201c' }}">
-                        {{ $quiz_passed ? setting('learning.questions.review_cta') : setting('learning.questions.open_cta') }}
-                    </button>
-                </section>
+                        @if (! $quiz_passed && $quiz_wait_seconds > 0)
+                            {{-- انتظار إعادة المحاولة (4.1-4): الزرّ يُخفى ولا يُعطَّل، والقرار في الخادم --}}
+                            <p class="text-xs flex items-center gap-1" style="color: var(--text-muted)">
+                                @include('learning.partials.icon', ['name' => 'clock'])
+                                <span>{{ setting('learning.quiz.wait_message') }} {{ $quiz_wait_seconds }} {{ setting('learning.quiz.seconds_suffix') }}</span>
+                            </p>
+                        @else
+                            <a href="{{ route('learning.lesson.quiz', [$course, $lesson]) }}"
+                               class="btn w-full inline-flex items-center justify-center rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
+                               style="background: {{ $quiz_passed ? 'var(--surface-sunken)' : 'var(--color-brand-500)' }};
+                                      color: {{ $quiz_passed ? 'var(--text)' : '#04201c' }}">
+                                {{ $quiz_passed ? setting('learning.questions.review_cta') : setting('learning.questions.open_cta') }}
+                            </a>
+                        @endif
+                    </section>
+                @endcan
             @endif
+
+            {{-- ملاحظات التدريب: مساحة واحدة مشتركة يصلها من أيّ درس (3.2) --}}
+            @can('course_notes.view')
+                @include('learning.partials.notes')
+            @endcan
 
             {{-- إكمال الدرس: سجلّ واحد لكلّ (مستخدم، درس) والقرار في الخادم --}}
             <section class="card p-4 flex items-center justify-between gap-3 flex-wrap">
@@ -205,14 +227,6 @@
     </div>
 @endsection
 
-@if ($questions->isNotEmpty())
-    @push('modals')
-        <x-modal id="lesson-questions" :title="setting('learning.questions.block_title')">
-            @include('learning.partials.questions')
-        </x-modal>
-    @endpush
-@endif
-
 @push('scripts')
     <script>
         /* شريط تقدّم القراءة داخل الدرس — ويعرض 100% دائمًا عند بلوغ النهاية (2.17-أ) */
@@ -237,18 +251,138 @@
             if (panel && window.matchMedia('(max-width: 767px)').matches) panel.open = false;
         })();
 
-        /* خانات OTP: انتقال تلقائيّ بين الخانات — والفورم يعمل كاملًا بدونه */
-        document.querySelectorAll('[data-otp-form] .otp-row').forEach((row) => {
-            const boxes = [...row.querySelectorAll('.otp-box')];
-            boxes.forEach((box, index) => {
-                box.addEventListener('input', () => {
-                    box.value = box.value.replace(/\D/g, '').slice(0, 1);
-                    if (box.value && boxes[index + 1]) boxes[index + 1].focus();
-                });
-                box.addEventListener('keydown', (e) => {
-                    if (e.key === 'Backspace' && !box.value && boxes[index - 1]) boxes[index - 1].focus();
+        /* ملاحظات التدريب (3.2): حفظ تلقائيّ مع «اتحفظ ✓» — والفورم يعمل بدون هذا الكود */
+        (() => {
+            const box = document.querySelector('[data-notes]');
+            if (!box) return;
+
+            const input = box.querySelector('[data-notes-input]');
+            const state = box.querySelector('[data-notes-state]');
+            const manual = box.querySelector('[data-notes-manual]');
+            const token = document.querySelector('meta[name="csrf-token"]')?.content ?? '';
+            const delay = parseInt(box.dataset.delay, 10) || 800;
+            let timer = null;
+            let last = input?.value ?? '';
+
+            if (manual) manual.classList.add('hidden'); // الجافاسكربت شغّال ⟵ الحفظ تلقائيّ
+
+            const say = (text) => { if (state) state.textContent = text; };
+
+            async function save() {
+                if (!input || input.value === last) return;
+                const body = input.value;
+                say(@json(setting('learning.notes.saving')));
+
+                try {
+                    const response = await fetch(box.dataset.url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': token, 'Accept': 'application/json' },
+                        body: JSON.stringify({ body: body }),
+                    });
+                    const data = await response.json();
+                    if (!response.ok) throw new Error(data.message || 'save failed');
+                    last = body;
+                    say(data.message || @json(setting('learning.notes.saved')));
+                } catch (e) {
+                    say(e.message || @json(setting('learning.notes.error')));
+                }
+            }
+
+            input?.addEventListener('input', () => {
+                clearTimeout(timer);
+                timer = setTimeout(save, delay);
+            });
+            input?.addEventListener('blur', save);
+            window.addEventListener('beforeunload', () => { if (input && input.value !== last) save(); });
+        })();
+
+        /* تعليقات الفيديو (3.1): 6 تعليقات أقدم كلّما نزل لأسفل + Skeleton أثناء الجلب */
+        (() => {
+            const box = document.querySelector('[data-comments]');
+            if (!box) return;
+
+            const list = box.querySelector('[data-comments-list]');
+            const skeleton = box.querySelector('[data-comments-skeleton]');
+            let busy = false;
+
+            async function loadMore(trigger) {
+                if (busy) return;
+                busy = true;
+                skeleton?.classList.remove('hidden');
+
+                try {
+                    const response = await fetch(trigger.href, { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+                    if (!response.ok) throw new Error('load failed');
+                    const html = await response.text();
+                    trigger.remove();
+                    list?.insertAdjacentHTML('beforeend', html);
+                    watch();
+                } catch (e) {
+                    trigger.textContent = @json(setting('learning.comments.load_error'));
+                } finally {
+                    skeleton?.classList.add('hidden');
+                    busy = false;
+                }
+            }
+
+            const observer = 'IntersectionObserver' in window
+                ? new IntersectionObserver((entries) => {
+                    entries.forEach((entry) => {
+                        if (entry.isIntersecting) {
+                            observer.unobserve(entry.target);
+                            loadMore(entry.target);
+                        }
+                    });
+                })
+                : null;
+
+            function watch() {
+                const next = list?.querySelector('[data-comments-next]');
+                if (!next) return;
+                next.addEventListener('click', (e) => { e.preventDefault(); loadMore(next); });
+                observer?.observe(next);
+            }
+
+            watch();
+
+            // فتح القسم تلقائيًّا عند الرجوع لتعليق بعينه بعد الإرسال
+            if (location.hash.startsWith('#comment-')) box.open = true;
+
+            // إظهار/إخفاء فورم الردّ — والردّ نفسه فورم عاديّ يعمل بلا جافاسكربت
+            box.querySelectorAll('[data-reply-toggle]').forEach((button) => {
+                button.addEventListener('click', () => {
+                    const form = document.getElementById(button.dataset.replyToggle);
+                    form?.classList.toggle('hidden');
+                    form?.querySelector('textarea')?.focus();
                 });
             });
-        });
+
+            // اللايك: ردّ فوريّ بلا إعادة تحميل (2.17-أ)
+            box.addEventListener('submit', async (event) => {
+                const form = event.target.closest('[data-like-form]');
+                if (!form) return;
+                event.preventDefault();
+
+                const button = form.querySelector('button');
+                const counter = form.querySelector('[data-like-count]');
+
+                try {
+                    const response = await fetch(form.action, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content ?? '',
+                            'Accept': 'application/json',
+                        },
+                    });
+                    const data = await response.json();
+                    if (!response.ok) throw new Error('like failed');
+                    if (counter) counter.textContent = data.count;
+                    button?.setAttribute('aria-pressed', data.liked ? 'true' : 'false');
+                    if (button) button.style.color = data.liked ? 'var(--color-brand-400)' : 'var(--text-muted)';
+                } catch (e) {
+                    form.submit(); // فشل الشبكة ⟵ نكمل بالطريق العاديّ
+                }
+            });
+        })();
     </script>
 @endpush

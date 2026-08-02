@@ -28,6 +28,12 @@ Route::middleware('auth')->group(function () {
             ->name('volunteer.profile.report');
     });
 
+    // ---------------------------------------------- «سجلّ المشرف» — أثر كلّ حركة على هذا الشخص
+    Route::middleware('permission:audit_logs.view')->group(function () {
+        Route::get('/volunteer/profile/{code}/audit', [VolunteerProfileController::class, 'audit'])
+            ->name('volunteer.profile.audit');
+    });
+
     // ---------------------------------------------- ملاحظات إداريّة سرّيّة (13.4-م-5)
     Route::middleware('permission:admin_notes.create')->group(function () {
         Route::post('/volunteer/profile/{code}/notes', [VolunteerProfileController::class, 'storeNote'])

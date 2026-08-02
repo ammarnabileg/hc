@@ -40,6 +40,11 @@ class CoreSeeder extends Seeder
             ['coins', 'كوينز', 'Coins', 'training', true, true, null, null, false],
             ['xp', 'نقاط الخبرة', 'XP', 'training', false, true, null, null, false],
             ['tickets', 'تذاكر', 'Tickets', 'training', true, true, null, null, false],
+            // ⭐ الساعات: عملة محتملة مستقبلًا لكنّها **تُعرَض في المحفظة** من اليوم (19.1)
+            ['hours', 'الساعات', 'Hours', 'training', false, true, 0, null, false],
+            // ⭐ دولار الأرباح: وعاء الأرباح القابلة للسحب (عمولة الريفيرال والتحويلات) — 19.2/19.3
+            // حدّه الأدنى صفر، فلا يصير رصيد الأرباح سالبًا مهما تسابقت العمليّات.
+            ['usd', 'دولار الأرباح', 'Earnings USD', 'training', true, false, 0, null, false],
             // VXP تراكميّ لا يتصفّر ولا يُخصَم آليًّا (13.4-ن)
             ['vxp', 'نقاط الإنتاج', 'VXP', 'volunteer', false, true, null, null, false],
             // Rep مسقوف −10…+10 ويتصفّر يوم 1 الساعة 5:00ص بتوقيت القاهرة
@@ -51,7 +56,7 @@ class CoreSeeder extends Seeder
                 'name_ar' => $ar,
                 'name_en' => $en,
                 'layer' => $layer,
-                'decimals' => in_array($code, ['rep', 'vxp'], true) ? 2 : 0,
+                'decimals' => in_array($code, ['rep', 'vxp', 'usd'], true) ? 2 : 0,
                 'is_spendable' => $spendable,
                 'is_cumulative' => $cumulative,
                 'min_value' => $min,

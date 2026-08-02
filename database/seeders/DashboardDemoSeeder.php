@@ -194,7 +194,8 @@ class DashboardDemoSeeder extends Seeder
 
             Exam::updateOrCreate(
                 ['examable_type' => Course::class, 'examable_id' => $course->id],
-                ['title_ar' => 'امتحان '.$name, 'duration_minutes' => 30, 'pass_score' => 60],
+                // درجة النجاح من الإعداد لا رقمًا محروقًا (2.13 · 4.2)
+                ['title_ar' => 'امتحان '.$name, 'duration_minutes' => 30, 'pass_score' => (int) setting('exams.pass_score.default', 70)],
             );
 
             $courses[$name] = $course;

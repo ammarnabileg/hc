@@ -21,6 +21,10 @@ class SettingsRegistry
      * التابات الجانبيّة: المفتاح ⟵ [العنوان · المجموعات · سطر تعريفيّ].
      * وترتيبها هو ترتيب العرض — ولا يُبنى من قاعدة البيانات حتى لا يتغيّر بالصدفة.
      *
+     * ⚠️ قاعدة ملزِمة (2.13): **كلّ مجموعة إعدادات لها تاب هنا**. المجموعة التي
+     * لا تجد تابها تسقط في تاب «متنوّعات» فلا يبقى إعدادٌ بلا شاشة أبدًا،
+     * ويُبلِّغ عنها `php artisan settings:coverage` لتأخذ تابها الصحيح.
+     *
      * @return array<string, array{label:string, groups:array<int,string>, hint:string}>
      */
     public function tabs(): array
@@ -41,10 +45,76 @@ class SettingsRegistry
                 'groups' => ['onboarding'],
                 'hint' => 'رحلة التسجيل من التعليمات إلى صفحة القبول.',
             ],
+            'account' => [
+                'label' => 'الحساب والخصوصيّة',
+                'groups' => ['account'],
+                'hint' => 'البروفايل العامّ ومستويات الإظهار وتحميل البيانات والبحث.',
+            ],
             'cv' => [
                 'label' => 'قوالب الـCV',
                 'groups' => ['cv'],
                 'hint' => 'تكلفة القوالب بالتذاكر وحدود الأقسام والرابط العامّ.',
+            ],
+            'learning' => [
+                'label' => 'التعلّم والتدريبات',
+                'groups' => ['learning', 'paths', 'courses', 'lessons', 'academy', 'availability'],
+                'hint' => 'المسارات والتدريبات والدروس وXP وفترات الإتاحة.',
+            ],
+            'exams' => [
+                'label' => 'الامتحانات والشهادات',
+                'groups' => ['exams', 'certificates', 'attestations'],
+                'hint' => 'قواعد الامتحان وإصدار الشهادات والإفادات والتحقّق العامّ.',
+            ],
+            'library' => [
+                'label' => 'المكتبة والقارئ والوسائط',
+                'groups' => ['library', 'reader', 'internal_library', 'media', 'images'],
+                'hint' => 'مكتبتي والقارئ والعلامة المائيّة ومكتبة الوسائط واستوديو الصور.',
+            ],
+            'store' => [
+                'label' => 'المتجر والمحفظة',
+                'groups' => ['store', 'wallet'],
+                'hint' => 'المنتجات والباقات والكوبونات والشحن والعملات.',
+            ],
+            'engagement' => [
+                'label' => 'التلعيب والتفاعل',
+                'groups' => [
+                    'gamification_xp', 'gamification_badges', 'gamification_streaks',
+                    'gamification_leaderboard', 'gamification_wars', 'gamification_celebrations',
+                    'challenges', 'kudos', 'games', 'rewards', 'events',
+                    // أسماء قديمة أبقيناها مرساةً بعد مايجريشن التوحيد — فلا يتيتّم مفتاح لو أعاد سيدرٌ زرعها
+                    'celebrations', 'streaks', 'leaderboard',
+                ],
+                'hint' => 'XP والشارات والستريك والليدر بورد والحروب والاحتفالات والفعاليّات.',
+            ],
+            'volunteer' => [
+                'label' => 'التطوّع والفرق',
+                'groups' => [
+                    'volunteer', 'volunteer_page', 'volunteer_org', 'volunteer_rep',
+                    'volunteer_cert', 'volunteer_offboarding', 'volunteer_analytics',
+                    'recruitment', 'meetings', 'workflow', 'goals', 'performance',
+                    'rep', 'offboarding',
+                ],
+                'hint' => 'الهيكل والسعة وRep والمهام والاجتماعات والتوظيف والخروج.',
+            ],
+            'dashboards' => [
+                'label' => 'اللوحات والإحصاءات',
+                'groups' => ['dashboard', 'admin_dashboard', 'stats'],
+                'hint' => 'كروت اللوحة ورادار الإنجازات والتقارير والمدى الافتراضيّ.',
+            ],
+            'comms' => [
+                'label' => 'التواصل والإشعارات',
+                'groups' => ['notifications', 'announcements', 'complaints', 'help', 'articles'],
+                'hint' => 'الجرس والإعلانات والشكاوى ومركز المساعدة والمقالات.',
+            ],
+            'growth' => [
+                'label' => 'النموّ والتسويق',
+                'groups' => ['growth', 'ads'],
+                'hint' => 'الدعوات والإحالات وبكسلات الإعلان وجماهيره.',
+            ],
+            'governance' => [
+                'label' => 'المستخدمون والأدوار',
+                'groups' => ['admin_users', 'admin_roles', 'admin_approvals', 'admin_segments', 'admin_content'],
+                'hint' => 'جداول المستخدمين ونصوص الأدوار والاعتمادات والشرائح.',
             ],
             'security' => [
                 'label' => 'الأمان والخصوصيّة',
@@ -76,12 +146,146 @@ class SettingsRegistry
                 'groups' => ['backups'],
                 'hint' => 'النسخ اليدويّة والمجدولة ومراقبة صحّة النظام.',
             ],
+            'misc' => [
+                'label' => 'متنوّعات',
+                'groups' => [],
+                'hint' => 'مجموعات لم تأخذ تابها بعد — تظهر هنا كي لا يبقى إعدادٌ بلا شاشة.',
+            ],
             'audit' => [
                 'label' => 'سجلّ التدقيق',
                 'groups' => [],
                 'hint' => 'أثر كامل لكلّ تغيير إداريّ — للقراءة فقط.',
             ],
         ];
+    }
+
+    /**
+     * عنوان عربيّ ووصف لكلّ مجموعة — رأس الكارت داخل التاب.
+     * لماذا هنا؟ لأنّ الكارت يُبنى بمولّد عامّ لا بشاشة يدويّة لكلّ مجموعة (2.15).
+     *
+     * @return array<string, array{0:string,1:string}>
+     */
+    public function groupCatalog(): array
+    {
+        return [
+            'system' => ['النظام', 'التوقيت وسلوك المنصّة العامّ.'],
+            'accounts' => ['الحسابات والتفعيل', 'مجانيّة التفعيل والاعتماد الإداريّ وبادئة الكود.'],
+            'integrations' => ['التكاملات', 'البريد والخدمات الخارجيّة.'],
+            'ux' => ['البساطة أوّلًا', 'حدود الكروت والفلاتر والأعمدة ومدد التراجع والـToast.'],
+            'feel' => ['طبقة الإحساس', 'العدّادات والاهتزاز وصوت التوقيع.'],
+            'appearance' => ['الهويّة البصريّة', 'الألوان والخطوط والمساحات والزخارف.'],
+            'onboarding' => ['التعريف بالمنصّة', 'رحلة أوّل دخول.'],
+            'account' => ['الحساب والخصوصيّة', 'مستويات الإظهار والموافقات وتحميل البيانات.'],
+            'cv' => ['السيرة الذاتيّة', 'القوالب وتكلفتها وحدود الأقسام والرابط العامّ.'],
+            'learning' => ['التعلّم', 'الدروس وXP والتقدّم والنصوص التحفيزيّة.'],
+            'paths' => ['المسارات', 'ترتيب المسارات وعرضها.'],
+            'courses' => ['التدريبات', 'الإتاحة والتسجيل والغلاف.'],
+            'lessons' => ['الدروس', 'الفيديو والمرفقات وشروط الإكمال.'],
+            'academy' => ['الأكاديميّة', 'التسجيلات والجلسات.'],
+            'availability' => ['الإتاحة والتوقيت', 'فترات فتح التدريبات والمنطقة الزمنيّة للمتدرّب.'],
+            'exams' => ['الامتحانات', 'المحاولات والزمن والنجاح والرسوب.'],
+            'certificates' => ['الشهادات', 'الإصدار والتصميم والتحقّق العامّ.'],
+            'attestations' => ['الإفادات', 'ورقة الإفادة وأماكن ظهورها.'],
+            'library' => ['مكتبتي', 'الملفّات والعلامة المائيّة والتنزيل.'],
+            'reader' => ['القارئ', 'التصفّح والتظليل والملاحظات.'],
+            'internal_library' => ['المكتبة الداخليّة', 'موارد الفريق ومستويات الوصول.'],
+            'media' => ['مكتبة الوسائط', 'الرفع والأنواع والأحجام.'],
+            'images' => ['استوديو الصور', 'التوليد والكاش والعلامة المائيّة.'],
+            'store' => ['المتجر', 'المنتجات والباقات والكوبونات والشحن وسياسة الاسترجاع.'],
+            'wallet' => ['المحفظة', 'أكواد العملات ومواضع الكسب والصرف.'],
+            'gamification_xp' => ['XP والمستويات', 'مصادر الخبرة وسلّم المستويات.'],
+            'gamification_badges' => ['الشارات', 'شروط المنح والعرض.'],
+            'gamification_streaks' => ['الستريك ونادي الخامسة', 'النافذة والتجميد والمكافأة.'],
+            'gamification_leaderboard' => ['الليدر بورد', 'النطاقات والتجميد وحدّ المشاركين.'],
+            'gamification_wars' => ['حروب التركيز', 'الجولات والفرق والجوائز.'],
+            'gamification_celebrations' => ['الاحتفالات', 'المستويات الثلاثة والصوت والمشاركة.'],
+            'celebrations' => ['الاحتفالات (نصوص)', 'نصوص التهنئة والكونفيتي والإغلاق التلقائيّ.'],
+            'streaks' => ['الستريك (عرض)', 'الخريطة الحراريّة ونافذة نادي الخامسة.'],
+            'leaderboard' => ['الليدر بورد (عرض)', 'عدد الصفوف المعروضة.'],
+            'challenges' => ['التحديات', 'المدد والانضمام والنتائج.'],
+            'kudos' => ['التقدير', 'الحدود اليوميّة ونصوص الشكر.'],
+            'games' => ['الألعاب', 'الكتالوج وتكلفة اللعبة بالتذاكر.'],
+            'rewards' => ['المكافآت', 'المخزون والصرف والحدود.'],
+            'events' => ['الفعاليّات', 'التسجيل والحضور وكود الحضور والتذكير.'],
+            'volunteer' => ['التطوّع — عامّ', 'القواعد المشتركة لطبقة التطوّع.'],
+            'volunteer_page' => ['صفحة تطوّع معنا', 'العنوان والميثاق والعدّادات وكتل المحتوى.'],
+            'volunteer_org' => ['الهيكل والسعة', 'الكانفاس وعتبات الإشغال والموازن.'],
+            'volunteer_rep' => ['السمعة (Rep)', 'السقوف والتصفير والاعتراض والخمول.'],
+            'volunteer_cert' => ['شهادات التطوّع', 'شروط الإصدار والأنواع والعرض.'],
+            'volunteer_offboarding' => ['الخروج والعودة', 'التصفية والتبريد ومقابلة الخروج.'],
+            'volunteer_analytics' => ['تحليلات التطوّع', 'المدى والمؤشّرات.'],
+            'recruitment' => ['التوظيف والترشيح', 'الفرز والمقابلات والقبول.'],
+            'meetings' => ['الاجتماعات', 'الحضور والمحضر والمهل.'],
+            'workflow' => ['المهام والتسليم', 'السقوف والتمديد والتعثّر والديدلاين.'],
+            'goals' => ['الأهداف', 'الدورات والقياس والمراجعة.'],
+            'performance' => ['الأداء', 'المؤشّرات ودوريّة التقييم.'],
+            'rep' => ['السمعة (قواعد عامّة)', 'مهل الاعتراض والتصفير الشهريّ.'],
+            'offboarding' => ['الخروج (قواعد عامّة)', 'الخمول والتبريد ومهلة التسليم.'],
+            'dashboard' => ['لوحة المتدرّب', 'الكروت ورادار الإنجازات والعدّادات.'],
+            'admin_dashboard' => ['لوحة الإدارة', 'الكروت والقمع والمدى الافتراضيّ.'],
+            'stats' => ['الإحصائيّات', 'المدى والتصدير وإخفاء التابات.'],
+            'notifications' => ['الإشعارات', 'الجرس والقنوات والتجميع.'],
+            'announcements' => ['الإعلانات', 'الاستهداف والمدّة والأولويّة.'],
+            'complaints' => ['الشكاوى', 'المهل والتصنيف والتصعيد.'],
+            'help' => ['مركز المساعدة', 'الأقسام والبحث.'],
+            'articles' => ['المقالات', 'دورة النشر والمراجعة.'],
+            'growth' => ['النموّ والدعوات', 'الإحالة والمكافأة وحدودها.'],
+            'ads' => ['الإعلان المدفوع', 'البكسلات والجماهير وموافقة التتبّع.'],
+            'admin_users' => ['إدارة المستخدمين', 'الجداول والتابات والأفعال.'],
+            'admin_roles' => ['الأدوار والصلاحيّات', 'نصوص المنع والتصعيد والمجموعة المحميّة.'],
+            'admin_approvals' => ['الاعتمادات', 'قوائم الانتظار والمهل.'],
+            'admin_segments' => ['الشرائح', 'تعريف الشرائح واستخدامها.'],
+            'admin_content' => ['إدارة المحتوى', 'سجلّ التدقيق وحدوده.'],
+            'security' => ['الأمان', 'كلمات المرور والجلسات والمحاولات.'],
+            'features' => ['مفاتيح المزايا', 'تشغيل وإطفاء المزايا.'],
+            'countries' => ['الدول والمحافظات', 'المصدر وسياسة الدمج.'],
+            'maintenance' => ['وضع الصيانة', 'المدّة والرسالة وتجميد المهل.'],
+            'updates' => ['التحديثات', 'الترقية والاسترجاع.'],
+            'backups' => ['النسخ الاحتياطيّ', 'الجدولة والاحتفاظ.'],
+            'finance' => ['🔒 الماليّات', 'الأسعار والعمولات والسحب والاسترجاع — لمالك المنصّة وحده.'],
+        ];
+    }
+
+    /** عنوان المجموعة العربيّ — والمجموعة المجهولة تُعرَض بمفتاحها بلا كسر */
+    public function groupLabel(string $group): string
+    {
+        return $this->groupCatalog()[$group][0] ?? $group;
+    }
+
+    public function groupHint(string $group): string
+    {
+        return $this->groupCatalog()[$group][1] ?? 'مجموعة بلا وصف بعد — أضِف وصفها في `groupCatalog()`.';
+    }
+
+    /** المجموعات المسنَدة لتاب ⟵ التاب (خريطة البحث الموحّد ومرجع التغطية) */
+    public function groupToTab(): array
+    {
+        $map = [];
+
+        foreach ($this->tabs() as $tabKey => $tab) {
+            foreach ($tab['groups'] as $group) {
+                $map[$group] = $tabKey;
+            }
+        }
+
+        // 🔒 الماليّات تاب خاصّ بمالك المنصّة، لكنّ خريطة البحث تعرف مكانها دائمًا
+        $map['finance'] = 'finance';
+
+        return $map;
+    }
+
+    /** المجموعات الموجودة في قاعدة البيانات بلا تاب مخصّص — تسقط في «متنوّعات» */
+    public function unmappedGroups(): array
+    {
+        $mapped = $this->groupToTab();
+
+        return Setting::query()
+            ->select('group')
+            ->distinct()
+            ->pluck('group')
+            ->reject(fn (string $group) => isset($mapped[$group]))
+            ->values()
+            ->all();
     }
 
     /**
@@ -100,13 +304,20 @@ class SettingsRegistry
             ];
         }
 
+        // تاب «متنوّعات» لا يظهر إلّا إن كان فيه فعلًا مجموعةٌ بلا تاب — وإلّا فهو ضجيج (2.15)
+        if ($tabs['misc']['groups'] === [] && $this->unmappedGroups() === []) {
+            unset($tabs['misc']);
+        }
+
         return $tabs;
     }
 
     /** إعدادات تاب بعينه، مرتّبةً ومصفّاةً بحسب مَن ينظر */
     public function forTab(string $tab, User $user, string $search = ''): Collection
     {
-        $groups = $this->tabsFor($user)[$tab]['groups'] ?? [];
+        $groups = $tab === 'misc'
+            ? $this->unmappedGroups()
+            : ($this->tabsFor($user)[$tab]['groups'] ?? []);
 
         if ($groups === []) {
             return collect();
@@ -119,6 +330,26 @@ class SettingsRegistry
             ))
             ->sortBy('key')
             ->values();
+    }
+
+    /**
+     * ⭐ مادّة العرض: إعدادات التاب مقسَّمةً على كروت مجموعاتها بعناوين عربيّة.
+     * لماذا مقسَّمة؟ لأنّ تابًا فيه 190 مفتاحًا مسطّحًا شاشةٌ لا تُقرَأ (2.15)،
+     * والكارت المطويّ يجعل «سؤالًا واحدًا» ظاهرًا في المرّة.
+     *
+     * @return Collection<string, Collection<int, Setting>>
+     */
+    public function groupedForTab(string $tab, User $user, string $search = ''): Collection
+    {
+        $order = $tab === 'misc'
+            ? $this->unmappedGroups()
+            : ($this->tabsFor($user)[$tab]['groups'] ?? []);
+
+        $rows = $this->forTab($tab, $user, $search)->groupBy('group');
+
+        return collect($order)
+            ->filter(fn (string $group) => $rows->has($group))
+            ->mapWithKeys(fn (string $group) => [$group => $rows->get($group)]);
     }
 
     /**
@@ -135,20 +366,19 @@ class SettingsRegistry
             return [];
         }
 
-        $tabOf = [];
-        foreach ($this->tabsFor($user) as $tabKey => $tab) {
-            foreach ($tab['groups'] as $group) {
-                $tabOf[$group] = [$tabKey, $tab['label']];
-            }
-        }
+        $tabs = $this->tabsFor($user);
+        $groupToTab = $this->groupToTab();
 
         return $this->visible($user)
             ->filter(fn (Setting $s) => str_contains(mb_strtolower($s->key), mb_strtolower($term))
                 || str_contains($s->label_ar, $term)
                 || str_contains((string) $s->value, $term))
-            ->take(40)
-            ->map(function (Setting $s) use ($tabOf) {
-                [$tabKey, $tabLabel] = $tabOf[$s->group] ?? ['platform', 'إعدادات المنصّة'];
+            ->take(max(5, (int) setting('ux.settings_search.max_results', 40)))
+            ->map(function (Setting $s) use ($tabs, $groupToTab) {
+                // ⭐ المفتاح يفتح **تابه هو**؛ والمجموعة بلا تاب تفتح «متنوّعات»
+                // — لا «إعدادات المنصّة» كما كان، فالنتيجة كانت تودّي لتابٍ لا تسكنه.
+                $tabKey = $groupToTab[$s->group] ?? 'misc';
+                $tabLabel = $tabs[$tabKey]['label'] ?? $this->tabs()[$tabKey]['label'] ?? 'متنوّعات';
 
                 return [
                     'key' => $s->key,
@@ -156,7 +386,7 @@ class SettingsRegistry
                     'tab' => $tabKey,
                     'tab_label' => $tabLabel,
                     'group' => $s->group,
-                    'path' => $tabLabel.' › '.$s->group.' › '.$s->label_ar,
+                    'path' => $tabLabel.' › '.$this->groupLabel($s->group).' › '.$s->label_ar,
                     'value' => $s->value,
                 ];
             })

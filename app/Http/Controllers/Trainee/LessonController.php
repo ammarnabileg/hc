@@ -6,10 +6,13 @@ use App\Http\Controllers\Controller;
 use App\Models\Course;
 use App\Models\Enrollment;
 use App\Models\Lesson;
-use App\Models\LessonQuestion;
+use App\Services\Learning\CourseNoteService;
 use App\Services\Learning\DeadlineService;
 use App\Services\Learning\LessonQuestionService;
+use App\Services\Learning\LessonQuizService;
 use App\Services\Learning\ProgressService;
+use App\Services\Learning\TimezoneDetector;
+use App\Services\Learning\VideoCommentService;
 use App\Services\Learning\XpCalculator;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -28,6 +31,10 @@ class LessonController extends Controller
         private readonly LessonQuestionService $questions,
         private readonly DeadlineService $deadlines,
         private readonly XpCalculator $xp,
+        private readonly TimezoneDetector $timezones,
+        private readonly VideoCommentService $comments,
+        private readonly CourseNoteService $notes,
+        private readonly LessonQuizService $quiz,
     ) {}
 
     public function show(Request $request, Course $course, Lesson $lesson): View|RedirectResponse
@@ -35,6 +42,7 @@ class LessonController extends Controller
         $user = $request->user();
         $enrollment = $this->enrollmentOrFail($user->id, $course->id);
         $this->assertBelongs($course, $lesson);
+        $this->timezones->sync($request, $user);
 
         $state = $this->progress->lessonState($user, $course, $lesson, $enrollment);
 
@@ -46,7 +54,7 @@ class LessonController extends Controller
         }
 
         $questions = $this->questions->forLesson($lesson);
-        $answers = $this->questions->answersOf($user, $lesson);
+        $isVideo = $lesson->type === 'video';
 
         return view('learning.lesson', [
             'course' => $course,
@@ -57,37 +65,20 @@ class LessonController extends Controller
             'deadline' => $this->deadlines->forEnrollment($enrollment),
             'attachments' => $this->attachments($lesson),
             'questions' => $questions,
-            'answers' => $answers,
-            'otp_lengths' => $questions->mapWithKeys(
-                fn (LessonQuestion $q) => [$q->id => $this->questions->otpLength($q)]
-            )->all(),
             'quiz_passed' => $this->questions->allAnsweredCorrectly($user, $lesson),
+            'quiz_wait_seconds' => $this->quiz->waitSecondsLeft($user, $lesson),
             'completed' => $state['completed'],
             'next_xp' => $this->xp->previewXp($course, $enrollment),
             'embed_url' => $this->embedUrl($lesson),
+
+            // تعليقات الفيديو (3.1): تحت المشغّل، وأوّل دفعة فقط ثمّ تحميل تدريجيّ
+            'comments' => $isVideo ? $this->comments->paginate($lesson, $user) : null,
+            'comments_count' => $isVideo ? $this->comments->countFor($lesson, $user) : 0,
+
+            // ملاحظات التدريب (3.2): مساحة واحدة مشتركة يصلها من أيّ درس
+            'note_body' => $this->notes->bodyFor($user, $course),
+            'note_max_length' => $this->notes->maxLength(),
         ]);
-    }
-
-    /** تصحيح سؤال الدرس — Server-side إلزاميّ، وXP مرّة واحدة لكلّ سؤال. */
-    public function answer(Request $request, Course $course, Lesson $lesson, LessonQuestion $question): RedirectResponse
-    {
-        $user = $request->user();
-        $enrollment = $this->enrollmentOrFail($user->id, $course->id);
-        $this->assertBelongs($course, $lesson);
-
-        abort_unless($question->lesson_id === $lesson->id, 404);
-        abort_unless($this->progress->isUnlocked($user, $course, $lesson, $enrollment), 403);
-
-        // الإدخال الرقميّ بنمط OTP يصل خاناتٍ منفصلة، فيُجمَع هنا قبل التصحيح
-        $submitted = $request->filled('digits')
-            ? implode('', array_map('strval', (array) $request->input('digits')))
-            : (string) $request->input('answer', '');
-
-        $result = $this->questions->answer($user, $question, $submitted, $enrollment);
-
-        return back()->with('status', $result['message'].($result['xp'] > 0
-            ? ' — +'.$result['xp'].' '.setting('learning.xp.suffix')
-            : ''));
     }
 
     /** إكمال الدرس — سجلّ واحد لكلّ (مستخدم، درس)، وXP بقيمة نصف المهلة. */

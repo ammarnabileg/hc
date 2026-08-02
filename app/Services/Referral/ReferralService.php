@@ -3,9 +3,11 @@
 namespace App\Services\Referral;
 
 use App\Models\Referral;
+use App\Models\Transaction;
 use App\Models\User;
 use App\Services\Events\LedgerBridge;
 use App\Services\Events\Tracker;
+use App\Services\Wallet\ReferralCommissionService;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
@@ -31,6 +33,12 @@ class ReferralService
     public function welcomeTickets(): int
     {
         return (int) setting('referral.welcome_tickets', 1);
+    }
+
+    /** ⭐ تذكرة الداعي (7.6): «يحصل **كلٌ من الداعي والمدعو** على تذكرة» */
+    public function referrerTickets(): int
+    {
+        return (int) setting('referral.referrer_tickets', 1);
     }
 
     /** رابط الدعوة العامّ بنمط `signup.php?offer=<code>` (7.6) */
@@ -156,22 +164,103 @@ class ReferralService
         return true;
     }
 
-    /** عمولة الداعي على شحن المدعوّ — نقطة نداء لمجال المحفظة (19.3) */
-    public function recordCommission(User $referred, float $amount): float
+    /**
+     * ⭐ تذكرة **الداعي** — كانت مفقودة تمامًا (7.6).
+     *
+     * نصّ الدستور: «عند نجاح الدعوة يحصل **كلٌ من الداعي والمدعو** على تذكرة»،
+     * **وشرط الصرف**: بعد استكمال المدعوّ لبياناته + موافقة الأدمن — وهما معًا
+     * تعني عندنا: حساب المدعوّ صار `active`.
+     *
+     * والحارس عمود مستقلّ (`referrals.referrer_ticket_granted`) لا حارس المدعوّ،
+     * حتى لا يُسقِط منحُ أحدهما منحَ الآخر مهما اختلف ترتيب النداءات.
+     */
+    public function grantReferrerTicket(User $invited): bool
     {
-        $referral = $this->referralOf($referred);
-
-        if (! $referral || $amount <= 0) {
-            return 0.0;
+        if (! $invited->isActive()) {
+            return false;
         }
 
-        $commission = round($amount * ((float) $referral->commission_percent / 100), 2);
+        $referral = $this->referralOf($invited);
+        $tickets = $this->referrerTickets();
 
-        $referral->forceFill([
-            'commission_earned' => (float) $referral->commission_earned + $commission,
-        ])->save();
+        if (! $referral || $referral->referrer_ticket_granted || $tickets <= 0) {
+            return false;
+        }
 
-        return $commission;
+        $referrer = $referral->referrer;
+
+        if (! $referrer) {
+            return false;
+        }
+
+        // تحديث مشروط: أوّل نداء وحده ينجح، فلا تتكرّر التذكرة مهما تكرّر النداء
+        $claimed = DB::table('referrals')
+            ->where('id', $referral->id)
+            ->where('referrer_ticket_granted', false)
+            ->update(['referrer_ticket_granted' => true, 'updated_at' => now()]);
+
+        if ($claimed !== 1) {
+            return false;
+        }
+
+        $this->ledger->credit($referrer, 'tickets', $tickets, 'referral', 'تذكرة دعوة ناجحة', $referral);
+        $this->tracker->record('referral_referrer_ticket', $referral, $referrer->id);
+
+        return true;
+    }
+
+    /**
+     * تسوية مكافأتَي الدعوة معًا — نداءٌ واحد آمن للتكرار يُستدعى من أيّ نقطة
+     * تكتشف أنّ المدعوّ صار مفعَّلًا (اعتماد الأدمن · فتح صفحة الدعوات).
+     *
+     * @return array{invited:bool,referrer:bool}
+     */
+    public function settleRewards(User $invited): array
+    {
+        return [
+            'invited' => $this->grantWelcomeTicket($invited),
+            'referrer' => $this->grantReferrerTicket($invited),
+        ];
+    }
+
+    /** دعوات هذا الداعي التي استحقّت تذكرته ولم تُصرَف بعد — تُسوّى عند فتح صفحته */
+    public function settlePendingFor(User $referrer): int
+    {
+        $settled = 0;
+
+        $pending = Referral::query()
+            ->where('referrer_id', $referrer->id)
+            ->where('referrer_ticket_granted', false)
+            ->whereNotNull('referred_id')
+            ->with('referred')
+            ->get();
+
+        foreach ($pending as $referral) {
+            if ($referral->referred && $this->grantReferrerTicket($referral->referred)) {
+                $settled++;
+            }
+        }
+
+        return $settled;
+    }
+
+    /**
+     * ⭐ عمولة الداعي على شحن المدعوّ (19.3) — موصولة بلحظة **نجاح الشحن**.
+     *
+     * لا تحسب هنا شيئًا بنفسها: كلّ المنطق الماليّ في `ReferralCommissionService`
+     * وهو المصدر الوحيد الذي **يُضيف رصيدًا قابلًا للسحب** ويمنع التكرار بقيدٍ فريد
+     * على حركة الشحن. وهذه الدالّة تبقى مدخلًا باسمها لمن يستدعيها من خارج المحفظة.
+     *
+     * @param  Transaction  $topup  حركة الشحن الناجحة في الجدول الموحّد
+     * @return float العمولة المسجَّلة بالدولار — وصفرٌ إن كانت مسجَّلة من قبل
+     */
+    public function recordCommission(User $referred, Transaction $topup): float
+    {
+        $commission = app(ReferralCommissionService::class)->recordForTopup($topup);
+
+        return $commission && (int) $commission->referred_id === $referred->id
+            ? (float) $commission->amount_usd
+            : 0.0;
     }
 
     /** سطر الدعوة الذي جاء منه هذا المستخدم */

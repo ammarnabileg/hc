@@ -22,9 +22,11 @@ class PricingService
     /**
      * ملخّص شراءٍ كامل يُعرَض في البوب-أب ويُنفَّذ به الطلب.
      *
+     * @param  bool|array<int, string>  $bumps  اختيار الـBump: قائمة slugs (17 — واحد أو اثنان)
+     *                                          و`true` تعني «الأوّل» توافقًا مع الاستدعاء القديم.
      * @return array<string, mixed>
      */
-    public function quote(?User $user, string $type, Model $item, ?string $couponCode = null, bool $withBump = false): array
+    public function quote(?User $user, string $type, Model $item, ?string $couponCode = null, bool|array $bumps = []): array
     {
         $price = $this->priceOf($type, $item);
         $listPrice = $this->listPriceOf($type, $item);
@@ -37,19 +39,20 @@ class PricingService
             'is_order_bump' => false,
         ]];
 
-        $bump = null;
         $offers = $this->bumpOffers($user, $type, $item);
+        $chosen = $this->chooseBumps($offers, $bumps);
 
-        if ($withBump && $offers !== []) {
-            $bump = $offers[0];
+        foreach ($chosen as $bumpOffer) {
             $lines[] = [
-                'type' => $bump['type'],
-                'slug' => $bump['slug'],
-                'title' => $bump['title'],
-                'price' => $bump['price'],
+                'type' => $bumpOffer['type'],
+                'slug' => $bumpOffer['slug'],
+                'title' => $bumpOffer['title'],
+                'price' => $bumpOffer['price'],
                 'is_order_bump' => true,
             ];
         }
+
+        $bump = $chosen[0] ?? null;
 
         $subtotal = round(array_sum(array_column($lines, 'price')), 2);
         $coupon = $this->applyCoupon($couponCode, $user, $type, $item, $subtotal);
@@ -65,6 +68,7 @@ class PricingService
             'title' => $item->name_ar,
             'lines' => $lines,
             'bump' => $bump,
+            'bumps' => $chosen,
             'bump_offers' => $offers,
             'subtotal' => $subtotal,
             'discount' => $discount,
@@ -200,6 +204,36 @@ class PricingService
     // ------------------------------------------------------------ Order-bump
 
     /**
+     * ⭐ الاختيار **هويّةٌ لا سعر**: المتصفّح يرسل slug العرض فقط، ونحن نطابقه
+     * بالعروض المحسوبة في الخادم — فما لم يُعرَض لا يُضاف مهما أُرسِل (17).
+     *
+     * @param  array<int, array<string, mixed>>  $offers
+     * @param  bool|array<int, string>  $bumps
+     * @return array<int, array<string, mixed>>
+     */
+    private function chooseBumps(array $offers, bool|array $bumps): array
+    {
+        if ($offers === [] || $bumps === false || $bumps === []) {
+            return [];
+        }
+
+        // التوافق مع `add_bump=1` القديم: تعني العرض الأوّل وحده
+        if ($bumps === true) {
+            return [$offers[0]];
+        }
+
+        $wanted = array_values(array_unique(array_map('strval', $bumps)));
+        $max = max((int) setting('store.order_bump.max', 2), 1);
+
+        $chosen = array_values(array_filter(
+            $offers,
+            fn (array $offer) => in_array((string) $offer['slug'], $wanted, true),
+        ));
+
+        return array_slice($chosen, 0, $max);
+    }
+
+    /**
      * عروض الـBump المرتبطة بالعنصر (17) — كلّها من الإعدادات (2.13)،
      * وبحدٍّ أقصى مضبوط في `store.order_bump.max` (قاعدة 17: اثنان كحدٍّ أقصى).
      *
@@ -230,6 +264,11 @@ class PricingService
 
             // ما يملكه المستخدم لا يُعرَض عليه ثانيةً
             if ($user && $this->catalog->owns($user, $bumpType, $bumpItem)) {
+                continue;
+            }
+
+            // عرضان بنفس العنصر لا يظهران مرّتين — والاختيار يقع بالـslug (17)
+            if (in_array((string) $bumpItem->slug, array_column($offers, 'slug'), true)) {
                 continue;
             }
 

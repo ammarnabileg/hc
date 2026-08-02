@@ -9,17 +9,17 @@ use Illuminate\Support\Facades\Schema;
  *
  * كانت شاشة الإدارة تكتب `streaks.club5am.*` و`streaks.reward_days` بينما يقرأ
  * الكود `streaks.club_5am.*` و`streaks.reward.every_days` — فالأدمن يعدّل قيمةً
- * لا يراها النظام. نوحّد على مفتاح واحد (بنمط عمود `streak_days.club_5am`)،
- * ونُرحّل القيمة المعدَّلة إن وُجدت، ثمّ **نحذف المفتاح اليتيم** فلا يبقى مفتاحان
+ * لا يراها النظام. المعتمَد الآن ما تكتبه الشاشة ويقرؤه الكود معًا، ونُرحّل
+ * القيمة المعدَّلة من المفتاح اليتيم إن وُجدت ثمّ **نحذفه** فلا يبقى مفتاحان
  * لمعنى واحد.
  */
 return new class extends Migration
 {
-    /** القديم ⟵ الجديد */
+    /** اليتيم ⟵ المعتمَد (ما يقرؤه الكود ويكتبه الكتالوج) */
     private const MAP = [
-        'streaks.club5am.window_start' => 'streaks.club_5am.window_start',
-        'streaks.club5am.window_end' => 'streaks.club_5am.window_end',
-        'streaks.reward_days' => 'streaks.reward.every_days',
+        'streaks.club_5am.window_start' => 'streaks.club5am.window_start',
+        'streaks.club_5am.window_end' => 'streaks.club5am.window_end',
+        'streaks.reward.every_days' => 'streaks.reward_days',
     ];
 
     public function up(): void

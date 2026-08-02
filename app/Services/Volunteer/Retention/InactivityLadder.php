@@ -38,13 +38,13 @@ class InactivityLadder
     /** عتبة التنبيه — إعداد لا رقم محروق (2.13) */
     public function alertDays(): int
     {
-        return (int) setting('offboarding.inactivity.alert_days', 21);
+        return (int) setting('rep.inactivity.days_before_alert', 21);
     }
 
     /** دورة الخصم بالأيّام — أسبوع، وهو إعداد أيضًا */
     public function deductionEveryDays(): int
     {
-        return (int) setting('offboarding.inactivity.deduction_every_days', 7);
+        return (int) setting('rep.inactivity.deduction_every_days', 7);
     }
 
     /** قيمة الخصم الأسبوعيّ من جدول Rep الموحَّد (13.4-ن) */

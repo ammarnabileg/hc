@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Volunteer;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Services\Volunteer\Profile\NotesPanel;
+use App\Services\Volunteer\Profile\OrganizationPanel;
 use App\Services\Volunteer\Profile\ProfileReport;
 use App\Services\Volunteer\Profile\VolunteerProfileTabs;
 use Illuminate\Http\RedirectResponse;
@@ -21,6 +22,7 @@ class VolunteerProfileController extends Controller
     public function __construct(
         private readonly ProfileReport $report,
         private readonly NotesPanel $notes,
+        private readonly OrganizationPanel $organization,
     ) {}
 
     /**
@@ -38,6 +40,22 @@ class VolunteerProfileController extends Controller
         abort_unless($request->user()->allows('reports_volunteer.view', $owner), 403);
 
         return view('volunteer.profile.report', $this->report->build($owner, $request->user()));
+    }
+
+    /**
+     * «سجلّ المشرف» (13.4-م): كلّ حركة على هذا الشخص وعضويّاته — بمَن نفّذها ومتى.
+     * والسجلّ اطّلاعٌ فقط: لا يُعدَّل ولا يُحذَف منه سطر.
+     */
+    public function audit(Request $request, string $code): View
+    {
+        $owner = User::where('code', $code)->firstOrFail();
+
+        abort_unless($request->user()->allows('audit_logs.view', $owner), 403);
+
+        return view('volunteer.profile.audit', [
+            'owner' => $owner,
+            'rows' => $this->organization->movements($owner),
+        ]);
     }
 
     /** ملاحظة إداريّة سرّيّة — للمخوَّل وحده، وبـAudit كامل (13.4-م-5) */

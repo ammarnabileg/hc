@@ -24,11 +24,13 @@ class SettingsCatalog
             self::certificates(),
             self::analytics(),
             self::xpAndTickets(),
+            self::rewardQuestions(),
             self::streaksAndLeaderboard(),
             self::wars(),
             self::celebrations(),
             self::rewards(),
             self::events(),
+            self::availability(),
         );
     }
 
@@ -168,7 +170,7 @@ class SettingsCatalog
     private static function xpAndTickets(): array
     {
         return [
-            'xp_rules.earn' => ['gamification_xp', 'مصادر كسب XP', 'json', '[{"key":"lesson.completed","label":"إكمال درس","value":50,"daily_cap":0,"enabled":true},{"key":"streak.day","label":"يوم ستريك","value":100,"daily_cap":0,"enabled":true},{"key":"referral.success","label":"دعوة ناجحة","value":200,"daily_cap":0,"enabled":true},{"key":"placement_test","label":"اختبار تمهيديّ","value":30,"daily_cap":1,"enabled":true},{"key":"positive_message","label":"رسالة إيجابيّة","value":10,"daily_cap":3,"enabled":true},{"key":"game.session","label":"لعبة","value":20,"daily_cap":5,"enabled":true},{"key":"war.win","label":"فوز حرب","value":150,"daily_cap":0,"enabled":true},{"key":"five_am_club","label":"حضور نادي الخامسة","value":100,"daily_cap":1,"enabled":true},{"key":"qualifying.completed","label":"إتمام المسار التأهيليّ","value":1000,"daily_cap":0,"enabled":true}]'],
+            'xp_rules.earn' => ['gamification_xp', 'مصادر كسب XP', 'json', '[{"key":"lesson.completed","label":"إكمال درس","value":50,"daily_cap":0,"enabled":true},{"key":"streak.day","label":"يوم ستريك","value":100,"daily_cap":0,"enabled":true},{"key":"referral.success","label":"دعوة ناجحة","value":200,"daily_cap":0,"enabled":true},{"key":"placement_test","label":"اختبار تمهيديّ","value":30,"daily_cap":1,"enabled":true},{"key":"positive_message","label":"رسالة إيجابيّة","value":10,"daily_cap":3,"enabled":true},{"key":"reward.question","label":"سؤال مكافأة","value":50,"daily_cap":0,"enabled":true},{"key":"game.session","label":"لعبة","value":20,"daily_cap":5,"enabled":true},{"key":"war.win","label":"فوز حرب","value":150,"daily_cap":0,"enabled":true},{"key":"five_am_club","label":"حضور نادي الخامسة","value":100,"daily_cap":1,"enabled":true},{"key":"qualifying.completed","label":"إتمام المسار التأهيليّ","value":1000,"daily_cap":0,"enabled":true}]'],
             'xp_rules.spend' => ['gamification_xp', 'أوجه الصرف', 'json', '[{"key":"course.exam","label":"الامتحان النهائيّ","currency":"tickets","cost":1,"moment":"on_enter","enabled":true},{"key":"game.enter","label":"دخول لعبة","currency":"tickets","cost":1,"moment":"on_enter","enabled":true},{"key":"cv.export","label":"السيرة الذاتيّة","currency":"tickets","cost":2,"moment":"on_export","enabled":true},{"key":"streak.freeze","label":"تجميد ستريك","currency":"tickets","cost":1,"moment":"on_use","enabled":true},{"key":"war.focus.create","label":"إنشاء حرب تركيز","currency":"tickets","cost":5,"moment":"on_create","enabled":true},{"key":"war.join","label":"الانضمام لحرب","currency":"tickets","cost":1,"moment":"on_join","enabled":true}]'],
             // ⭐ قيمتا التدريب قبل/بعد نصف المهلة (12.10 — بلوك الإعدادات)
             'tickets.before_half_deadline' => ['gamification_xp', 'تذاكر إتمام التدريب قبل نصف المهلة', 'number', '2'],
@@ -186,14 +188,37 @@ class SettingsCatalog
     private static function streaksAndLeaderboard(): array
     {
         return [
+            // ⭐ مفتاح واحد لكلّ معنًى (7.2 · 2.13): كانت الشاشة تكتب `streaks.club5am.*`
+            // و`streaks.reward_days` بينما يقرأ الكود `streaks.club_5am.*`
+            // و`streaks.reward.every_days` — فيعدّل الأدمن قيمةً لا يراها النظام.
+            // المعتمَد الآن هو ما تراه هنا، ومايجريشن الترحيل يحذف اليتيم.
             'streaks.enabled' => ['gamification_streaks', 'تفعيل الستريك ونادي الخامسة', 'bool', '1'],
             'streaks.club5am.window_start' => ['gamification_streaks', 'بداية نافذة نادي الخامسة (توقيت المستخدم)', 'string', '04:50'],
             'streaks.club5am.window_end' => ['gamification_streaks', 'نهاية نافذة نادي الخامسة', 'string', '05:20'],
             'streaks.xp_ladder' => ['gamification_streaks', 'سلّم XP الحضور المتدرّج', 'json', '[{"from":1,"to":10,"xp":100},{"from":11,"to":25,"xp":150},{"from":26,"to":45,"xp":200},{"from":46,"to":75,"xp":250},{"from":76,"to":125,"xp":300},{"from":126,"to":0,"xp":350}]'],
             'streaks.reward_days' => ['gamification_streaks', 'أيّام الستريك المتواصلة للمكافأة', 'number', '7'],
+            'streaks.reward_tickets' => ['gamification_streaks', 'تذاكر مكافأة السلسلة', 'number', '1'],
             'streaks.freeze_cost_tickets' => ['gamification_streaks', 'تكلفة تجميد الستريك (تذاكر)', 'number', '1'],
             'streaks.max_freezes_per_month' => ['gamification_streaks', 'أقصى تجميدات شهريًّا', 'number', '2'],
+            'streaks.freeze_max_age_days' => ['gamification_streaks', 'أقصى قِدَم لليوم الفايت القابل للتجميد', 'number', '2'],
             'streaks.celebration_tier' => ['gamification_streaks', 'مستوى الاحتفال بالستريك', 'number', '2'],
+            'streaks.heatmap.months' => ['gamification_streaks', 'عدد شهور الخريطة الحراريّة', 'number', '3'],
+
+            // نصوص الشاشة والرسائل — لا نصّ محروق في الكود (2.13)
+            'streaks.club5am.xp_reason' => ['gamification_streaks', 'سبب معاملة XP الحضور', 'string', 'حضور نادي الخامسة صباحًا'],
+            'streaks.checkin.message' => ['gamification_streaks', 'رسالة تسجيل الحضور', 'string', 'اتسجّل ✓ — ستريكك دلوقتي :days يوم.'],
+            'streaks.checkin.club_message' => ['gamification_streaks', 'رسالة الحضور داخل النافذة', 'string', 'اتسجّل في نادي الخامسة ✓ — +:xp XP وستريكك :days يوم.'],
+            'streaks.reward.reason' => ['gamification_streaks', 'سبب معاملة تذكرة المكافأة', 'string', 'مكافأة سلسلة الحضور'],
+            'streaks.reward.claimed_message' => ['gamification_streaks', 'رسالة استلام المكافأة', 'string', 'مبروك — :tickets تذكرة هدية اتضافت لصندوقك 🎟️'],
+            'streaks.reward.not_due_message' => ['gamification_streaks', 'رسالة المكافأة غير المستحقّة', 'string', 'المكافأة مش متاحة دلوقتي — كمّل سلسلتك وهتلاقيها في انتظارك.'],
+            'streaks.reward.cta' => ['gamification_streaks', 'زرّ استلام المكافأة', 'string', 'استلم تذكرة المكافأة'],
+            'streaks.freeze.reason' => ['gamification_streaks', 'سبب معاملة درع التجميد', 'string', 'درع تجميد السلسلة'],
+            'streaks.freeze.cta' => ['gamification_streaks', 'زرّ شراء الدرع', 'string', 'اشترِ درع تجميد'],
+            'streaks.freeze.done_message' => ['gamification_streaks', 'رسالة نجاح التجميد', 'string', 'الدرع حمى يوم :day — سلسلتك كمّلت 🛡️'],
+            'streaks.freeze.nothing_message' => ['gamification_streaks', 'رسالة لا يوم يحتاج حماية', 'string', 'مفيش يوم فايت محتاج حماية دلوقتي — سلسلتك سليمة.'],
+            'streaks.freeze.cap_message' => ['gamification_streaks', 'رسالة سقف التجميد الشهريّ', 'string', 'وصلت أقصى :cap تجميدات الشهر ده — الشهر الجاي يبدأ رصيد جديد.'],
+            'streaks.freeze.no_tickets_message' => ['gamification_streaks', 'رسالة نقص التذاكر', 'string', 'التذاكر مش كفاية للدرع — اكسب تذاكر من دروسك وارجع.'],
+            'streaks.freeze.day_format' => ['gamification_streaks', 'صيغة عرض اليوم المحميّ', 'string', 'j F'],
 
             'leaderboard.enabled' => ['gamification_leaderboard', 'تفعيل الليدر بورد', 'bool', '1'],
             'leaderboard.ranges' => ['gamification_leaderboard', 'النطاقات المفعّلة (أيّام)', 'json', '[7,30]'],
@@ -208,6 +233,43 @@ class SettingsCatalog
             'badges.max_on_profile' => ['gamification_badges', 'أقصى شارات ظاهرة على البروفايل', 'number', '6'],
             'badges.celebration_tier' => ['gamification_badges', 'مستوى الاحتفال عند المنح', 'number', '2'],
             'badges.show_holders_count' => ['gamification_badges', 'إظهار عدد الحاصلين للمستخدم', 'bool', '1'],
+        ];
+    }
+
+    // ---------------------------------------------------------------- أسئلة المكافأة (12.10-أ)
+
+    /**
+     * بنك أسئلة المكافأة: روابط مؤقّتة بتايمر نازل تمنح مكافأة عند الإجابة.
+     * والقواعد المقفولة (إجابة واحدة · تصحيح Server-side) تظهر هنا **معلَنةً**
+     * لا لتُعدَّل بل ليعرف الأدمن أنّها مضمونة (12.10-أ).
+     */
+    private static function rewardQuestions(): array
+    {
+        return [
+            'reward_questions.enabled' => ['gamification_reward_questions', 'تفعيل أسئلة المكافأة', 'bool', '1'],
+            'reward_questions.default_minutes' => ['gamification_reward_questions', 'مدّة التفعيل الافتراضيّة (دقيقة)', 'number', '60'],
+            'reward_questions.token_length' => ['gamification_reward_questions', 'طول مفتاح الرابط', 'number', '12'],
+            'reward_questions.one_answer_per_user_locked' => ['gamification_reward_questions', 'إجابة واحدة لكلّ مستخدم ومنع تكرار الصرف — مقفول', 'bool', '1'],
+            'reward_questions.server_side_locked' => ['gamification_reward_questions', 'التصحيح في الخادم والإجابة لا تُرسَل للمتصفّح — مقفول', 'bool', '1'],
+            'reward_questions.autoschedule_enabled' => ['gamification_reward_questions', 'جدولة الفتح التلقائيّ', 'bool', '1'],
+            'reward_questions.notify_on_open' => ['gamification_reward_questions', 'إشعار/Toast بفتح سؤال جديد', 'bool', '1'],
+            'reward_questions.show_timer' => ['gamification_reward_questions', 'إظهار التايمر فوق السؤال', 'bool', '1'],
+            'reward_questions.csv_import_enabled' => ['gamification_reward_questions', 'السماح باستيراد CSV', 'bool', '1'],
+            'reward_questions.page_title' => ['gamification_reward_questions', 'عنوان صفحة السؤال', 'string', 'سؤال المكافأة'],
+            'reward_questions.page_intro' => ['gamification_reward_questions', 'شرح صفحة السؤال', 'text', 'جاوب صحّ قبل ما الوقت يخلص وتكسب مكافأتك فورًا.'],
+            'reward_questions.closed_text' => ['gamification_reward_questions', 'نصّ انتهاء الوقت', 'string', 'انتهى وقت الإجابة'],
+            'reward_questions.correct_message' => ['gamification_reward_questions', 'رسالة الإجابة الصحيحة', 'text', 'إجابة صحيحة 🎉 — مكافأتك اتضافت لحسابك.'],
+            'reward_questions.wrong_message' => ['gamification_reward_questions', 'رسالة الإجابة الخاطئة (تشجّع ولا تعاتب)', 'text', 'مش الإجابة الصحيحة المرّة دي — بس شكرًا إنك جاوبت بسرعة.'],
+            'reward_questions.already_message' => ['gamification_reward_questions', 'رسالة مَن جاوب قبل كده', 'text', 'جاوبت على السؤال ده قبل كده — مكافأتك اتصرفت مرّة واحدة.'],
+            'reward_questions.ledger_reason' => ['gamification_reward_questions', 'وصف المعاملة في المحفظة', 'string', 'إجابة صحيحة على سؤال مكافأة'],
+            'reward_questions.whatsapp_text' => ['gamification_reward_questions', 'نصّ رسالة الواتساب', 'text', 'سؤال المكافأة النهارده — جاوب قبل ما الوقت يخلص:'],
+            'reward_questions.submit_label' => ['gamification_reward_questions', 'زرّ الإرسال', 'string', 'أرسل إجابتي'],
+            'reward_questions.empty_message' => ['gamification_reward_questions', 'الحالة الفارغة', 'string', 'لا أسئلة مكافآت بعد.'],
+            'reward_questions.labels.draft' => ['gamification_reward_questions', 'وسم المسودّة', 'string', 'مسودّة'],
+            'reward_questions.labels.scheduled' => ['gamification_reward_questions', 'وسم المجدول', 'string', 'مجدول'],
+            'reward_questions.labels.active' => ['gamification_reward_questions', 'وسم النشط', 'string', 'نشط'],
+            'reward_questions.labels.closed' => ['gamification_reward_questions', 'وسم المغلق', 'string', 'مغلق'],
+            'reward_questions.labels.archived' => ['gamification_reward_questions', 'وسم المؤرشف', 'string', 'مؤرشف'],
         ];
     }
 
@@ -292,7 +354,7 @@ class SettingsCatalog
             'events.qr_refresh_seconds' => ['events', 'ثوانٍ تجديد QR التشيك-إن', 'number', '30'],
             'events.online_link_minutes_before' => ['events', 'ظهور رابط الأونلاين قبل الموعد (دقيقة)', 'number', '30'],
             'events.attendance_code_persistent' => ['events', 'كود الحضور مستمرّ لا يقفل — مقفول', 'bool', '1'],
-            'events.attendance_code_length' => ['events', 'طول كود الحضور', 'number', '6'],
+            'events.attendance.code_length' => ['events', 'طول كود الحضور', 'number', '6'],
             'events.reward_tiers_default' => ['events', 'جدول المكافأة المتدرّجة الافتراضيّ', 'json', '[{"hours":24,"xp":200,"tickets":1},{"hours":72,"xp":100,"tickets":0},{"hours":168,"xp":50,"tickets":0}]'],
             'events.close_registration_when_full' => ['events', 'إغلاق التسجيل عند الاكتمال (بلا قائمة انتظار)', 'bool', '1'],
             'events.show_registrant_avatars' => ['events', 'أفاتارات المسجّلين (دليل اجتماعيّ)', 'bool', '1'],
@@ -300,6 +362,38 @@ class SettingsCatalog
             'events.friend_invite' => ['events', 'دعوة صديق', 'bool', '1'],
             'events.reward_countdown' => ['events', 'عدّاد المكافأة النازل عند المستخدم', 'bool', '1'],
             'events.empty_message' => ['events', 'رسالة الحالة الفارغة', 'string', 'لا فعاليّات — أنشئ أوّل لقاء.'],
+        ];
+    }
+
+    // ---------------------------------------------------------------- الإتاحة والتوقيت (5)
+
+    /**
+     * كلّ ما يحكم فتح/غلق التدريبات بتوقيت المستخدم — لا رقم منها في الكود (2.13).
+     * وترويسات الدولة إعداد لأنّها تختلف باختلاف الاستضافة (Cloudflare · GAE · بروكسي).
+     */
+    private static function availability(): array
+    {
+        return [
+            'availability.lookahead_days' => ['availability', 'أقصى أيّام البحث عن الفتحة القادمة', 'number', '400'],
+            'availability.detect.enabled' => ['availability', 'كشف المنطقة الزمنيّة تلقائيًّا', 'bool', '1'],
+            'availability.detect.client_field' => ['availability', 'اسم حقل تلميح المتصفّح', 'string', 'timezone'],
+            'availability.detect.country_headers' => ['availability', 'ترويسات دولة الزائر من الطبقة الأماميّة', 'json', '["CF-IPCountry","X-AppEngine-Country","X-Geo-Country","X-Country-Code"]'],
+            'availability.timezone.preferred' => ['availability', 'المناطق الزمنيّة المقترحة أوّلًا', 'json', '["Africa/Cairo","Asia/Riyadh","Asia/Dubai","Asia/Amman","Africa/Khartoum","Africa/Casablanca","Europe/London"]'],
+            'availability.timezone.saved_message' => ['availability', 'رسالة حفظ التوقيت', 'string', 'اتحفظ ✓ — كلّ المواعيد دلوقتي بتوقيتك.'],
+            'availability.admin.per_page' => ['availability', 'صفوف شاشة الإتاحة', 'number', '20'],
+            'availability.admin.max_periods' => ['availability', 'أقصى فترات إتاحة للتدريب الواحد', 'number', '24'],
+
+            // نصوص شريحة «توقيتك» عند المتدرّب
+            'availability.timezone.chip_label' => ['availability', 'عنوان شريحة التوقيت', 'string', 'توقيتك'],
+            'availability.timezone.modal_title' => ['availability', 'عنوان بوب-أب التوقيت', 'string', 'التوقيت المحلّيّ'],
+            'availability.timezone.modal_hint' => ['availability', 'شرح بوب-أب التوقيت', 'text', 'كلّ مواعيد التدريبات وفتح الكورسات بتتحسب بتوقيتك أنت. بنكتشفه تلقائيًّا حسب مكانك، وتقدر تظبطه بنفسك.'],
+            'availability.timezone.field_label' => ['availability', 'عنوان حقل الاختيار', 'string', 'اختر منطقتك الزمنيّة'],
+            'availability.timezone.auto_option' => ['availability', 'خيار الكشف التلقائيّ', 'string', 'تلقائيًّا حسب مكاني'],
+            'availability.timezone.save_cta' => ['availability', 'زرّ حفظ التوقيت', 'string', 'احفظ التوقيت'],
+            'availability.timezone.source_manual' => ['availability', 'وصف المصدر: يدويّ', 'string', 'التوقيت ده أنت اللي اخترته.'],
+            'availability.timezone.source_auto' => ['availability', 'وصف المصدر: تلقائيّ', 'string', 'اتكتشف تلقائيًّا حسب مكانك دلوقتي.'],
+            'availability.timezone.source_country' => ['availability', 'وصف المصدر: دولتك', 'string', 'مأخوذ من دولتك في ملفّك.'],
+            'availability.timezone.source_platform' => ['availability', 'وصف المصدر: المنصّة', 'string', 'توقيت المنصّة الافتراضيّ — ظبّطه عشان مواعيدك تبقى مضبوطة.'],
         ];
     }
 }

@@ -4,6 +4,7 @@ namespace App\Services\Learning;
 
 use App\Models\Course;
 use App\Models\Enrollment;
+use App\Services\Gamification\EconomyRules;
 use Illuminate\Support\Carbon;
 
 /**
@@ -20,7 +21,12 @@ use Illuminate\Support\Carbon;
  */
 class XpCalculator
 {
-    /** نصف الديدلاين = منتصف المدّة بين بداية التدريب وديدلاينه — للتذاكر فقط */
+    public function __construct(private readonly EconomyRules $rules) {}
+
+    /**
+     * نصف الديدلاين = نقطة المنتصف بين بداية التدريب وديدلاينه — للتذاكر فقط.
+     * والنسبة إعدادٌ في لوحة الإدارة (`tickets.midpoint_percent` = 50% افتراضًا).
+     */
     public function halfPoint(Enrollment $enrollment): ?Carbon
     {
         $start = $this->startPoint($enrollment);
@@ -29,9 +35,10 @@ class XpCalculator
             return null;
         }
 
-        $seconds = (int) round($start->diffInSeconds($enrollment->deadline_at, absolute: true) / 2);
+        $percent = max(1, min(99, (int) setting('tickets.midpoint_percent', 50)));
+        $total = $start->diffInSeconds($enrollment->deadline_at, absolute: true);
 
-        return $start->copy()->addSeconds($seconds);
+        return $start->copy()->addSeconds((int) round($total * $percent / 100));
     }
 
     /** هل ما زلنا قبل نصف الديدلاين؟ وبلا ديدلاين تُحتسَب القيمة الأعلى. */
@@ -77,9 +84,14 @@ class XpCalculator
      */
     public function lessonXp(Course $course, Enrollment $enrollment, ?Carbon $at = null): int
     {
-        $max = (int) ($course->xp_max ?: $course->xp_before_half);
+        // القيمة القصوى للتدريب أوّلًا، وإلّا فقيمة صفّ «إكمال درس» في جدول الكسب (12.10)
+        $max = (int) ($course->xp_max ?: $course->xp_before_half)
+            ?: $this->rules->earnValue('lesson.completed');
 
-        return (int) floor($max * $this->remainingRatio($enrollment, $at));
+        $value = (int) floor($max * $this->remainingRatio($enrollment, $at));
+
+        // حدّ أدنى اختياريّ بعد التناقص — إعدادٌ في تاب «XP والتذاكر»
+        return max($value, min($max, (int) setting('xp_rules.decay_min', 0)));
     }
 
     /** ما سيكسبه الآن لو أنهى درسًا — للعرض التحفيزيّ (البار «يدوب» مع الوقت — 2.9-4) */
@@ -91,9 +103,13 @@ class XpCalculator
     /** تذاكر الدرس حسب نصف الديدلاين (7): تذكرتان قبله وواحدة بعده — والقيم إعدادات */
     public function lessonTickets(Course $course, Enrollment $enrollment, ?Carbon $at = null): int
     {
+        /*
+         | قيمة التدريب تغلب حين تُضبَط، وإلّا فالافتراضيّ العامّ من تاب
+         | «XP والتذاكر» في لوحة الإدارة (12.10) لا رقمٌ محروق (2.13).
+         */
         return $this->isBeforeHalf($enrollment, $at)
-            ? (int) ($course->tickets_before_half ?? 2)
-            : (int) ($course->tickets_after_half ?? 1);
+            ? (int) ($course->tickets_before_half ?: setting('tickets.before_half_deadline', 2))
+            : (int) ($course->tickets_after_half ?: setting('tickets.after_half_deadline', 1));
     }
 
     private function startPoint(Enrollment $enrollment): ?Carbon

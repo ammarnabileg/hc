@@ -302,7 +302,7 @@ class RepService
     {
         $tz = (string) setting('system.timezone', 'Africa/Cairo');
         $day = max(1, (int) setting('rep.reset.day_of_month', 1));
-        $hour = (int) setting('rep.reset.hour_cairo', 5);
+        $hour = (int) setting('rep.reset.hour', 5);
 
         $now = CarbonImmutable::now($tz);
         $candidate = $now->startOfMonth()->addDays($day - 1)->setTime($hour, 0);
@@ -318,7 +318,7 @@ class RepService
         $now = $now->setTimezone($tz);
 
         return $now->day === max(1, (int) setting('rep.reset.day_of_month', 1))
-            && $now->hour === (int) setting('rep.reset.hour_cairo', 5);
+            && $now->hour === (int) setting('rep.reset.hour', 5);
     }
 
     /**

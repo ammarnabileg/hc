@@ -20,6 +20,7 @@ class Referral extends Model
             'commission_earned' => 'decimal:2',
             'commission_percent' => 'decimal:2',
             'welcome_ticket_granted' => 'boolean',
+            'referrer_ticket_granted' => 'boolean',
         ];
     }
 

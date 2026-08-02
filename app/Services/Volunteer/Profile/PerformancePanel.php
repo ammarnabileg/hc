@@ -29,7 +29,9 @@ final class PerformancePanel
     public function build(User $owner, ?User $viewer, string $level): array
     {
         $days = (int) setting('ux.lists.default_range_days', 30);
-        $score = $this->rep->score($owner);
+        // نفس مصدر الرقم في كلّ الشاشات — جدول `rep_scores` أوّلًا (13.4-ن)
+        $stored = RepScore::where('user_id', $owner->id)->value('score');
+        $score = $stored !== null ? (float) $stored : $this->rep->score($owner);
         $summary = $this->leadership->receivedSummary($owner);
 
         return [
@@ -105,7 +107,7 @@ final class PerformancePanel
     public function retentionRisk(User $owner): array
     {
         $score = (float) (RepScore::where('user_id', $owner->id)->value('score') ?? 0);
-        $idleDays = (int) setting('offboarding.inactivity.alert_days', 21);
+        $idleDays = (int) setting('rep.inactivity.days_before_alert', 21);
         $lateCap = (int) setting('volunteer.health.retention_risk.late_tasks', 2);
         $threshold = (int) setting('volunteer.health.retention_risk.threshold', 2);
 

@@ -42,7 +42,7 @@
                 <div class="text-sm" style="color: var(--text-muted)">يتصفّر في</div>
                 <div class="text-lg font-bold mt-1">{{ $nextReset->format('Y/m/d') }} الساعة {{ $nextReset->format('H:i') }}</div>
                 <p class="text-xs mt-1" style="color: var(--text-muted)">
-                    يوم {{ (int) setting('rep.reset.day_of_month', 1) }} الساعة {{ (int) setting('rep.reset.hour_cairo', 5) }}:00ص بتوقيت القاهرة —
+                    يوم {{ (int) setting('rep.reset.day_of_month', 1) }} الساعة {{ (int) setting('rep.reset.hour', 5) }}:00ص بتوقيت القاهرة —
                     الرقم الظاهر بيرجع صفر، والسجلّ والمكتسَب التراكميّ يفضلوا زيّ ما هم.
                 </p>
             </div>

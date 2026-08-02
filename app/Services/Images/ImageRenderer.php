@@ -20,6 +20,8 @@ use RuntimeException;
  */
 class ImageRenderer
 {
+    use Concerns\DrawsWithGd;
+
     public function __construct(private readonly ImageTemplateFields $fields) {}
 
     /** مفتاح الكاش: القالب + المستخدم + البيانات — تغيّر أيّها يغيّر المفتاح */
@@ -99,7 +101,7 @@ class ImageRenderer
         }
 
         // ⭐ كلّ صورة مستخرَجة تحمل تاريخ اللقطة وشعار المنصّة (12.14-هـ)
-        $this->stamp($canvas, $width, $height);
+        $this->stampCanvas($canvas, $width, $height);
 
         ob_start();
         imagepng($canvas);
@@ -263,37 +265,6 @@ class ImageRenderer
         imagestring($canvas, 5, $x, $y, $text, $color);
     }
 
-    /** ⭐ تاريخ اللقطة وشعار المنصّة — فلا يُنشَر ترتيبٌ قديم على أنّه حاليّ */
-    private function stamp($canvas, int $width, int $height): void
-    {
-        $parts = [];
-
-        if (setting('images.watermark.show_date', true)) {
-            $parts[] = now()->format('Y/m/d');
-        }
-
-        if (setting('images.watermark.show_logo', true)) {
-            $parts[] = (string) setting('platform.identity.name', config('app.name'));
-        }
-
-        if ($parts === []) {
-            return;
-        }
-
-        $text = implode(' · ', $parts);
-        $color = $this->allocate($canvas, (string) setting('images.watermark.color', '#9fb3c8'));
-        $font = $this->fontPath();
-        $size = max(10, (int) round($height * 0.018));
-
-        if ($font !== null && function_exists('imagettftext')) {
-            imagettftext($canvas, $size, 0, 24, $height - 24, $color, $font, $text);
-
-            return;
-        }
-
-        imagestring($canvas, 3, 24, $height - 30, $text, $color);
-    }
-
     private function drawInitials($canvas, int $x, int $y, int $w, int $h, ?User $user): void
     {
         $bg = $this->allocate($canvas, (string) setting('images.avatar.fallback_bg', '#071825'));
@@ -326,76 +297,5 @@ class ImageRenderer
         }
 
         imagestring($canvas, 5, $x + intdiv($w, 3), $y + intdiv($h, 2), $initials, $fg);
-    }
-
-    /** خطّ Cairo المضمَّن — ومساره إعداد فلا يُحرَق في الكود */
-    private function fontPath(): ?string
-    {
-        $path = (string) setting('images.font.path', 'fonts/Cairo-Regular.ttf');
-        $full = public_path($path);
-
-        return is_file($full) ? $full : null;
-    }
-
-    private function maskCircle($image, int $w, int $h): void
-    {
-        $mask = imagecreatetruecolor($w, $h);
-        imagealphablending($mask, false);
-        imagesavealpha($mask, true);
-        imagefill($mask, 0, 0, imagecolorallocatealpha($mask, 0, 0, 0, 127));
-        imagefilledellipse($mask, intdiv($w, 2), intdiv($h, 2), $w, $h, imagecolorallocatealpha($mask, 255, 255, 255, 0));
-
-        for ($px = 0; $px < $w; $px++) {
-            for ($py = 0; $py < $h; $py++) {
-                $alpha = (imagecolorat($mask, $px, $py) >> 24) & 0x7F;
-
-                if ($alpha > 0) {
-                    imagesetpixel($image, $px, $py, imagecolorallocatealpha($image, 0, 0, 0, 127));
-                }
-            }
-        }
-
-        imagedestroy($mask);
-    }
-
-    /** @return array{0:int,1:int,2:int,3:int} */
-    private function cropBox(int $srcW, int $srcH, int $dstW, int $dstH, string $fit): array
-    {
-        $srcRatio = $srcW / max(1, $srcH);
-        $dstRatio = $dstW / max(1, $dstH);
-
-        if ($fit === 'contain') {
-            return [0, 0, $srcW, $srcH];
-        }
-
-        if ($srcRatio > $dstRatio) {
-            $w = (int) round($srcH * $dstRatio);
-
-            return [intdiv($srcW - $w, 2), 0, $w, $srcH];
-        }
-
-        $h = (int) round($srcW / $dstRatio);
-
-        return [0, intdiv($srcH - $h, 2), $srcW, $h];
-    }
-
-    private function loadImage(string $path)
-    {
-        $info = @getimagesize($path);
-
-        return match ($info[2] ?? null) {
-            IMAGETYPE_PNG => @imagecreatefrompng($path),
-            IMAGETYPE_JPEG => @imagecreatefromjpeg($path),
-            IMAGETYPE_GIF => @imagecreatefromgif($path),
-            IMAGETYPE_WEBP => function_exists('imagecreatefromwebp') ? @imagecreatefromwebp($path) : null,
-            default => null,
-        } ?: null;
-    }
-
-    private function allocate($canvas, string $hex): int
-    {
-        [$r, $g, $b] = sscanf($hex, '#%02x%02x%02x') ?: [255, 255, 255];
-
-        return (int) imagecolorallocate($canvas, (int) $r, (int) $g, (int) $b);
     }
 }

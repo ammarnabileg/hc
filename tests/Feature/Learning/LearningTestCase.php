@@ -10,6 +10,7 @@ use App\Models\Permission;
 use App\Models\Role;
 use App\Models\Section;
 use App\Models\User;
+use Database\Seeders\CoreSeeder;
 use Database\Seeders\LearningDemoSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
@@ -29,10 +30,42 @@ abstract class LearningTestCase extends TestCase
     {
         parent::setUp();
 
+        // العملات لازمة: إتمام الدرس صار يمنح XP وتذاكر في دفتر المحفظة (7 · 7.1)
+        $this->seed(CoreSeeder::class);
         $this->seed(LearningDemoSeeder::class);
     }
 
+    /** صلاحيّات دور المتدرّب في هذا المجال — بنفس نطاق SELF الذي يمنحه RolePermissionSeeder */
+    protected const TRAINEE_PERMISSIONS = [
+        'enrollments.view',
+        'lesson_quiz.view',
+        'video_comments.view', 'video_comments.create', 'video_comments.edit', 'video_comments.delete',
+        'course_notes.view', 'course_notes.create', 'course_notes.edit', 'course_notes.delete', 'course_notes.export',
+    ];
+
+    /** صلاحيّات الإشراف على التعليقات (3.1) — بنطاق ALL كأدمن المحتوى */
+    protected const MODERATOR_PERMISSIONS = [
+        'video_comments.archive', 'video_comments.restore', 'video_comments.delete',
+    ];
+
     protected function trainee(string $name = 'متدرّب'): User
+    {
+        return $this->userWithRole($name, 'trainee', 'متدرّب', self::TRAINEE_PERMISSIONS, 'SELF');
+    }
+
+    /** مشرف تعليقات: يملك الإخفاء والإظهار والحذف على تعليقات الجميع */
+    protected function moderator(string $name = 'مشرف'): User
+    {
+        return $this->userWithRole(
+            $name,
+            'content_admin',
+            'أدمن المحتوى',
+            array_merge(self::TRAINEE_PERMISSIONS, self::MODERATOR_PERMISSIONS),
+            'ALL',
+        );
+    }
+
+    private function userWithRole(string $name, string $roleKey, string $roleLabel, array $permissions, string $scope): User
     {
         $user = User::create([
             'name' => $name,
@@ -42,27 +75,31 @@ abstract class LearningTestCase extends TestCase
             'status' => 'active',
         ]);
 
-        $permission = Permission::firstOrCreate(['key' => 'enrollments.view'], [
-            'resource' => 'enrollments',
-            'action' => 'view',
-            'group' => 'التعلّم',
-            'label_ar' => 'عرض التسجيلات',
-            'allowed_scopes' => ['SELF', 'TEAM', 'ENTITY', 'ALL'],
-        ]);
-
-        $role = Role::firstOrCreate(['key' => 'trainee'], [
-            'name_ar' => 'متدرّب',
+        $role = Role::firstOrCreate(['key' => $roleKey], [
+            'name_ar' => $roleLabel,
             'layer' => 'user',
         ]);
 
-        DB::table('permission_role')->insertOrIgnore([
-            'role_id' => $role->id,
-            'permission_id' => $permission->id,
-            'scope' => 'SELF',
-            'effect' => 'allow',
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
+        foreach ($permissions as $key) {
+            [$resource, $action] = explode('.', $key, 2);
+
+            $permission = Permission::firstOrCreate(['key' => $key], [
+                'resource' => $resource,
+                'action' => $action,
+                'group' => 'التعلّم',
+                'label_ar' => $key,
+                'allowed_scopes' => ['SELF', 'TEAM', 'ENTITY', 'ALL'],
+            ]);
+
+            DB::table('permission_role')->insertOrIgnore([
+                'role_id' => $role->id,
+                'permission_id' => $permission->id,
+                'scope' => $scope,
+                'effect' => 'allow',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
 
         DB::table('role_user')->insert([
             'role_id' => $role->id,

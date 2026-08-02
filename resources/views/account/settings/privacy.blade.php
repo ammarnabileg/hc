@@ -169,6 +169,9 @@
             </div>
         </section>
     </div>
+
+    {{-- منطقة الخطر: حذف الحساب بتأكيد OTP رباعيّ (2.3) --}}
+    @include('security.danger-zone')
 @endsection
 
 @push('scripts')

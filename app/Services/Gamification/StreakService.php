@@ -63,7 +63,7 @@ class StreakService
         ])->save();
 
         // ستريك 7 أيّام = احتفال متوسّط (2.14)
-        if ($current > 0 && $current % (int) setting('streaks.reward.every_days', 7) === 0) {
+        if ($current > 0 && $current % (int) setting('streaks.reward_days', 7) === 0) {
             $this->celebrations->fire($user, 'streak.7days', $streak);
         }
 
@@ -144,8 +144,8 @@ class StreakService
     public function clubWindow(): array
     {
         return [
-            'start' => (string) setting('streaks.club_5am.window_start', '04:50'),
-            'end' => (string) setting('streaks.club_5am.window_end', '05:20'),
+            'start' => (string) setting('streaks.club5am.window_start', '04:50'),
+            'end' => (string) setting('streaks.club5am.window_end', '05:20'),
         ];
     }
 

@@ -125,6 +125,52 @@ class UserDirectory
         return Role::orderBy('layer')->orderBy('id')->pluck('name_ar', 'key')->all();
     }
 
+    /**
+     * أدوات احتواء الحساب المسيء (12.1) — **إجراءات لا تسميات عرض**.
+     * وما لا يملكه المشاهد **يُخفى ولا يُعطَّل** (2.15-أ-7)، فالقائمة تُبنى بصلاحيّاته.
+     *
+     * @return array<int, array{key:string, label:string, danger:bool}>
+     */
+    public function moderationActions(User $viewer, User $subject): array
+    {
+        $actions = [];
+        $contained = in_array($subject->status, ['banned', 'suspended'], true);
+
+        if ($viewer->allows('account_suspension.create') && ! $contained) {
+            $actions[] = ['key' => 'ban', 'label' => 'حظر الحساب', 'danger' => true];
+            $actions[] = ['key' => 'suspend', 'label' => 'تعليق مؤقّت', 'danger' => true];
+        }
+
+        if ($viewer->allows('account_suspension.delete') && $contained) {
+            $actions[] = ['key' => 'release', 'label' => 'رفع الاحتواء', 'danger' => false];
+        }
+
+        if ($viewer->allows('user_sessions.delete')) {
+            $actions[] = ['key' => 'sessions', 'label' => 'إنهاء كلّ جلساته', 'danger' => false];
+        }
+
+        if ($viewer->allows('users.edit')) {
+            if (! $subject->email_verified_at) {
+                $actions[] = ['key' => 'verify-email', 'label' => 'تأكيد بريده يدويًّا', 'danger' => false];
+            }
+
+            $actions[] = ['key' => 'password-link', 'label' => 'رابط تغيير كلمة السرّ', 'danger' => false];
+        }
+
+        // الانتحال مجموعة محميّة، ولا يُنتحَل مالك المنصّة ولا المشاهد نفسه
+        if ($viewer->allows('impersonation.create') && $subject->id !== $viewer->id && ! $subject->isPlatformOwner()) {
+            $actions[] = ['key' => 'impersonate', 'label' => 'تصفّح كـ' .$subject->shortName(1), 'danger' => false];
+        }
+
+        return $actions;
+    }
+
+    /** هل يظهر قسم الاحتواء أصلًا؟ — لا نعرض عنوانًا فارغًا بلا فعل واحد */
+    public function canModerate(User $viewer, User $subject): bool
+    {
+        return $this->moderationActions($viewer, $subject) !== [];
+    }
+
     /** تابات صفحة المستخدم (12.1) — وتاب التطوّع بعد «متقدّم» لمن له صلاحيّة */
     public function tabsFor(User $viewer, User $subject): array
     {

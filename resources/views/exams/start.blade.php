@@ -46,10 +46,14 @@
                     </div>
 
                     @if ($price > 0)
-                        {{-- السعر بالكوينز لامتحان المسار + الرصيد قبل/بعد (24.5) --}}
+                        {{--
+                          التكلفة بعملتها + الرصيد قبل/بعد (24.5):
+                          امتحان التدريب **بتذكرة تُخصَم بمجرّد الدخول** (4.2)،
+                          وامتحان شهادة المسار **بالكوينز** بسعره لكلّ مسار (16).
+                        --}}
                         <div class="flex items-center justify-between gap-3">
                             <dt style="color: var(--text-muted)">{{ setting('exams.labels.price', 'سعر الدخول') }}</dt>
-                            <dd class="font-semibold">{{ number_format($price) }} {{ setting('wallet.coins.label', 'كوينز') }}</dd>
+                            <dd class="font-semibold">{{ number_format($price) }} {{ $currencyLabel }}</dd>
                         </div>
                         <div class="flex items-center justify-between gap-3">
                             <dt style="color: var(--text-muted)">{{ setting('exams.labels.balance_before', 'رصيدك قبل') }}</dt>
@@ -78,12 +82,12 @@
                 @elseif ($attemptsLeft < 1)
                     <p class="text-sm" style="color: var(--text-muted)">{{ setting('exams.messages.no_attempts_left', 'خلصت محاولاتك في الامتحان ده.') }}</p>
                 @elseif (! $affordable)
-                    <p class="text-sm" style="color: var(--text-muted)">{{ setting('exams.messages.insufficient_balance', 'رصيدك مايكفّيش لدخول الامتحان — اشحن محفظتك وارجع.') }}</p>
+                    <p class="text-sm" style="color: var(--text-muted)">{{ $shortMessage }}</p>
                 @endif
             </div>
 
             <div class="modal-head px-5 py-4 flex flex-wrap items-center gap-2" style="border-top: 1px solid var(--border)">
-                @if (! $affordable && \Illuminate\Support\Facades\Route::has('wallet.topup'))
+                @if (! $affordable && $canTopup && \Illuminate\Support\Facades\Route::has('wallet.topup'))
                     {{-- عدم كفاية الرصيد: [اشحن المحفظة] **داخل البوب-أب نفسه** بلا مغادرة الشاشة (24.5) --}}
                     <a href="{{ route('wallet.topup') }}"
                        class="btn rounded-xl px-4 py-2 text-sm font-semibold motion-standard"

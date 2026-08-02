@@ -181,9 +181,9 @@ class AdminSystemDemoSeeder extends Seeder
             ['store.invoice.prefix', 'store', 'بادئة رقم الفاتورة', 'string', 'INV-', false],
             ['store.invoice.digits', 'store', 'عدد خانات تسلسل الفاتورة', 'number', '6', false],
             ['store.order.pending_expiry_minutes', 'store', 'مهلة انتهاء الطلب المعلّق (دقائق)', 'number', '30', false],
-            ['library.reader.session_minutes', 'store', 'صلاحيّة رابط جلسة القارئ (دقائق)', 'number', '15', false],
-            ['library.watermark.opacity_percent', 'store', 'شفافيّة العلامة المائيّة (%)', 'number', '12', false],
-            ['library.watermark.font_size', 'store', 'حجم خطّ العلامة المائيّة', 'number', '14', false],
+            ['library.reader.session_minutes', 'library', 'صلاحيّة رابط جلسة القارئ (دقائق)', 'number', '15', false],
+            ['library.watermark.opacity_percent', 'library', 'شفافيّة العلامة المائيّة (%)', 'number', '12', false],
+            ['library.watermark.font_size', 'library', 'حجم خطّ العلامة المائيّة', 'number', '14', false],
 
             // ---------------- 🔒 الماليّات (مجموعة معزولة لمالك المنصّة)
             ['finance.rates.usd_to_coins', 'finance', '1$ = كام كوين', 'number', '50', true],

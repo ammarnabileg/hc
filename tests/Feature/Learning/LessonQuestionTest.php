@@ -124,8 +124,12 @@ class LessonQuestionTest extends LearningTestCase
             'xp_reward' => 12,
         ]);
 
+        $this->actingAs($user)->get(route('learning.lesson.quiz', [$course, $lesson]))->assertOk();
+
         $this->actingAs($user)
-            ->post(route('learning.lesson.answer', [$course, $lesson, $question]), ['digits' => ['4', '5', '1']])
+            ->post(route('learning.lesson.quiz.submit', [$course, $lesson]), [
+                'digits' => [$question->id => ['4', '5', '1']],
+            ])
             ->assertRedirect();
 
         $this->assertDatabaseHas('lesson_question_answers', [

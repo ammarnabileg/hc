@@ -5,126 +5,319 @@ namespace App\Http\Controllers\Trainee;
 use App\Http\Controllers\Controller;
 use App\Models\Challenge;
 use App\Models\ChallengeParticipation;
-use App\Services\Gamification\ChallengeService;
-use App\Services\Gamification\Exceptions\InsufficientBalanceException;
+use App\Models\User;
+use App\Models\WarMatch;
+use App\Services\Admin\Volunteer\WarSettingsService;
 use App\Services\Gamification\LeaderboardService;
 use App\Services\Gamification\WalletGateway;
+use App\Services\Gamification\Wars\Exceptions\WarRuleException;
+use App\Services\Gamification\Wars\MatchmakingService;
+use App\Services\Gamification\Wars\WarMatchService;
+use App\Services\Gamification\Wars\WarQuestionFunnel;
+use App\Services\Gamification\Wars\WarRules;
+use App\Services\Gamification\Wars\WarStats;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 /**
- * التحديات/الحروب (15 · 24.5).
- * سؤال واحد لكلّ شاشة، وثلاثة فلاتر ظاهرة + بحث، والتفاصيل في بوب-أب (2.15).
+ * التحديات — **حروب PvP** كما نصّ القسم 15.
+ *
+ * ملاحظة حَسْم: القسم 24.5 وصف شاشة تحدٍّ فرديّ بزرّ [ادخل التحدّي]، والقسم 15
+ * وصف مواجهة بين محاربَين بمحصّلة صفريّة. **القسم 15 هو الحاكم** لأنّه
+ * المواصفة الوظيفيّة، ولأنّ قاعدة منع الفارمينج (15.2-6) قاعدة اقتصاديّة
+ * صارمة: التحدّي الفرديّ بمكافأة مسكوكة يفتح بابًا لضخّ تذاكر بلا مقابل.
  */
 class ChallengeController extends Controller
 {
     public function __construct(
-        private readonly ChallengeService $challenges,
+        private readonly MatchmakingService $matchmaking,
+        private readonly WarMatchService $matches,
+        private readonly WarQuestionFunnel $funnel,
+        private readonly WarRules $rules,
+        private readonly WarStats $stats,
         private readonly LeaderboardService $leaderboards,
         private readonly WalletGateway $wallet,
     ) {}
 
-    /** المتاحة: كروت الحروب + فلاتر (النوع · التكلفة · المدّة) + بحث */
+    // ------------------------------------------------------------------ الساحات
+
+    /** «المتاحة»: ساحات الحروب بشروط الدخول ومحصّلتها الصفريّة (15) */
     public function index(Request $request): View
     {
         $user = $request->user();
 
         $type = (string) $request->query('type', '');
-        $cost = (string) $request->query('cost', '');
-        $duration = (string) $request->query('duration', '');
+        $state = (string) $request->query('state', '');
         $search = trim((string) $request->query('q', ''));
 
         $challenges = Challenge::query()
-            ->with('entry_currency')
             ->when($type !== '', fn ($q) => $q->where('limits->type', $type))
-            ->when($cost === 'free', fn ($q) => $q->where('entry_cost', '<=', 0))
-            ->when($cost === 'low', fn ($q) => $q->whereBetween('entry_cost', [0.01, (float) setting('challenges.filter.low_cost_max', 5)]))
-            ->when($cost === 'high', fn ($q) => $q->where('entry_cost', '>', (float) setting('challenges.filter.low_cost_max', 5)))
-            ->when($duration === 'short', fn ($q) => $q->where('duration_minutes', '<=', (int) setting('challenges.filter.short_minutes', 10)))
-            ->when($duration === 'medium', fn ($q) => $q->whereBetween('duration_minutes', [
-                (int) setting('challenges.filter.short_minutes', 10) + 1,
-                (int) setting('challenges.filter.medium_minutes', 30),
-            ]))
-            ->when($duration === 'long', fn ($q) => $q->where('duration_minutes', '>', (int) setting('challenges.filter.medium_minutes', 30)))
+            ->when($state === 'open', fn ($q) => $q->where('is_active', true))
+            ->when($state === 'paused', fn ($q) => $q->where('is_active', false))
             ->when($search !== '', fn ($q) => $q->where('name_ar', 'like', "%{$search}%"))
             ->orderByDesc('is_active')
             ->orderBy('id')
             ->get();
 
-        $running = ChallengeParticipation::query()
-            ->where('user_id', $user->id)
-            ->where('status', 'running')
-            ->pluck('id', 'challenge_id');
-
-        // عدد المشاركين على الكارت — استعلامٌ واحد مجمَّع لا استعلام لكلّ كارت
-        $participants = ChallengeParticipation::query()
-            ->groupBy('challenge_id')
-            ->get(['challenge_id', DB::raw('count(distinct user_id) as people')])
-            ->mapWithKeys(fn ($row) => [(int) $row->challenge_id => (int) $row->people]);
+        $readiness = $this->matchmaking->readinessOf($user);
+        $stat = $this->stats->of($user);
 
         return view('challenges.index', [
             'challenges' => $challenges,
-            'running' => $running,
-            'participants' => $participants,
-            'previews' => $challenges->mapWithKeys(
-                fn (Challenge $c) => [$c->id => $this->challenges->entryPreview($user, $c)],
-            ),
-            'filters' => compact('type', 'cost', 'duration', 'search'),
+            'arenas' => $challenges->mapWithKeys(fn (Challenge $c) => [$c->id => $this->arenaCard($c)]),
+            'readiness' => $readiness,
+            'running' => $this->matchmaking->runningMatchOf($user),
+            'filters' => compact('type', 'state', 'search'),
             'types' => $this->types(),
             'ticketsBalance' => $this->wallet->balance($user, 'tickets'),
-            'coinsBalance' => $this->wallet->balance($user, 'coins'),
-            'runningCount' => $running->count(),
+            'gate' => $this->rules->readyTickets(),
+            'stat' => $stat,
         ]);
     }
 
-    /** بوب-أب الدخول ⟵ خصمٌ مرّة واحدة ثمّ شاشة التحدّي */
-    public function enter(Request $request, Challenge $challenge): RedirectResponse
+    /** شاشة الساحة: أيقونة ضخمة + هيدلاين + [استعداد] + المحاربون الجاهزون (15.1) */
+    public function arena(Request $request, Challenge $challenge): View
     {
-        if (! $challenge->is_active) {
-            return back()->with('status', 'الحرب دي موقوفة دلوقتي — جرّب واحدة تانية.');
-        }
+        $user = $request->user();
+        $type = $this->rules->typeOf($challenge);
 
+        // حرب التركيز ساحتها مختلفة تمامًا (15.3) — فتُحوَّل لشاشتها
+        $readiness = $this->matchmaking->readinessOf($user);
+        $isReadyHere = $readiness && (int) $readiness->challenge_id === (int) $challenge->id;
+
+        return view('challenges.arena', [
+            'challenge' => $challenge,
+            'type' => $type,
+            'card' => $this->arenaCard($challenge),
+            'readiness' => $readiness,
+            'isReadyHere' => $isReadyHere,
+            'running' => $this->matchmaking->runningMatchOf($user),
+            'fighters' => $isReadyHere ? $this->matchmaking->fighters($user, $challenge) : collect(),
+            'stat' => $this->stats->of($user),
+            'ticketsBalance' => $this->wallet->balance($user, 'tickets'),
+        ]);
+    }
+
+    /** ضغط «استعداد» — والاستعداد حصريّ لنوع واحد (15.0) */
+    public function ready(Request $request, Challenge $challenge): RedirectResponse
+    {
         try {
-            $participation = $this->challenges->enter($request->user(), $challenge);
-        } catch (InsufficientBalanceException $e) {
-            // رسالة الخطأ = ماذا حدث + ماذا تفعل (2.17-ب)
+            $this->matchmaking->ready($request->user(), $challenge);
+        } catch (WarRuleException $e) {
             return back()->with('status', $e->getMessage())->with('topup_needed', $e->shortfall());
         }
 
-        return redirect()->route('challenges.play', $participation);
+        return redirect()->route('challenges.arena', $challenge)->with('status', 'إنت دلوقتي مستعدّ ⚔️');
     }
 
-    /** تحدّياتي: جارية بعدّاداتها · منتهية بنتيجتها */
+    /** إلغاء الاستعداد من الشريط العائم — من أيّ صفحة (15.0) */
+    public function unready(Request $request): RedirectResponse
+    {
+        $user = $request->user();
+        $match = $this->matchmaking->runningMatchOf($user);
+
+        if ($match) {
+            // إلغاء الاستعداد أثناء حرب نشطة = انسحاب صريح: −خسارة −عقوبة (15.0)
+            $this->matches->withdraw($match, $user);
+            $this->matchmaking->cancelReady($user);
+
+            return redirect()->route('challenges.result', $match)
+                ->with('status', 'انسحبت من المواجهة — والخصم كسبها.');
+        }
+
+        $this->matchmaking->cancelReady($user);
+
+        return back()->with('status', 'اتلغى استعدادك — ارجع للساحة وقت ما تحبّ.');
+    }
+
+    /** القائمة تتحدّث تلقائيًّا لحظة دخول أحدهم حربًا أو إلغائه الاستعداد (15.1) */
+    public function fighters(Request $request, Challenge $challenge): JsonResponse
+    {
+        $user = $request->user();
+        $readiness = $this->matchmaking->readinessOf($user);
+
+        if (! $readiness || (int) $readiness->challenge_id !== (int) $challenge->id) {
+            return response()->json(['ready' => false, 'fighters' => []]);
+        }
+
+        $fighters = $this->matchmaking->fighters($user, $challenge)->map(fn (array $row) => [
+            'id' => $row['user']->id,
+            'name' => $row['user']->name,
+            'wins' => $row['wins'],
+            'losses' => $row['losses'],
+            'url' => route('challenges.duel', [$challenge, $row['user']]),
+        ]);
+
+        return response()->json(['ready' => true, 'fighters' => $fighters]);
+    }
+
+    /** [تحدّاه] ⟵ قفل ذرّيّ للطرفين ثمّ صفحة المواجهة (15.2-1) */
+    public function duel(Request $request, Challenge $challenge, User $opponent): RedirectResponse
+    {
+        try {
+            $match = $this->matchmaking->start($request->user(), $opponent, $challenge);
+        } catch (WarRuleException $e) {
+            return back()->with('status', $e->getMessage());
+        }
+
+        return redirect()->route('challenges.play', $match);
+    }
+
+    // ------------------------------------------------------------------ المواجهة
+
+    /** شاشة المواجهة — تركيز بلا سايد بار، والاستئناف بلا خصمٍ ثانٍ (15.2-7) */
+    public function play(Request $request, WarMatch $match): View|RedirectResponse
+    {
+        $user = $this->authorizeSide($request, $match);
+
+        $this->matches->enforceTimers($match);
+        $match->refresh();
+
+        $side = $this->matches->sideOf($match, $user);
+
+        if ($match->status !== 'running' || $side->status !== 'running') {
+            return redirect()->route('challenges.result', $match);
+        }
+
+        return view('challenges.play', [
+            'match' => $match,
+            'challenge' => $match->challenge,
+            'side' => $side,
+            'rival' => $this->matches->rivalSide($match, $user)->user,
+            'items' => $this->matches->publicItems($match),
+            'answers' => $side->progress['answers'] ?? [],
+            'questionSecondsLeft' => $this->matches->questionSecondsLeft($match, $side),
+            'decisionSecondsLeft' => $this->matches->decisionSecondsLeft($match),
+            'questionSeconds' => $this->rules->questionSeconds($match->challenge),
+        ]);
+    }
+
+    /** Autosave: كلّ إجابة تُحفَظ وتُصحَّح على الخادم لحظيًّا (15.1) */
+    public function answer(Request $request, WarMatch $match): JsonResponse
+    {
+        $user = $this->authorizeSide($request, $match);
+
+        $data = $request->validate([
+            'index' => ['required', 'integer', 'min:0'],
+            'value' => ['nullable'],
+        ]);
+
+        $state = $this->matches->answer($match, $user, (int) $data['index'], $data['value'] ?? null);
+
+        return response()->json($state + [
+            'redirect' => $state['status'] === 'running' ? null : route('challenges.result', $match),
+        ]);
+    }
+
+    /** حالة المواجهة لحظيًّا: عدّاد الحسم + هل خلّص الخصم (15.1) */
+    public function state(Request $request, WarMatch $match): JsonResponse
+    {
+        $user = $this->authorizeSide($request, $match);
+
+        $this->matches->enforceTimers($match);
+        $match->refresh();
+
+        $side = $this->matches->sideOf($match, $user);
+        $rival = $this->matches->rivalSide($match, $user);
+
+        return response()->json([
+            'status' => $match->status,
+            'rival_finished' => $rival->status !== 'running',
+            'decision_seconds' => $this->matches->decisionSecondsLeft($match),
+            'question_seconds' => $this->matches->questionSecondsLeft($match, $side),
+            'redirect' => $match->status === 'running' && $side->status === 'running'
+                ? null
+                : route('challenges.result', $match),
+        ]);
+    }
+
+    public function submit(Request $request, WarMatch $match): RedirectResponse
+    {
+        $user = $this->authorizeSide($request, $match);
+
+        $this->matches->finishSide($match, $this->matches->sideOf($match, $user));
+
+        return redirect()->route('challenges.result', $match);
+    }
+
+    /** الانسحاب إجراء **متعمَّد** وحده — والانقطاع لا يعاقِب (15.2-2) */
+    public function withdraw(Request $request, WarMatch $match): RedirectResponse
+    {
+        $user = $this->authorizeSide($request, $match);
+
+        $this->matches->withdraw($match, $user);
+
+        return redirect()->route('challenges.result', $match)
+            ->with('status', 'انسحبت — والانسحاب بيكلّف، خلّي بالك المرّة الجاية.');
+    }
+
+    /** شاشة النتيجة: فوز · خسارة · **تعادل** (15.2-5) */
+    public function result(Request $request, WarMatch $match): View|RedirectResponse
+    {
+        $user = $this->authorizeSide($request, $match);
+
+        $this->matches->enforceTimers($match);
+        $match->refresh();
+
+        $side = $this->matches->sideOf($match, $user);
+
+        if ($match->status === 'running' && $side->status === 'running') {
+            return redirect()->route('challenges.play', $match);
+        }
+
+        return view('challenges.result', [
+            'match' => $match,
+            'challenge' => $match->challenge,
+            'side' => $side,
+            'rivalSide' => $this->matches->rivalSide($match, $user),
+            'total' => count((array) $match->questions),
+            'waiting' => $match->status === 'running',
+            'decisionSecondsLeft' => $this->matches->decisionSecondsLeft($match),
+            'celebration' => $match->status === 'finished' ? $this->matches->celebrationFor($side) : null,
+            'ticketsBalance' => $this->wallet->balance($user, 'tickets'),
+        ]);
+    }
+
+    // ------------------------------------------------------------------ صفحاتي
+
+    /** تحدّياتي: مواجهات جارية · منتهية بنتيجتها */
     public function mine(Request $request): View
     {
         $user = $request->user();
         $tab = $request->query('tab') === 'done' ? 'done' : 'running';
 
-        $participations = ChallengeParticipation::query()
-            ->with('challenge')
+        $sides = ChallengeParticipation::query()
+            ->with(['challenge'])
+            ->whereNotNull('war_match_id')
             ->where('user_id', $user->id)
             ->orderByDesc('started_at')
             ->get();
 
-        // فرض انتهاء الوقت قبل العرض: الجارية المنتهي وقتها تُسلَّم تلقائيًّا
-        $participations->where('status', 'running')->each(
-            fn (ChallengeParticipation $p) => $this->challenges->enforceDeadline($p),
-        );
+        $matches = WarMatch::query()
+            ->whereIn('id', $sides->pluck('war_match_id'))
+            ->get()
+            ->keyBy('id');
 
-        $participations = $participations->map->refresh();
+        foreach ($matches as $match) {
+            if ($match->status === 'running') {
+                $this->matches->enforceTimers($match);
+            }
+        }
+
+        $sides = $sides->map->refresh();
 
         return view('challenges.mine', [
             'tab' => $tab,
-            'running' => $participations->where('status', 'running')->values(),
-            'done' => $participations->where('status', '!=', 'running')->values(),
-            'service' => $this->challenges,
+            'matches' => $matches->map->refresh(),
+            'running' => $sides->where('status', 'running')->values(),
+            'done' => $sides->where('status', '!=', 'running')->values(),
+            'stat' => $this->stats->of($user),
         ]);
     }
 
-    /** لوحة الأبطال: ترتيب المتحدّين + صفّي مثبَّت أسفل القائمة دائمًا */
+    /** لوحة الأبطال — صفّي مثبَّت أسفل القائمة دائمًا */
     public function leaderboard(Request $request): View
     {
         $user = $request->user();
@@ -132,85 +325,51 @@ class ChallengeController extends Controller
         $challengeId = $request->query('challenge') ? (int) $request->query('challenge') : null;
         $search = trim((string) $request->query('q', ''));
 
-        $board = $this->leaderboards->champions($user, $challengeId, $days, $search ?: null);
-
         return view('challenges.leaderboard', [
-            'board' => $board,
+            'board' => $this->leaderboards->champions($user, $challengeId, $days, $search ?: null),
             'challenges' => Challenge::query()->orderBy('name_ar')->get(['id', 'name_ar']),
             'filters' => ['days' => $days, 'challenge' => $challengeId, 'q' => $search],
         ]);
     }
 
-    /** شاشة التحدّي — تركيز بلا سايد بار */
-    public function play(Request $request, ChallengeParticipation $participation): View|RedirectResponse
-    {
-        $this->authorizeOwner($request, $participation);
-
-        // انتهاء الوقت ⟵ تسليم تلقائيّ (على السيرفر لا على المتصفّح)
-        if ($this->challenges->enforceDeadline($participation) || $participation->status !== 'running') {
-            return redirect()->route('challenges.result', $participation);
-        }
-
-        return view('challenges.play', [
-            'participation' => $participation,
-            'challenge' => $participation->challenge,
-            'items' => $this->challenges->publicItems($participation->challenge),
-            'answers' => $participation->progress['answers'] ?? [],
-            'secondsLeft' => $this->challenges->secondsLeft($participation),
-        ]);
-    }
-
-    /** حفظ إجابة لحظيًّا — الانقطاع لا يعاقِب و«تقدّمك محفوظ» */
-    public function answer(Request $request, ChallengeParticipation $participation): JsonResponse
-    {
-        $this->authorizeOwner($request, $participation);
-
-        $data = $request->validate([
-            'index' => ['required', 'integer', 'min:0'],
-            'value' => ['nullable'],
-        ]);
-
-        $state = $this->challenges->answer($participation, (int) $data['index'], $data['value'] ?? null);
-
-        return response()->json($state + [
-            'redirect' => $state['status'] === 'running' ? null : route('challenges.result', $participation),
-        ]);
-    }
-
-    public function submit(Request $request, ChallengeParticipation $participation): RedirectResponse
-    {
-        $this->authorizeOwner($request, $participation);
-
-        $this->challenges->finish($participation, auto: (bool) $request->boolean('auto'));
-
-        return redirect()->route('challenges.result', $participation);
-    }
-
-    /** شاشة النتيجة: احتفال بمستواه + لقطة إنجاز قابلة للمشاركة */
-    public function result(Request $request, ChallengeParticipation $participation): View|RedirectResponse
-    {
-        $this->authorizeOwner($request, $participation);
-        $this->challenges->enforceDeadline($participation);
-        $participation->refresh();
-
-        if ($participation->status === 'running') {
-            return redirect()->route('challenges.play', $participation);
-        }
-
-        return view('challenges.result', [
-            'participation' => $participation,
-            'challenge' => $participation->challenge,
-            'total' => count($this->challenges->items($participation->challenge)),
-            // مرّة واحدة لكلّ حدث Server-side — لا يتكرّر بإعادة التحميل (2.14-ب)
-            'celebration' => $this->challenges->celebrationFor($participation),
-        ]);
-    }
-
     // ------------------------------------------------------------------ داخليّ
 
-    private function authorizeOwner(Request $request, ChallengeParticipation $participation): void
+    /** الطرفان وحدهما يريان المواجهة — وغيرهما 403 لا صفحة فارغة */
+    private function authorizeSide(Request $request, WarMatch $match): User
     {
-        abort_unless($participation->user_id === $request->user()->id, 403, 'دي مشاركة حدّ تاني.');
+        $user = $request->user();
+
+        abort_unless($match->involves($user->id), 403, 'دي مواجهة ناس تانية.');
+
+        return $user;
+    }
+
+    /** بطاقة الساحة: النصوص والعتبات كلّها من الإعدادات (12.10-ج) */
+    private function arenaCard(Challenge $challenge): array
+    {
+        $type = $this->rules->typeOf($challenge);
+
+        $defaults = [
+            'knowledge' => ['ساحة الحرب', 'اختبر مهاراتك الذهنية والسرعة، وواجه خصمك وجهًا لوجه!'],
+            'survival' => ['ساحة البقاء', 'جاوب صح وابقى… أول غلطة تخرجك!'],
+            'estimation' => ['ساحة التقدير', 'قدّر الرقم الأقرب للصح واكسب!'],
+            'focus' => ['ساحة التركيز', 'عمل عميق بلا مقاطعة — والعدّ مبنيّ على أمانتك.'],
+        ];
+
+        [$headline, $tagline] = $defaults[$type] ?? $defaults['knowledge'];
+
+        return [
+            'type' => $type,
+            'headline' => $this->rules->text($challenge, 'headline', $headline),
+            'tagline' => $this->rules->text($challenge, 'tagline', $tagline),
+            'win' => $this->rules->winAmount($challenge),
+            'loss' => $this->rules->lossAmount($challenge),
+            'withdraw' => $this->rules->withdrawPenalty($challenge),
+            'gate' => $this->rules->readyTickets($challenge),
+            'questions' => $this->rules->questionCount($type),
+            'bank_ready' => $this->funnel->isBankReady($challenge),
+            'locked' => WarSettingsService::isActive($challenge),
+        ];
     }
 
     /** أنواع الحروب المعتمَدة (15) — التسمية من الإعدادات لا محروقة */

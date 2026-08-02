@@ -12,6 +12,7 @@ use App\Models\MediaItem;
 use App\Models\Section;
 use App\Models\Setting;
 use App\Models\User;
+use App\Services\Admin\Volunteer\SettingsCatalog;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
@@ -28,6 +29,7 @@ class LearningDemoSeeder extends Seeder
     public function run(): void
     {
         $this->settings();
+        $this->availabilitySettings();
         $path = $this->path();
         $this->communicationCourse($path);
         $this->timeCourse($path);
@@ -109,6 +111,19 @@ class LearningDemoSeeder extends Seeder
             ['learning.lock.unpublished_reason', 'string', 'هذا التدريب غير متاح حاليًّا'],
             ['learning.lock.scheduled_reason', 'string', 'يفتح في موعده'],
 
+            // ---- الإتاحة الزمنيّة (5): ماذا حدث + متى يفتح — بتوقيت المستخدم دائمًا
+            ['learning.lock.outside_period_reason', 'string', 'دلوقتي إحنا خارج فترات إتاحة التدريب'],
+            ['learning.lock.outside_daily_reason', 'string', 'التدريب بيفتح يوميًّا من :from إلى :to بتوقيتك'],
+            ['learning.lock.periods_over_reason', 'string', 'خلصت كلّ فترات إتاحة هذا التدريب'],
+            ['learning.lock.opens_at_prefix', 'string', 'يفتح'],
+            ['learning.availability.stamp_format', 'string', 'l j F — H:i'],
+            ['learning.availability.countdown_label', 'string', 'باقي على الفتح'],
+            ['learning.availability.opening_now', 'string', 'بيفتح دلوقتي…'],
+            ['learning.availability.day_suffix', 'string', 'ي'],
+            ['learning.availability.timezone_note', 'string', 'كلّ المواعيد فوق بتوقيتك:'],
+            ['learning.availability.schedule_title', 'string', 'مواعيد إتاحة التدريب'],
+            ['learning.availability.daily_line', 'string', 'يوميًّا من :from إلى :to بتوقيتك المحلّيّ.'],
+
             // ---- الديدلاين و Ghost Timer (6)
             ['learning.deadline.warn_percent', 'number', '50'],
             ['learning.deadline.danger_percent', 'number', '20'],
@@ -144,6 +159,82 @@ class LearningDemoSeeder extends Seeder
             ['learning.questions.retry_hint', 'string', 'المحاولات مفتوحة، وخطؤك لا يخصم شيئًا'],
             ['learning.otp.max_length', 'number', '8'],
 
+            // ---- تدفّق اختبار الدرس (4.1): عشوائيّة · معاينة · انتظار الإعادة
+            ['learning.quiz.title', 'string', 'اختبار الدرس'],
+            ['learning.quiz.shuffle_questions', 'bool', '1'],
+            ['learning.quiz.shuffle_options', 'bool', '1'],
+            ['learning.quiz.retry_wait_seconds', 'number', '20'],
+            ['learning.quiz.answer_hint', 'string', 'أجب عن الأسئلة كلّها، ثمّ راجع إجاباتك قبل التسليم'],
+            ['learning.quiz.question_label', 'string', 'سؤال'],
+            ['learning.quiz.of_label', 'string', 'من'],
+            ['learning.quiz.preview_cta', 'string', 'معاينة الإجابات'],
+            ['learning.quiz.preview_hint', 'string', 'دي إجاباتك قبل التسليم — راجعها وعدّل ما تشاء'],
+            ['learning.quiz.answered_label', 'string', 'مُجاب'],
+            ['learning.quiz.unanswered_label', 'string', 'بلا إجابة'],
+            ['learning.quiz.no_answer_placeholder', 'string', 'لم تُجب بعد'],
+            ['learning.quiz.submit_cta', 'string', 'تسليم نهائيّ'],
+            ['learning.quiz.edit_cta', 'string', 'تعديل الإجابات'],
+            ['learning.quiz.correct_label', 'string', 'صحيحة'],
+            ['learning.quiz.wrong_label', 'string', 'غير صحيحة'],
+            ['learning.quiz.score_label', 'string', 'الإجابات الصحيحة'],
+            ['learning.quiz.passed_title', 'string', 'أحسنت — اجتزت اختبار الدرس'],
+            ['learning.quiz.failed_title', 'string', 'فيه إجابات محتاجة مراجعة'],
+            ['learning.quiz.passed_message', 'string', 'اجتزت اختبار الدرس — الانتقال مفتوح'],
+            ['learning.quiz.failed_message', 'string', 'فيه إجابة غير صحيحة — راجع الدرس وأعد المحاولة'],
+            ['learning.quiz.already_passed_message', 'string', 'اجتزت اختبار هذا الدرس من قبل'],
+            ['learning.quiz.retry_badge', 'string', 'إعادة'],
+            ['learning.quiz.retry_cta', 'string', 'أعد الاختبار'],
+            ['learning.quiz.wait_message', 'string', 'إعادة الاختبار متاحة بعد'],
+            ['learning.quiz.seconds_suffix', 'string', 'ثانية'],
+            ['learning.quiz.back_to_lesson', 'string', 'رجوع للدرس'],
+            ['learning.quiz.no_questions_message', 'string', 'هذا الدرس بلا أسئلة — أكمله مباشرةً'],
+
+            // ---- تعليقات الفيديو (3.1)
+            ['learning.comments.title', 'string', 'تعليقات الفيديو'],
+            ['learning.comments.unit', 'string', 'تعليقًا'],
+            ['learning.comments.per_page', 'number', '6'],
+            ['learning.comments.max_length', 'number', '1000'],
+            ['learning.comments.placeholder', 'string', 'اكتب سؤالك أو خلاصتك من الفيديو…'],
+            ['learning.comments.hint', 'string', 'تعليقك يفيد زملاءك — اكتب بوضوح واحترام'],
+            ['learning.comments.submit', 'string', 'أرسل التعليق'],
+            ['learning.comments.reply', 'string', 'ردّ'],
+            ['learning.comments.reply_placeholder', 'string', 'اكتب ردّك…'],
+            ['learning.comments.reply_submit', 'string', 'أرسل الردّ'],
+            ['learning.comments.like', 'string', 'أعجبني'],
+            ['learning.comments.load_more', 'string', 'تعليقات أقدم'],
+            ['learning.comments.load_error', 'string', 'تعذّر تحميل التعليقات — اضغط هنا للمحاولة مرّة أخرى'],
+            ['learning.comments.empty', 'string', 'لسّه مفيش تعليقات — كن أوّل من يشارك سؤاله'],
+            ['learning.comments.sent_message', 'string', 'اتنشر تعليقك ✓'],
+            ['learning.comments.empty_error', 'string', 'التعليق فاضي — اكتب سطرًا واحدًا على الأقلّ ثمّ أرسل'],
+            ['learning.comments.too_long_error', 'string', 'التعليق أطول من المسموح — اختصره ثمّ أعد الإرسال'],
+            ['learning.comments.hide', 'string', 'إخفاء'],
+            ['learning.comments.unhide', 'string', 'إظهار'],
+            ['learning.comments.delete', 'string', 'حذف'],
+            ['learning.comments.delete_confirm', 'string', 'هل تحذف هذا التعليق وردوده؟'],
+            ['learning.comments.hidden_badge', 'string', 'مخفيّ'],
+            ['learning.comments.hidden_message', 'string', 'اتخفى التعليق عن العرض العامّ'],
+            ['learning.comments.unhidden_message', 'string', 'رجع التعليق للعرض العامّ'],
+            ['learning.comments.deleted_message', 'string', 'اتحذف التعليق'],
+
+            // ---- ملاحظات التدريب (3.2)
+            ['learning.notes.title', 'string', 'ملاحظاتي على التدريب'],
+            ['learning.notes.hint', 'string', 'مساحة واحدة لكلّ دروس التدريب — تُحفَظ تلقائيًّا'],
+            ['learning.notes.placeholder', 'string', 'اكتب خلاصتك، وستجدها في أيّ درسٍ آخر…'],
+            ['learning.notes.max_length', 'number', '20000'],
+            ['learning.notes.autosave_delay_ms', 'number', '800'],
+            ['learning.notes.saving', 'string', 'بنحفظ…'],
+            ['learning.notes.saved', 'string', 'اتحفظ ✓'],
+            ['learning.notes.error', 'string', 'ما قدرناش نحفظ ملاحظتك — راجع اتصالك وسنعيد المحاولة عند أوّل تعديل'],
+            ['learning.notes.too_long_error', 'string', 'الملاحظات أطول من المسموح — اختصرها ثمّ احفظ'],
+            ['learning.notes.save_cta', 'string', 'حفظ الملاحظات'],
+            ['learning.notes.clear', 'string', 'مسح الملاحظات'],
+            ['learning.notes.clear_confirm', 'string', 'هل تمسح كلّ ملاحظاتك على هذا التدريب؟'],
+            ['learning.notes.cleared_message', 'string', 'اتمسحت ملاحظاتك على هذا التدريب'],
+            ['learning.notes.export', 'string', 'تنزيل الملاحظات'],
+            ['learning.notes.export_heading', 'string', 'ملاحظاتي على التدريب'],
+            ['learning.notes.export_date_label', 'string', 'تاريخ التنزيل'],
+            ['learning.notes.export_file_prefix', 'string', 'notes'],
+
             // ---- الامتحان النهائيّ والشهادة (نقطة تكامل مع مجال الامتحانات)
             ['learning.exam.block_title', 'string', 'الامتحان النهائيّ للتدريب'],
             ['learning.exam.unlock_percent', 'number', '100'],
@@ -156,6 +247,16 @@ class LearningDemoSeeder extends Seeder
             ['learning.certificate.none_label', 'string', 'بلا شهادة'],
             ['learning.certificate.issued_label', 'string', 'شهادة صادرة'],
             ['learning.certificate.inactive_label', 'string', 'شهادة غير سارية'],
+
+            // ---- «مجّاني أوّل مرّة» والـPaywall النفسيّ (16)
+            ['learning.paywall.title', 'string', 'وصلت لنهاية المشاهدة المجّانيّة'],
+            ['learning.paywall.badge', 'string', 'أنجزت وامتحنت'],
+            ['learning.paywall.headline', 'text', 'أنجزت «{course}» ومعك شهادته — واصِل رحلتك الكاملة واحتفظ بالتدريب معك للأبد.'],
+            ['learning.paywall.lock_reason', 'text', 'التدريب ده كان مجّانيًّا أوّل مرّة، وبعد الامتحان والشهادة بقى بالشراء — وشهادتك تفضل معك في مكتبتك زيّ ما هي.'],
+            ['learning.paywall.cta', 'string', 'اشترِ التدريب — {price}'],
+            ['learning.paywall.certificate_link', 'string', 'شهادتي'],
+            ['learning.paywall.paid_sources', 'json', '["purchase","bundle"]'],
+            ['learning.certificate.valid_status', 'string', 'valid'],
 
             // ---- المسارات (3.3 · 24.5)
             ['learning.paths.courses_unit', 'string', 'تدريبات'],
@@ -212,6 +313,23 @@ class LearningDemoSeeder extends Seeder
     private function label(string $key): string
     {
         return 'التعلّم — '.str_replace(['learning.', '.', '_'], ['', ' / ', ' '], $key);
+    }
+
+    /**
+     * إعدادات الإتاحة والتوقيت (5) — تُقرأ من **كتالوج الإعدادات نفسه** لا من
+     * قائمة ثانية هنا، فلا تختلف القيمة الافتراضيّة بين السيدر وزرّ الـReset.
+     */
+    private function availabilitySettings(): void
+    {
+        foreach (SettingsCatalog::group('availability') as $key => [$group, $label, $type, $default]) {
+            Setting::updateOrCreate(['key' => $key], [
+                'group' => $group,
+                'label_ar' => $label,
+                'type' => $type,
+                'default_value' => $default,
+                'value' => $default,
+            ]);
+        }
     }
 
     // ------------------------------------------------------------ المحتوى

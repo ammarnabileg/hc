@@ -6,6 +6,7 @@ use App\Models\Referral;
 use App\Models\Role;
 use App\Models\User;
 use App\Services\Notifications\Notifier;
+use App\Services\Referral\ReferralService;
 use App\Services\Wallet\LedgerService;
 use App\Support\Access\AccessEngine;
 use Illuminate\Support\Facades\DB;
@@ -61,6 +62,8 @@ class AccountApproval
 
             $this->grantTraineeRole($account, $actor);
             $this->grantWelcomeTicket($account);
+            // ⭐ وتذكرة **الداعي** كذلك (7.6): «كلٌ من الداعي والمدعو يحصل على تذكرة»
+            app(ReferralService::class)->grantReferrerTicket($account->refresh());
 
             $this->audit->record($actor, 'user.approved', $account,
                 ['status' => 'pending'],

@@ -68,7 +68,7 @@
 
             <ul class="mt-3 space-y-1 text-xs" style="color: var(--text-muted)">
                 <li>• الأيّام مش لازم متتابعة — الهدف بناء العادة.</li>
-                <li>• كلّ {{ (int) setting('streaks.reward.every_days', 7) }} أيّام متواصلة = مكافأة تذكرة هدية 🎟️.</li>
+                <li>• كلّ {{ (int) setting('streaks.reward_days', 7) }} أيّام متواصلة = مكافأة تذكرة هدية 🎟️.</li>
                 <li>• درع التجميد بيحمي يوم فايت من كسر السلسلة.</li>
             </ul>
 

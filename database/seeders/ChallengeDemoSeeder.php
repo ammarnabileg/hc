@@ -48,17 +48,17 @@ class ChallengeDemoSeeder extends Seeder
             ], JSON_UNESCAPED_UNICODE)],
 
             // ---------------- الاحتفالات (2.14)
-            ['celebrations.auto_dismiss_seconds', 'celebrations', 'ثوانٍ قبل إغلاق الاحتفال تلقائيًّا', 'number', '6'],
-            ['celebrations.default_message', 'celebrations', 'صيغة التهنئة الافتراضيّة', 'string', 'مبروك يا :name — :label 🎉'],
+            ['celebrations.auto_dismiss_seconds', 'gamification_celebrations', 'ثوانٍ قبل إغلاق الاحتفال تلقائيًّا', 'number', '6'],
+            ['celebrations.default_message', 'gamification_celebrations', 'صيغة التهنئة الافتراضيّة', 'string', 'مبروك يا :name — :label 🎉'],
 
             // ---------------- الليدر بورد (7.3)
-            ['leaderboard.rows_per_page', 'leaderboard', 'عدد الصفوف المعروضة', 'number', '50'],
+            ['leaderboard.rows_per_page', 'gamification_leaderboard', 'عدد الصفوف المعروضة', 'number', '50'],
 
             // ---------------- الستريك ونادي الخامسة (7.2)
-            ['streaks.club_5am.window_start', 'streaks', 'بداية نافذة نادي الخامسة', 'string', '04:50'],
-            ['streaks.club_5am.window_end', 'streaks', 'نهاية نافذة نادي الخامسة', 'string', '05:20'],
-            ['streaks.reward.every_days', 'streaks', 'كلّ كم يوم متواصل تُصرَف مكافأة الستريك', 'number', '7'],
-            ['streaks.heatmap.months', 'streaks', 'عدد شهور الخريطة الحراريّة', 'number', '3'],
+            ['streaks.club5am.window_start', 'gamification_streaks', 'بداية نافذة نادي الخامسة', 'string', '04:50'],
+            ['streaks.club5am.window_end', 'gamification_streaks', 'نهاية نافذة نادي الخامسة', 'string', '05:20'],
+            ['streaks.reward_days', 'gamification_streaks', 'كلّ كم يوم متواصل تُصرَف مكافأة الستريك', 'number', '7'],
+            ['streaks.heatmap.months', 'gamification_streaks', 'عدد شهور الخريطة الحراريّة', 'number', '3'],
 
             // ---------------- الألعاب (7.5)
             ['games.catalog', 'games', 'كتالوج الألعاب المتاحة', 'json', '[]'],

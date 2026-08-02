@@ -72,7 +72,7 @@ class GoalsRepResetTest extends GoalsTestCase
         $next = $this->rep()->nextResetAt();
 
         $this->assertSame((int) setting('rep.reset.day_of_month', 1), $next->day);
-        $this->assertSame((int) setting('rep.reset.hour_cairo', 5), $next->hour);
+        $this->assertSame((int) setting('rep.reset.hour', 5), $next->hour);
         $this->assertTrue($next->isFuture());
     }
 }

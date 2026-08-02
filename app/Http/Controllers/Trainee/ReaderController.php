@@ -9,6 +9,7 @@ use App\Models\ReadingProgress;
 use App\Services\Library\EntitlementGuard;
 use App\Services\Library\PageWatermark;
 use App\Services\Library\PdfPageRenderer;
+use App\Services\Library\ProductToc;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -27,6 +28,7 @@ class ReaderController extends Controller
         private readonly EntitlementGuard $guard,
         private readonly PdfPageRenderer $renderer,
         private readonly PageWatermark $watermark,
+        private readonly ProductToc $toc,
     ) {}
 
     public function read(Request $request, Product $product): View
@@ -50,8 +52,11 @@ class ReaderController extends Controller
             'availability' => $this->guard->availability($entitlement),
             'watermarkText' => $this->watermark->layerText($user),
             'watermarkRepeat' => $this->watermark->repeatCount(),
-            'watermarkEnabled' => $this->watermark->enabled(),
+            // العلامة المائيّة تُشغَّل/تُطفَأ **لكلّ منتج** من شاشة الحماية (20.5)
+            'watermarkEnabled' => $this->watermark->enabled($product),
             'engineAvailable' => $this->renderer->isEngineAvailable(),
+            // فهرس (TOC) — بجانب المصغّرات في القارئ (20.3)
+            'toc' => $this->toc->entries($product, $pages),
             'pageUrl' => route('library.page', ['product' => $product->id, 'page' => '__PAGE__']),
             'thumbUrl' => route('library.thumb', ['product' => $product->id, 'page' => '__PAGE__']),
             'progressUrl' => route('library.progress', $product),
@@ -109,8 +114,10 @@ class ReaderController extends Controller
             'availability' => ['state' => 'idle', 'label' => (string) setting('reader.teaser.badge_label', 'صفحات عيّنة')],
             'watermarkText' => (string) setting('reader.teaser.watermark_text', 'عيّنة'),
             'watermarkRepeat' => $this->watermark->repeatCount(),
-            'watermarkEnabled' => $this->watermark->enabled(),
+            'watermarkEnabled' => $this->watermark->enabled($product),
             'engineAvailable' => $this->renderer->isEngineAvailable(),
+            // فهرس العيّنة مقصورٌ على صفحاتها — فلا يكشف ما بعد الحدّ
+            'toc' => $this->toc->entries($product, $limit),
             'pageUrl' => route('library.teaser.page', ['product' => $product->id, 'page' => '__PAGE__']),
             'thumbUrl' => route('library.teaser.page', ['product' => $product->id, 'page' => '__PAGE__']),
             'progressUrl' => null,
@@ -195,7 +202,7 @@ class ReaderController extends Controller
 
         $rendered = $this->renderer->renderPage($product, $page, $width);
         $body = $request->user()
-            ? $this->watermark->stamp($rendered['body'], $request->user())
+            ? $this->watermark->stamp($rendered['body'], $request->user(), $product)
             : $rendered['body'];
 
         return response($body, 200, [

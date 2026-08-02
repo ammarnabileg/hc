@@ -151,7 +151,7 @@
                 <x-form.input name="max_lesson_xp" label="أقصى XP للدرس" type="number"
                               :value="$course->max_lesson_xp ?? setting('courses.xp.max_per_lesson', 50)" />
                 <x-form.input name="exam_pass_score" label="درجة نجاح الامتحان" type="number"
-                              :value="$exam->pass_score ?? setting('exams.pass_score.default', 60)" />
+                              :value="$exam->pass_score ?? setting('exams.pass_score.default', 70)" />
                 <x-form.input name="exam_questions_count" label="عدد أسئلة الامتحان" type="number"
                               :value="$exam->questions_count ?? setting('exams.questions.default_count', 20)" />
             </div>

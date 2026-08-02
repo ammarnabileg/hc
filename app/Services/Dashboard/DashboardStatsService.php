@@ -152,26 +152,29 @@ class DashboardStatsService
             ->whereHas('currency', fn ($q) => $q->where('code', $ticketsCode))
             ->value('lifetime_earned');
 
-        $paths = [
-            ['key' => 'account', 'label' => 'مستوى الحساب', 'unit' => 'XP', 'value' => $this->dashboard->xp($user), 'base' => 500, 'step' => 250],
-            ['key' => 'club_5am', 'label' => 'نادي الخامسة', 'unit' => 'يوم', 'value' => (int) ($user->streak?->club_5am_count ?? 0), 'base' => 3, 'step' => 2],
-            ['key' => 'referrals', 'label' => 'الدعوات', 'unit' => 'دعوة', 'value' => $this->successfulReferrals($user), 'base' => 5, 'step' => 2],
-            ['key' => 'tickets', 'label' => 'التذاكر', 'unit' => 'تذكرة', 'value' => (int) $ticketsEarned, 'base' => 15, 'step' => 10],
-            ['key' => 'learning', 'label' => 'استمراريّة التعلّم', 'unit' => 'درس', 'value' => $this->lessonsCompleted($user), 'base' => 5, 'step' => 3],
+        // ⭐ القيمة وحدها من الكود؛ أمّا **العنوان والوحدة والعتبة** فمن الإعدادات (2.13)
+        // — كانت محروقةً هنا فلم يقدر المالك على تسمية مسارٍ ولا تعديل عتبته.
+        $values = [
+            'account' => $this->dashboard->xp($user),
+            'club_5am' => (int) ($user->streak?->club_5am_count ?? 0),
+            'referrals' => $this->successfulReferrals($user),
+            'tickets' => (int) $ticketsEarned,
+            'learning' => $this->lessonsCompleted($user),
         ];
 
         $max = max(2, (int) setting('dashboard.achievements.radar_max_level', 6));
         $axes = [];
 
-        foreach ($paths as $path) {
-            $base = (int) setting("dashboard.achievements.{$path['key']}.base", $path['base']);
-            $step = (int) setting("dashboard.achievements.{$path['key']}.step", $path['step']);
-            $progress = $this->pathLevel((int) $path['value'], $base, $step);
+        foreach ($this->radarTracks() as $key) {
+            $base = max(1, (int) setting("dashboard.achievements.{$key}.base", 1));
+            $step = max(1, (int) setting("dashboard.achievements.{$key}.step", 1));
+            $value = (int) ($values[$key] ?? 0);
+            $progress = $this->pathLevel($value, $base, $step);
 
             $axes[] = [
-                'label' => $path['label'],
-                'unit' => $path['unit'],
-                'value' => (int) $path['value'],
+                'label' => (string) setting("dashboard.achievements.{$key}.label", $key),
+                'unit' => (string) setting("dashboard.achievements.{$key}.unit", ''),
+                'value' => $value,
                 'level' => $progress['level'],
                 'next_at' => $progress['next_at'],
                 'ratio' => min(1, ($progress['level'] - 1 + $progress['fraction']) / ($max - 1)),
@@ -179,6 +182,21 @@ class DashboardStatsService
         }
 
         return ['axes' => $axes, 'max_level' => $max];
+    }
+
+    /**
+     * مسارات الرادار وترتيبها — نفس الإعداد الذي يقرؤه تاب الإنجازات في البروفايل،
+     * فالمسار الواحد لا يكون خمسةً في اللوحة وأربعةً في البروفايل (10.1).
+     *
+     * @return array<int, string>
+     */
+    private function radarTracks(): array
+    {
+        $keys = setting('dashboard.achievements.tracks');
+
+        return is_array($keys) && $keys !== []
+            ? array_values(array_filter($keys, 'is_string'))
+            : ['account', 'club_5am', 'referrals', 'tickets', 'learning'];
     }
 
     /**

@@ -11,6 +11,7 @@ use App\Models\MeetingAttendance;
 use App\Models\Membership;
 use App\Models\Position;
 use App\Models\RecruitmentCandidate;
+use App\Models\RepScore;
 use App\Models\Task;
 use App\Models\User;
 use App\Models\WalletBalance;
@@ -39,7 +40,7 @@ final class OverviewPanel
     public function build(User $owner, ?User $viewer, string $level, ?Membership $membership): array
     {
         $days = (int) setting('ux.lists.default_range_days', 30);
-        $score = $this->rep->score($owner);
+        $score = $this->score($owner);
         $summary = $this->leadership->receivedSummary($owner);
         $privileged = $this->levels->isPrivileged($level);
 
@@ -86,6 +87,17 @@ final class OverviewPanel
             'my_open_tasks' => $level === ViewerLevel::OWNER ? $this->openTasks($owner) : collect(),
             'next_meeting' => $level === ViewerLevel::OWNER ? $this->nextMeeting($owner) : null,
         ];
+    }
+
+    /**
+     * الدرجة من **مصدرها الواحد**: جدول `rep_scores` هو الرقم الظاهر في كلّ الشاشات،
+     * ونرجع لمحفظة Rep لو لم يُبنَ له صفٌّ بعد — فلا يختلف الرقم بين شاشتين.
+     */
+    public function score(User $owner): float
+    {
+        $stored = RepScore::where('user_id', $owner->id)->value('score');
+
+        return $stored !== null ? (float) $stored : $this->rep->score($owner);
     }
 
     /** موضع الدرجة على بار من −10 إلى +10 (نسبة مئويّة للعرض) */

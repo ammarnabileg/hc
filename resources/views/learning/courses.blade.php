@@ -43,6 +43,11 @@
         </x-slot:action>
     </x-page-header>
 
+    {{-- بأيّ ساعةٍ تُقاس مواعيدك؟ — سؤال يسبق كلّ «مفتوح/مقفول» (5) --}}
+    <div class="mb-4">
+        @include('learning.partials.timezone-chip', ['clock' => $clock, 'timezones' => $timezones])
+    </div>
+
     {{-- ثلاثة فلاتر ظاهرة: الحالة · المسار · بحث — والباقي مطويّ (2.15-أ-4) --}}
     <x-filters :action="route('learning.courses')">
         <label class="block">
@@ -104,6 +109,10 @@
         </div>
     @endif
 @endsection
+
+@push('scripts')
+    @include('learning.partials.clock-scripts', ['storedTimezone' => $clock['timezone']])
+@endpush
 
 @if ($resume)
     @section('mobile_action')

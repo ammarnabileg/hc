@@ -43,8 +43,8 @@ class VolunteerOrgDemoSeeder extends Seeder
             // ---------------- كانفاس الهيكل (13.4-م-3)
             ['volunteer.org.collapse_threshold', 'volunteer', 'حدّ الداونلاين قبل الطيّ التلقائيّ', 'number', '30'],
             ['volunteer.org.default_depth', 'volunteer', 'عدد المستويات المفتوحة تحتي افتراضيًّا', 'number', '2'],
-            ['volunteer.org.occupancy.warn_percent', 'volunteer', 'عتبة الإشغال الصفراء (%)', 'number', '80'],
-            ['volunteer.org.occupancy.danger_percent', 'volunteer', 'عتبة الإشغال الحمراء (%)', 'number', '100'],
+            ['volunteer.org.occupancy_warn_percent', 'volunteer_org', 'عتبة الإشغال الصفراء (%)', 'number', '80'],
+            ['volunteer.org.occupancy_danger_percent', 'volunteer_org', 'عتبة الإشغال الحمراء (%)', 'number', '100'],
             ['volunteer.org.date_format', 'volunteer', 'صيغة التاريخ في شاشات قسمي', 'string', 'j F Y'],
             ['volunteer.org.service_duration.unknown', 'volunteer', 'نصّ مدّة الخدمة غير المعروفة', 'string', 'لسّه في أوّل الطريق'],
             ['volunteer.honorary.note', 'volunteer', 'سطر توضيح العنصر الشرفيّ', 'string', 'عنصر شرفيّ — بلا مؤشّرات ولا يدخل أيّ عدّاد'],

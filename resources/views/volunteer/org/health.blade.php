@@ -179,7 +179,7 @@
                 <div class="card p-4">
                     <div class="text-sm font-bold mb-1">الأعضاء الخاملون</div>
                     <p class="text-xs mb-3" style="color: var(--text-muted)">
-                        بلا نشاط {{ setting('offboarding.inactivity.alert_days', 21) }} يومًا فأكثر — ومعه عدّاد الخصم الأسبوعيّ.
+                        بلا نشاط {{ setting('rep.inactivity.days_before_alert', 21) }} يومًا فأكثر — ومعه عدّاد الخصم الأسبوعيّ.
                     </p>
                     @forelse ($oversight['idle_members'] as $row)
                         <div class="flex items-center justify-between gap-2 py-2 text-sm" style="border-top: 1px solid var(--border)">

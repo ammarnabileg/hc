@@ -2,6 +2,7 @@
 
 namespace App\Services\Library;
 
+use App\Models\Product;
 use App\Models\User;
 
 /**
@@ -33,18 +34,26 @@ class PageWatermark
         return max(1, (int) setting('reader.watermark.repeat_count', 12));
     }
 
-    public function enabled(): bool
+    /**
+     * الإعداد العامّ للمنصّة، و**المنتج يقرّر لنفسه** حين يُمرَّر (20.5).
+     * فترتيب الحسم: المنتج أوّلًا ثمّ الإعداد العامّ.
+     */
+    public function enabled(?Product $product = null): bool
     {
-        return (bool) setting('reader.watermark.enabled', true);
+        if (! (bool) setting('reader.watermark.enabled', true)) {
+            return false;
+        }
+
+        return $product === null || (bool) ($product->watermark_enabled ?? true);
     }
 
     /**
      * ختم الكود داخل الصورة — في الذاكرة فقط، ولا يُكتَب على القرص أبدًا.
      * وإن تعذّر لأيّ سبب تعود الصورة كما هي بلا كسر (طبقة الـDOM باقية).
      */
-    public function stamp(string $png, User $user): string
+    public function stamp(string $png, User $user, ?Product $product = null): string
     {
-        if (! $this->enabled()) {
+        if (! $this->enabled($product)) {
             return $png;
         }
 

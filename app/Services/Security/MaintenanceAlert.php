@@ -53,14 +53,17 @@ class MaintenanceAlert
     /** مَن يملك رفع الصيانة أو تمديدها: مالك المنصّة + كلّ مَن له `maintenance.manage` */
     public function managers(): Collection
     {
+        // مالك المنصّة يعلو الجميع فلا يُشترَط له سطر صلاحيّة أصلًا (12.2.1)
+        $owners = DB::table('role_user')
+            ->join('roles', 'roles.id', '=', 'role_user.role_id')
+            ->where('roles.key', config('access.owner_role'))
+            ->pluck('role_user.user_id');
+
         $viaRole = DB::table('role_user')
             ->join('permission_role', 'permission_role.role_id', '=', 'role_user.role_id')
             ->join('permissions', 'permissions.id', '=', 'permission_role.permission_id')
-            ->join('roles', 'roles.id', '=', 'role_user.role_id')
             ->where('permission_role.effect', 'allow')
-            ->where(fn ($q) => $q
-                ->where('permissions.key', 'maintenance.manage')
-                ->orWhere('roles.key', config('access.owner_role')))
+            ->where('permissions.key', 'maintenance.manage')
             ->pluck('role_user.user_id');
 
         $viaUser = DB::table('permission_user')
@@ -70,7 +73,7 @@ class MaintenanceAlert
             ->pluck('permission_user.user_id');
 
         return User::query()
-            ->whereIn('id', $viaRole->merge($viaUser)->unique()->all())
+            ->whereIn('id', $owners->merge($viaRole)->merge($viaUser)->unique()->all())
             ->get();
     }
 
