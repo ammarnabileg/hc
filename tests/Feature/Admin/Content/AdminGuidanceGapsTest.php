@@ -11,6 +11,7 @@ use App\Services\Admin\Content\AnnouncementRecurrence;
 use App\Services\Notifications\AnnouncementFeed;
 use App\Support\Access\AccessEngine;
 use Carbon\CarbonImmutable;
+use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -153,6 +154,19 @@ class AdminGuidanceGapsTest extends AdminContentTestCase
         // وبعد أسبوع تخرج الدورة التالية
         $this->assertSame(1, $recurrence->run(CarbonImmutable::now()->addWeek())['generated']);
         $this->assertSame(2, Announcement::query()->where('recurrence_parent_id', $template->id)->count());
+    }
+
+    /**
+     * والجدولة موجودة فعلًا: أمرٌ بلا جدولة يجعل «الجدولة المتكرّرة» وعدًا في
+     * الشاشة بلا تنفيذ — يفتح الأدمن اللوحة فلا تخرج دورةٌ واحدة أبدًا.
+     */
+    public function test_the_recurring_command_is_actually_scheduled(): void
+    {
+        $event = collect(app(Schedule::class)->events())
+            ->first(fn ($e) => str_contains((string) $e->command, 'announcements:recurring'));
+
+        $this->assertNotNull($event, 'أمر توليد الدورات غير مجدوَل أصلًا.');
+        $this->assertSame('0 * * * *', $event->expression, 'المسحة كلّ ساعة والقرار في due() — لا تعبير كرون محروق.');
     }
 
     /** المدى ينتهي فيتوقّف التكرار — ولا يُحذَف القالب (2.11-د: لا حذف أعمى). */

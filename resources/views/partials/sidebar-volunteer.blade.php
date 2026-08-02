@@ -71,6 +71,11 @@
                 <x-nav-link route="volunteer.goals" label="المشاريع والأهداف" icon="🎯" />
             @endcan
 
+            {{-- إطلاق الهدف (23 — 1.5): لصاحب الضغطة وحده، ومخفيّ عن غيره لا معطَّلًا --}}
+            @can('goals.approve')
+                <x-nav-link route="volunteer.goals.launch" label="إطلاق الهدف" icon="🚀" />
+            @endcan
+
             {{-- 4) الأداء --}}
             @can('leaderboards.view')
                 <x-nav-link route="volunteer.performance.vxp" label="الأداء" icon="📈" />

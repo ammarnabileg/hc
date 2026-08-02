@@ -32,6 +32,12 @@ Schedule::command('moderation:release-expired')->hourly()->withoutOverlapping();
 // توليد المهامّ من البنود المتكرّرة في المشروع التشغيليّ (23)
 Schedule::command('recurring:generate')->hourly()->withoutOverlapping();
 
+// دورات المنشورات المجدولة تكرارًا (12.6-أ): مسحة كلّ ساعة، والقرار داخل
+// `AnnouncementRecurrence::due()` وحده — فالتردّد ومدّاه إعدادان يحرّرهما الأدمن
+// لكلّ منشور، لا تعبير كرون ثابتٌ هنا. وبلا هذه الجدولة تبقى «الجدولة المتكرّرة»
+// وعدًا في الشاشة بلا تنفيذ.
+Schedule::command('announcements:recurring')->hourly()->withoutOverlapping();
+
 // سلّم الخمول وعتبات لجنة التحقيق — مسحة يوميّة (13.4-س-ب · 13.4-س-ج)
 Schedule::command('volunteers:inactivity')->dailyAt('05:30')->timezone('Africa/Cairo')->withoutOverlapping();
 

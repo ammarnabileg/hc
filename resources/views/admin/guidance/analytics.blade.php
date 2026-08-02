@@ -25,7 +25,7 @@
 
     @php
         /* «أفضل توقيت» (12.6-أ): من لحظات القراءة نفسها — امتى يفتحون فعلًا. */
-        $weekdayNames = ['الأحد', 'الاتنين', 'التلات', 'الأربع', 'الخميس', 'الجمعة', 'السبت'];
+        $weekdayNames = (array) setting('announcements.analytics.weekday_labels', ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت']);
         $bestHour = $bestTime['best_hour'];
         $bestLabel = $bestTime['sample'] > 0
             ? ($weekdayNames[$bestTime['best_day']] ?? '—').' · '.str_pad((string) $bestHour, 2, '0', STR_PAD_LEFT).':00'

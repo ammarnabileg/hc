@@ -94,6 +94,25 @@ class AdminSystemCountriesTest extends SystemTestCase
             ->assertForbidden();
     }
 
+    /** الشاشة تعرض جدول الفروق بأعمدته الثلاثة وشارة «سيُدمج بلا فقد» (24.3). */
+    public function test_the_screen_shows_the_three_diff_columns_before_merging(): void
+    {
+        $this->seedGeography();
+        $this->snapshot();
+
+        $this->actingAs($this->countriesAdmin())
+            ->get(route('admin.settings.index', ['tab' => 'countries']))
+            ->assertOk()
+            ->assertSee('مضاف')
+            ->assertSee('محذوف من المصدر')
+            ->assertSee('معدَّل')
+            ->assertSee('سيُدمج بلا فقد')
+            ->assertSee('Dry-run')
+            // والقاعدة معروضة قبل الفعل لا بعده
+            ->assertSee('المحافظة لا تُخفى أبدًا', false)
+            ->assertSee('ODbL', false);
+    }
+
     /** ⭐ الفحص يفرز الفروق الثلاثة: مضاف · محذوف · معدَّل — قبل أيّ تنفيذ. */
     public function test_check_lists_added_removed_and_changed_before_merging(): void
     {

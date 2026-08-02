@@ -164,6 +164,7 @@ class AdminContentDemoSeeder extends Seeder
             ['announcements.preview.mobile_width', 'announcements', 'عرض إطار الموبايل في المعاينة (px)', 'number', '390'],
             ['announcements.analytics.best_time_days', 'announcements', 'مدى حساب «أفضل توقيت» (أيّام)', 'number', '90'],
             ['announcements.analytics.best_time_rows', 'announcements', 'أقصى قراءات في حساب «أفضل توقيت»', 'number', '5000'],
+            ['announcements.analytics.weekday_labels', 'announcements', 'أسماء أيّام الأسبوع في «أفضل توقيت»', 'json', '["الأحد","الإثنين","الثلاثاء","الأربعاء","الخميس","الجمعة","السبت"]'],
 
             ['notifications.types', 'notifications', 'أنواع الإشعارات', 'json', '{"account":"قبول الحساب","certificate":"إصدار شهادة","exam":"نتيجة امتحان","announcement":"رسالة إداريّة","wallet":"طلب سحب أو شحن","order":"اكتمال طلب"}'],
             ['notifications.channels', 'notifications', 'قنوات الإشعار', 'json', '{"bell":"الجرس","toast":"Toast","email":"بريد"}'],
