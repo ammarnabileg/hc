@@ -29,11 +29,12 @@ class ChallengeScreensTest extends ChallengeTestCase
     {
         $user = $this->trainee();
 
+        // نفحص وصف الكارت لا اسم النوع، لأنّ أسماء الأنواع كلّها موجودة في قائمة الفلتر
         $this->actingAs($user)
             ->get(route('challenges.index', ['type' => 'focus']))
             ->assertOk()
-            ->assertSee('حرب التركيز', false)
-            ->assertDontSee('حرب البقاء', false);
+            ->assertSee('عمل عميق بلا مقاطعة', false)
+            ->assertDontSee('أوّل غلطة تخرجك', false);
     }
 
     public function test_paused_war_is_shown_with_its_state_not_hidden(): void

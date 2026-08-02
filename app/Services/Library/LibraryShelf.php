@@ -256,15 +256,26 @@ class LibraryShelf
         return $path ? Storage::disk('public')->url($path) : null;
     }
 
-    /** أثناء البناء التدريجيّ: المسار غير الموجود لا يكسر الصفحة */
+    /**
+     * أثناء البناء التدريجيّ: مسارُ مجالٍ آخر غيرُ موجودٍ — أو بتوقيعٍ مختلف —
+     * لا يكسر الرفّ، بل نهبط للبديل الأوسع.
+     */
     private function routeOr(string $name, array $params = [], ?string $fallback = null): string
     {
         if (Route::has($name)) {
-            return route($name, $params);
+            try {
+                return route($name, $params);
+            } catch (\Throwable) {
+                // نكمل إلى البديل
+            }
         }
 
         if ($fallback && Route::has($fallback)) {
-            return route($fallback);
+            try {
+                return route($fallback);
+            } catch (\Throwable) {
+                return '#';
+            }
         }
 
         return '#';

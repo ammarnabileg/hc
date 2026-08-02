@@ -26,7 +26,7 @@ class CelebrationTest extends ChallengeTestCase
 
         $this->assertNotNull($first);
         $this->assertNull($second);
-        $this->assertSame(1, CelebrationConsumption::where('user_id', $user->id)->count());
+        $this->assertSame(1, $this->consumptionsOf($user, 'challenge.won'));
     }
 
     public function test_reloading_the_result_screen_does_not_repeat_the_celebration(): void
@@ -79,6 +79,13 @@ class CelebrationTest extends ChallengeTestCase
             ->get(route('challenges.result', $participation))
             ->assertOk()
             ->assertSee('كسبت التحدّي', false);
+    }
+
+    private function consumptionsOf($user, string $eventKey): int
+    {
+        return CelebrationConsumption::where('user_id', $user->id)
+            ->where('celebration_event_id', CelebrationEvent::where('key', $eventKey)->value('id'))
+            ->count();
     }
 
     private function finishedWin($user): ChallengeParticipation

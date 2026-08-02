@@ -115,8 +115,22 @@ class ReaderController extends Controller
             'thumbUrl' => route('library.teaser.page', ['product' => $product->id, 'page' => '__PAGE__']),
             'progressUrl' => null,
             'teaser' => true,
-            'buyUrl' => Route::has('store.product') ? route('store.product', ['type' => 'product', 'slug' => $product->slug]) : (Route::has('store.index') ? route('store.index') : url('/')),
+            'buyUrl' => $this->buyUrl($product),
         ]);
+    }
+
+    /** رابط الشراء من المتجر — ومسار مجالٍ آخر لا يكسر شاشتنا لو تغيّر توقيعه */
+    private function buyUrl(Product $product): string
+    {
+        if (Route::has('store.product')) {
+            try {
+                return route('store.product', ['type' => 'product', 'slug' => $product->slug, 'product' => $product->slug]);
+            } catch (\Throwable) {
+                // نكمل إلى المتجر العامّ
+            }
+        }
+
+        return Route::has('store.index') ? route('store.index') : url('/');
     }
 
     public function teaserPage(Request $request, Product $product, int $page): Response
