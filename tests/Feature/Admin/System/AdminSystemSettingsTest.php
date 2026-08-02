@@ -5,6 +5,8 @@ namespace Tests\Feature\Admin\System;
 use App\Models\AuditLog;
 use App\Models\Setting;
 use App\Services\Admin\System\SettingsRegistry;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Cache;
 
 /**
  * شاشة الإعدادات الواحدة بتاباتها الجانبيّة (2.15-د) وقواعد 2.13-و:
@@ -121,7 +123,7 @@ class AdminSystemSettingsTest extends SystemTestCase
         $this->assertArrayHasKey('stats.period.default_days', $decoded);
 
         $decoded['stats.period.default_days'] = 60;
-        $file = \Illuminate\Http\UploadedFile::fake()->createWithContent('settings.json', json_encode($decoded));
+        $file = UploadedFile::fake()->createWithContent('settings.json', json_encode($decoded));
 
         $this->actingAs($admin)->post(route('admin.settings.import'), ['file' => $file])->assertRedirect();
 
@@ -133,7 +135,7 @@ class AdminSystemSettingsTest extends SystemTestCase
     {
         $registry = app(SettingsRegistry::class);
         Setting::query()->where('key', 'images.enabled')->update(['value' => '0']);
-        \Illuminate\Support\Facades\Cache::forget('settings');
+        Cache::forget('settings');
 
         $setting = Setting::query()->where('key', 'images.batch.max_users')->firstOrFail();
 
