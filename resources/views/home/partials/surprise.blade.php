@@ -99,7 +99,7 @@
         }
         .surprise-sheet { animation: surprise-sheet-up 320ms var(--ease-standard) both; }
         /* التحكّم في الحركة من إعداد المستخدم داخل المنصّة (app.css) لا من
-           `prefers-reduced-motion` — مرفوض نصًّا في 2.3 و2.14-ب. */
+           تفضيل نظام التشغيل — مرفوض نصًّا في 2.3 و2.14-ب. */
     </style>
     <script>
         (() => {

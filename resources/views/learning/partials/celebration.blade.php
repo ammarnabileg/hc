@@ -14,7 +14,7 @@
      * وحدث `level.up` يزيد **أنيميشن Level Up** (3.4-22).
      *
      * كلّه CSS، قابل للتخطّي بضغطة أو ESC، وينتهي تلقائيًّا، ويحترم
-     * `prefers-reduced-motion` وتوجل الحركة في المنصّة.
+     * تفضيل نظام التشغيل — والتحكّم من توجل الحركة داخل المنصّة وحده.
      */
     $tier = (int) ($celebration['tier'] ?? 1);
     $isLevelUp = ($celebration['key'] ?? '') === 'level.up';
@@ -123,9 +123,6 @@
         }
         .learn-levelup { display: inline-block; animation: learn-levelup 1.1s var(--ease-standard) 2; }
 
-        @media (prefers-reduced-motion: reduce) {
-            .learn-piece, .learn-xp-fly, .learn-levelup { animation: none; }
-        }
         [data-motion="off"] .learn-piece,
         [data-motion="off"] .learn-xp-fly,
         [data-motion="off"] .learn-levelup { animation: none; }

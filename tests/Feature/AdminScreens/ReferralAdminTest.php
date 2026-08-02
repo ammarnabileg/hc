@@ -74,14 +74,15 @@ class ReferralAdminTest extends ScreensTestCase
         $this->actingAs($this->owner())
             ->get(route('admin.referrals.index'))
             ->assertOk()
-            ->assertSee('🔒 العمولة');
+            // الأيقونة صارت SVG مرسومة داخل المشروع (2.16-ج) — فالنصّ وحده يُقاس
+            ->assertSee('العمولة المستحقّة');
 
         $admin = $this->admin(['referrals.list', 'referrals.view', 'referrals.export']);
 
         $this->actingAs($admin)
             ->get(route('admin.referrals.index'))
             ->assertOk()
-            ->assertDontSee('🔒 العمولة');
+            ->assertDontSee('العمولة المستحقّة');
 
         $export = $this->actingAs($admin)->get(route('admin.referrals.export'));
         $export->assertOk();

@@ -22,6 +22,21 @@ class User extends Authenticatable
 
     protected $hidden = ['password', 'remember_token'];
 
+    /**
+     * ⭐ تفضيلات العرض لها افتراضيّ **على الموديل** لا على القاعدة وحدها.
+     *
+     * افتراضيّ القاعدة لا يظهر على الكائن قبل أوّل قراءةٍ منها، فالمستخدم
+     * المُنشَأ للتوّ (لحظة التسجيل مثلًا) يخرج بـ`motion_enabled = null`،
+     * و`! null` صحيح ⟵ فتُطفأ الحركة على أوّل صفحة يراها. وهذا يقلب نصّ 2.14-ب
+     * («الأنيميشن روح المنصّة وشغّال افتراضيًّا») رأسًا على عقب في أهمّ لحظة:
+     * أوّل انطباع.
+     */
+    protected $attributes = [
+        'theme' => 'dark',
+        'sound_enabled' => true,
+        'motion_enabled' => true,
+    ];
+
     protected function casts(): array
     {
         return [

@@ -33,16 +33,21 @@ class SettingsTest extends AccountTestCase
     {
         $user = $this->trainee();
 
-        $this->actingAs($user)->get(route('dashboard'))
-            ->assertOk()
-            ->assertDontSee('prefers-reduced-motion', false)
-            ->assertDontSee('data-motion="off"', false);
+        /*
+         | العلامة تُقاس على **وسم `<html>` نفسه** لا على المستند كلّه: سكربت
+         | تبديل الحركة يذكر اسم السمة نصًّا، فقياسُ الصفحة كلّها يقيس السكربت
+         | لا الحالة.
+         */
+        $on = $this->actingAs($user)->get(route('dashboard'))->assertOk();
+
+        $on->assertDontSee('prefers-reduced-motion', false);
+        $this->assertDoesNotMatchRegularExpression('#<html[^>]*data-motion="off"#', $on->getContent());
 
         $user->forceFill(['motion_enabled' => false])->save();
 
-        $this->actingAs($user)->get(route('dashboard'))
-            ->assertOk()
-            ->assertSee('data-motion="off"', false);
+        $off = $this->actingAs($user)->get(route('dashboard'))->assertOk();
+
+        $this->assertMatchesRegularExpression('#<html[^>]*data-motion="off"#s', $off->getContent());
     }
 
     public function test_autosave_saves_one_field_and_answers_with_the_saved_flag(): void

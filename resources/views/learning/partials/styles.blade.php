@@ -77,9 +77,6 @@
         animation: check-fill 620ms var(--ease-standard) forwards;
     }
 
-    @media (prefers-reduced-motion: reduce) {
-        .roadmap-node[data-unlocked='1']::before, .check-fill { animation: none; }
-    }
     [data-motion='off'] .roadmap-node[data-unlocked='1']::before,
     [data-motion='off'] .check-fill { animation: none; }
 

@@ -81,7 +81,7 @@
         }
         @keyframes celebrate-pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.08); } }
         .celebrate-pulse { display: inline-block; animation: celebrate-pulse 1.4s var(--ease-standard) infinite; }
-        /* بلا `prefers-reduced-motion`: الكونفيتي والنبضة ذروة 2.9-6،
+        /* بلا استعلام وسائط نظام التشغيل: الكونفيتي والنبضة ذروة 2.9-6،
            والتحكّم فيهما من إعداد المستخدم داخل المنصّة (app.css). */
     </style>
     <script>
