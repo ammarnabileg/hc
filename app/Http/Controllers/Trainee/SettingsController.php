@@ -19,6 +19,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 /**
@@ -93,7 +94,19 @@ class SettingsController extends Controller
     {
         $field = $request->string('field')->toString();
 
-        $result = $this->autosave->save($request->user(), $field, $request->input('value'));
+        try {
+            $result = $this->autosave->save($request->user(), $field, $request->input('value'));
+        } catch (ValidationException $e) {
+            // ماذا حدث + ماذا تفعل — والمُدخَل يفضل كما هو في الواجهة (2.17-ب)
+            if ($request->wantsJson()) {
+                return response()->json([
+                    'saved' => false,
+                    'message' => collect($e->errors())->flatten()->first() ?? 'تعذّر الحفظ.',
+                ], 422);
+            }
+
+            return back()->withInput()->withErrors($e->errors());
+        }
 
         $message = 'اتحفظ ✓';
 
@@ -115,7 +128,10 @@ class SettingsController extends Controller
         $request->validate([
             'avatar' => ['nullable', 'image', 'max:'.$this->autosave->avatarMaxKb()],
             'avatar_data' => ['nullable', 'string'],
-        ], [], ['avatar' => 'الصورة']);
+        ], [
+            'avatar.image' => 'الملفّ ده مش صورة — اختار صورة وجرّب تاني.',
+            'avatar.max' => 'الصورة كبيرة شوية — اختار صورة أصغر.',
+        ], ['avatar' => 'الصورة']);
 
         $saved = $this->autosave->storeAvatar(
             $request->user(),
@@ -139,7 +155,10 @@ class SettingsController extends Controller
             'name' => ['required', 'string', 'max:120'],
             'phone' => ['required', 'string', 'max:32'],
             'relation' => ['nullable', 'string', 'max:64'],
-        ], [], [
+        ], [
+            'required' => 'الحقل ده مطلوب — اكتبه وجرّب تاني.',
+            'max' => 'القيمة دي أطول من المسموح.',
+        ], [
             'name' => 'الاسم',
             'phone' => 'رقم الموبايل',
             'relation' => 'صلة القرابة',
@@ -165,17 +184,20 @@ class SettingsController extends Controller
         $data = $request->validate([
             'field' => ['required', 'string', 'max:64'],
             'visibility' => ['required', 'in:'.implode(',', PrivacyFields::VISIBILITIES)],
+        ], [
+            'required' => 'الحقل ده مطلوب.',
+            'in' => 'الاختيار ده مش من الخيارات المتاحة.',
         ]);
 
-        // ⭐ حارس صريح: المحافظة عامّة دائمًا ولا تُدرَج ولا تُحفَظ
-        abort_unless(PrivacyFields::isControllable($data['field']), 422, 'الحقل ده عامّ دائمًا ولا يتغيّر.');
+        // ⭐ حارس صريح: المحافظة عامّة دائمًا ولا تُدرَج ولا تُحفَظ (12.14-د)
+        if (! PrivacyFields::isControllable($data['field'])) {
+            return $this->refuse($request, 'الحقل ده بيفضل عامّ على طول — مش بيتغيّر.');
+        }
 
         // لا يُسمح بأوسع من حدّ الأدمن (24.5)
-        abort_if(
-            PrivacyFields::rank($data['visibility']) < PrivacyFields::rank(PrivacyFields::adminFloor()),
-            422,
-            'الإعداد ده أوسع من المسموح.',
-        );
+        if (PrivacyFields::rank($data['visibility']) < PrivacyFields::rank(PrivacyFields::adminFloor())) {
+            return $this->refuse($request, 'الإعداد ده أوسع من المسموح — اختار خيار تاني.');
+        }
 
         UserPrivacySetting::updateOrCreate(
             ['user_id' => $request->user()->id, 'field' => $data['field']],
@@ -187,6 +209,16 @@ class SettingsController extends Controller
         }
 
         return back()->with('status', 'اتحفظ ✓');
+    }
+
+    /** رفض مفهوم: نفس الرسالة في JSON وفي الصفحة العاديّة (2.17-ب) */
+    private function refuse(Request $request, string $message): JsonResponse|RedirectResponse
+    {
+        if ($request->wantsJson()) {
+            return response()->json(['saved' => false, 'message' => $message], 422);
+        }
+
+        return back()->withErrors(['visibility' => $message]);
     }
 
     /** سحب الموافقة: يقطع الرؤية فورًا — و**بلا إشعار للطرف الآخر** (13.4-م) */
@@ -204,7 +236,11 @@ class SettingsController extends Controller
         $data = $request->validate([
             'current_password' => ['required', 'string'],
             'password' => ['required', 'confirmed', Password::min(8)],
-        ], [], [
+        ], [
+            'required' => 'الحقل ده مطلوب.',
+            'password.confirmed' => 'الكلمتان مش متطابقتين — راجعهم وجرّب تاني.',
+            'password.min' => 'كلمة السرّ لازم تبقى 8 خانات على الأقلّ.',
+        ], [
             'current_password' => 'كلمة السرّ الحاليّة',
             'password' => 'كلمة السرّ الجديدة',
         ]);

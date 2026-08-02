@@ -30,10 +30,12 @@ class StreakService
 
         $inClubWindow = $this->inClubWindow($at);
 
-        $streakDay = StreakDay::query()->firstOrNew([
-            'user_id' => $user->id,
-            'day' => $day,
-        ]);
+        // المقارنة بـwhereDate لأنّ العمود يُخزَّن بصيغة تاريخ/وقت كاملة
+        $streakDay = StreakDay::query()
+            ->where('user_id', $user->id)
+            ->whereDate('day', $day)
+            ->first()
+            ?? new StreakDay(['user_id' => $user->id, 'day' => $day]);
 
         // مرّة واحدة تكفي: من دخل نادي الخامسة اليوم يبقى فيه ولو سجّل ثانيةً بعدها
         $streakDay->club_5am = (bool) $streakDay->club_5am || $inClubWindow;
@@ -106,7 +108,8 @@ class StreakService
     {
         $rows = StreakDay::query()
             ->where('user_id', $user->id)
-            ->whereBetween('day', [$from->format('Y-m-d'), $to->format('Y-m-d')])
+            ->whereDate('day', '>=', $from->format('Y-m-d'))
+            ->whereDate('day', '<=', $to->format('Y-m-d'))
             ->get()
             ->keyBy(fn (StreakDay $d) => $d->day->toDateString());
 

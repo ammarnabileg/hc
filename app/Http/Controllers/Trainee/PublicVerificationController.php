@@ -74,7 +74,7 @@ class PublicVerificationController extends Controller
             'auditable_id' => $certificate->id,
             'new_values' => [
                 'note' => $validated['note'],
-                'contact' => $validated['contact'],
+                'contact' => $validated['contact'] ?? null,
             ],
             'ip' => $request->ip(),
             'user_agent' => substr((string) $request->userAgent(), 0, 190),

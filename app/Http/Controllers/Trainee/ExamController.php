@@ -103,7 +103,7 @@ class ExamController extends Controller
             return ExamAttempt::create([
                 'exam_id' => $exam->id,
                 'user_id' => $user->id,
-                'exam_version' => $exam->version,
+                'exam_version' => $exam->version ?? 1,
                 'started_at' => now(),
                 'answers' => [],
                 'status' => 'in_progress',

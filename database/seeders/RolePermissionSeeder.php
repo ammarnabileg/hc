@@ -82,7 +82,18 @@ class RolePermissionSeeder extends Seeder
             'referrals', 'friend_invite', 'invitations_page', 'user_cv', 'cv_templates', 'user_attestation',
             'complaints', 'user_guide', 'announcements', 'announcement_ack', 'notifications',
             'user_search', 'contact_consent', 'calendar', 'personal_reports', 'share_links', 'volunteer_page',
+            'war_participation', 'wars_matches', 'invitations_page', 'friend_invite', 'streak_freeze',
         ], 'SELF', $expander);
+
+        /*
+         | موارد عامّة بطبيعتها (كتالوج · ليدر بورد · تحقّق) لا تُعرَّف إلّا بنطاق ALL،
+         | فمنحُها للمتدرّب بنطاق SELF كان يُسقِطها ويُعطيه 403 على صفحات عامّة.
+         */
+        $this->grantResources('trainee', [
+            'events', 'games', 'courses', 'paths', 'store_products', 'bundles',
+            'product_categories', 'leaderboards', 'public_leaderboard', 'badges',
+            'achievements', 'certificate_verification', 'user_guide', 'public_pages',
+        ], 'ALL', $expander);
 
         // ---------------- تحت المراجعة: قراءة محدودة جدًّا
         $this->grantResources('pending_review', ['user_guide', 'announcements', 'notifications', 'user_profile'], 'SELF', $expander);

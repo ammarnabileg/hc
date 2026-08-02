@@ -32,8 +32,20 @@ class StreakAndBadgeTest extends ChallengeTestCase
 
         $this->assertSame(1, (int) $streak->current_days);
         $this->assertSame(2, (int) $streak->best_days);
-        $this->assertTrue($streaks->isBroken($streak->refresh()) === false);
         $this->assertDatabaseCount('streak_days', 3);
+    }
+
+    public function test_streak_is_broken_only_when_the_last_active_day_is_older_than_yesterday(): void
+    {
+        $streaks = app(StreakService::class);
+
+        $fresh = $this->trainee();
+        $streaks->record($fresh, CarbonImmutable::now('Africa/Cairo')->subDay());
+        $this->assertFalse($streaks->isBroken($streaks->forUser($fresh)));
+
+        $stale = $this->trainee();
+        $streaks->record($stale, CarbonImmutable::now('Africa/Cairo')->subDays(5));
+        $this->assertTrue($streaks->isBroken($streaks->forUser($stale)));
     }
 
     public function test_five_am_club_counts_only_inside_the_window(): void

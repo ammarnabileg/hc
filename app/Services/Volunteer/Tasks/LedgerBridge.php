@@ -37,11 +37,21 @@ class LedgerBridge
 
         $ledger = 'App\Services\Wallet\LedgerService';
 
+        // الخدمة المشتركة أولى: هي التي تطبّق حدّ الخسارة اليوميّ وتحدّث الرصيد (13.4-ن-و)
         if (class_exists($ledger)) {
             $service = app($ledger);
+            $method = $amount >= 0 ? 'credit' : 'debit';
 
-            if (method_exists($service, 'record')) {
-                return $service->record($user, $currency, $amount, $source, $reason, $reference, $entityId);
+            if (method_exists($service, $method)) {
+                return $service->{$method}(
+                    user: $user,
+                    currencyCode: $currency,
+                    amount: $amount,
+                    source: $source,
+                    reference: $reference,
+                    layer: 'volunteer',
+                    reason: $reason,
+                );
             }
         }
 

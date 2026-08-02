@@ -70,7 +70,12 @@
                    </dl>`
                 : `<p class="text-sm" style="color: var(--text-muted)">${texts.noInvoice}</p>`;
 
+            const preview = data.preview
+                ? `<img src="${data.preview}" alt="" class="w-full max-h-64 object-contain rounded-xl" style="background: var(--surface-sunken)">`
+                : '';
+
             body.innerHTML = `
+                ${preview}
                 <h3 class="font-bold">${data.title}</h3>
                 <p class="text-sm" style="color: var(--text-muted)">${data.description ?? ''}</p>
                 <div class="card p-3">

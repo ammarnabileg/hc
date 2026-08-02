@@ -76,7 +76,7 @@ class SettingsAutosave
 
         $value = $this->cast($field, $value);
 
-        Validator::make([$field => $value], $rules, [], $this->attributes())->validate();
+        Validator::make([$field => $value], $rules, $this->messages(), $this->attributes())->validate();
 
         $revoked = 0;
 
@@ -127,18 +127,37 @@ class SettingsAutosave
         };
     }
 
+    /** أسماء الحقول بالعربيّة — الواجهة كلّها عربيّة بنبرة واحدة (BUILD-5) */
     private function attributes(): array
     {
         return [
-            'attributes' => [
-                'name' => 'الاسم',
-                'email' => 'البريد الإلكترونيّ',
-                'phone' => 'رقم الموبايل',
-                'country_id' => 'الدولة',
-                'governorate_id' => 'المحافظة',
-                'locale' => 'اللغة',
-                'theme' => 'المظهر',
-            ],
+            'name' => 'الاسم',
+            'email' => 'البريد الإلكترونيّ',
+            'phone' => 'رقم الموبايل',
+            'country_id' => 'الدولة',
+            'governorate_id' => 'المحافظة',
+            'locale' => 'اللغة',
+            'theme' => 'المظهر',
+            'simple_mode' => 'الوضع المبسّط',
+            'advanced_mode' => 'الوضع المتقدّم',
+            'sound_enabled' => 'صوت المنصّة',
+        ];
+    }
+
+    /** رسالة الخطأ = ماذا حدث + ماذا تفعل، بلا أكواد تقنيّة (2.17-ب) */
+    private function messages(): array
+    {
+        return [
+            'required' => 'الحقل ده مطلوب — اكتب قيمة وجرّب تاني.',
+            'name.min' => 'الاسم قصيّر شوية — اكتب اسمك كامل.',
+            'name.max' => 'الاسم طويل أوي — اختصره شوية.',
+            'email.email' => 'البريد ده شكله مش مظبوط — راجعه وجرّب تاني.',
+            'email.unique' => 'البريد ده مستخدَم في حساب تاني.',
+            'phone.unique' => 'رقم الموبايل ده مستخدَم في حساب تاني.',
+            'exists' => 'الاختيار ده مش متاح — اختار من القائمة.',
+            'in' => 'الاختيار ده مش من الخيارات المتاحة.',
+            'boolean' => 'الاختيار ده لازم يبقى مفعَّل أو متوقّف.',
+            'max' => 'القيمة دي أطول من المسموح.',
         ];
     }
 

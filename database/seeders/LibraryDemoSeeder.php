@@ -29,6 +29,9 @@ class LibraryDemoSeeder extends Seeder
     public function run(): void
     {
         $this->settings();
+        // الإعدادات تُقرأ من كاش دائم — فنُبطله فورًا كي يرى ما بعده القيمَ الجديدة
+        Cache::forget('settings');
+
         $this->cvTemplates();
 
         $products = $this->products();

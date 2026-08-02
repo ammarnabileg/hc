@@ -84,7 +84,14 @@ class ComplaintController extends Controller
             'title' => ['required', 'string', 'min:4', 'max:150'],
             'body' => ['required', 'string', 'min:10'],
             'attachment' => ['nullable', 'file', 'max:'.ComplaintService::attachmentMaxKb()],
-        ], [], [
+        ], [
+            'required' => 'الحقل ده مطلوب — اكتبه وجرّب تاني.',
+            'category.required' => 'اختار السبب من القائمة.',
+            'title.min' => 'العنوان قصيّر — اكتب جملة توضّح الموضوع.',
+            'body.min' => 'اكتب تفاصيل أكتر شوية عشان نقدر نساعدك.',
+            'in' => 'الاختيار ده مش من الخيارات المتاحة.',
+            'attachment.max' => 'المرفق كبير — اختار ملفّ أصغر.',
+        ], [
             'type' => 'النوع',
             'category' => 'السبب',
             'title' => 'العنوان المختصر',

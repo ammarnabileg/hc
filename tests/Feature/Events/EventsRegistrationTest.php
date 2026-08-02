@@ -88,6 +88,26 @@ class EventsRegistrationTest extends EventsTestCase
         $this->assertSame(50.0, $this->balanceOf($user, 'coins'));
     }
 
+    public function test_ticket_page_and_share_card_are_generated_by_us(): void
+    {
+        $user = $this->trainee();
+        $event = $this->makeEvent();
+
+        $this->actingAs($user)->post(route('events.register', $event->slug));
+        $ticketCode = EventRegistration::where('event_id', $event->id)->value('ticket_code');
+
+        $this->actingAs($user)
+            ->get(route('events.ticket', $event->slug))
+            ->assertOk()
+            ->assertSee($ticketCode);
+
+        // بطاقة المشاركة مرسومة SVG بأيدينا وعامّة ليقرأها من تُشارَك معه
+        $this->get(route('events.og', $event->slug))
+            ->assertOk()
+            ->assertHeader('Content-Type', 'image/svg+xml; charset=utf-8')
+            ->assertSee('<svg', false);
+    }
+
     public function test_calendar_file_is_generated_without_any_external_library(): void
     {
         $user = $this->trainee();

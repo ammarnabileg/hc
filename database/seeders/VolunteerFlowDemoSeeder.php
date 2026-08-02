@@ -49,7 +49,7 @@ class VolunteerFlowDemoSeeder extends Seeder
      * إعدادات المجال بنمط «المجال.الميزة.المفتاح» — ولا رقم محروق في الكود (2.13).
      * وما كان موجودًا في `SettingSeeder` لا يُكرَّر هنا.
      */
-    private function settings(): void
+    public function settings(): void
     {
         $rows = [
             ['workflow.activity_window.timezone', 'workflow', 'منطقة نافذة النشاط الزمنيّة', 'string', 'Africa/Cairo'],

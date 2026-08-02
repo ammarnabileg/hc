@@ -4,12 +4,14 @@ namespace App\Http\Controllers\Trainee;
 
 use App\Http\Controllers\Controller;
 use App\Models\LibraryEntitlement;
+use App\Models\Product;
 use App\Models\Referral;
 use App\Services\Library\EntitlementGuard;
 use App\Services\Library\LibraryShelf;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 /**
@@ -65,6 +67,8 @@ class LibraryController extends Controller
         return response()->json([
             'title' => $item?->name_ar ?? '',
             'description' => $item?->description ?? $item?->description_ar ?? '',
+            // معاينة قبل الفتح (20.1): الغلاف، وللمنتج المحميّ أوّل صفحة عيّنة
+            'preview' => $this->previewUrl($entitlement),
             'availability' => $this->guard->availability($entitlement),
             'invoice' => $order ? [
                 'number' => $order->number,
@@ -116,6 +120,22 @@ class LibraryController extends Controller
             'url' => $url,
             'message' => (string) setting('library.recommend.done_message', 'الرابط جاهز — كلّ عمليّة شراء منه ليك فيها عمولة.'),
         ]);
+    }
+
+    /** صورة المعاينة: الغلاف إن وُجد، وإلّا أوّل صفحة من القارئ المحميّ نفسه */
+    private function previewUrl(LibraryEntitlement $entitlement): ?string
+    {
+        $item = $entitlement->itemable;
+
+        if ($item?->cover_path) {
+            return Storage::disk('public')->url($item->cover_path);
+        }
+
+        if ($item instanceof Product && ($item->type === 'protected_pdf' || ! $item->is_downloadable)) {
+            return route('library.page', ['product' => $item->id, 'page' => 1]);
+        }
+
+        return null;
     }
 
     /** الملكيّة أوّلًا: المكتبة لا يراها إلّا صاحبها (20.1) */

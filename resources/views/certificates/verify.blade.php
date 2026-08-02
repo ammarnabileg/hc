@@ -14,6 +14,24 @@
         ? str_replace(['[الاسم]', '[الشهادة]', '[التاريخ]'], [$holder, $subject, $certificate->issued_at?->format(setting('certificates.render.date_format', 'Y/m/d'))],
             (string) setting('certificates.seo.meta_description', 'شهادة [الشهادة] الصادرة لـ[الاسم] بتاريخ [التاريخ] — تحقّق من صحّتها هنا.'))
         : (string) setting('certificates.seo.index_description', 'تحقّق من صحّة أيّ شهادة صادرة من المنصّة بكودها — بلا تسجيل دخول.');
+
+    // Schema.org: EducationalOccupationalCredential لتظهر نتيجةً غنيّة (21.2-ب)
+    $schema = $certificate ? [
+        '@context' => 'https://schema.org',
+        '@type' => 'EducationalOccupationalCredential',
+        'name' => $subject,
+        'identifier' => $certificate->code,
+        'url' => route('verify.certificate', ['code' => $certificate->code]),
+        'dateCreated' => $certificate->issued_at?->toDateString(),
+        'expires' => $certificate->expired_at?->toDateString(),
+        'credentialCategory' => $certificate->certificate_type?->name_ar,
+        'recognizedBy' => [
+            '@type' => 'Organization',
+            'name' => $certificate->certificate_type?->accreditation?->name_ar ?? $appName,
+        ],
+        'about' => ['@type' => 'Person', 'name' => $holder],
+        'image' => route('certificates.image', $certificate->code),
+    ] : null;
 @endphp
 
 <!DOCTYPE html>
@@ -34,25 +52,10 @@
     {{-- الفهرسة تُحترَم كإعداد لا كقرارٍ محروق في الكود (21.1-هـ) --}}
     <meta name="robots" content="{{ $indexCertificates && $certificate ? 'index, follow' : 'noindex, follow' }}">
 
-    @if ($certificate && $indexCertificates)
+    @if ($schema && $indexCertificates)
         {{-- Schema.org لتظهر نتيجةً غنيّة في محرّكات البحث (21.2-ب) --}}
         <script type="application/ld+json">
-        @json([
-            '@context' => 'https://schema.org',
-            '@type' => 'EducationalOccupationalCredential',
-            'name' => $subject,
-            'identifier' => $certificate->code,
-            'url' => route('verify.certificate', ['code' => $certificate->code]),
-            'dateCreated' => $certificate->issued_at?->toDateString(),
-            'expires' => $certificate->expired_at?->toDateString(),
-            'credentialCategory' => $certificate->certificate_type?->name_ar,
-            'recognizedBy' => [
-                '@type' => 'Organization',
-                'name' => $certificate->certificate_type?->accreditation?->name_ar ?? $appName,
-            ],
-            'about' => ['@type' => 'Person', 'name' => $holder],
-            'image' => route('certificates.image', $certificate->code),
-        ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)
+            {!! json_encode($schema, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) !!}
         </script>
     @endif
 
