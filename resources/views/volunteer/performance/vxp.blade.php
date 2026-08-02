@@ -70,7 +70,7 @@
         <x-empty message="ابدأ أوّل مهمّة وهتظهر هنا" action="افتح نوبتي" :href="route('volunteer.recurring')" />
     @else
         <div class="card overflow-hidden">
-            @foreach ($rows->take(50) as $row)
+            @foreach ($rows->take((int) setting('performance.vxp.rows', 50)) as $row)
                 <div class="grid grid-cols-1 md:grid-cols-5 gap-2 items-center px-4 py-3"
                      style="border-bottom: 1px solid var(--border)">
                     <div class="flex items-center gap-2 md:col-span-2">

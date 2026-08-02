@@ -78,9 +78,9 @@ class CvController extends Controller
                 return response()->json([
                     'ok' => false,
                     'needs_purchase' => true,
-                    'price' => (float) $template->price_tickets,
+                    'price' => $template->priceTickets(),
                     'balance_before' => $balance,
-                    'balance_after' => $balance - (float) $template->price_tickets,
+                    'balance_after' => $balance - $template->priceTickets(),
                 ]);
             }
 

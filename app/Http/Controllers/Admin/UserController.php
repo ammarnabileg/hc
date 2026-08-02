@@ -69,16 +69,19 @@ class UserController extends Controller
             'directory' => $this->directory,
         ];
 
+        // طول جدول التاب إعداد لا رقم محروق (2.13)
+        $rows = (int) setting('admin.users.tab_rows', 25);
+
         // تحميل كسول لكلّ تاب — لا يُستعلَم إلّا عمّا يُفتَح فعلًا (2.15-ب)
         $data += match ($tab) {
             'wallet' => [
-                'transactions' => $user->transactions()->with('currency')->latest('id')->limit(25)->get(),
+                'transactions' => $user->transactions()->with('currency')->latest('id')->limit($rows)->get(),
                 'balances' => $user->balances()->with('currency')->get(),
             ],
-            'learning' => ['enrollments' => $user->enrollments()->with('course')->latest('id')->limit(25)->get()],
-            'certificates' => ['certificates' => $user->certificates()->latest('id')->limit(25)->get()],
+            'learning' => ['enrollments' => $user->enrollments()->with('course')->latest('id')->limit($rows)->get()],
+            'certificates' => ['certificates' => $user->certificates()->latest('id')->limit($rows)->get()],
             'advanced' => [
-                'referrals' => Referral::where('referrer_id', $user->id)->with('referred')->latest('id')->limit(25)->get(),
+                'referrals' => Referral::where('referrer_id', $user->id)->with('referred')->latest('id')->limit($rows)->get(),
                 'lastChange' => $this->audit->lastChange($user),
             ],
             default => [],

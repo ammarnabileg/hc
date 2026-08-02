@@ -97,8 +97,68 @@ class AdSignals
     }
 
     /**
-     * ⭐ ما وقع فعلًا ولم يُرسَل: شراءٌ مدفوع أو شحنٌ ناجح.
-     * فالبوّابة قد تعتمد الدفعة في ويب-هوك بلا متصفّح — والحدث لا يجوز أن يضيع لذلك.
+     * ⭐ **حدث الشراء عند لحظته**: عند اعتماد الطلب مدفوعًا لا عند أوّل زيارة بعده.
+     *
+     * لماذا لم نكتفِ بالمصالحة؟ لأنّها تنتظر طلبًا لاحقًا للمستخدم — وقد يغلق
+     * المتصفّح بعد الشراء فلا يصل الحدث إلّا بعد أيّام أو لا يصل. والمنصّة
+     * الإعلانيّة تنسب التحويل بوقته، فالتأخير يفسد النسبة لا يؤخّرها فقط.
+     *
+     * ولا يُلمَس هنا شيء من منطق الشراء نفسه (19.5): يُنادى من **مراقِبٍ** على
+     * الطلب عند نقطة النجاح، كما فُعِل تمامًا بعمولة الريفيرال.
+     */
+    public function purchaseCompleted(Order $order): ?string
+    {
+        if ((string) $order->status !== 'paid') {
+            return null;
+        }
+
+        $user = $order->relationLoaded('user') ? $order->user : $order->user()->first();
+
+        if (! $user || $this->alreadyReported($user, 'purchase_completed', $order->getKey())) {
+            return null;
+        }
+
+        // ⛔ الموافقة يفحصها `AdEvents::record()` نفسه — فلا حدث بلا موافقة صريحة (21.3-د)
+        return $this->events->record('purchase_completed', $user, $order, [
+            'value' => (float) $order->total,
+            'currency' => (string) setting('ads.events.currency', 'USD'),
+        ]);
+    }
+
+    /**
+     * ⭐ **حدث الشحن عند لحظته**: عند اعتماد الشحن في دفتر الأستاذ.
+     * وسطر الشحن هو اللحظة الموحّدة للمسارين (يدويّ بعد اعتماد الأدمن · وبوّابة
+     * من الويب-هوك)، فالتقاطه منه يغطّيهما معًا بلا لمس أيٍّ منهما.
+     */
+    public function walletToppedUp(Transaction $transaction): ?string
+    {
+        $applied = (float) ($transaction->applied_amount ?? $transaction->amount);
+
+        // الشحن المؤهَّل: موجب وغير تصحيحيّ — والتصحيح (عكس فاتورة مستردّة) ليس شحنًا
+        if ((string) $transaction->source !== (string) setting('ads.events.topup_source', 'topup')
+            || $applied <= 0
+            || (bool) $transaction->is_correction) {
+            return null;
+        }
+
+        $user = $transaction->relationLoaded('user') ? $transaction->user : $transaction->user()->first();
+
+        if (! $user || $this->alreadyReported($user, 'wallet_topup', $transaction->getKey())) {
+            return null;
+        }
+
+        return $this->events->record('wallet_topup', $user, $transaction, [
+            'value' => (float) $transaction->amount,
+            'currency' => (string) setting('ads.events.currency', 'USD'),
+        ]);
+    }
+
+    /**
+     * ⭐ شبكة الأمان: ما وقع فعلًا ولم يُرسَل — شراءٌ مدفوع أو شحنٌ ناجح.
+     *
+     * فالمراقِب يرسل الحدث بلحظته، لكنّه **لا يرسل شيئًا بلا موافقة** (وهذا هو
+     * الصواب). فلو اشترى المستخدم قبل أن يوافق ثمّ وافق لاحقًا، تلتقط المصالحة
+     * ما فات. وهي أيضًا الغطاء لأيّ مسار دفعٍ يُضاف مستقبلًا بلا مراقِب.
      */
     public function reconcile(?User $user): void
     {
@@ -144,6 +204,20 @@ class AdSignals
                 'value' => (float) $tx->amount,
                 'currency' => (string) setting('ads.events.currency', 'USD'),
             ]));
+    }
+
+    /** هل أُرسِل هذا الحدث لهذا المرجع من قبل؟ — نفس مفتاح إزالة تكرار المصالحة */
+    public function alreadyReported(User $user, string $event, int|string|null $referenceId): bool
+    {
+        if ($referenceId === null) {
+            return false;
+        }
+
+        return TrackingEvent::query()
+            ->where('user_id', $user->id)
+            ->where('event', $event)
+            ->where('reference_id', $referenceId)
+            ->exists();
     }
 
     public function alreadyRecorded(User $user, string $event): bool

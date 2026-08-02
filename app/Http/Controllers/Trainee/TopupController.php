@@ -151,7 +151,7 @@ class TopupController extends Controller
                 ->where('user_id', $request->user()->id)
                 ->with(['topup_offer', 'transfer_method'])
                 ->latest('id')
-                ->paginate(10),
+                ->paginate((int) setting('topup.history.per_page', 10)),
         ]);
     }
 

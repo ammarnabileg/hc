@@ -49,8 +49,11 @@ class DispatchScheduledReports extends Command
         }
 
         $pruned = $scheduler->pruneLog();
+        // روابط التنزيل المؤقّتة تُمسَح بملفّاتها فور انتهاء مدّتها لا بعد شهور
+        $expired = $scheduler->pruneExpiredDownloads();
 
-        $this->info('اتبعت: '.$sent.' · فاضية: '.$empty.' · فشلت: '.$failed.' · اتنضّف من السجلّ: '.$pruned.' سطر.');
+        $this->info('اتبعت: '.$sent.' · فاضية: '.$empty.' · فشلت: '.$failed
+            .' · اتنضّف من السجلّ: '.$pruned.' سطر · روابط منتهية: '.$expired.'.');
 
         return self::SUCCESS;
     }

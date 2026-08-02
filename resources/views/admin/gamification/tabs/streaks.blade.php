@@ -31,7 +31,7 @@
     <ul class="text-sm space-y-1" style="color: var(--text-muted)">
         <li>• <strong>{{ setting('streaks.reward_days', 7) }}</strong> أيّام متواصلة ⟵ زرّ مكافأة يمنح
             <strong>{{ setting('streaks.reward_tickets', 1) }}</strong> تذكرة هدية إلى صندوق التذاكر.</li>
-        <li>• تجميد الستريك = <strong>{{ setting('streaks.freeze_cost_tickets', 1) }}</strong> تذكرة تحمي يومًا فايتًا،
+        <li>• تجميد الستريك = <strong>{{ (int) app(\App\Services\Gamification\StreakService::class)->freezeCost() }}</strong> تذكرة تحمي يومًا فايتًا،
             بأقصى <strong>{{ setting('streaks.max_freezes_per_month', 2) }}</strong> تجميدات شهريًّا،
             ولا يُحمى يوم أقدم من <strong>{{ setting('streaks.freeze_max_age_days', 2) }}</strong> أيّام.</li>
         <li>• مستوى الاحتفال: <strong>{{ setting('streaks.celebration_tier', 2) }}</strong> (متوسّط).</li>

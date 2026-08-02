@@ -5,6 +5,7 @@ namespace App\Services\Security;
 use App\Models\AuditLog;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -122,7 +123,68 @@ class UserModeration
 
         return $subject->status === 'suspended'
             && $subject->suspended_until !== null
-            && now()->lessThan($subject->suspended_until);
+            && now()->lessThan(Carbon::parse($subject->suspended_until));
+    }
+
+    /**
+     * ⭐ التعليق المؤقّت **ينتهي وحده** بانقضاء مدّته فيعود الحساب بلا تدخّل (12.1-متقدّم-3).
+     *
+     * لماذا هنا لا في مهمّة مجدولة؟ لأنّ الاعتماد على كرون يعني أنّ معلَّقًا انتهت
+     * مدّته يفضل ممنوعًا لو وقف الكرون — والعدل ما يستنّاش جدولًا. فأوّل طلبٍ منه
+     * بعد انقضاء المدّة يرفع التعليق، والمهمّة المجدولة (إن وُجدت) تبقى تحسينًا لا شرطًا.
+     *
+     * @return bool هل رُفع التعليق فعلًا في هذه المكالمة؟
+     */
+    public function expireIfDue(User $subject): bool
+    {
+        if ($subject->status !== 'suspended' || $subject->suspended_until === null) {
+            return false;
+        }
+
+        if (now()->lessThan(Carbon::parse($subject->suspended_until))) {
+            return false;
+        }
+
+        $old = ['status' => 'suspended', 'suspended_until' => (string) $subject->suspended_until];
+
+        $subject->forceFill([
+            'status' => 'active',
+            'containment_reason' => null,
+            'suspended_until' => null,
+        ])->save();
+
+        // فاعل النظام: `user_id = null` — لأنّ ما رفع التعليق أحدٌ بل انقضاء المدّة
+        AuditLog::create([
+            'user_id' => null,
+            'action' => 'user.suspension.expired',
+            'auditable_type' => $subject->getMorphClass(),
+            'auditable_id' => $subject->getKey(),
+            'old_values' => $old,
+            'new_values' => ['status' => 'active'],
+        ]);
+
+        return true;
+    }
+
+    /**
+     * تثبيت/تصحيح الدولة يدويًّا (12.1-متقدّم-5).
+     *
+     * الكشف التلقائيّ (5) يتبع مكان المستخدم الآن — وقد يخدعه VPN أو ترويسة CDN،
+     * فتُحسَب مواعيده وأسعاره بدولة غلط. التثبيت اليدويّ يعلو الكشف ولا يُدهَس.
+     */
+    public function pinCountry(User $actor, User $subject, ?int $countryId): void
+    {
+        $old = ['country_id' => $subject->country_id];
+
+        $changes = [
+            'country_id' => $countryId,
+            'country_locked_at' => $countryId === null ? null : now(),
+            'country_locked_by' => $countryId === null ? null : $actor->id,
+        ];
+
+        $subject->forceFill($changes)->save();
+
+        $this->log($actor, $subject, 'user.country.pin', $old, ['country_id' => $countryId]);
     }
 
     /**

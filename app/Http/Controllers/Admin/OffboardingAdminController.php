@@ -33,7 +33,7 @@ class OffboardingAdminController extends Controller
             ->when($type, fn ($q) => $q->where('type', $type))
             ->when($request->string('q')->toString(), fn ($q, $term) => $q->whereHas('user', fn ($u) => $u->where('code', mb_strtoupper($term))->orWhere('name', 'like', '%'.$term.'%')))
             ->latest('id')
-            ->limit(50)
+            ->limit((int) setting('volunteer.offboarding.admin_rows', 50))
             ->get();
 
         return view('admin.volunteer.offboarding', [
@@ -54,13 +54,13 @@ class OffboardingAdminController extends Controller
             ->with('user:id,name,code')
             ->whereNotNull('completed_at')
             ->latest('completed_at')
-            ->limit(50)
+            ->limit((int) setting('volunteer.offboarding.admin_rows', 50))
             ->get()
             ->map(fn (Offboarding $o) => ['offboarding' => $o] + OffboardingService::reentryState($o));
 
         return view('admin.volunteer.reentries', [
             'records' => $records,
-            'open' => Reentry::query()->with('user:id,name,code')->latest('id')->limit(30)->get(),
+            'open' => Reentry::query()->with('user:id,name,code')->latest('id')->limit((int) setting('volunteer.offboarding.reentry_rows', 30))->get(),
             'examRequired' => (bool) setting('volunteer.offboarding.reentry_exam_required', true),
             'startsPosition' => (string) setting('volunteer.offboarding.reentry_starts_position', 'coordinator'),
         ]);

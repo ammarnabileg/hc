@@ -379,6 +379,7 @@ class TaskController extends Controller
             return collect();
         }
 
-        return WorkItem::query()->latest('id')->limit(50)->get();
+        // طول قائمة الاختيار إعداد لا رقم محروق (2.13)
+        return WorkItem::query()->latest('id')->limit((int) setting('workflow.work_items.picker_limit', 50))->get();
     }
 }

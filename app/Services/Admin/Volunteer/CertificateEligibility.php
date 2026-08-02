@@ -261,7 +261,7 @@ class CertificateEligibility
         return Membership::query()
             ->with(['user:id,name,code', 'entity:id,name_ar', 'position'])
             ->where('status', 'active')
-            ->limit(200)
+            ->limit((int) setting('volunteer_cert.pending_scan_limit', 200))
             ->get()
             ->map(fn (Membership $m) => ['membership' => $m] + self::check($m))
             ->filter(fn ($row) => $row['eligible'])

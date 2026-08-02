@@ -342,7 +342,7 @@ class OverviewController extends Controller
                 ->where('layer', 'volunteer')
                 ->where('created_at', '>=', now()->subDays($objectionDays))
                 ->latest()
-                ->limit(5)
+                ->limit((int) setting('volunteer.overview.objectionable_rows', 5))
                 ->get(),
             'objection_days' => $objectionDays,
         ];

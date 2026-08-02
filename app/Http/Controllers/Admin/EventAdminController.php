@@ -35,7 +35,7 @@ class EventAdminController extends Controller
             ->when($status === 'past', fn ($q) => $q->where('starts_at', '<', now()))
             ->when($status === 'draft', fn ($q) => $q->where('status', 'draft'))
             ->orderBy('starts_at', $status === 'past' ? 'desc' : 'asc')
-            ->limit(50)
+            ->limit((int) setting('events.admin.list_limit', 50))
             ->get();
 
         return view('admin.events.index', [
@@ -160,7 +160,7 @@ class EventAdminController extends Controller
             ->when($request->string('attended')->toString() === 'yes', fn ($q) => $q->where('attended', true))
             ->when($request->string('attended')->toString() === 'no', fn ($q) => $q->where('attended', false))
             ->latest('id')
-            ->limit(100)
+            ->limit((int) setting('events.admin.registrations_limit', 100))
             ->get();
 
         return view('admin.events.registrations', [

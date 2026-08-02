@@ -53,7 +53,15 @@
                             </td>
                             <td class="px-4 py-3">{{ $run->rows_count }}</td>
                             <td class="px-4 py-3">{{ $run->recipients_count }}</td>
-                            <td class="px-4 py-3 text-xs" style="color: var(--text-muted)">{{ $run->message }}</td>
+                            <td class="px-4 py-3 text-xs" style="color: var(--text-muted)">
+                                {{ $run->message }}
+                                {{-- الرابط المؤقّت يظهر فقط ما دام شغّالًا — والمنتهي يُخفى لا يُعطَّل (2.15-أ-7) --}}
+                                @if ($run->hasLiveDownload())
+                                    <a href="{{ $run->downloadUrl() }}" class="block mt-1 font-semibold" style="color: var(--brand)">
+                                        نزّل الملفّ ({{ strtoupper($run->download_format) }}) — لحدّ {{ $run->download_expires_at->format('Y-m-d H:i') }}
+                                    </a>
+                                @endif
+                            </td>
                         </tr>
                     @endforeach
                 </tbody>
@@ -75,6 +83,11 @@
                     </p>
                     @if ($run->message)
                         <p class="text-xs mt-2" style="color: var(--text-muted)">{{ $run->message }}</p>
+                    @endif
+                    @if ($run->hasLiveDownload())
+                        <a href="{{ $run->downloadUrl() }}" class="block text-xs mt-2 font-semibold" style="color: var(--brand)">
+                            نزّل الملفّ ({{ strtoupper($run->download_format) }}) — لحدّ {{ $run->download_expires_at->format('Y-m-d H:i') }}
+                        </a>
                     @endif
                 </article>
             @endforeach

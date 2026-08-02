@@ -83,7 +83,7 @@ class LessonAdminController extends Controller
             'sections' => Section::query()->where('course_id', $course->id)->orderBy('sort_order')->get(),
             'questions' => LessonQuestion::query()->where('lesson_id', $lesson->id)->orderBy('sort_order')->get(),
             'attachments' => LessonAttachment::query()->with('media_item')->where('lesson_id', $lesson->id)->get(),
-            'mediaItems' => app(MediaLibrary::class)->search([])->take(12),
+            'mediaItems' => app(MediaLibrary::class)->search([])->take((int) setting('media.picker.limit', 12)),
             'csvColumns' => app(QuestionImporter::class)->columns(),
         ]);
     }

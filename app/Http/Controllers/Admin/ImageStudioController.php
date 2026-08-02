@@ -59,7 +59,7 @@ class ImageStudioController extends Controller
             'audiences' => $this->fields->audiences(),
             // ⭐ القائمة المقفولة وحدها تظهر في الاختيار — لا حقل ممنوع ولو معطَّلًا
             'allowedFields' => $this->fields->all(),
-            'sampleUsers' => User::query()->where('status', 'active')->limit(20)->get(['id', 'name', 'code']),
+            'sampleUsers' => User::query()->where('status', 'active')->limit((int) setting('images.sample_users_limit', 20))->get(['id', 'name', 'code']),
         ]);
     }
 

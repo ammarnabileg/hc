@@ -60,7 +60,7 @@
 
     <section class="card p-4 md:p-5 mt-4">
         <h2 class="font-bold mb-3">تقرير السعة — الأكثر تخمةً والأكثر فراغًا</h2>
-        @forelse ($capacity->sortByDesc('percent')->take(10) as $row)
+        @forelse ($capacity->sortByDesc('percent')->take((int) setting('volunteer.analytics.top_rows', 10)) as $row)
             <div class="flex items-center justify-between gap-3 py-2 text-sm {{ $loop->last ? '' : 'border-b' }}" style="border-color: var(--border)">
                 <span class="truncate">{{ $row['entity']->name_ar }}</span>
                 <span class="flex items-center gap-2">

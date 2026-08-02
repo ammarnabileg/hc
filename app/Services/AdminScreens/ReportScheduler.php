@@ -14,6 +14,9 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Str;
 use Throwable;
 
 /**
@@ -28,7 +31,13 @@ use Throwable;
  */
 class ReportScheduler
 {
-    public function __construct(private readonly StatsService $stats) {}
+    public function __construct(
+        private readonly StatsService $stats,
+        private readonly ReportRenderer $renderer,
+    ) {}
+
+    /** القرص الذي تُحفَظ عليه ملفّات التنزيل المؤقّت — خاصّ لا عامّ */
+    public const DISK = 'local';
 
     /** التابات الماليّة — مرجع واحد يمنع اجتهاد كلّ نداء على حدة */
     public const FINANCIAL_TABS = ['sales'];
@@ -174,20 +183,42 @@ class ReportScheduler
             return $this->record($schedule, 'failed', 'مافيش مستقبِلين صالحين — ضيف بريدًا أو دورًا في تبويب المستقبِلين.', count($rows), 0, 1, $manual, $actor);
         }
 
-        $body = $this->body($schedule, count($rows), $period['days']);
+        $file = $this->renderer->render($schedule, $this->capped($rows), [
+            'days' => $period['days'],
+            'label' => $this->reportLabel($schedule),
+        ]);
+
+        // ⭐ فوق حدّ المرفق: نحفظ الملفّ ونبعت **رابطًا موقَّعًا محدود المدّة** بدله
+        //    — البريد بلا مرفق وبلا بديل كان وعدًا ناقصًا لا حلًّا.
+        $download = $this->downloadFor($schedule, $file);
+        $attachment = $download === null ? $file : null;
+
+        $body = $this->body($schedule, count($rows), $period['days'], $download, $file['note']);
         $subject = $this->subject($schedule);
-        $attachment = $this->attachment($schedule, $rows);
 
         for ($attempt = 1; $attempt <= $attempts; $attempt++) {
             try {
                 Mail::to($recipients)->send(new ScheduledReportMail($subject, $body, $attachment));
 
-                return $this->record($schedule, 'sent', 'اتبعت لـ'.count($recipients).' مستقبِل ✓', count($rows), count($recipients), $attempt, $manual, $actor);
+                return $this->record(
+                    $schedule,
+                    'sent',
+                    'اتبعت لـ'.count($recipients).' مستقبِل ✓'
+                        .($download !== null ? ' — الملفّ كبير فبعتنا رابط تنزيل مؤقّت بدل المرفق.' : ''),
+                    count($rows),
+                    count($recipients),
+                    $attempt,
+                    $manual,
+                    $actor,
+                    $download,
+                );
             } catch (Throwable $exception) {
                 Log::warning('فشل إرسال تقرير مجدول', ['schedule' => $schedule->id, 'attempt' => $attempt]);
 
                 if ($attempt === $attempts) {
                     $this->notifyFailure($schedule, $exception->getMessage());
+                    // البريد لم يخرج ⟵ لا أحد يملك الرابط، فالملفّ يُمسَح بدل أن يبقى يتيمًا
+                    $this->discard($download);
 
                     return $this->record(
                         $schedule,
@@ -203,52 +234,70 @@ class ReportScheduler
             }
         }
 
+        $this->discard($download);
+
         return $this->record($schedule, 'failed', 'تعذّر الإرسال.', count($rows), count($recipients), $attempts, $manual, $actor);
     }
 
-    /**
-     * المرفق — وفوق الحدّ يُستبدَل برابط تنزيل مؤقّت بدل مرفقٍ يرفضه البريد.
-     *
-     * @return array{name:string,mime:string,content:string}|null
-     */
-    private function attachment(ReportSchedule $schedule, array $rows): ?array
+    /** @param  array{path:string}|null  $download */
+    private function discard(?array $download): void
+    {
+        if ($download !== null && Storage::disk(self::DISK)->exists($download['path'])) {
+            Storage::disk(self::DISK)->delete($download['path']);
+        }
+    }
+
+    /** سقف صفوف التصدير — يُطبَّق قبل التوليد فلا نبني ملفًّا لن يُرسَل */
+    private function capped(array $rows): array
     {
         $limit = max(0, (int) setting('report_schedules.export_row_limit', 50000));
-        $rows = array_slice($rows, 0, $limit ?: null);
 
-        $content = $this->toCsv($rows);
+        return array_slice($rows, 0, $limit ?: null);
+    }
+
+    /** لافتة التقرير كما تظهر في شاشة الإحصائيّات — لا مفتاحه الخام */
+    private function reportLabel(ReportSchedule $schedule): string
+    {
+        $tabs = $this->stats->tabs();
+
+        return (string) ($tabs[$schedule->report_tab]['label'] ?? $schedule->name);
+    }
+
+    /**
+     * ⭐ فوق حدّ المرفق: احفظ الملفّ وأعطِ رمزًا موقَّعًا محدود المدّة.
+     * وتحت الحدّ لا نحفظ شيئًا — المرفق أسرع للمستقبِل ولا يترك ملفًّا على القرص.
+     *
+     * @param  array{name:string,mime:string,content:string,format:string,note:string}  $file
+     * @return array{token:string,path:string,name:string,format:string,size:int,expires_at:CarbonImmutable,url:string,hours:int}|null
+     */
+    private function downloadFor(ReportSchedule $schedule, array $file): ?array
+    {
         $maxBytes = max(1, (int) setting('report_schedules.max_attachment_kb', 10240)) * 1024;
+        $size = strlen($file['content']);
 
-        if (strlen($content) > $maxBytes) {
+        if ($size <= $maxBytes) {
             return null;
         }
 
+        $hours = max(1, (int) setting('report_schedules.download_link_hours', 72));
+        $token = (string) Str::uuid();
+        $path = trim((string) setting('report_schedules.download_folder', 'reports'), '/').'/'.$token.'.'.$file['format'];
+
+        Storage::disk(self::DISK)->put($path, $file['content']);
+
+        $expiresAt = CarbonImmutable::now()->addHours($hours);
+
         return [
-            'name' => str()->slug($schedule->name ?: 'report').'-'.now()->format('Ymd').'.csv',
-            'mime' => 'text/csv; charset=UTF-8',
-            'content' => $content,
+            'token' => $token,
+            'path' => $path,
+            'name' => $file['name'],
+            'format' => $file['format'],
+            'size' => $size,
+            'expires_at' => $expiresAt,
+            'hours' => $hours,
+            // التوقيع يمنع تخمين الرابط أو تمديد مدّته بتحرير العنوان
+            'url' => URL::temporarySignedRoute('reports.download', $expiresAt, ['token' => $token]),
         ];
-    }
-
-    private function toCsv(array $rows): string
-    {
-        $handle = fopen('php://temp', 'r+');
-        // BOM حتّى تفتح العربيّة سليمةً في إكسل بلا خطوة إضافيّة
-        fwrite($handle, "\xEF\xBB\xBF");
-
-        if ($rows !== []) {
-            fputcsv($handle, array_keys((array) $rows[0]));
-
-            foreach ($rows as $row) {
-                fputcsv($handle, array_values((array) $row));
-            }
-        }
-
-        rewind($handle);
-        $content = (string) stream_get_contents($handle);
-        fclose($handle);
-
-        return $content;
     }
 
     private function subject(ReportSchedule $schedule): string
@@ -260,14 +309,37 @@ class ReportScheduler
         ]);
     }
 
-    private function body(ReportSchedule $schedule, int $rows, int $days): string
+    /**
+     * نصّ الرسالة — ويُلحَق به سطر الرابط المؤقّت حين يتجاوز الملفّ حدّ المرفق،
+     * وسطر توضيحيّ حين تتغيّر الصيغة عن المطلوب (2.17-ب: ماذا حدث وماذا تفعل).
+     *
+     * @param  array{url:string,hours:int,size:int}|null  $download
+     */
+    private function body(ReportSchedule $schedule, int $rows, int $days, ?array $download = null, string $note = ''): string
     {
-        return strtr((string) setting('report_schedules.body_template', "تقرير «:name» عن آخر :days يوم.\nعدد الصفوف: :rows"), [
+        $body = strtr((string) setting('report_schedules.body_template', "تقرير «:name» عن آخر :days يوم.\nعدد الصفوف: :rows"), [
             ':name' => $schedule->name,
             ':days' => (string) $days,
             ':rows' => (string) $rows,
             ':date' => now()->format('Y-m-d'),
         ]);
+
+        if ($note !== '') {
+            $body .= "\n\n".$note;
+        }
+
+        if ($download !== null) {
+            $body .= "\n\n".strtr((string) setting(
+                'report_schedules.download_body_template',
+                "الملفّ أكبر من حدّ المرفق (:size ميجابايت)، فرفعناه على رابط تنزيل مؤقّت:\n:url\nالرابط شغّال :hours ساعة، وبعدها يتشال. لو خلصت مدّته اضغط «شغّل الآن» من شاشة التقارير المجدولة.",
+            ), [
+                ':url' => $download['url'],
+                ':hours' => (string) $download['hours'],
+                ':size' => (string) round($download['size'] / 1048576, 2),
+            ]);
+        }
+
+        return $body;
     }
 
     /** تنبيه المنشئ عند الفشل — فالتقرير الصامت الفاشل أسوأ من غيابه */
@@ -302,6 +374,7 @@ class ReportScheduler
         int $attempt,
         bool $manual,
         ?User $actor,
+        ?array $download = null,
     ): array {
         ReportScheduleRun::create([
             'report_schedule_id' => $schedule->id,
@@ -313,6 +386,13 @@ class ReportScheduler
             'was_manual' => $manual,
             'message' => $message,
             'triggered_by' => $actor?->id,
+            // الرابط المؤقّت يُحفَظ مع واقعة الإرسال نفسها فيُراجَع ويُنظَّف معها
+            'download_token' => $download['token'] ?? null,
+            'download_path' => $download['path'] ?? null,
+            'download_name' => $download['name'] ?? null,
+            'download_format' => $download['format'] ?? null,
+            'download_size' => $download['size'] ?? null,
+            'download_expires_at' => $download['expires_at'] ?? null,
         ]);
 
         $schedule->forceFill([
@@ -332,7 +412,47 @@ class ReportScheduler
     public function pruneLog(): int
     {
         $days = max(1, (int) setting('report_schedules.log_keep_days', 180));
+        $old = ReportScheduleRun::query()->where('ran_at', '<', now()->subDays($days))->get();
+
+        // الملفّ يُمسَح مع سطره فلا يبقى تقريرٌ ماليّ على القرص بعد انتهاء سببه
+        $old->each(fn (ReportScheduleRun $run) => $this->forgetFile($run));
 
         return (int) ReportScheduleRun::query()->where('ran_at', '<', now()->subDays($days))->delete();
+    }
+
+    /**
+     * ⭐ الرابط المنتهي = ملفٌّ يُمسَح لا رابطٌ يُرفَض فقط.
+     * فالتقرير الكبير قد يحمل بيانات ماليّة، وبقاؤه على القرص بعد انتهاء مدّته
+     * خطرٌ بلا فائدة — والمهمّة المجدولة تنادي هذا كلّ ساعة.
+     */
+    public function pruneExpiredDownloads(): int
+    {
+        $expired = ReportScheduleRun::query()
+            ->whereNotNull('download_path')
+            ->where('download_expires_at', '<', now())
+            ->get();
+
+        $count = 0;
+
+        foreach ($expired as $run) {
+            $this->forgetFile($run);
+
+            $run->forceFill([
+                'download_token' => null,
+                'download_path' => null,
+                'download_expires_at' => null,
+            ])->save();
+
+            $count++;
+        }
+
+        return $count;
+    }
+
+    private function forgetFile(ReportScheduleRun $run): void
+    {
+        if ($run->download_path && Storage::disk(self::DISK)->exists($run->download_path)) {
+            Storage::disk(self::DISK)->delete($run->download_path);
+        }
     }
 }

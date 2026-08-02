@@ -42,7 +42,7 @@ class RepAdminController extends Controller
             'recent' => BehaviorTransaction::query()
                 ->with(['user:id,name,code', 'granted_by:id,name,code', 'behavior_violation'])
                 ->latest('id')
-                ->limit(15)
+                ->limit((int) setting('rep.admin.recent_rows', 15))
                 ->get(),
             'filters' => ['q' => $request->string('q')->toString()],
         ]);

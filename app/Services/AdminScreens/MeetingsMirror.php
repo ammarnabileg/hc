@@ -200,7 +200,7 @@ class MeetingsMirror
      */
     public function exportRows(User $viewer, array $filters): array
     {
-        $meetings = $this->query($viewer, $filters)->limit(2000)->get();
+        $meetings = $this->query($viewer, $filters)->limit((int) setting('admin_meetings.export.max_meetings', 2000))->get();
 
         $rows = [];
 

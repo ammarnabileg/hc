@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\EnsureAccountNotContained;
 use App\Http\Middleware\EnsureNotUnderMaintenance;
 use App\Http\Middleware\EnsurePermission;
 use App\Http\Middleware\SetMembershipContext;
@@ -25,6 +26,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->web(append: [
             SetMembershipContext::class,
             EnsureNotUnderMaintenance::class,   // وضع الصيانة يقفل المنصّة فعلًا (12.7-و-1)
+            EnsureAccountNotContained::class,   // المحظور/المعلَّق لا يفتح أيّ صفحة (12.1-متقدّم-1)
             ImpersonationBanner::class,         // الشريط المعرِّف أثناء التصفّح كمستخدم (12.1)
             ReadinessBar::class,                // شريط الاستعداد العائم على كلّ الصفحات (15.0)
         ]);

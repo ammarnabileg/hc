@@ -316,13 +316,14 @@ class LibraryDemoSeeder extends Seeder
     /** خمسة قوالب — واحدٌ مجّانيّ باب دخول (21.2-ج) والباقي بالتذاكر */
     private function cvTemplates(): void
     {
+        // NULL = اتبع السعر العامّ من «أوجه الصرف» (`cv.export`)، والرقم استثناء صريح (2.13)
         $price = (float) setting('cv.template.default_price_tickets', 2);
 
         $rows = [
             ['كلاسيك', 'classic', true, 0, 1],
-            ['مودرن', 'modern', false, $price, 2],
-            ['تنفيذيّ', 'modern', false, $price, 3],
-            ['أكاديميّ', 'classic', false, $price, 4],
+            ['مودرن', 'modern', false, null, 2],
+            ['تنفيذيّ', 'modern', false, null, 3],
+            ['أكاديميّ', 'classic', false, null, 4],
             ['مبدع', 'modern', false, $price + 1, 5],
         ];
 

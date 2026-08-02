@@ -129,7 +129,8 @@ class ImageRenderer
             throw new RuntimeException('وصلت لحدّ التوليد في الدقيقة — استنّى دقيقة وجرّب تاني.');
         }
 
-        Cache::put($bucket, $count + 1, now()->addMinutes(2));
+        // نافذة العدّاد أطول قليلًا من الدقيقة كي لا يضيع العدّ على حدّها — وهي إعداد (2.13)
+        Cache::put($bucket, $count + 1, now()->addMinutes((int) setting('images.rate_limit_window_minutes', 2)));
     }
 
     private function drawFrame($canvas, ImageTemplate $template, int $width, int $height): void
@@ -256,7 +257,7 @@ class ImageRenderer
         imagefilledellipse($canvas, $x + intdiv($w, 2), $y + intdiv($h, 2), $w, $h, $bg);
 
         $initials = collect(preg_split('/\s+/u', (string) ($user?->name ?? ''), -1, PREG_SPLIT_NO_EMPTY) ?: [])
-            ->take(2)
+            ->take((int) setting('ux.avatar.initials_count', 2))
             ->map(fn ($part) => mb_substr($part, 0, 1))
             ->implode('');
 

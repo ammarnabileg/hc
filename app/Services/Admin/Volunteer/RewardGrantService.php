@@ -177,7 +177,7 @@ class RewardGrantService
             ->when(($filters['direction'] ?? null) === 'credit', fn ($q) => $q->where('amount', '>', 0))
             ->when(($filters['direction'] ?? null) === 'debit', fn ($q) => $q->where('amount', '<', 0))
             ->latest('id')
-            ->limit(100)
+            ->limit((int) setting('rewards.codes_preview_rows', 100))
             ->get();
     }
 

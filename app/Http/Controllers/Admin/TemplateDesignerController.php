@@ -44,7 +44,7 @@ class TemplateDesignerController extends Controller
             'fields' => $this->designer->builtInFields(),
             'bindableTables' => $this->designer->bindableTables(),
             'sample' => $this->designer->sampleData($type, $language),
-            'mediaItems' => app(MediaLibrary::class)->search(['kind' => 'image'])->take(12),
+            'mediaItems' => app(MediaLibrary::class)->search(['kind' => 'image'])->take((int) setting('media.picker.limit', 12)),
             'grid' => (int) setting('certificates.designer.grid_step', 5),
             'snap' => (bool) setting('certificates.designer.snap_enabled', true),
         ]);

@@ -88,6 +88,27 @@ class EconomyRules
         return (string) ($this->spend($key)['label'] ?? $default);
     }
 
+    /**
+     * ⭐ التكلفة الفعليّة لوجه صرف حين يكون للكيان عمودُ سعرٍ خاصّ به
+     * (قالب سيرة · لعبة · حرب): **مصدرٌ واحد حاكم وOverride صريح**.
+     *
+     * كان لكلّ من هذه القيم مصدران متنازعان — صفٌّ في «أوجه الصرف» وعمودٌ في
+     * جدول الكيان — فيتغيّر الجدول من لوحة الإدارة بلا أثر، وهو ما تمنعه 2.13.
+     * فمن اليوم: **NULL في عمود الكيان = اتبع العامّ**، والقيمة = استثناءٌ صريح
+     * لهذا الكيان وحده — على غرار عمودَي تذاكر التدريب.
+     *
+     * @param  int|float|string|null  $override  عمود الكيان — وNULL يعني «اتبع العامّ»
+     * @param  float  $default  الافتراضيّ العامّ من إعدادات المجال حين لا يوجد صفٌّ أصلًا
+     */
+    public function costFor(string $key, int|float|string|null $override, float $default = 0): float
+    {
+        if ($override !== null && $override !== '') {
+            return (float) $override;
+        }
+
+        return $this->spendCost($key, $default);
+    }
+
     // ------------------------------------------------------------ داخليّ
 
     private function row(string $settingKey, string $key): ?array

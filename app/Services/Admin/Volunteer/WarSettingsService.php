@@ -5,6 +5,7 @@ namespace App\Services\Admin\Volunteer;
 use App\Models\Challenge;
 use App\Models\ChallengeParticipation;
 use App\Models\User;
+use App\Services\Gamification\EconomyRules;
 use RuntimeException;
 
 /**
@@ -59,10 +60,18 @@ class WarSettingsService
     /** القيم العامّة التي تظهر Placeholder في حقول الحرب */
     public static function sharedDefaults(): array
     {
+        /*
+         | ⭐ تكلفتا الإنشاء والانضمام مصدرهما الحاكم جدول «أوجه الصرف» (12.10)
+         | لا إعداد الحروب وحده — كان للقيمة الواحدة مصدران متنازعان، فيغيّر
+         | المالك الجدول ولا يظهر له أثر (2.13). وإعداد `wars.shared.*` بقي
+         | الافتراضيّ الذي يُستعمَل حين لا يكون للصفّ وجود أصلًا.
+         */
+        $economy = app(EconomyRules::class);
+
         return [
             'ready_tickets' => (int) setting('wars.shared.ready_tickets', 12),
-            'create_focus_tickets' => (int) setting('wars.shared.create_focus_tickets', 5),
-            'join_tickets' => (int) setting('wars.shared.join_tickets', 1),
+            'create_focus_tickets' => (int) $economy->spendCost('war.focus.create', (float) setting('wars.shared.create_focus_tickets', 5)),
+            'join_tickets' => (int) $economy->spendCost('war.join', (float) setting('wars.shared.join_tickets', 1)),
             'win' => (float) setting('wars.shared.win', 2),
             'loss' => (float) setting('wars.shared.loss', -2),
             'withdraw' => (float) setting('wars.shared.withdraw', -10),
@@ -113,8 +122,9 @@ class WarSettingsService
             $challenge->is_active = (bool) $payload['is_active'];
         }
 
-        if (array_key_exists('entry_cost', $payload) && $payload['entry_cost'] !== null && $payload['entry_cost'] !== '') {
-            $challenge->entry_cost = (float) $payload['entry_cost'];
+        // الحقل الفارغ = «اتبع العامّ» لا صفر — والعمود Override صريح وحده (2.13)
+        if (array_key_exists('entry_cost', $payload)) {
+            $challenge->entry_cost = ($payload['entry_cost'] ?? '') !== '' ? (float) $payload['entry_cost'] : null;
         }
 
         if (array_key_exists('duration_minutes', $payload) && $payload['duration_minutes'] !== null && $payload['duration_minutes'] !== '') {

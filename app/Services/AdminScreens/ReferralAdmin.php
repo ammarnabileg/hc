@@ -264,7 +264,7 @@ class ReferralAdmin
             ->with('referred:id,name,code,status')
             ->where('referrer_id', $referrer->id)
             ->latest('id')
-            ->limit(100)
+            ->limit((int) setting('referral_admin.preview_rows', 100))
             ->get();
 
         $busiest = (int) DB::table('referrals')
@@ -294,7 +294,7 @@ class ReferralAdmin
      */
     public function exportRows(array $filters, bool $withCommission): array
     {
-        return $this->invitesQuery($filters)->limit(50000)->get()->map(function (Referral $referral) use ($withCommission) {
+        return $this->invitesQuery($filters)->limit((int) setting('referral_admin.export.max_rows', 50000))->get()->map(function (Referral $referral) use ($withCommission) {
             $row = [
                 'code' => $referral->code,
                 'referrer' => $referral->referrer?->name,

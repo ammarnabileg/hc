@@ -70,14 +70,14 @@ class CvBuilderTest extends LibraryTestCase
                 'ok' => false,
                 'needs_purchase' => true,
                 'balance_before' => 5,
-                'balance_after' => 5 - (float) $paid->price_tickets,
+                'balance_after' => 5 - $paid->priceTickets(),
             ]);
 
         $this->actingAs($user)->postJson(route('cv.template', $paid), ['confirm' => 1])
             ->assertOk()
             ->assertJson(['ok' => true]);
 
-        $this->assertSame(5 - (float) $paid->price_tickets, $user->fresh()->balance('tickets'));
+        $this->assertSame(5 - $paid->priceTickets(), $user->fresh()->balance('tickets'));
         $this->assertSame(1, Transaction::where('user_id', $user->id)->where('source', 'purchase')->count());
     }
 

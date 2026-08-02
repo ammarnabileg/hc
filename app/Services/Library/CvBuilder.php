@@ -240,7 +240,7 @@ class CvBuilder
      */
     public function purchase(User $user, CvTemplate $template): array
     {
-        $price = (float) $template->price_tickets;
+        $price = $template->priceTickets();
         $balance = $this->ticketBalance($user);
 
         if ($balance < $price) {

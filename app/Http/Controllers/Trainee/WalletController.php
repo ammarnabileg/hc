@@ -73,7 +73,7 @@ class WalletController extends Controller
             ->where('layer', 'training')
             ->with('currency')
             ->latest('id')
-            ->take(5)
+            ->take((int) setting('wallet.recent_rows', 5))
             ->get();
 
         return view('wallet.index', array_merge([
@@ -96,7 +96,7 @@ class WalletController extends Controller
         $rows = WalletWithdrawal::query()
             ->where('user_id', $user->id)
             ->latest('id')
-            ->paginate(20)
+            ->paginate((int) setting('wallet.transactions.per_page', 20))
             ->withQueryString();
 
         return view('wallet.withdrawals', array_merge([
@@ -115,7 +115,7 @@ class WalletController extends Controller
             ->where('user_id', $request->user()->id)
             ->when($currency, fn ($q) => $q->where('currency_id', $currency->id))
             ->latest('id')
-            ->take(5)
+            ->take((int) setting('wallet.recent_rows', 5))
             ->get();
 
         return view('wallet.tickets', [
@@ -146,7 +146,7 @@ class WalletController extends Controller
         $rows = $this->transactionsQuery($request)
             ->with('currency')
             ->latest('id')
-            ->paginate(20)
+            ->paginate((int) setting('wallet.transactions.per_page', 20))
             ->withQueryString();
 
         return view('wallet.transactions', [

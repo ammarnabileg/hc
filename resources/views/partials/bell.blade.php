@@ -4,7 +4,7 @@
      * وتاب التطوّع لا يظهر إلا للمتطوّعين.
      */
     $u = auth()->user();
-    $items = $u->notificationsFeed()->latest()->limit(20)->get();
+    $items = $u->notificationsFeed()->latest()->limit((int) setting('notifications.bell.max_items', 20))->get();
 @endphp
 
 <div class="hidden absolute end-0 mt-2 w-[22rem] max-w-[92vw] modal-shell card z-50" data-bell-panel>

@@ -82,7 +82,7 @@ class VolunteerAnalytics
                 ];
             })
             ->sortByDesc('open')
-            ->take(20)
+            ->take((int) setting('volunteer.analytics.capacity_rows', 20))
             ->values();
     }
 
@@ -95,7 +95,7 @@ class VolunteerAnalytics
             ->selectRaw('granted_by, COUNT(*) as c, SUM(CASE WHEN status = \'reversed\' THEN 1 ELSE 0 END) as reversed')
             ->groupBy('granted_by')
             ->orderByDesc('c')
-            ->limit(10)
+            ->limit((int) setting('volunteer.analytics.top_rows', 10))
             ->get();
     }
 

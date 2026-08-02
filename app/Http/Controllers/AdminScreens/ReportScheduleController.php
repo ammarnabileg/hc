@@ -44,7 +44,7 @@ class ReportScheduleController extends Controller
             ->when($filters['frequency'] !== '', fn ($q) => $q->where('frequency', $filters['frequency']))
             ->when($filters['status'] !== '', fn ($q) => $q->where('status', $filters['status']))
             ->orderByDesc('id')
-            ->paginate(20)
+            ->paginate((int) setting('report_schedules.per_page', 20))
             ->withQueryString();
 
         return view('admin.report-schedules.index', [
@@ -72,7 +72,7 @@ class ReportScheduleController extends Controller
 
         return view('admin.report-schedules.log', [
             'schedule' => $schedule,
-            'runs' => $schedule->runs()->with('triggeredBy:id,name')->latest('ran_at')->paginate(30),
+            'runs' => $schedule->runs()->with('triggeredBy:id,name')->latest('ran_at')->paginate((int) setting('report_schedules.runs_per_page', 30)),
         ]);
     }
 

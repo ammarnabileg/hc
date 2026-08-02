@@ -56,7 +56,7 @@
                                 {{ $day['date']->day }}
                             </div>
 
-                            @foreach ($day['events']->take(3) as $event)
+                            @foreach ($day['events']->take((int) setting('volunteer.calendar.events_per_day', 3)) as $event)
                                 @php $st = state_color($event['state']); @endphp
                                 <a href="{{ $event['url'] ?? '#' }}"
                                    class="block truncate rounded-lg px-1.5 py-0.5 mb-1 text-[11px] motion-standard"

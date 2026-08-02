@@ -3,6 +3,7 @@
 use App\Http\Controllers\AdminScreens\MeetingsAdminController;
 use App\Http\Controllers\AdminScreens\QuestionBankController;
 use App\Http\Controllers\AdminScreens\ReferralAdminController;
+use App\Http\Controllers\AdminScreens\ReportDownloadController;
 use App\Http\Controllers\AdminScreens\ReportScheduleController;
 use Illuminate\Support\Facades\Route;
 
@@ -130,3 +131,15 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
         Route::post('/meetings-settings/reset', [MeetingsAdminController::class, 'resetSettings'])->name('meetings.settings.reset');
     });
 });
+
+/*
+| ⭐ تنزيل التقرير الكبير برابط موقَّع محدود المدّة (24.3-خامسًا).
+|
+| خارج مجموعة `auth` عمدًا: مستقبِل التقرير قد يكون بريدًا صريحًا لا حسابًا،
+| والتقرير أُرسِل له عن قصد. فالصلاحيّة هنا **هي التوقيع** — رمزٌ لا يُخمَّن
+| ومدّةٌ من الإعدادات وحارسٌ في الكنترولر يتحقّق من السطر في القاعدة.
+| 🔒 والتقرير الماليّ لا يفتحه إلّا مالك المنصّة داخلًا بحسابه — والحارس هناك.
+*/
+Route::middleware('signed')
+    ->get('/reports/download/{token}', [ReportDownloadController::class, 'show'])
+    ->name('reports.download');

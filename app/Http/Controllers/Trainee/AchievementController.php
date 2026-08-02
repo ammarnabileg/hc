@@ -97,7 +97,7 @@ class AchievementController extends Controller
             'rewardDue' => $this->streaks->rewardIsDue($user, $streak),
             'rewardEvery' => $this->streaks->rewardEveryDays(),
             'freezableDay' => $this->streaks->freezableDay($user),
-            'freezeCost' => (float) setting('streaks.freeze_cost_tickets', 1),
+            'freezeCost' => $this->streaks->freezeCost(),
             'freezesUsed' => $this->streaks->freezesUsedThisMonth($user),
             'freezeCap' => (int) setting('streaks.max_freezes_per_month', 2),
             'months' => $months,

@@ -14,7 +14,7 @@
             <button type="button"
                     data-template="{{ $template->id }}"
                     data-owned="{{ $owned ? 1 : 0 }}"
-                    data-price="{{ (int) $template->price_tickets }}"
+                    data-price="{{ (int) $template->priceTickets() }}"
                     data-name="{{ $template->name }}"
                     data-url="{{ route('cv.template', $template) }}"
                     class="card p-2 text-start motion-standard"
@@ -33,7 +33,7 @@
                         <x-state-badge state="honor" :label="setting('cv.template.owned_badge', 'مملوك')" />
                     @else
                         <span style="color: var(--color-brand-400)">
-                            {{ str_replace(':n', (int) $template->price_tickets, setting('cv.template.price_label', ':n تذكرة')) }}
+                            {{ str_replace(':n', (int) $template->priceTickets(), setting('cv.template.price_label', ':n تذكرة')) }}
                         </span>
                     @endif
                 </span>

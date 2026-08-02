@@ -107,7 +107,8 @@ class GamesAdminService
             'description' => $data['description'] ?? null,
             // أيقونة SVG مرسومة — ممنوع أيّ مكتبة أيقونات (2.16-ج)
             'icon_svg' => $data['icon_svg'] ?? null,
-            'ticket_cost' => (float) ($data['ticket_cost'] ?? setting('games.ticket_cost', 1)),
+            // الحقل الفارغ = «اتبع العامّ» لا صفر — والعمود Override صريح وحده (2.13)
+            'ticket_cost' => ($data['ticket_cost'] ?? '') !== '' ? (float) $data['ticket_cost'] : null,
             'xp_mode' => in_array($data['xp_mode'] ?? '', ['fixed', 'by_score'], true) ? $data['xp_mode'] : 'fixed',
             'xp_reward' => (int) ($data['xp_reward'] ?? 0),
             'daily_limit' => ($data['daily_limit'] ?? null) !== '' ? $data['daily_limit'] ?? null : null,

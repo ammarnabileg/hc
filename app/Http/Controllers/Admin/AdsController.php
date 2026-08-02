@@ -31,8 +31,8 @@ class AdsController extends Controller
     public function index(Request $request): View
     {
         return view('admin.articles.ads', [
-            'audiences' => AdAudience::query()->latest('id')->paginate(20),
-            'exports' => AdAudienceExport::query()->with('ad_audience')->latest('id')->limit(10)->get(),
+            'audiences' => AdAudience::query()->latest('id')->paginate((int) setting('ads.audiences.per_page', 20)),
+            'exports' => AdAudienceExport::query()->with('ad_audience')->latest('id')->limit((int) setting('ads.exports.rows', 10))->get(),
             'rules' => $this->rules(),
             // 🔒 المفاتيح لا تُعرَض لغير مالك المنصّة
             'pixelSettings' => $request->user()->isPlatformOwner()

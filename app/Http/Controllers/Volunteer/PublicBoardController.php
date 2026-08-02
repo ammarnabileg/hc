@@ -51,7 +51,7 @@ class PublicBoardController extends Controller
                 || $user->allows('work_packages.edit')
                 || $user->allows('tasks.assign'),
             'nominatable' => $user->allows('work_packages.edit') || $user->allows('tasks.assign')
-                ? WorkItem::query()->where('is_public_board_candidate', false)->latest('id')->limit(50)->get()
+                ? WorkItem::query()->where('is_public_board_candidate', false)->latest('id')->limit((int) setting('workflow.work_items.picker_limit', 50))->get()
                 : collect(),
         ]);
     }

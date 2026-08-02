@@ -119,7 +119,8 @@ class BoardImageRenderer
             throw new RuntimeException('وصلت لحدّ الاستخراج في الدقيقة — استنّى دقيقة وجرّب تاني.');
         }
 
-        Cache::put($bucket, $count + 1, now()->addMinutes(2));
+        // نافذة العدّاد أطول قليلًا من الدقيقة كي لا يضيع العدّ على حدّها — وهي إعداد (2.13)
+        Cache::put($bucket, $count + 1, now()->addMinutes((int) setting('images.rate_limit_window_minutes', 2)));
     }
 
     private function background($canvas, int $width, int $height): void
@@ -326,7 +327,7 @@ class BoardImageRenderer
         imagefilledellipse($canvas, $x + intdiv($size, 2), $y + intdiv($size, 2), $size, $size, $bg);
 
         $initials = collect(preg_split('/\s+/u', $name, -1, PREG_SPLIT_NO_EMPTY) ?: [])
-            ->take(2)->map(fn ($p) => mb_substr($p, 0, 1))->implode('');
+            ->take((int) setting('ux.avatar.initials_count', 2))->map(fn ($p) => mb_substr($p, 0, 1))->implode('');
 
         if ($initials === '') {
             return;

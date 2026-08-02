@@ -61,7 +61,7 @@ class TransactionController extends Controller
                 ->where('reason', 'like', '%'.$filters['q'].'%')
                 ->orWhere('reference_id', $filters['q'])))
             ->orderByDesc('created_at')
-            ->limit(200)
+            ->limit((int) setting('volunteer.transactions.max_rows', 200))
             ->get();
 
         $objections = $this->objectionsFor($rows);

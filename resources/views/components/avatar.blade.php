@@ -5,7 +5,7 @@
 
     $label = $name ?? ($user?->name ?? '');
     $initials = collect(preg_split('/\s+/u', trim($label)) ?: [])
-        ->take(2)->map(fn ($w) => mb_substr($w, 0, 1))->implode('');
+        ->take((int) setting('ux.avatar.initials_count', 2))->map(fn ($w) => mb_substr($w, 0, 1))->implode('');
 
     // المقاس المعروض بالبكسل = وحدات Tailwind × 4 — والشاشات عالية الكثافة تحتاج الضعف
     $renderedPx = (int) $size * 4 * 2;

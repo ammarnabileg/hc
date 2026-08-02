@@ -170,7 +170,7 @@ class QuestionBank
             ->orderBy('courses.name_ar')
             ->orderBy('sections.sort_order')
             ->orderBy('lessons.sort_order')
-            ->limit(500)
+            ->limit((int) setting('question_bank.lessons_picker_limit', 500))
             ->get(['lessons.id', 'lessons.title_ar', 'courses.name_ar as course_name']);
     }
 
@@ -330,7 +330,7 @@ class QuestionBank
      */
     public function exportRows(array $filters): array
     {
-        return $this->query($filters)->limit(50000)->get()->map(fn (LessonQuestion $question) => [
+        return $this->query($filters)->limit((int) setting('question_bank.export.max_rows', 50000))->get()->map(fn (LessonQuestion $question) => [
             'id' => $question->id,
             'lesson_id' => $question->lesson_id,
             'type' => $question->type,

@@ -282,6 +282,17 @@ class StreakService
     }
 
     /** كم درعًا استُعمل هذا الشهر — السقف إعداد لا رقم محروق */
+    /**
+     * تكلفة درع التجميد (7.2 · 2.13): المصدر الحاكم صفّ «أوجه الصرف»
+     * (`xp_rules.spend` ⟵ `streak.freeze`) — وكان الصفّ يُحرَّر بلا مستهلك
+     * بينما تُقرأ القيمة من إعداد الستريك وحده، فمصدران لقيمة واحدة.
+     * وإعداد `streaks.freeze_cost_tickets` بقي الافتراضيّ حين لا صفّ أصلًا.
+     */
+    public function freezeCost(): float
+    {
+        return app(EconomyRules::class)->spendCost('streak.freeze', (float) setting('streaks.freeze_cost_tickets', 1));
+    }
+
     public function freezesUsedThisMonth(User $user): int
     {
         $now = $this->clock->now($user);
@@ -313,7 +324,7 @@ class StreakService
             return ['ok' => false, 'message' => str_replace(':cap', (string) $cap, (string) setting('streaks.freeze.cap_message'))];
         }
 
-        $cost = (float) setting('streaks.freeze_cost_tickets', 1);
+        $cost = $this->freezeCost();
 
         if ($this->wallet->balance($user, 'tickets') < $cost) {
             return ['ok' => false, 'message' => (string) setting('streaks.freeze.no_tickets_message')];

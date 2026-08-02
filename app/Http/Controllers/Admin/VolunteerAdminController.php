@@ -39,15 +39,15 @@ class VolunteerAdminController extends Controller
                 ->with(['user:id,name,code', 'entity:id,name_ar', 'position'])
                 ->where('status', 'active')
                 ->latest('started_at')
-                ->limit(6)
+                ->limit((int) setting('volunteer.admin.recent_placements', 6))
                 ->get(),
             'alerts' => [
                 'overflows' => CapacityReport::overflows()->count(),
                 'unhealthy' => CapacityReport::unhealthy()->count(),
                 'pendingExits' => Offboarding::query()->whereNull('completed_at')->count(),
-                'pendingCertificates' => CertificateEligibility::pending(200)->count(),
+                'pendingCertificates' => CertificateEligibility::pending((int) setting('volunteer_cert.pending_scan_limit', 200))->count(),
             ],
-            'loads' => VolunteerAnalytics::loads()->take(5),
+            'loads' => VolunteerAnalytics::loads()->take((int) setting('volunteer.admin.loads_preview', 5)),
             'page' => SettingsWriter::groupRows('volunteer_page'),
             'blocks' => self::blocks(),
             'blockTypes' => self::BLOCK_TYPES,
@@ -130,13 +130,13 @@ class VolunteerAdminController extends Controller
             'types' => CertificateEligibility::enabledTypes(),
             'settings' => SettingsWriter::groupRows('volunteer_cert'),
             'minDays' => CertificateEligibility::minDays(),
-            'pending' => CertificateEligibility::pending(20),
+            'pending' => CertificateEligibility::pending((int) setting('volunteer_cert.pending_rows', 20)),
             'issued' => Certificate::query()
                 ->with(['user:id,name,code'])
                 ->whereIn('certificate_type_id', $typeIds->values())
                 ->when($request->string('status')->toString(), fn ($q, $s) => $q->where('status', $s))
                 ->latest('issued_at')
-                ->limit(30)
+                ->limit((int) setting('volunteer_cert.issued_rows', 30))
                 ->get(),
             'positions' => Position::query()->where('is_honorary', false)->orderBy('rank')->get(),
         ]);

@@ -87,7 +87,7 @@ class TopupAdminController extends Controller
             'history' => TopupRequest::query()
                 ->where('user_id', $topupRequest->user_id)
                 ->whereKeyNot($topupRequest->getKey())
-                ->latest('id')->limit(5)->get(),
+                ->latest('id')->limit((int) setting('topup.admin.user_history_rows', 5))->get(),
         ]);
     }
 

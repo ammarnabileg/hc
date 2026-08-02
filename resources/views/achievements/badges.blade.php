@@ -6,7 +6,7 @@
         $percent = $totalCount > 0 ? round($unlockedCount / $totalCount * 100) : 0;
         // بيانات بطاقة الإنجاز القابلة للاستخراج كصورة (12.14-هـ)
         $exportSubtitle = $unlockedCount.' من '.$totalCount.' شارة';
-        $exportRows = $rows->where('unlocked', true)->take(6)
+        $exportRows = $rows->where('unlocked', true)->take((int) setting('badges.export_rows', 6))
             ->map(fn (array $row) => [$row['badge']->name_ar, $row['badge']->condition_text_ar])
             ->values()->all();
     @endphp

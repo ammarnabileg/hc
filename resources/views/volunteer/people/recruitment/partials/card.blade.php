@@ -38,7 +38,7 @@
         <dt style="color: var(--text-muted)">شهادة التأهيليّ</dt>
         <dd class="font-semibold text-end">{{ $candidate->qualifying_score ?? '—' }}</dd>
 
-        @foreach ($courseScores->take(3) as $courseName => $score)
+        @foreach ($courseScores->take((int) setting('recruitment.card.course_scores_shown', 3)) as $courseName => $score)
             <dt class="truncate" style="color: var(--text-muted)">{{ $courseName }}</dt>
             <dd class="text-end">{{ $score }}</dd>
         @endforeach

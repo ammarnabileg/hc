@@ -34,7 +34,7 @@
                     <dl class="grid grid-cols-2 gap-2 text-xs">
                         <div class="rounded-xl px-3 py-2" style="background: var(--surface-sunken)">
                             <dt style="color: var(--text-muted)">التكلفة</dt>
-                            <dd class="font-bold mt-0.5">{{ (int) $game->ticket_cost }} 🎟️</dd>
+                            <dd class="font-bold mt-0.5">{{ (int) $game->entryCost() }} 🎟️</dd>
                         </div>
                         <div class="rounded-xl px-3 py-2" style="background: var(--surface-sunken)">
                             <dt style="color: var(--text-muted)">المكافأة</dt>

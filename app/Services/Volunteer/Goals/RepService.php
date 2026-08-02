@@ -135,7 +135,7 @@ class RepService
             ->when(! empty($filters['entity']), fn ($q) => $q->where('entity_id', $filters['entity']))
             ->where('created_at', '>=', now()->subDays($days)->startOfDay())
             ->latest('created_at')
-            ->limit(200)
+            ->limit((int) setting('rep.movements_rows', 200))
             ->get();
     }
 

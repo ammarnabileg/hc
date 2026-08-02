@@ -58,7 +58,7 @@ class MeetingController extends Controller
             ? $query->where('status', 'ended')->where('scheduled_at', '>=', now()->subDays(max(1, $filters['days'])))->orderByDesc('scheduled_at')
             : $query->where('status', '!=', 'ended')->orderBy('scheduled_at');
 
-        $meetings = $query->limit(60)->get();
+        $meetings = $query->limit((int) setting('meetings.list_limit', 60))->get();
 
         // تسوية الغياب تتمّ لحظة قراءة القائمة — آمنة التكرار ولا تحتاج جدولة
         foreach ($meetings as $meeting) {
@@ -402,7 +402,7 @@ class MeetingController extends Controller
                 ->when($entity > 0, fn ($x) => $x->where('entity_id', $entity))
                 ->when($q !== '', fn ($x) => $x->where(fn ($w) => $w->where('title', 'like', '%'.$q.'%')->orWhere('minutes', 'like', '%'.$q.'%')))
                 ->orderByDesc('ended_at')
-                ->limit(60)
+                ->limit((int) setting('meetings.list_limit', 60))
                 ->get();
         }
 

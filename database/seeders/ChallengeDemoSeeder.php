@@ -230,7 +230,8 @@ class ChallengeDemoSeeder extends Seeder
                 'name_ar' => $name,
                 'description' => $description,
                 'color' => $color,
-                'entry_cost' => 0,
+                // NULL = اتبع تكلفة الانضمام العامّة من «أوجه الصرف» (2.13)
+                'entry_cost' => null,
                 'entry_currency_id' => $tickets,
                 'rewards' => null,
                 'duration_minutes' => null,
@@ -343,8 +344,9 @@ class ChallengeDemoSeeder extends Seeder
     private function games(): void
     {
         $rows = [
-            ['memory_match', 'مطابقة الذاكرة', 'قلّب الكروت ولاقِ الأزواج قبل ما الوقت يخلص.', 1, 60, 'active'],
-            ['fast_math', 'حساب سريع', 'عمليّات حسابيّة بسيطة في وقت ضيّق.', 1, 80, 'active'],
+            // التكلفة NULL = اتبع العامّ، والرقم = استثناء صريح لهذه اللعبة (2.13)
+            ['memory_match', 'مطابقة الذاكرة', 'قلّب الكروت ولاقِ الأزواج قبل ما الوقت يخلص.', null, 60, 'active'],
+            ['fast_math', 'حساب سريع', 'عمليّات حسابيّة بسيطة في وقت ضيّق.', null, 80, 'active'],
             ['word_ladder', 'سلّم الكلمات', 'كوّن كلمات جديدة بتغيير حرف واحد.', 2, 120, 'soon'],
         ];
 

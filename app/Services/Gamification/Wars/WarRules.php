@@ -42,14 +42,25 @@ class WarRules
         return abs((float) $this->value($challenge, 'rewards', 'withdraw', 'withdraw'));
     }
 
+    /**
+     * تكلفة إنشاء حرب تركيز (15.3) — والمصدر واحد لا اثنان (2.13):
+     * Override السكشن للحرب، ثمّ العامّ الحاكم من «أوجه الصرف» (`war.focus.create`).
+     */
     public function focusCreateCost(?Challenge $challenge = null): float
     {
         return abs((float) $this->value($challenge, 'costs', 'create_focus_tickets', 'create_focus_tickets'));
     }
 
+    /**
+     * تكلفة الانضمام لحرب (15.3): Override السكشن، ثمّ **عمود `entry_cost`**
+     * الخاصّ بالحرب — وكان عمودًا يُحرَّر بلا أثر — ثمّ الصفّ الحاكم `war.join`.
+     */
     public function focusJoinCost(?Challenge $challenge = null): float
     {
-        return abs((float) $this->value($challenge, 'costs', 'join_tickets', 'join_tickets'));
+        $override = $this->override($challenge, 'costs', 'join_tickets')
+            ?? $challenge?->getAttribute('entry_cost');
+
+        return abs((float) ($override ?? WarSettingsService::sharedDefaults()['join_tickets']));
     }
 
     // ------------------------------------------------------------ المؤقّتات
@@ -151,14 +162,22 @@ class WarRules
     /** Override الحرب أوّلًا، وإلّا القاعدة العامّة المشتركة */
     private function value(?Challenge $challenge, string $section, string $key, string $sharedKey): mixed
     {
-        if ($challenge) {
-            $override = WarSettingsService::overrideOf($challenge, $section);
+        return $this->override($challenge, $section, $key) ?? WarSettingsService::sharedDefaults()[$sharedKey];
+    }
 
-            if (array_key_exists($key, $override) && $override[$key] !== null && $override[$key] !== '') {
-                return $override[$key];
-            }
+    /** قيمة السكشن المحفوظة للحرب — أو null فتُقرَأ من العامّ */
+    private function override(?Challenge $challenge, string $section, string $key): mixed
+    {
+        if (! $challenge) {
+            return null;
         }
 
-        return WarSettingsService::sharedDefaults()[$sharedKey];
+        $override = WarSettingsService::overrideOf($challenge, $section);
+
+        if (array_key_exists($key, $override) && $override[$key] !== null && $override[$key] !== '') {
+            return $override[$key];
+        }
+
+        return null;
     }
 }

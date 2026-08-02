@@ -221,6 +221,6 @@ final class OrgChartBuilder
     {
         $words = preg_split('/\s+/u', trim((string) ($user?->name ?? ''))) ?: [];
 
-        return collect($words)->take(2)->map(fn ($w) => mb_substr($w, 0, 1))->implode('');
+        return collect($words)->take((int) setting('ux.avatar.initials_count', 2))->map(fn ($w) => mb_substr($w, 0, 1))->implode('');
     }
 }

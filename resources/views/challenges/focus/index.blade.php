@@ -57,7 +57,7 @@
                     @if ($joiners->isNotEmpty())
                         <div class="flex items-center gap-2">
                             <div class="flex items-center">
-                                @foreach ($joiners->take(4) as $member)
+                                @foreach ($joiners->take((int) setting('wars.focus.avatars_shown', 4)) as $member)
                                     <span class="inline-flex" style="margin-inline-start: {{ $loop->first ? 0 : '-0.6rem' }}">
                                         <x-avatar :user="$member->user" size="10" />
                                     </span>

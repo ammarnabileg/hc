@@ -76,7 +76,7 @@ class KudosController extends Controller
         $results = $q === '' ? collect() : User::query()
             ->whereKeyNot($request->user()->id)
             ->where(fn ($w) => $w->where('name', 'like', "%{$q}%")->orWhere('code', 'like', "%{$q}%"))
-            ->limit(8)
+            ->limit((int) setting('kudos.search_limit', 8))
             ->get(['id', 'name', 'code']);
 
         return response()->json(['results' => $results]);

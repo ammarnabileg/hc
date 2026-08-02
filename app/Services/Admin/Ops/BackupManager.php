@@ -202,7 +202,7 @@ class BackupManager
         $extra = DB::table('backup_files')
             ->orderByDesc('id')
             ->skip($keep)
-            ->take(1000)
+            ->take((int) setting('backups.prune_batch', 1000))
             ->get(['id', 'filename']);
 
         foreach ($extra as $row) {

@@ -45,7 +45,7 @@
         <h2 class="font-bold mb-1">نطاق الإشراف لكلّ مسؤول</h2>
         <p class="text-xs mb-3" style="color: var(--text-muted)">التجاوز تنبيه فقط — بلا منع ولا مبرّر إلزاميّ.</p>
 
-        @forelse ($spans->sortByDesc('count')->take(30) as $row)
+        @forelse ($spans->sortByDesc('count')->take((int) setting('volunteer.org.span_rows', 30)) as $row)
             <div class="flex items-center justify-between gap-3 py-2 text-sm {{ $loop->last ? '' : 'border-b' }}" style="border-color: var(--border)">
                 <div class="min-w-0">
                     <div class="truncate font-semibold">{{ $row['membership']->user?->name }}</div>

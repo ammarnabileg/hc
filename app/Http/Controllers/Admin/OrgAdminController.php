@@ -51,7 +51,7 @@ class OrgAdminController extends Controller
                 ->with(['user:id,name,code', 'entity:id,name_ar', 'position'])
                 ->where('status', 'active')
                 ->when($trackId, fn ($q) => $q->whereHas('entity', fn ($e) => $e->where('track_id', $trackId)))
-                ->limit(50)
+                ->limit((int) setting('volunteer.org.members_limit', 50))
                 ->get(),
         ]);
     }

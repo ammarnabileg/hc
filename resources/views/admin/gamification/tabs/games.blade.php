@@ -30,7 +30,7 @@
                     <div class="min-w-0">
                         <div class="font-semibold text-sm">{{ $game->name_ar }}</div>
                         <p class="text-xs mt-1" style="color: var(--text-muted)">
-                            {{ (int) $game->ticket_cost }} 🎟️ للدخول · {{ (int) $game->xp_reward }} XP
+                            {{ (int) $game->entryCost() }} 🎟️ للدخول · {{ (int) $game->xp_reward }} XP
                             · {{ (int) $game->sessions_count }} جلسة
                         </p>
                     </div>
@@ -44,7 +44,7 @@
                     @can('games.edit')
                         <button type="button" class="text-xs underline" data-game-edit
                                 data-id="{{ $game->id }}" data-key="{{ $game->key }}"
-                                data-name="{{ $game->name_ar }}" data-cost="{{ (int) $game->ticket_cost }}"
+                                data-name="{{ $game->name_ar }}" data-cost="{{ $game->ticket_cost === null ? '' : (int) $game->ticket_cost }}"
                                 data-xp="{{ (int) $game->xp_reward }}" data-status="{{ $game->status }}"
                                 data-limit="{{ $game->daily_limit }}" data-soon="{{ $game->soon_text }}">تعديل</button>
                     @endcan
@@ -185,7 +185,8 @@
                     <label class="block">
                         <span class="block text-sm mb-1">تكلفة الدخول (تذاكر)</span>
                         <input type="number" step="1" min="0" name="ticket_cost" data-field="cost"
-                               placeholder="{{ $data['settings']['games.ticket_cost']['value'] }}"
+                               {{-- الـPlaceholder هو التكلفة العامّة الحاكمة: الحقل الفارغ يعني «اتبع العامّ» لا صفر --}}
+                               placeholder="{{ (int) (new \App\Models\Game)->entryCost() }}"
                                class="w-full rounded-xl px-3 py-3 text-sm"
                                style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text); min-height: 44px">
                     </label>

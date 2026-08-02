@@ -178,7 +178,7 @@ class CourseAdminController extends Controller
             'availability' => $course->exists ? $this->courses->availabilityOf($course) : [],
             'indicator' => $course->exists ? $this->courses->generalQuestionsIndicator($course) : null,
             'statuses' => $this->statuses(),
-            'mediaItems' => $media->search(['kind' => 'image'])->take(12),
+            'mediaItems' => $media->search(['kind' => 'image'])->take((int) setting('media.picker.limit', 12)),
         ]);
     }
 
