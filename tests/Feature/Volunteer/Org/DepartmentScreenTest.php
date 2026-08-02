@@ -92,6 +92,19 @@ class DepartmentScreenTest extends OrgTestCase
         ]);
     }
 
+    /** مبدّل العرض: كروت أو جدول — والجدول يتحوّل كروتًا على الموبايل (2.15-ج) */
+    public function test_table_view_renders_with_the_agreed_columns(): void
+    {
+        $user = $this->actorWithRole('VOL-C1', 'coordinator');
+
+        $this->actingAs($user)
+            ->get(route('volunteer.department', ['view' => 'table']))
+            ->assertOk()
+            ->assertSee('البوزشن')
+            ->assertSee('الأبلاين')
+            ->assertSee('الحالة');
+    }
+
     public function test_screen_is_hidden_from_a_user_without_the_permission(): void
     {
         $stranger = User::create([

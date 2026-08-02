@@ -2,8 +2,10 @@
 
 namespace Tests\Feature\Volunteer\Goals;
 
+use App\Models\Setting;
 use App\Services\Volunteer\Goals\Integrations;
 use App\Services\Volunteer\Goals\VxpDistributionService;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Validation\ValidationException;
 
 /**
@@ -100,7 +102,7 @@ class GoalsVxpDistributionTest extends GoalsTestCase
 
         $this->assertSame(180.0, $this->service()->maxDistributable($parent));
 
-        \App\Models\Setting::create([
+        Setting::create([
             'key' => 'workflow.vxp.parent_min_share_percent',
             'group' => 'workflow',
             'label_ar' => 'أدنى شريحة محفوظة للأب (%)',
@@ -108,7 +110,7 @@ class GoalsVxpDistributionTest extends GoalsTestCase
             'default_value' => '25',
             'value' => '25',
         ]);
-        \Illuminate\Support\Facades\Cache::forget('settings');
+        Cache::forget('settings');
 
         $this->assertSame(150.0, $this->service()->maxDistributable($parent));
     }
