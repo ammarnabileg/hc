@@ -216,6 +216,11 @@ class AdminSystemDemoSeeder extends Seeder
             ['topup.review.internal_late_hours', 'store', '⛔ عتبة «متأخّر» الداخليّة للأدمن (ساعات)', 'number', '24', false],
             ['topup.manual_credit.min', 'store', 'أقلّ قيمة يدويّة', 'number', '1', false],
             ['topup.manual_credit.max', 'store', 'أقصى قيمة يدويّة', 'number', '100000', false],
+            // 🔒 مفاتيح البوّابة لمالك المنصّة وحده (19.5-ج-5)
+            ['topup.gateway.enabled', 'store', 'تفعيل بوّابة الدفع', 'bool', '1', false],
+            ['topup.gateway.sandbox', 'store', 'وضع الاختبار (Sandbox)', 'bool', '1', false],
+            ['topup.gateway.api_key', 'store', 'مفتاح API للبوّابة', 'string', '', true],
+            ['topup.gateway.vendor_key', 'store', 'مفتاح التاجر (للتحقّق من الهاش)', 'string', '', true],
             ['topup.gateway.currency', 'store', 'عملة البوّابة', 'string', 'EGP', false],
             ['topup.gateway.success_url', 'store', 'رابط النجاح', 'string', '/wallet?topup=success', false],
             ['topup.gateway.fail_url', 'store', 'رابط الفشل', 'string', '/wallet?topup=fail', false],
@@ -238,6 +243,9 @@ class AdminSystemDemoSeeder extends Seeder
             ['stats.hide_finance_tab', 'stats', 'إخفاء التاب الماليّ عن غير المخوَّلين', 'bool', '1', true],
 
             // ---------------- وضع الصيانة (12.7-و-1)
+            ['system.maintenance.enabled', 'maintenance', 'وضع الصيانة العامّ', 'bool', '0', false],
+            ['system.maintenance.message', 'maintenance', 'رسالة الصيانة', 'text', 'بنطوّر حاجة حلوة — هنرجع قريب.', false],
+            ['system.maintenance.freeze_deadlines', 'maintenance', 'تجميد كلّ المهل أثناء الصيانة', 'bool', '1', false],
             ['system.maintenance.default_hours', 'maintenance', 'المدّة الافتراضيّة (ساعات)', 'number', '2', false],
             ['system.maintenance.max_hours', 'maintenance', 'أقصى مدّة صيانة (ساعات)', 'number', '168', false],
             ['system.maintenance.max_extend_hours', 'maintenance', 'أقصى تمديد بالمرّة (ساعات)', 'number', '24', false],

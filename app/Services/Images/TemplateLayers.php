@@ -114,10 +114,10 @@ class TemplateLayers
                     'text' => (string) ($layer['text'] ?? ''),
                     'size' => max(8, (int) ($layer['size'] ?? 32)),
                     'color' => $this->color($layer['color'] ?? '#ffffff'),
-                    'align' => in_array($layer['align'] ?? 'right', ['right', 'center', 'left'], true) ? $layer['align'] : 'right',
+                    'align' => $this->oneOf($layer['align'] ?? null, ['right', 'center', 'left'], 'right'),
                     'max_chars' => max(0, (int) ($layer['max_chars'] ?? setting('images.text.default_max_chars', 28))),
                     // سلوك التجاوز: تصغير تلقائيّ أو قصّ بثلاث نقاط (12.14-ج)
-                    'overflow' => in_array($layer['overflow'] ?? 'shrink', ['shrink', 'truncate'], true) ? $layer['overflow'] : 'shrink',
+                    'overflow' => $this->oneOf($layer['overflow'] ?? null, ['shrink', 'truncate'], 'shrink'),
                 ];
 
                 continue;
@@ -127,8 +127,8 @@ class TemplateLayers
                 'w' => max(8, (int) ($layer['w'] ?? 240)),
                 'h' => max(8, (int) ($layer['h'] ?? 240)),
                 // ⭐ بلا هالة حول الأفاتار (2.10.1)
-                'shape' => in_array($layer['shape'] ?? 'circle', ['square', 'circle', 'circle_border'], true) ? $layer['shape'] : 'circle',
-                'fit' => in_array($layer['fit'] ?? 'cover', ['cover', 'contain'], true) ? $layer['fit'] : 'cover',
+                'shape' => $this->oneOf($layer['shape'] ?? null, ['square', 'circle', 'circle_border'], 'circle'),
+                'fit' => $this->oneOf($layer['fit'] ?? null, ['cover', 'contain'], 'cover'),
                 'border_color' => $this->color($layer['border_color'] ?? '#00d4b8'),
                 'border_width' => max(0, (int) ($layer['border_width'] ?? 0)),
                 'path' => (string) ($layer['path'] ?? ''),
@@ -136,6 +136,12 @@ class TemplateLayers
         }
 
         return $clean;
+    }
+
+    /** قيمة من قائمة مقفولة، وإلّا فالافتراضيّ — فلا يمرّ خيارٌ غير معروف للرسّام */
+    private function oneOf(mixed $value, array $allowed, string $fallback): string
+    {
+        return in_array($value, $allowed, true) ? (string) $value : $fallback;
     }
 
     private function color(mixed $value): string

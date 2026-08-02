@@ -111,7 +111,7 @@ class EventAdminController extends Controller
             'price_coins' => $data['price_coins'] ?? 0,
             'price_tickets' => $data['price_tickets'] ?? 0,
             // كود الحضور OTP رقميّ — مستمرّ لا يقفل، والمكافأة وحدها تتناقص (13.3)
-            'attendance_code' => $data['attendance_code'] ?: $this->generateCode(),
+            'attendance_code' => ($data['attendance_code'] ?? null) ?: ($event->attendance_code ?: $this->generateCode()),
             'certificate_type_id' => $data['certificate_type_id'] ?? null,
             'status' => $data['status'],
             'xp_reward' => (int) ($tiers[0]['xp'] ?? 0),

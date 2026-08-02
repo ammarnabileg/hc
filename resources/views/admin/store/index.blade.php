@@ -44,6 +44,18 @@
 
     @include('admin.store.partials.filters')
 
+    @if ($tab === 'orders')
+        {{-- ⛔ قاعدة ثابتة تُعرَض دائمًا: لا استرجاع نقديّ (19.4) — والتصحيح التقنيّ وحده البديل --}}
+        <p class="text-xs mb-3" style="color: var(--text-muted)">
+            مافيش استرجاع نقديّ — الرصيد يفضل في محفظة صاحبه، والخطأ التقنيّ يتصحَّح بمعاملة موثّقة بمرجعها.
+        </p>
+    @elseif ($tab === 'library')
+        {{-- التحليلات مجمّعة فقط — ولا سجلّ فتح فرديّ لأيّ ملفّ (مرفوض صراحةً في 20.5) --}}
+        <p class="text-xs mb-3" style="color: var(--text-muted)">
+            التحليلات مجمّعة فقط (الأكثر قراءةً · متوسّط الإكمال) — مافيش سجلّ فتح فرديّ لأيّ مستخدم.
+        </p>
+    @endif
+
     @if ($rows->isEmpty())
         <x-empty message="مفيش حاجة هنا لسه — ابدأ بأوّل عنصر." action="+ عنصر جديد" :href="route('admin.store.index', ['tab' => $tab])" />
     @else
