@@ -42,7 +42,7 @@ class MeetingsAdminController extends Controller
             'statuses' => MeetingsMirror::STATUSES,
             'entities' => $this->mirror->entities(),
             'attendance' => $this->attendance,
-            'settings' => ScreenSettings::rows(ScreenSettings::GROUP_MEETINGS, $user),
+            'settings' => ScreenSettings::rows(ScreenSettings::SCREEN_MEETINGS, $user),
         ]);
     }
 
@@ -120,14 +120,14 @@ class MeetingsAdminController extends Controller
     {
         $data = $request->validate(['settings' => ['required', 'array']]);
 
-        ScreenSettings::putMany(ScreenSettings::GROUP_MEETINGS, $data['settings'], $request->user());
+        ScreenSettings::putMany(ScreenSettings::SCREEN_MEETINGS, $data['settings'], $request->user());
 
         return back()->with('status', 'اتحفظ ✓');
     }
 
     public function resetSettings(Request $request): RedirectResponse
     {
-        $count = ScreenSettings::resetGroup(ScreenSettings::GROUP_MEETINGS, $request->user());
+        $count = ScreenSettings::resetScreen(ScreenSettings::SCREEN_MEETINGS, $request->user());
 
         return back()->with('status', 'رجعت '.$count.' قيمة للافتراضيّ ✓');
     }

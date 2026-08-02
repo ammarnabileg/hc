@@ -8,7 +8,7 @@ use App\Models\Challenge;
 use App\Models\ChallengeParticipation;
 use App\Models\Setting;
 use App\Services\Gamification\CelebrationService;
-use App\Services\Gamification\ChallengeService;
+use App\Services\Gamification\Wars\WarMatchService;
 use Illuminate\Support\Facades\Cache;
 
 /**
@@ -34,10 +34,10 @@ class CelebrationTest extends ChallengeTestCase
         $user = $this->trainee();
         $participation = $this->finishedWin($user);
 
-        $this->actingAs($user)->get(route('challenges.result', $participation))->assertOk();
+        $this->actingAs($user)->get(route('challenges.result', $this->match))->assertOk();
         $countAfterFirst = CelebrationConsumption::where('user_id', $user->id)->count();
 
-        $this->actingAs($user)->get(route('challenges.result', $participation))->assertOk();
+        $this->actingAs($user)->get(route('challenges.result', $this->match))->assertOk();
 
         $this->assertSame($countAfterFirst, CelebrationConsumption::where('user_id', $user->id)->count());
     }
@@ -76,9 +76,9 @@ class CelebrationTest extends ChallengeTestCase
         $participation = $this->finishedWin($user);
 
         $this->actingAs($user)
-            ->get(route('challenges.result', $participation))
+            ->get(route('challenges.result', $this->match))
             ->assertOk()
-            ->assertSee('كسبت التحدّي', false);
+            ->assertSee('كسبت المواجهة', false);
     }
 
     private function consumptionsOf($user, string $eventKey): int
@@ -88,16 +88,25 @@ class CelebrationTest extends ChallengeTestCase
             ->count();
     }
 
+    /** مواجهة حقيقيّة ينتصر فيها المستخدم — الفوز لا يُزوَّر في الاختبار كذلك */
     private function finishedWin($user): ChallengeParticipation
     {
-        $challenge = Challenge::where('key', 'estimation_war')->firstOrFail();
-        $service = app(ChallengeService::class);
-        $participation = $service->enter($user, $challenge);
+        $rival = $this->trainee();
+        $match = $this->startMatch($user, $rival, 'estimation_war');
+        $service = app(WarMatchService::class);
 
-        $service->answer($participation, 0, 1440);
-        $service->answer($participation, 1, 365);
-        $service->answer($participation, 2, 56);
+        foreach ((array) $match->questions as $i => $question) {
+            $service->answer($match, $user, $i, $question['answer']);
+        }
 
-        return $service->finish($participation);
+        $service->finishSide($match, $service->sideOf($match, $user));
+        $service->finishSide($match->refresh(), $service->sideOf($match, $rival));
+
+        $this->match = $match->refresh();
+
+        return $service->sideOf($this->match, $user);
     }
+
+    /** المواجهة الأخيرة — شاشة النتيجة تُفتَح بها لا بالمشاركة */
+    private ?\App\Models\WarMatch $match = null;
 }

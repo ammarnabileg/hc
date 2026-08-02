@@ -50,7 +50,7 @@ class ReferralAdminController extends Controller
             'invites' => $tab === 'invites' ? $this->referrals->invites($filters) : null,
             'ambassadors' => $tab === 'ambassadors' ? $this->referrals->ambassadors($filters['q']) : null,
             'tiers' => $tab === 'tiers' ? $this->referrals->tiers() : [],
-            'settings' => ScreenSettings::rows(ScreenSettings::GROUP_REFERRAL, $user),
+            'settings' => ScreenSettings::rows(ScreenSettings::SCREEN_REFERRAL, $user),
         ]);
     }
 
@@ -128,14 +128,14 @@ class ReferralAdminController extends Controller
     {
         $data = $request->validate(['settings' => ['required', 'array']]);
 
-        ScreenSettings::putMany(ScreenSettings::GROUP_REFERRAL, $data['settings'], $request->user());
+        ScreenSettings::putMany(ScreenSettings::SCREEN_REFERRAL, $data['settings'], $request->user());
 
         return back()->with('status', 'اتحفظ ✓');
     }
 
     public function resetSettings(Request $request): RedirectResponse
     {
-        $count = ScreenSettings::resetGroup(ScreenSettings::GROUP_REFERRAL, $request->user());
+        $count = ScreenSettings::resetScreen(ScreenSettings::SCREEN_REFERRAL, $request->user());
 
         return back()->with('status', 'رجعت '.$count.' قيمة للافتراضيّ ✓');
     }

@@ -11,6 +11,7 @@ use App\Models\User;
 use App\Services\Admin\System\ArticleWorkflow;
 use App\Services\Growth\InviteLeaderboard;
 use App\Services\Growth\OgCardRenderer;
+use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
 /**
@@ -64,8 +65,9 @@ class OgController extends Controller
     }
 
     /** بطاقة لوحة متصدّري الدعوات — «كلّ اللوحات قابلة للاستخراج كصورة» (21.1-ج) */
-    public function leaderboard(?string $month = null): Response
+    public function leaderboard(Request $request): Response
     {
+        $month = $request->string('month')->toString() ?: null;
         $period = $this->board->period($month);
         $rows = $this->board->rows($month);
         $top = $rows->first();

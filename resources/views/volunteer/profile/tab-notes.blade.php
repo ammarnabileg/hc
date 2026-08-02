@@ -19,10 +19,10 @@
                       minlength="{{ (int) setting('volunteer.profile.notes.min_chars', 5) }}"
                       maxlength="{{ (int) setting('volunteer.profile.notes.max_chars', 2000) }}"
                       class="w-full rounded-xl px-3 py-2 text-sm"
-                      style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)"
+                      style="min-height: 44px; background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)"
                       placeholder="اكتب ملاحظة مفيدة وقت القرار…"></textarea>
             <button type="submit" class="btn rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
-                    style="background: var(--color-brand-500); color: #04201c">احفظ الملاحظة</button>
+                    style="min-height: 44px; background: var(--color-brand-500); color: #04201c">احفظ الملاحظة</button>
         </form>
     </section>
 @endif

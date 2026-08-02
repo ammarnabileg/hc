@@ -1,3 +1,16 @@
+@php
+    use App\Http\Controllers\Ui\ProfileExtrasController;
+
+    // الروابط تُبنى على الخادم فلا تتسرّب صياغة خاطئة لرابط عامّ (10)
+    $shareLinks = ProfileExtrasController::shareLinks($owner);
+@endphp
+
+@php
+    // الروابط تُبنى هنا لأنّ هذا البارشال يُضمَّن من `profile.show` مباشرةً،
+    // ومتغيّرات الهيدر لا تصل إليه (نطاق كلّ @include مستقلّ) — فكانت الصفحة تقع 500.
+    $shareLinks = $shareLinks ?? \App\Http\Controllers\Ui\ProfileExtrasController::shareLinks($owner);
+@endphp
+
 {{--
   بوب-أب المشاركة (10): أزرار المشاركة (تيليجرام / X / فيسبوك / واتساب)
   + **الرابط العامّ للحساب**. والأيقونات SVG مرسومة داخل المشروع (2.16-ج).

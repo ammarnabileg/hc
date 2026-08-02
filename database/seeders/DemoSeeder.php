@@ -43,6 +43,8 @@ class DemoSeeder extends Seeder
             // الطبقة العامّة (تعمل للزائر)
             HomeDemoSeeder::class,
             SetupDemoSeeder::class,
+            SecurityDemoSeeder::class,
+            UiDemoSeeder::class,
 
             // لوحة الإدارة
             AdminCoreDemoSeeder::class,

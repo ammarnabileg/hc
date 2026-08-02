@@ -38,7 +38,7 @@ class QuestionBankController extends Controller
             'courses' => $this->bank->courses(),
             'lessons' => $this->bank->lessons(($filters['course'] ?? '') !== '' ? (int) $filters['course'] : null),
             'exams' => $this->bank->exams(),
-            'settings' => ScreenSettings::rows(ScreenSettings::GROUP_BANK, $request->user()),
+            'settings' => ScreenSettings::rows(ScreenSettings::SCREEN_BANK, $request->user()),
         ]);
     }
 
@@ -204,14 +204,14 @@ class QuestionBankController extends Controller
     {
         $data = $request->validate(['settings' => ['required', 'array']]);
 
-        ScreenSettings::putMany(ScreenSettings::GROUP_BANK, $data['settings'], $request->user());
+        ScreenSettings::putMany(ScreenSettings::SCREEN_BANK, $data['settings'], $request->user());
 
         return back()->with('status', 'اتحفظ ✓');
     }
 
     public function resetSettings(Request $request): RedirectResponse
     {
-        $count = ScreenSettings::resetGroup(ScreenSettings::GROUP_BANK, $request->user());
+        $count = ScreenSettings::resetScreen(ScreenSettings::SCREEN_BANK, $request->user());
 
         return back()->with('status', 'رجعت '.$count.' قيمة للافتراضيّ ✓');
     }

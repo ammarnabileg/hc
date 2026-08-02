@@ -38,7 +38,7 @@ class AdminScreens24DemoSeeder extends Seeder
     /** كلّ مفاتيح الشاشات الأربع بقيمها الافتراضيّة القابلة للـReset */
     private function settings(): void
     {
-        foreach (ScreenSettings::catalog() as $key => [$group, $label, $type, $default, $hint, $ownerOnly]) {
+        foreach (ScreenSettings::catalog() as $key => [$screen, $group, $label, $type, $default, $hint, $ownerOnly]) {
             Setting::updateOrCreate(['key' => $key], [
                 'group' => $group,
                 'label_ar' => $label,

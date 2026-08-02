@@ -3,6 +3,9 @@
     $unread = $u->notificationsFeed()->whereNull('read_at')->count();
 @endphp
 
+{{-- شريط نادي الخامسة العلويّ: يظهر داخل النافذة بتوقيت المستخدم وحدها (7.2) --}}
+@include('achievements.components.club-topbar')
+
 <header class="sticky top-0 z-50 flex items-center gap-3 px-4 py-3"
         style="height: var(--header-h); background: var(--surface); border-bottom: 1px solid var(--border)">
 

@@ -2,6 +2,7 @@
 
 namespace App\Services\AdminScreens;
 
+use App\Mail\ScheduledReportMail;
 use App\Models\ReportSchedule;
 use App\Models\ReportScheduleRun;
 use App\Models\User;
@@ -179,13 +180,7 @@ class ReportScheduler
 
         for ($attempt = 1; $attempt <= $attempts; $attempt++) {
             try {
-                Mail::raw($body, function ($message) use ($recipients, $subject, $attachment) {
-                    $message->to($recipients)->subject($subject);
-
-                    if ($attachment !== null) {
-                        $message->attachData($attachment['content'], $attachment['name'], ['mime' => $attachment['mime']]);
-                    }
-                });
+                Mail::to($recipients)->send(new ScheduledReportMail($subject, $body, $attachment));
 
                 return $this->record($schedule, 'sent', 'اتبعت لـ'.count($recipients).' مستقبِل ✓', count($rows), count($recipients), $attempt, $manual, $actor);
             } catch (Throwable $exception) {

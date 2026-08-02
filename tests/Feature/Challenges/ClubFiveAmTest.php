@@ -62,6 +62,30 @@ class ClubFiveAmTest extends ChallengeTestCase
         $this->assertSame('Africa/Cairo', $streaks->timezoneFor($cairo));
     }
 
+    public function test_the_top_bar_appears_only_inside_the_window_of_that_user(): void
+    {
+        $user = $this->trainee();
+        $user->forceFill(['country_id' => $this->country('EG', 'Africa/Cairo')->id])->save();
+
+        // 05:00 بالقاهرة ⟵ الشريط ظاهر
+        Carbon::setTestNow(Carbon::parse('2026-07-01 02:00:00', 'UTC'));
+
+        $this->actingAs($user->refresh())
+            ->get(route('achievements.streak'))
+            ->assertOk()
+            ->assertSee('نادي الخامسة مفتوح دلوقتي', false);
+
+        // 09:00 بالقاهرة ⟵ الشريط يختفي
+        Carbon::setTestNow(Carbon::parse('2026-07-01 06:00:00', 'UTC'));
+
+        $this->actingAs($user->refresh())
+            ->get(route('achievements.streak'))
+            ->assertOk()
+            ->assertDontSee('نادي الخامسة مفتوح دلوقتي', false);
+
+        Carbon::setTestNow();
+    }
+
     // ---------------------------------------------------------------- سلّم XP (100…350)
 
     public function test_the_xp_ladder_gives_100_then_150_up_to_350(): void

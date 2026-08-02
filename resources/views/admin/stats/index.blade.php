@@ -28,7 +28,8 @@
                    ]">
         <x-slot:action>
             {{-- ⭐ «وكلّ اللوحات في المنصّة عمومًا قابلة للاستخراج كصورة» (12.14-هـ) --}}
-            <x-export-image kind="stats" :title="'إحصائيّات — '.($tabs[$tab] ?? $tab)"
+            {{-- التاب مصفوفة [label · permission · owner_only] — العنوان منها لا منها كلّها --}}
+            <x-export-image kind="stats" :title="'إحصائيّات — '.($tabs[$tab]['label'] ?? $tab)"
                             :subtitle="$period['from']->format('Y/m/d').' — '.$period['to']->format('Y/m/d')"
                             :rows="$exportRows" />
 

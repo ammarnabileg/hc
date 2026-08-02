@@ -13,36 +13,39 @@
               style="background: color-mix(in srgb, var(--color-state-honor) 18%, transparent); color: var(--color-state-honor)">★ نادي التميّز</span>
     @endif
 
+    {{-- سطر واحد يوضّح مستوى المشاهدة في طبقة التطوّع (13.4-م) --}}
+    <span class="text-xs" style="color: var(--text-muted)">{{ $header['level_label'] }}</span>
+
     <span class="flex-1"></span>
 
     @if ($header['can_kudos'])
         <button type="button" data-modal-open="kudos-modal"
                 class="btn rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
-                style="background: var(--color-brand-500); color: #04201c">شكر 💛</button>
+                style="min-height: 44px; background: var(--color-brand-500); color: #04201c">شكر 💛</button>
     @endif
 
     @if ($header['whatsapp'])
         <a href="{{ $header['whatsapp'] }}" target="_blank" rel="noopener"
            class="btn rounded-xl px-4 py-2 text-sm motion-standard"
-           style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">واتساب</a>
+           style="min-height: 44px; background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">واتساب</a>
     @elseif ($header['whatsapp_locked'])
         {{-- الحقل المقفول لا يُعرَض فراغًا — يظهر مكانه طريق الوصول (13.4-م-2) --}}
         <a href="?tab=volunteer_contact"
            class="btn rounded-xl px-4 py-2 text-sm motion-standard"
-           style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text-muted)">اطلب إظهار الرقم</a>
+           style="min-height: 44px; background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text-muted)">اطلب إظهار الرقم</a>
     @endif
 
     @if ($header['can_see_audit'])
         <a href="{{ route('volunteer.profile.audit', ['code' => $owner->code]) }}"
            class="btn rounded-xl px-4 py-2 text-sm motion-standard"
-           style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">سجلّ المشرف</a>
+           style="min-height: 44px; background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">سجلّ المشرف</a>
     @endif
 
     @if ($header['actions'] !== [])
         <div class="relative">
             <button type="button" data-actions-toggle
                     class="btn rounded-xl px-4 py-2 text-sm motion-standard"
-                    style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">إجراءات ⌄</button>
+                    style="min-height: 44px; background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">إجراءات ⌄</button>
 
             <div data-actions-menu class="hidden absolute end-0 mt-2 z-30 min-w-56 rounded-xl overflow-hidden"
                  style="background: var(--surface-raised); border: 1px solid var(--border)">
@@ -63,10 +66,10 @@
             <p class="text-sm" style="color: var(--text-muted)">السبب المكتوب هو اللي بيفرق — القصّة أقوى من العدّاد.</p>
             <textarea name="reason" rows="3" required minlength="3" maxlength="1000"
                       class="w-full rounded-xl px-3 py-2 text-sm"
-                      style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)"
+                      style="min-height: 44px; background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)"
                       placeholder="اكتب سبب الشكر…"></textarea>
             <button type="submit" class="btn w-full rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
-                    style="background: var(--color-brand-500); color: #04201c">ابعت الشكر</button>
+                    style="min-height: 44px; background: var(--color-brand-500); color: #04201c">ابعت الشكر</button>
         </form>
     </x-modal>
 @endif

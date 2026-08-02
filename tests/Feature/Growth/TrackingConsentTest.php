@@ -1,0 +1,124 @@
+<?php
+
+namespace Tests\Feature\Growth;
+
+use App\Models\TrackingEvent;
+use App\Services\Ads\AdEvents;
+use App\Services\Ads\Consent;
+
+/**
+ * ⭐ القاعدة الحاكمة (21.3-د): **لا حدث يُرسَل بلا موافقة صريحة** — من المتصفّح
+ *    ومن الخادم معًا. و`ads.tracking.enabled` مفتاح إيقافٍ فعليّ للتتبّع كلّه.
+ */
+class TrackingConsentTest extends GrowthTestCase
+{
+    private function enableTracking(): void
+    {
+        $this->setSetting('ads.tracking.enabled', '1', 'bool');
+        $this->setSetting('ads.pixel.meta_id', '123456789');
+    }
+
+    public function test_no_event_is_recorded_without_consent(): void
+    {
+        $this->enableTracking();
+        $user = $this->trainee();
+
+        $this->assertNull(app(AdEvents::class)->record('course_page_view', $user));
+        $this->assertSame(0, TrackingEvent::query()->where('event', 'course_page_view')->count());
+    }
+
+    public function test_rejection_stops_events_effectively(): void
+    {
+        $this->enableTracking();
+        $user = $this->trainee(['tracking_consent' => Consent::REJECTED]);
+
+        $this->assertNull(app(AdEvents::class)->record('course_page_view', $user));
+        $this->assertSame(0, TrackingEvent::query()->count());
+    }
+
+    public function test_acceptance_records_the_event_with_one_shared_event_id(): void
+    {
+        $this->enableTracking();
+        $user = $this->trainee(['tracking_consent' => Consent::ACCEPTED]);
+
+        $uid = app(AdEvents::class)->record('course_page_view', $user);
+
+        $this->assertNotNull($uid);
+        $row = TrackingEvent::query()->where('event', 'course_page_view')->firstOrFail();
+
+        // نفس المعرّف على القناتين — مفتاح إزالة التكرار (21.3-أ)
+        $this->assertSame($uid, $row->event_uid);
+        $this->assertTrue((bool) $row->sent_server_side);
+        $this->assertTrue((bool) $row->sent_browser_side);
+    }
+
+    /** «تخصيص» بلا اختيار غرض الإعلان = رفض — الصمت ليس موافقة */
+    public function test_custom_consent_without_ads_scope_blocks_events(): void
+    {
+        $this->enableTracking();
+        $user = $this->trainee(['tracking_consent' => Consent::CUSTOM, 'tracking_scopes' => ['analytics']]);
+
+        $this->assertNull(app(AdEvents::class)->record('purchase_completed', $user));
+
+        $user->forceFill(['tracking_scopes' => ['ads']])->saveQuietly();
+        $this->assertNotNull(app(AdEvents::class)->record('purchase_completed', $user->fresh()));
+    }
+
+    /** ⭐ المفتاح الواحد يوقف التتبّع كلّه لا البانر وحده (21.3-و) */
+    public function test_master_switch_off_stops_everything(): void
+    {
+        $this->setSetting('ads.tracking.enabled', '0', 'bool');
+        $user = $this->trainee(['tracking_consent' => Consent::ACCEPTED]);
+
+        $this->assertNull(app(AdEvents::class)->record('wallet_topup', $user));
+        $this->assertSame(0, TrackingEvent::query()->count());
+    }
+
+    /** تفعيل/إيقاف كلّ حدث على حدة (21.3-و) */
+    public function test_a_single_event_can_be_switched_off(): void
+    {
+        $this->enableTracking();
+        $this->setSetting('ads.events.wallet_topup', '0', 'bool');
+        $user = $this->trainee(['tracking_consent' => Consent::ACCEPTED]);
+
+        $this->assertNull(app(AdEvents::class)->record('wallet_topup', $user));
+        $this->assertNotNull(app(AdEvents::class)->record('course_page_view', $user));
+    }
+
+    /** البكسل لا يُحقَن في الصفحة إلّا بعد موافقة — ولا يظهر البانر والتتبّع مطفأ */
+    public function test_pixel_script_is_absent_until_consent_is_given(): void
+    {
+        $this->enableTracking();
+
+        $this->actingAs($this->trainee())->get(route('growth.articles.index'))
+            ->assertOk()
+            ->assertDontSee('fbevents.js', false);
+
+        $this->actingAs($this->trainee(['tracking_consent' => Consent::ACCEPTED]))
+            ->get(route('growth.articles.index'))
+            ->assertOk()
+            ->assertSee('fbevents.js', false);
+    }
+
+    public function test_consent_endpoint_persists_choice_and_scopes(): void
+    {
+        $this->enableTracking();
+        $user = $this->trainee();
+
+        $this->actingAs($user)
+            ->from(route('growth.articles.index'))
+            ->post(route('consent.tracking'), ['choice' => 'custom', 'scopes' => ['ads']])
+            ->assertRedirect();
+
+        $user->refresh();
+        $this->assertSame(Consent::CUSTOM, $user->tracking_consent);
+        $this->assertSame(['ads'], $user->tracking_scopes);
+
+        // «تخصيص» بلا اختيار يُخزَّن رفضًا صريحًا
+        $this->actingAs($user)
+            ->from(route('growth.articles.index'))
+            ->post(route('consent.tracking'), ['choice' => 'custom']);
+
+        $this->assertSame(Consent::REJECTED, $user->fresh()->tracking_consent);
+    }
+}

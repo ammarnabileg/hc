@@ -28,13 +28,13 @@
                         <form method="POST" action="{{ route('volunteer.profile.consent.approve', $request) }}">
                             @csrf
                             <button type="submit" class="btn rounded-xl px-3 py-2 text-sm font-semibold motion-standard"
-                                    style="background: var(--color-brand-500); color: #04201c">وافق</button>
+                                    style="min-height: 44px; background: var(--color-brand-500); color: #04201c">وافق</button>
                         </form>
                         <form method="POST" action="{{ route('volunteer.profile.consent.deny', $request) }}">
                             @csrf
                             {{-- الرفض صامت: بلا سبب إلزاميّ وبلا إشعار للطرف الآخر --}}
                             <button type="submit" class="btn rounded-xl px-3 py-2 text-sm motion-standard"
-                                    style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">مش دلوقتي</button>
+                                    style="min-height: 44px; background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">مش دلوقتي</button>
                         </form>
                     </div>
                 </li>
@@ -61,16 +61,16 @@
                             @if ($field['whatsapp'])
                                 <a href="{{ $field['whatsapp'] }}" target="_blank" rel="noopener"
                                    class="btn rounded-xl px-3 py-1.5 text-xs motion-standard"
-                                   style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">واتساب</a>
+                                   style="min-height: 44px; background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">واتساب</a>
                             @endif
                             @if ($field['mailto'])
                                 <a href="{{ $field['mailto'] }}"
                                    class="btn rounded-xl px-3 py-1.5 text-xs motion-standard"
-                                   style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">إيميل</a>
+                                   style="min-height: 44px; background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">إيميل</a>
                             @endif
                             <button type="button" data-copy-contact="{{ $field['display'] }}"
                                     class="btn rounded-xl px-3 py-1.5 text-xs motion-standard"
-                                    style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">نسخ</button>
+                                    style="min-height: 44px; background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">نسخ</button>
                         </dd>
                     @else
                         {{-- الحقل المقفول **لا يُعرَض فراغًا** — يظهر مكانه زرّ الإجراء (13.4-م-2) --}}
@@ -82,7 +82,7 @@
                             @elseif ($field['can_request'])
                                 <button type="button" data-modal-open="consent-{{ $field['key'] }}"
                                         class="btn rounded-xl px-3 py-1.5 text-xs font-semibold motion-standard"
-                                        style="background: var(--color-brand-500); color: #04201c">{{ $field['request_label'] }}</button>
+                                        style="min-height: 44px; background: var(--color-brand-500); color: #04201c">{{ $field['request_label'] }}</button>
                             @else
                                 <span class="text-xs" style="color: var(--text-muted)">{{ $field['neutral'] }}</span>
                             @endif
@@ -151,10 +151,10 @@
                 <p class="text-sm" style="color: var(--text-muted)">سبب الطلب اختياريّ — بس بيسهّل القرار.</p>
                 <input type="text" name="reason" maxlength="{{ (int) setting('volunteer.profile.consent.reason_max', 300) }}"
                        class="w-full rounded-xl px-3 py-2 text-sm"
-                       style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)"
+                       style="min-height: 44px; background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)"
                        placeholder="محتاج أنسّق معاه في مهمّة…">
                 <button type="submit" class="btn w-full rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
-                        style="background: var(--color-brand-500); color: #04201c">ابعت الطلب</button>
+                        style="min-height: 44px; background: var(--color-brand-500); color: #04201c">ابعت الطلب</button>
             </form>
         </x-modal>
     @endif
@@ -186,7 +186,7 @@
                         <form method="POST" action="{{ route('settings.privacy.revoke', $consent) }}">
                             @csrf
                             <button type="submit" class="btn rounded-xl px-3 py-2 text-sm motion-standard"
-                                    style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">اسحب الموافقة</button>
+                                    style="min-height: 44px; background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">اسحب الموافقة</button>
                         </form>
                     </li>
                 @endforeach

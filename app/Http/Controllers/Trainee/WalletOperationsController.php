@@ -11,6 +11,7 @@ use App\Services\Wallet\WithdrawService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
 
 /**
  * العمليّات المالِيّة الثلاث (19.3): إرسال حوالة · تحويل العملة · سحب الأرباح.
@@ -181,7 +182,7 @@ class WalletOperationsController extends Controller
     /** رابط البروفايل العامّ — وإن لم يكن مسجَّلًا في هذه البيئة نرجع بلا رابط */
     private function profileUrl(string $code): ?string
     {
-        return \Illuminate\Support\Facades\Route::has('u.profile')
+        return Route::has('u.profile')
             ? route('u.profile', $code)
             : null;
     }

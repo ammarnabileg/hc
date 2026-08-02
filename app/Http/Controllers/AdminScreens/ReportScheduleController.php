@@ -60,7 +60,7 @@ class ReportScheduleController extends Controller
                 'failed' => ReportSchedule::query()->where('last_result', 'failed')->count(),
                 'sent_today' => ReportSchedule::query()->where('last_result', 'sent')->whereDate('last_run_at', today())->count(),
             ],
-            'settings' => ScreenSettings::rows(ScreenSettings::GROUP_REPORTS, $user),
+            'settings' => ScreenSettings::rows(ScreenSettings::SCREEN_REPORTS, $user),
             'scheduler' => $this->scheduler,
         ]);
     }
@@ -145,14 +145,14 @@ class ReportScheduleController extends Controller
     {
         $data = $request->validate(['settings' => ['required', 'array']]);
 
-        ScreenSettings::putMany(ScreenSettings::GROUP_REPORTS, $data['settings'], $request->user());
+        ScreenSettings::putMany(ScreenSettings::SCREEN_REPORTS, $data['settings'], $request->user());
 
         return back()->with('status', 'اتحفظ ✓');
     }
 
     public function resetSettings(Request $request): RedirectResponse
     {
-        $count = ScreenSettings::resetGroup(ScreenSettings::GROUP_REPORTS, $request->user());
+        $count = ScreenSettings::resetScreen(ScreenSettings::SCREEN_REPORTS, $request->user());
 
         return back()->with('status', 'رجعت '.$count.' قيمة للافتراضيّ ✓');
     }

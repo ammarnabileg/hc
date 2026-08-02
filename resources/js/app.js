@@ -322,3 +322,67 @@ function toast(text) {
     setTimeout(() => el.remove(), 3000);
 }
 window.platformToast = toast;
+
+/* ---------------------------------------------------------------
+ | أدوات السيرة الذاتيّة (9): استيراد وتحليل · الرابط العامّ
+ --------------------------------------------------------------- */
+(() => {
+    const box = document.querySelector('[data-cv-tools]');
+    if (!box) return;
+
+    const token = () => document.querySelector('meta[name="csrf-token"]')?.content || '';
+    const preview = box.querySelector('[data-cv-import-preview]');
+    const summary = box.querySelector('[data-cv-import-summary]');
+    let parsed = null;
+
+    box.querySelector('[data-cv-import]')?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const body = new FormData(e.currentTarget);
+        const res = await fetch('/cv/import', {
+            method: 'POST',
+            headers: { 'X-CSRF-TOKEN': token(), Accept: 'application/json' },
+            body,
+        });
+        const data = await res.json().catch(() => ({}));
+
+        if (!res.ok || !data.ok) {
+            // ماذا حدث + ماذا تفعل (2.17-ب)
+            window.platformToast?.(data.message || 'مقدرناش نقرا الملفّ — جرّب صيغة تانية.');
+            return;
+        }
+
+        parsed = data.preview;
+        summary.textContent = `${data.question} — لقينا ${data.counts.experience} خبرة و${data.counts.education} مؤهّل و${data.counts.languages} لغة.`;
+        preview.classList.remove('hidden');
+    });
+
+    box.querySelectorAll('[data-cv-import-mode]').forEach((btn) => {
+        btn.addEventListener('click', async () => {
+            const res = await fetch('/cv/import/apply', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': token(), Accept: 'application/json' },
+                body: JSON.stringify({ mode: btn.dataset.cvImportMode, preview: parsed }),
+            });
+            const data = await res.json().catch(() => ({}));
+            window.platformToast?.(data.message || 'مقدرناش نحفظ — جرّب تاني.');
+            if (res.ok && data.ok) window.location.reload();
+        });
+    });
+
+    // الرابط العامّ للسيرة — يُفتَح ويُقفَل بضغطة (9)
+    const toggle = box.querySelector('[data-cv-public]');
+    const urlField = box.querySelector('[data-cv-public-url]');
+    toggle?.addEventListener('change', async () => {
+        const res = await fetch('/cv/public', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': token(), Accept: 'application/json' },
+            body: JSON.stringify({ enabled: toggle.checked }),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (data.url) {
+            urlField.value = data.url;
+            urlField.classList.toggle('hidden', !data.enabled);
+        }
+        window.platformToast?.(data.message || 'اتحفظ ✓');
+    });
+})();

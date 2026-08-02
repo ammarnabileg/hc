@@ -52,7 +52,8 @@ Route::prefix('og')->name('growth.og.')->group(function () {
     Route::get('/article/{slug}.svg', [OgController::class, 'article'])->where('slug', '[A-Za-z0-9\-_]+')->name('article');
     Route::get('/certificate/{code}.svg', [OgController::class, 'certificate'])->where('code', '[A-Za-z0-9\-_]+')->name('certificate');
     Route::get('/u/{code}.svg', [OgController::class, 'profile'])->where('code', '[A-Za-z0-9\-_]+')->name('profile');
-    Route::get('/leaderboard/{month?}.svg', [OgController::class, 'leaderboard'])->where('month', '\d{4}-\d{2}')->name('leaderboard');
+    // الشهر معيارُ استعلام لا جزءٌ من المسار — فالمسار الاختياريّ يترك امتدادًا أعرج
+    Route::get('/leaderboard.svg', [OgController::class, 'leaderboard'])->name('leaderboard');
 });
 
 // الكارت الأسبوعيّ كصورة — عامّ ليُنشَر مباشرةً (21.2-د)

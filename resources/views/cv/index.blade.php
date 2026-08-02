@@ -41,6 +41,9 @@
         </div>
     @endif
 
+    {{-- أدوات القسم 9: الاستيراد · ATS PDF · الرابط العامّ --}}
+    @include('cv.partials.tools')
+
     {{-- مؤشّر الاكتمال % — يوضّح الناقص ويحفّز بلا منع (9) --}}
     <div class="card p-4 mb-4">
         <div class="flex items-center justify-between text-sm">

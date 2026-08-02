@@ -2,7 +2,14 @@
 @section('title', 'الشارات')
 
 @section('content')
-    @php $percent = $totalCount > 0 ? round($unlockedCount / $totalCount * 100) : 0; @endphp
+    @php
+        $percent = $totalCount > 0 ? round($unlockedCount / $totalCount * 100) : 0;
+        // بيانات بطاقة الإنجاز القابلة للاستخراج كصورة (12.14-هـ)
+        $exportSubtitle = $unlockedCount.' من '.$totalCount.' شارة';
+        $exportRows = $rows->where('unlocked', true)->take(6)
+            ->map(fn (array $row) => [$row['badge']->name_ar, $row['badge']->condition_text_ar])
+            ->values()->all();
+    @endphp
 
     <x-page-header
         title="الشارات"

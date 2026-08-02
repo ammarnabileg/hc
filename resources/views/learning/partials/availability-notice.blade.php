@@ -7,6 +7,16 @@
      */
     $opensAt = $availability['opens_at'] ?? null;
     $opensIn = $availability['opens_in'] ?? null;
+
+    // القيمة الأوّليّة تُحسَب في الخادم: من يفتح الصفحة بلا جافاسكربت
+    // يقرأ الرقم كاملًا لا خانةً فارغة (2.17-هـ).
+    $initialCountdown = null;
+
+    if ($opensIn !== null && $opensIn > 0) {
+        $days = intdiv($opensIn, 86400);
+        $initialCountdown = ($days > 0 ? $days.setting('learning.availability.day_suffix').' ' : '')
+            .sprintf('%02d:%02d:%02d', intdiv($opensIn % 86400, 3600), intdiv($opensIn % 3600, 60), $opensIn % 60);
+    }
 @endphp
 
 @unless ($availability['open'])
@@ -17,7 +27,7 @@
             <p class="text-sm flex-1 min-w-48">{{ $availability['reason'] }}</p>
         </div>
 
-        @if ($opensIn !== null && $opensIn > 0)
+        @if ($initialCountdown)
             <div class="mt-3 flex items-center gap-2 flex-wrap text-sm">
                 {{-- أيقونة الساعة: SVG بهويّة المنصّة لا مكتبة أيقونات (2.16-ج) --}}
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"
@@ -28,7 +38,8 @@
 
                 <span style="color: var(--text-muted)">{{ setting('learning.availability.countdown_label') }}</span>
                 <strong data-availability-countdown="{{ $opensIn }}"
-                        style="color: var(--color-brand-400)">{{ setting('learning.availability.countdown_label') }}</strong>
+                        style="color: var(--color-brand-400)">{{ $initialCountdown }}</strong>
+                <span style="color: var(--text-muted)">· {{ $opensAt->translatedFormat(setting('learning.availability.stamp_format', 'l j F — H:i')) }}</span>
             </div>
         @endif
 

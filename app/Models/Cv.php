@@ -18,6 +18,8 @@ class Cv extends Model
     {
         return [
             'data' => 'array',
+            // الرابط العامّ للسيرة (9)
+            'is_public' => 'boolean',
         ];
     }
 
