@@ -100,6 +100,65 @@ class TrackingConsentTest extends GrowthTestCase
             ->assertSee('fbevents.js', false);
     }
 
+    /** ⭐ الحدث يقع **عند لحظته**: فتح صفحة المعاينة يسجّل «فتح صفحة تدريب» (21.3-أ) */
+    public function test_page_events_fire_at_their_exact_moment(): void
+    {
+        $this->enableTracking();
+        $course = $this->makeCourse();
+        $user = $this->trainee(['tracking_consent' => Consent::ACCEPTED]);
+
+        $this->actingAs($user)->get(route('growth.preview.course', $course->slug))->assertOk();
+
+        $this->assertSame(1, TrackingEvent::query()
+            ->where('user_id', $user->id)
+            ->where('event', 'course_page_view')
+            ->count());
+    }
+
+    /** «بدأ أوّل درس» مرّة واحدة لكلّ مستخدم مهما تكرّرت الزيارة */
+    public function test_once_events_do_not_repeat(): void
+    {
+        $this->enableTracking();
+        $course = $this->makeCourse();
+        $lesson = \App\Models\Lesson::query()->orderBy('sort_order')->firstOrFail();
+        $user = $this->trainee(['tracking_consent' => Consent::ACCEPTED]);
+
+        foreach (range(1, 3) as $ignored) {
+            $this->actingAs($user)
+                ->get(route('growth.preview.lesson', ['slug' => $course->slug, 'lesson' => $lesson->id]))
+                ->assertOk();
+        }
+
+        $this->assertSame(1, TrackingEvent::query()
+            ->where('user_id', $user->id)
+            ->where('event', 'first_lesson_started')
+            ->count());
+    }
+
+    /** الشراء يقع في الخادم أو في ويب-هوك — فيُصالَح ولا يضيع (21.3-أ) */
+    public function test_purchase_is_reconciled_from_the_database_not_from_a_page(): void
+    {
+        $this->enableTracking();
+        $user = $this->trainee(['tracking_consent' => Consent::ACCEPTED]);
+
+        \App\Models\Order::create([
+            'number' => 'ORD-'.\Illuminate\Support\Str::upper(\Illuminate\Support\Str::random(6)),
+            'user_id' => $user->id,
+            'currency_id' => \App\Models\Currency::query()->firstOrFail()->id,
+            'total' => 120,
+            'status' => 'paid',
+            'paid_at' => now(),
+        ]);
+
+        $this->actingAs($user)->get(route('growth.articles.index'))->assertOk();
+        $this->actingAs($user)->get(route('growth.articles.index'))->assertOk();
+
+        $this->assertSame(1, TrackingEvent::query()
+            ->where('user_id', $user->id)
+            ->where('event', 'purchase_completed')
+            ->count());
+    }
+
     public function test_consent_endpoint_persists_choice_and_scopes(): void
     {
         $this->enableTracking();

@@ -150,6 +150,46 @@ class RewardQuestionTest extends ChallengeTestCase
             ->assertNotFound();
     }
 
+    /** استيراد CSV يدخل الصفوف **مسودّات** ويبلّغ عن الصفوف الناقصة (12.10-أ) */
+    public function test_csv_import_creates_drafts_and_reports_bad_rows(): void
+    {
+        $service = app(RewardQuestionService::class);
+
+        $result = $service->importCsv(implode("\n", [
+            'prompt,type,options,answer,xp,tickets,minutes',
+            '"كام تذكرة قبل نصف المهلة؟",choice,"واحدة|اتنين",اتنين,50,1,30',
+            '"سؤال بلا إجابة",text,,,10,0,30',
+            '"درجة النجاح؟",number,,70,20,0,45',
+        ]));
+
+        $this->assertSame(2, $result['imported']);
+        $this->assertCount(1, $result['errors']);
+        $this->assertSame(2, RewardQuestion::query()->where('status', 'draft')->count());
+    }
+
+    /** فتح سؤال جديد يُشعِر أصحاب الحسابات المفعَّلة — مرّة واحدة لا مع كلّ حفظ */
+    public function test_publishing_a_question_notifies_active_users_once(): void
+    {
+        $user = $this->trainee();
+        $service = app(RewardQuestionService::class);
+
+        $question = $service->save([
+            'prompt' => 'سؤال منشور',
+            'type' => 'text',
+            'correct_answer' => 'تمام',
+            'active_minutes' => 30,
+            'status' => 'published',
+        ]);
+
+        $this->assertSame(1, $user->notificationsFeed()->where('category', 'reward_question')->count());
+
+        // حفظٌ ثانٍ وهو مفتوح لا يعيد الإشعار
+        $service->save(['prompt' => 'سؤال منشور (تعديل)', 'type' => 'text', 'correct_answer' => 'تمام',
+            'active_minutes' => 30, 'status' => 'published'], $question);
+
+        $this->assertSame(1, $user->notificationsFeed()->where('category', 'reward_question')->count());
+    }
+
     // ------------------------------------------------------------ أدوات
 
     private function question(array $overrides = []): RewardQuestion
