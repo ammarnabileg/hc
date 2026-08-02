@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\Route;
 
 /** عرض محفوظ: تركيبة فلاتر تُحفَظ بضغطة وتظهر كرقاقة فوق الجدول (2.15-د) */
 class SavedView extends Model
@@ -33,7 +34,7 @@ class SavedView extends Model
     {
         $query = array_filter((array) $this->filters, fn ($v) => $v !== null && $v !== '');
 
-        return \Illuminate\Support\Facades\Route::has($this->screen)
+        return Route::has($this->screen)
             ? route($this->screen, $query)
             : url('/').'?'.http_build_query($query);
     }

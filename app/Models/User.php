@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Concerns\HasAccessControl;
+use App\Services\Images\ShortName;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -132,6 +133,6 @@ class User extends Authenticatable
     public function shortName(int $units = 2): string
     {
         // القاعدة واحدة في الواجهة وقوالب الاستوديو والاستخراج — فمصدرها واحد
-        return \App\Services\Images\ShortName::of($this->name, $units);
+        return ShortName::of($this->name, $units);
     }
 }

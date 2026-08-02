@@ -7,6 +7,7 @@ use App\Models\CelebrationEvent;
 use App\Models\Challenge;
 use App\Models\ChallengeParticipation;
 use App\Models\Setting;
+use App\Models\WarMatch;
 use App\Services\Gamification\CelebrationService;
 use App\Services\Gamification\Wars\WarMatchService;
 use Illuminate\Support\Facades\Cache;
@@ -108,5 +109,5 @@ class CelebrationTest extends ChallengeTestCase
     }
 
     /** المواجهة الأخيرة — شاشة النتيجة تُفتَح بها لا بالمشاركة */
-    private ?\App\Models\WarMatch $match = null;
+    private ?WarMatch $match = null;
 }

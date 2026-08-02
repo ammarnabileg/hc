@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Challenges;
 
+use App\Http\Controllers\Admin\GamificationController;
 use App\Models\Game;
 use App\Models\User;
 use App\Models\WarQuestion;
@@ -157,7 +158,7 @@ class WarBankAdminTest extends ChallengeTestCase
 
     public function test_gamification_panel_lists_the_games_tab_among_its_tabs(): void
     {
-        $tabs = \App\Http\Controllers\Admin\GamificationController::TABS;
+        $tabs = GamificationController::TABS;
 
         $this->assertArrayHasKey('games', $tabs);
         $this->assertSame('الألعاب', $tabs['games']);

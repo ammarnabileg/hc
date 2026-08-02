@@ -124,13 +124,20 @@ class PaywallService
         return round($this->catalog->activeOffer($course) ?? (float) $course->price_coins, 2);
     }
 
-    /** نصّ التدريب أوّلًا (حقل الأدمن) ثمّ الإعداد العامّ — ولا نصّ محروق (2.13) */
+    /**
+     * نصّ الرسالة: **ما كتبه الأدمن للتدريب نفسه أوّلًا** (`paywall_text_ar/en`)
+     * ثمّ الإعداد العامّ — ولا نصّ محروق في الكود (2.13).
+     */
     private function text(Course $course, string $key): string
     {
-        $own = trim((string) ($course->paywall_text_ar ?? ''));
+        if ($key === 'learning.paywall.headline') {
+            $own = app()->getLocale() === 'en'
+                ? trim((string) ($course->paywall_text_en ?? '')) ?: trim((string) ($course->paywall_text_ar ?? ''))
+                : trim((string) ($course->paywall_text_ar ?? ''));
 
-        if ($own !== '' && $key === 'learning.paywall.headline') {
-            return $own;
+            if ($own !== '') {
+                return str_replace('{course}', (string) $course->name_ar, $own);
+            }
         }
 
         return str_replace('{course}', (string) $course->name_ar, (string) setting($key));

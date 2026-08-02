@@ -83,6 +83,25 @@ class FreeFirstTimePaywallTest extends LearningTestCase
             ->assertSee('210');
     }
 
+    /** نصّ الأدمن للتدريب نفسه يسبق النصّ العامّ — والحقل ما عاد حبرًا على ورق (16) */
+    public function test_the_admin_paywall_text_of_the_course_wins_over_the_global_one(): void
+    {
+        $user = $this->trainee();
+        $course = $this->makeCourse(1, false, [
+            'free_first_time' => true,
+            'price_coins' => 300,
+            'paywall_text_ar' => 'خلصت «{course}» وشهادتك في إيدك — كمّل الرحلة كاملة.',
+        ]);
+        $this->enroll($user, $course);
+        $this->passExam($user, $course);
+        $this->issueCertificate($user, $course);
+
+        $this->actingAs($user)
+            ->get(route('learning.course', $course))
+            ->assertOk()
+            ->assertSee('خلصت «'.$course->name_ar.'» وشهادتك في إيدك');
+    }
+
     /** التدريب المشترى لا يُقفَل أبدًا — الملكيّة دائمة (20) */
     public function test_a_purchased_course_never_locks(): void
     {

@@ -142,7 +142,10 @@ class WarQuestionController extends Controller
         $csv = $this->bank->toCsv(WarQuestion::query()->orderBy('id')->cursor());
 
         return response()->streamDownload(
-            fn () => print("\xEF\xBB\xBF".$csv),
+            function () use ($csv) {
+                // BOM كي تفتح إكسل الملفّ بالعربيّة سليمةً
+                echo "\xEF\xBB\xBF".$csv;
+            },
             'wars-question-bank.csv',
             ['Content-Type' => 'text/csv; charset=UTF-8'],
         );
