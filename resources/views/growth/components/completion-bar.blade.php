@@ -8,11 +8,18 @@
      */
     $barUser = auth()->user();
     $barService = app(\App\Services\Growth\ProfileCompletion::class);
+
+    /*
+     | ⭐ ولا يظهر في كلّ شاشة: **شاشاته إعداد** (`bar_routes`) — لأنّ «سؤال واحد لكلّ
+     | شاشة» (2.15-أ-1)، وشاشات العمل والإدارة ليست مكان تذكيرٍ تسويقيّ.
+     */
+    $barRoutes = (array) setting('growth.profile_completion.bar_routes', ['dashboard', 'profile.me', 'settings.index']);
+
     $barShow = $barUser
         && $barUser->isActive()
         && $barService->enabled()
         && ! session('growth.completion.dismissed')
-        && ! request()->routeIs('growth.profile.completion');
+        && request()->routeIs(...$barRoutes);
 
     $barState = $barShow ? $barService->sync($barUser) : null;
 @endphp

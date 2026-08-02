@@ -51,6 +51,8 @@ class GrowthDemoSeeder extends Seeder
             ], JSON_UNESCAPED_UNICODE), false],
             ['growth.profile_completion.title', 'growth', 'عنوان شاشة إكمال الملفّ', 'string', 'أكمل ملفّك', false],
             ['growth.profile_completion.subtitle', 'growth', 'سطر شاشة إكمال الملفّ', 'text', 'بياناتك الكاملة بتخلّي شهادتك وبطاقتك يطلعوا صحّ.', false],
+            ['growth.profile_completion.bar_routes', 'growth', 'شاشات ظهور البار', 'json',
+                json_encode(['dashboard', 'profile.me', 'settings.index', 'learning.courses'], JSON_UNESCAPED_UNICODE), false],
             ['growth.profile_completion.bar_title', 'growth', 'عنوان البار', 'string', 'كمّل ملفّك', false],
             ['growth.profile_completion.bar_hint', 'growth', 'سطر البار', 'string', 'كمّله لآخره وخُد {tickets} تذاكر.', false],
             ['growth.profile_completion.bar_cta', 'growth', 'زرّ البار', 'string', 'كمّل دلوقتي', false],

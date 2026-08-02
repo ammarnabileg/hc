@@ -68,13 +68,26 @@ class GrowthLoopsTest extends GrowthTestCase
         );
     }
 
+    /** البار يظهر على شاشاته المعتمَدة فقط، ويختفي عند 100% */
     public function test_bar_shows_for_incomplete_profile_and_hides_when_complete(): void
     {
+        $this->setSetting('growth.profile_completion.bar_routes', '["growth.articles.index"]', 'json');
+
         $this->actingAs($this->trainee())->get(route('growth.articles.index'))
             ->assertOk()
             ->assertSee('كمّل ملفّك');
 
         $this->actingAs($this->completeUser())->get(route('growth.articles.index'))
+            ->assertOk()
+            ->assertDontSee('كمّل ملفّك');
+    }
+
+    /** ولا يظهر في شاشةٍ خارج قائمته — «سؤال واحد لكلّ شاشة» (2.15-أ-1) */
+    public function test_bar_is_absent_outside_its_configured_screens(): void
+    {
+        $this->setSetting('growth.profile_completion.bar_routes', '["dashboard"]', 'json');
+
+        $this->actingAs($this->trainee())->get(route('growth.articles.index'))
             ->assertOk()
             ->assertDontSee('كمّل ملفّك');
     }

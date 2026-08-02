@@ -129,8 +129,14 @@ class RewardQuestionService
         $question ??= new RewardQuestion(['token' => $this->newToken()]);
 
         $minutes = max(1, (int) ($data['active_minutes'] ?? setting('reward_questions.default_minutes', 60)));
-        $opensAt = ! empty($data['opens_at']) ? Carbon::parse($data['opens_at']) : ($question->opens_at ?? Carbon::now());
         $status = (string) ($data['status'] ?? $question->status ?? 'draft');
+
+        // بلا جدولة تلقائيّة: السؤال يفتح فور نشره مهما كُتِب في حقل الموعد
+        $opensAt = setting('reward_questions.autoschedule_enabled', true)
+            ? (! empty($data['opens_at']) ? Carbon::parse($data['opens_at']) : ($question->opens_at ?? Carbon::now()))
+            : Carbon::now();
+
+        $wasOpen = $question->exists && $this->isOpen($question);
 
         $question->fill([
             'prompt' => $data['prompt'],

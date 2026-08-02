@@ -99,6 +99,8 @@
             // المحتوى التحريريّ وقنوات الأويرنس (21.2 · 21.3)
             ['المقالات', 'admin.articles.index', 'articles.list'],
             ['الإعلان المدفوع', 'admin.ads.index', 'ad_audiences.view'],
+            // إعدادات حلقات النموّ والاكتساب والتتبّع (21.1 · 21.2 · 21.3)
+            ['حلقات النموّ', 'admin.growth.index', 'settings_general.view'],
         ])],
 
         // 📊 الإحصائيّات (12.8)

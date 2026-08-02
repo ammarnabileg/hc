@@ -2,7 +2,10 @@
 
 namespace Tests\Feature\Ui;
 
+use App\Models\Permission;
+use App\Models\Role;
 use App\Models\User;
+use App\Support\Access\PermissionExpander;
 use Illuminate\Support\Str;
 
 /**
@@ -25,6 +28,20 @@ class AdminSidebarTest extends UiTestCase
         ]);
 
         $user->assignRole($roleKey);
+
+        /*
+         | باب اللوحة مفتاحٌ واحد يقرأه السايد بار (12.2.1) — نمنحه هنا صراحةً
+         | لأنّ اختبارنا يقيس **ما يظهر داخل اللوحة** لا مَن يفتحها.
+         */
+        Permission::updateOrCreate(
+            ['key' => 'admin_panel.view'],
+            [
+                'resource' => 'admin_panel', 'action' => 'view', 'group' => 'النظام والتقارير',
+                'label_ar' => 'لوحة الإدارة', 'allowed_scopes' => ['ALL'],
+            ],
+        );
+
+        app(PermissionExpander::class)->attachToRole(Role::where('key', $roleKey)->firstOrFail(), 'admin_panel.view', 'ALL');
 
         return $user->fresh();
     }
@@ -67,18 +84,21 @@ class AdminSidebarTest extends UiTestCase
             ->get(route('admin.dashboard'))
             ->assertSee(route('admin.finance.index'), false);
 
-        $this->actingAs($this->withRole('marketing_admin'))
+        $this->actingAs($this->withRole('content_admin'))
             ->get(route('admin.dashboard'))
             ->assertDontSee(route('admin.finance.index'), false);
     }
 
     public function test_a_user_without_a_permission_does_not_even_see_the_entry(): void
     {
-        // مسؤول التسويق لا يملك مكتبة الوسائط ولا الشهادات — فلا يراهما أصلًا
-        $response = $this->actingAs($this->withRole('marketing_admin'))->get(route('admin.dashboard'));
+        // مسؤول المحتوى يرى مكتبة الوسائط والمسارات — ولا يرى الماليّات ولا Rep
+        $response = $this->actingAs($this->withRole('content_admin'))->get(route('admin.dashboard'));
 
         $response->assertOk()
+            ->assertSee(route('admin.media.index'), false)
+            ->assertSee(route('admin.paths.index'), false)
             ->assertDontSee(route('admin.volunteer.rep'), false)
-            ->assertDontSee(route('admin.topups.index'), false);
+            ->assertDontSee(route('admin.topups.index'), false)
+            ->assertDontSee(route('admin.finance.index'), false);
     }
 }

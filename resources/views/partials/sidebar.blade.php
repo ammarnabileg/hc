@@ -107,7 +107,15 @@
                 ['label' => 'الإفادة', 'route' => 'attestations.index'],
             ]" />
 
-            <x-nav-link route="referral.index" label="ادعُ أصدقاءك" icon="👥" />
+            {{-- الدعوات: الرابط · لوحة المتصدّرين الشهريّة · حزمة المحتوى (21.1-ج · 21.2-هـ) --}}
+            <x-nav-group label="ادعُ أصدقاءك" icon="👥" :items="[
+                ['label' => 'رابط دعوتي', 'route' => 'referral.index'],
+                ['label' => 'متصدّرو الدعوات', 'route' => 'growth.invite.board'],
+                ['label' => 'حزمة المحتوى', 'route' => 'growth.kit.index'],
+            ]" />
+
+            {{-- مركز المقالات العامّ (21.2-أ) --}}
+            <x-nav-link route="growth.articles.index" label="المقالات" icon="📰" />
 
             <x-nav-group label="الدعم" icon="📮" :items="[
                 ['label' => 'الشكاوى والمقترحات', 'route' => 'complaints.index'],
