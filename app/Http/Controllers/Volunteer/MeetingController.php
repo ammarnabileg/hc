@@ -4,15 +4,17 @@ namespace App\Http\Controllers\Volunteer;
 
 use App\Http\Controllers\Controller;
 use App\Models\Entity;
+use App\Models\MediaItem;
 use App\Models\Meeting;
 use App\Models\MeetingAttendance;
 use App\Models\MeetingPost;
 use App\Models\MeetingQuestion;
-use App\Models\MediaItem;
 use App\Models\PostVote;
+use App\Models\User;
 use App\Services\Volunteer\Meetings\AttendanceService;
 use App\Services\Volunteer\Meetings\MeetingLedger;
 use App\Services\Volunteer\Meetings\MeetingScope;
+use App\Services\Volunteer\Objections\ObjectionService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -213,7 +215,7 @@ class MeetingController extends Controller
 
         foreach ($this->scope->audienceUserIds($meeting) as $id) {
             $this->ledger->notify(
-                \App\Models\User::find($id),
+                User::find($id),
                 'meeting',
                 'اجتماع جديد: '.$meeting->title,
                 'الموعد '.$meeting->scheduled_at->format('Y-m-d H:i').' — هنفكّرك قبلها بـ'.$hours.' ساعة.',
@@ -416,7 +418,7 @@ class MeetingController extends Controller
             'attendance' => $this->attendance,
             'scope' => $this->scope,
             // مهلة الاعتراض على معاملة الحضور تُقرَأ من خدمتها لا من رقم محروق
-            'objections' => app(\App\Services\Volunteer\Objections\ObjectionService::class),
+            'objections' => app(ObjectionService::class),
         ]);
     }
 

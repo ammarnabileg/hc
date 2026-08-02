@@ -118,7 +118,11 @@ class ComplaintController extends Controller
         $data = $request->validate([
             'body' => ['required', 'string', 'min:2'],
             'attachment' => ['nullable', 'file', 'max:'.ComplaintService::attachmentMaxKb()],
-        ], [], [
+        ], [
+            'body.required' => 'اكتب ردّك الأوّل.',
+            'body.min' => 'اكتب كلمتين على الأقلّ.',
+            'attachment.max' => 'المرفق كبير — اختار ملفّ أصغر.',
+        ], [
             'body' => 'الردّ',
             'attachment' => 'المرفق',
         ]);

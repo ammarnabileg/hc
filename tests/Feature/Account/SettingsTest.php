@@ -41,7 +41,23 @@ class SettingsTest extends AccountTestCase
 
         $this->actingAs($user)
             ->patchJson(route('settings.field'), ['field' => 'status', 'value' => 'active'])
+            ->assertStatus(422)
+            ->assertJson(['saved' => false]);
+
+        $this->assertSame('active', $user->fresh()->status);
+    }
+
+    public function test_autosave_error_explains_in_arabic_and_keeps_the_value(): void
+    {
+        $user = $this->trainee(['name' => 'اسم أصليّ']);
+
+        $response = $this->actingAs($user)
+            ->patchJson(route('settings.field'), ['field' => 'name', 'value' => 'أ'])
             ->assertStatus(422);
+
+        // رسالة الخطأ = ماذا حدث + ماذا تفعل، بلا أكواد تقنيّة (2.17-ب)
+        $this->assertStringNotContainsString('validation.', (string) $response->json('message'));
+        $this->assertSame('اسم أصليّ', $user->fresh()->name);
     }
 
     public function test_changing_email_invalidates_active_contact_consents(): void

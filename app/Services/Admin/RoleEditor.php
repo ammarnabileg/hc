@@ -106,7 +106,7 @@ class RoleEditor
     /**
      * حفظ مجموعة واحدة من المصفوفة.
      *
-     * @param  array<int, array{scope?: string, effect?: string}>  $rows  المفتاح = permission_id
+     * @param  array<int, array{on?: string, scope?: string, effect?: string}>  $rows  المفتاح = permission_id
      * @return array{written: int, rejected: array<int, string>}
      */
     public function save(Role $role, User $actor, string $group, array $rows): array
@@ -127,7 +127,8 @@ class RoleEditor
         foreach ($rows as $permissionId => $row) {
             $permission = $visible->get((int) $permissionId);
 
-            if (! $permission) {
+            // الصفّ الذي رُفِع عنه الاختيار لا يُكتَب — وسيُمحى مع بقيّة صفوف المجموعة
+            if (! $permission || empty($row['on'])) {
                 continue;
             }
 

@@ -68,6 +68,9 @@ class HelpController extends Controller
     {
         $data = $request->validate([
             'helpful' => ['required', 'in:yes,no'],
+        ], [
+            'helpful.required' => 'اختار «أيوه» أو «لأ».',
+            'helpful.in' => 'الاختيار ده مش متاح.',
         ]);
 
         $voted = (array) $request->session()->get('help.voted', []);
