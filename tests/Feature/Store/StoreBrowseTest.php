@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Store;
 
+use App\Models\LearningPath;
 use App\Models\LibraryEntitlement;
 use App\Models\Product;
 
