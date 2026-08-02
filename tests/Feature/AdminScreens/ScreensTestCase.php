@@ -43,6 +43,10 @@ abstract class ScreensTestCase extends TestCase
         $this->seed(CoreSeeder::class);
         $this->seed(SettingSeeder::class);
         $this->seed(RoleSeeder::class);
+
+        // السيدر ينسب جدولاته لأوّل مستخدم — فلا بدّ من واحدٍ قبله كما في التشغيل الحقيقيّ
+        $this->makeUser('حساب النظام');
+
         $this->seed(AdminScreens24DemoSeeder::class);
     }
 

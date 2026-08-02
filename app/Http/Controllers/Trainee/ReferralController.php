@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Trainee;
 
 use App\Http\Controllers\Controller;
+use App\Models\Course;
 use App\Models\Event;
 use App\Models\EventRegistration;
+use App\Models\LearningPath;
 use App\Models\User;
 use App\Services\Events\Tracker;
 use App\Services\Referral\DeepLink;
@@ -48,8 +50,8 @@ class ReferralController extends Controller
             'service' => $this->referrals,
             'days' => $days,
             'periods' => $this->periods(),
-            // روابط الدعوة لكلّ محتوى: فعاليّاتي القادمة أوّلًا
-            'deepLinks' => $this->eventDeepLinks($user),
+            // ⭐ روابط الدعوة لكلّ محتوى: فعاليّات **وتدريبات ومسارات** (21.1-ج)
+            'deepLinks' => $this->contentDeepLinks($user),
             'landingUrl' => $this->referrals->landingUrlFor($user),
             'landingLabel' => $this->referrals->landingLabelFor($user),
         ]);
@@ -91,7 +93,43 @@ class ReferralController extends Controller
     }
 
     /**
-     * @return array<int,array{label: string, url: string}>
+     * ⭐ «ادعُ صديقك **لهذا التدريب تحديدًا**» (21.1-ج): الفعاليّات القادمة أوّلًا،
+     * ثمّ التدريبات والمسارات المنشورة — لأنّ الرابط العامّ الواحد لا يقول شيئًا.
+     *
+     * @return array<int,array{label: string, type: string, url: string}>
+     */
+    private function contentDeepLinks(User $user): array
+    {
+        $published = (string) setting('learning.course.published_status', 'published');
+        $limit = (int) setting('referral.deep_links.limit', 3);
+
+        $courses = Course::query()
+            ->where('status', $published)
+            ->latest('published_at')
+            ->limit($limit)
+            ->get(['id', 'name_ar'])
+            ->map(fn (Course $course) => [
+                'label' => (string) $course->name_ar,
+                'type' => 'تدريب',
+                'url' => $this->referrals->deepLinkFor($user, 'course', $course->id),
+            ])->all();
+
+        $paths = LearningPath::query()
+            ->where('status', $published)
+            ->latest('published_at')
+            ->limit($limit)
+            ->get(['id', 'name_ar'])
+            ->map(fn (LearningPath $path) => [
+                'label' => (string) $path->name_ar,
+                'type' => 'مسار',
+                'url' => $this->referrals->deepLinkFor($user, 'path', $path->id),
+            ])->all();
+
+        return [...$this->eventDeepLinks($user), ...$courses, ...$paths];
+    }
+
+    /**
+     * @return array<int,array{label: string, type: string, url: string}>
      */
     private function eventDeepLinks(User $user): array
     {
@@ -111,6 +149,7 @@ class ReferralController extends Controller
 
         return $events->map(fn (Event $event) => [
             'label' => (string) $event->title_ar,
+            'type' => 'فعاليّة',
             'url' => $this->referrals->deepLinkFor($user, 'event', $event->id),
         ])->all();
     }

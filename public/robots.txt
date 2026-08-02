@@ -1,2 +1,8 @@
 User-agent: *
-Disallow:
+Disallow: /admin
+Disallow: /volunteer
+Disallow: /settings
+Disallow: /wallet
+Disallow: /exams
+
+Sitemap: /sitemap.xml
