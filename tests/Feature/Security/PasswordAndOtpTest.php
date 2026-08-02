@@ -109,12 +109,7 @@ class PasswordAndOtpTest extends SecurityTestCase
     {
         Mail::fake();
 
-        $this->post('/register', [
-            'name' => 'ياسمين طارق',
-            'email' => 'yasmin@test.local',
-            'password' => 'secret-password',
-            'password_confirmation' => 'secret-password',
-        ])->assertRedirect(route('register.verify'));
+        $this->post('/register', $this->registrationPayload('ياسمين طارق', 'yasmin@test.local'))->assertRedirect(route('register.verify'));
 
         $this->assertDatabaseMissing('users', ['email' => 'yasmin@test.local']);
 
@@ -126,12 +121,7 @@ class PasswordAndOtpTest extends SecurityTestCase
     {
         Mail::fake();
 
-        $this->post('/register', [
-            'name' => 'ياسمين طارق',
-            'email' => 'yasmin@test.local',
-            'password' => 'secret-password',
-            'password_confirmation' => 'secret-password',
-        ]);
+        $this->post('/register', $this->registrationPayload('ياسمين طارق', 'yasmin@test.local'));
 
         $this->post(route('register.verify.send'))->assertRedirect();
 
@@ -151,12 +141,7 @@ class PasswordAndOtpTest extends SecurityTestCase
     {
         Mail::fake();
 
-        $this->post('/register', [
-            'name' => 'حسن',
-            'email' => 'hassan@test.local',
-            'password' => 'secret-password',
-            'password_confirmation' => 'secret-password',
-        ]);
+        $this->post('/register', $this->registrationPayload('حسن', 'hassan@test.local'));
 
         $this->post(route('register.verify.send'));
 
@@ -238,5 +223,37 @@ class PasswordAndOtpTest extends SecurityTestCase
         );
 
         return $token;
+    }
+
+    /**
+     * حمولة تسجيلٍ كاملة ببيانات **2.5-ج** (اللقب · الاسم بالعربيّ والإنجليزيّ ·
+     * النوع · العنوان) — وبدونها لا تُصدَر شهادةٌ صحيحة، فهي جزءٌ من التسجيل
+     * نفسه لا تفصيلٌ لاحق، والتحقّق يرفض ما دونها.
+     *
+     * @return array<string, string>
+     */
+    private function registrationPayload(string $nameAr, string $email): array
+    {
+        $groups = setting('onboarding.identity.titles', []);
+        $title = 'أستاذ';
+
+        foreach (is_array($groups) ? $groups : [] as $titles) {
+            foreach ((array) $titles as $one) {
+                $title = (string) $one;
+                break 2;
+            }
+        }
+
+        return [
+            'title' => $title,
+            'name_ar' => $nameAr,
+            'name_en' => 'Test User Name',
+            'gender' => 'female',
+            'address_line' => 'شارع التحرير',
+            'email' => $email,
+            'phone' => '+2010'.random_int(10000000, 99999999),
+            'password' => 'secret-password',
+            'password_confirmation' => 'secret-password',
+        ];
     }
 }
