@@ -39,7 +39,7 @@
     </x-filters>
 
     @if ($cases->isEmpty())
-        <x-empty message="مفيش قضايا على مكتبك 👌" />
+        <x-empty message="مفيش قضايا على مكتبك — كلّه تمام" />
     @else
         {{-- نمط «قائمة + بانل» موحَّد — وعلى الموبايل العمودان شاشة واحدة (2.15-ج) --}}
         <div class="grid lg:grid-cols-[320px_1fr] gap-4">

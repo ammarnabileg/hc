@@ -29,6 +29,9 @@ class AcademyController extends Controller
         $user = $request->user();
         $paths = $this->academy->paths($user);
 
+        // مكافأة الإكمال تصل صاحبها ولو دخل من قائمة المسارات لا من صفحة المسار
+        $paths->each(fn (LearningPath $p) => $this->academy->rewardCompletion($user, $p));
+
         $progress = $paths->mapWithKeys(fn (LearningPath $p) => [$p->id => $this->academy->progress($user, $p)]);
 
         $status = $request->string('status')->toString();
@@ -61,6 +64,10 @@ class AcademyController extends Controller
     public function path(Request $request, LearningPath $path): View
     {
         abort_unless((bool) $path->is_academy, 404);
+
+        // ⭐ مكافأة الإكمال تُمنَح هنا **مرّة واحدة** (13.4-ل) — كانت الدالّة بلا
+        // مستدعٍ فالقيمة المنصوصة لا تصل صاحبها أبدًا. والحارس داخل الخدمة نفسها.
+        $this->academy->rewardCompletion($request->user(), $path);
 
         $progress = $this->academy->progress($request->user(), $path);
 

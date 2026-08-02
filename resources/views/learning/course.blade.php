@@ -43,6 +43,27 @@
         </x-slot:action>
     </x-page-header>
 
+    {{-- ⭐ لحظة الذروة بعد إكمال الدرس (2.14 · 4.1) — تصل مفلوشةً من الخادم --}}
+    @if (session('celebration'))
+        @include('learning.partials.celebration', ['celebration' => session('celebration')])
+    @endif
+
+    {{-- ⭐ شريط تقدّم لاصق أعلى التدريب (3.4-16): موقعي من التدريب لا يغيب أبدًا --}}
+    <div class="sticky top-0 z-30 -mx-4 md:-mx-6 px-4 md:px-6 py-2 mb-4"
+         style="background: color-mix(in srgb, var(--surface) 92%, transparent); backdrop-filter: blur(8px); border-bottom: 1px solid var(--border)"
+         data-sticky-progress>
+        <div class="flex items-center gap-3">
+            <span class="text-xs tabular-nums shrink-0" style="color: var(--text-muted)">
+                {{ $outline['completed'] }}/{{ $outline['total'] }}
+            </span>
+            <span class="flex-1 h-1.5 rounded-full overflow-hidden" style="background: var(--surface-sunken)">
+                <span class="block h-full rounded-full motion-standard"
+                      style="width: {{ $outline['percent'] }}%; background: var(--color-brand-500)"></span>
+            </span>
+            <span class="text-xs font-extrabold tabular-nums shrink-0">{{ $outline['percent'] }}%</span>
+        </div>
+    </div>
+
     {{-- «مجّاني أوّل مرّة» انتهى بالامتحان والشهادة ⟵ Paywall نفسيّ (16) --}}
     @if (($outline['paywall']['locked'] ?? false))
         @include('learning.partials.paywall', ['paywall' => $outline['paywall']])
@@ -67,6 +88,9 @@
         @include('learning.partials.ghost-timer', ['deadline' => $deadline])
     </div>
 
+    {{-- ⭐ دليل اجتماعيّ حيّ بأرقام حقيقيّة (3.4-45 · 3.4-49 · 2.9-7) --}}
+    @include('learning.partials.social-proof', ['social' => $social])
+
     <div class="flex items-center justify-between gap-3 flex-wrap mb-3">
         <h2 class="text-lg font-bold">{{ setting('learning.course.outline_title') }}</h2>
 
@@ -83,9 +107,20 @@
     {{-- Roadmap رأسيّ: السيكشنز وتحت كلّ سيكشن دروسه (24.5) --}}
     <div class="roadmap space-y-4">
         @foreach ($outline['sections'] as $index => $section)
+            @php
+                $lessonsOf = collect($section['lessons']);
+                $isDoneSection = $lessonsOf->every(fn ($l) => $l['completed']);
+                $isCurrentSection = $lessonsOf->contains(fn ($l) => $l['id'] === $outline['current_id']);
+                // ⭐ «فتح المحطّة» (3.4-23): محطّة مفتوحة لم تُلمَس بعد — هنا وقعت اللحظة
+                $justUnlocked = $isCurrentSection && ! $isDoneSection
+                    && $lessonsOf->every(fn ($l) => ! $l['completed'])
+                    && $lessonsOf->contains(fn ($l) => $l['unlocked']);
+            @endphp
+
             <section class="roadmap-node card p-4"
-                     data-done="{{ collect($section['lessons'])->every(fn ($l) => $l['completed']) ? 1 : 0 }}"
-                     data-current="{{ collect($section['lessons'])->contains(fn ($l) => $l['id'] === $outline['current_id']) ? 1 : 0 }}">
+                     data-done="{{ $isDoneSection ? 1 : 0 }}"
+                     data-current="{{ $isCurrentSection ? 1 : 0 }}"
+                     data-unlocked="{{ $justUnlocked ? 1 : 0 }}">
                 <h3 class="font-bold mb-3 flex items-center gap-2">
                     <span class="text-xs rounded-full px-2 py-0.5" style="background: var(--surface-sunken); color: var(--text-muted)">
                         {{ $index + 1 }}
@@ -107,7 +142,8 @@
                                 'outline: 2px solid var(--color-brand-500)' => $isCurrent,
                             ])>
                             <div class="flex items-center gap-2 flex-wrap">
-                                <span aria-hidden="true">{{ $lessonRow['icon'] }}</span>
+                                {{-- أيقونة النوع SVG بهويّة المنصّة لا إيموجي (3 · 2.16-ج) --}}
+                                <x-icon :name="$lessonRow['icon']" size="16" style="color: var(--text-muted)" />
 
                                 @if ($unlocked)
                                     <a href="{{ route('learning.lesson', [$course, $lessonRow['id']]) }}"
@@ -121,11 +157,29 @@
                                 </span>
 
                                 @if ($lessonRow['completed'])
-                                    <x-state-badge state="ok" :label="setting('learning.lesson.done_badge')" />
+                                    {{-- ⭐ علامة إكمال «بتتملّى» بحركة (3.4-33) — والمعنى في النصّ لا في الحركة --}}
+                                    <span class="check-fill inline-flex items-center gap-1 text-xs rounded-full px-2 py-0.5"
+                                          style="background: color-mix(in srgb, var(--color-state-ok) 16%, transparent); color: var(--color-state-ok)">
+                                        <x-icon name="check" size="13" />
+                                        <span>{{ setting('learning.lesson.done_badge') }}</span>
+                                    </span>
                                 @elseif ($isCurrent)
                                     <x-state-badge state="warn" :label="setting('learning.lesson.current_badge')" />
                                 @elseif (! $unlocked)
-                                    <span class="text-xs" aria-hidden="true">{{ setting('learning.icon.lock') }}</span>
+                                    <x-icon name="lock" size="14" :label="setting('learning.lesson.locked_label', 'مقفول')" style="color: var(--text-muted)" />
+                                @endif
+
+                                {{-- ⭐ حفظ الدرس (Bookmark — 3.4-34): القرار والتخزين في الخادم --}}
+                                @if ($unlocked)
+                                    <form method="post" action="{{ route('learning.lesson.bookmark', [$course, $lessonRow['id']]) }}">
+                                        @csrf
+                                        <button type="submit" class="motion-standard opacity-70 hover:opacity-100"
+                                                style="color: {{ $lessonRow['bookmarked'] ? 'var(--color-state-honor)' : 'var(--text-muted)' }}"
+                                                aria-label="{{ $lessonRow['bookmarked'] ? setting('learning.bookmark.remove', 'إزالة الحفظ') : setting('learning.bookmark.add', 'احفظ الدرس') }}"
+                                                title="{{ $lessonRow['bookmarked'] ? setting('learning.bookmark.remove', 'إزالة الحفظ') : setting('learning.bookmark.add', 'احفظ الدرس') }}">
+                                            <x-icon name="badge" size="15" />
+                                        </button>
+                                    </form>
                                 @endif
                             </div>
 
@@ -139,6 +193,39 @@
             </section>
         @endforeach
     </div>
+
+    {{-- ⭐ مشاركة إنجاز/شهادة على السوشيال (3.4-47) — بعد الإنجاز الحقيقيّ فقط --}}
+    @if ($outline['total'] > 0 && $outline['percent'] >= (int) setting('learning.progress.complete_percent', 100))
+        @php
+            $shareUrl = $certificate['exists'] && $certificate['url']
+                ? url($certificate['url'])
+                : route('learning.course', $course);
+            $shareText = setting('learning.share.text').' — '.$course->name_ar;
+        @endphp
+
+        <section class="card p-4 mt-5">
+            <h3 class="font-bold mb-1">{{ setting('learning.share.title') }}</h3>
+            <p class="text-xs mb-3" style="color: var(--text-muted)">{{ $shareText }}</p>
+
+            <div class="flex flex-wrap gap-2">
+                <a href="https://wa.me/?text={{ urlencode($shareText.' '.$shareUrl) }}" target="_blank" rel="noopener"
+                   class="btn inline-flex items-center gap-1 rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
+                   style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
+                    <x-icon name="link" size="15" /> {{ setting('referral.share.whatsapp_label', 'واتساب') }}
+                </a>
+                <a href="https://www.facebook.com/sharer/sharer.php?u={{ urlencode($shareUrl) }}" target="_blank" rel="noopener"
+                   class="btn inline-flex items-center gap-1 rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
+                   style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
+                    <x-icon name="link" size="15" /> {{ setting('referral.share.facebook_label', 'فيسبوك') }}
+                </a>
+                <a href="https://t.me/share/url?url={{ urlencode($shareUrl) }}&text={{ urlencode($shareText) }}" target="_blank" rel="noopener"
+                   class="btn inline-flex items-center gap-1 rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
+                   style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
+                    <x-icon name="link" size="15" /> {{ setting('referral.share.telegram_label', 'تيليجرام') }}
+                </a>
+            </div>
+        </section>
+    @endif
 
     {{-- بلوك الامتحان النهائيّ بحالته وشرط فتحه (24.5) --}}
     <section class="card p-4 mt-5">
@@ -176,7 +263,7 @@
 @endif
 
 @push('scripts')
-    @include('learning.partials.clock-scripts', ['storedTimezone' => $availability['timezone']])
+    @include('learning.partials.clock-scripts')
 
     <script>
         /* بحث داخل الدروس بالاسم — تصفية فوريّة بلا إعادة تحميل (2.17-ب) */

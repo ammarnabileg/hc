@@ -18,7 +18,7 @@
         <div class="min-w-0">
             <div class="text-sm font-semibold flex items-center gap-2">
                 {{ $setting->label_ar }}
-                @if ($setting->is_owner_only)<span title="مجموعة محميّة لمالك المنصّة">🔒</span>@endif
+                @if ($setting->is_owner_only)<span title="مجموعة محميّة لمالك المنصّة"><x-icon name="lock" size="16" /></span>@endif
             </div>
             {{-- إظهار مفتاح الإعداد (Key) بنمط «المجال.الميزة.المفتاح» --}}
             <code class="text-xs" style="color: var(--text-muted)">{{ $setting->key }}</code>
@@ -27,7 +27,7 @@
         <div class="flex items-center gap-2">
             {{-- Audit بالـHover بتأخير ~200ms، وعلى اللمس بضغطة على الأيقونة --}}
             <button type="button" class="text-xs opacity-60 hover:opacity-100" data-audit-trigger aria-label="آخر تعديل">ⓘ</button>
-            <button type="button" class="text-xs underline" data-setting-reset>↺ Reset</button>
+            <button type="button" class="text-xs underline" data-setting-reset><x-icon name="refresh" size="16" /> Reset</button>
         </div>
     </div>
 

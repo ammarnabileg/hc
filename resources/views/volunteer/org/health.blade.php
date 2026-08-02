@@ -66,9 +66,9 @@
         @if ($tab === 'indicators')
             {{-- أربعة كروت KPI بحدّ أقصى، والباقي في بلوك «مؤشّرات إضافيّة» (2.15-أ-3) --}}
             <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
-                <x-kpi label="متوسّط Rep للفريق" :value="$indicators['rep_avg'] ?? '—'" icon="⚖️" />
+                <x-kpi label="متوسّط Rep للفريق" :value="$indicators['rep_avg'] ?? '—'" icon="evaluation" />
                 <x-kpi label="نسبة الالتزام" :value="$indicators['commitment_percent'].'%'" icon="✓" />
-                <x-kpi label="نسبة التأخير" :value="$indicators['late_percent'].'%'" icon="⏱️" />
+                <x-kpi label="نسبة التأخير" :value="$indicators['late_percent'].'%'" icon="clock" />
                 <x-kpi label="نسبة الإرجاع" :value="$indicators['return_percent'].'%'" icon="↩️" />
             </div>
 

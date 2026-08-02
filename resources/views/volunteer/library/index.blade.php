@@ -123,7 +123,7 @@
                         <h2 class="font-bold text-sm">{{ $item->title }}</h2>
                         @if ($item->locked)
                             {{-- المقيَّد يظهر بعنوانه وقفله — لا يُخفى (23-3.3) --}}
-                            <span class="text-xs shrink-0" style="color: var(--text-muted)" title="خارج نطاقك">🔒</span>
+                            <span class="text-xs shrink-0" style="color: var(--text-muted)" title="خارج نطاقك"><x-icon name="lock" size="16" /></span>
                         @endif
                     </div>
 

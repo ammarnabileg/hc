@@ -15,15 +15,15 @@
 
     {{-- أربعة كروت KPI بحدّ أقصى (2.15-أ-3) --}}
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
-        <x-kpi label="تذاكري" :value="(int) $ticketsBalance" icon="🎟️" />
-        <x-kpi label="شرط الاستعداد" :value="$gate" icon="🚪" />
-        <x-kpi label="فوزي" :value="(int) $stat->wins" icon="🏆" />
-        <x-kpi label="خسارتي" :value="(int) $stat->losses" icon="💥" />
+        <x-kpi label="تذاكري" :value="(int) $ticketsBalance" icon="ticket" />
+        <x-kpi label="شرط الاستعداد" :value="$gate" icon="exit" />
+        <x-kpi label="فوزي" :value="(int) $stat->wins" icon="trophy" />
+        <x-kpi label="خسارتي" :value="(int) $stat->losses" icon="warning" />
     </div>
 
     @if ($running)
         <div class="card p-4 mb-4 flex flex-wrap items-center gap-3" style="border-color: var(--color-brand-500)">
-            <span aria-hidden="true">⚔️</span>
+            <span aria-hidden="true"><x-icon name="war" size="16" /></span>
             <span class="text-sm font-semibold">عندك مواجهة شغّالة دلوقتي.</span>
             <a href="{{ route('challenges.play', $running) }}"
                class="btn ms-auto rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
@@ -96,11 +96,11 @@
 
                     <dl class="grid grid-cols-2 gap-2 text-xs">
                         <div class="rounded-xl px-3 py-2" style="background: var(--surface-sunken)">
-                            <dt style="color: var(--text-muted)">🏆 الفوز</dt>
+                            <dt style="color: var(--text-muted)"><x-icon name="trophy" size="16" /> الفوز</dt>
                             <dd class="font-bold mt-0.5">+{{ (int) $card['win'] }} تذكرة</dd>
                         </div>
                         <div class="rounded-xl px-3 py-2" style="background: var(--surface-sunken)">
-                            <dt style="color: var(--text-muted)">💥 الخسارة</dt>
+                            <dt style="color: var(--text-muted)"><x-icon name="warning" size="16" /> الخسارة</dt>
                             <dd class="font-bold mt-0.5">−{{ (int) $card['loss'] }} تذكرة</dd>
                         </div>
                         <div class="rounded-xl px-3 py-2" style="background: var(--surface-sunken)">

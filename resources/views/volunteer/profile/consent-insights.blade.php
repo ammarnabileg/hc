@@ -18,12 +18,12 @@
         :breadcrumbs="[['label' => 'الرئيسيّة', 'url' => route('dashboard')], ['label' => 'الإدارة المركزيّة'], ['label' => 'طلبات الإظهار']]" />
 
     <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
-        <x-kpi label="الطلبات" :value="$metrics['total']" icon="📨" :hint="'آخر '.$metrics['days'].' يوم'" />
-        <x-kpi label="المرفوضة" :value="$metrics['denied']" icon="🚫" />
+        <x-kpi label="الطلبات" :value="$metrics['total']" icon="envelope" :hint="'آخر '.$metrics['days'].' يوم'" />
+        <x-kpi label="المرفوضة" :value="$metrics['denied']" icon="blocked" />
         <x-kpi label="معدّل القبول"
-               :value="$metrics['acceptance_rate'] !== null ? $metrics['acceptance_rate'].'%' : '—'" icon="🤝" />
+               :value="$metrics['acceptance_rate'] !== null ? $metrics['acceptance_rate'].'%' : '—'" icon="contribution" />
         <x-kpi label="متوسّط زمن الردّ"
-               :value="$metrics['avg_response_hours'] !== null ? $metrics['avg_response_hours'].' ساعة' : '—'" icon="⏱️" />
+               :value="$metrics['avg_response_hours'] !== null ? $metrics['avg_response_hours'].' ساعة' : '—'" icon="clock" />
     </div>
 
     @if ($rows->isEmpty())

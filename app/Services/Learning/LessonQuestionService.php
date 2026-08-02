@@ -7,25 +7,20 @@ use App\Models\Lesson;
 use App\Models\LessonQuestion;
 use App\Models\LessonQuestionAnswer;
 use App\Models\User;
-use App\Services\Gamification\EconomyLedger;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\DB;
 
 /**
  * أسئلة الدرس والإدخال الرقميّ بنمط OTP (الدستور 4 · 4.1 · 24.5).
  *
- * لماذا التحقّق هنا وليس في المتصفّح؟ لأنّ الإجابة الصحيحة قيمةٌ تمنح XP،
- * وأيّ تحقّق في العميل يعني توزيع الجائزة على مَن يفتح أدوات المطوّر.
- * ولمنع تكرار الكسب: قيد فريد (user_id, lesson_question_id) في قاعدة البيانات
- * لا مجرّد شرط في الكود.
+ * ⭐ **بوّابة انتقال لا مصدر كسب** (4.1): «لا يكلّف تذاكر ولا يؤثّر في الحساب».
+ * فلا XP هنا ولا تذاكر — الكسب كلّه عند إكمال الدرس بقيمته المتناقصة (7).
+ *
+ * ولماذا التصحيح في الخادم إذن؟ لأنّه يفتح الدرس التالي ويؤهّل للإكمال، وأيّ
+ * تحقّق في العميل يعني فتح الطريق لمن يفتح أدوات المطوّر. ولمنع الازدواج:
+ * قيد فريد (user_id, lesson_question_id) في قاعدة البيانات لا شرطٌ في الكود.
  */
 class LessonQuestionService
 {
-    /** دلو المصدر في دفتر الأستاذ — «تعلّم» في شاشة المعاملات */
-    private const LEDGER_SOURCE = 'academy';
-
-    public function __construct(private readonly EconomyLedger $economy) {}
-
     /** @return Collection<int, LessonQuestion> */
     public function forLesson(Lesson $lesson): Collection
     {
@@ -104,29 +99,25 @@ class LessonQuestionService
             ];
         }
 
-        $xp = (int) $question->xp_reward;
-
-        DB::transaction(function () use ($user, $question, $xp, $enrollment) {
-            LessonQuestionAnswer::query()->updateOrCreate(
-                ['user_id' => $user->id, 'lesson_question_id' => $question->id],
-                ['is_correct' => true, 'xp_awarded' => $xp],
-            );
-
-            // ⭐ XP من النقطة الموحّدة: users.xp + المحفظة + تسجيل التدريب (7.3)
-            $this->economy->awardXp(
-                user: $user,
-                amount: $xp,
-                source: self::LEDGER_SOURCE,
-                reference: $question,
-                reason: setting('learning.questions.xp_reason', 'إجابة صحيحة على سؤال درس'),
-                enrollment: $enrollment,
-            );
-        });
+        /*
+         | ⭐ اختبار الدرس **بوّابة انتقال لا مصدر كسب** (4.1 نصًّا: «لا يكلّف
+         | تذاكر **ولا يؤثّر في الحساب** — هو بوّابة فقط»).
+         |
+         | ولماذا يهمّ أكثر من مخالفة النصّ؟ لأنّ نقاط السؤال **ثابتة** لا تخضع
+         | للتناقص الخطّيّ (7)، فمنحُها كان يفتح مسارًا ثانيًا لكسب XP التعلّم
+         | **يلتفّ على قاعدة الإنجاز المبكر** كلّها: مَن يؤجّل حتى الديدلاين
+         | يأخذ صفرًا على الدرس ويأخذ نقاط أسئلته كاملةً. فالكسب يبقى في
+         | مكانٍ واحد: إكمال الدرس بقيمته المتناقصة لحظة الإكمال.
+         */
+        LessonQuestionAnswer::query()->updateOrCreate(
+            ['user_id' => $user->id, 'lesson_question_id' => $question->id],
+            ['is_correct' => true, 'xp_awarded' => 0],
+        );
 
         return [
             'correct' => true,
             'already' => false,
-            'xp' => $xp,
+            'xp' => 0,
             'message' => setting('learning.questions.correct_message'),
         ];
     }

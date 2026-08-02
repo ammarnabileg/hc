@@ -5,9 +5,12 @@ namespace App\Services\Account;
 use App\Models\BadgeUser;
 use App\Models\Certificate;
 use App\Models\Cv;
+use App\Models\Enrollment;
 use App\Models\Membership;
 use App\Models\RepScore;
 use App\Models\User;
+use App\Services\Engagement\AmbassadorService;
+use App\Services\Gamification\LeaderboardService;
 use App\Services\Library\CvBuilder;
 
 /**
@@ -19,22 +22,30 @@ use App\Services\Library\CvBuilder;
  */
 class ProfileTabs
 {
-    public const KEYS = ['overview', 'achievements', 'certificates', 'experience'];
+    /**
+     * ⭐ تاب «تفاصيل» ليس زيادةً على الدستور بل **حلُّه**: 10.0-أ يطلب سبعة كروت
+     * KPI، و2.15-أ-3 يحدّ الشاشة بأربعة — والنصّ نفسه يحسم التعارض: «الأربعة
+     * الأهمّ ظاهرة والباقي في تاب تفاصيل» — لا حذف الثلاثة الباقية.
+     */
+    public const KEYS = ['overview', 'details', 'achievements', 'certificates', 'experience'];
 
     public function __construct(
         private readonly ProfileVisibility $visibility,
         private readonly AchievementTracks $tracks,
         private readonly CvBuilder $cv,
+        private readonly AmbassadorService $ambassadors,
+        private readonly LeaderboardService $leaderboard,
     ) {}
 
     /** @return array<int, array{key:string,label:string}> */
     public static function definitions(): array
     {
         return [
-            ['key' => 'overview', 'label' => 'نظرة عامّة'],
-            ['key' => 'achievements', 'label' => 'الإنجازات'],
-            ['key' => 'certificates', 'label' => 'الشهادات'],
-            ['key' => 'experience', 'label' => 'خبراتي'],
+            ['key' => 'overview', 'label' => (string) setting('account.profile.tab.overview_label', 'نظرة عامّة')],
+            ['key' => 'details', 'label' => (string) setting('account.profile.tab.details_label', 'تفاصيل')],
+            ['key' => 'achievements', 'label' => (string) setting('account.profile.tab.achievements_label', 'الإنجازات')],
+            ['key' => 'certificates', 'label' => (string) setting('account.profile.tab.certificates_label', 'الشهادات')],
+            ['key' => 'experience', 'label' => (string) setting('account.profile.tab.experience_label', 'خبراتي')],
         ];
     }
 
@@ -79,10 +90,71 @@ class ProfileTabs
         ];
     }
 
+    /**
+     * الكروت السبعة التي يطلبها 10.0-أ — **الأربعة الأهمّ** منها تظهر في
+     * «نظرة عامّة» والباقي في تاب «تفاصيل» (2.15-أ-3).
+     *
+     * @return array<int, array{key:string,label:string,value:mixed,icon:string,primary:bool}>
+     */
+    public function kpis(User $owner): array
+    {
+        $tracks = collect($this->tracks->forUser($owner))->keyBy('key');
+        $ambassador = $this->ambassadors->enabled() ? $this->ambassadors->titleOf($owner) : null;
+
+        $cards = [
+            ['key' => 'level', 'label' => 'مستوى الحساب + XP', 'icon' => '🎯',
+                'value' => $owner->level.' · '.number_format((int) ($tracks['account']['value'] ?? $owner->xp))],
+            ['key' => 'tickets', 'label' => 'رصيد التذاكر', 'icon' => '🎟️',
+                'value' => (int) $owner->balance((string) setting('wallet.currency.tickets_code', 'tickets'))],
+            ['key' => 'streak', 'label' => 'ستريك نادي الخامسة', 'icon' => '🔥',
+                'value' => (int) ($owner->streak?->club_5am_count ?? 0)],
+            ['key' => 'certificates', 'label' => 'الشهادات', 'icon' => '🎓',
+                'value' => Certificate::where('user_id', $owner->id)->where('status', 'valid')->count()],
+            ['key' => 'courses', 'label' => 'التدريبات (مكتملة/جارية)', 'icon' => '📚',
+                'value' => $this->trainingCounts($owner)],
+            ['key' => 'rank', 'label' => 'ترتيب الليدر بورد', 'icon' => '🏆',
+                'value' => $this->leaderboardRank($owner)],
+            ['key' => 'ambassador', 'label' => 'لقب السفير', 'icon' => '🤝',
+                'value' => $ambassador ?: (string) setting('account.profile.kpi.no_ambassador', 'لسّه')],
+        ];
+
+        $primary = (int) setting('ux.kpi.max_cards', 4);
+
+        return array_map(
+            fn (array $card, int $i) => [
+                ...$card,
+                'label' => (string) setting("account.profile.kpi.{$card['key']}_label", $card['label']),
+                'primary' => $i < $primary,
+            ],
+            $cards,
+            array_keys($cards),
+        );
+    }
+
+    /** «مكتملة/جارية» من مصدر التسجيلات الواحد — لا حساب موازٍ (10.0-أ) */
+    private function trainingCounts(User $owner): string
+    {
+        $rows = Enrollment::query()->where('user_id', $owner->id)->get(['status', 'progress_percent']);
+
+        $done = $rows->filter(fn ($row) => $row->status === 'completed' || (int) $row->progress_percent >= 100)->count();
+
+        return $done.' / '.max(0, $rows->count() - $done);
+    }
+
+    /** ترتيب صاحب البروفايل على ليدربورد الـXP — من المصدر الواحد (10.0-أ) */
+    private function leaderboardRank(User $owner): string
+    {
+        $board = $this->leaderboard->xp($owner, 'all', (int) setting('leaderboard.profile_range_days', 30));
+        $rank = $board['me']['rank'] ?? null;
+
+        return $rank ? '#'.$rank : (string) setting('account.profile.kpi.unranked', 'خارج اللوحة');
+    }
+
     /** بيانات تاب «نظرة عامّة» بحسب مستوى المشاهدة */
     public function overview(User $owner, ?User $viewer, string $level): array
     {
         return [
+            'kpis' => $this->kpis($owner),
             'level' => $owner->level,
             'xp' => $owner->xp,
             'certificates_count' => Certificate::where('user_id', $owner->id)->where('status', 'valid')->count(),

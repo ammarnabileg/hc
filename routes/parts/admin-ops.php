@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Route;
 | ⛔ ولا مسار تنفيذ واحد بلا تأكيد — الحارس في الكنترولر لا في الواجهة.
 */
 
-Route::middleware('auth')->prefix('admin/ops')->name('admin.ops.')->group(function () {
+Route::middleware(['auth', 'admin.panel'])->prefix('admin/ops')->name('admin.ops.')->group(function () {
 
     // ------------------------------------------------------------ محتوى الـOnboarding
     Route::middleware('permission:onboarding.view')->group(function () {

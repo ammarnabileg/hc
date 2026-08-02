@@ -30,8 +30,14 @@ class SettingsAutosave
             'simple_mode' => ['required', 'boolean'],
             'advanced_mode' => ['required', 'boolean'],
 
-            // مجموعة الصوت والتنبيهات — الأنيميشن دائم ولا توجل له (2.14)
+            // مجموعة الصوت والحركة
             'sound_enabled' => ['required', 'boolean'],
+            /*
+             | ⭐ الحركة تُضبَط من **داخل المنصّة** لا من تفضيل نظام التشغيل
+             | (2.3 · 2.14-ب): `prefers-reduced-motion` مرفوض نصًّا لأنّه كان
+             | يُخفي الكونفيتي فتُلغى ذروة 2.9-6 بصمت. والافتراضيّ **مفعَّل**.
+             */
+            'motion_enabled' => ['required', 'boolean'],
 
             // بيانات التواصل: تغييرها يُبطِل الموافقات السارية (13.4-م)
             'email' => ['required', 'email', 'max:190'],
@@ -121,7 +127,7 @@ class SettingsAutosave
     private function cast(string $field, mixed $value): mixed
     {
         return match ($field) {
-            'simple_mode', 'advanced_mode', 'sound_enabled' => filter_var($value, FILTER_VALIDATE_BOOLEAN),
+            'simple_mode', 'advanced_mode', 'sound_enabled', 'motion_enabled' => filter_var($value, FILTER_VALIDATE_BOOLEAN),
             'country_id', 'governorate_id' => $value === '' || $value === null ? null : (int) $value,
             'phone' => $value === '' ? null : trim((string) $value),
             default => is_string($value) ? trim($value) : $value,
@@ -142,6 +148,7 @@ class SettingsAutosave
             'simple_mode' => 'الوضع المبسّط',
             'advanced_mode' => 'الوضع المتقدّم',
             'sound_enabled' => 'صوت المنصّة',
+            'motion_enabled' => 'حركة الواجهة',
         ];
     }
 

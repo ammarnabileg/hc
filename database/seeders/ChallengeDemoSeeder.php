@@ -68,6 +68,38 @@ class ChallengeDemoSeeder extends Seeder
 
             // ---------------- الليدر بورد (7.3)
             ['leaderboard.rows_per_page', 'gamification_leaderboard', 'عدد الصفوف المعروضة', 'number', '50'],
+            // سقف «الفترة التي يحدّدها المستخدم بنفسه» — فلا مدى بلا معنى
+            ['leaderboard.max_range_days', 'gamification_leaderboard', 'أقصى عدد أيّام للفترة المخصّصة', 'number', '365'],
+            // الحدّ الأدنى لإظهار «أفضل من X%» (2.9-7) — تحته نعرض الترتيب وحده
+            ['leaderboard.percentile_min_peers', 'gamification_leaderboard', 'حدّ إظهار «أفضل من X%»', 'number', '20'],
+            ['leaderboard.title', 'gamification_leaderboard', 'عنوان اللوحة', 'string', 'الليدر بورد'],
+            ['leaderboard.breadcrumb', 'gamification_leaderboard', 'مسار التنقّل', 'string', 'إنجازاتي'],
+            ['leaderboard.xp_label', 'gamification_leaderboard', 'اسم وحدة النقاط على الشاشة', 'string', 'XP'],
+            ['leaderboard.lifetime_label', 'gamification_leaderboard', 'وصف الرصيد التراكميّ', 'string', 'الرصيد الكلّيّ'],
+            ['leaderboard.range_label', 'gamification_leaderboard', 'صيغة اسم الفترة', 'string', 'آخر :days يومًا'],
+            ['leaderboard.range.custom', 'gamification_leaderboard', 'خيار الفترة المخصّصة', 'string', 'فترة أحدّدها'],
+            ['leaderboard.range.custom_label', 'gamification_leaderboard', 'عنوان خانة الأيّام', 'string', 'عدد الأيّام'],
+            ['leaderboard.rank_prefix', 'gamification_leaderboard', 'بادئة سطر الترتيب', 'string', 'ترتيبك دلوقتي'],
+            ['leaderboard.rank_of', 'gamification_leaderboard', 'كلمة «من» في سطر الترتيب', 'string', 'من'],
+            ['leaderboard.empty_hint', 'gamification_leaderboard', 'الحالة الفارغة', 'string', 'ابدأ أوّل تدريب وهتظهر هنا.'],
+            ['leaderboard.you_label', 'gamification_leaderboard', 'وسم صفّك أنت', 'string', 'ده إنت'],
+            ['leaderboard.podium.title', 'gamification_leaderboard', 'عنوان منصّة التتويج', 'string', 'منصّة التتويج'],
+            ['leaderboard.me_card.title', 'gamification_leaderboard', 'عنوان كارت ترتيبك', 'string', 'ترتيبك'],
+            ['leaderboard.me_card.total_prefix', 'gamification_leaderboard', 'بادئة إجماليّ المتنافسين', 'string', 'من'],
+            ['leaderboard.me_card.better_than', 'gamification_leaderboard', 'نصّ «أفضل من»', 'string', 'أفضل من'],
+            ['leaderboard.me_card.lifetime', 'gamification_leaderboard', 'نصّ الرصيد الكلّيّ في الكارت', 'string', 'رصيدك الكلّيّ'],
+            ['leaderboard.filter.scope', 'gamification_leaderboard', 'عنوان فلتر النطاق', 'string', 'النطاق'],
+            ['leaderboard.filter.period', 'gamification_leaderboard', 'عنوان فلتر الفترة', 'string', 'الفترة'],
+            ['leaderboard.filter.country', 'gamification_leaderboard', 'عنوان فلتر الدولة', 'string', 'الدولة'],
+            ['leaderboard.filter.governorate', 'gamification_leaderboard', 'عنوان فلتر المحافظة', 'string', 'المحافظة'],
+            ['leaderboard.filter.any', 'gamification_leaderboard', 'خيار «كلّ الدول»', 'string', 'كلّ الدول'],
+            ['leaderboard.filter.any_governorate', 'gamification_leaderboard', 'خيار «كلّ المحافظات»', 'string', 'كلّ المحافظات'],
+            ['leaderboard.filter.search', 'gamification_leaderboard', 'عنوان خانة البحث', 'string', 'بحث بالاسم'],
+            ['leaderboard.filter.search_placeholder', 'gamification_leaderboard', 'تلميح خانة البحث', 'string', 'اسم زميلك…'],
+            ['leaderboard.filter.apply', 'gamification_leaderboard', 'زرّ تطبيق الفلاتر', 'string', 'طبّق'],
+            ['leaderboard.scope.all', 'gamification_leaderboard', 'خيار النطاق: الكلّ', 'string', 'الكلّ'],
+            ['leaderboard.scope.country', 'gamification_leaderboard', 'خيار النطاق: دولتي', 'string', 'دولتي'],
+            ['leaderboard.scope.governorate', 'gamification_leaderboard', 'خيار النطاق: محافظتي', 'string', 'محافظتي'],
 
             // ---------------- الستريك ونادي الخامسة (7.2)
             // مفاتيحه كلّها تُزرَع من كتالوج الإعدادات نفسه (انظر streakSettings)

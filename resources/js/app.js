@@ -204,18 +204,13 @@ if (bell && panel) {
     });
 }
 
-// Drawer الموبايل: السايد بار يُفتَح من الهيدر ويُغلَق بالسحب (2.15-ج)
-const drawerToggle = document.querySelector('[data-drawer-toggle]');
-const aside = document.querySelector('aside');
-if (drawerToggle && aside) {
-    drawerToggle.addEventListener('click', () => {
-        const open = aside.classList.toggle('!block');
-        aside.classList.toggle('fixed', open);
-        aside.classList.toggle('inset-0', open);
-        aside.classList.toggle('z-40', open);
-        aside.style.background = open ? 'var(--surface)' : '';
-    });
-}
+/*
+ | Drawer الموبايل انتقل إلى `resources/views/partials/sidebar-drawer.blade.php`
+ | (الدستور 13: «لوحة جانبيّة منزلقة»). كان هنا قلبُ `!block` على أوّل `<aside>`
+ | فيغطّي الشاشة كلّها بلا خلفيّة ولا زرّ إغلاق ولا انزلاق — والسايد بار نفسه كان
+ | `hidden md:block` فلا يظهر أصلًا. والمكوّن الجديد يحمل نمطه وسكربته معه، فيعمل
+ | بلا إعادة بناء للحزمة ولا تصادم مع ملفّ التنسيق المشترك.
+ */
 
 /* ---------------------------------------------------------------
  | مساحة عمل المستخدم (2.15-د): Ctrl+K · التثبيت · التراجع · أوّل مرّة
@@ -399,18 +394,37 @@ const post = (url, body) =>
     if (!box) return;
 
     const screen = box.dataset.firstRun;
+    // الشرائح ونصوص الأزرار كلّها ممّا كتبه الأدمن — ولا نصّ محروق هنا (2.13)
     const steps = JSON.parse(box.querySelector('[data-first-run-steps]')?.textContent || '[]');
+    const labels = JSON.parse(box.querySelector('[data-first-run-labels]')?.textContent || '{}');
     const title = box.querySelector('[data-first-run-title]');
     const body = box.querySelector('[data-first-run-body]');
     const index = box.querySelector('[data-first-run-index]');
     const next = box.querySelector('[data-first-run-next]');
+    const image = box.querySelector('[data-first-run-image]');
+    const action = box.querySelector('[data-first-run-action]');
     let at = 0;
 
     const paint = () => {
-        title.textContent = steps[at]?.title || '';
-        body.textContent = steps[at]?.body || '';
+        const step = steps[at] || {};
+        title.textContent = step.title || '';
+        body.textContent = step.body || '';
         index.textContent = at + 1;
-        next.textContent = at === steps.length - 1 ? 'يلا نبدأ' : 'التالي';
+        next.textContent = at === steps.length - 1 ? (labels.done || '') : (labels.next || '');
+
+        if (image) {
+            image.classList.toggle('hidden', !step.image_url);
+            if (step.image_url) image.src = step.image_url;
+        }
+
+        if (action) {
+            const linked = Boolean(step.action_url && step.action_label);
+            action.classList.toggle('hidden', !linked);
+            if (linked) {
+                action.href = step.action_url;
+                action.textContent = step.action_label;
+            }
+        }
     };
 
     const finish = () => {

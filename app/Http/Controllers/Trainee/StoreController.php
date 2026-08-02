@@ -26,6 +26,8 @@ class StoreController extends Controller
         $user = $request->user();
         $filters = $this->filters($request);
         $cards = $this->catalog->cards($user, $filters);
+        // منزلق السعر يتحرّك **ضمن العملة المختارة** (17) — وسقفه يتبعها
+        $rangeCurrency = $this->catalog->rangeCurrency($filters['currencies']);
 
         return view('store.index', [
             'cards' => $this->paginate($cards, $request),
@@ -33,7 +35,9 @@ class StoreController extends Controller
             'filters' => $filters,
             'categories' => $this->catalog->categories(),
             'typeOptions' => $this->catalog->typeOptions(),
-            'priceCeiling' => $this->catalog->priceCeiling(),
+            'currencyOptions' => $this->catalog->currencyOptions(),
+            'rangeCurrency' => $rangeCurrency,
+            'priceCeiling' => $this->catalog->priceCeiling($rangeCurrency),
             'balance' => $this->catalog->balance($user),
         ]);
     }
@@ -95,11 +99,14 @@ class StoreController extends Controller
     private function filters(Request $request): array
     {
         $types = (array) $request->input('types', []);
+        $currencies = array_map('strval', (array) $request->input('currencies', []));
 
         return [
             'q' => $request->string('q')->trim()->value() ?: null,
             'category' => $request->integer('category') ?: null,
             'types' => array_values(array_intersect($types, $this->catalog->allTypeKeys())),
+            // فلتر نوع العملة (Multi-select — 17)، وما ليس عملةً معتمدة يُهمَل
+            'currencies' => array_values(array_intersect($currencies, array_keys($this->catalog->currencyOptions()))),
             'min' => $request->has('min') ? max((float) $request->input('min'), 0) : null,
             'max' => $request->has('max') ? max((float) $request->input('max'), 0) : null,
             'sort' => (string) $request->input('sort', setting('store.grid.default_sort', 'newest')),

@@ -13,6 +13,9 @@
     $cartCount = auth()->check() && setting('store.cart.enabled', true)
         ? app(\App\Services\Store\CartService::class)->count(request())
         : 0;
+
+    // رصيد **العملة المعروضة** — والمتجر صار يسعّر بثلاث عملات (17)
+    $balanceCurrency = $balanceCurrency ?? Coins::defaultCode();
 @endphp
 
 <div class="flex items-center gap-2">
@@ -36,7 +39,7 @@
         <span style="color: var(--text-muted)">رصيدي</span>
         {{-- عدّاد تصاعديّ — والرقم النهائيّ يظهر في كلّ الأحوال (2.17-أ) --}}
         <b data-count-to="{{ Coins::fmt($balance) }}">{{ Coins::fmt($balance) }}</b>
-        <span style="color: var(--text-muted)">{{ setting('store.currency.label', 'كوين') }}</span>
+        <span style="color: var(--text-muted)">{{ Coins::currencyLabel($balanceCurrency) }}</span>
     </span>
 
     @if ($topupUrl)

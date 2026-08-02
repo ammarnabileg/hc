@@ -18,9 +18,31 @@ class SettingsTest extends AccountTestCase
             ->assertOk()
             ->assertSee('الإعدادات')
             ->assertSee('دوّر على إعداد')
-            ->assertSeeInOrder(['الحساب', 'المظهر', 'الصوت والتنبيهات', 'جهة الطوارئ'])
-            // ⭐ توجل الصوت فقط — والأنيميشن دائم ولا توجل له (2.14)
-            ->assertSee('الأنيميشن جزء من الإحساس وبيشتغل دايمًا.');
+            ->assertSeeInOrder(['الحساب', 'المظهر', 'الصوت والحركة', 'جهة الطوارئ'])
+            /*
+             | ⭐ التحكّم في الحركة **من داخل المنصّة** لا من تفضيل نظام التشغيل
+             | (2.3 · 2.14-ب): `prefers-reduced-motion` مرفوض نصًّا، فالإعداد هنا
+             | — وافتراضه **مفعَّل** فيبقى الأنيميشن روح المنصّة كما تنصّ 2.14-ب.
+             */
+            ->assertSee('حركة الواجهة')
+            ->assertSee('الأنيميشن جزء من إحساس المنصّة وشغّال افتراضيًّا');
+    }
+
+    /** الحركة تُطفأ من إعداد المستخدم فيحمل الـHTML علامتها — لا من وسيط النظام */
+    public function test_motion_preference_is_a_platform_setting_not_an_os_media_query(): void
+    {
+        $user = $this->trainee();
+
+        $this->actingAs($user)->get(route('dashboard'))
+            ->assertOk()
+            ->assertDontSee('prefers-reduced-motion', false)
+            ->assertDontSee('data-motion="off"', false);
+
+        $user->forceFill(['motion_enabled' => false])->save();
+
+        $this->actingAs($user)->get(route('dashboard'))
+            ->assertOk()
+            ->assertSee('data-motion="off"', false);
     }
 
     public function test_autosave_saves_one_field_and_answers_with_the_saved_flag(): void

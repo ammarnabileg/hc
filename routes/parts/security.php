@@ -54,7 +54,7 @@ Route::middleware(['auth', 'permission:user_profile.edit'])->group(function () {
 });
 
 // --------------------------------------------- أدوات الاحتواء في لوحة الإدارة (12.1)
-Route::middleware(['auth', 'permission:admin_panel.view'])
+Route::middleware(['auth', 'admin.panel'])
     ->prefix('admin')
     ->name('admin.')
     ->group(function () {

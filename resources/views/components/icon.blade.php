@@ -109,6 +109,19 @@
         'globe' => '<circle cx="12" cy="12" r="8"/><path d="M4 12h16M12 4c2.5 2.6 2.5 12.4 0 16-2.5-3.6-2.5-13.4 0-16z"/>',
         'menu' => '<path d="M4 7h16M4 12h16M4 17h16"/>',
         'spark' => '<path d="M12 4v4M12 16v4M4 12h4M16 12h4M6.5 6.5 9 9M15 15l2.5 2.5M17.5 6.5 15 9M9 15l-2.5 2.5"/>',
+        'goal' => '<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="1"/>',
+        'exit' => '<path d="M14 4H6a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h8"/><path d="M17.5 8.5 21 12l-3.5 3.5M21 12h-9"/>',
+        'folder' => '<path d="M3 7a1 1 0 0 1 1-1h5l2 2.5h8a1 1 0 0 1 1 1V18a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/>',
+        'palette' => '<path d="M12 3a9 9 0 1 0 0 18c1.4 0 2-1 2-2s-.6-1.5-.6-2.2c0-.9.7-1.3 1.6-1.3H17a4 4 0 0 0 4-4c0-4.8-4-8.5-9-8.5z"/><circle cx="8" cy="11" r="1"/><circle cx="12" cy="8" r="1"/><circle cx="16" cy="11" r="1"/>',
+        'ghost' => '<path d="M5 20V11a7 7 0 0 1 14 0v9l-2.3-1.8L14.4 20l-2.4-1.8L9.6 20l-2.3-1.8z"/><path d="M9.5 10h.01M14.5 10h.01"/>',
+        'health' => '<path d="M3 12h4l2-4 3 8 2.5-5 1.5 3h5"/>',
+        'video' => '<rect x="3" y="6" width="13" height="12" rx="2"/><path d="m16 10 5-3v10l-5-3z"/>',
+        'compass' => '<circle cx="12" cy="12" r="8"/><path d="m15 9-1.6 4.4L9 15l1.6-4.4z"/>',
+        'comment' => '<path d="M20 12a7 7 0 0 1-7 7H8l-4 3v-4.6A7 7 0 0 1 4 12a7 7 0 0 1 7-7h2a7 7 0 0 1 7 7z"/>',
+        'reply' => '<path d="M10 9V5l-6 6 6 6v-4h4a5 5 0 0 1 5 5v1"/>',
+        'send' => '<path d="M4 12l16-8-6 16-2.5-6L4 12z"/>',
+        'quiz' => '<rect x="4" y="3" width="16" height="18" rx="2"/><path d="M9 9h6M9 13h6M9 17h3"/>',
+        'eye-off' => '<path d="M3 3l18 18"/><path d="M10.6 6.3A9.6 9.6 0 0 1 12 6.2c5 0 9 5.8 9 5.8a17 17 0 0 1-3 3.5"/><path d="M6.3 8A17 17 0 0 0 3 12s4 5.8 9 5.8a8.6 8.6 0 0 0 3.5-.8"/><path d="M9.9 10.1a3 3 0 0 0 4.2 4.2"/>',
     ];
 
     /* المرادفات: أسماءٌ عربيّة/إنجليزيّة مختلفة ⟵ **مفهوم واحد** ⟵ أيقونة واحدة */
@@ -144,6 +157,13 @@
         'cv' => 'document', 'attestation' => 'certificate',
         'balance-scale' => 'evaluation', 'scale' => 'evaluation', 'judge' => 'evaluation',
         'first' => 'trophy', 'winner' => 'trophy', 'leaderboard' => 'trophy',
+        'heart' => 'contribution', 'like' => 'kudos', 'clap' => 'kudos',
+        'target' => 'goal', 'objective' => 'goal', 'goals' => 'goal',
+        'logout' => 'exit', 'offboarding' => 'exit', 'door' => 'exit',
+        'files' => 'folder', 'category' => 'folder', 'archive' => 'folder',
+        'appearance' => 'palette', 'theme' => 'palette', 'design' => 'palette',
+        'deadline-ghost' => 'ghost', 'timer-ghost' => 'ghost',
+        'vitals' => 'health', 'org-health' => 'health',
     ];
 
     $key = $aliases[$name] ?? $name;

@@ -33,14 +33,14 @@
 
     {{-- 4 كروت KPI بحدّ أقصى (2.15-أ-3) --}}
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
-        <x-kpi label="مدّة الخدمة" :value="$kpis['service']" icon="⏳" />
-        <x-kpi label="البوزشن الحاليّ" :value="$kpis['position']" icon="🎖️" />
-        <x-kpi label="الشهادات" :value="$kpis['certificates']" icon="📜" />
-        <x-kpi label="إجمالي VXP" :value="$kpis['vxp']" icon="⚡" />
+        <x-kpi label="مدّة الخدمة" :value="$kpis['service']" icon="hourglass" />
+        <x-kpi label="البوزشن الحاليّ" :value="$kpis['position']" icon="badge" />
+        <x-kpi label="الشهادات" :value="$kpis['certificates']" icon="certificate" />
+        <x-kpi label="إجمالي VXP" :value="$kpis['vxp']" icon="spark" />
     </div>
 
     @if (empty($stations))
-        <x-empty message="رحلتك لسّه في أوّلها — أوّل محطّة اكتملت بالفعل 🎉"
+        <x-empty message="رحلتك لسّه في أوّلها — أوّل محطّة اكتملت بالفعل"
                  action="شوف مهامّي" :href="route('volunteer.tasks.index')" />
     @else
         {{-- Roadmap رأسيّ بمحطّات مرقّمة (Stepper) — مرسوم بالـCSS بلا مكتبات --}}
@@ -50,12 +50,12 @@
             @foreach ($stations as $index => $station)
                 @php
                     $icon = match ($station['type']) {
-                        'qualifying' => '🎓',
-                        'shortlist' => '📋',
-                        'interview' => '🗣️',
-                        'placement' => '📌',
-                        'certificate' => '📜',
-                        default => '🎖️',
+                        'qualifying' => 'training',
+                        'shortlist' => 'note',
+                        'interview' => 'announcement',
+                        'placement' => 'placement',
+                        'certificate' => 'certificate',
+                        default => 'badge',
                     };
                 @endphp
 

@@ -15,14 +15,14 @@
                      alt="{{ $accreditation->name_ar }}" loading="lazy" class="w-12 h-12 object-contain rounded-lg">
             @else
                 <div class="w-12 h-12 rounded-lg grid place-items-center" style="background: var(--surface-sunken)"
-                     aria-hidden="true">🏛️</div>
+                     aria-hidden="true"><x-icon name="entity" size="16" /></div>
             @endif
 
             <div class="flex-1 min-w-0">
                 <div class="font-semibold flex items-center gap-2">
                     {{ $accreditation->name_ar }}
                     @if ($accreditation->is_platform)
-                        <span class="text-xs" title="اعتماد المنصّة — ثابت ولا يتشال" aria-label="مقفول">🔒</span>
+                        <span class="text-xs" title="اعتماد المنصّة — ثابت ولا يتشال" aria-label="مقفول"><x-icon name="lock" size="16" /></span>
                     @endif
                 </div>
                 <div class="text-xs mt-1" style="color: var(--text-muted)">

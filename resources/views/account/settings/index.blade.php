@@ -7,9 +7,11 @@
 
     // صفحات الإعدادات تتجمّع في صفحة واحدة بتابات جانبيّة (2.15-ب)
     $groups = [
-        'account' => ['label' => 'الحساب', 'icon' => '👤'],
-        'appearance' => ['label' => 'المظهر', 'icon' => '🎨'],
-        'sound' => ['label' => 'الصوت والتنبيهات', 'icon' => '🔔'],
+        'account' => ['label' => 'الحساب', 'icon' => 'user'],
+        // ⭐ تاب الأمان (2.3): كلمة السرّ + الجلسات النشطة + منطقة الخطر — كلّها هنا
+        'security' => ['label' => 'الأمان', 'icon' => 'lock'],
+        'appearance' => ['label' => 'المظهر', 'icon' => 'palette'],
+        'sound' => ['label' => 'الصوت والحركة', 'icon' => 'bell'],
         'emergency' => ['label' => 'جهة الطوارئ', 'icon' => '🆘'],
     ];
 @endphp
@@ -22,7 +24,7 @@
 
     {{-- بحث داخل الإعدادات (24.5) --}}
     <label class="card p-3 mb-4 flex items-center gap-2">
-        <span aria-hidden="true">🔎</span>
+        <span aria-hidden="true"><x-icon name="search" size="16" /></span>
         <input type="search" data-settings-search placeholder="دوّر على إعداد… مثال: اللغة، الصوت، الأفاتار"
                class="flex-1 bg-transparent text-sm outline-none" style="color: var(--text)"
                aria-label="بحث داخل الإعدادات">
@@ -36,13 +38,14 @@
                 <button type="button" data-settings-tab="{{ $key }}"
                         class="shrink-0 text-start rounded-xl px-4 py-2 text-sm motion-standard"
                         style="{{ $tab === $key ? 'background: var(--color-brand-500); color:#04201c; font-weight:700' : 'background: var(--surface-raised); color: var(--text)' }}">
-                    <span aria-hidden="true">{{ $group['icon'] }}</span> {{ $group['label'] }}
+                    <x-icon :name="$group['icon']" size="16" /> {{ $group['label'] }}
                 </button>
             @endforeach
 
+            {{-- الخصوصيّة (مَن يرى كلّ حقل) صفحتها الخاصّة — أمّا الأمان فتابٌ هنا (2.3) --}}
             <a href="{{ route('settings.privacy') }}"
                class="shrink-0 rounded-xl px-4 py-2 text-sm motion-standard"
-               style="background: var(--surface-raised); color: var(--text)">🔒 الخصوصيّة والأمان</a>
+               style="background: var(--surface-raised); color: var(--text)"><x-icon name="lock" size="16" /> الخصوصيّة</a>
         </nav>
 
         <div>
@@ -97,7 +100,8 @@
                     'field' => 'governorate_id',
                     'label' => 'المحافظة',
                     'keywords' => 'المحافظة governorate',
-                    // ⭐ المحافظة حقل عامّ دائمًا ولا يجوز إخفاؤها (12.14-د) — تُملأ ولا تُخفى
+                    // ⚠️ تعليق داخل تعبير PHP — لا وسوم Blade هنا وإلّا انكسر تصريف القالب.
+                    // المحافظة حقل عامّ دائمًا ولا يجوز إخفاؤها (12.14-د) — تُملأ ولا تُخفى
                     'hint' => 'المحافظة بتظهر لكلّ الناس على بروفايلك — ودي قاعدة ثابتة في المنصّة.',
                     'control' => '<select name="value" class="'.$inputClass.'" style="'.$inputStyle.'">'
                         .'<option value="">اختر المحافظة</option>'
@@ -141,6 +145,101 @@
                 ])
             </section>
 
+            {{--
+              ------------------------------------------------------ الأمان (2.3)
+              تاب واحد يجمع ما كان مبعثرًا: كلمة السرّ · **الجلسات النشطة** ·
+              **منطقة الخطر**. والبند يذكرهما نصًّا داخل تاب الأمان لا في صفحة
+              منفصلة — فمَن يبحث عن أمان حسابه يجده في مكان واحد.
+            --}}
+            <section class="card p-4 mt-4" data-settings-panel="security">
+                <h2 class="font-bold text-sm mb-3">كلمة السرّ</h2>
+
+                <form method="post" action="{{ route('settings.password') }}" class="space-y-3"
+                      data-settings-item data-keywords="كلمة السرّ الباسوورد password">
+                    @csrf
+                    <label class="block">
+                        <span class="block text-sm mb-1">كلمة السرّ الحاليّة</span>
+                        <input type="password" name="current_password" required class="{{ $inputClass }}" style="{{ $inputStyle }}">
+                        @error('current_password')<span class="block text-xs mt-1" style="color: var(--color-state-danger)">◉ {{ $message }}</span>@enderror
+                    </label>
+                    <label class="block">
+                        <span class="block text-sm mb-1">كلمة السرّ الجديدة</span>
+                        <input type="password" name="password" required class="{{ $inputClass }}" style="{{ $inputStyle }}">
+                        @error('password')<span class="block text-xs mt-1" style="color: var(--color-state-danger)">◉ {{ $message }}</span>@enderror
+                    </label>
+                    <label class="block">
+                        <span class="block text-sm mb-1">تأكيد كلمة السرّ</span>
+                        <input type="password" name="password_confirmation" required class="{{ $inputClass }}" style="{{ $inputStyle }}">
+                    </label>
+                    <button type="submit" class="btn rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
+                            style="min-height: 44px; background: var(--color-brand-500); color: #04201c">تغيير</button>
+                </form>
+
+                <h2 class="font-bold text-sm mt-6 mb-1">الجلسات النشطة</h2>
+                <p class="text-xs mb-2" style="color: var(--text-muted)">
+                    دي الأجهزة اللي حسابك مفتوح عليها دلوقتي.
+                </p>
+
+                @forelse ($devices as $device)
+                    <div class="flex items-center justify-between gap-2 py-3" data-settings-item
+                         data-keywords="الجلسات الأجهزة sessions devices {{ $device->device_label }}"
+                         style="border-top: 1px solid var(--border)">
+                        <div class="min-w-0 text-sm">
+                            <div class="font-semibold truncate">
+                                {{ $device->device_label ?? 'جهاز' }}
+                                @if ($device->session_id === $currentSessionId)
+                                    <span class="text-xs" style="color: var(--color-state-ok)">● الجهاز الحاليّ</span>
+                                @endif
+                            </div>
+                            <div class="text-xs" style="color: var(--text-muted)">
+                                {{ $device->ip }}
+                                @if ($device->last_active_at)
+                                    · آخر نشاط {{ $device->last_active_at->diffForHumans() }}
+                                @endif
+                            </div>
+                        </div>
+
+                        <form method="post" action="{{ route('settings.devices.destroy', $device) }}">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn rounded-xl px-3 py-2 text-xs motion-standard"
+                                    style="min-height: 44px; {{ $inputStyle }}">إنهاء</button>
+                        </form>
+                    </div>
+                @empty
+                    <p class="text-sm py-2" style="color: var(--text-muted)">مفيش جلسات مسجّلة دلوقتي.</p>
+                @endforelse
+
+                {{-- ⭐ الزرّ المنصوص عليه والذي لم يكن موجودًا: إنهاء **كلّ** الجلسات دفعةً واحدة --}}
+                <form method="post" action="{{ route('settings.devices.destroy-all') }}" class="mt-3 pt-3"
+                      data-settings-item data-keywords="خروج من كلّ الأجهزة logout all devices"
+                      style="border-top: 1px solid var(--border)"
+                      onsubmit="return confirm('هنقفل كلّ الجلسات على كلّ الأجهزة — وهتحتاج تسجّل دخولك تاني. نكمّل؟')">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="btn rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
+                            style="min-height: 44px; background: color-mix(in srgb, var(--color-state-warn) 18%, transparent); color: var(--text)">
+                        ▲ {{ setting('auth.logout.all_devices_label', 'تسجيل الخروج من كلّ الأجهزة') }}
+                    </button>
+                    <p class="text-xs mt-2" style="color: var(--text-muted)">
+                        بيقفل حسابك على كلّ الأجهزة — بما فيها الجهاز ده.
+                    </p>
+                </form>
+
+                <div class="mt-4 pt-3" data-settings-item data-keywords="تحميل بياناتي export"
+                     style="border-top: 1px solid var(--border)">
+                    <a href="{{ route('settings.export') }}"
+                       class="btn inline-flex items-center rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
+                       style="min-height: 44px; {{ $inputStyle }}">تحميل بياناتي</a>
+                    <p class="text-xs mt-2" style="color: var(--text-muted)">ملفّ JSON فيه كلّ اللي المنصّة محتفظة بيه عنك.</p>
+                </div>
+
+                {{-- منطقة الخطر: حذف الحساب بتأكيد OTP رباعيّ — **Soft-delete** (2.3) --}}
+                <div data-settings-item data-keywords="حذف الحساب منطقة الخطر danger delete">
+                    @include('security.danger-zone')
+                </div>
+            </section>
+
             {{-- ---------------------------------------------------- المظهر --}}
             <section class="card p-4 mt-4" data-settings-panel="appearance">
                 <h2 class="font-bold text-sm mb-1">المظهر</h2>
@@ -178,19 +277,34 @@
                 ])
             </section>
 
-            {{-- --------------------------------------- الصوت والتنبيهات --}}
+            {{-- --------------------------------- الصوت والحركة والتنبيهات --}}
             <section class="card p-4 mt-4" data-settings-panel="sound">
-                <h2 class="font-bold text-sm mb-1">الصوت والتنبيهات</h2>
+                <h2 class="font-bold text-sm mb-1">الصوت والحركة</h2>
 
                 @include('account.partials.autosave-field', [
                     'field' => 'sound_enabled',
                     'label' => 'صوت المنصّة',
                     'keywords' => 'الصوت sound',
-                    // ⭐ توجل الصوت فقط — والأنيميشن دائم ولا توجل له (2.14)
-                    'hint' => 'التوجل ده للصوت وحده. الأنيميشن جزء من الإحساس وبيشتغل دايمًا.',
+                    'hint' => 'بيتحكّم في أصوات الاحتفال ولحظات النجاح.',
                     'control' => '<select name="value" class="'.$inputClass.'" style="'.$inputStyle.'">'
                         .'<option value="1"'.($user->sound_enabled ? ' selected' : '').'>مفعَّل</option>'
                         .'<option value="0"'.(! $user->sound_enabled ? ' selected' : '').'>متوقّف</option>'
+                        .'</select>',
+                ])
+
+                @include('account.partials.autosave-field', [
+                    'field' => 'motion_enabled',
+                    'label' => 'حركة الواجهة',
+                    'keywords' => 'الحركة الأنيميشن motion animation',
+                    /*
+                     | <x-icon name="xp" size="16" /> التحكّم في الحركة **من هنا** — من داخل المنصّة — لا من
+                     | تفضيل نظام التشغيل، لأنّ `prefers-reduced-motion` مرفوض
+                     | نصًّا (2.3 · 2.14-ب) وكان يُخفي الكونفيتي فتضيع الذروة.
+                     */
+                    'hint' => 'الأنيميشن جزء من إحساس المنصّة وشغّال افتراضيًّا — وتقدر تهدّيه من هنا وقت ما تحبّ.',
+                    'control' => '<select name="value" class="'.$inputClass.'" style="'.$inputStyle.'">'
+                        .'<option value="1"'.($user->motion_enabled ? ' selected' : '').'>مفعَّلة</option>'
+                        .'<option value="0"'.(! $user->motion_enabled ? ' selected' : '').'>هادية</option>'
                         .'</select>',
                 ])
 

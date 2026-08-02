@@ -25,7 +25,7 @@
   - `step-courses.blade.php` — 🎓 الدورات التدريبيّة (الدستور 9): دبلومات · شهادات · كورسات أونلاين
   - `step-education.blade.php`
   - `step-experience.blade.php`
-  - `step-profile.blade.php`
+  - `step-profile.blade.php` — ثنائيّة AR/EN بصفر تكلفة (9): حقلا لغةٍ ثانية اختياريّان، ولو فُرِّغا ظهر الأصل
   - `step-skills.blade.php`
   - `step-volunteering.blade.php` — 💖 الخبرة التطوّعيّة (الدستور 9): منظمات · عمل مجتمعيّ · مبادرات
   - … و2 غيرها.

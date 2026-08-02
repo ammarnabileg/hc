@@ -73,6 +73,9 @@ Route::middleware('auth')->group(function () {
 
     Route::middleware('permission:user_sessions.delete')->group(function () {
         Route::delete('/settings/security/devices/{device}', [SettingsController::class, 'endSession'])->name('settings.devices.destroy');
+
+        // ⭐ «تسجيل الخروج من كلّ الأجهزة» — إنهاء كلّ الجلسات دفعةً واحدة (2.3)
+        Route::delete('/settings/security/devices', [SettingsController::class, 'endAllSessions'])->name('settings.devices.destroy-all');
     });
 
     Route::middleware('permission:data_export.create')->group(function () {

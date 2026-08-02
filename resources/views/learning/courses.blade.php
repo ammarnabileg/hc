@@ -111,7 +111,7 @@
 @endsection
 
 @push('scripts')
-    @include('learning.partials.clock-scripts', ['storedTimezone' => $clock['timezone']])
+    @include('learning.partials.clock-scripts')
 @endpush
 
 @if ($resume)

@@ -21,7 +21,7 @@
 
     {{-- أربعة كروت KPI بحدّ أقصى (2.15-أ-3) --}}
     <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
-        <x-kpi label="مُرسَل / بانتظار الردّ" :value="$counts['sent']" icon="✉" />
+        <x-kpi label="مُرسَل / بانتظار الردّ" :value="$counts['sent']" icon="envelope" />
         <x-kpi label="مقبول" :value="$counts['accepted']" icon="✓" state="ok" />
         <x-kpi label="مرفوض" :value="$counts['rejected']" icon="◉" state="danger" />
         <x-kpi label="فاتت المهلة" :value="$counts['expired']" icon="▲" state="warn" />

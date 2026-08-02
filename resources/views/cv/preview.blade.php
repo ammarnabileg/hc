@@ -28,6 +28,9 @@
         .chips { display: flex; flex-wrap: wrap; gap: 2mm; }
         .chip { border: 1px solid #d5e0dd; border-radius: 999px; padding: 1mm 3mm; font-size: 9pt; }
         .entry { margin-block-end: 4mm; }
+        /* الصورة الشخصيّة على الـCV — ولو غابت لا يُحجَز مكانها (9) */
+        .sheet header.with-photo { display: flex; align-items: center; gap: 6mm; }
+        .cv-photo { inline-size: 28mm; block-size: 28mm; border-radius: 50%; object-fit: cover; }
         ul { padding-inline-start: 5mm; margin: 0; }
 
         /* ⭐ علامة مائيّة = لوجو المنصّة (أو اسمها) على المعاينة المجّانيّة قبل الخصم (9).
@@ -64,7 +67,7 @@
         ])
 
         @if ($watermark)
-            <div class="wm-layer" aria-hidden="true" style="opacity: {{ $watermark['opacity'] / 100 }}">
+            <div class="wm-layer" data-cv-watermark aria-hidden="true" style="opacity: {{ $watermark['opacity'] / 100 }}">
                 @for ($i = 0; $i < $watermark['repeat']; $i++)
                     @if ($watermark['logo'])
                         <img src="{{ \Illuminate\Support\Facades\Storage::url($watermark['logo']) }}" alt="">

@@ -16,7 +16,7 @@
     <div class="card p-4 animate-fadeup">
         <div class="flex items-center justify-between">
             <span class="text-sm" style="color: var(--text-muted)">درجة الالتزام</span>
-            <span aria-hidden="true">⚖️</span>
+            <span aria-hidden="true"><x-icon name="evaluation" size="16" /></span>
         </div>
         <div class="mt-2 text-2xl font-extrabold" data-count-to="{{ $o['rep']['score'] }}">{{ $o['rep']['score'] }}</div>
 
@@ -32,9 +32,9 @@
         </div>
     </div>
 
-    <x-kpi label="نقاط الخبرة VXP" :value="$o['vxp']['balance']" icon="⚡" :hint="'الترتيب #'.$o['vxp']['rank']" />
-    <x-kpi label="مدّة الخدمة" :value="$o['service_duration']" icon="⏳" :hint="$o['entity']" />
-    <x-kpi label="البوزشن" :value="$o['position'] ?? '—'" icon="🏷️" />
+    <x-kpi label="نقاط الخبرة VXP" :value="$o['vxp']['balance']" icon="spark" :hint="'الترتيب #'.$o['vxp']['rank']" />
+    <x-kpi label="مدّة الخدمة" :value="$o['service_duration']" icon="hourglass" :hint="$o['entity']" />
+    <x-kpi label="البوزشن" :value="$o['position'] ?? '—'" icon="badge" />
 </div>
 
 {{-- الأرقام الثانويّة في شريط واحد بدل كروت زائدة (2.15-أ-3) --}}

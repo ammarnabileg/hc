@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Permission;
+use App\Support\Access\ConditionMap;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\File;
 
@@ -45,7 +46,10 @@ class PermissionSeeder extends Seeder
                     'label_ar' => $row['label_ar'],
                     'description' => $row['description'] ?: null,
                     'allowed_scopes' => json_encode($row['allowed_scopes'], JSON_UNESCAPED_UNICODE),
-                    'condition_key' => $row['conditions'][0] ?? null,
+                    // النصّ العربيّ للعرض في الشاشة…
+                    'condition_key' => $this->displayCondition($row['conditions'] ?? []),
+                    // …والمفاتيح المقفولة هي التي **تُقيَّم** وقت الطلب (12.2.1-ج)
+                    'condition_keys' => json_encode($row['condition_keys'] ?? [], JSON_UNESCAPED_UNICODE),
                     'is_sensitive' => (bool) $row['is_sensitive'],
                     // عزل الحسّاس: المجموعة المحميّة لمالك المنصّة وحده (12.2.1)
                     'is_owner_only' => (bool) $row['is_owner_only'],
@@ -57,10 +61,42 @@ class PermissionSeeder extends Seeder
             Permission::upsert(
                 $payload,
                 ['key'],
-                ['resource', 'action', 'group', 'label_ar', 'description', 'allowed_scopes', 'condition_key', 'is_sensitive', 'is_owner_only', 'updated_at'],
+                ['resource', 'action', 'group', 'label_ar', 'description', 'allowed_scopes', 'condition_key', 'condition_keys', 'is_sensitive', 'is_owner_only', 'updated_at'],
             );
         }
 
-        $this->command?->info('الصلاحيّات: '.Permission::count().' (منها '.Permission::where('is_sensitive', true)->count().' حسّاسة 🔒)');
+        $this->reportUnmapped($rows);
+
+        $this->command?->info(
+            'الصلاحيّات: '.Permission::count()
+            .' (منها '.Permission::where('is_sensitive', true)->count().' حسّاسة 🔒'
+            .' و'.Permission::where('is_owner_only', true)->count().' معزولة لمالك المنصّة)'
+        );
+    }
+
+    /** الشرط المعروض في الشاشة: نصّ المصفوفة العربيّ كما كتبه الدستور */
+    private function displayCondition(array $conditions): ?string
+    {
+        return $conditions === [] ? null : implode(' · ', $conditions);
+    }
+
+    /**
+     * ⭐ نصّ شرطٍ بلا مفتاح **لا يمرّ صامتًا**: يُبلَّغ عنه هنا وتُرفَض الصلاحيّة
+     * التي تحمله من التقييم (لأنّ `condition_keys` تخرج فارغةً فيسقط الشرط)،
+     * فيلاحظه المسؤول فورًا بدل أن يبقى شرطًا زينةً على الورق (12.2.1-ج).
+     */
+    private function reportUnmapped(array $rows): void
+    {
+        $orphans = [];
+
+        foreach ($rows as $row) {
+            foreach (ConditionMap::unmapped($row['conditions'] ?? []) as $text) {
+                $orphans[$text][] = $row['key'];
+            }
+        }
+
+        foreach ($orphans as $text => $keys) {
+            $this->command?->warn('شرط بلا مفتاح في القائمة المقفولة: «'.$text.'» على '.count($keys).' صلاحيّة — '.implode(' · ', array_slice($keys, 0, 5)));
+        }
     }
 }

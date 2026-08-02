@@ -16,20 +16,6 @@
     $maxVisible = view_mode()->maxVisibleFilters();
 @endphp
 
-@once
-    <style>
-        /* حدود 1..8 مكتوبة مرّة واحدة للمنصّة كلّها — وقيمة الإعداد تختار السطر */
-        [data-filters-cap="1"] > *:nth-child(n + 2):not(button):not(:has(button)) { display: none; }
-        [data-filters-cap="2"] > *:nth-child(n + 3):not(button):not(:has(button)) { display: none; }
-        [data-filters-cap="3"] > *:nth-child(n + 4):not(button):not(:has(button)) { display: none; }
-        [data-filters-cap="4"] > *:nth-child(n + 5):not(button):not(:has(button)) { display: none; }
-        [data-filters-cap="5"] > *:nth-child(n + 6):not(button):not(:has(button)) { display: none; }
-        [data-filters-cap="6"] > *:nth-child(n + 7):not(button):not(:has(button)) { display: none; }
-        [data-filters-cap="7"] > *:nth-child(n + 8):not(button):not(:has(button)) { display: none; }
-        [data-filters-cap="8"] > *:nth-child(n + 9):not(button):not(:has(button)) { display: none; }
-    </style>
-@endonce
-
 {{--
   ⭐ وفوق الفلاتر **رقائق العروض المحفوظة** — تركيبة الفلاتر تُستدعى بضغطة (2.15-د).
   وعلى الموبايل: الصفّ يلتفّ ولا يتمرّر أفقيًّا (2.15-ج).

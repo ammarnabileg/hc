@@ -13,9 +13,9 @@
         ]" />
 
     <div class="grid grid-cols-2 md:grid-cols-3 gap-3 mb-4">
-        <x-kpi label="نسبة القراءة" :value="($stats['rate'] ?? 0).'%'" icon="👁" />
-        <x-kpi label="قراءات" :value="$stats['reads'] ?? 0" icon="📖" />
-        <x-kpi label="إقرارات" :value="$stats['acks'] ?? 0" icon="✅" />
+        <x-kpi label="نسبة القراءة" :value="($stats['rate'] ?? 0).'%'" icon="eye" />
+        <x-kpi label="قراءات" :value="$stats['reads'] ?? 0" icon="article" />
+        <x-kpi label="إقرارات" :value="$stats['acks'] ?? 0" icon="check" />
     </div>
 
     @if ($readers->isEmpty())

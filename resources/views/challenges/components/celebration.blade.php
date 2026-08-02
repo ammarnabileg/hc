@@ -53,7 +53,7 @@
                         style="background: var(--surface-sunken); color: var(--text)">تمام</button>
             </div>
         @else
-            <span class="celebrate-pulse" aria-hidden="true">🎉</span>
+            <span class="celebrate-pulse" aria-hidden="true"><x-icon name="celebrate" size="16" /></span>
             <span>{{ $celebration['message'] }}</span>
             <button type="button" data-celebration-close class="opacity-70 hover:opacity-100" aria-label="إغلاق">✕</button>
         @endif
@@ -81,9 +81,8 @@
         }
         @keyframes celebrate-pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.08); } }
         .celebrate-pulse { display: inline-block; animation: celebrate-pulse 1.4s var(--ease-standard) infinite; }
-        @media (prefers-reduced-motion: reduce) {
-            .celebrate-piece, .celebrate-pulse { animation: none; }
-        }
+        /* بلا `prefers-reduced-motion`: الكونفيتي والنبضة ذروة 2.9-6،
+           والتحكّم فيهما من إعداد المستخدم داخل المنصّة (app.css). */
     </style>
     <script>
         (() => {

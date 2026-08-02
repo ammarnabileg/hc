@@ -78,7 +78,7 @@ Route::middleware('auth')->group(function () {
 });
 
 // ==================================================== و) إدارة إعدادات النموّ (2.13)
-Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth', 'admin.panel'])->prefix('admin')->name('admin.')->group(function () {
     Route::middleware('permission:settings_general.view')
         ->get('/growth', [GrowthAdminController::class, 'index'])->name('growth.index');
 

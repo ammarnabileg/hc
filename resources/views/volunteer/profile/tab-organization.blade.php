@@ -5,10 +5,10 @@
 @endphp
 
 <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
-    <x-kpi label="القسم" :value="$g['entity'] ?? '—'" icon="🏛️" :hint="$g['parent_entity']" />
-    <x-kpi label="البوزشن" :value="$g['position'] ?? '—'" icon="🏷️" />
-    <x-kpi label="تاريخ التسكين" :value="$g['placed_at']?->translatedFormat($dateFormat) ?? '—'" icon="📅" />
-    <x-kpi label="شبكتك الكاملة" :value="$g['network_total']" icon="👥" hint="كلّ المستويات تحتك" />
+    <x-kpi label="القسم" :value="$g['entity'] ?? '—'" icon="entity" :hint="$g['parent_entity']" />
+    <x-kpi label="البوزشن" :value="$g['position'] ?? '—'" icon="badge" />
+    <x-kpi label="تاريخ التسكين" :value="$g['placed_at']?->translatedFormat($dateFormat) ?? '—'" icon="calendar" />
+    <x-kpi label="شبكتك الكاملة" :value="$g['network_total']" icon="people" hint="كلّ المستويات تحتك" />
 </div>
 
 <div class="grid md:grid-cols-2 gap-3">

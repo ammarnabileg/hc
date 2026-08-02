@@ -24,7 +24,10 @@
                 @csrf
                 <x-form.input name="name_ar" label="اسم البندل" required />
                 <x-form.input name="price_coins" label="سعر البندل (كوينز)" type="number" required />
-                <x-form.input name="original_value" label="القيمة الإجماليّة للعناصر" type="number" required />
+                {{-- ⭐ لا حقل «القيمة الإجماليّة»: تُحسَب من عناصر الباقة (18 · 2.9) --}}
+                <p class="text-xs" style="color: var(--text-muted)">
+                    القيمة الإجماليّة بتتحسب تلقائيًّا من عناصر الباقة بعد ما تضيفها.
+                </p>
                 <label class="block text-sm">
                     <span class="block mb-1">الحالة</span>
                     <select name="status" class="w-full rounded-xl px-3 py-2 text-sm"
@@ -59,7 +62,17 @@
                         <option value="cv_template">قالب CV</option>
                     </select>
                 </label>
-                <x-form.input name="price_coins" label="السعر بالكوينز" type="number" required />
+                {{-- ⭐ التسعير متعدّد العملات (17): عملةٌ معلَنة وقيمةٌ واحدة لا ثلاثة أعمدة --}}
+                <label class="block text-sm">
+                    <span class="block mb-1">عملة السعر</span>
+                    <select name="price_currency" class="w-full rounded-xl px-3 py-2 text-sm"
+                            style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
+                        @foreach (app(\App\Services\Store\StoreCatalog::class)->currencyOptions() as $code => $label)
+                            <option value="{{ $code }}">{{ $label }}</option>
+                        @endforeach
+                    </select>
+                </label>
+                <x-form.input name="price" label="السعر" type="number" step="0.01" required />
                 <label class="block text-sm">
                     <span class="block mb-1">الحالة</span>
                     <select name="status" class="w-full rounded-xl px-3 py-2 text-sm"

@@ -143,8 +143,10 @@ final class Integrations
             $applied = round($after - $before, 2);
 
             $wallet->balance = $after;
-            $wallet->lifetime_earned = round((float) $wallet->lifetime_earned + max($applied, 0), 2);
-            $wallet->lifetime_spent = round((float) $wallet->lifetime_spent + abs(min($applied, 0)), 2);
+            // المكتسَب التراكميّ من **المطلوب كاملًا** لا من المسقوف (13.4-ن-و)
+            $requested = round($requested, 2);
+            $wallet->lifetime_earned = round((float) $wallet->lifetime_earned + max($requested, 0), 2);
+            $wallet->lifetime_spent = round((float) $wallet->lifetime_spent + abs(min($requested, 0)), 2);
             $wallet->save();
 
             return Transaction::create([

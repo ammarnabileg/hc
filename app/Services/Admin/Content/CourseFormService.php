@@ -62,17 +62,28 @@ class CourseFormService
      * حفظ التدريب من الفورم متعدّد التابات.
      *
      * @param  array<string, mixed>  $data
-     * @param  bool  $draft  «حفظ واستمرار» ⟵ مسودّة، و«حفظ» ⟵ الحالة المختارة
+     * @param  bool  $continue  «حفظ واستمرار» ⟵ يبقى في التحرير، و«حفظ» ⟵ يخرج
      */
-    public function save(?Course $course, array $data, bool $draft = false): Course
+    public function save(?Course $course, array $data, bool $continue = false): Course
     {
         $isNew = $course === null;
         $before = $isNew ? [] : $course->only([
             'name_ar', 'name_en', 'cert_name_ar', 'price_coins', 'status', 'is_free',
         ]);
 
-        $status = $draft ? 'draft' : (string) ($data['status'] ?? 'draft');
+        /*
+         | ⭐ «حفظ واستمرار» **يحفظ درافت ويكمّل التحرير** (12.4-ب) — ومعناه أن يبقى
+         | العمل جاريًا، **لا أن يُسحَب تدريبٌ حيٌّ من تحت أقدام المتدرّبين** بضغطة
+         | زرٍّ يظنّها المحرّر حفظًا مؤقّتًا. فالجديد يبدأ مسودّةً، أمّا القائم فحالته
+         | تُقرأ من الفورم كما اختارها الأدمن صراحةً: المنشور يبقى منشورًا ما لم
+         | يختر هو إنزاله. وبلا ذلك يفقد المسجَّلون وصولهم فورًا وبلا سؤال.
+         */
+        $status = (string) ($data['status'] ?? 'draft');
         $status = in_array($status, self::STATUSES, true) ? $status : 'draft';
+
+        if ($continue && $isNew) {
+            $status = 'draft';
+        }
 
         $payload = [
             // ---------------- تاب البيانات
@@ -100,12 +111,27 @@ class CourseFormService
             'deadline_days' => ($data['deadline_days'] ?? null) !== '' ? (int) ($data['deadline_days'] ?? 0) ?: null : null,
 
             // ---------------- تاب التقييم
-            'max_lesson_xp' => (int) ($data['max_lesson_xp'] ?? setting('courses.xp.max_per_lesson', 50)),
+            /*
+             | ⭐ «أقصى XP للدرس» مصدرٌ واحد: `xp_max` — وهو ما تقرؤه الحاسبة (7).
+             | كان الفورم يكتب في عمودٍ آخر لا يقرؤه أحد، فيعدّل الأدمن رقمًا بلا أثر.
+             */
+            'xp_max' => (int) ($data['xp_max'] ?? setting('courses.xp.max_per_lesson', 50)),
+            /*
+             | تذاكر الدرس حسب نصف الديدلاين (7 · 7.1): تذكرتان قبله وواحدة بعده.
+             | و`null` هنا معناه «اتبع الإعداد العامّ»، أمّا الصفر فاختيارٌ صريح
+             | بلا تذاكر — ولذلك الفراغ يُخزَّن NULL لا صفرًا.
+             */
+            'tickets_before_half' => $this->ticketOverride($data['tickets_before_half'] ?? null),
+            'tickets_after_half' => $this->ticketOverride($data['tickets_after_half'] ?? null),
             'forced_order' => (bool) ($data['forced_order'] ?? true),
 
             // ---------------- الحالة والجدولة
             'status' => $status,
             'scheduled_at' => $status === 'scheduled' ? ($data['scheduled_at'] ?? null) : null,
+
+            // الحفظ الصريح يسري ⟵ فمسوّدة التحرير الجانبيّة انتهى دورها
+            'draft_payload' => null,
+            'draft_saved_at' => null,
         ];
 
         if ($status === 'published' && ! ($course?->published_at)) {
@@ -143,27 +169,66 @@ class CourseFormService
         return $course->refresh();
     }
 
+    /** الحقول التي يحفظها الحفظ التلقائيّ — الكتابيّة منها وحدها. */
+    private const AUTOSAVE_FIELDS = [
+        'name_ar', 'name_en', 'cert_name_ar', 'cert_name_en', 'description_ar', 'description_en',
+        'price_coins', 'offer_price_coins', 'paywall_text_ar', 'paywall_text_en',
+        'deadline_days', 'xp_max',
+    ];
+
     /**
-     * الحفظ التلقائيّ كمسودّة: يقبل حقولًا جزئيّة ولا يغيّر حالة النشر أبدًا،
-     * فالمستخدم قد يكون في منتصف تاب ولا يجوز أن ينشر ما لم ينوِ نشره.
+     * ⭐ الحفظ التلقائيّ **كدرافت** (12.4-ب) — لا على السجلّ الحيّ.
+     *
+     * الدستور يقول «حفظ تلقائيّ **كدرافت** عند كلّ خطوة حتى لا يضيع أيّ عمل»،
+     * وكان يكتب مباشرةً على صفّ التدريب: فيغيّر المحرّرُ اسمًا أو سعرًا وهو
+     * «يجرّب» فيراه المتدرّبون على الشاشة في نفس اللحظة. فمن هنا: المنشور
+     * (والمجدول) يُحفَظ عمله في **مسوّدة تحرير جانبيّة** تُعرَض له عند العودة
+     * ولا تسري إلّا بضغطه «حفظ»؛ أمّا المسودّة فلا شيء فيها ليُحمى منه.
      *
      * @param  array<string, mixed>  $data
      */
     public function autosave(Course $course, array $data): Course
     {
-        $allowed = [
-            'name_ar', 'name_en', 'cert_name_ar', 'cert_name_en', 'description_ar', 'description_en',
-            'price_coins', 'offer_price_coins', 'paywall_text_ar', 'paywall_text_en',
-            'deadline_days', 'max_lesson_xp',
-        ];
+        $payload = collect($data)->only(self::AUTOSAVE_FIELDS)->filter(fn ($v) => $v !== null && $v !== '')->all();
 
-        $payload = collect($data)->only($allowed)->filter(fn ($v) => $v !== null && $v !== '')->all();
-
-        if ($payload !== []) {
-            $course->update($payload);
+        if ($payload === []) {
+            return $course;
         }
 
+        if ($this->isLive($course)) {
+            $course->forceFill([
+                'draft_payload' => array_merge($this->pendingDraft($course), $payload),
+                'draft_saved_at' => now(),
+            ])->save();
+
+            return $course;
+        }
+
+        $course->update($payload + ['draft_saved_at' => now()]);
+
         return $course;
+    }
+
+    /**
+     * مسوّدة التحرير المعلّقة لتدريب حيّ — تُعرَض في الفورم كي لا يضيع العمل،
+     * ولا تصير حقيقةً إلّا بحفظٍ صريح.
+     *
+     * @return array<string, mixed>
+     */
+    public function pendingDraft(Course $course): array
+    {
+        $raw = $course->draft_payload;
+        $raw = is_array($raw) ? $raw : (json_decode((string) $raw, true) ?: []);
+
+        return collect($raw)->only(self::AUTOSAVE_FIELDS)->all();
+    }
+
+    /** المنشور والمجدول يراهما الناس — فمسوّدة التحرير تُفصَل عنهما (12.4-ب). */
+    private function isLive(?Course $course): bool
+    {
+        return $course !== null
+            && $course->exists
+            && in_array((string) $course->status, ['published', 'scheduled'], true);
     }
 
     /** تكرار التدريب كقالب جاهز — بسيكشنزه ودروسه وأسئلته (12.4-هـ). */
@@ -448,6 +513,15 @@ class CourseFormService
             ->where('sections.course_id', $course->id)
             ->where('lesson_questions.is_general', true)
             ->count();
+    }
+
+    /**
+     * تجاوُز تذاكر التدريب: الفراغ = «اتبع الإعداد العامّ» (NULL)،
+     * والصفر اختيارٌ صريح بلا تذاكر — والفرق بينهما مقصود (7.1).
+     */
+    private function ticketOverride(mixed $value): ?int
+    {
+        return $value === null || $value === '' ? null : max(0, (int) $value);
     }
 
     /**

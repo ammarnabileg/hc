@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Trainee;
 
 use App\Http\Controllers\Controller;
+use App\Models\Country;
 use App\Models\Game;
+use App\Models\Governorate;
 use App\Services\Gamification\BadgeService;
 use App\Services\Gamification\LeaderboardService;
 use App\Services\Gamification\StreakService;
@@ -23,19 +25,54 @@ class AchievementController extends Controller
         private readonly StreakService $streaks,
     ) {}
 
-    /** الليدر بورد: النطاق · الفترة · بحث — وصفّي مثبَّت أسفل القائمة */
+    /**
+     * الليدر بورد (7.3): النطاق · **الفترة (بما فيها فترة يحدّدها المستخدم)** ·
+     * **فلترة بدولة/محافظة بعينها** · بحث — ومنصّة تتويج للتوب 3،
+     * وكارت صاحب الحساب **في الأعلى** كما ينصّ الدستور.
+     */
     public function leaderboard(Request $request): View
     {
         $scope = in_array($request->query('scope'), ['country', 'governorate'], true)
             ? (string) $request->query('scope')
             : 'all';
 
-        $days = (int) $request->query('days', (int) setting('ux.lists.default_range_days', 30));
+        $ranges = $this->leaderboards->ranges();
+        $default = (int) setting('ux.lists.default_range_days', 30);
+        $requested = (int) $request->query('days', $default);
+
+        // فترةٌ خارج القائمة = فترة يحدّدها المستخدم بنفسه — تُقبَل إن كانت مسموحة
+        $isCustom = ! array_key_exists($requested, $ranges);
+        $days = $isCustom && ! $this->leaderboards->customRangeEnabled()
+            ? $default
+            : $this->leaderboards->clampDays($requested);
+
+        $countryId = (int) $request->query('country_id') ?: null;
+        $governorateId = (int) $request->query('governorate_id') ?: null;
         $search = trim((string) $request->query('q', ''));
 
         return view('achievements.leaderboard', [
-            'board' => $this->leaderboards->xp($request->user(), $scope, $days, $search ?: null),
-            'filters' => compact('scope', 'days', 'search'),
+            'board' => $this->leaderboards->xp(
+                $request->user(),
+                $scope,
+                $days,
+                $search ?: null,
+                $countryId,
+                $governorateId,
+            ),
+            'ranges' => $ranges,
+            'customEnabled' => $this->leaderboards->customRangeEnabled(),
+            'countries' => Country::query()->where('is_active', true)->orderBy('sort_order')->orderBy('name_ar')->get(['id', 'name_ar']),
+            'governorates' => $countryId
+                ? Governorate::query()->where('country_id', $countryId)->where('is_active', true)->orderBy('name_ar')->get(['id', 'name_ar'])
+                : collect(),
+            'filters' => [
+                'scope' => $scope,
+                'days' => $days,
+                'search' => $search,
+                'country_id' => $countryId,
+                'governorate_id' => $governorateId,
+                'is_custom' => ! array_key_exists($days, $ranges),
+            ],
         ]);
     }
 

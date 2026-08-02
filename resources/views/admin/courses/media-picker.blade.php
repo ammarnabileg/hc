@@ -24,7 +24,7 @@
                              alt="{{ $item->name }}" loading="lazy" class="w-full h-24 object-cover rounded-lg mb-2">
                     @else
                         <div class="w-full h-24 rounded-lg mb-2 flex items-center justify-center text-2xl"
-                             style="background: var(--surface-sunken)" aria-hidden="true">📄</div>
+                             style="background: var(--surface-sunken)" aria-hidden="true"><x-icon name="document" size="16" /></div>
                     @endif
                     <div class="text-sm truncate">{{ $item->name }}</div>
                 </button>

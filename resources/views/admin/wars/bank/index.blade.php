@@ -23,10 +23,10 @@
 
     {{-- أربعة كروت KPI بحدّ أقصى (2.15-أ-3) --}}
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
-        <x-kpi label="كلّ الأسئلة" :value="$counts['all']" icon="🗂️" />
-        <x-kpi label="المفعّلة" :value="$counts['active']" icon="✅" />
-        <x-kpi label="الرقميّة المفعّلة" :value="$counts['numeric']" icon="🔢" />
-        <x-kpi label="بلا إجابة" :value="$counts['missing']" icon="❓" />
+        <x-kpi label="كلّ الأسئلة" :value="$counts['all']" icon="folder" />
+        <x-kpi label="المفعّلة" :value="$counts['active']" icon="check" />
+        <x-kpi label="الرقميّة المفعّلة" :value="$counts['numeric']" icon="level" />
+        <x-kpi label="بلا إجابة" :value="$counts['missing']" icon="question" />
     </div>
 
     @if ($counts['active'] < $minActive)

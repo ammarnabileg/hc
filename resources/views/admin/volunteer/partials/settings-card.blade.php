@@ -13,7 +13,7 @@
 @endphp
 
 <details class="card p-4 md:p-5 mt-4" @if ($open) open @endif>
-    <summary class="cursor-pointer font-bold select-none">⚙️ {{ $title }}</summary>
+    <summary class="cursor-pointer font-bold select-none"><x-icon name="settings" size="16" /> {{ $title }}</summary>
 
     <form method="post" action="{{ $action }}" class="mt-3">
         @csrf
@@ -38,7 +38,7 @@
             @foreach ($resetPayload as $key => $value)
                 <input type="hidden" name="{{ $key }}" value="{{ $value }}">
             @endforeach
-            <button type="submit" class="text-xs underline" style="color: var(--text-muted)">↺ رجّع التاب كلّه للافتراضيّ</button>
+            <button type="submit" class="text-xs underline" style="color: var(--text-muted)"><x-icon name="refresh" size="16" /> رجّع التاب كلّه للافتراضيّ</button>
         </form>
     @endif
 </details>

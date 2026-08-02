@@ -21,7 +21,7 @@
             <p class="text-sm mt-2" style="color: var(--text-muted)">{{ $card['tagline'] }}</p>
 
             <p class="text-xs mt-4" style="color: var(--text-muted)">
-                🏆 الفوز: +{{ (int) $card['win'] }} تذكرة | 💥 الخسارة: −{{ (int) $card['loss'] }} تذكرة
+                <x-icon name="trophy" size="16" /> الفوز: +{{ (int) $card['win'] }} تذكرة | <x-icon name="warning" size="16" /> الخسارة: −{{ (int) $card['loss'] }} تذكرة
             </p>
             <p class="text-xs mt-1" style="color: var(--text-muted)">
                 الانسحاب: −{{ (int) $card['withdraw'] }} تذاكر
@@ -68,7 +68,9 @@
             <section class="mt-6">
                 <div class="flex items-center justify-between gap-3 mb-3">
                     <h2 class="font-bold">المحاربون الجاهزون</h2>
-                    <span class="text-xs" style="color: var(--text-muted)">بتتحدّث تلقائيًّا</span>
+                    {{-- ⭐ «X جاهزين دلوقتي» بحدّ 3، وتحته القائمة نفسها + تأطير
+                         الريادة «كن أوّل محارب في الساحة» (2.9-7) --}}
+                    <x-social-proof context="war" icon="war" :count="count($fighters)" />
                 </div>
 
                 <div data-fighters class="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -91,7 +93,7 @@
                         </article>
                     @empty
                         <div class="sm:col-span-2">
-                            <x-empty message="يبدو أنك قضيت على كل خصومك! 🔥 أنت وحدك في ساحة الحرب.." />
+                            <x-empty message="إنت لوحدك في الساحة دلوقتي — كن أوّل محارب فيها" />
                         </div>
                     @endforelse
                 </div>
@@ -104,7 +106,7 @@
                         const box = document.querySelector('[data-fighters]');
                         const url = @json(route('challenges.fighters', $challenge));
                         const token = document.querySelector('meta[name="csrf-token"]').content;
-                        const empty = @json('يبدو أنك قضيت على كل خصومك! 🔥 أنت وحدك في ساحة الحرب..');
+                        const empty = @json('إنت لوحدك في الساحة دلوقتي — كن أوّل محارب فيها');
                         if (!box) return;
 
                         const card = (f) => `

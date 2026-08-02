@@ -101,7 +101,13 @@ class CredentialService
         ];
     }
 
-    /** امتحان شهادة المسار بسعره بالكوينز — يُقرأ من الامتحان إن وُجد وإلّا من الإعدادات. */
+    /**
+     * ⭐ امتحان شهادة المسار وسعره — **من صفّ الامتحان وحده** (12.4-أ · 2.13).
+     *
+     * كان يرتدّ إلى إعدادٍ عامّ حين لا يجد صفًّا، فيُعرَض للمتدرّب سعرٌ (150)
+     * لا يعرفه الأدمن الذي يرى في شاشته صفرًا — سعرٌ بمصدرين متعارضين وخللٌ
+     * ماليّ مباشر. فلا ارتداد بعد اليوم: بلا صفّ امتحان لا سعر ولا امتحان.
+     */
     public function pathExam(LearningPath $path): array
     {
         $exam = DB::table('exams')
@@ -112,7 +118,7 @@ class CredentialService
 
         return [
             'exists' => (bool) $exam,
-            'price' => (int) ($exam->price_coins ?? setting('learning.path.exam_price_coins', 0)),
+            'price' => (int) ($exam->price_coins ?? 0),
             'url' => $exam ? $this->examUrl($exam->id) : null,
         ];
     }

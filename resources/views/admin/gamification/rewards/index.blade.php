@@ -10,7 +10,7 @@
 
     {{-- قفل معلَن: النزول تحت الصفر مسموح صراحةً (12.9) --}}
     <div class="card p-3 mb-4 text-sm">
-        🔒 <strong>الخصم يقدر ينزل تحت الصفر</strong> — مسموح صراحةً.
+        <x-icon name="lock" size="16" /> <strong>الخصم يقدر ينزل تحت الصفر</strong> — مسموح صراحةً.
         والأكواد الخاطئة أو المكرّرة <strong>تُستبعَد بتنبيه</strong> ولا يحصل فشل صامت.
     </div>
 
@@ -18,7 +18,7 @@
     @if ($cards)
         <section class="card p-4 md:p-5 mb-4" id="cards-deck" data-index="0" data-total="{{ count($cards) }}">
             <div class="flex items-center justify-between gap-3 mb-3">
-                <h2 class="font-bold">تمّ المنح 🎉</h2>
+                <h2 class="font-bold">تمّ المنح <x-icon name="celebrate" size="16" /></h2>
                 <span class="text-xs" style="color: var(--text-muted)"><span id="card-pos">1</span> من {{ count($cards) }}</span>
             </div>
 

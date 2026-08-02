@@ -13,7 +13,7 @@
             'sort_order' => $path->sort_order,
             'status' => $path->status,
             'forced_order' => (bool) $path->forced_order,
-            'exam_price_coins' => (float) $path->exam_price_coins,
+            'exam_price_coins' => (float) ($examPrices[$path->id] ?? $path->exam_price_coins),
             'url' => route('admin.paths.update', $path),
         ], JSON_UNESCAPED_UNICODE);
     @endphp
@@ -95,7 +95,8 @@
                                 <a href="{{ route('admin.paths.courses', $path) }}" class="underline"
                                    style="color: var(--color-brand-400)">{{ $path->courses_count }} تدريب</a>
                             </td>
-                            <td class="p-3">{{ (int) $path->exam_price_coins }} كوينز</td>
+                            {{-- السعر من صفّ الامتحان — مصدر الحقيقة الواحد (12.4-أ) --}}
+                            <td class="p-3">{{ (int) ($examPrices[$path->id] ?? $path->exam_price_coins) }} كوينز</td>
                             <td class="p-3">
                                 <x-state-badge :state="$path->status === 'published' ? 'ok' : ($path->status === 'archived' ? 'idle' : 'warn')"
                                                :label="$statuses[$path->status] ?? $path->status" />
@@ -145,7 +146,7 @@
                     <details class="mt-3">
                         <summary class="text-xs cursor-pointer" style="color: var(--text-muted)">تفاصيل أكتر</summary>
                         <div class="mt-2 text-sm space-y-1">
-                            <div>سعر امتحان الشهادة: {{ (int) $path->exam_price_coins }} كوينز</div>
+                            <div>سعر امتحان الشهادة: {{ (int) ($examPrices[$path->id] ?? $path->exam_price_coins) }} كوينز</div>
                             <div>ترتيب المشاهدة: {{ $path->forced_order ? 'إجباريّ' : 'حرّ' }}</div>
                         </div>
                     </details>

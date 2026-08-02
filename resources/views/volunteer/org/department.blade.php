@@ -34,9 +34,9 @@
 
         {{-- ثلاثة عدّادات فقط (2.15-أ-3) --}}
         <div class="grid grid-cols-2 md:grid-cols-3 gap-3 mb-4">
-            <x-kpi label="الأعضاء" :value="$counters['members']" icon="👥" />
-            <x-kpi label="الفرعيّات" :value="$counters['sub_entities']" icon="🏛️" />
-            <x-kpi label="الشواغر" :value="$counters['vacancies']" icon="🪑" />
+            <x-kpi label="الأعضاء" :value="$counters['members']" icon="people" />
+            <x-kpi label="الفرعيّات" :value="$counters['sub_entities']" icon="entity" />
+            <x-kpi label="الشواغر" :value="$counters['vacancies']" icon="placement" />
         </div>
 
         <x-filters :action="route('volunteer.department')">

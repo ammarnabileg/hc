@@ -24,10 +24,10 @@
 
     {{-- 4 كروت KPI بحدّ أقصى (2.15-أ-3) --}}
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
-        <x-kpi label="تدريبات معروضة" :value="$courses->total()" icon="📚" />
-        <x-kpi label="لها جدولة زمنيّة" :value="$scheduledCount" icon="🗓️" />
-        <x-kpi label="لها نافذة يوميّة" :value="$dailyCount" icon="⏰" />
-        <x-kpi label="توقيتك أنت" :value="$adminTimezone" icon="🌍"
+        <x-kpi label="تدريبات معروضة" :value="$courses->total()" icon="library" />
+        <x-kpi label="لها جدولة زمنيّة" :value="$scheduledCount" icon="calendar" />
+        <x-kpi label="لها نافذة يوميّة" :value="$dailyCount" icon="clock" />
+        <x-kpi label="توقيتك أنت" :value="$adminTimezone" icon="globe"
                hint="ما تراه هنا مكتوب بتوقيتك — والمتدرّب يراه بتوقيته هو." />
     </div>
 

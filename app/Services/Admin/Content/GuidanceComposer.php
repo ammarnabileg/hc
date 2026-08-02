@@ -205,19 +205,42 @@ class GuidanceComposer
     }
 
     /**
-     * تجميع الإشعارات المتشابهة في إشعار واحد بدل الإغراق (12.6-ب).
-     * نعرض هنا كم إشعارًا سيُدمَج ضمن نافذة التجميع.
+     * ⭐ أثر التجميع الفعليّ (12.6-ب): كم إشعارًا **اندمج فعلًا** في إشعارٍ واحد.
+     *
+     * كان هذا عدّاد عرضٍ يحصي ما وصل في نافذة زمنيّة **بلا أن يدمج شيئًا** —
+     * فتَعِد الشاشة الأدمن بحمايةٍ غير موجودة. الآن الدمج يقع في `Notifier`
+     * ويُخزَّن في `group_count`، وهذه قراءةٌ له لا وعدٌ عنه.
      */
     public function groupingPreview(): Collection
     {
         $window = (int) setting('notifications.grouping.window_minutes', 15);
 
         return DB::table('app_notifications')
-            ->where('created_at', '>=', now()->subMinutes($window))
-            ->selectRaw('category, count(*) as total')
+            ->where('created_at', '>=', now()->subMinutes($window * (int) setting('notifications.grouping.report_windows', 96)))
+            ->where('group_count', '>', 1)
+            ->selectRaw('category, sum(group_count) as total, count(*) as rows')
             ->groupBy('category')
-            ->having('total', '>', 1)
             ->get();
+    }
+
+    /**
+     * حالة حدّ الهدوء كما تُطبَّق فعلًا (12.6-ب): الحدّ اليوميّ · الفئات المستثناة
+     * · وكم إشعارًا تجمّع اليوم بسببه — لتقول الشاشة ما يجري لا ما نتمنّاه.
+     *
+     * @return array<string, mixed>
+     */
+    public function quietLimitState(): array
+    {
+        $digestCategory = (string) setting('notifications.digest.category', 'digest');
+
+        return [
+            'limit' => (int) setting('notifications.rate_limit.per_user_per_day', 3),
+            'exempt' => Notifier::quietExemptCategories(),
+            'deferred_today' => (int) DB::table('app_notifications')
+                ->where('category', $digestCategory)
+                ->where('created_at', '>=', now()->startOfDay())
+                ->sum('group_count'),
+        ];
     }
 
     // ============================================================== دليل المستخدم

@@ -5,6 +5,8 @@ namespace App\Services\Admin\Volunteer;
 use App\Models\Entity;
 use App\Models\Membership;
 use App\Models\Position;
+use App\Models\User;
+use App\Support\Scope\ScopeFilter;
 use Illuminate\Support\Collection;
 
 /**
@@ -42,8 +44,11 @@ class CapacityReport
         return max(1, $sum * $factor);
     }
 
-    /** صفّ تقرير السعة لكلّ كيان: الأعضاء · السقف · الإشغال · الشواغر */
-    public static function rows(?int $trackId = null): Collection
+    /**
+     * صفّ تقرير السعة لكلّ كيان: الأعضاء · السقف · الإشغال · الشواغر.
+     * ومع `$viewer` تُحصَر الكيانات **بنطاقه** (12.2.1-ب) — لا شجرة المنصّة كلّها.
+     */
+    public static function rows(?int $trackId = null, ?User $viewer = null): Collection
     {
         $counts = Membership::query()
             ->where('status', 'active')
@@ -52,6 +57,7 @@ class CapacityReport
             ->pluck('members', 'entity_id');
 
         return Entity::query()
+            ->when($viewer !== null, fn ($q) => app(ScopeFilter::class)->apply($q, $viewer, 'capacity.view', null, 'id'))
             ->with('track')
             ->when($trackId, fn ($q) => $q->where('track_id', $trackId))
             ->where('status', 'active')
@@ -77,7 +83,7 @@ class CapacityReport
      * نطاق الإشراف الفعليّ لكلّ عضويّة مقابل مدى بوزشنه.
      * التجاوز **تنبيه** يظهر عند الأبلاين الأعلى — بلا منع ولا مبرّر إلزاميّ.
      */
-    public static function spanRows(): Collection
+    public static function spanRows(?User $viewer = null): Collection
     {
         $downlines = Membership::query()
             ->where('status', 'active')
@@ -87,6 +93,8 @@ class CapacityReport
             ->pluck('c', 'upline_id');
 
         return Membership::query()
+            // نطاق الرؤية على **الأشخاص** كذلك — الجدول يعرض أسماءهم وأحمالهم
+            ->when($viewer !== null, fn ($q) => app(ScopeFilter::class)->apply($q, $viewer, 'capacity.view', 'user_id', 'entity_id'))
             ->with(['user:id,name,code', 'entity:id,name_ar', 'position'])
             ->where('status', 'active')
             ->get()
@@ -117,14 +125,14 @@ class CapacityReport
     }
 
     /** الكيانات غير الصحّيّة: تحت الحدّ الأدنى أو بلا فرعيّات */
-    public static function unhealthy(): Collection
+    public static function unhealthy(?User $viewer = null): Collection
     {
-        return self::spanRows()->filter(fn ($row) => $row['state'] === 'warn')->values();
+        return self::spanRows($viewer)->filter(fn ($row) => $row['state'] === 'warn')->values();
     }
 
     /** التجاوزات: فوق الأقصى — تظهر ولا تمنع */
-    public static function overflows(): Collection
+    public static function overflows(?User $viewer = null): Collection
     {
-        return self::spanRows()->filter(fn ($row) => $row['state'] === 'danger')->values();
+        return self::spanRows($viewer)->filter(fn ($row) => $row['state'] === 'danger')->values();
     }
 }

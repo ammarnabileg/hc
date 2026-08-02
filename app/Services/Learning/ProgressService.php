@@ -8,6 +8,8 @@ use App\Models\Enrollment;
 use App\Models\Lesson;
 use App\Models\LessonCompletion;
 use App\Models\User;
+use App\Services\Gamification\BadgeService;
+use App\Services\Gamification\CelebrationService;
 use App\Services\Gamification\EconomyLedger;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
@@ -34,6 +36,10 @@ class ProgressService
         private readonly LessonQuestionService $questions,
         private readonly PaywallService $paywall,
         private readonly EconomyLedger $economy,
+        private readonly CelebrationService $celebrations,
+        private readonly BadgeService $badges,
+        private readonly BookmarkService $bookmarks,
+        private readonly VideoWatchService $watch,
     ) {}
 
     // ------------------------------------------------------------ قراءة
@@ -102,6 +108,8 @@ class ProgressService
         $availability = $this->availability->forCourse($course, $enrollment, $user);
         // ⭐ «مجّاني أوّل مرّة»: بعد (امتحان + شهادة) يُقفَل التدريب كلّه هنا في الخادم (16)
         $paywall = $this->paywall->state($user, $course);
+        // ⭐ الدروس المحفوظة (3.4-34) — استعلامٌ واحد للخريطة كلّها لا لكلّ صفّ
+        $bookmarked = $this->bookmarks->idsFor($user, $course);
 
         $forced = (bool) $course->forced_order;
         $previousDone = true;
@@ -140,6 +148,7 @@ class ProgressService
                 'unlocked' => $unlocked,
                 'lock_reason' => $reason,
                 'is_free_preview' => (bool) $row->is_free_preview,
+                'bookmarked' => in_array((int) $row->id, $bookmarked, true),
             ];
 
             $previousDone = $isDone;
@@ -163,12 +172,19 @@ class ProgressService
         ];
     }
 
-    /** أيقونة نوع الدرس — 🎥 فيديو / 📄 مستند (24.5) */
+    /**
+     * ⭐ اسم أيقونة نوع الدرس في **القاموس المشترك** لا رمز إيموجي (3 · 2.16-ج).
+     *
+     * كانت القيمة إيموجي (🎥 / 📄)، والإيموجي يرسمه خطّ نظام التشغيل: لا يتبع
+     * `currentColor` ولا سُمك الخطّ، ويختلف شكله بين المنصّات — فينكسر «سُمك خطّ
+     * موحّد وشبكة مقاس واحدة». والقيمة الآن **اسمٌ** يستهلكه `<x-icon>` فيرسم
+     * SVG بهويّة المنصّة: الفيديو دائرة بمثلّث تشغيل، والنصّ ورقة ملاحظة (3).
+     */
     public function typeIcon(string $type): string
     {
         return $type === 'video'
-            ? setting('learning.icon.video', '🎥')
-            : setting('learning.icon.document', '📄');
+            ? (string) setting('learning.icon.video', 'video')
+            : (string) setting('learning.icon.document', 'document');
     }
 
     /** هل هذا الدرس مفتوح لهذا المستخدم؟ — الفحص الحاسم يقع هنا لا في الواجهة. */
@@ -193,6 +209,50 @@ class ProgressService
         }
 
         return ['unlocked' => false, 'reason' => setting('learning.lock.unpublished_reason'), 'completed' => false];
+    }
+
+    /**
+     * ⭐ «أكمل من حيث توقفت» (3.4-15): آخر تدريبٍ جارٍ **ومتاح الآن** ودرسُه الحاليّ.
+     *
+     * الشرط «متاح الآن» ليس تفصيلًا: زرٌّ يقود إلى جدار مقفول أسوأ من غياب الزرّ
+     * (2.17 — لا نعِد بما لا نفي به). ولذلك تُفحَص الإتاحة بساعة المستخدم قبل
+     * أن يظهر الزرّ أصلًا.
+     *
+     * @return array{course:Course, lesson_id:int, title:string}|null
+     */
+    public function resumePoint(User $user): ?array
+    {
+        $enrollments = Enrollment::query()
+            ->with('course')
+            ->where('user_id', $user->id)
+            ->where('status', 'active')
+            ->orderByDesc('updated_at')
+            ->limit((int) setting('learning.resume.scan_limit', 10))
+            ->get();
+
+        foreach ($enrollments as $enrollment) {
+            $course = $enrollment->course;
+
+            if (! $course) {
+                continue;
+            }
+
+            $outline = $this->outline($user, $course, $enrollment);
+
+            if (! $outline['current_id']) {
+                continue;
+            }
+
+            foreach ($outline['sections'] as $section) {
+                foreach ($section['lessons'] as $row) {
+                    if ($row['id'] === $outline['current_id']) {
+                        return ['course' => $course, 'lesson_id' => $row['id'], 'title' => (string) $row['title']];
+                    }
+                }
+            }
+        }
+
+        return null;
     }
 
     /** الدرس السابق والتالي في الترتيب المعتمَد — لأزرار [السابق]/[التالي]. */
@@ -225,7 +285,18 @@ class ProgressService
             return $this->refuse($this->lessonState($user, $course, $lesson, $enrollment)['reason']);
         }
 
-        // «إنهاء الدرس» = المحتوى + اجتياز أسئلة الدرس معًا (4.1)
+        /*
+         | ⭐ «إنهاء الدرس» = **مشاهدة الفيديو + اجتياز اختباره** (4.1 نصًّا:
+         | «الاتنين مطلوبين لاحتساب الإكمال والـXP»). وكان الشقّ الأوّل بلا
+         | تنفيذ، فيؤخَذ XP الدرس بلا فتح الفيديو أصلًا.
+         */
+        if (! $this->watch->hasWatched($user, $lesson)) {
+            return $this->refuse(setting(
+                'learning.lock.watch_reason',
+                'خلّص الفيديو الأوّل — الدرس بيتحسب بالمشاهدة والاختبار مع بعض.',
+            ));
+        }
+
         if (! $this->questions->allAnsweredCorrectly($user, $lesson)) {
             return $this->refuse(setting('learning.lock.quiz_reason'));
         }
@@ -242,8 +313,12 @@ class ProgressService
                 'xp' => 0,
                 'tickets' => 0,
                 'course_completed' => $enrollment->fresh()->status === 'completed',
+                'celebration' => null,
             ];
         }
+
+        // المستوى قبل المنح — منه نعرف هل ارتفع بعده فنُطلِق أنيميشن Level Up (3.4-22)
+        $levelBefore = (int) $user->level;
 
         // القيمتان تُجمَّدان لحظة الكتابة لا لحظة العرض (7)
         $xp = $this->xp->lessonXp($course, $enrollment);
@@ -294,13 +369,54 @@ class ProgressService
 
         $completed = $this->recalculate($user, $course, $enrollment->refresh());
 
+        /*
+         | ⭐ الشارات تُقيَّم **لحظة الإنجاز** لا حين يفتح المتدرّب صفحتها (7.4).
+         | كان المسار الوحيد للتقييم هو الحروب وصفحة الإنجازات، فيكمل المتدرّب
+         | اثني عشر درسًا وشارة «أوّل خطوة» ما زالت تقول «0% من الشرط» — والشارة
+         | المتأخّرة عن لحظتها ليست شارة (2.9-6: لحظة الذروة).
+         */
+        $this->badges->evaluate($user->refresh());
+
         return [
             'ok' => true,
             'message' => setting('learning.lesson.done_message'),
             'xp' => $xp,
             'tickets' => $tickets,
             'course_completed' => $completed,
+            'celebration' => $this->celebrate($user, $course, $lesson, $completed, $levelBefore),
         ];
+    }
+
+    /**
+     * ⭐ لحظات الذروة في مسار التعلّم (2.9-6 · 2.14 · 4.1 · 3.4-22).
+     *
+     * كانت `celebration_events` تحوي `lesson.completed` و`level.up`
+     * و`course.completed` مفعَّلةً كلّها، **ولا نداءَ واحدًا لـ`fire()` في مجال
+     * التعلّم كلّه** — فالكونفيتي المنصوص عليه في 4.1 وأنيميشن Level Up لا
+     * يُطلَقان أبدًا، وتضيع كلّ لحظات الذروة وهي جوهر 2.9-6 و2.17.
+     *
+     * والتراكم ممنوع: لو وقع أكثر من حدثٍ في اللحظة نفسها يُعرَض **الأعلى مستوى
+     * وحده** عبر `highest()` — فالذروة تبقى ذروةً.
+     *
+     * ولماذا الدرس مرجعًا لحدث Level Up؟ لأنّ `fire()` بلا مرجع يُستهلَك **مرّة
+     * واحدة للأبد**، فلا يحتفل المتدرّب بمستواه الثاني ولا الثالث. والدرس الذي
+     * رفع المستوى مرجعٌ فريد لكلّ ترقية، والمستوى لا يهبط فلا يتكرّر.
+     *
+     * @return array{key:string,tier:int,label:string,message:string,sound_path:?string,sound:bool}|null
+     */
+    private function celebrate(User $user, Course $course, Lesson $lesson, bool $courseCompleted, int $levelBefore): ?array
+    {
+        $events = [$this->celebrations->fire($user, 'lesson.completed', $lesson)];
+
+        if ((int) $user->refresh()->level > $levelBefore) {
+            $events[] = $this->celebrations->fire($user, 'level.up', $lesson);
+        }
+
+        if ($courseCompleted) {
+            $events[] = $this->celebrations->fire($user, 'course.completed', $course);
+        }
+
+        return $this->celebrations->highest($events);
     }
 
     /**
@@ -403,6 +519,7 @@ class ProgressService
             'xp' => 0,
             'tickets' => 0,
             'course_completed' => false,
+            'celebration' => null,
         ];
     }
 }

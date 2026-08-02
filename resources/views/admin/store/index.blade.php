@@ -22,7 +22,7 @@
                     <a class="block px-2 py-1 rounded hover:opacity-80" href="{{ route('admin.topups.methods') }}">طرق التحويل والعروض</a>
                     @if ($financeVisible)
                         {{-- 🔒 مجموعة معزولة: لا تظهر أصلًا لغير مالك المنصّة (12.2.1) --}}
-                        <a class="block px-2 py-1 rounded hover:opacity-80" href="{{ route('admin.finance.index') }}">🔒 الماليّات</a>
+                        <a class="block px-2 py-1 rounded hover:opacity-80" href="{{ route('admin.finance.index') }}"><x-icon name="lock" size="16" /> الماليّات</a>
                     @endif
                 </div>
             </details>

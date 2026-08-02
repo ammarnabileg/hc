@@ -37,16 +37,8 @@ class AccountDemoSeeder extends Seeder
     {
         $rows = [
             // الشكاوى والمقترحات (11)
-            ['account.complaints.categories', 'account', 'أسباب الشكوى/المقترح', 'json', json_encode([
-                'أحد المشرفين',
-                'الهيكل الإداريّ وأسلوب الإدارة',
-                'اللقاءات المباشرة',
-                'اللوائح والقوانين',
-                'المحتوى التدريبيّ',
-                'خدمة العملاء',
-                'المنصّة',
-                'أخرى',
-            ], JSON_UNESCAPED_UNICODE)],
+            // ⚠️ أسباب الشكوى **لا تُبذَر هنا**: مفتاحها الموحَّد `complaints.reasons`
+            // في سيدر الإعدادات (مسار الإنتاج) — ومفتاحٌ ثانٍ يعني تحريرًا بلا أثر.
             ['account.complaints.number_prefix', 'account', 'بادئة رقم التذكرة', 'string', 'TK-'],
             ['account.complaints.attachment_max_kb', 'account', 'أقصى حجم مرفق التذكرة (KB)', 'number', '4096'],
 

@@ -56,7 +56,13 @@
                                 </td>
                                 <td class="px-4 py-3 text-xs" style="color: var(--text-muted)">{{ $permission->key }}</td>
                                 <td class="px-4 py-3 text-xs">{{ implode(' · ', $permission->allowed_scopes ?: []) }}</td>
-                                <td class="px-4 py-3 text-xs" style="color: var(--text-muted)">{{ $permission->condition_key ?? 'دائمًا' }}</td>
+                                {{-- النصّ العربيّ للقراءة، والمفتاح المقفول هو الذي **يُقيَّم** فعلًا (12.2.1-ج) --}}
+                                <td class="px-4 py-3 text-xs" style="color: var(--text-muted)">
+                                    {{ $permission->condition_key ?: 'دائمًا' }}
+                                    @if ($permission->condition_keys)
+                                        <span class="block opacity-70" dir="ltr">{{ implode(' + ', $permission->condition_keys) }}</span>
+                                    @endif
+                                </td>
                             </tr>
                         @endforeach
                     </tbody>

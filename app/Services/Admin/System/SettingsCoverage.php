@@ -4,6 +4,9 @@ namespace App\Services\Admin\System;
 
 use App\Models\Setting;
 use App\Services\Admin\Volunteer\SettingsCatalog;
+use App\Services\AdminScreens\ScreenSettings;
+use App\Services\Ads\AdEvents;
+use App\Services\Gamification\GamesAdminService;
 use Illuminate\Support\Collection;
 
 /**
@@ -56,6 +59,34 @@ class SettingsCoverage
     public function scanner(): SettingKeyScanner
     {
         return $this->scanner;
+    }
+
+    /**
+     * أعلامٌ ميّتة: مفتاحٌ مزروعٌ **لا يقرؤه أحد**. المالك يبدّله فلا يحدث شيء —
+     * وهذا أسوأ من غياب الإعداد لأنّه يَعِد بسلوكٍ غير موجود.
+     *
+     * ولا يُعتبَر ميّتًا ما تقرؤه الكتالوجات بمفتاحٍ متغيّر (`setting($key)`):
+     * تلك مقروءةٌ فعلًا وإن لم يظهر نصُّها في أيّ موضع.
+     *
+     * @return Collection<int, string>
+     */
+    public function deadKeys(): Collection
+    {
+        $read = $this->scanner->keys();
+        $viaCatalog = array_flip(array_merge(
+            array_keys(SettingsCatalog::all()),
+            array_keys(ScreenSettings::catalog()),
+            array_keys(GamesAdminService::catalog()),
+            array_keys(AdEvents::catalog()),
+        ));
+
+        return Setting::query()
+            ->orderBy('key')
+            ->pluck('key')
+            ->reject(fn (string $key) => isset($read[$key])
+                || isset($viaCatalog[$key])
+                || $this->scanner->matchesAnyPattern($key))
+            ->values();
     }
 
     // ================================================================ الفحص الثاني:

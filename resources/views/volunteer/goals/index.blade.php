@@ -28,9 +28,9 @@
 
     {{-- 4 كروت KPI بحدّ أقصى (2.15-أ-3) — وعلى الموبايل شبكة 2×2 --}}
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
-        <x-kpi label="أهداف مربوطة بكيانك" :value="$kpis['goals']" icon="🎯" />
-        <x-kpi label="متوسّط الإنجاز" :value="$kpis['progress'].'%'" icon="📈" />
-        <x-kpi label="مَعالِم متحقّقة" :value="$kpis['milestones']" icon="✅" />
+        <x-kpi label="أهداف مربوطة بكيانك" :value="$kpis['goals']" icon="goal" />
+        <x-kpi label="متوسّط الإنجاز" :value="$kpis['progress'].'%'" icon="chart" />
+        <x-kpi label="مَعالِم متحقّقة" :value="$kpis['milestones']" icon="check" />
         <x-kpi label="مهامّ مُغلَقة (مستبعَدة)" :value="$kpis['closed']" icon="○" />
     </div>
 
@@ -124,7 +124,7 @@
                     ])
 
                     <div class="mt-2 text-xs" style="color: var(--text-muted)">
-                        ✅ مَعالِم مكتملة: <span class="font-semibold" style="color: var(--text)">{{ $verified }} من {{ count($rows) }}</span>
+                        <x-icon name="check" size="16" /> مَعالِم مكتملة: <span class="font-semibold" style="color: var(--text)">{{ $verified }} من {{ count($rows) }}</span>
                     </div>
 
                     {{-- التفاصيل بالتوسيع لا بصفحة جديدة (2.15-أ-6) --}}
@@ -138,7 +138,7 @@
                                     <div class="flex items-center justify-between gap-2 flex-wrap">
                                         <button type="button" data-modal-open="milestone-{{ $milestone->id }}"
                                                 class="text-sm font-semibold text-right">
-                                            {{ $milestone->is_verified ? '✅' : '◻︎' }} {{ $milestone->name }}
+                                            <x-icon :name="$milestone->is_verified ? 'check' : 'task'" size="14" /> {{ $milestone->name }}
                                         </button>
                                         <span class="text-xs" style="color: var(--text-muted)">
                                             {{ rtrim(rtrim(number_format((float) $milestone->progress_percent, 1), '0'), '.') }}%
@@ -148,7 +148,7 @@
                                     <div class="mt-2 space-y-1">
                                         @foreach ($row['packages'] as $entry)
                                             <div class="grid grid-cols-1 md:grid-cols-4 gap-1 text-xs items-center">
-                                                <span class="md:col-span-2">📦 {{ $entry['package']->name }}
+                                                <span class="md:col-span-2"><x-icon name="bundle" size="16" /> {{ $entry['package']->name }}
                                                     <span style="color: var(--text-muted)">· {{ $entry['package']->entity?->name_ar }}</span>
                                                 </span>
                                                 <span style="color: var(--text-muted)">
@@ -188,7 +188,7 @@
                             <div class="text-xs mb-1" style="color: var(--text-muted)">حزمه والكيانات المرتبطة</div>
                             <ul class="space-y-1">
                                 @foreach ($row['packages'] as $entry)
-                                    <li>📦 {{ $entry['package']->name }} — {{ $entry['package']->entity?->name_ar }}
+                                    <li><x-icon name="bundle" size="16" /> {{ $entry['package']->name }} — {{ $entry['package']->entity?->name_ar }}
                                         ({{ rtrim(rtrim(number_format((float) $entry['package']->progress_percent, 1), '0'), '.') }}%)</li>
                                 @endforeach
                             </ul>
@@ -253,7 +253,7 @@
                             <div class="font-semibold">{{ $goal->name }}</div>
                             @foreach ($tree[$goal->id] ?? [] as $row)
                                 <div class="text-xs mt-1">
-                                    {{ $row['milestone']->is_verified ? '✅ تحقّق' : '◻︎ لم يتحقّق' }} —
+                                    <x-icon :name="$row['milestone']->is_verified ? 'check' : 'task'" size="14" /> {{ $row['milestone']->is_verified ? 'تحقّق' : 'لم يتحقّق' }} —
                                     {{ $row['milestone']->name }}
                                 </div>
                             @endforeach

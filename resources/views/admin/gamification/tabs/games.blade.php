@@ -30,7 +30,7 @@
                     <div class="min-w-0">
                         <div class="font-semibold text-sm">{{ $game->name_ar }}</div>
                         <p class="text-xs mt-1" style="color: var(--text-muted)">
-                            {{ (int) $game->entryCost() }} 🎟️ للدخول · {{ (int) $game->xp_reward }} XP
+                            {{ (int) $game->entryCost() }} <x-icon name="ticket" size="16" /> للدخول · {{ (int) $game->xp_reward }} XP
                             · {{ (int) $game->sessions_count }} جلسة
                         </p>
                     </div>
@@ -101,7 +101,7 @@
                 <div class="rounded-xl p-3" style="background: var(--surface-sunken)">
                     <div class="font-semibold text-sm">{{ $session->user?->name }} — {{ $session->game?->name_ar }}</div>
                     <p class="text-xs mt-1" style="color: var(--text-muted)">
-                        {{ (int) $session->tickets_spent }} 🎟️ · {{ (int) $session->xp_awarded }} XP
+                        {{ (int) $session->tickets_spent }} <x-icon name="ticket" size="16" /> · {{ (int) $session->xp_awarded }} XP
                         · {{ $session->created_at?->diffForHumans() }}
                     </p>
                 </div>
@@ -119,7 +119,7 @@
                 @csrf
                 <button type="submit" class="rounded-xl px-3 py-1.5 text-xs motion-standard"
                         style="background: var(--surface-sunken); color: var(--text); border: 1px solid var(--border)">
-                    ↺ Reset للافتراضيّ
+                    <x-icon name="refresh" size="16" /> Reset للافتراضيّ
                 </button>
             </form>
         @endcan

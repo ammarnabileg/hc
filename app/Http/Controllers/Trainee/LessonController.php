@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Course;
 use App\Models\Enrollment;
 use App\Models\Lesson;
+use App\Services\Learning\BookmarkService;
 use App\Services\Learning\CourseNoteService;
 use App\Services\Learning\DeadlineService;
 use App\Services\Learning\LessonQuestionService;
@@ -13,7 +14,9 @@ use App\Services\Learning\LessonQuizService;
 use App\Services\Learning\ProgressService;
 use App\Services\Learning\TimezoneDetector;
 use App\Services\Learning\VideoCommentService;
+use App\Services\Learning\VideoWatchService;
 use App\Services\Learning\XpCalculator;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -35,6 +38,8 @@ class LessonController extends Controller
         private readonly VideoCommentService $comments,
         private readonly CourseNoteService $notes,
         private readonly LessonQuizService $quiz,
+        private readonly BookmarkService $bookmarks,
+        private readonly VideoWatchService $watch,
     ) {}
 
     public function show(Request $request, Course $course, Lesson $lesson): View|RedirectResponse
@@ -68,6 +73,8 @@ class LessonController extends Controller
             'quiz_passed' => $this->questions->allAnsweredCorrectly($user, $lesson),
             'quiz_wait_seconds' => $this->quiz->waitSecondsLeft($user, $lesson),
             'completed' => $state['completed'],
+            // ⭐ حالة الحفظ (3.4-34) — تُقرأ من الخادم فلا يختلف الزرّ عن الحقيقة
+            'bookmarked' => $this->bookmarks->has($user, $lesson),
             'next_xp' => $this->xp->previewXp($course, $enrollment),
             'embed_url' => $this->embedUrl($lesson),
 
@@ -79,6 +86,35 @@ class LessonController extends Controller
             'note_body' => $this->notes->bodyFor($user, $course),
             'note_max_length' => $this->notes->maxLength(),
         ]);
+    }
+
+    /**
+     * ⭐ تقرير موضع المشاهدة (4.1) — الشقّ الأوّل من تعريف «إنهاء الدرس».
+     *
+     * المتصفّح **يبلّغ** بموضعه في المشغّل والخادم وحده يقرّر متى صارت المشاهدة
+     * كافية: النسبة إعدادٌ في لوحة الإدارة، والقفزة الواحدة محدودة فلا يُعلَن
+     * الفيديو مشاهَدًا بنداءٍ ملفَّق.
+     */
+    public function watch(Request $request, Course $course, Lesson $lesson): JsonResponse
+    {
+        $user = $request->user();
+        $this->enrollmentOrFail($user->id, $course->id);
+        $this->assertBelongs($course, $lesson);
+
+        // الدرس المقفول لا يُشاهَد ولا يُسجَّل له تقدّم — القرار في الخادم لا في الواجهة
+        abort_unless($this->progress->isUnlocked($user, $course, $lesson), 403);
+
+        $data = $request->validate([
+            'position' => ['required', 'integer', 'min:0'],
+            'duration' => ['nullable', 'integer', 'min:0'],
+        ]);
+
+        return response()->json($this->watch->track(
+            $user,
+            $lesson,
+            (int) $data['position'],
+            (int) ($data['duration'] ?? 0),
+        ));
     }
 
     /** إكمال الدرس — سجلّ واحد لكلّ (مستخدم، درس)، وXP بقيمة نصف المهلة. */
@@ -101,17 +137,49 @@ class LessonController extends Controller
                 ? ' · +'.$result['tickets'].' '.setting('learning.tickets.suffix', 'تذكرة')
                 : '');
 
+        /*
+         | ⭐ الاحتفال يُحمَل في السيشن لمرّةٍ واحدة (2.14): الاستهلاك مسجَّل في
+         | الخادم أصلًا فلا يتكرّر بإعادة التحميل، والفلاش يضمن أنّه يظهر على
+         | **الصفحة التالية** حيث تقع عين المتدرّب بعد الإكمال (2.9-6).
+         */
+        $celebration = $result['celebration']
+            // ⭐ «+XP بيطير» (3.4-18): الرقم المكتسب فعلًا يسافر مع الاحتفال
+            ? $result['celebration'] + ['xp' => (int) $result['xp'], 'tickets' => (int) ($result['tickets'] ?? 0)]
+            : null;
+
+        $flash = fn ($redirect, string $status) => $celebration
+            ? $redirect->with('status', $status)->with('celebration', $celebration)
+            : $redirect->with('status', $status);
+
         if ($result['course_completed']) {
-            return redirect()
-                ->route('learning.course', $course)
-                ->with('status', setting('learning.course.done_message'));
+            return $flash(
+                redirect()->route('learning.course', $course),
+                (string) setting('learning.course.done_message'),
+            );
         }
 
         $next = $this->progress->neighbours($course, $lesson)['next'];
 
         return $next
-            ? redirect()->route('learning.lesson', [$course, $next])->with('status', $message)
-            : redirect()->route('learning.course', $course)->with('status', $message);
+            ? $flash(redirect()->route('learning.lesson', [$course, $next]), $message)
+            : $flash(redirect()->route('learning.course', $course), $message);
+    }
+
+    /**
+     * ⭐ حفظ الدرس / إلغاء حفظه (3.4-34) — ردّ فوريّ لكلّ فعل (2.17-ب).
+     * والملكيّة تُتحقَّق أوّلًا: مَن لا يملك التدريب لا يحفظ درسًا فيه.
+     */
+    public function bookmark(Request $request, Course $course, Lesson $lesson): RedirectResponse
+    {
+        $user = $request->user();
+        $this->enrollmentOrFail($user->id, $course->id);
+        $this->assertBelongs($course, $lesson);
+
+        $saved = $this->bookmarks->toggle($user, $lesson);
+
+        return back()->with('status', setting(
+            $saved ? 'learning.bookmark.saved_message' : 'learning.bookmark.removed_message',
+        ));
     }
 
     // ------------------------------------------------------------ داخليّ

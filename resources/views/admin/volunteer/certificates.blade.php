@@ -25,7 +25,7 @@
         <div>① المدّة في البوزشن ≥ <strong>{{ $minDays }}</strong> يومًا
             (<code>volunteer_cert.min_days_in_position</code>).</div>
         <div>② <strong>درجة الالتزام غير سالبة</strong> وقت الإصدار.</div>
-        <div>🔒 شهادة واحدة لكلّ (بوزشن × كيان) — والترقية تُصدر الأعلى لا نسخة مكرّرة.</div>
+        <div><x-icon name="lock" size="16" /> شهادة واحدة لكلّ (بوزشن × كيان) — والترقية تُصدر الأعلى لا نسخة مكرّرة.</div>
     </div>
 
     <section class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">

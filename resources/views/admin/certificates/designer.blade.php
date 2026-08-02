@@ -199,7 +199,7 @@
                     <form method="post" action="{{ route('admin.certificates.designer.reset', $template) }}"
                           onsubmit="return confirm('نرجّع التصميم الافتراضيّ؟ اللي عملته هيتشال.')">
                         @csrf
-                        <button class="text-xs underline">↺ إعادة للتصميم الافتراضيّ</button>
+                        <button class="text-xs underline"><x-icon name="refresh" size="16" /> إعادة للتصميم الافتراضيّ</button>
                     </form>
                 @endcan
             </div>

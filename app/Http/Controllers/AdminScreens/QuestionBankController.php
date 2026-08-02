@@ -129,6 +129,14 @@ class QuestionBankController extends Controller
             'exam_ids.*' => ['integer', 'exists:exams,id'],
         ], [], ['exam_ids' => 'الامتحانات']);
 
+        // ⭐ «الأسئلة العامّة فقط» تدخل الامتحان النهائيّ (4) — والرسالة تقول ماذا يفعل (2.17-ج)
+        if (! $question->is_general) {
+            return back()->with('problem', (string) setting(
+                'question_bank.messages.not_general',
+                'السؤال ده مش معلَّم «عام»، والامتحان النهائيّ بيتبني من الأسئلة العامّة وحدها — علّمه «عام» الأوّل.',
+            ));
+        }
+
         $result = $this->bank->reuse($question, $data['exam_ids']);
 
         AuditTrail::log($request->user(), 'course_exam.edit', $question, [], $result);

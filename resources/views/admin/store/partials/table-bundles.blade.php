@@ -19,7 +19,10 @@
                         : 0;
                 @endphp
                 <tr style="border-top: 1px solid var(--border)">
-                    <td class="p-3 font-semibold">{{ $bundle->name_ar }}</td>
+                    <td class="p-3 font-semibold">
+                        {{-- إدارة عناصر الباقة وتسعير كلٍّ منها (18) --}}
+                        <a href="{{ route('admin.store.bundles.show', $bundle) }}" class="hover:underline">{{ $bundle->name_ar }}</a>
+                    </td>
                     <td class="p-3">{{ $bundle->items_count ?? 0 }}</td>
                     <td class="p-3">{{ rtrim(rtrim(number_format((float) $bundle->original_value, 2), '0'), '.') }}</td>
                     <td class="p-3">{{ rtrim(rtrim(number_format((float) $bundle->price_coins, 2), '0'), '.') }}</td>
@@ -33,7 +36,7 @@
     <div class="md:hidden">
         @foreach ($rows as $bundle)
             <div class="p-3 text-sm" style="border-top: 1px solid var(--border)">
-                <div class="font-semibold">{{ $bundle->name_ar }}</div>
+                <a href="{{ route('admin.store.bundles.show', $bundle) }}" class="font-semibold hover:underline">{{ $bundle->name_ar }}</a>
                 <div class="text-xs mt-1" style="color: var(--text-muted)">
                     {{ $bundle->items_count ?? 0 }} عنصر · {{ rtrim(rtrim(number_format((float) $bundle->price_coins, 2), '0'), '.') }} كوينز
                 </div>

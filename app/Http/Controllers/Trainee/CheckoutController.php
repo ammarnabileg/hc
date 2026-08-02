@@ -225,16 +225,20 @@ class CheckoutController extends Controller
      */
     private function present(array $quote): array
     {
+        // كلّ رقمٍ يخرج **بعملة الطلب** (17) — والرقم بلا عملته يضلّل
+        $currency = $quote['currency'] ?? Coins::defaultCode();
+
         // ⭐ أقرب عرض يكفّيك يُحسَب من العجز بعد الخصم (19.5-ب-2) — عرضٌ فقط
-        $suggestion = $quote['suggestion'] ?? $this->topups->forDeficit($quote['total'] - $quote['balance_before']);
+        $suggestion = $quote['suggestion'] ?? $this->topups->forDeficit($quote['total'] - $quote['balance_before'], $currency);
 
         return [
-            'subtotal' => Coins::label($quote['subtotal']),
-            'discount' => Coins::label($quote['discount']),
-            'total' => Coins::label($quote['total']),
-            'balance_before' => Coins::label($quote['balance_before']),
-            'balance_after' => Coins::label($quote['balance_after']),
-            'savings' => $quote['savings'] > 0 ? Coins::label($quote['savings']) : null,
+            'currency' => $currency,
+            'subtotal' => Coins::label($quote['subtotal'], $currency),
+            'discount' => Coins::label($quote['discount'], $currency),
+            'total' => Coins::label($quote['total'], $currency),
+            'balance_before' => Coins::label($quote['balance_before'], $currency),
+            'balance_after' => Coins::label($quote['balance_after'], $currency),
+            'savings' => $quote['savings'] > 0 ? Coins::label($quote['savings'], $currency) : null,
             'sufficient' => $quote['sufficient'],
             'owned' => $quote['owned'],
             'coupon_valid' => $quote['coupon']['valid'],
@@ -243,7 +247,7 @@ class CheckoutController extends Controller
             'suggestion_url' => $suggestion['offer']['url'] ?? null,
             'lines' => array_map(fn ($line) => [
                 'title' => $line['title'],
-                'price' => Coins::label($line['price']),
+                'price' => Coins::label($line['price'], $currency),
                 'is_order_bump' => $line['is_order_bump'],
             ], $quote['lines']),
         ];

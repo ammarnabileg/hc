@@ -2,6 +2,7 @@
 
 namespace App\Services\Volunteer\People;
 
+use App\Models\Membership;
 use App\Models\PostVote;
 use App\Models\RepScore;
 use App\Models\ThanksWallPost;
@@ -23,11 +24,42 @@ class ThanksWall
         return rep_rule('limit.club_threshold', 9.5);
     }
 
+    /**
+     * ⭐ مَن يدخل السباق أصلًا: **متطوّع بعضويّة نشطة وغير شرفيّ**.
+     *
+     * 13.4-ي: «كلّ مَن Rep بتاعه +9.5 **بين المتطوّعين**»، و13.4-ص: العنصر الشرفيّ
+     * «بلا أثر على أيّ شيء… **بلا Rep · بلا VXP**». وبلا هذا الفلتر كان صفّ
+     * `rep_scores` وحده يكفي للدخول: فشرفيٌّ بـ9.9 يتصدّر النادي بإطار ذهبيّ،
+     * ومتدرّبٌ بلا أيّ عضويّة تطوّع بـ9.8 يدخله — والاثنان خارج السباق نصًّا.
+     *
+     * @return Collection<int,int>
+     */
+    private function eligibleUserIds(): Collection
+    {
+        return Membership::query()
+            ->where('status', 'active')
+            ->whereDoesntHave('position', fn ($q) => $q->where('is_honorary', true))
+            ->pluck('user_id')
+            ->unique()
+            ->values();
+    }
+
+    /** هل هذا الشخص داخل السباق؟ — نفس الشرط لكلّ استعمالات النادي */
+    public function isEligible(User $user): bool
+    {
+        return Membership::query()
+            ->where('user_id', $user->id)
+            ->where('status', 'active')
+            ->whereDoesntHave('position', fn ($q) => $q->where('is_honorary', true))
+            ->exists();
+    }
+
     /** أعضاء النادي هذا الشهر مرتّبين — الترتيب داخل النادي جزء من الشاشة */
     public function members(): Collection
     {
         return RepScore::query()
             ->with('user')
+            ->whereIn('user_id', $this->eligibleUserIds())
             ->where('score', '>=', $this->threshold())
             ->orderByDesc('score')
             ->get()
@@ -46,6 +78,8 @@ class ThanksWall
 
         return RepScore::query()
             ->with('user')
+            // بلوك «اقتربت» بابُ النادي نفسه — فشرطه شرطه (13.4-ي · 13.4-ص)
+            ->whereIn('user_id', $this->eligibleUserIds())
             ->where('score', '<', $this->threshold())
             ->where('score', '>=', $this->threshold() - $gap)
             ->orderByDesc('score')
@@ -66,7 +100,8 @@ class ThanksWall
             'threshold' => $threshold,
             'percent' => $percent,
             'remaining' => round(max(0, $threshold - $score), 2),
-            'is_member' => $score >= $threshold,
+            // العضويّة شرطٌ للدخول لا الرقم وحده — وإلّا احتفل بها من هو خارج السباق
+            'is_member' => $score >= $threshold && $this->isEligible($user),
         ];
     }
 

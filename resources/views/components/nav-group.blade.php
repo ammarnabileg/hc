@@ -22,7 +22,8 @@
 
     <div class="mt-1 space-y-1 pe-3" style="border-inline-end: 1px solid var(--border)">
         @foreach ($items as $item)
-            <x-nav-link :route="$item['route'] ?? null" :label="$item['label'] ?? ''" icon="•" />
+            {{-- بعض بنود 12.0 تابٌ داخل صفحة، فتحتاج رابطًا بمعامل (`?tab=…`) لا اسم مسار مجرّدًا --}}
+            <x-nav-link :route="$item['route'] ?? null" :href="$item['href'] ?? null" :label="$item['label'] ?? ''" icon="•" />
         @endforeach
     </div>
 </details>

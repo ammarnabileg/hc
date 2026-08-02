@@ -35,6 +35,9 @@
 
     {{-- تحميل كسول: التاب المفتوح وحده هو المحمَّل (2.15-د) --}}
     @switch($tab)
+        @case('details')
+            @include('profile.partials.tab-details')
+            @break
         @case('achievements')
             @include('profile.partials.tab-achievements')
             @break

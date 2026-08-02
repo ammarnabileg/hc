@@ -3,11 +3,11 @@
 @section('title', 'سجلّ تدقيق الماليّات')
 
 @section('content')
-    <x-page-header title="🔒 سجلّ تدقيق الماليّات"
+    <x-page-header title="سجلّ تدقيق الماليّات"
                    subtitle="للقراءة فقط — غير قابل للتعديل أو الحذف."
                    :breadcrumbs="[
                        ['label' => 'لوحة الإدارة', 'url' => url('/admin')],
-                       ['label' => '🔒 الماليّات', 'url' => route('admin.finance.index')],
+                       ['label' => 'الماليّات', 'url' => route('admin.finance.index')],
                        ['label' => 'سجلّ التدقيق'],
                    ]" />
 
@@ -37,7 +37,7 @@
                                     —
                                 @endif
                             </td>
-                            <td class="p-3 font-mono text-xs">🔒 {{ $log->action }}</td>
+                            <td class="p-3 font-mono text-xs"><x-icon name="lock" size="16" /> {{ $log->action }}</td>
                             <td class="p-3 text-xs">
                                 {{ \Illuminate\Support\Str::limit((string) ($log->old_values['value'] ?? '—'), 24) }}
                                 ← {{ \Illuminate\Support\Str::limit((string) ($log->new_values['value'] ?? '—'), 24) }}
@@ -52,7 +52,7 @@
             <div class="md:hidden">
                 @foreach ($logs as $log)
                     <div class="p-3 text-sm" style="border-top: 1px solid var(--border)">
-                        <div class="font-mono text-xs">🔒 {{ $log->action }}</div>
+                        <div class="font-mono text-xs"><x-icon name="lock" size="16" /> {{ $log->action }}</div>
                         <div class="text-xs mt-1" style="color: var(--text-muted)">
                             {{ $log->user?->name ?? '—' }} · {{ $log->created_at?->diffForHumans() }}
                         </div>

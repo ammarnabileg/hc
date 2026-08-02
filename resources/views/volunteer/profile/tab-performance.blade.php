@@ -4,12 +4,12 @@
 @endphp
 
 <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
-    <x-kpi label="درجة الالتزام" :value="$p['score']" icon="⚖️" :state="$p['state']" />
-    <x-kpi label="رصيد VXP" :value="$p['vxp_balance']" icon="⚡" />
+    <x-kpi label="درجة الالتزام" :value="$p['score']" icon="evaluation" :state="$p['state']" />
+    <x-kpi label="رصيد VXP" :value="$p['vxp_balance']" icon="spark" />
     <x-kpi label="متوسّط التقييم"
            :value="$p['evaluations']['average'] !== null ? $p['evaluations']['average'].' / '.$p['evaluations']['scale'] : 'لسّه بدري'"
-           icon="⭐" />
-    <x-kpi label="حركات الفترة" :value="$p['movements']->count()" icon="🔁" :hint="'آخر '.$p['days'].' يوم'" />
+           icon="xp" />
+    <x-kpi label="حركات الفترة" :value="$p['movements']->count()" icon="refresh" :hint="'آخر '.$p['days'].' يوم'" />
 </div>
 
 <div class="grid md:grid-cols-2 gap-3 mb-3">

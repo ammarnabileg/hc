@@ -8,6 +8,7 @@ use App\Models\PlacementRequest;
 use App\Models\Position;
 use App\Models\RecruitmentCandidate;
 use App\Models\User;
+use App\Services\Volunteer\Org\CardIssuer;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
@@ -23,7 +24,11 @@ use Illuminate\Support\Facades\DB;
  */
 class PlacementService
 {
-    public function __construct(private readonly AuditTrail $audit, private readonly PeopleBridge $bridge) {}
+    public function __construct(
+        private readonly AuditTrail $audit,
+        private readonly PeopleBridge $bridge,
+        private readonly CardIssuer $cards,
+    ) {}
 
     /** مهلة ردّ المرشّح بالساعات — من الإعدادات (افتراضيّ 48) */
     public function responseHours(): int
@@ -76,10 +81,15 @@ class PlacementService
                 $max = (float) ($filters['score_max'] ?? 100);
                 $b->where(fn ($w) => $w->whereNull('qualifying_score')->orWhereBetween('qualifying_score', [$min, $max]));
             })
-            // الأقدم انتظارًا أوّلًا حين يكون الشاغر واحدًا والمرشّحون كُثُر (13.4-هـ)
+            /*
+             | الأقدم انتظارًا أوّلًا حين يكون الشاغر واحدًا والمرشّحون كُثُر (13.4-هـ)
+             | — ويُقاس بـ`applied_at` **وحده** فمدّة الانتظار حقيقةٌ لا تُمحى.
+             | أمّا «الأحدث أوّلًا» فيقرأ **آخر إبداء استعداد**: مَن جدّد استعداده
+             | «يصعد في القائمة» (13.4-هـ) بلا أن يفقد أقدميّته في الترتيب الآخر.
+             */
             ->when($sort === 'longest_waiting',
                 fn ($b) => $b->orderBy('applied_at'),
-                fn ($b) => $b->orderByDesc('applied_at'))
+                fn ($b) => $b->orderByRaw('COALESCE(readiness_renewed_at, applied_at) DESC'))
             ->get();
     }
 
@@ -349,10 +359,10 @@ class PlacementService
             ->update(['pending_placement_request_id' => null]);
     }
 
-    /** القبول: عضويّة جديدة + المُسكَّن غير مفعَّل في القائمة ويظلّ ظاهرًا + احتفال ذروة */
+    /** القبول: عضويّة جديدة + بطاقة رقميّة + المُسكَّن غير مفعَّل في القائمة + احتفال ذروة */
     private function activate(PlacementRequest $request, RecruitmentCandidate $candidate): void
     {
-        Membership::create([
+        $membership = Membership::create([
             'user_id' => $candidate->user_id,
             'entity_id' => $request->entity_id,
             'position_id' => $request->position_id,
@@ -360,6 +370,18 @@ class PlacementService
             'started_at' => now(),
             'status' => 'active',
         ]);
+
+        /*
+         | ⭐ البطاقة الرقميّة **تُصدَر لحظة التسكين** (13.4-ر-ج) — لا عند أوّل
+         | زيارةٍ لصفحتها. كان `CardIssuer::issueFor()` بلا مستدعٍ إطلاقًا، فتسكينٌ
+         | كامل يمرّ والبطاقات صفر قبله وصفر بعده. و«أخوكم» مستثنًى داخل المُصدِر
+         | نفسه (13.4-ص-و) فلا شرط مكرّر هنا.
+         */
+        $card = $this->cards->issueFor($membership->fresh(['user', 'position', 'entity.track']));
+
+        if ($card && $candidate->user) {
+            $this->bridge->celebrate($candidate->user, 'volunteer_card.issued', $card);
+        }
 
         // لا يختفي من القائمة — يصير غير مفعَّل ويظلّ ظاهرًا لكلّ مخوَّل (13.4-هـ)
         $candidate->forceFill([

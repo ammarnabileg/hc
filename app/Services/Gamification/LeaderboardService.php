@@ -18,34 +18,66 @@ use Illuminate\Support\Facades\DB;
 class LeaderboardService
 {
     /**
-     * ترتيب XP مع فرق الفترة.
+     * ترتيب XP **داخل النطاق الزمنيّ** (7.3).
+     *
+     * ⭐ لماذا لا نرتّب بعمود `users.xp`؟ لأنّه **تراكميّ منذ التسجيل**: لو رتّبنا
+     * به لأعطى `days=7` و`days=30` و`days=90` نفس الترتيب حرفيًّا، فتصير اللوحة
+     * أبديّة ولا يظهر فيها وافدٌ جديد مهما اجتهد أسبوعًا — وهذا يُبطِل الغرض
+     * الذي جعله الدستور **قلب اللوحة**: أن تتيح النطاقاتُ الزمنيّة للجديد أن ينافس.
+     * فالترتيب الآن بـ**XP المكتسب داخل الفترة** (`xpDeltas`)، والتراكميّ يبقى
+     * فاصلَ تعادل ومعروضًا في الصفّ كسياق.
      *
      * @param  string  $scope  all · country · governorate
-     * @return array{rows:Collection,me:?array,total:int}
+     * @param  int  $days  طول النافذة بالأيّام — 7/30 من الإعدادات أو فترة يحدّدها المستخدم
+     * @param  int|null  $countryId  فلترة بدولةٍ **بعينها** لا «دولتي» فقط (7.3)
+     * @param  int|null  $governorateId  فلترة بمحافظةٍ بعينها
+     * @return array{rows:Collection,me:?array,total:int,podium:Collection,days:int}
      */
-    public function xp(User $me, string $scope = 'all', int $days = 30, ?string $search = null): array
-    {
-        $from = CarbonImmutable::now()->subDays(max(1, $days))->startOfDay();
+    public function xp(
+        User $me,
+        string $scope = 'all',
+        int $days = 30,
+        ?string $search = null,
+        ?int $countryId = null,
+        ?int $governorateId = null,
+    ): array {
+        $days = $this->clampDays($days);
+        $from = CarbonImmutable::now()->subDays($days)->startOfDay();
 
-        $query = User::query()
+        // «دولتي/محافظتي» اختصارٌ لفلترة صريحة — والصريحة تعلو إن جاءت معًا
+        $countryId = $countryId ?: ($scope === 'country' ? $me->country_id : null);
+        $governorateId = $governorateId ?: ($scope === 'governorate' ? $me->governorate_id : null);
+
+        $all = User::query()
             ->where('status', 'active')
-            ->when($scope === 'country' && $me->country_id, fn ($q) => $q->where('country_id', $me->country_id))
-            ->when($scope === 'governorate' && $me->governorate_id, fn ($q) => $q->where('governorate_id', $me->governorate_id))
+            ->when($countryId, fn ($q) => $q->where('country_id', $countryId))
+            ->when($governorateId, fn ($q) => $q->where('governorate_id', $governorateId))
+            ->with(['country:id,name_ar', 'governorate:id,name_ar'])
             ->orderByDesc('xp')
-            ->orderBy('id');
+            ->orderBy('id')
+            ->get(['id', 'name', 'code', 'avatar_path', 'xp', 'level', 'country_id', 'governorate_id']);
 
-        $all = $query->get(['id', 'name', 'code', 'avatar_path', 'xp', 'level', 'country_id', 'governorate_id']);
         $deltas = $this->xpDeltas($all->pluck('id')->all(), $from);
 
-        $ranked = $all->values()->map(fn (User $u, int $i) => [
-            'rank' => $i + 1,
-            'user' => $u,
-            'xp' => (int) $u->xp,
-            'delta' => (int) ($deltas[$u->id] ?? 0),
-            'is_me' => $u->id === $me->id,
-        ]);
+        // الترتيب: XP الفترة أوّلًا، ثمّ التراكميّ، ثمّ الأقدم تسجيلًا — حسمٌ ثابت
+        $ranked = $all
+            ->sortBy([
+                fn (User $a, User $b) => ($deltas[$b->id] ?? 0) <=> ($deltas[$a->id] ?? 0),
+                fn (User $a, User $b) => (int) $b->xp <=> (int) $a->xp,
+                fn (User $a, User $b) => $a->id <=> $b->id,
+            ])
+            ->values()
+            ->map(fn (User $u, int $i) => [
+                'rank' => $i + 1,
+                'user' => $u,
+                'xp' => (int) $u->xp,
+                'delta' => (int) ($deltas[$u->id] ?? 0),
+                'is_me' => $u->id === $me->id,
+            ]);
 
         $mine = $ranked->firstWhere('is_me', true);
+        // منصّة التتويج تُبنى من الترتيب الكامل قبل أيّ بحث — التوب 3 لا يتغيّر ببحثي
+        $podium = $ranked->take(3)->values();
 
         if ($search) {
             $ranked = $ranked->filter(fn (array $row) => str_contains($row['user']->name, $search))->values();
@@ -55,7 +87,41 @@ class LeaderboardService
             'rows' => $ranked->take((int) setting('leaderboard.rows_per_page', 50))->values(),
             'me' => $mine,
             'total' => $all->count(),
+            'podium' => $podium,
+            'days' => $days,
         ];
+    }
+
+    /**
+     * النطاقات الجاهزة في القائمة (7.3) — من الإعدادات لا من الكود (2.13).
+     *
+     * @return array<int, string>
+     */
+    public function ranges(): array
+    {
+        $raw = setting('leaderboard.ranges', [7, 30]);
+        $out = [];
+
+        foreach (is_array($raw) ? $raw : [] as $value) {
+            $days = $this->clampDays((int) $value);
+            $out[$days] = str_replace(':days', (string) $days, (string) setting('leaderboard.range_label', 'آخر :days يومًا'));
+        }
+
+        ksort($out);
+
+        return $out;
+    }
+
+    /** هل يُسمَح بفترة يحدّدها المستخدم بنفسه؟ (7.3) */
+    public function customRangeEnabled(): bool
+    {
+        return (bool) setting('leaderboard.custom_range_enabled', true);
+    }
+
+    /** حدّ الفترة: يومٌ واحد على الأقلّ وسقفٌ من الإعدادات — فلا مدى بلا معنى */
+    public function clampDays(int $days): int
+    {
+        return max(1, min((int) setting('leaderboard.max_range_days', 365), $days));
     }
 
     /**

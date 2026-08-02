@@ -33,7 +33,7 @@
                     أعلى رقم وصلته: <span data-org="best">{{ $chart['network_total'] }}</span>
                 </div>
             </div>
-            <x-kpi label="أعضاء الكيان" :value="$chart['entity_members']" icon="👥" />
+            <x-kpi label="أعضاء الكيان" :value="$chart['entity_members']" icon="people" />
             <div class="card p-4 col-span-2 flex flex-col justify-center gap-2">
                 <input type="search" data-org="search" placeholder="ابحث بالاسم أو الكود — نقفز للعقدة ونضيئها"
                        aria-label="بحث في الهيكل"

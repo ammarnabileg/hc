@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\Route;
 | (2.15-أ-7). ولاحِظ أنّ **إلغاء الشهادة** صلاحيّةٌ مستقلّة عن **إصدارها** (24.1).
 */
 
-Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth', 'admin.panel'])->prefix('admin')->name('admin.')->group(function () {
 
     // ==================================================== أ) إدارة التدريب — المسارات (12.4-أ)
     Route::middleware('permission:paths.list,paths.view')->group(function () {

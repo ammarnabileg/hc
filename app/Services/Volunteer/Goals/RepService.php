@@ -297,10 +297,27 @@ class RepService
 
     // ------------------------------------------------------------------ التصفير الشهريّ
 
-    /** موعد التصفير القادم: يوم كذا الساعة كذا **بتوقيت القاهرة** (13.4-ن-ز) */
+    /**
+     * منطقة التصفير: مفتاحه الخاصّ أوّلًا ثمّ توقيت المنصّة — فالأدمن الذي يغيّر
+     * `rep.reset.timezone` يجب أن يتغيّر معه موعد التنفيذ فعلًا لا شكلًا (2.13).
+     */
+    public function resetTimezone(): string
+    {
+        $tz = trim((string) setting('rep.reset.timezone', ''));
+
+        return $tz !== '' ? $tz : (string) setting('system.timezone', 'Africa/Cairo');
+    }
+
+    /** هل التصفير الشهريّ مفعَّل أصلًا؟ — مفتاحٌ بلا قارئ يعني إيقافًا لا يوقِف */
+    public function resetEnabled(): bool
+    {
+        return (bool) setting('rep.reset.enabled', true);
+    }
+
+    /** موعد التصفير القادم: يوم كذا الساعة كذا بتوقيت التصفير (13.4-ن-ز) */
     public function nextResetAt(): CarbonImmutable
     {
-        $tz = (string) setting('system.timezone', 'Africa/Cairo');
+        $tz = $this->resetTimezone();
         $day = max(1, (int) setting('rep.reset.day_of_month', 1));
         $hour = (int) setting('rep.reset.hour', 5);
 
@@ -310,10 +327,21 @@ class RepService
         return $candidate->isAfter($now) ? $candidate : $candidate->addMonthNoOverflow();
     }
 
-    /** هل نحن في لحظة التصفير الآن؟ — يستعمله الأمر المجدوَل */
+    /**
+     * هل نحن في لحظة التصفير الآن؟ — **القرار كلّه هنا**.
+     *
+     * الجدولة في `routes/console.php` مسحةٌ كلّ ساعة لا موعدٌ مكتوب فيها، لأنّ
+     * تعبير الكرون يُقرأ مرّةً عند تحميل الملفّ فلا يعلم بتغيير الأدمن للموعد؛
+     * فكان الموعد الجديد يظهر في الشاشة بينما التنفيذ يبقى على القديم — أو لا
+     * يحدث أبدًا. المسحة تسأل هذه الدالّة، وهي وحدها تقرأ الإعدادات (2.13).
+     */
     public function isResetMoment(?CarbonImmutable $now = null): bool
     {
-        $tz = (string) setting('system.timezone', 'Africa/Cairo');
+        if (! $this->resetEnabled()) {
+            return false;
+        }
+
+        $tz = $this->resetTimezone();
         $now ??= CarbonImmutable::now($tz);
         $now = $now->setTimezone($tz);
 

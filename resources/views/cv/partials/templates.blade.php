@@ -42,94 +42,51 @@
     </div>
 
     <span class="text-xs block mt-2" data-template-note style="color: var(--color-state-ok)"></span>
+
+    <p class="text-xs mt-2" style="color: var(--text-muted)">
+        {{ setting('cv.templates.charge_hint', 'اختيار القالب مجّانيّ — والتذاكر بتتخصم لمّا تحمّل النسخة النظيفة.') }}
+    </p>
 </div>
 
-{{-- بوب-أب الشراء بالرصيد قبل/بعد (24.5) --}}
-<x-modal id="cv-template-buy" :title="setting('cv.template.buy_title', 'شراء القالب')">
-    <div class="space-y-2 text-sm">
-        <p data-buy-name class="font-semibold"></p>
-        <dl class="grid grid-cols-2 gap-2">
-            <dt style="color: var(--text-muted)">{{ setting('cv.template.price_title', 'السعر') }}</dt><dd data-buy-price></dd>
-            <dt style="color: var(--text-muted)">{{ setting('cv.template.balance_before', 'الرصيد قبل') }}</dt><dd data-buy-before></dd>
-            <dt style="color: var(--text-muted)">{{ setting('cv.template.balance_after', 'الرصيد بعد') }}</dt><dd data-buy-after></dd>
-        </dl>
-        <p class="text-xs" data-buy-error style="color: var(--color-state-warn)"></p>
-    </div>
-
-    <x-slot:footer>
-        <button type="button" data-buy-confirm class="btn rounded-xl px-4 py-2 text-sm font-semibold"
-                style="background: var(--color-brand-500); color: #04201c">{{ setting('cv.template.confirm_label', 'أكّد الشراء') }}</button>
-    </x-slot:footer>
-</x-modal>
-
+{{--
+  ⭐ لا بوب-أب شراء عند الاختيار: **الخصم لحظة الاستخراج النهائيّ لا لحظة الاختيار** (9).
+  الاختيار مجّانيّ، والمعاينة موسومة، والرصيد قبل/بعد يظهر هنا ليعرف ما ينتظره.
+--}}
 @push('scripts')
 <script>
-/* اختيار القالب: المجّانيّ فورًا، والمدفوع ببوب-أب الرصيد قبل/بعد (24.5) */
 (function () {
     const box = document.querySelector('[data-templates]');
     if (!box) return;
 
-    const modal = document.getElementById('cv-template-buy');
     const note = box.querySelector('[data-template-note]');
     const preview = document.querySelector('[data-preview]');
     const root = document.querySelector('[data-cv]');
-    let pending = null;
-
-    const post = async (url, confirm) => {
-        const res = await fetch(url, {
-            method: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-            },
-            body: JSON.stringify({ confirm: confirm ? 1 : 0 }),
-        });
-        return res.json();
-    };
-
-    const select = (btn) => {
-        box.querySelectorAll('[data-template]').forEach((b) => { b.style.outline = 'none'; });
-        btn.style.outline = '2px solid var(--color-brand-500)';
-        btn.dataset.owned = '1';
-        if (preview && root) preview.src = root.dataset.previewUrl + '?t=' + Date.now();
-    };
 
     box.querySelectorAll('[data-template]').forEach((btn) => btn.addEventListener('click', async () => {
         try {
-            const data = await post(btn.dataset.url, false);
+            const res = await fetch(btn.dataset.url, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                },
+                body: JSON.stringify({}),
+            });
+            const data = await res.json();
 
-            if (data.ok) { select(btn); note.textContent = data.message; return; }
+            box.querySelectorAll('[data-template]').forEach((b) => { b.style.outline = 'none'; });
+            btn.style.outline = '2px solid var(--color-brand-500)';
 
-            pending = btn;
-            modal.querySelector('[data-buy-name]').textContent = btn.dataset.name;
-            modal.querySelector('[data-buy-price]').textContent = data.price;
-            modal.querySelector('[data-buy-before]').textContent = data.balance_before;
-            modal.querySelector('[data-buy-after]').textContent = data.balance_after;
-            modal.querySelector('[data-buy-error]').textContent = '';
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
+            note.textContent = data.message || '';
+            note.style.color = data.owned ? 'var(--color-state-ok)' : 'var(--color-state-warn)';
+
+            if (preview && root) preview.src = root.dataset.previewUrl + '?t=' + Date.now();
         } catch {
             note.textContent = @json(setting('cv.template.error_label', 'مش قادرين ننفّذ دلوقتي — جرّب تاني.'));
             note.style.color = 'var(--color-state-warn)';
         }
     }));
-
-    modal.querySelector('[data-buy-confirm]').addEventListener('click', async () => {
-        if (!pending) return;
-        const data = await post(pending.dataset.url, true);
-
-        if (!data.ok) {
-            modal.querySelector('[data-buy-error]').textContent = data.message ?? '';
-            return;
-        }
-
-        select(pending);
-        note.textContent = data.message;
-        note.style.color = 'var(--color-state-ok)';
-        modal.classList.add('hidden');
-        modal.classList.remove('flex');
-    });
 })();
 </script>
 @endpush

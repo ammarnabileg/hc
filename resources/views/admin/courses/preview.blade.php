@@ -27,7 +27,7 @@
             <ul class="mt-2 space-y-1 text-sm">
                 @foreach ($section->lessons as $lesson)
                     <li class="flex items-center gap-2">
-                        <span aria-hidden="true">{{ $lesson->type === 'video' ? '▶' : '📄' }}</span>
+                        <span aria-hidden="true"><x-icon :name="$lesson->type === 'video' ? 'video' : 'document'" size="16" /></span>
                         <span class="flex-1">{{ $lesson->title_ar }}</span>
                         @if ($lesson->is_free_preview)
                             <x-state-badge state="ok" label="معاينة مجّانيّة" />

@@ -5,7 +5,6 @@ namespace App\Support\Scope;
 use App\Models\Entity;
 use App\Models\Membership;
 use App\Models\User;
-use App\Support\Access\AccessEngine;
 use App\Support\Access\MembershipContext;
 use App\Support\Access\ScopeResolver;
 use Illuminate\Contracts\Database\Query\Builder as BuilderContract;
@@ -32,7 +31,7 @@ class ScopeFilter
     public function __construct(
         private readonly ScopeResolver $scopes,
         private readonly MembershipContext $context,
-        private readonly AccessEngine $access,
+        private readonly LayerPrecedence $layers,
     ) {}
 
     /**
@@ -155,14 +154,18 @@ class ScopeFilter
         };
     }
 
-    /** أوسع نطاق يملكه في الصلاحيّة — ومالك المنصّة ALL دائمًا */
+    /**
+     * النطاق الحاكم في الصلاحيّة — ومالك المنصّة ALL دائمًا.
+     * ويُقرأ عبر `LayerPrecedence` كي تسري **أسبقيّة طبقة المنصّة** (12.2.1-ز-5)
+     * على بيانات القوائم أيضًا لا على البوّابة وحدها.
+     */
     public function scopeFor(?User $user, string $permissionKey): ?string
     {
         if ($user === null) {
             return null;
         }
 
-        return $this->access->widestScope($user, $permissionKey);
+        return $this->layers->governingScope($user, $permissionKey);
     }
 
     // ------------------------------------------------------------------ داخليّ

@@ -13,10 +13,12 @@ use App\Models\RewardQuestion;
 use App\Services\Admin\Volunteer\AuditTrail;
 use App\Services\Admin\Volunteer\SettingsWriter;
 use App\Services\Admin\Volunteer\WarSettingsService;
+use App\Services\Gamification\BadgeService;
 use App\Services\Gamification\GamesAdminService;
 use App\Services\Gamification\RewardQuestionService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 use RuntimeException;
 
@@ -100,25 +102,47 @@ class GamificationController extends Controller
             'id' => ['nullable', 'integer', 'exists:badges,id'],
             'key' => ['required', 'string', 'max:64'],
             'name_ar' => ['required', 'string', 'max:120'],
-            'name_en' => ['nullable', 'string', 'max:120'],
+            // ⭐ التسمية ثنائيّة اللغة قاعدة عامّة تشمل الشارات نصًّا (القسم 3)
+            'name_en' => ['required', 'string', 'max:120'],
+            'description_ar' => ['nullable', 'string', 'max:500'],
+            'description_en' => ['nullable', 'string', 'max:500'],
             'condition_text_ar' => ['required', 'string', 'max:255'],
-            'condition_key' => ['nullable', 'string', 'max:64'],
+            'condition_text_en' => ['nullable', 'string', 'max:255'],
+            /*
+             | ⭐ المفتاح من **القائمة المقفولة** لا نصًّا حرًّا (7.4).
+             | الحقل الحرّ كان مصنع الشارات الميتة: مفتاحٌ لا يقابله مقياس =
+             | شارةٌ لا تُمنَح أبدًا، والمتدرّب يرى «0% من الشرط» وهو مستوفيه.
+             */
+            'condition_key' => ['nullable', 'string', Rule::in(array_keys(BadgeService::CONDITIONS))],
             'condition_value' => ['nullable', 'integer', 'min:0'],
+            'icon' => ['nullable', 'image', 'max:'.(int) setting('badges.icon.max_kb', 512)],
             'icon_path' => ['nullable', 'string', 'max:255'],
             'is_active' => ['nullable', 'boolean'],
+        ], [], [
+            'name_en' => 'الاسم بالإنجليزيّة',
+            'condition_key' => 'مقياس الشرط',
+            'icon' => 'صورة الشارة',
         ]);
 
         $badge = isset($data['id']) ? Badge::findOrFail($data['id']) : new Badge;
         $old = $badge->exists ? $badge->only(['name_ar', 'condition_text_ar']) : [];
 
+        // رفع الصورة (7.4: «اسم + وصف + **صورة**») — والمسار النصّيّ يبقى للقوالب الجاهزة
+        $iconPath = $request->hasFile('icon')
+            ? $request->file('icon')->store((string) setting('badges.icon.directory', 'badges'), 'public')
+            : ($data['icon_path'] ?? $badge->icon_path);
+
         $badge->fill([
             'key' => $data['key'],
             'name_ar' => $data['name_ar'],
-            'name_en' => $data['name_en'] ?? null,
+            'name_en' => $data['name_en'],
+            'description_ar' => $data['description_ar'] ?? null,
+            'description_en' => $data['description_en'] ?? null,
             'condition_text_ar' => $data['condition_text_ar'],
+            'condition_text_en' => $data['condition_text_en'] ?? null,
             'condition_key' => $data['condition_key'] ?? null,
             'condition_value' => $data['condition_value'] ?? null,
-            'icon_path' => $data['icon_path'] ?? null,
+            'icon_path' => $iconPath,
             'is_active' => (bool) ($data['is_active'] ?? true),
         ])->save();
 
@@ -382,6 +406,8 @@ class GamificationController extends Controller
             'badges' => [
                 'settings' => SettingsWriter::groupRows('gamification_badges'),
                 'badges' => Badge::query()->orderBy('id')->get(),
+                // ⭐ القائمة المقفولة للمقاييس — الأدمن يختار ولا يكتب (7.4)
+                'conditions' => BadgeService::CONDITIONS,
             ],
             'streaks' => [
                 'settings' => SettingsWriter::groupRows('gamification_streaks'),

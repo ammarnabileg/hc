@@ -200,25 +200,28 @@ class PathCourseService
     }
 
     /**
-     * امتحان شهادة المسار مدفوع بالكوينز (12.4-أ) — يُحفَظ سعره في جدول الامتحانات
-     * كي يقرأه المتدرّب من نفس المصدر الذي يقرأ منه امتحان التدريب.
+     * ⭐ **صفّ الامتحان هو مصدر الحقيقة الوحيد لسعر امتحان المسار** (12.4-أ · 2.13).
+     *
+     * كان للسعر ثلاثة مصادر: عمود `learning_paths.exam_price_coins` تكتبه شاشة
+     * الأدمن، و`exams.price_coins` يُشحَن منه المتدرّب، وإعدادٌ عامّ يتيم — فظهر
+     * لمسارٍ سعران متعارضان فعلًا (0 عند الأدمن و150 عند المتدرّب)، ومساراتٌ لها
+     * سعرٌ في الأدمن **بلا صفّ امتحان أصلًا** فلا يرى المتدرّب امتحانًا إطلاقًا.
+     * فمن هنا: صفّ الامتحان يُنشَأ **لكلّ مسار** ويُقرأ منه السعر في الشاشتين،
+     * والعمود مرآةٌ للتوافق لا مصدرًا.
      */
-    private function syncPathExam(LearningPath $path): void
+    public function syncPathExam(LearningPath $path): Exam
     {
-        $exam = Exam::query()
-            ->where('examable_type', $path->getMorphClass())
-            ->where('examable_id', $path->id)
-            ->first();
-
-        $payload = ['price_coins' => $path->exam_price_coins];
+        $exam = $this->pathExam($path);
+        $price = (float) $path->exam_price_coins;
 
         if ($exam) {
-            $exam->update($payload);
+            $exam->update(['price_coins' => $price]);
 
-            return;
+            return $exam->refresh();
         }
 
-        Exam::create($payload + [
+        return Exam::create([
+            'price_coins' => $price,
             'examable_type' => $path->getMorphClass(),
             'examable_id' => $path->id,
             'title_ar' => 'امتحان شهادة '.$path->name_ar,
@@ -226,6 +229,43 @@ class PathCourseService
             'questions_count' => (int) setting('exams.questions.default_count', 20),
             'duration_minutes' => (int) setting('exams.duration.default_minutes', 30),
         ]);
+    }
+
+    public function pathExam(LearningPath $path): ?Exam
+    {
+        return Exam::query()
+            ->where('examable_type', $path->getMorphClass())
+            ->where('examable_id', $path->id)
+            ->first();
+    }
+
+    /**
+     * سعر امتحان كلّ مسار **من مصدره الواحد** — لشاشة الأدمن، فتعرض ما يدفعه
+     * المتدرّب بالضبط لا رقمًا آخر في عمودٍ مرآة (12.4-أ).
+     *
+     * @param  Collection<int, LearningPath>  $paths
+     * @return array<int, float>
+     */
+    public function examPricesFor(Collection $paths): array
+    {
+        $ids = $paths->pluck('id')->all();
+
+        if ($ids === []) {
+            return [];
+        }
+
+        $morph = (new LearningPath)->getMorphClass();
+
+        $prices = Exam::query()
+            ->where('examable_type', $morph)
+            ->whereIn('examable_id', $ids)
+            ->pluck('price_coins', 'examable_id');
+
+        return $paths
+            ->mapWithKeys(fn (LearningPath $path) => [
+                $path->id => (float) ($prices[$path->id] ?? $path->exam_price_coins),
+            ])
+            ->all();
     }
 
     private function nextSortOrder(): int

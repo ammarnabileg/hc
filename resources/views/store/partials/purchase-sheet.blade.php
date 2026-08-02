@@ -16,7 +16,8 @@
     $reopen = session('checkout_reason') !== null;
 
     // ⭐ أقرب عرض يكفّيك (19.5-ب-2): يُحسَب في الخادم ويُعرَض عند نقص الرصيد فقط
-    $suggestion = app(\App\Services\Store\NearestTopupOffer::class)->forDeficit($quote['total'] - $quote['balance_before']);
+    $currency = $quote['currency'] ?? Coins::defaultCode();
+    $suggestion = app(\App\Services\Store\NearestTopupOffer::class)->forDeficit($quote['total'] - $quote['balance_before'], $currency);
     $suggestionText = app(\App\Services\Store\NearestTopupOffer::class)->sentence($suggestion);
 @endphp
 
@@ -43,7 +44,7 @@
                     @foreach ($quote['lines'] as $line)
                         <div class="flex items-center justify-between gap-3 text-sm">
                             <span>{{ $line['title'] }}</span>
-                            <span class="font-semibold">{{ Coins::label($line['price']) }}</span>
+                            <span class="font-semibold">{{ Coins::label($line['price'], $currency) }}</span>
                         </div>
                     @endforeach
                 </div>
@@ -55,7 +56,7 @@
                         <input type="checkbox" name="bumps[]" value="{{ $bump['slug'] }}" class="mt-1" data-quote-trigger>
                         <span class="text-sm">
                             <span class="font-semibold">{{ $bump['title'] }}</span>
-                            <span> — {{ Coins::label($bump['price']) }}</span>
+                            <span> — {{ Coins::label($bump['price'], $currency) }}</span>
                             @if ($bump['list_price'] > $bump['price'])
                                 <span class="text-xs line-through" style="color: var(--text-muted)">{{ Coins::fmt($bump['list_price']) }}</span>
                             @endif
@@ -81,23 +82,23 @@
                 <div class="card p-3 space-y-2 text-sm" style="background: var(--surface-sunken)">
                     <div class="flex items-center justify-between">
                         <span style="color: var(--text-muted)">المجموع</span>
-                        <span data-quote="subtotal">{{ Coins::label($quote['subtotal']) }}</span>
+                        <span data-quote="subtotal">{{ Coins::label($quote['subtotal'], $currency) }}</span>
                     </div>
                     <div class="flex items-center justify-between">
                         <span style="color: var(--text-muted)">الخصم</span>
-                        <span data-quote="discount">{{ Coins::label($quote['discount']) }}</span>
+                        <span data-quote="discount">{{ Coins::label($quote['discount'], $currency) }}</span>
                     </div>
                     <div class="flex items-center justify-between font-bold">
                         <span>الإجماليّ</span>
-                        <span data-quote="total">{{ Coins::label($quote['total']) }}</span>
+                        <span data-quote="total">{{ Coins::label($quote['total'], $currency) }}</span>
                     </div>
                     <div class="flex items-center justify-between" style="color: var(--text-muted)">
                         <span>رصيدك قبل</span>
-                        <span data-quote="balance_before">{{ Coins::label($quote['balance_before']) }}</span>
+                        <span data-quote="balance_before">{{ Coins::label($quote['balance_before'], $currency) }}</span>
                     </div>
                     <div class="flex items-center justify-between" style="color: var(--text-muted)">
                         <span>رصيدك بعد</span>
-                        <span data-quote="balance_after">{{ Coins::label($quote['balance_after']) }}</span>
+                        <span data-quote="balance_after">{{ Coins::label($quote['balance_after'], $currency) }}</span>
                     </div>
                 </div>
 

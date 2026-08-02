@@ -20,8 +20,8 @@
 
     {{-- قاعدتان معلَنتان — تُقرآن قبل أيّ إجراء --}}
     <div class="card p-3 mb-4 text-sm space-y-1">
-        <div>🔒 <strong>الإقصاء</strong> لا يكون إلّا عبر سلّم العتبات (عتبة التعليق الحاليّة: {{ $exclusionThreshold }}) — لا فصل بقرار فرديّ.</div>
-        <div>🔒 <strong>السبب لا يُنشَر للفريق</strong> — يظهر «انتهت عضويّة فلان» فقط، والتفصيل في الملاحظات الإداريّة.</div>
+        <div><x-icon name="lock" size="16" /> <strong>الإقصاء</strong> لا يكون إلّا عبر سلّم العتبات (عتبة التعليق الحاليّة: {{ $exclusionThreshold }}) — لا فصل بقرار فرديّ.</div>
+        <div><x-icon name="lock" size="16" /> <strong>السبب لا يُنشَر للفريق</strong> — يظهر «انتهت عضويّة فلان» فقط، والتفصيل في الملاحظات الإداريّة.</div>
     </div>
 
     <x-filters :action="route('admin.volunteer.offboarding')">
@@ -113,7 +113,7 @@
                     @else
                         <span class="text-xs" style="color: var(--text-muted)">
                             @if ($record->honorable_certificate_issued)
-                                🎖️ خروج مشرَّف — صدرت شهادة خبرة تطوّع.
+                                <x-icon name="badge" size="16" /> خروج مشرَّف — صدرت شهادة خبرة تطوّع.
                             @else
                                 لا شهادة خبرة لهذا النوع.
                             @endif
@@ -160,7 +160,7 @@
                 <textarea name="reason" id="ob-reason" rows="3" maxlength="1000"
                           class="w-full rounded-xl px-3 py-2 text-sm mb-2"
                           style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)"></textarea>
-                <p class="text-xs mb-3" style="color: var(--text-muted)">🔒 السبب <strong>لا يُنشَر للفريق</strong> — يظهر «انتهت عضويّة فلان» فقط.</p>
+                <p class="text-xs mb-3" style="color: var(--text-muted)"><x-icon name="lock" size="16" /> السبب <strong>لا يُنشَر للفريق</strong> — يظهر «انتهت عضويّة فلان» فقط.</p>
 
                 <div class="text-sm font-semibold mb-1">التصفية الإلزاميّة</div>
                 @foreach ($clearance as $index => $label)

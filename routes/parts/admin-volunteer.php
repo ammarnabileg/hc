@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\Route;
 | يُخفى من السايد بار ولا يُعطَّل (2.15-أ-7).
 */
 
-Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth', 'admin.panel'])->prefix('admin')->name('admin.')->group(function () {
 
     // ------------------------------------------------------ الإدارة المركزيّة للتطوّع 🤝
     Route::prefix('volunteer')->name('volunteer.')->group(function () {
@@ -32,6 +32,10 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
             ->middleware('permission:volunteer_page.edit')->name('page.block.save');
         Route::post('/page/block/delete', [VolunteerAdminController::class, 'deleteBlock'])
             ->middleware('permission:volunteer_page.manage')->name('page.block.delete');
+
+        // 🔒 العنصر الشرفيّ «أخوكم» — التعديل لمالك المنصّة وحده (13.4-ص-د)
+        Route::post('/honorary', [VolunteerAdminController::class, 'saveHonorary'])
+            ->middleware('permission:volunteer_central_settings.manage')->name('honorary.save');
 
         Route::post('/reset/{group}', [VolunteerAdminController::class, 'resetGroup'])
             ->middleware('permission:volunteer_central_settings.manage')->name('reset');

@@ -7,7 +7,7 @@
 @endphp
 
 <details class="card p-4 md:p-5 mt-4">
-    <summary class="cursor-pointer font-bold select-none">⚙️ إعدادات الرسائل الإيجابيّة</summary>
+    <summary class="cursor-pointer font-bold select-none"><x-icon name="settings" size="16" /> إعدادات الرسائل الإيجابيّة</summary>
 
     <p class="text-xs mt-2" style="color: var(--text-muted)">
         النِّسَب دي احتمالات حقيقيّة تُسحَب لحظة تحميل الصفحة — بلا أرقام وهميّة ولا ضغط على المستخدم (2.9).
@@ -63,6 +63,6 @@
 
     <form method="post" action="{{ route('admin.positive.settings.reset') }}" class="mt-3">
         @csrf
-        <button type="submit" class="text-xs underline" style="color: var(--text-muted)">↺ رجّع الإعدادات كلّها للافتراضيّ</button>
+        <button type="submit" class="text-xs underline" style="color: var(--text-muted)"><x-icon name="refresh" size="16" /> رجّع الإعدادات كلّها للافتراضيّ</button>
     </form>
 </details>

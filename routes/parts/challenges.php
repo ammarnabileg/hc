@@ -120,7 +120,7 @@ Route::middleware('auth')->group(function () {
     });
 
     // ------------------------------------------------------------ لوحة الإدارة
-    Route::prefix('admin')->name('admin.')->group(function () {
+    Route::middleware('admin.panel')->prefix('admin')->name('admin.')->group(function () {
 
         // بنك أسئلة الحروب (12.10-ب · 24.2)
         Route::prefix('wars/bank')->name('wars.bank.')->group(function () {

@@ -105,6 +105,11 @@ class VolunteerOrgDemoSeeder extends Seeder
      * صلاحيّات شاشات المجال: `org_chart` و`capacity` و`team_health` و`memberships`.
      * صحّة القسم والسعة **لا تُمنَحان لكوردنيتور ولا تيم ليدر** — فالعضو العاديّ
      * لا يراهما ولا يعرف بوجودهما (2.15-أ-7 · 24.4-7).
+     *
+     * ⭐ وكلّ دور عند **سقفه** لا فوقه (12.2.1-ز-2): كان `memberships.list` يُكتَب
+     * `ENTITY` للجميع — فالسوبرفايزر (سقفه SUBTREE) والتيم ليدر (TEAM) يقرآن قائمة
+     * أعضاء **الكيان كلّه**، والكوردنيتور (سقفه SELF) كذلك. النطاق الآن نطاقُ الدور،
+     * والكوردنيتور لا يأخذها أصلًا لأنّ `memberships.list` لا تُعرَّف بنطاق SELF.
      */
     private function permissions(): void
     {
@@ -116,17 +121,17 @@ class VolunteerOrgDemoSeeder extends Seeder
                 'capacity.view' => 'ENTITY', 'capacity.export' => 'ENTITY',
             ],
             'supervisor' => [
-                'memberships.list' => 'ENTITY', 'memberships.view' => 'SUBTREE',
+                'memberships.list' => 'SUBTREE', 'memberships.view' => 'SUBTREE',
                 'org_chart.view' => 'SUBTREE',
                 'team_health.view' => 'SUBTREE',
             ],
             'team_leader' => [
-                'memberships.list' => 'ENTITY', 'memberships.view' => 'TEAM',
+                'memberships.list' => 'TEAM', 'memberships.view' => 'TEAM',
                 'org_chart.view' => 'TEAM',
             ],
             'coordinator' => [
-                // عضو عاديّ: يرى القسم والهيكل — ولا يرى صحّة القسم ولا السعة
-                'memberships.list' => 'ENTITY', 'memberships.view' => 'SELF',
+                // عضو عاديّ: يرى نفسه والهيكل — ولا قائمةَ أعضاءٍ ولا صحّة قسم ولا سعة
+                'memberships.view' => 'SELF',
                 'org_chart.view' => 'SELF',
             ],
             'track_supervisor' => [

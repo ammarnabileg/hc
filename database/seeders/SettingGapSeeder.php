@@ -3,6 +3,8 @@
 namespace Database\Seeders;
 
 use App\Models\Setting;
+use App\Services\Admin\System\SettingKeyScanner;
+use App\Services\Admin\System\SettingsRegistry;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Cache;
 
@@ -20,22 +22,116 @@ use Illuminate\Support\Facades\Cache;
  */
 class SettingGapSeeder extends Seeder
 {
+    /** شرح ما التقطته الشبكة — يقول للمالك إنّ اللافتة لسّه محتاجة صياغة */
+    private const AUTO_HINT = 'التُقِط تلقائيًّا من الكود بافتراضيّه — لسّه محتاج لافتةً عربيّةً في سيدر مجاله.';
+
     public function run(): void
     {
-        foreach (self::rows() as [$key, $group, $label, $type, $default, $hint]) {
-            Setting::firstOrCreate(['key' => $key], [
+        $this->write(self::rows());
+
+        Cache::forget('settings');
+
+        $auto = $this->write($this->fromCode());
+
+        Cache::forget('settings');
+
+        $this->command?->info('ردم فجوة الإعدادات: '.count(self::rows()).' مفتاحًا منسَّقًا'.
+            ($auto > 0 ? " + {$auto} التقطتها شبكة الأمان من الكود" : '').'.');
+    }
+
+    /** @param  list<array{0:string,1:string,2:string,3:string,4:string,5:string}>  $rows */
+    private function write(array $rows): int
+    {
+        $written = 0;
+
+        foreach ($rows as [$key, $group, $label, $type, $default, $hint]) {
+            $written += Setting::firstOrCreate(['key' => $key], [
                 'group' => $group,
                 'label_ar' => $label,
                 'type' => $type,
                 'value' => $default,
                 'default_value' => $default,
                 'hint' => $hint,
-            ]);
+            ])->wasRecentlyCreated ? 1 : 0;
         }
 
-        Cache::forget('settings');
+        return $written;
+    }
 
-        $this->command?->info('ردم فجوة الإعدادات: '.count(self::rows()).' مفتاحًا كان محروقًا في الكود.');
+    /**
+     * 🛡️ شبكة الأمان: مفتاحٌ يقرؤه الكود ولم يعلنه أحد — **بافتراضيّه المكتوب
+     * في موضع القراءة نفسه**، فلا يتغيّر سلوكٌ قائم بحرفٍ واحد.
+     *
+     * لماذا شبكة لا قائمة؟ لأنّ القائمة المكتوبة بيدٍ تتقادم مع كلّ ميزة جديدة،
+     * فتعود الفجوة صامتةً بينما الحارس يمرّ. وهي **شبكة لا بديل**: لافتتها
+     * مشتقّة من المفتاح، والأولى أن يعلن المجالُ مفتاحه بلافتةٍ يفهمها المالك.
+     *
+     * @return list<array{0:string,1:string,2:string,3:string,4:string,5:string}>
+     */
+    private function fromCode(): array
+    {
+        $scanner = app(SettingKeyScanner::class);
+        $seeded = Setting::query()->pluck('key')->all();
+        $defaults = $scanner->codeDefaults();
+
+        // المجموعة تتبع البادئة: مفاتيح `question_bank.*` تسكن حيث تسكن أخواتها،
+        // فلا تنقسم البادئة على مجموعتين ولا تظهر مجموعةٌ يتيمة بلا تاب (2.13-و).
+        $groupOfPrefix = Setting::query()
+            ->get(['key', 'group'])
+            ->groupBy(fn (Setting $s) => explode('.', $s->key)[0])
+            ->map(fn ($rows) => $rows->countBy('group')->sortDesc()->keys()->first());
+
+        // ولو البادئة نفسها مجموعةٌ لها تابٌ مسجَّل، فهي موطنها الطبيعيّ
+        $registered = app(SettingsRegistry::class)->groupToTab();
+
+        $rows = [];
+        $unresolved = [];
+
+        foreach ($scanner->missing($seeded) as $key => $places) {
+            if (! array_key_exists($key, $defaults)) {
+                // بلا افتراضيّ حرفيّ: لا نخمّن — التخمين يغيّر السلوك
+                $unresolved[] = $key;
+
+                continue;
+            }
+
+            $prefix = explode('.', $key)[0];
+            $group = $groupOfPrefix[$prefix] ?? (isset($registered[$prefix]) ? $prefix : null);
+
+            if ($group === null) {
+                $unresolved[] = $key;
+
+                continue;
+            }
+
+            $default = $defaults[$key];
+
+            $rows[] = [$key, $group, self::derivedLabel($key), self::inferType($default), $default, self::AUTO_HINT];
+        }
+
+        if ($unresolved !== []) {
+            $this->command?->warn('  مفاتيح تحتاج إعلانًا يدويًّا في سيدر مجالها: '.implode(' · ', $unresolved));
+        }
+
+        return $rows;
+    }
+
+    /** النوع من شكل القيمة — والنصّ الطويل في Textarea لا في سطر */
+    private static function inferType(string $default): string
+    {
+        return match (true) {
+            $default === '1' || $default === '0' => 'bool',
+            is_numeric($default) => 'number',
+            str_starts_with($default, '[') || str_starts_with($default, '{') => 'json',
+            mb_strlen($default) > 40 => 'text',
+            default => 'string',
+        };
+    }
+
+    /** `cv.field.job_title_en_label` ⟵ «cv › field › job title en label» */
+    private static function derivedLabel(string $key): string
+    {
+        return str_replace(['.', '_'], [' › ', ' '], $key);
     }
 
     /** @return list<array{0:string,1:string,2:string,3:string,4:string,5:string}> */
@@ -271,6 +367,16 @@ class SettingGapSeeder extends Seeder
     private static function misc(): array
     {
         return [
+            // كروت KPI في البروفايل: المفتاح يُركَّب وقت التشغيل من مفتاح الكرت،
+            // فلا يمسكه فحصُ النصّ — ولافتاتها كانت محروقة في `ProfileTabs`.
+            ['account.profile.kpi.level_label', 'account', 'لافتة كرت مستوى الحساب', 'string', 'مستوى الحساب + XP', ''],
+            ['account.profile.kpi.tickets_label', 'account', 'لافتة كرت رصيد التذاكر', 'string', 'رصيد التذاكر', ''],
+            ['account.profile.kpi.streak_label', 'account', 'لافتة كرت ستريك نادي الخامسة', 'string', 'ستريك نادي الخامسة', ''],
+            ['account.profile.kpi.certificates_label', 'account', 'لافتة كرت الشهادات', 'string', 'الشهادات', ''],
+            ['account.profile.kpi.courses_label', 'account', 'لافتة كرت التدريبات', 'string', 'التدريبات (مكتملة/جارية)', ''],
+            ['account.profile.kpi.rank_label', 'account', 'لافتة كرت ترتيب الليدر بورد', 'string', 'ترتيب الليدر بورد', ''],
+            ['account.profile.kpi.ambassador_label', 'account', 'لافتة كرت لقب السفير', 'string', 'لقب السفير', ''],
+
             ['account.profile.experience.empty_action', 'account', 'زرّ الحالة الفارغة للخبرات في البروفايل', 'string', 'ابدأ سيرتك', ''],
             ['account.profile.experience.empty_message', 'account', 'رسالة البروفايل بلا سيرة ذاتيّة', 'string', 'لسّه مفيش سيرة ذاتيّة هنا.', 'الحالة الفارغة تشجّع ولا تعاتب (2.17).'],
             ['account.profile.experience.hidden_message', 'account', 'رسالة إخفاء الخبرات على البروفايل', 'string', 'الخبرات مش متاحة على البروفايل ده.', 'تظهر لمّا يمنع صاحب البروفايل إظهار خبراته.'],
@@ -289,6 +395,7 @@ class SettingGapSeeder extends Seeder
             ['library.modal.invoice_fees', 'library', 'لافتة الرسوم في إيصال المكتبة', 'string', 'الرسوم', ''],
             ['library.modal.invoice_method', 'library', 'لافتة طريقة الدفع في إيصال المكتبة', 'string', 'طريقة الدفع', ''],
             ['ux.lists.per_page', 'ux', 'عدد صفوف الصفحة الافتراضيّ للقوائم', 'number', '25', '25 = خمسة وعشرون صفًّا قبل الترقيم.'],
+            ['notifications.rate_limit.exempt_categories', 'notifications', 'فئات الإشعارات المعفاة من حدّ الهدوء', 'json', '["account","security","certificate"]', 'ما يخصّ الحساب والأمان والشهادات يصل دائمًا ولا يتأجّل.'],
             ['platform.identity.logo_path', 'platform', 'شعار المنصّة على العلامة المائيّة', 'media', '', 'فاضي = بلا شعار على النسخة المعاينة.'],
 
             ['ux.advanced_mode.enabled', 'ux', 'إتاحة الوضع المتقدّم', 'bool', '1', 'إطفاؤه يُبقي الجميع على الوضع المبسّط (2.15).'],

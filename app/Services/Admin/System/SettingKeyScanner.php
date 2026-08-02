@@ -45,8 +45,18 @@ class SettingKeyScanner
     /** علامة الوصل: `setting('ads.events.'.$name)` — بادئةٌ لا مفتاح */
     private const CONCAT_MARK = '$…';
 
+    /**
+     * الافتراضيّ الحرفيّ في موضع القراءة: `setting('key', <هنا>)`.
+     * نقبل النصّ والرقم والمنطقيّ والمصفوفة الفارغة وحدها — وأيّ تعبيرٍ أعقد
+     * (استدعاء أو متغيّر) لا يُخمَّن، لأنّ افتراضيًّا مخمَّنًا يغيّر السلوك.
+     */
+    private const LITERAL = '(?:\'(?:[^\'\\\\]|\\\\.)*\'|"(?:[^"\\\\$]|\\\\.)*"|-?\d+(?:\.\d+)?|true|false|\[\s*\])';
+
     /** @var array{keys:array<string,list<string>>, dynamic:array<string,list<string>>, variable:int}|null */
     private ?array $scan = null;
+
+    /** @var array<string,string>|null */
+    private ?array $defaults = null;
 
     /**
      * المفاتيح الحرفيّة ⟵ مواضع قراءتها.
@@ -97,6 +107,18 @@ class SettingKeyScanner
             });
     }
 
+    /** هل يطابق هذا المفتاحُ نمطًا مركَّبًا وقت التشغيل؟ (فيكون مقروءًا لا ميّتًا) */
+    public function matchesAnyPattern(string $key): bool
+    {
+        foreach (array_keys($this->dynamicPatterns()) as $pattern) {
+            if (preg_match($this->patternToRegex($pattern), $key) === 1) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     /**
      * مفاتيح يقرؤها الكود ولا صفّ لها — قلب الفحص.
      *
@@ -110,6 +132,74 @@ class SettingKeyScanner
         return collect($this->keys())
             ->reject(fn (array $places, string $key) => isset($seeded[$key]))
             ->sortKeys();
+    }
+
+    /**
+     * المفتاح ⟵ **افتراضيّه المكتوب في الكود**، مخزَّنًا بصيغة عمود `value`.
+     *
+     * هذا ما يجعل الزرعَ بلا أثرٍ على السلوك: القيمة المزروعة هي بعينها التي
+     * كان `setting()` سيرجّعها حين لا يجد صفًّا. والمفتاح الذي لا نستطيع قراءة
+     * افتراضيّه حرفيًّا لا يُخمَّن — يُترَك ليعلنه مجاله بيده.
+     *
+     * @return array<string, string>
+     */
+    public function codeDefaults(): array
+    {
+        if ($this->defaults !== null) {
+            return $this->defaults;
+        }
+
+        $defaults = [];
+
+        foreach ($this->keys() as $key => $places) {
+            foreach ($places as $place) {
+                $source = @file_get_contents(base_path($place));
+
+                if ($source === false) {
+                    continue;
+                }
+
+                $regex = '/\bsetting\(\s*([\'"])'.preg_quote($key, '/').'\1\s*,\s*('.self::LITERAL.')\s*[,)]/';
+
+                if (preg_match($regex, $source, $match) === 1) {
+                    $defaults[$key] = $this->normalize($match[2]);
+
+                    break;
+                }
+            }
+        }
+
+        return $this->defaults = $defaults;
+    }
+
+    /** الحرفيّ كما كُتِب ⟵ نصُّ عمود `value` الذي يعيده `setting()` كما هو */
+    private function normalize(string $literal): string
+    {
+        $literal = trim($literal);
+
+        if ($literal === 'true') {
+            return '1';
+        }
+
+        if ($literal === 'false') {
+            return '0';
+        }
+
+        if (str_starts_with($literal, '[')) {
+            return '[]';
+        }
+
+        if (str_starts_with($literal, "'") || str_starts_with($literal, '"')) {
+            $quote = $literal[0];
+            $inner = substr($literal, 1, -1);
+
+            // فكّ التهريب: `\'` و`\\` في النصّ المفرد، ومعهما `\n` و`\t` في المزدوج
+            return $quote === "'"
+                ? str_replace(["\\'", '\\\\'], ["'", '\\'], $inner)
+                : str_replace(['\\"', '\\n', '\\t', '\\\\'], ['"', "\n", "\t", '\\'], $inner);
+        }
+
+        return $literal;
     }
 
     /** `dashboard.achievements.{$key}.base` ⟵ `/^dashboard\.achievements\.[^.]+\.base$/` */

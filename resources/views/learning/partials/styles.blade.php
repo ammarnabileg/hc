@@ -13,7 +13,8 @@
         block-size: 2px;
         background: repeating-linear-gradient(90deg, var(--border) 0 6px, transparent 6px 12px);
     }
-    .ghost-hero, .ghost-ghost { font-size: 1.35rem; line-height: 1; position: absolute; z-index: 1; }
+    /* الأصلان رسمتان SVG لا إيموجي (6 · 2.16-ج) — والقياس من الرسمة نفسها */
+    .ghost-hero, .ghost-ghost { line-height: 0; position: absolute; z-index: 1; }
     .ghost-hero { inset-inline-start: 0; }
     /* كلّما زادت النسبة المنقضية اقترب الشبح من المتدرّب (6) */
     .ghost-ghost {
@@ -29,9 +30,7 @@
     }
     .ghost-shake { animation: ghost-shake 420ms var(--ease-standard) infinite; }
 
-    @media (prefers-reduced-motion: reduce) {
-        .ghost-ghost, .ghost-shake { animation: none; }
-    }
+    /* الشبح يتحرّك دائمًا — التحكّم من إعداد المستخدم داخل المنصّة (app.css). */
 
     /* Roadmap رأسيّ بالسيكشنز (3.3 · 24.5) */
     .roadmap { position: relative; padding-inline-start: 1.25rem; }
@@ -57,6 +56,32 @@
     }
     .roadmap-node[data-done='1']::before { background: var(--color-brand-500); border-color: var(--color-brand-500); }
     .roadmap-node[data-current='1']::before { background: var(--color-brand-300); border-color: var(--color-brand-300); }
+
+    /* ⭐ أنيميشن فتح المحطّة (3.4-23): المحطّة التي صارت متاحة تنبض مرّةً وتُضيء
+       حلقتُها — إشارة «افتحني» لا زخرفة، ولذلك تقع مرّة واحدة ثمّ تسكن. */
+    @keyframes station-unlock {
+        0%   { transform: scale(.85); box-shadow: 0 0 0 0 var(--color-brand-500); }
+        60%  { transform: scale(1.25); box-shadow: 0 0 0 6px transparent; }
+        100% { transform: scale(1); box-shadow: 0 0 0 0 transparent; }
+    }
+    .roadmap-node[data-unlocked='1']::before { animation: station-unlock 900ms var(--ease-standard) 2; }
+
+    /* ⭐ علامة الإكمال «بتتملّى» (3.4-33): الخلفيّة تمتلئ من البداية للنهاية مرّةً */
+    @keyframes check-fill {
+        from { background-size: 0% 100%; }
+        to   { background-size: 100% 100%; }
+    }
+    .check-fill {
+        background-image: linear-gradient(90deg, color-mix(in srgb, var(--color-state-ok) 22%, transparent) 0 100%);
+        background-repeat: no-repeat;
+        animation: check-fill 620ms var(--ease-standard) forwards;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .roadmap-node[data-unlocked='1']::before, .check-fill { animation: none; }
+    }
+    [data-motion='off'] .roadmap-node[data-unlocked='1']::before,
+    [data-motion='off'] .check-fill { animation: none; }
 
     /* الإدخال الرقميّ بنمط OTP (4): خانة لكلّ رقم — ومقاس اللمس 44×44 (2.15-ج) */
     .otp-row { display: flex; gap: 0.5rem; flex-wrap: wrap; direction: ltr; justify-content: flex-end; }
@@ -104,9 +129,7 @@
     }
     @keyframes skeleton-sweep { 0% { background-position: 100% 0; } 100% { background-position: -100% 0; } }
 
-    @media (prefers-reduced-motion: reduce) {
-        .skeleton-line { animation: none; }
-    }
+    /* لمعة الـSkeleton من إعداد المستخدم داخل المنصّة (app.css). */
 
     /* قسم التعليقات: سهم الطيّ بدل مثلّث المتصفّح الافتراضيّ */
     details[data-comments] > summary::-webkit-details-marker { display: none; }

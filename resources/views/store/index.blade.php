@@ -16,6 +16,8 @@
         'filters' => $filters,
         'categories' => $categories,
         'typeOptions' => $typeOptions,
+        'currencyOptions' => $currencyOptions,
+        'rangeCurrency' => $rangeCurrency,
         'priceCeiling' => $priceCeiling,
     ])
 

@@ -14,11 +14,24 @@
      */
     $u = auth()->user();
 
-    // بند واحد: [عنوان, مسار, صلاحيّة] — والصلاحيّة null تعني «مفتوح لمن دخل اللوحة»
+    /*
+     | بند واحد: [عنوان, مسار, صلاحيّة, معاملات الرابط؟]
+     | والصلاحيّة null تعني «مفتوح لمن دخل اللوحة».
+     |
+     | والمعاملات الرابعة لبنود 12.0 التي هي **تابٌ داخل صفحة** لا صفحةٌ مستقلّة
+     | (الألعاب · الاحتفالات · إعدادات التعلّم) — فتُبنى بـ`route(name, params)`
+     | ويبقى اسم المسار للتفعيل والفحص.
+     */
     $filter = function (array $items) use ($u) {
         return collect($items)
             ->filter(fn ($item) => $item[2] === null || Gate::forUser($u)->allows($item[2]))
-            ->map(fn ($item) => ['label' => $item[0], 'route' => $item[1]])
+            // المسار غير الموجود لا يُعرَض أصلًا — لا رابط ميّت في سايد بار الإدارة
+            ->filter(fn ($item) => \Illuminate\Support\Facades\Route::has($item[1]))
+            ->map(fn ($item) => [
+                'label' => $item[0],
+                'route' => $item[1],
+                'href' => ($item[3] ?? []) === [] ? null : route($item[1], $item[3]),
+            ])
             ->values()
             ->all();
     };
@@ -42,6 +55,8 @@
             ['بنك الأسئلة والامتحانات', 'admin.question-bank.index', 'question_bank.list'],
             // مكتبة الوسائط — بند صريح في خريطة 12.0
             ['مكتبة الوسائط', 'admin.media.index', 'media_library.list'],
+            // إعدادات التعلّم — بند في خريطة 12.0 كان بلا مدخل: تاب داخل صفحة الإعدادات
+            ['إعدادات التعلّم', 'admin.settings.index', 'settings_general.view', ['tab' => 'learning']],
         ])],
 
         // 🎓 إدارة الشهادات (12.5)
@@ -52,6 +67,8 @@
         // 🤝 إدارة التطوّع
         ['🤝', 'إدارة التطوّع', $filter([
             ['الإدارة المركزيّة والهيكل', 'admin.volunteer.index', 'memberships.list'],
+            // التوظيف والمرشّحون — بند صريح في 12.0 كان بلا مدخل من اللوحة (13.4-ك)
+            ['التوظيف والمرشّحون', 'volunteer.recruitment', 'candidates.list'],
             // مرآة إداريّة لاجتماعات التطوّع (24.2-أوّلًا)
             ['اجتماعات التطوّع', 'admin.meetings.index', 'meetings.list'],
             ['الهيكل والبوزشنز والسعة', 'admin.volunteer.org', 'org_chart.view'],
@@ -65,6 +82,12 @@
         // 🎮 التلعيب والتحديات (12.10)
         ['🎮', 'التلعيب والتحديات', $filter([
             ['XP والشارات والحروب', 'admin.gamification.index', 'badges.list'],
+            // الألعاب والاحتفالات — بندان في خريطة 12.0 كانا بلا مدخل، وهما تابان
+            // داخل لوحة التلعيب (24.2) فيُفتحان بمعامل التاب.
+            ['الألعاب', 'admin.gamification.index', 'games.view', ['tab' => 'games']],
+            ['الاحتفالات', 'admin.gamification.index', 'celebrations.view', ['tab' => 'celebrations']],
+            // بنك أسئلة الحروب — بند صريح في 12.0 (12.10-ب)
+            ['بنك أسئلة الحروب', 'admin.wars.bank.index', 'wars_bank.list'],
             // الطرف الإداريّ للدعوات والألقاب (24.2)
             ['الريفيرال والسفراء', 'admin.referrals.index', 'referrals.list'],
             // الرسائل الإيجابيّة لأيقونة المفاجأة (2.6-ب · 12.0)
@@ -79,6 +102,9 @@
             // شرط الملكيّة فوق فحص الصلاحيّة — حزامٌ وحمّالة، والبند يُخفى لا يُعطَّل.
             ...($u->isPlatformOwner() ? [
                 ['🔒 الماليّات', 'admin.finance.index', 'finance.view'],
+                // أسعار الصرف: تدرجها 12.0 تحت «🔒 الماليّات» وكانت بلا مدخل —
+                // وشرط الملكيّة فوق فحص الصلاحيّة كبقيّة المجموعة المحميّة.
+                ['🔒 أسعار الصرف', 'admin.wallet.rates', 'exchange_rates.view'],
                 ['🔒 سجلّ الماليّات', 'admin.finance.audit', 'finance.view'],
             ] : []),
         ])],
@@ -95,7 +121,12 @@
 
         // 📣 التوجيه والدعم (12.6)
         ['📣', 'التوجيه والدعم', $filter([
-            ['التعليمات والشكاوى', 'admin.guidance.index', 'announcements.list'],
+            ['التعليمات', 'admin.guidance.index', 'announcements.list'],
+            // الثلاثة التالية مبنيّة ومدرَجة في 12.0 وكانت **بلا أيّ رابط وارد**
+            // في المشروع — و`admin.guidance.index` لا يربط أيًّا منها (12.6-ب/ج).
+            ['الإشعارات', 'admin.guidance.notifications', 'announcements.view'],
+            ['دليل المستخدم', 'admin.guidance.help', 'user_guide.list'],
+            ['الشكاوى والمقترحات', 'admin.guidance.complaints', 'complaints.list'],
             // المحتوى التحريريّ وقنوات الأويرنس (21.2 · 21.3)
             ['المقالات', 'admin.articles.index', 'articles.list'],
             ['الإعلان المدفوع', 'admin.ads.index', 'ad_audiences.view'],
@@ -119,10 +150,13 @@
         ['محتوى الـOnboarding', 'admin.ops.onboarding', 'onboarding.view'],
         ['التحديثات والترحيل', 'admin.ops.updates', 'updates.view'],
         ['النسخ الاحتياطيّ وصحّة النظام', 'admin.ops.system', 'system_health.view'],
+        // سجلّ التدقيق — آخر بند في خريطة 12.0 وكان بلا مدخل (2.13-هـ)
+        ['سجلّ التدقيق', 'admin.settings.audit', 'settings_general.view'],
     ]);
 @endphp
 
-<aside class="w-64 shrink-0 hidden md:block" style="border-inline-start: 1px solid var(--border)">
+{{-- لوحة منزلقة على الموبايل وعمود ثابت على الديسكتوب (13 · 2.15-ج) --}}
+<aside data-sidebar data-open="false" class="w-64 shrink-0" style="border-inline-start: 1px solid var(--border)">
     <div class="sticky top-0 h-screen overflow-y-auto p-4 space-y-4">
 
         <div class="card p-3">
@@ -158,4 +192,5 @@
     </div>
 </aside>
 
-<div id="mobile-drawer" class="md:hidden"></div>
+{{-- الموبايل: نفس القائمة تنزلق من زرّ الهيدر (13 · 2.15-ج) --}}
+@include('partials.sidebar-drawer')

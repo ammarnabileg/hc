@@ -26,6 +26,8 @@
         $canBuy = auth()->check() && $quote['sellable'] && ! $owned;
         $cover = $item->cover_path ? \Illuminate\Support\Facades\Storage::url($item->cover_path) : null;
         $libraryUrl = \Illuminate\Support\Facades\Route::has('library.index') ? route('library.index') : null;
+        // نصّ زرّ الشراء **بعملة العنصر** — لا «بالكوينز» محروقة (2.13 · 17)
+        $buyLabel = Coins::buyLabel($quote['currency']);
     @endphp
 
     <x-page-header :title="$item->name_ar"
@@ -42,7 +44,7 @@
                 <button type="button" data-modal-open="purchase-sheet"
                         class="btn hidden md:inline-flex items-center justify-center rounded-xl px-5 py-2.5 text-sm font-semibold motion-standard"
                         style="background: var(--color-brand-500); color: #04201c">
-                    شراء بالكوينز — {{ Coins::label($quote['total']) }}
+                    {{ $buyLabel }} — {{ Coins::label($quote['total'], $quote['currency']) }}
                 </button>
             @elseif (! auth()->check() && $quote['sellable'])
                 <a href="{{ route('login') }}"
@@ -67,7 +69,7 @@
                     @if ($cover)
                         <img src="{{ $cover }}" alt="{{ $item->name_ar }}" class="w-full h-full object-cover">
                     @else
-                        <span class="text-5xl" aria-hidden="true">{{ $type === 'bundle' ? '📦' : ($type === 'course' ? '🎓' : '📘') }}</span>
+                        <span class="text-5xl" aria-hidden="true"><x-icon :name="$type === 'bundle' ? 'bundle' : ($type === 'course' ? 'training' : 'article')" size="48" /></span>
                     @endif
                 </div>
 
@@ -79,8 +81,8 @@
                         @if ($quote['savings'] > 0)
                             <span class="text-xs rounded-full px-2 py-0.5 inline-flex items-center gap-1"
                                   style="background: color-mix(in srgb, var(--color-brand-500) 15%, transparent); color: var(--color-brand-400)">
-                                <span aria-hidden="true">✂</span>
-                                <span>{{ str_replace('{amount}', Coins::label($quote['savings']), setting('store.savings.text', 'وفّرت {amount}')) }}</span>
+                                <span aria-hidden="true"><x-icon name="edit" size="16" /></span>
+                                <span>{{ str_replace('{amount}', Coins::label($quote['savings'], $quote['currency']), setting('store.savings.text', 'وفّرت {amount}')) }}</span>
                             </span>
                         @endif
                     </div>
@@ -108,22 +110,53 @@
                 </div>
             @endif
 
-            {{-- ما يشمله --}}
+            {{-- ما يشمله + البونص بقيمته الطبيعيّة (18) --}}
             @if ($includes->isNotEmpty())
                 <div class="card p-5">
-                    <h2 class="font-bold mb-3">ما يشمله</h2>
-                    <ul class="space-y-2">
+                    <h2 class="font-bold mb-3">{{ setting('store.includes.title', 'ما يشمله') }}</h2>
+                    <ul class="space-y-3">
                         @foreach ($includes as $line)
-                            <li class="flex items-center justify-between gap-3 text-sm">
-                                <a href="{{ route('store.product', ['type' => $line['type'], 'slug' => $line['slug']]) }}"
-                                   class="hover:underline">{{ $line['title'] }}</a>
-                                @if ($line['value'] > 0)
-                                    {{-- قيمة العنصر الطبيعيّة كبونص (18) — رقم حقيقيّ من بياناته --}}
-                                    <span class="text-xs" style="color: var(--text-muted)">بقيمة {{ Coins::label($line['value']) }}</span>
+                            <li class="text-sm">
+                                <div class="flex items-center justify-between gap-3">
+                                    <a href="{{ route('store.product', ['type' => $line['type'], 'slug' => $line['slug']]) }}"
+                                       class="hover:underline">{{ $line['title'] }}</a>
+
+                                    {{--
+                                        قاعدة السعر السياقيّ (18): Override العنصر لا يظهر
+                                        إلّا هنا — في صفحة الباقة نفسها — ومعه سعره الطبيعيّ مشطوبًا.
+                                    --}}
+                                    @if ($line['value'] > 0)
+                                        <span class="flex items-baseline gap-2">
+                                            <span class="text-xs" style="color: var(--text-muted)">{{ Coins::label($line['value']) }}</span>
+                                            @if ($line['has_override'] && $line['list_value'] > $line['value'])
+                                                <span class="text-xs line-through" style="color: var(--text-muted)">{{ Coins::fmt($line['list_value']) }}</span>
+                                            @endif
+                                        </span>
+                                    @endif
+                                </div>
+
+                                {{-- «🎁 بونص: [العنصر] بقيمة X — مجّانًا مع الباقة» بنصّ 18 حرفًا --}}
+                                @if ($line['list_value'] > 0)
+                                    <p class="mt-1 text-xs" style="color: var(--color-brand-400)">
+                                        {{ str_replace(
+                                            ['{item}', '{amount}'],
+                                            [$line['title'], Coins::label($line['list_value'])],
+                                            setting('store.bundle.bonus_text', '🎁 بونص: {item} بقيمة {amount} — مجّانًا مع الباقة'),
+                                        ) }}
+                                    </p>
                                 @endif
                             </li>
                         @endforeach
                     </ul>
+
+                    {{-- القيمة الإجماليّة **محسوبة من العناصر** مقابل سعر الباقة (18 · 2.9) --}}
+                    @if ($quote['list_price'] > 0)
+                        <div class="mt-4 pt-3 flex items-center justify-between gap-3 text-sm"
+                             style="border-top: 1px solid var(--border)">
+                            <span style="color: var(--text-muted)">{{ setting('store.bundle.total_value_label', 'القيمة الإجماليّة') }}</span>
+                            <span class="line-through" style="color: var(--text-muted)">{{ Coins::label($quote['list_price']) }}</span>
+                        </div>
+                    @endif
                 </div>
             @endif
         </div>
@@ -136,7 +169,7 @@
                 @else
                     <div class="flex items-baseline gap-2">
                         <span class="text-2xl font-extrabold">
-                            {{ $quote['total'] > 0 ? Coins::label($quote['total']) : setting('store.free_label', 'مجّانيّ') }}
+                            {{ $quote['total'] > 0 ? Coins::label($quote['total'], $quote['currency']) : setting('store.free_label', 'مجّانيّ') }}
                         </span>
                         @if ($quote['list_price'] > $quote['total'])
                             <span class="text-sm line-through" style="color: var(--text-muted)">{{ Coins::fmt($quote['list_price']) }}</span>
@@ -144,7 +177,7 @@
                     </div>
 
                     <div class="text-sm" style="color: var(--text-muted)">
-                        رصيدك الآن: <b>{{ Coins::label($quote['balance_before']) }}</b>
+                        رصيدك الآن: <b>{{ Coins::label($quote['balance_before'], $quote['currency']) }}</b>
                     </div>
 
                     @if ($owned)
@@ -155,7 +188,7 @@
                     @elseif (auth()->check())
                         <button type="button" data-modal-open="purchase-sheet"
                                 class="btn w-full inline-flex items-center justify-center rounded-xl px-4 py-3 text-sm font-semibold motion-standard"
-                                style="background: var(--color-brand-500); color: #04201c">شراء بالكوينز</button>
+                                style="background: var(--color-brand-500); color: #04201c">{{ $buyLabel }}</button>
 
                         {{--
                             السلّة **اختياريّة وثانويّة** (17): الفعل الرئيسيّ يظلّ الشراء المباشر
@@ -202,6 +235,6 @@
     @elseif (auth()->check() && $quote['sellable'])
         <button type="button" data-modal-open="purchase-sheet"
                 class="btn w-full inline-flex items-center justify-center rounded-xl px-4 py-3 text-sm font-semibold"
-                style="background: var(--color-brand-500); color: #04201c">شراء بالكوينز</button>
+                style="background: var(--color-brand-500); color: #04201c">{{ $buyLabel }}</button>
     @endif
 @endsection

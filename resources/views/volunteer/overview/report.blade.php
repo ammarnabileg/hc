@@ -36,10 +36,10 @@
         <x-kpi label="صافي Rep للأسبوع" :value="$netRep" :state="$repState"
                :icon="$trend > 0 ? '↑' : ($trend < 0 ? '↓' : '→')"
                :hint="'الأسبوع اللي فات: '.$previousRep" />
-        <x-kpi label="VXP المكتسَب" :value="$vxp" icon="⚡" />
-        <x-kpi label="مهامّ مُسلَّمة" :value="$tasksDone" icon="✅"
+        <x-kpi label="VXP المكتسَب" :value="$vxp" icon="spark" />
+        <x-kpi label="مهامّ مُسلَّمة" :value="$tasksDone" icon="check"
                :hint="$tasksLate.' منها اتسلّمت متأخّرة'" />
-        <x-kpi label="حضور الاجتماعات" :value="$attendance.'%'" icon="🗓️" />
+        <x-kpi label="حضور الاجتماعات" :value="$attendance.'%'" icon="calendar" />
     </div>
 
     {{-- منحنى Rep اليوميّ — مرسوم بيدنا بـSVG بلا أيّ مكتبة خارجيّة --}}

@@ -18,7 +18,7 @@
                 <span class="block text-sm font-semibold">{{ $label }}</span>
                 <span class="block text-xs mt-1" style="color: var(--text-muted)">
                     {{ $count }} مرحلة مفعَّلة
-                    @if ($hasTemplate) · 🧩 فيه قالب جاهز @endif
+                    @if ($hasTemplate) · <x-icon name="game" size="16" /> فيه قالب جاهز @endif
                     @if ($count === 0) · محتاجة محتوى قبل ما تفعّلها @endif
                 </span>
             </span>

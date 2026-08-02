@@ -59,7 +59,7 @@
                             @if ($cover)
                                 <img src="{{ $cover }}" alt="{{ $path->name_ar }}" class="w-full h-full object-cover" loading="lazy">
                             @else
-                                <span class="text-3xl" aria-hidden="true">{{ setting('learning.icon.path') }}</span>
+                                <span style="color: var(--text-muted)"><x-icon :name="setting('learning.icon.path', 'path')" size="36" /></span>
                             @endif
                         </div>
                     </a>

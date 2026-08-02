@@ -15,8 +15,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex">
     <title>{{ setting('system.maintenance.page_title', 'المنصّة تحت الصيانة') }}</title>
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=cairo:400,500,600,700,800&display=swap" rel="stylesheet">
+    {{-- الخطوط محلّيّة داخل حزمة Vite — **بلا أيّ نداء خارجيّ** (2.10.1-2) --}}
     @vite(['resources/css/app.css'])
 </head>
 <body class="min-h-screen flex items-center justify-center p-4">
@@ -88,10 +87,10 @@
 </main>
 
 <style>
-    /* حركة واحدة بمنحنى النظام (2.10.1) — وتحترم «قلّل الحركة» */
+    /* حركة واحدة بمنحنى النظام (2.10.1) — والتحكّم فيها من إعداد المستخدم
+       داخل المنصّة لا من تفضيل نظام التشغيل (2.3 · 2.14-ب). */
     @keyframes maint-spin { to { transform: rotate(360deg); } }
     .maint-spin { animation: maint-spin 6s linear infinite; transform-origin: 50% 50%; }
-    @media (prefers-reduced-motion: reduce) { .maint-spin { animation: none; } }
 </style>
 
 <script>

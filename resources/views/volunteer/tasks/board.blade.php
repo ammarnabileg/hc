@@ -87,7 +87,7 @@
                 <article class="card p-4 flex flex-col gap-2">
                     <div class="flex items-start justify-between gap-2">
                         <div class="font-semibold text-sm">
-                            <span aria-hidden="true" title="{{ $task->entity?->name_ar }}">{{ $task->entity?->icon ?? '🏛️' }}</span>
+                            <span aria-hidden="true" title="{{ $task->entity?->name_ar }}">{{ $task->entity?->icon }}<x-icon name="entity" size="14" /></span>
                             {{ $task->title }}
                         </div>
                         @if ($task->task_type)

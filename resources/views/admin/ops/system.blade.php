@@ -27,14 +27,14 @@
                     @can('system_health.view')
                         <form method="post" action="{{ route('admin.ops.system.health') }}">
                             @csrf
-                            <button class="w-full text-start px-2 py-2 rounded hover:opacity-80">🩺 تشغيل فحص صحّة</button>
+                            <button class="w-full text-start px-2 py-2 rounded hover:opacity-80"><x-icon name="health" size="16" /> تشغيل فحص صحّة</button>
                         </form>
                     @endcan
                     @can('system_health.export')
-                        <a class="block px-2 py-2 rounded hover:opacity-80" href="{{ route('admin.ops.system.health.export') }}">⬇ تصدير تقرير الصحّة</a>
+                        <a class="block px-2 py-2 rounded hover:opacity-80" href="{{ route('admin.ops.system.health.export') }}"><x-icon name="download" size="16" /> تصدير تقرير الصحّة</a>
                     @endcan
                     @can('scheduled_jobs.view')
-                        <a class="block px-2 py-2 rounded hover:opacity-80" href="{{ route('admin.ops.system', ['tab' => 'schedule']) }}">🕓 جدولة النسخ</a>
+                        <a class="block px-2 py-2 rounded hover:opacity-80" href="{{ route('admin.ops.system', ['tab' => 'schedule']) }}"><x-icon name="clock" size="16" /> جدولة النسخ</a>
                     @endcan
                 </div>
             </details>

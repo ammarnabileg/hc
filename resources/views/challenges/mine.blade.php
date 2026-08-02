@@ -14,10 +14,10 @@
     </x-page-header>
 
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
-        <x-kpi label="فوزي" :value="(int) $stat->wins" icon="🏆" />
-        <x-kpi label="خسارتي" :value="(int) $stat->losses" icon="💥" />
-        <x-kpi label="تعادلي" :value="(int) $stat->draws" icon="⚖️" />
-        <x-kpi label="دقائق تركيزي" :value="(int) $stat->focus_minutes" icon="🧘" />
+        <x-kpi label="فوزي" :value="(int) $stat->wins" icon="trophy" />
+        <x-kpi label="خسارتي" :value="(int) $stat->losses" icon="warning" />
+        <x-kpi label="تعادلي" :value="(int) $stat->draws" icon="evaluation" />
+        <x-kpi label="دقائق تركيزي" :value="(int) $stat->focus_minutes" icon="shield" />
     </div>
 
     @if ($stat->loss_streak > 0)
@@ -79,9 +79,9 @@
                             <dt style="color: var(--text-muted)">المحصّلة</dt>
                             <dd class="font-bold mt-0.5">
                                 @if ($side->result === 'win')
-                                    +{{ (int) ($match->settlement['moved'] ?? 0) }} 🎟️
+                                    +{{ (int) ($match->settlement['moved'] ?? 0) }} <x-icon name="ticket" size="16" />
                                 @elseif ($side->result === 'lose')
-                                    −{{ (int) (($match->settlement['moved'] ?? 0) + ($match->settlement['penalty'] ?? 0)) }} 🎟️
+                                    −{{ (int) (($match->settlement['moved'] ?? 0) + ($match->settlement['penalty'] ?? 0)) }} <x-icon name="ticket" size="16" />
                                 @else
                                     —
                                 @endif

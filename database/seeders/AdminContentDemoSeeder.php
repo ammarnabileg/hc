@@ -56,6 +56,10 @@ class AdminContentDemoSeeder extends Seeder
             ['courses.table.per_page', 'courses', 'عدد صفوف جدول التدريبات', 'number', '15'],
             ['courses.enrollees.per_page', 'courses', 'عدد صفوف قائمة المسجّلين', 'number', '20'],
             ['courses.autosave.label', 'courses', 'نصّ الحفظ التلقائيّ', 'string', 'اتحفظ ✓'],
+            // الحفظ التلقائيّ على تدريبٍ حيّ يكتب في مسوّدة تحريرٍ جانبيّة (12.4-ب)
+            ['courses.autosave.draft_label', 'courses', 'نصّ الحفظ التلقائيّ للمنشور', 'string', 'اتحفظ كمسودّة تحرير ✓'],
+            ['courses.save.continue_label', 'courses', 'نصّ «حفظ واستمرار» للمسودّة', 'string', 'اتحفظ كمسودّة ✓'],
+            ['courses.save.continue_published_label', 'courses', 'نصّ «حفظ واستمرار» للمنشور', 'string', 'اتحفظ وهو منشور ✓ — كمّل تحرير'],
             ['courses.autosave.debounce_ms', 'courses', 'مهلة الحفظ التلقائيّ (مللي ثانية)', 'number', '2000'],
             ['courses.duplicate.suffix', 'courses', 'لاحقة النسخة المكرّرة', 'string', ' — نسخة'],
             ['courses.xp.max_per_lesson', 'courses', 'أقصى XP للدرس', 'number', '50'],
@@ -132,6 +136,8 @@ class AdminContentDemoSeeder extends Seeder
             ['announcements.acknowledge.default_xp', 'announcements', 'XP الإقرار الافتراضيّ', 'number', '10'],
             ['announcements.acknowledge.default_tickets', 'announcements', 'تذاكر الإقرار الافتراضيّة', 'number', '0'],
             ['announcements.acknowledge.max_xp', 'announcements', 'أقصى XP للإقرار', 'number', '500'],
+            ['announcements.acknowledge.max_tickets', 'announcements', 'أقصى تذاكر للإقرار', 'number', '20'],
+            ['announcements.acknowledge.ledger_source', 'announcements', 'دلو دفتر الأستاذ لتذاكر الإقرار', 'string', 'announcement'],
             ['announcements.pinned.max', 'announcements', 'أقصى منشورات مثبَّتة', 'number', '3'],
             ['announcements.auto_archive.days', 'announcements', 'أيّام الأرشفة التلقائيّة', 'number', '30'],
             ['announcements.duplicate.suffix', 'announcements', 'لاحقة نسخة المنشور', 'string', ' — نسخة'],
@@ -144,7 +150,13 @@ class AdminContentDemoSeeder extends Seeder
             ['notifications.types', 'notifications', 'أنواع الإشعارات', 'json', '{"account":"قبول الحساب","certificate":"إصدار شهادة","exam":"نتيجة امتحان","announcement":"رسالة إداريّة","wallet":"طلب سحب أو شحن","order":"اكتمال طلب"}'],
             ['notifications.channels', 'notifications', 'قنوات الإشعار', 'json', '{"bell":"الجرس","toast":"Toast","email":"بريد"}'],
             ['notifications.grouping.window_minutes', 'notifications', 'نافذة تجميع الإشعارات المتشابهة (دقائق)', 'number', '15'],
+            ['notifications.grouping.enabled', 'notifications', 'تفعيل تجميع الإشعارات المتشابهة', 'bool', '1'],
+            ['notifications.grouping.report_windows', 'notifications', 'عدد النوافذ في تقرير التجميع', 'number', '96'],
             ['notifications.rate_limit.per_user_per_day', 'notifications', 'حدّ الهدوء: إشعارات/مستخدم/يوم', 'number', '3'],
+            // فئات لا يؤجّلها حدّ الهدوء: تأجيلها ضررُه أكبر من الإغراق نفسه (12.6-ب)
+            ['notifications.rate_limit.exempt_categories', 'notifications', 'فئات مستثناة من حدّ الهدوء', 'json', '["account","security","certificate"]'],
+            ['notifications.digest.category', 'notifications', 'فئة إشعار التجميع اليوميّ', 'string', 'digest'],
+            ['notifications.digest.title', 'notifications', 'عنوان إشعار التجميع (:count)', 'string', 'عندك :count تنبيهات جديدة'],
             ['notifications.manual.default_category', 'notifications', 'نوع الإشعار اليدويّ الافتراضيّ', 'string', 'announcement'],
             ['notifications.manual.max_recipients', 'notifications', 'أقصى مستقبلين للإشعار اليدويّ', 'number', '2000'],
 
@@ -245,7 +257,7 @@ class AdminContentDemoSeeder extends Seeder
                 'description_ar' => 'تدريب تجريبيّ داخل '.$path->name_ar.'.',
                 'is_free' => $free,
                 'price_coins' => $price,
-                'max_lesson_xp' => 50,
+                'xp_max' => 50,
                 'status' => 'published',
                 'published_at' => now(),
             ]);

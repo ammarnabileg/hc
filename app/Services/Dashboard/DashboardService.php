@@ -144,7 +144,10 @@ class DashboardService
         return (int) ($balance ?? $user->xp ?? 0);
     }
 
-    /** مستوى الحساب من جدول المستويات — لا عتبات محروقة في الكود */
+    /**
+     * مستوى الحساب من جدول المستويات — لا عتبات محروقة في الكود.
+     * ورقمُ المستوى هو نفسه الذي تقرؤه الشارات (`LevelResolver`) — مصدرٌ واحد (7.3).
+     */
     public function level(int $xp): array
     {
         $current = Level::query()->where('min_xp', '<=', $xp)->orderByDesc('min_xp')->first();

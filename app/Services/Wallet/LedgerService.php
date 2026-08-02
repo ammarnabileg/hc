@@ -105,6 +105,7 @@ class LedgerService
         return $this->record(
             user: $original->user()->firstOrFail(),
             currencyCode: $currency->code,
+            // الرقم الظاهر يُردّ بما نزل عليه فعلًا — لا بأكثر منه
             requested: -$effective,
             source: $original->source,
             reference: $original->reference,
@@ -113,6 +114,13 @@ class LedgerService
             createdBy: $createdBy,
             isCorrection: true,
             correctsTransactionId: $original->id,
+            /*
+             | ⭐ أمّا في **السجلّ والمكتسَب التراكميّ** فالإلغاء كاملٌ بقيمة الأصل:
+             | لو قُصَّت مخالفةٌ −6 إلى −2 بحدّ الخسارة اليوميّ ثمّ قُبِل الاعتراض،
+             | فردُّ +2 وحده كان يترك −4 عالقةً في عتبة الـ90 يومًا (13.4-س-ج)
+             | فتُفتَح لجنةٌ على مخالفةٍ أُلغِيت. الإلغاء يمحو ما سُجِّل كاملًا.
+             */
+            recordedAmount: -1 * (float) $original->amount,
         );
     }
 
@@ -131,6 +139,8 @@ class LedgerService
      * كتابة الحركة: تحديث الرصيد + سطر في الجدول الموحّد بـ`balance_after`.
      *
      * @param  float  $requested  القيمة المطلوبة بإشارتها (+ إضافة · − خصم)
+     * @param  ?float  $recordedAmount  ما يُكتَب في السجلّ والمكتسَب التراكميّ حين
+     *                                  يختلف عن المطلوب (المعاملة العكسيّة وحدها)
      */
     private function record(
         User $user,
@@ -143,10 +153,11 @@ class LedgerService
         ?int $createdBy,
         bool $isCorrection = false,
         ?int $correctsTransactionId = null,
+        ?float $recordedAmount = null,
     ): Transaction {
         return DB::transaction(function () use (
             $user, $currencyCode, $requested, $source, $reference,
-            $layer, $reason, $createdBy, $isCorrection, $correctsTransactionId
+            $layer, $reason, $createdBy, $isCorrection, $correctsTransactionId, $recordedAmount
         ) {
             $currency = Currency::query()->where('code', $currencyCode)->firstOrFail();
 
@@ -157,12 +168,24 @@ class LedgerService
             $exceededDailyCap = false;
 
             /*
+             | ⭐ «المسجَّل» ≠ «المطبَّق» (13.4-ن-و): المطبَّق ما نزل على الرقم الظاهر
+             | بعد القصّ، والمسجَّل هو القيمة الكاملة التي يعترف بها الدفتر —
+             | وهي ما يُكتَب في عمود `amount` وفي **المكتسَب التراكميّ** الذي تُقاس
+             | عليه الترقية وعتبة الـ90 يومًا. الخلط بينهما يُعيد ثغرة التصفير.
+             */
+            $recorded = $recordedAmount !== null ? round($recordedAmount, 2) : $applied;
+            $cumulative = $recorded;
+
+            /*
              | العملة التراكميّة غير القابلة للصرف (VXP · XP) لا تُخصَم آليًّا (13.4-ن):
              | الخصم منها لا يكون إلّا بقرار إنسانٍ موثَّق (تصحيح أو إجراء أدمن).
              */
             if ($applied < 0 && $currency->is_cumulative && ! $currency->is_spendable
                 && ! $isCorrection && $createdBy === null) {
+                // السطر يبقى شاهدًا على المحاولة بقيمتها، لكنّها لم تُطبَّق ولم
+                // تُستحَقّ — فلا تدخل المكتسَب التراكميّ
                 $applied = 0.0;
+                $cumulative = 0.0;
             }
 
             // حدّ الخسارة اليوميّ لدرجة الالتزام: ما زاد يُسجَّل كاملًا بوسمه (13.4-ن-و)
@@ -194,15 +217,16 @@ class LedgerService
             $applied = round($after - $before, 2);
 
             $wallet->balance = $after;
-            $wallet->lifetime_earned = round((float) $wallet->lifetime_earned + max($applied, 0), 2);
-            $wallet->lifetime_spent = round((float) $wallet->lifetime_spent + abs(min($applied, 0)), 2);
+            // المكتسَب التراكميّ يقرأ **المسجَّل** لا المسقوف — وإلّا صار مرآةً للرقم الظاهر
+            $wallet->lifetime_earned = round((float) $wallet->lifetime_earned + max($cumulative, 0), 2);
+            $wallet->lifetime_spent = round((float) $wallet->lifetime_spent + abs(min($cumulative, 0)), 2);
             $wallet->save();
 
             return Transaction::create([
                 'user_id' => $user->id,
                 'currency_id' => $currency->id,
                 // القيمة المطلوبة تُسجَّل كاملةً حتى لو لم تُطبَّق كلّها
-                'amount' => round($requested, 2),
+                'amount' => $recorded,
                 'applied_amount' => $applied,
                 'balance_after' => $after,
                 'layer' => $layer,

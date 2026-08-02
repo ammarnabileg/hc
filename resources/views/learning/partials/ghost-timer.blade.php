@@ -18,9 +18,15 @@
 
     @if ($deadline['has_deadline'])
         <div class="ghost-track" style="--ghost-pos: {{ $elapsed }}%">
-            <span class="ghost-hero {{ $shake ? 'ghost-shake' : '' }}" aria-hidden="true">{{ setting('learning.ghost.hero_glyph') }}</span>
+            {{-- ⭐ إليستريشن حقيقيّة لا إيموجي (6 · 2.16-ج) — وتتلوّن مع تدرّج الخطر --}}
+            <span class="ghost-hero {{ $shake ? 'ghost-shake' : '' }}" aria-hidden="true"
+                  style="color: var(--text)">
+                @include('learning.partials.ghost-figure', ['figure' => 'hero', 'size' => 30])
+            </span>
             <span class="ghost-line" aria-hidden="true"></span>
-            <span class="ghost-ghost" style="color: var(--color-state-{{ $s['color'] }})" aria-hidden="true">{{ setting('learning.ghost.glyph') }}</span>
+            <span class="ghost-ghost" style="color: var(--color-state-{{ $s['color'] }})" aria-hidden="true">
+                @include('learning.partials.ghost-figure', ['figure' => 'ghost', 'size' => 30])
+            </span>
         </div>
 
         {{-- بديل نصّيّ: المعنى لا يعتمد على الرسم ولا على اللون وحده --}}

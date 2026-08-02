@@ -21,7 +21,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/me/timezone', [TimezoneController::class, 'update'])->name('timezone.update');
 });
 
-Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth', 'admin.panel'])->prefix('admin')->name('admin.')->group(function () {
 
     Route::middleware('permission:courses.list,courses.view')
         ->get('/availability', [AvailabilityAdminController::class, 'index'])->name('availability.index');

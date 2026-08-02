@@ -50,10 +50,10 @@
 
     {{-- أربعة كروت بحدّ أقصى (2.15-أ-3) --}}
     <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
-        <x-kpi label="كلّ الأسئلة" :value="$stats['total']" icon="🗂️" />
-        <x-kpi label="الأسئلة العامّة" :value="$stats['general']" icon="⭐" />
-        <x-kpi label="سقف الامتحان" :value="$stats['cap']" icon="🎯" />
-        <x-kpi label="المعطّلة" :value="$stats['paused']" icon="⏸️" />
+        <x-kpi label="كلّ الأسئلة" :value="$stats['total']" icon="folder" />
+        <x-kpi label="الأسئلة العامّة" :value="$stats['general']" icon="xp" />
+        <x-kpi label="سقف الامتحان" :value="$stats['cap']" icon="goal" />
+        <x-kpi label="المعطّلة" :value="$stats['paused']" icon="blocked" />
     </div>
 
     {{-- كارت مؤشّر: العامّة مقابل حدّ الامتحان — تحذير أحمر خافت إن نقصت (24.1-3) --}}

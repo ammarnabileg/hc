@@ -18,6 +18,9 @@ class Course extends Model
     protected function casts(): array
     {
         return [
+            // مسوّدة تحرير الفورم — منفصلة عن السجلّ الحيّ (12.4-ب)
+            'draft_payload' => 'array',
+            'draft_saved_at' => 'datetime',
             'forced_order' => 'boolean',
             'is_free' => 'boolean',
             'is_indexable' => 'boolean',

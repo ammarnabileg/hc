@@ -118,8 +118,7 @@ abstract class LearningTestCase extends TestCase
         $course = Course::create(array_merge([
             'slug' => 'c-'.str()->random(8),
             'name_ar' => 'تدريب اختباريّ',
-            'xp_before_half' => 40,
-            'xp_after_half' => 20,
+            'xp_max' => 40,
             'forced_order' => $forcedOrder,
             'status' => 'published',
             'published_at' => Carbon::now()->subDay(),

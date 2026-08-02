@@ -12,8 +12,8 @@
 
         $headline = match (true) {
             $waiting => 'مستنّيين خصمك يخلّص…',
-            $result === 'win' => 'كسبت المواجهة 🎉',
-            $result === 'draw' => 'تعادل ⚖️',
+            $result === 'win' => 'كسبت المواجهة',
+            $result === 'draw' => 'تعادل',
             (bool) $side->withdrew => 'انسحبت من المواجهة',
             default => 'خسرت المواجهة',
         };
@@ -51,10 +51,10 @@
 
         {{-- أربعة كروت KPI بحدّ أقصى (2.15-أ-3) --}}
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
-            <x-kpi label="{{ $isSurvival ? 'نجوت لسؤال' : 'نقاطي' }}" :value="$myScore" icon="🎯" />
-            <x-kpi label="نقاط خصمي" :value="$rivalScore" icon="🛡️" />
-            <x-kpi label="عدد الأسئلة" :value="$total" icon="📋" />
-            <x-kpi label="تذاكري دلوقتي" :value="(int) $ticketsBalance" icon="🎟️" />
+            <x-kpi label="{{ $isSurvival ? 'نجوت لسؤال' : 'نقاطي' }}" :value="$myScore" icon="goal" />
+            <x-kpi label="نقاط خصمي" :value="$rivalScore" icon="shield" />
+            <x-kpi label="عدد الأسئلة" :value="$total" icon="note" />
+            <x-kpi label="تذاكري دلوقتي" :value="(int) $ticketsBalance" icon="ticket" />
         </div>
 
         <div class="card p-5">

@@ -214,6 +214,8 @@ final class OrgChartBuilder
             'acting' => false,
             'is_me' => false,
             'honorary' => true,
+            // شكل الإطار إعدادٌ لمالك المنصّة وحده (13.4-ص-د)
+            'frame' => $honorary['frame'] ?? 'soft',
         ];
     }
 

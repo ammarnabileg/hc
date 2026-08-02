@@ -72,7 +72,7 @@
         {{-- احتفال ذروة عند إصدار الشهادة (2.14-3): كونفيتي CSS بلا أصول جديدة، ويُغلَق بضغطة أو ESC --}}
         <div id="peak" class="fixed inset-0 z-50 flex items-center justify-center p-4" style="background: rgb(0 0 0 / .7)">
             <div class="card p-6 text-center max-w-md animate-fadeup">
-                <div class="text-3xl mb-2" aria-hidden="true">🎓</div>
+                <div class="text-3xl mb-2" aria-hidden="true"><x-icon name="training" size="16" /></div>
                 <h2 class="text-xl font-extrabold" style="color: var(--color-state-honor)">
                     {{ str_replace('[الاسم]', $attempt->user->name, (string) setting('celebrations.certificate.title', 'مبروك يا [الاسم]')) }}
                 </h2>
@@ -100,7 +100,8 @@
                 position: absolute; inline-size: 8px; block-size: 14px; border-radius: 2px;
                 animation: confetti-fall linear forwards;
             }
-            @media (prefers-reduced-motion: reduce) { .confetti-piece { display: none; } }
+            /* ⭐ الكونفيتي لا يُلغى بتفضيل نظام التشغيل: إلغاؤه كان يمحو
+               ذروة 2.9-6 العاطفيّة بصمت. التحكّم من إعداد المستخدم (app.css). */
         </style>
     @endpush
 

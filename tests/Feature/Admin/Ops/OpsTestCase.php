@@ -48,14 +48,27 @@ abstract class OpsTestCase extends TestCase
         parent::tearDown();
     }
 
-    /** ضبط إعداد أثناء الاختبار — لأنّ كلّ رقم ونصّ في هذا المجال إعداد (2.13) */
+    /**
+     * ضبط إعداد أثناء الاختبار — لأنّ كلّ رقم ونصّ في هذا المجال إعداد (2.13).
+     *
+     * ⚠️ والنوع يُستنتَج من القيمة لا يُكتب «string» دائمًا: قارئ الإعدادات صار
+     * يحكم بالنوع المعلَن في الجدول، فمصفوفةٌ مخزَّنة بنوع نصّيّ تعود **نصًّا**
+     * فينهار أيّ فحص يتوقّع قائمة (كقائمة الامتدادات المطلوبة).
+     */
     protected function set(string $key, mixed $value): void
     {
+        $type = match (true) {
+            is_array($value) => 'json',
+            is_bool($value) => 'bool',
+            is_int($value) || is_float($value) => 'number',
+            default => 'string',
+        };
+
         $value = is_array($value) ? json_encode($value, JSON_UNESCAPED_UNICODE) : (is_bool($value) ? ($value ? '1' : '0') : (string) $value);
 
         Setting::query()->updateOrCreate(
             ['key' => $key],
-            ['group' => 'backups', 'label_ar' => $key, 'type' => 'string', 'value' => $value, 'default_value' => $value],
+            ['group' => 'backups', 'label_ar' => $key, 'type' => $type, 'value' => $value, 'default_value' => $value],
         );
 
         Cache::forget('settings');

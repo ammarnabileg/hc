@@ -101,8 +101,19 @@ class RoleController extends Controller
         // ⭐ الرفض برسالة واضحة تشرح لماذا رُفض المنح (12.2.1-ز-2)
         if ($result['rejected'] !== []) {
             return $redirect
-                ->withErrors($result['rejected'])
+                ->withErrors([...$result['rejected'], ...$result['dropped']])
                 ->with('problem', 'في سطور مااتحفظتش عشان منع تصعيد الامتياز — اقرأ التفاصيل فوق.');
+        }
+
+        /*
+         | ⭐ «يرى بعينه ما مُنِح — لا وراثة صامتة» (12.2.1-د): فرد `manage` قد يُسقِط
+         | أفعالًا لا تقبل النطاق المطلوب، والمسؤول لازم يعرف **ما سقط ولماذا** قبل
+         | أن يكتشفه من شكوى مستخدم.
+         */
+        if ($result['dropped'] !== []) {
+            return $redirect
+                ->withErrors($result['dropped'])
+                ->with('problem', "اتحفظ {$result['written']} سطر — بس في سطور سقطت، اقرأ التفاصيل فوق.");
         }
 
         return $redirect->with('status', "اتحفظ ✓ — {$result['written']} سطر صلاحيّة مفرود ظاهر قدّامك");

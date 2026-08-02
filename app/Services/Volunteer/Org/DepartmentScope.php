@@ -131,30 +131,27 @@ final class DepartmentScope
      * العنصر الشرفيّ «أخوكم» (13.4-ص): يظهر بوصفه من الإعدادات، وبلا أيّ مؤشّر تشغيليّ،
      * ولا يُحتسَب في عدّاد ولا نطاق إشراف ولا صحّة قسم.
      *
-     * @return array{user: User, label: string}|null
+     * ⭐ **مصدرٌ واحد** لكلّ أماكن ظهوره (`HonoraryElement`) — وإلّا اختلف
+     * الكانفاس عن صفحة الأعضاء عن الصفحة التعريفيّة وصار الإعداد بلا أثر (2.13).
+     * وهنا يُقيَّد بمكانه «الكانفاس» من «أماكن الظهور» (13.4-ص-ب).
+     *
+     * @return array{user: User, label: string, frame: string}|null
      */
-    public function honorary(): ?array
+    public function honorary(string $place = 'canvas'): ?array
     {
-        if (! setting('volunteer.honorary.enabled', false)) {
+        $element = app(HonoraryElement::class);
+
+        if (! $element->showsOn($place)) {
             return null;
         }
 
-        $membership = Membership::query()
-            ->whereHas('position', fn ($q) => $q->where('is_honorary', true))
-            ->whereIn('status', self::LIVE_STATUSES)
-            ->with('user')
-            ->first();
+        $resolved = $element->resolve();
 
-        $user = $membership?->user ?? $this->platformOwner();
-
-        if (! $user) {
-            return null;
-        }
-
-        return [
-            'user' => $user,
-            'label' => (string) setting('volunteer.honorary.label_ar', 'أخوكم'),
-        ];
+        return $resolved ? [
+            'user' => $resolved['user'],
+            'label' => $resolved['label'],
+            'frame' => $resolved['frame'],
+        ] : null;
     }
 
     /**
@@ -179,12 +176,5 @@ final class DepartmentScope
         }
 
         return array_values(array_unique($ids));
-    }
-
-    private function platformOwner(): ?User
-    {
-        return User::query()
-            ->whereHas('roles', fn ($q) => $q->where('key', (string) config('access.owner_role')))
-            ->first();
     }
 }

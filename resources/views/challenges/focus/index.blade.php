@@ -15,10 +15,10 @@
 
     {{-- أربعة كروت KPI بحدّ أقصى (2.15-أ-3) --}}
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
-        <x-kpi label="دقائق تركيزي" :value="$focusMinutes" icon="🧘" />
-        <x-kpi label="تحدّياتي النشطة" :value="$activeOwned.' / '.$maxActive" icon="📌" />
-        <x-kpi label="تكلفة الإنشاء" :value="(int) $createCost" icon="🎟️" />
-        <x-kpi label="تذاكري" :value="(int) $ticketsBalance" icon="💳" />
+        <x-kpi label="دقائق تركيزي" :value="$focusMinutes" icon="shield" />
+        <x-kpi label="تحدّياتي النشطة" :value="$activeOwned.' / '.$maxActive" icon="placement" />
+        <x-kpi label="تكلفة الإنشاء" :value="(int) $createCost" icon="ticket" />
+        <x-kpi label="تذاكري" :value="(int) $ticketsBalance" icon="card" />
     </div>
 
     {{-- رسالة الأمانة — قلب هذه الحرب (15.3) --}}
@@ -81,7 +81,7 @@
                                 </button>
                             </form>
                         @elseif ($row['joined'])
-                            <span class="flex-1 text-center text-xs py-3" style="color: var(--text-muted)">إنت منضمّ — ركّز 🧘</span>
+                            <span class="flex-1 text-center text-xs py-3" style="color: var(--text-muted)">إنت منضمّ — ركّز <x-icon name="shield" size="16" /></span>
                         @elseif ($war->is_group)
                             <form method="post" action="{{ route('challenges.focus.join', $war) }}" class="flex-1">
                                 @csrf

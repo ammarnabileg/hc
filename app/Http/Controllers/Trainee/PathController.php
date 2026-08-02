@@ -15,6 +15,7 @@ use App\Services\Learning\TimezoneDetector;
 use App\Services\Learning\UserClock;
 use App\Services\Learning\XpCalculator;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
@@ -153,7 +154,7 @@ class PathController extends Controller
      * القيم من `XpCalculator` نفسه لا من حسابٍ ثانٍ هنا — فما يراه على الكارت
      * هو بالضبط ما سيُكتَب له لحظة الإكمال، ولا يوجد رقمان لنفس المعنى.
      *
-     * @return array{xp:int, tickets:int, before_half:bool, half_at:?\Illuminate\Support\Carbon}
+     * @return array{xp:int, tickets:int, before_half:bool, half_at:?Carbon}
      */
     private function earlyReward(Course $course, Enrollment $enrollment): array
     {

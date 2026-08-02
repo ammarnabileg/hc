@@ -2875,6 +2875,246 @@
     "is_owner_only": true
   },
   {
+    "key": "articles.list",
+    "resource": "articles",
+    "action": "list",
+    "group": "التعلّم والمحتوى والشهادات",
+    "label_ar": "المقالات",
+    "description": "استعراض جدول المقالات بحالاتها (مسودّة/مراجعة/منشور/مؤرشف) وفلاترها.",
+    "allowed_scopes": [
+      "ALL"
+    ],
+    "conditions": [],
+    "condition_keys": [],
+    "is_sensitive": false,
+    "is_owner_only": false
+  },
+  {
+    "key": "articles.view",
+    "resource": "articles",
+    "action": "view",
+    "group": "التعلّم والمحتوى والشهادات",
+    "label_ar": "المقالات",
+    "description": "فتح المقال ومعاينته بتصنيفه ووسومه قبل النشر.",
+    "allowed_scopes": [
+      "ALL"
+    ],
+    "conditions": [],
+    "condition_keys": [],
+    "is_sensitive": false,
+    "is_owner_only": false
+  },
+  {
+    "key": "articles.create",
+    "resource": "articles",
+    "action": "create",
+    "group": "التعلّم والمحتوى والشهادات",
+    "label_ar": "المقالات",
+    "description": "إنشاء مقال جديد وتصنيفه وربطه بوسومه.",
+    "allowed_scopes": [
+      "ALL"
+    ],
+    "conditions": [],
+    "condition_keys": [],
+    "is_sensitive": false,
+    "is_owner_only": false
+  },
+  {
+    "key": "articles.edit",
+    "resource": "articles",
+    "action": "edit",
+    "group": "التعلّم والمحتوى والشهادات",
+    "label_ar": "المقالات",
+    "description": "تحرير نصّ المقال وصوره وبيانات السيو الخاصّة به.",
+    "allowed_scopes": [
+      "ALL"
+    ],
+    "conditions": [],
+    "condition_keys": [],
+    "is_sensitive": false,
+    "is_owner_only": false
+  },
+  {
+    "key": "articles.review",
+    "resource": "articles",
+    "action": "review",
+    "group": "التعلّم والمحتوى والشهادات",
+    "label_ar": "المقالات",
+    "description": "مراجعة مقال مرفوع وإبداء ملاحظات مكتوبة عليه.",
+    "allowed_scopes": [
+      "ALL"
+    ],
+    "conditions": [],
+    "condition_keys": [],
+    "is_sensitive": false,
+    "is_owner_only": false
+  },
+  {
+    "key": "articles.publish",
+    "resource": "articles",
+    "action": "publish",
+    "group": "التعلّم والمحتوى والشهادات",
+    "label_ar": "المقالات",
+    "description": "نشر المقال بعد اجتيازه المراجعة.",
+    "allowed_scopes": [
+      "ALL"
+    ],
+    "conditions": [],
+    "condition_keys": [],
+    "is_sensitive": false,
+    "is_owner_only": false
+  },
+  {
+    "key": "articles.archive",
+    "resource": "articles",
+    "action": "archive",
+    "group": "التعلّم والمحتوى والشهادات",
+    "label_ar": "المقالات",
+    "description": "أرشفة مقال منشور وإخفاؤه عن القرّاء.",
+    "allowed_scopes": [
+      "ALL"
+    ],
+    "conditions": [],
+    "condition_keys": [],
+    "is_sensitive": false,
+    "is_owner_only": false
+  },
+  {
+    "key": "image_templates.list",
+    "resource": "image_templates",
+    "action": "list",
+    "group": "التعلّم والمحتوى والشهادات",
+    "label_ar": "قوالب الصور",
+    "description": "استعراض قوالب استوديو الصور بجمهورها وحالتها.",
+    "allowed_scopes": [
+      "ALL"
+    ],
+    "conditions": [],
+    "condition_keys": [],
+    "is_sensitive": false,
+    "is_owner_only": false
+  },
+  {
+    "key": "image_templates.view",
+    "resource": "image_templates",
+    "action": "view",
+    "group": "التعلّم والمحتوى والشهادات",
+    "label_ar": "قوالب الصور",
+    "description": "فتح قالب صورة ومعاينة مخرجاته.",
+    "allowed_scopes": [
+      "ALL"
+    ],
+    "conditions": [],
+    "condition_keys": [],
+    "is_sensitive": false,
+    "is_owner_only": false
+  },
+  {
+    "key": "image_templates.create",
+    "resource": "image_templates",
+    "action": "create",
+    "group": "التعلّم والمحتوى والشهادات",
+    "label_ar": "قوالب الصور",
+    "description": "إنشاء قالب صورة جديد بطبقاته وخطوطه.",
+    "allowed_scopes": [
+      "ALL"
+    ],
+    "conditions": [],
+    "condition_keys": [],
+    "is_sensitive": false,
+    "is_owner_only": false
+  },
+  {
+    "key": "image_templates.edit",
+    "resource": "image_templates",
+    "action": "edit",
+    "group": "التعلّم والمحتوى والشهادات",
+    "label_ar": "قوالب الصور",
+    "description": "تعديل طبقات القالب وجزيئاته ونصوصه.",
+    "allowed_scopes": [
+      "ALL"
+    ],
+    "conditions": [],
+    "condition_keys": [],
+    "is_sensitive": false,
+    "is_owner_only": false
+  },
+  {
+    "key": "image_templates.publish",
+    "resource": "image_templates",
+    "action": "publish",
+    "group": "التعلّم والمحتوى والشهادات",
+    "label_ar": "قوالب الصور",
+    "description": "نشر القالب وإتاحته لجمهوره المحدَّد.",
+    "allowed_scopes": [
+      "ALL"
+    ],
+    "conditions": [],
+    "condition_keys": [],
+    "is_sensitive": false,
+    "is_owner_only": false
+  },
+  {
+    "key": "image_templates.archive",
+    "resource": "image_templates",
+    "action": "archive",
+    "group": "التعلّم والمحتوى والشهادات",
+    "label_ar": "قوالب الصور",
+    "description": "أرشفة قالب صورة وإخفاؤه عن المستخدمين.",
+    "allowed_scopes": [
+      "ALL"
+    ],
+    "conditions": [],
+    "condition_keys": [],
+    "is_sensitive": false,
+    "is_owner_only": false
+  },
+  {
+    "key": "image_templates.delete",
+    "resource": "image_templates",
+    "action": "delete",
+    "group": "التعلّم والمحتوى والشهادات",
+    "label_ar": "قوالب الصور",
+    "description": "حذف قالب صورة نهائيًّا بتأكيد.",
+    "allowed_scopes": [
+      "ALL"
+    ],
+    "conditions": [],
+    "condition_keys": [],
+    "is_sensitive": false,
+    "is_owner_only": false
+  },
+  {
+    "key": "image_templates.batch",
+    "resource": "image_templates",
+    "action": "batch",
+    "group": "التعلّم والمحتوى والشهادات",
+    "label_ar": "قوالب الصور",
+    "description": "توليد دفعة صور من قالب واحد بمدخلات متعدّدة.",
+    "allowed_scopes": [
+      "ALL"
+    ],
+    "conditions": [],
+    "condition_keys": [],
+    "is_sensitive": false,
+    "is_owner_only": false
+  },
+  {
+    "key": "image_export.use",
+    "resource": "image_export",
+    "action": "use",
+    "group": "التعلّم والمحتوى والشهادات",
+    "label_ar": "استخراج الصور",
+    "description": "استخراج صورة من قالب منشور وتنزيلها.",
+    "allowed_scopes": [
+      "ALL"
+    ],
+    "conditions": [],
+    "condition_keys": [],
+    "is_sensitive": false,
+    "is_owner_only": false
+  },
+  {
     "key": "users.list",
     "resource": "users",
     "action": "list",
@@ -2970,7 +3210,7 @@
     "action": "manage",
     "group": "المستخدمون والحسابات والخصوصيّة",
     "label_ar": "users",
-    "description": "🔒 الإدارة الكاملة لموارد المستخدمين (تُفرَد آليًّا عند الحفظ).",
+    "description": "الإدارة الكاملة لموارد المستخدمين (تُفرَد آليًّا عند الحفظ).",
     "allowed_scopes": [
       "ALL"
     ],
@@ -3315,7 +3555,7 @@
     "action": "delete",
     "group": "المستخدمون والحسابات والخصوصيّة",
     "label_ar": "user_deletion",
-    "description": "🔒 حذف الحساب نهائيًّا (Soft Delete) بعد تأكيد رمز الأربع خانات.",
+    "description": "حذف الحساب نهائيًّا (Soft Delete) بعد تأكيد رمز الأربع خانات.",
     "allowed_scopes": [
       "ALL",
       "SELF"
@@ -3335,7 +3575,7 @@
     "action": "restore",
     "group": "المستخدمون والحسابات والخصوصيّة",
     "label_ar": "user_deletion",
-    "description": "🔒 استرجاع حساب محذوف وإعادة الوصول لبياناته.",
+    "description": "استرجاع حساب محذوف وإعادة الوصول لبياناته.",
     "allowed_scopes": [
       "ALL"
     ],
@@ -3354,7 +3594,7 @@
     "action": "view",
     "group": "المستخدمون والحسابات والخصوصيّة",
     "label_ar": "user_deletion",
-    "description": "🔒 الاطّلاع على سجلّ الحسابات المحذوفة وبياناتها المحفوظة.",
+    "description": "الاطّلاع على سجلّ الحسابات المحذوفة وبياناتها المحفوظة.",
     "allowed_scopes": [
       "ALL"
     ],
@@ -3418,7 +3658,7 @@
     "action": "edit",
     "group": "المستخدمون والحسابات والخصوصيّة",
     "label_ar": "roles",
-    "description": "🔒 تعديل قدرات الدور ونطاقاتها وشروطها.",
+    "description": "تعديل قدرات الدور ونطاقاتها وشروطها.",
     "allowed_scopes": [
       "ALL"
     ],
@@ -3437,7 +3677,7 @@
     "action": "delete",
     "group": "المستخدمون والحسابات والخصوصيّة",
     "label_ar": "roles",
-    "description": "🔒 حذف دور غير مستخدَم مع تسجيل التغيير في الأوديت.",
+    "description": "حذف دور غير مستخدَم مع تسجيل التغيير في الأوديت.",
     "allowed_scopes": [
       "ALL"
     ],
@@ -3456,7 +3696,7 @@
     "action": "assign",
     "group": "المستخدمون والحسابات والخصوصيّة",
     "label_ar": "roles",
-    "description": "🔒 إسناد دور/أدوار لمستخدم من تاب الإدارة، بلا تصعيد امتياز.",
+    "description": "إسناد دور/أدوار لمستخدم من تاب الإدارة، بلا تصعيد امتياز.",
     "allowed_scopes": [
       "ALL",
       "ENTITY",
@@ -3508,7 +3748,7 @@
     "action": "edit",
     "group": "المستخدمون والحسابات والخصوصيّة",
     "label_ar": "permissions",
-    "description": "🔒 تعديل تركيبة الصلاحيّات (المنع يغلب الإذن + فرد `manage` آليًّا).",
+    "description": "تعديل تركيبة الصلاحيّات (المنع يغلب الإذن + فرد manage آليًّا).",
     "allowed_scopes": [
       "ALL"
     ],
@@ -3527,7 +3767,7 @@
     "action": "assign",
     "group": "المستخدمون والحسابات والخصوصيّة",
     "label_ar": "permissions",
-    "description": "🔒 منح صلاحيّة مفردة أو مجموعة دفعة واحدة بلا تجاوز نطاق المانح.",
+    "description": "منح صلاحيّة مفردة أو مجموعة دفعة واحدة بلا تجاوز نطاق المانح.",
     "allowed_scopes": [
       "ALL",
       "ENTITY"
@@ -3547,7 +3787,7 @@
     "action": "export",
     "group": "المستخدمون والحسابات والخصوصيّة",
     "label_ar": "permissions",
-    "description": "🔒 تصدير مصفوفة الصلاحيّات للمراجعة والتدقيق.",
+    "description": "تصدير مصفوفة الصلاحيّات للمراجعة والتدقيق.",
     "allowed_scopes": [
       "ALL"
     ],
@@ -3754,7 +3994,7 @@
     "action": "manage",
     "group": "المستخدمون والحسابات والخصوصيّة",
     "label_ar": "signup_flow",
-    "description": "🔒 التحكّم الكامل بتدفّق التسجيل وتفعيله/إيقافه.",
+    "description": "التحكّم الكامل بتدفّق التسجيل وتفعيله/إيقافه.",
     "allowed_scopes": [
       "ALL"
     ],
@@ -3848,7 +4088,7 @@
     "action": "edit",
     "group": "المستخدمون والحسابات والخصوصيّة",
     "label_ar": "password_policy",
-    "description": "🔒 تعديل شروط كلمة المرور وآليّة رمز تأكيد التحديث.",
+    "description": "تعديل شروط كلمة المرور وآليّة رمز تأكيد التحديث.",
     "allowed_scopes": [
       "ALL"
     ],
@@ -4085,7 +4325,7 @@
     "action": "manage",
     "group": "المستخدمون والحسابات والخصوصيّة",
     "label_ar": "contact_consent",
-    "description": "🔒 فتح خصوصيّة التواصل لقسم كامل وضبط مدّة الموافقة (تُفرَد آليًّا).",
+    "description": "فتح خصوصيّة التواصل لقسم كامل وضبط مدّة الموافقة (تُفرَد آليًّا).",
     "allowed_scopes": [
       "ALL",
       "ENTITY"
@@ -4160,7 +4400,7 @@
     "action": "manage",
     "group": "المستخدمون والحسابات والخصوصيّة",
     "label_ar": "privacy_settings",
-    "description": "🔒 فرض الحدّ الأدنى للخصوصيّة ومصفوفة الحقول × مستويات المشاهدة.",
+    "description": "فرض الحدّ الأدنى للخصوصيّة ومصفوفة الحقول × مستويات المشاهدة.",
     "allowed_scopes": [
       "ALL",
       "ENTITY"
@@ -4220,7 +4460,7 @@
     "action": "create",
     "group": "المستخدمون والحسابات والخصوصيّة",
     "label_ar": "impersonation",
-    "description": "🔒 بدء تصفّح حساب مستخدم مع شريط علويّ معرِّف وAudit كامل.",
+    "description": "بدء تصفّح حساب مستخدم مع شريط علويّ معرِّف وAudit كامل.",
     "allowed_scopes": [
       "ALL"
     ],
@@ -4239,7 +4479,7 @@
     "action": "view",
     "group": "المستخدمون والحسابات والخصوصيّة",
     "label_ar": "impersonation",
-    "description": "🔒 مراجعة سجلّ جلسات الدخول كمستخدم (مَن/متى/أيّ حساب).",
+    "description": "مراجعة سجلّ جلسات الدخول كمستخدم (مَن/متى/أيّ حساب).",
     "allowed_scopes": [
       "ALL"
     ],
@@ -4377,7 +4617,7 @@
     "action": "manage",
     "group": "المستخدمون والحسابات والخصوصيّة",
     "label_ar": "sidebar",
-    "description": "🔒 ضبط ظهور عناصر السايد بار وتفعيلها/إخفاءها (تُفرَد آليًّا).",
+    "description": "ضبط ظهور عناصر السايد بار وتفعيلها/إخفاءها (تُفرَد آليًّا).",
     "allowed_scopes": [
       "ALL"
     ],
@@ -5386,7 +5626,7 @@
     "action": "create",
     "group": "التطوّع — الرحلة والتوظيف والهيكل",
     "label_ar": "sub_departments",
-    "description": "إنشاء قسم فرعيّ بـ`parent_department_id` ورأسه سوبرفايزر واحد.",
+    "description": "إنشاء قسم فرعيّ بـparent_department_id ورأسه سوبرفايزر واحد.",
     "allowed_scopes": [
       "ENTITY"
     ],
@@ -12748,7 +12988,7 @@
     "action": "edit",
     "group": "التفاعل والفعاليّات والتلعيب",
     "label_ar": "achievements",
-    "description": "ضبط عتبات المسارات بالزيادة المتدرّجة `base + (N−2)×step`.",
+    "description": "ضبط عتبات المسارات بالزيادة المتدرّجة base + (N−2)×step.",
     "allowed_scopes": [
       "ALL"
     ],
@@ -12937,7 +13177,7 @@
     "action": "view",
     "group": "التفاعل والفعاليّات والتلعيب",
     "label_ar": "share_links",
-    "description": "رابطي الفريد `/join?ref=CODE` وكود الـQR الخاصّ به.",
+    "description": "رابطي الفريد /join?ref=CODE وكود الـQR الخاصّ به.",
     "allowed_scopes": [
       "SELF"
     ],
@@ -13620,7 +13860,7 @@
     "action": "view",
     "group": "المال والمتجر والملكيّة",
     "label_ar": "flip_reader",
-    "description": "فتح القارئ المحميّ داخل الموقع فقط — **بلا تحميل ولا رابط ملفّ مباشر**.",
+    "description": "فتح القارئ المحميّ داخل الموقع فقط — بلا تحميل ولا رابط ملفّ مباشر.",
     "allowed_scopes": [
       "SELF"
     ],
@@ -14357,7 +14597,7 @@
     "action": "list",
     "group": "المال والمتجر والملكيّة",
     "label_ar": "my_library",
-    "description": "استعراض مكتبته الخاصّة بتاباتها وعدّاداتها — **لا تظهر لأحد غيره**.",
+    "description": "استعراض مكتبته الخاصّة بتاباتها وعدّاداتها — لا تظهر لأحد غيره.",
     "allowed_scopes": [
       "SELF"
     ],
@@ -14691,101 +14931,42 @@
     "is_owner_only": true
   },
   {
-    "key": "refunds.create",
+    "key": "refunds.view",
     "resource": "refunds",
-    "action": "create",
+    "action": "view",
     "group": "المال والمتجر والملكيّة",
     "label_ar": "refunds",
-    "description": "تقديم طلب استرجاع لعنصر مشترى وفق سياسة الاسترجاع.",
+    "description": "عرض نصّ سياسة عدم الاسترجاع المعتمَد (19.4).",
     "allowed_scopes": [
-      "SELF"
+      "ALL"
     ],
     "conditions": [
-      "داخل النافذة الزمنيّة"
+      "مالك المنصّة فقط"
+    ],
+    "condition_keys": [
+      "within_window"
+    ],
+    "is_sensitive": false,
+    "is_owner_only": false
+  },
+  {
+    "key": "refunds.edit",
+    "resource": "refunds",
+    "action": "edit",
+    "group": "المال والمتجر والملكيّة",
+    "label_ar": "refunds",
+    "description": "تحرير نصّ سياسة عدم الاسترجاع (عربيّ/إنجليزيّ) بمعاينة وAudit (19.4).",
+    "allowed_scopes": [
+      "ALL"
+    ],
+    "conditions": [
+      "مالك المنصّة فقط"
     ],
     "condition_keys": [
       "within_window"
     ],
     "is_sensitive": true,
     "is_owner_only": false
-  },
-  {
-    "key": "refunds.list",
-    "resource": "refunds",
-    "action": "list",
-    "group": "المال والمتجر والملكيّة",
-    "label_ar": "refunds",
-    "description": "استعراض طلبات الاسترجاع وحالاتها.",
-    "allowed_scopes": [
-      "ALL",
-      "ENTITY",
-      "SELF"
-    ],
-    "conditions": [
-      "المالك فقط"
-    ],
-    "condition_keys": [
-      "is_owner"
-    ],
-    "is_sensitive": true,
-    "is_owner_only": false
-  },
-  {
-    "key": "refunds.approve",
-    "resource": "refunds",
-    "action": "approve",
-    "group": "المال والمتجر والملكيّة",
-    "label_ar": "refunds",
-    "description": "اعتماد الاسترجاع وردّ المبلغ للرصيد.",
-    "allowed_scopes": [
-      "ALL"
-    ],
-    "conditions": [
-      "مالك المنصّة فقط"
-    ],
-    "condition_keys": [
-      "platform_owner"
-    ],
-    "is_sensitive": true,
-    "is_owner_only": true
-  },
-  {
-    "key": "refunds.reject",
-    "resource": "refunds",
-    "action": "reject",
-    "group": "المال والمتجر والملكيّة",
-    "label_ar": "refunds",
-    "description": "رفض طلب الاسترجاع مع سبب موثّق.",
-    "allowed_scopes": [
-      "ALL"
-    ],
-    "conditions": [
-      "مالك المنصّة فقط"
-    ],
-    "condition_keys": [
-      "platform_owner"
-    ],
-    "is_sensitive": true,
-    "is_owner_only": true
-  },
-  {
-    "key": "refunds.manage",
-    "resource": "refunds",
-    "action": "manage",
-    "group": "المال والمتجر والملكيّة",
-    "label_ar": "refunds",
-    "description": "ضبط سياسة الاسترجاع ونافذتها الزمنيّة.",
-    "allowed_scopes": [
-      "ALL"
-    ],
-    "conditions": [
-      "مالك المنصّة فقط"
-    ],
-    "condition_keys": [
-      "platform_owner"
-    ],
-    "is_sensitive": true,
-    "is_owner_only": true
   },
   {
     "key": "product_categories.list",
@@ -14964,6 +15145,142 @@
     "is_owner_only": false
   },
   {
+    "key": "finance.view",
+    "resource": "finance",
+    "action": "view",
+    "group": "المال والمتجر والملكيّة",
+    "label_ar": "الماليّات",
+    "description": "فتح شاشة الماليّات: الأسعار والرسوم والعمولات وسجلّ تغييرها.",
+    "allowed_scopes": [
+      "ALL"
+    ],
+    "conditions": [
+      "مالك المنصّة فقط"
+    ],
+    "condition_keys": [
+      "platform_owner"
+    ],
+    "is_sensitive": true,
+    "is_owner_only": true
+  },
+  {
+    "key": "finance.edit",
+    "resource": "finance",
+    "action": "edit",
+    "group": "المال والمتجر والملكيّة",
+    "label_ar": "الماليّات",
+    "description": "تعديل أرقام الماليّات (الرسوم · العمولات · سياسة الاسترجاع).",
+    "allowed_scopes": [
+      "ALL"
+    ],
+    "conditions": [
+      "مالك المنصّة فقط"
+    ],
+    "condition_keys": [
+      "platform_owner"
+    ],
+    "is_sensitive": true,
+    "is_owner_only": true
+  },
+  {
+    "key": "finance.export",
+    "resource": "finance",
+    "action": "export",
+    "group": "المال والمتجر والملكيّة",
+    "label_ar": "الماليّات",
+    "description": "تصدير جرد الماليّات وسجلّ تدقيقها.",
+    "allowed_scopes": [
+      "ALL"
+    ],
+    "conditions": [
+      "مالك المنصّة فقط"
+    ],
+    "condition_keys": [
+      "platform_owner"
+    ],
+    "is_sensitive": true,
+    "is_owner_only": true
+  },
+  {
+    "key": "finance.manage",
+    "resource": "finance",
+    "action": "manage",
+    "group": "المال والمتجر والملكيّة",
+    "label_ar": "الماليّات",
+    "description": "الإدارة الكاملة للمجموعة الماليّة المحميّة (2.13-و).",
+    "allowed_scopes": [
+      "ALL"
+    ],
+    "conditions": [
+      "مالك المنصّة فقط"
+    ],
+    "condition_keys": [
+      "platform_owner"
+    ],
+    "is_sensitive": true,
+    "is_owner_only": true
+  },
+  {
+    "key": "topup_requests.list",
+    "resource": "topup_requests",
+    "action": "list",
+    "group": "المال والمتجر والملكيّة",
+    "label_ar": "طلبات الشحن",
+    "description": "طابور طلبات الشحن اليدويّ بحالاته الأربع وعدّاد المعلَّق.",
+    "allowed_scopes": [
+      "ALL"
+    ],
+    "conditions": [],
+    "condition_keys": [],
+    "is_sensitive": true,
+    "is_owner_only": false
+  },
+  {
+    "key": "topup_requests.view",
+    "resource": "topup_requests",
+    "action": "view",
+    "group": "المال والمتجر والملكيّة",
+    "label_ar": "طلبات الشحن",
+    "description": "فتح طلب شحن ومعاينة إيصاله بجوار نموذج المراجعة.",
+    "allowed_scopes": [
+      "ALL"
+    ],
+    "conditions": [],
+    "condition_keys": [],
+    "is_sensitive": true,
+    "is_owner_only": false
+  },
+  {
+    "key": "topup_requests.approve",
+    "resource": "topup_requests",
+    "action": "approve",
+    "group": "المال والمتجر والملكيّة",
+    "label_ar": "طلبات الشحن",
+    "description": "اعتماد طلب الشحن وإضافة الرصيد بقيمة مكتوبة وسبب موثّق.",
+    "allowed_scopes": [
+      "ALL"
+    ],
+    "conditions": [],
+    "condition_keys": [],
+    "is_sensitive": true,
+    "is_owner_only": false
+  },
+  {
+    "key": "topup_requests.reject",
+    "resource": "topup_requests",
+    "action": "reject",
+    "group": "المال والمتجر والملكيّة",
+    "label_ar": "طلبات الشحن",
+    "description": "إلغاء طلب الشحن بسبب مكتوب يصل صاحبه.",
+    "allowed_scopes": [
+      "ALL"
+    ],
+    "conditions": [],
+    "condition_keys": [],
+    "is_sensitive": true,
+    "is_owner_only": false
+  },
+  {
     "key": "settings_general.view",
     "resource": "settings_general",
     "action": "view",
@@ -14984,7 +15301,7 @@
     "action": "edit",
     "group": "النظام والتقارير",
     "label_ar": "settings_general",
-    "description": "تعديل الإعدادات العامّة مع معاينة قبل التطبيق و**Audit** لكلّ تغيير.",
+    "description": "تعديل الإعدادات العامّة مع معاينة قبل التطبيق وAudit لكلّ تغيير.",
     "allowed_scopes": [
       "ALL"
     ],
@@ -15154,7 +15471,7 @@
     "action": "manage",
     "group": "النظام والتقارير",
     "label_ar": "maintenance",
-    "description": "تفعيل/تمديد/رفع وضع الصيانة — يقفل المنصّة و**يُجمّد كلّ المهل** ثم تُستأنف.",
+    "description": "تفعيل/تمديد/رفع وضع الصيانة — يقفل المنصّة ويُجمّد كلّ المهل ثم تُستأنف.",
     "allowed_scopes": [
       "ALL"
     ],
@@ -15274,7 +15591,7 @@
     "action": "manage",
     "group": "النظام والتقارير",
     "label_ar": "updates",
-    "description": "تنفيذ التحديث والترحيل (Dry-run ثم تطبيق) — **للأدمن فقط بتوثيق وتوكن** مع Audit.",
+    "description": "تنفيذ التحديث والترحيل (Dry-run ثم تطبيق) — للأدمن فقط بتوثيق وتوكن مع Audit.",
     "allowed_scopes": [
       "ALL"
     ],
@@ -15353,7 +15670,7 @@
     "action": "create",
     "group": "النظام والتقارير",
     "label_ar": "backups",
-    "description": "إنشاء نسخة احتياطيّة يدويّة فوريّة — **بتوثيق وتوكن**.",
+    "description": "إنشاء نسخة احتياطيّة يدويّة فوريّة — بتوثيق وتوكن.",
     "allowed_scopes": [
       "ALL"
     ],
@@ -15503,7 +15820,7 @@
     "action": "edit",
     "group": "النظام والتقارير",
     "label_ar": "integrations",
-    "description": "تعديل بيانات تكامل أو تدوير مفتاح — بـ**Audit** إلزاميّ.",
+    "description": "تعديل بيانات تكامل أو تدوير مفتاح — بـAudit إلزاميّ.",
     "allowed_scopes": [
       "ALL"
     ],
@@ -16104,7 +16421,7 @@
     "action": "edit",
     "group": "النظام والتقارير",
     "label_ar": "webhooks",
-    "description": "تعديل رابط/أحداث/سرّ الويب-هوك بـ**Audit**.",
+    "description": "تعديل رابط/أحداث/سرّ الويب-هوك بـAudit.",
     "allowed_scopes": [
       "ALL"
     ],
@@ -16848,7 +17165,7 @@
     "action": "view",
     "group": "النظام والتقارير",
     "label_ar": "progress_docs",
-    "description": "عرض ملفّ حالة مجلّد (`_STATUS.md`) ومحتواه.",
+    "description": "عرض ملفّ حالة مجلّد (_STATUS.md) ومحتواه.",
     "allowed_scopes": [
       "ALL",
       "ENTITY"
@@ -16926,7 +17243,7 @@
     "action": "view",
     "group": "النظام والتقارير",
     "label_ar": "setup_installer",
-    "description": "عرض صفحة التنصيب `setup.php` ومدخلاتها الأوّليّة.",
+    "description": "عرض صفحة التنصيب setup.php ومدخلاتها الأوّليّة.",
     "allowed_scopes": [
       "ALL"
     ],
@@ -16945,7 +17262,7 @@
     "action": "manage",
     "group": "النظام والتقارير",
     "label_ar": "setup_installer",
-    "description": "تنفيذ التنصيب/إعادة الوصول — **للأدمن فقط بتوثيق وتوكن** مع Audit.",
+    "description": "تنفيذ التنصيب/إعادة الوصول — للأدمن فقط بتوثيق وتوكن مع Audit.",
     "allowed_scopes": [
       "ALL"
     ],
@@ -17540,6 +17857,104 @@
     "conditions": [],
     "condition_keys": [],
     "is_sensitive": true,
+    "is_owner_only": false
+  },
+  {
+    "key": "ad_audiences.view",
+    "resource": "ad_audiences",
+    "action": "view",
+    "group": "النظام والتقارير",
+    "label_ar": "شرائح الإعلان",
+    "description": "عرض شريحة إعلانيّة وشروط بنائها وحجمها التقديريّ.",
+    "allowed_scopes": [
+      "ALL"
+    ],
+    "conditions": [],
+    "condition_keys": [],
+    "is_sensitive": false,
+    "is_owner_only": false
+  },
+  {
+    "key": "ad_audiences.create",
+    "resource": "ad_audiences",
+    "action": "create",
+    "group": "النظام والتقارير",
+    "label_ar": "شرائح الإعلان",
+    "description": "بناء شريحة إعلانيّة جديدة من شروط الجمهور.",
+    "allowed_scopes": [
+      "ALL"
+    ],
+    "conditions": [],
+    "condition_keys": [],
+    "is_sensitive": false,
+    "is_owner_only": false
+  },
+  {
+    "key": "ad_audiences.edit",
+    "resource": "ad_audiences",
+    "action": "edit",
+    "group": "النظام والتقارير",
+    "label_ar": "شرائح الإعلان",
+    "description": "تعديل شروط الشريحة الإعلانيّة واسمها.",
+    "allowed_scopes": [
+      "ALL"
+    ],
+    "conditions": [],
+    "condition_keys": [],
+    "is_sensitive": false,
+    "is_owner_only": false
+  },
+  {
+    "key": "ad_audiences.export",
+    "resource": "ad_audiences",
+    "action": "export",
+    "group": "النظام والتقارير",
+    "label_ar": "شرائح الإعلان",
+    "description": "تصدير الشريحة — إخراجُ بيانات من المنصّة (21.3-هـ).",
+    "allowed_scopes": [
+      "ALL"
+    ],
+    "conditions": [
+      "مالك المنصّة فقط"
+    ],
+    "condition_keys": [
+      "platform_owner"
+    ],
+    "is_sensitive": true,
+    "is_owner_only": true
+  },
+  {
+    "key": "ad_pixels.manage",
+    "resource": "ad_pixels",
+    "action": "manage",
+    "group": "النظام والتقارير",
+    "label_ar": "بكسل الإعلان",
+    "description": "معرّفات البكسل ومفاتيح الـAPI لمنصّات الإعلان.",
+    "allowed_scopes": [
+      "ALL"
+    ],
+    "conditions": [
+      "مالك المنصّة فقط"
+    ],
+    "condition_keys": [
+      "platform_owner"
+    ],
+    "is_sensitive": true,
+    "is_owner_only": true
+  },
+  {
+    "key": "acquisition_sources.view",
+    "resource": "acquisition_sources",
+    "action": "view",
+    "group": "النظام والتقارير",
+    "label_ar": "مصادر الاكتساب",
+    "description": "تقرير مصادر اكتساب المستخدمين ونِسَب التحوّل منها.",
+    "allowed_scopes": [
+      "ALL"
+    ],
+    "conditions": [],
+    "condition_keys": [],
+    "is_sensitive": false,
     "is_owner_only": false
   }
 ]

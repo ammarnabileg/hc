@@ -137,8 +137,9 @@ class Integrations
 
             $wallet->forceFill([
                 'balance' => $after,
-                'lifetime_earned' => round((float) $wallet->lifetime_earned + max($applied, 0), 2),
-                'lifetime_spent' => round((float) $wallet->lifetime_spent + abs(min($applied, 0)), 2),
+                // المكتسَب التراكميّ من **المطلوب كاملًا** لا من المسقوف (13.4-ن-و)
+                'lifetime_earned' => round((float) $wallet->lifetime_earned + max(round($signedAmount, 2), 0), 2),
+                'lifetime_spent' => round((float) $wallet->lifetime_spent + abs(min(round($signedAmount, 2), 0)), 2),
             ])->save();
 
             return Transaction::create([

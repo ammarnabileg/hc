@@ -16,6 +16,7 @@ use Database\Seeders\RolePermissionSeeder;
 use Database\Seeders\RoleSeeder;
 use Database\Seeders\SettingSeeder;
 use Database\Seeders\StoreDemoSeeder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
 use Tests\TestCase;
@@ -39,13 +40,22 @@ abstract class StoreTestCase extends TestCase
         (new StoreDemoSeeder)->settings();
     }
 
-    /** تغيير إعداد أثناء الاختبار — مع تفريغ كاش الإعدادات */
-    protected function setting(string $key, string $value): void
+    /**
+     * تغيير إعداد أثناء الاختبار — مع تفريغ كاش الإعدادات.
+     *
+     * ⭐ والنوع **لا يُدهَس**: `setting()` يقرأ القيمة حسب النوع المعلَن، فكتابة
+     * إعداد JSON بنوع `string` كانت تُرجِع نصًّا حيث يُنتظَر مصفوفة — فتختفي
+     * عروض الـBump بصمت ويفشل الاختبار لسببٍ لا علاقة له بما يقيسه.
+     */
+    protected function setting(string $key, string $value, ?string $type = null): void
     {
+        $existing = Setting::query()->where('key', $key)->first();
+        $type ??= $existing?->type ?? (str_starts_with(ltrim($value), '[') || str_starts_with(ltrim($value), '{') ? 'json' : 'string');
+
         Setting::updateOrCreate(['key' => $key], [
-            'group' => 'store',
-            'label_ar' => $key,
-            'type' => 'string',
+            'group' => $existing?->group ?? 'store',
+            'label_ar' => $existing?->label_ar ?? $key,
+            'type' => $type,
             'value' => $value,
         ]);
 
@@ -70,9 +80,15 @@ abstract class StoreTestCase extends TestCase
 
     protected function credit(User $user, float $coins): void
     {
+        $this->creditCurrency($user, 'coins', $coins);
+    }
+
+    /** شحن رصيدٍ بعملةٍ بعينها — المتجر يسعّر بثلاث عملات (17) */
+    protected function creditCurrency(User $user, string $code, float $amount): void
+    {
         WalletBalance::updateOrCreate(
-            ['user_id' => $user->id, 'currency_id' => $this->coins()->id],
-            ['balance' => $coins],
+            ['user_id' => $user->id, 'currency_id' => Currency::where('code', $code)->firstOrFail()->id],
+            ['balance' => $amount],
         );
     }
 
@@ -81,10 +97,10 @@ abstract class StoreTestCase extends TestCase
         return Currency::where('code', 'coins')->firstOrFail();
     }
 
-    protected function balanceOf(User $user): float
+    protected function balanceOf(User $user, string $code = 'coins'): float
     {
         return (float) WalletBalance::where('user_id', $user->id)
-            ->where('currency_id', $this->coins()->id)
+            ->where('currency_id', Currency::where('code', $code)->firstOrFail()->id)
             ->value('balance');
     }
 
@@ -117,7 +133,11 @@ abstract class StoreTestCase extends TestCase
         ]);
     }
 
-    protected function bundle(array $items, array $overrides = []): Bundle
+    /**
+     * @param  array<int, Model>  $items
+     * @param  array<int, float|null>  $itemPrices  Override سعر كلّ عنصر داخل الباقة (18)
+     */
+    protected function bundle(array $items, array $overrides = [], array $itemPrices = []): Bundle
     {
         $bundle = Bundle::create([
             'slug' => 'baqet-elwazifa',
@@ -135,6 +155,7 @@ abstract class StoreTestCase extends TestCase
                 'itemable_type' => $item::class,
                 'itemable_id' => $item->id,
                 'sort_order' => $index,
+                'price_coins' => $itemPrices[$index] ?? null,
             ]);
         }
 

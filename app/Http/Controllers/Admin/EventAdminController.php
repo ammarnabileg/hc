@@ -3,13 +3,14 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\CertificateType;
+use App\Models\Coupon;
 use App\Models\Event;
 use App\Models\EventAgendaItem;
 use App\Models\EventRegistration;
 use App\Services\Admin\Volunteer\AuditTrail;
 use App\Services\Admin\Volunteer\Integrations;
 use App\Services\Admin\Volunteer\SettingsWriter;
+use App\Services\Events\AttendanceService;
 use App\Support\Scope\ScopeFilter;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -43,8 +44,9 @@ class EventAdminController extends Controller
             'events' => $events,
             'modes' => (array) setting('events.modes', []),
             'settings' => SettingsWriter::groupRows('events'),
-            'certificateTypes' => CertificateType::query()->where('is_active', true)->get(),
             'defaultTiers' => (array) setting('events.reward_tiers_default', []),
+            // كوبونات سارية للاختيار منها في فورم السعر (12.11)
+            'coupons' => Coupon::query()->where('is_active', true)->orderBy('code')->get(['id', 'code']),
             'filters' => [
                 'q' => $request->string('q')->toString(),
                 'mode' => $request->string('mode')->toString(),
@@ -72,8 +74,10 @@ class EventAdminController extends Controller
             'capacity' => ['nullable', 'integer', 'min:1'],
             'price_coins' => ['nullable', 'numeric', 'min:0'],
             'price_tickets' => ['nullable', 'numeric', 'min:0'],
+            // كوبون/خصم الفعاليّة (12.11)
+            'coupon_id' => ['nullable', 'integer', 'exists:coupons,id'],
+            'cover_path' => ['nullable', 'string', 'max:255'],
             'attendance_code' => ['nullable', 'string', 'max:32'],
-            'certificate_type_id' => ['nullable', 'integer', 'exists:certificate_types,id'],
             'status' => ['required', 'string', 'in:draft,published,cancelled'],
             'reward_tiers' => ['nullable', 'array'],
             'agenda' => ['nullable', 'array'],
@@ -96,7 +100,12 @@ class EventAdminController extends Controller
             ->all();
 
         $event->fill([
-            'slug' => $event->slug ?: str()->slug($data['title_en'] ?: 'event').'-'.str()->lower(str()->random(6)),
+            /*
+             | ⭐ العنوان الإنجليزيّ **اختياريّ** (12.11) — وكان غيابه يُسقِط الحفظ
+             | كلّه بـ500 لأنّ المفتاح يُقرأ بلا `??`. والاسم العربيّ يصلح أساسًا
+             | للـslug، ولو خلا الاثنان من حروف لاتينيّة بقيت الكلمة الافتراضيّة.
+             */
+            'slug' => $event->slug ?: $this->slugFor($data),
             'title_ar' => $data['title_ar'],
             'title_en' => $data['title_en'] ?? null,
             'description' => $data['description'] ?? null,
@@ -111,9 +120,17 @@ class EventAdminController extends Controller
             'capacity' => $data['capacity'] ?? null,
             'price_coins' => $data['price_coins'] ?? 0,
             'price_tickets' => $data['price_tickets'] ?? 0,
+            'coupon_id' => $data['coupon_id'] ?? null,
+            'cover_path' => $data['cover_path'] ?? ($event->cover_path ?: null),
             // كود الحضور OTP رقميّ — مستمرّ لا يقفل، والمكافأة وحدها تتناقص (13.3)
             'attendance_code' => ($data['attendance_code'] ?? null) ?: ($event->attendance_code ?: $this->generateCode()),
-            'certificate_type_id' => $data['certificate_type_id'] ?? null,
+            /*
+             | ⛔ **نوع شهادة الحضور لا يُضبَط هنا** (13.3 حرفيًّا: «يُضبَط في إدارة
+             | الشهادات (12.5)، لا في فورم الفعاليّة»). فالحقل خرج من الفورم ومن
+             | التحقّق، و`CertificateBridge` يقرأ النوع من مفتاح
+             | `events.certificate.default_type_key` المضبوط في إدارة الشهادات.
+             | والقيمة القديمة المحفوظة لفعاليّاتٍ سابقة تبقى كما هي ولا تُدهَس.
+             */
             'status' => $data['status'],
             'xp_reward' => (int) ($tiers[0]['xp'] ?? 0),
             'ticket_reward' => (int) ($tiers[0]['tickets'] ?? 0),
@@ -246,26 +263,34 @@ class EventAdminController extends Controller
 
     // ------------------------------------------------------------ داخليّ
 
+    /**
+     * الجدول والدرجة المستحقّة من **`AttendanceService` وحدها** — فشاشة الأدمن
+     * وصرفُ المتدرّب يقرآن نفس الجدول بنفس المرساة (نهاية الفعاليّة)، ولا تفترق
+     * نسختان فيَعِد الأدمن بدرجةٍ ويصرف النظام غيرها (13.3).
+     */
     private function tiers(Event $event): array
     {
-        $raw = $event->getAttribute('reward_tiers');
-        $tiers = is_array($raw) ? $raw : json_decode((string) $raw, true);
-
-        return is_array($tiers) && $tiers ? $tiers : (array) setting('events.reward_tiers_default', []);
+        return app(AttendanceService::class)->tiers($event);
     }
 
-    /** أوّل درجة تشمل الساعات المنقضية منذ الفعاليّة */
     private function tierFor(Event $event, $moment): ?array
     {
-        $hours = $event->starts_at ? $event->starts_at->diffInHours($moment) : 0;
+        return app(AttendanceService::class)->currentTier($event, $moment);
+    }
 
-        foreach ($this->tiers($event) as $tier) {
-            if ($hours <= (int) ($tier['hours'] ?? 0)) {
-                return $tier;
-            }
-        }
+    /**
+     * slug من العنوان الإنجليزيّ إن وُجد، وإلّا من العربيّ، وإلّا من كلمةٍ افتراضيّة
+     * — فالعنوان الإنجليزيّ اختياريّ ولا يجوز أن يكون غيابه سببَ انهيار (12.11).
+     *
+     * @param  array<string, mixed>  $data
+     */
+    private function slugFor(array $data): string
+    {
+        $base = str()->slug((string) ($data['title_en'] ?? ''))
+            ?: str()->slug((string) ($data['title_ar'] ?? ''))
+            ?: (string) setting('events.slug.fallback', 'event');
 
-        return null;
+        return $base.'-'.str()->lower(str()->random(6));
     }
 
     private function generateCode(): string

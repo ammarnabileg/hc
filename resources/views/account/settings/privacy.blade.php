@@ -105,73 +105,18 @@
             @endforelse
         </section>
 
-        {{-- ------------------------------------------------ الأمان (24.5) --}}
-        <section class="card p-4">
-            <h2 class="font-bold text-sm mb-3">تغيير كلمة السرّ</h2>
-
-            <form method="post" action="{{ route('settings.password') }}" class="space-y-3">
-                @csrf
-                <label class="block">
-                    <span class="block text-sm mb-1">كلمة السرّ الحاليّة</span>
-                    <input type="password" name="current_password" required class="w-full rounded-xl px-3 py-2 text-sm" style="{{ $inputStyle }}">
-                    @error('current_password')<span class="block text-xs mt-1" style="color: var(--color-state-danger)">{{ $message }}</span>@enderror
-                </label>
-                <label class="block">
-                    <span class="block text-sm mb-1">كلمة السرّ الجديدة</span>
-                    <input type="password" name="password" required class="w-full rounded-xl px-3 py-2 text-sm" style="{{ $inputStyle }}">
-                    @error('password')<span class="block text-xs mt-1" style="color: var(--color-state-danger)">{{ $message }}</span>@enderror
-                </label>
-                <label class="block">
-                    <span class="block text-sm mb-1">تأكيد كلمة السرّ</span>
-                    <input type="password" name="password_confirmation" required class="w-full rounded-xl px-3 py-2 text-sm" style="{{ $inputStyle }}">
-                </label>
-
-                <button type="submit" class="btn rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
-                        style="background: var(--color-brand-500); color: #04201c">تغيير</button>
-            </form>
-        </section>
-
-        <section class="card p-4">
-            <h2 class="font-bold text-sm mb-3">الجلسات النشطة</h2>
-
-            @forelse ($devices as $device)
-                <div class="flex items-center justify-between gap-2 py-3" style="border-top: 1px solid var(--border)">
-                    <div class="min-w-0 text-sm">
-                        <div class="font-semibold truncate">
-                            {{ $device->device_label ?? 'جهاز' }}
-                            @if ($device->session_id === $currentSessionId)
-                                <span class="text-xs" style="color: var(--color-state-ok)">· الجهاز الحاليّ</span>
-                            @endif
-                        </div>
-                        <div class="text-xs" style="color: var(--text-muted)">
-                            {{ $device->ip }}
-                            @if ($device->last_active_at)
-                                · آخر نشاط {{ $device->last_active_at->diffForHumans() }}
-                            @endif
-                        </div>
-                    </div>
-
-                    <form method="post" action="{{ route('settings.devices.destroy', $device) }}">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="btn rounded-xl px-3 py-2 text-xs motion-standard" style="{{ $inputStyle }}">إنهاء</button>
-                    </form>
-                </div>
-            @empty
-                <p class="text-sm py-2" style="color: var(--text-muted)">مفيش جلسات مسجّلة دلوقتي.</p>
-            @endforelse
-
-            <div class="mt-4 pt-3" style="border-top: 1px solid var(--border)">
-                <a href="{{ route('settings.export') }}"
-                   class="btn inline-flex items-center rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
-                   style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">تحميل بياناتي</a>
-                <p class="text-xs mt-2" style="color: var(--text-muted)">ملفّ JSON فيه كلّ اللي المنصّة محتفظة بيه عنك.</p>
-            </div>
-        </section>
     </div>
 
-    {{-- منطقة الخطر: حذف الحساب بتأكيد OTP رباعيّ (2.3) --}}
-    @include('security.danger-zone')
+    {{--
+      ⭐ كلمة السرّ والجلسات النشطة ومنطقة الخطر **انتقلت لتاب «الأمان»** داخل
+      صفحة الإعدادات بتاباتها الجانبيّة (2.3 · 2.15-ب). وهذه الصفحة بقيت لما
+      يخصّها وحده: مَن يرى كلّ حقل، ومَن وافقتَ له بالفعل (13.4-م).
+    --}}
+    <p class="mt-4 text-sm">
+        <a href="{{ route('settings.index') }}?tab=security" style="color: var(--color-brand-500)">
+            <x-icon name="lock" size="16" /> أمان الحساب: كلمة السرّ والجلسات النشطة وحذف الحساب
+        </a>
+    </p>
 @endsection
 
 @push('scripts')

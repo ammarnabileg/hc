@@ -54,7 +54,7 @@ return new class extends Migration
 
         // ---------------- الإنهاء (2.11-ط)
         ['updates.seed_after_migrate', 'updates', 'زرع القيم الافتراضيّة الجديدة بعد الترحيل', 'bool', '1'],
-        ['updates.seed_classes', 'updates', 'سيدرات مسار الإنتاج التي تُشغَّل بعد الترحيل', 'json', '["Database\\\\Seeders\\\\SettingSeeder"]'],
+        ['updates.seed_classes', 'updates', 'سيدرات مسار الإنتاج التي تُشغَّل بعد الترحيل', 'json', '["Database\\\\Seeders\\\\SettingDefinitionsSeeder"]'],
         ['updates.settings_rename_map', 'updates', 'خريطة إعادة تسمية مفاتيح الإعدادات (قديم ⟵ جديد)', 'json', '{}'],
         ['updates.auto_bump_segment', 'updates', 'الجزء الذي يرتفع تلقائيًّا بعد الترحيل', 'string', 'patch'],
         ['updates.target_version', 'updates', 'إصدار الوجهة (فاضي = ترقيم تلقائيّ)', 'string', ''],

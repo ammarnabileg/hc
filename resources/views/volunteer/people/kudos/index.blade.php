@@ -25,9 +25,9 @@
     </x-page-header>
 
     <div class="grid grid-cols-2 md:grid-cols-3 gap-3 mb-4">
-        <x-kpi label="إجمالي Kudos وصلني" :value="$totalReceived" icon="💛" />
-        <x-kpi label="بعتّه اليوم" :value="$sentToday" icon="✉" :hint="$limitsLine" />
-        <x-kpi label="أفراد شكرتهم الأسبوع ده" :value="$peopleThisWeek" icon="👥" :hint="$limitsLine" />
+        <x-kpi label="إجمالي Kudos وصلني" :value="$totalReceived" icon="contribution" />
+        <x-kpi label="بعتّه اليوم" :value="$sentToday" icon="envelope" :hint="$limitsLine" />
+        <x-kpi label="أفراد شكرتهم الأسبوع ده" :value="$peopleThisWeek" icon="people" :hint="$limitsLine" />
     </div>
 
     <x-tabs :current="$tab" :tabs="[

@@ -1,8 +1,8 @@
 {{-- تاب «تفاصيل»: الأرقام التي خرجت من صفّ الـKPI التزامًا بحدّ الأربعة (2.15-أ-3) --}}
 <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-    <x-kpi label="تدريبات مكتملة" :value="$details['completed']" icon="✅" hint="خلّصتها بالكامل" />
-    <x-kpi label="تدريبات جارية" :value="$details['active']" icon="📚" hint="لسّه شغّال فيها" />
-    <x-kpi label="ترتيبك في الليدر بورد" :value="$details['rank']" icon="🏆"
+    <x-kpi label="تدريبات مكتملة" :value="$details['completed']" icon="check" hint="خلّصتها بالكامل" />
+    <x-kpi label="تدريبات جارية" :value="$details['active']" icon="library" hint="لسّه شغّال فيها" />
+    <x-kpi label="ترتيبك في الليدر بورد" :value="$details['rank']" icon="trophy"
            hint="من بين {{ number_format($details['peers']) }} متدرّبًا" />
 </div>
 

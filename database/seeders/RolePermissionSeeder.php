@@ -39,7 +39,7 @@ class RolePermissionSeeder extends Seeder
             $this->grantResources($roleKey, $resources, 'ALL', $expander);
         }
 
-        // ---------------- المدقّق: قراءة فقط على كلّ غير الحسّاس
+        // ---------------- المدقّق: قراءة فقط على كلّ غير المعزول
         $this->grantReadOnly('auditor');
 
         // ---------------- أدوار التطوّع: نفس الموارد بنطاقات متدرّجة
@@ -100,20 +100,44 @@ class RolePermissionSeeder extends Seeder
             'complaints', 'user_guide', 'announcements', 'announcement_ack', 'notifications',
             'user_search', 'contact_consent', 'calendar', 'personal_reports', 'share_links', 'volunteer_page',
             'war_participation', 'wars_matches', 'invitations_page', 'friend_invite', 'streak_freeze',
-        ], 'SELF', $expander);
+        ], 'SELF', $expander, except: [
+            /*
+             | ⭐ مفاتيح **تحرس شاشات إدارة** ولا يحتاجها المتدرّب في أيّ صفحةٍ له
+             | (صفحاته العامّة غير محروسة بها أصلًا). وحيازته إيّاها — ولو بنطاق
+             | SELF — كانت تفتح له تلك الشاشات، لأنّ حارس المسار يفحص «هل يستطيع
+             | مبدئيًّا؟» بلا هدف فيمرّ نطاق SELF. أخطرها `certificates.export`:
+             | تصدير CSV بأسماء وأكواد كلّ حاملي الشهادات.
+             */
+            'certificates.export',
+            'referrals.list',
+            'event_attendance.create',
+            'announcements.view', 'announcements.list', 'announcements.export',
+            'user_guide.view', 'user_guide.list', 'user_guide.export',
+        ]);
 
         /*
-         | موارد عامّة بطبيعتها (كتالوج · ليدر بورد · تحقّق) لا تُعرَّف إلّا بنطاق ALL،
-         | فمنحُها للمتدرّب بنطاق SELF كان يُسقِطها ويُعطيه 403 على صفحات عامّة.
+         | ⭐ الصفحات العامّة: **مفاتيح بعينها** لا موارد كاملة.
+         |
+         | كان السطر يمنح المتدرّب **الموردَ كلّه بنطاق ALL** بحجّة أنّ الكتالوج عامّ،
+         | فكان يأخذ معه `courses.create` و`paths.delete` و`badges.delete` و
+         | `store_products.edit` و`user_guide.delete` — و**مسارات الإدارة لهذه
+         | الموارد محروسةٌ بهذه المفاتيح نفسها**، فصار أيّ متدرّبٍ يفتح
+         | `admin/courses/create` و`admin/paths` ويحذف. المنح الآن **مفتاحًا مفتاحًا**
+         | وبأفعال القراءة وحدها — وهذا هو معنى «تغطية كاملة» في 12.2: تغطيةٌ
+         | بالتحديد لا بالجملة.
          */
-        $this->grantResources('trainee', [
-            'events', 'games', 'courses', 'paths', 'store_products', 'bundles',
-            'product_categories', 'leaderboards', 'public_leaderboard', 'badges',
-            'achievements', 'certificate_verification', 'user_guide', 'public_pages',
-        ], 'ALL', $expander);
+        $this->grantKeys('trainee', [
+            'achievements.view', 'badges.view', 'events.view', 'games.view',
+            'leaderboards.view', 'public_leaderboard.view',
+            'store_products.list', 'product_categories.view', 'bundles.view',
+            'certificate_verification.view', 'public_pages.view',
+        ], 'ALL');
 
         // ---------------- تحت المراجعة: قراءة محدودة جدًّا
-        $this->grantResources('pending_review', ['user_guide', 'announcements', 'notifications', 'user_profile'], 'SELF', $expander);
+        $this->grantKeys('pending_review', [
+            'notifications.view', 'notifications.list',
+            'user_profile.view', 'user_profile.edit',
+        ], 'SELF');
 
         $count = DB::table('permission_role')->count();
         $this->command?->info("أسطر ربط الأدوار بالصلاحيّات: {$count}");
@@ -153,7 +177,10 @@ class RolePermissionSeeder extends Seeder
         $this->insertRows($role->id, $ids, 'ALL');
     }
 
-    private function grantResources(string $roleKey, array $resources, string $scope, PermissionExpander $expander): void
+    /**
+     * @param  array<int, string>  $except  مفاتيح تُستثنى بالاسم من منح المورد
+     */
+    private function grantResources(string $roleKey, array $resources, string $scope, PermissionExpander $expander, array $except = []): void
     {
         $role = Role::where('key', $roleKey)->first();
 
@@ -163,6 +190,7 @@ class RolePermissionSeeder extends Seeder
 
         $permissions = Permission::query()
             ->whereIn('resource', $resources)
+            ->when($except !== [], fn ($q) => $q->whereNotIn('key', $except))
             ->where('is_owner_only', false)
             ->get();
 
@@ -182,6 +210,43 @@ class RolePermissionSeeder extends Seeder
 
         foreach (collect($rows)->groupBy('scope') as $groupScope => $group) {
             $this->insertRows($role->id, collect($group)->pluck('id')->all(), (string) $groupScope);
+        }
+    }
+
+    /**
+     * منح **مفاتيح بعينها** لا موردًا كاملًا — لصفحات المستخدم النهائيّ العامّة.
+     *
+     * @param  array<int, string>  $keys
+     */
+    private function grantKeys(string $roleKey, array $keys, string $scope): void
+    {
+        $role = Role::where('key', $roleKey)->first();
+
+        if (! $role) {
+            return;
+        }
+
+        $permissions = Permission::query()
+            ->whereIn('key', $keys)
+            ->where('is_owner_only', false)
+            ->get();
+
+        $byScope = [];
+
+        foreach ($permissions as $permission) {
+            $effective = $this->resolveScope($scope, $permission->allowed_scopes ?: []);
+
+            if ($effective === null) {
+                $this->command?->warn("مفتاح سقط لتعذّر النطاق: {$permission->key} ({$scope}) — نطاقاته: ".implode(' · ', $permission->allowed_scopes ?: []));
+
+                continue;
+            }
+
+            $byScope[$effective][] = $permission->id;
+        }
+
+        foreach ($byScope as $effective => $ids) {
+            $this->insertRows($role->id, $ids, (string) $effective);
         }
     }
 

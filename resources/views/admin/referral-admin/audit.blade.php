@@ -26,11 +26,11 @@
     </x-page-header>
 
     <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
-        <x-kpi label="كلّ الدعوات" :value="$audit['invites']" icon="✉️" />
-        <x-kpi label="مفعَّلة" :value="$audit['activated']" icon="✅" />
-        <x-kpi label="أعلى يوم" :value="$audit['busiest_day']" icon="📅"
+        <x-kpi label="كلّ الدعوات" :value="$audit['invites']" icon="envelope" />
+        <x-kpi label="مفعَّلة" :value="$audit['activated']" icon="check" />
+        <x-kpi label="أعلى يوم" :value="$audit['busiest_day']" icon="calendar"
                :hint="'عتبة التنبيه: '.$audit['threshold']" />
-        <x-kpi label="اللقب الحاليّ" :value="$referrer->ambassador_title ?: 'بلا لقب'" icon="👑" />
+        <x-kpi label="اللقب الحاليّ" :value="$referrer->ambassador_title ?: 'بلا لقب'" icon="crown" />
     </div>
 
     @if ($audit['suspicious'])

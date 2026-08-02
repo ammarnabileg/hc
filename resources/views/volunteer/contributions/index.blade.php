@@ -20,10 +20,10 @@
 
     {{-- 4 كروت KPI كحدّ أقصى (2.15-أ-3) --}}
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
-        <x-kpi label="دعوات جديدة" :value="$counters['invited']" icon="✉️" :state="$counters['invited'] > 0 ? 'warn' : 'idle'" />
-        <x-kpi label="مفتوحة" :value="$counters['open']" icon="🛠️" state="ok" />
-        <x-kpi label="بانتظار اعتماد المالك" :value="$counters['awaiting']" icon="⏳" state="warn" />
-        <x-kpi label="مكتملة" :value="$counters['done']" icon="✅" state="honor" />
+        <x-kpi label="دعوات جديدة" :value="$counters['invited']" icon="envelope" :state="$counters['invited'] > 0 ? 'warn' : 'idle'" />
+        <x-kpi label="مفتوحة" :value="$counters['open']" icon="settings" state="ok" />
+        <x-kpi label="بانتظار اعتماد المالك" :value="$counters['awaiting']" icon="hourglass" state="warn" />
+        <x-kpi label="مكتملة" :value="$counters['done']" icon="check" state="honor" />
     </div>
 
     @if ($dueSoonCheckpoint)
@@ -67,7 +67,7 @@
     </x-filters>
 
     @if ($rows->isEmpty())
-        <x-empty message="مفيش مساهمات عليك دلوقتي — أوّل دعوة هتوصلك هنا 💛" />
+        <x-empty message="مفيش مساهمات عليك دلوقتي — أوّل دعوة هتوصلك هنا" />
     @else
         {{-- الجداول كروت رأسيّة على الموبايل بلا تمرير أفقيّ (2.15-ج) --}}
         <div class="space-y-3">

@@ -31,7 +31,7 @@
         <x-kpi label="داخل النافذة" :value="$counters['ok']" icon="●" state="ok" />
         <x-kpi label="اقتربت" :value="$counters['warn']" icon="▲" state="warn" />
         <x-kpi label="فاتت / تصعّد" :value="$counters['danger']" icon="◉" state="danger" />
-        <x-kpi label="متوسّط زمن مراجعتي (ساعة)" :value="$averageHours ?? '—'" icon="⏱️"
+        <x-kpi label="متوسّط زمن مراجعتي (ساعة)" :value="$averageHours ?? '—'" icon="clock"
                hint="مؤشّر عليك أنت — الساعة تقف لحظة تسليم المنفّذ لا لحظة اعتمادك." />
     </div>
 
@@ -66,7 +66,7 @@
     </x-filters>
 
     @if ($rows->isEmpty())
-        <x-empty message="مفيش حاجة تنتظر قرارك 👌" />
+        <x-empty message="مفيش حاجة تنتظر قرارك — كلّه تمام" />
     @else
         <div class="space-y-3">
             @foreach ($rows as $row)

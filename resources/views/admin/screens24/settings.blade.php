@@ -12,7 +12,7 @@
 
 @if (! empty($settings))
     <details class="card p-4 md:p-5 mt-4">
-        <summary class="cursor-pointer font-bold select-none">⚙️ {{ $blockTitle }}</summary>
+        <summary class="cursor-pointer font-bold select-none"><x-icon name="settings" size="16" /> {{ $blockTitle }}</summary>
 
         <p class="text-xs mt-2" style="color: var(--text-muted)">
             كلّ رقم ونصّ في الشاشة دي بيتظبط من هنا — مافيش قيمة محروقة في الكود (2.13).
@@ -27,7 +27,7 @@
                         <span class="block text-sm font-semibold mb-1">
                             {{ $row['label'] }}
                             @if ($row['owner_only'])
-                                <span class="text-xs" style="color: var(--color-state-honor)">🔒 مالك المنصّة</span>
+                                <span class="text-xs" style="color: var(--color-state-honor)"><x-icon name="lock" size="16" /> مالك المنصّة</span>
                             @endif
                         </span>
 
@@ -75,7 +75,7 @@
         <form method="post" action="{{ $resetRoute }}" class="mt-3"
               onsubmit="return confirm('ترجّع كلّ إعدادات الشاشة دي للافتراضيّ؟')">
             @csrf
-            <button type="submit" class="text-xs underline" style="color: var(--text-muted)">↺ رجّع الإعدادات كلّها للافتراضيّ</button>
+            <button type="submit" class="text-xs underline" style="color: var(--text-muted)"><x-icon name="refresh" size="16" /> رجّع الإعدادات كلّها للافتراضيّ</button>
         </form>
     </details>
 @endif

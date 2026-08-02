@@ -107,7 +107,7 @@ class RoleEditor
      * حفظ مجموعة واحدة من المصفوفة.
      *
      * @param  array<int, array{on?: string, scope?: string, effect?: string}>  $rows  المفتاح = permission_id
-     * @return array{written: int, rejected: array<int, string>}
+     * @return array{written: int, rejected: array<int, string>, dropped: array<int, string>}
      */
     public function save(Role $role, User $actor, string $group, array $rows): array
     {
@@ -158,8 +158,9 @@ class RoleEditor
             ->count();
 
         $written = 0;
+        $dropped = [];
 
-        DB::transaction(function () use ($role, $visible, $accepted, &$written) {
+        DB::transaction(function () use ($role, $visible, $accepted, &$written, &$dropped) {
             // المسح ثمّ الكتابة: فالسطر الذي رُفِع عنه الاختيار يختفي فعلًا
             DB::table('permission_role')
                 ->where('role_id', $role->id)
@@ -168,7 +169,17 @@ class RoleEditor
 
             foreach ($accepted as $row) {
                 // ⭐ manage تُفرَد ظاهرةً عند الحفظ — يفعلها المحرّك الجاهز لا نحن
-                $written += $this->expander->attachToRole($role, $row['key'], $row['scope'], $row['effect']);
+                $result = $this->expander->report($role, $row['key'], $row['scope'], $row['effect']);
+                $written += $result['written'];
+
+                /*
+                 | ⭐ لا إسقاط صامت (12.2.1-د): `complaints.manage@ALL` كان يكتب
+                 | ستّة أسطر ويبتلع `view` و`create` لأنّ نطاقهما SELF — فينتهي
+                 | الدور يعدّل الشكاوى ولا يفتحها والمسؤول لا يدري. الآن يُقال.
+                 */
+                if ($message = $this->expander->explainSkipped($result['skipped'], $row['scope'])) {
+                    $dropped[] = '«'.$row['key'].'»: '.$message;
+                }
             }
         });
 
@@ -179,10 +190,10 @@ class RoleEditor
         // Audit على كلّ تغيير صلاحيّة (12.2.1-ز-4)
         $this->audit->record($actor, 'role.permissions.updated', $role,
             ['group' => $group, 'rows' => $before],
-            ['group' => $group, 'rows' => $after, 'rejected' => count($rejected)],
+            ['group' => $group, 'rows' => $after, 'rejected' => count($rejected), 'dropped' => count($dropped)],
         );
 
-        return ['written' => $written, 'rejected' => $rejected];
+        return ['written' => $written, 'rejected' => $rejected, 'dropped' => $dropped];
     }
 
     /** إنشاء دور جديد = **نسخ قالب** وتعديله (12.2.3-4) */

@@ -24,7 +24,8 @@
             @if ($cover)
                 <img src="{{ $cover }}" alt="{{ $course->name_ar }}" class="w-full h-full object-cover" loading="lazy">
             @else
-                <span class="text-3xl" aria-hidden="true">{{ setting('learning.icon.course') }}</span>
+                {{-- أيقونة SVG بهويّة المنصّة لا إيموجي (2.16-ج) --}}
+                <span style="color: var(--text-muted)"><x-icon :name="setting('learning.icon.course', 'course')" size="36" /></span>
             @endif
         </div>
     </a>
@@ -50,7 +51,7 @@
         {{-- سبب القفل مكتوب — المنتهي الإتاحة لا يُخفى (24.5) --}}
         @unless ($open)
             <p class="text-xs flex items-center gap-1" style="color: var(--color-state-{{ state_color($availability['state'])['color'] }})">
-                <span aria-hidden="true">{{ setting('learning.icon.lock') }}</span>
+                <x-icon :name="setting('learning.icon.lock', 'lock')" size="13" />
                 <span>{{ $availability['reason'] }}</span>
             </p>
         @endunless
@@ -60,7 +61,7 @@
 
             <span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5"
                   style="background: var(--surface-sunken); color: var(--text-muted)">
-                <span aria-hidden="true">{{ setting('learning.icon.xp') }}</span>
+                <x-icon :name="setting('learning.icon.xp', 'xp')" size="13" />
                 <span>{{ (int) $card['enrollment']->xp_earned }} {{ setting('learning.xp.suffix') }}</span>
             </span>
 

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\EnsureAccountNotContained;
+use App\Http\Middleware\EnsureAdminPanel;
 use App\Http\Middleware\EnsureNotUnderMaintenance;
 use App\Http\Middleware\EnsurePermission;
 use App\Http\Middleware\SetMembershipContext;
@@ -20,6 +21,8 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
             'permission' => EnsurePermission::class,
+            // باب اللوحة: «له أيّ صلاحيّة إداريّة» — لا صلاحيّة باسم شاشة (12.2.1-أ)
+            'admin.panel' => EnsureAdminPanel::class,
         ]);
 
         // سياق العضويّة النشطة يُحدَّد قبل أيّ تقييم صلاحيّة

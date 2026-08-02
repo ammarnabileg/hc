@@ -107,7 +107,7 @@
                             </div>
                             @if ($event['outside_window'])
                                 <div class="text-xs mt-1 cursor-help" title="{{ $window->outsideHint() }}"
-                                     style="color: var(--text-muted)">⌛ {{ $window->outsideHint() }}</div>
+                                     style="color: var(--text-muted)"><x-icon name="hourglass" size="16" /> {{ $window->outsideHint() }}</div>
                             @endif
                         </li>
                     @endforeach

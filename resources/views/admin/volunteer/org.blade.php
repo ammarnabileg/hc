@@ -53,10 +53,10 @@
     </x-filters>
 
     <section class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
-        <x-kpi label="كيانات" :value="$entities->count()" icon="🏛️" />
-        <x-kpi label="أعضاء نشطون" :value="$members->count()" icon="👥" />
-        <x-kpi label="كيانات غير صحّيّة" :value="$unhealthy->count()" icon="🩺" state="warn" />
-        <x-kpi label="تجاوزات" :value="$overflows->count()" icon="⚠️" state="danger" />
+        <x-kpi label="كيانات" :value="$entities->count()" icon="entity" />
+        <x-kpi label="أعضاء نشطون" :value="$members->count()" icon="people" />
+        <x-kpi label="كيانات غير صحّيّة" :value="$unhealthy->count()" icon="health" state="warn" />
+        <x-kpi label="تجاوزات" :value="$overflows->count()" icon="warning" state="danger" />
     </section>
 
     {{-- شجرة الكيانات: قابلة للطيّ — بديل الكانفاس على الموبايل (2.15-ج) --}}

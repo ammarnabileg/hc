@@ -44,6 +44,47 @@ class VolunteerPeopleDemoSeeder extends Seeder
     public function settings(): void
     {
         $rows = [
+            /*
+             | ---------------- المسار التأهيليّ والرحلة (13.4-ب · 13.4-ج)
+             | ⭐ **مسار لا كورس**: 13.4-ب هو نصّ التعريف الحاكم («مسار واحد شامل
+             | كورسات» و«الشهادة على المسار فقط»)، و13.4-ق يصف الشهادة نفسها لا
+             | آليّة ربطها. ومايجريشن `volunteer_journey_and_page_unification`
+             | يرحّل قيمة `volunteer.qualifying.course_id` القديمة إلى مسارها.
+             */
+            ['volunteer.qualifying.path_id', 'recruitment', 'المسار التأهيليّ (13.4-ب)', 'number', '0'],
+            ['volunteer.qualifying.xp_reward', 'recruitment', 'مكافأة إتمام التأهيليّ (XP) — يحكمها جدول الكسب', 'number', '1000'],
+            ['volunteer.qualifying.xp_reason', 'recruitment', 'وصف معاملة مكافأة التأهيليّ', 'string', 'مكافأة إتمام المسار التأهيليّ'],
+            ['volunteer.qualifying.done_title', 'recruitment', 'عنوان إشعار إتمام التأهيليّ', 'string', 'أتممت المسار التأهيليّ 🎉'],
+            ['volunteer.qualifying.done_body', 'recruitment', 'نصّ إشعار إتمام التأهيليّ', 'string', 'خطوتك الجاية: ادخل قائمة الانتظار المبدئيّة.'],
+            ['volunteer.qualifying.cta_label', 'recruitment', 'زرّ الدخول للمرحلة التالية', 'string', 'الدخول للمرحلة التالية'],
+
+            ['volunteer.journey.step.qualifying', 'recruitment', 'محطّة: التأهيليّ', 'string', 'المسار التأهيليّ'],
+            ['volunteer.journey.step.shortlist', 'recruitment', 'محطّة: القائمة المبدئيّة', 'string', 'قائمة مبدئيّة'],
+            ['volunteer.journey.step.interview', 'recruitment', 'محطّة: المقابلة', 'string', 'مقابلة'],
+            ['volunteer.journey.step.final_list', 'recruitment', 'محطّة: القائمة النهائيّة', 'string', 'قائمة نهائيّة'],
+            ['volunteer.journey.step.started', 'recruitment', 'محطّة: البدء', 'string', 'بدء'],
+            ['volunteer.journey.next.qualifying', 'recruitment', 'الخطوة الجاية — التأهيليّ', 'string', 'ابدأ المسار التأهيليّ وكمّله عشان تدخل قائمة الانتظار.'],
+            ['volunteer.journey.next.shortlist', 'recruitment', 'الخطوة الجاية — القائمة المبدئيّة', 'string', 'طلبك تحت المراجعة، وهنتواصل معاك لتحديد موعد المقابلة.'],
+            ['volunteer.journey.next.interview', 'recruitment', 'الخطوة الجاية — المقابلة', 'string', 'استعدّ لمقابلتك — هتلاقي الرابط والموعد هنا.'],
+            ['volunteer.journey.next.final_list', 'recruitment', 'الخطوة الجاية — القائمة النهائيّة', 'string', 'أنت في القائمة النهائيّة — فاضل اختيار القسم المناسب ليك.'],
+            ['volunteer.journey.next.started', 'recruitment', 'الخطوة الجاية — بعد التسكين', 'string', 'أهلًا بيك معانا — لوحة التطوّع بقت متاحة ليك.'],
+            ['volunteer.journey.waiting_copy', 'recruitment', 'تأطير إيجابيّ أثناء الانتظار', 'string', 'طلبك تحت المراجعة، هنتواصل معاك قريبًا.'],
+            ['volunteer.journey.reminder_copy', 'recruitment', 'تذكير لطيف لمن بدأ وما كمّلش', 'string', 'باقي القليل على إتمام التأهيليّ — كمّل من حيث وقفت.'],
+            ['volunteer.journey.incomplete_message', 'recruitment', 'رسالة التأهيليّ غير المكتمل', 'string', 'لسّه المسار التأهيليّ مش مكتمل — كمّل اللي فاضل وهتلاقي الزرّ في انتظارك.'],
+            ['volunteer.journey.shortlist_title', 'recruitment', 'عنوان إشعار دخول القائمة المبدئيّة', 'string', 'دخلت قائمة الانتظار المبدئيّة ✓'],
+            ['volunteer.journey.status_title', 'recruitment', 'عنوان بطاقة «حالتي»', 'string', 'حالتي'],
+            ['volunteer.journey.interview_title', 'recruitment', 'عنوان بلوك المقابلة', 'string', 'موعد مقابلتك'],
+            ['volunteer.journey.interview_cta', 'recruitment', 'زرّ رابط المقابلة', 'string', 'ادخل المقابلة'],
+            ['volunteer.journey.interview_no_link', 'recruitment', 'رسالة غياب رابط المقابلة', 'string', 'الرابط لسّه مش متاح — هيوصلك قبل الموعد.'],
+
+            // ---------------- «جدّد استعدادك» (13.4-هـ)
+            ['volunteer.journey.renew_cta', 'recruitment', 'زرّ تجديد الاستعداد', 'string', 'جدّد استعدادك'],
+            ['volunteer.journey.renew_hint', 'recruitment', 'شرح تجديد الاستعداد', 'string', 'لسّه متاح ومتحمّس؟ جدّد استعدادك فيتقدّم دورك في القائمة.'],
+            ['volunteer.journey.renew_cooldown_days', 'recruitment', 'تبريد تجديد الاستعداد (يوم)', 'number', '14'],
+            ['volunteer.journey.renew_cooldown_message', 'recruitment', 'رسالة تبريد التجديد', 'string', 'جدّدت استعدادك من فترة قريّبة — تقدر تجدّد تاني يوم :date.'],
+            ['volunteer.journey.renew_not_waiting', 'recruitment', 'رسالة التجديد خارج الانتظار', 'string', 'التجديد بينفع وأنت في الانتظار بس.'],
+            ['volunteer.journey.renew_done', 'recruitment', 'رسالة نجاح التجديد', 'string', 'اتسجّل ✓ — استعدادك اتجدّد ودورك اتقدّم في القائمة.'],
+
             // ---------------- التوظيف (13.4-د)
             ['recruitment.stage.applied.label', 'recruitment', 'اسم مرحلة التقديم', 'string', 'تقديم'],
             ['recruitment.stage.screening.label', 'recruitment', 'اسم مرحلة الفرز', 'string', 'فرز'],
@@ -128,8 +169,45 @@ class VolunteerPeopleDemoSeeder extends Seeder
             ]);
         }
 
+        $this->qualifyingPathSetting();
+
         // الإعدادات مكاشة إلى الأبد — فالسيدر ينظّف الكاش وإلّا قرأ الكود قيمًا قديمة
         Cache::forget('settings');
+    }
+
+    /**
+     * ⭐ المسار التأهيليّ **يُشحَن بقيمة حقيقيّة** لا بصفر (2.13).
+     *
+     * كان `volunteer.qualifying.course_id = 0` يجعل آليّة الشهادة المنتهية
+     * (13.4-ق) وكلّ الرحلة **خاملةً خارج الصندوق**: إعدادٌ موجود بلا أثر.
+     * فهنا نضمن وجود **مسار تأهيليّ واحد** (كيان نظام كالبوزشنز وأنواع الشهادات
+     * في `CoreSeeder`، لا محتوى عرض) ونربط المفتاح به إن كان ما زال صفرًا.
+     */
+    private function qualifyingPathSetting(): void
+    {
+        $slug = (string) setting('volunteer.qualifying.path_slug', 'volunteer-qualifying');
+
+        $path = LearningPath::withTrashed()->firstOrCreate(['slug' => $slug], [
+            'name_ar' => 'المسار التأهيليّ للتطوّع',
+            'name_en' => 'Volunteer Qualifying Path',
+            'description_ar' => 'مسار واحد شامل كورسات — بإتمامه تدخل قائمة الانتظار المبدئيّة.',
+            'status' => 'published',
+            'published_at' => now(),
+            'sort_order' => 0,
+        ]);
+
+        Setting::updateOrCreate(['key' => 'volunteer.qualifying.path_slug'], [
+            'group' => 'recruitment',
+            'label_ar' => 'مُعرّف المسار التأهيليّ (slug)',
+            'type' => 'string',
+            'default_value' => $slug,
+            'value' => $slug,
+        ]);
+
+        Setting::query()
+            ->where('key', 'volunteer.qualifying.path_id')
+            ->where(fn ($q) => $q->whereNull('value')->orWhere('value', '')->orWhere('value', '0'))
+            ->update(['value' => (string) $path->id]);
     }
 
     /** @return array<string, Entity> */

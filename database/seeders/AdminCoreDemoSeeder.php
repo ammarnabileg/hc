@@ -6,67 +6,33 @@ use App\Models\AdAudience;
 use App\Models\AuditLog;
 use App\Models\Complaint;
 use App\Models\Currency;
-use App\Models\Permission;
 use App\Models\Referral;
 use App\Models\Role;
 use App\Models\Setting;
 use App\Models\Transaction;
 use App\Models\User;
-use App\Support\Access\PermissionExpander;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Cache;
 
 /**
  * مجال «admin-core»: ليَاوت لوحة الإدارة والقيادة والمستخدمون والأدوار (12.0 · 12.3 · 12.13 · 12.2).
  *
- * لماذا يجمع السيدر ثلاثة أشياء؟ لأنّ الشاشة لا تقوم بلا مفاتيحها:
- *  1) صلاحيّة `admin_panel.view` — بوّابة السايد بار العامّ إلى لوحة الإدارة.
- *  2) إعدادات المجال (2.13) — فلا رقم ولا نصّ محروق في الكود.
- *  3) بيانات تجريبيّة عربيّة واقعيّة لتجربة الشاشات.
+ * ⛔ ولا مفتاح باسم شاشة هنا: كان السيدر ينشئ `admin_panel.view` بوّابةً للسايد
+ * بار، وهي **صلاحيّة باسم شاشة** يمنعها 12.2.1-أ نصًّا. الباب صار قدرةً محسوبة
+ * («له أيّ صلاحيّة إداريّة» — `App\Support\Access\AdminPanelSurface`).
+ *
+ *  1) إعدادات المجال (2.13) — فلا رقم ولا نصّ محروق في الكود.
+ *  2) بيانات تجريبيّة عربيّة واقعيّة لتجربة الشاشات.
  */
 class AdminCoreDemoSeeder extends Seeder
 {
     public function run(): void
     {
-        $this->adminPanelPermission();
         $this->settings();
         $this->demoAccounts();
         $this->demoPendingWork();
         $this->demoSegments();
         $this->demoAudit();
-    }
-
-    /**
-     * الشاشة نتيجةٌ للصلاحيّات لا صلاحيّةً بذاتها (12.2.1-أ)، لكنّ **باب** اللوحة نفسه
-     * يحتاج مفتاحًا واحدًا يقرأه السايد بار العامّ — فهذا هو `admin_panel.view`.
-     */
-    private function adminPanelPermission(): void
-    {
-        $permission = Permission::updateOrCreate(
-            ['key' => 'admin_panel.view'],
-            [
-                'resource' => 'admin_panel',
-                'action' => 'view',
-                'group' => 'النظام والتقارير',
-                'label_ar' => 'لوحة الإدارة',
-                'description' => 'فتح لوحة الإدارة — ويظهر داخلها ما يملكه صاحبها فقط.',
-                'allowed_scopes' => ['ALL'],
-                'is_sensitive' => false,
-                'is_owner_only' => false,
-            ],
-        );
-
-        $expander = app(PermissionExpander::class);
-
-        // طبقة المنصّة أعلى الطبقات (12.2.1-ز-5) — وهي وحدها التي تفتح اللوحة
-        foreach (Role::where('layer', 'platform')->get() as $role) {
-            $expander->attachToRole($role, $permission->key, 'ALL');
-        }
-
-        // مشرف عام التطوّع يدخل اللوحة ليرى قسم التطوّع وحده — سقف طبقته لا سقف المنصّة
-        if ($gm = Role::where('key', 'volunteer_gm')->first()) {
-            $expander->attachToRole($gm, $permission->key, 'ALL');
-        }
     }
 
     /** لكلّ ميزة إعدادات كاملة (2.13) — بنمط المفتاح «المجال.الميزة.المفتاح» */

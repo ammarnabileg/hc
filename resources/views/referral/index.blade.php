@@ -61,10 +61,10 @@
 
     {{-- أربعة كروت KPI بحدّ أقصى (2.15-أ-3) --}}
     <div class="grid gap-3 grid-cols-2 lg:grid-cols-4 mb-4">
-        <x-kpi label="المدعوّون" :value="$stats['invited']" icon="👥" />
-        <x-kpi label="أتمّوا التفعيل" :value="$stats['completed']" icon="✅" />
-        <x-kpi label="في الانتظار" :value="$stats['pending']" icon="⏳" />
-        <x-kpi label="العمولة المكتسبة" :value="$stats['commission']" icon="💰"
+        <x-kpi label="المدعوّون" :value="$stats['invited']" icon="people" />
+        <x-kpi label="أتمّوا التفعيل" :value="$stats['completed']" icon="check" />
+        <x-kpi label="في الانتظار" :value="$stats['pending']" icon="hourglass" />
+        <x-kpi label="العمولة المكتسبة" :value="$stats['commission']" icon="money"
                :hint="'نسبتك '.$stats['percent'].'% مدى الحياة'" />
     </div>
 

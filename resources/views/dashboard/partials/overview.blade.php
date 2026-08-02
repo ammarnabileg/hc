@@ -18,7 +18,7 @@
     </div>
 
     @if ($courses->isEmpty())
-        <x-empty message="خلّصت كلّ تدريباتك الجارية — تحفة 👏"
+        <x-empty message="خلّصت كلّ تدريباتك الجارية — تحفة"
                  action="تصفّح المتجر"
                  :href="\Illuminate\Support\Facades\Route::has('store.index') ? route('store.index') : url('/')" />
     @else

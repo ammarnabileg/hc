@@ -53,7 +53,7 @@
                         <div class="min-w-0">
                             <div class="font-semibold flex items-center gap-2">
                                 {{ $announcement->title }}
-                                @if ($announcement->is_pinned)<span title="مثبَّت" aria-label="مثبَّت">📌</span>@endif
+                                @if ($announcement->is_pinned)<span title="مثبَّت" aria-label="مثبَّت"><x-icon name="placement" size="16" /></span>@endif
                             </div>
                             <div class="text-xs mt-1" style="color: var(--text-muted)">
                                 الجمهور: {{ ['all' => 'الكلّ', 'role' => 'دور', 'course' => 'تدريب', 'path' => 'مسار', 'user' => 'أشخاص'][$announcement->audience['type'] ?? 'all'] ?? 'الكلّ' }}

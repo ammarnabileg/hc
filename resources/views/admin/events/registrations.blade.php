@@ -12,8 +12,8 @@
         ]" />
 
     <section class="grid grid-cols-3 gap-3 mb-4">
-        <x-kpi label="مسجّل" :value="$counts['registered']" icon="📝" />
-        <x-kpi label="حاضر" :value="$counts['attended']" icon="✅" />
+        <x-kpi label="مسجّل" :value="$counts['registered']" icon="edit" />
+        <x-kpi label="حاضر" :value="$counts['attended']" icon="check" />
         <x-kpi label="غائب" :value="$counts['absent']" icon="○" />
     </section>
 

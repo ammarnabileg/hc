@@ -1,5 +1,7 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl" @if(auth()->check() && auth()->user()->theme === 'light') data-theme="light" @endif>
+<html lang="ar" dir="rtl" @if(auth()->check() && auth()->user()->theme === 'light') data-theme="light" @endif
+      {{-- الحركة تُضبَط من إعداد المستخدم داخل المنصّة لا من تفضيل نظام التشغيل (2.3 · 2.14-ب) --}}
+      @if(auth()->check() && ! auth()->user()->motion_enabled) data-motion="off" @endif>
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -9,8 +11,7 @@
     {{-- لوحة الإدارة لا تُفهرَس أبدًا --}}
     <meta name="robots" content="noindex">
 
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=cairo:400,500,600,700,800&display=swap" rel="stylesheet">
+    {{-- الخطوط محلّيّة داخل حزمة Vite — **بلا أيّ نداء خارجيّ** (2.10.1-2) --}}
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @stack('head')
@@ -125,6 +126,20 @@
 
             if (empty) empty.classList.toggle('hidden', shown > 0);
         });
+    })();
+
+    /* تفعيل/إلغاء مجموعة الصلاحيّات دفعة واحدة بضغطة — شرط قبول 12.2 */
+    (function () {
+        const buttons = document.querySelectorAll('[data-perm-bulk]');
+        if (!buttons.length) return;
+
+        buttons.forEach((button) => button.addEventListener('click', () => {
+            const on = button.dataset.permBulk === 'on';
+
+            /* الصفوف المخفيّة بالبحث لا تتأثّر — تشتغل على اللي قدّامك بس */
+            document.querySelectorAll('[data-perm-row]:not(.hidden) [data-perm-toggle]')
+                .forEach((box) => { box.checked = on; });
+        }));
     })();
 </script>
 

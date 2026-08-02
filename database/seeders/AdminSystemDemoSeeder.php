@@ -47,78 +47,16 @@ class AdminSystemDemoSeeder extends Seeder
     // ---------------------------------------------------------------- الصلاحيّات
 
     /**
-     * موارد هذا المجال التي لم تكن في المصفوفة الأمّ.
-     * 🔒 و`finance` و`ad_pixels` و`ad_audiences.export` لمالك المنصّة وحده (12.2.1).
+     * ⭐ موارد هذا المجال **صارت في المصفوفة الأمّ** (12.2.2): المقالات · استوديو
+     * الصور · الماليّات · طلبات الشحن · الإعلان المدفوع · مصادر الاكتساب.
+     *
+     * كانت تُنشَأ هنا بـ`updateOrCreate` فتكتب `is_sensitive`/`is_owner_only`
+     * من جديد في كلّ تشغيل — أي أنّ أيّ تصحيحٍ لوسم الحساسيّة في المصفوفة كان
+     * **يُمحى** بعد السيدر التجريبيّ. فالتعريف مصدره واحدٌ الآن (`PermissionSeeder`)،
+     * ويبقى لهذا السيدر ما يخصّه فعلًا: **ربط الأدوار** بها.
      */
     private function permissions(): void
     {
-        $resources = [
-            'finance' => [
-                'group' => 'الماليّات', 'label' => 'الماليّات',
-                'actions' => ['view', 'edit', 'export', 'manage'], 'owner_only' => true,
-            ],
-            'topup_requests' => [
-                'group' => 'المتجر والماليّات', 'label' => 'طلبات الشحن',
-                'actions' => ['list', 'view', 'approve', 'reject'], 'owner_only' => false,
-            ],
-            'articles' => [
-                'group' => 'المحتوى التحريريّ', 'label' => 'المقالات',
-                'actions' => ['list', 'view', 'create', 'edit', 'review', 'publish', 'archive'], 'owner_only' => false,
-            ],
-            'image_templates' => [
-                'group' => 'استوديو الصور', 'label' => 'قوالب الصور',
-                'actions' => ['list', 'view', 'create', 'edit', 'delete', 'archive', 'publish', 'batch'], 'owner_only' => false,
-            ],
-            'image_export' => [
-                'group' => 'استوديو الصور', 'label' => 'استخراج الصور',
-                'actions' => ['use'], 'owner_only' => false,
-            ],
-            'ad_audiences' => [
-                'group' => 'الإعلان المدفوع', 'label' => 'شرائح الإعلان',
-                'actions' => ['view', 'create', 'edit'], 'owner_only' => false,
-            ],
-            'acquisition_sources' => [
-                'group' => 'الإحصائيّات', 'label' => 'مصادر الاكتساب',
-                'actions' => ['view'], 'owner_only' => false,
-            ],
-        ];
-
-        foreach ($resources as $resource => $meta) {
-            foreach ($meta['actions'] as $action) {
-                Permission::updateOrCreate(
-                    ['key' => $resource.'.'.$action],
-                    [
-                        'resource' => $resource,
-                        'action' => $action,
-                        'group' => $meta['group'],
-                        'label_ar' => $meta['label'].' — '.$action,
-                        'allowed_scopes' => ['ALL'],
-                        'is_sensitive' => $meta['owner_only'],
-                        'is_owner_only' => $meta['owner_only'],
-                    ],
-                );
-            }
-        }
-
-        // 🔒 حسّاسة إفرادًا: تصدير الشرائح يُخرِج بيانات من المنصّة (21.3-هـ)
-        Permission::updateOrCreate(
-            ['key' => 'ad_audiences.export'],
-            [
-                'resource' => 'ad_audiences', 'action' => 'export', 'group' => 'الإعلان المدفوع',
-                'label_ar' => 'تصدير شريحة إعلانيّة', 'allowed_scopes' => ['ALL'],
-                'is_sensitive' => true, 'is_owner_only' => true,
-            ],
-        );
-
-        Permission::updateOrCreate(
-            ['key' => 'ad_pixels.manage'],
-            [
-                'resource' => 'ad_pixels', 'action' => 'manage', 'group' => 'الإعلان المدفوع',
-                'label_ar' => 'معرّفات البكسل ومفاتيح الـAPI', 'allowed_scopes' => ['ALL'],
-                'is_sensitive' => true, 'is_owner_only' => true,
-            ],
-        );
-
         $this->grantRoles();
     }
 

@@ -27,7 +27,8 @@ class SettingsCoverageCommand extends Command
                             {--all : اعرض كلّ المجموعات لا اليتيمة وحدها}
                             {--prefixes : اعرض البادئات المتناثرة على أكثر من مجموعة}
                             {--limit=40 : كم مفتاحًا ناقصًا يُطبَع (0 = الكلّ)}
-                            {--where : اعرض أوّل موضع يقرأ كلّ مفتاح ناقص}';
+                            {--where : اعرض أوّل موضع يقرأ كلّ مفتاح ناقص}
+                            {--dead : اعرض الأعلام الميّتة — مزروعةٌ ولا يقرؤها أحد}';
 
     protected $description = 'فحص تغطية الإعدادات: كلّ مفتاح يقرؤه الكود له صفّ، وكلّ مجموعة لها شاشة (2.13)';
 
@@ -44,6 +45,8 @@ class SettingsCoverageCommand extends Command
         $failed = $this->reportKeys($coverage);
         $failed = $this->reportGroups($coverage) || $failed;
 
+        $this->reportDead($coverage);
+
         return $failed ? self::FAILURE : self::SUCCESS;
     }
 
@@ -52,7 +55,6 @@ class SettingsCoverageCommand extends Command
     {
         $read = $coverage->readKeyCount();
         $missing = $coverage->missingKeys();
-        $scanner = $coverage->scanner();
 
         $this->newLine();
         $this->line('<options=bold>1) المفاتيح</> — '."{$coverage->keyCoveragePercent()}%  ".
@@ -116,6 +118,34 @@ class SettingsCoverageCommand extends Command
         }
 
         $this->newLine();
+    }
+
+    /**
+     * تقريرٌ لا فحص: العلم الميّت لا يكسر البناء لأنّ قارئه قد يكون **قيد
+     * الكتابة** الآن — لكنّه يجب أن يبقى مرئيًّا حتى يُوصَل أو يُشطَب بقرار.
+     */
+    private function reportDead(SettingsCoverage $coverage): void
+    {
+        if (! $this->option('dead')) {
+            return;
+        }
+
+        $dead = $coverage->deadKeys();
+
+        $this->line('<options=bold>3) الأعلام الميّتة</> — مزروعةٌ ولا يقرؤها أحد ('.$dead->count().' مفتاحًا)');
+
+        if ($dead->isEmpty()) {
+            $this->info('مافيش علمًا ميّتًا ✓');
+
+            return;
+        }
+
+        foreach ($dead->groupBy(fn (string $key) => explode('.', $key)[0]) as $prefix => $keys) {
+            $this->line("  <fg=yellow>{$prefix}</> · ".$keys->implode(' · '));
+        }
+
+        $this->newLine();
+        $this->line('القرار لصاحب المجال: **صِله بقارئ** (الإعداد يَعِد بسلوك) أو **اشطبه بمايجريشن** — ولا يُترَك وعدًا كاذبًا.');
     }
 
     /** الفحص الثاني: مجموعة مزروعة بلا تاب في اللوحة */

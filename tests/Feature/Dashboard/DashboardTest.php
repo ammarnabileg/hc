@@ -88,7 +88,7 @@ class DashboardTest extends TestCase
             'slug' => str()->random(10),
             'name_ar' => $name,
             'status' => 'published',
-            'xp_before_half' => 300,
+            'xp_max' => 300,
         ]);
 
         $section = Section::create(['course_id' => $course->id, 'title_ar' => 'القسم الأوّل', 'sort_order' => 0]);

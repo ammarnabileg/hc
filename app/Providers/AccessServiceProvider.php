@@ -39,6 +39,16 @@ class AccessServiceProvider extends ServiceProvider
                 : false;
         });
 
+        /*
+         | ⭐ باب اللوحة قدرةٌ محسوبة لا صلاحيّة باسم شاشة (12.2.1-أ):
+         | «لوحة الإدارة تظهر لمن له **أيّ** صلاحيّة». وبلا نقطةٍ في الاسم عمدًا
+         | حتى لا يظنّها أحدٌ صفًّا في المصفوفة.
+         */
+        Gate::define('admin-panel', fn (User $user) => app(AccessEngine::class)->opensAdminPanel($user));
+
+        // @adminpanel — لعنصر «لوحة الإدارة» في السايد بار العامّ
+        Blade::if('adminpanel', fn () => auth()->check() && Gate::forUser(auth()->user())->allows('admin-panel'));
+
         // @scope('ENTITY', 'tasks.edit') — لعرض عناصر تعتمد على أوسع نطاق
         Blade::if('scope', function (string $scope, string $permission) {
             $user = auth()->user();

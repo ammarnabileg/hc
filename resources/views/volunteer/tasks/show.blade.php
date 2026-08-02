@@ -52,7 +52,7 @@
 
     {{-- شريط الحالة: أيقونة الكيان · الحالة · العدّاد · VXP · المالك والمراجِع بشارات Rep --}}
     <div class="card p-4 mb-4 flex flex-wrap items-center gap-3 text-sm">
-        <span aria-hidden="true" title="{{ $task->entity?->name_ar }}">{{ $task->entity?->icon ?? '🏛️' }}</span>
+        <span aria-hidden="true" title="{{ $task->entity?->name_ar }}">{{ $task->entity?->icon }}<x-icon name="entity" size="14" /></span>
 
         <x-state-badge :state="\App\Services\Volunteer\Tasks\TaskStatus::state($task->status)"
                        :label="\App\Services\Volunteer\Tasks\TaskStatus::label($task->status)" />
@@ -60,7 +60,7 @@
         @include('volunteer.components.deadline-counter', ['task' => $task])
 
         @if ((float) $task->vxp_value > 0)
-            <span style="color: var(--text-muted)">⚡ {{ rtrim(rtrim(number_format((float) $task->vxp_value, 2), '0'), '.') }} VXP</span>
+            <span style="color: var(--text-muted)"><x-icon name="spark" size="16" /> {{ rtrim(rtrim(number_format((float) $task->vxp_value, 2), '0'), '.') }} VXP</span>
         @endif
 
         @if ($task->owner)
@@ -80,7 +80,7 @@
         @if ($task->delivered_at)
             <span class="text-xs cursor-help" style="color: var(--text-muted)"
                   title="الساعة وقفت لحظة التسليم — زمن المراجعة لا يُحمَّل عليك">
-                ⏹ العدّاد وقف: {{ \Illuminate\Support\Carbon::parse($task->delivered_at)->format('Y-m-d H:i') }}
+                <x-icon name="blocked" size="16" /> العدّاد وقف: {{ \Illuminate\Support\Carbon::parse($task->delivered_at)->format('Y-m-d H:i') }}
             </span>
         @endif
 
@@ -223,7 +223,7 @@
                     <div class="text-xs mt-1" style="color: var(--text-muted)">
                         {{ $contribution->item_title }} · الديدلاين الداخليّ
                         {{ \Illuminate\Support\Carbon::parse($contribution->internal_deadline_at)->format('Y-m-d H:i') }}
-                        · ⚡ {{ rtrim(rtrim(number_format((float) $contribution->vxp_value, 2), '0'), '.') }} VXP
+                        · <x-icon name="spark" size="16" /> {{ rtrim(rtrim(number_format((float) $contribution->vxp_value, 2), '0'), '.') }} VXP
                     </div>
                 </div>
             @empty
@@ -276,7 +276,7 @@
                     </div>
                 </div>
             @empty
-                <p class="text-sm" style="color: var(--text-muted)">مفيش تحكيمات على المهمّة دي 👌</p>
+                <p class="text-sm" style="color: var(--text-muted)">مفيش تحكيمات على المهمّة دي <x-icon name="check" size="16" /></p>
             @endforelse
         </div>
     @endif

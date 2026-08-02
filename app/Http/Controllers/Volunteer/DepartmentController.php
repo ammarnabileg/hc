@@ -65,7 +65,8 @@ class DepartmentController extends Controller
             'counters' => $this->directory->counters($root, $memberships),
             'subEntities' => $this->scope->subEntities($root),
             'positions' => Position::where('is_honorary', false)->orderByDesc('rank')->get(),
-            'honorary' => $this->scope->honorary(),
+            // سطرٌ شرفيّ في رأس الصفحة — ومكانه من «أماكن الظهور» (13.4-ص-ب)
+            'honorary' => $this->scope->honorary('members'),
             'filters' => $filters,
             // مبدّل عرض: كروت أو جدول — والاختيار يُحفَظ في الرابط
             'view' => $request->query('view') === 'table' ? 'table' : 'cards',

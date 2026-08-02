@@ -34,6 +34,8 @@ class User extends Authenticatable
             'auto_timezone_at' => 'datetime',
             'birthdate' => 'date',
             'sound_enabled' => 'boolean',
+            // الحركة تُضبَط من داخل المنصّة لا من تفضيل نظام التشغيل (2.3 · 2.14-ب)
+            'motion_enabled' => 'boolean',
             'simple_mode' => 'boolean',
             'advanced_mode' => 'boolean',
             'pinned_pages' => 'array',

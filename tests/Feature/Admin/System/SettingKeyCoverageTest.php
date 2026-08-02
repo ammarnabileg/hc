@@ -2,8 +2,11 @@
 
 namespace Tests\Feature\Admin\System;
 
+use App\Models\Role;
 use App\Models\Setting;
+use App\Models\User;
 use App\Services\Admin\System\SettingKeyScanner;
+use App\Services\Admin\System\SettingsRegistry;
 use Database\Seeders\DatabaseSeeder;
 use Database\Seeders\SettingDefinitionsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -78,6 +81,46 @@ class SettingKeyCoverageTest extends TestCase
         foreach ($sources as [$class, $method]) {
             $this->assertTrue(method_exists($class, $method), "{$class}::{$method}() مش موجودة");
         }
+    }
+
+    /**
+     * ⭐ التحقّق بالتشغيل: المالك يفتح لوحته على تنصيبٍ نظيف فيجد المفتاح
+     * **ظاهرًا وقابلًا للتعديل** — لا مزروعًا في القاعدة بلا شاشة تصل إليه.
+     */
+    public function test_a_newly_seeded_key_is_visible_and_editable_on_a_clean_install(): void
+    {
+        $this->seed(DatabaseSeeder::class);
+
+        $owner = User::create([
+            'name' => 'مالك المنصّة',
+            'email' => 'owner@coverage.test',
+            'password' => 'secret-password',
+            'code' => 'OWNCOV01',
+            'status' => 'active',
+        ]);
+        $owner->assignRole(Role::query()->where('key', config('access.owner_role'))->firstOrFail());
+
+        // مفتاحٌ كان محروقًا في الكود قبل هذا العمل — ولا صفّ له على تنصيبٍ نظيف
+        $key = 'certificates.labels.download';
+        $setting = Setting::query()->where('key', $key)->firstOrFail();
+
+        $registry = app(SettingsRegistry::class);
+        $tab = $registry->groupToTab()[$setting->group] ?? null;
+
+        $this->assertNotNull($tab, "المفتاح {$key} مزروعٌ بلا تابٍ يصل إليه");
+
+        $this->actingAs($owner)
+            ->get(route('admin.settings.index', ['tab' => $tab, 'key' => $key]))
+            ->assertOk()
+            ->assertSee($key, false);
+
+        $this->actingAs($owner)
+            ->postJson(route('admin.settings.field'), ['key' => $key, 'value' => 'نزّل شهادتك'])
+            ->assertOk()
+            ->assertJsonFragment(['saved' => true]);
+
+        $this->assertSame('نزّل شهادتك', $setting->refresh()->value);
+        $this->assertSame('تحميل', $setting->default_value, 'الافتراضيّ يبقى مرساةً لزرّ الـReset');
     }
 
     /** وإعادة التشغيل لا تدهس قيمةً عدّلها المالك (2.13-د) */

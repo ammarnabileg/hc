@@ -237,8 +237,7 @@ class StoreDemoSeeder extends Seeder
                 'published_at' => now(),
                 'is_indexable' => true,
                 'is_free' => false,
-                'xp_before_half' => 120,
-                'xp_after_half' => 60,
+                'xp_max' => 120,
             ]);
         }
 

@@ -59,7 +59,7 @@
     {{-- ⭐ رقم المرشّح لفريق التوظيف فقط (13.4-د — حوكمة) --}}
     @if ($canSeePhone && $candidate->user?->phone)
         <p class="mt-2 text-xs" style="color: var(--text-muted)">
-            <span aria-hidden="true">☎</span>
+            <span aria-hidden="true"><x-icon name="phone" size="16" /></span>
             <a href="https://wa.me/{{ preg_replace('/\D/', '', $candidate->user->phone) }}" class="hover:underline"
                dir="ltr">{{ $candidate->user->phone }}</a>
         </p>

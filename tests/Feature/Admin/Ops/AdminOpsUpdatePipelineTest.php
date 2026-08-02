@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Admin\Ops;
 
+use App\Services\Admin\Ops\BackupManager;
 use App\Services\Admin\Ops\BatchMigrator;
 use App\Services\Admin\Ops\UpdateLock;
 use App\Services\Admin\System\MaintenanceService;
@@ -348,7 +349,7 @@ class AdminOpsUpdatePipelineTest extends OpsTestCase
         $this->actingAs($admin)->post(route('admin.ops.system.backups.store'), ['kind' => 'database']);
 
         $backup = DB::table('backup_files')->orderByDesc('id')->first();
-        $manager = app(\App\Services\Admin\Ops\BackupManager::class);
+        $manager = app(BackupManager::class);
 
         $this->assertTrue($manager->verify((int) $backup->id)['ok']);
 

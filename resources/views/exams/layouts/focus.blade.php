@@ -1,5 +1,7 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl" @if(auth()->check() && auth()->user()->theme === 'light') data-theme="light" @endif>
+<html lang="ar" dir="rtl" @if(auth()->check() && auth()->user()->theme === 'light') data-theme="light" @endif
+      {{-- الحركة تُضبَط من إعداد المستخدم داخل المنصّة لا من تفضيل نظام التشغيل (2.3 · 2.14-ب) --}}
+      @if(auth()->check() && ! auth()->user()->motion_enabled) data-motion="off" @endif>
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">

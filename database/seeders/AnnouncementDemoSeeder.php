@@ -121,6 +121,10 @@ class AnnouncementDemoSeeder extends Seeder
             ['announcements.acknowledge.label', 'announcements', 'نصّ زرّ الإقرار', 'string', 'قرأتُ وفهمت'],
             ['announcements.acknowledge.max_xp', 'announcements', 'سقف مكافأة الإقرار (XP)', 'number', '50'],
             ['announcements.acknowledge.currency', 'announcements', 'عملة مكافأة الإقرار', 'string', 'xp'],
+            // ⭐ سقف **يوميّ** فوق سقف المنشور الواحد — «بحذر بلا إغراق» (13.2)؛ و0 = بلا سقف
+            ['announcements.acknowledge.daily_max_xp', 'announcements', 'السقف اليوميّ لمكافآت الإقرار (XP)', 'number', '100'],
+            ['announcements.acknowledge.max_tickets', 'announcements', 'سقف تذاكر الإقرار للمنشور', 'number', '20'],
+            ['announcements.acknowledge.ledger_source', 'announcements', 'دلو مصدر الإقرار في دفتر الأستاذ', 'string', 'announcement'],
             ['announcements.types', 'announcements', 'أنواع المنشورات في الفلتر', 'json', '{"pinned":"مثبَّت","critical":"يحتاج إقرار","general":"عامّ"}'],
             ['announcements.empty.message', 'announcements', 'رسالة الحالة الفارغة', 'string', 'لا تعليمات جديدة'],
 

@@ -31,7 +31,7 @@
 
     <div class="mt-3 flex flex-wrap items-center gap-2">
         <span class="text-xs rounded-full px-2 py-0.5" style="background: var(--surface-sunken); color: var(--text-muted)">
-            ⭐ {{ number_format($row['xp_earned']) }} XP
+            <x-icon name="xp" size="16" /> {{ number_format($row['xp_earned']) }} XP
         </span>
         <x-state-badge :state="$row['exam']['state']" :label="$row['exam']['label']" />
         <x-state-badge :state="$row['certificate']['state']" :label="$row['certificate']['label']" />

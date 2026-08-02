@@ -59,6 +59,26 @@ class OnboardingContent
         return is_array($templates) ? $templates : [];
     }
 
+    /**
+     * قالب شاشةٍ بعينها، وإلّا **القالب العامّ** — فلا تبقى شاشةٌ بلا نقطة بداية
+     * جاهزة. (وهذا القالب العامّ هو وارث `ux.first_time.default_template` القديم
+     * بعد توحيد مصدر «أوّل مرّة» على الجدول — انظر هجرة التوحيد.)
+     *
+     * @return array<int, array<string, string>>
+     */
+    public function templateFor(string $screen): array
+    {
+        $own = $this->templates()[$screen] ?? null;
+
+        if (is_array($own) && $own !== []) {
+            return $own;
+        }
+
+        $default = setting('onboarding.first_time.default_template', []);
+
+        return is_array($default) ? $default : [];
+    }
+
     /** شرائح شاشة بعينها مرتّبةً — والترتيب هو ما يراه المستخدم بالضبط */
     public function slides(string $screen, bool $activeOnly = false): Collection
     {
@@ -250,7 +270,7 @@ class OnboardingContent
     public function applyTemplate(string $screen, ?User $actor): int
     {
         $screen = $this->safeScreen($screen);
-        $stages = $this->templates()[$screen] ?? [];
+        $stages = $this->templateFor($screen);
 
         if ($stages === []) {
             return 0;

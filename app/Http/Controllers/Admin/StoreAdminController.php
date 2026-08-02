@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\AuditLog;
 use App\Models\Bundle;
+use App\Models\BundleItem;
 use App\Models\Coupon;
 use App\Models\Order;
 use App\Models\Product;
@@ -12,9 +13,12 @@ use App\Models\ProductCategory;
 use App\Services\Admin\System\StoreAdminService;
 use App\Services\Library\ProductToc;
 use App\Services\Library\ReadingAnalytics;
+use App\Services\Store\PricingService;
+use App\Services\Store\StoreCatalog;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 /**
@@ -81,12 +85,14 @@ class StoreAdminController extends Controller
             'name_en' => ['nullable', 'string', 'max:190'],
             'product_category_id' => ['nullable', 'integer', 'exists:product_categories,id'],
             'type' => ['required', 'in:digital,protected_pdf,cv_template'],
-            'price_coins' => ['required', 'numeric', 'min:0'],
+            'price_currency' => ['required', 'string', Rule::in($this->currencies())],
+            'price' => ['required', 'numeric', 'min:0'],
             'status' => ['required', 'in:draft,published,archived'],
         ]);
 
-        $product = Product::create($data + ['slug' => Str::slug($data['name_ar']).'-'.Str::lower(Str::random(5))]);
-        $this->audit($request, $product, 'store_products.create', [], $data);
+        $payload = $this->withPricing($data);
+        $product = Product::create($payload + ['slug' => Str::slug($data['name_ar']).'-'.Str::lower(Str::random(5))]);
+        $this->audit($request, $product, 'store_products.create', [], $payload);
 
         return back()->with('status', 'المنتج اتحفظ ✓');
     }
@@ -96,15 +102,48 @@ class StoreAdminController extends Controller
         $data = $request->validate([
             'name_ar' => ['required', 'string', 'max:190'],
             'product_category_id' => ['nullable', 'integer', 'exists:product_categories,id'],
-            'price_coins' => ['required', 'numeric', 'min:0'],
+            'price_currency' => ['required', 'string', Rule::in($this->currencies())],
+            'price' => ['required', 'numeric', 'min:0'],
             'status' => ['required', 'in:draft,published,archived'],
         ]);
 
-        $old = $product->only(array_keys($data));
-        $product->update($data);
-        $this->audit($request, $product, 'store_products.edit', $old, $data);
+        $payload = $this->withPricing($data);
+        $old = $product->only(array_keys($payload));
+        $product->update($payload);
+        $this->audit($request, $product, 'store_products.edit', $old, $payload);
 
         return back()->with('status', 'التعديل اتحفظ ✓');
+    }
+
+    /**
+     * ⭐ **التسعير متعدّد العملات (17): عملةٌ واحدة معلَنة وقيمةٌ واحدة.**
+     *
+     * لماذا حقلٌ واحد للسعر مع Select للعملة بدل ثلاثة أعمدة مفتوحة؟ لأنّ ثلاثة
+     * أرقام تجعل «كم سعره؟» بلا جواب واحد، وهي جذر العطل الذي كان: عمود
+     * `price_tickets` معبَّأ ولا يقرؤه أحد، فيمرّ المنتج بصفر ويُسلَّم مجّانًا.
+     * فالأعمدة الأخرى تُصفَّر صراحةً كي لا يبقى رقمٌ يتيمٌ يوهم بسعرٍ ثانٍ.
+     *
+     * @param  array<string, mixed>  $data
+     * @return array<string, mixed>
+     */
+    private function withPricing(array $data): array
+    {
+        $currency = (string) $data['price_currency'];
+        $amount = round((float) $data['price'], 2);
+
+        unset($data['price']);
+
+        foreach ($this->currencies() as $code) {
+            $data['price_'.$code] = $code === $currency ? $amount : 0;
+        }
+
+        return $data;
+    }
+
+    /** @return array<int, string> */
+    private function currencies(): array
+    {
+        return app(PricingService::class)->currencies();
     }
 
     /** ⭐ أرشفة لا حذف — العنصر المشترى يبقى في مكتبات أصحابه */
@@ -178,19 +217,104 @@ class StoreAdminController extends Controller
         return back()->with('status', 'التصنيف اتضاف ✓');
     }
 
+    /**
+     * ⭐ **لا حقل «القيمة الإجماليّة» بعد اليوم** (18 · 2.9): كانت رقمًا يكتبه الأدمن
+     * بقيد `numeric|min:0` وحده، فيصير «وفّرت X» ادّعاءً لا يسنده شيء. والقيمة
+     * الآن **تُحسَب من عناصر الباقة** في `PricingService::bundleItemsValue()`،
+     * والعمود يُملأ تلقائيًّا ليبقى ما في قاعدة البيانات مطابقًا لما يُعرَض.
+     */
     public function storeBundle(Request $request): RedirectResponse
     {
         $data = $request->validate([
             'name_ar' => ['required', 'string', 'max:190'],
             'price_coins' => ['required', 'numeric', 'min:0'],
-            'original_value' => ['required', 'numeric', 'min:0'],
             'status' => ['required', 'in:draft,published,archived'],
         ]);
 
-        $bundle = Bundle::create($data + ['slug' => Str::slug($data['name_ar']).'-'.Str::lower(Str::random(5))]);
+        $bundle = Bundle::create($data + [
+            'slug' => Str::slug($data['name_ar']).'-'.Str::lower(Str::random(5)),
+            'original_value' => 0, // تُحسَب من العناصر فور إضافتها
+        ]);
         $this->audit($request, $bundle, 'bundles.create', [], $data);
 
-        return back()->with('status', 'البندل اتحفظ ✓');
+        return back()->with('status', 'البندل اتحفظ ✓ — ضيف عناصره وهتتحسب قيمته تلقائيًّا.');
+    }
+
+    // ---------------------------------------------------------------- عناصر البندل (18)
+
+    /** شاشة عناصر الباقة: القائمة + إضافة عنصر بسعره الطبيعيّ افتراضيًّا */
+    public function showBundle(Bundle $bundle): View
+    {
+        return view('admin.store.bundle', [
+            'bundle' => $bundle,
+            'items' => app(StoreCatalog::class)->includes('bundle', $bundle),
+            'options' => $this->store->bundleItemOptions(),
+            'totalValue' => app(PricingService::class)->bundleItemsValue($bundle),
+        ]);
+    }
+
+    /**
+     * إضافة عنصر للباقة مع **تسعير مستقلّ (Override)** (18).
+     * والإنبوت يصل بالسعر الطبيعيّ كقيمة افتراضيّة، فترْكُه كما هو = بلا Override.
+     */
+    public function storeBundleItem(Request $request, Bundle $bundle): RedirectResponse
+    {
+        $catalog = app(StoreCatalog::class);
+
+        $data = $request->validate([
+            'item_type' => ['required', 'string', Rule::in(array_keys(StoreCatalog::TYPES))],
+            'item_slug' => ['required', 'string', 'max:190'],
+            'price_coins' => ['nullable', 'numeric', 'min:0'],
+        ]);
+
+        $item = $catalog->resolve($data['item_type'], $data['item_slug']);
+
+        if (! $item) {
+            return back()->withErrors(['item_slug' => 'العنصر ده مش موجود — اختر من القائمة.']);
+        }
+
+        if ($item instanceof Bundle) {
+            return back()->withErrors(['item_slug' => 'الباقة لا تُضاف داخل باقة.']);
+        }
+
+        $row = BundleItem::query()->firstOrNew([
+            'bundle_id' => $bundle->id,
+            'itemable_type' => $item::class,
+            'itemable_id' => $item->id,
+        ]);
+
+        $natural = round((float) ($catalog->activeOffer($item) ?? $item->price_coins ?? 0), 2);
+        $override = $data['price_coins'] === null ? null : round((float) $data['price_coins'], 2);
+
+        $row->forceFill([
+            // ما ساوى السعر الطبيعيّ ليس Override — فلا نجمّد سعرًا سيتغيّر لاحقًا
+            'price_coins' => ($override === null || abs($override - $natural) < 0.001) ? null : $override,
+            'sort_order' => $row->sort_order ?? BundleItem::query()->where('bundle_id', $bundle->id)->count(),
+        ])->save();
+
+        $this->syncBundleValue($bundle);
+        $this->audit($request, $bundle, 'bundles.edit', [], $data);
+
+        return back()->with('status', 'العنصر اتضاف للباقة ✓');
+    }
+
+    public function destroyBundleItem(Request $request, Bundle $bundle, BundleItem $item): RedirectResponse
+    {
+        abort_unless((int) $item->bundle_id === (int) $bundle->id, 404);
+
+        $item->delete();
+        $this->syncBundleValue($bundle);
+        $this->audit($request, $bundle, 'bundles.edit', ['item' => $item->id], []);
+
+        return back()->with('status', 'العنصر اتشال من الباقة ✓');
+    }
+
+    /** القيمة الإجماليّة في العمود = مجموع عناصرها دائمًا — فلا يفترقان (18) */
+    private function syncBundleValue(Bundle $bundle): void
+    {
+        $bundle->forceFill([
+            'original_value' => app(PricingService::class)->bundleItemsValue($bundle->refresh()),
+        ])->save();
     }
 
     public function storeCoupon(Request $request): RedirectResponse

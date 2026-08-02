@@ -57,7 +57,8 @@ class CommandIndex
             'volunteer.overview' => ['لوحة التطوّع', null],
 
             // الإدارة (12.0)
-            'admin.dashboard' => ['لوحة القيادة', 'admin_panel.view'],
+            // باب اللوحة قدرةٌ محسوبة لا صلاحيّة باسم شاشة (12.2.1-أ)
+            'admin.dashboard' => ['لوحة القيادة', 'admin-panel'],
             'admin.users.index' => ['قائمة المستخدمين', 'users.list'],
             'admin.roles.index' => ['الأدوار والصلاحيّات', 'roles.list'],
             'admin.paths.index' => ['المسارات (إدارة)', 'paths.list'],

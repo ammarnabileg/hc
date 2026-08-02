@@ -21,7 +21,7 @@
     @if ($header['can_kudos'])
         <button type="button" data-modal-open="kudos-modal"
                 class="btn rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
-                style="min-height: 44px; background: var(--color-brand-500); color: #04201c">شكر 💛</button>
+                style="min-height: 44px; background: var(--color-brand-500); color: #04201c">شكر <x-icon name="contribution" size="16" /></button>
     @endif
 
     @if ($header['whatsapp'])

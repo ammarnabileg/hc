@@ -32,10 +32,10 @@
     </x-page-header>
 
     <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
-        <x-kpi label="كلّ الجدولات" :value="$stats['total']" icon="🗓️" />
-        <x-kpi label="نشطة" :value="$stats['active']" icon="✅" />
-        <x-kpi label="اتبعت النهارده" :value="$stats['sent_today']" icon="📤" />
-        <x-kpi label="فشلت آخر مرّة" :value="$stats['failed']" icon="⚠️"
+        <x-kpi label="كلّ الجدولات" :value="$stats['total']" icon="calendar" />
+        <x-kpi label="نشطة" :value="$stats['active']" icon="check" />
+        <x-kpi label="اتبعت النهارده" :value="$stats['sent_today']" icon="upload" />
+        <x-kpi label="فشلت آخر مرّة" :value="$stats['failed']" icon="warning"
                :state="$stats['failed'] > 0 ? 'danger' : null" />
     </div>
 
@@ -103,7 +103,7 @@
                             <td class="px-4 py-3">
                                 {{ $schedule->name }}
                                 @if ($schedule->is_financial)
-                                    <span class="text-xs" style="color: var(--color-state-honor)">🔒</span>
+                                    <span class="text-xs" style="color: var(--color-state-honor)"><x-icon name="lock" size="16" /></span>
                                 @endif
                                 <div class="text-xs" style="color: var(--text-muted)">
                                     {{ strtoupper($schedule->format) }} · {{ count($schedule->recipient_emails ?? []) + count($schedule->recipient_role_ids ?? []) + count($schedule->recipient_user_ids ?? []) }} مستقبِل

@@ -175,7 +175,7 @@
                 <form method="post" action="{{ route('admin.gamification.wars.reset', $selected) }}" class="mt-3"
                       onsubmit="return confirm('ترجّع الحرب دي للافتراضيّ؟ كلّ الـOverrides هتتمسح.')">
                     @csrf
-                    <button type="submit" class="text-xs underline" style="color: var(--text-muted)">↺ إعادة الضبط للافتراضيّ لهذه الحرب</button>
+                    <button type="submit" class="text-xs underline" style="color: var(--text-muted)"><x-icon name="refresh" size="16" /> إعادة الضبط للافتراضيّ لهذه الحرب</button>
                 </form>
             @endcan
         @else

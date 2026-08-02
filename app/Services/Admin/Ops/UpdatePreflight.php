@@ -28,7 +28,7 @@ class UpdatePreflight
      * @param  array<int, string>  $migrationPaths
      * @return array<int, array{key:string,label:string,value:string,state:string,hint:string}>
      */
-    public function checks(array $migrationPaths = []): array
+    public function checks(array $migrationPaths = [], ?string $ownToken = null): array
     {
         return [
             $this->php(),
@@ -37,7 +37,7 @@ class UpdatePreflight
             $this->disk(),
             $this->database(),
             $this->integrity($migrationPaths),
-            $this->lockFree(),
+            $this->lockFree($ownToken),
         ];
     }
 
@@ -152,9 +152,17 @@ class UpdatePreflight
             $bad === [] ? 'كلّ هجرة زيّ ما اتطبّقت بالظبط.' : 'ملفّ اتعدّل بعد تطبيقه ('.implode(' · ', array_slice($bad, 0, 3)).') — رجّع الملفّ لأصله أو اعمل هجرة جديدة بدل تعديل القديمة.');
     }
 
-    private function lockFree(): array
+    /**
+     * ⚠️ التشغيل الجاري يمسك القفل بنفسه قبل الفحوص (وهو الترتيب الصحيح: لا نفحص
+     * ثمّ نقفل فيتسلّل تشغيلٌ بين الاثنين) — فيمرّر توكنه هنا كي لا يرى نفسه عائقًا.
+     */
+    private function lockFree(?string $ownToken = null): array
     {
         $lock = $this->lock->current();
+
+        if ($lock && $ownToken !== null && (string) $lock->token === $ownToken) {
+            $lock = null;
+        }
 
         return $this->row('lock', 'قفل التحديث',
             $lock ? 'مقفول من '.($lock->holder_name ?? 'تشغيل تاني') : 'مفتوح',

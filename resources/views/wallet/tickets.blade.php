@@ -4,7 +4,7 @@
 
 @section('content')
     <x-page-header
-        title="التذاكر 🎟️"
+        title="التذاكر"
         subtitle="التذكرة عملة تفاعل: بتكسبها من تعلّمك، وبتصرفها على اللي يهمّك."
         :breadcrumbs="[['label' => 'المحفظة', 'url' => route('wallet.index')], ['label' => 'التذاكر']]">
         <x-slot:action>

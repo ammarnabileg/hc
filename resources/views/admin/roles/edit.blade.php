@@ -52,8 +52,17 @@
                            style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
                 </label>
 
+                @if ($canEdit)
+                    {{-- تفعيل المجموعة دفعة واحدة بضغطة — شرط قبول 12.2 --}}
+                    <button type="button" data-perm-bulk="on" class="rounded-xl px-3 py-2 text-sm font-semibold motion-standard"
+                            style="background: var(--surface-raised); color: var(--text)">تفعيل المجموعة كلّها</button>
+
+                    <button type="button" data-perm-bulk="off" class="rounded-xl px-3 py-2 text-sm motion-standard"
+                            style="background: var(--surface-raised); color: var(--text-muted)">إلغاء الكلّ</button>
+                @endif
+
                 <span class="text-xs" style="color: var(--text-muted)">
-                    ⭐ «manage» بتتفرد ظاهرةً عند الحفظ — تشوف بعينك كلّ سطر اتمنح.
+                    ⭐ «manage» بتفرد <b>خمسة</b> أفعال (إنشاء · تعديل · حذف · أرشفة · إسناد) ظاهرةً عند الحفظ — تشوف بعينك كلّ سطر اتمنح.
                 </span>
             </div>
 
@@ -81,9 +90,16 @@
                                     <tr class="border-t" style="border-color: var(--border)"
                                         data-perm-row="{{ $permission->key }} {{ $permission->label_ar }} {{ $permission->description }}">
                                         <td class="px-3 py-2">
-                                            <input type="checkbox" name="rows[{{ $permission->id }}][on]" value="1"
-                                                   @checked($row['granted']) @disabled(! $canEdit)
-                                                   aria-label="تفعيل {{ $permission->key }}">
+                                            {{-- ما لا يملكه المستخدم **يُخفى** ولا يُعطَّل (2.15-أ-7) --}}
+                                            @if ($canEdit)
+                                                <input type="checkbox" name="rows[{{ $permission->id }}][on]" value="1"
+                                                       data-perm-toggle
+                                                       @checked($row['granted'])
+                                                       aria-label="تفعيل {{ $permission->key }}">
+                                            @else
+                                                <x-state-badge :state="$row['granted'] ? 'ok' : 'idle'"
+                                                               :label="$row['granted'] ? 'ممنوحة' : 'غير ممنوحة'" />
+                                            @endif
                                         </td>
                                         <td class="px-3 py-2">
                                             <div class="font-semibold">
@@ -99,24 +115,32 @@
                                         </td>
                                         <td class="px-3 py-2">
                                             {{-- اختيار النطاق لكلّ صلاحيّة من نطاقاتها المسموحة (12.2.1-ب) --}}
-                                            <select name="rows[{{ $permission->id }}][scope]" @disabled(! $canEdit)
-                                                    class="rounded-xl px-2 py-1 text-xs"
-                                                    style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)"
-                                                    aria-label="نطاق {{ $permission->key }}">
-                                                @foreach ($row['scopes'] as $scope)
-                                                    <option value="{{ $scope }}" @selected($row['scope'] === $scope)>{{ $scope }}</option>
-                                                @endforeach
-                                            </select>
+                                            @if ($canEdit)
+                                                <select name="rows[{{ $permission->id }}][scope]"
+                                                        class="rounded-xl px-2 py-1 text-xs"
+                                                        style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)"
+                                                        aria-label="نطاق {{ $permission->key }}">
+                                                    @foreach ($row['scopes'] as $scope)
+                                                        <option value="{{ $scope }}" @selected($row['scope'] === $scope)>{{ $scope }}</option>
+                                                    @endforeach
+                                                </select>
+                                            @else
+                                                <span class="text-xs" style="color: var(--text-muted)">{{ $row['scope'] }}</span>
+                                            @endif
                                         </td>
                                         <td class="px-3 py-2">
                                             {{-- Deny/Allow لكلّ سطر — والمنع يغلب الإذن دائمًا (12.2.1-ز-1) --}}
-                                            <select name="rows[{{ $permission->id }}][effect]" @disabled(! $canEdit)
-                                                    class="rounded-xl px-2 py-1 text-xs"
-                                                    style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)"
-                                                    aria-label="أثر {{ $permission->key }}">
-                                                <option value="allow" @selected($row['effect'] === 'allow')>إذن</option>
-                                                <option value="deny" @selected($row['effect'] === 'deny')>منع</option>
-                                            </select>
+                                            @if ($canEdit)
+                                                <select name="rows[{{ $permission->id }}][effect]"
+                                                        class="rounded-xl px-2 py-1 text-xs"
+                                                        style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)"
+                                                        aria-label="أثر {{ $permission->key }}">
+                                                    <option value="allow" @selected($row['effect'] === 'allow')>إذن</option>
+                                                    <option value="deny" @selected($row['effect'] === 'deny')>منع</option>
+                                                </select>
+                                            @else
+                                                <span class="text-xs" style="color: var(--text-muted)">{{ $row['effect'] === 'deny' ? 'منع' : 'إذن' }}</span>
+                                            @endif
                                         </td>
                                     </tr>
                                 @endforeach

@@ -37,7 +37,8 @@
     $volunteerUnread = $u->notificationsFeed()->whereNull('read_at')->where('layer', 'volunteer')->count();
 @endphp
 
-<aside class="w-64 shrink-0 hidden md:block" style="border-inline-start: 1px solid var(--border)">
+{{-- لوحة منزلقة على الموبايل وعمود ثابت على الديسكتوب (13 · 2.15-ج) --}}
+<aside data-sidebar data-open="false" class="w-64 shrink-0" style="border-inline-start: 1px solid var(--border)">
     <div class="sticky top-0 h-screen overflow-y-auto p-4 space-y-4">
 
         {{-- بطاقة هويّة مصغّرة: الاسم والكود والكيان والبوزشن + شارة Rep الثابتة (13.4-ح) --}}
@@ -129,5 +130,5 @@
     </div>
 </aside>
 
-{{-- الموبايل: نفس القائمة تُفتَح من زرّ الهيدر (2.15-ج) --}}
-<div id="mobile-drawer" class="md:hidden"></div>
+{{-- الموبايل: نفس القائمة تنزلق من زرّ الهيدر (13 · 2.15-ج) --}}
+@include('partials.sidebar-drawer')

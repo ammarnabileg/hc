@@ -14,7 +14,7 @@
     <div class="flex items-start justify-between gap-2">
         <div class="min-w-0">
             <div class="font-semibold text-sm truncate">
-                <span aria-hidden="true" title="{{ $task->entity?->name_ar }}">{{ $task->entity?->icon ?? '🏛️' }}</span>
+                <span aria-hidden="true" title="{{ $task->entity?->name_ar }}">{{ $task->entity?->icon }}<x-icon name="entity" size="14" /></span>
                 {{ $task->title }}
             </div>
             <div class="text-xs mt-1 flex flex-wrap items-center gap-2" style="color: var(--text-muted)">
@@ -36,7 +36,7 @@
         @include('volunteer.components.deadline-counter', ['task' => $task])
 
         @if ((float) $task->vxp_value > 0)
-            <span style="color: var(--text-muted)">⚡ {{ rtrim(rtrim(number_format((float) $task->vxp_value, 2), '0'), '.') }} VXP</span>
+            <span style="color: var(--text-muted)"><x-icon name="spark" size="16" /> {{ rtrim(rtrim(number_format((float) $task->vxp_value, 2), '0'), '.') }} VXP</span>
         @endif
 
         @if ($contributors > 0)

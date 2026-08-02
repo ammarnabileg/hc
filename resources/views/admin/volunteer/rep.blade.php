@@ -68,9 +68,9 @@
                                     @can('volunteer_central_settings.manage')
                                         <button type="submit" form="rep-reset-form" name="key" value="{{ $rule->key }}"
                                                 class="text-xs underline" style="color: var(--text-muted)"
-                                                title="رجّع للافتراضيّ">↺ {{ $default !== null ? (float) $default : '—' }}</button>
+                                                title="رجّع للافتراضيّ"><x-icon name="refresh" size="16" /> {{ $default !== null ? (float) $default : '—' }}</button>
                                     @else
-                                        <span class="text-xs" style="color: var(--text-muted)" title="القيمة الافتراضيّة">↺ {{ $default !== null ? (float) $default : '—' }}</span>
+                                        <span class="text-xs" style="color: var(--text-muted)" title="القيمة الافتراضيّة"><x-icon name="refresh" size="16" /> {{ $default !== null ? (float) $default : '—' }}</span>
                                     @endcan
                                 </div>
                             </div>
@@ -93,7 +93,7 @@
                       onsubmit="return confirm('ترجّع «{{ $groupLabel }}» للافتراضيّ؟')">
                     @csrf
                     <input type="hidden" name="group" value="{{ $groupKey }}">
-                    <button type="submit" class="text-xs underline" style="color: var(--text-muted)">↺ {{ $groupLabel }}</button>
+                    <button type="submit" class="text-xs underline" style="color: var(--text-muted)"><x-icon name="refresh" size="16" /> {{ $groupLabel }}</button>
                 </form>
             @endforeach
         </div>

@@ -24,7 +24,7 @@ Route::middleware('auth')
     ->post('/positive/ticket', [HomeController::class, 'claimTicket'])->name('positive.ticket');
 
 // ==================================================== ج) إدارة مكتبة الرسائل الإيجابيّة
-Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth', 'admin.panel'])->prefix('admin')->name('admin.')->group(function () {
 
     Route::middleware('permission:positive_messages.list,positive_messages.view')
         ->get('/positive-messages', [PositiveMessageController::class, 'index'])->name('positive.index');

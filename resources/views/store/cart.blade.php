@@ -4,6 +4,11 @@
 @section('title', setting('store.cart.page_title'))
 
 @section('content')
+    @php
+        // ⭐ سلّة بعملةٍ واحدة (17) — والأرقام كلّها تُعرَض بها لا بالكوينز دائمًا
+        $currency = $quote['currency'] ?? Coins::defaultCode();
+    @endphp
+
     {{--
         صفحة **مراجعة الطلب** (17): السلّة ← مراجعة ← دفع بأقلّ خطوات، مع «وفّرت X».
         سؤال واحد للشاشة: «أراجع وأدفع؟» — وفعل رئيسيّ واحد (2.15).
@@ -16,7 +21,7 @@
                        ['label' => setting('store.cart.page_title')],
                    ]">
         <x-slot:action>
-            @include('store.partials.balance', ['balance' => $quote['balance_before']])
+            @include('store.partials.balance', ['balance' => $quote['balance_before'], 'balanceCurrency' => $currency])
         </x-slot:action>
     </x-page-header>
 
@@ -47,7 +52,7 @@
                             </div>
 
                             <div class="flex items-center gap-3 shrink-0">
-                                <span class="text-sm font-semibold tabular-nums">{{ Coins::label($line['price']) }}</span>
+                                <span class="text-sm font-semibold tabular-nums">{{ Coins::label($line['price'], $currency) }}</span>
 
                                 @unless ($line['is_order_bump'])
                                     <button type="submit" form="cart-remove-{{ $loop->index }}"
@@ -66,7 +71,7 @@
                         <input type="checkbox" name="bumps[]" value="{{ $bump['slug'] }}" class="mt-1" data-quote-trigger>
                         <span class="text-sm">
                             <span class="font-semibold">{{ $bump['title'] }}</span>
-                            <span> — {{ Coins::label($bump['price']) }}</span>
+                            <span> — {{ Coins::label($bump['price'], $currency) }}</span>
                             @if ($bump['list_price'] > $bump['price'])
                                 <span class="text-xs line-through" style="color: var(--text-muted)">{{ Coins::fmt($bump['list_price']) }}</span>
                             @endif
@@ -93,31 +98,31 @@
                 <div class="card p-4 space-y-2 text-sm">
                     <div class="flex items-center justify-between">
                         <span style="color: var(--text-muted)">{{ setting('store.cart.subtotal_label') }}</span>
-                        <span data-quote="subtotal">{{ Coins::label($quote['subtotal']) }}</span>
+                        <span data-quote="subtotal">{{ Coins::label($quote['subtotal'], $currency) }}</span>
                     </div>
                     <div class="flex items-center justify-between">
                         <span style="color: var(--text-muted)">{{ setting('store.cart.discount_label') }}</span>
-                        <span data-quote="discount">{{ Coins::label($quote['discount']) }}</span>
+                        <span data-quote="discount">{{ Coins::label($quote['discount'], $currency) }}</span>
                     </div>
                     <div class="flex items-center justify-between font-bold">
                         <span>{{ setting('store.cart.total_label') }}</span>
-                        <span data-quote="total">{{ Coins::label($quote['total']) }}</span>
+                        <span data-quote="total">{{ Coins::label($quote['total'], $currency) }}</span>
                     </div>
 
                     {{-- «وفّرت X» من قيمةٍ حقيقيّة مسجَّلة لا من رقمٍ مخترَع (2.9 · 17) --}}
                     <p class="text-xs {{ $quote['savings'] > 0 ? '' : 'hidden' }}" data-savings-row
                        data-savings-template="{{ setting('store.savings.text', 'وفّرت {amount}') }}"
                        style="color: var(--color-brand-400)">
-                        {{ str_replace('{amount}', Coins::label($quote['savings']), setting('store.savings.text', 'وفّرت {amount}')) }}
+                        {{ str_replace('{amount}', Coins::label($quote['savings'], $currency), setting('store.savings.text', 'وفّرت {amount}')) }}
                     </p>
 
                     <div class="flex items-center justify-between" style="color: var(--text-muted)">
                         <span>{{ setting('store.cart.balance_before_label') }}</span>
-                        <span data-quote="balance_before">{{ Coins::label($quote['balance_before']) }}</span>
+                        <span data-quote="balance_before">{{ Coins::label($quote['balance_before'], $currency) }}</span>
                     </div>
                     <div class="flex items-center justify-between" style="color: var(--text-muted)">
                         <span>{{ setting('store.cart.balance_after_label') }}</span>
-                        <span data-quote="balance_after">{{ Coins::label($quote['balance_after']) }}</span>
+                        <span data-quote="balance_after">{{ Coins::label($quote['balance_after'], $currency) }}</span>
                     </div>
                 </div>
 

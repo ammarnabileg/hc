@@ -164,8 +164,7 @@ class DashboardDemoSeeder extends Seeder
                     'name_ar' => $name,
                     'description_ar' => 'تدريب عمليّ مختصر في «'.$name.'» بأمثلة من واقع الفرق التطوّعيّة.',
                     'is_free' => true,
-                    'xp_before_half' => $blueprint['xp'],
-                    'xp_after_half' => (int) round($blueprint['xp'] / 2),
+                    'xp_max' => $blueprint['xp'],
                     'deadline_days' => 45,
                     'status' => 'published',
                     'published_at' => now()->subMonths(6),
@@ -228,7 +227,7 @@ class DashboardDemoSeeder extends Seeder
                 ->get(['lessons.id']);
 
             $doneCount = (int) round($lessons->count() * $ratio);
-            $xpEarned = (int) round($course->xp_before_half * $ratio);
+            $xpEarned = (int) round($course->xp_max * $ratio);
 
             Enrollment::updateOrCreate(
                 ['user_id' => $user->id, 'course_id' => $course->id],

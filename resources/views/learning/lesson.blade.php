@@ -12,6 +12,26 @@
         $canComplete = ! $completed && $quiz_passed;
     @endphp
 
+    {{-- ⭐ لحظة الذروة بعد إكمال الدرس السابق (2.14 · 4.1 · 3.4-18 · 3.4-22) --}}
+    @if (session('celebration'))
+        @include('learning.partials.celebration', ['celebration' => session('celebration')])
+    @endif
+
+    {{-- ⭐ شريط تقدّم لاصق أعلى التدريب (3.4-16) — موقعي لا يغيب وأنا داخل الدرس --}}
+    <div class="sticky top-0 z-30 -mx-4 md:-mx-6 px-4 md:px-6 py-2 mb-4"
+         style="background: color-mix(in srgb, var(--surface) 92%, transparent); backdrop-filter: blur(8px); border-bottom: 1px solid var(--border)">
+        <div class="flex items-center gap-3">
+            <span class="text-xs tabular-nums shrink-0" style="color: var(--text-muted)">
+                {{ $outline['completed'] }}/{{ $outline['total'] }}
+            </span>
+            <span class="flex-1 h-1.5 rounded-full overflow-hidden" style="background: var(--surface-sunken)">
+                <span class="block h-full rounded-full motion-standard"
+                      style="width: {{ $outline['percent'] }}%; background: var(--color-brand-500)"></span>
+            </span>
+            <span class="text-xs font-extrabold tabular-nums shrink-0">{{ $outline['percent'] }}%</span>
+        </div>
+    </div>
+
     <x-page-header :title="$lesson->title_ar"
                    :breadcrumbs="[
                        ['label' => setting('learning.breadcrumb.root'), 'url' => route('learning.courses')],
@@ -19,6 +39,16 @@
                        ['label' => $lesson->title_ar],
                    ]">
         <x-slot:action>
+            {{-- ⭐ حفظ الدرس (3.4-34): حالة يقرّرها الخادم لا زينة في المتصفّح --}}
+            <form method="post" action="{{ route('learning.lesson.bookmark', [$course, $lesson]) }}">
+                @csrf
+                <button type="submit" class="inline-flex items-center rounded-xl px-3 py-2 text-sm motion-standard"
+                        style="background: var(--surface-raised); color: {{ $bookmarked ? 'var(--color-state-honor)' : 'var(--text-muted)' }}; min-block-size: 44px"
+                        aria-label="{{ $bookmarked ? setting('learning.bookmark.remove', 'إزالة الحفظ') : setting('learning.bookmark.add', 'احفظ الدرس') }}">
+                    <x-icon name="badge" size="16" />
+                </button>
+            </form>
+
             {{-- [التالي] هو الفعل الرئيسيّ، وسهم [السابق] بجواره (24.5) --}}
             @if ($previousUrl)
                 <a href="{{ $previousUrl }}" class="hidden md:inline-flex items-center rounded-xl px-3 py-2 text-sm motion-standard"
@@ -37,13 +67,17 @@
         <div class="lg:col-span-2 space-y-4">
             {{-- المشغّل: iframe يوتيوب بلا أيّ SDK خارجيّ — أو النصّ/المستند --}}
             @if ($embed_url)
-                <div class="card overflow-hidden">
+                {{-- ⭐ تتبّع المشاهدة (4.1): التبليغ من المتصفّح والقرار في الخادم --}}
+                <div class="card overflow-hidden" data-watch="{{ route('learning.lesson.watch', [$course, $lesson]) }}"
+                     data-watch-duration="{{ (int) $lesson->duration_minutes * 60 }}"
+                     data-watch-every="{{ (int) setting('learning.video.ping_seconds', 15) }}">
                     <div style="position: relative; padding-block-end: 56.25%">
                         <iframe src="{{ $embed_url }}" title="{{ $lesson->title_ar }}"
                                 style="position: absolute; inset: 0; width: 100%; height: 100%; border: 0"
                                 loading="lazy" allowfullscreen
                                 referrerpolicy="strict-origin-when-cross-origin"></iframe>
                     </div>
+                    <p class="px-4 py-2 text-xs" style="color: var(--text-muted)" data-watch-note></p>
                 </div>
             @elseif ($lesson->type === 'video')
                 {{-- خطأ تحميل الفيديو: بديل نصّيّ بدل شاشة فارغة (24.5) --}}
@@ -84,7 +118,7 @@
                                 <a href="{{ \Illuminate\Support\Facades\Storage::disk($file->disk)->url($file->path) }}"
                                    class="flex items-center gap-2 rounded-xl px-3 py-2 text-sm motion-standard"
                                    style="background: var(--surface-sunken)" download>
-                                    <span aria-hidden="true">{{ setting('learning.icon.attachment') }}</span>
+                                    <x-icon name="attachment" size="15" style="color: var(--text-muted)" />
                                     <span class="flex-1 min-w-0 truncate">{{ $file->name }}</span>
                                     <span class="text-xs" style="color: var(--text-muted)">
                                         {{ $file->size ? round($file->size / 1024) . ' ' . setting('learning.attachments.size_unit') : '' }}
@@ -144,6 +178,11 @@
                             {{ setting('learning.xp.next_label') }} +{{ $next_xp }} {{ setting('learning.xp.suffix') }}
                         @endif
                     </p>
+
+                    {{-- ⭐ دليل اجتماعيّ حيّ تحت الدرس بحدّ 20 (2.9-7) — رقمٌ حقيقيّ،
+                         وتحت الحدّ يتحوّل التأطير إلى **ريادة** بدل تضخيم عددٍ صغير --}}
+                    <x-social-proof context="lesson" class="mt-2"
+                        :count="app(App\Services\Engagement\SocialProof::class)->lessonFinishersToday($lesson->id, auth()->id())" />
                 </div>
 
                 @if ($completed)
@@ -182,16 +221,19 @@
                                            @style([
                                                'background: var(--surface-sunken)' => $row['id'] === $lesson->id,
                                            ])>
-                                            <span aria-hidden="true">{{ $row['icon'] }}</span>
+                                            <x-icon :name="$row['icon']" size="15" style="color: var(--text-muted)" />
                                             <span class="flex-1 min-w-0 truncate">{{ $row['title'] }}</span>
+                                            @if ($row['bookmarked'])
+                                                <x-icon name="badge" size="14" :label="setting('learning.bookmark.saved_label', 'محفوظ')" style="color: var(--color-state-honor)" />
+                                            @endif
                                             @if ($row['completed'])
-                                                <span aria-label="{{ setting('learning.lesson.done_badge') }}">{{ setting('learning.icon.done') }}</span>
+                                                <x-icon name="check" size="15" :label="setting('learning.lesson.done_badge')" style="color: var(--color-state-ok)" />
                                             @endif
                                         </a>
                                     @else
                                         <span class="flex items-center gap-2 rounded-lg px-2 py-1.5 text-sm"
                                               style="color: var(--text-muted)" title="{{ $row['lock_reason'] }}">
-                                            <span aria-hidden="true">{{ setting('learning.icon.lock') }}</span>
+                                            <x-icon name="lock" size="15" />
                                             <span class="flex-1 min-w-0 truncate">{{ $row['title'] }}</span>
                                         </span>
                                     @endif
@@ -228,7 +270,96 @@
 @endsection
 
 @push('scripts')
+    @if (! $completed)
+        {{-- ⭐ إشعار «أكمل الدرس» لو خرج في النصّ (3.4-43) --}}
+        <div data-lesson-nudge hidden
+             class="fixed z-40 card p-3 text-sm flex items-center gap-2 animate-fadeup"
+             style="inset-inline-start: 1rem; inset-block-end: 5.5rem; max-inline-size: 22rem">
+            <x-icon name="lesson" size="16" style="color: var(--color-brand-400)" />
+            <span class="flex-1">{{ setting('learning.nudge.resume_message', 'لسّه فاضل شويّة في الدرس ده — تحبّ تكمّله؟') }}</span>
+            <button type="button" data-lesson-nudge-close class="opacity-70 hover:opacity-100"
+                    aria-label="{{ setting('celebrations.labels.close', 'تمام') }}">
+                <x-icon name="close" size="14" />
+            </button>
+        </div>
+
+        <script>
+            /*
+             | ⭐ «أكمل الدرس» (3.4-43) — تذكيرٌ لطيف لا تأنيب.
+             |
+             | 🛡️ بلا Dark Patterns (2.9): لا نمنع الخروج، ولا نكتب رسالة مُذنِبة،
+             | ولا نستخدم `beforeunload` الذي يحتجز المستخدم. نغيّر عنوان التاب
+             | وهو غائب، وحين يعود نعرض سطرًا واحدًا قابلًا للإغلاق — والإغلاق
+             | يُحفَظ لهذه الجلسة فلا يتكرّر عليه في الدرس نفسه.
+             */
+            (() => {
+                const nudge = document.querySelector('[data-lesson-nudge]');
+                if (!nudge) return;
+
+                const key = 'lesson-nudge:' + location.pathname;
+                const title = document.title;
+                const prefix = @json(setting('learning.nudge.tab_prefix', '⏸ '));
+                let away = false;
+
+                if (sessionStorage.getItem(key) === 'off') return;
+
+                document.addEventListener('visibilitychange', () => {
+                    if (document.hidden) {
+                        away = true;
+                        document.title = prefix + title;
+                        return;
+                    }
+
+                    document.title = title;
+                    if (away) nudge.hidden = false;
+                });
+
+                nudge.querySelector('[data-lesson-nudge-close]').addEventListener('click', () => {
+                    nudge.hidden = true;
+                    sessionStorage.setItem(key, 'off');
+                });
+            })();
+        </script>
+    @endif
+
     <script>
+        /*
+         | ⭐ تتبّع مشاهدة الفيديو (4.1) — بلا أيّ SDK خارجيّ (2.1).
+         | الصفحة تبلّغ بموضعها كلّ بضع ثوانٍ **وهي ظاهرة فقط**، والخادم يحدّ
+         | القفزة الواحدة ويقرّر متى صارت المشاهدة كافية — فالعميل يعرض ويبلّغ،
+         | والقرار في الخادم حصرًا.
+         */
+        (() => {
+            const box = document.querySelector('[data-watch]');
+            if (!box) return;
+
+            const note = box.querySelector('[data-watch-note]');
+            const every = Math.max(5, parseInt(box.dataset.watchEvery || '15', 10));
+            const duration = parseInt(box.dataset.watchDuration || '0', 10);
+            const token = document.querySelector('meta[name="csrf-token"]')?.content || '';
+            let seconds = 0;
+            let done = false;
+
+            const ping = async () => {
+                if (done || document.hidden) return;
+                seconds += every;
+
+                try {
+                    const res = await fetch(box.dataset.watch, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': token, 'Accept': 'application/json' },
+                        body: JSON.stringify({ position: seconds, duration: duration }),
+                    });
+                    if (!res.ok) return;
+                    const data = await res.json();
+                    if (note) note.textContent = data.watched ? 'اتحسبت المشاهدة ✓' : 'المشاهدة: ' + data.percent + '%';
+                    if (data.watched) done = true;
+                } catch (e) { /* الشبكة اتقطعت — التقرير التالي يكمّل من مكانه */ }
+            };
+
+            setInterval(ping, every * 1000);
+        })();
+
         /* شريط تقدّم القراءة داخل الدرس — ويعرض 100% دائمًا عند بلوغ النهاية (2.17-أ) */
         (() => {
             const bar = document.querySelector('.sticky-bar [role="progressbar"] > div');

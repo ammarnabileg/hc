@@ -30,11 +30,11 @@
 
     {{-- أربعة كروت KPI بحدّ أقصى (2.15-أ-3) --}}
     <section class="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <x-kpi label="متطوّعون نشطون" :value="$kpis['active']" icon="🤝" />
-        <x-kpi label="شواغر" :value="$kpis['vacancies']" icon="🪑" />
-        <x-kpi label="تجاوزات نطاق الإشراف" :value="$kpis['overflows']" icon="⚠️"
+        <x-kpi label="متطوّعون نشطون" :value="$kpis['active']" icon="contribution" />
+        <x-kpi label="شواغر" :value="$kpis['vacancies']" icon="placement" />
+        <x-kpi label="تجاوزات نطاق الإشراف" :value="$kpis['overflows']" icon="warning"
                hint="مؤشّر لا مانع — السعة لا تُوقِف تسكينًا ولا ترقية." />
-        <x-kpi label="خروج آخر {{ $days }} يومًا" :value="$kpis['exits']" icon="🚪" />
+        <x-kpi label="خروج آخر {{ $days }} يومًا" :value="$kpis['exits']" icon="exit" />
     </section>
 
     <div class="grid lg:grid-cols-3 gap-4 mt-4">
@@ -149,6 +149,11 @@
             'resetAction' => route('admin.volunteer.reset', 'volunteer_page'),
         ])
     @endcan
+
+    {{-- 🔒 العنصر الشرفيّ «أخوكم» — لمالك المنصّة وحده، ولا يراه غيره أصلًا (13.4-ص-د · 2.15-أ-7) --}}
+    @owner
+        @include('admin.volunteer.partials.honorary-card')
+    @endowner
 @endsection
 
 @section('mobile_action')

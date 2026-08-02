@@ -38,8 +38,13 @@
             @endforeach
         </div>
 
+        {{-- حدّ الهدوء كما يُطبَّق فعلًا في الخادم (12.6-ب) — لا وعدًا على الشاشة --}}
         <p class="text-xs mt-3" style="color: var(--text-muted)">
-            حدّ الهدوء: {{ $rateLimit }} إشعارات للمستخدم في اليوم — والزيادة تتأجّل أو تتجمّع بدل ما تنهال عليه.
+            حدّ الهدوء: {{ $rateLimit }} إشعارات للمستخدم في اليوم — والزيادة تتجمّع في إشعار واحد بدل ما تنهال عليه.
+            @if (! empty($quietLimit['exempt']))
+                <br>مستثناة من الحدّ (بتوصل دايمًا): {{ implode(' · ', array_map(fn ($k) => $types[$k] ?? $k, $quietLimit['exempt'])) }}.
+            @endif
+            <br>اتجمّع اليوم بسبب الحدّ: {{ (int) ($quietLimit['deferred_today'] ?? 0) }} إشعارًا.
         </p>
     </div>
 
@@ -47,11 +52,11 @@
     <div class="card p-4 mt-4">
         <h2 class="font-bold mb-2">التجميع الحاليّ</h2>
         @if ($grouping->isEmpty())
-            <p class="text-sm" style="color: var(--text-muted)">مفيش إشعارات متشابهة في نافذة التجميع دلوقتي.</p>
+            <p class="text-sm" style="color: var(--text-muted)">مفيش إشعارات اتجمّعت مؤخّرًا.</p>
         @else
             <ul class="text-sm space-y-1">
                 @foreach ($grouping as $group)
-                    <li>{{ $types[$group->category] ?? $group->category }}: {{ $group->total }} هيتجمّعوا في إشعار واحد</li>
+                    <li>{{ $types[$group->category] ?? $group->category }}: {{ (int) $group->total }} إشعارًا اتجمّعوا في {{ (int) $group->rows }} إشعار</li>
                 @endforeach
             </ul>
         @endif

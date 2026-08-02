@@ -23,7 +23,7 @@ use Illuminate\Support\Facades\Route;
 |    بحارسٍ إضافيّ داخل الكنترولر — لأنّ إخفاء الزرّ وحده ليس منعًا.
 */
 
-Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth', 'admin.panel'])->prefix('admin')->name('admin.')->group(function () {
 
     // ============================================ 1) بنك الأسئلة والامتحانات (24.1-3)
     Route::middleware('permission:question_bank.list,question_bank.view')->group(function () {

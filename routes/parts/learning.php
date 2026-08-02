@@ -30,7 +30,15 @@ Route::middleware(['auth', 'permission:enrollments.view'])
         Route::post('/courses/{course:slug}/report', [CourseController::class, 'report'])->name('course.report');
 
         Route::get('/courses/{course:slug}/lessons/{lesson}', [LessonController::class, 'show'])->name('lesson');
+        /*
+        | ⭐ تتبّع مشاهدة الفيديو (4.1): «إنهاء الدرس» = مشاهدة + اجتياز اختبار.
+        | المتصفّح يبلّغ بموضعه، والخادم وحده يقرّر متى صارت المشاهدة كافية.
+        */
+        Route::post('/courses/{course:slug}/lessons/{lesson}/watch', [LessonController::class, 'watch'])->name('lesson.watch');
         Route::post('/courses/{course:slug}/lessons/{lesson}/complete', [LessonController::class, 'complete'])->name('lesson.complete');
+
+        // حفظ درس (Bookmark — 3.4-34): حالة تُبدَّل في الخادم لا في المتصفّح
+        Route::post('/courses/{course:slug}/lessons/{lesson}/bookmark', [LessonController::class, 'bookmark'])->name('lesson.bookmark');
 
         /*
         | اختبار الدرس (4.1): ترتيب عشوائيّ ⟵ معاينة ⟵ تسليم ⟵ الصحّ والغلط ⟵ إعادة بعد انتظار.

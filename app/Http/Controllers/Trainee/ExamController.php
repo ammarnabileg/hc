@@ -458,13 +458,19 @@ class ExamController extends Controller
         return $key ? [$key] : [];
     }
 
+    /**
+     * ⭐ التأهيليّ **مسارٌ لا كورس** — حسمًا لتعارض 13.4-ب مع 13.4-ق:
+     * 13.4-ب هو **نصّ التعريف الحاكم** («مسار واحد شامل كورسات» و«الشهادة على
+     * المسار فقط · لا شهادات لكورساته»)، و13.4-ق يصف الشهادة نفسها لا آليّة
+     * ربطها. وآليّة 13.4-ق تبقى كما هي بحرفها: التأهيليّة وحدها تصير «منتهية».
+     */
     private function isQualifyingExam(Exam $exam): bool
     {
-        $qualifyingId = (int) setting('volunteer.qualifying.course_id', 0);
+        $qualifyingPathId = (int) setting('volunteer.qualifying.path_id', 0);
 
-        return $qualifyingId > 0
-            && $exam->examable_type === 'App\Models\Course'
-            && (int) $exam->examable_id === $qualifyingId;
+        return $qualifyingPathId > 0
+            && $exam->examable_type === 'App\Models\LearningPath'
+            && (int) $exam->examable_id === $qualifyingPathId;
     }
 
     /** نوع الشهادة التي يفتحها هذا الامتحان — من الإعدادات لا من الكود (2.13) */

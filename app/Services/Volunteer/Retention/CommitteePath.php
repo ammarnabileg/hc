@@ -55,6 +55,12 @@ class CommitteePath
      * مجموع Rep المكتسَب خلال النافذة — من **سجلّ المعاملات** لا من الرقم المسقوف،
      * فالتصفير الشهريّ لا يمحو السجلّ.
      *
+     * ⭐ ولماذا `amount` لا `applied_amount`؟ لأنّ `applied_amount` هو ما نزل على
+     * **الرقم الظاهر** بعد قصّ حدّ الخسارة اليوميّ (13.4-ن-و)، وقراءته هنا تُعيد
+     * عين الثغرة التي كُتبت هذه العتبة لسدّها: ثلاث مخالفات −6 في يومٍ واحد
+     * تُقاس −2 فلا تبلغ −15 أبدًا. و13.4-ن-و ينصّ أنّ الفائض «يُسجَّل كاملًا…
+     * وفي **المكتسَب التراكميّ (المستعمَل في الترقية)**» — و`amount` هو الكامل.
+     *
      * @param  array<int,int>  $userIds
      * @return array<int,float>
      */
@@ -72,7 +78,7 @@ class CommitteePath
             ->whereIn('user_id', $userIds)
             ->where('currency_id', $currencyId)
             ->where('created_at', '>=', now()->subDays($this->windowDays()))
-            ->selectRaw('user_id, COALESCE(SUM(COALESCE(applied_amount, amount)), 0) AS total')
+            ->selectRaw('user_id, COALESCE(SUM(amount), 0) AS total')
             ->groupBy('user_id')
             ->pluck('total', 'user_id');
 

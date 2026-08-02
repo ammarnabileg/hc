@@ -20,7 +20,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
 /**
- * الشراء بالكوينز — **كلّه داخل معاملة قاعدة بيانات واحدة**:
+ * الشراء **بعملة تسعير العنصر** (Coins أو Tickets أو XP — 17) — **كلّه داخل معاملة قاعدة بيانات واحدة**:
  * خصم الرصيد + `orders` + `order_items` + `transactions` + `library_entitlements`
  * + `enrollments` للتدريبات والمسارات. فإمّا أن يتمّ كلّه أو لا شيء.
  *
@@ -172,9 +172,10 @@ class PurchaseService
 
     // ------------------------------------------------------------ خطوات المعاملة
 
-    private function lockedWallet(User $user): WalletBalance
+    /** ⭐ القفل على **محفظة عملة الطلب** — فمنتجٌ بالتذاكر يُخصَم من التذاكر (17) */
+    private function lockedWallet(User $user, ?string $currencyCode = null): WalletBalance
     {
-        $currency = $this->catalog->coinsCurrency();
+        $currency = $this->catalog->currency($currencyCode ?: Coins::defaultCode());
 
         if (! $currency) {
             throw PurchaseException::of('unavailable', 'store.unavailable_text', 'العنصر ده مش متاح للشراء دلوقتي.');
@@ -201,7 +202,8 @@ class PurchaseService
             'subtotal' => $quote['subtotal'],
             'discount' => $quote['discount'],
             'total' => $quote['total'],
-            'currency_id' => $this->catalog->coinsCurrency()->id,
+            // عملة الطلب هي عملة تسعيره — لا الكوينز دائمًا (17)
+            'currency_id' => $this->catalog->currency($quote['currency'])->id,
             'coupon_id' => $quote['coupon']['valid'] ? $quote['coupon']['id'] : null,
             'status' => 'pending',
             // إقرار سياسة عدم الاسترجاع محفوظ مع الطلب (19.4)
@@ -254,6 +256,7 @@ class PurchaseService
                 'order_number' => $order->number,
                 'subtotal' => $quote['subtotal'],
                 'discount' => $quote['discount'],
+                'currency' => $quote['currency'],
                 'coupon' => $quote['coupon']['valid'] ? $quote['coupon']['code'] : null,
             ],
         ]);

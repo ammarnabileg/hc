@@ -11,8 +11,9 @@
     $pinned = collect($u->pinned_pages ?? []);
 @endphp
 
-<aside x-data="{ open: false }"
-       class="w-64 shrink-0 hidden md:block"
+{{-- لوحة منزلقة على الموبايل وعمود ثابت على الديسكتوب (13 · 2.15-ج) --}}
+<aside data-sidebar data-open="false"
+       class="w-64 shrink-0"
        style="border-inline-start: 1px solid var(--border)">
     <div class="sticky top-0 h-screen overflow-y-auto p-4 space-y-4">
 
@@ -28,12 +29,18 @@
             </div>
         </a>
 
-        {{-- بحث سريع ⟵ صفحة البحث الكبيرة (13.1) --}}
-        <form action="{{ \Illuminate\Support\Facades\Route::has('search') ? route('search') : '#' }}" method="get" class="relative">
+        {{-- بحث سريع: **شريط + زرّ «إبحث»** ⟵ صفحة البحث الكبيرة (13-ب · 13.1) --}}
+        <form action="{{ \Illuminate\Support\Facades\Route::has('search') ? route('search') : '#' }}" method="get"
+              class="flex items-stretch gap-2">
             <input type="search" name="q" placeholder="ابحث…" aria-label="بحث سريع"
-                   class="w-full rounded-xl px-3 py-2 text-sm"
+                   class="flex-1 min-w-0 rounded-xl px-3 py-2 text-sm"
                    style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
+            <button type="submit"
+                    class="shrink-0 rounded-xl px-3 text-sm font-semibold motion-standard"
+                    style="min-width: 44px; min-height: 44px; background: var(--color-brand-500); color: #04201c">إبحث</button>
         </form>
+
+        @include('partials.sidebar-referral')
 
         {{--
           📌 الصفحات المثبَّتة (2.15-د) — **بديل معتمَد عن «آخر ما زرت» المرفوض**.
@@ -59,8 +66,13 @@
 
         <nav class="space-y-1">
             <x-nav-link route="dashboard" label="الرئيسيّة" icon="🏠" />
+            {{--
+              ⭐ العدّاد يعدّ **المنشورات غير المقروءة نفسها** (13.2) لا إشعاراتها:
+              الإشعار لا يُنشَأ إلّا لمنشورٍ اختار له الأدمن `push_to_notifications`،
+              فكان الفيد فيه ستّة منشورات غير مقروءة والعدّاد صفر.
+            --}}
             <x-nav-link route="announcements.index" label="التعليمات" icon="📢"
-                        :badge="$u->notificationsFeed()->whereNull('read_at')->where('category','announcement')->count()" />
+                        :badge="app(\App\Services\Notifications\AnnouncementFeed::class)->unreadCount($u)" />
 
             {{-- ⭐ للمتطوّع: لوحة التطوّع هنا مباشرةً بعد التعليمات --}}
             @volunteer
@@ -133,13 +145,13 @@
                 ['label' => 'الخصوصيّة والأمان', 'route' => 'settings.privacy'],
             ]" />
 
-            {{-- لوحة الإدارة — آخر عنصر دائمًا، ولمن له أيّ صلاحيّة فقط --}}
-            @can('admin_panel.view')
+            {{-- لوحة الإدارة — آخر عنصر دائمًا، ولمن له أيّ صلاحيّة إداريّة (12.2.1-أ) --}}
+            @adminpanel
                 <x-nav-link route="admin.dashboard" label="لوحة الإدارة" icon="🛠️" />
-            @endcan
+            @endadminpanel
         </nav>
     </div>
 </aside>
 
-{{-- الموبايل: Drawer يُفتَح من الهيدر ويُغلَق بالسحب (2.15-ج) --}}
-<div id="mobile-drawer" class="md:hidden"></div>
+{{-- الموبايل: اللوحة المنزلقة تُفتَح من زرّ الهيدر (13 · 2.15-ج) --}}
+@include('partials.sidebar-drawer')

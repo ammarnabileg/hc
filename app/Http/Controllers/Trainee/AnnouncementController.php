@@ -109,12 +109,23 @@ class AnnouncementController extends Controller
         abort_unless((bool) $announcement->requires_acknowledge, 422, 'هذا المنشور لا يحتاج إقرارًا.');
 
         $xp = $acknowledger->acknowledge($announcement, $user);
+        $tickets = $acknowledger->lastTickets();
 
-        $message = $xp > 0
-            ? 'شكرًا ليك — كسبت '.$xp.' XP على إقرارك ✓'
+        // المكسب يُقال كما وقع: XP وتذاكر معًا لو الاثنان ممنوحان (12.6-أ · 2.17)
+        $gains = array_filter([
+            $xp > 0 ? $xp.' XP' : null,
+            $tickets > 0 ? $tickets.' تذكرة' : null,
+        ]);
+
+        $message = $gains !== []
+            ? 'شكرًا ليك — كسبت '.implode(' و', $gains).' على إقرارك ✓'
             : 'تمّ الإقرار ✓';
 
-        return $this->respond($request, ['xp' => $xp, 'unread' => $this->feed->unreadCount($user)], $message);
+        return $this->respond(
+            $request,
+            ['xp' => $xp, 'tickets' => $tickets, 'unread' => $this->feed->unreadCount($user)],
+            $message,
+        );
     }
 
     /**

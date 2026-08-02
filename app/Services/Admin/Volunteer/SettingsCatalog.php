@@ -18,6 +18,7 @@ class SettingsCatalog
     {
         return array_merge(
             self::volunteerPage(),
+            self::honorary(),
             self::org(),
             self::rep(),
             self::offboarding(),
@@ -62,6 +63,40 @@ class SettingsCatalog
             // كتل المحتوى: تُضاف وتُعدَّل وتُحذَف كلّها من هنا (13.4-أ)
             'volunteer_page.blocks' => ['volunteer_page', 'كتل المحتوى (سؤال شائع · قصّة · أثر)', 'json', '[]'],
             'volunteer_page.empty_message' => ['volunteer_page', 'رسالة الحالة الفارغة', 'string', 'لسّه محتوى الصفحة فاضي — ابدأ بأوّل كتلة.'],
+
+            // عناوين السكاشن وأسطر الأثر — تُقرَأ في الصفحة الحيّة نفسها (13.4-أ)
+            'volunteer_page.stats_volunteers_label' => ['volunteer_page', 'وصف عدّاد المتطوّعين', 'string', 'متطوّع معنا'],
+            'volunteer_page.stats_trainees_label' => ['volunteer_page', 'وصف عدّاد المستفيدين', 'string', 'متدرّب مستفيد'],
+            'volunteer_page.impact_line' => ['volunteer_page', 'سطر إبراز الأثر', 'string', 'بتطوّعك هتساعد :count متدرّب على إكمال رحلته.'],
+            'volunteer_page.faq_title' => ['volunteer_page', 'عنوان الأسئلة الشائعة', 'string', 'أسئلة بتتسأل كتير'],
+            'volunteer_page.stories_title' => ['volunteer_page', 'عنوان قصص المتطوّعين', 'string', 'حكايات من الفريق'],
+            'volunteer_page.charter_title' => ['volunteer_page', 'عنوان الميثاق', 'string', 'ميثاق المتطوّع'],
+            'volunteer_page.charter_agree_label' => ['volunteer_page', 'زرّ الموافقة على الميثاق', 'string', 'قرأت الميثاق وموافق عليه'],
+            'volunteer_page.charter_required_message' => ['volunteer_page', 'رسالة الميثاق قبل البدء', 'string', 'اقرأ ميثاق المتطوّع ووافق عليه الأوّل — بعدها يفتح لك المسار التأهيليّ.'],
+            'volunteer_page.charter_done_message' => ['volunteer_page', 'رسالة بعد الموافقة', 'string', 'اتسجّل ✓ — المسار التأهيليّ بقى مفتوح ليك.'],
+        ];
+    }
+
+    // ---------------------------------------------------------------- العنصر الشرفيّ (13.4-ص-د)
+
+    /**
+     * خمسة إعدادات لا اثنان: **تفعيل · اختيار الحساب · الوصف بنسختيه (ع/إ) ·
+     * أماكن الظهور · شكل الإطار** — و**التعديل لمالك المنصّة وحده 🔒 مع Audit**
+     * (13.4-ص-د)، ولذلك مجموعتها مستقلّة تُخفى كلّها عمّن ليس مالكًا (2.15-أ-7).
+     */
+    private static function honorary(): array
+    {
+        return [
+            'volunteer.honorary.enabled' => ['volunteer_honorary', 'إظهار العنصر الشرفيّ «أخوكم»', 'bool', '1'],
+            // 0 = حساب مالك المنصّة (الافتراضيّ المنصوص عليه)
+            'volunteer.honorary.user_id' => ['volunteer_honorary', 'الحساب المرتبط (0 = مالك المنصّة)', 'number', '0'],
+            'volunteer.honorary.label_ar' => ['volunteer_honorary', 'الوصف — عربيّ', 'string', 'أخوكم'],
+            'volunteer.honorary.label_en' => ['volunteer_honorary', 'الوصف — إنجليزيّ', 'string', 'Your brother'],
+            'volunteer.honorary.places' => ['volunteer_honorary', 'أماكن الظهور (كانفاس · أعضاء · الصفحة التعريفيّة)', 'json', '{"canvas":true,"members":true,"landing":false}'],
+            'volunteer.honorary.frame_style' => ['volunteer_honorary', 'شكل الإطار (soft · gold · dashed · none)', 'string', 'soft'],
+            'volunteer.honorary.note' => ['volunteer_honorary', 'سطر التوضيح تحت الاسم', 'string', 'عنصر شرفيّ — بلا مؤشّرات ولا يدخل أيّ عدّاد'],
+            // مُعلَن لا ليُعدَّل: لا بطاقة ولا شهادة ولا عدّاد ولا أوفبوردنج (13.4-ص-ج)
+            'volunteer.honorary.excluded_from_counters_locked' => ['volunteer_honorary', 'خارج كلّ العدّادات والشهادات والبطاقة — مقفول', 'bool', '1'],
         ];
     }
 

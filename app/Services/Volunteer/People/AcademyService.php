@@ -7,6 +7,8 @@ use App\Models\CourseCompletion;
 use App\Models\LearningPath;
 use App\Models\Membership;
 use App\Models\User;
+use App\Models\VolunteerPathAward;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
@@ -143,10 +145,40 @@ class AcademyService
             : (string) setting('academy.complete.pure_message', 'أتممت المسار 🎉');
     }
 
-    /** مكافأة إكمال المسار الأكاديميّ — قيمتها من جدول Rep لا من الكود (13.4-ن) */
-    public function rewardCompletion(User $user, LearningPath $path): void
+    /**
+     * ⭐ مكافأة إكمال المسار الأكاديميّ (+Rep — 13.4-ل · 13.4-ن-ج) — قيمتها من
+     * **جدول Rep** لا من الكود.
+     *
+     * كانت هذه الدالّة **بلا مستدعٍ**، فالقيمة المنصوصة لا تُمنَح أبدًا؛ وكانت
+     * **بلا أيّ حماية من التكرار**، فأوّل استدعاءٍ لها كان سيفتح باب الفارمينج
+     * (يُكمِل ⟵ يُلغي ⟵ يُكمِل). فمن اليوم: **مرّة واحدة لكلّ (مستخدم، مسار)**
+     * والقيد الفريد في `volunteer_path_awards` هو الحارس الأخير لا شرط `if`.
+     *
+     * @return bool هل مُنِحت الآن؟ (false = مُنِحت قبلها أو المسار غير مكتمل)
+     */
+    public function rewardCompletion(User $user, LearningPath $path): bool
     {
-        $this->bridge->credit($user, 'rep', rep_rule('academy.path_complete', 1.0), 'academy.path_complete', $path);
+        if (! $this->progress($user, $path)['complete']) {
+            return false;
+        }
+
+        $amount = rep_rule('academy.path_complete', 1.0);
+
+        try {
+            VolunteerPathAward::create([
+                'user_id' => $user->id,
+                'learning_path_id' => $path->id,
+                'kind' => VolunteerPathAward::ACADEMY_REP,
+                'amount' => $amount,
+                'awarded_at' => now(),
+            ]);
+        } catch (UniqueConstraintViolationException) {
+            return false;
+        }
+
+        $this->bridge->credit($user, 'rep', $amount, 'academy.path_complete', $path);
         $this->bridge->celebrate($user, 'course.completed', $path);
+
+        return true;
     }
 }

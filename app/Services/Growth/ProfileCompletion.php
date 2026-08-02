@@ -61,6 +61,21 @@ class ProfileCompletion
         return $missing;
     }
 
+    /**
+     * ⭐ **تقدّم مُهدى (Endowed Progress — 2.9-2)**: المؤشّر يبدأ من نقطة
+     * **مُنجَزة** لا من صفر.
+     *
+     * لماذا؟ لأنّ الصفر يقول للمستخدم «لسّه مبدأتش»، بينما هو **بدأ فعلًا**:
+     * سجّل واختار اسمه وفعّل حسابه. والبداية المُهداة تجعل الشريط يبدو
+     * «شبه مبدوء» فيرتفع احتمال إكماله — وهي ليست تجميلًا كاذبًا (2.9 تمنع
+     * الأرقام الوهميّة): الرصيد المُهدى **معلَن ومضبوط من الإعدادات**،
+     * و**100% لا تُبلَغ إلّا بامتلاء كلّ الحقول فعلًا** فلا تُمنَح مكافأة بلا عمل.
+     */
+    public function endowedPercent(): int
+    {
+        return max(0, min(90, (int) setting('growth.profile_completion.endowed_percent', 20)));
+    }
+
     public function percent(User $user): int
     {
         $fields = $this->fields();
@@ -72,7 +87,13 @@ class ProfileCompletion
 
         $filled = $total - count($this->missing($user));
 
-        return (int) round($filled / $total * 100);
+        if ($filled >= $total) {
+            return 100;
+        }
+
+        $base = $this->endowedPercent();
+
+        return (int) round($base + ($filled / $total) * (100 - $base));
     }
 
     public function rewardTickets(): int

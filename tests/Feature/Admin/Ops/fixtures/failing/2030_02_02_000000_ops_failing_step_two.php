@@ -12,6 +12,12 @@ return new class extends Migration
 {
     public function up(): void
     {
+        // في المعاينة (Dry-run) لا شيء يُنفَّذ فعلًا — فلا نفشل فيها كما لا تفشل
+        // هجرةٌ حقيقيّة تسقط على قيدٍ لم يُنفَّذ أصلًا.
+        if (DB::connection()->pretending()) {
+            return;
+        }
+
         DB::table('app_version_history')->delete();
 
         throw new RuntimeException('هجرة تجريبيّة بتفشل عمدًا في نصّ الترحيل.');

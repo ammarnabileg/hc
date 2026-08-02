@@ -179,6 +179,96 @@ class CertificateEligibility
         return ['issued' => true, 'reason' => null, 'certificate' => $certificate];
     }
 
+    /**
+     * ⭐ **شهادة خبرة التطوّع عند الخروج المشرَّف** (13.4-س-ط · 13.4-ع-أ-2):
+     * تجمع **كلّ البوزشنات والمدّة في ورقة واحدة**، وتُصدَر في **الاستقالة
+     * وانتهاء الملفّ فقط لا في الإقصاء**.
+     *
+     * كان `honorable_certificate_issued = 1` يُكتَب على ملفّ الخروج بينما عدد
+     * شهادات `volunteer_experience` **صفر** — علَمٌ يقول «صدرت» وسجلٌّ خالٍ.
+     *
+     * والمدّة **تراكميّة** عبر فترات الخدمة كلّها (13.4-ع-هـ): 8 شهور + 5 = 13.
+     *
+     * @return array{issued:bool,reason:?string,certificate:?Certificate}
+     */
+    public static function issueExperience(User $user, ?User $actor = null): array
+    {
+        $flags = setting('volunteer_cert.types', []);
+
+        if (is_array($flags) && array_key_exists('volunteer_experience', $flags) && ! $flags['volunteer_experience']) {
+            return ['issued' => false, 'reason' => 'نوع شهادة الخبرة موقوف من الإعدادات.', 'certificate' => null];
+        }
+
+        $type = CertificateType::query()->where('key', 'volunteer_experience')->first();
+
+        if (! $type) {
+            return ['issued' => false, 'reason' => 'نوع شهادة الخبرة غير مُعرَّف.', 'certificate' => null];
+        }
+
+        $memberships = Membership::query()
+            ->with(['position', 'entity'])
+            ->where('user_id', $user->id)
+            ->orderBy('started_at')
+            ->get();
+
+        if ($memberships->isEmpty()) {
+            return ['issued' => false, 'reason' => 'لا عضويّات في سجلّه — لا مدّة خدمة تُشهَد.', 'certificate' => null];
+        }
+
+        // شهادة خبرة واحدة سارية لكلّ متطوّع — والعودة تُجدّدها بمدّة تراكميّة
+        Certificate::query()
+            ->where('user_id', $user->id)
+            ->where('certificate_type_id', $type->id)
+            ->where('status', 'valid')
+            ->update(['status' => 'expired', 'expired_at' => now()]);
+
+        $days = 0;
+        $positions = [];
+
+        foreach ($memberships as $membership) {
+            $start = $membership->started_at ?? $membership->created_at;
+            $end = $membership->ended_at ?? now();
+            $days += $start ? (int) $start->diffInDays($end) : 0;
+
+            $positions[] = [
+                'position' => $membership->position?->name_ar,
+                'entity' => $membership->entity?->name_ar,
+                'from' => $start?->toDateString(),
+                'to' => $end?->toDateString(),
+            ];
+        }
+
+        // ⛔ بلا أيّ أرقام داخليّة على الشهادة — لا Rep ولا VXP (13.4-ع-ب)
+        $snapshot = [
+            'positions' => $positions,
+            'from' => $positions[0]['from'] ?? null,
+            'to' => $positions[count($positions) - 1]['to'] ?? null,
+            'total_days' => $days,
+            'total_months' => (int) round($days / 30),
+        ];
+
+        $last = $memberships->last();
+
+        $certificate = self::issueViaIssuer($last, $type, $snapshot, $actor)
+            ?? self::issueDirectly($last, $type, $snapshot, $actor);
+
+        if ((bool) setting('volunteer_cert.notify_on_issue', true)) {
+            Integrations::notify(
+                $user, 'certificate',
+                (string) setting('volunteer_cert.experience.notify_title', 'شهادة خبرة التطوّع بتاعتك صدرت 🎖️'),
+                (string) setting('volunteer_cert.experience.notify_body', 'شكرًا على كلّ اللي قدّمته — الشهادة في مكتبتك وبتفضل سارية للأبد.'),
+                null, 'volunteer',
+            );
+        }
+
+        AuditTrail::log($actor, 'volunteer_certificate.experience_issued', $certificate, [], [
+            'user_id' => $user->id,
+            'total_days' => $days,
+        ]);
+
+        return ['issued' => true, 'reason' => null, 'certificate' => $certificate];
+    }
+
     private const ISSUER = 'App\Services\Certificates\CertificateIssuer';
 
     /** التمرير لمُصدِر الشهادات القائم إن وُجد — بلا نظام موازٍ (13.4-ع) */

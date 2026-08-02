@@ -8,7 +8,7 @@
 
 @section('content')
     <x-page-header
-        title="🔒 أسعار الصرف والرسوم"
+        title="أسعار الصرف والرسوم"
         subtitle="مصدر الحقيقة الوحيد لكلّ رقم ماليّ في المحفظة — لمالك المنصّة وحده."
         :breadcrumbs="[['label' => 'المحفظة', 'url' => route('wallet.index')], ['label' => 'أسعار الصرف']]" />
 
@@ -19,7 +19,7 @@
     {{-- الأسعار المعتمَدة الآن — سطر واحد يقول كلّ شيء قبل أيّ تعديل --}}
     <section class="grid grid-cols-1 md:grid-cols-3 gap-3">
         @foreach ($rates as $rate)
-            <x-kpi :label="$rate['label']" :value="$rate['value']" icon="💱" />
+            <x-kpi :label="$rate['label']" :value="$rate['value']" icon="transaction" />
         @endforeach
     </section>
 

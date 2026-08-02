@@ -5,22 +5,31 @@ namespace App\Services\Events;
 use App\Models\Certificate;
 use App\Models\CertificateType;
 use App\Models\EventRegistration;
-use Illuminate\Support\Str;
-use Throwable;
+use App\Services\Admin\Content\ContentAudit;
+use App\Services\Certificates\CertificateIssuer;
+use App\Services\Notifications\Notifier;
+use Illuminate\Support\Facades\Route;
 
 /**
- * جسر الشهادات (8 · 12.5).
+ * جسر شهادة الفعاليّة (8 · 12.5 · 13.3).
  *
- * السبب: شهادة حضور الفعاليّة **نوع شهادة يُضبَط في إدارة الشهادات لا في فورم الفعاليّة** (13.3)،
- * فإن وُجد مجال الشهادات فهو من يُصدر، وإلّا نسجّل الاستحقاق كسجلّ شهادة بلا أكثر.
+ * ⭐ **لا إصدار خارج المحرّك.** شهادة حضور الفعاليّة نوعُ شهادةٍ يُضبَط في «إدارة
+ * الشهادات» (12.5) لا في فورم الفعاليّة، ولذلك يمرّ إصدارها من `CertificateIssuer`
+ * نفسه الذي تمرّ منه كلّ الشهادات — فتأخذ **ترقيمها المتسلسل بلا فجوات** (12.5-ب)
+ * و**لقطة التصميم المجمّدة** (12.5-ج) و**التوقيع بمفتاح التطبيق** (12.5-هـ)
+ * ولحظة الذروة والإشعار والتدقيق.
+ *
+ * وكان هنا مسارٌ احتياطيّ يبتلع أيّ خطأ ويكتب سجلًّا يدويًّا بكودٍ عشوائيّ وهاشٍ
+ * **بلا مفتاح** (`sha256(code|registration_id)`) — أي توقيعٌ يقدر أيّ أحدٍ يعرف
+ * الكود ورقم التسجيل أن يُنتجه بنفسه، وصفحةُ التحقّق تعرضه «ساريًا ومطابقًا».
+ * فحُذِف: الفشل يظهر ولا يُخفى خلف شهادةٍ قابلة للتزوير.
  */
 class CertificateBridge
 {
-    private const ISSUERS = [
-        'App\Services\Certificates\CertificateIssuer',
-        'App\Services\Certificates\IssueCertificate',
-        'App\Services\Certificates\CertificateService',
-    ];
+    public function __construct(
+        private readonly CertificateIssuer $issuer,
+        private readonly ContentAudit $audit,
+    ) {}
 
     /** الشهادة تُفتَح بالحضور المؤكَّد فقط — وتُصدَر مرّة واحدة */
     public function issueForRegistration(EventRegistration $registration): ?Certificate
@@ -32,22 +41,44 @@ class CertificateBridge
         $event = $registration->event;
         $type = $this->type($event?->certificate_type_id);
 
-        if (! $type) {
+        if (! $type || ! $registration->user) {
             return null;
         }
 
-        $certificate = $this->delegate($registration, $type) ?? $this->record($registration, $type);
+        $certificate = $this->issuer->issue(
+            user: $registration->user,
+            typeKey: $type->key,
+            subject: $event,
+            data: [
+                'event_title' => $event?->title_ar,
+                'attended_at' => $registration->attended_at?->toIso8601String(),
+                'ticket_code' => $registration->ticket_code,
+            ],
+            source: 'auto',
+        );
 
-        if ($certificate) {
-            $registration->forceFill(['certificate_id' => $certificate->id])->save();
+        if (! $certificate) {
+            return null;
         }
+
+        $registration->forceFill(['certificate_id' => $certificate->id])->save();
+
+        // لحظة الذروة + الإشعار + التدقيق — كما في أيّ إصدارٍ آخر (12.5-ج · 12.5-د)
+        $this->issuer->claimCelebration($certificate);
+        $this->audit->record($certificate, 'certificate.issued', [], [
+            'type' => $type->key,
+            'code' => $certificate->code,
+            'event_id' => $registration->event_id,
+            'registration_id' => $registration->id,
+        ]);
+        $this->notify($certificate);
 
         return $certificate;
     }
 
     private function type(?int $typeId): ?CertificateType
     {
-        if ($typeId && $type = CertificateType::find($typeId)) {
+        if ($typeId && $type = CertificateType::query()->where('id', $typeId)->where('is_active', true)->first()) {
             return $type;
         }
 
@@ -58,57 +89,20 @@ class CertificateBridge
             ->first();
     }
 
-    private function delegate(EventRegistration $registration, CertificateType $type): ?Certificate
+    private function notify(Certificate $certificate): void
     {
-        foreach (self::ISSUERS as $class) {
-            if (! class_exists($class)) {
-                continue;
-            }
-
-            try {
-                $service = app($class);
-
-                foreach (['issue', 'issueFor', 'handle'] as $method) {
-                    if (method_exists($service, $method)) {
-                        $result = $service->{$method}($registration->user, $type, $registration->event);
-
-                        return $result instanceof Certificate ? $result : null;
-                    }
-                }
-            } catch (Throwable) {
-                // اختلاف توقيع مجال الشهادات لا يمنع تسجيل الاستحقاق أدناه
-                return null;
-            }
+        if (! setting('certificates.issue.notify_user', true)) {
+            return;
         }
 
-        return null;
-    }
-
-    /** تسجيل الاستحقاق: سجلّ شهادة بكود وهاش للتحقّق العامّ (8.1) */
-    private function record(EventRegistration $registration, CertificateType $type): Certificate
-    {
-        $prefix = $type->numbering_prefix ?: (string) setting('events.certificate.code_prefix', 'EVT');
-
-        do {
-            $code = $prefix.'-'.Str::upper(Str::random(8));
-        } while (Certificate::where('code', $code)->exists());
-
-        return Certificate::create([
-            'code' => $code,
-            'hash' => hash('sha256', $code.'|'.$registration->id),
-            'user_id' => $registration->user_id,
-            'certificate_type_id' => $type->id,
-            'subject_type' => $registration->event ? $registration->event::class : null,
-            'subject_id' => $registration->event_id,
-            'language' => 'ar',
-            'source' => 'auto',
-            'issued_at' => now(),
-            'status' => 'valid',
-            'data_snapshot' => [
-                'event_title' => $registration->event?->title_ar,
-                'attended_at' => $registration->attended_at?->toIso8601String(),
-                'ticket_code' => $registration->ticket_code,
-            ],
-        ]);
+        Notifier::send(
+            user: $certificate->user,
+            category: 'certificate',
+            title: (string) setting('certificates.issue.notice_title', 'مبروك — صدرت شهادتك 🎓'),
+            body: (string) ($certificate->data_snapshot['certificate_name'] ?? null),
+            url: Route::has('verify.certificate')
+                ? route('verify.certificate', ['code' => $certificate->code])
+                : null,
+        );
     }
 }

@@ -9,14 +9,17 @@ use App\Models\Membership;
 use App\Models\Offboarding;
 use App\Models\Position;
 use App\Models\Setting;
+use App\Models\User;
 use App\Services\Admin\Volunteer\AuditTrail;
 use App\Services\Admin\Volunteer\CapacityReport;
 use App\Services\Admin\Volunteer\CertificateEligibility;
 use App\Services\Admin\Volunteer\SettingsWriter;
 use App\Services\Admin\Volunteer\VolunteerAnalytics;
+use App\Services\Volunteer\Org\HonoraryElement;
 use App\Support\Scope\ScopeFilter;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\View\View;
 
 /**
@@ -45,8 +48,8 @@ class VolunteerAdminController extends Controller
                 ->limit((int) setting('volunteer.admin.recent_placements', 6))
                 ->get(),
             'alerts' => [
-                'overflows' => CapacityReport::overflows()->count(),
-                'unhealthy' => CapacityReport::unhealthy()->count(),
+                'overflows' => CapacityReport::overflows($request->user())->count(),
+                'unhealthy' => CapacityReport::unhealthy($request->user())->count(),
                 'pendingExits' => Offboarding::query()->whereNull('completed_at')->count(),
                 'pendingCertificates' => CertificateEligibility::pending((int) setting('volunteer_cert.pending_scan_limit', 200), $request->user())->count(),
             ],
@@ -54,7 +57,45 @@ class VolunteerAdminController extends Controller
             'page' => SettingsWriter::groupRows('volunteer_page'),
             'blocks' => self::blocks(),
             'blockTypes' => self::BLOCK_TYPES,
+            // 🔒 العنصر الشرفيّ: مجموعته تُحمَّل لمالك المنصّة وحده — والباقي لا يرى الحقول أصلًا
+            'honorary' => $request->user()->isPlatformOwner() ? SettingsWriter::groupRows('volunteer_honorary') : [],
+            'honoraryPlaces' => HonoraryElement::PLACES,
+            'honoraryFrames' => HonoraryElement::FRAMES,
+            'honoraryAccounts' => $request->user()->isPlatformOwner() ? self::honoraryAccounts() : collect(),
         ]);
+    }
+
+    /**
+     * حفظ إعدادات العنصر الشرفيّ (13.4-ص-د) — **لمالك المنصّة وحده 🔒 مع Audit**.
+     * والحارس هنا في الخادم لا في إخفاء الحقل وحده، فالإخفاء تجربةٌ لا حماية.
+     */
+    public function saveHonorary(Request $request): RedirectResponse
+    {
+        abort_unless($request->user()->isPlatformOwner(), 403);
+
+        $data = $request->validate([
+            'settings' => ['required', 'array'],
+            'settings.volunteer\\.honorary\\.user_id' => ['nullable', 'integer', 'min:0'],
+            'settings.volunteer\\.honorary\\.frame_style' => ['nullable', 'string', 'in:'.implode(',', array_keys(HonoraryElement::FRAMES))],
+        ]);
+
+        $settings = $data['settings'];
+
+        // أماكن الظهور تصل كصناديق اختيار — تُخزَّن JSON بمفاتيح مقفولة لا حرّة
+        if ($request->has('places')) {
+            $places = [];
+
+            foreach (array_keys(HonoraryElement::PLACES) as $place) {
+                $places[$place] = (bool) $request->input('places.'.$place, false);
+            }
+
+            $settings['volunteer.honorary.places'] = $places;
+        }
+
+        SettingsWriter::putMany($settings, $request->user());
+        AuditTrail::log($request->user(), 'honorary.settings.update', null, [], ['keys' => array_keys($settings)]);
+
+        return back()->with('status', 'اتحفظ ✓ — إعدادات العنصر الشرفيّ اتحدّثت.');
     }
 
     /** أنواع كتل صفحة التطوّع التعريفيّة (13.4-أ) */
@@ -213,7 +254,7 @@ class VolunteerAdminController extends Controller
             'attrition' => VolunteerAnalytics::attrition($days),
             'loads' => VolunteerAnalytics::loads(),
             'health' => VolunteerAnalytics::entityHealth(),
-            'capacity' => CapacityReport::rows(),
+            'capacity' => CapacityReport::rows(null, $request->user()),
             'granters' => VolunteerAnalytics::granterWatch($days),
             'settings' => SettingsWriter::groupRows('volunteer_analytics'),
         ]);
@@ -232,12 +273,35 @@ class VolunteerAdminController extends Controller
     {
         $allowed = ['volunteer_page', 'volunteer_cert', 'volunteer_analytics', 'volunteer_org', 'volunteer_rep', 'volunteer_offboarding'];
 
+        // 🔒 مجموعة العنصر الشرفيّ لمالك المنصّة وحده (13.4-ص-د)
+        if ($group === 'volunteer_honorary') {
+            abort_unless($request->user()->isPlatformOwner(), 403);
+            $allowed[] = 'volunteer_honorary';
+        }
+
         abort_unless(in_array($group, $allowed, true), 404);
 
         $count = SettingsWriter::resetGroup($group, $request->user());
         AuditTrail::log($request->user(), 'settings.reset_group', null, [], ['group' => $group, 'count' => $count]);
 
         return back()->with('status', 'رجعت '.$count.' قيمة للافتراضيّ ✓');
+    }
+
+    /**
+     * الحسابات المرشَّحة للعنصر الشرفيّ: مالك المنصّة ومَن يحمل بوزشنًا شرفيًّا —
+     * قائمةٌ قصيرة مقصودة، فالعنصر **واحد** لا قائمة اختيار مفتوحة (13.4-ص).
+     *
+     * @return Collection<int, User>
+     */
+    private static function honoraryAccounts(): Collection
+    {
+        return User::query()
+            ->where(fn ($q) => $q
+                ->whereHas('roles', fn ($r) => $r->where('key', (string) config('access.owner_role')))
+                ->orWhereHas('memberships', fn ($m) => $m->whereHas('position', fn ($p) => $p->where('is_honorary', true))))
+            ->orderBy('name')
+            ->limit((int) setting('volunteer.honorary.accounts_limit', 20))
+            ->get(['id', 'name', 'code']);
     }
 
     /** @return array<int,array{type:string,title:string,body:string}> */

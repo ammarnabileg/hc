@@ -24,7 +24,7 @@
             <input type="hidden" name="helpful" value="yes">
             <button type="submit" class="btn rounded-xl px-4 py-2 text-sm motion-standard"
                     style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
-                👍 أيوه
+                <x-icon name="kudos" size="16" /> أيوه
             </button>
         </form>
 
@@ -33,7 +33,7 @@
             <input type="hidden" name="helpful" value="no">
             <button type="submit" class="btn rounded-xl px-4 py-2 text-sm motion-standard"
                     style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
-                👎 لأ
+                <x-icon name="warning" size="16" /> لأ
             </button>
         </form>
 

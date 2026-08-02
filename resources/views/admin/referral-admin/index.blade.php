@@ -46,13 +46,13 @@
     </x-page-header>
 
     <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
-        <x-kpi label="دعوات المدى" :value="$stats['invites']" icon="✉️" />
-        <x-kpi label="مكتملة" :value="$stats['completed']" icon="✅" />
-        <x-kpi label="مكافآت معلّقة" :value="$stats['pending']" icon="⏳" />
+        <x-kpi label="دعوات المدى" :value="$stats['invites']" icon="envelope" />
+        <x-kpi label="مكتملة" :value="$stats['completed']" icon="check" />
+        <x-kpi label="مكافآت معلّقة" :value="$stats['pending']" icon="hourglass" />
         @if ($canSeeMoney)
-            <x-kpi label="🔒 العمولة المستحقّة" :value="number_format($stats['commission'], 2)" icon="💰" />
+            <x-kpi label="العمولة المستحقّة" :value="number_format($stats['commission'], 2)" icon="money" />
         @else
-            <x-kpi label="سفراء متلقّبون" :value="$stats['ambassadors']" icon="👑" />
+            <x-kpi label="سفراء متلقّبون" :value="$stats['ambassadors']" icon="crown" />
         @endif
     </div>
 
@@ -122,7 +122,7 @@
                             <th class="text-start px-4 py-3 font-semibold">الحالة</th>
                             <th class="text-start px-4 py-3 font-semibold">تذكرة الترحيب</th>
                             @if ($canSeeMoney)
-                                <th class="text-start px-4 py-3 font-semibold">🔒 العمولة</th>
+                                <th class="text-start px-4 py-3 font-semibold"><x-icon name="lock" size="16" /> العمولة</th>
                             @endif
                             <th class="text-start px-4 py-3 font-semibold">⋯</th>
                         </tr>

@@ -46,6 +46,8 @@ class EventDemoSeeder extends Seeder
             ['events.reminder.minutes_before', 'events', 'تذكير التقويم قبل الموعد (دقايق)', 'number', '60'],
             ['events.certificate.default_type_key', 'events', 'مفتاح نوع شهادة الحضور', 'string', 'event'],
             ['events.certificate.code_prefix', 'events', 'بادئة كود شهادة الحضور', 'string', 'EVT'],
+            // العنوان الإنجليزيّ اختياريّ، فالـslug يرتدّ للعربيّ ثمّ لهذه الكلمة (12.11)
+            ['events.slug.fallback', 'events', 'كلمة الـslug الاحتياطيّة', 'string', 'event'],
             ['events.share.text', 'events', 'نصّ مشاركة الفعاليّة', 'text', 'شوف الفعاليّة دي معايا:'],
             ['events.ticket.share_text', 'events', 'نصّ مشاركة التذكرة', 'text', 'هحضر الفعاليّة دي — تعالى معايا:'],
             ['events.og.accent', 'events', 'لون بطاقة المشاركة', 'color', '#00d4b8'],

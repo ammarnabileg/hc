@@ -13,6 +13,8 @@ use Illuminate\Support\Carbon;
  */
 class DeadlineService
 {
+    public function __construct(private readonly XpCalculator $xp) {}
+
     /**
      * @return array{
      *   has_deadline:bool, passed:bool, state:string, icon:string, label:string,
@@ -65,7 +67,13 @@ class DeadlineService
             'seconds_left' => $left,
             'elapsed_percent' => 100 - $leftPercent,
             'left_percent' => $leftPercent,
-            'half_at' => $start->copy()->addSeconds((int) round($total / 2)),
+            /*
+             | ⭐ نصف الديدلاين مصدرٌ واحد: `XpCalculator::halfPoint()` الذي يقرأ
+             | `tickets.midpoint_percent` من لوحة الإدارة (7 · 7.1 · 2.13).
+             | كان يُحسَب هنا بـ`/2` محروقًا، فلو غيّر الأدمن النسبة اختلف ما
+             | يراه المتدرّب على العدّاد عمّا يمنحه النظام من تذاكر.
+             */
+            'half_at' => $this->xp->halfPoint($enrollment),
         ];
     }
 

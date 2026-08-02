@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\CvTemplateAdminController;
 use App\Http\Controllers\Trainee\AttestationController;
 use App\Http\Controllers\Trainee\CvController;
 use App\Http\Controllers\Trainee\LibraryController;
@@ -65,6 +66,24 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/attestations/export', [AttestationController::class, 'export'])
         ->middleware('permission:user_attestation.export')->name('attestations.export');
+});
+
+/*
+| ⭐ شاشة إدارة قوالب الـCV للأدمن (9 · 12.0): الأدمن يضيف قوالب
+| ويحدّد تذاكر كلٍّ منها ويوقف ما لا يريد — بصلاحيّة على كلّ مسار (12.2.1).
+*/
+Route::middleware(['auth', 'admin.panel'])->prefix('admin')->name('admin.')->group(function () {
+    Route::middleware('permission:cv_templates.list')
+        ->get('/cv-templates', [CvTemplateAdminController::class, 'index'])->name('cv-templates.index');
+
+    Route::middleware('permission:cv_templates.create')
+        ->post('/cv-templates', [CvTemplateAdminController::class, 'store'])->name('cv-templates.store');
+
+    Route::middleware('permission:cv_templates.edit')
+        ->put('/cv-templates/{template}', [CvTemplateAdminController::class, 'update'])->name('cv-templates.update');
+
+    Route::middleware('permission:cv_templates.delete')
+        ->delete('/cv-templates/{template}', [CvTemplateAdminController::class, 'destroy'])->name('cv-templates.destroy');
 });
 
 /*

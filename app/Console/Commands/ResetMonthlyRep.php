@@ -9,8 +9,9 @@ use Illuminate\Console\Command;
 /**
  * التصفير الشهريّ لدرجة الالتزام (الدستور 13.4-ن-ز · 23 — 1.8).
  *
- * الموعد **إعداد لا رقم محروق**: يوم `rep.reset.day_of_month`
- * الساعة `rep.reset.hour_cairo` بتوقيت القاهرة — للجميع بغضّ النظر عن معدّلهم.
+ * الموعد **إعداد لا رقم محروق**: يوم `rep.reset.day_of_month` الساعة
+ * `rep.reset.hour` بمنطقة `rep.reset.timezone` — للجميع بغضّ النظر عن معدّلهم.
+ * والجدولة مسحةٌ كلّ ساعة، والقرار هنا وحده، فتغيير الأدمن للموعد يسري فورًا.
  *
  * ⭐ الأثر المحدود بدقّة: **الرقم الظاهر وحده يعود صفرًا**، أمّا **سجلّ المعاملات**
  * و**المكتسَب التراكميّ** فيبقيان كاملَين — لأنّ الترقية تُقاس على التراكميّ لا على المسقوف.
@@ -27,8 +28,15 @@ class ResetMonthlyRep extends Command
 
     public function handle(RepService $rep): int
     {
-        $tz = (string) setting('system.timezone', 'Africa/Cairo');
+        $tz = $rep->resetTimezone();
         $now = CarbonImmutable::now($tz);
+
+        // ⛔ الإيقاف يوقِف فعلًا — و`--force` لا يتخطّى قرار المالك بل موعده وحده
+        if (! $rep->resetEnabled()) {
+            $this->line('التصفير الشهريّ متوقّف من الإعدادات (rep.reset.enabled) — مفيش حاجة اتعملت.');
+
+            return self::SUCCESS;
+        }
 
         if (! $this->option('force') && ! $rep->isResetMoment($now)) {
             $this->line('مش وقت التصفير دلوقتي — الموعد القادم: '.$rep->nextResetAt()->format('Y-m-d H:i').' ('.$tz.').');

@@ -22,6 +22,22 @@
             ['label' => $course->exists ? $course->name_ar : 'جديد'],
         ]" />
 
+    {{-- ⭐ مسوّدة تحرير معلّقة على تدريبٍ حيّ (12.4-ب): الحفظ التلقائيّ لا يمسّ
+         المنشور، فيبقى شغلك محفوظًا هنا حتى تختار «حفظ» فيسري على الناس. --}}
+    @if (! empty($pendingDraft ?? []))
+        <div class="card p-3 mb-4 text-sm" style="background: var(--surface-raised); border-inline-start: 3px solid var(--color-warn-500, #d9a441)">
+            <div class="flex items-center gap-2 flex-wrap">
+                <x-state-badge state="warn" label="مسودّة تحرير" />
+                <span>عندك تعديلات محفوظة تلقائيًّا لسّه ما سرَتش على النسخة المنشورة — راجعها واضغط «حفظ» تنشرها.</span>
+            </div>
+            <ul class="mt-2 space-y-1" style="color: var(--text-muted)">
+                @foreach ($pendingDraft as $field => $value)
+                    <li>{{ $field }}: {{ \Illuminate\Support\Str::limit((string) $value, 80) }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
     {{-- شريط لاصق: الحفظ بزرّين + مؤشّر الحفظ التلقائيّ (24.1) --}}
     <div class="sticky-bar card p-3 mb-4 flex items-center gap-2 flex-wrap" style="background: var(--surface-raised)">
         <span class="text-xs flex-1" style="color: var(--text-muted)" data-autosave-note>
@@ -148,12 +164,25 @@
         {{-- ------------------------------------------------ تاب التقييم --}}
         <section data-form-panel="grading" class="space-y-4 hidden">
             <div class="grid md:grid-cols-3 gap-3">
-                <x-form.input name="max_lesson_xp" label="أقصى XP للدرس" type="number"
-                              :value="$course->max_lesson_xp ?? setting('courses.xp.max_per_lesson', 50)" />
+                {{-- ⭐ «أقصى XP للدرس» = `xp_max` وحده — وهو ما تقرؤه الحاسبة فعلًا (7) --}}
+                <x-form.input name="xp_max" label="أقصى XP للدرس" type="number"
+                              :value="$course->xp_max ?: setting('courses.xp.max_per_lesson', 50)"
+                              hint="نقطة بداية التناقص الخطّيّ — تنزل مع الوقت حتى الصفر عند الديدلاين." />
                 <x-form.input name="exam_pass_score" label="درجة نجاح الامتحان" type="number"
                               :value="$exam->pass_score ?? setting('exams.pass_score.default', 70)" />
                 <x-form.input name="exam_questions_count" label="عدد أسئلة الامتحان" type="number"
                               :value="$exam->questions_count ?? setting('exams.questions.default_count', 20)" />
+            </div>
+
+            {{-- تذاكر الدرس حسب نصف الديدلاين (7 · 7.1) — والفراغ معناه «اتبع الإعداد العامّ» --}}
+            <div class="grid md:grid-cols-2 gap-3">
+                <x-form.input name="tickets_before_half" label="تذاكر الدرس قبل نصف الديدلاين" type="number"
+                              :value="$course->tickets_before_half"
+                              :placeholder="'الإعداد العامّ: '.setting('tickets.before_half_deadline', 2)"
+                              hint="سيبه فاضي عشان يتبع الإعداد العامّ، وحطّ صفرًا لو التدريب ده بلا تذاكر." />
+                <x-form.input name="tickets_after_half" label="تذاكر الدرس بعد نصف الديدلاين" type="number"
+                              :value="$course->tickets_after_half"
+                              :placeholder="'الإعداد العامّ: '.setting('tickets.after_half_deadline', 1)" />
             </div>
 
             <label class="flex items-center gap-2 text-sm">
@@ -194,7 +223,7 @@
                             <ul class="mt-3 space-y-2">
                                 @foreach ($section->lessons as $lesson)
                                     <li class="flex items-center gap-2 text-sm">
-                                        <span aria-hidden="true">{{ $lesson->type === 'video' ? '▶' : '📄' }}</span>
+                                        <span aria-hidden="true"><x-icon :name="$lesson->type === 'video' ? 'video' : 'document'" size="16" /></span>
                                         <a href="{{ route('admin.lessons.show', $lesson) }}" class="flex-1 underline">{{ $lesson->title_ar }}</a>
                                         @if ($lesson->questions_general > 0)
                                             <x-state-badge state="honor" :label="$lesson->questions_general.' عامّ'" />

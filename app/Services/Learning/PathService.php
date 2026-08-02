@@ -77,12 +77,6 @@ class PathService
         ];
     }
 
-    /** سعر امتحان شهادة المسار بالكوينز — من الإعدادات لا من الكود (2.13). */
-    public function examPriceCoins(): int
-    {
-        return (int) setting('learning.path.exam_price_coins', 0);
-    }
-
     /**
      * ⭐ مدّة كلّ تدريب بالدقائق (3.3 — «إجماليّ مدّة المسار» = مجموعها).
      * استعلامٌ واحد للمسار كلّه بدل استعلامٍ لكلّ كارت.
@@ -104,8 +98,12 @@ class PathService
             ->join('sections', 'sections.id', '=', 'lessons.section_id')
             ->whereIn('sections.course_id', $ids)
             ->groupBy('sections.course_id')
-            ->pluck(DB::raw('SUM(COALESCE(NULLIF(lessons.duration_minutes, 0), '.$fallback.'))'), 'sections.course_id')
-            ->mapWithKeys(fn ($minutes, $courseId) => [(int) $courseId => (int) $minutes])
+            ->get([
+                'sections.course_id as course_id',
+                // الدرس بلا مدّة يأخذ الافتراضيّ من الإعدادات لا صفرًا (2.13)
+                DB::raw('SUM(COALESCE(NULLIF(lessons.duration_minutes, 0), '.$fallback.')) as minutes'),
+            ])
+            ->mapWithKeys(fn ($row) => [(int) $row->course_id => (int) $row->minutes])
             ->all();
     }
 
@@ -130,7 +128,8 @@ class PathService
         $completed = DB::table('course_completions')
             ->whereIn('course_id', $ids)
             ->groupBy('course_id')
-            ->pluck(DB::raw('COUNT(DISTINCT user_id)'), 'course_id');
+            ->get(['course_id', DB::raw('COUNT(DISTINCT user_id) as total')])
+            ->mapWithKeys(fn ($row) => [(int) $row->course_id => (int) $row->total]);
 
         // «بيتعلّموا الآن» = تسجيلات جارية تحرّكت داخل النافذة — لا تخمين ولا تضخيم
         $window = max(1, (int) setting('learning.social.active_window_minutes', 30));
@@ -140,14 +139,15 @@ class PathService
             ->where('status', 'active')
             ->where('updated_at', '>=', now()->subMinutes($window))
             ->groupBy('course_id')
-            ->pluck(DB::raw('COUNT(DISTINCT user_id)'), 'course_id');
+            ->get(['course_id', DB::raw('COUNT(DISTINCT user_id) as total')])
+            ->mapWithKeys(fn ($row) => [(int) $row->course_id => (int) $row->total]);
 
         $out = [];
 
         foreach ($ids as $id) {
             $out[(int) $id] = [
-                'completed' => (int) ($completed[$id] ?? 0),
-                'learning_now' => (int) ($now[$id] ?? 0),
+                'completed' => (int) ($completed[(int) $id] ?? 0),
+                'learning_now' => (int) ($now[(int) $id] ?? 0),
             ];
         }
 

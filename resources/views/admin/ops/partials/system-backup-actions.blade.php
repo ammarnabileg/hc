@@ -5,14 +5,14 @@
     <div class="absolute end-0 mt-2 w-44 card p-2 z-20 text-sm space-y-1">
         @can('backups.export')
             <a class="block px-2 py-2 rounded hover:opacity-80"
-               href="{{ route('admin.ops.system.backups.download', $row->id) }}">⬇ تنزيل</a>
+               href="{{ route('admin.ops.system.backups.download', $row->id) }}"><x-icon name="download" size="16" /> تنزيل</a>
         @endcan
         @can('backups.delete')
             <form method="post" action="{{ route('admin.ops.system.backups.destroy', $row->id) }}"
                   onsubmit="return confirm('نمسح النسخة دي نهائيًّا؟')">
                 @csrf @method('delete')
                 <button class="w-full text-start px-2 py-2 rounded hover:opacity-80"
-                        style="color: var(--color-state-danger)">🗑 حذف</button>
+                        style="color: var(--color-state-danger)"><x-icon name="trash" size="16" /> حذف</button>
             </form>
         @endcan
     </div>

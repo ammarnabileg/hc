@@ -7,6 +7,7 @@ use App\Models\Event;
 use App\Models\EventRegistration;
 use App\Models\User;
 use Carbon\CarbonImmutable;
+use Carbon\CarbonInterface;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -116,20 +117,89 @@ class AttendanceService
     }
 
     /**
-     * المكافأة متدرّجة زمنيًّا: كاملة داخل النافذة ثمّ نسبة أقلّ — والعدّاد ظاهر للمستخدم.
+     * ⭐ جدول المكافأة المتدرّجة كما ضبطه الأدمن — **مصدر واحد** لشاشة الأدمن
+     * وللصرف وللعدّاد النازل. مرتَّب تصاعديًّا بالساعات، فأوّل درجة تشمل اللحظة
+     * هي المستحقّة، والصفوف الناقصة تُهمَل بدل أن تكسر الترتيب.
+     *
+     * @return list<array{hours:int,xp:int,tickets:int}>
+     */
+    public function tiers(Event $event): array
+    {
+        $raw = $event->getAttribute('reward_tiers');
+        $tiers = is_array($raw) ? $raw : json_decode((string) $raw, true);
+        $tiers = is_array($tiers) && $tiers !== [] ? $tiers : (array) setting('events.reward_tiers_default', []);
+
+        $rows = [];
+
+        foreach ($tiers as $tier) {
+            if (! is_array($tier) || ($tier['hours'] ?? null) === null || $tier['hours'] === '') {
+                continue;
+            }
+
+            $rows[] = [
+                'hours' => (int) $tier['hours'],
+                'xp' => max(0, (int) ($tier['xp'] ?? 0)),
+                'tickets' => max(0, (int) ($tier['tickets'] ?? 0)),
+            ];
+        }
+
+        usort($rows, fn (array $a, array $b) => $a['hours'] <=> $b['hours']);
+
+        return $rows;
+    }
+
+    /**
+     * الدرجة المستحقّة الآن: أوّل درجة تشمل الساعات المنقضية **منذ انتهاء
+     * الفعاليّة**؛ و`null` يعني أنّ آخر درجة انتهت فلا مكافأة.
+     *
+     * @return ?array{hours:int,xp:int,tickets:int}
+     */
+    public function currentTier(Event $event, ?CarbonInterface $moment = null): ?array
+    {
+        $moment = CarbonImmutable::parse($moment ?? now());
+        $end = CarbonImmutable::parse($this->presenter->endsAt($event));
+        $hours = $moment->isBefore($end) ? 0 : (int) floor($end->diffInHours($moment));
+
+        foreach ($this->tiers($event) as $tier) {
+            if ($hours <= $tier['hours']) {
+                return $tier;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * المكافأة متدرّجة زمنيًّا **على درجات** (13.3) — والعدّاد ظاهر للمستخدم.
+     *
+     * كان هذا يحسب `xp_reward × events.reward.late_percent` ويتجاهل الجدول الذي
+     * يملؤه الأدمن ويُحفَظ في `events.reward_tiers` تمامًا: يضبط `[1س:10XP]`
+     * فيُصرَف 500. الأدمن يضبط جدولًا بلا أثر والمستخدم يرى عدّادًا يعِد بما لا
+     * يُصرَف — فالجدول من اليوم هو الحاكم، والنسبة المئويّة تبقى للفعاليّات
+     * التي لا جدول لها أصلًا.
      *
      * @return array{xp: int, tickets: int}
      */
     public function reward(Event $event): array
     {
-        $factor = $this->rewardFactor($event);
+        if ($this->tiers($event) === []) {
+            $factor = $this->rewardFactor($event);
+
+            return [
+                'xp' => (int) round(((int) $event->xp_reward) * $factor),
+                'tickets' => (int) round(((int) $event->ticket_reward) * $factor),
+            ];
+        }
+
+        $tier = $this->currentTier($event);
 
         return [
-            'xp' => (int) round(((int) $event->xp_reward) * $factor),
-            'tickets' => (int) round(((int) $event->ticket_reward) * $factor),
+            'xp' => (int) ($tier['xp'] ?? 0),
+            'tickets' => (int) ($tier['tickets'] ?? 0),
         ];
     }
 
+    /** نسبة المكافأة حين لا جدولَ للفعاليّة — الحلّ الاحتياطيّ وحده */
     public function rewardFactor(Event $event): float
     {
         return $this->fullRewardUntil($event)->isFuture()
@@ -137,10 +207,15 @@ class AttendanceService
             : max(0.0, (float) setting('events.reward.late_percent', 50) / 100);
     }
 
+    /** نهاية الدرجة الأعلى — وهي ما يعِد به العدّاد النازل، فلا يعِد بغير المصروف */
     public function fullRewardUntil(Event $event): CarbonImmutable
     {
-        return CarbonImmutable::parse($this->presenter->endsAt($event))
-            ->addHours((int) setting('events.reward.window_hours', 24));
+        $tiers = $this->tiers($event);
+        $hours = $tiers !== []
+            ? $tiers[0]['hours']
+            : (int) setting('events.reward.window_hours', 24);
+
+        return CarbonImmutable::parse($this->presenter->endsAt($event))->addHours($hours);
     }
 
     /**

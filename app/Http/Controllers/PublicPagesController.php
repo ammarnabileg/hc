@@ -2,12 +2,17 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Offboarding;
+use App\Models\PlacementRequest;
 use App\Services\Ads\AdEvents;
 use App\Services\Ads\Consent;
+use App\Services\Volunteer\Org\HonoraryElement;
+use App\Services\Volunteer\People\JourneyService;
+use App\Services\Volunteer\People\LandingContent;
+use App\Services\Volunteer\People\PlacementService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+use RuntimeException;
 
 /**
  * صفحات مشتركة لا يملكها مجال بعينه.
@@ -15,37 +20,145 @@ use Illuminate\View\View;
 class PublicPagesController extends Controller
 {
     /**
-     * صفحة «تطوّع معنا» التعريفيّة (13.4-أ) — **محتواها كلّه يُدار من لوحة الإدارة**.
-     * ولا تظهر أصلًا للمتطوّع المُسكَّن، لأنّ عنصر السايد بار عنده يتحوّل إلى «لوحة التطوّع» (24.5-أ).
+     * صفحة «تطوّع معنا» (13.4-أ) + **شاشة حالة المتقدّم** (13.4-ج) —
+     * **كامل محتواها من لوحة الإدارة** (`volunteer_page.*`)، ولا تظهر للمتطوّع
+     * المُسكَّن لأنّ عنصر السايد بار عنده يتحوّل إلى «لوحة التطوّع» (24.5-أ).
+     *
+     * كانت هذه الصفحة تقرأ مفاتيح `volunteering.landing.*` بينما الأدمن يكتب في
+     * `volunteer_page.*` — فيكتب المالك كتلةً وميثاقًا وعنوانًا وتعرض الصفحة
+     * «محتوى الصفحة بيتجهّز». والمفتاح واحدٌ من اليوم (2.13).
      */
-    public function volunteering(Request $request): View|RedirectResponse
-    {
+    public function volunteering(
+        Request $request,
+        JourneyService $journey,
+        LandingContent $content,
+        HonoraryElement $honorary,
+        PlacementService $placements,
+    ): View|RedirectResponse {
         $user = $request->user();
 
         if ($user->isVolunteer()) {
             return redirect()->route('volunteer.overview');
         }
 
-        // التبريد بعد الخروج (13.4-س/ق): الزرّ لا يُفتَح قبل موعده، ويظهر مكانه سطرٌ محترم
-        $offboarding = Offboarding::query()
-            ->where('user_id', $user->id)
-            ->latest('id')
-            ->first();
+        // مهلة الـ48 ساعة ومكافأة الإتمام تُطبَّقان عند كلّ فتح — فلا تتعلّق
+        // الميزة بوجود كرون (نفس نهج `PlacementService::expireOverdue`)
+        $placements->expireOverdue();
+        $journey->completeIfDue($user);
 
-        $excluded = $offboarding?->type === 'exclusion';
-        $coolingUntil = $offboarding?->cooldown_until;
-        $inCooldown = ! $excluded && $coolingUntil && now()->lessThan($coolingUntil);
+        $blocks = $content->blocks();
+        $stats = $content->stats();
+        $status = $journey->status($user);
+        $candidate = $status['candidate'];
 
         return view('public.volunteering', [
-            'sections' => (array) setting('volunteering.landing.sections', []),
-            'heroTitle' => setting('volunteering.landing.title', 'تطوّع معنا'),
-            'heroBody' => setting('volunteering.landing.body', 'انضمّ لفريقٍ بيتعلّم وبيبني.'),
-            'ctaLabel' => setting('volunteering.landing.cta', 'ابدأ المسار التأهيليّ'),
-            'excluded' => $excluded,
-            'inCooldown' => $inCooldown,
-            'coolingUntil' => $coolingUntil,
-            'returning' => (bool) $offboarding,
+            // الهيرو ومحتوى الصفحة — من مفاتيح الأدمن حرفيًّا
+            'heroTitle' => (string) setting('volunteer_page.hero_title', 'تطوّع معنا'),
+            'heroBody' => (string) setting('volunteer_page.hero_subtitle', ''),
+            'heroMedia' => (string) setting('volunteer_page.hero_media', ''),
+            'ctaLabel' => (string) setting('volunteer_page.cta_label', 'ابدأ التدريب التأهيليّ'),
+            'blocks' => $blocks,
+            'hasContent' => $content->hasAnyBlock($blocks),
+            'emptyMessage' => (string) setting('volunteer_page.empty_message', 'لسّه محتوى الصفحة فاضي.'),
+            'faqTitle' => (string) setting('volunteer_page.faq_title', 'أسئلة بتتسأل كتير'),
+            'storiesTitle' => (string) setting('volunteer_page.stories_title', 'حكايات من الفريق'),
+            'stats' => $stats,
+            'impactLine' => $content->impactLine($stats),
+
+            // الميثاق (13.4-أ) — الموافقة عليه شرط قبل بدء التأهيليّ
+            'charterTitle' => (string) setting('volunteer_page.charter_title', 'ميثاق المتطوّع'),
+            'charterText' => $journey->charterText(),
+            'charterAgreeLabel' => (string) setting('volunteer_page.charter_agree_label', 'قرأت الميثاق وموافق عليه'),
+            'charterAccepted' => $journey->hasAcceptedCharter($user),
+
+            // الرحلة والحالة (13.4-ج)
+            'gate' => $journey->startGate($user),
+            'status' => $status,
+            'candidate' => $candidate,
+            'qualifyingPath' => $journey->path(),
+            'nextCta' => (string) setting('volunteer.qualifying.cta_label', 'الدخول للمرحلة التالية'),
+            'canEnterPipeline' => $candidate === null && $status['progress']['complete'],
+            'canRenew' => $candidate && $journey->canRenew($candidate),
+            'renewAt' => $candidate ? $journey->renewAvailableAt($candidate) : null,
+            'renewCta' => (string) setting('volunteer.journey.renew_cta', 'جدّد استعدادك'),
+            'renewHint' => (string) setting('volunteer.journey.renew_hint', ''),
+            'statusTitle' => (string) setting('volunteer.journey.status_title', 'حالتي'),
+            'interviewTitle' => (string) setting('volunteer.journey.interview_title', 'موعد مقابلتك'),
+            'interviewCta' => (string) setting('volunteer.journey.interview_cta', 'ادخل المقابلة'),
+            'interviewNoLink' => (string) setting('volunteer.journey.interview_no_link', ''),
+            'responseHours' => $placements->responseHours(),
+
+            // سطر شرفيّ اختياريّ يضبطه الأدمن (13.4-ص-ب)
+            'honorary' => $honorary->showsOn('landing') ? $honorary->resolve() : null,
         ]);
+    }
+
+    /** ⭐ الموافقة على ميثاق المتطوّع — **قبل** بدء التأهيليّ (13.4-أ) */
+    public function acceptCharter(Request $request, JourneyService $journey): RedirectResponse
+    {
+        $request->validate(['agree' => ['accepted']], [], ['agree' => 'الموافقة على الميثاق']);
+
+        $journey->acceptCharter($request->user());
+
+        return back()->with('status', (string) setting('volunteer_page.charter_done_message', 'اتسجّل ✓'));
+    }
+
+    /** ⭐ «الدخول للمرحلة التالية» ⟵ قائمة الانتظار المبدئيّة (13.4-ب) */
+    public function enterPipeline(Request $request, JourneyService $journey): RedirectResponse
+    {
+        try {
+            $journey->enterPipeline($request->user());
+        } catch (RuntimeException $e) {
+            return back()->with('status', $e->getMessage());
+        }
+
+        return back()->with('status', (string) setting('volunteer.journey.shortlist_title', 'دخلت قائمة الانتظار المبدئيّة ✓'));
+    }
+
+    /** ⭐ «جدّد استعدادك» — يرفعه في القائمة بمهلة تبريد (13.4-هـ) */
+    public function renewReadiness(Request $request, JourneyService $journey): RedirectResponse
+    {
+        $candidate = $journey->candidateOf($request->user());
+
+        if (! $candidate) {
+            return back()->with('status', (string) setting('volunteer.journey.renew_not_waiting', ''));
+        }
+
+        try {
+            $journey->renewReadiness($candidate);
+        } catch (RuntimeException $e) {
+            return back()->with('status', $e->getMessage());
+        }
+
+        return back()->with('status', (string) setting('volunteer.journey.renew_done', 'اتسجّل ✓'));
+    }
+
+    /**
+     * ردّ المرشّح على طلب التسكين من صفحة حالته (13.4-هـ — جانب المرشّح).
+     * والحارس هنا **الملكيّة** لا صلاحيّة فريق التوظيف: الطلب طلبُه هو.
+     */
+    public function respondPlacement(Request $request, PlacementRequest $placementRequest, PlacementService $placements): RedirectResponse
+    {
+        $data = $request->validate([
+            'decision' => ['required', 'in:accepted,rejected'],
+            'note' => ['nullable', 'string', 'max:255'],
+        ]);
+
+        abort_unless(
+            (int) $placementRequest->recruitment_candidate?->user_id === (int) $request->user()->id,
+            403,
+            'الطلب ده مش بتاعك.',
+        );
+
+        try {
+            $placements->respond($placementRequest, $data['decision'], $request->user(), $data['note'] ?? null);
+        } catch (RuntimeException $e) {
+            return back()->with('status', $e->getMessage());
+        }
+
+        return back()->with('status', $data['decision'] === 'accepted'
+            ? 'مبروك 🎉 أهلًا بيك معانا.'
+            : 'اتسجّل ✓ شكرًا لوضوحك.');
     }
 
     /** إشعارات التطوّع = مركز الإشعارات على تاب التطوّع — مصدر واحد بلا ازدواج (2.8) */

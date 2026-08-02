@@ -9,6 +9,14 @@
     .cv-preview-wrap { overflow: hidden; border-radius: 1rem; }
     .cv-pane[hidden] { display: none; }
     @media (min-width: 1024px) { .cv-pane { display: block !important; } }
+
+    /* ⭐ الشريط العلويّ **Sticky** ينزل مع التمرير ويبقى فوق الأقسام دائمًا (9) */
+    .cv-sticky {
+        position: sticky; top: 0; z-index: 30;
+        display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .5rem;
+        padding: .6rem .9rem; margin-bottom: 1rem; border-radius: 1rem;
+        background: var(--surface-raised); border: 1px solid var(--border);
+    }
 </style>
 @endpush
 
@@ -40,6 +48,34 @@
             {{ setting('cv.guest.note', 'إنت بتجرّب القالب المجّانيّ بلا تسجيل — التحميل بيطلب إنشاء حساب، وشغلك محفوظ لحدّ ما تسجّل.') }}
         </div>
     @endif
+
+    {{--
+      الشريط العلويّ العائم (9): **يمينًا** عنوان «السيرة الذاتيّة»،
+      و**يسارًا** زرّ «حفظ CV» — ويبقى ظاهرًا فوق الأقسام مع الاسكرول.
+    --}}
+    <div class="cv-sticky" data-cv-sticky>
+        <strong class="text-sm">{{ setting('cv.page.title', 'السيرة الذاتيّة') }}</strong>
+
+        <div class="flex items-center gap-2">
+            {{-- مفتاح تبديل AR/EN في المنشئ — بلا أيّ API ترجمة (9) --}}
+            <div class="flex rounded-full overflow-hidden text-xs" style="border: 1px solid var(--border)" role="group"
+                 aria-label="{{ setting('cv.lang.switch_label', 'لغة العرض') }}">
+                @foreach (['ar' => setting('cv.lang.ar_label', 'عربي'), 'en' => setting('cv.lang.en_label', 'English')] as $code => $label)
+                    <button type="button" data-cv-lang="{{ $code }}" class="px-3 motion-standard"
+                            style="min-height: 44px; {{ ($data['lang'] ?? 'ar') === $code
+                                ? 'background: var(--color-brand-500); color:#04201c; font-weight:700'
+                                : 'background: transparent; color: var(--text)' }}">{{ $label }}</button>
+                @endforeach
+            </div>
+
+            <button type="button" data-cv-save
+                    class="btn rounded-xl px-4 text-sm font-semibold motion-standard"
+                    style="min-height: 44px; background: var(--color-brand-500); color: #04201c">
+                {{ setting('cv.save_label', 'حفظ CV') }}
+            </button>
+            <span class="text-xs" data-sticky-note style="color: var(--color-state-ok)"></span>
+        </div>
+    </div>
 
     {{-- أدوات القسم 9: الاستيراد · ATS PDF · الرابط العامّ --}}
     @include('cv.partials.tools')
@@ -85,7 +121,9 @@
 
             @include('cv.partials.step-profile')
             @include('cv.partials.step-experience')
+            @include('cv.partials.step-volunteering')
             @include('cv.partials.step-education')
+            @include('cv.partials.step-courses')
             @include('cv.partials.step-skills')
             @include('cv.partials.step-certificates')
 
@@ -244,6 +282,88 @@
             if (!e.target.closest('[data-repeat-remove]')) return;
             e.target.closest('[data-repeat-row]').remove();
             save(group.closest('[data-step-form]').dataset.stepForm);
+        });
+    });
+
+    /* [حفظ CV] في الشريط العائم: يحفظ كلّ الخطوات دفعةً واحدة (9) */
+    const stickyNote = document.querySelector('[data-sticky-note]');
+
+    document.querySelector('[data-cv-save]')?.addEventListener('click', async () => {
+        for (const key of steps) await save(key);
+        if (stickyNote) {
+            stickyNote.textContent = savedLabel;
+            setTimeout(() => { stickyNote.textContent = ''; }, 2500);
+        }
+    });
+
+    /* مفتاح AR/EN: يُظهر حقول اللغة الثانية ويحفظ الاختيار (9) */
+    function applyLang(code) {
+        document.querySelectorAll('[data-lang-en]').forEach((el) => { el.hidden = code !== 'en'; });
+        document.querySelectorAll('[data-cv-lang]').forEach((btn) => {
+            const on = btn.dataset.cvLang === code;
+            btn.style.background = on ? 'var(--color-brand-500)' : 'transparent';
+            btn.style.color = on ? '#04201c' : 'var(--text)';
+            btn.style.fontWeight = on ? '700' : '400';
+        });
+    }
+
+    document.querySelectorAll('[data-cv-lang]').forEach((btn) => btn.addEventListener('click', async () => {
+        const code = btn.dataset.cvLang;
+        applyLang(code);
+
+        const body = new FormData();
+        body.append('step', steps[index]);
+        body.append('data[lang]', code);
+
+        await fetch(root.dataset.autosaveUrl, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                'Accept': 'application/json',
+            },
+            body,
+        }).catch(() => {});
+
+        refreshPreview();
+    }));
+
+    applyLang(@json($data['lang'] ?? 'ar'));
+
+    /*
+      إعادة الترتيب بالسحب (9). ولماذا نُعيد ترقيم أسماء الحقول بعد كلّ إفلات:
+      لأنّ الاسم يحمل الفهرس (`data[experience][2][title]`) فترتيب الـDOM وحده
+      لا يغيّر شيئًا — الخادم يُجمِّع بالفهرس لا بترتيب الإرسال.
+    */
+    function reindex(list) {
+        [...list.querySelectorAll('[data-repeat-row]')].forEach((row, n) => {
+            row.querySelectorAll('[name]').forEach((input) => {
+                input.name = input.name.replace(/\[(\d+|__I__)\]/, '[' + n + ']');
+            });
+        });
+    }
+
+    document.querySelectorAll('[data-sortable]').forEach((list) => {
+        let dragged = null;
+
+        list.addEventListener('dragstart', (e) => {
+            dragged = e.target.closest('[data-repeat-row]');
+            if (dragged) dragged.style.opacity = '.5';
+        });
+
+        list.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            const over = e.target.closest('[data-repeat-row]');
+            if (!over || !dragged || over === dragged) return;
+            const rows = [...list.querySelectorAll('[data-repeat-row]')];
+            list.insertBefore(dragged, rows.indexOf(dragged) < rows.indexOf(over) ? over.nextSibling : over);
+        });
+
+        list.addEventListener('dragend', () => {
+            if (!dragged) return;
+            dragged.style.opacity = '';
+            dragged = null;
+            reindex(list);
+            save(list.closest('[data-step-form]').dataset.stepForm);
         });
     });
 

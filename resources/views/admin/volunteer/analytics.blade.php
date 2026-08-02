@@ -24,10 +24,10 @@
     </x-filters>
 
     <section class="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <x-kpi label="متطوّعون نشطون" :value="$kpis['active']" icon="🤝" />
-        <x-kpi label="شواغر" :value="$kpis['vacancies']" icon="🪑" />
-        <x-kpi label="تجاوزات" :value="$kpis['overflows']" icon="⚠️" />
-        <x-kpi label="خروج في المدى" :value="$kpis['exits']" icon="🚪" />
+        <x-kpi label="متطوّعون نشطون" :value="$kpis['active']" icon="contribution" />
+        <x-kpi label="شواغر" :value="$kpis['vacancies']" icon="placement" />
+        <x-kpi label="تجاوزات" :value="$kpis['overflows']" icon="warning" />
+        <x-kpi label="خروج في المدى" :value="$kpis['exits']" icon="exit" />
     </section>
 
     <div class="grid lg:grid-cols-2 gap-4 mt-4">

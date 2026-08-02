@@ -99,7 +99,7 @@ class SettingsRegistry
                 'label' => 'التطوّع والفرق',
                 'groups' => [
                     'volunteer', 'volunteer_page', 'volunteer_org', 'volunteer_rep',
-                    'volunteer_cert', 'volunteer_offboarding', 'volunteer_analytics',
+                    'volunteer_cert', 'volunteer_offboarding', 'volunteer_analytics', 'volunteer_honorary',
                     'recruitment', 'meetings', 'workflow', 'goals', 'performance',
                     'rep', 'offboarding',
                 ],
@@ -230,6 +230,7 @@ class SettingsRegistry
             'volunteer_cert' => ['شهادات التطوّع', 'شروط الإصدار والأنواع والعرض.'],
             'volunteer_offboarding' => ['الخروج والعودة', 'التصفية والتبريد ومقابلة الخروج.'],
             'volunteer_analytics' => ['تحليلات التطوّع', 'المدى والمؤشّرات.'],
+            'volunteer_honorary' => ['المناصب الفخريّة', 'الألقاب الفخريّة وشروط منحها وعرضها.'],
             'recruitment' => ['التوظيف والترشيح', 'الفرز والمقابلات والقبول.'],
             'meetings' => ['الاجتماعات', 'الحضور والمحضر والمهل.'],
             'workflow' => ['المهام والتسليم', 'السقوف والتمديد والتعثّر والديدلاين.'],

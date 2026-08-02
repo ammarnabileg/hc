@@ -15,10 +15,10 @@
 
     {{-- أربعة كروت KPI بحدّ أقصى (2.15-أ-3) --}}
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <x-kpi label="المسجّلون" :value="$stats['enrolled']" icon="👥" />
-        <x-kpi label="أكملوا" :value="$stats['completed']" icon="🎓" :hint="$stats['completion_rate'].'% نسبة الإكمال'" />
-        <x-kpi label="متوسّط التقدّم" :value="$stats['avg_progress']" icon="📈" />
-        <x-kpi label="الإيراد (كوينز)" :value="$stats['revenue_coins']" icon="💰" />
+        <x-kpi label="المسجّلون" :value="$stats['enrolled']" icon="people" />
+        <x-kpi label="أكملوا" :value="$stats['completed']" icon="training" :hint="$stats['completion_rate'].'% نسبة الإكمال'" />
+        <x-kpi label="متوسّط التقدّم" :value="$stats['avg_progress']" icon="chart" />
+        <x-kpi label="الإيراد (كوينز)" :value="$stats['revenue_coins']" icon="money" />
     </div>
 
     <div class="grid md:grid-cols-2 gap-3 mt-4">

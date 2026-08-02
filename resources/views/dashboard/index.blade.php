@@ -51,6 +51,9 @@
             @include('dashboard.partials.overview')
         @endif
     @endif
+    {{-- ⭐ زرّ عائم «أكمل من حيث توقفت» في الرئيسيّة (3.4-15) --}}
+    @include('learning.partials.resume-fab')
+
 @endsection
 
 @if ($nextLesson)

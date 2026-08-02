@@ -99,6 +99,8 @@ class GuidanceController extends Controller
             'audiences' => $this->audienceOptions(),
             'channels' => (array) setting('notifications.channels', ['bell' => 'الجرس', 'toast' => 'Toast', 'email' => 'بريد']),
             'rateLimit' => (int) setting('notifications.rate_limit.per_user_per_day', 3),
+            // ⭐ حالة حدّ الهدوء كما يُطبَّق فعلًا لا كما يُوعَد به (12.6-ب)
+            'quietLimit' => $this->guidance->quietLimitState(),
         ]);
     }
 
@@ -338,7 +340,8 @@ class GuidanceController extends Controller
             // إقرار «قرأتُ وفهمت» بـXP — بسقف مرّة واحدة لكلّ منشور
             'requires_acknowledge' => ['nullable', 'boolean'],
             'acknowledge_xp' => ['nullable', 'integer', 'min:0', 'max:'.(int) setting('announcements.acknowledge.max_xp', 500)],
-            'acknowledge_tickets' => ['nullable', 'integer', 'min:0'],
+            // السقف نفسه الذي يفرضه المُقِرّ خادميًّا — فلا يقبل الفورم رقمًا يُبتَر بصمت
+            'acknowledge_tickets' => ['nullable', 'integer', 'min:0', 'max:'.(int) setting('announcements.acknowledge.max_tickets', 20)],
             'push_to_notifications' => ['nullable', 'boolean'],
             'is_pinned' => ['nullable', 'boolean'],
             'scheduled_at' => ['nullable', 'date'],

@@ -84,9 +84,14 @@ class XpCalculator
      */
     public function lessonXp(Course $course, Enrollment $enrollment, ?Carbon $at = null): int
     {
-        // القيمة القصوى للتدريب أوّلًا، وإلّا فقيمة صفّ «إكمال درس» في جدول الكسب (12.10)
-        $max = (int) ($course->xp_max ?: $course->xp_before_half)
-            ?: $this->rules->earnValue('lesson.completed');
+        /*
+         | ⭐ مصدرٌ واحد لا ثلاثة: `courses.xp_max` (7 · 2.13).
+         | كان الارتداد إلى `xp_before_half` يجعل النظام يعمل على المفهوم
+         | **الملغى دستوريًّا** («نصف المهلة» للـXP)، ويجعل الرقم الذي يضبطه
+         | الأدمن في الفورم بلا أثر. القيمة القصوى للتدريب أوّلًا، وإلّا فقيمة
+         | صفّ «إكمال درس» في جدول الكسب (12.10).
+         */
+        $max = (int) $course->xp_max ?: $this->rules->earnValue('lesson.completed');
 
         $value = (int) floor($max * $this->remainingRatio($enrollment, $at));
 

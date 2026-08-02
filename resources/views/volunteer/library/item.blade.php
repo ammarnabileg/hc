@@ -18,7 +18,7 @@
 
     @if ($locked)
         <div class="card p-6 text-center">
-            <p class="text-sm">🔒 المُدخَل ده خارج نطاقك دلوقتي.</p>
+            <p class="text-sm"><x-icon name="lock" size="16" /> المُدخَل ده خارج نطاقك دلوقتي.</p>
             <form method="post" action="{{ route('volunteer.library.request-access', $item) }}" class="mt-4 flex justify-center gap-2">
                 @csrf
                 <input type="text" name="reason" placeholder="سبب (اختياريّ)" class="rounded-xl px-3 py-2 text-sm"

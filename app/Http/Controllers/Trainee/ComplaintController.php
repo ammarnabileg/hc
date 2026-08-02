@@ -88,27 +88,31 @@ class ComplaintController extends Controller
             'body' => ['required', 'string', 'min:10'],
             'attachment' => ['nullable', 'file', 'max:'.ComplaintService::attachmentMaxKb()],
         ], [
-            'required' => 'الحقل ده مطلوب — اكتبه وجرّب تاني.',
-            'category.required' => 'اختار السبب من القائمة.',
-            'wants_contact.required' => 'قول لنا: ترحب إننا نتواصل معاك ولا لأ؟',
-            'title.min' => 'العنوان قصيّر — اكتب جملة توضّح الموضوع.',
-            'body.min' => 'اكتب تفاصيل أكتر شوية عشان نقدر نساعدك.',
-            'in' => 'الاختيار ده مش من الخيارات المتاحة.',
-            'attachment.max' => 'المرفق كبير — اختار ملفّ أصغر.',
+            'required' => (string) setting('complaints.error.required', 'الحقل ده مطلوب — اكتبه وجرّب تاني.'),
+            'category.required' => (string) setting('complaints.error.category_required', 'اختار السبب من القائمة.'),
+            'wants_contact.required' => (string) setting('complaints.error.wants_contact_required', 'قول لنا: ترحب إننا نتواصل معاك ولا لأ؟'),
+            'title.min' => (string) setting('complaints.error.title_min', 'العنوان قصيّر — اكتب جملة توضّح الموضوع.'),
+            'body.min' => (string) setting('complaints.error.body_min', 'اكتب تفاصيل أكتر شوية عشان نقدر نساعدك.'),
+            'in' => (string) setting('complaints.error.not_allowed', 'الاختيار ده مش من الخيارات المتاحة.'),
+            'attachment.max' => (string) setting('complaints.error.attachment_max', 'المرفق كبير — اختار ملفّ أصغر.'),
         ], [
-            'type' => 'النوع',
-            'wants_contact' => 'الرغبة في التواصل',
-            'category' => 'السبب',
-            'title' => 'العنوان المختصر',
-            'body' => 'نصّ الشكوى أو المقترح',
-            'attachment' => 'المرفق',
+            'type' => (string) setting('complaints.field.type_label', 'النوع'),
+            'wants_contact' => (string) setting('complaints.field.wants_contact_label', 'هل ترغب في التواصل معك؟'),
+            'category' => (string) setting('complaints.field.reason_label', 'السبب'),
+            'title' => (string) setting('complaints.field.title_label', 'العنوان المختصر'),
+            'body' => (string) setting('complaints.field.body_label', 'نصّ الشكوى أو المقترح'),
+            'attachment' => (string) setting('complaints.field.attachment_label', 'مرفق (اختياريّ)'),
         ]);
 
         $complaint = $this->complaints->open($request->user(), $data, $request->file('attachment'));
 
         return redirect()
             ->route('complaints.index', ['ticket' => $complaint->id])
-            ->with('status', 'وصلتنا رسالتك — رقم التذكرة '.$complaint->number.'. هنردّ عليك في أقرب وقت.');
+            ->with('status', str_replace(
+                ':number',
+                (string) $complaint->number,
+                (string) setting('complaints.sent_message', 'وصلتنا رسالتك — رقم التذكرة :number. هنردّ عليك في أقرب وقت.'),
+            ));
     }
 
     public function reply(Request $request, Complaint $complaint): RedirectResponse
@@ -117,26 +121,29 @@ class ComplaintController extends Controller
 
         // المغلقة قراءة فقط بشارة (24.5) — والقيد يُشرَح لحظة كسره لا قبله (2.15-د)
         if ($this->complaints->isClosed($complaint)) {
-            return back()->with('status', 'التذكرة دي مقفولة. لو لسّه محتاج مساعدة افتح تذكرة جديدة.');
+            return back()->with('status', (string) setting(
+                'complaints.reply_on_closed_message',
+                'التذكرة دي مقفولة. لو لسّه محتاج مساعدة افتح تذكرة جديدة.',
+            ));
         }
 
         $data = $request->validate([
             'body' => ['required', 'string', 'min:2'],
             'attachment' => ['nullable', 'file', 'max:'.ComplaintService::attachmentMaxKb()],
         ], [
-            'body.required' => 'اكتب ردّك الأوّل.',
-            'body.min' => 'اكتب كلمتين على الأقلّ.',
-            'attachment.max' => 'المرفق كبير — اختار ملفّ أصغر.',
+            'body.required' => (string) setting('complaints.error.reply_required', 'اكتب ردّك الأوّل.'),
+            'body.min' => (string) setting('complaints.error.reply_min', 'اكتب كلمتين على الأقلّ.'),
+            'attachment.max' => (string) setting('complaints.error.attachment_max', 'المرفق كبير — اختار ملفّ أصغر.'),
         ], [
-            'body' => 'الردّ',
-            'attachment' => 'المرفق',
+            'body' => (string) setting('complaints.field.reply_label', 'الردّ'),
+            'attachment' => (string) setting('complaints.field.attachment_label', 'مرفق (اختياريّ)'),
         ]);
 
         $this->complaints->reply($complaint, $request->user(), $data['body'], $request->file('attachment'));
 
         return redirect()
             ->route('complaints.index', ['ticket' => $complaint->id])
-            ->with('status', 'اتبعت ✓');
+            ->with('status', (string) setting('complaints.reply_sent_message', 'اتبعت ✓'));
     }
 
     public function close(Request $request, Complaint $complaint): RedirectResponse
@@ -147,7 +154,7 @@ class ComplaintController extends Controller
 
         return redirect()
             ->route('complaints.index', ['ticket' => $complaint->id])
-            ->with('status', 'قفلنا التذكرة. شكرًا إنّك كلّمتنا.');
+            ->with('status', (string) setting('complaints.closed_message', 'قفلنا التذكرة. شكرًا إنّك كلّمتنا.'));
     }
 
     /** التذكرة يراها صاحبها (والمخوَّل من لوحة الإدارة) — 24.5 */

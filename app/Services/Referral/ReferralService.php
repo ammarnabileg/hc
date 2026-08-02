@@ -25,10 +25,70 @@ class ReferralService
         private readonly Tracker $tracker,
     ) {}
 
+    /** مفتاح السيشن الذي يحمل كود الداعي — نصّ الدستور 7.6: «يُحفَظ الداعي في السيشن» */
+    public const SESSION_KEY = 'referral.code';
+
     /** نسبة العمولة — إعداد لا رقم محروق (2.13) */
     public function commissionPercent(): float
     {
         return (float) setting('referral.commission_percent', 7);
+    }
+
+    /**
+     * ⭐ حفظ الداعي في **السيشن** (7.6) — لا في الـQuery وحدها.
+     *
+     * كان الكود يُمرَّر في `?offer=` فقط، فأيّ تشتّت (تبويب جديد · رجوع للخلف ·
+     * تحقّق OTP في نافذة أخرى · فتح `/register` مباشرةً) يُسقِط الدعوة، فيخسر
+     * **الطرفان** التذكرة، ويخسر الداعي **عمولة مدى الحياة** — وهي أثمن ما في
+     * النظام. والسيشن يعبر كلّ ذلك لأنّه ملتصق بالمتصفّح لا بالرابط.
+     *
+     * ولا يُدهَس داعٍ محفوظ بآخر: **أوّل مَن دعا يفوز**، فلا تُسرَق الدعوة برابطٍ
+     * لاحق يفتحه الزائر بالصدفة.
+     */
+    public function rememberReferrerCode(?string $code): bool
+    {
+        $code = trim((string) $code);
+
+        if ($code === '' || session()->has(self::SESSION_KEY)) {
+            return false;
+        }
+
+        if (! User::query()->where('code', $code)->exists()) {
+            return false;
+        }
+
+        session()->put(self::SESSION_KEY, $code);
+
+        return true;
+    }
+
+    /**
+     * ⭐ كود الداعي الوارد: من الرابط أوّلًا (وبأيّ من الصيغتين)، ثمّ من السيشن.
+     *
+     * **حسم تعارض داخل الدستور:** 7.6 يكتب الرابط `?offer=<user_id>` و7.6.2 يكتبه
+     * `/join?ref=CODE`. المعتمَد صيغة **7.6.2** لأنّها لا تكشف المعرّفات الرقميّة
+     * (عدّ تسلسليّ يُفشي حجم القاعدة ويسمح بالتخمين)، مع إبقاء `?offer=` **مقبولًا
+     * للتوافق** فلا تموت روابط قديمة بين يدي الناس.
+     */
+    public function incomingCode(?string $fromQuery = null, ?string $legacy = null): ?string
+    {
+        foreach ([$fromQuery, $legacy] as $candidate) {
+            if (is_string($candidate) && trim($candidate) !== '') {
+                $this->rememberReferrerCode($candidate);
+
+                return trim($candidate);
+            }
+        }
+
+        $stored = session(self::SESSION_KEY);
+
+        return is_string($stored) && $stored !== '' ? $stored : null;
+    }
+
+    /** ينسى الدعوة بعد استهلاكها — فلا تُربَط بحسابٍ ثانٍ في نفس المتصفّح */
+    public function forgetReferrerCode(): void
+    {
+        session()->forget(self::SESSION_KEY);
     }
 
     public function welcomeTickets(): int
@@ -43,14 +103,19 @@ class ReferralService
     }
 
     /**
-     * رابط الدعوة العامّ بنمط `signup.php?offer=<code>` (7.6)
-     * ⭐ وموسومًا بـUTM كباقي ما تولّده المنصّة — وإلّا لم تعرف لوحة مصادر
-     *    الاكتساب عائد قناة الدعوات أصلًا (21.2-ح).
+     * ⭐ رابط الدعوة بصيغة **7.6.2**: `[نطاق-المنصّة]/join?ref=CODE`.
+     *
+     * المسار والمعامل إعدادان (2.13)، والكود لا المعرّف الرقميّ — فلا يُفشي
+     * الرابطُ حجمَ القاعدة ولا يُخمَّن بالعدّ. والصيغة القديمة `?offer=` تبقى
+     * **مقبولةً عند الاستقبال** للتوافق، لكنّ ما نُولّده اليوم هو `ref`.
+     *
+     * وموسومٌ بـUTM كباقي ما تولّده المنصّة، وإلّا لم تعرف لوحة مصادر الاكتساب
+     * عائد قناة الدعوات أصلًا (21.2-ح).
      */
     public function link(User $user): string
     {
-        $path = (string) setting('referral.link.path', '/register');
-        $param = (string) setting('referral.link.param', 'offer');
+        $path = (string) setting('referral.join.path', '/join');
+        $param = (string) setting('referral.join.param', 'ref');
         $url = url($path).'?'.http_build_query([$param => $user->code]);
 
         return app(UtmBuilder::class)->tag($url, 'invite', 'referral_link', (string) $user->code);

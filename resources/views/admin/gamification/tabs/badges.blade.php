@@ -38,7 +38,9 @@
                         @can('badges.edit')
                             <button type="button" class="text-xs underline" data-badge-edit
                                     data-id="{{ $badge->id }}" data-key="{{ $badge->key }}"
-                                    data-name="{{ $badge->name_ar }}" data-condition="{{ $badge->condition_text_ar }}"
+                                    data-name="{{ $badge->name_ar }}" data-name-en="{{ $badge->name_en }}"
+                                    data-description="{{ $badge->description_ar }}"
+                                    data-condition="{{ $badge->condition_text_ar }}"
                                     data-ckey="{{ $badge->condition_key }}" data-cvalue="{{ $badge->condition_value }}"
                                     data-icon="{{ $badge->icon_path }}">تعديل</button>
                         @endcan
@@ -73,7 +75,7 @@
 @push('modals')
     @can('badges.edit')
         <x-modal id="badge-modal" title="شارة">
-            <form method="post" action="{{ route('admin.gamification.badges.save') }}">
+            <form method="post" action="{{ route('admin.gamification.badges.save') }}" enctype="multipart/form-data">
                 @csrf
                 <input type="hidden" name="id" id="badge-id">
 
@@ -82,10 +84,26 @@
                        class="w-full rounded-xl px-3 py-2 text-sm mb-3 font-mono"
                        style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
 
-                <label class="block text-sm font-semibold mb-1" for="badge-name">الاسم</label>
-                <input type="text" name="name_ar" id="badge-name" required maxlength="120"
-                       class="w-full rounded-xl px-3 py-2 text-sm mb-3"
-                       style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
+                {{-- التسمية ثنائيّة اللغة قاعدة عامّة تشمل الشارات (القسم 3) --}}
+                <div class="grid grid-cols-2 gap-3 mb-3">
+                    <label class="text-sm font-semibold">الاسم (عربيّ)
+                        <input type="text" name="name_ar" id="badge-name" required maxlength="120"
+                               class="w-full rounded-xl px-3 py-2 text-sm mt-1"
+                               style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
+                    </label>
+                    <label class="text-sm font-semibold">الاسم (إنجليزيّ)
+                        <input type="text" name="name_en" id="badge-name-en" required maxlength="120" dir="ltr"
+                               class="w-full rounded-xl px-3 py-2 text-sm mt-1"
+                               style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
+                    </label>
+                </div>
+
+                {{-- 7.4: «لكلّ شارة اسم + **وصف** + صورة» — والوصف غير شرط الفتح --}}
+                <label class="block text-sm font-semibold mb-1" for="badge-description">الوصف — ما معنى الشارة</label>
+                <textarea name="description_ar" id="badge-description" rows="2" maxlength="500"
+                          placeholder="مثال: لأصحاب الخطوة الأولى — البداية أصعب ما في الطريق."
+                          class="w-full rounded-xl px-3 py-2 text-sm mb-3"
+                          style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)"></textarea>
 
                 <label class="block text-sm font-semibold mb-1" for="badge-condition">شرط الفتح — مكتوب صراحةً</label>
                 <input type="text" name="condition_text_ar" id="badge-condition" required maxlength="255"
@@ -93,11 +111,17 @@
                        class="w-full rounded-xl px-3 py-2 text-sm mb-3"
                        style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
 
-                <div class="grid grid-cols-2 gap-3 mb-3">
-                    <label class="text-sm font-semibold">مفتاح الشرط الآليّ
-                        <input type="text" name="condition_key" id="badge-ckey" maxlength="64"
-                               class="w-full rounded-xl px-3 py-2 text-sm mt-1 font-mono"
-                               style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
+                <div class="grid grid-cols-2 gap-3 mb-1">
+                    {{-- ⭐ قائمة مقفولة لا نصّ حرّ: المفتاح الذي لا يقابله مقياسٌ شارةٌ ميتة (7.4) --}}
+                    <label class="text-sm font-semibold">مقياس الشرط الآليّ
+                        <select name="condition_key" id="badge-ckey"
+                                class="w-full rounded-xl px-3 py-2 text-sm mt-1"
+                                style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
+                            <option value="">بلا منح آليّ (يدويّ)</option>
+                            @foreach ($data['conditions'] as $key => $label)
+                                <option value="{{ $key }}">{{ $label }}</option>
+                            @endforeach
+                        </select>
                     </label>
                     <label class="text-sm font-semibold">قيمته
                         <input type="number" min="0" name="condition_value" id="badge-cvalue"
@@ -105,11 +129,17 @@
                                style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
                     </label>
                 </div>
+                <p class="text-xs mb-3" style="color: var(--text-muted)">
+                    المقاييس دي هي المتاحة فعلًا — اختَر منها عشان الشارة تُمنَح آليًّا لحظة استحقاقها.
+                </p>
 
-                <label class="block text-sm font-semibold mb-1" for="badge-icon">مسار الأيقونة (SVG بهويّة المنصّة)</label>
-                <input type="text" name="icon_path" id="badge-icon" maxlength="255"
-                       class="w-full rounded-xl px-3 py-2 text-sm mb-3"
+                {{-- 7.4: صورة الشارة تُرفَع لا يُكتَب مسارها --}}
+                <label class="block text-sm font-semibold mb-1" for="badge-icon-file">صورة الشارة</label>
+                <input type="file" name="icon" id="badge-icon-file" accept="image/*"
+                       class="w-full rounded-xl px-3 py-2 text-sm mb-1"
                        style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
+                <p class="text-xs mb-3" style="color: var(--text-muted)" data-badge-current-icon></p>
+                <input type="hidden" name="icon_path" id="badge-icon">
 
                 <input type="hidden" name="is_active" value="1">
 
@@ -127,10 +157,15 @@
                 document.getElementById('badge-id').value = btn.dataset.id;
                 document.getElementById('badge-key').value = btn.dataset.key;
                 document.getElementById('badge-name').value = btn.dataset.name;
+                document.getElementById('badge-name-en').value = btn.dataset.nameEn || '';
+                document.getElementById('badge-description').value = btn.dataset.description || '';
                 document.getElementById('badge-condition').value = btn.dataset.condition;
                 document.getElementById('badge-ckey').value = btn.dataset.ckey || '';
                 document.getElementById('badge-cvalue').value = btn.dataset.cvalue || '';
                 document.getElementById('badge-icon').value = btn.dataset.icon || '';
+                // الصورة الحاليّة تُذكَر بالاسم — الرفع اختياريّ ولا يمسح ما سبق
+                const note = document.querySelector('[data-badge-current-icon]');
+                if (note) note.textContent = btn.dataset.icon ? 'الحاليّة: ' + btn.dataset.icon : '';
                 const modal = document.getElementById('badge-modal');
                 modal.classList.remove('hidden');
                 modal.classList.add('flex');

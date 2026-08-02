@@ -19,12 +19,21 @@ use Illuminate\Support\Facades\Route;
 | 🔒 والمجموعة الماليّة ومفاتيح البوّابة لمالك المنصّة وحده — بحارسَي صلاحيّة ودور.
 */
 
-Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth', 'admin.panel'])->prefix('admin')->name('admin.')->group(function () {
 
     // ------------------------------------------------------------ المتجر
     Route::middleware('permission:store_products.list,bundles.list,coupons.list,orders.list')->group(function () {
         Route::get('/store', [StoreAdminController::class, 'index'])->name('store.index');
         Route::get('/store/orders/{order}', [StoreAdminController::class, 'showOrder'])->name('store.orders.show');
+    });
+
+    // ------------------------------------------------------------ عناصر البندل (18)
+    Route::middleware('permission:bundles.view')
+        ->get('/store/bundles/{bundle}', [StoreAdminController::class, 'showBundle'])->name('store.bundles.show');
+
+    Route::middleware('permission:bundles.edit')->group(function () {
+        Route::post('/store/bundles/{bundle}/items', [StoreAdminController::class, 'storeBundleItem'])->name('store.bundles.items.store');
+        Route::delete('/store/bundles/{bundle}/items/{item}', [StoreAdminController::class, 'destroyBundleItem'])->name('store.bundles.items.destroy');
     });
 
     Route::middleware('permission:store_products.create')

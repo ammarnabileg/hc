@@ -30,12 +30,20 @@ final class Coins
     }
 
     /**
-     * اسم العملة بالعربيّة: مصدره جدول `currencies` (مصدر الحقيقة الوحيد)،
-     * ويبقى إعداد `store.currency.label` احتياطًا للكوينز قبل زرع العملات.
+     * اسم العملة كما يُعرَض بجوار الرقم («100 **كوين**» · «50 **تذكرة**»).
+     *
+     * الأولويّة لخريطة `store.currency.labels` لأنّ صيغة العرض بجوار رقمٍ مفرد
+     * تختلف عن اسم العملة في جدولها («كوينز» ⟵ «كوين»)، ثمّ اسم العملة من
+     * جدول `currencies`، ثمّ الإعداد القديم — ولا نصّ محروق في أيّ منها (2.13).
      */
     public static function currencyLabel(?string $code = null): string
     {
         $code = $code ?: self::defaultCode();
+        $labels = (array) setting('store.currency.labels', []);
+
+        if (! empty($labels[$code])) {
+            return (string) $labels[$code];
+        }
 
         static $cache = [];
 
@@ -44,6 +52,15 @@ final class Coins
         }
 
         return (string) ($cache[$code] ?: setting('store.currency.label', 'كوين'));
+    }
+
+    /** نصّ زرّ الشراء بعملة العنصر — لكلّ عملة صياغتها العربيّة السليمة (2.13 · 17) */
+    public static function buyLabel(?string $code = null): string
+    {
+        $code = $code ?: self::defaultCode();
+        $labels = (array) setting('store.buy.labels', []);
+
+        return (string) ($labels[$code] ?? setting('store.buy.label', 'إتمام الشراء'));
     }
 
     /** العملة الافتراضيّة للمتجر — كلّ الأسعار الحقيقيّة بالكوينز (16 · 19.1) */

@@ -46,10 +46,10 @@ class OrgAdminController extends Controller
             'tracks' => Track::query()->orderBy('id')->get(),
             'entities' => $entities,
             'positions' => Position::query()->orderBy('rank')->get(),
-            'capacity' => CapacityReport::rows($trackId ?: null),
-            'spans' => CapacityReport::spanRows(),
-            'unhealthy' => CapacityReport::unhealthy(),
-            'overflows' => CapacityReport::overflows(),
+            'capacity' => CapacityReport::rows($trackId ?: null, $request->user()),
+            'spans' => CapacityReport::spanRows($request->user()),
+            'unhealthy' => CapacityReport::unhealthy($request->user()),
+            'overflows' => CapacityReport::overflows($request->user()),
             'settings' => SettingsWriter::groupRows('volunteer_org'),
             'filters' => ['track' => $trackId, 'q' => $request->string('q')->toString()],
             'caseFileOpener' => (string) setting('volunteer.org.case_file_opener_position', 'volunteer_gm'),
@@ -207,8 +207,9 @@ class OrgAdminController extends Controller
     public function capacityReport(Request $request): View
     {
         return view('admin.volunteer.capacity', [
-            'rows' => CapacityReport::rows((int) $request->integer('track') ?: null),
-            'spans' => CapacityReport::spanRows(),
+            // تقرير السعة داخل نطاق صاحب الشاشة (12.2.1-ب)
+            'rows' => CapacityReport::rows((int) $request->integer('track') ?: null, $request->user()),
+            'spans' => CapacityReport::spanRows($request->user()),
             'tracks' => Track::query()->orderBy('id')->get(),
             'filters' => ['track' => (int) $request->integer('track')],
         ]);

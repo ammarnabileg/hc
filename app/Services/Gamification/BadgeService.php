@@ -4,7 +4,12 @@ namespace App\Services\Gamification;
 
 use App\Models\Badge;
 use App\Models\BadgeUser;
+use App\Models\Certificate;
 use App\Models\ChallengeParticipation;
+use App\Models\CourseCompletion;
+use App\Models\LessonCompletion;
+use App\Models\Membership;
+use App\Models\Referral;
 use App\Models\Streak;
 use App\Models\User;
 use App\Models\WarUserStat;
@@ -19,7 +24,10 @@ use Illuminate\Support\Collection;
  */
 class BadgeService
 {
-    public function __construct(private readonly CelebrationService $celebrations) {}
+    public function __construct(
+        private readonly CelebrationService $celebrations,
+        private readonly LevelResolver $levels,
+    ) {}
 
     /**
      * فحص كلّ الشارات ومنح ما استُحقّ.
@@ -89,20 +97,75 @@ class BadgeService
     }
 
     /**
+     * ⭐ المقاييس المتاحة بأسمائها العربيّة — **القائمة المقفولة** التي يختار
+     * منها الأدمن في فورم الشارة (7.4 · 2.13).
+     *
+     * لماذا قائمة لا نصّ حرّ؟ لأنّ الحقل الحرّ كان **مصنع الشارات الميتة**:
+     * مفتاحٌ مكتوبٌ بخطأٍ حرف = شارةٌ لا تُمنَح أبدًا ولا يُنبَّه أحد، والمتدرّب
+     * يرى «0% من الشرط» وهو مستوفيه. المفتاح الذي لا يقابله مقياسٌ هنا لا يجوز
+     * أن يُحفَظ أصلًا.
+     *
+     * @return array<string, string>
+     */
+    public const CONDITIONS = [
+        'xp.total' => 'إجمالي XP',
+        'level.reached' => 'المستوى المبلوغ',
+        'lesson.completed' => 'عدد الدروس المكتملة',
+        'course.completed' => 'عدد التدريبات المكتملة',
+        'certificate.issued' => 'عدد الشهادات السارية',
+        'streak.days' => 'الستريك الحاليّ (أيّام)',
+        'streak.best_days' => 'أطول ستريك (أيّام)',
+        'streak.current_days' => 'الستريك الحاليّ (أيّام)',
+        'club_5am.days' => 'أيّام نادي الخامسة',
+        'five_am.count' => 'أيّام نادي الخامسة',
+        'membership.count' => 'عدد البوزشنز التطوّعيّة',
+        'referral.success' => 'الدعوات الناجحة',
+        'challenges.finished' => 'الحروب المنتهية',
+        'challenges.wins' => 'انتصارات الحروب',
+        'focus.minutes' => 'دقائق حرب التركيز',
+    ];
+
+    /** @return array<string, string> */
+    public function conditions(): array
+    {
+        return self::CONDITIONS;
+    }
+
+    /**
      * مقاييس الشروط المدعومة — مقفولة وصريحة (لا محرّك قواعد موازٍ).
+     *
+     * **كلّ مفتاح في `CONDITIONS` له قيمة هنا** — وإلّا كانت الشارة ميتة أبدًا.
      *
      * @return array<string, float>
      */
     public function metrics(User $user): array
     {
         $streak = Streak::query()->where('user_id', $user->id)->first();
+        $streakDays = (float) ($streak?->current_days ?? 0);
+        $clubDays = (float) ($streak?->club_5am_count ?? 0);
+
+        $lessons = (float) LessonCompletion::query()->where('user_id', $user->id)->count();
 
         return [
             'xp.total' => (float) $user->xp,
-            'level.reached' => (float) $user->level,
+            // ⭐ المستوى من مصدرٍ واحد: XP + جدول المستويات (لا عمودٌ قد يتأخّر عن الدفتر)
+            'level.reached' => (float) $this->levels->levelFor((int) $user->xp),
+            // ⭐ مسار التعلّم كان غائبًا تمامًا عن الشارات — وهو قلب المنصّة (7 · 7.4)
+            'lesson.completed' => $lessons,
+            'course.completed' => (float) CourseCompletion::query()->where('user_id', $user->id)->count(),
+            'certificate.issued' => (float) Certificate::query()
+                ->where('user_id', $user->id)->where('status', 'valid')->count(),
+            // مفتاحان لمعنًى واحد: القديم يبقى حيًّا كي لا تموت شارةٌ قائمة
+            'streak.days' => $streakDays,
+            'streak.current_days' => $streakDays,
             'streak.best_days' => (float) ($streak?->best_days ?? 0),
-            'streak.current_days' => (float) ($streak?->current_days ?? 0),
-            'club_5am.days' => (float) ($streak?->club_5am_count ?? 0),
+            'club_5am.days' => $clubDays,
+            'five_am.count' => $clubDays,
+            'membership.count' => (float) Membership::query()
+                ->where('user_id', $user->id)->where('status', 'active')->count(),
+            // الدعوة «ناجحة» حين صُرِفت مكافأتها فعلًا — لا بمجرّد الضغط على الرابط (7.6)
+            'referral.success' => (float) Referral::query()
+                ->where('referrer_id', $user->id)->where('referrer_ticket_granted', true)->count(),
             'challenges.finished' => (float) ChallengeParticipation::query()
                 ->where('user_id', $user->id)->where('status', 'finished')->count(),
             'challenges.wins' => (float) ChallengeParticipation::query()

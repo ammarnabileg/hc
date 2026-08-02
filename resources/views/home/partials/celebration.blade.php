@@ -66,7 +66,8 @@
             inline-size: 8px; block-size: 14px; border-radius: 2px;
             animation: home-fall 2.6s var(--ease-standard) forwards;
         }
-        @media (prefers-reduced-motion: reduce) { .home-piece { animation: none; } }
+        /* الكونفيتي حاضر دائمًا — «الأنيميشن روح المنصّة» (2.14-ب)،
+           والتحكّم فيه من إعداد المستخدم داخل المنصّة (app.css). */
     </style>
     <script>
         (() => {

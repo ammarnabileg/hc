@@ -1,7 +1,7 @@
 {{-- سجلّ التدقيق: Append-only — لا تعديل ولا حذف من الواجهة إطلاقًا (24.3) --}}
 <div class="card p-3 text-xs flex items-center justify-between" style="color: var(--text-muted)">
     <span>للقراءة فقط — غير قابل للتعديل أو الحذف.</span>
-    <span>الاحتفاظ: {{ (int) setting('audit.retention_days', 365) }} يومًا للعامّ · بلا حدّ للماليّ 🔒</span>
+    <span>الاحتفاظ: {{ (int) setting('audit.retention_days', 365) }} يومًا للعامّ · بلا حدّ للماليّ <x-icon name="lock" size="16" /></span>
 </div>
 
 @if (! $logs || $logs->isEmpty())

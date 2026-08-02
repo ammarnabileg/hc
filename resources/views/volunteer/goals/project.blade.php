@@ -62,7 +62,7 @@
                 <article class="card p-4 animate-fadeup">
                     <div class="flex items-start justify-between gap-2 flex-wrap">
                         <button type="button" data-modal-open="item-{{ $item->id }}" class="font-bold text-right">
-                            🔁 {{ $item->name }}
+                            <x-icon name="refresh" size="16" /> {{ $item->name }}
                         </button>
                         <div class="flex items-center gap-1 shrink-0">
                             <x-state-badge state="ok" :label="$recurrences[$item->recurrence] ?? 'غير محدَّد'" />

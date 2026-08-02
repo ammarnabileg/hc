@@ -28,10 +28,14 @@ class PathAdminController extends Controller
             'status' => $request->string('status')->toString(),
         ];
 
+        $paths = $this->paths->list($filters);
+
         return view('admin.courses.paths', [
-            'paths' => $this->paths->list($filters),
+            'paths' => $paths,
             'filters' => $filters,
             'statuses' => $this->statuses(),
+            // ⭐ السعر من مصدره الواحد (صفّ الامتحان) لا من عمود المرآة (12.4-أ)
+            'examPrices' => $this->paths->examPricesFor($paths),
         ]);
     }
 

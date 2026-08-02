@@ -5,10 +5,13 @@ namespace App\Services\Admin\System;
 use App\Models\Bundle;
 use App\Models\BundleItem;
 use App\Models\Coupon;
+use App\Models\Course;
+use App\Models\LearningPath;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\ProductCategory;
 use App\Models\User;
+use App\Services\Store\StoreCatalog;
 use App\Support\Scope\ScopeFilter;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
@@ -76,6 +79,32 @@ class StoreAdminService
             ->latest('id')
             ->paginate($this->perPage())
             ->withQueryString();
+    }
+
+    /**
+     * ما يمكن ضمّه لباقة (18): تدريبات ومسارات ومنتجات — **بلا باقةٍ داخل باقة**.
+     * ويصحب كلَّ خيارٍ **سعرُه الطبيعيّ** كي يصل الإنبوت به كقيمةٍ افتراضيّة.
+     *
+     * @return array<string, array<int, array{slug:string,title:string,price:float}>>
+     */
+    public function bundleItemOptions(): array
+    {
+        $catalog = app(StoreCatalog::class);
+
+        $map = fn ($rows, string $titleColumn) => $rows
+            ->map(fn ($row) => [
+                'slug' => (string) $row->slug,
+                'title' => (string) $row->{$titleColumn},
+                'price' => round((float) ($catalog->activeOffer($row) ?? $row->price_coins ?? 0), 2),
+            ])
+            ->values()
+            ->all();
+
+        return [
+            'course' => $map(Course::query()->where('status', 'published')->orderBy('name_ar')->get(), 'name_ar'),
+            'path' => $map(LearningPath::query()->where('status', 'published')->orderBy('name_ar')->get(), 'name_ar'),
+            'product' => $map(Product::query()->where('status', 'published')->orderBy('name_ar')->get(), 'name_ar'),
+        ];
     }
 
     public function coupons(array $filters): LengthAwarePaginator

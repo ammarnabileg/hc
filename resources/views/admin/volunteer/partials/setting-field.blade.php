@@ -19,7 +19,7 @@
             @endif
             @if ($locked)
                 <span class="text-xs rounded-full px-2 py-0.5 align-middle"
-                      style="background: var(--surface-sunken); color: var(--text-muted)">🔒 مقفول</span>
+                      style="background: var(--surface-sunken); color: var(--text-muted)"><x-icon name="lock" size="16" /> مقفول</span>
             @endif
         </label>
 

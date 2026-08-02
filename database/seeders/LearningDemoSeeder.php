@@ -31,6 +31,7 @@ class LearningDemoSeeder extends Seeder
     public function run(): void
     {
         $this->settings();
+        $this->socialProofSettings();
         $this->availabilitySettings();
         $path = $this->path();
         $this->communicationCourse($path);
@@ -275,7 +276,8 @@ class LearningDemoSeeder extends Seeder
             ['learning.paths.exam_ready_hint', 'string', 'أكملت المسار — الامتحان متاح الآن'],
             ['learning.paths.exam_locked_hint', 'string', 'يظهر الامتحان بعد إكمال تدريبات المسار كاملة'],
             ['learning.path.exam_unlock_percent', 'number', '100'],
-            ['learning.path.exam_price_coins', 'number', '150'],
+            // ⚠️ لا مفتاح لسعر امتحان المسار هنا: السعر **لكلّ مسار** ومصدره الوحيد
+            // صفّ الامتحان (12.4-أ) — وإعدادٌ عامّ ثالث كان يخلق سعرًا لا يعرفه الأدمن.
 
             // ---- المرفقات والفيديو
             ['learning.attachments.title', 'string', 'مرفقات الدرس'],
@@ -297,21 +299,86 @@ class LearningDemoSeeder extends Seeder
             ['learning.report.number_length', 'number', '10'],
             ['learning.report.types', 'json', '["مشكلة في الفيديو","خطأ في المحتوى","مرفق لا يعمل","سؤال غير واضح","أخرى"]'],
 
-            // ---- الأيقونات (SVG لاحقًا من مكتبة المنصّة — 2.16-ج)
-            ['learning.icon.video', 'string', '🎥'],
-            ['learning.icon.document', 'string', '📄'],
-            ['learning.icon.course', 'string', '🎓'],
-            ['learning.icon.path', 'string', '🧭'],
-            ['learning.icon.lock', 'string', '🔒'],
-            ['learning.icon.done', 'string', '✓'],
-            ['learning.icon.xp', 'string', '⚡'],
-            ['learning.icon.attachment', 'string', '📎'],
+            /*
+             | ---- الأيقونات: **أسماء في القاموس المشترك** لا رموز إيموجي (3 · 6 · 2.16-ج).
+             |
+             | كانت القيم إيموجي (🎥 📄 🔒 …) والإيموجي يرسمه خطّ نظام التشغيل: لا
+             | يتبع `currentColor` ولا سُمك الخطّ، ويختلف شكله بين المنصّات — فينكسر
+             | «سُمك خطّ موحّد وشبكة مقاس واحدة». والقيمة الآن اسمٌ يستهلكه `<x-icon>`
+             | من القاموس المشترك، فيبقى الإعداد قابلًا للتغيير بلا لمس الكود (2.13).
+             */
+            ['learning.icon.video', 'string', 'video'],
+            ['learning.icon.document', 'string', 'document'],
+            ['learning.icon.course', 'string', 'course'],
+            ['learning.icon.path', 'string', 'path'],
+            ['learning.icon.lock', 'string', 'lock'],
+            ['learning.icon.done', 'string', 'check'],
+            ['learning.icon.xp', 'string', 'xp'],
+            ['learning.icon.attachment', 'string', 'attachment'],
+
+            // ---- صفحة المسار (3.3): المدّة والموعد والشهادة والمكافأة المبكرة
+            ['learning.paths.total_duration_label', 'string', 'إجماليّ المدّة'],
+            ['learning.paths.hours_suffix', 'string', 'ساعة'],
+            ['learning.paths.due_label', 'string', 'موعد الاستكمال'],
+            ['learning.paths.due_format', 'string', 'j F Y'],
+            ['learning.paths.certificate_cta', 'string', 'عرض الشهادة'],
+            ['learning.paths.early_reward_label', 'string', 'لو أنهيت درسًا دلوقتي'],
+            ['learning.paths.rank_label', 'string', 'ترتيبك'],
+            ['learning.paths.rank_of', 'string', 'من'],
+            ['learning.paths.friends_limit', 'number', '12'],
+
+            // ---- اقتراحات العرض المعتمدة (3.4)
+            ['learning.cta.resume_where_left', 'string', 'أكمل من حيث توقفت'],
+            ['learning.resume.scan_limit', 'number', '10'],
+            ['learning.bookmark.add', 'string', 'احفظ الدرس'],
+            ['learning.bookmark.remove', 'string', 'إزالة الحفظ'],
+            ['learning.bookmark.saved_label', 'string', 'محفوظ'],
+            ['learning.bookmark.saved_message', 'string', 'اتحفظ ✓ — هتلاقيه في قائمة الدروس'],
+            ['learning.bookmark.removed_message', 'string', 'شِلنا الحفظ عن الدرس'],
+            ['learning.lesson.locked_label', 'string', 'مقفول'],
+            ['learning.nudge.resume_message', 'string', 'لسّه فاضل شويّة في الدرس ده — تحبّ تكمّله؟'],
+            ['learning.nudge.tab_prefix', 'string', '⏸ '],
+            ['learning.celebration.share_cta', 'string', 'شارك إنجازك'],
+            ['learning.share.title', 'string', 'شارك إنجازك'],
+            ['learning.share.text', 'string', 'خلّصت تدريبًا جديدًا على المنصّة 🎓'],
+            // نافذة «بيتعلّموا الآن»: تسجيلات تحرّكت داخلها فعلًا — لا تخمين (2.9-7)
+            ['learning.social.active_window_minutes', 'number', '30'],
         ];
 
         foreach ($rows as [$key, $type, $default]) {
             Setting::updateOrCreate(['key' => $key], [
                 'group' => 'learning',
                 'label_ar' => $this->label($key),
+                'type' => $type,
+                'default_value' => $default,
+                'value' => $default,
+            ]);
+        }
+    }
+
+    /**
+     * ⭐ حدود الدليل الاجتماعيّ لسياقَي التدريب (3.4-45 · 3.4-49) — بقواعد 2.9-7.
+     *
+     * تُزرَع هنا لا في `SettingSeeder` كي يبقى كلّ مجالٍ صاحبَ مفاتيحه، وتُقرأ
+     * من نفس `SocialProof` الذي يخدم الدرس والنادي والحروب — قاموسٌ واحد لا اثنان.
+     * وبلا هذه المفاتيح يكون الحدّ صفرًا فلا يظهر العدّاد أصلًا — وهو الأمان
+     * الصحيح: **لا رقم بلا حدٍّ يحكمه**.
+     */
+    public function socialProofSettings(): void
+    {
+        $rows = [
+            ['engagement.social_proof.course_learners.min', 'حدّ عدّاد «بيتعلّموا الآن»', 'number', '20'],
+            ['engagement.social_proof.course_learners.count_text', 'نصّ عدّاد «بيتعلّموا الآن»', 'string', ':count بيتعلّموا دلوقتي'],
+            ['engagement.social_proof.course_learners.lead_text', 'تأطير الريادة تحت حدّ «بيتعلّموا الآن»', 'string', 'كن أوّل من يبدأ التدريب ده النهارده!'],
+            ['engagement.social_proof.course_completed.min', 'حدّ عدّاد «أكملوا هذا التدريب»', 'number', '20'],
+            ['engagement.social_proof.course_completed.count_text', 'نصّ «انضم لـ N أكملوا»', 'string', 'انضم لـ :count أكملوا التدريب ده'],
+            ['engagement.social_proof.course_completed.lead_text', 'تأطير الريادة تحت حدّ الإكمال', 'string', 'كن أوّل من يُنهي التدريب ده'],
+        ];
+
+        foreach ($rows as [$key, $label, $type, $default]) {
+            Setting::updateOrCreate(['key' => $key], [
+                'group' => 'engagement',
+                'label_ar' => $label,
                 'type' => $type,
                 'default_value' => $default,
                 'value' => $default,
@@ -365,8 +432,7 @@ class LearningDemoSeeder extends Seeder
             'description_ar' => 'كيف توصّل فكرتك في جملة واحدة، وتستمع فتفهم قبل أن تردّ، وتكتب رسالة عمل لا تحتاج توضيحًا بعدها.',
             'is_free' => false,
             'price_coins' => 250,
-            'xp_before_half' => 40,
-            'xp_after_half' => 20,
+            'xp_max' => 40,
             'deadline_days' => 30,
             'forced_order' => true,
             'free_preview_lessons' => 1,
@@ -432,8 +498,7 @@ class LearningDemoSeeder extends Seeder
             'description_ar' => 'تعرف ما يستحقّ وقتك اليوم، وتقول «لا» بلا إحراج، وتسلّم قبل الموعد لا بعده.',
             'is_free' => false,
             'price_coins' => 200,
-            'xp_before_half' => 30,
-            'xp_after_half' => 15,
+            'xp_max' => 30,
             'deadline_days' => 21,
             'forced_order' => false,
             'status' => 'published',

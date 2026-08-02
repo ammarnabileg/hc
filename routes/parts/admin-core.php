@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Route;
 | فما لا يملكه المستخدم لا يظهر له في السايد بار أصلًا ولا يُفتَح برابط مباشر.
 */
 
-Route::middleware(['auth', 'permission:admin_panel.view'])
+Route::middleware(['auth', 'admin.panel'])
     ->prefix('admin')
     ->name('admin.')
     ->group(function () {

@@ -4,9 +4,13 @@
      * ونطاق السعر بمنزلق **بلا بوردر** (24.5 — والقاعدة مطبَّقة في app.css).
      */
     $selectedTypes = $filters['types'] ?? [];
+    $selectedCurrencies = $filters['currencies'] ?? [];
     $inputStyle = 'background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)';
     $min = $filters['min'] ?? 0;
     $max = $filters['max'] ?? $priceCeiling;
+    // اسم عملة المنزلق — والمنزلق يتحرّك ضمنها وحدها (17)
+    $rangeLabel = \App\Services\Store\Coins::currencyLabel($rangeCurrency ?? null);
+    $allTypeOptions = isset($typeOptions) ? array_merge($typeOptions['visible'], $typeOptions['folded']) : [];
 @endphp
 
 <x-filters :action="$action">
@@ -16,16 +20,21 @@
                class="w-full rounded-xl px-3 py-2 text-sm" style="{{ $inputStyle }}">
     </label>
 
-    @isset($categories)
-        <label class="block min-w-[10rem]">
-            <span class="block text-sm mb-1">التصنيف</span>
-            <select name="category" class="w-full rounded-xl px-3 py-2 text-sm" style="{{ $inputStyle }}">
-                <option value="">الكلّ</option>
-                @foreach ($categories as $category)
-                    <option value="{{ $category->id }}" @selected($filters['category'] === $category->id)>{{ $category->name_ar }}</option>
+    @isset($currencyOptions)
+        {{-- ⭐ فلتر **نوع العملة** (Multi-select) — 17 --}}
+        <fieldset class="min-w-[12rem]">
+            <legend class="block text-sm mb-1">{{ setting('store.filters.currency_label', 'نوع العملة') }}</legend>
+            <div class="flex flex-wrap gap-2">
+                @foreach ($currencyOptions as $code => $label)
+                    <label class="text-sm rounded-full px-3 py-1.5 cursor-pointer motion-standard"
+                           style="background: var(--surface-sunken); border: 1px solid var(--border)">
+                        <input type="checkbox" name="currencies[]" value="{{ $code }}"
+                               @checked(in_array($code, $selectedCurrencies, true))>
+                        <span>{{ $label }}</span>
+                    </label>
                 @endforeach
-            </select>
-        </label>
+            </div>
+        </fieldset>
     @endisset
 
     <div class="block min-w-[14rem] grow" data-price-range>
@@ -33,7 +42,7 @@
             نطاق السعر
             <span class="text-xs" style="color: var(--text-muted)">
                 (<span data-price-min>{{ (int) $min }}</span> — <span data-price-max>{{ (int) $max }}</span>
-                {{ setting('store.currency.label', 'كوين') }})
+                {{ $rangeLabel }})
             </span>
         </span>
         {{-- منزلقان بلا بوردر: الأدنى والأعلى --}}
@@ -43,31 +52,29 @@
                class="w-full" aria-label="أعلى سعر" data-price-input="max">
     </div>
 
-    @isset($typeOptions)
-        <fieldset class="min-w-[12rem]">
-            <legend class="block text-sm mb-1">النوع</legend>
-            <div class="flex flex-wrap gap-2">
-                @foreach ($typeOptions['visible'] as $key => $label)
-                    <label class="text-sm rounded-full px-3 py-1.5 cursor-pointer motion-standard"
-                           style="background: var(--surface-sunken); border: 1px solid var(--border)">
-                        <input type="checkbox" name="types[]" value="{{ $key }}" @checked(in_array($key, $selectedTypes, true))>
-                        <span>{{ $label }}</span>
-                    </label>
-                @endforeach
-            </div>
-        </fieldset>
-    @endisset
-
     <button type="submit"
             class="btn rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
             style="background: var(--color-brand-500); color: #04201c">طبّق</button>
 
     <x-slot:advanced>
+        @isset($categories)
+            <label class="block min-w-[10rem]">
+                <span class="block text-sm mb-1">التصنيف</span>
+                <select name="category" class="w-full rounded-xl px-3 py-2 text-sm" style="{{ $inputStyle }}">
+                    <option value="">الكلّ</option>
+                    @foreach ($categories as $category)
+                        <option value="{{ $category->id }}" @selected($filters['category'] === $category->id)>{{ $category->name_ar }}</option>
+                    @endforeach
+                </select>
+            </label>
+        @endisset
+
         @isset($typeOptions)
+            {{-- نوع العنصر مطويّ: الفلتران الظاهران هما **العملة ونطاق السعر** كما ينصّ 17 --}}
             <fieldset class="min-w-[14rem]">
-                <legend class="block text-sm mb-1">أنواع أخرى</legend>
+                <legend class="block text-sm mb-1">النوع</legend>
                 <div class="flex flex-wrap gap-2">
-                    @foreach ($typeOptions['folded'] as $key => $label)
+                    @foreach ($allTypeOptions as $key => $label)
                         <label class="text-sm rounded-full px-3 py-1.5 cursor-pointer"
                                style="background: var(--surface-sunken); border: 1px solid var(--border)">
                             <input type="checkbox" name="types[]" value="{{ $key }}" @checked(in_array($key, $selectedTypes, true))>

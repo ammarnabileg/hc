@@ -1,14 +1,14 @@
 @extends('layouts.app')
 
-@section('title', '🔒 الماليّات')
+@section('title', 'الماليّات')
 
 @section('content')
-    <x-page-header title="🔒 الماليّات"
+    <x-page-header title="الماليّات"
                    subtitle="مصدر الحقيقة الوحيد لكلّ رقم ماليّ — مجموعة محميّة لمالك المنصّة."
                    :breadcrumbs="[
                        ['label' => 'لوحة الإدارة', 'url' => url('/admin')],
                        ['label' => 'المتجر والماليّات', 'url' => route('admin.store.index')],
-                       ['label' => '🔒 الماليّات'],
+                       ['label' => 'الماليّات'],
                    ]">
         <x-slot:action>
             <a href="{{ route('admin.finance.audit') }}" class="rounded-xl px-3 py-2 text-sm"

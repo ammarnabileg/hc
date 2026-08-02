@@ -31,11 +31,11 @@
     </x-page-header>
 
     <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
-        <x-kpi label="اجتماعات المدى" :value="$stats['total']" icon="🗓️" />
-        <x-kpi label="نوافذ حضور مفتوحة" :value="$stats['open_windows']" icon="⏱️" />
-        <x-kpi label="منتهٍ بلا محضر" :value="$stats['without_minutes']" icon="📝"
+        <x-kpi label="اجتماعات المدى" :value="$stats['total']" icon="calendar" />
+        <x-kpi label="نوافذ حضور مفتوحة" :value="$stats['open_windows']" icon="clock" />
+        <x-kpi label="منتهٍ بلا محضر" :value="$stats['without_minutes']" icon="edit"
                :state="$stats['without_minutes'] > 0 ? 'warn' : null" />
-        <x-kpi label="نسبة الحضور" :value="$stats['attendance_rate'].'%'" icon="👥" />
+        <x-kpi label="نسبة الحضور" :value="$stats['attendance_rate'].'%'" icon="people" />
     </div>
 
     <x-filters :action="route('admin.meetings.index')">

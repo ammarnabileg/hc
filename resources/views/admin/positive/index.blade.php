@@ -30,10 +30,10 @@
 
     {{-- أربعة كروت KPI بحدّ أقصى (2.15-أ-3) --}}
     <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
-        <x-kpi label="كلّ الرسائل" :value="$counts['total']" icon="✉️" />
-        <x-kpi label="المفعّلة" :value="$counts['active']" icon="✅" />
-        <x-kpi label="السياقات" :value="$counts['contexts']" icon="🧭" />
-        <x-kpi label="مرّات الظهور" :value="$counts['shown']" icon="👀" />
+        <x-kpi label="كلّ الرسائل" :value="$counts['total']" icon="envelope" />
+        <x-kpi label="المفعّلة" :value="$counts['active']" icon="check" />
+        <x-kpi label="السياقات" :value="$counts['contexts']" icon="compass" />
+        <x-kpi label="مرّات الظهور" :value="$counts['shown']" icon="eye" />
     </div>
 
     {{-- ثلاثة فلاتر ظاهرة كحدّ أقصى (2.15-أ-4) --}}

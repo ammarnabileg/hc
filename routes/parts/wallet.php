@@ -82,7 +82,7 @@ Route::middleware('auth')->prefix('wallet')->name('wallet.')->group(function () 
 | الصلاحيّة `exchange_rates.*` موسومة `is_owner_only` في المصفوفة، ومع ذلك
 | يفحص الكنترولر الدور صراحةً: الحسّاس يُقفَل مرّتين لا مرّة.
 */
-Route::middleware('auth')->prefix('admin/wallet')->name('admin.wallet.')->group(function () {
+Route::middleware(['auth', 'admin.panel'])->prefix('admin/wallet')->name('admin.wallet.')->group(function () {
     Route::get('/rates', [WalletRatesController::class, 'index'])
         ->middleware('permission:exchange_rates.view')
         ->name('rates');

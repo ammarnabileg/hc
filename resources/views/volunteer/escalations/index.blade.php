@@ -49,7 +49,7 @@
     </x-filters>
 
     @if ($rows->isEmpty())
-        <x-empty message="مكتبك فاضي 👌" />
+        <x-empty message="مكتبك فاضي — كلّه تمام" />
     @else
         <div class="space-y-3">
             @foreach ($rows as $case)

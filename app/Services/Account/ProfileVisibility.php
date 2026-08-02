@@ -23,8 +23,16 @@ class ProfileVisibility
 
     public const ADMIN = 'admin';
 
-    /** كاش لكلّ طلب: إعدادات خصوصيّة صاحب البروفايل */
+    /**
+     * كاش **لكلّ طلب** لإعدادات خصوصيّة صاحب البروفايل.
+     *
+     * ⚠️ كان مفهرَسًا بلا أيّ إبطال، فلو عاش الكيان أطول من الطلب (Octane أو
+     * عامل طوابير طويل العمر) بقيت خصوصيّةٌ بائتة تُظهِر حقلًا أقفله صاحبه
+     * لحظتها. فنربطه ببصمة الطلب الجاري: طلبٌ جديد ⟵ كاشٌ جديد.
+     */
     private array $settingsCache = [];
+
+    private ?string $cacheFingerprint = null;
 
     /** مستوى مشاهدة هذا الزائر لهذا البروفايل — والزائر بلا حساب أدنى مستوى */
     public function levelFor(?User $viewer, User $owner): string
@@ -71,9 +79,29 @@ class ProfileVisibility
         };
     }
 
+    /** إسقاط الكاش — يُستدعى فور تعديل صاحبه لإعدادات خصوصيّته */
+    public function forget(?int $userId = null): void
+    {
+        if ($userId === null) {
+            $this->settingsCache = [];
+
+            return;
+        }
+
+        unset($this->settingsCache[$userId]);
+    }
+
     /** إعداد الإظهار المحفوظ لهذا الحقل، وإلّا فالافتراضيّ (الحسّاس مقفول) */
     public function visibilityOf(User $owner, string $field): string
     {
+        $fingerprint = spl_object_hash(request());
+
+        // الكاش صالحٌ داخل الطلب الواحد فقط — وأيّ طلبٍ جديد يبدأ من الصفر
+        if ($this->cacheFingerprint !== $fingerprint) {
+            $this->settingsCache = [];
+            $this->cacheFingerprint = $fingerprint;
+        }
+
         if (! isset($this->settingsCache[$owner->id])) {
             $this->settingsCache[$owner->id] = UserPrivacySetting::query()
                 ->where('user_id', $owner->id)
@@ -127,14 +155,20 @@ class ProfileVisibility
         return false;
     }
 
-    /** نصّ عربيّ يشرح مستوى المشاهدة — يظهر لصاحب البروفايل ليطمئنّ (13.4-م) */
+    /**
+     * نصّ عربيّ يشرح مستوى المشاهدة — يظهر لصاحب البروفايل ليطمئنّ (13.4-م).
+     *
+     * ⚠️ كان يقول لصاحبه «بتشوف كلّ حاجة» بينما **الملاحظات الإداريّة محجوبة
+     * عنه خادميًّا** — نصٌّ يكذب على المستخدم. والصيغة الصحيحة هي عينها التي
+     * في `ViewerLevel::label()`، فنقرأ **نفس مفاتيحها** ولا نكتب صيغةً ثالثة.
+     */
     public function levelLabel(string $level): string
     {
         return match ($level) {
-            self::OWNER => 'دي صفحتك — بتشوف كلّ حاجة',
-            self::ADMIN => 'مشاهدة إداريّة',
-            self::UPLINE => 'مشاهدة مشرف',
-            default => 'المشاهدة العامّة',
+            self::OWNER => (string) setting('volunteer.profile.level.owner', 'دي صفحتك — بتشوف كلّ حاجة عدا الملاحظات الإداريّة'),
+            self::ADMIN => (string) setting('volunteer.profile.level.admin', 'مشاهدة إداريّة'),
+            self::UPLINE => (string) setting('volunteer.profile.level.upline', 'مشاهدة مشرف'),
+            default => (string) setting('volunteer.profile.level.peer', 'المشاهدة العامّة'),
         };
     }
 }

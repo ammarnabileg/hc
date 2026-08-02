@@ -23,11 +23,19 @@ class NearestTopupOffer
      *     offer:?array{id:int,label:string,pay:float,credit:float,bonus_percent:float,covers:bool,url:?string}
      * }
      */
-    public function forDeficit(float $deficit): array
+    public function forDeficit(float $deficit, ?string $currencyCode = null): array
     {
         $needed = round(max($deficit, 0), 2);
 
         if ($needed <= 0 || ! setting('store.topup.suggest_offer', true)) {
+            return ['needed' => $needed, 'offer' => null];
+        }
+
+        /*
+         | ⭐ الشحن يزيد **رصيد الكوينز** وحده (19.5-أ)، فاقتراح عرض شحنٍ على عجزٍ
+         | بالتذاكر أو الـXP وعدٌ كاذب. ومَن نقصته تذاكر مساره «تحويل العملة» (19.3).
+         */
+        if (($currencyCode ?: Coins::defaultCode()) !== Coins::defaultCode()) {
             return ['needed' => $needed, 'offer' => null];
         }
 

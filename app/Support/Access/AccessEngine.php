@@ -32,6 +32,9 @@ class AccessEngine
     /** مفاتيح الصلاحيّات التي تفتح باب اللوحة — تُمسَح مع الكاش */
     private ?array $adminKeys = null;
 
+    /** هل هو مالك المنصّة؟ user_id => bool — تُمسَح مع الكاش */
+    private array $owners = [];
+
     public function __construct(
         private readonly ScopeResolver $scopes,
         private readonly ConditionEvaluator $conditions,
@@ -149,7 +152,14 @@ class AccessEngine
             return true;
         }
 
-        foreach ($this->adminPermissionKeys() as $key) {
+        // نمرّ على ما يملكه هو لا على السطح كلّه: المتدرّب لا يستدعي `allows` ولا مرّة
+        $surface = array_flip($this->adminPermissionKeys());
+        $candidates = $this->grantsFor($user)
+            ->filter(fn (Grant $grant) => isset($surface[$grant->permissionKey]))
+            ->pluck('permissionKey')
+            ->unique();
+
+        foreach ($candidates as $key) {
             if ($this->allows($user, $key)) {
                 return true;
             }
@@ -192,19 +202,21 @@ class AccessEngine
 
     public function isPlatformOwner(User $user): bool
     {
-        return $this->roleKeys($user)->contains(config('access.owner_role'));
+        // كاش لكلّ طلب: كانت تُستدعى مرّاتٍ داخل الحلقة الواحدة فتضرب القاعدة كلّ مرّة
+        return $this->owners[$user->id] ??= $this->roleKeys($user)->contains(config('access.owner_role'));
     }
 
     /** مسح الكاش — يُستدعى بعد أيّ تغيير في الأدوار أو الإسنادات */
     public function forget(?User $user = null): void
     {
         if ($user) {
-            unset($this->cache[$user->id]);
+            unset($this->cache[$user->id], $this->owners[$user->id]);
 
             return;
         }
 
         $this->cache = [];
+        $this->owners = [];
         $this->ownerOnly = null;
         $this->permissionConditions = null;
         $this->adminKeys = null;

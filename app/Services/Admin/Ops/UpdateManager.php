@@ -246,13 +246,20 @@ class UpdateManager
         $output = '';
 
         if ($pending !== []) {
-            Artisan::call('migrate', [
-                '--pretend' => true,
-                '--force' => true,
-                '--path' => $this->paths(),
-            ]);
+            try {
+                Artisan::call('migrate', [
+                    '--pretend' => true,
+                    '--force' => true,
+                    '--path' => $this->paths(),
+                ]);
 
-            $output = trim(Artisan::output());
+                $output = trim(Artisan::output());
+            } catch (Throwable $e) {
+                // معاينةٌ تنفجر خبرٌ مفيد لا شاشةَ خطأ: الهجرة دي هتقع في التنفيذ
+                // كمان — فنعرضها للمالك بلغته بدل 500 (2.17).
+                $output = "المعاينة وقفت على خطأ في الكود مش في قاعدة البيانات:\n".$e->getMessage()
+                    ."\nصلّح الهجرة الأوّل — التنفيذ من غير كده هيقف في نصّه.";
+            }
         }
 
         $this->audit->record($actor, 'ops.updates.dry_run', [
@@ -313,10 +320,11 @@ class UpdateManager
         $backupId = null;
         $startedMaintenance = false;
         $stage = 'preflight';
+        $current = null;
 
         try {
             // 2) الفحوص القبليّة — فحصٌ فاشل يوقف كلّ شيء (2.11-ب)
-            $checks = $this->preflight->checks($this->absolutePaths());
+            $checks = $this->preflight->checks($this->absolutePaths(), $token);
 
             if (! $this->preflight->passes($checks)) {
                 throw new UpdateHalt('preflight', 'الفحوص القبليّة وقفت التحديث: '.implode(' · ', $this->preflight->failures($checks)));
@@ -366,6 +374,7 @@ class UpdateManager
             $batch = $repository->repositoryExists() ? (int) $repository->getNextBatchNumber() : 1;
 
             foreach ($pendingFiles as $name => $file) {
+                $current = $name; // ⭐ الهجرة الجارية بالاسم — عشان التقرير يقول أين وقعنا بالضبط
                 $countsBefore = setting('updates.verify.after_each_step', true) ? $this->ledger->snapshotCounts() : [];
                 $startedAt = microtime(true);
 
@@ -413,7 +422,7 @@ class UpdateManager
             $after = $this->bumpVersion($before);
             $this->clearCaches();
         } catch (Throwable $e) {
-            return $this->fail($e, $actor, $runId, $token, $ran, $before, $backupId, $startedMaintenance, $stage, $output);
+            return $this->fail($e, $actor, $runId, $token, $ran, $before, $backupId, $startedMaintenance, $stage, $output, $current);
         }
 
         // 9) الخروج من الصيانة وفكّ القفل
@@ -489,15 +498,10 @@ class UpdateManager
         bool $startedMaintenance,
         string $stage,
         array $output,
+        ?string $current = null,
     ): array {
         $stage = $e instanceof UpdateHalt ? $e->stage : $stage;
-        $failedMigration = $e instanceof UpdateHalt ? $e->migration : ($ran !== [] ? end($ran) : null);
-
-        if (! $failedMigration && $stage === 'migrate') {
-            // الهجرة التي سقطت لم تُسجَّل في `$ran` أصلًا — نسمّيها من أوّل معلّقة بعد آخر ناجحة
-            $remaining = array_values(array_diff(array_keys($this->pendingFiles()), $ran));
-            $failedMigration = $remaining[0] ?? null;
-        }
+        $failedMigration = ($e instanceof UpdateHalt ? $e->migration : null) ?? $current;
 
         $actions = [];
 
@@ -594,29 +598,35 @@ class UpdateManager
      */
     private function rollbackApplied(array $ran): array
     {
-        $migrator = app('migrator');
-        $files = $migrator->getMigrationFiles($this->absolutePaths());
+        $repository = app('migrator')->getRepository();
         $downed = [];
 
         foreach (array_reverse($ran) as $name) {
-            $path = $files[$name] ?? null;
+            // ⛔ حارس: لا نُنزِل دفعةً ليست لنا. لو آخر دفعة فيها هجرة من خارج
+            //    هذا التشغيل نتوقّف فورًا ونترك الأمر للاستعادة من النسخة.
+            $last = array_map(
+                fn ($row) => is_object($row) ? (string) $row->migration : (string) $row,
+                $repository->getLast(),
+            );
 
-            if (! $path) {
-                continue;
+            if ($last === [] || array_diff($last, $ran) !== []) {
+                break;
             }
 
             try {
-                $instance = $migrator->resolvePath($path);
-
-                if (method_exists($instance, 'down')) {
-                    $instance->down();
-                }
-
-                DB::table('migrations')->where('migration', $name)->delete();
-                $downed[] = $name;
+                Artisan::call('migrate:rollback', [
+                    '--force' => true,
+                    '--step' => 1,
+                    '--path' => $this->absolutePaths(),
+                    '--realpath' => true,
+                ]);
             } catch (Throwable) {
                 // هجرة لا تنزل ليست نهاية الطريق — الاستعادة من النسخة هي الضمان
-                continue;
+                break;
+            }
+
+            if (! in_array($name, $repository->getRan(), true)) {
+                $downed[] = $name;
             }
         }
 
@@ -673,7 +683,8 @@ class UpdateManager
 
         $renamed = $this->applyRenameMap();
 
-        $classes = setting('updates.seed_classes', ['Database\\Seeders\\SettingSeeder']);
+        // مسار الإنتاج لتعريفات الإعدادات — ننادي سيدر الإنتاج كما هو ولا نكتب سيدرًا موازيًا
+        $classes = setting('updates.seed_classes', ['Database\\Seeders\\SettingDefinitionsSeeder']);
         $classes = is_array($classes) ? $classes : [];
         $ran = [];
 

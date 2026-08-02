@@ -36,10 +36,10 @@
 
     @if ($canEarnings && $earnings)
         <section class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4">
-            <x-kpi label="جاهزة للسحب" :value="'$'.$num($earnings['ready'])" icon="💵" />
-            <x-kpi label="قيد التحويل" :value="'$'.$num($earnings['in_transit'])" icon="⏳" />
-            <x-kpi label="مستلمة" :value="'$'.$num($earnings['received'])" icon="✅" />
-            <x-kpi label="إجماليّة" :value="'$'.$num($earnings['total'])" icon="📊" />
+            <x-kpi label="جاهزة للسحب" :value="'$'.$num($earnings['ready'])" icon="money" />
+            <x-kpi label="قيد التحويل" :value="'$'.$num($earnings['in_transit'])" icon="hourglass" />
+            <x-kpi label="مستلمة" :value="'$'.$num($earnings['received'])" icon="check" />
+            <x-kpi label="إجماليّة" :value="'$'.$num($earnings['total'])" icon="chart" />
         </section>
     @endif
 

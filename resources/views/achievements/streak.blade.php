@@ -34,11 +34,11 @@
     </x-page-header>
 
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
-        <x-kpi label="ستريكي الحاليّ" :value="(int) $streak->current_days" icon="🔥" hint="أيّام متواصلة" />
-        <x-kpi label="أطول ستريك (Best)" :value="(int) $streak->best_days" icon="🏅" />
-        <x-kpi label="أيّام نادي الخامسة" :value="(int) $streak->club_5am_count" icon="🌅" />
+        <x-kpi label="ستريكي الحاليّ" :value="(int) $streak->current_days" icon="streak" hint="أيّام متواصلة" />
+        <x-kpi label="أطول ستريك (Best)" :value="(int) $streak->best_days" icon="badge" />
+        <x-kpi label="أيّام نادي الخامسة" :value="(int) $streak->club_5am_count" icon="streak" />
         <x-kpi label="آخر يوم نشط"
-               :value="$streak->last_active_date?->translatedFormat('j M') ?? '—'" icon="📆" />
+               :value="$streak->last_active_date?->translatedFormat('j M') ?? '—'" icon="calendar" />
     </div>
 
     {{-- ⭐ تذكرة مكافأة السلسلة (7.2): زرّ واحد بارز عند اكتمال الدورة --}}
@@ -48,7 +48,7 @@
                 <x-state-badge state="honor" label="مكافأة جاهزة" />
                 <p class="text-sm">
                     كمّلت <strong>{{ (int) $streak->current_days }}</strong> يوم متواصل —
-                    تذكرة الهدية في انتظارك 🎟️
+                    تذكرة الهدية في انتظارك <x-icon name="ticket" size="16" />
                 </p>
             </div>
 
@@ -66,7 +66,7 @@
     @if ($broken)
         {{-- الستريك المنقطع برسالة محايدة تشجّع بلا تجريح (2.17-ج) --}}
         <div class="card p-4 mb-4 text-sm" style="border-color: var(--border)">
-            <p class="font-semibold">ابدأ من جديد النهارده 🌱</p>
+            <p class="font-semibold">ابدأ من جديد النهارده <x-icon name="contribution" size="16" /></p>
             <p class="mt-1" style="color: var(--text-muted)">
                 الستريك اتقطع، وده بيحصل. أطول ستريك عملته ({{ (int) $streak->best_days }} يوم) لسّه محفوظ ليك —
                 وأوّل يوم في السلسلة الجديدة بيبدأ بضغطة.
@@ -95,11 +95,15 @@
 
         <section class="card p-4">
             <div class="flex items-center justify-between gap-2 mb-2">
-                <h2 class="font-bold text-sm">نادي الخامسة صباحًا 🌅</h2>
+                <h2 class="font-bold text-sm">نادي الخامسة صباحًا <x-icon name="streak" size="16" /></h2>
                 {{-- النافذة مفتوحة الآن؟ — بشارة لا بلون وحده (2.16) --}}
                 <x-state-badge :state="$windowOpen ? 'ok' : 'idle'"
                                :label="$windowOpen ? 'النافذة مفتوحة' : 'النافذة مقفولة'" />
             </div>
+
+            {{-- ⭐ «X صحيوا معاك» بحدّ 10، وتحته «كن من أوائل الصاحيين» (2.9-7) --}}
+            <x-social-proof context="club_5am" class="mb-2"
+                :count="app(App\Services\Engagement\SocialProof::class)->clubPeersToday(auth()->id())" />
 
             <p class="text-xs leading-relaxed" style="color: var(--text-muted)">
                 سجّل حضورك بين <strong style="color: var(--text)">{{ $window['start'] }}</strong>
@@ -124,13 +128,13 @@
 
             <ul class="mt-3 space-y-1 text-xs" style="color: var(--text-muted)">
                 <li>• الأيّام مش لازم متتابعة — الهدف بناء العادة.</li>
-                <li>• كلّ {{ (int) $rewardEvery }} أيّام متواصلة = مكافأة تذكرة هدية 🎟️.</li>
+                <li>• كلّ {{ (int) $rewardEvery }} أيّام متواصلة = مكافأة تذكرة هدية <x-icon name="ticket" size="16" />.</li>
                 <li>• درع التجميد بيحمي يوم فايت من كسر السلسلة.</li>
             </ul>
 
             {{-- ⭐ درع التجميد (7.2 · 7.1-4): يظهر حين يوجد يوم فايت يستحقّ الحماية --}}
             <div class="mt-4 pt-4" style="border-top: 1px solid var(--border)">
-                <h3 class="font-bold text-xs mb-2">درع التجميد 🛡️</h3>
+                <h3 class="font-bold text-xs mb-2">درع التجميد <x-icon name="shield" size="16" /></h3>
 
                 @if ($freezableDay)
                     <p class="text-xs mb-2" style="color: var(--text-muted)">

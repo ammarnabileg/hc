@@ -39,10 +39,10 @@
         </div>
 
         <div class="grid gap-3 grid-cols-2 md:grid-cols-4 mt-4">
-            <x-kpi :label="setting('attestations.kpi.courses', 'تدريبات مكتملة')" :value="$record['courses']->count()" icon="🎓" />
-            <x-kpi :label="setting('attestations.kpi.certificates', 'شهادات سارية')" :value="$record['certificates']->count()" icon="📜" />
-            <x-kpi :label="setting('attestations.kpi.badges', 'شارات')" :value="$record['badges']->count()" icon="🥇" />
-            <x-kpi :label="setting('attestations.kpi.xp', 'نقاط الخبرة')" :value="$record['xp']" icon="⚡" />
+            <x-kpi :label="setting('attestations.kpi.courses', 'تدريبات مكتملة')" :value="$record['courses']->count()" icon="training" />
+            <x-kpi :label="setting('attestations.kpi.certificates', 'شهادات سارية')" :value="$record['certificates']->count()" icon="certificate" />
+            <x-kpi :label="setting('attestations.kpi.badges', 'شارات')" :value="$record['badges']->count()" icon="trophy" />
+            <x-kpi :label="setting('attestations.kpi.xp', 'نقاط الخبرة')" :value="$record['xp']" icon="spark" />
         </div>
 
         {{-- ⭐ الموافقة على النشر: مقفول افتراضيًّا، ويُقفَل بضغطة (9.1 · 10.0-ج) --}}

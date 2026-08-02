@@ -29,6 +29,7 @@ class EconomyLedger
     public function __construct(
         private readonly LedgerService $ledger,
         private readonly EconomyRules $rules,
+        private readonly LevelResolver $levels,
     ) {}
 
     /**
@@ -70,6 +71,13 @@ class EconomyLedger
 
             // عمود users.xp هو مفتاح ترتيب الليدر بورد (7.3) — فلا يُترَك خلف الدفتر
             $user->increment('xp', $amount);
+
+            /*
+             | ⭐ المستوى دالّةٌ في XP وجدول المستويات لا عمودٌ مستقلّ (7.3).
+             | كان `users.level` لا يتحدّث أبدًا، فتقرؤه الشارات قديمًا بينما
+             | الداشبورد يحسبه طيرانًا — مستوىً في شاشة وآخر في المنطق.
+             */
+            $this->levels->sync($user->refresh());
 
             if ($enrollment) {
                 $enrollment->increment('xp_earned', $amount);

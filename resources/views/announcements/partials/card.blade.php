@@ -24,7 +24,7 @@
 
     <header class="flex items-start gap-2 flex-wrap">
         @if ($announcement->is_pinned)
-            <span class="text-sm" title="منشور مثبَّت" aria-label="مثبَّت">📌</span>
+            <span class="text-sm" title="منشور مثبَّت" aria-label="مثبَّت"><x-icon name="placement" size="16" /></span>
         @endif
 
         <h2 class="font-bold flex-1 min-w-40">{{ $announcement->title }}</h2>

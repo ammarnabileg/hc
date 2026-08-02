@@ -36,7 +36,7 @@
                                 <span class="text-xs" style="color: var(--text-muted)">زرّ: {{ $slide->action_label }}</span>
                             @endif
                             @if ($slide->from_template)
-                                <span class="text-xs" style="color: var(--text-muted)">🧩 من قالب</span>
+                                <span class="text-xs" style="color: var(--text-muted)"><x-icon name="game" size="16" /> من قالب</span>
                             @endif
                         </div>
                     </div>
@@ -54,7 +54,7 @@
                                         data-body="{{ $slide->body_ar }}"
                                         data-action-label="{{ $slide->action_label }}"
                                         data-action-url="{{ $slide->action_url }}"
-                                        data-active="{{ $slide->is_active ? 1 : 0 }}">✎ تعديل</button>
+                                        data-active="{{ $slide->is_active ? 1 : 0 }}"><x-icon name="edit" size="16" /> تعديل</button>
                             @endcan
                             <button type="button" class="w-full text-start px-2 py-2 rounded hover:opacity-80" data-move="up">↑ فوق</button>
                             <button type="button" class="w-full text-start px-2 py-2 rounded hover:opacity-80" data-move="down">↓ تحت</button>

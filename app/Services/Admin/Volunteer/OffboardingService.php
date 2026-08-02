@@ -2,10 +2,12 @@
 
 namespace App\Services\Admin\Volunteer;
 
+use App\Models\ConsentRequest;
 use App\Models\Membership;
 use App\Models\Offboarding;
 use App\Models\Reentry;
 use App\Models\User;
+use App\Models\VolunteerCard;
 use Illuminate\Support\Carbon;
 use RuntimeException;
 
@@ -112,6 +114,13 @@ class OffboardingService
     /**
      * إتمام الإنهاء: يقفل العضويّات ويُصدر شهادة الخروج المشرَّف عند استحقاقها.
      *
+     * ⭐ ويُنفِّذ **أثر الخروج كاملًا** لا شكليًّا (13.4-س-ز · ط):
+     *  1) **إلغاء تلقائيّ لكلّ موافقات إظهار التواصل** — ما منحه وما مُنِح له.
+     *     كان الخارج يظلّ رقمه وبريده مكشوفَين لزملاء لم تعد بينهم علاقة، وهو
+     *     **خرق خصوصيّة فعليّ**.
+     *  2) **شهادة خبرة التطوّع فعلًا** — كان العلَم يقول «صدرت» والسجلّ خالٍ.
+     *  3) **البطاقة الرقميّة تصير «منتهية» لحظة الخروج** لا كسولًا عند أوّل زيارة.
+     *
      * @throws RuntimeException إن لم تكتمل التصفية الإلزاميّة
      */
     public static function complete(Offboarding $record, User $actor): Offboarding
@@ -125,17 +134,27 @@ class OffboardingService
             ->where('status', 'active')
             ->update(['status' => 'ended', 'ended_at' => now(), 'end_reason' => $record->type]);
 
+        $user = $record->user;
+
         // خروج مُشرَّف: شهادة خبرة في الاستقالة وانتهاء الملفّ فقط — لا في الإقصاء
         $honorable = $record->type !== 'exclusion'
             && (bool) setting('volunteer.offboarding.honorable_certificate_enabled', true);
 
+        $issued = false;
+
+        if ($honorable && $user) {
+            $issued = CertificateEligibility::issueExperience($user, $actor)['issued'];
+        }
+
+        $revoked = $user ? self::revokeContactConsents($user) : 0;
+        $expiredCards = $user ? self::expireCards($user) : 0;
+
         $record->forceFill([
             'approved_by' => $actor->id,
             'completed_at' => now(),
-            'honorable_certificate_issued' => $honorable,
+            // العلَم يقول ما حدث فعلًا لا ما كان مقصودًا
+            'honorable_certificate_issued' => $issued,
         ])->save();
-
-        $user = $record->user;
 
         if ($user) {
             // الرسالة للفريق بلا سبب — «انتهت عضويّة فلان» فقط
@@ -146,9 +165,44 @@ class OffboardingService
             );
         }
 
-        AuditTrail::log($actor, 'offboarding.complete', $record, [], ['honorable' => $honorable]);
+        AuditTrail::log($actor, 'offboarding.complete', $record, [], [
+            'honorable' => $honorable,
+            'experience_certificate_issued' => $issued,
+            'consents_revoked' => $revoked,
+            'cards_expired' => $expiredCards,
+        ]);
 
         return $record;
+    }
+
+    /**
+     * ⭐ **إلغاء تلقائيّ لكلّ موافقات إظهار التواصل** (13.4-س-ز) — الاتّجاهين معًا:
+     * ما منحه الخارج لغيره، وما مُنِح له. وبلا إشعار لأيّ طرف، على نفس فلسفة
+     * السحب الصامت (13.4-م-2).
+     *
+     * @return int عدد الموافقات التي أُلغيت
+     */
+    public static function revokeContactConsents(User $user): int
+    {
+        return ConsentRequest::query()
+            ->where(fn ($q) => $q->where('owner_id', $user->id)->orWhere('requester_id', $user->id))
+            ->whereIn('status', ['granted', 'pending'])
+            ->update(['status' => 'revoked', 'revoked_at' => now()]);
+    }
+
+    /**
+     * ⭐ البطاقة تصير **«منتهية» لحظة الخروج** ولا تُحذَف (13.4-ر-ج) — وتبقى في
+     * سجلّه بتاريخيها. والحساب الكسول عند أوّل زيارة كان يترك بطاقةً «سارية»
+     * على الويب لمن انتهت عضويّته.
+     *
+     * @return int عدد البطاقات التي انتهت
+     */
+    public static function expireCards(User $user): int
+    {
+        return VolunteerCard::query()
+            ->where('user_id', $user->id)
+            ->where('status', 'valid')
+            ->update(['status' => 'expired', 'expired_at' => now()]);
     }
 
     /** حالة العودة: متاحة؟ ومتى؟ (13.4-ق) */

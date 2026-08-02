@@ -46,7 +46,9 @@ class ExamDemoSeeder extends Seeder
             ['exams.wallet.charge_reason', 'exams', 'وصف معاملة رسوم الامتحان', 'string', 'دخول امتحان'],
             ['exams.certificate_type_map', 'exams', 'ربط نوع المحتوى بنوع الشهادة', 'json', '{"App\\\\Models\\\\Course":"course","App\\\\Models\\\\LearningPath":"path"}'],
             ['exams.qualifying_certificate_type', 'exams', 'نوع شهادة المسار التأهيليّ', 'string', 'qualifying'],
-            ['volunteer.qualifying.course_id', 'exams', 'تدريب المسار التأهيليّ', 'number', '0'],
+            // ⛔ `volunteer.qualifying.course_id` أُلغي: التأهيليّ **مسار** لا كورس
+            // (13.4-ب هو نصّ التعريف الحاكم)، ومفتاحه `volunteer.qualifying.path_id`
+            // في سيدر مجال التوظيف — مفتاح واحد لكلّ معنًى (2.13).
 
             // نصوص الامتحان — محايدة تشجّع ولا تعاتب (2.17-ج)
             ['exams.messages.started', 'exams', 'رسالة بدء الامتحان', 'text', 'بالتوفيق — ركّز وخُد وقتك.'],

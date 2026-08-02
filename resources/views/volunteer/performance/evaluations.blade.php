@@ -33,7 +33,7 @@
     @if ($tab === 'given' && $upline)
         {{-- ------------------------------------------------ تقييمي لأبلايني --}}
         <div class="card p-4 mb-4 text-sm flex items-start gap-2">
-            <span aria-hidden="true">🕶️</span>
+            <span aria-hidden="true"><x-icon name="eye" size="16" /></span>
             <p>مجهول تمامًا — بيظهر لأبلاينك متوسّطًا فقط، بلا أيّ كشف لهويّتك.</p>
         </div>
 
@@ -104,10 +104,10 @@
                      action="ارجع للأداء" :href="route('volunteer.performance.vxp')" />
         @else
             <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
-                <x-kpi label="المتوسّط العامّ" :value="$summary['average'].' / '.$maxScore" icon="🧭" />
-                <x-kpi label="عدد المقيّمين" :value="$summary['raters']" icon="👥" />
-                <x-kpi label="نافذة العرض" :value="$windowWeeks.' أسبوعًا'" icon="📆" />
-                <x-kpi label="أثره على Rep" :value="$fmt($myImpact)" icon="⚖️" />
+                <x-kpi label="المتوسّط العامّ" :value="$summary['average'].' / '.$maxScore" icon="compass" />
+                <x-kpi label="عدد المقيّمين" :value="$summary['raters']" icon="people" />
+                <x-kpi label="نافذة العرض" :value="$windowWeeks.' أسبوعًا'" icon="calendar" />
+                <x-kpi label="أثره على Rep" :value="$fmt($myImpact)" icon="evaluation" />
             </div>
 
             @include('volunteer.performance.partials.line-chart', [

@@ -40,7 +40,7 @@
                    class="card p-4 block motion-standard hover:opacity-90 animate-fadeup">
                     <div class="flex items-start justify-between gap-3 flex-wrap">
                         <div class="min-w-0">
-                            <div class="font-bold">📦 {{ $package->name }}</div>
+                            <div class="font-bold"><x-icon name="bundle" size="16" /> {{ $package->name }}</div>
                             <div class="text-xs mt-1" style="color: var(--text-muted)">
                                 المَعلَم الأمّ: {{ $package->milestone?->name ?? '—' }} · الكيان: {{ $package->entity?->name_ar ?? '—' }}
                             </div>

@@ -22,16 +22,16 @@
                 <summary class="cursor-pointer rounded-xl px-3 py-2 text-sm" style="background: var(--surface-raised)">⋯</summary>
                 <div class="absolute end-0 mt-2 w-64 card p-2 z-20 text-sm space-y-1">
                     <a class="block px-2 py-1 rounded hover:opacity-80"
-                       href="{{ route('admin.ops.onboarding.preview', ['screen' => $screen]) }}">👁 معاينة كما يراها المستخدم</a>
+                       href="{{ route('admin.ops.onboarding.preview', ['screen' => $screen]) }}"><x-icon name="eye" size="16" /> معاينة كما يراها المستخدم</a>
                     @can('onboarding.create')
                         <form method="post" action="{{ route('admin.ops.onboarding.template') }}">
                             @csrf
                             <input type="hidden" name="screen" value="{{ $screen }}">
-                            <button class="w-full text-start px-2 py-1 rounded hover:opacity-80">🧩 استخدم القالب الجاهز</button>
+                            <button class="w-full text-start px-2 py-1 rounded hover:opacity-80"><x-icon name="game" size="16" /> استخدم القالب الجاهز</button>
                         </form>
                     @endcan
                     <a class="block px-2 py-1 rounded hover:opacity-80"
-                       href="{{ route('admin.settings.index', ['tab' => 'onboarding']) }}">⚙ إعدادات الـOnboarding</a>
+                       href="{{ route('admin.settings.index', ['tab' => 'onboarding']) }}"><x-icon name="settings" size="16" /> إعدادات الـOnboarding</a>
                 </div>
             </details>
         </x-slot:action>

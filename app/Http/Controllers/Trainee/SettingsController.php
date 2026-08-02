@@ -12,13 +12,16 @@ use App\Models\UserPrivacySetting;
 use App\Services\Account\AccountDataExport;
 use App\Services\Account\ConsentDirectory;
 use App\Services\Account\PrivacyFields;
+use App\Services\Account\ProfileVisibility;
 use App\Services\Account\SettingsAutosave;
 use App\Services\Security\AccountDeletion;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
@@ -53,6 +56,15 @@ class SettingsController extends Controller
             'activeConsents' => $this->autosave->activeConsentCount($user),
             'avatarMaxKb' => $this->autosave->avatarMaxKb(),
             'tab' => $request->string('tab')->toString() ?: 'account',
+
+            /*
+             | ⭐ 2.3 — تاب «الأمان» يجمع الثلاثة في مكان واحد: كلمة السرّ
+             | **والجلسات النشطة** **ومنطقة الخطر**. كانت الأخيرتان في صفحةٍ
+             | منفصلة (`/settings/privacy`)، والبند صريح أنّهما **ضمن تاب الأمان**
+             | داخل صفحة الإعدادات بتاباتها الجانبيّة (2.15-ب).
+             */
+            'devices' => UserDevice::where('user_id', $user->id)->orderByDesc('last_active_at')->get(),
+            'currentSessionId' => $request->session()->getId(),
         ]);
     }
 
@@ -85,8 +97,6 @@ class SettingsController extends Controller
             'consentBars' => $consents->mapWithKeys(
                 fn ($c) => [$c->id => $this->consents->remainingPercent($c)]
             ),
-            'devices' => UserDevice::where('user_id', $user->id)->orderByDesc('last_active_at')->get(),
-            'currentSessionId' => $request->session()->getId(),
         ]);
     }
 
@@ -205,6 +215,9 @@ class SettingsController extends Controller
             ['visibility' => $data['visibility']],
         );
 
+        // ⭐ إسقاط كاش الخصوصيّة فورًا — فلا يبقى إعدادٌ بائتٌ يُظهِر ما أُقفِل لحظتها
+        app(ProfileVisibility::class)->forget($request->user()->id);
+
         if ($request->wantsJson()) {
             return response()->json(['saved' => true, 'message' => 'اتحفظ ✓']);
         }
@@ -275,6 +288,34 @@ class SettingsController extends Controller
         }
 
         return back()->with('status', 'اتقفلت ✓ — الجهاز ده مبقاش داخل على حسابك.');
+    }
+
+    /**
+     * ⭐ [تسجيل الخروج من كلّ الأجهزة] (2.3) — إنهاء كلّ الجلسات دفعةً واحدة.
+     *
+     * ثلاث خطوات، وإسقاط أيٍّ منها يجعل الزرّ وهمًا:
+     *   1. مسح صفوف الجلسات المخزَّنة — فلا يُستأنف أحدٌ جلسةً قائمة،
+     *   2. مسح الأجهزة المسجَّلة — فالقائمة تعكس الحقيقة لا تاريخها،
+     *   3. ⭐ **تبديل `remember_token`** — وهو الأهمّ هنا: الجلسة عندنا دائمة
+     *      بـRemember-me (2.3)، فبلا تبديل الرمز يعود كلّ جهازٍ خرج بعد لحظة
+     *      بكوكيّه القديم، ويصير الزرّ إجراءً بلا أثر.
+     */
+    public function endAllSessions(Request $request): RedirectResponse
+    {
+        $user = $request->user();
+
+        DB::table('sessions')->where('user_id', $user->id)->delete();
+        UserDevice::where('user_id', $user->id)->delete();
+        $user->forceFill(['remember_token' => Str::random(60)])->save();
+
+        auth()->logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect()->route('login')->with('status', (string) setting(
+            'auth.logout.all_devices_done',
+            'قفلنا كلّ الجلسات ✓ — سجّل دخولك تاني.',
+        ));
     }
 
     /** منطقة الخطر (2.3): خطوة 1 — رمز تأكيد رباعيّ يوصل بريد صاحب الحساب نفسه */

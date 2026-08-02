@@ -55,6 +55,24 @@ class CartService
         return count($this->raw($request));
     }
 
+    /**
+     * عملة السلّة = عملة أوّل سطرٍ صالح فيها، و`null` للسلّة الفارغة (17).
+     *
+     * @param  array<int, array{type:string,slug:string}>  $rows
+     */
+    public function currencyOf(array $rows): ?string
+    {
+        foreach ($rows as $row) {
+            $item = $this->catalog->resolve($row['type'], $row['slug']);
+
+            if ($item) {
+                return $this->pricing->currencyOf($row['type'], $item);
+            }
+        }
+
+        return null;
+    }
+
     // ------------------------------------------------------------ التعديل
 
     /** @return array{ok:bool,reason:?string,message:string} */
@@ -75,6 +93,30 @@ class CartService
 
         if (count($rows) >= (int) setting('store.cart.max_items', 10)) {
             return $this->fail('cart_full', 'store.cart.full_text');
+        }
+
+        /*
+         | ⭐ **سلّة بعملةٍ واحدة** (17 · 19.1): بعد أن صار المنتج يُسعَّر بـCoins أو
+         | Tickets أو XP، جمعُ «400 كوين + 50 تذكرة» في إجماليٍّ واحد رقمٌ بلا معنى
+         | ويخصم من محفظةٍ واحدة ما ليس لها. فالسلّة تقبل عملةً واحدة، والمستخدم
+         | يُتمّ طلبه ثمّ يبدأ سلّةً بعملةٍ أخرى — والرسالة تشرح ماذا يفعل (2.17-ج).
+         */
+        $cartCurrency = $this->currencyOf($rows);
+        $itemCurrency = $this->pricing->currencyOf($type, $item);
+
+        if ($cartCurrency !== null && $cartCurrency !== $itemCurrency) {
+            return [
+                'ok' => false,
+                'reason' => 'currency_mismatch',
+                'message' => str_replace(
+                    ['{cart}', '{item}'],
+                    [Coins::currencyLabel($cartCurrency), Coins::currencyLabel($itemCurrency)],
+                    (string) setting(
+                        'store.cart.currency_mismatch_text',
+                        'سلّتك دلوقتي بالـ{cart} والعنصر ده بالـ{item} — كمّل طلبك الأوّل وابدأ سلّة جديدة بيه.',
+                    ),
+                ),
+            ];
         }
 
         $rows[] = ['type' => $type, 'slug' => $slug];
@@ -117,11 +159,17 @@ class CartService
         $listTotal = 0.0;
         $owned = [];
         $offers = [];
+        // عملة السلّة تُقرَأ من محتواها، وما خالفها يُستبعَد بدل أن يُجمَع خطأً (17)
+        $currency = $this->currencyOf($rows) ?? Coins::defaultCode();
 
         foreach ($rows as $row) {
             $item = $this->catalog->resolve($row['type'], $row['slug']);
 
             if (! $item || ! $this->catalog->isAvailable($row['type'], $item) || ! $this->catalog->isSellable($row['type'])) {
+                continue;
+            }
+
+            if ($this->pricing->currencyOf($row['type'], $item) !== $currency) {
                 continue;
             }
 
@@ -170,12 +218,14 @@ class CartService
         $subtotal = round(array_sum(array_column($lines, 'price')), 2);
         $coupon = $this->cartCoupon($couponCode, $user, $lines, $subtotal);
         $total = round(max($subtotal - $coupon['amount'], 0), 2);
-        $balance = $this->catalog->balance($user);
+        $balance = $this->catalog->balance($user, $currency);
 
         return [
             'type' => 'cart',
             'slug' => 'cart',
             'title' => (string) setting('store.cart.order_title'),
+            'currency' => $currency,
+            'currency_label' => Coins::currencyLabel($currency),
             'lines' => $lines,
             'bump' => $chosen[0] ?? null,
             'bumps' => $chosen,
@@ -193,7 +243,7 @@ class CartService
             'owned' => $owned !== [],
             'owned_titles' => $owned,
             'sellable' => true,
-            'suggestion' => $this->topups->forDeficit(round($total - $balance, 2)),
+            'suggestion' => $this->topups->forDeficit(round($total - $balance, 2), $currency),
         ];
     }
 

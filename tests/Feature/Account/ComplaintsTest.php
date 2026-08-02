@@ -16,6 +16,7 @@ class ComplaintsTest extends AccountTestCase
 
         $this->actingAs($user)->post(route('complaints.store'), [
             'type' => 'suggestion',
+            'wants_contact' => 1,
             'category' => 'المنصّة',
             'title' => 'اقتراح تحسين المنصّة',
             'body' => 'يا ريت يبقى فيه تنبيه قبل انتهاء مهلة الامتحان بيوم.',

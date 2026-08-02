@@ -25,15 +25,15 @@
 
     {{-- 4 كروت KPI بحدّ أقصى (2.15-أ-3) --}}
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
-        <x-kpi label="الرصيد التراكميّ" :value="$balance" icon="⚡" />
-        <x-kpi label="ترتيبي" :value="$rank ?: '—'" icon="🏅" :hint="'من '.$total.' متطوّع'" />
-        <x-kpi label="المكتسَب آخر {{ $filters['days'] }} يومًا" :value="$earned" icon="📈" />
-        <x-kpi label="مصادر نشطة" :value="collect($sources)->where('value', '>', 0)->count()" icon="🧩" />
+        <x-kpi label="الرصيد التراكميّ" :value="$balance" icon="spark" />
+        <x-kpi label="ترتيبي" :value="$rank ?: '—'" icon="badge" :hint="'من '.$total.' متطوّع'" />
+        <x-kpi label="المكتسَب آخر {{ $filters['days'] }} يومًا" :value="$earned" icon="chart" />
+        <x-kpi label="مصادر نشطة" :value="collect($sources)->where('value', '>', 0)->count()" icon="game" />
     </div>
 
     {{-- ⭐ تنويه ثابت (24.4) --}}
     <div class="card p-3 mb-4 text-sm flex items-start gap-2">
-        <span aria-hidden="true">🔒</span>
+        <span aria-hidden="true"><x-icon name="lock" size="16" /></span>
         <p>VXP لا يتصفّر ولا يُخصَم آليًّا — الخصم بقرار محكّم أو معاملة يدويّة موثّقة فقط.</p>
     </div>
 

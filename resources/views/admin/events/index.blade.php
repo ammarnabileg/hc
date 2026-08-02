@@ -17,7 +17,7 @@
     </x-page-header>
 
     <div class="card p-3 mb-4 text-sm">
-        🔒 <strong>كود الحضور مستمرّ لا يقفل</strong> — والمكافأة وحدها تتناقص على درجات زمنيّة.
+        <x-icon name="lock" size="16" /> <strong>كود الحضور مستمرّ لا يقفل</strong> — والمكافأة وحدها تتناقص على درجات زمنيّة.
         وشهادة الحضور تُضبَط في إدارة الشهادات لا هنا.
     </div>
 
@@ -94,6 +94,9 @@
                                 data-capacity="{{ $event->capacity }}" data-code="{{ $event->attendance_code }}"
                                 data-location="{{ $event->location }}" data-join="{{ $event->join_link }}"
                                 data-registration="{{ $event->registration_link }}"
+                                data-price-coins="{{ (int) $event->price_coins }}"
+                                data-price-tickets="{{ (int) $event->price_tickets }}"
+                                data-coupon="{{ $event->coupon_id }}" data-cover="{{ $event->cover_path }}"
                                 data-status="{{ $event->status }}">تعديل</button>
                         @if ($event->status !== 'cancelled')
                             <form method="post" action="{{ route('admin.events.cancel', $event) }}"
@@ -216,6 +219,40 @@
                     </label>
                 </div>
 
+                {{-- ⭐ السعر: مجّانيّ/كوينز/تذكرة + كوبون (12.11) — كان مُتحقَّقًا منه
+                     خادميًّا ومقروءًا في صفحة المستخدم وبلا أيّ حقل هنا، فلا سبيل
+                     لضبطه إلّا بتعديل قاعدة البيانات باليد. --}}
+                <div class="grid sm:grid-cols-3 gap-3 mt-3">
+                    <label class="text-sm font-semibold">السعر (كوينز)
+                        <input type="number" min="0" step="1" name="price_coins" id="ev-price-coins" value="0"
+                               class="w-full rounded-xl px-3 py-2 text-sm mt-1"
+                               style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
+                        <span class="block text-xs mt-1" style="color: var(--text-muted)">صفر = مجّانيّة</span>
+                    </label>
+                    <label class="text-sm font-semibold">السعر (تذاكر)
+                        <input type="number" min="0" step="1" name="price_tickets" id="ev-price-tickets" value="0"
+                               class="w-full rounded-xl px-3 py-2 text-sm mt-1"
+                               style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
+                    </label>
+                    <label class="text-sm font-semibold">كوبون خصم (اختياريّ)
+                        <select name="coupon_id" id="ev-coupon" class="w-full rounded-xl px-3 py-2 text-sm mt-1"
+                                style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
+                            <option value="">— بلا كوبون</option>
+                            @foreach ($coupons as $coupon)
+                                <option value="{{ $coupon->id }}">{{ $coupon->code }}</option>
+                            @endforeach
+                        </select>
+                    </label>
+                </div>
+
+                {{-- الغلاف (12.11) — العمود كان موجودًا وميّتًا بلا حقل يكتبه --}}
+                <label class="block text-sm font-semibold mt-3">غلاف الفعاليّة
+                    <input type="text" name="cover_path" id="ev-cover" maxlength="255"
+                           placeholder="مسار الصورة من مكتبة الوسائط"
+                           class="w-full rounded-xl px-3 py-2 text-sm mt-1"
+                           style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
+                </label>
+
                 <div class="grid sm:grid-cols-3 gap-3 mt-3">
                     <label class="text-sm font-semibold">كود الحضور (OTP رقميّ)
                         <input type="text" name="attendance_code" id="ev-code" maxlength="32"
@@ -223,15 +260,14 @@
                                class="w-full rounded-xl px-3 py-2 text-sm mt-1 font-mono"
                                style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
                     </label>
-                    <label class="text-sm font-semibold">نوع شهادة الحضور
-                        <select name="certificate_type_id" class="w-full rounded-xl px-3 py-2 text-sm mt-1"
-                                style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
-                            <option value="">— بلا شهادة</option>
-                            @foreach ($certificateTypes as $type)
-                                <option value="{{ $type->id }}">{{ $type->name_ar }}</option>
-                            @endforeach
-                        </select>
-                    </label>
+                    {{-- نوع شهادة الحضور يُضبَط في «إدارة الشهادات» لا هنا (13.3 · 12.5) --}}
+                    <div class="text-sm font-semibold">نوع شهادة الحضور
+                        <p class="mt-1 rounded-xl px-3 py-2 text-xs font-normal leading-relaxed"
+                           style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text-muted)">
+                            بيتظبط من <strong>إدارة الشهادات</strong> — النوع المربوط بالفعاليّات هو المفتاح
+                            «{{ setting('events.certificate.default_type_key', 'event') }}»، وأيّ تعديل عليه بيسري على كلّ الفعاليّات.
+                        </p>
+                    </div>
                     <label class="text-sm font-semibold">الحالة
                         <select name="status" id="ev-status" class="w-full rounded-xl px-3 py-2 text-sm mt-1"
                                 style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
@@ -305,6 +341,10 @@
                 document.getElementById('ev-location').value = btn.dataset.location || '';
                 document.getElementById('ev-join').value = btn.dataset.join || '';
                 document.getElementById('ev-registration').value = btn.dataset.registration || '';
+                document.getElementById('ev-price-coins').value = btn.dataset.priceCoins || 0;
+                document.getElementById('ev-price-tickets').value = btn.dataset.priceTickets || 0;
+                document.getElementById('ev-coupon').value = btn.dataset.coupon || '';
+                document.getElementById('ev-cover').value = btn.dataset.cover || '';
                 document.getElementById('ev-status').value = btn.dataset.status;
                 const modal = document.getElementById('event-modal');
                 modal.classList.remove('hidden');

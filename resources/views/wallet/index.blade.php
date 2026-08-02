@@ -55,7 +55,7 @@
                             سحب الأرباح
                         </button>
                     @endif
-                    <a class="block rounded-lg px-3 py-2 hover:opacity-80" href="{{ route('wallet.tickets') }}">التذاكر 🎟️</a>
+                    <a class="block rounded-lg px-3 py-2 hover:opacity-80" href="{{ route('wallet.tickets') }}">التذاكر <x-icon name="ticket" size="16" /></a>
                     @can('topup.list')
                         <a class="block rounded-lg px-3 py-2 hover:opacity-80" href="{{ route('wallet.topup.requests') }}">طلبات الشحن</a>
                     @endcan
@@ -97,7 +97,7 @@
             <x-kpi
                 :label="$currency->name_ar"
                 :value="number_format($balances[$currency->id] ?? 0, (int) $currency->decimals)"
-                :icon="$currency->code === 'tickets' ? '🎟️' : ($currency->code === 'xp' ? '⭐' : '⏱️')"
+                :icon="$currency->code === 'tickets' ? 'ticket' : ($currency->code === 'xp' ? 'xp' : 'clock')"
                 :hint="$currency->code === 'hours' ? 'عملة جايّة قدّام — بنعرضها من دلوقتي.' : null" />
         @endforeach
     </section>
@@ -115,10 +115,10 @@
             </div>
 
             <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-                <x-kpi label="جاهزة للسحب" :value="'$'.$num($earnings['ready'])" icon="💵" />
-                <x-kpi label="قيد التحويل" :value="'$'.$num($earnings['in_transit'])" icon="⏳" />
-                <x-kpi label="مستلمة" :value="'$'.$num($earnings['received'])" icon="✅" />
-                <x-kpi label="إجماليّة" :value="'$'.$num($earnings['total'])" icon="📊" />
+                <x-kpi label="جاهزة للسحب" :value="'$'.$num($earnings['ready'])" icon="money" />
+                <x-kpi label="قيد التحويل" :value="'$'.$num($earnings['in_transit'])" icon="hourglass" />
+                <x-kpi label="مستلمة" :value="'$'.$num($earnings['received'])" icon="check" />
+                <x-kpi label="إجماليّة" :value="'$'.$num($earnings['total'])" icon="chart" />
             </div>
         </section>
     @endif

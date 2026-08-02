@@ -70,26 +70,35 @@ class CourseAdminController extends Controller
 
         // «حفظ واستمرار» يبقيك في التحرير · «حفظ» يخرج (12.4-ب)
         return $request->boolean('continue')
-            ? redirect()->route('admin.courses.edit', $course)->with('status', 'اتحفظ كمسودّة ✓')
+            ? redirect()->route('admin.courses.edit', $course)->with('status', $this->savedLabel($course))
             : redirect()->route('admin.courses.index')->with('status', 'اتحفظ التدريب ✓');
     }
 
     public function update(Request $request, Course $course): RedirectResponse
     {
-        $this->courses->save($course, $this->validated($request), $request->boolean('continue'));
+        $saved = $this->courses->save($course, $this->validated($request), $request->boolean('continue'));
 
         return $request->boolean('continue')
-            ? back()->with('status', 'اتحفظ كمسودّة ✓')
+            ? back()->with('status', $this->savedLabel($saved))
             : redirect()->route('admin.courses.index')->with('status', 'اتحفظ التدريب ✓');
     }
 
-    /** الحفظ التلقائيّ — يردّ «اتحفظ ✓» فورًا ولا يغيّر حالة النشر أبدًا. */
+    /**
+     * الحفظ التلقائيّ **كدرافت** (12.4-ب): على التدريب الحيّ يُحفَظ في مسوّدة
+     * تحريرٍ جانبيّة، فلا يرى المتدرّبون تجربةَ محرّرٍ لم يقصد نشرها بعد.
+     */
     public function autosave(Request $request, Course $course): JsonResponse
     {
         $this->courses->autosave($course, $request->all());
 
+        $live = in_array((string) $course->status, ['published', 'scheduled'], true);
+
         return response()->json([
-            'message' => (string) setting('courses.autosave.label', 'اتحفظ ✓'),
+            'message' => (string) setting(
+                $live ? 'courses.autosave.draft_label' : 'courses.autosave.label',
+                $live ? 'اتحفظ كمسودّة تحرير ✓' : 'اتحفظ ✓',
+            ),
+            'draft' => $live,
             'at' => now()->format('H:i'),
         ]);
     }
@@ -163,6 +172,17 @@ class CourseAdminController extends Controller
 
     // ------------------------------------------------------------------ داخليّ
 
+    /**
+     * رسالة «حفظ واستمرار» تقول الحقيقة: التدريب الحيّ يبقى حيًّا بعد الحفظ،
+     * فلا نطمئنه بـ«اتحفظ كمسودّة» وهو منشورٌ يدرسه الناس (12.4-ب · 2.17).
+     */
+    private function savedLabel(Course $course): string
+    {
+        return $course->status === 'published'
+            ? (string) setting('courses.save.continue_published_label', 'اتحفظ وهو منشور ✓ — كمّل تحرير')
+            : (string) setting('courses.save.continue_label', 'اتحفظ كمسودّة ✓');
+    }
+
     private function form(Course $course): View
     {
         $media = app(MediaLibrary::class);
@@ -178,6 +198,8 @@ class CourseAdminController extends Controller
             'availability' => $course->exists ? $this->courses->availabilityOf($course) : [],
             'indicator' => $course->exists ? $this->courses->generalQuestionsIndicator($course) : null,
             'statuses' => $this->statuses(),
+            // مسوّدة تحريرٍ معلّقة على تدريبٍ حيّ — تُعرَض ولا تسري إلّا بحفظٍ صريح (12.4-ب)
+            'pendingDraft' => $course->exists ? $this->courses->pendingDraft($course) : [],
             'mediaItems' => $media->search(['kind' => 'image'])->take((int) setting('media.picker.limit', 12)),
         ]);
     }
@@ -210,8 +232,10 @@ class CourseAdminController extends Controller
             'availability' => ['nullable', 'array'],
             'deadline_days' => ['nullable', 'integer', 'min:0'],
 
-            // تاب التقييم
-            'max_lesson_xp' => ['nullable', 'integer', 'min:0'],
+            // تاب التقييم — «أقصى XP للدرس» مصدره الواحد `xp_max` (7)
+            'xp_max' => ['nullable', 'integer', 'min:0'],
+            'tickets_before_half' => ['nullable', 'integer', 'min:0'],
+            'tickets_after_half' => ['nullable', 'integer', 'min:0'],
             'exam_pass_score' => ['nullable', 'integer', 'min:0', 'max:100'],
             'exam_questions_count' => ['nullable', 'integer', 'min:0'],
             'forced_order' => ['nullable', 'boolean'],
