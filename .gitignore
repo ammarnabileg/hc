@@ -25,3 +25,7 @@ _ide_helper.php
 Homestead.json
 Homestead.yaml
 Thumbs.db
+
+# التنصيب (2.2) — قفل التنصيب وتوكنه لا يُرفعان
+/storage/installed.lock
+/storage/setup-token.txt
