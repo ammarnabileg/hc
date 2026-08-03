@@ -253,7 +253,7 @@ class StreakService
             return ['ok' => false, 'tickets' => 0.0, 'message' => (string) setting('streaks.reward.not_due_message')];
         }
 
-        $this->wallet->credit($user, 'tickets', $tickets, (string) setting('streaks.reward.reason'), $created);
+        $this->wallet->credit($user, 'tickets', $tickets, self::LEDGER_SOURCE, (string) setting('streaks.reward.reason'), $created);
 
         return [
             'ok' => true,
@@ -355,7 +355,7 @@ class StreakService
         );
 
         // الخصم بعد ضمان وجود اليوم — فلا تُخصَم تذكرة بلا حماية
-        $this->wallet->debit($user, 'tickets', $cost, (string) setting('streaks.freeze.reason'), $streakDay);
+        $this->wallet->debit($user, 'tickets', $cost, self::LEDGER_SOURCE, (string) setting('streaks.freeze.reason'), $streakDay);
 
         $this->recalculate($user);
 

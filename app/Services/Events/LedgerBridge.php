@@ -16,16 +16,31 @@ use Throwable;
  * السبب: مجال الفعاليّات والدعوات يقيّد ويصرف على نفس دفتر المحفظة،
  * لكنّه لا يملك مجال المحفظة — فإن وُجد `App\Services\Wallet\LedgerService`
  * فهو المرجع، وإلّا فهذا الجسر يكتب على نفس الجداول بأمان ولا ينكسر بغيابه.
+ *
+ * ⚠️ **وكان «إن وُجد» لا يتحقّق أبدًا:** التفويض كان يمرّر الوسائط **بالترتيب**
+ * `[$user, $code, $amount, $source, $reason, $reference]` بينما توقيع الدفتر
+ * `(…, $source, ?Model $reference, $layer, ?string $reason)` — فينزل نصّ السبب
+ * في موضع `$reference` ويُرمى `TypeError`، ويبتلعه `catch (Throwable)` فيرجع
+ * الجسر لكتابته الخاصّة **في كلّ نداء**. النتيجة: صفوفٌ بلا `applied_amount`
+ * ولا مهلة اعتراض ولا سقف عملة — وكلّها ضماناتٌ في دفتر الأستاذ وحده.
+ * فمن اليوم: التمرير **بوسائط مسمّاة**، والاسم لا ينزلق مع تغيّر التوقيع.
  */
 class LedgerBridge
 {
     private const LEDGER = 'App\Services\Wallet\LedgerService';
 
+    /** «الرصيد لا يكفي» من الدفتر — نميّزها عن غياب الخدمة فلا نكتب مرّتين */
+    private const WALLET_EXCEPTION = 'App\Services\Wallet\WalletException';
+
     /** رصيد المستخدم من عملة بعينها (coins · tickets · xp) */
     public function balance(User $user, string $currencyCode): float
     {
-        if ($result = $this->delegate('balance', [$user, $currencyCode])) {
-            return (float) $result['value'];
+        if (class_exists(self::LEDGER)) {
+            try {
+                return (float) app(self::LEDGER)->balance($user, $currencyCode);
+            } catch (Throwable) {
+                // غياب الخدمة أو اختلاف توقيعها لا يمنع قراءة الرصيد من الجدول
+            }
         }
 
         return (float) $user->balances()
@@ -51,8 +66,10 @@ class LedgerBridge
             return true;
         }
 
-        if ($result = $this->delegate($direction, [$user, $currencyCode, $amount, $source, $reason, $reference])) {
-            return (bool) $result['value'];
+        $delegated = $this->delegate($direction, $user, $currencyCode, $amount, $source, $reason, $reference);
+
+        if ($delegated !== null) {
+            return $delegated;
         }
 
         $currency = Currency::query()->where('code', $currencyCode)->first();
@@ -104,25 +121,60 @@ class LedgerBridge
     }
 
     /**
-     * تفويض العمليّة لمجال المحفظة إن كان موجودًا — وإلّا نُكمل بأنفسنا.
+     * تفويض الحركة لمجال المحفظة إن كان موجودًا — وإلّا نُكمل بأنفسنا.
      *
-     * @return array{value: mixed}|null
+     * **الخصم يمرّ بـ`debitOrFail` لا بـ`debit`:** عقد هذا الجسر أنّ الخصم
+     * يرجع `false` حين لا يكفي الرصيد (فيُلغى التسجيل في الفعاليّة)، بينما
+     * `debit()` في الدفتر **يقصّ ما زاد بصمت** — فلو فوّضنا إليه لمرّ تسجيلٌ
+     * بنصف ثمنه. و`debitOrFail` يرمي **قبل** أن يكتب شيئًا، فلا خصم مزدوج.
+     *
+     * @return bool|null  نتيجة الدفتر، أو null حين لا دفتر أصلًا فنكتب بأنفسنا
      */
-    private function delegate(string $method, array $arguments): ?array
-    {
+    private function delegate(
+        string $direction,
+        User $user,
+        string $currencyCode,
+        float $amount,
+        string $source,
+        string $reason,
+        ?Model $reference,
+    ): ?bool {
         if (! class_exists(self::LEDGER)) {
             return null;
         }
 
+        $method = $direction === 'debit' ? 'debitOrFail' : 'credit';
+
         try {
             $service = app(self::LEDGER);
+        } catch (Throwable) {
+            return null;
+        }
 
-            if (! method_exists($service, $method)) {
-                return null;
+        if (! method_exists($service, $method)) {
+            return null;
+        }
+
+        try {
+            // ⭐ بوسائط مسمّاة: التمرير بالترتيب كان يُسقط `$reason` في موضع
+            // `$reference` فيُرمى TypeError ويُبتلَع، فلا يُستدعى الدفتر أبدًا.
+            $service->{$method}(
+                user: $user,
+                currencyCode: $currencyCode,
+                amount: $amount,
+                source: $source,
+                reference: $reference,
+                layer: 'training',
+                reason: $reason,
+            );
+
+            return true;
+        } catch (Throwable $e) {
+            // رصيدٌ لا يكفي: قرارٌ صريح من الدفتر ولم يُكتَب شيء ⟵ «لا» لا رجوع
+            if (is_a($e, self::WALLET_EXCEPTION)) {
+                return false;
             }
 
-            return ['value' => $service->{$method}(...$arguments)];
-        } catch (Throwable) {
             // غياب الخدمة أو اختلاف توقيعها لا يوقف التسجيل في فعاليّة
             return null;
         }

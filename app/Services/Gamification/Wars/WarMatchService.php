@@ -26,6 +26,13 @@ use Illuminate\Support\Facades\DB;
  */
 class WarMatchService
 {
+    /**
+     * دلو المصدر في دفتر الأستاذ — **مفتاحٌ لا جملة** (24.2 «بحث بالمصدر/الـKey»).
+     * وكانت جملة «مواجهة حرب #N — فوز» تنزل هنا فتتفتّت التقارير التي تجمّع
+     * بالمصدر ويعمى عنها الحدّ اليوميّ؛ مكانها `reason` (19.2 — عمود «السبب»).
+     */
+    private const LEDGER_SOURCE = 'challenge';
+
     public function __construct(
         private readonly WarRules $rules,
         private readonly WarQuestionFunnel $funnel,
@@ -465,8 +472,8 @@ class WarMatchService
             return 0.0;
         }
 
-        $this->wallet->debit($from, 'tickets', $moved, $reason.' — خسارة', $ref);
-        $this->wallet->credit($to, 'tickets', $moved, $reason.' — فوز', $ref);
+        $this->wallet->debit($from, 'tickets', $moved, self::LEDGER_SOURCE, $reason.' — خسارة', $ref);
+        $this->wallet->credit($to, 'tickets', $moved, self::LEDGER_SOURCE, $reason.' — فوز', $ref);
 
         return $moved;
     }
@@ -478,7 +485,7 @@ class WarMatchService
         $burned = min($amount, max(0.0, $available));
 
         if ($burned > 0) {
-            $this->wallet->debit($from, 'tickets', $burned, $reason, $ref);
+            $this->wallet->debit($from, 'tickets', $burned, self::LEDGER_SOURCE, $reason, $ref);
         }
 
         return $burned;

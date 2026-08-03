@@ -18,6 +18,18 @@ use TypeError;
  * يملكه مجالٌ آخر يُبنى الآن؛ فنستدعيه متى وُجد، ونتحمّل غيابه بأمان
  * بكتابة نفس السطرين (رصيد + معاملة) داخل معاملة ذرّيّة — فلا يتعطّل التحدّي
  * ولا يتكرّر الخصم حين يصل الدفتر لاحقًا.
+ *
+ * ⭐ **خانتان لا واحدة (24.2 · 19.2):** جدول الكسب في لوحة الإدارة عموده
+ * «**المصدر**» ويُبحَث فيه «بالمصدر/الـKey»، وعليه وحده يقع «**حدّ يوميّ**»؛
+ * أمّا جدول معاملات المحفظة فعموده «**السبب**» جملةٌ للمستخدم. فالمصدر
+ * **مفتاحٌ** (`challenge` · `streak`) والسبب **نصٌّ عربيّ** — ولا يجتمعان في خانة.
+ *
+ * وكان هذا الغلاف يمرّر السبب في موضع `$source` من الدفتر **بالترتيب**، فينزل
+ * «مواجهة حرب #1 — فوز» في خانة المصدر ويبقى `reason` فارغًا: تقاريرُ تتفتّت،
+ * و`EconomyLedger::withinDailyCap()` يرشّح بـ`where('source', …)` فلا يجد شيئًا
+ * ⟵ **الحدّ اليوميّ بلا أثر**. فمن اليوم: `$source` وسيطٌ صريحٌ في التوقيع،
+ * والتمرير للدفتر **بوسائط مسمّاة** لا بالترتيب — فلا يعود اختلافُ توقيعٍ
+ * يمرّ صامتًا.
  */
 class WalletGateway
 {
@@ -38,16 +50,21 @@ class WalletGateway
             ->value('balance');
     }
 
-    /** خصمٌ موجَّه (دخول تحدّي) — القيمة تُمرَّر موجبةً وتُسجَّل سالبةً */
-    public function debit(User $user, string $currencyCode, float $amount, string $reason, ?Model $reference = null): bool
+    /**
+     * خصمٌ موجَّه (دخول تحدّي) — القيمة تُمرَّر موجبةً وتُسجَّل سالبةً.
+     *
+     * @param  string  $source  **مفتاح** دلو المصدر في الدفتر (`challenge` · `streak`)
+     * @param  ?string  $reason  **جملة** السبب كما يقرؤها المستخدم في تاب المعاملات (19.2)
+     */
+    public function debit(User $user, string $currencyCode, float $amount, string $source, ?string $reason = null, ?Model $reference = null): bool
     {
-        return $this->post($user, $currencyCode, -abs($amount), $reason, $reference, 'debit');
+        return $this->post($user, $currencyCode, -abs($amount), $source, $reason, $reference, 'debit');
     }
 
-    /** إضافةٌ موجَّهة (مكافأة تحدّي) */
-    public function credit(User $user, string $currencyCode, float $amount, string $reason, ?Model $reference = null): bool
+    /** إضافةٌ موجَّهة (مكافأة تحدّي) — والوسيطان كما في `debit()` */
+    public function credit(User $user, string $currencyCode, float $amount, string $source, ?string $reason = null, ?Model $reference = null): bool
     {
-        return $this->post($user, $currencyCode, abs($amount), $reason, $reference, 'credit');
+        return $this->post($user, $currencyCode, abs($amount), $source, $reason, $reference, 'credit');
     }
 
     public function currency(string $code): ?Currency
@@ -65,7 +82,7 @@ class WalletGateway
 
     // ------------------------------------------------------------------ داخليّ
 
-    private function post(User $user, string $currencyCode, float $signedAmount, string $reason, ?Model $reference, string $method): bool
+    private function post(User $user, string $currencyCode, float $signedAmount, string $source, ?string $reason, ?Model $reference, string $method): bool
     {
         $currency = $this->currency($currencyCode);
 
@@ -73,11 +90,11 @@ class WalletGateway
             return false;
         }
 
-        if ($this->postedByLedger($user, $currencyCode, $signedAmount, $reason, $reference, $method)) {
+        if ($this->postedByLedger($user, $currencyCode, $signedAmount, $source, $reason, $reference, $method)) {
             return true;
         }
 
-        DB::transaction(function () use ($user, $currency, $signedAmount, $reason, $reference) {
+        DB::transaction(function () use ($user, $currency, $signedAmount, $source, $reason, $reference) {
             $wallet = WalletBalance::query()->firstOrCreate(
                 ['user_id' => $user->id, 'currency_id' => $currency->id],
                 ['balance' => 0, 'lifetime_earned' => 0, 'lifetime_spent' => 0],
@@ -98,7 +115,7 @@ class WalletGateway
                 'amount' => $signedAmount,
                 'balance_after' => $balance,
                 'layer' => 'training',
-                'source' => 'challenge',
+                'source' => $source,
                 'reason' => $reason,
                 'reference_type' => $reference ? $reference->getMorphClass() : null,
                 'reference_id' => $reference?->getKey(),
@@ -112,8 +129,11 @@ class WalletGateway
      * محاولة التمرير لدفتر الأستاذ حين يوجد.
      * نلتقط أخطاء التوقيع وحدها (TypeError/ArgumentCountError) — وهي تُرمى
      * قبل تنفيذ جسم الدالّة، فلا خطر من خصمٍ مزدوج عند الرجوع للبديل.
+     *
+     * ⚠️ **بوسائط مسمّاة عمدًا:** التمرير بالترتيب هو عين العطل الذي أسقط
+     * السبب العربيّ في خانة `source`؛ والاسم لا ينزلق حين يتغيّر التوقيع.
      */
-    private function postedByLedger(User $user, string $currencyCode, float $signedAmount, string $reason, ?Model $reference, string $method): bool
+    private function postedByLedger(User $user, string $currencyCode, float $signedAmount, string $source, ?string $reason, ?Model $reference, string $method): bool
     {
         if (! class_exists(self::LEDGER)) {
             return false;
@@ -126,7 +146,15 @@ class WalletGateway
         }
 
         try {
-            $ledger->{$method}($user, $currencyCode, abs($signedAmount), $reason, $reference);
+            $ledger->{$method}(
+                user: $user,
+                currencyCode: $currencyCode,
+                amount: abs($signedAmount),
+                source: $source,
+                reference: $reference,
+                layer: 'training',
+                reason: $reason,
+            );
 
             return true;
         } catch (TypeError|ArgumentCountError) {

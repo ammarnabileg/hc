@@ -25,6 +25,12 @@ use Illuminate\Support\Facades\DB;
  */
 class FocusWarService
 {
+    /**
+     * دلو المصدر في دفتر الأستاذ — **مفتاحٌ لا جملة** (24.2 «بحث بالمصدر/الـKey»).
+     * والجملة العربيّة مكانها `reason` وهو عمود «السبب» في تاب المعاملات (19.2).
+     */
+    private const LEDGER_SOURCE = 'challenge';
+
     public function __construct(
         private readonly WarRules $rules,
         private readonly WalletGateway $wallet,
@@ -73,7 +79,7 @@ class FocusWarService
         return DB::transaction(function () use ($user, $challenge, $minutes, $intention, $isGroup, $cost) {
             // رسوم الإنشاء غير قابلة للاسترجاع (15.3) — لذلك تُخصَم مرّة واحدة هنا
             if ($cost > 0) {
-                $this->wallet->debit($user, 'tickets', $cost, 'إنشاء تحدّي تركيز', $challenge);
+                $this->wallet->debit($user, 'tickets', $cost, self::LEDGER_SOURCE, 'إنشاء تحدّي تركيز', $challenge);
             }
 
             $war = FocusWar::create([
@@ -130,8 +136,8 @@ class FocusWarService
         return DB::transaction(function () use ($user, $war, $cost) {
             // ⭐ تحويل مباشر لصاحب التحدّي — لا سكّ ولا حرق (15.3)
             if ($cost > 0) {
-                $this->wallet->debit($user, 'tickets', $cost, 'انضمام لتحدّي تركيز', $war);
-                $this->wallet->credit($war->owner, 'tickets', $cost, 'تذكرة انضمام لتحدّيك', $war);
+                $this->wallet->debit($user, 'tickets', $cost, self::LEDGER_SOURCE, 'انضمام لتحدّي تركيز', $war);
+                $this->wallet->credit($war->owner, 'tickets', $cost, self::LEDGER_SOURCE, 'تذكرة انضمام لتحدّيك', $war);
             }
 
             return FocusWarMember::create([
@@ -186,8 +192,8 @@ class FocusWarService
             foreach ($refundables as $member) {
                 $amount = (float) $member->paid;
 
-                $this->wallet->debit($actor, 'tickets', $amount, 'استرجاع تذكرة انضمام بعد إلغاء تحدّيك', $war);
-                $this->wallet->credit($member->user, 'tickets', $amount, 'استرجاع تذكرة — التحدّي اتلغى', $war);
+                $this->wallet->debit($actor, 'tickets', $amount, self::LEDGER_SOURCE, 'استرجاع تذكرة انضمام بعد إلغاء تحدّيك', $war);
+                $this->wallet->credit($member->user, 'tickets', $amount, self::LEDGER_SOURCE, 'استرجاع تذكرة — التحدّي اتلغى', $war);
 
                 $member->forceFill(['refunded_at' => now()])->save();
             }
