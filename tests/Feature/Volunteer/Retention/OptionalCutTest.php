@@ -14,6 +14,7 @@ use App\Services\Admin\Volunteer\Integrations;
 use App\Services\Volunteer\Goals\RepService;
 use App\Services\Volunteer\Retention\CommitteePath;
 use App\Services\Volunteer\Retention\OptionalCutService;
+use App\Services\Volunteer\Retention\SuspensionService;
 use App\Services\Volunteer\Tasks\TaskStatus;
 use App\Services\Wallet\LedgerService;
 use Illuminate\Support\Facades\Cache;
@@ -202,8 +203,16 @@ class OptionalCutTest extends RetentionTestCase
         $service->assertMayJoin($user->fresh(), $another);
     }
 
-    /** الدرجة الثالثة (−10): اللجنة — **وبعد** أن يكون البتر قد وقع */
-    public function test_third_rung_minus_ten_opens_the_committee_after_the_cut(): void
+    /**
+     * الدرجة الثالثة (−10): التعليق واللجنة — **وبعد** أن يكون البتر قد وقع.
+     *
+     * ⚠️ وكانت هذه الحالة تؤكّد أنّ عضويّة القسم تبقى `active` عند −10 — وهو
+     * **وصفٌ للفجوة لا للقاعدة**: التعليق لم يكن مبنيًّا يومَها. والنصّ صريح
+     * (23-0.2-4): «**تعليق الحساب بالكامل فورًا — كلّ العضويّات**»، فالمؤكَّد
+     * الآن أنّ القسم **يُعلَّق** (`suspended`) **ولا يُنهى** (`ended`) — لأنّ
+     * الإقصاء قرارٌ بشريّ لا نتيجةُ رقم (13.4-س-د).
+     */
+    public function test_third_rung_minus_ten_suspends_the_account_and_opens_the_committee_after_the_cut(): void
     {
         [$user, $governorate, , $department] = $this->volunteerWithOptionalMembership();
 
@@ -212,7 +221,11 @@ class OptionalCutTest extends RetentionTestCase
         $this->artisan('volunteers:inactivity')->assertSuccessful();
 
         $this->assertSame('ended', $this->membershipIn($user, $governorate)->status, 'بلغ −10 وعضويّته الاختياريّة قائمة — والنصّ ينفيه: «الاختياري انتهى قبلها».');
-        $this->assertSame('active', $this->membershipIn($user, $department)->status);
+
+        $departmentMembership = $this->membershipIn($user, $department);
+
+        $this->assertSame(SuspensionService::MEMBERSHIP_STATUS, $departmentMembership->status);
+        $this->assertNull($departmentMembership->ended_at, 'أُنهيت عضويّة القسم — والتعليق حالةٌ قابلة للعكس لا إقصاء.');
 
         $this->assertDatabaseHas(CommitteePath::TABLE, [
             'user_id' => $user->id,

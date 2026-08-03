@@ -15,7 +15,7 @@
         "`app\/Console\/` مستثنًى — مخرجاتها للطرفيّة (مشغّل النظام) لا لشاشة المستخدم — خارج «النصوص الظاهرة للمستخدم» (2.13-أ). وهذا **الاستثناء الوحيد المخترَع هنا**، وما عداه حدودُ مسحٍ معلَنة لا استثناءات."
     ],
     "قيس_في": "2026-08-03",
-    "الإجماليّ": 10535,
+    "الإجماليّ": 10502,
     "الملفّات": {
         "app\/Http\/Controllers\/Admin\/AdsController.php": 5,
         "app\/Http\/Controllers\/Admin\/ArticleAdminController.php": 7,
@@ -452,8 +452,6 @@
         "resources\/views\/auth\/password\/reset.blade.php": 3,
         "resources\/views\/auth\/password\/sent.blade.php": 1,
         "resources\/views\/auth\/pending.blade.php": 3,
-        "resources\/views\/auth\/register.blade.php": 28,
-        "resources\/views\/auth\/register\/account.blade.php": 5,
         "resources\/views\/cards\/partials\/qr.blade.php": 2,
         "resources\/views\/cards\/show.blade.php": 14,
         "resources\/views\/cards\/verify.blade.php": 8,

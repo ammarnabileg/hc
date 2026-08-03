@@ -238,8 +238,15 @@ class GoalsScreensTest extends GoalsTestCase
         $membership = $this->makeMembership($user, $entity);
         $this->grant($user, 'rep_transactions.view', 'SELF', $membership);
 
-        // نزول تدريجيّ محترمٌ لحدّ الخسارة اليوميّ حتى تخطّي −8
-        foreach (range(1, 6) as $day) {
+        /*
+         | نزول تدريجيّ محترمٌ لحدّ الخسارة اليوميّ حتى **تخطّي −8 بالضبط**.
+         |
+         | ⚠️ وكانت الأيّام ستّة (−12 مسقوفةً عند −10) — أي أنّ الحالة كانت تهبط
+         | بصاحبها إلى **قاع السلّم** لتختبر **درجته الأولى**. وبعد بناء التعليق
+         | (23-0.2-4) صار ذلك يقفل لوحة التطوّع عليه فتردّ الشاشةُ 403 — بحقّ.
+         | فالأيّام أربعة: بانر الإنذار يُختبَر عند عتبته هو لا عند عتبةٍ أخرى.
+         */
+        foreach (range(1, 4) as $day) {
             $this->travelTo(now()->subDays(7 - $day));
             Integrations::debit($user, RepService::CURRENCY, 2, 'behavior', null, 'مخالفة موثّقة');
         }

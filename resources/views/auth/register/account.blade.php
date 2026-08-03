@@ -107,7 +107,8 @@
                     {{-- إعادة الإرسال **بعد دقيقة** بعدّاد تنازليّ (2.5-ب) --}}
                     <button type="submit" formaction="{{ route('register.verify.send') }}" formnovalidate
                             data-otp-resend data-wait="{{ $otpWait }}" data-window="{{ $resendSeconds }}"
-                            class="text-xs mt-2 underline motion-standard" style="color: var(--text-muted)">
+                            class="text-xs mt-2 underline motion-standard"
+                            style="min-height: 44px; color: var(--text-muted)">
                         <span data-otp-resend-label>{{ setting('auth.otp.resend_label', 'إعادة إرسال الرمز') }}</span>
                     </button>
                 @endif
@@ -159,14 +160,14 @@
                              style="inset-inline-start: 0; min-width: min(19rem, 88vw); max-height: 16rem; display: flex; flex-direction: column;
                                     background: var(--surface); border: 1px solid var(--border); box-shadow: 0 14px 34px rgba(0,0,0,.28)">
                             <input type="search" data-dial-search placeholder="{{ setting('onboarding.account.dial_search', 'دوّر بالاسم أو الكود…') }}"
-                                   class="w-full px-3 py-2 text-sm" style="min-height: 40px; background: var(--surface-sunken); border: 0; color: var(--text)">
+                                   class="w-full px-3 py-2 text-sm" style="min-height: 44px; background: var(--surface-sunken); border: 0; color: var(--text)">
                             <div data-dial-list class="overflow-y-auto" style="max-height: 12.5rem">
                                 @foreach ($dialCodes as $row)
                                     <button type="button" role="option" data-dial-option
                                             data-iso2="{{ $row['iso2'] }}" data-code="{{ $row['dial'] }}"
                                             data-search="{{ $row['name'] }} {{ $row['dial'] }} {{ $row['iso2'] }}"
                                             class="w-full flex items-center gap-2 px-3 py-2 text-sm text-start motion-standard"
-                                            style="min-height: 42px; background: transparent; color: var(--text)">
+                                            style="min-height: 44px; background: transparent; color: var(--text)">
                                         {{-- علم **كلّ** دولة مرسومًا: 183KB خامًا و16KB مضغوطًا،
                                              ولا واحدة بلا علم — «بالأعلام» نصٌّ لا زينة (2.5-ب) --}}
                                         <span class="shrink-0" data-dial-option-flag><x-flag :iso2="$row['iso2']" /></span>
