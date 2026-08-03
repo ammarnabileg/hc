@@ -9,6 +9,7 @@ use App\Support\Access\AccessEngine;
 use Closure;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -60,8 +61,9 @@ class EnsurePermission
     }
 
     /**
-     * ⭐ هدف الطلب = **آخر** نموذجٍ مربوطٍ في بارامترات المسار (الأخصّ)، بشرط أن
-     * يكون **قابلًا للقياس على سلّم النطاقات**.
+     * ⭐ هدف الطلب = **آخر** نموذجٍ مربوطٍ في بارامترات المسار (الأخصّ)، بشرطين:
+     * أن يكون **موضوع المسار** (انظر `isSubject`)، وأن يكون **قابلًا للقياس على
+     * سلّم النطاقات**.
      *
      * ولماذا شرطُ القياس؟ لأنّ النطاقات الستّة معرَّفة في 12.2.1-ب على **الأشخاص
      * والكيانات**: «نفسه · داونلاينه · مَن تحته · الكيان · المسار». فالسجلّ الذي
@@ -85,13 +87,27 @@ class EnsurePermission
 
         $found = null;
 
-        foreach ($route->parameters() as $parameter) {
-            if ($parameter instanceof Model && $this->isScopable($parameter)) {
+        foreach ($route->parameters() as $name => $parameter) {
+            if ($parameter instanceof Model && $this->isSubject((string) $name, $parameter) && $this->isScopable($parameter)) {
                 $found = $parameter;
             }
         }
 
         return $found;
+    }
+
+    /**
+     * ⭐ **الهدف هو موضوع المسار لا كلّ سجلٍّ مربوطٍ فيه.**
+     *
+     * والعلامة اسمُ البارامتر: السجلّ الذي يُفتَح يُسمّى باسم نموذجه (`{user}` ·
+     * `{membership}` · `{entity}` · `{task}`)، أمّا المربوط باسمٍ آخر فهو **طرفٌ
+     * داخل الإجراء** لا سجلٌّ يُطَّلع عليه — `{opponent}` في «تحدَّ فلانًا» و`{party}`
+     * في «تواصل مع طرف التحكيم». وقياس النطاق على الخصم يقلب المعنى: يمنع صاحبَ
+     * `wars_matches.create@SELF` أن يتحدّى أحدًا لأنّ الخصم ليس هو.
+     */
+    private function isSubject(string $parameter, Model $model): bool
+    {
+        return $parameter === Str::snake(class_basename($model));
     }
 
     private function isScopable(Model $model): bool
