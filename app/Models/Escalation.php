@@ -18,9 +18,11 @@ class Escalation extends Model
     protected function casts(): array
     {
         return [
+            'attempts' => 'integer',
             'auto_settled' => 'boolean',
             'decided_at' => 'datetime',
             'is_top_level' => 'boolean',
+            'last_failure_at' => 'datetime',
             'slowdown_penalty_applied' => 'boolean',
             'window_due_at' => 'datetime',
         ];

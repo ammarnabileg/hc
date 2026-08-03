@@ -142,6 +142,107 @@ class FocusWarTest extends ChallengeTestCase
         $this->assertSame(0, $service->settleDue($owner));
     }
 
+    /**
+     * ⭐ الحرب الملغاة لا تسكّ دقائق من العدم (15.3).
+     *
+     * المنضمّ استرجع تذكرته لأنّه لم يُكمِل وقته، فلا يجوز أن يأخذ **فوقها**
+     * المدّة كاملة — «يحتفظون بدقائق التركيز اللي جمّعوها بالفعل» ولا شيء غيرها،
+     * وهنا لم يجمّع شيئًا لأنّ الإلغاء وقع لحظة الانضمام.
+     */
+    public function test_cancelling_does_not_mint_focus_minutes_from_nothing(): void
+    {
+        $owner = $this->trainee(tickets: 30);
+        $joiner = $this->trainee(tickets: 20);
+
+        $service = app(FocusWarService::class);
+        $war = $service->create($owner, $this->challenge('focus_war'), 25, null, true);
+        $service->join($joiner, $war);
+
+        $before = $this->systemTickets();
+
+        $service->cancel($owner, $war);
+
+        // المدّة الأصليّة انقضت على التقويم — والحرب ملغاة من قبل أن يركّز دقيقة
+        $this->travel(26)->minutes();
+
+        $this->assertSame(0, $service->settleDue($joiner), 'الحرب الملغاة منحت دقائق لم تُبذَل');
+        $this->assertSame(0, $service->focusMinutes($joiner));
+        $this->assertDatabaseHas('focus_war_members', [
+            'focus_war_id' => $war->id,
+            'user_id' => $joiner->id,
+            'minutes_awarded' => 0,
+        ]);
+
+        // التذكرة رجعت مرّة واحدة ومجموع النظام ثابت
+        $this->assertEqualsWithDelta(20, $this->ticketsOf($joiner), 0.001);
+        $this->assertEqualsWithDelta(25, $this->ticketsOf($owner), 0.001); // 30 − 5 + 1 − 1
+        $this->assertEqualsWithDelta($before, $this->systemTickets(), 0.001);
+    }
+
+    /** الإلغاء يحفظ الدقائق **المجمَّعة فعلًا** حتى لحظته — لا كلّها ولا صفرها (15.3-2). */
+    public function test_a_cancelled_war_keeps_only_the_minutes_actually_accumulated(): void
+    {
+        $owner = $this->trainee(tickets: 30);
+        $joiner = $this->trainee(tickets: 20);
+
+        $service = app(FocusWarService::class);
+        $war = $service->create($owner, $this->challenge('focus_war'), 50, null, true);
+        $service->join($joiner, $war);
+
+        $this->travel(20)->minutes();   // ركّز 20 دقيقة حقيقيّة
+        $service->cancel($owner, $war);
+
+        $this->assertSame(20, $service->focusMinutes($joiner), 'الدقائق المحفوظة ليست ما بُذل فعلًا');
+        $this->assertDatabaseHas('focus_war_members', [
+            'focus_war_id' => $war->id,
+            'user_id' => $joiner->id,
+            'minutes_awarded' => 20,
+        ]);
+
+        // ومرور المدّة الأصليّة بعد الإلغاء لا يضيف دقيقةً واحدة
+        $this->travel(31)->minutes();
+        $this->assertSame(0, $service->settleDue($joiner));
+        $this->assertSame(20, $service->focusMinutes($joiner));
+    }
+
+    /** مَن أكمل وقته قبل الإلغاء يأخذ مدّته كاملة — «استفاد كامل» (15.3-1). */
+    public function test_a_member_who_finished_before_the_cancellation_keeps_the_full_duration(): void
+    {
+        $owner = $this->trainee(tickets: 30);
+        $joiner = $this->trainee(tickets: 20);
+
+        $service = app(FocusWarService::class);
+        $war = $service->create($owner, $this->challenge('focus_war'), 5, null, true);
+        $service->join($joiner, $war);
+
+        $this->travel(6)->minutes();    // خلّص مدّته فعلًا
+        $service->cancel($owner, $war);
+
+        $this->assertSame(5, $service->focusMinutes($joiner), 'مَن أكمل وقته حُرم دقائقه');
+        $this->assertEqualsWithDelta(19, $this->ticketsOf($joiner), 0.001); // لا استرجاع لمن أكمل
+    }
+
+    /**
+     * الحارس الثاني: **التسوية نفسها** تقرأ حالة التحدّي لا الساعةَ وحدها —
+     * حتى لو أُقفل التحدّي من مسارٍ آخر لم يُسوِّ عضويّاته.
+     */
+    public function test_settlement_reads_the_war_status_not_only_the_clock(): void
+    {
+        $owner = $this->trainee(tickets: 30);
+        $joiner = $this->trainee(tickets: 20);
+
+        $service = app(FocusWarService::class);
+        $war = $service->create($owner, $this->challenge('focus_war'), 50, null, true);
+        $service->join($joiner, $war);
+
+        $this->travel(10)->minutes();
+        // إقفالٌ خارج cancel() — عضويّات لم تُسوَّ بعدُ ومدّتها لم تنقضِ
+        $war->forceFill(['status' => 'cancelled', 'cancelled_at' => now()])->save();
+
+        $this->assertSame(10, $service->settleDue($joiner), 'التسوية منحت دقائق ما بعد إقفال الحرب');
+        $this->assertSame(10, $service->focusMinutes($joiner));
+    }
+
     /** شارة 24 ساعة تركيز تراكميّة تُفتَح تلقائيًّا (15.3). */
     public function test_twenty_four_hours_of_focus_unlocks_the_badge(): void
     {

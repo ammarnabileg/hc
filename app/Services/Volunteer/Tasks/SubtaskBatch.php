@@ -2,9 +2,10 @@
 
 namespace App\Services\Volunteer\Tasks;
 
-use App\Models\Escalation;
 use App\Models\Task;
 use App\Models\User;
+use App\Services\Volunteer\Escalation\CaseCatalog;
+use App\Services\Volunteer\Escalation\EscalationEngine;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -20,6 +21,8 @@ use Illuminate\Validation\ValidationException;
  */
 class SubtaskBatch
 {
+    public function __construct(private readonly EscalationEngine $engine) {}
+
     /** نافذة الدمج والتسليم للأب بالساعات (إعداد) */
     public function mergeWindowHours(): int
     {
@@ -116,6 +119,13 @@ class SubtaskBatch
         return DB::transaction(function () use ($parent, $rows, $author) {
             $created = collect();
 
+            /*
+             | ⭐ هل فُكِّكت هذه المهمّة قبلًا؟ يُقرأ **قبل** إنشاء أبناء هذه الدفعة.
+             | فواقعة «التفكيك» واحدة: أوّل دفعة. ودفعةٌ ثانية بعد أيّام ليست
+             | تفكيكًا جديدًا يُحاسَب بتأخّرٍ لم يكن قائمًا لحظة التفكيك نفسه.
+             */
+            $alreadyBrokenDown = Task::query()->where('parent_task_id', $parent->id)->exists();
+
             foreach ($rows as $row) {
                 $created->push(Task::create([
                     'title' => $row['title'],
@@ -145,7 +155,7 @@ class SubtaskBatch
              */
 
             // ونافذة التفكيك نفسها تُحاسَب الآن: −0.2 عن كلّ يوم تأخير بسقف −1 (23-3.9-1)
-            $this->chargeBreakdownDelay($parent, $author);
+            $this->chargeBreakdownDelay($parent, $author, $alreadyBrokenDown);
 
             $this->openBatchEscalation($parent, $author);
 
@@ -175,23 +185,46 @@ class SubtaskBatch
      * ⭐ خصم تأخّر التفكيك (23-3.9-1): «التأخّر عن التفكيك نفسه = −0.2 عن كلّ
      * يوم تأخير — كي لا تكون أوّل حلقة هي عنق الزجاجة الخفيّ — بسقف تراكميّ
      * −1 لكلّ مهمّة، حتى لا يصير التأخّر في التفكيك أقسى من عدم التسليم نفسه».
+     * ومثله في 13.4-ن-أ: «تأخّر التفكيك −0.2/يوم بسقف −1»، وفي المصطلحات:
+     * «نافذة التفكيك… التأخّر عنها −0.2 عن كلّ يوم».
+     *
+     * ⭐⭐ وحدة القياس **يومٌ تامّ** لا يومٌ مبدوء — والنصّ هو الحكم:
+     * ثلاثة مواضع تقول «عن كلّ **يوم** تأخير»، ولا موضع فيها يقول «أو جزء منه»
+     * ولا «يوم مبدوء». والدستور حين يريد شريحةً أقلّ من يومٍ **يسمّيها صراحةً**
+     * كما في سلّم التسليم نفسه: «تأخير **أقلّ من 24 ساعة** −0.25» (13.4-ن-أ) —
+     * فغيابُ نظيرها هنا نصٌّ لا سهو. فالعدّ = عدد الأيّام (24 ساعة) **الكاملة**
+     * المنقضية بعد `breakdownDueAt`، وما دون اليوم الأوّل لا خصم فيه.
+     *
+     * وكانت `ceil()` على ساعاتٍ **كسريّة** تجعل يومًا واحدًا يومين (−0.4) وثلاثةً
+     * أربعةً (−0.8) — ضِعفَ المنصوص؛ والسقف وحده هو ما كان يستر الأثر.
      *
      * ولماذا يُحسَب لحظة التفكيك لا كلّ يوم؟ لأنّ المجموع واحد، ولأنّ مَن لم
      * يفكّك أصلًا يمسكه **مسار عدم التسليم** عند ديدلاينه — فلا يُخصَم مرّتين
      * ولا يُعاقَب مَن اختار التنفيذ الذاتيّ (حقّه المنصوص في 23-3.1).
      */
-    private function chargeBreakdownDelay(Task $parent, User $author): void
+    private function chargeBreakdownDelay(Task $parent, User $author, bool $alreadyBrokenDown = false): void
     {
+        // الواقعة = **أوّل** تفكيك. دفعةٌ لاحقة على نفس المهمّة ليست واقعةً ثانية.
+        if ($alreadyBrokenDown) {
+            return;
+        }
+
         $due = $this->breakdownDueAt($parent);
 
         if (! $due || ! $due->isPast()) {
             return;
         }
 
-        $days = (int) ceil($due->diffInHours(now()) / 24);
+        // أيّامٌ **تامّة** بعد الموعد — لا يومَ مبدوءًا ولا كسرًا يُجبَر لأعلى
+        $days = (int) floor($due->diffInHours(now(), absolute: true) / 24);
+
+        if ($days < 1) {
+            return;
+        }
+
         $perDay = (float) rep_rule('task.breakdown_delay_per_day');
         $cap = (float) rep_rule('task.breakdown_delay_cap');
-        $value = max($cap, $perDay * max(1, $days));
+        $value = max($cap, $perDay * $days);
 
         if ($value == 0.0) {
             return;
@@ -211,22 +244,41 @@ class SubtaskBatch
         );
     }
 
-    /** مراجعة الدفعة حالةٌ على محرّك التصعيد — الحالة 9 (23-5) */
+    /**
+     * مراجعة الدفعة حالةٌ على محرّك التصعيد — **الحالة 9** (23-2.3-٤ · 23-5).
+     *
+     * ⭐ ولا تُكتَب بيدنا. النصّ يقول حرفيًّا: «المراجعة **حالة على محرّك
+     * التصعيد** — الحالة 9 «مراجعة دفعة الصب-تاسكات» (جدولها في القسم 5):
+     * الأبلاين المباشر عنده 24 ساعة ⟵ فاتت؟ تطلع للأبلاين الأعلى بأثر
+     * التباطؤ… مشرف عام المتطوّعين نافذته **48 ساعة**».
+     *
+     * والكتابة اليدويّة الموازية كانت تكسر ثلاثة أشياء دفعةً واحدة:
+     *  1. **النافذة**: 24 ثابتة للجميع — فالقمّة تأخذ 24 بدل 48، ويسقط معها
+     *     `is_top_level` فلا تعرف الدورة متى تُطبِّق «اعتماد الدفعة كاملة».
+     *  2. **صاحب القرار**: `reviewer_id` خامًا بلا `HandlerChain` ولا
+     *     `AbsenceService` — فدفعة الغائب تبقى على مكتبه رغم وجود مفوَّض،
+     *     والنصّ يقول: «كلّ نوافذ القرار الواردة إليه تُوجَّه للبديل مباشرةً
+     *     (مراجعات · الحالات التسع · **دفعات الصب-تاسكات**)» (23-6).
+     *  3. **الأثر**: بلا خطوة في `escalation_steps` ولا إشعار — فلا سلّم تصعيد
+     *     مرئيّ ولا «متوسّط زمن مراجعته» الذي ينصّ عليه 23-2.3-٤.
+     */
     private function openBatchEscalation(Task $parent, User $author): void
     {
         if (! Schema::hasTable('escalations')) {
             return;
         }
 
-        Escalation::create([
-            'case_type' => 'subtask_batch',
-            'subject_type' => $parent->getMorphClass(),
-            'subject_id' => $parent->getKey(),
-            'requested_by' => $author->id,
-            'current_handler_id' => $parent->reviewer_id,
-            'level' => 1,
-            'window_due_at' => now()->addHours((int) setting('workflow.escalation.window_hours', 24)),
-            'status' => 'open',
-        ]);
+        $this->engine->open(
+            CaseCatalog::SUBTASK_BATCH,
+            $parent,
+            $author,
+            [
+                'parent_task_id' => $parent->id,
+                'batch_size' => Task::query()
+                    ->where('parent_task_id', $parent->id)
+                    ->where('batch_status', 'pending_review')
+                    ->count(),
+            ],
+        );
     }
 }

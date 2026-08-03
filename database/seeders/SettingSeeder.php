@@ -102,6 +102,7 @@ class SettingSeeder extends Seeder
             // ---------------- دورة العمل (23)
             ['workflow.escalation.window_hours', 'workflow', 'نافذة القرار لكلّ مستوى (ساعات)', 'number', '24'],
             ['workflow.escalation.top_window_hours', 'workflow', 'نافذة السقف (ساعات)', 'number', '48'],
+            ['workflow.escalation.max_attempts', 'workflow', 'محاولات معالجة الحالة قبل عزلها', 'number', '3'],
             ['workflow.activity_window.start', 'workflow', 'بداية نافذة النشاط', 'string', '09:00'],
             ['workflow.activity_window.end', 'workflow', 'نهاية نافذة النشاط', 'string', '00:00'],
             ['workflow.contribution.owner_review_hours', 'workflow', 'مهلة مراجعة المالك للمساهم (ساعات)', 'number', '24'],

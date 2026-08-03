@@ -2,10 +2,11 @@
 
 namespace App\Services\Volunteer\Tasks;
 
-use App\Models\Escalation;
 use App\Models\Task;
 use App\Models\TaskBlock;
 use App\Models\User;
+use App\Services\Volunteer\Escalation\CaseCatalog;
+use App\Services\Volunteer\Escalation\EscalationEngine;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Validation\ValidationException;
 
@@ -106,7 +107,7 @@ class TaskBlockService
             'blocked_by_task_id' => $blockingTask?->id ?? $task->blocked_by_task_id,
         ])->save();
 
-        $this->openEscalation($task, $user, 'blocked', $block);
+        $this->openEscalation($task, $user, CaseCatalog::BLOCKED, $block);
 
         if ($task->reviewer_id && $task->reviewer) {
             $this->bridge->notify(
@@ -129,22 +130,23 @@ class TaskBlockService
         return (int) $task->blocked_count + 1 >= 2;
     }
 
-    /** فتح حالة على محرّك التصعيد — إن كان جدوله مهيّأً (23-5) */
+    /**
+     * فتح الحالة **بالمحرّك نفسه** (23-5) — لا بكتابةٍ يدويّةٍ موازية.
+     *
+     * فالمحرّك وحده يعرف مَن صاحب القرار (`HandlerChain` + البديل عن الغائب)،
+     * وكم نافذته (24 لكلّ مستوًى · 48 عند السقف)، ويفتح خطوة السلّم المرئيّ
+     * ويُشعِر صاحبها. والكتابة اليدويّة كانت تُسقِط الثلاثة.
+     */
     private function openEscalation(Task $task, User $user, string $caseType, TaskBlock $subject): void
     {
         if (! Schema::hasTable('escalations')) {
             return;
         }
 
-        Escalation::create([
-            'case_type' => $caseType,
-            'subject_type' => $subject->getMorphClass(),
-            'subject_id' => $subject->getKey(),
-            'requested_by' => $user->id,
-            'current_handler_id' => $task->reviewer_id,
-            'level' => 1,
-            'window_due_at' => now()->addHours((int) setting('workflow.escalation.window_hours', 24)),
-            'status' => 'open',
+        app(EscalationEngine::class)->open($caseType, $subject, $user, [
+            'task_id' => $task->id,
+            'reason' => $subject->reason,
+            'days' => $subject->days,
         ]);
     }
 }

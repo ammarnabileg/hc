@@ -41,7 +41,7 @@ class RunEscalationEngine extends Command
          | خمس دقائق على المنصّة بأسرها، فاستثناءٌ واحد غير ملتقَط كان يعني
          | توقّف التسويات والاعتمادات والخصومات **لكلّ متطوّع** إلى الأبد.
          */
-        $engineResult = $this->step('محرّك التصعيد', fn () => $engine->run(), ['escalated' => 0, 'settled' => 0, 'failed' => 0]);
+        $engineResult = $this->step('محرّك التصعيد', fn () => $engine->run(), ['escalated' => 0, 'settled' => 0, 'failed' => 0, 'retried' => 0]);
         $autoApproved = $this->step('الاعتماد التلقائيّ للمساهم', fn () => $contributions->runAutoApprovals(), 0);
         $missedCheckpoints = $this->step('نقاط التفتيش الفائتة', fn () => $contributions->runMissedCheckpoints(), 0);
         $missedDeadlines = $this->step('الديدلاينات الداخليّة الفائتة', fn () => $contributions->runMissedInternalDeadlines(), 0);
@@ -52,6 +52,9 @@ class RunEscalationEngine extends Command
         $this->table(['ما تمّ', 'العدد'], [
             ['حالات صعدت للأبلاين', $engineResult['escalated']],
             ['تسويات آليّة عند السقف', $engineResult['settled']],
+            // ⭐ المؤجَّل ليس معزولًا: خطأ عابر يُعاد في الدورة التالية — ويُعرَض
+            // حتى لا يصير التأجيل هو الآخر صمتًا (23-5)
+            ['حالات مؤجَّلة لمحاولة تالية', $engineResult['retried'] ?? 0],
             ['حالات معزولة تحتاج مراجعة', $engineResult['failed']],
             ['بنود اعتُمدت تلقائيًّا', $autoApproved],
             ['نقاط تفتيش فائتة', $missedCheckpoints],

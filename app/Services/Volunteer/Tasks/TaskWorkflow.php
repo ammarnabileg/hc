@@ -2,10 +2,11 @@
 
 namespace App\Services\Volunteer\Tasks;
 
-use App\Models\Escalation;
 use App\Models\Task;
 use App\Models\TaskSubmission;
 use App\Models\User;
+use App\Services\Volunteer\Escalation\CaseCatalog;
+use App\Services\Volunteer\Escalation\EscalationEngine;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
@@ -165,12 +166,12 @@ class TaskWorkflow
         $task->forceFill(['extension_count' => (int) $task->extension_count + 1])->save();
 
         // القديم يتحفظ والجديد لا يسري إلّا بموافقة المراجِع على محرّك التصعيد (23-3.5)
-        $this->openEscalation(
-            $task,
-            $user,
-            'extension',
-            'طلب: تمديد إلى '.$requested->format('Y-m-d H:i').' — السبب: '.$reason,
-        );
+        $this->openEscalation($task, $user, CaseCatalog::EXTENSION, [
+            // ⭐ التاريخ المقترَح جزءٌ من الطلب لا من القرار — وبه وحده تسري الموافقة
+            'new_deadline' => $requested->toDateTimeString(),
+            'reason' => $reason,
+            'note' => 'طلب: تمديد إلى '.$requested->format('Y-m-d H:i').' — السبب: '.$reason,
+        ]);
 
         if ($task->reviewer) {
             $this->bridge->notify(
@@ -194,7 +195,10 @@ class TaskWorkflow
             ]);
         }
 
-        $this->openEscalation($task, $user, 'apology', 'طلب: اعتذار — السبب: '.$reason);
+        $this->openEscalation($task, $user, CaseCatalog::APOLOGY, [
+            'reason' => $reason,
+            'note' => 'طلب: اعتذار — السبب: '.$reason,
+        ]);
 
         if ($task->reviewer) {
             $this->bridge->notify(
@@ -331,23 +335,23 @@ class TaskWorkflow
         }
     }
 
-    private function openEscalation(Task $task, User $user, string $caseType, string $note): void
+    /**
+     * فتح الحالة **بالمحرّك نفسه** لا بكتابةٍ يدويّةٍ موازية (23-5).
+     *
+     * الكتابة اليدويّة كانت تُثبّت 24 ساعة للجميع وتتخطّى `HandlerChain`
+     * و`AbsenceService`، وتكتب حمولة الطلب في `decision_note` — وهو حقل
+     * **القرار** لا الطلب. فكان أثر ذلك عمليًّا أنّ **الموافقة على التمديد لا
+     * تحرّك الديدلاين أصلًا**، لأنّ `applyExtension` يقرأ `payload['new_deadline']`
+     * ولا أحد كان يكتبه في هذا المسار.
+     *
+     * @param  array<string, mixed>  $payload
+     */
+    private function openEscalation(Task $task, User $user, string $caseType, array $payload): void
     {
         if (! Schema::hasTable('escalations')) {
             return;
         }
 
-        Escalation::create([
-            'case_type' => $caseType,
-            'subject_type' => $task->getMorphClass(),
-            'subject_id' => $task->getKey(),
-            'requested_by' => $user->id,
-            'current_handler_id' => $task->reviewer_id,
-            'level' => 1,
-            'window_due_at' => now()->addHours((int) setting('workflow.escalation.window_hours', 24)),
-            'status' => 'open',
-            // لا عمود لحمولة الطلب في الجدول المشترك، فنكتبها هنا موثّقةً حتى يقرأها المراجِع
-            'decision_note' => $note,
-        ]);
+        app(EscalationEngine::class)->open($caseType, $task, $user, $payload);
     }
 }

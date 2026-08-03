@@ -87,6 +87,13 @@ class AdminLayoutGuardTest extends UiTestCase
             'admin.guidance.index',     // 📣 التوجيه والدعم
             'admin.stats.index',        // 📊 الإحصائيّات
             'admin.settings.index',     // ⚙️ الإعدادات والنظام
+            /*
+             | وشاشتا الإدارة اللتان تسكنان خارج `views/admin/**` فأفلتتا من الفحص
+             | الثابت: أسعار الصرف (بندٌ في 🔒 الماليّات — 12.0) وحلقات النموّ.
+             | فالمعيار «كلّ شاشةِ لوحةٍ» لا «كلّ ملفٍّ في مجلّدٍ بعينه».
+             */
+            'admin.wallet.rates',
+            'admin.growth.index',
         ] as $name) {
             $response = $this->actingAs($owner)->get(route($name));
 

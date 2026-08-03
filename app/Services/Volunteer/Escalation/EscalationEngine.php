@@ -227,13 +227,21 @@ class EscalationEngine
      * ⭐ **حالةٌ واحدة تالفة لا تُسقِط الدورة كلّها.** المحرّك يعمل كلّ خمس دقائق
      * على المنصّة بأسرها: التسويات التسع · الاعتماد التلقائيّ للمساهمين · خصم
      * نقاط التفتيش · الديدلاينات الداخليّة. فصفٌّ بنوعٍ لا يعرفه `CaseCatalog`
-     * — أو أيّ استثناء آخر — يُعزَل ويُسجَّل ويُنبَّه عليه، **ويكمل الباقي**.
+     * — أو أيّ استثناء آخر — يُسجَّل ويُنبَّه عليه، **ويكمل الباقي**.
      *
-     * @return array{escalated:int, settled:int, failed:int}
+     * ⭐⭐ ولكن **ليس كلّ سقوطٍ عطبًا في الصفّ**: `database is locked` خطأٌ عابر
+     * يقع لحظةَ ازدحامٍ ويزول. والعزل الفوريّ كان يقتل به حالاتٍ **صحيحة** إلى
+     * الأبد، وهو إلغاءٌ صامت لقاعدة 23-5 نفسها: «فاتت ⟵ الحالة تطلع للأبلاين
+     * الأعلى» — والمعزولة لا تطلع لأحد. فالفرز الآن بعدّاد محاولاتٍ سقفُه من
+     * `setting()`: دون السقف ⟵ **تُترك في الطابور لمحاولةٍ تالية**؛ عند السقف
+     * ⟵ **تُعزَل** فلا تعود تُسقِط الدورة كلّ خمس دقائق. والعطب الذي لا يصلحه
+     * التكرار أصلًا (نوع حالة مجهول) يُعزَل فورًا بلا انتظارٍ فارغ.
+     *
+     * @return array{escalated:int, settled:int, failed:int, retried:int}
      */
     public function run(): array
     {
-        $result = ['escalated' => 0, 'settled' => 0, 'failed' => 0];
+        $result = ['escalated' => 0, 'settled' => 0, 'failed' => 0, 'retried' => 0];
 
         Escalation::query()
             ->where('status', 'open')
@@ -243,6 +251,7 @@ class EscalationEngine
             ->each(function (Escalation $escalation) use (&$result) {
                 try {
                     if (! CaseCatalog::exists($escalation->case_type)) {
+                        // عطبٌ دائم بطبيعته: إعادة المحاولة لن تخترع نوعًا للحالة
                         $this->quarantine($escalation, 'نوع حالة غير معروف: '.$escalation->case_type);
                         $result['failed']++;
 
@@ -252,14 +261,15 @@ class EscalationEngine
                     if ($escalation->is_top_level) {
                         $this->autoSettle($escalation);
                         $result['settled']++;
-
-                        return;
+                    } else {
+                        $this->escalate($escalation);
+                        $result['escalated']++;
                     }
 
-                    $this->escalate($escalation);
-                    $result['escalated']++;
+                    $this->clearFailures($escalation);
                 } catch (Throwable $exception) {
                     report($exception);
+
                     $this->quarantine($escalation, 'تعذّرت المعالجة: '.$exception->getMessage());
                     $result['failed']++;
                 }
@@ -268,10 +278,85 @@ class EscalationEngine
         return $result;
     }
 
+    /** سقف محاولات المعالجة قبل العزل — إعداد لا رقم محروق (2.13) */
+    public function maxAttempts(): int
+    {
+        return max(1, (int) setting('workflow.escalation.max_attempts', 3));
+    }
+
+    /**
+     * تسجيل سقوط محاولة: يزيد العدّاد ويكتب السبب والتوقيت.
+     *
+     * @return bool هل استُنفِد السقف فعُزِلت الحالة؟
+     */
+    private function registerFailure(Escalation $escalation, Throwable $exception): bool
+    {
+        /*
+         | نقرأ صفًّا نظيفًا من القاعدة لا الكائن الذي بيدنا: المعاملة الساقطة
+         | ارتدّت، لكنّ الكائن قد يحمل تعديلاتٍ في الذاكرة لم تُحفَظ (عَلَم أثر
+         | التباطؤ مثلًا) — وحفظه كما هو يُثبِّت أثرًا لم يقع.
+         */
+        $row = Escalation::query()->find($escalation->getKey());
+
+        if (! $row) {
+            return true;
+        }
+
+        $attempts = (int) $row->attempts + 1;
+        $max = $this->maxAttempts();
+        $reason = 'تعذّرت المعالجة: '.$exception->getMessage();
+
+        try {
+            Escalation::query()->whereKey($row->getKey())->update([
+                'attempts' => $attempts,
+                'last_failure_at' => now(),
+                'last_failure_reason' => $reason,
+                'updated_at' => now(),
+            ]);
+        } catch (Throwable $writeFailure) {
+            // تعذّرت حتى كتابة العدّاد (القاعدة مقفولة فعلًا) — تُسجَّل ونمضي
+            report($writeFailure);
+        }
+
+        if ($attempts < $max) {
+            Log::warning('محرّك التصعيد: خطأ عابر — الحالة باقية لمحاولةٍ تالية', [
+                'escalation_id' => $row->id,
+                'case_type' => $row->case_type,
+                'attempt' => $attempts,
+                'max_attempts' => $max,
+                'reason' => $reason,
+            ]);
+
+            return false;
+        }
+
+        $this->quarantine($row->refresh(), $reason.' — بعد استنفاد '.$max.' محاولات.');
+
+        return true;
+    }
+
+    /** نجحت المعالجة ⟵ العدّاد يعود صفرًا فلا تتراكم محاولاتٌ قديمة على صفٍّ سليم */
+    private function clearFailures(Escalation $escalation): void
+    {
+        if ((int) $escalation->attempts === 0) {
+            return;
+        }
+
+        Escalation::query()->whereKey($escalation->getKey())->update([
+            'attempts' => 0,
+            'last_failure_at' => null,
+            'last_failure_reason' => null,
+            'updated_at' => now(),
+        ]);
+
+        $escalation->refresh();
+    }
+
     /**
      * عزل صفٍّ تالف: يخرج من الطابور بحالة `failed` بسببٍ مكتوب، ويُنبَّه عليه
      * صاحبه ومَن طلبه — فلا يبقى عالقًا يعيد إسقاط الدورة كلّ خمس دقائق،
-     * ولا يختفي بصمت.
+     * ولا يختفي بصمت. **والإشعار «يحتاج إجراءً»** لأنّ العزل يوقف نافذة قرارٍ
+     * قائمة، فلا يجوز أن يمرّ سطرًا في سجلٍّ لا يقرؤه أحد.
      */
     private function quarantine(Escalation $escalation, string $reason): void
     {
@@ -279,13 +364,18 @@ class EscalationEngine
             Log::error('محرّك التصعيد: عزل حالة تالفة', [
                 'escalation_id' => $escalation->id,
                 'case_type' => $escalation->case_type,
+                'attempts' => (int) $escalation->attempts,
+                'max_attempts' => $this->maxAttempts(),
                 'reason' => $reason,
             ]);
 
-            $escalation->forceFill([
+            Escalation::query()->whereKey($escalation->getKey())->update([
                 'status' => 'failed',
                 'decision_note' => $reason,
-            ])->save();
+                'updated_at' => now(),
+            ]);
+
+            $escalation->refresh();
 
             EscalationStep::query()
                 ->where('escalation_id', $escalation->id)
@@ -299,6 +389,7 @@ class EscalationEngine
                     'حالة اتوقفت وعايزة مراجعة يدويّة',
                     $reason.' — كلّم الأدمن عشان يراجعها.',
                     route('volunteer.escalations'),
+                    requiresAction: true,
                     about: $escalation,
                 );
             }

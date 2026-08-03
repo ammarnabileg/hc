@@ -194,6 +194,9 @@ class FocusWarService
 
             $war->forceFill(['status' => 'cancelled', 'cancelled_at' => now()])->save();
 
+            // العدّاد يقف لحظة الإلغاء: كلٌّ يحتفظ بما جمّعه **بالفعل** لا بالمدّة كاملة (15.3-2)
+            $this->closeMembers($war);
+
             // إشعار المنضمّين عبر مركز الإشعارات (2.8) + Toast في الشاشة
             foreach ($war->members()->where('user_id', '!=', $war->owner_id)->with('user')->get() as $member) {
                 if (! $member->user) {
@@ -220,6 +223,10 @@ class FocusWarService
     /**
      * تسجيل الدقائق لمَن انقضى وقته.
      * العدّاد يكمل حتى لو أُغلقت الشاشة — دعمًا للتركيز الأوفلاين (15.3-ب).
+     *
+     * ⭐ والساعة وحدها لا تكفي: **حالة التحدّي** هي التي تحدّد المستحقّ. فالتحدّي
+     * الملغيّ توقّف عدّاده لحظة الإلغاء، ولو سوّينا بـ`ends_at` وحده لأخذ المنضمّ
+     * المدّة كاملةً **فوق** استرجاع تذكرته — استفادةٌ مضاعفة وشارةٌ بلا تركيز.
      */
     public function settleDue(User $user): int
     {
@@ -227,13 +234,17 @@ class FocusWarService
             ->with('focusWar')
             ->where('user_id', $user->id)
             ->whereNull('completed_at')
-            ->where('ends_at', '<=', now())
+            ->where(function ($query) {
+                // انقضت المدّة… أو أُقفل التحدّي قبلها فلا معنى لانتظارها
+                $query->where('ends_at', '<=', now())
+                    ->orWhereHas('focusWar', fn ($war) => $war->where('status', 'cancelled'));
+            })
             ->get();
 
         $added = 0;
 
         foreach ($members as $member) {
-            $minutes = (int) ($member->focusWar?->duration_minutes ?? 0);
+            $minutes = $this->earnedMinutes($member);
 
             $member->forceFill(['completed_at' => now(), 'minutes_awarded' => $minutes])->save();
             $added += $minutes;
@@ -246,6 +257,55 @@ class FocusWarService
         }
 
         return $added;
+    }
+
+    /**
+     * الدقائق المستحقّة لعضويّةٍ بحسب **حالة التحدّي** (15.3).
+     *
+     * - تحدٍّ قائم انقضت مدّته ⟵ المدّة كاملة («استفاد كامل»).
+     * - تحدٍّ **ملغيّ** ⟵ ما بين الانضمام ولحظة الإلغاء فقط، مسقوفًا بالمدّة:
+     *   «المنضمّون يحتفظون بدقائق التركيز اللي جمّعوها **بالفعل**» — فلا تُسَكّ
+     *   دقيقةٌ من العدم بعد توقّف الحرب.
+     */
+    private function earnedMinutes(FocusWarMember $member): int
+    {
+        $war = $member->focusWar;
+        $duration = (int) ($war?->duration_minutes ?? 0);
+
+        if (! $war || $duration <= 0 || ! $member->joined_at) {
+            return 0;
+        }
+
+        $stoppedAt = $war->status === 'cancelled' ? $war->cancelled_at : null;
+
+        if (! $stoppedAt) {
+            return $member->isDue() ? $duration : 0;
+        }
+
+        $accumulated = (int) floor($member->joined_at->diffInMinutes($stoppedAt));
+
+        return max(0, min($duration, $accumulated));
+    }
+
+    /**
+     * إقفال عضويّات تحدٍّ توقّف: كلٌّ يأخذ ما بذله فعلًا في اللحظة نفسها،
+     * فلا تبقى عضويّةٌ «جارية» في حربٍ انتهت ولا يتأخّر حقّ صاحب المجهود.
+     */
+    private function closeMembers(FocusWar $war): void
+    {
+        $members = $war->members()->whereNull('completed_at')->with('user')->get();
+
+        foreach ($members as $member) {
+            $member->setRelation('focusWar', $war);
+            $minutes = $this->earnedMinutes($member);
+
+            $member->forceFill(['completed_at' => now(), 'minutes_awarded' => $minutes])->save();
+
+            if ($minutes > 0 && $member->user) {
+                $this->stats->addFocusMinutes($member->user, $minutes);
+                $this->badges->evaluate($member->user);
+            }
+        }
     }
 
     // ------------------------------------------------------------------ استعلام
