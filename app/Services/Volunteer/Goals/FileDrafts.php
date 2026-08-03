@@ -93,7 +93,21 @@ class FileDrafts
             'مسار الملفّات مش معرَّف في المنصّة — اضبطه من الإعدادات الأوّل.',
         ));
 
-        return DB::transaction(function () use ($actor, $goal, $name, $invitations, $track) {
+        /*
+         * ⛔ `upline_id` يشير إلى **عضويّة** لا إلى مستخدم — والفرق ليس شكليًّا:
+         * سلسلة الإشراف كلّها مبنيّة على العضويّة لأنّ الشخص الواحد قد يكون في
+         * كيانين ببوزشنين مختلفين، فأبلاينه يختلف باختلاف عضويّته لا باسمه.
+         * ووضع `$actor->id` هنا كان يكسر المفتاح الأجنبيّ في قاعدةٍ حقيقيّة،
+         * ويمرّ صامتًا في أيّ قاعدةٍ لا تفرضه ليبني سلسلةَ إشرافٍ تشير إلى صفٍّ
+         * لا علاقة له بالفاعل.
+         */
+        $uplineId = Membership::query()
+            ->where('user_id', $actor->id)
+            ->where('status', 'active')
+            ->orderByDesc('is_primary')
+            ->value('id');
+
+        return DB::transaction(function () use ($goal, $name, $invitations, $track, $uplineId) {
             $entity = Entity::create([
                 'track_id' => $track->id,
                 'parent_id' => null,
@@ -115,7 +129,7 @@ class FileDrafts
                     'user_id' => $userId,
                     'entity_id' => $entity->id,
                     'position_id' => $positionId,
-                    'upline_id' => $actor->id,
+                    'upline_id' => $uplineId,
                     'is_primary' => false,
                     // الصفّ مكتوبٌ ولا يعمل: كلّ استعلامات المنصّة تشترط `active`
                     'status' => 'invited',

@@ -449,4 +449,48 @@ class GoalFileDraftsTest extends GoalsTestCase
 
         $this->assertSame('governorate', app(FileDrafts::class)->trackKey());
     }
+
+    /**
+     * ⚠️ عيبٌ لم يظهر إلّا في **تشغيلٍ حقيقيّ**: `upline_id` يشير إلى **عضويّة**
+     * لا إلى مستخدم، وكان يُملأ بـ`$actor->id`. فانكسر المفتاح الأجنبيّ على
+     * قاعدة الملفّ الحقيقيّة، بينما مرّت الاختبارات لأنّ رقم الفاعل صادف أن
+     * يكون رقمَ عضويّةٍ موجودة — **مرورٌ بالصدفة لا بالصحّة**.
+     *
+     * فالحارس هنا لا يكتفي بأن يقع الإدراج، بل يؤكّد أنّ الصفّ يشير إلى
+     * **عضويّة الفاعل نفسه**، فلا يمرّ برقمٍ متطابقٍ مصادفةً.
+     */
+    #[Test]
+    public function the_upline_points_at_the_actors_own_membership_not_at_his_user_id(): void
+    {
+        /*
+         * ⭐ **تباعدُ الأرقام شرطُ صحّة القياس.** بلا هذا السطر يتصادف أن يكون
+         * رقم المستخدم رقمَ عضويّته، فيمرّ الاختبار تحت العيب نفسه — وهو ما
+         * وقع فعلًا: الطفرة مرّت أوّل مرّة. فنُنشئ عضويّاتٍ حشوًا حتّى يستحيل
+         * التطابق، ويصير المقيسُ هو الرابطَ لا الصدفة.
+         */
+        foreach (range(1, 7) as $i) {
+            $this->makeUser('حشو '.$i);
+        }
+
+        // مشرف ملفّات جديد **بعد** الحشو: رقم مستخدمه بعيدٌ عن رقم عضويّته
+        $this->filesSupervisor = $this->makeUser('مشرف ملفّات تاني');
+        $membershipRow = $this->makeMembership($this->filesSupervisor, $this->fileEntity, null, 'track_supervisor');
+
+        foreach (['milestones.create', 'work_packages.create', 'milestones.edit', 'goals.view'] as $key) {
+            $this->grant($this->filesSupervisor, $key, 'TRACK', $membershipRow);
+        }
+
+        $this->assertNotSame($this->filesSupervisor->id, (int) $membershipRow->id,
+            'رقم المستخدم ما زال يساوي رقم عضويّته — القياس هيمرّ بالصدفة.');
+
+        $goal = $this->linkedGoal();
+        $draft = $this->makeDraft($goal);
+
+        $membership = Membership::query()->where('entity_id', $draft->id)->firstOrFail();
+        $upline = Membership::query()->find($membership->upline_id);
+
+        $this->assertNotNull($upline, 'أبلاين الدعوة يشير لصفّ عضويّة غير موجود.');
+        $this->assertSame($this->filesSupervisor->id, (int) $upline->user_id,
+            'أبلاين الدعوة عضويّةُ شخصٍ آخر — الرقم اتحطّ كمعرّف مستخدم لا كمعرّف عضويّة.');
+    }
 }
