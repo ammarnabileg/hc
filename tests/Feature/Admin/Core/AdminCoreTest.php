@@ -507,7 +507,13 @@ class AdminCoreTest extends TestCase
         $this->assertDatabaseHas('audit_logs', ['action' => 'role.assigned', 'auditable_id' => $target->id]);
     }
 
-    /** Audit على كلّ تغيير صلاحيّة — ويُعرَض **آخر تغيير فقط** بالـHover (12.2.1-ز-4). */
+    /**
+     * Audit على كلّ تغيير صلاحيّة — ويُعرَض **آخر تغيير فقط** بالـHover (12.2.1-ز-4).
+     *
+     * ⭐ والنطاق هنا **من نطاقات المصفوفة للمفتاح نفسه**: `complaints.view` سقفُها
+     * SELF في 12.2.2، وكان الحفظ بـALL يمرّ لأنّ المحرّر **يضيّقه صامتًا** إلى
+     * الافتراضيّ. صار يُردّ ويُخبِر (أ-7)، فالاختبار يقيس التدقيق لا التضييق.
+     */
     public function test_permission_change_is_audited_and_last_change_is_shown_on_hover(): void
     {
         $owner = $this->owner();
@@ -516,7 +522,7 @@ class AdminCoreTest extends TestCase
 
         $this->actingAs($owner)->put(route('admin.roles.update', $role), [
             'group' => $permission->group,
-            'rows' => [$permission->id => ['on' => '1', 'scope' => 'ALL', 'effect' => 'allow']],
+            'rows' => [$permission->id => ['on' => '1', 'scope' => 'SELF', 'effect' => 'allow']],
         ])->assertRedirect();
 
         $this->assertDatabaseHas('audit_logs', [
