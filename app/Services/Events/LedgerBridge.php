@@ -128,7 +128,7 @@ class LedgerBridge
      * `debit()` في الدفتر **يقصّ ما زاد بصمت** — فلو فوّضنا إليه لمرّ تسجيلٌ
      * بنصف ثمنه. و`debitOrFail` يرمي **قبل** أن يكتب شيئًا، فلا خصم مزدوج.
      *
-     * @return bool|null  نتيجة الدفتر، أو null حين لا دفتر أصلًا فنكتب بأنفسنا
+     * @return bool|null نتيجة الدفتر، أو null حين لا دفتر أصلًا فنكتب بأنفسنا
      */
     private function delegate(
         string $direction,
