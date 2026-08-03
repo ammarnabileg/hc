@@ -16,6 +16,8 @@
     @includeWhen($tab === 'types', 'admin.certificates.partials.types')
     @includeWhen($tab === 'issue', 'admin.certificates.partials.issue')
     @includeWhen($tab === 'ledger', 'admin.certificates.partials.ledger')
+    {{-- صفحة التحقّق: جدول البلاغات ومراجعتها (24.1) --}}
+    @includeWhen($tab === 'verification', 'admin.certificates.partials.reports')
 
     @include('admin.courses.partials.toast')
 @endsection

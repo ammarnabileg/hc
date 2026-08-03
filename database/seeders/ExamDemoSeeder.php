@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Models\CertificateTemplate;
 use App\Models\CertificateType;
 use App\Models\Course;
 use App\Models\Exam;
@@ -11,6 +10,7 @@ use App\Models\LearningPath;
 use App\Models\Permission;
 use App\Models\Role;
 use App\Models\Setting;
+use App\Services\Admin\Content\TemplateDesigner;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -24,6 +24,8 @@ class ExamDemoSeeder extends Seeder
     public function run(): void
     {
         $this->settings();
+        // القوالب تُبنى من **وصفات** الإعدادات المزروعة للتوّ — فلا تُقرأ من كاشٍ سابق
+        Cache::forget('settings');
         $this->traineeExamPermissions();
         $this->templates();
         $this->demoContent();
@@ -108,6 +110,58 @@ class ExamDemoSeeder extends Seeder
             ['certificates.celebration.key', 'certificates', 'مفتاح احتفال إصدار الشهادة', 'string', 'certificate.issued'],
             ['certificates.expired.reason_newer_exam', 'certificates', 'سبب الانتهاء بامتحانٍ أحدث', 'string', 'انتهى العمل بها بعد دخول صاحبها امتحانًا أحدث'],
 
+            /*
+             | ⭐ **التصميم الافتراضيّ الجاهز لكلّ نوع** (12.5-ب) — نصوصه هنا لا في
+             | الكود: «تصميم افتراضيّ جاهز لكلّ نوع شهادة … والأدمن يعدّله».
+             | فالمالك يعدّل الوصفة من لوحة الإعدادات، ويعدّل الطبقات نفسها من
+             | الراسم — وهما بابان لشيءٍ واحد لا نظامان متوازيان.
+             | و**لا أرقام داخليّة على ورقة التطوّع** (13.4-ع): لا Rep ولا VXP.
+             */
+            ['certificates.default_design.layer_labels', 'certificates', 'تسميات طبقتَي الخاتمة والختم في الراسم', 'json', json_encode([
+                'ar' => ['closing' => 'خاتمة', 'seal' => 'الختم والتوقيع'],
+                'en' => ['closing' => 'Closing', 'seal' => 'Seal & signature'],
+            ], JSON_UNESCAPED_UNICODE)],
+            ['certificates.designer.muted_color', 'certificates', 'لون النصّ الثانويّ في التصميم الافتراضيّ', 'color', '#9bb3ad'],
+            ['certificates.designer.layer_label_fallback', 'certificates', 'تسمية الطبقة بلا اسم', 'string', 'طبقة'],
+            ['certificates.default_design.recipes', 'certificates', 'وصفات التصميم الافتراضيّ لكلّ نوع شهادة (ع/إ)', 'json', json_encode([
+                'default' => [
+                    'ar' => ['heading' => 'شهادة معتمدة', 'lead' => 'تشهد المنصّة بأنّ', 'body' => 'قد أتمّ بنجاح', 'closing' => '', 'seal' => 'الختم والتوقيع المعتمَد'],
+                    'en' => ['heading' => 'Certificate', 'lead' => 'This is to certify that', 'body' => 'has successfully completed', 'closing' => '', 'seal' => 'Authorised seal & signature'],
+                ],
+                'course' => [
+                    'ar' => ['heading' => 'شهادة إتمام تدريب', 'lead' => 'تشهد المنصّة بأنّ', 'body' => 'قد أتمّ بنجاح متطلّبات تدريب', 'closing' => 'واجتاز امتحانه النهائيّ', 'seal' => 'الختم والتوقيع المعتمَد'],
+                    'en' => ['heading' => 'Certificate of Completion', 'lead' => 'This is to certify that', 'body' => 'has successfully completed the training', 'closing' => 'and passed its final exam', 'seal' => 'Authorised seal & signature'],
+                ],
+                'path' => [
+                    'ar' => ['heading' => 'شهادة إتمام مسار', 'lead' => 'تشهد المنصّة بأنّ', 'body' => 'قد أتمّ مسار', 'closing' => 'بتدريباته كاملةً', 'seal' => 'الختم والتوقيع المعتمَد'],
+                    'en' => ['heading' => 'Learning Path Certificate', 'lead' => 'This is to certify that', 'body' => 'has completed the learning path', 'closing' => 'with all of its trainings', 'seal' => 'Authorised seal & signature'],
+                ],
+                'event' => [
+                    'ar' => ['heading' => 'شهادة حضور', 'lead' => 'تشهد المنصّة بأنّ', 'body' => 'قد حضر فعاليّة', 'closing' => 'وشارك في جلساتها', 'seal' => 'الختم والتوقيع المعتمَد'],
+                    'en' => ['heading' => 'Certificate of Attendance', 'lead' => 'This is to certify that', 'body' => 'attended the event', 'closing' => 'and took part in its sessions', 'seal' => 'Authorised seal & signature'],
+                ],
+                'qualifying' => [
+                    'ar' => ['heading' => 'شهادة المسار التأهيليّ', 'lead' => 'تشهد المنصّة بأنّ', 'body' => 'قد اجتاز المسار التأهيليّ للتطوّع', 'closing' => 'وصار مؤهَّلًا للانضمام إلى فرقنا', 'seal' => 'الختم والتوقيع المعتمَد'],
+                    'en' => ['heading' => 'Qualifying Path Certificate', 'lead' => 'This is to certify that', 'body' => 'has passed the volunteering qualifying path', 'closing' => 'and is qualified to join our teams', 'seal' => 'Authorised seal & signature'],
+                ],
+                'volunteer_position' => [
+                    'ar' => ['heading' => 'شهادة بوزشن تطوّعيّ', 'lead' => 'تشهد المنصّة بأنّ', 'body' => 'قد تولّى بوزشن', 'closing' => 'وأدّى مهامّه بأمانة والتزام', 'seal' => 'الختم والتوقيع المعتمَد'],
+                    'en' => ['heading' => 'Volunteer Position Certificate', 'lead' => 'This is to certify that', 'body' => 'has served in the position of', 'closing' => 'and carried out its duties faithfully', 'seal' => 'Authorised seal & signature'],
+                ],
+                'volunteer_experience' => [
+                    'ar' => ['heading' => 'شهادة خبرة تطوّع', 'lead' => 'تشهد المنصّة بأنّ', 'body' => 'قد تطوّع معنا في', 'closing' => 'وخرج خروجًا مشرّفًا، ونشكر له ما قدّم', 'seal' => 'الختم والتوقيع المعتمَد'],
+                    'en' => ['heading' => 'Volunteering Experience Certificate', 'lead' => 'This is to certify that', 'body' => 'volunteered with us in', 'closing' => 'and left in good standing, with our thanks', 'seal' => 'Authorised seal & signature'],
+                ],
+                'volunteer_case_file' => [
+                    'ar' => ['heading' => 'شهادة مشاركة في ملفّ', 'lead' => 'تشهد المنصّة بأنّ', 'body' => 'قد شارك في ملفّ', 'closing' => 'وأسهم في إنجازه مع فريقه', 'seal' => 'الختم والتوقيع المعتمَد'],
+                    'en' => ['heading' => 'Case File Participation', 'lead' => 'This is to certify that', 'body' => 'took part in the case file', 'closing' => 'and contributed to its delivery', 'seal' => 'Authorised seal & signature'],
+                ],
+                'volunteer_appreciation' => [
+                    'ar' => ['heading' => 'شهادة تقدير', 'lead' => 'تتقدّم المنصّة بالشكر والتقدير إلى', 'body' => 'تقديرًا لجهده الاستثنائيّ في', 'closing' => 'وأثرٍ لمسه كلّ من عمل معه', 'seal' => 'الختم والتوقيع المعتمَد'],
+                    'en' => ['heading' => 'Certificate of Appreciation', 'lead' => 'The platform extends its gratitude to', 'body' => 'in recognition of outstanding effort in', 'closing' => 'and an impact felt by everyone alongside', 'seal' => 'Authorised seal & signature'],
+                ],
+            ], JSON_UNESCAPED_UNICODE)],
+
             // الحالات الثلاث (13.4-ق): سارية · منتهية · ملغاة
             ['certificates.status.valid_label', 'certificates', 'وسم «سارية»', 'string', 'سارية'],
             ['certificates.status.expired_label', 'certificates', 'وسم «منتهية»', 'string', 'منتهية'],
@@ -138,6 +192,39 @@ class ExamDemoSeeder extends Seeder
             ['certificates.verify.unsigned_text', 'certificates', 'نصّ الشهادة بلا توقيع', 'text', 'فيه صفّ بالكود ده في سجلّنا لكنّه من غير توقيع رقميّ أصلًا، فما نقدرش نشهد إنّ بياناته هي اللي صدرت. لو استلمت نسخة بالكود ده، بلّغنا وهنراجعها.'],
             ['certificates.report.audit_action', 'certificates', 'اسم حدث بلاغ التزوير في سجلّ التدقيق', 'string', 'certificate.reported'],
             ['certificates.report.thanks', 'certificates', 'رسالة شكر البلاغ', 'text', 'وصلنا بلاغك وهنراجعه — شكرًا إنّك ساعدتنا نحمي قيمة الشهادة.'],
+
+            /*
+             | ⭐ **جدول البلاغات وشاشة مراجعتها** (12.5-هـ · 24.1): «الكود ·
+             | المبلِّغ · السبب · التاريخ · الحالة · [مراجعة]» و«إجراء: تجاهل/
+             | إلغاء الشهادة/تصعيد». والإجراءات ثلاثة لا رابع — فلا حالةَ رابعة هنا.
+             */
+            ['certificates.tabs.verification', 'certificates', 'اسم تاب صفحة التحقّق في إدارة الشهادات', 'string', 'صفحة التحقّق'],
+            ['certificates.reports.page_size', 'certificates', 'عدد البلاغات في الصفحة', 'number', '20'],
+            ['certificates.reports.statuses', 'certificates', 'حالات البلاغ', 'json', '{"new":"جديد","dismissed":"اتجاهل","revoked":"اتلغت الشهادة","escalated":"اتصعّد"}'],
+            ['certificates.reports.actions', 'certificates', 'إجراءات مراجعة البلاغ (24.1)', 'json', '{"dismissed":"تجاهل","revoked":"ألغِ الشهادة","escalated":"صعّد"}'],
+            ['certificates.reports.empty', 'certificates', 'نصّ لا بلاغات', 'string', 'مفيش بلاغات — وده خبر كويّس.'],
+            ['certificates.reports.pending_line', 'certificates', 'سطر البلاغات غير المراجَعة', 'string', 'فيه [العدد] بلاغًا لسّه ما اتراجعش.'],
+            ['certificates.reports.count_placeholder', 'certificates', 'رمز استبدال عدد البلاغات', 'string', '[العدد]'],
+            ['certificates.reports.search_label', 'certificates', 'لافتة بحث البلاغات', 'string', 'بحث'],
+            ['certificates.reports.search_placeholder', 'certificates', 'مثال بحث البلاغات', 'string', 'كود الشهادة أو نصّ البلاغ…'],
+            ['certificates.reports.status_label', 'certificates', 'لافتة حالة البلاغ', 'string', 'الحالة'],
+            ['certificates.reports.all_label', 'certificates', 'خيار كلّ الحالات', 'string', 'الكلّ'],
+            ['certificates.reports.filter_button', 'certificates', 'زرّ تصفية البلاغات', 'string', 'تصفية'],
+            ['certificates.reports.reporter_label', 'certificates', 'لافتة المبلِّغ', 'string', 'المبلِّغ'],
+            ['certificates.reports.anonymous', 'certificates', 'وسم المبلِّغ بلا حساب', 'string', 'بلا حساب'],
+            ['certificates.reports.unknown_code', 'certificates', 'وسم كود بلا شهادة', 'string', 'كود بلا شهادة في سجلّنا'],
+            ['certificates.reports.contact_label', 'certificates', 'لافتة وسيلة تواصل المبلِّغ', 'string', 'وسيلة تواصل'],
+            ['certificates.reports.review_button', 'certificates', 'زرّ فتح المراجعة', 'string', 'مراجعة'],
+            ['certificates.reports.review_title', 'certificates', 'عنوان بوب-أب المراجعة', 'string', 'مراجعة بلاغ'],
+            ['certificates.reports.action_label', 'certificates', 'لافتة إجراء المراجعة', 'string', 'الإجراء'],
+            ['certificates.reports.note_label', 'certificates', 'لافتة ملاحظة المراجعة', 'string', 'ملاحظة المراجعة (اختياريّة)'],
+            ['certificates.reports.review_submit', 'certificates', 'زرّ تسجيل المراجعة', 'string', 'سجّل المراجعة'],
+            ['certificates.reports.reviewed_by_label', 'certificates', 'لافتة مَن راجع البلاغ', 'string', 'راجعه'],
+            ['certificates.reports.reviewed_text', 'certificates', 'رسالة تسجيل المراجعة', 'string', 'اتراجع البلاغ ✓'],
+            ['certificates.reports.revoke_reason_label', 'certificates', 'لافتة سبب الإلغاء في المراجعة', 'string', 'سبب الإلغاء (لو اخترت الإلغاء)'],
+            ['certificates.reports.default_revoke_reason', 'certificates', 'سبب الإلغاء الافتراضيّ من بلاغ', 'string', 'تزوير مثبَت ببلاغ'],
+            ['certificates.reports.revoke_forbidden_text', 'certificates', 'رسالة عدم امتلاك صلاحيّة الإلغاء', 'text', 'إلغاء الشهادة صلاحيّة منفصلة — تقدر تتجاهل البلاغ أو تصعّده.'],
+            ['certificates.reports.revoke_unavailable_text', 'certificates', 'رسالة لا شهادة سارية بالكود', 'text', 'مفيش شهادة سارية بالكود ده عشان تتلغي.'],
 
             // بيانات الصفحة المفهرسة (21.1-أ)
             ['certificates.seo.meta_title', 'certificates', 'عنوان الميتا لصفحة الشهادة', 'string', '[الاسم] — [الشهادة] · شهادة معتمدة'],
@@ -188,21 +275,20 @@ class ExamDemoSeeder extends Seeder
         }
     }
 
-    /** قالب افتراضيّ لكلّ نوع شهادة — يعمل من أوّل يوم بلا رفع أيّ خلفيّة (12.5-ب) */
+    /**
+     * قالب افتراضيّ لكلّ نوع شهادة — يعمل من أوّل يوم بلا رفع أيّ خلفيّة (12.5-ب).
+     *
+     * ⚠️ كان هذا الموضع يكتب `layers => []` فيسبق قالبَ الراسم الحقيقيّ (ترتيب
+     * `DemoSeeder`)، فيفتح الأدمن الراسم على **صندوقٍ فارغ** لا على «تصميم
+     * افتراضيّ جاهز … والأدمن يعدّله». والمصدر الواحد للتصميم هو
+     * `TemplateDesigner` — فمنه وحده تُنشَأ القوالب هنا.
+     */
     private function templates(): void
     {
+        $designer = app(TemplateDesigner::class);
+
         foreach (CertificateType::query()->get() as $type) {
-            CertificateTemplate::updateOrCreate(
-                ['certificate_type_id' => $type->id, 'language' => 'ar', 'name' => 'التصميم الافتراضيّ'],
-                [
-                    'width_px' => 1754,
-                    'height_px' => 1240,
-                    'background_path' => null,
-                    'layers' => [],
-                    'is_default' => true,
-                    'version' => 1,
-                ],
-            );
+            $designer->templatesFor($type);
         }
     }
 

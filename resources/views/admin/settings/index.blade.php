@@ -62,6 +62,9 @@
                 @include('admin.settings.tabs.maintenance')
             @elseif ($tab === 'audit')
                 @include('admin.settings.tabs.audit')
+            @elseif ($tab === 'features')
+                {{-- 24.3: شاشة مفاتيح المزايا الكاملة — وبلوك إعداداتها بداخلها --}}
+                @include('admin.settings.tabs.features')
             @elseif ($tab === 'countries')
                 {{-- 12.7-د: الشاشة الكاملة (جدول + فروق قبل الدمج) ثمّ مفاتيحها --}}
                 @include('admin.settings.tabs.countries')

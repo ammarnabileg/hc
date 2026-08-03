@@ -181,6 +181,20 @@ Route::middleware(['auth', 'admin.panel'])->prefix('admin')->name('admin.')->gro
     Route::middleware('permission:certificate_ledger.export,certificates.export')
         ->get('/certificates/export', [CertificateAdminController::class, 'export'])->name('certificates.export');
 
+    /*
+     | 5) صفحة التحقّق — **مراجعة بلاغ «شهادة مشبوهة»** (12.5-هـ · 24.1).
+     |
+     | والحارس `certificate_verification.edit` هو ما تعطيه المصفوفة (12.2.2) لهذه
+     | الشاشة — ومورد `certificate_verification` كلّه بيد «مسؤول الشهادات»
+     | (12.2.3-4). ولم نخترع مفتاحًا جديدًا: 24.1 يسمّي `certificate_verification.manage`
+     | ولا وجود له في المصفوفة، والمصفوفة **مرجعٌ كامل** لا يُزاد عليه من شاشة.
+     | أمّا **إلغاء الشهادة** فيتحقّق منه المتحكّم بـ`certificates.delete` وحدها،
+     | فتبقى «صلاحيّة الإلغاء منفصلة عن الإصدار» كما ينصّ 24.1.
+     */
+    Route::middleware('permission:certificate_verification.edit')
+        ->post('/certificates/reports/{report}/review', [CertificateAdminController::class, 'reviewReport'])
+        ->name('certificates.reports.review');
+
     // ==================================================== ج) التوجيه والدعم (12.6 · 24.3)
     Route::middleware('permission:announcements.list,announcements.view')->group(function () {
         Route::get('/guidance', [GuidanceController::class, 'index'])->name('guidance.index');

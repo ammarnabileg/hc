@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Trainee;
 use App\Http\Controllers\Controller;
 use App\Models\AuditLog;
 use App\Models\Certificate;
+use App\Models\CertificateReport;
 use App\Services\Certificates\QrCode;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -55,7 +56,15 @@ class PublicVerificationController extends Controller
         ]);
     }
 
-    /** [أبلغ عن شهادة مشبوهة] — بلاغ بلا حساب، يفتح شكوى للمراجعة (11 · 12.5-هـ) */
+    /**
+     * ⭐ [أبلغ عن شهادة مشبوهة] (12.5-هـ · 24.1) — بلاغ **بلا حساب**.
+     *
+     * ⚠️ وكان الزرّ يكتب سطرًا في سجلّ التدقيق **بلا جدولٍ للبلاغات ولا شاشة
+     * مراجعة**، فالبلاغ يذهب إلى حيث لا يقرؤه أحد. والنصّ يوجب الجدول صراحةً:
+     * «وأسفلها **جدول البلاغات:** الكود · المبلِّغ · السبب · التاريخ · الحالة ·
+     * [مراجعة]» (24.1). فيُحفَظ البلاغ صفًّا في `certificate_reports` ويبقى
+     * سطرُ التدقيق إلى جانبه — الأوّل للعمل، والثاني للأثر الذي لا يُمحى.
+     */
     public function report(Request $request): RedirectResponse
     {
         $validated = $request->validate([
@@ -64,24 +73,44 @@ class PublicVerificationController extends Controller
             'contact' => ['nullable', 'string', 'max:190'],
         ]);
 
-        $certificate = Certificate::query()->where('code', $validated['code'])->firstOrFail();
+        $code = ltrim(trim($validated['code']), '#');
 
-        // سجلّ تدقيق لكلّ بلاغ (12.5-د): مَن ومتى ولماذا — ويعمل بلا حساب أصلًا
-        AuditLog::create([
-            'user_id' => $request->user()?->id,
-            'action' => (string) setting('certificates.report.audit_action', 'certificate.reported'),
-            'auditable_type' => $certificate->getMorphClass(),
-            'auditable_id' => $certificate->id,
-            'new_values' => [
-                'note' => $validated['note'],
-                'contact' => $validated['contact'] ?? null,
-            ],
+        /*
+         | البلاغ عن **كودٍ لا صفّ له** بلاغٌ حقيقيّ لا خطأ إدخال: ورقةٌ بكودٍ
+         | مخترَع هي عين ما تحرسه صفحة التحقّق. فلا يُردّ بـ404 ولا يُبتلَع —
+         | يُحفَظ بكوده و`certificate_id` فارغ.
+         */
+        $certificate = Certificate::query()->where('code', $code)->first();
+
+        CertificateReport::create([
+            'certificate_id' => $certificate?->id,
+            'code' => $code,
+            'reporter_id' => $request->user()?->id,
+            'reporter_contact' => $validated['contact'] ?? null,
+            'reason' => $validated['note'],
+            'status' => CertificateReport::NEW,
             'ip' => $request->ip(),
             'user_agent' => substr((string) $request->userAgent(), 0, 190),
         ]);
 
+        // سجلّ تدقيق لكلّ بلاغ (12.5-د): مَن ومتى ولماذا — ويعمل بلا حساب أصلًا
+        if ($certificate) {
+            AuditLog::create([
+                'user_id' => $request->user()?->id,
+                'action' => (string) setting('certificates.report.audit_action', 'certificate.reported'),
+                'auditable_type' => $certificate->getMorphClass(),
+                'auditable_id' => $certificate->id,
+                'new_values' => [
+                    'note' => $validated['note'],
+                    'contact' => $validated['contact'] ?? null,
+                ],
+                'ip' => $request->ip(),
+                'user_agent' => substr((string) $request->userAgent(), 0, 190),
+            ]);
+        }
+
         return redirect()
-            ->route('verify.certificate', ['code' => $validated['code']])
+            ->route('verify.certificate', ['code' => $code])
             ->with('status', (string) setting(
                 'certificates.report.thanks',
                 'وصلنا بلاغك وهنراجعه — شكرًا إنّك ساعدتنا نحمي قيمة الشهادة.',

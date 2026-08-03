@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\AdsController;
 use App\Http\Controllers\Admin\ArticleAdminController;
+use App\Http\Controllers\Admin\FeatureFlagController;
 use App\Http\Controllers\Admin\FinanceController;
 use App\Http\Controllers\Admin\ImageStudioController;
 use App\Http\Controllers\Admin\MaintenanceController;
@@ -9,6 +10,8 @@ use App\Http\Controllers\Admin\SettingsAdminController;
 use App\Http\Controllers\Admin\StatsController;
 use App\Http\Controllers\Admin\StoreAdminController;
 use App\Http\Controllers\Admin\TopupAdminController;
+use App\Http\Middleware\EnsureFeatureEnabled;
+use Illuminate\Contracts\Http\Kernel as HttpKernel;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -18,6 +21,33 @@ use Illuminate\Support\Facades\Route;
 | الصلاحيّة على كلّ مسار (12.2.1)، والعنصر الذي لا يملكه المستخدم يُخفى ولا يُعطَّل.
 | 🔒 والمجموعة الماليّة ومفاتيح البوّابة لمالك المنصّة وحده — بحارسَي صلاحيّة ودور.
 */
+
+/*
+| ⭐⭐ **الحصر على الخادم لمفاتيح المزايا (24.3).**
+|
+| الحارس يُلحَق بمجموعة `web` كلّها من هنا — لا بمسارٍ مسار. ولماذا؟ لأنّ
+| «إطفاء ميزة» يعني إطفاءها في **كلّ** مداخلها: صفحتها وبوب-أباتها ونقاط
+| الـXHR فيها. ولو عُلِّق الحارس يدويًّا على كلّ مسار لبقي المنسيُّ مفتوحًا،
+| وصار المفتاح يلمع في اللوحة والباب مفتوح — «إعدادٌ بلا أثر أسوأ من غيابه».
+|
+| والحارس يستنبط ميزةَ الطلب من **اسم المسار** عبر `FeatureCatalog`، ويمرّ
+| صامتًا لكلّ مسارٍ لا ميزةَ له (ومنه كلّ `admin.*` — فلا تُقفَل شاشةُ المفاتيح
+| على نفسها).
+|
+| ⚠️ **ولماذا `afterResolving` لا `Route::pushMiddlewareToGroup` وحدها؟** لأنّ
+| نواة الـHTTP تُزامِن مجموعاتها إلى الراوتر عند حلّها (`syncMiddlewareToRouter`)
+| فتَستبدِل مجموعة `web` كاملةً — وأيّ دفعٍ سابقٍ من ملفّ مسارات **يُمحى بصمت**.
+| وحارسٌ يُمحى بصمت أسوأ من غيابه: الشاشة تَعِد بإطفاءٍ لا يقع. فنسجّل الإلحاق
+| على النواة نفسها ليبقى بعد كلّ مزامنة، ونُبقي الدفع المباشر لحالة نواةٍ محلولةٍ
+| سلفًا (الطرفيّة والاختبارات) — الطريقان معًا لا أحدهما.
+*/
+app()->afterResolving(HttpKernel::class, function (HttpKernel $kernel) {
+    $kernel->appendMiddlewareToGroup('web', EnsureFeatureEnabled::class);
+});
+
+if (app()->resolved(HttpKernel::class)) {
+    app(HttpKernel::class)->appendMiddlewareToGroup('web', EnsureFeatureEnabled::class);
+}
 
 Route::middleware(['auth', 'admin.panel'])->prefix('admin')->name('admin.')->group(function () {
 
@@ -138,6 +168,28 @@ Route::middleware(['auth', 'admin.panel'])->prefix('admin')->name('admin.')->gro
 
     Route::middleware('permission:maintenance.view')
         ->get('/settings/maintenance/state', [MaintenanceController::class, 'state'])->name('settings.maintenance.state');
+
+    /*
+    | ------------------------------------------------------------ 🖥️ مفاتيح المزايا (24.3)
+    | «**البديل الوحيد للصيانة الجزئيّة الملغاة** (12.7-و)» — فالإطفاء لميزةٍ
+    | بعينها يتمّ من هنا **فقط**، والصيانة تبقى عامّةً للمنصّة كلّها.
+    */
+    Route::middleware('permission:feature_toggles.view,feature_toggles.list')->group(function () {
+        Route::get('/settings/features/audit', [FeatureFlagController::class, 'audit'])->name('features.audit');
+        Route::get('/settings/features/export', [FeatureFlagController::class, 'export'])->name('features.export');
+    });
+
+    Route::middleware('permission:feature_toggles.edit')->group(function () {
+        Route::post('/settings/features/toggle', [FeatureFlagController::class, 'toggle'])->name('features.toggle');
+        Route::post('/settings/features/scope', [FeatureFlagController::class, 'scope'])->name('features.scope');
+        Route::post('/settings/features/reset', [FeatureFlagController::class, 'reset'])->name('features.reset');
+        Route::post('/settings/features/settings', [FeatureFlagController::class, 'saveSettings'])->name('features.settings');
+    });
+
+    Route::middleware('permission:feature_toggles.manage')->group(function () {
+        Route::post('/settings/features/reset-all', [FeatureFlagController::class, 'resetAll'])->name('features.reset-all');
+        Route::post('/settings/features/import', [FeatureFlagController::class, 'import'])->name('features.import');
+    });
 
     // ------------------------------------------------------------ استوديو الصور
     Route::middleware('permission:image_templates.list')->group(function () {

@@ -16,10 +16,13 @@ use App\Models\Setting;
 use App\Models\TopupOffer;
 use App\Models\TransferMethod;
 use App\Models\User;
+use App\Services\Features\FeatureCatalog;
+use App\Services\Features\FeatureGate;
 use App\Support\Access\PermissionExpander;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 /**
  * بيانات مجال «المتجر والماليّات والإحصائيّات والإعدادات والنظام» التجريبيّة،
@@ -34,6 +37,9 @@ class AdminSystemDemoSeeder extends Seeder
     {
         $this->permissions();
         $this->settings();
+        // 🖥️ مفاتيح المزايا (24.3) — تعريفاتها في مسار الإنتاج، وهنا كذلك
+        // ليجدها كلّ اختبارٍ يزرع هذا السيدر.
+        $this->featureFlagsSettings();
         $this->store();
         $this->topup();
         $this->studio();
@@ -326,6 +332,226 @@ class AdminSystemDemoSeeder extends Seeder
         Setting::query()
             ->whereIn('key', ['topup.gateway.api_key', 'topup.gateway.vendor_key'])
             ->update(['is_owner_only' => true, 'is_sensitive' => true]);
+    }
+
+    /**
+     * 🖥️ **مفاتيح المزايا** (24.3) — تعريفاتها ونصوص شاشتها.
+     *
+     * الاسم ينتهي بـ`settings` عن قصد: `SettingDefinitionsSeeder` يكتشفه
+     * ويستدعيه في **مسار الإنتاج** (`DatabaseSeeder` ⟵ `Installer::seed`)،
+     * فالمفاتيح تصل لكلّ تنصيبٍ حقيقيّ بلا تسجيلٍ يدويّ (BUILD.md §3).
+     *
+     * ولماذا صفوف `feature_flags` هنا لا في سيدر عرض؟ لأنّ **الميزة بلا صفّ =
+     * ميزةٌ لا يستطيع المالك إطفاءها**، وشاشةٌ تعرض مفاتيح لا يقرؤها أحد هي
+     * عين العطب الذي تسدّه 24.3. فالصفّ تعريفٌ لا محتوى عرض.
+     */
+    public function featureFlagsSettings(): void
+    {
+        // [key, group, label, type, default, owner_only]
+        $rows = [
+            // ---------------- بلوك الإعدادات الخمسة (24.3)
+            ['features.disabled_message_en', 'features', 'نصّ الميزة الموقوفة (إنجليزيّ)', 'text', 'This feature is paused for a moment — it will be back soon.', false],
+            ['features.alert_long_outage', 'features', 'تنبيه الأدمن عند إيقاف ميزة طويلًا', 'bool', '1', false],
+            ['features.alert_after_hours', 'features', 'عتبة التنبيه (ساعات)', 'number', '24', false],
+
+            // ---------------- لافتات المجموعات التسع المنصوصة
+            ['features.groups', 'features', 'لافتات مجموعات المزايا', 'json', '{"training":"تدريب","gamification":"تلعيب","wars":"حروب","store":"متجر وماليّات","library":"مكتبة","volunteer":"تطوّع","events":"فعاليّات","guidance":"توجيه","profile":"بروفايل"}', false],
+
+            // ---------------- حدود وسلوك
+            ['features.audit.limit', 'features', 'عدد صفوف سجلّ الميزة', 'number', '30', false],
+            ['features.notify.max_recipients', 'features', 'أقصى عدد من يصلهم إشعار الإيقاف', 'number', '500', false],
+            ['features.notify.category', 'features', 'فئة إشعار إيقاف الميزة', 'string', 'system', false],
+            ['features.notify.title', 'features', 'عنوان إشعار إيقاف الميزة', 'string', 'ميزة وقفت مؤقّتًا', false],
+
+            // ---------------- رسائل الشاشة (2.17-ب: ماذا حدث + ماذا تفعل)
+            ['features.msg.saved', 'features', 'رسالة الحفظ', 'string', 'اتحفظ ✓', false],
+            ['features.msg.unknown_feature', 'features', 'رسالة ميزة غير موجودة', 'text', 'الميزة دي مش موجودة — حدّث الصفحة وجرّب تاني.', false],
+            ['features.msg.reason_required', 'features', 'رسالة سبب الإيقاف الناقص', 'text', 'اكتب سبب الإيقاف — هو اللي هيفضل في السجلّ ويفهّم اللي بعدك.', false],
+            ['features.msg.bad_scope', 'features', 'رسالة نطاق غير صالح', 'text', 'النطاق ده مش مظبوط — اختر دورًا أو شريحة موجودة.', false],
+            ['features.msg.reset_all', 'features', 'رسالة Reset الكلّ', 'text', 'رجّعنا :count ميزة لوضعها الافتراضيّ.', false],
+            ['features.msg.imported', 'features', 'رسالة الاستيراد', 'text', 'اتطبّق :applied مفتاح · اتخطّى :skipped.', false],
+            ['features.msg.bad_json', 'features', 'رسالة ملفّ JSON غير صالح', 'text', 'الملفّ مش JSON صالح — صدّر نسخة وقارن الشكل.', false],
+            ['features.msg.audit_missing_key', 'features', 'رسالة سجلّ بلا مفتاح ميزة', 'text', 'مافيش مفتاح ميزة في الطلب — افتح السجلّ من جنب الميزة نفسها.', false],
+
+            // ---------------- نصوص الشاشة (24.3) — كلّها إعدادات لا حروف محروقة
+            ['features.ui.purpose', 'features', 'غرض الشاشة', 'text', 'إطفاء أو تشغيل أيّ ميزة بلا نشر كود — وده البديل الوحيد للصيانة الجزئيّة الملغاة.', false],
+            ['features.ui.pinned_rule', 'features', 'القاعدة المثبّتة', 'text', 'لا صيانة جزئيّة لميزة بعينها — أُلغيت؛ الإطفاء يتمّ من هنا فقط.', false],
+            ['features.ui.save', 'features', 'زرّ حفظ', 'string', 'حفظ', false],
+            ['features.ui.export', 'features', 'زرّ تصدير JSON', 'string', 'تصدير JSON', false],
+            ['features.ui.import', 'features', 'زرّ استيراد JSON', 'string', 'استيراد JSON', false],
+            ['features.ui.reset_all', 'features', 'زرّ Reset الكلّ', 'string', '↺ Reset الكلّ', false],
+            ['features.ui.paused_badge', 'features', 'شارة عدد الموقوفة', 'string', 'موقوفة: :count', false],
+            ['features.ui.file_label', 'features', 'لافتة ملفّ الاستيراد', 'string', 'ملفّ مفاتيح JSON', false],
+            ['features.ui.long_outage', 'features', 'تنبيه الإيقاف الطويل', 'text', 'فيه :count ميزة موقوفة من أكتر من :hours ساعة — راجعها.', false],
+
+            ['features.ui.filter_search', 'features', 'لافتة البحث', 'string', 'دوّر بالاسم أو بالمفتاح…', false],
+            ['features.ui.filter_group', 'features', 'لافتة فلتر المجموعة', 'string', 'المجموعة', false],
+            ['features.ui.filter_status', 'features', 'لافتة فلتر الحالة', 'string', 'الحالة', false],
+            ['features.ui.filter_all', 'features', 'خيار الكلّ في الفلاتر', 'string', 'الكلّ', false],
+            ['features.ui.filter_apply', 'features', 'زرّ تطبيق الفلاتر', 'string', 'فلترة', false],
+
+            ['features.ui.status.on', 'features', 'حالة مشتغّل', 'string', 'مشتغّل', false],
+            ['features.ui.status.off', 'features', 'حالة موقوف', 'string', 'موقوف', false],
+            ['features.ui.status.partial', 'features', 'حالة جزئيّ', 'string', 'جزئيّ', false],
+            ['features.ui.beta', 'features', 'شارة تجريبيّة', 'string', 'تجريبيّة', false],
+
+            ['features.ui.col.feature', 'features', 'عمود الميزة', 'string', 'الميزة', false],
+            ['features.ui.col.key', 'features', 'عمود المفتاح', 'string', 'المفتاح', false],
+            ['features.ui.col.group', 'features', 'عمود المجموعة', 'string', 'المجموعة', false],
+            ['features.ui.col.toggle', 'features', 'عمود التبديل', 'string', 'تشغيل/إيقاف', false],
+            ['features.ui.col.scope', 'features', 'عمود النطاق', 'string', 'النطاق', false],
+            ['features.ui.col.visible', 'features', 'عمود مَن يراها أثناء الإيقاف', 'string', 'مين يشوفها وهي موقوفة', false],
+            ['features.ui.col.last', 'features', 'عمود آخر تبديل', 'string', 'آخر تبديل', false],
+            ['features.ui.col.actions', 'features', 'عمود الإجراءات', 'string', 'إجراءات', false],
+
+            ['features.ui.scope.global', 'features', 'نطاق عامّ', 'string', 'عامّ', false],
+            ['features.ui.scope.role', 'features', 'نطاق دور', 'string', 'Override لدور', false],
+            ['features.ui.scope.segment', 'features', 'نطاق شريحة', 'string', 'Override لشريحة', false],
+            ['features.ui.scope.manage', 'features', 'زرّ ضبط النطاق', 'string', 'اضبط النطاق', false],
+            ['features.ui.scope.title', 'features', 'عنوان بوب-أب النطاق', 'string', 'نطاق الميزة', false],
+            ['features.ui.scope.type', 'features', 'لافتة نوع النطاق', 'string', 'النوع', false],
+            ['features.ui.scope.target', 'features', 'لافتة هدف النطاق', 'string', 'الدور أو الشريحة', false],
+            ['features.ui.scope.value', 'features', 'لافتة قرار النطاق', 'string', 'القرار داخل النطاق', false],
+            ['features.ui.scope.value_on', 'features', 'قرار تشغيل داخل النطاق', 'string', 'شغّالة', false],
+            ['features.ui.scope.value_off', 'features', 'قرار إيقاف داخل النطاق', 'string', 'موقوفة', false],
+            ['features.ui.scope.clear', 'features', 'رفع الـOverride', 'string', 'ارفع الـOverride (رجّعها عامّة)', false],
+            ['features.ui.scope.empty', 'features', 'لا Override', 'string', 'مافيش Override — الميزة عامّة.', false],
+
+            ['features.ui.visibility.none', 'features', 'يراها أثناء الإيقاف: لا أحد', 'string', 'لا أحد', false],
+            ['features.ui.visibility.admins', 'features', 'يراها أثناء الإيقاف: الأدمن', 'string', 'الأدمن فقط', false],
+            ['features.ui.visibility.roles', 'features', 'يراها أثناء الإيقاف: أدوار', 'string', 'أدوار محدّدة', false],
+
+            ['features.ui.action.details', 'features', 'إجراء التفاصيل', 'string', 'تفاصيل', false],
+            ['features.ui.action.audit', 'features', 'إجراء السجلّ', 'string', 'Audit', false],
+            ['features.ui.action.reset', 'features', 'إجراء الإرجاع', 'string', '↺', false],
+            ['features.ui.action.turn_off', 'features', 'إجراء الإيقاف', 'string', 'أوقف', false],
+            ['features.ui.action.turn_on', 'features', 'إجراء التشغيل', 'string', 'شغّل', false],
+
+            ['features.ui.popup.disable_title', 'features', 'عنوان بوب-أب الإيقاف', 'string', 'إيقاف ميزة', false],
+            ['features.ui.popup.confirm', 'features', 'نصّ تأكيد الإيقاف', 'text', 'الميزة دي هتتقفل على كلّ اللي في نطاقها فورًا. متأكّد؟', false],
+            ['features.ui.popup.message_ar', 'features', 'لافتة النصّ البديل العربيّ', 'string', 'اللي المستخدم هيشوفه بدلها (عربيّ)', false],
+            ['features.ui.popup.message_en', 'features', 'لافتة النصّ البديل الإنجليزيّ', 'string', 'اللي المستخدم هيشوفه بدلها (إنجليزيّ)', false],
+            ['features.ui.popup.notify', 'features', 'لافتة إشعار المتأثّرين', 'string', 'ابعت إشعار للمتأثّرين', false],
+            ['features.ui.popup.reason', 'features', 'لافتة سبب الإيقاف', 'string', 'سبب الإيقاف (بيدخل الـAudit)', false],
+            ['features.ui.popup.behavior', 'features', 'لافتة سلوك الميزة الموقوفة', 'string', 'سلوك الميزة الموقوفة', false],
+            ['features.ui.popup.behavior_inherit', 'features', 'خيار السلوك الافتراضيّ', 'string', 'زيّ الإعداد العامّ', false],
+            ['features.ui.popup.behavior_hide', 'features', 'خيار الإخفاء الكامل', 'string', 'إخفاء كامل', false],
+            ['features.ui.popup.behavior_message', 'features', 'خيار إظهار الرسالة', 'string', 'إظهار رسالة', false],
+            ['features.ui.popup.visibility', 'features', 'لافتة مَن يراها أثناء الإيقاف', 'string', 'مين يشوفها وهي موقوفة', false],
+            ['features.ui.popup.visible_roles', 'features', 'لافتة الأدوار المستثناة', 'string', 'الأدوار اللي هتفضل شايفاها', false],
+            ['features.ui.popup.submit', 'features', 'زرّ تأكيد الإيقاف', 'string', 'أوقف الميزة', false],
+            ['features.ui.popup.cancel', 'features', 'زرّ الإلغاء', 'string', 'إلغاء', false],
+            ['features.ui.popup.details_title', 'features', 'عنوان بوب-أب التفاصيل', 'string', 'تفاصيل الميزة', false],
+            ['features.ui.popup.routes', 'features', 'لافتة مسارات الميزة', 'string', 'المسارات اللي بيحكمها المفتاح', false],
+            ['features.ui.popup.audit_title', 'features', 'عنوان بوب-أب السجلّ', 'string', 'سجلّ الميزة', false],
+            ['features.ui.popup.audit_empty', 'features', 'سجلّ فارغ', 'string', 'مافيش تبديل مسجَّل لسه.', false],
+
+            ['features.ui.state.empty', 'features', 'الحالة الفارغة', 'text', 'مافيش مزايا في الفلتر ده — وسّع الفلتر شويّة.', false],
+            ['features.ui.state.loading', 'features', 'حالة التحميل', 'string', 'بنحمّل…', false],
+            ['features.ui.state.error', 'features', 'حالة الخطأ', 'text', 'حصل خطأ وإحنا بنحفظ — جرّب تاني، ولو فضل زيّه بلّغ التقنيّ.', false],
+            ['features.ui.never', 'features', 'لا تبديل بعد', 'string', 'لسه ما اتبدّلتش', false],
+            ['features.ui.settings_title', 'features', 'عنوان بلوك الإعدادات', 'string', 'إعدادات المفاتيح', false],
+
+            ['features.ui.unavailable.title', 'features', 'عنوان صفحة الميزة الموقوفة', 'string', 'الميزة دي واقفة دلوقتي', false],
+            ['features.ui.unavailable.back', 'features', 'زرّ العودة من صفحة الميزة الموقوفة', 'string', 'ارجع للرئيسيّة', false],
+        ];
+
+        foreach ($rows as [$key, $group, $label, $type, $default, $ownerOnly]) {
+            Setting::updateOrCreate(['key' => $key], [
+                'group' => $group,
+                'label_ar' => $label,
+                'type' => $type,
+                'default_value' => $default,
+                'value' => Setting::query()->where('key', $key)->value('value') ?? $default,
+                'is_sensitive' => false,
+                'is_owner_only' => $ownerOnly,
+            ]);
+        }
+
+        Cache::forget('settings');
+
+        $this->featureFlags();
+    }
+
+    /**
+     * صفوف المزايا نفسها — **مربوطةٌ بمسارات حقيقيّة** عبر `FeatureCatalog`.
+     *
+     * والتحديث لا يدهس قرار المالك: اللافتة والمجموعة تُحدَّثان، أمّا `enabled`
+     * و`visibility` و`message_*` فهي قيمُه هو — وإعادةُ الزرع لا تفتح ميزةً أطفأها.
+     */
+    private function featureFlags(): void
+    {
+        // قبل الترحيل لا جدولَ مزايا — والتعريفُ لا يجوز أن يكسر التنصيب
+        if (! Schema::hasTable('feature_flags')) {
+            return;
+        }
+
+        // [key => الاسم العربيّ] — واللافتة في القاعدة لا في صنف PHP (2.13)
+        $labels = [
+            'training.courses' => 'التدريبات والمسارات',
+            'training.lessons' => 'الدروس',
+            'training.lesson_comments' => 'تعليقات الدروس',
+            'training.exams' => 'الامتحانات',
+            'training.certificates' => 'الشهادات وتحميلها',
+            'gamification.leaderboard' => 'لوحة المتصدّرين',
+            'gamification.streak' => 'السلسلة (Streak)',
+            'gamification.badges' => 'الشارات',
+            'gamification.reward_questions' => 'سؤال المكافأة',
+            'gamification.kudos' => 'الكودوز وحائط الشكر',
+            'wars.board' => 'لوحة الحروب',
+            'wars.focus' => 'حرب التركيز',
+            'wars.matches' => 'المواجهات والساحة',
+            'store.storefront' => 'المتجر',
+            'store.wallet' => 'المحفظة',
+            'store.topup' => 'شحن الرصيد',
+            'store.transfer' => 'التحويل بين المحافظ',
+            'store.withdraw' => 'السحب',
+            'store.exchange' => 'تبديل العملات',
+            'library.reader' => 'المكتبة والقارئ',
+            'library.cv' => 'السيرة الذاتيّة',
+            'library.attestations' => 'الإفادات',
+            'volunteer.panel' => 'لوحة التطوّع',
+            'volunteer.meetings' => 'اجتماعات التطوّع',
+            'volunteer.tasks' => 'مهامّ التطوّع',
+            'volunteer.internal_library' => 'المكتبة الداخليّة',
+            'events.public' => 'الفعاليّات',
+            'guidance.announcements' => 'الإعلانات والتعليمات',
+            'guidance.help' => 'مركز المساعدة',
+            'guidance.complaints' => 'الشكاوى',
+            'guidance.notifications' => 'مركز الإشعارات',
+            'profile.public' => 'البروفايل العامّ',
+            'profile.card' => 'كارت التعريف',
+            'profile.search' => 'البحث في المنصّة',
+        ];
+
+        foreach (FeatureCatalog::definitions() as $key => $definition) {
+            $existing = DB::table('feature_flags')->where('key', $key)->first();
+
+            if ($existing) {
+                DB::table('feature_flags')->where('id', $existing->id)->update([
+                    'group' => $definition['group'],
+                    'label_ar' => $labels[$key] ?? $key,
+                    'updated_at' => now(),
+                ]);
+
+                continue;
+            }
+
+            DB::table('feature_flags')->insert([
+                'key' => $key,
+                'group' => $definition['group'],
+                'label_ar' => $labels[$key] ?? $key,
+                'enabled' => true,
+                'is_beta' => false,
+                'visibility' => 'none',
+                'behavior' => '',
+                'notify_affected' => false,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
+
+        FeatureGate::forget();
     }
 
     // ---------------------------------------------------------------- بيانات تجريبيّة

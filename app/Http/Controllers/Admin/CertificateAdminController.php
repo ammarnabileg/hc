@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Certificate;
 use App\Models\CertificateAccreditation;
+use App\Models\CertificateReport;
 use App\Models\CertificateTemplate;
 use App\Models\CertificateType;
 use App\Services\Admin\Content\CertificateBulkIssuer;
@@ -14,6 +15,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -36,7 +38,7 @@ class CertificateAdminController extends Controller
     {
         // تحميل كسول للتابات: لا نجهّز إلّا بيانات التاب المفتوح (2.15-د)
         $tab = $request->string('tab')->toString() ?: 'accreditations';
-        $tab = in_array($tab, ['accreditations', 'types', 'issue', 'ledger'], true) ? $tab : 'accreditations';
+        $tab = in_array($tab, ['accreditations', 'types', 'issue', 'ledger', 'verification'], true) ? $tab : 'accreditations';
 
         return view('admin.certificates.index', array_merge([
             'tab' => $tab,
@@ -45,6 +47,7 @@ class CertificateAdminController extends Controller
             'accreditations' => $this->accreditationsData(),
             'types' => $this->typesData(),
             'issue' => $this->issueData(),
+            'verification' => $this->verificationData($request),
             default => $this->ledgerData($request),
         }));
     }
@@ -228,6 +231,66 @@ class CertificateAdminController extends Controller
             : 'مقدرناش نعيد الإصدار — راجع نوع الشهادة.');
     }
 
+    // ============================================================ 5) صفحة التحقّق والبلاغات
+
+    /**
+     * ⭐ **مراجعة بلاغ** (24.1): «`pop-box` «مراجعة بلاغ» [التفاصيل + إجراء:
+     * تجاهل/إلغاء الشهادة/تصعيد]» — ثلاثة إجراءات لا رابع، ولا دورةَ عملٍ فوقها.
+     *
+     * و«إلغاء الشهادة» يمرّ من **باب الإلغاء نفسه** لا من باب جانبيّ: النصّ يوجب
+     * أن تكون «**صلاحيّة الإلغاء منفصلة عن الإصدار**» (24.1)، فمن لا يملك
+     * `certificates.delete` يقدر يتجاهل ويصعّد ولا يقدر يُلغي — والإلغاء يبقى
+     * **للتزوير المثبَت وحده** (13.4-ق) بسببٍ موثّق وإشعارٍ لصاحبها.
+     */
+    public function reviewReport(Request $request, CertificateReport $report): RedirectResponse
+    {
+        $data = $request->validate([
+            'action' => ['required', 'string', Rule::in(CertificateReport::actions())],
+            'note' => ['nullable', 'string', 'max:2000'],
+            'reason' => ['nullable', 'string', 'max:255'],
+        ]);
+
+        $certificate = $report->certificate;
+
+        if ($data['action'] === CertificateReport::REVOKED) {
+            if (! $request->user()?->can('certificates.delete')) {
+                return back()->with('status', (string) setting(
+                    'certificates.reports.revoke_forbidden_text',
+                    'إلغاء الشهادة صلاحيّة منفصلة — تقدر تتجاهل البلاغ أو تصعّده.',
+                ));
+            }
+
+            if (! $certificate || $certificate->status !== 'valid') {
+                return back()->with('status', (string) setting(
+                    'certificates.reports.revoke_unavailable_text',
+                    'مفيش شهادة سارية بالكود ده عشان تتلغي.',
+                ));
+            }
+
+            $this->issuer->revoke(
+                $certificate,
+                $data['reason'] ?: (string) setting('certificates.reports.default_revoke_reason', 'تزوير مثبَت ببلاغ'),
+                true,
+                $request->user(),
+            );
+        }
+
+        $report->update([
+            'status' => $data['action'],
+            'reviewed_by' => $request->user()?->id,
+            'reviewed_at' => now(),
+            'review_note' => $data['note'] ?? null,
+        ]);
+
+        // Audit لكلّ مراجعة: مين وامتى وليه (12.5-د)
+        $this->audit->record($report, 'certificate_report.reviewed', [], [
+            'action' => $data['action'],
+            'code' => $report->code,
+        ]);
+
+        return back()->with('status', (string) setting('certificates.reports.reviewed_text', 'اتراجع البلاغ ✓'));
+    }
+
     /** تصدير/طباعة جماعيّة بالنوع أو بأكواد الأشخاص (12.5-د). */
     public function export(Request $request): StreamedResponse
     {
@@ -345,6 +408,48 @@ class CertificateAdminController extends Controller
         ];
     }
 
+    /**
+     * جدول البلاغات (24.1): الكود · المبلِّغ · السبب · التاريخ · الحالة · [مراجعة].
+     *
+     * @return array<string, mixed>
+     */
+    private function verificationData(Request $request): array
+    {
+        $status = $request->string('status')->toString();
+
+        $reports = CertificateReport::query()
+            ->with(['reporter', 'reviewer', 'certificate.certificate_type'])
+            ->when($status !== '', fn ($q) => $q->where('status', $status))
+            ->when($request->filled('q'), function ($q) use ($request) {
+                $term = '%'.ltrim(trim($request->string('q')->toString()), '#').'%';
+                $q->where(fn ($w) => $w->where('code', 'like', $term)->orWhere('reason', 'like', $term));
+            })
+            // الجديد أوّلًا ثمّ الأحدث — البلاغ الذي لم يُراجَع لا ينزل تحت المراجَع
+            ->orderByRaw("case when status = 'new' then 0 else 1 end")
+            ->orderByDesc('created_at')
+            ->paginate((int) setting('certificates.reports.page_size', 20))
+            ->withQueryString();
+
+        return [
+            'reports' => $reports,
+            'reportFilters' => ['status' => $status, 'q' => $request->string('q')->toString()],
+            'reportStatuses' => (array) setting('certificates.reports.statuses', [
+                'new' => 'جديد',
+                'dismissed' => 'اتجاهل',
+                'revoked' => 'اتلغت الشهادة',
+                'escalated' => 'اتصعّد',
+            ]),
+            'reportActions' => (array) setting('certificates.reports.actions', [
+                'dismissed' => 'تجاهل',
+                'revoked' => 'ألغِ الشهادة',
+                'escalated' => 'صعّد',
+            ]),
+            'revokeReasons' => (array) setting('certificates.revoke.reasons', ['تزوير مثبَت', 'بيانات خاطئة', 'طلب صاحبها']),
+            'canRevoke' => (bool) $request->user()?->can('certificates.delete'),
+            'newReportsCount' => CertificateReport::query()->where('status', CertificateReport::NEW)->count(),
+        ];
+    }
+
     /** @return array<int, array{key: string, label: string, url: string}> */
     private function tabs(): array
     {
@@ -354,6 +459,15 @@ class CertificateAdminController extends Controller
             'issue' => 'إصدار شهادة',
             'ledger' => 'سجلّ الصادر',
         ]);
+
+        /*
+         | ⭐ **صفحة التحقّق** شاشةٌ خامسة في 24.1 لا تابٌ خامس في 12.5: الأخير
+         | يعدّ **أربعة تبويبات** (نعرّف ⟵ نُعِدّ ⟵ نُصدِر ⟵ نتابع)، بينما 24.1
+         | يفرد لصفحة التحقّق شاشةً بذاتها وفيها **جدول البلاغات**. فنُلحقها هنا
+         | بمفتاحها الخاصّ — بلا لمس إعداد التبويبات الأربعة، فلا يفقد تنصيبٌ
+         | قائم شاشةً لأنّ قيمة المالك المحفوظة لا تعرف المفتاح الجديد.
+         */
+        $labels['verification'] ??= (string) setting('certificates.tabs.verification', 'صفحة التحقّق');
 
         return collect($labels)
             ->map(fn ($label, $key) => [

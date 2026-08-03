@@ -109,15 +109,42 @@ class TemplateDesigner
         $templates = [];
 
         foreach (['ar', 'en'] as $language) {
-            $templates[$language] = CertificateTemplate::query()
+            $template = CertificateTemplate::query()
                 ->where('certificate_type_id', $type->id)
                 ->where('language', $language)
                 ->orderByDesc('is_default')
                 ->orderByDesc('version')
-                ->first() ?? $this->createDefault($type, $language);
+                ->first();
+
+            /*
+             | ⭐ صفٌّ موجود بطبقاتٍ **فارغة** ليس «تصميمًا اختاره الأدمن» بل أثرُ
+             | إنشاءٍ ناقص: الراسم يتخطّى كلّ طبقةٍ فارغة، فالنتيجة صندوقٌ خالٍ
+             | يبدأ منه الأدمن من الصفر — وهذا نقض 12.5-ب: «تصميم افتراضيّ جاهز
+             | لكلّ نوع شهادة … **والأدمن يعدّله**». فيُملأ بتصميم نوعه مرّةً.
+             | ولا يمسّ ذلك شهادةً صدرت: نسختها مجمَّدة في `template_snapshot`.
+             */
+            if ($template && $this->isBlank($template)) {
+                $template->update([
+                    'layers' => $this->defaultLayers($language, $type),
+                    'version' => (int) $template->version + 1,
+                ]);
+
+                $template->refresh();
+            }
+
+            $templates[$language] = $template ?? $this->createDefault($type, $language);
         }
 
         return $templates;
+    }
+
+    /** قالبٌ بلا طبقةٍ واحدة — لا خيارَ تصميمٍ بل فراغ (12.5-ب). */
+    public function isBlank(CertificateTemplate $template): bool
+    {
+        $layers = $template->layers;
+        $layers = is_string($layers) ? (json_decode($layers, true) ?: []) : (array) $layers;
+
+        return $layers === [];
     }
 
     /** ⭐ تصميم افتراضيّ جاهز لكلّ نوع شهادة، ولكلّ لغة خلفيّتها ومواضعها (12.5-ب). */
@@ -129,7 +156,7 @@ class TemplateDesigner
             'name' => $type->name_ar.' — '.($language === 'ar' ? 'عربيّة' : 'إنجليزيّة'),
             'width_px' => (int) setting('certificates.render.default_width_px', self::REFERENCE_WIDTH),
             'height_px' => (int) setting('certificates.render.default_height_px', 1240),
-            'layers' => $this->defaultLayers($language),
+            'layers' => $this->defaultLayers($language, $type),
             'is_default' => true,
             'version' => 1,
         ]);
@@ -138,8 +165,10 @@ class TemplateDesigner
     /** إعادة القالب لتصميمه الافتراضيّ (24.1 — «افتراضيّ + Reset»). */
     public function reset(CertificateTemplate $template): CertificateTemplate
     {
+        $type = CertificateType::query()->find($template->certificate_type_id);
+
         $template->update([
-            'layers' => $this->defaultLayers($template->language),
+            'layers' => $this->defaultLayers($template->language, $type),
             'version' => (int) $template->version + 1,
         ]);
 
@@ -289,26 +318,96 @@ class TemplateDesigner
     }
 
     /**
-     * التصميم الافتراضيّ الجاهز: يعمل من أوّل يوم بلا رفع أيّ خلفيّة.
+     * ⭐ **تصميم افتراضيّ جاهز لكلّ نوع شهادة** — يعمل من أوّل يوم بلا رفع أيّ
+     * خلفيّة، **والأدمن يعدّله** (12.5-ب حرفيًّا).
+     *
+     * ولماذا **لكلّ نوع** لا تصميمٌ واحد للثمانية؟ لأنّ النصّ يقول «لكلّ نوع»،
+     * ولأنّ شهادة خبرة تطوّع لا تقول «قد أتمّ بنجاح» وشهادة تقدير لا تقول
+     * «حضر». فالهندسة (المواضع والأحجام والألوان) مشتركة — وهي ما يسحبه الأدمن
+     * ويعدّله — و**النصوص الثابتة** تأتي من وصفة النوع في الإعدادات، فيفتح
+     * الراسمَ على تصميمٍ يخصّ نوعه لا على فراغ.
+     *
+     * والوصفة إعدادٌ لا نصٌّ محروق: `certificates.default_design.recipes`
+     * (2.13) — يعدّلها المالك فيتغيّر التصميم الافتراضيّ لكلّ نوعٍ جديد.
      *
      * @return array<int, array<string, mixed>>
      */
-    public function defaultLayers(string $language): array
+    public function defaultLayers(string $language, ?CertificateType $type = null): array
     {
         $ar = $language === 'ar';
+        $recipe = $this->defaultDesignRecipe($type, $language);
+        $labels = $this->defaultDesignLabels($language);
+        $honor = (string) setting('certificates.render.honor_color', '#d4af37');
+        $brand = (string) setting('certificates.render.brand_color', '#00d4b8');
+        $ink = (string) setting('certificates.render.text_color', '#e8f5f2');
+        $muted = (string) setting('certificates.designer.muted_color', '#9bb3ad');
 
-        return $this->sanitizeLayers([
-            ['id' => 'heading', 'type' => 'text', 'label' => 'العنوان', 'text' => $ar ? 'شهادة معتمدة' : 'Certificate', 'x' => 0.5, 'y' => 0.24, 'size' => 62, 'color' => '#d4af37', 'bold' => true, 'z' => 1],
-            ['id' => 'lead', 'type' => 'text', 'label' => 'تمهيد', 'text' => $ar ? 'تشهد المنصّة بأنّ' : 'This is to certify that', 'x' => 0.5, 'y' => 0.34, 'size' => 30, 'color' => '#9bb3ad', 'z' => 2],
-            ['id' => 'holder', 'type' => 'text', 'label' => 'اسم المتدرّب', 'field' => 'holder_name', 'x' => 0.5, 'y' => 0.45, 'size' => 54, 'color' => '#e8f5f2', 'bold' => true, 'z' => 3],
-            ['id' => 'completion', 'type' => 'text', 'label' => 'نصّ الإتمام', 'text' => $ar ? 'قد أتمّ بنجاح' : 'has successfully completed', 'x' => 0.5, 'y' => 0.53, 'size' => 28, 'color' => '#9bb3ad', 'z' => 4],
-            ['id' => 'subject', 'type' => 'text', 'label' => 'اسم الشهادة', 'field' => 'certificate_name', 'x' => 0.5, 'y' => 0.62, 'size' => 40, 'color' => '#00d4b8', 'z' => 5],
-            ['id' => 'accreditation', 'type' => 'text', 'label' => 'جهة الاعتماد', 'field' => 'accreditation_name', 'x' => 0.5, 'y' => 0.70, 'size' => 24, 'color' => '#9bb3ad', 'z' => 6],
-            ['id' => 'issued', 'type' => 'text', 'label' => 'التاريخ', 'field' => 'issued_on', 'x' => 0.25, 'y' => 0.85, 'size' => 24, 'color' => '#9bb3ad', 'z' => 7],
-            ['id' => 'country', 'type' => 'text', 'label' => 'الدولة', 'field' => 'country', 'x' => 0.25, 'y' => 0.89, 'size' => 24, 'color' => '#9bb3ad', 'conditional' => true, 'z' => 8],
-            ['id' => 'code', 'type' => 'text', 'label' => 'كود الشهادة', 'field' => 'code', 'x' => 0.75, 'y' => 0.85, 'size' => 24, 'color' => '#9bb3ad', 'z' => 9],
-            ['id' => 'qr', 'type' => 'qr', 'label' => 'QR التحقّق', 'x' => 0.85, 'y' => 0.80, 'size' => 0.12, 'z' => 10],
-        ]);
+        $layers = [
+            ['id' => 'heading', 'type' => 'text', 'label' => 'العنوان', 'text' => $recipe['heading'] ?: ($ar ? 'شهادة معتمدة' : 'Certificate'), 'x' => 0.5, 'y' => 0.22, 'size' => 62, 'color' => $honor, 'bold' => true, 'z' => 1],
+            ['id' => 'lead', 'type' => 'text', 'label' => 'تمهيد', 'text' => $recipe['lead'] ?: ($ar ? 'تشهد المنصّة بأنّ' : 'This is to certify that'), 'x' => 0.5, 'y' => 0.32, 'size' => 30, 'color' => $muted, 'z' => 2],
+            ['id' => 'holder', 'type' => 'text', 'label' => 'اسم المتدرّب', 'field' => 'holder_name', 'x' => 0.5, 'y' => 0.43, 'size' => 54, 'color' => $ink, 'bold' => true, 'z' => 3],
+            ['id' => 'completion', 'type' => 'text', 'label' => 'نصّ الإتمام', 'text' => $recipe['body'] ?: ($ar ? 'قد أتمّ بنجاح' : 'has successfully completed'), 'x' => 0.5, 'y' => 0.51, 'size' => 28, 'color' => $muted, 'z' => 4],
+            ['id' => 'subject', 'type' => 'text', 'label' => 'اسم الشهادة', 'field' => 'certificate_name', 'x' => 0.5, 'y' => 0.60, 'size' => 40, 'color' => $brand, 'z' => 5],
+            ['id' => 'closing', 'type' => 'text', 'label' => $labels['closing'], 'text' => $recipe['closing'], 'x' => 0.5, 'y' => 0.67, 'size' => 24, 'color' => $muted, 'z' => 6],
+            ['id' => 'accreditation', 'type' => 'text', 'label' => 'جهة الاعتماد', 'field' => 'accreditation_name', 'x' => 0.5, 'y' => 0.74, 'size' => 24, 'color' => $muted, 'z' => 7],
+            // ⚠️ الختم في **وسط** الأسفل لا يمينه: عند 0.75 كان يصطدم بمربّع الـQR
+            // (0.79…0.91 عرضًا) فيُقرَأ نصفُه — ولقطةُ الشاشة هي التي كشفته.
+            ['id' => 'seal', 'type' => 'text', 'label' => $labels['seal'], 'text' => $recipe['seal'], 'x' => 0.5, 'y' => 0.90, 'size' => 22, 'color' => $honor, 'z' => 8],
+            ['id' => 'issued', 'type' => 'text', 'label' => 'التاريخ', 'field' => 'issued_on', 'x' => 0.25, 'y' => 0.83, 'size' => 24, 'color' => $muted, 'z' => 9],
+            ['id' => 'country', 'type' => 'text', 'label' => 'الدولة', 'field' => 'country', 'x' => 0.25, 'y' => 0.87, 'size' => 24, 'color' => $muted, 'conditional' => true, 'z' => 10],
+            ['id' => 'code', 'type' => 'text', 'label' => 'كود الشهادة', 'field' => 'code', 'x' => 0.25, 'y' => 0.91, 'size' => 24, 'color' => $muted, 'z' => 11],
+            ['id' => 'qr', 'type' => 'qr', 'label' => 'QR التحقّق', 'x' => 0.85, 'y' => 0.84, 'size' => 0.12, 'z' => 12],
+        ];
+
+        /*
+         | طبقةٌ نصّيّة بلا نصٍّ ولا حقل لا تُضاف أصلًا: لو خلت وصفةُ النوع من
+         | «الخاتمة» أو «الختم» فوجودُ طبقةٍ فارغة في لوحة الطبقات ضجيجٌ يربك
+         | الأدمن — والراسم يتخطّاها على أيّ حال.
+         */
+        return $this->sanitizeLayers(array_values(array_filter(
+            $layers,
+            fn (array $layer) => ($layer['type'] ?? 'text') !== 'text'
+                || trim((string) ($layer['text'] ?? '')) !== ''
+                || ($layer['field'] ?? null) !== null,
+        )));
+    }
+
+    /**
+     * وصفة نصوص النوع (ع/إ) من الإعدادات — والارتداد إلى الوصفة العامّة
+     * `default` حين لا يكون للنوع وصفةٌ خاصّة (نوعٌ أضافه الأدمن بيده).
+     *
+     * @return array{heading: string, lead: string, body: string, closing: string, seal: string}
+     */
+    public function defaultDesignRecipe(?CertificateType $type, string $language): array
+    {
+        $recipes = (array) setting('certificates.default_design.recipes', []);
+        $key = $type?->key ?: '';
+
+        $recipe = (array) ($recipes[$key][$language] ?? $recipes['default'][$language] ?? []);
+
+        return [
+            'heading' => trim((string) ($recipe['heading'] ?? '')),
+            'lead' => trim((string) ($recipe['lead'] ?? '')),
+            'body' => trim((string) ($recipe['body'] ?? '')),
+            'closing' => trim((string) ($recipe['closing'] ?? '')),
+            'seal' => trim((string) ($recipe['seal'] ?? '')),
+        ];
+    }
+
+    /**
+     * تسميات الطبقتين المضافتين في لوحة الطبقات — من الإعدادات لا محروقةً (2.13).
+     *
+     * @return array{closing: string, seal: string}
+     */
+    private function defaultDesignLabels(string $language): array
+    {
+        $labels = (array) setting('certificates.default_design.layer_labels', []);
+        $set = (array) ($labels[$language] ?? $labels['ar'] ?? []);
+
+        return [
+            'closing' => (string) ($set['closing'] ?? setting('certificates.designer.layer_label_fallback', 'طبقة')),
+            'seal' => (string) ($set['seal'] ?? setting('certificates.designer.layer_label_fallback', 'طبقة')),
+        ];
     }
 
     /**

@@ -3,12 +3,16 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\AdAudience;
 use App\Models\AuditLog;
 use App\Models\MaintenanceWindow;
+use App\Models\Role;
 use App\Models\Setting;
+use App\Models\User;
 use App\Services\Admin\System\CountryDataSync;
 use App\Services\Admin\System\MaintenanceService;
 use App\Services\Admin\System\SettingsRegistry;
+use App\Services\Features\FeatureRegistry;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -57,7 +61,50 @@ class SettingsAdminController extends Controller
                 : null,
             // 12.7-د: جدول الدول + فروق النسخة الجديدة — تحميلٌ كسول للتاب (2.15-أ-10)
             'countries' => $tab === 'countries' ? $this->countriesScreen($request) : null,
+            // 24.3: مفاتيح المزايا — كذلك كسولةً، فجدولُها واستعلاماتُه لا يُحمَّلان
+            // في كلّ تابٍ آخر
+            'features' => $tab === 'features' ? $this->featuresScreen($request) : null,
         ]);
+    }
+
+    /**
+     * 🖥️ **مفاتيح المزايا** (24.3) — مادّة الشاشة كاملةً.
+     *
+     * وفلاترها بأسماء خاصّة (`fq`/`fgroup`/`fstatus`) حتّى لا تصطدم ببحث
+     * الإعدادات الموحّد الذي يستعمل `q` في نفس الصفحة.
+     *
+     * @return array<string, mixed>
+     */
+    private function featuresScreen(Request $request): array
+    {
+        $registry = app(FeatureRegistry::class);
+
+        $filters = [
+            'q' => trim($request->string('fq')->toString()),
+            'group' => $request->string('fgroup')->toString(),
+            'status' => $request->string('fstatus')->toString(),
+        ];
+
+        $rows = $registry->rows($filters);
+
+        return [
+            'filters' => $filters,
+            'rows' => $rows,
+            'groups' => $registry->groupLabels(),
+            'paused' => $registry->pausedCount(),
+            'long_outages' => $registry->longOutages(),
+            'roles' => Role::query()->orderBy('id')->get(['id', 'name_ar']),
+            'segments' => AdAudience::query()->whereNull('archived_at')->orderBy('id')->get(['id', 'name']),
+            // أسماء مَن بدّلوا — استعلامٌ واحد بدل استعلامٍ لكلّ صفّ
+            'people' => User::query()->whereIn('id', $rows->pluck('last_toggled_by')->filter()->unique())
+                ->pluck('name', 'id')->all(),
+            'visibility_labels' => [
+                'none' => (string) setting('features.ui.visibility.none', 'لا أحد'),
+                'admins' => (string) setting('features.ui.visibility.admins', 'الأدمن فقط'),
+                'roles' => (string) setting('features.ui.visibility.roles', 'أدوار محدّدة'),
+            ],
+            'labels' => Setting::query()->where('group', 'features')->pluck('label_ar', 'key')->all(),
+        ];
     }
 
     /**

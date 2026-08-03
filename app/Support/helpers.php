@@ -4,6 +4,7 @@ use App\Models\RepRule;
 use App\Models\Setting;
 use App\Models\SettingOverride;
 use App\Models\User;
+use App\Services\Features\FeatureGate;
 use App\Services\Ux\ViewMode;
 use Illuminate\Support\Facades\Cache;
 
@@ -131,5 +132,31 @@ if (! function_exists('state_color')) {
             'icon' => (string) setting("ux.state.{$color}.icon", $fallback[0]),
             'label' => (string) setting("ux.state.{$color}.label", $fallback[1]),
         ];
+    }
+}
+
+if (! function_exists('feature')) {
+    /**
+     * ⭐ **مفاتيح المزايا (24.3)** — القارئ الواحد الذي تستهلكه المنصّة كلّها.
+     *
+     * «إطفاء/تشغيل أيّ ميزة في المنصّة بلا نشر كود — **البديل الوحيد للصيانة
+     * الجزئيّة الملغاة** (12.7-و)». فلا `if (setting('x.enabled'))` متناثرة في
+     * القوالب: قارئٌ واحد يعرف الـOverride ويعرف «مَن يراها أثناء الإيقاف».
+     */
+    function feature(string $key, ?User $user = null): bool
+    {
+        return app(FeatureGate::class)->allows($key, $user ?? auth()->user());
+    }
+}
+
+if (! function_exists('feature_state')) {
+    /**
+     * الحالة الكاملة للميزة (سلوكها ونصّها ونطاقها) — لمن يحتاج أكثر من نعم/لا.
+     *
+     * @return array{known:bool,allowed:bool,enabled:bool,scope:string,exempt:bool,behavior:string,message:string,flag:array<string,mixed>|null}
+     */
+    function feature_state(string $key, ?User $user = null): array
+    {
+        return app(FeatureGate::class)->state($key, $user ?? auth()->user());
     }
 }

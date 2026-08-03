@@ -48,7 +48,7 @@
 ## 🔗 التبعيّات والملفّات المهمّة
 <!-- تلقائيّ:بداية:التبعيات -->
 - **الطبقات الأخرى لنفس المجال:** `resources/views/certificates` · `routes/parts` · `tests/Feature/Certificates`
-- **الاختبارات:** 2 ملفّ Feature في `tests/Feature/Certificates` — شغّلها بـ`php artisan test tests/Feature/Certificates`.
+- **الاختبارات:** 4 ملفّ Feature في `tests/Feature/Certificates` — شغّلها بـ`php artisan test tests/Feature/Certificates`.
 - **المرجع الحاكم:** `دستور اساسي.md` · **وكيف نكتب:** `docs/BUILD.md`.
 - **المجلّد الأب:** `app/Services/_STATUS.md`.
 <!-- تلقائيّ:نهاية:التبعيات -->
