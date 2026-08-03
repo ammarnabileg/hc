@@ -11,6 +11,7 @@ use App\Models\Role;
 use App\Models\Setting;
 use App\Models\Transaction;
 use App\Models\User;
+use App\Services\Admin\AudienceSegments;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Cache;
 
@@ -106,10 +107,50 @@ class AdminCoreDemoSeeder extends Seeder
             ['admin.approvals.empty_message', 'admin_approvals', 'نصّ الحالة الفارغة', 'string', 'مفيش طلبات معلّقة — كلّ حاجة تمام'],
             ['admin.approvals.free_note', 'admin_approvals', 'سطر تذكير مجّانيّة التفعيل', 'string', 'التفعيل مجّانيّ باعتماد إداريّ — ولا رسوم على الباب'],
 
-            // ---------------- شرائح الجمهور (24.1)
+            // ---------------- شرائح الجمهور (12.13 · 24.1)
             ['admin.segments.preview_rows', 'admin_segments', 'صفوف معاينة أعضاء الشريحة', 'number', '10'],
             ['admin.segments.max_members', 'admin_segments', 'أقصى عدد أعضاء للشريحة', 'number', '50000'],
             ['admin.segments.empty_message', 'admin_segments', 'نصّ الحالة الفارغة', 'string', 'ابنِ شريحتك الأولى'],
+            // Toggle: الديناميكيّة · الأرشفة بدل الحذف · عيّنة الأعضاء في المعاينة
+            ['admin.segments.dynamic_enabled', 'admin_segments', 'تفعيل الشرائح الديناميكيّة', 'bool', '1'],
+            ['admin.segments.block_delete_when_used', 'admin_segments', 'منع حذف شريحة مستخدَمة (أرشفة بدلها)', 'bool', '1'],
+            ['admin.segments.show_member_sample', 'admin_segments', 'إظهار عيّنة الأعضاء في المعاينة', 'bool', '1'],
+            // قيم: فترة التحديث · صفوف المعاينة والقوائم · حدود الباني
+            ['admin.segments.refresh_hours', 'admin_segments', 'فترة تحديث الشريحة الديناميكيّة (ساعات)', 'number', '24'],
+            ['admin.segments.per_page', 'admin_segments', 'عدد الشرائح في الصفحة', 'number', '20'],
+            ['admin.segments.members_rows', 'admin_segments', 'صفوف شاشة أعضاء الشريحة', 'number', '50'],
+            ['admin.segments.option_rows', 'admin_segments', 'أقصى خيارات في قوائم باني المعايير', 'number', '50'],
+            ['admin.segments.usage_rows', 'admin_segments', 'أقصى أماكن استخدام تُفحَص للشريحة', 'number', '10'],
+            ['admin.segments.max_groups', 'admin_segments', 'أقصى مجموعات في باني المعايير', 'number', '2'],
+            ['admin.segments.max_conditions', 'admin_segments', 'أقصى شروط في المجموعة الواحدة', 'number', '8'],
+            ['admin.segments.tickets_currency', 'admin_segments', 'رمز عملة التذاكر في معيار النطاق', 'string', 'tickets'],
+            // نصوص: تسميات المعايير (12.13) · تحذير الحذف · شروح الشاشة
+            ['admin.segments.criteria_labels', 'admin_segments', 'تسميات معايير الشريحة', 'json', json_encode([
+                'path' => 'المسار',
+                'course' => 'التدريب',
+                'role' => 'الدور',
+                'country' => 'الدولة',
+                'governorate' => 'المحافظة',
+                'status' => 'حالة الحساب',
+                'xp' => 'نطاق XP',
+                'tickets' => 'نطاق التذاكر',
+                'last_active_days' => 'آخر نشاط خلال (يوم)',
+                'registered_days' => 'مسجَّل خلال (يوم)',
+            ], JSON_UNESCAPED_UNICODE)],
+            ['admin.segments.types', 'admin_segments', 'أنواع الشرائح', 'json', json_encode([
+                'dynamic' => 'ديناميكيّة (تُحدَّث تلقائيًّا)',
+                'static' => 'ثابتة (تُجمَّد الآن)',
+            ], JSON_UNESCAPED_UNICODE)],
+            ['admin.segments.match_modes', 'admin_segments', 'منطق ربط الشروط', 'json', json_encode([
+                'all' => 'كلّ الشروط (AND)',
+                'any' => 'أيّ شرط (OR)',
+            ], JSON_UNESCAPED_UNICODE)],
+            ['admin.segments.delete_warning', 'admin_segments', 'نصّ تحذير حذف شريحة مستخدَمة', 'string', 'الشريحة دي مستخدَمة في :count مكان — أرشفها بدل ما تمسحها.'],
+            ['admin.segments.duplicate_suffix', 'admin_segments', 'لاحقة اسم النسخة المكرّرة', 'string', ' — نسخة'],
+            ['admin.segments.summary_all', 'admin_segments', 'ملخّص الشريحة بلا شروط', 'string', 'كلّ المستخدمين'],
+            ['admin.segments.type_hint', 'admin_segments', 'سطر شرح نوع الشريحة', 'string', 'الديناميكيّة بتتحدّث لوحدها مع تغيّر البيانات، والثابتة بتتجمّد على أعضائها دلوقتي.'],
+            ['admin.segments.preview_hint', 'admin_segments', 'سطر شرح حصر المعاينة بالنطاق', 'string', 'المعاينة بتتحسب في حدود نطاقك أنت — مش في المنصّة كلّها.'],
+            ['admin.segments.members_empty', 'admin_segments', 'نصّ خلوّ الشريحة من الأعضاء', 'string', 'مافيش أعضاء مطابقين دلوقتي'],
 
             // ---------------- الأدوار والصلاحيّات (12.2)
             ['admin.roles.default_scope', 'admin_roles', 'النطاق الافتراضيّ للصلاحيّة الجديدة', 'string', 'SELF'],
@@ -221,27 +262,41 @@ class AdminCoreDemoSeeder extends Seeder
     }
 
     /** شريحة محفوظة تُعاد الاستفادة منها في الإشعارات والمكافآت (24.1) */
+    /**
+     * شرائح تجريبيّة (12.13) — واحدة **ديناميكيّة** وأخرى **ثابتة** ليظهر الفرق
+     * السلوكيّ بينهما من أوّل تشغيل: الثابتة تُجمَّد على أعضائها الآن.
+     */
     private function demoSegments(): void
     {
-        AdAudience::firstOrCreate(
+        $owner = User::where('email', 'owner@hc.local')->first();
+        $segments = app(AudienceSegments::class);
+
+        $dynamic = AdAudience::firstOrCreate(
             ['name' => 'المستنّيون اعتماد من يومين'],
             [
-                'kind' => 'retargeting',
+                'kind' => AudienceSegments::KIND,
+                'segment_type' => AudienceSegments::TYPE_DYNAMIC,
+                'description' => 'حسابات لسّه تحت المراجعة اتسجّلت خلال يومين',
                 'rule' => ['status' => 'pending', 'registered_days' => 2],
-                'size' => User::where('status', 'pending')->count(),
-                'last_built_at' => now(),
+                'created_by' => $owner?->id,
+                'size' => 0,
             ],
         );
 
-        AdAudience::firstOrCreate(
+        $static = AdAudience::firstOrCreate(
             ['name' => 'المتدرّبون النشطون'],
             [
-                'kind' => 'retargeting',
+                'kind' => AudienceSegments::KIND,
+                'segment_type' => AudienceSegments::TYPE_STATIC,
+                'description' => 'لقطة مجمَّدة للمتدرّبين النشطين وقت الحفظ',
                 'rule' => ['status' => 'active', 'role' => 'trainee'],
-                'size' => User::where('status', 'active')->count(),
-                'last_built_at' => now(),
+                'created_by' => $owner?->id,
+                'size' => 0,
             ],
         );
+
+        $segments->rebuild($dynamic, $owner);
+        $segments->rebuild($static, $owner);
     }
 
     /** سجلّ التدقيق: كلّ تغيير صلاحيّة أو إسناد له أثر (12.2.1-ز-4) */

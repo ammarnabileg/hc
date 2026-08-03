@@ -284,7 +284,7 @@ class AdminCoreTest extends TestCase
 
     // ----------------------------------------------------------- شرائح الجمهور
 
-    /** الشريحة تُحفَظ بشروطها وتُعاد الاستفادة منها (24.1). */
+    /** الشريحة تُحفَظ بشروطها وتُعاد الاستفادة منها (24.1 · 12.13). */
     public function test_segment_is_saved_with_its_rule(): void
     {
         $admin = $this->owner();
@@ -292,13 +292,18 @@ class AdminCoreTest extends TestCase
         $this->actingAs($admin)
             ->post(route('admin.users.segments.store'), [
                 'name' => 'شريحة اختبار',
-                'status' => 'pending',
+                'match' => 'all',
+                'groups' => [
+                    ['match' => 'all', 'conditions' => [
+                        ['field' => 'status', 'values' => ['pending']],
+                    ]],
+                ],
             ])
             ->assertRedirect();
 
         $segment = AdAudience::where('name', 'شريحة اختبار')->firstOrFail();
 
-        $this->assertSame('pending', $segment->rule['status']);
+        $this->assertSame(['pending'], $segment->rule['groups'][0]['conditions'][0]['values']);
         $this->assertSame(User::where('status', 'pending')->count(), (int) $segment->size);
         $this->assertDatabaseHas('audit_logs', ['action' => 'segment.created']);
     }

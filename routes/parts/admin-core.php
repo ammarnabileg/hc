@@ -43,11 +43,29 @@ Route::middleware(['auth', 'admin.panel'])
         Route::post('/users/approvals/reject', [UserController::class, 'reject'])
             ->middleware('permission:user_approvals.reject')->name('users.reject');
 
+        // ------------------------------------------------- شرائح الجمهور (12.13)
+        // كلّ فعلٍ بصلاحيّته المستقلّة، ومن لا يملكها **لا يرى زرّه** أصلًا (2.15-أ-7)
         Route::get('/users/segments', [UserController::class, 'segments'])
             ->middleware('permission:user_segments.list')->name('users.segments');
 
+        // المعاينة اللحظيّة (عدد + عيّنة) بلا حفظ — بصلاحيّة العرض لا الإنشاء
+        Route::post('/users/segments/preview', [UserController::class, 'previewSegment'])
+            ->middleware('permission:user_segments.list')->name('users.segments.preview');
+
+        Route::get('/users/segments/export', [UserController::class, 'exportSegments'])
+            ->middleware('permission:user_segments.list')->name('users.segments.export');
+
         Route::post('/users/segments', [UserController::class, 'storeSegment'])
             ->middleware('permission:user_segments.create')->name('users.segments.store');
+
+        Route::get('/users/segments/{audience}/members', [UserController::class, 'segmentMembers'])
+            ->middleware('permission:user_segments.view')->name('users.segments.members');
+
+        Route::post('/users/segments/{audience}/duplicate', [UserController::class, 'duplicateSegment'])
+            ->middleware('permission:user_segments.create')->name('users.segments.duplicate');
+
+        Route::post('/users/segments/{audience}/archive', [UserController::class, 'archiveSegment'])
+            ->middleware('permission:user_segments.archive')->name('users.segments.archive');
 
         Route::delete('/users/segments/{audience}', [UserController::class, 'destroySegment'])
             ->middleware('permission:user_segments.delete')->name('users.segments.destroy');

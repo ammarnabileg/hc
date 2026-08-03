@@ -38,6 +38,89 @@ Route::middleware('auth')->prefix('volunteer')->group(function () {
         Route::post('/goals/{goal}/launch', [GoalController::class, 'send'])->name('volunteer.goals.launch.send');
     });
 
+    /*
+    | ============================================================================
+    |  ⭐ رحلة بناء الهدف — المرحلة صفر (23 — 1.1 … 1.4)
+    | ============================================================================
+    |
+    | الرحلة كلّها **غير مرئيّة للداونلاينز**، والصلاحيّة أوّل الحرّاس لا آخرهم:
+    | كلّ مسار هنا يمرّ بمفتاحه، ثمّ يفحص الكنترولر **الطبقة والحيازة** على الخادم
+    | (`BuildAccess`) — فالمفتاح يقول «هل تقدر مبدئيًّا؟»، والطبقة تقول «هل ده
+    | هدفك أصلًا، وهل التحرير في يدك دلوقتي؟».
+    |
+    |  • 1.1 إنشاء الهدف وربطه بمسار ⟵ `goals.create` (نطاق ALL وحده = القمّة).
+    |  • 1.2 المَعالِم ⟵ `milestones.create` · الحزم وربطها بالكيان ⟵ `work_packages.create`
+    |    (كلاهما TRACK = مشرف عام المسار).
+    |  • 1.3 ملء الحزم ⟵ `wp_items.create` (ENTITY = دايركتور الكيان)، والرفع
+    |    للمراجعة ⟵ `wp_items.edit`.
+    |  • 1.4 التعديل المباشر والتسعير و«رفع معاينة» ⟵ `milestones.edit` (TRACK/ALL).
+    |  • الحذف ⟵ مفاتيح `*.delete` ونطاقها **ALL** وحده في المصفوفة: للقمّة.
+    */
+
+    // لوحة الرحلة — تُفلتَر بالطبقة لا بالمفتاح وحده، فالفارغ فارغٌ لمن لا دور له
+    Route::middleware('permission:goals.list,goals.view')->group(function () {
+        Route::get('/goals/build', [GoalController::class, 'build'])->name('volunteer.goals.build');
+    });
+
+    // 1.1 — إنشاء الهدف بمعيار تحقّق إلزاميّ، ثمّ ربطه بمسار أو أكثر
+    Route::middleware('permission:goals.create')->group(function () {
+        Route::get('/goals/build/new', [GoalController::class, 'create'])->name('volunteer.goals.build.create');
+        Route::post('/goals/build', [GoalController::class, 'store'])->name('volunteer.goals.build.store');
+        Route::post('/goals/build/{goal}/tracks', [GoalController::class, 'linkTracks'])
+            ->name('volunteer.goals.build.tracks');
+    });
+
+    // 1.2 — التفكيك: مَعالِم داخل الهدف
+    Route::middleware('permission:milestones.create')->group(function () {
+        Route::get('/goals/build/{goal}/breakdown', [GoalController::class, 'breakdown'])
+            ->name('volunteer.goals.build.breakdown');
+        Route::post('/goals/build/{goal}/milestones', [GoalController::class, 'storeMilestone'])
+            ->name('volunteer.goals.build.milestones');
+    });
+
+    // 1.2 — حزم العمل وربطها بالكيان نفسه (فرادى أو كلّ كيانات المسار بضغطة)
+    Route::middleware('permission:work_packages.create')->group(function () {
+        Route::post('/goals/build/milestones/{milestone}/packages', [GoalController::class, 'storePackages'])
+            ->name('volunteer.goals.build.packages');
+    });
+
+    // 1.3 — ملء الحزم: الدايركتور يضيف مهامّه بلا حدّ أقصى
+    Route::middleware('permission:wp_items.create')->group(function () {
+        Route::get('/goals/build/{goal}/fill', [WorkPackageController::class, 'fill'])
+            ->name('volunteer.goals.build.fill');
+        Route::post('/goals/build/packages/{workPackage}/tasks', [WorkPackageController::class, 'storeTask'])
+            ->name('volunteer.goals.build.tasks');
+    });
+
+    Route::middleware('permission:wp_items.edit')->group(function () {
+        Route::post('/goals/build/packages/{workPackage}/submit', [WorkPackageController::class, 'submitForReview'])
+            ->name('volunteer.goals.build.submit');
+    });
+
+    // 1.4 — التجميع والتسعير والقفل الطبقيّ
+    Route::middleware('permission:milestones.edit')->group(function () {
+        Route::get('/goals/build/{goal}/aggregate', [GoalController::class, 'aggregate'])
+            ->name('volunteer.goals.build.aggregate');
+        Route::post('/goals/build/{goal}/field', [GoalController::class, 'saveField'])
+            ->name('volunteer.goals.build.field');
+        Route::get('/goals/build/{goal}/revisions', [GoalController::class, 'fieldRevisions'])
+            ->name('volunteer.goals.build.revisions');
+        Route::post('/goals/build/{goal}/preview', [GoalController::class, 'raisePreview'])
+            ->name('volunteer.goals.build.preview');
+        Route::post('/goals/build/{goal}/tasks', [GoalController::class, 'storeAggregateTask'])
+            ->name('volunteer.goals.build.aggregate.task');
+    });
+
+    // الحذف في المعاينة — للقمّة وحدها، وبتأكيد «لا» فيه أوضح وأكبر من «نعم»
+    Route::middleware('permission:milestones.delete')->delete('/goals/build/milestones/{milestone}', [GoalController::class, 'destroyMilestone'])
+        ->name('volunteer.goals.build.milestones.destroy');
+
+    Route::middleware('permission:work_packages.delete')->delete('/goals/build/packages/{workPackage}', [GoalController::class, 'destroyPackage'])
+        ->name('volunteer.goals.build.packages.destroy');
+
+    Route::middleware('permission:wp_items.delete')->delete('/goals/build/tasks/{task}', [GoalController::class, 'destroyTask'])
+        ->name('volunteer.goals.build.tasks.destroy');
+
     // إعلان تحقّق المعيار بدليل مرفق — لدايركتور الكيان
     Route::middleware('permission:wp_items.edit')->group(function () {
         Route::post('/goals/milestones/{milestone}/declare', [GoalController::class, 'declare'])

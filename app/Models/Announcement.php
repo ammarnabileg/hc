@@ -22,6 +22,9 @@ class Announcement extends Model
             'expires_at' => 'datetime',
             'is_pinned' => 'boolean',
             'push_to_notifications' => 'boolean',
+            // القنوات الموحّدة من مكان واحد: تاب · Toast/إشعار · بريد (12.6-أ)
+            'show_in_feed' => 'boolean',
+            'email_enabled' => 'boolean',
             'reactions_enabled' => 'boolean',
             'requires_acknowledge' => 'boolean',
             'scheduled_at' => 'datetime',

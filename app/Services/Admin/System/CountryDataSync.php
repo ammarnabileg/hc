@@ -3,12 +3,18 @@
 namespace App\Services\Admin\System;
 
 use App\Models\Country;
+use App\Models\CountrySourceCheck;
 use App\Models\CountrySourceSnapshot;
 use App\Models\Governorate;
 use App\Models\User;
+use App\Services\Notifications\Notifier;
+use Carbon\CarbonImmutable;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 use RuntimeException;
+use Throwable;
 
 /**
  * 12.7-د «بيانات الدول»: تحديث مصدر `dr5hn` مع **فحص فروق النسخة قبل الدمج
@@ -92,6 +98,339 @@ class CountryDataSync
         ]);
 
         return $snapshot->refresh();
+    }
+
+    // ============================================================== الجلب من الشبكة
+
+    /**
+     * ⭐ جلب نسخة المصدر **عبر الشبكة** بعميل الفريمورك (`Http`) — بلا أيّ حزمة
+     * خارجيّة (2.16-ج · 2.11-و).
+     *
+     * ثلاثة أشياء لا تُخترَق هنا:
+     * 1) **الجلب يُنتج لقطة `pending` وحدها** — لا يدمج ولا يكتب حرفًا في
+     *    `countries`/`governorates`. والقرار يبقى للمالك من الشاشة (12.7-د:
+     *    «فحص فروق النسخة الجديدة **قبل** الدمج»).
+     * 2) **يمرّ على `import()` نفسه** فيرث كلّ تحقّقاته — فلا بابَ ثانٍ للبيانات
+     *    بقواعد أرخى.
+     * 3) **كلّ فشلٍ يُقال ولا يُبتلَع**: مهلة · حالة HTTP غير ناجحة · جسمٌ ليس
+     *    JSON · JSON بلا `countries` — لكلٍّ سببه مكتوبًا بالعربيّة على سجلّ
+     *    الفحص، **ولا لقطة تُنشَأ**؛ فتبقى **اللقطة الأخيرة الناجحة كما هي**
+     *    وفروقُها التي لم يقرّر فيها المالك بعد لا تضيع.
+     *
+     * والعنوان والمهلة وعدد المحاولات **إعدادات** لا أرقامٌ هنا (2.13).
+     */
+    public function fetch(?User $actor = null, string $trigger = 'manual'): CountrySourceCheck
+    {
+        $url = trim((string) setting('countries.source.url', ''));
+        $timeout = max(1, (int) setting('countries.source.timeout', 20));
+        $attempts = max(1, (int) setting('countries.source.retries', 2));
+        $delay = max(0, (int) setting('countries.source.retry_delay_ms', 500));
+
+        $base = ['source_url' => $url ?: null, 'attempts' => $attempts, 'trigger' => $trigger, 'created_by' => $actor?->id];
+
+        if ($url === '') {
+            return $this->recordFailure('no_url', (string) setting(
+                'countries.source.error.no_url',
+                'مافيش رابط للمصدر — اضبط «رابط جلب نسخة المصدر» من الإعدادات الأوّل، وبعدها جرّب الفحص تاني.',
+            ), $base);
+        }
+
+        try {
+            $response = Http::timeout($timeout)
+                ->retry($attempts, $delay, throw: false)
+                ->acceptJson()
+                ->get($url);
+        } catch (ConnectionException $exception) {
+            // المهلة وانقطاع الاتّصال: أشيع فشلٍ وأهمّه — يُقال صريحًا لا يُبتلَع
+            return $this->recordFailure('timeout', $this->fill((string) setting(
+                'countries.source.error.timeout',
+                'المصدر ما ردّش خلال {timeout} ثانية بعد {attempts} محاولة — جرّب تاني بعد شويّة أو زوّد المهلة من الإعدادات.',
+            ), ['timeout' => $timeout, 'attempts' => $attempts]), $base);
+        } catch (Throwable $exception) {
+            // أيّ عطبٍ آخر في الطلب (رابط غير صالح · DNS · شهادة) — يُقال بسببه
+            return $this->recordFailure('network', $this->fill((string) setting(
+                'countries.source.error.network',
+                'ما قدرناش نوصل للمصدر: {reason} — راجع الرابط في الإعدادات وجرّب تاني.',
+            ), ['reason' => $exception->getMessage()]), $base);
+        }
+
+        if ($response->failed()) {
+            return $this->recordFailure('http', $this->fill((string) setting(
+                'countries.source.error.http',
+                'المصدر ردّ بحالة {status} — راجع الرابط في الإعدادات أو استنّى وجرّب تاني.',
+            ), ['status' => $response->status()]), $base + ['http_status' => $response->status()]);
+        }
+
+        $payload = json_decode($response->body(), true);
+
+        if (! is_array($payload)) {
+            return $this->recordFailure('body', (string) setting(
+                'countries.source.error.body',
+                'اللي رجع من المصدر مش JSON صالح — اتأكّد إنّ الرابط بيرجّع ملفّ النسخة نفسه مش صفحة.',
+            ), $base + ['http_status' => $response->status()]);
+        }
+
+        try {
+            // ⛔ نفس باب `import()` — نفس التحقّقات، ولقطة `pending` بلا أيّ دمج
+            $snapshot = $this->import($payload, $actor);
+        } catch (RuntimeException $exception) {
+            return $this->recordFailure('shape', $this->fill((string) setting(
+                'countries.source.error.shape',
+                'النسخة اللي رجعت من المصدر ناقصة: {reason}',
+            ), ['reason' => $exception->getMessage()]), $base + ['http_status' => $response->status()]);
+        }
+
+        return CountrySourceCheck::create($base + [
+            'status' => 'ok',
+            'failure' => null,
+            'http_status' => $response->status(),
+            'message' => (string) setting(
+                'countries.source.check.fetched_text',
+                'اتجابت نسخة المصدر ✓ — لسّه ما اتدمجتش، الفروق تحت.',
+            ),
+            'snapshot_id' => $snapshot->id,
+        ]);
+    }
+
+    /**
+     * الفحص الكامل: **جلب ⇐ فروق ⇐ وقوف**. لا دمج آليّ إطلاقًا — القرار للمالك
+     * من الشاشة (12.7-د).
+     *
+     * وحين لا يوجد فرقٌ واحد: **سكوت** — لا لقطة مكرّرة تتراكم في السجلّ ولا
+     * إشعار يوقظ أحدًا بلا سبب.
+     */
+    public function checkSource(?User $actor = null, string $trigger = 'manual'): CountrySourceCheck
+    {
+        $check = $this->fetch($actor, $trigger);
+
+        if (! $check->succeeded()) {
+            return $check;
+        }
+
+        $snapshot = $this->check($check->snapshot);
+        $summary = (array) $snapshot->summary;
+
+        $counts = [
+            'added' => (int) ($summary['added'] ?? 0),
+            'removed' => (int) ($summary['removed'] ?? 0),
+            'changed' => (int) ($summary['changed'] ?? 0),
+        ];
+
+        if (array_sum($counts) === 0) {
+            // مطابِقة لبياناتنا ⟵ لقطةٌ بلا فائدة، تُزال فلا يتضخّم السجلّ بنسخٍ
+            // متطابقة. وهي لقطةُ هذه اللحظة وحدها (`pending`) — ولا تُمَسّ لقطةٌ
+            // سابقة ولا صفٌّ في `countries`/`governorates`.
+            $snapshot->delete();
+
+            $check->update($counts + [
+                'snapshot_id' => null,
+                'message' => (string) setting(
+                    'countries.source.check.none_text',
+                    'المصدر مطابق لبياناتنا — مافيش فروق.',
+                ),
+            ]);
+
+            return $check->refresh();
+        }
+
+        $check->update($counts + [
+            'message' => $this->fill((string) setting(
+                'countries.source.check.diff_text',
+                'المصدر فيه فروق: مضاف {added} · محذوف {removed} · معدَّل {changed} — راجعها قبل الدمج.',
+            ), $counts),
+        ]);
+
+        return $check->refresh();
+    }
+
+    /** آخر فحص — تعرضه الشاشة بنتيجته (نجح/فشل + السبب). */
+    public function lastCheck(): ?CountrySourceCheck
+    {
+        return CountrySourceCheck::query()->latest('id')->first();
+    }
+
+    // ============================================================== الفحص الدوريّ
+
+    /** هل الفحص الدوريّ مفعَّل أصلًا؟ — مفتاحٌ بلا قارئ يعني إيقافًا لا يوقِف. */
+    public function checkEnabled(): bool
+    {
+        return (bool) setting('countries.source.check.enabled', true);
+    }
+
+    /** منطقة الفحص: مفتاحه الخاصّ أوّلًا ثمّ توقيت المنصّة (2.13). */
+    public function checkTimezone(): string
+    {
+        $tz = trim((string) setting('countries.source.check.timezone', ''));
+
+        return $tz !== '' ? $tz : (string) setting('system.timezone', 'Africa/Cairo');
+    }
+
+    /**
+     * ⭐ هل حان موعد الفحص الآن؟ — **القرار كلّه هنا**.
+     *
+     * الجدولة في `routes/console.php` مسحةٌ كلّ ساعة لا موعدٌ مكتوبٌ فيها، لأنّ
+     * تعبير الكرون يُقرأ مرّةً عند تحميل الملفّ فيتجمّد على القيمة القديمة بعد أن
+     * يغيّر الأدمن الدوريّة من الإعدادات — فيبقى الموعد الجديد في الشاشة والتنفيذ
+     * على القديم، أو لا يقع أبدًا: **فشلٌ صامت**. المسحة تسأل هذه الدالّة، وهي
+     * وحدها تقرأ الإعدادات.
+     */
+    public function isCheckDue(?CarbonImmutable $now = null): bool
+    {
+        if (! $this->checkEnabled()) {
+            return false;
+        }
+
+        $tz = $this->checkTimezone();
+        $now = ($now ?? CarbonImmutable::now($tz))->setTimezone($tz);
+
+        if ($now->day !== $this->checkDayOfMonth() || $now->hour !== $this->checkHour()) {
+            return false;
+        }
+
+        $last = $this->lastCheckAt();
+
+        // الدوريّة تمنع تكرار الفحص في نفس النافذة وفي الشهور غير المستحقّة
+        return $last === null || ! $last->addMonthsNoOverflow($this->checkEveryMonths())->isAfter($now);
+    }
+
+    /** موعد الفحص القادم — يُعرَض في الشاشة وفي مخرجات الأمر بلا تخمين. */
+    public function nextCheckAt(): CarbonImmutable
+    {
+        $tz = $this->checkTimezone();
+        $now = CarbonImmutable::now($tz);
+        $floor = $this->lastCheckAt()?->addMonthsNoOverflow($this->checkEveryMonths());
+        $from = $floor && $floor->isAfter($now) ? $floor : $now;
+
+        $candidate = $from->startOfMonth()->addDays($this->checkDayOfMonth() - 1)->setTime($this->checkHour(), 0);
+
+        return $candidate->isBefore($from) ? $candidate->addMonthNoOverflow() : $candidate;
+    }
+
+    /**
+     * إشعار داخل المنصّة لأصحاب `countries_data.import` وحدهم — لا لكلّ الأدمنز.
+     * الإشعار الذي يصل لمن لا يملك التصرّف فيه ضجيجٌ لا فائدة (12.6-ب).
+     *
+     * ولا يُرسَل إلّا حين **توجد فروق فعلًا**: صفرُ فروقٍ = سكوت.
+     *
+     * @return int عدد من وصلهم الإشعار
+     */
+    public function notifyImporters(CountrySourceCheck $check): int
+    {
+        if (! $check->succeeded() || $check->differences() === 0) {
+            return 0;
+        }
+
+        $body = $this->fill((string) setting(
+            'countries.source.check.notify_body',
+            'الفحص الدوريّ لقى فروق في المصدر: مضاف {added} · محذوف {removed} · معدَّل {changed} — راجعها قبل الدمج.',
+        ), ['added' => $check->added, 'removed' => $check->removed, 'changed' => $check->changed]);
+
+        $sent = 0;
+
+        foreach ($this->importAdmins() as $admin) {
+            Notifier::send(
+                $admin,
+                (string) setting('countries.source.check.notify_category', 'system'),
+                (string) setting('countries.source.check.notify_title', 'فروق جديدة في بيانات الدول'),
+                $body,
+                route('admin.settings.index', ['tab' => 'countries']),
+            );
+
+            $sent++;
+        }
+
+        return $sent;
+    }
+
+    // ------------------------------------------------------------------ داخليّ (الجلب)
+
+    /** لحظة آخر فحص — أيًّا كانت نتيجته: المحاولة الفاشلة محاولةٌ أيضًا. */
+    private function lastCheckAt(): ?CarbonImmutable
+    {
+        $last = $this->lastCheck();
+
+        return $last?->created_at
+            ? CarbonImmutable::parse($last->created_at)->setTimezone($this->checkTimezone())
+            : null;
+    }
+
+    private function checkDayOfMonth(): int
+    {
+        return max(1, (int) setting('countries.source.check.day_of_month', 1));
+    }
+
+    private function checkHour(): int
+    {
+        return (int) setting('countries.source.check.hour', 4);
+    }
+
+    private function checkEveryMonths(): int
+    {
+        return max(1, (int) setting('countries.source.check.every_months', 1));
+    }
+
+    /**
+     * سجلّ فشلٍ بسببه — **وبلا لقطة**: اللقطة الأخيرة الناجحة تبقى كما هي.
+     *
+     * @param  array<string, mixed>  $attributes
+     */
+    private function recordFailure(string $failure, string $message, array $attributes): CountrySourceCheck
+    {
+        return CountrySourceCheck::create($attributes + [
+            'status' => 'failed',
+            'failure' => $failure,
+            'message' => $message,
+            'snapshot_id' => null,
+        ]);
+    }
+
+    /**
+     * ملء متغيّرات نصٍّ **قرأه المتّصل من الإعدادات بمفتاحه الصريح**.
+     *
+     * ولماذا لا يأخذ المفتاح ويقرأه بنفسه؟ لأنّ `settings:coverage` يمسح
+     * `setting('…')` بنصّها؛ فمفتاحٌ يمرّ عبر وسيطٍ يصير **مزروعًا بلا قارئ يراه
+     * الحارس** — وحارسٌ لا يرى المفتاح لا يحرسه (2.13-ب).
+     *
+     * @param  array<string, mixed>  $replace
+     */
+    private function fill(string $text, array $replace = []): string
+    {
+        foreach ($replace as $name => $value) {
+            $text = str_replace('{'.$name.'}', (string) $value, $text);
+        }
+
+        return $text;
+    }
+
+    /**
+     * أصحاب `countries_data.import` — مباشرةً أو عبر أدوارهم.
+     *
+     * @return Collection<int, User>
+     */
+    private function importAdmins(): Collection
+    {
+        $limit = max(1, (int) setting('countries.source.check.max_recipients', 10));
+
+        $direct = DB::table('permission_user')
+            ->join('permissions', 'permissions.id', '=', 'permission_user.permission_id')
+            ->where('permissions.key', 'countries_data.import')
+            ->where('permission_user.effect', 'allow')
+            ->pluck('permission_user.user_id');
+
+        $viaRoles = DB::table('role_user')
+            ->join('permission_role', 'permission_role.role_id', '=', 'role_user.role_id')
+            ->join('permissions', 'permissions.id', '=', 'permission_role.permission_id')
+            ->where('permissions.key', 'countries_data.import')
+            ->where('permission_role.effect', 'allow')
+            ->pluck('role_user.user_id');
+
+        $ids = $direct->merge($viaRoles)->unique()->values()->all();
+
+        if ($ids === []) {
+            return collect();
+        }
+
+        return User::query()->whereIn('id', $ids)->limit($limit)->get();
     }
 
     // ============================================================== الفروق

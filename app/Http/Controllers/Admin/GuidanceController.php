@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\AdAudience;
 use App\Models\Announcement;
 use App\Models\Complaint;
 use App\Models\ComplaintMessage;
@@ -12,8 +13,10 @@ use App\Models\LearningPath;
 use App\Models\Role;
 use App\Models\User;
 use App\Services\Account\ComplaintService;
+use App\Services\Admin\AudienceSegments;
 use App\Services\Admin\Content\AnnouncementRecurrence;
 use App\Services\Admin\Content\GuidanceComposer;
+use App\Services\Notifications\AnnouncementMailer;
 use App\Services\Notifications\AnnouncementPersonalizer;
 use App\Services\Notifications\AnnouncementPoll;
 use Illuminate\Http\RedirectResponse;
@@ -57,6 +60,9 @@ class GuidanceController extends Controller
             ),
             // وسوم التخصيص الديناميكيّ كما تُعرَض في المحرّر (12.6-أ)
             'tokens' => AnnouncementPersonalizer::tokens(),
+            // ⭐ القنوات الموحّدة من مكان واحد: تاب · Toast/إشعار · بريد (12.6-أ)
+            'channels' => AnnouncementMailer::channels(),
+            'emailStats' => $this->guidance->emailDeliveryStats($announcements->getCollection()),
         ]);
     }
 
@@ -175,7 +181,7 @@ class GuidanceController extends Controller
             'body' => ['nullable', 'string', 'max:1000'],
             'url' => ['nullable', 'string', 'max:255'],
             'category' => ['nullable', 'string', 'max:32'],
-            'audience_type' => ['required', 'string', 'in:all,role,course,path,user'],
+            'audience_type' => ['required', 'string', 'in:all,role,course,path,user,segment'],
             'audience_ids' => ['nullable', 'array'],
             'audience_ids.*' => ['integer'],
             'audience_keys' => ['nullable', 'array'],
@@ -365,6 +371,14 @@ class GuidanceController extends Controller
             'roles' => Role::query()->orderBy('id')->get(['id', 'key', 'name_ar']),
             'courses' => Course::query()->orderByDesc('id')->limit((int) setting('announcements.audience.picker_limit', 30))->get(['id', 'name_ar']),
             'paths' => LearningPath::query()->orderBy('sort_order')->get(['id', 'name_ar']),
+            // ⭐ الشرائح المحفوظة (12.13): يستهدفها المحرّر بدل إعادة بناء الفلاتر،
+            // والمؤرشفة لا تُعرَض — شريحةٌ خارج الخدمة لا تُخاطَب.
+            'segments' => AdAudience::query()
+                ->where('kind', AudienceSegments::KIND)
+                ->whereNull('archived_at')
+                ->orderByDesc('id')
+                ->limit((int) setting('announcements.audience.picker_limit', 30))
+                ->get(['id', 'name', 'segment_type', 'size']),
         ];
     }
 
@@ -394,7 +408,7 @@ class GuidanceController extends Controller
             'cta_label' => ['nullable', 'string', 'max:64'],
             'cta_url' => ['nullable', 'string', 'max:255'],
             // استهداف بشرائح (12.6-أ)
-            'audience_type' => ['required', 'string', 'in:all,role,course,path,user'],
+            'audience_type' => ['required', 'string', 'in:all,role,course,path,user,segment'],
             'audience_ids' => ['nullable', 'array'],
             'audience_ids.*' => ['integer'],
             'audience_keys' => ['nullable', 'array'],
@@ -405,7 +419,10 @@ class GuidanceController extends Controller
             'acknowledge_xp' => ['nullable', 'integer', 'min:0', 'max:'.(int) setting('announcements.acknowledge.max_xp', 500)],
             // السقف نفسه الذي يفرضه المُقِرّ خادميًّا — فلا يقبل الفورم رقمًا يُبتَر بصمت
             'acknowledge_tickets' => ['nullable', 'integer', 'min:0', 'max:'.(int) setting('announcements.acknowledge.max_tickets', 20)],
+            // ⭐ القنوات الموحّدة من مكان واحد (12.6-أ): تاب · Toast/إشعار · بريد
+            'show_in_feed' => ['nullable', 'boolean'],
             'push_to_notifications' => ['nullable', 'boolean'],
+            'email_enabled' => ['nullable', 'boolean'],
             'is_pinned' => ['nullable', 'boolean'],
             'scheduled_at' => ['nullable', 'date'],
             'expires_at' => ['nullable', 'date'],

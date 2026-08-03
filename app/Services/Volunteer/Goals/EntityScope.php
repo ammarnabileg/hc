@@ -47,6 +47,72 @@ class EntityScope
         return $this->withDescendants($roots);
     }
 
+    /**
+     * ⭐ مسارات المستخدم (الدستور 23 — 1.2): «مشرف المسار لا يرى ولا يربط إلّا
+     * كيانات **مساره هو**». وnull هنا تعني «كلّ المسارات» (نطاق ALL — القمّة).
+     *
+     * ولماذا لا يكفي `visibleEntityIds`؟ لأنّها تُرجِع null لنطاق TRACK كذلك —
+     * فتصير «بلا قيد» في شاشات البناء، فيربط مشرف الأقسام حزمةً بمحافظة. القيد
+     * هنا **مسارٌ لا كيان**: مسارات العضويّات النشطة وحدها.
+     *
+     * @return list<int>|null
+     */
+    public function trackIds(User $user, string $permissionKey = 'work_packages.create'): ?array
+    {
+        if ($user->widestScope($permissionKey) === 'ALL') {
+            return null;
+        }
+
+        $entityIds = $this->memberships($user)->pluck('entity_id')->filter()->unique()->all();
+
+        if ($entityIds === []) {
+            return [];
+        }
+
+        return Entity::query()
+            ->whereIn('id', $entityIds)
+            ->pluck('track_id')
+            ->map(fn ($id) => (int) $id)
+            ->unique()
+            ->values()
+            ->all();
+    }
+
+    /**
+     * الكيانات التي **تُربَط بها حزم العمل** داخل مسارات المستخدم.
+     *
+     * وقاعدتان من القاموس تُفرَضان هنا لا في الواجهة:
+     *  1) «القسم الفرعي … **ولا تُربَط به حزم عمل**» ⟵ الجذور وحدها (`parent_id = null`).
+     *  2) الكيان المؤرشف (الملفّ المنتهي) خارج الاختيار ⟵ `status = active`.
+     *
+     * @return Collection<int,Entity>
+     */
+    public function linkableEntities(User $user, string $permissionKey = 'work_packages.create'): Collection
+    {
+        $trackIds = $this->trackIds($user, $permissionKey);
+
+        return Entity::query()
+            ->whereNull('parent_id')
+            ->where('status', 'active')
+            ->when($trackIds !== null, fn ($q) => $q->whereIn('track_id', $trackIds ?: [0]))
+            ->with('track')
+            ->orderBy('track_id')
+            ->orderBy('name_ar')
+            ->get();
+    }
+
+    /** هل يجوز لهذا المستخدم أن يربط حزمةً بهذا الكيان؟ — يُفحَص على الخادم */
+    public function canLinkEntity(User $user, Entity $entity, string $permissionKey = 'work_packages.create'): bool
+    {
+        if ($entity->parent_id !== null || $entity->status !== 'active') {
+            return false;
+        }
+
+        $trackIds = $this->trackIds($user, $permissionKey);
+
+        return $trackIds === null || in_array((int) $entity->track_id, $trackIds, true);
+    }
+
     /** الكيان المختار حاليًّا: من الرابط إن كان مسموحًا، وإلّا العضويّة النشطة */
     public function currentEntityId(User $user, ?int $requested = null): ?int
     {

@@ -63,6 +63,20 @@ class CountriesController extends Controller
     }
 
     /**
+     * ⭐ «فحص المصدر الآن»: **يجلب من الشبكة ⇐ يبني الفروق ⇐ يقف** — ولا يدمج
+     * حرفًا (12.7-د: «فحص فروق النسخة الجديدة **قبل** الدمج»).
+     *
+     * وفشل الشبكة يظهر بسببه للمالك ولا يُبتلَع، **واللقطة الأخيرة الناجحة
+     * تبقى كما هي** فلا تضيع فروقٌ لم يقرّر فيها بعد.
+     */
+    public function checkSource(Request $request): RedirectResponse
+    {
+        $check = $this->sync->checkSource($request->user(), 'manual');
+
+        return $this->back($check->message, error: ! $check->succeeded());
+    }
+
+    /**
      * الدمج — و`dry_run` يعرض ما سيقع بلا كتابة (24.3 · 2.11-ط).
      * والفروق تُعرَض للمالك **ليقرّر قبل التنفيذ**: لا يُدمَج إلّا ما اختاره.
      */

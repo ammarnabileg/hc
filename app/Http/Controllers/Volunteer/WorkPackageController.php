@@ -3,10 +3,14 @@
 namespace App\Http\Controllers\Volunteer;
 
 use App\Http\Controllers\Controller;
+use App\Models\Goal;
+use App\Models\Milestone;
 use App\Models\Task;
 use App\Models\WorkItem;
 use App\Models\WorkPackage;
+use App\Services\Volunteer\Goals\BuildAccess;
 use App\Services\Volunteer\Goals\EntityScope;
+use App\Services\Volunteer\Goals\GoalBuildService;
 use App\Services\Volunteer\Goals\RollupService;
 use App\Services\Volunteer\Goals\VxpDistributionService;
 use Illuminate\Http\RedirectResponse;
@@ -27,7 +31,98 @@ class WorkPackageController extends Controller
         private readonly RollupService $rollup,
         private readonly VxpDistributionService $vxp,
         private readonly EntityScope $scope,
+        private readonly BuildAccess $access,
+        private readonly GoalBuildService $build,
     ) {}
+
+    // ============================================================================
+    //  ⭐ 1.3 — ملء الحزم (الدايركتور · نطاق ENTITY)
+    // ============================================================================
+
+    /**
+     * «يفتح فيرى الهدف والمَعلَم و**حزم العمل الخاصّة به**» (23 — 1.3).
+     *
+     * والحصر هنا حارسٌ لا ترتيبُ عرض: `packagesFor` تُرجِع حزم الكيانات التي
+     * يقودها هو وحده، فحزمة كيانٍ آخر داخل المَعلَم نفسه لا تصل الشاشة أصلًا.
+     * ومَن ليس في الطبقات الثلاث — كوردنيتور أو تيم ليدر داخل الكيان — يُردّ
+     * بـ403 ولا يعرف حتى اسم الهدف: «لا يرى أحد من الداونلاينز شيئًا».
+     */
+    public function fill(Request $request, Goal $goal): View
+    {
+        $user = $request->user();
+
+        abort_unless($this->access->isBuilding($goal), 409, 'الهدف اتبعت للتنفيذ خلاص.');
+        abort_unless($this->access->canSeeBuild($user, $goal), 403);
+
+        $packages = $this->access->packagesFor($user, $goal);
+
+        abort_if($packages->isEmpty(), 403);
+
+        $tasks = Task::query()
+            ->whereIn('work_item_id', WorkItem::query()->whereIn('work_package_id', $packages->pluck('id'))->select('id'))
+            ->with('work_item')
+            ->orderBy('id')
+            ->get()
+            ->groupBy(fn (Task $task) => (int) ($task->work_item?->work_package_id ?? 0));
+
+        return view('volunteer.goals.build.fill', [
+            'goal' => $goal,
+            'packages' => $packages,
+            'tasks' => $tasks,
+            'icons' => $packages->mapWithKeys(fn (WorkPackage $p) => [$p->id => $this->access->entityIcon($p->entity)])->all(),
+            'canWrite' => $user->allows('wp_items.create'),
+        ]);
+    }
+
+    /** مهمّة «لنفسه» داخل حزمة كيانه — **بلا حدّ أقصى** (23 — 1.3) */
+    public function storeTask(Request $request, WorkPackage $workPackage): RedirectResponse
+    {
+        $goal = $this->buildGoalOf($workPackage);
+
+        abort_unless($this->access->isBuilding($goal), 409, 'الهدف اتبعت للتنفيذ خلاص.');
+        abort_unless($this->access->isDirectorOf($request->user(), (int) $workPackage->entity_id), 403);
+        abort_if($workPackage->build_status === 'submitted', 409, 'الحزمة دي اترفعت للمراجعة — مبقاش عندك تعديل عليها.');
+
+        $data = $request->validate([
+            'title' => ['required', 'string', 'max:255'],
+            'brief' => ['nullable', 'string', 'max:2000'],
+            'deliverable_spec' => ['required', 'string', 'max:2000'],
+            'deadline_at' => ['nullable', 'date'],
+        ], [], [
+            'title' => 'اسم المهمّة',
+            'deliverable_spec' => 'شكل المخرجات',
+        ]);
+
+        $this->build->addDirectorTask($workPackage, $data, $request->user());
+
+        return back()->with('status', 'اتضافت المهمّة ✓ — زوّد اللي إنت عايزه، مافيش حدّ أقصى.');
+    }
+
+    /** «رفع للمراجعة» ⟵ يجمعها مشرف المسار (23 — 1.4) */
+    public function submitForReview(Request $request, WorkPackage $workPackage): RedirectResponse
+    {
+        $goal = $this->buildGoalOf($workPackage);
+
+        abort_unless($this->access->isBuilding($goal), 409, 'الهدف اتبعت للتنفيذ خلاص.');
+        abort_unless($this->access->isDirectorOf($request->user(), (int) $workPackage->entity_id), 403);
+
+        $hasTasks = Task::query()
+            ->whereIn('work_item_id', WorkItem::query()->where('work_package_id', $workPackage->id)->select('id'))
+            ->exists();
+
+        abort_unless($hasTasks, 422, 'الحزمة لسّه فاضية — ضيف مهمّة واحدة على الأقلّ قبل الرفع.');
+
+        $this->build->submitPackage($workPackage, $request->user());
+
+        return back()->with('status', 'اترفعت للمراجعة ✓ — مشرف مسارك هيجمّعها ويسعّرها.');
+    }
+
+    private function buildGoalOf(WorkPackage $package): Goal
+    {
+        $goalId = Milestone::query()->whereKey($package->milestone_id)->value('goal_id');
+
+        return Goal::query()->findOrFail($goalId);
+    }
 
     public function index(Request $request): View
     {

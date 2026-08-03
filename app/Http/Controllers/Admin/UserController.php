@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\AdAudience;
 use App\Models\Country;
+use App\Models\Course;
 use App\Models\Governorate;
+use App\Models\LearningPath;
 use App\Models\Referral;
 use App\Models\User;
 use App\Models\UserDevice;
@@ -17,7 +19,9 @@ use App\Services\Admin\UserDirectory;
 use App\Support\Scope\ScopeFilter;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
  * إدارة المستخدمين (الدستور 12.13 · 12.1 · 24.1 · 2.5-د).
@@ -215,56 +219,248 @@ class UserController extends Controller
 
     // ---------------------------------------------------------- شرائح الجمهور
 
+    /**
+     * شاشة شرائح الجمهور (12.13): القائمة + باني المعايير + المعاينة اللحظيّة.
+     *
+     * والمعاينة والعدّ يجريان **داخل نطاق صاحب الشاشة** (12.2.1-ب): مَن يرى فريقه
+     * وحده لا يبني شريحةً بالمنصّة كلّها ثمّ يخاطبها.
+     */
     public function segments(Request $request): View
     {
-        $rule = array_filter([
-            'status' => $request->query('status'),
-            'role' => $request->query('role'),
-            'min_xp' => $request->query('min_xp'),
-            'registered_days' => $request->query('registered_days'),
-        ], fn ($value) => $value !== null && $value !== '');
+        $filters = [
+            'q' => trim((string) $request->query('q', '')),
+            'type' => (string) $request->query('type', ''),
+            'state' => (string) $request->query('state', ''),
+            'used' => (string) $request->query('used', ''),
+        ];
 
-        return view('admin.users.segments', [
-            'segments' => $this->segments->all(),
-            'service' => $this->segments,
-            'rule' => $rule,
-            // المعاينة والعدّ داخل نطاق صاحب الشاشة (12.2.1-ب)
-            'previewCount' => $rule === [] ? null : $this->segments->count($rule, $request->user()),
-            'preview' => $rule === [] ? collect() : $this->segments->preview($rule, $request->user()),
-            'statuses' => UserDirectory::STATUSES,
-            'roles' => $this->directory->roleOptions(),
-            'criteria' => AudienceSegments::CRITERIA,
-        ]);
+        $editing = $request->query('edit')
+            ? AdAudience::query()->where('kind', AudienceSegments::KIND)->find((int) $request->query('edit'))
+            : null;
+
+        return view('admin.users.segments', $this->segmentsViewData(
+            request: $request,
+            filters: $filters,
+            editing: $editing,
+            rule: $editing ? (array) $editing->rule : [],
+            previewed: false,
+        ));
+    }
+
+    /** معاينة لحظيّة بلا حفظ: العدد + عيّنة أعضاء (عددها إعداد) — 12.13. */
+    public function previewSegment(Request $request): View
+    {
+        $editing = $request->input('segment_id')
+            ? AdAudience::query()->where('kind', AudienceSegments::KIND)->find((int) $request->input('segment_id'))
+            : null;
+
+        return view('admin.users.segments', $this->segmentsViewData(
+            request: $request,
+            filters: ['q' => '', 'type' => '', 'state' => '', 'used' => ''],
+            editing: $editing,
+            rule: $this->segmentRule($request),
+            previewed: true,
+        ));
     }
 
     public function storeSegment(Request $request): RedirectResponse
     {
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:120'],
-        ], [], ['name' => 'اسم الشريحة']);
+            'description' => ['nullable', 'string', 'max:255'],
+            'segment_type' => ['nullable', 'string', Rule::in(array_keys(AudienceSegments::types()))],
+            'segment_id' => ['nullable', 'integer'],
+        ], [
+            'name.required' => 'سمّ الشريحة عشان تلاقيها بعدين.',
+        ], ['name' => 'اسم الشريحة']);
 
-        $segment = $this->segments->save($validated['name'], [
-            'status' => $request->input('status'),
-            'role' => $request->input('role'),
-            'min_xp' => $request->input('min_xp'),
-            'registered_days' => $request->input('registered_days'),
-        ]);
+        $existing = ($validated['segment_id'] ?? null)
+            ? AdAudience::query()->where('kind', AudienceSegments::KIND)->find((int) $validated['segment_id'])
+            : null;
 
-        $this->audit->record($request->user(), 'segment.created', $segment, [], ['rule' => $segment->rule]);
+        $segment = $this->segments->save(
+            name: $validated['name'],
+            rule: $this->segmentRule($request),
+            type: (string) ($validated['segment_type'] ?? AudienceSegments::TYPE_DYNAMIC),
+            actor: $request->user(),
+            segment: $existing,
+            description: $validated['description'] ?? null,
+        );
+
+        $this->audit->record(
+            $request->user(),
+            $existing ? 'segment.updated' : 'segment.created',
+            $segment,
+            [],
+            ['rule' => $segment->rule, 'type' => $segment->segment_type],
+        );
 
         return redirect()->route('admin.users.segments')
             ->with('status', "اتحفظت شريحة «{$segment->name}» بـ{$segment->size} عضو ✓");
     }
 
+    /** تكرار الشريحة كنسخة مستقلّة (12.13). */
+    public function duplicateSegment(Request $request, AdAudience $audience): RedirectResponse
+    {
+        $copy = $this->segments->duplicate($audience, $request->user());
+
+        $this->audit->record($request->user(), 'segment.duplicated', $copy, [], ['source' => $audience->id]);
+
+        return back()->with('status', "اتعملت نسخة «{$copy->name}» ✓");
+    }
+
+    /** الأرشفة بدل الحذف — Toggle في الاتّجاهين (12.13). */
+    public function archiveSegment(Request $request, AdAudience $audience): RedirectResponse
+    {
+        $segment = $this->segments->toggleArchive($audience);
+
+        $this->audit->record($request->user(), 'segment.archived', $segment, [], ['archived' => (bool) $segment->archived_at]);
+
+        return back()->with('status', $segment->archived_at ? 'اتأرشفت الشريحة ✓' : 'رجعت الشريحة للخدمة ✓');
+    }
+
+    /** أعضاء الشريحة في بوب-أب لا صفحة جديدة (2.15-ج). */
+    public function segmentMembers(Request $request, AdAudience $audience): View
+    {
+        return view('admin.users.segment-members', [
+            'segment' => $audience,
+            'members' => $this->segments->members($audience, (int) setting('admin.segments.members_rows', 50)),
+            'count' => $this->segments->memberCount($audience),
+            'service' => $this->segments,
+            'types' => AudienceSegments::types(),
+        ]);
+    }
+
+    /**
+     * الحذف — **بتحذير إن كانت مستخدَمة** (12.13). والرفض هنا على الخادم لا في
+     * الواجهة: شريحةٌ يخاطبها منشورٌ حيّ لا تُمحى فيتحوّل جمهوره إلى فراغ.
+     */
     public function destroySegment(Request $request, AdAudience $audience): RedirectResponse
     {
+        $usage = $this->segments->usage($audience);
+
+        if ($usage->isNotEmpty() && setting('admin.segments.block_delete_when_used', true)) {
+            return back()->with('problem', str_replace(
+                ':count',
+                (string) $usage->count(),
+                (string) setting('admin.segments.delete_warning', 'الشريحة دي مستخدَمة في :count مكان — أرشفها بدل ما تمسحها.'),
+            ));
+        }
+
         $this->audit->record($request->user(), 'segment.deleted', $audience, ['name' => $audience->name], []);
         $audience->delete();
 
         return back()->with('status', 'اتمسحت الشريحة ✓');
     }
 
+    /** تصدير قائمة الشرائح (12.13) — الملخّص والعدد والاستخدام، بلا بيانات أعضاء. */
+    public function exportSegments(Request $request): StreamedResponse
+    {
+        $rows = [['الاسم', 'النوع', 'المعايير', 'عدد الأعضاء', 'مستخدَمة في', 'الحالة', 'آخر تحديث']];
+        $types = AudienceSegments::types();
+
+        foreach ($this->segments->all(['state' => 'all']) as $segment) {
+            $rows[] = [
+                (string) $segment->name,
+                (string) ($types[$segment->segment_type] ?? $segment->segment_type),
+                $this->segments->summary((array) $segment->rule),
+                (string) $this->segments->memberCount($segment),
+                (string) $this->segments->usage($segment)->count(),
+                $segment->archived_at ? 'مؤرشفة' : 'نشطة',
+                (string) ($segment->last_built_at?->format('Y-m-d H:i') ?? ''),
+            ];
+        }
+
+        return response()->streamDownload(function () use ($rows) {
+            $handle = fopen('php://output', 'w');
+            // BOM ليفتح إكسل العربيّة سليمةً بلا خطوة يدويّة
+            fwrite($handle, "\xEF\xBB\xBF");
+
+            foreach ($rows as $row) {
+                fputcsv($handle, $row);
+            }
+
+            fclose($handle);
+        }, 'segments-'.now()->format('Ymd-His').'.csv', ['Content-Type' => 'text/csv; charset=UTF-8']);
+    }
+
     // ------------------------------------------------------------------ داخليّ
+
+    /**
+     * بيانات شاشة الشرائح — واحدةٌ للعرض وللمعاينة، فلا تفترق الشاشتان.
+     *
+     * @param  array<string, mixed>  $filters
+     * @param  array<string, mixed>  $rule
+     * @return array<string, mixed>
+     */
+    private function segmentsViewData(Request $request, array $filters, ?AdAudience $editing, array $rule, bool $previewed): array
+    {
+        $segments = $this->segments->all($filters);
+        $viewer = $request->user();
+        $hasRule = $this->segments->normalize($rule)['groups'] !== [];
+
+        return [
+            'segments' => $segments,
+            'service' => $this->segments,
+            'filters' => $filters,
+            'editing' => $editing,
+            'rule' => $this->segments->normalize($rule),
+            'previewed' => $previewed,
+            // المعاينة والعدّ داخل نطاق صاحب الشاشة (12.2.1-ب)
+            'previewCount' => $previewed ? $this->segments->count($rule, $viewer) : null,
+            'preview' => $previewed ? $this->segments->preview($rule, $viewer) : collect(),
+            'hasRule' => $hasRule,
+            // «مستخدَمة في X مكان» بروابط — محسوبة من الاستخدام الفعليّ (12.13)
+            'usage' => $segments->mapWithKeys(fn (AdAudience $s) => [$s->id => $this->segments->usage($s)]),
+            'counts' => $segments->mapWithKeys(fn (AdAudience $s) => [$s->id => $this->segments->memberCount($s)]),
+            'criteria' => AudienceSegments::criteria(),
+            'types' => AudienceSegments::types(),
+            'matchModes' => AudienceSegments::matchModes(),
+            'groupCount' => max(1, (int) setting('admin.segments.max_groups', 2)),
+            'options' => $this->segmentOptions(),
+        ];
+    }
+
+    /**
+     * خيارات باني المعايير — قوائم مقفولة محدودة بسقوفها من الإعدادات (2.13).
+     *
+     * @return array<string, array<int|string, string>>
+     */
+    private function segmentOptions(): array
+    {
+        $limit = (int) setting('admin.segments.option_rows', 50);
+
+        return [
+            'status' => UserDirectory::STATUSES,
+            'role' => $this->directory->roleOptions(),
+            'country' => Country::query()->orderBy('name_ar')->limit($limit)->pluck('name_ar', 'id')->all(),
+            // المحافظات المستعملة فعلًا وحدها — قائمةٌ بلا معنى أسوأ من غيابها
+            'governorate' => Governorate::query()
+                ->whereIn('id', User::query()->whereNotNull('governorate_id')->distinct()->pluck('governorate_id'))
+                ->orderBy('name_ar')
+                ->limit($limit)
+                ->pluck('name_ar', 'id')
+                ->all(),
+            'course' => Course::query()->orderByDesc('id')->limit($limit)->pluck('name_ar', 'id')->all(),
+            'path' => LearningPath::query()->orderBy('sort_order')->limit($limit)->pluck('name_ar', 'id')->all(),
+        ];
+    }
+
+    /**
+     * شرط الشريحة كما يصل من باني المعايير: مجموعات بمنطق AND/OR (12.13).
+     *
+     * والتنظيف والقصّ في `AudienceSegments::normalize` — قائمة المعايير مقفولة
+     * هناك، فلا يمرّ حقلٌ حرّ من الفورم إلى الاستعلام.
+     *
+     * @return array<string, mixed>
+     */
+    private function segmentRule(Request $request): array
+    {
+        return [
+            'match' => (string) $request->input('match', 'all'),
+            'groups' => array_values((array) $request->input('groups', [])),
+        ];
+    }
 
     /** الإجراء الجماعيّ محدود بسقفه من الإعدادات (24.1) */
     private function pickedIds(Request $request): array

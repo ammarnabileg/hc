@@ -12,6 +12,7 @@ use App\Models\Setting;
 use App\Models\User;
 use App\Services\Account\ComplaintService;
 use App\Services\Notifications\AnnouncementFeed;
+use App\Services\Notifications\AnnouncementMailer;
 use App\Services\Notifications\AnnouncementPersonalizer;
 use App\Services\Notifications\AnnouncementPoll;
 use App\Services\Notifications\Notifier;
@@ -87,6 +88,32 @@ class GuidanceComposer
         }
 
         return $stats;
+    }
+
+    /**
+     * ⭐ حصيلة قناة البريد كما وقعت فعلًا (12.6-أ · 12.6-ب): اتبعت · اتأجّلت
+     * بحدّ الهدوء · استُبعِدت بتفضيل المستخدم أو حالته · تعثّرت.
+     *
+     * تُقرأ من صفوف التسليم لا من نيّة المحرّر — فالشاشة تقول ما جرى لا ما وُعِد به.
+     *
+     * @param  Collection<int, Announcement>  $announcements
+     * @return array<int, array<string, int>>
+     */
+    public function emailDeliveryStats(Collection $announcements): array
+    {
+        if ($announcements->isEmpty()) {
+            return [];
+        }
+
+        return DB::table('announcement_deliveries')
+            ->whereIn('announcement_id', $announcements->pluck('id'))
+            ->where('channel', AnnouncementMailer::CHANNEL)
+            ->selectRaw('announcement_id, status, count(*) as total')
+            ->groupBy('announcement_id', 'status')
+            ->get()
+            ->groupBy('announcement_id')
+            ->map(fn (Collection $rows) => $rows->pluck('total', 'status')->map(fn ($t) => (int) $t)->all())
+            ->all();
     }
 
     /** مَن قرأ ومَن أقرّ بالتفصيل — تاب «تحليلات عميقة». */
@@ -203,7 +230,11 @@ class GuidanceComposer
             // ⭐ XP الإقرار — بسقف مرّة واحدة لكلّ منشور (12.6-أ)
             'acknowledge_xp' => (int) ($data['acknowledge_xp'] ?? setting('announcements.acknowledge.default_xp', 0)),
             'acknowledge_tickets' => (int) ($data['acknowledge_tickets'] ?? setting('announcements.acknowledge.default_tickets', 0)),
+            // ⭐ القنوات الموحّدة من مكان واحد (12.6-أ): تاب · Toast/إشعار · بريد،
+            // وكلّ قناة مستقلّة — فمنشورٌ بالبريد وحده لا يُقحَم في الفيد.
+            'show_in_feed' => (bool) ($data['show_in_feed'] ?? setting('announcements.channels.feed_default_on', true)),
             'push_to_notifications' => (bool) ($data['push_to_notifications'] ?? false),
+            'email_enabled' => (bool) ($data['email_enabled'] ?? false),
             'is_pinned' => (bool) ($data['is_pinned'] ?? false),
             'scheduled_at' => $status === 'scheduled' ? ($data['scheduled_at'] ?? null) : ($data['scheduled_at'] ?? null),
             // أرشفة تلقائيّة بعد مدّة من الإعدادات (12.6-أ)
@@ -223,6 +254,12 @@ class GuidanceComposer
 
         if ($status === 'published' && $announcement->push_to_notifications) {
             $this->pushToBell($announcement);
+        }
+
+        // ⭐ قناة البريد تخرج من **نفس** لحظة النشر (12.6-أ) — لا شاشةٍ ثانية
+        // ولا زرٍّ منفصل؛ والتكرار محكومٌ بصفوف التسليم فإعادة الحفظ لا تُعيد الإرسال.
+        if ($status === 'published' && $announcement->email_enabled) {
+            app(AnnouncementMailer::class)->deliver($announcement);
         }
 
         return $announcement->refresh();
@@ -636,6 +673,9 @@ class GuidanceComposer
             'course' => ['type' => 'course', 'ids' => array_map('intval', (array) ($data['audience_ids'] ?? []))],
             'path' => ['type' => 'path', 'ids' => array_map('intval', (array) ($data['audience_ids'] ?? []))],
             'user' => ['type' => 'user', 'ids' => array_map('intval', (array) ($data['audience_ids'] ?? []))],
+            // ⭐ استهداف **شريحة محفوظة** بدل إعادة بناء الفلاتر (12.6-أ · 12.13):
+            // نخزّن رقمها لا أعضاءها، فتُحلّ على الخادم لحظة الإرسال لا لحظة الحفظ.
+            'segment' => ['type' => 'segment', 'ids' => array_map('intval', (array) ($data['audience_ids'] ?? []))],
             default => ['type' => 'all'],
         };
     }

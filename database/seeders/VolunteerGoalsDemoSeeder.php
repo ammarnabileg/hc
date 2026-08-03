@@ -64,6 +64,39 @@ class VolunteerGoalsDemoSeeder extends Seeder
             // شاشة إطلاق الهدف — المعاينة النهائيّة و«إرسال للتنفيذ» (23 — 1.5)
             ['goals.launch.rows', 'goals', 'عدد الأهداف المعروضة في شاشة الإطلاق', 'number', '20'],
 
+            /*
+             | ⭐ رحلة بناء الهدف — المرحلة صفر (23 — 1.1 … 1.4).
+             | كلّ رقمٍ وكلّ نصّ خطأٍ هنا **قيمة يضبطها المالك** لا ثابتٌ في الكود (2.13):
+             | رتبة الطبقة التي تبدأ منها ملكيّة الحزم · السقوف · التسميات · الرسائل.
+             */
+            ['goals.build.rows', 'goals', 'عدد الأهداف المعروضة في لوحة الرحلة', 'number', '30'],
+            ['goals.build.director_min_rank', 'goals', 'أدنى رتبة بوزشن تملك ملء حزم الكيان (الدايركتور)', 'number', '4'],
+            ['goals.build.max_milestones', 'goals', 'سقف المَعالِم داخل الهدف الواحد', 'number', '50'],
+            ['goals.build.max_field_chars', 'goals', 'أقصى طول للحقل في التعديل المباشر', 'number', '2000'],
+            ['goals.build.min_statement_chars', 'goals', 'أقلّ طول لنصّ الحالة التي تُفحَص بنعم/لا', 'number', '5'],
+            ['goals.build.revisions_rows', 'goals', 'عدد أسطر بوب-أب «تمّ التعديل»', 'number', '20'],
+            ['goals.build.autosave_debounce_ms', 'goals', 'مهلة الحفظ التلقائيّ بعد آخر ضغطة (مللي ثانية)', 'number', '600'],
+            ['goals.build.package_default_name', 'goals', 'قالب الاسم الافتراضيّ لحزمة العمل', 'string', 'Work Package :n'],
+            ['goals.build.stage_labels', 'goals', 'تسميات مراحل رحلة بناء الهدف', 'json', json_encode([
+                'draft' => 'مسودّة — لسّه محدّش شايفه',
+                'linked' => 'اتربط بمسار',
+                'breakdown' => 'تفكيك',
+                'filling' => 'ملء الحزم',
+                'aggregation' => 'تجميع وتسعير',
+                'preview' => 'معاينة عند القمّة',
+                'executed' => 'اتبعت للتنفيذ',
+            ], JSON_UNESCAPED_UNICODE)],
+            ['goals.build.error.criteria_required', 'goals', 'رسالة رفض حفظ هدف بلا معيار تحقّق', 'string',
+                'الهدف مش هيتحفظ من غير معيار تحقّق: حدّد مدى رقميًّا من X إلى Y، أو اكتب حالة تتفحص بنعم/لا.'],
+            ['goals.build.error.tracks_required', 'goals', 'رسالة الربط بمسار', 'string',
+                'اختار مسارًا واحدًا على الأقلّ — الهدف مايظهرش لحدّ قبل الربط.'],
+            ['goals.build.error.entities_required', 'goals', 'رسالة اختيار الكيان عند ربط الحزمة', 'string',
+                'اختار كيانًا واحدًا على الأقلّ من كيانات مسارك.'],
+            ['goals.build.error.entity_out_of_track', 'goals', 'رسالة رفض كيان خارج مسار المشرف', 'string',
+                'الكيان ده مش من كيانات مسارك — مينفعش تربط عليه حزمة.'],
+            ['goals.build.error.locked', 'goals', 'رسالة القفل الطبقيّ بعد رفع المعاينة', 'string',
+                'الهدف اترفع معاينة — التحرير بقى عند الطبقة الأعلى وإنت قارئ بس.'],
+
             // البنود المتكرّرة والموازن
             ['recurring.default_relative_deadline_hours', 'goals', 'الديدلاين النسبيّ الافتراضيّ (ساعات)', 'number', '24'],
             ['recurring.load.open_statuses', 'goals', 'حالات المهامّ المحتسَبة في الحمل', 'json', '["in_progress","blocked","in_review","returned"]'],

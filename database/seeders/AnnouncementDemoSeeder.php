@@ -77,7 +77,11 @@ class AnnouncementDemoSeeder extends Seeder
                 ['title' => $row['title']],
                 $row + [
                     'status' => 'published',
+                    // القنوات الموحّدة (12.6-أ): التاب دائمًا، والإشعار للأوّل،
+                    // والبريد للثاني — فتظهر الثلاث قنوات مستقلّةً من أوّل تشغيل.
+                    'show_in_feed' => true,
                     'push_to_notifications' => $index === 0,
+                    'email_enabled' => $index === 1,
                     'scheduled_at' => now()->subDays($index + 1),
                     'created_by' => $author?->id,
                 ],
@@ -141,6 +145,35 @@ class AnnouncementDemoSeeder extends Seeder
             ['announcements.personalization.fallback_course', 'announcements', 'بديل اسم التدريب حين يغيب', 'string', 'تدريبك'],
             ['announcements.personalization.fallback_deadline', 'announcements', 'بديل الديدلاين حين يغيب', 'string', 'الموعد المحدَّد'],
             ['announcements.personalization.enrollment_status', 'announcements', 'حالة التسجيل المعتمَدة في التخصيص', 'string', 'active'],
+
+            // ---------------- ⭐ القنوات الموحّدة من مكان واحد (12.6-أ)
+            ['announcements.channels', 'announcements', 'قنوات المنشور في المحرّر', 'json', json_encode([
+                'feed' => 'تاب التعليمات',
+                'push' => 'إشعار / Toast',
+                'email' => 'بريد',
+            ], JSON_UNESCAPED_UNICODE)],
+            ['announcements.channels.feed_default_on', 'announcements', 'قناة التاب مفعّلة افتراضيًّا في المحرّر', 'bool', '1'],
+            ['announcements.audience.segment_hint', 'announcements', 'سطر شرح استهداف شريحة محفوظة', 'string', 'الشريحة بتتحلّ لأعضائها على السيرفر لحظة الإرسال — مش لحظة الحفظ.'],
+            ['announcements.audience.segments_empty', 'announcements', 'نصّ غياب الشرائح المحفوظة', 'string', 'مفيش شرائح محفوظة لسّه — ابنِ واحدة'],
+
+            // ---------------- ⭐ قناة البريد (12.6-أ) وحدّ هدوئها (12.6-ب)
+            ['announcements.email.enabled', 'announcements', 'تفعيل قناة البريد للمنشورات', 'bool', '1'],
+            ['announcements.email.require_verified', 'announcements', 'إرسال البريد لمن بريده موثَّق فقط', 'bool', '1'],
+            ['announcements.email.rate_limit.per_user_per_day', 'announcements', 'أقصى رسائل بريد للمستخدم في اليوم', 'number', '2'],
+            ['announcements.email.defer_hours', 'announcements', 'مدّة تأجيل الرسالة الزائدة عن حدّ الهدوء (ساعات)', 'number', '24'],
+            ['announcements.email.max_attempts', 'announcements', 'أقصى محاولات إرسال قبل التوقّف', 'number', '3'],
+            ['announcements.email.max_recipients', 'announcements', 'أقصى مستقبِلين في الدفعة الواحدة', 'number', '2000'],
+            ['announcements.email.max_announcements_per_run', 'announcements', 'أقصى منشورات في تشغيلة الإرسال', 'number', '50'],
+            ['announcements.email.recipient_status', 'announcements', 'حالة الحساب المستقبِلة للبريد', 'string', 'active'],
+            ['announcements.email.body_limit', 'announcements', 'أقصى حروف نصّ الرسالة', 'number', '2000'],
+            ['announcements.email.subject_template', 'announcements', 'قالب عنوان الرسالة (:title)', 'string', ':title'],
+            ['announcements.email.cta_fallback_label', 'announcements', 'نصّ زرّ الرسالة حين يغيب CTA', 'string', 'افتح التعليمات'],
+            ['announcements.email.footer', 'announcements', 'تذييل رسالة المنشور', 'string', 'وصلتك الرسالة دي لأنّك مفعّل قناة البريد — تقدر توقّفها من إعدادات حسابك.'],
+            ['announcements.email.editor_hint', 'announcements', 'سطر شرح قناة البريد في المحرّر', 'string', 'البريد بيروح لمن بريده موثَّق ومفعّل القناة بس — والزيادة بتتأجّل احترامًا لحدّ الهدوء.'],
+            ['announcements.email.skip_no_address', 'announcements', 'سبب الاستبعاد: بلا عنوان بريد', 'string', 'بلا عنوان بريد'],
+            ['announcements.email.skip_unverified', 'announcements', 'سبب الاستبعاد: بريد غير موثَّق', 'string', 'البريد غير موثَّق'],
+            ['announcements.email.skip_optout', 'announcements', 'سبب الاستبعاد: أوقف قناة البريد', 'string', 'أوقف قناة البريد'],
+            ['announcements.email.defer_reason', 'announcements', 'سبب التأجيل بحدّ الهدوء', 'string', 'اتأجّل احترامًا لحدّ الهدوء'],
 
             // ---------------- مركز الإشعارات (2.8)
             ['notifications.per_page', 'notifications', 'عدد الإشعارات في الدفعة', 'number', '20'],

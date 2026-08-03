@@ -2,9 +2,11 @@
 
 namespace App\Services\Notifications;
 
+use App\Models\AdAudience;
 use App\Models\Announcement;
 use App\Models\AnnouncementRead;
 use App\Models\User;
+use App\Services\Admin\AudienceSegments;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
@@ -70,6 +72,9 @@ class AnnouncementFeed
     public function isVisibleTo(Announcement $announcement, User $user): bool
     {
         return $this->isLive($announcement)
+            // قناة التاب مستقلّة عن باقي القنوات (12.6-أ): منشورٌ بالبريد وحده
+            // لا يظهر في الفيد، ولا يُقرأ ولا يُقَرّ منه
+            && (bool) $announcement->show_in_feed
             && $this->matches($announcement, $user)
             && $this->onboardingStepIsDue($announcement, $user);
     }
@@ -230,6 +235,8 @@ class AnnouncementFeed
             ->where('status', (string) setting('announcements.status.published', 'published'))
             // قالب التكرار لا يُبَثّ — دوراته المولَّدة هي التي تصل الناس (12.6-أ)
             ->whereNull('recurrence')
+            // قناة التاب: مَن أطفأها الأدمن لا يظهر في الفيد (12.6-أ)
+            ->where('show_in_feed', true)
             ->where(fn ($q) => $q->whereNull('scheduled_at')->orWhere('scheduled_at', '<=', $now))
             ->where(fn ($q) => $q->whereNull('expires_at')->orWhere('expires_at', '>', $now))
             ->orderByDesc('is_pinned')   // المثبَّت أعلى القائمة (13.2)
@@ -249,8 +256,27 @@ class AnnouncementFeed
             'role' => (bool) array_intersect($keys, $ctx['roles']),
             'course', 'training' => (bool) array_intersect($ids, $ctx['courses']),
             'path', 'track' => (bool) array_intersect($ids, $ctx['paths']),
+            // ⭐ شريحة جمهور محفوظة (12.13): تُحلّ **على الخادم** لحظة السؤال —
+            // الديناميكيّة بإعادة حساب شرطها، والثابتة بقائمتها المجمَّدة.
+            'segment' => $this->segmentMatches($ids, $user),
             default => false,
         };
+    }
+
+    /** @param  array<int, int>  $ids */
+    private function segmentMatches(array $ids, User $user): bool
+    {
+        if ($ids === []) {
+            return false;
+        }
+
+        $segments = app(AudienceSegments::class);
+
+        return AdAudience::query()
+            ->whereIn('id', $ids)
+            ->where('kind', AudienceSegments::KIND)
+            ->get()
+            ->contains(fn (AdAudience $segment) => $segments->contains($segment, $user));
     }
 
     /** @return array{roles: array<int,string>, courses: array<int,int>, paths: array<int,int>} */

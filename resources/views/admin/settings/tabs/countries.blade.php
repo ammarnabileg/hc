@@ -12,6 +12,12 @@
     $diff = $countries['diff'];
     $report = session('countries_report');
     $attribution = (string) setting('countries.attribution', 'بيانات الدول والمحافظات من dr5hn/countries-states-cities-database — برخصة ODbL v1.0.');
+    $sourceUrl = trim((string) setting('countries.source_url', ''));
+
+    // آخر فحص للمصدر — نجح أو فشل، وسببه مكتوب. لا يمرّ عبر
+    // `SettingsAdminController` لأنّ التاب يُحمَّل كسولًا وهذه بيانات التاب وحده.
+    $sync = app(\App\Services\Admin\System\CountryDataSync::class);
+    $lastCheck = $sync->lastCheck();
 @endphp
 
 <div class="card p-4">
@@ -30,6 +36,24 @@
             @endcan
 
             @can('countries_data.import')
+                {{-- جلب من الشبكة ⟵ فروق ⟵ وقوف: لا دمج آليّ، القرار للمالك (12.7-د) --}}
+                <form method="post" action="{{ route('admin.countries.check-source') }}">
+                    @csrf
+                    <button class="rounded-xl px-3 py-2 text-sm inline-flex items-center gap-2"
+                            style="background: var(--surface-raised)">
+                        {{-- أيقونة SVG مرسومة بهويّة المنصّة (كرة أرضيّة + قوس تحديث) — بلا أيّ مكتبة أيقونات (2.16-ج) --}}
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true" class="shrink-0"
+                             style="color: var(--color-brand-500)">
+                            <circle cx="8" cy="8" r="5.2" stroke="currentColor" stroke-width="1.5"/>
+                            <path d="M2.8 8h10.4M8 2.8c1.5 1.6 1.5 8.8 0 10.4-1.5-1.6-1.5-8.8 0-10.4Z"
+                                  stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M13.4 3.4v2.4h-2.4" stroke="currentColor" stroke-width="1.5"
+                                  stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        {{ setting('countries.source.check.button', 'فحص المصدر الآن') }}
+                    </button>
+                </form>
+
                 <form method="post" action="{{ route('admin.countries.check') }}">
                     @csrf
                     <button class="rounded-xl px-3 py-2 text-sm" style="background: var(--surface-raised)">فحص التحديثات</button>
@@ -54,6 +78,45 @@
         <li>● <strong>المحافظة لا تُخفى أبدًا</strong> — حتّى لو غابت عن المصدر تفضل ظاهرة ومربوطة بأهلها.</li>
         <li>● أيّ دولة أو محافظة مرتبطة بمستخدم <strong>محميّة</strong> — الدمج ما بيلمسهاش.</li>
     </ul>
+</div>
+
+{{--
+    آخر فحص للمصدر ونتيجته (12.7-د): نجح/فشل **والسبب مكتوب** — فالفشل الصامت
+    أسوأ من الفشل. واللون لا يحمل المعنى وحده: `<x-state-badge>` معه رمزُه
+    ونصُّه دائمًا (2.16-ب).
+--}}
+<div class="card p-4 mt-3">
+    <div class="flex flex-wrap items-center justify-between gap-2">
+        <div class="text-sm font-semibold">{{ setting('countries.source.check.label', 'آخر فحص للمصدر') }}</div>
+
+        @if ($lastCheck)
+            <x-state-badge :state="$lastCheck->badgeState()" :label="$lastCheck->succeeded() ? 'نجح' : 'فشل'" />
+        @else
+            <x-state-badge state="idle" label="ما اتفحصش" />
+        @endif
+    </div>
+
+    @if ($lastCheck)
+        <p class="text-xs mt-2">{{ $lastCheck->message }}</p>
+        <div class="text-xs mt-1" style="color: var(--text-muted)">
+            {{ $lastCheck->created_at?->format('Y-m-d H:i') }}
+            · {{ $lastCheck->trigger === 'schedule' ? 'فحص دوريّ' : 'فحص يدويّ' }}
+            @if ($lastCheck->succeeded())
+                · مضاف {{ $lastCheck->added }} · محذوف {{ $lastCheck->removed }} · معدَّل {{ $lastCheck->changed }}
+            @endif
+        </div>
+    @else
+        <p class="text-xs mt-2">{{ setting('countries.source.check.never_text', 'لسّه ما اتفحصش المصدر ولا مرّة — اضغط «فحص المصدر الآن».') }}</p>
+    @endif
+
+    <div class="text-xs mt-2" style="color: var(--text-muted)">
+        @if ($sync->checkEnabled())
+            الفحص الدوريّ شغّال — الموعد القادم {{ $sync->nextCheckAt()->format('Y-m-d H:i') }} ({{ $sync->checkTimezone() }}).
+            والفحص <strong>بيقف عند الفروق</strong> — الدمج قرارك إنت من هنا.
+        @else
+            الفحص الدوريّ متوقّف من الإعدادات — الفحص اليدويّ لسّه شغّال.
+        @endif
+    </div>
 </div>
 
 @if ($report)
@@ -204,4 +267,10 @@
     </div>
 @endif
 
-<p class="text-xs mt-3" style="color: var(--text-muted)">{{ $attribution }}</p>
+<p class="text-xs mt-3" style="color: var(--text-muted)">
+    {{ $attribution }}
+    @if ($sourceUrl !== '')
+        <a href="{{ $sourceUrl }}" target="_blank" rel="noopener noreferrer"
+           style="color: var(--color-brand-500)">صفحة المصدر</a>
+    @endif
+</p>

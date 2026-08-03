@@ -184,7 +184,9 @@
                     <p class="text-xs" data-vxp-sum style="color: var(--text-muted)">المجموع: 0</p>
 
                     <label class="flex items-start gap-2 text-xs">
-                        <input type="checkbox" name="consent_personal" value="1" style="accent-color: var(--color-brand-500)">
+                        {{-- بلا `accent-color` (ممنوعة بالاسم) — التمييز بالحدّ واللون من متغيّرات الهويّة --}}
+                        <input type="checkbox" name="consent_personal" value="1"
+                               style="width: 1rem; height: 1rem; border: 1px solid var(--color-brand-500)">
                         <span>موافق صراحةً على خصم الزيادة فوق الوعاء من رصيدي الشخصيّ.</span>
                     </label>
 

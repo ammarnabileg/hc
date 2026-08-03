@@ -17,6 +17,8 @@ Route::middleware(['auth', 'admin.panel'])->prefix('admin')->name('admin.countri
     Route::middleware('permission:countries_data.import')->group(function () {
         Route::post('/countries/import', [CountriesController::class, 'import'])->name('import');
         Route::post('/countries/check', [CountriesController::class, 'check'])->name('check');
+        // ⛔ جلب من الشبكة ⟵ فروق ⟵ **وقوف**: لا دمج آليّ، القرار للمالك (12.7-د)
+        Route::post('/countries/check-source', [CountriesController::class, 'checkSource'])->name('check-source');
         // الدمج بعد عرض الفروق واختيار المالك — و`dry_run` يعاين بلا كتابة (2.11-ط)
         Route::post('/countries/merge', [CountriesController::class, 'merge'])->name('merge');
     });

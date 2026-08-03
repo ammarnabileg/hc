@@ -17,6 +17,12 @@
         <x-icon name="hourglass" size="16" />
         نافذة التفكيك الحاليّة <strong>{{ $windowHours }}</strong> ساعة لكلّ طبقة.
         <span style="color: var(--text-muted)">ومَن يختار ينفّذ مهمّته بنفسه مالوش خصم تفكيك أصلًا.</span>
+
+        @can('goals.create')
+            {{-- مدخل رحلة البناء (23 — 1.1 … 1.4) — وهي ما يسبق هذه الشاشة --}}
+            <a class="block mt-2 text-xs hover:underline" style="color: var(--color-brand-500)"
+               href="{{ route('volunteer.goals.build') }}">رحلة بناء الهدف — إنشاء وتفكيك وتجميع وتسعير</a>
+        @endcan
     </div>
 
     <section class="space-y-3">

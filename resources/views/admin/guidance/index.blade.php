@@ -56,7 +56,24 @@
                                 @if ($announcement->is_pinned)<span title="مثبَّت" aria-label="مثبَّت"><x-icon name="placement" size="16" /></span>@endif
                             </div>
                             <div class="text-xs mt-1" style="color: var(--text-muted)">
-                                الجمهور: {{ ['all' => 'الكلّ', 'role' => 'دور', 'course' => 'تدريب', 'path' => 'مسار', 'user' => 'أشخاص'][$announcement->audience['type'] ?? 'all'] ?? 'الكلّ' }}
+                                الجمهور: {{ ['all' => 'الكلّ', 'role' => 'دور', 'course' => 'تدريب', 'path' => 'مسار', 'user' => 'أشخاص', 'segment' => 'شريحة محفوظة'][$announcement->audience['type'] ?? 'all'] ?? 'الكلّ' }}
+                                {{-- القنوات المفتوحة لهذا المنشور — تُقرأ من الصفّ لا من الوعد (12.6-أ) --}}
+                                · القنوات:
+                                @php
+                                    $open = collect([
+                                        'feed' => (bool) $announcement->show_in_feed,
+                                        'push' => (bool) $announcement->push_to_notifications,
+                                        'email' => (bool) $announcement->email_enabled,
+                                    ])->filter()->keys()->map(fn ($key) => $channels[$key] ?? $key);
+                                @endphp
+                                {{ $open->isEmpty() ? 'مافيش' : $open->implode(' · ') }}
+                                @if ($announcement->email_enabled)
+                                    @php $mail = $emailStats[$announcement->id] ?? []; @endphp
+                                    · بريد: {{ (int) ($mail['sent'] ?? 0) }} اتبعت
+                                    @if (($mail['deferred'] ?? 0) > 0) · {{ (int) $mail['deferred'] }} اتأجّلت @endif
+                                    @if (($mail['skipped'] ?? 0) > 0) · {{ (int) $mail['skipped'] }} مستبعَد @endif
+                                    @if (($mail['failed'] ?? 0) > 0) · {{ (int) $mail['failed'] }} تعثّرت @endif
+                                @endif
                                 @if ($announcement->requires_acknowledge)
                                     · إقرار بـ{{ $announcement->acknowledge_xp }} XP (مرّة واحدة)
                                 @endif
@@ -149,8 +166,30 @@
                             <option value="course">حسب التدريب</option>
                             <option value="path">حسب المسار</option>
                             <option value="user">أشخاص بعينهم</option>
+                            {{-- ⭐ شريحة محفوظة بدل إعادة بناء الفلاتر (12.6-أ · 12.13) --}}
+                            <option value="segment">شريحة محفوظة</option>
                         </select>
                     </label>
+
+                    <div class="mt-2 hidden" data-audience-panel="segment">
+                        <select name="audience_ids[]" multiple size="4" class="w-full rounded-xl px-3 py-2 text-sm"
+                                style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
+                            @foreach ($audiences['segments'] as $segment)
+                                <option value="{{ $segment->id }}">
+                                    {{ $segment->name }} — {{ \App\Services\Admin\AudienceSegments::types()[$segment->segment_type] ?? $segment->segment_type }}
+                                    ({{ number_format((int) $segment->size) }})
+                                </option>
+                            @endforeach
+                        </select>
+                        <p class="text-xs mt-1" style="color: var(--text-muted)">
+                            {{ setting('announcements.audience.segment_hint', 'الشريحة بتتحلّ لأعضائها على السيرفر لحظة الإرسال — مش لحظة الحفظ.') }}
+                        </p>
+                    </div>
+                    @if ($audiences['segments']->isEmpty())
+                        <p class="text-xs mt-1" style="color: var(--text-muted)">
+                            <a href="{{ route('admin.users.segments') }}" class="underline">{{ setting('announcements.audience.segments_empty', 'مفيش شرائح محفوظة لسّه — ابنِ واحدة') }}</a>
+                        </p>
+                    @endif
 
                     <div class="mt-2 hidden" data-audience-panel="role">
                         <select name="audience_keys[]" multiple size="4" class="w-full rounded-xl px-3 py-2 text-sm"
@@ -196,11 +235,36 @@
                                       :value="setting('announcements.acknowledge.default_tickets', 0)" />
                     </div>
                     <label class="flex items-center gap-2">
-                        <input type="checkbox" name="push_to_notifications" value="1"> اعرضه كإشعار/Toast
-                    </label>
-                    <label class="flex items-center gap-2">
                         <input type="checkbox" name="is_pinned" value="1"> ثبّته أعلى القناة
                     </label>
+                </fieldset>
+
+                {{-- ⭐ القنوات الموحّدة من مكان واحد (12.6-أ): تاب · Toast/إشعار · بريد،
+                     وكلّ قناة مستقلّة — تقدر تبعت بالبريد وحده بلا ما يظهر في الفيد --}}
+                <fieldset class="card p-3 space-y-2 text-sm">
+                    <legend class="text-sm px-1 flex items-center gap-1">
+                        <x-icon name="announcement" size="16" /> القنوات
+                    </legend>
+
+                    <label class="flex items-center gap-2">
+                        <input type="checkbox" name="show_in_feed" value="1"
+                               @checked(setting('announcements.channels.feed_default_on', true))>
+                        {{ $channels['feed'] ?? 'تاب التعليمات' }}
+                    </label>
+
+                    <label class="flex items-center gap-2">
+                        <input type="checkbox" name="push_to_notifications" value="1">
+                        {{ $channels['push'] ?? 'إشعار / Toast' }}
+                    </label>
+
+                    <label class="flex items-center gap-2">
+                        <input type="checkbox" name="email_enabled" value="1">
+                        <span class="flex items-center gap-1"><x-icon name="envelope" size="16" /> {{ $channels['email'] ?? 'بريد' }}</span>
+                    </label>
+
+                    <p class="text-xs" style="color: var(--text-muted)">
+                        {{ setting('announcements.email.editor_hint', 'البريد بيروح لمن بريده موثَّق ومفعّل القناة بس — والزيادة بتتأجّل احترامًا لحدّ الهدوء.') }}
+                    </p>
                 </fieldset>
 
                 {{-- ⭐ استطلاع داخل المنشور: عامّ النتيجة أو مخفيّها (12.6-أ) —

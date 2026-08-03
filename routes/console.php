@@ -55,6 +55,16 @@ Schedule::call(function () {
         ->put('system.schedule.last_run_at', now()->toDateTimeString());
 })->hourly()->name('backups:scheduled')->withoutOverlapping();
 
+// الفحص الدوريّ لمصدر الدول (12.7-د): **مسحة كلّ ساعة والقرار داخل
+// `CountryDataSync::isCheckDue()` وحده** — على غرار `rep:reset-monthly` فوق.
+// لماذا لا `monthlyOn(1, '04:00')`؟ لأنّ تعبير الكرون يُقرأ مرّةً عند تحميل هذا
+// الملفّ، فيتجمّد على القيمة القديمة بعد أن يغيّر الأدمن الدوريّة واليوم من
+// الإعدادات؛ والأمر بلا `--force` يرفض خارج الموعد المضبوط — فلا يلتقيان أبدًا
+// ولا يقع فحصٌ في أيّ لحظة، بلا خطأ ولا سجلّ. والفشل الصامت هنا يعني مصدرَ دولٍ
+// يتقادم بلا أن يدري أحد.
+// ⛔ والفحص **يقف عند الفروق**: لا دمج آليّ — القرار للمالك من الشاشة.
+Schedule::command('countries:check-source')->hourly()->withoutOverlapping();
+
 // التقارير المجدولة (24.3-خامسًا): مسحة كلّ ساعة تلتقط المستحقّ بساعته
 // ومنطقته الزمنيّة — والساعة أصغر وحدة تسمح بها شاشة الجدولة، فلا حاجة لأدقّ.
 Schedule::command('reports:dispatch')->hourly()->withoutOverlapping();
