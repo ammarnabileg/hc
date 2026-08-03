@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Events;
 
+use App\Models\AppNotification;
 use App\Models\EventNotice;
 use App\Models\EventRegistration;
 use App\Models\Permission;
@@ -203,14 +204,14 @@ class EventRegistrationsScreenTest extends EventsTestCase
 
         $this->assertSame('sent', $scheduled->refresh()->status);
 
-        $bell = \App\Models\AppNotification::where('user_id', $user->id)->count();
+        $bell = AppNotification::where('user_id', $user->id)->count();
 
         $this->artisan('events:remind')->assertSuccessful();
 
         $this->assertSame(1, $scheduled->refresh()->recipients, 'ما اتبعتش مرّتين');
         $this->assertSame(
             $bell,
-            \App\Models\AppNotification::where('user_id', $user->id)->count(),
+            AppNotification::where('user_id', $user->id)->count(),
             'ولا إشعار مكرّر في الجرس',
         );
     }

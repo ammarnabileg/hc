@@ -97,7 +97,8 @@
                                 data-price-coins="{{ (int) $event->price_coins }}"
                                 data-price-tickets="{{ (int) $event->price_tickets }}"
                                 data-coupon="{{ $event->coupon_id }}" data-cover="{{ $event->cover_path }}"
-                                data-status="{{ $event->status }}">تعديل</button>
+                                data-status="{{ $event->status }}"
+                                data-reminders="{{ $event->reminders_enabled ? 1 : 0 }}">تعديل</button>
                         @if ($event->status !== 'cancelled')
                             <form method="post" action="{{ route('admin.events.cancel', $event) }}"
                                   onsubmit="return confirm('تلغي الفعاليّة دي؟')">
@@ -279,6 +280,20 @@
                     </label>
                 </div>
 
+                {{--
+                  «تذكيرات مجدولة» في فورم الفعاليّة (12.11) — والمواعيد نفسها
+                  قائمةٌ في بلوك إعدادات الفعاليّات (24.3)، فهنا مفتاح تشغيلها
+                  لهذه الفعاليّة وحدها. والنصّ من الإعدادات لا محروقًا (2.13).
+                --}}
+                <label class="flex items-center gap-2 text-sm font-semibold mt-3">
+                    <input type="checkbox" name="reminders_enabled" id="ev-reminders" value="1" checked
+                           style="min-width: 20px; min-height: 20px">
+                    {{ setting('events.reminder.form_label', 'تذكيرات مجدولة للمسجّلين') }}
+                    <span class="text-xs font-normal" style="color: var(--text-muted)">
+                        ({{ setting('events.reminder.form_hint', 'بتتبع مواعيد التذكير في إعدادات الفعاليّات') }})
+                    </span>
+                </label>
+
                 {{-- جدول المكافأة المتدرّجة زمنيًّا (13.3) --}}
                 <details class="mt-3 rounded-xl p-3" style="background: var(--surface-sunken)">
                     <summary class="cursor-pointer text-sm font-semibold select-none">المكافأة المتدرّجة زمنيًّا</summary>
@@ -350,6 +365,7 @@
                 document.getElementById('ev-coupon').value = btn.dataset.coupon || '';
                 document.getElementById('ev-cover').value = btn.dataset.cover || '';
                 document.getElementById('ev-status').value = btn.dataset.status;
+                document.getElementById('ev-reminders').checked = btn.dataset.reminders !== '0';
                 const modal = document.getElementById('event-modal');
                 modal.classList.remove('hidden');
                 modal.classList.add('flex');

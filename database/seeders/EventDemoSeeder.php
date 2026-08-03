@@ -85,6 +85,8 @@ class EventDemoSeeder extends Seeder
             ['events.reminder.title_template', 'events', 'قالب عنوان التذكير', 'string', 'فاكر «:title»؟ ابتدت بعد :when'],
             ['events.reminder.body_template', 'events', 'قالب نصّ التذكير', 'text', '«:title» يوم :time بتوقيت :timezone — جهّز نفسك ومكانك.'],
             ['events.reminder.time_format', 'events', 'صيغة وقت التذكير', 'string', 'Y-m-d · H:i'],
+            ['events.reminder.form_label', 'events', 'اسم خانة التذكيرات في فورم الفعاليّة', 'string', 'تذكيرات مجدولة للمسجّلين'],
+            ['events.reminder.form_hint', 'events', 'شرح خانة التذكيرات', 'string', 'بتتبع مواعيد التذكير في إعدادات الفعاليّات'],
             ['events.reminder.events_per_run', 'events', 'أقصى فعاليّات في مسحة التذكير', 'number', '50'],
             ['events.reminder.recipients_per_event', 'events', 'أقصى مستلِمين لكلّ فعاليّة', 'number', '2000'],
 

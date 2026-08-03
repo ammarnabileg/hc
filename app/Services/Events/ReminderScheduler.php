@@ -4,12 +4,13 @@ namespace App\Services\Events;
 
 use App\Models\Event;
 use App\Models\EventNotice;
-use App\Models\EventReminder;
 use App\Models\EventRegistration;
+use App\Models\EventReminder;
 use App\Models\User;
 use App\Services\Notifications\Notifier;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\QueryException;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
@@ -379,7 +380,7 @@ class ReminderScheduler
             ?? $minutes.' '.setting('events.reminder.minutes_word', 'دقيقة'));
     }
 
-    /** @return \Illuminate\Support\Collection<int, EventRegistration> */
+    /** @return Collection<int, EventRegistration> */
     private function registrations(Event $event)
     {
         return EventRegistration::query()

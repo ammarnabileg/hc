@@ -79,6 +79,8 @@ class EventAdminController extends Controller
             'cover_path' => ['nullable', 'string', 'max:255'],
             'attendance_code' => ['nullable', 'string', 'max:32'],
             'status' => ['required', 'string', 'in:draft,published,cancelled'],
+            // «تذكيرات مجدولة» (12.11) — خانةٌ في الفورم، والمواعيد إعدادٌ عامّ (24.3)
+            'reminders_enabled' => ['nullable', 'boolean'],
             'reward_tiers' => ['nullable', 'array'],
             'agenda' => ['nullable', 'array'],
             'agenda.*.title' => ['nullable', 'string', 'max:180'],
@@ -132,6 +134,7 @@ class EventAdminController extends Controller
              | والقيمة القديمة المحفوظة لفعاليّاتٍ سابقة تبقى كما هي ولا تُدهَس.
              */
             'status' => $data['status'],
+            'reminders_enabled' => $request->boolean('reminders_enabled'),
             'xp_reward' => (int) ($tiers[0]['xp'] ?? 0),
             'ticket_reward' => (int) ($tiers[0]['tickets'] ?? 0),
             'reward_tiers' => json_encode($tiers ?: (array) setting('events.reward_tiers_default', []), JSON_UNESCAPED_UNICODE),

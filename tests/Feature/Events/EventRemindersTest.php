@@ -5,6 +5,8 @@ namespace Tests\Feature\Events;
 use App\Models\AppNotification;
 use App\Models\EventReminder;
 use App\Models\Setting;
+use Illuminate\Console\Scheduling\Schedule;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Mail;
 
@@ -19,9 +21,9 @@ class EventRemindersTest extends EventsTestCase
     public function test_the_command_is_registered_and_scheduled(): void
     {
         // بلا أمرٍ لا مُلتقِط، وبلا جدولةٍ لا يعمل من نفسه — والاثنان شرط
-        $this->assertArrayHasKey('events:remind', \Illuminate\Support\Facades\Artisan::all());
+        $this->assertArrayHasKey('events:remind', Artisan::all());
 
-        $scheduled = collect(app(\Illuminate\Console\Scheduling\Schedule::class)->events())
+        $scheduled = collect(app(Schedule::class)->events())
             ->map(fn ($event) => $event->command ?? '')
             ->filter(fn (string $command) => str_contains($command, 'events:remind'));
 

@@ -7,6 +7,7 @@ use App\Http\Controllers\Trainee\LessonController;
 use App\Http\Controllers\Trainee\LessonQuizController;
 use App\Http\Controllers\Trainee\PathController;
 use App\Http\Controllers\Trainee\VideoCommentController;
+use App\Http\Middleware\EnsureNotesWithinAvailability;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -77,12 +78,21 @@ Route::middleware(['auth', 'permission:enrollments.view'])
                     ->middleware('permission:video_comments.delete')->name('.destroy');
             });
 
-        // ملاحظات التدريب (3.2): مساحة واحدة لكلّ دروسه، بحفظ تلقائيّ وتصدير
+        /*
+        | ملاحظات التدريب (3.2): مساحة واحدة لكلّ دروسه، بحفظ تلقائيّ وتصدير.
+        |
+        | ⭐ والكتابة محروسة بالإتاحة (5): «خارج الساعات دي التدريب **مقفول**»،
+        | والملاحظة كتابةٌ داخل التدريب لا خارجه — فحارس واحد على `save` و`clear`
+        | احتذاءً بـ`EnsureExamWithinAvailability` لا أسلوبًا ثانيًا. والتصدير
+        | يبقى مفتوحًا: قراءةٌ لبيانات صاحبها لا تفتح بابًا ولا تكتب حرفًا.
+        */
         Route::post('/courses/{course:slug}/notes', [CourseNoteController::class, 'save'])
-            ->middleware('permission:course_notes.edit')->name('course.notes.save');
+            ->middleware(['permission:course_notes.edit', EnsureNotesWithinAvailability::class])
+            ->name('course.notes.save');
 
         Route::delete('/courses/{course:slug}/notes', [CourseNoteController::class, 'clear'])
-            ->middleware('permission:course_notes.delete')->name('course.notes.clear');
+            ->middleware(['permission:course_notes.delete', EnsureNotesWithinAvailability::class])
+            ->name('course.notes.clear');
 
         Route::get('/courses/{course:slug}/notes/export', [CourseNoteController::class, 'export'])
             ->middleware('permission:course_notes.export')->name('course.notes.export');

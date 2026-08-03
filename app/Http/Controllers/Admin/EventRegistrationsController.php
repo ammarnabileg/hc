@@ -175,8 +175,10 @@ class EventRegistrationsController extends Controller
             'event_id' => $result['registration']?->event_id,
         ]));
 
+        // ⚠️ مفتاح الفلاش في ليَاوت الإدارة **`problem`** لا `error` — والمفتاح
+        // الخطأ يعني رسالةً تُكتَب ولا تُعرَض، والمنظِّم يقف أمام رمزٍ مرفوض بلا سبب.
         if ($result['reason'] !== CheckinQr::OK) {
-            return $back->with('error', $this->qr->reasonMessage($result['reason']));
+            return $back->with('problem', $this->qr->reasonMessage($result['reason']));
         }
 
         $registration = $result['registration'];
@@ -194,7 +196,7 @@ class EventRegistrationsController extends Controller
                 .setting('events.registrations.ticket_word', 'تذكرة').')';
         }
 
-        return $back->with($outcome['ok'] ? 'status' : 'error', $message);
+        return $back->with($outcome['ok'] ? 'status' : 'problem', $message);
     }
 
     /** @return array<string, mixed> */

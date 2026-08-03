@@ -236,12 +236,24 @@
             <div>
                 <h3 class="font-bold">{{ setting('learning.exam.block_title') }}</h3>
                 <p class="text-xs mt-1" style="color: var(--text-muted)">{{ $exam['condition'] }}</p>
+
+                @if ($exam['lock_reason'] ?? null)
+                    {{-- السبب مكتوب: ماذا حدث + متى يفتح، بساعة المستخدم (2.17 · 5) --}}
+                    <p class="text-xs mt-1" style="color: var(--color-state-idle)">{{ $exam['lock_reason'] }}</p>
+                @endif
             </div>
 
             <div class="flex items-center gap-2 flex-wrap">
                 <x-state-badge :state="$exam['state']" :label="$exam['label']" />
 
-                @if ($exam['exists'] && $exam['unlocked'] && $exam['url'])
+                {{-- ⭐ المقفول يظهر بقفلٍ وسببٍ مكتوب لا بزرٍّ كاذب ولا بإخفاء (24.5 · 5) --}}
+                @if ($exam['exists'] && ($exam['locked'] ?? false))
+                    <span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs"
+                          style="background: var(--surface-sunken); color: var(--text-muted)">
+                        <x-icon name="lock" size="14" />
+                        <span>{{ $exam['locked_label'] }}</span>
+                    </span>
+                @elseif ($exam['exists'] && $exam['unlocked'] && $exam['url'])
                     <a href="{{ $exam['url'] }}"
                        class="btn inline-flex items-center rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
                        style="background: var(--color-brand-500); color: #04201c">{{ setting('learning.exam.start_cta') }}</a>

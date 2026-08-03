@@ -15,7 +15,7 @@
         "`app\/Console\/` مستثنًى — مخرجاتها للطرفيّة (مشغّل النظام) لا لشاشة المستخدم — خارج «النصوص الظاهرة للمستخدم» (2.13-أ). وهذا **الاستثناء الوحيد المخترَع هنا**، وما عداه حدودُ مسحٍ معلَنة لا استثناءات."
     ],
     "قيس_في": "2026-08-03",
-    "الإجماليّ": 10502,
+    "الإجماليّ": 10499,
     "الملفّات": {
         "app\/Http\/Controllers\/Admin\/AdsController.php": 5,
         "app\/Http\/Controllers\/Admin\/ArticleAdminController.php": 7,
@@ -185,7 +185,7 @@
         "app\/Services\/Engagement\/EngagementSettings.php": 25,
         "app\/Services\/Engagement\/PositiveMessages.php": 1,
         "app\/Services\/Engagement\/SocialProof.php": 6,
-        "app\/Services\/Events\/AttendanceService.php": 8,
+        "app\/Services\/Events\/AttendanceService.php": 6,
         "app\/Services\/Events\/EventPresenter.php": 10,
         "app\/Services\/Events\/EventQuery.php": 15,
         "app\/Services\/Events\/IcsGenerator.php": 3,
@@ -390,7 +390,7 @@
         "resources\/views\/admin\/settings\/tabs\/audit.blade.php": 8,
         "resources\/views\/admin\/settings\/tabs\/countries.blade.php": 63,
         "resources\/views\/admin\/settings\/tabs\/maintenance.blade.php": 26,
-        "resources\/views\/admin\/stats\/index.blade.php": 11,
+        "resources\/views\/admin\/stats\/index.blade.php": 10,
         "resources\/views\/admin\/stats\/tabs\/acquisition.blade.php": 10,
         "resources\/views\/admin\/stats\/tabs\/attendance.blade.php": 1,
         "resources\/views\/admin\/stats\/tabs\/engagement.blade.php": 1,

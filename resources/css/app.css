@@ -241,10 +241,18 @@
    | ⭐ (23) شريط التمرير: «عرض **5px**، مقبض `--ta20`، مسار `--bg`، `radius:3px`».
    | كان غائبًا بالكامل فيرسم كلُّ نظامٍ شريطَه (17px رماديّ على ويندوز) —
    | فيقطع الهويّة عند أوّل قائمةٍ طويلة. والمقاسان إعدادٌ لا رقمٌ محروق (2.13).
+   |
+   | ⚠️ ولماذا `@supports not selector(::-webkit-scrollbar)`؟ لأنّ `scrollbar-width`
+   | القياسيّة **تعلو** على `::-webkit-scrollbar` في كروم، و`thin` فيها **عرضٌ
+   | ثابت يقرّره المحرّك (~2px)** لا يقبل رقمنا — فكتابةُ الاثنتين معًا تُلغي
+   | الخمسة بصمت وتترك خيطًا لا يكاد يُمسَك. فالقياسيّة **لفَيَرفُكس وحده**
+   | (حيث لا `::-webkit-scrollbar` أصلًا)، والويب-كِت تأخذ المقاس المنصوص.
    */
-  * {
-    scrollbar-width: thin;
-    scrollbar-color: rgb(0 212 184 / 0.20) var(--surface);
+  @supports not selector(::-webkit-scrollbar) {
+    * {
+      scrollbar-width: thin;
+      scrollbar-color: rgb(0 212 184 / 0.20) var(--surface);
+    }
   }
 
   ::-webkit-scrollbar {

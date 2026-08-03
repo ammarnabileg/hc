@@ -4,8 +4,9 @@ namespace Tests\Feature\Events;
 
 use App\Models\EventRegistration;
 use App\Models\Permission;
-use App\Models\User;
 use App\Models\Transaction;
+use App\Models\User;
+use App\Services\Events\AttendanceService;
 use App\Services\Events\CheckinQr;
 use App\Services\Events\QrMatrix;
 use App\Support\Access\AccessEngine;
@@ -138,7 +139,7 @@ class EventQrCheckinTest extends EventsTestCase
         $this->actingAs($user)->post(route('events.register', $event->slug));
         $registration = EventRegistration::where('event_id', $event->id)->firstOrFail();
 
-        $attendance = app(\App\Services\Events\AttendanceService::class);
+        $attendance = app(AttendanceService::class);
         $attendance->grant($event, $user, $registration);
 
         $before = Transaction::where('user_id', $user->id)->where('source', 'event')->count();

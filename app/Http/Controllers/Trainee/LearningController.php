@@ -91,7 +91,7 @@ class LearningController extends Controller
                 'summary' => $summary,
                 'availability' => $availability,
                 'deadline' => $this->deadlines->forEnrollment($enrollment),
-                'exam' => $this->credentials->courseExam($user, $course, $summary['percent']),
+                'exam' => $this->credentials->courseExam($user, $course, $summary['percent'], $availability),
                 'certificate' => $this->credentials->certificateBadge($user, $course),
             ];
         }

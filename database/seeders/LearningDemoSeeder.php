@@ -254,6 +254,8 @@ class LearningDemoSeeder extends Seeder
             ['learning.notes.export_heading', 'string', 'ملاحظاتي على التدريب'],
             ['learning.notes.export_date_label', 'string', 'تاريخ التنزيل'],
             ['learning.notes.export_file_prefix', 'string', 'notes'],
+            // حاجز الإتاحة على الملاحظات (5 · 3.2) — نصّ الردّ حين يكون التدريب مقفولًا
+            ['learning.notes.course_locked', 'string', 'الملاحظات جزء من التدريب، والتدريب مقفول دلوقتي.'],
 
             // ---- الامتحان النهائيّ والشهادة (نقطة تكامل مع مجال الامتحانات)
             ['learning.exam.block_title', 'string', 'الامتحان النهائيّ للتدريب'],
@@ -264,6 +266,8 @@ class LearningDemoSeeder extends Seeder
             ['learning.exam.pending_label', 'string', 'لم يُدخَل بعد'],
             ['learning.exam.attempted_label', 'string', 'محاولة سابقة'],
             ['learning.exam.passed_label', 'string', 'ناجح'],
+            // بلوك الامتحان حين يكون التدريب خارج نافذته (24.5 · 5): ظاهرٌ بقفلٍ وسببٍ مكتوب
+            ['learning.exam.locked_badge', 'string', 'مقفول'],
             ['learning.certificate.none_label', 'string', 'بلا شهادة'],
             ['learning.certificate.issued_label', 'string', 'شهادة صادرة'],
             ['learning.certificate.inactive_label', 'string', 'شهادة غير سارية'],

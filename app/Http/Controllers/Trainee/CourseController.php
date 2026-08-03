@@ -53,7 +53,8 @@ class CourseController extends Controller
             'outline' => $outline,
             'availability' => $availability,
             'deadline' => $this->deadlines->forEnrollment($enrollment),
-            'exam' => $this->credentials->courseExam($user, $course, $outline['percent']),
+            // الإتاحة تُمرَّر كما هي فلا تُحسَب مرّتين ولا يفترق نصّ البلوك عن نصّ البانر (5)
+            'exam' => $this->credentials->courseExam($user, $course, $outline['percent'], $availability),
             'certificate' => $this->credentials->certificateBadge($user, $course),
             'next_xp' => $this->xp->previewXp($course, $enrollment),
             'report_types' => (array) setting('learning.report.types', []),
