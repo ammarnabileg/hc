@@ -9,6 +9,7 @@ use App\Models\Reentry;
 use App\Models\User;
 use App\Models\VolunteerCard;
 use App\Services\Volunteer\People\PositionRoleAssigner;
+use App\Services\Volunteer\Retention\SuspensionService;
 use Illuminate\Support\Carbon;
 use RuntimeException;
 
@@ -21,6 +22,12 @@ use RuntimeException;
  */
 class OffboardingService
 {
+    /**
+     * حالات العضويّة التي **يُنهيها** الخروج — النشِطة **والمعلَّقة** معًا.
+     * (والمنتهية سلفًا لا تُمَسّ: مَن بُتِرت اختياريّاته عند −9.5 تبقى بتاريخها.)
+     */
+    public const CLOSABLE_STATUSES = ['active', SuspensionService::MEMBERSHIP_STATUS];
+
     public const TYPES = [
         'resignation' => 'استقالة طوعيّة',
         'entity_ended' => 'انتهاء كيان مؤقّت (ملفّ)',
@@ -130,15 +137,37 @@ class OffboardingService
             throw new RuntimeException('التصفية الإلزاميّة لم تكتمل — كمّل بنود التشيك-ليست قبل الإنهاء.');
         }
 
+        /*
+         | ⭐ **والمعلَّقة تُنهى كما تُنهى النشِطة** (23-0.2-4): «تنتقل مسؤوليّاته
+         | الإشرافيّة … ويعود التفويض تلقائيًّا عند إعادة التفعيل، أو **يتحوّل
+         | شغورًا حقيقيًّا (سلّم الترقية) عند قرار الإقصاء**».
+         |
+         | وهذا ليس تفصيلًا: **الإقصاء لا يقع إلّا على معلَّق**. فالسلّم يوجب
+         | التعليق عند −10 قبل أيّ إنهاء («التعليق **قبل أيّ إنهاء**»)، والإقصاء
+         | يُرفَض لمن لم يبلغ العتبة (13.4-س-أ). فلو اقتصر الإنهاء على `active`
+         | لَخرج المُقصى وعضويّاته `suspended` **إلى الأبد**: دورُه في يده،
+         | وحلقتُه قائمة في سلسلة التصعيد، ولا شغور يُملأ — أي أنّ الإقصاء يصير
+         | إجراءً بلا أثر على مَن هو وحده أهلٌ له.
+         */
         $closing = Membership::query()
             ->where('user_id', $record->user_id)
-            ->where('status', 'active')
+            ->whereIn('status', self::CLOSABLE_STATUSES)
             ->get();
 
         Membership::query()
             ->where('user_id', $record->user_id)
-            ->where('status', 'active')
+            ->whereIn('status', self::CLOSABLE_STATUSES)
             ->update(['status' => 'ended', 'ended_at' => now(), 'end_reason' => $record->type]);
+
+        // ويُقفَل صفّ التعليق بسببه: تغطيةٌ مؤقّتة صارت شغورًا حقيقيًّا
+        if ($record->user) {
+            app(SuspensionService::class)->release(
+                $record->user,
+                $actor,
+                SuspensionService::RELEASE_DISMISSAL,
+                $record->type,
+            );
+        }
 
         /*
          | ⭐ **وينتهي الدور بانتهاء العضويّة** (13.4-س · 12.2.3-ب): التسكين يمنح

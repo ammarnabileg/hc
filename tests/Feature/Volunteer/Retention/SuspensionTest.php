@@ -6,10 +6,14 @@ use App\Models\Currency;
 use App\Models\Entity;
 use App\Models\Membership;
 use App\Models\RepRule;
+use App\Models\Setting;
 use App\Models\Task;
 use App\Models\TaskContribution;
 use App\Models\User;
 use App\Services\Admin\Volunteer\Integrations;
+use App\Services\Admin\Volunteer\OffboardingService;
+use App\Services\Volunteer\Escalation\CaseCatalog;
+use App\Services\Volunteer\Escalation\EscalationEngine;
 use App\Services\Volunteer\Escalation\HandlerChain;
 use App\Services\Volunteer\Retention\CommitteePath;
 use App\Services\Volunteer\Retention\SuspensionService;
@@ -160,6 +164,46 @@ class SuspensionTest extends RetentionTestCase
         $this->assertSame($dir->id, $chain->nextHandlerAfter($lead, $department->id)?->id);
     }
 
+    /**
+     * ⭐ **«لحظة التعليق» تشمل النوافذ المفتوحة** — «تنتقل مسؤوليّاته الإشرافيّة
+     * … (المراجعات · **نوافذ محرّك التصعيد** · دفعات الصب-تاسكات) **لحظة
+     * التعليق**». فالنافذة القائمة لا تُترَك تنضج على مكتبٍ مقفول حتى تفوت.
+     */
+    public function test_open_decision_windows_move_at_the_moment_of_suspension(): void
+    {
+        [$user, $lead, , $department, $down] = $this->tree(withDownline: true);
+
+        $task = Task::create([
+            'entity_id' => $department->id,
+            'owner_id' => $down->id,
+            'title' => 'مهمّة الداونلاين',
+            'status' => TaskStatus::IN_PROGRESS,
+            'deadline_at' => now()->addDays(3),
+        ]);
+
+        $case = app(EscalationEngine::class)->open(CaseCatalog::EXTENSION, $task, $down, ['reason' => 'ظرف']);
+
+        $this->assertSame($user->id, (int) $case->current_handler_id, 'النافذة لم تُفتَح على أبلاين صاحبها أصلًا.');
+
+        $before = $case->window_due_at;
+        $level = $case->level;
+
+        $this->drop($user, -9.8, -0.5);
+
+        $case = $case->fresh();
+
+        $this->assertSame(
+            $lead->id,
+            (int) $case->current_handler_id,
+            'النافذة المفتوحة بقيت على مكتبٍ معلَّق حتى تفوت — والنصّ ينقلها «لحظة التعليق».',
+        );
+
+        // انتقل صاحب المكتب لا الحالة: لا درجةٌ تُحرَق ولا وقتٌ يُربَح أو يُخسَر
+        $this->assertSame($level, $case->level, 'ارتفع مستوى الحالة بلا قرار — والنقل ليس تصعيدًا.');
+        $this->assertEquals($before, $case->window_due_at, 'تحرّكت النافذة بالنقل — فرِبح أحدٌ وقتًا أو خسره.');
+        $this->assertFalse((bool) $case->slowdown_penalty_applied, 'وقع أثر تباطؤ على مَن لم يفوّت شيئًا.');
+    }
+
     /** ولا تُغطّى إلّا الوظيفة التي لها داونلاين — «**لو كان له داونلاين**» */
     public function test_a_position_without_downline_is_not_marked_covered(): void
     {
@@ -258,6 +302,54 @@ class SuspensionTest extends RetentionTestCase
 
         $this->assertSame('ended', $this->membershipIn($user, $governorate)->status, 'الاختياريّة رجعت مع الإفراج — والنصّ يبقيها منتهية.');
         $this->assertSame('active', $this->membershipIn($user, $department)->status);
+    }
+
+    /**
+     * ⭐ **«أو يتحوّل شغورًا حقيقيًّا (سلّم الترقية) عند قرار الإقصاء»** (23-0.2-4).
+     *
+     * والحالة حاكمة لأنّ **الإقصاء لا يقع إلّا على معلَّق**: التعليق يسبق «أيّ
+     * إنهاء»، والإقصاء يُرفَض لمن لم يبلغ العتبة (13.4-س-أ). فلو أنهى الأوفبوردنج
+     * العضويّاتِ **النشِطة وحدها** لَخرج المُقصى وعضويّاته `suspended` إلى الأبد:
+     * دورُه في يده، وحلقتُه قائمة في السلسلة، ولا شغور يُملأ.
+     */
+    public function test_dismissal_ends_the_suspended_memberships_and_turns_the_cover_into_a_real_vacancy(): void
+    {
+        [$user, , , $department] = $this->tree(withDownline: true);
+
+        $this->drop($user, -9.8, -0.5);
+        $this->assertSame(SuspensionService::MEMBERSHIP_STATUS, $this->membershipIn($user, $department)->status);
+
+        $actor = $this->makeUser('مشرف عام');
+
+        // «الإقصاء **حصرًا** عبر سلّم العتبات» — والعتبة مبلوغة بالتعليق نفسه
+        $this->assertTrue(OffboardingService::reachedExclusionThreshold($user->fresh()));
+
+        // بنود التصفية إعدادٌ يزرعه كتالوج التطوّع — لا قائمة محفورة (2.13)
+        Setting::query()->updateOrCreate(
+            ['key' => 'volunteer.offboarding.clearance_items'],
+            [
+                'group' => 'volunteer_offboarding',
+                'label_ar' => 'بنود التصفية الإلزاميّة',
+                'type' => 'json',
+                'value' => json_encode(['نقل المهامّ', 'سحب المساهمات'], JSON_UNESCAPED_UNICODE),
+                'default_value' => '[]',
+            ],
+        );
+        Cache::forget('settings');
+
+        // التصفية الإلزاميّة كاملةً (مختبَرةٌ على حدة في مسار الأوفبوردنج)
+        $checklist = array_fill_keys(array_keys(OffboardingService::clearanceItems()), true);
+
+        $record = OffboardingService::open($user->fresh(), 'exclusion', 'قرار اللجنة والقمّة', $actor, $checklist);
+
+        OffboardingService::complete($record->fresh(), $actor);
+
+        $membership = $this->membershipIn($user, $department);
+
+        $this->assertSame('ended', $membership->status, 'خرج المُقصى وعضويّته «معلَّقة» إلى الأبد.');
+        $this->assertSame('exclusion', $membership->end_reason);
+        $this->assertFalse(app(SuspensionService::class)->isSuspended($user->fresh()), 'بقي صفّ التعليق مفتوحًا بعد الإقصاء — فالتغطية لم تصر شغورًا.');
+        $this->assertSame(0, DB::table('role_user')->where('user_id', $user->id)->count(), 'بقي دور البوزشن في يد المُقصى.');
     }
 
     /** تعليقٌ واحد لا تعليقان — والصفّ المفتوح هو قفل الدخول */

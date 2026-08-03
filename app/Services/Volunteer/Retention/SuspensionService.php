@@ -9,6 +9,7 @@ use App\Models\Transaction;
 use App\Models\User;
 use App\Services\Admin\Volunteer\AuditTrail;
 use App\Services\Notifications\Notifier;
+use App\Services\Volunteer\Escalation\EscalationEngine;
 use App\Services\Volunteer\Escalation\FlowLedger;
 use App\Services\Volunteer\Tasks\NoDeliverySweeper;
 use App\Services\Volunteer\Tasks\TaskStatus;
@@ -169,7 +170,7 @@ class SuspensionService
     /**
      * تنفيذ الدرجة كاملةً كما ينصّ 23-0.2-4.
      *
-     * @return array{suspension_id:int,rep:float,memberships:int,covered:int,tasks:int,contributions:int,referral_id:?int}
+     * @return array{suspension_id:int,rep:float,memberships:int,covered:int,tasks:int,contributions:int,windows:int,referral_id:?int}
      */
     public function apply(User $user, ?float $displayed = null, ?Transaction $breaking = null): array
     {
@@ -280,6 +281,13 @@ class SuspensionService
             'updated_at' => now(),
         ]);
 
+        /*
+         | ⭐ **والنوافذ المفتوحة تنتقل الآن لا عند فواتها** — والخريطة كُتِبت
+         | قبلها لأنّ `HandlerChain` يقرؤها منها. «لحظة التعليق» في النصّ تشمل
+         | «**نوافذ محرّك التصعيد**» بالاسم، فلا تُترَك تنضج على مكتبٍ مقفول.
+         */
+        $windows = app(EscalationEngine::class)->reassignOpenWindows($user);
+
         $this->announce($user, $displayed);
         $this->announceCoverage($user, $coverage);
 
@@ -292,6 +300,7 @@ class SuspensionService
             'positions_covered' => $covered,
             'tasks_handed_over' => $tasks,
             'contributions_withdrawn' => $contributions,
+            'windows_moved' => $windows,
             'referral_id' => $referralId,
         ]);
 
@@ -302,6 +311,7 @@ class SuspensionService
             'covered' => $covered,
             'tasks' => $tasks,
             'contributions' => $contributions,
+            'windows' => $windows,
             'referral_id' => $referralId,
         ];
     }

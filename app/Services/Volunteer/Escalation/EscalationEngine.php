@@ -19,6 +19,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
 use Throwable;
 
 /**
@@ -114,6 +115,63 @@ class EscalationEngine
     }
 
     // ------------------------------------------------------------------ التصعيد
+
+    /**
+     * ⭐ **نقلُ النوافذ المفتوحة عن مكتبٍ رُفِعت عنه اليد** — تغطيةُ البوزشن عند
+     * التعليق (23-0.2-4): «تنتقل مسؤوليّاته الإشرافيّة تلقائيًّا لأبلاينه المباشر
+     * (تفويض مؤقّت: المراجعات · **نوافذ محرّك التصعيد** · دفعات الصب-تاسكات)
+     * **لحظة التعليق** — فلا يبقى فريق بلا مراجِع طوال مدّة التحقيق».
+     *
+     * ولماذا لا يكفي أنّ **الجديدة** تذهب للبديل؟ لأنّ النصّ يقول «لحظة التعليق»
+     * لا «من الآن فصاعدًا». والنافذة المفتوحة على مكتبٍ معلَّق تنتظر **فواتها**
+     * حتى ترتفع — أي أنّ الفريق يدفع 24 أو 48 ساعة ثمنَ حدثٍ لا ناقة له فيه،
+     * ثمّ ترتفع الحالة **درجةً كاملة** بلا أن يقرأها أحد في مستواها.
+     *
+     * وثلاثة قيود تحكم النقل حتى لا يصير تصعيدًا مقنَّعًا:
+     *  1) **المستوى لا يتحرّك** — انتقل صاحب المكتب لا الحالة، فلا تُحرَق درجةٌ
+     *     من سلّم التصعيد بلا قرار.
+     *  2) **النافذة لا تُجدَّد ولا تُقصَّر** — `window_due_at` كما هو، فلا يربح
+     *     أحد وقتًا بالتعليق ولا يخسره.
+     *  3) **لا أثر تباطؤ على أحد** — لا على المعلَّق («عقوبته الآن هي التعليق
+     *     ذاته» — 23-0.2-4) ولا على الحامل الجديد، لأنّه لم يفوّت شيئًا.
+     *
+     * @return int عدد النوافذ التي انتقلت فعلًا
+     */
+    public function reassignOpenWindows(?User $from): int
+    {
+        if (! $from || ! Schema::hasTable('escalations')) {
+            return 0;
+        }
+
+        $moved = 0;
+
+        Escalation::query()
+            ->where('status', 'open')
+            ->where('current_handler_id', $from->id)
+            ->get()
+            ->each(function (Escalation $escalation) use ($from, &$moved) {
+                $entityId = $this->entityIdOf($this->subjectOf($escalation));
+                $to = $this->chain->substituteIfAbsent($from, $entityId);
+
+                if (! $to || (int) $to->id === (int) $from->id) {
+                    return;
+                }
+
+                EscalationStep::query()
+                    ->where('escalation_id', $escalation->id)
+                    ->whereNull('closed_at')
+                    ->update(['closed_at' => now(), 'outcome' => 'delegated', 'updated_at' => now()]);
+
+                $escalation->forceFill(['current_handler_id' => $to->id])->save();
+
+                $this->openStep($escalation, $to, (int) $escalation->level, $escalation->window_due_at);
+                $this->notifyHandler($escalation->refresh(), $to);
+
+                $moved++;
+            });
+
+        return $moved;
+    }
 
     /**
      * فاتت النافذة ⟵ ترتفع للأبلاين، ويُسجَّل أثر التباطؤ على المفوِّت

@@ -21,6 +21,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
@@ -496,6 +497,27 @@ class AuthController extends Controller
     {
         $email = Str::lower(trim((string) $request->query('email')));
         $valid = $email !== '' && Validator::make(['email' => $email], ['email' => ['email', 'max:190']])->passes();
+
+        /*
+         | ⚠️ سؤال «هل هذا البريد مستعمَل؟» **يكشف بريدًا مسجَّلًا لمن يسأل** —
+         | وهو ثمنُ ما نصّ عليه البند («غير مستخدم من قبل» لحظيًّا)، لا خيارَ فيه.
+         | لكنّ **الجرد بالجملة** ليس من البند في شيء: بلا حدٍّ يمرّ عليه سائلٌ
+         | آليّ بمليون بريد فيخرج بقائمة أعضاء المنصّة. فالحدّ لكلّ IP في نافذة،
+         | والرقمان **إعدادان** لا محروقان (2.13). والمتجاوز يُردّ بلا جواب.
+         */
+        $limit = max(1, (int) setting('auth.email_probe.max_per_window', 30));
+        $window = max(1, (int) setting('auth.email_probe.window_seconds', 60));
+        $key = 'email-probe:'.$request->ip();
+
+        if (RateLimiter::tooManyAttempts($key, $limit)) {
+            return response()->json([
+                'valid' => $valid, 'taken' => false, 'ok' => false,
+                'message' => (string) setting('auth.email_probe.throttled', 'استنّى شويّة وجرّب تاني.'),
+            ], 429);
+        }
+
+        RateLimiter::hit($key, $window);
+
         $taken = $valid && User::query()->where('email', $email)->withTrashed()->exists();
 
         return response()->json([
