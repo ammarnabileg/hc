@@ -110,6 +110,41 @@
         <x-empty message="الهدف لسّه بلا مَعالِم — ابدأ بمَعلَم واحد." />
     @endforelse
 
+    @if ($canOpenFiles)
+        {{-- مسودّات الملفّات (23 — 1.2): بابها هنا، وفتحُها ليس هنا --}}
+        <section class="card p-4 mt-4">
+            <div class="flex items-center justify-between gap-2 flex-wrap">
+                <div>
+                    <h2 class="font-bold text-sm">مسودّات الملفّات</h2>
+                    <p class="text-xs mt-1" style="color: var(--text-muted)">
+                        مالقيتش ملفّ شغّال مناسب؟ اعمل مسودّة واربط بيها حزمك — وهتتفعّل بدعواتها
+                        لحظة «إرسال للتنفيذ» من مشرف عام التطوّع، مش قبلها.
+                    </p>
+                </div>
+
+                <button type="button" data-modal-open="file-draft"
+                        class="btn rounded-xl px-3 py-2 text-xs font-semibold motion-standard"
+                        style="background: var(--color-brand-500); color: #04201c; min-height: 44px">
+                    مسودّة ملفّ جديدة
+                </button>
+            </div>
+
+            @if ($fileDrafts->isNotEmpty())
+                <ul class="mt-3 space-y-2">
+                    @foreach ($fileDrafts as $draft)
+                        <li class="flex items-center justify-between gap-2 rounded-xl px-3 py-2 text-sm flex-wrap"
+                            style="background: var(--surface-sunken)">
+                            <span class="font-semibold">{{ $draft->name_ar }}</span>
+
+                            {{-- الحالة بوسمٍ نصّيّ لا بلونٍ وحده (2.16-ج) --}}
+                            <x-state-badge state="warn" label="مسودّة — لسّه ما اتفتحتش" />
+                        </li>
+                    @endforeach
+                </ul>
+            @endif
+        </section>
+    @endif
+
     @push('modals')
         @if ($canWrite)
             <x-modal id="new-milestone" title="مَعلَم جديد">
@@ -120,6 +155,54 @@
                     <x-form.input name="due_date" type="date" label="تاريخ الاستحقاق (اختياريّ)" />
                     <button type="submit" class="btn w-full rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
                             style="background: var(--color-brand-500); color: #04201c">أضِف المَعلَم</button>
+                </form>
+            </x-modal>
+        @endif
+
+        @if ($canOpenFiles)
+            {{--
+             | 23 — 1.2 (سيناريو مشرف عام الملفّات): «إن لم يوجد ملفٌّ مناسب
+             | أنشأ أثناء البناء مسودّات ملفّات جديدة وربطها بالحزم».
+             | والفورم **يكتب دعوةً ولا يرسلها**: لا إشعار يخرج الآن، لأنّ
+             | الملفّ قد لا يُفتَح أصلًا لو لم تضغط القمّة «إرسال للتنفيذ».
+             --}}
+            <x-modal id="file-draft" title="مسودّة ملفّ جديدة">
+                <form method="post" action="{{ route('volunteer.goals.build.file_drafts', $goal) }}" class="space-y-3">
+                    @csrf
+
+                    <x-form.input name="name" label="اسم الملفّ" required
+                                  hint="الملفّ كيان مؤقّت — بينتهي بقرار القمّة وحدها." />
+
+                    <div class="rounded-xl p-3 text-xs space-y-1"
+                         style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text-muted)">
+                        <p>الدعوات دي بتتكتب دلوقتي و<strong>ما بتشتغلش</strong> — لا عضويّة ولا إشعار.</p>
+                        <p>بتتفعّل كلّها لحظة ضغط «إرسال للتنفيذ» من مشرف عام التطوّع، مش قبلها.</p>
+                    </div>
+
+                    @for ($i = 0; $i < (int) setting('goals.build.file_draft.form_rows', 3); $i++)
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                            <label class="block">
+                                <span class="block text-xs mb-1" style="color: var(--text-muted)">عضو (اختياريّ)</span>
+                                <input type="number" name="invitations[{{ $i }}][user_id]" min="1"
+                                       placeholder="كود المستخدم"
+                                       class="w-full rounded-xl px-3 py-2 text-sm"
+                                       style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text); min-height: 44px">
+                            </label>
+                            <label class="block">
+                                <span class="block text-xs mb-1" style="color: var(--text-muted)">البوزشن</span>
+                                <select name="invitations[{{ $i }}][position_id]"
+                                        class="w-full rounded-xl px-3 py-2 text-sm"
+                                        style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text); min-height: 44px">
+                                    @foreach ($invitablePositions as $position)
+                                        <option value="{{ $position->id }}">{{ $position->name_ar }}</option>
+                                    @endforeach
+                                </select>
+                            </label>
+                        </div>
+                    @endfor
+
+                    <button type="submit" class="btn w-full rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
+                            style="background: var(--color-brand-500); color: #04201c">احفظ المسودّة</button>
                 </form>
             </x-modal>
         @endif
@@ -137,6 +220,11 @@
                                     style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
                                 @foreach ($entities as $entity)
                                     <option value="{{ $entity->id }}">{{ $entity->name_ar }} — {{ $entity->track?->name_ar }}</option>
+                                @endforeach
+
+                                {{-- مسودّات هذا الهدف: قابلة للربط، **موسومةً بالنصّ** أنّها لم تُفتَح بعد --}}
+                                @foreach ($fileDrafts as $draft)
+                                    <option value="{{ $draft->id }}">{{ $draft->name_ar }} — {{ $draft->track?->name_ar }} (مسودّة لسّه ما اتفتحتش)</option>
                                 @endforeach
                             </select>
                             <span class="block text-xs mt-1" style="color: var(--text-muted)">

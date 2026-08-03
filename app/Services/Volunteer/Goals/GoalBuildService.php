@@ -59,6 +59,7 @@ class GoalBuildService
     public function __construct(
         private readonly EntityScope $scope,
         private readonly BuildAccess $access,
+        private readonly FileDrafts $fileDrafts,
     ) {}
 
     // ------------------------------------------------------------ 1.1 إنشاء الهدف
@@ -249,9 +250,21 @@ class GoalBuildService
             ]);
         }
 
-        // ⛔ الحصر الصارم: كيانٌ خارج مسار المشرف يُرفَض على الخادم
+        /*
+         * ⛔ الحصر الصارم: كيانٌ خارج مسار المشرف يُرفَض على الخادم.
+         *
+         * والاستثناء الوحيد **مسودّة ملفٍّ من مسودّات هذا الهدف** (23 — 1.2):
+         * `canLinkEntity` تشترط `status = active` بحقّ — فالكيان المؤرشف خارج
+         * الاختيار — لكنّ المسودّة ليست مؤرشفةً ولا مفتوحة، بل موجودةٌ للبناء
+         * وحده. وحصرُها بـ`draft_goal_id` يمنع أن تُربَط مسودّةُ هدفٍ بحزمة
+         * هدفٍ آخر، فتُفعَّل لاحقًا بإطلاقٍ لم يكن لها.
+         */
+        $goal = Goal::query()->find($milestone->goal_id);
+
         foreach ($entities as $entity) {
-            if (! $this->scope->canLinkEntity($actor, $entity)) {
+            $isOwnDraft = $goal !== null && $this->fileDrafts->isDraftOf($entity, $goal);
+
+            if (! $isOwnDraft && ! $this->scope->canLinkEntity($actor, $entity)) {
                 throw ValidationException::withMessages([
                     'entities' => (string) setting(
                         'goals.build.error.entity_out_of_track',

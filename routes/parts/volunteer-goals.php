@@ -82,6 +82,20 @@ Route::middleware('auth')->prefix('volunteer')->group(function () {
     Route::middleware('permission:work_packages.create')->group(function () {
         Route::post('/goals/build/milestones/{milestone}/packages', [GoalController::class, 'storePackages'])
             ->name('volunteer.goals.build.packages');
+
+        /*
+        | ⭐ **مسودّة ملفّ** أثناء البناء (23 — 1.2، سيناريو مشرف عام الملفّات).
+        |
+        | المسار **يُنشئ ولا يفتح**: الكيان يُولَد بحالة `draft` ودعواته صفوفٌ
+        | بلا أثر، ولا يوجد مسارٌ ثانٍ لفتحه — التفعيل دالّةٌ لا يستدعيها إلّا
+        | ضغطة «إرسال للتنفيذ» (1.6). ولو وُجد هنا مسار «افتح» لصار قول الدستور
+        | «الفتح حصريًّا للقمّة **بصفر خطوة إضافيّة**» كلامًا بلا سند.
+        |
+        | و`FileDrafts::canCreate` تفحص فوق الصلاحيّة أن يكون **مسار الملفّات**
+        | من مسارات الفاعل — فمشرف عام الأقسام لا يفتح ملفًّا.
+        */
+        Route::post('/goals/build/{goal}/file-drafts', [GoalController::class, 'storeFileDraft'])
+            ->name('volunteer.goals.build.file_drafts');
     });
 
     // 1.3 — ملء الحزم: الدايركتور يضيف مهامّه بلا حدّ أقصى

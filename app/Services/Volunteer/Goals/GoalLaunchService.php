@@ -34,7 +34,10 @@ use Illuminate\Support\Facades\DB;
  */
 class GoalLaunchService
 {
-    public function __construct(private readonly SubtaskBatch $batches) {}
+    public function __construct(
+        private readonly SubtaskBatch $batches,
+        private readonly FileDrafts $fileDrafts,
+    ) {}
 
     /** نافذة التفكيك بالساعات — مصدرٌ واحد مع الخصم نفسه، فلا يفترقان */
     public function windowHours(): int
@@ -88,18 +91,18 @@ class GoalLaunchService
     /**
      * الإطلاق: الحالة والختم الزمنيّ، ثم **ختم نافذة التفكيك** على مهامّ الهدف.
      *
-     * @return array{ok: bool, gaps: list<string>, stamped: int, due_at: Carbon|null}
+     * @return array{ok: bool, gaps: list<string>, stamped: int, due_at: Carbon|null, files: int, memberships: int}
      */
     public function launch(Goal $goal, User $actor): array
     {
         if ($goal->sent_to_execution_at !== null) {
-            return ['ok' => false, 'gaps' => ['الهدف ده اتبعت للتنفيذ قبل كده.'], 'stamped' => 0, 'due_at' => null];
+            return ['ok' => false, 'gaps' => ['الهدف ده اتبعت للتنفيذ قبل كده.'], 'stamped' => 0, 'due_at' => null, 'files' => 0, 'memberships' => 0];
         }
 
         $gaps = $this->gaps($goal);
 
         if ($gaps !== []) {
-            return ['ok' => false, 'gaps' => $gaps, 'stamped' => 0, 'due_at' => null];
+            return ['ok' => false, 'gaps' => $gaps, 'stamped' => 0, 'due_at' => null, 'files' => 0, 'memberships' => 0];
         }
 
         $now = now();
@@ -115,9 +118,27 @@ class GoalLaunchService
             return $this->stampBreakdownWindow($goal, $dueAt);
         });
 
+        /*
+         * ⭐ «**تتفعّل مسودّات الملفّات** المربوطة (عضويّات ودعوات)» (23 — 1.6).
+         *
+         * وموضعها هنا **بعد** نجاح الإطلاق لا قبله: الفتح أثرٌ للضغطة لا شرطٌ
+         * لها. ولو فُعِّلت قبل فحص النواقص لفُتِحت ملفّاتٌ على هدفٍ رُفِض إرساله،
+         * فتبقى مفتوحةً بعضويّاتٍ حيّة بلا عملٍ ولا مَن يُنهيها — والإنهاء
+         * للقمّة وحدها. و`activate()` لا يُستدعى من أيّ موضعٍ آخر في المنصّة:
+         * هذا هو معنى «الفتح حصريًّا للقمّة بصفر خطوة إضافيّة».
+         */
+        $files = $this->fileDrafts->activate($goal);
+
         $this->notifyDirectors($goal, $dueAt);
 
-        return ['ok' => true, 'gaps' => [], 'stamped' => $stamped, 'due_at' => $dueAt];
+        return [
+            'ok' => true,
+            'gaps' => [],
+            'stamped' => $stamped,
+            'due_at' => $dueAt,
+            'files' => $files['files'],
+            'memberships' => $files['memberships'],
+        ];
     }
 
     /**

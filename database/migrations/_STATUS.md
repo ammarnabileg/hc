@@ -15,7 +15,8 @@
 
 ## ✅ المُنجَز
 <!-- تلقائيّ:بداية:المنجز -->
-- **مايجريشنز (219) — والقائم منها لا يُعدَّل (قاعدة البناء §1). الأحدث:**
+- **مايجريشنز (220) — والقائم منها لا يُعدَّل (قاعدة البناء §1). الأحدث:**
+  - `2026_08_21_100010_volunteer_goal_build_file_drafts.php`
   - `2026_08_20_100020_user_segments_type_lifecycle_and_members.php`
   - `2026_08_20_100010_guidance_email_channel_and_deliveries.php`
   - `2026_08_19_100010_volunteer_goal_build_journey.php`
@@ -27,8 +28,7 @@
   - `2026_08_15_100010_gamification_earn_rows_without_a_consumer.php`
   - `2026_08_14_100010_volunteer_workflow_gaps.php`
   - `2026_08_13_100010_admin_content_drafts_notifications_and_exam_price.php`
-  - `2026_08_12_100010_access_condition_keys_and_panel_gate.php`
-  - … و207 غيرها.
+  - … و208 غيرها.
 <!-- تلقائيّ:نهاية:المنجز -->
 
 ## ⬜ المتبقّي
@@ -53,5 +53,5 @@
 ## 🕒 آخر تحديث
 <!-- تلقائيّ:بداية:التحديث -->
 - **آخر توليد لهذه الوثيقة:** 2026-08-03 — `php artisan docs:status`.
-- **آخر لمسة للمجلّد:** 2026-08-02 — Claude.
+- **آخر لمسة للمجلّد:** 2026-08-03 — Claude.
 <!-- تلقائيّ:نهاية:التحديث -->

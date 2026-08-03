@@ -13,6 +13,7 @@ use App\Models\WorkPackage;
 use App\Services\Admin\Volunteer\AuditTrail;
 use App\Services\Volunteer\Goals\BuildAccess;
 use App\Services\Volunteer\Goals\EntityScope;
+use App\Services\Volunteer\Goals\FileDrafts;
 use App\Services\Volunteer\Goals\GoalBuildService;
 use App\Services\Volunteer\Goals\GoalLaunchService;
 use App\Services\Volunteer\Goals\Integrations;
@@ -41,6 +42,7 @@ class GoalController extends Controller
         private readonly GoalLaunchService $launcher,
         private readonly BuildAccess $access,
         private readonly GoalBuildService $build,
+        private readonly FileDrafts $fileDrafts,
     ) {}
 
     public function index(Request $request): View
@@ -321,6 +323,13 @@ class GoalController extends Controller
             'milestones' => $milestones,
             'packages' => $packages,
             'entities' => $this->scope->linkableEntities($user),
+            // مسودّات هذا الهدف تُعرَض بجانب الكيانات القائمة، **موسومةً** بأنّها
+            // لم تُفتَح بعد — فلا يظنّها أحدٌ ملفًّا شغّالًا (2.16-ج: اللون لا يكفي)
+            'fileDrafts' => $this->fileDrafts->draftsFor($goal),
+            'canOpenFiles' => $user->allows('work_packages.create')
+                && $this->fileDrafts->canCreate($user)
+                && $this->access->holds($user, $goal),
+            'invitablePositions' => $this->fileDrafts->invitablePositions(),
             'canWrite' => $user->allows('milestones.create') && $this->access->holds($user, $goal),
             'canLinkPackages' => $user->allows('work_packages.create') && $this->access->holds($user, $goal),
             'lockMessage' => $this->access->lockMessage($goal),
@@ -378,6 +387,32 @@ class GoalController extends Controller
         }
 
         return back()->with('status', 'اترَبطت '.$created->count().' حزمة بكيانات مسارك ✓ — دايركتور كلّ كيان وصله إشعار.');
+    }
+
+    /**
+     * 1.2 — **مسودّة ملفّ** جديدة أثناء البناء (سيناريو مشرف عام الملفّات).
+     *
+     * تُنشأ ولا تُفتَح: الدعوات صفوفٌ بلا أثر، ولا إشعار يصل لأحدٍ الآن — فلا
+     * يُدعى أحدٌ إلى ملفٍّ قد لا يُفتَح أصلًا لو لم تضغط القمّة «إرسال للتنفيذ».
+     */
+    public function storeFileDraft(Request $request, Goal $goal): RedirectResponse
+    {
+        $user = $request->user();
+
+        abort_unless($this->access->isBuilding($goal), 409, 'الهدف اتبعت للتنفيذ خلاص.');
+        abort_unless($this->access->canSeeBuild($user, $goal), 403);
+        $this->access->assertHolds($user, $goal);
+
+        $data = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'invitations' => ['nullable', 'array', 'max:'.(int) setting('goals.build.file_draft.max_invitations', 20)],
+            'invitations.*.user_id' => ['required', 'integer', 'exists:users,id'],
+            'invitations.*.position_id' => ['required', 'integer', 'exists:positions,id'],
+        ], [], ['name' => 'اسم الملفّ']);
+
+        $entity = $this->fileDrafts->create($user, $goal, $data['name'], $data['invitations'] ?? []);
+
+        return back()->with('status', 'اتعملت مسودّة ملفّ «'.$entity->name_ar.'» ✓ — اربط بيها حزمك، وهتتفعّل بدعواتها لحظة «إرسال للتنفيذ» مش قبلها.');
     }
 
     /** 1.4 — التجميع والتسعير: تعديل مباشر بحفظ تلقائيّ + سجلّ «تمّ التعديل» */
