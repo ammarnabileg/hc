@@ -24,7 +24,7 @@
      data-stepper-labels="{{ json_encode(array_values($labels), JSON_UNESCAPED_UNICODE) }}">
 
     {{-- صفّ الخطوات — يبنيه الـJS ولا يظهر إلّا لو تجاوز الفورم الحدّ --}}
-    <div data-stepper-head class="hidden items-center gap-2 overflow-x-auto no-scrollbar pb-3 mb-3"></div>
+    <div data-stepper-head class="hidden items-center gap-2 min-w-0 overflow-x-auto no-scrollbar pb-3 mb-3"></div>
 
     <div data-stepper-body class="space-y-3">{{ $slot }}</div>
 

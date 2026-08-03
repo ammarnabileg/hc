@@ -65,7 +65,7 @@
     @if ($data['sessions']->isEmpty())
         <x-empty message="لا جلسات لعب مسجَّلة بعد." />
     @else
-        <div class="hidden md:block overflow-x-auto">
+        <div class="hidden md:block min-w-0 overflow-x-auto">
             <table class="w-full text-sm">
                 <thead>
                     <tr style="color: var(--text-muted)">

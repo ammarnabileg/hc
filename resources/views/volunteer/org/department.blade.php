@@ -100,7 +100,7 @@
             <x-empty message="مفيش أعضاء مطابقين للفلتر" action="امسح الفلاتر" :href="route('volunteer.department')" />
         @elseif ($view === 'table')
             {{-- على الموبايل: كروت رأسيّة لا تمرير أفقيّ (2.15-ج) --}}
-            <div class="hidden md:block card overflow-x-auto">
+            <div class="hidden md:block card min-w-0 overflow-x-auto">
                 <table class="w-full text-sm"
                    {{-- حدّ الأعمدة الافتراضيّ من الإعدادات، و«وضع متقدّم» يرفعه (2.15-أ-5) --}}
                    @unless (advanced_mode()) data-columns-cap="{{ view_mode()->defaultColumns() }}" @endunless>

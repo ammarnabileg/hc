@@ -4,8 +4,18 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ setting('attestations.sheet.title', 'إفادة من المنصّة') }} — {{ $holder->name }}</title>
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=cairo:400,600,700&display=swap" rel="stylesheet">
+    {{--
+     | ⛔ لا خطّ من شبكةٍ خارجيّة. «القاهرة» مبنيّ داخل الحزمة أصلًا
+     | (`@fontsource/cairo` في `app.css`) وتستعمله المنصّة كلّها — وكان هذا
+     | القالب وحده يجلبه من CDN.
+     |
+     | والعطب ليس مخالفةً شكليّة: هذه **ورقة تُطبَع وتُسلَّم** (السيرة الذاتيّة
+     | وشهادة الخبرة). فحين يتعذّر الوصول للـCDN — بلا إنترنت، أو خلف جدارٍ
+     | ناريّ في شركة، أو لأنّ الخدمة محجوبة — يسقط الخطّ العربيّ **بصمت**
+     | ويُطبَع المستند بخطٍّ بديلٍ لا يشبه هويّة المنصّة، أو بحروفٍ مكسورة.
+     | ولا يكتشف ذلك أحدٌ إلّا صاحبُ الورقة بعد أن يكون قد أرسلها.
+     --}}
+    @vite(['resources/css/app.css'])
     <style>
         @page { size: A4; margin: 0; }
         * { box-sizing: border-box; }

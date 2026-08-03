@@ -135,7 +135,7 @@
             @endcan
 
             {{-- على الموبايل كروت رأسيّة بلا تمرير أفقيّ (2.15-ج) --}}
-            <div class="hidden md:block overflow-x-auto">
+            <div class="hidden md:block min-w-0 overflow-x-auto">
                 <table class="w-full text-sm">
                     <thead>
                         <tr style="color: var(--text-muted)">

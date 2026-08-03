@@ -78,7 +78,7 @@
         @if ($events->isEmpty())
             <p class="text-sm" style="color: var(--text-muted)">مفيش حركات في الأسبوع ده.</p>
         @else
-            <div class="hidden md:block overflow-x-auto">
+            <div class="hidden md:block min-w-0 overflow-x-auto">
                 <table class="w-full text-sm">
                     <thead>
                     <tr style="color: var(--text-muted)">

@@ -107,9 +107,9 @@
          data-preview-url="{{ $guest ? route('cv.free.preview') : route('cv.preview') }}"
          data-debounce="{{ (int) setting('cv.autosave.debounce_ms', 900) }}">
 
-        <section class="cv-pane" data-pane="edit">
+        <section class="cv-pane min-w-0" data-pane="edit">
             {{-- Stepper بخطوات بحفظ تلقائيّ بينها (2.15-د) --}}
-            <div class="flex gap-2 overflow-x-auto no-scrollbar mb-3">
+            <div class="min-w-0 flex gap-2 overflow-x-auto no-scrollbar mb-3">
                 @foreach ($steps as $key => $label)
                     <button type="button" data-step-tab="{{ $key }}"
                             class="shrink-0 rounded-full px-4 py-2 text-sm motion-standard"

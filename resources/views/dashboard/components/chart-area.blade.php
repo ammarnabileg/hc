@@ -34,7 +34,7 @@
     </div>
 
     {{-- الرسوم داخل حاوية متمرّرة أفقيًّا، فلا تمرير أفقيّ للصفحة نفسها (2.15-ج) --}}
-    <div class="mt-3 overflow-x-auto no-scrollbar">
+    <div class="mt-3 min-w-0 overflow-x-auto no-scrollbar">
         <svg viewBox="0 0 {{ $areaW }} {{ $areaH }}" width="{{ $areaW }}" height="{{ $areaH }}"
              style="min-width: 100%" role="img" aria-label="نقاط الخبرة المكتسبة يوميًّا خلال المدى المختار">
             <title>XP عبر الزمن</title>

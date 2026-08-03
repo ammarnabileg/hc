@@ -112,7 +112,9 @@
                  action="وسّع المدى"
                  :href="request()->fullUrlWithQuery(['period' => 'all', 'mine' => null])" />
     @else
-        <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {{-- `min-w-0` على أعمدة الشبكة: عنوان الكارت `truncate` — وهو `nowrap` —
+             يساهم بمقاس محتواه في تحديد عرض العمود، فيمدّه فوق الشاشة (2.15-ج) --}}
+        <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 [&>*]:min-w-0">
             @foreach ($events as $event)
                 @include('events.components.card', [
                     'event' => $event,

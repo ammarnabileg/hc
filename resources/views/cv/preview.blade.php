@@ -5,8 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex">
     <title>{{ setting('cv.page.title', 'سيرتي الذاتيّة') }}</title>
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=cairo:400,600,700&display=swap" rel="stylesheet">
+    {{--
+     | ⛔ لا خطّ من شبكةٍ خارجيّة. «القاهرة» مبنيّ داخل الحزمة أصلًا
+     | (`@fontsource/cairo` في `app.css`) وتستعمله المنصّة كلّها — وكان هذا
+     | القالب وحده يجلبه من CDN.
+     |
+     | والعطب ليس مخالفةً شكليّة: هذه **ورقة تُطبَع وتُسلَّم** (السيرة الذاتيّة
+     | وشهادة الخبرة). فحين يتعذّر الوصول للـCDN — بلا إنترنت، أو خلف جدارٍ
+     | ناريّ في شركة، أو لأنّ الخدمة محجوبة — يسقط الخطّ العربيّ **بصمت**
+     | ويُطبَع المستند بخطٍّ بديلٍ لا يشبه هويّة المنصّة، أو بحروفٍ مكسورة.
+     | ولا يكتشف ذلك أحدٌ إلّا صاحبُ الورقة بعد أن يكون قد أرسلها.
+     --}}
+    @vite(['resources/css/app.css'])
     <style>
         /* ورقة بالمقاس الحقيقيّ A4 — والمعاينة الحيّة تُعرَض بنفس المقاس (24.5) */
         @page { size: A4; margin: 0; }
@@ -20,6 +30,43 @@
             html, body { background: #fff; }
             .sheet { box-shadow: none; margin: 0; }
         }
+
+        /*
+         * ⭐ الورقة **A4 حقيقيّة** عند الطباعة، و**مصغَّرة لتسع الشاشة** على
+         * الموبايل. 210mm ≈ 794px، فعلى شاشة 375px كانت تخرج بتمرير أفقيّ —
+         * وهو ممنوع نصًّا (2.15-ج).
+         *
+         * والتصغير بـ`scale` لا بتغيير المقاسات: تغييرها يجعل ما يراه المستخدم
+         * غير ما سيُطبَع، والمعاينة عهدٌ بأنّ ما تراه هو ما تأخذه.
+         *
+         * والنسبة تأتي من سطرٍ من جافاسكربت لا من `calc`: قسمة طولٍ على عدد في
+         * CSS تُنتج **طولًا** لا نسبةً مجرّدة، و`scale()` لا تقبل إلّا عددًا —
+         * فالتعبير يسقط صامتًا وتبقى الورقة بمقاسها، ويقصّها الصندوق. أي أنّ
+         * «الإصلاح» كان سيستبدل بالتمرير الأفقيّ **إخفاءَ نصف الورقة**.
+         *
+         * والافتراضيّ **1 بلا قصّ**: لو تعطّل السكربت رجعنا للتمرير — وهو أهون
+         * من ورقةٍ ناقصة (2.1: التحسين تدريجيّ).
+         */
+        .sheet-scale-wrap { --sheet-scale: 1; }
+
+        @media screen {
+            /* التوسيط بالـFlex لا بالهوامش: صندوقٌ أعرض من حاويته يُوزَّع فائضه
+               **بالتساوي على الجهتين** فيقع مركزه في مركز الشاشة — أمّا الهوامش
+               التلقائيّة فتُسنِده لجهة البداية، وهي تختلف بين RTL وLTR فتخرج
+               الورقة مزاحةً في العربيّة تحديدًا. */
+            .sheet-scale-wrap { display: flex; justify-content: center; }
+
+            .sheet-scale {
+                flex: none;
+                inline-size: 210mm;
+                transform: scale(var(--sheet-scale));
+                transform-origin: top center;
+            }
+
+            /* لا يُقَصّ إلّا حين يقع تصغيرٌ فعلًا — فلا يختفي شيء بلا سبب */
+            .sheet-scale-wrap[data-scaled="true"] { overflow: hidden; }
+        }
+
         .sheet h1 { font-size: 22pt; margin: 0 0 2mm; }
         .sheet h2 { font-size: 11pt; margin: 7mm 0 2mm; letter-spacing: .02em; }
         .sheet p, .sheet li, .sheet td { font-size: 10pt; line-height: 1.7; margin: 0; }
@@ -59,7 +106,8 @@
         $confirmUrl = $confirmUrl ?? null;
     @endphp
 
-    <div @class(['wm' => (bool) $watermark])>
+    <div class="sheet-scale-wrap" data-sheet-scale>
+    <div @class(['wm' => (bool) $watermark, 'sheet-scale' => true])>
         @include($sheet['view'], [
             'user' => $sheet['user'],
             'data' => $sheet['data'],
@@ -78,6 +126,7 @@
             </div>
         @endif
     </div>
+    </div>
 
     @if ($notice)
         {{-- ماذا حدث + ماذا تفعل، في سطر واحد (2.17-ب) --}}
@@ -88,6 +137,32 @@
             @endif
         </div>
     @endif
+
+    <script>
+        /* مقاس الورقة الحقيقيّ 210mm ≈ 794px — نصغّرها لتسع الشاشة بلا تمرير أفقيّ */
+        (function () {
+            var wrap = document.querySelector('[data-sheet-scale]');
+            var sheet = wrap && wrap.querySelector('.sheet');
+            if (!wrap || !sheet) return;
+
+            function fit() {
+                var natural = sheet.offsetWidth || 794;
+                var room = document.documentElement.clientWidth - 16;
+                var scale = Math.min(1, room / natural);
+
+                wrap.style.setProperty('--sheet-scale', scale);
+                wrap.dataset.scaled = scale < 1 ? 'true' : 'false';
+                // الصندوق يأخذ الارتفاع **بعد** التصغير فلا يبقى فراغٌ تحته
+                wrap.style.blockSize = scale < 1 ? (sheet.offsetHeight * scale) + 'px' : '';
+            }
+
+            fit();
+            window.addEventListener('resize', fit);
+            /* الطباعة تعود للمقاس الحقيقيّ ثمّ يُعاد الضبط بعدها */
+            window.addEventListener('beforeprint', function () { wrap.style.setProperty('--sheet-scale', 1); wrap.style.blockSize = ''; });
+            window.addEventListener('afterprint', fit);
+        })();
+    </script>
 
     @if ($print)
         <script>

@@ -37,7 +37,7 @@
             </div>
 
             {{-- Stepper: على الموبايل رقائق أفقيّة قابلة للتمرير بلا تمرير للصفحة (2.15-ج) --}}
-            <ol class="flex gap-2 overflow-x-auto pb-1" style="scrollbar-width: thin">
+            <ol class="flex gap-2 min-w-0 overflow-x-auto pb-1" style="scrollbar-width: thin">
                 @foreach ($status['steps'] as $step)
                     <li class="shrink-0 rounded-full px-3 py-2 text-xs flex items-center gap-1"
                         @if ($step['current']) aria-current="step" @endif

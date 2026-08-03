@@ -34,7 +34,13 @@
 
     <div class="grid gap-4 md:grid-cols-[240px_1fr]">
         {{-- ⭐ صفحة واحدة بتابات جانبيّة (2.15-د) — وعلى الموبايل رقائق أفقيّة --}}
-        <nav class="flex md:flex-col gap-2 overflow-x-auto no-scrollbar md:sticky md:top-4 md:self-start">
+        {{--
+         | `min-w-0` شرطُ أن يعمل `overflow-x-auto` أصلًا: عنصر الشبكة (Grid item)
+         | افتراضيّه `min-width: auto` — أي **لا يصغر تحت مقاس محتواه**. فالرقائق
+         | تمدّ التاب فيمدّ الصفحة، ويبقى صندوق التمرير موجودًا بلا ما يمرّره.
+         | والنتيجة تمريرٌ أفقيّ للصفحة كلّها — وهو ممنوع نصًّا (2.15-ج).
+         --}}
+        <nav class="min-w-0 flex md:flex-col gap-2 overflow-x-auto no-scrollbar md:sticky md:top-4 md:self-start">
             @foreach ($tabs as $key => $meta)
                 <a href="{{ route('admin.settings.index', ['tab' => $key]) }}"
                    class="shrink-0 rounded-xl px-3 py-2 text-sm motion-standard"

@@ -110,7 +110,7 @@
     @if ($rows->isEmpty())
         <x-empty message="مفيش معاملات في المدى ده — وسّع المدى وشوف" />
     @else
-        <div class="card overflow-x-auto hidden md:block">
+        <div class="card min-w-0 overflow-x-auto hidden md:block">
             <table class="w-full text-sm"
                    {{-- حدّ الأعمدة الافتراضيّ من الإعدادات، و«وضع متقدّم» يرفعه (2.15-أ-5) --}}
                    @unless (advanced_mode()) data-columns-cap="{{ view_mode()->defaultColumns() }}" @endunless>

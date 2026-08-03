@@ -112,7 +112,7 @@
                  action="لوحة المهام العامّة" :href="route('volunteer.tasks.board')" />
     @elseif ($isBoardView)
         {{-- كانبان بالسحب — وعلى الموبايل يتحوّل قائمة رأسيّة بلا تمرير أفقيّ (2.15-ج) --}}
-        <div class="md:flex md:gap-3 md:overflow-x-auto space-y-4 md:space-y-0" data-kanban>
+        <div class="md:flex md:gap-3 md:min-w-0 overflow-x-auto space-y-4 md:space-y-0" data-kanban>
             @foreach ($columns as $status)
                 <section class="md:w-64 md:shrink-0" data-kanban-column="{{ $status }}">
                     <div class="text-sm font-semibold mb-2 flex items-center gap-2">

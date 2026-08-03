@@ -10,7 +10,7 @@
 
     {{-- تابات داخليّة تُحمَّل كسولًا: التاب المفتوح وحده يجهّز بياناته (2.15-د) --}}
     <div class="sticky-bar -mx-4 md:mx-0 px-4 md:px-0 py-2 mb-4" style="background: var(--surface)">
-        <div class="flex gap-2 overflow-x-auto no-scrollbar">
+        <div class="flex gap-2 min-w-0 overflow-x-auto no-scrollbar">
             @foreach ($tabs as $key => $label)
                 <a href="{{ route('admin.gamification.index', ['tab' => $key]) }}"
                    class="shrink-0 rounded-full px-4 py-2 text-sm motion-standard"

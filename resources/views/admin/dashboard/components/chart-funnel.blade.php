@@ -13,7 +13,7 @@
 <section class="card p-4 min-w-0">
     <h3 class="font-bold text-sm">قمع التحويل</h3>
 
-    <div class="mt-3 overflow-x-auto no-scrollbar">
+    <div class="mt-3 min-w-0 overflow-x-auto no-scrollbar">
         <svg viewBox="0 0 {{ $w }} {{ $h }}" width="{{ $w }}" height="{{ $h }}" style="min-width: 100%"
              role="img" aria-label="قمع التحويل من مسجّل إلى مشترٍ">
             <title>قمع التحويل</title>

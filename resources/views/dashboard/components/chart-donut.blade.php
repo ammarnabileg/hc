@@ -14,7 +14,7 @@
     <h3 class="font-bold text-sm">إكمال المسار</h3>
 
     <div class="mt-3 flex flex-wrap items-center gap-5">
-        <div class="overflow-x-auto no-scrollbar">
+        <div class="min-w-0 overflow-x-auto no-scrollbar">
             <svg viewBox="0 0 140 140" width="140" height="140" role="img"
                  aria-label="نسبة إكمال تدريباتك {{ $donut['percent'] }}٪">
                 <title>إكمال المسار — {{ $donut['percent'] }}٪</title>

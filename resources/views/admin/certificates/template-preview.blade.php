@@ -13,7 +13,7 @@
             ['label' => 'معاينة'],
         ]" />
 
-    <div class="overflow-x-auto">
+    <div class="min-w-0 overflow-x-auto">
         @include('admin.certificates.partials.canvas', [
             'layers' => $layers,
             'template' => $template,

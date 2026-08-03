@@ -37,7 +37,7 @@
         <x-empty message="مافيش صلاحيّات مطابقة" />
     @else
         <div class="card p-0 overflow-hidden">
-            <div class="overflow-x-auto no-scrollbar">
+            <div class="min-w-0 overflow-x-auto no-scrollbar">
                 <table class="w-full text-sm">
                     <thead>
                         <tr style="background: var(--surface-sunken)">

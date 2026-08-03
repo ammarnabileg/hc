@@ -24,7 +24,7 @@
                             <x-state-badge :state="$line['ok'] ? 'ok' : 'danger'" :label="$line['ok'] ? 'تمّ' : 'وقف'" />
                         </div>
                         @if (! $line['ok'] && $line['output'])
-                            <pre class="text-xs mt-2 overflow-x-auto" dir="ltr" style="color: var(--text-muted)">{{ \Illuminate\Support\Str::limit($line['output'], 600) }}</pre>
+                            <pre class="text-xs mt-2 min-w-0 overflow-x-auto" dir="ltr" style="color: var(--text-muted)">{{ \Illuminate\Support\Str::limit($line['output'], 600) }}</pre>
                         @endif
                     </li>
                 @endforeach

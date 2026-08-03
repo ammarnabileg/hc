@@ -106,7 +106,7 @@
             <x-state-badge state="ok" label="بلا تنفيذ" />
             <h2 class="text-sm font-bold">نتيجة الـDry-run</h2>
         </div>
-        <pre class="p-4 text-xs overflow-x-auto" style="color: var(--text-muted); white-space: pre-wrap">{{ $dryRun['output'] }}</pre>
+        <pre class="p-4 text-xs min-w-0 overflow-x-auto" style="color: var(--text-muted); white-space: pre-wrap">{{ $dryRun['output'] }}</pre>
     </div>
 @endif
 

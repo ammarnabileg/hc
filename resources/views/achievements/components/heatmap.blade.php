@@ -25,7 +25,7 @@
     $lastMonth = null;
 @endphp
 
-<div class="overflow-x-auto no-scrollbar">
+<div class="min-w-0 overflow-x-auto no-scrollbar">
     <svg viewBox="0 0 {{ $width }} {{ $height }}" width="{{ $width }}" height="{{ $height }}"
          role="img" aria-label="خريطة أيّامي النشطة" style="max-width: 100%">
 

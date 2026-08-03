@@ -107,7 +107,7 @@
             <x-empty message="مفيش تسجيلات حضور لسّه" />
         @else
             {{-- الجدول على الديسكتوب، وكروت رأسيّة على الموبايل بلا تمرير أفقيّ (2.15-ج) --}}
-            <div class="card overflow-x-auto hidden md:block">
+            <div class="card min-w-0 overflow-x-auto hidden md:block">
                 <table class="w-full text-sm">
                     <thead style="color: var(--text-muted)">
                         <tr class="text-start">

@@ -44,7 +44,7 @@
     </div>
 
     {{-- الرسم داخل حاوية متمرّرة أفقيًّا فلا تمرير أفقيّ للصفحة (2.15-ج) --}}
-    <div class="mt-3 overflow-x-auto no-scrollbar">
+    <div class="mt-3 min-w-0 overflow-x-auto no-scrollbar">
         <svg viewBox="0 0 {{ $w }} {{ $h }}" width="{{ $w }}" height="{{ $h }}" style="min-width: 100%"
              role="img" aria-label="التسجيلات والمبيعات خلال المدى المختار">
             <title>الحركة عبر الوقت</title>

@@ -217,6 +217,8 @@ class AdminSystemDemoSeeder extends Seeder
             ['updates.dry_run_required', 'updates', 'Dry-run إلزاميّ قبل التحديث', 'bool', '1', false],
             ['updates.batch_rows', 'updates', 'حجم دفعة الترحيل (صفوف)', 'number', '1000', false],
             ['updates.forward_only', 'updates', 'منع الرجوع لإصدار أقدم', 'bool', '1', false],
+            ['settings.audit.error.missing_key', 'system', 'رسالة سجلّ الإعداد بلا مفتاح', 'text', 'مافيش مفتاح إعداد في الطلب — افتح السجلّ من جنب الحقل نفسه.', false],
+            ['settings.audit.error.unknown_key', 'system', 'رسالة سجلّ إعدادٍ غير موجود', 'text', 'الإعداد ده مش موجود — يمكن يكون اتشال، حدّث الصفحة وجرّب تاني.', false],
             ['countries.source', 'countries', 'مصدر بيانات الدول', 'string', 'dr5hn', false],
             ['countries.no_auto_delete', 'countries', 'لا حذف تلقائيّ — المحذوف يُخفى فقط', 'bool', '1', false],
             // ---------------- 12.7-د: فحص الفروق قبل الدمج بلا فقد

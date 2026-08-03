@@ -31,7 +31,7 @@
         {{-- مجموعات العرض الثمانية — والمصفوفة تُحمَّل مجموعةً مجموعة (24.1) --}}
         <nav class="card p-2 h-max">
             <div class="text-xs px-2 py-1" style="color: var(--text-muted)">مجموعات الصلاحيّات</div>
-            <div class="flex lg:block gap-2 overflow-x-auto no-scrollbar">
+            <div class="flex lg:block gap-2 min-w-0 overflow-x-auto no-scrollbar">
                 @foreach ($groups as $key => $total)
                     <a href="{{ route('admin.roles.edit', ['role' => $role, 'group' => $key]) }}"
                        class="shrink-0 lg:block rounded-xl px-3 py-2 text-sm motion-standard"
@@ -74,7 +74,7 @@
                     @method('put')
                     <input type="hidden" name="group" value="{{ $group }}">
 
-                    <div class="overflow-x-auto no-scrollbar">
+                    <div class="min-w-0 overflow-x-auto no-scrollbar">
                         <table class="w-full text-sm">
                             <thead>
                                 <tr style="background: var(--surface-sunken)">

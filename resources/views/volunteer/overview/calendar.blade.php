@@ -40,7 +40,7 @@
 
     <div class="grid lg:grid-cols-[1fr_18rem] gap-4">
         {{-- شبكة التقويم — مرسومة بيدنا بلا أيّ مكتبة خارجيّة --}}
-        <div class="card p-3 overflow-x-auto">
+        <div class="card p-3 min-w-0 overflow-x-auto">
             <div class="grid grid-cols-7 gap-1 min-w-[36rem]">
                 @foreach ($weekDays as $label)
                     <div class="text-xs text-center py-1" style="color: var(--text-muted)">{{ $label }}</div>

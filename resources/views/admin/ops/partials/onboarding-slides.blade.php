@@ -1,5 +1,5 @@
 {{-- اختيار الشاشة: رقائق أفقيّة متمرّرة — على الموبايل بلا ازدحام (2.15-ج) --}}
-<div class="flex gap-2 overflow-x-auto no-scrollbar mb-4">
+<div class="flex gap-2 min-w-0 overflow-x-auto no-scrollbar mb-4">
     @foreach ($screens as $key => $label)
         <a href="{{ route('admin.ops.onboarding', ['tab' => 'slides', 'screen' => $key]) }}"
            class="shrink-0 rounded-xl px-3 py-2 text-sm motion-standard"

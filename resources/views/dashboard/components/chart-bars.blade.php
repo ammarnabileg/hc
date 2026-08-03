@@ -28,7 +28,7 @@
         <span class="text-xs" style="color: var(--text-muted)">+{{ number_format($totalEarned) }} · −{{ number_format($totalSpent) }}</span>
     </div>
 
-    <div class="mt-3 overflow-x-auto no-scrollbar">
+    <div class="mt-3 min-w-0 overflow-x-auto no-scrollbar">
         <svg viewBox="0 0 {{ $barsW }} {{ $barsH }}" width="{{ $barsW }}" height="{{ $barsH }}" role="img"
              aria-label="التذاكر المكتسبة مقابل المصروفة خلال المدى المختار">
             <title>التذاكر: مكتسب ومصروف</title>

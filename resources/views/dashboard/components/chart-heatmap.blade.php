@@ -23,7 +23,7 @@
         <span class="text-xs" style="color: var(--text-muted)">{{ $heatmap['present'] }} يوم حضور · ★ {{ $heatmap['club'] }} في النادي</span>
     </div>
 
-    <div class="mt-3 overflow-x-auto no-scrollbar">
+    <div class="mt-3 min-w-0 overflow-x-auto no-scrollbar">
         <svg viewBox="0 0 {{ $mapW }} {{ $mapH }}" width="{{ $mapW }}" height="{{ $mapH }}" role="img"
              aria-label="خريطة حضورك في الأسابيع الماضية">
             <title>خريطة الحضور</title>

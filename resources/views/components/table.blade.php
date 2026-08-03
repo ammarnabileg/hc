@@ -13,7 +13,7 @@
     $showAll = advanced_mode();
 @endphp
 
-<div class="w-full max-w-full overflow-x-auto" @if ($label) aria-label="{{ $label }}" @endif>
+<div class="w-full max-w-full min-w-0 overflow-x-auto" @if ($label) aria-label="{{ $label }}" @endif>
     <table {{ $attributes->merge(['class' => 'w-full text-sm']) }}
            @if (! $showAll) data-columns-cap="{{ $cap }}" @endif>
         {{ $slot }}

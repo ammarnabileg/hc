@@ -33,7 +33,7 @@
     <div class="grid md:grid-cols-[13rem_1fr] gap-4 items-start">
 
         {{-- تابات جانبيّة — وعلى الموبايل رقائق أفقيّة متمرّرة (2.15-ج) --}}
-        <nav class="flex md:flex-col gap-2 overflow-x-auto no-scrollbar md:overflow-visible" aria-label="مجموعات الإعدادات">
+        <nav class="flex md:flex-col gap-2 min-w-0 overflow-x-auto no-scrollbar md:overflow-visible" aria-label="مجموعات الإعدادات">
             @foreach ($groups as $key => $group)
                 <button type="button" data-settings-tab="{{ $key }}"
                         class="shrink-0 text-start rounded-xl px-4 py-2 text-sm motion-standard"

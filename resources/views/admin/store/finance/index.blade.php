@@ -18,7 +18,7 @@
 
     <div class="grid gap-4 md:grid-cols-[220px_1fr]">
         {{-- Side Nav لاصق بالمجموعات (24.3) — وعلى الموبايل رقائق أفقيّة --}}
-        <nav class="flex md:flex-col gap-2 overflow-x-auto no-scrollbar md:sticky md:top-4 md:self-start">
+        <nav class="flex md:flex-col gap-2 min-w-0 overflow-x-auto no-scrollbar md:sticky md:top-4 md:self-start">
             @foreach ($groups as $key => $meta)
                 <a href="{{ route('admin.finance.index', ['group' => $key]) }}"
                    class="shrink-0 rounded-xl px-3 py-2 text-sm motion-standard"

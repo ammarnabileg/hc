@@ -1,5 +1,5 @@
 {{-- شريط الخطوات (2.15-ب: الفورم الطويل يتقسّم خطوات) — رقائق أفقيّة على الموبايل (2.15-ج) --}}
-<nav aria-label="خطوات التنصيب" class="mb-4 -mx-1 overflow-x-auto">
+<nav aria-label="خطوات التنصيب" class="mb-4 -mx-1 min-w-0 overflow-x-auto">
     <ol class="flex items-center gap-2 px-1 min-w-max">
         @foreach ($steps as $step)
             <li class="flex items-center gap-2">

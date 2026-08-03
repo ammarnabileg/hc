@@ -61,7 +61,7 @@
         @if ($rows->isEmpty())
             <x-empty message="مفيش سجلّ حضور بعد — أوّل اجتماع في الطريق" :action="'شوف الاجتماعات'" :href="route('volunteer.meetings')" />
         @else
-            <div class="card overflow-x-auto hidden md:block">
+            <div class="card min-w-0 overflow-x-auto hidden md:block">
                 <table class="w-full text-sm">
                     <thead style="color: var(--text-muted)">
                         <tr>

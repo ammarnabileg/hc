@@ -1,7 +1,7 @@
 {{-- نظرة عامّة: أربعة كروت KPI بالحدّ الأقصى، ثمّ القرارات المستنّية، ثمّ السجلّ (12.3 · 2.15-أ-3) --}}
 
 {{-- على الموبايل: صفّ متمرّر أفقيًّا بدل أربعة مضغوطة (2.15-ج) --}}
-<div class="flex gap-3 overflow-x-auto no-scrollbar pb-1 sm:grid sm:grid-cols-2 lg:grid-cols-4 sm:overflow-visible">
+<div class="flex gap-3 min-w-0 overflow-x-auto no-scrollbar pb-1 sm:grid sm:grid-cols-2 lg:grid-cols-4 sm:overflow-visible">
     @foreach ($kpis as $card)
         @include('admin.dashboard.components.kpi', ['card' => $card, 'compare' => $compare])
     @endforeach

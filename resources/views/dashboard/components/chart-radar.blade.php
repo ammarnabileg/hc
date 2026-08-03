@@ -22,7 +22,7 @@
         <span class="text-xs" style="color: var(--text-muted)">السقف المعروض: مستوى {{ $radar['max_level'] }}</span>
     </div>
 
-    <div class="mt-3 overflow-x-auto no-scrollbar">
+    <div class="mt-3 min-w-0 overflow-x-auto no-scrollbar">
         <svg viewBox="0 0 300 250" width="300" height="250" role="img"
              aria-label="مستوياتك في مسارات الإنجاز الخمسة">
             <title>رادار الإنجازات</title>

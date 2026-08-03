@@ -105,7 +105,7 @@
                  action="اشحن رصيدك" :href="route('wallet.topup')" />
     @else
         {{-- سطح المكتب: الأعمدة السبعة المنصوصة في 19.2 --}}
-        <div class="card hidden md:block overflow-x-auto">
+        <div class="card hidden md:block min-w-0 overflow-x-auto">
             <table class="w-full text-sm">
                 <thead>
                     <tr style="background: var(--surface-sunken)">

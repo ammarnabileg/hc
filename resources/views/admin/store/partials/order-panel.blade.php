@@ -37,7 +37,7 @@
         @if ($items->isEmpty())
             <p class="text-sm" style="color: var(--text-muted)">مفيش سطور على الطلب ده.</p>
         @else
-            <div class="overflow-x-auto">
+            <div class="min-w-0 overflow-x-auto">
                 <table class="w-full text-sm">
                     <thead>
                         <tr class="text-xs" style="color: var(--text-muted)">

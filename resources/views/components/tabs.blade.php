@@ -1,8 +1,9 @@
 @props(['tabs' => [], 'current' => null])
 
 {{-- تابات Sticky تحت الهيدر بـ12px — وعلى الموبايل رقائق أفقيّة متمرّرة (2.15-ج) --}}
-<div class="sticky-bar -mx-4 md:mx-0 px-4 md:px-0 py-2 mb-4" style="background: var(--surface)">
-    <div class="flex gap-2 overflow-x-auto no-scrollbar">
+{{-- `min-w-0` على الحاويتين: بدونه لا يصغر الصندوق تحت مقاس رقائقه فيمدّ الصفحة --}}
+<div class="min-w-0 sticky-bar -mx-4 md:mx-0 px-4 md:px-0 py-2 mb-4" style="background: var(--surface)">
+    <div class="min-w-0 flex gap-2 overflow-x-auto no-scrollbar">
         @foreach ($tabs as $tab)
             <a href="{{ $tab['url'] ?? '#' }}"
                class="shrink-0 rounded-full px-4 py-2 text-sm motion-standard"

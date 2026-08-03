@@ -14,7 +14,7 @@
 @endphp
 
 <div class="sticky-bar -mx-4 md:mx-0 px-4 md:px-0 py-2 mb-4" style="background: var(--surface)">
-    <div class="flex gap-2 overflow-x-auto no-scrollbar">
+    <div class="flex gap-2 min-w-0 overflow-x-auto no-scrollbar">
         @foreach ($items as $item)
             {{-- بلا صلاحيّة = مخفيّ فعلًا لا معطَّل (2.15-أ-7) --}}
             @can($item['can'])

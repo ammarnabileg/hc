@@ -124,9 +124,36 @@ class SettingsAdminController extends Controller
     }
 
     /** Audit بالـHover: آخر تغيير فقط + رابط بروفايل المحرّر */
+    /**
+     * آخر تعديل على إعدادٍ بعينه — نقطة XHR لا صفحة.
+     *
+     * والمفتاح الغائب كان يخرج **404 فارغة**: الواجهة تصمت، وصاحب الشاشة لا
+     * يعرف أوقعَ خطأٌ أم لا يوجد سجلّ. و2.17-ب تشترط «ماذا حدث + ماذا تفعل»
+     * في كلّ خطأ — والنقطة التي تخدم واجهةً ليست مستثناة منها.
+     */
     public function audit(Request $request): JsonResponse
     {
-        $setting = Setting::query()->where('key', $request->string('key')->toString())->firstOrFail();
+        $key = trim($request->string('key')->toString());
+
+        if ($key === '') {
+            return response()->json([
+                'message' => (string) setting(
+                    'settings.audit.error.missing_key',
+                    'مافيش مفتاح إعداد في الطلب — افتح السجلّ من جنب الحقل نفسه.',
+                ),
+            ], 422);
+        }
+
+        $setting = Setting::query()->where('key', $key)->first();
+
+        if (! $setting) {
+            return response()->json([
+                'message' => (string) setting(
+                    'settings.audit.error.unknown_key',
+                    'الإعداد ده مش موجود — يمكن يكون اتشال، حدّث الصفحة وجرّب تاني.',
+                ),
+            ], 404);
+        }
 
         return response()->json($this->registry->lastChange($setting) ?? ['at' => 'مافيش تعديل مسجَّل']);
     }

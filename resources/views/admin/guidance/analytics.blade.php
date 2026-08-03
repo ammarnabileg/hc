@@ -46,7 +46,7 @@
             <p class="text-xs mt-1" style="color: var(--text-muted)">
                 محسوبة من {{ $bestTime['sample'] }} قراءة في آخر {{ setting('announcements.analytics.best_time_days', 90) }} يومًا — ابعث في الساعة دي يوصلك أعلى قراءة.
             </p>
-            <div class="mt-3 flex items-end gap-1 overflow-x-auto" style="min-height: 4rem">
+            <div class="mt-3 flex items-end gap-1 min-w-0 overflow-x-auto" style="min-height: 4rem">
                 @php $peak = max(1, max($bestTime['hours'])); @endphp
                 @foreach ($bestTime['hours'] as $hour => $count)
                     <div class="flex flex-col items-center gap-1 shrink-0" style="width: 1.5rem"

@@ -46,5 +46,7 @@
         @endif
     </div>
 
-    <div class="mt-1 text-xs" style="color: var(--text-muted)">الافتراضيّ: {{ \Illuminate\Support\Str::limit($row['default'], 90) }}</div>
+    {{-- القيمة الافتراضيّة قد تكون JSON بلا مسافةٍ واحدة، فلا يجد المتصفّح
+         موضعًا يكسر عنده السطر ويمدّ الصفحة. `anywhere` تكسر داخل الكلمة نفسها --}}
+    <div class="mt-1 text-xs" style="color: var(--text-muted); overflow-wrap: anywhere">الافتراضيّ: {{ \Illuminate\Support\Str::limit($row['default'], 90) }}</div>
 </div>

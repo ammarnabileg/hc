@@ -10,7 +10,7 @@
 <a href="{{ route('events.show', $event->slug) }}"
    class="card p-4 flex flex-col gap-3 animate-fadeup motion-standard hover:opacity-95">
 
-    <div class="flex items-start justify-between gap-2">
+    <div class="min-w-0 flex items-start justify-between gap-2">
         <div class="min-w-0">
             <h3 class="font-bold leading-6 truncate">{{ $event->title_ar }}</h3>
             <div class="text-xs mt-1" style="color: var(--text-muted)">

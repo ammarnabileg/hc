@@ -16,7 +16,7 @@
         </x-slot:action>
     </x-page-header>
 
-    <div class="flex gap-2 overflow-x-auto no-scrollbar mb-4">
+    <div class="flex gap-2 min-w-0 overflow-x-auto no-scrollbar mb-4">
         @foreach ($screens as $key => $label)
             <a href="{{ route('admin.ops.onboarding.preview', ['screen' => $key]) }}"
                class="shrink-0 rounded-xl px-3 py-2 text-sm motion-standard"
