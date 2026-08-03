@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.admin')
 @use('App\Services\Store\Coins')
 
 @section('title', $bundle->name_ar)

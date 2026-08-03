@@ -220,26 +220,77 @@ class ScopeCeilingTest extends TestCase
         }
     }
 
+    // ------------------------------------- الإسنادات المزروعة: صفر صفٍّ فوق السقف
+
     /**
-     * ⚠️ **وحدّ اليوم: السقف يُفرَض على بابَي الكتابة لا وقت التقييم** — وهذا الاختبار
-     * يوثّق السبب المقيس لا يبارك الحال: في الإسنادات المزروعة صفوفٌ نطاقُها خارج
-     * `allowed_scopes`، وأكثرها لأدوارٍ منصوصة في 12.2.3. فرفضُها وقت التقييم يسحب
-     * صلاحيّاتٍ قائمة بدل أن يسدّ ثغرة، ومصالحتها بند قائم في `_STATUS.md`.
+     * ⭐⭐ **ولا صفَّ واحدًا فوق السقف في الإسنادات المزروعة** (12.2.2).
+     *
+     * كان هنا اختبارٌ يقيس **رقمًا** (`assertGreaterThan(0, …)`) يوثّق أنّ 528 صفًّا
+     * من 3965 نطاقُها خارج `allowed_scopes` — فكان يحرس الحالة لا القاعدة، ويسقط
+     * يوم تُصلَح. وقد صولحت الصفوف بالقاعدة المنصوصة: **يُقصّ النطاق إلى السقف
+     * ولا يُسحَب المنح** (والسطر التالي يحرس النصف الثاني). فصار الحارس هنا
+     * **القاعدة نفسها**: صفر — ويسقط يوم يظهر صفٌّ واحد، لا يوم تُصلَح الصفوف.
+     *
+     * و**مالك المنصّة ليس استثناءً**: سلطته بنيويّة (12.2.1-ز-5) ويتخطّى الفحص
+     * أصلًا، فقصُّ صفوفه لا ينقص من قدرته شيئًا (انظر الاختبار الأخير).
      */
-    public function test_seeded_rows_beyond_the_ceiling_are_measured_not_ignored(): void
+    public function test_not_one_seeded_row_sits_above_the_matrix_ceiling(): void
     {
         $access = app(AccessEngine::class);
 
         $violations = DB::table('permission_role')
             ->join('permissions', 'permissions.id', '=', 'permission_role.permission_id')
-            ->get(['permissions.key as key', 'permission_role.scope'])
-            ->filter(fn ($row) => ! $access->withinAllowedScopes($row->key, $row->scope))
-            ->count();
+            ->join('roles', 'roles.id', '=', 'permission_role.role_id')
+            ->get(['permissions.key as key', 'permission_role.scope', 'roles.key as role'])
+            ->reject(fn ($row) => $access->withinAllowedScopes($row->key, $row->scope))
+            ->map(fn ($row) => "{$row->role}: {$row->key}@{$row->scope}")
+            ->values()
+            ->all();
 
-        $this->assertGreaterThan(
-            0,
+        $this->assertSame(
+            [],
             $violations,
-            'لو صارت صفرًا فقد آن أوان فرض السقف وقت التقييم كذلك — فحدِّث هذا الاختبار',
+            'كلّ صفٍّ في `permission_role` نطاقُه داخل `allowed_scopes` المنصوصة في 12.2.2 — بلا استثناء',
         );
+    }
+
+    /**
+     * ⭐ **والمصالحة قصَّت النطاق ولم تسحب المنح** (12.2.3).
+     *
+     * فالنصفُ الثاني من الحسم يُحرَس هنا: مفتاحٌ كان يُكتَب `@ALL` لدورٍ نصّ عليه
+     * 12.2.3 يبقى **في يد الدور** بعد المصالحة، وإنّما بنطاقٍ داخل السقف. ولولا
+     * هذا الحارس لأمكن إرضاءُ الاختبار السابق بحذف الصفوف — وهو نقيض 12.2.3.
+     */
+    public function test_the_reconciliation_narrowed_the_scope_and_kept_the_grant(): void
+    {
+        // مفاتيح سقفها دون ALL وكان الأدمن العامّ يحملها `@ALL` قبل المصالحة
+        foreach (['tasks.approve' => 'TEAM', 'sub_departments.create' => 'ENTITY', 'course_notes.view' => 'SELF'] as $key => $expected) {
+            $row = DB::table('permission_role')
+                ->join('permissions', 'permissions.id', '=', 'permission_role.permission_id')
+                ->join('roles', 'roles.id', '=', 'permission_role.role_id')
+                ->where('roles.key', 'super_admin')
+                ->where('permissions.key', $key)
+                ->first(['permission_role.scope']);
+
+            $this->assertNotNull($row, "«{$key}» ما تنسحبش من الأدمن العامّ — القصّ نطاقٌ لا سحبُ منح (12.2.3)");
+            $this->assertSame($expected, $row->scope, "«{$key}» تُقصّ إلى سقف المصفوفة لا أوسع (12.2.2)");
+        }
+    }
+
+    /** ومالك المنصّة بعد قصّ صفوفه **كما كان**: سلطته بنيويّة لا تُقرَأ من صفّ (12.2.1-ز-5) */
+    public function test_cutting_the_owners_rows_takes_nothing_from_him(): void
+    {
+        $owner = $this->owner();
+        $access = app(AccessEngine::class);
+
+        $this->assertSame('TEAM', DB::table('permission_role')
+            ->join('permissions', 'permissions.id', '=', 'permission_role.permission_id')
+            ->join('roles', 'roles.id', '=', 'permission_role.role_id')
+            ->where('roles.key', 'platform_owner')
+            ->where('permissions.key', 'tasks.approve')
+            ->value('permission_role.scope'), 'صفوف المالك مقصوصةٌ كغيرها — للاتّساق');
+
+        $this->assertTrue($access->allows($owner, 'tasks.approve'));
+        $this->assertSame('ALL', $access->widestScope($owner, 'tasks.approve'));
     }
 }

@@ -139,19 +139,43 @@ class AnnouncementController extends Controller
         return $this->respond($request, ['unread' => $this->feed->unreadCount($user)], 'اتقرا ✓');
     }
 
+    /**
+     * ⭐ **«تعليم الكلّ كمقروء» لا يُطفئ إشارة الحرج** (13.2).
+     *
+     * كان الزرّ يكتب `read_at` لكلّ منشور بلا استثناء — ومنها **التوجيه الحرج
+     * الذي لم يُقَرّ بعد**. فيسقط عدّاد غير المقروء إلى صفر وتختفي النقطة من
+     * السايد بار، بينما الإقرار — وهو المطلوب فعلًا — ما زال معلّقًا: ضغطةٌ واحدة
+     * تمحو الإشارة وتُبقي الواجب. والنصّ يجعل «مقروء/غير مقروء» تسهيلًا للقارئ،
+     * لا مخرجًا من «قبل المتابعة».
+     *
+     * فالمنشور الحرج غير المُقَرّ **يبقى غير مقروء** حتّى يُقَرّ، والزرّ يقول كم
+     * تبقّى بدل أن يدّعي صفرًا.
+     */
     public function readAll(Request $request): JsonResponse|RedirectResponse
     {
         $user = $request->user();
         $now = now();
+        $reads = $this->feed->readsFor($user, $items = $this->feed->for($user));
+        $held = 0;
 
-        foreach ($this->feed->for($user) as $announcement) {
+        foreach ($items as $announcement) {
+            if ((bool) $announcement->requires_acknowledge && ! ($reads[$announcement->id]->acknowledged_at ?? null)) {
+                $held++;
+
+                continue;
+            }
+
             AnnouncementRead::updateOrCreate(
                 ['announcement_id' => $announcement->id, 'user_id' => $user->id],
                 ['read_at' => $now],
             );
         }
 
-        return $this->respond($request, ['unread' => 0], 'اتعلّمت كلّها كمقروءة ✓');
+        $message = $held > 0
+            ? 'اتعلّمت كلّها كمقروءة — ما عدا '.$held.' توجيه حرج مستنّي إقرارك ✓'
+            : 'اتعلّمت كلّها كمقروءة ✓';
+
+        return $this->respond($request, ['unread' => $this->feed->unreadCount($user)], $message);
     }
 
     /**

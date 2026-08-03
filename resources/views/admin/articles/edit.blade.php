@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.admin')
 
 @section('title', $article->exists ? 'تعديل مقال' : 'مقال جديد')
 

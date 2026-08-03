@@ -7,15 +7,17 @@
 <section class="card p-4 md:p-5">
     <div class="flex items-center justify-between gap-3 flex-wrap mb-1">
         <h2 class="font-bold">بنك أسئلة المكافآت</h2>
-        <div class="flex items-center gap-2">
+        {{-- حقل الملفّ الأصليّ عرضُه ثابتٌ لا ينكمش، فبلا `min-w-0` يدفع الصفحة
+             لتمريرٍ أفقيّ على 375px — وهو ممنوع (2.15-ج). --}}
+        <div class="flex items-center gap-2 flex-wrap min-w-0 max-w-full">
             @can('reward_questions.import')
                 @if (setting('reward_questions.csv_import_enabled', true))
                     {{-- استيراد دفعة: الصفوف تدخل مسودّات فلا ينشر ملفٌّ سؤالًا بلا مراجعة --}}
                     <form method="post" action="{{ route('admin.gamification.reward-questions.import') }}"
-                          enctype="multipart/form-data" class="flex items-center gap-2">
+                          enctype="multipart/form-data" class="flex items-center gap-2 flex-wrap min-w-0 max-w-full">
                         @csrf
                         <input type="file" name="file" accept=".csv,text/csv" required
-                               class="text-xs" style="color: var(--text-muted)">
+                               class="text-xs min-w-0 max-w-full" style="color: var(--text-muted)">
                         <button type="submit" class="rounded-xl px-3 py-1.5 text-xs"
                                 style="background: var(--surface-raised); color: var(--text)">استيراد CSV</button>
                     </form>

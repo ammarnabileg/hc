@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.admin')
 @section('title', 'بنك أسئلة الحروب')
 
 @section('content')

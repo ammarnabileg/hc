@@ -29,7 +29,22 @@ Route::middleware('auth')->group(function () {
     Route::middleware('permission:org_chart.view')->group(function () {
         Route::get('/volunteer/department', [DepartmentController::class, 'index'])
             ->name('volunteer.department');
+    });
 
+    /*
+    | ⭐ **حارس العضويّة لا مشيَ النطاق** (24.4-7) — والتفريق مقصود:
+    |
+    | «الهيكل التنظيميّ» أسفلَ هذا الملفّ **شجرةٌ تُمشى بالنطاق** فتبقى على
+    | `permission:org_chart.view` بالهدف كما أصلحه أ-3. أمّا «قسمي» فنصُّها
+    | «تاب لكلّ **عضوٍ في القسم** — القسم كاملًا حتى لو كنتُ في فرعيّ»: مصدر
+    | الحقّ فيها **عضويّة القسم** لا سلسلة الإشراف، فالزميلان ليس أحدهما فوق
+    | الآخر ومع ذلك يعرف كلٌّ منهما زميله بنصّ الدستور.
+    |
+    | و`department.member` لا يُرخي شيئًا: المفتاح `org_chart.view` شرطٌ أوّل،
+    | ثمّ إمّا النطاق يغطّي الهدف (المحرّك كما هو) أو الهدف داخل كيان المشاهِد.
+    | ومَن هو خارج القسم ولا يغطّيه نطاقُه ⟵ 403. (التعليل الكامل في الحارس.)
+    */
+    Route::middleware('department.member:org_chart.view')->group(function () {
         // التفاصيل في بوب-أب لا صفحة جديدة (2.15-أ-6)
         Route::get('/volunteer/department/member/{membership}', [DepartmentController::class, 'member'])
             ->name('volunteer.department.member');

@@ -3,6 +3,7 @@
 use App\Http\Controllers\Volunteer\ArbitrationController;
 use App\Http\Controllers\Volunteer\ContributionController;
 use App\Http\Controllers\Volunteer\EscalationController;
+use App\Http\Controllers\Volunteer\ObjectionController;
 use App\Http\Controllers\Volunteer\ReviewController;
 use Illuminate\Support\Facades\Route;
 
@@ -115,6 +116,44 @@ Route::middleware('auth')->prefix('volunteer')->name('volunteer.')->group(functi
     // فتح حالة جديدة على المحرّك (تمديد · تعثّر · اعتذار · عدم تسليم · بلاغ رابط…)
     Route::middleware('permission:escalations.view')->group(function () {
         Route::post('/escalations', [EscalationController::class, 'store'])->name('escalations.store');
+    });
+
+    /*
+    |---------------------------------------------------------------------------
+    | ⬆️ الاعتراضات المصعَّدة إليّ (24.4-8) — الشقّ الثاني من تاب «التصعيدات»
+    |---------------------------------------------------------------------------
+    | «اعتراضاتي» تصنع الاعتراض ولا تبتّ فيه؛ وهنا يُبتّ. ولولا هذه الشاشة
+    | لبقيت الدورة مقطوعة: يُرفَع الاعتراض ولا يجد مَن يقرّره.
+    |
+    | ⭐ والمسار **مستقلّ عن `escalations`** (23-6): حالته ومهلته وصاحب مكتبه
+    | على جدول `objections` وحده — فلا يندرج ضمن الحالات التسع ولا يُسوّى آليًّا.
+    |
+    | والحصر الحقيقيّ على الخادم في `ObjectionDesk`: المفتاح يفتح الشاشة،
+    | و**المكتب** وحده يفتح القرار.
+    */
+    Route::middleware('permission:objections.list')->group(function () {
+        Route::get('/escalations/objections', [ObjectionController::class, 'desk'])
+            ->name('escalations.objections');
+
+        // ردّ المسؤول: نصّ + مرفق ⟵ «قيد المراجعة» بمهلة جديدة
+        Route::post('/escalations/objections/{objection}/reply', [ObjectionController::class, 'reply'])
+            ->whereNumber('objection')->name('escalations.objections.reply');
+    });
+
+    Route::middleware('permission:objections.assign')->group(function () {
+        Route::post('/escalations/objections/{objection}/escalate', [ObjectionController::class, 'escalate'])
+            ->whereNumber('objection')->name('escalations.objections.escalate');
+    });
+
+    // [للمخوَّل] القبول ⟵ معاملة عكسيّة ظاهرة، والأصل لا يُمَسّ أبدًا
+    Route::middleware('permission:objections.approve')->group(function () {
+        Route::post('/escalations/objections/{objection}/accept', [ObjectionController::class, 'accept'])
+            ->whereNumber('objection')->name('escalations.objections.accept');
+    });
+
+    Route::middleware('permission:objections.reject')->group(function () {
+        Route::post('/escalations/objections/{objection}/reject', [ObjectionController::class, 'reject'])
+            ->whereNumber('objection')->name('escalations.objections.reject');
     });
 
     // ------------------------------------------------------------- التحكيمات (24.4)

@@ -129,6 +129,18 @@ class AnnouncementDemoSeeder extends Seeder
             ['announcements.acknowledge.daily_max_xp', 'announcements', 'السقف اليوميّ لمكافآت الإقرار (XP)', 'number', '100'],
             ['announcements.acknowledge.max_tickets', 'announcements', 'سقف تذاكر الإقرار للمنشور', 'number', '20'],
             ['announcements.acknowledge.ledger_source', 'announcements', 'دلو مصدر الإقرار في دفتر الأستاذ', 'string', 'announcement'],
+            // ⭐ فرض «قبل المتابعة» على الخادم (13.2): بلا هذا المفتاح يبقى الإقرار بوب-أبًا يُغلَق
+            ['announcements.acknowledge.enforce', 'announcements', 'منع تصفّح المنصّة قبل إقرار التوجيه الحرج', 'bool', '1'],
+            ['announcements.acknowledge.notice', 'announcements', 'سطر شرح إلزاميّة الإقرار في البوب-أب', 'string', 'توجيه حرج — لازم تقرّ بقراءته قبل ما تكمّل تصفّح المنصّة.'],
+            ['announcements.acknowledge.wall_notice', 'announcements', 'رسالة التحويلة عند حجب التصفّح للإقرار', 'string', 'في توجيه مهمّ مستنّي إقرارك — اقراه وأقِرّ بيه عشان تكمّل.'],
+            // ⚠️ الأبواب التي تبقى مفتوحة رغم الإقرار المعلّق — وإلّا صار الإقرار سجنًا
+            ['announcements.acknowledge.exempt_paths', 'announcements', 'المسارات المفتوحة رغم الإقرار المعلّق', 'json', json_encode([
+                'announcements', 'announcements/*',
+                'logout', 'impersonate/stop',
+                'settings/security', 'settings/security/*',
+                'help', 'help/*',
+                'up', 'webhooks/*',
+            ], JSON_UNESCAPED_UNICODE)],
             ['announcements.types', 'announcements', 'أنواع المنشورات في الفلتر', 'json', '{"pinned":"مثبَّت","critical":"يحتاج إقرار","general":"عامّ"}'],
             ['announcements.empty.message', 'announcements', 'رسالة الحالة الفارغة', 'string', 'لا تعليمات جديدة'],
             ['announcements.status.archived', 'announcements', 'حالة المنشور المؤرشف', 'string', 'archived'],

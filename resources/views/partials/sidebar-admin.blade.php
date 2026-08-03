@@ -1,5 +1,6 @@
 @php
     use Illuminate\Support\Facades\Gate;
+    use Illuminate\Support\Facades\Route;
 
     /**
      * سايد بار لوحة الإدارة (الدستور 12.0) — اثنا عشر عنصرًا بالترتيب المعتمَد،
@@ -9,8 +10,10 @@
      * والمحظور **يُخفى ولا يُعطَّل** (2.15-أ-7) — لذلك نفلتر البنود قبل تمريرها
      * للمكوّن، ونحذف المجموعة كلّها إن خلت.
      *
-     * وصفحات الإعدادات تتجمّع في **صفحة واحدة بتابات جانبيّة** (2.15-ب)،
-     * فلها هنا عنصر واحد لا قائمة طويلة.
+     * وبنودُ 12.0 التي هي **تابٌ داخل صفحة** لا صفحةٌ مستقلّة (تابات الشهادات
+     * والمتجر والتلعيب والإحصائيّات والإعدادات) تُبنى بـ`route(name, ['tab' => …])`:
+     * فالمالك يصل للتاب بنقرةٍ واحدة من السايد بار كما تنصّ الخريطة، لا بنقرتين.
+     * وكان القسم يختصرها في «عنصرٍ واحد» — وهو **اختصارٌ يخالف نصّ 12.0**.
      */
     $u = auth()->user();
 
@@ -18,19 +21,40 @@
      | بند واحد: [عنوان, مسار, صلاحيّة, معاملات الرابط؟]
      | والصلاحيّة null تعني «مفتوح لمن دخل اللوحة».
      |
-     | والمعاملات الرابعة لبنود 12.0 التي هي **تابٌ داخل صفحة** لا صفحةٌ مستقلّة
-     | (الألعاب · الاحتفالات · إعدادات التعلّم) — فتُبنى بـ`route(name, params)`
-     | ويبقى اسم المسار للتفعيل والفحص.
+     | والصلاحيّة قد تكون **قائمةً** تُقرَأ «كلّها لازمة»، وكلّ بندٍ فيها قد يكون
+     | «أيٌّ من» مفصولةً بـ`|`. ليه؟ لأنّ بند التاب له صلاحيّتان لا واحدة:
+     | صلاحيّة التاب نفسه، وصلاحيّة **باب الصفحة** التي تحرسها المِدل-وير.
+     | ولو حرسنا بالأولى وحدها ظهر بندٌ يفتح 403 — وهو أسوأ من إخفائه (2.15-أ-7).
      */
-    $filter = function (array $items) use ($u) {
+    $can = function ($permission) use ($u) {
+        foreach ((array) $permission as $clause) {
+            $any = collect(explode('|', $clause))
+                ->contains(fn ($key) => Gate::forUser($u)->allows($key));
+
+            if (! $any) {
+                return false;
+            }
+        }
+
+        return true;
+    };
+
+    // بوّابات الصفحات ذات التابات — نسخةٌ حرفيّةٌ ممّا تحرسه المِدل-وير على المسار
+    $certGate = 'certificate_ledger.view|certificate_templates.view|accreditations.view';
+    $gameGate = 'xp_rules.view|badges.view|wars_settings.view|celebrations.view|reward_questions.view';
+    $storeGate = 'store_products.list|bundles.list|coupons.list|orders.list';
+    $statsGate = 'reports_users.view';
+
+    $filter = function (array $items) use ($can) {
         return collect($items)
-            ->filter(fn ($item) => $item[2] === null || Gate::forUser($u)->allows($item[2]))
+            ->filter(fn ($item) => $item[2] === null || $can($item[2]))
             // المسار غير الموجود لا يُعرَض أصلًا — لا رابط ميّت في سايد بار الإدارة
-            ->filter(fn ($item) => \Illuminate\Support\Facades\Route::has($item[1]))
+            ->filter(fn ($item) => Route::has($item[1]))
             ->map(fn ($item) => [
                 'label' => $item[0],
                 'route' => $item[1],
-                'href' => ($item[3] ?? []) === [] ? null : route($item[1], $item[3]),
+                'params' => $item[3] ?? [],
+                'href' => route($item[1], $item[3] ?? []),
             ])
             ->values()
             ->all();
@@ -49,78 +73,88 @@
         ['📚', 'إدارة التدريب', $filter([
             ['المسارات', 'admin.paths.index', 'paths.list'],
             ['التدريبات', 'admin.courses.index', 'courses.list'],
-            // الإتاحة الزمنيّة: الفترات وأوقات التشغيل اليوميّة (5)
-            ['الإتاحة والتوقيت', 'admin.availability.index', 'courses.list'],
             // بنك الأسئلة المركزيّ — عرضيّ عبر التدريبات كلّها (24.1-3)
             ['بنك الأسئلة والامتحانات', 'admin.question-bank.index', 'question_bank.list'],
             // مكتبة الوسائط — بند صريح في خريطة 12.0
             ['مكتبة الوسائط', 'admin.media.index', 'media_library.list'],
-            // إعدادات التعلّم — بند في خريطة 12.0 كان بلا مدخل: تاب داخل صفحة الإعدادات
+            // إعدادات التعلّم — تابٌ داخل صفحة الإعدادات
             ['إعدادات التعلّم', 'admin.settings.index', 'settings_general.view', ['tab' => 'learning']],
+            // ⬇︎ خارج نصّ 12.0: شاشةٌ مبنيّة لولاها لبقيت يتيمة (الإتاحة الزمنيّة — 5)
+            ['الإتاحة والتوقيت', 'admin.availability.index', 'courses.list'],
         ])],
 
-        // 🎓 إدارة الشهادات (12.5)
+        // 🎓 إدارة الشهادات (12.5) — خمسة بنود كما نصّت 12.0، أربعةٌ منها تابات الصفحة
         ['🎓', 'إدارة الشهادات', $filter([
-            ['الاعتمادات والقوالب والسجلّ', 'admin.certificates.index', 'certificate_ledger.list'],
+            ['الاعتمادات', 'admin.certificates.index', 'accreditations.view', ['tab' => 'accreditations']],
+            ['الأنواع والقوالب', 'admin.certificates.index', 'certificate_templates.view', ['tab' => 'types']],
+            ['إصدار شهادة', 'admin.certificates.index', ['certificates.create', $certGate], ['tab' => 'issue']],
+            ['سجلّ الصادر', 'admin.certificates.index', 'certificate_ledger.view', ['tab' => 'ledger']],
+            // صفحة التحقّق العامّة — بند صريح في 12.0 وكان بلا مدخل من اللوحة (12.5-د)
+            ['صفحة التحقّق', 'verify.certificate', 'certificate_ledger.view'],
         ])],
 
         // 🤝 إدارة التطوّع
         ['🤝', 'إدارة التطوّع', $filter([
-            ['الإدارة المركزيّة والهيكل', 'admin.volunteer.index', 'memberships.list'],
+            ['الإدارة المركزيّة', 'admin.volunteer.index', 'volunteer_central_settings.view'],
             // التوظيف والمرشّحون — بند صريح في 12.0 كان بلا مدخل من اللوحة (13.4-ك)
             ['التوظيف والمرشّحون', 'volunteer.recruitment', 'candidates.list'],
-            // مرآة إداريّة لاجتماعات التطوّع (24.2-أوّلًا)
-            ['اجتماعات التطوّع', 'admin.meetings.index', 'meetings.list'],
             ['الهيكل والبوزشنز والسعة', 'admin.volunteer.org', 'org_chart.view'],
-            ['تقرير السعة', 'admin.volunteer.org.capacity', 'capacity.view'],
-            ['درجة الالتزام (Rep)', 'admin.volunteer.rep', 'rep_transactions.view'],
-            // الغيابات والتفويض المؤقّت (23-6) — كان المنطق كاملًا بلا شاشة إدارة
-            ['الغيابات والتفويض', 'admin.volunteer.delegations', 'delegations.list'],
-            // أنواع المهامّ: قالب وتشيك ليست وقيم مقترحة (23-0.3)
-            ['أنواع المهامّ', 'admin.volunteer.task-types.index', 'task_types.list'],
-            ['الخروج والعودة', 'admin.volunteer.offboarding', 'offboarding.view'],
+            // مرآة إداريّة لاجتماعات التطوّع (24.2-أوّلًا)
+            ['الاجتماعات', 'admin.meetings.index', 'meetings.list'],
             ['شهادات التطوّع', 'admin.volunteer.certificates', 'volunteer_certificates.view'],
             ['تحليلات التطوّع', 'admin.volunteer.analytics', 'reports_volunteer.view'],
+            // ⬇︎ خارج نصّ 12.0: شاشاتٌ مبنيّة لولاها لبقيت يتيمة
+            ['تقرير السعة', 'admin.volunteer.org.capacity', 'capacity.view'],
+            ['درجة الالتزام (Rep)', 'admin.volunteer.rep', 'rep_transactions.view'],
+            ['الغيابات والتفويض', 'admin.volunteer.delegations', 'delegations.list'],
+            ['أنواع المهامّ', 'admin.volunteer.task-types.index', 'task_types.list'],
+            ['الخروج والعودة', 'admin.volunteer.offboarding', 'offboarding.view'],
         ])],
 
-        // 🎮 التلعيب والتحديات (12.10)
+        // 🎮 التلعيب والتحديات (12.10 — موسّع) — أحد عشر بندًا بترتيب 12.0
         ['🎮', 'التلعيب والتحديات', $filter([
-            ['XP والشارات والحروب', 'admin.gamification.index', 'badges.list'],
-            // الألعاب والاحتفالات — بندان في خريطة 12.0 كانا بلا مدخل، وهما تابان
-            // داخل لوحة التلعيب (24.2) فيُفتحان بمعامل التاب.
-            ['الألعاب', 'admin.gamification.index', 'games.view', ['tab' => 'games']],
-            ['الاحتفالات', 'admin.gamification.index', 'celebrations.view', ['tab' => 'celebrations']],
-            // بنك أسئلة الحروب — بند صريح في 12.0 (12.10-ب)
-            ['بنك أسئلة الحروب', 'admin.wars.bank.index', 'wars_bank.list'],
+            ['XP والتذاكر', 'admin.gamification.index', 'xp_rules.view', ['tab' => 'xp']],
+            ['الستريك ونادي الخامسة', 'admin.gamification.index', ['streaks.view', $gameGate], ['tab' => 'streaks']],
+            ['الليدر بورد', 'admin.gamification.index', ['leaderboards.view', $gameGate], ['tab' => 'leaderboard']],
+            ['الشارات والإنجازات', 'admin.gamification.index', 'badges.view', ['tab' => 'badges']],
+            ['الألعاب', 'admin.gamification.index', ['games.view', $gameGate], ['tab' => 'games']],
             // الطرف الإداريّ للدعوات والألقاب (24.2)
             ['الريفيرال والسفراء', 'admin.referrals.index', 'referrals.list'],
             // الرسائل الإيجابيّة لأيقونة المفاجأة (2.6-ب · 12.0)
             ['الرسائل الإيجابيّة', 'admin.positive.index', 'positive_messages.list'],
+            ['الاحتفالات', 'admin.gamification.index', 'celebrations.view', ['tab' => 'celebrations']],
+            ['أسئلة المكافآت', 'admin.gamification.index', 'reward_questions.view', ['tab' => 'reward_questions']],
+            // بنك أسئلة الحروب — بند صريح في 12.0 (12.10-ب)
+            ['بنك أسئلة الحروب', 'admin.wars.bank.index', 'wars_bank.list'],
+            ['إعدادات الحروب', 'admin.gamification.index', 'wars_settings.view', ['tab' => 'wars']],
         ])],
 
-        // 🛒 المتجر والماليّات (12.12)
+        // 🛒 المتجر والماليّات (12.12) — تابات المتجر الخمسة ثمّ المجموعة المحميّة
         ['🛒', 'المتجر والماليّات', $filter([
-            ['المنتجات والطلبات', 'admin.store.index', 'store_products.list'],
+            ['المنتجات والتصنيفات', 'admin.store.index', 'store_products.list', ['tab' => 'products']],
+            ['البندلز', 'admin.store.index', 'bundles.list', ['tab' => 'bundles']],
+            ['الكوبونات وOrder-bump', 'admin.store.index', 'coupons.list', ['tab' => 'coupons']],
+            ['الطلبات والفواتير', 'admin.store.index', 'orders.list', ['tab' => 'orders']],
+            ['المكتبة الرقميّة والحماية', 'admin.store.index', ['product_protection.view', $storeGate], ['tab' => 'library']],
+            // ⬇︎ خارج نصّ 12.0: شاشة طلبات الشحن المبنيّة (18)
             ['طلبات الشحن', 'admin.topups.index', 'topup_requests.list'],
             // 🔒 الماليّات مجموعة محميّة **لمالك المنصّة وحده** (12.0 · 2.13-و):
             // شرط الملكيّة فوق فحص الصلاحيّة — حزامٌ وحمّالة، والبند يُخفى لا يُعطَّل.
             ...($u->isPlatformOwner() ? [
                 ['🔒 الماليّات', 'admin.finance.index', 'finance.view'],
-                // أسعار الصرف: تدرجها 12.0 تحت «🔒 الماليّات» وكانت بلا مدخل —
-                // وشرط الملكيّة فوق فحص الصلاحيّة كبقيّة المجموعة المحميّة.
                 ['🔒 أسعار الصرف', 'admin.wallet.rates', 'exchange_rates.view'],
                 ['🔒 سجلّ الماليّات', 'admin.finance.audit', 'finance.view'],
             ] : []),
         ])],
 
-        // 🎁 إدارة المكافآت (12.9)
+        // 🎁 إدارة المكافآت (12.9) — بندٌ مسطّح بلا دروب-داون كما في خريطة 12.0
         ['🎁', 'إدارة المكافآت', $filter([
-            ['منح رصيد يدويّ', 'admin.rewards.index', 'manual_rewards.list'],
-        ])],
+            ['إدارة المكافآت', 'admin.rewards.index', 'manual_rewards.list'],
+        ]), 'flat'],
 
         // 📅 الفعاليّات (12.11)
         ['📅', 'الفعاليّات', $filter([
-            ['الفعاليّات والمسجّلون', 'admin.events.index', 'events.list'],
+            ['الفعاليّات', 'admin.events.index', 'events.list'],
         ])],
 
         // 📣 التوجيه والدعم (12.6)
@@ -131,32 +165,121 @@
             ['الإشعارات', 'admin.guidance.notifications', 'announcements.view'],
             ['دليل المستخدم', 'admin.guidance.help', 'user_guide.list'],
             ['الشكاوى والمقترحات', 'admin.guidance.complaints', 'complaints.list'],
-            // المحتوى التحريريّ وقنوات الأويرنس (21.2 · 21.3)
+            // ⬇︎ خارج نصّ 12.0: المحتوى التحريريّ وقنوات الأويرنس (21.2 · 21.3)
             ['المقالات', 'admin.articles.index', 'articles.list'],
             ['الإعلان المدفوع', 'admin.ads.index', 'ad_audiences.view'],
-            // إعدادات حلقات النموّ والاكتساب والتتبّع (21.1 · 21.2 · 21.3)
             ['حلقات النموّ', 'admin.growth.index', 'settings_general.view'],
         ])],
 
-        // 📊 الإحصائيّات (12.8)
+        // 📊 الإحصائيّات (12.8) — تابات صفحة الإحصائيّات بترتيب 12.0
         ['📊', 'الإحصائيّات', $filter([
-            ['التقارير واللوحات', 'admin.stats.index', 'reports_users.list'],
+            ['المستخدمون', 'admin.stats.index', 'reports_users.view', ['tab' => 'users']],
+            ['المبيعات', 'admin.stats.index', ['finance.view', $statsGate], ['tab' => 'sales']],
+            ['التدريبات', 'admin.stats.index', ['reports_training.view', $statsGate], ['tab' => 'training']],
+            ['التفاعل', 'admin.stats.index', ['reports_engagement.view', $statsGate], ['tab' => 'engagement']],
+            ['الحضور', 'admin.stats.index', ['reports_engagement.view', $statsGate], ['tab' => 'attendance']],
+            ['الحروب', 'admin.stats.index', ['reports_engagement.view', $statsGate], ['tab' => 'wars']],
+            // التطوّع والشهادات: لوحتاهما مبنيّتان خارج صفحة الإحصائيّات لسّه،
+            // فالبند يفتح لوحته الحقيقيّة بدل أن يبقى بندًا في الخريطة بلا مدخل.
+            ['التطوّع', 'admin.volunteer.analytics', 'reports_volunteer.view'],
+            ['الشهادات', 'admin.certificates.index', ['reports_certificates.view', $certGate], ['tab' => 'ledger']],
             // التقارير المجدولة وسجلّ إرسالها (24.3-خامسًا)
             ['التقارير المجدولة', 'admin.report-schedules.index', 'report_schedules.list'],
+            // ⬇︎ خارج نصّ 12.0: مصادر الاكتساب (21.3)
+            ['مصادر الاكتساب', 'admin.stats.index', ['acquisition_sources.view', $statsGate], ['tab' => 'acquisition']],
         ])],
     ];
 
     // ⚙️ الإعدادات والنظام — آخر قسم دائمًا (12.0)
     $settingsItems = $filter([
-        ['كلّ الإعدادات (تابات جانبيّة)', 'admin.settings.index', 'settings_general.view'],
-        // استوديو الصور والقوالب البصريّة (12.14) — محرّك واحد للهويّة البصريّة
-        ['استوديو الصور', 'admin.studio.index', 'image_templates.list'],
+        ['إعدادات المنصّة', 'admin.settings.index', 'settings_general.view', ['tab' => 'platform']],
+        ['الهويّة والمظهر', 'admin.settings.index', 'settings_general.view', ['tab' => 'identity']],
         ['محتوى الـOnboarding', 'admin.ops.onboarding', 'onboarding.view'],
+        ['قوالب الـCV', 'admin.cv-templates.index', 'cv_templates.list'],
+        ['الأمان والخصوصيّة', 'admin.settings.index', 'settings_general.view', ['tab' => 'security']],
+        ['مفاتيح المزايا', 'admin.settings.index', 'settings_general.view', ['tab' => 'features']],
+        ['بيانات الدول', 'admin.settings.index', 'settings_general.view', ['tab' => 'countries']],
+        ['وضع الصيانة', 'admin.settings.index', 'settings_general.view', ['tab' => 'maintenance']],
         ['التحديثات والترحيل', 'admin.ops.updates', 'updates.view'],
         ['النسخ الاحتياطيّ وصحّة النظام', 'admin.ops.system', 'system_health.view'],
-        // سجلّ التدقيق — آخر بند في خريطة 12.0 وكان بلا مدخل (2.13-هـ)
-        ['سجلّ التدقيق', 'admin.settings.audit', 'settings_general.view'],
+        /*
+         | سجلّ التدقيق — آخر بند في خريطة 12.0 (2.13-هـ).
+         | وكان مربوطًا بـ`admin.settings.audit`، وهو **مسار JSON** لآخر تغييرٍ
+         | على مفتاحٍ واحد يردّ 422 بلا `?key=` — أي بندٌ في السايد بار يفتح خطأً.
+         | والسجلّ الحقيقيّ تابٌ في صفحة الإعدادات.
+         */
+        ['سجلّ التدقيق', 'admin.settings.index', 'settings_general.view', ['tab' => 'audit']],
+        // ⬇︎ خارج نصّ 12.0: استوديو الصور والقوالب البصريّة (12.14)
+        ['استوديو الصور', 'admin.studio.index', 'image_templates.list'],
     ]);
+
+    /*
+     | ⭐ تعليم «الحاليّ» مرّةً واحدة في السايد بار كلّه.
+     |
+     | بنودٌ كثيرة تشترك في اسم مسارٍ واحد (تابات الإعدادات مثلًا)، و`routeIs()`
+     | وحده يضيء أحد عشر بندًا معًا — فيضيع «أنت هنا» بدل أن يدلّ (2.15-أ).
+     | فنختار فائزًا واحدًا: أدقّ تطابقٍ بالمسار **وبمعامل التاب**، ونُسقط اسم
+     | المسار عن الباقي فيبقى الرابط شغّالًا بالـ`href` بلا إضاءةٍ كاذبة.
+     */
+    /*
+     | والصفحة ذات التابات تفتح تابها الأوّل حين يأتيها الرابط بلا `?tab=` —
+     | فنعرف نحن كذلك أيّ تابٍ هو المفتوح فعلًا، وإلّا أضاء بندٌ غير الذي يقرؤه.
+     */
+    $defaultTab = [
+        'admin.settings.index' => 'platform',
+        'admin.certificates.index' => 'accreditations',
+        'admin.gamification.index' => 'xp',
+        'admin.store.index' => 'products',
+        'admin.stats.index' => 'users',
+    ];
+
+    $currentTab = request()->query('tab')
+        ?: ($defaultTab[request()->route()?->getName()] ?? null);
+
+    $score = function (array $item) use ($currentTab) {
+        if (! Route::has($item['route']) || ! request()->routeIs($item['route'].'*')) {
+            return 0;
+        }
+
+        $tab = $item['params']['tab'] ?? null;
+
+        // تطابق التاب أقوى من تطابق المسار وحده، والبند بلا تابٍ يسبق تابًا مخالفًا
+        return match (true) {
+            $tab !== null && $tab === $currentTab => 3,
+            $tab === null => 2,
+            default => 1,
+        };
+    };
+
+    $best = 0;
+
+    foreach ([...array_column($groups, 2), $settingsItems] as $items) {
+        foreach ($items as $item) {
+            $best = max($best, $score($item));
+        }
+    }
+
+    $mark = function (array $items) use ($score, $best, &$marked) {
+        return array_map(function (array $item) use ($score, $best, &$marked) {
+            $item['route'] = (! $marked && $best > 0 && $score($item) === $best)
+                ? $item['route']
+                : null;
+
+            if ($item['route'] !== null) {
+                $marked = true;
+            }
+
+            return $item;
+        }, $items);
+    };
+
+    $marked = false;
+
+    foreach ($groups as $i => $group) {
+        $groups[$i][2] = $mark($group[2]);
+    }
+
+    $settingsItems = $mark($settingsItems);
 @endphp
 
 {{-- لوحة منزلقة على الموبايل وعمود ثابت على الديسكتوب (13 · 2.15-ج) --}}
@@ -175,9 +298,16 @@
             {{-- 🏠 لوحة القيادة (12.3) --}}
             <x-nav-link route="admin.dashboard" label="لوحة القيادة" icon="🏠" />
 
-            @foreach ($groups as [$icon, $label, $items])
+            @foreach ($groups as $group)
+                @php([$icon, $label, $items] = $group)
                 @if ($items)
-                    <x-nav-group :label="$label" :icon="$icon" :items="$items" />
+                    @if (($group[3] ?? null) === 'flat')
+                        {{-- بندٌ مسطّح: 12.0 لا ترسم له دروب-داون --}}
+                        <x-nav-link :route="$items[0]['route']" :href="$items[0]['href']"
+                                    :label="$label" :icon="$icon" />
+                    @else
+                        <x-nav-group :label="$label" :icon="$icon" :items="$items" />
+                    @endif
                 @endif
             @endforeach
 
@@ -186,7 +316,7 @@
                 <x-nav-group label="الإعدادات والنظام" icon="⚙️" :items="$settingsItems" />
             @endif
 
-            <a href="{{ \Illuminate\Support\Facades\Route::has('dashboard') ? route('dashboard') : url('/') }}"
+            <a href="{{ Route::has('dashboard') ? route('dashboard') : url('/') }}"
                class="flex items-center gap-2 rounded-xl px-3 py-2 text-sm motion-standard mt-3"
                style="color: var(--text-muted)">
                 <span class="w-5 text-center">↩</span>

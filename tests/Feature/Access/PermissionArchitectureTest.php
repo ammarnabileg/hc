@@ -300,21 +300,41 @@ class PermissionArchitectureTest extends TestCase
 
     // ------------------------- 12.2.3 · سقف أدوار التطوّع ونصاب المدقّق
 
-    /** لا دور تطوّعٍ يتجاوز سقف نطاقه */
+    /** سقوف أدوار التطوّع كما في 12.2.3-ب */
+    private const VOLUNTEER_CEILINGS = [
+        'coordinator' => 'SELF',
+        'team_leader' => 'TEAM',
+        'supervisor' => 'SUBTREE',
+        'director' => 'ENTITY',
+        'track_supervisor' => 'TRACK',
+    ];
+
+    /**
+     * لا دور تطوّعٍ يتجاوز سقف نطاقه (12.2.3-ب) — **إلّا حيث تمنع المصفوفة
+     * نفسها** أن يُكتَب المفتاح بنطاقٍ عند السقف أو دونه.
+     *
+     * والاستثناء ليس رخصةً: هو نتيجةُ قراءة النصّين معًا. `academy_paths.list`
+     * نطاقاتها في 12.2.2 هي `ENTITY · SUBTREE · ALL` — **بلا SELF ولا TEAM**،
+     * بينما 13.4-ل ينصّ أنّ «التسجيلات/المسارات تظهر **للمتطوّع** حسب قسمه»
+     * والكوردنيتور سقفه SELF. فإسقاط المفتاح يقفل تابّ الأكاديمية في وجه
+     * جمهوره المنصوص (وهو عين ب-4)، وكتابتُه بـSELF ممتنعة نصًّا. فيُكتَب
+     * بـ**أضيق ما تسمح به المصفوفة** — لا أوسع بخطوة.
+     *
+     * ولذلك يقيس هذا الاختبار شيئين لا شيئًا واحدًا:
+     *  1) لكلّ صفٍّ فوق السقف: أنّ المصفوفة **لا تعرض** أيّ نطاقٍ عند السقف أو
+     *     دونه، وأنّ المكتوب هو **أضيق** ما تعرضه — فالتجاوز مضطرٌّ ومحسوب.
+     *  2) وأنّ جرد هذه الصفوف **مقفول بالاسم**: أيّ مفتاحٍ جديد يظهر فوق السقف
+     *     يُسقِط الاختبار ولو كانت المصفوفة تسمح به.
+     */
     public function test_volunteer_roles_never_exceed_their_scope_ceiling(): void
     {
         $this->seed(VolunteerOrgDemoSeeder::class);
 
         $order = config('access.scopes');
-        $ceilings = [
-            'coordinator' => 'SELF',
-            'team_leader' => 'TEAM',
-            'supervisor' => 'SUBTREE',
-            'director' => 'ENTITY',
-            'track_supervisor' => 'TRACK',
-        ];
+        $access = $this->access();
+        $forced = [];
 
-        foreach ($ceilings as $roleKey => $ceiling) {
+        foreach (self::VOLUNTEER_CEILINGS as $roleKey => $ceiling) {
             $rows = DB::table('permission_role')
                 ->join('roles', 'roles.id', '=', 'permission_role.role_id')
                 ->join('permissions', 'permissions.id', '=', 'permission_role.permission_id')
@@ -322,13 +342,49 @@ class PermissionArchitectureTest extends TestCase
                 ->get(['permissions.key as key', 'permission_role.scope']);
 
             foreach ($rows as $row) {
-                $this->assertLessThanOrEqual(
-                    array_search($ceiling, $order, true),
-                    array_search($row->scope, $order, true),
-                    "«{$roleKey}» يتجاوز سقفه {$ceiling} في «{$row->key}» بنطاق {$row->scope}",
+                if (array_search($row->scope, $order, true) <= array_search($ceiling, $order, true)) {
+                    continue;
+                }
+
+                $allowed = array_values(array_filter(
+                    $access->allowedScopesOf($row->key),
+                    fn ($scope) => in_array($scope, $order, true),
+                ));
+
+                usort($allowed, fn ($a, $b) => array_search($a, $order, true) <=> array_search($b, $order, true));
+
+                $this->assertNotEmpty(
+                    $allowed,
+                    "«{$roleKey}» يتجاوز سقفه {$ceiling} في «{$row->key}» بنطاق {$row->scope} بلا سندٍ من المصفوفة",
                 );
+
+                $this->assertGreaterThan(
+                    array_search($ceiling, $order, true),
+                    array_search($allowed[0], $order, true),
+                    "«{$row->key}» تقبل نطاقًا عند سقف «{$roleKey}» أو دونه — فلا عذر لتجاوزه",
+                );
+
+                $this->assertSame(
+                    $allowed[0],
+                    $row->scope,
+                    "«{$roleKey}» يأخذ **أضيق** ما تسمح به المصفوفة في «{$row->key}» — لا أوسع",
+                );
+
+                $forced[] = "{$roleKey}: {$row->key}@{$row->scope}";
             }
         }
+
+        sort($forced);
+
+        // ⭐ الجرد مقفول بالاسم: مفتاحٌ جديد فوق السقف يُسقِط الاختبار
+        $this->assertSame([
+            'coordinator: academy_paths.list@SUBTREE',
+            'coordinator: academy_paths.view@SUBTREE',
+            'coordinator: academy_recordings.list@SUBTREE',
+            'team_leader: academy_paths.list@SUBTREE',
+            'team_leader: academy_paths.view@SUBTREE',
+            'team_leader: academy_recordings.list@SUBTREE',
+        ], $forced, 'الصفوف فوق سقف 12.2.3 هي ما تفرضه 12.2.2 وحدها — لا غيرها');
     }
 
     /** المدقّق قراءة فقط — على **كلّ** ما يُقرأ من غير المعزول */

@@ -42,7 +42,7 @@
   - `store.php` — 11 مسارًا · 2 حارس صلاحيّة.
   - `ui.php` — 16 مسارًا · 6 حارس صلاحيّة.
   - `volunteer-core.php` — 20 مسارًا · البادئة `volunteer.` · 14 حارس صلاحيّة.
-  - `volunteer-flow.php` — 29 مسارًا · البادئة `volunteer.` · 23 حارس صلاحيّة.
+  - `volunteer-flow.php` — 34 مسارًا · البادئة `volunteer.` · 27 حارس صلاحيّة.
   - `volunteer-goals.php` — 36 مسارًا · 22 حارس صلاحيّة.
   - `volunteer-meetings.php` — 17 مسارًا · 11 حارس صلاحيّة.
   - `volunteer-org.php` — 11 مسارًا · 5 حارس صلاحيّة.
@@ -58,6 +58,11 @@
 - **أ-1 (2026-08-03):** `wallet.php` — مسار الويب هوك صار خلف `throttle:gateway-webhook`،
   وحدُّه ونافذتُه ورسالتُه من `setting()` لا أرقامٍ محروقة (2.13). والنداء المحجوب
   لا يُكتَب في `gateway_webhook_logs` عمدًا حتى لا يصير الحدّ نفسه بابَ إغراق.
+- **ب-3 (2026-08-03):** `volunteer-flow.php` — خمسة مسارات جديدة لمكتب
+  «الاعتراضات المصعَّدة إليّ» (24.4-8) كلٌّ بمفتاحه من المصفوفة 12.2.2:
+  `objections.list` للشاشة وللردّ · `objections.assign` للتصعيد ·
+  `objections.approve` للقبول · `objections.reject` للرفض. **والمفتاح يفتح
+  الشاشة، والمكتب وحده يفتح القرار** (`ObjectionDesk::authorizeDecision`).
 <!-- بيدك:نهاية:المتبقّي -->
 
 ## 🔄 الجاري الآن

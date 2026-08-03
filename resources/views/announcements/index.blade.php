@@ -9,6 +9,11 @@
      */
     $ackLabel = (string) setting('announcements.acknowledge.label', 'قرأتُ وفهمت');
     $emptyMessage = (string) setting('announcements.empty.message', 'لا تعليمات جديدة');
+    // سطر يشرح لماذا لا تُغلَق النافذة — الشفافيّة تسبق الإلزام (13.2 · 2.16)
+    $ackNotice = (string) setting(
+        'announcements.acknowledge.notice',
+        'توجيه حرج — لازم تقرّ بقراءته قبل ما تكمّل تصفّح المنصّة.',
+    );
     $subtitle = $unread > 0 ? 'عندك '.$unread.' منشور لسّه ما اتقروش' : 'كلّ التعليمات مقروءة — تمام ✓';
 @endphp
 
@@ -88,25 +93,41 @@
         @endif
     @endif
 
-    {{-- بوب-أب الإقرار الإلزاميّ للمنشورات الحرجة — وعلى الموبايل Bottom Sheet (2.15-ج) --}}
-    @if ($pendingAck)
-        <x-modal id="ack-modal" :title="$pendingAck->title">
-            <p class="text-sm leading-7 whitespace-pre-line">{{ $pendingAck->body }}</p>
-            @if ($pendingAck->cta_url)
-                <a href="{{ $pendingAck->cta_url }}" target="_blank" rel="noopener"
-                   class="btn inline-flex items-center rounded-xl px-4 py-2 text-sm mt-4 motion-standard"
-                   style="background: var(--surface-sunken)">{{ $pendingAck->cta_label ?: 'افتح الرابط' }}</a>
-            @endif
+    {{--
+        بوب-أب الإقرار الإلزاميّ للتوجيه الحرج — وعلى الموبايل Bottom Sheet (2.15-ج).
 
-            <x-slot:footer>
-                <form method="post" action="{{ route('announcements.acknowledge', $pendingAck) }}" class="flex justify-end">
-                    @csrf
-                    <button type="submit"
-                            class="btn inline-flex items-center justify-center rounded-xl px-5 py-2 text-sm font-bold motion-standard"
-                            style="background: var(--color-brand-500); color: #04201c">{{ $ackLabel }}</button>
-                </form>
-            </x-slot:footer>
-        </x-modal>
+        ⭐ **بلا ✕ وبلا ESC وبلا إغلاق بالخلفيّة**: النصّ يقول «قبل المتابعة»
+        (13.2)، ونافذةٌ تُغلَق بضغطة تُلغي الشرط. ولذلك لا يستعمل `x-modal`
+        العامّ — فرأسه يحمل زرّ إغلاق و`data-modal` يجعل ESC يغلقه.
+        والمخرج الوحيد هو زرّ الإقرار… أو الخروج من الحساب (فالإقرار ليس سجنًا).
+    --}}
+    @if ($pendingAck)
+        <div id="ack-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4"
+             style="background: rgb(0 0 0 / .72)" role="alertdialog" aria-modal="true"
+             aria-label="{{ $pendingAck->title }}" data-ack-lock>
+            <div class="modal-shell card w-full max-w-2xl">
+                <div class="modal-head px-5 py-4" style="border-bottom: 1px solid var(--border)">
+                    <h2 class="font-bold">{{ $pendingAck->title }}</h2>
+                    <p class="text-xs mt-1" style="color: var(--text-muted)">{{ $ackNotice }}</p>
+                </div>
+                <div class="modal-body px-5 py-4">
+                    <p class="text-sm leading-7 whitespace-pre-line">{{ $pendingAck->body }}</p>
+                    @if ($pendingAck->cta_url)
+                        <a href="{{ $pendingAck->cta_url }}" target="_blank" rel="noopener"
+                           class="btn inline-flex items-center rounded-xl px-4 py-2 text-sm mt-4 motion-standard"
+                           style="background: var(--surface-sunken)">{{ $pendingAck->cta_label ?: 'افتح الرابط' }}</a>
+                    @endif
+                </div>
+                <div class="modal-head px-5 py-4" style="border-top: 1px solid var(--border)">
+                    <form method="post" action="{{ route('announcements.acknowledge', $pendingAck) }}" class="flex justify-end">
+                        @csrf
+                        <button type="submit"
+                                class="btn inline-flex items-center justify-center rounded-xl px-5 py-2 text-sm font-bold motion-standard"
+                                style="background: var(--color-brand-500); color: #04201c">{{ $ackLabel }}</button>
+                    </form>
+                </div>
+            </div>
+        </div>
     @endif
 
     {{-- تفاصيل المنشور: بانل/بوب-أب لا صفحة جديدة (2.15-أ-6) — Bottom Sheet على الموبايل --}}

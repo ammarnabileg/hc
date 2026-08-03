@@ -8,6 +8,7 @@ use App\Models\Offboarding;
 use App\Models\Reentry;
 use App\Models\User;
 use App\Models\VolunteerCard;
+use App\Services\Volunteer\People\PositionRoleAssigner;
 use Illuminate\Support\Carbon;
 use RuntimeException;
 
@@ -129,10 +130,27 @@ class OffboardingService
             throw new RuntimeException('التصفية الإلزاميّة لم تكتمل — كمّل بنود التشيك-ليست قبل الإنهاء.');
         }
 
+        $closing = Membership::query()
+            ->where('user_id', $record->user_id)
+            ->where('status', 'active')
+            ->get();
+
         Membership::query()
             ->where('user_id', $record->user_id)
             ->where('status', 'active')
             ->update(['status' => 'ended', 'ended_at' => now(), 'end_reason' => $record->type]);
+
+        /*
+         | ⭐ **وينتهي الدور بانتهاء العضويّة** (13.4-س · 12.2.3-ب): التسكين يمنح
+         | دور البوزشن، فالخروج يسحبه — وإلّا بقي المُقصى يحمل صلاحيّات لم تعد له.
+         | والسحب **بالعضويّة** لا بالمستخدم، فأدوار المنصّة لا يمسّها شيء، ومَن
+         | له عضويّتان لا تُجرَّد إحداهما بإنهاء الأخرى.
+         */
+        $assigner = app(PositionRoleAssigner::class);
+
+        foreach ($closing as $membership) {
+            $assigner->revoke($membership);
+        }
 
         $user = $record->user;
 

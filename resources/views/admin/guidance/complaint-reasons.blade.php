@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.admin')
 
 @section('title', setting('complaints.reasons.page_title', 'أسباب الشكاوى والمقترحات'))
 

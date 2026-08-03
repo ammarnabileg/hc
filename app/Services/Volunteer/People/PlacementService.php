@@ -28,6 +28,7 @@ class PlacementService
         private readonly AuditTrail $audit,
         private readonly PeopleBridge $bridge,
         private readonly CardIssuer $cards,
+        private readonly PositionRoleAssigner $roles,
     ) {}
 
     /** مهلة ردّ المرشّح بالساعات — من الإعدادات (افتراضيّ 48) */
@@ -359,17 +360,40 @@ class PlacementService
             ->update(['pending_placement_request_id' => null]);
     }
 
-    /** القبول: عضويّة جديدة + بطاقة رقميّة + المُسكَّن غير مفعَّل في القائمة + احتفال ذروة */
+    /** القبول: عضويّة جديدة + **دور البوزشن** + بطاقة رقميّة + المُسكَّن غير مفعَّل في القائمة + احتفال ذروة */
     private function activate(PlacementRequest $request, RecruitmentCandidate $candidate): void
     {
+        /*
+         | ⭐ العضويّة الأولى وحدها هي الأساسيّة (`is_primary`): مَن يُسكَّن في
+         | بوزشنٍ ثانٍ لا تُنتزَع أوّليّةُ عضويّته الأولى من تحته، وإلّا صار له
+         | «أساسيّتان» ولا يدري سياقُ الصلاحيّات أيَّهما يقرأ.
+         */
+        $hasPrimary = Membership::query()
+            ->where('user_id', $candidate->user_id)
+            ->where('status', 'active')
+            ->where('is_primary', true)
+            ->exists();
+
         $membership = Membership::create([
             'user_id' => $candidate->user_id,
             'entity_id' => $request->entity_id,
             'position_id' => $request->position_id,
-            'is_primary' => true,
+            'is_primary' => ! $hasPrimary,
             'started_at' => now(),
             'status' => 'active',
         ]);
+
+        /*
+         | ⭐⭐ **التسكين يمنح دور البوزشن** (13.4-هـ · 12.2.3-ب).
+         |
+         | كان هذا السطر غائبًا، فتُخلَق العضويّة («أين») بلا دور («ماذا») —
+         | ونتيجته المقيسة أنّ كلّ متطوّعٍ يمرّ بالرحلة المنصوصة كاملةً يصل إلى
+         | لوحة التطوّع فيجد **403 على كلّ تابّ**: `/volunteer` و`tasks` و
+         | `department` و`org` و`kudos` و`transactions` و`contributions` و
+         | `reviews`. والإسناد **داخل العضويّة** فلا يصير سلطةً عابرة للكيانات،
+         | ويُسحَب بانتهائها (`PositionRoleAssigner::revoke`).
+         */
+        $this->roles->grant($membership, $request->requested_by);
 
         /*
          | ⭐ البطاقة الرقميّة **تُصدَر لحظة التسكين** (13.4-ر-ج) — لا عند أوّل

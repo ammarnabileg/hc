@@ -77,6 +77,12 @@ class VolunteerFlowDemoSeeder extends Seeder
             ['workflow.arbitration.mask_visible_digits', 'workflow', 'عدد الأرقام الظاهرة في الرقم المقنَّع', 'number', '2'],
             ['workflow.repeated_return.rep_min', 'workflow', 'أدنى قيمة Rep يدويّة في الإرجاع المتكرّر', 'number', '-0.5'],
             ['workflow.repeated_return.rep_max', 'workflow', 'أقصى قيمة Rep يدويّة في الإرجاع المتكرّر', 'number', '0.25'],
+
+            // ⬆️ مكتب «الاعتراضات المصعَّدة إليّ» (24.4-8) — ولا نصّ ولا رقم محروق (2.13)
+            ['workflow.objection_desk.range_days', 'workflow', 'الفترة الافتراضيّة لمكتب الاعتراضات (يوم)', 'number', '30'],
+            ['workflow.objection_desk.notice', 'workflow', 'تنويه مكتب الاعتراضات الثابت', 'string',
+                'لا أحد يعدّل المعاملة الأصليّة — التصحيح بمعاملة عكسيّة موثّقة.'],
+            ['workflow.objection_desk.empty', 'workflow', 'رسالة مكتب الاعتراضات الفارغ', 'string', 'مفيش اعتراضات عندك'],
         ];
 
         foreach ($rows as [$key, $group, $label, $type, $default]) {

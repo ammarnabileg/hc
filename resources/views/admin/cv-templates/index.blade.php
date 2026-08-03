@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.admin')
 
 @section('title', setting('cv.template.admin.page_title', 'قوالب السيرة الذاتيّة'))
 

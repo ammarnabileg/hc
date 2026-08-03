@@ -82,7 +82,31 @@ class RolePermissionSeeder extends Seeder
         $this->grantResources('coordinator', ['org_chart'], 'SELF', $expander);
 
         $this->grantResources('recruiter', ['candidates', 'interviews', 'scorecards', 'scorecard_criteria', 'shortlists', 'placements', 'placement_test', 'recruitment_analytics', 'vacancies', 'qualifying_path'], 'ALL', $expander);
-        $this->grantResources('academy_manager', ['academy_paths', 'academy_recordings', 'otp_verification', 'paths', 'courses'], 'TRACK', $expander);
+
+        // 12.2.3-ب-18: «`academy_paths · academy_recordings` **داخل قسمه**» — النطاق ENTITY لا TRACK
+        $this->grantResources('academy_manager', ['academy_paths', 'academy_recordings', 'otp_verification', 'paths', 'courses'], 'ENTITY', $expander);
+
+        /*
+         | ⭐⭐ **الأكاديمية تصل جمهورها المنصوص** (13.4-ل).
+         |
+         | النصّ: «**التسجيلات/المسارات تظهر للمتطوّع حسب قسمه**». وكان لا دور من
+         | أدوار البوزشنز يحمل `academy_paths.*` ولا `academy_recordings.*` —
+         | فالحاملون `super_admin` و`auditor` و`academy_manager` وحدهم، و
+         | `/volunteer/academy` **403** للكوردنيتور والمحرّك سليم خلف بابٍ مقفول.
+         |
+         | والمنح **قراءةً فقط** (`view · list`): 13.4-ل يجعل الإضافة والتعديل
+         | لـ«مسؤول القسم بصلاحيّة» — وهو قالب 12.2.3-ب-18 — لا لكلّ متطوّع.
+         | والنطاق **أضيق ما تسمح به المصفوفة** (12.2.2) في حدود سقف الدور
+         | (12.2.3) — لا أوسع.
+         */
+        $academyReadKeys = [
+            'academy_paths.view', 'academy_paths.list',
+            'academy_recordings.view', 'academy_recordings.list',
+        ];
+
+        foreach ($scaleByRole as $roleKey => $scope) {
+            $this->grantKeys($roleKey, $academyReadKeys, $scope, matrixFloor: true);
+        }
 
         // ---------------- المتدرّب: ما يخصّه هو فقط
         $this->grantResources('trainee', [
@@ -227,8 +251,15 @@ class RolePermissionSeeder extends Seeder
      * منح **مفاتيح بعينها** لا موردًا كاملًا — لصفحات المستخدم النهائيّ العامّة.
      *
      * @param  array<int, string>  $keys
+     * @param  bool  $matrixFloor  حين يكون **كلّ** ما تسمح به المصفوفة أوسعَ من سقف
+     *                             الدور، يُمنَح المفتاح بـ**أضيق** نطاقٍ تسمح به بدل
+     *                             أن يسقط. ولا يتناقض هذا مع «لا أوسع»: المصفوفة
+     *                             (12.2.2) تحدّد ما **يمكن التعبير عنه** أصلًا لهذا
+     *                             المفتاح، فمفتاحٌ لا SELF في نطاقاته لا يُكتَب SELF
+     *                             بحال. والبديل — إسقاطه — يخالف 12.2.3 و13.4-ل
+     *                             معًا ويترك الشاشة مقفولةً في وجه أصحابها.
      */
-    private function grantKeys(string $roleKey, array $keys, string $scope): void
+    private function grantKeys(string $roleKey, array $keys, string $scope, bool $matrixFloor = false): void
     {
         $role = Role::where('key', $roleKey)->first();
 
@@ -244,10 +275,11 @@ class RolePermissionSeeder extends Seeder
         $byScope = [];
 
         foreach ($permissions as $permission) {
-            $effective = $this->resolveScope($scope, $permission->allowed_scopes ?: []);
+            $allowed = $permission->allowed_scopes ?: [];
+            $effective = $this->resolveScope($scope, $allowed) ?? ($matrixFloor ? $this->narrowest($allowed) : null);
 
             if ($effective === null) {
-                $this->command?->warn("مفتاح سقط لتعذّر النطاق: {$permission->key} ({$scope}) — نطاقاته: ".implode(' · ', $permission->allowed_scopes ?: []));
+                $this->command?->warn("مفتاح سقط لتعذّر النطاق: {$permission->key} ({$scope}) — نطاقاته: ".implode(' · ', $allowed));
 
                 continue;
             }
@@ -258,6 +290,22 @@ class RolePermissionSeeder extends Seeder
         foreach ($byScope as $effective => $ids) {
             $this->insertRows($role->id, $ids, (string) $effective);
         }
+    }
+
+    /** أضيق نطاقٍ تسمح به المصفوفة لهذا المفتاح */
+    private function narrowest(array $allowed): ?string
+    {
+        $order = config('access.scopes');
+
+        $candidates = array_values(array_filter($allowed, fn ($s) => in_array($s, $order, true)));
+
+        if ($candidates === []) {
+            return null;
+        }
+
+        usort($candidates, fn ($a, $b) => array_search($a, $order, true) <=> array_search($b, $order, true));
+
+        return $candidates[0];
     }
 
     /** أوسع نطاق مسموح لا يتجاوز المطلوب */
@@ -282,7 +330,53 @@ class RolePermissionSeeder extends Seeder
         return $candidates[0];
     }
 
+    /**
+     * ⭐⭐ **البوّابة الأخيرة: لا صفَّ يُكتَب فوق سقف المصفوفة** (12.2.2).
+     *
+     * كانت `grantAll()` و`grantReadOnly()` تكتبان `ALL` على كلّ مفتاح بلا مرورٍ
+     * بـ`resolveScope()`، فبقي في الإسنادات المزروعة مئاتُ الصفوف نطاقُها **خارج**
+     * `allowed_scopes` — مالك المنصّة والأدمن العامّ والمدقّق أكثرها.
+     *
+     * والحسم أنّ **النطاق يُقصّ إلى السقف ولا يُسحَب المنح**، والنصّان يُقرآن معًا:
+     *  • **12.2.3** تحدّد أيّ الموارد يغطّيها الدور ⟵ فسحبُ المنح يخالفها.
+     *  • **12.2.2** تحدّد أقصى نطاقٍ للمفتاح ⟵ فإعطاؤه نطاقًا فوقه يخالفها.
+     * فيبقى الصفّ بمورده ويُقصّ نطاقُه — ويُصان النصّان معًا.
+     *
+     * و**مالك المنصّة** ليس استثناءً: سلطته بنيويّة (12.2.1-ز-5) ويتخطّى الفحص
+     * أصلًا في `AccessEngine::evaluate()`، فقصُّ صفوفه لا ينقص من قدرته شيئًا
+     * ويُبقي الجدول متّسقًا مع المصفوفة صفًّا صفًّا.
+     *
+     * والقصّ هنا لا في المُنادين: فهذه هي **النقطة الوحيدة** التي تكتب في
+     * `permission_role` في هذا السيدر — فلا يبقى بابٌ خلفيّ لصفٍّ فوق السقف.
+     */
     private function insertRows(int $roleId, array $permissionIds, string $scope): void
+    {
+        $allowedById = Permission::query()
+            ->whereIn('id', $permissionIds)
+            ->pluck('allowed_scopes', 'id');
+
+        $byScope = [];
+
+        foreach ($permissionIds as $id) {
+            $allowed = $allowedById[$id] ?? [];
+            $allowed = is_array($allowed) ? $allowed : (json_decode((string) $allowed, true) ?: []);
+
+            // صلاحيّة بلا سقفٍ منصوص تقبل الستّة — فيُكتَب المطلوب كما هو
+            $effective = $allowed === [] ? $scope : $this->resolveScope($scope, $allowed);
+
+            if ($effective === null) {
+                continue;
+            }
+
+            $byScope[$effective][] = $id;
+        }
+
+        foreach ($byScope as $effective => $ids) {
+            $this->writeRows($roleId, $ids, (string) $effective);
+        }
+    }
+
+    private function writeRows(int $roleId, array $permissionIds, string $scope): void
     {
         foreach (array_chunk($permissionIds, 400) as $chunk) {
             $payload = array_map(fn ($id) => [

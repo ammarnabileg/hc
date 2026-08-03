@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.admin')
 
 @section('title', 'النسخ الاحتياطيّ وصحّة النظام')
 

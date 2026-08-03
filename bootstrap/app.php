@@ -2,6 +2,8 @@
 
 use App\Http\Middleware\EnsureAccountNotContained;
 use App\Http\Middleware\EnsureAdminPanel;
+use App\Http\Middleware\EnsureCriticalAcknowledged;
+use App\Http\Middleware\EnsureDepartmentMembership;
 use App\Http\Middleware\EnsureNotUnderMaintenance;
 use App\Http\Middleware\EnsurePermission;
 use App\Http\Middleware\SetMembershipContext;
@@ -23,6 +25,8 @@ return Application::configure(basePath: dirname(__DIR__))
             'permission' => EnsurePermission::class,
             // باب اللوحة: «له أيّ صلاحيّة إداريّة» — لا صلاحيّة باسم شاشة (12.2.1-أ)
             'admin.panel' => EnsureAdminPanel::class,
+            // شاشة «قسمي» (24.4-7): المفتاح + (النطاق **أو** عضويّة القسم) — لا مشيَ نطاقٍ وحده
+            'department.member' => EnsureDepartmentMembership::class,
         ]);
 
         // سياق العضويّة النشطة يُحدَّد قبل أيّ تقييم صلاحيّة
@@ -30,6 +34,7 @@ return Application::configure(basePath: dirname(__DIR__))
             SetMembershipContext::class,
             EnsureNotUnderMaintenance::class,   // وضع الصيانة يقفل المنصّة فعلًا (12.7-و-1)
             EnsureAccountNotContained::class,   // المحظور/المعلَّق لا يفتح أيّ صفحة (12.1-متقدّم-1)
+            EnsureCriticalAcknowledged::class,  // «قبل المتابعة»: لا تصفّح قبل إقرار التوجيه الحرج (13.2)
             ImpersonationBanner::class,         // الشريط المعرِّف أثناء التصفّح كمستخدم (12.1)
             ReadinessBar::class,                // شريط الاستعداد العائم على كلّ الصفحات (15.0)
         ]);

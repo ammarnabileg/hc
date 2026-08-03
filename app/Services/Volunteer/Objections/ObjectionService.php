@@ -117,7 +117,7 @@ class ObjectionService
             'objection',
             'اعتراض جديد على معاملة',
             $user->name.' اعترض على معاملة بقيمة '.$transaction->amount,
-            route('volunteer.objections', ['objection' => $objection->id]),
+            route('volunteer.escalations.objections', ['objection' => $objection->id]),
         );
 
         return ['ok' => true, 'message' => 'وصل اعتراضك لمسؤولك المباشر ✓', 'objection' => $objection];
@@ -156,7 +156,7 @@ class ObjectionService
                         'objection',
                         'اعتراض فات مهلته وعندك',
                         'الاعتراض ده وصل سقف السلسلة — محتاج قرارك أنت.',
-                        route('volunteer.objections', ['objection' => $objection->id]),
+                        route('volunteer.escalations.objections', ['objection' => $objection->id]),
                     );
                     $result['at_top']++;
 
@@ -174,7 +174,7 @@ class ObjectionService
                     'objection',
                     'صعد إليك اعتراض على معاملة',
                     'فاتت مهلة المستوى الأدنى — الاعتراض بقى عندك.',
-                    route('volunteer.objections', ['objection' => $objection->id]),
+                    route('volunteer.escalations.objections', ['objection' => $objection->id]),
                 );
 
                 $result['escalated']++;
@@ -216,10 +216,92 @@ class ObjectionService
             'objection',
             'تفاصيل جديدة على اعتراض',
             $user->name.' أضاف تفاصيل لاعتراضه.',
-            route('volunteer.objections', ['objection' => $objection->id]),
+            route('volunteer.escalations.objections', ['objection' => $objection->id]),
         );
 
         return ['ok' => true, 'message' => 'اتحفظ ✓ التفاصيل اتضافت للاعتراض.', 'objection' => $objection];
+    }
+
+    /**
+     * ⭐ **ردّ المسؤول** (24.4-8): نصّ + مرفق ⟵ يدخل سلسلة النقاش نفسها،
+     * وينقل الحالة إلى «قيد المراجعة» ويجدّد مهلته — فالردّ التزامٌ بالنظر
+     * في الاعتراض لا إغلاقٌ له، والإغلاق قبولٌ أو رفض لا غير.
+     */
+    public function reply(Objection $objection, User $handler, string $body, ?string $attachmentPath = null): array
+    {
+        if (! $this->isActive($objection)) {
+            return $this->fail('الاعتراض ده اتقفل — مفيش ردّ بعد القرار.');
+        }
+
+        ObjectionMessage::create([
+            'objection_id' => $objection->id,
+            'user_id' => $handler->id,
+            'body' => $body,
+            'attachment_path' => $attachmentPath,
+        ]);
+
+        $objection->forceFill([
+            'status' => 'in_review',
+            'sla_due_at' => now()->addHours($this->slaHours()),
+        ])->save();
+
+        $this->ledger->notify(
+            $objection->user,
+            'objection',
+            'وصلك ردّ على اعتراضك',
+            $handler->name.' ردّ على اعتراضك — الحالة دلوقتي «قيد المراجعة».',
+            route('volunteer.objections', ['objection' => $objection->id]),
+        );
+
+        return ['ok' => true, 'message' => 'اتسجّل ردّك ✓ والاعتراض بقى قيد المراجعة.', 'objection' => $objection];
+    }
+
+    /**
+     * ⭐ **تصعيد المسؤول بيده** لمن فوقه بسبب مكتوب (24.4-8) — لا ينتظر فوات
+     * المهلة. وهو **على المسار المستقلّ وحده**: حالةٌ ومهلةٌ وصاحبُ مكتبٍ جديد
+     * على `objections`، **ولا صفّ في `escalations`** (23-6).
+     */
+    public function escalate(Objection $objection, User $handler, string $reason): array
+    {
+        if (! $this->isActive($objection)) {
+            return $this->fail('الاعتراض ده اتقفل — مفيش تصعيد بعد القرار.');
+        }
+
+        $next = $this->scope->directManager($handler);
+
+        if (! $next || (int) $next->id === (int) $handler->id) {
+            return $this->fail('أنت سقف السلسلة — الاعتراض ده قراره عندك ومش هيصعد لحدّ.');
+        }
+
+        ObjectionMessage::create([
+            'objection_id' => $objection->id,
+            'user_id' => $handler->id,
+            'body' => 'صعّدتُه لـ'.$next->name.' — السبب: '.$reason,
+        ]);
+
+        $objection->forceFill([
+            'current_handler_id' => $next->id,
+            'status' => 'escalated',
+            'sla_due_at' => now()->addHours($this->slaHours()),
+        ])->save();
+
+        $this->ledger->notify(
+            $next,
+            'objection',
+            'صعد إليك اعتراض على معاملة',
+            $handler->name.' صعّد الاعتراض إليك — السبب: '.$reason,
+            route('volunteer.escalations.objections', ['objection' => $objection->id]),
+        );
+
+        $this->ledger->notify(
+            $objection->user,
+            'objection',
+            'اتصعّد اعتراضك',
+            'الاعتراض بقى عند '.$next->name.' — وسلّم التصعيد بيوضّح المستوى الحاليّ.',
+            route('volunteer.objections', ['objection' => $objection->id]),
+        );
+
+        return ['ok' => true, 'message' => 'اتصعّد الاعتراض لـ'.$next->name.' ✓', 'objection' => $objection];
     }
 
     /**
@@ -296,10 +378,20 @@ class ObjectionService
             $decider->id,
         );
 
+        /*
+         | ⭐ لا قبولَ بلا **معاملةٍ عكسيّةٍ ظاهرة**: لو تعذّر كتبُها فالاعتراض
+         | يبقى مفتوحًا على مكتب صاحبه. القبول الذي لا يخلّف صفًّا مقروءًا في
+         | الكشف = تعديلٌ صامت للأصل — وهو الممنوع بعينه (13.4-ط).
+         */
+        if (! $correction) {
+            return $this->fail('تعذّر كتابة المعاملة التصحيحيّة — والاعتراض ما اتقفلش.');
+        }
+
         $objection->forceFill([
             'status' => 'accepted',
             'decision_note' => $note,
-            'correction_transaction_id' => $correction?->id,
+            'decided_by' => $decider->id,
+            'correction_transaction_id' => $correction->id,
             'closed_at' => now(),
         ])->save();
 
@@ -324,6 +416,7 @@ class ObjectionService
         $objection->forceFill([
             'status' => 'rejected',
             'decision_note' => $note,
+            'decided_by' => $decider->id,
             'closed_at' => now(),
         ])->save();
 
