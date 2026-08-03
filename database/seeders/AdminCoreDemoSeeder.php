@@ -271,7 +271,7 @@ class AdminCoreDemoSeeder extends Seeder
         $owner = User::where('email', 'owner@hc.local')->first();
         $segments = app(AudienceSegments::class);
 
-        $dynamic = AdAudience::firstOrCreate(
+        $dynamic = AdAudience::updateOrCreate(
             ['name' => 'المستنّيون اعتماد من يومين'],
             [
                 'kind' => AudienceSegments::KIND,
@@ -283,7 +283,7 @@ class AdminCoreDemoSeeder extends Seeder
             ],
         );
 
-        $static = AdAudience::firstOrCreate(
+        $static = AdAudience::updateOrCreate(
             ['name' => 'المتدرّبون النشطون'],
             [
                 'kind' => AudienceSegments::KIND,

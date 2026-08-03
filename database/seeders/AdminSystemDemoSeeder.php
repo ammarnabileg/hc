@@ -227,6 +227,10 @@ class AdminSystemDemoSeeder extends Seeder
             ['countries.default_timezone', 'countries', 'المنطقة الزمنيّة الافتراضيّة للدولة الجديدة', 'string', 'Africa/Cairo', false],
             // ---------------- 12.7-د: جلب المصدر عبر الشبكة (بلا أيّ حزمة خارجيّة)
             ['countries.source.url', 'countries', 'رابط جلب نسخة المصدر (JSON)', 'string', 'https://raw.githubusercontent.com/dr5hn/countries-states-cities-database/master/json/countries.json', false],
+            // المحافظات في ملفٍّ ثانٍ عند dr5hn مربوطة بـ`country_code` — وتفريغه
+            // لا يُخفي محافظةً ولا يحذفها (قاعدة المالك)، بل يجعل النسخة دولًا فقط.
+            ['countries.source.states_url', 'countries', 'رابط ملفّ المحافظات (JSON)', 'string', 'https://raw.githubusercontent.com/dr5hn/countries-states-cities-database/master/json/states.json', false],
+            ['countries.source.format', 'countries', 'شكل المصدر (dr5hn / native)', 'string', 'dr5hn', false],
             ['countries.source.timeout', 'countries', 'مهلة الجلب (ثوانٍ)', 'number', '20', false],
             ['countries.source.retries', 'countries', 'عدد محاولات الجلب', 'number', '2', false],
             ['countries.source.retry_delay_ms', 'countries', 'الانتظار بين المحاولات (مللي ثانية)', 'number', '500', false],

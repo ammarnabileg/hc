@@ -397,7 +397,6 @@ class UserController extends Controller
     {
         $segments = $this->segments->all($filters);
         $viewer = $request->user();
-        $hasRule = $this->segments->normalize($rule)['groups'] !== [];
 
         return [
             'segments' => $segments,
@@ -409,7 +408,6 @@ class UserController extends Controller
             // المعاينة والعدّ داخل نطاق صاحب الشاشة (12.2.1-ب)
             'previewCount' => $previewed ? $this->segments->count($rule, $viewer) : null,
             'preview' => $previewed ? $this->segments->preview($rule, $viewer) : collect(),
-            'hasRule' => $hasRule,
             // «مستخدَمة في X مكان» بروابط — محسوبة من الاستخدام الفعليّ (12.13)
             'usage' => $segments->mapWithKeys(fn (AdAudience $s) => [$s->id => $this->segments->usage($s)]),
             'counts' => $segments->mapWithKeys(fn (AdAudience $s) => [$s->id => $this->segments->memberCount($s)]),

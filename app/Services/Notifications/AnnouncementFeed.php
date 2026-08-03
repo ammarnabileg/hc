@@ -22,6 +22,9 @@ class AnnouncementFeed
     /** كاش سياق المستخدم داخل الطلب الواحد: user_id => tokens */
     private array $context = [];
 
+    /** خدمة الشرائح — تُحفَظ لتبقى كاش عضويّتها حيًّا طوال الطلب (12.13) */
+    private ?AudienceSegments $segments = null;
+
     /** المنشورات الحيّة التي تخصّ هذا المستخدم — المثبَّت أعلى القائمة دائمًا. */
     public function for(User $user): Collection
     {
@@ -270,7 +273,9 @@ class AnnouncementFeed
             return false;
         }
 
-        $segments = app(AudienceSegments::class);
+        // خدمةٌ واحدة لعمر الطلب: كاش `contains` داخلها لا ينفع لو أُنشئت من جديد
+        // مع كلّ منشور — والفيد يسأل عن نفس الشريحة عشرات المرّات.
+        $segments = $this->segments ??= app(AudienceSegments::class);
 
         return AdAudience::query()
             ->whereIn('id', $ids)

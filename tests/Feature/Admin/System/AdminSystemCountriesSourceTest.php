@@ -37,6 +37,10 @@ class AdminSystemCountriesSourceTest extends SystemTestCase
 
         $this->putSetting('countries.source.url', 'https://source.test/countries.json');
         $this->putSetting('countries.source.retry_delay_ms', '0');
+
+        // هذا الصفّ يقيس **النقل** (نجاحه وأصناف فشله ودوريّته) على حمولةٍ بشكل
+        // لقطتنا مباشرةً؛ وتحويلُ شكل `dr5hn` مقيسٌ في صفّه الخاصّ.
+        $this->putSetting('countries.source.format', CountryDataSync::FORMAT_NATIVE);
     }
 
     // ------------------------------------------------------------------ أدوات

@@ -37,13 +37,13 @@
 ## 🔗 التبعيّات والملفّات المهمّة
 <!-- تلقائيّ:بداية:التبعيات -->
 - **الطبقات الأخرى لنفس المجال:** `app/Http/Controllers/Ui` · `routes/parts` · `tests/Feature/Ui`
-- **الاختبارات:** 7 ملفّ Feature في `tests/Feature/Ui` — شغّلها بـ`php artisan test tests/Feature/Ui`.
+- **الاختبارات:** 8 ملفّ Feature في `tests/Feature/Ui` — شغّلها بـ`php artisan test tests/Feature/Ui`.
 - **المرجع الحاكم:** `دستور اساسي.md` · **وكيف نكتب:** `docs/BUILD.md`.
 - **المجلّد الأب:** `app/Services/_STATUS.md`.
 <!-- تلقائيّ:نهاية:التبعيات -->
 
 ## 🕒 آخر تحديث
 <!-- تلقائيّ:بداية:التحديث -->
-- **آخر توليد لهذه الوثيقة:** 2026-08-02 — `php artisan docs:status`.
+- **آخر توليد لهذه الوثيقة:** 2026-08-03 — `php artisan docs:status`.
 - **آخر لمسة للمجلّد:** 2026-08-02 — Claude.
 <!-- تلقائيّ:نهاية:التحديث -->

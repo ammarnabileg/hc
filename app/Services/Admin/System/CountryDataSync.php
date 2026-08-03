@@ -35,6 +35,13 @@ use Throwable;
  */
 class CountryDataSync
 {
+    /** شكل المصدر المنصوص عليه في 12.7-د، وشكل مخرَجنا نحن (`admin.countries.export`). */
+    public const FORMAT_DR5HN = 'dr5hn';
+
+    public const FORMAT_NATIVE = 'native';
+
+    public const FORMATS = [self::FORMAT_DR5HN => 'مصدر dr5hn', self::FORMAT_NATIVE => 'شكل مخرَج المنصّة'];
+
     /** أنواع الفروق الثلاثة كما ينصّ عليها 24.3: مضاف / محذوف / معدَّل. */
     public const CHANGES = ['added' => 'مضاف', 'removed' => 'محذوف من المصدر', 'changed' => 'معدَّل'];
 
@@ -135,39 +142,51 @@ class CountryDataSync
             ), $base);
         }
 
-        try {
-            $response = Http::timeout($timeout)
-                ->retry($attempts, $delay, throw: false)
-                ->acceptJson()
-                ->get($url);
-        } catch (ConnectionException $exception) {
-            // المهلة وانقطاع الاتّصال: أشيع فشلٍ وأهمّه — يُقال صريحًا لا يُبتلَع
-            return $this->recordFailure('timeout', $this->fill((string) setting(
-                'countries.source.error.timeout',
-                'المصدر ما ردّش خلال {timeout} ثانية بعد {attempts} محاولة — جرّب تاني بعد شويّة أو زوّد المهلة من الإعدادات.',
-            ), ['timeout' => $timeout, 'attempts' => $attempts]), $base);
-        } catch (Throwable $exception) {
-            // أيّ عطبٍ آخر في الطلب (رابط غير صالح · DNS · شهادة) — يُقال بسببه
-            return $this->recordFailure('network', $this->fill((string) setting(
-                'countries.source.error.network',
-                'ما قدرناش نوصل للمصدر: {reason} — راجع الرابط في الإعدادات وجرّب تاني.',
-            ), ['reason' => $exception->getMessage()]), $base);
+        $main = $this->pull($url, $timeout, $attempts, $delay);
+
+        if (! $main['ok']) {
+            return $this->recordFailure($main['failure'], $main['message'], $base + array_filter(
+                ['http_status' => $main['status']],
+                fn ($value) => $value !== null,
+            ));
         }
 
-        if ($response->failed()) {
-            return $this->recordFailure('http', $this->fill((string) setting(
-                'countries.source.error.http',
-                'المصدر ردّ بحالة {status} — راجع الرابط في الإعدادات أو استنّى وجرّب تاني.',
-            ), ['status' => $response->status()]), $base + ['http_status' => $response->status()]);
-        }
+        $payload = $main['data'];
+        $status = $main['status'];
 
-        $payload = json_decode($response->body(), true);
+        /*
+         * ⭐ شكل المصدر: المنصوص عليه في 12.7-د هو **`dr5hn`**، وشكله ليس شكل
+         * لقطتنا — فبلا محوِّلٍ يكون «الجلب عبر الشبكة» موجودًا وعاطلًا: أوّل فحصٍ
+         * على تنصيبٍ نظيف يفشل بـ`shape` ويقف البند حيث كان.
+         *
+         * والمحوِّل مكتوبٌ على **بنية المصدر كما هي فعلًا** (`iso2` · `name` ·
+         * `phonecode` · `timezones[].zoneName` · `translations.ar`، والمحافظات في
+         * ملفٍّ ثانٍ مربوطة بـ`country_code`) لا على تخمينٍ لها.
+         *
+         * و`native` **لا يُستعمَل اسمًا عربيًّا**: هو اسم البلد بلغته هو — فارسيّ
+         * لأفغانستان وصينيّ للصين — ووضعه في `name_ar` يملأ القاعدة بأسماءٍ بلغاتٍ
+         * شتّى. وحين لا توجد ترجمة عربيّة **يُحذَف الحقل من الحمولة** فلا يُقارَن
+         * ولا يُكتَب، ويبقى الاسم العربيّ عندنا كما هو (`changedFields` تتخطّى
+         * الحقل الغائب) — أهون بكثيرٍ من استبدال «مصر» بـ«Egypt».
+         */
+        if ($this->sourceFormat() === self::FORMAT_DR5HN) {
+            $statesUrl = trim((string) setting('countries.source.states_url', ''));
+            $states = [];
 
-        if (! is_array($payload)) {
-            return $this->recordFailure('body', (string) setting(
-                'countries.source.error.body',
-                'اللي رجع من المصدر مش JSON صالح — اتأكّد إنّ الرابط بيرجّع ملفّ النسخة نفسه مش صفحة.',
-            ), $base + ['http_status' => $response->status()]);
+            if ($statesUrl !== '') {
+                $sub = $this->pull($statesUrl, $timeout, $attempts, $delay);
+
+                if (! $sub['ok']) {
+                    return $this->recordFailure($sub['failure'], $sub['message'], $base + array_filter(
+                        ['http_status' => $sub['status']],
+                        fn ($value) => $value !== null,
+                    ));
+                }
+
+                $states = $sub['data'];
+            }
+
+            $payload = $this->mapDr5hn($payload, $states);
         }
 
         try {
@@ -177,19 +196,179 @@ class CountryDataSync
             return $this->recordFailure('shape', $this->fill((string) setting(
                 'countries.source.error.shape',
                 'النسخة اللي رجعت من المصدر ناقصة: {reason}',
-            ), ['reason' => $exception->getMessage()]), $base + ['http_status' => $response->status()]);
+            ), ['reason' => $exception->getMessage()]), $base + ['http_status' => $status]);
         }
 
         return CountrySourceCheck::create($base + [
             'status' => 'ok',
             'failure' => null,
-            'http_status' => $response->status(),
+            'http_status' => $status,
             'message' => (string) setting(
                 'countries.source.check.fetched_text',
                 'اتجابت نسخة المصدر ✓ — لسّه ما اتدمجتش، الفروق تحت.',
             ),
             'snapshot_id' => $snapshot->id,
         ]);
+    }
+
+    /**
+     * طلبٌ واحد إلى الشبكة بكلّ تصنيفات فشله — والمصدر قد يكون ملفّين (الدول
+     * والمحافظات)، فبقاء المنطق في مكانٍ واحد يمنع أن يُقال عن فشل الملفّ الثاني
+     * ما لا يُقال عن الأوّل.
+     *
+     * @return array{ok: bool, data: array<mixed>, status: int|null, failure: string, message: string}
+     */
+    private function pull(string $url, int $timeout, int $attempts, int $delay): array
+    {
+        $fail = fn (string $failure, string $message, ?int $status = null): array => [
+            'ok' => false, 'data' => [], 'status' => $status, 'failure' => $failure, 'message' => $message,
+        ];
+
+        try {
+            $response = Http::timeout($timeout)
+                ->retry($attempts, $delay, throw: false)
+                ->acceptJson()
+                ->get($url);
+        } catch (ConnectionException $exception) {
+            // المهلة وانقطاع الاتّصال: أشيع فشلٍ وأهمّه — يُقال صريحًا لا يُبتلَع
+            return $fail('timeout', $this->fill((string) setting(
+                'countries.source.error.timeout',
+                'المصدر ما ردّش خلال {timeout} ثانية بعد {attempts} محاولة — جرّب تاني بعد شويّة أو زوّد المهلة من الإعدادات.',
+            ), ['timeout' => $timeout, 'attempts' => $attempts]));
+        } catch (Throwable $exception) {
+            // أيّ عطبٍ آخر في الطلب (رابط غير صالح · DNS · شهادة) — يُقال بسببه
+            return $fail('network', $this->fill((string) setting(
+                'countries.source.error.network',
+                'ما قدرناش نوصل للمصدر: {reason} — راجع الرابط في الإعدادات وجرّب تاني.',
+            ), ['reason' => $exception->getMessage()]));
+        }
+
+        if ($response->failed()) {
+            return $fail('http', $this->fill((string) setting(
+                'countries.source.error.http',
+                'المصدر ردّ بحالة {status} — راجع الرابط في الإعدادات أو استنّى وجرّب تاني.',
+            ), ['status' => $response->status()]), $response->status());
+        }
+
+        $payload = json_decode($response->body(), true);
+
+        if (! is_array($payload)) {
+            return $fail('body', (string) setting(
+                'countries.source.error.body',
+                'اللي رجع من المصدر مش JSON صالح — اتأكّد إنّ الرابط بيرجّع ملفّ النسخة نفسه مش صفحة.',
+            ), $response->status());
+        }
+
+        return ['ok' => true, 'data' => $payload, 'status' => $response->status(), 'failure' => '', 'message' => ''];
+    }
+
+    /** شكل المصدر: `dr5hn` (المنصوص عليه في 12.7-د) أو `native` (شكل مخرَجنا). */
+    public function sourceFormat(): string
+    {
+        $format = trim((string) setting('countries.source.format', self::FORMAT_DR5HN));
+
+        return array_key_exists($format, self::FORMATS) ? $format : self::FORMAT_DR5HN;
+    }
+
+    /**
+     * تحويل شكل `dr5hn` إلى شكل لقطتنا.
+     *
+     * @param  array<mixed>  $countries  ملفّ الدول
+     * @param  array<mixed>  $states  ملفّ المحافظات (مربوطة بـ`country_code`)
+     * @return array{countries: list<array<string, mixed>>}
+     */
+    private function mapDr5hn(array $countries, array $states): array
+    {
+        $byCountry = [];
+
+        foreach ($states as $state) {
+            if (! is_array($state)) {
+                continue;
+            }
+
+            $code = mb_strtoupper(trim((string) ($state['country_code'] ?? '')));
+            $name = trim((string) ($state['name'] ?? ''));
+
+            if ($code === '' || $name === '') {
+                continue;
+            }
+
+            $row = ['name_en' => $name];
+
+            // الاسم العربيّ يُضاف **حين يوجد فقط** — وغيابه إبقاءٌ لا استبدال
+            if (($arabic = $this->arabicOf($state)) !== null) {
+                $row['name_ar'] = $arabic;
+            }
+
+            $byCountry[$code][] = $row;
+        }
+
+        $out = [];
+
+        foreach ($countries as $country) {
+            if (! is_array($country)) {
+                continue;
+            }
+
+            $iso2 = mb_strtoupper(trim((string) ($country['iso2'] ?? '')));
+
+            if ($iso2 === '') {
+                // بلا `iso2` لا معرّف للدولة — و`import()` سترفض النسخة كلّها
+                // لو مرّرناها، فإسقاط الصفّ الأعور أصدق من إسقاط النسخة.
+                continue;
+            }
+
+            $row = ['iso2' => $iso2, 'governorates' => $byCountry[$iso2] ?? []];
+
+            if (($name = trim((string) ($country['name'] ?? ''))) !== '') {
+                $row['name_en'] = $name;
+            }
+
+            if (($arabic = $this->arabicOf($country)) !== null) {
+                $row['name_ar'] = $arabic;
+            }
+
+            if (($phone = trim((string) ($country['phonecode'] ?? ''))) !== '') {
+                $row['phone_code'] = ltrim($phone, '+');
+            }
+
+            if (($timezone = $this->timezoneOf($country)) !== null) {
+                $row['timezone'] = $timezone;
+            }
+
+            $out[] = $row;
+        }
+
+        return ['countries' => $out];
+    }
+
+    /**
+     * الاسم العربيّ من `translations.ar` **وحدها** — و`null` حين لا توجد.
+     *
+     * @param  array<mixed>  $row
+     */
+    private function arabicOf(array $row): ?string
+    {
+        $arabic = $row['translations']['ar'] ?? null;
+
+        return is_string($arabic) && trim($arabic) !== '' ? trim($arabic) : null;
+    }
+
+    /**
+     * المنطقة الزمنيّة: `timezone` نصًّا (المحافظات) أو أوّل `timezones[].zoneName`
+     * (الدول). والدولة متعدّدة المناطق يُؤخَذ أوّلها — وهو ما تحمله خانةٌ واحدة.
+     *
+     * @param  array<mixed>  $row
+     */
+    private function timezoneOf(array $row): ?string
+    {
+        if (is_string($row['timezone'] ?? null) && trim($row['timezone']) !== '') {
+            return trim($row['timezone']);
+        }
+
+        $zone = $row['timezones'][0]['zoneName'] ?? null;
+
+        return is_string($zone) && trim($zone) !== '' ? trim($zone) : null;
     }
 
     /**
@@ -460,7 +639,7 @@ class CountryDataSync
                     'kind' => 'country',
                     'change' => 'added',
                     'label' => $incoming['name_ar'].' ('.$iso2.')',
-                    'after' => $incoming['fields'],
+                    'after' => $incoming['create'],
                     'before' => null,
                     'protected' => false,
                     'users' => 0,
@@ -667,7 +846,7 @@ class CountryDataSync
                 return;
             }
 
-            Country::updateOrCreate(['iso2' => $iso2], $incoming['fields'] + ['is_active' => true]);
+            Country::updateOrCreate(['iso2' => $iso2], $incoming['create'] + ['is_active' => true]);
             $report['added']++;
 
             return;
@@ -841,13 +1020,39 @@ class CountryDataSync
                 $governorates[$this->slug($nameEn)] = ['name_ar' => $nameAr, 'name_en' => $nameEn];
             }
 
+            /*
+             * ⛔ **الحقل الغائب عن المصدر لا يُصطنَع.** كان يُملأ افتراضيًّا هنا
+             * (`name_ar` ⟵ كود الدولة · `timezone` ⟵ توقيت المنصّة · `phone_code`
+             * ⟵ `null`)، فيصير الغياب **تعديلًا مقترَحًا** يمسح ما عندنا: تُقترَح
+             * «أفغانستان» ⟵ «AF»، وتوقيت طوكيو ⟵ توقيت القاهرة، ومفتاح الهاتف
+             * ⟵ فراغ. وهذا فقدُ بياناتٍ يمرّ من تحت قاعدة «لا حذف» (2.11-د)
+             * لأنّه **تعديلٌ لا حذف** — وأخطر من الحذف لأنّه لا يبدو حذفًا.
+             *
+             * و`changedFields()` تتخطّى الحقل الغائب أصلًا، فحصرُ `fields` بما
+             * ورد فعلًا هو ما يجعل ذلك التخطّي ذا معنًى.
+             */
+            $fields = [];
+
+            foreach (self::COUNTRY_FIELDS as $field) {
+                $value = $country[$field] ?? null;
+                $value = is_string($value) ? trim($value) : $value;
+
+                if ($value !== null && $value !== '') {
+                    $fields[$field] = $value;
+                }
+            }
+
+            $label = $fields['name_ar'] ?? $fields['name_en'] ?? $iso2;
+
             $indexed[$iso2] = [
-                'name_ar' => trim((string) ($country['name_ar'] ?? $iso2)),
-                'fields' => [
-                    'name_ar' => trim((string) ($country['name_ar'] ?? $iso2)),
-                    'name_en' => trim((string) ($country['name_en'] ?? $iso2)),
-                    'phone_code' => $country['phone_code'] ?? null,
-                    'timezone' => (string) ($country['timezone'] ?? setting('countries.default_timezone', 'Africa/Cairo')),
+                'name_ar' => $label,
+                'fields' => $fields,
+                // الدولة **الجديدة** لا سابقَ لها يُبقى عليه، فأعمدتها الإلزاميّة
+                // تُملأ بأفضل ما ورد — والافتراضيّ هنا إنشاءٌ لا استبدال.
+                'create' => $fields + [
+                    'name_ar' => $label,
+                    'name_en' => $fields['name_en'] ?? $label,
+                    'timezone' => (string) setting('countries.default_timezone', 'Africa/Cairo'),
                 ],
                 'governorates' => $governorates,
             ];
