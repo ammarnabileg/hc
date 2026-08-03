@@ -76,6 +76,7 @@ return [
     'CZ' => 'h:#FFFFFF,#D7141A|poly:#11457E,0,0,42,50,0,100',
     'DE' => 'h:#000000,#DD0000,#FFCE00',
     'DJ' => 'h:#6AB2E7,#12AD2B|poly:#FFFFFF,0,0,38,50,0,100|star:#D7141A,13,50,9',
+    'DK' => 'bg:#C8102E|cross:#FFFFFF,20,38',
     'DM' => 'bg:#006B3F|rect:#FCD116,0,42,100,5|rect:#000000,0,47,100,5|rect:#FFFFFF,0,52,100,5|rect:#FCD116,40,0,5,100|rect:#000000,45,0,5,100|rect:#FFFFFF,50,0,5,100|disc:#D41C30,48,50,15',
     'DO' => 'bg:#002D62|rect:#CE1126,50,0,50,50|rect:#CE1126,0,50,50,50|rect:#FFFFFF,0,42,100,16|rect:#FFFFFF,42,0,16,100',
     'DZ' => 'v:#006233,#FFFFFF|crescent:#D21034,50,50,13|star:#D21034,62,50,5',

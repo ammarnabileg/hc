@@ -212,7 +212,14 @@ class AdminSystemCountriesTest extends SystemTestCase
         ])->assertRedirect()->getSession()->get('countries_report');
 
         $this->assertTrue($report['dry_run']);
-        $this->assertSame(1, $report['added']);
+
+        /*
+         | ⭐ **الدولة الجديدة تُحسَب بمحافظاتها**: صفّها في جدول الفروق مكتوبٌ
+         | عليه «دولة جديدة بـN محافظة»، و`diff()` لا تُدرِج محافظاتها صفوفًا
+         | مستقلّة — فلو أضافها الدمج وحدها لخرج الوعد كذبًا وخرجت 246 دولة
+         | بصفر محافظة. فالأردن هنا = **الدولة + عمّان** = صفّان.
+         */
+        $this->assertSame(2, $report['added']);
         $this->assertSame(1, $report['updated']);
 
         // ولا أثر في القاعدة

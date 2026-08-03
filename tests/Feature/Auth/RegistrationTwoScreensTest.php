@@ -233,13 +233,26 @@ class RegistrationTwoScreensTest extends TestCase
         }
     }
 
-    /** ولا دولةَ بلا علم: الجدول يغطّي كلّ ما في القاعدة (وإلّا خرجت لوحة حروف) */
-    public function test_every_country_in_the_database_has_a_drawn_flag(): void
+    /**
+     * ولا دولةَ بلا علم — والمقياس **كلّ دول المصدر** لا الدولتان المزروعتان هنا.
+     *
+     * 🐞 وهذا ما أمسك الدنمارك: الجدول كان 249 من 250، فتخرج وحدها **لوحةَ
+     *    حروف** في قائمةٍ كلّها أعلام. اختبارٌ يقيس ما زرعه بنفسه لا يرى ذلك.
+     */
+    public function test_every_country_in_the_source_has_a_drawn_flag(): void
     {
         $flags = app(FlagLibrary::class);
-        $missing = Country::query()->pluck('iso2')->reject(fn ($iso2) => $flags->has((string) $iso2));
+        $payload = (array) json_decode((string) file_get_contents(database_path('data/countries.json')), true);
 
-        $this->assertSame([], $missing->values()->all());
+        $missing = collect($payload['countries'] ?? [])
+            ->pluck('iso2')
+            ->filter()
+            ->reject(fn ($iso2) => $flags->has((string) $iso2))
+            ->values()
+            ->all();
+
+        $this->assertGreaterThan(200, count((array) ($payload['countries'] ?? [])));
+        $this->assertSame([], $missing, 'دولٌ في المصدر بلا علمٍ مرسوم — ستخرج لوحةَ حروف.');
     }
 
     // ================================================ المحافظة مبنيّة على الدولة
@@ -280,6 +293,31 @@ class RegistrationTwoScreensTest extends TestCase
         );
 
         $this->assertContains($cairo->name_ar, $names);
+    }
+
+    /**
+     * 🧩 **بلا جافاسكربت** (2.1): المحافظات تُبنى من الخادم بنفس المسار،
+     * وما كُتِب في الحقول يعود كما هو — فالمستخدم يُكمِل رحلته لا يبدأها.
+     */
+    public function test_the_second_screen_works_without_javascript(): void
+    {
+        $egypt = Country::where('iso2', 'EG')->firstOrFail();
+        $this->passFirstScreen('nojs@test.local');
+
+        $page = $this->get(route('register').'?'.http_build_query([
+            'country_id' => $egypt->id,
+            'name_ar' => 'سعاد كامل حسن',
+            'address_line' => 'شارع النيل',
+        ]))->assertOk();
+
+        // محافظات مصر مبنيّةً في الصفحة نفسها بلا أيّ نداء جافاسكربت
+        $page->assertSee('القاهرة', false);
+        $page->assertSee('الجيزة', false);
+        $page->assertDontSee('الرياض', false);
+
+        // وما كُتِب عاد كما هو
+        $page->assertSee('value="سعاد كامل حسن"', false);
+        $page->assertSee('value="شارع النيل"', false);
     }
 
     // ================================================ إسناد ODbL عند الاستهلاك

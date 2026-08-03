@@ -68,6 +68,7 @@ return new class extends Migration
         ['onboarding.identity.submit_label', 'onboarding', 'زرّ الاستكمال', 'string', 'استكمال التسجيل'],
         ['onboarding.identity.back_question', 'onboarding', 'سؤال الرجوع للخطوة الأولى', 'string', 'عايز تعدّل بريدك أو رقمك؟'],
         ['onboarding.identity.back_label', 'onboarding', 'رابط الرجوع للخطوة الأولى', 'string', 'ارجع للخطوة الأولى'],
+        ['onboarding.identity.load_governorates_label', 'onboarding', 'زرّ بناء المحافظات بلا جافاسكربت', 'string', 'أظهر محافظات الدولة المختارة'],
 
         // ⚠️ ومفاتيح `countries.registration.*` والإسناد موطنها
         // `AdminSystemDemoSeeder::settings()` مع أخواتها في مجموعة «countries»،

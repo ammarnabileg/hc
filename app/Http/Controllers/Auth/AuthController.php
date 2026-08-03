@@ -151,7 +151,9 @@ class AuthController extends Controller
                 'account' => $account,
                 'titles' => $this->titleGroups(),
                 'countries' => $this->countries(),
-                'governorates' => $this->governoratesOf((int) (old('country_id') ?: 0)),
+                // والدولة قد تصل من `old()` (تحقّقٌ سقط) أو من الـQuery (مسار
+                // بلا جافاسكربت أدناه) — فتُقرأ من الاثنين لا من واحد
+                'governorates' => $this->governoratesOf((int) (old('country_id') ?: $request->query('country_id', 0))),
             ]);
         }
 

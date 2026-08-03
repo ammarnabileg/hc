@@ -19,6 +19,10 @@
      *
      * وهذا الترتيب هو ترتيب الحقول أدناه حرفيًّا — لا زيادة ولا نقصان ولا تقديم.
      */
+    // ⭐ القيمة من `old()` (تحقّقٌ سقط) أو من الـQuery (رحلة «بلا جافاسكربت»
+    // أدناه: زرّ يعيد تحميل الصفحة ليملأ المحافظات من الخادم) — فلا يفقد
+    // المستخدم ما كتبه في أيٍّ من المسارين (2.1 · 2.17-ب).
+    $val = fn (string $key) => old($key, request()->query($key));
     $inputClass = 'w-full rounded-xl px-3 py-2 text-sm';
     $inputStyle = 'min-height: 44px; background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)';
 @endphp
@@ -66,7 +70,7 @@
                 @foreach ($titles as $group => $options)
                     <optgroup label="{{ $group }}">
                         @foreach ($options as $option)
-                            <option value="{{ $option }}" @selected(old('title') === $option)>{{ $option }}</option>
+                            <option value="{{ $option }}" @selected($val('title') === $option)>{{ $option }}</option>
                         @endforeach
                     </optgroup>
                 @endforeach
@@ -78,7 +82,7 @@
         <div class="grid md:grid-cols-2 gap-3">
             <label class="block">
                 <span class="block text-sm mb-1">{{ setting('onboarding.identity.name_ar_label', 'الاسم بالعربيّ (ثلاثيّ)') }}</span>
-                <input type="text" name="name_ar" value="{{ old('name_ar') }}" dir="rtl" lang="ar"
+                <input type="text" name="name_ar" value="{{ $val('name_ar') }}" dir="rtl" lang="ar"
                        class="{{ $inputClass }}" style="{{ $inputStyle }}" required data-required-field
                        data-script="arabic">
                 <span class="block text-xs mt-1" data-field-error style="color: var(--color-state-danger)">@error('name_ar')◉ {{ $message }}@enderror</span>
@@ -86,7 +90,7 @@
 
             <label class="block">
                 <span class="block text-sm mb-1">{{ setting('onboarding.identity.name_en_label', 'الاسم بالإنجليزيّ (ثلاثيّ)') }}</span>
-                <input type="text" name="name_en" value="{{ old('name_en') }}" dir="ltr" lang="en"
+                <input type="text" name="name_en" value="{{ $val('name_en') }}" dir="ltr" lang="en"
                        class="{{ $inputClass }}" style="{{ $inputStyle }}" required data-required-field
                        data-script="latin">
                 <span class="block text-xs mt-1" data-field-error style="color: var(--color-state-danger)">@error('name_en')◉ {{ $message }}@enderror</span>
@@ -100,7 +104,7 @@
                 @foreach ([['male', setting('onboarding.identity.gender_male', 'ذكر')], ['female', setting('onboarding.identity.gender_female', 'أنثى')]] as [$value, $label])
                     <label class="flex items-center gap-2 rounded-xl px-3 py-2 text-sm cursor-pointer"
                            style="min-height: 44px; background: var(--surface-sunken); border: 1px solid var(--border)">
-                        <input type="radio" name="gender" value="{{ $value }}" @checked(old('gender') === $value) required>
+                        <input type="radio" name="gender" value="{{ $value }}" @checked($val('gender') === $value) required>
                         <span aria-hidden="true" style="color: var(--color-brand-500)">
                             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
                                  stroke-linecap="round" stroke-linejoin="round">
@@ -126,7 +130,7 @@
                 <select name="country_id" class="{{ $inputClass }}" style="{{ $inputStyle }}" data-country data-required-field>
                     <option value="">{{ setting('onboarding.identity.country_placeholder', 'اختر الدولة') }}</option>
                     @foreach ($countries as $country)
-                        <option value="{{ $country->id }}" @selected((int) old('country_id') === $country->id)>{{ $country->name_ar }}</option>
+                        <option value="{{ $country->id }}" @selected((int) $val('country_id') === $country->id)>{{ $country->name_ar }}</option>
                     @endforeach
                 </select>
                 @error('country_id')<span class="block text-xs mt-1" style="color: var(--color-state-danger)">◉ {{ $message }}</span>@enderror
@@ -142,11 +146,11 @@
                 --}}
                 <select name="governorate_id" class="{{ $inputClass }}" style="{{ $inputStyle }}"
                         data-governorate data-required-field data-url="{{ route('register') }}"
-                        @disabled(! old('country_id'))>
-                    <option value="">{{ old('country_id') ? setting('onboarding.identity.governorate_placeholder', 'اختر المحافظة') : setting('onboarding.identity.governorate_blocked', 'اختر الدولة الأوّل') }}</option>
+                        @disabled(! $val('country_id'))>
+                    <option value="">{{ $val('country_id') ? setting('onboarding.identity.governorate_placeholder', 'اختر المحافظة') : setting('onboarding.identity.governorate_blocked', 'اختر الدولة الأوّل') }}</option>
                     @foreach ($governorates as $governorate)
                         <option value="{{ $governorate['id'] }}"
-                                @selected((int) old('governorate_id') === $governorate['id'])>{{ $governorate['name'] }}</option>
+                                @selected((int) $val('governorate_id') === $governorate['id'])>{{ $governorate['name'] }}</option>
                     @endforeach
                 </select>
                 @error('governorate_id')<span class="block text-xs mt-1" style="color: var(--color-state-danger)">◉ {{ $message }}</span>@enderror
@@ -156,10 +160,23 @@
         {{-- 7) العنوان الفرعيّ: Input عاديّ (المنطقة والشارع) --}}
         <label class="block">
             <span class="block text-sm mb-1">{{ setting('onboarding.identity.address_label', 'العنوان الفرعيّ (المنطقة والشارع)') }}</span>
-            <input type="text" name="address_line" value="{{ old('address_line') }}"
+            <input type="text" name="address_line" value="{{ $val('address_line') }}"
                    class="{{ $inputClass }}" style="{{ $inputStyle }}" required data-required-field>
             @error('address_line')<span class="block text-xs mt-1" style="color: var(--color-state-danger)">◉ {{ $message }}</span>@enderror
         </label>
+
+        {{--
+            🧩 **بلا جافاسكربت** (2.1): المحافظات تُجلَب بـ`fetch` — ومَن أطفأه
+            يحتاج بابًا. هذا الزرّ يُعيد تحميل الصفحة **بنفس المسار** فيبنيها
+            الخادم، ويعود بكلّ ما كُتِب لأنّ الحقول تقرأ الـQuery كما تقرأ `old()`.
+        --}}
+        <noscript>
+            <button type="submit" formmethod="get" formaction="{{ route('register') }}" formnovalidate
+                    class="btn w-full rounded-xl py-2 text-sm motion-standard"
+                    style="min-height: 44px; background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
+                {{ setting('onboarding.identity.load_governorates_label', 'أظهر محافظات الدولة المختارة') }}
+            </button>
+        </noscript>
 
         {{-- 8) زرّ الاستكمال **معطَّل حتى تكتمل كلّ البيانات** — واحتفال قويّ عند الإتمام --}}
         <button data-submit class="btn w-full rounded-xl py-2 font-semibold motion-standard"
