@@ -237,3 +237,14 @@
         </script>
     @endpush
 @endsection
+
+{{-- الفعل الرئيسيّ على الموبايل في متناول الإبهام (2.15-ج) --}}
+@section('mobile_action')
+    @can('placement_test.create')
+        <button type="button" data-modal-open="placement-question" data-question-new
+                class="btn w-full rounded-xl px-4 py-3 text-sm font-semibold"
+                style="background: var(--color-brand-500); color: #04201c">
+            {{ setting('onboarding.placement.admin.add_cta') }}
+        </button>
+    @endcan
+@endsection
