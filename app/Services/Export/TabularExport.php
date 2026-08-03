@@ -108,10 +108,10 @@ class TabularExport
         fwrite($handle, "\xEF\xBB\xBF");
 
         if ($rows !== []) {
-            fputcsv($handle, array_keys((array) $rows[0]));
+            fputcsv($handle, array_keys((array) $rows[0]), ',', '"', '\\');
 
             foreach ($rows as $row) {
-                fputcsv($handle, array_values((array) $row));
+                fputcsv($handle, array_values((array) $row), ',', '"', '\\');
             }
         }
 
