@@ -37,11 +37,13 @@ class FawaterkClient
         string $itemName,
         array $redirectionUrls,
     ): array {
-        $apiKey = (string) setting('topup.gateway.api_key', '');
-
-        if ($apiKey === '') {
-            throw new RuntimeException('مفتاح البوّابة غير مضبوط في لوحة الأدمن.');
+        // ⭐ المفتاحان معًا شرطُ أيّ عمل: فاتورةٌ تُنشَأ بلا `vendor_key` تولد
+        //    بلا حارسٍ لويب هوكها — أوّل خطوةٍ في الطريق إلى شحنٍ مجّانيّ.
+        if (! GatewayGuard::isConfigured()) {
+            throw new RuntimeException(GatewayGuard::notice());
         }
+
+        $apiKey = (string) setting('topup.gateway.api_key', '');
 
         [$firstName, $lastName] = $this->splitName($user->name);
 
@@ -95,18 +97,37 @@ class FawaterkClient
     /**
      * ⭐ التحقّق من هاش الويب هوك (19.5-ج-2) — إجباريّ وبمقارنة آمنة زمنيًّا.
      * ويبقى خارج نداء الشبكة عمدًا حتى لا يُعطَّل التحقّق حين نبدّل العميل في الاختبار.
+     *
+     * ⛔ ولا يُشتقّ توقيعٌ بمفتاحٍ فارغ: HMAC بمفتاح `''` رقمٌ يحسبه أيّ أحد،
+     *    فالاشتقاق نفسه — لا المقارنة وحدها — يجب أن يتوقّف.
+     *
+     * @throws RuntimeException إن كان `vendor_key` غير مضبوط
      */
     public static function expectedHash(string $invoiceId, string $invoiceKey, string $paymentMethod): string
     {
+        $vendorKey = trim((string) setting('topup.gateway.vendor_key', ''));
+
+        if ($vendorKey === '') {
+            throw new RuntimeException(GatewayGuard::notice());
+        }
+
         return hash_hmac(
             'sha256',
             "InvoiceId={$invoiceId}&InvoiceKey={$invoiceKey}&PaymentMethod={$paymentMethod}",
-            (string) setting('topup.gateway.vendor_key', ''),
+            $vendorKey,
         );
     }
 
+    /**
+     * لا تُطابِق أبدًا حين تكون البوّابة غير مضبوطة — والمقارنة الآمنة زمنيًّا
+     * (`hash_equals`) تبقى كما هي لكلّ نداءٍ عن مفتاحٍ حقيقيّ.
+     */
     public static function hashMatches(string $provided, string $invoiceId, string $invoiceKey, string $paymentMethod): bool
     {
+        if (! GatewayGuard::isConfigured()) {
+            return false;
+        }
+
         return hash_equals(self::expectedHash($invoiceId, $invoiceKey, $paymentMethod), $provided);
     }
 

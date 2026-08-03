@@ -150,6 +150,10 @@ class WalletScreensTest extends WalletTestCase
             'pay_amount' => 500, 'credit_amount' => 540, 'bonus_percent' => 8, 'is_active' => true,
         ]);
 
+        // البوّابة لا تُعَدّ مفعَّلة بلا المفتاحين معًا (19.5-ج-5)، فنضبطهما هنا
+        $this->setSetting('topup.gateway.api_key', 'api-key-for-tests');
+        $this->setSetting('topup.gateway.vendor_key', 'vendor-key-for-tests');
+
         // الشبكة محجوبة: نبدّل العميل بمزدوجٍ في الحاويّة فلا نداء حقيقيّ
         $this->app->instance(FawaterkClient::class, new class extends FawaterkClient
         {

@@ -23,6 +23,7 @@ class CertificateIssuer
     public function __construct(
         private readonly CertificateNumber $numbers,
         private readonly CertificateRenderer $renderer,
+        private readonly CertificateSignature $signature,
     ) {}
 
     /**
@@ -57,7 +58,6 @@ class CertificateIssuer
 
             $certificate = new Certificate([
                 'code' => $code,
-                'hash' => $this->hash($code, $user, $type, $issuedAt->toIso8601String()),
                 'user_id' => $user->id,
                 'certificate_type_id' => $type->id,
                 'language' => $language,
@@ -72,6 +72,15 @@ class CertificateIssuer
             if ($subject) {
                 $certificate->subject()->associate($subject);
             }
+
+            /*
+             | ⭐ التوقيع **بعد** اكتمال اللقطتين لا قبلهما (12.5-هـ): التوقيع يغطّي
+             | ما يُعرَض على المتحقِّق، فلا يُشتقّ إلّا ممّا استقرّ فعلًا في الصفّ.
+             | ومصدره واحدٌ لكلّ المنصّة — `CertificateSignature` — فلا نسخةَ ثانية
+             | تنحرف عن الأولى فتُعلَن شهادةٌ صحيحةٌ مزوَّرة.
+             */
+            $certificate->setRelation('certificate_type', $type);
+            $certificate->hash = $this->signature->for($certificate);
 
             $certificate->save();
 
@@ -182,12 +191,6 @@ class CertificateIssuer
             )
             ->where('status', 'valid')
             ->first();
-    }
-
-    /** التوقيع الرقميّ: يثبت أنّ البيانات المعروضة هي التي صدرت (12.5-هـ) */
-    private function hash(string $code, User $user, CertificateType $type, string $issuedAt): string
-    {
-        return hash_hmac('sha256', implode('|', [$code, $user->id, $type->key, $issuedAt]), (string) config('app.key'));
     }
 
     /** تجميد نسخة القالب لحظة الإصدار (12.5-ج) */

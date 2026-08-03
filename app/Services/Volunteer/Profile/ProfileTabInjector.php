@@ -48,6 +48,17 @@ final class ProfileTabInjector
 
         $viewer = auth()->user();
         $level = $this->levels->for($viewer, $owner);
+
+        /*
+         | ⛔ خارج المستويات الأربعة (زائرٌ بلا جلسة أو مستخدمٌ ليس متطوّعًا):
+         | **لا طبقة أصلًا** — لا رقاقة تاب تُدفَع ولا لوحة تُبنى ولا استعلام
+         | يُنفَّذ. «ولا يراها ولا يعرف بوجودها غيره» (10.0) — والحجب هنا **قبل
+         | الحساب**، فلا شيء يُرسَل ليُخفى في القالب.
+         */
+        if ($level === null) {
+            return;
+        }
+
         $tabs = VolunteerProfileTabs::definitions($level, $viewer);
         $allowed = array_column($tabs, 'key');
 

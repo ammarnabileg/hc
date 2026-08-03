@@ -5,7 +5,10 @@ use App\Http\Controllers\GatewayWebhookController;
 use App\Http\Controllers\Trainee\TopupController;
 use App\Http\Controllers\Trainee\WalletController;
 use App\Http\Controllers\Trainee\WalletOperationsController;
+use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -93,9 +96,36 @@ Route::middleware(['auth', 'admin.panel'])->prefix('admin/wallet')->name('admin.
 });
 
 /*
+| حدّ نداءات الويب هوك (2.13 — القيمة إعداد لا رقم محروق).
+|
+| ⭐ **لماذا حدٌّ أصلًا؟** المسار بلا CSRF وبلا `auth`، فبلا حدٍّ يصير بابَ تعدادٍ
+|    مجّانيّ لـ`invoice_id` ولمحاولات التوقيع — ألوف المحاولات في الدقيقة بلا ثمن.
+|
+| ⭐ **ولماذا 60 في الدقيقة لكلّ IP افتراضًا؟** نداءات فواتيرك المشروعة تأتي كلّها
+|    من مدى IP واحد ومتتابعةً (كلّ فاتورة نداء، وإعادة الإرسال عند تأخّر الردّ
+|    نداءٌ آخر — وهو سلوكٌ طبيعيّ لا خطأ). فحدٌّ ضيّق يُسقِط ذروةَ يوم عروضٍ
+|    ويضيّع إشعارَ دفعٍ حقيقيّ. و60/دقيقة = **3600 نداءً في الساعة من البوّابة
+|    وحدها** — أضعافُ أيّ ذروة دفعٍ واقعيّة على المنصّة، وفي الوقت نفسه يجعل
+|    تعداد `invoice_id` (يحتاج عشرات الألوف من المحاولات) بلا جدوى عمليّة.
+|    والقيمة والنافذة والرسالة كلّها من لوحة الأدمن، فتُشَدّ أو تُرخى بلا نشر.
+|
+| والنداء المحجوب هنا لا يُكتَب في السجلّ الخام عمدًا: صفٌّ لكلّ نداءٍ محجوب
+| يحوّل حدَّ النداءات نفسه إلى بابِ إغراقٍ لقاعدة البيانات.
+*/
+RateLimiter::for('gateway-webhook', fn (Request $request) => Limit::perMinutes(
+    max((int) setting('topup.gateway.webhook.rate_window_minutes', 1), 1),
+    max((int) setting('topup.gateway.webhook.rate_limit', 60), 1),
+)->by((string) $request->ip())->response(fn () => response()->json([
+    'ok' => false,
+    'message' => (string) setting('topup.gateway.webhook.rate_limit_message', ''),
+], 429)));
+
+/*
 | ويب هوك البوّابة: بلا CSRF وبلا auth — لأنّ المنادي خادم فواتيرك لا متصفّح.
-| وحمايته من الهاش الموقَّع وحده (19.5-ج-2)، وكلّ نداء يُسجَّل خامًا.
+| وحمايته من الهاش الموقَّع (19.5-ج-2) **فوق مفتاح تاجرٍ مضبوط** — والمفتاح
+| الفارغ يُبطِل الحماية كلّها فيُرفَض النداء ويُسجَّل بسببه. وكلّ نداء يُسجَّل خامًا.
 */
 Route::post('/webhooks/fawaterk', [GatewayWebhookController::class, 'fawaterk'])
     ->withoutMiddleware([PreventRequestForgery::class])
+    ->middleware('throttle:gateway-webhook')
     ->name('webhooks.fawaterk');

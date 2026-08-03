@@ -9,6 +9,7 @@ use App\Models\Transaction;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use RuntimeException;
 
 /**
  * بوّابة الدفع — إنشاء الفاتورة ثمّ إضافة الرصيد من الويب هوك حصرًا (19.5-ج-2).
@@ -26,6 +27,20 @@ class GatewayService
     /** إنشاء الفاتورة محلّيًّا ثمّ لدى البوّابة، وإرجاعها بمسار الدفع */
     public function startInvoice(User $user, TopupOffer $offer, array $redirectionUrls): GatewayInvoice
     {
+        /*
+        | ⭐ `topup.gateway.enabled` لا يُعتَدّ به وحده (19.5-ج-5): بلا `api_key`
+        | و`vendor_key` معًا لا تُفتَح فاتورةٌ أصلًا — فلا نُدخِل مستخدمًا في
+        | مسار دفعٍ حارسُ ويب هوكه غير موجود. والرسالة تقول للأدمن ماذا نقص
+        | وماذا يفعل (2.17-ب)، وتصله إشعارًا في لوحته.
+        */
+        if (! GatewayGuard::isEnabled()) {
+            GatewayGuard::warnOwners();
+
+            // استثناء تشغيليّ لا `WalletException`: المستخدم يرى رسالة الكنترولر
+            // العامّة ولا يقرأ أبدًا **أيّ مفتاحٍ ينقصنا** — والتفصيل للمالك وحده.
+            throw new RuntimeException(GatewayGuard::notice() ?: 'gateway disabled');
+        }
+
         $invoice = GatewayInvoice::create([
             'user_id' => $user->id,
             'topup_offer_id' => $offer->id,

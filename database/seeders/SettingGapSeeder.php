@@ -413,6 +413,7 @@ class SettingGapSeeder extends Seeder
             ['volunteer.honorary.accounts_limit', 'volunteer', 'أقصى عدد حسابات شرفيّة', 'number', '20', '«أخوكم» عنصر شرفيّ بلا أثر في أيّ عدّاد (13.4-ص).'],
             ['volunteer_cert.experience.notify_title', 'volunteer_cert', 'عنوان إشعار شهادة خبرة التطوّع', 'string', 'شهادة خبرة التطوّع بتاعتك صدرت 🎖️', ''],
             ['volunteer_cert.experience.notify_body', 'volunteer_cert', 'نصّ إشعار شهادة خبرة التطوّع', 'text', 'شكرًا على كلّ اللي قدّمته — الشهادة في مكتبتك وبتفضل سارية للأبد.', ''],
+            ['volunteer_cert.issuer_unavailable', 'volunteer_cert', 'سبب تعثّر إصدار شهادة التطوّع', 'text', 'مسار إصدار الشهادات متعثّر الآن — راجع أنّ نوع الشهادة مفعَّل في «إدارة الشهادات»، ولا تُكتَب شهادة خارج المحرّك.', 'لا شهادة تُكتَب خارج `CertificateIssuer` (12.5): الفشل يُعلَن ولا يُخبَّأ خلف وثيقةٍ بلا ترقيم ولا لقطة ولا توقيع بمفتاح.'],
 
             ['celebrations.labels.close', 'gamification_celebrations', 'نصّ زرّ إغلاق الاحتفال', 'string', 'تمام', ''],
             ['learning.paths.friends_limit', 'paths', 'عدد الزملاء الظاهرين على المسار', 'number', '12', '12 = اثنا عشر وجهًا قبل «وغيرهم».'],

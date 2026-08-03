@@ -49,20 +49,34 @@ class AccessEngine
      */
     public function allows(User $user, string $permissionKey, mixed $target = null, ?Membership $context = null): bool
     {
+        /*
+         | ⭐ 6) مالك المنصّة فوق الجميع (12.2.1-ز-5) — **قبل** فحص المنع.
+         |
+         | والنصّان يُقرآن معًا لا يُلغي أحدهما الآخر:
+         |  • ز-1 «المنع يغلب الإذن» يحكم **تعارض المصادر على المُخوَّلين**: مَن مُنِح
+         |    من مصدرٍ ومُنِع من آخر ⟵ المنع يكسب. وهذا باقٍ كما هو أدناه لكلّ
+         |    مَن سوى المالك، بلا استثناءٍ ولا تخفيف.
+         |  • ز-5 «ويظلّ **مالك المنصّة** فوق الجميع بمجموعته المحميّة» يحكم **موقع
+         |    الحساب الجذر من السلّم كلّه**: فهو ليس طرفًا في تعارض المصادر أصلًا،
+         |    وصلاحيّته ليست ممنوحةً من صفٍّ حتى يُلغيها صفّ.
+         |
+         | وكان الترتيب المقلوب يجعل **صفّ منعٍ واحدًا** — يكتبه أيّ مسارٍ يكتب في
+         | `permission_user` — يقفل الحساب الجذر عن منصّته، ومعه شاشةُ الأدوار التي
+         | وحدَها تفكّ القفل. فقفلٌ لا رجعة فيه، وهو نقيض «فوق الجميع».
+         */
+        if ($this->isPlatformOwner($user)) {
+            return true;
+        }
+
         $membership = $context ?? $this->context->for($user);
         $grants = $this->grantsFor($user)->where('permissionKey', $permissionKey);
 
-        // 3) Deny > Allow — يُفحَص المنع أوّلًا وقبل أيّ شيء.
+        // 3) Deny > Allow — يُفحَص المنع أوّلًا وقبل أيّ شيء (لكلّ مَن سوى المالك).
         // وصفّ منعٍ بنطاقٍ تالف يُحسَب مانعًا: ما لا نفهمه لا نقرؤه إذنًا.
         foreach ($grants->where('effect', 'deny') as $deny) {
             if (! $deny->hasValidScope() || $this->matches($deny, $user, $target, $membership)) {
                 return false;
             }
-        }
-
-        // مالك المنصّة يعلو الجميع — بعد المنع الصريح
-        if ($this->isPlatformOwner($user)) {
-            return true;
         }
 
         // 5) عزل الحسّاس: ما هو owner-only لا يُمنَح لغير مالك المنصّة مهما كان الدور
@@ -143,8 +157,27 @@ class AccessEngine
      * ⭐ باب لوحة الإدارة (12.2.1-أ): «الشاشة نتيجةٌ للصلاحيّات لا صلاحيّةً بذاتها،
      * ومنه: لوحة الإدارة تظهر لمن له **أيّ** صلاحيّة».
      *
-     * فلا مفتاح `admin_panel.view` — الباب يُحسَب: هل يملك صاحبنا **أيّ صلاحيّة
-     * إداريّة**؟ ثمّ كلّ صفحةٍ بعدها تُحرَس بصلاحيّتها هي.
+     * فلا مفتاح `admin_panel.view`. والباب كان يُحسَب بقائمة **مفاتيح** تحرس مسارات
+     * `admin.*`، فانقلب على النصّ في الاتّجاهين:
+     *
+     *  • **يقفل في وجه أصحاب الصلاحيّة:** 246 مفتاحًا من 1033 فقط دخلت الحساب،
+     *    فمَن يملك `courses.manage@ALL` أو `paths.manage@ALL` — ولا تحرس `manage`
+     *    مسارًا بذاتها — يُردّ، ومعه دور **«فريق التوظيف»** كلّه (49 صلاحيّة،
+     *    وشاشاتُه تحت `volunteer.*` لا `admin.*`) وهو قالبٌ منصوص في 12.2.3-ب-17.
+     *  • **ويقفل لأنّ المفتاح مشترَك:** `store_products.list` و`events.list` و
+     *    `referrals.view` تحرس شاشات إدارة **ويحملها المتدرّب أيضًا**، فأُقصيت
+     *    كلّها — فسقط معها مسؤول المتجر ومسؤول الفعاليّات.
+     *
+     * ⭐ فالمعيار الآن **مصدر الصفّ لا اسم المفتاح** (12.2.3): مَن يحمل صلاحيّةً
+     * من دورٍ **خارج قالب المستخدم النهائيّ** (طبقة `user`) — أو من استثناءٍ فرديّ
+     * كتبه مسؤولٌ بيده — فهو صاحب سلطةٍ ويفتح الباب. ومَن كلُّ ما يحمله من قالب
+     * المستخدم النهائيّ **لا يفتحه**، وهو عين المتدرّب و«تحت المراجعة».
+     *
+     * وهذا يحسم الاشتباك الذي لا يحسمه اسمُ المفتاح: `store_products.list@ALL`
+     * **نفسها** يحملها المتدرّب (كتالوج المتجر) ويحملها مسؤول التسويق — والفارق
+     * الوحيد بينهما هو **مِن أين جاءت**.
+     *
+     * ثمّ **كلّ صفحةٍ بعد الباب تُحرَس بصلاحيّتها هي** — والباب لا يمنح شيئًا.
      */
     public function opensAdminPanel(User $user): bool
     {
@@ -152,10 +185,11 @@ class AccessEngine
             return true;
         }
 
+        $endUserLayer = (string) config('access.panel.end_user_layer', 'user');
+
         // نمرّ على ما يملكه هو لا على السطح كلّه: المتدرّب لا يستدعي `allows` ولا مرّة
-        $surface = array_flip($this->adminPermissionKeys());
         $candidates = $this->grantsFor($user)
-            ->filter(fn (Grant $grant) => isset($surface[$grant->permissionKey]))
+            ->filter(fn (Grant $grant) => $grant->isAllow() && $grant->layer !== $endUserLayer)
             ->pluck('permissionKey')
             ->unique();
 
@@ -297,6 +331,7 @@ class AccessEngine
                 'permission_role.conditions',
                 'role_user.membership_id',
                 'roles.key as role_key',
+                'roles.layer as role_layer',
             ]);
 
         foreach ($roleRows as $row) {
@@ -307,6 +342,7 @@ class AccessEngine
                 conditions: $this->decode($row->conditions),
                 membershipId: $row->membership_id,
                 origin: 'role:'.$row->role_key,
+                layer: $row->role_layer,
             ));
         }
 

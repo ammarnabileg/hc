@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\GatewayInvoice;
 use App\Models\GatewayWebhookLog;
 use App\Services\Wallet\FawaterkClient;
+use App\Services\Wallet\GatewayGuard;
 use App\Services\Wallet\GatewayService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -17,6 +18,9 @@ use Illuminate\Http\Request;
  *  2) الرصيد يُضاف من هنا حصرًا — ورابط الرجوع للعرض فقط.
  *  3) النداء المكرّر يُقبَل بردٍّ ناجح بلا أثر ماليّ (البوّابات تعيد الإرسال، وهو سلوكٌ طبيعيّ).
  *  4) كلّ نداء يُسجَّل خامًا بوقته وIP وهيدرزه وجسمه ونتيجة تحقّقه.
+ *  5) ⭐ **ولا نداء يُقبَل والبوّابة غير مضبوطة:** مفتاح تاجرٍ فارغ يعني توقيعًا
+ *     يحسبه أيّ أحد، فالباب يُقفَل من أوّله ويُكتَب الرفض بسببه في السجلّ الخام —
+ *     فالصمت هنا يخفي هجومًا.
  */
 class GatewayWebhookController extends Controller
 {
@@ -32,6 +36,26 @@ class GatewayWebhookController extends Controller
         $paymentMethod = (string) ($body['payment_method'] ?? $body['paymentMethod'] ?? '');
         $provided = (string) ($body['hashKey'] ?? $body['hash_key'] ?? '');
         $status = strtolower((string) ($body['invoice_status'] ?? $body['status'] ?? ''));
+
+        /*
+        | 0) قبل الهاش نفسه: هل للبوّابة مفتاحٌ أصلًا؟
+        | مفتاح تاجرٍ فارغ ⟵ HMAC يشتقّه أيّ أحد، فـ`hash_equals` يحرس بابًا
+        | مفتاحُه معلَن. الرفض هنا **مع سببٍ مكتوب في السجلّ الخام** وتنبيهٍ
+        | للمالك — لأنّ نداءً على بوّابةٍ بلا مفتاح إمّا عطبٌ في الضبط أو محاولة
+        | شحنٍ مجّانيّ، وكلاهما لا يجوز أن يمرّ صامتًا (19.5-ج-2).
+        | و503 لا 403: العطب عندنا لا في المنادي، والبوّابة تعيد الإرسال لاحقًا
+        | فلا تضيع فاتورةٌ مدفوعة فعلًا بعد ضبط المفتاح.
+        */
+        if (! GatewayGuard::isConfigured()) {
+            $this->log($request, $invoiceId, false, 'gateway_not_configured', GatewayGuard::notice());
+
+            GatewayGuard::warnOwners();
+
+            return response()->json([
+                'ok' => false,
+                'message' => (string) setting('topup.gateway.webhook.blocked_message', ''),
+            ], 503);
+        }
 
         // 1) الهاش أوّلًا وقبل أيّ قراءة للفاتورة — فالمجهول لا يفتح بابًا
         $hashValid = $provided !== ''
@@ -85,8 +109,11 @@ class GatewayWebhookController extends Controller
         return $status;
     }
 
-    /** 4) سجلّ خام لكلّ نداء — الوقت وIP والهيدرز والجسم ونتيجة التحقّق */
-    private function log(Request $request, string $invoiceId, bool $hashValid, string $result): void
+    /**
+     * 4) سجلّ خام لكلّ نداء — الوقت وIP والهيدرز والجسم ونتيجة التحقّق.
+     * و`$reason` سببٌ مقروء للرفض حين لا تكفي كلمة النتيجة وحدها.
+     */
+    private function log(Request $request, string $invoiceId, bool $hashValid, string $result, string $reason = ''): void
     {
         $headers = [];
 
@@ -104,6 +131,7 @@ class GatewayWebhookController extends Controller
             'body' => $request->getContent() ?: json_encode($request->all(), JSON_UNESCAPED_UNICODE),
             'hash_valid' => $hashValid,
             'result' => $result,
+            'reason' => $reason !== '' ? $reason : null,
         ]);
     }
 }

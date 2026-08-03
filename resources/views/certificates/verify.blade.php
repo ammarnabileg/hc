@@ -1,22 +1,36 @@
 @php
+    use App\Services\Certificates\CertificateSignature;
+
     $data = (array) ($certificate?->data_snapshot ?? []);
     $appName = config('app.name');
     $subject = $data['certificate_name'] ?? $certificate?->certificate_type?->name_ar;
     $holder = $data['holder_name'] ?? $certificate?->user?->name;
 
-    // بيانات SEO للصفحة المفهرسة (21.1-أ · 21.2-ب) — والفهرسة نفسها إعداد
-    $indexCertificates = (bool) setting('growth.seo.index_certificates', true);
-    $metaTitle = $certificate
+    /*
+     | ⭐ **هنا يقع التحقّق فعلًا** (8.1 · 12.5-هـ): الدستور يعد الجهات بالتحقّق من
+     | «صحّة **و**صلاحيّة» الشهادة — والصلاحيّة حالةٌ مخزَّنة، أمّا الصحّة فلا تُعرَف
+     | إلّا بإعادة اشتقاق التوقيع من بيانات الشهادة ومقارنته بالمخزَّن مقارنةً آمنة
+     | زمنيًّا. وكانت الصفحة تعرض الحالة وحدها، فصفٌّ بتوقيعٍ مخترَع كان يُعلَن
+     | «ساريًا وبياناته مطابقة لسجلّنا» — والفوتر يَعِد بتوقيعٍ رقميّ لا يُفحَص.
+     */
+    $signature = $certificate ? app(CertificateSignature::class)->verdict($certificate) : null;
+    $signatureOk = $signature === CertificateSignature::MATCH;
+
+    // بيانات SEO للصفحة المفهرسة (21.1-أ · 21.2-ب) — والفهرسة نفسها إعداد.
+    // وشهادةٌ لا يطابق توقيعُها بياناتِها **لا تُفهرَس ولا تُعطى بطاقة مشاركة**:
+    // الفهرسة إقرارٌ بالصحّة، ولا إقرار قبل التحقّق.
+    $indexCertificates = (bool) setting('growth.seo.index_certificates', true) && $signatureOk;
+    $metaTitle = $certificate && $signatureOk
         ? str_replace(['[الاسم]', '[الشهادة]', '[الكود]'], [$holder, $subject, $certificate->code],
             (string) setting('certificates.seo.meta_title', '[الاسم] — [الشهادة] · شهادة معتمدة'))
         : (string) setting('certificates.seo.index_title', 'التحقّق من الشهادة');
-    $metaDescription = $certificate
+    $metaDescription = $certificate && $signatureOk
         ? str_replace(['[الاسم]', '[الشهادة]', '[التاريخ]'], [$holder, $subject, $certificate->issued_at?->format(setting('certificates.render.date_format', 'Y/m/d'))],
             (string) setting('certificates.seo.meta_description', 'شهادة [الشهادة] الصادرة لـ[الاسم] بتاريخ [التاريخ] — تحقّق من صحّتها هنا.'))
         : (string) setting('certificates.seo.index_description', 'تحقّق من صحّة أيّ شهادة صادرة من المنصّة بكودها — بلا تسجيل دخول.');
 
     // Schema.org: EducationalOccupationalCredential لتظهر نتيجةً غنيّة (21.2-ب)
-    $schema = $certificate ? [
+    $schema = $certificate && $signatureOk ? [
         '@context' => 'https://schema.org',
         '@type' => 'EducationalOccupationalCredential',
         'name' => $subject,
@@ -45,7 +59,7 @@
     <meta name="description" content="{{ $metaDescription }}">
     <meta property="og:title" content="{{ $metaTitle }}">
     <meta property="og:description" content="{{ $metaDescription }}">
-    @if ($certificate)
+    @if ($certificate && $signatureOk)
         <meta property="og:image" content="{{ route('certificates.image', $certificate->code) }}">
     @endif
 
@@ -98,6 +112,48 @@
                 {{ setting('certificates.verify.not_found', 'مفيش شهادة بالكود ده في سجلّنا. راجع الكود، ولو شايف إنّ فيه مشكلة بلّغنا.') }}
             </p>
         </div>
+    @elseif ($certificate && ! $signatureOk)
+        {{--
+          | ⭐ **الحالة الثالثة: صفٌّ موجود وتوقيعُه لا تشتقّه بياناته** (8.1 · 12.5-هـ).
+          | لا «سارية» — فلا نشهد بصحّة ما لا نقدر على إثباته. ولا «غير موجودة» —
+          | فذلك كذبٌ يفيد المزوِّر: يجرّب حتى يقع على كودٍ يظهر «موجودًا». والفرق
+          | بين البابين معلومةٌ يحتاجها المتحقِّق ليعرف ماذا يفعل، ولذلك أُعلِن صراحةً.
+          | وبلا اسمٍ ولا صورةٍ ولا تنزيل: ما لم يُتحقَّق منه لا يُقدَّم كأنّه وثيقة.
+        --}}
+        <article class="card p-6 text-center animate-fadeup">
+            <div class="flex justify-center mb-3" style="color: var(--color-state-danger)">
+                <x-icon name="shield" size="40" :label="setting('certificates.verify.signature_label', 'التوقيع الرقميّ')" />
+            </div>
+
+            <div class="flex justify-center mb-3">
+                <x-state-badge state="danger" :label="$signature === CertificateSignature::UNSIGNED
+                    ? setting('certificates.verify.unsigned_badge', 'بلا توقيع رقميّ')
+                    : setting('certificates.verify.unverified_badge', 'التوقيع لا يطابق')" />
+            </div>
+
+            <h2 class="text-lg font-extrabold mb-2">
+                {{ setting('certificates.verify.unverified_title', 'ما نقدرش نأكّد صحّة الشهادة دي') }}
+            </h2>
+
+            <p class="text-sm" style="color: var(--text-muted)">
+                {{ $signature === CertificateSignature::UNSIGNED
+                    ? setting('certificates.verify.unsigned_text', 'فيه صفّ بالكود ده في سجلّنا لكنّه من غير توقيع رقميّ أصلًا، فما نقدرش نشهد إنّ بياناته هي اللي صدرت. لو استلمت نسخة بالكود ده، بلّغنا وهنراجعها.')
+                    : setting('certificates.verify.unverified_text', 'فيه صفّ بالكود ده في سجلّنا، لكن توقيعه الرقميّ مش مطابق للتوقيع اللي بتشتقّه بياناته — يعني البيانات اتغيّرت بعد الإصدار أو الصفّ اتكتب من برّه محرّك الإصدار. عشان كده ما نقدرش نشهد بصحّتها ولا نعرض بياناتها. بلّغنا وهنراجعها.') }}
+            </p>
+
+            <p class="text-sm mt-4">
+                <span style="color: var(--text-muted)">{{ setting('certificates.labels.code', 'كود الشهادة') }}:</span>
+                <span class="font-semibold tabular-nums">#{{ $certificate->code }}</span>
+            </p>
+
+            <div class="mt-4 flex flex-wrap items-center justify-center gap-2">
+                <button type="button" data-modal-open="report-modal"
+                        class="btn rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
+                        style="background: var(--color-brand-500); color: #04201c">
+                    {{ setting('certificates.labels.report', 'أبلغ عن شهادة مشبوهة') }}
+                </button>
+            </div>
+        </article>
     @elseif ($certificate)
         <article class="card p-5 animate-fadeup">
             <div class="flex items-start justify-between gap-3 flex-wrap">
@@ -147,6 +203,14 @@
                     <dt style="color: var(--text-muted)">{{ setting('certificates.labels.code', 'الكود') }}</dt>
                     <dd class="font-semibold tabular-nums">#{{ $certificate->code }}</dd>
                 </div>
+                {{-- نتيجة إعادة اشتقاق التوقيع — بأيقونةٍ ووسمٍ لا بلونٍ وحده (2.16-ب) --}}
+                <div class="flex items-center justify-between gap-3">
+                    <dt class="flex items-center gap-1" style="color: var(--text-muted)">
+                        <x-icon name="shield" size="16" />
+                        <span>{{ setting('certificates.verify.signature_label', 'التوقيع الرقميّ') }}</span>
+                    </dt>
+                    <dd><x-state-badge state="ok" :label="setting('certificates.verify.signature_ok', 'مطابق — البيانات دي هي اللي صدرت')" /></dd>
+                </div>
             </dl>
 
             {{-- نصّ الحالة — و«منتهية» بنصّها المعتمَد: ليست ملغاة ولا مطعونًا في صحّتها (13.4-ق-و) --}}
@@ -183,6 +247,10 @@
             </span>
         </a>
 
+    @endif
+
+    {{-- البلاغ متاحٌ لكلّ صفٍّ موجود — والمشبوه أولى به من السليم (11 · 12.5-هـ) --}}
+    @if ($certificate)
         <x-modal id="report-modal" :title="setting('certificates.labels.report', 'أبلغ عن شهادة مشبوهة')">
             <form method="post" action="{{ route('verify.certificate.report') }}" class="space-y-3">
                 @csrf

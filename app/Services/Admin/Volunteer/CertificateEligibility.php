@@ -6,10 +6,10 @@ use App\Models\Certificate;
 use App\Models\CertificateType;
 use App\Models\Membership;
 use App\Models\User;
+use App\Services\Certificates\CertificateIssuer;
 use App\Services\Certificates\CertificateRenderer;
 use App\Support\Scope\ScopeFilter;
 use Illuminate\Support\Collection;
-use Throwable;
 
 /**
  * شهادات التطوّع (13.4-ع).
@@ -154,10 +154,13 @@ class CertificateEligibility
                 : 0,
         ];
 
-        // مصدرٌ واحد للإصدار: نمرّر لمُصدِر الشهادات القائم متى وُجد (كود + Hash
-        // + تجميد نسخة القالب + لحظة الذروة)، وإلّا نكتب البديل الآمن بنفس الأثر.
-        $certificate = self::issueViaIssuer($membership, $type, $snapshot, $actor)
-            ?? self::issueDirectly($membership, $type, $snapshot, $actor);
+        // مصدرٌ واحد للإصدار لا بديل له (13.4-ع · 12.5): الكود المتسلسل ولقطة
+        // القالب والتوقيع بمفتاح التطبيق ولحظة الذروة — كلّها من `CertificateIssuer`.
+        $certificate = self::issueViaIssuer($membership, $type, $snapshot, $actor);
+
+        if (! $certificate) {
+            return ['issued' => false, 'reason' => self::issuerFailureReason(), 'certificate' => null];
+        }
 
         if ((bool) setting('volunteer_cert.notify_on_issue', true)) {
             $user = $membership->user;
@@ -215,13 +218,6 @@ class CertificateEligibility
             return ['issued' => false, 'reason' => 'لا عضويّات في سجلّه — لا مدّة خدمة تُشهَد.', 'certificate' => null];
         }
 
-        // شهادة خبرة واحدة سارية لكلّ متطوّع — والعودة تُجدّدها بمدّة تراكميّة
-        Certificate::query()
-            ->where('user_id', $user->id)
-            ->where('certificate_type_id', $type->id)
-            ->where('status', 'valid')
-            ->update(['status' => 'expired', 'expired_at' => now()]);
-
         $days = 0;
         $positions = [];
 
@@ -249,8 +245,23 @@ class CertificateEligibility
 
         $last = $memberships->last();
 
-        $certificate = self::issueViaIssuer($last, $type, $snapshot, $actor)
-            ?? self::issueDirectly($last, $type, $snapshot, $actor);
+        $certificate = self::issueViaIssuer($last, $type, $snapshot, $actor);
+
+        if (! $certificate) {
+            return ['issued' => false, 'reason' => self::issuerFailureReason(), 'certificate' => null];
+        }
+
+        /*
+         | شهادة خبرة واحدة سارية لكلّ متطوّع — والعودة تُجدّدها بمدّة تراكميّة.
+         | والإنهاء **بعد** نجاح الإصدار لا قبله: كان يُنفَّذ أوّلًا، فلو تعثّر
+         | الإصدار بقي المتطوّع بلا شهادةٍ سارية وقد كانت في يده — عقوبةٌ على
+         | خطأٍ عندنا. أمّا الجديدة فتُستثنى صراحةً كي لا تُنهي نفسها.
+         */
+        Certificate::query()
+            ->where('user_id', $user->id)
+            ->where('certificate_type_id', $type->id)
+            ->where('status', 'valid')
+            ->update(['status' => 'expired', 'expired_at' => now()]);
 
         if ((bool) setting('volunteer_cert.notify_on_issue', true)) {
             Integrations::notify(
@@ -269,43 +280,40 @@ class CertificateEligibility
         return ['issued' => true, 'reason' => null, 'certificate' => $certificate];
     }
 
-    private const ISSUER = 'App\Services\Certificates\CertificateIssuer';
-
-    /** التمرير لمُصدِر الشهادات القائم إن وُجد — بلا نظام موازٍ (13.4-ع) */
+    /**
+     * ⭐ **لا إصدار خارج المحرّك** (13.4-ع · 12.5) — وهو نفس ما استقرّ عليه
+     * `Services/Events/CertificateBridge` بعد حذف مساره الاحتياطيّ.
+     *
+     * كان هنا بديلٌ يكتب صفَّ شهادةٍ بيده كلّما تعثّر المُصدِر أو رمى استثناءً:
+     * **كودٌ عشوائيّ** (`VPS-XXXXXXXXXX`) خارج الترقيم المتسلسل (12.5-ب)،
+     * و**بلا `template_snapshot`** فلا لقطة تصميم مجمَّدة تُرسَم منها الصورة
+     * (12.5-ج)، و**توقيعٌ بلا مفتاح**: `sha256(code|user|position|entity)` —
+     * أربعة حقولٍ من يعرفها ينتج التوقيع بنفسه، فيكتب صفًّا يعلنه التحقّق
+     * «ساريًا ومطابقًا لسجلّنا».
+     *
+     * والأسوأ أنّه كان يبتلع كلّ استثناء: عطبٌ في مسار الإصدار يخرج **شهادةً
+     * أضعف** بدل أن يظهر. فحُذِف — والفشل يُعلَن بسببه ولا يُخبَّأ خلف وثيقةٍ
+     * قابلة للتزوير.
+     */
     private static function issueViaIssuer(Membership $membership, CertificateType $type, array $snapshot, ?User $actor): ?Certificate
     {
-        if (! class_exists(self::ISSUER) || ! $membership->user) {
+        if (! $membership->user) {
             return null;
         }
 
-        try {
-            return app(self::ISSUER)->issue(
-                $membership->user, $type->key, $membership, $snapshot,
-                $actor ? 'manual' : 'auto', null, $actor,
-            );
-        } catch (Throwable) {
-            return null;
-        }
+        return app(CertificateIssuer::class)->issue(
+            $membership->user, $type->key, $membership, $snapshot,
+            $actor ? 'manual' : 'auto', null, $actor,
+        );
     }
 
-    private static function issueDirectly(Membership $membership, CertificateType $type, array $snapshot, ?User $actor): Certificate
+    /** سبب تعثّر الإصدار — نصٌّ من الإعدادات يشرح ويقترح خطوة (2.13 · 2.17-ب) */
+    private static function issuerFailureReason(): string
     {
-        $code = ($type->numbering_prefix ?: 'VPS').'-'.str()->upper(str()->random(10));
-
-        return Certificate::create([
-            'code' => $code,
-            'hash' => hash('sha256', $code.'|'.$membership->user_id.'|'.$membership->position_id.'|'.$membership->entity_id),
-            'user_id' => $membership->user_id,
-            'certificate_type_id' => $type->id,
-            'subject_type' => $membership->getMorphClass(),
-            'subject_id' => $membership->id,
-            'language' => $type->lang_en_enabled && ! $type->lang_ar_enabled ? 'en' : 'ar',
-            'source' => $actor ? 'manual' : 'auto',
-            'issued_at' => now(),
-            'issued_by' => $actor?->id,
-            'status' => 'valid',
-            'data_snapshot' => $snapshot,
-        ]);
+        return (string) setting(
+            'volunteer_cert.issuer_unavailable',
+            'مسار إصدار الشهادات متعثّر الآن — راجع أنّ نوع الشهادة مفعَّل في «إدارة الشهادات»، ولا تُكتَب شهادة خارج المحرّك.',
+        );
     }
 
     /**

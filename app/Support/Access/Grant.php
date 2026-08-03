@@ -15,6 +15,13 @@ final class Grant
         public readonly array $conditions = [],
         public readonly ?int $membershipId = null,
         public readonly ?string $origin = null, // role:key | user
+        /*
+         | طبقة الدور مصدرِ الصفّ (12.2.3): `platform` · `volunteer` · `user`،
+         | و**null** للاستثناء الفرديّ (لا دورَ خلفه).
+         | تُستعمل في باب اللوحة: حملُ صلاحيّةٍ من **قالب المستخدم النهائيّ** ليس
+         | دليلَ سلطة، وحملُها من دورٍ خارجه دليلٌ عليها.
+         */
+        public readonly ?string $layer = null,
     ) {}
 
     public function isDeny(): bool

@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Volunteer;
 
 use App\Http\Controllers\Controller;
 use App\Models\ConsentRequest;
-use App\Models\Entity;
 use App\Models\Membership;
 use App\Models\Position;
 use App\Services\Volunteer\Org\AbsenceService;
@@ -14,6 +13,7 @@ use App\Services\Volunteer\Profile\ConsentFlow;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\View\View;
 
 /**
@@ -74,15 +74,18 @@ class DepartmentController extends Controller
         ]);
     }
 
-    /** بوب-أب ملفّ عضو مختصر — تفاصيل في بانل لا صفحة جديدة (2.15-أ-6) */
+    /**
+     * بوب-أب ملفّ عضو مختصر — تفاصيل في بانل لا صفحة جديدة (2.15-أ-6).
+     *
+     * ⭐ **النطاق للمحرّك لا لقاعدة كيانٍ خاصّة (12.2.1-ب):** «هل العضو في قسمي؟»
+     * كانت تحلّ محلّ النطاق فتقلبه — تفتح لصاحب `@SELF` ما ليس له، وتقفل في وجه
+     * صاحب `@ALL` ما يغطّيه نطاقُه. الحكم الآن على الحارس بـ`org_chart.view` على
+     * **هذه العضويّة**، والقسم هنا مادّةُ العرض لا بوّابةٌ ثانية.
+     */
     public function member(Request $request, Membership $membership): JsonResponse
     {
         $viewer = $request->user();
-        $root = $this->scope->rootFor($viewer);
-
-        abort_unless($root && $this->sharesDepartment($membership, $root), 403);
-
-        $pool = $this->scope->memberships($this->scope->entityIds($root));
+        $pool = $this->poolAround($membership);
 
         return response()->json($this->directory->profile($membership, $viewer, $pool));
     }
@@ -96,10 +99,8 @@ class DepartmentController extends Controller
     public function absence(Request $request, Membership $membership): RedirectResponse
     {
         $viewer = $request->user();
-        $root = $this->scope->rootFor($viewer);
 
-        abort_unless($root && $this->sharesDepartment($membership, $root), 403);
-
+        // النطاق حسمه `permission:delegations.create` على هذه العضويّة (12.2.1-ب)
         $data = $request->validate([
             'from_date' => ['required', 'date'],
             'to_date' => ['required', 'date'],
@@ -129,9 +130,8 @@ class DepartmentController extends Controller
     public function requestConsent(Request $request, Membership $membership): RedirectResponse
     {
         $viewer = $request->user();
-        $root = $this->scope->rootFor($viewer);
 
-        abort_unless($root && $this->sharesDepartment($membership, $root), 403);
+        // النطاق حسمه `permission:org_chart.view` على هذه العضويّة (12.2.1-ب)
         abort_if((int) $membership->user_id === $viewer->id, 403);
 
         $validity = (int) setting('volunteer.consent.request_hours', 72);
@@ -171,8 +171,17 @@ class DepartmentController extends Controller
         ));
     }
 
-    private function sharesDepartment(Membership $membership, Entity $root): bool
+    /**
+     * زملاء قسم **العضو المستهدَف** — مادّة سلسلة الأبلاين والعدّادات في البوب-أب.
+     * وتُبنى حول الهدف لا حول المشاهِد: فمَن أذن له نطاقُه بعضويّةٍ خارج قسمه
+     * (`@ALL`) يقرؤها كاملةً بدل أن يُردّ عنها.
+     */
+    private function poolAround(Membership $membership): Collection
     {
-        return in_array((int) $membership->entity_id, $this->scope->entityIds($root), true);
+        $root = $membership->entity ? $this->scope->rootOf($membership->entity) : null;
+
+        abort_unless($root, 404);
+
+        return $this->scope->memberships($this->scope->entityIds($root));
     }
 }

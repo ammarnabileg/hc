@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Services\Account\ProfileTabs;
 use App\Services\Account\ProfileVisibility;
+use App\Services\Volunteer\Profile\ViewerLevel;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -22,6 +23,9 @@ class ProfileController extends Controller
     public function __construct(
         private readonly ProfileTabs $tabs,
         private readonly ProfileVisibility $visibility,
+        // إضافات هيدر المتطوّع طبقةُ تطوّعٍ لا طبقةُ متدرّب — فمَن يحكمها هو
+        // صاحب المستويات الأربعة عليها نفسه، بلا منطقٍ موازٍ هنا (10.0-ب · 13.4-م)
+        private readonly ViewerLevel $volunteerLevels,
     ) {}
 
     /** بروفايلي — نفس الصفحة تمامًا، بمستوى مشاهدة «صاحب البروفايل» */
@@ -46,7 +50,15 @@ class ProfileController extends Controller
         $viewer = $request->user();
         $level = $this->visibility->levelFor($viewer, $owner);
         $tab = ProfileTabs::normalize($request->string('tab')->toString());
-        $membership = $this->tabs->activeMembership($owner);
+
+        /*
+         | ⛔ لقب «مشرف» والبوزشن والكيان وشارة Rep ونادي التميّز (10.0-ب) كلّها
+         | **من طبقة التطوّع**، و«لا يراها ولا يعرف بوجودها غيره» (10.0). فمن هو
+         | خارج مستوياتها الأربعة لا تُحسَب له ولا تصل قالبَه أصلًا — لا عنصرٌ
+         | يُرسَل ثمّ يُخفى.
+         */
+        $seesVolunteerLayer = $this->volunteerLevels->for($viewer, $owner) !== null;
+        $membership = $seesVolunteerLayer ? $this->tabs->activeMembership($owner) : null;
 
         // تحميل كسول: التاب لا يُحمَّل إلّا عند فتحه (2.15-د · 2.7)
         $payload = match ($tab) {

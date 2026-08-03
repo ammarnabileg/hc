@@ -221,7 +221,13 @@ class MeetingsAttendanceTest extends MeetingsTestCase
             ->assertDontSee('زميل');
     }
 
-    /** الاجتماع خارج نطاقي لا يُفتَح */
+    /**
+     * الاجتماع خارج نطاقي لا يُفتَح.
+     *
+     * ⭐ والردّ الآن **403 من الحارس** لا 404 من الشاشة: بعد أن صار النطاق يُقيَّم
+     * على الهدف (12.2.1-ب) يُحسَم المنعُ **قبل** الوصول إلى الكنترولر — فالحارس
+     * هو مَن يردّ، والردّ الواحد لكلّ رفضٍ في المنصّة.
+     */
     public function test_meeting_outside_my_scope_is_not_visible(): void
     {
         $owner = $this->volunteer('صاحب الاجتماع');
@@ -234,6 +240,6 @@ class MeetingsAttendanceTest extends MeetingsTestCase
 
         $this->actingAs($stranger)
             ->get(route('volunteer.meetings.show', $meeting))
-            ->assertNotFound();
+            ->assertForbidden();
     }
 }

@@ -34,11 +34,19 @@ class ProfileVisibility
 
     private ?string $cacheFingerprint = null;
 
-    /** مستوى مشاهدة هذا الزائر لهذا البروفايل — والزائر بلا حساب أدنى مستوى */
-    public function levelFor(?User $viewer, User $owner): string
+    /**
+     * مستوى مشاهدة هذا الزائر لهذا البروفايل — **أو `null`** لمن هو خارج
+     * المستويات الأربعة.
+     *
+     * ⚠️ كان الزائر **بلا حساب** يُصنَّف «زميلًا»، فصارت مستويات 10.0-ج الأربعة
+     * خمسةً بابُها مفتوحٌ للإنترنت. والنصّ يعدّ أربعةً لا غير (صاحبه · زميل ·
+     * أبلاين مخوَّل · أدمن) — وكلّها **مستويات لمن له حساب**؛ ومَن ليس منها لا
+     * يرى إلّا ما هو **عامّ دائمًا** (المحافظة — 12.14-د).
+     */
+    public function levelFor(?User $viewer, User $owner): ?string
     {
         if (! $viewer) {
-            return self::PEER;
+            return null;
         }
 
         if ($viewer->id === $owner->id) {
@@ -66,6 +74,15 @@ class ProfileVisibility
         }
 
         $level ??= $this->levelFor($viewer, $owner);
+
+        /*
+         | خارج المستويات الأربعة (زائرٌ بلا حساب): لا حقل إلّا العامّ دائمًا.
+         | وخيارات الإظهار الثلاثة نفسها لا تعرفه — «كلّ **المستخدمين**» و«كلّ
+         | **المتطوّعين**» و«مشرفيني» كلّها أصحاب حسابات (13.4-م-2).
+         */
+        if ($level === null) {
+            return false;
+        }
 
         // صاحبه والأدمن والأبلاين المخوَّل: يرون بيانات التواصل بلا موافقة (13.4-م)
         if (in_array($level, [self::OWNER, self::ADMIN, self::UPLINE], true)) {
@@ -162,7 +179,7 @@ class ProfileVisibility
      * عنه خادميًّا** — نصٌّ يكذب على المستخدم. والصيغة الصحيحة هي عينها التي
      * في `ViewerLevel::label()`، فنقرأ **نفس مفاتيحها** ولا نكتب صيغةً ثالثة.
      */
-    public function levelLabel(string $level): string
+    public function levelLabel(?string $level): string
     {
         return match ($level) {
             self::OWNER => (string) setting('volunteer.profile.level.owner', 'دي صفحتك — بتشوف كلّ حاجة عدا الملاحظات الإداريّة'),

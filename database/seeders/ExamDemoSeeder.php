@@ -121,6 +121,16 @@ class ExamDemoSeeder extends Seeder
             ['certificates.verify.expired_text', 'certificates', 'نصّ الشهادة المنتهية (13.4-ق)', 'text', 'هذه الشهادة منتهية: صدرت بتاريخ [تاريخ الإصدار] وانتهى العمل بها بتاريخ [تاريخ الانتهاء] بعد دخول صاحبها امتحانًا أحدث. وهي ليست ملغاة ولا مطعونًا في صحّتها.'],
             ['certificates.verify.revoked_text', 'certificates', 'نصّ الشهادة الملغاة', 'text', 'هذه الشهادة ملغاة. الإلغاء لا يقع إلّا على تزويرٍ مثبَت.'],
             ['certificates.verify.footer', 'certificates', 'ذيل صفحة التحقّق', 'text', 'كلّ شهادة عندنا لها كود وQR وتوقيع رقميّ — والتحقّق مفتوح للجميع.'],
+
+            // ---------------- نتيجة التحقّق من التوقيع الرقميّ (8.1 · 12.5-هـ)
+            // الحالة الثالثة: صفٌّ موجود وتوقيعُه لا تشتقّه بياناته — لا «سارية» ولا «غير موجودة».
+            ['certificates.verify.signature_label', 'certificates', 'لافتة التوقيع الرقميّ', 'string', 'التوقيع الرقميّ'],
+            ['certificates.verify.signature_ok', 'certificates', 'وسم تطابق التوقيع', 'string', 'مطابق — البيانات دي هي اللي صدرت'],
+            ['certificates.verify.unverified_badge', 'certificates', 'وسم عدم تطابق التوقيع', 'string', 'التوقيع لا يطابق'],
+            ['certificates.verify.unverified_title', 'certificates', 'عنوان تعذّر تأكيد الصحّة', 'string', 'ما نقدرش نأكّد صحّة الشهادة دي'],
+            ['certificates.verify.unverified_text', 'certificates', 'نصّ عدم تطابق التوقيع', 'text', 'فيه صفّ بالكود ده في سجلّنا، لكن توقيعه الرقميّ مش مطابق للتوقيع اللي بتشتقّه بياناته — يعني البيانات اتغيّرت بعد الإصدار أو الصفّ اتكتب من برّه محرّك الإصدار. عشان كده ما نقدرش نشهد بصحّتها ولا نعرض بياناتها. بلّغنا وهنراجعها.'],
+            ['certificates.verify.unsigned_badge', 'certificates', 'وسم الشهادة بلا توقيع', 'string', 'بلا توقيع رقميّ'],
+            ['certificates.verify.unsigned_text', 'certificates', 'نصّ الشهادة بلا توقيع', 'text', 'فيه صفّ بالكود ده في سجلّنا لكنّه من غير توقيع رقميّ أصلًا، فما نقدرش نشهد إنّ بياناته هي اللي صدرت. لو استلمت نسخة بالكود ده، بلّغنا وهنراجعها.'],
             ['certificates.report.audit_action', 'certificates', 'اسم حدث بلاغ التزوير في سجلّ التدقيق', 'string', 'certificate.reported'],
             ['certificates.report.thanks', 'certificates', 'رسالة شكر البلاغ', 'text', 'وصلنا بلاغك وهنراجعه — شكرًا إنّك ساعدتنا نحمي قيمة الشهادة.'],
 

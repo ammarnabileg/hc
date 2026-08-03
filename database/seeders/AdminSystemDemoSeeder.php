@@ -170,6 +170,19 @@ class AdminSystemDemoSeeder extends Seeder
             ['topup.gateway.timeout_seconds', 'store', 'مهلة نداء البوّابة (ثوانٍ)', 'number', '8', false],
             ['topup.gateway.logs_per_page', 'store', 'صفوف سجلّ الويب هوك', 'number', '25', false],
             ['topup.gateway.customer_address', 'store', 'عنوان العميل الافتراضيّ', 'string', '-', false],
+            /*
+            | 🔴 حرّاس الويب هوك (19.5-ج-2) — نصوصها وأرقامها من هنا لا من الكود.
+            | `enabled` أعلاه **لا يُعتَدّ به** بلا `api_key` و`vendor_key` معًا:
+            | توجّلٌ مرفوع فوق مفتاحٍ فارغ يَعِد بحمايةٍ غير موجودة.
+            */
+            ['topup.gateway.misconfig.notice', 'store', 'رسالة الأدمن حين تنقص مفاتيح البوّابة', 'text', 'بوّابة الدفع متوقّفة فعليًّا وكلّ نداء ويب هوك مرفوض. الناقص: {missing}. ومن غير مفتاح التاجر يبقى توقيع الويب هوك يقدر يحسبه أيّ حدّ، فالرفض مقصود. الحلّ: افتح لوحة الإدارة ← شحن الحساب ← بوّابة الدفع، انسخ المفاتيح من داشبورد فواتيرك واحفظها، ثمّ اضغط [اختبار الاتّصال] للتأكيد.', true],
+            ['topup.gateway.misconfig.title', 'store', 'عنوان إشعار عطب ضبط البوّابة', 'string', 'بوّابة الدفع محتاجة ضبط ⚠️', true],
+            ['topup.gateway.misconfig.separator', 'store', 'فاصل أسماء المفاتيح الناقصة', 'string', ' و', true],
+            ['topup.gateway.misconfig.notify_cooldown_minutes', 'store', 'تبريد إشعار عطب البوّابة (دقائق)', 'number', '60', true],
+            ['topup.gateway.webhook.blocked_message', 'store', 'ردّ الويب هوك حين البوّابة غير مضبوطة', 'string', 'gateway not configured', false],
+            ['topup.gateway.webhook.rate_limit', 'store', 'أقصى نداءات ويب هوك في النافذة (لكلّ IP)', 'number', '60', false],
+            ['topup.gateway.webhook.rate_window_minutes', 'store', 'نافذة حدّ نداءات الويب هوك (دقائق)', 'number', '1', false],
+            ['topup.gateway.webhook.rate_limit_message', 'store', 'ردّ الويب هوك عند تجاوز الحدّ', 'string', 'too many requests', false],
 
             // ---------------- الإحصائيّات (12.8)
             ['stats.period.default_days', 'stats', 'الفترة الافتراضيّة (أيّام)', 'number', '30', false],

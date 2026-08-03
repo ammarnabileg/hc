@@ -54,17 +54,27 @@ class OrgChartController extends Controller
         ]);
     }
 
-    /** ضغطة عقدة ⟵ بوب-أب تفاصيل سريعة + «فتح البروفايل» (2.10.1-17) */
+    /**
+     * ضغطة عقدة ⟵ بوب-أب تفاصيل سريعة + «فتح البروفايل» (2.10.1-17).
+     *
+     * ⭐ **النطاق يحسمه المحرّك لا قاعدة كيانٍ خاصّة هنا (12.2.1-ب):** كان الحارس
+     * يمرّ بلا هدف، فيسدّ الكنترولر الفراغ بقاعدته هو — «هل العقدة داخل قسم
+     * المشاهِد؟» — فانقلب الحكم في الاتّجاهين: صاحب `@SELF` يفتح عقدةً ليست له
+     * لأنّها في قسمه، وصاحب `@ALL` يُردّ عن عقدةٍ **يغطّيها نطاقُه** لأنّها خارج
+     * قسمه هو. الآن يقرّر `EnsurePermission` بـ`org_chart.view` على **هذه العقدة**،
+     * ويبقى القسم هنا **مادّةَ العرض** (سلسلة الأبلاين والعدّادات) لا بوّابةً ثانية.
+     */
     public function node(Request $request, Membership $membership): JsonResponse
     {
         $viewer = $request->user();
-        $root = $this->scope->rootFor($viewer);
+        $root = $membership->entity ? $this->scope->rootOf($membership->entity) : null;
 
-        abort_unless($root, 403);
+        // 404 لا 403: مَن أذن له المحرّك ووصل هنا، غيابُ الكيان عطبُ بيانات لا منع
+        abort_unless($root, 404);
 
         $pool = $this->scope->memberships($this->scope->entityIds($root));
 
-        abort_unless($pool->has($membership->id), 403);
+        abort_unless($pool->has($membership->id), 404);
 
         return response()->json($this->directory->profile($membership, $viewer, $pool));
     }

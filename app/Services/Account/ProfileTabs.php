@@ -150,8 +150,8 @@ class ProfileTabs
         return $rank ? '#'.$rank : (string) setting('account.profile.kpi.unranked', 'خارج اللوحة');
     }
 
-    /** بيانات تاب «نظرة عامّة» بحسب مستوى المشاهدة */
-    public function overview(User $owner, ?User $viewer, string $level): array
+    /** بيانات تاب «نظرة عامّة» بحسب مستوى المشاهدة — و`null` لمن هو خارج الأربعة */
+    public function overview(User $owner, ?User $viewer, ?string $level): array
     {
         return [
             'kpis' => $this->kpis($owner),

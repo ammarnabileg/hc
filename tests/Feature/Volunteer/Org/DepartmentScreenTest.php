@@ -50,10 +50,17 @@ class DepartmentScreenTest extends OrgTestCase
         $this->assertFalse($cards->firstWhere('code', 'VOL-C3')['is_club']);
     }
 
-    /** الرقم المقنّع لا يُترَك فراغًا — ومعه زرّ الطلب (13.4-م-2) */
+    /**
+     * الرقم المقنّع لا يُترَك فراغًا — ومعه زرّ الطلب (13.4-م-2).
+     *
+     * ⭐ الزميل هنا **دايركتور الكيان** لا كوردنيتور: بعد أن صار النطاق يُقيَّم على
+     * الهدف (12.2.1-ب) لم يعد `org_chart.view@SELF` — سقف الكوردنيتور المنصوص في
+     * 12.2.3-ب-16 — يفتح **عضويّة غيره**. والمقيس هنا هو التقنيع لا النطاق: زميلٌ
+     * يغطّيه نطاقُه (ENTITY) وليس من سلسلة أبلاين الهدف ⟵ الرقم مقنّع.
+     */
     public function test_phone_is_masked_for_a_peer_and_visible_for_the_upline(): void
     {
-        $peer = $this->actorWithRole('VOL-C1', 'coordinator');
+        $peer = $this->actorWithRole('VOL-C1', 'director');
         $upline = $this->actorWithRole('VOL-TL1', 'team_leader');
         $target = $this->membershipOf('VOL-C2');
 
@@ -77,7 +84,8 @@ class DepartmentScreenTest extends OrgTestCase
 
     public function test_consent_request_is_recorded_and_answer_is_neutral(): void
     {
-        $peer = $this->actorWithRole('VOL-C1', 'coordinator');
+        // نفس السبب: النطاق يُقيَّم على الهدف، و`@SELF` لا يفتح عضويّة غيره
+        $peer = $this->actorWithRole('VOL-C1', 'director');
         $target = $this->membershipOf('VOL-C2');
 
         $this->actingAs($peer)

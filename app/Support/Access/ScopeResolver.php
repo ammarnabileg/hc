@@ -13,7 +13,19 @@ use Illuminate\Database\Eloquent\Model;
  */
 class ScopeResolver
 {
-    /** هل يغطّي هذا النطاق الهدفَ المطلوب؟ */
+    /**
+     * هل يغطّي هذا النطاق الهدفَ المطلوب؟
+     *
+     * ⭐ **الهدف يُقاس على البُعد الذي يحمله** (12.2.1-ب): النطاقات الستّة معرَّفة
+     * على **الأشخاص والكيانات** — «نفسه · داونلاينه · مَن تحته · الكيان · المسار».
+     * فالسجلّ الذي يحمل **صاحبًا** يُقاس على سلسلة الأشخاص، والذي يحمل **كيانًا**
+     * يُقاس على شجرة الكيانات، والذي يحمل أحدهما ولا يحمل الآخر يُقاس على ما يحمل.
+     *
+     * أمّا السجلّ الذي **لا يحمل صاحبًا ولا كيانًا** (تدريب · درس · فعاليّة · امتحان)
+     * فلا تملك طبقةُ الوصول ما تقيس النطاق عليه، ويحرسه **المجال صاحب الشاشة** —
+     * وهي نفس قاعدة `guard => 'domain'` المعتمَدة في `config/access.php` للشروط،
+     * لا فتحة استثناء جديدة. والحصر على بيانات القوائم يبقى بـ`ScopeFilter`.
+     */
     public function covers(string $scope, User $user, mixed $target, ?Membership $context): bool
     {
         /*
@@ -24,20 +36,43 @@ class ScopeResolver
             return false;
         }
 
-        // بلا هدف: النطاق يكفي بذاته (فحص «هل يستطيع مبدئيًّا؟»)
+        if ($scope === 'ALL') {
+            return true;
+        }
+
+        // بلا هدف: النطاق يكفي بذاته (فحص «هل يستطيع مبدئيًّا؟» — للقوائم والإخفاء)
         if ($target === null) {
             return true;
         }
 
+        $ownerId = $this->targetUserId($target);
+        $entityId = $this->targetEntityId($target);
+
+        // هدفٌ بلا صاحبٍ ولا كيان: لا مقياس للنطاق عليه ⟵ يحرسه المجال (انظر الوصف)
+        if ($ownerId === null && $entityId === null) {
+            return true;
+        }
+
         return match ($scope) {
-            'ALL' => true,
-            'SELF' => $this->isSelf($user, $target),
-            'TEAM' => $this->inTeam($user, $target, $context),
-            'SUBTREE' => $this->inSubtree($user, $target, $context),
+            'SELF' => $ownerId !== null
+                ? $this->isSelf($user, $target)
+                : $this->inOwnEntity($entityId, $context),
+            'TEAM' => $ownerId !== null
+                ? $this->inTeam($user, $target, $context)
+                : $this->inEntity($target, $context),
+            'SUBTREE' => $ownerId !== null
+                ? $this->inSubtree($user, $target, $context)
+                : $this->inEntity($target, $context),
             'ENTITY' => $this->inEntity($target, $context),
             'TRACK' => $this->inTrack($target, $context),
             default => false,
         };
+    }
+
+    /** كيان الهدف هو كيان العضويّة النشطة نفسه — أضيق ما يُقاس به كيانٌ بلا صاحب */
+    private function inOwnEntity(?int $entityId, ?Membership $context): bool
+    {
+        return $context !== null && $entityId !== null && $entityId === $context->entity_id;
     }
 
     private function isSelf(User $user, mixed $target): bool
@@ -173,10 +208,25 @@ class ScopeResolver
 
         // الهدف مستخدم: نأخذ كياناته النشطة
         if ($target instanceof User) {
-            return $target->memberships()->where('status', 'active')->value('entity_id');
+            return $this->entityIdOfUser($target->id);
         }
 
-        return null;
+        /*
+         | سجلٌّ يحمل **صاحبًا** ولا يحمل عمود كيان: كيانه هو كيان صاحبه.
+         | وبدون هذا كان النطاق ENTITY/TRACK يسقط fail-closed على كلّ سجلٍّ شخصيّ
+         | (شهادة · تسجيل · شكوى) فيُردّ الدايركتور عن سجلّات كيانه هو.
+         */
+        $ownerId = $this->targetUserId($target);
+
+        return $ownerId === null ? null : $this->entityIdOfUser($ownerId);
+    }
+
+    private function entityIdOfUser(int $userId): ?int
+    {
+        return Membership::query()
+            ->where('user_id', $userId)
+            ->where('status', 'active')
+            ->value('entity_id');
     }
 
     /** كلّ مَن تحت هذه العضويّة في الشجرة (بعمق غير محدود) */

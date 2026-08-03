@@ -38,6 +38,13 @@
 - **مُثبَت شغّالًا — مصدر الرصيد:** `RewardGrantService::execute` لا يكتب في المحفظة مباشرةً؛ يمرّ عبر `Integrations::post` ⟵ `LedgerService` وحده. منحةٌ حقيقيّة أنتجت **قيدَين في `transactions`** بـ`source=admin` و`created_by` المالك و`balance_after`، **ومجموع XP ارتفع بالقدر الممنوح تمامًا (3411⟵3461)** — فلا سكَّ خارج دفتر الأستاذ. ومعه قيد `manual_rewards.execute` في التدقيق.
 - **مُثبَت أيضًا:** المعاينة قبل التنفيذ بالرصيد قبل/بعد · استبعاد الخطأ والمكرّر بتنبيه · الخصم ينزل تحت الصفر · الشرائح والدفعات · `WarSettingsService` بقواعدٍ عامّة وOverride وReset.
 - **لم أفحصه بالتشغيل:** «قفل الإعدادات أثناء حرب نشطة» في `WarSettingsService` — لم أُشغِّل حربًا حيّة.
+
+**أ-4 — شهادات التطوّع دخلت مسار الإصدار المعتمَد (2026-08-03):**
+
+- ✅ **`CertificateEligibility::issueDirectly()` حُذف بالكامل:** كان يكتب صفَّ شهادةٍ بيده كلّما تعثّر المُصدِر — كودٌ عشوائيّ `VPS-XXXXXXXXXX` خارج الترقيم (12.5-ب)، وبلا `template_snapshot` (12.5-ج)، وتوقيعٌ **بلا `app.key`**: `sha256(code|user|position|entity)`. والمسار الوحيد الآن `CertificateIssuer` (نفس معالجة `Services/Events/CertificateBridge`).
+- ✅ **ولا ابتلاعَ للاستثناءات:** `try/catch (Throwable) { return null; }` أُزيل — الفشل يظهر ولا يُخبَّأ خلف وثيقةٍ أضعف، ويُعلَن بسببٍ من `setting('volunteer_cert.issuer_unavailable')`.
+- ✅ **شهادة الخبرة:** إنهاء الشهادة السارية صار **بعد** نجاح إصدار البديلة لا قبله — فلا يبقى المتطوّع بلا شهادةٍ سارية بسبب تعثّرٍ عندنا.
+- 🧪 **الاختبار:** `tests/Feature/Certificates/VolunteerCertificateIssuePathTest.php`.
 <!-- بيدك:نهاية:المتبقّي -->
 
 ## 🔄 الجاري الآن

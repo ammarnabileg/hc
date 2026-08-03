@@ -2,8 +2,12 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\Entity;
+use App\Models\Membership;
+use App\Models\User;
 use App\Support\Access\AccessEngine;
 use Closure;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -25,6 +29,12 @@ use Symfony\Component\HttpFoundation\Response;
  *
  * وإن لم يكن في المجموعة أيّ مفتاح إداريّ (مسار إدارةٍ محروسٌ بمفتاحٍ عامّ وحده)
  * تبقى الدلالة كما هي، ويظلّ **باب اللوحة** (`admin.panel`) هو الحارس الأوّل.
+ *
+ * ⭐⭐ **والنطاق يُقيَّم على الطلب لا على المبدأ (12.2.1-ب):** كان الحارس ينادي
+ * `allows($user, $key)` **بلا هدف** مهما كان في المسار من هدف، و`covers()` تُرجع
+ * `true` حين لا هدف — فكانت حمايةُ النطاق كلّها **تسقط عند الباب**: صاحب
+ * `org_chart.view@SELF` يفتح `/volunteer/org/node/{membership}` لعضويّةٍ أجنبيّة
+ * ويقرأ بياناتها. فصار الهدف — حين يحمله المسار — يصل إلى التقييم فعلًا.
  */
 class EnsurePermission
 {
@@ -38,13 +48,61 @@ class EnsurePermission
             abort(401);
         }
 
+        $target = $this->targetOf($request);
+
         foreach ($this->effectiveKeys($request, $permissions) as $permission) {
-            if ($this->access->allows($user, $permission)) {
+            if ($this->access->allows($user, $permission, $target)) {
                 return $next($request);
             }
         }
 
         abort(403, 'ليس لديك صلاحيّة الوصول لهذه الصفحة.');
+    }
+
+    /**
+     * ⭐ هدف الطلب = **آخر** نموذجٍ مربوطٍ في بارامترات المسار (الأخصّ)، بشرط أن
+     * يكون **قابلًا للقياس على سلّم النطاقات**.
+     *
+     * ولماذا شرطُ القياس؟ لأنّ النطاقات الستّة معرَّفة في 12.2.1-ب على **الأشخاص
+     * والكيانات**: «نفسه · داونلاينه · مَن تحته · الكيان · المسار». فالسجلّ الذي
+     * يعرّف **صاحبه** (`user_id`) أو **كيانه** (`entity_id`) — ومعه `User` و
+     * `Membership` و`Entity` أنفسها — يُقاس. أمّا `owner_id` وحده فهو في هذا
+     * المستودع **مُنشِئ السجلّ** لا موضوعه (حرب تركيز · اجتماع)، والفعل فيه فعلُ
+     * **مشارِك** لا فعلُ اطّلاعٍ على بيانات غيره — فقياسه بـSELF يقلب المعنى ويمنع
+     * الانضمام لحرب غيرك. وما لا يُقاس هنا يبقى على حارسه في المجال وعلى
+     * `ScopeFilter` في بيانات القوائم.
+     *
+     * والحدّ آمنٌ في الاتّجاهين: لا نُمرّر هدفًا لا معنى للنطاق عليه، ولا نترك
+     * هدفًا **له** معنًى بلا تقييم.
+     */
+    private function targetOf(Request $request): ?Model
+    {
+        $route = $request->route();
+
+        if (! $route) {
+            return null;
+        }
+
+        $found = null;
+
+        foreach ($route->parameters() as $parameter) {
+            if ($parameter instanceof Model && $this->isScopable($parameter)) {
+                $found = $parameter;
+            }
+        }
+
+        return $found;
+    }
+
+    private function isScopable(Model $model): bool
+    {
+        if ($model instanceof User || $model instanceof Membership || $model instanceof Entity) {
+            return true;
+        }
+
+        $attributes = $model->getAttributes();
+
+        return array_key_exists('user_id', $attributes) || array_key_exists('entity_id', $attributes);
     }
 
     /**

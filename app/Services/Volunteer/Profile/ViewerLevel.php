@@ -28,11 +28,20 @@ final class ViewerLevel
 
     public function __construct(private readonly ProfileVisibility $base) {}
 
-    public function for(?User $viewer, User $owner): string
+    /**
+     * مستوى هذا الزائر على طبقة التطوّع — **أو `null` فلا طبقة له أصلًا**.
+     *
+     * ⚠️ كان الزائر بلا حساب يُصنَّف «زميلًا» فتُحسَب له الطبقة كاملةً وتُرسَل
+     * على الإنترنت المفتوح. والنصّ قاطع في وجهين:
+     *   (أ) المستوى الثاني هو «زميل **متطوّع**» (13.4-م) — فمن ليس متطوّعًا
+     *       مُسكَّنًا ليس زميلًا، والمستويات أربعة لا خمسة (10.0-ج).
+     *   (ب) الطبقة «تظهر فقط لمن هو متطوّع، **ولا يراها ولا يعرف بوجودها
+     *       غيره**» (10.0) — فالحجب على المستوى نفسه لا على القالب.
+     */
+    public function for(?User $viewer, User $owner): ?string
     {
-        // الزائر بلا حساب أدنى مستوى — والظاهر العامّ فقط
         if (! $viewer) {
-            return self::PEER;
+            return null;
         }
 
         if ($viewer->id === $owner->id) {
@@ -47,22 +56,23 @@ final class ViewerLevel
             return self::UPLINE;
         }
 
-        return self::PEER;
+        // «زميل **متطوّع**» — ومَن لا عضويّة نشطة له خارج المستويات الأربعة
+        return $viewer->isVolunteer() ? self::PEER : null;
     }
 
     /** الأبلاين المخوَّل والأدمن — ولهما وحدهما الأداء التفصيليّ وبيانات التواصل بلا موافقة */
-    public function isPrivileged(string $level): bool
+    public function isPrivileged(?string $level): bool
     {
         return in_array($level, [self::UPLINE, self::ADMIN], true);
     }
 
     /** صاحبه أو مخوَّل — لِما يراه صاحبه أيضًا (المهامّ · الشهادات · مساره للبوزشن الجاي) */
-    public function isOwnerOrPrivileged(string $level): bool
+    public function isOwnerOrPrivileged(?string $level): bool
     {
         return $level === self::OWNER || $this->isPrivileged($level);
     }
 
-    public function label(string $level): string
+    public function label(?string $level): string
     {
         return match ($level) {
             self::OWNER => (string) setting('volunteer.profile.level.owner', 'دي صفحتك — بتشوف كلّ حاجة عدا الملاحظات الإداريّة'),
