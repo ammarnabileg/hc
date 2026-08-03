@@ -61,7 +61,32 @@ class SettingsTest extends AccountTestCase
 
             $this->assertStringNotContainsString('@media (prefers-reduced-motion', $body, $file);
             $this->assertDoesNotMatchRegularExpression('#\[data-motion[^\]]*\]\s*[.\#\[*a-zA-Z]#', $body, $file);
+
+            /*
+             | 5) ولا مفتاحَ إعدادٍ يتفرّع عليه الكود ليطفئ الحركة.
+             | `celebrations.animation_always_on` **قفلٌ معلَن** يراه المالك في
+             | لوحته ولا يقرؤه كودٌ — ولو قُرِئ لصار توجّلًا بابه في الإعدادات.
+             */
+            $this->assertStringNotContainsString("setting('celebrations.animation_always_on'", $body, $file);
         }
+
+        /*
+         | 6) ولا قالبَ يقرأ `motion_enabled` — والقائمة المسموحة **واحد**:
+         | `resources/views/exams/layouts/focus.blade.php` تحت يد إيجنت آخر الآن
+         | (⛔ `resources/views/exams/**`) فلم يُلمَس. وما بقي فيه **سمةٌ خرساء**:
+         | العمود مرفوع ولا قاعدة CSS تقرأ `data-motion` — والفحص (4) أعلاه هو
+         | الذي يضمن خرسها. تُصفَّر هذه القائمة فور تحرّر الملفّ.
+         */
+        $readers = [];
+
+        foreach ($this->frontendSources() as $file) {
+            if (str_contains((string) file_get_contents($file), 'motion_enabled')) {
+                $readers[] = str_replace(base_path().'/', '', $file);
+            }
+        }
+
+        $this->assertSame(['resources/views/exams/layouts/focus.blade.php'], $readers,
+            'قالبٌ جديد يقرأ `motion_enabled` — ولا وجود لتوجّل الأنيميشن (2.3).');
     }
 
     /** توجّل الصوت باقٍ ويعمل — «Toggle للصوت فقط» (2.3) */
