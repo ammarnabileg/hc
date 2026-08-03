@@ -38,6 +38,12 @@ Schedule::command('recurring:generate')->hourly()->withoutOverlapping();
 // وعدًا في الشاشة بلا تنفيذ.
 Schedule::command('announcements:recurring')->hourly()->withoutOverlapping();
 
+// قناة البريد في «القنوات الموحّدة» (12.6-أ): تلتقط المستحقّ **والمؤجَّل بحدّ
+// الهدوء** (12.6-ب) والمتعثّر. وبلا هذه الجدولة تبقى الرسالة المؤجَّلة مؤجَّلةً
+// إلى الأبد: الحدّ يقول «تتأجّل» لا «تُلغى»، فبقاؤها بلا مُلتقِطٍ يجعل التأجيل
+// إسقاطًا صامتًا. والأمر آمنٌ على التكرار بصفّ تسليمٍ لكلّ (منشور · مستخدم · قناة).
+Schedule::command('announcements:deliver-emails')->hourly()->withoutOverlapping();
+
 // سلّم الخمول وعتبات لجنة التحقيق — مسحة يوميّة (13.4-س-ب · 13.4-س-ج)
 Schedule::command('volunteers:inactivity')->dailyAt('05:30')->timezone('Africa/Cairo')->withoutOverlapping();
 

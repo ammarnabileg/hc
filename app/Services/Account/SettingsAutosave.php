@@ -39,6 +39,17 @@ class SettingsAutosave
              */
             'motion_enabled' => ['required', 'boolean'],
 
+            /*
+             | ⭐ قناة البريد (12.6-أ): حقلٌ **ظاهريّ** — يُخزَّن في
+             | `users.email_optout_at` (لحظة الإيقاف) لا في عمودٍ بوليانيّ، فيُعرَف
+             | **متى** أوقف صاحبه القناة لا أنّه أوقفها فقط.
+             |
+             | ووجوده هنا شرطُ أن يكون الخيار خيارًا: العمود كان مبنيًّا ومحترَمًا
+             | على الخادم بلا مكانٍ واحد يحرّره منه صاحبه — أي «تفضيل مستخدم»
+             | لا يملكه المستخدم.
+             */
+            'email_channel' => ['required', 'boolean'],
+
             // بيانات التواصل: تغييرها يُبطِل الموافقات السارية (13.4-م)
             'email' => ['required', 'email', 'max:190'],
             'phone' => ['nullable', 'string', 'max:32'],
@@ -97,6 +108,13 @@ class SettingsAutosave
             $user->forceFill(['governorate_id' => null]);
         }
 
+        // الحقل الظاهريّ يُترجَم إلى عموده: تشغيل القناة = محو لحظة الإيقاف
+        if ($field === 'email_channel') {
+            $user->forceFill(['email_optout_at' => $value ? null : now()])->save();
+
+            return ['value' => $value, 'revoked' => $revoked];
+        }
+
         $user->forceFill([$field => $value])->save();
 
         return ['value' => $value, 'revoked' => $revoked];
@@ -127,7 +145,7 @@ class SettingsAutosave
     private function cast(string $field, mixed $value): mixed
     {
         return match ($field) {
-            'simple_mode', 'advanced_mode', 'sound_enabled', 'motion_enabled' => filter_var($value, FILTER_VALIDATE_BOOLEAN),
+            'simple_mode', 'advanced_mode', 'sound_enabled', 'motion_enabled', 'email_channel' => filter_var($value, FILTER_VALIDATE_BOOLEAN),
             'country_id', 'governorate_id' => $value === '' || $value === null ? null : (int) $value,
             'phone' => $value === '' ? null : trim((string) $value),
             default => is_string($value) ? trim($value) : $value,
@@ -149,6 +167,7 @@ class SettingsAutosave
             'advanced_mode' => 'الوضع المتقدّم',
             'sound_enabled' => 'صوت المنصّة',
             'motion_enabled' => 'حركة الواجهة',
+            'email_channel' => 'رسايل البريد',
         ];
     }
 

@@ -160,4 +160,43 @@ class SettingsTest extends AccountTestCase
             'password_confirmation' => 'new-secret-password',
         ])->assertSessionHasNoErrors();
     }
+
+    /**
+     * 12.6-أ — قناة البريد **يملكها صاحبها**.
+     *
+     * العمود `email_optout_at` كان مبنيًّا ومحترَمًا على الخادم بلا مكانٍ واحد
+     * يحرّره منه المستخدم — أي «تفضيل» لا يملكه صاحبه. والحقل ظاهريّ: يُخزَّن
+     * **لحظةَ** الإيقاف لا رايةً، فيُعرَف متى أوقفها لا أنّه أوقفها فقط.
+     */
+    public function test_the_user_owns_the_email_channel_from_his_own_settings(): void
+    {
+        $user = $this->trainee();
+
+        $this->assertNull($user->email_optout_at, 'القناة مقفولة على مستخدمٍ جديد.');
+
+        $this->actingAs($user)
+            ->patchJson(route('settings.field'), ['field' => 'email_channel', 'value' => '0'])
+            ->assertOk()
+            ->assertJson(['saved' => true]);
+
+        $this->assertNotNull($user->refresh()->email_optout_at, 'الإيقاف ما اتخزّنش.');
+
+        // والرجوع يمحو اللحظة — فالقرار ليس طريقًا في اتّجاهٍ واحد
+        $this->actingAs($user)
+            ->patchJson(route('settings.field'), ['field' => 'email_channel', 'value' => '1'])
+            ->assertOk();
+
+        $this->assertNull($user->refresh()->email_optout_at);
+    }
+
+    /** والشاشة تعرض الخيار بحالته الحاليّة — وإلّا كان المسار بلا باب. */
+    public function test_the_settings_screen_shows_the_email_channel_choice(): void
+    {
+        $user = $this->trainee();
+
+        $this->actingAs($user)->get(route('settings.index'))
+            ->assertOk()
+            ->assertSee('email_channel', false)
+            ->assertSee('رسايل البريد');
+    }
 }

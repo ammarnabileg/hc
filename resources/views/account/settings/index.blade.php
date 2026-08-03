@@ -224,6 +224,24 @@
                         .'</select>',
                 ])
 
+                @include('account.partials.autosave-field', [
+                    'field' => 'email_channel',
+                    'label' => 'رسايل البريد',
+                    'keywords' => 'البريد الإيميل email mail قنوات',
+                    /*
+                     | ⚠️ تعليق داخل تعبير PHP — لا وسوم Blade هنا وإلّا انكسر تصريف القالب.
+                     | قناة البريد (12.6-أ) يوقفها صاحبها من هنا، والخادم يحترم
+                     | إيقافه قبل أيّ إرسال. وما يوقفه هذا هو **المنشورات**
+                     | وحدها — لا رموز الدخول ولا استعادة كلمة السرّ، وإلّا
+                     | حبس المستخدمُ نفسَه خارج حسابه بضغطة تفضيل.
+                     */
+                    'hint' => 'ده بيوقف رسايل المنشورات على بريدك بس — رموز الدخول واستعادة كلمة السرّ هتفضل توصلك دايمًا.',
+                    'control' => '<select name="value" class="'.$inputClass.'" style="'.$inputStyle.'">'
+                        .'<option value="1"'.($user->email_optout_at === null ? ' selected' : '').'>توصلني</option>'
+                        .'<option value="0"'.($user->email_optout_at !== null ? ' selected' : '').'>متوصلنيش</option>'
+                        .'</select>',
+                ])
+
                 <p class="pt-3 text-xs" style="color: var(--text-muted)">
                     الإشعارات بتوصلك في التاب والجرس دايمًا، وتقدر تظبط تفاصيلها من مركز الإشعارات.
                 </p>

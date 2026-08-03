@@ -44,6 +44,8 @@ class User extends Authenticatable
             'password' => 'hashed',
             'activated_at' => 'datetime',
             'tracking_consent_at' => 'datetime',
+            // لحظة إيقاف قناة البريد — لا رايةٌ بوليانيّة (12.6-أ)
+            'email_optout_at' => 'datetime',
             'last_seen_at' => 'datetime',
             // آخر كشف تلقائيّ للمنطقة الزمنيّة (5)
             'auto_timezone_at' => 'datetime',
