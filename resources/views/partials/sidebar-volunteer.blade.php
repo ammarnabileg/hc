@@ -71,6 +71,17 @@
                 <x-nav-link route="volunteer.goals" label="المشاريع والأهداف" icon="🎯" />
             @endcan
 
+            {{--
+             | رحلة بناء الهدف (23 — 1.1…1.4): مدخلها الطبقات الثلاث التي تبنيه
+             | وحدها. و`goals.create` هو مفتاح أوّل خطوةٍ فيها، أمّا `milestones.create`
+             | فمفتاح مشرف المسار في التفكيك والتسعير — فمن يملك أيًّا منهما له
+             | مدخل، ومن لا يملك شيئًا **لا يرى السطر أصلًا** لا معطَّلًا (2.15-أ-7).
+             | والرحلة كلّها غير مرئيّة للداونلاينز، والحصر مفروضٌ على الخادم فوق ذلك.
+             --}}
+            @canany(['goals.create', 'milestones.create'])
+                <x-nav-link route="volunteer.goals.build" label="بناء الأهداف" icon="🧩" />
+            @endcanany
+
             {{-- إطلاق الهدف (23 — 1.5): لصاحب الضغطة وحده، ومخفيّ عن غيره لا معطَّلًا --}}
             @can('goals.approve')
                 <x-nav-link route="volunteer.goals.launch" label="إطلاق الهدف" icon="🚀" />
