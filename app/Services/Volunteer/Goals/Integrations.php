@@ -7,7 +7,7 @@ use App\Models\Transaction;
 use App\Models\User;
 use App\Models\WalletBalance;
 use App\Services\Notifications\Notifier;
-use App\Services\Volunteer\Retention\OptionalCutService;
+use App\Services\Volunteer\Retention\RepLadder;
 use App\Services\Wallet\LedgerService;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
@@ -74,8 +74,8 @@ final class Integrations
             )
             : self::fallbackRecord($user, $currencyCode, -abs($amount), $source, $reference, $reason, $createdBy);
 
-        // ⭐ الدرجة الوسطى من سلّم العتبات تقع **فورًا** (23-0.2-2)
-        OptionalCutService::afterRepMovement($user, $currencyCode, -abs($amount));
+        // ⭐ سلّم عتبات الهبوط الثلاث يقع **فورًا** (23-0.2)
+        RepLadder::afterRepMovement($user, $currencyCode, -abs($amount), $transaction);
 
         return $transaction;
     }

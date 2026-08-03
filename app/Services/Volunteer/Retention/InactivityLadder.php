@@ -182,7 +182,7 @@ class InactivityLadder
             return false;
         }
 
-        $this->ledger->debit(
+        $transaction = $this->ledger->debit(
             $user,
             LedgerService::REP,
             $value,
@@ -193,8 +193,8 @@ class InactivityLadder
                 .' يومًا بلا نشاط — خصم أسبوعيّ (13.4-س-ب)',
         );
 
-        // ⭐ خصم الخمول قد يبلغ بصاحبه −9.5، والدرجة الوسطى تقع **فورًا** (23-0.2-2)
-        OptionalCutService::afterRepMovement($user, LedgerService::REP, $value);
+        // ⭐ خصم الخمول قد يبلغ بصاحبه −8 أو −9.5 أو −10، وسلّم العتبات يقع **فورًا** (23-0.2)
+        RepLadder::afterRepMovement($user, LedgerService::REP, $value, $transaction);
 
         DB::table(self::TABLE)->where('user_id', $user->id)->update([
             'last_deduction_at' => now(),

@@ -15,7 +15,14 @@ use Illuminate\Support\Facades\Cache;
  */
 class AdminSystemSettingsTest extends SystemTestCase
 {
-    private const ADMIN = ['settings_general.view', 'settings_general.edit', 'settings_general.import', 'maintenance.view'];
+    /**
+     * ⭐ `feature_toggles.view` مضافةٌ هنا بعد 24.3: تاب «مفاتيح المزايا» صار
+     * شاشةً بمفتاحها هي — **يُخفى عمّن لا يملكه** (2.15-أ-7)، وهذا الاختبار
+     * يستعمل ذلك التاب ليُري نمط المفتاح على الشاشة. والدور الحقيقيّ الذي يفتح
+     * الإعدادات (`tech_admin`) يحمل المفتاحين معًا في `RolePermissionSeeder`،
+     * فالإضافة تُصلِح **تركيبة اختبارٍ** لا تُرخي حارسًا.
+     */
+    private const ADMIN = ['settings_general.view', 'settings_general.edit', 'settings_general.import', 'maintenance.view', 'feature_toggles.view'];
 
     public function test_settings_screen_is_one_page_with_side_tabs(): void
     {

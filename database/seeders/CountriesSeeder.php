@@ -2,6 +2,8 @@
 
 namespace Database\Seeders;
 
+use App\Models\Country;
+use App\Models\Governorate;
 use App\Services\Admin\System\CountryDataSync;
 use Illuminate\Database\Seeder;
 use RuntimeException;
@@ -86,7 +88,7 @@ class CountriesSeeder extends Seeder
             .' · معدَّل '.$report['updated']
             .' · مخفيّ '.$report['hidden']
             .' · محميّ من الحذف '.count($report['protected'])
-            .' ⟵ الإجماليّ '.\App\Models\Country::count().' دولة و'.\App\Models\Governorate::count().' محافظة.',
+            .' ⟵ الإجماليّ '.Country::count().' دولة و'.Governorate::count().' محافظة.',
         );
     }
 }

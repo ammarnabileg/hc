@@ -15,20 +15,20 @@
 
 ## ✅ المُنجَز
 <!-- تلقائيّ:بداية:المنجز -->
-- **مايجريشنز (235) — والقائم منها لا يُعدَّل (قاعدة البناء §1). الأحدث:**
+- **مايجريشنز (238) — والقائم منها لا يُعدَّل (قاعدة البناء §1). الأحدث:**
+  - `2026_08_30_100020_minus_ten_suspends_the_account_and_covers_the_position.php`
+  - `2026_08_30_100010_minus_eight_is_a_duty_not_only_a_red_dot.php`
   - `2026_08_29_100040_a_report_button_needs_a_table_to_report_into.php`
   - `2026_08_29_100030_a_blank_template_is_not_a_default_design.php`
   - `2026_08_29_100010_feature_toggles_are_the_only_partial_switch.php`
+  - `2026_08_28_100020_registration_two_screens_are_settings_not_text.php`
   - `2026_08_28_100010_governorate_identity_is_its_english_name.php`
   - `2026_08_27_100020_optional_cut_the_middle_rung_of_the_ladder.php`
   - `2026_08_27_100010_absence_adder_names_a_real_position.php`
   - `2026_08_26_100010_exam_entry_is_a_ticket_not_a_cooldown.php`
   - `2026_08_26_100010_acquisition_source_on_the_user.php`
   - `2026_08_25_100010_no_animation_toggle_animation_is_always_present.php`
-  - `2026_08_24_100010_ledger_source_is_a_key_not_a_sentence.php`
-  - `2026_08_23_100010_games_are_cancelled_drop_the_tables.php`
-  - `2026_08_22_100010_gateway_webhook_logs_reason.php`
-  - … و223 غيرها.
+  - … و226 غيرها.
 <!-- تلقائيّ:نهاية:المنجز -->
 
 ## ⬜ المتبقّي

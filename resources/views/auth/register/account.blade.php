@@ -50,6 +50,9 @@
         </p>
     @endif
 
+    {{-- لا حرف عربيّ داخل `<script>` — النصوص تصل إليه سماتٍ على وسم (2.13-أ) --}}
+    <div data-texts hidden data-send="{{ setting('auth.otp.send_label', 'إرسال') }}"></div>
+
     <form method="post" action="{{ route('register') }}" class="space-y-4" data-account-form>
         @csrf
         <input type="hidden" name="step" value="{{ \App\Http\Controllers\Auth\AuthController::STEP_ACCOUNT }}">
@@ -133,7 +136,7 @@
                         تغيب الجافاسكربت (2.1): الاختيار يعمل في الحالتين.
                     --}}
                     <div class="relative shrink-0" data-dial style="width: {{ $dialWidth }}px">
-                        <select name="phone_iso2" data-dial-select required aria-label="كود الدولة"
+                        <select name="phone_iso2" data-dial-select required aria-label="{{ setting('onboarding.account.dial_label', 'كود الدولة') }}"
                                 class="w-full rounded-xl px-2 py-2 text-sm" style="{{ $inputStyle }}">
                             @foreach ($dialCodes as $row)
                                 <option value="{{ $row['iso2'] }}"
@@ -151,7 +154,7 @@
                                  aria-hidden="true"><path d="M2.5 4.5 6 8l3.5-3.5"/></svg>
                         </button>
 
-                        <div data-dial-panel hidden role="listbox" aria-label="أكواد الدول"
+                        <div data-dial-panel hidden role="listbox" aria-label="{{ setting('onboarding.account.dial_label', 'كود الدولة') }}"
                              class="absolute z-30 mt-1 rounded-xl overflow-hidden"
                              style="inset-inline-start: 0; min-width: min(19rem, 88vw); max-height: 16rem; display: flex; flex-direction: column;
                                     background: var(--surface); border: 1px solid var(--border); box-shadow: 0 14px 34px rgba(0,0,0,.28)">
@@ -208,7 +211,8 @@
     </form>
 
     <p class="text-sm mt-4" style="color: var(--text-muted)">
-        عندك حساب؟ <a href="{{ route('login') }}" style="color: var(--color-brand-500)">ادخل من هنا</a>
+        {{ setting('onboarding.account.has_account', 'عندك حساب؟') }}
+        <a href="{{ route('login') }}" style="color: var(--color-brand-500)">{{ setting('onboarding.account.login_label', 'ادخل من هنا') }}</a>
     </p>
 
     {{-- ⚖️ إسناد ODbL **حيث تُستهلَك البيانات** — أكواد الدول أعلاه (2.5-ج) --}}
@@ -256,7 +260,7 @@
                 if (done) done.hidden = true;
                 if (action) {
                     action.dataset.sent = '0';
-                    action.textContent = @json(setting('auth.otp.send_label', 'إرسال'));
+                    action.textContent = document.querySelector('[data-texts]')?.dataset.send || '';
                     action.setAttribute('formaction', SEND);
                 }
                 if (code) code.value = '';

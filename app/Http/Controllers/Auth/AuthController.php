@@ -18,6 +18,7 @@ use Illuminate\Contracts\Validation\Validator as ValidatorContract;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -176,9 +177,43 @@ class AuthController extends Controller
      */
     public function register(Request $request): RedirectResponse
     {
-        return $request->input('step') === self::STEP_IDENTITY
-            ? $this->registerIdentity($request)
-            : $this->registerAccount($request);
+        if ($request->input('step') === self::STEP_IDENTITY) {
+            return $this->registerIdentity($request);
+        }
+
+        if ($request->input('step') === self::STEP_ACCOUNT) {
+            return $this->registerAccount($request);
+        }
+
+        /*
+         | حمولةٌ بلا خطوة وفيها حقول **الشاشتين معًا**: هذا هو مسار الحارس
+         | (`RequireVerifiedEmail`) حين يحجز فورمًا كاملًا قبل التأكيد ثمّ يعيد
+         | تشغيله بعده. يبقى عاملًا كما هو — والفصل لم يُلغِ بابًا قائمًا، بل
+         | جعل الشاشتين هما الطريق الافتراضيّ.
+         |
+         | ⛔ وبنفس حارس الـOTP: لا إنشاء بلا بريدٍ مؤكَّد مهما كان الباب.
+         */
+        if ($request->filled('name_ar') && $request->filled('email')) {
+            return $this->registerCombined($request);
+        }
+
+        return $this->registerAccount($request);
+    }
+
+    /** الفورم الكامل في طلبٍ واحد (مسار إعادة تشغيل الحارس) — بنفس التحقّقات. */
+    private function registerCombined(Request $request): RedirectResponse
+    {
+        $data = $request->validate($this->rules(), $this->messages(), $this->attributes());
+
+        if (! $this->emailVerified($request, (string) $data['email'])) {
+            return back()->withInput($request->except(['password', 'password_confirmation', '_token']))
+                ->withErrors(['code' => (string) setting(
+                    'auth.otp.error_not_verified',
+                    'أكّد بريدك الأوّل: اضغط «إرسال» واكتب الرمز اللي هيوصلك، وبعدها كمّل.',
+                )]);
+        }
+
+        return $this->createAccount($request, $data);
     }
 
     /**
@@ -375,11 +410,20 @@ class AuthController extends Controller
      */
     private function accountRules(): array
     {
+        /*
+         | كود الدولة إلزاميّ **حين توجد قائمةٌ يُختار منها** — ولا يُقفَل الباب
+         | على المسجّلين حين لا تكون هناك. نفس منطق `location_required` في
+         | الشاشة الثانية: قائمةٌ فارغة عطبٌ في البيانات لا ذنبَ للمستخدم فيه.
+         */
+        $dialAvailable = setting('countries.registration.phone_code', true)
+            && Country::query()->where('is_active', true)
+                ->whereNotNull('phone_code')->where('phone_code', '!=', '')->exists();
+
         return [
             'email' => ['required', 'email', 'max:190', 'unique:users,email'],
             // كود الدولة يُختار من قائمة الأعلام لا يُكتَب — فيُسأل عن وجوده
             'phone_iso2' => [
-                setting('countries.registration.phone_code', true) ? 'required' : 'nullable',
+                $dialAvailable ? 'required' : 'nullable',
                 'string', 'size:2', Rule::exists('countries', 'iso2')->where('is_active', true),
             ],
             'phone_national' => ['required', 'string', 'max:20', 'regex:/^\d[\d\s\-]*$/'],
@@ -472,7 +516,7 @@ class AuthController extends Controller
      * والترتيب بالاسم العربيّ بعد `sort_order`: خمسة آلاف صفٍّ دخلت من المصدر
      * بترتيبٍ صفر، فبلا هذا تخرج القائمة بترتيب الإدراج — وهو لا ترتيب.
      *
-     * @return \Illuminate\Support\Collection<int, Country>
+     * @return Collection<int, Country>
      */
     private function countries()
     {

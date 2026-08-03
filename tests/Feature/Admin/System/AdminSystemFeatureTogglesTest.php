@@ -91,6 +91,35 @@ class AdminSystemFeatureTogglesTest extends SystemTestCase
         ));
     }
 
+    /**
+     * ⭐ **قارئٌ واحد للمنصّة كلّها**: `feature()` و`feature_state()` يعطيان
+     * نفس إجابة الحارس — فلا تفترق الواجهة عن الخادم.
+     */
+    public function test_the_single_reader_helper_answers_exactly_like_the_guard(): void
+    {
+        $admin = $this->admin(self::ADMIN);
+        $trainee = $this->trainee();
+
+        $this->assertTrue(feature('library.reader', $trainee));
+        // مفتاحٌ لا وجود له ⟵ شغّال: الصمت لا يقفل بابًا
+        $this->assertTrue(feature('does.not.exist', $trainee));
+
+        $this->disable($admin, 'library.reader', [
+            'behavior' => 'message',
+            'visibility' => 'admins',
+            'message_ar' => 'رسالة الميزة الموقوفة.',
+        ]);
+
+        $this->assertFalse(feature('library.reader', $trainee));
+        $this->assertTrue(feature('library.reader', $admin));
+
+        $state = feature_state('library.reader', $trainee);
+        $this->assertFalse($state['enabled']);
+        $this->assertSame('message', $state['behavior']);
+        $this->assertSame('رسالة الميزة الموقوفة.', $state['message']);
+        $this->assertTrue(feature_state('library.reader', $admin)['exempt']);
+    }
+
     // ==================================== 1) الإطفاء يُحدِث أثرًا حقيقيًّا
 
     /** ⭐ سلوك «إخفاء كامل»: المسار يختفي — لا زرٌّ يُخفى وحده */
@@ -301,6 +330,38 @@ class AdminSystemFeatureTogglesTest extends SystemTestCase
         ])->assertForbidden();
 
         $this->assertTrue((bool) DB::table('feature_flags')->where('key', 'library.reader')->value('enabled'));
+    }
+
+    /**
+     * **الحالة الرابعة:** بلا صلاحيّة ⟵ التاب **يُخفى** ولا يُعطَّل (2.15-أ-7).
+     *
+     * ⚠️ والعدّ لا الوجود: `resources/views/partials/sidebar-admin.blade.php`
+     * يحمل رابطًا ثانيًا لنفس التاب محروسًا بـ`settings_general.view` وحدها —
+     * وهو **ملفّ ليس لي** (تحت يد إيجنت آخر الآن)، فالرابط يبقى ظاهرًا لمن لا
+     * يملك `feature_toggles.*`. لذلك يقيس الاختبار **رابط التاب في الشاشة**
+     * (الذي أملكه) عبر عدد المرّات: واحدٌ من السايد بار، والثاني من التاب.
+     */
+    public function test_without_the_permission_the_tab_is_hidden_not_disabled(): void
+    {
+        $url = route('admin.settings.index', ['tab' => 'features']);
+
+        $weak = $this->admin(['settings_general.view'], 'أدمن بلا مفاتيح');
+        $strong = $this->admin(self::ADMIN);
+
+        $weakPage = $this->actingAs($weak)->get(route('admin.settings.index'))->getContent();
+        $strongPage = $this->actingAs($strong)->get(route('admin.settings.index'))->getContent();
+
+        $this->assertSame(
+            substr_count($strongPage, $url) - 1,
+            substr_count($weakPage, $url),
+            'رابط تاب «مفاتيح المزايا» لازم يختفي عمّن لا يملك مفتاحه (2.15-أ-7).',
+        );
+
+        // ومَن وصل بالرابط مباشرةً يجد نصّ «بلا صلاحيّة» لا جدولًا
+        $this->actingAs($weak)->get($url)
+            ->assertOk()
+            ->assertSee((string) setting('features.ui.state.denied'), false)
+            ->assertDontSee((string) setting('features.ui.col.toggle'), false);
     }
 
     public function test_reset_brings_the_feature_back_to_global_and_clears_overrides(): void

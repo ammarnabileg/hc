@@ -141,7 +141,17 @@ class PasswordAndOtpTest extends SecurityTestCase
         $response->assertRedirect(route(app(OnboardingJourney::class)->routeFor($user)));
 
         $this->assertSame('pending', $user->status);
-        $this->assertSame('yasmin@test.local', session(RequireVerifiedEmail::SESSION_VERIFIED));
+
+        /*
+         | ⭐ وعلامةُ «هذا البريد مؤكَّد» **تُمحى** بعد إنشاء الحساب.
+         |
+         | كانت تبقى في الجلسة، وهي رخصةُ مرورٍ لبريدٍ بعينه: تبقى بعد اكتمال
+         | مهمّتها فيمرّ بها من يعود لصفحة التسجيل في نفس الجلسة. والصحيح أنّ
+         | الرخصة تُستهلَك مرّةً وتنتهي — ومعها حمولةُ الشاشة الأولى وفيها كلمة
+         | السرّ، فلا تعيش في السيشن بعد أن صار لها حسابٌ حقيقيّ.
+         */
+        $this->assertNull(session(RequireVerifiedEmail::SESSION_VERIFIED));
+        $this->assertNull(session(RequireVerifiedEmail::SESSION_PENDING));
     }
 
     /** رمز غلط لا يُنشئ حسابًا ويقول ماذا حدث وماذا يفعل */

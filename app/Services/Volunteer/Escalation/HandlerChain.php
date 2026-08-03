@@ -6,6 +6,7 @@ use App\Models\Membership;
 use App\Models\Position;
 use App\Models\User;
 use App\Services\Volunteer\Org\AbsenceService;
+use App\Services\Volunteer\Retention\SuspensionService;
 
 /**
  * سلسلة أصحاب القرار (الدستور 23 — القسم 5).
@@ -13,9 +14,28 @@ use App\Services\Volunteer\Org\AbsenceService;
  * القاعدة الواحدة: صاحب القرار الأوّل = **الأبلاين المباشر لمالك المهمّة** —
  * ولا يتغيّر مهما كثر المساهمون ولا اختلفت أقسامهم. وفوقه سلسلة الأبلاينز
  * حتى السقف (مشرف عام التطوّع) صاحب نافذة الـ48.
+ *
+ * ⭐ **وهي المصدر الواحد لسؤال «مَن صاحب هذه النافذة؟»** — لأنّ الجواب ليس
+ * «الأبلاين» مجرّدًا: فوقه استثناءان منصوصان يجب أن يُقرآ معه دائمًا، وأيّ
+ * مسارٍ يحسب الأبلاين بنفسه يسقط منهما:
+ *  · **الغائب المفوَّض** (23-6): «كلّ نوافذ القرار الواردة إليه **تُوجَّه للبديل
+ *    مباشرةً**».
+ *  · **المعلَّق عند −10** (23-0.2-4): «تنتقل **مسؤوليّاته الإشرافيّة تلقائيًّا
+ *    لأبلاينه المباشر** … فلا يبقى فريق بلا مراجِع طوال مدّة التحقيق».
  */
 class HandlerChain
 {
+    /**
+     * ⭐ حالات العضويّة التي **تظلّ في السلسلة**: النشِطة و**المعلَّقة**.
+     *
+     * ولماذا تبقى المعلَّقة؟ لأنّ إسقاطها **يقطع السلسلة على مَن تحتها**:
+     * داونلاينه يشير إلى عضويّته بـ`upline_id`، فلو قرأناها «غير موجودة» لَعاد
+     * صاحبُ نافذتهم `null` — أي **«بلغنا السقف»** — فتتسوّى قراراتهم آليًّا بلا
+     * مراجِع. وهو عين ما ينفيه النصّ: «فلا يبقى فريق بلا مراجِع». فالعضويّة
+     * المعلَّقة تبقى **حلقةً في السلسلة** ويقوم عنها **بديلُ التغطية**.
+     */
+    public const CHAIN_STATUSES = ['active', SuspensionService::MEMBERSHIP_STATUS];
+
     /** بوزشن السقف — إعداد لا مفتاح محروق (2.13) */
     public function topPositionKey(): string
     {
@@ -49,13 +69,25 @@ class HandlerChain
     }
 
     /**
-     * البديل عن الغائب — بسلسلة محروسة: لو البديل نفسه غائب انتقلنا لبديله،
-     * ولو انقطع البدلاء رجعنا لأبلاين الغائب فلا تبقى نافذة بلا صاحب.
+     * البديل عن الغائب أو المعلَّق — بسلسلة محروسة: لو البديل نفسه غائب انتقلنا
+     * لبديله، ولو انقطع البدلاء رجعنا لأبلاين الغائب فلا تبقى نافذة بلا صاحب.
      */
     public function substituteIfAbsent(?User $handler, ?int $entityId = null, int $guard = 0): ?User
     {
         if (! $handler || $guard >= 5) {
             return $handler;
+        }
+
+        /*
+         | ⭐ **المعلَّق قبل الغائب** — والترتيب مقصود: الغياب عذرٌ مؤقّت يُفوَّض
+         | فيه بمن يختاره صاحبُ الصلاحيّة، أمّا التعليق فرفعُ يدٍ كاملٌ عن
+         | البوزشن لا يملك معه المعلَّق أن يفوّض ولا أن يُفوَّض إليه. فتغطية
+         | البوزشن (23-0.2-4) تسبق قراءة أيّ تفويض غيابٍ كان قد فتحه لنفسه.
+         */
+        $cover = app(SuspensionService::class)->coverFor($handler, $entityId);
+
+        if ($cover && (int) $cover->id !== (int) $handler->id) {
+            return $this->substituteIfAbsent($cover, $entityId, $guard + 1);
         }
 
         $absences = app(AbsenceService::class);
@@ -115,7 +147,7 @@ class HandlerChain
         while ($membership && $membership->upline_id && $guard++ < 20) {
             $membership = Membership::query()->find($membership->upline_id);
 
-            if (! $membership || $membership->status !== 'active') {
+            if (! $membership || ! in_array($membership->status, self::CHAIN_STATUSES, true)) {
                 break;
             }
 
@@ -174,7 +206,8 @@ class HandlerChain
 
         $upline = Membership::query()->find($membership->upline_id);
 
-        if (! $upline || $upline->status !== 'active') {
+        // العضويّة المعلَّقة تبقى حلقةً في السلسلة — ويقوم عنها بديلُ التغطية
+        if (! $upline || ! in_array($upline->status, self::CHAIN_STATUSES, true)) {
             return null;
         }
 

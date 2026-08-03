@@ -13,6 +13,14 @@
      ثامن — سبعة أعمدة، وبيانٌ كامل.
 --}}
 
+{{-- **الحالة الرابعة — بلا صلاحيّة:** التاب مخفيٌّ أصلًا من القائمة الجانبيّة
+     (2.15-أ-7)، ومَن وصل بالرابط مباشرةً يُقال له ماذا يفعل لا يُترَك أمام صفحةٍ
+     فارغة (2.17-ب). --}}
+@unless (auth()->user()->allows('feature_toggles.view') || auth()->user()->allows('feature_toggles.list'))
+    <x-empty :message="setting('features.ui.state.denied', 'مالكش صلاحيّة على مفاتيح المزايا — كلّم مالك المنصّة لو محتاج وصولًا.')" />
+    @php return; @endphp
+@endunless
+
 @php
     $rows = $features['rows'];
     $groups = $features['groups'];
@@ -23,9 +31,16 @@
 {{-- الغرض + القاعدة المثبّتة (24.3) --}}
 <div class="card p-4">
     <p class="text-sm">{{ setting('features.ui.purpose', 'إطفاء أو تشغيل أيّ ميزة بلا نشر كود — وده البديل الوحيد للصيانة الجزئيّة الملغاة.') }}</p>
-    <p class="text-xs mt-2" style="color: var(--text-muted)">
-        <x-state-badge state="warn" :label="setting('features.ui.status.off', 'موقوف')" class="me-1" />
-        {{ setting('features.ui.pinned_rule', 'لا صيانة جزئيّة لميزة بعينها — أُلغيت؛ الإطفاء يتمّ من هنا فقط.') }}
+    {{-- القاعدة المثبّتة — بأيقونة SVG مرسومة، **لا شارةَ حالة**: قاموس الألوان
+         (2.16) يعطي كلّ لونٍ معنًى واحدًا، ووسمُ نصٍّ تعريفيّ بلون «موقوف»
+         يُفقِد اللونَ معناه في المنصّة كلّها. --}}
+    <p class="text-xs mt-2 flex items-start gap-2" style="color: var(--text-muted)">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true" class="shrink-0 mt-0.5"
+             style="color: var(--color-brand-500)">
+            <path d="M4 8.5 7 11.5 12.5 5" stroke="currentColor" stroke-width="1.8"
+                  stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span>{{ setting('features.ui.pinned_rule', 'لا صيانة جزئيّة لميزة بعينها — أُلغيت؛ الإطفاء يتمّ من هنا فقط.') }}</span>
     </p>
 </div>
 

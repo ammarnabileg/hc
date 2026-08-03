@@ -15,11 +15,11 @@
     <label class="flex items-center gap-2 text-sm">
         <input type="checkbox" name="features__show_beta_badge" value="1"
                @checked(setting('features.show_beta_badge', true)) @disabled(! $mayEdit)>
-        <span>{{ $features['labels']['features.show_beta_badge'] ?? '' }}</span>
+        <span>{{ $features['labels']['features.show_beta_badge'] ?? '' }} <code class="text-xs" style="color: var(--text-muted)">features.show_beta_badge</code></span>
     </label>
 
     <label class="block text-sm">
-        <span class="block mb-1">{{ setting('features.ui.popup.behavior', 'سلوك الميزة الموقوفة') }}</span>
+        <span class="block mb-1">{{ setting('features.ui.popup.behavior', 'سلوك الميزة الموقوفة') }} <code class="text-xs" style="color: var(--text-muted)">features.disabled_behavior</code></span>
         <select name="features__disabled_behavior" @disabled(! $mayEdit)
                 class="w-full rounded-xl px-3 py-2 text-sm"
                 style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
@@ -30,14 +30,14 @@
 
     <div class="grid gap-3 sm:grid-cols-2">
         <label class="block text-sm">
-            <span class="block mb-1">{{ setting('features.ui.popup.message_ar', 'اللي المستخدم هيشوفه بدلها (عربيّ)') }}</span>
+            <span class="block mb-1">{{ setting('features.ui.popup.message_ar', 'اللي المستخدم هيشوفه بدلها (عربيّ)') }} <code class="text-xs" style="color: var(--text-muted)">features.disabled_message</code></span>
             <textarea name="features__disabled_message" rows="2" @disabled(! $mayEdit)
                       class="w-full rounded-xl px-3 py-2 text-sm"
                       style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">{{ setting('features.disabled_message', 'الميزة دي متوقّفة مؤقّتًا — هترجع قريب.') }}</textarea>
         </label>
 
         <label class="block text-sm">
-            <span class="block mb-1">{{ setting('features.ui.popup.message_en', 'اللي المستخدم هيشوفه بدلها (إنجليزيّ)') }}</span>
+            <span class="block mb-1">{{ setting('features.ui.popup.message_en', 'اللي المستخدم هيشوفه بدلها (إنجليزيّ)') }} <code class="text-xs" style="color: var(--text-muted)">features.disabled_message_en</code></span>
             <textarea name="features__disabled_message_en" rows="2" dir="ltr" @disabled(! $mayEdit)
                       class="w-full rounded-xl px-3 py-2 text-sm"
                       style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">{{ setting('features.disabled_message_en', 'This feature is paused for a moment — it will be back soon.') }}</textarea>
@@ -48,11 +48,11 @@
         <label class="flex items-center gap-2 text-sm">
             <input type="checkbox" name="features__alert_long_outage" value="1"
                    @checked(setting('features.alert_long_outage', true)) @disabled(! $mayEdit)>
-            <span>{{ $features['labels']['features.alert_long_outage'] ?? '' }}</span>
+            <span>{{ $features['labels']['features.alert_long_outage'] ?? '' }} <code class="text-xs" style="color: var(--text-muted)">features.alert_long_outage</code></span>
         </label>
 
         <label class="block text-sm">
-            <span class="block mb-1">{{ $features['labels']['features.alert_after_hours'] ?? '' }}</span>
+            <span class="block mb-1">{{ $features['labels']['features.alert_after_hours'] ?? '' }} <code class="text-xs" style="color: var(--text-muted)">features.alert_after_hours</code></span>
             <input type="number" name="features__alert_after_hours" min="1" @disabled(! $mayEdit)
                    value="{{ (int) setting('features.alert_after_hours', 24) }}"
                    class="w-full rounded-xl px-3 py-2 text-sm"

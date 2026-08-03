@@ -48,7 +48,7 @@ class EnsureFeatureEnabled
                 return response()->json(['message' => $message, 'feature' => $key], 403);
             }
 
-            return response()->view('admin.features.unavailable', [
+            return response()->view('features.unavailable', [
                 'message' => $message,
                 'feature' => $key,
             ], 403);

@@ -42,6 +42,10 @@
          --}}
         <nav class="min-w-0 flex md:flex-col gap-2 overflow-x-auto no-scrollbar md:sticky md:top-4 md:self-start">
             @foreach ($tabs as $key => $meta)
+                {{-- 2.15-أ-7: المحظور **يُخفى** لا يُعطَّل — ومفاتيح المزايا لها مفتاحها --}}
+                @continue($key === 'features' && ! auth()->user()->allows('feature_toggles.view')
+                    && ! auth()->user()->allows('feature_toggles.list'))
+
                 <a href="{{ route('admin.settings.index', ['tab' => $key]) }}"
                    class="shrink-0 rounded-xl px-3 py-2 text-sm motion-standard"
                    style="{{ $tab === $key

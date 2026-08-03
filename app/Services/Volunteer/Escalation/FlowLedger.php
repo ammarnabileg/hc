@@ -4,7 +4,7 @@ namespace App\Services\Volunteer\Escalation;
 
 use App\Models\Transaction;
 use App\Models\User;
-use App\Services\Volunteer\Retention\OptionalCutService;
+use App\Services\Volunteer\Retention\RepLadder;
 use App\Services\Wallet\LedgerService;
 use Illuminate\Database\Eloquent\Model;
 
@@ -65,8 +65,8 @@ class FlowLedger
             ? $ledger->credit($user, self::REP, $value, $source, $reference, 'volunteer', $reason, $createdBy)
             : $ledger->debit($user, self::REP, abs($value), $source, $reference, 'volunteer', $reason, $createdBy ?? $user->id);
 
-        // ⭐ الدرجة الوسطى من سلّم العتبات تقع **فورًا** لا في مسحة الغد (23-0.2-2)
-        OptionalCutService::afterRepMovement($user, self::REP, $value);
+        // ⭐ سلّم عتبات الهبوط الثلاث يقع **فورًا** لا في مسحة الغد (23-0.2)
+        RepLadder::afterRepMovement($user, self::REP, $value, $transaction);
 
         return $transaction;
     }

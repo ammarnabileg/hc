@@ -6,9 +6,7 @@ use App\Models\User;
 use App\Services\Certificates\CertificateIssuer;
 use App\Services\Library\AttestationBuilder;
 use App\Services\Library\CvBuilder;
-use App\Services\Security\OtpService;
-use App\Services\Security\RequireVerifiedEmail;
-use Illuminate\Support\Facades\DB;
+use Tests\Feature\Auth\RegistersThroughTwoScreens;
 
 /**
  * 2.5-ج — صفحة المعلومات = **«بيانات الشهادات والإفادات»**.
@@ -19,7 +17,15 @@ use Illuminate\Support\Facades\DB;
  */
 class RegistrationIdentityTest extends OnboardingTestCase
 {
-    /** بيانات فورم التسجيل كاملةً كما في 2.5-ج */
+    use RegistersThroughTwoScreens;
+
+    /**
+     * حقول **الشاشة الثانية وحدها** (2.5-ج) — البريد والموبايل والباسوورد
+     * صاروا في الشاشة الأولى (2.5-ب) بعد فصل الشاشتين كما ينصّ النصّ.
+     *
+     * @param  array<string, mixed>  $overrides
+     * @return array<string, mixed>
+     */
     private function form(array $overrides = []): array
     {
         return [
@@ -30,26 +36,15 @@ class RegistrationIdentityTest extends OnboardingTestCase
             'country_id' => $this->egypt()->id,
             'governorate_id' => $this->cairo()->id,
             'address_line' => 'شارع النيل، المعادي',
-            'email' => 'm@test.local',
-            'phone' => '+201000000001',
-            'password' => 'secret-password',
-            'password_confirmation' => 'secret-password',
             ...$overrides,
         ];
     }
 
-    /** يمرّ ببوّابة الـOTP كما هي — فهي سليمة ولا تُكسَر (2.5-ب) */
+    /** الشاشة الأولى ببوّابة الـOTP كما هي — فهي سليمة ولا تُكسَر (2.5-ب) */
     private function registerThroughOtp(array $form): void
     {
-        $this->post('/register', $form)->assertRedirect(route('register.verify'));
-        $this->post(route('register.verify.send'));
-
-        $code = decrypt(DB::table('security_otp_codes')
-            ->where('email', $form['email'])
-            ->where('purpose', OtpService::PURPOSE_REGISTER)
-            ->value('code'), false);
-
-        $this->post(route('register.verify.confirm'), ['code' => $code]);
+        $this->passFirstScreen('m@test.local', ['phone_national' => '1000000001']);
+        $this->passSecondScreen($form);
     }
 
     public function test_registration_stores_the_certificate_identity_fields(): void
@@ -73,17 +68,17 @@ class RegistrationIdentityTest extends OnboardingTestCase
 
     public function test_arabic_name_must_be_arabic_and_english_name_must_be_english(): void
     {
-        // البريد مؤكَّد سلفًا كي نصل لتحقّقات صفحة المعلومات نفسها لا لبوّابة الـOTP
-        $verified = fn () => $this->withSession([RequireVerifiedEmail::SESSION_VERIFIED => 'm@test.local']);
+        // الشاشة الأولى تُجتاز مرّةً فعلًا — فنقف على تحقّقات صفحة المعلومات نفسها
+        $this->passFirstScreen('m@test.local', ['phone_national' => '1000000001']);
 
-        $verified()->post('/register', $this->form(['name_ar' => 'Mohamed Ahmed Ali']))
+        $this->passSecondScreen($this->form(['name_ar' => 'Mohamed Ahmed Ali']))
             ->assertSessionHasErrors('name_ar');
 
-        $verified()->post('/register', $this->form(['name_en' => 'محمّد أحمد علي']))
+        $this->passSecondScreen($this->form(['name_en' => 'محمّد أحمد علي']))
             ->assertSessionHasErrors('name_en');
 
         // «ثلاثيّ» شرطٌ منصوص — والعدد إعدادٌ لا رقم محروق
-        $verified()->post('/register', $this->form(['name_ar' => 'محمّد أحمد']))
+        $this->passSecondScreen($this->form(['name_ar' => 'محمّد أحمد']))
             ->assertSessionHasErrors('name_ar');
 
         $this->assertDatabaseMissing('users', ['email' => 'm@test.local']);

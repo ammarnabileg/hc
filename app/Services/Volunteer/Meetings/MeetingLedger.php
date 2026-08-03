@@ -6,7 +6,7 @@ use App\Models\RepScore;
 use App\Models\Transaction;
 use App\Models\User;
 use App\Services\Notifications\Notifier;
-use App\Services\Volunteer\Retention\OptionalCutService;
+use App\Services\Volunteer\Retention\RepLadder;
 use App\Services\Wallet\LedgerService;
 use Illuminate\Database\Eloquent\Model;
 
@@ -46,8 +46,8 @@ class MeetingLedger
         $this->stampEntity($transaction, $reference);
         $this->syncRepScore($user);
 
-        // ⭐ الدرجة الوسطى من سلّم العتبات تقع **فورًا** (23-0.2-2)
-        OptionalCutService::afterRepMovement($user, LedgerService::REP, $value);
+        // ⭐ سلّم عتبات الهبوط الثلاث يقع **فورًا** (23-0.2)
+        RepLadder::afterRepMovement($user, LedgerService::REP, $value, $transaction);
 
         return $transaction;
     }

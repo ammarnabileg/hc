@@ -5,7 +5,7 @@ namespace App\Services\Volunteer\Tasks;
 use App\Models\Currency;
 use App\Models\Transaction;
 use App\Models\User;
-use App\Services\Volunteer\Retention\OptionalCutService;
+use App\Services\Volunteer\Retention\RepLadder;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -64,8 +64,19 @@ class LedgerBridge
             $transaction = $this->fallback($user, $currency, $amount, $source, $reason, $reference, $entityId);
         }
 
-        // ⭐ الدرجة الوسطى من سلّم العتبات تقع **فورًا** (23-0.2-2)
-        OptionalCutService::afterRepMovement($user, $currency, $amount);
+        /*
+         | ⭐ **ختمُ الكيان قبل السلّم**: «كلّ حدث **موسوم بكيانه** في سجلّ
+         | المعاملات» (23-0.2-عضويّات-2) — وعليه وحده يتحدّد **أبلاين العضويّة
+         | الكاسرة** صاحبُ التزام الـ48 ساعة عند −8 (23-0.2-1). والمسار الأصليّ
+         | (دفتر الأستاذ) لا يعرف الكيان، فكان يُكتَب فقط في المسار البديل —
+         | أي أنّ الوسم كان يعمل حين يغيب الدفتر ويغيب حين يعمل.
+         */
+        if ($transaction && $entityId && ! $transaction->entity_id) {
+            $transaction->forceFill(['entity_id' => $entityId])->save();
+        }
+
+        // ⭐ سلّم عتبات الهبوط الثلاث يقع **فورًا** (23-0.2)
+        RepLadder::afterRepMovement($user, $currency, $amount, $transaction);
 
         return $transaction;
     }

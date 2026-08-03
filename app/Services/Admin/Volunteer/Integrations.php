@@ -6,7 +6,7 @@ use App\Models\Currency;
 use App\Models\Transaction;
 use App\Models\User;
 use App\Models\WalletBalance;
-use App\Services\Volunteer\Retention\OptionalCutService;
+use App\Services\Volunteer\Retention\RepLadder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Throwable;
@@ -90,11 +90,47 @@ class Integrations
             $transaction = self::postDirectly($user, $currencyCode, $signedAmount, $source, $reason, $actor, $reference, $layer);
         }
 
-        // ⭐ الدرجة الوسطى من سلّم العتبات تقع **فورًا** (23-0.2-2) — ومعاملات
-        // السلوك (13.4-ن-هـ) تمرّ من هنا، وهي أكثر ما يُنزِل درجة الالتزام.
-        OptionalCutService::afterRepMovement($user, $currencyCode, $signedAmount);
+        // ⭐ ختمُ الكيان **قبل** السلّم لا بعده — انظر `stampEntity()`
+        self::stampEntity($transaction, $reference);
+
+        // ⭐ سلّم عتبات الهبوط الثلاث يقع **فورًا** (23-0.2) — ومعاملات السلوك
+        // (13.4-ن-هـ) تمرّ من هنا، وهي أكثر ما يُنزِل درجة الالتزام.
+        RepLadder::afterRepMovement($user, $currencyCode, $signedAmount, $transaction);
 
         return $transaction;
+    }
+
+    /**
+     * ⭐ **ختمُ كيان الحركة على صفّها** — وهو ما يجعل «أبلاين **العضويّة التي
+     * وقعت فيها المعاملة الكاسرة**» (23-0.2-1) جملةً قابلةً للتنفيذ لا وصفًا.
+     *
+     * والوسم منصوصٌ أصلًا في قاعدة العضويّات المتعدّدة (23-0.2-عضويّات-2):
+     * «وكلّ حدث **موسوم بكيانه** في سجلّ المعاملات». وكان `MeetingLedger` وحده
+     * يفعلها، فحركات السلوك — وهي **أكثر ما يُنزِل الدرجة** — تصل بلا كيان،
+     * فيقع التزام الـ48 ساعة على أبلاين العضويّة الأساسيّة أيًّا كان الكيان
+     * الذي وقعت فيه المخالفة فعلًا.
+     *
+     * ولا يُشتقّ الكيان إلّا ممّا يحمله المرجع بنفسه: `entity_id` مباشرةً، أو
+     * `membership_id` (معاملة السلوك تحمله) ⟵ كيان تلك العضويّة. وما لا مرجع
+     * له يبقى بلا كيان — ولا نخترع له واحدًا.
+     */
+    private static function stampEntity(?Transaction $transaction, ?Model $reference): void
+    {
+        if (! $transaction || $transaction->entity_id || ! $reference) {
+            return;
+        }
+
+        $entityId = $reference->getAttribute('entity_id');
+
+        if (! $entityId && $reference->getAttribute('membership_id')) {
+            $entityId = DB::table('memberships')
+                ->where('id', $reference->getAttribute('membership_id'))
+                ->value('entity_id');
+        }
+
+        if ($entityId) {
+            $transaction->forceFill(['entity_id' => (int) $entityId])->save();
+        }
     }
 
     /** إشعار المستخدم — يمرّ للـNotifier إن وُجد وإلّا يُتجاهَل بأمان */

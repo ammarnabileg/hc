@@ -236,6 +236,9 @@ class ExamDemoSeeder extends Seeder
             ['celebrations.certificate.title', 'gamification_celebrations', 'عنوان احتفال الشهادة', 'string', 'مبروك يا [الاسم]'],
             ['celebrations.certificate.message', 'gamification_celebrations', 'نصّ احتفال الشهادة', 'text', 'شهادتك الجديدة صدرت — تقدر تشاركها دلوقتي.'],
             ['celebrations.confetti.pieces', 'gamification_celebrations', 'عدد قطع الكونفيتي', 'number', '80'],
+            // زمن بقاء الاحتفال قبل الانتقال — يستهلكه «الاحتفال القويّ» لحظة
+            // إتمام التسجيل (2.5-ج) فلا يقفز المستخدم قبل أن يراه
+            ['celebrations.hold_ms', 'gamification_celebrations', 'زمن عرض الاحتفال قبل الانتقال (مللي ثانية)', 'number', '900'],
             ['celebrations.peak.auto_dismiss_ms', 'gamification_celebrations', 'مدّة إغلاق احتفال الذروة تلقائيًّا', 'number', '9000'],
         ];
 

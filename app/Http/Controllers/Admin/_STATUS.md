@@ -69,7 +69,7 @@
 ## 🔗 التبعيّات والملفّات المهمّة
 <!-- تلقائيّ:بداية:التبعيات -->
 - **الطبقات الأخرى لنفس المجال:** `app/Services/Admin` · `resources/views/admin` · `routes/parts` · `tests/Feature/Admin`
-- **الاختبارات:** مافيش مجلّد اختبارات بنفس اسم المجال — راجع `tests/Feature` قبل ما تفتح ملفًّا جديدًا.
+- **الاختبارات:** 1 ملفّ Feature في `tests/Feature/Admin` — شغّلها بـ`php artisan test tests/Feature/Admin`.
 - **المرجع الحاكم:** `دستور اساسي.md` · **وكيف نكتب:** `docs/BUILD.md`.
 - **المجلّد الأب:** `app/Http/Controllers/_STATUS.md`.
 <!-- تلقائيّ:نهاية:التبعيات -->

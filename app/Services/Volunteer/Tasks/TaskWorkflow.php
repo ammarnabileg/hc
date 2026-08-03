@@ -7,6 +7,7 @@ use App\Models\TaskSubmission;
 use App\Models\User;
 use App\Services\Volunteer\Escalation\CaseCatalog;
 use App\Services\Volunteer\Escalation\EscalationEngine;
+use App\Services\Volunteer\Goals\VxpDistributionService;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
@@ -319,13 +320,26 @@ class TaskWorkflow
             ),
         );
 
-        if ((float) $task->vxp_value > 0 && $value > 0) {
+        /*
+         | ⭐⭐ **شريحته هو لا وعاء المهمّة كلّه** (23 — 3.9-٥):
+         | «كلّ أب **يوزّع على صب-تاسكاته من وعاء مهمّته** ويحتفظ **بشريحة الدمج
+         | والإشراف لنفسه**». فالمقبوض = الوعاء − ما نزل منه على أبنائه.
+         |
+         | وكان المكتوب هنا `$task->vxp_value` كاملًا: يقبض الأب الوعاء كأنّه لم
+         | يوزّع، ويقبض كلّ ابنٍ شريحته من نفس الوعاء عند تسليمه — فتُدفَع النقطة
+         | الواحدة مرّتين، ويصير **كلّ قيد التوزيع المحكَم في `VxpDistributionService`
+         | حارسًا على رقمٍ لا يُترجَم إلى نقود**. الحساب كلّه هناك (`parentEarning`)
+         | ومعه حالة «فوق الوعاء بموافقة» بحرفها.
+         */
+        $earned = app(VxpDistributionService::class)->parentEarning($task);
+
+        if ($earned > 0 && $value > 0) {
             RepOnce::record(
                 'task.vxp:'.$task->id,
                 fn () => $this->bridge->record(
                     $user,
                     'vxp',
-                    (float) $task->vxp_value,
+                    $earned,
                     'task',
                     'مهمّة مُسلَّمة: '.$task->title,
                     $task,

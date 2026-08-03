@@ -38,6 +38,21 @@
         <x-toast :message="session('status')" state="warn" />
     @endif
 
+    {{--
+        ⚠️ **لا نصّ عربيّ داخل `<script>`.** فحص `settings:hardcoded` يقرأ جسم
+        السكربت **نصًّا خامًا** لا PHP، فـ`@json(setting(…))` بداخله لا يُعَدّ
+        امتثالًا مهما كان المفتاح سليمًا. فالنصوص تُمرَّر **سمات على وسم** —
+        وهناك تُقرَأ `{{ setting() }}` بقواعد PHP فتُحسَب ممتثلة (2.13-أ).
+    --}}
+    <div data-texts hidden
+         data-loading="{{ setting('onboarding.account.loading_label', 'لحظة…') }}"
+         data-blocked="{{ setting('onboarding.identity.governorate_blocked', 'اختر الدولة الأوّل') }}"
+         data-placeholder="{{ setting('onboarding.identity.governorate_placeholder', 'اختر المحافظة') }}"
+         data-failed="{{ setting('onboarding.identity.governorate_failed', 'تعذّر تحميل المحافظات — جرّب تاني') }}"
+         data-words-error="{{ setting('onboarding.identity.name_words_error', 'الاسم لازم يكون {words} كلمات على الأقلّ.') }}"
+         data-name-ar-error="{{ setting('onboarding.identity.name_ar_error', 'اكتب اسمك ثلاثيًّا بالعربيّ — الشهادة هتطلع بالاسم ده.') }}"
+         data-name-en-error="{{ setting('onboarding.identity.name_en_error', 'اكتب اسمك ثلاثيًّا بالإنجليزيّ — النسخة الإنجليزيّة من الشهادة بتطلع بيه.') }}"></div>
+
     <form method="post" action="{{ route('register') }}" class="space-y-3" data-identity-form>
         @csrf
         <input type="hidden" name="step" value="{{ \App\Http\Controllers\Auth\AuthController::STEP_IDENTITY }}">
@@ -45,9 +60,9 @@
 
         {{-- 1) اللقب: Select **مجمَّع بمجموعات** (عامّة · مهنيّة · أكاديميّة) --}}
         <label class="block">
-            <span class="block text-sm mb-1">اللقب</span>
+            <span class="block text-sm mb-1">{{ setting('onboarding.identity.title_label', 'اللقب') }}</span>
             <select name="title" class="{{ $inputClass }}" style="{{ $inputStyle }}" required data-required-field>
-                <option value="">اختر اللقب</option>
+                <option value="">{{ setting('onboarding.identity.title_placeholder', 'اختر اللقب') }}</option>
                 @foreach ($titles as $group => $options)
                     <optgroup label="{{ $group }}">
                         @foreach ($options as $option)
@@ -62,7 +77,7 @@
         {{-- 2) الاسم بالعربيّ (ثلاثيّ) · 3) الاسم بالإنجليزيّ (ثلاثيّ) --}}
         <div class="grid md:grid-cols-2 gap-3">
             <label class="block">
-                <span class="block text-sm mb-1">الاسم بالعربيّ (ثلاثيّ)</span>
+                <span class="block text-sm mb-1">{{ setting('onboarding.identity.name_ar_label', 'الاسم بالعربيّ (ثلاثيّ)') }}</span>
                 <input type="text" name="name_ar" value="{{ old('name_ar') }}" dir="rtl" lang="ar"
                        class="{{ $inputClass }}" style="{{ $inputStyle }}" required data-required-field
                        data-script="arabic">
@@ -70,7 +85,7 @@
             </label>
 
             <label class="block">
-                <span class="block text-sm mb-1">الاسم بالإنجليزيّ (ثلاثيّ)</span>
+                <span class="block text-sm mb-1">{{ setting('onboarding.identity.name_en_label', 'الاسم بالإنجليزيّ (ثلاثيّ)') }}</span>
                 <input type="text" name="name_en" value="{{ old('name_en') }}" dir="ltr" lang="en"
                        class="{{ $inputClass }}" style="{{ $inputStyle }}" required data-required-field
                        data-script="latin">
@@ -80,9 +95,9 @@
 
         {{-- 4) النوع: خياران **برسوم أفاتار** — SVG مرسوم لا مكتبة أيقونات --}}
         <fieldset>
-            <legend class="block text-sm mb-1">النوع</legend>
+            <legend class="block text-sm mb-1">{{ setting('onboarding.identity.gender_label', 'النوع') }}</legend>
             <div class="grid grid-cols-2 gap-3">
-                @foreach ([['male', 'ذكر'], ['female', 'أنثى']] as [$value, $label])
+                @foreach ([['male', setting('onboarding.identity.gender_male', 'ذكر')], ['female', setting('onboarding.identity.gender_female', 'أنثى')]] as [$value, $label])
                     <label class="flex items-center gap-2 rounded-xl px-3 py-2 text-sm cursor-pointer"
                            style="min-height: 44px; background: var(--surface-sunken); border: 1px solid var(--border)">
                         <input type="radio" name="gender" value="{{ $value }}" @checked(old('gender') === $value) required>
@@ -107,9 +122,9 @@
         {{-- 5) الدولة · 6) المحافظة **مبنيّة على الدولة وتُملأ تلقائيًّا** --}}
         <div class="grid md:grid-cols-2 gap-3">
             <label class="block">
-                <span class="block text-sm mb-1">الدولة</span>
+                <span class="block text-sm mb-1">{{ setting('onboarding.identity.country_label', 'الدولة') }}</span>
                 <select name="country_id" class="{{ $inputClass }}" style="{{ $inputStyle }}" data-country data-required-field>
-                    <option value="">اختر الدولة</option>
+                    <option value="">{{ setting('onboarding.identity.country_placeholder', 'اختر الدولة') }}</option>
                     @foreach ($countries as $country)
                         <option value="{{ $country->id }}" @selected((int) old('country_id') === $country->id)>{{ $country->name_ar }}</option>
                     @endforeach
@@ -118,7 +133,7 @@
             </label>
 
             <label class="block">
-                <span class="block text-sm mb-1">المحافظة</span>
+                <span class="block text-sm mb-1">{{ setting('onboarding.identity.governorate_label', 'المحافظة') }}</span>
                 {{--
                     ⚠️ **لا تُطبَع 5,249 محافظة في الصفحة.** كانت تُطبَع كلّها وقتما
                     كانت محافظةً واحدة؛ ومع بيانات المصدر الكاملة صار ذلك مئاتِ
@@ -128,7 +143,7 @@
                 <select name="governorate_id" class="{{ $inputClass }}" style="{{ $inputStyle }}"
                         data-governorate data-required-field data-url="{{ route('register') }}"
                         @disabled(! old('country_id'))>
-                    <option value="">{{ old('country_id') ? 'اختر المحافظة' : 'اختر الدولة الأوّل' }}</option>
+                    <option value="">{{ old('country_id') ? setting('onboarding.identity.governorate_placeholder', 'اختر المحافظة') : setting('onboarding.identity.governorate_blocked', 'اختر الدولة الأوّل') }}</option>
                     @foreach ($governorates as $governorate)
                         <option value="{{ $governorate['id'] }}"
                                 @selected((int) old('governorate_id') === $governorate['id'])>{{ $governorate['name'] }}</option>
@@ -154,8 +169,8 @@
     </form>
 
     <p class="text-sm mt-4" style="color: var(--text-muted)">
-        عايز تعدّل بريدك أو رقمك؟
-        <a href="{{ route('register') }}?back=1" data-restart style="color: var(--color-brand-500)">ارجع للخطوة الأولى</a>
+        {{ setting('onboarding.identity.back_question', 'عايز تعدّل بريدك أو رقمك؟') }}
+        <a href="{{ route('register') }}?back=1" data-restart style="color: var(--color-brand-500)">{{ setting('onboarding.identity.back_label', 'ارجع للخطوة الأولى') }}</a>
     </p>
 
     {{-- ⚖️ إسناد ODbL **حيث تُستهلَك البيانات** — الدول والمحافظات أعلاه (2.5-ج) --}}
@@ -176,8 +191,14 @@
         const country = form.querySelector('[data-country]');
         const governorate = form.querySelector('[data-governorate]');
         const stage = document.querySelector('[data-celebration]');
+
+        // كلّ نصٍّ يراه المستخدم من `setting()` — يصل هنا عبر سمات `data-*`
+        const T = document.querySelector('[data-texts]')?.dataset || {};
+        const WORDS = {{ (int) setting('onboarding.identity.name_words', 3) }};
+        // نطاق الحروف العربيّة بترميزه لا بحروفه: حروفٌ حرفيّة هنا تُقرَأ نصًّا
+        // معروضًا محروقًا، وهي ليست نصًّا بل **مدى محارف** (2.13-أ لا تعنيها)
         const scripts = {
-            arabic: /^[؀-ۿ\sـ]+$/,
+            arabic: /^[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF\s]+$/,
             latin: /^[A-Za-z\s'\-.]+$/,
         };
 
@@ -191,7 +212,7 @@
 
             const blank = document.createElement('option');
             blank.value = '';
-            blank.textContent = id ? '…' : 'اختر الدولة الأوّل';
+            blank.textContent = id ? T.loading : T.blocked;
             governorate.appendChild(blank);
 
             if (!id) { check(); return; }
@@ -201,7 +222,7 @@
                     { headers: { Accept: 'application/json' } });
                 const data = await res.json();
 
-                blank.textContent = 'اختر المحافظة';
+                blank.textContent = T.placeholder;
                 (data.governorates || []).forEach((row) => {
                     const option = document.createElement('option');
                     option.value = row.id;
@@ -210,7 +231,7 @@
                 });
                 governorate.disabled = false;
             } catch (_) {
-                blank.textContent = 'تعذّر تحميل المحافظات — جرّب تاني';
+                blank.textContent = T.failed;
             }
 
             check();
@@ -232,11 +253,9 @@
                 let message = '';
 
                 if (value && !scripts[field.dataset.script].test(value)) {
-                    message = field.dataset.script === 'arabic'
-                        ? @json(setting('onboarding.identity.name_ar_error', 'اكتب اسمك ثلاثيًّا بالعربيّ — الشهادة هتطلع بالاسم ده.'))
-                        : @json(setting('onboarding.identity.name_en_error', 'اكتب اسمك ثلاثيًّا بالإنجليزيّ — النسخة الإنجليزيّة من الشهادة بتطلع بيه.'));
-                } else if (value && value.split(/\s+/).length < {{ (int) setting('onboarding.identity.name_words', 3) }}) {
-                    message = 'الاسم لازم يكون {{ (int) setting('onboarding.identity.name_words', 3) }} كلمات على الأقلّ.';
+                    message = field.dataset.script === 'arabic' ? T.nameArError : T.nameEnError;
+                } else if (value && value.split(/\s+/).length < WORDS) {
+                    message = (T.wordsError || '').replace('{words}', String(WORDS));
                 }
 
                 if (note) note.textContent = message ? '◉ ' + message : '';

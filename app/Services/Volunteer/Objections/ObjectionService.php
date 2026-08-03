@@ -6,8 +6,8 @@ use App\Models\Objection;
 use App\Models\ObjectionMessage;
 use App\Models\Transaction;
 use App\Models\User;
+use App\Services\Volunteer\Escalation\HandlerChain;
 use App\Services\Volunteer\Meetings\MeetingLedger;
-use App\Services\Volunteer\Meetings\MeetingScope;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -24,6 +24,18 @@ use Illuminate\Support\Facades\DB;
  *    جدوله هو (`objections.sla_due_at` · `current_handler_id` · حالة «مُصعَّد»)،
  *    **ولا يُكتَب له صفّ في `escalations`**. وكتابته هناك بنوع لا يعرفه
  *    `CaseCatalog` كانت تُسقِط دورة العمل كلّها عند فوات نافذته.
+ *  - ⭐⭐ **وصاحب المكتب يُحسَب بـ`HandlerChain` وحدها** — لا بسلسلة الأبلاين
+ *    الخام. فالسلسلة الخام تعرف «مَن فوقه في الجدول» ولا تعرف الاستثناءين
+ *    المنصوصين فوقها: **الغائب المفوَّض** (23-6: «كلّ نوافذ القرار الواردة إليه
+ *    **تُوجَّه للبديل مباشرةً**») و**المعلَّق عند −10** (23-0.2-4: «تنتقل
+ *    مسؤوليّاته الإشرافيّة تلقائيًّا لأبلاينه المباشر»). وكان هذا الملفّ يقرأ
+ *    `MeetingScope::directManager()` — سلسلةً خامًّا — **فيصعد الاعتراضُ إلى
+ *    مكتب غائبٍ له بديل** ويقف هناك حتى تفوت مهلته، ثمّ يصعد بفوات المهلة لا
+ *    بقرار: عقوبةُ تباطؤٍ على غائبٍ معذور، وهو عين ما وُجِد وضعُ «غائب» ليمنعه.
+ *  - ⭐ **والكيان قفصٌ هنا كذلك:** المكتب يُحسَب داخل **كيان المعاملة المعترَض
+ *    عليها** (`transactions.entity_id`) — «لا سلطة عابرة للكيانات إطلاقًا»
+ *    (23-0.2-عضويّات-4). فمن له عضويّتان يُحاكَم اعتراضُه في سلسلة الكيان الذي
+ *    وقعت فيه المعاملة لا في أيّ سلسلةٍ أخرى.
  */
 class ObjectionService
 {
@@ -34,8 +46,8 @@ class ObjectionService
     public const STATUSES = ['open', 'in_review', 'escalated', 'accepted', 'rejected'];
 
     public function __construct(
-        private readonly MeetingScope $scope,
         private readonly MeetingLedger $ledger,
+        private readonly HandlerChain $chain,
     ) {}
 
     public function windowDays(): int
@@ -99,7 +111,8 @@ class ObjectionService
             return $this->fail('فيه اعتراض واحد بالفعل على المعاملة دي — تقدر تضيف تفاصيل من صفحة اعتراضاتي.');
         }
 
-        $handler = $this->scope->directManager($user);
+        // ⭐ المكتب من `HandlerChain` داخل كيان المعاملة — فالغائب يُتخطّى لبديله
+        $handler = $this->chain->firstHandlerFor($user, $this->entityOf($transaction));
 
         $objection = DB::transaction(fn () => Objection::create([
             'transaction_id' => $transaction->id,
@@ -146,7 +159,11 @@ class ObjectionService
                     ? User::query()->find($objection->current_handler_id)
                     : null;
 
-                $next = $handler ? $this->scope->directManager($handler) : $this->scope->directManager($objection->user);
+                $entityId = $this->entityOf($objection->transaction);
+
+                $next = $handler
+                    ? $this->chain->nextHandlerAfter($handler, $entityId)
+                    : $this->chain->firstHandlerFor($objection->user, $entityId);
 
                 if (! $next || (int) $next->id === (int) $objection->current_handler_id) {
                     // بلغ السقف: يبقى على مكتبه بمهلةٍ جديدة ويُنبَّه — ولا يُقفَل بلا قرار
@@ -267,7 +284,7 @@ class ObjectionService
             return $this->fail('الاعتراض ده اتقفل — مفيش تصعيد بعد القرار.');
         }
 
-        $next = $this->scope->directManager($handler);
+        $next = $this->chain->nextHandlerAfter($handler, $this->entityOf($objection->transaction));
 
         if (! $next || (int) $next->id === (int) $handler->id) {
             return $this->fail('أنت سقف السلسلة — الاعتراض ده قراره عندك ومش هيصعد لحدّ.');
@@ -305,8 +322,14 @@ class ObjectionService
     }
 
     /**
-     * سلّم التصعيد المرئيّ: سلسلة الأبلاين من المعترِض لأعلى حتى السقف،
+     * سلّم التصعيد المرئيّ: سلسلة **أصحاب القرار** من المعترِض لأعلى حتى السقف،
      * وعلامةٌ على المستوى الحاليّ — يراه الجميع حتى المتطوّع (13.4-ط).
+     *
+     * ⭐ **ويُبنى بنفس الدالّة التي تحرّك الاعتراض** (`HandlerChain`) لا بسلسلة
+     * الأبلاين الخام. ولولا ذلك لَانفصل ما يراه الناس عمّا يقع فعلًا: الاعتراض
+     * على مكتب **بديل الغائب** والسلّم يرسم الغائب نفسه — فلا يجد المعترِض
+     * مكتبَه الحاليّ في السلّم أصلًا («المستوى الحاليّ» بلا علامة)، ويظنّ أنّ
+     * اعتراضه ضاع. **المصدر الواحد للحركة هو المصدر الواحد للعرض.**
      *
      * @return Collection<int,array{user:User,level:int,is_current:bool,is_passed:bool}>
      */
@@ -318,10 +341,34 @@ class ObjectionService
             return collect();
         }
 
+        $entityId = $this->entityOf($objection->transaction);
         $currentId = (int) $objection->current_handler_id;
+
+        $handlers = collect();
+        $seen = [];
+        $cursor = $owner;
+        $guard = 0;
+
+        while ($guard++ < 20) {
+            $next = $this->chain->firstHandlerFor($cursor, $entityId);
+
+            if (! $next || in_array((int) $next->id, $seen, true)) {
+                break;
+            }
+
+            $seen[] = (int) $next->id;
+            $handlers->push($next);
+
+            if ($this->chain->isTop($next, $entityId)) {
+                break;
+            }
+
+            $cursor = $next;
+        }
+
         $passed = true;
 
-        return $this->scope->uplineUsers($owner)->values()->map(function (User $user, int $index) use ($currentId, &$passed) {
+        return $handlers->values()->map(function (User $user, int $index) use ($currentId, &$passed) {
             $isCurrent = (int) $user->id === $currentId;
             $row = [
                 'user' => $user,
@@ -336,6 +383,16 @@ class ObjectionService
 
             return $row;
         });
+    }
+
+    /**
+     * كيان المعاملة المعترَض عليها — **قفصُ السلسلة** التي يُحسَب فيها المكتب.
+     * وبلا كيان (حركةٌ شخصيّة كخصم الخمول) تُقاس السلسلة على العضويّة الأساسيّة،
+     * وهو ما يفعله `HandlerChain` حين لا يُمرَّر كيان.
+     */
+    private function entityOf(?Transaction $transaction): ?int
+    {
+        return $transaction?->entity_id ? (int) $transaction->entity_id : null;
     }
 
     /**

@@ -28,6 +28,7 @@
   - `RepService.php` — درجة الالتزام Rep (الدستور 13.4-ن · 24.4).
   - `RollupService.php` — الصعود الآليّ للنِّسَب — Roll-up (الدستور 23 — 1.7 · 24.4).
   - `VxpDistributionService.php` — توزيع نقاط الإنتاج شرائحيًّا (الدستور 23 — 3.9-٥).
+- **ملفّات أخرى (1):** `VxpDistributionService.php.mutbak`
 <!-- تلقائيّ:نهاية:المنجز -->
 
 ## ⬜ المتبقّي

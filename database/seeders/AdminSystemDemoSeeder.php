@@ -451,6 +451,7 @@ class AdminSystemDemoSeeder extends Seeder
             ['features.ui.state.empty', 'features', 'الحالة الفارغة', 'text', 'مافيش مزايا في الفلتر ده — وسّع الفلتر شويّة.', false],
             ['features.ui.state.loading', 'features', 'حالة التحميل', 'string', 'بنحمّل…', false],
             ['features.ui.state.error', 'features', 'حالة الخطأ', 'text', 'حصل خطأ وإحنا بنحفظ — جرّب تاني، ولو فضل زيّه بلّغ التقنيّ.', false],
+            ['features.ui.state.denied', 'features', 'حالة بلا صلاحيّة', 'text', 'مالكش صلاحيّة على مفاتيح المزايا — كلّم مالك المنصّة لو محتاج وصولًا.', false],
             ['features.ui.never', 'features', 'لا تبديل بعد', 'string', 'لسه ما اتبدّلتش', false],
             ['features.ui.settings_title', 'features', 'عنوان بلوك الإعدادات', 'string', 'إعدادات المفاتيح', false],
 
