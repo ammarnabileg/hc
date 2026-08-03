@@ -425,7 +425,15 @@ class PermissionArchitectureTest extends TestCase
             ->all();
 
         $this->assertSame([], array_values(array_diff(Permission::pluck('key')->all(), $matrix)));
-        $this->assertSame(1033, count($matrix));
+
+        // 1033 ⟵ **1027**: نزلت **ستّة** بحذف صفوف مورد `games` من مصفوفة 12.2.2
+        // إثر إلغاء البند 7.5 بقرار المالك (الدستور v5.3 — 2026-08-03). والرقم
+        // يبقى مثبَّتًا كي يلتقط أيّ زيادةٍ أو نقصٍ **لا أمرَ خلفه**.
+        $this->assertSame(1027, count($matrix));
+        $this->assertSame([], array_values(array_filter(
+            $matrix,
+            fn (string $key) => str_starts_with($key, 'games.'),
+        )));
     }
 
     /** ⛔ ولا صلاحيّة باسم شاشة (12.2.1-أ) */

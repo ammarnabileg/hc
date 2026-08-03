@@ -95,7 +95,7 @@ abstract class ChallengeTestCase extends TestCase
         $user->assignRole('trainee');
 
         if ($tickets > 0) {
-            app(WalletGateway::class)->credit($user, 'tickets', $tickets, 'رصيد اختبار');
+            app(WalletGateway::class)->credit($user, 'tickets', $tickets, 'grant', 'رصيد اختبار');
         }
 
         return $user->refresh();

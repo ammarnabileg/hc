@@ -115,7 +115,7 @@ class FocusWarTest extends ChallengeTestCase
 
         // صاحب التحدّي أنفق ما لديه فلم يبقَ ما يغطّي الاسترجاع
         app(WalletGateway::class)
-            ->debit($owner, 'tickets', 1, 'إنفاق اختباريّ');
+            ->debit($owner, 'tickets', 1, 'grant', 'إنفاق اختباريّ');
 
         $this->actingAs($owner)
             ->from(route('challenges.focus.index'))

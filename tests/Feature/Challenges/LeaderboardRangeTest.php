@@ -21,7 +21,7 @@ class LeaderboardRangeTest extends ChallengeTestCase
     private function grantXp(User $user, float $amount, int $daysAgo): void
     {
         Carbon::setTestNow(Carbon::now()->subDays($daysAgo));
-        app(WalletGateway::class)->credit($user, 'xp', $amount, 'خبرة اختبار');
+        app(WalletGateway::class)->credit($user, 'xp', $amount, 'grant', 'خبرة اختبار');
         Carbon::setTestNow();
 
         $user->forceFill(['xp' => (int) $user->xp + (int) $amount])->save();
