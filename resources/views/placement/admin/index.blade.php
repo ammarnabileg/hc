@@ -32,7 +32,7 @@
         <x-empty :message="setting('onboarding.placement.admin.empty')" />
     @else
         {{-- ديسكتوب: جدول بأعمدته السبعة --}}
-        <div class="card overflow-x-auto hidden md:block">
+        <div class="card min-w-0 overflow-x-auto hidden md:block">
             <table class="w-full text-sm">
                 <thead>
                     <tr style="border-bottom: 1px solid var(--border)">
@@ -122,7 +122,7 @@
                 <div class="grid md:grid-cols-2 gap-3">
                     <label class="block">
                         <span class="block text-sm mb-1">{{ setting('onboarding.placement.admin.field_kind') }}</span>
-                        <select name="media_kind" data-question-kind class="w-full rounded-xl px-3 py-2 text-sm"
+                        <select name="media_kind" class="w-full rounded-xl px-3 py-2 text-sm"
                                 style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
                             @foreach ($mediaKinds as $key => $label)
                                 <option value="{{ $key }}">{{ $label }}</option>
