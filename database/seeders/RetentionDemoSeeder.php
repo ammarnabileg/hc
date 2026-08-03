@@ -62,6 +62,10 @@ class RetentionDemoSeeder extends Seeder
         $rows = [
             ['rep.inactivity.deduction_every_days', 'rep', 'دورة خصم الخمول (أيّام)', 'number', '7'],
             ['volunteer.offboarding.cumulative_window_days', 'offboarding', 'نافذة المكتسَب التراكميّ (يوم)', 'number', '90'],
+            // ⭐ بتر الاختياريّ (23-0.2-2): «المحافظات والملفات **عضويّات
+            // اختياريّة** تُبتَر أوّلًا … أمّا **الأقسام فأساسيّة**». والمفاتيح
+            // مفاتيح جدول `tracks` بالحرف — و«department» لا يدخلها أبدًا.
+            ['volunteer.optional_cut.tracks', 'offboarding', 'مسارات العضويّات الاختياريّة التي تُبتَر عند −9.5', 'json', '["governorate","case_file"]'],
         ];
 
         foreach ($rows as [$key, $group, $label, $type, $default]) {

@@ -9,6 +9,7 @@ use App\Models\Position;
 use App\Models\Track;
 use App\Models\User;
 use App\Services\Notifications\Notifier;
+use App\Services\Volunteer\Retention\OptionalCutService;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 
@@ -123,6 +124,18 @@ class FileDrafts
 
                 if ($userId === 0 || $positionId === 0) {
                     continue;
+                }
+
+                /*
+                 | ⭐ **الحرمان بعد بتر الاختياريّ** (23-0.2-3): «لا يفتح عضويّة
+                 | جديدة في مسارَي المحافظات والملفات **حتى التصفير الشهري
+                 | التالي**». والملفّ أحد المسارين — فدعوته لا تمرّ على محرومٍ،
+                 | وإلّا رجع من الباب الذي خرج منه بالأمس.
+                 */
+                $invited = User::query()->find($userId);
+
+                if ($invited) {
+                    app(OptionalCutService::class)->assertMayJoin($invited, $entity->loadMissing('track'));
                 }
 
                 Membership::create([

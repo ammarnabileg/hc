@@ -5,20 +5,47 @@
      * الاحتفال يصل من الخادم مفلوشًا في السيشن بعد إكمال درس، وقراره كلّه هناك:
      * المستوى والنصّ والصوت والاستهلاك مرّةً واحدة — والواجهة **تعرض** فقط.
      *
-     * ثلاثة مستويات لا رابع:
-     *  1 خفيف: شريط علويّ بلا صوت.
-     *  2 متوسّط: كونفيتي خفيف.
-     *  3 ذروة: **كونفيتي بينزل من فوق لتحت (Confetti Rain)** كما ينصّ 4.1 حرفيًّا.
+     * ⭐ **مَن يستحقّ أيّ مستوى، وما شكل كلٍّ — بالنصّ:**
+     *
+     *  • **المستوى** من 2.14-أ وحدها، وهي جدول «لكلّ حدث مستواه»:
+     *    «**1 — خفيف (Micro)**: **بلا صوت**: Toast + حركة صغيرة … **إكمال
+     *    درس**»، و«**2 — متوسّط (Mid)**: **كونفيتي خفيف + صوت قصير** … إتمام
+     *    تدريب · بلوغ مستوى جديد»، و«**3 — ذروة (Peak)**: **شاشة احتفال
+     *    كاملة**: كونفيتي غزير + صوت + رسالة تهنئة + **زرّ مشاركة**».
+     *    فإكمال الدرس **مستواه 1**: بلا صوت، وبلا شاشة تحجب، وبلا زرّ مشاركة.
+     *
+     *  • **وشكل لحظة إنهاء الدرس** من 4.1 وهي نصٌّ خاصٌّ بهذه اللحظة بعينها:
+     *    «**احتفال إنهاء الفيديو/الدرس: كونفيتي بينزل من فوق لتحت (Confetti
+     *    Rain) لحظة الإكمال** — لحظة ذروة (Peak-End، راجع 2.9-#6)».
+     *    فالكونفيتي هنا **فرضٌ منصوص** لا زينة اختياريّة.
+     *
+     *  فالمستوى من 2.14 والشكل من 4.1 — ولا تعارض: النصّان يجتمعان في
+     *  «شريط + كونفيتي نازل بلا صوت»، ولو رُفِع الحدث للمستوى 3 لخالفنا جدول
+     *  2.14-أ وأضفنا صوتًا وشاشةً حاجبةً لم يطلبهما النصّ، ولخضع الكونفيتي
+     *  لـ«الحدّ اليوميّ للذروة» فينطفئ بعد ثلاثة دروس — وهو عين ما ينفيه 4.1.
      *
      * ومع كلّ احتفالٍ **+XP بيطير لأعلى** (3.4-18) بالقيمة المكتسبة فعلًا،
      * وحدث `level.up` يزيد **أنيميشن Level Up** (3.4-22).
      *
-     * كلّه CSS، قابل للتخطّي بضغطة أو ESC، وينتهي تلقائيًّا، ويحترم
-     * تفضيل نظام التشغيل — والتحكّم من توجل الحركة داخل المنصّة وحده.
+     * كلّه CSS-first بلا أصول جديدة (2.14-ب)، قابل للتخطّي بضغطة أو `ESC`،
+     * وينتهي تلقائيًّا. و**الأنيميشن حاضر دائمًا** (2.3 · 2.14-ب) — لا توجّل
+     * يطفئه ولا `prefers-reduced-motion`.
      */
     $tier = (int) ($celebration['tier'] ?? 1);
-    $isLevelUp = ($celebration['key'] ?? '') === 'level.up';
-    $pieces = $tier === 3 ? 36 : ($tier === 2 ? 16 : 0);
+    $key = (string) ($celebration['key'] ?? '');
+    $isLevelUp = $key === 'level.up';
+
+    /*
+     | أيّ كونفيتي لهذه اللحظة — والعدد والمدّة والشدّة كلّها من `setting()`
+     | داخل `<x-confetti>` نفسه (2.13: لا رقم محروق).
+     */
+    $confetti = match (true) {
+        $tier === 3 => 'peak',              // كونفيتي غزير (2.14-أ · 3)
+        $key === 'lesson.completed' => 'rain', // كونفيتي بينزل من فوق لتحت (4.1)
+        $tier === 2 => 'light',             // كونفيتي خفيف (2.14-أ · 2)
+        default => null,
+    };
+
     $seconds = max(2, (int) setting('celebrations.auto_dismiss_seconds', 6));
     $xp = (int) ($celebration['xp'] ?? 0);
 @endphp
@@ -30,16 +57,9 @@
      ])
      @style(['background: rgb(0 0 0 / .65)' => $tier === 3])>
 
-    @if ($pieces > 0)
-        {{-- Confetti Rain: من فوق لتحت حرفيًّا (4.1) --}}
-        <div class="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
-            @for ($i = 0; $i < $pieces; $i++)
-                <span class="learn-piece"
-                      style="inset-inline-start: {{ (int) (($i * 61) % 100) }}%;
-                             animation-delay: {{ $i * 45 }}ms;
-                             background: {{ ['var(--color-brand-400)', 'var(--color-state-honor)', 'var(--color-brand-200)'][$i % 3] }}"></span>
-            @endfor
-        </div>
+    @if ($confetti)
+        {{-- «كونفيتي بينزل من فوق لتحت (Confetti Rain) لحظة الإكمال» — 4.1 --}}
+        <x-confetti :variant="$confetti" />
     @endif
 
     <div @class([
@@ -95,16 +115,6 @@
 
 @push('scripts')
     <style>
-        @keyframes learn-fall {
-            from { transform: translateY(-12vh) rotate(0deg); opacity: 1; }
-            to   { transform: translateY(108vh) rotate(600deg); opacity: 0; }
-        }
-        .learn-piece {
-            position: absolute; inset-block-start: -12vh;
-            inline-size: 8px; block-size: 14px; border-radius: 2px;
-            animation: learn-fall 2.8s var(--ease-standard) forwards;
-        }
-
         @keyframes learn-xp-fly {
             0%   { transform: translate(-50%, 0) scale(.9); opacity: 0; }
             18%  { transform: translate(-50%, -12vh) scale(1.15); opacity: 1; }
@@ -123,9 +133,7 @@
         }
         .learn-levelup { display: inline-block; animation: learn-levelup 1.1s var(--ease-standard) 2; }
 
-        [data-motion="off"] .learn-piece,
-        [data-motion="off"] .learn-xp-fly,
-        [data-motion="off"] .learn-levelup { animation: none; }
+        /* ⛔ لا قاعدة تُطفئ ما سبق — «الأنيميشن حاضر دائمًا» (2.3 · 2.14-ب) */
     </style>
     <script>
         (() => {

@@ -6,6 +6,7 @@ use App\Models\Currency;
 use App\Models\Transaction;
 use App\Models\User;
 use App\Models\WalletBalance;
+use App\Services\Volunteer\Retention\OptionalCutService;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Throwable;
@@ -67,21 +68,33 @@ class Integrations
         ?Model $reference = null,
         string $layer = 'training',
     ): ?Transaction {
+        $transaction = null;
+        $posted = false;
+
         if (self::hasLedger()) {
             try {
                 $ledger = app(self::LEDGER);
                 $method = $signedAmount >= 0 ? 'credit' : 'debit';
 
-                return $ledger->{$method}(
+                $transaction = $ledger->{$method}(
                     $user, $currencyCode, abs($signedAmount), $source,
                     $reference, $layer, $reason, $actor?->id,
                 );
+                $posted = true;
             } catch (Throwable) {
                 // البديل الآمن أدناه
             }
         }
 
-        return self::postDirectly($user, $currencyCode, $signedAmount, $source, $reason, $actor, $reference, $layer);
+        if (! $posted) {
+            $transaction = self::postDirectly($user, $currencyCode, $signedAmount, $source, $reason, $actor, $reference, $layer);
+        }
+
+        // ⭐ الدرجة الوسطى من سلّم العتبات تقع **فورًا** (23-0.2-2) — ومعاملات
+        // السلوك (13.4-ن-هـ) تمرّ من هنا، وهي أكثر ما يُنزِل درجة الالتزام.
+        OptionalCutService::afterRepMovement($user, $currencyCode, $signedAmount);
+
+        return $transaction;
     }
 
     /** إشعار المستخدم — يمرّ للـNotifier إن وُجد وإلّا يُتجاهَل بأمان */

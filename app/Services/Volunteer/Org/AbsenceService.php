@@ -11,6 +11,7 @@ use App\Services\Volunteer\Tasks\TaskStatus;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Validation\ValidationException;
 
@@ -29,6 +30,12 @@ use Illuminate\Validation\ValidationException;
  */
 class AbsenceService
 {
+    /**
+     * مفاتيح 23-6 الثلاثة كما هي في جدول `positions` — والافتراضيّ هنا
+     * **مطابقٌ حرفيًّا** لافتراضيّ السيدر، وإلّا اختلف السلوك بين تنصيبٍ وآخر.
+     */
+    public const DEFAULT_ADDER_POSITIONS = ['volunteer_gm', 'track_supervisor', 'director'];
+
     /** أقصى مدّة غياب متّصلة (يومًا) — إعداد لا رقم محروق (2.13) */
     public function maxDays(): int
     {
@@ -41,12 +48,56 @@ class AbsenceService
         return (int) setting('volunteer.absence.max_per_month', 2);
     }
 
-    /** البوزشنات التي تملك إضافة الغياب — لا الشخص نفسه (منعًا للتهرّب) */
+    /**
+     * البوزشنات التي تملك إضافة الغياب — لا الشخص نفسه (منعًا للتهرّب).
+     *
+     * والمفاتيح الثلاثة هي **مفاتيح جدول `positions` بالحرف**: `volunteer_gm`
+     * (مشرف عام التطوّع) · `track_supervisor` (مشرف عام المسار) · `director`
+     * (دايركتور الكيان) — كما ينصّ 23-6 وكما زرعها `CoreSeeder`.
+     *
+     * ⚠️ ولماذا التوثيق هنا صريح؟ لأنّ الإعداد كان يسمّي `track_gm` **وهو اسم
+     * لا وجود له في الجدول**، فكانت `whereIn('key', …)` تُرجِع مُعرِّفَين بدل
+     * ثلاثة و**مشرف المسار يُرَدّ بلا أيّ خطأ**: القائمة تنكمش بصمت، والرسالة
+     * تظلّ تقول إنّه من أصحاب الحقّ. المفتاح الخاطئ لا يصرخ — ولذلك زُرِع
+     * `assertKeysExist()` أدناه ليصرخ نيابةً عنه.
+     *
+     * @return array<int,string>
+     */
     public function allowedAdderPositions(): array
     {
-        $keys = setting('volunteer.absence.adder_positions', ['volunteer_gm', 'track_gm', 'director']);
+        $keys = setting('volunteer.absence.adder_positions', self::DEFAULT_ADDER_POSITIONS);
 
-        return is_array($keys) ? $keys : ['volunteer_gm', 'track_gm', 'director'];
+        $keys = is_array($keys) ? array_values(array_filter($keys, 'is_string')) : [];
+
+        return $keys !== [] ? $keys : self::DEFAULT_ADDER_POSITIONS;
+    }
+
+    /**
+     * ⭐ مُعرِّفات البوزشنات المسموح لها — **وتصرخ إن سمّى الإعداد بوزشنًا وهميًّا**.
+     *
+     * فالانكماش الصامت هو العطب نفسه: مفتاحٌ مكتوبٌ خطأً يسقط من القائمة فيبدو
+     * النظام سليمًا وهو يمنع صاحب حقّ. نسجّل تحذيرًا صريحًا بالمفاتيح المجهولة
+     * ليظهر في سجلّ التشغيل بدل أن يظهر عند صاحب الحقّ وحده كرفضٍ بلا سبب.
+     *
+     * @return array<int,int>
+     */
+    public function allowedAdderPositionIds(): array
+    {
+        $keys = $this->allowedAdderPositions();
+
+        $found = Position::query()->whereIn('key', $keys)->pluck('id', 'key');
+
+        $unknown = array_values(array_diff($keys, $found->keys()->all()));
+
+        if ($unknown !== []) {
+            Log::warning('إعداد «volunteer.absence.adder_positions» يسمّي بوزشنات غير موجودة — أصحابها يُرَدّون صامتًا.', [
+                'setting' => 'volunteer.absence.adder_positions',
+                'unknown_keys' => $unknown,
+                'known_keys' => Position::query()->pluck('key')->all(),
+            ]);
+        }
+
+        return array_values($found->map(fn ($id) => (int) $id)->all());
     }
 
     // ------------------------------------------------------------------ القراءة
@@ -267,12 +318,16 @@ class AbsenceService
             return false;
         }
 
-        $allowed = $this->allowedAdderPositions();
+        $allowed = $this->allowedAdderPositionIds();
+
+        if ($allowed === []) {
+            return false;
+        }
 
         return Membership::query()
             ->where('user_id', $actor->id)
             ->where('status', 'active')
-            ->whereIn('position_id', Position::query()->whereIn('key', $allowed)->pluck('id'))
+            ->whereIn('position_id', $allowed)
             ->exists();
     }
 

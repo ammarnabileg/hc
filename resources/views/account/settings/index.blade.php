@@ -11,7 +11,7 @@
         // ⭐ تاب الأمان (2.3): كلمة السرّ + الجلسات النشطة + منطقة الخطر — كلّها هنا
         'security' => ['label' => 'الأمان', 'icon' => 'lock'],
         'appearance' => ['label' => 'المظهر', 'icon' => 'palette'],
-        'sound' => ['label' => 'الصوت والحركة', 'icon' => 'bell'],
+        'sound' => ['label' => 'الصوت', 'icon' => 'bell'],
         'emergency' => ['label' => 'جهة الطوارئ', 'icon' => '🆘'],
     ];
 @endphp
@@ -192,9 +192,12 @@
                 ])
             </section>
 
-            {{-- --------------------------------- الصوت والحركة والتنبيهات --}}
+            {{-- ------------------------------------------- الصوت والتنبيهات --}}
+            {{-- ⛔ **توجّل الصوت وحده** هنا: «**Toggle للصوت فقط** في **صفحة إعدادات
+                 البروفايل** … **⛔ ولا يوجد Toggle للأنيميشن — الأنيميشن حاضر دائمًا
+                 لأنّه روح المنصّة**» (2.3) — فلا صفَّ حركةٍ في هذه الشاشة. --}}
             <section class="card p-4 mt-4" data-settings-panel="sound">
-                <h2 class="font-bold text-sm mb-1">الصوت والحركة</h2>
+                <h2 class="font-bold text-sm mb-1">الصوت</h2>
 
                 @include('account.partials.autosave-field', [
                     'field' => 'sound_enabled',
@@ -204,23 +207,6 @@
                     'control' => '<select name="value" class="'.$inputClass.'" style="'.$inputStyle.'">'
                         .'<option value="1"'.($user->sound_enabled ? ' selected' : '').'>مفعَّل</option>'
                         .'<option value="0"'.(! $user->sound_enabled ? ' selected' : '').'>متوقّف</option>'
-                        .'</select>',
-                ])
-
-                @include('account.partials.autosave-field', [
-                    'field' => 'motion_enabled',
-                    'label' => 'حركة الواجهة',
-                    'keywords' => 'الحركة الأنيميشن motion animation',
-                    /*
-                     | ⚠️ تعليق داخل تعبير PHP — لا وسوم Blade هنا وإلّا انكسر تصريف القالب.
-                     | التحكّم في الحركة **من هنا** — من داخل المنصّة — لا من
-                     | تفضيل نظام التشغيل، لأنّ `prefers-reduced-motion` مرفوض
-                     | نصًّا (2.3 · 2.14-ب) وكان يُخفي الكونفيتي فتضيع الذروة.
-                     */
-                    'hint' => 'الأنيميشن جزء من إحساس المنصّة وشغّال افتراضيًّا — وتقدر تهدّيه من هنا وقت ما تحبّ.',
-                    'control' => '<select name="value" class="'.$inputClass.'" style="'.$inputStyle.'">'
-                        .'<option value="1"'.($user->motion_enabled ? ' selected' : '').'>مفعَّلة</option>'
-                        .'<option value="0"'.(! $user->motion_enabled ? ' selected' : '').'>هادية</option>'
                         .'</select>',
                 ])
 

@@ -5,7 +5,12 @@
      * CSS-first بلا أصول جديدة، وقابل للتخطّي بضغطة أو ESC، وينتهي تلقائيًّا.
      */
     $tier = (int) ($celebration['tier'] ?? 1);
-    $pieces = $tier === 3 ? 28 : ($tier === 2 ? 14 : 0);
+    // العدد والمدّة والشدّة من `setting()` داخل `<x-confetti>` (2.13)
+    $confetti = match ($tier) {
+        3 => 'peak',    // «كونفيتي غزير» (2.14-أ · 3)
+        2 => 'light',   // «كونفيتي خفيف» (2.14-أ · 2)
+        default => null, // «بلا صوت: Toast + حركة صغيرة» (2.14-أ · 1)
+    };
     $seconds = max(2, (int) setting('celebrations.auto_dismiss_seconds', 6));
 @endphp
 
@@ -16,15 +21,8 @@
      ])
      @style(['background: rgb(0 0 0 / .65)' => $tier === 3])>
 
-    @if ($pieces > 0)
-        <div class="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
-            @for ($i = 0; $i < $pieces; $i++)
-                <span class="home-piece"
-                      style="inset-inline-start: {{ (int) (($i * 97) % 100) }}%;
-                             animation-delay: {{ $i * 60 }}ms;
-                             background: {{ ['var(--color-brand-400)', 'var(--color-state-honor)', 'var(--color-brand-200)'][$i % 3] }}"></span>
-            @endfor
-        </div>
+    @if ($confetti)
+        <x-confetti :variant="$confetti" />
     @endif
 
     <div @class([
@@ -56,19 +54,6 @@
 @endif
 
 @push('scripts')
-    <style>
-        @keyframes home-fall {
-            from { transform: translateY(-10vh) rotate(0deg); opacity: 1; }
-            to   { transform: translateY(105vh) rotate(540deg); opacity: 0; }
-        }
-        .home-piece {
-            position: absolute; inset-block-start: -10vh;
-            inline-size: 8px; block-size: 14px; border-radius: 2px;
-            animation: home-fall 2.6s var(--ease-standard) forwards;
-        }
-        /* الكونفيتي حاضر دائمًا — «الأنيميشن روح المنصّة» (2.14-ب)،
-           والتحكّم فيه من إعداد المستخدم داخل المنصّة (app.css). */
-    </style>
     <script>
         (() => {
             const box = document.querySelector('[data-home-celebration]');

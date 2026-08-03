@@ -1,7 +1,9 @@
+{{-- ⛔ لا توجّل للأنيميشن ولا سمة تُطفئه — «الأنيميشن حاضر دائمًا لأنّه روح
+     المنصّة» (2.3 · 2.14-ب). وكان هذا السطر يقرأ عمودًا مرفوعًا من الجدول
+     (`users.motion_enabled`) فيعود `null` ⟵ `data-motion="off"` على **كلّ**
+     شاشة امتحان: أي إطفاء الحركة دائمًا بدل حضورها دائمًا. --}}
 <!DOCTYPE html>
-<html lang="ar" dir="rtl" @if(auth()->check() && auth()->user()->theme === 'light') data-theme="light" @endif
-      {{-- الحركة تُضبَط من إعداد المستخدم داخل المنصّة لا من تفضيل نظام التشغيل (2.3 · 2.14-ب) --}}
-      @if(auth()->check() && ! auth()->user()->motion_enabled) data-motion="off" @endif>
+<html lang="ar" dir="rtl" @if(auth()->check() && auth()->user()->theme === 'light') data-theme="light" @endif>
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">

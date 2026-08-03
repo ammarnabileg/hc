@@ -5,6 +5,7 @@ namespace App\Services\Volunteer\Tasks;
 use App\Models\Currency;
 use App\Models\Transaction;
 use App\Models\User;
+use App\Services\Volunteer\Retention\OptionalCutService;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -37,13 +38,16 @@ class LedgerBridge
 
         $ledger = 'App\Services\Wallet\LedgerService';
 
+        $transaction = null;
+        $posted = false;
+
         // الخدمة المشتركة أولى: هي التي تطبّق حدّ الخسارة اليوميّ وتحدّث الرصيد (13.4-ن-و)
         if (class_exists($ledger)) {
             $service = app($ledger);
             $method = $amount >= 0 ? 'credit' : 'debit';
 
             if (method_exists($service, $method)) {
-                return $service->{$method}(
+                $transaction = $service->{$method}(
                     user: $user,
                     currencyCode: $currency,
                     amount: $amount,
@@ -52,10 +56,18 @@ class LedgerBridge
                     layer: 'volunteer',
                     reason: $reason,
                 );
+                $posted = true;
             }
         }
 
-        return $this->fallback($user, $currency, $amount, $source, $reason, $reference, $entityId);
+        if (! $posted) {
+            $transaction = $this->fallback($user, $currency, $amount, $source, $reason, $reference, $entityId);
+        }
+
+        // ⭐ الدرجة الوسطى من سلّم العتبات تقع **فورًا** (23-0.2-2)
+        OptionalCutService::afterRepMovement($user, $currency, $amount);
+
+        return $transaction;
     }
 
     /** إشعار عبر البوّابة الموحّدة إن وُجدت (2.8) */

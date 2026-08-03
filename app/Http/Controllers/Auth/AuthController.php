@@ -9,6 +9,7 @@ use App\Models\Governorate;
 use App\Models\Referral;
 use App\Models\Role;
 use App\Models\User;
+use App\Services\Growth\AcquisitionSource;
 use App\Services\Learning\TimezoneDetector;
 use App\Services\Onboarding\OnboardingJourney;
 use Illuminate\Contracts\Validation\Validator as ValidatorContract;
@@ -110,7 +111,9 @@ class AuthController extends Controller
         $offer = trim((string) ($request->input('offer')
             ?: $request->session()->get(OnboardingController::SESSION_CODE, '')));
 
-        $user = DB::transaction(function () use ($data, $request, $offer) {
+        $acquisition = app(AcquisitionSource::class);
+
+        $user = DB::transaction(function () use ($data, $offer, $acquisition) {
             $user = User::create([
                 ...$data,
                 'code' => $this->generateCode(),
@@ -122,17 +125,37 @@ class AuthController extends Controller
                 $user->assignRole($role);
             }
 
+            /*
+             | ⭐ **الوصلة الثانية في سلسلة 21.2-ح**: «المصدر ⟵ **التسجيل** ⟵ التفعيل ⟵ الشراء».
+             |
+             | كانت مقطوعة هنا بالضبط: `POST /register` يأتي **بلا query**، فكلّ قراءةٍ
+             | للمصدر من `$request->query('utm_*')` تعود `NULL` — فيُسجَّل المسجّل بلا
+             | مصدر (المقيس: `visits=2 · registered=0`، و**0 من 10 إحالة تحمل مصدرًا**).
+             | فالمصدر يُقرأ الآن ممّا التُقِط عند **الزيارة** ويُثبَّت على الحساب.
+             |
+             | ⛔ ولا شيء من هذا يقع بلا موافقةٍ على **القياس الداخليّ** (21.3-د):
+             |    الحارس داخل `attach()` نفسه، فالرافض يُسجَّل بأعمدةٍ فارغة.
+             |
+             | ⚠️ وبلا تمرير `$request` عن قصد: مسار تأكيد البريد (2.5-ب) يعيد
+             |    تشغيل التسجيل بطلبٍ **مُصطنَع** (`Request::create`) لا كوكي فيه،
+             |    وموافقةُ الزائر لا تعيش إلّا في الكوكي. فتُقرأ من الطلب الحقيقيّ.
+             */
+            $acquisition->attach($user);
+
             // الريفيرال (7.6 · 21.1): مكافأة الطرفين — والمدعوّ له تذكرة ترحيب عند التفعيل
             if ($offer !== '') {
                 if ($referrer = User::where('code', $offer)->first()) {
+                    // ونفس المصدر يوسم سطر الإحالة — لا `query` فارغة (21.2-ح)
+                    $source = $acquisition->sourceOf($user);
+
                     Referral::create([
                         'referrer_id' => $referrer->id,
                         'referred_id' => $user->id,
                         'code' => $offer,
                         'commission_percent' => (float) setting('referral.commission_percent', 7),
-                        'utm_source' => $request->query('utm_source'),
-                        'utm_medium' => $request->query('utm_medium'),
-                        'utm_campaign' => $request->query('utm_campaign'),
+                        'utm_source' => $source['utm_source'] ?? null,
+                        'utm_medium' => $source['utm_medium'] ?? null,
+                        'utm_campaign' => $source['utm_campaign'] ?? null,
                     ]);
                 }
             }

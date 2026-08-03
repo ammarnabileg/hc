@@ -3,6 +3,7 @@
 use App\Http\Controllers\Trainee\CertificateController;
 use App\Http\Controllers\Trainee\ExamController;
 use App\Http\Controllers\Trainee\PublicVerificationController;
+use App\Http\Middleware\EnsureExamWithinAvailability;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -44,8 +45,17 @@ Route::middleware('auth')->group(function () {
         ->middleware('permission:certificates.view')
         ->name('learning.certificates');
 
-    // الامتحان — 4.2 · 24.5
-    Route::middleware('permission:course_exam.view')->group(function () {
+    /*
+    | الامتحان — 4.2 · 24.5
+    |
+    | ⭐ **حاجز الإتاحة على المجموعة كلّها** (5): الامتحان النهائيّ جزءٌ من
+    | التدريب، فما دام التدريب مقفولًا خارج فترته أو خارج ساعاته اليوميّة
+    | **بتوقيت المستخدم المحلّيّ** فامتحانه مقفول — وإلّا صدرت شهادةٌ (8) من
+    | بابٍ مغلق. والحاجز على **المجموعة** لا على مسارٍ بعينه كي يشمل أيّ مسارٍ
+    | يُضاف هنا لاحقًا؛ و`EnsureExamWithinAvailability` هو من يقرّر الاستثناءات
+    | (المحاولة الجارية · شاشة النتيجة · امتحان شهادة المسار) لا ملفّ المسارات.
+    */
+    Route::middleware(['permission:course_exam.view', EnsureExamWithinAvailability::class])->group(function () {
         Route::get('/exams/{exam}/start', [ExamController::class, 'start'])->name('exams.start');
         Route::post('/exams/{exam}/begin', [ExamController::class, 'begin'])->name('exams.begin');
         Route::get('/exams/{exam}/take', [ExamController::class, 'take'])->name('exams.take');

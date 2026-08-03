@@ -88,6 +88,18 @@ class SettingSeeder extends Seeder
             ['celebrations.peak.daily_cap', 'gamification_celebrations', 'الحدّ اليوميّ لاحتفالات الذروة', 'number', '3'],
             ['celebrations.sound.enabled', 'gamification_celebrations', 'تفعيل الصوت (والأنيميشن دائم)', 'bool', '1'],
 
+            /*
+             | 🎉 الكونفيتي — عدده ومدّته وشدّته بيد المالك لا محروقة في القالب (2.13).
+             | «كونفيتي بينزل من فوق لتحت (Confetti Rain) لحظة الإكمال» (4.1)،
+             | و«كونفيتي خفيف» للمستوى 2 و«كونفيتي غزير» للمستوى 3 (2.14-أ).
+             */
+            ['celebrations.confetti.rain_pieces', 'gamification_celebrations', 'عدد قطع كونفيتي إنهاء الدرس (4.1)', 'number', '48'],
+            ['celebrations.confetti.light_pieces', 'gamification_celebrations', 'عدد قطع الكونفيتي الخفيف (المستوى 2)', 'number', '20'],
+            ['celebrations.confetti.fall_ms', 'gamification_celebrations', 'زمن نزول قطعة الكونفيتي (ملّي ثانية)', 'number', '2800'],
+            ['celebrations.confetti.stagger_ms', 'gamification_celebrations', 'تباعد إطلاق قطع الكونفيتي (ملّي ثانية)', 'number', '60'],
+            ['celebrations.confetti.piece_width_px', 'gamification_celebrations', 'عرض قطعة الكونفيتي (بكسل)', 'number', '8'],
+            ['celebrations.confetti.piece_height_px', 'gamification_celebrations', 'ارتفاع قطعة الكونفيتي (بكسل)', 'number', '14'],
+
             // ---------------- طبقة الإحساس (2.17)
             ['feel.counter.animate_numbers', 'feel', 'عدّاد تصاعديّ للأرقام', 'bool', '1'],
             ['feel.haptics.enabled', 'feel', 'اهتزاز خفيف على الموبايل', 'bool', '1'],

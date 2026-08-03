@@ -121,6 +121,12 @@ class GrowthDemoSeeder extends Seeder
             ['growth.utm.default_medium', 'growth', 'القناة الافتراضيّة', 'string', 'share', false],
             ['growth.utm.default_campaign', 'growth', 'الحملة الافتراضيّة', 'string', 'organic', false],
 
+            // ---------------- 21.2-ح — سلسلة الاكتساب: المصدر ⟵ التسجيل ⟵ التفعيل ⟵ الشراء
+            // (الالتقاط كلّه تحت غرض «قياس داخليّ» في بانر الموافقة — 21.3-د)
+            ['growth.acquisition.enabled', 'growth', 'التقاط مصدر الاكتساب على الحساب', 'bool', '1', false],
+            ['growth.acquisition.attribution', 'growth', 'النسبة: أوّل مصدر (first) أم آخره (last)', 'string', 'first', false],
+            ['growth.acquisition.max_length', 'growth', 'أقصى طول لقيمة UTM ملتقطة', 'number', '128', false],
+
             // ---------------- 21.2-د/هـ — الكارت الأسبوعيّ وحزمة المتطوّعين
             ['growth.weekly_card.title', 'growth', 'عنوان الكارت الأسبوعيّ', 'string', 'نصيحة الأسبوع', false],
             ['growth.weekly_card.footer', 'growth', 'سطر أسفل الكارت', 'string', 'اتعلّم معنا', false],

@@ -100,8 +100,14 @@ class NoDeliverySweeper
     /**
      * إدخال مهمّة واحدة مسار عدم التسليم — خصمٌ محروس ثمّ تصعيد بلا خصم تباطؤ.
      * تستعملها المسحة **والبنود المتكرّرة** معًا، فلا يتفرّق المنطق ولا يتكرّر الخصم.
+     *
+     * ⭐ و`$deduct = false` لحالةٍ منصوصة واحدة: **بتر الاختياريّ عند −9.5**، إذ
+     * ينصّ 23-0.2-2 أنّ مهامّه في العضويّة المبتورة تدخل «**مسار عدم التسليم عند
+     * أبلاين كلٍّ منها بلا خصم جديد عليه** — (خصومه وقعت لحظتها أصلًا)». فالمسار
+     * هو هو، والمرفوع **الخصم وحده** — ولذلك عَلَمٌ على هذه الدالّة لا نسخةٌ
+     * موازية منها، فلا يتفرّق منطق التصعيد بين مستدعيَين.
      */
-    public function miss(Task $task, ?string $reason = null): bool
+    public function miss(Task $task, ?string $reason = null, bool $deduct = true): bool
     {
         $owner = $task->owner_id ? User::query()->find($task->owner_id) : null;
 
@@ -115,7 +121,7 @@ class NoDeliverySweeper
         }
 
         // الأب الذي رفع علم «متأخّر بسبب [ابن]» لا يُخصَم منه شيء (23-3.9-4)
-        if ($owner && ! $task->late_due_to_child) {
+        if ($deduct && $owner && ! $task->late_due_to_child) {
             RepOnce::record(
                 RepOnce::noDeliveryKey((int) $task->id),
                 fn () => $this->bridge->record(

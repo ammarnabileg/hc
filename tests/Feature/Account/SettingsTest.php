@@ -4,6 +4,7 @@ namespace Tests\Feature\Account;
 
 use App\Models\ConsentRequest;
 use App\Models\EmergencyContact;
+use Illuminate\Support\Facades\Schema;
 
 /**
  * حسابي ← الإعدادات (الدستور 24.5 · 2.17-ب · 13.4-م).
@@ -18,36 +19,86 @@ class SettingsTest extends AccountTestCase
             ->assertOk()
             ->assertSee('الإعدادات')
             ->assertSee('دوّر على إعداد')
-            ->assertSeeInOrder(['الحساب', 'المظهر', 'الصوت والحركة', 'جهة الطوارئ'])
+            ->assertSeeInOrder(['الحساب', 'المظهر', 'الصوت', 'جهة الطوارئ'])
             /*
-             | ⭐ التحكّم في الحركة **من داخل المنصّة** لا من تفضيل نظام التشغيل
-             | (2.3 · 2.14-ب): `prefers-reduced-motion` مرفوض نصًّا، فالإعداد هنا
-             | — وافتراضه **مفعَّل** فيبقى الأنيميشن روح المنصّة كما تنصّ 2.14-ب.
+             | ⛔ **توجّل الصوت وحده**: «**Toggle للصوت فقط** في **صفحة إعدادات
+             | البروفايل** … **⛔ ولا يوجد Toggle للأنيميشن — الأنيميشن حاضر
+             | دائمًا لأنّه روح المنصّة**» (2.3). فالصوت حاضر، والحركة بلا باب.
              */
-            ->assertSee('حركة الواجهة')
-            ->assertSee('الأنيميشن جزء من إحساس المنصّة وشغّال افتراضيًّا');
+            ->assertSee('صوت المنصّة')
+            ->assertDontSee('حركة الواجهة')
+            ->assertDontSee('motion_enabled', false);
     }
 
-    /** الحركة تُطفأ من إعداد المستخدم فيحمل الـHTML علامتها — لا من وسيط النظام */
-    public function test_motion_preference_is_a_platform_setting_not_an_os_media_query(): void
+    /**
+     * ⛔ لا بابَ لإطفاء الحركة — لا حقلَ يُحفَظ ولا سمةَ تُطبَع (2.3 · 2.14-ب).
+     *
+     * والحارس يقيس **غياب الباب** لا حسنَ سلوكه: حقلٌ مرفوض من الحفظ التلقائيّ،
+     * وصفحةٌ خالية من سمة `data-motion`، وموديلٌ بلا خاصّيّة `motion_enabled`.
+     */
+    public function test_there_is_no_animation_toggle_anywhere(): void
     {
         $user = $this->trainee();
 
-        /*
-         | العلامة تُقاس على **وسم `<html>` نفسه** لا على المستند كلّه: سكربت
-         | تبديل الحركة يذكر اسم السمة نصًّا، فقياسُ الصفحة كلّها يقيس السكربت
-         | لا الحالة.
-         */
-        $on = $this->actingAs($user)->get(route('dashboard'))->assertOk();
+        // 1) لا حقل: الحفظ التلقائيّ لا يعرف الحقل أصلًا فيردّه
+        $this->actingAs($user)
+            ->patchJson(route('settings.field'), ['field' => 'motion_enabled', 'value' => '0'])
+            ->assertStatus(422);
 
-        $on->assertDontSee('prefers-reduced-motion', false);
-        $this->assertDoesNotMatchRegularExpression('#<html[^>]*data-motion="off"#', $on->getContent());
+        // 2) لا سمة على `<html>` ولا استعلام وسائط نظام التشغيل
+        $page = $this->actingAs($user)->get(route('dashboard'))->assertOk();
 
-        $user->forceFill(['motion_enabled' => false])->save();
+        $page->assertDontSee('prefers-reduced-motion', false);
+        $this->assertDoesNotMatchRegularExpression('#<html[^>]*data-motion#', $page->getContent());
 
-        $off = $this->actingAs($user)->get(route('dashboard'))->assertOk();
+        // 3) لا عمود ولا خاصّيّة على الموديل
+        $this->assertFalse(Schema::hasColumn('users', 'motion_enabled'));
+        $this->assertNull($user->fresh()->motion_enabled);
 
-        $this->assertMatchesRegularExpression('#<html[^>]*data-motion="off"#s', $off->getContent());
+        // 4) ولا قاعدة CSS تُصفّر الحركة في أيّ ملفّ من ملفّات الواجهة
+        foreach ($this->frontendSources() as $file) {
+            $body = (string) file_get_contents($file);
+
+            $this->assertStringNotContainsString('@media (prefers-reduced-motion', $body, $file);
+            $this->assertDoesNotMatchRegularExpression('#\[data-motion[^\]]*\]\s*[.\#\[*a-zA-Z]#', $body, $file);
+        }
+    }
+
+    /** توجّل الصوت باقٍ ويعمل — «Toggle للصوت فقط» (2.3) */
+    public function test_the_sound_toggle_still_works(): void
+    {
+        $user = $this->trainee();
+
+        $this->actingAs($user)
+            ->patchJson(route('settings.field'), ['field' => 'sound_enabled', 'value' => '0'])
+            ->assertOk()
+            ->assertJson(['saved' => true]);
+
+        $this->assertFalse((bool) $user->fresh()->sound_enabled);
+
+        $this->actingAs($user)
+            ->patchJson(route('settings.field'), ['field' => 'sound_enabled', 'value' => '1'])
+            ->assertOk();
+
+        $this->assertTrue((bool) $user->fresh()->sound_enabled);
+    }
+
+    /** @return list<string> كلّ ملفّات الواجهة التي قد تحمل قاعدة حركة */
+    private function frontendSources(): array
+    {
+        $files = [];
+
+        foreach ([resource_path('css'), resource_path('js'), resource_path('views')] as $root) {
+            $iterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($root));
+
+            foreach ($iterator as $file) {
+                if ($file->isFile() && in_array($file->getExtension(), ['css', 'js', 'php'], true)) {
+                    $files[] = $file->getPathname();
+                }
+            }
+        }
+
+        return $files;
     }
 
     public function test_autosave_saves_one_field_and_answers_with_the_saved_flag(): void

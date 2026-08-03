@@ -90,7 +90,10 @@ class VolunteerOrgDemoSeeder extends Seeder
             // ---------------- وضع «غائب» والتفويض المؤقّت (23-6)
             ['volunteer.absence.max_days', 'volunteer', 'أقصى غياب متّصل (أيّام)', 'number', '14'],
             ['volunteer.absence.max_per_month', 'volunteer', 'أقصى مرّات الغياب في الشهر', 'number', '2'],
-            ['volunteer.absence.adder_positions', 'volunteer', 'بوزشنات مَن يضيف وضع «غائب»', 'json', '["volunteer_gm","track_gm","director"]'],
+            // ⚠️ المفاتيح **مفاتيح جدول `positions` بالحرف** (23-6): كان المزروع
+            // `track_gm` ولا وجود له في الجدول، فمشرف المسار — وهو منصوصٌ عليه —
+            // كان يُرَدّ صامتًا لأنّ القائمة تنكمش بلا خطأ.
+            ['volunteer.absence.adder_positions', 'volunteer', 'بوزشنات مَن يضيف وضع «غائب»', 'json', '["volunteer_gm","track_supervisor","director"]'],
             // شاشة إدارة الغيابات في لوحة الإدارة (23-6 · 24)
             ['volunteer.absence.admin_rows', 'volunteer', 'عدد صفوف شاشة إدارة الغيابات', 'number', '50'],
             ['volunteer.absence.audit_rows', 'volunteer', 'عدد صفوف سجلّ تدقيق الغيابات', 'number', '15'],

@@ -303,20 +303,13 @@
   .motion-standard { transition-timing-function: var(--ease-standard); transition-duration: 200ms; }
 
   /*
-   | ⭐ التحكّم في الحركة من **إعداد المستخدم داخل المنصّة** لا من تفضيل نظام
-   | التشغيل: `prefers-reduced-motion` مرفوض صراحةً (2.3 · 2.14-ب) لأنّ
-   | «الأنيميشن روح المنصّة»، وكان يُلغي الكونفيتي — أي ذروة 2.9-6 نفسها.
-   | الافتراضيّ هنا: الحركة **شغّالة**؛ ولا تتوقّف إلّا لو أطفأها المستخدم
-   | بنفسه من إعدادات المظهر (`html[data-motion="off"]`).
+   | ⛔ لا مُطفئ للحركة هنا ولا في أيّ طبقة:
+   | «**⛔ ولا يوجد Toggle للأنيميشن — الأنيميشن حاضر دائمًا لأنّه روح
+   | المنصّة** (ولا يُوقَف تلقائيًّا بـ`prefers-reduced-motion`)» — 2.3،
+   | و«**الأنيميشن حاضر دائمًا** (روح المنصّة)» — 2.14-ب.
+   | فلا استعلام وسائط لـ`prefers-reduced-motion` — مرفوض بالاسم — ولا سمة
+   | `data-motion` ولا صنفٌ يُصفّر `animation-duration`. الحركة تعمل، نقطة.
    */
-  :root[data-motion='off'] *,
-  :root[data-motion='off'] *::before,
-  :root[data-motion='off'] *::after {
-    animation-duration: 1ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 1ms !important;
-    scroll-behavior: auto !important;
-  }
 
   @keyframes fadeup {
     from { opacity: 0; transform: translateY(8px); }

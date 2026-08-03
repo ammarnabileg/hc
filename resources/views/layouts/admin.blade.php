@@ -1,7 +1,8 @@
+{{-- ⛔ لا توجّل للأنيميشن ولا سمة تُطفئه — «الأنيميشن حاضر دائمًا لأنّه روح
+     المنصّة» (2.3 · 2.14-ب)، ولا `prefers-reduced-motion` بديلًا عنه فهو
+     مرفوضٌ بالاسم في 2.3. الحركة هنا **لا تُطفأ**. --}}
 <!DOCTYPE html>
-<html lang="ar" dir="rtl" @if(auth()->check() && auth()->user()->theme === 'light') data-theme="light" @endif
-      {{-- الحركة تُضبَط من إعداد المستخدم داخل المنصّة لا من تفضيل نظام التشغيل (2.3 · 2.14-ب) --}}
-      @if(auth()->check() && ! auth()->user()->motion_enabled) data-motion="off" @endif>
+<html lang="ar" dir="rtl" @if(auth()->check() && auth()->user()->theme === 'light') data-theme="light" @endif>
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">

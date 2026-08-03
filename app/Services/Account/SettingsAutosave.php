@@ -30,14 +30,14 @@ class SettingsAutosave
             'simple_mode' => ['required', 'boolean'],
             'advanced_mode' => ['required', 'boolean'],
 
-            // مجموعة الصوت والحركة
-            'sound_enabled' => ['required', 'boolean'],
             /*
-             | ⭐ الحركة تُضبَط من **داخل المنصّة** لا من تفضيل نظام التشغيل
-             | (2.3 · 2.14-ب): `prefers-reduced-motion` مرفوض نصًّا لأنّه كان
-             | يُخفي الكونفيتي فتُلغى ذروة 2.9-6 بصمت. والافتراضيّ **مفعَّل**.
+             | مجموعة الصوت — **الصوت وحده**:
+             | «**Toggle للصوت فقط** … **⛔ ولا يوجد Toggle للأنيميشن —
+             | الأنيميشن حاضر دائمًا لأنّه روح المنصّة**» (2.3)،
+             | و«**الصوت** يخضع لـ**Toggle الصوت** …؛ **الأنيميشن حاضر دائمًا**»
+             | (2.14-ب). فحقلٌ للحركة هنا = بابٌ لإطفائها، وهو ما ينفيه النصّ.
              */
-            'motion_enabled' => ['required', 'boolean'],
+            'sound_enabled' => ['required', 'boolean'],
 
             /*
              | ⭐ قناة البريد (12.6-أ): حقلٌ **ظاهريّ** — يُخزَّن في
@@ -145,7 +145,7 @@ class SettingsAutosave
     private function cast(string $field, mixed $value): mixed
     {
         return match ($field) {
-            'simple_mode', 'advanced_mode', 'sound_enabled', 'motion_enabled', 'email_channel' => filter_var($value, FILTER_VALIDATE_BOOLEAN),
+            'simple_mode', 'advanced_mode', 'sound_enabled', 'email_channel' => filter_var($value, FILTER_VALIDATE_BOOLEAN),
             'country_id', 'governorate_id' => $value === '' || $value === null ? null : (int) $value,
             'phone' => $value === '' ? null : trim((string) $value),
             default => is_string($value) ? trim($value) : $value,
@@ -166,7 +166,6 @@ class SettingsAutosave
             'simple_mode' => 'الوضع المبسّط',
             'advanced_mode' => 'الوضع المتقدّم',
             'sound_enabled' => 'صوت المنصّة',
-            'motion_enabled' => 'حركة الواجهة',
             'email_channel' => 'رسايل البريد',
         ];
     }

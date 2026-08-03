@@ -77,8 +77,7 @@
         animation: check-fill 620ms var(--ease-standard) forwards;
     }
 
-    [data-motion='off'] .roadmap-node[data-unlocked='1']::before,
-    [data-motion='off'] .check-fill { animation: none; }
+    {{-- لا مُطفئ للحركة — «الأنيميشن حاضر دائمًا» (2.3 · 2.14-ب) --}}
 
     /* الإدخال الرقميّ بنمط OTP (4): خانة لكلّ رقم — ومقاس اللمس 44×44 (2.15-ج) */
     .otp-row { display: flex; gap: 0.5rem; flex-wrap: wrap; direction: ltr; justify-content: flex-end; }

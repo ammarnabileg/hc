@@ -193,6 +193,9 @@ class InactivityLadder
                 .' يومًا بلا نشاط — خصم أسبوعيّ (13.4-س-ب)',
         );
 
+        // ⭐ خصم الخمول قد يبلغ بصاحبه −9.5، والدرجة الوسطى تقع **فورًا** (23-0.2-2)
+        OptionalCutService::afterRepMovement($user, LedgerService::REP, $value);
+
         DB::table(self::TABLE)->where('user_id', $user->id)->update([
             'last_deduction_at' => now(),
             'deductions_count' => (int) $state->deductions_count + 1,

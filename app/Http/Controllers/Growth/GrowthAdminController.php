@@ -31,8 +31,8 @@ class GrowthAdminController extends Controller
         ],
         'reach' => [
             'label' => 'الفهرسة والمحتوى',
-            'prefixes' => ['growth.seo.', 'growth.sitemap.', 'growth.robots.', 'growth.articles.', 'growth.og.', 'growth.utm.', 'growth.weekly_card.', 'growth.volunteer_kit.'],
-            'hint' => 'الخريطة والفهرسة وقوالب الـOG وUTM والكارت الأسبوعيّ وحزمة المتطوّعين.',
+            'prefixes' => ['growth.seo.', 'growth.sitemap.', 'growth.robots.', 'growth.articles.', 'growth.og.', 'growth.utm.', 'growth.acquisition.', 'growth.weekly_card.', 'growth.volunteer_kit.'],
+            'hint' => 'الخريطة والفهرسة وقوالب الـOG وUTM ونسبة الاكتساب والكارت الأسبوعيّ وحزمة المتطوّعين.',
         ],
         'ads' => [
             'label' => 'التتبّع والأحداث',

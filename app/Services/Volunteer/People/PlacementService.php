@@ -9,6 +9,7 @@ use App\Models\Position;
 use App\Models\RecruitmentCandidate;
 use App\Models\User;
 use App\Services\Volunteer\Org\CardIssuer;
+use App\Services\Volunteer\Retention\OptionalCutService;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
@@ -368,6 +369,21 @@ class PlacementService
          | بوزشنٍ ثانٍ لا تُنتزَع أوّليّةُ عضويّته الأولى من تحته، وإلّا صار له
          | «أساسيّتان» ولا يدري سياقُ الصلاحيّات أيَّهما يقرأ.
          */
+        /*
+         | ⭐ **الحرمان بعد بتر الاختياريّ** (23-0.2-3): «لا يفتح عضويّة جديدة في
+         | مسارَي المحافظات والملفات **حتى التصفير الشهري التالي**». وبلا هذا
+         | الحارس تكون العقوبة نصف عقوبة: تُقفَل عضويّاته اليوم ويُسكَّن في
+         | محافظةٍ أخرى غدًا. والحارس **لا يمسّ الأقسام** بحرف — القسم أساسيّ.
+         */
+        $candidateUser = $candidate->user ?: User::query()->find($candidate->user_id);
+
+        if ($candidateUser) {
+            app(OptionalCutService::class)->assertMayJoin(
+                $candidateUser,
+                Entity::query()->with('track')->find($request->entity_id),
+            );
+        }
+
         $hasPrimary = Membership::query()
             ->where('user_id', $candidate->user_id)
             ->where('status', 'active')

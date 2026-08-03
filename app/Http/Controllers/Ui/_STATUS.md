@@ -39,7 +39,7 @@
 ## 🔗 التبعيّات والملفّات المهمّة
 <!-- تلقائيّ:بداية:التبعيات -->
 - **الطبقات الأخرى لنفس المجال:** `app/Services/Ui` · `routes/parts` · `tests/Feature/Ui`
-- **الاختبارات:** 11 ملفّ Feature في `tests/Feature/Ui` — شغّلها بـ`php artisan test tests/Feature/Ui`.
+- **الاختبارات:** 12 ملفّ Feature في `tests/Feature/Ui` — شغّلها بـ`php artisan test tests/Feature/Ui`.
 - **المرجع الحاكم:** `دستور اساسي.md` · **وكيف نكتب:** `docs/BUILD.md`.
 - **المجلّد الأب:** `app/Http/Controllers/_STATUS.md`.
 <!-- تلقائيّ:نهاية:التبعيات -->

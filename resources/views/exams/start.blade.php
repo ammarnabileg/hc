@@ -5,7 +5,16 @@
 @section('exam_meta', setting('exams.labels.before_start', 'قبل ما تبدأ — اطّلع على الشروط'))
 
 @php
-    $blocked = ! $affordable || $attemptsLeft < 1 || $cooldownUntil;
+    /*
+     | ⭐ 4.2: «**بدون مدة انتظار** … **كل دخول = تذكرة**» — فالافتراضيّ **بلا سقف**،
+     | و`$attemptsLeft === null` تعني بلا حدّ فلا تُقرأ صفرًا ولا تقفل الزرّ.
+     | والسقف والانتظار يبقيان قابلَين لضبط المالك (2.13)، فإن ضبطهما ظهر أثرهما.
+     */
+    $unlimited = $attemptsLeft === null;
+    $attemptsText = $unlimited
+        ? setting('exams.labels.attempts_unlimited', 'بلا حدّ — كلّ دخول بتذكرة')
+        : $attemptsLeft.' '.setting('exams.labels.of', 'من').' '.$attemptsLimit;
+    $blocked = ! $affordable || (! $unlimited && $attemptsLeft < 1) || $cooldownUntil;
 @endphp
 
 @section('content')
@@ -17,7 +26,7 @@
             <li>{{ setting('exams.labels.pass_score', 'درجة النجاح') }}:
                 <strong style="color: var(--text)">{{ $exam->pass_score }}%</strong></li>
             <li>{{ setting('exams.labels.attempts', 'المحاولات المتبقّية') }}:
-                <strong style="color: var(--text)">{{ $attemptsLeft }} {{ setting('exams.labels.of', 'من') }} {{ $exam->attempts_allowed }}</strong></li>
+                <strong style="color: var(--text)">{{ $attemptsText }}</strong></li>
         </ul>
     </div>
 @endsection
@@ -42,7 +51,7 @@
                     </div>
                     <div class="flex items-center justify-between gap-3">
                         <dt style="color: var(--text-muted)">{{ setting('exams.labels.attempts', 'المحاولات المتبقّية') }}</dt>
-                        <dd class="font-semibold">{{ $attemptsLeft }}</dd>
+                        <dd class="font-semibold">{{ $attemptsText }}</dd>
                     </div>
 
                     @if ($price > 0)
@@ -79,7 +88,7 @@
                         {{ setting('exams.labels.available_at', 'محاولتك الجاية متاحة') }}:
                         <strong style="color: var(--text)">{{ $cooldownUntil->format('Y/m/d — H:i') }}</strong>
                     </p>
-                @elseif ($attemptsLeft < 1)
+                @elseif (! $unlimited && $attemptsLeft < 1)
                     <p class="text-sm" style="color: var(--text-muted)">{{ setting('exams.messages.no_attempts_left', 'خلصت محاولاتك في الامتحان ده.') }}</p>
                 @elseif (! $affordable)
                     <p class="text-sm" style="color: var(--text-muted)">{{ $shortMessage }}</p>

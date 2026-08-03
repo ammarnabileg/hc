@@ -8,7 +8,12 @@
      * والاستهلاك مُسجَّل Server-side فلا يتكرّر بإعادة التحميل.
      */
     $tier = (int) ($celebration['tier'] ?? 1);
-    $pieces = $tier === 3 ? 28 : ($tier === 2 ? 14 : 0);
+    // العدد والمدّة والشدّة من `setting()` داخل `<x-confetti>` (2.13)
+    $confetti = match ($tier) {
+        3 => 'peak',    // «كونفيتي غزير» (2.14-أ · 3)
+        2 => 'light',   // «كونفيتي خفيف» (2.14-أ · 2)
+        default => null, // «بلا صوت: Toast + حركة صغيرة» (2.14-أ · 1)
+    };
     $seconds = (int) setting('celebrations.auto_dismiss_seconds', 6);
 @endphp
 
@@ -19,15 +24,8 @@
      ])
      @style(['background: rgb(0 0 0 / .65)' => $tier === 3])>
 
-    @if ($pieces > 0)
-        <div class="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
-            @for ($i = 0; $i < $pieces; $i++)
-                <span class="celebrate-piece"
-                      style="inset-inline-start: {{ (int) (($i * 97) % 100) }}%;
-                             animation-delay: {{ $i * 60 }}ms;
-                             background: {{ ['var(--color-brand-400)', 'var(--color-state-honor)', 'var(--color-brand-200)'][$i % 3] }}"></span>
-            @endfor
-        </div>
+    @if ($confetti)
+        <x-confetti :variant="$confetti" />
     @endif
 
     <div @class([
@@ -67,22 +65,9 @@
 
 @push('scripts')
     <style>
-        @keyframes celebrate-fall {
-            from { transform: translateY(-10vh) rotate(0deg); opacity: 1; }
-            to   { transform: translateY(105vh) rotate(540deg); opacity: 0; }
-        }
-        .celebrate-piece {
-            position: absolute;
-            inset-block-start: -10vh;
-            inline-size: 8px;
-            block-size: 14px;
-            border-radius: 2px;
-            animation: celebrate-fall 2.6s var(--ease-standard) forwards;
-        }
         @keyframes celebrate-pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.08); } }
         .celebrate-pulse { display: inline-block; animation: celebrate-pulse 1.4s var(--ease-standard) infinite; }
-        /* بلا استعلام وسائط نظام التشغيل: الكونفيتي والنبضة ذروة 2.9-6،
-           والتحكّم فيهما من إعداد المستخدم داخل المنصّة (app.css). */
+        /* ⛔ لا مُطفئ للحركة — «الأنيميشن حاضر دائمًا» (2.3 · 2.14-ب) */
     </style>
     <script>
         (() => {

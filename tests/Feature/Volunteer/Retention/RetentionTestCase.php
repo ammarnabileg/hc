@@ -50,10 +50,14 @@ abstract class RetentionTestCase extends TestCase
         ]);
     }
 
-    protected function makeEntity(string $name = 'قسم الاختبار'): Entity
+    /**
+     * كيانٌ على مسارٍ بعينه — والافتراضيّ **قسم** لأنّه المسار الأساسيّ.
+     * والمسارات الثلاثة (قسم · محافظة · ملفّ) يزرعها `CoreSeeder` بمفاتيحها.
+     */
+    protected function makeEntity(string $name = 'قسم الاختبار', string $trackKey = 'department'): Entity
     {
         return Entity::create([
-            'track_id' => Track::query()->where('key', 'department')->value('id'),
+            'track_id' => Track::query()->where('key', $trackKey)->value('id'),
             'name_ar' => $name,
             'status' => 'active',
         ]);

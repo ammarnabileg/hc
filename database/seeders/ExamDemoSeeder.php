@@ -64,6 +64,9 @@ class ExamDemoSeeder extends Seeder
             // التذاكر تُكتسَب ولا تُشحَن (7.1) — فالرسالة تدلّ على طريق الكسب لا على الشحن
             ['exams.messages.insufficient_tickets', 'exams', 'رسالة نقص التذاكر', 'text', 'محتاج تذكرة عشان تدخل الامتحان — كمّل درسًا أو أكمل ستريكك وهترجع تلاقيها.'],
             ['exams.messages.closed', 'exams', 'رسالة الامتحان المقفول', 'text', 'الامتحان ده مقفول دلوقتي.'],
+            // ⭐ حاجز الإتاحة (5): الامتحان جزءٌ من التدريب، وسبب القفل وموعد الفتح
+            // يأتيان من `AvailabilityService` بساعة المستخدم فيُلحَقان بهذا النصّ (2.17-ج)
+            ['exams.messages.course_locked', 'exams', 'رسالة قفل الامتحان خارج إتاحة التدريب (5)', 'text', 'الامتحان جزء من التدريب، والتدريب مقفول دلوقتي.'],
             ['exams.messages.reentry_notice', 'exams', 'نصّ بوب-أب ما قبل امتحان العائد (13.4-ق)', 'text', 'الامتحان ده بيثبت جاهزيّتك دلوقتي. أوّل ما تبدأ، شهادتك التأهيليّة القديمة هتتسجّل «منتهية» — مش هتتمسح، هتفضل في سجلّك بتاريخها، وبالنجاح هتصدرلك شهادة جديدة.'],
 
             // مسمّيات شاشة الامتحان
@@ -74,6 +77,8 @@ class ExamDemoSeeder extends Seeder
             ['exams.labels.topup', 'exams', 'زرّ شحن المحفظة', 'string', 'اشحن المحفظة'],
             ['exams.labels.submit', 'exams', 'زرّ التسليم', 'string', 'سلّم الامتحان'],
             ['exams.labels.review', 'exams', 'عنوان شاشة المراجعة', 'string', 'مراجعة قبل التسليم'],
+            // ⭐ 4.2: «كل دخول = تذكرة» — فالافتراضيّ **بلا سقفٍ للمحاولات**، وهذا وسمه
+            ['exams.labels.attempts_unlimited', 'exams', 'وسم المحاولات بلا حدّ (4.2)', 'string', 'بلا حدّ — كلّ دخول بتذكرة'],
 
             // ---------------- الشهادات (8 · 12.5)
             ['certificates.numbering.default_prefix', 'certificates', 'بادئة الترقيم الافتراضيّة', 'string', 'HC'],
@@ -230,7 +235,9 @@ class ExamDemoSeeder extends Seeder
             [
                 'title_ar' => 'الامتحان النهائيّ — أسس العمل التطوّعيّ',
                 'duration_minutes' => 30,
-                'attempts_allowed' => 3,
+                // ⭐ 4.2 حرفيًّا: «**بدون مدة انتظار** … **كل دخول = تذكرة**»
+                // — فلا سقفَ للمحاولات (0) ولا انتظارَ بعد الرسوب (0)
+                'attempts_allowed' => 0,
                 'retry_cooldown_hours' => 0,
                 'pass_score' => 70,
                 'price_coins' => 0,
@@ -243,8 +250,11 @@ class ExamDemoSeeder extends Seeder
             [
                 'title_ar' => 'امتحان شهادة مسار القيادة الميدانيّة',
                 'duration_minutes' => 45,
-                'attempts_allowed' => 2,
-                'retry_cooldown_hours' => 24,
+                // امتحان **شهادة المسار** مدفوعٌ بالكوينز لا بالتذاكر، ولا نصّ في
+                // الدستور يأذن بسقفٍ ولا بمدّة انتظارٍ له — فبيانات العرض لا تفتعل
+                // أيّهما، والمفتاحان يبقيان قابلَين لضبط المالك (2.13).
+                'attempts_allowed' => 0,
+                'retry_cooldown_hours' => 0,
                 'pass_score' => 70,
                 'price_coins' => 150, // امتحان شهادة المسار مدفوع بالكوينز (24.5)
                 'is_active' => true,

@@ -63,11 +63,14 @@ class ExamController extends Controller
 
         $cost = $this->cost($exam);
         $balance = $this->economy->balance($user, $cost['currency']);
+        $limit = $this->attemptLimit($exam);
 
         return view('exams.start', [
             'exam' => $exam,
             'attemptsUsed' => $used,
-            'attemptsLeft' => max(0, $exam->attempts_allowed - $used),
+            // ⭐ `null` = **بلا حدّ** (4.2): «كل دخول = تذكرة» — والتذكرة هي الحدّ
+            'attemptsLeft' => $limit > 0 ? max(0, $limit - $used) : null,
+            'attemptsLimit' => $limit,
             'price' => $cost['amount'],
             'currencyLabel' => $cost['label'],
             'balance' => $balance,
@@ -102,7 +105,9 @@ class ExamController extends Controller
             ->where('exam_id', $exam->id)->where('user_id', $user->id)
             ->whereIn('status', ['submitted', 'expired'])->count();
 
-        if ($used >= $exam->attempts_allowed) {
+        $limit = $this->attemptLimit($exam);
+
+        if ($limit > 0 && $used >= $limit) {
             return back()->with('status', (string) setting('exams.messages.no_attempts_left', 'خلصت محاولاتك في الامتحان ده.'));
         }
 
@@ -396,6 +401,32 @@ class ExamController extends Controller
         return max(0, (int) now()->diffInSeconds($endsAt, false));
     }
 
+    /**
+     * ⭐ سقف المحاولات — و**صفرٌ يعني بلا حدّ** (4.2).
+     *
+     * نصّ 4.2 حرفيًّا: «**يكلّف تذكرة واحدة** تُخصَم **بمجرد الدخول** (سواء جاوب
+     * أو ما جاوبش)، و**بدون مدة انتظار** (لا يوجد الـ 20 ثانية هنا). **كل دخول =
+     * تذكرة**». فالنصّ لا يعرف سقفًا للمحاولات أصلًا، والذي يحكم الدخول هو
+     * **التذكرة وحدها**: من ملك تذكرةً دخل، ومن لم يملكها لم يدخل. وكان المخطّط
+     * يفتتح كلّ امتحانٍ بـ`attempts_allowed = 1` و`retry_cooldown_hours = 24`،
+     * فمن رسب مُنِع من الإعادة أربعًا وعشرين ساعة أو مُنِع منها إلى الأبد — وهو
+     * عكس النصّ لا تفصيلًا فيه.
+     *
+     * والسقف والانتظار **يبقيان مفتاحين قابلين لضبط المالك** (2.13) في تاب
+     * «التقييم» من فورم التدريب؛ الملغى هو **الافتراضيّ المخالف** لا إمكانيّة
+     * الضبط. والافتراضيّ الآن: بلا سقفٍ وبلا انتظار.
+     *
+     * ⚠️ ولا يُقاس على هذا **13.4-ق**: «مرفوض ⛔ … **الاستثناء من إعادة الامتحان**
+     * لأيّ سببٍ كان» نصٌّ يمنع **إعفاء** العائد من دخول الامتحان من جديد (فهو
+     * بوّابة قائمة الانتظار)، لا نصٌّ يمنع **إعادة المحاولة بعد الرسوب** — بل
+     * نصّ الرسوب نفسه هناك يقول: «محاولتك الجاية متاحة [حسب قواعد الامتحان]».
+     */
+    private function attemptLimit(Exam $exam): int
+    {
+        return max(0, (int) $exam->attempts_allowed);
+    }
+
+    /** مدّة الانتظار بعد الرسوب — والافتراضيّ **صفر** تنفيذًا لـ«بدون مدة انتظار» (4.2) */
     private function cooldownUntil(Exam $exam, User $user): ?Carbon
     {
         $hours = (int) $exam->retry_cooldown_hours;

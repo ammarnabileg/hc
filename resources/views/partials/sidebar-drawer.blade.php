@@ -31,8 +31,7 @@
     [data-sidebar][data-open="true"],
     [dir="rtl"] [data-sidebar][data-open="true"] { transform: translateX(0); }
 
-    /* الحركة تحترم إعداد المستخدم داخل المنصّة (2.14-ب) */
-    [data-motion="off"] [data-sidebar] { transition: none; }
+    /* لا مُطفئ للحركة — «الأنيميشن حاضر دائمًا» (2.3 · 2.14-ب) */
 
     [data-sidebar-backdrop] {
         position: fixed;

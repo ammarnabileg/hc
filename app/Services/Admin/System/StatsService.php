@@ -3,6 +3,7 @@
 namespace App\Services\Admin\System;
 
 use App\Models\User;
+use App\Services\Growth\AcquisitionFunnel;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -451,50 +452,14 @@ class StatsService
      */
     private function acquisition(array $period): array
     {
-        if (! Schema::hasTable('tracking_events')) {
-            return ['rows' => [], 'kpis' => []];
-        }
-
-        $sources = DB::table('tracking_events')
-            ->whereBetween('created_at', [$period['from'], $period['to']])
-            ->whereNotNull('utm_source')
-            ->distinct()
-            ->pluck('utm_source');
-
-        $rows = [];
-
-        foreach ($sources as $source) {
-            $users = DB::table('tracking_events')
-                ->where('utm_source', $source)
-                ->whereBetween('created_at', [$period['from'], $period['to']])
-                ->whereNotNull('user_id')
-                ->distinct()
-                ->pluck('user_id');
-
-            $rows[] = [
-                'source' => (string) $source,
-                'visits' => (int) DB::table('tracking_events')
-                    ->where('utm_source', $source)
-                    ->whereBetween('created_at', [$period['from'], $period['to']])->count(),
-                'registered' => $users->count(),
-                'activated' => (int) User::query()->whereIn('id', $users)->where('status', 'active')->count(),
-                'purchased' => Schema::hasTable('orders')
-                    ? (int) DB::table('orders')->whereIn('user_id', $users)->where('status', 'paid')->distinct()->count('user_id')
-                    : 0,
-            ];
-        }
-
-        usort($rows, fn ($a, $b) => $b['registered'] <=> $a['registered']);
-
-        return [
-            'rows' => $rows,
-            'kpis' => [
-                ['label' => 'مصادر نشطة', 'value' => count($rows), 'icon' => '📣'],
-                ['label' => 'زيارات موسومة', 'value' => array_sum(array_column($rows, 'visits')), 'icon' => '🔗'],
-                ['label' => 'تسجيلات', 'value' => array_sum(array_column($rows, 'registered')), 'icon' => '👥'],
-                ['label' => 'مشترون', 'value' => array_sum(array_column($rows, 'purchased')), 'icon' => '🛒'],
-            ],
-        ];
+        /*
+         | ⭐ الحساب نفسه في `App\Services\Growth\AcquisitionFunnel` — مجال النموّ
+         | هو صاحب 21.2-ح، وهذه الشاشة **قارئٌ** له. وكان يُحسَب هنا من
+         | `tracking_events` وحدها، فتخرج أعمدة «التسجيل/التفعيل/الشراء» صفرًا
+         | دائمًا لأنّ تلك المسارات بلا وسم في الـquery — والسلسلة تُقرأ الآن من
+         | المصدر المثبَّت على المستخدم.
+         */
+        return app(AcquisitionFunnel::class)->report($period['from'], $period['to']);
     }
 
     // ---------------------------------------------------------------- أدوات

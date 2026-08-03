@@ -7,6 +7,7 @@ use App\Models\Transaction;
 use App\Models\User;
 use App\Models\WalletBalance;
 use App\Services\Notifications\Notifier;
+use App\Services\Volunteer\Retention\OptionalCutService;
 use App\Services\Wallet\LedgerService;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
@@ -67,13 +68,16 @@ final class Integrations
         ?string $reason = null,
         ?int $createdBy = null,
     ): ?Transaction {
-        if (self::hasLedger()) {
-            return app(self::LEDGER)->debit(
+        $transaction = self::hasLedger()
+            ? app(self::LEDGER)->debit(
                 $user, $currencyCode, $amount, $source, $reference, self::LAYER, $reason, $createdBy,
-            );
-        }
+            )
+            : self::fallbackRecord($user, $currencyCode, -abs($amount), $source, $reference, $reason, $createdBy);
 
-        return self::fallbackRecord($user, $currencyCode, -abs($amount), $source, $reference, $reason, $createdBy);
+        // ⭐ الدرجة الوسطى من سلّم العتبات تقع **فورًا** (23-0.2-2)
+        OptionalCutService::afterRepMovement($user, $currencyCode, -abs($amount));
+
+        return $transaction;
     }
 
     public static function balance(User $user, string $currencyCode): float
