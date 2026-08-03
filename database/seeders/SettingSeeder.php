@@ -403,6 +403,8 @@ class SettingSeeder extends Seeder
             ['account.profile.header.bio_placeholder', 'account', 'نصّ إرشاديّ للنبذة', 'text', 'اكتب نبذة قصيرة عنك — سطر واحد يكفي.'],
             ['account.profile.header.copy_link_label', 'account', 'زرّ نسخ رابط البروفايل', 'string', 'نسخ رابطي'],
             ['account.profile.header.edit_label', 'account', 'زرّ تعديل البروفايل', 'string', 'تعديل البروفايل'],
+            // صفحة البحث الكبيرة (13.1 · 24.5) — والحالة الوحيدة على الكارت «فعّال»
+            ['account.search.active_label', 'account', 'تسمية حالة النتيجة في البحث', 'string', 'فعّال'],
             ['account.profile.badges.title', 'account', 'عنوان سكشن الشارات', 'string', 'الشارات'],
             ['account.profile.badges.empty_message', 'account', 'رسالة لا شارات', 'text', 'لسّه بدري — أوّل شارة مستنّياك.'],
             ['account.profile.badges.unlocked_label', 'account', 'وصف الشارة المفتوحة', 'string', 'مفتوحة'],

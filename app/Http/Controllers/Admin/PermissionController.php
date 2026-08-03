@@ -10,6 +10,7 @@ use App\Services\Admin\AuditTrail;
 use App\Support\Access\AccessEngine;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 /**
@@ -64,12 +65,21 @@ class PermissionController extends Controller
         ]);
     }
 
-    /** استثناء فرديّ: منح أو منع صلاحيّة لمستخدم بعينه */
+    /**
+     * استثناء فرديّ: منح أو منع صلاحيّة لمستخدم بعينه.
+     *
+     * ⭐ **وسقف نطاق المصفوفة يُفرَض هنا وقت الكتابة (12.2.2):** كان التصديق
+     * `['required','string']` وحده، فيُقبَل أيّ نصٍّ في خانة النطاق — و`scope=ALL`
+     * على مفتاحٍ سقفُه TRACK **كُتِب ونفَذ**. والرفض **صريحٌ لا تضييقٌ صامت**:
+     * فالمسؤول يرى ما رُفض ولماذا وما النطاقات المتاحة، ولا يُحفَظ له نطاقٌ غير
+     * الذي اختاره (12.2.1-د: «يرى بعينه ما مُنِح»).
+     */
     public function update(Request $request, User $user): RedirectResponse
     {
         $validated = $request->validate([
             'permission' => ['required', 'exists:permissions,key'],
-            'scope' => ['required', 'string'],
+            // النطاق من القائمة الستّة نصًّا (12.2.1-ب) — لا نصٌّ حرّ
+            'scope' => ['required', 'string', Rule::in(config('access.scopes'))],
             'effect' => ['required', 'in:allow,deny'],
         ], [], ['permission' => 'الصلاحيّة', 'scope' => 'النطاق', 'effect' => 'الأثر']);
 
@@ -79,6 +89,17 @@ class PermissionController extends Controller
         // ⭐ عزل الحسّاس + ⭐ منع تصعيد الامتياز — قبل أيّ كتابة
         if ($permission->is_owner_only && ! $this->access->isPlatformOwner($actor)) {
             return back()->with('problem', (string) setting('admin.roles.owner_only_note', 'الصلاحيّة دي لمالك المنصّة وحده.'));
+        }
+
+        /*
+         | ⭐ سقف المصفوفة — على **الإذن** وحده: توسيع المنع تشديدٌ لا تصعيد،
+         | و«Deny > Allow» (12.2.1-ز-1) لا تُقيَّد بسقفٍ وُضِع لتحديد ما يُمنَح.
+         */
+        if ($validated['effect'] === 'allow'
+            && ! $this->access->withinAllowedScopes($permission->key, $validated['scope'])) {
+            $message = $this->ceilingMessage($permission, $validated['scope']);
+
+            return back()->with('problem', $message)->withErrors([$message]);
         }
 
         if (! $this->access->canGrant($actor, $permission->key, $validated['scope'])) {
@@ -113,5 +134,21 @@ class PermissionController extends Controller
         ]);
 
         return back()->with('status', 'اتحفظ الاستثناء ✓ — والمنع يغلب الإذن دائمًا');
+    }
+
+    /** رسالة رفض السقف — بنصٍّ من الإعدادات لا محروق (2.13) */
+    private function ceilingMessage(Permission $permission, string $scope): string
+    {
+        return strtr(
+            (string) setting(
+                'admin.roles.scope_ceiling_message',
+                'مقدرناش نحفظ «:permission» بنطاق :scope — المصفوفة (12.2.2) بتحدّد لها :scopes وبس.',
+            ),
+            [
+                ':permission' => $permission->label_ar.' ('.$permission->key.')',
+                ':scope' => $scope,
+                ':scopes' => implode(' · ', $this->access->allowedScopesOf($permission->key)),
+            ],
+        );
     }
 }

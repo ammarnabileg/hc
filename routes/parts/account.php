@@ -82,9 +82,19 @@ Route::middleware('auth')->group(function () {
         Route::get('/settings/security/export', [SettingsController::class, 'exportData'])->name('settings.export');
     });
 
-    // ------------------------------------------------ صفحة البحث الكبيرة (13.1)
-    Route::get('/search', [SearchController::class, 'index'])->name('search');
-    Route::get('/search/more', [SearchController::class, 'more'])->name('search.more');
+    /*
+    | ------------------------------------------------ صفحة البحث الكبيرة (13.1)
+    | ⭐ الصلاحيّة إلزاميّة على كلّ مسار (12.2.1) — وكان المساران بلا أيّ مفتاح،
+    | فيمرّ البحث في دليل المنصّة كلّه بلا حارسٍ ولا نطاق. والمفتاحان منصوصان
+    | في المصفوفة: `user_search.view` للصفحة و`user_search.list` للتنفيذ.
+    */
+    Route::middleware('permission:user_search.view')->group(function () {
+        Route::get('/search', [SearchController::class, 'index'])->name('search');
+    });
+
+    Route::middleware('permission:user_search.list')->group(function () {
+        Route::get('/search/more', [SearchController::class, 'more'])->name('search.more');
+    });
 });
 
 /*

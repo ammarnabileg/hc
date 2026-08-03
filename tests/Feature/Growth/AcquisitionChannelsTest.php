@@ -5,6 +5,7 @@ namespace Tests\Feature\Growth;
 use App\Models\Certificate;
 use App\Models\CertificateType;
 use App\Models\User;
+use App\Services\Certificates\CertificateSignature;
 use App\Services\Growth\ContentKit;
 use App\Services\Growth\UtmBuilder;
 use Illuminate\Support\Str;
@@ -93,12 +94,20 @@ class AcquisitionChannelsTest extends GrowthTestCase
 
         $certificate = Certificate::create([
             'code' => 'HC-'.Str::upper(Str::random(8)),
-            'hash' => hash('sha256', Str::random(12)),
+            'hash' => '',
             'user_id' => $holder->id,
             'certificate_type_id' => $type->id,
             'status' => 'valid',
             'issued_at' => now(),
         ]);
+
+        /*
+         | ⭐ الصفّ المصنوع باليد يحتاج **توقيعه الحقيقيّ** (8.1 · 12.5-هـ): صفحة
+         | التحقّق صارت تُعيد اشتقاق التوقيع وتقارنه، وما لا يطابق لا يُعرَض كوثيقة
+         | ولا يحمل دعوة «احصل على شهادتك» — فقناة الاكتساب تُبنى على شهادةٍ مثبَتة
+         | لا على صفٍّ عشوائيّ. والختم من **مصدر التوقيع الواحد** لا بمعادلةٍ منسوخة.
+         */
+        app(CertificateSignature::class)->seal($certificate);
 
         $this->get(route('verify.certificate', ['code' => $certificate->code]))
             ->assertOk()

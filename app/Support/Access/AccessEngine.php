@@ -29,6 +29,9 @@ class AccessEngine
     /** شروط المصفوفة لكلّ صلاحيّة: key => string[] — تُمسَح مع الكاش */
     private ?array $permissionConditions = null;
 
+    /** سقف نطاقات المصفوفة لكلّ صلاحيّة: key => string[] — تُمسَح مع الكاش */
+    private ?array $allowedScopes = null;
+
     /** مفاتيح الصلاحيّات التي تفتح باب اللوحة — تُمسَح مع الكاش */
     private ?array $adminKeys = null;
 
@@ -253,6 +256,7 @@ class AccessEngine
         $this->owners = [];
         $this->ownerOnly = null;
         $this->permissionConditions = null;
+        $this->allowedScopes = null;
         $this->adminKeys = null;
     }
 
@@ -260,6 +264,19 @@ class AccessEngine
 
     private function matches(Grant $grant, User $user, mixed $target, ?Membership $membership): bool
     {
+        /*
+         | ⭐ سقف نطاق المصفوفة (12.2.2) يُفرَض **وقت التقييم** كذلك لا وقت الكتابة
+         | وحده: صفُّ إذنٍ بنطاقٍ يتجاوز `allowed_scopes` المنصوصة — أيًّا كان الباب
+         | الذي كتبه (استيراد · هجرة · كتابة مباشرة) — **لا يُقرَأ إذنًا**، وهو نفس
+         | حكم النطاق التالف: ما يتجاوز النصّ لا نفهمه فلا نمنح عليه.
+         |
+         | والمنع لا يخضع لهذا السقف عمدًا: توسيع **المنع** تشديدٌ لا تصعيد،
+         | و«Deny > Allow» (12.2.1-ز-1) يجب أن تبقى بلا ثغرةٍ يُفلَت منها.
+         */
+        if ($grant->isAllow() && ! $this->withinMatrixCeiling($grant)) {
+            return false;
+        }
+
         if (! $this->membershipApplies($grant, $membership)) {
             return false;
         }
@@ -278,6 +295,35 @@ class AccessEngine
         $conditions = [...$this->conditionsOf($grant->permissionKey), ...$grant->conditions];
 
         return $this->conditions->passes($conditions, $user, $target, $membership);
+    }
+
+    /**
+     * ⭐ نطاقات الصلاحيّة المنصوصة في المصفوفة (12.2.2) — المرجع لا `permissions.json`
+     * ولا اجتهاد: تُقرأ من عمود `allowed_scopes` الذي زُرِع منها.
+     *
+     * @return array<int, string>
+     */
+    public function allowedScopesOf(string $permissionKey): array
+    {
+        $this->allowedScopes ??= Permission::query()
+            ->pluck('allowed_scopes', 'key')
+            ->map(fn ($value) => is_array($value) ? $value : (json_decode((string) $value, true) ?: []))
+            ->all();
+
+        return $this->allowedScopes[$permissionKey] ?? [];
+    }
+
+    /** هل هذا النطاق داخل سقف المصفوفة؟ (صلاحيّةٌ بلا سقفٍ منصوص تقبل الستّة) */
+    public function withinAllowedScopes(string $permissionKey, string $scope): bool
+    {
+        $allowed = $this->allowedScopesOf($permissionKey);
+
+        return $allowed === [] || in_array($scope, $allowed, true);
+    }
+
+    private function withinMatrixCeiling(Grant $grant): bool
+    {
+        return $this->withinAllowedScopes($grant->permissionKey, $grant->scope);
     }
 
     /**

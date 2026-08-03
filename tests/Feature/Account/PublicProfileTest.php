@@ -82,6 +82,35 @@ class PublicProfileTest extends AccountTestCase
             ->assertSee('الإسكندريّة');
     }
 
+    /**
+     * ⛔ المستويات **أربعة** (10.0-ج · 13.4-م) وكلّها لأصحاب الحسابات: صاحبه ·
+     * زميل · أبلاين مخوَّل · أدمن. والزائر بلا جلسة كان يُقحَم في «زميل» فيصير
+     * خامسًا بابُه الإنترنت — فيقرأ حقلًا فتحه صاحبه «لكلّ **المستخدمين**»،
+     * وهو ليس مستخدمًا أصلًا. ولا يبقى له إلّا **العامّ دائمًا** (12.14-د).
+     */
+    public function test_a_guest_falls_outside_the_four_levels(): void
+    {
+        $owner = $this->located(['email' => 'guest.leak@test.local', 'code' => 'UGUEST01']);
+
+        UserPrivacySetting::create([
+            'user_id' => $owner->id, 'field' => 'email', 'visibility' => 'all_users',
+        ]);
+
+        $visibility = app(ProfileVisibility::class);
+
+        $this->assertNull($visibility->levelFor(null, $owner), 'الزائر ليس «زميلًا».');
+        $this->assertFalse($visibility->canSee('email', null, $owner));
+        $this->assertFalse($visibility->canSee('country', null, $owner));
+
+        // ⭐ والمحافظة وحدها تبقى عامّة دائمًا ولا يجوز إخفاؤها
+        $this->assertTrue($visibility->canSee('governorate', null, $owner));
+
+        $this->get(route('u.profile', ['code' => $owner->code]))
+            ->assertOk()
+            ->assertDontSee('guest.leak@test.local')
+            ->assertSee('الإسكندريّة');
+    }
+
     public function test_peer_sees_a_field_opened_to_all_users(): void
     {
         $owner = $this->located(['email' => 'open.profile@test.local']);

@@ -98,7 +98,9 @@ class RolePermissionSeeder extends Seeder
             'war_participation', 'events', 'event_registrations', 'event_attendance',
             'referrals', 'friend_invite', 'invitations_page', 'user_cv', 'cv_templates', 'user_attestation',
             'complaints', 'user_guide', 'announcements', 'announcement_ack', 'notifications',
-            'user_search', 'contact_consent', 'calendar', 'personal_reports', 'share_links', 'volunteer_page',
+            // ⛔ `user_search` ليست هنا: نطاقها المسموح **ALL** وحده، فطلبها بـSELF
+            //    يُسقطها صامتةً — ومكانها الصحيح في منح المفاتيح العامّة أدناه.
+            'contact_consent', 'calendar', 'personal_reports', 'share_links', 'volunteer_page',
             'war_participation', 'wars_matches', 'invitations_page', 'friend_invite', 'streak_freeze',
         ], 'SELF', $expander, except: [
             /*
@@ -131,6 +133,14 @@ class RolePermissionSeeder extends Seeder
             'leaderboards.view', 'public_leaderboard.view',
             'store_products.list', 'product_categories.view', 'bundles.view',
             'certificate_verification.view', 'public_pages.view',
+
+            /*
+             | ⭐ صفحة البحث الكبيرة (13.1 · 24.5): «مَن يراها: **كلّ مستخدم
+             | مفعَّل**»، ونطاقها المسموح في المصفوفة **ALL وحده** (12.2.2).
+             | وكان طلبها ضمن موارد المتدرّب بنطاق SELF فتسقط كلّها بلا نطاقٍ
+             | مسموح — فيبقى المسار مفتوحًا بلا حارس لأنّ لا أحد يملك مفتاحه.
+             */
+            'user_search.view', 'user_search.list',
         ], 'ALL');
 
         // ---------------- تحت المراجعة: قراءة محدودة جدًّا

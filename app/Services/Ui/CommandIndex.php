@@ -129,13 +129,18 @@ class CommandIndex
 
     private function matchPeople(User $viewer, string $term, int $limit): array
     {
-        if (! Gate::forUser($viewer)->allows('user_search.view') && ! $viewer->isActive()) {
+        /*
+         | ⚠️ كان الشرط `و` لا `أو`: فلا يخرج فارغًا إلّا مَن جمع فقدانَ المفتاح
+         | **وعدمَ التفعيل معًا** — أي أنّ غير المفعَّل كان يبحث في الناس من لوحة
+         | الأوامر. والشرطان مستقلّان: مفعَّلٌ **و**يملك مفتاح البحث (13.1 · 24.5).
+         */
+        if (! $viewer->isActive() || ! Gate::forUser($viewer)->allows(UserSearch::PAGE_PERMISSION)) {
             return [];
         }
 
-        // نستعمل محرّك البحث القائم (13.1) — بلا بيانات حسّاسة إطلاقًا
+        // نستعمل محرّك البحث القائم (13.1) — بنطاق الباحث نفسه وبلا بيانات حسّاسة
         return app(UserSearch::class)
-            ->results($term, ['name', 'code'], 0, $limit)
+            ->results($viewer, $term, ['name', 'code'], 0, $limit)
             ->map(fn (User $user) => [
                 'label' => $user->shortName(),
                 'url' => route('u.profile', ['code' => $user->code]),

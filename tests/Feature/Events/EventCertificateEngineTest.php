@@ -6,6 +6,7 @@ use App\Models\AuditLog;
 use App\Models\Certificate;
 use App\Models\CertificateType;
 use App\Models\EventRegistration;
+use App\Services\Certificates\CertificateSignature;
 
 /**
  * ⭐ شهادة الفعاليّة تمرّ من محرّك الشهادات — لا من مسارٍ احتياطيّ (12.5).
@@ -78,16 +79,22 @@ class EventCertificateEngineTest extends EventsTestCase
             $certificate->hash,
         );
 
-        // وهو HMAC بمفتاح التطبيق فعلًا
-        $this->assertSame(
-            hash_hmac('sha256', implode('|', [
-                $certificate->code,
-                $certificate->user_id,
-                'event',
-                $certificate->issued_at->toIso8601String(),
-            ]), (string) config('app.key')),
-            $certificate->hash,
-        );
+        /*
+         | وهو HMAC بمفتاح التطبيق فعلًا — ويُفحَص من **مصدر التوقيع الواحد**
+         | (`CertificateSignature`) لا بنسخةٍ ثانية من المعادلة هنا: نسخةُ
+         | الاختبار تتقادم مع أوّل تغييرٍ في الحمولة فتُخفي العطب أو تصنع إنذارًا
+         | كاذبًا، والمصدر الواحد هو عين ما يحرسه هذا الاختبار أصلًا.
+         */
+        $signature = app(CertificateSignature::class);
+
+        $this->assertSame($signature->for($certificate), $certificate->hash);
+        $this->assertTrue($signature->matches($certificate));
+
+        // ولو تغيّر مفتاح التطبيق لم يعد التوقيع مطابقًا — فهو مرتبطٌ بالسرّ لا بالحقول
+        $withRealKey = $signature->for($certificate);
+        config(['app.key' => 'base64:'.base64_encode(str_repeat('x', 32))]);
+
+        $this->assertNotSame($withRealKey, $signature->for($certificate));
     }
 
     /** 12.5-د: كلّ إصدارٍ في سجلّ التدقيق — لا إصدارٌ صامت. */

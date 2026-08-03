@@ -16,8 +16,11 @@
         </div>
 
         <div class="flex flex-col items-end gap-2 shrink-0">
-            <x-state-badge :state="$person->status === 'active' ? 'ok' : 'idle'"
-                           :label="$person->status === 'active' ? 'فعّال' : 'غير فعّال'" />
+            {{--
+              حالة «فعّال» وحدها (24.5): الاستعلام نفسه لا يخرج بغير الفعّال،
+              فالمحظور والموقوف **لا يُعرَضان برماديّ** — يُخفيان (2.15-أ-7).
+            --}}
+            <x-state-badge state="ok" :label="setting('account.search.active_label', 'فعّال')" />
 
             <a href="{{ route('u.profile', ['code' => $person->code]) }}"
                class="btn rounded-xl px-3 py-1.5 text-xs font-semibold motion-standard"

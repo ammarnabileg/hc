@@ -261,6 +261,7 @@ class CertificateEligibility
             ->where('user_id', $user->id)
             ->where('certificate_type_id', $type->id)
             ->where('status', 'valid')
+            ->whereKeyNot($certificate->getKey())
             ->update(['status' => 'expired', 'expired_at' => now()]);
 
         if ((bool) setting('volunteer_cert.notify_on_issue', true)) {

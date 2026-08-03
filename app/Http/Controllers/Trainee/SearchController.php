@@ -12,6 +12,9 @@ use Illuminate\View\View;
  *
  * خصوصيّة حاكمة: **البحث بالبريد/الموبايل وسيلة وصول فقط** —
  * النتائج وزرّ [عرض] يفتحان **البروفايل العامّ** ولا تُعرَض بيانات حسّاسة إطلاقًا.
+ *
+ * والصلاحيّة إلزاميّة (12.2.1): `user_search.view` تفتح الصفحة و`user_search.list`
+ * تنفّذ البحث — وهما صفّان منصوصان في المصفوفة (12.2.2)، وكان المسار بلا أيّهما.
  */
 class SearchController extends Controller
 {
@@ -32,8 +35,13 @@ class SearchController extends Controller
 
     private function payload(Request $request, int $offset): array
     {
+        $viewer = $request->user();
+
         // يراها كلّ مستخدم مفعَّل (24.5) — وغير المفعَّل لا يتصفّح الناس
-        abort_unless($request->user()->isActive(), 403, 'الحساب لسّه تحت المراجعة.');
+        abort_unless($viewer->isActive(), 403, 'الحساب لسّه تحت المراجعة.');
+
+        // ولا يفتحها إلّا مَن يملك مفتاحها المنصوص في المصفوفة (12.2.2)
+        abort_unless($viewer->allows(UserSearch::PAGE_PERMISSION), 403);
 
         $q = trim($request->string('q')->toString());
 
@@ -44,8 +52,10 @@ class SearchController extends Controller
         );
 
         $size = UserSearch::pageSize();
-        $results = $this->search->results($q, $fields, $offset, $size);
-        $total = $q === '' ? 0 : $this->search->count($q, $fields);
+
+        // كلّ استعلامٍ محصورٌ بنطاق الباحث نفسه (12.2.1-ب) — لا قائمةٌ واحدة للجميع
+        $results = $this->search->results($viewer, $q, $fields, $offset, $size);
+        $total = $q === '' ? 0 : $this->search->count($viewer, $q, $fields);
 
         return [
             'q' => $q,

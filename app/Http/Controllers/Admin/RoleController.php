@@ -4,11 +4,13 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Membership;
+use App\Models\Permission;
 use App\Models\Role;
 use App\Models\RoleUser;
 use App\Models\User;
 use App\Services\Admin\AuditTrail;
 use App\Services\Admin\RoleEditor;
+use App\Support\Access\AccessEngine;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -80,11 +82,27 @@ class RoleController extends Controller
         ]);
     }
 
+    /**
+     * حفظ مجموعة من مصفوفة الدور.
+     *
+     * ⭐ **سقف نطاق المصفوفة: رفضٌ صريح لا تضييقٌ صامت (12.2.2 · 12.2.1-د).**
+     * كان النطاق الخارج عن `allowed_scopes` **يُستبدَل بالافتراضيّ** بلا أيّ إخبار،
+     * فيضغط المسؤول `@ALL` ويُحفَظ له `@SELF` ويمضي واثقًا أنّه منح ما لم يُمنَح —
+     * وهو عين ما يمنعه نصّ «**يرى بعينه ما مُنِح — لا وراثة صامتة**». فالآن يُردّ
+     * الحفظ ويُقال ما رُفض وما النطاقات المتاحة، ولا يُكتَب صفٌّ واحد.
+     */
     public function update(Request $request, Role $role): RedirectResponse
     {
         $validated = $request->validate([
             'group' => ['required', 'string'],
         ], [], ['group' => 'مجموعة الصلاحيّات']);
+
+        if ($beyond = $this->scopesBeyondCeiling((array) $request->input('rows', []))) {
+            return redirect()
+                ->route('admin.roles.edit', ['role' => $role, 'group' => $validated['group']])
+                ->withErrors($beyond)
+                ->with('problem', 'مافيش سطر اتحفظ: في نطاقات بره سقف المصفوفة — اقرأ التفاصيل فوق وصغّرها.');
+        }
 
         $result = $this->editor->save(
             $role,
@@ -117,6 +135,64 @@ class RoleController extends Controller
         }
 
         return $redirect->with('status', "اتحفظ ✓ — {$result['written']} سطر صلاحيّة مفرود ظاهر قدّامك");
+    }
+
+    /**
+     * الصفوف التي نطاقُها خارج القائمة الستّة أو خارج سقف المصفوفة — برسالةٍ لكلٍّ.
+     *
+     * والمنع لا يُقاس بالسقف: توسيعه تشديدٌ لا تصعيد (12.2.1-ز-1).
+     *
+     * @param  array<int|string, array{on?: string, scope?: string, effect?: string}>  $rows
+     * @return array<int, string>
+     */
+    private function scopesBeyondCeiling(array $rows): array
+    {
+        $wanted = [];
+
+        foreach ($rows as $permissionId => $row) {
+            $scope = trim((string) ($row['scope'] ?? ''));
+
+            // بلا اختيار أو بلا نطاق: النطاق الافتراضيّ يتولّاه المحرّر كما هو
+            if (! is_array($row) || empty($row['on']) || $scope === '') {
+                continue;
+            }
+
+            if ((($row['effect'] ?? 'allow') === 'deny')) {
+                continue;
+            }
+
+            $wanted[(int) $permissionId] = $scope;
+        }
+
+        if ($wanted === []) {
+            return [];
+        }
+
+        $access = app(AccessEngine::class);
+        $errors = [];
+
+        foreach (Permission::whereIn('id', array_keys($wanted))->get() as $permission) {
+            $scope = $wanted[$permission->id];
+
+            if ($access->withinAllowedScopes($permission->key, $scope)
+                && in_array($scope, (array) config('access.scopes'), true)) {
+                continue;
+            }
+
+            $errors[] = strtr(
+                (string) setting(
+                    'admin.roles.scope_ceiling_message',
+                    'مقدرناش نحفظ «:permission» بنطاق :scope — المصفوفة (12.2.2) بتحدّد لها :scopes وبس.',
+                ),
+                [
+                    ':permission' => $permission->label_ar.' ('.$permission->key.')',
+                    ':scope' => $scope,
+                    ':scopes' => implode(' · ', $access->allowedScopesOf($permission->key)),
+                ],
+            );
+        }
+
+        return $errors;
     }
 
     public function destroy(Request $request, Role $role): RedirectResponse

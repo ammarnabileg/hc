@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Access;
 
+use App\Models\Permission;
 use App\Models\Role;
 use App\Models\User;
 use App\Support\Access\AccessEngine;
@@ -11,6 +12,7 @@ use Database\Seeders\PermissionSeeder;
 use Database\Seeders\RolePermissionSeeder;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Testing\TestResponse;
 use Tests\TestCase;
@@ -158,6 +160,9 @@ class AdminPanelGateTest extends TestCase
      * ⭐ دلالة «أيٌّ من» لا تصير بابًا خلفيًّا: مفتاح القراءة الشخصيّة
      * (`announcements.view@SELF`) لا يفتح شاشةَ إدارة محروسةً بـ
      * `announcements.list,announcements.view`.
+     *
+     * ⭐ والباب مفتوحٌ عمدًا في هذا الاختبار (بصلاحيّةٍ إداريّة أخرى) — وإلّا لمرّ
+     * الاختبار بسبب **باب اللوحة** لا بسبب القاعدة التي يدّعي قياسها.
      */
     public function test_a_personal_read_key_does_not_open_an_administrative_screen(): void
     {
@@ -167,8 +172,108 @@ class AdminPanelGateTest extends TestCase
         app(PermissionExpander::class)->attachToRole($role, 'announcements.view', 'SELF');
         $user->assignRole($role);
 
+        // سلطةٌ إداريّة لا علاقة لها بالتعليمات — تفتح الباب وحده
+        $elsewhere = Role::create(['key' => 'r_store', 'name_ar' => 'مسؤول متجر', 'layer' => 'platform']);
+        app(PermissionExpander::class)->attachToRole($elsewhere, 'store_products.list', 'ALL');
+        $user->assignRole($elsewhere);
+        app(AccessEngine::class)->forget($user);
+
         $this->assertTrue($user->allows('announcements.view'), 'يقرأ فيده هو');
+        $this->assertTrue(app(AccessEngine::class)->opensAdminPanel($user), 'الباب مفتوح — فالقياس على الشاشة لا عليه');
+        $this->assertFalse($user->allows('announcements.list'), 'ولا يملك المفتاح الإداريّ');
+
         $this->actingAs($user)->get('/admin/guidance')->assertForbidden();
+    }
+
+    // ------------------------------------------------------------------ ب-5
+
+    /**
+     * ⭐ **مَن يملك صلاحيّةً إداريّةً يدخل — ولو لم يحرس مفتاحُه مسارًا باسمه.**
+     *
+     * كانت `AdminPanelSurface::keys()` تحسب **246 مفتاحًا من 1033**، فيُردّ 403 عن
+     * `/admin` كلُّ من يملك:
+     *  • مفتاحًا لا يحرس مسارًا بذاته (`courses.manage` · `paths.manage` — و`manage`
+     *    لا تُوضَع على مسار)،
+     *  • أو مفتاحًا **يحمله المتدرّب أيضًا** فأُقصي كلّه (`store_products.list` ·
+     *    `events.list` · `referrals.view`).
+     */
+    public function test_administrative_keys_outside_the_route_surface_open_the_panel(): void
+    {
+        foreach (['store_products.list', 'events.list', 'referrals.view', 'courses.manage', 'paths.manage'] as $key) {
+            $user = $this->withRole('trainee');
+            $role = Role::create([
+                'key' => 'r_'.str_replace('.', '_', $key),
+                'name_ar' => 'مسؤول '.$key,
+                'layer' => 'platform',
+            ]);
+
+            DB::table('permission_role')->insert([
+                'role_id' => $role->id,
+                'permission_id' => Permission::where('key', $key)->value('id'),
+                'scope' => 'ALL',
+                'effect' => 'allow',
+                'created_at' => now(), 'updated_at' => now(),
+            ]);
+
+            $user->assignRole($role);
+            app(AccessEngine::class)->forget();
+
+            $this->actingAs($user)->get('/admin')->assertOk("«{$key}@ALL» اتردّ عن باب اللوحة");
+        }
+    }
+
+    /** ودور **«فريق التوظيف»** (12.2.3-ب-17) — 49 صلاحيّة وكان يُردّ 403 */
+    public function test_the_recruitment_team_template_opens_the_panel(): void
+    {
+        $recruiter = $this->withRole('recruiter');
+
+        $this->assertGreaterThan(
+            10,
+            DB::table('permission_role')
+                ->join('roles', 'roles.id', '=', 'permission_role.role_id')
+                ->where('roles.key', 'recruiter')
+                ->count(),
+            'القالب لازم يكون محمَّلًا بصلاحيّاته وإلّا فالاختبار وهميّ',
+        );
+
+        $this->assertTrue(app(AccessEngine::class)->opensAdminPanel($recruiter));
+        $this->actingAs($recruiter)->get('/admin')->assertOk();
+    }
+
+    /**
+     * ⭐ **والانقلاب المضادّ محروس:** المفتاح المشترَك نفسه (`store_products.list@ALL`)
+     * يحمله المتدرّب من قالبه — ولا يفتح له بابًا. فالفارق **مصدر الصفّ** لا اسمه.
+     */
+    public function test_the_very_same_key_from_the_end_user_template_opens_nothing(): void
+    {
+        $trainee = $this->withRole('trainee');
+
+        $this->assertTrue($trainee->allows('store_products.list'), 'المتدرّب يقرأ كتالوج المتجر فعلًا');
+        $this->assertFalse(app(AccessEngine::class)->opensAdminPanel($trainee));
+        $this->actingAs($trainee)->get('/admin')->assertForbidden();
+    }
+
+    /** والباب لا يمنح شيئًا: مَن دخل بمفتاحٍ واحد لا يفتح إلّا شاشته هو */
+    public function test_the_door_grants_nothing_beyond_itself(): void
+    {
+        $user = $this->withRole('trainee');
+        $role = Role::create(['key' => 'r_only_store', 'name_ar' => 'مسؤول متجر', 'layer' => 'platform']);
+
+        DB::table('permission_role')->insert([
+            'role_id' => $role->id,
+            'permission_id' => Permission::where('key', 'store_products.list')->value('id'),
+            'scope' => 'ALL',
+            'effect' => 'allow',
+            'created_at' => now(), 'updated_at' => now(),
+        ]);
+
+        $user->assignRole($role);
+        app(AccessEngine::class)->forget();
+
+        $this->actingAs($user)->get('/admin')->assertOk();
+        $this->actingAs($user)->get('/admin/users')->assertForbidden();
+        $this->actingAs($user)->get('/admin/roles')->assertForbidden();
+        $this->actingAs($user)->get('/admin/finance')->assertForbidden();
     }
 
     private function refused(TestResponse $response): bool

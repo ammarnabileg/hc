@@ -158,6 +158,8 @@ class AdminCoreDemoSeeder extends Seeder
             ['admin.roles.audit_hover_delay_ms', 'admin_roles', 'تأخير إظهار آخر تغيير بالـHover (ملّي ثانية)', 'number', '200'],
             ['admin.roles.escalation_message', 'admin_roles', 'نصّ رسالة منع تصعيد الامتياز', 'string', 'مقدرناش نحفظ «:permission» بنطاق :scope — مفيش حدّ يمنح صلاحيّة لا يملكها ولا نطاقًا أوسع من نطاقه. اطلبها من أدمن أعلى منك أو صغّر النطاق.'],
             ['admin.roles.deny_message', 'admin_roles', 'نصّ قاعدة المنع يغلب الإذن', 'string', 'المنع يغلب الإذن: لو الصلاحيّة ممنوعة من أيّ مصدر، المنع يكسب.'],
+            // ⭐ سقف نطاق المصفوفة (12.2.2): رفضٌ صريح لا تضييقٌ صامت
+            ['admin.roles.scope_ceiling_message', 'admin_roles', 'نصّ رفض النطاق الخارج عن سقف المصفوفة', 'string', 'مقدرناش نحفظ «:permission» بنطاق :scope — المصفوفة (12.2.2) بتحدّد لها :scopes وبس، والنطاق مابيتصغّرش في السرّ.'],
             ['admin.roles.owner_only_note', 'admin_roles', 'سطر عزل المجموعة المحميّة', 'string', 'المجموعة المحميّة (الماليّ والأسرار) لمالك المنصّة وحده ولا تظهر لغيره.'],
             ['admin.roles.protected_message', 'admin_roles', 'نصّ منع حذف الدور المحميّ', 'string', 'دور مالك المنصّة ثابت نظاميّ — لا يُحذَف ولا يُنسَخ عنه الحذف.'],
             ['admin.roles.assign_hint', 'admin_roles', 'سطر شرح إسناد الدور داخل عضويّة', 'string', 'الدور يحدّد «ماذا» والعضويّة تحدّد «أين» — فأدوار التطوّع تُسنَد داخل عضويّة.'],
