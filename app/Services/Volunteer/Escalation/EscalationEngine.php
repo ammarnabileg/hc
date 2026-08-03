@@ -270,8 +270,9 @@ class EscalationEngine
                 } catch (Throwable $exception) {
                     report($exception);
 
-                    $this->quarantine($escalation, 'تعذّرت المعالجة: '.$exception->getMessage());
-                    $result['failed']++;
+                    $this->registerFailure($escalation, $exception)
+                        ? $result['failed']++
+                        : $result['retried']++;
                 }
             });
 
