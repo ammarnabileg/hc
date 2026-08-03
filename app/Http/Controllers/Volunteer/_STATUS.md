@@ -36,15 +36,37 @@
 - شاشات رحلة بناء الهدف (23 — 1.1 … 1.4) في `GoalController` و`WorkPackageController`؛
   و**1.5 المعاينة النهائيّة** ما زالت في `GoalController::launch` كشاشة مستقلّة.
 - لو فتحت فجوة (مسارٌ بلا صلاحيّة · فعلٌ بلا حارس على الخادم) اكتبها هنا فورًا.
+
+> فجوات أثبتها **أوديت المرحلة 8 (13.4)** بالتشغيل يوم 2026-08-03 على `php artisan serve`.
+
+- ❌ **كلّ مسارات `/volunteer/*` مغلقة في وجه المتطوّع المُسكَّن حديثًا.** المسارات محروسة
+  بمفاتيح صحيحة، لكنّ **التسكين لا يمنح دور البوزشن**، فالمصفوفة تردّه.
+  **الدليل:** بعد رحلةٍ كاملة انتهت بعضويّة `كوردنيتور` نشطة:
+  `/volunteer` · `/volunteer/tasks` · `/volunteer/department` · `/volunteer/org` ·
+  `/volunteer/kudos` · `/volunteer/transactions` · `/volunteer/contributions` ·
+  `/volunteer/reviews` ⟵ **403 كلّها**؛ ونفسها **200** لمتطوّعٍ يحمل دور `coordinator`.
+  فالحارس سليم والمصدر في `PlacementService::activate()`.
+- ❌ **`AcademyController` غير قابلٍ للوصول من أيّ دور بوزشن.** `/volunteer/academy` و
+  `/volunteer/academy/recordings` ⟵ **403** لدور `coordinator` (و200 للمالك) — لأنّ
+  `academy_paths.*` و`academy_recordings.*` غير ممنوحة لأيّ دور تطوّعيّ.
+- ⚠️ **`InterviewController::export` يردّ `text/plain` لا PDF** خلافًا لنصّ 13.4-د.
+
+**مُثبَتٌ سليمًا بالتشغيل:** `PlacementController::respond` محروسٌ بصلاحيّة فريق التوظيف
+وحده، بينما ردّ **المرشّح نفسه** له مسارٌ صحيح بحارس الملكيّة
+(`POST /volunteering/placement/{id}/respond` ⟵ **403** لغير صاحبه و**302** لصاحبه) ·
+`RecruitmentController::move` يكتب `candidate.stage_moved` في `audit_logs` بالسبب ·
+`VolunteerCardController::show/verify` **بلا `auth`** وتعمل بلا جلسة ·
+`AcademyController::claim` يتحقّق من OTP خادميًّا ويردّ `wrong / ok / already`.
 <!-- بيدك:نهاية:المتبقّي -->
 
 ## 🔄 الجاري الآن
 <!-- بيدك:بداية:الجاري -->
-- **الحالة:** مافيش شغل جارٍ.
+- **الحالة:** أوديت المرحلة 8 (13.4) خلص — جردٌ بلا إصلاح.
 - **آخر نقطة وصلنا لها:** ميثودات الرحلة: `build` · `create/store` · `linkTracks` ·
   `breakdown` · `storeMilestone/storePackages` · `aggregate/saveField/fieldRevisions/raisePreview`
   · و`fill/storeTask/submitForReview` في `WorkPackageController`.
-- **الخطوة الجاية:** —
+  وفوقها: مسحُ كلّ مسارات المرحلة 8 بالحالة الفعليّة لكلّ دور.
+- **الخطوة الجاية:** الفجوتان ❌ أعلاه — مصدرهما مصفوفة الأدوار لا هذه الكنترولرز.
 <!-- بيدك:نهاية:الجاري -->
 
 ## 🔗 التبعيّات والملفّات المهمّة
