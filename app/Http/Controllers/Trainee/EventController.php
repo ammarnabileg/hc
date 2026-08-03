@@ -189,7 +189,7 @@ class EventController extends Controller
         abort_unless($qr->enabled($event), 404);
 
         $registration = $this->registrations->registrationFor($event, $request->user());
-        abort_unless($registration !== null, 404);
+        abort_unless($registration !== null, 404, 'no registration — no qr');
 
         return response($qr->svg($registration), 200, [
             'Content-Type' => 'image/svg+xml; charset=utf-8',

@@ -76,14 +76,19 @@ class ReminderScheduler
                 continue;
             }
 
+            /*
+             | ⭐ **الأقرب وحده يُرسَل** لا كلّ ما حان: مَن سجّل قبل الموعد بنصف
+             | ساعة تكون مواعيد «قبل يوم» و«قبل ساعة» قد مضت جميعًا، فلو أرسلناها
+             | كلّها لَانهالت عليه ثلاث رسائل في لحظةٍ واحدة — إغراقٌ لا تذكير.
+             | والموعد الأبعد بعد فوات وقته **لا معنى له**، فلا صفَّ له ولا يعود.
+            */
+            $offset = min($due);
             $result['events']++;
 
             foreach ($this->registrations($event) as $registration) {
-                foreach ($due as $offset) {
-                    foreach ($channels as $channel) {
-                        $outcome = $this->deliverOne($event, $registration, $offset, $channel);
-                        $result[$outcome]++;
-                    }
+                foreach ($channels as $channel) {
+                    $outcome = $this->deliverOne($event, $registration, $offset, $channel);
+                    $result[$outcome]++;
                 }
             }
         }

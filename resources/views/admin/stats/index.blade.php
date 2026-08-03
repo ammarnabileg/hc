@@ -35,7 +35,7 @@
 
             {{-- ⭐ «تصدير CSV/Excel/PDF» (24.3-خامسًا) — والثلاثة تقع فعلًا:
                  XLSX حزمة OOXML وPDF بخطٍّ عربيّ مضمَّن، بلا أيّ مكتبة خارجيّة. --}}
-            @foreach (['csv' => 'تصدير CSV', 'xlsx' => 'تصدير Excel', 'pdf' => 'تصدير PDF'] as $format => $label)
+            @foreach ($exportFormats as $format => $label)
                 <a href="{{ route('admin.stats.export', array_filter([
                         'tab' => $tab,
                         'format' => $format,

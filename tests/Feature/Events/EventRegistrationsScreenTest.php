@@ -1,0 +1,295 @@
+<?php
+
+namespace Tests\Feature\Events;
+
+use App\Models\EventNotice;
+use App\Models\EventRegistration;
+use App\Models\Permission;
+use App\Models\User;
+use App\Support\Access\AccessEngine;
+use Illuminate\Support\Facades\DB;
+
+/**
+ * 🖥️ **المسجّلون والحضور** — الشاشة الجامعة (12.11 · 24.3 · خريطة 12.0).
+ *
+ * والحارس المُثبَت سقوطه: **الصلاحيّة**. مَن لا يملك `event_registrations.list`
+ * لا يفتحها ولا يراها في السايد بار — يُخفى ولا يُعطَّل (2.15-أ-7).
+ */
+class EventRegistrationsScreenTest extends EventsTestCase
+{
+    public function test_the_collective_screen_opens_with_its_prescribed_parts(): void
+    {
+        $admin = $this->eventsAdmin();
+        $user = $this->trainee();
+
+        $event = $this->makeEvent(['title_ar' => 'ورشة الخطابة', 'mode' => 'offline']);
+        $this->actingAs($user)->post(route('events.register', $event->slug));
+
+        $response = $this->actingAs($admin)
+            ->get(route('admin.events.registrations.index'))
+            ->assertOk();
+
+        // الهيدر + العدّادات الثلاثة المنصوصة (12.11)
+        $response->assertSee('المسجّلون والحضور');
+        $response->assertSee('مسجّل');
+        $response->assertSee('حاضر');
+        $response->assertSee('غائب');
+
+        // الفلاتر المنصوصة (24.3)
+        $response->assertSee('حالة الحضور');
+        $response->assertSee('نمط الحضور');
+        $response->assertSee('وقت التشيك-إن');
+
+        // العرض: الصفّ فيه المستخدم وفعاليّته
+        $response->assertSee($user->name);
+        $response->assertSee('ورشة الخطابة');
+
+        // الأفعال: تصدير CSV · مسح QR
+        $response->assertSee('تصدير CSV');
+        $response->assertSee('مسح QR للتشيك-إن');
+    }
+
+    public function test_the_empty_state_is_one_line_and_one_button(): void
+    {
+        $admin = $this->eventsAdmin();
+
+        $this->actingAs($admin)
+            ->get(route('admin.events.registrations.index'))
+            ->assertOk()
+            ->assertSee('لا مسجّلين بعد — شارك رابط الفعاليّة.');
+    }
+
+    public function test_the_screen_is_hidden_from_whoever_lacks_the_permission(): void
+    {
+        $outsider = $this->trainee('بلا صلاحيّة');
+
+        // بلا صلاحيّة = الباب مقفول فعلًا لا معطَّلًا شكلًا (12.2.1 · 2.15-أ-7)
+        $this->actingAs($outsider)
+            ->get(route('admin.events.registrations.index'))
+            ->assertForbidden();
+
+        /*
+         | ⭐ **والحالة الحاسمة:** أدمنٌ يفتح اللوحة فعلًا (يملك `events.list`)
+         | لكنّه **لا يملك `event_registrations.list`**. باب اللوحة يمرّره،
+         | فالذي يجب أن يردّه هو **حارس الصلاحيّة على المسار وحده**.
+         */
+        $partial = $this->partialAdmin();
+
+        $this->actingAs($partial)->get(route('admin.events.index'))->assertOk();
+        $this->actingAs($partial)->get(route('admin.events.registrations.index'))->assertForbidden();
+
+        // ولا يراه في السايد بار أصلًا — يُخفى لا يُعطَّل (2.15-أ-7)
+        $this->actingAs($partial)
+            ->get(route('admin.events.index'))
+            ->assertDontSee(route('admin.events.registrations.index'), false);
+    }
+
+    public function test_the_sidebar_entry_exists_and_points_at_the_screen(): void
+    {
+        $admin = $this->eventsAdmin();
+
+        // البند يظهر لمن يملكه…
+        $this->actingAs($admin)
+            ->get(route('admin.events.registrations.index'))
+            ->assertOk()
+            ->assertSee(route('admin.events.registrations.index'), false)
+            ->assertSee('المسجّلون والحضور');
+
+        // …ولا يظهر لمن لا يملكه: المتدرّب لا يرى الرابط في أيّ صفحة يفتحها
+        $trainee = $this->trainee('متدرّب عاديّ');
+
+        $this->actingAs($trainee)
+            ->get(route('events.index'))
+            ->assertOk()
+            ->assertDontSee(route('admin.events.registrations.index'), false);
+    }
+
+    public function test_the_filters_actually_narrow_the_rows(): void
+    {
+        $admin = $this->eventsAdmin();
+        $present = $this->trainee('حاضرة');
+        $absent = $this->trainee('غائبة');
+
+        $event = $this->makeEvent([
+            'starts_at' => now()->subMinutes(30),
+            'ends_at' => now()->addMinutes(30),
+            'attendance_code' => '424242',
+        ]);
+
+        $this->actingAs($present)->post(route('events.register', $event->slug));
+        $this->actingAs($absent)->post(route('events.register', $event->slug));
+        $this->actingAs($present)->post(route('events.checkin', $event->slug), ['code' => '424242']);
+
+        $this->actingAs($admin)
+            ->get(route('admin.events.registrations.index', ['attended' => 'yes']))
+            ->assertOk()
+            ->assertSee('حاضرة')
+            ->assertDontSee('غائبة');
+
+        $this->actingAs($admin)
+            ->get(route('admin.events.registrations.index', ['attended' => 'no']))
+            ->assertOk()
+            ->assertSee('غائبة')
+            ->assertDontSee('حاضرة');
+    }
+
+    public function test_csv_export_follows_the_screen_filters(): void
+    {
+        $admin = $this->eventsAdmin();
+        $user = $this->trainee('سلمى للتصدير');
+
+        $event = $this->makeEvent(['title_ar' => 'لقاء التصدير']);
+        $this->actingAs($user)->post(route('events.register', $event->slug));
+
+        $response = $this->actingAs($admin)
+            ->get(route('admin.events.registrations.export'))
+            ->assertOk();
+
+        $csv = $response->streamedContent();
+
+        $this->assertStringContainsString('لقاء التصدير', $csv);
+        $this->assertStringContainsString($user->code, $csv);
+        $this->assertStringContainsString('غاب', $csv);
+
+        // ⭐ وبفلترٍ: التصدير يتبع الشاشة لا الجدول كلّه
+        $other = $this->trainee('برّه الفلتر');
+        $another = $this->makeEvent(['title_ar' => 'لقاء تاني']);
+        $this->actingAs($other)->post(route('events.register', $another->slug));
+
+        $filtered = $this->actingAs($admin)
+            ->get(route('admin.events.registrations.export', ['event_id' => $event->id]))
+            ->assertOk()
+            ->streamedContent();
+
+        $this->assertStringContainsString($user->code, $filtered);
+        $this->assertStringNotContainsString($other->code, $filtered, 'المصدَّر يتبع الفلتر');
+    }
+
+    public function test_notifying_registrants_reaches_them_now_and_can_be_scheduled(): void
+    {
+        $admin = $this->eventsAdmin();
+        $user = $this->trainee();
+
+        $event = $this->makeEvent();
+        $this->actingAs($user)->post(route('events.register', $event->slug));
+
+        // الآن: يُبَثّ في نفس الطلب
+        $this->actingAs($admin)
+            ->post(route('admin.events.registrations.notify', $event), [
+                'body' => 'اترفع رابط التسجيل.',
+                'channel' => 'bell',
+            ])
+            ->assertRedirect();
+
+        $sent = EventNotice::where('event_id', $event->id)->firstOrFail();
+        $this->assertSame('sent', $sent->status);
+        $this->assertSame(1, $sent->recipients);
+
+        // مجدول: يبقى معلَّقًا **بمستقرٍّ ومُلتقِط** لا في الهواء
+        $this->actingAs($admin)
+            ->post(route('admin.events.registrations.notify', $event), [
+                'body' => 'تذكير أخير.',
+                'channel' => 'bell',
+                'send_at' => now()->addHours(2)->format('Y-m-d\TH:i'),
+            ])
+            ->assertRedirect();
+
+        $scheduled = EventNotice::where('event_id', $event->id)->latest('id')->firstOrFail();
+        $this->assertSame('pending', $scheduled->status);
+
+        // المُلتقِط يلتقطه حين يحين — ومرّةً واحدة
+        $this->travel(3)->hours();
+        $this->artisan('events:remind')->assertSuccessful();
+
+        $this->assertSame('sent', $scheduled->refresh()->status);
+
+        $bell = \App\Models\AppNotification::where('user_id', $user->id)->count();
+
+        $this->artisan('events:remind')->assertSuccessful();
+
+        $this->assertSame(1, $scheduled->refresh()->recipients, 'ما اتبعتش مرّتين');
+        $this->assertSame(
+            $bell,
+            \App\Models\AppNotification::where('user_id', $user->id)->count(),
+            'ولا إشعار مكرّر في الجرس',
+        );
+    }
+
+    public function test_manual_check_in_still_goes_through_the_ledger(): void
+    {
+        $admin = $this->eventsAdmin();
+        $user = $this->trainee();
+
+        $event = $this->makeEvent([
+            'starts_at' => now()->subMinutes(20),
+            'ends_at' => now()->addMinutes(40),
+            'attendance_code' => '778899',
+            'reward_tiers' => json_encode([['hours' => 5, 'xp' => 90, 'tickets' => 1]]),
+        ]);
+
+        $this->actingAs($user)->post(route('events.register', $event->slug));
+
+        $this->actingAs($admin)
+            ->post(route('admin.events.check-in', $event), [
+                'code' => $user->code,
+                'attendance_code' => '778899',
+            ])
+            ->assertRedirect();
+
+        $this->assertTrue(EventRegistration::where('event_id', $event->id)->value('attended'));
+    }
+
+    /** أدمن فعاليّات بصلاحيّاته المنصوصة وحدها — لا دورًا مفتوحًا */
+    private function eventsAdmin(): User
+    {
+        $user = $this->trainee('أدمن الفعاليّات');
+
+        $keys = [
+            'events.list', 'events.edit', 'event_registrations.list',
+            'event_registrations.export', 'event_attendance.create', 'event_attendance.edit',
+        ];
+
+        foreach ($keys as $key) {
+            $permission = Permission::where('key', $key)->first();
+
+            if (! $permission) {
+                continue;
+            }
+
+            DB::table('permission_user')->insertOrIgnore([
+                'permission_id' => $permission->id,
+                'user_id' => $user->id,
+                'membership_id' => null,
+                'scope' => 'ALL',
+                'effect' => 'allow',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
+
+        app(AccessEngine::class)->forget($user);
+
+        return $user->fresh();
+    }
+
+    /** أدمنٌ يفتح اللوحة ولا يملك صلاحيّة شاشة المسجّلين — لاختبار الحارس وحده */
+    private function partialAdmin(): User
+    {
+        $user = $this->trainee('أدمن بلا مسجّلين');
+        $permission = Permission::where('key', 'events.list')->firstOrFail();
+
+        DB::table('permission_user')->insertOrIgnore([
+            'permission_id' => $permission->id,
+            'user_id' => $user->id,
+            'membership_id' => null,
+            'scope' => 'ALL',
+            'effect' => 'allow',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        app(AccessEngine::class)->forget($user);
+
+        return $user->fresh();
+    }
+}

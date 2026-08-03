@@ -196,6 +196,15 @@ class AdminSystemDemoSeeder extends Seeder
             ['stats.cohorts.months', 'stats', 'عدد شهور الـCohorts', 'number', '6', false],
             ['stats.geo.max_rows', 'stats', 'أقصى صفوف الخريطة الجغرافيّة', 'number', '20', false],
             ['stats.export.max_rows', 'stats', 'حدّ صفوف التصدير', 'number', '50000', false],
+            // ⭐ «تصدير CSV/Excel/PDF» (24.3-خامسًا · 12.8) — الصيغ الثلاث تقع فعلًا،
+            // ولافتة كلّ زرّ إعدادٌ لا نصٌّ محروق في القالب (2.13).
+            ['stats.export.formats', 'stats', 'أزرار التصدير: المفتاح = لافتة الزرّ', 'json', '{"csv":"تصدير CSV","xlsx":"تصدير Excel","pdf":"تصدير PDF"}', false],
+            ['stats.export.title_prefix', 'stats', 'بادئة عنوان ملفّ التصدير', 'string', 'الإحصائيّات', false],
+            ['exports.xlsx_row_limit', 'stats', 'سقف صفوف ملفّ Excel', 'number', '20000', false],
+            ['exports.pdf_row_limit', 'stats', 'سقف صفوف ملفّ PDF', 'number', '500', false],
+            ['exports.pdf_empty_line', 'stats', 'سطر الـPDF حين لا بيانات', 'string', 'مافيش بيانات في المدى ده.', false],
+            ['exports.pdf_truncated_line', 'stats', 'سطر الـPDF عند قصّ الصفوف', 'string', 'معروض أوّل :shown صفًّا من :total — الملفّ الكامل بصيغة CSV أو Excel.', false],
+            ['exports.fallback_note', 'stats', 'ملاحظة تعذّر توليد الصيغة المطلوبة', 'string', 'تعذّر توليد ملفّ :format فبعتناه CSV.', false],
             ['stats.cache_minutes', 'stats', 'مدّة كاش التقرير (دقائق)', 'number', '10', false],
             ['stats.hide_finance_tab', 'stats', 'إخفاء التاب الماليّ عن غير المخوَّلين', 'bool', '1', true],
 

@@ -23,12 +23,12 @@
   - `admin-ops.php` — 27 مسارًا · 17 حارس صلاحيّة.
   - `admin-screens24.php` — 40 مسارًا · البادئة `admin.` · 23 حارس صلاحيّة.
   - `admin-system.php` — 83 مسارًا · البادئة `admin.` · 40 حارس صلاحيّة.
-  - `admin-volunteer.php` — 75 مسارًا · البادئة `admin.` · `volunteer.` · `gamification.` · `rewards.` · `events.` · 70 حارس صلاحيّة.
+  - `admin-volunteer.php` — 80 مسارًا · البادئة `admin.` · `volunteer.` · `gamification.` · `rewards.` · `events.` · 75 حارس صلاحيّة.
   - `announcements.php` — 9 مسارًا · 0 حارس صلاحيّة.
   - `availability.php` — 10 مسارًا · البادئة `admin.` · 2 حارس صلاحيّة.
   - `challenges.php` — 39 مسارًا · البادئة `challenges.` · `focus.` · `reward-questions.` · `achievements.` · `admin.` · 33 حارس صلاحيّة.
   - `dashboard.php` — 1 مسارًا · 1 حارس صلاحيّة.
-  - `events.php` — 9 مسارًا · 2 حارس صلاحيّة.
+  - `events.php` — 10 مسارًا · 2 حارس صلاحيّة.
   - `exams.php` — 13 مسارًا · 2 حارس صلاحيّة.
   - `growth.php` — 22 مسارًا · البادئة `admin.` · 5 حارس صلاحيّة.
   - `home.php` — 12 مسارًا · البادئة `admin.` · 5 حارس صلاحيّة.

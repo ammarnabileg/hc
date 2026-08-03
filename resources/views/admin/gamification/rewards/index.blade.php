@@ -2,6 +2,41 @@
 
 @section('title', 'إدارة المكافآت')
 
+@php
+    use App\Services\Images\BoardSnapshot;
+    use Illuminate\Support\Facades\Gate;
+    use Illuminate\Support\Facades\URL;
+
+    /*
+     | ⭐ زرّ «**حفظ الصورة**» (12.9) — كان مستمعه `window.print()`، أي **طباعة
+     | متصفّح** لا صورة: زرٌّ يَعِد بما لا يقع، وهو عطبٌ في ذاته. والنصّ الحاكم:
+     | «**بعد التنفيذ:** بطاقة احترافيّة لكلّ مستلِم (صورته + القيمة مكتوبة
+     | عليها) + «**حفظ الصورة**» + **أسهم يمين/شمال** للتنقّل بين المستلمين».
+     | ومحرّك الرسم على الخادم موجودٌ ويعمل (12.14-هـ · 12.14-و): مسار
+     | `export.image` بحمولةٍ **موقَّعة** ورسّامٍ واحد لكلّ لوحات المنصّة — فلا
+     | نكتب رسّامًا ثانيًا، ولا نضيف مكتبة، ولا نستبدل الوعد بالطباعة.
+     */
+    $mayExportImage = auth()->check() && Gate::allows('image_export.use');
+    $cardLinks = [];
+
+    if ($mayExportImage) {
+        foreach ($cards ?? [] as $i => $card) {
+            $snapshot = new BoardSnapshot(
+                'card',
+                (string) ($card['title'] ?? ''),
+                trim(($card['name'] ?? '').' · #'.($card['code'] ?? '')),
+                [[
+                    'rank' => 1,
+                    'name' => (string) ($card['name'] ?? ''),
+                    'value' => number_format((float) $card['value'], 2).' '.($card['currency'] ?? ''),
+                ]],
+            );
+
+            $cardLinks[$i] = URL::signedRoute('export.image', ['d' => $snapshot->encode()]).'&download=1';
+        }
+    }
+@endphp
+
 @section('content')
     <x-page-header
         title="إدارة المكافآت"
@@ -40,7 +75,17 @@
 
             <div class="flex items-center justify-between gap-2 mt-3">
                 <button type="button" id="card-prev" class="rounded-xl px-3 py-2 text-sm" style="background: var(--surface-sunken)">‹ السابق</button>
-                <button type="button" id="card-save" class="rounded-xl px-3 py-2 text-sm" style="background: var(--surface-sunken)">احفظ الصورة</button>
+                {{-- ⭐ صورة PNG حقيقيّة تُرسَم على الخادم — رابطٌ موقَّع لكلّ بطاقة (12.9 · 12.14-و) --}}
+                @if ($mayExportImage)
+                    @foreach ($cardLinks as $i => $link)
+                        <a href="{{ $link }}" data-card-save="{{ $i }}" download
+                           class="rounded-xl px-3 py-2 text-sm {{ $i ? 'hidden' : '' }}"
+                           style="background: var(--surface-sunken)">احفظ الصورة</a>
+                    @endforeach
+                @else
+                    {{-- المحظور يُخفى لا يُعطَّل (2.15-أ-7) — ونضع فراغًا يحفظ توزيع الأسهم --}}
+                    <span></span>
+                @endif
                 <button type="button" id="card-next" class="rounded-xl px-3 py-2 text-sm" style="background: var(--surface-sunken)">التالي ›</button>
             </div>
         </section>
@@ -253,17 +298,19 @@
         const deck = document.getElementById('cards-deck');
         if (deck) {
             const cards = deck.querySelectorAll('[data-card]');
+            // رابط حفظ الصورة لكلّ بطاقة — والظاهر منه واحدٌ يتبع البطاقة الظاهرة
+            const saves = deck.querySelectorAll('[data-card-save]');
             const pos = document.getElementById('card-pos');
             const show = (i) => {
                 const total = cards.length;
                 const index = ((i % total) + total) % total;
                 cards.forEach((c, n) => c.classList.toggle('hidden', n !== index));
+                saves.forEach((a, n) => a.classList.toggle('hidden', n !== index));
                 deck.dataset.index = index;
                 pos.textContent = index + 1;
             };
             document.getElementById('card-prev').addEventListener('click', () => show(Number(deck.dataset.index) - 1));
             document.getElementById('card-next').addEventListener('click', () => show(Number(deck.dataset.index) + 1));
-            document.getElementById('card-save').addEventListener('click', () => window.print());
         }
     </script>
 @endpush

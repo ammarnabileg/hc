@@ -45,6 +45,13 @@ class StatsController extends Controller
             'period' => $period,
             'data' => $this->stats->data($tab, $period),
             'chart' => $this->chart,
+            /*
+             | أزرار «تصدير CSV/Excel/PDF» — اللافتات إعدادٌ لا نصٌّ محروق (2.13)،
+             | ولو غاب الصفّ **لا تختفي الأزرار بصمت**: تظهر بمفاتيح الصيغ نفسها،
+             | فيرى الأدمن أنّ لافتةً نقصت بدل أن تختفي قدرةٌ منصوصة (2.17-ب).
+             */
+            'exportFormats' => setting('stats.export.formats')
+                ?: array_combine(TabularExport::FORMATS, TabularExport::FORMATS),
         ]);
     }
 

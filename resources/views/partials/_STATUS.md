@@ -26,6 +26,7 @@
   - `sidebar-referral.blade.php`
   - `sidebar-volunteer.blade.php` — لوحة منزلقة على الموبايل وعمود ثابت على الديسكتوب (13 · 2.15-ج)
   - `sidebar.blade.php` — لوحة منزلقة على الموبايل وعمود ثابت على الديسكتوب (13 · 2.15-ج)
+- **ملفّات أخرى (1):** `sidebar-admin.blade.php.mutbak`
 <!-- تلقائيّ:نهاية:المنجز -->
 
 ## ⬜ المتبقّي

@@ -33,16 +33,6 @@ class SettingSeeder extends Seeder
             // ---------------- حدود شاشات كانت أرقامًا محروقة (2.13)
             ['admin_dashboard.online_window_minutes', 'admin_dashboard', 'نافذة «النشطون الآن» (دقيقة)', 'number', '15'],
             ['stats.top_list_size', 'stats', 'عدد صفوف قوائم «الأعلى»', 'number', '8'],
-
-            // ---------------- التصدير المرن «CSV/Excel/PDF» (12.8 · 24.3-خامسًا)
-            // المجموعة `stats` عن قصد — هي شاشة التصدير الوحيدة اليوم، وهو نفس
-            // مسلك `report_schedules.*_row_limit` في كتالوج شاشات 24.
-            ['stats.export.title_prefix', 'stats', 'بادئة عنوان ملفّ التصدير', 'string', 'الإحصائيّات'],
-            ['exports.xlsx_row_limit', 'stats', 'سقف صفوف ملفّ Excel', 'number', '20000'],
-            ['exports.pdf_row_limit', 'stats', 'سقف صفوف ملفّ PDF', 'number', '500'],
-            ['exports.pdf_empty_line', 'stats', 'سطر الـPDF حين لا بيانات', 'string', 'مافيش بيانات في المدى ده.'],
-            ['exports.pdf_truncated_line', 'stats', 'سطر الـPDF عند قصّ الصفوف', 'string', 'معروض أوّل :shown صفًّا من :total — الملفّ الكامل بصيغة CSV أو Excel.'],
-            ['exports.fallback_note', 'stats', 'ملاحظة تعذّر توليد الصيغة المطلوبة', 'string', 'تعذّر توليد ملفّ :format فبعتناه CSV.'],
             ['maintenance.windows_history_limit', 'maintenance', 'عدد نوافذ الصيانة الظاهرة في السجلّ', 'number', '10'],
 
             // ---------------- قاموس الحالة (2.16): لكلّ لون رمزٌ وتسمية — ولا لون بلا رمز
