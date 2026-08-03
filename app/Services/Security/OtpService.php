@@ -119,6 +119,21 @@ class OtpService
         return max(0, $this->resendSeconds() - (int) Carbon::parse($row->sent_at)->diffInSeconds(now()));
     }
 
+    /**
+     * هل بُعِث رمزٌ لهذا البريد من قبل؟
+     *
+     * تسأله الشاشة لتعرف أيّ زرّ تعرض: «إرسال» أم «إعادة إرسال» — «بعد الضغط
+     * على إرسال يتحوّل لزرّ **تأكيد**» (2.5-ب). وبلاه كانت الحالة تُقرأ من
+     * فلاش السيشن وحده، فترتدّ الشاشة إلى «إرسال» مع أوّل إعادة تحميل بينما
+     * الرمز في بريده فعلًا.
+     */
+    public function wasSent(string $email, string $purpose): bool
+    {
+        $row = $this->row(Str::lower(trim($email)), $purpose);
+
+        return $row !== null && $row->sent_at !== null;
+    }
+
     public function resendSeconds(): int
     {
         return max(5, (int) setting('auth.otp.resend_seconds', 60));

@@ -12,7 +12,10 @@ use App\Models\User;
 use App\Services\Growth\AcquisitionSource;
 use App\Services\Learning\TimezoneDetector;
 use App\Services\Onboarding\OnboardingJourney;
+use App\Services\Security\OtpService;
+use App\Services\Security\RequireVerifiedEmail;
 use Illuminate\Contracts\Validation\Validator as ValidatorContract;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -29,6 +32,13 @@ use Illuminate\View\View;
  */
 class AuthController extends Controller
 {
+    /** ما تحفظه **الشاشة الأولى (2.5-ب)** حتى تُنشَأ الحساب في الثانية */
+    public const SESSION_ACCOUNT = 'auth.register.account';
+
+    public const STEP_ACCOUNT = 'account';
+
+    public const STEP_IDENTITY = 'identity';
+
     public function showLogin(): View
     {
         return view('auth.login');
@@ -75,10 +85,23 @@ class AuthController extends Controller
     }
 
     /**
-     * صفحة التسجيل = **صفحة المعلومات** (2.5-ج): «بيانات الشهادات والإفادات».
-     * ومن قبلها شاشة «هل دعاك شخص ما؟» (2.5-أ) إلّا لمن دخل برابط دعوة.
+     * ⭐ رحلة التسجيل **شاشتان لا شاشة** — كما ينصّ 2.5 حرفيًّا:
+     *
+     *   «**ب) صفحة التسجيل الأساسية:** الحقول: **الإيميل** + **رقم الموبايل**
+     *    مع **Select لأكواد الدول (بالأعلام، بشكل احترافي)** + **الباسوورد**.»
+     *   «**ج) صفحة المعلومات (بيانات الشهادات والإفادات):** اللقب … الاسم
+     *    بالعربي … الاسم بالإنجليزي … النوع … الدولة … المحافظة … العنوان
+     *    الفرعي … **زر الاستكمال معطّل** حتى تكتمل **كل** البيانات.»
+     *
+     * بندان بحرفين وعنوانين وحقول لا تتقاطع = **شاشتان**. وكانتا مدموجتين في
+     * فورم واحد اسمه «صفحة المعلومات» يحمل حقول الشاشتين معًا، فسقط معنى
+     * «التحقّق بالـOTP للإيميل» الذي **يقع في الشاشة الأولى قبل الثانية**.
+     *
+     * والشاشتان على **مسارٍ واحد** (`GET /register`) لأنّ `routes/**` تحت يد
+     * إيجنتات أخرى الآن ولا يجوز لمسه: الحالة في السيشن هي التي تحكم أيّ شاشة
+     * تُعرَض — والمستخدم لا يرى الثانية قبل أن يُتمّ الأولى ويؤكّد بريده.
      */
-    public function showRegister(Request $request): View|RedirectResponse
+    public function showRegister(Request $request): View|RedirectResponse|JsonResponse
     {
         // رابط الدعوة يتخطّى الشاشة ويحفظ آيدي الداعي في السيشن (2.5-أ)
         if ($code = trim((string) $request->query('offer'))) {
@@ -88,23 +111,147 @@ class AuthController extends Controller
             ]);
         }
 
+        /*
+         | ردودٌ صغيرة على نفس المسار — بلا إضافة مسارٍ في `routes/**`:
+         |  · `?probe=email` ⟵ «تحقّق الإيميل **لحظيًّا**: صيغة صحيحة + **غير
+         |    مستخدم من قبل**» (2.5-ب) — والصفحة لا تُعاد تحميلها لأجل سؤال.
+         |  · `?governorates=<id>` ⟵ «المحافظة Select **مبني على الدولة**، يُملأ
+         |    **تلقائيًّا**» (2.5-ج). و**5,249 محافظة** لا تُطبَع كلّها في الصفحة:
+         |    كان ذلك مقبولًا بمحافظةٍ واحدة، أمّا الآن فهي مئاتُ الكيلوبايتات
+         |    على هاتفٍ في 375px — وهو ما تمنعه 2.7 صراحةً.
+         */
+        if ($request->wantsJson() && $request->query('probe') === 'email') {
+            return $this->probeEmail($request);
+        }
+
+        if ($request->wantsJson() && $request->filled('governorates')) {
+            return response()->json(['governorates' => $this->governoratesOf((int) $request->query('governorates'))]);
+        }
+
         if (setting('onboarding.referral.enabled', true)
             && ! $request->session()->get(OnboardingController::SESSION_ANSWERED)) {
             return redirect()->route('onboarding.referral');
         }
 
-        return view('auth.register', [
+        // «ارجع عدّله» — الرجوع للشاشة الأولى فعلٌ صريح لا فقدٌ للبيانات
+        if ($request->boolean('back')) {
+            $request->session()->forget(self::SESSION_ACCOUNT);
+
+            return redirect()->route('register');
+        }
+
+        $account = (array) $request->session()->get(self::SESSION_ACCOUNT, []);
+
+        // (ج) لا تُفتَح إلّا بعد أن تكتمل (ب) **ويتأكّد البريد** — لا بالرابط ولا بالرجوع
+        if ($account !== [] && $this->emailVerified($request, (string) ($account['email'] ?? ''))) {
+            return view('auth.register.identity', [
+                'referral' => (string) $request->session()->get(OnboardingController::SESSION_CODE, ''),
+                'account' => $account,
+                'titles' => $this->titleGroups(),
+                'countries' => $this->countries(),
+                'governorates' => $this->governoratesOf((int) (old('country_id') ?: 0)),
+            ]);
+        }
+
+        $otp = app(OtpService::class);
+        $email = Str::lower(trim((string) (old('email') ?: ($account['email'] ?? ''))));
+
+        return view('auth.register.account', [
             'referral' => (string) $request->session()->get(OnboardingController::SESSION_CODE, ''),
-            'titles' => $this->titleGroups(),
-            'countries' => Country::where('is_active', true)->orderBy('sort_order')->get(['id', 'name_ar', 'phone_code']),
-            'governorates' => Governorate::where('is_active', true)->orderBy('sort_order')->get(['id', 'country_id', 'name_ar']),
+            'dialCodes' => $this->dialCodes(),
+            'defaultIso2' => mb_strtoupper((string) setting('countries.registration.default_iso2', 'EG')),
+            'showDialCode' => (bool) setting('countries.registration.phone_code', true),
+            'dialWidth' => max(80, (int) setting('countries.registration.phone_code_width', 110)),
+            'otpLength' => $otp->length(),
+            'resendSeconds' => $otp->resendSeconds(),
+            'otpWait' => $email === '' ? 0 : $otp->secondsUntilResend($email, OtpService::PURPOSE_REGISTER),
+            'otpSent' => $email !== '' && $otp->wasSent($email, OtpService::PURPOSE_REGISTER),
+            'otpVerified' => $email !== '' && $this->emailVerified($request, $email),
         ]);
     }
 
+    /**
+     * (ب) ⟵ (ج) ⟵ إنشاء الحساب. الخطوة تُقرأ من الطلب، والافتراضيّ **الأولى**
+     * فحمولةٌ بلا خطوة لا تنشئ حسابًا من وراء الشاشة الأولى.
+     */
     public function register(Request $request): RedirectResponse
     {
-        $data = $request->validate($this->rules(), $this->messages(), $this->attributes());
+        return $request->input('step') === self::STEP_IDENTITY
+            ? $this->registerIdentity($request)
+            : $this->registerAccount($request);
+    }
 
+    /**
+     * **(ب) صفحة التسجيل الأساسية** — البريد والموبايل بكود دولته والباسوورد.
+     *
+     * ⛔ ولا خطوةَ بعدها بلا OTP: «**التحقق بالـ OTP للإيميل فقط**» (2.5-ب).
+     * الحارس هنا لا في الميدل وير وحده، لأنّ الميدل وير يمرّر حمولةً ناقصة
+     * الحقول عمدًا (ليقول المتحكّم خطأها) — فلو كان هو الحارس الوحيد لمرّت.
+     */
+    private function registerAccount(Request $request): RedirectResponse
+    {
+        $data = $request->validate($this->accountRules(), $this->messages(), $this->attributes());
+
+        $email = Str::lower(trim($data['email']));
+
+        if (! $this->emailVerified($request, $email)) {
+            // ⚠️ بلا كلمة السرّ: `withInput()` العارية تُومِضها في السيشن
+            return back()->withInput($request->except(['password', 'password_confirmation', '_token']))->withErrors([
+                'code' => (string) setting(
+                    'auth.otp.error_not_verified',
+                    'أكّد بريدك الأوّل: اضغط «إرسال» واكتب الرمز اللي هيوصلك، وبعدها كمّل.',
+                ),
+            ]);
+        }
+
+        $request->session()->put(self::SESSION_ACCOUNT, [
+            'email' => $email,
+            'phone' => $this->fullPhone($data),
+            'phone_iso2' => mb_strtoupper((string) ($data['phone_iso2'] ?? '')),
+            'password' => $data['password'],
+            'password_confirmation' => $data['password'],
+        ]);
+
+        return redirect()->route('register');
+    }
+
+    /** **(ج) صفحة المعلومات (بيانات الشهادات والإفادات)** — وعندها يُنشَأ الحساب. */
+    private function registerIdentity(Request $request): RedirectResponse
+    {
+        $account = (array) $request->session()->get(self::SESSION_ACCOUNT, []);
+        $email = Str::lower(trim((string) ($account['email'] ?? '')));
+
+        // الرجوع للخطوة الأولى لا يُقال صامتًا: يُقال ماذا حدث وماذا يفعل (2.17-ب)
+        if ($email === '' || ! $this->emailVerified($request, $email)) {
+            return redirect()->route('register')->with('status', (string) setting(
+                'auth.otp.error_step_lost',
+                'الجلسة رجعت لأوّل خطوة — اكتب بريدك وأكّده تاني وهنكمّل من هناك.',
+            ));
+        }
+
+        $identity = $request->validate($this->identityRules(), $this->messages(), $this->attributes());
+
+        $data = $identity + [
+            'email' => $email,
+            'phone' => (string) ($account['phone'] ?? ''),
+            'password' => (string) ($account['password'] ?? ''),
+        ];
+
+        // الحمولتان معًا تُسألان بنفس قواعد الشاشتين — فلا يُنشَأ حسابٌ بحقلٍ
+        // مرّ من شاشةٍ ثمّ بطل بين الخطوتين (رقمٌ سُجِّل لغيره مثلًا)
+        Validator::make(
+            $data + ['password_confirmation' => $data['password']],
+            $this->rules(),
+            $this->messages(),
+            $this->attributes(),
+        )->validate();
+
+        return $this->createAccount($request, $data);
+    }
+
+    /** @param  array<string, mixed>  $data */
+    private function createAccount(Request $request, array $data): RedirectResponse
+    {
         // «الاسم» المعروض في المنصّة = الاسم بالعربيّ، والإنجليزيّ بديله عند غيابه
         $data['name'] = $data['name_ar'] ?: $data['name_en'];
 
@@ -166,7 +313,14 @@ class AuthController extends Controller
         // نفس قاعدة 2.3 عند التسجيل: الجلسة تبدأ دائمةً لا مؤقّتة
         Auth::login($user, (bool) setting('auth.session.remember_always', true));
         $request->session()->regenerate();
-        $request->session()->forget([OnboardingController::SESSION_CODE, OnboardingController::SESSION_ANSWERED]);
+        $request->session()->forget([
+            OnboardingController::SESSION_CODE,
+            OnboardingController::SESSION_ANSWERED,
+            // ⛔ بيانات الشاشة الأولى (وفيها كلمة السرّ) لا تعيش بعد إنشاء الحساب
+            self::SESSION_ACCOUNT,
+            RequireVerifiedEmail::SESSION_PENDING,
+            RequireVerifiedEmail::SESSION_VERIFIED,
+        ]);
 
         // ونفس الكشف عند التسجيل — فأوّل شاشة يراها تُحسَب بساعته هو (5)
         app(TimezoneDetector::class)->sync($request, $user);
@@ -215,7 +369,36 @@ class AuthController extends Controller
     // ------------------------------------------------------------------ داخليّ
 
     /**
-     * تحقّقات صفحة المعلومات (2.5-ج) — والرسائل تقول ماذا حدث وماذا تفعل (2.17-ب).
+     * تحقّقات **(ب) الشاشة الأولى** وحدها: البريد والموبايل بكود دولته والباسوورد.
+     *
+     * @return array<string, array<int, mixed>>
+     */
+    private function accountRules(): array
+    {
+        return [
+            'email' => ['required', 'email', 'max:190', 'unique:users,email'],
+            // كود الدولة يُختار من قائمة الأعلام لا يُكتَب — فيُسأل عن وجوده
+            'phone_iso2' => [
+                setting('countries.registration.phone_code', true) ? 'required' : 'nullable',
+                'string', 'size:2', Rule::exists('countries', 'iso2')->where('is_active', true),
+            ],
+            'phone_national' => ['required', 'string', 'max:20', 'regex:/^\d[\d\s\-]*$/'],
+            'password' => ['required', 'confirmed', Password::min(8)],
+        ];
+    }
+
+    /**
+     * تحقّقات **(ج) صفحة المعلومات** وحدها — بلا حقول الشاشة الأولى.
+     *
+     * @return array<string, array<int, mixed>>
+     */
+    private function identityRules(): array
+    {
+        return collect($this->rules())->except(['email', 'phone', 'password'])->all();
+    }
+
+    /**
+     * تحقّقات الشاشتين معًا (2.5-ب + 2.5-ج) — والرسائل تقول ماذا حدث وماذا تفعل (2.17-ب).
      *
      * @return array<string, array<int, mixed>>
      */
@@ -247,6 +430,114 @@ class AuthController extends Controller
             'phone' => ['required', 'string', 'max:32', 'unique:users,phone'],
             'password' => ['required', 'confirmed', Password::min(8)],
         ];
+    }
+
+    /** هل تأكّد هذا البريد بالذات في هذه الجلسة؟ (2.5-ب) */
+    private function emailVerified(Request $request, string $email): bool
+    {
+        $email = Str::lower(trim($email));
+
+        return $email !== ''
+            && Str::lower((string) $request->session()->get(RequireVerifiedEmail::SESSION_VERIFIED)) === $email;
+    }
+
+    /**
+     * «تحقق الإيميل لحظيًا: **صيغة صحيحة + غير مستخدم من قبل**» (2.5-ب).
+     *
+     * والمحذوف حسابه يُحسَب مستعمَلًا (`withTrashed`) — فالـSoft-delete في 2.3
+     * «يُعامَل كأنّه غير موجود» أمام المستخدمين، لكنّ بريده ما زال في الجدول
+     * ولو سمحنا بتسجيلٍ عليه لسقط الإنشاء على قيد التفرّد بعد كلّ الطريق.
+     */
+    private function probeEmail(Request $request): JsonResponse
+    {
+        $email = Str::lower(trim((string) $request->query('email')));
+        $valid = $email !== '' && Validator::make(['email' => $email], ['email' => ['email', 'max:190']])->passes();
+        $taken = $valid && User::query()->where('email', $email)->withTrashed()->exists();
+
+        return response()->json([
+            'valid' => $valid,
+            'taken' => $taken,
+            'ok' => $valid && ! $taken,
+            'message' => match (true) {
+                ! $valid => (string) setting('onboarding.account.email_invalid', 'الشكل ده مش بريد صالح — راجع الكتابة.'),
+                $taken => (string) setting('onboarding.account.email_taken', 'البريد ده مستعمَل قبل كده — ادخل بيه أو استرجع كلمة السرّ.'),
+                default => (string) setting('onboarding.account.email_ok', 'البريد متاح ✓'),
+            },
+        ]);
+    }
+
+    /**
+     * الدول المعروضة في الاختيار — **الظاهرة وحدها**، والمخفيّة لا تُعرَض ولا تُحذَف.
+     *
+     * والترتيب بالاسم العربيّ بعد `sort_order`: خمسة آلاف صفٍّ دخلت من المصدر
+     * بترتيبٍ صفر، فبلا هذا تخرج القائمة بترتيب الإدراج — وهو لا ترتيب.
+     *
+     * @return \Illuminate\Support\Collection<int, Country>
+     */
+    private function countries()
+    {
+        return Country::query()->where('is_active', true)
+            ->orderBy('sort_order')->orderBy('name_ar')
+            ->get(['id', 'iso2', 'name_ar', 'phone_code']);
+    }
+
+    /**
+     * «المحافظة: Select **مبني على الدولة**، يُملأ **تلقائيًّا**» (2.5-ج).
+     *
+     * @return array<int, array{id: int, name: string}>
+     */
+    private function governoratesOf(int $countryId): array
+    {
+        if ($countryId <= 0) {
+            return [];
+        }
+
+        return Governorate::query()
+            ->where('country_id', $countryId)
+            // ⛔ ولا شرط `is_active` هنا: «**المحافظة لا تُخفى أبدًا**» (قاعدة
+            // مالك صريحة في 12.7-د) — فقائمة الاختيار لا تُسقِط واحدةً أبدًا.
+            ->orderBy('sort_order')->orderBy('name_ar')
+            ->get(['id', 'name_ar'])
+            ->map(fn (Governorate $g) => ['id' => (int) $g->id, 'name' => (string) $g->name_ar])
+            ->all();
+    }
+
+    /**
+     * «**Select لأكواد الدول (بالأعلام، بشكل احترافي)**» (2.5-ب) — والمصدر نفسه
+     * الذي نصّ عليه 2.5-ج: «نستخدمه أيضًا لـ**Select أكواد الدول بالأعلام**».
+     *
+     * والمفتاح يُعرَض بعلامة «+» دائمًا مهما كُتِب في القاعدة: المصدر يعطيه بلا
+     * علامة (`20`) والبذرة القديمة كتبته بها (`+20`) — والقائمة لا تُظهر شكلين.
+     *
+     * @return array<int, array{iso2: string, name: string, dial: string}>
+     */
+    private function dialCodes(): array
+    {
+        return $this->countries()
+            ->filter(fn (Country $c) => trim((string) $c->phone_code) !== '')
+            ->map(fn (Country $c) => [
+                'iso2' => mb_strtoupper((string) $c->iso2),
+                'name' => (string) $c->name_ar,
+                'dial' => '+'.ltrim(trim((string) $c->phone_code), '+'),
+            ])
+            ->values()
+            ->all();
+    }
+
+    /**
+     * الرقم كما يُخزَّن: كود الدولة + الرقم المحلّيّ بلا مسافات ولا شرطات.
+     *
+     * @param  array<string, mixed>  $data
+     */
+    private function fullPhone(array $data): string
+    {
+        $national = ltrim(preg_replace('/\D+/', '', (string) ($data['phone_national'] ?? '')) ?: '', '0');
+        $iso2 = mb_strtoupper(trim((string) ($data['phone_iso2'] ?? '')));
+
+        $dial = $iso2 === '' ? '' : (string) Country::query()->where('iso2', $iso2)->value('phone_code');
+        $dial = $dial === '' ? '' : '+'.ltrim($dial, '+');
+
+        return $dial.$national;
     }
 
     /** «ثلاثيّ» = عدد كلمات لا يقلّ عن المضبوط في اللوحة (2.13) */

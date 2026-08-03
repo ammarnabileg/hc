@@ -14,10 +14,52 @@
         </x-slot:action>
     </x-page-header>
 
+    {{--
+      كارت الرصيد + **بارات مكتسب/مصروف** كما ينصّ 24.5 على هذه الشاشة بالحرف.
+      والأرقام الثلاثة من **ميزانٍ واحد منغلق** (`TicketsAccount`) هو نفسه الذي
+      يبني كارت الـKPI في اللوحة ومسار التذاكر في الرادار — فلا يقرأ المستخدم
+      «10» هنا و«17» هناك بلا ما يفسّر الفارق (ن-2).
+    --}}
     <section class="card p-5 md:p-6 animate-fadeup">
         <div class="text-sm" style="color: var(--text-muted)">رصيد التذاكر</div>
         <div class="mt-1 text-4xl font-extrabold"
-             data-count-to="{{ number_format($balance, (int) ($currency?->decimals ?? 0)) }}">{{ number_format($balance, (int) ($currency?->decimals ?? 0)) }}</div>
+             data-count-to="{{ number_format($balance) }}">{{ number_format($balance) }}</div>
+
+        @php
+            $earned = (int) $sheet['earned'];
+            $spent = (int) $sheet['spent'];
+            $scale = max(1, $earned);
+        @endphp
+
+        <div class="mt-4 space-y-2">
+            <div>
+                <div class="flex items-baseline justify-between text-xs">
+                    <span>مكتسب</span>
+                    <span class="tabular-nums" style="color: var(--text-muted)">+{{ number_format($earned) }}</span>
+                </div>
+                <div class="mt-1 h-2 rounded-full overflow-hidden" style="background: var(--surface-sunken)">
+                    <div class="h-full" style="width: {{ (int) round($earned / $scale * 100) }}%; background: var(--color-brand-500)"></div>
+                </div>
+            </div>
+
+            <div>
+                <div class="flex items-baseline justify-between text-xs">
+                    <span>مصروف</span>
+                    <span class="tabular-nums" style="color: var(--text-muted)">−{{ number_format($spent) }}</span>
+                </div>
+                <div class="mt-1 h-2 rounded-full overflow-hidden" style="background: var(--surface-sunken)">
+                    <div class="h-full" style="width: {{ (int) round(min($spent, $scale) / $scale * 100) }}%; background: var(--color-state-idle)"></div>
+                </div>
+            </div>
+        </div>
+
+        <p class="mt-3 text-xs tabular-nums" style="color: var(--text-muted)">
+            {{ str_replace(
+                [':earned', ':spent', ':balance'],
+                [number_format($earned), number_format($spent), number_format((int) $sheet['balance'])],
+                (string) setting('dashboard.tickets.sheet_label', 'الميزان: مكتسب :earned − مصروف :spent = رصيد :balance'),
+            ) }}
+        </p>
     </section>
 
     {{-- عمودان على الشاشة الكبيرة، وشاشةٌ واحدة متتابعة على الموبايل (2.15-ج) --}}

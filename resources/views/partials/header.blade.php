@@ -63,7 +63,15 @@
         @include('partials.bell')
     </div>
 
-    <a href="{{ \Illuminate\Support\Facades\Route::has('profile.me') ? route('profile.me') : '#' }}">
+    {{--
+      أفاتار 36px (`size="9"`) داخل رابطٍ بلا مقاس ⟵ هدف لمسٍ **36×64**:
+      عريضه دون 44 خلافًا لـ2.15-ج. والمقاس على **الرابط** لا على الأفاتار،
+      فيبقى شكل الصورة كما هو (2.10.1-16: بلا هالة ولا تكبير) ويكبر الهدف.
+    --}}
+    <a href="{{ \Illuminate\Support\Facades\Route::has('profile.me') ? route('profile.me') : '#' }}"
+       class="inline-flex items-center justify-center shrink-0"
+       style="min-inline-size: var(--touch-min, 44px); min-block-size: var(--touch-min, 44px)"
+       aria-label="{{ $u->shortName() }}">
         <x-avatar :user="$u" size="9" />
     </a>
 </header>

@@ -65,6 +65,8 @@ class DashboardController extends Controller
             'heatmap' => $this->stats->attendanceHeatmap($user),
             'radar' => $this->stats->achievementsRadar($user),
             'ticketBars' => $this->stats->ticketBars($user, $days),
+            // ميزان التذاكر الكلّيّ — يفسّر لماذا تختلف أرقام التذاكر الثلاثة (ن-2)
+            'ticketSheet' => $this->stats->ticketBalanceSheet($user),
         ];
     }
 

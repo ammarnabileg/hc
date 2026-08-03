@@ -9,6 +9,18 @@
     $u = auth()->user();
     $isVolunteer = $u->isVolunteer();
     $pinned = collect($u->pinned_pages ?? []);
+
+    /*
+     | ⭐ **مستوى الحساب وبار XP** — بطاقة رأس السايد بار كما ينصّ 24.5-أ:
+     | «أفاتار بلا هالة · الاسم · #الكود · **مستوى الحساب** · **بار XP**».
+     |
+     | كان البار مكتوبًا `{{ $u->xp_percent ?? 30 }}%` و`xp_percent` **غير معرَّف
+     | أصلًا** على المستخدم — فيسقط دائمًا على 30، ويرى **كلّ مستخدمي المنصّة**
+     | البار نفسه مهما اختلف XP: بارٌ لا يقول شيئًا. والمستوى كان غائبًا رأسًا.
+     | والقيمتان الآن من `LevelResolver` — **المصدر الواحد** الذي يبني كارت
+     | الـKPI ورادار الإنجازات وهيدر البروفايل، فلا يختلف رقمان في صفحةٍ واحدة.
+     */
+    $accountLevel = app(App\Services\Gamification\LevelResolver::class)->forUser($u);
 @endphp
 
 {{-- لوحة منزلقة على الموبايل وعمود ثابت على الديسكتوب (13 · 2.15-ج) --}}
@@ -22,9 +34,16 @@
             <x-avatar :user="$u" size="10" />
             <div class="min-w-0">
                 <div class="truncate font-semibold text-sm">{{ $u->shortName() }}</div>
-                <div class="text-xs" style="color: var(--text-muted)">#{{ $u->code }}</div>
-                <div class="mt-1 h-1 rounded-full overflow-hidden" style="background: var(--surface-sunken)">
-                    <div class="h-full" style="width: {{ $u->xp_percent ?? 30 }}%; background: var(--color-brand-500)"></div>
+                <div class="text-xs truncate" style="color: var(--text-muted)">
+                    #{{ $u->code }}
+                    · {{ setting('dashboard.level.prefix', 'المستوى') }} {{ $accountLevel['level'] }}
+                </div>
+                <div class="mt-1 h-1 rounded-full overflow-hidden" style="background: var(--surface-sunken)"
+                     role="img"
+                     aria-label="{{ setting('leaderboard.xp_label', 'XP') }} {{ number_format($accountLevel['xp']) }} — {{ $accountLevel['percent'] }}٪ نحو {{ setting('dashboard.level.prefix', 'المستوى') }} {{ $accountLevel['level'] + 1 }}"
+                     title="{{ number_format($accountLevel['xp']) }} / {{ number_format($accountLevel['next_at']) }} {{ setting('leaderboard.xp_label', 'XP') }}">
+                    <div class="h-full" data-xp-percent="{{ $accountLevel['percent'] }}"
+                         style="width: {{ $accountLevel['percent'] }}%; background: var(--color-brand-500)"></div>
                 </div>
             </div>
         </a>

@@ -249,8 +249,10 @@ class DashboardTest extends TestCase
         $kpis = collect(app(DashboardService::class)->kpis($user))->keyBy('label');
 
         $this->assertSame(1600, $kpis['مستوى الحساب و XP']['value']);
-        $this->assertSame(12, $kpis['التذاكر']['value']);
+        // ⭐ «**رصيد** التذاكر» بالاسم (10.0-أ) — تمييزًا عن «المكتسب» في الرادار (ن-2)
+        $this->assertSame(12, $kpis['رصيد التذاكر']['value']);
         $this->assertSame(1, $kpis['الشهادات']['value']);
+        // 1,600 XP بعتبات 10.1 (500 · 1,250 · 2,250) ⟵ المستوى 3
         $this->assertStringContainsString('المستوى 3', $kpis['مستوى الحساب و XP']['hint']);
     }
 

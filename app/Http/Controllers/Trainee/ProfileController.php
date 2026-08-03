@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Services\Account\ProfileTabs;
 use App\Services\Account\ProfileVisibility;
+use App\Services\Gamification\LevelResolver;
 use App\Services\Volunteer\Profile\ViewerLevel;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -26,6 +27,8 @@ class ProfileController extends Controller
         // إضافات هيدر المتطوّع طبقةُ تطوّعٍ لا طبقةُ متدرّب — فمَن يحكمها هو
         // صاحب المستويات الأربعة عليها نفسه، بلا منطقٍ موازٍ هنا (10.0-ب · 13.4-م)
         private readonly ViewerLevel $volunteerLevels,
+        // ⭐ المصدر الواحد لمستوى الحساب — والعمود المخبَّأ يُزامَن منه لا يُقرَأ بديلًا
+        private readonly LevelResolver $levels,
     ) {}
 
     /** بروفايلي — نفس الصفحة تمامًا، بمستوى مشاهدة «صاحب البروفايل» */
@@ -50,6 +53,15 @@ class ProfileController extends Controller
         $viewer = $request->user();
         $level = $this->visibility->levelFor($viewer, $owner);
         $tab = ProfileTabs::normalize($request->string('tab')->toString());
+
+        /*
+         | ⭐ **مزامنة العمود المخبَّأ قبل الرسم** (ن-2). هيدر البروفايل ووثيقة
+         | الإفادة يقرآن `users.level` مباشرةً، وكان السيدر يكتبه رقمًا اعتباطيًّا
+         | (`3 + $index % 4`) لا صلة له بـXP — فيظهر «مستوى الحساب 5» فوق صفحةٍ
+         | يقول رادارها «مستوى 3». والمزامنة تكتب فقط حين يختلف الرقم، فتُبقي
+         | العمود **نسخةً مطابقة** للمصدر الواحد لا مصدرًا خامسًا.
+         */
+        $this->levels->sync($owner);
 
         /*
          | ⛔ لقب «مشرف» والبوزشن والكيان وشارة Rep ونادي التميّز (10.0-ب) كلّها

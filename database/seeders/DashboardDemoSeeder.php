@@ -12,7 +12,6 @@ use App\Models\Exam;
 use App\Models\ExamAttempt;
 use App\Models\Lesson;
 use App\Models\LessonCompletion;
-use App\Models\Level;
 use App\Models\Role;
 use App\Models\Section;
 use App\Models\Setting;
@@ -21,6 +20,7 @@ use App\Models\StreakDay;
 use App\Models\Transaction;
 use App\Models\User;
 use App\Models\WalletBalance;
+use App\Services\Gamification\LevelResolver;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
@@ -293,6 +293,7 @@ class DashboardDemoSeeder extends Seeder
             ['balance' => 3200, 'lifetime_earned' => 3200, 'lifetime_spent' => 0],
         );
 
+        // الرصيد = المكتسب − المصروف: ميزانٌ منغلق، فلا يظهر رقمٌ بلا تفسير (7.1 · 19.2)
         WalletBalance::updateOrCreate(
             ['user_id' => $user->id, 'currency_id' => $tickets->id],
             ['balance' => 18, 'lifetime_earned' => 46, 'lifetime_spent' => 28],
@@ -347,10 +348,12 @@ class DashboardDemoSeeder extends Seeder
             ]);
         }
 
-        if (Level::count() > 0) {
-            $level = Level::where('min_xp', '<=', 3200)->orderByDesc('min_xp')->first();
-            $user->forceFill(['level' => (int) ($level->level ?? 1)])->save();
-        }
+        /*
+         | ⭐ العمود المخبَّأ يُشتقّ من **المصدر الواحد** (10.1) لا من عتبات الجدول
+         | ولا من رقمٍ مكتوب بيد — فالمستوى المعروض في السايد بار والـKPI والرادار
+         | وهيدر البروفايل رقمٌ واحد منذ لحظة الزرع (ن-2).
+         */
+        app(LevelResolver::class)->sync($user->refresh());
     }
 
     // ------------------------------------------------------------ الستريك والحضور

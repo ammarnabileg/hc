@@ -386,6 +386,18 @@ class CountryDataSync
             return $check;
         }
 
+        return $this->summarise($check);
+    }
+
+    /**
+     * النصف الثاني من الفحص: الفروق وملخّصها على سجلّ الفحص — **بلا جلبٍ ثانٍ**.
+     *
+     * مفصولٌ عن `checkSource()` لأنّ مَن جلب مرّةً لا يجلب مرّتين: كاتب نسخة
+     * التنصيب (`--dump`) يحتاج **الحمولة قبل** أن تُحذَف لقطةُ «صفر فروق»،
+     * فيجلب ثمّ يكتب ثمّ يلخّص — على 7 ميجابايت لا على 14.
+     */
+    public function summarise(CountrySourceCheck $check): CountrySourceCheck
+    {
         $snapshot = $this->check($check->snapshot);
         $summary = (array) $snapshot->summary;
 
@@ -673,9 +685,9 @@ class CountryDataSync
                         'key' => 'gov:'.$iso2.':'.$slug,
                         'kind' => 'governorate',
                         'change' => 'added',
-                        'label' => $country->name_ar.' ← '.$incomingGov['name_ar'],
+                        'label' => $country->name_ar.' ← '.$incomingGov['create']['name_ar'],
                         'before' => null,
-                        'after' => $incomingGov,
+                        'after' => $incomingGov['create'],
                         'protected' => false,
                         'users' => 0,
                         'note' => 'محافظة جديدة.',
@@ -684,7 +696,7 @@ class CountryDataSync
                     continue;
                 }
 
-                if ($changes = $this->changedFields($existing, $incomingGov, self::GOVERNORATE_FIELDS)) {
+                if ($changes = $this->changedFields($existing, $incomingGov['fields'], self::GOVERNORATE_FIELDS)) {
                     $rows['changed'][] = [
                         'key' => 'gov:'.$iso2.':'.$slug,
                         'kind' => 'governorate',
@@ -846,14 +858,30 @@ class CountryDataSync
                 return;
             }
 
-            Country::updateOrCreate(['iso2' => $iso2], $incoming['create'] + ['is_active' => true]);
+            $country = Country::updateOrCreate(['iso2' => $iso2], $incoming['create'] + ['is_active' => true]);
             $report['added']++;
+
+            /*
+             * ⭐ **الدولة الجديدة تدخل بمحافظاتها.** صفّها في جدول الفروق مكتوبٌ
+             * عليه «دولة جديدة بـN محافظة» — وكان يُنشئ الدولة وحدها فيخرج الوعد
+             * كذبًا: `diff()` **لا تُدرِج محافظات الدولة الجديدة صفوفًا مستقلّة**
+             * (تتخطّاها بـ`continue` لأنّ الدولة نفسها لم تكن موجودة بعد)، فلا
+             * بابَ آخر تدخل منه. النتيجة المقيسة: دمجٌ يضيف 246 دولة و**صفر
+             * محافظة** — أيْ نصفُ البيانات المنصوصة في 2.5-ج تسقط صامتةً.
+             *
+             * ولا مساسَ بأحد هنا: الدولة لم تكن موجودة قبل هذا السطر بلحظة،
+             * فلا صفَّ قائمًا يُستبدَل ولا ارتباطَ مستخدمٍ يُمَسّ.
+             */
+            foreach ($incoming['governorates'] as $incomingGov) {
+                $this->upsertGovernorate($country, $incomingGov['create']);
+                $report['added']++;
+            }
 
             return;
         }
 
         $country = Country::query()->where('iso2', $iso2)->first();
-        $incoming = $source[$iso2]['governorates'][$slug] ?? null;
+        $incoming = $source[$iso2]['governorates'][$slug]['create'] ?? null;
 
         if (! $country || ! $incoming) {
             $report['skipped']++;
@@ -861,12 +889,26 @@ class CountryDataSync
             return;
         }
 
-        Governorate::updateOrCreate(
-            ['country_id' => $country->id, 'name_ar' => $incoming['name_ar']],
-            ['name_en' => $incoming['name_en'], 'is_active' => true],
-        );
-
+        $this->upsertGovernorate($country, $incoming);
         $report['added']++;
+    }
+
+    /**
+     * إنشاء المحافظة **بهويّتها الإنجليزيّة** — نفس المفتاح الذي تفهرس به
+     * `indexSource()` و`diff()`، ونفس القيد في القاعدة بعد هجرة 2026-08-28.
+     *
+     * ⛔ ولماذا لا `name_ar` مفتاحًا؟ لأنّ اسمين إنجليزيّين مختلفين قد يشتركان
+     * في ترجمةٍ عربيّة واحدة داخل الدولة نفسها (7 حالات في المصدر)، فيصير
+     * الإنشاء **كتابةً فوق صفٍّ قائم** ويظلّ الفرق «مضافًا» في كلّ فحصٍ أبدًا.
+     *
+     * @param  array{name_ar: string, name_en: string}  $incoming
+     */
+    private function upsertGovernorate(Country $country, array $incoming): void
+    {
+        Governorate::updateOrCreate(
+            ['country_id' => $country->id, 'name_en' => $incoming['name_en']],
+            ['name_ar' => $incoming['name_ar'], 'is_active' => true],
+        );
     }
 
     /** @param  array<string, mixed>  $row */
@@ -1009,15 +1051,31 @@ class CountryDataSync
 
             $governorates = [];
 
+            /*
+             * المحافظة كالدولة تمامًا: **ما ورد فعلًا** (`fields`) يُقارَن، و**ما
+             * يُنشَأ به الصفّ الجديد** (`create`) يملأ الإلزاميّ بأفضل ما ورد.
+             *
+             * ⛔ ولماذا الفصل هنا أيضًا؟ لأنّ الخلط بينهما يقع في أحد شرّين:
+             * إمّا `name_ar` ⟵ `name_en` للجميع فتُقترَح «القاهرة» ⟵ «Cairo»
+             * (نفس عطب الحقل المصطنَع بعينه)، وإمّا **إسقاط** كلّ محافظة بلا
+             * ترجمة عربيّة — وهو ما كان يقع: 12 محافظة في المصدر بلا
+             * `translations.ar` كانت تختفي من النسخة كأنّها غير موجودة، فلا
+             * تُضاف أبدًا. والمعرّف هو الاسم الإنجليزيّ، فغيابه هو وحده الإسقاط.
+             */
             foreach ((array) ($country['governorates'] ?? []) as $governorate) {
                 $nameAr = trim((string) ($governorate['name_ar'] ?? ''));
                 $nameEn = trim((string) ($governorate['name_en'] ?? $nameAr));
 
-                if ($nameAr === '') {
+                if ($nameEn === '') {
                     continue;
                 }
 
-                $governorates[$this->slug($nameEn)] = ['name_ar' => $nameAr, 'name_en' => $nameEn];
+                $governorates[$this->slug($nameEn)] = [
+                    // للمقارنة: الاسم العربيّ **حين يوجد فقط** — وغيابه إبقاءٌ لا استبدال
+                    'fields' => $nameAr === '' ? [] : ['name_ar' => $nameAr],
+                    // للإنشاء: صفٌّ جديد لا سابقَ له، فاسمه العربيّ الإنجليزيُّ حتى يُعرَّب
+                    'create' => ['name_ar' => $nameAr !== '' ? $nameAr : $nameEn, 'name_en' => $nameEn],
+                ];
             }
 
             /*

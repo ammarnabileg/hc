@@ -56,6 +56,55 @@ class UiDemoSeeder extends Seeder
             ['images.board.row', 'appearance', 'خلفيّة صفّ اللوحة', 'color', '#08192a'],
             ['images.board.row_me', 'appearance', 'خلفيّة صفّي أنا في اللوحة', 'color', '#0b2c33'],
 
+            /*
+             | ---------------- توكنز نظام التصميم (2.10.1) — «الهويّة والمظهر»
+             |
+             | كلّ قيمةٍ هنا **منصوصةٌ حرفيًّا** في 2.10.1، وتُقرأ من `DesignTokens`
+             | فتُكتَب متغيّراتٍ في `:root` تستعملها ورقة الأنماط. فالمقاس والمدّة
+             | واللون **إعدادٌ لا رقمٌ محروق** (2.13-ب) — يعدّلها المالك من شاشته.
+             |
+             | ⛔ ولا مفتاح يوقف الحركة: «الأنيميشن حاضر دائمًا» (2.3 · 2.14-ب)،
+             | فالمُدد هنا تضبط **سرعتها** لا **وجودها**.
+             */
+            // (10) السويتش: «المسار 40×22px … الإبهام دائرة 16px بيضاء تنزلق 3px→21px»
+            ['design.switch.track_w', 'appearance', 'عرض مسار السويتش (بكسل)', 'number', '40'],
+            ['design.switch.track_h', 'appearance', 'ارتفاع مسار السويتش (بكسل)', 'number', '22'],
+            ['design.switch.thumb', 'appearance', 'قطر إبهام السويتش (بكسل)', 'number', '16'],
+            ['design.switch.inset', 'appearance', 'حافّة إبهام السويتش (بكسل)', 'number', '3'],
+
+            // (18) المؤشّر المخصّص: «نقطة 8px تركوازيّة تكبر إلى 42px»
+            ['design.cursor.dot', 'appearance', 'قطر نقطة المؤشّر المخصّص (بكسل)', 'number', '8'],
+            ['design.cursor.hover', 'appearance', 'قطر المؤشّر فوق العناصر التفاعليّة (بكسل)', 'number', '42'],
+
+            // (23) شريط التمرير: «عرض 5px، مقبض --ta20، مسار --bg، radius 3px»
+            ['design.scrollbar.width', 'appearance', 'عرض شريط التمرير (بكسل)', 'number', '5'],
+            ['design.scrollbar.radius', 'appearance', 'نصف قطر مقبض شريط التمرير (بكسل)', 'number', '3'],
+
+            // (20) الحركات الثماني بمُددها المنصوصة
+            ['design.anim.fadeup_ms', 'appearance', 'مدّة حركة fadeup (مللي ثانية)', 'number', '550'],
+            ['design.anim.fadeup_shift', 'appearance', 'إزاحة ظهور fadeup (بكسل)', 'number', '16'],
+            ['design.anim.float_s', 'appearance', 'مدّة حركة float (ثانية)', 'number', '5'],
+            ['design.anim.float_shift', 'appearance', 'مدى طفوّ float (بكسل)', 'number', '4'],
+            ['design.anim.text_shimmer_s', 'appearance', 'مدّة حركة text-shimmer (ثانية)', 'number', '5'],
+            ['design.anim.shimmer_s', 'appearance', 'مدّة حركة shimmer (ثانية)', 'number', '3'],
+            ['design.anim.pulse_dot_s', 'appearance', 'مدّة حركة pulse-dot (ثانية)', 'number', '2'],
+            ['design.anim.spin_slow_s', 'appearance', 'مدّة حركة spin-slow (ثانية)', 'number', '11'],
+            ['design.anim.ticker_s', 'appearance', 'مدّة حركة ticker (ثانية)', 'number', '22'],
+            ['design.anim.blink_s', 'appearance', 'مدّة حركة blink (ثانية)', 'number', '2'],
+
+            // (7) الأزرار: «linear-gradient(135deg,#2de0ca,#009e85)، نصّ #020e18، 700، radius ~.72rem»
+            ['design.button.gradient', 'appearance', 'تدرّج الزرّ الأساسيّ', 'string', 'linear-gradient(135deg,#2de0ca,#009e85)'],
+            ['design.button.text', 'appearance', 'لون نصّ الزرّ الأساسيّ', 'color', '#020e18'],
+            ['design.button.radius', 'appearance', 'نصف قطر الأزرار والحقول (rem)', 'string', '0.72'],
+            ['design.button.hover_opacity', 'appearance', 'شفافيّة الزرّ عند الـHover', 'string', '0.9'],
+            ['design.button.hover_scale', 'appearance', 'تكبير الزرّ عند الـHover', 'string', '1.015'],
+
+            // (3) تدرّج الإبراز — للنصوص المميّزة وأشرطة التقدّم
+            ['design.accent.gradient', 'appearance', 'تدرّج الإبراز', 'string', 'linear-gradient(135deg,#2de0ca 0%,#00d4b8 55%,#009e85 100%)'],
+
+            // 2.15-ج: «الحدّ الأدنى لمساحة اللمس 44×44 بكسل»
+            ['design.touch.min', 'appearance', 'الحدّ الأدنى لمساحة اللمس (بكسل)', 'number', '44'],
+
             // ---------------- الأفاتار: المقاسات الثلاثة (2.7)
             ['account.avatar.sizes', 'accounts', 'مقاسات الأفاتار المولَّدة عند الرفع', 'json', '[500,150,50]'],
 

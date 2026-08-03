@@ -240,6 +240,13 @@ class AdminSystemDemoSeeder extends Seeder
             ['countries.admin.per_page', 'countries', 'عدد الدول في جدول الإدارة', 'number', '25', false],
             ['countries.import.max_kb', 'countries', 'أقصى حجم لملفّ النسخة (KB)', 'number', '8192', false],
             ['countries.default_timezone', 'countries', 'المنطقة الزمنيّة الافتراضيّة للدولة الجديدة', 'string', 'Africa/Cairo', false],
+            // ---------------- 12.7-د: «Toggle كود الهاتف في التسجيل (عرض 110px)» + «الدولة الافتراضيّة»
+            // ثلاثتها منصوصة بالحرف في بلوك إعدادات «بيانات الدول»، وتستهلكها
+            // **صفحة التسجيل 2.5-ب** في Select أكواد الدول بالأعلام.
+            ['countries.registration.phone_code', 'countries', 'إظهار كود الهاتف في التسجيل', 'bool', '1', false],
+            ['countries.registration.phone_code_width', 'countries', 'عرض حقل كود الهاتف (px)', 'number', '110', false],
+            ['countries.registration.default_iso2', 'countries', 'الدولة الافتراضيّة في التسجيل (ISO2)', 'string', 'EG', false],
+            ['countries.attribution_link_label', 'countries', 'نصّ رابط المصدر بجوار الإسناد', 'string', 'المصدر', false],
             // ---------------- 12.7-د: جلب المصدر عبر الشبكة (بلا أيّ حزمة خارجيّة)
             ['countries.source.url', 'countries', 'رابط جلب نسخة المصدر (JSON)', 'string', 'https://raw.githubusercontent.com/dr5hn/countries-states-cities-database/master/json/countries.json', false],
             // المحافظات في ملفٍّ ثانٍ عند dr5hn مربوطة بـ`country_code` — وتفريغه

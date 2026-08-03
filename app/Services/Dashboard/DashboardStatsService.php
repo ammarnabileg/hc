@@ -4,6 +4,7 @@ namespace App\Services\Dashboard;
 
 use App\Models\User;
 use App\Services\Account\AchievementTracks;
+use App\Services\Gamification\TicketsAccount;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -16,6 +17,7 @@ class DashboardStatsService
     public function __construct(
         private readonly DashboardService $dashboard,
         private readonly AchievementTracks $tracks,
+        private readonly TicketsAccount $tickets,
     ) {}
 
     /** المدى المسموح (7/30 يومًا) — والافتراضيّ آخر 30 يومًا (2.15-د) */
@@ -185,47 +187,24 @@ class DashboardStatsService
 
     // ------------------------------------------------------------ 5) بارات التذاكر
 
-    /** التذاكر: مكتسب مقابل مصروف عبر المدى المختار */
+    /**
+     * التذاكر: مكتسب مقابل مصروف عبر المدى المختار (24.5) — **من المصدر الواحد**
+     * `TicketsAccount` لا باستعلامٍ ثانٍ هنا، فمجموع البارات ينتمي إلى الميزان
+     * نفسه الذي يعطي «الرصيد» و«المكتسب» في بقيّة الشاشة.
+     */
     public function ticketBars(User $user, int $days): array
     {
-        $from = Carbon::today()->subDays($days - 1);
-        $daily = $days <= (int) setting('dashboard.tickets.daily_max_days', 7);
+        return $this->tickets->flow($user, $days);
+    }
 
-        $rows = DB::table('transactions')
-            ->join('currencies', 'currencies.id', '=', 'transactions.currency_id')
-            ->where('transactions.user_id', $user->id)
-            ->where('currencies.code', (string) setting('wallet.currency.tickets_code', 'tickets'))
-            ->where('transactions.created_at', '>=', $from)
-            ->selectRaw('date(transactions.created_at) as day, transactions.amount as amount')
-            ->get();
-
-        $buckets = [];
-        $count = $daily ? $days : (int) ceil($days / 7);
-
-        for ($i = 0; $i < $count; $i++) {
-            $start = $daily ? $from->copy()->addDays($i) : $from->copy()->addWeeks($i);
-            $end = $daily ? $start->copy() : $start->copy()->addDays(6);
-
-            $buckets[] = [
-                'label' => $daily ? $start->format('j/n') : $start->format('j/n').' — '.$end->format('j/n'),
-                'start' => $start->toDateString(),
-                'end' => $end->toDateString(),
-                'earned' => 0,
-                'spent' => 0,
-            ];
-        }
-
-        foreach ($rows as $row) {
-            foreach ($buckets as $index => $bucket) {
-                if ($row->day >= $bucket['start'] && $row->day <= $bucket['end']) {
-                    $amount = (float) $row->amount;
-                    $key = $amount >= 0 ? 'earned' : 'spent';
-                    $buckets[$index][$key] += (int) round(abs($amount));
-                    break;
-                }
-            }
-        }
-
-        return $buckets;
+    /**
+     * ميزان التذاكر الكلّيّ — يُعرَض بجانب البارات فيفهم القارئ أنّ الأرقام
+     * الثلاثة (رصيد · مكتسب · مصروف) وجوهُ حسابٍ واحد لا أرقامٌ متنازعة.
+     *
+     * @return array{balance:int, earned:int, spent:int, opening:int}
+     */
+    public function ticketBalanceSheet(User $user): array
+    {
+        return $this->tickets->snapshot($user);
     }
 }

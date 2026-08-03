@@ -18,7 +18,14 @@
         <nav class="text-xs mb-2 flex flex-wrap items-center gap-1" style="color: var(--text-muted)">
             @foreach ($breadcrumbs as $crumb)
                 @if (! $loop->last)
-                    <a href="{{ $crumb['url'] ?? '#' }}" class="hover:underline">{{ $crumb['label'] }}</a>
+                    {{--
+                      رابط الـBreadcrumb هدف لمسٍ كامل (2.15-ج): `inline-flex`
+                      مع حدٍّ أدنى للعرض والارتفاع — فالكلمة القصيرة («CV»)
+                      لا تترك للإصبع 20px. والنصّ متمركزٌ فلا يبدو مزاحًا.
+                    --}}
+                    <a href="{{ $crumb['url'] ?? '#' }}"
+                       class="hover:underline inline-flex items-center justify-center"
+                       style="min-inline-size: var(--touch-min, 44px); min-block-size: var(--touch-min, 44px)">{{ $crumb['label'] }}</a>
                     <span aria-hidden="true">‹</span>
                 @else
                     <span>{{ $crumb['label'] }}</span>

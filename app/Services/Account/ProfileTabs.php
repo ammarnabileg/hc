@@ -11,6 +11,8 @@ use App\Models\RepScore;
 use App\Models\User;
 use App\Services\Engagement\AmbassadorService;
 use App\Services\Gamification\LeaderboardService;
+use App\Services\Gamification\LevelResolver;
+use App\Services\Gamification\TicketsAccount;
 use App\Services\Library\CvBuilder;
 
 /**
@@ -35,6 +37,8 @@ class ProfileTabs
         private readonly CvBuilder $cv,
         private readonly AmbassadorService $ambassadors,
         private readonly LeaderboardService $leaderboard,
+        private readonly LevelResolver $levels,
+        private readonly TicketsAccount $tickets,
     ) {}
 
     /** @return array<int, array{key:string,label:string}> */
@@ -101,11 +105,15 @@ class ProfileTabs
         $tracks = collect($this->tracks->forUser($owner))->keyBy('key');
         $ambassador = $this->ambassadors->enabled() ? $this->ambassadors->titleOf($owner) : null;
 
+        $account = $this->levels->forUser($owner);
+
         $cards = [
+            // ⭐ المستوى وXP من **المصدر الواحد** لا من عمود `users.level` المخبَّأ
             ['key' => 'level', 'label' => 'مستوى الحساب + XP', 'icon' => '🎯',
-                'value' => $owner->level.' · '.number_format((int) ($tracks['account']['value'] ?? $owner->xp))],
+                'value' => $account['level'].' · '.number_format($account['xp'])],
+            // «**رصيد** التذاكر» (10.0-أ) — غير «المكتسب» في تاب الإنجازات، والاسم يفرّق
             ['key' => 'tickets', 'label' => 'رصيد التذاكر', 'icon' => '🎟️',
-                'value' => (int) $owner->balance((string) setting('wallet.currency.tickets_code', 'tickets'))],
+                'value' => $this->tickets->balance($owner)],
             ['key' => 'streak', 'label' => 'ستريك نادي الخامسة', 'icon' => '🔥',
                 'value' => (int) ($owner->streak?->club_5am_count ?? 0)],
             ['key' => 'certificates', 'label' => 'الشهادات', 'icon' => '🎓',
@@ -153,10 +161,15 @@ class ProfileTabs
     /** بيانات تاب «نظرة عامّة» بحسب مستوى المشاهدة — و`null` لمن هو خارج الأربعة */
     public function overview(User $owner, ?User $viewer, ?string $level): array
     {
+        $account = $this->levels->forUser($owner);
+
         return [
             'kpis' => $this->kpis($owner),
-            'level' => $owner->level,
-            'xp' => $owner->xp,
+            // المستوى وXP من المصدر الواحد — لا من العمودين المخبَّأين على المستخدم
+            'level' => $account['level'],
+            'xp' => $account['xp'],
+            'level_name' => $account['name'],
+            'xp_percent' => $account['percent'],
             'certificates_count' => Certificate::where('user_id', $owner->id)->where('status', 'valid')->count(),
             'badges_count' => BadgeUser::where('user_id', $owner->id)->count(),
             'joined_at' => $owner->created_at,

@@ -62,7 +62,8 @@ class SettingSeeder extends Seeder
             ['dashboard.achievements.referrals.unit', 'dashboard', 'وحدة مسار الدعوات', 'string', 'دعوة'],
             ['dashboard.achievements.referrals.base', 'dashboard', 'عتبة الدعوات — الأساس', 'number', '5'],
             ['dashboard.achievements.referrals.step', 'dashboard', 'عتبة الدعوات — الزيادة', 'number', '2'],
-            ['dashboard.achievements.tickets.label', 'dashboard', 'عنوان مسار التذاكر', 'string', 'التذاكر'],
+            // «التذاكر — إجمالي التذاكر **المكتسبة**» (10): والاسم يقولها فلا يُقرَأ رصيدًا
+            ['dashboard.achievements.tickets.label', 'dashboard', 'عنوان مسار التذاكر', 'string', 'التذاكر المكتسبة'],
             ['dashboard.achievements.tickets.unit', 'dashboard', 'وحدة مسار التذاكر', 'string', 'تذكرة'],
             ['dashboard.achievements.tickets.base', 'dashboard', 'عتبة التذاكر — الأساس', 'number', '15'],
             ['dashboard.achievements.tickets.step', 'dashboard', 'عتبة التذاكر — الزيادة', 'number', '10'],
@@ -79,6 +80,13 @@ class SettingSeeder extends Seeder
             ['wallet.notes.correction', 'wallet', 'ملاحظة حركة التصحيح', 'string', 'حركة تصحيح موثّقة.'],
 
             // ---------------- كروت داشبورد المستخدم الستّة (14-أ) — والحدّ يقصّ لا يحذف
+            // ⭐ ثلاثة أرقامٍ للتذاكر على لوحةٍ واحدة معناها ثلاثة **مقادير** لا تناقض
+            // (رصيد 10.0-أ · مكتسب 10 · حركة المدى 24.5) — والتسميات تفرّقها صراحةً
+            ['dashboard.kpi.level_label', 'dashboard', 'عنوان كارت مستوى الحساب', 'string', 'مستوى الحساب و XP'],
+            ['dashboard.kpi.tickets_label', 'dashboard', 'عنوان كارت التذاكر', 'string', 'رصيد التذاكر'],
+            ['dashboard.kpi.tickets_hint', 'dashboard', 'شرح كارت التذاكر', 'string', 'رصيدك المتاح للصرف'],
+            ['dashboard.level.prefix', 'dashboard', 'بادئة رقم مستوى الحساب', 'string', 'المستوى'],
+            ['dashboard.tickets.sheet_label', 'dashboard', 'تسمية ميزان التذاكر', 'string', 'الميزان: مكتسب :earned − مصروف :spent = رصيد :balance'],
             ['dashboard.kpi.courses_label', 'dashboard', 'عنوان كارت التدريبات', 'string', 'التدريبات (مكتملة / جارية)'],
             ['dashboard.kpi.courses_hint', 'dashboard', 'شرح كارت التدريبات', 'string', 'إجماليّ تدريباتك: :total'],
             ['dashboard.kpi.rank_label', 'dashboard', 'عنوان كارت ترتيب الليدر بورد', 'string', 'ترتيب الليدر بورد'],

@@ -13,6 +13,55 @@ if (progress) {
     update();
 }
 
+/*
+ | المؤشّر المخصّص (2.10.1-18) — **الفأرة فقط**.
+ |
+ | «نقطة 8px تركوازيّة تكبر إلى 42px (شفّافة بحدّ) فوق العناصر التفاعليّة
+ | بانتقال cubic-bezier(.22,1,.36,1)؛ **تُخفى على اللمس**».
+ |
+ | ⭐ الشرط `(pointer: fine)` **قبل الإنشاء** لا بعده: على اللمس لا يُخلق العنصر
+ | أصلًا، فلا نقطة عالقة في مكان آخر لمسةٍ ولا مستمع حدثٍ بلا عمل. والمقاسان
+ | من متغيّرات `DesignTokens` في الورقة — فالحركة هنا **موضعٌ فقط**.
+ |
+ | ولا نضيف `cursor:none` على الصفحة: مؤشّر النظام يبقى (فقدُه يجعل النقر
+ | تخمينًا لو تعطّل السكربت) — والنقطة **طبقةُ إحساسٍ فوقه** (2.17).
+ */
+(() => {
+    if (!window.matchMedia?.('(pointer: fine)').matches) return;
+
+    const dot = document.createElement('div');
+    dot.className = 'hc-cursor';
+    dot.setAttribute('aria-hidden', 'true');
+    document.body.appendChild(dot);
+
+    const HOT = 'a[href], button, [role="button"], [role="switch"], [role="tab"], summary,'
+        + ' input:not([type="hidden"]), select, textarea, label[for], [data-modal-open]';
+
+    let x = 0;
+    let y = 0;
+    let queued = false;
+
+    const paint = () => {
+        queued = false;
+        dot.style.transform = `translate(${x}px, ${y}px)`;
+    };
+
+    document.addEventListener('pointermove', (e) => {
+        // قلمٌ أو إصبعٌ على جهازٍ هجين: النقطة تختفي حتى تعود الفأرة
+        if (e.pointerType !== 'mouse') { dot.dataset.visible = '0'; return; }
+
+        x = e.clientX;
+        y = e.clientY;
+        dot.dataset.visible = '1';
+        dot.dataset.hot = e.target.closest?.(HOT) ? '1' : '0';
+
+        if (!queued) { queued = true; requestAnimationFrame(paint); }
+    }, { passive: true });
+
+    document.addEventListener('pointerleave', () => { dot.dataset.visible = '0'; });
+    window.addEventListener('blur', () => { dot.dataset.visible = '0'; });
+})();
+
 // عدّاد تصاعديّ (2.17-أ) — ⭐ الرقم النهائيّ يظهر في كلّ الأحوال ولا يعلق أبدًا
 document.querySelectorAll('[data-count-to]').forEach((el) => {
     const target = parseFloat(String(el.dataset.countTo).replace(/[^\d.-]/g, ''));

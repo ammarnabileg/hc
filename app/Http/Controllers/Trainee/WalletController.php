@@ -7,6 +7,7 @@ use App\Models\Currency;
 use App\Models\Transaction;
 use App\Models\WalletBalance;
 use App\Models\WalletWithdrawal;
+use App\Services\Gamification\TicketsAccount;
 use App\Services\Wallet\ExchangeRates;
 use App\Services\Wallet\ExchangeService;
 use App\Services\Wallet\TransferService;
@@ -99,6 +100,8 @@ class WalletController extends Controller
         private readonly ExchangeService $exchanges,
         private readonly WithdrawService $withdrawals,
         private readonly ExchangeRates $rates,
+        // ⭐ التذاكر: مصدرٌ واحد لكلّ رقمٍ يُعرَض — رصيدًا ومكتسبًا ومصروفًا (7.1)
+        private readonly TicketsAccount $tickets,
     ) {}
 
     /** 🖥️ رصيدي وشحن — الرصيد بعدّاد تصاعديّ وآخر 5 حركات */
@@ -172,9 +175,18 @@ class WalletController extends Controller
             ->take((int) setting('wallet.recent_rows', 5))
             ->get();
 
+        /*
+         | ⭐ **رصيد التذاكر من المصدر الواحد** (7.1 · 10.0-أ) — نفسه الذي يبني
+         | كارت الـKPI ورادار الإنجازات. و24.5 يطلب هنا «كارت الرصيد + **بارات
+         | مكتسب/مصروف**»، فالثلاثة من ميزانٍ واحد منغلق لا من ثلاثة استعلامات.
+         */
+        $sheet = $this->tickets->snapshot($request->user());
+
         return view('wallet.tickets', [
             'currency' => $currency,
-            'balance' => $balances[$currency?->id] ?? 0.0,
+            'balance' => $sheet['balance'],
+            'sheet' => $sheet,
+            'flow' => $this->tickets->flow($request->user(), (int) setting('ux.lists.default_range_days', 30)),
             // مصادر الكسب ومواضع الصرف من الإعدادات — فتتغيّر من لوحة الأدمن بلا نشر (2.13)
             'earnSources' => (array) setting('wallet.tickets.earn_sources', [
                 'إكمال درس قبل نصف الديدلاين',

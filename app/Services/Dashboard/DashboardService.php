@@ -8,8 +8,9 @@ use App\Models\Currency;
 use App\Models\Enrollment;
 use App\Models\Exam;
 use App\Models\ExamAttempt;
-use App\Models\Level;
 use App\Models\User;
+use App\Services\Gamification\LevelResolver;
+use App\Services\Gamification\TicketsAccount;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -23,6 +24,11 @@ class DashboardService
 {
     /** كاش لكلّ طلب: تقدّم التدريبات محسوبٌ مرّةً واحدة ويُستهلَك في أكثر من بلوك */
     private array $progressCache = [];
+
+    public function __construct(
+        private readonly LevelResolver $levels,
+        private readonly TicketsAccount $tickets,
+    ) {}
 
     // ------------------------------------------------------------ الكروت الأربعة
 
@@ -49,17 +55,23 @@ class DashboardService
 
         $cards = [
             [
-                'label' => 'مستوى الحساب و XP',
+                'label' => (string) setting('dashboard.kpi.level_label', 'مستوى الحساب و XP'),
                 'value' => $xp,
                 'icon' => 'xp',
                 'hint' => 'المستوى '.($level['level'] ?? 1).' — '.($level['name'] ?? ''),
                 'state' => null,
             ],
+            /*
+             | ⭐ **«رصيد التذاكر»** بالاسم كما ينصّ 10.0-أ — لا «التذاكر» مجرّدةً.
+             | فعلى اللوحة نفسها رقمٌ آخر للتذاكر في الرادار معناه **المكتسب**
+             | (10)، وثالثٌ في البارات معناه **حركة المدى** (24.5). ثلاثة معانٍ
+             | لثلاثة أرقام — وبلا تسميةٍ تفرّقها يقرؤها المستخدم تناقضًا.
+             */
             [
-                'label' => 'التذاكر',
-                'value' => (int) $this->balance($user, (string) setting('wallet.currency.tickets_code', 'tickets')),
+                'label' => (string) setting('dashboard.kpi.tickets_label', 'رصيد التذاكر'),
+                'value' => $this->tickets->balance($user),
                 'icon' => 'ticket',
-                'hint' => 'رصيدك المتاح للصرف',
+                'hint' => (string) setting('dashboard.kpi.tickets_hint', 'رصيدك المتاح للصرف'),
                 'state' => null,
             ],
             [
@@ -166,35 +178,23 @@ class DashboardService
 
     // ------------------------------------------------------------ الأرقام الخام
 
-    /** إجمالي XP: من المحفظة، وإن لم تُفتَح بعدُ فمن عدّاد الحساب */
+    /** إجمالي XP — **من المصدر الواحد** `LevelResolver::xpFor()` لا بحسابٍ موازٍ */
     public function xp(User $user): int
     {
-        $code = (string) setting('wallet.currency.xp_code', 'xp');
-        $balance = $user->balances()
-            ->whereHas('currency', fn ($q) => $q->where('code', $code))
-            ->value('balance');
-
-        return (int) ($balance ?? $user->xp ?? 0);
+        return $this->levels->xpFor($user);
     }
 
     /**
-     * مستوى الحساب من جدول المستويات — لا عتبات محروقة في الكود.
-     * ورقمُ المستوى هو نفسه الذي تقرؤه الشارات (`LevelResolver`) — مصدرٌ واحد (7.3).
+     * مستوى الحساب — **من المصدر الواحد** `LevelResolver` بصيغة 10.1.
+     *
+     * كان هنا حسابٌ ثانٍ يقرأ عتبات `levels.min_xp`، فيقول كارت الـKPI «المستوى 3»
+     * بينما رادار الإنجازات في **الصفحة نفسها** يقول «مستوى 4» لنفس المستخدم
+     * ونفس اللحظة (ن-2). فحُذِف الحساب الثاني ولم يُوفَّق بينهما — التوفيق يُبقي
+     * مصدرين، والحذف يُبقي واحدًا.
      */
     public function level(int $xp): array
     {
-        $current = Level::query()->where('min_xp', '<=', $xp)->orderByDesc('min_xp')->first();
-        $next = Level::query()->where('min_xp', '>', $xp)->orderBy('min_xp')->first();
-
-        $from = (int) ($current->min_xp ?? 0);
-        $to = (int) ($next->min_xp ?? 0);
-
-        return [
-            'level' => (int) ($current->level ?? 1),
-            'name' => (string) ($current->name_ar ?? ''),
-            'next_at' => $next?->min_xp,
-            'percent' => $next && $to > $from ? (int) round((($xp - $from) / ($to - $from)) * 100) : 100,
-        ];
+        return $this->levels->forXp($xp);
     }
 
     public function balance(User $user, string $currencyCode): float

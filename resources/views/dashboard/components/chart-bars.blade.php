@@ -77,4 +77,20 @@
         <li><span aria-hidden="true" style="color: var(--color-brand-500)">▮</span> مكتسب</li>
         <li><span aria-hidden="true" style="color: var(--color-state-idle)">▤</span> مصروف</li>
     </ul>
+
+    {{--
+      ⭐ **الميزان المنغلق** (ن0-2): على اللوحة ثلاثة أرقامٍ للتذاكر — رصيدٌ في
+      الـKPI، ومكتسبٌ في الرادار، وحركةُ المدى هنا. وهي **ثلاثة مقادير** لا ثلاث
+      إجابات لسؤالٍ واحد؛ فيقولها هذا السطر صراحةً بحسابٍ يقرأه المستخدم بعينه:
+      **مكتسب − مصروف = رصيد**. وبلا هذا السطر تُقرَأ الأرقام تناقضًا.
+    --}}
+    @isset ($sheet)
+        <p class="mt-2 text-xs tabular-nums" style="color: var(--text-muted)">
+            {{ str_replace(
+                [':earned', ':spent', ':balance'],
+                [number_format($sheet['earned']), number_format($sheet['spent']), number_format($sheet['balance'])],
+                (string) setting('dashboard.tickets.sheet_label', 'الميزان: مكتسب :earned − مصروف :spent = رصيد :balance'),
+            ) }}
+        </p>
+    @endisset
 </section>

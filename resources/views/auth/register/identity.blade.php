@@ -1,39 +1,49 @@
 @extends('layouts.guest')
-@section('title', 'إنشاء حساب')
+@section('title', setting('onboarding.identity.title', 'بيانات الشهادات والإفادات'))
 
 @php
-    $inputStyle = 'min-height: 44px; background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)';
+    /**
+     * 🎓 **2.5-ج — صفحة المعلومات (بيانات الشهادات والإفادات)** — الشاشة الثانية.
+     *
+     * النصّ الحاكم حرفيًّا وبترتيبه:
+     *  «**اللقب (Select مجمّع بمجموعات):** *ألقاب عامة* … *ألقاب مهنية* … *ألقاب أكاديمية* …»
+     *  «**الاسم بالعربي (ثلاثي):** تحقّق أنه **عربي**؛ رسالة خطأ + **لا يُفعَّل زر
+     *   الاستكمال** حتى يصحّح.»
+     *  «**الاسم بالإنجليزي (ثلاثي):** تحقّق أنه **إنجليزي**؛ نفس المعالجة.»
+     *  «**النوع:** ذكر / أنثى (برسوم أفاتار).»
+     *  «**الدولة:** Select (نضيفه وإن لم يظهر في الاسكرين).»
+     *  «**المحافظة:** Select **مبني على الدولة**، يُملأ **تلقائيًّا** (مش يدويًا من
+     *   الأدمن). مطلوب **كل دول العالم ومحافظاتها كاملة**.»
+     *  «**العنوان الفرعي:** Input عادي (المنطقة والشارع).»
+     *  «**زر الاستكمال معطّل** حتى تكتمل **كل** البيانات. وعند الإتمام ⇒ **احتفال قوي 🎉**.»
+     *
+     * وهذا الترتيب هو ترتيب الحقول أدناه حرفيًّا — لا زيادة ولا نقصان ولا تقديم.
+     */
     $inputClass = 'w-full rounded-xl px-3 py-2 text-sm';
+    $inputStyle = 'min-height: 44px; background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)';
 @endphp
 
 @section('content')
 <div class="card p-6 w-full max-w-xl">
-    <h1 class="text-xl font-extrabold mb-1">إنشاء حساب</h1>
-    {{-- التفعيل مجّانيّ باعتماد إداريّ — لا رسوم ولا اشتراك (2.5-د) --}}
-    <p class="text-sm mb-1" style="color: var(--text-muted)">التسجيل والتفعيل <strong>مجّانيّان بالكامل</strong>.</p>
-    {{-- 2.5-ج: هذه الصفحة عنوانها في الدستور «بيانات الشهادات والإفادات» --}}
-    <p class="text-xs mb-5" style="color: var(--text-muted)">
-        البيانات دي هي اللي بتطلع على شهاداتك وإفاداتك — اكتبها زيّ ما تحبّ تشوفها عليها.
+    <p class="text-xs mb-2" style="color: var(--text-muted)">
+        {{ setting('onboarding.identity.step_label', 'خطوة 2 من 2 — بيانات الشهادة') }}
+        · <span dir="ltr">{{ $account['email'] ?? '' }}</span> ✓
+    </p>
+    <h1 class="text-xl font-extrabold mb-1">{{ setting('onboarding.identity.title', 'بيانات الشهادات والإفادات') }}</h1>
+    <p class="text-sm mb-5" style="color: var(--text-muted)">
+        {{ setting('onboarding.identity.subtitle', 'البيانات دي هي اللي بتطلع على شهاداتك وإفاداتك — اكتبها زيّ ما تحبّ تشوفها عليها.') }}
     </p>
 
-    {{-- تعثّرٌ بعد تأكيد البريد: نقول ماذا حدث وماذا يفعل، ومدخلاته كما تركها (2.17-ب) --}}
     @if (session('status'))
         <x-toast :message="session('status')" state="warn" />
     @endif
 
-    @if (session('referral_celebrate'))
-        {{-- تفعيل هديّة الدعوة: صوت واحتفال (2.5-أ) — الصوت بتوجل المستخدم --}}
-        @include('onboarding.partials.celebration', ['celebration' => ['tier' => 2, 'sound' => false, 'sound_path' => null]])
-        <p class="rounded-xl p-3 mb-4 text-sm" style="background: color-mix(in srgb, var(--color-state-ok) 14%, transparent)">
-            ● {{ setting('onboarding.referral.success_text', 'تمام ✓ هديّتك اتفعّلت — كمّل تسجيلك.') }}
-        </p>
-    @endif
-
-    <form method="post" action="{{ route('register') }}" class="space-y-3" data-register-form>
+    <form method="post" action="{{ route('register') }}" class="space-y-3" data-identity-form>
         @csrf
+        <input type="hidden" name="step" value="{{ \App\Http\Controllers\Auth\AuthController::STEP_IDENTITY }}">
         <input type="hidden" name="offer" value="{{ $referral }}">
 
-        {{-- اللقب: Select مجمَّع بمجموعات (عامّة · مهنيّة · أكاديميّة) --}}
+        {{-- 1) اللقب: Select **مجمَّع بمجموعات** (عامّة · مهنيّة · أكاديميّة) --}}
         <label class="block">
             <span class="block text-sm mb-1">اللقب</span>
             <select name="title" class="{{ $inputClass }}" style="{{ $inputStyle }}" required data-required-field>
@@ -49,6 +59,7 @@
             @error('title')<span class="block text-xs mt-1" style="color: var(--color-state-danger)">◉ {{ $message }}</span>@enderror
         </label>
 
+        {{-- 2) الاسم بالعربيّ (ثلاثيّ) · 3) الاسم بالإنجليزيّ (ثلاثيّ) --}}
         <div class="grid md:grid-cols-2 gap-3">
             <label class="block">
                 <span class="block text-sm mb-1">الاسم بالعربيّ (ثلاثيّ)</span>
@@ -67,7 +78,7 @@
             </label>
         </div>
 
-        {{-- النوع: خياران برسمَين (أفاتار مرسوم SVG لا مكتبة أيقونات) --}}
+        {{-- 4) النوع: خياران **برسوم أفاتار** — SVG مرسوم لا مكتبة أيقونات --}}
         <fieldset>
             <legend class="block text-sm mb-1">النوع</legend>
             <div class="grid grid-cols-2 gap-3">
@@ -93,6 +104,7 @@
             @error('gender')<span class="block text-xs mt-1" style="color: var(--color-state-danger)">◉ {{ $message }}</span>@enderror
         </fieldset>
 
+        {{-- 5) الدولة · 6) المحافظة **مبنيّة على الدولة وتُملأ تلقائيًّا** --}}
         <div class="grid md:grid-cols-2 gap-3">
             <label class="block">
                 <span class="block text-sm mb-1">الدولة</span>
@@ -105,20 +117,28 @@
                 @error('country_id')<span class="block text-xs mt-1" style="color: var(--color-state-danger)">◉ {{ $message }}</span>@enderror
             </label>
 
-            {{-- المحافظة **مبنيّة على الدولة وتُملأ تلقائيًّا** لا يدويًّا (2.5-ج) --}}
             <label class="block">
                 <span class="block text-sm mb-1">المحافظة</span>
-                <select name="governorate_id" class="{{ $inputClass }}" style="{{ $inputStyle }}" data-governorate data-required-field>
-                    <option value="">اختر المحافظة</option>
+                {{--
+                    ⚠️ **لا تُطبَع 5,249 محافظة في الصفحة.** كانت تُطبَع كلّها وقتما
+                    كانت محافظةً واحدة؛ ومع بيانات المصدر الكاملة صار ذلك مئاتِ
+                    الكيلوبايتات على هاتفٍ في 375px — تمنعه 2.7 صراحةً. فتُجلَب
+                    محافظات **الدولة المختارة وحدها** من نفس المسار (`?governorates=`).
+                --}}
+                <select name="governorate_id" class="{{ $inputClass }}" style="{{ $inputStyle }}"
+                        data-governorate data-required-field data-url="{{ route('register') }}"
+                        @disabled(! old('country_id'))>
+                    <option value="">{{ old('country_id') ? 'اختر المحافظة' : 'اختر الدولة الأوّل' }}</option>
                     @foreach ($governorates as $governorate)
-                        <option value="{{ $governorate->id }}" data-country-id="{{ $governorate->country_id }}"
-                                @selected((int) old('governorate_id') === $governorate->id)>{{ $governorate->name_ar }}</option>
+                        <option value="{{ $governorate['id'] }}"
+                                @selected((int) old('governorate_id') === $governorate['id'])>{{ $governorate['name'] }}</option>
                     @endforeach
                 </select>
                 @error('governorate_id')<span class="block text-xs mt-1" style="color: var(--color-state-danger)">◉ {{ $message }}</span>@enderror
             </label>
         </div>
 
+        {{-- 7) العنوان الفرعيّ: Input عاديّ (المنطقة والشارع) --}}
         <label class="block">
             <span class="block text-sm mb-1">{{ setting('onboarding.identity.address_label', 'العنوان الفرعيّ (المنطقة والشارع)') }}</span>
             <input type="text" name="address_line" value="{{ old('address_line') }}"
@@ -126,71 +146,74 @@
             @error('address_line')<span class="block text-xs mt-1" style="color: var(--color-state-danger)">◉ {{ $message }}</span>@enderror
         </label>
 
-        <div class="grid md:grid-cols-2 gap-3">
-            <label class="block">
-                <span class="block text-sm mb-1">البريد الإلكترونيّ</span>
-                <input type="email" name="email" value="{{ old('email') }}" dir="ltr"
-                       class="{{ $inputClass }}" style="{{ $inputStyle }}" required data-required-field>
-                @error('email')<span class="block text-xs mt-1" style="color: var(--color-state-danger)">◉ {{ $message }}</span>@enderror
-            </label>
-
-            <label class="block">
-                <span class="block text-sm mb-1">رقم الموبايل</span>
-                <input type="tel" name="phone" value="{{ old('phone') }}" dir="ltr"
-                       class="{{ $inputClass }}" style="{{ $inputStyle }}" required data-required-field>
-                @error('phone')<span class="block text-xs mt-1" style="color: var(--color-state-danger)">◉ {{ $message }}</span>@enderror
-            </label>
-        </div>
-
-        <div class="grid md:grid-cols-2 gap-3">
-            <label class="block">
-                <span class="block text-sm mb-1">كلمة السرّ</span>
-                <input type="password" name="password" class="{{ $inputClass }}" style="{{ $inputStyle }}" required data-required-field>
-                @error('password')<span class="block text-xs mt-1" style="color: var(--color-state-danger)">◉ {{ $message }}</span>@enderror
-            </label>
-
-            <label class="block">
-                <span class="block text-sm mb-1">تأكيد كلمة السرّ</span>
-                <input type="password" name="password_confirmation" class="{{ $inputClass }}" style="{{ $inputStyle }}" required data-required-field>
-            </label>
-        </div>
-
-        {{-- زرّ الاستكمال **معطَّل حتى تكتمل كلّ البيانات** (2.5-ج) --}}
+        {{-- 8) زرّ الاستكمال **معطَّل حتى تكتمل كلّ البيانات** — واحتفال قويّ عند الإتمام --}}
         <button data-submit class="btn w-full rounded-xl py-2 font-semibold motion-standard"
-                style="min-height: 44px; background: var(--color-brand-500); color:#04201c">إنشاء الحساب</button>
+                style="min-height: 44px; background: var(--color-brand-500); color:#04201c">
+            {{ setting('onboarding.identity.submit_label', 'استكمال التسجيل') }}
+        </button>
     </form>
 
     <p class="text-sm mt-4" style="color: var(--text-muted)">
-        عندك حساب؟ <a href="{{ route('login') }}" style="color: var(--color-brand-500)">ادخل من هنا</a>
+        عايز تعدّل بريدك أو رقمك؟
+        <a href="{{ route('register') }}?back=1" data-restart style="color: var(--color-brand-500)">ارجع للخطوة الأولى</a>
     </p>
+
+    {{-- ⚖️ إسناد ODbL **حيث تُستهلَك البيانات** — الدول والمحافظات أعلاه (2.5-ج) --}}
+    @include('auth.register.partials.attribution')
+</div>
+
+{{-- 🎉 «وعند الإتمام ⇒ **احتفال قوي**» (2.5-ج) — المستوى 3 من مصدر الاحتفالات الواحد (2.14) --}}
+<div data-celebration hidden>
+    @include('onboarding.partials.celebration', ['celebration' => ['tier' => 3, 'sound' => false, 'sound_path' => null]])
 </div>
 
 <script>
     (() => {
-        const form = document.querySelector('[data-register-form]');
+        const form = document.querySelector('[data-identity-form]');
         if (!form) return;
 
         const submit = form.querySelector('[data-submit]');
         const country = form.querySelector('[data-country]');
         const governorate = form.querySelector('[data-governorate]');
+        const stage = document.querySelector('[data-celebration]');
         const scripts = {
             arabic: /^[؀-ۿ\sـ]+$/,
             latin: /^[A-Za-z\s'\-.]+$/,
         };
 
-        // المحافظة تُملأ تلقائيًّا من الدولة — ولا تُعرَض محافظةُ دولةٍ أخرى (2.5-ج)
-        const syncGovernorates = () => {
+        // المحافظة **تُملأ تلقائيًّا من الدولة** (2.5-ج) — بجلبٍ صغير لا بقائمةٍ كاملة
+        const loadGovernorates = async () => {
             if (!country || !governorate) return;
+
             const id = country.value;
-            let visible = 0;
-            governorate.querySelectorAll('option[data-country-id]').forEach((option) => {
-                const match = option.dataset.countryId === id;
-                option.hidden = !match;
-                option.disabled = !match;
-                if (match) visible += 1;
-                if (!match && option.selected) governorate.value = '';
-            });
-            governorate.disabled = visible === 0;
+            governorate.innerHTML = '';
+            governorate.disabled = true;
+
+            const blank = document.createElement('option');
+            blank.value = '';
+            blank.textContent = id ? '…' : 'اختر الدولة الأوّل';
+            governorate.appendChild(blank);
+
+            if (!id) { check(); return; }
+
+            try {
+                const res = await fetch(governorate.dataset.url + '?governorates=' + encodeURIComponent(id),
+                    { headers: { Accept: 'application/json' } });
+                const data = await res.json();
+
+                blank.textContent = 'اختر المحافظة';
+                (data.governorates || []).forEach((row) => {
+                    const option = document.createElement('option');
+                    option.value = row.id;
+                    option.textContent = row.name;
+                    governorate.appendChild(option);
+                });
+                governorate.disabled = false;
+            } catch (_) {
+                blank.textContent = 'تعذّر تحميل المحافظات — جرّب تاني';
+            }
+
+            check();
         };
 
         const check = () => {
@@ -224,11 +247,20 @@
             submit.style.opacity = ready ? '1' : '.45';
         };
 
-        country?.addEventListener('change', () => { syncGovernorates(); check(); });
+        // الاحتفال **لحظة الإتمام** لا بعد صفحةٍ كاملة (2.5-ج · 2.9 Peak-End)
+        let celebrated = false;
+        form.addEventListener('submit', (event) => {
+            if (celebrated || !stage || submit.disabled) return;
+            event.preventDefault();
+            celebrated = true;
+            stage.hidden = false;
+            setTimeout(() => form.submit(), {{ max(0, (int) setting('celebrations.hold_ms', 900)) }});
+        });
+
+        country?.addEventListener('change', loadGovernorates);
         form.addEventListener('input', check);
         form.addEventListener('change', check);
 
-        syncGovernorates();
         check();
     })();
 </script>

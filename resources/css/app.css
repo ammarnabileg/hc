@@ -80,9 +80,11 @@
     --header-h:       64px;
     /* اتّجاه تعبئة المنزلق: يمينًا في LTR ويسارًا في RTL (2.10.1-11) */
     --range-dir:      right;
+    /* اتّجاه شريط `ticker` (2.10.1-20) — يتبع اتّجاه الصفحة لا العكس */
+    --ticker-dir:     1;
   }
 
-  [dir='rtl'] { --range-dir: left; }
+  [dir='rtl'] { --range-dir: left; --ticker-dir: -1; }
 
   :root[data-theme='light'] {
     color-scheme: light;
@@ -235,9 +237,115 @@
     background: var(--color-brand-500);
   }
 
-  /* الحدّ الأدنى لمساحة اللمس على الموبايل 44×44 (2.15-ج) */
+  /*
+   | ⭐ (23) شريط التمرير: «عرض **5px**، مقبض `--ta20`، مسار `--bg`، `radius:3px`».
+   | كان غائبًا بالكامل فيرسم كلُّ نظامٍ شريطَه (17px رماديّ على ويندوز) —
+   | فيقطع الهويّة عند أوّل قائمةٍ طويلة. والمقاسان إعدادٌ لا رقمٌ محروق (2.13).
+   */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgb(0 212 184 / 0.20) var(--surface);
+  }
+
+  ::-webkit-scrollbar {
+    inline-size: var(--sb-w, 5px);
+    block-size: var(--sb-w, 5px);
+  }
+
+  ::-webkit-scrollbar-track { background: var(--surface); }
+
+  ::-webkit-scrollbar-thumb {
+    background: rgb(0 212 184 / 0.20);
+    border-radius: var(--sb-r, 3px);
+  }
+
+  ::-webkit-scrollbar-thumb:hover { background: rgb(0 212 184 / 0.30); }
+
+  /*
+   | ⭐ 2.15-ج: «**الحدّ الأدنى لمساحة اللمس 44×44 بكسل**».
+   |
+   | القاعدة **شرطُ قبولٍ على كلّ بند** ولا تخصّ الأزرار وحدها: كلّ ما يُضغَط
+   | هدفُ لمس — الروابط والتابات والحقول والقوائم و`summary`. وكانت مقصورةً
+   | على `button` و`a.btn`، فبقيت روابط السايد بار **36px** والأيقونات 24px.
+   |
+   | ولماذا `(pointer: coarse)` فقط؟ لأنّ الفأرة تصيب هدفًا أصغر بلا خطأ،
+   | ورفعُ كلّ رابطٍ إلى 44px على الديسكتوب يمطّ القوائم بلا داعٍ. والقاعدة
+   | نفسها منصوصةٌ تحت **«قاعدة الموبايل»** — فهذا موضعها.
+   */
   @media (pointer: coarse) {
-    button, [role='button'], a.btn { min-block-size: 44px; min-inline-size: 44px; }
+    a[href], button, summary,
+    [role='button'], [role='switch'], [role='tab'], [role='menuitem'],
+    input:not([type='hidden']):not([type='range']):not([type='checkbox']):not([type='radio']),
+    select, textarea {
+      min-block-size: var(--touch-min, 44px);
+    }
+
+    /*
+     | ما لا نصَّ فيه على عرضٍ ممتدّ (أيقونة/زرّ مربّع) يأخذ العرض أيضًا.
+     | و`a.btn` منها: الرابط الذي يلبس زيَّ الزرّ زرٌّ في يد المستخدم، وقد
+     | يخلو نصُّه (زرّ إجراءٍ اختياريّ في «شاشة أوّل مرّة») فيصير 26px عرضًا.
+     */
+    button, [role='button'], [role='switch'], summary, select,
+    a.btn, a.btn-p, a.btn-g {
+      min-inline-size: var(--touch-min, 44px);
+    }
+
+    /*
+     | الحقول تُمركِز نصَّها رأسيًّا بعد رفع ارتفاعها، وإلّا التصق النصّ بالأعلى.
+     | و`textarea` مستثناة: نصُّها يبدأ من أوّل سطرٍ بطبيعته.
+     */
+    input:not([type='hidden']):not([type='range']):not([type='checkbox']):not([type='radio']),
+    select { padding-block: 0.5rem; }
+
+    /*
+     | ⭐ الشيك-بوكس والراديو: النايتف 13px ولا يُكبَّر بلا تشويه، فالهدف
+     | **التسمية الملتفّة حوله** — نرفعها هي لا الصندوق، فيبقى الشكل ويكبر
+     | الهدف. ولو كان عاريًا بلا تسمية رفعناه بالحدّ الأدنى نفسه.
+     */
+    label:has(> input[type='checkbox']),
+    label:has(> input[type='radio']) {
+      display: inline-flex;
+      align-items: center;
+      min-block-size: var(--touch-min, 44px);
+    }
+
+    /*
+     | ⭐ المنزلق: مساره **6px** بنصّ (11) ولا يُغلَّظ — فنفصل **الهدف** عن
+     | **الشكل**: ارتفاع العنصر 44px شفّاف، والتدرّج يُرسَم على مسار داخليّ
+     | 6px. فيبقى المنظر منصوصًا والإصبع يصيب.
+     */
+    input[type='range'] {
+      block-size: var(--touch-min, 44px);
+      background-image: none;
+    }
+
+    input[type='range']::-webkit-slider-runnable-track {
+      block-size: 6px;
+      background-image: linear-gradient(
+        to var(--range-dir, left),
+        var(--color-brand-500) var(--range-fill, 0%),
+        rgb(0 212 184 / 0.12) var(--range-fill, 0%)
+      );
+    }
+
+    input[type='range']::-webkit-slider-thumb { margin-block-start: -5px; }
+
+    /*
+     | ⭐ الروابط **داخل نصٍّ جارٍ**: `min-block-size` لا أثر له على عنصرٍ
+     | سطريّ (inline) أصلًا، ورفعُ ارتفاعه بغيرها يمطّ السطر ويكسر الفقرة.
+     | لكنّ **حشوة العنصر السطريّ لا تدخل في حساب التخطيط** — فهي تكبّر
+     | منطقة الإصابة **بلا إزاحة بكسلٍ واحد**. وهذا ما يجعل الإصلاح مقبولًا
+     | بالمعاينة لا بزوال العَرَض وحده.
+     |
+     | والاستثناءات: ما حمل صنف تخطيطٍ (flex/block/grid/card/btn) فهو كتليّ
+     | يكفيه `min-block-size` أعلاه، وزيادةُ الحشوة عليه تمطّه فعلًا.
+     */
+    a[href]:not(.btn):not(.card):not([class*='flex']):not([class*='block']):not([class*='grid']):not([class*='btn-']) {
+      display: inline-block;
+      min-inline-size: var(--touch-min, 44px);
+      text-align: center;
+      padding-block: calc((var(--touch-min, 44px) - 1em) / 2);
+    }
   }
 }
 
@@ -297,6 +405,150 @@
     inset-block-start: calc(var(--header-h, 64px) + 12px);
     z-index: 30;
   }
+
+  /* ================= (7) الأزرار — التدرّج لا اللون المسطّح =================
+   |
+   | نصّ 2.10.1-7 حرفيًّا: «**أساسيّ (btn-p):** `linear-gradient(135deg,#2de0ca,
+   | #009e85)`، نصّ `#020e18`، `700`، `radius:~.72rem`، Hover `opacity:.9` +
+   | `scale(1.01–1.015)`». · «**شبح (btn-g/outline):** `border:1px --ta20`، نصّ
+   | `--w80`، خلفيّة `--ta08`؛ Hover حدّ `--ta30` + خلفيّة `--ta12`».
+   |
+   | وكان `.btn` **صنفًا بلا تعريف** في الورقة كلّها: 285 موضعًا تكتبه ثمّ تلوّن
+   | نفسها بـ`style="background: var(--color-brand-500)"` — لونٌ **مسطّح** لا
+   | تدرّج، فضاع أوّل ما يراه العين من الهويّة.
+   */
+  .btn-p, .btn[style*='--color-brand-500'] {
+    background-image: var(--btn-grad, linear-gradient(135deg, #2de0ca, #009e85)) !important;
+    color: var(--btn-text, #020e18) !important;
+    font-weight: 700;
+    border: none;
+  }
+
+  .btn-p:hover, .btn[style*='--color-brand-500']:hover {
+    opacity: var(--btn-hover-opacity, 0.9);
+    transform: scale(var(--btn-hover-scale, 1.015));
+  }
+
+  .btn, .btn-p, .btn-g {
+    border-radius: calc(var(--btn-radius, 0.72) * 1rem);
+    transition: opacity 0.18s var(--ease-standard), transform 0.18s var(--ease-standard),
+      background-color 0.18s var(--ease-standard), border-color 0.18s var(--ease-standard);
+  }
+
+  .btn-g {
+    border: 1px solid rgb(0 212 184 / 0.20);
+    background: rgb(0 212 184 / 0.08);
+    color: rgb(255 255 255 / 0.80);
+    font-weight: 700;
+  }
+
+  .btn-g:hover {
+    border-color: rgb(0 212 184 / 0.30);
+    background: rgb(0 212 184 / 0.12);
+  }
+
+  :root[data-theme='light'] .btn-g { color: var(--text); }
+
+  /* تدرّج الإبراز على النصّ (2.10.1-3): `background-clip:text` */
+  .text-accent {
+    background-image: var(--accent-grad, linear-gradient(135deg, #2de0ca 0%, #00d4b8 55%, #009e85 100%));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* ================= (10) السويتش (Toggle) =================
+   |
+   | نصّ 2.10.1-10 حرفيًّا: «المسار `40×22px`/`999px`/`rgba(255,255,255,.15)`؛
+   | عند التفعيل → `--t`. · الإبهام دائرة `16px` بيضاء تنزلق `3px→21px`
+   | (RTL عبر `inset-inline-start`)».
+   |
+   | ⭐ و`21px` ليست رقمًا مستقلًّا بل **مشتقّة**: 40 − 16 − 3. فلو غيّر المالك
+   | عرض المسار من شاشته انزلق الإبهام إلى موضعه الصحيح، ولم يقف في الفراغ.
+   | ولذلك `--sw-end` تُحسَب في `DesignTokens` لا تُكتَب.
+   */
+  .hc-switch {
+    position: relative;
+    display: inline-block;
+    flex: none;
+    inline-size: var(--sw-track-w, 40px);
+    block-size: var(--sw-track-h, 22px);
+    border-radius: 999px;
+    background: rgb(255 255 255 / 0.15);
+    transition: background-color 0.2s var(--ease-standard);
+  }
+
+  :root[data-theme='light'] .hc-switch { background: rgb(10 34 32 / 0.15); }
+
+  .hc-switch::after {
+    content: '';
+    position: absolute;
+    inset-block-start: var(--sw-inset, 3px);
+    inset-inline-start: var(--sw-inset, 3px);
+    inline-size: var(--sw-thumb, 16px);
+    block-size: var(--sw-thumb, 16px);
+    border-radius: 999px;
+    background: #fff;
+    transition: inset-inline-start 0.2s var(--ease-standard);
+  }
+
+  [aria-checked='true'] .hc-switch,
+  input:checked + .hc-switch,
+  .hc-switch[data-on='1'] { background: var(--color-brand-500); }
+
+  [aria-checked='true'] .hc-switch::after,
+  input:checked + .hc-switch::after,
+  .hc-switch[data-on='1']::after { inset-inline-start: var(--sw-end, 21px); }
+
+  /* ================= (18) المؤشّر المخصّص (Custom Cursor) =================
+   |
+   | نصّ 2.10.1-18 حرفيًّا: «نقطة `8px` تركوازيّة تكبر إلى `42px` (شفّافة بحدّ)
+   | فوق العناصر التفاعليّة بانتقال `cubic-bezier(.22,1,.36,1)`؛ **تُخفى على
+   | اللمس**». · وعنوانه في النصّ: «**الفأرة فقط**».
+   |
+   | فالإخفاء على اللمس ليس تحسينًا اختياريًّا: نقطةٌ تتبع آخر لمسةٍ على الموبايل
+   | تبقى واقفةً في مكانها كأنّها عطب. ولذلك `(pointer: fine)` **شرطُ الظهور**
+   | لا شرطُ الإخفاء — فما لا فأرةَ له لا يُنشَأ له مؤشّر أصلًا.
+   */
+  .hc-cursor {
+    position: fixed;
+    inset-block-start: 0;
+    inset-inline-start: 0;
+    inline-size: var(--cursor-dot, 8px);
+    block-size: var(--cursor-dot, 8px);
+    margin-block-start: calc(var(--cursor-dot, 8px) / -2);
+    margin-inline-start: calc(var(--cursor-dot, 8px) / -2);
+    border-radius: 999px;
+    background: var(--color-brand-500);
+    border: 1px solid transparent;
+    pointer-events: none;
+    z-index: 9998;
+    opacity: 0;
+    transition:
+      inline-size 0.28s var(--ease-standard),
+      block-size 0.28s var(--ease-standard),
+      margin-block-start 0.28s var(--ease-standard),
+      margin-inline-start 0.28s var(--ease-standard),
+      background-color 0.28s var(--ease-standard),
+      border-color 0.28s var(--ease-standard),
+      opacity 0.2s var(--ease-standard);
+  }
+
+  .hc-cursor[data-visible='1'] { opacity: 1; }
+
+  .hc-cursor[data-hot='1'] {
+    inline-size: var(--cursor-hover, 42px);
+    block-size: var(--cursor-hover, 42px);
+    margin-block-start: calc(var(--cursor-hover, 42px) / -2);
+    margin-inline-start: calc(var(--cursor-hover, 42px) / -2);
+    background: transparent;
+    border-color: var(--color-brand-500);
+  }
+
+  /* لا مؤشّر بلا فأرة — ولا يُبنى أصلًا على اللمس */
+  @media (pointer: coarse) {
+    .hc-cursor { display: none; }
+  }
 }
 
 @layer utilities {
@@ -311,11 +563,32 @@
    | `data-motion` ولا صنفٌ يُصفّر `animation-duration`. الحركة تعمل، نقطة.
    */
 
+  /* ================= (20) الحركات — الثماني كاملةً =================
+   |
+   | نصّ 2.10.1-20 حرفيًّا: «`fadeup` .55s ease (ظهور 16px) · `float` 5s (طفوّ
+   | −4px) · `text-shimmer/shimmer` 5s/3s (لمعان) · `pulse-dot` 2s · `spin-slow`
+   | 11s · `ticker` 22s · `blink` 2s».
+   |
+   | ثمانٍ بالعدّ: fadeup · float · text-shimmer · shimmer · pulse-dot ·
+   | spin-slow · ticker · blink. وكان المبنيّ منها **اثنتين** بمُدّتين مخالفتين
+   | (fadeup 250ms بدل .55s وإزاحة 8px بدل 16px · shimmer 2s بدل 3s)، والستّ
+   | الباقيات غائبات — فتُستعار `animate-pulse` من تايلوند بدل `pulse-dot`
+   | المنصوصة، وهي حركةٌ أخرى بمنحنًى آخر.
+   |
+   | والمُدد كلّها من `DesignTokens` — لا رقم محروق (2.13-ب).
+   */
+
   @keyframes fadeup {
-    from { opacity: 0; transform: translateY(8px); }
+    from { opacity: 0; transform: translateY(var(--anim-fadeup-shift, 16px)); }
     to   { opacity: 1; transform: none; }
   }
-  .animate-fadeup { animation: fadeup 250ms var(--ease-standard) both; }
+  .animate-fadeup { animation: fadeup var(--anim-fadeup, 550ms) ease both; }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(calc(var(--anim-float-shift, 4px) * -1)); }
+  }
+  .animate-float { animation: float var(--anim-float, 5s) ease-in-out infinite; }
 
   @keyframes shimmer {
     from { background-position: 200% 0; }
@@ -324,6 +597,60 @@
   .animate-shimmer {
     background-image: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.12), transparent);
     background-size: 200% 100%;
-    animation: shimmer 2s linear infinite;
+    animation: shimmer var(--anim-shimmer, 3s) linear infinite;
   }
+
+  /*
+   | `text-shimmer` أطول من `shimmer` وأبطأ (5s مقابل 3s) لأنّها تلمع **على
+   | حروف النصّ نفسها** عبر `background-clip:text` — لا على سطحٍ فارغ.
+   */
+  @keyframes text-shimmer {
+    from { background-position: 200% center; }
+    to   { background-position: -200% center; }
+  }
+  .animate-text-shimmer {
+    background-image: linear-gradient(
+      90deg,
+      var(--color-brand-600) 0%, var(--color-brand-300) 45%,
+      var(--color-brand-600) 90%
+    );
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: text-shimmer var(--anim-text-shimmer, 5s) linear infinite;
+  }
+
+  @keyframes pulse-dot {
+    0%   { box-shadow: 0 0 0 0 rgb(0 212 184 / 0.55); }
+    70%  { box-shadow: 0 0 0 8px rgb(0 212 184 / 0); }
+    100% { box-shadow: 0 0 0 0 rgb(0 212 184 / 0); }
+  }
+  .animate-pulse-dot { animation: pulse-dot var(--anim-pulse-dot, 2s) var(--ease-standard) infinite; }
+
+  @keyframes spin-slow {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+  }
+  .animate-spin-slow { animation: spin-slow var(--anim-spin-slow, 11s) linear infinite; }
+
+  /*
+   | `ticker` شريطٌ يمرّ — واتّجاهه **يتبع اتّجاه الصفحة** (RTL/LTR) عبر
+   | `--ticker-dir`، وإلّا زحف الشريط العربيّ في الاتّجاه الخطأ.
+   */
+  @keyframes ticker {
+    from { transform: translateX(0); }
+    to   { transform: translateX(calc(var(--ticker-dir, 1) * -100%)); }
+  }
+  .animate-ticker {
+    display: inline-flex;
+    white-space: nowrap;
+    animation: ticker var(--anim-ticker, 22s) linear infinite;
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50%      { opacity: 0.25; }
+  }
+  .animate-blink { animation: blink var(--anim-blink, 2s) step-end infinite; }
 }

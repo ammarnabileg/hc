@@ -15,6 +15,7 @@
     {{-- الخطوط محلّيّة داخل حزمة Vite — **بلا أيّ نداء خارجيّ** (2.10.1-2) --}}
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @include('partials.design-tokens')
     @stack('head')
 </head>
 <body class="min-h-screen">

@@ -62,8 +62,13 @@ php artisan serve
 ```bash
 php artisan test              # 1086 اختبارًا
 php artisan settings:coverage # يفشل لو ظهرت مجموعة إعدادات بلا شاشة (2.13)
+php artisan settings:hardcoded # يفشل لو زاد نصٌّ عربيّ محروق على العتبة (2.13-أ/ب)
 ./vendor/bin/pint             # تنسيق
 ```
+
+> `settings:coverage` يقيس **المفاتيح**، و`settings:hardcoded` يقيس **النصّ الذي
+> لا يمرّ بمفتاح أصلًا** — فلا يُقرَأ أحدهما وحده على أنّه امتثالٌ لـ2.13.
+> وكلاهما يعلن **ما لا يقيسه** في مخرجاته؛ اقرأه قبل أن تقرأ الرقم.
 
 ## متطلّبات الإنتاج
 

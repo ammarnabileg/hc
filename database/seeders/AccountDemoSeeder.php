@@ -5,12 +5,15 @@ namespace Database\Seeders;
 use App\Models\Complaint;
 use App\Models\ComplaintMessage;
 use App\Models\ConsentRequest;
+use App\Models\Currency;
 use App\Models\EmergencyContact;
 use App\Models\HelpArticle;
 use App\Models\Setting;
 use App\Models\User;
 use App\Models\UserDevice;
 use App\Models\UserPrivacySetting;
+use App\Models\WalletBalance;
+use App\Services\Gamification\LevelResolver;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
 
@@ -123,10 +126,34 @@ class AccountDemoSeeder extends Seeder
                 'code' => $code,
                 'password' => 'password',
                 'status' => 'active',
-                'level' => 3 + $index % 4,
                 'xp' => 900 + $index * 430,
                 'last_seen_at' => now()->subMinutes($index * 7),
             ]);
+        }
+
+        /*
+         | ⭐ **XP في المحفظة أوّلًا، والمستوى مشتقٌّ لا مزروع** (ن-2).
+         |
+         | كان الصفّ يكتب `'level' => 3 + $index % 4` — رقمًا لا صلة له بـXP،
+         | فيقول هيدر البروفايل «مستوى الحساب 6» لمستخدمٍ يقول رادارُه «مستوى 3».
+         | وكان يكتب `users.xp` وحده بلا صفّ محفظة، **والمحفظة هي مصدر XP**
+         | (19.2، وعليها يرتّب الليدر بورد بـCOALESCE) — فأوّل حركةٍ حقيقيّة تفتح
+         | المحفظة برصيدٍ صغير فيهبط XP المعروض من 1,330 إلى 20 فجأةً.
+         |
+         | فالبذرة الآن تكتب **الاثنين متطابقين**، والمستوى يُشتقّ من المصدر الواحد.
+         */
+        $xpCurrency = Currency::where('code', (string) setting('wallet.currency.xp_code', 'xp'))->first();
+        $levels = app(LevelResolver::class);
+
+        foreach ($users as $user) {
+            if ($xpCurrency) {
+                WalletBalance::updateOrCreate(
+                    ['user_id' => $user->id, 'currency_id' => $xpCurrency->id],
+                    ['balance' => (int) $user->xp, 'lifetime_earned' => (int) $user->xp, 'lifetime_spent' => 0],
+                );
+            }
+
+            $levels->sync($user->refresh());
         }
 
         return $users;

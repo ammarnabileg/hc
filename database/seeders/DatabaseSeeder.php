@@ -22,6 +22,10 @@ class DatabaseSeeder extends Seeder
             SettingDefinitionsSeeder::class,
             // وما لم يعلنه أيّ مجال ويقرؤه الكود — يُردَم هنا حتى يتبنّاه مجاله
             SettingGapSeeder::class,
+            // 🌍 دول العالم ومحافظاتها كاملةً من المصدر المعتمَد (2.5-ج · 12.7-د).
+            // **بعد** الإعدادات عن قصد: الزرع يقرأ `countries.*` (المصدر · الإسناد
+            // · سياسة الحذف)، ولو سبقها لقرأ افتراضيّاتٍ محروقة بدل قيم المالك.
+            CountriesSeeder::class,
         ]);
     }
 }
