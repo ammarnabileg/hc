@@ -104,6 +104,12 @@ class AudienceSegmentsTest extends TestCase
         $this->assertSame($before, $this->segments()->memberCount($static), 'الثابتة مجمَّدة على أعضائها');
         $this->assertFalse($this->segments()->contains($static, $newcomer));
         $this->assertTrue($this->segments()->contains($dynamic, $newcomer));
+
+        // وشاشة الأعضاء تقول نفس الحقيقة: القادم الجديد ليس في اللقطة المجمَّدة
+        $this->actingAs($owner)
+            ->get(route('admin.users.segments.members', $static))
+            ->assertOk()
+            ->assertDontSee($newcomer->name);
     }
 
     /** والثابتة تحتفظ بعضوٍ خرج عن الشرط — لأنّها لقطةٌ لا استعلام. */
