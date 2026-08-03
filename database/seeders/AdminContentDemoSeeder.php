@@ -64,6 +64,9 @@ class AdminContentDemoSeeder extends Seeder
             ['courses.save.continue_published_label', 'courses', 'نصّ «حفظ واستمرار» للمنشور', 'string', 'اتحفظ وهو منشور ✓ — كمّل تحرير'],
             ['courses.autosave.debounce_ms', 'courses', 'مهلة الحفظ التلقائيّ (مللي ثانية)', 'number', '2000'],
             ['courses.duplicate.suffix', 'courses', 'لاحقة النسخة المكرّرة', 'string', ' — نسخة'],
+            // «تكرار/نسخ (Duplicate) لتدريب» (12.4-هـ): المسار كان بلا مدخل في الواجهة
+            ['courses.duplicate.action_label', 'courses', 'نصّ إجراء تكرار التدريب', 'string', 'تكرار التدريب'],
+            ['courses.duplicate.confirm_text', 'courses', 'نصّ تأكيد تكرار التدريب', 'string', 'هنعمل نسخة كاملة بسيكشنزها ودروسها كمسودّة — نكمّل؟'],
             ['courses.xp.max_per_lesson', 'courses', 'أقصى XP للدرس', 'number', '50'],
             ['courses.availability.max_windows', 'courses', 'أقصى فترات إتاحة', 'number', '3'],
 
@@ -198,6 +201,21 @@ class AdminContentDemoSeeder extends Seeder
             ['admin_content.audit.enabled', 'admin_content', 'تفعيل سجلّ التدقيق', 'bool', '1'],
             ['admin_content.audit.page_size', 'admin_content', 'عدد صفوف سجلّ التدقيق', 'number', '20'],
             ['admin_content.audit.max_value_length', 'admin_content', 'أقصى طول للقيمة المسجَّلة', 'number', '500'],
+
+            // ---------------- بوب-أب «اختَر من المكتبة / ارفع جديد» (12.4-د · 12.4-هـ · 24.1)
+            ['media.picker.title', 'media', 'عنوان بوب-أب اختيار الوسائط', 'string', 'اختَر من المكتبة'],
+            ['media.picker.subtitle', 'media', 'شرح شاشة اختيار الوسائط', 'string', 'اضغط الملفّ عشان يتحطّ في الحقل.'],
+            ['media.picker.cta', 'media', 'نصّ زرّ فتح المكتبة بجوار حقل الرفع', 'string', 'اختَر من المكتبة'],
+            ['media.picker.search_placeholder', 'media', 'نصّ بحث المكتبة داخل البوب-أب', 'string', 'ابحث بالاسم…'],
+            ['media.picker.empty', 'media', 'الحالة الفارغة في بوب-أب المكتبة', 'string', 'المكتبة فاضية — ارفع أوّل ملفّ.'],
+            ['media.picker.open_library', 'media', 'نصّ زرّ فتح المكتبة كاملة', 'string', 'افتح المكتبة'],
+            ['media.picker.close', 'media', 'نصّ إغلاق بوب-أب المكتبة', 'string', 'إغلاق'],
+            ['media.picker.loading', 'media', 'نصّ تحميل بوب-أب المكتبة', 'string', 'بنجيب الملفّات…'],
+            ['media.picker.load_error', 'media', 'نصّ تعذّر تحميل المكتبة', 'string', 'ما قدرناش نفتح المكتبة — جرّب تاني.'],
+            ['media.picker.upload_label', 'media', 'نصّ رفع ملفّ جديد داخل البوب-أب', 'string', 'ارفع جديد'],
+            ['media.picker.upload_hint', 'media', 'شرح الرفع داخل البوب-أب', 'string', 'الملفّ المكرّر مش هيترفع مرّتين — هنستخدم النسخة الموجودة.'],
+            ['media.picker.uploading', 'media', 'نصّ أثناء الرفع', 'string', 'بنرفع…'],
+            ['media.picker.upload_error', 'media', 'نصّ تعذّر الرفع', 'string', 'ما قدرناش نرفع الملفّ — جرّب تاني.'],
 
             // ---------------- واجهة
             ['ux.toast.seconds', 'ux', 'مدّة الـToast (ثوانٍ)', 'number', '5'],

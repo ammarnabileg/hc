@@ -126,8 +126,19 @@
             </fieldset>
 
             <div class="grid md:grid-cols-2 gap-3">
-                <x-form.input name="cover_path" label="الغلاف (مسار من مكتبة الوسائط)" :value="$course->cover_path"
-                              hint="افتح مكتبة الوسائط واختر صورة، أو ارفع جديدًا." />
+                {{-- ⭐ «أيّ حقل رفع يفتح اختَر من المكتبة أو ارفع جديد» (12.4-هـ) — بلا نسخٍ ولا لصق --}}
+                <div>
+                    <x-form.input name="cover_path" label="الغلاف (مسار من مكتبة الوسائط)" :value="$course->cover_path"
+                                  hint="افتح مكتبة الوسائط واختر صورة، أو ارفع جديدًا." />
+                    <div class="flex items-center gap-2 mt-2">
+                        <button type="button" data-media-pick="cover_path"
+                                class="rounded-xl px-3 py-1.5 text-xs"
+                                style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
+                            <x-icon name="library" size="14" /> {{ setting('media.picker.cta') }}
+                        </button>
+                        <span data-media-preview="cover_path" class="inline-flex items-center"></span>
+                    </div>
+                </div>
                 <label class="block">
                     <span class="block text-sm mb-1">الحالة</span>
                     <select name="status" class="w-full rounded-xl px-3 py-2 text-sm"
@@ -311,6 +322,8 @@
 
     @include('admin.courses.partials.sortable')
     @include('admin.courses.partials.toast')
+    {{-- بوب-أب «اختَر من المكتبة / ارفع جديد» لحقل الغلاف (12.4-هـ) --}}
+    @include('admin.courses.partials.media-picker-modal')
 
     @push('scripts')
         <script>

@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.volunteer')
 
 @section('title', 'صحّة القسم')
 
@@ -17,7 +17,7 @@
     <x-page-header
         title="صحّة القسم"
         :subtitle="$root?->name_ar"
-        :breadcrumbs="[['label' => 'الرئيسيّة', 'url' => route('dashboard')], ['label' => 'قسمي'], ['label' => 'صحّة القسم']]">
+        :breadcrumbs="[['label' => 'لوحة التطوّع', 'url' => url('/volunteer')], ['label' => 'قسمي'], ['label' => 'صحّة القسم']]">
         <x-slot:action>
             @include('volunteer.org.partials.entity-switcher', ['action' => route('volunteer.health')])
             @can('team_health.export')

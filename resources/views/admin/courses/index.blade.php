@@ -143,6 +143,18 @@
                                             <a href="{{ route('admin.courses.stats', $course) }}" class="block px-2 py-1 text-sm">إحصائيّات</a>
                                             <a href="{{ route('admin.courses.preview', $course) }}" class="block px-2 py-1 text-sm">معاينة كطالب</a>
                                             <a href="{{ route('admin.courses.audit', $course) }}" class="block px-2 py-1 text-sm">سجلّ التدقيق</a>
+
+                                            {{-- «تكرار/نسخ (Duplicate) لتدريب» (12.4-هـ) — بصلاحيّة الإنشاء
+                                                 لأنّها تُنشئ تدريبًا جديدًا فعلًا، ومَن لا يملكها لا يرى العنصر (2.15-أ-7) --}}
+                                            @can('courses.create')
+                                                <form method="post" action="{{ route('admin.courses.duplicate', $course) }}"
+                                                      onsubmit="return confirm('{{ setting('courses.duplicate.confirm_text') }}')">
+                                                    @csrf
+                                                    <button type="submit" class="block w-full text-start px-2 py-1 text-sm">
+                                                        {{ setting('courses.duplicate.action_label') }}
+                                                    </button>
+                                                </form>
+                                            @endcan
                                         </div>
                                     </details>
                                 </td>
@@ -178,6 +190,17 @@
                                 <div>{{ $counts['sections'][$course->id] ?? 0 }} سيكشن · {{ $counts['lessons'][$course->id] ?? 0 }} درس</div>
                                 @can('courses.edit')
                                     <a href="{{ route('admin.courses.edit', $course) }}" class="underline block mt-2">تعديل</a>
+                                @endcan
+
+                                {{-- ونفس الإجراء على الموبايل: لا ميزة تسقط بالمقاس (2.15-ج) --}}
+                                @can('courses.create')
+                                    <form method="post" action="{{ route('admin.courses.duplicate', $course) }}" class="mt-2"
+                                          onsubmit="return confirm('{{ setting('courses.duplicate.confirm_text') }}')">
+                                        @csrf
+                                        <button type="submit" class="underline text-sm">
+                                            {{ setting('courses.duplicate.action_label') }}
+                                        </button>
+                                    </form>
                                 @endcan
                             </div>
                         </details>

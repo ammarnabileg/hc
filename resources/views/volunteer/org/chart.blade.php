@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.volunteer')
 
 @section('title', 'الهيكل التنظيميّ')
 
@@ -10,7 +10,7 @@
     <x-page-header
         title="الهيكل التنظيميّ"
         :subtitle="$root ? $root->name_ar.' — شجرة الكيان وسلاسل الأبلاين' : null"
-        :breadcrumbs="[['label' => 'الرئيسيّة', 'url' => route('dashboard')], ['label' => 'قسمي'], ['label' => 'الهيكل التنظيميّ']]">
+        :breadcrumbs="[['label' => 'لوحة التطوّع', 'url' => url('/volunteer')], ['label' => 'قسمي'], ['label' => 'الهيكل التنظيميّ']]">
         <x-slot:action>
             @include('volunteer.org.partials.entity-switcher', ['action' => route('volunteer.org')])
             {{-- فعل رئيسيّ واحد بارز (2.15-أ-2) --}}

@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\GuidanceController;
 use App\Http\Controllers\Admin\LessonAdminController;
 use App\Http\Controllers\Admin\MediaController;
 use App\Http\Controllers\Admin\PathAdminController;
+use App\Http\Controllers\Admin\PlacementTestAdminController;
 use App\Http\Controllers\Admin\TemplateDesignerController;
 use Illuminate\Support\Facades\Route;
 
@@ -247,4 +248,36 @@ Route::middleware(['auth', 'admin.panel'])->prefix('admin')->name('admin.')->gro
         Route::get('/guidance/complaint-reasons', [GuidanceController::class, 'complaintReasons'])->name('guidance.complaint_reasons');
         Route::put('/guidance/complaint-reasons', [GuidanceController::class, 'updateComplaintReasons'])->name('guidance.complaint_reasons.update');
     });
+    /*
+    |============================================ بناء الاختبار التمهيديّ (2.5-د-2 · 12 · 24)
+    | «**اختبار تمهيدي (Placement):** يُدار من الأدمن — الأسئلة ممكن تكون (فيديو
+    | و/أو كود Embedded HTML من أي مكان و/أو نص و/أو صورة) … **مكافأة لكل سؤال**
+    | بجانبه: **XP فقط أو تذاكر فقط أو الاثنين**» (2.5-د-2).
+    |
+    | ⚠️ كان `placement_test_questions` **جدولًا بلا شاشة**: تقرأ منه خدمةُ
+    | `PlacementTest` وشاشةُ المتدرّب، ولا مسارَ ينشئ فيه سؤالًا — فيبقى فارغًا
+    | فتُتخطّى خطوةُ التصفية المنصوصة صامتةً.
+    |
+    | وموارده `placement_test.*` من مصفوفة 12.2.2 — **لا `placements.*`** (تلك
+    | تسكينُ المتطوّعين في الهيكل، 13.4-هـ، ومورد آخر تمامًا).
+    */
+    Route::middleware('permission:placement_test.manage,placement_test.edit,placement_test.create')
+        ->get('/placement-test', [PlacementTestAdminController::class, 'index'])->name('placement-test.index');
+
+    Route::middleware('permission:placement_test.create')
+        ->post('/placement-test', [PlacementTestAdminController::class, 'store'])->name('placement-test.store');
+
+    Route::middleware('permission:placement_test.edit')->group(function () {
+        Route::put('/placement-test/{question}', [PlacementTestAdminController::class, 'update'])->name('placement-test.update');
+        Route::post('/placement-test/{question}/toggle', [PlacementTestAdminController::class, 'toggle'])->name('placement-test.toggle');
+        // «الترتيب (سحب)» (24) — والترتيب يُحفَظ في الخادم لا في المتصفّح
+        Route::post('/placement-test/reorder', [PlacementTestAdminController::class, 'reorder'])->name('placement-test.reorder');
+    });
+
+    Route::middleware('permission:placement_test.delete')
+        ->delete('/placement-test/{question}', [PlacementTestAdminController::class, 'destroy'])->name('placement-test.destroy');
+
+    // «تصدير إجابات المتقدّمين ونتائجهم» — نصّ `placement_test.export` في 12.2.2
+    Route::middleware('permission:placement_test.export')
+        ->get('/placement-test/export', [PlacementTestAdminController::class, 'export'])->name('placement-test.export');
 });

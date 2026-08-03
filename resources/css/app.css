@@ -475,18 +475,29 @@
    | عرض المسار من شاشته انزلق الإبهام إلى موضعه الصحيح، ولم يقف في الفراغ.
    | ولذلك `--sw-end` تُحسَب في `DesignTokens` لا تُكتَب.
    */
+  /*
+   | ⚠️ لون المسار المطفأ **متغيّرٌ** (`--sw-off`) لا خلفيّةً مباشرة.
+   |
+   | ولماذا؟ لأنّ الصياغة الأولى كتبت للوضع الفاتح قاعدةً أخرى تضبط `background`،
+   | فصارت `:root[data-theme='light'] .hc-switch` (0,2,1) **تعلو** على قاعدة
+   | التفعيل `.hc-switch[data-on='1']` (0,2,0) — فالسويتش في الوضع الفاتح
+   | **لا يخضرّ أبدًا مهما فُعِّل**. سقطت صامتةً بلا خطأ ولا تحذير، ولم تنكشف
+   | إلّا **بالنظر إلى لقطة الوضع الفاتح**. والمتغيّر يحلّها من أصلها: الفاتح
+   | يغيّر **قيمة اللون المطفأ** ولا يمسّ الخلفيّة، فتبقى الأسبقيّة سليمة.
+   */
   .hc-switch {
+    --sw-off: rgb(255 255 255 / 0.15);
     position: relative;
     display: inline-block;
     flex: none;
     inline-size: var(--sw-track-w, 40px);
     block-size: var(--sw-track-h, 22px);
     border-radius: 999px;
-    background: rgb(255 255 255 / 0.15);
+    background: var(--sw-off);
     transition: background-color 0.2s var(--ease-standard);
   }
 
-  :root[data-theme='light'] .hc-switch { background: rgb(10 34 32 / 0.15); }
+  :root[data-theme='light'] .hc-switch { --sw-off: rgb(10 34 32 / 0.15); }
 
   .hc-switch::after {
     content: '';
@@ -518,14 +529,25 @@
    | تبقى واقفةً في مكانها كأنّها عطب. ولذلك `(pointer: fine)` **شرطُ الظهور**
    | لا شرطُ الإخفاء — فما لا فأرةَ له لا يُنشَأ له مؤشّر أصلًا.
    */
+  /*
+   | ⚠️ **مقاييس فيزيائيّة هنا عمدًا** (`top`/`left` لا `inset-*-start`).
+   |
+   | سقط هذا صامتًا أوّل مرّة: المؤشّر يتبع `clientX` و`clientY` وهما **إحداثيّان
+   | فيزيائيّان** من يسار الشاشة دائمًا، بينما `inset-inline-start` في صفحةٍ
+   | عربيّة (RTL) تعني **من اليمين** — فكان المؤشّر يُزاح بـ`clientX` بكسل إلى
+   | اليمين من الحافّة اليمنى، أي **خارج الشاشة دائمًا**. وكلّ قياسٍ برمجيّ كان
+   | يقول إنّه سليم (8px · تركوازيّ · `data-visible=1`)، ولم ينكشف إلّا **بالنظر
+   | إلى لقطة الشاشة** فإذا هي خالية. ولذلك لا تُعَد هذه الخاصّيّات مخالفةً
+   | لقاعدة RTL: النظام هنا فيزيائيّ من طرفَيه — الحدث والموضع.
+   */
   .hc-cursor {
     position: fixed;
-    inset-block-start: 0;
-    inset-inline-start: 0;
+    top: 0;
+    left: 0;
     inline-size: var(--cursor-dot, 8px);
     block-size: var(--cursor-dot, 8px);
-    margin-block-start: calc(var(--cursor-dot, 8px) / -2);
-    margin-inline-start: calc(var(--cursor-dot, 8px) / -2);
+    margin-top: calc(var(--cursor-dot, 8px) / -2);
+    margin-left: calc(var(--cursor-dot, 8px) / -2);
     border-radius: 999px;
     background: var(--color-brand-500);
     border: 1px solid transparent;
@@ -535,8 +557,8 @@
     transition:
       inline-size 0.28s var(--ease-standard),
       block-size 0.28s var(--ease-standard),
-      margin-block-start 0.28s var(--ease-standard),
-      margin-inline-start 0.28s var(--ease-standard),
+      margin-top 0.28s var(--ease-standard),
+      margin-left 0.28s var(--ease-standard),
       background-color 0.28s var(--ease-standard),
       border-color 0.28s var(--ease-standard),
       opacity 0.2s var(--ease-standard);
@@ -547,8 +569,8 @@
   .hc-cursor[data-hot='1'] {
     inline-size: var(--cursor-hover, 42px);
     block-size: var(--cursor-hover, 42px);
-    margin-block-start: calc(var(--cursor-hover, 42px) / -2);
-    margin-inline-start: calc(var(--cursor-hover, 42px) / -2);
+    margin-top: calc(var(--cursor-hover, 42px) / -2);
+    margin-left: calc(var(--cursor-hover, 42px) / -2);
     background: transparent;
     border-color: var(--color-brand-500);
   }

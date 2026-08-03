@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.volunteer')
 
 @section('title', 'الأعضاء والبوزشنز')
 
@@ -20,7 +20,7 @@
     <x-page-header
         title="الأعضاء والبوزشنز"
         :subtitle="$root ? $root->name_ar.' — القسم كامل بكلّ فرعيّاته' : null"
-        :breadcrumbs="[['label' => 'الرئيسيّة', 'url' => route('dashboard')], ['label' => 'قسمي'], ['label' => 'الأعضاء والبوزشنز']]">
+        :breadcrumbs="[['label' => 'لوحة التطوّع', 'url' => url('/volunteer')], ['label' => 'قسمي'], ['label' => 'الأعضاء والبوزشنز']]">
         <x-slot:action>
             @include('volunteer.org.partials.entity-switcher', ['action' => route('volunteer.department')])
         </x-slot:action>

@@ -15,7 +15,8 @@
 
 ## ✅ المُنجَز
 <!-- تلقائيّ:بداية:المنجز -->
-- **مايجريشنز (239) — والقائم منها لا يُعدَّل (قاعدة البناء §1). الأحدث:**
+- **مايجريشنز (240) — والقائم منها لا يُعدَّل (قاعدة البناء §1). الأحدث:**
+  - `2026_09_01_100010_the_placement_test_bank_gets_a_screen.php`
   - `2026_08_31_100010_a_deferred_reminder_needs_a_catcher.php`
   - `2026_08_30_100020_minus_ten_suspends_the_account_and_covers_the_position.php`
   - `2026_08_30_100010_minus_eight_is_a_duty_not_only_a_red_dot.php`
@@ -27,8 +28,7 @@
   - `2026_08_27_100020_optional_cut_the_middle_rung_of_the_ladder.php`
   - `2026_08_27_100010_absence_adder_names_a_real_position.php`
   - `2026_08_26_100010_exam_entry_is_a_ticket_not_a_cooldown.php`
-  - `2026_08_26_100010_acquisition_source_on_the_user.php`
-  - … و227 غيرها.
+  - … و228 غيرها.
 <!-- تلقائيّ:نهاية:المنجز -->
 
 ## ⬜ المتبقّي

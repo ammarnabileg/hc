@@ -1,24 +1,50 @@
-@extends('layouts.admin')
+@php
+    /**
+     * «اختَر من المكتبة / ارفع جديد» (12.4-د · 24.1) — المستدعى من أيّ حقل رفع.
+     *
+     * ⭐ **لماذا كان ميّتًا؟** لم تكن العلّة وصلةً ناقصة: الفيو بُني **صفحةً كاملة**
+     * تمتدّ من `layouts.admin` وتنتهي بـ«اتنسخ المسار — الزقه في حقل الملفّ»،
+     * والدستور يطلب **بوب-أب** لا صفحة: «بوب-أب **«اختَر من المكتبة / ارفع
+     * جديد»** المستدعى من أيّ حقل رفع» (24.1 — مكتبة الوسائط) و«أيّ حقل رفع
+     * (غلاف/مرفق/صورة سؤال) يفتح **«اختَر من المكتبة»** أو **«ارفع جديد»** —
+     * يترفع مرّة ويُعاد استخدامه» (12.4-هـ). فصفحةٌ بالنسخ اليدويّ لا يمكن
+     * وصلها بحقلٍ أصلًا — ولذلك بقيت بلا مستدعٍ.
+     *
+     * والعلاج: **نفس الفيو بوجهين** — صفحةً كاملة كما كان، وجزءًا عاريًا يُحقَن
+     * في البوب-أب حين يُطلَب بـ`?fragment=1`. مصدر واحد لا نسختان تتباعدان.
+     */
+    $fragment = request()->boolean('fragment');
+@endphp
 
-@section('title', 'اختَر من المكتبة')
+@extends($fragment ? 'admin.courses.partials.bare' : 'layouts.admin')
+
+@section('title', setting('media.picker.title'))
 
 @section('content')
-    {{-- «اختَر من المكتبة / ارفع جديد» المستدعى من أيّ حقل رفع (12.4-د) --}}
-    <x-page-header title="اختَر من المكتبة" subtitle="اضغط الملفّ عشان تنسخ مساره وتلزقه في الحقل." />
+    @unless ($fragment)
+        <x-page-header :title="setting('media.picker.title')" :subtitle="setting('media.picker.subtitle')" />
+    @endunless
 
-    <form method="get" class="mb-4">
+    {{-- البحث: في وضع البوب-أب يعترضه الجافاسكربت فيحدّث الشبكة بلا مغادرة الفورم --}}
+    <form method="get" class="mb-4" data-picker-search action="{{ route('admin.media.picker') }}">
         <input type="hidden" name="target" value="{{ $target }}">
-        <input type="search" name="q" placeholder="ابحث بالاسم…"
+        <input type="hidden" name="fragment" value="{{ $fragment ? 1 : 0 }}">
+        <input type="search" name="q" value="{{ request('q') }}"
+               placeholder="{{ setting('media.picker.search_placeholder') }}"
                class="w-full md:w-80 rounded-xl px-3 py-2 text-sm"
                style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
     </form>
 
     @if ($items->isEmpty())
-        <x-empty message="المكتبة فاضية — ارفع أوّل ملفّ." action="افتح المكتبة" :href="route('admin.media.index')" />
+        <x-empty :message="setting('media.picker.empty')" :action="setting('media.picker.open_library')" :href="route('admin.media.index')" />
     @else
         <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
             @foreach ($items as $item)
-                <button type="button" class="card p-3 text-start" data-pick="{{ $item->path }}">
+                {{-- الكارت يحمل مساره ورابطه: البوب-أب يملأ الحقل ويعرض المعاينة بلا طلبٍ ثانٍ --}}
+                <button type="button" class="card p-3 text-start" data-pick="{{ $item->path }}"
+                        data-pick-url="{{ \Illuminate\Support\Facades\Storage::disk($item->disk ?: 'public')->url($item->path) }}"
+                        data-pick-name="{{ $item->name }}"
+                        data-pick-image="{{ str_starts_with((string) $item->mime, 'image/') ? 1 : 0 }}">
                     @if (str_starts_with((string) $item->mime, 'image/'))
                         <img src="{{ \Illuminate\Support\Facades\Storage::disk($item->disk ?: 'public')->url($item->path) }}"
                              alt="{{ $item->name }}" loading="lazy" class="w-full h-24 object-cover rounded-lg mb-2">
@@ -31,19 +57,10 @@
             @endforeach
         </div>
 
-        <div class="mt-4">{{ $items->links() }}</div>
+        <div class="mt-4" data-picker-pagination>{{ $items->withQueryString()->links() }}</div>
     @endif
 
-    @include('admin.courses.partials.toast')
-
-    @push('scripts')
-        <script>
-            document.querySelectorAll('[data-pick]').forEach((btn) => {
-                btn.addEventListener('click', () => {
-                    navigator.clipboard?.writeText(btn.dataset.pick);
-                    window.hcToast?.('اتنسخ المسار — الزقه في حقل الملفّ ✓');
-                });
-            });
-        </script>
-    @endpush
+    @unless ($fragment)
+        @include('admin.courses.partials.toast')
+    @endunless
 @endsection

@@ -175,12 +175,24 @@ class DesignSystemTest extends UiTestCase
             'عرض شريط التمرير رقمٌ محروق لا إعداد (2.13-ب).');
 
         /*
+         | ⚠️ القياس على **الكود بلا تعليقات**: أوّل صياغةٍ لهذا الحارس قاست
+         | الملفّ خامًا، فكان تعليقُنا الذي يشرح `@supports` **يُرضيه وحده** —
+         | حذفتُ القاعدة نفسها ومرّ الاختبار. طفرةٌ تمرّ = اختبارٌ وهميّ.
+         */
+        $code = $this->code($css);
+
+        /*
          | ⚠️ `scrollbar-width` القياسيّة تعلو على `::-webkit-scrollbar` في كروم،
          | و`thin` عرضٌ ثابت يقرّره المحرّك (~2px) — فوجودها بلا `@supports`
          | يُلغي الخمسة **بصمت**. الحارس يمنع رجوعها.
          */
-        $this->assertStringContainsString('@supports not selector(::-webkit-scrollbar)', $css,
+        $this->assertStringContainsString('@supports not selector(::-webkit-scrollbar)', $code,
             '`scrollbar-width` بلا `@supports` تبتلع عرض 5px في كروم بلا أثر.');
+
+        // ولا `scrollbar-width` خارج ذلك الشرط أبدًا
+        $outside = preg_replace('/@supports not selector\(::-webkit-scrollbar\)\s*\{.*?\n  \}/s', '', $code);
+        $this->assertStringNotContainsString('scrollbar-width', (string) $outside,
+            '`scrollbar-width` خارج `@supports` — تعلو على 5px في كروم وتبتلعها بصمت.');
     }
 
     /**

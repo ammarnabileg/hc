@@ -212,8 +212,18 @@
                 <details>
                     <summary class="text-xs cursor-pointer" style="color: var(--text-muted)">خيارات متقدّمة</summary>
                     <div class="mt-3 space-y-3">
-                        <x-form.input name="cover_path" label="مسار الغلاف"
-                                      hint="اختر من مكتبة الوسائط أو ارفع جديدًا ثمّ الصق المسار." />
+                        {{-- ⭐ «أيّ حقل رفع يفتح اختَر من المكتبة أو ارفع جديد» (12.4-هـ) --}}
+                        <div>
+                            <x-form.input name="cover_path" label="مسار الغلاف" />
+                            <div class="flex items-center gap-2 mt-2">
+                                <button type="button" data-media-pick="cover_path"
+                                        class="rounded-xl px-3 py-1.5 text-xs"
+                                        style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
+                                    <x-icon name="library" size="14" /> {{ setting('media.picker.cta') }}
+                                </button>
+                                <span data-media-preview="cover_path" class="inline-flex items-center"></span>
+                            </div>
+                        </div>
                         <x-form.input name="description_en" label="الوصف (إنجليزيّ)" />
                     </div>
                 </details>
@@ -226,6 +236,8 @@
 
     @include('admin.courses.partials.sortable')
     @include('admin.courses.partials.toast')
+    {{-- بوب-أب «اختَر من المكتبة / ارفع جديد» لغلاف المسار (12.4-هـ) --}}
+    @include('admin.courses.partials.media-picker-modal')
 
     @push('scripts')
         <script>

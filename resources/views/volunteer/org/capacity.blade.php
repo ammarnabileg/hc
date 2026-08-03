@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.volunteer')
 
 @section('title', 'السعة والأحمال')
 
@@ -19,7 +19,7 @@
     <x-page-header
         title="السعة والأحمال"
         :subtitle="$root?->name_ar"
-        :breadcrumbs="[['label' => 'الرئيسيّة', 'url' => route('dashboard')], ['label' => 'قسمي'], ['label' => 'السعة والأحمال']]">
+        :breadcrumbs="[['label' => 'لوحة التطوّع', 'url' => url('/volunteer')], ['label' => 'قسمي'], ['label' => 'السعة والأحمال']]">
         <x-slot:action>
             @include('volunteer.org.partials.entity-switcher', ['action' => route('volunteer.capacity')])
         </x-slot:action>

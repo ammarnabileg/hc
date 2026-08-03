@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.volunteer')
 
 @section('title', 'نوبتي من البنود المتكرّرة')
 

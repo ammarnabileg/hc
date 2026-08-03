@@ -35,8 +35,8 @@ class CredentialService
      * — فلا يقول له البلوك شيئًا ويقول له الخادم شيئًا آخر.
      *
      * @param  array{open:bool,state:string,reason:?string}|null  $availability
-     *                                                                          حالة الإتاحة المحسوبة سلفًا (تجنّبًا لإعادة الحساب في القوائم)؛
-     *                                                                          وإن لم تُمرَّر قرأتها الخدمة بنفسها فلا يسقط الحارس بالنسيان.
+     *                                                                           حالة الإتاحة المحسوبة سلفًا (تجنّبًا لإعادة الحساب في القوائم)؛
+     *                                                                           وإن لم تُمرَّر قرأتها الخدمة بنفسها فلا يسقط الحارس بالنسيان.
      * @return array{exists:bool,state:string,label:string,unlocked:bool,condition:string,url:?string,locked:bool,lock_reason:?string,locked_label:string}
      */
     public function courseExam(User $user, Course $course, int $percent, ?array $availability = null): array

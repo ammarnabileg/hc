@@ -1,7 +1,6 @@
-@extends('layouts.app')
+@extends('layouts.volunteer')
 
 @section('title', 'تقرير أداء — '.$owner->shortName())
-@section('noindex', '1')
 
 @section('content')
     {{--
@@ -12,7 +11,7 @@
     <x-page-header
         title="تقرير أداء للترقية"
         :subtitle="$owner->name.' · '.$owner->code"
-        :breadcrumbs="[['label' => 'الرئيسيّة', 'url' => route('dashboard')], ['label' => 'بروفايل المتطوّع'], ['label' => 'تقرير']]">
+        :breadcrumbs="[['label' => 'لوحة التطوّع', 'url' => url('/volunteer')], ['label' => 'بروفايل المتطوّع'], ['label' => 'تقرير']]">
         <x-slot:action>
             <button type="button" onclick="window.print()"
                     class="btn rounded-xl px-4 py-2 text-sm font-semibold motion-standard"

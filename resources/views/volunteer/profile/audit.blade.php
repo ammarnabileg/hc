@@ -1,14 +1,13 @@
-@extends('layouts.app')
+@extends('layouts.volunteer')
 
 @section('title', 'سجلّ المشرف — '.$owner->shortName())
-@section('noindex', '1')
 
 @section('content')
     {{-- «سجلّ المشرف» (13.4-م): كلّ حركة على هذا الشخص — بمَن نفّذها ومتى، اطّلاعٌ فقط. --}}
     <x-page-header
         title="سجلّ المشرف"
         :subtitle="$owner->name.' · '.$owner->code"
-        :breadcrumbs="[['label' => 'الرئيسيّة', 'url' => route('dashboard')], ['label' => 'بروفايل المتطوّع'], ['label' => 'سجلّ المشرف']]" />
+        :breadcrumbs="[['label' => 'لوحة التطوّع', 'url' => url('/volunteer')], ['label' => 'بروفايل المتطوّع'], ['label' => 'سجلّ المشرف']]" />
 
     @if ($rows->isEmpty())
         <x-empty message="مفيش حركات مسجّلة على الحساب ده" action="ارجع للبروفايل" :href="'/u/'.$owner->code" />

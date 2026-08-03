@@ -146,8 +146,13 @@
                  :href="route('admin.events.index')" />
     @else
         {{-- الديسكتوب: جدول بسبعة أعمدة (2.15-أ-5) --}}
-        <div class="card p-0 overflow-hidden hidden md:block">
-            <div class="overflow-x-auto">
+        {{--
+          `min-w-0` على الحاويتين شرطُ عمل التمرير الداخليّ (2.15-ج): عنصر
+          الشبكة/الـFlex افتراضيّه `min-width: auto` فلا يصغر تحت مقاس محتواه،
+          فيمدّ الجدولُ الصندوقَ فيمدّ الصفحة ويبقى التمرير حِلْيةً لا تعمل.
+        --}}
+        <div class="card p-0 overflow-hidden hidden md:block min-w-0">
+            <div class="overflow-x-auto min-w-0">
                 <table class="w-full text-sm">
                     <thead>
                         <tr style="background: var(--surface-sunken)">

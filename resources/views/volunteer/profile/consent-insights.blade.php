@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.volunteer')
 
 @section('title', 'طلبات إظهار التواصل')
 
@@ -15,7 +15,7 @@
     <x-page-header
         title="طلبات إظهار التواصل"
         subtitle="مؤشّر على الثقة الداخليّة — مش مجرّد عدّاد"
-        :breadcrumbs="[['label' => 'الرئيسيّة', 'url' => route('dashboard')], ['label' => 'الإدارة المركزيّة'], ['label' => 'طلبات الإظهار']]" />
+        :breadcrumbs="[['label' => 'لوحة التطوّع', 'url' => url('/volunteer')], ['label' => 'الإدارة المركزيّة'], ['label' => 'طلبات الإظهار']]" />
 
     <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
         <x-kpi label="الطلبات" :value="$metrics['total']" icon="envelope" :hint="'آخر '.$metrics['days'].' يوم'" />

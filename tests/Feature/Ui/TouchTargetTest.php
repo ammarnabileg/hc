@@ -42,20 +42,28 @@ class TouchTargetTest extends UiTestCase
     {
         $css = $this->css();
 
-        $block = null;
-        if (preg_match('/@media \(pointer: coarse\) \{(.+?)\n  \}\n\}/s', $css, $m)) {
-            $block = $m[1];
+        /*
+         | ⚠️ **لا يكفي أن يرد `a[href]` في مكانٍ ما من الكتلة**: أوّل صياغةٍ
+         | لهذا الحارس فعلت ذلك، فحذفتُ الروابط من مجموعة المُحدِّدات ومرّ
+         | الاختبار — لأنّ `a[href]:not(.btn)` في قاعدةٍ أخرى أرضته. فالقياس
+         | على **مجموعة المُحدِّدات التي تحمل `min-block-size`** نفسها.
+         */
+        preg_match_all(
+            '/([^{}]+?)\{\s*min-block-size:\s*var\(--touch-min[^}]*\}/s',
+            $css, $matches, PREG_SET_ORDER);
+
+        $selectors = '';
+        foreach ($matches as $rule) {
+            $selectors .= ' '.preg_replace('/\s+/', ' ', $rule[1]);
         }
 
-        $this->assertNotNull($block, 'قاعدة أهداف اللمس (2.15-ج) غير موجودة في الورقة.');
+        $this->assertNotSame('', trim($selectors),
+            'لا قاعدة واحدة تفرض الحدّ الأدنى لمساحة اللمس (2.15-ج).');
 
-        foreach (["a[href]", 'button', 'summary', "[role='tab']", 'select', 'textarea'] as $selector) {
-            $this->assertStringContainsString($selector, $block,
-                "نوعٌ من أهداف اللمس خارج قاعدة 2.15-ج: {$selector}");
+        foreach (['a[href]', 'button', 'summary', "[role='tab']", 'select', 'textarea'] as $selector) {
+            $this->assertStringContainsString($selector, $selectors,
+                "نوعٌ من أهداف اللمس لا يشمله الحدّ الأدنى في 2.15-ج: {$selector}");
         }
-
-        $this->assertStringContainsString('min-block-size: var(--touch-min', $block,
-            'قاعدة اللمس تكتب رقمًا بدل قراءة الإعداد (2.13-ب).');
     }
 
     /**
@@ -113,8 +121,16 @@ class TouchTargetTest extends UiTestCase
             "/input\[type='range'\]\s*\{\s*block-size:\s*var\(--touch-min/s", $css,
             'هدف لمس المنزلق أقلّ من 44px (2.15-ج).');
 
+        /*
+         | ⚠️ القياس **داخل كتلة اللمس وحدها**: في الورقة مساران — الأساس
+         | و«اللمس». وأوّل صياغةٍ قاست الورقة كلّها، فغلّظتُ مسار اللمس إلى
+         | 44px ومرّ الاختبار لأنّ مسار الأساس أرضاه.
+         */
+        preg_match('/@media \(pointer: coarse\) \{(.+)\n  \}\n\}/s', $css, $m);
+        $coarse = $m[1] ?? '';
+
         $this->assertMatchesRegularExpression(
-            "/input\[type='range'\]::-webkit-slider-runnable-track\s*\{\s*block-size:\s*6px/s", $css,
+            "/input\[type='range'\]::-webkit-slider-runnable-track\s*\{\s*block-size:\s*6px/s", $coarse,
             'مسار المنزلق خالف «height:6px» في 2.10.1-11 — الهدف يكبر والشكل لا.');
     }
 
@@ -126,7 +142,19 @@ class TouchTargetTest extends UiTestCase
     #[Test]
     public function the_rule_stays_scoped_to_touch_pointers(): void
     {
-        $this->assertStringContainsString('@media (pointer: coarse)', $this->css(),
+        /*
+         | ⚠️ وجودُ `@media (pointer: coarse)` في الورقة لا يثبت شيئًا (هو موجودٌ
+         | للمؤشّر أيضًا). فالحارس ينزع **كلّ** كتل اللمس ثمّ يتأكّد أنّ الباقي
+         | **خالٍ** من `min-block-size: var(--touch-min` — أي أنّ القاعدة كلّها
+         | داخل نطاقها. وأوّل صياغةٍ مرّت مع مخالفةٍ صريحة.
+         */
+        $css = $this->css();
+        $outside = preg_replace('/@media \(pointer: coarse\) \{.*?\n  \}\n/s', '', $css);
+
+        $this->assertStringNotContainsString('min-block-size: var(--touch-min', (string) $outside,
+            'قاعدة اللمس مفروضة على الفأرة أيضًا — و2.15-ج «قاعدة الموبايل» فتمطّ القوائم بلا سبب.');
+
+        $this->assertStringContainsString('@media (pointer: coarse)', $css,
             'قاعدة اللمس خرجت من نطاقها — 2.15-ج «قاعدة الموبايل».');
     }
 }
