@@ -6,13 +6,11 @@ use App\Models\Badge;
 use App\Models\CelebrationEvent;
 use App\Models\Challenge;
 use App\Models\Currency;
-use App\Models\Game;
 use App\Models\RewardQuestion;
 use App\Models\Role;
 use App\Models\Setting;
 use App\Models\WarQuestion;
 use App\Services\Admin\Volunteer\SettingsCatalog;
-use App\Services\Gamification\GamesAdminService;
 use App\Support\Access\PermissionExpander;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Cache;
@@ -32,7 +30,6 @@ class ChallengeDemoSeeder extends Seeder
         $this->badges();
         $this->challenges();
         $this->questionBank();
-        $this->games();
         $this->traineePermissions();
 
         // الإعدادات تُقرأ من كاش دائم — نُبطله بعد الكتابة (2.13)
@@ -106,12 +103,6 @@ class ChallengeDemoSeeder extends Seeder
             // فلا تختلف القيمة الافتراضيّة بين السيدر وزرّ الـReset (2.13).
 
         ];
-
-        // ---------------- الألعاب (7.5 · 24.2) — من كتالوج المجال نفسه،
-        // فمصدر الافتراضيّ واحد: ما يزرعه السيدر هو ما يرجّعه زرّ الـReset.
-        foreach (GamesAdminService::catalog() as $key => [$group, $label, $type, $default]) {
-            $rows[] = [$key, $group, $label, $type, $default];
-        }
 
         foreach ($rows as [$key, $group, $label, $type, $default]) {
             Setting::updateOrCreate(['key' => $key], [
@@ -372,29 +363,6 @@ class ChallengeDemoSeeder extends Seeder
         ];
     }
 
-    /** ألعاب تجريبيّة لتاب الألعاب (24.2 · 7.5) */
-    private function games(): void
-    {
-        $rows = [
-            // التكلفة NULL = اتبع العامّ، والرقم = استثناء صريح لهذه اللعبة (2.13)
-            ['memory_match', 'مطابقة الذاكرة', 'قلّب الكروت ولاقِ الأزواج قبل ما الوقت يخلص.', null, 60, 'active'],
-            ['fast_math', 'حساب سريع', 'عمليّات حسابيّة بسيطة في وقت ضيّق.', null, 80, 'active'],
-            ['word_ladder', 'سلّم الكلمات', 'كوّن كلمات جديدة بتغيير حرف واحد.', 2, 120, 'soon'],
-        ];
-
-        foreach ($rows as [$key, $name, $description, $cost, $xp, $status]) {
-            Game::updateOrCreate(['key' => $key], [
-                'name_ar' => $name,
-                'description' => $description,
-                'ticket_cost' => $cost,
-                'xp_mode' => 'fixed',
-                'xp_reward' => $xp,
-                'status' => $status,
-                'soon_text' => $status === 'soon' ? 'اللعبة دي في الطريق — استنّانا قريب.' : null,
-            ]);
-        }
-    }
-
     /**
      * صلاحيّات المتدرّب في شاشات هذا المجال — بنطاق SELF (12.2.1).
      * تُتخطّى بهدوء إن لم تكن مصفوفة الصلاحيّات مزروعة بعد.
@@ -422,7 +390,6 @@ class ChallengeDemoSeeder extends Seeder
             'badges.view',
             'streaks.view',
             'streaks.create',
-            'games.view',
         ] as $permission) {
             $expander->attachToRole($role, $permission, 'SELF');
         }

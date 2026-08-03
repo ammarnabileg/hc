@@ -3,13 +3,18 @@
 namespace Tests\Feature\Challenges;
 
 use App\Http\Controllers\Admin\GamificationController;
-use App\Models\Game;
-use App\Models\User;
+use App\Models\Permission;
 use App\Models\WarQuestion;
+use App\Services\Admin\Volunteer\SettingsCatalog;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Schema;
 
 /**
- * بنك أسئلة الحروب (12.10-ب · 24.2) وتاب الألعاب (24.2).
+ * بنك أسئلة الحروب (12.10-ب · 24.2).
+ *
+ * ⛔ ومعه حارس **إلغاء الألعاب** (7.5 — قرار المالك، الدستور v5.3): البند
+ * ملغًى فلا تابّ له ولا مسار ولا مفتاح ولا جدول. والحارس يقيس **غياب الباب**
+ * لا سلوك بابٍ موجود — فعودةُ أيّ منها تُسقِطه.
  */
 class WarBankAdminTest extends ChallengeTestCase
 {
@@ -140,70 +145,62 @@ class WarBankAdminTest extends ChallengeTestCase
         $this->actingAs($trainee)->get(route('admin.wars.bank.export'))->assertForbidden();
     }
 
-    // ---------------------------------------------------------------- الألعاب
+    // -------------------------------------------------- ⛔ الألعاب ملغاة (7.5)
 
-    /** ⭐ تاب «الألعاب» موجود في لوحة التلعيب بمحتواه (24.2). */
-    public function test_games_tab_exists_in_the_gamification_panel(): void
+    /**
+     * ⭐ الإلغاء يُقاس بغياب الباب لا بإغلاقه: لا تابّ في لوحة التلعيب، ولا
+     * مسار، ولا مفتاح صلاحيّة، ولا جدول. وأيّ عودةٍ لواحدٍ منها تُسقِط الحارس.
+     */
+    public function test_the_cancelled_games_section_left_no_door_behind(): void
     {
-        $admin = $this->warAdmin();
+        // (١) لا تابّ — لا في القائمة ولا بالمحاولة المباشرة
+        $this->assertArrayNotHasKey('games', GamificationController::TABS);
 
-        $this->actingAs($admin)
+        $this->actingAs($this->warAdmin())
             ->get(route('admin.gamification.index', ['tab' => 'games']))
-            ->assertOk()
-            ->assertSee('كتالوج الألعاب', false)
-            ->assertSee('سجلّ الجلسات', false)
-            ->assertSee('مطابقة الذاكرة', false)
-            ->assertSee('إعدادات قسم الألعاب', false);
+            ->assertNotFound();
+
+        // والحروب باقيةٌ — الملغى قسم الألعاب وحده لا التلعيب كلّه
+        $this->assertArrayHasKey('wars', GamificationController::TABS);
+
+        // (٢) لا مسار يحمل الاسم — لا للمتدرّب ولا للأدمن
+        $routes = collect(app('router')->getRoutes())
+            ->map(fn ($route) => (string) $route->getName())
+            ->filter()
+            ->values();
+
+        foreach (['achievements.games', 'admin.gamification.games.save'] as $name) {
+            $this->assertNotContains($name, $routes);
+        }
+
+        $this->assertSame([], $routes->filter(fn ($n) => str_contains($n, 'games'))->all());
+
+        // (٣) لا مفتاح صلاحيّة بالمورد الملغى
+        $this->assertSame(0, Permission::query()->where('resource', 'games')->count());
+
+        // (٤) ولا جدول — الهجرة أسقطته على كلّ تنصيب
+        $this->assertFalse(Schema::hasTable('games'));
+        $this->assertFalse(Schema::hasTable('game_sessions'));
     }
 
-    public function test_gamification_panel_lists_the_games_tab_among_its_tabs(): void
+    /**
+     * ولا وجهَ صرفٍ باسم «دخول لعبة» في اقتصاد التذاكر (7.1 بعد الإلغاء).
+     *
+     * ويُقاس على **الافتراضيّ المزروع في مسار الإنتاج** (كتالوج الإعدادات) لا
+     * على صفٍّ في القاعدة: الصفّ قد يكون معدَّلًا بيد المالك، أمّا الكتالوج
+     * فهو ما يُشحَن ويُرجِعه زرّ الـReset — فهو موضع القاعدة لا الأثر.
+     */
+    public function test_the_ticket_economy_no_longer_sells_a_game_entry(): void
     {
-        $tabs = GamificationController::TABS;
+        $default = SettingsCatalog::defaultOf('xp_rules.spend');
 
-        $this->assertArrayHasKey('games', $tabs);
-        $this->assertSame('الألعاب', $tabs['games']);
-        // التاب الجديد يُضاف بجوار الحروب لا بدلًا منها
-        $this->assertArrayHasKey('wars', $tabs);
-    }
+        $keys = array_column(json_decode((string) $default, true) ?: [], 'key');
 
-    public function test_admin_can_add_a_game_and_change_its_settings(): void
-    {
-        $admin = $this->warAdmin();
+        $this->assertNotEmpty($keys, 'كتالوج أوجه الصرف فاضي — الاختبار مايقيسش حاجة');
+        $this->assertNotContains('game.enter', $keys);
 
-        $this->actingAs($admin)->post(route('admin.gamification.games.save'), [
-            'key' => 'sudoku',
-            'name_ar' => 'سودوكو',
-            'ticket_cost' => 2,
-            'xp_reward' => 150,
-            'status' => 'active',
-        ])->assertRedirect();
-
-        $this->assertDatabaseHas('games', ['key' => 'sudoku', 'ticket_cost' => 2, 'xp_reward' => 150]);
-
-        $this->actingAs($admin)->post(route('admin.gamification.games.settings.save'), [
-            'settings' => ['games.daily_xp_cap' => '500'],
-        ])->assertRedirect();
-
-        $this->assertSame(500, (int) setting('games.daily_xp_cap'));
-
-        // Reset يرجّع الافتراضيّ المعتمَد من كتالوج المجال نفسه (2.13)
-        $this->actingAs($admin)->post(route('admin.gamification.games.reset'))->assertRedirect();
-
-        $this->assertSame(300, (int) setting('games.daily_xp_cap'));
-    }
-
-    public function test_games_admin_actions_require_permission(): void
-    {
-        $stranger = User::create([
-            'name' => 'زائر', 'email' => 'nogames@test.local', 'password' => 'secret-password',
-            'code' => 'NOGAMES1', 'status' => 'active',
-        ]);
-
-        $this->actingAs($stranger)
-            ->post(route('admin.gamification.games.save'), ['key' => 'x', 'name_ar' => 'x'])
-            ->assertForbidden();
-
-        $this->assertDatabaseMissing('games', ['key' => 'x']);
-        $this->assertSame(3, Game::query()->count());
+        // وحروب التركيز باقيةٌ في أوجه الصرف — الإلغاء لم يمسّها
+        $this->assertContains('war.focus.create', $keys);
+        $this->assertContains('war.join', $keys);
     }
 }

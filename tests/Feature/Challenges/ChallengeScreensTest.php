@@ -204,18 +204,6 @@ class ChallengeScreensTest extends ChallengeTestCase
             ->assertSee('04:50', false);
     }
 
-    /** شاشة الألعاب تقرأ من جدول الألعاب لا من JSON (24.2). */
-    public function test_games_screen_lists_the_catalog_from_the_table(): void
-    {
-        $user = $this->trainee();
-
-        $this->actingAs($user)
-            ->get(route('achievements.games'))
-            ->assertOk()
-            ->assertSee('مطابقة الذاكرة', false)
-            ->assertSee('قريبًا', false);
-    }
-
     public function test_screens_require_permission(): void
     {
         $stranger = User::create([

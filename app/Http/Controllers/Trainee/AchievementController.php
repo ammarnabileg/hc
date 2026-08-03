@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Trainee;
 
 use App\Http\Controllers\Controller;
 use App\Models\Country;
-use App\Models\Game;
 use App\Models\Governorate;
 use App\Services\Gamification\BadgeService;
 use App\Services\Gamification\LeaderboardService;
@@ -15,7 +14,8 @@ use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 /**
- * إنجازاتي: الليدر بورد (7.3) · الشارات (7.4) · الستريك ونادي الخامسة (7.2) · الألعاب (7.5).
+ * إنجازاتي: الليدر بورد (7.3) · الشارات (7.4) · الستريك ونادي الخامسة (7.2).
+ * (⛔ والألعاب — 7.5 — ملغاة بقرار المالك، الدستور v5.3.)
  */
 class AchievementController extends Controller
 {
@@ -166,18 +166,5 @@ class AchievementController extends Controller
         $result = $this->streaks->buyFreeze($request->user());
 
         return back()->with('status', $result['message']);
-    }
-
-    /** الألعاب: تُلعب بتذكرة وفائدتها كسب XP (7.5 · 24.2) */
-    public function games(Request $request): View
-    {
-        // القسم كلّه له توجل من لوحة التلعيب — والموقوف يُخفى لا يُعطَّل (2.15-أ-7)
-        $enabled = (bool) setting('games.enabled', true);
-
-        return view('achievements.games', [
-            'games' => $enabled
-                ? Game::query()->where('status', '!=', 'paused')->orderBy('sort_order')->orderBy('id')->get()
-                : collect(),
-        ]);
     }
 }

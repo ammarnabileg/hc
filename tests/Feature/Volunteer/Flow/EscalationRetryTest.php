@@ -3,6 +3,7 @@
 namespace Tests\Feature\Volunteer\Flow;
 
 use App\Models\Escalation;
+use App\Models\Setting;
 use App\Models\Task;
 use App\Models\User;
 use App\Services\Volunteer\Escalation\CaseCatalog;
@@ -10,6 +11,7 @@ use App\Services\Volunteer\Escalation\EscalationEngine;
 use App\Services\Volunteer\Org\AbsenceService;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Cache;
 use RuntimeException;
 
 /**
@@ -119,6 +121,38 @@ class EscalationRetryTest extends FlowTestCase
         // وما عاد المحرّك يلمسها بعد العزل
         $after = app(EscalationEngine::class)->run();
         $this->assertSame(0, $after['failed'] + $after['escalated'] + $after['settled']);
+    }
+
+    /**
+     * ⭐ والسقف **رقمٌ يملكه المالك** لا رقمٌ محروق (2.13): يغيّره من اللوحة
+     * فيتغيّر سلوك المحرّك فعلًا — لا يبقى ثلاثة مهما كتب.
+     */
+    public function test_the_attempt_cap_follows_the_owner_setting(): void
+    {
+        Setting::query()->updateOrCreate(
+            ['key' => 'workflow.escalation.max_attempts'],
+            ['group' => 'workflow', 'label_ar' => 'محاولات المعالجة', 'type' => 'number', 'value' => '5'],
+        );
+        Cache::forget('settings');
+
+        $this->assertSame(5, $this->maxAttempts());
+
+        $row = $this->openOverdueCases(1)->first();
+        $this->bindFlakyAbsence(always: true);
+
+        // ثلاث دورات — وهي سقف الافتراضيّ — ولا عزل، لأنّ الحاكم هو إعداد المالك
+        for ($i = 0; $i < 3; $i++) {
+            app(EscalationEngine::class)->run();
+        }
+
+        $this->assertSame('open', $row->refresh()->status, 'الرقم المحروق (3) لا يحكم — إعداد المالك هو الذي يحكم.');
+        $this->assertSame(3, (int) $row->attempts);
+
+        app(EscalationEngine::class)->run();
+        app(EscalationEngine::class)->run();
+
+        $this->assertSame('failed', $row->refresh()->status, 'وعند الخامسة — سقف المالك — يقع العزل.');
+        $this->assertSame(5, (int) $row->attempts);
     }
 
     /** والنوع المجهول عطبٌ **دائم بطبيعته** — يُعزَل فورًا بلا انتظار السقف */

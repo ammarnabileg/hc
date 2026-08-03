@@ -15,7 +15,8 @@
 
 ## ✅ المُنجَز
 <!-- تلقائيّ:بداية:المنجز -->
-- **مايجريشنز (224) — والقائم منها لا يُعدَّل (قاعدة البناء §1). الأحدث:**
+- **مايجريشنز (225) — والقائم منها لا يُعدَّل (قاعدة البناء §1). الأحدث:**
+  - `2026_08_23_100010_games_are_cancelled_drop_the_tables.php`
   - `2026_08_22_100010_gateway_webhook_logs_reason.php`
   - `2026_08_21_100010_volunteer_goal_build_file_drafts.php`
   - `2026_08_20_100020_user_segments_type_lifecycle_and_members.php`
@@ -27,14 +28,19 @@
   - `2026_08_17_100010_guidance_polls_recurring_and_onboarding.php`
   - `2026_08_16_100010_ui_retire_orphan_first_time_keys.php`
   - `2026_08_16_100010_objections_decided_by_for_audit.php`
-  - `2026_08_15_100010_gamification_earn_rows_without_a_consumer.php`
-  - … و212 غيرها.
+  - … و213 غيرها.
 <!-- تلقائيّ:نهاية:المنجز -->
 
 ## ⬜ المتبقّي
 <!-- بيدك:بداية:المتبقّي -->
 - ما فيش فجوة معروفة في هذا المجلّد وقت إنشاء الوثيقة.
 - لو فتحت فجوة (وعدٌ في الواجهة بلا تنفيذ · إعدادٌ بلا شاشة · مسارٌ بلا صلاحيّة) اكتبها هنا فورًا.
+- **ج-6 (2026-08-03):** `2026_08_03_120100_workflow_add_attempts_to_escalations` —
+  الأعمدة `attempts` و`last_failure_at` و`last_failure_reason` على `escalations`،
+  فيفرّق محرّك التصعيد بين الخطأ **العابر** (يُعاد في الدورة التالية) والعطب
+  **الدائم** (يُعزَل بعد استنفاد سقفٍ من `setting('workflow.escalation.max_attempts')`).
+  ولا شاشة تعرض العدّاد بعد — العزل يظهر اليوم بإشعارٍ «يحتاج إجراءً» وسجلٍّ في
+  `Log::error`، ووصلُه بشاشة «التصعيدات» متبقٍّ (وهي خارج نطاق ج-6).
 - **أ-1 (2026-08-03):** `2026_08_22_100010_gateway_webhook_logs_reason` — عمود `reason`
   على `gateway_webhook_logs`، فرفضُ الويب هوك يُكتَب بسببٍ مقروء لا بكلمةٍ تقنيّة
   بطول 32 حرفًا. و**الشاشة لا تعرضه بعد** (`resources/views/admin/store/topups/webhooks.blade.php`

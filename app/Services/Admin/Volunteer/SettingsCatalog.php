@@ -209,13 +209,13 @@ class SettingsCatalog
              | ⭐ **لا صفّ بلا مستهلك** (2.13): كلّ مفتاح هنا يقرؤه الكود فعلًا،
              | والقائمة الحاكمة `EconomyRules::CONSUMED_EARN`. وكانت الافتراضيّات
              | تحمل صفوفًا لا يقرؤها أحد (`five_am_club` · `streak.day` ·
-             | `referral.success` · `placement_test` · `game.session` …) فيضبطها
+             | `referral.success` · `placement_test` …) فيضبطها
              | الأدمن بلا أثر: XP النادي من **سلّم الحضور** (7.2)، ومكافأة الدعوة
              | **تذكرة** لا XP (7.6)، ومكافأة الاختبار التمهيديّ **لكلّ سؤال على
              | حدة** (7.1). ولكلٍّ من هذه مصدرٌ واحد في مكانه.
              */
             'xp_rules.earn' => ['gamification_xp', 'مصادر كسب XP', 'json', '[{"key":"lesson.completed","label":"إكمال درس","value":50,"daily_cap":0,"enabled":true},{"key":"reward.question","label":"سؤال مكافأة","value":50,"daily_cap":0,"enabled":true},{"key":"qualifying.completed","label":"إتمام المسار التأهيليّ","value":1000,"daily_cap":0,"enabled":true}]'],
-            'xp_rules.spend' => ['gamification_xp', 'أوجه الصرف', 'json', '[{"key":"course.exam","label":"الامتحان النهائيّ","currency":"tickets","cost":1,"moment":"on_enter","enabled":true},{"key":"game.enter","label":"دخول لعبة","currency":"tickets","cost":1,"moment":"on_enter","enabled":true},{"key":"cv.export","label":"السيرة الذاتيّة","currency":"tickets","cost":2,"moment":"on_export","enabled":true},{"key":"streak.freeze","label":"تجميد ستريك","currency":"tickets","cost":1,"moment":"on_use","enabled":true},{"key":"war.focus.create","label":"إنشاء حرب تركيز","currency":"tickets","cost":5,"moment":"on_create","enabled":true},{"key":"war.join","label":"الانضمام لحرب","currency":"tickets","cost":1,"moment":"on_join","enabled":true}]'],
+            'xp_rules.spend' => ['gamification_xp', 'أوجه الصرف', 'json', '[{"key":"course.exam","label":"الامتحان النهائيّ","currency":"tickets","cost":1,"moment":"on_enter","enabled":true},{"key":"cv.export","label":"السيرة الذاتيّة","currency":"tickets","cost":2,"moment":"on_export","enabled":true},{"key":"streak.freeze","label":"تجميد ستريك","currency":"tickets","cost":1,"moment":"on_use","enabled":true},{"key":"war.focus.create","label":"إنشاء حرب تركيز","currency":"tickets","cost":5,"moment":"on_create","enabled":true},{"key":"war.join","label":"الانضمام لحرب","currency":"tickets","cost":1,"moment":"on_join","enabled":true}]'],
             // ⭐ قيمتا التدريب قبل/بعد نصف المهلة (12.10 — بلوك الإعدادات)
             'tickets.before_half_deadline' => ['gamification_xp', 'تذاكر إتمام التدريب قبل نصف المهلة', 'number', '2'],
             'tickets.after_half_deadline' => ['gamification_xp', 'تذاكر إتمام التدريب بعد نصف المهلة', 'number', '1'],

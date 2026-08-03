@@ -89,7 +89,7 @@ class SettingsRegistry
                     'gamification_xp', 'gamification_badges', 'gamification_streaks',
                     'gamification_leaderboard', 'gamification_wars', 'gamification_celebrations',
                     'gamification_reward_questions',
-                    'challenges', 'kudos', 'games', 'gamification_games', 'rewards', 'events', 'engagement',
+                    'challenges', 'kudos', 'rewards', 'events', 'engagement',
                     // أسماء قديمة أبقيناها مرساةً بعد مايجريشن التوحيد — فلا يتيتّم مفتاح لو أعاد سيدرٌ زرعها
                     'celebrations', 'streaks', 'leaderboard',
                 ],
@@ -219,8 +219,6 @@ class SettingsRegistry
             'leaderboard' => ['الليدر بورد (عرض)', 'عدد الصفوف المعروضة.'],
             'challenges' => ['التحديات', 'المدد والانضمام والنتائج.'],
             'kudos' => ['التقدير', 'الحدود اليوميّة ونصوص الشكر.'],
-            'games' => ['الألعاب', 'الكتالوج وتكلفة اللعبة بالتذاكر.'],
-            'gamification_games' => ['ضبط الألعاب', 'التفعيل وتكلفة الدخول والسقوف اليوميّة.'],
             'rewards' => ['المكافآت', 'المخزون والصرف والحدود.'],
             'events' => ['الفعاليّات', 'التسجيل والحضور وكود الحضور والتذكير.'],
             'volunteer' => ['التطوّع — عامّ', 'القواعد المشتركة لطبقة التطوّع.'],

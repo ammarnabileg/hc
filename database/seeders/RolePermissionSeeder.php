@@ -31,7 +31,7 @@ class RolePermissionSeeder extends Seeder
             'support_admin' => ['users', 'user_approvals', 'user_profile', 'admin_user_detail', 'complaints', 'user_guide', 'announcements', 'announcement_ack', 'notifications', 'user_search', 'account_suspension', 'user_sessions'],
             'marketing_admin' => ['store_products', 'product_categories', 'product_protection', 'bundles', 'coupons', 'order_bump', 'pricing', 'paywall', 'landing_pages', 'public_pages', 'share_links', 'referrals', 'ambassadors', 'invitations_page', 'events', 'event_registrations', 'event_recordings'],
             'finance_admin' => ['orders', 'invoices', 'purchases', 'topup', 'transfer', 'wallet', 'currencies', 'exchange_rates', 'refunds', 'reports_sales', 'reports_finance'],
-            'gamification_admin' => ['badges', 'streaks', 'five_am_club', 'streak_freeze', 'leaderboards', 'public_leaderboard', 'achievements', 'games', 'tickets_xp', 'xp_rules', 'tickets_rules', 'wars_settings', 'war_types', 'wars_bank', 'wars_matches', 'reward_questions', 'celebrations', 'positive_messages'],
+            'gamification_admin' => ['badges', 'streaks', 'five_am_club', 'streak_freeze', 'leaderboards', 'public_leaderboard', 'achievements', 'tickets_xp', 'xp_rules', 'tickets_rules', 'wars_settings', 'war_types', 'wars_bank', 'wars_matches', 'reward_questions', 'celebrations', 'positive_messages'],
             'tech_admin' => ['settings_general', 'settings_audit', 'maintenance', 'backups', 'system_health', 'updates', 'error_logs', 'scheduled_jobs', 'storage_files', 'audit_logs', 'feature_toggles', 'integrations', 'email_templates', 'rate_limits', 'localization', 'countries_data', 'password_policy', 'version_history', 'setup_installer'],
         ];
 
@@ -118,7 +118,7 @@ class RolePermissionSeeder extends Seeder
             // أرباحه هو ومسحوباته هو (19.2/19.3) — أمّا الاعتماد والرفض وتقارير
             // الأرباح على مستوى المنصّة فتبقى معزولة لمالك المنصّة وحده.
             'withdraw', 'earnings',
-            'badges', 'streaks', 'five_am_club', 'achievements', 'games', 'leaderboards', 'public_leaderboard',
+            'badges', 'streaks', 'five_am_club', 'achievements', 'leaderboards', 'public_leaderboard',
             'war_participation', 'events', 'event_registrations', 'event_attendance',
             'referrals', 'friend_invite', 'invitations_page', 'user_cv', 'cv_templates', 'user_attestation',
             'complaints', 'user_guide', 'announcements', 'announcement_ack', 'notifications',
@@ -153,7 +153,7 @@ class RolePermissionSeeder extends Seeder
          | بالتحديد لا بالجملة.
          */
         $this->grantKeys('trainee', [
-            'achievements.view', 'badges.view', 'events.view', 'games.view',
+            'achievements.view', 'badges.view', 'events.view',
             'leaderboards.view', 'public_leaderboard.view',
             'store_products.list', 'product_categories.view', 'bundles.view',
             'certificate_verification.view', 'public_pages.view',

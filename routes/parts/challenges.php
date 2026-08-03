@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\Admin\GamificationController;
 use App\Http\Controllers\Admin\WarQuestionController;
 use App\Http\Controllers\Trainee\AchievementController;
 use App\Http\Controllers\Trainee\ChallengeController;
@@ -114,9 +113,6 @@ Route::middleware('auth')->group(function () {
 
         Route::post('/streak/freeze', [AchievementController::class, 'freezeStreak'])
             ->middleware('permission:streaks.create')->name('streak.freeze');
-
-        Route::get('/games', [AchievementController::class, 'games'])
-            ->middleware('permission:games.view')->name('games');
     });
 
     // ------------------------------------------------------------ لوحة الإدارة
@@ -141,16 +137,5 @@ Route::middleware('auth')->group(function () {
                 ->middleware('permission:wars_bank.delete')->name('delete');
         });
 
-        // تاب «الألعاب» داخل لوحة التلعيب (24.2)
-        Route::prefix('gamification/games')->name('gamification.games.')->group(function () {
-            Route::post('/settings', [GamificationController::class, 'saveGameSettings'])
-                ->middleware('permission:games.edit')->name('settings.save');
-            Route::post('/reset', [GamificationController::class, 'resetGameSettings'])
-                ->middleware('permission:games.manage')->name('reset');
-            Route::post('/save', [GamificationController::class, 'saveGame'])
-                ->middleware('permission:games.create,games.edit')->name('save');
-            Route::post('/sessions/{gameSession}/reverse', [GamificationController::class, 'reverseGameSession'])
-                ->middleware('permission:games.manage')->name('sessions.reverse');
-        });
     });
 });

@@ -6,8 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\Badge;
 use App\Models\CelebrationEvent;
 use App\Models\Challenge;
-use App\Models\Game;
-use App\Models\GameSession;
 use App\Models\Level;
 use App\Models\RewardQuestion;
 use App\Services\Admin\Volunteer\AuditTrail;
@@ -15,7 +13,6 @@ use App\Services\Admin\Volunteer\SettingsWriter;
 use App\Services\Admin\Volunteer\WarSettingsService;
 use App\Services\Gamification\BadgeService;
 use App\Services\Gamification\EconomyRules;
-use App\Services\Gamification\GamesAdminService;
 use App\Services\Gamification\RewardQuestionService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -38,7 +35,6 @@ class GamificationController extends Controller
         'leaderboard' => 'الليدر بورد',
         'levels' => 'المستويات',
         'wars' => 'الحروب والتحديات',
-        'games' => 'الألعاب',
         'reward_questions' => 'أسئلة المكافآت',
         'celebrations' => 'الاحتفالات',
     ];
@@ -228,61 +224,6 @@ class GamificationController extends Controller
         return back()->with('status', 'رجعت الحرب للافتراضيّ ✓');
     }
 
-    // ------------------------------------------------------------ الألعاب (24.2)
-
-    /** إعدادات قسم الألعاب — كتالوج المجال لا أرقام محروقة (2.13) */
-    public function saveGameSettings(Request $request): RedirectResponse
-    {
-        $data = $request->validate(['settings' => ['required', 'array']]);
-
-        GamesAdminService::saveSettings($data['settings'], $request->user());
-
-        return back()->with('status', 'اتحفظ ✓');
-    }
-
-    public function resetGameSettings(Request $request): RedirectResponse
-    {
-        $count = GamesAdminService::resetSettings($request->user());
-
-        return back()->with('status', 'رجعت '.$count.' قيمة للافتراضيّ ✓');
-    }
-
-    public function saveGame(Request $request): RedirectResponse
-    {
-        $data = $request->validate([
-            'id' => ['nullable', 'integer', 'exists:games,id'],
-            'key' => ['required', 'string', 'max:48'],
-            'name_ar' => ['required', 'string', 'max:120'],
-            'name_en' => ['nullable', 'string', 'max:120'],
-            'description' => ['nullable', 'string', 'max:1000'],
-            'icon_svg' => ['nullable', 'string', 'max:8000'],
-            'ticket_cost' => ['nullable', 'numeric', 'min:0'],
-            'xp_mode' => ['nullable', 'string'],
-            'xp_reward' => ['nullable', 'integer', 'min:0'],
-            'daily_limit' => ['nullable', 'integer', 'min:0'],
-            'status' => ['nullable', 'string'],
-            'soon_text' => ['nullable', 'string', 'max:160'],
-            'sort_order' => ['nullable', 'integer', 'min:0'],
-        ]);
-
-        GamesAdminService::saveGame(
-            isset($data['id']) ? Game::findOrFail($data['id']) : null,
-            $data,
-            $request->user(),
-        );
-
-        return back()->with('status', 'اتحفظ ✓');
-    }
-
-    public function reverseGameSession(Request $request, GameSession $gameSession): RedirectResponse
-    {
-        $data = $request->validate(['reason' => ['required', 'string', 'max:240']]);
-
-        GamesAdminService::reverseSession($gameSession, $data['reason'], $request->user());
-
-        return back()->with('status', 'اتعكست الجلسة ✓');
-    }
-
     // ------------------------------------------------------------ أسئلة المكافآت (12.10-أ)
 
     /**
@@ -429,20 +370,6 @@ class GamificationController extends Controller
                 'sections' => WarSettingsService::SECTIONS,
                 'challenges' => Challenge::query()->orderBy('id')->get(),
                 'selected' => $this->selectedWar($request),
-            ],
-            'games' => [
-                'settings' => GamesAdminService::rows(),
-                'games' => Game::query()->orderBy('sort_order')->orderBy('id')->get()
-                    ->each(fn (Game $g) => $g->setAttribute(
-                        'sessions_count',
-                        GameSession::query()->where('game_id', $g->id)->count(),
-                    )),
-                'statuses' => GamesAdminService::STATUSES,
-                'sessions' => GameSession::query()
-                    ->with(['game:id,name_ar', 'user:id,name,code'])
-                    ->latest('id')
-                    ->limit((int) setting('ux.lists.per_page', 25))
-                    ->get(),
             ],
             // أسئلة المكافآت (12.10-أ): الحالة حيّة بعدّاد، والإجابة مخفيّة افتراضيًّا
             'reward_questions' => [

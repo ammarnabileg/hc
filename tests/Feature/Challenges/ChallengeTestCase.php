@@ -40,7 +40,6 @@ abstract class ChallengeTestCase extends TestCase
         'badges.view',
         'streaks.view',
         'streaks.create',
-        'games.view',
     ];
 
     /** صلاحيّات لوحة الإدارة في هذا المجال (12.10-ب · 24.2) */
@@ -54,10 +53,6 @@ abstract class ChallengeTestCase extends TestCase
         'wars_bank.import',
         'wars_bank.export',
         'wars_settings.view',
-        'games.list',
-        'games.create',
-        'games.edit',
-        'games.manage',
         'xp_rules.view',
         'badges.view',
         'celebrations.view',
@@ -106,7 +101,7 @@ abstract class ChallengeTestCase extends TestCase
         return $user->refresh();
     }
 
-    /** أدمن بصلاحيّات لوحة الحروب والألعاب — بنطاق ALL (12.2.1) */
+    /** أدمن بصلاحيّات لوحة الحروب — بنطاق ALL (12.2.1) */
     protected function warAdmin(): User
     {
         $user = $this->trainee(tickets: 0, attributes: ['name' => 'أدمن الحروب']);
