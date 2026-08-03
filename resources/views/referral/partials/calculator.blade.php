@@ -54,7 +54,9 @@
                     <span>{{ $slider['label'] }}</span>
                     <strong class="tabular-nums" data-calc-value="{{ $slider['key'] }}">{{ $conf['value'] }}</strong>
                 </span>
-                <input type="range" class="w-full" style="accent-color: var(--color-brand-500); min-block-size: 44px"
+                {{-- بلا `accent-color`: المنزلق المخصّص كلّه في `app.css` (2.10.1-11)، وهي
+                     تُعيد الإطار النايتف الذي تمنعه القاعدة نصًّا ولا يُزال بـ`border:none` --}}
+                <input type="range" class="w-full" style="min-block-size: 44px"
                        data-calc-input="{{ $slider['key'] }}"
                        min="{{ $conf['min'] }}" max="{{ $conf['max'] }}" value="{{ $conf['value'] }}"
                        aria-label="{{ $slider['label'] }}">

@@ -66,7 +66,8 @@
                                value="{{ old('scores.'.$criterion->key, intdiv($maxScore, 2)) }}"
                                data-slider="{{ $criterion->key }}"
                                class="w-full"
-                               style="border: none; outline: none; accent-color: var(--color-brand-500); min-height: 44px">
+                               {{-- بلا `accent-color` (2.10.1-11) — المنزلق المخصّص في `app.css` --}}
+                               style="border: none; outline: none; min-height: 44px">
                     </div>
                 @endforeach
 
