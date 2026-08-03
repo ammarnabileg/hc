@@ -8,6 +8,8 @@ use App\Models\Role;
 use App\Models\User;
 use App\Services\Features\FeatureCatalog;
 use App\Services\Features\FeatureGate;
+use App\Services\Features\FeatureRegistry;
+use App\Support\Access\AccessEngine;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -50,6 +52,29 @@ class AdminSystemFeatureTogglesTest extends SystemTestCase
         $response->assertSee(str_replace(':count', '0', (string) setting('features.ui.paused_badge')), false);
         // بلوك الإعدادات الخمسة
         $response->assertSee(route('admin.features.settings'), false);
+    }
+
+    /**
+     * 2.15-ج: «الجداول كروت رأسيّة **بلا تمرير أفقيّ**» على الموبايل.
+     *
+     * ولا يدّعي هذا الاختبار قياسَ التمرير — ذاك لا يُقاس إلّا في متصفّح
+     * (انظر `Tests\Feature\Ui\MobileLayoutTest`) — بل يحرس **النمط**: جدولُ
+     * الديسكتوب مخفيٌّ تحت `md`، وكروتُ الموبايل مخفيّةٌ فوقه، ولا صندوقَ
+     * تمريرٍ أفقيّ في الشاشة أصلًا.
+     */
+    public function test_the_table_becomes_vertical_cards_on_mobile(): void
+    {
+        $screen = file_get_contents(resource_path('views/admin/settings/tabs/features.blade.php'));
+
+        $this->assertStringContainsString('hidden md:table', $screen);
+        $this->assertStringContainsString('md:hidden', $screen);
+        $this->assertStringNotContainsString('overflow-x-auto', $screen);
+
+        $admin = $this->admin(self::ADMIN);
+        $html = $this->actingAs($admin)->get(route('admin.settings.index', ['tab' => 'features']))->getContent();
+
+        $this->assertStringContainsString('hidden md:table', $html);
+        $this->assertStringContainsString('md:hidden', $html);
     }
 
     public function test_every_catalog_feature_has_a_row_seeded_in_the_production_path(): void
@@ -100,12 +125,14 @@ class AdminSystemFeatureTogglesTest extends SystemTestCase
     /** ⭐ «مَن يراها أثناء الإيقاف» = **الأدمن فقط** — والفرق يظهر بمستخدمين */
     public function test_admins_still_see_the_feature_while_it_is_off_for_everyone_else(): void
     {
-        $admin = $this->admin(self::ADMIN);
+        $admin = $this->admin(array_merge(self::ADMIN, ['my_library.list']));
         $trainee = $this->trainee();
 
         $this->disable($admin, 'library.reader', ['visibility' => 'admins']);
 
+        // المتدرّب: الباب مقفول على الخادم — لا زرٌّ مخفيّ
         $this->actingAs($trainee)->get(route('library.index'))->assertNotFound();
+        // والأدمن: يراها كما ضُبِط بالضبط
         $this->actingAs($admin)->get(route('library.index'))->assertOk();
     }
 
@@ -305,12 +332,12 @@ class AdminSystemFeatureTogglesTest extends SystemTestCase
         $admin = $this->admin(self::ADMIN);
         $this->disable($admin, 'library.reader');
 
-        $payload = app(\App\Services\Features\FeatureRegistry::class)->export();
+        $payload = app(FeatureRegistry::class)->export();
         $payload['features'][] = ['key' => 'ghost.feature', 'enabled' => false];
 
         $this->actingAs($admin)->postJson(route('admin.features.reset'), ['key' => 'library.reader'])->assertOk();
 
-        $result = app(\App\Services\Features\FeatureRegistry::class)->import($payload, $admin);
+        $result = app(FeatureRegistry::class)->import($payload, $admin);
 
         $this->assertSame(1, $result['skipped']);
         $this->assertGreaterThanOrEqual(30, $result['applied']);
@@ -360,7 +387,7 @@ class AdminSystemFeatureTogglesTest extends SystemTestCase
         $user = $this->makeUser('متدرّب');
         $user->assignRole($role);
 
-        app(\App\Support\Access\AccessEngine::class)->forget($user);
+        app(AccessEngine::class)->forget($user);
 
         return $user;
     }

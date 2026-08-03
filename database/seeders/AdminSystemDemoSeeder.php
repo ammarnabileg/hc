@@ -353,6 +353,8 @@ class AdminSystemDemoSeeder extends Seeder
             ['features.disabled_message_en', 'features', 'نصّ الميزة الموقوفة (إنجليزيّ)', 'text', 'This feature is paused for a moment — it will be back soon.', false],
             ['features.alert_long_outage', 'features', 'تنبيه الأدمن عند إيقاف ميزة طويلًا', 'bool', '1', false],
             ['features.alert_after_hours', 'features', 'عتبة التنبيه (ساعات)', 'number', '24', false],
+            // «شارة تجريبيّة للمزايا **الجديدة**» — والجِدَّة عمرٌ لا وسمٌ يدويّ
+            ['features.beta_days', 'features', 'كم يوم تُعتبَر الميزة جديدة', 'number', '30', false],
 
             // ---------------- لافتات المجموعات التسع المنصوصة
             ['features.groups', 'features', 'لافتات مجموعات المزايا', 'json', '{"training":"تدريب","gamification":"تلعيب","wars":"حروب","store":"متجر وماليّات","library":"مكتبة","volunteer":"تطوّع","events":"فعاليّات","guidance":"توجيه","profile":"بروفايل"}', false],

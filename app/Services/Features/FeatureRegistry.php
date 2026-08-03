@@ -77,7 +77,12 @@ class FeatureRegistry
             'label_ar' => (string) $flag['label_ar'],
             'label_en' => (string) ($flag['label_en'] ?? ''),
             'enabled' => $enabled,
-            'is_beta' => (bool) $flag['is_beta'],
+            /*
+             | «شارة تجريبيّة **للمزايا الجديدة**» (24.3): والجِدَّة تُحسَب من عمر
+             | الصفّ لا تُوسَم بيدٍ — فوسمٌ يدويّ يبقى بعد سنة على ميزةٍ استقرّت،
+             | والشارة تفقد معناها. والعتبة إعدادٌ لا رقمٌ محروق.
+             */
+            'is_beta' => (bool) $flag['is_beta'] || $this->isNew($flag),
             'status' => $partial ? 'partial' : ($enabled ? 'on' : 'off'),
             'visibility' => (string) $flag['visibility'],
             'visible_roles' => array_map('intval', $flag['visible_roles']),
@@ -92,6 +97,20 @@ class FeatureRegistry
             'overrides' => $overrides,
             'routes' => FeatureCatalog::definitions()[$flag['key']]['routes'] ?? [],
         ];
+    }
+
+    /**
+     * ميزةٌ «جديدة» = عمر صفّها أقلّ من العتبة (`features.beta_days`).
+     *
+     * @param  array<string, mixed>  $flag
+     */
+    private function isNew(array $flag): bool
+    {
+        $days = (int) setting('features.beta_days', 30);
+
+        return $days > 0
+            && $flag['created_at'] !== null
+            && now()->diffInDays($flag['created_at'], true) < $days;
     }
 
     /** شارة عدد المزايا الموقوفة في الهيدر */
