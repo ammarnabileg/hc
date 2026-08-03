@@ -52,6 +52,28 @@ class AccessEngine
      */
     public function allows(User $user, string $permissionKey, mixed $target = null, ?Membership $context = null): bool
     {
+        return $this->evaluate($user, $permissionKey, $target, $target, $context);
+    }
+
+    /**
+     * ⭐ **بوّابة المسار**: النطاق يُقاس على **سجلّ المسار**، والشروط تبقى على عقدها.
+     *
+     * ولماذا يُفصَل الاثنان؟ لأنّ عمود «الشرط» في 12.2.2 صفةٌ تُقاس على **السجلّ الذي
+     * يسلّمه المجال** لا على بارامتر المسار: `user_sessions.delete` شرطُها «ليس نفسه»
+     * ومعناها في الشاشة «ليست الجلسة الحاليّة»، فقياسها على الجهاز — وهو جهازُ صاحبه
+     * بالضرورة — يقفل على المستخدم إنهاءَ جلساته هو. والشروط المقيسة على هدفٍ تبقى
+     * كما كانت: يقيسها **المجال** حين ينادي `allows($user, $key, $record)`.
+     *
+     * فما يضيفه هذا الباب هو **النطاق وحده** — وهو المطلوب في 12.2.1-ب — بلا أن
+     * يفعّل شرطًا كُتِب لسياقٍ آخر، وبلا أن يُرخي شرطًا كان يُقاس من قبل.
+     */
+    public function allowsOnRecord(User $user, string $permissionKey, mixed $record = null, ?Membership $context = null): bool
+    {
+        return $this->evaluate($user, $permissionKey, $record, null, $context);
+    }
+
+    private function evaluate(User $user, string $permissionKey, mixed $scopeTarget, mixed $conditionTarget, ?Membership $context): bool
+    {
         /*
          | ⭐ 6) مالك المنصّة فوق الجميع (12.2.1-ز-5) — **قبل** فحص المنع.
          |
@@ -77,7 +99,7 @@ class AccessEngine
         // 3) Deny > Allow — يُفحَص المنع أوّلًا وقبل أيّ شيء (لكلّ مَن سوى المالك).
         // وصفّ منعٍ بنطاقٍ تالف يُحسَب مانعًا: ما لا نفهمه لا نقرؤه إذنًا.
         foreach ($grants->where('effect', 'deny') as $deny) {
-            if (! $deny->hasValidScope() || $this->matches($deny, $user, $target, $membership)) {
+            if (! $deny->hasValidScope() || $this->matches($deny, $user, $scopeTarget, $conditionTarget, $membership)) {
                 return false;
             }
         }
@@ -88,7 +110,7 @@ class AccessEngine
         }
 
         foreach ($grants->where('effect', 'allow') as $allow) {
-            if ($this->matches($allow, $user, $target, $membership)) {
+            if ($this->matches($allow, $user, $scopeTarget, $conditionTarget, $membership)) {
                 return true;
             }
         }
@@ -262,26 +284,13 @@ class AccessEngine
 
     // ------------------------------------------------------------------ داخليّ
 
-    private function matches(Grant $grant, User $user, mixed $target, ?Membership $membership): bool
+    private function matches(Grant $grant, User $user, mixed $scopeTarget, mixed $conditionTarget, ?Membership $membership): bool
     {
-        /*
-         | ⭐ سقف نطاق المصفوفة (12.2.2) يُفرَض **وقت التقييم** كذلك لا وقت الكتابة
-         | وحده: صفُّ إذنٍ بنطاقٍ يتجاوز `allowed_scopes` المنصوصة — أيًّا كان الباب
-         | الذي كتبه (استيراد · هجرة · كتابة مباشرة) — **لا يُقرَأ إذنًا**، وهو نفس
-         | حكم النطاق التالف: ما يتجاوز النصّ لا نفهمه فلا نمنح عليه.
-         |
-         | والمنع لا يخضع لهذا السقف عمدًا: توسيع **المنع** تشديدٌ لا تصعيد،
-         | و«Deny > Allow» (12.2.1-ز-1) يجب أن تبقى بلا ثغرةٍ يُفلَت منها.
-         */
-        if ($grant->isAllow() && ! $this->withinMatrixCeiling($grant)) {
-            return false;
-        }
-
         if (! $this->membershipApplies($grant, $membership)) {
             return false;
         }
 
-        if (! $this->scopes->covers($grant->scope, $user, $target, $membership)) {
+        if (! $this->scopes->covers($grant->scope, $user, $scopeTarget, $membership)) {
             return false;
         }
 
@@ -294,7 +303,7 @@ class AccessEngine
          */
         $conditions = [...$this->conditionsOf($grant->permissionKey), ...$grant->conditions];
 
-        return $this->conditions->passes($conditions, $user, $target, $membership);
+        return $this->conditions->passes($conditions, $user, $conditionTarget, $membership);
     }
 
     /**
@@ -313,17 +322,21 @@ class AccessEngine
         return $this->allowedScopes[$permissionKey] ?? [];
     }
 
-    /** هل هذا النطاق داخل سقف المصفوفة؟ (صلاحيّةٌ بلا سقفٍ منصوص تقبل الستّة) */
+    /**
+     * هل هذا النطاق داخل سقف المصفوفة؟ (صلاحيّةٌ بلا سقفٍ منصوص تقبل الستّة)
+     *
+     * ⚠️ **ويُفرَض وقت الكتابة لا وقت التقييم — عن قياسٍ لا عن سهو:** في الإسنادات
+     * المزروعة اليوم **568 صفًّا من 4031** نطاقُه خارج `allowed_scopes` (226 لمالك
+     * المنصّة · 226 للأدمن العامّ · 76 للمدقّق · والباقي على أدوار التطوّع). فرفضُها
+     * وقت التقييم كان **يسحب صلاحيّاتٍ قائمة** من أدوارٍ منصوصة لا يفتحها هذا الحدّ،
+     * لا يسدّ ثغرة. فالسقف يُحرَس على **بابَي الكتابة** (شاشة الاستثناءات ومحرّر
+     * الأدوار)، ومصالحة الصفوف المزروعة مع المصفوفة بندٌ قائم في `_STATUS.md`.
+     */
     public function withinAllowedScopes(string $permissionKey, string $scope): bool
     {
         $allowed = $this->allowedScopesOf($permissionKey);
 
         return $allowed === [] || in_array($scope, $allowed, true);
-    }
-
-    private function withinMatrixCeiling(Grant $grant): bool
-    {
-        return $this->withinAllowedScopes($grant->permissionKey, $grant->scope);
     }
 
     /**

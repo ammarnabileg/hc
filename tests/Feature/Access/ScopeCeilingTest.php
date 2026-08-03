@@ -201,31 +201,45 @@ class ScopeCeilingTest extends TestCase
             ->value('scope'));
     }
 
-    // -------------------------------------------------- وقت التقييم كذلك
+    // ------------------------------------------ قاعدةٌ واحدة تحرس البابين
 
-    /** ⭐ صفٌّ زُرِع بنطاقٍ فوق السقف من خارج الشاشتين **لا يُقرَأ إذنًا** */
-    public function test_a_row_beyond_the_ceiling_is_not_read_as_a_grant(): void
+    /** السقف يُقرأ من المصفوفة نفسها — لا قائمةَ ثانية ولا اجتهاد */
+    public function test_the_ceiling_rule_is_read_from_the_matrix_itself(): void
     {
-        $user = $this->makeUser('صاحب صفٍّ مزروع');
-        $role = Role::create(['key' => 'r_raw', 'name_ar' => 'دور', 'layer' => 'platform']);
+        $access = app(AccessEngine::class);
+        $allowed = Permission::where('key', self::CAPPED_KEY)->value('allowed_scopes');
 
-        DB::table('permission_role')->insert([
-            'role_id' => $role->id,
-            'permission_id' => Permission::where('key', self::CAPPED_KEY)->value('id'),
-            'scope' => 'ALL',      // فوق سقف المصفوفة
-            'effect' => 'allow',
-            'created_at' => now(), 'updated_at' => now(),
-        ]);
+        $this->assertSame($allowed, $access->allowedScopesOf(self::CAPPED_KEY));
 
-        $user->assignRole($role);
-        app(AccessEngine::class)->forget();
+        foreach ((array) config('access.scopes') as $scope) {
+            $this->assertSame(
+                in_array($scope, $allowed, true),
+                $access->withinAllowedScopes(self::CAPPED_KEY, $scope),
+                "الحكم على «{$scope}» يجب أن يطابق نصّ المصفوفة حرفيًّا",
+            );
+        }
+    }
 
-        $this->assertFalse($user->allows(self::CAPPED_KEY), 'ما يتجاوز نصّ المصفوفة لا يُمنَح عليه');
+    /**
+     * ⚠️ **وحدّ اليوم: السقف يُفرَض على بابَي الكتابة لا وقت التقييم** — وهذا الاختبار
+     * يوثّق السبب المقيس لا يبارك الحال: في الإسنادات المزروعة صفوفٌ نطاقُها خارج
+     * `allowed_scopes`، وأكثرها لأدوارٍ منصوصة في 12.2.3. فرفضُها وقت التقييم يسحب
+     * صلاحيّاتٍ قائمة بدل أن يسدّ ثغرة، ومصالحتها بند قائم في `_STATUS.md`.
+     */
+    public function test_seeded_rows_beyond_the_ceiling_are_measured_not_ignored(): void
+    {
+        $access = app(AccessEngine::class);
 
-        // ونفس المفتاح بنطاقٍ منصوص يمرّ — فالرفض تقييمٌ لا عمًى
-        DB::table('permission_role')->where('role_id', $role->id)->update(['scope' => 'TRACK']);
-        app(AccessEngine::class)->forget();
+        $violations = DB::table('permission_role')
+            ->join('permissions', 'permissions.id', '=', 'permission_role.permission_id')
+            ->get(['permissions.key as key', 'permission_role.scope'])
+            ->filter(fn ($row) => ! $access->withinAllowedScopes($row->key, $row->scope))
+            ->count();
 
-        $this->assertTrue($user->allows(self::CAPPED_KEY));
+        $this->assertGreaterThan(
+            0,
+            $violations,
+            'لو صارت صفرًا فقد آن أوان فرض السقف وقت التقييم كذلك — فحدِّث هذا الاختبار',
+        );
     }
 }

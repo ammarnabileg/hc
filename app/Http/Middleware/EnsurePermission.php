@@ -51,7 +51,7 @@ class EnsurePermission
         $target = $this->targetOf($request);
 
         foreach ($this->effectiveKeys($request, $permissions) as $permission) {
-            if ($this->access->allows($user, $permission, $target)) {
+            if ($this->access->allowsOnRecord($user, $permission, $target)) {
                 return $next($request);
             }
         }
