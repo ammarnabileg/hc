@@ -117,7 +117,10 @@
             ['الستريك ونادي الخامسة', 'admin.gamification.index', ['streaks.view', $gameGate], ['tab' => 'streaks']],
             ['الليدر بورد', 'admin.gamification.index', ['leaderboards.view', $gameGate], ['tab' => 'leaderboard']],
             ['الشارات والإنجازات', 'admin.gamification.index', 'badges.view', ['tab' => 'badges']],
-            ['الألعاب', 'admin.gamification.index', ['games.view', $gameGate], ['tab' => 'games']],
+            /*
+             | ⛔ «الألعاب» ملغاة بقرار المالك (الدستور v5.3 — 7.5)، فسقط بندها من
+             | خريطة 12.0. ولا مدخل لها هنا، ولا تابّ `?tab=games`.
+             */
             // الطرف الإداريّ للدعوات والألقاب (24.2)
             ['الريفيرال والسفراء', 'admin.referrals.index', 'referrals.list'],
             // الرسائل الإيجابيّة لأيقونة المفاجأة (2.6-ب · 12.0)

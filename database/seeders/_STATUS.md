@@ -44,6 +44,14 @@
   **الدليل:** `tests/Feature/Access/ScopeCeilingTest.php` — صفر صفٍّ فوق السقف (كانت 528)،
   ومع ذلك `super_admin` ما زال يحمل `tasks.approve` (بـTEAM) و`sub_departments.create`
   (بـENTITY) و`course_notes.view` (بـSELF) — قصٌّ لا سحب.
+- ⚠️ **سيدرات العرض (Demo) ما زالت تكتب فوق السقف: 53 صفًّا.** المسار الإنتاجيّ
+  (`migrate:fresh --seed`) نظيفٌ صفرًا، لكنّ `VolunteerOrgDemoSeeder` و`VolunteerCoreDemoSeeder`
+  و`VolunteerProfileDemoSeeder` و`EventDemoSeeder` و`ExamDemoSeeder` و`AdminSystemDemoSeeder`
+  تكتب في `permission_role` بنطاقاتٍ **بلا مرورٍ بسقف المصفوفة**.
+  **مقيس:** بعد سيدرات العرض ⟵ 4098 صفًّا منها **53 فوق السقف**
+  (director 13 · track_supervisor 10 · supervisor 8 · volunteer_gm 7 · team_leader 7 ·
+  coordinator 4 · super_admin 3 · trainee 1) — وهي بقيّة الرقم 568 الذي أعلنه الأوديت.
+  **الإصلاح:** تمرير كتابتها بنفس قاعدة `RolePermissionSeeder::insertRows()` (قصٌّ لا سحب).
 - لو فتحت فجوة (وعدٌ في الواجهة بلا تنفيذ · إعدادٌ بلا شاشة · مسارٌ بلا صلاحيّة) اكتبها هنا فورًا.
 <!-- بيدك:نهاية:المتبقّي -->
 

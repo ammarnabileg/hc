@@ -109,10 +109,15 @@ class SidebarEntryPointsTest extends TestCase
             'admin/guidance/complaints',
             // 🔒 الماليّات (12.0) — أسعار الصرف
             'admin/wallet/rates',
-            // ⚙️ آخر بند في الخريطة
-            'admin/settings/audit',
-            // 🎮 التلعيب: الألعاب والاحتفالات تابان داخل اللوحة
-            'tab=games',
+            /*
+             | ⚙️ آخر بند في الخريطة — سجلّ التدقيق.
+             | وكان مربوطًا بـ`admin/settings/audit`، وهو **مسار JSON** لآخر تغييرٍ
+             | على مفتاحٍ واحد يردّ 422 بلا `?key=` — فالبند كان يفتح خطأً لا سجلًّا.
+             | والسجلّ الحقيقيّ تابٌ في صفحة الإعدادات.
+             */
+            'tab=audit',
+            // 🎮 التلعيب: الاحتفالات تابٌ داخل اللوحة
+            // (⛔ و«الألعاب» ملغاة بقرار المالك — الدستور v5.3 · 7.5 — فلا بند لها)
             'tab=celebrations',
             // 📚 إعدادات التعلّم
             'tab=learning',
@@ -134,8 +139,7 @@ class SidebarEntryPointsTest extends TestCase
             'admin/guidance/help',
             'admin/guidance/complaints',
             'admin/wallet/rates',
-            'admin/settings/audit',
-            'tab=games',
+            'tab=audit',
             'tab=celebrations',
             'tab=learning',
             'volunteer/recruitment',
