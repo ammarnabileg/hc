@@ -47,6 +47,51 @@ class AttendanceService
             return $this->fail('الكود مش مظبوط. راجع الكود المعروض في الفعاليّة وأدخله تاني.', $registration);
         }
 
+        return $this->grant($event, $user, $registration);
+    }
+
+    /**
+     * ⭐ **تشيك-إن بالـQR الديناميكيّ** (12.11: «QR ديناميكيّ للتشيك-إن يمنع
+     * استخدام كود شخص لآخر»). الرمز نفسه **هو** إثبات الشخص، فلا كودَ إضافيّ
+     * يُطلَب — لكنّ **الصرف يمرّ من نفس البوّابة** (`grant`) لا من نسخةٍ ثانية:
+     * نفس الحارس الذرّيّ · نفس دفتر الأستاذ · نفس الشهادة · ونفس منع التكرار.
+     * ولو كتبنا صرفًا موازيًا هنا لَافترقت النسختان يومًا وصُرِفت المكافأة مرّتين.
+     *
+     * @return array{ok: bool, message: string, registration: ?EventRegistration, certificate: ?Certificate, reward: array{xp: int, tickets: int}}
+     */
+    public function checkInByToken(EventRegistration $registration): array
+    {
+        $event = $registration->event;
+        $user = $registration->user;
+
+        if (! $event || ! $user) {
+            return $this->fail((string) setting(
+                'events.checkin.qr_msg_malformed',
+                'الرمز ده مش رمز تشيك-إن سليم. اطلب من صاحبه يعرض الرمز من صفحة الفعاليّة تاني.',
+            ));
+        }
+
+        if (! $this->windowOpen($event)) {
+            return $this->fail(
+                (string) setting(
+                    'events.checkin.window_closed_message',
+                    'كود الحضور بيشتغل مع بداية الفعاليّة. استنّى شويّة وجرّب تاني.',
+                ),
+                $registration,
+            );
+        }
+
+        return $this->grant($event, $user, $registration);
+    }
+
+    /**
+     * الصرف: حارسٌ ذرّيّ ⟵ دفتر الأستاذ ⟵ الشهادة. **بوّابةٌ واحدة** لكلّ طرق
+     * إثبات الحضور (كود OTP · QR · تشيك-إن الأدمن).
+     *
+     * @return array{ok: bool, message: string, registration: ?EventRegistration, certificate: ?Certificate, reward: array{xp: int, tickets: int}}
+     */
+    public function grant(Event $event, User $user, EventRegistration $registration): array
+    {
         if ($registration->attended) {
             return [
                 'ok' => true,
@@ -76,12 +121,32 @@ class AttendanceService
         $registration->refresh();
         $reward = $this->reward($event);
 
+        /*
+         | ⚠️ **وسائط مسمّاة لا بالترتيب:** توقيع دفتر الأستاذ
+         | `(…, $source, ?Model $reference, $layer, ?string $reason)`، وتمريرُ
+         | السبب العربيّ بالترتيب كان يُنزِله في خانة `source` فيتفتّت الدفتر
+         | ويسقط الحدّ اليوميّ. والاسم لا ينزلق مع تغيّر التوقيع.
+         */
         if ($reward['xp'] > 0) {
-            $this->ledger->credit($user, 'xp', $reward['xp'], 'event', 'حضور فعاليّة', $event);
+            $this->ledger->credit(
+                user: $user,
+                currencyCode: 'xp',
+                amount: $reward['xp'],
+                source: 'event',
+                reason: (string) setting('events.reward.ledger_reason', 'حضور فعاليّة'),
+                reference: $event,
+            );
         }
 
         if ($reward['tickets'] > 0) {
-            $this->ledger->credit($user, 'tickets', $reward['tickets'], 'event', 'حضور فعاليّة', $event);
+            $this->ledger->credit(
+                user: $user,
+                currencyCode: 'tickets',
+                amount: $reward['tickets'],
+                source: 'event',
+                reason: (string) setting('events.reward.ledger_reason', 'حضور فعاليّة'),
+                reference: $event,
+            );
         }
 
         $certificate = $this->certificates->issueForRegistration($registration);

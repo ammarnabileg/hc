@@ -23,6 +23,10 @@ Route::middleware(['auth', 'permission:events.view'])->group(function () {
     Route::get('/events/{event:slug}/ticket', [EventController::class, 'ticket'])->name('events.ticket');
     Route::get('/events/{event:slug}/calendar.ics', [EventController::class, 'ics'])->name('events.ics');
 
+    // ⭐ رمز تشيك-إن QR **ديناميكيّ** يخصّ صاحبه وحده (12.11) — يتجدّد كلّ 30ث
+    // (24.3)، فلقطة شاشةٍ تُرسَل لغيره تموت قبل أن تصل، ولا يُقرأ إلّا خادميًّا.
+    Route::get('/events/{event:slug}/checkin-qr.svg', [EventController::class, 'qr'])->name('events.qr');
+
     Route::post('/events/{event:slug}/register', [EventController::class, 'register'])->name('events.register');
     Route::post('/events/{event:slug}/checkin', [EventController::class, 'checkin'])->name('events.checkin');
 });

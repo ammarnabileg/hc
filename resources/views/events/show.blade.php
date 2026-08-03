@@ -244,6 +244,44 @@
                             كود الحضور بيفتح مع بداية الفعاليّة. جهّز نفسك — والكود هيتعرض في الفعاليّة نفسها.
                         </p>
                     @else
+                        {{--
+                          ⭐ **تشيك-إن QR للأوفلاين/الهجين** (13.3 · 12.11):
+                          رمزٌ **يخصّ صاحبه** ويتجدّد كلّ 30ث (24.3)، يعرضه
+                          المتدرّب فيمسحه المنظِّم بكاميرا هاتفه — فلا تنفع لقطةٌ
+                          مرسَلة لغيره، وهو عين «يمنع استخدام كود شخص لآخر».
+                          والصورة **SVG من خادمنا** بلا مكتبة ولا أصلٍ خارجيّ.
+                        --}}
+                        @if ($qrEnabled)
+                            <div class="rounded-xl p-3 text-center" style="background: var(--surface-sunken)">
+                                <img src="{{ route('events.qr', $event->slug) }}?w={{ time() }}"
+                                     alt="{{ setting('events.checkin.qr_alt', 'رمز تشيك-إن الحضور') }}"
+                                     width="180" height="180"
+                                     class="inline-block max-w-full h-auto rounded-lg"
+                                     style="background: #fff"
+                                     data-qr-refresh="{{ route('events.qr', $event->slug) }}"
+                                     data-qr-seconds="{{ $qrRefreshSeconds }}">
+                                <p class="text-xs mt-2" style="color: var(--text-muted)">
+                                    {{ setting('events.checkin.qr_hint', 'اعرض الرمز ده للمنظّم عشان يمسحه — بيتجدّد كلّ') }}
+                                    {{ $qrRefreshSeconds }} {{ setting('events.checkin.qr_seconds_word', 'ثانية') }}.
+                                </p>
+                            </div>
+
+                            @push('scripts')
+                                <script>
+                                    // التجديد الحيّ للرمز — ولو تعطّل الـJS تبقى صورة
+                                    // الخادم صالحةً في نافذتها ثمّ يجدّدها إعادة التحميل (2.17-أ)
+                                    (function () {
+                                        const img = document.querySelector('[data-qr-refresh]');
+                                        if (!img) return;
+                                        const every = Math.max(5, parseInt(img.dataset.qrSeconds, 10) || 30);
+                                        setInterval(function () {
+                                            img.src = img.dataset.qrRefresh + '?w=' + Date.now();
+                                        }, every * 1000);
+                                    })();
+                                </script>
+                            @endpush
+                        @endif
+
                         <p class="text-xs" style="color: var(--text-muted)">
                             أدخل الكود المعروض في الفعاليّة — وبيه تتفتح الشهادة والمكافأة.
                         </p>

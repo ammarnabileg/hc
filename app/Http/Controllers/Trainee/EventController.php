@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Event;
 use App\Models\EventRegistration;
 use App\Services\Events\AttendanceService;
+use App\Services\Events\CheckinQr;
 use App\Services\Events\EventPresenter;
 use App\Services\Events\EventQuery;
 use App\Services\Events\IcsGenerator;
@@ -82,7 +83,7 @@ class EventController extends Controller
         ]);
     }
 
-    public function show(Request $request, Event $event): View
+    public function show(Request $request, Event $event, CheckinQr $qr): View
     {
         abort_unless($this->visible($request, $event), 404);
 
@@ -100,6 +101,9 @@ class EventController extends Controller
             // الرابط لا يُمرَّر للواجهة أصلًا قبل وقته — القرار خادميّ (13.3)
             'joinLink' => $this->presenter->joinLinkVisible($event, $registration) ? $event->join_link : null,
             'reward' => $this->attendance->reward($event),
+            // ⭐ الـQR للأوفلاين والهجين فقط، ولمن سجّل فقط (13.3 · 12.11)
+            'qrEnabled' => $registration !== null && $qr->enabled($event),
+            'qrRefreshSeconds' => $qr->refreshSeconds(),
             'inviteLink' => $this->referrals->deepLinkFor($user, 'event', $event->id),
             'commissionPercent' => $this->referrals->commissionPercent(),
             'speakers' => $event->agenda->pluck('speaker')->filter()->unique()->values(),
@@ -169,6 +173,28 @@ class EventController extends Controller
             $generator->filename($event),
             ['Content-Type' => 'text/calendar; charset=utf-8'],
         );
+    }
+
+    /**
+     * ⭐ **رمز تشيك-إن QR ديناميكيّ** (13.3: «وللأوفلاين يتوفّر تشيك-إن QR
+     * كذلك» · 12.11: «QR ديناميكيّ للتشيك-إن يمنع استخدام كود شخص لآخر»).
+     *
+     * الرمز يخصّ **تسجيل صاحب الطلب وحده** — لا يُطلَب لغيره ولا يُمرَّر معرّفٌ
+     * في الرابط، فلا سبيل لأن يستخرج أحدٌ رمزَ أحد. و`no-store` شرطُ حياته:
+     * رمزٌ مكيَّشٌ رمزٌ ثابت، والثابت هو بالضبط ما ينهاه النصّ عنه.
+     */
+    public function qr(Request $request, Event $event, CheckinQr $qr): Response
+    {
+        abort_unless($this->visible($request, $event), 404);
+        abort_unless($qr->enabled($event), 404);
+
+        $registration = $this->registrations->registrationFor($event, $request->user());
+        abort_unless($registration !== null, 404);
+
+        return response($qr->svg($registration), 200, [
+            'Content-Type' => 'image/svg+xml; charset=utf-8',
+            'Cache-Control' => 'no-store, no-cache, must-revalidate',
+        ]);
     }
 
     /** صورة OG مرسومة SVG لكلّ رابط فعاليّة (21.1-أ) — عامّة ليقرأها المشاركون */

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\DelegationAdminController;
 use App\Http\Controllers\Admin\EventAdminController;
+use App\Http\Controllers\Admin\EventRegistrationsController;
 use App\Http\Controllers\Admin\GamificationController;
 use App\Http\Controllers\Admin\OffboardingAdminController;
 use App\Http\Controllers\Admin\OrgAdminController;
@@ -194,6 +195,27 @@ Route::middleware(['auth', 'admin.panel'])->prefix('admin')->name('admin.')->gro
 
     // ------------------------------------------------------ الفعاليّات 📅
     Route::prefix('events')->name('events.')->group(function () {
+
+        /*
+         | ⚠️ **الترتيب حاكم:** هذه المسارات الثابتة تسبق `/{event}/…` عمدًا.
+         | فـ`/{event}` يلتقط أيّ مقطعٍ أوّل، ولو جاء بعدها لَحاولت لارافيل ربط
+         | فعاليّةٍ اسمُها «registrations» أو «scan» فتردّ 404 على شاشةٍ سليمة.
+         */
+
+        // 🖥️ الشاشة الجامعة «المسجّلون والحضور» — بند خريطة 12.0 الذي كان بلا شاشة
+        Route::get('/registrations', [EventRegistrationsController::class, 'index'])
+            ->middleware('permission:event_registrations.list')->name('registrations.index');
+        Route::get('/registrations/export', [EventRegistrationsController::class, 'export'])
+            ->middleware('permission:event_registrations.export')->name('registrations.export');
+        Route::post('/registrations/notify/{event}', [EventRegistrationsController::class, 'notify'])
+            ->middleware('permission:events.edit')->name('registrations.notify');
+
+        // مسح QR للتشيك-إن (13.3 · 12.11 · 24.3) — الرابط الذي تفتحه كاميرا المنظِّم
+        Route::get('/scan/{token}', [EventRegistrationsController::class, 'scan'])
+            ->middleware('permission:event_attendance.create')->name('scan');
+        Route::post('/scan', [EventRegistrationsController::class, 'scanSubmit'])
+            ->middleware('permission:event_attendance.create')->name('scan.submit');
+
         Route::get('/', [EventAdminController::class, 'index'])
             ->middleware('permission:events.list')->name('index');
         Route::post('/', [EventAdminController::class, 'save'])

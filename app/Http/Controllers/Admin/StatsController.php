@@ -5,9 +5,10 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Services\Admin\System\StatsService;
 use App\Services\Admin\System\SvgChart;
+use App\Services\Export\TabularExport;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\View\View;
-use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
  * الإحصائيّات (12.8 · 24.3-خامسًا) — تقارير للعرض فقط.
@@ -47,8 +48,16 @@ class StatsController extends Controller
         ]);
     }
 
-    /** تصدير مرن: CSV بالفترة والتاب المختارين وحدّ صفوف من الإعدادات */
-    public function export(Request $request): StreamedResponse
+    /**
+     * ⭐ **تصدير مرن: `تصدير CSV/Excel/PDF`** — بالنصّ لا بالتسمية (24.3-خامسًا · 12.8).
+     *
+     * كان الزرّ واحدًا يقول «تصدير CSV»، والنصّ الحاكم يوجب الصيغ الثلاث:
+     * «**الهيدر:** «الإحصائيّات» + فلتر فترة عامّ … + `**تصدير CSV/Excel/PDF**`».
+     * والصيغتان الأخريان تُبنيان **داخل المشروع بلا مكتبة خارجيّة** عبر
+     * `App\Services\Export\TabularExport` (XLSX من `XlsxWriter` · PDF من
+     * `AtsPdfWriter`) — فلا يُكتَب على الزرّ ما لا يقع.
+     */
+    public function export(Request $request, TabularExport $export): Response
     {
         $user = $request->user();
         $tabs = $this->stats->tabsFor($user);
@@ -62,23 +71,22 @@ class StatsController extends Controller
             $request->boolean('compare'),
         );
 
-        $rows = $this->stats->exportRows($tab, $period);
-        $filename = 'stats-'.$tab.'-'.now()->format('Ymd-His').'.csv';
+        $label = (string) ($tabs[$tab]['label'] ?? $tab);
 
-        return response()->streamDownload(function () use ($rows) {
-            $handle = fopen('php://output', 'w');
-            // BOM حتى تفتح العربيّة سليمةً في إكسل بلا خطوة إضافيّة من الأدمن
-            fwrite($handle, "\xEF\xBB\xBF");
+        $file = $export->build(
+            rows: $this->stats->exportRows($tab, $period),
+            format: $request->string('format')->toString(),
+            title: (string) setting('stats.export.title_prefix', 'الإحصائيّات').' — '.$label,
+            subtitle: $period['from']->format('Y/m/d').' — '.$period['to']->format('Y/m/d'),
+            slug: 'stats-'.$tab,
+        );
 
-            if ($rows !== []) {
-                fputcsv($handle, array_keys((array) $rows[0]));
-
-                foreach ($rows as $row) {
-                    fputcsv($handle, array_values((array) $row));
-                }
-            }
-
-            fclose($handle);
-        }, $filename, ['Content-Type' => 'text/csv; charset=UTF-8']);
+        return response($file['content'], 200, array_filter([
+            'Content-Type' => $file['mime'],
+            'Content-Disposition' => 'attachment; filename="'.$file['name'].'"',
+            // الصيغة التي خرجت فعلًا — وسببُ اختلافها عن المطلوب إن اختلفت (2.17-ب)
+            'X-Export-Format' => $file['format'],
+            'X-Export-Note' => $file['note'] !== '' ? rawurlencode($file['note']) : null,
+        ]));
     }
 }

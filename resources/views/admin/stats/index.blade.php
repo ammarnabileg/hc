@@ -33,13 +33,18 @@
                             :subtitle="$period['from']->format('Y/m/d').' — '.$period['to']->format('Y/m/d')"
                             :rows="$exportRows" />
 
-            <a href="{{ route('admin.stats.export', array_filter([
-                    'tab' => $tab,
-                    'from' => $period['from']->toDateString(),
-                    'to' => $period['to']->toDateString(),
-                    'compare' => $period['compare'] ? 1 : null,
-               ])) }}"
-               class="rounded-xl px-3 py-2 text-sm" style="background: var(--surface-raised)">تصدير CSV</a>
+            {{-- ⭐ «تصدير CSV/Excel/PDF» (24.3-خامسًا) — والثلاثة تقع فعلًا:
+                 XLSX حزمة OOXML وPDF بخطٍّ عربيّ مضمَّن، بلا أيّ مكتبة خارجيّة. --}}
+            @foreach (['csv' => 'تصدير CSV', 'xlsx' => 'تصدير Excel', 'pdf' => 'تصدير PDF'] as $format => $label)
+                <a href="{{ route('admin.stats.export', array_filter([
+                        'tab' => $tab,
+                        'format' => $format,
+                        'from' => $period['from']->toDateString(),
+                        'to' => $period['to']->toDateString(),
+                        'compare' => $period['compare'] ? 1 : null,
+                   ])) }}"
+                   class="rounded-xl px-3 py-2 text-sm" style="background: var(--surface-raised)">{{ $label }}</a>
+            @endforeach
         </x-slot:action>
     </x-page-header>
 
