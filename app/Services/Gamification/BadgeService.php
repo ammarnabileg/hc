@@ -146,10 +146,18 @@ class BadgeService
 
         $lessons = (float) LessonCompletion::query()->where('user_id', $user->id)->count();
 
+        /*
+         | ⭐ **XP من المصدر الواحد** (ن-2). كان هنا `$user->xp` — العمود وحده،
+         | بينما اللوحة والرادار والليدر بورد تقرأ دفتر المحفظة. فشارةٌ شرطها
+         | «5,000 XP» تُقيَّم برقمٍ غير الذي يراه صاحبها على الشاشة، فيستوفي
+         | الشرط في عينه ولا تُمنَح — وهو نفس عطل «رقمين لمعنًى واحد».
+         */
+        $xp = $this->levels->xpFor($user);
+
         return [
-            'xp.total' => (float) $user->xp,
-            // ⭐ المستوى من مصدرٍ واحد: XP + جدول المستويات (لا عمودٌ قد يتأخّر عن الدفتر)
-            'level.reached' => (float) $this->levels->levelFor((int) $user->xp),
+            'xp.total' => (float) $xp,
+            // ⭐ المستوى دالّةٌ واحدة في XP بصيغة 10.1 — لا عتبات جدولٍ ولا عمودٌ متأخّر
+            'level.reached' => (float) $this->levels->levelFor($xp),
             // ⭐ مسار التعلّم كان غائبًا تمامًا عن الشارات — وهو قلب المنصّة (7 · 7.4)
             'lesson.completed' => $lessons,
             'course.completed' => (float) CourseCompletion::query()->where('user_id', $user->id)->count(),

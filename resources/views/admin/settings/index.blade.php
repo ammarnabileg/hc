@@ -32,7 +32,10 @@
         <div id="settings-search-results" class="absolute inset-x-3 top-full mt-1 card p-2 z-30 hidden max-h-72 overflow-y-auto text-sm"></div>
     </div>
 
-    <div class="grid gap-4 md:grid-cols-[240px_1fr]">
+    {{-- عمودُ الشبكة الافتراضيّ `auto` يتّسع لمقاس محتواه، فشريطُ التابات
+         الأفقيّ (`overflow-x-auto`) يمطّ العمود بدل أن ينزلق داخله فيخرج
+         الصفحةُ عن 375px (2.15-ج). و`minmax(0,1fr)` تحسم الحدّ الأدنى. --}}
+    <div class="grid gap-4 min-w-0 grid-cols-[minmax(0,1fr)] md:grid-cols-[240px_minmax(0,1fr)]">
         {{-- ⭐ صفحة واحدة بتابات جانبيّة (2.15-د) — وعلى الموبايل رقائق أفقيّة --}}
         {{--
          | `min-w-0` شرطُ أن يعمل `overflow-x-auto` أصلًا: عنصر الشبكة (Grid item)
@@ -40,7 +43,7 @@
          | تمدّ التاب فيمدّ الصفحة، ويبقى صندوق التمرير موجودًا بلا ما يمرّره.
          | والنتيجة تمريرٌ أفقيّ للصفحة كلّها — وهو ممنوع نصًّا (2.15-ج).
          --}}
-        <nav class="min-w-0 flex md:flex-col gap-2 overflow-x-auto no-scrollbar md:sticky md:top-4 md:self-start">
+        <nav class="min-w-0 w-full max-w-full flex md:flex-col gap-2 overflow-x-auto no-scrollbar md:sticky md:top-4 md:self-start">
             @foreach ($tabs as $key => $meta)
                 {{-- 2.15-أ-7: المحظور **يُخفى** لا يُعطَّل — ومفاتيح المزايا لها مفتاحها --}}
                 @continue($key === 'features' && ! auth()->user()->allows('feature_toggles.view')

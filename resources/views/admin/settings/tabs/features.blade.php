@@ -63,9 +63,13 @@
            style="background: var(--surface-raised)">{{ setting('features.ui.export', 'تصدير JSON') }}</a>
 
         @can('feature_toggles.manage')
-            <form method="post" action="{{ route('admin.features.import') }}" enctype="multipart/form-data" class="flex items-center gap-1">
+            {{-- `input[type=file]` له عرضٌ داخليّ لا ينكمش تحت مقاس محتواه، فبلا
+                 `min-w-0` يدفع الصفَّ خارج الشاشة على 375px (2.15-ج). --}}
+            <form method="post" action="{{ route('admin.features.import') }}" enctype="multipart/form-data"
+                  class="flex flex-wrap items-center gap-1 min-w-0 max-w-full">
                 @csrf
-                <input type="file" name="file" accept="application/json" required class="text-xs w-32"
+                <input type="file" name="file" accept="application/json" required
+                       class="text-xs w-32 min-w-0 max-w-full"
                        aria-label="{{ setting('features.ui.file_label', 'ملفّ مفاتيح JSON') }}">
                 <button class="rounded-xl px-3 py-2 text-sm" style="background: var(--surface-raised)">{{ setting('features.ui.import', 'استيراد JSON') }}</button>
             </form>

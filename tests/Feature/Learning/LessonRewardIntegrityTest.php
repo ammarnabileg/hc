@@ -4,9 +4,12 @@ namespace Tests\Feature\Learning;
 
 use App\Models\Badge;
 use App\Models\BadgeUser;
+use App\Models\Currency;
 use App\Models\LessonQuestion;
 use App\Models\Level;
+use App\Models\WalletBalance;
 use App\Services\Gamification\BadgeService;
+use App\Services\Gamification\LevelResolver;
 use App\Services\Learning\LessonQuestionService;
 use App\Services\Learning\ProgressService;
 use App\Services\Learning\VideoWatchService;
@@ -93,16 +96,56 @@ class LessonRewardIntegrityTest extends LearningTestCase
         }
     }
 
-    /** ⭐ المستوى مصدرٌ واحد: XP + جدول المستويات — لا عمودٌ متأخّر (7.3) */
+    /**
+     * ⭐ **المستوى مصدرٌ واحد** (7 · 10 · 10.1) — لا عمودٌ متأخّر ولا جدولُ عتبات.
+     *
+     * كان هذا الحارس يقارن مقياس الشارة بـ**أقصى صفٍّ في جدول `levels`**، وهو
+     * مصدرٌ ثانٍ سقط بنصّ 10.1: «الزيادة للوصول للمستوى N = `base + (N − 2) ×
+     * step` … **والمستويات مفتوحة بلا سقف بنفس المعادلة**». فجدولٌ بثمانية صفوف
+     * يقصّ العدّ عند «أسطورة»، والصيغة تمضي — وهذا **عين ن-2**: رقمان لمعنًى
+     * واحد. فأُعيد بناء الحارس على **المصدر الحاكم** لا على المصدر الساقط.
+     *
+     * ويحرس ثلاثًا معًا: أنّ المقياس يتبع XP لا العمود المخبَّأ، وأنّه هو نفسه
+     * الذي تعرضه اللوحة والبروفايل، وأنّه **لا يتوقّف عند سقف الجدول**.
+     */
     public function test_level_metric_follows_xp_not_a_stale_column(): void
     {
         $user = $this->trainee();
         $user->forceFill(['xp' => 999999, 'level' => 1])->save();
 
+        $levels = app(LevelResolver::class);
         $metrics = app(BadgeService::class)->metrics($user->fresh());
-        $expected = Level::query()->orderByDesc('min_xp')->value('level');
 
-        $this->assertSame((float) $expected, $metrics['level.reached']);
+        // (أ) المصدر الواحد: صيغة 10.1 على XP — وهو ما يقرؤه كارت الـKPI والرادار
+        $this->assertSame((float) $levels->levelFor(999999), $metrics['level.reached']);
+
+        // (ب) لا العمود المخبَّأ المتأخّر (1)
+        $this->assertNotSame(1.0, $metrics['level.reached']);
+
+        // (ج) ولا سقف جدول الأسماء — «المستويات مفتوحة بلا سقف» (10.1)
+        $tableCeiling = (int) Level::query()->orderByDesc('level')->value('level');
+        $this->assertGreaterThan((float) $tableCeiling, $metrics['level.reached']);
+
+        // (د) وXP نفسه من المصدر الواحد لا من العمود وحده
+        $this->assertSame((float) $levels->xpFor($user->fresh()), $metrics['xp.total']);
+    }
+
+    /** ⭐ ومقياس XP يتبع دفتر المحفظة لا العمود — فالشارة تُقيَّم بما يراه صاحبها */
+    public function test_the_xp_metric_reads_the_wallet_ledger_not_the_column(): void
+    {
+        $user = $this->trainee();
+        $user->forceFill(['xp' => 100])->save();
+
+        // الدفتر يقول 4,000 والعمود يقول 100 — والحاكم هو الدفتر (19.2 · 7.3)
+        WalletBalance::updateOrCreate(
+            ['user_id' => $user->id, 'currency_id' => Currency::where('code', 'xp')->value('id')],
+            ['balance' => 4000, 'lifetime_earned' => 4000, 'lifetime_spent' => 0],
+        );
+
+        $metrics = app(BadgeService::class)->metrics($user->fresh());
+
+        $this->assertSame(4000.0, $metrics['xp.total']);
+        $this->assertSame((float) app(LevelResolver::class)->levelFor(4000), $metrics['level.reached']);
     }
 
     /**

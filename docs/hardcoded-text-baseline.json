@@ -14,8 +14,8 @@
         "رسائل الاستثناءات والسجلّات في `app\/` **تُحسَب** وإن كان جمهورها المطوّر — الفحص لا يقرأ النيّة.",
         "`app\/Console\/` مستثنًى — مخرجاتها للطرفيّة (مشغّل النظام) لا لشاشة المستخدم — خارج «النصوص الظاهرة للمستخدم» (2.13-أ). وهذا **الاستثناء الوحيد المخترَع هنا**، وما عداه حدودُ مسحٍ معلَنة لا استثناءات."
     ],
-    "قيس_في": "2026-08-03",
-    "الإجماليّ": 10491,
+    "قيس_في": "2026-08-04",
+    "الإجماليّ": 10490,
     "الملفّات": {
         "app\/Http\/Controllers\/Admin\/AdsController.php": 5,
         "app\/Http\/Controllers\/Admin\/ArticleAdminController.php": 7,
@@ -311,7 +311,7 @@
         "resources\/views\/admin\/courses\/audit.blade.php": 8,
         "resources\/views\/admin\/courses\/enrollees.blade.php": 8,
         "resources\/views\/admin\/courses\/form.blade.php": 85,
-        "resources\/views\/admin\/courses\/index.blade.php": 52,
+        "resources\/views\/admin\/courses\/index.blade.php": 51,
         "resources\/views\/admin\/courses\/lesson.blade.php": 48,
         "resources\/views\/admin\/courses\/media.blade.php": 37,
         "resources\/views\/admin\/courses\/partials\/nav.blade.php": 3,

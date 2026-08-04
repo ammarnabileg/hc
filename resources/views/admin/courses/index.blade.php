@@ -104,7 +104,11 @@
                    @unless (advanced_mode()) data-columns-cap="{{ view_mode()->defaultColumns() }}" @endunless>
                     <thead style="background: var(--surface-sunken)">
                         <tr>
-                            <th class="p-3 w-8"><input type="checkbox" data-bulk-all aria-label="اختيار الكلّ"></th>
+                            <th class="p-3 w-8">
+                                <label class="inline-flex items-center" aria-label="{{ setting('courses.bulk.pick_all', 'اختيار الكلّ') }}">
+                                    <input type="checkbox" data-bulk-all>
+                                </label>
+                            </th>
                             <th class="p-3 text-start">اسم العرض</th>
                             <th class="p-3 text-start">اسم الشهادة</th>
                             <th class="p-3 text-start">المسار(ات)</th>
@@ -118,7 +122,12 @@
                     <tbody>
                         @foreach ($courses as $course)
                             <tr style="border-top: 1px solid var(--border)">
-                                <td class="p-3"><input type="checkbox" name="ids[]" value="{{ $course->id }}" data-bulk-item></td>
+                                <td class="p-3">
+                                    {{-- التسمية هي هدف اللمس لا الصندوق: النايتف 13px ولا يُكبَّر بلا تشويه (2.15-ج) --}}
+                                    <label class="inline-flex items-center" aria-label="{{ setting('courses.bulk.pick_one', 'اختيار هذا التدريب') }}">
+                                        <input type="checkbox" name="ids[]" value="{{ $course->id }}" data-bulk-item>
+                                    </label>
+                                </td>
                                 <td class="p-3 font-semibold">{{ $course->name_ar }}</td>
                                 <td class="p-3">{{ $course->cert_name_ar ?: '—' }}</td>
                                 <td class="p-3">{{ implode('، ', $pathNames[$course->id] ?? []) ?: '—' }}</td>
@@ -169,7 +178,9 @@
                 @foreach ($courses as $course)
                     <div class="card p-4">
                         <div class="flex items-start gap-2">
-                            <input type="checkbox" name="ids[]" value="{{ $course->id }}" data-bulk-item class="mt-1">
+                            <label class="inline-flex items-center" aria-label="{{ setting('courses.bulk.pick_one', 'اختيار هذا التدريب') }}">
+                                <input type="checkbox" name="ids[]" value="{{ $course->id }}" data-bulk-item>
+                            </label>
                             <div class="flex-1 min-w-0">
                                 <div class="font-semibold truncate">{{ $course->name_ar }}</div>
                                 <div class="text-xs mt-1" style="color: var(--text-muted)">

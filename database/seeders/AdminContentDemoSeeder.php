@@ -64,6 +64,11 @@ class AdminContentDemoSeeder extends Seeder
             ['courses.save.continue_published_label', 'courses', 'نصّ «حفظ واستمرار» للمنشور', 'string', 'اتحفظ وهو منشور ✓ — كمّل تحرير'],
             ['courses.autosave.debounce_ms', 'courses', 'مهلة الحفظ التلقائيّ (مللي ثانية)', 'number', '2000'],
             ['courses.duplicate.suffix', 'courses', 'لاحقة النسخة المكرّرة', 'string', ' — نسخة'],
+
+            // ⭐ تسميتا هدف اللمس في جدول التدريبات: الصندوق النايتف 13px ولا
+            // يُكبَّر بلا تشويه، فالتسمية الملتفّة هي الهدف (2.15-ج).
+            ['courses.bulk.pick_all', 'courses', 'تسمية «اختيار الكلّ» في جدول التدريبات', 'string', 'اختيار الكلّ'],
+            ['courses.bulk.pick_one', 'courses', 'تسمية اختيار تدريبٍ واحد', 'string', 'اختيار هذا التدريب'],
             // «تكرار/نسخ (Duplicate) لتدريب» (12.4-هـ): المسار كان بلا مدخل في الواجهة
             ['courses.duplicate.action_label', 'courses', 'نصّ إجراء تكرار التدريب', 'string', 'تكرار التدريب'],
             ['courses.duplicate.confirm_text', 'courses', 'نصّ تأكيد تكرار التدريب', 'string', 'هنعمل نسخة كاملة بسيكشنزها ودروسها كمسودّة — نكمّل؟'],
