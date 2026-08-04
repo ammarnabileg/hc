@@ -9,6 +9,7 @@ use App\Models\Governorate;
 use App\Models\Referral;
 use App\Models\Role;
 use App\Models\User;
+use App\Services\Ads\Consent;
 use App\Services\Growth\AcquisitionSource;
 use App\Services\Learning\TimezoneDetector;
 use App\Services\Onboarding\OnboardingJourney;
@@ -326,6 +327,22 @@ class AuthController extends Controller
              |    وموافقةُ الزائر لا تعيش إلّا في الكوكي. فتُقرأ من الطلب الحقيقيّ.
              */
             $acquisition->attach($user);
+
+            /*
+             | ⭐ **موافقة الزائر تنتقل إلى حسابه** (21.3-د): «بانر موافقة … عند
+             | **أوّل زيارة**» فالقرار يقع **قبل** وجود الحساب ولا يعيش إلّا في
+             | الكوكي. وكان الحساب يُنشَأ بـ`tracking_consent = NULL` — فالقرار
+             | ينجو على هذا المتصفّح وحده ويضيع على جهازٍ آخر، ومنه ينكسر شرطا
+             | «الرفض يوقف … **فعليًّا**» و«حقّ السحب في أيّ وقت».
+             |
+             | ⛔ وبلا عكسٍ للاتّجاه: بلا كوكي **لا يُكتَب شيء**، فيبقى العمود
+             |    `NULL` وتقرؤه `allows()` رفضًا. الصمت ليس موافقة (2.9 — بلا
+             |    Dark Patterns: لا يُفترَض قبولٌ لمن لم يوافق).
+             |
+             | ⚠️ وبلا تمرير `$request` لنفس سبب `attach()`: مسار تأكيد البريد
+             |    يعيد تشغيل التسجيل بطلبٍ مُصطنَع بلا كوكي، والموافقة في الكوكي.
+             */
+            app(Consent::class)->adopt($user);
 
             // الريفيرال (7.6 · 21.1): مكافأة الطرفين — والمدعوّ له تذكرة ترحيب عند التفعيل
             if ($offer !== '') {

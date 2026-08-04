@@ -315,6 +315,8 @@ class StoreAdminController extends Controller
             'slug' => ['required', 'string', 'max:190', 'alpha_dash', Rule::unique('bundles', 'slug')->ignore($bundle->id)],
             'status' => ['required', 'in:draft,published,archived'],
             'is_indexable' => ['nullable', 'boolean'],
+            // ⭐ صورة OG للبندل (21.1-أ) — مسارٌ من مكتبة الوسائط لا رفعٌ ثانٍ (12.4-د)
+            'og_image_path' => ['nullable', 'string', 'max:2048'],
 
             // ---------------------------------------------------- [التسعير 🔒]
             'price_coins' => ['nullable', 'numeric', 'min:0'],
@@ -355,6 +357,13 @@ class StoreAdminController extends Controller
             'slug' => $data['slug'],
             'status' => $data['status'],
             'is_indexable' => (bool) ($data['is_indexable'] ?? false),
+            /*
+             | ⭐ **صورة OG للبندل** (21.1-أ «صورة OG تلقائيّة لكلّ نوع رابط»).
+             | العمود كان يُقرَأ في `StoreController::ogImage()` **بلا حقلٍ يكتبه** —
+             | فوسم `<head>` لا يرى إلّا الغلاف مهما أراد الأدمن. والفارغ يعود
+             | `null` لا سلسلةً فارغة، فيرتدّ الوسم للغلاف كما هو مكتوبٌ أصلًا.
+             */
+            'og_image_path' => $this->blankToNull($data['og_image_path'] ?? null),
             'show_anchor_strikethrough' => (bool) ($data['show_anchor_strikethrough'] ?? false),
             'show_total_value' => (bool) ($data['show_total_value'] ?? false),
             'bonus_text_template' => $this->blankToNull($data['bonus_text_template'] ?? null),

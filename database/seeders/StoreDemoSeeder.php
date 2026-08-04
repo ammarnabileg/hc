@@ -199,6 +199,9 @@ class StoreDemoSeeder extends Seeder
             ['store.admin.bundles.description_label', 'وسم الوصف العربيّ', 'string', 'الوصف (عربيّ)'],
             ['store.admin.bundles.description_en_label', 'وسم الوصف الإنجليزيّ', 'string', 'الوصف (إنجليزيّ)'],
             ['store.admin.bundles.indexable_label', 'وسم فهرسة الصفحة', 'string', 'اسمح لمحرّكات البحث تفهرس الصفحة'],
+            // ⭐ حقل صورة OG للبندل (21.1-أ) — العمود كان يُقرَأ بلا حقلٍ يكتبه
+            ['store.admin.bundles.og_image_label', 'وسم صورة OG للبندل', 'string', 'صورة المشاركة (OG) — مسار من مكتبة الوسائط'],
+            ['store.admin.bundles.og_image_hint', 'شرح صورة OG للبندل', 'text', 'الصورة اللي بتظهر لمّا حدّ يشارك رابط الباقة. سيبها فاضية وهيرجع للغلاف تلقائيًّا.'],
             ['store.admin.bundles.price_label', 'وسم سعر البندل', 'string', 'سعر البندل (كوينز)'],
             ['store.admin.bundles.discount_percent_label', 'وسم نسبة الخصم المعروضة', 'string', 'نسبة الخصم المعروضة'],
             ['store.admin.bundles.anchor_toggle_label', 'Toggle شطب السعر الطبيعيّ', 'string', 'اشطب السعر الطبيعيّ (Anchoring)'],

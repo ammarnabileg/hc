@@ -117,6 +117,69 @@ class Consent
         return $this->allows('analytics', $user, $request);
     }
 
+    /**
+     * ⭐ **نقل موافقة الزائر إلى حسابه لحظة التسجيل** (21.3-د).
+     *
+     * النصّ الحاكم حرفيًّا (21.3-د): «**بانر موافقة على التتبّع (Consent)** عند
+     * **أوّل زيارة**، بخيارات واضحة: **قبول · رفض · تخصيص**» و«**الرفض يوقف
+     * البكسل وأحداث الخادم لهذا المستخدم فعليًّا** — لا شكليًّا» و«**حقّ السحب
+     * في أيّ وقت** من إعدادات الخصوصيّة والأمان».
+     *
+     * والعلّة: البانر يُعرَض **عند أوّل زيارة** أي على الزائر، فاختياره لا يعيش
+     * إلّا في الكوكي. ثمّ يُنشَأ الحساب بـ`tracking_consent = NULL` — و`choice()`
+     * ينجو بالكوكي على **نفس المتصفّح** وحده. فمن رفض على هاتفه ثمّ دخل من
+     * حاسوبه صار **بلا اختيارٍ** فيُسأل من جديد، ومن قبِل صار كأنّه لم يقبل.
+     * والقرار الذي لا يسافر مع صاحبه ليس قرارًا — و«الرفض يوقف … فعليًّا» يوجب
+     * أن يلاحقه الرفض إلى كلّ جهاز، وهو نفسه شرط «السحب في أيّ وقت».
+     *
+     * ⛔ **ولا يُعكَس الاتّجاه أبدًا:**
+     *  - **بلا كوكي ⟵ لا يُكتَب شيء.** الصمت ليس موافقة، والعمود يبقى `NULL`
+     *    فتقرؤه `allows()` في فرع `default` = **لا**. أي أنّ غياب الموافقة يبقى
+     *    رفضًا عمليًّا، ولا يُفترَض قبولٌ لمن لم يوافق.
+     *  - **ولا يُدهَس اختيارٌ محفوظ على الحساب** — سجلّ الحساب أحدث من كوكي
+     *    متصفّحٍ عابر، ودهسُه بكوكي قديمة يُبطِل سحبًا وقع فعلًا.
+     *  - و**الأغراض تُنقَل معه**: «تخصيص» بلا أغراضٍ لا معنى له، وقد قرّر
+     *    `storeConsent` أنّه رفض — فتُنقَل السلسلة كما هي بلا إعادة تفسير.
+     *
+     * @return bool هل نُقِلت موافقةٌ فعلًا؟
+     */
+    public function adopt(User $user, ?Request $request = null): bool
+    {
+        $request ??= request();
+
+        // اختيارٌ محفوظ على الحساب لا يُدهَس بكوكي
+        $stored = $user->tracking_consent;
+
+        if (is_string($stored) && $stored !== '') {
+            return false;
+        }
+
+        $cookie = $request?->cookie('tracking_consent');
+
+        if (! is_string($cookie) || ! in_array($cookie, [self::ACCEPTED, self::REJECTED, self::CUSTOM], true)) {
+            return false;
+        }
+
+        $raw = $request?->cookie('tracking_scopes');
+        $scopes = is_string($raw) ? (json_decode($raw, true) ?: []) : [];
+
+        $scopes = $cookie === self::CUSTOM
+            ? array_values(array_intersect(array_map(fn ($v) => (string) $v, (array) $scopes), self::PURPOSES))
+            : [];
+
+        // «تخصيص» بلا غرضٍ واحد = رفض — نفس قرار `storeConsent`، فلا تفسيران للحالة الواحدة
+        $choice = ($cookie === self::CUSTOM && $scopes === []) ? self::REJECTED : $cookie;
+
+        // `saveQuietly` — نقلُ قرارٍ سابق لا حدثٌ جديد يوقظ مراقبي الحساب
+        $user->forceFill([
+            'tracking_consent' => $choice,
+            'tracking_consent_at' => now(),
+            'tracking_scopes' => $scopes,
+        ])->saveQuietly();
+
+        return true;
+    }
+
     /** هل نعرض البانر أصلًا؟ لا نُزعج مَن اختار، ولا نعرضه والتتبّع مطفأ (2.9) */
     public function shouldAsk(?User $user = null, ?Request $request = null): bool
     {

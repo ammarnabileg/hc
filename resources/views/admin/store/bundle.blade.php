@@ -217,6 +217,26 @@
                               style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text); resize: vertical">{{ $bundle->description_en }}</textarea>
                 </label>
 
+                {{--
+                    ⭐ **صورة المشاركة (OG)** — نفس بوب-أب مكتبة الوسائط لا منتقٍ ثانٍ.
+                    12.4-هـ حرفيًّا: «**إعادة الاستخدام:** أيّ حقل رفع (غلاف/مرفق/صورة
+                    سؤال) يفتح **«اختَر من المكتبة»** أو **«ارفع جديد»** — يترفع مرّة
+                    ويُعاد استخدامه». والعمود كان يُقرَأ في `<head>` بلا حقلٍ يكتبه.
+                --}}
+                <div class="md:col-span-2">
+                    <x-form.input name="og_image_path" :label="setting('store.admin.bundles.og_image_label', 'صورة المشاركة (OG) — مسار من مكتبة الوسائط')"
+                                  :value="$bundle->og_image_path"
+                                  :hint="setting('store.admin.bundles.og_image_hint', 'الصورة اللي بتظهر لمّا حدّ يشارك رابط الباقة. سيبها فاضية وهيرجع للغلاف تلقائيًّا.')" />
+                    <div class="flex items-center gap-2 mt-2">
+                        <button type="button" data-media-pick="og_image_path"
+                                class="rounded-xl px-3 py-1.5 text-xs" style="min-height: 44px;
+                                background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
+                            <x-icon name="library" size="14" /> {{ setting('media.picker.cta') }}
+                        </button>
+                        <span data-media-preview="og_image_path" class="inline-flex items-center"></span>
+                    </div>
+                </div>
+
                 <label class="inline-flex items-center gap-2 text-sm" style="min-height: 44px">
                     <input type="hidden" name="is_indexable" value="0">
                     <input type="checkbox" name="is_indexable" value="1" @checked($bundle->is_indexable)>
@@ -381,6 +401,9 @@
                     style="background: var(--color-brand-500); color: #04201c; min-height: 44px">{{ setting('store.admin.bundles.save_label', 'احفظ البندل') }}</button>
         </div>
     </form>
+
+    {{-- بوب-أب المكتبة نفسه المستعمَل في التدريب والمسار والاستوديو — مصدرٌ واحد (2.14-ب) --}}
+    @include('admin.courses.partials.media-picker-modal')
 @endsection
 
 @push('scripts')
