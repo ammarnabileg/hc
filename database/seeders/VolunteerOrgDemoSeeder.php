@@ -163,9 +163,16 @@ class VolunteerOrgDemoSeeder extends Seeder
          | ⭐ الكتابة بنقطة القصّ نفسها (12.2.2): كانت الحلقة تكتب النطاق المطلوب
          | كما هو، فيدخل من هذا الباب الخلفيّ صفٌّ فوق سقف المصفوفة بينما مسار
          | الإنتاج (`RolePermissionSeeder`) يقصّه. والحكم واحدٌ لا حكمان.
+         |
+         | و`matrixFloor` **لازم لا زائد**: مفاتيحُ هنا نطاقُها المنصوص **كلُّه
+         | أوسع من سقف الدور**، وأظهرها `contact_consent.create` — «**TEAM ·
+         | ENTITY**» بلا SELF («إرسال «طلب إظهار» صالح 72 ساعة» — 12.2.2).
+         | فطلبُها `@SELF` كان **اختراعَ نطاقٍ لا تعرفه المصفوفة**، وإسقاطُها
+         | يقفل مسار 13.4-م-2 في وجه الكوردنيتور — وهو صاحبه. فتُكتَب بأضيق ما
+         | تسمح به المصفوفة (TEAM): لا فوق السقف، ولا سحبَ منحٍ يفتحه النصّ.
          */
         foreach ($grants as $roleKey => $permissions) {
-            $this->grantKeysWithinCeiling(Role::where('key', $roleKey)->value('id'), $permissions);
+            $this->grantKeysWithinCeiling(Role::where('key', $roleKey)->value('id'), $permissions, matrixFloor: true);
         }
     }
 
