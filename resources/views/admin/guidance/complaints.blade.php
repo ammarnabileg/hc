@@ -1,13 +1,13 @@
 @extends('layouts.admin')
 
-@section('title', 'الشكاوى والمقترحات')
+@section('title', setting('admin.guidance.complaints.alshkawa_walmqtrhat', 'الشكاوى والمقترحات'))
 
 @section('content')
     {{-- الشكاوى (24.3): طابور بالحالات + إسناد + ردّ + إغلاق بسبب --}}
     <x-page-header
-        title="الشكاوى والمقترحات"
-        subtitle="طابور واضح بالحالات — والردّ في وقته."
-        :breadcrumbs="[['label' => 'التوجيه والدعم', 'url' => route('admin.guidance.index')], ['label' => 'الشكاوى']]">
+        :title="setting('admin.guidance.complaints.alshkawa_walmqtrhat', 'الشكاوى والمقترحات')"
+        :subtitle="setting('admin.guidance.complaints.tabwr_wadh_balhalat_walrd_fy_wqth', 'طابور واضح بالحالات — والردّ في وقته.')"
+        :breadcrumbs="[['label' => setting('admin.guidance.complaints.altwjyh_waldam', 'التوجيه والدعم'), 'url' => route('admin.guidance.index')], ['label' => setting('admin.guidance.complaints.alshkawa', 'الشكاوى')]]">
         @can('complaints.edit')
             <x-slot:action>
                 {{-- الأسباب تُدار من هنا: إضافة/تعديل/حذف (11) --}}
@@ -24,36 +24,36 @@
 
     <x-filters :action="route('admin.guidance.complaints')">
         <label class="block flex-1 min-w-[12rem]">
-            <span class="block text-sm mb-1">بحث</span>
-            <input type="search" name="q" value="{{ $filters['q'] }}" placeholder="العنوان أو النصّ أو الكود…"
+            <span class="block text-sm mb-1">{{ setting('admin.guidance.complaints.bhth', 'بحث') }}</span>
+            <input type="search" name="q" value="{{ $filters['q'] }}" placeholder="{{ setting('admin.guidance.complaints.alanwan_aw_alns_aw_alkwd', 'العنوان أو النصّ أو الكود…') }}"
                    class="w-full rounded-xl px-3 py-2 text-sm"
                    style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
         </label>
         <label class="block">
-            <span class="block text-sm mb-1">الحالة</span>
+            <span class="block text-sm mb-1">{{ setting('admin.guidance.complaints.alhala', 'الحالة') }}</span>
             <select name="status" class="rounded-xl px-3 py-2 text-sm"
                     style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
-                <option value="">الكلّ</option>
+                <option value="">{{ setting('admin.guidance.complaints.alkl', 'الكلّ') }}</option>
                 @foreach ($statuses as $key => $label)
                     <option value="{{ $key }}" @selected($filters['status'] === $key)>{{ $label }}</option>
                 @endforeach
             </select>
         </label>
         <label class="block">
-            <span class="block text-sm mb-1">السبب</span>
+            <span class="block text-sm mb-1">{{ setting('admin.guidance.complaints.alsbb', 'السبب') }}</span>
             <select name="category" class="rounded-xl px-3 py-2 text-sm"
                     style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
-                <option value="">الكلّ</option>
+                <option value="">{{ setting('admin.guidance.complaints.alkl', 'الكلّ') }}</option>
                 @foreach ($reasons as $reason)
                     <option value="{{ $reason }}" @selected($filters['category'] === $reason)>{{ $reason }}</option>
                 @endforeach
             </select>
         </label>
-        <button class="btn rounded-xl px-4 py-2 text-sm" style="background: var(--surface-raised)">تصفية</button>
+        <button class="btn rounded-xl px-4 py-2 text-sm" style="background: var(--surface-raised)">{{ setting('admin.guidance.complaints.tsfya', 'تصفية') }}</button>
     </x-filters>
 
     @if ($complaints->isEmpty())
-        <x-empty message="لا شكاوى — كلّ شيء هادئ." />
+        <x-empty :message="setting('admin.guidance.complaints.la_shkawa_kl_shy_hady', 'لا شكاوى — كلّ شيء هادئ.')" />
     @else
         <div class="space-y-3">
             @foreach ($complaints as $complaint)
@@ -66,13 +66,13 @@
                                class="font-semibold underline">{{ $complaint->title }}</a>
                             <div class="text-xs mt-1" style="color: var(--text-muted)">
                                 #{{ $complaint->number }} · {{ $complaint->user?->name }}
-                                · {{ $complaint->category ?: 'بلا سبب محدَّد' }}
+                                · {{ $complaint->category ?: setting('admin.guidance.complaints.bla_sbb_mhdd', 'بلا سبب محدَّد') }}
                                 @if ($complaint->wants_contact)
-                                    · يرغب في التواصل ({{ $complaint->contact_channel ?: 'بلا قناة' }})
+                                    {{ setting('admin.guidance.complaints.yrghb_fy_altwasl', '· يرغب في التواصل (') }}{{ $complaint->contact_channel ?: setting('admin.guidance.complaints.bla_qnaa', 'بلا قناة') }})
                                 @endif
                             </div>
                             <div class="text-xs mt-1">
-                                المعيَّن له: {{ $assigneeNames[$complaint->assigned_to] ?? '— محدّش —' }}
+                                {{ setting('admin.guidance.complaints.almayn_lh', 'المعيَّن له:') }} {{ $assigneeNames[$complaint->assigned_to] ?? setting('admin.guidance.complaints.mhdsh', '— محدّش —') }}
                             </div>
                         </div>
 

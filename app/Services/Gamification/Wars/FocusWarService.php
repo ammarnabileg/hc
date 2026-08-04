@@ -49,10 +49,9 @@ class FocusWarService
     private function cannotAfford(string $action, float $needed, float $balance): WarRuleException
     {
         $message = match ($action) {
-            'create' => 'إنشاء التحدّي بـ'.(int) $needed.' تذاكر ورصيدك '.(int) $balance.' — اشحن وابدأ.',
-            'join' => 'الانضمام بـ'.(int) $needed.' تذكرة ورصيدك '.(int) $balance.' — اشحن وانضمّ.',
-            default => 'الإلغاء محتاج '.(int) $needed.' تذكرة ترجع للمنضمّين ورصيدك '.(int) $balance
-                .' — وفّر الفرق وارجع ألغِ.',
+            'create' => strtr(setting('gamification_wars.focus_war_service.cannot_afford_1', 'إنشاء التحدّي بـ:p1 تذاكر ورصيدك :p2 — اشحن وابدأ.'), [':p1' => (string) ((int) $needed), ':p2' => (string) ((int) $balance)]),
+            'join' => strtr(setting('gamification_wars.focus_war_service.cannot_afford_2', 'الانضمام بـ:p1 تذكرة ورصيدك :p2 — اشحن وانضمّ.'), [':p1' => (string) ((int) $needed), ':p2' => (string) ((int) $balance)]),
+            default => strtr(setting('gamification_wars.focus_war_service.cannot_afford_3', 'الإلغاء محتاج :p1 تذكرة ترجع للمنضمّين ورصيدك :p2 — وفّر الفرق وارجع ألغِ.'), [':p1' => (string) ((int) $needed), ':p2' => (string) ((int) $balance)]),
         };
 
         return new WarRuleException($message, max(0.0, $needed - $balance));
@@ -77,13 +76,13 @@ class FocusWarService
         $durations = $this->rules->focusDurations($challenge);
 
         if (! in_array($minutes, $durations, true)) {
-            throw new WarRuleException('اختار مدّة من المدد المتاحة: '.implode(' · ', $durations).' دقيقة.');
+            throw new WarRuleException(strtr(setting('gamification_wars.focus_war_service.create_1', 'اختار مدّة من المدد المتاحة: :p1 دقيقة.'), [':p1' => (string) (implode(' · ', $durations))]));
         }
 
         $max = $this->rules->maxActiveFocus($challenge);
 
         if ($this->activeOwnedCount($user) >= $max) {
-            throw new WarRuleException("عندك {$max} تحديات نشطة — اقفل واحدًا قبل ما تضيف جديدًا.");
+            throw new WarRuleException(strtr(setting('gamification_wars.focus_war_service.create_2', 'عندك :p1 تحديات نشطة — اقفل واحدًا قبل ما تضيف جديدًا.'), [':p1' => (string) ($max)]));
         }
 
         $cost = $this->rules->focusCreateCost($challenge);
@@ -97,7 +96,7 @@ class FocusWarService
             // رسوم الإنشاء غير قابلة للاسترجاع (15.3) — لذلك تُخصَم مرّة واحدة هنا.
             // ⭐ ونتيجة الخصم **تُقرَأ**: لو رُدَّ (رصيدٌ نزل بعد الفحص) فلا تحدٍّ
             // مجّانيّ — تُرتجَع المعاملة كلّها ويُقال له لماذا.
-            if ($cost > 0 && ! $this->wallet->debit($user, 'tickets', $cost, self::LEDGER_SOURCE, 'إنشاء تحدّي تركيز', $challenge)) {
+            if ($cost > 0 && ! $this->wallet->debit($user, 'tickets', $cost, self::LEDGER_SOURCE, setting('gamification_wars.focus_war_service.body_1', 'إنشاء تحدّي تركيز'), $challenge)) {
                 throw $this->cannotAfford('create', $cost, $this->wallet->balance($user, 'tickets'));
             }
 
@@ -127,19 +126,19 @@ class FocusWarService
     public function join(User $user, FocusWar $war): FocusWarMember
     {
         if ($war->status !== 'active') {
-            throw new WarRuleException('التحدّي ده اتقفل — اختار واحدًا نشطًا.');
+            throw new WarRuleException(setting('gamification_wars.focus_war_service.join_1', 'التحدّي ده اتقفل — اختار واحدًا نشطًا.'));
         }
 
         if (! $war->is_group) {
-            throw new WarRuleException('التحدّي ده فرديّ — مش مفتوح للانضمام.');
+            throw new WarRuleException(setting('gamification_wars.focus_war_service.join_2', 'التحدّي ده فرديّ — مش مفتوح للانضمام.'));
         }
 
         if ((int) $war->owner_id === (int) $user->id) {
-            throw new WarRuleException('إنت صاحب التحدّي ده أصلًا 🙂');
+            throw new WarRuleException(setting('gamification_wars.focus_war_service.join_3', 'إنت صاحب التحدّي ده أصلًا 🙂'));
         }
 
         if ($war->members()->where('user_id', $user->id)->exists()) {
-            throw new WarRuleException('إنت منضمّ للتحدّي ده بالفعل — كمّل تركيزك.');
+            throw new WarRuleException(setting('gamification_wars.focus_war_service.join_4', 'إنت منضمّ للتحدّي ده بالفعل — كمّل تركيزك.'));
         }
 
         $cost = $this->rules->focusJoinCost();
@@ -163,8 +162,8 @@ class FocusWarService
                     currencyCode: 'tickets',
                     amount: $cost,
                     source: self::LEDGER_SOURCE,
-                    debitReason: 'انضمام لتحدّي تركيز',
-                    creditReason: 'تذكرة انضمام لتحدّيك',
+                    debitReason: setting('gamification_wars.focus_war_service.join_5', 'انضمام لتحدّي تركيز'),
+                    creditReason: setting('gamification_wars.focus_war_service.join_6', 'تذكرة انضمام لتحدّيك'),
                     reference: $war,
                 );
 
@@ -197,11 +196,11 @@ class FocusWarService
     public function cancel(User $actor, FocusWar $war): int
     {
         if ((int) $war->owner_id !== (int) $actor->id) {
-            throw new WarRuleException('التحدّي ده مش بتاعك.');
+            throw new WarRuleException(setting('gamification_wars.focus_war_service.cancel_1', 'التحدّي ده مش بتاعك.'));
         }
 
         if ($war->status !== 'active') {
-            throw new WarRuleException('التحدّي ده مقفول أصلًا.');
+            throw new WarRuleException(setting('gamification_wars.focus_war_service.cancel_2', 'التحدّي ده مقفول أصلًا.'));
         }
 
         $refundables = $war->members()
@@ -229,8 +228,8 @@ class FocusWarService
                     currencyCode: 'tickets',
                     amount: $amount,
                     source: self::LEDGER_SOURCE,
-                    debitReason: 'استرجاع تذكرة انضمام بعد إلغاء تحدّيك',
-                    creditReason: 'استرجاع تذكرة — التحدّي اتلغى',
+                    debitReason: setting('gamification_wars.focus_war_service.cancel_3', 'استرجاع تذكرة انضمام بعد إلغاء تحدّيك'),
+                    creditReason: setting('gamification_wars.focus_war_service.cancel_4', 'استرجاع تذكرة — التحدّي اتلغى'),
                     reference: $war,
                 );
 
@@ -255,10 +254,10 @@ class FocusWarService
                 Notifier::send(
                     $member->user,
                     'focus_war',
-                    'اتلغى تحدّي تركيز كنت منضمًّا له',
+                    setting('gamification_wars.focus_war_service.cancel_5', 'اتلغى تحدّي تركيز كنت منضمًّا له'),
                     $member->refunded_at
-                        ? 'رجعت لك تذكرة الانضمام، ودقائق تركيزك محفوظة كما هي.'
-                        : 'وقتك كان خلص فعلًا، فدقائق تركيزك اتسجّلت كاملة.',
+                        ? setting('gamification_wars.focus_war_service.cancel_6', 'رجعت لك تذكرة الانضمام، ودقائق تركيزك محفوظة كما هي.')
+                        : setting('gamification_wars.focus_war_service.cancel_7', 'وقتك كان خلص فعلًا، فدقائق تركيزك اتسجّلت كاملة.'),
                     route('challenges.focus.index'),
                 );
             }

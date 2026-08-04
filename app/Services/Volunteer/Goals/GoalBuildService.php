@@ -196,8 +196,8 @@ class GoalBuildService
             Integrations::notify(
                 user: $user,
                 category: 'goal',
-                title: 'هدف جديد على مسارك: '.$goal->name,
-                body: 'فكّكه مَعالِمَ وحزمًا واربط كلّ حزمة بكيان من مسارك.',
+                title: strtr(setting('goals.goal_build_service.notify_track_supervisors_1', 'هدف جديد على مسارك: :p1'), [':p1' => (string) ($goal->name)]),
+                body: setting('goals.goal_build_service.notify_track_supervisors_2', 'فكّكه مَعالِمَ وحزمًا واربط كلّ حزمة بكيان من مسارك.'),
                 url: route('volunteer.goals.build.breakdown', $goal),
                 requiresAction: true,
             );
@@ -330,8 +330,8 @@ class GoalBuildService
             Integrations::notify(
                 user: $user,
                 category: 'goal',
-                title: 'حزمة عمل في انتظار مهامّك: '.$milestone->name,
-                body: 'املا حزم كيانك بمهامّك ثمّ ارفعها للمراجعة.',
+                title: strtr(setting('goals.goal_build_service.notify_directors_1', 'حزمة عمل في انتظار مهامّك: :p1'), [':p1' => (string) ($milestone->name)]),
+                body: setting('goals.goal_build_service.notify_directors_2', 'املا حزم كيانك بمهامّك ثمّ ارفعها للمراجعة.'),
                 url: route('volunteer.goals.build.fill', $milestone->goal_id),
                 requiresAction: true,
             );
@@ -434,8 +434,8 @@ class GoalBuildService
             ->get(['title', 'vxp_value']);
 
         return [
-            'الاسم' => $package->name,
-            'المهامّ' => $tasks->map(fn (Task $t) => $t->title.' ('.rtrim(rtrim(number_format((float) $t->vxp_value, 2), '0'), '.').')')->all(),
+            (string) setting('goals.goal_build_service.snapshot_1', 'الاسم') => $package->name,
+            (string) setting('goals.goal_build_service.snapshot_2', 'المهامّ') => $tasks->map(fn (Task $t) => $t->title.' ('.rtrim(rtrim(number_format((float) $t->vxp_value, 2), '0'), '.').')')->all(),
         ];
     }
 
@@ -450,11 +450,11 @@ class GoalBuildService
     {
         $label = self::EDITABLE[$subjectType][$field] ?? null;
 
-        abort_if($label === null, 422, 'حقل غير قابل للتعديل.');
+        abort_if($label === null, 422, setting('goals.goal_build_service.save_field_1', 'حقل غير قابل للتعديل.'));
 
         $subject = $this->resolveSubject($goal, $subjectType, $subjectId);
 
-        abort_if($subject === null, 404, 'العنصر ده مش تابع للهدف ده.');
+        abort_if($subject === null, 404, setting('goals.goal_build_service.save_field_2', 'العنصر ده مش تابع للهدف ده.'));
 
         $value = $this->castValue($field, $value);
         $old = (string) ($subject->getAttribute($field) ?? '');
@@ -488,14 +488,14 @@ class GoalBuildService
         if ($field === 'vxp_value') {
             $number = is_numeric($value) ? (float) $value : 0.0;
 
-            abort_if($number < 0, 422, 'قيمة النقاط لا تكون بالسالب.');
+            abort_if($number < 0, 422, setting('goals.goal_build_service.cast_value_1', 'قيمة النقاط لا تكون بالسالب.'));
 
             return $number;
         }
 
         $text = trim((string) $value);
 
-        abort_if($text === '' && in_array($field, ['name', 'title'], true), 422, 'الاسم مايفضاش.');
+        abort_if($text === '' && in_array($field, ['name', 'title'], true), 422, setting('goals.goal_build_service.cast_value_2', 'الاسم مايفضاش.'));
 
         return mb_substr($text, 0, (int) setting('goals.build.max_field_chars', 2000));
     }
@@ -539,7 +539,7 @@ class GoalBuildService
             ->limit((int) setting('goals.build.revisions_rows', 20))
             ->get(['users.name as by', 'goal_field_revisions.created_at as at', 'old_value', 'new_value'])
             ->map(fn ($row) => [
-                'by' => $row->by ?: 'غير معروف',
+                'by' => $row->by ?: setting('goals.goal_build_service.revisions_1', 'غير معروف'),
                 'at' => (string) $row->at,
                 'was' => (string) ($row->old_value ?? ''),
                 'now' => (string) ($row->new_value ?? ''),
@@ -576,8 +576,8 @@ class GoalBuildService
             Integrations::notify(
                 user: $top,
                 category: 'goal',
-                title: 'معاينة جاهزة: '.$goal->name,
-                body: 'مشرف المسار رفع الهدف للمعاينة النهائيّة.',
+                title: strtr(setting('goals.goal_build_service.raise_preview_1', 'معاينة جاهزة: :p1'), [':p1' => (string) ($goal->name)]),
+                body: setting('goals.goal_build_service.raise_preview_2', 'مشرف المسار رفع الهدف للمعاينة النهائيّة.'),
                 url: route('volunteer.goals.launch'),
                 requiresAction: true,
             );

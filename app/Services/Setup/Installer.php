@@ -90,11 +90,11 @@ class Installer
             ['key' => 'platform.branding.logo_path'],
             [
                 'group' => 'platform',
-                'label_ar' => 'شعار المنصّة',
+                'label_ar' => setting('setup.installer.store_logo_1', 'شعار المنصّة'),
                 'type' => 'media',
                 'value' => $relativePath,
                 'default_value' => '',
-                'hint' => 'الشعار الظاهر في الهيدر وصفحات الدخول والشهادات.',
+                'hint' => setting('setup.installer.store_logo_2', 'الشعار الظاهر في الهيدر وصفحات الدخول والشهادات.'),
             ],
         );
     }
@@ -110,7 +110,7 @@ class Installer
         $role = Role::where('key', $roleKey)->first();
 
         if (! $role) {
-            throw new RuntimeException('دور «'.$roleKey.'» مش موجود في قاعدة البيانات — يبدو إنّ خطوة تجهيز البيانات الأساسيّة ماتمّتش. ارجع لخطوة قاعدة البيانات وشغّل التجهيز تاني.');
+            throw new RuntimeException(strtr(setting('setup.installer.create_owner_1', 'دور «:p1» مش موجود في قاعدة البيانات — يبدو إنّ خطوة تجهيز البيانات الأساسيّة ماتمّتش. ارجع لخطوة قاعدة البيانات وشغّل التجهيز تاني.'), [':p1' => (string) ($roleKey)]));
         }
 
         return DB::transaction(function () use ($data, $role) {

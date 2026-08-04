@@ -22,7 +22,7 @@
 @if ($enabled)
     <div data-first-run="{{ $screenKey }}" data-first-run-open="{{ $show ? '1' : '0' }}"
          class="fixed inset-0 z-[55] {{ $show ? 'flex' : 'hidden' }} items-center justify-center p-4"
-         style="background: rgb(0 0 0 / .6)" role="dialog" aria-modal="true" aria-label="أوّل مرّة هنا">
+         style="background: rgb(0 0 0 / .6)" role="dialog" aria-modal="true" aria-label="{{ setting('ux.first_run.aria_label_1', 'أوّل مرّة هنا') }}">
         <div class="card w-full max-w-md">
             <div class="px-5 py-4" style="border-bottom: 1px solid var(--border)">
                 <div class="flex items-center justify-between gap-2">

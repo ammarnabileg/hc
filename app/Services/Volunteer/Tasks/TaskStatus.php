@@ -31,19 +31,19 @@ class TaskStatus
     public static function labels(): array
     {
         return [
-            self::IN_PROGRESS => 'قيد التنفيذ',
-            self::BLOCKED => 'متعثّرة',
-            self::DELIVERED => 'مُسلَّمة / قيد المراجعة',
-            self::RETURNED => 'مُرجَعة',
-            self::APPROVED => 'معتمدة',
-            self::NO_DELIVERY => 'عدم تسليم',
-            self::CLOSED => 'مُغلَقة',
+            self::IN_PROGRESS => setting('workflow.task_status.labels_1', 'قيد التنفيذ'),
+            self::BLOCKED => setting('workflow.task_status.labels_2', 'متعثّرة'),
+            self::DELIVERED => setting('workflow.task_status.labels_3', 'مُسلَّمة / قيد المراجعة'),
+            self::RETURNED => setting('workflow.task_status.labels_4', 'مُرجَعة'),
+            self::APPROVED => setting('workflow.task_status.labels_5', 'معتمدة'),
+            self::NO_DELIVERY => setting('workflow.task_status.labels_6', 'عدم تسليم'),
+            self::CLOSED => setting('workflow.task_status.labels_7', 'مُغلَقة'),
         ];
     }
 
     public static function label(?string $status): string
     {
-        return self::labels()[$status] ?? 'غير معروفة';
+        return self::labels()[$status] ?? setting('workflow.task_status.label_1', 'غير معروفة');
     }
 
     /** حالة العرض في قاموس الألوان (2.16) */

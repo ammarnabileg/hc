@@ -57,7 +57,7 @@ class EnsureDepartmentMembership
         }
 
         // (1) مفتاح الشاشة أوّلًا — بلا نظرٍ للهدف: العضويّة لا تصنع صلاحيّة
-        abort_unless($this->access->allows($user, $permission), 403, 'ليس لديك صلاحيّة الوصول لهذه الصفحة.');
+        abort_unless($this->access->allows($user, $permission), 403, (string) setting('volunteer_org.membership_guard.handle_msg', 'ليس لديك صلاحيّة الوصول لهذه الصفحة.'));
 
         $target = $request->route('membership');
 
@@ -75,7 +75,7 @@ class EnsureDepartmentMembership
             return $next($request);
         }
 
-        abort(403, 'ده مش عضو في قسمك.');
+        abort(403, (string) setting('volunteer_org.membership_guard.handle_denied', 'ده مش عضو في قسمك.'));
     }
 
     /**

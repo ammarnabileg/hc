@@ -12,6 +12,7 @@ use App\Support\Access\AccessEngine;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
+use Tests\Support\SidebarMap;
 
 /**
  * حارس ب-2 (طبقة التطوّع): **كلّ شاشة تطوّعٍ تمتدّ من `layouts.volunteer`**.
@@ -155,15 +156,183 @@ class VolunteerLayoutGuardTest extends UiTestCase
 
             $response->assertOk();
 
-            // سايد بار التطوّع حاضر…
-            $response->assertSee('>إشعارات التطوّع<', false);
-            $response->assertSee('>رجوع للرئيسيّة<', false);
+            $destinations = SidebarMap::allDestinations($response->getContent());
+
+            /*
+             | ⭐ **بالوجهة لا باللافتة** (سجلّ القرارات 2026-08-04 · 2.13-ب):
+             | كان الفحص يقرأ `>إشعارات التطوّع<` و`>رجوع للرئيسيّة<` — وهي
+             | **لافتات**، وتغييرُها من اللوحة حقٌّ للمالك بنصّ 2.13-ب. فصار
+             | المقياس بابَ البند: أين يذهب، لا ماذا كُتِب عليه.
+             */
+            $this->assertContains(route('volunteer.notifications'), $destinations, 'سايد بار التطوّع غائب عن الشاشة.');
+            $this->assertContains(route('dashboard'), $destinations, 'باب الرجوع لطبقة المتدرّب غائب.');
 
             // …وسايد بار المتدرّب غائب: البقاء داخله هو عين العطل
-            $response->assertDontSee('>تعلّمي<', false);
-            $response->assertDontSee('>مكتبتي<', false);
-            $response->assertDontSee('>إنجازاتي<', false);
+            foreach ([route('learning.courses'), route('library.index'), route('achievements.badges')] as $trainee) {
+                $this->assertNotContains($trainee, $destinations, "وجهة من سايد بار المتدرّب ظهرت في شاشة تطوّع: {$trainee}");
+            }
         }
+    }
+
+    /**
+     * ⭐ **خريطة 13.4-ح كاملةً — بالوجهة لا باللافتة** (سجلّ القرارات 2026-08-04).
+     *
+     * ثلاثة عشر بندًا بترتيبها المعتمَد: أحدَ عشرَ مجموعةً بدروب-داون واثنان
+     * رابطان مفردان. والمحفوظ **بنيتُها** — عدد البنود وترتيبها ووجهتُها ومَن
+     * يراها — لا الكلمة المكتوبة عليها: تغييرُ اللافتة حقٌّ للمالك (2.13-ب)،
+     * وحذفُ بندٍ أو إزاحتُه أو تحويلُ وجهته **يسقط هذا الحارس**.
+     */
+    public function test_the_map_of_13_4_h_keeps_its_entries_order_and_destinations(): void
+    {
+        $html = $this->actingAs($this->fullyPermittedVolunteer())
+            ->get(route('volunteer.overview'))
+            ->assertOk()
+            ->getContent();
+
+        $expected = [];
+
+        foreach ($this->constitutionalEntries() as [, $items, $flat]) {
+            $expected[] = $items === null
+                ? ['type' => 'link', 'href' => $flat]
+                : ['type' => 'group', 'items' => $items];
+        }
+
+        // وباب الرجوع لطبقة المتدرّب — آخر رابطٍ في السايد بار
+        $expected[] = ['type' => 'link', 'href' => route('dashboard')];
+
+        $this->assertSame(
+            $expected,
+            SidebarMap::outline($html),
+            'بنية خريطة 13.4-ح اتغيّرت — عدد البنود أو ترتيبها أو وجهتها. '.
+            '(واللافتة ليست محلّ القياس: تغييرها حقٌّ للمالك بنصّ 2.13-ب.)',
+        );
+
+        // ثلاثة عشر بندًا كما نصّت الخريطة — لا اثنا عشر ولا أربعة عشر
+        $this->assertCount(13, $this->constitutionalEntries());
+    }
+
+    /**
+     * **ومَن يراها** — الشقّ الثالث من البنية: الظاهر يتحدّد بصلاحيّات العضويّة
+     * النشطة، وما لا يملكه المستخدم **يُخفى لا يُعطَّل** (2.15-أ-7 · 13.4-ح).
+     */
+    public function test_the_volunteer_sidebar_shows_only_what_the_membership_allows(): void
+    {
+        $volunteer = $this->placedVolunteer(['tasks.list']);
+
+        $html = $this->actingAs($volunteer)->get(route('volunteer.tasks.index'))->assertOk()->getContent();
+        $destinations = SidebarMap::allDestinations($html);
+
+        // ما يملكه حاضر
+        $this->assertContains(route('volunteer.tasks.index'), $destinations);
+
+        // وما لا يملكه **غائبٌ تمامًا** — لا رابط ولا بندٌ باهت
+        foreach ([
+            route('volunteer.goals'),
+            route('volunteer.performance.vxp'),
+            route('volunteer.meetings'),
+            route('volunteer.library'),
+            route('volunteer.recruitment'),
+            route('volunteer.escalations'),
+        ] as $forbidden) {
+            $this->assertNotContains($forbidden, $destinations, "بند ظهر لمن لا يملكه: {$forbidden}");
+        }
+
+        // ولا بندَ معطَّلًا: التعطيل يقول «ممنوع» بدل أن يصمت (2.15-أ-7)
+        $aside = SidebarMap::aside($html);
+        $this->assertStringNotContainsString('pointer-events-none', $aside);
+    }
+
+    /**
+     * خريطة 13.4-ح صفًّا صفًّا: اسم البند **للرسالة وحدها** (فاللافتة ليست
+     * مقياسًا)، والقياس على وجهته. و`null` في موضع البنود يعني رابطًا مفردًا.
+     *
+     * @return list<array{0:string,1:list<string>|null,2:string|null}>
+     */
+    private function constitutionalEntries(): array
+    {
+        return [
+            ['نظرة عامّة', [
+                route('volunteer.overview'),
+                route('volunteer.report'),
+                route('volunteer.calendar'),
+            ], null],
+            ['المهام', [
+                route('volunteer.tasks.index'),
+                route('volunteer.tasks.board'),
+                route('volunteer.contributions'),
+                route('volunteer.reviews'),
+            ], null],
+            ['المشاريع والأهداف', [
+                route('volunteer.goals'),
+                route('volunteer.goals.build'),
+                route('volunteer.goals.launch'),
+                route('volunteer.packages'),
+                route('volunteer.project'),
+                route('volunteer.recurring'),
+            ], null],
+            ['الأداء', [
+                route('volunteer.performance.vxp'),
+                route('volunteer.performance.rep'),
+                route('volunteer.performance.champion'),
+                route('volunteer.performance.evaluations'),
+            ], null],
+            ['الاجتماعات', [
+                route('volunteer.meetings'),
+                route('volunteer.attendance'),
+            ], null],
+            ['المعاملات', [
+                route('volunteer.transactions'),
+                route('volunteer.objections'),
+            ], null],
+            ['قسمي', [
+                route('volunteer.department'),
+                route('volunteer.org'),
+                route('volunteer.health'),
+                route('volunteer.capacity'),
+            ], null],
+            ['التصعيدات', [
+                route('volunteer.escalations'),
+                route('volunteer.escalations.objections'),
+                route('volunteer.arbitrations'),
+            ], null],
+            ['الأكاديمية', [
+                route('volunteer.academy'),
+                route('volunteer.academy.recordings'),
+            ], null],
+            // 📚 المكتبة الداخليّة — رابط مفرد بلا شاشات داخليّة
+            ['المكتبة الداخليّة', null, route('volunteer.library')],
+            ['التقدير', [
+                route('volunteer.kudos'),
+                route('volunteer.kudos.wall'),
+            ], null],
+            ['التوظيف', [
+                route('volunteer.recruitment'),
+                route('volunteer.interviews'),
+                route('volunteer.placement'),
+            ], null],
+            // 🔔 إشعارات التطوّع — رابط مفرد، وتاب في جرس الهيدر كذلك (2.8)
+            ['إشعارات التطوّع', null, route('volunteer.notifications')],
+        ];
+    }
+
+    /** متطوّعٌ يملك مفاتيح الخريطة كلّها — فتظهر البنود الثلاثة عشر بلا نقص */
+    private function fullyPermittedVolunteer(): User
+    {
+        return $this->placedVolunteer([
+            'personal_reports.view', 'calendar.view',
+            'tasks.list', 'public_board.list', 'contributions.list', 'tasks.approve',
+            'goals.list', 'goals.create', 'goals.approve', 'work_packages.list',
+            'operational_projects.view', 'recurring_items.view',
+            'leaderboards.view', 'rep_transactions.view', 'evaluations.view',
+            'meetings.list', 'meeting_attendance.view',
+            'rep_transactions.list', 'objections.view',
+            'org_chart.view', 'team_health.view', 'capacity.view',
+            'escalations.list', 'objections.list', 'arbitration.list',
+            'academy_paths.list', 'academy_recordings.list',
+            'internal_library.list',
+            'kudos.view', 'thanks_wall.view',
+            'candidates.list', 'interviews.list', 'placements.list',
+        ]);
     }
 
     /** ومن أيّ شاشةٍ عميقة يصل المتطوّع لبقيّة الخريطة بنقرة — لا بالرجوع للوحة */
@@ -189,7 +358,7 @@ class VolunteerLayoutGuardTest extends UiTestCase
      * متطوّعٌ مُسكَّنٌ حقيقيّ: عضويّةٌ نشطة في كيانٍ حقيقيّ + مفاتيح الشاشات
      * بنطاق ALL — فما يُخفى بعدها يكون مخفيًّا بسببٍ آخر لا بالنطاق.
      */
-    private function placedVolunteer(): User
+    private function placedVolunteer(?array $permissions = null): User
     {
         $user = User::create([
             'name' => 'متطوّع تجريبيّ',
@@ -218,7 +387,7 @@ class VolunteerLayoutGuardTest extends UiTestCase
             'status' => 'active',
         ]);
 
-        $this->grant($user, [
+        $this->grant($user, $permissions ?? [
             'goals.list', 'rep_transactions.list', 'internal_library.list',
             'contributions.list', 'tasks.approve', 'meetings.list',
             'academy_paths.list', 'candidates.list', 'org_chart.view',

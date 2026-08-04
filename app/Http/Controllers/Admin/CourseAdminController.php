@@ -71,7 +71,7 @@ class CourseAdminController extends Controller
         // «حفظ واستمرار» يبقيك في التحرير · «حفظ» يخرج (12.4-ب)
         return $request->boolean('continue')
             ? redirect()->route('admin.courses.edit', $course)->with('status', $this->savedLabel($course))
-            : redirect()->route('admin.courses.index')->with('status', 'اتحفظ التدريب ✓');
+            : redirect()->route('admin.courses.index')->with('status', (string) setting('courses.admin.store_ok', 'اتحفظ التدريب ✓'));
     }
 
     public function update(Request $request, Course $course): RedirectResponse
@@ -80,7 +80,7 @@ class CourseAdminController extends Controller
 
         return $request->boolean('continue')
             ? back()->with('status', $this->savedLabel($saved))
-            : redirect()->route('admin.courses.index')->with('status', 'اتحفظ التدريب ✓');
+            : redirect()->route('admin.courses.index')->with('status', (string) setting('courses.admin.update_ok', 'اتحفظ التدريب ✓'));
     }
 
     /**
@@ -119,14 +119,14 @@ class CourseAdminController extends Controller
         $this->audit->record($course, 'course.deleted', ['name_ar' => $course->name_ar], []);
         $course->delete();
 
-        return redirect()->route('admin.courses.index')->with('status', 'اتشال التدريب ✓');
+        return redirect()->route('admin.courses.index')->with('status', (string) setting('courses.admin.destroy_ok', 'اتشال التدريب ✓'));
     }
 
     public function duplicate(Course $course): RedirectResponse
     {
         $copy = $this->courses->duplicate($course);
 
-        return redirect()->route('admin.courses.edit', $copy)->with('status', 'اتعمل نسخة — عدّلها وانشرها ✓');
+        return redirect()->route('admin.courses.edit', $copy)->with('status', (string) setting('courses.admin.duplicate_ok', 'اتعمل نسخة — عدّلها وانشرها ✓'));
     }
 
     /** إجراءات جماعيّة — الزرّ يظهر عند الاختيار فقط (2.15-ب). */
@@ -142,7 +142,7 @@ class CourseAdminController extends Controller
 
         $affected = $this->courses->bulk($data['action'], $data['ids'], $data);
 
-        return back()->with('status', 'اتنفّذ على '.$affected.' تدريب ✓');
+        return back()->with('status', strtr((string) setting('courses.admin.bulk_ok', 'اتنفّذ على :a1 تدريب ✓'), [':a1' => (string) ($affected)]));
     }
 
     /** الضغط على «عدد المسجّلين» ⟵ مَن هم (12.4-ب). */

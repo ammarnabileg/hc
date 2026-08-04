@@ -109,20 +109,20 @@ class ProfileTabs
 
         $cards = [
             // ⭐ المستوى وXP من **المصدر الواحد** لا من عمود `users.level` المخبَّأ
-            ['key' => 'level', 'label' => 'مستوى الحساب + XP', 'icon' => '🎯',
+            ['key' => 'level', 'label' => setting('account.profile_tabs.kpis_1', 'مستوى الحساب + XP'), 'icon' => '🎯',
                 'value' => $account['level'].' · '.number_format($account['xp'])],
             // «**رصيد** التذاكر» (10.0-أ) — غير «المكتسب» في تاب الإنجازات، والاسم يفرّق
-            ['key' => 'tickets', 'label' => 'رصيد التذاكر', 'icon' => '🎟️',
+            ['key' => 'tickets', 'label' => setting('account.profile_tabs.kpis_2', 'رصيد التذاكر'), 'icon' => '🎟️',
                 'value' => $this->tickets->balance($owner)],
-            ['key' => 'streak', 'label' => 'ستريك نادي الخامسة', 'icon' => '🔥',
+            ['key' => 'streak', 'label' => setting('account.profile_tabs.kpis_3', 'ستريك نادي الخامسة'), 'icon' => '🔥',
                 'value' => (int) ($owner->streak?->club_5am_count ?? 0)],
-            ['key' => 'certificates', 'label' => 'الشهادات', 'icon' => '🎓',
+            ['key' => 'certificates', 'label' => setting('account.profile_tabs.kpis_4', 'الشهادات'), 'icon' => '🎓',
                 'value' => Certificate::where('user_id', $owner->id)->where('status', 'valid')->count()],
-            ['key' => 'courses', 'label' => 'التدريبات (مكتملة/جارية)', 'icon' => '📚',
+            ['key' => 'courses', 'label' => setting('account.profile_tabs.kpis_5', 'التدريبات (مكتملة/جارية)'), 'icon' => '📚',
                 'value' => $this->trainingCounts($owner)],
-            ['key' => 'rank', 'label' => 'ترتيب الليدر بورد', 'icon' => '🏆',
+            ['key' => 'rank', 'label' => setting('account.profile_tabs.kpis_6', 'ترتيب الليدر بورد'), 'icon' => '🏆',
                 'value' => $this->leaderboardRank($owner)],
-            ['key' => 'ambassador', 'label' => 'لقب السفير', 'icon' => '🤝',
+            ['key' => 'ambassador', 'label' => setting('account.profile_tabs.kpis_7', 'لقب السفير'), 'icon' => '🤝',
                 'value' => $ambassador ?: (string) setting('account.profile.kpi.no_ambassador', 'لسّه')],
         ];
 

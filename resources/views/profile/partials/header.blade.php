@@ -43,7 +43,7 @@
 
             <div class="mt-1 flex flex-wrap items-center gap-3 text-sm" style="color: var(--text-muted)">
                 <span class="font-mono">#{{ $owner->code }}</span>
-                <span>مستوى الحساب {{ $owner->level }}</span>
+                <span>{{ setting('profile.header.text_1', 'مستوى الحساب') }} {{ $owner->level }}</span>
 
                 {{-- ⭐ المحافظة حقل عامّ دائمًا ولا يجوز إخفاؤها (12.14-د) --}}
                 @if ($owner->governorate)
@@ -86,7 +86,7 @@
                         @if ($rep['in_club'])
                             <span class="animate-shimmer rounded-full px-3 py-1 text-xs font-bold"
                                   style="background: color-mix(in srgb, var(--color-state-honor) 18%, transparent); color: var(--color-state-honor)">
-                                ★ نادي التميّز
+                                ★ {{ setting('profile.header.text_2', 'نادي التميّز') }}
                             </span>
                         @endif
                     @endif
@@ -104,7 +104,7 @@
             <button type="button" data-modal-open="profile-share"
                     class="btn rounded-xl px-4 py-2 text-sm motion-standard"
                     style="min-height: 44px; background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
-                مشاركة الحساب
+                {{ setting('profile.header.text_3', 'مشاركة الحساب') }}
             </button>
 
             @if ($isOwner)
@@ -117,6 +117,6 @@
 
     @if ($level !== ProfileVisibility::OWNER)
         {{-- سطر واحد يوضّح مستوى المشاهدة — سطر لكلّ شرح (2.15-أ-8) --}}
-        <p class="mt-4 text-xs" style="color: var(--text-muted)">{{ $levelLabel }} — البيانات الحسّاسة مخفيّة افتراضيًّا.</p>
+        <p class="mt-4 text-xs" style="color: var(--text-muted)">{{ $levelLabel }} — {{ setting('profile.header.text_4', 'البيانات الحسّاسة مخفيّة افتراضيًّا.') }}</p>
     @endif
 </header>

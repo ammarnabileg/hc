@@ -67,13 +67,13 @@ class DatabaseController extends Controller
         // شرط حاسم: ‎.env‎ لا يُكتَب قبل نجاح اختبار الاتّصال بنفس البيانات بالحرف
         if (! $state->connectionVerified($data)) {
             return back()->withErrors([
-                'connection' => 'اضغط [اختبار الاتّصال] الأوّل. مش هنكتب الإعدادات قبل ما نتأكّد إنّها شغّالة، عشان مانكسرش الموقع.',
+                'connection' => (string) setting('setup.database.store_denied', 'اضغط [اختبار الاتّصال] الأوّل. مش هنكتب الإعدادات قبل ما نتأكّد إنّها شغّالة، عشان مانكسرش الموقع.'),
             ]);
         }
 
         if (! $this->installer->writeDatabaseEnv($data)) {
             return back()->withErrors([
-                'connection' => 'مقدرناش نكتب ملفّ ‎.env‎ في مجلّد المشروع. اضبط صلاحيّة الكتابة على مجلّد المشروع (775) وجرّب تاني.',
+                'connection' => (string) setting('setup.database.store_msg', 'مقدرناش نكتب ملفّ ‎.env‎ في مجلّد المشروع. اضبط صلاحيّة الكتابة على مجلّد المشروع (775) وجرّب تاني.'),
             ]);
         }
 
@@ -108,25 +108,23 @@ class DatabaseController extends Controller
 
         try {
             $migration = $this->installer->migrate();
-            $log[] = ['label' => 'إنشاء جداول المنصّة', 'ok' => $migration['ok'], 'output' => $migration['output']];
+            $log[] = ['label' => (string) setting('setup.database.run_migrations_msg', 'إنشاء جداول المنصّة'), 'ok' => $migration['ok'], 'output' => $migration['output']];
 
             if (! $migration['ok']) {
-                throw new \RuntimeException('فشل تنفيذ المايجريشنز.');
+                throw new \RuntimeException((string) setting('setup.database.run_migrations_msg_2', 'فشل تنفيذ المايجريشنز.'));
             }
 
             $seed = $this->installer->seed();
-            $log[] = ['label' => 'تحميل البيانات الأساسيّة (الأدوار والصلاحيّات والإعدادات)', 'ok' => $seed['ok'], 'output' => $seed['output']];
+            $log[] = ['label' => (string) setting('setup.database.run_migrations_msg_3', 'تحميل البيانات الأساسيّة (الأدوار والصلاحيّات والإعدادات)'), 'ok' => $seed['ok'], 'output' => $seed['output']];
 
             if (! $seed['ok']) {
-                throw new \RuntimeException('فشل تحميل البيانات الأساسيّة.');
+                throw new \RuntimeException((string) setting('setup.database.run_migrations_msg_4', 'فشل تحميل البيانات الأساسيّة.'));
             }
         } catch (\Throwable $exception) {
             return back()
                 ->with('setup_log', $log)
                 ->withErrors([
-                    'migrate' => 'التجهيز وقف في النصّ. الرسالة من الخادم: '
-                        .Str::limit($exception->getMessage(), 200)
-                        .' — راجع بيانات قاعدة البيانات وتأكّد إنّ المستخدم له صلاحيّة إنشاء الجداول، وبعدين اضغط «جرّب تاني».',
+                    'migrate' => strtr((string) setting('setup.database.run_migrations_msg_5', 'التجهيز وقف في النصّ. الرسالة من الخادم: :a1 — راجع بيانات قاعدة البيانات وتأكّد إنّ المستخدم له صلاحيّة إنشاء الجداول، وبعدين اضغط «جرّب تاني».'), [':a1' => (string) (Str::limit($exception->getMessage(), 200))]),
                 ]);
         }
 
@@ -156,13 +154,13 @@ class DatabaseController extends Controller
             'db_username' => ['required', 'string', 'max:64'],
             'db_password' => ['nullable', 'string', 'max:190'],
         ], [
-            'db_database.regex' => 'اسم قاعدة البيانات يقبل حروفًا إنجليزيّة وأرقامًا و«_» و«-» فقط — انسخه من لوحة الاستضافة كما هو.',
+            'db_database.regex' => (string) setting('setup.database.validated_msg', 'اسم قاعدة البيانات يقبل حروفًا إنجليزيّة وأرقامًا و«_» و«-» فقط — انسخه من لوحة الاستضافة كما هو.'),
         ], [
-            'db_host' => 'مضيف قاعدة البيانات',
-            'db_port' => 'منفذ قاعدة البيانات',
-            'db_database' => 'اسم قاعدة البيانات',
-            'db_username' => 'مستخدم قاعدة البيانات',
-            'db_password' => 'كلمة سرّ قاعدة البيانات',
+            'db_host' => (string) setting('setup.database.validated_msg_2', 'مضيف قاعدة البيانات'),
+            'db_port' => (string) setting('setup.database.validated_msg_3', 'منفذ قاعدة البيانات'),
+            'db_database' => (string) setting('setup.database.validated_msg_4', 'اسم قاعدة البيانات'),
+            'db_username' => (string) setting('setup.database.validated_msg_5', 'مستخدم قاعدة البيانات'),
+            'db_password' => (string) setting('setup.database.validated_msg_6', 'كلمة سرّ قاعدة البيانات'),
         ]);
     }
 }

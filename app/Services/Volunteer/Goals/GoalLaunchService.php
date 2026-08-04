@@ -56,7 +56,7 @@ class GoalLaunchService
         $milestones = Milestone::query()->where('goal_id', $goal->id)->orderBy('sort_order')->orderBy('id')->get();
 
         if ($milestones->isEmpty()) {
-            return ['الهدف بلا مَعالِم — أضِف مَعلَمًا واحدًا على الأقلّ.'];
+            return [setting('goals.goal_launch_service.gaps_1', 'الهدف بلا مَعالِم — أضِف مَعلَمًا واحدًا على الأقلّ.')];
         }
 
         $packages = WorkPackage::query()->whereIn('milestone_id', $milestones->pluck('id'))->get();
@@ -68,14 +68,14 @@ class GoalLaunchService
             $own = $packages->where('milestone_id', $milestone->id);
 
             if ($own->isEmpty()) {
-                $gaps[] = 'المَعلَم «'.$milestone->name.'» بلا حزم عمل.';
+                $gaps[] = strtr(setting('goals.goal_launch_service.gaps_2', 'المَعلَم «:p1» بلا حزم عمل.'), [':p1' => (string) ($milestone->name)]);
 
                 continue;
             }
 
             foreach ($own as $package) {
                 if (($taskCounts[$package->id] ?? 0) === 0) {
-                    $gaps[] = 'حزمة «'.$package->name.'» بلا مهامّ.';
+                    $gaps[] = strtr(setting('goals.goal_launch_service.gaps_3', 'حزمة «:p1» بلا مهامّ.'), [':p1' => (string) ($package->name)]);
                 }
             }
         }
@@ -96,7 +96,7 @@ class GoalLaunchService
     public function launch(Goal $goal, User $actor): array
     {
         if ($goal->sent_to_execution_at !== null) {
-            return ['ok' => false, 'gaps' => ['الهدف ده اتبعت للتنفيذ قبل كده.'], 'stamped' => 0, 'due_at' => null, 'files' => 0, 'memberships' => 0];
+            return ['ok' => false, 'gaps' => [setting('goals.goal_launch_service.launch_1', 'الهدف ده اتبعت للتنفيذ قبل كده.')], 'stamped' => 0, 'due_at' => null, 'files' => 0, 'memberships' => 0];
         }
 
         $gaps = $this->gaps($goal);
@@ -234,8 +234,8 @@ class GoalLaunchService
             Integrations::notify(
                 user: $user,
                 category: 'goal',
-                title: 'اتبعت للتنفيذ: '.$goal->name,
-                body: 'فكّك مهامّك ووزّعها قبل ما تقفل نافذة التفكيك.',
+                title: strtr(setting('goals.goal_launch_service.notify_directors_1', 'اتبعت للتنفيذ: :p1'), [':p1' => (string) ($goal->name)]),
+                body: setting('goals.goal_launch_service.notify_directors_2', 'فكّك مهامّك ووزّعها قبل ما تقفل نافذة التفكيك.'),
                 url: route('volunteer.goals'),
                 deadlineAt: $dueAt,
                 requiresAction: true,

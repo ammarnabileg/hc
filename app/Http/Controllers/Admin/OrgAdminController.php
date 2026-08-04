@@ -82,7 +82,7 @@ class OrgAdminController extends Controller
 
         // ⭐ الملفّ المؤقّت يفتحه ويُنهيه مشرف عام التطوّع وحده (23-0.2)
         if ($track->is_temporary && ! $this->canOpenCaseFile($request)) {
-            return back()->with('status', 'فتح الملفّ المؤقّت لمشرف عام التطوّع وحده — كلّمه يفتحه لك.');
+            return back()->with('status', (string) setting('volunteer_org.admin.save_entity_msg', 'فتح الملفّ المؤقّت لمشرف عام التطوّع وحده — كلّمه يفتحه لك.'));
         }
 
         $entity = isset($data['id']) ? Entity::findOrFail($data['id']) : new Entity;
@@ -106,7 +106,7 @@ class OrgAdminController extends Controller
 
         AuditTrail::log($request->user(), 'entity.save', $entity, $old, $entity->only(['name_ar', 'parent_id', 'member_cap']));
 
-        return back()->with('status', 'اتحفظ ✓');
+        return back()->with('status', (string) setting('volunteer_org.admin.save_entity_ok', 'اتحفظ ✓'));
     }
 
     /** أرشفة كيان — والملفّ المؤقّت يُنهيه مشرف عام التطوّع وحده */
@@ -115,14 +115,14 @@ class OrgAdminController extends Controller
         $entity->loadMissing('track');
 
         if ($entity->track?->is_temporary && ! $this->canOpenCaseFile($request)) {
-            return back()->with('status', 'إنهاء الملفّ المؤقّت لمشرف عام التطوّع وحده.');
+            return back()->with('status', (string) setting('volunteer_org.admin.archive_entity_msg', 'إنهاء الملفّ المؤقّت لمشرف عام التطوّع وحده.'));
         }
 
         $entity->forceFill(['status' => 'archived', 'closed_at' => now()])->save();
 
         AuditTrail::log($request->user(), 'entity.archive', $entity);
 
-        return back()->with('status', 'اتأرشف الكيان ✓ — وعضويّاته تُقفَل بمسار الأوفبوردنج.');
+        return back()->with('status', (string) setting('volunteer_org.admin.archive_entity_ok', 'اتأرشف الكيان ✓ — وعضويّاته تُقفَل بمسار الأوفبوردنج.'));
     }
 
     // ------------------------------------------------------------ البوزشنز والسعة
@@ -162,7 +162,7 @@ class OrgAdminController extends Controller
             AuditTrail::log($request->user(), 'position.span_update', $position, $old, $row);
         }
 
-        return back()->with('status', 'اتحفظ ✓ — والسعة مؤشّرات لا موانع.');
+        return back()->with('status', (string) setting('volunteer_org.admin.save_positions_ok', 'اتحفظ ✓ — والسعة مؤشّرات لا موانع.'));
     }
 
     public function saveSettings(Request $request): RedirectResponse
@@ -170,7 +170,7 @@ class OrgAdminController extends Controller
         $data = $request->validate(['settings' => ['required', 'array']]);
         SettingsWriter::putMany($data['settings'], $request->user());
 
-        return back()->with('status', 'اتحفظ ✓');
+        return back()->with('status', (string) setting('volunteer_org.admin.save_settings_ok', 'اتحفظ ✓'));
     }
 
     /** Override لكلّ كيان: عتبة/سعة تخصّ كيانًا بعينه دون سواه (2.13-هـ) */
@@ -188,7 +188,7 @@ class OrgAdminController extends Controller
 
         AuditTrail::log($request->user(), 'settings.override_reason', $entity, [], ['key' => $data['key'], 'reason' => $data['reason']]);
 
-        return back()->with('status', 'اتحفظ الـOverride للكيان ✓');
+        return back()->with('status', (string) setting('volunteer_org.admin.save_override_ok', 'اتحفظ الـOverride للكيان ✓'));
     }
 
     public function dropOverride(Request $request): RedirectResponse
@@ -200,7 +200,7 @@ class OrgAdminController extends Controller
 
         SettingsWriter::dropOverride($data['key'], Entity::findOrFail($data['entity_id']), $request->user());
 
-        return back()->with('status', 'رجع الكيان للقيمة العامّة ✓');
+        return back()->with('status', (string) setting('volunteer_org.admin.drop_override_ok', 'رجع الكيان للقيمة العامّة ✓'));
     }
 
     /** تقرير السعة: أكثر الأقسام تخمةً وأكثرها فراغًا — مادّة قرار */

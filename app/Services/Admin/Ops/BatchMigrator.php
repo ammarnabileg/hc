@@ -49,7 +49,7 @@ class BatchMigrator
     public function each(string $job, string $table, callable $handler, string $key = 'id'): array
     {
         if (! Schema::hasTable($table)) {
-            throw new RuntimeException("الجدول «{$table}» مش موجود — مفيش حاجة تتعالج.");
+            throw new RuntimeException(strtr(setting('updates.batch_migrator.each_1', 'الجدول «:p1» مش موجود — مفيش حاجة تتعالج.'), [':p1' => (string) ($table)]));
         }
 
         $state = $this->state($job, $table, null);
@@ -93,7 +93,7 @@ class BatchMigrator
     public function copy(string $job, string $from, string $to, array $map = [], ?callable $transform = null, string $key = 'id'): array
     {
         if (! Schema::hasTable($to)) {
-            throw new RuntimeException("الهدف «{$to}» لازم يتعمل قبل النقل — مفيش نقل لمكان مش موجود.");
+            throw new RuntimeException(strtr(setting('updates.batch_migrator.copy_1', 'الهدف «:p1» لازم يتعمل قبل النقل — مفيش نقل لمكان مش موجود.'), [':p1' => (string) ($to)]));
         }
 
         $this->state($job, $from, $to);
@@ -140,9 +140,9 @@ class BatchMigrator
         $target = (int) DB::table($to)->count();
 
         if ($source !== $target) {
-            $this->finish($job, 'failed', null, "المصدر {$source} صفّ والهدف {$target} — النقل ناقص.");
+            $this->finish($job, 'failed', null, strtr(setting('updates.batch_migrator.verify_1', 'المصدر :p1 صفّ والهدف :p2 — النقل ناقص.'), [':p1' => (string) ($source), ':p2' => (string) ($target)]));
 
-            return ['ok' => false, 'source' => $source, 'target' => $target, 'message' => "النقل ناقص: {$source} ⟵ {$target}."];
+            return ['ok' => false, 'source' => $source, 'target' => $target, 'message' => strtr(setting('updates.batch_migrator.body_8', 'النقل ناقص: :p1 ⟵ :p2.'), [':p1' => (string) ($source), ':p2' => (string) ($target)])];
         }
 
         if ($columns !== []) {
@@ -150,19 +150,19 @@ class BatchMigrator
             $targetHash = $this->fingerprint($to, $columns);
 
             if ($sourceHash !== $targetHash) {
-                $this->finish($job, 'failed', null, 'بصمة المحتوى مختلفة بين المصدر والهدف.');
+                $this->finish($job, 'failed', null, setting('updates.batch_migrator.body_1', 'بصمة المحتوى مختلفة بين المصدر والهدف.'));
 
-                return ['ok' => false, 'source' => $source, 'target' => $target, 'message' => 'الأعداد متطابقة لكنّ المحتوى مختلف — مفيش حذف.'];
+                return ['ok' => false, 'source' => $source, 'target' => $target, 'message' => setting('updates.batch_migrator.body_2', 'الأعداد متطابقة لكنّ المحتوى مختلف — مفيش حذف.')];
             }
 
-            $this->finish($job, 'verified', $sourceHash, 'الأعداد والبصمة متطابقة.');
+            $this->finish($job, 'verified', $sourceHash, setting('updates.batch_migrator.body_3', 'الأعداد والبصمة متطابقة.'));
 
-            return ['ok' => true, 'source' => $source, 'target' => $target, 'message' => 'النقل متطابق ✓'];
+            return ['ok' => true, 'source' => $source, 'target' => $target, 'message' => setting('updates.batch_migrator.body_4', 'النقل متطابق ✓')];
         }
 
-        $this->finish($job, 'verified', null, 'الأعداد متطابقة.');
+        $this->finish($job, 'verified', null, setting('updates.batch_migrator.body_5', 'الأعداد متطابقة.'));
 
-        return ['ok' => true, 'source' => $source, 'target' => $target, 'message' => 'النقل متطابق ✓'];
+        return ['ok' => true, 'source' => $source, 'target' => $target, 'message' => setting('updates.batch_migrator.body_6', 'النقل متطابق ✓')];
     }
 
     /**
@@ -175,17 +175,17 @@ class BatchMigrator
         $state = $this->progress($job);
 
         if (! $state || $state->status !== 'verified') {
-            return ['dropped' => false, 'message' => "ممنوع حذف «{$from}» قبل نقل متحقَّق منه (2.11-د)."];
+            return ['dropped' => false, 'message' => strtr(setting('updates.batch_migrator.drop_source_1', 'ممنوع حذف «:p1» قبل نقل متحقَّق منه (2.11-د).'), [':p1' => (string) ($from)])];
         }
 
         Schema::dropIfExists($from);
 
         DB::table('migration_batch_state')->where('job', $job)->update([
-            'note' => 'المصدر اتحذف بعد تحقّق.',
+            'note' => setting('updates.batch_migrator.body_7', 'المصدر اتحذف بعد تحقّق.'),
             'updated_at' => now(),
         ]);
 
-        return ['dropped' => true, 'message' => "«{$from}» اتحذف بعد ما اتأكّدنا إنّ كلّ صفّ وصل ✓"];
+        return ['dropped' => true, 'message' => strtr(setting('updates.batch_migrator.text_1', '«:p1» اتحذف بعد ما اتأكّدنا إنّ كلّ صفّ وصل ✓'), [':p1' => (string) ($from)])];
     }
 
     /**

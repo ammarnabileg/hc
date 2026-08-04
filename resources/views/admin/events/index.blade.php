@@ -1,52 +1,51 @@
 @extends('layouts.admin')
 
-@section('title', 'الفعاليّات')
+@section('title', setting('admin.events.index.alfaalyat', 'الفعاليّات'))
 
 @section('content')
     <x-page-header
-        title="الفعاليّات"
-        subtitle="اللقاءات المباشرة أوفلاين وأونلاين وهجين — بسعتها وكود حضورها ومكافأتها المتدرّجة."
-        :breadcrumbs="[['label' => 'لوحة الإدارة', 'url' => url('/admin')], ['label' => 'الفعاليّات']]">
+        :title="setting('admin.events.index.alfaalyat', 'الفعاليّات')"
+        :subtitle="setting('admin.events.index.allqaat_almbashra_awflayn_wawnlayn_whjyn', 'اللقاءات المباشرة أوفلاين وأونلاين وهجين — بسعتها وكود حضورها ومكافأتها المتدرّجة.')"
+        :breadcrumbs="[['label' => setting('admin.events.index.lwha_alidara', 'لوحة الإدارة'), 'url' => url('/admin')], ['label' => setting('admin.events.index.alfaalyat', 'الفعاليّات')]]">
         <x-slot:action>
             @can('events.create')
                 <button type="button" data-modal-open="event-modal"
                         class="btn rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
-                        style="background: var(--color-brand-500); color: #04201c">+ فعاليّة</button>
+                        style="background: var(--color-brand-500); color: #04201c">{{ setting('admin.events.index.faalya_2', '+ فعاليّة') }}</button>
             @endcan
         </x-slot:action>
     </x-page-header>
 
     <div class="card p-3 mb-4 text-sm">
-        <x-icon name="lock" size="16" /> <strong>كود الحضور مستمرّ لا يقفل</strong> — والمكافأة وحدها تتناقص على درجات زمنيّة.
-        وشهادة الحضور تُضبَط في إدارة الشهادات لا هنا.
+        <x-icon name="lock" size="16" /> <strong>{{ setting('admin.events.index.kwd_alhdwr_mstmr_la_yqfl', 'كود الحضور مستمرّ لا يقفل') }}</strong> {{ setting('admin.events.index.walmkafaa_whdha_ttnaqs_ala_drjat_zmnya', '— والمكافأة وحدها تتناقص على درجات زمنيّة. وشهادة الحضور تُضبَط في إدارة الشهادات لا هنا.') }}
     </div>
 
     <x-filters :action="route('admin.events.index')">
         <div>
-            <label class="block text-xs mb-1" for="f-q" style="color: var(--text-muted)">بحث بالاسم</label>
+            <label class="block text-xs mb-1" for="f-q" style="color: var(--text-muted)">{{ setting('admin.events.index.bhth_balasm', 'بحث بالاسم') }}</label>
             <input id="f-q" type="search" name="q" value="{{ $filters['q'] }}"
                    class="rounded-xl px-3 py-2 text-sm" style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
         </div>
         <div>
-            <label class="block text-xs mb-1" for="f-mode" style="color: var(--text-muted)">النوع</label>
+            <label class="block text-xs mb-1" for="f-mode" style="color: var(--text-muted)">{{ setting('admin.events.index.alnwa', 'النوع') }}</label>
             <select id="f-mode" name="mode" class="rounded-xl px-3 py-2 text-sm"
                     style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
-                <option value="">الكلّ</option>
+                <option value="">{{ setting('admin.events.index.alkl', 'الكلّ') }}</option>
                 @foreach ($modes as $key => $label)
                     <option value="{{ $key }}" @selected($filters['mode'] === $key)>{{ $label }}</option>
                 @endforeach
             </select>
         </div>
         <div>
-            <label class="block text-xs mb-1" for="f-status" style="color: var(--text-muted)">الحالة</label>
+            <label class="block text-xs mb-1" for="f-status" style="color: var(--text-muted)">{{ setting('admin.events.index.alhala', 'الحالة') }}</label>
             <select id="f-status" name="status" class="rounded-xl px-3 py-2 text-sm"
                     style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
-                @foreach (['upcoming' => 'قادمة', 'past' => 'منتهية', 'draft' => 'مسودّة'] as $key => $label)
+                @foreach (['upcoming' => setting('admin.events.index.qadma', 'قادمة'), 'past' => setting('admin.events.index.mnthya', 'منتهية'), 'draft' => setting('admin.events.index.mswda', 'مسودّة')] as $key => $label)
                     <option value="{{ $key }}" @selected($filters['status'] === $key)>{{ $label }}</option>
                 @endforeach
             </select>
         </div>
-        <button type="submit" class="btn rounded-xl px-4 py-2 text-sm font-semibold" style="background: var(--surface-raised)">فلتر</button>
+        <button type="submit" class="btn rounded-xl px-4 py-2 text-sm font-semibold" style="background: var(--surface-raised)">{{ setting('admin.events.index.fltr', 'فلتر') }}</button>
     </x-filters>
 
     {{-- كروت رأسيّة — لا تمرير أفقيّ على الموبايل (2.15-ج) --}}
@@ -65,12 +64,12 @@
                         <div class="text-xs mt-0.5" style="color: var(--text-muted)"
                              title="{{ $event->starts_at?->format('Y-m-d H:i') }}">
                             {{ $modes[$event->mode] ?? $event->mode }} · {{ $event->starts_at?->diffForHumans() }}
-                            @if ($event->attendance_code) · كود الحضور <code>{{ $event->attendance_code }}</code> @endif
+                            @if ($event->attendance_code) {{ setting('admin.events.index.kwd_alhdwr', '· كود الحضور') }} <code>{{ $event->attendance_code }}</code> @endif
                         </div>
                     </div>
 
                     <x-state-badge :state="match ($event->status) { 'published' => 'ok', 'cancelled' => 'danger', default => 'idle' }"
-                                   :label="match ($event->status) { 'published' => 'منشورة', 'cancelled' => 'ملغاة', default => 'مسودّة' }" />
+                                   :label="match ($event->status) { 'published' => setting('admin.events.index.mnshwra', 'منشورة'), 'cancelled' => setting('admin.events.index.mlghaa', 'ملغاة'), default => setting('admin.events.index.mswda', 'مسودّة') }" />
                 </div>
 
                 <div class="flex items-center gap-2 mt-3">
@@ -78,13 +77,13 @@
                         <div class="h-full" style="width: {{ $percent }}%; background: var(--color-brand-500)"></div>
                     </div>
                     <span class="text-xs shrink-0" style="color: var(--text-muted)">
-                        {{ $registered }}{{ $capacity ? '/'.$capacity : '' }} مسجّل
+                        {{ $registered }}{{ $capacity ? '/'.$capacity : '' }} {{ setting('admin.events.index.msjl', 'مسجّل') }}
                     </span>
                 </div>
 
                 <div class="flex items-center gap-3 mt-3 flex-wrap text-xs">
                     @can('event_registrations.list')
-                        <a class="underline" href="{{ route('admin.events.registrations', $event) }}">المسجّلون والحضور</a>
+                        <a class="underline" href="{{ route('admin.events.registrations', $event) }}">{{ setting('admin.events.index.almsjlwn_walhdwr', 'المسجّلون والحضور') }}</a>
                     @endcan
                     @can('events.edit')
                         <button type="button" class="underline" data-event-edit
@@ -98,17 +97,17 @@
                                 data-price-tickets="{{ (int) $event->price_tickets }}"
                                 data-coupon="{{ $event->coupon_id }}" data-cover="{{ $event->cover_path }}"
                                 data-status="{{ $event->status }}"
-                                data-reminders="{{ $event->reminders_enabled ? 1 : 0 }}">تعديل</button>
+                                data-reminders="{{ $event->reminders_enabled ? 1 : 0 }}">{{ setting('admin.events.index.tadyl', 'تعديل') }}</button>
                         @if ($event->status !== 'cancelled')
                             <form method="post" action="{{ route('admin.events.cancel', $event) }}"
-                                  onsubmit="return confirm('تلغي الفعاليّة دي؟')">
+                                  onsubmit="return confirm('{{ setting('admin.events.index.tlghy_alfaalya_dy', 'تلغي الفعاليّة دي؟') }}')">
                                 @csrf
-                                <button type="submit" class="underline" style="color: var(--color-state-danger)">إلغاء</button>
+                                <button type="submit" class="underline" style="color: var(--color-state-danger)">{{ setting('admin.events.index.ilgha', 'إلغاء') }}</button>
                             </form>
                         @endif
                     @endcan
                     @if ($event->registration_link)
-                        <a class="underline" href="{{ $event->registration_link }}" target="_blank" rel="noopener">رابط التسجيل الخارجيّ</a>
+                        <a class="underline" href="{{ $event->registration_link }}" target="_blank" rel="noopener">{{ setting('admin.events.index.rabt_altsjyl_alkharjy', 'رابط التسجيل الخارجيّ') }}</a>
                     @endif
                 </div>
             </article>
@@ -119,7 +118,7 @@
 
     @can('events.manage')
         @include('admin.volunteer.partials.settings-card', [
-            'title' => 'إعدادات الفعاليّات',
+            'title' => setting('admin.events.index.iadadat_alfaalyat', 'إعدادات الفعاليّات'),
             'rows' => $settings,
             'action' => route('admin.events.settings.save'),
             'lockedKeys' => ['events.attendance_code_persistent'],
@@ -131,26 +130,26 @@
     @can('events.create')
         <button type="button" data-modal-open="event-modal"
                 class="btn w-full rounded-xl px-4 py-3 text-sm font-semibold"
-                style="background: var(--color-brand-500); color: #04201c">+ فعاليّة</button>
+                style="background: var(--color-brand-500); color: #04201c">{{ setting('admin.events.index.faalya_2', '+ فعاليّة') }}</button>
     @endcan
 @endsection
 
 @push('modals')
     @can('events.create')
-        <x-modal id="event-modal" title="فعاليّة">
+        <x-modal id="event-modal" :title="setting('admin.events.index.faalya', 'فعاليّة')">
             <form method="post" action="{{ route('admin.events.save') }}">
                 @csrf
                 <input type="hidden" name="id" id="ev-id">
 
                 {{-- ⭐ الفورم الأطول من حدّ الإعدادات يتقسّم خطوات بحفظ تلقائيّ بينها (2.15-ب) --}}
-                <x-form.stepper id="event-form" :labels="['الأساسيّات', 'التفاصيل', 'الأجندة']">
+                <x-form.stepper id="event-form" :labels="[setting('admin.events.index.alasasyat', 'الأساسيّات'), setting('admin.events.index.altfasyl', 'التفاصيل'), setting('admin.events.index.alajnda', 'الأجندة')]">
                 <div class="grid sm:grid-cols-2 gap-3">
-                    <label class="text-sm font-semibold">العنوان (عربيّ)
+                    <label class="text-sm font-semibold">{{ setting('admin.events.index.alanwan_arby', 'العنوان (عربيّ)') }}
                         <input type="text" name="title_ar" id="ev-title" required maxlength="180"
                                class="w-full rounded-xl px-3 py-2 text-sm mt-1"
                                style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
                     </label>
-                    <label class="text-sm font-semibold">العنوان (إنجليزيّ)
+                    <label class="text-sm font-semibold">{{ setting('admin.events.index.alanwan_injlyzy', 'العنوان (إنجليزيّ)') }}
                         <input type="text" name="title_en" id="ev-title-en" maxlength="180"
                                class="w-full rounded-xl px-3 py-2 text-sm mt-1"
                                style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
@@ -158,12 +157,12 @@
                 </div>
 
                 <div class="grid sm:grid-cols-2 gap-3 mt-3">
-                    <label class="text-sm font-semibold">الوصف (عربيّ)
+                    <label class="text-sm font-semibold">{{ setting('admin.events.index.alwsf_arby', 'الوصف (عربيّ)') }}
                         <textarea name="description" rows="2" maxlength="4000"
                                   class="w-full rounded-xl px-3 py-2 text-sm mt-1"
                                   style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)"></textarea>
                     </label>
-                    <label class="text-sm font-semibold">الوصف (إنجليزيّ)
+                    <label class="text-sm font-semibold">{{ setting('admin.events.index.alwsf_injlyzy', 'الوصف (إنجليزيّ)') }}
                         <textarea name="description_en" rows="2" maxlength="4000"
                                   class="w-full rounded-xl px-3 py-2 text-sm mt-1"
                                   style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)"></textarea>
@@ -171,7 +170,7 @@
                 </div>
 
                 <div class="grid sm:grid-cols-3 gap-3 mt-3">
-                    <label class="text-sm font-semibold">النوع
+                    <label class="text-sm font-semibold">{{ setting('admin.events.index.alnwa', 'النوع') }}
                         <select name="mode" id="ev-mode" class="w-full rounded-xl px-3 py-2 text-sm mt-1"
                                 style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
                             @foreach ($modes as $key => $label)
@@ -179,12 +178,12 @@
                             @endforeach
                         </select>
                     </label>
-                    <label class="text-sm font-semibold">يبدأ
+                    <label class="text-sm font-semibold">{{ setting('admin.events.index.ybda', 'يبدأ') }}
                         <input type="datetime-local" name="starts_at" id="ev-starts" required
                                class="w-full rounded-xl px-3 py-2 text-sm mt-1"
                                style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
                     </label>
-                    <label class="text-sm font-semibold">ينتهي (اختياريّ)
+                    <label class="text-sm font-semibold">{{ setting('admin.events.index.ynthy_akhtyary', 'ينتهي (اختياريّ)') }}
                         <input type="datetime-local" name="ends_at"
                                class="w-full rounded-xl px-3 py-2 text-sm mt-1"
                                style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
@@ -192,12 +191,12 @@
                 </div>
 
                 <div class="grid sm:grid-cols-2 gap-3 mt-3">
-                    <label class="text-sm font-semibold">المكان (للأوفلاين والهجين)
+                    <label class="text-sm font-semibold">{{ setting('admin.events.index.almkan_llawflayn_walhjyn', 'المكان (للأوفلاين والهجين)') }}
                         <input type="text" name="location" id="ev-location" maxlength="255"
                                class="w-full rounded-xl px-3 py-2 text-sm mt-1"
                                style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
                     </label>
-                    <label class="text-sm font-semibold">رابط الانضمام (للأونلاين والهجين)
+                    <label class="text-sm font-semibold">{{ setting('admin.events.index.rabt_alandmam_llawnlayn_walhjyn', 'رابط الانضمام (للأونلاين والهجين)') }}
                         <input type="url" name="join_link" id="ev-join" maxlength="255"
                                class="w-full rounded-xl px-3 py-2 text-sm mt-1"
                                style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
@@ -205,17 +204,17 @@
                 </div>
 
                 <div class="grid sm:grid-cols-3 gap-3 mt-3">
-                    <label class="text-sm font-semibold">رابط التسجيل الخارجيّ
+                    <label class="text-sm font-semibold">{{ setting('admin.events.index.rabt_altsjyl_alkharjy', 'رابط التسجيل الخارجيّ') }}
                         <input type="url" name="registration_link" id="ev-registration" maxlength="255"
                                class="w-full rounded-xl px-3 py-2 text-sm mt-1"
                                style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
                     </label>
-                    <label class="text-sm font-semibold">رابط التسجيل بعد الانتهاء
+                    <label class="text-sm font-semibold">{{ setting('admin.events.index.rabt_altsjyl_bad_alantha', 'رابط التسجيل بعد الانتهاء') }}
                         <input type="url" name="recording_link" maxlength="255"
                                class="w-full rounded-xl px-3 py-2 text-sm mt-1"
                                style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
                     </label>
-                    <label class="text-sm font-semibold">السعة
+                    <label class="text-sm font-semibold">{{ setting('admin.events.index.alsaa', 'السعة') }}
                         <input type="number" min="1" name="capacity" id="ev-capacity"
                                class="w-full rounded-xl px-3 py-2 text-sm mt-1"
                                style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
@@ -226,21 +225,21 @@
                      خادميًّا ومقروءًا في صفحة المستخدم وبلا أيّ حقل هنا، فلا سبيل
                      لضبطه إلّا بتعديل قاعدة البيانات باليد. --}}
                 <div class="grid sm:grid-cols-3 gap-3 mt-3">
-                    <label class="text-sm font-semibold">السعر (كوينز)
+                    <label class="text-sm font-semibold">{{ setting('admin.events.index.alsar_kwynz', 'السعر (كوينز)') }}
                         <input type="number" min="0" step="1" name="price_coins" id="ev-price-coins" value="0"
                                class="w-full rounded-xl px-3 py-2 text-sm mt-1"
                                style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
-                        <span class="block text-xs mt-1" style="color: var(--text-muted)">صفر = مجّانيّة</span>
+                        <span class="block text-xs mt-1" style="color: var(--text-muted)">{{ setting('admin.events.index.sfr_mjanya', 'صفر = مجّانيّة') }}</span>
                     </label>
-                    <label class="text-sm font-semibold">السعر (تذاكر)
+                    <label class="text-sm font-semibold">{{ setting('admin.events.index.alsar_tdhakr', 'السعر (تذاكر)') }}
                         <input type="number" min="0" step="1" name="price_tickets" id="ev-price-tickets" value="0"
                                class="w-full rounded-xl px-3 py-2 text-sm mt-1"
                                style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
                     </label>
-                    <label class="text-sm font-semibold">كوبون خصم (اختياريّ)
+                    <label class="text-sm font-semibold">{{ setting('admin.events.index.kwbwn_khsm_akhtyary', 'كوبون خصم (اختياريّ)') }}
                         <select name="coupon_id" id="ev-coupon" class="w-full rounded-xl px-3 py-2 text-sm mt-1"
                                 style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
-                            <option value="">— بلا كوبون</option>
+                            <option value="">{{ setting('admin.events.index.bla_kwbwn', '— بلا كوبون') }}</option>
                             @foreach ($coupons as $coupon)
                                 <option value="{{ $coupon->id }}">{{ $coupon->code }}</option>
                             @endforeach
@@ -249,33 +248,32 @@
                 </div>
 
                 {{-- الغلاف (12.11) — العمود كان موجودًا وميّتًا بلا حقل يكتبه --}}
-                <label class="block text-sm font-semibold mt-3">غلاف الفعاليّة
+                <label class="block text-sm font-semibold mt-3">{{ setting('admin.events.index.ghlaf_alfaalya', 'غلاف الفعاليّة') }}
                     <input type="text" name="cover_path" id="ev-cover" maxlength="255"
-                           placeholder="مسار الصورة من مكتبة الوسائط"
+                           placeholder="{{ setting('admin.events.index.msar_alswra_mn_mktba_alwsayt', 'مسار الصورة من مكتبة الوسائط') }}"
                            class="w-full rounded-xl px-3 py-2 text-sm mt-1"
                            style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
                 </label>
 
                 <div class="grid sm:grid-cols-3 gap-3 mt-3">
-                    <label class="text-sm font-semibold">كود الحضور (OTP رقميّ)
+                    <label class="text-sm font-semibold">{{ setting('admin.events.index.kwd_alhdwr_otp_rqmy', 'كود الحضور (OTP رقميّ)') }}
                         <input type="text" name="attendance_code" id="ev-code" maxlength="32"
-                               placeholder="يُولَّد تلقائيًّا لو فاضي"
+                               placeholder="{{ setting('admin.events.index.ywld_tlqayya_lw_fady', 'يُولَّد تلقائيًّا لو فاضي') }}"
                                class="w-full rounded-xl px-3 py-2 text-sm mt-1 font-mono"
                                style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
                     </label>
                     {{-- نوع شهادة الحضور يُضبَط في «إدارة الشهادات» لا هنا (13.3 · 12.5) --}}
-                    <div class="text-sm font-semibold">نوع شهادة الحضور
+                    <div class="text-sm font-semibold">{{ setting('admin.events.index.nwa_shhada_alhdwr', 'نوع شهادة الحضور') }}
                         <p class="mt-1 rounded-xl px-3 py-2 text-xs font-normal leading-relaxed"
                            style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text-muted)">
-                            بيتظبط من <strong>إدارة الشهادات</strong> — النوع المربوط بالفعاليّات هو المفتاح
-                            «{{ setting('events.certificate.default_type_key', 'event') }}»، وأيّ تعديل عليه بيسري على كلّ الفعاليّات.
+                            {{ setting('admin.events.index.bytzbt_mn', 'بيتظبط من') }} <strong>{{ setting('admin.events.index.idara_alshhadat', 'إدارة الشهادات') }}</strong> {!! strtr(setting('admin.events.index.alnwa_almrbwt_balfaalyat_hw_almftah_v1_way', '— النوع المربوط بالفعاليّات هو المفتاح «:v1»، وأيّ تعديل عليه بيسري على كلّ الفعاليّات.'), [':v1' => e(setting('events.certificate.default_type_key', 'event'))]) !!}
                         </p>
                     </div>
-                    <label class="text-sm font-semibold">الحالة
+                    <label class="text-sm font-semibold">{{ setting('admin.events.index.alhala', 'الحالة') }}
                         <select name="status" id="ev-status" class="w-full rounded-xl px-3 py-2 text-sm mt-1"
                                 style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
-                            <option value="draft">مسودّة</option>
-                            <option value="published">منشورة</option>
+                            <option value="draft">{{ setting('admin.events.index.mswda', 'مسودّة') }}</option>
+                            <option value="published">{{ setting('admin.events.index.mnshwra', 'منشورة') }}</option>
                         </select>
                     </label>
                 </div>
@@ -296,11 +294,11 @@
 
                 {{-- جدول المكافأة المتدرّجة زمنيًّا (13.3) --}}
                 <details class="mt-3 rounded-xl p-3" style="background: var(--surface-sunken)">
-                    <summary class="cursor-pointer text-sm font-semibold select-none">المكافأة المتدرّجة زمنيًّا</summary>
+                    <summary class="cursor-pointer text-sm font-semibold select-none">{{ setting('admin.events.index.almkafaa_almtdrja_zmnya', 'المكافأة المتدرّجة زمنيًّا') }}</summary>
                     <div class="space-y-2 mt-2">
                         @foreach ($defaultTiers as $i => $tier)
                             <div class="grid grid-cols-3 gap-2">
-                                <label class="text-xs">خلال (ساعة)
+                                <label class="text-xs">{{ setting('admin.events.index.khlal_saaa', 'خلال (ساعة)') }}
                                     <input type="number" min="1" name="reward_tiers[{{ $i }}][hours]" value="{{ $tier['hours'] ?? '' }}"
                                            class="w-full rounded-lg px-2 py-1.5 mt-1"
                                            style="background: var(--surface); border: 1px solid var(--border); color: var(--text)">
@@ -310,7 +308,7 @@
                                            class="w-full rounded-lg px-2 py-1.5 mt-1"
                                            style="background: var(--surface); border: 1px solid var(--border); color: var(--text)">
                                 </label>
-                                <label class="text-xs">تذاكر
+                                <label class="text-xs">{{ setting('admin.events.index.tdhakr', 'تذاكر') }}
                                     <input type="number" min="0" name="reward_tiers[{{ $i }}][tickets]" value="{{ $tier['tickets'] ?? 0 }}"
                                            class="w-full rounded-lg px-2 py-1.5 mt-1"
                                            style="background: var(--surface); border: 1px solid var(--border); color: var(--text)">
@@ -322,13 +320,13 @@
 
                 {{-- الأجندة والمتحدّثون --}}
                 <details class="mt-2 rounded-xl p-3" style="background: var(--surface-sunken)">
-                    <summary class="cursor-pointer text-sm font-semibold select-none">الأجندة والمتحدّثون</summary>
+                    <summary class="cursor-pointer text-sm font-semibold select-none">{{ setting('admin.events.index.alajnda_walmthdthwn', 'الأجندة والمتحدّثون') }}</summary>
                     <div class="space-y-2 mt-2">
                         @for ($i = 0; $i < 4; $i++)
                             <div class="grid grid-cols-3 gap-2">
-                                <input type="text" name="agenda[{{ $i }}][title]" placeholder="عنوان الجلسة" maxlength="180"
+                                <input type="text" name="agenda[{{ $i }}][title]" placeholder="{{ setting('admin.events.index.anwan_aljlsa', 'عنوان الجلسة') }}" maxlength="180"
                                        class="rounded-lg px-2 py-1.5" style="background: var(--surface); border: 1px solid var(--border); color: var(--text)">
-                                <input type="text" name="agenda[{{ $i }}][speaker]" placeholder="المتحدّث" maxlength="120"
+                                <input type="text" name="agenda[{{ $i }}][speaker]" placeholder="{{ setting('admin.events.index.almthdth', 'المتحدّث') }}" maxlength="120"
                                        class="rounded-lg px-2 py-1.5" style="background: var(--surface); border: 1px solid var(--border); color: var(--text)">
                                 <input type="datetime-local" name="agenda[{{ $i }}][starts_at]"
                                        class="rounded-lg px-2 py-1.5" style="background: var(--surface); border: 1px solid var(--border); color: var(--text)">
@@ -340,7 +338,7 @@
                 </x-form.stepper>
 
                 <button type="submit" class="btn mt-4 rounded-xl px-4 py-2 text-sm font-semibold"
-                        style="background: var(--color-brand-500); color: #04201c">احفظ الفعاليّة</button>
+                        style="background: var(--color-brand-500); color: #04201c">{{ setting('admin.events.index.ahfz_alfaalya', 'احفظ الفعاليّة') }}</button>
             </form>
         </x-modal>
     @endcan

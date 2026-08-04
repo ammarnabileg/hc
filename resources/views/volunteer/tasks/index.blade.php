@@ -1,6 +1,6 @@
 @extends('layouts.volunteer')
 
-@section('title', 'مهامّي')
+@section('title', setting('volunteer.tasks.title', 'مهامّي'))
 
 @section('content')
     @php
@@ -8,10 +8,10 @@
         $isBoardView = $view === 'kanban';
     @endphp
 
-    <x-page-header title="مهامّي" subtitle="كلّ ما عليك، بحالته وعدّاده."
+    <x-page-header :title="setting('volunteer.tasks.title', 'مهامّي')" :subtitle="setting('volunteer.tasks.subtitle', 'كلّ ما عليك، بحالته وعدّاده.')"
                    :breadcrumbs="[
-                       ['label' => 'لوحة التطوّع', 'url' => route('volunteer.overview')],
-                       ['label' => 'مهامّي'],
+                       ['label' => setting('volunteer.common.breadcrumb_root', 'لوحة التطوّع'), 'url' => route('volunteer.overview')],
+                       ['label' => setting('volunteer.tasks.title', 'مهامّي')],
                    ]">
         <x-slot:action>
             @if ($canCreate)
@@ -20,11 +20,11 @@
                     <button type="button" disabled
                             class="rounded-xl px-4 py-2 text-sm font-semibold opacity-50 cursor-not-allowed"
                             style="background: var(--surface-raised)"
-                            title="{{ $createBlockedReason }}">مهمّة جديدة</button>
+                            title="{{ $createBlockedReason }}">{{ setting('volunteer.tasks.action', 'مهمّة جديدة') }}</button>
                 @else
                     <button type="button" data-modal-open="new-task"
                             class="btn rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
-                            style="background: var(--color-brand-500); color: #04201c">مهمّة جديدة</button>
+                            style="background: var(--color-brand-500); color: #04201c">{{ setting('volunteer.tasks.action', 'مهمّة جديدة') }}</button>
                 @endif
             @endif
         </x-slot:action>
@@ -35,19 +35,19 @@
         @php $capSymbols = state_color($summary['state']); $personalSymbols = state_color($summary['personal_state']); @endphp
 
         <span class="inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-bold cursor-help"
-              title="سقف انشغالك في العضويّة النشطة — يُحسب على المهامّ غير المكتملة والمساهمات"
+              title="{{ setting('volunteer.tasks.tooltip', 'سقف انشغالك في العضويّة النشطة — يُحسب على المهامّ غير المكتملة والمساهمات') }}"
               style="background: color-mix(in srgb, var(--color-state-{{ $capSymbols['color'] }}) 18%, transparent);
                      color: var(--color-state-{{ $capSymbols['color'] }})">
             <span aria-hidden="true">{{ $capSymbols['icon'] }}</span>
-            سقف الانشغال {{ $summary['display'] }}
+            {{ setting('volunteer.tasks.text', 'سقف الانشغال') }} {{ $summary['display'] }}
         </span>
 
         <span class="inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs cursor-help"
-              title="السقف الشخصيّ الكلّي فوق سقوف العضويّات — يمنع السحب والإنشاء عند بلوغه"
+              title="{{ setting('volunteer.tasks.tooltip_2', 'السقف الشخصيّ الكلّي فوق سقوف العضويّات — يمنع السحب والإنشاء عند بلوغه') }}"
               style="background: color-mix(in srgb, var(--color-state-{{ $personalSymbols['color'] }}) 14%, transparent);
                      color: var(--color-state-{{ $personalSymbols['color'] }})">
             <span aria-hidden="true">{{ $personalSymbols['icon'] }}</span>
-            الشخصيّ الكلّي {{ $summary['personal_display'] }}
+            {{ setting('volunteer.tasks.text_2', 'الشخصيّ الكلّي') }} {{ $summary['personal_display'] }}
         </span>
 
         <span class="flex-1"></span>
@@ -56,20 +56,20 @@
         <div class="flex items-center gap-1 text-sm">
             <a href="{{ request()->fullUrlWithQuery(['view' => 'list']) }}"
                class="rounded-xl px-3 py-1.5"
-               style="{{ $isBoardView ? 'background: var(--surface-raised)' : 'background: var(--color-brand-500); color:#04201c' }}">قائمة</a>
+               style="{{ $isBoardView ? 'background: var(--surface-raised)' : 'background: var(--color-brand-500); color:#04201c' }}">{{ setting('volunteer.tasks.link', 'قائمة') }}</a>
             <a href="{{ request()->fullUrlWithQuery(['view' => 'kanban']) }}"
                class="rounded-xl px-3 py-1.5"
-               style="{{ $isBoardView ? 'background: var(--color-brand-500); color:#04201c' : 'background: var(--surface-raised)' }}">كانبان</a>
+               style="{{ $isBoardView ? 'background: var(--color-brand-500); color:#04201c' : 'background: var(--surface-raised)' }}">{{ setting('volunteer.tasks.link_2', 'كانبان') }}</a>
         </div>
     </div>
 
     {{-- 3 فلاتر ظاهرة + بحث، والباقي مطويّ (2.15-أ-4) --}}
     <x-filters :action="route('volunteer.tasks.index')">
         <label class="block">
-            <span class="block text-xs mb-1" style="color: var(--text-muted)">الحالة</span>
+            <span class="block text-xs mb-1" style="color: var(--text-muted)">{{ setting('volunteer.common.status', 'الحالة') }}</span>
             <select name="status" class="rounded-xl px-3 py-2 text-sm"
                     style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
-                <option value="">كلّ الحالات</option>
+                <option value="">{{ setting('volunteer.tasks.option', 'كلّ الحالات') }}</option>
                 @foreach ($labels as $key => $label)
                     <option value="{{ $key }}" @selected(($filters['status'] ?? null) === $key)>
                         {{ $label }} ({{ $counts[$key] ?? 0 }})
@@ -79,10 +79,10 @@
         </label>
 
         <label class="block">
-            <span class="block text-xs mb-1" style="color: var(--text-muted)">النوع</span>
+            <span class="block text-xs mb-1" style="color: var(--text-muted)">{{ setting('volunteer.common.type', 'النوع') }}</span>
             <select name="type" class="rounded-xl px-3 py-2 text-sm"
                     style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
-                <option value="">كلّ الأنواع</option>
+                <option value="">{{ setting('volunteer.tasks.option_2', 'كلّ الأنواع') }}</option>
                 @foreach ($types as $type)
                     <option value="{{ $type->id }}" @selected((int) ($filters['type'] ?? 0) === $type->id)>{{ $type->name_ar }}</option>
                 @endforeach
@@ -90,26 +90,26 @@
         </label>
 
         <label class="block">
-            <span class="block text-xs mb-1" style="color: var(--text-muted)">بحث</span>
-            <input type="search" name="q" value="{{ $filters['q'] }}" placeholder="عنوان أو رقم مهمّة"
+            <span class="block text-xs mb-1" style="color: var(--text-muted)">{{ setting('volunteer.common.search', 'بحث') }}</span>
+            <input type="search" name="q" value="{{ $filters['q'] }}" placeholder="{{ setting('volunteer.tasks.placeholder', 'عنوان أو رقم مهمّة') }}"
                    class="rounded-xl px-3 py-2 text-sm"
                    style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
         </label>
 
         <button type="submit" class="btn rounded-xl px-4 py-2 text-sm font-semibold"
-                style="background: var(--color-brand-500); color: #04201c">فلترة</button>
+                style="background: var(--color-brand-500); color: #04201c">{{ setting('volunteer.tasks.action_2', 'فلترة') }}</button>
 
         <x-slot:advanced>
             <label class="inline-flex items-center gap-2 text-sm">
                 <input type="checkbox" name="due_soon" value="1" @checked($filters['due_soon'])>
-                تقترب ديدلايناتها
+                {{ setting('volunteer.tasks.field', 'تقترب ديدلايناتها') }}
             </label>
         </x-slot:advanced>
     </x-filters>
 
     @if ($tasks->isEmpty())
-        <x-empty message="مفيش مهامّ عليك دلوقتي — شوف لوحة المهام العامّة"
-                 action="لوحة المهام العامّة" :href="route('volunteer.tasks.board')" />
+        <x-empty :message="setting('volunteer.tasks.empty', 'مفيش مهامّ عليك دلوقتي — شوف لوحة المهام العامّة')"
+                 :action="setting('volunteer.tasks.action_3', 'لوحة المهام العامّة')" :href="route('volunteer.tasks.board')" />
     @elseif ($isBoardView)
         {{-- كانبان بالسحب — وعلى الموبايل يتحوّل قائمة رأسيّة بلا تمرير أفقيّ (2.15-ج) --}}
         <div class="md:flex md:gap-3 md:min-w-0 overflow-x-auto space-y-4 md:space-y-0" data-kanban>
@@ -145,7 +145,7 @@
     @if ($canCreate && ! $createBlockedReason)
         <button type="button" data-modal-open="new-task"
                 class="btn w-full rounded-xl px-4 py-3 text-sm font-semibold"
-                style="background: var(--color-brand-500); color: #04201c">مهمّة جديدة</button>
+                style="background: var(--color-brand-500); color: #04201c">{{ setting('volunteer.tasks.action', 'مهمّة جديدة') }}</button>
     @elseif ($createBlockedReason)
         <p class="text-xs text-center" style="color: var(--text-muted)">{{ $createBlockedReason }}</p>
     @endif

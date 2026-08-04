@@ -1,23 +1,23 @@
 @extends('layouts.app')
-@section('title', 'دليل المستخدم')
+@section('title', (string) setting('help.index.section_1', 'دليل المستخدم'))
 
 @section('content')
     <x-page-header
-        title="دليل المستخدم"
-        subtitle="إجابة سريعة من غير ما تفتح تذكرة."
-        :breadcrumbs="[['label' => 'الدعم', 'url' => route('help.index')], ['label' => 'دليل المستخدم']]" />
+        title="{{ setting('help.index.title_1', 'دليل المستخدم') }}"
+        subtitle="{{ setting('help.index.subtitle_1', 'إجابة سريعة من غير ما تفتح تذكرة.') }}"
+        :breadcrumbs="[['label' => (string) setting('help.index.breadcrumbs_1', 'الدعم'), 'url' => route('help.index')], ['label' => (string) setting('help.index.breadcrumbs_2', 'دليل المستخدم')]]" />
 
     {{-- بحث بارز: هو الفعل الرئيسيّ للصفحة (24.5) --}}
     <form method="get" action="{{ route('help.index') }}" class="card p-4 mb-5">
         <label class="block">
-            <span class="block text-sm mb-2 font-semibold">تدوّر على إيه؟</span>
+            <span class="block text-sm mb-2 font-semibold">{{ setting('help.index.text_1', 'تدوّر على إيه؟') }}</span>
             <div class="flex gap-2">
                 <input type="search" name="q" value="{{ $q }}" autofocus
-                       placeholder="اكتب كلمة… مثال: الشهادة، الشحن، الستريك"
+                       placeholder="{{ setting('help.index.placeholder_1', 'اكتب كلمة… مثال: الشهادة، الشحن، الستريك') }}"
                        class="flex-1 rounded-xl px-4 py-3 text-sm"
                        style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
                 <button type="submit" class="btn rounded-xl px-5 py-3 text-sm font-semibold motion-standard"
-                        style="background: var(--color-brand-500); color: #04201c">إبحث</button>
+                        style="background: var(--color-brand-500); color: #04201c">{{ setting('help.index.text_2', 'إبحث') }}</button>
             </div>
         </label>
         @if ($category)
@@ -31,7 +31,7 @@
             <a href="{{ route('help.index', array_filter(['q' => $q])) }}"
                class="rounded-full px-4 py-2 text-sm motion-standard"
                style="{{ $category === '' ? 'background: var(--color-brand-500); color:#04201c; font-weight:700' : 'background: var(--surface-raised); color: var(--text)' }}">
-                كلّ التصنيفات
+                {{ setting('help.index.text_3', 'كلّ التصنيفات') }}
             </a>
             @foreach ($categories as $row)
                 <a href="{{ route('help.index', array_filter(['q' => $q, 'category' => $row->category])) }}"
@@ -44,9 +44,9 @@
     @endif
 
     @if ($articles->isEmpty())
-        <x-empty message="مفيش نتائج — جرّب كلمة تانية."
-                 action="افتح تذكرة"
-                 :href="route('complaints.index', ['new' => 1, 'title' => $q !== '' ? 'استفسار عن: '.$q : ''])" />
+        <x-empty message="{{ setting('help.index.message_1', 'مفيش نتائج — جرّب كلمة تانية.') }}"
+                 action="{{ setting('help.index.action_1', 'افتح تذكرة') }}"
+                 :href="route('complaints.index', ['new' => 1, 'title' => $q !== '' ? strtr((string) setting('help.index.href_1', 'استفسار عن: :a1'), [':a1' => (string) ($q)]) : ''])" />
     @else
         <div class="grid md:grid-cols-2 gap-3">
             @foreach ($articles as $article)
@@ -63,9 +63,9 @@
         </div>
 
         <p class="text-sm text-center mt-6" style="color: var(--text-muted)">
-            لسّه ملقيتش إجابتك؟
-            <a href="{{ route('complaints.index', ['new' => 1, 'title' => $q !== '' ? 'استفسار عن: '.$q : '']) }}"
-               class="underline" style="color: var(--color-brand-500)">افتح تذكرة</a>
+            {{ setting('help.index.text_4', 'لسّه ملقيتش إجابتك؟') }}
+            <a href="{{ route('complaints.index', ['new' => 1, 'title' => $q !== '' ? strtr((string) setting('help.index.href_expr_1', 'استفسار عن: :a1'), [':a1' => (string) ($q)]) : '']) }}"
+               class="underline" style="color: var(--color-brand-500)">{{ setting('help.index.text_5', 'افتح تذكرة') }}</a>
         </p>
     @endif
 @endsection

@@ -30,11 +30,11 @@ class Impersonator
     public function start(Request $request, User $actor, User $target): void
     {
         if ($target->id === $actor->id || $target->isPlatformOwner()) {
-            throw new RuntimeException('الحساب ده مايتنتحلش.');
+            throw new RuntimeException(setting('security.impersonator.start_1', 'الحساب ده مايتنتحلش.'));
         }
 
         if ($this->isImpersonating($request)) {
-            throw new RuntimeException('إنت أصلًا بتتصفّح كمستخدم — ارجع لحسابك الأوّل.');
+            throw new RuntimeException(setting('security.impersonator.start_2', 'إنت أصلًا بتتصفّح كمستخدم — ارجع لحسابك الأوّل.'));
         }
 
         $request->session()->put(self::SESSION_KEY, $actor->id);

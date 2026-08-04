@@ -76,6 +76,6 @@ class LibraryController extends Controller
 
         $this->library->requestAccess($item, $request->user(), $data['reason'] ?? null);
 
-        return back()->with('status', 'اتبعت ✓ دايركتور الكيان هيشوف الطلب.');
+        return back()->with('status', (string) setting('internal_library.screen.request_access_ok', 'اتبعت ✓ دايركتور الكيان هيشوف الطلب.'));
     }
 }

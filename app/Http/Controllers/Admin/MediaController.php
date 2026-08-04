@@ -60,7 +60,7 @@ class MediaController extends Controller
 
         $message = $result['duplicated']
             ? (string) setting('media.dedup.notice', 'الملفّ ده موجود عندنا — استخدمنا النسخة الحاليّة ✓')
-            : 'اترفع الملفّ ✓';
+            : (string) setting('media.admin.store_ok', 'اترفع الملفّ ✓');
 
         if ($request->expectsJson()) {
             return response()->json([
@@ -92,7 +92,7 @@ class MediaController extends Controller
             'tags' => $this->library->cleanTags($data['tags'] ?? []),
         ]);
 
-        return back()->with('status', 'اتحفظ ✓');
+        return back()->with('status', (string) setting('media.admin.update_ok', 'اتحفظ ✓'));
     }
 
     /** الحذف مع تحذير إن كان الملفّ مستعمَلًا (12.4-د). */
@@ -110,7 +110,7 @@ class MediaController extends Controller
         Storage::disk($media->disk ?: 'public')->delete($media->path);
         $media->delete();
 
-        return back()->with('status', 'اتشال الملفّ ✓');
+        return back()->with('status', (string) setting('media.admin.destroy_ok', 'اتشال الملفّ ✓'));
     }
 
     /** «مستخدَم في X مكان» بروابطه. */

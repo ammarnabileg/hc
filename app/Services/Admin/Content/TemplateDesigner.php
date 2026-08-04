@@ -32,14 +32,14 @@ class TemplateDesigner
     public function builtInFields(): array
     {
         return [
-            'holder_name' => 'اسم المتدرّب',
-            'certificate_name' => 'اسم الشهادة',
-            'type_name' => 'نوع الشهادة',
-            'accreditation_name' => 'جهة الاعتماد',
-            'issued_on' => 'تاريخ الإصدار',
-            'country' => 'الدولة',
-            'code' => 'كود الشهادة',
-            'holder_code' => 'كود صاحبها',
+            'holder_name' => setting('admin_content.template_designer.built_in_fields_1', 'اسم المتدرّب'),
+            'certificate_name' => setting('admin_content.template_designer.built_in_fields_2', 'اسم الشهادة'),
+            'type_name' => setting('admin_content.template_designer.built_in_fields_3', 'نوع الشهادة'),
+            'accreditation_name' => setting('admin_content.template_designer.built_in_fields_4', 'جهة الاعتماد'),
+            'issued_on' => setting('admin_content.template_designer.built_in_fields_5', 'تاريخ الإصدار'),
+            'country' => setting('admin_content.template_designer.built_in_fields_6', 'الدولة'),
+            'code' => setting('admin_content.template_designer.built_in_fields_7', 'كود الشهادة'),
+            'holder_code' => setting('admin_content.template_designer.built_in_fields_8', 'كود صاحبها'),
         ];
     }
 
@@ -153,7 +153,7 @@ class TemplateDesigner
         return CertificateTemplate::create([
             'certificate_type_id' => $type->id,
             'language' => $language,
-            'name' => $type->name_ar.' — '.($language === 'ar' ? 'عربيّة' : 'إنجليزيّة'),
+            'name' => $type->name_ar.' — '.($language === 'ar' ? setting('admin_content.template_designer.create_default_1', 'عربيّة') : setting('admin_content.template_designer.create_default_2', 'إنجليزيّة')),
             'width_px' => (int) setting('certificates.render.default_width_px', self::REFERENCE_WIDTH),
             'height_px' => (int) setting('certificates.render.default_height_px', 1240),
             'layers' => $this->defaultLayers($language, $type),
@@ -198,7 +198,7 @@ class TemplateDesigner
             $layers[] = [
                 'id' => (string) ($layer['id'] ?? Str::uuid()),
                 'type' => $type,
-                'label' => mb_substr(trim((string) ($layer['label'] ?? 'طبقة')) ?: 'طبقة', 0, 64),
+                'label' => mb_substr(trim((string) ($layer['label'] ?? setting('admin_content.template_designer.sanitize_layers_1', 'طبقة'))) ?: setting('admin_content.template_designer.sanitize_layers_2', 'طبقة'), 0, 64),
                 // «نصّ ثابت يكتبه الأدمن + العمود المختار» (12.5-ب)
                 'text' => mb_substr((string) ($layer['text'] ?? ''), 0, 240),
                 'field' => $field,
@@ -343,20 +343,20 @@ class TemplateDesigner
         $muted = (string) setting('certificates.designer.muted_color', '#9bb3ad');
 
         $layers = [
-            ['id' => 'heading', 'type' => 'text', 'label' => 'العنوان', 'text' => $recipe['heading'] ?: ($ar ? 'شهادة معتمدة' : 'Certificate'), 'x' => 0.5, 'y' => 0.22, 'size' => 62, 'color' => $honor, 'bold' => true, 'z' => 1],
-            ['id' => 'lead', 'type' => 'text', 'label' => 'تمهيد', 'text' => $recipe['lead'] ?: ($ar ? 'تشهد المنصّة بأنّ' : 'This is to certify that'), 'x' => 0.5, 'y' => 0.32, 'size' => 30, 'color' => $muted, 'z' => 2],
-            ['id' => 'holder', 'type' => 'text', 'label' => 'اسم المتدرّب', 'field' => 'holder_name', 'x' => 0.5, 'y' => 0.43, 'size' => 54, 'color' => $ink, 'bold' => true, 'z' => 3],
-            ['id' => 'completion', 'type' => 'text', 'label' => 'نصّ الإتمام', 'text' => $recipe['body'] ?: ($ar ? 'قد أتمّ بنجاح' : 'has successfully completed'), 'x' => 0.5, 'y' => 0.51, 'size' => 28, 'color' => $muted, 'z' => 4],
-            ['id' => 'subject', 'type' => 'text', 'label' => 'اسم الشهادة', 'field' => 'certificate_name', 'x' => 0.5, 'y' => 0.60, 'size' => 40, 'color' => $brand, 'z' => 5],
+            ['id' => 'heading', 'type' => 'text', 'label' => setting('admin_content.template_designer.default_layers_1', 'العنوان'), 'text' => $recipe['heading'] ?: ($ar ? setting('admin_content.template_designer.default_layers_2', 'شهادة معتمدة') : 'Certificate'), 'x' => 0.5, 'y' => 0.22, 'size' => 62, 'color' => $honor, 'bold' => true, 'z' => 1],
+            ['id' => 'lead', 'type' => 'text', 'label' => setting('admin_content.template_designer.default_layers_3', 'تمهيد'), 'text' => $recipe['lead'] ?: ($ar ? setting('admin_content.template_designer.default_layers_4', 'تشهد المنصّة بأنّ') : 'This is to certify that'), 'x' => 0.5, 'y' => 0.32, 'size' => 30, 'color' => $muted, 'z' => 2],
+            ['id' => 'holder', 'type' => 'text', 'label' => setting('admin_content.template_designer.default_layers_5', 'اسم المتدرّب'), 'field' => 'holder_name', 'x' => 0.5, 'y' => 0.43, 'size' => 54, 'color' => $ink, 'bold' => true, 'z' => 3],
+            ['id' => 'completion', 'type' => 'text', 'label' => setting('admin_content.template_designer.default_layers_6', 'نصّ الإتمام'), 'text' => $recipe['body'] ?: ($ar ? setting('admin_content.template_designer.default_layers_7', 'قد أتمّ بنجاح') : 'has successfully completed'), 'x' => 0.5, 'y' => 0.51, 'size' => 28, 'color' => $muted, 'z' => 4],
+            ['id' => 'subject', 'type' => 'text', 'label' => setting('admin_content.template_designer.default_layers_8', 'اسم الشهادة'), 'field' => 'certificate_name', 'x' => 0.5, 'y' => 0.60, 'size' => 40, 'color' => $brand, 'z' => 5],
             ['id' => 'closing', 'type' => 'text', 'label' => $labels['closing'], 'text' => $recipe['closing'], 'x' => 0.5, 'y' => 0.67, 'size' => 24, 'color' => $muted, 'z' => 6],
-            ['id' => 'accreditation', 'type' => 'text', 'label' => 'جهة الاعتماد', 'field' => 'accreditation_name', 'x' => 0.5, 'y' => 0.74, 'size' => 24, 'color' => $muted, 'z' => 7],
+            ['id' => 'accreditation', 'type' => 'text', 'label' => setting('admin_content.template_designer.default_layers_9', 'جهة الاعتماد'), 'field' => 'accreditation_name', 'x' => 0.5, 'y' => 0.74, 'size' => 24, 'color' => $muted, 'z' => 7],
             // ⚠️ الختم في **وسط** الأسفل لا يمينه: عند 0.75 كان يصطدم بمربّع الـQR
             // (0.79…0.91 عرضًا) فيُقرَأ نصفُه — ولقطةُ الشاشة هي التي كشفته.
             ['id' => 'seal', 'type' => 'text', 'label' => $labels['seal'], 'text' => $recipe['seal'], 'x' => 0.5, 'y' => 0.90, 'size' => 22, 'color' => $honor, 'z' => 8],
-            ['id' => 'issued', 'type' => 'text', 'label' => 'التاريخ', 'field' => 'issued_on', 'x' => 0.25, 'y' => 0.83, 'size' => 24, 'color' => $muted, 'z' => 9],
-            ['id' => 'country', 'type' => 'text', 'label' => 'الدولة', 'field' => 'country', 'x' => 0.25, 'y' => 0.87, 'size' => 24, 'color' => $muted, 'conditional' => true, 'z' => 10],
-            ['id' => 'code', 'type' => 'text', 'label' => 'كود الشهادة', 'field' => 'code', 'x' => 0.25, 'y' => 0.91, 'size' => 24, 'color' => $muted, 'z' => 11],
-            ['id' => 'qr', 'type' => 'qr', 'label' => 'QR التحقّق', 'x' => 0.85, 'y' => 0.84, 'size' => 0.12, 'z' => 12],
+            ['id' => 'issued', 'type' => 'text', 'label' => setting('admin_content.template_designer.default_layers_10', 'التاريخ'), 'field' => 'issued_on', 'x' => 0.25, 'y' => 0.83, 'size' => 24, 'color' => $muted, 'z' => 9],
+            ['id' => 'country', 'type' => 'text', 'label' => setting('admin_content.template_designer.default_layers_11', 'الدولة'), 'field' => 'country', 'x' => 0.25, 'y' => 0.87, 'size' => 24, 'color' => $muted, 'conditional' => true, 'z' => 10],
+            ['id' => 'code', 'type' => 'text', 'label' => setting('admin_content.template_designer.default_layers_12', 'كود الشهادة'), 'field' => 'code', 'x' => 0.25, 'y' => 0.91, 'size' => 24, 'color' => $muted, 'z' => 11],
+            ['id' => 'qr', 'type' => 'qr', 'label' => setting('admin_content.template_designer.default_layers_13', 'QR التحقّق'), 'x' => 0.85, 'y' => 0.84, 'size' => 0.12, 'z' => 12],
         ];
 
         /*

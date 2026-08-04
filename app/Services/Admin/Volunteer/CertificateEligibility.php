@@ -56,7 +56,7 @@ class CertificateEligibility
             return [
                 'eligible' => false,
                 'days' => $days,
-                'reason' => 'العنصر الشرفيّ مكانه تقديريّ لا بوزشن تطوّع — ولا تُصدَر له شهادة بوزشن.',
+                'reason' => setting('volunteer_cert.certificate_eligibility.check_1', 'العنصر الشرفيّ مكانه تقديريّ لا بوزشن تطوّع — ولا تُصدَر له شهادة بوزشن.'),
             ];
         }
 
@@ -64,7 +64,7 @@ class CertificateEligibility
             return [
                 'eligible' => false,
                 'days' => $days,
-                'reason' => 'المدّة في البوزشن '.$days.' يومًا، والمطلوب '.$minDays.' يومًا على الأقلّ.',
+                'reason' => strtr(setting('volunteer_cert.certificate_eligibility.check_2', 'المدّة في البوزشن :p1 يومًا، والمطلوب :p2 يومًا على الأقلّ.'), [':p1' => (string) ($days), ':p2' => (string) ($minDays)]),
             ];
         }
 
@@ -76,7 +76,7 @@ class CertificateEligibility
                 return [
                     'eligible' => false,
                     'days' => $days,
-                    'reason' => 'درجة الالتزام سالبة الآن ('.number_format($rep, 2).') — الشهادة تتطلّب رقمًا غير سالب.',
+                    'reason' => strtr(setting('volunteer_cert.certificate_eligibility.check_3', 'درجة الالتزام سالبة الآن (:p1) — الشهادة تتطلّب رقمًا غير سالب.'), [':p1' => (string) (number_format($rep, 2))]),
                 ];
             }
         }
@@ -85,7 +85,7 @@ class CertificateEligibility
             return [
                 'eligible' => false,
                 'days' => $days,
-                'reason' => 'صدرت شهادة لهذا البوزشن في هذا الكيان من قبل — والترقية تُصدر الأعلى لا نسخة مكرّرة.',
+                'reason' => setting('volunteer_cert.certificate_eligibility.check_4', 'صدرت شهادة لهذا البوزشن في هذا الكيان من قبل — والترقية تُصدر الأعلى لا نسخة مكرّرة.'),
             ];
         }
 
@@ -131,7 +131,7 @@ class CertificateEligibility
         $type = CertificateType::query()->where('key', 'volunteer_position')->first();
 
         if (! $type) {
-            return ['issued' => false, 'reason' => 'نوع شهادة البوزشن غير مُعرَّف.', 'certificate' => null];
+            return ['issued' => false, 'reason' => setting('volunteer_cert.certificate_eligibility.issue_for_membership_1', 'نوع شهادة البوزشن غير مُعرَّف.'), 'certificate' => null];
         }
 
         $start = $membership->started_at ?? $membership->created_at;
@@ -167,8 +167,8 @@ class CertificateEligibility
 
             if ($user) {
                 Integrations::notify(
-                    $user, 'certificate', 'صدرت شهادة تطوّعك 🎖️',
-                    'شهادة '.($membership->position?->name_ar ?? '').' — '.($membership->entity?->name_ar ?? ''),
+                    $user, 'certificate', setting('volunteer_cert.certificate_eligibility.issue_for_membership_2', 'صدرت شهادة تطوّعك 🎖️'),
+                    strtr(setting('volunteer_cert.certificate_eligibility.issue_for_membership_3', 'شهادة :p1 — :p2'), [':p1' => (string) (($membership->position?->name_ar ?? '')), ':p2' => (string) (($membership->entity?->name_ar ?? ''))]),
                     null, 'volunteer',
                 );
             }
@@ -199,13 +199,13 @@ class CertificateEligibility
         $flags = setting('volunteer_cert.types', []);
 
         if (is_array($flags) && array_key_exists('volunteer_experience', $flags) && ! $flags['volunteer_experience']) {
-            return ['issued' => false, 'reason' => 'نوع شهادة الخبرة موقوف من الإعدادات.', 'certificate' => null];
+            return ['issued' => false, 'reason' => setting('volunteer_cert.certificate_eligibility.issue_experience_1', 'نوع شهادة الخبرة موقوف من الإعدادات.'), 'certificate' => null];
         }
 
         $type = CertificateType::query()->where('key', 'volunteer_experience')->first();
 
         if (! $type) {
-            return ['issued' => false, 'reason' => 'نوع شهادة الخبرة غير مُعرَّف.', 'certificate' => null];
+            return ['issued' => false, 'reason' => setting('volunteer_cert.certificate_eligibility.issue_experience_2', 'نوع شهادة الخبرة غير مُعرَّف.'), 'certificate' => null];
         }
 
         $memberships = Membership::query()
@@ -215,7 +215,7 @@ class CertificateEligibility
             ->get();
 
         if ($memberships->isEmpty()) {
-            return ['issued' => false, 'reason' => 'لا عضويّات في سجلّه — لا مدّة خدمة تُشهَد.', 'certificate' => null];
+            return ['issued' => false, 'reason' => setting('volunteer_cert.certificate_eligibility.issue_experience_3', 'لا عضويّات في سجلّه — لا مدّة خدمة تُشهَد.'), 'certificate' => null];
         }
 
         $days = 0;

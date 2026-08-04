@@ -1,21 +1,21 @@
 @extends('layouts.admin')
 
-@section('title', 'معاينة قبل الإصدار')
+@section('title', setting('admin.certificates.preview.maayna_qbl_alisdar_2', 'معاينة قبل الإصدار'))
 
 @section('content')
     {{-- معاينة قبل الإصدار: الشهادات تحت بعضها ببياناتها الحقيقيّة (12.5-ج) --}}
     <x-page-header
-        :title="'معاينة قبل الإصدار — '.$type->name_ar"
-        :subtitle="$rows->count().' شهادة جاهزة للمراجعة'"
+        :title="setting('admin.certificates.preview.maayna_qbl_alisdar', 'معاينة قبل الإصدار — ').$type->name_ar"
+        :subtitle="$rows->count().setting('admin.certificates.preview.shhada_jahza_llmrajaa', ' شهادة جاهزة للمراجعة')"
         :breadcrumbs="[
-            ['label' => 'الشهادات', 'url' => route('admin.certificates.index')],
-            ['label' => 'إصدار', 'url' => route('admin.certificates.index', ['tab' => 'issue'])],
-            ['label' => 'المعاينة'],
+            ['label' => setting('admin.certificates.preview.alshhadat', 'الشهادات'), 'url' => route('admin.certificates.index')],
+            ['label' => setting('admin.certificates.preview.isdar', 'إصدار'), 'url' => route('admin.certificates.index', ['tab' => 'issue'])],
+            ['label' => setting('admin.certificates.preview.almaayna', 'المعاينة')],
         ]" />
 
     @if ($rows->isEmpty())
-        <x-empty message="مفيش كود صالح للمعاينة."
-                 action="رجوع للإصدار" :href="route('admin.certificates.index', ['tab' => 'issue'])" />
+        <x-empty :message="setting('admin.certificates.preview.mfysh_kwd_salh_llmaayna', 'مفيش كود صالح للمعاينة.')"
+                 :action="setting('admin.certificates.preview.rjwa_llisdar', 'رجوع للإصدار')" :href="route('admin.certificates.index', ['tab' => 'issue'])" />
     @else
         <div class="space-y-6">
             @foreach ($rows as $row)
@@ -23,7 +23,7 @@
                     <div class="flex items-center justify-between mb-3 gap-2">
                         <div class="font-semibold">{{ $row['name'] }} — {{ $row['code'] }}</div>
                         @if ($row['state'] === 'warn')
-                            <x-state-badge state="warn" label="صدرت له قبل كده — هنتخطّاها" />
+                            <x-state-badge state="warn" :label="setting('admin.certificates.preview.sdrt_lh_qbl_kdh_hntkhtaha', 'صدرت له قبل كده — هنتخطّاها')" />
                         @endif
                     </div>
 
@@ -46,7 +46,7 @@
             <input type="hidden" name="language" value="{{ $language }}">
             <input type="hidden" name="codes" value="{{ $raw }}">
             <button class="btn w-full rounded-xl px-4 py-3 text-sm font-semibold"
-                    style="background: var(--color-brand-500); color: #04201c">أصدِر الشهادات</button>
+                    style="background: var(--color-brand-500); color: #04201c">{{ setting('admin.certificates.preview.asdr_alshhadat', 'أصدِر الشهادات') }}</button>
         </form>
     @endif
 

@@ -1,4 +1,4 @@
-@props(['message' => 'مفيش حاجة هنا', 'action' => null, 'href' => null])
+@props(['message' => (string) setting('ux.empty_state.props_1', 'مفيش حاجة هنا'), 'action' => null, 'href' => null])
 
 {{--
   ⭐ الحالة الفارغة = **سطر واحد + زرّ واحد** (2.15-د) — تشجّع ولا تعاتب (2.17-ج).

@@ -15,7 +15,7 @@
                     <path d="M12 4v11m0 0l-4-4m4 4l4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
                     <path d="M5 19h14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
                 </svg>
-                استخرج كصورة
+                {{ setting('growth.invite_board.text_1', 'استخرج كصورة') }}
             </a>
         </x-slot:action>
     </x-page-header>
@@ -23,7 +23,7 @@
     {{-- فلتر واحد ظاهر: الشهر (2.15-أ-4) --}}
     <form method="get" class="mb-4">
         <label>
-            <span class="sr-only">الشهر</span>
+            <span class="sr-only">{{ setting('growth.invite_board.text_2', 'الشهر') }}</span>
             <select name="month" onchange="this.form.submit()" class="rounded-xl px-3 py-2 text-sm"
                     style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
                 @foreach ($months as $key => $label)
@@ -41,7 +41,7 @@
 
     @if ($rows->isEmpty())
         <x-empty :message="setting('growth.invite_board.empty', 'مافيش دعوات مكتملة الشهر ده لسّه — ابدأ إنت.')"
-                 action="ادعُ صديقك"
+                 action="{{ setting('growth.invite_board.action_1', 'ادعُ صديقك') }}"
                  :href="\Illuminate\Support\Facades\Route::has('referral.index') ? route('referral.index') : url('/referral')" />
     @else
         {{-- جدول على الشاشة الكبيرة، وكروت رأسيّة على الموبايل بلا تمرير أفقيّ (2.15-ج) --}}
@@ -50,9 +50,9 @@
                 <thead style="background: var(--surface-sunken)">
                     <tr class="text-xs" style="color: var(--text-muted)">
                         <th class="text-start p-3">#</th>
-                        <th class="text-start p-3">الداعي</th>
-                        <th class="text-start p-3">دعوات مكتملة</th>
-                        <th class="text-start p-3">إجمالي الدعوات</th>
+                        <th class="text-start p-3">{{ setting('growth.invite_board.text_3', 'الداعي') }}</th>
+                        <th class="text-start p-3">{{ setting('growth.invite_board.text_4', 'دعوات مكتملة') }}</th>
+                        <th class="text-start p-3">{{ setting('growth.invite_board.text_5', 'إجمالي الدعوات') }}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -83,7 +83,7 @@
                             <div class="min-w-0">
                                 <p class="text-sm font-semibold truncate">{{ $row['user']->shortName() }}</p>
                                 <p class="text-xs" style="color: var(--text-muted)">
-                                    {{ $row['completed'] }} مكتملة · {{ $row['total'] }} إجمالي
+                                    {{ $row['completed'] }} {{ strtr((string) setting('growth.invite_board.text_6', 'مكتملة · :a1 إجمالي'), [':a1' => (string) ($row['total'])]) }}
                                 </p>
                             </div>
                         @endif
@@ -97,5 +97,5 @@
 @section('mobile_action')
     <a href="{{ $cardUrl }}" download="invites-{{ $month }}.svg"
        class="btn w-full inline-flex items-center justify-center rounded-xl px-4 py-3 text-sm font-semibold"
-       style="background: var(--color-brand-500); color: #04201c">استخرج اللوحة كصورة</a>
+       style="background: var(--color-brand-500); color: #04201c">{{ setting('growth.invite_board.text_7', 'استخرج اللوحة كصورة') }}</a>
 @endsection

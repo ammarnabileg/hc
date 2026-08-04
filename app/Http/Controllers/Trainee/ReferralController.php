@@ -137,7 +137,7 @@ class ReferralController extends Controller
             ->get(['id', 'name_ar'])
             ->map(fn (Course $course) => [
                 'label' => (string) $course->name_ar,
-                'type' => 'تدريب',
+                'type' => (string) setting('referral.screen.content_deep_links_msg', 'تدريب'),
                 'url' => $this->referrals->deepLinkFor($user, 'course', $course->id),
             ])->all();
 
@@ -148,7 +148,7 @@ class ReferralController extends Controller
             ->get(['id', 'name_ar'])
             ->map(fn (LearningPath $path) => [
                 'label' => (string) $path->name_ar,
-                'type' => 'مسار',
+                'type' => (string) setting('referral.screen.content_deep_links_msg_2', 'مسار'),
                 'url' => $this->referrals->deepLinkFor($user, 'path', $path->id),
             ])->all();
 
@@ -176,7 +176,7 @@ class ReferralController extends Controller
 
         return $events->map(fn (Event $event) => [
             'label' => (string) $event->title_ar,
-            'type' => 'فعاليّة',
+            'type' => (string) setting('referral.screen.event_deep_links_msg', 'فعاليّة'),
             'url' => $this->referrals->deepLinkFor($user, 'event', $event->id),
         ])->all();
     }
@@ -269,10 +269,10 @@ class ReferralController extends Controller
     private function periods(): array
     {
         return [
-            (int) setting('ux.lists.default_range_days', 30) => 'آخر 30 يومًا',
-            90 => 'آخر 3 شهور',
-            365 => 'آخر سنة',
-            0 => 'من البداية',
+            (int) setting('ux.lists.default_range_days', 30) => (string) setting('referral.screen.periods_msg', 'آخر 30 يومًا'),
+            90 => (string) setting('referral.screen.periods_msg_2', 'آخر 3 شهور'),
+            365 => (string) setting('referral.screen.periods_msg_3', 'آخر سنة'),
+            0 => (string) setting('referral.screen.periods_msg_4', 'من البداية'),
         ];
     }
 }

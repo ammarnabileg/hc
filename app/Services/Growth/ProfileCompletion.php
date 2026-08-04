@@ -38,12 +38,12 @@ class ProfileCompletion
         }
 
         return [
-            'avatar_path' => 'صورة الملفّ',
-            'phone' => 'رقم الموبايل',
-            'country_id' => 'الدولة',
-            'governorate_id' => 'المحافظة',
-            'birthdate' => 'تاريخ الميلاد',
-            'gender' => 'النوع',
+            'avatar_path' => setting('growth.profile_completion.fields_1', 'صورة الملفّ'),
+            'phone' => setting('growth.profile_completion.fields_2', 'رقم الموبايل'),
+            'country_id' => setting('growth.profile_completion.fields_3', 'الدولة'),
+            'governorate_id' => setting('growth.profile_completion.fields_4', 'المحافظة'),
+            'birthdate' => setting('growth.profile_completion.fields_5', 'تاريخ الميلاد'),
+            'gender' => setting('growth.profile_completion.fields_6', 'النوع'),
         ];
     }
 

@@ -33,8 +33,12 @@ class XlsxWriter
      * @param  array<int,array<string,mixed>>  $rows  الصفوف — ومفاتيح أوّل صفّ هي العناوين
      * @param  string  $sheetName  اسم الورقة كما يظهر في تبويب إكسل
      */
-    public function build(array $rows, string $sheetName = 'التقرير', string $title = ''): string
+    public function build(array $rows, string $sheetName = '', string $title = ''): string
     {
+        // الافتراضيّ كان محروقًا في التوقيع، والتوقيع تعبيرٌ ثابت لا يقبل قراءة
+        // إعداد — فنُقِل إلى أوّل الجسم بنفس النصّ حرفًا بحرف (2.13-ب).
+        $sheetName = $sheetName !== '' ? $sheetName : (string) setting('stats.xlsx_writer.sheet_name_1', 'التقرير');
+
         $this->shared = [];
         $this->sharedCount = 0;
 
@@ -121,7 +125,7 @@ class XlsxWriter
         }
 
         if (is_bool($value)) {
-            $value = $value ? 'نعم' : 'لا';
+            $value = $value ? setting('stats.xlsx_writer.cell_1', 'نعم') : setting('stats.xlsx_writer.cell_2', 'لا');
         }
 
         if (is_int($value) || is_float($value) || (is_string($value) && $this->isPlainNumber($value))) {
@@ -230,7 +234,7 @@ class XlsxWriter
     {
         $clean = trim(str_replace(['\\', '/', '?', '*', '[', ']', ':'], ' ', $name));
 
-        return mb_substr($clean === '' ? 'التقرير' : $clean, 0, 31);
+        return mb_substr($clean === '' ? setting('stats.xlsx_writer.sheet_name_1', 'التقرير') : $clean, 0, 31);
     }
 
     /** خطّان: عاديّ للجسم، وعريض بخلفيّة خفيفة لصفّ العناوين */

@@ -314,7 +314,7 @@ class WarMatchService
                 $loser = $sides[$loserId]->user;
 
                 $amount = $this->rules->winAmount($fresh->challenge);
-                $reason = 'مواجهة حرب #'.$fresh->id;
+                $reason = strtr(setting('gamification_wars.war_match_service.settle_1', 'مواجهة حرب #:p1'), [':p1' => (string) ($fresh->id)]);
 
                 // التحويل بعينه — لا سكّ ولا حرق في الحالة العاديّة
                 $settlement['moved'] = $this->transfer($loser, $winner, $amount, $reason, $fresh);
@@ -324,7 +324,7 @@ class WarMatchService
                     $settlement['penalty'] = $this->burn(
                         $loser,
                         $this->rules->withdrawPenalty($fresh->challenge),
-                        'عقوبة انسحاب من مواجهة #'.$fresh->id,
+                        strtr(setting('gamification_wars.war_match_service.settle_2', 'عقوبة انسحاب من مواجهة #:p1'), [':p1' => (string) ($fresh->id)]),
                         $fresh,
                     );
                 }
@@ -483,8 +483,8 @@ class WarMatchService
             currencyCode: 'tickets',
             amount: $amount,
             source: self::LEDGER_SOURCE,
-            debitReason: $reason.' — خسارة',
-            creditReason: $reason.' — فوز',
+            debitReason: strtr(setting('gamification_wars.war_match_service.transfer_1', ':p1 — خسارة'), [':p1' => (string) ($reason)]),
+            creditReason: strtr(setting('gamification_wars.war_match_service.transfer_2', ':p1 — فوز'), [':p1' => (string) ($reason)]),
             reference: $ref,
         );
     }

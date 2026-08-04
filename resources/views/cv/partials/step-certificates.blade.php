@@ -1,4 +1,11 @@
 @php
+    /** نصوص السكربت — من الإعدادات لا محروقةً في الجافاسكربت (2.13-أ) */
+    $hcWords = array_merge($hcWords ?? [], [
+        'cv.autosave.error_label' => (string) setting('cv.autosave.error_label', 'ما اتحفظش — راجع النت وجرّب تاني.'),
+    ]);
+@endphp
+
+@php
     $hidden = array_map('intval', (array) ($data['hidden_certificates'] ?? []));
     $pull = (array) ($data['pull'] ?? []);
 @endphp
@@ -64,7 +71,7 @@ document.querySelectorAll('[data-pull]').forEach((box) => box.addEventListener('
         note.style.color = 'var(--color-state-ok)';
         document.querySelector('[data-preview]')?.setAttribute('src', document.querySelector('[data-cv]').dataset.previewUrl + '?t=' + Date.now());
     } catch {
-        note.textContent = @json(setting('cv.autosave.error_label', 'ما اتحفظش — راجع النت وجرّب تاني.'));
+        note.textContent = @json($hcWords['cv.autosave.error_label']);
         note.style.color = 'var(--color-state-warn)';
     }
 }));

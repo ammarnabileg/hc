@@ -82,7 +82,7 @@ class ArticleAdminController extends Controller
             'status' => ArticleWorkflow::DRAFT,
         ]);
 
-        return redirect()->route('admin.articles.edit', $article)->with('status', 'المسودّة اتحفظت ✓');
+        return redirect()->route('admin.articles.edit', $article)->with('status', (string) setting('articles.admin.store_ok', 'المسودّة اتحفظت ✓'));
     }
 
     public function update(Request $request, Article $article): RedirectResponse
@@ -92,12 +92,12 @@ class ArticleAdminController extends Controller
 
         $article->update($this->validated($request));
 
-        return back()->with('status', 'التعديل اتحفظ ✓');
+        return back()->with('status', (string) setting('articles.admin.update_ok', 'التعديل اتحفظ ✓'));
     }
 
     public function submit(Request $request, Article $article): RedirectResponse
     {
-        return $this->run(fn () => $this->workflow->submitForReview($article, $request->user()), 'المقال راح للمراجعة ✓');
+        return $this->run(fn () => $this->workflow->submitForReview($article, $request->user()), (string) setting('articles.admin.submit_ok', 'المقال راح للمراجعة ✓'));
     }
 
     /** ملاحظات مراجعة مكتوبة — والمقال يرجع مسودّة فيعدّل الكاتب ويعيد الإرسال */
@@ -109,19 +109,19 @@ class ArticleAdminController extends Controller
 
         return $this->run(
             fn () => $this->workflow->requestChanges($article, $request->user(), $data['notes']),
-            'الملاحظات اتبعتت للكاتب ✓',
+            (string) setting('articles.admin.review_ok', 'الملاحظات اتبعتت للكاتب ✓'),
         );
     }
 
     public function publish(Request $request, Article $article): RedirectResponse
     {
-        return $this->run(fn () => $this->workflow->publish($article, $request->user()), 'المقال اتنشر ✓');
+        return $this->run(fn () => $this->workflow->publish($article, $request->user()), (string) setting('articles.admin.publish_ok', 'المقال اتنشر ✓'));
     }
 
     /** ⭐ أرشفة لا حذف — والرابط المنشور لا يتحوّل إلى 404 فجأةً */
     public function archive(Request $request, Article $article): RedirectResponse
     {
-        return $this->run(fn () => $this->workflow->archive($article, $request->user()), 'المقال اتأرشف ✓');
+        return $this->run(fn () => $this->workflow->archive($article, $request->user()), (string) setting('articles.admin.archive_ok', 'المقال اتأرشف ✓'));
     }
 
     public function storeCategory(Request $request): RedirectResponse
@@ -139,7 +139,7 @@ class ArticleAdminController extends Controller
             'slug' => Str::slug($data['name_ar']).'-'.Str::lower(Str::random(4)),
         ]);
 
-        return back()->with('status', 'التصنيف اتضاف ✓');
+        return back()->with('status', (string) setting('articles.admin.store_category_ok', 'التصنيف اتضاف ✓'));
     }
 
     /**

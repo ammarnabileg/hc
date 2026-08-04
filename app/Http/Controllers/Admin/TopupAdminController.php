@@ -99,7 +99,7 @@ class TopupAdminController extends Controller
     {
         $this->review->markReceiptReviewed($topupRequest, $request->user());
 
-        return back()->with('status', 'اتسجّلت مراجعة الإيصال — تقدر تكمّل الاعتماد دلوقتي.');
+        return back()->with('status', (string) setting('topup.admin.mark_reviewed_msg', 'اتسجّلت مراجعة الإيصال — تقدر تكمّل الاعتماد دلوقتي.'));
     }
 
     /** ⭐ معاينة الرصيد قبل/بعد قبل التأكيد — والقيمة تُحسَب في الخادم دائمًا */
@@ -145,7 +145,7 @@ class TopupAdminController extends Controller
             return back()->withErrors(['reason' => $e->getMessage()])->withInput();
         }
 
-        return redirect()->route('admin.topups.index')->with('status', 'الطلب اتعتمد والرصيد اتضاف ✓');
+        return redirect()->route('admin.topups.index')->with('status', (string) setting('topup.admin.approve_ok', 'الطلب اتعتمد والرصيد اتضاف ✓'));
     }
 
     /** ⭐ سبب الإلغاء إلزاميّ ويصل للمستخدم بنصٍّ واضح */
@@ -161,7 +161,7 @@ class TopupAdminController extends Controller
             return back()->withErrors(['reason' => $e->getMessage()])->withInput();
         }
 
-        return redirect()->route('admin.topups.index')->with('status', 'الطلب اتلغى والسبب وصل صاحبه ✓');
+        return redirect()->route('admin.topups.index')->with('status', (string) setting('topup.admin.cancel_ok', 'الطلب اتلغى والسبب وصل صاحبه ✓'));
     }
 
     // ---------------------------------------------------------------- طرق التحويل والعروض
@@ -198,14 +198,14 @@ class TopupAdminController extends Controller
             ? TransferMethod::query()->findOrFail($data['id'])->update($payload)
             : TransferMethod::create($payload);
 
-        return back()->with('status', 'طريقة التحويل اتحفظت ✓');
+        return back()->with('status', (string) setting('topup.admin.save_method_ok', 'طريقة التحويل اتحفظت ✓'));
     }
 
     public function deleteMethod(TransferMethod $transferMethod): RedirectResponse
     {
         $transferMethod->delete();
 
-        return back()->with('status', 'الطريقة اتشالت ✓');
+        return back()->with('status', (string) setting('topup.admin.delete_method_ok', 'الطريقة اتشالت ✓'));
     }
 
     public function saveOffer(Request $request): RedirectResponse
@@ -232,14 +232,14 @@ class TopupAdminController extends Controller
             ? TopupOffer::query()->findOrFail($data['id'])->update($payload)
             : TopupOffer::create($payload);
 
-        return back()->with('status', 'العرض اتحفظ ✓');
+        return back()->with('status', (string) setting('topup.admin.save_offer_ok', 'العرض اتحفظ ✓'));
     }
 
     public function deleteOffer(TopupOffer $topupOffer): RedirectResponse
     {
         $topupOffer->delete();
 
-        return back()->with('status', 'العرض اتشال ✓');
+        return back()->with('status', (string) setting('topup.admin.delete_offer_ok', 'العرض اتشال ✓'));
     }
 
     // ---------------------------------------------------------------- بوّابة الدفع
@@ -270,7 +270,7 @@ class TopupAdminController extends Controller
         }
 
         if (! in_array($data['key'], $allowed, true)) {
-            return response()->json(['saved' => false, 'message' => 'المفتاح ده مش من إعدادات البوّابة المسموحة ليك.'], 403);
+            return response()->json(['saved' => false, 'message' => (string) setting('topup.admin.save_gateway_denied', 'المفتاح ده مش من إعدادات البوّابة المسموحة ليك.')], 403);
         }
 
         $setting = Setting::query()->where('key', $data['key'])->firstOrFail();
@@ -302,10 +302,10 @@ class TopupAdminController extends Controller
     private function statuses(): array
     {
         return [
-            TopupService::PENDING => '🟡 قيد التحقّق',
-            TopupService::COMPLETED => '🟢 مكتملة',
-            TopupService::CANCELLED => '🔴 ملغاة',
-            TopupService::DUPLICATE => '⚪ مكرَّرة',
+            TopupService::PENDING => (string) setting('topup.admin.statuses_msg', '🟡 قيد التحقّق'),
+            TopupService::COMPLETED => (string) setting('topup.admin.statuses_msg_2', '🟢 مكتملة'),
+            TopupService::CANCELLED => (string) setting('topup.admin.statuses_msg_3', '🔴 ملغاة'),
+            TopupService::DUPLICATE => (string) setting('topup.admin.statuses_msg_4', '⚪ مكرَّرة'),
         ];
     }
 }

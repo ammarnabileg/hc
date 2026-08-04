@@ -163,30 +163,30 @@ class ProjectController extends Controller
     private function recurrenceLabels(): array
     {
         return [
-            'daily' => 'يوميّ',
-            'weekly' => 'أسبوعيّ',
-            'biweekly' => 'كلّ أسبوعين',
-            'monthly' => 'شهريّ',
+            'daily' => (string) setting('workflow.projects.recurrence_labels_msg', 'يوميّ'),
+            'weekly' => (string) setting('workflow.projects.recurrence_labels_msg_2', 'أسبوعيّ'),
+            'biweekly' => (string) setting('workflow.projects.recurrence_labels_msg_3', 'كلّ أسبوعين'),
+            'monthly' => (string) setting('workflow.projects.recurrence_labels_msg_4', 'شهريّ'),
         ];
     }
 
     private function audienceLabels(): array
     {
         return [
-            'individual' => 'فرد بعينه',
-            'rotation' => 'تناوب موزون بالموازن',
-            'public_board' => 'مرشَّح ليكون عامًّا',
+            'individual' => (string) setting('workflow.projects.audience_labels_msg', 'فرد بعينه'),
+            'rotation' => (string) setting('workflow.projects.audience_labels_msg_2', 'تناوب موزون بالموازن'),
+            'public_board' => (string) setting('workflow.projects.audience_labels_msg_3', 'مرشَّح ليكون عامًّا'),
         ];
     }
 
     private function statusLabels(): array
     {
         return [
-            'in_progress' => 'قيد التنفيذ',
-            'in_review' => 'قيد المراجعة',
-            'approved' => 'معتمدة',
-            'no_delivery' => 'فائتة',
-            'closed' => 'مُغلَقة',
+            'in_progress' => (string) setting('workflow.projects.status_labels_msg', 'قيد التنفيذ'),
+            'in_review' => (string) setting('workflow.projects.status_labels_msg_2', 'قيد المراجعة'),
+            'approved' => (string) setting('workflow.projects.status_labels_msg_3', 'معتمدة'),
+            'no_delivery' => (string) setting('workflow.projects.status_labels_msg_4', 'فائتة'),
+            'closed' => (string) setting('workflow.projects.status_labels_msg_5', 'مُغلَقة'),
         ];
     }
 }

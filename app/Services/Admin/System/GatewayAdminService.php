@@ -66,13 +66,13 @@ class GatewayAdminService
     public function testConnection(User $user): array
     {
         if (! $this->maySeeSecrets($user)) {
-            return ['ok' => false, 'message' => 'اختبار الاتّصال لمالك المنصّة وحده.'];
+            return ['ok' => false, 'message' => setting('store.gateway_admin_service.test_connection_1', 'اختبار الاتّصال لمالك المنصّة وحده.')];
         }
 
         $key = (string) setting('topup.gateway.api_key', '');
 
         if ($key === '') {
-            return ['ok' => false, 'message' => 'مفتاح API فاضي — ضيفه الأوّل ثمّ جرّب.'];
+            return ['ok' => false, 'message' => setting('store.gateway_admin_service.test_connection_2', 'مفتاح API فاضي — ضيفه الأوّل ثمّ جرّب.')];
         }
 
         $base = setting('topup.gateway.sandbox', true)
@@ -86,10 +86,10 @@ class GatewayAdminService
                 ->get($base.'getPaymentmethods');
 
             return $response->successful()
-                ? ['ok' => true, 'message' => 'الاتّصال تمام ✓ — البوّابة ردّت بنجاح.']
-                : ['ok' => false, 'message' => 'البوّابة ردّت بكود '.$response->status().' — راجع المفتاح والبيئة.'];
+                ? ['ok' => true, 'message' => setting('store.gateway_admin_service.test_connection_3', 'الاتّصال تمام ✓ — البوّابة ردّت بنجاح.')]
+                : ['ok' => false, 'message' => strtr(setting('store.gateway_admin_service.test_connection_4', 'البوّابة ردّت بكود :p1 — راجع المفتاح والبيئة.'), [':p1' => (string) ($response->status())])];
         } catch (Throwable $e) {
-            return ['ok' => false, 'message' => 'تعذّر الوصول للبوّابة: '.$e->getMessage()];
+            return ['ok' => false, 'message' => strtr(setting('store.gateway_admin_service.test_connection_5', 'تعذّر الوصول للبوّابة: :p1'), [':p1' => (string) ($e->getMessage())])];
         }
     }
 
@@ -115,10 +115,10 @@ class GatewayAdminService
     public function transferTypes(): array
     {
         return [
-            'bank' => 'حساب بنكيّ',
-            'wallet' => 'محفظة موبايل',
-            'instapay' => 'إنستا باي',
-            'other' => 'أخرى',
+            'bank' => setting('store.gateway_admin_service.transfer_types_1', 'حساب بنكيّ'),
+            'wallet' => setting('store.gateway_admin_service.transfer_types_2', 'محفظة موبايل'),
+            'instapay' => setting('store.gateway_admin_service.transfer_types_3', 'إنستا باي'),
+            'other' => setting('store.gateway_admin_service.transfer_types_4', 'أخرى'),
         ];
     }
 

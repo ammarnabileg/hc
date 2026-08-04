@@ -45,12 +45,12 @@
     <table class="hidden md:table w-full text-sm">
         <thead style="background: var(--surface-sunken)">
             <tr class="text-xs" style="color: var(--text-muted)">
-                <th class="text-start p-3">الملفّ</th>
-                <th class="text-start p-3">وضع الحماية</th>
-                <th class="text-start p-3">العلامة المائيّة</th>
-                <th class="text-start p-3">الصلاحيّة</th>
-                <th class="text-start p-3">صفحات العيّنة</th>
-                <th class="text-start p-3">تعديل الحماية</th>
+                <th class="text-start p-3">{{ setting('admin.store.partials.table_library.almlf', 'الملفّ') }}</th>
+                <th class="text-start p-3">{{ setting('admin.store.partials.table_library.wda_alhmaya', 'وضع الحماية') }}</th>
+                <th class="text-start p-3">{{ setting('admin.store.partials.table_library.alalama_almayya', 'العلامة المائيّة') }}</th>
+                <th class="text-start p-3">{{ setting('admin.store.partials.table_library.alslahya', 'الصلاحيّة') }}</th>
+                <th class="text-start p-3">{{ setting('admin.store.partials.table_library.sfhat_alayna', 'صفحات العيّنة') }}</th>
+                <th class="text-start p-3">{{ setting('admin.store.partials.table_library.tadyl_alhmaya', 'تعديل الحماية') }}</th>
             </tr>
         </thead>
         <tbody>
@@ -62,21 +62,21 @@
                     </td>
                     <td class="p-3">
                         <x-state-badge :state="$item->is_downloadable ? 'idle' : 'ok'"
-                                       :label="$item->is_downloadable ? 'قابل للتحميل' : 'Flip-only محميّ'" />
+                                       :label="$item->is_downloadable ? setting('admin.store.partials.table_library.qabl_llthmyl', 'قابل للتحميل') : setting('admin.store.partials.table_library.flip_only_mhmy', 'Flip-only محميّ')" />
                     </td>
                     <td class="p-3">
                         <x-state-badge :state="$item->watermark_enabled ? 'ok' : 'idle'"
-                                       :label="$item->watermark_enabled ? 'مفعَّلة' : 'متوقّفة'" />
+                                       :label="$item->watermark_enabled ? setting('admin.store.partials.table_library.mfala', 'مفعَّلة') : setting('admin.store.partials.table_library.mtwqfa', 'متوقّفة')" />
                     </td>
                     <td class="p-3">
-                        {{ $item->access_days ? $item->access_days.' يوم' : 'وصول دائم' }}
+                        {{ $item->access_days ? $item->access_days.setting('admin.store.partials.table_library.ywm', ' يوم') : setting('admin.store.partials.table_library.wswl_daym', 'وصول دائم') }}
                     </td>
                     <td class="p-3 tabular-nums">{{ $item->teaser_pages }}</td>
                     <td class="p-3">
                         @can('product_protection.manage')
                             {{-- التفاصيل في بانل مطويّ لا صفحة جديدة (2.15-أ-6) --}}
                             <details>
-                                <summary class="cursor-pointer text-xs underline list-none">تعديل</summary>
+                                <summary class="cursor-pointer text-xs underline list-none">{{ setting('admin.store.partials.table_library.tadyl', 'تعديل') }}</summary>
 
                                 <form method="post" action="{{ route('admin.store.protection.update', $item) }}"
                                       class="mt-2 space-y-2 w-72">
@@ -92,31 +92,31 @@
                                     <label class="flex items-center gap-2 text-xs">
                                         <input type="hidden" name="watermark_enabled" value="0">
                                         <input type="checkbox" name="watermark_enabled" value="1" @checked($item->watermark_enabled)>
-                                        <span>تشغيل العلامة المائيّة</span>
+                                        <span>{{ setting('admin.store.partials.table_library.tshghyl_alalama_almayya', 'تشغيل العلامة المائيّة') }}</span>
                                     </label>
 
                                     <label class="block text-xs">
-                                        <span class="block mb-1">صلاحيّة زمنيّة بالأيّام <span style="color: var(--text-muted)">(فارغ = دائم)</span></span>
+                                        <span class="block mb-1">{{ setting('admin.store.partials.table_library.slahya_zmnya_balayam', 'صلاحيّة زمنيّة بالأيّام') }} <span style="color: var(--text-muted)">{{ setting('admin.store.partials.table_library.fargh_daym', '(فارغ = دائم)') }}</span></span>
                                         <input type="number" name="access_days" value="{{ $item->access_days }}" min="1" max="36500"
                                                class="w-full rounded-lg px-2 py-1"
                                                style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
                                     </label>
 
                                     <label class="block text-xs">
-                                        <span class="block mb-1">صفحات العيّنة</span>
+                                        <span class="block mb-1">{{ setting('admin.store.partials.table_library.sfhat_alayna', 'صفحات العيّنة') }}</span>
                                         <input type="number" name="teaser_pages" value="{{ $item->teaser_pages }}" min="0" max="200"
                                                class="w-full rounded-lg px-2 py-1"
                                                style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
                                     </label>
 
                                     <label class="block text-xs">
-                                        <span class="block mb-1">فهرس القارئ — سطر لكلّ فصل: <code>رقم الصفحة | العنوان</code></span>
+                                        <span class="block mb-1">{{ setting('admin.store.partials.table_library.fhrs_alqary_str_lkl_fsl', 'فهرس القارئ — سطر لكلّ فصل:') }} <code>{{ setting('admin.store.partials.table_library.rqm_alsfha_alanwan', 'رقم الصفحة | العنوان') }}</code></span>
                                         <textarea name="toc" rows="4" class="w-full rounded-lg px-2 py-1 font-mono"
                                                   style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">{{ $toc->toText($item) }}</textarea>
                                     </label>
 
                                     <button class="btn w-full rounded-lg px-3 py-1.5 text-xs font-semibold"
-                                            style="background: var(--color-brand-500); color: #04201c">حفظ</button>
+                                            style="background: var(--color-brand-500); color: #04201c">{{ setting('admin.store.partials.table_library.hfz', 'حفظ') }}</button>
                                 </form>
                             </details>
                         @endcan
@@ -132,10 +132,10 @@
             <div class="p-3 text-sm" style="border-top: 1px solid var(--border)">
                 <div class="font-semibold">{{ $item->name_ar }}</div>
                 <div class="text-xs mt-1" style="color: var(--text-muted)">
-                    {{ $item->is_downloadable ? 'قابل للتحميل' : 'Flip-only محميّ' }}
-                    · علامة مائيّة {{ $item->watermark_enabled ? 'مفعَّلة' : 'متوقّفة' }}
-                    · {{ $item->access_days ? $item->access_days.' يوم' : 'وصول دائم' }}
-                    · عيّنة {{ $item->teaser_pages }} صفحة
+                    {{ $item->is_downloadable ? setting('admin.store.partials.table_library.qabl_llthmyl', 'قابل للتحميل') : setting('admin.store.partials.table_library.flip_only_mhmy', 'Flip-only محميّ') }}
+                    {{ setting('admin.store.partials.table_library.alama_mayya', '· علامة مائيّة') }} {{ $item->watermark_enabled ? setting('admin.store.partials.table_library.mfala', 'مفعَّلة') : setting('admin.store.partials.table_library.mtwqfa', 'متوقّفة') }}
+                    · {{ $item->access_days ? $item->access_days.setting('admin.store.partials.table_library.ywm', ' يوم') : setting('admin.store.partials.table_library.wswl_daym', 'وصول دائم') }}
+                    {!! strtr(setting('admin.store.partials.table_library.ayna_v1_sfha', '· عيّنة :v1 صفحة'), [':v1' => e($item->teaser_pages)]) !!}
                 </div>
             </div>
         @endforeach

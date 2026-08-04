@@ -38,7 +38,7 @@ class TimezoneController extends Controller
     {
         $data = $request->validate([
             'timezone' => ['nullable', 'string', 'timezone'],
-        ], [], ['timezone' => 'المنطقة الزمنيّة']);
+        ], [], ['timezone' => (string) setting('availability.timezone.update_msg', 'المنطقة الزمنيّة')]);
 
         $this->detector->setManual($request->user(), $data['timezone'] ?: null);
 

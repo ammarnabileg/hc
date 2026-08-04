@@ -64,8 +64,8 @@ class SystemHealthController extends Controller
         $result = $this->health->runCheck($request->user());
 
         return back()->with('status', $result['alerts'] === []
-            ? 'الفحص خلص — كلّ حاجة تمام ✓'
-            : 'الفحص خلص — في '.count($result['alerts']).' تنبيه محتاج نظرة، و'.$result['notified'].' إشعار اتبعت.');
+            ? (string) setting('system.health.run_check_ok', 'الفحص خلص — كلّ حاجة تمام ✓')
+            : strtr((string) setting('system.health.run_check_msg', 'الفحص خلص — في :a1 تنبيه محتاج نظرة، و:a2 إشعار اتبعت.'), [':a1' => (string) (count($result['alerts'])), ':a2' => (string) ($result['notified'])]));
     }
 
     /** تصدير تقرير الصحّة وتنبيهاته (صلاحيّة `system_health.export`) */
@@ -76,7 +76,7 @@ class SystemHealthController extends Controller
         return response()->streamDownload(function () use ($report) {
             $handle = fopen('php://output', 'w');
             fwrite($handle, "\xEF\xBB\xBF");
-            fputcsv($handle, ['المؤشّر', 'القيمة', 'الحالة', 'الشرح']);
+            fputcsv($handle, [(string) setting('system.health.export_health_msg', 'المؤشّر'), (string) setting('system.health.export_health_msg_2', 'القيمة'), (string) setting('system.health.export_health_msg_3', 'الحالة'), (string) setting('system.health.export_health_msg_4', 'الشرح')]);
 
             foreach ($report as $row) {
                 fputcsv($handle, [
@@ -108,7 +108,7 @@ class SystemHealthController extends Controller
         $row = $this->backups->find($backup);
 
         if (! $row || ! is_file($this->backups->pathOf($row))) {
-            return back()->withErrors(['backup' => 'الملفّ ده مش موجود على القرص — يمكن اتمسح من الخادم.']);
+            return back()->withErrors(['backup' => (string) setting('system.health.download_denied', 'الملفّ ده مش موجود على القرص — يمكن اتمسح من الخادم.')]);
         }
 
         $this->backups->markDownloaded($row, $request->user());
@@ -119,8 +119,8 @@ class SystemHealthController extends Controller
     public function destroy(Request $request, int $backup): RedirectResponse
     {
         return $this->backups->delete($backup, $request->user())
-            ? back()->with('status', 'النسخة اتمسحت.')
-            : back()->withErrors(['backup' => 'النسخة دي مش موجودة أصلًا.']);
+            ? back()->with('status', (string) setting('system.health.destroy_msg', 'النسخة اتمسحت.'))
+            : back()->withErrors(['backup' => (string) setting('system.health.destroy_denied', 'النسخة دي مش موجودة أصلًا.')]);
     }
 
     /** جدولة النسخ الدوريّة: الدوريّة · الساعة · النوع · عدد النسخ المحفوظة */
@@ -152,6 +152,6 @@ class SystemHealthController extends Controller
         // الحذف الفوريّ للزائد عن العدد الجديد — فالإعداد يسري لحظيًّا لا في الدورة القادمة
         $this->backups->prune();
 
-        return back()->with('status', 'الجدولة اتحفظت ✓');
+        return back()->with('status', (string) setting('system.health.save_schedule_ok', 'الجدولة اتحفظت ✓'));
     }
 }

@@ -15,10 +15,10 @@
 @section('content')
     <x-page-header
         :title="$path->name_ar"
-        :subtitle="$progress['percent'].'% من المسار'"
+        :subtitle="$progress['percent'].setting('volunteer.academy_path.subtitle', '% من المسار')"
         :breadcrumbs="[
-            ['label' => 'لوحة التطوّع', 'url' => url('/volunteer')],
-            ['label' => 'الأكاديمية', 'url' => route('volunteer.academy')],
+            ['label' => setting('volunteer.common.breadcrumb_root', 'لوحة التطوّع'), 'url' => url('/volunteer')],
+            ['label' => setting('volunteer.academy_path.label', 'الأكاديمية'), 'url' => route('volunteer.academy')],
             ['label' => $path->name_ar],
         ]" />
 
@@ -28,9 +28,9 @@
                  style="width: {{ $progress['percent'] }}%; background: var(--color-brand-500)"></div>
         </div>
         <p class="mt-2 text-xs" style="color: var(--text-muted)">
-            {{ count($done) }} من {{ $progress['courses']->count() }} تدريبات
+            {{ count($done) }} {{ setting('volunteer.common.from', 'من') }} {{ $progress['courses']->count() }} {{ setting('volunteer.academy_path.text', 'تدريبات') }}
             @if ($progress['coverage'])
-                · يغطّي {{ $progress['coverage']['covered'] }} من {{ $progress['coverage']['total'] }} تدريبات مسار الشهادة
+                · {{ setting('volunteer.academy_path.text_2', 'يغطّي') }} {{ $progress['coverage']['covered'] }} {{ setting('volunteer.common.from', 'من') }} {{ $progress['coverage']['total'] }} {{ setting('volunteer.academy_path.text_3', 'تدريبات مسار الشهادة') }}
             @endif
         </p>
 
@@ -41,7 +41,7 @@
                 {{-- الزرّ لا يظهر إلّا هنا: 100% + مسار مربوط (13.4-ل) --}}
                 <a href="{{ url('/paths/'.$progress['target']->slug) }}"
                    class="btn inline-flex mt-3 rounded-xl px-4 py-2 text-sm font-semibold"
-                   style="background: var(--color-brand-500); color: #04201c">احصل على الشهادة</a>
+                   style="background: var(--color-brand-500); color: #04201c">{{ setting('volunteer.academy_path.link', 'احصل على الشهادة') }}</a>
             @endif
         @endif
     </div>
@@ -64,21 +64,21 @@
 
                 {{-- ⭐ نفس علامة الإكمال بالظبط في المسار الطبيعيّ — بلا أيّ تمييز --}}
                 @if ($isDone)
-                    <x-state-badge state="ok" label="مكتمل" />
+                    <x-state-badge state="ok" :label="setting('volunteer.academy_path.label_2', 'مكتمل')" />
                 @else
-                    <x-state-badge state="idle" label="لم يبدأ" />
+                    <x-state-badge state="idle" :label="setting('volunteer.academy_path.label_3', 'لم يبدأ')" />
                 @endif
             </li>
         @endforeach
     </ol>
 
     @if ($progress['courses']->isEmpty())
-        <x-empty message="المسار ده لسّه بيتجهّز — أوّل تدريب هيظهر هنا" />
+        <x-empty :message="setting('volunteer.academy_path.empty', 'المسار ده لسّه بيتجهّز — أوّل تدريب هيظهر هنا')" />
     @endif
 @endsection
 
 @section('mobile_action')
     <a href="{{ route('volunteer.academy') }}"
        class="btn flex items-center justify-center rounded-xl px-4 py-3 text-sm font-semibold"
-       style="background: var(--color-brand-500); color: #04201c">كلّ التدريبات</a>
+       style="background: var(--color-brand-500); color: #04201c">{{ setting('volunteer.academy_path.link_2', 'كلّ التدريبات') }}</a>
 @endsection

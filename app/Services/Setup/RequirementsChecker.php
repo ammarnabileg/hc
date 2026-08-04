@@ -55,11 +55,11 @@ class RequirementsChecker
         $minimum = SetupSettings::text('setup.requirements.php_version', '8.3');
 
         return [[
-            'label' => 'إصدار PHP '.$minimum.' فأعلى',
+            'label' => strtr(setting('setup.requirements_checker.php_1', 'إصدار PHP :p1 فأعلى'), [':p1' => (string) ($minimum)]),
             'value' => PHP_VERSION,
             'ok' => version_compare(PHP_VERSION, $minimum, '>='),
             'required' => true,
-            'fix' => 'غيّر إصدار PHP من لوحة الاستضافة إلى '.$minimum.' أو أحدث، وارجع حدّث الصفحة.',
+            'fix' => strtr(setting('setup.requirements_checker.php_2', 'غيّر إصدار PHP من لوحة الاستضافة إلى :p1 أو أحدث، وارجع حدّث الصفحة.'), [':p1' => (string) ($minimum)]),
         ]];
     }
 
@@ -91,13 +91,13 @@ class RequirementsChecker
         $loaded = extension_loaded($extension);
 
         return [
-            'label' => 'امتداد '.$extension,
-            'value' => $loaded ? 'مثبَّت' : 'مش موجود',
+            'label' => strtr(setting('setup.requirements_checker.extension_1', 'امتداد :p1'), [':p1' => (string) ($extension)]),
+            'value' => $loaded ? setting('setup.requirements_checker.extension_2', 'مثبَّت') : setting('setup.requirements_checker.extension_3', 'مش موجود'),
             'ok' => $loaded,
             'required' => $required,
             'fix' => $required
-                ? 'فعّل الامتداد '.$extension.' من إعدادات PHP في الاستضافة، أو اطلبه من الدعم الفنّيّ.'
-                : 'اختياريّ — المنصّة تشتغل بدونه، لكن تفعيله يحسّن أداء بعض الميزات.',
+                ? strtr(setting('setup.requirements_checker.extension_4', 'فعّل الامتداد :p1 من إعدادات PHP في الاستضافة، أو اطلبه من الدعم الفنّيّ.'), [':p1' => (string) ($extension)])
+                : setting('setup.requirements_checker.extension_5', 'اختياريّ — المنصّة تشتغل بدونه، لكن تفعيله يحسّن أداء بعض الميزات.'),
         ];
     }
 
@@ -115,17 +115,17 @@ class RequirementsChecker
             $writable = $exists && is_writable($absolute);
 
             $checks[] = [
-                'label' => 'الكتابة على '.$path,
+                'label' => strtr(setting('setup.requirements_checker.permissions_1', 'الكتابة على :p1'), [':p1' => (string) ($path)]),
                 'value' => match (true) {
-                    ! $exists => 'المجلّد مش موجود',
-                    $writable => 'مسموحة',
-                    default => 'ممنوعة',
+                    ! $exists => setting('setup.requirements_checker.permissions_2', 'المجلّد مش موجود'),
+                    $writable => setting('setup.requirements_checker.permissions_3', 'مسموحة'),
+                    default => setting('setup.requirements_checker.permissions_4', 'ممنوعة'),
                 },
                 'ok' => $writable,
                 'required' => true,
                 'fix' => $exists
-                    ? 'من مدير الملفّات في الاستضافة، اضبط صلاحيّة المجلّد '.$path.' على 775 (أو 755 لو الخادم بنفس المستخدم).'
-                    : 'أنشئ المجلّد '.$path.' داخل مجلّد المشروع، واضبط صلاحيّته على 775.',
+                    ? strtr(setting('setup.requirements_checker.permissions_5', 'من مدير الملفّات في الاستضافة، اضبط صلاحيّة المجلّد :p1 على 775 (أو 755 لو الخادم بنفس المستخدم).'), [':p1' => (string) ($path)])
+                    : strtr(setting('setup.requirements_checker.permissions_6', 'أنشئ المجلّد :p1 داخل مجلّد المشروع، واضبط صلاحيّته على 775.'), [':p1' => (string) ($path)]),
             ];
         }
 

@@ -32,11 +32,11 @@ class ProfileExtrasController extends Controller
         $data = $request->validate([
             'bio' => ['nullable', 'string', 'max:'.$max],
         ], [
-            'bio.max' => 'النبذة أطول من '.$max.' حرف — اختصرها شويّة وجرّب تاني.',
-        ], ['bio' => 'النبذة']);
+            'bio.max' => strtr((string) setting('profile.extras.update_bio_msg', 'النبذة أطول من :a1 حرف — اختصرها شويّة وجرّب تاني.'), [':a1' => (string) ($max)]),
+        ], ['bio' => (string) setting('profile.extras.update_bio_msg_2', 'النبذة')]);
 
         $user = $request->user();
-        $token = $this->undo->capture($user, $user, ['bio'], 'تعديل النبذة');
+        $token = $this->undo->capture($user, $user, ['bio'], (string) setting('profile.extras.update_bio_msg_3', 'تعديل النبذة'));
 
         $user->forceFill(['bio' => trim((string) ($data['bio'] ?? '')) ?: null])->save();
 
@@ -88,10 +88,10 @@ class ProfileExtrasController extends Controller
         $encodedText = rawurlencode($text);
 
         return [
-            ['key' => 'telegram', 'label' => 'تيليجرام', 'url' => "https://t.me/share/url?url={$encodedUrl}&text={$encodedText}"],
+            ['key' => 'telegram', 'label' => (string) setting('profile.extras.share_links_msg', 'تيليجرام'), 'url' => "https://t.me/share/url?url={$encodedUrl}&text={$encodedText}"],
             ['key' => 'x', 'label' => 'X', 'url' => "https://twitter.com/intent/tweet?url={$encodedUrl}&text={$encodedText}"],
-            ['key' => 'facebook', 'label' => 'فيسبوك', 'url' => "https://www.facebook.com/sharer/sharer.php?u={$encodedUrl}"],
-            ['key' => 'whatsapp', 'label' => 'واتساب', 'url' => "https://wa.me/?text={$encodedText}%20{$encodedUrl}"],
+            ['key' => 'facebook', 'label' => (string) setting('profile.extras.share_links_msg_2', 'فيسبوك'), 'url' => "https://www.facebook.com/sharer/sharer.php?u={$encodedUrl}"],
+            ['key' => 'whatsapp', 'label' => (string) setting('profile.extras.share_links_msg_3', 'واتساب'), 'url' => "https://wa.me/?text={$encodedText}%20{$encodedUrl}"],
         ];
     }
 }

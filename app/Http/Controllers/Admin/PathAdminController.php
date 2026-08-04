@@ -45,14 +45,14 @@ class PathAdminController extends Controller
 
         return redirect()
             ->route('admin.paths.index')
-            ->with('status', 'اتحفظ المسار «'.$path->name_ar.'» ✓');
+            ->with('status', strtr((string) setting('paths.admin.store_ok', 'اتحفظ المسار «:a1» ✓'), [':a1' => (string) ($path->name_ar)]));
     }
 
     public function update(Request $request, LearningPath $path): RedirectResponse
     {
         $this->paths->save($path, $this->validated($request));
 
-        return back()->with('status', 'اتحفظ ✓');
+        return back()->with('status', (string) setting('paths.admin.update_ok', 'اتحفظ ✓'));
     }
 
     /** الحذف بتأكيد — ولا يمسّ التدريبات (12.4-أ). */
@@ -72,7 +72,7 @@ class PathAdminController extends Controller
 
         $this->paths->reorder($data['ids']);
 
-        return $this->respond($request, 'اتظبط الترتيب ✓');
+        return $this->respond($request, (string) setting('paths.admin.reorder_ok', 'اتظبط الترتيب ✓'));
     }
 
     /** شاشة «إدارة تدريبات المسار»: بحث/سحب-ترتيب/إضافة/حذف (12.4-أ). */
@@ -97,7 +97,7 @@ class PathAdminController extends Controller
 
         $added = $this->paths->attach($path, $data['course_ids']);
 
-        return back()->with('status', $added > 0 ? 'اتضاف '.$added.' تدريب للمسار ✓' : 'التدريبات دي موجودة في المسار خلاص.');
+        return back()->with('status', $added > 0 ? strtr((string) setting('paths.admin.attach_ok', 'اتضاف :a1 تدريب للمسار ✓'), [':a1' => (string) ($added)]) : (string) setting('paths.admin.attach_msg', 'التدريبات دي موجودة في المسار خلاص.'));
     }
 
     /** ⭐ الإزالة من المسار فكّ ارتباط لا حذف — التدريب يبقى قائمًا. */
@@ -114,7 +114,7 @@ class PathAdminController extends Controller
 
         $this->paths->reorderCourses($path, $data['ids']);
 
-        return $this->respond($request, 'اتظبط الترتيب ✓');
+        return $this->respond($request, (string) setting('paths.admin.reorder_courses_ok', 'اتظبط الترتيب ✓'));
     }
 
     // ------------------------------------------------------------------ داخليّ

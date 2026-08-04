@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'معاينة الامتحان النهائيّ')
+@section('title', setting('admin.question_bank.preview.maayna_alamthan_alnhayy', 'معاينة الامتحان النهائيّ'))
 
 @php
     /**
@@ -10,31 +10,31 @@
 @endphp
 
 @section('content')
-    <x-page-header title="معاينة الامتحان النهائيّ"
-                   subtitle="ده الامتحان كما هيتبنى دلوقتي من الأسئلة العامّة النشطة."
+    <x-page-header :title="setting('admin.question_bank.preview.maayna_alamthan_alnhayy', 'معاينة الامتحان النهائيّ')"
+                   :subtitle="setting('admin.question_bank.preview.dh_alamthan_kma_hytbna_dlwqty_mn_alasyla', 'ده الامتحان كما هيتبنى دلوقتي من الأسئلة العامّة النشطة.')"
                    :breadcrumbs="[
-                       ['label' => 'لوحة الإدارة', 'url' => route('admin.dashboard')],
-                       ['label' => 'بنك الأسئلة', 'url' => route('admin.question-bank.index')],
-                       ['label' => 'معاينة الامتحان'],
+                       ['label' => setting('admin.question_bank.preview.lwha_alidara', 'لوحة الإدارة'), 'url' => route('admin.dashboard')],
+                       ['label' => setting('admin.question_bank.preview.bnk_alasyla', 'بنك الأسئلة'), 'url' => route('admin.question-bank.index')],
+                       ['label' => setting('admin.question_bank.preview.maayna_alamthan', 'معاينة الامتحان')],
                    ]">
         <x-slot:action>
             <a href="{{ route('admin.question-bank.index') }}"
                class="btn rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
-               style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">رجوع للبنك</a>
+               style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">{{ setting('admin.question_bank.preview.rjwa_llbnk', 'رجوع للبنك') }}</a>
         </x-slot:action>
     </x-page-header>
 
     <div class="card p-4 mb-4">
         <div class="flex flex-wrap items-center gap-2 text-sm">
             <x-state-badge :state="$questions->count() >= $cap ? 'ok' : 'warn'"
-                           :label="$questions->count().' سؤال من سقف '.$cap" />
-            <span style="color: var(--text-muted)">الترتيب العشوائيّ والتصحيح على الخادم بيتظبطوا من إعدادات البنك.</span>
+                           :label="$questions->count().setting('admin.question_bank.preview.swal_mn_sqf', ' سؤال من سقف ').$cap" />
+            <span style="color: var(--text-muted)">{{ setting('admin.question_bank.preview.altrtyb_alashwayy_waltshyh_ala_alkhadm', 'الترتيب العشوائيّ والتصحيح على الخادم بيتظبطوا من إعدادات البنك.') }}</span>
         </div>
     </div>
 
     @if ($questions->isEmpty())
-        <x-empty message="مافيش أسئلة عامّة نشطة — الامتحان النهائيّ مش هيتبنى دلوقتي."
-                 action="روح للبنك" :href="route('admin.question-bank.index')" />
+        <x-empty :message="setting('admin.question_bank.preview.mafysh_asyla_aama_nshta_alamthan_alnhayy_msh', 'مافيش أسئلة عامّة نشطة — الامتحان النهائيّ مش هيتبنى دلوقتي.')"
+                 :action="setting('admin.question_bank.preview.rwh_llbnk', 'روح للبنك')" :href="route('admin.question-bank.index')" />
     @else
         <ol class="space-y-3">
             @foreach ($questions as $index => $question)

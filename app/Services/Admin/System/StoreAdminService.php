@@ -30,11 +30,11 @@ class StoreAdminService
     public function tabs(): array
     {
         return [
-            'products' => ['label' => 'المنتجات والتصنيفات', 'permission' => 'store_products.list'],
-            'bundles' => ['label' => 'البندلز', 'permission' => 'bundles.list'],
-            'coupons' => ['label' => 'الكوبونات وOrder-bump', 'permission' => 'coupons.list'],
-            'orders' => ['label' => 'الطلبات والفواتير', 'permission' => 'orders.list'],
-            'library' => ['label' => 'المكتبة الرقميّة والحماية', 'permission' => 'product_protection.view'],
+            'products' => ['label' => setting('store.store_admin_service.tabs_1', 'المنتجات والتصنيفات'), 'permission' => 'store_products.list'],
+            'bundles' => ['label' => setting('store.store_admin_service.tabs_2', 'البندلز'), 'permission' => 'bundles.list'],
+            'coupons' => ['label' => setting('store.store_admin_service.tabs_3', 'الكوبونات وOrder-bump'), 'permission' => 'coupons.list'],
+            'orders' => ['label' => setting('store.store_admin_service.tabs_4', 'الطلبات والفواتير'), 'permission' => 'orders.list'],
+            'library' => ['label' => setting('store.store_admin_service.tabs_5', 'المكتبة الرقميّة والحماية'), 'permission' => 'product_protection.view'],
         ];
     }
 
@@ -226,10 +226,10 @@ class StoreAdminService
     public function kpis(): array
     {
         return [
-            ['label' => 'منتجات منشورة', 'value' => Product::query()->where('status', 'published')->count(), 'icon' => '📦'],
-            ['label' => 'بندلز نشطة', 'value' => Bundle::query()->where('status', 'published')->count(), 'icon' => '🎁'],
-            ['label' => 'كوبونات مفعَّلة', 'value' => Coupon::query()->where('is_active', true)->count(), 'icon' => '🏷️'],
-            ['label' => 'طلبات مكتملة', 'value' => Order::query()->where('status', 'paid')->count(), 'icon' => '🧾'],
+            ['label' => setting('store.store_admin_service.kpis_1', 'منتجات منشورة'), 'value' => Product::query()->where('status', 'published')->count(), 'icon' => '📦'],
+            ['label' => setting('store.store_admin_service.kpis_2', 'بندلز نشطة'), 'value' => Bundle::query()->where('status', 'published')->count(), 'icon' => '🎁'],
+            ['label' => setting('store.store_admin_service.kpis_3', 'كوبونات مفعَّلة'), 'value' => Coupon::query()->where('is_active', true)->count(), 'icon' => '🏷️'],
+            ['label' => setting('store.store_admin_service.kpis_4', 'طلبات مكتملة'), 'value' => Order::query()->where('status', 'paid')->count(), 'icon' => '🧾'],
         ];
     }
 
@@ -237,8 +237,8 @@ class StoreAdminService
     public function protectionModes(): array
     {
         return [
-            'download' => 'قابل للتحميل',
-            'flip' => 'Flip-only محميّ (بلا تحميل)',
+            'download' => setting('store.store_admin_service.protection_modes_1', 'قابل للتحميل'),
+            'flip' => setting('store.store_admin_service.protection_modes_2', 'Flip-only محميّ (بلا تحميل)'),
         ];
     }
 

@@ -40,7 +40,7 @@ class TrueTypeFont
         $data = @file_get_contents($path);
 
         if ($data === false || strlen($data) < 12) {
-            throw new RuntimeException('ملفّ الخطّ مش سليم — ارفع نسخة TTF صحيحة من الإعدادات.');
+            throw new RuntimeException(setting('library.true_type_font.construct_1', 'ملفّ الخطّ مش سليم — ارفع نسخة TTF صحيحة من الإعدادات.'));
         }
 
         $this->data = $data;
@@ -102,7 +102,7 @@ class TrueTypeFont
 
         foreach (['head', 'hhea', 'hmtx', 'cmap'] as $required) {
             if (! isset($this->tables[$required])) {
-                throw new RuntimeException('الخطّ ناقص جدول «'.$required.'» — ارفع نسخة TTF كاملة.');
+                throw new RuntimeException(strtr(setting('library.true_type_font.read_tables_1', 'الخطّ ناقص جدول «:p1» — ارفع نسخة TTF كاملة.'), [':p1' => (string) ($required)]));
             }
         }
     }
@@ -174,13 +174,13 @@ class TrueTypeFont
         }
 
         if ($best === null) {
-            throw new RuntimeException('الخطّ مفيهوش جدول ربط يونيكود — ارفع نسخة TTF أحدث.');
+            throw new RuntimeException(setting('library.true_type_font.read_cmap_1', 'الخطّ مفيهوش جدول ربط يونيكود — ارفع نسخة TTF أحدث.'));
         }
 
         match ($this->uint16($best)) {
             4 => $this->readCmap4($best),
             12 => $this->readCmap12($best),
-            default => throw new RuntimeException('صيغة ربط الحروف في الخطّ مش مدعومة — ارفع نسخة TTF قياسيّة.'),
+            default => throw new RuntimeException(setting('library.true_type_font.read_cmap_2', 'صيغة ربط الحروف في الخطّ مش مدعومة — ارفع نسخة TTF قياسيّة.')),
         };
     }
 

@@ -25,7 +25,7 @@ class OpsSettings
         $setting = Setting::query()->where('key', $key)->first();
 
         if (! $setting) {
-            return ['saved' => false, 'message' => 'الإعداد ده مش موجود.'];
+            return ['saved' => false, 'message' => setting('updates.ops_settings.save_1', 'الإعداد ده مش موجود.')];
         }
 
         return $this->registry->save($setting, $value, $actor);

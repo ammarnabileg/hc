@@ -87,13 +87,13 @@ class LeadershipService
     public function submit(User $evaluator, User $evaluatee, array $scores, ?string $note = null, ?int $entityId = null): LeadershipEvaluation
     {
         if ($evaluator->id === $evaluatee->id) {
-            throw ValidationException::withMessages(['scores' => 'التقييم يكون لأبلاينك المباشر — لا لنفسك.']);
+            throw ValidationException::withMessages(['scores' => setting('goals.leadership_service.submit_1', 'التقييم يكون لأبلاينك المباشر — لا لنفسك.')]);
         }
 
         $criteria = $this->criteria();
 
         if ($criteria->isEmpty()) {
-            throw ValidationException::withMessages(['scores' => 'مفيش معايير مفعَّلة حاليًّا — كلّم مشرفك.']);
+            throw ValidationException::withMessages(['scores' => setting('goals.leadership_service.submit_2', 'مفيش معايير مفعَّلة حاليًّا — كلّم مشرفك.')]);
         }
 
         $max = $this->maxScore();
@@ -103,7 +103,7 @@ class LeadershipService
             $value = (float) ($scores[$criterion->key] ?? 0);
 
             if ($value < 0 || $value > $max) {
-                throw ValidationException::withMessages(['scores' => 'الدرجة لازم تكون بين 0 و'.$max.'.']);
+                throw ValidationException::withMessages(['scores' => strtr(setting('goals.leadership_service.submit_3', 'الدرجة لازم تكون بين 0 و:p1.'), [':p1' => (string) ($max)])]);
             }
 
             $clean[$criterion->key] = round($value, 2);
@@ -112,7 +112,7 @@ class LeadershipService
         $week = $this->weekStart();
 
         if ($this->alreadyEvaluated($evaluator, $evaluatee, $week)) {
-            throw ValidationException::withMessages(['scores' => 'قيّمت هذا الأسبوع بالفعل — التقييم مرّة واحدة أسبوعيًّا.']);
+            throw ValidationException::withMessages(['scores' => setting('goals.leadership_service.submit_4', 'قيّمت هذا الأسبوع بالفعل — التقييم مرّة واحدة أسبوعيًّا.')]);
         }
 
         $average = $this->weightedAverage($clean, $criteria);

@@ -1,6 +1,6 @@
 @extends('layouts.volunteer')
 
-@section('title', 'رحلة بناء الهدف')
+@section('title', setting('volunteer.goals_build.title', 'رحلة بناء الهدف'))
 
 @php
     /**
@@ -16,22 +16,22 @@
 
 @section('content')
     <x-page-header
-        title="رحلة بناء الهدف"
-        subtitle="من الإنشاء للتفكيك للملء للتسعير — ومحدّش من المنفّذين شايف حاجة قبل «إرسال للتنفيذ»."
-        :breadcrumbs="[['label' => 'الأهداف والمَعالِم', 'url' => route('volunteer.goals')], ['label' => 'رحلة بناء الهدف']]">
+        :title="setting('volunteer.goals_build.title', 'رحلة بناء الهدف')"
+        :subtitle="setting('volunteer.goals_build.subtitle', 'من الإنشاء للتفكيك للملء للتسعير — ومحدّش من المنفّذين شايف حاجة قبل «إرسال للتنفيذ».')"
+        :breadcrumbs="[['label' => setting('volunteer.goals_build.label', 'الأهداف والمَعالِم'), 'url' => route('volunteer.goals')], ['label' => setting('volunteer.goals_build.title', 'رحلة بناء الهدف')]]">
         @if ($canCreate)
             <x-slot:action>
                 <a href="{{ route('volunteer.goals.build.create') }}"
                    class="btn inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
                    style="background: var(--color-brand-500); color: #04201c">
-                    <x-icon name="plus" size="16" /> هدف جديد
+                    <x-icon name="plus" size="16" /> {{ setting('volunteer.goals_build.link', 'هدف جديد') }}
                 </a>
             </x-slot:action>
         @endif
     </x-page-header>
 
     @if (session('status'))
-        <div class="card p-3 mb-4 text-sm"><x-state-badge state="ok" label="تمام" /> {{ session('status') }}</div>
+        <div class="card p-3 mb-4 text-sm"><x-state-badge state="ok" :label="setting('volunteer.goals_build.label_2', 'تمام')" /> {{ session('status') }}</div>
     @endif
 
     @forelse ($goals as $goal)
@@ -45,11 +45,11 @@
                 <div class="min-w-0">
                     <h2 class="font-bold">{{ $goal->name }}</h2>
                     <div class="text-xs mt-1" style="color: var(--text-muted)">
-                        ينتهي {{ $goal->end_date?->format('Y/m/d') ?? '—' }}
+                        {{ setting('volunteer.goals_build.text', 'ينتهي') }} {{ $goal->end_date?->format('Y/m/d') ?? '—' }}
                         @if ($tracks)
-                            · مسارات: {{ implode(' · ', $tracks) }}
+                            · {{ setting('volunteer.goals_build.text_2', 'مسارات:') }} {{ implode(' · ', $tracks) }}
                         @else
-                            · <span style="color: var(--color-state-warn)">لسّه مش مربوط بمسار — محدّش شايفه</span>
+                            · <span style="color: var(--color-state-warn)">{{ setting('volunteer.goals_build.text_3', 'لسّه مش مربوط بمسار — محدّش شايفه') }}</span>
                         @endif
                     </div>
                 </div>
@@ -59,7 +59,7 @@
             </div>
 
             @if ($goal->reason)
-                <p class="text-sm mt-2"><span style="color: var(--text-muted)">سبب الهدف:</span> {{ $goal->reason }}</p>
+                <p class="text-sm mt-2"><span style="color: var(--text-muted)">{{ setting('volunteer.goals_build.text_4', 'سبب الهدف:') }}</span> {{ $goal->reason }}</p>
             @endif
 
             {{-- فعل رئيسيّ واحد ظاهر، والباقي في «⋯» (2.15-أ-2) --}}
@@ -67,11 +67,11 @@
                 @if ($canBreakdown)
                     <a href="{{ route('volunteer.goals.build.breakdown', $goal) }}"
                        class="btn rounded-xl px-3 py-2 text-xs font-semibold motion-standard"
-                       style="background: var(--color-brand-500); color: #04201c">تفكيك الهدف</a>
+                       style="background: var(--color-brand-500); color: #04201c">{{ setting('volunteer.goals_build.link_2', 'تفكيك الهدف') }}</a>
                 @elseif ($canFill)
                     <a href="{{ route('volunteer.goals.build.fill', $goal) }}"
                        class="btn rounded-xl px-3 py-2 text-xs font-semibold motion-standard"
-                       style="background: var(--color-brand-500); color: #04201c">املا حزم كيانك</a>
+                       style="background: var(--color-brand-500); color: #04201c">{{ setting('volunteer.goals_build.link_3', 'املا حزم كيانك') }}</a>
                 @endif
 
                 <details class="relative">
@@ -80,33 +80,33 @@
                     <div class="card p-2 mt-1 text-xs space-y-1" style="min-width: 12rem">
                         @if ($canAggregate)
                             <a class="block px-2 py-1 rounded hover:opacity-80"
-                               href="{{ route('volunteer.goals.build.aggregate', $goal) }}">التجميع والتسعير</a>
+                               href="{{ route('volunteer.goals.build.aggregate', $goal) }}">{{ setting('volunteer.goals_build.link_4', 'التجميع والتسعير') }}</a>
                         @endif
                         @if ($canFill)
                             <a class="block px-2 py-1 rounded hover:opacity-80"
-                               href="{{ route('volunteer.goals.build.fill', $goal) }}">حزم كياني</a>
+                               href="{{ route('volunteer.goals.build.fill', $goal) }}">{{ setting('volunteer.goals_build.link_5', 'حزم كياني') }}</a>
                         @endif
                         @if ($canCreate && ! $tracks)
                             <button type="button" data-modal-open="link-{{ $goal->id }}"
-                                    class="block w-full text-right px-2 py-1 rounded hover:opacity-80">اربطه بمسار</button>
+                                    class="block w-full text-right px-2 py-1 rounded hover:opacity-80">{{ setting('volunteer.goals_build.action', 'اربطه بمسار') }}</button>
                         @endif
                     </div>
                 </details>
             </div>
         </article>
     @empty
-        <x-empty message="مافيش أهداف تحت البناء دلوقتي." />
+        <x-empty :message="setting('volunteer.goals_build.empty', 'مافيش أهداف تحت البناء دلوقتي.')" />
     @endforelse
 
     @push('modals')
         @if ($canCreate)
             @foreach ($goals as $goal)
                 @continue(($tracksOf[$goal->id] ?? []) !== [])
-                <x-modal :id="'link-'.$goal->id" title="اربط الهدف بمسار أو أكثر">
+                <x-modal :id="'link-'.$goal->id" :title="setting('volunteer.goals_build.tooltip', 'اربط الهدف بمسار أو أكثر')">
                     <form method="post" action="{{ route('volunteer.goals.build.tracks', $goal) }}" class="space-y-3 text-sm">
                         @csrf
                         <p style="color: var(--text-muted)">
-                            الهدف مايظهرش لحدّ قبل الربط — وبالربط بيوصل الإشعار لمشرفي المسارات دي وحدهم.
+                            {{ setting('volunteer.goals_build.text_5', 'الهدف مايظهرش لحدّ قبل الربط — وبالربط بيوصل الإشعار لمشرفي المسارات دي وحدهم.') }}
                         </p>
                         @foreach ($tracks as $track)
                             <label class="flex items-center gap-2">
@@ -115,7 +115,7 @@
                             </label>
                         @endforeach
                         <button type="submit" class="btn w-full rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
-                                style="background: var(--color-brand-500); color: #04201c">اربط ووصّل الإشعار</button>
+                                style="background: var(--color-brand-500); color: #04201c">{{ setting('volunteer.goals_build.action_2', 'اربط ووصّل الإشعار') }}</button>
                     </form>
                 </x-modal>
             @endforeach

@@ -1,28 +1,28 @@
 @extends('layouts.admin')
 
-@section('title', 'المتجر والماليّات')
+@section('title', setting('admin.store.index.almtjr_walmalyat', 'المتجر والماليّات'))
 
 @section('content')
-    <x-page-header title="المتجر والماليّات"
-                   subtitle="كلّ ما يُباع وكلّ ما يُحصَّل — في مكان واحد."
+    <x-page-header :title="setting('admin.store.index.almtjr_walmalyat', 'المتجر والماليّات')"
+                   :subtitle="setting('admin.store.index.kl_ma_ybaa_wkl_ma_yhsl_fy_mkan_wahd', 'كلّ ما يُباع وكلّ ما يُحصَّل — في مكان واحد.')"
                    :breadcrumbs="[
-                       ['label' => 'لوحة الإدارة', 'url' => url('/admin')],
-                       ['label' => 'المتجر والماليّات'],
+                       ['label' => setting('admin.store.index.lwha_alidara', 'لوحة الإدارة'), 'url' => url('/admin')],
+                       ['label' => setting('admin.store.index.almtjr_walmalyat', 'المتجر والماليّات')],
                    ]">
         <x-slot:action>
             {{-- فعل رئيسيّ واحد بارز، والباقي في «⋯» (2.15-أ-2) --}}
             <button type="button" data-modal-open="new-item"
                     class="btn rounded-xl px-4 py-2 text-sm font-semibold"
-                    style="background: var(--color-brand-500); color: #04201c">+ عنصر جديد</button>
+                    style="background: var(--color-brand-500); color: #04201c">{{ setting('admin.store.index.ansr_jdyd', '+ عنصر جديد') }}</button>
 
             <details class="relative">
                 <summary class="cursor-pointer rounded-xl px-3 py-2 text-sm" style="background: var(--surface-raised)">⋯</summary>
                 <div class="absolute end-0 mt-2 w-56 card p-2 z-20 text-sm space-y-1">
-                    <a class="block px-2 py-1 rounded hover:opacity-80" href="{{ route('admin.topups.index') }}">طلبات الشحن</a>
-                    <a class="block px-2 py-1 rounded hover:opacity-80" href="{{ route('admin.topups.methods') }}">طرق التحويل والعروض</a>
+                    <a class="block px-2 py-1 rounded hover:opacity-80" href="{{ route('admin.topups.index') }}">{{ setting('admin.store.index.tlbat_alshhn', 'طلبات الشحن') }}</a>
+                    <a class="block px-2 py-1 rounded hover:opacity-80" href="{{ route('admin.topups.methods') }}">{{ setting('admin.store.index.trq_althwyl_walarwd', 'طرق التحويل والعروض') }}</a>
                     @if ($financeVisible)
                         {{-- 🔒 مجموعة معزولة: لا تظهر أصلًا لغير مالك المنصّة (12.2.1) --}}
-                        <a class="block px-2 py-1 rounded hover:opacity-80" href="{{ route('admin.finance.index') }}"><x-icon name="lock" size="16" /> الماليّات</a>
+                        <a class="block px-2 py-1 rounded hover:opacity-80" href="{{ route('admin.finance.index') }}"><x-icon name="lock" size="16" /> {{ setting('admin.store.index.almalyat', 'الماليّات') }}</a>
                     @endif
                 </div>
             </details>
@@ -47,12 +47,12 @@
     @if ($tab === 'orders')
         {{-- ⛔ قاعدة ثابتة تُعرَض دائمًا: لا استرجاع نقديّ (19.4) — والتصحيح التقنيّ وحده البديل --}}
         <p class="text-xs mb-3" style="color: var(--text-muted)">
-            مافيش استرجاع نقديّ — الرصيد يفضل في محفظة صاحبه، والخطأ التقنيّ يتصحَّح بمعاملة موثّقة بمرجعها.
+            {{ setting('admin.store.index.mafysh_astrjaa_nqdy_alrsyd_yfdl_fy_mhfza', 'مافيش استرجاع نقديّ — الرصيد يفضل في محفظة صاحبه، والخطأ التقنيّ يتصحَّح بمعاملة موثّقة بمرجعها.') }}
         </p>
     @elseif ($tab === 'library')
         {{-- التحليلات مجمّعة فقط — ولا سجلّ فتح فرديّ لأيّ ملفّ (مرفوض صراحةً في 20.5) --}}
         <p class="text-xs mb-3" style="color: var(--text-muted)">
-            التحليلات مجمّعة فقط (الأكثر قراءةً · متوسّط الإكمال) — مافيش سجلّ فتح فرديّ لأيّ مستخدم.
+            {{ setting('admin.store.index.althlylat_mjmaa_fqt_alakthr_qraa_mtwst', 'التحليلات مجمّعة فقط (الأكثر قراءةً · متوسّط الإكمال) — مافيش سجلّ فتح فرديّ لأيّ مستخدم.') }}
         </p>
     @endif
 
@@ -100,5 +100,5 @@
 @section('mobile_action')
     <button type="button" data-modal-open="new-item"
             class="btn w-full rounded-xl px-4 py-3 text-sm font-semibold"
-            style="background: var(--color-brand-500); color: #04201c">+ عنصر جديد</button>
+            style="background: var(--color-brand-500); color: #04201c">{{ setting('admin.store.index.ansr_jdyd', '+ عنصر جديد') }}</button>
 @endsection

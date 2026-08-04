@@ -32,7 +32,7 @@ class EnsureAdminPanel
         }
 
         if (! $this->access->opensAdminPanel($user)) {
-            abort(403, 'لوحة الإدارة بتفتح لمن معاه صلاحيّة إداريّة — لو محتاج وصولًا كلّم مالك المنصّة.');
+            abort(403, (string) setting('admin_users.panel_guard.handle_msg', 'لوحة الإدارة بتفتح لمن معاه صلاحيّة إداريّة — لو محتاج وصولًا كلّم مالك المنصّة.'));
         }
 
         return $next($request);

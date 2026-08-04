@@ -6,12 +6,12 @@
     <table class="hidden md:table w-full text-sm">
         <thead style="background: var(--surface-sunken)">
             <tr class="text-xs" style="color: var(--text-muted)">
-                <th class="text-start p-3">المصدر (utm_source)</th>
-                <th class="text-start p-3">زيارات</th>
-                <th class="text-start p-3">تسجيل</th>
-                <th class="text-start p-3">تفعيل</th>
-                <th class="text-start p-3">شراء</th>
-                <th class="text-start p-3">التحويل</th>
+                <th class="text-start p-3">{{ setting('admin.stats.tabs.acquisition.almsdr_utm_source', 'المصدر (utm_source)') }}</th>
+                <th class="text-start p-3">{{ setting('admin.stats.tabs.acquisition.zyarat', 'زيارات') }}</th>
+                <th class="text-start p-3">{{ setting('admin.stats.tabs.acquisition.tsjyl', 'تسجيل') }}</th>
+                <th class="text-start p-3">{{ setting('admin.stats.tabs.acquisition.tfayl', 'تفعيل') }}</th>
+                <th class="text-start p-3">{{ setting('admin.stats.tabs.acquisition.shra', 'شراء') }}</th>
+                <th class="text-start p-3">{{ setting('admin.stats.tabs.acquisition.althwyl', 'التحويل') }}</th>
             </tr>
         </thead>
         <tbody>
@@ -33,7 +33,7 @@
             <div class="p-3 text-sm" style="border-top: 1px solid var(--border)">
                 <div class="font-semibold">{{ $row['source'] }}</div>
                 <div class="text-xs mt-1" style="color: var(--text-muted)">
-                    {{ $row['registered'] }} تسجيل · {{ $row['activated'] }} تفعيل · {{ $row['purchased'] }} شراء
+                    {{ $row['registered'] }} {!! strtr(setting('admin.stats.tabs.acquisition.tsjyl_v1_tfayl_v2_shra', 'تسجيل · :v1 تفعيل · :v2 شراء'), [':v1' => e($row['activated']), ':v2' => e($row['purchased'])]) !!}
                 </div>
             </div>
         @endforeach
@@ -41,5 +41,5 @@
 </div>
 
 @if (empty($data['rows']))
-    <x-empty message="مافيش روابط موسومة بـUTM في الفترة دي." />
+    <x-empty :message="setting('admin.stats.tabs.acquisition.mafysh_rwabt_mwswma_butm_fy_alftra_dy', 'مافيش روابط موسومة بـUTM في الفترة دي.')" />
 @endif

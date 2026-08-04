@@ -131,14 +131,14 @@ class EventController extends Controller
 
         $data = $request->validate([
             'code' => ['required', 'string', 'max:32'],
-        ], [], ['code' => 'كود الحضور']);
+        ], [], ['code' => (string) setting('events.screen.checkin_msg', 'كود الحضور')]);
 
         $result = $this->attendance->checkIn($event, $request->user(), $data['code']);
 
         $message = $result['message'];
 
         if ($result['ok'] && ($result['reward']['xp'] > 0 || $result['reward']['tickets'] > 0)) {
-            $message .= ' (+'.$result['reward']['xp'].' XP · +'.$result['reward']['tickets'].' تذكرة)';
+            $message .= strtr((string) setting('events.screen.checkin_msg_2', ' (+:a1 XP · +:a2 تذكرة)'), [':a1' => (string) ($result['reward']['xp']), ':a2' => (string) ($result['reward']['tickets'])]);
         }
 
         return redirect()

@@ -154,14 +154,14 @@ class WarBankAdminTest extends ChallengeTestCase
     public function test_the_cancelled_games_section_left_no_door_behind(): void
     {
         // (١) لا تابّ — لا في القائمة ولا بالمحاولة المباشرة
-        $this->assertArrayNotHasKey('games', GamificationController::TABS);
+        $this->assertNotContains('games', GamificationController::TAB_KEYS);
 
         $this->actingAs($this->warAdmin())
             ->get(route('admin.gamification.index', ['tab' => 'games']))
             ->assertNotFound();
 
         // والحروب باقيةٌ — الملغى قسم الألعاب وحده لا التلعيب كلّه
-        $this->assertArrayHasKey('wars', GamificationController::TABS);
+        $this->assertContains('wars', GamificationController::TAB_KEYS);
 
         // (٢) لا مسار يحمل الاسم — لا للمتدرّب ولا للأدمن
         $routes = collect(app('router')->getRoutes())

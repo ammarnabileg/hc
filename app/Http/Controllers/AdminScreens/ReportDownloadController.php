@@ -32,12 +32,12 @@ class ReportDownloadController extends Controller
             ->first();
 
         // الرابط الملغى أو المنظَّف يُعامَل كغير موجود — لا نلمّح لما كان هنا
-        abort_if($run === null || $run->download_path === null, 404, 'الرابط ده مابقاش شغّالًا.');
+        abort_if($run === null || $run->download_path === null, 404, (string) setting('report_schedules.download.show_msg', 'الرابط ده مابقاش شغّالًا.'));
 
         abort_if(
             $run->download_expires_at === null || $run->download_expires_at->isPast(),
             410,
-            'مدّة الرابط خلصت. افتح شاشة التقارير المجدولة واضغط «شغّل الآن» عشان يوصلك من جديد.',
+            (string) setting('report_schedules.download.show_msg_2', 'مدّة الرابط خلصت. افتح شاشة التقارير المجدولة واضغط «شغّل الآن» عشان يوصلك من جديد.'),
         );
 
         // 🔒 الماليّ لمالك المنصّة وحده — وبحسابه لا بالرابط
@@ -45,13 +45,13 @@ class ReportDownloadController extends Controller
             abort_unless(
                 (bool) $request->user()?->isPlatformOwner(),
                 403,
-                'التقرير ده ماليّ — لمالك المنصّة وحده.',
+                (string) setting('report_schedules.download.show_msg_3', 'التقرير ده ماليّ — لمالك المنصّة وحده.'),
             );
         }
 
         $disk = Storage::disk(ReportScheduler::DISK);
 
-        abort_unless($disk->exists($run->download_path), 404, 'الملفّ اتشال من الخادم. شغّل التقرير من جديد.');
+        abort_unless($disk->exists($run->download_path), 404, (string) setting('report_schedules.download.show_msg_4', 'الملفّ اتشال من الخادم. شغّل التقرير من جديد.'));
 
         return response((string) $disk->get($run->download_path), 200, [
             'Content-Type' => $run->downloadMime(),

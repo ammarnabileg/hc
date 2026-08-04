@@ -18,26 +18,32 @@ use RuntimeException;
 class ImageTemplateFields
 {
     /** حقول متاحة لأيّ مستخدم */
-    public const PUBLIC_FIELDS = [
-        'name' => 'الاسم',
-        'short_name' => 'الاسم المختصر',
-        'code' => '#الكود',
-        'country' => 'الدولة',
-        'governorate' => 'المحافظة',
-        'level' => 'مستوى الحساب',
-        'xp' => 'XP',
-        'rank' => 'الترتيب',
-        'certificates_count' => 'عدد الشهادات',
-        'joined_at' => 'تاريخ الانضمام',
-    ];
+    public static function publicFields(): array
+    {
+        return [
+            'name' => setting('images.image_template_fields.public_fields_1', 'الاسم'),
+            'short_name' => setting('images.image_template_fields.public_fields_2', 'الاسم المختصر'),
+            'code' => setting('images.image_template_fields.public_fields_3', '#الكود'),
+            'country' => setting('images.image_template_fields.public_fields_4', 'الدولة'),
+            'governorate' => setting('images.image_template_fields.public_fields_5', 'المحافظة'),
+            'level' => setting('images.image_template_fields.public_fields_6', 'مستوى الحساب'),
+            'xp' => 'XP',
+            'rank' => setting('images.image_template_fields.public_fields_7', 'الترتيب'),
+            'certificates_count' => setting('images.image_template_fields.public_fields_8', 'عدد الشهادات'),
+            'joined_at' => setting('images.image_template_fields.public_fields_9', 'تاريخ الانضمام'),
+        ];
+    }
 
     /** حقول المتطوّع — وRep مسموحة صراحةً (12.14-د) */
-    public const VOLUNTEER_FIELDS = [
-        'position' => 'البوزشن',
-        'department' => 'القسم',
-        'service_duration' => 'مدّة الخدمة',
-        'rep' => 'درجة الالتزام (Rep)',
-    ];
+    public static function volunteerFields(): array
+    {
+        return [
+            'position' => setting('images.image_template_fields.volunteer_fields_1', 'البوزشن'),
+            'department' => setting('images.image_template_fields.volunteer_fields_2', 'القسم'),
+            'service_duration' => setting('images.image_template_fields.volunteer_fields_3', 'مدّة الخدمة'),
+            'rep' => setting('images.image_template_fields.volunteer_fields_4', 'درجة الالتزام (Rep)'),
+        ];
+    }
 
     /**
      * ⛔ تُذكَر هنا **لترفَض بوضوح** لو حاول أحدٌ حقنها عبر الـAPI أو الاستيراد —
@@ -57,7 +63,7 @@ class ImageTemplateFields
     /** @return array<string,string> */
     public function all(): array
     {
-        return self::PUBLIC_FIELDS + self::VOLUNTEER_FIELDS;
+        return self::publicFields() + self::volunteerFields();
     }
 
     public function allows(string $field): bool
@@ -86,11 +92,11 @@ class ImageTemplateFields
             }
 
             if (in_array($field, self::FORBIDDEN, true)) {
-                throw new RuntimeException("الحقل «{$field}» ممنوع نهائيًّا في قوالب الصور — بيانات حسّاسة لا تُنشَر.");
+                throw new RuntimeException(strtr(setting('images.image_template_fields.validate_layers_1', 'الحقل «:p1» ممنوع نهائيًّا في قوالب الصور — بيانات حسّاسة لا تُنشَر.'), [':p1' => (string) ($field)]));
             }
 
             if (! $this->allows($field)) {
-                throw new RuntimeException("الحقل «{$field}» مش من القائمة المسموحة.");
+                throw new RuntimeException(strtr(setting('images.image_template_fields.validate_layers_2', 'الحقل «:p1» مش من القائمة المسموحة.'), [':p1' => (string) ($field)]));
             }
         }
     }
@@ -127,9 +133,9 @@ class ImageTemplateFields
     public function audiences(): array
     {
         return [
-            'admin' => 'خاصّ بالإدارة',
-            'volunteers' => 'متاح للمتطوّعين',
-            'everyone' => 'متاح للجميع',
+            'admin' => setting('images.image_template_fields.audiences_1', 'خاصّ بالإدارة'),
+            'volunteers' => setting('images.image_template_fields.audiences_2', 'متاح للمتطوّعين'),
+            'everyone' => setting('images.image_template_fields.audiences_3', 'متاح للجميع'),
         ];
     }
 
@@ -178,7 +184,7 @@ class ImageTemplateFields
         $months = (int) $membership->started_at->diffInMonths(now());
 
         return $months < 12
-            ? $months.' شهر'
-            : intdiv($months, 12).' سنة';
+            ? strtr(setting('images.image_template_fields.service_duration_1', ':p1 شهر'), [':p1' => (string) ($months)])
+            : strtr(setting('images.image_template_fields.service_duration_2', ':p1 سنة'), [':p1' => (string) (intdiv($months, 12))]);
     }
 }

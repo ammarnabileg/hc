@@ -41,9 +41,9 @@ class CvExtrasController extends Controller
         $request->validate([
             'file' => ['required', 'file', 'max:'.$this->importer->maxKb()],
         ], [
-            'file.required' => 'اختار ملفّ الأوّل.',
-            'file.max' => 'الملفّ كبير شويّة — أقصى حجم '.$this->importer->maxKb().' كيلوبايت.',
-        ], ['file' => 'الملفّ']);
+            'file.required' => (string) setting('cv.extras.import_msg', 'اختار ملفّ الأوّل.'),
+            'file.max' => strtr((string) setting('cv.extras.import_msg_2', 'الملفّ كبير شويّة — أقصى حجم :a1 كيلوبايت.'), [':a1' => (string) ($this->importer->maxKb())]),
+        ], ['file' => (string) setting('cv.extras.import_msg_3', 'الملفّ')]);
 
         try {
             $text = $this->importer->extractText($request->file('file'));
@@ -80,7 +80,7 @@ class CvExtrasController extends Controller
         if ($parsed === []) {
             return response()->json([
                 'ok' => false,
-                'message' => 'مفيش تحليل محفوظ — ارفع الملفّ تاني وراجع المعاينة.',
+                'message' => (string) setting('cv.extras.apply_import_empty', 'مفيش تحليل محفوظ — ارفع الملفّ تاني وراجع المعاينة.'),
             ], 422);
         }
 
@@ -97,7 +97,7 @@ class CvExtrasController extends Controller
 
         return response()->json([
             'ok' => true,
-            'message' => 'اتحفظ ✓',
+            'message' => (string) setting('cv.extras.apply_import_ok', 'اتحفظ ✓'),
             'completion' => $cv->completion_percent,
         ]);
     }
@@ -170,7 +170,7 @@ class CvExtrasController extends Controller
             'ok' => true,
             'enabled' => (bool) $cv->is_public,
             'url' => $cv->public_slug ? route('cv.public', ['slug' => $cv->public_slug]) : null,
-            'message' => $enable ? 'الرابط شغّال ✓' : 'الرابط اتقفل ✓',
+            'message' => $enable ? (string) setting('cv.extras.toggle_public_ok', 'الرابط شغّال ✓') : (string) setting('cv.extras.toggle_public_ok_2', 'الرابط اتقفل ✓'),
         ]);
     }
 

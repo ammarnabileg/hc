@@ -184,8 +184,8 @@ class GuidanceComposer
             : collect();
 
         $rows = [array_values(array_filter([
-            'الكود', 'الاسم', 'قرأ في', 'أقرّ في', 'التفاعل',
-            $includePoll ? 'اختيار الاستطلاع' : null,
+            setting('admin_content.guidance_composer.analytics_export_rows_1', 'الكود'), setting('admin_content.guidance_composer.analytics_export_rows_2', 'الاسم'), setting('admin_content.guidance_composer.analytics_export_rows_3', 'قرأ في'), setting('admin_content.guidance_composer.analytics_export_rows_4', 'أقرّ في'), setting('admin_content.guidance_composer.analytics_export_rows_5', 'التفاعل'),
+            $includePoll ? setting('admin_content.guidance_composer.analytics_export_rows_6', 'اختيار الاستطلاع') : null,
         ]))];
 
         foreach ($this->readers($announcement) as $read) {
@@ -499,7 +499,7 @@ class GuidanceComposer
             ['key' => ComplaintService::REASONS_KEY],
             [
                 'group' => 'complaints',
-                'label_ar' => 'أسباب الشكاوى والمقترحات',
+                'label_ar' => setting('admin_content.guidance_composer.save_complaint_reasons_1', 'أسباب الشكاوى والمقترحات'),
                 'type' => 'json',
                 'default_value' => json_encode(ComplaintService::defaultReasons(), JSON_UNESCAPED_UNICODE),
                 'value' => json_encode($clean, JSON_UNESCAPED_UNICODE),

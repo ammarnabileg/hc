@@ -74,12 +74,12 @@ class OffboardingService
     public static function open(User $target, string $type, ?string $reason, User $actor, array $checklist = []): Offboarding
     {
         if (! array_key_exists($type, self::TYPES)) {
-            throw new RuntimeException('نوع الخروج غير معروف — الأنواع ثلاثة لا رابع لها.');
+            throw new RuntimeException(setting('volunteer_offboarding.offboarding_service.open_1', 'نوع الخروج غير معروف — الأنواع ثلاثة لا رابع لها.'));
         }
 
         // ⭐ الإقصاء حصرًا عبر سلّم العتبات — لا فصل بقرار فرديّ
         if ($type === 'exclusion' && ! self::reachedExclusionThreshold($target)) {
-            throw new RuntimeException('الإقصاء لا يكون إلّا عبر سلّم العتبات — درجة الالتزام لم تبلغ عتبة التعليق بعد.');
+            throw new RuntimeException(setting('volunteer_offboarding.offboarding_service.open_2', 'الإقصاء لا يكون إلّا عبر سلّم العتبات — درجة الالتزام لم تبلغ عتبة التعليق بعد.'));
         }
 
         $noticeDays = (int) setting('volunteer.offboarding.notice_days', 7);
@@ -134,7 +134,7 @@ class OffboardingService
     public static function complete(Offboarding $record, User $actor): Offboarding
     {
         if (! self::clearanceComplete($record)) {
-            throw new RuntimeException('التصفية الإلزاميّة لم تكتمل — كمّل بنود التشيك-ليست قبل الإنهاء.');
+            throw new RuntimeException(setting('volunteer_offboarding.offboarding_service.complete_1', 'التصفية الإلزاميّة لم تكتمل — كمّل بنود التشيك-ليست قبل الإنهاء.'));
         }
 
         /*
@@ -206,7 +206,7 @@ class OffboardingService
         if ($user) {
             // الرسالة للفريق بلا سبب — «انتهت عضويّة فلان» فقط
             Integrations::notify(
-                $user, 'account', 'انتهت عضويّتك التطوّعيّة',
+                $user, 'account', setting('volunteer_offboarding.offboarding_service.complete_2', 'انتهت عضويّتك التطوّعيّة'),
                 str_replace('{name}', $user->name, (string) setting('volunteer.offboarding.team_message', '')),
                 null, 'platform',
             );
@@ -258,7 +258,7 @@ class OffboardingService
         if ($record->type === 'exclusion' && ! (bool) setting('volunteer.offboarding.exclusion_allows_return', false)) {
             return [
                 'state' => 'danger',
-                'label' => 'لا عودة إلّا بقرار مشرف عام التطوّع',
+                'label' => setting('volunteer_offboarding.offboarding_service.reentry_state_1', 'لا عودة إلّا بقرار مشرف عام التطوّع'),
                 'copy' => (string) setting('volunteer.offboarding.excluded_copy', ''),
             ];
         }
@@ -268,12 +268,12 @@ class OffboardingService
         if ($until && $until->isFuture()) {
             return [
                 'state' => 'warn',
-                'label' => 'داخل التبريد حتى '.$until->format('Y-m-d'),
+                'label' => strtr(setting('volunteer_offboarding.offboarding_service.reentry_state_2', 'داخل التبريد حتى :p1'), [':p1' => (string) ($until->format('Y-m-d'))]),
                 'copy' => str_replace('{date}', $until->format('Y-m-d'), (string) setting('volunteer.offboarding.cooldown_copy', '')),
             ];
         }
 
-        return ['state' => 'ok', 'label' => 'العودة متاحة', 'copy' => ''];
+        return ['state' => 'ok', 'label' => setting('volunteer_offboarding.offboarding_service.reentry_state_3', 'العودة متاحة'), 'copy' => ''];
     }
 
     /** فتح ملفّ عودة — الامتحان إجباريّ والشهادة القديمة تصير «منتهية» */

@@ -236,7 +236,7 @@ class ReferralService
             return false;
         }
 
-        $this->ledger->credit($user, 'tickets', $tickets, 'referral', 'تذكرة ترحيب بالدعوة', $referral);
+        $this->ledger->credit($user, 'tickets', $tickets, 'referral', setting('growth.referral_service.grant_welcome_ticket_1', 'تذكرة ترحيب بالدعوة'), $referral);
         $this->tracker->record('referral_welcome_ticket', $referral, $user->id);
 
         return true;
@@ -281,7 +281,7 @@ class ReferralService
             return false;
         }
 
-        $this->ledger->credit($referrer, 'tickets', $tickets, 'referral', 'تذكرة دعوة ناجحة', $referral);
+        $this->ledger->credit($referrer, 'tickets', $tickets, 'referral', setting('growth.referral_service.grant_referrer_ticket_1', 'تذكرة دعوة ناجحة'), $referral);
         $this->tracker->record('referral_referrer_ticket', $referral, $referrer->id);
 
         return true;
@@ -438,9 +438,9 @@ class ReferralService
         $user = $referral->referred;
 
         return match (true) {
-            $user === null => ['state' => 'idle', 'label' => 'لم يكمل التسجيل'],
-            $user->isActive() => ['state' => 'ok', 'label' => 'مكتمل'],
-            default => ['state' => 'warn', 'label' => 'في انتظار الاعتماد'],
+            $user === null => ['state' => 'idle', 'label' => setting('growth.referral_service.status_of_1', 'لم يكمل التسجيل')],
+            $user->isActive() => ['state' => 'ok', 'label' => setting('growth.referral_service.status_of_2', 'مكتمل')],
+            default => ['state' => 'warn', 'label' => setting('growth.referral_service.status_of_3', 'في انتظار الاعتماد')],
         };
     }
 }

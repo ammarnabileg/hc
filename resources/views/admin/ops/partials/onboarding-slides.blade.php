@@ -15,7 +15,7 @@
 @if ($slides->isEmpty())
     {{-- الحالة الفارغة = سطر واحد + زرّ واحد، تشجّع ولا تعاتب (2.15-د · 2.17-ج) --}}
     <x-empty :message="setting('onboarding.slides.empty_text', 'لسّه مافيش شرائح — ابدأ بأوّل واحدة.')"
-             action="معاينة الرحلة" :href="route('admin.ops.onboarding.preview', ['screen' => $screen])" />
+             :action="setting('admin.ops.partials.onboarding_slides.maayna_alrhla', 'معاينة الرحلة')" :href="route('admin.ops.onboarding.preview', ['screen' => $screen])" />
 @else
     <form method="post" action="{{ route('admin.ops.onboarding.reorder') }}" id="reorder-form">
         @csrf
@@ -31,12 +31,12 @@
                         <p class="text-xs mt-1" style="color: var(--text-muted)">{{ \Illuminate\Support\Str::limit($slide->body_ar, 90) }}</p>
                         <div class="mt-2 flex flex-wrap items-center gap-2">
                             <x-state-badge :state="$slide->is_active ? 'ok' : 'idle'"
-                                           :label="$slide->is_active ? 'ظاهرة' : 'موقوفة'" />
+                                           :label="$slide->is_active ? setting('admin.ops.partials.onboarding_slides.zahra', 'ظاهرة') : setting('admin.ops.partials.onboarding_slides.mwqwfa', 'موقوفة')" />
                             @if ($slide->action_label)
-                                <span class="text-xs" style="color: var(--text-muted)">زرّ: {{ $slide->action_label }}</span>
+                                <span class="text-xs" style="color: var(--text-muted)">{{ setting('admin.ops.partials.onboarding_slides.zr', 'زرّ:') }} {{ $slide->action_label }}</span>
                             @endif
                             @if ($slide->from_template)
-                                <span class="text-xs" style="color: var(--text-muted)"><x-icon name="game" size="16" /> من قالب</span>
+                                <span class="text-xs" style="color: var(--text-muted)"><x-icon name="game" size="16" /> {{ setting('admin.ops.partials.onboarding_slides.mn_qalb', 'من قالب') }}</span>
                             @endif
                         </div>
                     </div>
@@ -54,10 +54,10 @@
                                         data-body="{{ $slide->body_ar }}"
                                         data-action-label="{{ $slide->action_label }}"
                                         data-action-url="{{ $slide->action_url }}"
-                                        data-active="{{ $slide->is_active ? 1 : 0 }}"><x-icon name="edit" size="16" /> تعديل</button>
+                                        data-active="{{ $slide->is_active ? 1 : 0 }}"><x-icon name="edit" size="16" /> {{ setting('admin.ops.partials.onboarding_slides.tadyl', 'تعديل') }}</button>
                             @endcan
-                            <button type="button" class="w-full text-start px-2 py-2 rounded hover:opacity-80" data-move="up">↑ فوق</button>
-                            <button type="button" class="w-full text-start px-2 py-2 rounded hover:opacity-80" data-move="down">↓ تحت</button>
+                            <button type="button" class="w-full text-start px-2 py-2 rounded hover:opacity-80" data-move="up">{{ setting('admin.ops.partials.onboarding_slides.fwq', '↑ فوق') }}</button>
+                            <button type="button" class="w-full text-start px-2 py-2 rounded hover:opacity-80" data-move="down">{{ setting('admin.ops.partials.onboarding_slides.tht', '↓ تحت') }}</button>
                         </div>
                     </details>
                 </div>
@@ -66,7 +66,7 @@
 
         <div class="mt-3 flex flex-wrap gap-2">
             @can('onboarding.edit')
-                <button class="rounded-xl px-4 py-2 text-sm" style="background: var(--surface-raised)">حفظ الترتيب</button>
+                <button class="rounded-xl px-4 py-2 text-sm" style="background: var(--surface-raised)">{{ setting('admin.ops.partials.onboarding_slides.hfz_altrtyb', 'حفظ الترتيب') }}</button>
             @endcan
         </div>
     </form>
@@ -81,15 +81,15 @@
                         <form method="post" action="{{ route('admin.ops.onboarding.slides.toggle', $slide->id) }}">
                             @csrf
                             <button class="rounded-xl px-3 py-2 text-xs" style="background: var(--surface-raised); min-height: 44px">
-                                {{ $slide->is_active ? 'إيقاف' : 'تفعيل' }}
+                                {{ $slide->is_active ? setting('admin.ops.partials.onboarding_slides.iyqaf', 'إيقاف') : setting('admin.ops.partials.onboarding_slides.tfayl', 'تفعيل') }}
                             </button>
                         </form>
                     @endcan
                     @can('onboarding.delete')
                         <form method="post" action="{{ route('admin.ops.onboarding.slides.destroy', $slide->id) }}"
-                              onsubmit="return confirm('نمسح الشريحة دي؟ مش هترجع تاني.')">
+                              onsubmit="return confirm('{{ setting('admin.ops.partials.onboarding_slides.nmsh_alshryha_dy_msh_htrja_tany', 'نمسح الشريحة دي؟ مش هترجع تاني.') }}')">
                             @csrf @method('delete')
-                            <button class="rounded-xl px-3 py-2 text-xs" style="background: var(--surface-raised); min-height: 44px; color: var(--color-state-danger)">حذف</button>
+                            <button class="rounded-xl px-3 py-2 text-xs" style="background: var(--surface-raised); min-height: 44px; color: var(--color-state-danger)">{{ setting('admin.ops.partials.onboarding_slides.hdhf', 'حذف') }}</button>
                         </form>
                     @endcan
                 </div>

@@ -27,19 +27,25 @@ class SocialProof
         'leaderboard' => 20,
     ];
 
-    private const LEAD_TEXT = [
-        'lesson' => 'كن أوّل من ينهي الدرس ده النهارده!',
-        'club_5am' => 'كن من أوائل الصاحيين النهارده!',
-        'war' => 'كن أوّل محارب في الساحة',
-        'leaderboard' => '',
-    ];
+    private static function leadText(): array
+    {
+        return [
+            'lesson' => setting('engagement.social_proof.lead_text_1', 'كن أوّل من ينهي الدرس ده النهارده!'),
+            'club_5am' => setting('engagement.social_proof.lead_text_2', 'كن من أوائل الصاحيين النهارده!'),
+            'war' => setting('engagement.social_proof.lead_text_3', 'كن أوّل محارب في الساحة'),
+            'leaderboard' => '',
+        ];
+    }
 
-    private const COUNT_TEXT = [
-        'lesson' => 'أنهى :count النهارده',
-        'club_5am' => ':count صحيوا معاك',
-        'war' => ':count جاهزين دلوقتي',
-        'leaderboard' => '',
-    ];
+    private static function countText(): array
+    {
+        return [
+            'lesson' => setting('engagement.social_proof.count_text_1', 'أنهى :count النهارده'),
+            'club_5am' => setting('engagement.social_proof.count_text_2', ':count صحيوا معاك'),
+            'war' => setting('engagement.social_proof.count_text_3', ':count جاهزين دلوقتي'),
+            'leaderboard' => '',
+        ];
+    }
 
     public function enabled(): bool
     {
@@ -69,11 +75,11 @@ class SocialProof
         $text = $show
             ? str_replace(':count', number_format($count), (string) setting(
                 "engagement.social_proof.{$context}.count_text",
-                self::COUNT_TEXT[$context] ?? ':count',
+                self::countText()[$context] ?? ':count',
             ))
             : (string) setting(
                 "engagement.social_proof.{$context}.lead_text",
-                self::LEAD_TEXT[$context] ?? '',
+                self::leadText()[$context] ?? '',
             );
 
         return [

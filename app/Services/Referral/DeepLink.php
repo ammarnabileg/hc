@@ -31,7 +31,7 @@ class DeepLink
     /** التسميات العربيّة للأنواع — تُعرَض في شاشة الدعوات */
     public static function typeLabels(): array
     {
-        return ['event' => 'فعاليّة', 'course' => 'تدريب', 'path' => 'مسار'];
+        return ['event' => setting('growth.deep_link.type_labels_1', 'فعاليّة'), 'course' => setting('growth.deep_link.type_labels_2', 'تدريب'), 'path' => setting('growth.deep_link.type_labels_3', 'مسار')];
     }
 
     /** عنوان الهبوط بعد التسجيل — أو null إن كان المحتوى اتشال */

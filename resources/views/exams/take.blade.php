@@ -1,3 +1,12 @@
+@php
+    /** نصوص السكربت — من الإعدادات لا محروقةً في الجافاسكربت (2.13-أ) */
+    $hcWords = array_merge($hcWords ?? [], [
+        'exams.messages.autosaved' => (string) setting('exams.messages.autosaved', 'اتحفظ ✓'),
+        'exams.messages.offline_short' => (string) setting('exams.messages.offline_short', 'إجاباتك محفوظة — هنبعتها أوّل ما الشبكة ترجع.'),
+        'exams.messages.time_up' => (string) setting('exams.messages.time_up', 'خلص الوقت — سلّمنا إجاباتك تلقائيًّا.'),
+    ]);
+@endphp
+
 @extends('exams.layouts.focus')
 
 @section('title', $exam->title_ar)
@@ -144,10 +153,10 @@
             if (!response.ok) throw new Error('save failed');
             pending.delete(questionId);
             offline(false);
-            say(data.message || @json(setting('exams.messages.autosaved', 'اتحفظ ✓')));
+            say(data.message || @json($hcWords['exams.messages.autosaved']));
         } catch (e) {
             offline(true);
-            say(@json(setting('exams.messages.offline_short', 'إجاباتك محفوظة — هنبعتها أوّل ما الشبكة ترجع.')));
+            say(@json($hcWords['exams.messages.offline_short']));
         }
     }
 
@@ -187,7 +196,7 @@
         if (left <= 0 && !submitted) {
             submitted = true;
             clearInterval(tick);
-            alert(@json(setting('exams.messages.time_up', 'خلص الوقت — سلّمنا إجاباتك تلقائيًّا.')));
+            alert(@json($hcWords['exams.messages.time_up']));
             form.submit();
         }
     }, 1000);

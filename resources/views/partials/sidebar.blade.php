@@ -40,7 +40,7 @@
                 </div>
                 <div class="mt-1 h-1 rounded-full overflow-hidden" style="background: var(--surface-sunken)"
                      role="img"
-                     aria-label="{{ setting('leaderboard.xp_label', 'XP') }} {{ number_format($accountLevel['xp']) }} — {{ $accountLevel['percent'] }}٪ نحو {{ setting('dashboard.level.prefix', 'المستوى') }} {{ $accountLevel['level'] + 1 }}"
+                     aria-label="{{ setting('leaderboard.xp_label', 'XP') }} {{ number_format($accountLevel['xp']) }} — {{ $accountLevel['percent'] }}{{ setting('nav.trainee.xp_progress_toward', '٪ نحو') }} {{ setting('dashboard.level.prefix', 'المستوى') }} {{ $accountLevel['level'] + 1 }}"
                      title="{{ number_format($accountLevel['xp']) }} / {{ number_format($accountLevel['next_at']) }} {{ setting('leaderboard.xp_label', 'XP') }}">
                     <div class="h-full" data-xp-percent="{{ $accountLevel['percent'] }}"
                          style="width: {{ $accountLevel['percent'] }}%; background: var(--color-brand-500)"></div>
@@ -51,12 +51,12 @@
         {{-- بحث سريع: **شريط + زرّ «إبحث»** ⟵ صفحة البحث الكبيرة (13-ب · 13.1) --}}
         <form action="{{ \Illuminate\Support\Facades\Route::has('search') ? route('search') : '#' }}" method="get"
               class="flex items-stretch gap-2">
-            <input type="search" name="q" placeholder="ابحث…" aria-label="بحث سريع"
+            <input type="search" name="q" placeholder="{{ setting('nav.trainee.search_placeholder', 'ابحث…') }}" aria-label="{{ setting('nav.trainee.search_aria', 'بحث سريع') }}"
                    class="flex-1 min-w-0 rounded-xl px-3 py-2 text-sm"
                    style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
             <button type="submit"
                     class="shrink-0 rounded-xl px-3 text-sm font-semibold motion-standard"
-                    style="min-width: 44px; min-height: 44px; background: var(--color-brand-500); color: #04201c">إبحث</button>
+                    style="min-width: 44px; min-height: 44px; background: var(--color-brand-500); color: #04201c">{{ setting('nav.trainee.search_submit', 'إبحث') }}</button>
         </form>
 
         @include('partials.sidebar-referral')
@@ -67,7 +67,7 @@
         --}}
         @if ($pinned->isNotEmpty())
             <div class="space-y-1" data-pins>
-                <div class="text-xs px-2" style="color: var(--text-muted)">📌 المثبَّتة</div>
+                <div class="text-xs px-2" style="color: var(--text-muted)">{{ setting('nav.trainee.pinned_title', '📌 المثبَّتة') }}</div>
                 @foreach ($pinned as $pin)
                     <div class="flex items-center gap-1" draggable="true"
                          data-pin-item="{{ $pin['route'] ?? '' }}">
@@ -77,96 +77,96 @@
                         <button type="button" data-unpin="{{ $pin['route'] ?? '' }}" data-label="{{ $pin['label'] ?? '' }}"
                                 class="shrink-0 rounded-lg text-xs motion-standard"
                                 style="min-width: 44px; min-height: 44px; color: var(--text-muted)"
-                                aria-label="فكّ تثبيت {{ $pin['label'] ?? '' }}" title="فكّ التثبيت">✕</button>
+                                aria-label="{{ setting('nav.trainee.unpin_aria', 'فكّ تثبيت') }} {{ $pin['label'] ?? '' }}" title="{{ setting('nav.trainee.unpin_title', 'فكّ التثبيت') }}">✕</button>
                     </div>
                 @endforeach
             </div>
         @endif
 
         <nav class="space-y-1">
-            <x-nav-link route="dashboard" label="الرئيسيّة" icon="🏠" />
+            <x-nav-link route="dashboard" :label="setting('nav.trainee.item_dashboard', 'الرئيسيّة')" icon="🏠" />
             {{--
               ⭐ العدّاد يعدّ **المنشورات غير المقروءة نفسها** (13.2) لا إشعاراتها:
               الإشعار لا يُنشَأ إلّا لمنشورٍ اختار له الأدمن `push_to_notifications`،
               فكان الفيد فيه ستّة منشورات غير مقروءة والعدّاد صفر.
             --}}
-            <x-nav-link route="announcements.index" label="التعليمات" icon="📢"
+            <x-nav-link route="announcements.index" :label="setting('nav.trainee.item_announcements', 'التعليمات')" icon="📢"
                         :badge="app(\App\Services\Notifications\AnnouncementFeed::class)->unreadCount($u)" />
 
             {{-- ⭐ للمتطوّع: لوحة التطوّع هنا مباشرةً بعد التعليمات --}}
             @volunteer
-                <x-nav-link route="volunteer.overview" label="لوحة التطوّع" icon="🤝" />
+                <x-nav-link route="volunteer.overview" :label="setting('nav.trainee.item_volunteer_panel', 'لوحة التطوّع')" icon="🤝" />
             @endvolunteer
 
-            <x-nav-group label="تعلّمي" icon="🎓" :items="[
-                ['label' => 'تدريباتي', 'route' => 'learning.courses'],
-                ['label' => 'المسارات', 'route' => 'learning.paths'],
-                ['label' => 'شهاداتي', 'route' => 'learning.certificates'],
+            <x-nav-group :label="setting('nav.trainee.group_learning', 'تعلّمي')" icon="🎓" :items="[
+                ['label' => setting('nav.trainee.item_learning_courses', 'تدريباتي'), 'route' => 'learning.courses'],
+                ['label' => setting('nav.trainee.item_learning_paths', 'المسارات'), 'route' => 'learning.paths'],
+                ['label' => setting('nav.trainee.item_learning_certificates', 'شهاداتي'), 'route' => 'learning.certificates'],
             ]" />
 
-            <x-nav-group label="مكتبتي" icon="📚" :items="[
-                ['label' => 'الكلّ', 'route' => 'library.index'],
+            <x-nav-group :label="setting('nav.trainee.group_library', 'مكتبتي')" icon="📚" :items="[
+                ['label' => setting('nav.trainee.item_library_all', 'الكلّ'), 'route' => 'library.index'],
             ]" />
 
-            <x-nav-group label="المتجر" icon="🛒" :items="[
-                ['label' => 'المنتجات', 'route' => 'store.index'],
-                ['label' => 'البندلز', 'route' => 'store.bundles'],
+            <x-nav-group :label="setting('nav.trainee.group_store', 'المتجر')" icon="🛒" :items="[
+                ['label' => setting('nav.trainee.item_store_products', 'المنتجات'), 'route' => 'store.index'],
+                ['label' => setting('nav.trainee.item_store_bundles', 'البندلز'), 'route' => 'store.bundles'],
             ]" />
 
-            <x-nav-group label="المحفظة" icon="💰" :items="[
-                ['label' => 'رصيدي وشحن', 'route' => 'wallet.index'],
-                ['label' => 'التذاكر', 'route' => 'wallet.tickets'],
-                ['label' => 'المعاملات والفواتير', 'route' => 'wallet.transactions'],
+            <x-nav-group :label="setting('nav.trainee.group_wallet', 'المحفظة')" icon="💰" :items="[
+                ['label' => setting('nav.trainee.item_wallet_index', 'رصيدي وشحن'), 'route' => 'wallet.index'],
+                ['label' => setting('nav.trainee.item_wallet_tickets', 'التذاكر'), 'route' => 'wallet.tickets'],
+                ['label' => setting('nav.trainee.item_wallet_transactions', 'المعاملات والفواتير'), 'route' => 'wallet.transactions'],
             ]" />
 
-            <x-nav-group label="التحديات" icon="⚔️" :items="[
-                ['label' => 'المتاحة', 'route' => 'challenges.index'],
-                ['label' => 'تحدّياتي', 'route' => 'challenges.mine'],
-                ['label' => 'لوحة الأبطال', 'route' => 'challenges.leaderboard'],
+            <x-nav-group :label="setting('nav.trainee.group_challenges', 'التحديات')" icon="⚔️" :items="[
+                ['label' => setting('nav.trainee.item_challenges_index', 'المتاحة'), 'route' => 'challenges.index'],
+                ['label' => setting('nav.trainee.item_challenges_mine', 'تحدّياتي'), 'route' => 'challenges.mine'],
+                ['label' => setting('nav.trainee.item_challenges_leaderboard', 'لوحة الأبطال'), 'route' => 'challenges.leaderboard'],
             ]" />
 
-            <x-nav-group label="إنجازاتي" icon="🏆" :items="[
-                ['label' => 'الليدر بورد', 'route' => 'achievements.leaderboard'],
-                ['label' => 'الشارات', 'route' => 'achievements.badges'],
-                ['label' => 'الستريك ونادي الخامسة', 'route' => 'achievements.streak'],
+            <x-nav-group :label="setting('nav.trainee.group_achievements', 'إنجازاتي')" icon="🏆" :items="[
+                ['label' => setting('nav.trainee.item_achievements_leaderboard', 'الليدر بورد'), 'route' => 'achievements.leaderboard'],
+                ['label' => setting('nav.trainee.item_achievements_badges', 'الشارات'), 'route' => 'achievements.badges'],
+                ['label' => setting('nav.trainee.item_achievements_streak', 'الستريك ونادي الخامسة'), 'route' => 'achievements.streak'],
             ]" />
 
-            <x-nav-link route="events.index" label="الفعاليّات" icon="📅" />
+            <x-nav-link route="events.index" :label="setting('nav.trainee.item_events', 'الفعاليّات')" icon="📅" />
 
-            <x-nav-group label="خبراتي" icon="📄" :items="[
-                ['label' => 'السيرة الذاتيّة', 'route' => 'cv.index'],
-                ['label' => 'الإفادة', 'route' => 'attestations.index'],
+            <x-nav-group :label="setting('nav.trainee.group_experience', 'خبراتي')" icon="📄" :items="[
+                ['label' => setting('nav.trainee.item_experience_cv', 'السيرة الذاتيّة'), 'route' => 'cv.index'],
+                ['label' => setting('nav.trainee.item_experience_attestations', 'الإفادة'), 'route' => 'attestations.index'],
             ]" />
 
             {{-- الدعوات: الرابط · لوحة المتصدّرين الشهريّة · حزمة المحتوى (21.1-ج · 21.2-هـ) --}}
-            <x-nav-group label="ادعُ أصدقاءك" icon="👥" :items="[
-                ['label' => 'رابط دعوتي', 'route' => 'referral.index'],
-                ['label' => 'متصدّرو الدعوات', 'route' => 'growth.invite.board'],
-                ['label' => 'حزمة المحتوى', 'route' => 'growth.kit.index'],
+            <x-nav-group :label="setting('nav.trainee.group_referral', 'ادعُ أصدقاءك')" icon="👥" :items="[
+                ['label' => setting('nav.trainee.item_referral_link', 'رابط دعوتي'), 'route' => 'referral.index'],
+                ['label' => setting('nav.trainee.item_referral_board', 'متصدّرو الدعوات'), 'route' => 'growth.invite.board'],
+                ['label' => setting('nav.trainee.item_referral_kit', 'حزمة المحتوى'), 'route' => 'growth.kit.index'],
             ]" />
 
             {{-- مركز المقالات العامّ (21.2-أ) --}}
-            <x-nav-link route="growth.articles.index" label="المقالات" icon="📰" />
+            <x-nav-link route="growth.articles.index" :label="setting('nav.trainee.item_articles', 'المقالات')" icon="📰" />
 
-            <x-nav-group label="الدعم" icon="📮" :items="[
-                ['label' => 'الشكاوى والمقترحات', 'route' => 'complaints.index'],
-                ['label' => 'دليل المستخدم', 'route' => 'help.index'],
+            <x-nav-group :label="setting('nav.trainee.group_support', 'الدعم')" icon="📮" :items="[
+                ['label' => setting('nav.trainee.item_support_complaints', 'الشكاوى والمقترحات'), 'route' => 'complaints.index'],
+                ['label' => setting('nav.trainee.item_support_help', 'دليل المستخدم'), 'route' => 'help.index'],
             ]" />
 
             {{-- ⭐ لغير المتطوّع: «تطوّع معنا» فوق حسابي مباشرةً --}}
             @unless ($isVolunteer)
-                <x-nav-link route="volunteering.landing" label="تطوّع معنا" icon="🤝" />
+                <x-nav-link route="volunteering.landing" :label="setting('nav.trainee.item_volunteering_landing', 'تطوّع معنا')" icon="🤝" />
             @endunless
 
-            <x-nav-group label="حسابي" icon="⚙️" :items="[
-                ['label' => 'بروفايلي', 'route' => 'profile.me'],
-                ['label' => 'الإعدادات', 'route' => 'settings.index'],
-                ['label' => 'الخصوصيّة والأمان', 'route' => 'settings.privacy'],
+            <x-nav-group :label="setting('nav.trainee.group_account', 'حسابي')" icon="⚙️" :items="[
+                ['label' => setting('nav.trainee.item_account_profile', 'بروفايلي'), 'route' => 'profile.me'],
+                ['label' => setting('nav.trainee.item_account_settings', 'الإعدادات'), 'route' => 'settings.index'],
+                ['label' => setting('nav.trainee.item_account_privacy', 'الخصوصيّة والأمان'), 'route' => 'settings.privacy'],
             ]" />
 
             {{-- لوحة الإدارة — آخر عنصر دائمًا، ولمن له أيّ صلاحيّة إداريّة (12.2.1-أ) --}}
             @adminpanel
-                <x-nav-link route="admin.dashboard" label="لوحة الإدارة" icon="🛠️" />
+                <x-nav-link route="admin.dashboard" :label="setting('nav.trainee.item_admin_panel', 'لوحة الإدارة')" icon="🛠️" />
             @endadminpanel
         </nav>
     </div>

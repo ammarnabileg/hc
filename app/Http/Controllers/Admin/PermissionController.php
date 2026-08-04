@@ -81,7 +81,7 @@ class PermissionController extends Controller
             // النطاق من القائمة الستّة نصًّا (12.2.1-ب) — لا نصٌّ حرّ
             'scope' => ['required', 'string', Rule::in(config('access.scopes'))],
             'effect' => ['required', 'in:allow,deny'],
-        ], [], ['permission' => 'الصلاحيّة', 'scope' => 'النطاق', 'effect' => 'الأثر']);
+        ], [], ['permission' => (string) setting('admin_roles.permissions.update_msg', 'الصلاحيّة'), 'scope' => (string) setting('admin_roles.permissions.update_msg_2', 'النطاق'), 'effect' => (string) setting('admin_roles.permissions.update_msg_3', 'الأثر')]);
 
         $actor = $request->user();
         $permission = Permission::where('key', $validated['permission'])->firstOrFail();
@@ -133,7 +133,7 @@ class PermissionController extends Controller
             'override_id' => $override->id,
         ]);
 
-        return back()->with('status', 'اتحفظ الاستثناء ✓ — والمنع يغلب الإذن دائمًا');
+        return back()->with('status', (string) setting('admin_roles.permissions.update_ok', 'اتحفظ الاستثناء ✓ — والمنع يغلب الإذن دائمًا'));
     }
 
     /** رسالة رفض السقف — بنصٍّ من الإعدادات لا محروق (2.13) */

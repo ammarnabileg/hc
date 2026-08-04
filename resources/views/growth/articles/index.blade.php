@@ -15,7 +15,7 @@
     {{-- فلتران ظاهران فقط: التصنيف والبحث — والباقي لا لزوم له هنا (2.15-أ-4) --}}
     <form method="get" class="card p-3 mb-5 flex flex-wrap items-center gap-2">
         <label class="flex-1 min-w-48">
-            <span class="sr-only">ابحث في المقالات</span>
+            <span class="sr-only">{{ setting('articles.index.text_1', 'ابحث في المقالات') }}</span>
             <input type="search" name="q" value="{{ $term }}"
                    placeholder="{{ setting('growth.articles.search_placeholder', 'دوّر على موضوع…') }}"
                    class="w-full rounded-xl px-3 py-2 text-sm"
@@ -24,10 +24,10 @@
 
         @if ($categories->isNotEmpty())
             <label>
-                <span class="sr-only">التصنيف</span>
+                <span class="sr-only">{{ setting('articles.index.text_2', 'التصنيف') }}</span>
                 <select name="category" class="rounded-xl px-3 py-2 text-sm"
                         style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
-                    <option value="">كلّ التصنيفات</option>
+                    <option value="">{{ setting('articles.index.text_3', 'كلّ التصنيفات') }}</option>
                     @foreach ($categories as $row)
                         <option value="{{ $row->id }}" @selected($category === $row->id)>{{ $row->name_ar }}</option>
                     @endforeach
@@ -36,7 +36,7 @@
         @endif
 
         <button type="submit" class="btn rounded-xl px-5 py-2 text-sm font-semibold motion-standard"
-                style="background: var(--color-brand-500); color: #04201c">بحث</button>
+                style="background: var(--color-brand-500); color: #04201c">{{ setting('articles.index.text_4', 'بحث') }}</button>
     </form>
 
     @if ($articles->isEmpty())

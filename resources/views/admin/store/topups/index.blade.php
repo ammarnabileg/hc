@@ -1,18 +1,18 @@
 @extends('layouts.admin')
 
-@section('title', 'طلبات الشحن')
+@section('title', setting('admin.store.topups.index.tlbat_alshhn', 'طلبات الشحن'))
 
 @section('content')
-    <x-page-header title="طلبات الشحن"
-                   subtitle="راجع الإيصال الأوّل — وبعدين اعتمد."
+    <x-page-header :title="setting('admin.store.topups.index.tlbat_alshhn', 'طلبات الشحن')"
+                   :subtitle="setting('admin.store.topups.index.raja_aliysal_alawl_wbadyn_aatmd', 'راجع الإيصال الأوّل — وبعدين اعتمد.')"
                    :breadcrumbs="[
-                       ['label' => 'لوحة الإدارة', 'url' => url('/admin')],
-                       ['label' => 'المتجر والماليّات', 'url' => route('admin.store.index')],
-                       ['label' => 'طلبات الشحن'],
+                       ['label' => setting('admin.store.topups.index.lwha_alidara', 'لوحة الإدارة'), 'url' => url('/admin')],
+                       ['label' => setting('admin.store.topups.index.almtjr_walmalyat', 'المتجر والماليّات'), 'url' => route('admin.store.index')],
+                       ['label' => setting('admin.store.topups.index.tlbat_alshhn', 'طلبات الشحن')],
                    ]">
         <x-slot:action>
-            <a href="{{ route('admin.topups.methods') }}" class="rounded-xl px-3 py-2 text-sm" style="background: var(--surface-raised)">طرق التحويل والعروض</a>
-            <a href="{{ route('admin.topups.gateway') }}" class="rounded-xl px-3 py-2 text-sm" style="background: var(--surface-raised)">بوّابة الدفع</a>
+            <a href="{{ route('admin.topups.methods') }}" class="rounded-xl px-3 py-2 text-sm" style="background: var(--surface-raised)">{{ setting('admin.store.topups.index.trq_althwyl_walarwd', 'طرق التحويل والعروض') }}</a>
+            <a href="{{ route('admin.topups.gateway') }}" class="rounded-xl px-3 py-2 text-sm" style="background: var(--surface-raised)">{{ setting('admin.store.topups.index.bwaba_aldfa', 'بوّابة الدفع') }}</a>
         </x-slot:action>
     </x-page-header>
 
@@ -24,7 +24,7 @@
         'url' => route('admin.topups.index', ['status' => $key]),
     ])->values()->push([
         'key' => 'all',
-        'label' => 'الكلّ',
+        'label' => setting('admin.store.topups.index.alkl', 'الكلّ'),
         'url' => route('admin.topups.index', ['status' => 'all']),
     ])->all()" />
 
@@ -32,17 +32,17 @@
         <input type="hidden" name="status" value="{{ $filters['status'] }}">
 
         <label class="text-xs">
-            <span class="block mb-1" style="color: var(--text-muted)">بحث</span>
-            <input type="search" name="q" value="{{ $filters['q'] }}" placeholder="رقم الطلب أو كود المستخدم…"
+            <span class="block mb-1" style="color: var(--text-muted)">{{ setting('admin.store.topups.index.bhth', 'بحث') }}</span>
+            <input type="search" name="q" value="{{ $filters['q'] }}" placeholder="{{ setting('admin.store.topups.index.rqm_altlb_aw_kwd_almstkhdm', 'رقم الطلب أو كود المستخدم…') }}"
                    class="rounded-xl px-3 py-2 text-sm w-52"
                    style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
         </label>
 
         <label class="text-xs">
-            <span class="block mb-1" style="color: var(--text-muted)">طريقة التحويل</span>
+            <span class="block mb-1" style="color: var(--text-muted)">{{ setting('admin.store.topups.index.tryqa_althwyl', 'طريقة التحويل') }}</span>
             <select name="method" class="rounded-xl px-3 py-2 text-sm"
                     style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
-                <option value="">الكلّ</option>
+                <option value="">{{ setting('admin.store.topups.index.alkl', 'الكلّ') }}</option>
                 @foreach ($methods as $method)
                     <option value="{{ $method->id }}" @selected($filters['method'] == $method->id)>{{ $method->name_ar }}</option>
                 @endforeach
@@ -50,17 +50,17 @@
         </label>
 
         <label class="text-xs">
-            <span class="block mb-1" style="color: var(--text-muted)">من</span>
+            <span class="block mb-1" style="color: var(--text-muted)">{{ setting('admin.store.topups.index.mn', 'من') }}</span>
             <input type="date" name="from" value="{{ $filters['from'] }}" class="rounded-xl px-3 py-2 text-sm"
                    style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
         </label>
 
         <button class="btn rounded-xl px-4 py-2 text-sm font-semibold"
-                style="background: var(--color-brand-500); color: #04201c">فلترة</button>
+                style="background: var(--color-brand-500); color: #04201c">{{ setting('admin.store.topups.index.fltra', 'فلترة') }}</button>
 
         <x-slot:advanced>
             <label class="text-xs">
-                <span class="block mb-1" style="color: var(--text-muted)">إلى</span>
+                <span class="block mb-1" style="color: var(--text-muted)">{{ setting('admin.store.topups.index.ila', 'إلى') }}</span>
                 <input type="date" name="to" value="{{ $filters['to'] }}" class="rounded-xl px-3 py-2 text-sm"
                        style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
             </label>
@@ -68,18 +68,18 @@
     </x-filters>
 
     @if ($rows->isEmpty())
-        <x-empty message="مافيش طلبات في النطاق ده — كلّ حاجة هادية." />
+        <x-empty :message="setting('admin.store.topups.index.mafysh_tlbat_fy_alntaq_dh_kl_haja_hadya', 'مافيش طلبات في النطاق ده — كلّ حاجة هادية.')" />
     @else
         <div class="card overflow-hidden">
             <table class="hidden md:table w-full text-sm">
                 <thead style="background: var(--surface-sunken)">
                     <tr class="text-xs" style="color: var(--text-muted)">
-                        <th class="text-start p-3">الطلب</th>
-                        <th class="text-start p-3">المستخدم</th>
-                        <th class="text-start p-3">القيمة المحوَّلة</th>
-                        <th class="text-start p-3">طريقة التحويل</th>
-                        <th class="text-start p-3">الحالة</th>
-                        <th class="text-start p-3">العمر (داخليّ)</th>
+                        <th class="text-start p-3">{{ setting('admin.store.topups.index.altlb', 'الطلب') }}</th>
+                        <th class="text-start p-3">{{ setting('admin.store.topups.index.almstkhdm', 'المستخدم') }}</th>
+                        <th class="text-start p-3">{{ setting('admin.store.topups.index.alqyma_almhwla', 'القيمة المحوَّلة') }}</th>
+                        <th class="text-start p-3">{{ setting('admin.store.topups.index.tryqa_althwyl', 'طريقة التحويل') }}</th>
+                        <th class="text-start p-3">{{ setting('admin.store.topups.index.alhala', 'الحالة') }}</th>
+                        <th class="text-start p-3">{{ setting('admin.store.topups.index.alamr_dakhly', 'العمر (داخليّ)') }}</th>
                         <th class="text-start p-3"></th>
                     </tr>
                 </thead>
@@ -97,10 +97,10 @@
                             {{-- ⛔ العدّاد وتلوين المتأخّر **داخليّان للأدمن فقط** ولا يُعلَنان للمُرسِل (19.5-أ) --}}
                             <td class="p-3 text-xs"
                                 style="color: {{ $review->internalIsLate($row) ? 'var(--color-state-danger)' : 'var(--text-muted)' }}">
-                                {{ $review->internalAgeHours($row) }} ساعة
+                                {{ $review->internalAgeHours($row) }} {{ setting('admin.store.topups.index.saaa', 'ساعة') }}
                             </td>
                             <td class="p-3">
-                                <a href="{{ route('admin.topups.show', $row) }}" class="text-xs underline">افتح المراجعة</a>
+                                <a href="{{ route('admin.topups.show', $row) }}" class="text-xs underline">{{ setting('admin.store.topups.index.afth_almrajaa', 'افتح المراجعة') }}</a>
                             </td>
                         </tr>
                     @endforeach

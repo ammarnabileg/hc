@@ -82,7 +82,7 @@ class LibraryController extends Controller
                  | والرسوم تُشتقّ في الخادم من أرقام الطلب نفسها لا من المتصفّح.
                  */
                 'fees' => round((float) $order->total - ((float) $order->subtotal - (float) $order->discount), 2),
-                'payment_method' => 'خصم من رصيد المحفظة — '.($order->currency?->name_ar ?? ''),
+                'payment_method' => strtr((string) setting('library.screen.item_msg', 'خصم من رصيد المحفظة — :a1'), [':a1' => (string) (($order->currency?->name_ar ?? ''))]),
                 'refund_note' => setting('finance.refund.show_on_invoice', true)
                     ? (string) setting('library.invoice.refund_note', 'لا يوجد استرجاع نقديّ — ورصيدك يفضل في محفظتك تشتري بيه اللي انت عايزه من الموقع.')
                     : null,

@@ -78,7 +78,7 @@ class SettingsAutosave
     {
         if (! $this->isAllowed($field)) {
             throw ValidationException::withMessages([
-                'field' => 'الحقل ده مش قابل للتعديل من هنا.',
+                'field' => setting('account.settings_autosave.save_1', 'الحقل ده مش قابل للتعديل من هنا.'),
             ]);
         }
 
@@ -156,17 +156,17 @@ class SettingsAutosave
     private function attributes(): array
     {
         return [
-            'name' => 'الاسم',
-            'email' => 'البريد الإلكترونيّ',
-            'phone' => 'رقم الموبايل',
-            'country_id' => 'الدولة',
-            'governorate_id' => 'المحافظة',
-            'locale' => 'اللغة',
-            'theme' => 'المظهر',
-            'simple_mode' => 'الوضع المبسّط',
-            'advanced_mode' => 'الوضع المتقدّم',
-            'sound_enabled' => 'صوت المنصّة',
-            'email_channel' => 'رسايل البريد',
+            'name' => setting('account.settings_autosave.attributes_1', 'الاسم'),
+            'email' => setting('account.settings_autosave.attributes_2', 'البريد الإلكترونيّ'),
+            'phone' => setting('account.settings_autosave.attributes_3', 'رقم الموبايل'),
+            'country_id' => setting('account.settings_autosave.attributes_4', 'الدولة'),
+            'governorate_id' => setting('account.settings_autosave.attributes_5', 'المحافظة'),
+            'locale' => setting('account.settings_autosave.attributes_6', 'اللغة'),
+            'theme' => setting('account.settings_autosave.attributes_7', 'المظهر'),
+            'simple_mode' => setting('account.settings_autosave.attributes_8', 'الوضع المبسّط'),
+            'advanced_mode' => setting('account.settings_autosave.attributes_9', 'الوضع المتقدّم'),
+            'sound_enabled' => setting('account.settings_autosave.attributes_10', 'صوت المنصّة'),
+            'email_channel' => setting('account.settings_autosave.attributes_11', 'رسايل البريد'),
         ];
     }
 
@@ -174,16 +174,16 @@ class SettingsAutosave
     private function messages(): array
     {
         return [
-            'required' => 'الحقل ده مطلوب — اكتب قيمة وجرّب تاني.',
-            'name.min' => 'الاسم قصيّر شوية — اكتب اسمك كامل.',
-            'name.max' => 'الاسم طويل أوي — اختصره شوية.',
-            'email.email' => 'البريد ده شكله مش مظبوط — راجعه وجرّب تاني.',
-            'email.unique' => 'البريد ده مستخدَم في حساب تاني.',
-            'phone.unique' => 'رقم الموبايل ده مستخدَم في حساب تاني.',
-            'exists' => 'الاختيار ده مش متاح — اختار من القائمة.',
-            'in' => 'الاختيار ده مش من الخيارات المتاحة.',
-            'boolean' => 'الاختيار ده لازم يبقى مفعَّل أو متوقّف.',
-            'max' => 'القيمة دي أطول من المسموح.',
+            'required' => setting('account.settings_autosave.messages_1', 'الحقل ده مطلوب — اكتب قيمة وجرّب تاني.'),
+            'name.min' => setting('account.settings_autosave.messages_2', 'الاسم قصيّر شوية — اكتب اسمك كامل.'),
+            'name.max' => setting('account.settings_autosave.messages_3', 'الاسم طويل أوي — اختصره شوية.'),
+            'email.email' => setting('account.settings_autosave.messages_4', 'البريد ده شكله مش مظبوط — راجعه وجرّب تاني.'),
+            'email.unique' => setting('account.settings_autosave.messages_5', 'البريد ده مستخدَم في حساب تاني.'),
+            'phone.unique' => setting('account.settings_autosave.messages_6', 'رقم الموبايل ده مستخدَم في حساب تاني.'),
+            'exists' => setting('account.settings_autosave.messages_7', 'الاختيار ده مش متاح — اختار من القائمة.'),
+            'in' => setting('account.settings_autosave.messages_8', 'الاختيار ده مش من الخيارات المتاحة.'),
+            'boolean' => setting('account.settings_autosave.messages_9', 'الاختيار ده لازم يبقى مفعَّل أو متوقّف.'),
+            'max' => setting('account.settings_autosave.messages_10', 'القيمة دي أطول من المسموح.'),
         ];
     }
 
@@ -201,7 +201,7 @@ class SettingsAutosave
 
             if ($binary === false || strlen($binary) > $this->avatarMaxKb() * 1024) {
                 throw ValidationException::withMessages([
-                    'avatar' => 'الصورة كبيرة شوية. اختار صورة أصغر وجرّب تاني.',
+                    'avatar' => setting('account.settings_autosave.store_avatar_1', 'الصورة كبيرة شوية. اختار صورة أصغر وجرّب تاني.'),
                 ]);
             }
 

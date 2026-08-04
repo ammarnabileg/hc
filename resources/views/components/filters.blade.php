@@ -31,7 +31,7 @@
 
     @isset($advanced)
         <details class="mt-3" @if ($isAdvancedMode) open @endif>
-            <summary class="text-xs cursor-pointer" style="color: var(--text-muted)">فلاتر متقدّمة</summary>
+            <summary class="text-xs cursor-pointer" style="color: var(--text-muted)">{{ setting('ux.filters.text_1', 'فلاتر متقدّمة') }}</summary>
             <div class="flex flex-wrap items-end gap-3 mt-3">{{ $advanced }}</div>
         </details>
     @endisset

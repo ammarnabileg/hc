@@ -7,7 +7,7 @@
 
 @if ($log)
     <span class="relative inline-block" data-audit-hover tabindex="0">
-        <span class="text-xs cursor-help" style="color: var(--text-muted)">آخر تغيير ⓘ</span>
+        <span class="text-xs cursor-help" style="color: var(--text-muted)">{{ setting('admin.roles.partials.audit_hover.akhr_tghyyr', 'آخر تغيير ⓘ') }}</span>
 
         <span data-audit-tip
               class="hidden absolute z-40 mt-1 end-0 w-64 card p-3 text-xs text-start"

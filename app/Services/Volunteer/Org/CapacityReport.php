@@ -239,9 +239,9 @@ final class CapacityReport
     private function spanLabel(Position $position, int $actual): string
     {
         return match ($this->spanState($position, $actual)) {
-            'danger' => 'تجاوز',
-            'warn' => 'غير صحّيّ',
-            default => 'متوازن',
+            'danger' => setting('volunteer_org.capacity_report.span_label_1', 'تجاوز'),
+            'warn' => setting('volunteer_org.capacity_report.span_label_2', 'غير صحّيّ'),
+            default => setting('volunteer_org.capacity_report.span_label_3', 'متوازن'),
         };
     }
 }

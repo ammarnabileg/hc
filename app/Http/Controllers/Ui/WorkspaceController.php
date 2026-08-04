@@ -39,7 +39,7 @@ class WorkspaceController extends Controller
         ]);
 
         // لا نثبّت إلّا مسارًا حقيقيًّا — فلا يدخل رابط خارجيّ في السايد بار
-        abort_unless(Route::has($data['route']), 422, 'الصفحة دي مش موجودة.');
+        abort_unless(Route::has($data['route']), 422, (string) setting('ux.workspace.toggle_pin_denied', 'الصفحة دي مش موجودة.'));
 
         $user = $request->user();
         $pins = collect($user->pinned_pages ?? [])->values();
@@ -53,7 +53,7 @@ class WorkspaceController extends Controller
             if ($pins->count() >= $max) {
                 return response()->json([
                     'ok' => false,
-                    'message' => 'وصلت لحدّ '.$max.' صفحات مثبَّتة — شيل واحدة الأوّل.',
+                    'message' => strtr((string) setting('ux.workspace.toggle_pin_msg', 'وصلت لحدّ :a1 صفحات مثبَّتة — شيل واحدة الأوّل.'), [':a1' => (string) ($max)]),
                 ], 422);
             }
 
@@ -69,7 +69,7 @@ class WorkspaceController extends Controller
         return response()->json([
             'ok' => true,
             'pinned' => ! $exists,
-            'message' => $exists ? 'شيلناها من المثبَّتة ✓' : 'اتثبّتت أعلى السايد بار ✓',
+            'message' => $exists ? (string) setting('ux.workspace.toggle_pin_ok', 'شيلناها من المثبَّتة ✓') : (string) setting('ux.workspace.toggle_pin_ok_2', 'اتثبّتت أعلى السايد بار ✓'),
             'pins' => $pins->all(),
         ]);
     }
@@ -95,7 +95,7 @@ class WorkspaceController extends Controller
 
         $user->forceFill(['pinned_pages' => $ordered->merge($rest)->all()])->save();
 
-        return response()->json(['ok' => true, 'message' => 'اتحفظ ✓']);
+        return response()->json(['ok' => true, 'message' => (string) setting('ux.workspace.reorder_pins_ok', 'اتحفظ ✓')]);
     }
 
     // ------------------------------------------------------- العروض المحفوظة
@@ -106,9 +106,9 @@ class WorkspaceController extends Controller
             'screen' => ['required', 'string', 'max:96'],
             'name' => ['required', 'string', 'max:96'],
             'filters' => ['nullable', 'array'],
-        ], [], ['name' => 'اسم العرض']);
+        ], [], ['name' => (string) setting('ux.workspace.store_view_msg', 'اسم العرض')]);
 
-        abort_unless(Route::has($data['screen']), 422, 'الشاشة دي مش موجودة.');
+        abort_unless(Route::has($data['screen']), 422, (string) setting('ux.workspace.store_view_denied', 'الشاشة دي مش موجودة.'));
 
         $max = max(1, (int) setting('ux.saved_views.max_per_screen', 10));
 
@@ -118,7 +118,7 @@ class WorkspaceController extends Controller
             ->count();
 
         if ($count >= $max) {
-            return back()->with('status', 'وصلت لحدّ '.$max.' عروض للشاشة دي — امسح واحد وجرّب تاني.');
+            return back()->with('status', strtr((string) setting('ux.workspace.store_view_msg_2', 'وصلت لحدّ :a1 عروض للشاشة دي — امسح واحد وجرّب تاني.'), [':a1' => (string) ($max)]));
         }
 
         SavedView::updateOrCreate(
@@ -133,7 +133,7 @@ class WorkspaceController extends Controller
             ],
         );
 
-        return back()->with('status', 'اتحفظ العرض ✓');
+        return back()->with('status', (string) setting('ux.workspace.store_view_ok', 'اتحفظ العرض ✓'));
     }
 
     public function destroyView(Request $request, SavedView $view): RedirectResponse
@@ -142,7 +142,7 @@ class WorkspaceController extends Controller
 
         $view->delete();
 
-        return back()->with('status', 'اتشال العرض ✓');
+        return back()->with('status', (string) setting('ux.workspace.destroy_view_ok', 'اتشال العرض ✓'));
     }
 
     // --------------------------------------------------------- شاشة أوّل مرّة
@@ -163,7 +163,7 @@ class WorkspaceController extends Controller
                 ->where('screen', $data['screen'])
                 ->delete();
 
-            return response()->json(['ok' => true, 'message' => 'هتظهرلك تاني أوّل ما تفتح الصفحة.']);
+            return response()->json(['ok' => true, 'message' => (string) setting('ux.workspace.seen_first_run_msg', 'هتظهرلك تاني أوّل ما تفتح الصفحة.')]);
         }
 
         UserFirstRun::updateOrCreate(
@@ -171,7 +171,7 @@ class WorkspaceController extends Controller
             ['seen_at' => now()],
         );
 
-        return response()->json(['ok' => true, 'message' => 'تمام ✓']);
+        return response()->json(['ok' => true, 'message' => (string) setting('ux.workspace.seen_first_run_ok', 'تمام ✓')]);
     }
 
     /** محتوى شاشة أوّل مرّة لشاشة بعينها — قوالب جاهزة قابلة للتعديل من الأدمن */
@@ -198,8 +198,8 @@ class WorkspaceController extends Controller
         $on = $this->viewMode->toggle($request->user());
 
         return back()->with('status', $on
-            ? 'الوضع المتقدّم اتفتح ✓ — كلّ التفاصيل ظاهرة دلوقتي.'
-            : 'رجعنا للوضع المبسّط ✓ — التفاصيل موجودة ورا السويتش.');
+            ? (string) setting('ux.workspace.toggle_mode_ok', 'الوضع المتقدّم اتفتح ✓ — كلّ التفاصيل ظاهرة دلوقتي.')
+            : (string) setting('ux.workspace.toggle_mode_ok_2', 'رجعنا للوضع المبسّط ✓ — التفاصيل موجودة ورا السويتش.'));
     }
 
     // ------------------------------------------------------------- التراجع

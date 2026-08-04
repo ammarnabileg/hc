@@ -104,10 +104,7 @@ class RewardQuestionService
             }
         }
 
-        return '<svg viewBox="0 0 '.$modules.' '.$modules.'" width="'.$side.'" height="'.$side.'" role="img" '
-            .'aria-label="QR رابط السؤال" shape-rendering="crispEdges">'
-            .'<rect width="'.$modules.'" height="'.$modules.'" fill="#ffffff" />'
-            .'<g fill="#000000">'.$rects.'</g></svg>';
+        return strtr(setting('gamification_xp.reward_question_service.qr_svg_1', '<svg viewBox="0 0 :p1 :p2" width=":p3" height=":p4" role="img" aria-label="QR رابط السؤال" shape-rendering="crispEdges"><rect width=":p5" height=":p6" fill="#ffffff" /><g fill="#000000">:p7</g></svg>'), [':p1' => (string) ($modules), ':p2' => (string) ($modules), ':p3' => (string) ($side), ':p4' => (string) ($side), ':p5' => (string) ($modules), ':p6' => (string) ($modules), ':p7' => (string) ($rects)]);
     }
 
     /** نصّ رسالة الواتساب الجاهزة + الرابط */
@@ -198,7 +195,7 @@ class RewardQuestionService
             $answer = trim((string) ($columns[3] ?? ''));
 
             if ($prompt === '' || $answer === '') {
-                $errors[] = 'الصفّ رقم '.($index + 1).': السؤال أو الإجابة ناقص.';
+                $errors[] = strtr(setting('gamification_xp.reward_question_service.import_csv_1', 'الصفّ رقم :p1: السؤال أو الإجابة ناقص.'), [':p1' => (string) (($index + 1))]);
 
                 continue;
             }

@@ -36,8 +36,8 @@ class PasswordController extends Controller
         $data = $request->validate([
             'email' => ['required', 'email', 'max:190'],
         ], [
-            'email.required' => 'اكتب بريدك الأوّل.',
-            'email.email' => 'الصيغة دي مش بريد صحيح — راجعها وجرّب تاني.',
+            'email.required' => (string) setting('auth.password.email_msg', 'اكتب بريدك الأوّل.'),
+            'email.email' => (string) setting('auth.password.email_denied', 'الصيغة دي مش بريد صحيح — راجعها وجرّب تاني.'),
         ]);
 
         $result = $this->passwords->request($data['email']);
@@ -86,8 +86,8 @@ class PasswordController extends Controller
             'email' => ['required', 'email', 'max:190'],
             'code' => ['required', 'string', 'size:'.$this->otp->length()],
         ], [
-            'code.required' => 'اكتب الرمز اللي وصلك.',
-            'code.size' => 'الرمز '.$this->otp->length().' أرقام بالظبط.',
+            'code.required' => (string) setting('auth.password.exchange_code_msg', 'اكتب الرمز اللي وصلك.'),
+            'code.size' => strtr((string) setting('auth.password.exchange_code_msg_2', 'الرمز :a1 أرقام بالظبط.'), [':a1' => (string) ($this->otp->length())]),
         ]);
 
         $email = Str::lower(trim($data['email']));
@@ -132,9 +132,9 @@ class PasswordController extends Controller
              */
             'password' => ['required', 'confirmed', Password::min($this->minLength())],
         ], [
-            'password.required' => 'اكتب كلمة السرّ الجديدة.',
-            'password.confirmed' => 'الكلمتان مش متطابقتين — راجعهم وجرّب تاني.',
-            'password.min' => 'كلمة السرّ لازم تبقى '.$this->minLength().' خانات على الأقلّ ومفيش أيّ شرط تاني.',
+            'password.required' => (string) setting('auth.password.update_msg', 'اكتب كلمة السرّ الجديدة.'),
+            'password.confirmed' => (string) setting('auth.password.update_denied', 'الكلمتان مش متطابقتين — راجعهم وجرّب تاني.'),
+            'password.min' => strtr((string) setting('auth.password.update_empty', 'كلمة السرّ لازم تبقى :a1 خانات على الأقلّ ومفيش أيّ شرط تاني.'), [':a1' => (string) ($this->minLength())]),
         ]);
 
         $email = Str::lower(trim($data['email']));

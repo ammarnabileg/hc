@@ -12,7 +12,7 @@
         <span>{{ $brand }}</span>
     </a>
 
-    <nav class="flex items-center gap-2" aria-label="روابط الحساب">
+    <nav class="flex items-center gap-2" aria-label="{{ setting('home.nav.aria_label_1', 'روابط الحساب') }}">
         <a href="{{ route('login') }}"
            class="btn inline-flex items-center rounded-xl px-4 py-2 text-sm motion-standard"
            style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">

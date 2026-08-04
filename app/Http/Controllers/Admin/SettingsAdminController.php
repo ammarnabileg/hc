@@ -202,7 +202,7 @@ class SettingsAdminController extends Controller
             ], 404);
         }
 
-        return response()->json($this->registry->lastChange($setting) ?? ['at' => 'مافيش تعديل مسجَّل']);
+        return response()->json($this->registry->lastChange($setting) ?? ['at' => (string) setting('settings.admin.audit_empty', 'مافيش تعديل مسجَّل')]);
     }
 
     /** بحث موحّد داخل كلّ الإعدادات — والنتيجة بمسارها الكامل */
@@ -233,11 +233,14 @@ class SettingsAdminController extends Controller
         $payload = json_decode((string) file_get_contents($request->file('file')->getRealPath()), true);
 
         if (! is_array($payload)) {
-            return back()->withErrors(['file' => 'الملفّ مش JSON صالح — صدّر نسخة وقارن الشكل.']);
+            return back()->withErrors(['file' => (string) setting('settings.admin.import_denied', 'الملفّ مش JSON صالح — صدّر نسخة وقارن الشكل.')]);
         }
 
         $result = $this->registry->import($payload, $request->user());
 
-        return back()->with('status', "اتطبّق {$result['applied']} إعداد · اتخطّى {$result['skipped']}");
+        return back()->with('status', strtr((string) setting('settings.admin.import_ok', 'اتطبّق :applied إعداد · اتخطّى :skipped'), [
+            ':applied' => (string) $result['applied'],
+            ':skipped' => (string) $result['skipped'],
+        ]));
     }
 }

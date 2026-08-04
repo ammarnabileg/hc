@@ -1,3 +1,13 @@
+@php
+    /** نصوص السكربت — من الإعدادات لا محروقةً في الجافاسكربت (2.13-أ) */
+    $hcWords = array_merge($hcWords ?? [], [
+        'volunteer_page.view.js_1' => (string) setting('volunteer_page.view.js_1', 'الموعد حالًا'),
+        'volunteer_page.view.js_2' => (string) setting('volunteer_page.view.js_2', ' يوم و'),
+        'volunteer_page.view.js_3' => (string) setting('volunteer_page.view.js_3', ' ساعة و'),
+        'volunteer_page.view.js_4' => (string) setting('volunteer_page.view.js_4', ' دقيقة'),
+    ]);
+@endphp
+
 @extends('layouts.app')
 @section('title', $heroTitle)
 @section('meta_description', $heroBody)
@@ -59,7 +69,7 @@
                 {{-- نسبة التأهيليّ («باقي القليل» — 13.4-ب) --}}
                 <div class="mt-3">
                     <div class="flex items-center justify-between text-xs mb-1" style="color: var(--text-muted)">
-                        <span>تقدّمك في المسار التأهيليّ</span>
+                        <span>{{ setting('volunteer_page.view.text_1', 'تقدّمك في المسار التأهيليّ') }}</span>
                         <span>{{ $status['progress']['percent'] }}%</span>
                     </div>
                     <div class="h-2 rounded-full overflow-hidden" style="background: var(--surface-sunken)">
@@ -93,10 +103,10 @@
             {{-- ⭐ طلب التسكين: لازم يدخل يوافق أو يرفض داخل المهلة (13.4-هـ) --}}
             @if ($status['placement'])
                 <div class="mt-4 rounded-xl p-3" style="background: color-mix(in srgb, var(--color-brand-500) 10%, transparent)">
-                    <h3 class="text-sm font-bold">وصلك طلب تسكين</h3>
+                    <h3 class="text-sm font-bold">{{ setting('volunteer_page.view.text_2', 'وصلك طلب تسكين') }}</h3>
                     <p class="text-xs mt-1" style="color: var(--text-muted)">
                         {{ $status['placement']->entity?->name_ar }} · {{ $status['placement']->position?->name_ar }}
-                        — الردّ خلال {{ $responseHours }} ساعة.
+                        — {{ strtr((string) setting('volunteer_page.view.text_3', 'الردّ خلال :a1 ساعة.'), [':a1' => (string) ($responseHours)]) }}
                     </p>
 
                     <div class="mt-2 flex flex-wrap gap-2">
@@ -104,13 +114,13 @@
                             @csrf
                             <input type="hidden" name="decision" value="accepted">
                             <button type="submit" class="btn rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
-                                    style="background: var(--color-brand-500); color: #04201c; min-height: 44px">أوافق</button>
+                                    style="background: var(--color-brand-500); color: #04201c; min-height: 44px">{{ setting('volunteer_page.view.text_4', 'أوافق') }}</button>
                         </form>
                         <form method="post" action="{{ route('volunteering.placement.respond', $status['placement']) }}">
                             @csrf
                             <input type="hidden" name="decision" value="rejected">
                             <button type="submit" class="rounded-xl px-4 py-2 text-sm motion-standard"
-                                    style="background: var(--surface-sunken); min-height: 44px">مش دلوقتي</button>
+                                    style="background: var(--surface-sunken); min-height: 44px">{{ setting('volunteer_page.view.text_5', 'مش دلوقتي') }}</button>
                         </form>
                     </div>
                 </div>
@@ -128,7 +138,7 @@
                         </form>
                     @elseif ($renewAt)
                         <p class="text-xs" style="color: var(--text-muted)">
-                            التجديد الجاي متاح يوم {{ $renewAt->translatedFormat('j F Y') }}.
+                            {{ strtr((string) setting('volunteer_page.view.text_6', 'التجديد الجاي متاح يوم :a1.'), [':a1' => (string) ($renewAt->translatedFormat('j F Y'))]) }}
                         </p>
                     @endif
                 </div>
@@ -140,7 +150,7 @@
     @if ($gate['excluded'])
         <x-empty
             :message="$gate['message']"
-            action="صفحة الدعم"
+            action="{{ setting('volunteer_page.view.action_1', 'صفحة الدعم') }}"
             :href="\Illuminate\Support\Facades\Route::has('complaints.index') ? route('complaints.index') : '#'" />
     @elseif ($gate['until'])
         <div class="card p-6 text-center mb-4">
@@ -281,7 +291,7 @@
                 const left = target - Date.now();
 
                 if (left <= 0) {
-                    el.textContent = 'الموعد حالًا';
+                    el.textContent = @json($hcWords['volunteer_page.view.js_1']);
 
                     return;
                 }
@@ -289,7 +299,7 @@
                 const d = Math.floor(left / 86400000);
                 const h = Math.floor((left % 86400000) / 3600000);
                 const m = Math.floor((left % 3600000) / 60000);
-                el.textContent = (d ? d + ' يوم و' : '') + h + ' ساعة و' + m + ' دقيقة';
+                el.textContent = (d ? d + @json($hcWords['volunteer_page.view.js_2']) : '') + h + @json($hcWords['volunteer_page.view.js_3']) + m + @json($hcWords['volunteer_page.view.js_4']);
             };
 
             tick();

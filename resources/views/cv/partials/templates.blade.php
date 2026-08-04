@@ -1,3 +1,10 @@
+@php
+    /** نصوص السكربت — من الإعدادات لا محروقةً في الجافاسكربت (2.13-أ) */
+    $hcWords = array_merge($hcWords ?? [], [
+        'cv.template.error_label' => (string) setting('cv.template.error_label', 'مش قادرين ننفّذ دلوقتي — جرّب تاني.'),
+    ]);
+@endphp
+
 {{-- معرض القوالب: المجّانيّ باب الدخول (21.2-ج) والمدفوع بعلامة سعر واضحة (24.5) --}}
 <div class="card p-4 mt-4" data-templates>
     <div class="flex items-center justify-between mb-3">
@@ -83,7 +90,7 @@
 
             if (preview && root) preview.src = root.dataset.previewUrl + '?t=' + Date.now();
         } catch {
-            note.textContent = @json(setting('cv.template.error_label', 'مش قادرين ننفّذ دلوقتي — جرّب تاني.'));
+            note.textContent = @json($hcWords['cv.template.error_label']);
             note.style.color = 'var(--color-state-warn)';
         }
     }));

@@ -224,7 +224,7 @@ class PathCourseService
             'price_coins' => $price,
             'examable_type' => $path->getMorphClass(),
             'examable_id' => $path->id,
-            'title_ar' => 'امتحان شهادة '.$path->name_ar,
+            'title_ar' => strtr(setting('admin_content.path_course_service.sync_path_exam_1', 'امتحان شهادة :p1'), [':p1' => (string) ($path->name_ar)]),
             'pass_score' => (int) setting('exams.pass_score.default', 70),
             'questions_count' => (int) setting('exams.questions.default_count', 20),
             'duration_minutes' => (int) setting('exams.duration.default_minutes', 30),

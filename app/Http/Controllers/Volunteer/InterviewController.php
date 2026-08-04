@@ -78,9 +78,9 @@ class InterviewController extends Controller
             'scheduled_at' => ['required', 'date'],
             'external_link' => ['nullable', 'url', 'max:255'],
         ], [], [
-            'interviewer_id' => 'المُقابِل',
-            'scheduled_at' => 'الموعد',
-            'external_link' => 'رابط الميتينج',
+            'interviewer_id' => (string) setting('interviews.screen.store_msg', 'المُقابِل'),
+            'scheduled_at' => (string) setting('interviews.screen.store_msg_2', 'الموعد'),
+            'external_link' => (string) setting('interviews.screen.store_msg_3', 'رابط الميتينج'),
         ]);
 
         try {
@@ -95,7 +95,7 @@ class InterviewController extends Controller
             return back()->with('status', $e->getMessage())->withInput();
         }
 
-        return back()->with('status', 'اتجدولت ✓ والطرفان اتبلّغوا.');
+        return back()->with('status', (string) setting('interviews.screen.store_ok', 'اتجدولت ✓ والطرفان اتبلّغوا.'));
     }
 
     /** الحالات الأربع: مجدولة · تمّت · لم يحضر · مُلغاة */
@@ -117,7 +117,7 @@ class InterviewController extends Controller
             return back()->with('status', $e->getMessage());
         }
 
-        return back()->with('status', 'اتحدّثت ✓');
+        return back()->with('status', (string) setting('interviews.screen.status_ok', 'اتحدّثت ✓'));
     }
 
     // ------------------------------------------------------------ Scorecard
@@ -162,7 +162,7 @@ class InterviewController extends Controller
 
         return response()->json([
             'saved' => true,
-            'message' => 'اتحفظ ✓',
+            'message' => (string) setting('interviews.screen.autosave_ok', 'اتحفظ ✓'),
             'total' => (float) $card->total_score,
             'missing' => $this->engine->missing($card),
         ]);
@@ -186,8 +186,8 @@ class InterviewController extends Controller
         return redirect()
             ->route('volunteer.interviews', ['tab' => 'results'])
             ->with('status', $data['decision'] === 'passed'
-                ? 'اتسجّل ✓ المرشّح راح للقائمة النهائيّة.'
-                : 'اتسجّل ✓ القرار والسبب اتحفظوا.');
+                ? (string) setting('interviews.screen.decide_ok', 'اتسجّل ✓ المرشّح راح للقائمة النهائيّة.')
+                : (string) setting('interviews.screen.decide_ok_2', 'اتسجّل ✓ القرار والسبب اتحفظوا.'));
     }
 
     /** تصدير الملخّص للأرشيف */
@@ -196,7 +196,8 @@ class InterviewController extends Controller
         $card = InterviewScorecard::firstOrNew(['interview_id' => $interview->id]);
         $name = $interview->recruitment_candidate?->user?->name ?? 'candidate';
 
-        $body = "نتيجة مقابلة — {$name}\n".str_repeat('─', 32)."\n".$this->engine->summary($card);
+        $body = strtr((string) setting('interviews.screen.export_title', 'نتيجة مقابلة — :name'), [':name' => (string) $name])
+            ."\n".str_repeat('─', 32)."\n".$this->engine->summary($card);
 
         return response($body, 200, [
             'Content-Type' => 'text/plain; charset=UTF-8',

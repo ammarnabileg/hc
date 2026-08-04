@@ -96,7 +96,7 @@
             <div class="flex items-center justify-between gap-3 py-3 {{ $loop->last ? '' : 'border-b' }}"
                  style="border-color: var(--border)">
                 <div class="min-w-0">
-                    <div class="text-sm font-semibold truncate">{{ $row->reason ?: (\App\Http\Controllers\Trainee\WalletController::SOURCE_LABELS[$row->source] ?? $row->source) }}</div>
+                    <div class="text-sm font-semibold truncate">{{ $row->reason ?: (\App\Http\Controllers\Trainee\WalletController::sourceLabels()[$row->source] ?? $row->source) }}</div>
                     <div class="text-xs mt-0.5" style="color: var(--text-muted)"
                          title="{{ $row->created_at?->format('Y-m-d H:i') }}">{{ $row->created_at?->diffForHumans() }}</div>
                 </div>

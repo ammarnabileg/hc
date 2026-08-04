@@ -64,7 +64,7 @@ class PublicBoardController extends Controller
 
         if ($task->source !== 'public_board' || $task->owner_id !== null) {
             throw ValidationException::withMessages([
-                'claim' => 'المهمّة دي اتسحبت خلاص — شوف باقي اللوحة.',
+                'claim' => (string) setting('volunteer_page.board.claim_msg', 'المهمّة دي اتسحبت خلاص — شوف باقي اللوحة.'),
             ]);
         }
 
@@ -81,7 +81,7 @@ class PublicBoardController extends Controller
 
         return redirect()
             ->route('volunteer.tasks.show', $task)
-            ->with('status', 'المهمّة بقت عليك ✓ — سقف انشغالك دلوقتي '.$summary['display'].'.');
+            ->with('status', strtr((string) setting('volunteer_page.board.claim_ok', 'المهمّة بقت عليك ✓ — سقف انشغالك دلوقتي :a1.'), [':a1' => (string) ($summary['display'])]));
     }
 
     /** ترشيح بندٍ ليصير عامًّا — يُرفَع لمشرف عام التطوّع ولا يصير عامًّا بنفسه */
@@ -102,12 +102,12 @@ class PublicBoardController extends Controller
         $this->bridge->notify(
             $user,
             'public_board_nomination',
-            'اترفع ترشيحك: '.$item->name,
-            'السبب: '.$data['reason'],
+            strtr((string) setting('volunteer_page.board.nominate_msg', 'اترفع ترشيحك: :a1'), [':a1' => (string) ($item->name)]),
+            strtr((string) setting('volunteer_page.board.nominate_msg_2', 'السبب: :a1'), [':a1' => (string) ($data['reason'])]),
             route('volunteer.tasks.board'),
             $item,
         );
 
-        return back()->with('status', 'اترفع الترشيح ✓ — مشرف عام التطوّع هو اللي يقرّر يخلّيه عامًّا.');
+        return back()->with('status', (string) setting('volunteer_page.board.nominate_ok', 'اترفع الترشيح ✓ — مشرف عام التطوّع هو اللي يقرّر يخلّيه عامًّا.'));
     }
 }

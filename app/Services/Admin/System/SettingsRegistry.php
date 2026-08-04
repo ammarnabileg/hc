@@ -34,57 +34,60 @@ class SettingsRegistry
     {
         return [
             'platform' => [
-                'label' => 'إعدادات المنصّة',
+                'label' => setting('system.settings_registry.tabs_1', 'إعدادات المنصّة'),
                 'groups' => ['system', 'accounts', 'integrations', 'ux', 'feel', 'setup'],
-                'hint' => 'الاسم واللغة والبريد والتكاملات وسلوك الجلسات والتنصيب.',
+                'hint' => setting('system.settings_registry.tabs_2', 'الاسم واللغة والبريد والتكاملات وسلوك الجلسات والتنصيب.'),
             ],
             'identity' => [
-                'label' => 'الهويّة والمظهر',
-                'groups' => ['appearance', 'platform'],
-                'hint' => 'توكنز الألوان والخطوط والمساحات والزخارف والسايد بار والشعار.',
+                'label' => setting('system.settings_registry.tabs_3', 'الهويّة والمظهر'),
+                // ⭐ `nav` = **لافتات** بنود السايد بار (12.0 · 13.4-ح · 24.5-أ) — وموضعها
+                // هنا بنصّ بلوك الإعدادات: «[السايد بار] Toggle وترتيب بالسحب لكلّ عنصر
+                // + **نصّ كلّ زرّ** (ع/إ) + صلاحيّة الظهور». والاسم يُعدَّل، والبنية لا (2.13-ب).
+                'groups' => ['appearance', 'platform', 'nav'],
+                'hint' => setting('system.settings_registry.tabs_4', 'توكنز الألوان والخطوط والمساحات والزخارف والسايد بار والشعار.'),
             ],
             'onboarding' => [
-                'label' => 'محتوى الـOnboarding',
+                'label' => setting('system.settings_registry.tabs_5', 'محتوى الـOnboarding'),
                 'groups' => ['onboarding'],
-                'hint' => 'رحلة التسجيل من التعليمات إلى صفحة القبول.',
+                'hint' => setting('system.settings_registry.tabs_6', 'رحلة التسجيل من التعليمات إلى صفحة القبول.'),
             ],
             'public' => [
-                'label' => 'الصفحة الرئيسيّة العامّة',
+                'label' => setting('system.settings_registry.tabs_7', 'الصفحة الرئيسيّة العامّة'),
                 'groups' => ['home'],
-                'hint' => 'محتوى الواجهة العامّة قبل تسجيل الدخول وبيانات الميتا.',
+                'hint' => setting('system.settings_registry.tabs_8', 'محتوى الواجهة العامّة قبل تسجيل الدخول وبيانات الميتا.'),
             ],
             'account' => [
-                'label' => 'الحساب والخصوصيّة',
+                'label' => setting('system.settings_registry.tabs_9', 'الحساب والخصوصيّة'),
                 'groups' => ['account'],
-                'hint' => 'البروفايل العامّ ومستويات الإظهار وتحميل البيانات والبحث.',
+                'hint' => setting('system.settings_registry.tabs_10', 'البروفايل العامّ ومستويات الإظهار وتحميل البيانات والبحث.'),
             ],
             'cv' => [
-                'label' => 'قوالب الـCV',
+                'label' => setting('system.settings_registry.tabs_11', 'قوالب الـCV'),
                 'groups' => ['cv'],
-                'hint' => 'تكلفة القوالب بالتذاكر وحدود الأقسام والرابط العامّ.',
+                'hint' => setting('system.settings_registry.tabs_12', 'تكلفة القوالب بالتذاكر وحدود الأقسام والرابط العامّ.'),
             ],
             'learning' => [
-                'label' => 'التعلّم والتدريبات',
+                'label' => setting('system.settings_registry.tabs_13', 'التعلّم والتدريبات'),
                 'groups' => ['learning', 'paths', 'courses', 'lessons', 'academy', 'availability'],
-                'hint' => 'المسارات والتدريبات والدروس وXP وفترات الإتاحة.',
+                'hint' => setting('system.settings_registry.tabs_14', 'المسارات والتدريبات والدروس وXP وفترات الإتاحة.'),
             ],
             'exams' => [
-                'label' => 'الامتحانات والشهادات',
+                'label' => setting('system.settings_registry.tabs_15', 'الامتحانات والشهادات'),
                 'groups' => ['exams', 'certificates', 'attestations'],
-                'hint' => 'قواعد الامتحان وإصدار الشهادات والإفادات والتحقّق العامّ.',
+                'hint' => setting('system.settings_registry.tabs_16', 'قواعد الامتحان وإصدار الشهادات والإفادات والتحقّق العامّ.'),
             ],
             'library' => [
-                'label' => 'المكتبة والقارئ والوسائط',
+                'label' => setting('system.settings_registry.tabs_17', 'المكتبة والقارئ والوسائط'),
                 'groups' => ['library', 'reader', 'internal_library', 'media', 'images'],
-                'hint' => 'مكتبتي والقارئ والعلامة المائيّة ومكتبة الوسائط واستوديو الصور.',
+                'hint' => setting('system.settings_registry.tabs_18', 'مكتبتي والقارئ والعلامة المائيّة ومكتبة الوسائط واستوديو الصور.'),
             ],
             'store' => [
-                'label' => 'المتجر والمحفظة',
+                'label' => setting('system.settings_registry.tabs_19', 'المتجر والمحفظة'),
                 'groups' => ['store', 'wallet'],
-                'hint' => 'المنتجات والباقات والكوبونات والشحن والعملات.',
+                'hint' => setting('system.settings_registry.tabs_20', 'المنتجات والباقات والكوبونات والشحن والعملات.'),
             ],
             'engagement' => [
-                'label' => 'التلعيب والتفاعل',
+                'label' => setting('system.settings_registry.tabs_21', 'التلعيب والتفاعل'),
                 'groups' => [
                     'gamification_xp', 'gamification_badges', 'gamification_streaks',
                     'gamification_leaderboard', 'gamification_wars', 'gamification_celebrations',
@@ -93,77 +96,77 @@ class SettingsRegistry
                     // أسماء قديمة أبقيناها مرساةً بعد مايجريشن التوحيد — فلا يتيتّم مفتاح لو أعاد سيدرٌ زرعها
                     'celebrations', 'streaks', 'leaderboard',
                 ],
-                'hint' => 'XP والشارات والستريك والليدر بورد والحروب والاحتفالات والفعاليّات.',
+                'hint' => setting('system.settings_registry.tabs_22', 'XP والشارات والستريك والليدر بورد والحروب والاحتفالات والفعاليّات.'),
             ],
             'volunteer' => [
-                'label' => 'التطوّع والفرق',
+                'label' => setting('system.settings_registry.tabs_23', 'التطوّع والفرق'),
                 'groups' => [
                     'volunteer', 'volunteer_page', 'volunteer_org', 'volunteer_rep',
                     'volunteer_cert', 'volunteer_offboarding', 'volunteer_analytics', 'volunteer_honorary',
                     'recruitment', 'meetings', 'workflow', 'goals', 'performance',
                     'rep', 'offboarding',
                 ],
-                'hint' => 'الهيكل والسعة وRep والمهام والاجتماعات والتوظيف والخروج.',
+                'hint' => setting('system.settings_registry.tabs_24', 'الهيكل والسعة وRep والمهام والاجتماعات والتوظيف والخروج.'),
             ],
             'dashboards' => [
-                'label' => 'اللوحات والإحصاءات',
+                'label' => setting('system.settings_registry.tabs_25', 'اللوحات والإحصاءات'),
                 'groups' => ['dashboard', 'admin_dashboard', 'stats'],
-                'hint' => 'كروت اللوحة ورادار الإنجازات والتقارير والمدى الافتراضيّ.',
+                'hint' => setting('system.settings_registry.tabs_26', 'كروت اللوحة ورادار الإنجازات والتقارير والمدى الافتراضيّ.'),
             ],
             'comms' => [
-                'label' => 'التواصل والإشعارات',
+                'label' => setting('system.settings_registry.tabs_27', 'التواصل والإشعارات'),
                 'groups' => ['notifications', 'announcements', 'complaints', 'help', 'articles'],
-                'hint' => 'الجرس والإعلانات والشكاوى ومركز المساعدة والمقالات.',
+                'hint' => setting('system.settings_registry.tabs_28', 'الجرس والإعلانات والشكاوى ومركز المساعدة والمقالات.'),
             ],
             'growth' => [
-                'label' => 'النموّ والتسويق',
+                'label' => setting('system.settings_registry.tabs_29', 'النموّ والتسويق'),
                 'groups' => ['growth', 'ads', 'ambassadors'],
-                'hint' => 'الدعوات والإحالات وألقاب السفراء وبكسلات الإعلان وجماهيره.',
+                'hint' => setting('system.settings_registry.tabs_30', 'الدعوات والإحالات وألقاب السفراء وبكسلات الإعلان وجماهيره.'),
             ],
             'governance' => [
-                'label' => 'المستخدمون والأدوار',
+                'label' => setting('system.settings_registry.tabs_31', 'المستخدمون والأدوار'),
                 'groups' => ['admin_users', 'admin_roles', 'admin_approvals', 'admin_segments', 'admin_content'],
-                'hint' => 'جداول المستخدمين ونصوص الأدوار والاعتمادات والشرائح.',
+                'hint' => setting('system.settings_registry.tabs_32', 'جداول المستخدمين ونصوص الأدوار والاعتمادات والشرائح.'),
             ],
             'security' => [
-                'label' => 'الأمان والخصوصيّة',
+                'label' => setting('system.settings_registry.tabs_33', 'الأمان والخصوصيّة'),
                 'groups' => ['security'],
-                'hint' => 'كلمات المرور والجلسات وحدود المحاولات وسلّة المحذوفات.',
+                'hint' => setting('system.settings_registry.tabs_34', 'كلمات المرور والجلسات وحدود المحاولات وسلّة المحذوفات.'),
             ],
             'features' => [
-                'label' => 'مفاتيح المزايا',
+                'label' => setting('system.settings_registry.tabs_35', 'مفاتيح المزايا'),
                 'groups' => ['features'],
-                'hint' => 'إطفاء أو تشغيل أيّ ميزة بلا نشر كود — ولا صيانة جزئيّة.',
+                'hint' => setting('system.settings_registry.tabs_36', 'إطفاء أو تشغيل أيّ ميزة بلا نشر كود — ولا صيانة جزئيّة.'),
             ],
             'countries' => [
-                'label' => 'بيانات الدول',
+                'label' => setting('system.settings_registry.tabs_37', 'بيانات الدول'),
                 'groups' => ['countries'],
-                'hint' => 'مصدر الدول والمحافظات وسياسة الدمج بلا فقد بيانات.',
+                'hint' => setting('system.settings_registry.tabs_38', 'مصدر الدول والمحافظات وسياسة الدمج بلا فقد بيانات.'),
             ],
             'maintenance' => [
-                'label' => 'وضع الصيانة',
+                'label' => setting('system.settings_registry.tabs_39', 'وضع الصيانة'),
                 'groups' => ['maintenance'],
-                'hint' => 'قفل المنصّة بالكامل مع تجميد كلّ المهل طوال المدّة.',
+                'hint' => setting('system.settings_registry.tabs_40', 'قفل المنصّة بالكامل مع تجميد كلّ المهل طوال المدّة.'),
             ],
             'updates' => [
-                'label' => 'التحديثات والترحيل',
+                'label' => setting('system.settings_registry.tabs_41', 'التحديثات والترحيل'),
                 'groups' => ['updates'],
-                'hint' => 'الترقية بنقرة دون فقد بيانات، واسترجاع بضغطة عند الفشل.',
+                'hint' => setting('system.settings_registry.tabs_42', 'الترقية بنقرة دون فقد بيانات، واسترجاع بضغطة عند الفشل.'),
             ],
             'backups' => [
-                'label' => 'النسخ الاحتياطيّ وصحّة النظام',
+                'label' => setting('system.settings_registry.tabs_43', 'النسخ الاحتياطيّ وصحّة النظام'),
                 'groups' => ['backups'],
-                'hint' => 'النسخ اليدويّة والمجدولة ومراقبة صحّة النظام.',
+                'hint' => setting('system.settings_registry.tabs_44', 'النسخ اليدويّة والمجدولة ومراقبة صحّة النظام.'),
             ],
             'misc' => [
-                'label' => 'متنوّعات',
+                'label' => setting('system.settings_registry.tabs_45', 'متنوّعات'),
                 'groups' => [],
-                'hint' => 'مجموعات لم تأخذ تابها بعد — تظهر هنا كي لا يبقى إعدادٌ بلا شاشة.',
+                'hint' => setting('system.settings_registry.tabs_46', 'مجموعات لم تأخذ تابها بعد — تظهر هنا كي لا يبقى إعدادٌ بلا شاشة.'),
             ],
             'audit' => [
-                'label' => 'سجلّ التدقيق',
+                'label' => setting('system.settings_registry.tabs_47', 'سجلّ التدقيق'),
                 'groups' => [],
-                'hint' => 'أثر كامل لكلّ تغيير إداريّ — للقراءة فقط.',
+                'hint' => setting('system.settings_registry.tabs_48', 'أثر كامل لكلّ تغيير إداريّ — للقراءة فقط.'),
             ],
         ];
     }
@@ -177,87 +180,88 @@ class SettingsRegistry
     public function groupCatalog(): array
     {
         return [
-            'system' => ['النظام', 'التوقيت وسلوك المنصّة العامّ.'],
-            'accounts' => ['الحسابات والتفعيل', 'مجانيّة التفعيل والاعتماد الإداريّ وبادئة الكود.'],
-            'integrations' => ['التكاملات', 'البريد والخدمات الخارجيّة.'],
-            'ux' => ['البساطة أوّلًا', 'حدود الكروت والفلاتر والأعمدة ومدد التراجع والـToast.'],
-            'feel' => ['طبقة الإحساس', 'العدّادات والاهتزاز وصوت التوقيع.'],
-            'appearance' => ['الهويّة البصريّة', 'الألوان والخطوط والمساحات والزخارف.'],
-            'platform' => ['شعار المنصّة', 'الشعار الظاهر في الواجهات والمستندات.'],
-            'setup' => ['التنصيب', 'خطوات التنصيب ومتطلّباته وحساب المالك الأوّل.'],
-            'home' => ['الصفحة الرئيسيّة', 'البطل والأقسام والميتا وSchema.org.'],
-            'engagement' => ['الرسائل الإيجابيّة', 'المفاجآت والتذاكر وسياقات الظهور.'],
-            'ambassadors' => ['ألقاب السفراء', 'العتبات ولوحة المتصدّرين وإشعار اللقب.'],
-            'onboarding' => ['التعريف بالمنصّة', 'رحلة أوّل دخول.'],
-            'account' => ['الحساب والخصوصيّة', 'مستويات الإظهار والموافقات وتحميل البيانات.'],
-            'cv' => ['السيرة الذاتيّة', 'القوالب وتكلفتها وحدود الأقسام والرابط العامّ.'],
-            'learning' => ['التعلّم', 'الدروس وXP والتقدّم والنصوص التحفيزيّة.'],
-            'paths' => ['المسارات', 'ترتيب المسارات وعرضها.'],
-            'courses' => ['التدريبات', 'الإتاحة والتسجيل والغلاف.'],
-            'lessons' => ['الدروس', 'الفيديو والمرفقات وشروط الإكمال.'],
-            'academy' => ['الأكاديميّة', 'التسجيلات والجلسات.'],
-            'availability' => ['الإتاحة والتوقيت', 'فترات فتح التدريبات والمنطقة الزمنيّة للمتدرّب.'],
-            'exams' => ['الامتحانات', 'المحاولات والزمن والنجاح والرسوب.'],
-            'certificates' => ['الشهادات', 'الإصدار والتصميم والتحقّق العامّ.'],
-            'attestations' => ['الإفادات', 'ورقة الإفادة وأماكن ظهورها.'],
-            'library' => ['مكتبتي', 'الملفّات والعلامة المائيّة والتنزيل.'],
-            'reader' => ['القارئ', 'التصفّح والتظليل والملاحظات.'],
-            'internal_library' => ['المكتبة الداخليّة', 'موارد الفريق ومستويات الوصول.'],
-            'media' => ['مكتبة الوسائط', 'الرفع والأنواع والأحجام.'],
-            'images' => ['استوديو الصور', 'التوليد والكاش والعلامة المائيّة.'],
-            'store' => ['المتجر', 'المنتجات والباقات والكوبونات والشحن وسياسة الاسترجاع.'],
-            'wallet' => ['المحفظة', 'أكواد العملات ومواضع الكسب والصرف.'],
-            'gamification_xp' => ['XP والمستويات', 'مصادر الخبرة وسلّم المستويات.'],
-            'gamification_badges' => ['الشارات', 'شروط المنح والعرض.'],
-            'gamification_streaks' => ['الستريك ونادي الخامسة', 'النافذة والتجميد والمكافأة.'],
-            'gamification_leaderboard' => ['الليدر بورد', 'النطاقات والتجميد وحدّ المشاركين.'],
-            'gamification_wars' => ['حروب التركيز', 'الجولات والفرق والجوائز.'],
-            'gamification_celebrations' => ['الاحتفالات', 'المستويات الثلاثة والصوت والمشاركة.'],
-            'gamification_reward_questions' => ['أسئلة المكافآت', 'بنك أسئلة المكافأة وشروط عرضها.'],
-            'celebrations' => ['الاحتفالات (نصوص)', 'نصوص التهنئة والكونفيتي والإغلاق التلقائيّ.'],
-            'streaks' => ['الستريك (عرض)', 'الخريطة الحراريّة ونافذة نادي الخامسة.'],
-            'leaderboard' => ['الليدر بورد (عرض)', 'عدد الصفوف المعروضة.'],
-            'challenges' => ['التحديات', 'المدد والانضمام والنتائج.'],
-            'kudos' => ['التقدير', 'الحدود اليوميّة ونصوص الشكر.'],
-            'rewards' => ['المكافآت', 'المخزون والصرف والحدود.'],
-            'events' => ['الفعاليّات', 'التسجيل والحضور وكود الحضور والتذكير.'],
-            'volunteer' => ['التطوّع — عامّ', 'القواعد المشتركة لطبقة التطوّع.'],
-            'volunteer_page' => ['صفحة تطوّع معنا', 'العنوان والميثاق والعدّادات وكتل المحتوى.'],
-            'volunteer_org' => ['الهيكل والسعة', 'الكانفاس وعتبات الإشغال والموازن.'],
-            'volunteer_rep' => ['السمعة (Rep)', 'السقوف والتصفير والاعتراض والخمول.'],
-            'volunteer_cert' => ['شهادات التطوّع', 'شروط الإصدار والأنواع والعرض.'],
-            'volunteer_offboarding' => ['الخروج والعودة', 'التصفية والتبريد ومقابلة الخروج.'],
-            'volunteer_analytics' => ['تحليلات التطوّع', 'المدى والمؤشّرات.'],
-            'volunteer_honorary' => ['المناصب الفخريّة', 'الألقاب الفخريّة وشروط منحها وعرضها.'],
-            'recruitment' => ['التوظيف والترشيح', 'الفرز والمقابلات والقبول.'],
-            'meetings' => ['الاجتماعات', 'الحضور والمحضر والمهل.'],
-            'workflow' => ['المهام والتسليم', 'السقوف والتمديد والتعثّر والديدلاين.'],
-            'goals' => ['الأهداف', 'الدورات والقياس والمراجعة.'],
-            'performance' => ['الأداء', 'المؤشّرات ودوريّة التقييم.'],
-            'rep' => ['السمعة (قواعد عامّة)', 'مهل الاعتراض والتصفير الشهريّ.'],
-            'offboarding' => ['الخروج (قواعد عامّة)', 'الخمول والتبريد ومهلة التسليم.'],
-            'dashboard' => ['لوحة المتدرّب', 'الكروت ورادار الإنجازات والعدّادات.'],
-            'admin_dashboard' => ['لوحة الإدارة', 'الكروت والقمع والمدى الافتراضيّ.'],
-            'stats' => ['الإحصائيّات', 'المدى والتصدير وإخفاء التابات.'],
-            'notifications' => ['الإشعارات', 'الجرس والقنوات والتجميع.'],
-            'announcements' => ['الإعلانات', 'الاستهداف والمدّة والأولويّة.'],
-            'complaints' => ['الشكاوى', 'المهل والتصنيف والتصعيد.'],
-            'help' => ['مركز المساعدة', 'الأقسام والبحث.'],
-            'articles' => ['المقالات', 'دورة النشر والمراجعة.'],
-            'growth' => ['النموّ والدعوات', 'الإحالة والمكافأة وحدودها.'],
-            'ads' => ['الإعلان المدفوع', 'البكسلات والجماهير وموافقة التتبّع.'],
-            'admin_users' => ['إدارة المستخدمين', 'الجداول والتابات والأفعال.'],
-            'admin_roles' => ['الأدوار والصلاحيّات', 'نصوص المنع والتصعيد والمجموعة المحميّة.'],
-            'admin_approvals' => ['الاعتمادات', 'قوائم الانتظار والمهل.'],
-            'admin_segments' => ['الشرائح', 'تعريف الشرائح واستخدامها.'],
-            'admin_content' => ['إدارة المحتوى', 'سجلّ التدقيق وحدوده.'],
-            'security' => ['الأمان', 'كلمات المرور والجلسات والمحاولات.'],
-            'features' => ['مفاتيح المزايا', 'تشغيل وإطفاء المزايا.'],
-            'countries' => ['الدول والمحافظات', 'المصدر وسياسة الدمج.'],
-            'maintenance' => ['وضع الصيانة', 'المدّة والرسالة وتجميد المهل.'],
-            'updates' => ['التحديثات', 'الترقية والاسترجاع.'],
-            'backups' => ['النسخ الاحتياطيّ', 'الجدولة والاحتفاظ.'],
-            'finance' => ['🔒 الماليّات', 'الأسعار والعمولات والسحب والاسترجاع — لمالك المنصّة وحده.'],
+            'system' => [setting('system.settings_registry.group_catalog_1', 'النظام'), setting('system.settings_registry.group_catalog_2', 'التوقيت وسلوك المنصّة العامّ.')],
+            'accounts' => [setting('system.settings_registry.group_catalog_3', 'الحسابات والتفعيل'), setting('system.settings_registry.group_catalog_4', 'مجانيّة التفعيل والاعتماد الإداريّ وبادئة الكود.')],
+            'integrations' => [setting('system.settings_registry.group_catalog_5', 'التكاملات'), setting('system.settings_registry.group_catalog_6', 'البريد والخدمات الخارجيّة.')],
+            'ux' => [setting('system.settings_registry.group_catalog_7', 'البساطة أوّلًا'), setting('system.settings_registry.group_catalog_8', 'حدود الكروت والفلاتر والأعمدة ومدد التراجع والـToast.')],
+            'feel' => [setting('system.settings_registry.group_catalog_9', 'طبقة الإحساس'), setting('system.settings_registry.group_catalog_10', 'العدّادات والاهتزاز وصوت التوقيع.')],
+            'appearance' => [setting('system.settings_registry.group_catalog_11', 'الهويّة البصريّة'), setting('system.settings_registry.group_catalog_12', 'الألوان والخطوط والمساحات والزخارف.')],
+            'platform' => [setting('system.settings_registry.group_catalog_13', 'شعار المنصّة'), setting('system.settings_registry.group_catalog_14', 'الشعار الظاهر في الواجهات والمستندات.')],
+            'nav' => [setting('system.settings_registry.group_catalog_15', 'لافتات السايد بار والتنقّل'), setting('system.settings_registry.group_catalog_16', 'أسماء بنود سايد بار الإدارة والتطوّع والمتدرّب والهيدر والجرس — الاسم يُعدَّل والبنية (العدد والترتيب والوجهة) لا تُمَسّ.')],
+            'setup' => [setting('system.settings_registry.group_catalog_17', 'التنصيب'), setting('system.settings_registry.group_catalog_18', 'خطوات التنصيب ومتطلّباته وحساب المالك الأوّل.')],
+            'home' => [setting('system.settings_registry.group_catalog_19', 'الصفحة الرئيسيّة'), setting('system.settings_registry.group_catalog_20', 'البطل والأقسام والميتا وSchema.org.')],
+            'engagement' => [setting('system.settings_registry.group_catalog_21', 'الرسائل الإيجابيّة'), setting('system.settings_registry.group_catalog_22', 'المفاجآت والتذاكر وسياقات الظهور.')],
+            'ambassadors' => [setting('system.settings_registry.group_catalog_23', 'ألقاب السفراء'), setting('system.settings_registry.group_catalog_24', 'العتبات ولوحة المتصدّرين وإشعار اللقب.')],
+            'onboarding' => [setting('system.settings_registry.group_catalog_25', 'التعريف بالمنصّة'), setting('system.settings_registry.group_catalog_26', 'رحلة أوّل دخول.')],
+            'account' => [setting('system.settings_registry.group_catalog_27', 'الحساب والخصوصيّة'), setting('system.settings_registry.group_catalog_28', 'مستويات الإظهار والموافقات وتحميل البيانات.')],
+            'cv' => [setting('system.settings_registry.group_catalog_29', 'السيرة الذاتيّة'), setting('system.settings_registry.group_catalog_30', 'القوالب وتكلفتها وحدود الأقسام والرابط العامّ.')],
+            'learning' => [setting('system.settings_registry.group_catalog_31', 'التعلّم'), setting('system.settings_registry.group_catalog_32', 'الدروس وXP والتقدّم والنصوص التحفيزيّة.')],
+            'paths' => [setting('system.settings_registry.group_catalog_33', 'المسارات'), setting('system.settings_registry.group_catalog_34', 'ترتيب المسارات وعرضها.')],
+            'courses' => [setting('system.settings_registry.group_catalog_35', 'التدريبات'), setting('system.settings_registry.group_catalog_36', 'الإتاحة والتسجيل والغلاف.')],
+            'lessons' => [setting('system.settings_registry.group_catalog_37', 'الدروس'), setting('system.settings_registry.group_catalog_38', 'الفيديو والمرفقات وشروط الإكمال.')],
+            'academy' => [setting('system.settings_registry.group_catalog_39', 'الأكاديميّة'), setting('system.settings_registry.group_catalog_40', 'التسجيلات والجلسات.')],
+            'availability' => [setting('system.settings_registry.group_catalog_41', 'الإتاحة والتوقيت'), setting('system.settings_registry.group_catalog_42', 'فترات فتح التدريبات والمنطقة الزمنيّة للمتدرّب.')],
+            'exams' => [setting('system.settings_registry.group_catalog_43', 'الامتحانات'), setting('system.settings_registry.group_catalog_44', 'المحاولات والزمن والنجاح والرسوب.')],
+            'certificates' => [setting('system.settings_registry.group_catalog_45', 'الشهادات'), setting('system.settings_registry.group_catalog_46', 'الإصدار والتصميم والتحقّق العامّ.')],
+            'attestations' => [setting('system.settings_registry.group_catalog_47', 'الإفادات'), setting('system.settings_registry.group_catalog_48', 'ورقة الإفادة وأماكن ظهورها.')],
+            'library' => [setting('system.settings_registry.group_catalog_49', 'مكتبتي'), setting('system.settings_registry.group_catalog_50', 'الملفّات والعلامة المائيّة والتنزيل.')],
+            'reader' => [setting('system.settings_registry.group_catalog_51', 'القارئ'), setting('system.settings_registry.group_catalog_52', 'التصفّح والتظليل والملاحظات.')],
+            'internal_library' => [setting('system.settings_registry.group_catalog_53', 'المكتبة الداخليّة'), setting('system.settings_registry.group_catalog_54', 'موارد الفريق ومستويات الوصول.')],
+            'media' => [setting('system.settings_registry.group_catalog_55', 'مكتبة الوسائط'), setting('system.settings_registry.group_catalog_56', 'الرفع والأنواع والأحجام.')],
+            'images' => [setting('system.settings_registry.group_catalog_57', 'استوديو الصور'), setting('system.settings_registry.group_catalog_58', 'التوليد والكاش والعلامة المائيّة.')],
+            'store' => [setting('system.settings_registry.group_catalog_59', 'المتجر'), setting('system.settings_registry.group_catalog_60', 'المنتجات والباقات والكوبونات والشحن وسياسة الاسترجاع.')],
+            'wallet' => [setting('system.settings_registry.group_catalog_61', 'المحفظة'), setting('system.settings_registry.group_catalog_62', 'أكواد العملات ومواضع الكسب والصرف.')],
+            'gamification_xp' => [setting('system.settings_registry.group_catalog_63', 'XP والمستويات'), setting('system.settings_registry.group_catalog_64', 'مصادر الخبرة وسلّم المستويات.')],
+            'gamification_badges' => [setting('system.settings_registry.group_catalog_65', 'الشارات'), setting('system.settings_registry.group_catalog_66', 'شروط المنح والعرض.')],
+            'gamification_streaks' => [setting('system.settings_registry.group_catalog_67', 'الستريك ونادي الخامسة'), setting('system.settings_registry.group_catalog_68', 'النافذة والتجميد والمكافأة.')],
+            'gamification_leaderboard' => [setting('system.settings_registry.group_catalog_69', 'الليدر بورد'), setting('system.settings_registry.group_catalog_70', 'النطاقات والتجميد وحدّ المشاركين.')],
+            'gamification_wars' => [setting('system.settings_registry.group_catalog_71', 'حروب التركيز'), setting('system.settings_registry.group_catalog_72', 'الجولات والفرق والجوائز.')],
+            'gamification_celebrations' => [setting('system.settings_registry.group_catalog_73', 'الاحتفالات'), setting('system.settings_registry.group_catalog_74', 'المستويات الثلاثة والصوت والمشاركة.')],
+            'gamification_reward_questions' => [setting('system.settings_registry.group_catalog_75', 'أسئلة المكافآت'), setting('system.settings_registry.group_catalog_76', 'بنك أسئلة المكافأة وشروط عرضها.')],
+            'celebrations' => [setting('system.settings_registry.group_catalog_77', 'الاحتفالات (نصوص)'), setting('system.settings_registry.group_catalog_78', 'نصوص التهنئة والكونفيتي والإغلاق التلقائيّ.')],
+            'streaks' => [setting('system.settings_registry.group_catalog_79', 'الستريك (عرض)'), setting('system.settings_registry.group_catalog_80', 'الخريطة الحراريّة ونافذة نادي الخامسة.')],
+            'leaderboard' => [setting('system.settings_registry.group_catalog_81', 'الليدر بورد (عرض)'), setting('system.settings_registry.group_catalog_82', 'عدد الصفوف المعروضة.')],
+            'challenges' => [setting('system.settings_registry.group_catalog_83', 'التحديات'), setting('system.settings_registry.group_catalog_84', 'المدد والانضمام والنتائج.')],
+            'kudos' => [setting('system.settings_registry.group_catalog_85', 'التقدير'), setting('system.settings_registry.group_catalog_86', 'الحدود اليوميّة ونصوص الشكر.')],
+            'rewards' => [setting('system.settings_registry.group_catalog_87', 'المكافآت'), setting('system.settings_registry.group_catalog_88', 'المخزون والصرف والحدود.')],
+            'events' => [setting('system.settings_registry.group_catalog_89', 'الفعاليّات'), setting('system.settings_registry.group_catalog_90', 'التسجيل والحضور وكود الحضور والتذكير.')],
+            'volunteer' => [setting('system.settings_registry.group_catalog_91', 'التطوّع — عامّ'), setting('system.settings_registry.group_catalog_92', 'القواعد المشتركة لطبقة التطوّع.')],
+            'volunteer_page' => [setting('system.settings_registry.group_catalog_93', 'صفحة تطوّع معنا'), setting('system.settings_registry.group_catalog_94', 'العنوان والميثاق والعدّادات وكتل المحتوى.')],
+            'volunteer_org' => [setting('system.settings_registry.group_catalog_95', 'الهيكل والسعة'), setting('system.settings_registry.group_catalog_96', 'الكانفاس وعتبات الإشغال والموازن.')],
+            'volunteer_rep' => [setting('system.settings_registry.group_catalog_97', 'السمعة (Rep)'), setting('system.settings_registry.group_catalog_98', 'السقوف والتصفير والاعتراض والخمول.')],
+            'volunteer_cert' => [setting('system.settings_registry.group_catalog_99', 'شهادات التطوّع'), setting('system.settings_registry.group_catalog_100', 'شروط الإصدار والأنواع والعرض.')],
+            'volunteer_offboarding' => [setting('system.settings_registry.group_catalog_101', 'الخروج والعودة'), setting('system.settings_registry.group_catalog_102', 'التصفية والتبريد ومقابلة الخروج.')],
+            'volunteer_analytics' => [setting('system.settings_registry.group_catalog_103', 'تحليلات التطوّع'), setting('system.settings_registry.group_catalog_104', 'المدى والمؤشّرات.')],
+            'volunteer_honorary' => [setting('system.settings_registry.group_catalog_105', 'المناصب الفخريّة'), setting('system.settings_registry.group_catalog_106', 'الألقاب الفخريّة وشروط منحها وعرضها.')],
+            'recruitment' => [setting('system.settings_registry.group_catalog_107', 'التوظيف والترشيح'), setting('system.settings_registry.group_catalog_108', 'الفرز والمقابلات والقبول.')],
+            'meetings' => [setting('system.settings_registry.group_catalog_109', 'الاجتماعات'), setting('system.settings_registry.group_catalog_110', 'الحضور والمحضر والمهل.')],
+            'workflow' => [setting('system.settings_registry.group_catalog_111', 'المهام والتسليم'), setting('system.settings_registry.group_catalog_112', 'السقوف والتمديد والتعثّر والديدلاين.')],
+            'goals' => [setting('system.settings_registry.group_catalog_113', 'الأهداف'), setting('system.settings_registry.group_catalog_114', 'الدورات والقياس والمراجعة.')],
+            'performance' => [setting('system.settings_registry.group_catalog_115', 'الأداء'), setting('system.settings_registry.group_catalog_116', 'المؤشّرات ودوريّة التقييم.')],
+            'rep' => [setting('system.settings_registry.group_catalog_117', 'السمعة (قواعد عامّة)'), setting('system.settings_registry.group_catalog_118', 'مهل الاعتراض والتصفير الشهريّ.')],
+            'offboarding' => [setting('system.settings_registry.group_catalog_119', 'الخروج (قواعد عامّة)'), setting('system.settings_registry.group_catalog_120', 'الخمول والتبريد ومهلة التسليم.')],
+            'dashboard' => [setting('system.settings_registry.group_catalog_121', 'لوحة المتدرّب'), setting('system.settings_registry.group_catalog_122', 'الكروت ورادار الإنجازات والعدّادات.')],
+            'admin_dashboard' => [setting('system.settings_registry.group_catalog_123', 'لوحة الإدارة'), setting('system.settings_registry.group_catalog_124', 'الكروت والقمع والمدى الافتراضيّ.')],
+            'stats' => [setting('system.settings_registry.group_catalog_125', 'الإحصائيّات'), setting('system.settings_registry.group_catalog_126', 'المدى والتصدير وإخفاء التابات.')],
+            'notifications' => [setting('system.settings_registry.group_catalog_127', 'الإشعارات'), setting('system.settings_registry.group_catalog_128', 'الجرس والقنوات والتجميع.')],
+            'announcements' => [setting('system.settings_registry.group_catalog_129', 'الإعلانات'), setting('system.settings_registry.group_catalog_130', 'الاستهداف والمدّة والأولويّة.')],
+            'complaints' => [setting('system.settings_registry.group_catalog_131', 'الشكاوى'), setting('system.settings_registry.group_catalog_132', 'المهل والتصنيف والتصعيد.')],
+            'help' => [setting('system.settings_registry.group_catalog_133', 'مركز المساعدة'), setting('system.settings_registry.group_catalog_134', 'الأقسام والبحث.')],
+            'articles' => [setting('system.settings_registry.group_catalog_135', 'المقالات'), setting('system.settings_registry.group_catalog_136', 'دورة النشر والمراجعة.')],
+            'growth' => [setting('system.settings_registry.group_catalog_137', 'النموّ والدعوات'), setting('system.settings_registry.group_catalog_138', 'الإحالة والمكافأة وحدودها.')],
+            'ads' => [setting('system.settings_registry.group_catalog_139', 'الإعلان المدفوع'), setting('system.settings_registry.group_catalog_140', 'البكسلات والجماهير وموافقة التتبّع.')],
+            'admin_users' => [setting('system.settings_registry.group_catalog_141', 'إدارة المستخدمين'), setting('system.settings_registry.group_catalog_142', 'الجداول والتابات والأفعال.')],
+            'admin_roles' => [setting('system.settings_registry.group_catalog_143', 'الأدوار والصلاحيّات'), setting('system.settings_registry.group_catalog_144', 'نصوص المنع والتصعيد والمجموعة المحميّة.')],
+            'admin_approvals' => [setting('system.settings_registry.group_catalog_145', 'الاعتمادات'), setting('system.settings_registry.group_catalog_146', 'قوائم الانتظار والمهل.')],
+            'admin_segments' => [setting('system.settings_registry.group_catalog_147', 'الشرائح'), setting('system.settings_registry.group_catalog_148', 'تعريف الشرائح واستخدامها.')],
+            'admin_content' => [setting('system.settings_registry.group_catalog_149', 'إدارة المحتوى'), setting('system.settings_registry.group_catalog_150', 'سجلّ التدقيق وحدوده.')],
+            'security' => [setting('system.settings_registry.group_catalog_151', 'الأمان'), setting('system.settings_registry.group_catalog_152', 'كلمات المرور والجلسات والمحاولات.')],
+            'features' => [setting('system.settings_registry.group_catalog_153', 'مفاتيح المزايا'), setting('system.settings_registry.group_catalog_154', 'تشغيل وإطفاء المزايا.')],
+            'countries' => [setting('system.settings_registry.group_catalog_155', 'الدول والمحافظات'), setting('system.settings_registry.group_catalog_156', 'المصدر وسياسة الدمج.')],
+            'maintenance' => [setting('system.settings_registry.group_catalog_157', 'وضع الصيانة'), setting('system.settings_registry.group_catalog_158', 'المدّة والرسالة وتجميد المهل.')],
+            'updates' => [setting('system.settings_registry.group_catalog_159', 'التحديثات'), setting('system.settings_registry.group_catalog_160', 'الترقية والاسترجاع.')],
+            'backups' => [setting('system.settings_registry.group_catalog_161', 'النسخ الاحتياطيّ'), setting('system.settings_registry.group_catalog_162', 'الجدولة والاحتفاظ.')],
+            'finance' => [setting('system.settings_registry.group_catalog_163', '🔒 الماليّات'), setting('system.settings_registry.group_catalog_164', 'الأسعار والعمولات والسحب والاسترجاع — لمالك المنصّة وحده.')],
         ];
     }
 
@@ -269,7 +273,7 @@ class SettingsRegistry
 
     public function groupHint(string $group): string
     {
-        return $this->groupCatalog()[$group][1] ?? 'مجموعة بلا وصف بعد — أضِف وصفها في `groupCatalog()`.';
+        return $this->groupCatalog()[$group][1] ?? setting('system.settings_registry.group_hint_1', 'مجموعة بلا وصف بعد — أضِف وصفها في `groupCatalog()`.');
     }
 
     /** المجموعات المسنَدة لتاب ⟵ التاب (خريطة البحث الموحّد ومرجع التغطية) */
@@ -320,9 +324,9 @@ class SettingsRegistry
 
         if ($user->isPlatformOwner()) {
             $tabs['finance'] = [
-                'label' => '🔒 الماليّات',
+                'label' => setting('system.settings_registry.tabs_for_1', '🔒 الماليّات'),
                 'groups' => ['finance'],
-                'hint' => 'مصدر الحقيقة الوحيد لكلّ رقم ماليّ — مجموعة محميّة.',
+                'hint' => setting('system.settings_registry.tabs_for_2', 'مصدر الحقيقة الوحيد لكلّ رقم ماليّ — مجموعة محميّة.'),
             ];
         }
 
@@ -400,7 +404,7 @@ class SettingsRegistry
                 // ⭐ المفتاح يفتح **تابه هو**؛ والمجموعة بلا تاب تفتح «متنوّعات»
                 // — لا «إعدادات المنصّة» كما كان، فالنتيجة كانت تودّي لتابٍ لا تسكنه.
                 $tabKey = $groupToTab[$s->group] ?? 'misc';
-                $tabLabel = $tabs[$tabKey]['label'] ?? $this->tabs()[$tabKey]['label'] ?? 'متنوّعات';
+                $tabLabel = $tabs[$tabKey]['label'] ?? $this->tabs()[$tabKey]['label'] ?? setting('system.settings_registry.search_1', 'متنوّعات');
 
                 return [
                     'key' => $s->key,
@@ -425,11 +429,11 @@ class SettingsRegistry
     public function save(Setting $setting, mixed $value, User $actor): array
     {
         if (! $this->mayEdit($setting, $actor)) {
-            return ['saved' => false, 'message' => 'الإعداد ده لمالك المنصّة وحده.', 'value' => $setting->value];
+            return ['saved' => false, 'message' => setting('system.settings_registry.save_1', 'الإعداد ده لمالك المنصّة وحده.'), 'value' => $setting->value];
         }
 
         if ($this->isDisabled($setting)) {
-            return ['saved' => false, 'message' => 'فعّل الميزة أوّلًا.', 'value' => $setting->value];
+            return ['saved' => false, 'message' => setting('system.settings_registry.save_2', 'فعّل الميزة أوّلًا.'), 'value' => $setting->value];
         }
 
         $normalized = $this->normalize($setting, $value);
@@ -437,7 +441,7 @@ class SettingsRegistry
         if ($normalized === null) {
             return [
                 'saved' => false,
-                'message' => 'القيمة خارج النطاق — '.$this->rangeHint($setting),
+                'message' => strtr(setting('system.settings_registry.save_3', 'القيمة خارج النطاق — :p1'), [':p1' => (string) ($this->rangeHint($setting))]),
                 'value' => $setting->value,
             ];
         }
@@ -445,14 +449,14 @@ class SettingsRegistry
         $old = $setting->value;
 
         if ($old === $normalized) {
-            return ['saved' => true, 'message' => 'تم الحفظ ✓', 'value' => $normalized];
+            return ['saved' => true, 'message' => setting('system.settings_registry.save_4', 'تم الحفظ ✓'), 'value' => $normalized];
         }
 
         $setting->update(['value' => $normalized]);
         $this->audit($setting, $old, $normalized, $actor, 'settings.update');
         $this->flush();
 
-        return ['saved' => true, 'message' => 'تم الحفظ ✓', 'value' => $normalized];
+        return ['saved' => true, 'message' => setting('system.settings_registry.save_5', 'تم الحفظ ✓'), 'value' => $normalized];
     }
 
     /** ↺ Reset لحقل واحد — والافتراضيّ يبقى ظاهرًا دائمًا كـPlaceholder (مرساة) */
@@ -467,7 +471,7 @@ class SettingsRegistry
         $last = $this->lastChange($setting);
 
         if (! $last) {
-            return ['saved' => false, 'message' => 'مفيش تغيير سابق نرجع له.', 'value' => $setting->value];
+            return ['saved' => false, 'message' => setting('system.settings_registry.undo_1', 'مفيش تغيير سابق نرجع له.'), 'value' => $setting->value];
         }
 
         return $this->save($setting, $last['old'], $actor);
@@ -580,9 +584,9 @@ class SettingsRegistry
         $value = (float) ($setting->value ?? 0);
 
         return match (true) {
-            str_contains($setting->key, 'hours') => rtrim(rtrim(number_format($value / 24, 2, '.', ''), '0'), '.').' يوم',
-            str_contains($setting->key, 'minutes') => rtrim(rtrim(number_format($value / 60, 2, '.', ''), '0'), '.').' ساعة',
-            str_contains($setting->key, 'percent') => 'من كلّ 100 ⟵ '.$value,
+            str_contains($setting->key, 'hours') => strtr(setting('system.settings_registry.live_example_1', ':p1 يوم'), [':p1' => (string) (rtrim(rtrim(number_format($value / 24, 2, '.', ''), '0'), '.'))]),
+            str_contains($setting->key, 'minutes') => strtr(setting('system.settings_registry.live_example_2', ':p1 ساعة'), [':p1' => (string) (rtrim(rtrim(number_format($value / 60, 2, '.', ''), '0'), '.'))]),
+            str_contains($setting->key, 'percent') => strtr(setting('system.settings_registry.live_example_3', 'من كلّ 100 ⟵ :p1'), [':p1' => (string) ($value)]),
             default => null,
         };
     }
@@ -601,7 +605,7 @@ class SettingsRegistry
 
         [$min, $max] = $this->range($setting);
 
-        return "من {$min} إلى {$max}";
+        return strtr(setting('system.settings_registry.range_hint_1', 'من :p1 إلى :p2'), [':p1' => (string) ($min), ':p2' => (string) ($max)]);
     }
 
     // ------------------------------------------------------------------ داخليّ

@@ -51,10 +51,10 @@ class AcquisitionFunnel
         return [
             'rows' => $rows,
             'kpis' => [
-                ['label' => 'مصادر نشطة', 'value' => count($rows), 'icon' => '📣'],
-                ['label' => 'زيارات موسومة', 'value' => array_sum(array_column($rows, 'visits')), 'icon' => '🔗'],
-                ['label' => 'تسجيلات', 'value' => array_sum(array_column($rows, 'registered')), 'icon' => '👥'],
-                ['label' => 'مشترون', 'value' => array_sum(array_column($rows, 'purchased')), 'icon' => '🛒'],
+                ['label' => setting('growth.acquisition_funnel.report_1', 'مصادر نشطة'), 'value' => count($rows), 'icon' => '📣'],
+                ['label' => setting('growth.acquisition_funnel.report_2', 'زيارات موسومة'), 'value' => array_sum(array_column($rows, 'visits')), 'icon' => '🔗'],
+                ['label' => setting('growth.acquisition_funnel.report_3', 'تسجيلات'), 'value' => array_sum(array_column($rows, 'registered')), 'icon' => '👥'],
+                ['label' => setting('growth.acquisition_funnel.report_4', 'مشترون'), 'value' => array_sum(array_column($rows, 'purchased')), 'icon' => '🛒'],
             ],
         ];
     }

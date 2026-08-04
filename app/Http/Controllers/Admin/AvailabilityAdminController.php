@@ -71,16 +71,16 @@ class AvailabilityAdminController extends Controller
             'starts_on' => ['required', 'date'],
             'ends_on' => ['required', 'date', 'after_or_equal:starts_on'],
         ], [
-            'ends_on.after_or_equal' => 'تاريخ النهاية لازم يكون بعد تاريخ البداية أو نفسه.',
+            'ends_on.after_or_equal' => (string) setting('availability.admin.store_period_must', 'تاريخ النهاية لازم يكون بعد تاريخ البداية أو نفسه.'),
         ], [
-            'starts_on' => 'تاريخ البداية',
-            'ends_on' => 'تاريخ النهاية',
+            'starts_on' => (string) setting('availability.admin.store_period_msg', 'تاريخ البداية'),
+            'ends_on' => (string) setting('availability.admin.store_period_msg_2', 'تاريخ النهاية'),
         ]);
 
         $count = CourseAvailabilityPeriod::query()->where('course_id', $course->id)->count();
 
         if ($count >= (int) setting('availability.admin.max_periods', 24)) {
-            return back()->with('status', 'وصلت أقصى عدد فترات لهذا التدريب — احذف فترة قديمة الأوّل.');
+            return back()->with('status', (string) setting('availability.admin.store_period_msg_3', 'وصلت أقصى عدد فترات لهذا التدريب — احذف فترة قديمة الأوّل.'));
         }
 
         $period = CourseAvailabilityPeriod::create([
@@ -92,7 +92,7 @@ class AvailabilityAdminController extends Controller
 
         AuditTrail::log($request->user(), 'availability.period.created', $period, [], $data);
 
-        return $this->backToCourse($course, 'اتضافت الفترة ✓');
+        return $this->backToCourse($course, (string) setting('availability.admin.store_period_ok', 'اتضافت الفترة ✓'));
     }
 
     /** تفعيل/تعطيل فترة — التعطيل لا يحذف التاريخ فيبقى الأثر مقروءًا */
@@ -104,7 +104,7 @@ class AvailabilityAdminController extends Controller
             'is_active' => $period->is_active,
         ]);
 
-        return $this->backToCourse($period->course, $period->is_active ? 'اتفعّلت الفترة ✓' : 'اتوقفت الفترة ✓');
+        return $this->backToCourse($period->course, $period->is_active ? (string) setting('availability.admin.toggle_period_ok', 'اتفعّلت الفترة ✓') : (string) setting('availability.admin.toggle_period_ok_2', 'اتوقفت الفترة ✓'));
     }
 
     public function destroyPeriod(Request $request, CourseAvailabilityPeriod $period): RedirectResponse
@@ -114,7 +114,7 @@ class AvailabilityAdminController extends Controller
         AuditTrail::log($request->user(), 'availability.period.deleted', $period, $period->only(['starts_on', 'ends_on']), []);
         $period->delete();
 
-        return $this->backToCourse($course, 'اتحذفت الفترة ✓');
+        return $this->backToCourse($course, (string) setting('availability.admin.destroy_period_ok', 'اتحذفت الفترة ✓'));
     }
 
     /**
@@ -126,8 +126,8 @@ class AvailabilityAdminController extends Controller
             'daily_open_at' => ['nullable', 'date_format:H:i'],
             'daily_close_at' => ['nullable', 'date_format:H:i', 'required_with:daily_open_at'],
         ], [], [
-            'daily_open_at' => 'وقت الفتح اليوميّ',
-            'daily_close_at' => 'وقت الغلق اليوميّ',
+            'daily_open_at' => (string) setting('availability.admin.save_daily_msg', 'وقت الفتح اليوميّ'),
+            'daily_close_at' => (string) setting('availability.admin.save_daily_msg_2', 'وقت الغلق اليوميّ'),
         ]);
 
         $old = $course->only(['daily_open_at', 'daily_close_at']);
@@ -139,7 +139,7 @@ class AvailabilityAdminController extends Controller
 
         AuditTrail::log($request->user(), 'availability.daily.saved', $course, $old, $course->only(['daily_open_at', 'daily_close_at']));
 
-        return $this->backToCourse($course, 'اتحفظ ✓');
+        return $this->backToCourse($course, (string) setting('availability.admin.save_daily_ok', 'اتحفظ ✓'));
     }
 
     public function saveSettings(Request $request): RedirectResponse
@@ -148,14 +148,14 @@ class AvailabilityAdminController extends Controller
 
         SettingsWriter::putMany($data['settings'], $request->user());
 
-        return back()->with('status', 'اتحفظ ✓');
+        return back()->with('status', (string) setting('availability.admin.save_settings_ok', 'اتحفظ ✓'));
     }
 
     public function resetSettings(Request $request): RedirectResponse
     {
         $count = SettingsWriter::resetGroup('availability', $request->user());
 
-        return back()->with('status', 'رجعت '.$count.' قيمة للافتراضيّ ✓');
+        return back()->with('status', strtr((string) setting('availability.admin.reset_settings_ok', 'رجعت :a1 قيمة للافتراضيّ ✓'), [':a1' => (string) ($count)]));
     }
 
     // ------------------------------------------------------------------ داخليّ

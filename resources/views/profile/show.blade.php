@@ -1,6 +1,19 @@
+@php
+    /** نصوص السكربت — من الإعدادات لا محروقةً في الجافاسكربت (2.13-أ) */
+    $hcWords = array_merge($hcWords ?? [], [
+        'profile.show.js_1' => (string) setting('profile.show.js_1', 'انسخ رابطك'),
+        'profile.show.js_2' => (string) setting('profile.show.js_2', 'اتنسخ ✓'),
+        'profile.show.js_3' => (string) setting('profile.show.js_3', 'اتحفظ ✓'),
+        'profile.show.js_4' => (string) setting('profile.show.js_4', 'مقدرناش نحفظ — جرّب تاني.'),
+        'profile.show.js_5' => (string) setting('profile.show.js_5', 'النبذة اتحدّثت'),
+        'profile.show.js_6' => (string) setting('profile.show.js_6', '🔒 مقفولة — الشرط فوق'),
+        'profile.show.js_7' => (string) setting('profile.show.js_7', '★ مفتوحة'),
+    ]);
+@endphp
+
 @extends('layouts.app')
-@section('title', $owner->shortName().' — بروفايل')
-@section('meta_description', 'بروفايل '.$owner->shortName().' على '.config('app.name'))
+@section('title', strtr((string) setting('profile.show.section_1', ':a1 — بروفايل'), [':a1' => (string) ($owner->shortName())]))
+@section('meta_description', strtr((string) setting('profile.show.section_2', 'بروفايل :a1 على :a2'), [':a1' => (string) ($owner->shortName()), ':a2' => (string) (config('app.name'))]))
 
 {{-- ⭐ صورة OG لرابط البروفايل — فيظهر كبطاقة مصمَّمة لا رابطًا أصلع (21.1-أ) --}}
 @section('og_image', route('growth.og.profile', $owner->code))
@@ -64,10 +77,10 @@
             try {
                 await navigator.clipboard.writeText(link);
             } catch {
-                window.prompt('انسخ رابطك', link);
+                window.prompt(@json($hcWords['profile.show.js_1']), link);
             }
             const original = btn.textContent;
-            btn.textContent = 'اتنسخ ✓';
+            btn.textContent = @json($hcWords['profile.show.js_2']);
             setTimeout(() => { btn.textContent = original; }, 2000);
         }));
 
@@ -92,7 +105,7 @@
                     });
                     const data = await res.json().catch(() => ({}));
                     if (saved) {
-                        saved.textContent = res.ok ? (data.label || 'اتحفظ ✓') : (data.message?.bio?.[0] || 'مقدرناش نحفظ — جرّب تاني.');
+                        saved.textContent = res.ok ? (data.label || @json($hcWords['profile.show.js_3'])) : (data.message?.bio?.[0] || @json($hcWords['profile.show.js_4']));
                         saved.style.visibility = 'visible';
                         setTimeout(() => { saved.style.visibility = 'hidden'; }, 2500);
                     }
@@ -100,7 +113,7 @@
                     // ⭐ فعل قابل للتراجع: يُنفَّذ فورًا ومعه «تراجع» في الـToast (2.15-د)
                     if (res.ok && data.undo_token) {
                         window.dispatchEvent(new CustomEvent('ui:undoable', {
-                            detail: { token: data.undo_token, message: 'النبذة اتحدّثت' },
+                            detail: { token: data.undo_token, message: @json($hcWords['profile.show.js_5']) },
                         }));
                     }
                 }, 700);
@@ -116,7 +129,7 @@
                 const locked = btn.dataset.badgeLocked === '1';
                 modal.querySelector('[data-badge-detail-name]').textContent = btn.dataset.badgeName || '';
                 modal.querySelector('[data-badge-detail-desc]').textContent = btn.dataset.badgeDesc || '';
-                modal.querySelector('[data-badge-detail-state]').textContent = locked ? '🔒 مقفولة — الشرط فوق' : '★ مفتوحة';
+                modal.querySelector('[data-badge-detail-state]').textContent = locked ? @json($hcWords['profile.show.js_6']) : @json($hcWords['profile.show.js_7']);
                 if (btn.dataset.badgeIcon) {
                     icon.src = btn.dataset.badgeIcon;
                     icon.classList.remove('hidden');

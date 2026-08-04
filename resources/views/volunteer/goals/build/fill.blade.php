@@ -1,6 +1,6 @@
 @extends('layouts.volunteer')
 
-@section('title', 'ملء حزم كياني')
+@section('title', setting('volunteer.goals_build_fill.title', 'ملء حزم كياني'))
 
 @php
     /**
@@ -16,25 +16,25 @@
 
 @section('content')
     <x-page-header
-        title="ملء حزم كياني"
+        :title="setting('volunteer.goals_build_fill.title', 'ملء حزم كياني')"
         :subtitle="$goal->name"
-        :breadcrumbs="[['label' => 'رحلة بناء الهدف', 'url' => route('volunteer.goals.build')], ['label' => 'ملء حزم كياني']]" />
+        :breadcrumbs="[['label' => setting('volunteer.goals_build_fill.label', 'رحلة بناء الهدف'), 'url' => route('volunteer.goals.build')], ['label' => setting('volunteer.goals_build_fill.title', 'ملء حزم كياني')]]" />
 
     @if (session('status'))
-        <div class="card p-3 mb-4 text-sm"><x-state-badge state="ok" label="تمام" /> {{ session('status') }}</div>
+        <div class="card p-3 mb-4 text-sm"><x-state-badge state="ok" :label="setting('volunteer.goals_build_fill.label_2', 'تمام')" /> {{ session('status') }}</div>
     @endif
 
     @if ($errors->any())
         <div class="card p-3 mb-4 text-sm" style="border: 1px solid var(--color-state-danger)">
-            <x-state-badge state="danger" label="مااتحفظش" />
+            <x-state-badge state="danger" :label="setting('volunteer.goals_build_fill.label_3', 'مااتحفظش')" />
             <ul class="mt-2 space-y-1">@foreach ($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul>
         </div>
     @endif
 
     <div class="card p-3 mb-4 text-sm">
-        <span style="color: var(--text-muted)">سبب الهدف:</span> {{ $goal->reason ?: '—' }}
+        <span style="color: var(--text-muted)">{{ setting('volunteer.goals_build_fill.text', 'سبب الهدف:') }}</span> {{ $goal->reason ?: '—' }}
         <span class="block text-xs mt-1" style="color: var(--text-muted)">
-            ضيف مهامّك «لنفسك» بلا حدّ أقصى — ولمّا تخلص اضغط «رفع للمراجعة» فتروح لمشرف مسارك.
+            {{ setting('volunteer.goals_build_fill.text_2', 'ضيف مهامّك «لنفسك» بلا حدّ أقصى — ولمّا تخلص اضغط «رفع للمراجعة» فتروح لمشرف مسارك.') }}
         </span>
     </div>
 
@@ -46,11 +46,11 @@
                 <div class="min-w-0">
                     <h2 class="font-semibold">{{ $package->name }}</h2>
                     <div class="text-xs mt-1" style="color: var(--text-muted)">
-                        المَعلَم: {{ $package->milestone?->name }} · الكيان: {{ $package->entity?->name_ar }}
+                        {{ setting('volunteer.goals_build_fill.text_3', 'المَعلَم:') }} {{ $package->milestone?->name }} · {{ setting('volunteer.goals_build_fill.text_4', 'الكيان:') }} {{ $package->entity?->name_ar }}
                     </div>
                 </div>
                 <x-state-badge :state="$submitted ? 'ok' : 'warn'"
-                               :label="$submitted ? 'اترفعت للمراجعة' : $own->count().' مهمّة'" />
+                               :label="$submitted ? setting('volunteer.goals_build_fill.label_4', 'اترفعت للمراجعة') : $own->count().setting('volunteer.goals_build_fill.label_5', ' مهمّة')" />
             </div>
 
             @if ($own->isNotEmpty())
@@ -65,7 +65,7 @@
                                 <span>{{ $task->title }}</span>
                             </div>
                             @if ($task->deliverable_spec)
-                                <div class="text-xs mt-1" style="color: var(--text-muted)">شكل المخرجات: {{ $task->deliverable_spec }}</div>
+                                <div class="text-xs mt-1" style="color: var(--text-muted)">{{ setting('volunteer.goals_build_fill.bullet', 'شكل المخرجات:') }} {{ $task->deliverable_spec }}</div>
                             @endif
                         </li>
                     @endforeach
@@ -76,14 +76,14 @@
                 <div class="mt-3 flex items-center gap-2 flex-wrap">
                     <button type="button" data-modal-open="task-{{ $package->id }}"
                             class="btn rounded-xl px-3 py-2 text-xs font-semibold motion-standard"
-                            style="background: var(--color-brand-500); color: #04201c">أضِف مهمّة</button>
+                            style="background: var(--color-brand-500); color: #04201c">{{ setting('volunteer.goals_build_fill.action', 'أضِف مهمّة') }}</button>
 
                     @if ($own->isNotEmpty())
                         <form method="post" action="{{ route('volunteer.goals.build.submit', $package) }}">
                             @csrf
                             <button type="submit" class="btn rounded-xl px-3 py-2 text-xs motion-standard"
                                     style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
-                                رفع للمراجعة
+                                {{ setting('volunteer.goals_build_fill.action_2', 'رفع للمراجعة') }}
                             </button>
                         </form>
                     @endif
@@ -95,23 +95,23 @@
     @push('modals')
         @foreach ($packages as $package)
             @continue($package->build_status === 'submitted')
-            <x-modal :id="'task-'.$package->id" :title="'مهمّة جديدة — '.$package->name">
+            <x-modal :id="'task-'.$package->id" :title="setting('volunteer.goals_build_fill.tooltip', 'مهمّة جديدة — ').$package->name">
                 <form method="post" action="{{ route('volunteer.goals.build.tasks', $package) }}" class="space-y-3">
                     @csrf
-                    <x-form.input name="title" label="اسم المهمّة" required />
+                    <x-form.input name="title" :label="setting('volunteer.goals_build_fill.label_6', 'اسم المهمّة')" required />
                     <label class="block">
-                        <span class="block text-sm mb-1">شكل المخرجات</span>
+                        <span class="block text-sm mb-1">{{ setting('volunteer.common.output_format', 'شكل المخرجات') }}</span>
                         <textarea name="deliverable_spec" rows="2" required class="w-full rounded-xl px-3 py-2 text-sm"
                                   style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)"></textarea>
-                        <span class="block text-xs mt-1" style="color: var(--text-muted)">التسليم المتوقَّع حرفيًّا — حقل إلزاميّ في كلّ مهمّة.</span>
+                        <span class="block text-xs mt-1" style="color: var(--text-muted)">{{ setting('volunteer.goals_build_fill.field', 'التسليم المتوقَّع حرفيًّا — حقل إلزاميّ في كلّ مهمّة.') }}</span>
                     </label>
                     <label class="block">
-                        <span class="block text-sm mb-1">البريف (اختياريّ)</span>
+                        <span class="block text-sm mb-1">{{ setting('volunteer.goals_build_fill.field_2', 'البريف (اختياريّ)') }}</span>
                         <textarea name="brief" rows="2" class="w-full rounded-xl px-3 py-2 text-sm"
                                   style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)"></textarea>
                     </label>
                     <button type="submit" class="btn w-full rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
-                            style="background: var(--color-brand-500); color: #04201c">أضِف المهمّة</button>
+                            style="background: var(--color-brand-500); color: #04201c">{{ setting('volunteer.goals_build_fill.action_3', 'أضِف المهمّة') }}</button>
                 </form>
             </x-modal>
         @endforeach

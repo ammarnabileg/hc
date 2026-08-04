@@ -1,3 +1,11 @@
+@php
+    /** نصوص السكربت — من الإعدادات لا محروقةً في الجافاسكربت (2.13-أ) */
+    $hcWords = array_merge($hcWords ?? [], [
+        'attestations.copied_message' => (string) setting('attestations.copied_message', 'الرابط اتنسخ ✓'),
+        'attestations.public.error_message' => (string) setting('attestations.public.error_message', 'مقدرناش نغيّر الحالة — راجع النت وجرّب تاني.'),
+    ]);
+@endphp
+
 @extends('layouts.app')
 
 @section('title', setting('attestations.page.title', 'الإفادة'))
@@ -149,7 +157,7 @@ document.querySelectorAll('[data-copy]').forEach((btn) => btn.addEventListener('
     const note = document.querySelector('[data-copy-note]');
     try {
         await navigator.clipboard.writeText(btn.dataset.copy);
-        note.textContent = @json(setting('attestations.copied_message', 'الرابط اتنسخ ✓'));
+        note.textContent = @json($hcWords['attestations.copied_message']);
     } catch {
         note.textContent = btn.dataset.copy;
     }
@@ -186,7 +194,7 @@ document.querySelectorAll('[data-copy]').forEach((btn) => btn.addEventListener('
             note.textContent = data.message || '';
         } catch {
             toggle.checked = !toggle.checked;
-            note.textContent = @json(setting('attestations.public.error_message', 'مقدرناش نغيّر الحالة — راجع النت وجرّب تاني.'));
+            note.textContent = @json($hcWords['attestations.public.error_message']);
         }
     });
 })();

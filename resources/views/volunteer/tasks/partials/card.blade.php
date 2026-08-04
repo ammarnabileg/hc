@@ -40,18 +40,18 @@
         @endif
 
         @if ($contributors > 0)
-            <span style="color: var(--text-muted)">مساهمون: {{ $contributors }}</span>
+            <span style="color: var(--text-muted)">{{ setting('volunteer.tasks_card.link', 'مساهمون:') }} {{ $contributors }}</span>
         @endif
 
         @if ($task->late_due_to_child)
-            <x-state-badge state="warn" label="متأخّر بسبب ابن" />
+            <x-state-badge state="warn" :label="setting('volunteer.tasks_card.label', 'متأخّر بسبب ابن')" />
         @endif
     </div>
 
     @if ($subtaskTotal > 0)
         <div class="mt-2">
             <div class="text-xs mb-1" style="color: var(--text-muted)">
-                الصب-تاسكات {{ $subtaskDone }}/{{ $subtaskTotal }}
+                {{ setting('volunteer.tasks_card.link_2', 'الصب-تاسكات') }} {{ $subtaskDone }}/{{ $subtaskTotal }}
             </div>
             <div class="h-1.5 rounded-full overflow-hidden" style="background: var(--surface-sunken)">
                 <div class="h-full" style="width: {{ (int) round($subtaskDone / $subtaskTotal * 100) }}%; background: var(--color-brand-500)"></div>

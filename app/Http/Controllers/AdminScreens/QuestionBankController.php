@@ -60,7 +60,7 @@ class QuestionBankController extends Controller
 
         AuditTrail::log($request->user(), 'question_bank.create', $question, [], $data);
 
-        return back()->with('status', 'اتحفظ السؤال ✓');
+        return back()->with('status', (string) setting('question_bank.admin.store_ok', 'اتحفظ السؤال ✓'));
     }
 
     public function update(Request $request, LessonQuestion $question): RedirectResponse
@@ -72,7 +72,7 @@ class QuestionBankController extends Controller
 
         AuditTrail::log($request->user(), 'question_bank.update', $question, $old, $data);
 
-        return back()->with('status', 'اتحفظ التعديل ✓');
+        return back()->with('status', (string) setting('question_bank.admin.update_ok', 'اتحفظ التعديل ✓'));
     }
 
     /** تبديل «سؤال عام» — صلاحيّة مستقلّة لأنّه يغيّر الامتحان النهائيّ نفسه */
@@ -82,7 +82,7 @@ class QuestionBankController extends Controller
 
         AuditTrail::log($request->user(), 'general_questions.edit', $question, [], ['is_general' => $question->is_general]);
 
-        return back()->with('status', $question->is_general ? 'بقى سؤالًا عامًّا ✓' : 'خرج من الأسئلة العامّة ✓');
+        return back()->with('status', $question->is_general ? (string) setting('question_bank.admin.toggle_general_ok', 'بقى سؤالًا عامًّا ✓') : (string) setting('question_bank.admin.toggle_general_ok_2', 'خرج من الأسئلة العامّة ✓'));
     }
 
     /** التعطيل بدل الحذف — السؤال المعطّل يخرج من الامتحان ويبقى تاريخه */
@@ -92,33 +92,33 @@ class QuestionBankController extends Controller
 
         AuditTrail::log($request->user(), 'question_bank.edit', $question, [], ['is_active' => $question->is_active]);
 
-        return back()->with('status', $question->is_active ? 'اترجّع للخدمة ✓' : 'اتعطّل ✓');
+        return back()->with('status', $question->is_active ? (string) setting('question_bank.admin.toggle_active_ok', 'اترجّع للخدمة ✓') : (string) setting('question_bank.admin.toggle_active_ok_2', 'اتعطّل ✓'));
     }
 
     public function duplicate(Request $request, LessonQuestion $question): RedirectResponse
     {
         $copy = $question->replicate(['created_at', 'updated_at']);
-        $copy->prompt = $question->prompt.' (نسخة)';
+        $copy->prompt = strtr((string) setting('question_bank.admin.duplicate_msg', ':a1 (نسخة)'), [':a1' => (string) ($question->prompt)]);
         $copy->is_active = false; // النسخة تبدأ معطّلة كي لا تدخل امتحانًا قبل مراجعتها
         $copy->save();
 
         AuditTrail::log($request->user(), 'question_bank.create', $copy, [], ['source' => $question->id]);
 
-        return back()->with('status', 'اتعملت نسخة — راجعها وفعّلها ✓');
+        return back()->with('status', (string) setting('question_bank.admin.duplicate_ok', 'اتعملت نسخة — راجعها وفعّلها ✓'));
     }
 
     public function move(Request $request, LessonQuestion $question): RedirectResponse
     {
         $data = $request->validate([
             'lesson_id' => ['required', 'integer', 'exists:lessons,id'],
-        ], [], ['lesson_id' => 'الدرس']);
+        ], [], ['lesson_id' => (string) setting('question_bank.admin.move_msg', 'الدرس')]);
 
         $old = ['lesson_id' => $question->lesson_id];
         $question->update(['lesson_id' => (int) $data['lesson_id']]);
 
         AuditTrail::log($request->user(), 'question_bank.edit', $question, $old, $data);
 
-        return back()->with('status', 'اتنقل السؤال للدرس الجديد ✓');
+        return back()->with('status', (string) setting('question_bank.admin.move_ok', 'اتنقل السؤال للدرس الجديد ✓'));
     }
 
     /** ⭐ إعادة استخدام السؤال في أكثر من امتحان (24.1-3) */
@@ -127,7 +127,7 @@ class QuestionBankController extends Controller
         $data = $request->validate([
             'exam_ids' => ['required', 'array', 'min:1'],
             'exam_ids.*' => ['integer', 'exists:exams,id'],
-        ], [], ['exam_ids' => 'الامتحانات']);
+        ], [], ['exam_ids' => (string) setting('question_bank.admin.reuse_msg', 'الامتحانات')]);
 
         // ⭐ «الأسئلة العامّة فقط» تدخل الامتحان النهائيّ (4) — والرسالة تقول ماذا يفعل (2.17-ج)
         if (! $question->is_general) {
@@ -142,10 +142,10 @@ class QuestionBankController extends Controller
         AuditTrail::log($request->user(), 'course_exam.edit', $question, [], $result);
 
         if ($result['attached'] === 0) {
-            return back()->with('problem', 'السؤال موجود في الامتحانات دي بالفعل — مافيش حاجة اتضافت.');
+            return back()->with('problem', (string) setting('question_bank.admin.reuse_empty', 'السؤال موجود في الامتحانات دي بالفعل — مافيش حاجة اتضافت.'));
         }
 
-        return back()->with('status', 'اتضاف لـ'.$result['attached'].' امتحان ✓');
+        return back()->with('status', strtr((string) setting('question_bank.admin.reuse_ok', 'اتضاف لـ:a1 امتحان ✓'), [':a1' => (string) ($result['attached'])]));
     }
 
     public function destroy(Request $request, LessonQuestion $question): RedirectResponse
@@ -154,7 +154,7 @@ class QuestionBankController extends Controller
 
         $question->delete();
 
-        return back()->with('status', 'اتحذف السؤال ✓');
+        return back()->with('status', (string) setting('question_bank.admin.destroy_ok', 'اتحذف السؤال ✓'));
     }
 
     /**
@@ -163,12 +163,12 @@ class QuestionBankController extends Controller
      */
     public function import(Request $request): RedirectResponse
     {
-        abort_unless((bool) setting('question_bank.import_enabled', true), 403, 'الاستيراد موقوف من إعدادات الشاشة.');
+        abort_unless((bool) setting('question_bank.import_enabled', true), 403, (string) setting('question_bank.admin.import_msg', 'الاستيراد موقوف من إعدادات الشاشة.'));
 
         $data = $request->validate([
             'file' => ['required', 'file', 'max:'.max(1, (int) setting('question_bank.import_max_kb', 2048))],
             'lesson_id' => ['nullable', 'integer', 'exists:lessons,id'],
-        ], [], ['file' => 'الملفّ']);
+        ], [], ['file' => (string) setting('question_bank.admin.import_msg_2', 'الملفّ')]);
 
         $result = $this->bank->import(
             (string) file_get_contents($request->file('file')->getRealPath()),
@@ -179,12 +179,12 @@ class QuestionBankController extends Controller
 
         if ($result['imported'] === 0) {
             return back()
-                ->with('problem', 'مادخلش ولا سؤال — راجع الأخطاء تحت وصلّحها في الملفّ ثمّ ارفعه تاني.')
+                ->with('problem', (string) setting('question_bank.admin.import_msg_3', 'مادخلش ولا سؤال — راجع الأخطاء تحت وصلّحها في الملفّ ثمّ ارفعه تاني.'))
                 ->with('import_errors', $result['errors']);
         }
 
         return back()
-            ->with('status', 'اتستوردوا '.$result['imported'].' سؤال ✓')
+            ->with('status', strtr((string) setting('question_bank.admin.import_ok', 'اتستوردوا :a1 سؤال ✓'), [':a1' => (string) ($result['imported'])]))
             ->with('import_errors', $result['errors']);
     }
 
@@ -214,14 +214,14 @@ class QuestionBankController extends Controller
 
         ScreenSettings::putMany(ScreenSettings::SCREEN_BANK, $data['settings'], $request->user());
 
-        return back()->with('status', 'اتحفظ ✓');
+        return back()->with('status', (string) setting('question_bank.admin.save_settings_ok', 'اتحفظ ✓'));
     }
 
     public function resetSettings(Request $request): RedirectResponse
     {
         $count = ScreenSettings::resetScreen(ScreenSettings::SCREEN_BANK, $request->user());
 
-        return back()->with('status', 'رجعت '.$count.' قيمة للافتراضيّ ✓');
+        return back()->with('status', strtr((string) setting('question_bank.admin.reset_settings_ok', 'رجعت :a1 قيمة للافتراضيّ ✓'), [':a1' => (string) ($count)]));
     }
 
     /** @return array<string,string> */
@@ -252,10 +252,10 @@ class QuestionBankController extends Controller
             'is_general' => ['nullable', 'boolean'],
             'is_active' => ['nullable', 'boolean'],
         ], [], [
-            'lesson_id' => 'الدرس',
-            'type' => 'نوع السؤال',
-            'prompt' => 'نصّ السؤال',
-            'difficulty' => 'الصعوبة',
+            'lesson_id' => (string) setting('question_bank.admin.validated_msg', 'الدرس'),
+            'type' => (string) setting('question_bank.admin.validated_msg_2', 'نوع السؤال'),
+            'prompt' => (string) setting('question_bank.admin.validated_msg_3', 'نصّ السؤال'),
+            'difficulty' => (string) setting('question_bank.admin.validated_msg_4', 'الصعوبة'),
         ]);
 
         // نوع أو صعوبة خارج الكتالوج = سؤال لن يُعرَض صحيحًا — نمنعه بدل تركه صامتًا

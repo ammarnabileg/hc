@@ -110,7 +110,7 @@ class StoreAdminController extends Controller
         $product = Product::create($payload + ['slug' => Str::slug($data['name_ar']).'-'.Str::lower(Str::random(5))]);
         $this->audit($request, $product, 'store_products.create', [], $payload);
 
-        return back()->with('status', 'المنتج اتحفظ ✓');
+        return back()->with('status', (string) setting('store.admin.store_product_ok', 'المنتج اتحفظ ✓'));
     }
 
     public function updateProduct(Request $request, Product $product): RedirectResponse
@@ -128,7 +128,7 @@ class StoreAdminController extends Controller
         $product->update($payload);
         $this->audit($request, $product, 'store_products.edit', $old, $payload);
 
-        return back()->with('status', 'التعديل اتحفظ ✓');
+        return back()->with('status', (string) setting('store.admin.update_product_ok', 'التعديل اتحفظ ✓'));
     }
 
     /**
@@ -169,7 +169,7 @@ class StoreAdminController extends Controller
         $product->update(['status' => 'archived']);
         $this->audit($request, $product, 'store_products.archive', $old, ['status' => 'archived']);
 
-        return back()->with('status', 'المنتج اتأرشف — ومحدش هيفقد نسخته.');
+        return back()->with('status', (string) setting('store.admin.archive_product_msg', 'المنتج اتأرشف — ومحدش هيفقد نسخته.'));
     }
 
     /**
@@ -210,7 +210,7 @@ class StoreAdminController extends Controller
 
         $this->audit($request, $product, 'product_protection.manage', $old, $new);
 
-        return back()->with('status', 'إعدادات الحماية اتحفظت ✓');
+        return back()->with('status', (string) setting('store.admin.update_protection_ok', 'إعدادات الحماية اتحفظت ✓'));
     }
 
     // ---------------------------------------------------------------- التصنيفات والبندلز والكوبونات
@@ -230,7 +230,7 @@ class StoreAdminController extends Controller
 
         $this->audit($request, $category, 'product_categories.create', [], $data);
 
-        return back()->with('status', 'التصنيف اتضاف ✓');
+        return back()->with('status', (string) setting('store.admin.store_category_ok', 'التصنيف اتضاف ✓'));
     }
 
     /**
@@ -259,7 +259,7 @@ class StoreAdminController extends Controller
         ]);
         $this->audit($request, $bundle, 'bundles.create', [], $data);
 
-        return back()->with('status', 'البندل اتحفظ ✓ — ضيف عناصره وهتتحسب قيمته تلقائيًّا.');
+        return back()->with('status', (string) setting('store.admin.store_bundle_ok', 'البندل اتحفظ ✓ — ضيف عناصره وهتتحسب قيمته تلقائيًّا.'));
     }
 
     // ---------------------------------------------------------------- فورم البندل (24 · 18)
@@ -566,11 +566,11 @@ class StoreAdminController extends Controller
         $item = $catalog->resolve($data['item_type'], $data['item_slug']);
 
         if (! $item) {
-            return back()->withErrors(['item_slug' => 'العنصر ده مش موجود — اختر من القائمة.']);
+            return back()->withErrors(['item_slug' => (string) setting('store.admin.store_bundle_item_denied', 'العنصر ده مش موجود — اختر من القائمة.')]);
         }
 
         if ($item instanceof Bundle) {
-            return back()->withErrors(['item_slug' => 'الباقة لا تُضاف داخل باقة.']);
+            return back()->withErrors(['item_slug' => (string) setting('store.admin.store_bundle_item_msg', 'الباقة لا تُضاف داخل باقة.')]);
         }
 
         $row = BundleItem::query()->firstOrNew([
@@ -597,7 +597,7 @@ class StoreAdminController extends Controller
         $this->syncBundleValue($bundle);
         $this->audit($request, $bundle, 'bundles.edit', [], $data);
 
-        return back()->with('status', 'العنصر اتضاف للباقة ✓');
+        return back()->with('status', (string) setting('store.admin.store_bundle_item_ok', 'العنصر اتضاف للباقة ✓'));
     }
 
     /**
@@ -654,7 +654,7 @@ class StoreAdminController extends Controller
         $this->syncBundleValue($bundle);
         $this->audit($request, $bundle, 'bundles.edit', ['item' => $item->id], []);
 
-        return back()->with('status', 'العنصر اتشال من الباقة ✓');
+        return back()->with('status', (string) setting('store.admin.destroy_bundle_item_ok', 'العنصر اتشال من الباقة ✓'));
     }
 
     /** القيمة الإجماليّة في العمود = مجموع عناصرها دائمًا — فلا يفترقان (18) */
@@ -680,7 +680,7 @@ class StoreAdminController extends Controller
         $coupon = Coupon::create($data);
         $this->audit($request, $coupon, 'coupons.create', [], $data);
 
-        return back()->with('status', 'الكوبون اتحفظ ✓');
+        return back()->with('status', (string) setting('store.admin.store_coupon_ok', 'الكوبون اتحفظ ✓'));
     }
 
     public function toggleCoupon(Request $request, Coupon $coupon): RedirectResponse
@@ -689,7 +689,7 @@ class StoreAdminController extends Controller
         $coupon->update(['is_active' => ! $coupon->is_active]);
         $this->audit($request, $coupon, 'coupons.edit', $old, ['is_active' => $coupon->is_active]);
 
-        return back()->with('status', $coupon->is_active ? 'الكوبون اشتغل ✓' : 'الكوبون اتوقف ✓');
+        return back()->with('status', $coupon->is_active ? (string) setting('store.admin.toggle_coupon_ok', 'الكوبون اشتغل ✓') : (string) setting('store.admin.toggle_coupon_ok_2', 'الكوبون اتوقف ✓'));
     }
 
     // ---------------------------------------------------------------- الطلبات
@@ -708,7 +708,7 @@ class StoreAdminController extends Controller
      */
     public function correctOrder(Request $request, Order $order): RedirectResponse
     {
-        abort_unless($request->user()->isPlatformOwner(), 403, 'التصحيح الماليّ لمالك المنصّة وحده.');
+        abort_unless($request->user()->isPlatformOwner(), 403, (string) setting('store.admin.correct_order_msg', 'التصحيح الماليّ لمالك المنصّة وحده.'));
 
         $data = $request->validate([
             'original_transaction_id' => ['required', 'integer', 'exists:transactions,id'],
@@ -717,7 +717,7 @@ class StoreAdminController extends Controller
 
         $this->audit($request, $order, 'invoices.correction', ['status' => $order->status], $data);
 
-        return back()->with('status', 'اتسجّل تصحيح خطأ تقنيّ موثّق — مش استرجاع نقديّ.');
+        return back()->with('status', (string) setting('store.admin.correct_order_denied', 'اتسجّل تصحيح خطأ تقنيّ موثّق — مش استرجاع نقديّ.'));
     }
 
     private function audit(Request $request, $model, string $action, array $old, array $new): void

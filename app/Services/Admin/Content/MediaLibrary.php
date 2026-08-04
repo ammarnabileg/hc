@@ -20,14 +20,17 @@ use Illuminate\Support\Facades\Storage;
 class MediaLibrary
 {
     /** الأماكن التي قد تشير إلى ملفّ من المكتبة — عمود المسار أو رقم العنصر */
-    private const USAGE_MAP = [
-        ['table' => 'lesson_attachments', 'column' => 'media_item_id', 'by' => 'id', 'label' => 'مرفقات الدروس'],
-        ['table' => 'courses', 'column' => 'cover_path', 'by' => 'path', 'label' => 'أغلفة التدريبات'],
-        ['table' => 'learning_paths', 'column' => 'cover_path', 'by' => 'path', 'label' => 'أغلفة المسارات'],
-        ['table' => 'certificate_templates', 'column' => 'background_path', 'by' => 'path', 'label' => 'خلفيّات قوالب الشهادات'],
-        ['table' => 'certificate_accreditations', 'column' => 'logo_path', 'by' => 'path', 'label' => 'شعارات الاعتمادات'],
-        ['table' => 'announcements', 'column' => 'media_path', 'by' => 'path', 'label' => 'وسائط التعليمات'],
-    ];
+    private static function usageMapBase(): array
+    {
+        return [
+            ['table' => 'lesson_attachments', 'column' => 'media_item_id', 'by' => 'id', 'label' => setting('admin_content.media_library.usage_map_base_1', 'مرفقات الدروس')],
+            ['table' => 'courses', 'column' => 'cover_path', 'by' => 'path', 'label' => setting('admin_content.media_library.usage_map_base_2', 'أغلفة التدريبات')],
+            ['table' => 'learning_paths', 'column' => 'cover_path', 'by' => 'path', 'label' => setting('admin_content.media_library.usage_map_base_3', 'أغلفة المسارات')],
+            ['table' => 'certificate_templates', 'column' => 'background_path', 'by' => 'path', 'label' => setting('admin_content.media_library.usage_map_base_4', 'خلفيّات قوالب الشهادات')],
+            ['table' => 'certificate_accreditations', 'column' => 'logo_path', 'by' => 'path', 'label' => setting('admin_content.media_library.usage_map_base_5', 'شعارات الاعتمادات')],
+            ['table' => 'announcements', 'column' => 'media_path', 'by' => 'path', 'label' => setting('admin_content.media_library.usage_map_base_6', 'وسائط التعليمات')],
+        ];
+    }
 
     /**
      * فريم قوالب الاستوديو (12.14-أ) وأغلفة المقالات (21.2-أ): صارا يُختاران من
@@ -37,7 +40,7 @@ class MediaLibrary
      */
     private function usageMap(): array
     {
-        return array_merge(self::USAGE_MAP, [
+        return array_merge(self::usageMapBase(), [
             ['table' => 'image_templates', 'column' => 'frame_path', 'by' => 'path',
                 'label' => (string) setting('media.usage.image_template_frames', 'فريمات قوالب الصور')],
             ['table' => 'articles', 'column' => 'cover_path', 'by' => 'path',

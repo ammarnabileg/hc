@@ -154,9 +154,8 @@ class InactivityLadder
         Notifier::send(
             $user,
             'account',
-            'وحشتنا 👋 — بقى لك '.$days.' يومًا بلا نشاط',
-            'رجوعك في أيّ وقت يوقف الخصم الأسبوعيّ ('.number_format($this->weeklyValue(), 2)
-                .') من درجة الالتزام. افتح مهمّة أو سجّل حضور اجتماع وهنعتبرك رجعت.',
+            strtr(setting('volunteer_offboarding.inactivity_ladder.alert_1', 'وحشتنا 👋 — بقى لك :p1 يومًا بلا نشاط'), [':p1' => (string) ($days)]),
+            strtr(setting('volunteer_offboarding.inactivity_ladder.alert_2', 'رجوعك في أيّ وقت يوقف الخصم الأسبوعيّ (:p1) من درجة الالتزام. افتح مهمّة أو سجّل حضور اجتماع وهنعتبرك رجعت.'), [':p1' => (string) (number_format($this->weeklyValue(), 2))]),
             null,
             'volunteer',
         );
@@ -189,8 +188,7 @@ class InactivityLadder
             self::SOURCE,
             null,
             'volunteer',
-            'خمول '.$this->activity->idleDays($user, $state->last_activity_at ? Carbon::parse($state->last_activity_at) : null)
-                .' يومًا بلا نشاط — خصم أسبوعيّ (13.4-س-ب)',
+            strtr(setting('volunteer_offboarding.inactivity_ladder.deduct_1', 'خمول :p1 يومًا بلا نشاط — خصم أسبوعيّ (13.4-س-ب)'), [':p1' => (string) ($this->activity->idleDays($user, $state->last_activity_at ? Carbon::parse($state->last_activity_at) : null))]),
         );
 
         // ⭐ خصم الخمول قد يبلغ بصاحبه −8 أو −9.5 أو −10، وسلّم العتبات يقع **فورًا** (23-0.2)

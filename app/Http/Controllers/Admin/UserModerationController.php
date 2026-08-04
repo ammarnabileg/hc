@@ -37,12 +37,12 @@ class UserModerationController extends Controller
         $data = $request->validate([
             'reason' => ['required', 'string', 'max:500'],
         ], [
-            'reason.required' => 'اكتب سبب الحظر — المستخدم لازم يعرف حصل إيه.',
+            'reason.required' => (string) setting('admin_users.moderation.ban_must', 'اكتب سبب الحظر — المستخدم لازم يعرف حصل إيه.'),
         ]);
 
         $this->moderation->ban($request->user(), $user, $data['reason']);
 
-        return $this->back($user, 'الحساب اتحظر ✓ — وكلّ جلساته اتقفلت.');
+        return $this->back($user, (string) setting('admin_users.moderation.ban_ok', 'الحساب اتحظر ✓ — وكلّ جلساته اتقفلت.'));
     }
 
     public function suspend(Request $request, User $user): RedirectResponse
@@ -55,21 +55,21 @@ class UserModerationController extends Controller
             'reason' => ['required', 'string', 'max:500'],
             'days' => ['required', 'integer', 'min:1', 'max:'.(int) setting('admin.moderation.suspend_max_days', 90)],
         ], [
-            'reason.required' => 'اكتب سبب التعليق — المستخدم لازم يعرف حصل إيه.',
-            'days.required' => 'حدّد مدّة التعليق بالأيّام.',
-            'days.max' => 'أقصى مدّة تعليق '.(int) setting('admin.moderation.suspend_max_days', 90).' يوم.',
+            'reason.required' => (string) setting('admin_users.moderation.suspend_must', 'اكتب سبب التعليق — المستخدم لازم يعرف حصل إيه.'),
+            'days.required' => (string) setting('admin_users.moderation.suspend_msg', 'حدّد مدّة التعليق بالأيّام.'),
+            'days.max' => strtr((string) setting('admin_users.moderation.suspend_msg_2', 'أقصى مدّة تعليق :a1 يوم.'), [':a1' => (string) ((int) setting('admin.moderation.suspend_max_days', 90))]),
         ]);
 
         $this->moderation->suspend($request->user(), $user, $data['reason'], (int) $data['days']);
 
-        return $this->back($user, 'الحساب اتعلّق '.$data['days'].' يوم ✓ — وبيرجع لوحده بعدها.');
+        return $this->back($user, strtr((string) setting('admin_users.moderation.suspend_ok', 'الحساب اتعلّق :a1 يوم ✓ — وبيرجع لوحده بعدها.'), [':a1' => (string) ($data['days'])]));
     }
 
     public function release(Request $request, User $user): RedirectResponse
     {
         $this->moderation->release($request->user(), $user);
 
-        return $this->back($user, 'الاحتواء اترفع ✓ — الحساب رجع شغّال.');
+        return $this->back($user, (string) setting('admin_users.moderation.release_ok', 'الاحتواء اترفع ✓ — الحساب رجع شغّال.'));
     }
 
     public function endSessions(Request $request, User $user): RedirectResponse
@@ -77,15 +77,15 @@ class UserModerationController extends Controller
         $count = $this->moderation->endAllSessions($request->user(), $user);
 
         return $this->back($user, $count > 0
-            ? 'قفلنا '.$count.' جلسة ✓ — لازم يدخل تاني من كلّ أجهزته.'
-            : 'مافيش جلسات مفتوحة — بس أبطلنا «فكّرني» للأمان.', 'security');
+            ? strtr((string) setting('admin_users.moderation.end_sessions_ok', 'قفلنا :a1 جلسة ✓ — لازم يدخل تاني من كلّ أجهزته.'), [':a1' => (string) ($count)])
+            : (string) setting('admin_users.moderation.end_sessions_empty', 'مافيش جلسات مفتوحة — بس أبطلنا «فكّرني» للأمان.'), 'security');
     }
 
     public function verifyEmail(Request $request, User $user): RedirectResponse
     {
         $this->moderation->verifyEmail($request->user(), $user);
 
-        return $this->back($user, 'بريده اتأكّد يدويًّا ✓', 'security');
+        return $this->back($user, (string) setting('admin_users.moderation.verify_email_ok', 'بريده اتأكّد يدويًّا ✓'), 'security');
     }
 
     /** الرابط يُعرَض مرّة واحدة في الصفحة بزرّ نسخ — ولا يُخزَّن في أيّ مكان تاني */
@@ -93,7 +93,7 @@ class UserModerationController extends Controller
     {
         $link = $this->moderation->passwordLink($request->user(), $user);
 
-        return $this->back($user, 'الرابط جاهز — انسخه وابعته له على قناة موثوقة.', 'security')
+        return $this->back($user, (string) setting('admin_users.moderation.password_link_msg', 'الرابط جاهز — انسخه وابعته له على قناة موثوقة.'), 'security')
             ->with('moderation_password_link', $link);
     }
 
@@ -115,10 +115,10 @@ class UserModerationController extends Controller
             'governorate_id' => ['nullable', 'exists:governorates,id'],
             'admin_notes' => ['nullable', 'string', 'max:2000'],
         ], [
-            'name.required' => 'الاسم مايصحّش يفضل فاضي.',
-            'email.email' => 'الصيغة دي مش بريد صحيح — راجعها وجرّب تاني.',
-            'email.unique' => 'البريد ده على حساب تاني — اختر غيره.',
-            'phone.unique' => 'الموبايل ده على حساب تاني — اختر غيره.',
+            'name.required' => (string) setting('admin_users.moderation.update_msg', 'الاسم مايصحّش يفضل فاضي.'),
+            'email.email' => (string) setting('admin_users.moderation.update_denied', 'الصيغة دي مش بريد صحيح — راجعها وجرّب تاني.'),
+            'email.unique' => (string) setting('admin_users.moderation.update_msg_2', 'البريد ده على حساب تاني — اختر غيره.'),
+            'phone.unique' => (string) setting('admin_users.moderation.update_msg_3', 'الموبايل ده على حساب تاني — اختر غيره.'),
         ]);
 
         $old = $user->only(array_keys($data));
@@ -137,7 +137,7 @@ class UserModerationController extends Controller
 
         $this->moderation->log($request->user(), $user, 'user.updated', $old, $data);
 
-        return $this->back($user, 'اتحفظت بيانات الحساب ✓', 'profile');
+        return $this->back($user, (string) setting('admin_users.moderation.update_ok', 'اتحفظت بيانات الحساب ✓'), 'profile');
     }
 
     /** تثبيت/تصحيح الدولة يدويًّا — تعلو الكشف التلقائيّ ولا تُدهَس (12.1-متقدّم-5) */
@@ -152,8 +152,8 @@ class UserModerationController extends Controller
         $this->moderation->pinCountry($request->user(), $user, $countryId);
 
         return $this->back($user, $countryId === null
-            ? 'شِلنا التثبيت — الدولة رجعت للكشف التلقائيّ.'
-            : 'الدولة اتثبّتت ✓ — الكشف التلقائيّ مش هيدهسها تاني.');
+            ? (string) setting('admin_users.moderation.pin_country_msg', 'شِلنا التثبيت — الدولة رجعت للكشف التلقائيّ.')
+            : (string) setting('admin_users.moderation.pin_country_ok', 'الدولة اتثبّتت ✓ — الكشف التلقائيّ مش هيدهسها تاني.'));
     }
 
     /**
@@ -203,7 +203,7 @@ class UserModerationController extends Controller
             return redirect()->route('dashboard');
         }
 
-        return redirect()->route('admin.users.index')->with('status', 'رجعت لحسابك ✓');
+        return redirect()->route('admin.users.index')->with('status', (string) setting('admin_users.moderation.stop_impersonating_ok', 'رجعت لحسابك ✓'));
     }
 
     // ------------------------------------------------------------------ داخليّ
@@ -215,7 +215,7 @@ class UserModerationController extends Controller
             return null;
         }
 
-        return $this->back($user, 'الحساب ده محميّ — مايتحظرش ولا يتعلّق من هنا.');
+        return $this->back($user, (string) setting('admin_users.moderation.guard_msg', 'الحساب ده محميّ — مايتحظرش ولا يتعلّق من هنا.'));
     }
 
     private function back(User $user, string $status, string $tab = 'advanced'): RedirectResponse

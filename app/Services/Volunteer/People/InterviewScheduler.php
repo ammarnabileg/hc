@@ -77,8 +77,7 @@ class InterviewScheduler
 
         if ($conflict) {
             throw new \RuntimeException(
-                'المُقابِل عنده موعد تاني الساعة '.$conflict->scheduled_at->translatedFormat('g:i A').
-                ' — اختر وقتًا تانيًا أو مُقابِلًا تانيًا.'
+                strtr(setting('recruitment.interview_scheduler.schedule_1', 'المُقابِل عنده موعد تاني الساعة :p1 — اختر وقتًا تانيًا أو مُقابِلًا تانيًا.'), [':p1' => (string) ($conflict->scheduled_at->translatedFormat('g:i A'))])
             );
         }
 
@@ -97,12 +96,12 @@ class InterviewScheduler
         ]);
 
         // تذكير الطرفين — والعدّاد الملوّن يأتي من `deadline_at` في مركز الإشعارات (2.8)
-        $this->bridge->notify($interviewer, 'recruitment', 'مقابلة مجدولة',
-            'موعدك مع المرشّح '.($candidate->user?->name ?? '—'), route('volunteer.interviews'), $at);
+        $this->bridge->notify($interviewer, 'recruitment', setting('recruitment.interview_scheduler.schedule_2', 'مقابلة مجدولة'),
+            strtr(setting('recruitment.interview_scheduler.schedule_3', 'موعدك مع المرشّح :p1'), [':p1' => (string) (($candidate->user?->name ?? '—'))]), route('volunteer.interviews'), $at);
 
         if ($candidate->user) {
-            $this->bridge->notify($candidate->user, 'recruitment', 'اتحدّد موعد مقابلتك',
-                'المقابلة يوم '.$at->translatedFormat('l j F — g:i A'), null, $at);
+            $this->bridge->notify($candidate->user, 'recruitment', setting('recruitment.interview_scheduler.schedule_4', 'اتحدّد موعد مقابلتك'),
+                strtr(setting('recruitment.interview_scheduler.schedule_5', 'المقابلة يوم :p1'), [':p1' => (string) ($at->translatedFormat('l j F — g:i A'))]), null, $at);
         }
 
         return $interview;
@@ -112,11 +111,11 @@ class InterviewScheduler
     public function setStatus(Interview $interview, string $status, ?string $reason, User $actor): Interview
     {
         if (! in_array($status, self::STATUSES, true)) {
-            throw new \InvalidArgumentException('حالة غير معروفة للمقابلة.');
+            throw new \InvalidArgumentException(setting('recruitment.interview_scheduler.set_status_1', 'حالة غير معروفة للمقابلة.'));
         }
 
         if ($status === 'cancelled' && trim((string) $reason) === '') {
-            throw new \InvalidArgumentException('الإلغاء لازم يكون بسبب مكتوب — عشان المرشّح يفهم الخطوة الجاية.');
+            throw new \InvalidArgumentException(setting('recruitment.interview_scheduler.set_status_2', 'الإلغاء لازم يكون بسبب مكتوب — عشان المرشّح يفهم الخطوة الجاية.'));
         }
 
         $old = (string) $interview->status;
@@ -138,7 +137,7 @@ class InterviewScheduler
         $conflict = $this->conflictFor((int) $interview->interviewer_id, $at, (int) $interview->id);
 
         if ($conflict) {
-            throw new \RuntimeException('الموعد الجديد متعارض مع مقابلة تانية للمُقابِل — جرّب وقتًا غيره.');
+            throw new \RuntimeException(setting('recruitment.interview_scheduler.reschedule_1', 'الموعد الجديد متعارض مع مقابلة تانية للمُقابِل — جرّب وقتًا غيره.'));
         }
 
         $old = $interview->scheduled_at?->toDateTimeString();

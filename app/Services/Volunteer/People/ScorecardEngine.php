@@ -157,17 +157,17 @@ class ScorecardEngine
     public function decide(InterviewScorecard $card, string $decision, ?string $reason, User $actor): InterviewScorecard
     {
         if (! in_array($decision, ['passed', 'rejected'], true)) {
-            throw new \InvalidArgumentException('القرار لازم يكون «نجح» أو «رفض».');
+            throw new \InvalidArgumentException(setting('recruitment.scorecard_engine.decide_1', 'القرار لازم يكون «نجح» أو «رفض».'));
         }
 
         if ($decision === 'rejected' && trim((string) $reason) === '') {
-            throw new \InvalidArgumentException('الرفض بسبب مكتوب — عشان يبقى في سجلّ يُرجَع إليه.');
+            throw new \InvalidArgumentException(setting('recruitment.scorecard_engine.decide_2', 'الرفض بسبب مكتوب — عشان يبقى في سجلّ يُرجَع إليه.'));
         }
 
         $missing = $this->missing($card);
 
         if ($missing !== []) {
-            throw new \InvalidArgumentException('ناقص: '.implode(' · ', $missing).' — كمّلها وبعدين احفظ القرار.');
+            throw new \InvalidArgumentException(strtr(setting('recruitment.scorecard_engine.decide_3', 'ناقص: :p1 — كمّلها وبعدين احفظ القرار.'), [':p1' => (string) (implode(' · ', $missing))]));
         }
 
         $card->forceFill([
@@ -223,15 +223,14 @@ class ScorecardEngine
     public function summary(InterviewScorecard $card): string
     {
         $lines = [];
-        $lines[] = 'المهارات: '.(trim((string) $card->skills_notes) ?: '—');
-        $lines[] = 'تحليل الشخصيّة: '.(trim((string) $card->personality_notes) ?: '—');
+        $lines[] = strtr(setting('recruitment.scorecard_engine.summary_1', 'المهارات: :p1'), [':p1' => (string) ((trim((string) $card->skills_notes) ?: '—'))]);
+        $lines[] = strtr(setting('recruitment.scorecard_engine.summary_2', 'تحليل الشخصيّة: :p1'), [':p1' => (string) ((trim((string) $card->personality_notes) ?: '—'))]);
 
         foreach ($this->rows($card) as $row) {
-            $lines[] = $row['label'].($row['archived'] ? ' ('.self::ARCHIVED_TAG.')' : '')
-                .': '.($row['score'] ?? '—').'/'.$this->scale().' — وزن '.$row['weight'];
+            $lines[] = strtr(setting('recruitment.scorecard_engine.summary_3', ':p1:p2: :p3/:p4 — وزن :p5'), [':p1' => (string) ($row['label']), ':p2' => (string) (($row['archived'] ? ' ('.self::ARCHIVED_TAG.')' : '')), ':p3' => (string) (($row['score'] ?? '—')), ':p4' => (string) ($this->scale()), ':p5' => (string) ($row['weight'])]);
         }
 
-        $lines[] = 'الدرجة الإجماليّة: '.(string) $card->total_score.'/'.$this->scale();
+        $lines[] = strtr(setting('recruitment.scorecard_engine.summary_4', 'الدرجة الإجماليّة: :p1/:p2'), [':p1' => (string) ((string) $card->total_score), ':p2' => (string) ($this->scale())]);
 
         return implode("\n", $lines);
     }

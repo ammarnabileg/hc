@@ -212,7 +212,7 @@ class ReviewService
             FlowNotifier::send(
                 $task->owner_id ? User::query()->find($task->owner_id) : null,
                 'task',
-                'اتعمدت مهمّتك ✓',
+                setting('workflow.review_service.approve_task_1', 'اتعمدت مهمّتك ✓'),
                 $task->title,
                 route('volunteer.reviews'),
                 about: $task,
@@ -232,11 +232,11 @@ class ReviewService
         $reasons = $this->returnReasons();
 
         if (! array_key_exists($data['return_reason_code'] ?? '', $reasons)) {
-            throw ValidationException::withMessages(['return_reason_code' => 'اختر سبب الإرجاع من القائمة.']);
+            throw ValidationException::withMessages(['return_reason_code' => setting('workflow.review_service.return_task_1', 'اختر سبب الإرجاع من القائمة.')]);
         }
 
         if (trim((string) ($data['review_feedback'] ?? '')) === '') {
-            throw ValidationException::withMessages(['review_feedback' => 'الفيدباك المكتوب إجباريّ مع كلّ إرجاع.']);
+            throw ValidationException::withMessages(['review_feedback' => setting('workflow.review_service.return_task_2', 'الفيدباك المكتوب إجباريّ مع كلّ إرجاع.')]);
         }
 
         $fixHours = (float) ($data['fix_hours'] ?? setting('workflow.review.fix_hours', 24));
@@ -261,7 +261,7 @@ class ReviewService
             FlowNotifier::send(
                 $task->owner_id ? User::query()->find($task->owner_id) : null,
                 'task',
-                'اترجّعت مهمّتك للإصلاح',
+                setting('workflow.review_service.return_task_3', 'اترجّعت مهمّتك للإصلاح'),
                 $reasons[$data['return_reason_code']].' — '.$data['review_feedback'],
                 route('volunteer.reviews'),
                 $fixDue,
@@ -317,7 +317,7 @@ class ReviewService
         FlowNotifier::send(
             $item->owner_id ? User::query()->find($item->owner_id) : null,
             'task',
-            'بندك رجع مسودّة',
+            setting('workflow.review_service.remove_batch_item_1', 'بندك رجع مسودّة'),
             $note,
             route('volunteer.reviews'),
             about: $item,
@@ -376,8 +376,8 @@ class ReviewService
         FlowNotifier::send(
             $parent->owner_id ? User::query()->find($parent->owner_id) : null,
             'task',
-            'اتعمد آخر ابن — عدّاد الدمج بدأ ⏱️',
-            'جمّع مخرجات أبنائك وسلّم قبل '.$window->format('Y-m-d H:i').' — العدّاد ده عليك إنت.',
+            setting('workflow.review_service.start_parent_merge_window_1', 'اتعمد آخر ابن — عدّاد الدمج بدأ ⏱️'),
+            strtr(setting('workflow.review_service.start_parent_merge_window_2', 'جمّع مخرجات أبنائك وسلّم قبل :p1 — العدّاد ده عليك إنت.'), [':p1' => (string) ($window->format('Y-m-d H:i'))]),
             route('volunteer.tasks.show', $parent),
             $window,
             requiresAction: true,

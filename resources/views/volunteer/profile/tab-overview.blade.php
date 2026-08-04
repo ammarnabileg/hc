@@ -6,7 +6,7 @@
 {{-- تنبيه هادئ للأبلاين وحده لو الدرجة عند حدّ الإنذار — بلا فضح أمام الزملاء --}}
 @if ($o['upline_alert'])
     <div class="card p-4 mb-4 flex items-start gap-3">
-        <x-state-badge state="warn" label="انتبه" />
+        <x-state-badge state="warn" :label="setting('volunteer.profile_tab_overview.label', 'انتبه')" />
         <p class="text-sm">{{ $o['upline_alert'] }}</p>
     </div>
 @endif
@@ -15,7 +15,7 @@
 <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-3">
     <div class="card p-4 animate-fadeup">
         <div class="flex items-center justify-between">
-            <span class="text-sm" style="color: var(--text-muted)">درجة الالتزام</span>
+            <span class="text-sm" style="color: var(--text-muted)">{{ setting('volunteer.profile_tab_overview.text', 'درجة الالتزام') }}</span>
             <span aria-hidden="true"><x-icon name="evaluation" size="16" /></span>
         </div>
         <div class="mt-2 text-2xl font-extrabold" data-count-to="{{ $o['rep']['score'] }}">{{ $o['rep']['score'] }}</div>
@@ -24,7 +24,7 @@
         <div class="relative mt-3 h-2 rounded-full" style="background: var(--surface-sunken)">
             <span class="absolute inset-y-0 start-0 rounded-full"
                   style="width: {{ $o['rep']['percent'] }}%; background: var(--color-state-{{ state_color($o['rep']['state'])['color'] }})"></span>
-            <span class="absolute -top-1 h-4 w-0.5" title="حدّ الإنذار {{ $o['rep']['warning'] }}"
+            <span class="absolute -top-1 h-4 w-0.5" title="{{ setting('volunteer.profile_tab_overview.tooltip', 'حدّ الإنذار') }} {{ $o['rep']['warning'] }}"
                   style="inset-inline-start: {{ $o['rep']['warning_percent'] }}%; background: var(--color-state-danger)"></span>
         </div>
         <div class="mt-1 flex justify-between text-xs" style="color: var(--text-muted)">
@@ -32,32 +32,32 @@
         </div>
     </div>
 
-    <x-kpi label="نقاط الخبرة VXP" :value="$o['vxp']['balance']" icon="spark" :hint="'الترتيب #'.$o['vxp']['rank']" />
-    <x-kpi label="مدّة الخدمة" :value="$o['service_duration']" icon="hourglass" :hint="$o['entity']" />
-    <x-kpi label="البوزشن" :value="$o['position'] ?? '—'" icon="badge" />
+    <x-kpi :label="setting('volunteer.profile_tab_overview.label_2', 'نقاط الخبرة VXP')" :value="$o['vxp']['balance']" icon="spark" :hint="setting('volunteer.profile_tab_overview.hint', 'الترتيب #').$o['vxp']['rank']" />
+    <x-kpi :label="setting('volunteer.profile_tab_overview.label_3', 'مدّة الخدمة')" :value="$o['service_duration']" icon="hourglass" :hint="$o['entity']" />
+    <x-kpi :label="setting('volunteer.common.position', 'البوزشن')" :value="$o['position'] ?? '—'" icon="badge" />
 </div>
 
 {{-- الأرقام الثانويّة في شريط واحد بدل كروت زائدة (2.15-أ-3) --}}
 <div class="card p-4 mb-4 grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
     <div>
-        <span class="block text-xs" style="color: var(--text-muted)">المهامّ</span>
-        <span class="font-bold">{{ $o['tasks']['done'] }} مكتملة · {{ $o['tasks']['open'] }} جارية</span>
+        <span class="block text-xs" style="color: var(--text-muted)">{{ setting('volunteer.profile_tab_overview.text_2', 'المهامّ') }}</span>
+        <span class="font-bold">{{ $o['tasks']['done'] }} {{ setting('volunteer.profile_tab_overview.text_3', 'مكتملة ·') }} {{ $o['tasks']['open'] }} {{ setting('volunteer.profile_tab_overview.text_4', 'جارية') }}</span>
     </div>
     <div>
-        <span class="block text-xs" style="color: var(--text-muted)">متوسّط التقييم الأسبوعيّ</span>
+        <span class="block text-xs" style="color: var(--text-muted)">{{ setting('volunteer.profile_tab_overview.text_5', 'متوسّط التقييم الأسبوعيّ') }}</span>
         <span class="font-bold">
-            {{ $o['evaluation_average'] !== null ? $o['evaluation_average'].' / '.$o['evaluation_scale'] : 'لسّه بدري' }}
+            {{ $o['evaluation_average'] !== null ? $o['evaluation_average'].' / '.$o['evaluation_scale'] : setting('volunteer.profile_tab_overview.text_6', 'لسّه بدري') }}
         </span>
     </div>
     <div>
-        <span class="block text-xs" style="color: var(--text-muted)">حضور الاجتماعات</span>
-        <span class="font-bold">{{ $o['attendance']['percent'] !== null ? $o['attendance']['percent'].'%' : 'لسّه بدري' }}</span>
+        <span class="block text-xs" style="color: var(--text-muted)">{{ setting('volunteer.profile_tab_overview.text_7', 'حضور الاجتماعات') }}</span>
+        <span class="font-bold">{{ $o['attendance']['percent'] !== null ? $o['attendance']['percent'].'%' : setting('volunteer.profile_tab_overview.text_6', 'لسّه بدري') }}</span>
     </div>
     <div>
-        <span class="block text-xs" style="color: var(--text-muted)">حالة النشاط</span>
+        <span class="block text-xs" style="color: var(--text-muted)">{{ setting('volunteer.profile_tab_overview.text_8', 'حالة النشاط') }}</span>
         <span class="inline-flex items-center gap-2 font-bold">
             @if ($o['is_active_now'])
-                <span class="w-2 h-2 rounded-full animate-pulse" style="background: var(--color-state-ok)"></span> نشط دلوقتي
+                <span class="w-2 h-2 rounded-full animate-pulse" style="background: var(--color-state-ok)"></span> {{ setting('volunteer.profile_tab_overview.text_9', 'نشط دلوقتي') }}
             @else
                 <span class="w-2 h-2 rounded-full" style="background: var(--color-state-idle)"></span> —
             @endif
@@ -68,13 +68,13 @@
 {{-- منحنيان صغيران: الاتّجاه أهمّ من الرقم المجرّد (13.4-م-1) --}}
 <div class="grid md:grid-cols-2 gap-3 mb-4">
     @include('volunteer.profile.partials.sparkline', [
-        'title' => 'تطوّر درجة الالتزام',
+        'title' => setting('volunteer.profile_tab_overview.title', 'تطوّر درجة الالتزام'),
         'series' => $o['rep_series'],
         'days' => $o['series_days'],
         'tone' => 'var(--color-brand-500)',
     ])
     @include('volunteer.profile.partials.sparkline', [
-        'title' => 'تراكم VXP',
+        'title' => setting('volunteer.profile_tab_overview.title_2', 'تراكم VXP'),
         'series' => $o['vxp_series'],
         'days' => $o['series_days'],
         'tone' => 'var(--color-state-ok)',
@@ -85,9 +85,9 @@
 
     {{-- «رحلتي في التطوّع» — تايم-لاين مضغوط (13.4-م-1) --}}
     <section class="card p-4">
-        <h2 class="font-bold text-sm mb-3">رحلتي في التطوّع</h2>
+        <h2 class="font-bold text-sm mb-3">{{ setting('volunteer.profile_tab_overview.heading', 'رحلتي في التطوّع') }}</h2>
         @if ($o['journey']->isEmpty())
-            <p class="text-sm" style="color: var(--text-muted)">لسّه بدري — أوّل محطّة مستنّياك.</p>
+            <p class="text-sm" style="color: var(--text-muted)">{{ setting('volunteer.profile_tab_overview.text_10', 'لسّه بدري — أوّل محطّة مستنّياك.') }}</p>
         @else
             <ol class="space-y-3">
                 @foreach ($o['journey'] as $step)
@@ -107,11 +107,11 @@
     {{-- Kudos: العدد + آخر 3 شكرات **بأسبابها** — القصّة أقوى من العدّاد --}}
     <section class="card p-4">
         <div class="flex items-center justify-between mb-3">
-            <h2 class="font-bold text-sm">الشكر (Kudos)</h2>
+            <h2 class="font-bold text-sm">{{ setting('volunteer.profile_tab_overview.heading_2', 'الشكر (Kudos)') }}</h2>
             <span class="text-sm font-extrabold" data-count-to="{{ $o['kudos_count'] }}">{{ $o['kudos_count'] }}</span>
         </div>
         @if ($o['kudos_latest']->isEmpty())
-            <p class="text-sm" style="color: var(--text-muted)">لسّه مفيش شكر — أوّل واحدة جايّة.</p>
+            <p class="text-sm" style="color: var(--text-muted)">{{ setting('volunteer.profile_tab_overview.text_11', 'لسّه مفيش شكر — أوّل واحدة جايّة.') }}</p>
         @else
             <ul class="space-y-3">
                 @foreach ($o['kudos_latest'] as $kudos)
@@ -128,15 +128,15 @@
 
     {{-- الشهادات من **المصدر الواحد** (12.5 / مكتبتي 20) --}}
     <section class="card p-4">
-        <h2 class="font-bold text-sm mb-3">الشهادات</h2>
+        <h2 class="font-bold text-sm mb-3">{{ setting('volunteer.profile_tab_overview.heading_3', 'الشهادات') }}</h2>
         @if ($o['certificates']->isEmpty())
-            <p class="text-sm" style="color: var(--text-muted)">لسّه بدري — أوّل شهادة مستنّياك.</p>
+            <p class="text-sm" style="color: var(--text-muted)">{{ setting('volunteer.profile_tab_overview.text_12', 'لسّه بدري — أوّل شهادة مستنّياك.') }}</p>
         @else
             <ul class="space-y-2">
                 @foreach ($o['certificates'] as $certificate)
                     <li class="flex items-center justify-between gap-2 text-sm">
                         <span class="min-w-0 truncate">{{ $certificate->certificate_type?->name_ar ?? $certificate->code }}</span>
-                        <x-state-badge state="honor" label="معتمدة" />
+                        <x-state-badge state="honor" :label="setting('volunteer.profile_tab_overview.label_4', 'معتمدة')" />
                     </li>
                 @endforeach
             </ul>
@@ -145,9 +145,9 @@
 
     {{-- بار «طريقك للبوزشن الجاي» — تدرّج الهدف (13.4-م-1) --}}
     <section class="card p-4">
-        <h2 class="font-bold text-sm mb-3">طريقك للبوزشن الجاي</h2>
+        <h2 class="font-bold text-sm mb-3">{{ setting('volunteer.profile_tab_overview.heading_4', 'طريقك للبوزشن الجاي') }}</h2>
         @if (! $o['next_position'])
-            <p class="text-sm" style="color: var(--text-muted)">إنت في أعلى بوزشن في السلّم دلوقتي.</p>
+            <p class="text-sm" style="color: var(--text-muted)">{{ setting('volunteer.profile_tab_overview.text_13', 'إنت في أعلى بوزشن في السلّم دلوقتي.') }}</p>
         @else
             <div class="flex items-center justify-between text-sm mb-2">
                 <span>{{ $o['next_position']['label'] }}</span>
@@ -158,8 +158,8 @@
                       style="width: {{ $o['next_position']['percent'] }}%; background: var(--color-brand-500)"></span>
             </div>
             <p class="mt-2 text-xs" style="color: var(--text-muted)">
-                {{ $o['next_position']['served_months'] }} شهر من {{ $o['next_position']['required_months'] }}
-                · درجة الالتزام المطلوبة {{ $o['next_position']['rep_target'] }}
+                {{ $o['next_position']['served_months'] }} {{ setting('volunteer.profile_tab_overview.text_14', 'شهر من') }} {{ $o['next_position']['required_months'] }}
+                · {{ setting('volunteer.profile_tab_overview.text_15', 'درجة الالتزام المطلوبة') }} {{ $o['next_position']['rep_target'] }}
             </p>
         @endif
     </section>
@@ -167,7 +167,7 @@
     {{-- اختصار لوحة التطوّع — لصاحب البروفايل وحده --}}
     @if ($o['my_open_tasks']->isNotEmpty() || $o['next_meeting'])
         <section class="card p-4 md:col-span-2">
-            <h2 class="font-bold text-sm mb-3">شغلك الجاري</h2>
+            <h2 class="font-bold text-sm mb-3">{{ setting('volunteer.profile_tab_overview.heading_5', 'شغلك الجاري') }}</h2>
             <ul class="space-y-2 text-sm">
                 @foreach ($o['my_open_tasks'] as $task)
                     <li class="flex items-center justify-between gap-2">
@@ -177,7 +177,7 @@
                 @endforeach
                 @if ($o['next_meeting'])
                     <li class="flex items-center justify-between gap-2">
-                        <span class="min-w-0 truncate">أقرب اجتماع: {{ $o['next_meeting']->title }}</span>
+                        <span class="min-w-0 truncate">{{ setting('volunteer.profile_tab_overview.bullet', 'أقرب اجتماع:') }} {{ $o['next_meeting']->title }}</span>
                         <span class="text-xs" style="color: var(--text-muted)">{{ $o['next_meeting']->scheduled_at?->diffForHumans() }}</span>
                     </li>
                 @endif
@@ -191,6 +191,6 @@
     <div class="mt-4">
         <a href="{{ route('volunteer.profile.report', ['code' => $owner->code]) }}" target="_blank" rel="noopener"
            class="btn inline-flex rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
-           style="background: var(--color-brand-500); color: #04201c">تقرير PDF</a>
+           style="background: var(--color-brand-500); color: #04201c">{{ setting('volunteer.profile_tab_overview.link', 'تقرير PDF') }}</a>
     </div>
 @endif

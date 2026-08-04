@@ -59,7 +59,7 @@ class ArbitrationController extends Controller
             'file' => $selected ? $this->fileOf($user, $selected) : null,
             'engine' => $this->engine,
             'filters' => $filters,
-            'statuses' => ['open' => 'مفتوحة', 'messages_locked' => 'مقفولة الرسائل', 'decided' => 'محسومة'],
+            'statuses' => ['open' => (string) setting('workflow.arbitration.index_msg', 'مفتوحة'), 'messages_locked' => (string) setting('workflow.arbitration.index_msg_2', 'مقفولة الرسائل'), 'decided' => (string) setting('workflow.arbitration.index_msg_3', 'محسومة')],
             'slowdown' => rep_rule('task.slowdown'),
             'lateMessages' => $cases->filter(fn ($c) => $c->status !== 'decided' && $c->window_due_at?->isPast())->count(),
         ]);
@@ -91,7 +91,7 @@ class ArbitrationController extends Controller
 
         $this->arbitrations->open($task, $contribution, $request->user(), $data);
 
-        return back()->with('status', 'اتفتحت القضيّة ووصلت للمحكّم ✓');
+        return back()->with('status', (string) setting('workflow.arbitration.store_ok', 'اتفتحت القضيّة ووصلت للمحكّم ✓'));
     }
 
     public function message(Request $request, Arbitration $arbitration): RedirectResponse
@@ -103,7 +103,7 @@ class ArbitrationController extends Controller
 
         $this->arbitrations->message($arbitration, $request->user(), $data['body'], $data['attachment_path'] ?? null);
 
-        return back()->with('status', 'اتبعتت رسالتك ✓');
+        return back()->with('status', (string) setting('workflow.arbitration.message_ok', 'اتبعتت رسالتك ✓'));
     }
 
     /** قفل الرسائل — للمحكّم الحاليّ وحده */
@@ -111,7 +111,7 @@ class ArbitrationController extends Controller
     {
         $this->arbitrations->lockMessages($arbitration, $request->user());
 
-        return back()->with('status', 'اتقفلت الرسائل ✓');
+        return back()->with('status', (string) setting('workflow.arbitration.lock_ok', 'اتقفلت الرسائل ✓'));
     }
 
     /**
@@ -122,7 +122,7 @@ class ArbitrationController extends Controller
     {
         $parties = $this->arbitrations->parties($arbitration);
 
-        abort_unless($parties->contains('id', $party->id), 404, 'الطرف ده مش في القضيّة.');
+        abort_unless($parties->contains('id', $party->id), 404, (string) setting('workflow.arbitration.contact_denied', 'الطرف ده مش في القضيّة.'));
 
         return response()->json($this->arbitrations->contactFor($request->user(), $party));
     }
@@ -133,8 +133,8 @@ class ArbitrationController extends Controller
      */
     public function decide(Request $request, Arbitration $arbitration): RedirectResponse
     {
-        abort_unless((int) $arbitration->arbiter_id === (int) $request->user()->id, 403, 'القرار للمحكّم الحاليّ وحده.');
-        abort_if($arbitration->status === 'decided', 422, 'القرار نهائيّ ولا يُعاد.');
+        abort_unless((int) $arbitration->arbiter_id === (int) $request->user()->id, 403, (string) setting('workflow.arbitration.decide_msg', 'القرار للمحكّم الحاليّ وحده.'));
+        abort_if($arbitration->status === 'decided', 422, (string) setting('workflow.arbitration.decide_msg_2', 'القرار نهائيّ ولا يُعاد.'));
 
         $data = $request->validate([
             'decision_type' => ['required', 'in:award,deduct,split,shelved'],
@@ -166,7 +166,7 @@ class ArbitrationController extends Controller
             ]);
         }
 
-        return back()->with('status', 'اتسجّل القرار — نهائيّ ولا يُعاد ✓');
+        return back()->with('status', (string) setting('workflow.arbitration.decide_ok', 'اتسجّل القرار — نهائيّ ولا يُعاد ✓'));
     }
 
     // ------------------------------------------------------------------ داخليّ

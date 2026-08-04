@@ -68,7 +68,7 @@
 <div id="mobile-drawer" class="md:hidden">
     <div data-sidebar-backdrop data-open="false" aria-hidden="true"></div>
 
-    <button type="button" data-sidebar-close aria-label="اقفل القائمة"
+    <button type="button" data-sidebar-close aria-label="{{ setting('nav.drawer.close_aria', 'اقفل القائمة') }}"
             class="fixed top-3 rounded-xl text-lg items-center justify-center hidden"
             style="inset-inline-end: .75rem; z-index: 80; background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
         ✕

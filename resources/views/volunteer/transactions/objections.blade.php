@@ -1,6 +1,6 @@
 @extends('layouts.volunteer')
 
-@section('title', 'اعتراضاتي')
+@section('title', setting('volunteer.transactions_objections.title', 'اعتراضاتي'))
 
 @php
     /**
@@ -13,9 +13,9 @@
 
 @section('content')
     <x-page-header
-        title="اعتراضاتي"
-        :subtitle="'الباب مفتوح '.$service->windowDays().' أيّام من كلّ معاملة'"
-        :breadcrumbs="[['label' => 'معاملاتي', 'url' => route('volunteer.transactions')], ['label' => 'اعتراضاتي']]" />
+        :title="setting('volunteer.transactions_objections.title', 'اعتراضاتي')"
+        :subtitle="setting('volunteer.transactions_objections.subtitle', 'الباب مفتوح ').$service->windowDays().setting('volunteer.transactions_objections.subtitle_2', ' أيّام من كلّ معاملة')"
+        :breadcrumbs="[['label' => setting('volunteer.transactions_objections.label', 'معاملاتي'), 'url' => route('volunteer.transactions')], ['label' => setting('volunteer.transactions_objections.title', 'اعتراضاتي')]]" />
 
     <div class="flex flex-wrap items-center gap-2 mb-4 text-xs">
         @foreach ($counts as $status => $count)
@@ -26,16 +26,16 @@
             </a>
         @endforeach
         @if ($overdue > 0)
-            <x-state-badge state="danger" :label="'متأخّر عن الـSLA: '.$overdue" />
+            <x-state-badge state="danger" :label="setting('volunteer.transactions_objections.label_2', 'متأخّر عن الـSLA: ').$overdue" />
         @endif
         @if ($filters['status'] !== '')
-            <a href="{{ route('volunteer.objections') }}" class="rounded-full px-3 py-1" style="border: 1px solid var(--border)">الكلّ</a>
+            <a href="{{ route('volunteer.objections') }}" class="rounded-full px-3 py-1" style="border: 1px solid var(--border)">{{ setting('volunteer.common.all', 'الكلّ') }}</a>
         @endif
     </div>
 
     @if ($rows->isEmpty())
-        <x-empty message="مفيش اعتراضات — والباب مفتوح {{ $service->windowDays() }} أيّام من كلّ معاملة"
-                 action="روح لمعاملاتي" :href="route('volunteer.transactions')" />
+        <x-empty message="{{ setting('volunteer.transactions_objections.empty', 'مفيش اعتراضات — والباب مفتوح') }} {{ $service->windowDays() }} {{ setting('volunteer.transactions_objections.empty_2', 'أيّام من كلّ معاملة') }}"
+                 :action="setting('volunteer.transactions_objections.action', 'روح لمعاملاتي')" :href="route('volunteer.transactions')" />
     @else
         <div class="grid gap-4 md:grid-cols-[20rem_1fr]">
             {{-- يمين: القائمة --}}
@@ -47,18 +47,18 @@
                             @if ($selected && $selected->id === $objection->id) style="border-color: var(--color-brand-600)" @endif>
                         <div class="flex items-center justify-between gap-2">
                             <span class="text-xs" style="color: var(--text-muted)">
-                                #{{ $objection->id }} · معاملة #{{ $objection->transaction_id }}
+                                #{{ $objection->id }} · {{ setting('volunteer.transactions_objections.action_2', 'معاملة #') }}{{ $objection->transaction_id }}
                             </span>
                             <x-state-badge :state="$service->statusState($objection->status)"
                                            :label="$service->statusLabel($objection->status)" />
                         </div>
                         <div class="mt-1 text-sm truncate">{{ $objection->reason }}</div>
                         <div class="mt-1 flex items-center justify-between text-xs" style="color: var(--text-muted)">
-                            <span>المسؤول: {{ $objection->current_handler?->name ?? 'بانتظار الإسناد' }}</span>
+                            <span>{{ setting('volunteer.transactions_objections.action_3', 'المسؤول:') }} {{ $objection->current_handler?->name ?? setting('volunteer.transactions_objections.text', 'بانتظار الإسناد') }}</span>
                             <span>{{ $objection->created_at?->format('Y-m-d') }}</span>
                         </div>
                         @if ($overdueRow)
-                            <div class="mt-1"><x-state-badge state="danger" label="متأخّر" /></div>
+                            <div class="mt-1"><x-state-badge state="danger" :label="setting('volunteer.transactions_objections.label_3', 'متأخّر')" /></div>
                         @endif
                     </button>
                 @endforeach

@@ -55,10 +55,10 @@
     @endisset
 
     @if ($points === [])
-        <p class="text-sm py-6 text-center" style="color: var(--text-muted)">لسّه مفيش بيانات في المدى ده</p>
+        <p class="text-sm py-6 text-center" style="color: var(--text-muted)">{{ setting('volunteer.performance_line_chart.text', 'لسّه مفيش بيانات في المدى ده') }}</p>
     @else
         <svg viewBox="0 0 {{ $width }} {{ $height }}" class="w-full" style="height: {{ $height }}px"
-             role="img" aria-label="{{ $title ?? 'منحنى' }}" preserveAspectRatio="none">
+             role="img" aria-label="{{ $title ?? setting('volunteer.performance_line_chart.aria', 'منحنى') }}" preserveAspectRatio="none">
             <defs>
                 <linearGradient id="fill-{{ $chartId }}" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="0%" stop-color="var(--color-brand-500)" stop-opacity=".28" />

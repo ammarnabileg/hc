@@ -96,7 +96,7 @@ class TemplateDesignerController extends Controller
             'background_path' => $request->boolean('clear') ? null : ($data['background_path'] ?? null),
         ]);
 
-        return back()->with('status', $request->boolean('clear') ? 'اتشالت الخلفيّة ✓' : 'اتظبطت الخلفيّة ✓');
+        return back()->with('status', $request->boolean('clear') ? (string) setting('certificates.designer.background_ok', 'اتشالت الخلفيّة ✓') : (string) setting('certificates.designer.background_ok_2', 'اتظبطت الخلفيّة ✓'));
     }
 
     /** إعادة القالب للتصميم الافتراضيّ الجاهز (24.1). */
@@ -105,7 +105,7 @@ class TemplateDesignerController extends Controller
         $this->designer->reset($template);
         $this->audit->record($template, 'certificate_template.reset', [], []);
 
-        return back()->with('status', 'رجع للتصميم الافتراضيّ ✓');
+        return back()->with('status', (string) setting('certificates.designer.reset_ok', 'رجع للتصميم الافتراضيّ ✓'));
     }
 
     /** ⭐ معاينة بالمقاس الحقيقيّ — نفس الوحدات التي يرسم بها الخادم. */

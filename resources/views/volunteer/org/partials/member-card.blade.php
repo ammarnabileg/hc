@@ -22,7 +22,7 @@
                 <span class="font-bold text-sm truncate">{{ $card['short_name'] }}</span>
                 <x-state-badge :state="$card['rep_state']" :label="$card['rep_label']" />
                 @if ($card['is_club'])
-                    <span class="text-xs" style="color: var(--color-state-honor)" title="نادي التميّز">★</span>
+                    <span class="text-xs" style="color: var(--color-state-honor)" title="{{ setting('volunteer.org_member_card.tooltip', 'نادي التميّز') }}">★</span>
                 @endif
             </div>
 
@@ -32,7 +32,7 @@
 
             @if ($card['upline'])
                 <div class="text-xs mt-0.5" style="color: var(--text-muted)">
-                    الأبلاين: {{ $card['upline'] }}
+                    {{ setting('volunteer.org_member_card.action', 'الأبلاين:') }} {{ $card['upline'] }}
                 </div>
             @endif
 
@@ -40,15 +40,15 @@
                 @if ($card['absent_until'])
                     <x-state-badge
                         state="idle"
-                        :label="'غائب حتى '.$card['absent_until']->translatedFormat(setting('volunteer.org.date_format', 'j F')).($card['delegate'] ? ' — البديل: '.$card['delegate'] : '')" />
+                        :label="setting('volunteer.org_member_card.label', 'غائب حتى ').$card['absent_until']->translatedFormat(setting('volunteer.org.date_format', 'j F')).($card['delegate'] ? setting('volunteer.org_member_card.label_2', ' — البديل: ').$card['delegate'] : '')" />
                 @endif
 
                 @if ($card['is_acting'])
-                    <x-state-badge state="warn" label="قائم بأعمال" />
+                    <x-state-badge state="warn" :label="setting('volunteer.org_member_card.label_3', 'قائم بأعمال')" />
                 @endif
 
                 @if ($card['status'] === 'suspended')
-                    <x-state-badge state="idle" label="معلَّق" />
+                    <x-state-badge state="idle" :label="setting('volunteer.org_member_card.label_4', 'معلَّق')" />
                 @endif
 
                 {{-- الأرقام التشغيليّة للمخوَّل وحده — تُخفى ولا تُعطَّل (2.15-أ-7) --}}
@@ -56,7 +56,7 @@
                     @if ($card['load'] > 0)
                         <span class="text-xs rounded-full px-2 py-0.5"
                               style="background: var(--surface-sunken); color: var(--text-muted)">
-                            تحته {{ $card['load'] }}
+                            {{ setting('volunteer.org_member_card.action_2', 'تحته') }} {{ $card['load'] }}
                         </span>
                     @endif
                 @endcan

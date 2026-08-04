@@ -27,7 +27,7 @@
 
         <p class="mt-4 text-sm">
             @if ($attempt->passed)
-                {{ str_replace('[الاسم]', $attempt->user->name, (string) setting('exams.messages.passed', 'مبروك يا [الاسم] 🎉 عدّيت الامتحان.')) }}
+                {{ str_replace((string) setting('exams.result.expr_1', '[الاسم]'), $attempt->user->name, (string) setting('exams.messages.passed', 'مبروك يا [الاسم] 🎉 عدّيت الامتحان.')) }}
             @else
                 {{-- الرسوب برسالة محايدة تشجّع ولا تعاتب (2.17-ج · 13.4-ق-و) --}}
                 {{ setting('exams.messages.failed', 'مش المرّة دي. راجع الدروس وجرّب تاني — ومحاولتك الجاية متاحة حسب قواعد الامتحان.') }}
@@ -74,7 +74,7 @@
             <div class="card p-6 text-center max-w-md animate-fadeup">
                 <div class="text-3xl mb-2" aria-hidden="true"><x-icon name="training" size="16" /></div>
                 <h2 class="text-xl font-extrabold" style="color: var(--color-state-honor)">
-                    {{ str_replace('[الاسم]', $attempt->user->name, (string) setting('celebrations.certificate.title', 'مبروك يا [الاسم]')) }}
+                    {{ str_replace((string) setting('exams.result.expr_2', '[الاسم]'), $attempt->user->name, (string) setting('celebrations.certificate.title', 'مبروك يا [الاسم]')) }}
                 </h2>
                 <p class="text-sm mt-2" style="color: var(--text-muted)">
                     {{ setting('celebrations.certificate.message', 'شهادتك الجديدة صدرت — تقدر تشاركها دلوقتي.') }}

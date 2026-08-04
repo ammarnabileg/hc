@@ -12,7 +12,7 @@
         <header class="px-5 py-4 shrink-0" style="border-bottom: 1px solid var(--border)">
             <h1 class="text-xl font-extrabold">{{ setting('onboarding.instructions.title', 'تعليمات المنصّة') }}</h1>
             <div class="mt-3 h-1 rounded-full overflow-hidden" style="background: var(--surface-sunken)"
-                 role="progressbar" aria-label="نسبة القراءة">
+                 role="progressbar" aria-label="{{ setting('onboarding.instructions.aria_label_1', 'نسبة القراءة') }}">
                 <div data-read-bar class="h-full motion-standard" style="width: 0%; background: var(--color-brand-500)"></div>
             </div>
         </header>

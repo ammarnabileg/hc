@@ -10,31 +10,31 @@
 {{-- طلبات مستنّية ردّ صاحب البروفايل — الفعل من الصفّ نفسه بلا بوب-أب (2.15-ب) --}}
 @if ($isOwner && $c['pending']->isNotEmpty())
     <section class="card p-4 mb-4">
-        <h2 class="font-bold text-sm mb-3">طلبات مستنّية ردّك</h2>
+        <h2 class="font-bold text-sm mb-3">{{ setting('volunteer.profile_tab_contact.heading', 'طلبات مستنّية ردّك') }}</h2>
         <ul class="space-y-3">
             @foreach ($c['pending'] as $request)
                 <li class="flex flex-wrap items-center gap-2 justify-between">
                     <div class="min-w-0">
                         <div class="text-sm font-semibold">
-                            {{ $request->requester?->shortName() }} طالب إظهار {{ \App\Services\Volunteer\Profile\ConsentFlow::fieldLabel($request->field) }}
+                            {{ $request->requester?->shortName() }} {{ setting('volunteer.profile_tab_contact.bullet', 'طالب إظهار') }} {{ \App\Services\Volunteer\Profile\ConsentFlow::fieldLabel($request->field) }}
                         </div>
                         {{-- سبب الطلب اختياريّ — ووجوده يرفع القبول ويقلّل الرفض العشوائيّ --}}
                         <div class="text-xs" style="color: var(--text-muted)">
-                            {{ $request->reason ?: 'من غير سبب مكتوب' }}
-                            · ينتهي {{ $request->request_expires_at?->diffForHumans() }}
+                            {{ $request->reason ?: setting('volunteer.profile_tab_contact.text', 'من غير سبب مكتوب') }}
+                            · {{ setting('volunteer.profile_tab_contact.bullet_2', 'ينتهي') }} {{ $request->request_expires_at?->diffForHumans() }}
                         </div>
                     </div>
                     <div class="flex items-center gap-2">
                         <form method="POST" action="{{ route('volunteer.profile.consent.approve', $request) }}">
                             @csrf
                             <button type="submit" class="btn rounded-xl px-3 py-2 text-sm font-semibold motion-standard"
-                                    style="min-height: 44px; background: var(--color-brand-500); color: #04201c">وافق</button>
+                                    style="min-height: 44px; background: var(--color-brand-500); color: #04201c">{{ setting('volunteer.profile_tab_contact.action', 'وافق') }}</button>
                         </form>
                         <form method="POST" action="{{ route('volunteer.profile.consent.deny', $request) }}">
                             @csrf
                             {{-- الرفض صامت: بلا سبب إلزاميّ وبلا إشعار للطرف الآخر --}}
                             <button type="submit" class="btn rounded-xl px-3 py-2 text-sm motion-standard"
-                                    style="min-height: 44px; background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">مش دلوقتي</button>
+                                    style="min-height: 44px; background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">{{ setting('volunteer.profile_tab_contact.action_2', 'مش دلوقتي') }}</button>
                         </form>
                     </div>
                 </li>
@@ -46,7 +46,7 @@
 <div class="grid md:grid-cols-2 gap-3">
 
     <section class="card p-4">
-        <h2 class="font-bold text-sm mb-3">بيانات التواصل</h2>
+        <h2 class="font-bold text-sm mb-3">{{ setting('volunteer.profile_tab_contact.heading_2', 'بيانات التواصل') }}</h2>
 
         <dl class="space-y-4 text-sm">
             @foreach ($c['fields'] as $field)
@@ -54,23 +54,23 @@
                     <dt class="text-xs mb-1" style="color: var(--text-muted)">{{ $field['label'] }}</dt>
 
                     @if (! $field['has_value'])
-                        <dd style="color: var(--text-muted)">مش مضاف</dd>
+                        <dd style="color: var(--text-muted)">{{ setting('volunteer.profile_tab_contact.text_2', 'مش مضاف') }}</dd>
                     @elseif ($field['visible'])
                         <dd class="flex flex-wrap items-center gap-2">
                             <span class="font-mono" dir="ltr">{{ $field['display'] }}</span>
                             @if ($field['whatsapp'])
                                 <a href="{{ $field['whatsapp'] }}" target="_blank" rel="noopener"
                                    class="btn rounded-xl px-3 py-1.5 text-xs motion-standard"
-                                   style="min-height: 44px; background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">واتساب</a>
+                                   style="min-height: 44px; background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">{{ setting('volunteer.common.whatsapp', 'واتساب') }}</a>
                             @endif
                             @if ($field['mailto'])
                                 <a href="{{ $field['mailto'] }}"
                                    class="btn rounded-xl px-3 py-1.5 text-xs motion-standard"
-                                   style="min-height: 44px; background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">إيميل</a>
+                                   style="min-height: 44px; background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">{{ setting('volunteer.profile_tab_contact.link', 'إيميل') }}</a>
                             @endif
                             <button type="button" data-copy-contact="{{ $field['display'] }}"
                                     class="btn rounded-xl px-3 py-1.5 text-xs motion-standard"
-                                    style="min-height: 44px; background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">نسخ</button>
+                                    style="min-height: 44px; background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">{{ setting('volunteer.profile_tab_contact.action_3', 'نسخ') }}</button>
                         </dd>
                     @else
                         {{-- الحقل المقفول **لا يُعرَض فراغًا** — يظهر مكانه زرّ الإجراء (13.4-م-2) --}}
@@ -92,21 +92,21 @@
                     {{-- خصوصيّة كلّ حقل — يراها صاحبها ويعدّلها من الإعدادات (13.4-م-2) --}}
                     @if ($isOwner)
                         <dd class="mt-1 text-xs" style="color: var(--text-muted)">
-                            الظهور: {{ $field['privacy_label'] }} ·
-                            <a href="{{ route('settings.privacy') }}" style="color: var(--color-brand-500)">غيّرها</a>
+                            {{ setting('volunteer.profile_tab_contact.text_3', 'الظهور:') }} {{ $field['privacy_label'] }} ·
+                            <a href="{{ route('settings.privacy') }}" style="color: var(--color-brand-500)">{{ setting('volunteer.profile_tab_contact.link_2', 'غيّرها') }}</a>
                         </dd>
                     @endif
                 </div>
             @endforeach
 
             <div class="flex items-center justify-between gap-2">
-                <dt style="color: var(--text-muted)">الدولة / المحافظة</dt>
+                <dt style="color: var(--text-muted)">{{ setting('volunteer.profile_tab_contact.text_4', 'الدولة / المحافظة') }}</dt>
                 <dd>{{ $c['country'] ?? '—' }}{{ $c['governorate'] ? ' · '.$c['governorate'] : '' }}</dd>
             </div>
 
             {{-- التوقيت المحليّ الحاليّ — فلا يُكلَّم أحد في وقت غير مناسب (2.5-ج) --}}
             <div class="flex items-center justify-between gap-2">
-                <dt style="color: var(--text-muted)">التوقيت المحليّ عنده</dt>
+                <dt style="color: var(--text-muted)">{{ setting('volunteer.profile_tab_contact.text_5', 'التوقيت المحليّ عنده') }}</dt>
                 <dd>{{ $c['local_time'] ?? '—' }}</dd>
             </div>
         </dl>
@@ -117,14 +117,14 @@
     </section>
 
     <section class="card p-4">
-        <h2 class="font-bold text-sm mb-3">جهة اتّصال للطوارئ</h2>
+        <h2 class="font-bold text-sm mb-3">{{ setting('volunteer.profile_tab_contact.heading_3', 'جهة اتّصال للطوارئ') }}</h2>
 
         @if (! $c['shows_emergency'])
-            <p class="text-sm" style="color: var(--text-muted)">متاحة لمشرفيه فقط.</p>
+            <p class="text-sm" style="color: var(--text-muted)">{{ setting('volunteer.profile_tab_contact.text_6', 'متاحة لمشرفيه فقط.') }}</p>
         @elseif ($c['emergency']->isEmpty())
-            <p class="text-sm" style="color: var(--text-muted)">مش مضافة —
+            <p class="text-sm" style="color: var(--text-muted)">{{ setting('volunteer.profile_tab_contact.text_7', 'مش مضافة —') }}
                 @if ($isOwner)
-                    <a href="{{ route('settings.index') }}" style="color: var(--color-brand-500)">أضفها من الإعدادات</a>
+                    <a href="{{ route('settings.index') }}" style="color: var(--color-brand-500)">{{ setting('volunteer.profile_tab_contact.link_3', 'أضفها من الإعدادات') }}</a>
                 @endif
             </p>
         @else
@@ -148,13 +148,13 @@
             <form method="POST" action="{{ route('volunteer.profile.consent.request', ['code' => $owner->code]) }}" class="space-y-3">
                 @csrf
                 <input type="hidden" name="field" value="{{ $field['key'] }}">
-                <p class="text-sm" style="color: var(--text-muted)">سبب الطلب اختياريّ — بس بيسهّل القرار.</p>
+                <p class="text-sm" style="color: var(--text-muted)">{{ setting('volunteer.profile_tab_contact.text_8', 'سبب الطلب اختياريّ — بس بيسهّل القرار.') }}</p>
                 <input type="text" name="reason" maxlength="{{ (int) setting('volunteer.profile.consent.reason_max', 300) }}"
                        class="w-full rounded-xl px-3 py-2 text-sm"
                        style="min-height: 44px; background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)"
-                       placeholder="محتاج أنسّق معاه في مهمّة…">
+                       placeholder="{{ setting('volunteer.profile_tab_contact.placeholder', 'محتاج أنسّق معاه في مهمّة…') }}">
                 <button type="submit" class="btn w-full rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
-                        style="min-height: 44px; background: var(--color-brand-500); color: #04201c">ابعت الطلب</button>
+                        style="min-height: 44px; background: var(--color-brand-500); color: #04201c">{{ setting('volunteer.profile_tab_contact.action_4', 'ابعت الطلب') }}</button>
             </form>
         </x-modal>
     @endif
@@ -164,9 +164,9 @@
 @if ($isOwner)
     @php $granted = app(ConsentDirectory::class)->activeFor($owner); @endphp
     <section class="card p-4 mt-3">
-        <h2 class="font-bold text-sm mb-3">مين بيشوف بياناتي</h2>
+        <h2 class="font-bold text-sm mb-3">{{ setting('volunteer.profile_tab_contact.heading_4', 'مين بيشوف بياناتي') }}</h2>
         @if ($granted->isEmpty())
-            <p class="text-sm" style="color: var(--text-muted)">محدّش دلوقتي — غير مشرفيك بحقّهم النظاميّ.</p>
+            <p class="text-sm" style="color: var(--text-muted)">{{ setting('volunteer.profile_tab_contact.text_9', 'محدّش دلوقتي — غير مشرفيك بحقّهم النظاميّ.') }}</p>
         @else
             <ul class="space-y-3">
                 @foreach ($granted as $consent)
@@ -175,7 +175,7 @@
                             <div class="text-sm font-semibold">{{ $consent->requester?->shortName() }}</div>
                             <div class="text-xs" style="color: var(--text-muted)">
                                 {{ ConsentDirectory::fieldLabel($consent->field) }} ·
-                                ينتهي {{ $consent->consent_expires_at?->diffForHumans() }}
+                                {{ setting('volunteer.profile_tab_contact.bullet_2', 'ينتهي') }} {{ $consent->consent_expires_at?->diffForHumans() }}
                             </div>
                             <div class="mt-1 h-1.5 w-40 rounded-full" style="background: var(--surface-sunken)">
                                 <span class="block h-1.5 rounded-full"
@@ -186,7 +186,7 @@
                         <form method="POST" action="{{ route('settings.privacy.revoke', $consent) }}">
                             @csrf
                             <button type="submit" class="btn rounded-xl px-3 py-2 text-sm motion-standard"
-                                    style="min-height: 44px; background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">اسحب الموافقة</button>
+                                    style="min-height: 44px; background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">{{ setting('volunteer.profile_tab_contact.action_5', 'اسحب الموافقة') }}</button>
                         </form>
                     </li>
                 @endforeach
@@ -196,15 +196,24 @@
 @endif
 
 @push('scripts')
+    @php
+        /** نصوص السكربت — تُمرَّر بـ`@json` فلا يبقى حرفٌ عربيّ محروق داخله (2.13-أ) */
+        $jsText = [
+            'copy_prompt' => (string) setting('volunteer.profile_contact.js_copy_prompt', 'انسخ البيانات'),
+            'copied' => (string) setting('volunteer.profile_contact.js_copied', 'اتنسخ ✓'),
+        ];
+    @endphp
+
     <script>
+        const T = @json($jsText);
         // ردّ فوريّ لكلّ فعل (2.17-ب)
         document.addEventListener('click', async (e) => {
             const btn = e.target.closest('[data-copy-contact]');
             if (!btn) return;
             try { await navigator.clipboard.writeText(btn.dataset.copyContact); }
-            catch { window.prompt('انسخ البيانات', btn.dataset.copyContact); }
+            catch { window.prompt(T.copy_prompt, btn.dataset.copyContact); }
             const original = btn.textContent;
-            btn.textContent = 'اتنسخ ✓';
+            btn.textContent = T.copied;
             setTimeout(() => { btn.textContent = original; }, 2000);
         });
 

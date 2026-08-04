@@ -83,10 +83,10 @@ class AdminDashboard
             return [
                 'days' => $days,
                 'label' => match ($days) {
-                    1 => 'اليوم',
-                    7 => 'أسبوع',
-                    30 => 'شهر',
-                    default => 'آخر '.$days.' يوم',
+                    1 => setting('admin_dashboard.admin_dashboard.quick_ranges_1', 'اليوم'),
+                    7 => setting('admin_dashboard.admin_dashboard.quick_ranges_2', 'أسبوع'),
+                    30 => setting('admin_dashboard.admin_dashboard.quick_ranges_3', 'شهر'),
+                    default => strtr(setting('admin_dashboard.admin_dashboard.quick_ranges_4', 'آخر :p1 يوم'), [':p1' => (string) ($days)]),
                 },
                 'from' => $from->toDateString(),
                 'to' => $today->toDateString(),
@@ -115,65 +115,65 @@ class AdminDashboard
         $revenue = (float) (clone $paid)->sum('total');
 
         $cards = [
-            $this->card('users', 'كلّ المستخدمين', 'people',
+            $this->card('users', setting('admin_dashboard.admin_dashboard.cards_1', 'كلّ المستخدمين'), 'people',
                 User::where('created_at', '<=', $to)->count(),
                 User::where('created_at', '<=', $prevTo)->count(),
-                'إجمالي الحسابات حتى نهاية الفترة',
+                setting('admin_dashboard.admin_dashboard.cards_2', 'إجمالي الحسابات حتى نهاية الفترة'),
                 $this->urlFor('admin.users.index', $user, 'users.list')),
 
-            $this->card('signups', 'مسجّلون جدد', 'user',
+            $this->card('signups', setting('admin_dashboard.admin_dashboard.cards_3', 'مسجّلون جدد'), 'user',
                 User::whereBetween('created_at', [$from, $to])->count(),
                 User::whereBetween('created_at', [$prevFrom, $prevTo])->count(),
-                'حسابات اتسجّلت داخل الفترة',
+                setting('admin_dashboard.admin_dashboard.cards_4', 'حسابات اتسجّلت داخل الفترة'),
                 $this->urlFor('admin.users.approvals', $user, 'user_approvals.list')),
 
-            $this->card('sales', 'مبيعات (كوينز)', 'store',
+            $this->card('sales', setting('admin_dashboard.admin_dashboard.cards_5', 'مبيعات (كوينز)'), 'store',
                 (int) round($revenue),
                 (int) round((float) Order::where('status', 'paid')->whereBetween('paid_at', [$prevFrom, $prevTo])->sum('total')),
-                'إجمالي الطلبات المدفوعة داخل الفترة',
+                setting('admin_dashboard.admin_dashboard.cards_6', 'إجمالي الطلبات المدفوعة داخل الفترة'),
                 $this->urlFor('admin.store.index', $user, 'orders.list')),
 
-            $this->card('courses', 'تدريبات نشطة', 'training',
+            $this->card('courses', setting('admin_dashboard.admin_dashboard.cards_7', 'تدريبات نشطة'), 'training',
                 Course::where('status', 'published')->count(),
                 Course::where('status', 'published')->where('created_at', '<=', $prevTo)->count(),
-                'تدريبات منشورة ومتاحة دلوقتي',
+                setting('admin_dashboard.admin_dashboard.cards_8', 'تدريبات منشورة ومتاحة دلوقتي'),
                 $this->urlFor('admin.courses.index', $user, 'courses.list')),
 
-            $this->card('events', 'فعاليّات قادمة', 'event',
+            $this->card('events', setting('admin_dashboard.admin_dashboard.cards_9', 'فعاليّات قادمة'), 'event',
                 Event::where('starts_at', '>=', now())->where('status', 'published')->count(),
                 Event::where('starts_at', '>=', $prevTo)->where('status', 'published')->count(),
-                'فعاليّات لسّه ماجتش',
+                setting('admin_dashboard.admin_dashboard.cards_10', 'فعاليّات لسّه ماجتش'),
                 $this->urlFor('admin.events.index', $user, 'events.list')),
 
-            $this->card('online', 'النشطون الآن', 'eye',
+            $this->card('online', setting('admin_dashboard.admin_dashboard.cards_11', 'النشطون الآن'), 'eye',
                 User::where('last_seen_at', '>=', now()->subMinutes((int) setting('admin_dashboard.online_window_minutes', 15)))->count(),
                 0,
-                'مستخدمون ظهروا في آخر ربع ساعة',
+                setting('admin_dashboard.admin_dashboard.cards_12', 'مستخدمون ظهروا في آخر ربع ساعة'),
                 $this->urlFor('admin.users.index', $user, 'users.list')),
         ];
 
         // 🔒 الكروت الماليّة (12.3-6 · 12.3-8 · 12.3-9): لمالك المنصّة وحده
         if ($owner) {
-            $cards[] = $this->card('revenue', '🔒 الإيرادات', 'money', (int) round($revenue),
+            $cards[] = $this->card('revenue', setting('admin_dashboard.admin_dashboard.cards_13', '🔒 الإيرادات'), 'money', (int) round($revenue),
                 (int) round((float) Order::where('status', 'paid')->whereBetween('paid_at', [$prevFrom, $prevTo])->sum('total')),
-                'إجمالي المدفوع داخل الفترة',
+                setting('admin_dashboard.admin_dashboard.cards_14', 'إجمالي المدفوع داخل الفترة'),
                 $this->urlFor('admin.finance.index', $user, 'finance.view'));
 
-            $cards[] = $this->card('aov', '🔒 متوسّط قيمة الطلب', 'transaction',
+            $cards[] = $this->card('aov', setting('admin_dashboard.admin_dashboard.cards_15', '🔒 متوسّط قيمة الطلب'), 'transaction',
                 $paidCount > 0 ? (int) round($revenue / $paidCount) : 0,
                 $this->previousAov($prevFrom, $prevTo),
-                'الإيرادات ÷ عدد الطلبات المدفوعة',
+                setting('admin_dashboard.admin_dashboard.cards_16', 'الإيرادات ÷ عدد الطلبات المدفوعة'),
                 $this->urlFor('admin.finance.index', $user, 'finance.view'));
 
-            $cards[] = $this->card('withdrawals', '🔒 سحوبات مستحقّة', 'withdraw',
+            $cards[] = $this->card('withdrawals', setting('admin_dashboard.admin_dashboard.cards_17', '🔒 سحوبات مستحقّة'), 'withdraw',
                 (int) round(abs((float) $this->pendingWithdrawQuery()->sum('amount'))), 0,
-                'إجمالي طلبات السحب اللي لسّه مستنّية',
+                setting('admin_dashboard.admin_dashboard.cards_18', 'إجمالي طلبات السحب اللي لسّه مستنّية'),
                 $this->urlFor('admin.finance.index', $user, 'finance.view'));
 
-            $cards[] = $this->card('referral', '🔒 عمولة الريفيرال', 'referral',
+            $cards[] = $this->card('referral', setting('admin_dashboard.admin_dashboard.cards_19', '🔒 عمولة الريفيرال'), 'referral',
                 (int) round((float) Referral::whereBetween('updated_at', [$from, $to])->sum('commission_earned')),
                 (int) round((float) Referral::whereBetween('updated_at', [$prevFrom, $prevTo])->sum('commission_earned')),
-                'العمولة المصروفة داخل الفترة',
+                setting('admin_dashboard.admin_dashboard.cards_20', 'العمولة المصروفة داخل الفترة'),
                 $this->urlFor('admin.referrals.index', $user, 'referrals.list'));
         }
 
@@ -248,9 +248,9 @@ class AdminDashboard
         $buyers = Order::where('status', 'paid')->whereBetween('paid_at', [$from, $to])->distinct('user_id')->count('user_id');
 
         return [
-            ['label' => 'مسجّل', 'value' => $registered],
-            ['label' => 'معتمَد', 'value' => $approved],
-            ['label' => 'مشترٍ', 'value' => $buyers],
+            ['label' => setting('admin_dashboard.admin_dashboard.funnel_1', 'مسجّل'), 'value' => $registered],
+            ['label' => setting('admin_dashboard.admin_dashboard.funnel_2', 'معتمَد'), 'value' => $approved],
+            ['label' => setting('admin_dashboard.admin_dashboard.funnel_3', 'مشترٍ'), 'value' => $buyers],
         ];
     }
 
@@ -283,9 +283,9 @@ class AdminDashboard
             ->limit($limit)
             ->get()
             ->map(fn (Transaction $row) => [
-                'type' => 'سحب',
+                'type' => setting('admin_dashboard.admin_dashboard.pending_work_1', 'سحب'),
                 'icon' => 'withdraw',
-                'title' => ($row->user?->shortName() ?? 'مستخدم').' — '.number_format(abs((float) $row->amount)).' كوينز',
+                'title' => ($row->user?->shortName() ?? setting('admin_dashboard.admin_dashboard.pending_work_2', 'مستخدم')).' — '.number_format(abs((float) $row->amount)).setting('admin_dashboard.admin_dashboard.pending_work_3', ' كوينز'),
                 'at' => $row->created_at,
                 'state' => $row->created_at->diffInHours(now()) >= $lateHours ? 'danger' : 'warn',
                 'url' => Route::has('admin.store.index') ? route('admin.store.index') : null,
@@ -297,7 +297,7 @@ class AdminDashboard
             ->limit($limit)
             ->get()
             ->map(fn (Complaint $row) => [
-                'type' => $row->type === 'suggestion' ? 'مقترح' : 'شكوى',
+                'type' => $row->type === 'suggestion' ? setting('admin_dashboard.admin_dashboard.pending_work_4', 'مقترح') : setting('admin_dashboard.admin_dashboard.pending_work_5', 'شكوى'),
                 'icon' => 'complaint',
                 'title' => $row->title,
                 'at' => $row->created_at,
@@ -311,8 +311,8 @@ class AdminDashboard
     public function pendingWorkCounts(): array
     {
         return [
-            'سحوبات' => $this->pendingWithdrawQuery()->count(),
-            'شكاوى' => Complaint::where('status', 'open')->count(),
+            (string) setting('admin_dashboard.admin_dashboard.pending_work_counts_1', 'سحوبات') => $this->pendingWithdrawQuery()->count(),
+            (string) setting('admin_dashboard.admin_dashboard.pending_work_counts_2', 'شكاوى') => Complaint::where('status', 'open')->count(),
         ];
     }
 
@@ -413,8 +413,8 @@ class AdminDashboard
             ->leftJoin('governorates', 'governorates.id', '=', 'users.governorate_id')
             ->whereNull('users.deleted_at')
             ->select(
-                DB::raw("coalesce(countries.name_ar, 'غير محدّد') as country"),
-                DB::raw("coalesce(governorates.name_ar, 'غير محدّد') as governorate"),
+                DB::raw(setting('admin_dashboard.admin_dashboard.geo_heat_1', 'coalesce(countries.name_ar, \'غير محدّد\') as country')),
+                DB::raw(setting('admin_dashboard.admin_dashboard.geo_heat_2', 'coalesce(governorates.name_ar, \'غير محدّد\') as governorate')),
                 DB::raw('count(*) as total'),
             )
             ->groupBy('country', 'governorate')
@@ -461,9 +461,9 @@ class AdminDashboard
             : 0.0;
 
         return [
-            ['label' => 'ستريكات نشطة', 'value' => $activeStreaks, 'hint' => 'متوسّط الستريك: '.round($avgStreak, 1).' يوم'],
-            ['label' => 'نادي الخامسة اليوم', 'value' => $clubToday, 'hint' => 'حضور نافذة 4:50–5:20 ص'],
-            ['label' => 'تذاكر متداولة', 'value' => (int) round($tickets), 'hint' => 'رصيد التذاكر في المحافظ كلّها'],
+            ['label' => setting('admin_dashboard.admin_dashboard.gamification_health_1', 'ستريكات نشطة'), 'value' => $activeStreaks, 'hint' => strtr(setting('admin_dashboard.admin_dashboard.gamification_health_2', 'متوسّط الستريك: :p1 يوم'), [':p1' => (string) (round($avgStreak, 1))])],
+            ['label' => setting('admin_dashboard.admin_dashboard.gamification_health_3', 'نادي الخامسة اليوم'), 'value' => $clubToday, 'hint' => setting('admin_dashboard.admin_dashboard.gamification_health_4', 'حضور نافذة 4:50–5:20 ص')],
+            ['label' => setting('admin_dashboard.admin_dashboard.gamification_health_5', 'تذاكر متداولة'), 'value' => (int) round($tickets), 'hint' => setting('admin_dashboard.admin_dashboard.gamification_health_6', 'رصيد التذاكر في المحافظ كلّها')],
         ];
     }
 
@@ -706,16 +706,16 @@ class AdminDashboard
     public function cardCatalog(): array
     {
         return [
-            'users' => 'كلّ المستخدمين',
-            'signups' => 'مسجّلون جدد',
-            'sales' => 'مبيعات (كوينز)',
-            'courses' => 'تدريبات نشطة',
-            'events' => 'فعاليّات قادمة',
-            'online' => 'النشطون الآن',
-            'revenue' => '🔒 الإيرادات',
-            'aov' => '🔒 متوسّط قيمة الطلب',
-            'withdrawals' => '🔒 سحوبات مستحقّة',
-            'referral' => '🔒 عمولة الريفيرال',
+            'users' => setting('admin_dashboard.admin_dashboard.card_catalog_1', 'كلّ المستخدمين'),
+            'signups' => setting('admin_dashboard.admin_dashboard.card_catalog_2', 'مسجّلون جدد'),
+            'sales' => setting('admin_dashboard.admin_dashboard.card_catalog_3', 'مبيعات (كوينز)'),
+            'courses' => setting('admin_dashboard.admin_dashboard.card_catalog_4', 'تدريبات نشطة'),
+            'events' => setting('admin_dashboard.admin_dashboard.card_catalog_5', 'فعاليّات قادمة'),
+            'online' => setting('admin_dashboard.admin_dashboard.card_catalog_6', 'النشطون الآن'),
+            'revenue' => setting('admin_dashboard.admin_dashboard.card_catalog_7', '🔒 الإيرادات'),
+            'aov' => setting('admin_dashboard.admin_dashboard.card_catalog_8', '🔒 متوسّط قيمة الطلب'),
+            'withdrawals' => setting('admin_dashboard.admin_dashboard.card_catalog_9', '🔒 سحوبات مستحقّة'),
+            'referral' => setting('admin_dashboard.admin_dashboard.card_catalog_10', '🔒 عمولة الريفيرال'),
         ];
     }
 

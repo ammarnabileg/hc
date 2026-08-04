@@ -118,11 +118,11 @@ class CandidatePipeline
     public function move(RecruitmentCandidate $candidate, string $toStage, string $reason, User $actor): RecruitmentCandidate
     {
         if (! array_key_exists($toStage, $this->stages())) {
-            throw new \InvalidArgumentException('المرحلة دي مش موجودة — اختر مرحلة من أعمدة اللوحة.');
+            throw new \InvalidArgumentException(setting('recruitment.candidate_pipeline.move_1', 'المرحلة دي مش موجودة — اختر مرحلة من أعمدة اللوحة.'));
         }
 
         if (trim($reason) === '') {
-            throw new \InvalidArgumentException('اكتب سبب النقل — كلّ حركة على المرشّح لازم يكون ليها سبب مسجّل.');
+            throw new \InvalidArgumentException(setting('recruitment.candidate_pipeline.move_2', 'اكتب سبب النقل — كلّ حركة على المرشّح لازم يكون ليها سبب مسجّل.'));
         }
 
         $from = (string) $candidate->stage;
@@ -193,7 +193,7 @@ class CandidatePipeline
 
         return str_replace(
             [':from', ':to', ':duration'],
-            [$from->translatedFormat('j F Y'), $to->translatedFormat('j F Y'), $months.' شهرًا'],
+            [$from->translatedFormat('j F Y'), $to->translatedFormat('j F Y'), strtr(setting('recruitment.candidate_pipeline.returning_line_1', ':p1 شهرًا'), [':p1' => (string) ($months)])],
             (string) setting('recruitment.returning.line', 'كان معنا من :from إلى :to — مدّة الخدمة :duration'),
         );
     }

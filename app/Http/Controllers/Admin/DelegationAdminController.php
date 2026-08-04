@@ -28,12 +28,22 @@ use Illuminate\View\View;
  */
 class DelegationAdminController extends Controller
 {
-    /** الحالات الثلاث التي تُقرأ بها القائمة (والفلتر ثلاثة ظاهرة — 2.15-أ-4) */
-    public const STATES = [
-        'current' => 'سارية الآن',
-        'upcoming' => 'قادمة',
-        'ended' => 'منتهية',
-    ];
+    /** مفاتيح الحالات الثلاث (والفلتر ثلاثة ظاهرة — 2.15-أ-4) — مفاتيح لا نصوص */
+    public const STATE_KEYS = ['current', 'upcoming', 'ended'];
+
+    /**
+     * أسماء الحالات كما تُعرَض — ميثودٌ لا `const` كي يحرّرها المالك (2.13-أ).
+     *
+     * @return array<string, string>
+     */
+    public static function states(): array
+    {
+        return [
+            'current' => (string) setting('delegation.admin.state_current', 'سارية الآن'),
+            'upcoming' => (string) setting('delegation.admin.state_upcoming', 'قادمة'),
+            'ended' => (string) setting('delegation.admin.state_ended', 'منتهية'),
+        ];
+    }
 
     public function __construct(
         private readonly AbsenceService $absences,
@@ -53,7 +63,7 @@ class DelegationAdminController extends Controller
         return view('admin.volunteer.delegations', [
             'rows' => $rows,
             'filters' => $filters,
-            'states' => self::STATES,
+            'states' => self::states(),
             'entities' => $this->entityOptions($request),
             'kpis' => $this->kpis($request),
             'audit' => AuditTrail::latest('delegation.', (int) setting('volunteer.absence.audit_rows', 15)),
@@ -71,7 +81,7 @@ class DelegationAdminController extends Controller
     {
         $data = $request->validate([
             'note' => ['required', 'string', 'min:3', 'max:300'],
-        ], [], ['note' => 'سبب الإنهاء']);
+        ], [], ['note' => (string) setting('delegation.admin.end_msg', 'سبب الإنهاء')]);
 
         // النطاق إلزاميّ مع الصلاحيّة (12.2.1-ب) — ولا يُنهي أحدٌ غيابًا خارج نطاقه
         abort_unless($this->visibleIds($request)->contains($membershipAbsence->id), 403);
@@ -89,14 +99,14 @@ class DelegationAdminController extends Controller
             'note' => $data['note'],
         ]);
 
-        return back()->with('status', 'اتقفل وضع «غائب» ✓ — رجعت قراراته له، وساعات مهامّه اتزاحت بمدّة غيابه الفعليّة.');
+        return back()->with('status', (string) setting('delegation.admin.end_ok', 'اتقفل وضع «غائب» ✓ — رجعت قراراته له، وساعات مهامّه اتزاحت بمدّة غيابه الفعليّة.'));
     }
 
     // ------------------------------------------------------------------ داخليّ
 
     private function state(string $value): string
     {
-        return array_key_exists($value, self::STATES) ? $value : 'current';
+        return in_array($value, self::STATE_KEYS, true) ? $value : 'current';
     }
 
     /**

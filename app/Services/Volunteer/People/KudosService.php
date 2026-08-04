@@ -112,7 +112,7 @@ class KudosService
 
         $this->bridge->credit($receiver, 'vxp', $this->vxpValue(), 'kudos.received', $kudos, trim($reason));
         $this->bridge->celebrate($receiver, 'kudos.received', $kudos);
-        $this->bridge->notify($receiver, 'recognition', 'وصلك شكر 💛',
+        $this->bridge->notify($receiver, 'recognition', setting('recruitment.kudos_service.send_1', 'وصلك شكر 💛'),
             $sender->shortName().': '.trim($reason), route('volunteer.kudos'));
 
         return $kudos;

@@ -31,12 +31,12 @@
     <div data-stepper-nav class="hidden items-center justify-between gap-2 pt-3">
         <button type="button" data-stepper-prev
                 class="btn rounded-xl px-4 py-2 text-sm motion-standard"
-                style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">السابق</button>
+                style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">{{ setting('ux.stepper.text_1', 'السابق') }}</button>
 
         <span class="text-xs" style="color: var(--text-muted)" data-stepper-saved></span>
 
         <button type="button" data-stepper-next
                 class="btn rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
-                style="background: var(--color-brand-500); color: #04201c">التالي</button>
+                style="background: var(--color-brand-500); color: #04201c">{{ setting('ux.stepper.text_2', 'التالي') }}</button>
     </div>
 </div>

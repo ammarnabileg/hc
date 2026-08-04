@@ -181,7 +181,7 @@ class ReferralAdmin
 
         $setting->fill([
             'group' => 'ambassadors',
-            'label_ar' => 'عتبات ألقاب السفراء',
+            'label_ar' => setting('growth.referral_admin.save_tiers_1', 'عتبات ألقاب السفراء'),
             'type' => 'json',
             'default_value' => $setting->default_value ?: $old,
             'value' => json_encode($tiers, JSON_UNESCAPED_UNICODE),
@@ -206,7 +206,7 @@ class ReferralAdmin
         if ($requiresProfile && $this->statusOf($referral) !== 'completed') {
             return [
                 'ok' => false,
-                'message' => 'المدعوّ لسّه مافعّلش حسابه — المكافأة فضلت معلّقة. راجعه أو عطّل شرط استكمال البيانات من إعدادات الشاشة.',
+                'message' => setting('growth.referral_admin.payout_1', 'المدعوّ لسّه مافعّلش حسابه — المكافأة فضلت معلّقة. راجعه أو عطّل شرط استكمال البيانات من إعدادات الشاشة.'),
             ];
         }
 
@@ -304,7 +304,7 @@ class ReferralAdmin
                 'referred' => $referral->referred?->name,
                 'invited_at' => $referral->created_at?->format('Y-m-d H:i'),
                 'status' => self::STATUSES[$this->statusOf($referral)],
-                'welcome_ticket' => $referral->welcome_ticket_granted ? 'صُرفت' : 'لم تُصرَف',
+                'welcome_ticket' => $referral->welcome_ticket_granted ? setting('growth.referral_admin.export_rows_1', 'صُرفت') : setting('growth.referral_admin.export_rows_2', 'لم تُصرَف'),
                 'payout' => self::PAYOUTS[$referral->payout_status] ?? $referral->payout_status,
             ];
 

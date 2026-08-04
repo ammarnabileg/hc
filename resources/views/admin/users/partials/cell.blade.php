@@ -42,7 +42,7 @@
         @break
 
     @case('last_seen')
-        <span class="cursor-help" title="{{ $row->last_seen_at?->format('Y-m-d H:i') ?? 'مادخلش لسّه' }}">
+        <span class="cursor-help" title="{{ $row->last_seen_at?->format('Y-m-d H:i') ?? setting('admin.users.partials.cell.madkhlsh_lsh', 'مادخلش لسّه') }}">
             {{ $row->last_seen_at?->diffForHumans() ?? '—' }}
         </span>
         @break

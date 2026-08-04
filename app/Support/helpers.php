@@ -118,20 +118,28 @@ if (! function_exists('state_color')) {
             default => 'idle',
         };
 
-        // المرساة: قيم الدستور نفسها، فلو غابت الإعدادات (تنصيب جديد) لا تنكسر الشاشة
-        $fallback = [
-            'ok' => ['●', 'سليم'],
-            'warn' => ['▲', 'انتبه'],
-            'danger' => ['◉', 'خطر'],
-            'honor' => ['★', 'تميّز'],
-            'idle' => ['○', 'غير نشط'],
-        ][$color];
+        /*
+         | المرساة: قيم الدستور نفسها، فلو غابت الإعدادات (تنصيب جديد) لا تنكسر
+         | الشاشة. وهي **داخل `setting()`** لا في مصفوفةٍ فوقها: النصّ في مصفوفةٍ
+         | منفصلة نصٌّ محروق ولو كان مآله وسيطًا افتراضيًّا (2.13-ب).
+         */
+        $icon = (string) match ($color) {
+            'ok' => setting('ux.state.ok.icon', '●'),
+            'warn' => setting('ux.state.warn.icon', '▲'),
+            'danger' => setting('ux.state.danger.icon', '◉'),
+            'honor' => setting('ux.state.honor.icon', '★'),
+            default => setting('ux.state.idle.icon', '○'),
+        };
 
-        return [
-            'color' => $color,
-            'icon' => (string) setting("ux.state.{$color}.icon", $fallback[0]),
-            'label' => (string) setting("ux.state.{$color}.label", $fallback[1]),
-        ];
+        $label = (string) match ($color) {
+            'ok' => setting('ux.state.ok.label', 'سليم'),
+            'warn' => setting('ux.state.warn.label', 'انتبه'),
+            'danger' => setting('ux.state.danger.label', 'خطر'),
+            'honor' => setting('ux.state.honor.label', 'تميّز'),
+            default => setting('ux.state.idle.label', 'غير نشط'),
+        };
+
+        return ['color' => $color, 'icon' => $icon, 'label' => $label];
     }
 }
 

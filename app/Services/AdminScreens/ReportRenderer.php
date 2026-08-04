@@ -51,7 +51,7 @@ class ReportRenderer
             };
         } catch (Throwable $exception) {
             // فشل مولّد صيغة لا يمنع وصول التقرير — يخرج CSV ويقول لماذا
-            return $this->file($schedule, 'csv', $this->csv($rows), 'تعذّر توليد ملفّ '.mb_strtoupper($format).' فبعتناه CSV.');
+            return $this->file($schedule, 'csv', $this->csv($rows), strtr(setting('stats.report_renderer.render_1', 'تعذّر توليد ملفّ :p1 فبعتناه CSV.'), [':p1' => (string) (mb_strtoupper($format))]));
         }
 
         return $this->file($schedule, in_array($format, ['xlsx', 'pdf'], true) ? $format : 'csv', $content);

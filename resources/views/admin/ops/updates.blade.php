@@ -1,14 +1,14 @@
 @extends('layouts.admin')
 
-@section('title', 'التحديثات والترحيل')
+@section('title', setting('admin.ops.updates.althdythat_waltrhyl', 'التحديثات والترحيل'))
 
 @section('content')
-    <x-page-header title="التحديثات والترحيل"
-                   subtitle="نقرة آمنة: نشوف الأوّل، ناخد نسخة، ننفّذ — ولو حصل حاجة نرجع."
+    <x-page-header :title="setting('admin.ops.updates.althdythat_waltrhyl', 'التحديثات والترحيل')"
+                   :subtitle="setting('admin.ops.updates.nqra_amna_nshwf_alawl_nakhd_nskha_nnfdh_wlw', 'نقرة آمنة: نشوف الأوّل، ناخد نسخة، ننفّذ — ولو حصل حاجة نرجع.')"
                    :breadcrumbs="[
-                       ['label' => 'لوحة الإدارة', 'url' => url('/admin')],
-                       ['label' => 'الإعدادات والنظام', 'url' => route('admin.settings.index')],
-                       ['label' => 'التحديثات والترحيل'],
+                       ['label' => setting('admin.ops.updates.lwha_alidara', 'لوحة الإدارة'), 'url' => url('/admin')],
+                       ['label' => setting('admin.ops.updates.aliadadat_walnzam', 'الإعدادات والنظام'), 'url' => route('admin.settings.index')],
+                       ['label' => setting('admin.ops.updates.althdythat_waltrhyl', 'التحديثات والترحيل')],
                    ]">
         <x-slot:action>
             @can('updates.manage')
@@ -16,7 +16,7 @@
                 @if ($hasFreshDryRun && $pending !== [])
                     <button type="button" data-modal-open="migrate-confirm"
                             class="btn rounded-xl px-4 py-2 text-sm font-semibold"
-                            style="background: var(--color-brand-500); color: #04201c">تنفيذ التحديث</button>
+                            style="background: var(--color-brand-500); color: #04201c">{{ setting('admin.ops.updates.tnfydh_althdyth', 'تنفيذ التحديث') }}</button>
                 @else
                     <form method="post" action="{{ route('admin.ops.updates.dry-run') }}">
                         @csrf
@@ -31,21 +31,21 @@
                 <div class="absolute end-0 mt-2 w-64 card p-2 z-20 text-sm space-y-1">
                     <form method="post" action="{{ route('admin.ops.updates.check') }}">
                         @csrf
-                        <button class="w-full text-start px-2 py-2 rounded hover:opacity-80">🔎 فحص المايجريشنز المعلّقة</button>
+                        <button class="w-full text-start px-2 py-2 rounded hover:opacity-80">{{ setting('admin.ops.updates.fhs_almayjryshnz_almalqa', '🔎 فحص المايجريشنز المعلّقة') }}</button>
                     </form>
                     @can('updates.manage')
                         <form method="post" action="{{ route('admin.ops.updates.dry-run') }}">
                             @csrf
-                            <button class="w-full text-start px-2 py-2 rounded hover:opacity-80">👁 Dry-run (بلا تنفيذ)</button>
+                            <button class="w-full text-start px-2 py-2 rounded hover:opacity-80">{{ setting('admin.ops.updates.dry_run_bla_tnfydh', '👁 Dry-run (بلا تنفيذ)') }}</button>
                         </form>
                     @endcan
                     @can('updates.restore')
                         <button type="button" data-modal-open="rollback-confirm"
                                 class="w-full text-start px-2 py-2 rounded hover:opacity-80"
-                                style="color: var(--color-state-danger)">↩ استرجاع آخر دفعة</button>
+                                style="color: var(--color-state-danger)">{{ setting('admin.ops.updates.astrjaa_akhr_dfaa', '↩ استرجاع آخر دفعة') }}</button>
                     @endcan
                     @can('version_history.list')
-                        <a class="block px-2 py-2 rounded hover:opacity-80" href="{{ route('admin.ops.updates.history') }}">🗂 سجلّ الإصدارات</a>
+                        <a class="block px-2 py-2 rounded hover:opacity-80" href="{{ route('admin.ops.updates.history') }}">{{ setting('admin.ops.updates.sjl_alisdarat_2', '🗂 سجلّ الإصدارات') }}</a>
                     @endcan
                 </div>
             </details>
@@ -61,19 +61,19 @@
     {{-- أربعة كروت بحدّ أقصى (2.15-أ-3) --}}
     <div class="grid gap-3 grid-cols-2 lg:grid-cols-4 mb-4">
         <div class="card p-4">
-            <div class="text-sm" style="color: var(--text-muted)">الإصدار الحاليّ</div>
+            <div class="text-sm" style="color: var(--text-muted)">{{ setting('admin.ops.updates.alisdar_alhaly', 'الإصدار الحاليّ') }}</div>
             <div class="mt-2 text-2xl font-extrabold font-mono">{{ $version }}</div>
         </div>
-        <x-kpi label="هجرات مطبَّقة" :value="(string) $applied" icon="✅" />
-        <x-kpi label="هجرات معلّقة" :value="(string) count($pending)" icon="⏳"
+        <x-kpi :label="setting('admin.ops.updates.hjrat_mtbqa', 'هجرات مطبَّقة')" :value="(string) $applied" icon="✅" />
+        <x-kpi :label="setting('admin.ops.updates.hjrat_malqa', 'هجرات معلّقة')" :value="(string) count($pending)" icon="⏳"
                :state="$pending === [] ? 'ok' : 'warn'" />
-        <x-kpi label="آخر دفعة" :value="(string) count($lastBatch)" icon="↩" />
+        <x-kpi :label="setting('admin.ops.updates.akhr_dfaa', 'آخر دفعة')" :value="(string) count($lastBatch)" icon="↩" />
     </div>
 
     <x-tabs :current="$tab" :tabs="array_values(array_filter([
-        ['key' => 'overview', 'label' => 'الحالة والترحيل', 'url' => route('admin.ops.updates')],
+        ['key' => 'overview', 'label' => setting('admin.ops.updates.alhala_waltrhyl', 'الحالة والترحيل'), 'url' => route('admin.ops.updates')],
         auth()->user()->can('version_history.list')
-            ? ['key' => 'history', 'label' => 'سجلّ الإصدارات', 'url' => route('admin.ops.updates.history')]
+            ? ['key' => 'history', 'label' => setting('admin.ops.updates.sjl_alisdarat', 'سجلّ الإصدارات'), 'url' => route('admin.ops.updates.history')]
             : null,
     ]))" />
 
@@ -91,7 +91,7 @@
         @if ($hasFreshDryRun && $pending !== [])
             <button type="button" data-modal-open="migrate-confirm"
                     class="btn w-full rounded-xl px-4 py-3 text-sm font-semibold"
-                    style="background: var(--color-brand-500); color: #04201c">تنفيذ التحديث</button>
+                    style="background: var(--color-brand-500); color: #04201c">{{ setting('admin.ops.updates.tnfydh_althdyth', 'تنفيذ التحديث') }}</button>
         @else
             <form method="post" action="{{ route('admin.ops.updates.dry-run') }}">
                 @csrf

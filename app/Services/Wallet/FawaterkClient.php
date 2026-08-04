@@ -74,7 +74,7 @@ class FawaterkClient
             ]);
 
         if ($response->failed()) {
-            throw new RuntimeException('تعذّر إنشاء الفاتورة لدى البوّابة.');
+            throw new RuntimeException(setting('wallet.fawaterk_client.create_invoice_link_1', 'تعذّر إنشاء الفاتورة لدى البوّابة.'));
         }
 
         $body = (array) $response->json();
@@ -83,7 +83,7 @@ class FawaterkClient
         $invoiceId = $data['invoiceId'] ?? $data['invoice_id'] ?? $data['invoiceKey'] ?? null;
 
         if ($invoiceId === null) {
-            throw new RuntimeException('ردّ البوّابة بلا رقم فاتورة.');
+            throw new RuntimeException(setting('wallet.fawaterk_client.create_invoice_link_2', 'ردّ البوّابة بلا رقم فاتورة.'));
         }
 
         return [

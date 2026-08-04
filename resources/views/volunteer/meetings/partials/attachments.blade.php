@@ -8,7 +8,7 @@
 
 @if ($items->isNotEmpty())
     <div class="mt-4">
-        <h3 class="text-sm font-bold mb-2">المرفقات</h3>
+        <h3 class="text-sm font-bold mb-2">{{ setting('volunteer.meetings_attachments.heading', 'المرفقات') }}</h3>
         <ul class="space-y-2">
             @foreach ($items as $item)
                 @php $restricted = (bool) ($item->tags['restricted'] ?? false) && ! $canManage; @endphp
@@ -19,7 +19,7 @@
                         <form method="post" action="{{ route('volunteer.attendance.request', $meeting) }}">
                             @csrf
                             <button type="submit" class="btn rounded-xl px-3 py-1.5 text-xs"
-                                    style="border: 1px solid var(--border)">اطلب وصولًا</button>
+                                    style="border: 1px solid var(--border)">{{ setting('volunteer.meetings_attachments.action', 'اطلب وصولًا') }}</button>
                         </form>
                     @else
                         @include('volunteer.meetings.partials.icon', ['name' => 'attachment'])

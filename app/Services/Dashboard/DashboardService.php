@@ -58,7 +58,7 @@ class DashboardService
                 'label' => (string) setting('dashboard.kpi.level_label', 'مستوى الحساب و XP'),
                 'value' => $xp,
                 'icon' => 'xp',
-                'hint' => 'المستوى '.($level['level'] ?? 1).' — '.($level['name'] ?? ''),
+                'hint' => strtr(setting('dashboard.dashboard_service.kpis_1', 'المستوى :p1 — :p2'), [':p1' => (string) (($level['level'] ?? 1)), ':p2' => (string) (($level['name'] ?? ''))]),
                 'state' => null,
             ],
             /*
@@ -75,17 +75,17 @@ class DashboardService
                 'state' => null,
             ],
             [
-                'label' => 'الستريك',
+                'label' => setting('dashboard.dashboard_service.kpis_2', 'الستريك'),
                 'value' => (int) ($streak?->current_days ?? 0),
                 'icon' => 'streak',
-                'hint' => 'أطول ستريك: '.(int) ($streak?->best_days ?? 0).' يوم',
+                'hint' => strtr(setting('dashboard.dashboard_service.kpis_3', 'أطول ستريك: :p1 يوم'), [':p1' => (string) ((int) ($streak?->best_days ?? 0))]),
                 'state' => ($streak?->current_days ?? 0) > 0 ? 'ok' : 'idle',
             ],
             [
-                'label' => 'الشهادات',
+                'label' => setting('dashboard.dashboard_service.kpis_4', 'الشهادات'),
                 'value' => $certificates,
                 'icon' => 'certificate',
-                'hint' => 'شهاداتك السارية',
+                'hint' => setting('dashboard.dashboard_service.kpis_5', 'شهاداتك السارية'),
                 'state' => $certificates > 0 ? 'honor' : 'idle',
             ],
             // «التدريبات (مكتملة / جارية)» — كارتٌ منصوصٌ عليه في 14-أ
@@ -341,8 +341,8 @@ class DashboardService
                 'xp_earned' => (int) $enrollment->xp_earned,
                 'exam' => $this->examState($exam, $exam && in_array($exam->id, $passedExams, true), $percent),
                 'certificate' => $hasCertificate
-                    ? ['state' => 'honor', 'label' => 'الشهادة صادرة']
-                    : ['state' => 'idle', 'label' => 'الشهادة مقفولة'],
+                    ? ['state' => 'honor', 'label' => setting('dashboard.dashboard_service.progress_1', 'الشهادة صادرة')]
+                    : ['state' => 'idle', 'label' => setting('dashboard.dashboard_service.progress_2', 'الشهادة مقفولة')],
                 'is_completed' => $isCompleted,
                 'last_activity_at' => $lastActivity ?? $enrollment->started_at,
             ];
@@ -356,16 +356,16 @@ class DashboardService
     private function examState(?Exam $exam, bool $passed, int $percent): array
     {
         if (! $exam) {
-            return ['state' => 'idle', 'label' => 'بلا امتحان'];
+            return ['state' => 'idle', 'label' => setting('dashboard.dashboard_service.exam_state_1', 'بلا امتحان')];
         }
 
         if ($passed) {
-            return ['state' => 'ok', 'label' => 'اجتزت الامتحان'];
+            return ['state' => 'ok', 'label' => setting('dashboard.dashboard_service.exam_state_2', 'اجتزت الامتحان')];
         }
 
         return $percent >= 100
-            ? ['state' => 'warn', 'label' => 'الامتحان مفتوح']
-            : ['state' => 'idle', 'label' => 'الامتحان مقفول'];
+            ? ['state' => 'warn', 'label' => setting('dashboard.dashboard_service.exam_state_3', 'الامتحان مفتوح')]
+            : ['state' => 'idle', 'label' => setting('dashboard.dashboard_service.exam_state_4', 'الامتحان مقفول')];
     }
 
     /**

@@ -57,7 +57,7 @@ class UserController extends Controller
     {
         $this->directory->saveColumns($request->user(), (array) $request->input('columns', []));
 
-        return back()->with('status', 'اتحفظت أعمدتك ✓');
+        return back()->with('status', (string) setting('admin_users.screen.columns_ok', 'اتحفظت أعمدتك ✓'));
     }
 
     // ------------------------------------------------------- صفحة حساب المستخدم
@@ -180,7 +180,7 @@ class UserController extends Controller
         $ids = $this->pickedIds($request);
 
         if ($ids === []) {
-            return back()->with('problem', 'ماحدّدتش أيّ حساب — اختر حساب أو أكتر وبعدين اعتمد.');
+            return back()->with('problem', (string) setting('admin_users.screen.approve_msg', 'ماحدّدتش أيّ حساب — اختر حساب أو أكتر وبعدين اعتمد.'));
         }
 
         $actor = $request->user();
@@ -191,20 +191,20 @@ class UserController extends Controller
         }
 
         return back()->with('status', $done > 0
-            ? "اتعمد {$done} حساب ✓ — التفعيل مجّانيّ وبقرارك الإداريّ"
-            : 'مافيش حساب اتغيّر — يمكن يكونوا اتعمدوا قبل كده.');
+            ? strtr((string) setting('admin_users.screen.approve_ok', 'اتعمد :count حساب ✓ — التفعيل مجّانيّ وبقرارك الإداريّ'), [':count' => (string) $done])
+            : (string) setting('admin_users.screen.approve_empty', 'مافيش حساب اتغيّر — يمكن يكونوا اتعمدوا قبل كده.'));
     }
 
     public function reject(Request $request): RedirectResponse
     {
         $validated = $request->validate([
             'reason' => ['required', 'string', 'max:255'],
-        ], [], ['reason' => 'سبب الرفض']);
+        ], [], ['reason' => (string) setting('admin_users.screen.reject_msg', 'سبب الرفض')]);
 
         $ids = $this->pickedIds($request);
 
         if ($ids === []) {
-            return back()->with('problem', 'ماحدّدتش أيّ حساب — اختر حساب أو أكتر وبعدين ارفض.');
+            return back()->with('problem', (string) setting('admin_users.screen.reject_msg_2', 'ماحدّدتش أيّ حساب — اختر حساب أو أكتر وبعدين ارفض.'));
         }
 
         $actor = $request->user();
@@ -214,7 +214,7 @@ class UserController extends Controller
             $done += $this->approval->reject($actor, $account, $validated['reason']) ? 1 : 0;
         }
 
-        return back()->with('status', "اترفض {$done} حساب — واتبعت للمستخدم سبب واضح.");
+        return back()->with('status', strtr((string) setting('admin_users.screen.reject_ok', 'اترفض :count حساب — واتبعت للمستخدم سبب واضح.'), [':count' => (string) $done]));
     }
 
     // ---------------------------------------------------------- شرائح الجمهور
@@ -271,8 +271,8 @@ class UserController extends Controller
             'segment_type' => ['nullable', 'string', Rule::in(array_keys(AudienceSegments::types()))],
             'segment_id' => ['nullable', 'integer'],
         ], [
-            'name.required' => 'سمّ الشريحة عشان تلاقيها بعدين.',
-        ], ['name' => 'اسم الشريحة']);
+            'name.required' => (string) setting('admin_users.screen.store_segment_msg', 'سمّ الشريحة عشان تلاقيها بعدين.'),
+        ], ['name' => (string) setting('admin_users.screen.store_segment_msg_2', 'اسم الشريحة')]);
 
         $existing = ($validated['segment_id'] ?? null)
             ? AdAudience::query()->where('kind', AudienceSegments::KIND)->find((int) $validated['segment_id'])
@@ -296,7 +296,10 @@ class UserController extends Controller
         );
 
         return redirect()->route('admin.users.segments')
-            ->with('status', "اتحفظت شريحة «{$segment->name}» بـ{$segment->size} عضو ✓");
+            ->with('status', strtr((string) setting('admin_users.screen.store_segment_ok', 'اتحفظت شريحة «:name» بـ:size عضو ✓'), [
+                ':name' => (string) $segment->name,
+                ':size' => (string) $segment->size,
+            ]));
     }
 
     /** تكرار الشريحة كنسخة مستقلّة (12.13). */
@@ -306,7 +309,7 @@ class UserController extends Controller
 
         $this->audit->record($request->user(), 'segment.duplicated', $copy, [], ['source' => $audience->id]);
 
-        return back()->with('status', "اتعملت نسخة «{$copy->name}» ✓");
+        return back()->with('status', strtr((string) setting('admin_users.screen.duplicate_segment_ok', 'اتعملت نسخة «:name» ✓'), [':name' => (string) $copy->name]));
     }
 
     /** الأرشفة بدل الحذف — Toggle في الاتّجاهين (12.13). */
@@ -316,7 +319,7 @@ class UserController extends Controller
 
         $this->audit->record($request->user(), 'segment.archived', $segment, [], ['archived' => (bool) $segment->archived_at]);
 
-        return back()->with('status', $segment->archived_at ? 'اتأرشفت الشريحة ✓' : 'رجعت الشريحة للخدمة ✓');
+        return back()->with('status', $segment->archived_at ? (string) setting('admin_users.screen.archive_segment_ok', 'اتأرشفت الشريحة ✓') : (string) setting('admin_users.screen.archive_segment_ok_2', 'رجعت الشريحة للخدمة ✓'));
     }
 
     /** أعضاء الشريحة في بوب-أب لا صفحة جديدة (2.15-ج). */
@@ -350,13 +353,13 @@ class UserController extends Controller
         $this->audit->record($request->user(), 'segment.deleted', $audience, ['name' => $audience->name], []);
         $audience->delete();
 
-        return back()->with('status', 'اتمسحت الشريحة ✓');
+        return back()->with('status', (string) setting('admin_users.screen.destroy_segment_ok', 'اتمسحت الشريحة ✓'));
     }
 
     /** تصدير قائمة الشرائح (12.13) — الملخّص والعدد والاستخدام، بلا بيانات أعضاء. */
     public function exportSegments(Request $request): StreamedResponse
     {
-        $rows = [['الاسم', 'النوع', 'المعايير', 'عدد الأعضاء', 'مستخدَمة في', 'الحالة', 'آخر تحديث']];
+        $rows = [[(string) setting('admin_users.screen.export_segments_msg', 'الاسم'), (string) setting('admin_users.screen.export_segments_msg_2', 'النوع'), (string) setting('admin_users.screen.export_segments_msg_3', 'المعايير'), (string) setting('admin_users.screen.export_segments_msg_4', 'عدد الأعضاء'), (string) setting('admin_users.screen.export_segments_msg_5', 'مستخدَمة في'), (string) setting('admin_users.screen.export_segments_msg_6', 'الحالة'), (string) setting('admin_users.screen.export_segments_msg_7', 'آخر تحديث')]];
         $types = AudienceSegments::types();
 
         foreach ($this->segments->all(['state' => 'all']) as $segment) {
@@ -366,7 +369,7 @@ class UserController extends Controller
                 $this->segments->summary((array) $segment->rule),
                 (string) $this->segments->memberCount($segment),
                 (string) $this->segments->usage($segment)->count(),
-                $segment->archived_at ? 'مؤرشفة' : 'نشطة',
+                $segment->archived_at ? (string) setting('admin_users.screen.export_segments_msg_8', 'مؤرشفة') : (string) setting('admin_users.screen.export_segments_msg_9', 'نشطة'),
                 (string) ($segment->last_built_at?->format('Y-m-d H:i') ?? ''),
             ];
         }

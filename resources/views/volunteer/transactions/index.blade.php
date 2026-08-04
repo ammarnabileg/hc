@@ -1,6 +1,6 @@
 @extends('layouts.volunteer')
 
-@section('title', 'معاملاتي')
+@section('title', setting('volunteer.transactions.title', 'معاملاتي'))
 
 @php
     /**
@@ -21,13 +21,13 @@
 
 @section('content')
     <x-page-header
-        title="معاملاتي"
-        subtitle="كلّ حركة على درجتك ونقاطك بسببها ومرجعها"
-        :breadcrumbs="[['label' => 'لوحة التطوّع', 'url' => url('/dashboard')], ['label' => 'معاملاتي']]">
+        :title="setting('volunteer.transactions.title', 'معاملاتي')"
+        :subtitle="setting('volunteer.transactions.subtitle', 'كلّ حركة على درجتك ونقاطك بسببها ومرجعها')"
+        :breadcrumbs="[['label' => setting('volunteer.common.breadcrumb_root', 'لوحة التطوّع'), 'url' => url('/dashboard')], ['label' => setting('volunteer.transactions.title', 'معاملاتي')]]">
         <x-slot:action>
             <a href="{{ route('volunteer.transactions.export', ['days' => $filters['days']]) }}"
                class="btn inline-flex items-center rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
-               style="background: var(--color-brand-500); color: #04201c">تصدير كشف</a>
+               style="background: var(--color-brand-500); color: #04201c">{{ setting('volunteer.transactions.link', 'تصدير كشف') }}</a>
         </x-slot:action>
     </x-page-header>
 
@@ -35,7 +35,7 @@
     <div class="grid gap-3 sm:grid-cols-2 mb-4">
         <div class="card p-4 animate-fadeup">
             <div class="flex items-center justify-between">
-                <span class="text-sm" style="color: var(--text-muted)">درجة الالتزام (Rep)</span>
+                <span class="text-sm" style="color: var(--text-muted)">{{ setting('volunteer.transactions.text', 'درجة الالتزام (Rep)') }}</span>
                 <x-state-badge :state="$repState" :label="$sign($rep).abs($rep)" />
             </div>
             <div class="mt-2 text-2xl font-extrabold" data-count-to="{{ $rep }}">{{ $rep }}</div>
@@ -48,25 +48,25 @@
             </div>
         </div>
 
-        <x-kpi label="VXP التراكميّ" :value="$vxp" icon="◆" hint="نقاط الإنتاج — تراكميّة لا تتصفّر" />
+        <x-kpi :label="setting('volunteer.transactions.label', 'VXP التراكميّ')" :value="$vxp" icon="◆" :hint="setting('volunteer.transactions.hint', 'نقاط الإنتاج — تراكميّة لا تتصفّر')" />
     </div>
 
     <x-filters :action="route('volunteer.transactions')">
         <label class="text-sm">
-            <span class="block text-xs mb-1" style="color: var(--text-muted)">النوع</span>
+            <span class="block text-xs mb-1" style="color: var(--text-muted)">{{ setting('volunteer.common.type', 'النوع') }}</span>
             <select name="type" onchange="this.form.submit()" class="rounded-xl px-3 py-2 text-sm"
                     style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
-                <option value="">الكلّ</option>
+                <option value="">{{ setting('volunteer.common.all', 'الكلّ') }}</option>
                 <option value="rep" @selected($filters['type'] === 'rep')>Rep</option>
                 <option value="vxp" @selected($filters['type'] === 'vxp')>VXP</option>
             </select>
         </label>
 
         <label class="text-sm">
-            <span class="block text-xs mb-1" style="color: var(--text-muted)">المصدر</span>
+            <span class="block text-xs mb-1" style="color: var(--text-muted)">{{ setting('volunteer.transactions.field', 'المصدر') }}</span>
             <select name="source" onchange="this.form.submit()" class="rounded-xl px-3 py-2 text-sm"
                     style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
-                <option value="">الكلّ</option>
+                <option value="">{{ setting('volunteer.common.all', 'الكلّ') }}</option>
                 @foreach ($sources as $key => $label)
                     <option value="{{ $key }}" @selected($filters['source'] === $key)>{{ $label }}</option>
                 @endforeach
@@ -76,39 +76,39 @@
         <label class="flex items-center gap-2 text-sm">
             <input type="checkbox" name="objectable" value="1" @checked($filters['objectable'])
                    onchange="this.form.submit()" style="accent-color: var(--color-brand-500)">
-            قابلة للاعتراض الآن
+            {{ setting('volunteer.transactions.field_2', 'قابلة للاعتراض الآن') }}
         </label>
 
         <label class="text-sm flex-1 min-w-40">
-            <span class="block text-xs mb-1" style="color: var(--text-muted)">بحث</span>
-            <input type="search" name="q" value="{{ $filters['q'] }}" placeholder="بالسبب أو رقم المرجع…"
+            <span class="block text-xs mb-1" style="color: var(--text-muted)">{{ setting('volunteer.common.search', 'بحث') }}</span>
+            <input type="search" name="q" value="{{ $filters['q'] }}" placeholder="{{ setting('volunteer.transactions.placeholder', 'بالسبب أو رقم المرجع…') }}"
                    class="w-full rounded-xl px-3 py-2 text-sm"
                    style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
         </label>
 
         <x-slot:advanced>
             <label class="text-sm">
-                <span class="block text-xs mb-1" style="color: var(--text-muted)">الفترة (أيّام)</span>
+                <span class="block text-xs mb-1" style="color: var(--text-muted)">{{ setting('volunteer.transactions.field_3', 'الفترة (أيّام)') }}</span>
                 <input type="number" name="days" min="1" max="365" value="{{ $filters['days'] }}"
                        class="rounded-xl px-3 py-2 text-sm w-28"
                        style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
             </label>
             <label class="text-sm">
-                <span class="block text-xs mb-1" style="color: var(--text-muted)">الكيان</span>
+                <span class="block text-xs mb-1" style="color: var(--text-muted)">{{ setting('volunteer.common.entity', 'الكيان') }}</span>
                 <select name="entity" class="rounded-xl px-3 py-2 text-sm"
                         style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
-                    <option value="">الكلّ</option>
+                    <option value="">{{ setting('volunteer.common.all', 'الكلّ') }}</option>
                     @foreach ($entities as $entity)
                         <option value="{{ $entity->id }}" @selected($filters['entity'] === $entity->id)>{{ $entity->name_ar }}</option>
                     @endforeach
                 </select>
             </label>
-            <button type="submit" class="btn rounded-xl px-4 py-2 text-sm" style="border: 1px solid var(--border)">تطبيق</button>
+            <button type="submit" class="btn rounded-xl px-4 py-2 text-sm" style="border: 1px solid var(--border)">{{ setting('volunteer.transactions.action', 'تطبيق') }}</button>
         </x-slot:advanced>
     </x-filters>
 
     @if ($rows->isEmpty())
-        <x-empty message="مفيش معاملات في المدى ده — وسّع المدى وشوف" />
+        <x-empty :message="setting('volunteer.transactions.empty', 'مفيش معاملات في المدى ده — وسّع المدى وشوف')" />
     @else
         <div class="card min-w-0 overflow-x-auto hidden md:block">
             <table class="w-full text-sm"
@@ -116,12 +116,12 @@
                    @unless (advanced_mode()) data-columns-cap="{{ view_mode()->defaultColumns() }}" @endunless>
                 <thead style="color: var(--text-muted)">
                     <tr>
-                        <th class="p-3 text-start">التاريخ/الساعة</th>
-                        <th class="p-3 text-start">النوع</th>
-                        <th class="p-3 text-start">القيمة</th>
-                        <th class="p-3 text-start">السبب</th>
-                        <th class="p-3 text-start">المرجع</th>
-                        <th class="p-3 text-start">الاعتراض</th>
+                        <th class="p-3 text-start">{{ setting('volunteer.transactions.col', 'التاريخ/الساعة') }}</th>
+                        <th class="p-3 text-start">{{ setting('volunteer.common.type', 'النوع') }}</th>
+                        <th class="p-3 text-start">{{ setting('volunteer.common.value', 'القيمة') }}</th>
+                        <th class="p-3 text-start">{{ setting('volunteer.common.reason', 'السبب') }}</th>
+                        <th class="p-3 text-start">{{ setting('volunteer.common.reference', 'المرجع') }}</th>
+                        <th class="p-3 text-start">{{ setting('volunteer.transactions.col_2', 'الاعتراض') }}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -145,10 +145,10 @@
                                 <span>{{ $row->reason }}</span>
                                 <span class="inline-flex flex-wrap gap-1 ms-1">
                                     @if ($row->exceeded_daily_cap)
-                                        <x-state-badge state="warn" :label="'تخطّت حدّ الخسارة اليوميّ '.$dailyCap" />
+                                        <x-state-badge state="warn" :label="setting('volunteer.transactions.label_2', 'تخطّت حدّ الخسارة اليوميّ ').$dailyCap" />
                                     @endif
                                     @if ($row->is_correction)
-                                        <x-state-badge state="ok" label="مصحِّحة" />
+                                        <x-state-badge state="ok" :label="setting('volunteer.transactions.label_3', 'مصحِّحة')" />
                                     @endif
                                 </span>
                             </td>
@@ -158,15 +158,15 @@
                             <td class="p-3">
                                 @if ($objection)
                                     <a href="{{ route('volunteer.objections', ['objection' => $objection->id]) }}"
-                                       class="btn inline-flex rounded-xl px-3 py-1.5 text-xs" style="border: 1px solid var(--border)">عرض الاعتراض</a>
+                                       class="btn inline-flex rounded-xl px-3 py-1.5 text-xs" style="border: 1px solid var(--border)">{{ setting('volunteer.transactions.link_2', 'عرض الاعتراض') }}</a>
                                 @elseif ($left !== null)
                                     <button type="button" data-modal-open="obj-{{ $row->id }}"
                                             class="btn inline-flex items-center gap-1 rounded-xl px-3 py-1.5 text-xs"
                                             style="border: 1px solid var(--border)">
-                                        اعتراض <span style="color: var(--text-muted)">· باقي {{ $left }} أيّام</span>
+                                        {{ setting('volunteer.transactions.action_2', 'اعتراض') }} <span style="color: var(--text-muted)">· {{ setting('volunteer.transactions.action_3', 'باقي') }} {{ $left }} {{ setting('volunteer.transactions.action_4', 'أيّام') }}</span>
                                     </button>
                                 @else
-                                    <span class="text-xs" style="color: var(--text-muted)">انتهت مهلة الاعتراض</span>
+                                    <span class="text-xs" style="color: var(--text-muted)">{{ setting('volunteer.transactions.cell', 'انتهت مهلة الاعتراض') }}</span>
                                 @endif
                             </td>
                         </tr>
@@ -194,19 +194,19 @@
                         <div>{{ $row->created_at?->format('Y-m-d · H:i') }} · {{ $row->currency?->name_ar }}</div>
                         <div>@include('volunteer.transactions.partials.reference', ['row' => $row])</div>
                         @if ($row->exceeded_daily_cap)
-                            <x-state-badge state="warn" :label="'تخطّت حدّ الخسارة اليوميّ '.$dailyCap" />
+                            <x-state-badge state="warn" :label="setting('volunteer.transactions.label_2', 'تخطّت حدّ الخسارة اليوميّ ').$dailyCap" />
                         @endif
                         @if ($row->is_correction)
-                            <x-state-badge state="ok" label="مصحِّحة" />
+                            <x-state-badge state="ok" :label="setting('volunteer.transactions.label_3', 'مصحِّحة')" />
                         @endif
                         @if ($objection)
                             <a href="{{ route('volunteer.objections', ['objection' => $objection->id]) }}"
-                               class="btn inline-flex rounded-xl px-3 py-1.5" style="border: 1px solid var(--border)">عرض الاعتراض</a>
+                               class="btn inline-flex rounded-xl px-3 py-1.5" style="border: 1px solid var(--border)">{{ setting('volunteer.transactions.link_2', 'عرض الاعتراض') }}</a>
                         @elseif ($left !== null)
                             <button type="button" data-modal-open="obj-{{ $row->id }}"
-                                    class="btn inline-flex rounded-xl px-3 py-1.5" style="border: 1px solid var(--border)">اعتراض · باقي {{ $left }} أيّام</button>
+                                    class="btn inline-flex rounded-xl px-3 py-1.5" style="border: 1px solid var(--border)">{{ setting('volunteer.transactions.action_5', 'اعتراض · باقي') }} {{ $left }} {{ setting('volunteer.transactions.action_4', 'أيّام') }}</button>
                         @else
-                            <span>انتهت مهلة الاعتراض</span>
+                            <span>{{ setting('volunteer.transactions.cell', 'انتهت مهلة الاعتراض') }}</span>
                         @endif
                     </div>
                 </details>
@@ -217,7 +217,7 @@
     @push('modals')
         @foreach ($rows as $row)
             @if (! isset($objections[$row->id]) && $service->daysLeft($row) !== null)
-                <x-modal :id="'obj-'.$row->id" title="اعتراض على معاملة">
+                <x-modal :id="'obj-'.$row->id" :title="setting('volunteer.transactions.tooltip', 'اعتراض على معاملة')">
                     <form method="post" action="{{ route('volunteer.objections.store') }}"
                           enctype="multipart/form-data" class="space-y-3">
                         @csrf
@@ -233,24 +233,23 @@
                         </div>
 
                         <label class="block text-sm">
-                            <span class="block text-xs mb-1" style="color: var(--text-muted)">سبب الاعتراض (إلزاميّ)</span>
+                            <span class="block text-xs mb-1" style="color: var(--text-muted)">{{ setting('volunteer.transactions.field_4', 'سبب الاعتراض (إلزاميّ)') }}</span>
                             <textarea name="reason" rows="4" required minlength="5" maxlength="2000"
                                       class="w-full rounded-xl px-3 py-2 text-sm"
                                       style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)"></textarea>
                         </label>
 
                         <label class="block text-sm">
-                            <span class="block text-xs mb-1" style="color: var(--text-muted)">مرفق (اختياريّ)</span>
+                            <span class="block text-xs mb-1" style="color: var(--text-muted)">{{ setting('volunteer.transactions.field_5', 'مرفق (اختياريّ)') }}</span>
                             <input type="file" name="attachment" class="w-full text-sm">
                         </label>
 
                         <p class="text-xs rounded-xl p-2" style="background: var(--surface-sunken); color: var(--text-muted)">
-                            اعتراض واحد لكلّ معاملة — وتقدر تضيف تفاصيل بعدها في صفحة الاعتراض.
-                            وبيروح لمسؤولك المباشر.
+                            {{ setting('volunteer.transactions.field_6', 'اعتراض واحد لكلّ معاملة — وتقدر تضيف تفاصيل بعدها في صفحة الاعتراض. وبيروح لمسؤولك المباشر.') }}
                         </p>
 
                         <button type="submit" class="btn w-full rounded-xl px-4 py-2 text-sm font-semibold"
-                                style="background: var(--color-brand-500); color: #04201c">إرسال الاعتراض</button>
+                                style="background: var(--color-brand-500); color: #04201c">{{ setting('volunteer.transactions.action_6', 'إرسال الاعتراض') }}</button>
                     </form>
                 </x-modal>
             @endif
@@ -261,5 +260,5 @@
 @section('mobile_action')
     <a href="{{ route('volunteer.transactions.export', ['days' => $filters['days']]) }}"
        class="btn w-full inline-flex items-center justify-center rounded-xl px-4 py-3 text-sm font-semibold"
-       style="background: var(--color-brand-500); color: #04201c">تصدير كشف</a>
+       style="background: var(--color-brand-500); color: #04201c">{{ setting('volunteer.transactions.link', 'تصدير كشف') }}</a>
 @endsection

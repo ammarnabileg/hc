@@ -53,7 +53,7 @@ class SetupController extends Controller
         $data = $request->validate(
             ['token' => ['required', 'string', 'max:190']],
             [],
-            ['token' => 'توكن التنصيب'],
+            ['token' => (string) setting('setup.flow.verify_token_msg', 'توكن التنصيب')],
         );
 
         if (! $this->token->matches($data['token'])) {

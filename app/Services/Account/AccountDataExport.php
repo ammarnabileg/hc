@@ -22,7 +22,7 @@ class AccountDataExport
             'meta' => [
                 'generated_at' => now()->toIso8601String(),
                 'platform' => config('app.name'),
-                'note' => 'الملفّ ده بياناتك أنت وحدك، وتقدر تحمّله وقت ما تحبّ.',
+                'note' => setting('account.account_data_export.body_1', 'الملفّ ده بياناتك أنت وحدك، وتقدر تحمّله وقت ما تحبّ.'),
             ],
             'account' => [
                 'code' => $user->code,

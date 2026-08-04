@@ -85,9 +85,9 @@ class DeadlineService
         $minutes = max(1, intdiv($seconds % 3600, 60));
 
         $unit = match (true) {
-            $days > 0 => $this->plural($days, 'يوم', 'يومان', 'أيّام'),
-            $hours > 0 => $this->plural($hours, 'ساعة', 'ساعتان', 'ساعات'),
-            default => $this->plural($minutes, 'دقيقة', 'دقيقتان', 'دقائق'),
+            $days > 0 => $this->plural($days, setting('learning.deadline_service.humanize_1', 'يوم'), setting('learning.deadline_service.humanize_2', 'يومان'), setting('learning.deadline_service.humanize_3', 'أيّام')),
+            $hours > 0 => $this->plural($hours, setting('learning.deadline_service.humanize_4', 'ساعة'), setting('learning.deadline_service.humanize_5', 'ساعتان'), setting('learning.deadline_service.humanize_6', 'ساعات')),
+            default => $this->plural($minutes, setting('learning.deadline_service.humanize_7', 'دقيقة'), setting('learning.deadline_service.humanize_8', 'دقيقتان'), setting('learning.deadline_service.humanize_9', 'دقائق')),
         };
 
         return setting('learning.deadline.left_prefix').' '.$unit;

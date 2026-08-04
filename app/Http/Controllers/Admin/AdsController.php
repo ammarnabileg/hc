@@ -58,7 +58,7 @@ class AdsController extends Controller
             'refresh_hours' => ['required', 'integer', 'min:1', 'max:720'],
         ]);
 
-        abort_unless(array_key_exists($data['rule'], $this->rules()), 422, 'الشرط ده مش من القائمة المعتمَدة.');
+        abort_unless(array_key_exists($data['rule'], $this->rules()), 422, (string) setting('ads.admin.store_denied', 'الشرط ده مش من القائمة المعتمَدة.'));
 
         AdAudience::create([
             'name' => $data['name'],
@@ -69,7 +69,7 @@ class AdsController extends Controller
             'is_active' => true,
         ]);
 
-        return back()->with('status', 'الشريحة اتحفظت ✓');
+        return back()->with('status', (string) setting('ads.admin.store_ok', 'الشريحة اتحفظت ✓'));
     }
 
     /**
@@ -79,7 +79,7 @@ class AdsController extends Controller
      */
     public function export(Request $request, AdAudience $audience): RedirectResponse
     {
-        abort_unless($request->user()->isPlatformOwner(), 403, 'تصدير الشرائح لمالك المنصّة وحده.');
+        abort_unless($request->user()->isPlatformOwner(), 403, (string) setting('ads.admin.export_msg', 'تصدير الشرائح لمالك المنصّة وحده.'));
 
         $users = $this->resolve($audience);
         $lines = ['email_sha256,phone_sha256'];
@@ -102,7 +102,7 @@ class AdsController extends Controller
 
         $audience->update(['last_built_at' => now(), 'size' => count($lines) - 1]);
 
-        return back()->with('status', 'اتصدّرت '.(count($lines) - 1).' صفّ مشفَّرة SHA-256 ✓');
+        return back()->with('status', strtr((string) setting('ads.admin.export_ok', 'اتصدّرت :a1 صفّ مشفَّرة SHA-256 ✓'), [':a1' => (string) ((count($lines) - 1))]));
     }
 
     public function saveSetting(Request $request): JsonResponse

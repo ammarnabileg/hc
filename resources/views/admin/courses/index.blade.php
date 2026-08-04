@@ -1,18 +1,18 @@
 @extends('layouts.admin')
 
-@section('title', 'التدريبات')
+@section('title', setting('admin.courses.index.altdrybat', 'التدريبات'))
 
 @section('content')
     {{-- التدريبات (12.4-ب · 24.1) --}}
     <x-page-header
-        title="التدريبات"
-        subtitle="أنشئ التدريب وسعّره وأتِحه وابنِ محتواه."
-        :breadcrumbs="[['label' => 'إدارة التدريب', 'url' => route('admin.paths.index')], ['label' => 'التدريبات']]">
+        :title="setting('admin.courses.index.altdrybat', 'التدريبات')"
+        :subtitle="setting('admin.courses.index.anshy_altdryb_wsarh_wathh_wabn_mhtwah', 'أنشئ التدريب وسعّره وأتِحه وابنِ محتواه.')"
+        :breadcrumbs="[['label' => setting('admin.courses.index.idara_altdryb', 'إدارة التدريب'), 'url' => route('admin.paths.index')], ['label' => setting('admin.courses.index.altdrybat', 'التدريبات')]]">
         <x-slot:action>
             @can('courses.create')
                 <a href="{{ route('admin.courses.create') }}"
                    class="btn rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
-                   style="background: var(--color-brand-500); color: #04201c">+ تدريب جديد</a>
+                   style="background: var(--color-brand-500); color: #04201c">{{ setting('admin.courses.index.tdryb_jdyd_2', '+ تدريب جديد') }}</a>
             @endcan
         </x-slot:action>
     </x-page-header>
@@ -22,49 +22,49 @@
     {{-- ثلاثة فلاتر ظاهرة + بحث، والباقي مطويّ (2.15-أ-4) --}}
     <x-filters :action="route('admin.courses.index')">
         <label class="block flex-1 min-w-[12rem]">
-            <span class="block text-sm mb-1">بحث</span>
-            <input type="search" name="q" value="{{ $filters['q'] }}" placeholder="اسم التدريب أو الشهادة…"
+            <span class="block text-sm mb-1">{{ setting('admin.courses.index.bhth', 'بحث') }}</span>
+            <input type="search" name="q" value="{{ $filters['q'] }}" placeholder="{{ setting('admin.courses.index.asm_altdryb_aw_alshhada', 'اسم التدريب أو الشهادة…') }}"
                    class="w-full rounded-xl px-3 py-2 text-sm"
                    style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
         </label>
         <label class="block">
-            <span class="block text-sm mb-1">المسار</span>
+            <span class="block text-sm mb-1">{{ setting('admin.courses.index.almsar', 'المسار') }}</span>
             <select name="path" class="rounded-xl px-3 py-2 text-sm"
                     style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
-                <option value="">الكلّ</option>
+                <option value="">{{ setting('admin.courses.index.alkl', 'الكلّ') }}</option>
                 @foreach ($paths as $path)
                     <option value="{{ $path->id }}" @selected($filters['path'] === $path->id)>{{ $path->name_ar }}</option>
                 @endforeach
             </select>
         </label>
         <label class="block">
-            <span class="block text-sm mb-1">الحالة</span>
+            <span class="block text-sm mb-1">{{ setting('admin.courses.index.alhala', 'الحالة') }}</span>
             <select name="status" class="rounded-xl px-3 py-2 text-sm"
                     style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
-                <option value="">الكلّ</option>
+                <option value="">{{ setting('admin.courses.index.alkl', 'الكلّ') }}</option>
                 @foreach ($statuses as $key => $label)
                     <option value="{{ $key }}" @selected($filters['status'] === $key)>{{ $label }}</option>
                 @endforeach
             </select>
         </label>
-        <button class="btn rounded-xl px-4 py-2 text-sm" style="background: var(--surface-raised)">تصفية</button>
+        <button class="btn rounded-xl px-4 py-2 text-sm" style="background: var(--surface-raised)">{{ setting('admin.courses.index.tsfya', 'تصفية') }}</button>
 
         <x-slot:advanced>
             <label class="block">
-                <span class="block text-sm mb-1">التسعير</span>
+                <span class="block text-sm mb-1">{{ setting('admin.courses.index.altsayr', 'التسعير') }}</span>
                 <select name="pricing" class="rounded-xl px-3 py-2 text-sm"
                         style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
-                    <option value="">الكلّ</option>
-                    <option value="free" @selected($filters['pricing'] === 'free')>مجّانيّ</option>
-                    <option value="paid" @selected($filters['pricing'] === 'paid')>مدفوع</option>
+                    <option value="">{{ setting('admin.courses.index.alkl', 'الكلّ') }}</option>
+                    <option value="free" @selected($filters['pricing'] === 'free')>{{ setting('admin.courses.index.mjany', 'مجّانيّ') }}</option>
+                    <option value="paid" @selected($filters['pricing'] === 'paid')>{{ setting('admin.courses.index.mdfwa', 'مدفوع') }}</option>
                 </select>
             </label>
         </x-slot:advanced>
     </x-filters>
 
     @if ($courses->isEmpty())
-        <x-empty message="لسّه مفيش تدريبات — ابدأ بأوّل واحد."
-                 :action="auth()->user()->can('courses.create') ? 'تدريب جديد' : null"
+        <x-empty :message="setting('admin.courses.index.lsh_mfysh_tdrybat_abda_bawl_wahd', 'لسّه مفيش تدريبات — ابدأ بأوّل واحد.')"
+                 :action="auth()->user()->can('courses.create') ? setting('admin.courses.index.tdryb_jdyd', 'تدريب جديد') : null"
                  :href="route('admin.courses.create')" />
     @else
         <form method="post" action="{{ route('admin.courses.bulk') }}" data-bulk-form>
@@ -73,27 +73,27 @@
             {{-- ⭐ الإجراء الجماعيّ يظهر عند الاختيار فقط، ومخفيّ تمامًا قبله (2.15-ب) --}}
             @can('courses.edit')
                 <div class="card p-3 mb-3 hidden items-center gap-3 flex-wrap" data-bulk-bar>
-                    <span class="text-sm"><span data-bulk-count>0</span> مختار</span>
+                    <span class="text-sm"><span data-bulk-count>0</span> {{ setting('admin.courses.index.mkhtar', 'مختار') }}</span>
                     <select name="action" class="rounded-xl px-3 py-2 text-sm"
                             style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
-                        <option value="publish">نشر</option>
-                        <option value="hide">إخفاء</option>
-                        <option value="archive">أرشفة</option>
-                        <option value="move_path">نقل لمسار</option>
-                        <option value="price">تسعير دفعة</option>
+                        <option value="publish">{{ setting('admin.courses.index.nshr', 'نشر') }}</option>
+                        <option value="hide">{{ setting('admin.courses.index.ikhfa', 'إخفاء') }}</option>
+                        <option value="archive">{{ setting('admin.courses.index.arshfa', 'أرشفة') }}</option>
+                        <option value="move_path">{{ setting('admin.courses.index.nql_lmsar', 'نقل لمسار') }}</option>
+                        <option value="price">{{ setting('admin.courses.index.tsayr_dfaa', 'تسعير دفعة') }}</option>
                     </select>
                     <select name="path_id" class="rounded-xl px-3 py-2 text-sm"
                             style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
-                        <option value="">— المسار —</option>
+                        <option value="">{{ setting('admin.courses.index.almsar_2', '— المسار —') }}</option>
                         @foreach ($paths as $path)
                             <option value="{{ $path->id }}">{{ $path->name_ar }}</option>
                         @endforeach
                     </select>
-                    <input type="number" name="price_coins" min="0" placeholder="السعر بالكوينز"
+                    <input type="number" name="price_coins" min="0" placeholder="{{ setting('admin.courses.index.alsar_balkwynz', 'السعر بالكوينز') }}"
                            class="rounded-xl px-3 py-2 text-sm w-40"
                            style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
                     <button class="btn rounded-xl px-4 py-2 text-sm font-semibold"
-                            style="background: var(--color-brand-500); color: #04201c">نفّذ</button>
+                            style="background: var(--color-brand-500); color: #04201c">{{ setting('admin.courses.index.nfdh', 'نفّذ') }}</button>
                 </div>
             @endcan
 
@@ -109,13 +109,13 @@
                                     <input type="checkbox" data-bulk-all>
                                 </label>
                             </th>
-                            <th class="p-3 text-start">اسم العرض</th>
-                            <th class="p-3 text-start">اسم الشهادة</th>
-                            <th class="p-3 text-start">المسار(ات)</th>
-                            <th class="p-3 text-start">سيكشنز/دروس</th>
-                            <th class="p-3 text-start">السعر</th>
-                            <th class="p-3 text-start">المسجّلون</th>
-                            <th class="p-3 text-start">الحالة</th>
+                            <th class="p-3 text-start">{{ setting('admin.courses.index.asm_alard', 'اسم العرض') }}</th>
+                            <th class="p-3 text-start">{{ setting('admin.courses.index.asm_alshhada', 'اسم الشهادة') }}</th>
+                            <th class="p-3 text-start">{{ setting('admin.courses.index.almsar_at', 'المسار(ات)') }}</th>
+                            <th class="p-3 text-start">{{ setting('admin.courses.index.sykshnz_drws', 'سيكشنز/دروس') }}</th>
+                            <th class="p-3 text-start">{{ setting('admin.courses.index.alsar', 'السعر') }}</th>
+                            <th class="p-3 text-start">{{ setting('admin.courses.index.almsjlwn', 'المسجّلون') }}</th>
+                            <th class="p-3 text-start">{{ setting('admin.courses.index.alhala', 'الحالة') }}</th>
                             <th class="p-3"></th>
                         </tr>
                     </thead>
@@ -132,7 +132,7 @@
                                 <td class="p-3">{{ $course->cert_name_ar ?: '—' }}</td>
                                 <td class="p-3">{{ implode('، ', $pathNames[$course->id] ?? []) ?: '—' }}</td>
                                 <td class="p-3">{{ $counts['sections'][$course->id] ?? 0 }} / {{ $counts['lessons'][$course->id] ?? 0 }}</td>
-                                <td class="p-3">{{ $course->is_free ? 'مجّانيّ' : (int) $course->price_coins }}</td>
+                                <td class="p-3">{{ $course->is_free ? setting('admin.courses.index.mjany', 'مجّانيّ') : (int) $course->price_coins }}</td>
                                 <td class="p-3">
                                     {{-- الضغط على العدد ⟵ مَن هم (12.4-ب) --}}
                                     <a href="{{ route('admin.courses.enrollees', $course) }}" class="underline"
@@ -144,14 +144,14 @@
                                 </td>
                                 <td class="p-3 text-end">
                                     <details class="relative inline-block">
-                                        <summary class="cursor-pointer list-none px-2" aria-label="إجراءات">⋯</summary>
+                                        <summary class="cursor-pointer list-none px-2" aria-label="{{ setting('admin.courses.index.ijraat', 'إجراءات') }}">⋯</summary>
                                         <div class="card absolute end-0 mt-1 p-2 w-52 z-20 text-start space-y-1">
                                             @can('courses.edit')
-                                                <a href="{{ route('admin.courses.edit', $course) }}" class="block px-2 py-1 text-sm">تعديل</a>
+                                                <a href="{{ route('admin.courses.edit', $course) }}" class="block px-2 py-1 text-sm">{{ setting('admin.courses.index.tadyl', 'تعديل') }}</a>
                                             @endcan
-                                            <a href="{{ route('admin.courses.stats', $course) }}" class="block px-2 py-1 text-sm">إحصائيّات</a>
-                                            <a href="{{ route('admin.courses.preview', $course) }}" class="block px-2 py-1 text-sm">معاينة كطالب</a>
-                                            <a href="{{ route('admin.courses.audit', $course) }}" class="block px-2 py-1 text-sm">سجلّ التدقيق</a>
+                                            <a href="{{ route('admin.courses.stats', $course) }}" class="block px-2 py-1 text-sm">{{ setting('admin.courses.index.ihsayyat', 'إحصائيّات') }}</a>
+                                            <a href="{{ route('admin.courses.preview', $course) }}" class="block px-2 py-1 text-sm">{{ setting('admin.courses.index.maayna_ktalb', 'معاينة كطالب') }}</a>
+                                            <a href="{{ route('admin.courses.audit', $course) }}" class="block px-2 py-1 text-sm">{{ setting('admin.courses.index.sjl_altdqyq', 'سجلّ التدقيق') }}</a>
 
                                             {{-- «تكرار/نسخ (Duplicate) لتدريب» (12.4-هـ) — بصلاحيّة الإنشاء
                                                  لأنّها تُنشئ تدريبًا جديدًا فعلًا، ومَن لا يملكها لا يرى العنصر (2.15-أ-7) --}}
@@ -184,9 +184,9 @@
                             <div class="flex-1 min-w-0">
                                 <div class="font-semibold truncate">{{ $course->name_ar }}</div>
                                 <div class="text-xs mt-1" style="color: var(--text-muted)">
-                                    {{ $course->is_free ? 'مجّانيّ' : (int) $course->price_coins.' كوينز' }} ·
+                                    {{ $course->is_free ? setting('admin.courses.index.mjany', 'مجّانيّ') : (int) $course->price_coins.setting('admin.courses.index.kwynz', ' كوينز') }} ·
                                     <a href="{{ route('admin.courses.enrollees', $course) }}" class="underline">
-                                        {{ $counts['enrollments'][$course->id] ?? 0 }} مسجّل
+                                        {{ $counts['enrollments'][$course->id] ?? 0 }} {{ setting('admin.courses.index.msjl', 'مسجّل') }}
                                     </a>
                                 </div>
                             </div>
@@ -194,13 +194,13 @@
                                            :label="$statuses[$course->status] ?? $course->status" />
                         </div>
                         <details class="mt-3">
-                            <summary class="text-xs cursor-pointer" style="color: var(--text-muted)">تفاصيل أكتر</summary>
+                            <summary class="text-xs cursor-pointer" style="color: var(--text-muted)">{{ setting('admin.courses.index.tfasyl_aktr', 'تفاصيل أكتر') }}</summary>
                             <div class="mt-2 text-sm space-y-1">
-                                <div>اسم الشهادة: {{ $course->cert_name_ar ?: '—' }}</div>
-                                <div>المسارات: {{ implode('، ', $pathNames[$course->id] ?? []) ?: '—' }}</div>
-                                <div>{{ $counts['sections'][$course->id] ?? 0 }} سيكشن · {{ $counts['lessons'][$course->id] ?? 0 }} درس</div>
+                                <div>{{ setting('admin.courses.index.asm_alshhada_2', 'اسم الشهادة:') }} {{ $course->cert_name_ar ?: '—' }}</div>
+                                <div>{{ setting('admin.courses.index.almsarat', 'المسارات:') }} {{ implode('، ', $pathNames[$course->id] ?? []) ?: '—' }}</div>
+                                <div>{{ $counts['sections'][$course->id] ?? 0 }} {!! strtr(setting('admin.courses.index.sykshn_v1_drs', 'سيكشن · :v1 درس'), [':v1' => e($counts['lessons'][$course->id] ?? 0)]) !!}</div>
                                 @can('courses.edit')
-                                    <a href="{{ route('admin.courses.edit', $course) }}" class="underline block mt-2">تعديل</a>
+                                    <a href="{{ route('admin.courses.edit', $course) }}" class="underline block mt-2">{{ setting('admin.courses.index.tadyl', 'تعديل') }}</a>
                                 @endcan
 
                                 {{-- ونفس الإجراء على الموبايل: لا ميزة تسقط بالمقاس (2.15-ج) --}}
@@ -256,6 +256,6 @@
     @can('courses.create')
         <a href="{{ route('admin.courses.create') }}"
            class="btn block w-full text-center rounded-xl px-4 py-3 text-sm font-semibold"
-           style="background: var(--color-brand-500); color: #04201c">+ تدريب جديد</a>
+           style="background: var(--color-brand-500); color: #04201c">{{ setting('admin.courses.index.tdryb_jdyd_2', '+ تدريب جديد') }}</a>
     @endcan
 @endsection

@@ -9,13 +9,13 @@
 @if (! $canSeeAnswers)
     <span class="text-xs" style="color: var(--text-muted)">••••</span>
 @elseif ($isRevealed)
-    <span class="font-bold text-sm">{{ $question->answer ?: '— بلا إجابة' }}</span>
+    <span class="font-bold text-sm">{{ $question->answer ?: setting('admin.wars.bank.answer_cell.bla_ijaba', '— بلا إجابة') }}</span>
 @else
     <form method="post" action="{{ route('admin.wars.bank.reveal', $question) }}" class="inline">
         @csrf
         <button type="submit" class="rounded-lg px-3 py-2 text-xs motion-standard"
                 style="background: var(--surface-sunken); color: var(--text); min-height: 44px">
-            •••• اكشف
+            {{ setting('admin.wars.bank.answer_cell.akshf', '•••• اكشف') }}
         </button>
     </form>
 @endif

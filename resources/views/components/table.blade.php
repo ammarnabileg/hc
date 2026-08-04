@@ -22,6 +22,6 @@
 
 @if (! $showAll)
     <p class="mt-2 text-[11px]" style="color: var(--text-muted)">
-        بنعرض أهمّ {{ $cap }} أعمدة — «وضع متقدّم» أعلى الصفحة بيفتح الباقي.
+        {{ strtr((string) setting('ux.table.text_1', 'بنعرض أهمّ :a1 أعمدة — «وضع متقدّم» أعلى الصفحة بيفتح الباقي.'), [':a1' => (string) ($cap)]) }}
     </p>
 @endif

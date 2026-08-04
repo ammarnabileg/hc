@@ -35,16 +35,16 @@ class AttendanceService
             ->first();
 
         if (! $registration) {
-            return $this->fail('لازم تسجّل في الفعاليّة الأوّل، وبعدها تقدر تثبت حضورك.');
+            return $this->fail(setting('events.attendance_service.check_in_1', 'لازم تسجّل في الفعاليّة الأوّل، وبعدها تقدر تثبت حضورك.'));
         }
 
         if (! $this->windowOpen($event)) {
-            return $this->fail('كود الحضور بيشتغل مع بداية الفعاليّة. استنّى شويّة وجرّب تاني.', $registration);
+            return $this->fail(setting('events.attendance_service.check_in_2', 'كود الحضور بيشتغل مع بداية الفعاليّة. استنّى شويّة وجرّب تاني.'), $registration);
         }
 
         if (! $this->codeMatches($event, $code)) {
             // المكافأة بالكود الصحيح فقط — والكود الغلط لا يفتح شيئًا
-            return $this->fail('الكود مش مظبوط. راجع الكود المعروض في الفعاليّة وأدخله تاني.', $registration);
+            return $this->fail(setting('events.attendance_service.check_in_3', 'الكود مش مظبوط. راجع الكود المعروض في الفعاليّة وأدخله تاني.'), $registration);
         }
 
         return $this->grant($event, $user, $registration);
@@ -95,7 +95,7 @@ class AttendanceService
         if ($registration->attended) {
             return [
                 'ok' => true,
-                'message' => 'حضورك متسجّل قبل كده ✓ — شهادتك ومكافأتك مصروفة بالفعل.',
+                'message' => setting('events.attendance_service.grant_1', 'حضورك متسجّل قبل كده ✓ — شهادتك ومكافأتك مصروفة بالفعل.'),
                 'registration' => $registration->refresh(),
                 'certificate' => $registration->certificate,
                 'reward' => ['xp' => 0, 'tickets' => 0],
@@ -111,7 +111,7 @@ class AttendanceService
         if ($claimed !== 1) {
             return [
                 'ok' => true,
-                'message' => 'حضورك متسجّل بالفعل ✓',
+                'message' => setting('events.attendance_service.grant_2', 'حضورك متسجّل بالفعل ✓'),
                 'registration' => $registration->refresh(),
                 'certificate' => $registration->refresh()->certificate,
                 'reward' => ['xp' => 0, 'tickets' => 0],
@@ -154,7 +154,7 @@ class AttendanceService
 
         return [
             'ok' => true,
-            'message' => 'اتأكّد حضورك ✓ — شهادتك ومكافأتك اتفتحت.',
+            'message' => setting('events.attendance_service.grant_3', 'اتأكّد حضورك ✓ — شهادتك ومكافأتك اتفتحت.'),
             'registration' => $registration->refresh(),
             'certificate' => $certificate,
             'reward' => $reward,

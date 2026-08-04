@@ -130,9 +130,9 @@ class OnboardingContent
         $active = DB::table('onboarding_slides')->where('is_active', true)->count();
 
         return [
-            ['label' => 'كلّ الشرائح', 'value' => (string) $total, 'icon' => '🧭'],
-            ['label' => 'المفعَّلة', 'value' => (string) $active, 'icon' => '✅'],
-            ['label' => 'شاشات «أوّل مرّة»', 'value' => (string) count($this->enabledScreens()), 'icon' => '💡'],
+            ['label' => setting('updates.onboarding_content.kpis_1', 'كلّ الشرائح'), 'value' => (string) $total, 'icon' => '🧭'],
+            ['label' => setting('updates.onboarding_content.kpis_2', 'المفعَّلة'), 'value' => (string) $active, 'icon' => '✅'],
+            ['label' => setting('updates.onboarding_content.kpis_3', 'شاشات «أوّل مرّة»'), 'value' => (string) count($this->enabledScreens()), 'icon' => '💡'],
         ];
     }
 

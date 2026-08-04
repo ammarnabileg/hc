@@ -55,13 +55,13 @@ class ObjectionDesk
         abort_unless(
             $this->mayView($user, $objection),
             403,
-            'الاعتراض ده على مكتب غيرك.',
+            setting('volunteer_rep.objection_desk.authorize_decision_1', 'الاعتراض ده على مكتب غيرك.'),
         );
 
         abort_unless(
             $this->service->isActive($objection),
             403,
-            'الاعتراض ده اتقفل — والقرار لا يُعاد.',
+            setting('volunteer_rep.objection_desk.authorize_decision_2', 'الاعتراض ده اتقفل — والقرار لا يُعاد.'),
         );
     }
 }

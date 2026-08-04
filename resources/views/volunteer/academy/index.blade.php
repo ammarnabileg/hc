@@ -1,6 +1,6 @@
 @extends('layouts.volunteer')
 
-@section('title', 'التدريبات')
+@section('title', setting('volunteer.academy.title', 'التدريبات'))
 
 @php
     /**
@@ -11,37 +11,37 @@
 
 @section('content')
     <x-page-header
-        title="التدريبات"
-        :subtitle="$completedPaths.' مسار مكتمل من '.$paths->count()"
-        :breadcrumbs="[['label' => 'لوحة التطوّع', 'url' => url('/volunteer')], ['label' => 'الأكاديمية'], ['label' => 'التدريبات']]" />
+        :title="setting('volunteer.academy.title', 'التدريبات')"
+        :subtitle="$completedPaths.setting('volunteer.academy.subtitle', ' مسار مكتمل من ').$paths->count()"
+        :breadcrumbs="[['label' => setting('volunteer.common.breadcrumb_root', 'لوحة التطوّع'), 'url' => url('/volunteer')], ['label' => setting('volunteer.academy.label', 'الأكاديمية')], ['label' => setting('volunteer.academy.title', 'التدريبات')]]" />
 
     <x-tabs current="paths" :tabs="[
-        ['key' => 'paths', 'label' => 'التدريبات', 'url' => route('volunteer.academy')],
-        ['key' => 'recordings', 'label' => 'التسجيلات', 'url' => route('volunteer.academy.recordings')],
+        ['key' => 'paths', 'label' => setting('volunteer.academy.title', 'التدريبات'), 'url' => route('volunteer.academy')],
+        ['key' => 'recordings', 'label' => setting('volunteer.academy.label_2', 'التسجيلات'), 'url' => route('volunteer.academy.recordings')],
     ]" />
 
     <x-filters :action="route('volunteer.academy')">
         <label class="text-sm">
-            <span class="block text-xs mb-1" style="color: var(--text-muted)">الحالة</span>
+            <span class="block text-xs mb-1" style="color: var(--text-muted)">{{ setting('volunteer.common.status', 'الحالة') }}</span>
             <select name="status" onchange="this.form.submit()" class="rounded-xl px-3 py-2 text-sm"
                     style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
-                <option value="">الكلّ</option>
-                <option value="not_started" @selected($filters['status'] === 'not_started')>لم أبدأ</option>
-                <option value="in_progress" @selected($filters['status'] === 'in_progress')>جارٍ</option>
-                <option value="done" @selected($filters['status'] === 'done')>مكتمل</option>
+                <option value="">{{ setting('volunteer.common.all', 'الكلّ') }}</option>
+                <option value="not_started" @selected($filters['status'] === 'not_started')>{{ setting('volunteer.academy.option', 'لم أبدأ') }}</option>
+                <option value="in_progress" @selected($filters['status'] === 'in_progress')>{{ setting('volunteer.academy.option_2', 'جارٍ') }}</option>
+                <option value="done" @selected($filters['status'] === 'done')>{{ setting('volunteer.academy.option_3', 'مكتمل') }}</option>
             </select>
         </label>
 
         <label class="text-sm flex-1 min-w-40">
-            <span class="block text-xs mb-1" style="color: var(--text-muted)">بحث</span>
-            <input type="search" name="q" value="{{ $filters['q'] }}" placeholder="اسم المسار…"
+            <span class="block text-xs mb-1" style="color: var(--text-muted)">{{ setting('volunteer.common.search', 'بحث') }}</span>
+            <input type="search" name="q" value="{{ $filters['q'] }}" placeholder="{{ setting('volunteer.academy.placeholder', 'اسم المسار…') }}"
                    class="w-full rounded-xl px-3 py-2 text-sm"
                    style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
         </label>
     </x-filters>
 
     @if ($paths->isEmpty())
-        <x-empty message="مفيش تدريبات مرتبطة بقسمك حاليًّا" />
+        <x-empty :message="setting('volunteer.academy.empty', 'مفيش تدريبات مرتبطة بقسمك حاليًّا')" />
     @else
         <div class="grid gap-4 md:grid-cols-3">
             @foreach ($paths as $path)
@@ -53,7 +53,7 @@
                         <p class="mt-1 text-xs line-clamp-2" style="color: var(--text-muted)">{{ $path->description_ar }}</p>
                     @endif
 
-                    <p class="mt-2 text-xs" style="color: var(--text-muted)">{{ $state['courses']->count() }} تدريبًا</p>
+                    <p class="mt-2 text-xs" style="color: var(--text-muted)">{{ $state['courses']->count() }} {{ setting('volunteer.academy.link', 'تدريبًا') }}</p>
 
                     {{-- بار التقدّم بنسبة — بلون الهويّة لا كحالة (2.16) --}}
                     <div class="mt-3 h-2 rounded-full" style="background: var(--surface-sunken)">
@@ -64,7 +64,7 @@
 
                     @if ($state['coverage'])
                         <p class="mt-2 text-xs" style="color: var(--text-muted)">
-                            يغطّي {{ $state['coverage']['covered'] }} من {{ $state['coverage']['total'] }} تدريبات
+                            {{ setting('volunteer.academy.link_2', 'يغطّي') }} {{ $state['coverage']['covered'] }} {{ setting('volunteer.common.from', 'من') }} {{ $state['coverage']['total'] }} {{ setting('volunteer.academy.link_3', 'تدريبات') }}
                         </p>
                     @endif
                 </a>

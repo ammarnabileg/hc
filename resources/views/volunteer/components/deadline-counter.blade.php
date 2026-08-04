@@ -23,5 +23,5 @@
         <span>{{ $dcDate->diffForHumans(['options' => 0]) }}</span>
     </span>
 @else
-    <span class="text-xs" style="color: var(--text-muted)">بلا ديدلاين</span>
+    <span class="text-xs" style="color: var(--text-muted)">{{ setting('volunteer.components_deadline_counter.text', 'بلا ديدلاين') }}</span>
 @endif

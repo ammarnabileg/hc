@@ -103,7 +103,7 @@ final class QrCode
             }
         }
 
-        throw new \InvalidArgumentException('النصّ أطول ممّا يتّسع له الـQR.');
+        throw new \InvalidArgumentException(setting('certificates.qr_code.pick_version_1', 'النصّ أطول ممّا يتّسع له الـQR.'));
     }
 
     private static function dataCapacity(int $version): int

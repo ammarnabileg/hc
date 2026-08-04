@@ -68,7 +68,7 @@ class ActivityWindow
     /** Tooltip موحَّد لما هو خارج النافذة (24.4) */
     public function outsideHint(): string
     {
-        return 'خارج نافذة النشاط — لا يُحتسَب تأخيرًا';
+        return setting('workflow.activity_window.outside_hint_1', 'خارج نافذة النشاط — لا يُحتسَب تأخيرًا');
     }
 
     /** أوّل لحظة داخل النافذة ابتداءً من وقتٍ ما — تُستعمَل في حساب المهل */

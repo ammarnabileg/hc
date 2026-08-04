@@ -18,7 +18,7 @@
         <div class="min-w-0">
             <div class="text-sm font-semibold flex items-center gap-2">
                 {{ $setting->label_ar }}
-                @if ($setting->is_owner_only)<span title="مجموعة محميّة لمالك المنصّة"><x-icon name="lock" size="16" /></span>@endif
+                @if ($setting->is_owner_only)<span title="{{ setting('admin.settings.partials.field.mjmwaa_mhmya_lmalk_almnsa', 'مجموعة محميّة لمالك المنصّة') }}"><x-icon name="lock" size="16" /></span>@endif
             </div>
             {{-- إظهار مفتاح الإعداد (Key) بنمط «المجال.الميزة.المفتاح» --}}
             <code class="text-xs" style="color: var(--text-muted)">{{ $setting->key }}</code>
@@ -26,7 +26,7 @@
 
         <div class="flex items-center gap-2">
             {{-- Audit بالـHover بتأخير ~200ms، وعلى اللمس بضغطة على الأيقونة --}}
-            <button type="button" class="text-xs opacity-60 hover:opacity-100" data-audit-trigger aria-label="آخر تعديل">ⓘ</button>
+            <button type="button" class="text-xs opacity-60 hover:opacity-100" data-audit-trigger aria-label="{{ setting('admin.settings.partials.field.akhr_tadyl', 'آخر تعديل') }}">ⓘ</button>
             <button type="button" class="text-xs underline" data-setting-reset><x-icon name="refresh" size="16" /> Reset</button>
         </div>
     </div>
@@ -35,7 +35,7 @@
         @if ($setting->type === 'bool')
             <label class="flex items-center gap-2 text-sm">
                 <input type="checkbox" data-setting-input @checked((bool) setting($setting->key)) @disabled($disabled)>
-                <span>مفعَّل</span>
+                <span>{{ setting('admin.settings.partials.field.mfal', 'مفعَّل') }}</span>
             </label>
         @elseif ($setting->type === 'text' || $setting->type === 'json')
             <textarea rows="3" data-setting-input @disabled($disabled)
@@ -56,7 +56,7 @@
     </div>
 
     @if ($requiresReason)
-        <input type="text" data-setting-reason placeholder="سبب التعديل (إلزاميّ)"
+        <input type="text" data-setting-reason placeholder="{{ setting('admin.settings.partials.field.sbb_altadyl_ilzamy', 'سبب التعديل (إلزاميّ)') }}"
                class="mt-2 rounded-xl px-3 py-2 text-xs w-full md:w-96"
                style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
     @endif
@@ -64,7 +64,7 @@
     <div class="mt-1 text-xs" style="color: var(--text-muted)">
         @if ($disabled)
             {{-- إعدادات ميزة موقوفة تظهر معطَّلة بسطر واضح بدل تعديل بلا أثر --}}
-            <span>فعّل الميزة أوّلًا: <code>{{ $toggler }}</code></span>
+            <span>{{ setting('admin.settings.partials.field.fal_almyza_awla', 'فعّل الميزة أوّلًا:') }} <code>{{ $toggler }}</code></span>
         @else
             <span data-setting-example>{{ $example ?? $setting->hint }}</span>
             {{-- النطاق الرقميّ للأرقام وحدها — لا «من 0 إلى 1000000» تحت نصّ (12.7-ج) --}}

@@ -11,7 +11,7 @@
             <form method="post" action="{{ route('volunteer.meetings.posts.vote', $post) }}">
                 @csrf
                 <input type="hidden" name="value" value="1">
-                <button type="submit" aria-label="تصويت لأعلى" class="rounded-lg p-1"
+                <button type="submit" aria-label="{{ setting('volunteer.meetings_post.aria', 'تصويت لأعلى') }}" class="rounded-lg p-1"
                         style="color: {{ $myVote === 1 ? 'var(--color-state-ok)' : 'var(--text-muted)' }}">
                     @include('volunteer.meetings.partials.icon', ['name' => 'up', 'size' => 18])
                 </button>
@@ -20,7 +20,7 @@
             <form method="post" action="{{ route('volunteer.meetings.posts.vote', $post) }}">
                 @csrf
                 <input type="hidden" name="value" value="-1">
-                <button type="submit" aria-label="تصويت لأسفل" class="rounded-lg p-1"
+                <button type="submit" aria-label="{{ setting('volunteer.meetings_post.aria_2', 'تصويت لأسفل') }}" class="rounded-lg p-1"
                         style="color: {{ $myVote === -1 ? 'var(--color-state-danger)' : 'var(--text-muted)' }}">
                     @include('volunteer.meetings.partials.icon', ['name' => 'down', 'size' => 18])
                 </button>
@@ -33,7 +33,7 @@
                 <span>{{ $post->user?->name }}</span>
                 <span title="{{ $post->created_at?->format('Y-m-d H:i') }}">{{ $post->created_at?->diffForHumans() }}</span>
                 @if ($post->is_pinned)
-                    <x-state-badge state="honor" label="مثبَّت" />
+                    <x-state-badge state="honor" :label="setting('volunteer.meetings_post.label', 'مثبَّت')" />
                 @endif
             </div>
 
@@ -42,21 +42,21 @@
             @if ($post->attachment_path)
                 <a href="{{ \Illuminate\Support\Facades\Storage::url($post->attachment_path) }}" target="_blank" rel="noopener"
                    class="mt-2 inline-flex items-center gap-1 text-xs" style="color: var(--color-brand-400)">
-                    @include('volunteer.meetings.partials.icon', ['name' => 'attachment']) مرفق
+                    @include('volunteer.meetings.partials.icon', ['name' => 'attachment']) {{ setting('volunteer.common.attachment', 'مرفق') }}
                 </a>
             @endif
 
             <div class="mt-2 flex items-center gap-2 text-xs">
                 <details>
-                    <summary class="cursor-pointer" style="color: var(--text-muted)">ردّ</summary>
+                    <summary class="cursor-pointer" style="color: var(--text-muted)">{{ setting('volunteer.meetings_post.summary', 'ردّ') }}</summary>
                     <form method="post" action="{{ route('volunteer.meetings.posts', $meeting) }}" class="mt-2 flex gap-2">
                         @csrf
                         <input type="hidden" name="parent_id" value="{{ $post->id }}">
-                        <input type="text" name="body" required maxlength="4000" placeholder="اكتب ردّك…"
+                        <input type="text" name="body" required maxlength="4000" placeholder="{{ setting('volunteer.meetings_post.placeholder', 'اكتب ردّك…') }}"
                                class="flex-1 rounded-xl px-3 py-2 text-sm"
                                style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
                         <button type="submit" class="btn rounded-xl px-3 py-2 text-xs font-semibold"
-                                style="background: var(--color-brand-500); color: #04201c">إرسال</button>
+                                style="background: var(--color-brand-500); color: #04201c">{{ setting('volunteer.meetings_post.action', 'إرسال') }}</button>
                     </form>
                 </details>
 
@@ -66,7 +66,7 @@
                         @csrf
                         <button type="submit" class="inline-flex items-center gap-1" style="color: var(--text-muted)">
                             @include('volunteer.meetings.partials.icon', ['name' => 'pin'])
-                            {{ $post->is_pinned ? 'فكّ التثبيت' : 'تثبيت' }}
+                            {{ $post->is_pinned ? setting('volunteer.meetings_post.text', 'فكّ التثبيت') : setting('volunteer.meetings_post.text_2', 'تثبيت') }}
                         </button>
                     </form>
                 @endif

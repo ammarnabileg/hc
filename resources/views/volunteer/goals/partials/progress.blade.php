@@ -10,7 +10,7 @@
 
 <div class="mt-2">
     <div class="flex items-center justify-between text-xs mb-1" style="color: var(--text-muted)">
-        <span>{{ $label ?? 'الإنجاز' }}</span>
+        <span>{{ $label ?? setting('volunteer.goals_progress.text', 'الإنجاز') }}</span>
         <span class="font-semibold" style="color: var(--text)">{{ rtrim(rtrim(number_format($percent, 1), '0'), '.') }}%</span>
     </div>
 
@@ -23,7 +23,7 @@
         {{-- ⭐ المُغلَقة مستبعَدة من المقام وتُوسَم صراحةً كي لا تبدو النسبة مجمَّلة --}}
         <div class="mt-1 text-xs flex items-center gap-1" style="color: var(--color-state-idle)">
             <span aria-hidden="true">○</span>
-            <span>{{ $closed }} مهمّة مُغلَقة — مستبعَدة من حساب النسبة</span>
+            <span>{{ $closed }} {{ setting('volunteer.goals_progress.text_2', 'مهمّة مُغلَقة — مستبعَدة من حساب النسبة') }}</span>
         </div>
     @endif
 </div>

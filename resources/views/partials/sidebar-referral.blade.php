@@ -9,20 +9,23 @@
      */
     $referrals = app(\App\Services\Referral\ReferralService::class);
     $inviteLink = $referrals->link($u);
+    /** نصّ الردّ الفوريّ على النسخ — يمرّ للسكربت بـ`@json` فلا يبقى حرفٌ عربيّ داخله */
+    $copyDoneLabel = (string) setting('nav.referral.copy_done', 'اتنسخ ✓');
+
     $invitedCount = \App\Models\Referral::query()
         ->where('referrer_id', $u->id)
         ->whereNotNull('referred_id')
         ->count();
 @endphp
 
-<section class="card p-3 space-y-2" aria-label="دعوة الأصدقاء">
+<section class="card p-3 space-y-2" aria-label="{{ setting('nav.referral.widget_aria', 'دعوة الأصدقاء') }}">
     <div class="flex items-center justify-between gap-2">
-        <span class="text-sm font-semibold">👥 ادعُ أصدقاءك</span>
+        <span class="text-sm font-semibold">{{ setting('nav.referral.title', '👥 ادعُ أصدقاءك') }}</span>
         <span class="text-xs rounded-full px-2 py-0.5"
-              style="background: var(--surface-sunken); color: var(--text-muted)">{{ $invitedCount }} مدعوّ</span>
+              style="background: var(--surface-sunken); color: var(--text-muted)">{{ $invitedCount }} {{ setting('nav.referral.invited_suffix', 'مدعوّ') }}</span>
     </div>
 
-    <label class="sr-only" for="sb-invite-link">رابط دعوتك</label>
+    <label class="sr-only" for="sb-invite-link">{{ setting('nav.referral.link_label', 'رابط دعوتك') }}</label>
     <input id="sb-invite-link" type="text" readonly value="{{ $inviteLink }}"
            data-invite-link
            class="w-full rounded-xl px-2 py-2 text-[11px] font-mono truncate"
@@ -32,14 +35,14 @@
         <button type="button" data-copy-invite
                 class="flex-1 rounded-xl px-2 py-2 text-xs font-semibold motion-standard"
                 style="min-height: 44px; background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
-            نسخ الرابط
+            {{ setting('nav.referral.copy_action', 'نسخ الرابط') }}
         </button>
 
         @if (\Illuminate\Support\Facades\Route::has('referral.index'))
             <a href="{{ route('referral.index') }}"
                class="flex-1 rounded-xl px-2 py-2 text-xs font-semibold text-center motion-standard flex items-center justify-center"
                style="min-height: 44px; background: var(--color-brand-500); color: #04201c">
-                دعوة أصدقائك
+                {{ setting('nav.referral.invite_action', 'دعوة أصدقائك') }}
             </a>
         @endif
     </div>
@@ -56,7 +59,7 @@
         button.addEventListener('click', function () {
             var done = function () {
                 var original = button.textContent;
-                button.textContent = 'اتنسخ ✓';
+                button.textContent = @json($copyDoneLabel);
                 setTimeout(function () { button.textContent = original; }, 1800);
             };
 

@@ -521,7 +521,7 @@ class CourseFormService
         Exam::create($payload + [
             'examable_type' => $course->getMorphClass(),
             'examable_id' => $course->id,
-            'title_ar' => 'امتحان '.$course->name_ar,
+            'title_ar' => strtr(setting('admin_content.course_form_service.sync_exam_1', 'امتحان :p1'), [':p1' => (string) ($course->name_ar)]),
             'duration_minutes' => (int) setting('exams.duration.default_minutes', 30),
         ]);
     }

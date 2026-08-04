@@ -1,16 +1,16 @@
 @extends('layouts.admin')
 
-@section('title', 'معاينة القالب بالمقاس الحقيقيّ')
+@section('title', setting('admin.certificates.template_preview.maayna_alqalb_balmqas_alhqyqy', 'معاينة القالب بالمقاس الحقيقيّ'))
 
 @section('content')
     {{-- ⭐ معاينة بالمقاس الحقيقيّ (12.5-ب): نفس وحدات الراسم على الخادم --}}
     <x-page-header
-        :title="'معاينة: '.$template->name"
-        :subtitle="$template->width_px.'×'.$template->height_px.' بكسل — بالمقاس الحقيقيّ'"
+        :title="setting('admin.certificates.template_preview.maayna', 'معاينة: ').$template->name"
+        :subtitle="$template->width_px.'×'.$template->height_px.setting('admin.certificates.template_preview.bksl_balmqas_alhqyqy', ' بكسل — بالمقاس الحقيقيّ')"
         :breadcrumbs="[
-            ['label' => 'الشهادات', 'url' => route('admin.certificates.index')],
+            ['label' => setting('admin.certificates.template_preview.alshhadat', 'الشهادات'), 'url' => route('admin.certificates.index')],
             ['label' => $type->name_ar, 'url' => route('admin.certificates.designer', $type)],
-            ['label' => 'معاينة'],
+            ['label' => setting('admin.certificates.template_preview.maayna_2', 'معاينة')],
         ]" />
 
     <div class="min-w-0 overflow-x-auto">

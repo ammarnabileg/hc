@@ -29,14 +29,14 @@
 
     <header class="flex items-start gap-2 flex-wrap">
         @if ($announcement->is_pinned)
-            <span class="text-sm" title="منشور مثبَّت" aria-label="مثبَّت"><x-icon name="placement" size="16" /></span>
+            <span class="text-sm" title="{{ setting('announcements.card.title_1', 'منشور مثبَّت') }}" aria-label="{{ setting('announcements.card.aria_label_1', 'مثبَّت') }}"><x-icon name="placement" size="16" /></span>
         @endif
 
         <h2 class="font-bold flex-1 min-w-40">{{ $announcement->title }}</h2>
 
         @if (! $isRead)
             <span class="rounded-full px-2 py-0.5 text-xs"
-                  style="background: var(--color-brand-600); color: #04201c">جديد</span>
+                  style="background: var(--color-brand-600); color: #04201c">{{ setting('announcements.card.text_1', 'جديد') }}</span>
         @endif
 
         @if ($typeLabel)
@@ -57,7 +57,7 @@
                 data-title="{{ $announcement->title }}"
                 data-body="{{ $announcement->body }}"
                 data-cta-url="{{ $announcement->cta_url }}"
-                data-cta-label="{{ $announcement->cta_label }}">التفاصيل</button>
+                data-cta-label="{{ $announcement->cta_label }}">{{ setting('announcements.card.text_2', 'التفاصيل') }}</button>
     @endif
 
     @if ($mediaUrl)
@@ -73,7 +73,7 @@
     @if ($announcement->cta_url)
         <a href="{{ $announcement->cta_url }}" target="_blank" rel="noopener"
            class="btn inline-flex items-center rounded-xl px-4 py-2 text-sm font-semibold mt-3 motion-standard"
-           style="background: var(--color-brand-500); color: #04201c">{{ $announcement->cta_label ?: 'افتح' }}</a>
+           style="background: var(--color-brand-500); color: #04201c">{{ $announcement->cta_label ?: (string) setting('announcements.card.expr_1', 'افتح') }}</a>
     @endif
 
     {{--
@@ -83,7 +83,7 @@
      --}}
     @if ($poll)
         <section class="mt-3 rounded-xl p-3" style="background: var(--surface-raised); border: 1px solid var(--border)"
-                 aria-label="استطلاع">
+                 aria-label="{{ setting('announcements.card.aria_label_2', 'استطلاع') }}">
             <div class="text-sm font-semibold">{{ $poll['question'] }}</div>
 
             <div class="mt-2 space-y-2">
@@ -97,7 +97,7 @@
                                  'background: var(--surface-sunken)',
                                  'border: 1px solid var(--color-brand-500)' => $isChoice,
                              ])>
-                            <span>{{ $option }} @if ($isChoice)<span class="text-xs">✓ اختيارك</span>@endif</span>
+                            <span>{{ $option }} @if ($isChoice)<span class="text-xs">✓ {{ setting('announcements.card.text_3', 'اختيارك') }}</span>@endif</span>
                             @if ($poll['results'])
                                 <span class="text-xs" style="color: var(--text-muted)">{{ $poll['results']['counts'][$index] ?? 0 }}</span>
                             @endif
@@ -118,7 +118,7 @@
 
             <div class="mt-2 text-xs" style="color: var(--text-muted)">
                 @if ($poll['results'])
-                    إجماليّ الأصوات {{ $poll['results']['total'] }}
+                    {{ setting('announcements.card.text_4', 'إجماليّ الأصوات') }} {{ $poll['results']['total'] }}
                 @else
                     {{ $poll['hidden_notice'] }}
                 @endif
@@ -140,7 +140,7 @@
                     @csrf
                     <input type="hidden" name="reaction" value="{{ $emoji }}">
                     <button type="submit" class="btn rounded-full px-3 py-1 text-sm motion-standard"
-                            aria-label="تفاعل {{ $emoji }}"
+                            aria-label="{{ setting('announcements.card.aria_label_3', 'تفاعل') }} {{ $emoji }}"
                             @style([
                                 'background: var(--surface-raised)',
                                 'background: var(--color-brand-600); color: #04201c' => ($read?->reaction) === $emoji,
@@ -161,7 +161,7 @@
                   style="background: var(--color-brand-500); color: #04201c">{{ $ackLabel }}</span>
         @elseif ($announcement->requires_acknowledge)
             @if ($isAcknowledged)
-                <x-state-badge state="ok" label="أقررتَ بقراءته" />
+                <x-state-badge state="ok" label="{{ setting('announcements.card.label_1', 'أقررتَ بقراءته') }}" />
             @else
                 <form method="post" action="{{ route('announcements.acknowledge', $announcement) }}" data-ajax-form>
                     @csrf
@@ -171,7 +171,7 @@
             @endif
 
             @if ($announcement->acknowledge_xp > 0 && ! $isAcknowledged)
-                <span class="text-xs" style="color: var(--text-muted)">+{{ $announcement->acknowledge_xp }} XP مرّة واحدة</span>
+                <span class="text-xs" style="color: var(--text-muted)">+{{ $announcement->acknowledge_xp }} XP {{ setting('announcements.card.text_5', 'مرّة واحدة') }}</span>
             @endif
         @endif
 
@@ -179,7 +179,7 @@
             <form method="post" action="{{ route('announcements.read', $announcement) }}" data-ajax-form class="ms-auto">
                 @csrf
                 <button type="submit" class="btn rounded-xl px-3 py-2 text-xs motion-standard"
-                        style="background: var(--surface-raised); border: 1px solid var(--border)">تعليم كمقروء</button>
+                        style="background: var(--surface-raised); border: 1px solid var(--border)">{{ setting('announcements.card.text_6', 'تعليم كمقروء') }}</button>
             </form>
         @endif
     </footer>

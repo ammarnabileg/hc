@@ -1,6 +1,6 @@
 @extends('layouts.guest')
 
-@section('title', 'التحقّق من بطاقة المتطوّع')
+@section('title', (string) setting('volunteer_card.verify.section_1', 'التحقّق من بطاقة المتطوّع'))
 
 @php
     /**
@@ -15,7 +15,7 @@
     <div class="w-full max-w-sm">
         <div class="card p-5 text-center">
             <div class="flex justify-center mb-3">
-                <x-state-badge :state="$valid ? 'ok' : 'idle'" :label="$valid ? 'سارية' : 'منتهية'" />
+                <x-state-badge :state="$valid ? 'ok' : 'idle'" :label="$valid ? (string) setting('volunteer_card.verify.label_1', 'سارية') : (string) setting('volunteer_card.verify.label_2', 'منتهية')" />
             </div>
 
             <h1 class="text-lg font-extrabold">{{ $data['name'] }}</h1>
@@ -24,17 +24,17 @@
             </p>
 
             <dl class="mt-4 text-sm grid grid-cols-2 gap-y-2 text-start">
-                <dt style="color: var(--text-muted)">كود العضو</dt>
+                <dt style="color: var(--text-muted)">{{ setting('volunteer_card.verify.text_1', 'كود العضو') }}</dt>
                 <dd class="text-end font-semibold">#{{ $data['code'] }}</dd>
 
-                <dt style="color: var(--text-muted)">رقم البطاقة</dt>
+                <dt style="color: var(--text-muted)">{{ setting('volunteer_card.verify.text_2', 'رقم البطاقة') }}</dt>
                 <dd class="text-end font-semibold" dir="ltr">{{ $data['card_code'] }}</dd>
 
-                <dt style="color: var(--text-muted)">تاريخ الإصدار</dt>
+                <dt style="color: var(--text-muted)">{{ setting('volunteer_card.verify.text_3', 'تاريخ الإصدار') }}</dt>
                 <dd class="text-end font-semibold">{{ $data['issued_at']?->translatedFormat($dateFormat) ?? '—' }}</dd>
 
                 @if (! $valid)
-                    <dt style="color: var(--text-muted)">تاريخ الانتهاء</dt>
+                    <dt style="color: var(--text-muted)">{{ setting('volunteer_card.verify.text_4', 'تاريخ الانتهاء') }}</dt>
                     <dd class="text-end font-semibold">{{ $data['expired_at']?->translatedFormat($dateFormat) ?? '—' }}</dd>
                 @endif
             </dl>
@@ -46,7 +46,7 @@
             </p>
 
             <a href="{{ $cardUrl }}" class="btn inline-block mt-4 rounded-xl px-4 py-2 text-sm font-semibold"
-               style="background: var(--color-brand-500); color:#04201c">فتح البطاقة</a>
+               style="background: var(--color-brand-500); color:#04201c">{{ setting('volunteer_card.verify.text_5', 'فتح البطاقة') }}</a>
         </div>
     </div>
 @endsection

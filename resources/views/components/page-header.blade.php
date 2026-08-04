@@ -42,8 +42,8 @@
                         class="shrink-0 inline-flex items-center justify-center rounded-xl motion-standard"
                         style="min-width: 44px; min-height: 44px; color: {{ $isPinned ? 'var(--color-brand-500)' : 'var(--text-muted)' }}"
                         aria-pressed="{{ $isPinned ? 'true' : 'false' }}"
-                        aria-label="{{ $isPinned ? 'فكّ تثبيت الصفحة' : 'ثبّت الصفحة أعلى السايد بار' }}"
-                        title="{{ $isPinned ? 'مثبَّتة' : 'ثبّت الصفحة' }}">
+                        aria-label="{{ $isPinned ? (string) setting('ux.page_header.aria_label_expr_1', 'فكّ تثبيت الصفحة') : (string) setting('ux.page_header.aria_label_expr_2', 'ثبّت الصفحة أعلى السايد بار') }}"
+                        title="{{ $isPinned ? (string) setting('ux.page_header.title_expr_1', 'مثبَّتة') : (string) setting('ux.page_header.title_expr_2', 'ثبّت الصفحة') }}">
                     {{-- أيقونة دبّوس SVG مرسومة داخل المشروع (2.16-ج) --}}
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="{{ $isPinned ? 'currentColor' : 'none' }}"
                          stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true" focusable="false">

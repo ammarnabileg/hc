@@ -17,7 +17,7 @@
     @if ($viewer->allows('user_approvals.approve') || $viewer->allows('user_approvals.reject'))
         <section class="card p-4">
             <div class="flex flex-wrap items-center gap-2 mb-1">
-                <h3 class="font-bold text-sm">حالة الاعتماد</h3>
+                <h3 class="font-bold text-sm">{{ setting('admin.users.partials.tab_admin.hala_alaatmad', 'حالة الاعتماد') }}</h3>
                 <x-state-badge :state="$directory->statusState($user->status)"
                                :label="\App\Services\Admin\UserDirectory::STATUSES[$user->status] ?? $user->status" />
             </div>
@@ -27,14 +27,14 @@
             </p>
 
             @if (! $pending)
-                <p class="text-sm" style="color: var(--text-muted)">الحساب اتراجع خلاص — مافيش قرار اعتماد مستنّي.</p>
+                <p class="text-sm" style="color: var(--text-muted)">{{ setting('admin.users.partials.tab_admin.alhsab_atraja_khlas_mafysh_qrar_aatmad_mstny', 'الحساب اتراجع خلاص — مافيش قرار اعتماد مستنّي.') }}</p>
             @else
                 @if ($viewer->allows('user_approvals.approve'))
                     <form method="post" action="{{ route('admin.users.approve') }}" class="mb-3">
                         @csrf
                         <input type="hidden" name="users[]" value="{{ $user->id }}">
                         <button class="btn w-full rounded-xl py-2 text-sm font-semibold motion-standard"
-                                style="min-block-size: 44px; background: var(--color-brand-500); color:#04201c">اعتماد الحساب</button>
+                                style="min-block-size: 44px; background: var(--color-brand-500); color:#04201c">{{ setting('admin.users.partials.tab_admin.aatmad_alhsab', 'اعتماد الحساب') }}</button>
                     </form>
                 @endif
 
@@ -42,7 +42,7 @@
                     <form method="post" action="{{ route('admin.users.reject') }}" class="space-y-2">
                         @csrf
                         <input type="hidden" name="users[]" value="{{ $user->id }}">
-                        <label class="block text-xs" style="color: var(--text-muted)">سبب الرفض (هيوصل للمستخدم)</label>
+                        <label class="block text-xs" style="color: var(--text-muted)">{{ setting('admin.users.partials.tab_admin.sbb_alrfd_hywsl_llmstkhdm', 'سبب الرفض (هيوصل للمستخدم)') }}</label>
                         <input list="reject-reasons" name="reason" required
                                class="w-full rounded-xl px-3 py-2 text-sm"
                                style="min-block-size: 44px; background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
@@ -52,7 +52,7 @@
                             @endforeach
                         </datalist>
                         <button class="btn w-full rounded-xl py-2 text-sm font-semibold motion-standard"
-                                style="min-block-size: 44px; background: var(--color-state-danger); color:#fff">رفض الحساب</button>
+                                style="min-block-size: 44px; background: var(--color-state-danger); color:#fff">{{ setting('admin.users.partials.tab_admin.rfd_alhsab', 'رفض الحساب') }}</button>
                     </form>
                 @endif
             @endif
@@ -61,17 +61,17 @@
 
     {{-- الأدوار: العرض للجميع، والإسناد لمن يملك `roles.assign` وحده --}}
     <section class="card p-4">
-        <h3 class="font-bold text-sm mb-3">الأدوار</h3>
+        <h3 class="font-bold text-sm mb-3">{{ setting('admin.users.partials.tab_admin.aladwar', 'الأدوار') }}</h3>
         <ul class="space-y-1 text-sm">
             @forelse ($user->roles as $role)
                 <li class="flex items-center justify-between gap-2">
                     <span>{{ $role->name_ar }}</span>
                     <span class="text-xs" style="color: var(--text-muted)">
-                        {{ $role->pivot->membership_id ? 'داخل عضويّة #'.$role->pivot->membership_id : 'دور منصّة' }}
+                        {{ $role->pivot->membership_id ? setting('admin.users.partials.tab_admin.dakhl_adwya', 'داخل عضويّة #').$role->pivot->membership_id : setting('admin.users.partials.tab_admin.dwr_mnsa', 'دور منصّة') }}
                     </span>
                 </li>
             @empty
-                <li style="color: var(--text-muted)">مافيش أدوار مسنَدة.</li>
+                <li style="color: var(--text-muted)">{{ setting('admin.users.partials.tab_admin.mafysh_adwar_msnda', 'مافيش أدوار مسنَدة.') }}</li>
             @endforelse
         </ul>
 
@@ -79,7 +79,7 @@
             <a href="{{ route('admin.roles.assign', ['user' => $user->id]) }}"
                class="btn inline-flex items-center justify-center w-full mt-3 rounded-xl py-2 text-sm font-semibold motion-standard"
                style="min-block-size: 44px; background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
-                تعيين دور
+                {{ setting('admin.users.partials.tab_admin.tayyn_dwr', 'تعيين دور') }}
             </a>
             <p class="text-xs mt-2" style="color: var(--text-muted)">
                 {{ setting('admin.roles.assign_hint', 'الدور يحدّد «ماذا» والعضويّة تحدّد «أين» — فأدوار التطوّع تُسنَد داخل عضويّة.') }}

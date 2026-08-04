@@ -74,9 +74,9 @@ class DashboardController extends Controller
     private function tabs(string $current): array
     {
         return collect([
-            'overview' => 'نظرة عامّة',
-            'details' => 'تفاصيل',
-            'stats' => 'إحصائيّاتي',
+            'overview' => (string) setting('dashboard.screen.tabs_msg', 'نظرة عامّة'),
+            'details' => (string) setting('dashboard.screen.tabs_msg_2', 'تفاصيل'),
+            'stats' => (string) setting('dashboard.screen.tabs_msg_3', 'إحصائيّاتي'),
         ])->map(fn (string $label, string $key) => [
             'key' => $key,
             'label' => $label,

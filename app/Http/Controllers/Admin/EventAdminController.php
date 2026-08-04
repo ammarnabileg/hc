@@ -160,7 +160,7 @@ class EventAdminController extends Controller
 
         AuditTrail::log($request->user(), 'event.save', $event, $old, $event->only(['title_ar', 'starts_at', 'capacity', 'status']));
 
-        return back()->with('status', 'اتحفظ ✓');
+        return back()->with('status', (string) setting('events.admin.save_ok', 'اتحفظ ✓'));
     }
 
     public function cancel(Request $request, Event $event): RedirectResponse
@@ -168,7 +168,7 @@ class EventAdminController extends Controller
         $event->forceFill(['status' => 'cancelled'])->save();
         AuditTrail::log($request->user(), 'event.cancel', $event);
 
-        return back()->with('status', 'اتلغت الفعاليّة ✓ — بلّغ المسجّلين من زرّ الإشعار.');
+        return back()->with('status', (string) setting('events.admin.cancel_ok', 'اتلغت الفعاليّة ✓ — بلّغ المسجّلين من زرّ الإشعار.'));
     }
 
     /** المسجّلون والحضور: عدّادات + تشيك-إن يدويّ + درجة المكافأة المستحقّة */
@@ -208,7 +208,7 @@ class EventAdminController extends Controller
         ]);
 
         if (! hash_equals((string) $event->attendance_code, trim($data['attendance_code']))) {
-            return back()->with('status', 'كود الحضور غلط — راجعه مع صاحب الفعاليّة وجرّب تاني.');
+            return back()->with('status', (string) setting('events.admin.check_in_denied', 'كود الحضور غلط — راجعه مع صاحب الفعاليّة وجرّب تاني.'));
         }
 
         $registration = EventRegistration::query()
@@ -217,11 +217,11 @@ class EventAdminController extends Controller
             ->first();
 
         if (! $registration) {
-            return back()->with('status', 'الكود ده مش مسجّل في الفعاليّة دي.');
+            return back()->with('status', (string) setting('events.admin.check_in_denied_2', 'الكود ده مش مسجّل في الفعاليّة دي.'));
         }
 
         if ($registration->attended) {
-            return back()->with('status', 'الحضور متسجّل قبل كده — ومفيش صرف مكرّر.');
+            return back()->with('status', (string) setting('events.admin.check_in_empty', 'الحضور متسجّل قبل كده — ومفيش صرف مكرّر.'));
         }
 
         $registration->forceFill(['attended' => true, 'attended_at' => now()])->save();
@@ -231,17 +231,17 @@ class EventAdminController extends Controller
 
         if ($user && $tier) {
             if (($tier['xp'] ?? 0) > 0) {
-                Integrations::post($user, 'xp', (float) $tier['xp'], 'event', 'حضور فعاليّة: '.$event->title_ar, $request->user(), $event);
+                Integrations::post($user, 'xp', (float) $tier['xp'], 'event', strtr((string) setting('events.admin.check_in_msg', 'حضور فعاليّة: :a1'), [':a1' => (string) ($event->title_ar)]), $request->user(), $event);
             }
 
             if (($tier['tickets'] ?? 0) > 0) {
-                Integrations::post($user, 'tickets', (float) $tier['tickets'], 'event', 'حضور فعاليّة: '.$event->title_ar, $request->user(), $event);
+                Integrations::post($user, 'tickets', (float) $tier['tickets'], 'event', strtr((string) setting('events.admin.check_in_msg_2', 'حضور فعاليّة: :a1'), [':a1' => (string) ($event->title_ar)]), $request->user(), $event);
             }
         }
 
         AuditTrail::log($request->user(), 'event.check_in', $registration, [], ['tier' => $tier]);
 
-        return back()->with('status', 'اتسجّل الحضور ✓ — والدرجة المصروفة: '.($tier['xp'] ?? 0).' XP.');
+        return back()->with('status', strtr((string) setting('events.admin.check_in_ok', 'اتسجّل الحضور ✓ — والدرجة المصروفة: :a1 XP.'), [':a1' => (string) (($tier['xp'] ?? 0))]));
     }
 
     public function toggleAttendance(Request $request, EventRegistration $registration): RedirectResponse
@@ -253,7 +253,7 @@ class EventAdminController extends Controller
 
         AuditTrail::log($request->user(), 'event.attendance_toggle', $registration);
 
-        return back()->with('status', 'اتحدّثت حالة الحضور ✓');
+        return back()->with('status', (string) setting('events.admin.toggle_attendance_ok', 'اتحدّثت حالة الحضور ✓'));
     }
 
     public function saveSettings(Request $request): RedirectResponse
@@ -261,7 +261,7 @@ class EventAdminController extends Controller
         $data = $request->validate(['settings' => ['required', 'array']]);
         SettingsWriter::putMany($data['settings'], $request->user());
 
-        return back()->with('status', 'اتحفظ ✓');
+        return back()->with('status', (string) setting('events.admin.save_settings_ok', 'اتحفظ ✓'));
     }
 
     // ------------------------------------------------------------ داخليّ

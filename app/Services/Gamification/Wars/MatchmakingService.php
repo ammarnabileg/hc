@@ -46,11 +46,11 @@ class MatchmakingService
     public function ready(User $user, Challenge $challenge): WarReadiness
     {
         if (! $challenge->is_active) {
-            throw new WarRuleException('الحرب دي موقوفة دلوقتي — جرّب ساحة تانية.');
+            throw new WarRuleException(setting('gamification_wars.matchmaking_service.ready_1', 'الحرب دي موقوفة دلوقتي — جرّب ساحة تانية.'));
         }
 
         if ($this->runningMatchOf($user)) {
-            throw new WarRuleException('عندك مواجهة شغّالة دلوقتي — كمّلها الأوّل.');
+            throw new WarRuleException(setting('gamification_wars.matchmaking_service.ready_2', 'عندك مواجهة شغّالة دلوقتي — كمّلها الأوّل.'));
         }
 
         $gate = $this->rules->readyTickets($challenge);
@@ -59,13 +59,13 @@ class MatchmakingService
         // بوّابة ≥ 12 تذكرة (15.2-4) — لأنّ إلغاء الاستعداد وسط حرب يكلّف 12
         if ($balance < $gate) {
             throw new WarRuleException(
-                "الاستعداد محتاج {$gate} تذكرة على الأقلّ ورصيدك ".(int) $balance.' — اشحن وارجع، الساحة مستنّياك.',
+                strtr(setting('gamification_wars.matchmaking_service.ready_4', 'الاستعداد محتاج :p1 تذكرة على الأقلّ ورصيدك '), [':p1' => (string) ($gate)]).(int) $balance.setting('gamification_wars.matchmaking_service.ready_3', ' — اشحن وارجع، الساحة مستنّياك.'),
                 $gate - $balance,
             );
         }
 
         if (! $this->funnel->isBankReady($challenge)) {
-            throw new WarRuleException('بنك أسئلة الحرب دي لسّه مش جاهز — جرّب ساحة تانية دلوقتي.');
+            throw new WarRuleException(setting('gamification_wars.matchmaking_service.body_1', 'بنك أسئلة الحرب دي لسّه مش جاهز — جرّب ساحة تانية دلوقتي.'));
         }
 
         return WarReadiness::updateOrCreate(
@@ -152,7 +152,7 @@ class MatchmakingService
     public function start(User $challenger, User $opponent, Challenge $challenge): WarMatch
     {
         if ($challenger->id === $opponent->id) {
-            throw new WarRuleException('ما ينفعش تتحدّى نفسك 🙂');
+            throw new WarRuleException(setting('gamification_wars.matchmaking_service.start_1', 'ما ينفعش تتحدّى نفسك 🙂'));
         }
 
         $gate = $this->rules->readyTickets($challenge);
@@ -160,7 +160,7 @@ class MatchmakingService
         $questions = $this->funnel->draw($challenge, null, [$challenger->id, $opponent->id]);
 
         if ($questions === []) {
-            throw new WarRuleException('بنك أسئلة الحرب دي فاضي — بلّغ الإدارة وجرّب ساحة تانية.');
+            throw new WarRuleException(setting('gamification_wars.matchmaking_service.start_2', 'بنك أسئلة الحرب دي فاضي — بلّغ الإدارة وجرّب ساحة تانية.'));
         }
 
         return DB::transaction(function () use ($challenger, $opponent, $challenge, $gate, $questions) {
@@ -177,18 +177,18 @@ class MatchmakingService
 
             foreach ($ids as $id) {
                 if (! $locked->has($id)) {
-                    throw new WarRuleException('المحارب ده دخل مواجهة تانية دلوقتي — اختار غيره.');
+                    throw new WarRuleException(setting('gamification_wars.matchmaking_service.start_3', 'المحارب ده دخل مواجهة تانية دلوقتي — اختار غيره.'));
                 }
 
                 if ((int) $locked[$id]->challenge_id !== (int) $challenge->id) {
-                    throw new WarRuleException('المحارب ده استعدّ لحرب تانية — اختار غيره.');
+                    throw new WarRuleException(setting('gamification_wars.matchmaking_service.start_4', 'المحارب ده استعدّ لحرب تانية — اختار غيره.'));
                 }
             }
 
             // البوّابة تُتحقَّق للطرفين لحظة البدء لا لحظة الاستعداد (15.2-4)
             foreach ([$challenger, $opponent] as $side) {
                 if ($this->wallet->balance($side, 'tickets') < $gate) {
-                    throw new WarRuleException('واحد من الطرفين رصيده نزل تحت شرط الدخول — المواجهة اتلغت.');
+                    throw new WarRuleException(setting('gamification_wars.matchmaking_service.start_5', 'واحد من الطرفين رصيده نزل تحت شرط الدخول — المواجهة اتلغت.'));
                 }
             }
 
@@ -200,7 +200,7 @@ class MatchmakingService
                 ->exists();
 
             if ($busy) {
-                throw new WarRuleException('المحارب ده دخل مواجهة تانية دلوقتي — اختار غيره.');
+                throw new WarRuleException(setting('gamification_wars.matchmaking_service.start_6', 'المحارب ده دخل مواجهة تانية دلوقتي — اختار غيره.'));
             }
 
             $match = WarMatch::create([

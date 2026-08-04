@@ -157,7 +157,7 @@ class AccountApproval
                 source: 'referral',
                 reference: $referral,
                 layer: 'training',
-                reason: 'تذكرة ترحيب بعد قبول الحساب',
+                reason: setting('admin_dashboard.account_approval.grant_welcome_ticket_1', 'تذكرة ترحيب بعد قبول الحساب'),
             );
         }
 

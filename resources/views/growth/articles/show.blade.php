@@ -1,3 +1,11 @@
+@php
+    /** نصوص السكربت — من الإعدادات لا محروقةً في الجافاسكربت (2.13-أ) */
+    $hcWords = array_merge($hcWords ?? [], [
+        'articles.show.js_1' => (string) setting('articles.show.js_1', 'اتنسخ ✓'),
+        'articles.show.js_2' => (string) setting('articles.show.js_2', 'انسخه يدويًّا'),
+    ]);
+@endphp
+
 @extends('layouts.app')
 
 @section('title', $article->meta_title ?: $article->title)
@@ -31,12 +39,12 @@
             @endif
 
             <time datetime="{{ $article->published_at?->toDateString() }}">
-                نُشر {{ $article->published_at?->translatedFormat('j F Y') }}
+                {{ setting('articles.show.text_1', 'نُشر') }} {{ $article->published_at?->translatedFormat('j F Y') }}
             </time>
 
             @if ($article->updated_at && $article->published_at && $article->updated_at->gt($article->published_at))
                 <span aria-hidden="true">·</span>
-                <span>آخر تحديث {{ $article->updated_at->translatedFormat('j F Y') }}</span>
+                <span>{{ setting('articles.show.text_2', 'آخر تحديث') }} {{ $article->updated_at->translatedFormat('j F Y') }}</span>
             @endif
 
             @if ($article->article_category)
@@ -74,12 +82,12 @@
                     <p class="font-bold mt-1">{{ $related['title'] }}</p>
                 </div>
                 <span class="rounded-xl px-4 py-2 text-sm font-semibold shrink-0"
-                      style="background: var(--color-brand-500); color: #04201c">افتح</span>
+                      style="background: var(--color-brand-500); color: #04201c">{{ setting('articles.show.text_3', 'افتح') }}</span>
             </a>
         @endif
 
         {{-- أزرار المشاركة — بروابط موسومة بـUTM (21.2-ح) وبأيقونات مرسومة عندنا (2.16-ج) --}}
-        <section class="mt-6" aria-label="مشاركة المقال">
+        <section class="mt-6" aria-label="{{ setting('articles.show.aria_label_1', 'مشاركة المقال') }}">
             <p class="text-xs mb-2" style="color: var(--text-muted)">{{ setting('growth.articles.share_label', 'شارك المقال') }}</p>
             <div class="flex flex-wrap items-center gap-2">
                 @php
@@ -92,7 +100,7 @@
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                         <path d="M4 20l1.3-4A8 8 0 1 1 8 18.7L4 20z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
                     </svg>
-                    واتساب
+                    {{ setting('articles.show.text_4', 'واتساب') }}
                 </a>
 
                 <a href="https://www.linkedin.com/sharing/share-offsite/?url={{ $encoded }}" target="_blank" rel="noopener nofollow"
@@ -101,7 +109,7 @@
                         <rect x="3" y="3" width="18" height="18" rx="3" stroke="currentColor" stroke-width="1.8"/>
                         <path d="M7.5 10.5V17M7.5 7.5v.01M11.5 17v-3.6a2 2 0 0 1 4 0V17" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
                     </svg>
-                    لينكدإن
+                    {{ setting('articles.show.text_5', 'لينكدإن') }}
                 </a>
 
                 <button type="button" data-copy="{{ $shareUrl }}"
@@ -110,13 +118,13 @@
                         <rect x="9" y="9" width="11" height="11" rx="2" stroke="currentColor" stroke-width="1.8"/>
                         <path d="M15 5H6a2 2 0 0 0-2 2v9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
                     </svg>
-                    انسخ الرابط
+                    {{ setting('articles.show.text_6', 'انسخ الرابط') }}
                 </button>
             </div>
         </section>
 
         @if ($more->isNotEmpty())
-            <section class="mt-8" aria-label="مقالات قريبة">
+            <section class="mt-8" aria-label="{{ setting('articles.show.aria_label_2', 'مقالات قريبة') }}">
                 <h2 class="font-extrabold mb-3">{{ setting('growth.articles.more_label', 'اقرأ كمان') }}</h2>
                 <div class="grid gap-3 md:grid-cols-3">
                     @foreach ($more as $row)
@@ -139,9 +147,9 @@
                 const original = button.innerHTML;
                 try {
                     await navigator.clipboard.writeText(button.dataset.copy);
-                    button.textContent = 'اتنسخ ✓';
+                    button.textContent = @json($hcWords['articles.show.js_1']);
                 } catch (error) {
-                    button.textContent = 'انسخه يدويًّا';
+                    button.textContent = @json($hcWords['articles.show.js_2']);
                 }
                 setTimeout(() => { button.innerHTML = original; }, 1800);
             });

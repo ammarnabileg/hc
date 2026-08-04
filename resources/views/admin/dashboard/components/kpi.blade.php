@@ -13,7 +13,7 @@
     $tag = $url ? 'a' : 'div';
 @endphp
 
-<{{ $tag }} @if ($url) href="{{ $url }}" aria-label="{{ $card['label'] }} — افتح التفاصيل" @endif
+<{{ $tag }} @if ($url) href="{{ $url }}" aria-label="{{ strtr(setting('admin.dashboard.components.kpi.v1_afth_altfasyl', ':v1 — افتح التفاصيل'), [':v1' => e($card['label'])]) }}" @endif
     class="card p-4 animate-fadeup min-w-[13rem] sm:min-w-0 block motion-standard {{ $url ? 'hover:opacity-90' : '' }}"
     style="min-height: 44px" data-kpi-card="{{ $card['key'] ?? '' }}">
 
@@ -31,16 +31,16 @@
         @if ($compare && $delta !== null)
             {{-- الأرقام الثانويّة بالـHover لا بمساحة دائمة (2.15-د) --}}
             <span class="text-xs cursor-help" style="color: var(--text-muted)"
-                  title="الفترة السابقة: {{ number_format($card['previous']) }}">
+                  title="{{ strtr(setting('admin.dashboard.components.kpi.alftra_alsabqa_v1', 'الفترة السابقة: :v1'), [':v1' => e(number_format($card['previous']))]) }}">
                 {{ $arrow }} {{ abs($delta) }}%
             </span>
         @endif
 
         @if (! empty($card['state']))
             <x-state-badge :state="$card['state']" :label="match ($card['state']) {
-                'ok' => 'صاعد',
-                'danger' => 'هابط',
-                default => 'ثابت',
+                'ok' => setting('admin.dashboard.components.kpi.saad', 'صاعد'),
+                'danger' => setting('admin.dashboard.components.kpi.habt', 'هابط'),
+                default => setting('admin.dashboard.components.kpi.thabt', 'ثابت'),
             }" />
         @endif
     </div>
@@ -48,6 +48,6 @@
     <div class="mt-1 text-xs" style="color: var(--text-muted)">{{ $card['hint'] }}</div>
 
     @if ($url)
-        <div class="mt-2 text-xs" style="color: var(--color-brand-400)">افتح التفاصيل ←</div>
+        <div class="mt-2 text-xs" style="color: var(--color-brand-400)">{{ setting('admin.dashboard.components.kpi.afth_altfasyl', 'افتح التفاصيل ←') }}</div>
     @endif
 </{{ $tag }}>

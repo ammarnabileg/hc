@@ -109,7 +109,7 @@ class GoalController extends Controller
         $result = $this->launcher->launch($goal, $request->user());
 
         if (! $result['ok']) {
-            return back()->with('status', 'مش هيتبعت: '.implode(' · ', $result['gaps']));
+            return back()->with('status', strtr((string) setting('goals.screen.send_denied', 'مش هيتبعت: :a1'), [':a1' => (string) (implode(' · ', $result['gaps']))]));
         }
 
         AuditTrail::log($request->user(), 'goal.sent_to_execution', $goal, [], [
@@ -119,8 +119,7 @@ class GoalController extends Controller
 
         return redirect()->route('volunteer.goals')->with(
             'status',
-            'اتبعت للتنفيذ ✓ — نافذة التفكيك بدأت لـ'.$result['stamped'].' مهمّة، وبتقفل '
-                .$result['due_at']?->format('Y-m-d H:i').'.',
+            strtr((string) setting('goals.screen.send_ok', 'اتبعت للتنفيذ ✓ — نافذة التفكيك بدأت لـ:a1 مهمّة، وبتقفل :a2.'), [':a1' => (string) ($result['stamped']), ':a2' => (string) ($result['due_at']?->format('Y-m-d H:i'))]),
         );
     }
 
@@ -134,7 +133,7 @@ class GoalController extends Controller
             'evidence' => ['required', 'string', 'min:10', 'max:2000'],
             'evidence_path' => ['nullable', 'string', 'max:255'],
         ], [], [
-            'evidence' => 'الدليل',
+            'evidence' => (string) setting('goals.screen.send_msg', 'الدليل'),
         ]);
 
         abort_unless($this->milestoneIsVisible($request->user(), $milestone), 403);
@@ -152,7 +151,7 @@ class GoalController extends Controller
 
         $this->notifyTrackSupervisors($milestone);
 
-        return back()->with('status', 'اتسجّل إعلان التحقّق ✓ — مشرف المسار عنده '.$hours.' ساعة للاعتماد.');
+        return back()->with('status', strtr((string) setting('goals.screen.send_ok_2', 'اتسجّل إعلان التحقّق ✓ — مشرف المسار عنده :a1 ساعة للاعتماد.'), [':a1' => (string) ($hours)]));
     }
 
     /** اعتماد مشرف المسار للإعلان — وبه يُعلَّم المَعلَم متحقّقًا ✅ */
@@ -163,7 +162,7 @@ class GoalController extends Controller
             'note' => ['nullable', 'string', 'max:2000'],
         ]);
 
-        abort_unless($milestone->verification_status === 'declared', 409, 'مفيش إعلان تحقّق مفتوح على هذا المَعلَم.');
+        abort_unless($milestone->verification_status === 'declared', 409, (string) setting('goals.screen.approve_empty', 'مفيش إعلان تحقّق مفتوح على هذا المَعلَم.'));
 
         $approved = $decision['decision'] === 'approve';
 
@@ -178,13 +177,13 @@ class GoalController extends Controller
             Integrations::notify(
                 user: $director,
                 category: 'goal',
-                title: $approved ? 'اتعتمد تحقّق «'.$milestone->name.'»' : 'مراجعة على إعلان «'.$milestone->name.'»',
+                title: $approved ? strtr((string) setting('goals.screen.approve_msg', 'اتعتمد تحقّق «:a1»'), [':a1' => (string) ($milestone->name)]) : strtr((string) setting('goals.screen.approve_msg_2', 'مراجعة على إعلان «:a1»'), [':a1' => (string) ($milestone->name)]),
                 body: $decision['note'] ?? null,
                 url: route('volunteer.goals'),
             );
         }
 
-        return back()->with('status', $approved ? 'اتعتمد التحقّق ✓' : 'اترجّع الإعلان مع الملاحظة.');
+        return back()->with('status', $approved ? (string) setting('goals.screen.approve_ok', 'اتعتمد التحقّق ✓') : (string) setting('goals.screen.approve_msg_3', 'اترجّع الإعلان مع الملاحظة.'));
     }
 
     // ============================================================================
@@ -252,9 +251,9 @@ class GoalController extends Controller
             'tracks' => ['nullable', 'array'],
             'tracks.*' => ['integer', 'exists:tracks,id'],
         ], [], [
-            'name' => 'اسم الهدف',
-            'reason' => 'سبب الهدف',
-            'end_date' => 'تاريخ النهاية',
+            'name' => (string) setting('goals.screen.store_msg', 'اسم الهدف'),
+            'reason' => (string) setting('goals.screen.store_msg_2', 'سبب الهدف'),
+            'end_date' => (string) setting('goals.screen.store_msg_3', 'تاريخ النهاية'),
         ]);
 
         try {
@@ -271,20 +270,20 @@ class GoalController extends Controller
 
             return redirect()->route('volunteer.goals.build')->with(
                 'status',
-                'اتحفظ ✓ — واتربط بـ'.count($result['linked']).' مسار، ووصل إشعار لـ'.$result['notified'].' من مشرفي المسارات المعنيّين.',
+                strtr((string) setting('goals.screen.store_ok', 'اتحفظ ✓ — واتربط بـ:a1 مسار، ووصل إشعار لـ:a2 من مشرفي المسارات المعنيّين.'), [':a1' => (string) (count($result['linked'])), ':a2' => (string) ($result['notified'])]),
             );
         }
 
         return redirect()->route('volunteer.goals.build')->with(
             'status',
-            'اتحفظ ✓ — ولسّه محدّش شايفه: اربطه بمسار عشان يوصل لمشرفيه.',
+            (string) setting('goals.screen.store_ok_2', 'اتحفظ ✓ — ولسّه محدّش شايفه: اربطه بمسار عشان يوصل لمشرفيه.'),
         );
     }
 
     /** الربط بمسار أو أكثر — **لحظة ظهور الهدف** وإشعار مشرفيه وحدهم */
     public function linkTracks(Request $request, Goal $goal): RedirectResponse
     {
-        abort_unless($this->access->isBuilding($goal), 409, 'الهدف اتبعت للتنفيذ خلاص.');
+        abort_unless($this->access->isBuilding($goal), 409, (string) setting('goals.screen.link_tracks_msg', 'الهدف اتبعت للتنفيذ خلاص.'));
 
         $data = $request->validate([
             'tracks' => ['required', 'array', 'min:1'],
@@ -297,7 +296,7 @@ class GoalController extends Controller
             return back()->withErrors($e->errors());
         }
 
-        return back()->with('status', 'اتربط بـ'.count($result['linked']).' مسار ✓ — وصل الإشعار لـ'.$result['notified'].' من مشرفي المسارات المعنيّين.');
+        return back()->with('status', strtr((string) setting('goals.screen.link_tracks_ok', 'اتربط بـ:a1 مسار ✓ — وصل الإشعار لـ:a2 من مشرفي المسارات المعنيّين.'), [':a1' => (string) (count($result['linked'])), ':a2' => (string) ($result['notified'])]));
     }
 
     /** 1.2 — شاشة التفكيك: مَعالِم وحزم مربوطة بكيانات **مسار المشرف وحده** */
@@ -305,7 +304,7 @@ class GoalController extends Controller
     {
         $user = $request->user();
 
-        abort_unless($this->access->isBuilding($goal), 409, 'الهدف اتبعت للتنفيذ خلاص.');
+        abort_unless($this->access->isBuilding($goal), 409, (string) setting('goals.screen.breakdown_msg', 'الهدف اتبعت للتنفيذ خلاص.'));
         abort_unless($this->access->canSeeBuild($user, $goal), 403);
 
         $milestones = Milestone::query()->where('goal_id', $goal->id)
@@ -346,17 +345,17 @@ class GoalController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'verification_criteria' => ['nullable', 'string', 'max:255'],
             'due_date' => ['nullable', 'date'],
-        ], [], ['name' => 'اسم المَعلَم']);
+        ], [], ['name' => (string) setting('goals.screen.store_milestone_msg', 'اسم المَعلَم')]);
 
         abort_if(
             Milestone::query()->where('goal_id', $goal->id)->count() >= (int) setting('goals.build.max_milestones', 50),
             422,
-            'وصلت السقف المسموح للمَعالِم في الهدف الواحد.',
+            (string) setting('goals.screen.store_milestone_msg_2', 'وصلت السقف المسموح للمَعالِم في الهدف الواحد.'),
         );
 
         $this->build->createMilestone($goal, $data, $request->user());
 
-        return back()->with('status', 'اتضاف المَعلَم ✓ — دلوقتي اربط حزمه بكياناتك.');
+        return back()->with('status', (string) setting('goals.screen.store_milestone_ok', 'اتضاف المَعلَم ✓ — دلوقتي اربط حزمه بكياناتك.'));
     }
 
     /**
@@ -386,7 +385,7 @@ class GoalController extends Controller
             return back()->withInput()->withErrors($e->errors());
         }
 
-        return back()->with('status', 'اترَبطت '.$created->count().' حزمة بكيانات مسارك ✓ — دايركتور كلّ كيان وصله إشعار.');
+        return back()->with('status', strtr((string) setting('goals.screen.store_packages_ok', 'اترَبطت :a1 حزمة بكيانات مسارك ✓ — دايركتور كلّ كيان وصله إشعار.'), [':a1' => (string) ($created->count())]));
     }
 
     /**
@@ -399,7 +398,7 @@ class GoalController extends Controller
     {
         $user = $request->user();
 
-        abort_unless($this->access->isBuilding($goal), 409, 'الهدف اتبعت للتنفيذ خلاص.');
+        abort_unless($this->access->isBuilding($goal), 409, (string) setting('goals.screen.store_file_draft_msg', 'الهدف اتبعت للتنفيذ خلاص.'));
         abort_unless($this->access->canSeeBuild($user, $goal), 403);
         $this->access->assertHolds($user, $goal);
 
@@ -408,11 +407,11 @@ class GoalController extends Controller
             'invitations' => ['nullable', 'array', 'max:'.(int) setting('goals.build.file_draft.max_invitations', 20)],
             'invitations.*.user_id' => ['required', 'integer', 'exists:users,id'],
             'invitations.*.position_id' => ['required', 'integer', 'exists:positions,id'],
-        ], [], ['name' => 'اسم الملفّ']);
+        ], [], ['name' => (string) setting('goals.screen.store_file_draft_msg_2', 'اسم الملفّ')]);
 
         $entity = $this->fileDrafts->create($user, $goal, $data['name'], $data['invitations'] ?? []);
 
-        return back()->with('status', 'اتعملت مسودّة ملفّ «'.$entity->name_ar.'» ✓ — اربط بيها حزمك، وهتتفعّل بدعواتها لحظة «إرسال للتنفيذ» مش قبلها.');
+        return back()->with('status', strtr((string) setting('goals.screen.store_file_draft_ok', 'اتعملت مسودّة ملفّ «:a1» ✓ — اربط بيها حزمك، وهتتفعّل بدعواتها لحظة «إرسال للتنفيذ» مش قبلها.'), [':a1' => (string) ($entity->name_ar)]));
     }
 
     /** 1.4 — التجميع والتسعير: تعديل مباشر بحفظ تلقائيّ + سجلّ «تمّ التعديل» */
@@ -420,7 +419,7 @@ class GoalController extends Controller
     {
         $user = $request->user();
 
-        abort_unless($this->access->isBuilding($goal), 409, 'الهدف اتبعت للتنفيذ خلاص.');
+        abort_unless($this->access->isBuilding($goal), 409, (string) setting('goals.screen.aggregate_msg', 'الهدف اتبعت للتنفيذ خلاص.'));
         abort_unless($this->access->canSeeBuild($user, $goal), 403);
 
         $milestones = Milestone::query()->where('goal_id', $goal->id)
@@ -467,7 +466,7 @@ class GoalController extends Controller
      */
     public function saveField(Request $request, Goal $goal): JsonResponse
     {
-        abort_unless($this->access->isBuilding($goal), 409, 'الهدف اتبعت للتنفيذ خلاص.');
+        abort_unless($this->access->isBuilding($goal), 409, (string) setting('goals.screen.save_field_msg', 'الهدف اتبعت للتنفيذ خلاص.'));
         abort_unless($this->access->canSeeBuild($request->user(), $goal), 403);
 
         // ⛔ القفل الطبقيّ يُفحَص هنا — لا بإخفاء الزرّ في الواجهة
@@ -485,7 +484,7 @@ class GoalController extends Controller
             abort_unless(
                 in_array($this->access->layerOf($request->user()), [BuildAccess::LAYER_TRACK, BuildAccess::LAYER_TOP], true),
                 403,
-                'التسعير لمشرف المسار.',
+                (string) setting('goals.screen.save_field_msg_2', 'التسعير لمشرف المسار.'),
             );
         }
 
@@ -495,8 +494,8 @@ class GoalController extends Controller
 
         return response()->json([
             'ok' => true,
-            'message' => 'اتحفظ ✓',
-            'edited_label' => 'تمّ التعديل',
+            'message' => (string) setting('goals.screen.save_field_ok', 'اتحفظ ✓'),
+            'edited_label' => (string) setting('goals.screen.save_field_msg_3', 'تمّ التعديل'),
         ] + $result);
     }
 
@@ -523,7 +522,7 @@ class GoalController extends Controller
      */
     public function storeAggregateTask(Request $request, Goal $goal): RedirectResponse
     {
-        abort_unless($this->access->isBuilding($goal), 409, 'الهدف اتبعت للتنفيذ خلاص.');
+        abort_unless($this->access->isBuilding($goal), 409, (string) setting('goals.screen.store_aggregate_task_msg', 'الهدف اتبعت للتنفيذ خلاص.'));
         abort_unless($this->access->canSeeBuild($request->user(), $goal), 403);
         $this->access->assertHolds($request->user(), $goal);
 
@@ -533,19 +532,19 @@ class GoalController extends Controller
             'deliverable_spec' => ['required', 'string', 'max:2000'],
             'brief' => ['nullable', 'string', 'max:2000'],
         ], [], [
-            'title' => 'اسم المهمّة',
-            'deliverable_spec' => 'شكل المخرجات',
+            'title' => (string) setting('goals.screen.store_aggregate_task_msg_2', 'اسم المهمّة'),
+            'deliverable_spec' => (string) setting('goals.screen.store_aggregate_task_msg_3', 'شكل المخرجات'),
         ]);
 
         $package = WorkPackage::query()
             ->whereIn('milestone_id', Milestone::query()->where('goal_id', $goal->id)->select('id'))
             ->find($data['package_id']);
 
-        abort_if($package === null, 404, 'الحزمة دي مش تابعة للهدف ده.');
+        abort_if($package === null, 404, (string) setting('goals.screen.store_aggregate_task_denied', 'الحزمة دي مش تابعة للهدف ده.'));
 
         $this->build->addTaskForEntity($package, $data, $request->user());
 
-        return back()->with('status', 'اتضافت المهمّة على «'.$package->name.'» ✓ — مربوطة بكيانها ومالكها دايركتوره.');
+        return back()->with('status', strtr((string) setting('goals.screen.store_aggregate_task_ok', 'اتضافت المهمّة على «:a1» ✓ — مربوطة بكيانها ومالكها دايركتوره.'), [':a1' => (string) ($package->name)]));
     }
 
     /** «رفع معاينة للهدف» ⟵ القفل الطبقيّ: الحيازة للقمّة، والرافع قارئ فقط */
@@ -557,13 +556,13 @@ class GoalController extends Controller
         abort_unless(
             $this->access->layerOf($request->user()) === BuildAccess::LAYER_TRACK,
             403,
-            'الرفع للمعاينة من مشرف المسار.',
+            (string) setting('goals.screen.raise_preview_msg', 'الرفع للمعاينة من مشرف المسار.'),
         );
 
         abort_unless(
             $this->build->allPackagesSubmitted($goal),
             409,
-            'في حزم لسّه ما رفعهاش دايركتورها للمراجعة.',
+            (string) setting('goals.screen.raise_preview_msg_2', 'في حزم لسّه ما رفعهاش دايركتورها للمراجعة.'),
         );
 
         $this->build->raisePreview($goal, $request->user());
@@ -572,7 +571,7 @@ class GoalController extends Controller
 
         return redirect()->route('volunteer.goals.build')->with(
             'status',
-            'اترفعت المعاينة ✓ — التحرير بقى عند القمّة، وإنت قارئ بس دلوقتي.',
+            (string) setting('goals.screen.raise_preview_ok', 'اترفعت المعاينة ✓ — التحرير بقى عند القمّة، وإنت قارئ بس دلوقتي.'),
         );
     }
 
@@ -587,7 +586,7 @@ class GoalController extends Controller
 
         AuditTrail::log($request->user(), 'goal.milestone_deleted', $goal, ['name' => $name], []);
 
-        return back()->with('status', 'اتمسح المَعلَم «'.$name.'» ✓');
+        return back()->with('status', strtr((string) setting('goals.screen.destroy_milestone_ok', 'اتمسح المَعلَم «:a1» ✓'), [':a1' => (string) ($name)]));
     }
 
     public function destroyPackage(Request $request, WorkPackage $workPackage): RedirectResponse
@@ -600,7 +599,7 @@ class GoalController extends Controller
 
         AuditTrail::log($request->user(), 'goal.package_deleted', $goal, ['name' => $name], []);
 
-        return back()->with('status', 'اتمسحت الحزمة «'.$name.'» ✓');
+        return back()->with('status', strtr((string) setting('goals.screen.destroy_package_ok', 'اتمسحت الحزمة «:a1» ✓'), [':a1' => (string) ($name)]));
     }
 
     public function destroyTask(Request $request, Task $task): RedirectResponse
@@ -616,7 +615,7 @@ class GoalController extends Controller
 
         AuditTrail::log($request->user(), 'goal.task_deleted', $goal, ['title' => $title], []);
 
-        return back()->with('status', 'اتمسحت المهمّة «'.$title.'» ✓');
+        return back()->with('status', strtr((string) setting('goals.screen.destroy_task_ok', 'اتمسحت المهمّة «:a1» ✓'), [':a1' => (string) ($title)]));
     }
 
     /** تسميات مراحل الرحلة — نصوص من الإعدادات لا محروقة (2.13) */
@@ -747,16 +746,16 @@ class GoalController extends Controller
     private function statusLabels(): array
     {
         return [
-            'sent_to_execution' => 'أُرسِل للتنفيذ',
-            'active' => 'نشط',
-            'completed' => 'مكتمل',
-            'closed' => 'مُغلَق',
+            'sent_to_execution' => (string) setting('goals.screen.status_labels_msg', 'أُرسِل للتنفيذ'),
+            'active' => (string) setting('goals.screen.status_labels_msg_2', 'نشط'),
+            'completed' => (string) setting('goals.screen.status_labels_msg_3', 'مكتمل'),
+            'closed' => (string) setting('goals.screen.status_labels_msg_4', 'مُغلَق'),
         ];
     }
 
     private function priorityLabels(): array
     {
-        return [1 => 'عالية', 2 => 'متوسّطة', 3 => 'منخفضة'];
+        return [1 => (string) setting('goals.screen.priority_labels_msg', 'عالية'), 2 => (string) setting('goals.screen.priority_labels_msg_2', 'متوسّطة'), 3 => (string) setting('goals.screen.priority_labels_msg_3', 'منخفضة')];
     }
 
     /** لا يُعلِن التحقّق إلّا مَن يرى المَعلَم داخل كيانه */
@@ -782,8 +781,8 @@ class GoalController extends Controller
             Integrations::notify(
                 user: $supervisor,
                 category: 'goal',
-                title: 'إعلان تحقّق معيار: '.$milestone->name,
-                body: 'محتاج اعتمادك خلال نافذة القرار.',
+                title: strtr((string) setting('goals.screen.notify_track_supervisors_msg', 'إعلان تحقّق معيار: :a1'), [':a1' => (string) ($milestone->name)]),
+                body: (string) setting('goals.screen.notify_track_supervisors_msg_2', 'محتاج اعتمادك خلال نافذة القرار.'),
                 url: route('volunteer.goals'),
                 deadlineAt: $milestone->approval_due_at ? Carbon::parse($milestone->approval_due_at) : null,
                 requiresAction: true,

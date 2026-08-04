@@ -62,7 +62,7 @@ class MeetingsAdminController extends Controller
         $data = $request->validate([
             'window_hours' => ['required', 'integer', 'min:1', 'max:'.$this->attendance->maxWindowHours()],
             'minutes' => ['nullable', 'string'],
-        ], [], ['window_hours' => 'عدد ساعات نافذة التسجيل']);
+        ], [], ['window_hours' => (string) setting('meetings.admin.end_msg', 'عدد ساعات نافذة التسجيل')]);
 
         $result = $this->attendance->end($meeting, $request->user(), (int) $data['window_hours'], $data['minutes'] ?? null);
 
@@ -70,7 +70,7 @@ class MeetingsAdminController extends Controller
 
         return $result['ok']
             ? back()->with('status', $result['message'])
-            : back()->with('problem', $result['message'].' جرّب تاني، ولو فضل الخطأ راجع حالة الاجتماع.');
+            : back()->with('problem', strtr((string) setting('meetings.admin.end_msg_2', ':a1 جرّب تاني، ولو فضل الخطأ راجع حالة الاجتماع.'), [':a1' => (string) ($result['message'])]));
     }
 
     /** منح حضور استثنائيّ — بسببٍ إلزاميّ ومسجَّل في الصفّ نفسه */
@@ -79,7 +79,7 @@ class MeetingsAdminController extends Controller
         $data = $request->validate([
             'user_id' => ['required', 'integer', 'exists:users,id'],
             'reason' => ['required', 'string', 'max:500'],
-        ], [], ['user_id' => 'العضو', 'reason' => 'سبب المنح']);
+        ], [], ['user_id' => (string) setting('meetings.admin.grant_msg', 'العضو'), 'reason' => (string) setting('meetings.admin.grant_msg_2', 'سبب المنح')]);
 
         $member = User::query()->findOrFail($data['user_id']);
         $result = $this->mirror->grantExceptional($meeting, $member, $data['reason'], $request->user());
@@ -122,14 +122,14 @@ class MeetingsAdminController extends Controller
 
         ScreenSettings::putMany(ScreenSettings::SCREEN_MEETINGS, $data['settings'], $request->user());
 
-        return back()->with('status', 'اتحفظ ✓');
+        return back()->with('status', (string) setting('meetings.admin.save_settings_ok', 'اتحفظ ✓'));
     }
 
     public function resetSettings(Request $request): RedirectResponse
     {
         $count = ScreenSettings::resetScreen(ScreenSettings::SCREEN_MEETINGS, $request->user());
 
-        return back()->with('status', 'رجعت '.$count.' قيمة للافتراضيّ ✓');
+        return back()->with('status', strtr((string) setting('meetings.admin.reset_settings_ok', 'رجعت :a1 قيمة للافتراضيّ ✓'), [':a1' => (string) ($count)]));
     }
 
     /** @return array<string,string> */

@@ -1,6 +1,6 @@
 @extends('layouts.volunteer')
 
-@section('title', 'القائمة النهائيّة والتسكين')
+@section('title', setting('volunteer.people_placement.title', 'القائمة النهائيّة والتسكين'))
 
 @php
     /**
@@ -15,22 +15,22 @@
 
 @section('content')
     <x-page-header
-        title="القائمة النهائيّة والتسكين"
-        subtitle="{{ $candidates->count() }} مرشّحًا في القائمة"
-        :breadcrumbs="[['label' => 'لوحة التطوّع', 'url' => url('/volunteer')], ['label' => 'التوظيف'], ['label' => 'القوائم والتسكين']]" />
+        :title="setting('volunteer.people_placement.title', 'القائمة النهائيّة والتسكين')"
+        subtitle="{{ $candidates->count() }} {{ setting('volunteer.people_placement.subtitle', 'مرشّحًا في القائمة') }}"
+        :breadcrumbs="[['label' => setting('volunteer.common.breadcrumb_root', 'لوحة التطوّع'), 'url' => url('/volunteer')], ['label' => setting('volunteer.people_placement.label', 'التوظيف')], ['label' => setting('volunteer.people_placement.label_2', 'القوائم والتسكين')]]" />
 
     {{-- أربعة كروت KPI بحدّ أقصى (2.15-أ-3) --}}
     <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
-        <x-kpi label="مُرسَل / بانتظار الردّ" :value="$counts['sent']" icon="envelope" />
-        <x-kpi label="مقبول" :value="$counts['accepted']" icon="✓" state="ok" />
-        <x-kpi label="مرفوض" :value="$counts['rejected']" icon="◉" state="danger" />
-        <x-kpi label="فاتت المهلة" :value="$counts['expired']" icon="▲" state="warn" />
+        <x-kpi :label="setting('volunteer.people_placement.label_3', 'مُرسَل / بانتظار الردّ')" :value="$counts['sent']" icon="envelope" />
+        <x-kpi :label="setting('volunteer.people_placement.label_4', 'مقبول')" :value="$counts['accepted']" icon="✓" state="ok" />
+        <x-kpi :label="setting('volunteer.people_placement.label_5', 'مرفوض')" :value="$counts['rejected']" icon="◉" state="danger" />
+        <x-kpi :label="setting('volunteer.people_placement.label_6', 'فاتت المهلة')" :value="$counts['expired']" icon="▲" state="warn" />
     </div>
 
     <x-filters :action="route('volunteer.placement')">
         {{-- الترتيب Select والافتراضيّ «الأحدث أوّلًا» (13.4-هـ) --}}
         <label class="text-sm">
-            <span class="block text-xs mb-1" style="color: var(--text-muted)">الترتيب</span>
+            <span class="block text-xs mb-1" style="color: var(--text-muted)">{{ setting('volunteer.people_placement.field', 'الترتيب') }}</span>
             <select name="sort" onchange="this.form.submit()" class="rounded-xl px-3 py-2 text-sm"
                     style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
                 @foreach ($sortOptions as $key => $label)
@@ -40,8 +40,8 @@
         </label>
 
         <label class="text-sm flex-1 min-w-40">
-            <span class="block text-xs mb-1" style="color: var(--text-muted)">بحث</span>
-            <input type="search" name="q" value="{{ $filters['q'] }}" placeholder="الاسم أو الكود…"
+            <span class="block text-xs mb-1" style="color: var(--text-muted)">{{ setting('volunteer.common.search', 'بحث') }}</span>
+            <input type="search" name="q" value="{{ $filters['q'] }}" placeholder="{{ setting('volunteer.people_placement.placeholder', 'الاسم أو الكود…') }}"
                    class="w-full rounded-xl px-3 py-2 text-sm"
                    style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
         </label>
@@ -49,7 +49,7 @@
         <x-slot:advanced>
             <label class="text-sm flex-1 min-w-56">
                 <span class="block text-xs mb-1" style="color: var(--text-muted)">
-                    نطاق الدرجات <output data-range-out>{{ $filters['score_min'] ?? $scoreFloor }}–{{ $filters['score_max'] ?? $scoreCeiling }}</output>
+                    {{ setting('volunteer.people_placement.field_2', 'نطاق الدرجات') }} <output data-range-out>{{ $filters['score_min'] ?? $scoreFloor }}–{{ $filters['score_max'] ?? $scoreCeiling }}</output>
                 </span>
                 <div class="flex items-center gap-2">
                     <input type="range" name="score_min" data-range-min class="w-full" style="border: 0"
@@ -59,12 +59,12 @@
                 </div>
             </label>
             <button type="submit" class="btn rounded-xl px-4 py-2 text-sm font-semibold"
-                    style="background: var(--color-brand-500); color: #04201c">طبّق</button>
+                    style="background: var(--color-brand-500); color: #04201c">{{ setting('volunteer.common.apply', 'طبّق') }}</button>
         </x-slot:advanced>
     </x-filters>
 
     @if ($candidates->isEmpty())
-        <x-empty message="القائمة النهائيّة فاضية" action="افتح لوحة المرشّحين" :href="route('volunteer.recruitment')" />
+        <x-empty :message="setting('volunteer.people_placement.empty', 'القائمة النهائيّة فاضية')" :action="setting('volunteer.people_placement.action', 'افتح لوحة المرشّحين')" :href="route('volunteer.recruitment')" />
     @else
         <div class="grid gap-4 md:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)]">
 
@@ -83,7 +83,7 @@
                         <div class="min-w-0 flex-1">
                             <div class="text-sm font-bold truncate">{{ $candidate->user?->name }}</div>
                             <div class="text-xs" style="color: var(--text-muted)">
-                                #{{ $candidate->user?->code }} · الدرجة {{ $candidate->qualifying_score ?? '—' }}
+                                #{{ $candidate->user?->code }} · {{ setting('volunteer.people_placement.link', 'الدرجة') }} {{ $candidate->qualifying_score ?? '—' }}
                             </div>
                             <div class="mt-1 flex flex-wrap gap-1">
                                 @foreach (($fits[$candidate->id] ?? collect()) as $entity)
@@ -92,13 +92,13 @@
                             </div>
                         </div>
                         <div class="text-end space-y-1">
-                            <x-state-badge :state="$pipeline->waitingState($candidate)" :label="$pipeline->waitingDays($candidate).' يومًا'" />
+                            <x-state-badge :state="$pipeline->waitingState($candidate)" :label="$pipeline->waitingDays($candidate).setting('volunteer.people_placement.label_7', ' يومًا')" />
                             @if ($inactive)
                                 {{-- المُسكَّن لا يختفي — يصير غير مفعَّل ويظلّ ظاهرًا للمخوَّلين (13.4-هـ) --}}
-                                <x-state-badge state="idle" label="مُسكَّن — غير مفعَّل" />
+                                <x-state-badge state="idle" :label="setting('volunteer.people_placement.label_8', 'مُسكَّن — غير مفعَّل')" />
                             @endif
                             @if ($candidate->renewed_readiness)
-                                <x-state-badge state="ok" label="جدّد استعداده" />
+                                <x-state-badge state="ok" :label="setting('volunteer.people_placement.label_9', 'جدّد استعداده')" />
                             @endif
                         </div>
                     </a>
@@ -108,7 +108,7 @@
             {{-- يسار: بانل التفاصيل — وعلى الموبايل Bottom Sheet --}}
             @if ($selected)
                 <aside class="card p-4 md:sticky md:top-24 h-fit" data-detail-panel>
-                    <button type="button" class="md:hidden text-sm mb-2" data-sheet-close aria-label="إغلاق">✕ إغلاق</button>
+                    <button type="button" class="md:hidden text-sm mb-2" data-sheet-close aria-label="{{ setting('volunteer.people_placement.aria', 'إغلاق') }}">✕ {{ setting('volunteer.people_placement.aria', 'إغلاق') }}</button>
 
                     <header class="flex items-start gap-3">
                         <x-avatar :user="$selected->user" size="12" />
@@ -121,20 +121,20 @@
                     @if ($line = $pipeline->returningLine($selected))
                         <p class="mt-3 rounded-xl px-3 py-2 text-xs"
                            style="background: color-mix(in srgb, var(--color-state-honor) 12%, transparent); color: var(--color-state-honor)">
-                            <span aria-hidden="true">★</span> عائد — {{ $line }}
+                            <span aria-hidden="true">★</span> {{ setting('volunteer.people_placement.field_3', 'عائد —') }} {{ $line }}
                         </p>
                     @endif
 
                     <dl class="mt-3 grid grid-cols-2 gap-2 text-sm">
-                        <dt style="color: var(--text-muted)">الدرجة الإجماليّة</dt>
+                        <dt style="color: var(--text-muted)">{{ setting('volunteer.people_placement.field_4', 'الدرجة الإجماليّة') }}</dt>
                         <dd class="font-semibold">{{ $selected->qualifying_score ?? '—' }}</dd>
-                        <dt style="color: var(--text-muted)">مدّة الانتظار</dt>
-                        <dd>{{ $pipeline->waitingDays($selected) }} يومًا</dd>
+                        <dt style="color: var(--text-muted)">{{ setting('volunteer.people_placement.field_5', 'مدّة الانتظار') }}</dt>
+                        <dd>{{ $pipeline->waitingDays($selected) }} {{ setting('volunteer.common.days', 'يومًا') }}</dd>
                     </dl>
 
                     @if (($fits[$selected->id] ?? collect())->isNotEmpty())
                         <div class="mt-3">
-                            <h3 class="text-xs mb-1" style="color: var(--text-muted)">الأقسام المناسبة</h3>
+                            <h3 class="text-xs mb-1" style="color: var(--text-muted)">{{ setting('volunteer.people_placement.heading', 'الأقسام المناسبة') }}</h3>
                             <div class="flex flex-wrap gap-1">
                                 @foreach ($fits[$selected->id] as $entity)
                                     <span class="text-xs rounded-full px-2 py-0.5" style="background: var(--surface-sunken)">{{ $entity->name_ar }}</span>
@@ -154,11 +154,11 @@
                                     </div>
                                     @if (in_array($req->status, ['sent', 'awaiting'], true))
                                         <p class="text-xs mt-1" style="color: var(--text-muted)">
-                                            باقي {{ (int) now()->diffInHours($req->respond_due_at) }} ساعة من مهلة الـ{{ $placement->responseHours() }} ساعة
+                                            {{ setting('volunteer.people_placement.field_6', 'باقي') }} {{ (int) now()->diffInHours($req->respond_due_at) }} {{ setting('volunteer.people_placement.field_7', 'ساعة من مهلة الـ') }}{{ $placement->responseHours() }} {{ setting('volunteer.common.hour', 'ساعة') }}
                                         </p>
                                         <form method="post" action="{{ route('volunteer.placement.withdraw', $req) }}" class="mt-2">
                                             @csrf
-                                            <button type="submit" class="btn rounded-xl px-3 py-2 text-xs" style="background: var(--surface-raised)">سحب الطلب</button>
+                                            <button type="submit" class="btn rounded-xl px-3 py-2 text-xs" style="background: var(--surface-raised)">{{ setting('volunteer.people_placement.action_2', 'سحب الطلب') }}</button>
                                         </form>
                                     @endif
                                 </div>
@@ -169,16 +169,16 @@
                     <div class="mt-4 flex flex-wrap gap-2">
                         @if ($selected->user?->phone)
                             <a class="btn rounded-xl px-4 py-2 text-sm" style="background: var(--surface-sunken)"
-                               href="https://wa.me/{{ preg_replace('/\D/', '', $selected->user->phone) }}?text={{ rawurlencode($placement->whatsappTemplate($selected)) }}">واتساب</a>
+                               href="https://wa.me/{{ preg_replace('/\D/', '', $selected->user->phone) }}?text={{ rawurlencode($placement->whatsappTemplate($selected)) }}">{{ setting('volunteer.common.whatsapp', 'واتساب') }}</a>
                         @endif
 
                         @if ($canPlace && ! $pendingRequest)
                             <button type="button" data-modal-open="place-modal"
                                     class="btn rounded-xl px-4 py-2 text-sm font-semibold"
-                                    style="background: var(--color-brand-500); color: #04201c">تسكين</button>
+                                    style="background: var(--color-brand-500); color: #04201c">{{ setting('volunteer.people_placement.action_3', 'تسكين') }}</button>
                         @elseif ($pendingRequest)
                             {{-- القفل المؤقّت: لا طلب آخر أثناء طلب معلَّق (13.4-هـ) --}}
-                            <p class="text-xs" style="color: var(--text-muted)">في طلب معلَّق قائم — استنّى الردّ أو اسحبه.</p>
+                            <p class="text-xs" style="color: var(--text-muted)">{{ setting('volunteer.people_placement.field_8', 'في طلب معلَّق قائم — استنّى الردّ أو اسحبه.') }}</p>
                         @endif
                     </div>
                 </aside>
@@ -187,19 +187,19 @@
     @endif
 
     @if ($canPlace && $selected)
-        <x-modal id="place-modal" title="تسكين المرشّح">
+        <x-modal id="place-modal" :title="setting('volunteer.people_placement.tooltip', 'تسكين المرشّح')">
             <form method="post" action="{{ route('volunteer.placement.store', $selected) }}" class="space-y-3">
                 @csrf
 
                 <label class="block text-sm">
-                    <span class="block text-xs mb-1" style="color: var(--text-muted)">القسم الفرعيّ</span>
+                    <span class="block text-xs mb-1" style="color: var(--text-muted)">{{ setting('volunteer.people_placement.field_9', 'القسم الفرعيّ') }}</span>
                     <select name="entity_id" required class="w-full rounded-xl px-3 py-2 text-sm"
                             style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
                         @foreach ($occupancy as $row)
                             {{-- الممتلئ **يبان بعلامة ولا يُخفى** — مؤشّر لا مانع (13.4-ف) --}}
                             <option value="{{ $row['entity']->id }}"
                                     @selected($suggested && $suggested->id === $row['entity']->id)>
-                                {{ $row['entity']->name_ar }} — إشغال {{ $row['percent'] }}%{{ $row['full'] ? ' (ممتلئ ▲)' : '' }}
+                                {{ $row['entity']->name_ar }} — {{ setting('volunteer.people_placement.option', 'إشغال') }} {{ $row['percent'] }}%{{ $row['full'] ? setting('volunteer.people_placement.text', ' (ممتلئ ▲)') : '' }}
                             </option>
                         @endforeach
                     </select>
@@ -207,12 +207,12 @@
 
                 @if ($suggested)
                     <p class="text-xs" style="color: var(--text-muted)">
-                        اقتراحنا: <strong>{{ $suggested->name_ar }}</strong> — الأقلّ إشغالًا دلوقتي. وإنت حرّ تختار غيره.
+                        {{ setting('volunteer.people_placement.field_10', 'اقتراحنا:') }} <strong>{{ $suggested->name_ar }}</strong> — {{ setting('volunteer.people_placement.field_11', 'الأقلّ إشغالًا دلوقتي. وإنت حرّ تختار غيره.') }}
                     </p>
                 @endif
 
                 <label class="block text-sm">
-                    <span class="block text-xs mb-1" style="color: var(--text-muted)">البوزشن</span>
+                    <span class="block text-xs mb-1" style="color: var(--text-muted)">{{ setting('volunteer.common.position', 'البوزشن') }}</span>
                     <select name="position_id" required class="w-full rounded-xl px-3 py-2 text-sm"
                             style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
                         @foreach ($positions as $position)
@@ -222,21 +222,21 @@
                 </label>
 
                 <label class="block text-sm">
-                    <span class="block text-xs mb-1" style="color: var(--text-muted)">ملاحظة (اختياريّة)</span>
+                    <span class="block text-xs mb-1" style="color: var(--text-muted)">{{ setting('volunteer.people_placement.field_12', 'ملاحظة (اختياريّة)') }}</span>
                     <input type="text" name="note" class="w-full rounded-xl px-3 py-2 text-sm"
                            style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
                 </label>
 
                 <div class="rounded-xl px-3 py-2 text-xs" style="background: var(--surface-sunken); color: var(--text-muted)">
-                    قالب واتساب: {{ $placement->whatsappTemplate($selected, $suggested) }}
+                    {{ setting('volunteer.people_placement.field_13', 'قالب واتساب:') }} {{ $placement->whatsappTemplate($selected, $suggested) }}
                 </div>
 
                 <p class="text-xs" style="color: var(--text-muted)">
-                    المرشّح عنده {{ $placement->responseHours() }} ساعة يردّ — وبفواتها يرجع للقائمة تلقائيًّا.
+                    {{ setting('volunteer.people_placement.field_14', 'المرشّح عنده') }} {{ $placement->responseHours() }} {{ setting('volunteer.people_placement.field_15', 'ساعة يردّ — وبفواتها يرجع للقائمة تلقائيًّا.') }}
                 </p>
 
                 <button type="submit" class="btn w-full rounded-xl px-4 py-2 text-sm font-semibold"
-                        style="background: var(--color-brand-500); color: #04201c">أكّد إرسال الطلب</button>
+                        style="background: var(--color-brand-500); color: #04201c">{{ setting('volunteer.people_placement.action_4', 'أكّد إرسال الطلب') }}</button>
             </form>
         </x-modal>
     @endif

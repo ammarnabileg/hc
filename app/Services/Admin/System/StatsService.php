@@ -46,12 +46,12 @@ class StatsService
     public function tabs(): array
     {
         $labels = [
-            'users' => 'المستخدمون',
-            'sales' => '🔒 المبيعات والماليّات',
-            'training' => 'التدريبات',
-            'engagement' => 'التفاعل والتلعيب',
-            'attendance' => 'الحضور',
-            'wars' => 'الحروب',
+            'users' => setting('stats.stats_service.tabs_1', 'المستخدمون'),
+            'sales' => setting('stats.stats_service.tabs_2', '🔒 المبيعات والماليّات'),
+            'training' => setting('stats.stats_service.tabs_3', 'التدريبات'),
+            'engagement' => setting('stats.stats_service.tabs_4', 'التفاعل والتلعيب'),
+            'attendance' => setting('stats.stats_service.tabs_5', 'الحضور'),
+            'wars' => setting('stats.stats_service.tabs_6', 'الحروب'),
             /*
              | ⭐ تابّا **التطوّع** و**الشهادات** — منصوصان في 24.3-خامسًا ضمن سطر
              | التبويبات نفسه: «… · **الحضور** … · **الحروب** … · **التطوّع** ·
@@ -67,7 +67,7 @@ class StatsService
              */
             'volunteer' => (string) setting('stats.tabs.volunteer.label', 'التطوّع'),
             'certificates' => (string) setting('stats.tabs.certificates.label', 'الشهادات'),
-            'acquisition' => 'مصادر الاكتساب',
+            'acquisition' => setting('stats.stats_service.tabs_7', 'مصادر الاكتساب'),
         ];
 
         $tabs = [];
@@ -178,18 +178,18 @@ class StatsService
 
         return [
             'kpis' => [
-                ['label' => 'تسجيلات جديدة', 'value' => $registered, 'icon' => '👥'],
-                ['label' => 'حسابات معتمَدة', 'value' => $approved, 'icon' => '✅'],
-                ['label' => 'أوّل شراء', 'value' => $buyers, 'icon' => '🛒'],
-                ['label' => 'نسبة الاعتماد', 'value' => $registered > 0 ? round($approved / $registered * 100).'%' : '0%', 'icon' => '📈'],
+                ['label' => setting('stats.stats_service.users_1', 'تسجيلات جديدة'), 'value' => $registered, 'icon' => '👥'],
+                ['label' => setting('stats.stats_service.users_2', 'حسابات معتمَدة'), 'value' => $approved, 'icon' => '✅'],
+                ['label' => setting('stats.stats_service.users_3', 'أوّل شراء'), 'value' => $buyers, 'icon' => '🛒'],
+                ['label' => setting('stats.stats_service.users_4', 'نسبة الاعتماد'), 'value' => $registered > 0 ? round($approved / $registered * 100).'%' : '0%', 'icon' => '📈'],
             ],
             'growth' => $growth,
             'growth_prev' => $period['compare'] ? $this->daily('users', 'created_at', $period['prev_from'], $period['prev_to']) : [],
             'funnel' => [
-                ['label' => 'زائر', 'value' => $visitors],
-                ['label' => 'مسجّل', 'value' => $registered],
-                ['label' => 'معتمَد', 'value' => $approved],
-                ['label' => 'أوّل شراء', 'value' => $buyers],
+                ['label' => setting('stats.stats_service.users_5', 'زائر'), 'value' => $visitors],
+                ['label' => setting('stats.stats_service.users_6', 'مسجّل'), 'value' => $registered],
+                ['label' => setting('stats.stats_service.users_7', 'معتمَد'), 'value' => $approved],
+                ['label' => setting('stats.stats_service.users_8', 'أوّل شراء'), 'value' => $buyers],
             ],
             'cohorts' => $this->cohorts(),
             'geo' => $this->geo(),
@@ -235,7 +235,7 @@ class StatsService
         return [
             'rows' => $rows,
             'row_labels' => $labels,
-            'col_labels' => array_map(fn ($k) => 'شهر '.$k, range(0, $months - 1)),
+            'col_labels' => array_map(fn ($k) => strtr(setting('stats.stats_service.cohorts_1', 'شهر :p1'), [':p1' => (string) ($k)]), range(0, $months - 1)),
         ];
     }
 
@@ -281,7 +281,7 @@ class StatsService
 
         return [
             'matrix' => $matrix,
-            'row_labels' => ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'],
+            'row_labels' => [setting('stats.stats_service.busiest_hours_1', 'الأحد'), setting('stats.stats_service.busiest_hours_2', 'الإثنين'), setting('stats.stats_service.busiest_hours_3', 'الثلاثاء'), setting('stats.stats_service.busiest_hours_4', 'الأربعاء'), setting('stats.stats_service.busiest_hours_5', 'الخميس'), setting('stats.stats_service.busiest_hours_6', 'الجمعة'), setting('stats.stats_service.busiest_hours_7', 'السبت')],
             'col_labels' => array_map(fn ($h) => str_pad((string) $h, 2, '0', STR_PAD_LEFT), range(0, 23)),
         ];
     }
@@ -316,11 +316,11 @@ class StatsService
 
         return [
             'kpis' => [
-                ['label' => 'الإيرادات', 'value' => round($revenue, 2), 'icon' => '💰'],
-                ['label' => 'طلبات مدفوعة', 'value' => $orders, 'icon' => '🧾'],
+                ['label' => setting('stats.stats_service.sales_1', 'الإيرادات'), 'value' => round($revenue, 2), 'icon' => '💰'],
+                ['label' => setting('stats.stats_service.sales_2', 'طلبات مدفوعة'), 'value' => $orders, 'icon' => '🧾'],
                 // ⭐ لا استردادات (19.4) — البديل: تصحيحات أخطاء تقنيّة موثّقة
-                ['label' => 'تصحيحات تقنيّة', 'value' => $corrections, 'icon' => '🛠️'],
-                ['label' => 'كوينز متداولة', 'value' => round($circulating, 2), 'icon' => '🪙'],
+                ['label' => setting('stats.stats_service.sales_3', 'تصحيحات تقنيّة'), 'value' => $corrections, 'icon' => '🛠️'],
+                ['label' => setting('stats.stats_service.sales_4', 'كوينز متداولة'), 'value' => round($circulating, 2), 'icon' => '🪙'],
             ],
             'series' => $this->dailySum('orders', 'created_at', 'total', $period['from'], $period['to'], ['status' => 'paid']),
             'series_prev' => $period['compare']
@@ -410,10 +410,10 @@ class StatsService
 
         return [
             'kpis' => [
-                ['label' => 'تسجيلات في تدريبات', 'value' => $enrolled, 'icon' => '📚'],
-                ['label' => 'إتمامات', 'value' => $completed, 'icon' => '🎓'],
-                ['label' => 'شهادات صادرة', 'value' => $certificates, 'icon' => '🏅'],
-                ['label' => 'معدّل الإكمال', 'value' => $enrolled > 0 ? round($completed / $enrolled * 100).'%' : '0%', 'icon' => '📈'],
+                ['label' => setting('stats.stats_service.training_1', 'تسجيلات في تدريبات'), 'value' => $enrolled, 'icon' => '📚'],
+                ['label' => setting('stats.stats_service.training_2', 'إتمامات'), 'value' => $completed, 'icon' => '🎓'],
+                ['label' => setting('stats.stats_service.training_3', 'شهادات صادرة'), 'value' => $certificates, 'icon' => '🏅'],
+                ['label' => setting('stats.stats_service.training_4', 'معدّل الإكمال'), 'value' => $enrolled > 0 ? round($completed / $enrolled * 100).'%' : '0%', 'icon' => '📈'],
             ],
             'dropoff' => $this->dropoff(),
             'series' => $this->daily('course_completions', 'completed_at', $period['from'], $period['to']),
@@ -450,7 +450,7 @@ class StatsService
         $levels = DB::table('users')->whereNull('deleted_at')
             ->select('level', DB::raw('count(*) as total'))
             ->groupBy('level')->orderBy('level')->get()
-            ->map(fn ($r) => ['label' => 'مستوى '.$r->level, 'value' => (float) $r->total])->all();
+            ->map(fn ($r) => ['label' => strtr(setting('stats.stats_service.engagement_1', 'مستوى :p1'), [':p1' => (string) ($r->level)]), 'value' => (float) $r->total])->all();
 
         $streaks = Schema::hasTable('streaks') ? (int) DB::table('streaks')->where('current_days', '>', 0)->count() : 0;
         $club = Schema::hasTable('streaks') ? (int) DB::table('streaks')->sum('club_5am_count') : 0;
@@ -460,10 +460,10 @@ class StatsService
 
         return [
             'kpis' => [
-                ['label' => 'ستريكات نشطة', 'value' => $streaks, 'icon' => '🔥'],
-                ['label' => 'حضور نادي الخامسة', 'value' => $club, 'icon' => '🌅'],
-                ['label' => 'تذاكر مكتسَبة', 'value' => round($ticketsIn, 2), 'icon' => '🎟️'],
-                ['label' => 'تذاكر مصروفة', 'value' => round(abs($ticketsOut), 2), 'icon' => '💸'],
+                ['label' => setting('stats.stats_service.engagement_2', 'ستريكات نشطة'), 'value' => $streaks, 'icon' => '🔥'],
+                ['label' => setting('stats.stats_service.engagement_3', 'حضور نادي الخامسة'), 'value' => $club, 'icon' => '🌅'],
+                ['label' => setting('stats.stats_service.engagement_4', 'تذاكر مكتسَبة'), 'value' => round($ticketsIn, 2), 'icon' => '🎟️'],
+                ['label' => setting('stats.stats_service.engagement_5', 'تذاكر مصروفة'), 'value' => round(abs($ticketsOut), 2), 'icon' => '💸'],
             ],
             'levels' => $levels,
         ];
@@ -484,9 +484,9 @@ class StatsService
 
         return [
             'kpis' => [
-                ['label' => 'حضور فعاليّات', 'value' => $events, 'icon' => '📅'],
-                ['label' => 'حضور اجتماعات', 'value' => $meetings, 'icon' => '🤝'],
-                ['label' => 'نادي الخامسة', 'value' => $club, 'icon' => '🌅'],
+                ['label' => setting('stats.stats_service.attendance_1', 'حضور فعاليّات'), 'value' => $events, 'icon' => '📅'],
+                ['label' => setting('stats.stats_service.attendance_2', 'حضور اجتماعات'), 'value' => $meetings, 'icon' => '🤝'],
+                ['label' => setting('stats.stats_service.attendance_3', 'نادي الخامسة'), 'value' => $club, 'icon' => '🌅'],
             ],
             'series' => Schema::hasTable('event_registrations')
                 ? $this->daily('event_registrations', 'created_at', $period['from'], $period['to'])
@@ -515,10 +515,10 @@ class StatsService
 
         return [
             'kpis' => [
-                ['label' => 'مشاركات', 'value' => $total, 'icon' => '⚔️'],
-                ['label' => 'معدّل الفوز', 'value' => $total > 0 ? round($wins / $total * 100).'%' : '0%', 'icon' => '🏆'],
-                ['label' => 'انسحابات', 'value' => $withdrawn, 'icon' => '🚪'],
-                ['label' => 'تدفّق التذاكر', 'value' => round($this->currencyFlow('tickets', $period, true), 2), 'icon' => '🎟️'],
+                ['label' => setting('stats.stats_service.wars_1', 'مشاركات'), 'value' => $total, 'icon' => '⚔️'],
+                ['label' => setting('stats.stats_service.wars_2', 'معدّل الفوز'), 'value' => $total > 0 ? round($wins / $total * 100).'%' : '0%', 'icon' => '🏆'],
+                ['label' => setting('stats.stats_service.wars_3', 'انسحابات'), 'value' => $withdrawn, 'icon' => '🚪'],
+                ['label' => setting('stats.stats_service.wars_4', 'تدفّق التذاكر'), 'value' => round($this->currencyFlow('tickets', $period, true), 2), 'icon' => '🎟️'],
             ],
             'top' => $top,
         ];
@@ -821,8 +821,8 @@ class StatsService
 
         $rows = match ($tab) {
             'acquisition' => $data['rows'] ?? [],
-            'users' => array_map(fn ($p) => ['اليوم' => $p['label'], 'تسجيلات' => $p['value']], $data['growth'] ?? []),
-            'sales' => array_map(fn ($p) => ['اليوم' => $p['label'], 'الإيراد' => $p['value']], $data['series'] ?? []),
+            'users' => array_map(fn ($p) => [(string) setting('stats.stats_service.export_rows_1', 'اليوم') => $p['label'], (string) setting('stats.stats_service.export_rows_2', 'تسجيلات') => $p['value']], $data['growth'] ?? []),
+            'sales' => array_map(fn ($p) => [(string) setting('stats.stats_service.export_rows_3', 'اليوم') => $p['label'], (string) setting('stats.stats_service.export_rows_4', 'الإيراد') => $p['value']], $data['series'] ?? []),
             // «جدول تفصيليّ قابل للتصدير» لكلّ تابّ (24.3-خامسًا) — لا كروتُه وحدها
             'volunteer' => array_map(fn ($r) => [
                 (string) setting('stats.volunteer.col.level', 'مستوى التصعيد') => $r['level'],
@@ -835,7 +835,7 @@ class StatsService
                 (string) setting('stats.certificates.col.issued', 'شهادات صادرة') => $r['value'],
             ], $data['accreditations'] ?? []),
             default => array_map(
-                fn ($k) => ['المؤشّر' => $k['label'], 'القيمة' => $k['value']],
+                fn ($k) => [(string) setting('stats.stats_service.export_rows_5', 'المؤشّر') => $k['label'], (string) setting('stats.stats_service.export_rows_6', 'القيمة') => $k['value']],
                 $data['kpis'] ?? [],
             ),
         };

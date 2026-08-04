@@ -22,13 +22,13 @@ class OgCardRenderer
     public function template(string $type): array
     {
         $defaults = [
-            'course' => ['label' => 'تدريب', 'accent' => '#00d4b8', 'glyph' => 'book'],
-            'path' => ['label' => 'مسار تعلّم', 'accent' => '#7c9cff', 'glyph' => 'path'],
-            'profile' => ['label' => 'بروفايل', 'accent' => '#f0b429', 'glyph' => 'person'],
-            'leaderboard' => ['label' => 'لوحة الترتيب', 'accent' => '#ff8a5b', 'glyph' => 'trophy'],
-            'article' => ['label' => 'مقال', 'accent' => '#9ad5a0', 'glyph' => 'quote'],
-            'certificate' => ['label' => 'شهادة معتمدة', 'accent' => '#00d4b8', 'glyph' => 'seal'],
-            'tip' => ['label' => 'نصيحة الأسبوع', 'accent' => '#f0b429', 'glyph' => 'quote'],
+            'course' => ['label' => setting('growth.og_card_renderer.template_1', 'تدريب'), 'accent' => '#00d4b8', 'glyph' => 'book'],
+            'path' => ['label' => setting('growth.og_card_renderer.template_2', 'مسار تعلّم'), 'accent' => '#7c9cff', 'glyph' => 'path'],
+            'profile' => ['label' => setting('growth.og_card_renderer.template_3', 'بروفايل'), 'accent' => '#f0b429', 'glyph' => 'person'],
+            'leaderboard' => ['label' => setting('growth.og_card_renderer.template_4', 'لوحة الترتيب'), 'accent' => '#ff8a5b', 'glyph' => 'trophy'],
+            'article' => ['label' => setting('growth.og_card_renderer.template_5', 'مقال'), 'accent' => '#9ad5a0', 'glyph' => 'quote'],
+            'certificate' => ['label' => setting('growth.og_card_renderer.template_6', 'شهادة معتمدة'), 'accent' => '#00d4b8', 'glyph' => 'seal'],
+            'tip' => ['label' => setting('growth.og_card_renderer.template_7', 'نصيحة الأسبوع'), 'accent' => '#f0b429', 'glyph' => 'quote'],
         ];
 
         $configured = setting('growth.og.templates');

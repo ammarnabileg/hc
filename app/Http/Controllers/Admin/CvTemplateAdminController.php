@@ -93,14 +93,14 @@ class CvTemplateAdminController extends Controller
             'ats_options' => ['nullable', 'array'],
             'ats_options.*' => ['nullable', 'numeric'],
         ], [
-            'name.required' => 'اكتب اسم القالب — هو اللي بيظهر للمستخدم.',
-            'view_path.required' => 'اختار ملفّ العرض من القائمة.',
-            'view_path.regex' => 'اسم ملفّ العرض حروف صغيرة وأرقام وشرطات بس.',
-            'price_tickets.max' => 'السعر عالي أوي — راجعه.',
+            'name.required' => (string) setting('cv.admin.rules_msg', 'اكتب اسم القالب — هو اللي بيظهر للمستخدم.'),
+            'view_path.required' => (string) setting('cv.admin.rules_msg_2', 'اختار ملفّ العرض من القائمة.'),
+            'view_path.regex' => (string) setting('cv.admin.rules_msg_3', 'اسم ملفّ العرض حروف صغيرة وأرقام وشرطات بس.'),
+            'price_tickets.max' => (string) setting('cv.admin.rules_msg_4', 'السعر عالي أوي — راجعه.'),
         ], [
-            'name' => 'اسم القالب',
-            'view_path' => 'ملفّ العرض',
-            'price_tickets' => 'السعر بالتذاكر',
+            'name' => (string) setting('cv.admin.rules_msg_5', 'اسم القالب'),
+            'view_path' => (string) setting('cv.admin.rules_msg_6', 'ملفّ العرض'),
+            'price_tickets' => (string) setting('cv.admin.rules_msg_7', 'السعر بالتذاكر'),
         ]);
 
         return [

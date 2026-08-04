@@ -93,7 +93,7 @@ class FinanceController extends Controller
             return back()->withErrors(['body' => $e->getMessage()])->withInput();
         }
 
-        return back()->with('status', 'نصّ سياسة الاسترجاع اتحفظ ✓');
+        return back()->with('status', (string) setting('finance.admin.save_refund_policy_ok', 'نصّ سياسة الاسترجاع اتحفظ ✓'));
     }
 
     /** معاينة النصّ قبل الحفظ — يقبل HTML كما هو، ولذلك يُعرَض في إطار معزول */

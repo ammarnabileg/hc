@@ -84,7 +84,7 @@ class OffboardingAdminController extends Controller
         $target = User::query()->where('code', mb_strtoupper($data['code']))->first();
 
         if (! $target) {
-            return back()->withInput()->with('status', 'الكود ده مش موجود — راجع الكود وجرّب تاني.');
+            return back()->withInput()->with('status', (string) setting('offboarding.admin.open_denied', 'الكود ده مش موجود — راجع الكود وجرّب تاني.'));
         }
 
         try {
@@ -93,7 +93,7 @@ class OffboardingAdminController extends Controller
             return back()->withInput()->with('status', $e->getMessage());
         }
 
-        return back()->with('status', 'اتفتح ملفّ الإنهاء ✓ — كمّل التصفية الإلزاميّة قبل الإغلاق.');
+        return back()->with('status', (string) setting('offboarding.admin.open_ok', 'اتفتح ملفّ الإنهاء ✓ — كمّل التصفية الإلزاميّة قبل الإغلاق.'));
     }
 
     /** تحديث التشيك-ليست — لا إنهاء قبل اكتمالها */
@@ -111,7 +111,7 @@ class OffboardingAdminController extends Controller
 
         AuditTrail::log($request->user(), 'offboarding.clearance', $offboarding, [], ['done' => collect($checklist)->where('done', true)->count()]);
 
-        return back()->with('status', 'اتحفظ ✓');
+        return back()->with('status', (string) setting('offboarding.admin.save_clearance_ok', 'اتحفظ ✓'));
     }
 
     /** مقابلة الخروج — 3 أسئلة تغذّي تقرير أسباب التسرّب */
@@ -129,7 +129,7 @@ class OffboardingAdminController extends Controller
 
         AuditTrail::log($request->user(), 'offboarding.exit_interview', $offboarding);
 
-        return back()->with('status', 'اتسجّلت مقابلة الخروج ✓ — شكرًا لوقتك.');
+        return back()->with('status', (string) setting('offboarding.admin.save_exit_interview_ok', 'اتسجّلت مقابلة الخروج ✓ — شكرًا لوقتك.'));
     }
 
     public function complete(Request $request, Offboarding $offboarding): RedirectResponse
@@ -140,7 +140,7 @@ class OffboardingAdminController extends Controller
             return back()->with('status', $e->getMessage());
         }
 
-        return back()->with('status', 'اتقفل الملفّ ✓ — والفريق شاف «انتهت عضويّة فلان» بلا سبب.');
+        return back()->with('status', (string) setting('offboarding.admin.complete_ok', 'اتقفل الملفّ ✓ — والفريق شاف «انتهت عضويّة فلان» بلا سبب.'));
     }
 
     public function openReentry(Request $request, Offboarding $offboarding): RedirectResponse
@@ -153,7 +153,7 @@ class OffboardingAdminController extends Controller
 
         OffboardingService::openReentry($offboarding->user()->firstOrFail(), $offboarding, $request->user());
 
-        return back()->with('status', 'اتفتح ملفّ العودة ✓ — والامتحان شرطٌ لدخول قائمة الانتظار الحاليّة.');
+        return back()->with('status', (string) setting('offboarding.admin.open_reentry_ok', 'اتفتح ملفّ العودة ✓ — والامتحان شرطٌ لدخول قائمة الانتظار الحاليّة.'));
     }
 
     public function saveSettings(Request $request): RedirectResponse
@@ -161,6 +161,6 @@ class OffboardingAdminController extends Controller
         $data = $request->validate(['settings' => ['required', 'array']]);
         SettingsWriter::putMany($data['settings'], $request->user());
 
-        return back()->with('status', 'اتحفظ ✓');
+        return back()->with('status', (string) setting('offboarding.admin.save_settings_ok', 'اتحفظ ✓'));
     }
 }

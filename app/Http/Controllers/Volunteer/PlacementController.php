@@ -81,8 +81,8 @@ class PlacementController extends Controller
             'position_id' => ['required', 'exists:positions,id'],
             'note' => ['nullable', 'string', 'max:255'],
         ], [], [
-            'entity_id' => 'القسم الفرعيّ',
-            'position_id' => 'البوزشن',
+            'entity_id' => (string) setting('placement.screen.store_msg', 'القسم الفرعيّ'),
+            'position_id' => (string) setting('placement.screen.store_msg_2', 'البوزشن'),
         ]);
 
         try {
@@ -97,7 +97,7 @@ class PlacementController extends Controller
             return back()->with('status', $e->getMessage());
         }
 
-        return back()->with('status', 'اتبعت ✓ المرشّح عنده '.$this->placement->responseHours().' ساعة يردّ.');
+        return back()->with('status', strtr((string) setting('placement.screen.store_ok', 'اتبعت ✓ المرشّح عنده :a1 ساعة يردّ.'), [':a1' => (string) ($this->placement->responseHours())]));
     }
 
     public function withdraw(Request $request, PlacementRequest $placementRequest): RedirectResponse
@@ -108,7 +108,7 @@ class PlacementController extends Controller
             return back()->with('status', $e->getMessage());
         }
 
-        return back()->with('status', 'اتسحب ✓ المرشّح رجع للقائمة.');
+        return back()->with('status', (string) setting('placement.screen.withdraw_ok', 'اتسحب ✓ المرشّح رجع للقائمة.'));
     }
 
     /** ردّ المرشّح نفسه: موافقة ⟵ عضويّة واحتفال ذروة · رفض ⟵ لا شيء يحصل */
@@ -122,7 +122,7 @@ class PlacementController extends Controller
         abort_unless(
             (int) $placementRequest->recruitment_candidate?->user_id === (int) $request->user()->id,
             403,
-            'الطلب ده مش بتاعك.',
+            (string) setting('placement.screen.respond_denied', 'الطلب ده مش بتاعك.'),
         );
 
         try {
@@ -132,8 +132,8 @@ class PlacementController extends Controller
         }
 
         return back()->with('status', $data['decision'] === 'accepted'
-            ? 'مبروك 🎉 أهلًا بيك معانا.'
-            : 'اتسجّل ✓ شكرًا لوضوحك.');
+            ? (string) setting('placement.screen.respond_msg', 'مبروك 🎉 أهلًا بيك معانا.')
+            : (string) setting('placement.screen.respond_ok', 'اتسجّل ✓ شكرًا لوضوحك.'));
     }
 
     /** @param  Collection  $requests */

@@ -11,17 +11,17 @@
 @if ($locked)
     <div class="card p-3 mb-4 text-sm" style="border-color: color-mix(in srgb, var(--color-state-danger) 45%, var(--border))">
         ◉ {{ WarSettingsService::lockMessage() }}
-        <span style="color: var(--text-muted)">— التعديل لا يُطبَّق على جولة جارية.</span>
+        <span style="color: var(--text-muted)">{{ setting('admin.gamification.tabs.wars.altadyl_la_ytbq_ala_jwla_jarya', '— التعديل لا يُطبَّق على جولة جارية.') }}</span>
     </div>
 @endif
 
 {{-- بنك أسئلة الحروب شاشة مستقلّة في نفس الدروب-داون (12.10-ب) — والرابط يُخفى بلا صلاحيّة --}}
 @can('wars_bank.list')
     <div class="card p-3 mb-4 flex flex-wrap items-center gap-3 text-sm">
-        <span>الأسئلة نفسها تُدار في بنك أسئلة الحروب — والحروب لا تعمل ببنك فارغ.</span>
+        <span>{{ setting('admin.gamification.tabs.wars.alasyla_nfsha_tdar_fy_bnk_asyla_alhrwb', 'الأسئلة نفسها تُدار في بنك أسئلة الحروب — والحروب لا تعمل ببنك فارغ.') }}</span>
         <a href="{{ route('admin.wars.bank.index') }}"
            class="btn ms-auto rounded-xl px-4 py-2 text-xs font-semibold motion-standard"
-           style="background: var(--color-brand-500); color: #04201c; min-height: 44px">افتح بنك الأسئلة</a>
+           style="background: var(--color-brand-500); color: #04201c; min-height: 44px">{{ setting('admin.gamification.tabs.wars.afth_bnk_alasyla', 'افتح بنك الأسئلة') }}</a>
     </div>
 @endcan
 
@@ -49,15 +49,15 @@
                     <span class="block truncate font-semibold text-sm">{{ $challenge->name_ar }}</span>
                     <span class="block text-xs" style="color: var(--text-muted)"
                           title="{{ $challenge->updated_at?->format('Y-m-d H:i') }}">
-                        آخر تعديل {{ $challenge->updated_at?->diffForHumans() }}
+                        {{ setting('admin.gamification.tabs.wars.akhr_tadyl', 'آخر تعديل') }} {{ $challenge->updated_at?->diffForHumans() }}
                     </span>
                 </span>
 
                 <x-state-badge :state="$challenge->is_active ? 'ok' : 'idle'"
-                               :label="$challenge->is_active ? 'مفعّلة' : 'موقوفة'" />
+                               :label="$challenge->is_active ? setting('admin.gamification.tabs.wars.mfala', 'مفعّلة') : setting('admin.gamification.tabs.wars.mwqwfa', 'موقوفة')" />
             </a>
         @empty
-            <x-empty message="لم تُضَف حروب بعد." />
+            <x-empty :message="setting('admin.gamification.tabs.wars.lm_tdf_hrwb_bad', 'لم تُضَف حروب بعد.')" />
         @endforelse
     </aside>
 
@@ -71,7 +71,7 @@
                     <h2 class="font-bold">{{ $selected->name_ar }}</h2>
                     <label class="text-sm flex items-center gap-2">
                         <input type="checkbox" name="is_active" value="1" @checked($selected->is_active) @disabled($locked)>
-                        مفعّلة
+                        {{ setting('admin.gamification.tabs.wars.mfala', 'مفعّلة') }}
                     </label>
                 </div>
 
@@ -84,7 +84,7 @@
 
                             @switch($sectionKey)
                                 @case('costs')
-                                    @foreach (['ready_tickets' => 'شرط الاستعداد (تذاكر)', 'create_focus_tickets' => 'إنشاء حرب تركيز', 'join_tickets' => 'الانضمام'] as $key => $label)
+                                    @foreach (['ready_tickets' => setting('admin.gamification.tabs.wars.shrt_alastadad_tdhakr', 'شرط الاستعداد (تذاكر)'), 'create_focus_tickets' => setting('admin.gamification.tabs.wars.insha_hrb_trkyz', 'إنشاء حرب تركيز'), 'join_tickets' => setting('admin.gamification.tabs.wars.alandmam', 'الانضمام')] as $key => $label)
                                         @include('admin.gamification.partials.war-field', [
                                             'section' => $sectionKey, 'key' => $key, 'label' => $label,
                                             'value' => $values[$key] ?? null, 'placeholder' => $shared[$key] ?? '', 'locked' => $locked,
@@ -93,7 +93,7 @@
                                     @break
 
                                 @case('rewards')
-                                    @foreach (['win' => 'فوز', 'loss' => 'خسارة', 'withdraw' => 'انسحاب'] as $key => $label)
+                                    @foreach (['win' => setting('admin.gamification.tabs.wars.fwz', 'فوز'), 'loss' => setting('admin.gamification.tabs.wars.khsara', 'خسارة'), 'withdraw' => setting('admin.gamification.tabs.wars.anshab', 'انسحاب')] as $key => $label)
                                         @include('admin.gamification.partials.war-field', [
                                             'section' => $sectionKey, 'key' => $key, 'label' => $label,
                                             'value' => $values[$key] ?? null, 'placeholder' => $shared[$key] ?? '', 'locked' => $locked,
@@ -102,14 +102,14 @@
                                     @break
 
                                 @case('timers')
-                                    @foreach (['question_seconds' => 'وقت السؤال (ث)', 'decision_seconds' => 'مؤقّت الحسم (ث)'] as $key => $label)
+                                    @foreach (['question_seconds' => setting('admin.gamification.tabs.wars.wqt_alswal_th', 'وقت السؤال (ث)'), 'decision_seconds' => setting('admin.gamification.tabs.wars.mwqt_alhsm_th', 'مؤقّت الحسم (ث)')] as $key => $label)
                                         @include('admin.gamification.partials.war-field', [
                                             'section' => $sectionKey, 'key' => $key, 'label' => $label,
                                             'value' => $values[$key] ?? null, 'placeholder' => $shared[$key] ?? '', 'locked' => $locked,
                                         ])
                                     @endforeach
                                     @include('admin.gamification.partials.war-field', [
-                                        'section' => $sectionKey, 'key' => 'focus_durations', 'label' => 'مدد التركيز (دقيقة، مفصولة بفاصلة)',
+                                        'section' => $sectionKey, 'key' => 'focus_durations', 'label' => setting('admin.gamification.tabs.wars.mdd_altrkyz_dqyqa_mfswla_bfasla', 'مدد التركيز (دقيقة، مفصولة بفاصلة)'),
                                         'value' => $values['focus_durations'] ?? null,
                                         'placeholder' => implode(',', (array) $shared['focus_durations']),
                                         'locked' => $locked, 'type' => 'text',
@@ -117,7 +117,7 @@
                                     @break
 
                                 @case('question_source')
-                                    @foreach (['arena_ratio' => 'نسبة الساحة (%)', 'training_ratio' => 'نسبة التدريبات (%)'] as $key => $label)
+                                    @foreach (['arena_ratio' => setting('admin.gamification.tabs.wars.nsba_alsaha', 'نسبة الساحة (%)'), 'training_ratio' => setting('admin.gamification.tabs.wars.nsba_altdrybat', 'نسبة التدريبات (%)')] as $key => $label)
                                         @include('admin.gamification.partials.war-field', [
                                             'section' => $sectionKey, 'key' => $key, 'label' => $label,
                                             'value' => $values[$key] ?? null, 'placeholder' => $shared[$key] ?? '', 'locked' => $locked,
@@ -126,12 +126,12 @@
                                     <label class="text-xs sm:col-span-2 flex items-center gap-2">
                                         <input type="checkbox" name="question_source[numeric_only]" value="1"
                                                @checked(! empty($values['numeric_only'])) @disabled($locked)>
-                                        أسئلة رقميّة فقط (استثناء حرب التقدير)
+                                        {{ setting('admin.gamification.tabs.wars.asyla_rqmya_fqt_astthna_hrb_altqdyr', 'أسئلة رقميّة فقط (استثناء حرب التقدير)') }}
                                     </label>
                                     @break
 
                                 @case('limits')
-                                    @foreach (['max_visible_fighters' => 'أقصى محاربين ظاهرين', 'max_active_focus' => 'أقصى تحديات نشطة', 'loss_rule_count' => 'قاعدة عدد الخسارات'] as $key => $label)
+                                    @foreach (['max_visible_fighters' => setting('admin.gamification.tabs.wars.aqsa_mharbyn_zahryn', 'أقصى محاربين ظاهرين'), 'max_active_focus' => setting('admin.gamification.tabs.wars.aqsa_thdyat_nshta', 'أقصى تحديات نشطة'), 'loss_rule_count' => setting('admin.gamification.tabs.wars.qaada_add_alkhsarat', 'قاعدة عدد الخسارات')] as $key => $label)
                                         @include('admin.gamification.partials.war-field', [
                                             'section' => $sectionKey, 'key' => $key, 'label' => $label,
                                             'value' => $values[$key] ?? null, 'placeholder' => $shared[$key] ?? '', 'locked' => $locked,
@@ -140,18 +140,18 @@
                                     @break
 
                                 @case('texts')
-                                    @foreach (['headline' => 'الهيدلاين', 'description' => 'الوصف', 'win' => 'جملة الفوز', 'lose' => 'جملة الخسارة'] as $key => $label)
+                                    @foreach (['headline' => setting('admin.gamification.tabs.wars.alhydlayn', 'الهيدلاين'), 'description' => setting('admin.gamification.tabs.wars.alwsf', 'الوصف'), 'win' => setting('admin.gamification.tabs.wars.jmla_alfwz', 'جملة الفوز'), 'lose' => setting('admin.gamification.tabs.wars.jmla_alkhsara', 'جملة الخسارة')] as $key => $label)
                                         @include('admin.gamification.partials.war-field', [
                                             'section' => $sectionKey, 'key' => $key, 'label' => $label,
-                                            'value' => $values[$key] ?? null, 'placeholder' => 'يتبع النصّ العامّ', 'locked' => $locked, 'type' => 'text',
+                                            'value' => $values[$key] ?? null, 'placeholder' => setting('admin.gamification.tabs.wars.ytba_alns_alaam', 'يتبع النصّ العامّ'), 'locked' => $locked, 'type' => 'text',
                                         ])
                                     @endforeach
-                                    <label class="text-xs sm:col-span-2">مسار أيقونة/غلاف الحرب (SVG)
+                                    <label class="text-xs sm:col-span-2">{{ setting('admin.gamification.tabs.wars.msar_ayqwna_ghlaf_alhrb_svg', 'مسار أيقونة/غلاف الحرب (SVG)') }}
                                         <input type="text" name="icon_path" value="{{ $selected->icon_path }}" @disabled($locked)
                                                class="w-full rounded-lg px-2 py-1.5 mt-1"
                                                style="background: var(--surface); border: 1px solid var(--border); color: var(--text)">
                                     </label>
-                                    <label class="text-xs">لون الحرب
+                                    <label class="text-xs">{{ setting('admin.gamification.tabs.wars.lwn_alhrb', 'لون الحرب') }}
                                         <input type="text" name="color" value="{{ $selected->color }}" placeholder="#00d4b8" @disabled($locked)
                                                class="w-full rounded-lg px-2 py-1.5 mt-1"
                                                style="background: var(--surface); border: 1px solid var(--border); color: var(--text)">
@@ -166,20 +166,20 @@
                     <button type="submit" @disabled($locked)
                             class="btn mt-3 rounded-xl px-4 py-2 text-sm font-semibold"
                             style="background: {{ $locked ? 'var(--surface-sunken)' : 'var(--color-brand-500)' }}; color: {{ $locked ? 'var(--text-muted)' : '#04201c' }}">
-                        احفظ إعدادات الحرب
+                        {{ setting('admin.gamification.tabs.wars.ahfz_iadadat_alhrb', 'احفظ إعدادات الحرب') }}
                     </button>
                 @endcan
             </form>
 
             @can('wars_settings.manage')
                 <form method="post" action="{{ route('admin.gamification.wars.reset', $selected) }}" class="mt-3"
-                      onsubmit="return confirm('ترجّع الحرب دي للافتراضيّ؟ كلّ الـOverrides هتتمسح.')">
+                      onsubmit="return confirm('{{ setting('admin.gamification.tabs.wars.trja_alhrb_dy_llaftrady_kl_aloverrides', 'ترجّع الحرب دي للافتراضيّ؟ كلّ الـOverrides هتتمسح.') }}')">
                     @csrf
-                    <button type="submit" class="text-xs underline" style="color: var(--text-muted)"><x-icon name="refresh" size="16" /> إعادة الضبط للافتراضيّ لهذه الحرب</button>
+                    <button type="submit" class="text-xs underline" style="color: var(--text-muted)"><x-icon name="refresh" size="16" /> {{ setting('admin.gamification.tabs.wars.iaada_aldbt_llaftrady_lhdhh_alhrb', 'إعادة الضبط للافتراضيّ لهذه الحرب') }}</button>
                 </form>
             @endcan
         @else
-            <x-empty message="اختر حربًا من القائمة عشان تظهر تفاصيلها." />
+            <x-empty :message="setting('admin.gamification.tabs.wars.akhtr_hrba_mn_alqayma_ashan_tzhr_tfasylha', 'اختر حربًا من القائمة عشان تظهر تفاصيلها.')" />
         @endif
     </section>
 </div>
@@ -187,7 +187,7 @@
 {{-- القواعد العامّة (Shared) مرّة واحدة — والقيمة العامّة تظهر Placeholder فوق --}}
 @can('wars_settings.edit')
     @include('admin.volunteer.partials.settings-card', [
-        'title' => 'القواعد العامّة للحروب (Shared)',
+        'title' => setting('admin.gamification.tabs.wars.alqwaad_alaama_llhrwb_shared', 'القواعد العامّة للحروب (Shared)'),
         'rows' => $data['settings'],
         'action' => route('admin.gamification.settings.save'),
         'resetAction' => route('admin.gamification.reset'),

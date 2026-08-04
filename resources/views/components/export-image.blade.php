@@ -56,7 +56,7 @@
     <button type="button" data-modal-open="{{ $modalId }}"
             class="btn inline-flex items-center justify-center gap-2 rounded-xl px-3 text-sm font-semibold motion-standard"
             style="min-width: 44px; min-height: 44px; background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)"
-            aria-label="استخراج كصورة" title="استخراج كصورة">
+            aria-label="{{ setting('images.export_panel.aria_label_1', 'استخراج كصورة') }}" title="{{ setting('images.export_panel.title_1', 'استخراج كصورة') }}">
         {{-- أيقونة SVG مرسومة داخل المشروع — ممنوع أيّ مكتبة أيقونات (2.16-ج) --}}
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
              stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
@@ -65,10 +65,10 @@
             <path d="M3 15l4.5-4 3.5 3 3-2.5L21 16" />
             <path d="M12 18.5v3M12 21.5l-2-2M12 21.5l2-2" />
         </svg>
-        <span class="hidden sm:inline">استخراج كصورة</span>
+        <span class="hidden sm:inline">{{ setting('images.export_panel.text_1', 'استخراج كصورة') }}</span>
     </button>
 
-    <x-modal :id="$modalId" title="استخراج كصورة">
+    <x-modal :id="$modalId" title="{{ setting('images.export_panel.title_2', 'استخراج كصورة') }}">
         <form method="get" action="{{ $signedPath }}" target="_blank" rel="noopener"
               data-export-form class="space-y-4 text-sm">
             {{-- الحمولة الموقَّعة تُعاد كما هي، وإلّا سقط التوقيع --}}
@@ -78,17 +78,17 @@
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <label class="block">
-                    <span class="block mb-1">اللي هيظهر</span>
+                    <span class="block mb-1">{{ setting('images.export_panel.text_2', 'اللي هيظهر') }}</span>
                     <select name="top" class="w-full rounded-xl px-3 py-2"
                             style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text); min-height: 44px">
-                        <option value="top10">أفضل 10</option>
-                        <option value="top3">أفضل 3</option>
-                        <option value="me">صفّي أنا</option>
+                        <option value="top10">{{ setting('images.export_panel.text_3', 'أفضل 10') }}</option>
+                        <option value="top3">{{ setting('images.export_panel.text_4', 'أفضل 3') }}</option>
+                        <option value="me">{{ setting('images.export_panel.text_5', 'صفّي أنا') }}</option>
                     </select>
                 </label>
 
                 <label class="block">
-                    <span class="block mb-1">المقاس</span>
+                    <span class="block mb-1">{{ setting('images.export_panel.text_6', 'المقاس') }}</span>
                     <select name="size" class="w-full rounded-xl px-3 py-2"
                             style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text); min-height: 44px">
                         @foreach ($presets as $key => $preset)
@@ -98,10 +98,10 @@
                 </label>
 
                 <label class="block">
-                    <span class="block mb-1">القالب</span>
+                    <span class="block mb-1">{{ setting('images.export_panel.text_7', 'القالب') }}</span>
                     <select name="template" class="w-full rounded-xl px-3 py-2"
                             style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text); min-height: 44px">
-                        <option value="0">بلا قالب — تصميم المنصّة</option>
+                        <option value="0">{{ setting('images.export_panel.text_8', 'بلا قالب — تصميم المنصّة') }}</option>
                         @foreach ($templates as $template)
                             <option value="{{ $template->id }}">{{ $template->name }}</option>
                         @endforeach
@@ -110,11 +110,11 @@
 
                 {{-- ⭐ الطبقات: رفع الفريم لأعلى أو إنزاله لأسفل (12.14-أ) --}}
                 <label class="block">
-                    <span class="block mb-1">طبقة الفريم</span>
+                    <span class="block mb-1">{{ setting('images.export_panel.text_9', 'طبقة الفريم') }}</span>
                     <select name="frame" class="w-full rounded-xl px-3 py-2"
                             style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text); min-height: 44px">
-                        <option value="above">فوق المحتوى ↑</option>
-                        <option value="below">تحت المحتوى ↓</option>
+                        <option value="above">{{ setting('images.export_panel.text_10', 'فوق المحتوى ↑') }}</option>
+                        <option value="below">{{ setting('images.export_panel.text_11', 'تحت المحتوى ↓') }}</option>
                     </select>
                 </label>
             </div>
@@ -123,21 +123,21 @@
                 {{-- الحقل المخفيّ يضمن وصول «لا» عند إلغاء التحديد --}}
                 <input type="hidden" name="avatars" value="0">
                 <input type="checkbox" name="avatars" value="1" checked class="w-5 h-5">
-                <span>إظهار الأفاتارات</span>
+                <span>{{ setting('images.export_panel.text_12', 'إظهار الأفاتارات') }}</span>
             </label>
 
             {{-- سطر واحد لكلّ شرح (2.15-أ-8) --}}
             <p class="text-xs" style="color: var(--text-muted)">
-                الصورة بتحمل تاريخ اللقطة وشعار المنصّة — والمحافظة بتظهر دايمًا.
+                {{ setting('images.export_panel.text_13', 'الصورة بتحمل تاريخ اللقطة وشعار المنصّة — والمحافظة بتظهر دايمًا.') }}
             </p>
 
             <div class="flex flex-wrap gap-2">
                 <button type="submit" name="download" value="1"
                         class="btn rounded-xl px-4 py-2 font-semibold motion-standard"
-                        style="min-height: 44px; background: var(--color-brand-500); color: #04201c">نزّل الصورة</button>
+                        style="min-height: 44px; background: var(--color-brand-500); color: #04201c">{{ setting('images.export_panel.text_14', 'نزّل الصورة') }}</button>
                 <button type="submit" name="download" value="0"
                         class="btn rounded-xl px-4 py-2 motion-standard"
-                        style="min-height: 44px; background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">افتحها للمعاينة</button>
+                        style="min-height: 44px; background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">{{ setting('images.export_panel.text_15', 'افتحها للمعاينة') }}</button>
             </div>
         </form>
     </x-modal>

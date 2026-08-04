@@ -111,7 +111,7 @@ class AcademyController extends Controller
     {
         $data = $request->validate([
             'otp' => ['required', 'string', 'max:32'],
-        ], [], ['otp' => 'الرمز']);
+        ], [], ['otp' => (string) setting('academy.screen.claim_msg', 'الرمز')]);
 
         $result = $this->recordings->claim($recording, $request->user(), $data['otp']);
 
@@ -130,6 +130,6 @@ class AcademyController extends Controller
 
         $this->recordings->reportBroken($recording, $request->user(), $data['reason'] ?? null);
 
-        return back()->with('status', 'وصلنا البلاغ ✓ هنراجعه مع اللي رفع التسجيل.');
+        return back()->with('status', (string) setting('academy.screen.report_broken_ok', 'وصلنا البلاغ ✓ هنراجعه مع اللي رفع التسجيل.'));
     }
 }

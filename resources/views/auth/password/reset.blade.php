@@ -1,5 +1,5 @@
 @extends('layouts.guest')
-@section('title', 'كلمة سرّ جديدة')
+@section('title', (string) setting('auth.password_reset.section_1', 'كلمة سرّ جديدة'))
 
 @section('content')
 {{--
@@ -38,7 +38,7 @@
         <input type="hidden" name="token" value="{{ $token }}">
         <input type="hidden" name="email" value="{{ $email }}">
 
-        @foreach (['password' => 'كلمة السرّ الجديدة', 'password_confirmation' => 'أكّدها تاني'] as $field => $label)
+        @foreach (['password' => (string) setting('auth.password_reset.foreach_1', 'كلمة السرّ الجديدة'), 'password_confirmation' => (string) setting('auth.password_reset.foreach_2', 'أكّدها تاني')] as $field => $label)
             <label class="block">
                 <span class="block text-sm mb-1">{{ $label }}</span>
                 <span class="relative flex items-center">

@@ -50,13 +50,16 @@ class RoleController extends Controller
         $validated = $request->validate([
             'name_ar' => ['required', 'string', 'max:120'],
             'template' => ['required', 'exists:roles,id'],
-        ], [], ['name_ar' => 'اسم الدور', 'template' => 'القالب']);
+        ], [], ['name_ar' => (string) setting('admin_roles.screen.store_msg', 'اسم الدور'), 'template' => (string) setting('admin_roles.screen.store_msg_2', 'القالب')]);
 
         $template = Role::findOrFail($validated['template']);
         $copy = $this->editor->duplicate($template, $validated['name_ar'], $request->user());
 
         return redirect()->route('admin.roles.edit', $copy)
-            ->with('status', "اتعمل الدور «{$copy->name_ar}» نسخةً من «{$template->name_ar}» ✓");
+            ->with('status', strtr((string) setting('admin_roles.screen.store_ok', 'اتعمل الدور «:copy» نسخةً من «:template» ✓'), [
+                ':copy' => (string) $copy->name_ar,
+                ':template' => (string) $template->name_ar,
+            ]));
     }
 
     public function edit(Request $request, Role $role): View
@@ -95,13 +98,13 @@ class RoleController extends Controller
     {
         $validated = $request->validate([
             'group' => ['required', 'string'],
-        ], [], ['group' => 'مجموعة الصلاحيّات']);
+        ], [], ['group' => (string) setting('admin_roles.screen.update_msg', 'مجموعة الصلاحيّات')]);
 
         if ($beyond = $this->scopesBeyondCeiling((array) $request->input('rows', []))) {
             return redirect()
                 ->route('admin.roles.edit', ['role' => $role, 'group' => $validated['group']])
                 ->withErrors($beyond)
-                ->with('problem', 'مافيش سطر اتحفظ: في نطاقات بره سقف المصفوفة — اقرأ التفاصيل فوق وصغّرها.');
+                ->with('problem', (string) setting('admin_roles.screen.update_empty', 'مافيش سطر اتحفظ: في نطاقات بره سقف المصفوفة — اقرأ التفاصيل فوق وصغّرها.'));
         }
 
         $result = $this->editor->save(
@@ -120,7 +123,7 @@ class RoleController extends Controller
         if ($result['rejected'] !== []) {
             return $redirect
                 ->withErrors([...$result['rejected'], ...$result['dropped']])
-                ->with('problem', 'في سطور مااتحفظتش عشان منع تصعيد الامتياز — اقرأ التفاصيل فوق.');
+                ->with('problem', (string) setting('admin_roles.screen.update_msg_2', 'في سطور مااتحفظتش عشان منع تصعيد الامتياز — اقرأ التفاصيل فوق.'));
         }
 
         /*
@@ -131,10 +134,10 @@ class RoleController extends Controller
         if ($result['dropped'] !== []) {
             return $redirect
                 ->withErrors($result['dropped'])
-                ->with('problem', "اتحفظ {$result['written']} سطر — بس في سطور سقطت، اقرأ التفاصيل فوق.");
+                ->with('problem', strtr((string) setting('admin_roles.screen.update_partial', 'اتحفظ :count سطر — بس في سطور سقطت، اقرأ التفاصيل فوق.'), [':count' => (string) $result['written']]));
         }
 
-        return $redirect->with('status', "اتحفظ ✓ — {$result['written']} سطر صلاحيّة مفرود ظاهر قدّامك");
+        return $redirect->with('status', strtr((string) setting('admin_roles.screen.update_ok', 'اتحفظ ✓ — :count سطر صلاحيّة مفرود ظاهر قدّامك'), [':count' => (string) $result['written']]));
     }
 
     /**
@@ -205,7 +208,8 @@ class RoleController extends Controller
         $name = $role->name_ar;
         $this->editor->delete($role, $request->user());
 
-        return redirect()->route('admin.roles.index')->with('status', "اتمسح الدور «{$name}» ✓");
+        return redirect()->route('admin.roles.index')
+            ->with('status', strtr((string) setting('admin_roles.screen.destroy_ok', 'اتمسح الدور «:name» ✓'), [':name' => (string) $name]));
     }
 
     // ------------------------------------------------- إسناد دور داخل عضويّة
@@ -235,7 +239,7 @@ class RoleController extends Controller
             'user' => ['required', 'exists:users,id'],
             'role' => ['required', 'exists:roles,id'],
             'membership' => ['nullable', 'exists:memberships,id'],
-        ], [], ['user' => 'المستخدم', 'role' => 'الدور', 'membership' => 'العضويّة']);
+        ], [], ['user' => (string) setting('admin_roles.screen.store_assignment_msg', 'المستخدم'), 'role' => (string) setting('admin_roles.screen.store_assignment_msg_2', 'الدور'), 'membership' => (string) setting('admin_roles.screen.store_assignment_msg_3', 'العضويّة')]);
 
         $result = $this->editor->assign(
             $request->user(),
@@ -253,6 +257,6 @@ class RoleController extends Controller
     {
         $this->editor->unassign($request->user(), $assignment);
 
-        return back()->with('status', 'اتسحب الدور ✓');
+        return back()->with('status', (string) setting('admin_roles.screen.destroy_assignment_ok', 'اتسحب الدور ✓'));
     }
 }

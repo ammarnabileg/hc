@@ -1,15 +1,15 @@
 @extends('layouts.admin')
 
-@section('title', 'مصمّم قالب — '.$type->name_ar)
+@section('title', setting('admin.certificates.designer.msmm_qalb', 'مصمّم قالب — ').$type->name_ar)
 
 @section('content')
     {{-- ⭐ مصمّم القوالب المرئيّ (12.5-ب · 24.1) — JS خام بلا أيّ مكتبة سحب أو رسم --}}
     <x-page-header
-        :title="'مصمّم القالب: '.$type->name_ar"
-        subtitle="ارفع خلفيّة الشهادة وحُطّ النصوص فوقها زيّ ما تحبّ — الموضع والحجم والخطّ واللون والمحاذاة والدوران."
+        :title="setting('admin.certificates.designer.msmm_alqalb', 'مصمّم القالب: ').$type->name_ar"
+        :subtitle="setting('admin.certificates.designer.arfa_khlfya_alshhada_wht_alnsws_fwqha_zy_ma', 'ارفع خلفيّة الشهادة وحُطّ النصوص فوقها زيّ ما تحبّ — الموضع والحجم والخطّ واللون والمحاذاة والدوران.')"
         :breadcrumbs="[
-            ['label' => 'الشهادات', 'url' => route('admin.certificates.index')],
-            ['label' => 'الأنواع والقوالب', 'url' => route('admin.certificates.index', ['tab' => 'types'])],
+            ['label' => setting('admin.certificates.designer.alshhadat', 'الشهادات'), 'url' => route('admin.certificates.index')],
+            ['label' => setting('admin.certificates.designer.alanwaa_walqwalb', 'الأنواع والقوالب'), 'url' => route('admin.certificates.index', ['tab' => 'types'])],
             ['label' => $type->name_ar],
         ]" />
 
@@ -20,14 +20,14 @@
         </p>
         <a href="{{ route('admin.certificates.designer.preview', $template) }}"
            class="btn inline-block mt-3 rounded-xl px-4 py-2 text-sm font-semibold"
-           style="background: var(--color-brand-500); color: #04201c">شوف المعاينة بس</a>
+           style="background: var(--color-brand-500); color: #04201c">{{ setting('admin.certificates.designer.shwf_almaayna_bs', 'شوف المعاينة بس') }}</a>
     </div>
 
     <div class="hidden lg:block">
         {{-- شريط لاصق: اللغة + الحفظ + المعاينة بالمقاس الحقيقيّ (24.1) --}}
         <div class="sticky-bar card p-3 mb-4 flex items-center gap-3 flex-wrap" style="background: var(--surface-raised)">
             <div class="flex gap-2">
-                @foreach (['ar' => 'النسخة العربيّة', 'en' => 'النسخة الإنجليزيّة'] as $code => $label)
+                @foreach (['ar' => setting('admin.certificates.designer.alnskha_alarbya', 'النسخة العربيّة'), 'en' => setting('admin.certificates.designer.alnskha_alinjlyzya', 'النسخة الإنجليزيّة')] as $code => $label)
                     <a href="{{ route('admin.certificates.designer', [$type, 'lang' => $code]) }}"
                        class="rounded-full px-3 py-1 text-sm motion-standard"
                        style="{{ $language === $code
@@ -37,20 +37,20 @@
             </div>
 
             <label class="flex items-center gap-2 text-sm">
-                <input type="checkbox" data-snap @checked($snap)> شبكة محاذاة (Snap)
+                <input type="checkbox" data-snap @checked($snap)> {{ setting('admin.certificates.designer.shbka_mhadhaa_snap', 'شبكة محاذاة (Snap)') }}
             </label>
 
             <span class="flex-1 text-xs" style="color: var(--text-muted)" data-save-note>
-                نسخة القالب رقم {{ $template->version }}
+                {{ setting('admin.certificates.designer.nskha_alqalb_rqm', 'نسخة القالب رقم') }} {{ $template->version }}
             </span>
 
             <a href="{{ route('admin.certificates.designer.preview', $template) }}" target="_blank" rel="noopener"
-               class="btn rounded-xl px-4 py-2 text-sm" style="background: var(--surface-sunken)">معاينة بالمقاس الحقيقيّ</a>
+               class="btn rounded-xl px-4 py-2 text-sm" style="background: var(--surface-sunken)">{{ setting('admin.certificates.designer.maayna_balmqas_alhqyqy', 'معاينة بالمقاس الحقيقيّ') }}</a>
 
             @can('certificate_templates.edit')
                 <button type="button" data-save
                         class="btn rounded-xl px-4 py-2 text-sm font-semibold"
-                        style="background: var(--color-brand-500); color: #04201c">حفظ التصميم</button>
+                        style="background: var(--color-brand-500); color: #04201c">{{ setting('admin.certificates.designer.hfz_altsmym', 'حفظ التصميم') }}</button>
             @endcan
         </div>
 
@@ -76,13 +76,13 @@
                           class="card p-3 mt-3 flex items-end gap-3 flex-wrap">
                         @csrf
                         <div class="flex-1 min-w-[14rem]">
-                            <x-form.input name="background_path" label="خلفيّة الشهادة (مسار من مكتبة الوسائط)"
+                            <x-form.input name="background_path" :label="setting('admin.certificates.designer.khlfya_alshhada_msar_mn_mktba_alwsayt', 'خلفيّة الشهادة (مسار من مكتبة الوسائط)')"
                                           :value="$template->background_path" />
                         </div>
-                        <button class="btn rounded-xl px-4 py-2 text-sm" style="background: var(--surface-raised)">اضبط الخلفيّة</button>
+                        <button class="btn rounded-xl px-4 py-2 text-sm" style="background: var(--surface-raised)">{{ setting('admin.certificates.designer.adbt_alkhlfya', 'اضبط الخلفيّة') }}</button>
                         <button name="clear" value="1" class="btn rounded-xl px-4 py-2 text-sm"
-                                style="background: var(--surface-sunken)">امسحها</button>
-                        <a href="{{ route('admin.media.index') }}" class="text-xs underline">افتح المكتبة</a>
+                                style="background: var(--surface-sunken)">{{ setting('admin.certificates.designer.amshha', 'امسحها') }}</button>
+                        <a href="{{ route('admin.media.index') }}" class="text-xs underline">{{ setting('admin.certificates.designer.afth_almktba', 'افتح المكتبة') }}</a>
                     </form>
                 @endcan
             </div>
@@ -91,12 +91,12 @@
             <div class="space-y-4">
                 @can('certificate_templates.edit')
                     <div class="card p-3">
-                        <h2 class="font-bold text-sm mb-2">إضافة طبقة</h2>
+                        <h2 class="font-bold text-sm mb-2">{{ setting('admin.certificates.designer.idafa_tbqa', 'إضافة طبقة') }}</h2>
                         <div class="flex flex-wrap gap-2">
                             <button type="button" data-add="text" class="btn rounded-xl px-3 py-2 text-xs"
-                                    style="background: var(--surface-sunken)">نصّ ثابت</button>
+                                    style="background: var(--surface-sunken)">{{ setting('admin.certificates.designer.ns_thabt', 'نصّ ثابت') }}</button>
                             <button type="button" data-add="field" class="btn rounded-xl px-3 py-2 text-xs"
-                                    style="background: var(--surface-sunken)">حقل من البيانات</button>
+                                    style="background: var(--surface-sunken)">{{ setting('admin.certificates.designer.hql_mn_albyanat', 'حقل من البيانات') }}</button>
                             <button type="button" data-add="qr" class="btn rounded-xl px-3 py-2 text-xs"
                                     style="background: var(--surface-sunken)">QR</button>
                         </div>
@@ -105,31 +105,31 @@
 
                 {{-- لوحة الطبقات: إظهار/إخفاء · رفع/إنزال · قفل (12.5-ب) --}}
                 <div class="card p-3">
-                    <h2 class="font-bold text-sm mb-2">الطبقات</h2>
+                    <h2 class="font-bold text-sm mb-2">{{ setting('admin.certificates.designer.altbqat', 'الطبقات') }}</h2>
                     <ul class="space-y-1 max-h-64 overflow-y-auto" data-layers-panel></ul>
                 </div>
 
                 {{-- خصائص الطبقة المختارة --}}
                 <div class="card p-3 space-y-3" data-props hidden>
-                    <h2 class="font-bold text-sm">خصائص الطبقة</h2>
+                    <h2 class="font-bold text-sm">{{ setting('admin.certificates.designer.khsays_altbqa', 'خصائص الطبقة') }}</h2>
 
                     <label class="block text-sm">
-                        الاسم
+                        {{ setting('admin.certificates.designer.alasm', 'الاسم') }}
                         <input type="text" data-prop="label" class="w-full rounded-lg px-2 py-1 text-sm mt-1"
                                style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
                     </label>
 
                     <label class="block text-sm">
-                        نصّ ثابت
+                        {{ setting('admin.certificates.designer.ns_thabt', 'نصّ ثابت') }}
                         <input type="text" data-prop="text" class="w-full rounded-lg px-2 py-1 text-sm mt-1"
                                style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
                     </label>
 
                     <label class="block text-sm">
-                        الحقل
+                        {{ setting('admin.certificates.designer.alhql', 'الحقل') }}
                         <select data-prop="field" class="w-full rounded-lg px-2 py-1 text-sm mt-1"
                                 style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
-                            <option value="">— بلا حقل —</option>
+                            <option value="">{{ setting('admin.certificates.designer.bla_hql', '— بلا حقل —') }}</option>
                             @foreach ($fields as $key => $label)
                                 <option value="{{ $key }}">{{ $label }}</option>
                             @endforeach
@@ -151,55 +151,55 @@
                             <input type="number" step="0.1" data-prop="y" class="w-full rounded-lg px-2 py-1 mt-1"
                                    style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
                         </label>
-                        <label class="block">الحجم
+                        <label class="block">{{ setting('admin.certificates.designer.alhjm', 'الحجم') }}
                             <input type="number" step="1" data-prop="size" class="w-full rounded-lg px-2 py-1 mt-1"
                                    style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
                         </label>
-                        <label class="block">الدوران °
+                        <label class="block">{{ setting('admin.certificates.designer.aldwran', 'الدوران °') }}
                             <input type="number" step="1" data-prop="rotate" class="w-full rounded-lg px-2 py-1 mt-1"
                                    style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
                         </label>
                     </div>
 
                     <label class="block text-sm">
-                        المحاذاة
+                        {{ setting('admin.certificates.designer.almhadhaa', 'المحاذاة') }}
                         <select data-prop="align" class="w-full rounded-lg px-2 py-1 text-sm mt-1"
                                 style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
-                            <option value="start">لليمين</option>
-                            <option value="center">توسيط</option>
-                            <option value="end">لليسار</option>
+                            <option value="start">{{ setting('admin.certificates.designer.llymyn', 'لليمين') }}</option>
+                            <option value="center">{{ setting('admin.certificates.designer.twsyt', 'توسيط') }}</option>
+                            <option value="end">{{ setting('admin.certificates.designer.llysar', 'لليسار') }}</option>
                         </select>
                     </label>
 
                     <div class="grid grid-cols-2 gap-2 text-sm">
-                        <label class="block">اللون
+                        <label class="block">{{ setting('admin.certificates.designer.allwn', 'اللون') }}
                             <input type="color" data-prop="color" class="w-full h-9 rounded-lg mt-1"
                                    style="background: var(--surface-sunken); border: 1px solid var(--border)">
                         </label>
-                        <label class="block">الخطّ
+                        <label class="block">{{ setting('admin.certificates.designer.alkht', 'الخطّ') }}
                             <input type="text" data-prop="font" class="w-full rounded-lg px-2 py-1 mt-1"
                                    style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
                         </label>
                     </div>
 
                     <label class="flex items-center gap-2 text-sm">
-                        <input type="checkbox" data-prop="bold"> عريض
+                        <input type="checkbox" data-prop="bold"> {{ setting('admin.certificates.designer.aryd', 'عريض') }}
                     </label>
 
                     {{-- حقل شرطيّ: الفاضي لا يظهر (12.5-ب) --}}
                     <label class="flex items-center gap-2 text-sm">
-                        <input type="checkbox" data-prop="conditional"> يختفي لو قيمته فاضية
+                        <input type="checkbox" data-prop="conditional"> {{ setting('admin.certificates.designer.ykhtfy_lw_qymth_fadya', 'يختفي لو قيمته فاضية') }}
                     </label>
 
                     <button type="button" data-delete-layer class="text-xs underline"
-                            style="color: var(--color-state-danger)">حذف الطبقة</button>
+                            style="color: var(--color-state-danger)">{{ setting('admin.certificates.designer.hdhf_altbqa', 'حذف الطبقة') }}</button>
                 </div>
 
                 @can('certificate_templates.edit')
                     <form method="post" action="{{ route('admin.certificates.designer.reset', $template) }}"
-                          onsubmit="return confirm('نرجّع التصميم الافتراضيّ؟ اللي عملته هيتشال.')">
+                          onsubmit="return confirm('{{ setting('admin.certificates.designer.nrja_altsmym_alaftrady_ally_amlth_hytshal', 'نرجّع التصميم الافتراضيّ؟ اللي عملته هيتشال.') }}')">
                         @csrf
-                        <button class="text-xs underline"><x-icon name="refresh" size="16" /> إعادة للتصميم الافتراضيّ</button>
+                        <button class="text-xs underline"><x-icon name="refresh" size="16" /> {{ setting('admin.certificates.designer.iaada_lltsmym_alaftrady', 'إعادة للتصميم الافتراضيّ') }}</button>
                     </form>
                 @endcan
             </div>
@@ -209,7 +209,26 @@
     @include('admin.courses.partials.toast')
 
     @push('scripts')
+        @php
+            /*
+             | نصوص السكربت من الإعدادات (2.13-أ): لا حرفَ عربيّ داخل `<script>`،
+             | فالمحروق هناك لا يصل لوحةَ الإدارة ولا الترجمة.
+             */
+            $jsText = [
+                'toggle_visibility' => setting('admin.certificates.designer.izhar_ikhfa', 'إظهار/إخفاء'),
+                'lock' => setting('admin.certificates.designer.qfl', 'قفل'),
+                'move_up' => setting('admin.certificates.designer.rfa_llaala', 'رفع للأعلى'),
+                'move_down' => setting('admin.certificates.designer.inzal_llasfl', 'إنزال للأسفل'),
+                'qr_layer_label' => setting('admin.certificates.designer.qr_althqq', 'QR التحقّق'),
+                'field_layer_label' => setting('admin.certificates.designer.hql_jdyd', 'حقل جديد'),
+                'text_layer_label' => setting('admin.certificates.designer.ns_jdyd', 'نصّ جديد'),
+                'saved_version' => setting('admin.certificates.designer.nskha_rqm', ':message — نسخة رقم :version'),
+                'save_failed' => setting('admin.certificates.designer.altsmym_ma_athfzsh_jrb_tany', 'التصميم ما اتحفظش — جرّب تاني.'),
+            ];
+        @endphp
+
         <script>
+            const HC_DESIGNER_TEXT = @json($jsText);
             /* =================================================================
              | مصمّم القوالب — JS خام (12.5-ب).
              |
@@ -312,16 +331,16 @@
                             name.addEventListener('click', () => select(layer.id));
 
                             li.append(name);
-                            li.append(iconButton(layer.visible ? '👁' : '🚫', 'إظهار/إخفاء', () => {
+                            li.append(iconButton(layer.visible ? '👁' : '🚫', HC_DESIGNER_TEXT.toggle_visibility, () => {
                                 layer.visible = !layer.visible;
                                 render();
                             }));
-                            li.append(iconButton(layer.locked ? '🔒' : '🔓', 'قفل', () => {
+                            li.append(iconButton(layer.locked ? '🔒' : '🔓', HC_DESIGNER_TEXT.lock, () => {
                                 layer.locked = !layer.locked;
                                 render();
                             }));
-                            li.append(iconButton('▲', 'رفع للأعلى', () => { moveZ(layer, 1); }));
-                            li.append(iconButton('▼', 'إنزال للأسفل', () => { moveZ(layer, -1); }));
+                            li.append(iconButton('▲', HC_DESIGNER_TEXT.move_up, () => { moveZ(layer, 1); }));
+                            li.append(iconButton('▼', HC_DESIGNER_TEXT.move_down, () => { moveZ(layer, -1); }));
 
                             panel.append(li);
                         });
@@ -397,8 +416,8 @@
                         layers.push({
                             id,
                             type: kind === 'qr' ? 'qr' : 'text',
-                            label: kind === 'qr' ? 'QR التحقّق' : kind === 'field' ? 'حقل جديد' : 'نصّ جديد',
-                            text: kind === 'text' ? 'نصّ جديد' : '',
+                            label: kind === 'qr' ? HC_DESIGNER_TEXT.qr_layer_label : kind === 'field' ? HC_DESIGNER_TEXT.field_layer_label : HC_DESIGNER_TEXT.text_layer_label,
+                            text: kind === 'text' ? HC_DESIGNER_TEXT.text_layer_label : '',
                             field: kind === 'field' ? 'holder_name' : null,
                             binding: null,
                             x: 0.5,
@@ -480,10 +499,10 @@
                     })
                         .then((r) => (r.ok ? r.json() : Promise.reject()))
                         .then((data) => {
-                            if (note) note.textContent = `${data.message} — نسخة رقم ${data.version}`;
+                            if (note) note.textContent = HC_DESIGNER_TEXT.saved_version.replace(':message', data.message).replace(':version', data.version);
                             window.hcToast?.(data.message);
                         })
-                        .catch(() => window.hcToast?.('التصميم ما اتحفظش — جرّب تاني.', 'danger'));
+                        .catch(() => window.hcToast?.(HC_DESIGNER_TEXT.save_failed, 'danger'));
                 });
 
                 window.addEventListener('resize', render);

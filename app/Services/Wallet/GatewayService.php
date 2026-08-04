@@ -92,7 +92,7 @@ class GatewayService
                 source: 'topup',
                 reference: $locked,
                 layer: 'training',
-                reason: 'شحن الحساب عبر بوّابة الدفع',
+                reason: setting('wallet.gateway_service.credit_once_1', 'شحن الحساب عبر بوّابة الدفع'),
             );
 
             $locked->update([
@@ -107,8 +107,8 @@ class GatewayService
                 'user_id' => $user->id,
                 'layer' => 'platform',
                 'category' => 'topup',
-                'title' => 'رصيدك اتشحن ✓',
-                'body' => 'اتضاف لمحفظتك '.rtrim(rtrim(number_format($amount, 2, '.', ''), '0'), '.').' كوينز.',
+                'title' => setting('wallet.gateway_service.credit_once_2', 'رصيدك اتشحن ✓'),
+                'body' => strtr(setting('wallet.gateway_service.credit_once_3', 'اتضاف لمحفظتك :p1 كوينز.'), [':p1' => (string) (rtrim(rtrim(number_format($amount, 2, '.', ''), '0'), '.'))]),
                 'url' => route('wallet.index'),
                 'reference_type' => $locked->getMorphClass(),
                 'reference_id' => $locked->getKey(),
@@ -143,7 +143,7 @@ class GatewayService
 
             $original = Transaction::query()->findOrFail($locked->transaction_id);
 
-            $correction = $this->ledger->reverse($original, 'عكس فاتورة مستردّة من البوّابة');
+            $correction = $this->ledger->reverse($original, setting('wallet.gateway_service.refund_1', 'عكس فاتورة مستردّة من البوّابة'));
 
             $locked->update(['status' => 'refunded']);
 

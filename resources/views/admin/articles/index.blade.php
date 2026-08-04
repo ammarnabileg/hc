@@ -1,19 +1,19 @@
 @extends('layouts.admin')
 
-@section('title', 'المقالات')
+@section('title', setting('admin.articles.index.almqalat', 'المقالات'))
 
 @section('content')
-    <x-page-header title="المقالات"
-                   subtitle="مسودّة ⟵ قيد المراجعة ⟵ منشورة — والكاتب ما ينشرش مقاله بنفسه."
+    <x-page-header :title="setting('admin.articles.index.almqalat', 'المقالات')"
+                   :subtitle="setting('admin.articles.index.mswda_qyd_almrajaa_mnshwra_walkatb_ma', 'مسودّة ⟵ قيد المراجعة ⟵ منشورة — والكاتب ما ينشرش مقاله بنفسه.')"
                    :breadcrumbs="[
-                       ['label' => 'لوحة الإدارة', 'url' => url('/admin')],
-                       ['label' => 'المقالات'],
+                       ['label' => setting('admin.articles.index.lwha_alidara', 'لوحة الإدارة'), 'url' => url('/admin')],
+                       ['label' => setting('admin.articles.index.almqalat', 'المقالات')],
                    ]">
         <x-slot:action>
             @can('articles.create')
                 <a href="{{ route('admin.articles.create') }}"
                    class="btn rounded-xl px-4 py-2 text-sm font-semibold"
-                   style="background: var(--color-brand-500); color: #04201c">+ مقال</a>
+                   style="background: var(--color-brand-500); color: #04201c">{{ setting('admin.articles.index.mqal', '+ مقال') }}</a>
             @endcan
         </x-slot:action>
     </x-page-header>
@@ -31,7 +31,7 @@
         'url' => route('admin.articles.index', ['status' => $key]),
     ])->values()->prepend([
         'key' => 'all',
-        'label' => 'الكلّ',
+        'label' => setting('admin.articles.index.alkl', 'الكلّ'),
         'url' => route('admin.articles.index'),
     ])->all()" />
 
@@ -39,16 +39,16 @@
         <input type="hidden" name="status" value="{{ $status }}">
 
         <label class="text-xs">
-            <span class="block mb-1" style="color: var(--text-muted)">بحث</span>
+            <span class="block mb-1" style="color: var(--text-muted)">{{ setting('admin.articles.index.bhth', 'بحث') }}</span>
             <input type="search" name="q" value="{{ request('q') }}" class="rounded-xl px-3 py-2 text-sm w-52"
                    style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
         </label>
 
         <label class="text-xs">
-            <span class="block mb-1" style="color: var(--text-muted)">التصنيف</span>
+            <span class="block mb-1" style="color: var(--text-muted)">{{ setting('admin.articles.index.altsnyf', 'التصنيف') }}</span>
             <select name="category" class="rounded-xl px-3 py-2 text-sm"
                     style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
-                <option value="">الكلّ</option>
+                <option value="">{{ setting('admin.articles.index.alkl', 'الكلّ') }}</option>
                 @foreach ($categories as $category)
                     <option value="{{ $category->id }}" @selected(request('category') == $category->id)>{{ $category->name_ar }}</option>
                 @endforeach
@@ -68,23 +68,23 @@
         </label>
 
         <button class="btn rounded-xl px-4 py-2 text-sm font-semibold"
-                style="background: var(--color-brand-500); color: #04201c">فلترة</button>
+                style="background: var(--color-brand-500); color: #04201c">{{ setting('admin.articles.index.fltra', 'فلترة') }}</button>
     </x-filters>
 
     @if ($articles->isEmpty())
-        <x-empty message="مافيش مقالات لسه — اكتب أوّل واحد."
-                 action="+ مقال" :href="\Illuminate\Support\Facades\Route::has('admin.articles.create') ? route('admin.articles.create') : '#'" />
+        <x-empty :message="setting('admin.articles.index.mafysh_mqalat_lsh_aktb_awl_wahd', 'مافيش مقالات لسه — اكتب أوّل واحد.')"
+                 :action="setting('admin.articles.index.mqal', '+ مقال')" :href="\Illuminate\Support\Facades\Route::has('admin.articles.create') ? route('admin.articles.create') : '#'" />
     @else
         <div class="card overflow-hidden">
             <table class="hidden md:table w-full text-sm">
                 <thead style="background: var(--surface-sunken)">
                     <tr class="text-xs" style="color: var(--text-muted)">
-                        <th class="text-start p-3">العنوان</th>
-                        <th class="text-start p-3">الكاتب</th>
-                        <th class="text-start p-3">التصنيف</th>
-                        <th class="text-start p-3">الحالة</th>
-                        <th class="text-start p-3">آخر تحديث</th>
-                        <th class="text-start p-3">إجراءات</th>
+                        <th class="text-start p-3">{{ setting('admin.articles.index.alanwan', 'العنوان') }}</th>
+                        <th class="text-start p-3">{{ setting('admin.articles.index.alkatb', 'الكاتب') }}</th>
+                        <th class="text-start p-3">{{ setting('admin.articles.index.altsnyf', 'التصنيف') }}</th>
+                        <th class="text-start p-3">{{ setting('admin.articles.index.alhala', 'الحالة') }}</th>
+                        <th class="text-start p-3">{{ setting('admin.articles.index.akhr_thdyth', 'آخر تحديث') }}</th>
+                        <th class="text-start p-3">{{ setting('admin.articles.index.ijraat', 'إجراءات') }}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -100,13 +100,13 @@
                             <td class="p-3 text-xs">{{ $article->updated_at?->diffForHumans() }}</td>
                             <td class="p-3 text-xs space-x-2 space-x-reverse">
                                 @can('articles.edit')
-                                    <a class="underline" href="{{ route('admin.articles.edit', $article) }}">تعديل</a>
+                                    <a class="underline" href="{{ route('admin.articles.edit', $article) }}">{{ setting('admin.articles.index.tadyl', 'تعديل') }}</a>
                                 @endcan
 
                                 {{-- ⭐ زرّ النشر يظهر فقط لمن يملكه **ولغير الكاتب** (2.15-أ-7 · 21.2-أ) --}}
                                 @if ($workflow->mayPublish($article, auth()->user()))
                                     <form method="post" action="{{ route('admin.articles.publish', $article) }}" class="inline">
-                                        @csrf<button class="underline">نشر</button>
+                                        @csrf<button class="underline">{{ setting('admin.articles.index.nshr', 'نشر') }}</button>
                                     </form>
                                 @endif
                             </td>
@@ -176,6 +176,6 @@
     @can('articles.create')
         <a href="{{ route('admin.articles.create') }}"
            class="btn w-full inline-flex items-center justify-center rounded-xl px-4 py-3 text-sm font-semibold"
-           style="background: var(--color-brand-500); color: #04201c">+ مقال</a>
+           style="background: var(--color-brand-500); color: #04201c">{{ setting('admin.articles.index.mqal', '+ مقال') }}</a>
     @endcan
 @endsection

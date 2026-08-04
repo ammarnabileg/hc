@@ -32,13 +32,18 @@ class FinishController extends Controller
 
         return view('setup.finish', [
             'stepper' => $this->stepper($state, 'finish'),
+            /*
+             | ⚠️ قائمةٌ لا خريطة: كان **النصّ العربيّ مفتاحَ المصفوفة**، فلا
+             | يقدر المالك على تحريره أصلًا (وتحريرُه يكسر المفتاح). فصلنا
+             | اللافتة عن القيمة فصارت اللافتة إعدادًا كباقي نصوص الشاشة (2.13-أ).
+             */
             'summary' => [
-                'اسم المنصّة' => (string) $state->draft('app_name', ''),
-                'رابط المنصّة' => (string) $state->draft('app_url', ''),
-                'المنطقة الزمنيّة' => (string) $state->draft('timezone', ''),
-                'قاعدة البيانات' => (string) $state->draft('db_database', ''),
-                'مالك المنصّة' => (string) $state->draft('owner_name', ''),
-                'بريد المالك' => (string) $state->draft('owner_email', ''),
+                ['label' => (string) setting('setup.finish.summary_app_name', 'اسم المنصّة'), 'value' => (string) $state->draft('app_name', '')],
+                ['label' => (string) setting('setup.finish.summary_app_url', 'رابط المنصّة'), 'value' => (string) $state->draft('app_url', '')],
+                ['label' => (string) setting('setup.finish.summary_timezone', 'المنطقة الزمنيّة'), 'value' => (string) $state->draft('timezone', '')],
+                ['label' => (string) setting('setup.finish.summary_database', 'قاعدة البيانات'), 'value' => (string) $state->draft('db_database', '')],
+                ['label' => (string) setting('setup.finish.summary_owner', 'مالك المنصّة'), 'value' => (string) $state->draft('owner_name', '')],
+                ['label' => (string) setting('setup.finish.summary_owner_email', 'بريد المالك'), 'value' => (string) $state->draft('owner_email', '')],
             ],
         ]);
     }
@@ -59,7 +64,7 @@ class FinishController extends Controller
 
         if (! $locked) {
             return back()->withErrors([
-                'finish' => 'مقدرناش نكتب ملفّ القفل ‎storage/installed.lock‎، ومن غيره تفضل صفحة التنصيب مفتوحة للكلّ. اضبط صلاحيّة مجلّد ‎storage‎ على 775 واضغط «أنهِ التنصيب» تاني.',
+                'finish' => (string) setting('setup.finish.install_msg', 'مقدرناش نكتب ملفّ القفل ‎storage/installed.lock‎، ومن غيره تفضل صفحة التنصيب مفتوحة للكلّ. اضبط صلاحيّة مجلّد ‎storage‎ على 775 واضغط «أنهِ التنصيب» تاني.'),
             ]);
         }
 

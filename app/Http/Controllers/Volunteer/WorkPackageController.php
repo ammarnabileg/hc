@@ -51,7 +51,7 @@ class WorkPackageController extends Controller
     {
         $user = $request->user();
 
-        abort_unless($this->access->isBuilding($goal), 409, 'الهدف اتبعت للتنفيذ خلاص.');
+        abort_unless($this->access->isBuilding($goal), 409, (string) setting('workflow.packages.fill_msg', 'الهدف اتبعت للتنفيذ خلاص.'));
         abort_unless($this->access->canSeeBuild($user, $goal), 403);
 
         $packages = $this->access->packagesFor($user, $goal);
@@ -79,9 +79,9 @@ class WorkPackageController extends Controller
     {
         $goal = $this->buildGoalOf($workPackage);
 
-        abort_unless($this->access->isBuilding($goal), 409, 'الهدف اتبعت للتنفيذ خلاص.');
+        abort_unless($this->access->isBuilding($goal), 409, (string) setting('workflow.packages.store_task_msg', 'الهدف اتبعت للتنفيذ خلاص.'));
         abort_unless($this->access->isDirectorOf($request->user(), (int) $workPackage->entity_id), 403);
-        abort_if($workPackage->build_status === 'submitted', 409, 'الحزمة دي اترفعت للمراجعة — مبقاش عندك تعديل عليها.');
+        abort_if($workPackage->build_status === 'submitted', 409, (string) setting('workflow.packages.store_task_msg_2', 'الحزمة دي اترفعت للمراجعة — مبقاش عندك تعديل عليها.'));
 
         $data = $request->validate([
             'title' => ['required', 'string', 'max:255'],
@@ -89,13 +89,13 @@ class WorkPackageController extends Controller
             'deliverable_spec' => ['required', 'string', 'max:2000'],
             'deadline_at' => ['nullable', 'date'],
         ], [], [
-            'title' => 'اسم المهمّة',
-            'deliverable_spec' => 'شكل المخرجات',
+            'title' => (string) setting('workflow.packages.store_task_msg_3', 'اسم المهمّة'),
+            'deliverable_spec' => (string) setting('workflow.packages.store_task_msg_4', 'شكل المخرجات'),
         ]);
 
         $this->build->addDirectorTask($workPackage, $data, $request->user());
 
-        return back()->with('status', 'اتضافت المهمّة ✓ — زوّد اللي إنت عايزه، مافيش حدّ أقصى.');
+        return back()->with('status', (string) setting('workflow.packages.store_task_ok', 'اتضافت المهمّة ✓ — زوّد اللي إنت عايزه، مافيش حدّ أقصى.'));
     }
 
     /** «رفع للمراجعة» ⟵ يجمعها مشرف المسار (23 — 1.4) */
@@ -103,18 +103,18 @@ class WorkPackageController extends Controller
     {
         $goal = $this->buildGoalOf($workPackage);
 
-        abort_unless($this->access->isBuilding($goal), 409, 'الهدف اتبعت للتنفيذ خلاص.');
+        abort_unless($this->access->isBuilding($goal), 409, (string) setting('workflow.packages.submit_for_review_msg', 'الهدف اتبعت للتنفيذ خلاص.'));
         abort_unless($this->access->isDirectorOf($request->user(), (int) $workPackage->entity_id), 403);
 
         $hasTasks = Task::query()
             ->whereIn('work_item_id', WorkItem::query()->where('work_package_id', $workPackage->id)->select('id'))
             ->exists();
 
-        abort_unless($hasTasks, 422, 'الحزمة لسّه فاضية — ضيف مهمّة واحدة على الأقلّ قبل الرفع.');
+        abort_unless($hasTasks, 422, (string) setting('workflow.packages.submit_for_review_msg_2', 'الحزمة لسّه فاضية — ضيف مهمّة واحدة على الأقلّ قبل الرفع.'));
 
         $this->build->submitPackage($workPackage, $request->user());
 
-        return back()->with('status', 'اترفعت للمراجعة ✓ — مشرف مسارك هيجمّعها ويسعّرها.');
+        return back()->with('status', (string) setting('workflow.packages.submit_for_review_ok', 'اترفعت للمراجعة ✓ — مشرف مسارك هيجمّعها ويسعّرها.'));
     }
 
     private function buildGoalOf(WorkPackage $package): Goal
@@ -237,8 +237,8 @@ class WorkPackageController extends Controller
         }
 
         $message = $result['overflow'] > 0
-            ? 'اتحفظ ✓ — واتخصم '.$result['overflow'].' من رصيدك الشخصيّ بموافقتك.'
-            : 'اتحفظ ✓';
+            ? strtr((string) setting('workflow.packages.distribute_vxp_ok', 'اتحفظ ✓ — واتخصم :a1 من رصيدك الشخصيّ بموافقتك.'), [':a1' => (string) ($result['overflow'])])
+            : (string) setting('workflow.packages.distribute_vxp_ok_2', 'اتحفظ ✓');
 
         return back()->with('status', $message);
     }
@@ -254,7 +254,7 @@ class WorkPackageController extends Controller
 
         $this->authorizeEntity($request, $workPackage);
 
-        abort_unless($this->objectionOpen($workPackage), 409, 'انتهت مهلة الاعتراض — والسكوت قبول.');
+        abort_unless($this->objectionOpen($workPackage), 409, (string) setting('workflow.packages.object_msg', 'انتهت مهلة الاعتراض — والسكوت قبول.'));
 
         $workPackage->forceFill([
             'objection_status' => 'raised',
@@ -262,7 +262,7 @@ class WorkPackageController extends Controller
             'objection_at' => now(),
         ])->save();
 
-        return back()->with('status', 'اترفع اعتراضك ✓ — هيتصعّد للطبقة الأعلى.');
+        return back()->with('status', (string) setting('workflow.packages.object_ok', 'اترفع اعتراضك ✓ — هيتصعّد للطبقة الأعلى.'));
     }
 
     // ------------------------------------------------------------------ داخليّ
@@ -332,13 +332,13 @@ class WorkPackageController extends Controller
     private function statusLabels(): array
     {
         return [
-            'in_progress' => 'قيد التنفيذ',
-            'blocked' => 'متعثّرة',
-            'in_review' => 'قيد المراجعة',
-            'approved' => 'معتمدة',
-            'returned' => 'مُرجَعة',
-            'no_delivery' => 'عدم تسليم',
-            'closed' => 'مُغلَقة',
+            'in_progress' => (string) setting('workflow.packages.status_labels_msg', 'قيد التنفيذ'),
+            'blocked' => (string) setting('workflow.packages.status_labels_msg_2', 'متعثّرة'),
+            'in_review' => (string) setting('workflow.packages.status_labels_msg_3', 'قيد المراجعة'),
+            'approved' => (string) setting('workflow.packages.status_labels_msg_4', 'معتمدة'),
+            'returned' => (string) setting('workflow.packages.status_labels_msg_5', 'مُرجَعة'),
+            'no_delivery' => (string) setting('workflow.packages.status_labels_msg_6', 'عدم تسليم'),
+            'closed' => (string) setting('workflow.packages.status_labels_msg_7', 'مُغلَقة'),
         ];
     }
 }

@@ -1,6 +1,6 @@
 @extends('layouts.volunteer')
 
-@section('title', 'تقريري الأسبوعيّ')
+@section('title', setting('volunteer.overview_report.title', 'تقريري الأسبوعيّ'))
 
 @section('content')
     @php
@@ -12,45 +12,45 @@
         $span = ($max - $min) ?: 1;
     @endphp
 
-    <x-page-header title="تقريري الأسبوعيّ"
+    <x-page-header :title="setting('volunteer.overview_report.title', 'تقريري الأسبوعيّ')"
                    subtitle="{{ $start->format('Y-m-d') }} ← {{ $end->format('Y-m-d') }}"
                    :breadcrumbs="[
-                       ['label' => 'لوحة التطوّع', 'url' => route('volunteer.overview')],
-                       ['label' => 'تقريري الأسبوعيّ'],
+                       ['label' => setting('volunteer.common.breadcrumb_root', 'لوحة التطوّع'), 'url' => route('volunteer.overview')],
+                       ['label' => setting('volunteer.overview_report.title', 'تقريري الأسبوعيّ')],
                    ]">
         <x-slot:action>
             <div class="flex items-center gap-2 text-sm">
                 <a class="rounded-xl px-3 py-2" style="background: var(--surface-raised)"
-                   href="{{ route('volunteer.report', ['w' => $offset + 1]) }}" aria-label="الأسبوع السابق">‹</a>
+                   href="{{ route('volunteer.report', ['w' => $offset + 1]) }}" aria-label="{{ setting('volunteer.overview_report.aria', 'الأسبوع السابق') }}">‹</a>
                 <a class="rounded-xl px-3 py-2" style="background: var(--surface-raised)"
-                   href="{{ route('volunteer.report') }}">هذا الأسبوع</a>
+                   href="{{ route('volunteer.report') }}">{{ setting('volunteer.overview_report.link', 'هذا الأسبوع') }}</a>
                 <a class="rounded-xl px-3 py-2 {{ $offset === 0 ? 'opacity-40 pointer-events-none' : '' }}"
                    style="background: var(--surface-raised)"
-                   href="{{ route('volunteer.report', ['w' => max(0, $offset - 1)]) }}" aria-label="الأسبوع التالي">›</a>
+                   href="{{ route('volunteer.report', ['w' => max(0, $offset - 1)]) }}" aria-label="{{ setting('volunteer.overview_report.aria_2', 'الأسبوع التالي') }}">›</a>
             </div>
         </x-slot:action>
     </x-page-header>
 
     {{-- صفّ 4 كروت: صافي Rep · VXP · مهامّ · حضور — ⛔ وبلا أيّ مؤشّر لمخاطر الفقدان (24.4) --}}
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
-        <x-kpi label="صافي Rep للأسبوع" :value="$netRep" :state="$repState"
+        <x-kpi :label="setting('volunteer.overview_report.label', 'صافي Rep للأسبوع')" :value="$netRep" :state="$repState"
                :icon="$trend > 0 ? '↑' : ($trend < 0 ? '↓' : '→')"
-               :hint="'الأسبوع اللي فات: '.$previousRep" />
-        <x-kpi label="VXP المكتسَب" :value="$vxp" icon="spark" />
-        <x-kpi label="مهامّ مُسلَّمة" :value="$tasksDone" icon="check"
-               :hint="$tasksLate.' منها اتسلّمت متأخّرة'" />
-        <x-kpi label="حضور الاجتماعات" :value="$attendance.'%'" icon="calendar" />
+               :hint="setting('volunteer.overview_report.hint', 'الأسبوع اللي فات: ').$previousRep" />
+        <x-kpi :label="setting('volunteer.overview_report.label_2', 'VXP المكتسَب')" :value="$vxp" icon="spark" />
+        <x-kpi :label="setting('volunteer.overview_report.label_3', 'مهامّ مُسلَّمة')" :value="$tasksDone" icon="check"
+               :hint="$tasksLate.setting('volunteer.overview_report.hint_2', ' منها اتسلّمت متأخّرة')" />
+        <x-kpi :label="setting('volunteer.overview_report.label_4', 'حضور الاجتماعات')" :value="$attendance.'%'" icon="calendar" />
     </div>
 
     {{-- منحنى Rep اليوميّ — مرسوم بيدنا بـSVG بلا أيّ مكتبة خارجيّة --}}
     <div class="card p-4 mb-5">
-        <div class="text-sm mb-3">منحنى Rep اليوميّ (تراكميّ داخل الأسبوع)</div>
+        <div class="text-sm mb-3">{{ setting('volunteer.overview_report.text', 'منحنى Rep اليوميّ (تراكميّ داخل الأسبوع)') }}</div>
 
         @if ($values->sum() == 0 && $events->isEmpty())
-            <p class="text-sm" style="color: var(--text-muted)">أسبوع هادي — مفيش حركات مسجّلة.</p>
+            <p class="text-sm" style="color: var(--text-muted)">{{ setting('volunteer.overview_report.text_2', 'أسبوع هادي — مفيش حركات مسجّلة.') }}</p>
         @else
             <svg viewBox="0 0 700 160" class="w-full" style="height: 160px" role="img"
-                 aria-label="منحنى درجة الالتزام اليوميّ خلال الأسبوع">
+                 aria-label="{{ setting('volunteer.overview_report.aria_3', 'منحنى درجة الالتزام اليوميّ خلال الأسبوع') }}">
                 <line x1="0" y1="{{ 150 - ((0 - $min) / $span) * 130 }}" x2="700"
                       y2="{{ 150 - ((0 - $min) / $span) * 130 }}"
                       stroke="var(--border)" stroke-width="1" />
@@ -62,7 +62,7 @@
                 @foreach ($curve as $i => $point)
                     <circle cx="{{ 30 + $i * 106 }}" cy="{{ 150 - (($point['running'] - $min) / $span) * 130 }}"
                             r="4" fill="var(--color-brand-400)">
-                        <title>{{ $point['label'] }} — اليوم: {{ $point['value'] }} · التراكميّ: {{ $point['running'] }}</title>
+                        <title>{{ $point['label'] }} — {{ setting('volunteer.overview_report.text_3', 'اليوم:') }} {{ $point['value'] }} · {{ setting('volunteer.overview_report.text_4', 'التراكميّ:') }} {{ $point['running'] }}</title>
                     </circle>
                     <text x="{{ 30 + $i * 106 }}" y="158" text-anchor="middle" font-size="11"
                           fill="var(--text-muted)">{{ $point['label'] }}</text>
@@ -73,19 +73,19 @@
 
     {{-- جدول أحداث الأسبوع: 4 أعمدة — وعلى الموبايل كروت رأسيّة بلا تمرير أفقيّ (2.15-ج) --}}
     <div class="card p-4 mb-5">
-        <div class="text-sm mb-3">أحداث الأسبوع</div>
+        <div class="text-sm mb-3">{{ setting('volunteer.overview_report.text_5', 'أحداث الأسبوع') }}</div>
 
         @if ($events->isEmpty())
-            <p class="text-sm" style="color: var(--text-muted)">مفيش حركات في الأسبوع ده.</p>
+            <p class="text-sm" style="color: var(--text-muted)">{{ setting('volunteer.overview_report.text_6', 'مفيش حركات في الأسبوع ده.') }}</p>
         @else
             <div class="hidden md:block min-w-0 overflow-x-auto">
                 <table class="w-full text-sm">
                     <thead>
                     <tr style="color: var(--text-muted)">
-                        <th class="text-start font-normal py-2">التاريخ</th>
-                        <th class="text-start font-normal py-2">الحدث</th>
-                        <th class="text-start font-normal py-2">القيمة</th>
-                        <th class="text-start font-normal py-2">المرجع</th>
+                        <th class="text-start font-normal py-2">{{ setting('volunteer.common.date', 'التاريخ') }}</th>
+                        <th class="text-start font-normal py-2">{{ setting('volunteer.overview_report.col', 'الحدث') }}</th>
+                        <th class="text-start font-normal py-2">{{ setting('volunteer.common.value', 'القيمة') }}</th>
+                        <th class="text-start font-normal py-2">{{ setting('volunteer.common.reference', 'المرجع') }}</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -125,11 +125,11 @@
 
     {{-- ما يستحقّ انتباهك --}}
     <div class="card p-4">
-        <div class="text-sm mb-3">ما يستحقّ انتباهك</div>
+        <div class="text-sm mb-3">{{ setting('volunteer.overview_report.text_7', 'ما يستحقّ انتباهك') }}</div>
 
         <div class="grid md:grid-cols-3 gap-4 text-sm">
             <div>
-                <div class="text-xs mb-2" style="color: var(--text-muted)">مهامّ تقترب ديدلايناتها</div>
+                <div class="text-xs mb-2" style="color: var(--text-muted)">{{ setting('volunteer.overview_report.text_8', 'مهامّ تقترب ديدلايناتها') }}</div>
                 @forelse ($attention['due_soon'] as $task)
                     <a class="flex items-center justify-between gap-2 py-1"
                        href="{{ route('volunteer.tasks.show', $task) }}">
@@ -137,12 +137,12 @@
                         @include('volunteer.components.deadline-counter', ['task' => $task])
                     </a>
                 @empty
-                    <p style="color: var(--text-muted)">مفيش حاجة قربت.</p>
+                    <p style="color: var(--text-muted)">{{ setting('volunteer.overview_report.text_9', 'مفيش حاجة قربت.') }}</p>
                 @endforelse
             </div>
 
             <div>
-                <div class="text-xs mb-2" style="color: var(--text-muted)">نوافذ دمج مفتوحة</div>
+                <div class="text-xs mb-2" style="color: var(--text-muted)">{{ setting('volunteer.overview_report.text_10', 'نوافذ دمج مفتوحة') }}</div>
                 @forelse ($attention['merge_windows'] as $task)
                     <a class="flex items-center justify-between gap-2 py-1"
                        href="{{ route('volunteer.tasks.show', $task) }}">
@@ -150,13 +150,13 @@
                         @include('volunteer.components.deadline-counter', ['at' => $task->merge_window_at, 'state' => 'warn'])
                     </a>
                 @empty
-                    <p style="color: var(--text-muted)">مفيش نافذة دمج مفتوحة.</p>
+                    <p style="color: var(--text-muted)">{{ setting('volunteer.overview_report.text_11', 'مفيش نافذة دمج مفتوحة.') }}</p>
                 @endforelse
             </div>
 
             <div>
                 <div class="text-xs mb-2" style="color: var(--text-muted)">
-                    باب الاعتراض مفتوح ({{ $attention['objection_days'] }} أيّام)
+                    {{ str_replace(':days', $attention['objection_days'], (string) setting('volunteer.overview_report.text_12', 'باب الاعتراض مفتوح (:days أيّام)')) }}
                 </div>
                 @forelse ($attention['objectionable'] as $transaction)
                     <div class="flex items-center justify-between gap-2 py-1">
@@ -166,7 +166,7 @@
                         </span>
                     </div>
                 @empty
-                    <p style="color: var(--text-muted)">مفيش معاملات جديدة.</p>
+                    <p style="color: var(--text-muted)">{{ setting('volunteer.overview_report.text_14', 'مفيش معاملات جديدة.') }}</p>
                 @endforelse
             </div>
         </div>

@@ -7,7 +7,7 @@
      *
      * المتغيّرات: $settings · $saveRoute · $resetRoute · $blockTitle
      */
-    $blockTitle ??= 'إعدادات الشاشة';
+    $blockTitle ??= setting('admin.screens24.settings.iadadat_alshasha', 'إعدادات الشاشة');
 @endphp
 
 @if (! empty($settings))
@@ -15,7 +15,7 @@
         <summary class="cursor-pointer font-bold select-none"><x-icon name="settings" size="16" /> {{ $blockTitle }}</summary>
 
         <p class="text-xs mt-2" style="color: var(--text-muted)">
-            كلّ رقم ونصّ في الشاشة دي بيتظبط من هنا — مافيش قيمة محروقة في الكود (2.13).
+            {{ setting('admin.screens24.settings.kl_rqm_wns_fy_alshasha_dy_bytzbt_mn_hna', 'كلّ رقم ونصّ في الشاشة دي بيتظبط من هنا — مافيش قيمة محروقة في الكود (2.13).') }}
         </p>
 
         <form method="post" action="{{ $saveRoute }}" class="mt-3">
@@ -27,7 +27,7 @@
                         <span class="block text-sm font-semibold mb-1">
                             {{ $row['label'] }}
                             @if ($row['owner_only'])
-                                <span class="text-xs" style="color: var(--color-state-honor)"><x-icon name="lock" size="16" /> مالك المنصّة</span>
+                                <span class="text-xs" style="color: var(--color-state-honor)"><x-icon name="lock" size="16" /> {{ setting('admin.screens24.settings.malk_almnsa', 'مالك المنصّة') }}</span>
                             @endif
                         </span>
 
@@ -39,7 +39,7 @@
                             <span class="flex items-center gap-2">
                                 <input type="hidden" name="settings[{{ $row['key'] }}]" value="0">
                                 <input type="checkbox" name="settings[{{ $row['key'] }}]" value="1" @checked($row['value'] === '1')>
-                                <span class="text-sm">مفعّل</span>
+                                <span class="text-sm">{{ setting('admin.screens24.settings.mfal', 'مفعّل') }}</span>
                             </span>
                         @elseif ($row['type'] === 'number')
                             <input type="number" name="settings[{{ $row['key'] }}]" min="0" max="1000000"
@@ -56,9 +56,9 @@
                         <span class="block text-xs mt-1" style="color: var(--text-muted)">
                             <code>{{ $row['key'] }}</code>
                             @if ($row['hint']) · {{ $row['hint'] }} @endif
-                            @if ($row['type'] !== 'bool') · الافتراضيّ: {{ $row['default'] }} @endif
+                            @if ($row['type'] !== 'bool') {{ setting('admin.screens24.settings.alaftrady', '· الافتراضيّ:') }} {{ $row['default'] }} @endif
                             @if ($row['modified'])
-                                · <span style="color: var(--color-state-warn)">▲ معدَّل</span>
+                                · <span style="color: var(--color-state-warn)">{{ setting('admin.screens24.settings.madl', '▲ معدَّل') }}</span>
                             @endif
                         </span>
                     </label>
@@ -67,15 +67,15 @@
 
             <div class="flex items-center gap-2 mt-4">
                 <button type="submit" class="btn rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
-                        style="background: var(--color-brand-500); color: #04201c">احفظ</button>
-                <span class="text-xs" style="color: var(--text-muted)">التعديل يسري فورًا بلا إعادة نشر.</span>
+                        style="background: var(--color-brand-500); color: #04201c">{{ setting('admin.screens24.settings.ahfz', 'احفظ') }}</button>
+                <span class="text-xs" style="color: var(--text-muted)">{{ setting('admin.screens24.settings.altadyl_ysry_fwra_bla_iaada_nshr', 'التعديل يسري فورًا بلا إعادة نشر.') }}</span>
             </div>
         </form>
 
         <form method="post" action="{{ $resetRoute }}" class="mt-3"
-              onsubmit="return confirm('ترجّع كلّ إعدادات الشاشة دي للافتراضيّ؟')">
+              onsubmit="return confirm('{{ setting('admin.screens24.settings.trja_kl_iadadat_alshasha_dy_llaftrady', 'ترجّع كلّ إعدادات الشاشة دي للافتراضيّ؟') }}')">
             @csrf
-            <button type="submit" class="text-xs underline" style="color: var(--text-muted)"><x-icon name="refresh" size="16" /> رجّع الإعدادات كلّها للافتراضيّ</button>
+            <button type="submit" class="text-xs underline" style="color: var(--text-muted)"><x-icon name="refresh" size="16" /> {{ setting('admin.screens24.settings.rja_aliadadat_klha_llaftrady', 'رجّع الإعدادات كلّها للافتراضيّ') }}</button>
         </form>
     </details>
 @endif

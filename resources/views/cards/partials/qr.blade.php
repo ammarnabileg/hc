@@ -9,8 +9,8 @@
 @endphp
 
 <svg viewBox="0 0 {{ $side }} {{ $side }}" width="{{ $size ?? 108 }}" height="{{ $size ?? 108 }}"
-     shape-rendering="crispEdges" role="img" aria-label="امسح للتحقّق من البطاقة">
-    <title>امسح للتحقّق من البطاقة</title>
+     shape-rendering="crispEdges" role="img" aria-label="{{ setting('volunteer_card.qr.aria_label_1', 'امسح للتحقّق من البطاقة') }}">
+    <title>{{ setting('volunteer_card.qr.text_1', 'امسح للتحقّق من البطاقة') }}</title>
     <rect width="{{ $side }}" height="{{ $side }}" fill="#ffffff" />
     @foreach ($qr as $y => $row)
         @foreach ($row as $x => $dark)

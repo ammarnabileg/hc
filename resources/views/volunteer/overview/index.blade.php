@@ -1,18 +1,18 @@
 @extends('layouts.volunteer')
 
-@section('title', 'رحلتي في التطوّع')
+@section('title', setting('volunteer.overview.title', 'رحلتي في التطوّع'))
 
 @section('content')
-    <x-page-header title="رحلتي في التطوّع"
-                   subtitle="كلّ محطّة عدّيتها، بتاريخها وكيانها."
+    <x-page-header :title="setting('volunteer.overview.title', 'رحلتي في التطوّع')"
+                   :subtitle="setting('volunteer.overview.subtitle', 'كلّ محطّة عدّيتها، بتاريخها وكيانها.')"
                    :breadcrumbs="[
-                       ['label' => 'لوحة التطوّع', 'url' => route('volunteer.overview')],
-                       ['label' => 'رحلتي في التطوّع'],
+                       ['label' => setting('volunteer.common.breadcrumb_root', 'لوحة التطوّع'), 'url' => route('volunteer.overview')],
+                       ['label' => setting('volunteer.overview.title', 'رحلتي في التطوّع')],
                    ]">
         <x-slot:action>
             <a href="{{ \Illuminate\Support\Facades\Route::has('profile.me') ? route('profile.me') : '#' }}"
                class="btn rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
-               style="background: var(--color-brand-500); color: #04201c">فتح بروفايلي</a>
+               style="background: var(--color-brand-500); color: #04201c">{{ setting('volunteer.overview.link', 'فتح بروفايلي') }}</a>
         </x-slot:action>
     </x-page-header>
 
@@ -25,7 +25,7 @@
                 @include('volunteer.components.rep-badge', ['user' => $user])
             </div>
             <div class="text-xs" style="color: var(--text-muted)">
-                #{{ $user->code }} · {{ $membership?->entity?->name_ar ?? 'بلا كيان' }}
+                #{{ $user->code }} · {{ $membership?->entity?->name_ar ?? setting('volunteer.overview.text', 'بلا كيان') }}
                 · {{ $membership?->position?->name_ar ?? '—' }}
             </div>
         </div>
@@ -33,15 +33,15 @@
 
     {{-- 4 كروت KPI بحدّ أقصى (2.15-أ-3) --}}
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
-        <x-kpi label="مدّة الخدمة" :value="$kpis['service']" icon="hourglass" />
-        <x-kpi label="البوزشن الحاليّ" :value="$kpis['position']" icon="badge" />
-        <x-kpi label="الشهادات" :value="$kpis['certificates']" icon="certificate" />
-        <x-kpi label="إجمالي VXP" :value="$kpis['vxp']" icon="spark" />
+        <x-kpi :label="setting('volunteer.overview.label', 'مدّة الخدمة')" :value="$kpis['service']" icon="hourglass" />
+        <x-kpi :label="setting('volunteer.overview.label_2', 'البوزشن الحاليّ')" :value="$kpis['position']" icon="badge" />
+        <x-kpi :label="setting('volunteer.overview.label_3', 'الشهادات')" :value="$kpis['certificates']" icon="certificate" />
+        <x-kpi :label="setting('volunteer.overview.label_4', 'إجمالي VXP')" :value="$kpis['vxp']" icon="spark" />
     </div>
 
     @if (empty($stations))
-        <x-empty message="رحلتك لسّه في أوّلها — أوّل محطّة اكتملت بالفعل"
-                 action="شوف مهامّي" :href="route('volunteer.tasks.index')" />
+        <x-empty :message="setting('volunteer.overview.empty', 'رحلتك لسّه في أوّلها — أوّل محطّة اكتملت بالفعل')"
+                 :action="setting('volunteer.overview.action', 'شوف مهامّي')" :href="route('volunteer.tasks.index')" />
     @else
         {{-- Roadmap رأسيّ بمحطّات مرقّمة (Stepper) — مرسوم بالـCSS بلا مكتبات --}}
         <ol class="relative space-y-4" style="padding-inline-start: 1.75rem">
@@ -84,11 +84,11 @@
 
                     @if (! empty($station['certificate']))
                         <div class="mt-3 flex items-center gap-2">
-                            <x-state-badge state="honor" label="شهادة صدرت" />
+                            <x-state-badge state="honor" :label="setting('volunteer.overview.label_5', 'شهادة صدرت')" />
                             <a class="text-xs underline"
                                href="{{ \Illuminate\Support\Facades\Route::has('verify.certificate')
                                     ? route('verify.certificate', $station['certificate']->code)
-                                    : '#' }}">تحميل PDF</a>
+                                    : '#' }}">{{ setting('volunteer.overview.link_2', 'تحميل PDF') }}</a>
                         </div>
                     @endif
                 </li>
@@ -98,9 +98,9 @@
         {{-- بار «طريقك للبوزشن الجاي» --}}
         <div class="card p-4 mt-6">
             <div class="flex items-center justify-between text-sm">
-                <span>طريقك للبوزشن الجاي</span>
+                <span>{{ setting('volunteer.overview.text_2', 'طريقك للبوزشن الجاي') }}</span>
                 <span style="color: var(--text-muted)">
-                    {{ $nextPositionProgress['days'] }} / {{ $nextPositionProgress['target'] }} يوم في البوزشن الحاليّ
+                    {{ $nextPositionProgress['days'] }} / {{ $nextPositionProgress['target'] }} {{ setting('volunteer.overview.text_3', 'يوم في البوزشن الحاليّ') }}
                 </span>
             </div>
             <div class="mt-2 h-2 rounded-full overflow-hidden" style="background: var(--surface-sunken)">

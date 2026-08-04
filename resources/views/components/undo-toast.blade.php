@@ -20,6 +20,6 @@
     <button type="button" data-undo-action
             class="btn rounded-lg px-3 font-semibold motion-standard"
             style="min-height: 44px; background: var(--color-brand-500); color: #04201c">
-        تراجع (<span data-undo-countdown>{{ $seconds }}</span>)
+        {{ setting('ux.undo_toast.text_1', 'تراجع') }} (<span data-undo-countdown>{{ $seconds }}</span>)
     </button>
 </div>

@@ -65,7 +65,7 @@ class SystemHealth
         $free = @disk_free_space(base_path());
 
         if (! $total || $free === false) {
-            return $this->row('disk', 'مساحة القرص', 'غير متاحة', 'idle', 'الخادم مش بيسمح بقراءة المساحة.');
+            return $this->row('disk', setting('backups.system_health.disk_1', 'مساحة القرص'), setting('backups.system_health.disk_2', 'غير متاحة'), 'idle', setting('backups.system_health.disk_3', 'الخادم مش بيسمح بقراءة المساحة.'));
         }
 
         $usedPercent = (int) round((($total - $free) / $total) * 100);
@@ -74,10 +74,10 @@ class SystemHealth
 
         return $this->row(
             'disk',
-            'مساحة القرص',
-            $usedPercent.'% مستخدَمة · فاضي '.$this->backups->humanSize((int) $free),
+            setting('backups.system_health.disk_4', 'مساحة القرص'),
+            strtr(setting('backups.system_health.disk_5', ':p1% مستخدَمة · فاضي :p2'), [':p1' => (string) ($usedPercent), ':p2' => (string) ($this->backups->humanSize((int) $free))]),
             $usedPercent >= $alert ? 'danger' : ($usedPercent >= $warn ? 'warn' : 'ok'),
-            "التنبيه عند {$alert}% — والتحذير المبكّر عند {$warn}%.",
+            strtr(setting('backups.system_health.disk_6', 'التنبيه عند :p1% — والتحذير المبكّر عند :p2%.'), [':p1' => (string) ($alert), ':p2' => (string) ($warn)]),
             ['percent' => $usedPercent],
         );
     }
@@ -90,17 +90,17 @@ class SystemHealth
             DB::select('select 1');
             $ms = (int) round((microtime(true) - $startedAt) * 1000);
         } catch (Throwable $e) {
-            return $this->row('database', 'قاعدة البيانات', 'مش متّصلة', 'danger', 'راجع بيانات الاتّصال في ملفّ البيئة.');
+            return $this->row('database', setting('backups.system_health.database_1', 'قاعدة البيانات'), setting('backups.system_health.database_2', 'مش متّصلة'), 'danger', setting('backups.system_health.database_3', 'راجع بيانات الاتّصال في ملفّ البيئة.'));
         }
 
         $slow = (int) setting('system.health.db_slow_ms', 300);
 
         return $this->row(
             'database',
-            'قاعدة البيانات',
-            DB::getDriverName().' · '.$ms.' م.ث',
+            setting('backups.system_health.database_4', 'قاعدة البيانات'),
+            strtr(setting('backups.system_health.database_5', ':p1 · :p2 م.ث'), [':p1' => (string) (DB::getDriverName()), ':p2' => (string) ($ms)]),
             $ms >= $slow ? 'warn' : 'ok',
-            "الردّ الطبيعيّ أقلّ من {$slow} م.ث.",
+            strtr(setting('backups.system_health.database_6', 'الردّ الطبيعيّ أقلّ من :p1 م.ث.'), [':p1' => (string) ($slow)]),
         );
     }
 
@@ -119,10 +119,10 @@ class SystemHealth
 
         return $this->row(
             'cache',
-            'الكاش',
+            setting('backups.system_health.cache_1', 'الكاش'),
             (string) config('cache.default'),
             $ok ? 'ok' : 'danger',
-            $ok ? 'الكتابة والقراءة شغّالة.' : 'الكاش مش بيكتب — الصفحات هتبقى أبطأ والإعدادات ممكن تتأخّر.',
+            $ok ? setting('backups.system_health.cache_2', 'الكتابة والقراءة شغّالة.') : setting('backups.system_health.cache_3', 'الكاش مش بيكتب — الصفحات هتبقى أبطأ والإعدادات ممكن تتأخّر.'),
         );
     }
 
@@ -131,7 +131,7 @@ class SystemHealth
         $connection = (string) config('queue.default');
 
         if (! Schema::hasTable('jobs')) {
-            return $this->row('queue', 'الطوابير', $connection, 'idle', 'مافيش جدول طوابير — التنفيذ فوريّ.');
+            return $this->row('queue', setting('backups.system_health.queue_1', 'الطوابير'), $connection, 'idle', setting('backups.system_health.queue_2', 'مافيش جدول طوابير — التنفيذ فوريّ.'));
         }
 
         $pending = (int) DB::table('jobs')->count();
@@ -140,10 +140,10 @@ class SystemHealth
 
         return $this->row(
             'queue',
-            'الطوابير',
-            "{$connection} · {$pending} منتظرة · {$failed} فاشلة",
+            setting('backups.system_health.queue_3', 'الطوابير'),
+            strtr(setting('backups.system_health.text_1', ':p1 · :p2 منتظرة · :p3 فاشلة'), [':p1' => (string) ($connection), ':p2' => (string) ($pending), ':p3' => (string) ($failed)]),
             $failed > 0 ? 'danger' : ($pending > $limit ? 'warn' : 'ok'),
-            "التحذير لو المنتظر عدّى {$limit} مهمّة.",
+            strtr(setting('backups.system_health.body_1', 'التحذير لو المنتظر عدّى :p1 مهمّة.'), [':p1' => (string) ($limit)]),
             ['pending' => $pending, 'failed' => $failed],
         );
     }
@@ -155,17 +155,17 @@ class SystemHealth
         $limit = (int) setting('backups.cron_alert_hours', 1);
 
         if (! $last) {
-            return $this->row('schedule', 'الجدولة', 'مافيش تشغيل مسجَّل', 'danger', 'الكرون غالبًا مش متظبّط على الخادم.');
+            return $this->row('schedule', setting('backups.system_health.schedule_1', 'الجدولة'), setting('backups.system_health.schedule_2', 'مافيش تشغيل مسجَّل'), 'danger', setting('backups.system_health.schedule_3', 'الكرون غالبًا مش متظبّط على الخادم.'));
         }
 
         $hours = round((time() - $last) / 3600, 1);
 
         return $this->row(
             'schedule',
-            'الجدولة',
-            'آخر تشغيل من '.$this->humanHours($hours),
+            setting('backups.system_health.schedule_4', 'الجدولة'),
+            strtr(setting('backups.system_health.schedule_5', 'آخر تشغيل من :p1'), [':p1' => (string) ($this->humanHours($hours))]),
             $hours > $limit ? 'danger' : 'ok',
-            "التنبيه لو عدّى {$limit} ساعة بلا تشغيل.",
+            strtr(setting('backups.system_health.schedule_6', 'التنبيه لو عدّى :p1 ساعة بلا تشغيل.'), [':p1' => (string) ($limit)]),
             ['hours' => $hours],
         );
     }
@@ -180,10 +180,10 @@ class SystemHealth
 
         return $this->row(
             'extensions',
-            'الامتدادات المطلوبة',
-            $missing === [] ? count($required).' امتداد كلّها موجودة' : 'ناقص: '.implode(' · ', $missing),
+            setting('backups.system_health.extensions_1', 'الامتدادات المطلوبة'),
+            $missing === [] ? strtr(setting('backups.system_health.extensions_2', ':p1 امتداد كلّها موجودة'), [':p1' => (string) (count($required))]) : strtr(setting('backups.system_health.extensions_3', 'ناقص: :p1'), [':p1' => (string) (implode(' · ', $missing))]),
             $missing === [] ? 'ok' : 'danger',
-            $missing === [] ? 'كلّ حاجة تمام.' : 'نصّب الناقص من الخادم عشان الصور والأرشيف يشتغلوا.',
+            $missing === [] ? setting('backups.system_health.extensions_4', 'كلّ حاجة تمام.') : setting('backups.system_health.extensions_5', 'نصّب الناقص من الخادم عشان الصور والأرشيف يشتغلوا.'),
             ['missing' => $missing],
         );
     }
@@ -211,10 +211,10 @@ class SystemHealth
 
         return $this->row(
             'writable',
-            'صلاحيّات الكتابة',
-            $blocked === [] ? count($paths).' مجلّد قابل للكتابة' : 'مقفول: '.implode(' · ', $blocked),
+            setting('backups.system_health.writable_paths_1', 'صلاحيّات الكتابة'),
+            $blocked === [] ? strtr(setting('backups.system_health.writable_paths_2', ':p1 مجلّد قابل للكتابة'), [':p1' => (string) (count($paths))]) : strtr(setting('backups.system_health.writable_paths_3', 'مقفول: :p1'), [':p1' => (string) (implode(' · ', $blocked))]),
             $blocked === [] ? 'ok' : 'danger',
-            $blocked === [] ? 'كلّ المجلّدات مفتوحة للكتابة.' : 'اضبط ملكيّة المجلّدات دي للمستخدم اللي بيشغّل الخادم.',
+            $blocked === [] ? setting('backups.system_health.writable_paths_4', 'كلّ المجلّدات مفتوحة للكتابة.') : setting('backups.system_health.writable_paths_5', 'اضبط ملكيّة المجلّدات دي للمستخدم اللي بيشغّل الخادم.'),
             ['blocked' => $blocked],
         );
     }
@@ -225,15 +225,15 @@ class SystemHealth
         $limit = (int) setting('backups.max_age_hours_alert', 48);
 
         if ($hours === null) {
-            return $this->row('backup', 'آخر نسخة احتياطيّة', 'مافيش نسخة لسه', 'danger', 'خُد نسختك الأولى دلوقتي.');
+            return $this->row('backup', setting('backups.system_health.last_backup_1', 'آخر نسخة احتياطيّة'), setting('backups.system_health.last_backup_2', 'مافيش نسخة لسه'), 'danger', setting('backups.system_health.last_backup_3', 'خُد نسختك الأولى دلوقتي.'));
         }
 
         return $this->row(
             'backup',
-            'آخر نسخة احتياطيّة',
-            'من '.$this->humanHours($hours),
+            setting('backups.system_health.last_backup_4', 'آخر نسخة احتياطيّة'),
+            strtr(setting('backups.system_health.last_backup_5', 'من :p1'), [':p1' => (string) ($this->humanHours($hours))]),
             $hours > $limit ? 'danger' : ($hours > $limit / 2 ? 'warn' : 'ok'),
-            "التنبيه لو عدّى {$limit} ساعة بلا نسخة.",
+            strtr(setting('backups.system_health.last_backup_6', 'التنبيه لو عدّى :p1 ساعة بلا نسخة.'), [':p1' => (string) ($limit)]),
             ['hours' => $hours],
         );
     }
@@ -255,7 +255,7 @@ class SystemHealth
         $byKey = collect($report)->keyBy('key');
         $alerts = [];
 
-        foreach (['disk' => 'مساحة القرص', 'backup' => 'آخر نسخة احتياطيّة', 'schedule' => 'الجدولة'] as $key => $label) {
+        foreach (['disk' => setting('backups.system_health.alerts_1', 'مساحة القرص'), 'backup' => setting('backups.system_health.alerts_2', 'آخر نسخة احتياطيّة'), 'schedule' => setting('backups.system_health.alerts_3', 'الجدولة')] as $key => $label) {
             $row = $byKey->get($key);
 
             if ($row && $row['state'] === 'danger') {
@@ -420,13 +420,13 @@ class SystemHealth
     private function humanHours(float $hours): string
     {
         if ($hours < 1) {
-            return max(1, (int) round($hours * 60)).' دقيقة';
+            return strtr(setting('backups.system_health.human_hours_1', ':p1 دقيقة'), [':p1' => (string) (max(1, (int) round($hours * 60)))]);
         }
 
         if ($hours < 48) {
-            return rtrim(rtrim(number_format($hours, 1), '0'), '.').' ساعة';
+            return strtr(setting('backups.system_health.human_hours_2', ':p1 ساعة'), [':p1' => (string) (rtrim(rtrim(number_format($hours, 1), '0'), '.'))]);
         }
 
-        return (int) round($hours / 24).' يوم';
+        return strtr(setting('backups.system_health.human_hours_3', ':p1 يوم'), [':p1' => (string) ((int) round($hours / 24))]);
     }
 }

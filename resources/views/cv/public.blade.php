@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
-@section('title', $owner->shortName().' — السيرة الذاتيّة')
-@section('meta_description', $headline !== '' ? $headline : ('السيرة الذاتيّة لـ'.$owner->shortName()))
+@section('title', strtr((string) setting('cv.public_page.section_1', ':a1 — السيرة الذاتيّة'), [':a1' => (string) ($owner->shortName())]))
+@section('meta_description', $headline !== '' ? $headline : (strtr((string) setting('cv.public_page.section_2', 'السيرة الذاتيّة لـ:a1'), [':a1' => (string) ($owner->shortName())])))
 
 @section('content')
     {{--

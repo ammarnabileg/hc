@@ -30,7 +30,7 @@ class BoardImageRenderer
     public function render(BoardSnapshot $snapshot, array $rows, array $options, ?ImageTemplate $template, ?User $actor): string
     {
         if (! function_exists('imagecreatetruecolor')) {
-            throw new RuntimeException('امتداد GD مش متاح على الخادم — الاستخراج كصورة متوقّف. كلّم الدعم.');
+            throw new RuntimeException(setting('images.board_image_renderer.render_1', 'امتداد GD مش متاح على الخادم — الاستخراج كصورة متوقّف. كلّم الدعم.'));
         }
 
         $this->throttle($actor);
@@ -116,7 +116,7 @@ class BoardImageRenderer
         $count = (int) Cache::get($bucket, 0);
 
         if ($count >= $limit) {
-            throw new RuntimeException('وصلت لحدّ الاستخراج في الدقيقة — استنّى دقيقة وجرّب تاني.');
+            throw new RuntimeException(setting('images.board_image_renderer.throttle_1', 'وصلت لحدّ الاستخراج في الدقيقة — استنّى دقيقة وجرّب تاني.'));
         }
 
         // نافذة العدّاد أطول قليلًا من الدقيقة كي لا يضيع العدّ على حدّها — وهي إعداد (2.13)

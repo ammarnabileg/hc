@@ -1,5 +1,5 @@
 @extends('layouts.guest')
-@section('title', 'بعتنالك')
+@section('title', (string) setting('auth.password_sent.section_1', 'بعتنالك'))
 
 @section('content')
 {{--

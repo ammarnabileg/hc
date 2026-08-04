@@ -83,7 +83,7 @@ class CertificateBulkIssuer
                 ];
             }
 
-            return ['code' => $code, 'user' => $user, 'state' => 'ok', 'message' => 'صالح'];
+            return ['code' => $code, 'user' => $user, 'state' => 'ok', 'message' => setting('admin_content.certificate_bulk_issuer.verify_1', 'صالح')];
         });
     }
 

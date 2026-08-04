@@ -155,7 +155,7 @@ class AnnouncementAcknowledger
             amount: $tickets,
             source: $this->ledgerSource(),
             reference: $announcement,
-            reason: 'إقرار قراءة تعليمات: '.$announcement->title,
+            reason: strtr(setting('notifications.announcement_acknowledger.award_tickets_1', 'إقرار قراءة تعليمات: :p1'), [':p1' => (string) ($announcement->title)]),
         );
 
         return $tickets;
@@ -176,7 +176,7 @@ class AnnouncementAcknowledger
             amount: $xp,
             source: $this->ledgerSource(),
             reference: $announcement,
-            reason: 'إقرار قراءة تعليمات: '.$announcement->title,
+            reason: strtr(setting('notifications.announcement_acknowledger.award_xp_1', 'إقرار قراءة تعليمات: :p1'), [':p1' => (string) ($announcement->title)]),
         );
     }
 }

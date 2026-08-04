@@ -72,8 +72,8 @@ class BehaviorEscalation
             FlowNotifier::send(
                 $handler,
                 'escalation',
-                'يحتاج قرارك: '.CaseCatalog::label(CaseCatalog::BEHAVIOR_SEVERE),
-                'فوات النافذة = رفض آليّ، ولا تُطبَّق المخالفة على درجة الالتزام.',
+                strtr(setting('volunteer_offboarding.behavior_escalation.open_1', 'يحتاج قرارك: :p1'), [':p1' => (string) (CaseCatalog::label(CaseCatalog::BEHAVIOR_SEVERE))]),
+                setting('volunteer_offboarding.behavior_escalation.open_2', 'فوات النافذة = رفض آليّ، ولا تُطبَّق المخالفة على درجة الالتزام.'),
                 route('volunteer.escalations'),
                 $due,
                 requiresAction: true,
@@ -113,8 +113,8 @@ class BehaviorEscalation
         // ⭐ رفضًا صريحًا كان أو تسويةً آليّة: **لا تُطبَّق** على درجة الالتزام
         BehaviorLedger::rejectPending(
             $subject,
-            $decider ? 'اتّخِذ قرار برفض المخالفة من المستوى الأعلى.'
-                : 'فاتت نافذة الاعتماد ('.$this->windowHours().' ساعة) — تسوية آليّة بالرفض.'
+            $decider ? setting('volunteer_offboarding.behavior_escalation.apply_1', 'اتّخِذ قرار برفض المخالفة من المستوى الأعلى.')
+                : strtr(setting('volunteer_offboarding.behavior_escalation.apply_2', 'فاتت نافذة الاعتماد (:p1 ساعة) — تسوية آليّة بالرفض.'), [':p1' => (string) ($this->windowHours())])
         );
     }
 }

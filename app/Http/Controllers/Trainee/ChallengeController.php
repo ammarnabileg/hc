@@ -353,10 +353,10 @@ class ChallengeController extends Controller
 
         // عنوان الساحة وسطرها التعريفيّ إعدادان لكلّ نوع (2.13)، وOverride الحرب فوقهما
         $anchors = [
-            'knowledge' => ['ساحة الحرب', 'اختبر مهاراتك الذهنية والسرعة، وواجه خصمك وجهًا لوجه!'],
-            'survival' => ['ساحة البقاء', 'جاوب صح وابقى… أول غلطة تخرجك!'],
-            'estimation' => ['ساحة التقدير', 'قدّر الرقم الأقرب للصح واكسب!'],
-            'focus' => ['ساحة التركيز', 'عمل عميق بلا مقاطعة — والعدّ مبنيّ على أمانتك.'],
+            'knowledge' => [(string) setting('challenges.screen.arena_card_msg', 'ساحة الحرب'), (string) setting('challenges.screen.arena_card_msg_2', 'اختبر مهاراتك الذهنية والسرعة، وواجه خصمك وجهًا لوجه!')],
+            'survival' => [(string) setting('challenges.screen.arena_card_msg_3', 'ساحة البقاء'), (string) setting('challenges.screen.arena_card_denied', 'جاوب صح وابقى… أول غلطة تخرجك!')],
+            'estimation' => [(string) setting('challenges.screen.arena_card_msg_4', 'ساحة التقدير'), (string) setting('challenges.screen.arena_card_msg_5', 'قدّر الرقم الأقرب للصح واكسب!')],
+            'focus' => [(string) setting('challenges.screen.arena_card_msg_6', 'ساحة التركيز'), (string) setting('challenges.screen.arena_card_msg_7', 'عمل عميق بلا مقاطعة — والعدّ مبنيّ على أمانتك.')],
         ];
 
         [$anchorHeadline, $anchorTagline] = $anchors[$type] ?? $anchors['knowledge'];
@@ -384,10 +384,10 @@ class ChallengeController extends Controller
         $types = setting('challenges.types', null);
 
         return is_array($types) ? $types : [
-            'knowledge' => 'حرب المعلومات',
-            'focus' => 'حرب التركيز',
-            'survival' => 'حرب البقاء',
-            'estimation' => 'حرب التقدير',
+            'knowledge' => (string) setting('challenges.screen.types_msg', 'حرب المعلومات'),
+            'focus' => (string) setting('challenges.screen.types_msg_2', 'حرب التركيز'),
+            'survival' => (string) setting('challenges.screen.types_msg_3', 'حرب البقاء'),
+            'estimation' => (string) setting('challenges.screen.types_msg_4', 'حرب التقدير'),
         ];
     }
 }

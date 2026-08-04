@@ -73,7 +73,7 @@ class MaintenanceService
             'planned_hours' => $window->planned_hours + $hours,
         ]);
 
-        $this->note($actor, 'system.maintenance.enabled', 'تمديد الصيانة '.$hours.' ساعة');
+        $this->note($actor, 'system.maintenance.enabled', strtr(setting('maintenance.maintenance_service.extend_1', 'تمديد الصيانة :p1 ساعة'), [':p1' => (string) ($hours)]));
 
         return $window->refresh();
     }
@@ -105,7 +105,7 @@ class MaintenanceService
 
         $window->update(['deadlines_recomputed' => true]);
         $this->flag(false, (string) $window->message, $actor);
-        $this->note($actor, 'system.maintenance.enabled', "رفع الصيانة — {$rows} مهلة اتعدّلت بفارق {$seconds} ثانية");
+        $this->note($actor, 'system.maintenance.enabled', strtr(setting('maintenance.maintenance_service.lift_1', 'رفع الصيانة — :p1 مهلة اتعدّلت بفارق :p2 ثانية'), [':p1' => (string) ($rows), ':p2' => (string) ($seconds)]));
 
         return ['seconds' => $seconds, 'rows' => $rows];
     }

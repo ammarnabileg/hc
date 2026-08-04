@@ -46,7 +46,7 @@ class PositiveMessages
         $contexts = setting('engagement.positive.contexts', []);
 
         if (! is_array($contexts) || $contexts === []) {
-            return [self::ANY => 'أيّ لحظة'];
+            return [self::ANY => setting('engagement.positive_messages.contexts_1', 'أيّ لحظة')];
         }
 
         return $contexts;

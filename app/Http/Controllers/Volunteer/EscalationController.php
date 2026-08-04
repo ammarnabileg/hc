@@ -98,7 +98,7 @@ class EscalationController extends Controller
             'responsible_id' => $data['responsible_id'] ?? null,
         ]);
 
-        return back()->with('status', 'اترفعت الحالة للمراجِع ✓');
+        return back()->with('status', (string) setting('workflow.escalation.store_ok', 'اترفعت الحالة للمراجِع ✓'));
     }
 
     /**
@@ -122,7 +122,7 @@ class EscalationController extends Controller
 
         // «إنهاء بقيمة Rep يدويّة» لا يمرّ بلا مبرّر مكتوب (23 — القسم 5 الحالة 8)
         if ($data['decision'] === 'finished' && trim((string) ($data['justification'] ?? '')) === '') {
-            return back()->withErrors(['justification' => 'المبرّر إجباريّ مع قيمة Rep اليدويّة.'])->withInput();
+            return back()->withErrors(['justification' => (string) setting('workflow.escalation.decide_msg', 'المبرّر إجباريّ مع قيمة Rep اليدويّة.')])->withInput();
         }
 
         $this->engine->decide(
@@ -137,7 +137,7 @@ class EscalationController extends Controller
             ],
         );
 
-        return back()->with('status', 'اتسجّل قرارك ✓');
+        return back()->with('status', (string) setting('workflow.escalation.decide_ok', 'اتسجّل قرارك ✓'));
     }
 
     // ------------------------------------------------------------------ داخليّ
@@ -148,7 +148,7 @@ class EscalationController extends Controller
         abort_unless(
             (int) $escalation->current_handler_id === (int) $user->id || $user->allows('escalations.manage'),
             403,
-            'الحالة دي على مكتب غيرك.',
+            (string) setting('workflow.escalation.authorize_handler_msg', 'الحالة دي على مكتب غيرك.'),
         );
     }
 }

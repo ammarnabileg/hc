@@ -91,8 +91,8 @@ class EmailVerificationController extends Controller
         $data = $request->validate([
             'code' => ['required', 'string', 'size:'.$this->otp->length()],
         ], [
-            'code.required' => 'اكتب الرمز اللي وصلك الأوّل.',
-            'code.size' => 'الرمز '.$this->otp->length().' أرقام بالظبط.',
+            'code.required' => (string) setting('auth.verification.confirm_msg', 'اكتب الرمز اللي وصلك الأوّل.'),
+            'code.size' => strtr((string) setting('auth.verification.confirm_msg_2', 'الرمز :a1 أرقام بالظبط.'), [':a1' => (string) ($this->otp->length())]),
         ]);
 
         $result = $this->otp->verify($email, OtpService::PURPOSE_REGISTER, $data['code']);

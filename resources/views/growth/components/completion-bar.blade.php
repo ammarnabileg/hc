@@ -25,7 +25,7 @@
 @endphp
 
 @if ($barState && $barState['percent'] < 100)
-    <section class="card p-3 mb-4 animate-fadeup" aria-label="إكمال الملفّ الشخصيّ">
+    <section class="card p-3 mb-4 animate-fadeup" aria-label="{{ setting('growth.completion_bar.aria_label_1', 'إكمال الملفّ الشخصيّ') }}">
         <div class="flex items-center justify-between gap-3 flex-wrap">
             <div class="min-w-0">
                 <p class="text-sm font-semibold">
@@ -51,7 +51,7 @@
                 {{-- زرّ إيقاف لكلّ تذكير (21.1-د) — ولمسة 44×44 على الموبايل (2.15-ج) --}}
                 <form method="post" action="{{ route('growth.profile.completion.dismiss') }}">
                     @csrf
-                    <button type="submit" aria-label="إخفاء التذكير"
+                    <button type="submit" aria-label="{{ setting('growth.completion_bar.aria_label_2', 'إخفاء التذكير') }}"
                             class="inline-flex items-center justify-center rounded-xl motion-standard"
                             style="min-width: 44px; min-height: 44px; color: var(--text-muted)">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">

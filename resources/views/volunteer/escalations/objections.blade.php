@@ -1,6 +1,6 @@
 @extends('layouts.volunteer')
 
-@section('title', 'الاعتراضات')
+@section('title', setting('volunteer.escalations_objections.title', 'الاعتراضات'))
 
 @php
     /**
@@ -24,9 +24,9 @@
 
 @section('content')
     <x-page-header
-        title="الاعتراضات"
-        subtitle="الفصل في اعتراضات داونلايني على معاملاتهم."
-        :breadcrumbs="[['label' => 'يحتاج قرارك', 'url' => route('volunteer.escalations')], ['label' => 'الاعتراضات']]" />
+        :title="setting('volunteer.escalations_objections.title', 'الاعتراضات')"
+        :subtitle="setting('volunteer.escalations_objections.subtitle', 'الفصل في اعتراضات داونلايني على معاملاتهم.')"
+        :breadcrumbs="[['label' => setting('volunteer.escalations_objections.label', 'يحتاج قرارك'), 'url' => route('volunteer.escalations')], ['label' => setting('volunteer.escalations_objections.title', 'الاعتراضات')]]" />
 
     {{-- الهيدر: عدّادات الحالات · إبراز المتأخّر عن SLA · مبدّل الكيان --}}
     <div class="flex flex-wrap items-center gap-2 mb-3 text-xs">
@@ -40,12 +40,12 @@
 
         @if ($filters['status'] !== '')
             <a href="{{ route('volunteer.escalations.objections') }}" class="rounded-full px-3 py-1"
-               style="border: 1px solid var(--border)">الكلّ</a>
+               style="border: 1px solid var(--border)">{{ setting('volunteer.common.all', 'الكلّ') }}</a>
         @endif
 
         {{-- إبراز المتأخّر عن الـSLA — بلون ورمز معًا (2.16-ج) --}}
         @if ($overdue > 0)
-            <x-state-badge state="danger" :label="'متأخّر عن الـSLA: '.$overdue" />
+            <x-state-badge state="danger" :label="setting('volunteer.escalations_objections.label_2', 'متأخّر عن الـSLA: ').$overdue" />
         @endif
 
         {{-- مبدّل الكيان: القسم/الفرعيّ الذي جاء منه المعترِض --}}
@@ -56,11 +56,11 @@
                 <input type="hidden" name="q" value="{{ $filters['q'] }}">
                 <label class="flex items-center gap-2">
                     <span style="color: var(--text-muted)">
-                        @include('volunteer.meetings.partials.icon', ['name' => 'entity']) الكيان
+                        @include('volunteer.meetings.partials.icon', ['name' => 'entity']) {{ setting('volunteer.common.entity', 'الكيان') }}
                     </span>
                     <select name="entity" onchange="this.form.submit()" class="rounded-xl px-3 py-2 text-xs"
                             style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
-                        <option value="">كلّ الكيانات</option>
+                        <option value="">{{ setting('volunteer.common.all_entities', 'كلّ الكيانات') }}</option>
                         @foreach ($entities as $entity)
                             <option value="{{ $entity->id }}" @selected($filters['entity'] === (int) $entity->id)>{{ $entity->name_ar }}</option>
                         @endforeach
@@ -79,10 +79,10 @@
         <input type="hidden" name="entity" value="{{ $filters['entity'] ?: '' }}">
 
         <label class="text-sm">
-            <span class="block text-xs mb-1" style="color: var(--text-muted)">الحالة</span>
+            <span class="block text-xs mb-1" style="color: var(--text-muted)">{{ setting('volunteer.common.status', 'الحالة') }}</span>
             <select name="status" onchange="this.form.submit()" class="rounded-xl px-3 py-2 text-sm"
                     style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
-                <option value="">الكلّ</option>
+                <option value="">{{ setting('volunteer.common.all', 'الكلّ') }}</option>
                 @foreach ($counts as $status => $count)
                     <option value="{{ $status }}" @selected($filters['status'] === $status)>{{ $service->statusLabel($status) }}</option>
                 @endforeach
@@ -90,14 +90,14 @@
         </label>
 
         <label class="text-sm">
-            <span class="block text-xs mb-1" style="color: var(--text-muted)">الفترة (يوم)</span>
+            <span class="block text-xs mb-1" style="color: var(--text-muted)">{{ setting('volunteer.escalations_objections.field', 'الفترة (يوم)') }}</span>
             <input type="number" name="days" min="1" max="365" value="{{ $filters['days'] }}"
                    class="rounded-xl px-3 py-2 text-sm w-24"
                    style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
         </label>
 
         <label class="text-sm flex-1 min-w-0">
-            <span class="block text-xs mb-1" style="color: var(--text-muted)">بحث برقم المعاملة أو الاسم</span>
+            <span class="block text-xs mb-1" style="color: var(--text-muted)">{{ setting('volunteer.escalations_objections.field_2', 'بحث برقم المعاملة أو الاسم') }}</span>
             <input type="search" name="q" value="{{ $filters['q'] }}" class="w-full rounded-xl px-3 py-2 text-sm"
                    style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
         </label>
@@ -109,7 +109,7 @@
             <p class="mb-2"><span aria-hidden="true">◉</span> {{ $errors->first() }}</p>
             <a href="{{ route('volunteer.escalations.objections') }}"
                class="btn inline-flex rounded-xl px-4 py-2 text-sm font-semibold"
-               style="background: var(--color-brand-500); color: #04201c">إعادة</a>
+               style="background: var(--color-brand-500); color: #04201c">{{ setting('volunteer.escalations_objections.link', 'إعادة') }}</a>
         </div>
     @endif
 
@@ -132,7 +132,7 @@
 
     {{-- الحالة: فارغة --}}
     @if ($rows->isEmpty())
-        <x-empty :message="$emptyMessage" action="روح ليحتاج قرارك" :href="route('volunteer.escalations')" />
+        <x-empty :message="$emptyMessage" :action="setting('volunteer.escalations_objections.action', 'روح ليحتاج قرارك')" :href="route('volunteer.escalations')" />
     @else
         <div class="grid gap-4 md:grid-cols-[20rem_1fr]" data-objection-desk>
             {{-- يمين: القائمة (# · رقم المعاملة · الحالة · المسؤول الحاليّ · التاريخ · شارة تأخّر) --}}
@@ -143,18 +143,18 @@
                             @if ($selectedId === $objection->id) style="border-color: var(--color-brand-600)" @endif>
                         <div class="flex items-center justify-between gap-2">
                             <span class="text-xs truncate" style="color: var(--text-muted)">
-                                #{{ $objection->id }} · معاملة #{{ $objection->transaction_id }}
+                                #{{ $objection->id }} · {{ setting('volunteer.escalations_objections.action_2', 'معاملة #') }}{{ $objection->transaction_id }}
                             </span>
                             <x-state-badge :state="$service->statusState($objection->status)"
                                            :label="$service->statusLabel($objection->status)" />
                         </div>
                         <div class="mt-1 text-sm truncate">{{ $objection->user?->name }}</div>
                         <div class="mt-1 flex items-center justify-between gap-2 text-xs" style="color: var(--text-muted)">
-                            <span class="truncate">المسؤول: {{ $objection->current_handler?->name ?? '—' }}</span>
+                            <span class="truncate">{{ setting('volunteer.escalations_objections.action_3', 'المسؤول:') }} {{ $objection->current_handler?->name ?? '—' }}</span>
                             <span class="shrink-0">{{ $objection->created_at?->format('Y-m-d') }}</span>
                         </div>
                         @if ($service->isOverdue($objection))
-                            <div class="mt-1"><x-state-badge state="danger" label="متأخّر" /></div>
+                            <div class="mt-1"><x-state-badge state="danger" :label="setting('volunteer.escalations_objections.label_3', 'متأخّر')" /></div>
                         @endif
                     </button>
                 @endforeach
@@ -185,7 +185,7 @@
     <a href="{{ route('volunteer.escalations.objections', ['status' => 'escalated']) }}"
        class="btn block text-center rounded-xl px-4 py-3 text-sm font-semibold"
        style="background: var(--color-brand-500); color: #04201c">
-        المُصعَّد إليّ ({{ $counts['escalated'] ?? 0 }})
+        {{ str_replace(':count', $counts['escalated'] ?? 0, (string) setting('volunteer.escalations_objections.link_2', 'المُصعَّد إليّ (:count)')) }}
     </a>
 @endsection
 

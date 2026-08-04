@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'الغيابات والتفويض')
+@section('title', setting('admin.volunteer.delegations.alghyabat_waltfwyd', 'الغيابات والتفويض'))
 
 @section('content')
     {{--
@@ -10,9 +10,9 @@
         فالفعل الرئيسيّ الوحيد في هذه الشاشة هو **الإنهاء المبكّر** (2.15-أ-2).
     --}}
     <x-page-header
-        title="الغيابات والتفويض المؤقّت"
-        subtitle="الغائب المعذور لا يُخصَم تباطؤًا — وقراراته تروح لبديله لحدّ ما يرجع."
-        :breadcrumbs="[['label' => 'التطوّع', 'url' => route('admin.volunteer.index')], ['label' => 'الغيابات والتفويض']]" />
+        :title="setting('admin.volunteer.delegations.alghyabat_waltfwyd_almwqt', 'الغيابات والتفويض المؤقّت')"
+        :subtitle="setting('admin.volunteer.delegations.alghayb_almadhwr_la_ykhsm_tbatwa_wqrarath', 'الغائب المعذور لا يُخصَم تباطؤًا — وقراراته تروح لبديله لحدّ ما يرجع.')"
+        :breadcrumbs="[['label' => setting('admin.volunteer.delegations.alttwa', 'التطوّع'), 'url' => route('admin.volunteer.index')], ['label' => setting('admin.volunteer.delegations.alghyabat_waltfwyd', 'الغيابات والتفويض')]]" />
 
     @include('admin.volunteer.partials.tabs', ['current' => 'delegations'])
 
@@ -20,28 +20,28 @@
     <div class="card p-3 mb-4 text-sm space-y-1">
         <div>
             <x-icon name="info" size="16" />
-            <strong>الإضافة من «الأعضاء والبوزشنز»</strong> — يفتحها مشرف عام التطوّع أو مشرف المسار أو دايركتور الكيان،
-            <strong>ولا يفتحها الشخص لنفسه</strong> منعًا للتهرّب.
+            <strong>{{ setting('admin.volunteer.delegations.alidafa_mn_alaada_walbwzshnz', 'الإضافة من «الأعضاء والبوزشنز»') }}</strong> {{ setting('admin.volunteer.delegations.yfthha_mshrf_aam_alttwa_aw_mshrf_almsar_aw', '— يفتحها مشرف عام التطوّع أو مشرف المسار أو دايركتور الكيان،') }}
+            <strong>{{ setting('admin.volunteer.delegations.wla_yfthha_alshkhs_lnfsh', 'ولا يفتحها الشخص لنفسه') }}</strong> {{ setting('admin.volunteer.delegations.mnaa_llthrb', 'منعًا للتهرّب.') }}
         </div>
         <div>
             <x-icon name="clock" size="16" />
-            الحدود الحاليّة: أقصى غياب متّصل <strong>{{ $maxDays }}</strong> يومًا · وبحدّ <strong>{{ $maxPerMonth }}</strong> مرّات في الشهر.
+            {{ setting('admin.volunteer.delegations.alhdwd_alhalya_aqsa_ghyab_mtsl', 'الحدود الحاليّة: أقصى غياب متّصل') }} <strong>{{ $maxDays }}</strong> {{ setting('admin.volunteer.delegations.ywma_wbhd', 'يومًا · وبحدّ') }} <strong>{{ $maxPerMonth }}</strong> {{ setting('admin.volunteer.delegations.mrat_fy_alshhr', 'مرّات في الشهر.') }}
         </div>
     </div>
 
     {{-- 4 كروت KPI بحدّ أقصى (2.15-أ-3) — وعلى الموبايل شبكة 2×2 --}}
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
-        <x-kpi label="غائبون الآن" :value="$kpis['current']" icon="user" />
-        <x-kpi label="تنتهي قريبًا" :value="$kpis['ending_soon']" icon="hourglass" />
-        <x-kpi :label="'تبدأ خلال '.$kpis['soon_days'].' يومًا'" :value="$kpis['upcoming']" icon="calendar" />
-        <x-kpi label="بلا بديل نشِط" :value="$kpis['no_delegate']" icon="warning"
-               hint="نافذة قرار بلا صاحب — راجعها فورًا" :state="$kpis['no_delegate'] > 0 ? 'danger' : 'ok'" />
+        <x-kpi :label="setting('admin.volunteer.delegations.ghaybwn_alan', 'غائبون الآن')" :value="$kpis['current']" icon="user" />
+        <x-kpi :label="setting('admin.volunteer.delegations.tnthy_qryba', 'تنتهي قريبًا')" :value="$kpis['ending_soon']" icon="hourglass" />
+        <x-kpi :label="setting('admin.volunteer.delegations.tbda_khlal', 'تبدأ خلال ').$kpis['soon_days'].setting('admin.volunteer.delegations.ywma', ' يومًا')" :value="$kpis['upcoming']" icon="calendar" />
+        <x-kpi :label="setting('admin.volunteer.delegations.bla_bdyl_nsht', 'بلا بديل نشِط')" :value="$kpis['no_delegate']" icon="warning"
+               :hint="setting('admin.volunteer.delegations.nafdha_qrar_bla_sahb_rajaha_fwra', 'نافذة قرار بلا صاحب — راجعها فورًا')" :state="$kpis['no_delegate'] > 0 ? 'danger' : 'ok'" />
     </div>
 
     {{-- 3 فلاتر ظاهرة (2.15-أ-4) --}}
     <x-filters :action="route('admin.volunteer.delegations')" screen="admin.delegations">
         <label class="text-sm">
-            <span class="block text-xs mb-1" style="color: var(--text-muted)">الحالة</span>
+            <span class="block text-xs mb-1" style="color: var(--text-muted)">{{ setting('admin.volunteer.delegations.alhala', 'الحالة') }}</span>
             <select name="state" onchange="this.form.submit()" class="rounded-xl px-3 py-2 text-sm"
                     style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
                 @foreach ($states as $key => $label)
@@ -51,10 +51,10 @@
         </label>
 
         <label class="text-sm">
-            <span class="block text-xs mb-1" style="color: var(--text-muted)">الكيان</span>
+            <span class="block text-xs mb-1" style="color: var(--text-muted)">{{ setting('admin.volunteer.delegations.alkyan', 'الكيان') }}</span>
             <select name="entity" onchange="this.form.submit()" class="rounded-xl px-3 py-2 text-sm"
                     style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
-                <option value="">الكلّ</option>
+                <option value="">{{ setting('admin.volunteer.delegations.alkl', 'الكلّ') }}</option>
                 @foreach ($entities as $entity)
                     <option value="{{ $entity->id }}" @selected((int) $filters['entity'] === (int) $entity->id)>{{ $entity->name_ar }}</option>
                 @endforeach
@@ -62,12 +62,12 @@
         </label>
 
         <label class="text-sm">
-            <span class="block text-xs mb-1" style="color: var(--text-muted)">بحث بالاسم/الكود</span>
+            <span class="block text-xs mb-1" style="color: var(--text-muted)">{{ setting('admin.volunteer.delegations.bhth_balasm_alkwd', 'بحث بالاسم/الكود') }}</span>
             <input type="search" name="q" value="{{ $filters['q'] }}" class="rounded-xl px-3 py-2 text-sm"
                    style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
         </label>
 
-        <button type="submit" class="btn rounded-xl px-4 py-2 text-sm font-semibold" style="background: var(--surface-raised)">فلتر</button>
+        <button type="submit" class="btn rounded-xl px-4 py-2 text-sm font-semibold" style="background: var(--surface-raised)">{{ setting('admin.volunteer.delegations.fltr', 'فلتر') }}</button>
     </x-filters>
 
     {{-- كروت رأسيّة: بلا تمرير أفقيّ على الموبايل (2.15-ج) --}}
@@ -83,7 +83,7 @@
                 <div class="flex items-start justify-between gap-3 flex-wrap">
                     <div class="min-w-0">
                         <div class="font-semibold">
-                            {{ $row->membership?->user?->name ?? 'عضو محذوف' }}
+                            {{ $row->membership?->user?->name ?? setting('admin.volunteer.delegations.adw_mhdhwf', 'عضو محذوف') }}
                             <span class="text-xs" style="color: var(--text-muted)">#{{ $row->membership?->user?->code }}</span>
                         </div>
                         <div class="text-xs mt-0.5" style="color: var(--text-muted)">
@@ -98,32 +98,32 @@
 
                 <dl class="grid gap-2 sm:grid-cols-2 mt-3 text-sm">
                     <div>
-                        <dt class="text-xs" style="color: var(--text-muted)">المدّة</dt>
+                        <dt class="text-xs" style="color: var(--text-muted)">{{ setting('admin.volunteer.delegations.almda', 'المدّة') }}</dt>
                         <dd>
                             {{ $row->from_date?->format('Y-m-d') }} ← {{ $row->to_date?->format('Y-m-d') }}
-                            <span class="text-xs" style="color: var(--text-muted)">({{ $row->effectiveDays() }} يومًا فعليًّا)</span>
+                            <span class="text-xs" style="color: var(--text-muted)">({{ $row->effectiveDays() }} {{ setting('admin.volunteer.delegations.ywma_falya', 'يومًا فعليًّا)') }}</span>
                         </dd>
                     </div>
 
                     <div>
-                        <dt class="text-xs" style="color: var(--text-muted)">البديل المفوَّض</dt>
+                        <dt class="text-xs" style="color: var(--text-muted)">{{ setting('admin.volunteer.delegations.albdyl_almfwd', 'البديل المفوَّض') }}</dt>
                         <dd>
                             @if ($delegate && $delegateActive)
                                 {{ $delegate->name }}
                                 <span class="text-xs" style="color: var(--text-muted)">— {{ $row->delegate_membership?->position?->name_ar }}</span>
                             @else
-                                <x-state-badge state="danger" label="بلا بديل نشِط — القرارات معلّقة" />
+                                <x-state-badge state="danger" :label="setting('admin.volunteer.delegations.bla_bdyl_nsht_alqrarat_malqa', 'بلا بديل نشِط — القرارات معلّقة')" />
                             @endif
                         </dd>
                     </div>
 
                     <div>
-                        <dt class="text-xs" style="color: var(--text-muted)">السبب</dt>
+                        <dt class="text-xs" style="color: var(--text-muted)">{{ setting('admin.volunteer.delegations.alsbb', 'السبب') }}</dt>
                         <dd>{{ $row->reason ?: '—' }}</dd>
                     </div>
 
                     <div>
-                        <dt class="text-xs" style="color: var(--text-muted)">سجّله</dt>
+                        <dt class="text-xs" style="color: var(--text-muted)">{{ setting('admin.volunteer.delegations.sjlh', 'سجّله') }}</dt>
                         <dd>{{ $row->created_by?->name ?? '—' }} · {{ $row->created_at?->format('Y-m-d') }}</dd>
                     </div>
                 </dl>
@@ -131,51 +131,51 @@
                 @if ($row->ended_at)
                     <p class="text-xs mt-3" style="color: var(--text-muted)">
                         <x-icon name="check" size="16" />
-                        اتقفل مبكّرًا يوم {{ $row->ended_at->format('Y-m-d') }} بواسطة {{ $row->ended_by?->name ?? '—' }}
+                        {!! strtr(setting('admin.volunteer.delegations.atqfl_mbkra_ywm_v1_bwasta', 'اتقفل مبكّرًا يوم :v1 بواسطة'), [':v1' => e($row->ended_at->format('Y-m-d'))]) !!} {{ $row->ended_by?->name ?? '—' }}
                         @if ($row->ended_note) — {{ $row->ended_note }} @endif
                     </p>
                 @elseif ($state !== 'ended')
                     {{-- المحظور يُخفى لا يُعطَّل (2.15-أ-7) --}}
                     @can('delegations.edit')
                         <details class="mt-3">
-                            <summary class="cursor-pointer text-sm font-semibold select-none">رجع قبل ميعاده؟ أنهِ الغياب</summary>
+                            <summary class="cursor-pointer text-sm font-semibold select-none">{{ setting('admin.volunteer.delegations.rja_qbl_myaadh_anh_alghyab', 'رجع قبل ميعاده؟ أنهِ الغياب') }}</summary>
                             <form method="post" action="{{ route('admin.volunteer.delegations.end', $row) }}" class="mt-2 flex flex-wrap items-end gap-2">
                                 @csrf
                                 <label class="text-sm grow">
-                                    <span class="block text-xs mb-1" style="color: var(--text-muted)">سبب الإنهاء (إلزاميّ)</span>
+                                    <span class="block text-xs mb-1" style="color: var(--text-muted)">{{ setting('admin.volunteer.delegations.sbb_alinha_ilzamy', 'سبب الإنهاء (إلزاميّ)') }}</span>
                                     <input type="text" name="note" required minlength="3" maxlength="300"
                                            class="w-full rounded-xl px-3 py-2 text-sm"
                                            style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
                                 </label>
                                 <button type="submit" class="btn rounded-xl px-4 py-2 text-sm font-semibold"
-                                        style="background: var(--color-brand-500); color: #04201c">أنهِ الغياب</button>
+                                        style="background: var(--color-brand-500); color: #04201c">{{ setting('admin.volunteer.delegations.anh_alghyab', 'أنهِ الغياب') }}</button>
                             </form>
                             <p class="text-xs mt-2" style="color: var(--text-muted)">
-                                هترجع له قراراته فورًا، وساعات مهامّه هتتزاح بمدّة غيابه الفعليّة — لا بالمدّة المعلَنة.
+                                {{ setting('admin.volunteer.delegations.htrja_lh_qrarath_fwra_wsaaat_mhamh_httzah', 'هترجع له قراراته فورًا، وساعات مهامّه هتتزاح بمدّة غيابه الفعليّة — لا بالمدّة المعلَنة.') }}
                             </p>
                         </details>
                     @endcan
                 @endif
             </article>
         @empty
-            <x-empty message="مفيش غيابات في الحالة دي — الفريق كامل." />
+            <x-empty :message="setting('admin.volunteer.delegations.mfysh_ghyabat_fy_alhala_dy_alfryq_kaml', 'مفيش غيابات في الحالة دي — الفريق كامل.')" />
         @endforelse
     </section>
 
     {{-- سجلّ التدقيق: مَن أنهى غيابًا ومتى ولماذا (24 — Audit على كلّ إجراء) --}}
     <details class="card p-4 mt-5">
-        <summary class="cursor-pointer text-sm font-semibold select-none">سجلّ التدقيق</summary>
+        <summary class="cursor-pointer text-sm font-semibold select-none">{{ setting('admin.volunteer.delegations.sjl_altdqyq', 'سجلّ التدقيق') }}</summary>
         <ul class="mt-3 space-y-2 text-sm">
             @forelse ($audit as $entry)
                 <li class="flex flex-wrap items-baseline gap-2">
                     <span class="text-xs" style="color: var(--text-muted)">{{ $entry->created_at?->format('Y-m-d H:i') }}</span>
-                    <span>{{ $entry->user?->name ?? 'النظام' }} أنهى غيابًا مبكّرًا</span>
+                    <span>{{ $entry->user?->name ?? setting('admin.volunteer.delegations.alnzam', 'النظام') }} {{ setting('admin.volunteer.delegations.anha_ghyaba_mbkra', 'أنهى غيابًا مبكّرًا') }}</span>
                     @if ($entry->new_values['note'] ?? null)
                         <span class="text-xs" style="color: var(--text-muted)">— {{ $entry->new_values['note'] }}</span>
                     @endif
                 </li>
             @empty
-                <li class="text-sm" style="color: var(--text-muted)">لسّه مفيش إنهاء مبكّر مسجَّل.</li>
+                <li class="text-sm" style="color: var(--text-muted)">{{ setting('admin.volunteer.delegations.lsh_mfysh_inha_mbkr_msjl', 'لسّه مفيش إنهاء مبكّر مسجَّل.') }}</li>
             @endforelse
         </ul>
     </details>

@@ -5,19 +5,19 @@
 @endphp
 
 <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
-    <x-kpi label="القسم" :value="$g['entity'] ?? '—'" icon="entity" :hint="$g['parent_entity']" />
-    <x-kpi label="البوزشن" :value="$g['position'] ?? '—'" icon="badge" />
-    <x-kpi label="تاريخ التسكين" :value="$g['placed_at']?->translatedFormat($dateFormat) ?? '—'" icon="calendar" />
-    <x-kpi label="شبكتك الكاملة" :value="$g['network_total']" icon="people" hint="كلّ المستويات تحتك" />
+    <x-kpi :label="setting('volunteer.profile_tab_organization.label', 'القسم')" :value="$g['entity'] ?? '—'" icon="entity" :hint="$g['parent_entity']" />
+    <x-kpi :label="setting('volunteer.common.position', 'البوزشن')" :value="$g['position'] ?? '—'" icon="badge" />
+    <x-kpi :label="setting('volunteer.profile_tab_organization.label_2', 'تاريخ التسكين')" :value="$g['placed_at']?->translatedFormat($dateFormat) ?? '—'" icon="calendar" />
+    <x-kpi :label="setting('volunteer.profile_tab_organization.label_3', 'شبكتك الكاملة')" :value="$g['network_total']" icon="people" :hint="setting('volunteer.profile_tab_organization.hint', 'كلّ المستويات تحتك')" />
 </div>
 
 <div class="grid md:grid-cols-2 gap-3">
 
     {{-- تايم-لاين البوزشنز بتواريخ كلّ انتقال — ومنه تُصدَر شهادة البوزشن --}}
     <section class="card p-4 animate-fadeup">
-        <h2 class="font-bold text-sm mb-3">تايم-لاين البوزشنز</h2>
+        <h2 class="font-bold text-sm mb-3">{{ setting('volunteer.profile_tab_organization.heading', 'تايم-لاين البوزشنز') }}</h2>
         @if ($g['timeline']->isEmpty())
-            <p class="text-sm" style="color: var(--text-muted)">لسّه بدري — أوّل بوزشن مستنّيك.</p>
+            <p class="text-sm" style="color: var(--text-muted)">{{ setting('volunteer.profile_tab_organization.text', 'لسّه بدري — أوّل بوزشن مستنّيك.') }}</p>
         @else
             <ol class="space-y-3">
                 @foreach ($g['timeline'] as $step)
@@ -28,11 +28,11 @@
                             <div class="text-sm font-semibold">
                                 {{ $step['position'] }}
                                 @if ($step['entity']) <span style="color: var(--text-muted)">· {{ $step['entity'] }}</span> @endif
-                                @if ($step['is_acting']) <x-state-badge state="warn" label="قائم بأعمال" /> @endif
+                                @if ($step['is_acting']) <x-state-badge state="warn" :label="setting('volunteer.profile_tab_organization.label_4', 'قائم بأعمال')" /> @endif
                             </div>
                             <div class="text-xs" style="color: var(--text-muted)">
                                 {{ $step['from']?->translatedFormat($dateFormat) }}
-                                — {{ $step['to']?->translatedFormat($dateFormat) ?? 'دلوقتي' }}
+                                — {{ $step['to']?->translatedFormat($dateFormat) ?? setting('volunteer.profile_tab_organization.text_2', 'دلوقتي') }}
                             </div>
                         </div>
                     </li>
@@ -43,9 +43,9 @@
 
     {{-- سلسلة الأبلاين كاملة لأعلى — نفس منطق سلّم التصعيد المرئيّ (13.4-ط) --}}
     <section class="card p-4">
-        <h2 class="font-bold text-sm mb-3">سلسلة الأبلاين لأعلى</h2>
+        <h2 class="font-bold text-sm mb-3">{{ setting('volunteer.profile_tab_organization.heading_2', 'سلسلة الأبلاين لأعلى') }}</h2>
         @if ($g['upline_chain']->isEmpty())
-            <p class="text-sm" style="color: var(--text-muted)">مفيش أبلاين فوقه — ده أعلى الهيكل.</p>
+            <p class="text-sm" style="color: var(--text-muted)">{{ setting('volunteer.profile_tab_organization.text_3', 'مفيش أبلاين فوقه — ده أعلى الهيكل.') }}</p>
         @else
             <ol class="space-y-2">
                 @foreach ($g['upline_chain'] as $node)
@@ -59,7 +59,7 @@
                             <span style="color: var(--text-muted)">· {{ $node['position'] }}</span>
                         </span>
                         @if ($node['is_direct'])
-                            <x-state-badge state="ok" label="الأبلاين المباشر" />
+                            <x-state-badge state="ok" :label="setting('volunteer.profile_tab_organization.label_5', 'الأبلاين المباشر')" />
                         @endif
                     </li>
                 @endforeach
@@ -70,19 +70,19 @@
     {{-- الداونلاين: كروت مضغوطة هنا، والكانفاس القائم هو مصدر الشكل الكامل (13.4-م-3) --}}
     <section class="card p-4">
         <div class="flex items-center justify-between mb-3">
-            <h2 class="font-bold text-sm">فريقه (الداونلاين)</h2>
+            <h2 class="font-bold text-sm">{{ setting('volunteer.profile_tab_organization.heading_3', 'فريقه (الداونلاين)') }}</h2>
             @if ($g['can_open_canvas'])
-                <a href="{{ $g['canvas_url'] }}" class="text-xs" style="color: var(--color-brand-500)">افتح الكانفاس</a>
+                <a href="{{ $g['canvas_url'] }}" class="text-xs" style="color: var(--color-brand-500)">{{ setting('volunteer.profile_tab_organization.link', 'افتح الكانفاس') }}</a>
             @endif
         </div>
         @if ($g['downline']->isEmpty())
-            <p class="text-sm" style="color: var(--text-muted)">مفيش حدّ تحته دلوقتي.</p>
+            <p class="text-sm" style="color: var(--text-muted)">{{ setting('volunteer.profile_tab_organization.text_4', 'مفيش حدّ تحته دلوقتي.') }}</p>
         @else
             <ul class="space-y-2 text-sm">
                 @foreach ($g['downline'] as $member)
                     <li class="flex items-center justify-between gap-2">
                         <a href="{{ $member['profile_url'] }}" class="min-w-0 truncate" style="color: var(--color-brand-500)">{{ $member['name'] }}</a>
-                        <span class="text-xs" style="color: var(--text-muted)">{{ $member['position'] }} · تحته {{ $member['load'] }}</span>
+                        <span class="text-xs" style="color: var(--text-muted)">{{ $member['position'] }} · {{ setting('volunteer.profile_tab_organization.bullet', 'تحته') }} {{ $member['load'] }}</span>
                     </li>
                 @endforeach
             </ul>
@@ -92,9 +92,9 @@
     {{-- سجلّ الحركات التنظيميّة: بمَن نفّذها ومتى — للمخوَّل وحده --}}
     @if ($g['shows_movements'])
         <section class="card p-4">
-            <h2 class="font-bold text-sm mb-3">سجلّ الحركات التنظيميّة</h2>
+            <h2 class="font-bold text-sm mb-3">{{ setting('volunteer.profile_tab_organization.heading_4', 'سجلّ الحركات التنظيميّة') }}</h2>
             @if ($g['movements']->isEmpty())
-                <p class="text-sm" style="color: var(--text-muted)">مفيش حركات مسجّلة.</p>
+                <p class="text-sm" style="color: var(--text-muted)">{{ setting('volunteer.profile_tab_organization.text_5', 'مفيش حركات مسجّلة.') }}</p>
             @else
                 <ul class="space-y-2 text-sm">
                     @foreach ($g['movements'] as $row)
@@ -102,7 +102,7 @@
                             <span class="min-w-0 truncate">{{ $row->action }}</span>
                             <span class="text-xs" style="color: var(--text-muted)"
                                   title="{{ $row->created_at->format('Y-m-d H:i') }}">
-                                {{ $row->user?->shortName() ?? 'النظام' }} · {{ $row->created_at->diffForHumans() }}
+                                {{ $row->user?->shortName() ?? setting('volunteer.profile_tab_organization.text_6', 'النظام') }} · {{ $row->created_at->diffForHumans() }}
                             </span>
                         </li>
                     @endforeach

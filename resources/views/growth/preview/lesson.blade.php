@@ -44,13 +44,13 @@
             @if ($next)
                 <a href="{{ route('growth.preview.lesson', ['slug' => $course->slug, 'lesson' => $next->id]) }}"
                    class="rounded-xl px-4 py-2 text-sm motion-standard" style="background: var(--surface-sunken)">
-                    الدرس التالي: {{ \Illuminate\Support\Str::limit($next->title_ar, 30) }}
+                    {{ setting('growth.preview_lesson.text_1', 'الدرس التالي:') }} {{ \Illuminate\Support\Str::limit($next->title_ar, 30) }}
                 </a>
             @endif
 
             <a href="{{ route('growth.preview.course', $course->slug) }}"
                class="rounded-xl px-4 py-2 text-sm motion-standard" style="background: var(--surface-sunken)">
-                كلّ دروس المعاينة
+                {{ setting('growth.preview_lesson.text_2', 'كلّ دروس المعاينة') }}
             </a>
         </div>
 
@@ -60,7 +60,7 @@
             <span class="text-sm">{{ setting('growth.preview.upsell', 'عجبك الدرس؟ باقي التدريب بيتفتح بعد التسجيل — والتسجيل مجّانيّ.') }}</span>
             <span class="rounded-xl px-4 py-2 text-sm font-semibold shrink-0"
                   style="background: var(--color-brand-500); color: #04201c">
-                {{ auth()->check() ? setting('growth.preview.cta', 'افتح التدريب كامل') : 'سجّل حسابك' }}
+                {{ auth()->check() ? setting('growth.preview.cta', 'افتح التدريب كامل') : (string) setting('growth.preview_lesson.expr_1', 'سجّل حسابك') }}
             </span>
         </a>
     </div>
@@ -70,6 +70,6 @@
     <a href="{{ auth()->check() ? $buyUrl : $registerUrl }}"
        class="btn w-full inline-flex items-center justify-center rounded-xl px-4 py-3 text-sm font-semibold"
        style="background: var(--color-brand-500); color: #04201c">
-        {{ auth()->check() ? setting('growth.preview.cta', 'افتح التدريب كامل') : 'سجّل حسابك' }}
+        {{ auth()->check() ? setting('growth.preview.cta', 'افتح التدريب كامل') : (string) setting('growth.preview_lesson.expr_2', 'سجّل حسابك') }}
     </a>
 @endsection

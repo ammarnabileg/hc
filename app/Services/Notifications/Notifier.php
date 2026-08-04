@@ -310,7 +310,7 @@ class Notifier
     private static function normalizeLayer(string $layer): string
     {
         if (! in_array($layer, self::layers(), true)) {
-            throw new InvalidArgumentException("طبقة إشعار غير معروفة: {$layer}");
+            throw new InvalidArgumentException(strtr(setting('notifications.notifier.normalize_layer_1', 'طبقة إشعار غير معروفة: :p1'), [':p1' => (string) ($layer)]));
         }
 
         return $layer;

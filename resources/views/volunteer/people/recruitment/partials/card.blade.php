@@ -16,26 +16,26 @@
     <div class="flex items-start gap-2">
         <x-avatar :user="$candidate->user" size="9" />
         <div class="min-w-0 flex-1">
-            <h3 class="text-sm font-bold truncate">{{ $candidate->user?->name ?? 'مرشّح' }}</h3>
+            <h3 class="text-sm font-bold truncate">{{ $candidate->user?->name ?? setting('volunteer.people_recruitment_card.text', 'مرشّح') }}</h3>
             <p class="text-xs" style="color: var(--text-muted)">#{{ $candidate->user?->code }}</p>
         </div>
-        <x-state-badge :state="$pipeline->waitingState($candidate)" :label="'انتظار '.$waitingDays.' يومًا'" />
+        <x-state-badge :state="$pipeline->waitingState($candidate)" :label="setting('volunteer.people_recruitment_card.label', 'انتظار ').$waitingDays.setting('volunteer.people_recruitment_card.label_2', ' يومًا')" />
     </div>
 
     {{-- ⭐ شارة «عائد» + سطر الخدمة السابقة (13.4-ق-و) --}}
     @if ($returningLine)
         <div class="mt-2 rounded-xl px-2 py-1.5 text-xs"
              style="background: color-mix(in srgb, var(--color-state-honor) 12%, transparent); color: var(--color-state-honor)">
-            <span aria-hidden="true">★</span> عائد — {{ $returningLine }}
+            <span aria-hidden="true">★</span> {{ setting('volunteer.people_recruitment_card.text_2', 'عائد —') }} {{ $returningLine }}
         </div>
         {{-- سبب الخروج للمخوَّلين وحدهم، ولا يُنشَر لفريق التوظيف (13.4-ق-هـ) --}}
         @if ($canSeeExitReason && $candidate->previous_exit_type)
-            <p class="mt-1 text-xs" style="color: var(--text-muted)">سبب الخروج: {{ $candidate->previous_exit_type }}</p>
+            <p class="mt-1 text-xs" style="color: var(--text-muted)">{{ setting('volunteer.people_recruitment_card.text_3', 'سبب الخروج:') }} {{ $candidate->previous_exit_type }}</p>
         @endif
     @endif
 
     <dl class="mt-2 grid grid-cols-2 gap-1 text-xs">
-        <dt style="color: var(--text-muted)">شهادة التأهيليّ</dt>
+        <dt style="color: var(--text-muted)">{{ setting('volunteer.people_recruitment_card.text_4', 'شهادة التأهيليّ') }}</dt>
         <dd class="font-semibold text-end">{{ $candidate->qualifying_score ?? '—' }}</dd>
 
         @foreach ($courseScores->take((int) setting('recruitment.card.course_scores_shown', 3)) as $courseName => $score)
@@ -69,16 +69,16 @@
         {{-- التفاصيل في بوب-أب لا صفحة جديدة (2.15-أ-6) --}}
         <button type="button" class="btn mt-3 w-full rounded-xl px-3 py-2 text-xs"
                 style="background: var(--surface-sunken)"
-                data-detail-url="{{ route('volunteer.recruitment.show', $candidate) }}">التفاصيل</button>
+                data-detail-url="{{ route('volunteer.recruitment.show', $candidate) }}">{{ setting('volunteer.common.details', 'التفاصيل') }}</button>
     @endif
 
     @if ($canMove)
         {{-- الموبايل: قائمة بدل السحب — والتأكيد بسبب هو هو (2.15-ج) --}}
         <label class="mt-3 block md:hidden text-xs">
-            <span class="block mb-1" style="color: var(--text-muted)">انقل إلى</span>
+            <span class="block mb-1" style="color: var(--text-muted)">{{ setting('volunteer.people_recruitment_card.field', 'انقل إلى') }}</span>
             <select data-move-select class="w-full rounded-xl px-3 py-2 text-sm"
                     style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
-                <option value="">اختر مرحلة…</option>
+                <option value="">{{ setting('volunteer.people_recruitment_card.option', 'اختر مرحلة…') }}</option>
                 @foreach ($pipeline->stages() as $key => $label)
                     @if ($key !== $candidate->stage)
                         <option value="{{ $key }}">{{ $label }}</option>

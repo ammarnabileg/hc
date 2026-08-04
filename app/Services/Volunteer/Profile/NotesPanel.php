@@ -39,7 +39,7 @@ final class NotesPanel
         $min = (int) setting('volunteer.profile.notes.min_chars', 5);
 
         if (mb_strlen($body) < $min) {
-            throw new RuntimeException('اكتب ملاحظة واضحة — '.$min.' حروف على الأقلّ.');
+            throw new RuntimeException(strtr(setting('volunteer.notes_panel.write_1', 'اكتب ملاحظة واضحة — :p1 حروف على الأقلّ.'), [':p1' => (string) ($min)]));
         }
 
         $id = DB::table(self::TABLE)->insertGetId([

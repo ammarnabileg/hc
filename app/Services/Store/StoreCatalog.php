@@ -36,14 +36,14 @@ class StoreCatalog
     {
         return [
             'visible' => [
-                'course' => 'تدريبات',
-                'bundle' => 'باقات',
-                'product' => 'منتجات رقميّة',
+                'course' => setting('store.store_catalog.type_options_1', 'تدريبات'),
+                'bundle' => setting('store.store_catalog.type_options_2', 'باقات'),
+                'product' => setting('store.store_catalog.type_options_3', 'منتجات رقميّة'),
             ],
             'folded' => [
-                'protected_pdf' => 'كتب محميّة',
-                'cv_template' => 'قوالب سيرة ذاتيّة',
-                'path' => 'مسارات',
+                'protected_pdf' => setting('store.store_catalog.type_options_4', 'كتب محميّة'),
+                'cv_template' => setting('store.store_catalog.type_options_5', 'قوالب سيرة ذاتيّة'),
+                'path' => setting('store.store_catalog.type_options_6', 'مسارات'),
             ],
         ];
     }

@@ -37,47 +37,47 @@ class WalletRatesController extends Controller
     {
         return [
             'rates' => [
-                'label' => 'أسعار الصرف (مبنيّة على الدولار)',
-                'hint' => 'ثلاثة أسعار فقط، وكلّ سعرٍ آخر يُشتقّ منها — فلا تتناقض الأرقام.',
+                'label' => (string) setting('wallet.rates_admin.catalog_msg', 'أسعار الصرف (مبنيّة على الدولار)'),
+                'hint' => (string) setting('wallet.rates_admin.catalog_msg_2', 'ثلاثة أسعار فقط، وكلّ سعرٍ آخر يُشتقّ منها — فلا تتناقض الأرقام.'),
                 'fields' => [
-                    'finance.rates.usd_to_coins' => ['1$ = كام كوين', 'number', '50'],
-                    'finance.rates.ticket_to_coins' => ['1 تذكرة = كام كوين', 'number', '10'],
-                    'finance.rates.ticket_to_xp' => ['1 تذكرة = كام XP', 'number', '300'],
+                    'finance.rates.usd_to_coins' => [(string) setting('wallet.rates_admin.catalog_msg_3', '1$ = كام كوين'), 'number', '50'],
+                    'finance.rates.ticket_to_coins' => [(string) setting('wallet.rates_admin.catalog_msg_4', '1 تذكرة = كام كوين'), 'number', '10'],
+                    'finance.rates.ticket_to_xp' => [(string) setting('wallet.rates_admin.catalog_msg_5', '1 تذكرة = كام XP'), 'number', '300'],
                 ],
             ],
             'transfer' => [
-                'label' => 'رسوم إرسال الحوالة',
-                'hint' => 'رسوم الـXP مرتفعة عمدًا لتثبيط تبادلها حفاظًا على نزاهة الليدر بورد.',
+                'label' => (string) setting('wallet.rates_admin.catalog_msg_6', 'رسوم إرسال الحوالة'),
+                'hint' => (string) setting('wallet.rates_admin.catalog_msg_7', 'رسوم الـXP مرتفعة عمدًا لتثبيط تبادلها حفاظًا على نزاهة الليدر بورد.'),
                 'fields' => [
-                    'finance.transfer.coins_fee_percent' => ['رسوم حوالة الكوينز (%)', 'number', '15'],
-                    'finance.transfer.xp_fee_percent' => ['رسوم حوالة الـXP (%)', 'number', '85'],
-                    'finance.transfer.tickets_fee_percent' => ['رسوم حوالة التذاكر (%)', 'number', '0'],
-                    'finance.transfer.min_amount' => ['أقلّ قيمة حوالة', 'number', '10'],
-                    'finance.transfer.rounding' => ['تقريب الصافي (ceil/round)', 'string', 'ceil'],
+                    'finance.transfer.coins_fee_percent' => [(string) setting('wallet.rates_admin.catalog_msg_8', 'رسوم حوالة الكوينز (%)'), 'number', '15'],
+                    'finance.transfer.xp_fee_percent' => [(string) setting('wallet.rates_admin.catalog_msg_9', 'رسوم حوالة الـXP (%)'), 'number', '85'],
+                    'finance.transfer.tickets_fee_percent' => [(string) setting('wallet.rates_admin.catalog_msg_10', 'رسوم حوالة التذاكر (%)'), 'number', '0'],
+                    'finance.transfer.min_amount' => [(string) setting('wallet.rates_admin.catalog_msg_11', 'أقلّ قيمة حوالة'), 'number', '10'],
+                    'finance.transfer.rounding' => [(string) setting('wallet.rates_admin.catalog_msg_12', 'تقريب الصافي (ceil/round)'), 'string', 'ceil'],
                 ],
             ],
             'exchange' => [
-                'label' => 'رسوم تحويل العملة',
-                'hint' => 'نسبة موحّدة لكلّ المسارات المسموحة — ولا استثناء لمسار.',
+                'label' => (string) setting('wallet.rates_admin.catalog_msg_13', 'رسوم تحويل العملة'),
+                'hint' => (string) setting('wallet.rates_admin.catalog_msg_14', 'نسبة موحّدة لكلّ المسارات المسموحة — ولا استثناء لمسار.'),
                 'fields' => [
-                    'finance.exchange.fee_percent' => ['رسوم تحويل العملة (%)', 'number', '5'],
-                    'finance.exchange.min_amount_usd' => ['أقلّ قيمة تحويل (بالدولار)', 'number', '1'],
+                    'finance.exchange.fee_percent' => [(string) setting('wallet.rates_admin.catalog_msg_15', 'رسوم تحويل العملة (%)'), 'number', '5'],
+                    'finance.exchange.min_amount_usd' => [(string) setting('wallet.rates_admin.catalog_msg_16', 'أقلّ قيمة تحويل (بالدولار)'), 'number', '1'],
                 ],
             ],
             'withdraw' => [
-                'label' => 'رسوم وحدود سحب الأرباح',
-                'hint' => 'الرسوم = النسبة أو الحدّ الأدنى، أيّهما أكبر.',
+                'label' => (string) setting('wallet.rates_admin.catalog_msg_17', 'رسوم وحدود سحب الأرباح'),
+                'hint' => (string) setting('wallet.rates_admin.catalog_msg_18', 'الرسوم = النسبة أو الحدّ الأدنى، أيّهما أكبر.'),
                 'fields' => [
-                    'finance.withdraw.fee_percent' => ['رسوم السحب (%)', 'number', '1'],
-                    'finance.withdraw.min_fee_usd' => ['أدنى رسوم بالدولار', 'number', '0.5'],
-                    'finance.withdraw.min_amount_usd' => ['أقلّ قيمة سحب بالدولار', 'number', '5'],
+                    'finance.withdraw.fee_percent' => [(string) setting('wallet.rates_admin.catalog_msg_19', 'رسوم السحب (%)'), 'number', '1'],
+                    'finance.withdraw.min_fee_usd' => [(string) setting('wallet.rates_admin.catalog_msg_20', 'أدنى رسوم بالدولار'), 'number', '0.5'],
+                    'finance.withdraw.min_amount_usd' => [(string) setting('wallet.rates_admin.catalog_msg_21', 'أقلّ قيمة سحب بالدولار'), 'number', '5'],
                 ],
             ],
             'referral' => [
-                'label' => 'عمولة الريفيرال',
-                'hint' => 'تُصرَف بالدولار لحظة نجاح الشحن، وتدخل أرباح الداعي القابلة للسحب.',
+                'label' => (string) setting('wallet.rates_admin.catalog_msg_22', 'عمولة الريفيرال'),
+                'hint' => (string) setting('wallet.rates_admin.catalog_msg_23', 'تُصرَف بالدولار لحظة نجاح الشحن، وتدخل أرباح الداعي القابلة للسحب.'),
                 'fields' => [
-                    'finance.referral.commission_percent' => ['عمولة الريفيرال (%)', 'number', '7'],
+                    'finance.referral.commission_percent' => [(string) setting('wallet.rates_admin.catalog_msg_24', 'عمولة الريفيرال (%)'), 'number', '7'],
                 ],
             ],
         ];
@@ -115,7 +115,7 @@ class WalletRatesController extends Controller
         // سعر صرفٍ بصفر يعني قسمةً على صفر في كلّ مسار — نمنعه هنا لا بعد الانهيار
         if (str_starts_with($data['key'], 'finance.rates.') && (float) $data['value'] <= 0) {
             return back()->withErrors([
-                'rates' => 'سعر الصرف لازم يكون أكبر من صفر — اكتب رقمًا موجبًا وجرّب تاني.',
+                'rates' => (string) setting('wallet.rates_admin.save_must', 'سعر الصرف لازم يكون أكبر من صفر — اكتب رقمًا موجبًا وجرّب تاني.'),
             ]);
         }
 
@@ -129,7 +129,7 @@ class WalletRatesController extends Controller
 
         $this->registry->audit($setting, $old, $result['value'], $request->user(), 'exchange_rates.edit', $data['reason']);
 
-        return back()->with('status', 'اتحفظ ✓ — السعر الجديد يسري على العمليّات الجديدة وحدها.');
+        return back()->with('status', (string) setting('wallet.rates_admin.save_ok', 'اتحفظ ✓ — السعر الجديد يسري على العمليّات الجديدة وحدها.'));
     }
 
     // ------------------------------------------------------------------ داخليّ
@@ -159,7 +159,7 @@ class WalletRatesController extends Controller
     private function assertOwner(Request $request): void
     {
         if (! $request->user()->isPlatformOwner()) {
-            abort(403, 'أسعار الصرف لمالك المنصّة وحده — كلّم المالك لو محتاج تعديلًا.');
+            abort(403, (string) setting('wallet.rates_admin.assert_owner_msg', 'أسعار الصرف لمالك المنصّة وحده — كلّم المالك لو محتاج تعديلًا.'));
         }
     }
 }

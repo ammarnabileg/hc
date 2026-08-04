@@ -20,7 +20,7 @@
                           stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
                 {{ $registry->groupLabel($group) }}
-                @if ($ownerOnly)<span title="فيها مفاتيح لمالك المنصّة وحده"><x-icon name="lock" size="16" /></span>@endif
+                @if ($ownerOnly)<span title="{{ setting('admin.settings.partials.group_card.fyha_mfatyh_lmalk_almnsa_whdh', 'فيها مفاتيح لمالك المنصّة وحده') }}"><x-icon name="lock" size="16" /></span>@endif
             </div>
             <div class="text-xs" style="color: var(--text-muted)">{{ $registry->groupHint($group) }}</div>
         </div>

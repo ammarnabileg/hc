@@ -2,13 +2,13 @@
     /** المرجع قابل للضغط بأيقونة كيانه (24.4) — والاجتماع يفتح صفحته مباشرةً. */
     $isMeeting = $row->reference_type === (new \App\Models\Meeting)->getMorphClass();
     $label = match ($row->source) {
-        'meeting' => 'اجتماع',
-        'task' => 'مهمّة',
-        'academy' => 'تسجيل',
-        'leadership' => 'تقييم',
-        'behavior' => 'سلوك',
-        'arbitration' => 'تحكيم',
-        default => 'مرجع',
+        'meeting' => setting('volunteer.transactions_reference.meeting', 'اجتماع'),
+        'task' => setting('volunteer.transactions_reference.task', 'مهمّة'),
+        'academy' => setting('volunteer.transactions_reference.academy', 'تسجيل'),
+        'leadership' => setting('volunteer.transactions_reference.leadership', 'تقييم'),
+        'behavior' => setting('volunteer.transactions_reference.behavior', 'سلوك'),
+        'arbitration' => setting('volunteer.transactions_reference.arbitration', 'تحكيم'),
+        default => setting('volunteer.transactions_reference.text', 'مرجع'),
     };
 @endphp
 

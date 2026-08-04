@@ -1,23 +1,23 @@
 @extends('layouts.admin')
 
-@section('title', 'الإعدادات والنظام')
+@section('title', setting('admin.settings.index.aliadadat_walnzam', 'الإعدادات والنظام'))
 
 @section('content')
-    <x-page-header title="الإعدادات والنظام"
-                   subtitle="{{ $tabs[$tab]['hint'] ?? 'كلّ مفاتيح المنصّة في صفحة واحدة.' }}"
+    <x-page-header :title="setting('admin.settings.index.aliadadat_walnzam', 'الإعدادات والنظام')"
+                   :subtitle="$tabs[$tab]['hint'] ?? setting('admin.settings.index.kl_mfatyh_almnsa_fy_sfha_wahda', 'كلّ مفاتيح المنصّة في صفحة واحدة.')"
                    :breadcrumbs="[
-                       ['label' => 'لوحة الإدارة', 'url' => url('/admin')],
-                       ['label' => 'الإعدادات والنظام'],
+                       ['label' => setting('admin.settings.index.lwha_alidara', 'لوحة الإدارة'), 'url' => url('/admin')],
+                       ['label' => setting('admin.settings.index.aliadadat_walnzam', 'الإعدادات والنظام')],
                        ['label' => $tabs[$tab]['label'] ?? ''],
                    ]">
         <x-slot:action>
-            <a href="{{ route('admin.settings.export') }}" class="rounded-xl px-3 py-2 text-sm" style="background: var(--surface-raised)">تصدير JSON</a>
+            <a href="{{ route('admin.settings.export') }}" class="rounded-xl px-3 py-2 text-sm" style="background: var(--surface-raised)">{{ setting('admin.settings.index.tsdyr_json', 'تصدير JSON') }}</a>
             @can('settings_general.import')
                 <form method="post" action="{{ route('admin.settings.import') }}" enctype="multipart/form-data" class="flex items-center gap-1">
                     @csrf
                     <input type="file" name="file" accept="application/json" required
-                           class="text-xs w-36" aria-label="ملفّ إعدادات JSON">
-                    <button class="rounded-xl px-3 py-2 text-sm" style="background: var(--surface-raised)">استيراد</button>
+                           class="text-xs w-36" aria-label="{{ setting('admin.settings.index.mlf_iadadat_json', 'ملفّ إعدادات JSON') }}">
+                    <button class="rounded-xl px-3 py-2 text-sm" style="background: var(--surface-raised)">{{ setting('admin.settings.index.astyrad', 'استيراد') }}</button>
                 </form>
             @endcan
         </x-slot:action>
@@ -25,7 +25,7 @@
 
     {{-- ⭐ بحث موحّد داخل كلّ الإعدادات — والنتيجة بمسارها الكامل وتنقلك للحقل بتظليل مؤقّت --}}
     <div class="card p-3 mb-4 relative">
-        <input type="search" id="settings-search" placeholder="دوّر بالاسم أو بالمفتاح أو بالقيمة…"
+        <input type="search" id="settings-search" placeholder="{{ setting('admin.settings.index.dwr_balasm_aw_balmftah_aw_balqyma', 'دوّر بالاسم أو بالمفتاح أو بالقيمة…') }}"
                value="{{ $search }}" autocomplete="off"
                class="w-full rounded-xl px-3 py-2 text-sm"
                style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
@@ -66,7 +66,7 @@
                 {{-- 🔒 المجموعة الماليّة غير موجودة أصلًا لغير مالك المنصّة — ولا حتى كعنصر معطَّل --}}
             @else
                 <a href="{{ route('admin.finance.index') }}"
-                   class="shrink-0 rounded-xl px-3 py-2 text-sm" style="background: var(--surface-raised)">↗ صفحة الماليّات</a>
+                   class="shrink-0 rounded-xl px-3 py-2 text-sm" style="background: var(--surface-raised)">{{ setting('admin.settings.index.sfha_almalyat', '↗ صفحة الماليّات') }}</a>
             @endif
         </nav>
 
@@ -115,7 +115,7 @@
                             'open' => $loop->first || $search !== '' || $rows->contains('key', $highlight),
                         ])
                     @empty
-                        <x-empty message="مافيش إعدادات في التاب ده لسه." />
+                        <x-empty :message="setting('admin.settings.index.mafysh_iadadat_fy_altab_dh_lsh', 'مافيش إعدادات في التاب ده لسه.')" />
                     @endforelse
                 </div>
             @endif

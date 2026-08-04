@@ -124,7 +124,7 @@ class PublicVerificationController extends Controller
 
         return match ($certificate->status) {
             'expired' => str_replace(
-                ['[تاريخ الإصدار]', '[تاريخ الانتهاء]'],
+                [(string) setting('certificates.verify.status_text_msg', '[تاريخ الإصدار]'), (string) setting('certificates.verify.status_text_msg_2', '[تاريخ الانتهاء]')],
                 [$certificate->issued_at?->format($format) ?? '—', $certificate->expired_at?->format($format) ?? '—'],
                 (string) setting(
                     'certificates.verify.expired_text',

@@ -97,14 +97,14 @@ class AnnouncementController extends Controller
         abort_unless($this->poll->has($announcement), 404);
 
         if ($this->poll->isClosed($announcement)) {
-            return $this->respond($request, [], 'الاستطلاع اتقفل — شكرًا لمشاركتك.');
+            return $this->respond($request, [], (string) setting('announcements.screen.poll_msg', 'الاستطلاع اتقفل — شكرًا لمشاركتك.'));
         }
 
         $data = $request->validate([
             'option_index' => ['required', 'integer', 'min:0', 'max:'.(count($this->poll->options($announcement)) - 1)],
         ], [
-            'option_index.required' => 'اختر إجابة الأوّل — الاستطلاع محتاج اختيارك.',
-            'option_index.max' => 'الاختيار ده مش موجود في الاستطلاع — اختر من المعروض.',
+            'option_index.required' => (string) setting('announcements.screen.poll_msg_2', 'اختر إجابة الأوّل — الاستطلاع محتاج اختيارك.'),
+            'option_index.max' => (string) setting('announcements.screen.poll_denied', 'الاختيار ده مش موجود في الاستطلاع — اختر من المعروض.'),
         ]);
 
         $this->poll->vote($announcement, $user, (int) $data['option_index']);
@@ -120,7 +120,7 @@ class AnnouncementController extends Controller
                 'choice' => (int) $data['option_index'],
                 'results' => $this->poll->resultsFor($announcement),
             ], fn ($value) => $value !== null),
-            'اتسجّل صوتك ✓',
+            (string) setting('announcements.screen.poll_ok', 'اتسجّل صوتك ✓'),
         );
     }
 
@@ -136,7 +136,7 @@ class AnnouncementController extends Controller
             ['read_at' => now()],
         );
 
-        return $this->respond($request, ['unread' => $this->feed->unreadCount($user)], 'اتقرا ✓');
+        return $this->respond($request, ['unread' => $this->feed->unreadCount($user)], (string) setting('announcements.screen.read_ok', 'اتقرا ✓'));
     }
 
     /**
@@ -172,8 +172,8 @@ class AnnouncementController extends Controller
         }
 
         $message = $held > 0
-            ? 'اتعلّمت كلّها كمقروءة — ما عدا '.$held.' توجيه حرج مستنّي إقرارك ✓'
-            : 'اتعلّمت كلّها كمقروءة ✓';
+            ? strtr((string) setting('announcements.screen.read_all_ok', 'اتعلّمت كلّها كمقروءة — ما عدا :a1 توجيه حرج مستنّي إقرارك ✓'), [':a1' => (string) ($held)])
+            : (string) setting('announcements.screen.read_all_ok_2', 'اتعلّمت كلّها كمقروءة ✓');
 
         return $this->respond($request, ['unread' => $this->feed->unreadCount($user)], $message);
     }
@@ -186,7 +186,7 @@ class AnnouncementController extends Controller
         $user = $request->user();
 
         abort_unless($this->feed->isVisibleTo($announcement, $user), 404);
-        abort_unless((bool) $announcement->requires_acknowledge, 422, 'هذا المنشور لا يحتاج إقرارًا.');
+        abort_unless((bool) $announcement->requires_acknowledge, 422, (string) setting('announcements.screen.acknowledge_msg', 'هذا المنشور لا يحتاج إقرارًا.'));
 
         $xp = $acknowledger->acknowledge($announcement, $user);
         $tickets = $acknowledger->lastTickets();
@@ -194,12 +194,12 @@ class AnnouncementController extends Controller
         // المكسب يُقال كما وقع: XP وتذاكر معًا لو الاثنان ممنوحان (12.6-أ · 2.17)
         $gains = array_filter([
             $xp > 0 ? $xp.' XP' : null,
-            $tickets > 0 ? $tickets.' تذكرة' : null,
+            $tickets > 0 ? strtr((string) setting('announcements.screen.acknowledge_msg_2', ':a1 تذكرة'), [':a1' => (string) ($tickets)]) : null,
         ]);
 
         $message = $gains !== []
-            ? 'شكرًا ليك — كسبت '.implode(' و', $gains).' على إقرارك ✓'
-            : 'تمّ الإقرار ✓';
+            ? strtr((string) setting('announcements.screen.acknowledge_ok', 'شكرًا ليك — كسبت :a1 على إقرارك ✓'), [':a1' => (string) (implode(' و', $gains))])
+            : (string) setting('announcements.screen.acknowledge_ok_2', 'تمّ الإقرار ✓');
 
         return $this->respond(
             $request,
@@ -217,7 +217,7 @@ class AnnouncementController extends Controller
         $user = $request->user();
 
         abort_unless($this->feed->isVisibleTo($announcement, $user), 404);
-        abort_unless((bool) $announcement->reactions_enabled, 403, 'التفاعل مقفول على هذا المنشور.');
+        abort_unless((bool) $announcement->reactions_enabled, 403, (string) setting('announcements.screen.react_msg', 'التفاعل مقفول على هذا المنشور.'));
 
         $data = $request->validate([
             'reaction' => ['required', 'string', 'in:'.implode(',', $this->allowedReactions())],
@@ -235,7 +235,7 @@ class AnnouncementController extends Controller
         return $this->respond($request, [
             'reaction' => $read->reaction,
             'counts' => $this->reactionCounts([$announcement->id])[$announcement->id] ?? [],
-        ], 'اتسجّل تفاعلك ✓');
+        ], (string) setting('announcements.screen.react_ok', 'اتسجّل تفاعلك ✓'));
     }
 
     // ------------------------------------------------------------------ داخليّ

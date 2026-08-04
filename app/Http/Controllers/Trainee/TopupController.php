@@ -63,14 +63,14 @@ class TopupController extends Controller
         $user = $request->user();
 
         if (! setting('topup.manual.enabled', true)) {
-            return back()->with('status', 'التحويل اليدويّ متوقّف حاليًّا — جرّب بوّابة الدفع.');
+            return back()->with('status', (string) setting('topup.screen.store_manual_msg', 'التحويل اليدويّ متوقّف حاليًّا — جرّب بوّابة الدفع.'));
         }
 
         // ⭐ قفل: طلب معلَّق واحد لكلّ مستخدم — إمّا يلغي القديم أو ينتظر (19.5-ب-5)
         if ($this->topups->pendingRequestFor($user)) {
             return redirect()
                 ->route('wallet.topup.requests')
-                ->with('status', 'عندك طلب شحن قيد التحقّق. تقدر تتابعه من هنا، ولمّا يخلص ابعت التالي.');
+                ->with('status', (string) setting('topup.screen.store_manual_msg_2', 'عندك طلب شحن قيد التحقّق. تقدر تتابعه من هنا، ولمّا يخلص ابعت التالي.'));
         }
 
         $data = $request->validate([
@@ -81,12 +81,12 @@ class TopupController extends Controller
             'contact_phone' => ['required', 'string', 'max:32'],
             'receipt' => ['required', 'file', 'mimes:jpg,jpeg,png,webp,pdf', 'max:'.(int) setting('topup.receipt.max_size_kb', 4096)],
         ], [], [
-            'topup_offer_id' => 'عرض الشحن',
-            'transferred_amount' => 'القيمة المحوَّلة',
-            'paid_at' => 'وقت وتاريخ الدفع',
-            'transfer_method_id' => 'طريقة التحويل',
-            'contact_phone' => 'رقم التواصل',
-            'receipt' => 'صورة الإيصال',
+            'topup_offer_id' => (string) setting('topup.screen.store_manual_msg_3', 'عرض الشحن'),
+            'transferred_amount' => (string) setting('topup.screen.store_manual_msg_4', 'القيمة المحوَّلة'),
+            'paid_at' => (string) setting('topup.screen.store_manual_msg_5', 'وقت وتاريخ الدفع'),
+            'transfer_method_id' => (string) setting('topup.screen.store_manual_msg_6', 'طريقة التحويل'),
+            'contact_phone' => (string) setting('topup.screen.store_manual_msg_7', 'رقم التواصل'),
+            'receipt' => (string) setting('topup.screen.store_manual_msg_8', 'صورة الإيصال'),
         ]);
 
         $topupRequest = $this->topups->submit($user, $data, $request->file('receipt'));
@@ -94,8 +94,8 @@ class TopupController extends Controller
         return redirect()->route('wallet.topup.requests')->with(
             'status',
             $topupRequest->status === TopupService::DUPLICATE
-                ? 'الإيصال ده مرفوع قبل كده، فالطلب اتوسم «مكرَّرة». ارفع إيصال العمليّة الصحيحة وابعت تاني.'
-                : 'استلمنا طلبك '.$topupRequest->number.' ✓ وهتوصلك إشعارات بأيّ تغيير في حالته.',
+                ? (string) setting('topup.screen.store_manual_msg_9', 'الإيصال ده مرفوع قبل كده، فالطلب اتوسم «مكرَّرة». ارفع إيصال العمليّة الصحيحة وابعت تاني.')
+                : strtr((string) setting('topup.screen.store_manual_ok', 'استلمنا طلبك :a1 ✓ وهتوصلك إشعارات بأيّ تغيير في حالته.'), [':a1' => (string) ($topupRequest->number)]),
         );
     }
 
@@ -103,7 +103,7 @@ class TopupController extends Controller
     public function startGateway(Request $request, GatewayService $gateway)
     {
         if (! setting('topup.gateway.enabled', true)) {
-            return back()->with('status', 'بوّابة الدفع متوقّفة حاليًّا — تقدر تستعمل التحويل اليدويّ.');
+            return back()->with('status', (string) setting('topup.screen.start_gateway_msg', 'بوّابة الدفع متوقّفة حاليًّا — تقدر تستعمل التحويل اليدويّ.'));
         }
 
         $data = $request->validate([
@@ -122,11 +122,11 @@ class TopupController extends Controller
             report($e);
 
             // رسالة الخطأ = ماذا حدث + ماذا تفعل (2.17-ب)
-            return back()->with('status', 'ما قدرناش نفتح صفحة الدفع دلوقتي. جرّب تاني بعد شويّة أو استعمل التحويل اليدويّ.');
+            return back()->with('status', (string) setting('topup.screen.start_gateway_msg_2', 'ما قدرناش نفتح صفحة الدفع دلوقتي. جرّب تاني بعد شويّة أو استعمل التحويل اليدويّ.'));
         }
 
         if (! $invoice->payment_url) {
-            return back()->with('status', 'البوّابة ما رجّعتش رابط دفع. جرّب تاني أو استعمل التحويل اليدويّ.');
+            return back()->with('status', (string) setting('topup.screen.start_gateway_msg_3', 'البوّابة ما رجّعتش رابط دفع. جرّب تاني أو استعمل التحويل اليدويّ.'));
         }
 
         return redirect()->away($invoice->payment_url);

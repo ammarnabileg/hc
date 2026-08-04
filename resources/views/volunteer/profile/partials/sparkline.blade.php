@@ -25,11 +25,11 @@
 <div class="card p-4">
     <div class="flex items-center justify-between mb-2">
         <h3 class="text-sm font-bold">{{ $title }}</h3>
-        <span class="text-xs" style="color: var(--text-muted)">آخر {{ $days }} يوم</span>
+        <span class="text-xs" style="color: var(--text-muted)">{{ setting('volunteer.profile_sparkline.text', 'آخر') }} {{ $days }} {{ setting('volunteer.common.day', 'يوم') }}</span>
     </div>
 
     @if ($points->count() < 2)
-        <p class="text-xs" style="color: var(--text-muted)">لسّه بدري — أوّل حركة هتبان هنا.</p>
+        <p class="text-xs" style="color: var(--text-muted)">{{ setting('volunteer.profile_sparkline.text_2', 'لسّه بدري — أوّل حركة هتبان هنا.') }}</p>
     @else
         <svg viewBox="0 0 {{ $width }} {{ $height }}" preserveAspectRatio="none"
              class="w-full" style="height: {{ $height }}px" role="img" aria-label="{{ $title }}">

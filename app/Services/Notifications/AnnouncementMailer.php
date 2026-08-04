@@ -57,7 +57,7 @@ class AnnouncementMailer
             'email' => 'بريد',
         ]);
 
-        return is_array($channels) && $channels !== [] ? $channels : ['feed' => 'تاب التعليمات'];
+        return is_array($channels) && $channels !== [] ? $channels : ['feed' => setting('notifications.announcement_mailer.channels_1', 'تاب التعليمات')];
     }
 
     // ------------------------------------------------------------------- الإرسال

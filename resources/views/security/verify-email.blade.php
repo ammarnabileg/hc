@@ -1,5 +1,5 @@
 @extends('layouts.guest')
-@section('title', 'تأكيد بريدك')
+@section('title', (string) setting('security.verify_email.section_1', 'تأكيد بريدك'))
 
 @section('content')
 {{--

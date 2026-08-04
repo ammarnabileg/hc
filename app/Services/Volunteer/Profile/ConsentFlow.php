@@ -53,11 +53,11 @@ final class ConsentFlow
     public function request(User $requester, User $owner, string $field, ?string $reason = null): ?ConsentRequest
     {
         if (! in_array($field, self::FIELDS, true)) {
-            throw new RuntimeException('حقل غير مدعوم لطلب الإظهار.');
+            throw new RuntimeException(setting('volunteer.consent_flow.request_1', 'حقل غير مدعوم لطلب الإظهار.'));
         }
 
         if ($requester->id === $owner->id) {
-            throw new RuntimeException('دي بياناتك أصلًا.');
+            throw new RuntimeException(setting('volunteer.consent_flow.request_2', 'دي بياناتك أصلًا.'));
         }
 
         $this->sweepExpired($owner);
@@ -315,11 +315,11 @@ final class ConsentFlow
     private function guardOwner(ConsentRequest $consent, User $owner): void
     {
         if ((int) $consent->owner_id !== $owner->id) {
-            throw new RuntimeException('الطلب ده مش بتاعك.');
+            throw new RuntimeException(setting('volunteer.consent_flow.guard_owner_1', 'الطلب ده مش بتاعك.'));
         }
 
         if ($consent->status !== 'pending') {
-            throw new RuntimeException('الطلب ده اتحسم خلاص.');
+            throw new RuntimeException(setting('volunteer.consent_flow.guard_owner_2', 'الطلب ده اتحسم خلاص.'));
         }
     }
 

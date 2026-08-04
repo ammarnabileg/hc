@@ -203,7 +203,7 @@ class RoleEditor
             'key' => $this->uniqueKey($template->key),
             'name_ar' => $nameAr,
             'name_en' => $template->name_en,
-            'description' => 'منسوخ من قالب: '.$template->name_ar,
+            'description' => strtr(setting('admin_dashboard.role_editor.duplicate_1', 'منسوخ من قالب: :p1'), [':p1' => (string) ($template->name_ar)]),
             'layer' => $template->layer,
             'is_system' => false,
             'is_deletable' => true,
@@ -252,11 +252,11 @@ class RoleEditor
     public function assign(User $actor, User $target, Role $role, ?Membership $membership): array
     {
         if ($role->requires_membership && ! $membership) {
-            return ['ok' => false, 'message' => 'الدور ده دور تطوّع، فلازم تختار العضويّة اللي هيشتغل جوّاها — الدور «ماذا» والعضويّة «أين».'];
+            return ['ok' => false, 'message' => setting('admin_dashboard.role_editor.assign_1', 'الدور ده دور تطوّع، فلازم تختار العضويّة اللي هيشتغل جوّاها — الدور «ماذا» والعضويّة «أين».')];
         }
 
         if ($membership && $membership->user_id !== $target->id) {
-            return ['ok' => false, 'message' => 'العضويّة دي مش بتاعة المستخدم ده — اختر عضويّة من عضويّاته.'];
+            return ['ok' => false, 'message' => setting('admin_dashboard.role_editor.assign_2', 'العضويّة دي مش بتاعة المستخدم ده — اختر عضويّة من عضويّاته.')];
         }
 
         // ⭐ منع تصعيد الامتياز على الإسناد: لا يُسنِد أحدٌ دورًا يحوي ما لا يملكه
@@ -277,7 +277,7 @@ class RoleEditor
             'membership_id' => $membership?->id,
         ]);
 
-        return ['ok' => true, 'message' => 'اتسند الدور ✓'];
+        return ['ok' => true, 'message' => setting('admin_dashboard.role_editor.assign_3', 'اتسند الدور ✓')];
     }
 
     public function unassign(User $actor, RoleUser $assignment): void

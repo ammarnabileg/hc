@@ -1,6 +1,6 @@
 @extends('layouts.volunteer')
 
-@section('title', 'المقابلات')
+@section('title', setting('volunteer.people_interviews.title', 'المقابلات'))
 
 @php
     /**
@@ -17,31 +17,31 @@
 
 @section('content')
     <x-page-header
-        title="المقابلات"
-        subtitle="{{ $interviews->count() }} مقابلة في السجلّ"
-        :breadcrumbs="[['label' => 'لوحة التطوّع', 'url' => url('/volunteer')], ['label' => 'التوظيف'], ['label' => 'المقابلات']]">
+        :title="setting('volunteer.people_interviews.title', 'المقابلات')"
+        subtitle="{{ $interviews->count() }} {{ setting('volunteer.people_interviews.subtitle', 'مقابلة في السجلّ') }}"
+        :breadcrumbs="[['label' => setting('volunteer.common.breadcrumb_root', 'لوحة التطوّع'), 'url' => url('/volunteer')], ['label' => setting('volunteer.people_interviews.label', 'التوظيف')], ['label' => setting('volunteer.people_interviews.title', 'المقابلات')]]">
         <x-slot:action>
             @if ($canSchedule)
                 <button type="button" data-modal-open="schedule-modal"
                         class="btn inline-flex items-center rounded-xl px-4 py-2 text-sm font-semibold"
-                        style="background: var(--color-brand-500); color: #04201c">جدولة مقابلة</button>
+                        style="background: var(--color-brand-500); color: #04201c">{{ setting('volunteer.people_interviews.action', 'جدولة مقابلة') }}</button>
             @endif
         </x-slot:action>
     </x-page-header>
 
     <x-tabs :current="$tab" :tabs="[
-        ['key' => 'calendar', 'label' => 'تقويم المقابلات', 'url' => route('volunteer.interviews', ['tab' => 'calendar', 'month' => $month->toDateString()])],
-        ['key' => 'results', 'label' => 'نتائج المقابلات', 'url' => route('volunteer.interviews', ['tab' => 'results'])],
+        ['key' => 'calendar', 'label' => setting('volunteer.people_interviews.label_2', 'تقويم المقابلات'), 'url' => route('volunteer.interviews', ['tab' => 'calendar', 'month' => $month->toDateString()])],
+        ['key' => 'results', 'label' => setting('volunteer.people_interviews.label_3', 'نتائج المقابلات'), 'url' => route('volunteer.interviews', ['tab' => 'results'])],
     ]" />
 
     <x-filters :action="route('volunteer.interviews')">
         <input type="hidden" name="tab" value="{{ $tab }}">
 
         <label class="text-sm">
-            <span class="block text-xs mb-1" style="color: var(--text-muted)">المُقابِل</span>
+            <span class="block text-xs mb-1" style="color: var(--text-muted)">{{ setting('volunteer.people_interviews.field', 'المُقابِل') }}</span>
             <select name="interviewer" onchange="this.form.submit()" class="rounded-xl px-3 py-2 text-sm"
                     style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
-                <option value="">الكلّ</option>
+                <option value="">{{ setting('volunteer.common.all', 'الكلّ') }}</option>
                 @foreach ($interviewers as $person)
                     <option value="{{ $person->id }}" @selected((int) $filters['interviewer'] === (int) $person->id)>{{ $person->shortName() }}</option>
                 @endforeach
@@ -49,10 +49,10 @@
         </label>
 
         <label class="text-sm">
-            <span class="block text-xs mb-1" style="color: var(--text-muted)">الحالة</span>
+            <span class="block text-xs mb-1" style="color: var(--text-muted)">{{ setting('volunteer.common.status', 'الحالة') }}</span>
             <select name="status" onchange="this.form.submit()" class="rounded-xl px-3 py-2 text-sm"
                     style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
-                <option value="">الكلّ</option>
+                <option value="">{{ setting('volunteer.common.all', 'الكلّ') }}</option>
                 @foreach ($statuses as $key => $label)
                     <option value="{{ $key }}" @selected($filters['status'] === $key)>{{ $label }}</option>
                 @endforeach
@@ -60,8 +60,8 @@
         </label>
 
         <label class="text-sm flex-1 min-w-40">
-            <span class="block text-xs mb-1" style="color: var(--text-muted)">بحث</span>
-            <input type="search" name="q" value="{{ $filters['q'] }}" placeholder="اسم المرشّح…"
+            <span class="block text-xs mb-1" style="color: var(--text-muted)">{{ setting('volunteer.common.search', 'بحث') }}</span>
+            <input type="search" name="q" value="{{ $filters['q'] }}" placeholder="{{ setting('volunteer.people_interviews.placeholder', 'اسم المرشّح…') }}"
                    class="w-full rounded-xl px-3 py-2 text-sm"
                    style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
         </label>
@@ -70,10 +70,10 @@
     @if ($tab === 'calendar')
         <div class="card p-3 mb-4 flex items-center justify-between">
             <a class="btn rounded-xl px-3 py-2 text-sm" style="background: var(--surface-sunken)"
-               href="{{ route('volunteer.interviews', ['tab' => 'calendar', 'month' => $month->copy()->subMonth()->toDateString()]) }}">الشهر السابق</a>
+               href="{{ route('volunteer.interviews', ['tab' => 'calendar', 'month' => $month->copy()->subMonth()->toDateString()]) }}">{{ setting('volunteer.people_interviews.link', 'الشهر السابق') }}</a>
             <strong class="text-sm">{{ $month->translatedFormat('F Y') }}</strong>
             <a class="btn rounded-xl px-3 py-2 text-sm" style="background: var(--surface-sunken)"
-               href="{{ route('volunteer.interviews', ['tab' => 'calendar', 'month' => $month->copy()->addMonth()->toDateString()]) }}">الشهر التالي</a>
+               href="{{ route('volunteer.interviews', ['tab' => 'calendar', 'month' => $month->copy()->addMonth()->toDateString()]) }}">{{ setting('volunteer.people_interviews.link_2', 'الشهر التالي') }}</a>
         </div>
 
         {{-- التقويم كقائمة أيّام: على الموبايل بلا شبكة مضغوطة ولا تمرير أفقيّ (2.15-ج) --}}
@@ -94,24 +94,24 @@
     @endif
 
     @if ($interviews->isEmpty())
-        <div class="mt-4"><x-empty message="مفيش مقابلات مجدولة" /></div>
+        <div class="mt-4"><x-empty :message="setting('volunteer.people_interviews.empty', 'مفيش مقابلات مجدولة')" /></div>
     @else
         <div class="mt-4 space-y-3">
             @foreach ($interviews as $interview)
                 @php
                     $card = $cards[$interview->id] ?? null;
                     $countdown = $interview->scheduled_at->isFuture()
-                        ? 'باقي '.(int) now()->diffInHours($interview->scheduled_at).' ساعة'
-                        : 'عدّى من '.(int) $interview->scheduled_at->diffInHours(now()).' ساعة';
+                        ? setting('volunteer.people_interviews.text', 'باقي ').(int) now()->diffInHours($interview->scheduled_at).setting('volunteer.people_interviews.text_2', ' ساعة')
+                        : setting('volunteer.people_interviews.text_3', 'عدّى من ').(int) $interview->scheduled_at->diffInHours(now()).setting('volunteer.people_interviews.text_2', ' ساعة');
                 @endphp
 
                 {{-- الجداول كروت رأسيّة على الموبايل — ممنوع التمرير الأفقيّ (2.15-ج) --}}
                 <article class="card p-4">
                     <div class="flex flex-wrap items-start justify-between gap-3">
                         <div class="min-w-0">
-                            <h3 class="font-bold text-sm">{{ $interview->recruitment_candidate?->user?->name ?? 'مرشّح' }}</h3>
+                            <h3 class="font-bold text-sm">{{ $interview->recruitment_candidate?->user?->name ?? setting('volunteer.people_interviews.text_4', 'مرشّح') }}</h3>
                             <p class="text-xs" style="color: var(--text-muted)">
-                                المُقابِل: {{ $interview->interviewer?->shortName() }} ·
+                                {{ setting('volunteer.people_interviews.field_2', 'المُقابِل:') }} {{ $interview->interviewer?->shortName() }} ·
                                 {{ $interview->scheduled_at->translatedFormat('l j F — g:i A') }} · {{ $countdown }}
                             </p>
                         </div>
@@ -121,18 +121,18 @@
                     <div class="mt-3 flex flex-wrap items-center gap-2">
                         @if ($interview->external_link)
                             <a href="{{ $interview->external_link }}" target="_blank" rel="noopener"
-                               class="btn rounded-xl px-3 py-2 text-sm" style="background: var(--surface-sunken)">رابط المقابلة</a>
+                               class="btn rounded-xl px-3 py-2 text-sm" style="background: var(--surface-sunken)">{{ setting('volunteer.people_interviews.link_3', 'رابط المقابلة') }}</a>
                         @endif
 
                         @if ($canSeeResults)
                             <a href="{{ route('volunteer.interviews.scorecard', $interview) }}"
                                class="btn rounded-xl px-3 py-2 text-sm font-semibold"
                                style="background: var(--color-brand-500); color: #04201c">
-                                {{ $card ? 'فتح النتيجة' : 'املأ النتيجة' }}
+                                {{ $card ? setting('volunteer.people_interviews.text_5', 'فتح النتيجة') : setting('volunteer.people_interviews.text_6', 'املأ النتيجة') }}
                             </a>
                             @if ($card)
                                 <span class="text-xs" style="color: var(--text-muted)">
-                                    الدرجة {{ $card->total_score }} · {{ $card->is_draft ? 'مسودّة' : 'مكتملة' }}
+                                    {{ setting('volunteer.people_interviews.field_3', 'الدرجة') }} {{ $card->total_score }} · {{ $card->is_draft ? setting('volunteer.people_interviews.text_7', 'مسودّة') : setting('volunteer.people_interviews.text_8', 'مكتملة') }}
                                 </span>
                             @endif
                         @endif
@@ -146,9 +146,9 @@
                                     <option value="{{ $key }}" @selected($interview->status === $key)>{{ $label }}</option>
                                 @endforeach
                             </select>
-                            <input type="text" name="reason" placeholder="سبب الإلغاء" class="rounded-xl px-3 py-2 text-sm w-36"
+                            <input type="text" name="reason" placeholder="{{ setting('volunteer.people_interviews.placeholder_2', 'سبب الإلغاء') }}" class="rounded-xl px-3 py-2 text-sm w-36"
                                    style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
-                            <button type="submit" class="btn rounded-xl px-3 py-2 text-sm" style="background: var(--surface-sunken)">حدّث</button>
+                            <button type="submit" class="btn rounded-xl px-3 py-2 text-sm" style="background: var(--surface-sunken)">{{ setting('volunteer.people_interviews.action_2', 'حدّث') }}</button>
                         </form>
                     </div>
                 </article>
@@ -157,11 +157,11 @@
     @endif
 
     @if ($canSchedule)
-        <x-modal id="schedule-modal" title="جدولة مقابلة">
+        <x-modal id="schedule-modal" :title="setting('volunteer.people_interviews.action', 'جدولة مقابلة')">
             <form method="post" action="{{ route('volunteer.interviews.store') }}" class="space-y-3">
                 @csrf
                 <label class="block text-sm">
-                    <span class="block text-xs mb-1" style="color: var(--text-muted)">المرشّح</span>
+                    <span class="block text-xs mb-1" style="color: var(--text-muted)">{{ setting('volunteer.people_interviews.field_4', 'المرشّح') }}</span>
                     <select name="recruitment_candidate_id" required class="w-full rounded-xl px-3 py-2 text-sm"
                             style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
                         @foreach ($candidates as $candidate)
@@ -171,7 +171,7 @@
                 </label>
 
                 <label class="block text-sm">
-                    <span class="block text-xs mb-1" style="color: var(--text-muted)">المُقابِل</span>
+                    <span class="block text-xs mb-1" style="color: var(--text-muted)">{{ setting('volunteer.people_interviews.field', 'المُقابِل') }}</span>
                     <select name="interviewer_id" required class="w-full rounded-xl px-3 py-2 text-sm"
                             style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
                         @foreach ($interviewers as $person)
@@ -181,23 +181,23 @@
                 </label>
 
                 <label class="block text-sm">
-                    <span class="block text-xs mb-1" style="color: var(--text-muted)">الموعد</span>
+                    <span class="block text-xs mb-1" style="color: var(--text-muted)">{{ setting('volunteer.people_interviews.field_5', 'الموعد') }}</span>
                     <input type="datetime-local" name="scheduled_at" required class="w-full rounded-xl px-3 py-2 text-sm"
                            style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
                 </label>
 
                 <label class="block text-sm">
-                    <span class="block text-xs mb-1" style="color: var(--text-muted)">رابط ميتينج خارجيّ</span>
+                    <span class="block text-xs mb-1" style="color: var(--text-muted)">{{ setting('volunteer.people_interviews.field_6', 'رابط ميتينج خارجيّ') }}</span>
                     <input type="url" name="external_link" placeholder="https://…" class="w-full rounded-xl px-3 py-2 text-sm"
                            style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)" dir="ltr">
                 </label>
 
                 <p class="text-xs" style="color: var(--text-muted)">
-                    لو الموعد متعارض مع مقابلة تانية لنفس المُقابِل هنقولك ونقترح تغييره.
+                    {{ setting('volunteer.people_interviews.field_7', 'لو الموعد متعارض مع مقابلة تانية لنفس المُقابِل هنقولك ونقترح تغييره.') }}
                 </p>
 
                 <button type="submit" class="btn w-full rounded-xl px-4 py-2 text-sm font-semibold"
-                        style="background: var(--color-brand-500); color: #04201c">احجز الموعد</button>
+                        style="background: var(--color-brand-500); color: #04201c">{{ setting('volunteer.people_interviews.action_3', 'احجز الموعد') }}</button>
             </form>
         </x-modal>
     @endif

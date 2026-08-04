@@ -36,8 +36,7 @@ class RequirementsController extends Controller
     {
         if (! $this->checker->passed()) {
             return back()->withErrors([
-                'requirements' => 'لسّه ناقص: '.implode(' · ', $this->checker->missing())
-                    .'. صحّحها من لوحة الاستضافة، وبعدين اضغط «أعد الفحص».',
+                'requirements' => strtr((string) setting('setup.requirements.store_msg', 'لسّه ناقص: :a1. صحّحها من لوحة الاستضافة، وبعدين اضغط «أعد الفحص».'), [':a1' => (string) (implode(' · ', $this->checker->missing()))]),
             ]);
         }
 

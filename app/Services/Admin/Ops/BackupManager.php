@@ -67,7 +67,7 @@ class BackupManager
     {
         $kinds = setting('backups.kinds', ['full' => 'كاملة', 'database' => 'قاعدة البيانات', 'files' => 'ملفّات التخزين']);
 
-        return is_array($kinds) && $kinds !== [] ? $kinds : ['full' => 'كاملة'];
+        return is_array($kinds) && $kinds !== [] ? $kinds : ['full' => setting('backups.backup_manager.kinds_1', 'كاملة')];
     }
 
     /** إعدادات الجدولة كما تُعرَض في الفورم — كلّها من `setting()` */
@@ -87,7 +87,7 @@ class BackupManager
     {
         $rows = setting('backups.schedule.frequencies', ['daily' => 'يوميًّا', 'weekly' => 'أسبوعيًّا']);
 
-        return is_array($rows) && $rows !== [] ? $rows : ['daily' => 'يوميًّا'];
+        return is_array($rows) && $rows !== [] ? $rows : ['daily' => setting('backups.backup_manager.frequencies_1', 'يوميًّا')];
     }
 
     /** هل حان موعد النسخة المجدولة؟ — يقرؤها مشغّل الجدولة قبل أن ينسخ */
@@ -128,7 +128,7 @@ class BackupManager
     public function create(string $kind, ?User $actor, bool $scheduled = false): array
     {
         if (! setting('backups.enabled', true)) {
-            return ['ok' => false, 'id' => null, 'message' => 'النسخ الاحتياطيّ متوقّف من الإعدادات — فعّله الأوّل.'];
+            return ['ok' => false, 'id' => null, 'message' => setting('backups.backup_manager.create_1', 'النسخ الاحتياطيّ متوقّف من الإعدادات — فعّله الأوّل.')];
         }
 
         $kind = array_key_exists($kind, $this->kinds()) ? $kind : 'full';
@@ -140,7 +140,7 @@ class BackupManager
         }
 
         if (! is_dir($directory) || ! is_writable($directory)) {
-            return ['ok' => false, 'id' => null, 'message' => 'مجلّد النسخ مش قابل للكتابة — راجع صلاحيّات storage.'];
+            return ['ok' => false, 'id' => null, 'message' => setting('backups.backup_manager.create_2', 'مجلّد النسخ مش قابل للكتابة — راجع صلاحيّات storage.')];
         }
 
         $stamp = now()->format('Ymd-His');
@@ -163,7 +163,7 @@ class BackupManager
         } catch (Throwable $e) {
             $id = $this->record($filename, $kind, 'failed', 0, $startedAt, null, $actor, $scheduled, $e->getMessage());
 
-            return ['ok' => false, 'id' => $id, 'message' => 'النسخة فشلت — '.$e->getMessage()];
+            return ['ok' => false, 'id' => $id, 'message' => strtr(setting('backups.backup_manager.body_1', 'النسخة فشلت — :p1'), [':p1' => (string) ($e->getMessage())])];
         }
 
         $size = (int) (@filesize($fullPath) ?: 0);
@@ -178,7 +178,7 @@ class BackupManager
 
         $this->prune();
 
-        return ['ok' => true, 'id' => $id, 'message' => 'النسخة اتاخدت ✓ — '.$this->humanSize($size)];
+        return ['ok' => true, 'id' => $id, 'message' => strtr(setting('backups.backup_manager.body_2', 'النسخة اتاخدت ✓ — :p1'), [':p1' => (string) ($this->humanSize($size))])];
     }
 
     public function delete(int $id, ?User $actor): bool
@@ -254,40 +254,40 @@ class BackupManager
         $backup = is_int($backup) ? $this->find($backup) : $backup;
 
         if (! $backup) {
-            return ['ok' => false, 'message' => 'النسخة مش موجودة في السجلّ.', 'tables' => 0, 'rows' => 0];
+            return ['ok' => false, 'message' => setting('backups.backup_manager.verify_1', 'النسخة مش موجودة في السجلّ.'), 'tables' => 0, 'rows' => 0];
         }
 
         if ((string) $backup->status !== 'done') {
-            return ['ok' => false, 'message' => 'النسخة دي مش مكتملة.', 'tables' => 0, 'rows' => 0];
+            return ['ok' => false, 'message' => setting('backups.backup_manager.verify_2', 'النسخة دي مش مكتملة.'), 'tables' => 0, 'rows' => 0];
         }
 
         $path = $this->pathOf($backup);
 
         if (! is_file($path) || (int) @filesize($path) === 0) {
-            return ['ok' => false, 'message' => 'ملفّ النسخة مش موجود على القرص أو فاضي.', 'tables' => 0, 'rows' => 0];
+            return ['ok' => false, 'message' => setting('backups.backup_manager.verify_3', 'ملفّ النسخة مش موجود على القرص أو فاضي.'), 'tables' => 0, 'rows' => 0];
         }
 
         if ($backup->checksum && hash_file('sha256', $path) !== (string) $backup->checksum) {
-            return ['ok' => false, 'message' => 'بصمة الملفّ مختلفة عن المسجَّلة — النسخة اتغيّرت أو اتلفت.', 'tables' => 0, 'rows' => 0];
+            return ['ok' => false, 'message' => setting('backups.backup_manager.verify_4', 'بصمة الملفّ مختلفة عن المسجَّلة — النسخة اتغيّرت أو اتلفت.'), 'tables' => 0, 'rows' => 0];
         }
 
         $snapshot = $this->snapshotPathOf($backup);
 
         if (! $snapshot || ! is_file($snapshot)) {
-            return ['ok' => false, 'message' => 'مافيش لقطة بيانات مع النسخة دي — يعني مفيش استعادة تلقائيّة منها.', 'tables' => 0, 'rows' => 0];
+            return ['ok' => false, 'message' => setting('backups.backup_manager.verify_5', 'مافيش لقطة بيانات مع النسخة دي — يعني مفيش استعادة تلقائيّة منها.'), 'tables' => 0, 'rows' => 0];
         }
 
         $header = $this->snapshotHeader($snapshot);
 
         if (! $header || ! is_array($header['tables'] ?? null) || $header['tables'] === []) {
-            return ['ok' => false, 'message' => 'لقطة البيانات مش مقروءة.', 'tables' => 0, 'rows' => 0];
+            return ['ok' => false, 'message' => setting('backups.backup_manager.verify_6', 'لقطة البيانات مش مقروءة.'), 'tables' => 0, 'rows' => 0];
         }
 
-        $this->markVerified($backup, 'تحقّق سليم: '.count($header['tables']).' جدول.');
+        $this->markVerified($backup, strtr(setting('backups.backup_manager.verify_7', 'تحقّق سليم: :p1 جدول.'), [':p1' => (string) (count($header['tables']))]));
 
         return [
             'ok' => true,
-            'message' => 'النسخة سليمة ✓ — '.count($header['tables']).' جدول.',
+            'message' => strtr(setting('backups.backup_manager.verify_8', 'النسخة سليمة ✓ — :p1 جدول.'), [':p1' => (string) (count($header['tables']))]),
             'tables' => count($header['tables']),
             'rows' => (int) array_sum($header['tables']),
         ];
@@ -312,7 +312,7 @@ class BackupManager
         $check = $this->verify($backup);
 
         if (! $check['ok']) {
-            return ['ok' => false, 'message' => 'مقدرناش نستعيد — '.$check['message'], 'tables' => 0, 'rows' => 0, 'skipped' => []];
+            return ['ok' => false, 'message' => strtr(setting('backups.backup_manager.restore_1', 'مقدرناش نستعيد — :p1'), [':p1' => (string) ($check['message'])]), 'tables' => 0, 'rows' => 0, 'skipped' => []];
         }
 
         $snapshot = (string) $this->snapshotPathOf($backup);
@@ -398,12 +398,12 @@ class BackupManager
             'filename' => $backup->filename,
             'tables' => count($targets),
             'rows' => $rows,
-            'reason' => $reason ?? 'استعادة يدويّة',
+            'reason' => $reason ?? setting('backups.backup_manager.restore_2', 'استعادة يدويّة'),
         ], 'backup_files', (int) $backup->id);
 
         return [
             'ok' => true,
-            'message' => 'الاستعادة تمّت ✓ — '.count($targets).' جدول و'.$rows.' صفّ رجعوا لحالتهم قبل التحديث.',
+            'message' => strtr(setting('backups.backup_manager.restore_3', 'الاستعادة تمّت ✓ — :p1 جدول و:p2 صفّ رجعوا لحالتهم قبل التحديث.'), [':p1' => (string) (count($targets)), ':p2' => (string) ($rows)]),
             'tables' => count($targets),
             'rows' => $rows,
             'skipped' => $skipped,
@@ -412,7 +412,7 @@ class BackupManager
 
     public function humanSize(int $bytes): string
     {
-        $units = ['بايت', 'ك.ب', 'م.ب', 'ج.ب'];
+        $units = [setting('backups.backup_manager.human_size_1', 'بايت'), setting('backups.backup_manager.human_size_2', 'ك.ب'), setting('backups.backup_manager.human_size_3', 'م.ب'), setting('backups.backup_manager.human_size_4', 'ج.ب')];
         $index = 0;
 
         while ($bytes >= 1024 && $index < count($units) - 1) {
@@ -471,7 +471,7 @@ class BackupManager
         $handle = fopen($path, 'w');
 
         if ($handle === false) {
-            throw new \RuntimeException('مش قادر أكتب لقطة الاستعادة — راجع صلاحيّات مجلّد النسخ.');
+            throw new \RuntimeException(setting('backups.backup_manager.write_snapshot_1', 'مش قادر أكتب لقطة الاستعادة — راجع صلاحيّات مجلّد النسخ.'));
         }
 
         $flags = JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE;
@@ -588,7 +588,7 @@ class BackupManager
         $zip = new ZipArchive;
 
         if ($zip->open($path, ZipArchive::CREATE | ZipArchive::OVERWRITE) !== true) {
-            throw new \RuntimeException('مش قادر أفتح ملفّ الأرشيف للكتابة.');
+            throw new \RuntimeException(setting('backups.backup_manager.write_archive_1', 'مش قادر أفتح ملفّ الأرشيف للكتابة.'));
         }
 
         if ($kind !== 'files') {
@@ -647,9 +647,9 @@ class BackupManager
     private function databaseDump(): string
     {
         $lines = [
-            '-- نسخة احتياطيّة من لوحة الإدارة (12.7-و)',
-            '-- التاريخ: '.now()->toDateTimeString(),
-            '-- المحرّك: '.DB::getDriverName(),
+            setting('backups.backup_manager.database_dump_1', '-- نسخة احتياطيّة من لوحة الإدارة (12.7-و)'),
+            strtr(setting('backups.backup_manager.database_dump_2', '-- التاريخ: :p1'), [':p1' => (string) (now()->toDateTimeString())]),
+            strtr(setting('backups.backup_manager.database_dump_3', '-- المحرّك: :p1'), [':p1' => (string) (DB::getDriverName())]),
             '',
         ];
 
@@ -658,7 +658,7 @@ class BackupManager
         foreach ($this->tables() as $table) {
             $rows = DB::table($table)->limit($limit)->get();
 
-            $lines[] = "-- جدول: {$table} ({$rows->count()} صفّ)";
+            $lines[] = strtr(setting('backups.backup_manager.database_dump_4', '-- جدول: :p1 (:p2 صفّ)'), [':p1' => (string) ($table), ':p2' => (string) ($rows->count())]);
 
             foreach ($rows as $row) {
                 $data = (array) $row;

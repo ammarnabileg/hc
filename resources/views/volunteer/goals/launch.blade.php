@@ -1,6 +1,6 @@
 @extends('layouts.volunteer')
 
-@section('title', 'إطلاق الهدف')
+@section('title', setting('volunteer.goals_launch.title', 'إطلاق الهدف'))
 
 @section('content')
     {{--
@@ -9,19 +9,19 @@
         وفعل رئيسيّ واحد لكلّ هدف: **إرسال للتنفيذ** (2.15-أ-2).
     --}}
     <x-page-header
-        title="إطلاق الهدف"
-        subtitle="بالضغطة بتبدأ نافذة التفكيك لكلّ طبقة — فالعدّ يبدأ من الإشعار لا من يوم ما اتكتبت المهمّة."
-        :breadcrumbs="[['label' => 'الأهداف والمَعالِم', 'url' => route('volunteer.goals')], ['label' => 'إطلاق الهدف']]" />
+        :title="setting('volunteer.goals_launch.title', 'إطلاق الهدف')"
+        :subtitle="setting('volunteer.goals_launch.subtitle', 'بالضغطة بتبدأ نافذة التفكيك لكلّ طبقة — فالعدّ يبدأ من الإشعار لا من يوم ما اتكتبت المهمّة.')"
+        :breadcrumbs="[['label' => setting('volunteer.goals_launch.label', 'الأهداف والمَعالِم'), 'url' => route('volunteer.goals')], ['label' => setting('volunteer.goals_launch.title', 'إطلاق الهدف')]]" />
 
     <div class="card p-3 mb-4 text-sm">
         <x-icon name="hourglass" size="16" />
-        نافذة التفكيك الحاليّة <strong>{{ $windowHours }}</strong> ساعة لكلّ طبقة.
-        <span style="color: var(--text-muted)">ومَن يختار ينفّذ مهمّته بنفسه مالوش خصم تفكيك أصلًا.</span>
+        {{ setting('volunteer.goals_launch.text', 'نافذة التفكيك الحاليّة') }} <strong>{{ $windowHours }}</strong> {{ setting('volunteer.goals_launch.text_2', 'ساعة لكلّ طبقة.') }}
+        <span style="color: var(--text-muted)">{{ setting('volunteer.goals_launch.text_3', 'ومَن يختار ينفّذ مهمّته بنفسه مالوش خصم تفكيك أصلًا.') }}</span>
 
         @can('goals.create')
             {{-- مدخل رحلة البناء (23 — 1.1 … 1.4) — وهي ما يسبق هذه الشاشة --}}
             <a class="block mt-2 text-xs hover:underline" style="color: var(--color-brand-500)"
-               href="{{ route('volunteer.goals.build') }}">رحلة بناء الهدف — إنشاء وتفكيك وتجميع وتسعير</a>
+               href="{{ route('volunteer.goals.build') }}">{{ setting('volunteer.goals_launch.link', 'رحلة بناء الهدف — إنشاء وتفكيك وتجميع وتسعير') }}</a>
         @endcan
     </div>
 
@@ -34,13 +34,13 @@
                     <div class="min-w-0">
                         <div class="font-semibold">{{ $goal->name }}</div>
                         <div class="text-xs mt-0.5" style="color: var(--text-muted)">
-                            ينتهي {{ $goal->end_date?->format('Y-m-d') ?? 'بلا تاريخ' }}
+                            {{ setting('volunteer.goals_launch.text_4', 'ينتهي') }} {{ $goal->end_date?->format('Y-m-d') ?? setting('volunteer.goals_launch.text_5', 'بلا تاريخ') }}
                         </div>
                     </div>
 
                     {{-- اللون مع رمز ونصّ دائمًا (2.16) --}}
                     <x-state-badge :state="$gaps === [] ? 'ok' : 'warn'"
-                                   :label="$gaps === [] ? 'جاهز للإرسال' : 'ناقصه '.count($gaps)" />
+                                   :label="$gaps === [] ? setting('volunteer.goals_launch.label_2', 'جاهز للإرسال') : setting('volunteer.goals_launch.label_3', 'ناقصه ').count($gaps)" />
                 </div>
 
                 @if ($goal->description)
@@ -51,20 +51,20 @@
                     {{-- «بقائمة النواقص» — الرسالة تقول ماذا حدث وماذا تفعل (2.17-ب) --}}
                     <ul class="mt-3 space-y-1 text-sm">
                         @foreach ($gaps as $gap)
-                            <li><x-state-badge state="warn" label="ناقص" /> {{ $gap }}</li>
+                            <li><x-state-badge state="warn" :label="setting('volunteer.goals_launch.label_4', 'ناقص')" /> {{ $gap }}</li>
                         @endforeach
                     </ul>
                 @else
                     <form method="post" action="{{ route('volunteer.goals.launch.send', $goal) }}" class="mt-3">
                         @csrf
                         <button type="submit" class="btn rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
-                                style="background: var(--color-brand-500); color: #04201c">إرسال للتنفيذ</button>
+                                style="background: var(--color-brand-500); color: #04201c">{{ setting('volunteer.goals_launch.action', 'إرسال للتنفيذ') }}</button>
                     </form>
                 @endif
             </article>
         @empty
-            <x-empty message="مفيش أهداف مستنية الإطلاق — كلّها اتبعتت للتنفيذ."
-                     action="شوف الأهداف الجارية" :href="route('volunteer.goals')" />
+            <x-empty :message="setting('volunteer.goals_launch.empty', 'مفيش أهداف مستنية الإطلاق — كلّها اتبعتت للتنفيذ.')"
+                     :action="setting('volunteer.goals_launch.action_2', 'شوف الأهداف الجارية')" :href="route('volunteer.goals')" />
         @endforelse
     </section>
 @endsection

@@ -25,24 +25,28 @@ class EngagementSettings
     public static function catalog(): array
     {
         return [
-            'engagement.positive.enabled' => ['engagement', 'تفعيل الرسائل الإيجابيّة', 'bool', '1', 'إيقافها يخفي الأيقونة والرسائل كلّها بلا حذف.'],
-            'engagement.positive.icon_chance_percent' => ['engagement', 'احتمال ظهور الأيقونة (%)', 'number', '3', '3 = تظهر في 3 تحميلات من كلّ 100.'],
-            'engagement.positive.ticket_chance_percent' => ['engagement', 'احتمال زرّ التذكرة (%)', 'number', '20', '20 = خُمس ظهورات الأيقونة فيها تذكرة.'],
-            'engagement.positive.ticket_amount' => ['engagement', 'عدد تذاكر المفاجأة', 'number', '1', '1 = تذكرة واحدة لكلّ مرّة.'],
-            'engagement.positive.daily_ticket_cap' => ['engagement', 'حدّ تذاكر المفاجأة يوميًّا', 'number', '1', 'صفر = إيقاف التذكرة تمامًا.'],
-            'engagement.positive.no_repeat_last' => ['engagement', 'كم رسالة لا تتكرّر قبل إعادتها', 'number', '5', '5 = آخر خمس رسائل لا تتكرّر.'],
-            'engagement.positive.envelope_title' => ['engagement', 'عنوان ظرف الرسالة', 'string', 'وصلتك رسالة', ''],
-            'engagement.positive.open_label' => ['engagement', 'نصّ زرّ الفتح', 'string', 'افتح الظرف', ''],
-            'engagement.positive.close_label' => ['engagement', 'نصّ زرّ الإغلاق', 'string', 'تمام', ''],
-            'engagement.positive.ticket_label' => ['engagement', 'نصّ زرّ التذكرة', 'string', 'استلام تذكرة', ''],
-            'engagement.positive.icon_label' => ['engagement', 'وصف الأيقونة لقارئ الشاشة', 'string', 'رسالة إيجابيّة مستنّياك', ''],
+            'engagement.positive.enabled' => ['engagement', setting('engagement.engagement_settings.catalog_1', 'تفعيل الرسائل الإيجابيّة'), 'bool', '1', setting('engagement.engagement_settings.catalog_2', 'إيقافها يخفي الأيقونة والرسائل كلّها بلا حذف.')],
+            'engagement.positive.icon_chance_percent' => ['engagement', setting('engagement.engagement_settings.catalog_3', 'احتمال ظهور الأيقونة (%)'), 'number', '3', setting('engagement.engagement_settings.catalog_4', '3 = تظهر في 3 تحميلات من كلّ 100.')],
+            'engagement.positive.ticket_chance_percent' => ['engagement', setting('engagement.engagement_settings.catalog_5', 'احتمال زرّ التذكرة (%)'), 'number', '20', setting('engagement.engagement_settings.catalog_6', '20 = خُمس ظهورات الأيقونة فيها تذكرة.')],
+            'engagement.positive.ticket_amount' => ['engagement', setting('engagement.engagement_settings.catalog_7', 'عدد تذاكر المفاجأة'), 'number', '1', setting('engagement.engagement_settings.catalog_8', '1 = تذكرة واحدة لكلّ مرّة.')],
+            'engagement.positive.daily_ticket_cap' => ['engagement', setting('engagement.engagement_settings.catalog_9', 'حدّ تذاكر المفاجأة يوميًّا'), 'number', '1', setting('engagement.engagement_settings.catalog_10', 'صفر = إيقاف التذكرة تمامًا.')],
+            'engagement.positive.no_repeat_last' => ['engagement', setting('engagement.engagement_settings.catalog_11', 'كم رسالة لا تتكرّر قبل إعادتها'), 'number', '5', setting('engagement.engagement_settings.catalog_12', '5 = آخر خمس رسائل لا تتكرّر.')],
+            'engagement.positive.envelope_title' => ['engagement', setting('engagement.engagement_settings.catalog_13', 'عنوان ظرف الرسالة'), 'string', setting('engagement.engagement_settings.catalog_14', 'وصلتك رسالة'), ''],
+            'engagement.positive.open_label' => ['engagement', setting('engagement.engagement_settings.catalog_15', 'نصّ زرّ الفتح'), 'string', setting('engagement.engagement_settings.catalog_16', 'افتح الظرف'), ''],
+            'engagement.positive.close_label' => ['engagement', setting('engagement.engagement_settings.catalog_17', 'نصّ زرّ الإغلاق'), 'string', setting('engagement.engagement_settings.catalog_18', 'تمام'), ''],
+            'engagement.positive.ticket_label' => ['engagement', setting('engagement.engagement_settings.catalog_19', 'نصّ زرّ التذكرة'), 'string', setting('engagement.engagement_settings.catalog_20', 'استلام تذكرة'), ''],
+            'engagement.positive.icon_label' => ['engagement', setting('engagement.engagement_settings.catalog_21', 'وصف الأيقونة لقارئ الشاشة'), 'string', setting('engagement.engagement_settings.catalog_22', 'رسالة إيجابيّة مستنّياك'), ''],
             // السياقات نفسها إعداد — يضيف الأدمن سياقًا جديدًا بلا سطر كود (2.13)
-            'engagement.positive.contexts' => ['engagement', 'السياقات المعتمَدة', 'lines', self::DEFAULT_CONTEXTS, 'سطر لكلّ سياق بصيغة: المفتاح = اللافتة.'],
+            'engagement.positive.contexts' => ['engagement', setting('engagement.engagement_settings.catalog_23', 'السياقات المعتمَدة'), 'lines', self::defaultContexts(), setting('engagement.engagement_settings.catalog_24', 'سطر لكلّ سياق بصيغة: المفتاح = اللافتة.')],
         ];
     }
 
     /** السياقات الافتراضيّة — نفس ما يزرعه سيدر المجال */
-    private const DEFAULT_CONTEXTS = '{"any":"أيّ لحظة","surprise":"الأيقونة المفاجئة","lesson_complete":"بعد إكمال درس","course_complete":"بعد إتمام تدريب","streak_broken":"بعد انكسار الستريك","exam_failed":"بعد محاولة امتحان غير موفّقة","empty_state":"في الشاشات الفاضية","first_login":"أوّل دخول بعد التفعيل"}';
+    /** السياقات الافتراضيّة — قيمةٌ يعدّلها المالك، لا ثابتٌ نظاميّ (2.13-ب) */
+    private static function defaultContexts(): string
+    {
+        return (string) setting('engagement.engagement_settings.default_contexts', '{"any":"أيّ لحظة","surprise":"الأيقونة المفاجئة","lesson_complete":"بعد إكمال درس","course_complete":"بعد إتمام تدريب","streak_broken":"بعد انكسار الستريك","exam_failed":"بعد محاولة امتحان غير موفّقة","empty_state":"في الشاشات الفاضية","first_login":"أوّل دخول بعد التفعيل"}');
+    }
 
     /** تحويل خريطة السياقات إلى أسطر يقرأها الأدمن بسهولة (والعكس عند الحفظ) */
     public static function mapToLines(string $json): string
@@ -80,7 +84,7 @@ class EngagementSettings
             }
         }
 
-        return json_encode($map ?: json_decode(self::DEFAULT_CONTEXTS, true), JSON_UNESCAPED_UNICODE);
+        return json_encode($map ?: json_decode(self::defaultContexts(), true), JSON_UNESCAPED_UNICODE);
     }
 
     /**

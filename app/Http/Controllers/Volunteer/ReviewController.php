@@ -69,12 +69,12 @@ class ReviewController extends Controller
 
         // مستوى الوصول يحدّده دايركتور الكيان — فلا إضافة لمن لا يملكها (23 — 3.3)
         if (! empty($data['add_to_library'])) {
-            abort_unless($request->user()->allows('internal_library.create', $task), 403, 'إضافة المكتبة لدايركتور الكيان.');
+            abort_unless($request->user()->allows('internal_library.create', $task), 403, (string) setting('workflow.review.approve_task_msg', 'إضافة المكتبة لدايركتور الكيان.'));
         }
 
         $this->reviews->approveTask($task, $request->user(), $data);
 
-        return back()->with('status', 'اتعمدت ✓');
+        return back()->with('status', (string) setting('workflow.review.approve_task_ok', 'اتعمدت ✓'));
     }
 
     /** إرجاع: فيدباك إجباريّ + سبب من العشرة + مهلة إصلاح مستقلّة */
@@ -88,21 +88,21 @@ class ReviewController extends Controller
 
         $this->reviews->returnTask($task, $request->user(), $data);
 
-        return back()->with('status', 'اترجّعت بمهلة إصلاح ✓');
+        return back()->with('status', (string) setting('workflow.review.return_task_ok', 'اترجّعت بمهلة إصلاح ✓'));
     }
 
     public function approveContribution(Request $request, TaskContribution $contribution): RedirectResponse
     {
-        abort_unless((int) $contribution->invited_by === (int) $request->user()->id, 403, 'الاعتماد للمالك وحده.');
+        abort_unless((int) $contribution->invited_by === (int) $request->user()->id, 403, (string) setting('workflow.review.approve_contribution_msg', 'الاعتماد للمالك وحده.'));
 
         $this->contributions->approve($contribution, $request->user());
 
-        return back()->with('status', 'اتعمد بند المساهمة وصُرِفت نقاطه ✓');
+        return back()->with('status', (string) setting('workflow.review.approve_contribution_ok', 'اتعمد بند المساهمة وصُرِفت نقاطه ✓'));
     }
 
     public function returnContribution(Request $request, TaskContribution $contribution): RedirectResponse
     {
-        abort_unless((int) $contribution->invited_by === (int) $request->user()->id, 403, 'الإرجاع للمالك وحده.');
+        abort_unless((int) $contribution->invited_by === (int) $request->user()->id, 403, (string) setting('workflow.review.return_contribution_msg', 'الإرجاع للمالك وحده.'));
 
         $data = $request->validate([
             'review_feedback' => ['required', 'string'],
@@ -112,7 +112,7 @@ class ReviewController extends Controller
 
         $this->contributions->returnItem($contribution, $request->user(), $data);
 
-        return back()->with('status', 'اترجّع البند بمهلة إصلاح ✓');
+        return back()->with('status', (string) setting('workflow.review.return_contribution_ok', 'اترجّع البند بمهلة إصلاح ✓'));
     }
 
     // -------------------------------------------------------------- شاشة الدفعة
@@ -135,7 +135,7 @@ class ReviewController extends Controller
 
         $task->forceFill(['batch_status' => 'approved'])->save();
 
-        return back()->with('status', 'اتعمدت الدفعة كلّها ✓');
+        return back()->with('status', (string) setting('workflow.review.approve_batch_ok', 'اتعمدت الدفعة كلّها ✓'));
     }
 
     public function editBatchItem(Request $request, Task $item): RedirectResponse
@@ -149,7 +149,7 @@ class ReviewController extends Controller
 
         $this->reviews->editBatchItem($item, $request->user(), $data);
 
-        return back()->with('status', 'اتحفظ ✓ — واتسجّل في سجلّ النسخ');
+        return back()->with('status', (string) setting('workflow.review.edit_batch_item_ok', 'اتحفظ ✓ — واتسجّل في سجلّ النسخ'));
     }
 
     public function removeBatchItem(Request $request, Task $item): RedirectResponse
@@ -158,7 +158,7 @@ class ReviewController extends Controller
 
         $this->reviews->removeBatchItem($item, $request->user(), $data['note'] ?? null);
 
-        return back()->with('status', 'البند رجع مسودّة لصاحبه ✓');
+        return back()->with('status', (string) setting('workflow.review.remove_batch_item_ok', 'البند رجع مسودّة لصاحبه ✓'));
     }
 
     // -------------------------------------------------------------- داخليّ
@@ -166,18 +166,18 @@ class ReviewController extends Controller
     private function kinds(): array
     {
         return [
-            'task_submission' => 'تسليم مهمّة',
-            'contribution' => 'تسليم مساهم',
-            'escalation' => 'حالة على المحرّك',
+            'task_submission' => (string) setting('workflow.review.kinds_msg', 'تسليم مهمّة'),
+            'contribution' => (string) setting('workflow.review.kinds_msg_2', 'تسليم مساهم'),
+            'escalation' => (string) setting('workflow.review.kinds_msg_3', 'حالة على المحرّك'),
         ];
     }
 
     private function accessLevels(): array
     {
         return [
-            'entity' => 'كياني فقط',
-            'all_volunteers' => 'كلّ المتطوّعين',
-            'restricted' => 'مقيَّد',
+            'entity' => (string) setting('workflow.review.access_levels_msg', 'كياني فقط'),
+            'all_volunteers' => (string) setting('workflow.review.access_levels_msg_2', 'كلّ المتطوّعين'),
+            'restricted' => (string) setting('workflow.review.access_levels_msg_3', 'مقيَّد'),
         ];
     }
 }

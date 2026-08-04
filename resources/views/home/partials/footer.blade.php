@@ -15,7 +15,7 @@
     <p class="text-sm">{{ $note }}</p>
 
     @if ($links)
-        <nav class="mt-3 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs" aria-label="روابط عامّة">
+        <nav class="mt-3 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs" aria-label="{{ setting('home.footer.aria_label_1', 'روابط عامّة') }}">
             @foreach ($links as $link)
                 <a href="{{ $link['url'] }}" class="underline" style="color: var(--text-muted)">{{ $link['label'] }}</a>
             @endforeach

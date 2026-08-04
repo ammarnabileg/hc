@@ -64,7 +64,7 @@ class BehaviorGuard
         }
 
         throw new RuntimeException(
-            'العضو ده مش في داونلاينك داخل عضويّتك النشطة — معاملة السلوك لداونلاينك في كيانك وحدهم.'
+            setting('volunteer_offboarding.behavior_guard.assert_scope_1', 'العضو ده مش في داونلاينك داخل عضويّتك النشطة — معاملة السلوك لداونلاينك في كيانك وحدهم.')
         );
     }
 
@@ -100,7 +100,7 @@ class BehaviorGuard
 
         if ($exists) {
             throw new RuntimeException(
-                'الواقعة دي متسجّلة على العضو بنفس المخالفة قبل كده — معاملة واحدة لكلّ واقعة.'
+                setting('volunteer_offboarding.behavior_guard.assert_not_duplicated_1', 'الواقعة دي متسجّلة على العضو بنفس المخالفة قبل كده — معاملة واحدة لكلّ واقعة.')
             );
         }
     }

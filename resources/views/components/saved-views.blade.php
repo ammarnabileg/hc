@@ -39,7 +39,7 @@
                     @csrf @method('DELETE')
                     <button type="submit" class="px-2 text-xs opacity-70 hover:opacity-100"
                             style="min-width: 44px; min-height: 44px"
-                            aria-label="امسح العرض {{ $view->name }}">✕</button>
+                            aria-label="{{ setting('ux.saved_views.aria_label_1', 'امسح العرض') }} {{ $view->name }}">✕</button>
                 </form>
             </span>
         @endforeach
@@ -47,7 +47,7 @@
         @if ($currentFilters !== [])
             <details class="inline-block">
                 <summary class="cursor-pointer rounded-full px-3 text-sm inline-flex items-center"
-                         style="min-height: 44px; background: var(--surface-sunken); color: var(--text-muted)">احفظ العرض</summary>
+                         style="min-height: 44px; background: var(--surface-sunken); color: var(--text-muted)">{{ setting('ux.saved_views.text_1', 'احفظ العرض') }}</summary>
 
                 <form method="post" action="{{ route('ui.views.store') }}" class="card p-3 mt-2 flex flex-wrap items-end gap-2">
                     @csrf
@@ -57,13 +57,13 @@
                     @endforeach
 
                     <label class="block">
-                        <span class="block text-xs mb-1">اسم العرض</span>
-                        <input type="text" name="name" maxlength="96" required placeholder="مثلًا: محافظتي — آخر 7 أيّام"
+                        <span class="block text-xs mb-1">{{ setting('ux.saved_views.text_2', 'اسم العرض') }}</span>
+                        <input type="text" name="name" maxlength="96" required placeholder="{{ setting('ux.saved_views.placeholder_1', 'مثلًا: محافظتي — آخر 7 أيّام') }}"
                                class="rounded-xl px-3 text-sm" style="min-height: 44px; background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
                     </label>
 
                     <button type="submit" class="btn rounded-xl px-4 text-sm font-semibold motion-standard"
-                            style="min-height: 44px; background: var(--color-brand-500); color: #04201c">احفظ</button>
+                            style="min-height: 44px; background: var(--color-brand-500); color: #04201c">{{ setting('ux.saved_views.text_3', 'احفظ') }}</button>
                 </form>
             </details>
         @endif

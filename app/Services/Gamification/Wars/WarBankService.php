@@ -104,7 +104,7 @@ class WarBankService
             $answer = trim((string) ($cells[1] ?? ''));
 
             if ($text === '') {
-                $errors[] = 'فشل الاستيراد في الصفّ رقم '.($number + 1).' — نصّ السؤال فاضي.';
+                $errors[] = strtr(setting('gamification_wars.war_bank_service.parse_csv_1', 'فشل الاستيراد في الصفّ رقم :p1 — نصّ السؤال فاضي.'), [':p1' => (string) (($number + 1))]);
 
                 continue;
             }
@@ -140,7 +140,7 @@ class WarBankService
     /** تصدير — للمخوَّلين وحدهم لأنّ الإجابات فيه (24.2) */
     public function toCsv(iterable $questions): string
     {
-        $out = "السؤال,الإجابة,الصعوبة,المصدر,الاختيارات,الحالة\n";
+        $out = setting('gamification_wars.war_bank_service.to_csv_1', 'السؤال,الإجابة,الصعوبة,المصدر,الاختيارات,الحالة\\n');
 
         foreach ($questions as $q) {
             $out .= implode(',', array_map(

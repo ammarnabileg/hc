@@ -50,12 +50,12 @@ class PurchaseService
             $item = $this->catalog->resolve($type, $slug);
 
             if (! $item || ! $this->catalog->isAvailable($type, $item) || ! $this->catalog->isSellable($type)) {
-                throw PurchaseException::of('unavailable', 'store.unavailable_text', 'العنصر ده مش متاح للشراء دلوقتي.');
+                throw PurchaseException::of('unavailable', 'store.unavailable_text', setting('store.purchase_service.purchase_1', 'العنصر ده مش متاح للشراء دلوقتي.'));
             }
 
             // منع الشراء المكرّر لما يملكه (20.4)
             if ($this->catalog->owns($user, $type, $item)) {
-                throw PurchaseException::of('owned', 'store.owned_text', 'ده معاك بالفعل — تلاقيه في مكتبتك.');
+                throw PurchaseException::of('owned', 'store.owned_text', setting('store.purchase_service.purchase_2', 'ده معاك بالفعل — تلاقيه في مكتبتك.'));
             }
 
             // ⭐ إعادة الحساب في الخادم — ولا رقم من المتصفّح؛ والعملة تُعرَف منه
@@ -95,7 +95,7 @@ class PurchaseService
             );
 
             if ($quote['lines'] === []) {
-                throw PurchaseException::of('empty_cart', 'store.cart.empty_text', 'سلّتك فاضية — ضيف حاجة الأوّل.');
+                throw PurchaseException::of('empty_cart', 'store.cart.empty_text', setting('store.purchase_service.purchase_cart_1', 'سلّتك فاضية — ضيف حاجة الأوّل.'));
             }
 
             $wallet = $this->lockedWallet($user, $quote['currency']);
@@ -110,14 +110,14 @@ class PurchaseService
     private function assertPayable(array $input): void
     {
         if (! setting('store.enabled', true)) {
-            throw PurchaseException::of('disabled', 'store.disabled_text', 'المتجر مقفول مؤقّتًا — جرّب بعد شويّة.');
+            throw PurchaseException::of('disabled', 'store.disabled_text', setting('store.purchase_service.assert_payable_1', 'المتجر مقفول مؤقّتًا — جرّب بعد شويّة.'));
         }
 
         if (! ($input['refund_ack'] ?? false)) {
             throw PurchaseException::of(
                 'ack_required',
                 'store.refund.ack_required_text',
-                'محتاجين إقرارك بسياسة عدم الاسترجاع الأوّل، وبعدها نكمّل الشراء.',
+                setting('store.purchase_service.assert_payable_2', 'محتاجين إقرارك بسياسة عدم الاسترجاع الأوّل، وبعدها نكمّل الشراء.'),
             );
         }
     }
@@ -140,7 +140,7 @@ class PurchaseService
             throw PurchaseException::of(
                 'insufficient',
                 'store.insufficient_text',
-                'رصيدك أقلّ من قيمة الطلب — اشحن محفظتك وكمّل من نفس المكان.',
+                setting('store.purchase_service.commit_1', 'رصيدك أقلّ من قيمة الطلب — اشحن محفظتك وكمّل من نفس المكان.'),
             );
         }
 
@@ -178,7 +178,7 @@ class PurchaseService
         $currency = $this->catalog->currency($currencyCode ?: Coins::defaultCode());
 
         if (! $currency) {
-            throw PurchaseException::of('unavailable', 'store.unavailable_text', 'العنصر ده مش متاح للشراء دلوقتي.');
+            throw PurchaseException::of('unavailable', 'store.unavailable_text', setting('store.purchase_service.locked_wallet_1', 'العنصر ده مش متاح للشراء دلوقتي.'));
         }
 
         WalletBalance::query()->firstOrCreate(

@@ -96,7 +96,7 @@ class PublicPagesController extends Controller
     /** ⭐ الموافقة على ميثاق المتطوّع — **قبل** بدء التأهيليّ (13.4-أ) */
     public function acceptCharter(Request $request, JourneyService $journey): RedirectResponse
     {
-        $request->validate(['agree' => ['accepted']], [], ['agree' => 'الموافقة على الميثاق']);
+        $request->validate(['agree' => ['accepted']], [], ['agree' => (string) setting('home.public.accept_charter_msg', 'الموافقة على الميثاق')]);
 
         $journey->acceptCharter($request->user());
 
@@ -147,7 +147,7 @@ class PublicPagesController extends Controller
         abort_unless(
             (int) $placementRequest->recruitment_candidate?->user_id === (int) $request->user()->id,
             403,
-            'الطلب ده مش بتاعك.',
+            (string) setting('home.public.respond_placement_denied', 'الطلب ده مش بتاعك.'),
         );
 
         try {
@@ -157,8 +157,8 @@ class PublicPagesController extends Controller
         }
 
         return back()->with('status', $data['decision'] === 'accepted'
-            ? 'مبروك 🎉 أهلًا بيك معانا.'
-            : 'اتسجّل ✓ شكرًا لوضوحك.');
+            ? (string) setting('home.public.respond_placement_msg', 'مبروك 🎉 أهلًا بيك معانا.')
+            : (string) setting('home.public.respond_placement_ok', 'اتسجّل ✓ شكرًا لوضوحك.'));
     }
 
     /** إشعارات التطوّع = مركز الإشعارات على تاب التطوّع — مصدر واحد بلا ازدواج (2.8) */

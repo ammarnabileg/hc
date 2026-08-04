@@ -1,13 +1,13 @@
 @extends('layouts.admin')
 
-@section('title', 'حلقات النموّ')
+@section('title', (string) setting('growth.admin_index.section_1', 'حلقات النموّ'))
 
 @section('content')
-    <x-page-header title="حلقات النموّ"
-                   subtitle="كلّ رقم ونصّ في حلقات النموّ والاكتساب والتتبّع — من هنا لا من الكود."
+    <x-page-header title="{{ setting('growth.admin_index.title_1', 'حلقات النموّ') }}"
+                   subtitle="{{ setting('growth.admin_index.subtitle_1', 'كلّ رقم ونصّ في حلقات النموّ والاكتساب والتتبّع — من هنا لا من الكود.') }}"
                    :breadcrumbs="[
-                       ['label' => 'لوحة الإدارة', 'url' => url('/admin')],
-                       ['label' => 'حلقات النموّ'],
+                       ['label' => (string) setting('growth.admin_index.breadcrumbs_1', 'لوحة الإدارة'), 'url' => url('/admin')],
+                       ['label' => (string) setting('growth.admin_index.breadcrumbs_2', 'حلقات النموّ')],
                    ]" />
 
     <x-tabs :current="$tab" :tabs="collect($tabs)->map(fn ($meta, $key) => [
@@ -27,28 +27,28 @@
                     'endpoint' => route('admin.growth.setting.save'),
                 ])
             @empty
-                <x-empty message="الإعدادات دي لسّه ما اتزرعتش — شغّل سيدر مجال النموّ." />
+                <x-empty message="{{ setting('growth.admin_index.message_1', 'الإعدادات دي لسّه ما اتزرعتش — شغّل سيدر مجال النموّ.') }}" />
             @endforelse
         </div>
 
         <aside class="space-y-4">
             @if ($tab === 'loops')
                 <div class="card p-4">
-                    <h2 class="font-bold text-sm mb-2">حقول «أكمل ملفك»</h2>
+                    <h2 class="font-bold text-sm mb-2">{{ setting('growth.admin_index.text_1', 'حقول «أكمل ملفك»') }}</h2>
                     <ul class="text-xs space-y-1" style="color: var(--text-muted)">
                         @foreach ($completionFields as $key => $label)
                             <li><code>{{ $key }}</code> — {{ $label }}</li>
                         @endforeach
                     </ul>
                     <p class="text-xs mt-2" style="color: var(--text-muted)">
-                        عدّلها من <code>growth.profile_completion.fields</code>.
+                        {{ setting('growth.admin_index.text_2', 'عدّلها من') }} <code>growth.profile_completion.fields</code>.
                     </p>
                 </div>
             @endif
 
             @if ($tab === 'reach')
                 <div class="card p-4">
-                    <h2 class="font-bold text-sm mb-2">قوالب صور الروابط</h2>
+                    <h2 class="font-bold text-sm mb-2">{{ setting('growth.admin_index.text_3', 'قوالب صور الروابط') }}</h2>
                     <ul class="text-xs space-y-1" style="color: var(--text-muted)">
                         @foreach ($ogTypes as $type)
                             @php $template = $ogRenderer->template($type); @endphp
@@ -61,7 +61,7 @@
                 </div>
 
                 <div class="card p-4">
-                    <h2 class="font-bold text-sm mb-2">نصائح الكارت الأسبوعيّ</h2>
+                    <h2 class="font-bold text-sm mb-2">{{ setting('growth.admin_index.text_4', 'نصائح الكارت الأسبوعيّ') }}</h2>
                     <ol class="text-xs space-y-1 list-decimal ps-4" style="color: var(--text-muted)">
                         @foreach ($tips as $tip)
                             <li>{{ \Illuminate\Support\Str::limit($tip, 70) }}</li>
@@ -72,7 +72,7 @@
 
             @if ($tab === 'ads')
                 <div class="card p-4">
-                    <h2 class="font-bold text-sm mb-2">الأحداث الثمانية</h2>
+                    <h2 class="font-bold text-sm mb-2">{{ setting('growth.admin_index.text_5', 'الأحداث الثمانية') }}</h2>
                     <ul class="text-xs space-y-1" style="color: var(--text-muted)">
                         @foreach ($events as $key => $meta)
                             <li class="flex items-center justify-between gap-2">
@@ -82,8 +82,8 @@
                         @endforeach
                     </ul>
                     <p class="text-xs mt-3" style="color: var(--text-muted)">
-                        رفض المستخدم بيوقف البكسل وأحداث الخادم له فعليًّا — مش شكليًّا.
-                        و<code>ads.tracking.enabled</code> بيوقّف التتبّع كلّه بمفتاح واحد.
+                        {{ setting('growth.admin_index.text_6', 'رفض المستخدم بيوقف البكسل وأحداث الخادم له فعليًّا — مش شكليًّا.') }}
+                        و<code>ads.tracking.enabled</code> {{ setting('growth.admin_index.text_7', 'بيوقّف التتبّع كلّه بمفتاح واحد.') }}
                     </p>
                 </div>
             @endif

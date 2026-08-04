@@ -1,12 +1,12 @@
 @extends('layouts.admin')
 
-@section('title', 'التلعيب والتحديات')
+@section('title', setting('admin.gamification.index.altlayb_walthdyat', 'التلعيب والتحديات'))
 
 @section('content')
     <x-page-header
-        title="التلعيب والتحديات"
-        subtitle="اقتصاد XP والتذاكر والشارات والستريكس والليدر بورد والحروب والاحتفالات — كلّه إعدادات."
-        :breadcrumbs="[['label' => 'لوحة الإدارة', 'url' => url('/admin')], ['label' => 'التلعيب']]" />
+        :title="setting('admin.gamification.index.altlayb_walthdyat', 'التلعيب والتحديات')"
+        :subtitle="setting('admin.gamification.index.aqtsad_xp_waltdhakr_walsharat_walstryks', 'اقتصاد XP والتذاكر والشارات والستريكس والليدر بورد والحروب والاحتفالات — كلّه إعدادات.')"
+        :breadcrumbs="[['label' => setting('admin.gamification.index.lwha_alidara', 'لوحة الإدارة'), 'url' => url('/admin')], ['label' => setting('admin.gamification.index.altlayb', 'التلعيب')]]" />
 
     {{-- تابات داخليّة تُحمَّل كسولًا: التاب المفتوح وحده يجهّز بياناته (2.15-د) --}}
     <div class="sticky-bar -mx-4 md:mx-0 px-4 md:px-0 py-2 mb-4" style="background: var(--surface)">

@@ -69,7 +69,7 @@ class NotificationController extends Controller
 
         return $this->respond($request, [
             'unread' => Notifier::unreadCount($request->user()),
-        ], 'اتقرا ✓');
+        ], (string) setting('notifications.screen.read_ok', 'اتقرا ✓'));
     }
 
     /** تعليم الكلّ كمقروء (POST) — داخل التاب المفتوح حتى لا يُفاجَأ المستخدم. */
@@ -82,7 +82,7 @@ class NotificationController extends Controller
 
         return $this->respond($request, [
             'unread' => Notifier::unreadCount($user),
-        ], 'اتعلّمت كلّها كمقروءة ✓');
+        ], (string) setting('notifications.screen.read_all_ok', 'اتعلّمت كلّها كمقروءة ✓'));
     }
 
     // ------------------------------------------------------------------ داخليّ
@@ -123,10 +123,10 @@ class NotificationController extends Controller
     /** @return array<string, string> */
     private function tabs(bool $isVolunteer): array
     {
-        $tabs = ['all' => 'الكلّ', 'platform' => 'المنصّة'];
+        $tabs = ['all' => (string) setting('notifications.screen.tabs_msg', 'الكلّ'), 'platform' => (string) setting('notifications.screen.tabs_msg_2', 'المنصّة')];
 
         if ($isVolunteer) {
-            $tabs['volunteer'] = 'التطوّع';
+            $tabs['volunteer'] = (string) setting('notifications.screen.tabs_msg_3', 'التطوّع');
         }
 
         return $tabs;
@@ -139,7 +139,7 @@ class NotificationController extends Controller
      */
     private function groupByDay(Collection $items): array
     {
-        $groups = ['today' => 'اليوم', 'yesterday' => 'أمس', 'older' => 'أقدم'];
+        $groups = ['today' => (string) setting('notifications.screen.group_by_day_msg', 'اليوم'), 'yesterday' => (string) setting('notifications.screen.group_by_day_msg_2', 'أمس'), 'older' => (string) setting('notifications.screen.group_by_day_msg_3', 'أقدم')];
         $out = [];
 
         foreach ($groups as $key => $label) {

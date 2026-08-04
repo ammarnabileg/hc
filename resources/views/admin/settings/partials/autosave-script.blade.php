@@ -1,5 +1,21 @@
 @push('scripts')
+@php
+    /*
+     | نصوص السكربت من الإعدادات (2.13-أ): لا حرفَ عربيّ داخل `<script>`،
+     | فالمحروق هناك لا يصل لوحةَ الإدارة ولا الترجمة.
+     */
+    $jsText = [
+        'reason_required' => setting('admin.settings.partials.autosave_script.aktb_sbb_altadyl_alawl', 'اكتب سبب التعديل الأوّل'),
+        'saved' => setting('admin.settings.partials.autosave_script.tm_alhfz', 'تم الحفظ ✓'),
+        'save_failed' => setting('admin.settings.partials.autosave_script.maathfzsh', 'مااتحفظش'),
+        'reset_done' => setting('admin.settings.partials.autosave_script.rjat_llaftrady', 'رجعت للافتراضيّ ✓'),
+        'audit_by' => setting('admin.settings.partials.autosave_script.adlha', 'عدّلها'),
+        'audit_none' => setting('admin.settings.partials.autosave_script.mafysh_tadyl_msjl', 'مافيش تعديل مسجَّل'),
+    ];
+@endphp
+
 <script>
+    const HC_SETTINGS_TEXT = @json($jsText);
 /*
  | حفظ تلقائيّ + Reset + Audit بالـHover + بحث موحّد — بجافاسكربت خام،
  | **بلا أيّ مكتبة خارجيّة** (قاعدة البناء). وكلّ فعل له ردّ فوريّ (2.17-ب).
@@ -36,7 +52,7 @@
 
         function save() {
             if (needsReason && (!reason || reason.value.trim().length < 3)) {
-                status.textContent = 'اكتب سبب التعديل الأوّل';
+                status.textContent = HC_SETTINGS_TEXT.reason_required;
                 status.style.color = 'var(--color-state-warn)';
                 return;
             }
@@ -48,7 +64,7 @@
             status.style.color = 'var(--text-muted)';
 
             post(endpoint, payload).then(function (result) {
-                status.textContent = result.data.message || (result.ok ? 'تم الحفظ ✓' : 'مااتحفظش');
+                status.textContent = result.data.message || (result.ok ? HC_SETTINGS_TEXT.saved : HC_SETTINGS_TEXT.save_failed);
                 status.style.color = result.ok ? 'var(--color-state-ok)' : 'var(--color-state-warn)';
                 if (example && result.data.example) { example.textContent = result.data.example; }
                 setTimeout(function () { status.textContent = ''; }, 2500);
@@ -66,7 +82,7 @@
             post('{{ route('admin.settings.reset') }}', { key: key }).then(function (result) {
                 if (result.data.value !== undefined && input.type !== 'checkbox') { input.value = result.data.value; }
                 if (input.type === 'checkbox') { input.checked = result.data.value === '1'; }
-                status.textContent = 'رجعت للافتراضيّ ✓';
+                status.textContent = HC_SETTINGS_TEXT.reset_done;
                 setTimeout(function () { status.textContent = ''; }, 2500);
             });
         });
@@ -82,8 +98,8 @@
                 .then(function (data) {
                     box.classList.remove('hidden');
                     box.innerHTML = data.by
-                        ? 'عدّلها <a class="underline" href="' + data.by_url + '">' + data.by + '</a> ' + data.at
-                        : 'مافيش تعديل مسجَّل';
+                        ? HC_SETTINGS_TEXT.audit_by + ' <a class="underline" href="' + data.by_url + '">' + data.by + '</a> ' + data.at
+                        : HC_SETTINGS_TEXT.audit_none;
                 });
         }
 

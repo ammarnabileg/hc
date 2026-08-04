@@ -53,7 +53,7 @@ class OverviewController extends Controller
         $kpis = [
             'service' => $first?->started_at
                 ? $this->humanDuration(Carbon::parse($first->started_at), now())
-                : 'لسّه في الأوّل',
+                : (string) setting('volunteer.overview.index_msg', 'لسّه في الأوّل'),
             'position' => $membership?->position?->name_ar ?? '—',
             'certificates' => $certificates->count(),
             'vxp' => round($user->balance('vxp'), 2),
@@ -163,9 +163,9 @@ class OverviewController extends Controller
 
             if ($candidate) {
                 $stations[] = [
-                    'title' => 'بدأتَ المسار التأهيليّ',
+                    'title' => (string) setting('volunteer.overview.journey_stations_msg', 'بدأتَ المسار التأهيليّ'),
                     'at' => $candidate->applied_at ?? $candidate->created_at,
-                    'meta' => $candidate->qualifying_score ? 'درجة التأهيليّ: '.$candidate->qualifying_score : null,
+                    'meta' => $candidate->qualifying_score ? strtr((string) setting('volunteer.overview.journey_stations_msg_2', 'درجة التأهيليّ: :a1'), [':a1' => (string) ($candidate->qualifying_score)]) : null,
                     'type' => 'qualifying',
                 ];
 
@@ -173,7 +173,7 @@ class OverviewController extends Controller
 
                 if (in_array($candidate->stage, $reached, true)) {
                     $stations[] = [
-                        'title' => 'دخلتَ القائمة المبدئيّة',
+                        'title' => (string) setting('volunteer.overview.journey_stations_msg_3', 'دخلتَ القائمة المبدئيّة'),
                         'at' => $candidate->stage_changed_at ?? $candidate->updated_at,
                         'meta' => null,
                         'type' => 'shortlist',
@@ -187,7 +187,7 @@ class OverviewController extends Controller
 
                     if ($interview) {
                         $stations[] = [
-                            'title' => 'المقابلة',
+                            'title' => (string) setting('volunteer.overview.journey_stations_msg_4', 'المقابلة'),
                             'at' => $interview->scheduled_at ?? $interview->created_at,
                             'meta' => null,
                             'type' => 'interview',
@@ -204,7 +204,9 @@ class OverviewController extends Controller
 
                     foreach ($placements as $placement) {
                         $stations[] = [
-                            'title' => 'التسكين في '.($placement->entity?->name_ar ?? 'كيان'),
+                            'title' => strtr((string) setting('volunteer.overview.journey_stations_msg_5', 'التسكين في :a1'), [
+                                ':a1' => (string) ($placement->entity?->name_ar ?? setting('volunteer.overview.entity_fallback', 'كيان')),
+                            ]),
                             'at' => $placement->responded_at ?? $placement->created_at,
                             'meta' => $placement->position?->name_ar,
                             'type' => 'placement',
@@ -218,7 +220,7 @@ class OverviewController extends Controller
             $ended = $membership->ended_at ? Carbon::parse($membership->ended_at) : now();
 
             $stations[] = [
-                'title' => $membership->position?->name_ar ?? 'بوزشن',
+                'title' => $membership->position?->name_ar ?? (string) setting('volunteer.overview.journey_stations_msg_6', 'بوزشن'),
                 'at' => $membership->started_at,
                 'meta' => ($membership->entity?->name_ar ?? '—').' · '
                     .$this->humanDuration(Carbon::parse($membership->started_at), $ended),
@@ -236,9 +238,9 @@ class OverviewController extends Controller
             }
 
             $stations[] = [
-                'title' => 'شهادة: '.($certificate->certificate_type?->name_ar ?? $certificate->code),
+                'title' => strtr((string) setting('volunteer.overview.journey_stations_msg_7', 'شهادة: :a1'), [':a1' => (string) (($certificate->certificate_type?->name_ar ?? $certificate->code))]),
                 'at' => $certificate->issued_at,
-                'meta' => 'كود: '.$certificate->code,
+                'meta' => strtr((string) setting('volunteer.overview.journey_stations_msg_8', 'كود: :a1'), [':a1' => (string) ($certificate->code)]),
                 'type' => 'certificate',
                 'certificate' => $certificate,
             ];
@@ -363,7 +365,7 @@ class OverviewController extends Controller
         foreach ($tasks as $task) {
             $events->push([
                 'type' => $task->parent_task_id ? 'subtask' : 'task',
-                'type_label' => $task->parent_task_id ? 'صب-تاسك' : 'مهمّة',
+                'type_label' => $task->parent_task_id ? (string) setting('volunteer.overview.calendar_events_msg', 'صب-تاسك') : (string) setting('volunteer.overview.calendar_events_msg_2', 'مهمّة'),
                 'title' => $task->title,
                 'at' => Carbon::parse($task->deadline_at),
                 'state' => $this->workflow->counterState($task),
@@ -377,8 +379,8 @@ class OverviewController extends Controller
                 if ($mergeAt->betweenIncluded($from, $to)) {
                     $events->push([
                         'type' => 'merge',
-                        'type_label' => 'نافذة دمج',
-                        'title' => 'دمج وتسليم: '.$task->title,
+                        'type_label' => (string) setting('volunteer.overview.calendar_events_msg_3', 'نافذة دمج'),
+                        'title' => strtr((string) setting('volunteer.overview.calendar_events_msg_4', 'دمج وتسليم: :a1'), [':a1' => (string) ($task->title)]),
                         'at' => $mergeAt,
                         'state' => $this->workflow->counterState($task),
                         'entity' => $task->entity?->name_ar,
@@ -399,7 +401,7 @@ class OverviewController extends Controller
 
             $events->push([
                 'type' => 'contribution',
-                'type_label' => 'مساهمة',
+                'type_label' => (string) setting('volunteer.overview.calendar_events_msg_5', 'مساهمة'),
                 'title' => $contribution->item_title,
                 'at' => $at,
                 'state' => $at->isPast() ? 'danger' : 'warn',
@@ -421,7 +423,7 @@ class OverviewController extends Controller
             foreach ($meetings as $meeting) {
                 $events->push([
                     'type' => 'meeting',
-                    'type_label' => 'اجتماع',
+                    'type_label' => (string) setting('volunteer.overview.calendar_events_msg_6', 'اجتماع'),
                     'title' => $meeting->title,
                     'at' => Carbon::parse($meeting->scheduled_at),
                     'state' => Carbon::parse($meeting->scheduled_at)->isPast() ? 'idle' : 'ok',
@@ -451,17 +453,17 @@ class OverviewController extends Controller
         $parts = [];
 
         if ($years > 0) {
-            $parts[] = $years === 1 ? 'سنة' : ($years === 2 ? 'سنتان' : $years.' سنوات');
+            $parts[] = $years === 1 ? (string) setting('volunteer.overview.human_duration_msg', 'سنة') : ($years === 2 ? (string) setting('volunteer.overview.human_duration_msg_2', 'سنتان') : strtr((string) setting('volunteer.overview.human_duration_msg_3', ':a1 سنوات'), [':a1' => (string) ($years)]));
         }
 
         if ($rest > 0) {
-            $parts[] = $rest === 1 ? 'شهر' : ($rest === 2 ? 'شهران' : $rest.' شهور');
+            $parts[] = $rest === 1 ? (string) setting('volunteer.overview.human_duration_msg_4', 'شهر') : ($rest === 2 ? (string) setting('volunteer.overview.human_duration_msg_5', 'شهران') : strtr((string) setting('volunteer.overview.human_duration_msg_6', ':a1 شهور'), [':a1' => (string) ($rest)]));
         }
 
         if ($parts === []) {
             $days = (int) $from->diffInDays($to);
 
-            return $days <= 1 ? 'أوّل يوم' : $days.' يومًا';
+            return $days <= 1 ? (string) setting('volunteer.overview.human_duration_msg_7', 'أوّل يوم') : strtr((string) setting('volunteer.overview.human_duration_msg_8', ':a1 يومًا'), [':a1' => (string) ($days)]);
         }
 
         return implode(' و', $parts);

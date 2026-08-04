@@ -42,7 +42,7 @@ class CvImporter
         $ext = mb_strtolower((string) $file->getClientOriginalExtension());
 
         if (! in_array($ext, $this->allowedExtensions(), true)) {
-            throw new RuntimeException('نوع الملفّ ده مش مدعوم. ارفع '.implode(' أو ', $this->allowedExtensions()).'.');
+            throw new RuntimeException(setting('library.cv_importer.extract_text_1', 'نوع الملفّ ده مش مدعوم. ارفع ').implode(setting('library.cv_importer.extract_text_2', ' أو '), $this->allowedExtensions()).'.');
         }
 
         $path = $file->getRealPath();
@@ -58,7 +58,7 @@ class CvImporter
         $text = trim(preg_replace('/\n{3,}/u', "\n\n", str_replace("\r\n", "\n", $text)) ?? '');
 
         if ($text === '') {
-            throw new RuntimeException('مقدرناش نقرا الملفّ ده. جرّب ترفعه بصيغة Word أو نصّ عاديّ.');
+            throw new RuntimeException(setting('library.cv_importer.extract_text_3', 'مقدرناش نقرا الملفّ ده. جرّب ترفعه بصيغة Word أو نصّ عاديّ.'));
         }
 
         return $text;
@@ -120,13 +120,13 @@ class CvImporter
     private function fromDocx(string $path): string
     {
         if ($path === '' || ! class_exists(ZipArchive::class)) {
-            throw new RuntimeException('مقدرناش نفتح ملفّ Word. جرّب تحفظه PDF أو نصّ وارفعه تاني.');
+            throw new RuntimeException(setting('library.cv_importer.from_docx_1', 'مقدرناش نفتح ملفّ Word. جرّب تحفظه PDF أو نصّ وارفعه تاني.'));
         }
 
         $zip = new ZipArchive;
 
         if ($zip->open($path) !== true) {
-            throw new RuntimeException('الملفّ مش سليم. جرّب تحفظه من جديد وارفعه.');
+            throw new RuntimeException(setting('library.cv_importer.from_docx_2', 'الملفّ مش سليم. جرّب تحفظه من جديد وارفعه.'));
         }
 
         $xml = (string) $zip->getFromName('word/document.xml');
@@ -188,11 +188,11 @@ class CvImporter
         }
 
         return [
-            'experience' => ['الخبرة', 'الخبرات', 'الخبرة العملية', 'الخبرة العمليّة', 'خبرات العمل', 'experience', 'work experience', 'employment'],
-            'education' => ['التعليم', 'المؤهلات', 'المؤهّلات', 'رحلة التعلم', 'التعليم والمؤهلات', 'education', 'academic'],
-            'skills' => ['المهارات', 'مهارات', 'skills', 'technical skills'],
-            'languages' => ['اللغات', 'لغات', 'languages'],
-            'summary' => ['نبذة', 'الملخص', 'الملخّص', 'الملخص المهني', 'summary', 'profile', 'objective', 'about'],
+            'experience' => [setting('library.cv_importer.headings_1', 'الخبرة'), setting('library.cv_importer.headings_2', 'الخبرات'), setting('library.cv_importer.headings_3', 'الخبرة العملية'), setting('library.cv_importer.headings_4', 'الخبرة العمليّة'), setting('library.cv_importer.headings_5', 'خبرات العمل'), 'experience', 'work experience', 'employment'],
+            'education' => [setting('library.cv_importer.headings_6', 'التعليم'), setting('library.cv_importer.headings_7', 'المؤهلات'), setting('library.cv_importer.headings_8', 'المؤهّلات'), setting('library.cv_importer.headings_9', 'رحلة التعلم'), setting('library.cv_importer.headings_10', 'التعليم والمؤهلات'), 'education', 'academic'],
+            'skills' => [setting('library.cv_importer.headings_11', 'المهارات'), setting('library.cv_importer.headings_12', 'مهارات'), 'skills', 'technical skills'],
+            'languages' => [setting('library.cv_importer.headings_13', 'اللغات'), setting('library.cv_importer.headings_14', 'لغات'), 'languages'],
+            'summary' => [setting('library.cv_importer.headings_15', 'نبذة'), setting('library.cv_importer.headings_16', 'الملخص'), setting('library.cv_importer.headings_17', 'الملخّص'), setting('library.cv_importer.headings_18', 'الملخص المهني'), 'summary', 'profile', 'objective', 'about'],
         ];
     }
 

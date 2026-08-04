@@ -116,10 +116,17 @@ class PermissionExpander
 
         foreach ($skipped as $row) {
             $parts[] = $row['reason'] === 'scope'
-                ? "«{$row['key']}» مااتحفظتش بنطاق {$scope} — نطاقاتها المسموحة: ".implode(' · ', $row['scopes'])
-                : "«{$row['key']}» مش موجودة في المصفوفة";
+                ? strtr((string) setting('admin_roles.skipped.scope', '«:key» مااتحفظتش بنطاق :scope — نطاقاتها المسموحة: :scopes'), [
+                    ':key' => (string) $row['key'],
+                    ':scope' => $scope,
+                    ':scopes' => implode(' · ', $row['scopes']),
+                ])
+                : strtr((string) setting('admin_roles.skipped.unknown', '«:key» مش موجودة في المصفوفة'), [':key' => (string) $row['key']]);
         }
 
-        return 'سقط '.count($skipped).' سطر: '.implode(' · ', $parts);
+        return strtr((string) setting('admin_roles.skipped.summary', 'سقط :count سطر: :parts'), [
+            ':count' => (string) count($skipped),
+            ':parts' => implode(' · ', $parts),
+        ]);
     }
 }

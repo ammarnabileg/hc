@@ -105,7 +105,7 @@ class TransactionController extends Controller
             $out = fopen('php://output', 'wb');
             // BOM ليفتح الملفّ عربيًّا سليمًا في إكسل
             fwrite($out, "\xEF\xBB\xBF");
-            fputcsv($out, ['التاريخ', 'النوع', 'القيمة', 'المطبَّق', 'السبب', 'المصدر', 'المرجع', 'تخطّت الحدّ اليوميّ', 'مصحِّحة']);
+            fputcsv($out, [(string) setting('wallet.volunteer_tx.export_msg', 'التاريخ'), (string) setting('wallet.volunteer_tx.export_msg_2', 'النوع'), (string) setting('wallet.volunteer_tx.export_msg_3', 'القيمة'), (string) setting('wallet.volunteer_tx.export_msg_4', 'المطبَّق'), (string) setting('wallet.volunteer_tx.export_msg_5', 'السبب'), (string) setting('wallet.volunteer_tx.export_msg_6', 'المصدر'), (string) setting('wallet.volunteer_tx.export_msg_7', 'المرجع'), (string) setting('wallet.volunteer_tx.export_msg_8', 'تخطّت الحدّ اليوميّ'), (string) setting('wallet.volunteer_tx.export_msg_9', 'مصحِّحة')]);
 
             foreach ($rows as $row) {
                 fputcsv($out, [
@@ -116,8 +116,8 @@ class TransactionController extends Controller
                     $row->reason,
                     $row->source,
                     $row->reference_id,
-                    $row->exceeded_daily_cap ? 'نعم' : 'لا',
-                    $row->is_correction ? 'نعم' : 'لا',
+                    $row->exceeded_daily_cap ? (string) setting('wallet.volunteer_tx.export_msg_10', 'نعم') : (string) setting('wallet.volunteer_tx.export_msg_11', 'لا'),
+                    $row->is_correction ? (string) setting('wallet.volunteer_tx.export_msg_12', 'نعم') : (string) setting('wallet.volunteer_tx.export_msg_13', 'لا'),
                 ]);
             }
 
@@ -144,12 +144,12 @@ class TransactionController extends Controller
     private function sources(): array
     {
         return [
-            'task' => 'مهامّ',
-            'meeting' => 'اجتماعات',
-            'academy' => 'أكاديمية',
-            'leadership' => 'مؤشّر القيادة',
-            'behavior' => 'سلوك',
-            'arbitration' => 'قرار محكّم',
+            'task' => (string) setting('wallet.volunteer_tx.sources_msg', 'مهامّ'),
+            'meeting' => (string) setting('wallet.volunteer_tx.sources_msg_2', 'اجتماعات'),
+            'academy' => (string) setting('wallet.volunteer_tx.sources_msg_3', 'أكاديمية'),
+            'leadership' => (string) setting('wallet.volunteer_tx.sources_msg_4', 'مؤشّر القيادة'),
+            'behavior' => (string) setting('wallet.volunteer_tx.sources_msg_5', 'سلوك'),
+            'arbitration' => (string) setting('wallet.volunteer_tx.sources_msg_6', 'قرار محكّم'),
         ];
     }
 }

@@ -129,7 +129,7 @@ class NoDeliverySweeper
                     'rep',
                     rep_rule('task.no_delivery'),
                     'task',
-                    $reason ?? 'عدم تسليم: '.$task->title,
+                    $reason ?? strtr(setting('workflow.no_delivery_sweeper.miss_1', 'عدم تسليم: :p1'), [':p1' => (string) ($task->title)]),
                     $task,
                     $task->entity_id,
                 ),
@@ -143,7 +143,7 @@ class NoDeliverySweeper
             CaseCatalog::NO_DELIVERY,
             $task,
             $owner,
-            ['reason' => $reason ?? 'فات الديدلاين بلا تسليم', 'unassigned' => $owner === null],
+            ['reason' => $reason ?? setting('workflow.no_delivery_sweeper.miss_2', 'فات الديدلاين بلا تسليم'), 'unassigned' => $owner === null],
             $owner ? null : $this->entityDirector($task),
         );
 

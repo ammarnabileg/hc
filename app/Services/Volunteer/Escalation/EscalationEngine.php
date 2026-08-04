@@ -46,7 +46,7 @@ class EscalationEngine
      */
     public function open(string $caseType, Model $subject, ?User $requestedBy, array $payload = [], ?User $handler = null): Escalation
     {
-        abort_unless(CaseCatalog::exists($caseType), 422, 'نوع حالة غير معروف: '.$caseType);
+        abort_unless(CaseCatalog::exists($caseType), 422, strtr(setting('volunteer.escalation_engine.open_1', 'نوع حالة غير معروف: :p1'), [':p1' => (string) ($caseType)]));
 
         $entityId = $this->entityIdOf($subject);
         $handler ??= $this->chain->firstHandlerFor($requestedBy, $entityId);
@@ -84,7 +84,7 @@ class EscalationEngine
      */
     public function decide(Escalation $escalation, ?User $decider, string $decision, ?string $note = null, array $extra = []): Escalation
     {
-        abort_if($escalation->status !== 'open', 422, 'الحالة محسومة بالفعل — ولا تُعاد.');
+        abort_if($escalation->status !== 'open', 422, setting('volunteer.escalation_engine.decide_1', 'الحالة محسومة بالفعل — ولا تُعاد.'));
 
         return DB::transaction(function () use ($escalation, $decider, $decision, $note, $extra) {
             $this->applyEffect($escalation, $decision, $decider, $extra);
@@ -104,7 +104,7 @@ class EscalationEngine
             FlowNotifier::send(
                 $this->requesterOf($escalation),
                 'escalation',
-                'اتّخِذ قرار في: '.CaseCatalog::label($escalation->case_type),
+                strtr(setting('volunteer.escalation_engine.decide_2', 'اتّخِذ قرار في: :p1'), [':p1' => (string) (CaseCatalog::label($escalation->case_type))]),
                 $note,
                 route('volunteer.escalations'),
                 about: $escalation,
@@ -195,7 +195,7 @@ class EscalationEngine
                             rep_rule('task.slowdown'),
                             'escalation.slowdown',
                             $escalation,
-                            'فوات نافذة القرار في: '.CaseCatalog::label($escalation->case_type),
+                            strtr(setting('volunteer.escalation_engine.escalate_1', 'فوات نافذة القرار في: :p1'), [':p1' => (string) (CaseCatalog::label($escalation->case_type))]),
                         );
                 }
 
@@ -244,7 +244,7 @@ class EscalationEngine
     {
         $settlement = CaseCatalog::settlement($escalation->case_type);
 
-        abort_if($settlement === null, 422, 'لا تسوية آليّة لهذا النوع.');
+        abort_if($settlement === null, 422, setting('volunteer.escalation_engine.auto_settle_1', 'لا تسوية آليّة لهذا النوع.'));
 
         return DB::transaction(function () use ($escalation, $settlement) {
             $this->applyEffect($escalation, $settlement, null, ['auto' => true]);
@@ -252,7 +252,7 @@ class EscalationEngine
             $escalation->forceFill([
                 'status' => 'auto_settled',
                 'decision' => $settlement,
-                'decision_note' => 'تسوية آليّة بفوات نافذة السقف: '.CaseCatalog::settlementLabel($escalation->case_type),
+                'decision_note' => strtr(setting('volunteer.escalation_engine.auto_settle_2', 'تسوية آليّة بفوات نافذة السقف: :p1'), [':p1' => (string) (CaseCatalog::settlementLabel($escalation->case_type))]),
                 'auto_settled' => true,
                 'decided_at' => now(),
             ])->save();
@@ -266,7 +266,7 @@ class EscalationEngine
                 FlowNotifier::send(
                     $user,
                     'escalation',
-                    'تسوية آليّة: '.CaseCatalog::label($escalation->case_type),
+                    strtr(setting('volunteer.escalation_engine.auto_settle_3', 'تسوية آليّة: :p1'), [':p1' => (string) (CaseCatalog::label($escalation->case_type))]),
                     CaseCatalog::settlementLabel($escalation->case_type),
                     route('volunteer.escalations'),
                     about: $escalation,
@@ -310,7 +310,7 @@ class EscalationEngine
                 try {
                     if (! CaseCatalog::exists($escalation->case_type)) {
                         // عطبٌ دائم بطبيعته: إعادة المحاولة لن تخترع نوعًا للحالة
-                        $this->quarantine($escalation, 'نوع حالة غير معروف: '.$escalation->case_type);
+                        $this->quarantine($escalation, strtr(setting('volunteer.escalation_engine.run_1', 'نوع حالة غير معروف: :p1'), [':p1' => (string) ($escalation->case_type)]));
                         $result['failed']++;
 
                         return;
@@ -363,7 +363,7 @@ class EscalationEngine
 
         $attempts = (int) $row->attempts + 1;
         $max = $this->maxAttempts();
-        $reason = 'تعذّرت المعالجة: '.$exception->getMessage();
+        $reason = strtr(setting('volunteer.escalation_engine.register_failure_1', 'تعذّرت المعالجة: :p1'), [':p1' => (string) ($exception->getMessage())]);
 
         try {
             Escalation::query()->whereKey($row->getKey())->update([
@@ -389,7 +389,7 @@ class EscalationEngine
             return false;
         }
 
-        $this->quarantine($row->refresh(), $reason.' — بعد استنفاد '.$max.' محاولات.');
+        $this->quarantine($row->refresh(), strtr(setting('volunteer.escalation_engine.register_failure_2', ':p1 — بعد استنفاد :p2 محاولات.'), [':p1' => (string) ($reason), ':p2' => (string) ($max)]));
 
         return true;
     }
@@ -445,8 +445,8 @@ class EscalationEngine
                 FlowNotifier::send(
                     $user,
                     'escalation',
-                    'حالة اتوقفت وعايزة مراجعة يدويّة',
-                    $reason.' — كلّم الأدمن عشان يراجعها.',
+                    setting('volunteer.escalation_engine.quarantine_1', 'حالة اتوقفت وعايزة مراجعة يدويّة'),
+                    strtr(setting('volunteer.escalation_engine.quarantine_2', ':p1 — كلّم الأدمن عشان يراجعها.'), [':p1' => (string) ($reason)]),
                     route('volunteer.escalations'),
                     requiresAction: true,
                     about: $escalation,
@@ -629,7 +629,7 @@ class EscalationEngine
             ? rep_rule('task.apology_accepted')
             : rep_rule('task.no_delivery');
 
-        FlowLedger::rep($owner, $value, 'task.apology', $escalation, $decision === 'accepted' ? 'اعتذار مقبول' : 'اعتذار مرفوض — عدم تسليم');
+        FlowLedger::rep($owner, $value, 'task.apology', $escalation, $decision === 'accepted' ? setting('volunteer.escalation_engine.apply_apology_1', 'اعتذار مقبول') : setting('volunteer.escalation_engine.apply_apology_2', 'اعتذار مرفوض — عدم تسليم'));
 
         $subject->forceFill(['status' => 'no_delivery'])->save();
     }
@@ -685,7 +685,7 @@ class EscalationEngine
         $held = (float) $subject->held_amount;
 
         if ($owner && $held > 0 && $subject->vxp_source === 'owner_balance') {
-            FlowLedger::creditVxp($owner, $held, 'contribution.hold_released', $escalation, 'تحرير الرصيد المعلَّق بعد سحب المساهمة', $owner->id);
+            FlowLedger::creditVxp($owner, $held, 'contribution.hold_released', $escalation, setting('volunteer.escalation_engine.apply_withdraw_1', 'تحرير الرصيد المعلَّق بعد سحب المساهمة'), $owner->id);
         }
 
         $subject->forceFill(['status' => 'withdrawn', 'held_amount' => 0])->save();
@@ -715,13 +715,13 @@ class EscalationEngine
                     (float) ($row['value'] ?? rep_rule('task.slowdown')),
                     'escalation.slowdown',
                     $escalation,
-                    'اعتماد أثر التباطؤ المعلَّق بعد تأكيد بلاغ الرابط',
+                    setting('volunteer.escalation_engine.apply_broken_link_1', 'اعتماد أثر التباطؤ المعلَّق بعد تأكيد بلاغ الرابط'),
                 )
                 : FlowNotifier::send(
                     $user,
                     'escalation',
-                    'اترجّع لك الخصم المعلَّق ✓',
-                    'الرابط اتأكّد إنّه شغّال — فمفيش أثر تباطؤ عليك.',
+                    setting('volunteer.escalation_engine.apply_broken_link_2', 'اترجّع لك الخصم المعلَّق ✓'),
+                    setting('volunteer.escalation_engine.apply_broken_link_3', 'الرابط اتأكّد إنّه شغّال — فمفيش أثر تباطؤ عليك.'),
                     route('volunteer.escalations'),
                     about: $escalation,
                 );
@@ -740,7 +740,7 @@ class EscalationEngine
         $responsible = ! empty($payload['responsible_id']) ? User::query()->find($payload['responsible_id']) : null;
 
         if ($responsible) {
-            FlowLedger::rep($responsible, rep_rule('task.slowdown'), 'link.broken_confirmed', $escalation, 'تأكيد بلاغ رابط معطّل');
+            FlowLedger::rep($responsible, rep_rule('task.slowdown'), 'link.broken_confirmed', $escalation, setting('volunteer.escalation_engine.apply_broken_link_4', 'تأكيد بلاغ رابط معطّل'));
         }
     }
 
@@ -766,7 +766,7 @@ class EscalationEngine
             ->get()
             ->each(fn (Transaction $transaction) => app(LedgerService::class)->reverse(
                 $transaction,
-                'ردّ أثر التباطؤ المعلَّق — الرابط شغّال (23-5)',
+                setting('volunteer.escalation_engine.refund_slowdown_1', 'ردّ أثر التباطؤ المعلَّق — الرابط شغّال (23-5)'),
             ));
     }
 
@@ -781,8 +781,8 @@ class EscalationEngine
         FlowNotifier::send(
             $missed,
             'escalation',
-            'أثر تباطؤ معلَّق على بلاغ رابط',
-            'القيمة معلَّقة لحدّ ما حد يتحقّق من الرابط — لو شغّال هتترفع عنك.',
+            setting('volunteer.escalation_engine.suspend_slowdown_1', 'أثر تباطؤ معلَّق على بلاغ رابط'),
+            setting('volunteer.escalation_engine.suspend_slowdown_2', 'القيمة معلَّقة لحدّ ما حد يتحقّق من الرابط — لو شغّال هتترفع عنك.'),
             route('volunteer.escalations'),
             about: $escalation,
         );
@@ -816,7 +816,7 @@ class EscalationEngine
         $owner = $subject->owner_id ? User::query()->find($subject->owner_id) : null;
 
         if ($owner && $value != 0.0) {
-            FlowLedger::rep($owner, $value, 'task.repeated_return', $escalation, $extra['justification'] ?? 'قرار الإرجاع المتكرّر');
+            FlowLedger::rep($owner, $value, 'task.repeated_return', $escalation, $extra['justification'] ?? setting('volunteer.escalation_engine.apply_repeated_return_1', 'قرار الإرجاع المتكرّر'));
         }
     }
 
@@ -870,8 +870,8 @@ class EscalationEngine
         FlowNotifier::send(
             $handler,
             'escalation',
-            ($escalated ? 'صعدت إليك: ' : 'يحتاج قرارك: ').CaseCatalog::label($escalation->case_type),
-            'فوات نافذتك يرفع الحالة لأبلاينك وعليك أثر التباطؤ.',
+            ($escalated ? setting('volunteer.escalation_engine.notify_handler_1', 'صعدت إليك: ') : setting('volunteer.escalation_engine.notify_handler_2', 'يحتاج قرارك: ')).CaseCatalog::label($escalation->case_type),
+            setting('volunteer.escalation_engine.notify_handler_3', 'فوات نافذتك يرفع الحالة لأبلاينك وعليك أثر التباطؤ.'),
             route('volunteer.escalations'),
             $escalation->window_due_at,
             requiresAction: true,

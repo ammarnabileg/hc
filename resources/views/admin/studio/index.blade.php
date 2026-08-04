@@ -1,35 +1,35 @@
 @extends('layouts.admin')
 
-@section('title', 'استوديو الصور')
+@section('title', setting('admin.studio.index.astwdyw_alswr', 'استوديو الصور'))
 
 @section('content')
-    <x-page-header title="استوديو الصور"
-                   subtitle="صمّم مرّة — والمنصّة تولّد آلاف النسخ بأسماء أصحابها."
+    <x-page-header :title="setting('admin.studio.index.astwdyw_alswr', 'استوديو الصور')"
+                   :subtitle="setting('admin.studio.index.smm_mra_walmnsa_twld_alaf_alnskh_basma', 'صمّم مرّة — والمنصّة تولّد آلاف النسخ بأسماء أصحابها.')"
                    :breadcrumbs="[
-                       ['label' => 'لوحة الإدارة', 'url' => url('/admin')],
-                       ['label' => 'استوديو الصور'],
+                       ['label' => setting('admin.studio.index.lwha_alidara', 'لوحة الإدارة'), 'url' => url('/admin')],
+                       ['label' => setting('admin.studio.index.astwdyw_alswr', 'استوديو الصور')],
                    ]">
         <x-slot:action>
             @can('image_templates.create')
                 <button type="button" data-modal-open="new-template"
                         class="btn rounded-xl px-4 py-2 text-sm font-semibold"
-                        style="background: var(--color-brand-500); color: #04201c">+ قالب</button>
+                        style="background: var(--color-brand-500); color: #04201c">{{ setting('admin.studio.index.qalb', '+ قالب') }}</button>
             @endcan
         </x-slot:action>
     </x-page-header>
 
     <x-filters :action="route('admin.studio.index')">
         <label class="text-xs">
-            <span class="block mb-1" style="color: var(--text-muted)">بحث</span>
+            <span class="block mb-1" style="color: var(--text-muted)">{{ setting('admin.studio.index.bhth', 'بحث') }}</span>
             <input type="search" name="q" value="{{ request('q') }}" class="rounded-xl px-3 py-2 text-sm w-48"
                    style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
         </label>
 
         <label class="text-xs">
-            <span class="block mb-1" style="color: var(--text-muted)">الجمهور</span>
+            <span class="block mb-1" style="color: var(--text-muted)">{{ setting('admin.studio.index.aljmhwr', 'الجمهور') }}</span>
             <select name="audience" class="rounded-xl px-3 py-2 text-sm"
                     style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
-                <option value="">الكلّ</option>
+                <option value="">{{ setting('admin.studio.index.alkl', 'الكلّ') }}</option>
                 @foreach ($audiences as $key => $label)
                     <option value="{{ $key }}" @selected(request('audience') === $key)>{{ $label }}</option>
                 @endforeach
@@ -61,15 +61,15 @@
 
         <label class="flex items-center gap-2 text-xs mt-4">
             <input type="checkbox" name="archived" value="1" @checked(request()->boolean('archived'))>
-            <span>اعرض المؤرشف</span>
+            <span>{{ setting('admin.studio.index.aard_almwrshf', 'اعرض المؤرشف') }}</span>
         </label>
 
         <button class="btn rounded-xl px-4 py-2 text-sm font-semibold"
-                style="background: var(--color-brand-500); color: #04201c">فلترة</button>
+                style="background: var(--color-brand-500); color: #04201c">{{ setting('admin.studio.index.fltra', 'فلترة') }}</button>
     </x-filters>
 
     @if ($templates->isEmpty())
-        <x-empty message="مافيش قوالب لسه — ابدأ بأوّل قالب." />
+        <x-empty :message="setting('admin.studio.index.mafysh_qwalb_lsh_abda_bawl_qalb', 'مافيش قوالب لسه — ابدأ بأوّل قالب.')" />
     @else
         <div class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
             @foreach ($templates as $template)
@@ -83,10 +83,10 @@
                             </div>
                         </div>
                         <x-state-badge :state="$template->is_archived ? 'idle' : ($template->is_active ? 'ok' : 'warn')"
-                                       :label="$template->is_archived ? 'مؤرشف' : ($template->is_active ? 'مفعَّل' : 'موقوف')" />
+                                       :label="$template->is_archived ? setting('admin.studio.index.mwrshf', 'مؤرشف') : ($template->is_active ? setting('admin.studio.index.mfal', 'مفعَّل') : setting('admin.studio.index.mwqwf', 'موقوف'))" />
                     </div>
 
-                    <img src="{{ route('admin.studio.preview', $template) }}" alt="معاينة {{ $template->name }}"
+                    <img src="{{ route('admin.studio.preview', $template) }}" alt="{{ strtr(setting('admin.studio.index.maayna_v1', 'معاينة :v1'), [':v1' => e($template->name)]) }}"
                          loading="lazy" class="w-full rounded-xl" style="max-width:100%; background: var(--surface-sunken)">
 
                     @if (($template->folders ?? []) || ($template->tags ?? []))
@@ -104,17 +104,17 @@
 
                     <div class="flex flex-wrap gap-2 text-xs">
                         @can('image_templates.edit')
-                            <a class="underline" href="{{ route('admin.studio.edit', $template) }}">تعديل</a>
+                            <a class="underline" href="{{ route('admin.studio.edit', $template) }}">{{ setting('admin.studio.index.tadyl', 'تعديل') }}</a>
                         @endcan
                         @can('image_templates.create')
                             <form method="post" action="{{ route('admin.studio.duplicate', $template) }}">
-                                @csrf<button class="underline">نسخة</button>
+                                @csrf<button class="underline">{{ setting('admin.studio.index.nskha', 'نسخة') }}</button>
                             </form>
                         @endcan
                         @can('image_templates.archive')
                             @unless ($template->is_archived)
                                 <form method="post" action="{{ route('admin.studio.archive', $template) }}">
-                                    @csrf<button class="underline">أرشفة</button>
+                                    @csrf<button class="underline">{{ setting('admin.studio.index.arshfa', 'أرشفة') }}</button>
                                 </form>
                             @endunless
                         @endcan
@@ -128,9 +128,9 @@
 
     {{-- ⭐ إدارة قائمة أدوات الاسم من هنا — لأنّها تختلف بالثقافات (12.14-ج) --}}
     <div class="card p-4 mt-6">
-        <h2 class="font-bold text-sm mb-2">أدوات الاسم</h2>
+        <h2 class="font-bold text-sm mb-2">{{ setting('admin.studio.index.adwat_alasm', 'أدوات الاسم') }}</h2>
         <p class="text-xs mb-3" style="color: var(--text-muted)">
-            الأداة بتتعامل جزءًا من الكلمة اللي بعدها، فـ«عبد الرحمن محمد علي» بيبقى «عبد الرحمن محمد».
+            {{ setting('admin.studio.index.aladaa_bttaaml_jza_mn_alklma_ally_badha_f', 'الأداة بتتعامل جزءًا من الكلمة اللي بعدها، فـ«عبد الرحمن محمد علي» بيبقى «عبد الرحمن محمد».') }}
         </p>
 
         <div class="flex flex-wrap gap-2 mb-3">
@@ -140,7 +140,7 @@
                     @can('image_templates.edit')
                         <form method="post" action="{{ route('admin.studio.particles.delete', $particle) }}">
                             @csrf @method('DELETE')
-                            <button aria-label="حذف {{ $particle->particle }}">✕</button>
+                            <button aria-label="{{ strtr(setting('admin.studio.index.hdhf_v1', 'حذف :v1'), [':v1' => e($particle->particle)]) }}">✕</button>
                         </form>
                     @endcan
                 </span>
@@ -150,30 +150,30 @@
         @can('image_templates.edit')
             <form method="post" action="{{ route('admin.studio.particles.store') }}" class="flex flex-wrap items-end gap-2">
                 @csrf
-                <input type="text" name="particle" required placeholder="أداة جديدة"
+                <input type="text" name="particle" required placeholder="{{ setting('admin.studio.index.adaa_jdyda', 'أداة جديدة') }}"
                        class="rounded-xl px-3 py-2 text-sm"
                        style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
                 <select name="locale" class="rounded-xl px-3 py-2 text-sm"
                         style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
-                    <option value="ar">عربيّة</option>
-                    <option value="en">إنجليزيّة</option>
+                    <option value="ar">{{ setting('admin.studio.index.arbya', 'عربيّة') }}</option>
+                    <option value="en">{{ setting('admin.studio.index.injlyzya', 'إنجليزيّة') }}</option>
                 </select>
-                <button class="rounded-xl px-4 py-2 text-sm" style="background: var(--surface-raised)">إضافة</button>
+                <button class="rounded-xl px-4 py-2 text-sm" style="background: var(--surface-raised)">{{ setting('admin.studio.index.idafa', 'إضافة') }}</button>
             </form>
         @endcan
     </div>
 
     @push('modals')
-        <x-modal id="new-template" title="قالب جديد">
+        <x-modal id="new-template" :title="setting('admin.studio.index.qalb_jdyd', 'قالب جديد')">
             <form method="post" action="{{ route('admin.studio.store') }}" class="space-y-3">
                 @csrf
-                <x-form.input name="name" label="اسم القالب" required />
+                <x-form.input name="name" :label="setting('admin.studio.index.asm_alqalb', 'اسم القالب')" required />
 
                 <label class="block text-sm">
-                    <span class="block mb-1">مقاس جاهز</span>
+                    <span class="block mb-1">{{ setting('admin.studio.index.mqas_jahz', 'مقاس جاهز') }}</span>
                     <select name="preset" id="preset-select" class="w-full rounded-xl px-3 py-2 text-sm"
                             style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
-                        <option value="">مخصّص</option>
+                        <option value="">{{ setting('admin.studio.index.mkhss', 'مخصّص') }}</option>
                         @foreach ($presets as $key => $preset)
                             <option value="{{ $key }}" data-size="{{ $preset['width'] }}x{{ $preset['height'] }}">
                                 {{ $preset['label'] }} — {{ $preset['width'] }}×{{ $preset['height'] }}
@@ -193,12 +193,12 @@
                 </label>
 
                 <div class="grid grid-cols-2 gap-2">
-                    <x-form.input name="width_px" label="العرض (بكسل)" type="number" value="1080" required />
-                    <x-form.input name="height_px" label="الطول (بكسل)" type="number" value="1080" required />
+                    <x-form.input name="width_px" :label="setting('admin.studio.index.alard_bksl', 'العرض (بكسل)')" type="number" value="1080" required />
+                    <x-form.input name="height_px" :label="setting('admin.studio.index.altwl_bksl', 'الطول (بكسل)')" type="number" value="1080" required />
                 </div>
 
                 <label class="block text-sm">
-                    <span class="block mb-1">الجمهور</span>
+                    <span class="block mb-1">{{ setting('admin.studio.index.aljmhwr', 'الجمهور') }}</span>
                     <select name="audience" class="w-full rounded-xl px-3 py-2 text-sm"
                             style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
                         @foreach ($audiences as $key => $label)
@@ -208,7 +208,7 @@
                 </label>
 
                 <button class="btn w-full rounded-xl px-4 py-2 text-sm font-semibold"
-                        style="background: var(--color-brand-500); color: #04201c">أنشئ القالب</button>
+                        style="background: var(--color-brand-500); color: #04201c">{{ setting('admin.studio.index.anshy_alqalb', 'أنشئ القالب') }}</button>
             </form>
         </x-modal>
     @endpush

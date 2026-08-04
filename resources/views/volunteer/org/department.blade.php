@@ -1,6 +1,6 @@
 @extends('layouts.volunteer')
 
-@section('title', 'الأعضاء والبوزشنز')
+@section('title', setting('volunteer.org_department.title', 'الأعضاء والبوزشنز'))
 
 @php
     /**
@@ -9,43 +9,43 @@
      * والقسم يُعرَض **كاملًا حتى لو كنتُ في فرعيّ**.
      */
     $statuses = [
-        'active' => 'نشط',
-        'absent' => 'غائب',
-        'acting' => 'قائم بأعمال',
-        'suspended' => 'معلَّق',
+        'active' => setting('volunteer.org_department.active', 'نشط'),
+        'absent' => setting('volunteer.org_department.absent', 'غائب'),
+        'acting' => setting('volunteer.org_department.acting', 'قائم بأعمال'),
+        'suspended' => setting('volunteer.org_department.suspended', 'معلَّق'),
     ];
 @endphp
 
 @section('content')
     <x-page-header
-        title="الأعضاء والبوزشنز"
-        :subtitle="$root ? $root->name_ar.' — القسم كامل بكلّ فرعيّاته' : null"
-        :breadcrumbs="[['label' => 'لوحة التطوّع', 'url' => url('/volunteer')], ['label' => 'قسمي'], ['label' => 'الأعضاء والبوزشنز']]">
+        :title="setting('volunteer.org_department.title', 'الأعضاء والبوزشنز')"
+        :subtitle="$root ? $root->name_ar.setting('volunteer.org_department.subtitle', ' — القسم كامل بكلّ فرعيّاته') : null"
+        :breadcrumbs="[['label' => setting('volunteer.common.breadcrumb_root', 'لوحة التطوّع'), 'url' => url('/volunteer')], ['label' => setting('volunteer.org_department.label', 'قسمي')], ['label' => setting('volunteer.org_department.title', 'الأعضاء والبوزشنز')]]">
         <x-slot:action>
             @include('volunteer.org.partials.entity-switcher', ['action' => route('volunteer.department')])
         </x-slot:action>
     </x-page-header>
 
     @if (! $root)
-        <x-empty message="لسّه مش مُسكَّن في كيان — أوّل خطوة مستنّياك" action="الرجوع للرئيسيّة" :href="route('dashboard')" />
+        <x-empty :message="setting('volunteer.org_department.empty', 'لسّه مش مُسكَّن في كيان — أوّل خطوة مستنّياك')" :action="setting('volunteer.org_department.action', 'الرجوع للرئيسيّة')" :href="route('dashboard')" />
     @else
         {{-- سطر «أخوكم» الشرفيّ — خارج العدّاد وخارج الفلاتر (13.4-ص-ب) --}}
         @include('volunteer.org.partials.honorary-line', ['honorary' => $honorary])
 
         {{-- ثلاثة عدّادات فقط (2.15-أ-3) --}}
         <div class="grid grid-cols-2 md:grid-cols-3 gap-3 mb-4">
-            <x-kpi label="الأعضاء" :value="$counters['members']" icon="people" />
-            <x-kpi label="الفرعيّات" :value="$counters['sub_entities']" icon="entity" />
-            <x-kpi label="الشواغر" :value="$counters['vacancies']" icon="placement" />
+            <x-kpi :label="setting('volunteer.org_department.label_2', 'الأعضاء')" :value="$counters['members']" icon="people" />
+            <x-kpi :label="setting('volunteer.org_department.label_3', 'الفرعيّات')" :value="$counters['sub_entities']" icon="entity" />
+            <x-kpi :label="setting('volunteer.org_department.label_4', 'الشواغر')" :value="$counters['vacancies']" icon="placement" />
         </div>
 
         <x-filters :action="route('volunteer.department')">
             <label class="text-sm">
-                <span class="block text-xs mb-1" style="color: var(--text-muted)">الفرعيّ</span>
+                <span class="block text-xs mb-1" style="color: var(--text-muted)">{{ setting('volunteer.org_department.field', 'الفرعيّ') }}</span>
                 <select name="sub" onchange="this.form.submit()"
                         class="rounded-xl px-3 py-2 text-sm"
                         style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
-                    <option value="">الكلّ</option>
+                    <option value="">{{ setting('volunteer.common.all', 'الكلّ') }}</option>
                     @foreach ($subEntities as $sub)
                         <option value="{{ $sub->id }}" @selected((int) ($filters['entity'] ?? 0) === $sub->id)>{{ $sub->name_ar }}</option>
                     @endforeach
@@ -53,11 +53,11 @@
             </label>
 
             <label class="text-sm">
-                <span class="block text-xs mb-1" style="color: var(--text-muted)">البوزشن</span>
+                <span class="block text-xs mb-1" style="color: var(--text-muted)">{{ setting('volunteer.common.position', 'البوزشن') }}</span>
                 <select name="position" onchange="this.form.submit()"
                         class="rounded-xl px-3 py-2 text-sm"
                         style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
-                    <option value="">الكلّ</option>
+                    <option value="">{{ setting('volunteer.common.all', 'الكلّ') }}</option>
                     @foreach ($positions as $position)
                         <option value="{{ $position->key }}" @selected(($filters['position'] ?? null) === $position->key)>{{ $position->name_ar }}</option>
                     @endforeach
@@ -65,11 +65,11 @@
             </label>
 
             <label class="text-sm">
-                <span class="block text-xs mb-1" style="color: var(--text-muted)">الحالة</span>
+                <span class="block text-xs mb-1" style="color: var(--text-muted)">{{ setting('volunteer.common.status', 'الحالة') }}</span>
                 <select name="status" onchange="this.form.submit()"
                         class="rounded-xl px-3 py-2 text-sm"
                         style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
-                    <option value="">الكلّ</option>
+                    <option value="">{{ setting('volunteer.common.all', 'الكلّ') }}</option>
                     @foreach ($statuses as $key => $label)
                         <option value="{{ $key }}" @selected(($filters['status'] ?? null) === $key)>{{ $label }}</option>
                     @endforeach
@@ -77,27 +77,27 @@
             </label>
 
             <label class="text-sm flex-1 min-w-40">
-                <span class="block text-xs mb-1" style="color: var(--text-muted)">بحث</span>
-                <input type="search" name="q" value="{{ $filters['q'] ?? '' }}" placeholder="بالاسم أو الكود…"
+                <span class="block text-xs mb-1" style="color: var(--text-muted)">{{ setting('volunteer.common.search', 'بحث') }}</span>
+                <input type="search" name="q" value="{{ $filters['q'] ?? '' }}" placeholder="{{ setting('volunteer.org_department.placeholder', 'بالاسم أو الكود…') }}"
                        class="w-full rounded-xl px-3 py-2 text-sm"
                        style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
             </label>
 
             <x-slot:advanced>
                 <div class="flex items-center gap-2 text-sm">
-                    <span style="color: var(--text-muted)">العرض</span>
+                    <span style="color: var(--text-muted)">{{ setting('volunteer.org_department.field_2', 'العرض') }}</span>
                     <a href="{{ request()->fullUrlWithQuery(['view' => 'cards']) }}"
                        class="rounded-full px-3 py-1 text-xs"
-                       style="{{ $view === 'cards' ? 'background: var(--color-brand-500); color:#04201c' : 'background: var(--surface-sunken)' }}">كروت</a>
+                       style="{{ $view === 'cards' ? 'background: var(--color-brand-500); color:#04201c' : 'background: var(--surface-sunken)' }}">{{ setting('volunteer.org_department.link', 'كروت') }}</a>
                     <a href="{{ request()->fullUrlWithQuery(['view' => 'table']) }}"
                        class="rounded-full px-3 py-1 text-xs"
-                       style="{{ $view === 'table' ? 'background: var(--color-brand-500); color:#04201c' : 'background: var(--surface-sunken)' }}">جدول</a>
+                       style="{{ $view === 'table' ? 'background: var(--color-brand-500); color:#04201c' : 'background: var(--surface-sunken)' }}">{{ setting('volunteer.org_department.link_2', 'جدول') }}</a>
                 </div>
             </x-slot:advanced>
         </x-filters>
 
         @if ($cards->isEmpty())
-            <x-empty message="مفيش أعضاء مطابقين للفلتر" action="امسح الفلاتر" :href="route('volunteer.department')" />
+            <x-empty :message="setting('volunteer.org_department.empty_2', 'مفيش أعضاء مطابقين للفلتر')" :action="setting('volunteer.org_department.action_2', 'امسح الفلاتر')" :href="route('volunteer.department')" />
         @elseif ($view === 'table')
             {{-- على الموبايل: كروت رأسيّة لا تمرير أفقيّ (2.15-ج) --}}
             <div class="hidden md:block card min-w-0 overflow-x-auto">
@@ -106,12 +106,12 @@
                    @unless (advanced_mode()) data-columns-cap="{{ view_mode()->defaultColumns() }}" @endunless>
                     <thead>
                         <tr style="color: var(--text-muted)">
-                            <th class="text-start p-3">العضو</th>
-                            <th class="text-start p-3">البوزشن</th>
-                            <th class="text-start p-3">الفرعيّ</th>
-                            <th class="text-start p-3">الأبلاين</th>
+                            <th class="text-start p-3">{{ setting('volunteer.org_department.col', 'العضو') }}</th>
+                            <th class="text-start p-3">{{ setting('volunteer.common.position', 'البوزشن') }}</th>
+                            <th class="text-start p-3">{{ setting('volunteer.org_department.field', 'الفرعيّ') }}</th>
+                            <th class="text-start p-3">{{ setting('volunteer.org_department.col_2', 'الأبلاين') }}</th>
                             <th class="text-start p-3">Rep</th>
-                            <th class="text-start p-3">الحالة</th>
+                            <th class="text-start p-3">{{ setting('volunteer.common.status', 'الحالة') }}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -156,7 +156,7 @@
         --}}
         @can('delegations.create')
             <details class="card p-4 mt-5">
-                <summary class="cursor-pointer text-sm font-semibold">تسجيل غياب وتفويض بديل</summary>
+                <summary class="cursor-pointer text-sm font-semibold">{{ setting('volunteer.org_department.summary', 'تسجيل غياب وتفويض بديل') }}</summary>
 
                 <form method="post" action="{{ url('/volunteer/department/member') }}"
                       data-absence-form data-absence-base="{{ url('/volunteer/department/member') }}"
@@ -164,11 +164,11 @@
                     @csrf
 
                     <label class="text-sm">
-                        <span class="block text-xs mb-1" style="color: var(--text-muted)">العضو الغائب</span>
+                        <span class="block text-xs mb-1" style="color: var(--text-muted)">{{ setting('volunteer.org_department.field_3', 'العضو الغائب') }}</span>
                         <select name="membership" required data-absence-member
                                 class="w-full rounded-xl px-3 py-2 text-sm"
                                 style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
-                            <option value="">اختار…</option>
+                            <option value="">{{ setting('volunteer.org_department.option', 'اختار…') }}</option>
                             @foreach ($cards as $card)
                                 <option value="{{ $card['id'] }}">{{ $card['name'] }} — {{ $card['position'] }}</option>
                             @endforeach
@@ -176,31 +176,31 @@
                     </label>
 
                     <label class="text-sm">
-                        <span class="block text-xs mb-1" style="color: var(--text-muted)">البديل المفوَّض (فاضي = أبلاينه المباشر)</span>
+                        <span class="block text-xs mb-1" style="color: var(--text-muted)">{{ setting('volunteer.org_department.field_4', 'البديل المفوَّض (فاضي = أبلاينه المباشر)') }}</span>
                         <select name="delegate_membership_id"
                                 class="w-full rounded-xl px-3 py-2 text-sm"
                                 style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
-                            <option value="">الأبلاين المباشر</option>
+                            <option value="">{{ setting('volunteer.org_department.option_2', 'الأبلاين المباشر') }}</option>
                             @foreach ($cards as $card)
                                 <option value="{{ $card['id'] }}">{{ $card['name'] }} — {{ $card['position'] }}</option>
                             @endforeach
                         </select>
                     </label>
 
-                    <x-form.input name="from_date" label="من" type="date" required />
-                    <x-form.input name="to_date" label="إلى" type="date" required />
+                    <x-form.input name="from_date" :label="setting('volunteer.common.from', 'من')" type="date" required />
+                    <x-form.input name="to_date" :label="setting('volunteer.common.to', 'إلى')" type="date" required />
 
                     <label class="text-sm sm:col-span-2">
-                        <span class="block text-xs mb-1" style="color: var(--text-muted)">السبب (اختياريّ)</span>
+                        <span class="block text-xs mb-1" style="color: var(--text-muted)">{{ setting('volunteer.org_department.field_5', 'السبب (اختياريّ)') }}</span>
                         <input type="text" name="reason" class="w-full rounded-xl px-3 py-2 text-sm"
                                style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
                     </label>
 
                     <div class="sm:col-span-2">
                         <button type="submit" class="btn rounded-xl px-4 py-2 text-sm font-semibold"
-                                style="background: var(--color-brand-500); color: #04201c">تسجيل الغياب</button>
+                                style="background: var(--color-brand-500); color: #04201c">{{ setting('volunteer.org_department.action_3', 'تسجيل الغياب') }}</button>
                         <span class="block text-xs mt-2" style="color: var(--text-muted)">
-                            طول الغياب: القرارات تروح للبديل · مفيش أثر تباطؤ على الغائب · مفيش إسناد جديد له · وساعات مهامّه واقفة.
+                            {{ setting('volunteer.org_department.field_6', 'طول الغياب: القرارات تروح للبديل · مفيش أثر تباطؤ على الغائب · مفيش إسناد جديد له · وساعات مهامّه واقفة.') }}
                         </span>
                     </div>
                 </form>
@@ -208,16 +208,32 @@
         @endcan
 
         {{-- بوب-أب ملفّ عضو مختصر: رأس ثابت وجسم متمرّر (2.10.1-17) --}}
-        <x-modal id="member-modal" title="ملفّ العضو">
+        <x-modal id="member-modal" :title="setting('volunteer.org_department.tooltip', 'ملفّ العضو')">
             <div data-member-body class="text-sm">
-                <p style="color: var(--text-muted)">جارٍ التحميل…</p>
+                <p style="color: var(--text-muted)">{{ setting('volunteer.common.loading', 'جارٍ التحميل…') }}</p>
             </div>
         </x-modal>
     @endif
 @endsection
 
 @push('scripts')
+@php
+    /** نصوص السكربت — تُمرَّر بـ`@json` فلا يبقى حرفٌ عربيّ محروق داخله (2.13-أ) */
+    $jsText = [
+        'no_phone' => (string) setting('volunteer.org_department.js_no_phone', 'ما سجّلش رقم تواصل لسّه.'),
+        'whatsapp' => (string) setting('volunteer.org_department.js_whatsapp', 'واتساب'),
+        'request_phone' => (string) setting('volunteer.org_department.js_request_phone', 'اطلب إظهار الرقم'),
+        'service_duration' => (string) setting('volunteer.org_department.js_service_duration', 'مدّة الخدمة'),
+        'certificates' => (string) setting('volunteer.org_department.js_certificates', 'الشهادات'),
+        'open_profile' => (string) setting('volunteer.org_department.js_open_profile', 'فتح البروفايل'),
+        'kudos' => (string) setting('volunteer.org_department.js_kudos', 'شكر (Kudos)'),
+        'loading' => (string) setting('volunteer.org_department.js_loading', 'جارٍ التحميل…'),
+        'load_failed' => (string) setting('volunteer.org_department.js_load_failed', 'تعذّر تحميل الملفّ — جرّب تاني.'),
+    ];
+@endphp
+
 <script>
+const T = @json($jsText);
 /* فورم الغياب: المسار يحمل عضويّة الغائب، فنبنيه من الاختيار قبل الإرسال */
 (() => {
     const form = document.querySelector('[data-absence-form]');
@@ -252,13 +268,13 @@
         // ⭐ الحقل المقفول لا يُعرَض فراغًا — يظهر زرّ الإجراء بدلًا منه (13.4-م-2)
         let contactBlock;
         if (!c.has_phone) {
-            contactBlock = `<p style="color: var(--text-muted)">ما سجّلش رقم تواصل لسّه.</p>`;
+            contactBlock = `<p style="color: var(--text-muted)">${T.no_phone}</p>`;
         } else if (c.visible) {
             contactBlock = `<div class="flex items-center gap-2 flex-wrap">
                 <span dir="ltr" class="font-semibold">${c.display}</span>
                 <a href="${c.whatsapp}" target="_blank" rel="noopener"
                    class="btn rounded-xl px-3 py-2 text-xs font-semibold"
-                   style="background: var(--color-brand-500); color:#04201c">واتساب</a>
+                   style="background: var(--color-brand-500); color:#04201c">${T.whatsapp}</a>
             </div>`;
         } else {
             contactBlock = `<div class="flex items-center gap-2 flex-wrap">
@@ -266,7 +282,7 @@
                 <form method="post" action="${consentBase}/${d.membership_id}/consent">
                     <input type="hidden" name="_token" value="${csrf}">
                     <button type="submit" class="btn rounded-xl px-3 py-2 text-xs font-semibold"
-                            style="background: var(--surface-sunken); color: var(--text)">اطلب إظهار الرقم</button>
+                            style="background: var(--surface-sunken); color: var(--text)">${T.request_phone}</button>
                 </form>
             </div>`;
         }
@@ -282,16 +298,16 @@
                 </div>
             </div>
             <div class="grid grid-cols-3 gap-2 mb-4">
-                <div class="card p-2 text-center"><div class="text-xs" style="color: var(--text-muted)">مدّة الخدمة</div><div class="font-bold text-sm mt-1">${d.service_duration}</div></div>
+                <div class="card p-2 text-center"><div class="text-xs" style="color: var(--text-muted)">${T.service_duration}</div><div class="font-bold text-sm mt-1">${d.service_duration}</div></div>
                 <div class="card p-2 text-center"><div class="text-xs" style="color: var(--text-muted)">Kudos</div><div class="font-bold text-sm mt-1">${d.kudos}</div></div>
-                <div class="card p-2 text-center"><div class="text-xs" style="color: var(--text-muted)">الشهادات</div><div class="font-bold text-sm mt-1">${d.certificates}</div></div>
+                <div class="card p-2 text-center"><div class="text-xs" style="color: var(--text-muted)">${T.certificates}</div><div class="font-bold text-sm mt-1">${d.certificates}</div></div>
             </div>
             <div class="mb-4">${contactBlock}</div>
             <div class="flex items-center gap-2 flex-wrap">
                 <a href="${d.profile_url}" class="btn rounded-xl px-4 py-2 text-sm font-semibold"
-                   style="background: var(--color-brand-500); color:#04201c">فتح البروفايل</a>
+                   style="background: var(--color-brand-500); color:#04201c">${T.open_profile}</a>
                 <a href="${d.profile_url}#kudos" class="btn rounded-xl px-4 py-2 text-sm"
-                   style="background: var(--surface-sunken); color: var(--text)">شكر (Kudos)</a>
+                   style="background: var(--surface-sunken); color: var(--text)">${T.kudos}</a>
             </div>`;
     };
 
@@ -299,12 +315,12 @@
         const trigger = e.target.closest('[data-member]');
         if (!trigger) return;
         open();
-        body.innerHTML = '<p style="color: var(--text-muted)">جارٍ التحميل…</p>';
+        body.innerHTML = '<p style="color: var(--text-muted)">' + T.loading + '</p>';
         fetch(trigger.dataset.member, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
             .then((r) => r.json())
             .then(render)
             .catch(() => {
-                body.innerHTML = '<p>تعذّر تحميل الملفّ — جرّب تاني.</p>';
+                body.innerHTML = '<p>' + T.load_failed + '</p>';
             });
     });
 })();

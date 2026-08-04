@@ -37,14 +37,14 @@ class AdEvents
     public static function catalog(): array
     {
         return [
-            'course_page_view' => ['label' => 'فتح صفحة تدريب', 'meta' => 'ViewContent', 'google' => 'view_item'],
-            'registration_started' => ['label' => 'بدأ التسجيل', 'meta' => 'InitiateCheckout', 'google' => 'begin_signup'],
-            'registration_completed' => ['label' => 'أتمّ التسجيل', 'meta' => 'CompleteRegistration', 'google' => 'sign_up'],
-            'account_activated' => ['label' => 'فعّل الحساب', 'meta' => 'Subscribe', 'google' => 'account_activated'],
-            'first_lesson_started' => ['label' => 'بدأ أوّل درس', 'meta' => 'StartTrial', 'google' => 'tutorial_begin'],
-            'checkout_opened' => ['label' => 'فتح صفحة الشراء', 'meta' => 'AddToCart', 'google' => 'begin_checkout'],
-            'purchase_completed' => ['label' => 'أتمّ الشراء', 'meta' => 'Purchase', 'google' => 'purchase'],
-            'wallet_topup' => ['label' => 'شحن المحفظة', 'meta' => 'AddPaymentInfo', 'google' => 'add_payment_info'],
+            'course_page_view' => ['label' => setting('ads.ad_events.catalog_1', 'فتح صفحة تدريب'), 'meta' => 'ViewContent', 'google' => 'view_item'],
+            'registration_started' => ['label' => setting('ads.ad_events.catalog_2', 'بدأ التسجيل'), 'meta' => 'InitiateCheckout', 'google' => 'begin_signup'],
+            'registration_completed' => ['label' => setting('ads.ad_events.catalog_3', 'أتمّ التسجيل'), 'meta' => 'CompleteRegistration', 'google' => 'sign_up'],
+            'account_activated' => ['label' => setting('ads.ad_events.catalog_4', 'فعّل الحساب'), 'meta' => 'Subscribe', 'google' => 'account_activated'],
+            'first_lesson_started' => ['label' => setting('ads.ad_events.catalog_5', 'بدأ أوّل درس'), 'meta' => 'StartTrial', 'google' => 'tutorial_begin'],
+            'checkout_opened' => ['label' => setting('ads.ad_events.catalog_6', 'فتح صفحة الشراء'), 'meta' => 'AddToCart', 'google' => 'begin_checkout'],
+            'purchase_completed' => ['label' => setting('ads.ad_events.catalog_7', 'أتمّ الشراء'), 'meta' => 'Purchase', 'google' => 'purchase'],
+            'wallet_topup' => ['label' => setting('ads.ad_events.catalog_8', 'شحن المحفظة'), 'meta' => 'AddPaymentInfo', 'google' => 'add_payment_info'],
         ];
     }
 

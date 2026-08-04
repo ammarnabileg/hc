@@ -59,7 +59,7 @@ class PerformanceController extends Controller
             'series' => $this->rep->vxpSeries($user, $filters['days']),
             'sources' => $this->vxpSources($user, $filters['days']),
             'filters' => $filters,
-            'scopes' => ['all' => 'كلّ المتطوّعين', 'entity' => 'قسمي', 'track' => 'مساري'],
+            'scopes' => ['all' => (string) setting('performance.screen.vxp_msg', 'كلّ المتطوّعين'), 'entity' => (string) setting('performance.screen.vxp_msg_2', 'قسمي'), 'track' => (string) setting('performance.screen.vxp_msg_3', 'مساري')],
         ]);
     }
 
@@ -109,11 +109,11 @@ class PerformanceController extends Controller
         ]);
 
         abort_unless($transaction->user_id === $request->user()->id, 403);
-        abort_unless($this->rep->canObject($transaction), 409, 'انتهت مهلة الاعتراض على هذه الحركة.');
+        abort_unless($this->rep->canObject($transaction), 409, (string) setting('performance.screen.object_rep_msg', 'انتهت مهلة الاعتراض على هذه الحركة.'));
 
         $this->rep->openObjection($transaction, $request->user(), $data['reason']);
 
-        return back()->with('status', 'اترفع اعتراضك ✓ — هيتراجع خلال نافذة القرار.');
+        return back()->with('status', (string) setting('performance.screen.object_rep_ok', 'اترفع اعتراضك ✓ — هيتراجع خلال نافذة القرار.'));
     }
 
     // ------------------------------------------------------------------ مشرف الشهر
@@ -174,7 +174,7 @@ class PerformanceController extends Controller
         $user = $request->user();
         $upline = $this->leadership->uplineOf($user);
 
-        abort_unless($upline !== null, 403, 'مفيش أبلاين مباشر لتقييمه.');
+        abort_unless($upline !== null, 403, (string) setting('performance.screen.store_evaluation_empty', 'مفيش أبلاين مباشر لتقييمه.'));
 
         $data = $request->validate([
             'scores' => ['required', 'array'],
@@ -190,7 +190,7 @@ class PerformanceController extends Controller
 
         return redirect()
             ->route('volunteer.performance.evaluations', ['tab' => 'given'])
-            ->with('status', 'اتسجّل تقييمك ✓ — مجهول تمامًا ويظهر متوسّطًا فقط.');
+            ->with('status', (string) setting('performance.screen.store_evaluation_ok', 'اتسجّل تقييمك ✓ — مجهول تمامًا ويظهر متوسّطًا فقط.'));
     }
 
     // ------------------------------------------------------------------ داخليّ
@@ -295,10 +295,10 @@ class PerformanceController extends Controller
         $currencyId = Currency::query()->where('code', VxpDistributionService::CURRENCY)->value('id');
 
         $labels = [
-            'task' => 'مهامّ',
-            'contribution' => 'مساهمات',
-            'recurring' => 'نوبات متكرّرة',
-            'arbitration' => 'قرارات محكّم',
+            'task' => (string) setting('performance.screen.vxp_sources_msg', 'مهامّ'),
+            'contribution' => (string) setting('performance.screen.vxp_sources_msg_2', 'مساهمات'),
+            'recurring' => (string) setting('performance.screen.vxp_sources_msg_3', 'نوبات متكرّرة'),
+            'arbitration' => (string) setting('performance.screen.vxp_sources_msg_4', 'قرارات محكّم'),
         ];
 
         $rows = Transaction::query()
@@ -321,11 +321,11 @@ class PerformanceController extends Controller
     private function repSourceLabels(): array
     {
         return [
-            'task' => 'مهامّ',
-            'meeting' => 'اجتماعات',
-            'academy' => 'أكاديمية',
-            'leadership' => 'مؤشّر القيادة',
-            'behavior' => 'سلوك',
+            'task' => (string) setting('performance.screen.rep_source_labels_msg', 'مهامّ'),
+            'meeting' => (string) setting('performance.screen.rep_source_labels_msg_2', 'اجتماعات'),
+            'academy' => (string) setting('performance.screen.rep_source_labels_msg_3', 'أكاديمية'),
+            'leadership' => (string) setting('performance.screen.rep_source_labels_msg_4', 'مؤشّر القيادة'),
+            'behavior' => (string) setting('performance.screen.rep_source_labels_msg_5', 'سلوك'),
         ];
     }
 }

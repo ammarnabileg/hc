@@ -24,30 +24,30 @@
                 data-period="{{ $schedule->period_days }}"
                 data-emails="{{ implode(', ', $schedule->recipient_emails ?? []) }}"
                 data-compare="{{ $schedule->include_comparison ? 1 : 0 }}"
-                data-skip="{{ $schedule->skip_when_empty ? 1 : 0 }}">تعديل</button>
+                data-skip="{{ $schedule->skip_when_empty ? 1 : 0 }}">{{ setting('admin.report_schedules.partials.row_actions.tadyl', 'تعديل') }}</button>
     @endif
 
     @if ($canRun)
         <form method="post" action="{{ route('admin.report-schedules.run', $schedule) }}">
             @csrf
-            <button type="submit" class="underline">شغّل الآن</button>
+            <button type="submit" class="underline">{{ setting('admin.report_schedules.partials.row_actions.shghl_alan', 'شغّل الآن') }}</button>
         </form>
     @endif
 
     @if ($canEdit)
         <form method="post" action="{{ route('admin.report-schedules.toggle', $schedule) }}">
             @csrf
-            <button type="submit" class="underline">{{ $schedule->isActive() ? 'أوقف' : 'فعّل' }}</button>
+            <button type="submit" class="underline">{{ $schedule->isActive() ? setting('admin.report_schedules.partials.row_actions.awqf', 'أوقف') : setting('admin.report_schedules.partials.row_actions.fal', 'فعّل') }}</button>
         </form>
     @endif
 
-    <a class="underline" href="{{ route('admin.report-schedules.log', $schedule) }}">سجلّ الإرسال</a>
+    <a class="underline" href="{{ route('admin.report-schedules.log', $schedule) }}">{{ setting('admin.report_schedules.partials.row_actions.sjl_alirsal', 'سجلّ الإرسال') }}</a>
 
     @if ($canDelete)
         <form method="post" action="{{ route('admin.report-schedules.destroy', $schedule) }}"
-              onsubmit="return confirm('تحذف الجدولة دي؟ سجلّ إرسالها هيتحذف معاها.')">
+              onsubmit="return confirm('{{ setting('admin.report_schedules.partials.row_actions.thdhf_aljdwla_dy_sjl_irsalha_hythdhf_maaha', 'تحذف الجدولة دي؟ سجلّ إرسالها هيتحذف معاها.') }}')">
             @csrf @method('delete')
-            <button type="submit" class="underline" style="color: var(--color-state-danger)">حذف</button>
+            <button type="submit" class="underline" style="color: var(--color-state-danger)">{{ setting('admin.report_schedules.partials.row_actions.hdhf', 'حذف') }}</button>
         </form>
     @endif
 </div>

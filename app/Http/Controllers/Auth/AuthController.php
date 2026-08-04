@@ -72,7 +72,7 @@ class AuthController extends Controller
 
         if (! Auth::attempt([$field => $data['identifier'], 'password' => $data['password']], $remember)) {
             return back()->withInput()->withErrors([
-                'identifier' => 'البيانات مش مظبوطة. راجع الكود أو البريد وكلمة السرّ.',
+                'identifier' => (string) setting('auth.screen.login_denied', 'البيانات مش مظبوطة. راجع الكود أو البريد وكلمة السرّ.'),
             ]);
         }
 
@@ -613,7 +613,7 @@ class AuthController extends Controller
     {
         return function (string $attribute, mixed $value, \Closure $fail) use ($words) {
             if (count(preg_split('/\s+/u', trim((string) $value), -1, PREG_SPLIT_NO_EMPTY) ?: []) < $words) {
-                $fail('الاسم لازم يكون '.$words.' كلمات على الأقلّ.');
+                $fail(strtr((string) setting('auth.screen.words_rule_must', 'الاسم لازم يكون :a1 كلمات على الأقلّ.'), [':a1' => (string) ($words)]));
             }
         };
     }
@@ -621,30 +621,30 @@ class AuthController extends Controller
     private function messages(): array
     {
         return [
-            'required' => 'الحقل ده مطلوب — من غيره الشهادة هتطلع ناقصة.',
+            'required' => (string) setting('auth.screen.messages_msg', 'الحقل ده مطلوب — من غيره الشهادة هتطلع ناقصة.'),
             'name_ar.regex' => (string) setting('onboarding.identity.name_ar_error', 'اكتب اسمك ثلاثيًّا بالعربيّ — الشهادة هتطلع بالاسم ده.'),
             'name_en.regex' => (string) setting('onboarding.identity.name_en_error', 'اكتب اسمك ثلاثيًّا بالإنجليزيّ — النسخة الإنجليزيّة من الشهادة بتطلع بيه.'),
-            'title.in' => 'اختار لقبًا من القائمة.',
-            'gender.in' => 'اختار النوع من الخيارين.',
-            'email.unique' => 'البريد ده مستعمَل قبل كده — ادخل بيه أو استرجع كلمة السرّ.',
-            'phone.unique' => 'الرقم ده مسجَّل قبل كده — جرّب رقمًا تانيًا.',
-            'password.confirmed' => 'الكلمتان مش متطابقتين — راجعهم وجرّب تاني.',
+            'title.in' => (string) setting('auth.screen.messages_msg_2', 'اختار لقبًا من القائمة.'),
+            'gender.in' => (string) setting('auth.screen.messages_msg_3', 'اختار النوع من الخيارين.'),
+            'email.unique' => (string) setting('auth.screen.messages_msg_4', 'البريد ده مستعمَل قبل كده — ادخل بيه أو استرجع كلمة السرّ.'),
+            'phone.unique' => (string) setting('auth.screen.messages_msg_5', 'الرقم ده مسجَّل قبل كده — جرّب رقمًا تانيًا.'),
+            'password.confirmed' => (string) setting('auth.screen.messages_denied', 'الكلمتان مش متطابقتين — راجعهم وجرّب تاني.'),
         ];
     }
 
     private function attributes(): array
     {
         return [
-            'title' => 'اللقب',
-            'name_ar' => 'الاسم بالعربيّ',
-            'name_en' => 'الاسم بالإنجليزيّ',
-            'gender' => 'النوع',
-            'country_id' => 'الدولة',
-            'governorate_id' => 'المحافظة',
-            'address_line' => 'العنوان الفرعيّ',
-            'email' => 'البريد الإلكترونيّ',
-            'phone' => 'رقم الموبايل',
-            'password' => 'كلمة السرّ',
+            'title' => (string) setting('auth.screen.attributes_msg', 'اللقب'),
+            'name_ar' => (string) setting('auth.screen.attributes_msg_2', 'الاسم بالعربيّ'),
+            'name_en' => (string) setting('auth.screen.attributes_msg_3', 'الاسم بالإنجليزيّ'),
+            'gender' => (string) setting('auth.screen.attributes_msg_4', 'النوع'),
+            'country_id' => (string) setting('auth.screen.attributes_msg_5', 'الدولة'),
+            'governorate_id' => (string) setting('auth.screen.attributes_msg_6', 'المحافظة'),
+            'address_line' => (string) setting('auth.screen.attributes_msg_7', 'العنوان الفرعيّ'),
+            'email' => (string) setting('auth.screen.attributes_msg_8', 'البريد الإلكترونيّ'),
+            'phone' => (string) setting('auth.screen.attributes_msg_9', 'رقم الموبايل'),
+            'password' => (string) setting('auth.screen.attributes_msg_10', 'كلمة السرّ'),
         ];
     }
 

@@ -36,12 +36,12 @@ class MaintenanceController extends Controller
         if ($startsAt && $startsAt->isFuture()) {
             $this->maintenance->schedule($request->user(), $data['message'], (int) $data['hours'], $startsAt);
 
-            return back()->with('status', 'اتجدولت الصيانة — هتبدأ لوحدها '.$startsAt->format('Y/m/d H:i').' ✓');
+            return back()->with('status', strtr((string) setting('maintenance.admin.start_ok', 'اتجدولت الصيانة — هتبدأ لوحدها :a1 ✓'), [':a1' => (string) ($startsAt->format('Y/m/d H:i'))]));
         }
 
         $this->maintenance->start($request->user(), $data['message'], (int) $data['hours']);
 
-        return back()->with('status', 'وضع الصيانة اشتغل — وكلّ المهل اتجمّدت من دلوقتي.');
+        return back()->with('status', (string) setting('maintenance.admin.start_msg', 'وضع الصيانة اشتغل — وكلّ المهل اتجمّدت من دلوقتي.'));
     }
 
     /** إلغاء الصيانة المجدولة قبل موعدها. */
@@ -49,7 +49,7 @@ class MaintenanceController extends Controller
     {
         $this->maintenance->cancelSchedule($request->user());
 
-        return back()->with('status', 'اتلغت الجدولة ✓');
+        return back()->with('status', (string) setting('maintenance.admin.unschedule_ok', 'اتلغت الجدولة ✓'));
     }
 
     /** أزرار سريعة: +1 · +3 · مخصّص — والقيم من الإعدادات لا محروقة */
@@ -63,7 +63,7 @@ class MaintenanceController extends Controller
 
         return back()->with(
             'status',
-            $window ? 'اتمدّت المدّة ✓' : 'مافيش صيانة شغّالة دلوقتي.',
+            $window ? (string) setting('maintenance.admin.extend_ok', 'اتمدّت المدّة ✓') : (string) setting('maintenance.admin.extend_empty', 'مافيش صيانة شغّالة دلوقتي.'),
         );
     }
 
@@ -73,7 +73,10 @@ class MaintenanceController extends Controller
 
         return back()->with(
             'status',
-            "الصيانة اترفعت — {$result['rows']} مهلة اتعاد حسابها بفارق ".round($result['seconds'] / 3600, 2).' ساعة.',
+            strtr((string) setting('maintenance.admin.lift_ok', 'الصيانة اترفعت — :rows مهلة اتعاد حسابها بفارق :hours ساعة.'), [
+                ':rows' => (string) $result['rows'],
+                ':hours' => (string) round($result['seconds'] / 3600, 2),
+            ]),
         );
     }
 

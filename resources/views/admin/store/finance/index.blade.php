@@ -1,18 +1,18 @@
 @extends('layouts.admin')
 
-@section('title', 'الماليّات')
+@section('title', setting('admin.store.finance.index.almalyat', 'الماليّات'))
 
 @section('content')
-    <x-page-header title="الماليّات"
-                   subtitle="مصدر الحقيقة الوحيد لكلّ رقم ماليّ — مجموعة محميّة لمالك المنصّة."
+    <x-page-header :title="setting('admin.store.finance.index.almalyat', 'الماليّات')"
+                   :subtitle="setting('admin.store.finance.index.msdr_alhqyqa_alwhyd_lkl_rqm_maly_mjmwaa', 'مصدر الحقيقة الوحيد لكلّ رقم ماليّ — مجموعة محميّة لمالك المنصّة.')"
                    :breadcrumbs="[
-                       ['label' => 'لوحة الإدارة', 'url' => url('/admin')],
-                       ['label' => 'المتجر والماليّات', 'url' => route('admin.store.index')],
-                       ['label' => 'الماليّات'],
+                       ['label' => setting('admin.store.finance.index.lwha_alidara', 'لوحة الإدارة'), 'url' => url('/admin')],
+                       ['label' => setting('admin.store.finance.index.almtjr_walmalyat', 'المتجر والماليّات'), 'url' => route('admin.store.index')],
+                       ['label' => setting('admin.store.finance.index.almalyat', 'الماليّات')],
                    ]">
         <x-slot:action>
             <a href="{{ route('admin.finance.audit') }}" class="rounded-xl px-3 py-2 text-sm"
-               style="background: var(--surface-raised)">سجلّ تدقيق الماليّات</a>
+               style="background: var(--surface-raised)">{{ setting('admin.store.finance.index.sjl_tdqyq_almalyat', 'سجلّ تدقيق الماليّات') }}</a>
         </x-slot:action>
     </x-page-header>
 
@@ -45,17 +45,17 @@
                             'requiresReason' => true,
                         ])
                     @empty
-                        <p class="text-sm" style="color: var(--text-muted)">مجموعة فاضية — ضيف مفاتيحها من سيدر المجال.</p>
+                        <p class="text-sm" style="color: var(--text-muted)">{{ setting('admin.store.finance.index.mjmwaa_fadya_dyf_mfatyhha_mn_sydr_almjal', 'مجموعة فاضية — ضيف مفاتيحها من سيدر المجال.') }}</p>
                     @endforelse
                 </div>
 
                 {{-- ⭐ صندوق معاينة لحظيّة: المطلوب · الرسوم · الصافي --}}
                 <div class="card p-4">
-                    <div class="text-xs mb-2" style="color: var(--text-muted)">معاينة لحظيّة</div>
+                    <div class="text-xs mb-2" style="color: var(--text-muted)">{{ setting('admin.store.finance.index.maayna_lhzya', 'معاينة لحظيّة') }}</div>
                     <div class="flex flex-wrap gap-4 text-sm">
-                        <div>المطلوب: <strong>{{ $preview['amount'] }}</strong></div>
-                        <div style="color: var(--color-state-danger)">الرسوم: {{ $preview['fee'] }}</div>
-                        <div style="color: var(--color-brand-500)">الصافي: {{ $preview['net'] }}</div>
+                        <div>{{ setting('admin.store.finance.index.almtlwb', 'المطلوب:') }} <strong>{{ $preview['amount'] }}</strong></div>
+                        <div style="color: var(--color-state-danger)">{{ setting('admin.store.finance.index.alrswm', 'الرسوم:') }} {{ $preview['fee'] }}</div>
+                        <div style="color: var(--color-brand-500)">{{ setting('admin.store.finance.index.alsafy', 'الصافي:') }} {{ $preview['net'] }}</div>
                     </div>
                     <p class="text-xs mt-2" style="color: var(--text-muted)">{{ $preview['note'] }}</p>
                 </div>

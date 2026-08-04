@@ -21,11 +21,11 @@
     // الفهرسة إقرارٌ بالصحّة، ولا إقرار قبل التحقّق.
     $indexCertificates = (bool) setting('growth.seo.index_certificates', true) && $signatureOk;
     $metaTitle = $certificate && $signatureOk
-        ? str_replace(['[الاسم]', '[الشهادة]', '[الكود]'], [$holder, $subject, $certificate->code],
+        ? str_replace([(string) setting('certificates.verify_page.php_1', '[الاسم]'), (string) setting('certificates.verify_page.php_2', '[الشهادة]'), (string) setting('certificates.verify_page.php_3', '[الكود]')], [$holder, $subject, $certificate->code],
             (string) setting('certificates.seo.meta_title', '[الاسم] — [الشهادة] · شهادة معتمدة'))
         : (string) setting('certificates.seo.index_title', 'التحقّق من الشهادة');
     $metaDescription = $certificate && $signatureOk
-        ? str_replace(['[الاسم]', '[الشهادة]', '[التاريخ]'], [$holder, $subject, $certificate->issued_at?->format(setting('certificates.render.date_format', 'Y/m/d'))],
+        ? str_replace([(string) setting('certificates.verify_page.php_4', '[الاسم]'), (string) setting('certificates.verify_page.php_5', '[الشهادة]'), (string) setting('certificates.verify_page.php_6', '[التاريخ]')], [$holder, $subject, $certificate->issued_at?->format(setting('certificates.render.date_format', 'Y/m/d'))],
             (string) setting('certificates.seo.meta_description', 'شهادة [الشهادة] الصادرة لـ[الاسم] بتاريخ [التاريخ] — تحقّق من صحّتها هنا.'))
         : (string) setting('certificates.seo.index_description', 'تحقّق من صحّة أيّ شهادة صادرة من المنصّة بكودها — بلا تسجيل دخول.');
 

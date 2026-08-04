@@ -100,13 +100,13 @@ class ExchangeService
 
         if ($quote['amount'] < $this->minAmount($fromCode)) {
             throw new WalletException(
-                'أقلّ تحويل '.$this->number($this->minAmount($fromCode)).' '.$from->name_ar.' — زوّد القيمة شويّة.'
+                strtr(setting('wallet.exchange_service.exchange_1', 'أقلّ تحويل :p1 :p2 — زوّد القيمة شويّة.'), [':p1' => (string) ($this->number($this->minAmount($fromCode))), ':p2' => (string) ($from->name_ar)])
             );
         }
 
         if ($quote['credited'] <= 0) {
             throw new WalletException(
-                'القيمة صغيرة أوي فالناتج بيطلع صفر '.$to->name_ar.' — زوّدها وشوف الملخّص قبل التأكيد.'
+                strtr(setting('wallet.exchange_service.exchange_2', 'القيمة صغيرة أوي فالناتج بيطلع صفر :p1 — زوّدها وشوف الملخّص قبل التأكيد.'), [':p1' => (string) ($to->name_ar)])
             );
         }
 
@@ -131,7 +131,7 @@ class ExchangeService
                 source: 'exchange',
                 reference: $exchange,
                 layer: 'training',
-                reason: 'تحويل '.$from->name_ar.' ⟵ '.$to->name_ar,
+                reason: strtr(setting('wallet.exchange_service.exchange_3', 'تحويل :p1 ⟵ :p2'), [':p1' => (string) ($from->name_ar), ':p2' => (string) ($to->name_ar)]),
                 createdBy: $user->id,
             );
 
@@ -142,7 +142,7 @@ class ExchangeService
                 source: 'exchange',
                 reference: $exchange,
                 layer: 'training',
-                reason: 'ناتج تحويل من '.$from->name_ar,
+                reason: strtr(setting('wallet.exchange_service.exchange_4', 'ناتج تحويل من :p1'), [':p1' => (string) ($from->name_ar)]),
                 createdBy: $user->id,
             );
 
@@ -160,15 +160,15 @@ class ExchangeService
     private function assertPath(string $from, string $to): void
     {
         if (! in_array($from, self::FROM, true)) {
-            throw new WalletException('التحويل بيبدأ من دولار الأرباح أو الكوينز أو التذاكر — اختر واحدة منهم.');
+            throw new WalletException(setting('wallet.exchange_service.assert_path_1', 'التحويل بيبدأ من دولار الأرباح أو الكوينز أو التذاكر — اختر واحدة منهم.'));
         }
 
         if (! in_array($to, self::TO, true)) {
-            throw new WalletException('التحويل بيروح لتذاكر أو XP بس — اختر واحدة منهم.');
+            throw new WalletException(setting('wallet.exchange_service.assert_path_2', 'التحويل بيروح لتذاكر أو XP بس — اختر واحدة منهم.'));
         }
 
         if ($from === $to) {
-            throw new WalletException('العملة المصدر والهدف واحدة — غيّر واحدة منهم.');
+            throw new WalletException(setting('wallet.exchange_service.assert_path_3', 'العملة المصدر والهدف واحدة — غيّر واحدة منهم.'));
         }
     }
 

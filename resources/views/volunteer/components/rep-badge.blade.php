@@ -31,11 +31,11 @@
     $repSymbols = state_color($repState);
 
     $repHint = match ($repState) {
-        'idle' => 'لسّه مفيش درجة التزام مسجّلة',
-        'danger' => 'المؤشّر الأحمر: الدرجة تحت '.rtrim(rtrim(number_format($repRed, 2), '0'), '.').' — راجع معاملاتك واتكلّم مع مسؤولك',
-        'warn' => 'الدرجة تحت الصفر — فيه مجال تعوّضها قبل عتبة الإنذار ('.rtrim(rtrim(number_format($repWarn, 2), '0'), '.').')',
-        'honor' => 'نادي التميّز: '.rtrim(rtrim(number_format($repClub, 2), '0'), '.').' فأعلى',
-        default => 'درجة التزام سليمة',
+        'idle' => setting('volunteer.components_rep_badge.idle', 'لسّه مفيش درجة التزام مسجّلة'),
+        'danger' => setting('volunteer.components_rep_badge.danger', 'المؤشّر الأحمر: الدرجة تحت ').rtrim(rtrim(number_format($repRed, 2), '0'), '.').setting('volunteer.components_rep_badge.text', ' — راجع معاملاتك واتكلّم مع مسؤولك'),
+        'warn' => str_replace(':threshold', rtrim(rtrim(number_format($repWarn, 2), '0'), '.'), (string) setting('volunteer.components_rep_badge.warn', 'الدرجة تحت الصفر — فيه مجال تعوّضها قبل عتبة الإنذار (:threshold)')),
+        'honor' => setting('volunteer.components_rep_badge.honor', 'نادي التميّز: ').rtrim(rtrim(number_format($repClub, 2), '0'), '.').setting('volunteer.components_rep_badge.text_2', ' فأعلى'),
+        default => setting('volunteer.components_rep_badge.text_3', 'درجة التزام سليمة'),
     };
 
     $repDisplay = $repHasValue ? rtrim(rtrim(number_format($repValue, 2), '0'), '.') : '—';
@@ -44,8 +44,8 @@
 <span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs align-middle cursor-help"
       style="background: color-mix(in srgb, var(--color-state-{{ $repSymbols['color'] }}) 15%, transparent);
              color: var(--color-state-{{ $repSymbols['color'] }})"
-      title="درجة الالتزام {{ $repDisplay }} — {{ $repHint }}"
-      aria-label="درجة الالتزام {{ $repDisplay }}. {{ $repHint }}">
+      title="{{ setting('volunteer.components_rep_badge.tooltip', 'درجة الالتزام') }} {{ $repDisplay }} — {{ $repHint }}"
+      aria-label="{{ setting('volunteer.components_rep_badge.tooltip', 'درجة الالتزام') }} {{ $repDisplay }}. {{ $repHint }}">
     <span aria-hidden="true">{{ $repSymbols['icon'] }}</span>
     <span>{{ $repDisplay }}</span>
     @if ($repName)

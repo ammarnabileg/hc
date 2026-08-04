@@ -28,7 +28,7 @@
                 @endif
                 @if ($user->suspended_until)
                     <span class="block text-xs mt-1" style="color: var(--text-muted)">
-                        بيرجع تلقائيًّا {{ \Illuminate\Support\Carbon::parse($user->suspended_until)->translatedFormat('Y-m-d H:i') }}
+                        {{ setting('admin.moderation.panel.byrja_tlqayya', 'بيرجع تلقائيًّا') }} {{ \Illuminate\Support\Carbon::parse($user->suspended_until)->translatedFormat('Y-m-d H:i') }}
                     </span>
                 @endif
             </div>
@@ -39,7 +39,7 @@
             @if ($actions->has('ban'))
                 <form method="post" action="{{ route('admin.users.ban', $user) }}" class="space-y-2">
                     @csrf
-                    <label class="block text-xs" style="color: var(--text-muted)">سبب الحظر (هيشوفه المستخدم)</label>
+                    <label class="block text-xs" style="color: var(--text-muted)">{{ setting('admin.moderation.panel.sbb_alhzr_hyshwfh_almstkhdm', 'سبب الحظر (هيشوفه المستخدم)') }}</label>
                     <input list="moderation-reasons" name="reason" required
                            class="w-full rounded-xl px-3 py-2 text-sm"
                            style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
@@ -52,7 +52,7 @@
             @if ($actions->has('suspend'))
                 <form method="post" action="{{ route('admin.users.suspend', $user) }}" class="space-y-2">
                     @csrf
-                    <label class="block text-xs" style="color: var(--text-muted)">سبب التعليق والمدّة بالأيّام</label>
+                    <label class="block text-xs" style="color: var(--text-muted)">{{ setting('admin.moderation.panel.sbb_altalyq_walmda_balayam', 'سبب التعليق والمدّة بالأيّام') }}</label>
                     <div class="flex gap-2">
                         <input list="moderation-reasons" name="reason" required
                                class="w-full min-w-0 rounded-xl px-3 py-2 text-sm"

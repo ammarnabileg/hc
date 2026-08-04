@@ -20,10 +20,10 @@ class TemplateLayers
         }
 
         return [
-            'square' => ['label' => 'بوست مربّع', 'width' => 1080, 'height' => 1080],
-            'story' => ['label' => 'ستوري', 'width' => 1080, 'height' => 1920],
-            'cover' => ['label' => 'كوفر', 'width' => 1640, 'height' => 856],
-            'whatsapp' => ['label' => 'واتساب', 'width' => 1080, 'height' => 1350],
+            'square' => ['label' => setting('images.template_layers.presets_1', 'بوست مربّع'), 'width' => 1080, 'height' => 1080],
+            'story' => ['label' => setting('images.template_layers.presets_2', 'ستوري'), 'width' => 1080, 'height' => 1920],
+            'cover' => ['label' => setting('images.template_layers.presets_3', 'كوفر'), 'width' => 1640, 'height' => 856],
+            'whatsapp' => ['label' => setting('images.template_layers.presets_4', 'واتساب'), 'width' => 1080, 'height' => 1350],
         ];
     }
 

@@ -22,24 +22,39 @@ use Illuminate\View\View;
  */
 class GrowthAdminController extends Controller
 {
-    /** التابات: المفتاح ⟵ [العنوان · بادئات المفاتيح · سطر تعريفيّ] */
-    public const TABS = [
-        'loops' => [
-            'label' => 'حلقات النموّ',
-            'prefixes' => ['growth.profile_completion.', 'growth.invite_board.', 'growth.preview.', 'growth.linkedin.', 'referral.'],
-            'hint' => 'بار «أكمل ملفك» ومكافأته · دروس المعاينة · لوحة متصدّري الدعوات.',
-        ],
-        'reach' => [
-            'label' => 'الفهرسة والمحتوى',
-            'prefixes' => ['growth.seo.', 'growth.sitemap.', 'growth.robots.', 'growth.articles.', 'growth.og.', 'growth.utm.', 'growth.acquisition.', 'growth.weekly_card.', 'growth.volunteer_kit.'],
-            'hint' => 'الخريطة والفهرسة وقوالب الـOG وUTM ونسبة الاكتساب والكارت الأسبوعيّ وحزمة المتطوّعين.',
-        ],
-        'ads' => [
-            'label' => 'التتبّع والأحداث',
-            'prefixes' => ['ads.tracking.', 'ads.events.', 'ads.consent.', 'ads.pixel.', 'ads.capi.', 'ads.audience.', 'ads.best_user.'],
-            'hint' => 'مفتاح إيقاف التتبّع كلّه · الأحداث الثمانية · نصوص بانر الموافقة.',
-        ],
+    /** بادئات مفاتيح كلّ تاب — **مفاتيح داخليّة** لا نصوصًا، فلا تُنقَل */
+    public const TAB_PREFIXES = [
+        'loops' => ['growth.profile_completion.', 'growth.invite_board.', 'growth.preview.', 'growth.linkedin.', 'referral.'],
+        'reach' => ['growth.seo.', 'growth.sitemap.', 'growth.robots.', 'growth.articles.', 'growth.og.', 'growth.utm.', 'growth.acquisition.', 'growth.weekly_card.', 'growth.volunteer_kit.'],
+        'ads' => ['ads.tracking.', 'ads.events.', 'ads.consent.', 'ads.pixel.', 'ads.capi.', 'ads.audience.', 'ads.best_user.'],
     ];
+
+    /**
+     * التابات: المفتاح ⟵ [العنوان · بادئات المفاتيح · سطر تعريفيّ].
+     * ميثودٌ لا `const` — الثابت لا يقبل `setting()` فيبقى عنوانُه محروقًا (2.13-أ).
+     *
+     * @return array<string, array{label:string, prefixes:array<int,string>, hint:string}>
+     */
+    public static function tabs(): array
+    {
+        return [
+            'loops' => [
+                'label' => (string) setting('growth.admin.tab_loops_label', 'حلقات النموّ'),
+                'prefixes' => self::TAB_PREFIXES['loops'],
+                'hint' => (string) setting('growth.admin.tab_loops_hint', 'بار «أكمل ملفك» ومكافأته · دروس المعاينة · لوحة متصدّري الدعوات.'),
+            ],
+            'reach' => [
+                'label' => (string) setting('growth.admin.tab_reach_label', 'الفهرسة والمحتوى'),
+                'prefixes' => self::TAB_PREFIXES['reach'],
+                'hint' => (string) setting('growth.admin.tab_reach_hint', 'الخريطة والفهرسة وقوالب الـOG وUTM ونسبة الاكتساب والكارت الأسبوعيّ وحزمة المتطوّعين.'),
+            ],
+            'ads' => [
+                'label' => (string) setting('growth.admin.tab_ads_label', 'التتبّع والأحداث'),
+                'prefixes' => self::TAB_PREFIXES['ads'],
+                'hint' => (string) setting('growth.admin.tab_ads_hint', 'مفتاح إيقاف التتبّع كلّه · الأحداث الثمانية · نصوص بانر الموافقة.'),
+            ],
+        ];
+    }
 
     public function __construct(
         private readonly SettingsRegistry $registry,
@@ -51,10 +66,10 @@ class GrowthAdminController extends Controller
     public function index(Request $request): View
     {
         $tab = $request->string('tab')->toString();
-        $tab = array_key_exists($tab, self::TABS) ? $tab : (string) array_key_first(self::TABS);
+        $tab = array_key_exists($tab, self::TAB_PREFIXES) ? $tab : (string) array_key_first(self::TAB_PREFIXES);
 
         return view('growth.admin.index', [
-            'tabs' => self::TABS,
+            'tabs' => self::tabs(),
             'tab' => $tab,
             'settings' => $this->settingsFor($tab, $request),
             'registry' => $this->registry,
@@ -74,7 +89,7 @@ class GrowthAdminController extends Controller
             'value' => ['nullable'],
         ]);
 
-        abort_unless($this->owned($data['key']), 422, 'المفتاح ده مش من إعدادات النموّ.');
+        abort_unless($this->owned($data['key']), 422, (string) setting('growth.admin.save_setting_denied', 'المفتاح ده مش من إعدادات النموّ.'));
 
         $setting = Setting::query()->where('key', $data['key'])->firstOrFail();
         $result = $this->registry->save($setting, $data['value'], $request->user());
@@ -85,7 +100,7 @@ class GrowthAdminController extends Controller
     /** الإعدادات الظاهرة في تابٍ بعينه — والحسّاس لا يُعرَض لغير مالك المنصّة (12.2.1) */
     private function settingsFor(string $tab, Request $request)
     {
-        $prefixes = self::TABS[$tab]['prefixes'];
+        $prefixes = self::TAB_PREFIXES[$tab];
 
         return Setting::query()
             ->where(function ($q) use ($prefixes) {
@@ -100,8 +115,8 @@ class GrowthAdminController extends Controller
 
     private function owned(string $key): bool
     {
-        foreach (self::TABS as $tab) {
-            foreach ($tab['prefixes'] as $prefix) {
+        foreach (self::TAB_PREFIXES as $prefixes) {
+            foreach ($prefixes as $prefix) {
                 if (str_starts_with($key, $prefix)) {
                     return true;
                 }

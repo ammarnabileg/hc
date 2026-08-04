@@ -8,7 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>@yield('title', 'لوحة الإدارة')</title>
+    <title>@yield('title', (string) setting('ux.layout_admin.yield_1', 'لوحة الإدارة'))</title>
     {{-- لوحة الإدارة لا تُفهرَس أبدًا --}}
     <meta name="robots" content="noindex">
 
@@ -41,7 +41,7 @@
             <div class="card p-4 mb-4" role="alert"
                  style="border-color: var(--color-state-danger)">
                 <div class="flex items-center gap-2 mb-2">
-                    <x-state-badge state="danger" label="مش هينفع نحفظ" />
+                    <x-state-badge state="danger" label="{{ setting('ux.layout_admin.label_1', 'مش هينفع نحفظ') }}" />
                 </div>
                 <ul class="text-sm space-y-1" style="color: var(--text-muted)">
                     @foreach ($errors->all() as $message)

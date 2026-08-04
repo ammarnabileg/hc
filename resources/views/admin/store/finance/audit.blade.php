@@ -1,28 +1,28 @@
 @extends('layouts.admin')
 
-@section('title', 'سجلّ تدقيق الماليّات')
+@section('title', setting('admin.store.finance.audit.sjl_tdqyq_almalyat', 'سجلّ تدقيق الماليّات'))
 
 @section('content')
-    <x-page-header title="سجلّ تدقيق الماليّات"
-                   subtitle="للقراءة فقط — غير قابل للتعديل أو الحذف."
+    <x-page-header :title="setting('admin.store.finance.audit.sjl_tdqyq_almalyat', 'سجلّ تدقيق الماليّات')"
+                   :subtitle="setting('admin.store.finance.audit.llqraa_fqt_ghyr_qabl_lltadyl_aw_alhdhf', 'للقراءة فقط — غير قابل للتعديل أو الحذف.')"
                    :breadcrumbs="[
-                       ['label' => 'لوحة الإدارة', 'url' => url('/admin')],
-                       ['label' => 'الماليّات', 'url' => route('admin.finance.index')],
-                       ['label' => 'سجلّ التدقيق'],
+                       ['label' => setting('admin.store.finance.audit.lwha_alidara', 'لوحة الإدارة'), 'url' => url('/admin')],
+                       ['label' => setting('admin.store.finance.audit.almalyat', 'الماليّات'), 'url' => route('admin.finance.index')],
+                       ['label' => setting('admin.store.finance.audit.sjl_altdqyq', 'سجلّ التدقيق')],
                    ]" />
 
     @if ($logs->isEmpty())
-        <x-empty message="مافيش سجلّات في النطاق ده." />
+        <x-empty :message="setting('admin.store.finance.audit.mafysh_sjlat_fy_alntaq_dh', 'مافيش سجلّات في النطاق ده.')" />
     @else
         <div class="card overflow-hidden">
             <table class="hidden md:table w-full text-sm">
                 <thead style="background: var(--surface-sunken)">
                     <tr class="text-xs" style="color: var(--text-muted)">
-                        <th class="text-start p-3">الوقت</th>
-                        <th class="text-start p-3">المنفِّذ</th>
-                        <th class="text-start p-3">المورد.الفعل</th>
-                        <th class="text-start p-3">قبل ← بعد</th>
-                        <th class="text-start p-3">السبب</th>
+                        <th class="text-start p-3">{{ setting('admin.store.finance.audit.alwqt', 'الوقت') }}</th>
+                        <th class="text-start p-3">{{ setting('admin.store.finance.audit.almnfdh', 'المنفِّذ') }}</th>
+                        <th class="text-start p-3">{{ setting('admin.store.finance.audit.almwrd_alfal', 'المورد.الفعل') }}</th>
+                        <th class="text-start p-3">{{ setting('admin.store.finance.audit.qbl_bad', 'قبل ← بعد') }}</th>
+                        <th class="text-start p-3">{{ setting('admin.store.finance.audit.alsbb', 'السبب') }}</th>
                         <th class="text-start p-3">IP</th>
                     </tr>
                 </thead>

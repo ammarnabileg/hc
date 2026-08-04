@@ -27,7 +27,7 @@ class EnvWriter
             return @copy($this->paths->envExample(), $this->paths->env());
         }
 
-        return $this->save("APP_NAME=\"المنصّة\"\nAPP_ENV=production\nAPP_KEY=\nAPP_DEBUG=false\n");
+        return $this->save(setting('setup.env_writer.ensure_exists_1', 'APP_NAME=\\"المنصّة\\"\\nAPP_ENV=production\\nAPP_KEY=\\nAPP_DEBUG=false\\n'));
     }
 
     /**

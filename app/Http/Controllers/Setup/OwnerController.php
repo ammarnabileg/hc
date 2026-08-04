@@ -53,14 +53,14 @@ class OwnerController extends Controller
             'phone' => ['required', 'string', 'max:32', 'regex:/^\+?\d[\d\s\-]{6,}$/', 'unique:users,phone'],
             'password' => ['required', 'confirmed', Password::min($minimum)],
         ], [
-            'phone.regex' => 'رقم الموبايل مش مكتوب صحّ. اكتبه أرقامًا مع مفتاح الدولة، مثال: ‎+201000000000‎.',
-            'email.unique' => 'البريد ده متسجّل قبل كده. جرّب بريدًا تانيًا، أو ادخل بحسابك لو أنت أنشأته.',
-            'password.confirmed' => 'تأكيد كلمة السرّ مش مطابق. اكتب نفس الكلمة في الخانتين.',
+            'phone.regex' => (string) setting('setup.owner.store_denied', 'رقم الموبايل مش مكتوب صحّ. اكتبه أرقامًا مع مفتاح الدولة، مثال: ‎+201000000000‎.'),
+            'email.unique' => (string) setting('setup.owner.store_msg', 'البريد ده متسجّل قبل كده. جرّب بريدًا تانيًا، أو ادخل بحسابك لو أنت أنشأته.'),
+            'password.confirmed' => (string) setting('setup.owner.store_denied_2', 'تأكيد كلمة السرّ مش مطابق. اكتب نفس الكلمة في الخانتين.'),
         ], [
-            'name' => 'الاسم',
-            'email' => 'البريد',
-            'phone' => 'رقم الموبايل',
-            'password' => 'كلمة السرّ',
+            'name' => (string) setting('setup.owner.store_msg_2', 'الاسم'),
+            'email' => (string) setting('setup.owner.store_msg_3', 'البريد'),
+            'phone' => (string) setting('setup.owner.store_msg_4', 'رقم الموبايل'),
+            'password' => (string) setting('setup.owner.store_msg_5', 'كلمة السرّ'),
         ]);
 
         $state->remember([

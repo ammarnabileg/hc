@@ -143,7 +143,7 @@ class UpdateManager
      */
     public function restoreFromBackup(int $backupId, ?User $actor): array
     {
-        $result = $this->backups->restore($backupId, $actor, 'استعادة يدويّة من شاشة التحديثات');
+        $result = $this->backups->restore($backupId, $actor, setting('updates.update_manager.restore_from_backup_1', 'استعادة يدويّة من شاشة التحديثات'));
 
         if (! $result['ok']) {
             return $result;
@@ -153,7 +153,7 @@ class UpdateManager
             'version' => $this->currentVersion(),
             'previous_version' => $this->currentVersion(),
             'event' => 'restore',
-            'notes' => 'استعادة من نسخة احتياطيّة — '.$result['tables'].' جدول و'.$result['rows'].' صفّ.',
+            'notes' => strtr(setting('updates.update_manager.restore_from_backup_2', 'استعادة من نسخة احتياطيّة — :p1 جدول و:p2 صفّ.'), [':p1' => (string) ($result['tables']), ':p2' => (string) ($result['rows'])]),
             'migrations_count' => 0,
             'migrations' => null,
             'backup_file_id' => $backupId,
@@ -257,8 +257,8 @@ class UpdateManager
             } catch (Throwable $e) {
                 // معاينةٌ تنفجر خبرٌ مفيد لا شاشةَ خطأ: الهجرة دي هتقع في التنفيذ
                 // كمان — فنعرضها للمالك بلغته بدل 500 (2.17).
-                $output = "المعاينة وقفت على خطأ في الكود مش في قاعدة البيانات:\n".$e->getMessage()
-                    ."\nصلّح الهجرة الأوّل — التنفيذ من غير كده هيقف في نصّه.";
+                $output = setting('updates.update_manager.dry_run_1', 'المعاينة وقفت على خطأ في الكود مش في قاعدة البيانات:\\n').$e->getMessage()
+                    .setting('updates.update_manager.dry_run_2', '\\nصلّح الهجرة الأوّل — التنفيذ من غير كده هيقف في نصّه.');
             }
         }
 
@@ -270,7 +270,7 @@ class UpdateManager
 
         return [
             'pending' => $pending,
-            'output' => $output !== '' ? $output : 'مافيش هجرات معلّقة — مفيش جملة واحدة هتتنفّذ.',
+            'output' => $output !== '' ? $output : setting('updates.update_manager.dry_run_3', 'مافيش هجرات معلّقة — مفيش جملة واحدة هتتنفّذ.'),
             'signature' => $signature,
         ];
     }
@@ -290,7 +290,7 @@ class UpdateManager
         $pendingFiles = $this->pendingFiles();
 
         if ($pendingFiles === []) {
-            return $this->result(true, 'idle', [], $before, $before, 'مافيش هجرات معلّقة — مالناش شغل هنا.', [], 0, '');
+            return $this->result(true, 'idle', [], $before, $before, setting('updates.update_manager.run_1', 'مافيش هجرات معلّقة — مالناش شغل هنا.'), [], 0, '');
         }
 
         // 1) القفل قبل أيّ شيء — ولو كان محجوزًا فلا صيانة ولا نسخة ولا لمسة (2.11-ب)
@@ -300,7 +300,7 @@ class UpdateManager
             $holder = $this->lock->current();
 
             return $this->result(false, 'lock', [], $before, $before,
-                'في تحديث شغّال دلوقتي'.($holder?->holder_name ? ' بدأه '.$holder->holder_name : '').' — استنّاه يخلص.',
+                setting('updates.update_manager.run_2', 'في تحديث شغّال دلوقتي').($holder?->holder_name ? strtr(setting('updates.update_manager.run_3', ' بدأه :p1'), [':p1' => (string) ($holder->holder_name)]) : '').setting('updates.update_manager.run_4', ' — استنّاه يخلص.'),
                 $this->report('lock', null, 'تحديث تاني ماسك القفل.', [], null, false, false), 0, '');
         }
 
@@ -327,7 +327,7 @@ class UpdateManager
             $checks = $this->preflight->checks($this->absolutePaths(), $token);
 
             if (! $this->preflight->passes($checks)) {
-                throw new UpdateHalt('preflight', 'الفحوص القبليّة وقفت التحديث: '.implode(' · ', $this->preflight->failures($checks)));
+                throw new UpdateHalt('preflight', strtr(setting('updates.update_manager.run_5', 'الفحوص القبليّة وقفت التحديث: :p1'), [':p1' => (string) (implode(' · ', $this->preflight->failures($checks)))]));
             }
 
             // 3) وضع الصيانة — عشان محدّش يكتب في جدول بيتحرّك تحت رجليه (2.11-ب)
@@ -351,7 +351,7 @@ class UpdateManager
                 $backup = $this->backups->create('database', $actor);
 
                 if (! $backup['ok']) {
-                    throw new UpdateHalt('backup', 'مقدرناش ناخد نسخة احتياطيّة قبل الترحيل — '.$backup['message']);
+                    throw new UpdateHalt('backup', strtr(setting('updates.update_manager.run_6', 'مقدرناش ناخد نسخة احتياطيّة قبل الترحيل — :p1'), [':p1' => (string) ($backup['message'])]));
                 }
 
                 $backupId = $backup['id'];
@@ -361,7 +361,7 @@ class UpdateManager
                     $verified = $this->backups->verify($backupId);
 
                     if (! $verified['ok']) {
-                        throw new UpdateHalt('backup', 'النسخة الاحتياطيّة مش صالحة — '.$verified['message']);
+                        throw new UpdateHalt('backup', strtr(setting('updates.update_manager.run_7', 'النسخة الاحتياطيّة مش صالحة — :p1'), [':p1' => (string) ($verified['message'])]));
                     }
                 }
             }
@@ -393,7 +393,7 @@ class UpdateManager
                     $problems = $this->ledger->verifyStep($countsBefore, $this->ledger->snapshotCounts(), $this->batches->verifiedSources());
 
                     if ($problems !== []) {
-                        throw new UpdateHalt('verify', 'التحقّق بعد «'.$name.'» لقى فقد بيانات: '.implode(' · ', $problems), $name);
+                        throw new UpdateHalt('verify', strtr(setting('updates.update_manager.run_8', 'التحقّق بعد «:p1» لقى فقد بيانات: :p2'), [':p1' => (string) ($name), ':p2' => (string) (implode(' · ', $problems))]), $name);
                     }
                 }
             }
@@ -408,7 +408,7 @@ class UpdateManager
             $relations = $this->ledger->verifyRelations();
 
             if ($relations !== []) {
-                throw new UpdateHalt('verify', 'التحقّق النهائيّ لقى علاقات مكسورة: '.implode(' · ', array_slice($relations, 0, 5)));
+                throw new UpdateHalt('verify', strtr(setting('updates.update_manager.run_9', 'التحقّق النهائيّ لقى علاقات مكسورة: :p1'), [':p1' => (string) (implode(' · ', array_slice($relations, 0, 5)))]));
             }
 
             // 7) بذور القيم الافتراضيّة الجديدة + خريطة إعادة التسمية (2.11-و · ز)
@@ -436,7 +436,7 @@ class UpdateManager
             'version' => $after,
             'previous_version' => $before,
             'event' => 'migrate',
-            'notes' => 'تنفيذ '.count($ran).' هجرة معلّقة بنجاح.',
+            'notes' => strtr(setting('updates.update_manager.run_10', 'تنفيذ :p1 هجرة معلّقة بنجاح.'), [':p1' => (string) (count($ran))]),
             'migrations_count' => count($ran),
             'migrations' => json_encode($ran, JSON_UNESCAPED_UNICODE),
             'backup_file_id' => $backupId,
@@ -473,10 +473,10 @@ class UpdateManager
             'to' => $after,
         ], 'ops.updates', $historyId);
 
-        $this->notify($actor, "التحديث تمّ ✓ — من {$before} لـ{$after} بـ".count($ran).' هجرة.');
+        $this->notify($actor, strtr(setting('updates.update_manager.run_11', 'التحديث تمّ ✓ — من :p1 لـ:p2 بـ'), [':p1' => (string) ($before), ':p2' => (string) ($after)]).count($ran).setting('updates.update_manager.body_1', ' هجرة.'));
 
         return $this->result(true, 'finish', $ran, $before, $after,
-            'اتنفّذت '.count($ran)." هجرة ✓ — الإصدار بقى {$after}، والنسخة الاحتياطيّة محفوظة قبلها.",
+            setting('updates.update_manager.body_2', 'اتنفّذت ').count($ran).strtr(setting('updates.update_manager.body_3', ' هجرة ✓ — الإصدار بقى :p1، والنسخة الاحتياطيّة محفوظة قبلها.'), [':p1' => (string) ($after)]),
             $summary, $runId, implode("\n", $output));
     }
 
@@ -509,8 +509,8 @@ class UpdateManager
         if ($ran !== []) {
             $downed = $this->rollbackApplied($ran);
             $actions[] = $downed === []
-                ? 'مقدرناش نرجّع الهجرات المطبَّقة — الاعتماد على الاستعادة.'
-                : 'رجّعنا '.count($downed).' هجرة كانت اتطبّقت في التشغيل ده.';
+                ? setting('updates.update_manager.fail_1', 'مقدرناش نرجّع الهجرات المطبَّقة — الاعتماد على الاستعادة.')
+                : strtr(setting('updates.update_manager.fail_2', 'رجّعنا :p1 هجرة كانت اتطبّقت في التشغيل ده.'), [':p1' => (string) (count($downed))]);
         }
 
         // (ب) الاستعادة من النسخة — وهي شبكة الأمان الحقيقيّة
@@ -518,14 +518,14 @@ class UpdateManager
 
         if ($backupId && setting('updates.restore_on_failure', true)) {
             try {
-                $result = $this->backups->restore($backupId, $actor, 'استعادة تلقائيّة بعد فشل تحديث');
+                $result = $this->backups->restore($backupId, $actor, setting('updates.update_manager.fail_3', 'استعادة تلقائيّة بعد فشل تحديث'));
                 $restored = (bool) $result['ok'];
                 $actions[] = $result['message'];
             } catch (Throwable $restoreError) {
-                $actions[] = 'الاستعادة نفسها فشلت — '.$restoreError->getMessage();
+                $actions[] = strtr(setting('updates.update_manager.fail_4', 'الاستعادة نفسها فشلت — :p1'), [':p1' => (string) ($restoreError->getMessage())]);
             }
         } elseif (! $backupId) {
-            $actions[] = 'مفيش نسخة احتياطيّة في التشغيل ده — التوقّف حصل قبل ما تتاخد.';
+            $actions[] = setting('updates.update_manager.fail_5', 'مفيش نسخة احتياطيّة في التشغيل ده — التوقّف حصل قبل ما تتاخد.');
         }
 
         // (ج) الخروج من الصيانة — المنصّة لا تُترَك مقفولة بسبب تحديث فشل
@@ -535,15 +535,15 @@ class UpdateManager
             try {
                 $this->maintenance->lift($actor);
                 $lifted = true;
-                $actions[] = 'رفعنا وضع الصيانة والمنصّة رجعت شغّالة.';
+                $actions[] = setting('updates.update_manager.fail_6', 'رفعنا وضع الصيانة والمنصّة رجعت شغّالة.');
             } catch (Throwable $liftError) {
-                $actions[] = 'تعذّر رفع الصيانة تلقائيًّا — ارفعها يدويًّا من شاشة الصيانة ('.$liftError->getMessage().').';
+                $actions[] = strtr(setting('updates.update_manager.fail_7', 'تعذّر رفع الصيانة تلقائيًّا — ارفعها يدويًّا من شاشة الصيانة (:p1).'), [':p1' => (string) ($liftError->getMessage())]);
             }
         }
 
         // (د) فكّ القفل — وإلّا بقيت المنصّة ممنوعة من التحديث حتى تنتهي المهلة
         $this->lock->release($token);
-        $actions[] = 'فكّينا قفل التحديث.';
+        $actions[] = setting('updates.update_manager.fail_8', 'فكّينا قفل التحديث.');
 
         $this->ledger->markRolledBack($ran);
 
@@ -567,7 +567,7 @@ class UpdateManager
             'version' => $before,
             'previous_version' => $before,
             'event' => 'failed',
-            'notes' => mb_substr('فشل التحديث عند: '.$report['what'], 0, 1000),
+            'notes' => mb_substr(strtr(setting('updates.update_manager.fail_9', 'فشل التحديث عند: :p1'), [':p1' => (string) ($report['what'])]), 0, 1000),
             'migrations_count' => count($ran),
             'migrations' => json_encode($ran, JSON_UNESCAPED_UNICODE),
             'backup_file_id' => $backupId,
@@ -584,7 +584,7 @@ class UpdateManager
             'restored' => $restored ? 'yes' : 'no',
         ], 'ops.updates', $historyId);
 
-        $this->notify($actor, 'التحديث وقف: '.$report['what']);
+        $this->notify($actor, strtr(setting('updates.update_manager.fail_10', 'التحديث وقف: :p1'), [':p1' => (string) ($report['what'])]));
 
         return $this->result(false, $stage, $ran, $before, $before, $report['what'], $report, $runId, implode("\n", $output));
     }
@@ -639,14 +639,14 @@ class UpdateManager
     private function report(string $stage, ?string $migration, string $error, array $actions, ?int $backupId, bool $restored, bool $lifted): array
     {
         $stages = [
-            'lock' => 'قفل التحديث',
-            'preflight' => 'الفحوص القبليّة',
-            'maintenance' => 'تفعيل وضع الصيانة',
-            'backup' => 'النسخة الاحتياطيّة',
-            'migrate' => 'تنفيذ الهجرات',
-            'verify' => 'التحقّق من البيانات',
-            'seed' => 'زرع القيم الافتراضيّة',
-            'finish' => 'الإنهاء',
+            'lock' => setting('updates.update_manager.report_1', 'قفل التحديث'),
+            'preflight' => setting('updates.update_manager.report_2', 'الفحوص القبليّة'),
+            'maintenance' => setting('updates.update_manager.report_3', 'تفعيل وضع الصيانة'),
+            'backup' => setting('updates.update_manager.report_4', 'النسخة الاحتياطيّة'),
+            'migrate' => setting('updates.update_manager.report_5', 'تنفيذ الهجرات'),
+            'verify' => setting('updates.update_manager.report_6', 'التحقّق من البيانات'),
+            'seed' => setting('updates.update_manager.report_7', 'زرع القيم الافتراضيّة'),
+            'finish' => setting('updates.update_manager.report_8', 'الإنهاء'),
         ];
 
         $backup = $backupId ? $this->backups->find($backupId) : null;
@@ -654,7 +654,7 @@ class UpdateManager
         return [
             'stage' => $stage,
             'stage_label' => $stages[$stage] ?? $stage,
-            'what' => 'وقفنا عند «'.($stages[$stage] ?? $stage).'»'.($migration ? ' في الهجرة '.$migration : '').' — '.$error,
+            'what' => setting('updates.update_manager.report_9', 'وقفنا عند «').($stages[$stage] ?? $stage).'»'.($migration ? strtr(setting('updates.update_manager.report_10', ' في الهجرة :p1'), [':p1' => (string) ($migration)]) : '').' — '.$error,
             'migration' => $migration,
             'error' => $error,
             'actions' => $actions,
@@ -826,7 +826,7 @@ class UpdateManager
         }
 
         try {
-            $notifier::send($actor, 'system', 'التحديثات والترحيل', $message, route('admin.ops.updates'));
+            $notifier::send($actor, 'system', setting('updates.update_manager.notify_1', 'التحديثات والترحيل'), $message, route('admin.ops.updates'));
         } catch (Throwable) {
             // إشعارٌ لم يصل لا يغيّر نتيجة التحديث ولا يُبلَّع في تقريره
         }
@@ -884,7 +884,7 @@ class UpdateManager
             'version' => $this->currentVersion(),
             'previous_version' => $this->currentVersion(),
             'event' => 'rollback',
-            'notes' => 'استرجاع آخر دفعة ('.count($batch).' هجرة).',
+            'notes' => strtr(setting('updates.update_manager.rollback_1', 'استرجاع آخر دفعة (:p1 هجرة).'), [':p1' => (string) (count($batch))]),
             'migrations_count' => count($batch),
             'migrations' => json_encode($batch, JSON_UNESCAPED_UNICODE),
             'performed_by' => $actor?->id,
@@ -907,7 +907,7 @@ class UpdateManager
         $current = $this->currentVersion();
 
         if (setting('updates.forward_only', true) && $this->compare($version, $current) <= 0) {
-            return ['saved' => false, 'message' => "الاتّجاه أمامًا فقط — لازم يكون أحدث من {$current}."];
+            return ['saved' => false, 'message' => strtr(setting('updates.update_manager.record_version_1', 'الاتّجاه أمامًا فقط — لازم يكون أحدث من :p1.'), [':p1' => (string) ($current)])];
         }
 
         DB::table('settings')->where('key', 'updates.current_version')->update([
@@ -935,7 +935,7 @@ class UpdateManager
             'to' => $version,
         ], 'app_version_history', $historyId);
 
-        return ['saved' => true, 'message' => "الإصدار بقى {$version} ✓"];
+        return ['saved' => true, 'message' => strtr(setting('updates.update_manager.body_4', 'الإصدار بقى :p1 ✓'), [':p1' => (string) ($version)])];
     }
 
     /** مقارنة SemVer بسيطة — تكفي لمنع الرجوع لإصدار أقدم */

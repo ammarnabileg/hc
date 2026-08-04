@@ -34,7 +34,7 @@ class QuestionImporter
         $handle = fopen($file->getRealPath(), 'r');
 
         if ($handle === false) {
-            return ['imported' => 0, 'errors' => [['row' => 0, 'message' => 'تعذّرت قراءة الملفّ — جرّب رفعه مرّة أخرى.']]];
+            return ['imported' => 0, 'errors' => [['row' => 0, 'message' => setting('admin_content.question_importer.import_1', 'تعذّرت قراءة الملفّ — جرّب رفعه مرّة أخرى.')]]];
         }
 
         $header = null;
@@ -51,14 +51,14 @@ class QuestionImporter
             }
 
             if ($imported >= $max) {
-                $errors[] = ['row' => $rowNumber, 'message' => 'تجاوزنا الحدّ المسموح ('.$max.' سؤالًا) — قسّم الملفّ.'];
+                $errors[] = ['row' => $rowNumber, 'message' => strtr(setting('admin_content.question_importer.import_2', 'تجاوزنا الحدّ المسموح (:p1 سؤالًا) — قسّم الملفّ.'), [':p1' => (string) ($max)])];
                 break;
             }
 
             $data = $this->associate($header, $row);
 
             if (trim((string) ($data['prompt'] ?? '')) === '') {
-                $errors[] = ['row' => $rowNumber, 'message' => 'نصّ السؤال فاضي — اكتبه في عمود prompt.'];
+                $errors[] = ['row' => $rowNumber, 'message' => setting('admin_content.question_importer.import_3', 'نصّ السؤال فاضي — اكتبه في عمود prompt.')];
 
                 continue;
             }

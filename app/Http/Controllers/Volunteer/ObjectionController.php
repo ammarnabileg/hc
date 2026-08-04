@@ -77,7 +77,7 @@ class ObjectionController extends Controller
             'transaction_id' => ['required', 'integer', 'exists:transactions,id'],
             'reason' => ['required', 'string', 'min:5', 'max:2000'],
             'attachment' => ['nullable', 'file', 'max:8192'],
-        ], [], ['reason' => 'سبب الاعتراض']);
+        ], [], ['reason' => (string) setting('rep.objection.store_msg', 'سبب الاعتراض')]);
 
         $transaction = Transaction::query()->findOrFail($data['transaction_id']);
 
@@ -107,7 +107,7 @@ class ObjectionController extends Controller
         $data = $request->validate([
             'body' => ['required', 'string', 'min:2', 'max:2000'],
             'attachment' => ['nullable', 'file', 'max:8192'],
-        ], [], ['body' => 'التفاصيل']);
+        ], [], ['body' => (string) setting('rep.objection.add_message_msg', 'التفاصيل')]);
 
         $result = $this->service->addMessage(
             $objection,
@@ -205,7 +205,7 @@ class ObjectionController extends Controller
         $data = $request->validate([
             'body' => ['required', 'string', 'min:2', 'max:2000'],
             'attachment' => ['nullable', 'file', 'max:8192'],
-        ], [], ['body' => 'الردّ']);
+        ], [], ['body' => (string) setting('rep.objection.reply_msg', 'الردّ')]);
 
         $result = $this->service->reply(
             $objection,
@@ -226,7 +226,7 @@ class ObjectionController extends Controller
 
         $data = $request->validate([
             'reason' => ['required', 'string', 'min:5', 'max:2000'],
-        ], [], ['reason' => 'سبب التصعيد']);
+        ], [], ['reason' => (string) setting('rep.objection.escalate_msg', 'سبب التصعيد')]);
 
         $result = $this->service->escalate($objection, $request->user(), $data['reason']);
 
@@ -240,7 +240,7 @@ class ObjectionController extends Controller
 
         $data = $request->validate([
             'note' => ['required', 'string', 'min:5', 'max:2000'],
-        ], [], ['note' => 'مبرّر القبول']);
+        ], [], ['note' => (string) setting('rep.objection.accept_msg', 'مبرّر القبول')]);
 
         $result = $this->service->accept($objection, $request->user(), $data['note']);
 
@@ -254,7 +254,7 @@ class ObjectionController extends Controller
 
         $data = $request->validate([
             'note' => ['required', 'string', 'min:5', 'max:2000'],
-        ], [], ['note' => 'سبب الرفض']);
+        ], [], ['note' => (string) setting('rep.objection.reject_msg', 'سبب الرفض')]);
 
         $result = $this->service->reject($objection, $request->user(), $data['note']);
 

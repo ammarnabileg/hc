@@ -74,7 +74,7 @@ class ReadinessBar
     private function markup(Request $request): string
     {
         $readiness = WarReadiness::query()->with('challenge')->where('user_id', $request->user()->id)->first();
-        $name = e((string) ($readiness?->challenge?->name_ar ?? 'حرب'));
+        $name = e((string) ($readiness?->challenge?->name_ar ?? setting('gamification_wars.readiness_bar.markup_1', 'حرب')));
 
         $inMatch = WarMatch::query()
             ->where('status', 'running')
@@ -86,10 +86,10 @@ class ReadinessBar
 
         $text = $inMatch
             // إلغاء الاستعداد أثناء حرب نشطة ⟵ خسارة مؤكّدة + عقوبة (15.0)
-            ? "إنت في مواجهة شغّالة — الإلغاء دلوقتي = خسارة {$loss} + عقوبة {$penalty} تذكرة."
-            : "إنت مستعدّ لـ«{$name}» — أيّ محارب يقدر يتحدّاك.";
+            ? strtr(setting('gamification_wars.readiness_bar.markup_2', 'إنت في مواجهة شغّالة — الإلغاء دلوقتي = خسارة :p1 + عقوبة :p2 تذكرة.'), [':p1' => (string) ($loss), ':p2' => (string) ($penalty)])
+            : strtr(setting('gamification_wars.readiness_bar.body_3', 'إنت مستعدّ لـ«:p1» — أيّ محارب يقدر يتحدّاك.'), [':p1' => (string) ($name)]);
 
-        $label = $inMatch ? 'انسحب وألغِ الاستعداد' : 'إلغاء الاستعداد';
+        $label = $inMatch ? setting('gamification_wars.readiness_bar.body_1', 'انسحب وألغِ الاستعداد') : setting('gamification_wars.readiness_bar.body_2', 'إلغاء الاستعداد');
         $url = route('challenges.unready');
         $csrf = e(csrf_token());
 

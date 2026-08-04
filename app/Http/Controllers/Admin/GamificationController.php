@@ -28,16 +28,28 @@ use RuntimeException;
  */
 class GamificationController extends Controller
 {
-    public const TABS = [
-        'xp' => 'XP والتذاكر',
-        'badges' => 'الشارات',
-        'streaks' => 'الستريكس ونادي الخامسة',
-        'leaderboard' => 'الليدر بورد',
-        'levels' => 'المستويات',
-        'wars' => 'الحروب والتحديات',
-        'reward_questions' => 'أسئلة المكافآت',
-        'celebrations' => 'الاحتفالات',
-    ];
+    /** مفاتيح التابات الثمانية — **مفاتيح داخليّة** لا نصوصًا، فلا تُنقَل */
+    public const TAB_KEYS = ['xp', 'badges', 'streaks', 'leaderboard', 'levels', 'wars', 'reward_questions', 'celebrations'];
+
+    /**
+     * عناوين التابات كما يقرؤها المسؤول — ميثودٌ لا `const`، لأنّ الثابت لا
+     * يقبل `setting()` فيبقى نصُّه محروقًا (2.13-أ).
+     *
+     * @return array<string, string>
+     */
+    public static function tabs(): array
+    {
+        return [
+            'xp' => (string) setting('gamification.admin.tab_xp', 'XP والتذاكر'),
+            'badges' => (string) setting('gamification.admin.tab_badges', 'الشارات'),
+            'streaks' => (string) setting('gamification.admin.tab_streaks', 'الستريكس ونادي الخامسة'),
+            'leaderboard' => (string) setting('gamification.admin.tab_leaderboard', 'الليدر بورد'),
+            'levels' => (string) setting('gamification.admin.tab_levels', 'المستويات'),
+            'wars' => (string) setting('gamification.admin.tab_wars', 'الحروب والتحديات'),
+            'reward_questions' => (string) setting('gamification.admin.tab_reward_questions', 'أسئلة المكافآت'),
+            'celebrations' => (string) setting('gamification.admin.tab_celebrations', 'الاحتفالات'),
+        ];
+    }
 
     /**
      * ⭐⭐ **مفاتيح باب الشاشة — بسعة تاباتها** (12.2.1-أ · 12.2.3-أ-8).
@@ -79,11 +91,11 @@ class GamificationController extends Controller
     {
         $tab = $request->string('tab')->toString() ?: 'xp';
 
-        abort_unless(array_key_exists($tab, self::TABS), 404);
+        abort_unless(in_array($tab, self::TAB_KEYS, true), 404);
 
         return view('admin.gamification.index', [
             'tab' => $tab,
-            'tabs' => self::TABS,
+            'tabs' => self::tabs(),
             // تحميل كسول: التاب المفتوح وحده يجهّز بياناته (2.15-د · 2.7)
             'data' => $this->dataFor($tab, $request),
         ]);
@@ -99,7 +111,7 @@ class GamificationController extends Controller
 
         SettingsWriter::putMany($data['settings'], $request->user());
 
-        return back()->with('status', 'اتحفظ ✓');
+        return back()->with('status', (string) setting('gamification.admin.save_settings_ok', 'اتحفظ ✓'));
     }
 
     public function resetGroup(Request $request): RedirectResponse
@@ -110,7 +122,7 @@ class GamificationController extends Controller
 
         $count = SettingsWriter::resetGroup($data['group'], $request->user());
 
-        return back()->with('status', 'رجعت '.$count.' قيمة للافتراضيّ ✓');
+        return back()->with('status', strtr((string) setting('gamification.admin.reset_group_ok', 'رجعت :a1 قيمة للافتراضيّ ✓'), [':a1' => (string) ($count)]));
     }
 
     /** صفوف الكسب/الصرف تُحرَّر كجدول (12.10 — XP والتذاكر) */
@@ -123,7 +135,7 @@ class GamificationController extends Controller
 
         SettingsWriter::put($data['key'], array_values($data['rows'] ?? []), $request->user());
 
-        return back()->with('status', 'اتحفظ ✓');
+        return back()->with('status', (string) setting('gamification.admin.save_xp_rows_ok', 'اتحفظ ✓'));
     }
 
     // ------------------------------------------------------------ الشارات
@@ -152,9 +164,9 @@ class GamificationController extends Controller
             'icon_path' => ['nullable', 'string', 'max:255'],
             'is_active' => ['nullable', 'boolean'],
         ], [], [
-            'name_en' => 'الاسم بالإنجليزيّة',
-            'condition_key' => 'مقياس الشرط',
-            'icon' => 'صورة الشارة',
+            'name_en' => (string) setting('gamification.admin.save_badge_msg', 'الاسم بالإنجليزيّة'),
+            'condition_key' => (string) setting('gamification.admin.save_badge_msg_2', 'مقياس الشرط'),
+            'icon' => (string) setting('gamification.admin.save_badge_msg_3', 'صورة الشارة'),
         ]);
 
         $badge = isset($data['id']) ? Badge::findOrFail($data['id']) : new Badge;
@@ -181,7 +193,7 @@ class GamificationController extends Controller
 
         AuditTrail::log($request->user(), 'badge.save', $badge, $old, $badge->only(['key', 'name_ar', 'condition_text_ar']));
 
-        return back()->with('status', 'اتحفظ ✓');
+        return back()->with('status', (string) setting('gamification.admin.save_badge_ok', 'اتحفظ ✓'));
     }
 
     public function deleteBadge(Request $request, Badge $badge): RedirectResponse
@@ -189,7 +201,7 @@ class GamificationController extends Controller
         AuditTrail::log($request->user(), 'badge.delete', $badge, $badge->only(['key', 'name_ar']), []);
         $badge->delete();
 
-        return back()->with('status', 'اتحذفت الشارة ✓');
+        return back()->with('status', (string) setting('gamification.admin.delete_badge_ok', 'اتحذفت الشارة ✓'));
     }
 
     // ------------------------------------------------------------ المستويات
@@ -208,7 +220,7 @@ class GamificationController extends Controller
 
         AuditTrail::log($request->user(), 'level.save', $level, [], $level->only(['level', 'min_xp']));
 
-        return back()->with('status', 'اتحفظ ✓');
+        return back()->with('status', (string) setting('gamification.admin.save_level_ok', 'اتحفظ ✓'));
     }
 
     public function deleteLevel(Request $request, Level $level): RedirectResponse
@@ -216,7 +228,7 @@ class GamificationController extends Controller
         AuditTrail::log($request->user(), 'level.delete', $level, $level->only(['level', 'min_xp']), []);
         $level->delete();
 
-        return back()->with('status', 'اتحذف المستوى ✓');
+        return back()->with('status', (string) setting('gamification.admin.delete_level_ok', 'اتحذف المستوى ✓'));
     }
 
     // ------------------------------------------------------------ الحروب
@@ -246,7 +258,7 @@ class GamificationController extends Controller
             return back()->withInput()->with('status', $e->getMessage());
         }
 
-        return back()->with('status', 'اتحفظ ✓');
+        return back()->with('status', (string) setting('gamification.admin.save_war_ok', 'اتحفظ ✓'));
     }
 
     public function resetWar(Request $request, Challenge $challenge): RedirectResponse
@@ -257,7 +269,7 @@ class GamificationController extends Controller
             return back()->with('status', $e->getMessage());
         }
 
-        return back()->with('status', 'رجعت الحرب للافتراضيّ ✓');
+        return back()->with('status', (string) setting('gamification.admin.reset_war_ok', 'رجعت الحرب للافتراضيّ ✓'));
     }
 
     // ------------------------------------------------------------ أسئلة المكافآت (12.10-أ)
@@ -289,7 +301,7 @@ class GamificationController extends Controller
 
         AuditTrail::log($request->user(), 'reward_question.save', $saved, $old, $saved->only(['status', 'opens_at', 'closes_at']));
 
-        return back()->with('status', 'اتحفظ ✓');
+        return back()->with('status', (string) setting('gamification.admin.save_reward_question_ok', 'اتحفظ ✓'));
     }
 
     /**
@@ -312,10 +324,10 @@ class GamificationController extends Controller
         AuditTrail::log($request->user(), 'reward_question.import', null, [], ['imported' => $result['imported']]);
 
         // ماذا حدث + ماذا تفعل (2.17-ج): العدد المستورَد وأسطر الخطأ إن وُجدت
-        $message = 'اتستوردت '.$result['imported'].' أسئلة كمسودّات ✓';
+        $message = strtr((string) setting('gamification.admin.import_reward_questions_ok', 'اتستوردت :a1 أسئلة كمسودّات ✓'), [':a1' => (string) ($result['imported'])]);
 
         if ($result['errors'] !== []) {
-            $message .= ' — تخطّينا: '.implode(' · ', array_slice($result['errors'], 0, 3));
+            $message .= strtr((string) setting('gamification.admin.import_reward_questions_msg', ' — تخطّينا: :a1'), [':a1' => (string) (implode(' · ', array_slice($result['errors'], 0, 3)))]);
         }
 
         return back()->with('status', $message);
@@ -328,7 +340,7 @@ class GamificationController extends Controller
 
         AuditTrail::log($request->user(), 'reward_question.close', $rewardQuestion, [], ['closes_at' => $rewardQuestion->closes_at]);
 
-        return back()->with('status', 'اتقفل السؤال ✓');
+        return back()->with('status', (string) setting('gamification.admin.close_reward_question_ok', 'اتقفل السؤال ✓'));
     }
 
     /** نتائج بعد الإغلاق: كم حلّه · نسبة الصحّ · أسرع مجيب (12.10-أ) */
@@ -368,7 +380,7 @@ class GamificationController extends Controller
 
         AuditTrail::log($request->user(), 'celebration.save', $celebrationEvent, $old, $celebrationEvent->only(['tier', 'is_active']));
 
-        return back()->with('status', 'اتحفظ ✓');
+        return back()->with('status', (string) setting('gamification.admin.save_celebration_ok', 'اتحفظ ✓'));
     }
 
     // ------------------------------------------------------------ داخليّ
@@ -417,7 +429,7 @@ class GamificationController extends Controller
             'celebrations' => [
                 'settings' => SettingsWriter::groupRows('gamification_celebrations'),
                 'events' => CelebrationEvent::query()->orderBy('tier')->orderBy('key')->get(),
-                'tiers' => [1 => 'خفيف', 2 => 'متوسّط', 3 => 'ذروة'],
+                'tiers' => [1 => (string) setting('gamification.admin.data_for_msg', 'خفيف'), 2 => (string) setting('gamification.admin.data_for_msg_2', 'متوسّط'), 3 => (string) setting('gamification.admin.data_for_msg_3', 'ذروة')],
             ],
             default => [],
         };

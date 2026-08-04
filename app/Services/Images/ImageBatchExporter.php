@@ -23,9 +23,9 @@ class ImageBatchExporter
     public function segments(): array
     {
         return [
-            'top_xp' => 'أوائل الليدر بورد (XP)',
-            'volunteers' => 'المتطوّعون النشطون',
-            'active' => 'الحسابات المفعَّلة',
+            'top_xp' => setting('images.image_batch_exporter.segments_1', 'أوائل الليدر بورد (XP)'),
+            'volunteers' => setting('images.image_batch_exporter.segments_2', 'المتطوّعون النشطون'),
+            'active' => setting('images.image_batch_exporter.segments_3', 'الحسابات المفعَّلة'),
         ];
     }
 
@@ -47,7 +47,7 @@ class ImageBatchExporter
     public function build(ImageTemplate $template, Collection $users, ?User $actor = null): string
     {
         if (! class_exists(ZipArchive::class)) {
-            throw new RuntimeException('امتداد ZIP مش متاح على الخادم.');
+            throw new RuntimeException(setting('images.image_batch_exporter.build_1', 'امتداد ZIP مش متاح على الخادم.'));
         }
 
         $relative = 'generated/batches/'.$template->id.'-'.now()->format('Ymd-His').'.zip';
@@ -58,7 +58,7 @@ class ImageBatchExporter
         $zip = new ZipArchive;
 
         if ($zip->open($full, ZipArchive::CREATE | ZipArchive::OVERWRITE) !== true) {
-            throw new RuntimeException('تعذّر إنشاء ملفّ ZIP.');
+            throw new RuntimeException(setting('images.image_batch_exporter.build_2', 'تعذّر إنشاء ملفّ ZIP.'));
         }
 
         foreach ($users as $user) {

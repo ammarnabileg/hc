@@ -32,7 +32,7 @@ class TaskTypeController extends Controller
             'confirm' => 'تأكيد',
         ]);
 
-        return is_array($value) && $value !== [] ? $value : ['link' => 'رابط', 'file' => 'ملفّ', 'text' => 'نصّ', 'confirm' => 'تأكيد'];
+        return is_array($value) && $value !== [] ? $value : ['link' => (string) setting('workflow.task_types.delivery_kinds_msg', 'رابط'), 'file' => (string) setting('workflow.task_types.delivery_kinds_msg_2', 'ملفّ'), 'text' => (string) setting('workflow.task_types.delivery_kinds_msg_3', 'نصّ'), 'confirm' => (string) setting('workflow.task_types.delivery_kinds_msg_4', 'تأكيد')];
     }
 
     public function index(Request $request): View
@@ -50,7 +50,7 @@ class TaskTypeController extends Controller
                 ? $types->firstWhere('id', $request->integer('edit'))
                 : null,
             'deliveryKinds' => $this->deliveryKinds(),
-            'priorities' => ['low' => 'منخفضة', 'normal' => 'عاديّة', 'high' => 'مرتفعة'],
+            'priorities' => ['low' => (string) setting('workflow.task_types.index_msg', 'منخفضة'), 'normal' => (string) setting('workflow.task_types.index_msg_2', 'عاديّة'), 'high' => (string) setting('workflow.task_types.index_msg_3', 'مرتفعة')],
         ]);
     }
 
@@ -70,8 +70,8 @@ class TaskTypeController extends Controller
             'default_priority' => ['nullable', 'string', 'max:16'],
             'default_delivery_kind' => ['nullable', 'string', 'max:16'],
         ], [], [
-            'key' => 'المفتاح',
-            'name_ar' => 'الاسم',
+            'key' => (string) setting('workflow.task_types.save_msg', 'المفتاح'),
+            'name_ar' => (string) setting('workflow.task_types.save_msg_2', 'الاسم'),
         ]);
 
         $checklist = collect(preg_split('/\r\n|\r|\n/', (string) ($data['checklist'] ?? '')))
@@ -101,7 +101,7 @@ class TaskTypeController extends Controller
 
         return redirect()
             ->route('admin.volunteer.task-types.index')
-            ->with('status', 'اتحفظ ✓ — القالب هيتعبّى تلقائيًّا لمّا حد يختار النوع ده.');
+            ->with('status', (string) setting('workflow.task_types.save_ok', 'اتحفظ ✓ — القالب هيتعبّى تلقائيًّا لمّا حد يختار النوع ده.'));
     }
 
     /**
@@ -114,7 +114,7 @@ class TaskTypeController extends Controller
 
         $this->audit($request, $taskType, 'task_types.edit');
 
-        return back()->with('status', $taskType->is_active ? 'النوع اشتغل ✓' : 'النوع اتوقف — مش هيظهر في الاختيار.');
+        return back()->with('status', $taskType->is_active ? (string) setting('workflow.task_types.toggle_ok', 'النوع اشتغل ✓') : (string) setting('workflow.task_types.toggle_denied', 'النوع اتوقف — مش هيظهر في الاختيار.'));
     }
 
     private function audit(Request $request, TaskType $type, string $action): void

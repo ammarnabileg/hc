@@ -66,7 +66,7 @@
 
         <label class="block flex-1 min-w-40">
             <span class="block text-xs mb-1" style="color: var(--text-muted)">{{ setting('complaints.filter.search_label', 'بحث بالرقم أو العنوان') }}</span>
-            <input type="search" name="q" value="{{ $filters['q'] }}" placeholder="TK-… أو كلمة من العنوان"
+            <input type="search" name="q" value="{{ $filters['q'] }}" placeholder="TK-… {{ setting('complaints.index.placeholder_1', 'أو كلمة من العنوان') }}"
                    class="w-full rounded-xl px-3 py-2 text-sm"
                    style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
         </label>
@@ -143,7 +143,7 @@
                                     <p class="mt-1 text-sm whitespace-pre-line">{{ $message->body }}</p>
                                     @if ($message->attachment_path)
                                         <a href="{{ \Illuminate\Support\Facades\Storage::url($message->attachment_path) }}"
-                                           class="mt-1 inline-block text-xs underline" style="color: var(--color-brand-500)"><x-icon name="attachment" size="16" /> مرفق</a>
+                                           class="mt-1 inline-block text-xs underline" style="color: var(--color-brand-500)"><x-icon name="attachment" size="16" /> {{ setting('complaints.index.text_1', 'مرفق') }}</a>
                                     @endif
                                 </div>
                             </article>

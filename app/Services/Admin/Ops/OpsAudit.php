@@ -17,28 +17,31 @@ use Illuminate\Support\Facades\DB;
 class OpsAudit
 {
     /** أفعال هذا المجال — قائمة مقفولة تُقرأ في الفلاتر وفي صفحة التدقيق */
-    public const ACTIONS = [
-        'ops.onboarding.slide.created' => 'إضافة شريحة ترحيب',
-        'ops.onboarding.slide.updated' => 'تعديل شريحة ترحيب',
-        'ops.onboarding.slide.deleted' => 'حذف شريحة ترحيب',
-        'ops.onboarding.slide.toggled' => 'تفعيل/إيقاف شريحة',
-        'ops.onboarding.reordered' => 'إعادة ترتيب الشرائح',
-        'ops.onboarding.template.applied' => 'تطبيق قالب جاهز',
-        'ops.onboarding.first_time.updated' => 'تعديل شاشات «أوّل مرّة»',
-        'ops.updates.dry_run' => 'Dry-run للترحيل',
-        'ops.updates.migrated' => 'تنفيذ الترحيل',
-        'ops.updates.failed' => 'فشل تحديث واستعادة',
-        'ops.updates.restored' => 'استعادة من نسخة احتياطيّة',
-        'ops.updates.rolled_back' => 'استرجاع آخر دفعة',
-        'ops.updates.version_recorded' => 'تسجيل إصدار',
-        'ops.backups.created' => 'نسخة احتياطيّة',
-        'ops.backups.restored' => 'استعادة بيانات من نسخة',
-        'ops.backups.deleted' => 'حذف نسخة احتياطيّة',
-        'ops.backups.downloaded' => 'تنزيل نسخة احتياطيّة',
-        'ops.backups.schedule_updated' => 'تعديل جدولة النسخ',
-        'ops.system.health_checked' => 'تشغيل فحص صحّة',
-        'ops.system.alert' => 'تنبيه نظام استباقيّ',
-    ];
+    public static function actions(): array
+    {
+        return [
+            'ops.onboarding.slide.created' => setting('updates.ops_audit.actions_1', 'إضافة شريحة ترحيب'),
+            'ops.onboarding.slide.updated' => setting('updates.ops_audit.actions_2', 'تعديل شريحة ترحيب'),
+            'ops.onboarding.slide.deleted' => setting('updates.ops_audit.actions_3', 'حذف شريحة ترحيب'),
+            'ops.onboarding.slide.toggled' => setting('updates.ops_audit.actions_4', 'تفعيل/إيقاف شريحة'),
+            'ops.onboarding.reordered' => setting('updates.ops_audit.actions_5', 'إعادة ترتيب الشرائح'),
+            'ops.onboarding.template.applied' => setting('updates.ops_audit.actions_6', 'تطبيق قالب جاهز'),
+            'ops.onboarding.first_time.updated' => setting('updates.ops_audit.actions_7', 'تعديل شاشات «أوّل مرّة»'),
+            'ops.updates.dry_run' => setting('updates.ops_audit.actions_8', 'Dry-run للترحيل'),
+            'ops.updates.migrated' => setting('updates.ops_audit.actions_9', 'تنفيذ الترحيل'),
+            'ops.updates.failed' => setting('updates.ops_audit.actions_10', 'فشل تحديث واستعادة'),
+            'ops.updates.restored' => setting('updates.ops_audit.actions_11', 'استعادة من نسخة احتياطيّة'),
+            'ops.updates.rolled_back' => setting('updates.ops_audit.actions_12', 'استرجاع آخر دفعة'),
+            'ops.updates.version_recorded' => setting('updates.ops_audit.actions_13', 'تسجيل إصدار'),
+            'ops.backups.created' => setting('updates.ops_audit.actions_14', 'نسخة احتياطيّة'),
+            'ops.backups.restored' => setting('updates.ops_audit.actions_15', 'استعادة بيانات من نسخة'),
+            'ops.backups.deleted' => setting('updates.ops_audit.actions_16', 'حذف نسخة احتياطيّة'),
+            'ops.backups.downloaded' => setting('updates.ops_audit.actions_17', 'تنزيل نسخة احتياطيّة'),
+            'ops.backups.schedule_updated' => setting('updates.ops_audit.actions_18', 'تعديل جدولة النسخ'),
+            'ops.system.health_checked' => setting('updates.ops_audit.actions_19', 'تشغيل فحص صحّة'),
+            'ops.system.alert' => setting('updates.ops_audit.actions_20', 'تنبيه نظام استباقيّ'),
+        ];
+    }
 
     /** أفعال الترحيل وحدها — صفحة التحديثات تعرض سجلّها فقط */
     public const UPDATE_ACTIONS = [
@@ -114,7 +117,7 @@ class OpsAudit
 
     public static function label(string $action): string
     {
-        return self::ACTIONS[$action] ?? $action;
+        return self::actions()[$action] ?? $action;
     }
 
     /** ملخّص قصير يُعرَض في عمود «التفاصيل» بلا فتح أيّ نافذة */
@@ -130,7 +133,7 @@ class OpsAudit
 
         foreach ($data as $key => $value) {
             if (is_array($value)) {
-                $value = count($value).' عنصر';
+                $value = strtr(setting('updates.ops_audit.summarize_1', ':p1 عنصر'), [':p1' => (string) (count($value))]);
             }
 
             $parts[] = $key.': '.mb_substr((string) $value, 0, 40);

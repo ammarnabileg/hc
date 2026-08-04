@@ -23,7 +23,7 @@
                 @forelse ($questions as $i => $question)
                     <fieldset>
                         <legend class="flex flex-wrap items-baseline gap-2 mb-2">
-                            <span class="text-xs" style="color: var(--text-muted)">سؤال {{ $i + 1 }}</span>
+                            <span class="text-xs" style="color: var(--text-muted)">{{ setting('onboarding.placement_view.text_1', 'سؤال') }} {{ $i + 1 }}</span>
                             <span class="font-semibold text-sm">{{ $question->prompt }}</span>
 
                             {{-- المكافأة بجانب السؤال — ورمزٌ مع كلّ لون (2.16) --}}
@@ -33,7 +33,7 @@
                                     ★
                                     @if ($question->reward_xp > 0) {{ $question->reward_xp }} XP @endif
                                     @if ($question->reward_xp > 0 && $question->reward_tickets > 0) · @endif
-                                    @if ($question->reward_tickets > 0) {{ $question->reward_tickets }} تذكرة @endif
+                                    @if ($question->reward_tickets > 0) {{ $question->reward_tickets }} {{ setting('onboarding.placement_view.text_2', 'تذكرة') }} @endif
                                 </span>
                             @endif
                         </legend>

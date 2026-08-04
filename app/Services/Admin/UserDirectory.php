@@ -149,22 +149,22 @@ class UserDirectory
         $contained = in_array($subject->status, ['banned', 'suspended'], true);
 
         if ($viewer->allows('account_suspension.create') && ! $contained) {
-            $actions[] = ['key' => 'ban', 'label' => 'حظر الحساب', 'danger' => true];
-            $actions[] = ['key' => 'suspend', 'label' => 'تعليق مؤقّت', 'danger' => true];
+            $actions[] = ['key' => 'ban', 'label' => setting('admin_users.user_directory.moderation_actions_1', 'حظر الحساب'), 'danger' => true];
+            $actions[] = ['key' => 'suspend', 'label' => setting('admin_users.user_directory.moderation_actions_2', 'تعليق مؤقّت'), 'danger' => true];
         }
 
         if ($viewer->allows('account_suspension.delete') && $contained) {
-            $actions[] = ['key' => 'release', 'label' => 'رفع الاحتواء', 'danger' => false];
+            $actions[] = ['key' => 'release', 'label' => setting('admin_users.user_directory.moderation_actions_3', 'رفع الاحتواء'), 'danger' => false];
         }
 
         // الانتحال مجموعة محميّة، ولا يُنتحَل مالك المنصّة ولا المشاهد نفسه
         if ($viewer->allows('impersonation.create') && $subject->id !== $viewer->id && ! $subject->isPlatformOwner()) {
-            $actions[] = ['key' => 'impersonate', 'label' => 'تصفّح كـ'.$subject->shortName(1), 'danger' => false];
+            $actions[] = ['key' => 'impersonate', 'label' => strtr(setting('admin_users.user_directory.moderation_actions_4', 'تصفّح كـ:p1'), [':p1' => (string) ($subject->shortName(1))]), 'danger' => false];
         }
 
         // تصدير بيانات المستخدم كملفّ — بصلاحيّته وحدها (12.1-متقدّم-6)
         if ($viewer->allows('admin_user_detail.export')) {
-            $actions[] = ['key' => 'export', 'label' => 'تصدير بياناته كملفّ', 'danger' => false];
+            $actions[] = ['key' => 'export', 'label' => setting('admin_users.user_directory.moderation_actions_5', 'تصدير بياناته كملفّ'), 'danger' => false];
         }
 
         return $actions;
@@ -184,15 +184,15 @@ class UserDirectory
         $actions = [];
 
         if ($viewer->allows('users.edit')) {
-            $actions[] = ['key' => 'password-link', 'label' => 'رابط تغيير كلمة السرّ', 'danger' => false];
+            $actions[] = ['key' => 'password-link', 'label' => setting('admin_users.user_directory.security_actions_1', 'رابط تغيير كلمة السرّ'), 'danger' => false];
 
             if (! $subject->email_verified_at) {
-                $actions[] = ['key' => 'verify-email', 'label' => 'تأكيد بريده يدويًّا', 'danger' => false];
+                $actions[] = ['key' => 'verify-email', 'label' => setting('admin_users.user_directory.security_actions_2', 'تأكيد بريده يدويًّا'), 'danger' => false];
             }
         }
 
         if ($viewer->allows('user_sessions.delete')) {
-            $actions[] = ['key' => 'sessions', 'label' => 'إنهاء كلّ جلساته', 'danger' => false];
+            $actions[] = ['key' => 'sessions', 'label' => setting('admin_users.user_directory.security_actions_3', 'إنهاء كلّ جلساته'), 'danger' => false];
         }
 
         return $actions;
@@ -213,35 +213,35 @@ class UserDirectory
      */
     public function tabsFor(User $viewer, User $subject): array
     {
-        $tabs = ['profile' => 'بيانات'];
+        $tabs = ['profile' => setting('admin_users.user_directory.tabs_for_1', 'بيانات')];
 
         // الجداول الثلاثة (معاملات · سحوبات · دعوات) ماليّة الطابع — بصلاحيّة العرض
         if ($viewer->allows('admin_user_detail.view')) {
-            $tabs['tables'] = 'الجداول';
+            $tabs['tables'] = setting('admin_users.user_directory.tabs_for_2', 'الجداول');
         }
 
         $tabs += [
-            'wallet' => 'أرصدة',
-            'learning' => 'تدريبات',
-            'certificates' => 'شهادات',
+            'wallet' => setting('admin_users.user_directory.tabs_for_3', 'أرصدة'),
+            'learning' => setting('admin_users.user_directory.tabs_for_4', 'تدريبات'),
+            'certificates' => setting('admin_users.user_directory.tabs_for_5', 'شهادات'),
         ];
 
         // تاب الأمان: رابط تغيير كلمة السرّ والجلسات النشطة (12.1-الأمان)
         if ($viewer->allows('users.edit') || $viewer->allows('user_sessions.delete')) {
-            $tabs['security'] = 'الأمان';
+            $tabs['security'] = setting('admin_users.user_directory.tabs_for_6', 'الأمان');
         }
 
         // تاب الإدارة: اعتماد/رفض الحساب وتعيين الأدوار (12.1-الإدارة)
         if ($viewer->allows('user_approvals.approve') || $viewer->allows('user_approvals.reject') || $viewer->allows('roles.assign')) {
-            $tabs['admin'] = 'الإدارة';
+            $tabs['admin'] = setting('admin_users.user_directory.tabs_for_7', 'الإدارة');
         }
 
-        $tabs['advanced'] = 'متقدّم';
+        $tabs['advanced'] = setting('admin_users.user_directory.tabs_for_8', 'متقدّم');
 
         $volunteerPermission = (string) setting('admin.user_tabs.volunteer_permission', 'memberships.view');
 
         if ($viewer->allows($volunteerPermission)) {
-            $tabs['volunteer'] = 'التطوّع';
+            $tabs['volunteer'] = setting('admin_users.user_directory.tabs_for_9', 'التطوّع');
         }
 
         return $tabs;

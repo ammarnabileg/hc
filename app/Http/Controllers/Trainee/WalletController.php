@@ -22,25 +22,36 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
  */
 class WalletController extends Controller
 {
-    /** أسماء مصادر الحركة بالعربيّة — تُعرَض في عمود «النوع» */
-    public const SOURCE_LABELS = [
-        'topup' => 'شحن رصيد',
-        'purchase' => 'شراء',
-        'referral' => 'عمولة دعوة',
-        'academy' => 'تعلّم',
-        // XP نادي الخامسة صار يمرّ بالدفتر الموحّد (7.2 · 7.3) — فيلزمه اسمٌ عربيّ
-        'streak' => 'نادي الخامسة',
-        // حركات الحروب صار مصدرها مفتاحًا بعدما كانت جملةً في خانة المصدر (24.2)
-        'challenge' => 'الحروب',
-        'task' => 'مهمّة',
-        'meeting' => 'اجتماع',
-        'behavior' => 'سلوك',
-        'leadership' => 'قيادة',
-        'transfer' => 'حوالة',
-        'exchange' => 'تحويل عملة',
-        'withdraw' => 'سحب أرباح',
-        'admin' => 'إجراء إداريّ',
-    ];
+    /**
+     * أسماء مصادر الحركة بالعربيّة — تُعرَض في عمود «النوع».
+     *
+     * ⚠️ ميثودٌ لا `const`: الثابت لا يقبل استدعاء دالّة، فنصُّه يبقى **محروقًا**
+     * مهما فعلنا (2.13-أ). والمفتاح هنا `wallet.source.<الكود>` — الكود مفتاح
+     * داخليّ لا يُترجَم، والاسمُ وحده هو ما يقرؤه المستخدم فهو وحده الذي يُنقَل.
+     *
+     * @return array<string, string>
+     */
+    public static function sourceLabels(): array
+    {
+        return [
+            'topup' => (string) setting('wallet.source.topup', 'شحن رصيد'),
+            'purchase' => (string) setting('wallet.source.purchase', 'شراء'),
+            'referral' => (string) setting('wallet.source.referral', 'عمولة دعوة'),
+            'academy' => (string) setting('wallet.source.academy', 'تعلّم'),
+            // XP نادي الخامسة صار يمرّ بالدفتر الموحّد (7.2 · 7.3) — فيلزمه اسمٌ عربيّ
+            'streak' => (string) setting('wallet.source.streak', 'نادي الخامسة'),
+            // حركات الحروب صار مصدرها مفتاحًا بعدما كانت جملةً في خانة المصدر (24.2)
+            'challenge' => (string) setting('wallet.source.challenge', 'الحروب'),
+            'task' => (string) setting('wallet.source.task', 'مهمّة'),
+            'meeting' => (string) setting('wallet.source.meeting', 'اجتماع'),
+            'behavior' => (string) setting('wallet.source.behavior', 'سلوك'),
+            'leadership' => (string) setting('wallet.source.leadership', 'قيادة'),
+            'transfer' => (string) setting('wallet.source.transfer', 'حوالة'),
+            'exchange' => (string) setting('wallet.source.exchange', 'تحويل عملة'),
+            'withdraw' => (string) setting('wallet.source.withdraw', 'سحب أرباح'),
+            'admin' => (string) setting('wallet.source.admin', 'إجراء إداريّ'),
+        ];
+    }
 
     /** الكروت الثانويّة الثلاثة كما ينصّ 19.2 بالحرف: التذاكر / XP / الساعات */
     public const SECONDARY_CURRENCIES = ['tickets', 'xp', 'hours'];
@@ -58,7 +69,7 @@ class WalletController extends Controller
     {
         $mine = (string) setting('wallet.flow.self_label', 'محفظتي');
         $counterpart = (string) (
-            self::SOURCE_LABELS[$row->source] ?? setting('wallet.flow.platform_label', 'المنصّة')
+            self::sourceLabels()[$row->source] ?? setting('wallet.flow.platform_label', 'المنصّة')
         );
 
         // الحوالة تحمل الطرف الآخر في نصّ سببها («حوالة إلى U…» / «حوالة من U…») — 19.3
@@ -234,7 +245,7 @@ class WalletController extends Controller
             // BOM حتى تفتح العربيّة سليمةً في إكسل
             fwrite($out, "\xEF\xBB\xBF");
             // نفس أعمدة الشاشة بنصّ 19.2 — والكشف المصدَّر لا يخالف ما رآه صاحبه
-            fputcsv($out, ['#', 'العملة', 'الكمية', 'من ← إلى', 'السبب', 'ملاحظات', 'التاريخ', 'الرصيد بعدها']);
+            fputcsv($out, ['#', (string) setting('wallet.screen.export_msg', 'العملة'), (string) setting('wallet.screen.export_msg_2', 'الكمية'), (string) setting('wallet.screen.export_msg_3', 'من ← إلى'), (string) setting('wallet.screen.export_msg_4', 'السبب'), (string) setting('wallet.screen.export_msg_5', 'ملاحظات'), (string) setting('wallet.screen.export_msg_6', 'التاريخ'), (string) setting('wallet.screen.export_msg_7', 'الرصيد بعدها')]);
 
             $query->chunk(500, function ($chunk) use ($out) {
                 foreach ($chunk as $row) {
@@ -368,7 +379,7 @@ class WalletController extends Controller
         $map = [];
 
         foreach ($used as $source) {
-            $map[$source] = self::SOURCE_LABELS[$source] ?? $source;
+            $map[$source] = self::sourceLabels()[$source] ?? $source;
         }
 
         return $map;

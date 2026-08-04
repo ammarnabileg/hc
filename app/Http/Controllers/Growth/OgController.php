@@ -110,7 +110,7 @@ class OgController extends Controller
         $certificate = Certificate::query()->with('user')->where('code', $code)->firstOrFail();
         $snapshot = (array) ($certificate->data_snapshot ?? []);
 
-        return $this->svg($this->renderer->card('certificate', (string) ($snapshot['certificate_name'] ?? 'شهادة معتمدة'), array_filter([
+        return $this->svg($this->renderer->card('certificate', (string) ($snapshot['certificate_name'] ?? (string) setting('growth.og.certificate_msg', 'شهادة معتمدة')), array_filter([
             (string) ($snapshot['holder_name'] ?? $certificate->user?->name ?? ''),
             '#'.$certificate->code,
         ])));

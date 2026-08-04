@@ -64,14 +64,14 @@ class OnboardingContentController extends Controller
 
         if ($this->content->isFull($data['screen'])) {
             return back()->withErrors([
-                'title_ar' => 'وصلت للحدّ الأقصى للشرائح في الشاشة دي — امسح واحدة أو ارفع الحدّ من الإعدادات.',
+                'title_ar' => (string) setting('onboarding.admin.store_msg', 'وصلت للحدّ الأقصى للشرائح في الشاشة دي — امسح واحدة أو ارفع الحدّ من الإعدادات.'),
             ])->withInput();
         }
 
         $data['image_path'] = $this->storeImage($request);
         $this->content->create($data, $request->user());
 
-        return back()->with('status', 'الشريحة اتضافت ✓');
+        return back()->with('status', (string) setting('onboarding.admin.store_ok', 'الشريحة اتضافت ✓'));
     }
 
     public function update(Request $request, int $slide): RedirectResponse
@@ -84,24 +84,24 @@ class OnboardingContentController extends Controller
         }
 
         if (! $this->content->update($slide, $data, $request->user())) {
-            return back()->withErrors(['title_ar' => 'الشريحة دي مش موجودة — يمكن اتمسحت.']);
+            return back()->withErrors(['title_ar' => (string) setting('onboarding.admin.update_denied', 'الشريحة دي مش موجودة — يمكن اتمسحت.')]);
         }
 
-        return back()->with('status', 'اتحفظ ✓');
+        return back()->with('status', (string) setting('onboarding.admin.update_ok', 'اتحفظ ✓'));
     }
 
     public function toggle(Request $request, int $slide): RedirectResponse
     {
         $this->content->toggle($slide, $request->user());
 
-        return back()->with('status', 'اتحفظ ✓');
+        return back()->with('status', (string) setting('onboarding.admin.toggle_ok', 'اتحفظ ✓'));
     }
 
     public function destroy(Request $request, int $slide): RedirectResponse
     {
         $this->content->delete($slide, $request->user());
 
-        return back()->with('status', 'الشريحة اتمسحت.');
+        return back()->with('status', (string) setting('onboarding.admin.destroy_msg', 'الشريحة اتمسحت.'));
     }
 
     /** الترتيب بالسحب — وهو تسلسل المراحل الذي سيمرّ عليه المستخدم بالضبط */
@@ -115,7 +115,7 @@ class OnboardingContentController extends Controller
 
         $this->content->reorder($data['screen'], $data['order'], $request->user());
 
-        return back()->with('status', 'الترتيب اتحفظ ✓');
+        return back()->with('status', (string) setting('onboarding.admin.reorder_ok', 'الترتيب اتحفظ ✓'));
     }
 
     /** قالب جاهز قابل للتعديل — يضيف المراحل ولا يمسح ما كتبه الأدمن */
@@ -128,8 +128,8 @@ class OnboardingContentController extends Controller
         $added = $this->content->applyTemplate($data['screen'], $request->user());
 
         return back()->with('status', $added > 0
-            ? "اتضافت {$added} مرحلة من القالب — عدّلها زيّ ما تحبّ."
-            : 'مافيش قالب جاهز للشاشة دي لسه.');
+            ? strtr((string) setting('onboarding.admin.apply_template_ok', 'اتضافت :count مرحلة من القالب — عدّلها زيّ ما تحبّ.'), [':count' => (string) $added])
+            : (string) setting('onboarding.admin.apply_template_empty', 'مافيش قالب جاهز للشاشة دي لسه.'));
     }
 
     /** اختيار الشاشات التي تظهر فيها «أوّل مرّة» — على أهمّ الشاشات فقط (2.15-د) */
@@ -143,8 +143,8 @@ class OnboardingContentController extends Controller
         $result = $this->content->saveEnabledScreens($data['screens'] ?? [], $request->user());
 
         return back()->with('status', ($result['saved'] ?? false)
-            ? 'اتحفظ ✓ — '.count($result['screens']).' شاشة مفعَّلة.'
-            : ($result['message'] ?? 'مقدرناش نحفظ.'));
+            ? strtr((string) setting('onboarding.admin.save_first_time_ok', 'اتحفظ ✓ — :a1 شاشة مفعَّلة.'), [':a1' => (string) (count($result['screens']))])
+            : ($result['message'] ?? (string) setting('onboarding.admin.save_first_time_msg', 'مقدرناش نحفظ.')));
     }
 
     // ------------------------------------------------------------------ داخليّ

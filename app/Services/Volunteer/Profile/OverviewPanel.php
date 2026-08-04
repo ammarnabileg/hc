@@ -170,7 +170,7 @@ final class OverviewPanel
         $candidate = RecruitmentCandidate::where('user_id', $owner->id)->latest('id')->first();
 
         if ($candidate?->applied_at) {
-            $steps->push(['key' => 'qualifying', 'label' => 'بدأ المسار التأهيليّ', 'at' => $candidate->applied_at]);
+            $steps->push(['key' => 'qualifying', 'label' => setting('volunteer.overview_panel.journey_1', 'بدأ المسار التأهيليّ'), 'at' => $candidate->applied_at]);
         }
 
         if ($candidate) {
@@ -178,7 +178,7 @@ final class OverviewPanel
                 ->orderBy('scheduled_at')->first();
 
             if ($interview) {
-                $steps->push(['key' => 'interview', 'label' => 'المقابلة', 'at' => $interview->scheduled_at]);
+                $steps->push(['key' => 'interview', 'label' => setting('volunteer.overview_panel.journey_2', 'المقابلة'), 'at' => $interview->scheduled_at]);
             }
         }
 
@@ -191,7 +191,7 @@ final class OverviewPanel
                 $steps->push([
                     'key' => $index === 0 ? 'placement' : 'position',
                     'label' => $index === 0
-                        ? 'التسكين — '.($m->position?->name_ar ?? '').($m->entity ? ' · '.$m->entity->name_ar : '')
+                        ? strtr(setting('volunteer.overview_panel.journey_3', 'التسكين — :p1:p2'), [':p1' => (string) (($m->position?->name_ar ?? '')), ':p2' => (string) (($m->entity ? ' · '.$m->entity->name_ar : ''))])
                         : ($m->position?->name_ar ?? '').($m->entity ? ' · '.$m->entity->name_ar : ''),
                     'at' => $m->started_at,
                 ]);

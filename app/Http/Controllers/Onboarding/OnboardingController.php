@@ -50,7 +50,7 @@ class OnboardingController extends Controller
     {
         $data = $request->validate([
             'code' => ['required', 'string', 'max:32'],
-        ], ['code.required' => 'اكتب كود صاحبك الأوّل، أو اتخطّى الخطوة.']);
+        ], ['code.required' => (string) setting('onboarding.flow.apply_referral_msg', 'اكتب كود صاحبك الأوّل، أو اتخطّى الخطوة.')]);
 
         $code = trim($data['code']);
 
@@ -97,7 +97,7 @@ class OnboardingController extends Controller
 
         $request->validate([
             'agreed' => ['accepted'],
-        ], ['agreed.accepted' => 'لازم توافق على التعليمات قبل ما تكمّل.']);
+        ], ['agreed.accepted' => (string) setting('onboarding.flow.agree_must', 'لازم توافق على التعليمات قبل ما تكمّل.')]);
 
         $request->user()->forceFill(['instructions_agreed_at' => now()])->save();
 

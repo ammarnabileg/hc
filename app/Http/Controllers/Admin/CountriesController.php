@@ -27,14 +27,14 @@ class CountriesController extends Controller
         $request->validate([
             'file' => ['required', 'file', 'mimetypes:application/json,text/plain', 'max:'.(int) setting('countries.import.max_kb', 8192)],
         ], [
-            'file.required' => 'اختر ملفّ النسخة الأوّل — من غيره مافيش حاجة نفحصها.',
-            'file.max' => 'الملفّ أكبر من الحدّ المسموح — اقسمه أو ارفع نسخة أصغر.',
+            'file.required' => (string) setting('countries.admin.import_empty', 'اختر ملفّ النسخة الأوّل — من غيره مافيش حاجة نفحصها.'),
+            'file.max' => (string) setting('countries.admin.import_msg', 'الملفّ أكبر من الحدّ المسموح — اقسمه أو ارفع نسخة أصغر.'),
         ]);
 
         $payload = json_decode((string) file_get_contents($request->file('file')->getRealPath()), true);
 
         if (! is_array($payload)) {
-            return $this->back('الملفّ مش JSON صالح — صدّر النسخة تاني من المصدر وارفعها.', error: true);
+            return $this->back((string) setting('countries.admin.import_denied', 'الملفّ مش JSON صالح — صدّر النسخة تاني من المصدر وارفعها.'), error: true);
         }
 
         try {
@@ -45,7 +45,7 @@ class CountriesController extends Controller
 
         $this->sync->check($snapshot);
 
-        return $this->back('اتحفظت النسخة واتفحصت ✓ — راجع الفروق قبل الدمج.');
+        return $this->back((string) setting('countries.admin.import_ok', 'اتحفظت النسخة واتفحصت ✓ — راجع الفروق قبل الدمج.'));
     }
 
     /** فحص التحديثات: يعيد حساب الفروق على آخر نسخة (24.3). */
@@ -54,12 +54,12 @@ class CountriesController extends Controller
         $snapshot = $this->sync->latest();
 
         if (! $snapshot) {
-            return $this->back('مافيش نسخة مرفوعة لسّه — ارفع نسخة المصدر الأوّل.', error: true);
+            return $this->back((string) setting('countries.admin.check_empty', 'مافيش نسخة مرفوعة لسّه — ارفع نسخة المصدر الأوّل.'), error: true);
         }
 
         $this->sync->check($snapshot);
 
-        return $this->back('اتفحصت الفروق ✓');
+        return $this->back((string) setting('countries.admin.check_ok', 'اتفحصت الفروق ✓'));
     }
 
     /**
@@ -98,10 +98,9 @@ class CountriesController extends Controller
             return $this->back($exception->getMessage(), error: true);
         }
 
-        $summary = 'مضاف '.$report['added'].' · معدَّل '.$report['updated'].' · مخفيّ '.$report['hidden']
-            .' · محميّ من الحذف '.count($report['protected']);
+        $summary = strtr((string) setting('countries.admin.merge_msg', 'مضاف :a1 · معدَّل :a2 · مخفيّ :a3 · محميّ من الحذف :a4'), [':a1' => (string) ($report['added']), ':a2' => (string) ($report['updated']), ':a3' => (string) ($report['hidden']), ':a4' => (string) (count($report['protected']))]);
 
-        return $this->back(($dryRun ? 'معاينة (بلا كتابة): ' : 'اتحفظ ✓ ').$summary)
+        return $this->back(($dryRun ? (string) setting('countries.admin.merge_msg_2', 'معاينة (بلا كتابة): ') : (string) setting('countries.admin.merge_ok', 'اتحفظ ✓ ')).$summary)
             ->with('countries_report', $report);
     }
 
@@ -120,7 +119,7 @@ class CountriesController extends Controller
             'sync_hidden_at' => ($data['is_active'] ?? false) ? null : $country->sync_hidden_at,
         ]);
 
-        return $this->back('اتحفظ ✓');
+        return $this->back((string) setting('countries.admin.update_country_ok', 'اتحفظ ✓'));
     }
 
     /**
@@ -133,7 +132,7 @@ class CountriesController extends Controller
 
         $governorate->update(['name_ar' => $data['name_ar']]);
 
-        return $this->back('اتحفظ ✓');
+        return $this->back((string) setting('countries.admin.update_governorate_ok', 'اتحفظ ✓'));
     }
 
     /** تصدير بيانات الدول بنفس شكل النسخة — فيصلح مدخلًا للفحص لاحقًا. */

@@ -32,12 +32,15 @@ class ShareCardRenderer
             $y += 82;
         }
 
+        // النصّ داخل الـheredoc تعبيرٌ مركَّب لا يقبل استدعاءً مباشرًا، فيُقرأ قبله (2.13)
+        $suffix = (string) setting('events.share_card_renderer.og_suffix', ' · فعاليّة');
+
         return <<<SVG
             <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" font-family="Cairo, sans-serif">
               <rect width="1200" height="630" fill="{$this->e($bg)}"/>
               <rect x="0" y="0" width="1200" height="10" fill="{$this->e($accent)}"/>
               <circle cx="90" cy="540" r="180" fill="{$this->e($accent)}" opacity="0.08"/>
-              <text x="1120" y="140" text-anchor="end" direction="rtl" font-size="34" font-weight="700" fill="{$this->e($accent)}">{$this->e((string) config('app.name'))} · فعاليّة</text>
+              <text x="1120" y="140" text-anchor="end" direction="rtl" font-size="34" font-weight="700" fill="{$this->e($accent)}">{$this->e((string) config('app.name'))}{$suffix}</text>
               <text x="1120" y="200" text-anchor="end" direction="rtl" font-size="30" fill="{$this->e($text)}" opacity="0.75">{$this->e($mode)} · {$this->e($when)}</text>
               {$lines}
               <text x="1120" y="560" text-anchor="end" direction="rtl" font-size="30" fill="{$this->e($text)}" opacity="0.7">{$this->e($where)}</text>
@@ -63,12 +66,13 @@ class ShareCardRenderer
         }
 
         $when = $event ? $this->presenter->localStart($event, $registration->user)->format('Y-m-d · H:i') : '';
+        $ticketLabel = (string) setting('events.share_card_renderer.ticket_label', 'تذكرة حضور');
 
         return <<<SVG
             <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" font-family="Cairo, sans-serif">
               <rect width="1200" height="630" fill="{$this->e($bg)}"/>
               <rect x="0" y="0" width="1200" height="10" fill="{$this->e($accent)}"/>
-              <text x="1120" y="130" text-anchor="end" direction="rtl" font-size="32" font-weight="700" fill="{$this->e($accent)}">تذكرة حضور</text>
+              <text x="1120" y="130" text-anchor="end" direction="rtl" font-size="32" font-weight="700" fill="{$this->e($accent)}">{$ticketLabel}</text>
               {$lines}
               <line x1="80" y1="400" x2="1120" y2="400" stroke="{$this->e($accent)}" stroke-opacity="0.35" stroke-dasharray="14 12"/>
               <text x="1120" y="360" text-anchor="end" direction="rtl" font-size="28" fill="{$this->e($text)}" opacity="0.7">{$this->e($when)}</text>

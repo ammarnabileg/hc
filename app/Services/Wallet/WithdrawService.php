@@ -104,25 +104,25 @@ class WithdrawService
     public function request(User $user, float $amount, string $method, string $account, ?string $accountName = null): WalletWithdrawal
     {
         if (! array_key_exists($method, self::METHODS)) {
-            throw new WalletException('اختر طريقة تحويل من القائمة: محفظة موبايل أو بنكيّ أو إنستا باي أو أخرى.');
+            throw new WalletException(setting('wallet.withdraw_service.request_1', 'اختر طريقة تحويل من القائمة: محفظة موبايل أو بنكيّ أو إنستا باي أو أخرى.'));
         }
 
         $quote = $this->quote($amount);
 
         if ($quote['amount'] < $this->minAmount()) {
             throw new WalletException(
-                'أقلّ سحب $'.$this->number($this->minAmount()).' — كمّل أرباحك شويّة وارجع لنا.'
+                strtr(setting('wallet.withdraw_service.request_2', 'أقلّ سحب $:p1 — كمّل أرباحك شويّة وارجع لنا.'), [':p1' => (string) ($this->number($this->minAmount()))])
             );
         }
 
         if ($quote['net'] <= 0) {
             throw new WalletException(
-                'الرسوم ($'.$this->number($quote['fee']).') بتاكل المبلغ كلّه — زوّد قيمة السحب.'
+                strtr(setting('wallet.withdraw_service.request_3', 'الرسوم ($:p1) بتاكل المبلغ كلّه — زوّد قيمة السحب.'), [':p1' => (string) ($this->number($quote['fee']))])
             );
         }
 
         if ($this->pendingFor($user)) {
-            throw new WalletException('عندك طلب سحب لسّه تحت المراجعة — استنّى نتيجته قبل ما تبعت طلبًا جديدًا.');
+            throw new WalletException(setting('wallet.withdraw_service.request_4', 'عندك طلب سحب لسّه تحت المراجعة — استنّى نتيجته قبل ما تبعت طلبًا جديدًا.'));
         }
 
         return DB::transaction(function () use ($user, $quote, $method, $account, $accountName) {
@@ -146,7 +146,7 @@ class WithdrawService
                 source: 'withdraw',
                 reference: $withdrawal,
                 layer: 'training',
-                reason: 'طلب سحب أرباح '.$withdrawal->number,
+                reason: strtr(setting('wallet.withdraw_service.request_5', 'طلب سحب أرباح :p1'), [':p1' => (string) ($withdrawal->number)]),
                 createdBy: $user->id,
             );
 
@@ -156,8 +156,8 @@ class WithdrawService
                 'user_id' => $user->id,
                 'layer' => 'platform',
                 'category' => 'wallet',
-                'title' => 'استلمنا طلب السحب',
-                'body' => 'طلبك رقم '.$withdrawal->number.' اتسجّل، وهنبلّغك بأيّ تغيير في حالته.',
+                'title' => setting('wallet.withdraw_service.request_6', 'استلمنا طلب السحب'),
+                'body' => strtr(setting('wallet.withdraw_service.request_7', 'طلبك رقم :p1 اتسجّل، وهنبلّغك بأيّ تغيير في حالته.'), [':p1' => (string) ($withdrawal->number)]),
                 'url' => route('wallet.withdrawals'),
                 'reference_type' => $withdrawal->getMorphClass(),
                 'reference_id' => $withdrawal->getKey(),

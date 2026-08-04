@@ -108,7 +108,7 @@ class RewardGrantService
         $reasons = setting('rewards.reasons', []);
         $reasonLabel = is_array($reasons) ? ($reasons[$reasonKey] ?? $reasonKey) : $reasonKey;
 
-        $reasonText = trim($reasonLabel.($reference ? ' · مرجع: '.$reference : '').($notes ? ' · '.$notes : ''));
+        $reasonText = trim($reasonLabel.($reference ? strtr(setting('rewards.reward_grant_service.execute_1', ' · مرجع: :p1'), [':p1' => (string) ($reference)]) : '').($notes ? ' · '.$notes : ''));
 
         $batchSize = max(1, (int) setting('rewards.batch_size', 500));
         $granted = 0;

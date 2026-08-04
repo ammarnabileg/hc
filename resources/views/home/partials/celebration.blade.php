@@ -43,7 +43,7 @@
                 @include('home.partials.icon', ['name' => 'crown', 'size' => 18])
             </span>
             <span>{{ $celebration['message'] }}</span>
-            <button type="button" data-home-celebration-close class="opacity-70 hover:opacity-100" aria-label="إغلاق">✕</button>
+            <button type="button" data-home-celebration-close class="opacity-70 hover:opacity-100" aria-label="{{ setting('home.celebration.aria_label_1', 'إغلاق') }}">✕</button>
         @endif
     </div>
 </div>

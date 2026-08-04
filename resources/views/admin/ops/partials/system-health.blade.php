@@ -2,16 +2,16 @@
 <div class="card p-4 mb-4 flex flex-wrap items-center justify-between gap-3">
     <div class="flex items-center gap-2">
         <x-state-badge :state="$overall"
-                       :label="match ($overall) { 'ok' => 'النظام سليم', 'warn' => 'محتاج نظرة', default => 'محتاج إجراء' }" />
+                       :label="match ($overall) { 'ok' => setting('admin.ops.partials.system_health.alnzam_slym', 'النظام سليم'), 'warn' => setting('admin.ops.partials.system_health.mhtaj_nzra', 'محتاج نظرة'), default => setting('admin.ops.partials.system_health.mhtaj_ijra', 'محتاج إجراء') }" />
         <span class="text-xs" style="color: var(--text-muted)">
-            {{ $lastCheck ? 'آخر فحص: ' . \Illuminate\Support\Carbon::parse($lastCheck)->diffForHumans() : 'لسه مافيش فحص مسجَّل' }}
+            {{ $lastCheck ? setting('admin.ops.partials.system_health.akhr_fhs', 'آخر فحص: ') . \Illuminate\Support\Carbon::parse($lastCheck)->diffForHumans() : setting('admin.ops.partials.system_health.lsh_mafysh_fhs_msjl', 'لسه مافيش فحص مسجَّل') }}
         </span>
     </div>
 
     @can('system_health.view')
         <form method="post" action="{{ route('admin.ops.system.health') }}">
             @csrf
-            <button class="rounded-xl px-4 py-2 text-sm" style="background: var(--surface-raised); min-height: 44px">تشغيل فحص صحّة</button>
+            <button class="rounded-xl px-4 py-2 text-sm" style="background: var(--surface-raised); min-height: 44px">{{ setting('admin.ops.partials.system_health.tshghyl_fhs_sha', 'تشغيل فحص صحّة') }}</button>
         </form>
     @endcan
 </div>
@@ -38,6 +38,6 @@
 </div>
 
 <p class="text-xs mt-4" style="color: var(--text-muted)">
-    العتبات كلّها من الإعدادات — عدّلها من
-    <a class="underline" href="{{ route('admin.settings.index', ['tab' => 'backups']) }}">تاب النسخ وصحّة النظام</a>.
+    {{ setting('admin.ops.partials.system_health.alatbat_klha_mn_aliadadat_adlha_mn', 'العتبات كلّها من الإعدادات — عدّلها من') }}
+    <a class="underline" href="{{ route('admin.settings.index', ['tab' => 'backups']) }}">{{ setting('admin.ops.partials.system_health.tab_alnskh_wsha_alnzam', 'تاب النسخ وصحّة النظام') }}</a>.
 </p>

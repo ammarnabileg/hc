@@ -13,8 +13,8 @@
 @endphp
 
 <svg width="{{ $size }}" height="{{ $size }}" viewBox="0 0 {{ $size }} {{ $size }}"
-     class="shrink-0" role="img" aria-label="مؤشّر صحّة القسم {{ $p }}٪">
-    <title>مؤشّر صحّة القسم {{ $p }}٪ — {{ $mark['label'] }}</title>
+     class="shrink-0" role="img" aria-label="{{ setting('volunteer.org_health_ring.aria', 'مؤشّر صحّة القسم') }} {{ $p }}٪">
+    <title>{{ setting('volunteer.org_health_ring.aria', 'مؤشّر صحّة القسم') }} {{ $p }}٪ — {{ $mark['label'] }}</title>
     <circle cx="{{ $size / 2 }}" cy="{{ $size / 2 }}" r="{{ round($r, 2) }}"
             fill="none" stroke="var(--surface-sunken)" stroke-width="{{ $stroke }}" />
     <circle cx="{{ $size / 2 }}" cy="{{ $size / 2 }}" r="{{ round($r, 2) }}"

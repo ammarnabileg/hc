@@ -91,7 +91,7 @@ class ImageStudioController extends Controller
 
         $template = ImageTemplate::create($data + ['created_by' => $request->user()->id]);
 
-        return redirect()->route('admin.studio.edit', $template)->with('status', 'القالب اتحفظ ✓');
+        return redirect()->route('admin.studio.edit', $template)->with('status', (string) setting('images.admin.store_ok', 'القالب اتحفظ ✓'));
     }
 
     public function update(Request $request, ImageTemplate $template): RedirectResponse
@@ -117,7 +117,7 @@ class ImageStudioController extends Controller
 
         $template->update($data);
 
-        return back()->with('status', 'التعديل اتحفظ ✓');
+        return back()->with('status', (string) setting('images.admin.update_ok', 'التعديل اتحفظ ✓'));
     }
 
     /** رفع طبقة أو إنزالها — والمقفولة لا تتحرّك */
@@ -132,17 +132,17 @@ class ImageStudioController extends Controller
             'layers' => $this->layers->move((array) $template->layers, (int) $data['index'], $data['direction']),
         ]);
 
-        return back()->with('status', 'ترتيب الطبقات اتغيّر ✓');
+        return back()->with('status', (string) setting('images.admin.move_layer_ok', 'ترتيب الطبقات اتغيّر ✓'));
     }
 
     public function duplicate(ImageTemplate $template): RedirectResponse
     {
         $copy = $template->replicate(['created_at', 'updated_at']);
-        $copy->name = $template->name.' — نسخة';
+        $copy->name = strtr((string) setting('images.admin.duplicate_msg', ':a1 — نسخة'), [':a1' => (string) ($template->name)]);
         $copy->is_archived = false;
         $copy->save();
 
-        return redirect()->route('admin.studio.edit', $copy)->with('status', 'اتعملت نسخة ✓');
+        return redirect()->route('admin.studio.edit', $copy)->with('status', (string) setting('images.admin.duplicate_ok', 'اتعملت نسخة ✓'));
     }
 
     /** ⭐ أرشفة لا حذف: القالب المستخدَم في نشرٍ قائم لا يُحذَف أبدًا */
@@ -150,7 +150,7 @@ class ImageStudioController extends Controller
     {
         $template->update(['is_archived' => true, 'is_active' => false]);
 
-        return back()->with('status', 'القالب اتأرشف — والمنشور القديم بيفضل شغّال.');
+        return back()->with('status', (string) setting('images.admin.archive_msg', 'القالب اتأرشف — والمنشور القديم بيفضل شغّال.'));
     }
 
     /** معاينة ببيانات مستخدم حقيقيّ — يختاره المصمّم ليرى الشكل النهائيّ فعلًا */
@@ -187,7 +187,7 @@ class ImageStudioController extends Controller
             return back()->withErrors(['segment' => $e->getMessage()]);
         }
 
-        return back()->with('status', 'الأرشيف جاهز: '.Storage::disk('public')->url($zip));
+        return back()->with('status', strtr((string) setting('images.admin.batch_msg', 'الأرشيف جاهز: :a1'), [':a1' => (string) (Storage::disk('public')->url($zip))]));
     }
 
     // ---------------------------------------------------------------- أدوات الاسم
@@ -202,14 +202,14 @@ class ImageStudioController extends Controller
 
         NameParticle::create($data + ['is_active' => true]);
 
-        return back()->with('status', 'الأداة اتضافت ✓');
+        return back()->with('status', (string) setting('images.admin.store_particle_ok', 'الأداة اتضافت ✓'));
     }
 
     public function deleteParticle(NameParticle $particle): RedirectResponse
     {
         $particle->delete();
 
-        return back()->with('status', 'الأداة اتشالت ✓');
+        return back()->with('status', (string) setting('images.admin.delete_particle_ok', 'الأداة اتشالت ✓'));
     }
 
     // ---------------------------------------------------------------- داخليّ

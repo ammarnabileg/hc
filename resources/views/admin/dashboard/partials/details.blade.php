@@ -15,7 +15,7 @@
         <div class="flex items-baseline justify-between gap-2 flex-wrap">
             <h3 class="font-bold text-sm">🔒 {{ $target['label'] }} — {{ $target['month'] }}</h3>
             <span class="text-xs" style="color: var(--text-muted)">
-                {{ number_format($target['achieved']) }} من {{ number_format($target['target']) }}
+                {{ number_format($target['achieved']) }} {{ setting('admin.dashboard.partials.details.mn', 'من') }} {{ number_format($target['target']) }}
                 ({{ $target['percent'] }}%)
             </span>
         </div>
@@ -40,17 +40,17 @@
 
     {{-- أبرز المؤثّرين: أعلى الدعوات (12.3-12) --}}
     <section class="card p-4 min-w-0">
-        <h3 class="font-bold text-sm">أبرز المؤثّرين</h3>
+        <h3 class="font-bold text-sm">{{ setting('admin.dashboard.partials.details.abrz_almwthryn', 'أبرز المؤثّرين') }}</h3>
 
         @if ($details['topReferrers']->isEmpty())
-            <p class="mt-4 text-sm" style="color: var(--text-muted)">لسّه بدري — أوّل دعوة مستنّياك.</p>
+            <p class="mt-4 text-sm" style="color: var(--text-muted)">{{ setting('admin.dashboard.partials.details.lsh_bdry_awl_dawa_mstnyak', 'لسّه بدري — أوّل دعوة مستنّياك.') }}</p>
         @else
             <ul class="mt-3 divide-y" style="border-color: var(--border)">
                 @foreach ($details['topReferrers'] as $row)
                     <li class="flex items-center gap-3 py-2" style="border-color: var(--border)">
                         <x-avatar :user="$row['user']" size="8" />
                         <span class="min-w-0 flex-1 truncate text-sm">{{ $row['user']->shortName() }}</span>
-                        <span class="text-xs" style="color: var(--text-muted)">{{ $row['invites'] }} دعوة</span>
+                        <span class="text-xs" style="color: var(--text-muted)">{{ $row['invites'] }} {{ setting('admin.dashboard.partials.details.dawa', 'دعوة') }}</span>
                     </li>
                 @endforeach
             </ul>
@@ -61,25 +61,25 @@
 <div class="mt-6 grid gap-4 lg:grid-cols-2">
     {{-- خريطة حراريّة جغرافيّة (12.3-13) — والحرارة **رقم ونسبة مكتوبان** لا لونًا وحده (2.16) --}}
     @include('admin.dashboard.components.heat-rows', [
-        'title' => 'الخريطة الحراريّة الجغرافيّة',
+        'title' => setting('admin.dashboard.partials.details.alkhryta_alhrarya_aljghrafya', 'الخريطة الحراريّة الجغرافيّة'),
         'rows' => $details['geo'],
-        'empty' => 'مافيش بيانات جغرافيّة لسّه — الدولة بتتسجّل مع الحساب.',
-        'unit' => 'مستخدم',
+        'empty' => setting('admin.dashboard.partials.details.mafysh_byanat_jghrafya_lsh_aldwla_bttsjl_ma', 'مافيش بيانات جغرافيّة لسّه — الدولة بتتسجّل مع الحساب.'),
+        'unit' => setting('admin.dashboard.partials.details.mstkhdm', 'مستخدم'),
     ])
 
     {{-- أكثر التدريبات تعثّرًا (12.3-15) --}}
     @include('admin.dashboard.components.heat-rows', [
-        'title' => 'أكثر التدريبات تعثّرًا (Drop-off)',
+        'title' => setting('admin.dashboard.partials.details.akthr_altdrybat_tathra_drop_off', 'أكثر التدريبات تعثّرًا (Drop-off)'),
         'rows' => $details['dropoff'],
-        'empty' => 'مافيش تعثّر مسجَّل — كلّ اللي سجّلوا خلّصوا.',
-        'unit' => 'متدرّب',
+        'empty' => setting('admin.dashboard.partials.details.mafysh_tathr_msjl_kl_ally_sjlwa_khlswa', 'مافيش تعثّر مسجَّل — كلّ اللي سجّلوا خلّصوا.'),
+        'unit' => setting('admin.dashboard.partials.details.mtdrb', 'متدرّب'),
     ])
 </div>
 
 <div class="mt-6 grid gap-4 lg:grid-cols-2">
     {{-- صحّة التلعيب (12.3-14) --}}
     <section class="card p-4 min-w-0">
-        <h3 class="font-bold text-sm">صحّة التلعيب</h3>
+        <h3 class="font-bold text-sm">{{ setting('admin.dashboard.partials.details.sha_altlayb', 'صحّة التلعيب') }}</h3>
 
         <ul class="mt-3 divide-y" style="border-color: var(--border)">
             @foreach ($details['gamification'] as $row)
@@ -94,16 +94,16 @@
 
     {{-- الحروب الجارية (12.3-11 — نبض المجتمع لحظيًّا) --}}
     <section class="card p-4 min-w-0">
-        <h3 class="font-bold text-sm">الحروب الجارية</h3>
+        <h3 class="font-bold text-sm">{{ setting('admin.dashboard.partials.details.alhrwb_aljarya', 'الحروب الجارية') }}</h3>
 
         @if ($details['wars'] === [])
-            <p class="mt-4 text-sm" style="color: var(--text-muted)">مافيش حرب شغّالة دلوقتي.</p>
+            <p class="mt-4 text-sm" style="color: var(--text-muted)">{{ setting('admin.dashboard.partials.details.mafysh_hrb_shghala_dlwqty', 'مافيش حرب شغّالة دلوقتي.') }}</p>
         @else
             <ul class="mt-3 divide-y" style="border-color: var(--border)">
                 @foreach ($details['wars'] as $row)
                     <li class="flex items-center justify-between gap-3 py-2" style="border-color: var(--border)">
                         <span class="min-w-0 flex-1 truncate text-sm">{{ $row['label'] }}</span>
-                        <span class="text-xs" style="color: var(--text-muted)">{{ number_format($row['value']) }} مشارك الآن</span>
+                        <span class="text-xs" style="color: var(--text-muted)">{{ number_format($row['value']) }} {{ setting('admin.dashboard.partials.details.mshark_alan', 'مشارك الآن') }}</span>
                     </li>
                 @endforeach
             </ul>
@@ -114,14 +114,14 @@
 {{-- 🔒 أعلى التدريبات/المنتجات مبيعًا (12.3-6) — ماليّ فلمالك المنصّة وحده --}}
 @if ($details['topSelling']->isNotEmpty())
     <section class="card p-4 mt-6 min-w-0">
-        <h3 class="font-bold text-sm">🔒 الأعلى مبيعًا</h3>
+        <h3 class="font-bold text-sm">{{ setting('admin.dashboard.partials.details.alaala_mbyaa', '🔒 الأعلى مبيعًا') }}</h3>
 
         <ul class="mt-3 divide-y" style="border-color: var(--border)">
             @foreach ($details['topSelling'] as $row)
                 <li class="flex items-center justify-between gap-3 py-2" style="border-color: var(--border)">
                     <span class="min-w-0 flex-1 truncate text-sm">{{ $row['label'] }}</span>
                     <span class="text-xs" style="color: var(--text-muted)">
-                        {{ number_format($row['count']) }} طلب · {{ number_format($row['value']) }}
+                        {{ number_format($row['count']) }} {{ setting('admin.dashboard.partials.details.tlb', 'طلب ·') }} {{ number_format($row['value']) }}
                     </span>
                 </li>
             @endforeach

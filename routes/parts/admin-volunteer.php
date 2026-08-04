@@ -142,7 +142,7 @@ Route::middleware(['auth', 'admin.panel'])->prefix('admin')->name('admin.')->gro
         /*
          | ⭐ **الباب بسعة تاباته** — نظير ما وقع في الإحصائيّات (12.2.1-أ).
          |
-         | الشاشة ثمانية تابات (`GamificationController::TABS`) منها **الستريكس
+         | الشاشة ثمانية تابات (`GamificationController::TAB_KEYS`) منها **الستريكس
          | ونادي الخامسة** و**الليدر بورد**، وقالب 12.2.3-أ-8 «مسؤول التلعيب
          | والتحديات» يغطّي بالنصّ: «… `badges · achievements · **leaderboards ·
          | streaks** · five_am_club · positive_messages · celebrations`».

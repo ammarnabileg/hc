@@ -26,15 +26,15 @@ class PrivacyFields
     public static function all(): array
     {
         return [
-            'phone' => 'رقم الموبايل',
-            'email' => 'البريد الإلكترونيّ',
-            'birthdate' => 'تاريخ الميلاد',
-            'gender' => 'النوع',
-            'country' => 'الدولة',
-            'emergency_contact' => 'جهة الطوارئ',
-            'certificates' => 'الشهادات',
-            'achievements' => 'الإنجازات',
-            'experience' => 'خبراتي (السيرة الذاتيّة)',
+            'phone' => setting('account.privacy_fields.all_1', 'رقم الموبايل'),
+            'email' => setting('account.privacy_fields.all_2', 'البريد الإلكترونيّ'),
+            'birthdate' => setting('account.privacy_fields.all_3', 'تاريخ الميلاد'),
+            'gender' => setting('account.privacy_fields.all_4', 'النوع'),
+            'country' => setting('account.privacy_fields.all_5', 'الدولة'),
+            'emergency_contact' => setting('account.privacy_fields.all_6', 'جهة الطوارئ'),
+            'certificates' => setting('account.privacy_fields.all_7', 'الشهادات'),
+            'achievements' => setting('account.privacy_fields.all_8', 'الإنجازات'),
+            'experience' => setting('account.privacy_fields.all_9', 'خبراتي (السيرة الذاتيّة)'),
         ];
     }
 
@@ -42,9 +42,9 @@ class PrivacyFields
     public static function visibilityLabels(): array
     {
         return [
-            'all_users' => 'كلّ المستخدمين',
-            'all_volunteers' => 'كلّ المتطوّعين',
-            'supervisors' => 'مشرفيني فقط',
+            'all_users' => setting('account.privacy_fields.visibility_labels_1', 'كلّ المستخدمين'),
+            'all_volunteers' => setting('account.privacy_fields.visibility_labels_2', 'كلّ المتطوّعين'),
+            'supervisors' => setting('account.privacy_fields.visibility_labels_3', 'مشرفيني فقط'),
         ];
     }
 

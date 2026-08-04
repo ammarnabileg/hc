@@ -92,7 +92,7 @@ class ReportScheduleController extends Controller
 
         AuditTrail::log($request->user(), 'report_schedules.create', $schedule, [], $data);
 
-        return back()->with('status', 'اتحفظت الجدولة ✓ — أوّل إرسال '.$schedule->next_run_at?->format('Y-m-d H:i'));
+        return back()->with('status', strtr((string) setting('report_schedules.admin.store_ok', 'اتحفظت الجدولة ✓ — أوّل إرسال :a1'), [':a1' => (string) ($schedule->next_run_at?->format('Y-m-d H:i'))]));
     }
 
     public function update(Request $request, ReportSchedule $schedule): RedirectResponse
@@ -107,7 +107,7 @@ class ReportScheduleController extends Controller
 
         AuditTrail::log($request->user(), 'report_schedules.edit', $schedule, $old, $data);
 
-        return back()->with('status', 'اتحفظ التعديل ✓');
+        return back()->with('status', (string) setting('report_schedules.admin.update_ok', 'اتحفظ التعديل ✓'));
     }
 
     public function toggle(Request $request, ReportSchedule $schedule): RedirectResponse
@@ -118,7 +118,7 @@ class ReportScheduleController extends Controller
 
         AuditTrail::log($request->user(), 'report_schedules.edit', $schedule, [], ['status' => $schedule->status]);
 
-        return back()->with('status', $schedule->isActive() ? 'اترجّعت للجدول ✓' : 'اتوقفت ✓');
+        return back()->with('status', $schedule->isActive() ? (string) setting('report_schedules.admin.toggle_ok', 'اترجّعت للجدول ✓') : (string) setting('report_schedules.admin.toggle_ok_2', 'اتوقفت ✓'));
     }
 
     /** «شغّل الآن» — نفس مسار المهمّة المجدولة تمامًا، فما تراه هو ما سيُرسَل */
@@ -141,7 +141,7 @@ class ReportScheduleController extends Controller
 
         $schedule->delete();
 
-        return back()->with('status', 'اتحذفت الجدولة ✓');
+        return back()->with('status', (string) setting('report_schedules.admin.destroy_ok', 'اتحذفت الجدولة ✓'));
     }
 
     public function saveSettings(Request $request): RedirectResponse
@@ -150,21 +150,21 @@ class ReportScheduleController extends Controller
 
         ScreenSettings::putMany(ScreenSettings::SCREEN_REPORTS, $data['settings'], $request->user());
 
-        return back()->with('status', 'اتحفظ ✓');
+        return back()->with('status', (string) setting('report_schedules.admin.save_settings_ok', 'اتحفظ ✓'));
     }
 
     public function resetSettings(Request $request): RedirectResponse
     {
         $count = ScreenSettings::resetScreen(ScreenSettings::SCREEN_REPORTS, $request->user());
 
-        return back()->with('status', 'رجعت '.$count.' قيمة للافتراضيّ ✓');
+        return back()->with('status', strtr((string) setting('report_schedules.admin.reset_settings_ok', 'رجعت :a1 قيمة للافتراضيّ ✓'), [':a1' => (string) ($count)]));
     }
 
     /** 🔒 حارس المجموعة المحميّة — يُنادى قبل أيّ فعل على جدولة ماليّة */
     private function guardFinancial(Request $request, string $tab): void
     {
         if ($this->scheduler->isFinancial($tab)) {
-            abort_unless((bool) $request->user()?->isPlatformOwner(), 403, 'التقرير ده ماليّ — لمالك المنصّة وحده.');
+            abort_unless((bool) $request->user()?->isPlatformOwner(), 403, (string) setting('report_schedules.admin.guard_financial_msg', 'التقرير ده ماليّ — لمالك المنصّة وحده.'));
         }
     }
 
@@ -189,14 +189,14 @@ class ReportScheduleController extends Controller
             'user_ids' => ['nullable', 'array'],
             'user_ids.*' => ['integer', 'exists:users,id'],
         ], [], [
-            'name' => 'اسم التقرير',
-            'report_tab' => 'التقرير المصدر',
-            'hour' => 'ساعة الإرسال',
-            'timezone' => 'المنطقة الزمنيّة',
+            'name' => (string) setting('report_schedules.admin.validated_msg', 'اسم التقرير'),
+            'report_tab' => (string) setting('report_schedules.admin.validated_msg_2', 'التقرير المصدر'),
+            'hour' => (string) setting('report_schedules.admin.validated_msg_3', 'ساعة الإرسال'),
+            'timezone' => (string) setting('report_schedules.admin.validated_msg_4', 'المنطقة الزمنيّة'),
         ]);
 
         $reports = $this->scheduler->reportsFor($request->user());
-        abort_unless(array_key_exists($data['report_tab'], $reports), 403, 'التقرير ده مش متاح ليك.');
+        abort_unless(array_key_exists($data['report_tab'], $reports), 403, (string) setting('report_schedules.admin.validated_denied', 'التقرير ده مش متاح ليك.'));
         abort_unless(array_key_exists($data['format'], $this->scheduler->formats()), 422);
         abort_unless(array_key_exists($data['frequency'], $this->scheduler->frequencies()), 422);
 

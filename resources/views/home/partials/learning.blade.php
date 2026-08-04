@@ -38,9 +38,9 @@
                         {{-- معاينة مجّانيّة قبل التسجيل (21.1-أ) — بعددها الصادق --}}
                         <span>
                             @if ((int) $course->free_preview_lessons > 0)
-                                أوّل {{ (int) $course->free_preview_lessons }} درس معاينة مجّانيّة
+                                {{ strtr((string) setting('home.learning.text_1', 'أوّل :a1 درس معاينة مجّانيّة'), [':a1' => (string) ((int) $course->free_preview_lessons)]) }}
                             @else
-                                {{ $course->is_free ? 'متاح مجّانًا' : 'تدريب مدفوع' }}
+                                {{ $course->is_free ? (string) setting('home.learning.expr_1', 'متاح مجّانًا') : (string) setting('home.learning.expr_2', 'تدريب مدفوع') }}
                             @endif
                         </span>
                     </div>

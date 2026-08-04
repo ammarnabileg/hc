@@ -25,11 +25,11 @@ class AudienceResolver
     public static function rules(): array
     {
         return [
-            'viewed_course_not_registered' => 'فتح صفحة تدريب ولم يسجّل خلال 7 أيّام',
-            'registered_no_first_lesson' => 'سجّل ولم يبدأ أوّل درس',
-            'checkout_not_completed' => 'فتح صفحة الشراء ولم يُتِمّه',
-            'completed_no_next_purchase' => 'أتمّ تدريبًا ولم يشترِ التالي',
-            'best_users' => 'أفضل المستخدمين (أكمل واشترى وعاد)',
+            'viewed_course_not_registered' => setting('ads.audience_resolver.rules_1', 'فتح صفحة تدريب ولم يسجّل خلال 7 أيّام'),
+            'registered_no_first_lesson' => setting('ads.audience_resolver.rules_2', 'سجّل ولم يبدأ أوّل درس'),
+            'checkout_not_completed' => setting('ads.audience_resolver.rules_3', 'فتح صفحة الشراء ولم يُتِمّه'),
+            'completed_no_next_purchase' => setting('ads.audience_resolver.rules_4', 'أتمّ تدريبًا ولم يشترِ التالي'),
+            'best_users' => setting('ads.audience_resolver.rules_5', 'أفضل المستخدمين (أكمل واشترى وعاد)'),
         ];
     }
 

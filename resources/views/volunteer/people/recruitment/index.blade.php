@@ -1,6 +1,6 @@
 @extends('layouts.volunteer')
 
-@section('title', 'المرشّحون')
+@section('title', setting('volunteer.people_recruitment.title', 'المرشّحون'))
 
 @php
     /**
@@ -13,17 +13,17 @@
 
 @section('content')
     <x-page-header
-        title="المرشّحون"
-        subtitle="{{ $total }} مرشّحًا في الرحلة دلوقتي"
-        :breadcrumbs="[['label' => 'لوحة التطوّع', 'url' => url('/volunteer')], ['label' => 'التوظيف'], ['label' => 'المرشّحون']]" />
+        :title="setting('volunteer.people_recruitment.title', 'المرشّحون')"
+        subtitle="{{ $total }} {{ setting('volunteer.people_recruitment.subtitle', 'مرشّحًا في الرحلة دلوقتي') }}"
+        :breadcrumbs="[['label' => setting('volunteer.common.breadcrumb_root', 'لوحة التطوّع'), 'url' => url('/volunteer')], ['label' => setting('volunteer.people_recruitment.label', 'التوظيف')], ['label' => setting('volunteer.people_recruitment.title', 'المرشّحون')]]" />
 
     {{-- ثلاثة فلاتر ظاهرة + بحث، والباقي مطويّ (2.15-أ-4) --}}
     <x-filters :action="route('volunteer.recruitment')">
         <label class="text-sm">
-            <span class="block text-xs mb-1" style="color: var(--text-muted)">المرحلة</span>
+            <span class="block text-xs mb-1" style="color: var(--text-muted)">{{ setting('volunteer.people_recruitment.field', 'المرحلة') }}</span>
             <select name="stage" onchange="this.form.submit()" class="rounded-xl px-3 py-2 text-sm"
                     style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
-                <option value="">الكلّ</option>
+                <option value="">{{ setting('volunteer.common.all', 'الكلّ') }}</option>
                 @foreach ($stages as $key => $label)
                     <option value="{{ $key }}" @selected($filters['stage'] === $key)>{{ $label }}</option>
                 @endforeach
@@ -31,10 +31,10 @@
         </label>
 
         <label class="text-sm">
-            <span class="block text-xs mb-1" style="color: var(--text-muted)">القسم المناسب</span>
+            <span class="block text-xs mb-1" style="color: var(--text-muted)">{{ setting('volunteer.people_recruitment.field_2', 'القسم المناسب') }}</span>
             <select name="entity" onchange="this.form.submit()" class="rounded-xl px-3 py-2 text-sm"
                     style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
-                <option value="">الكلّ</option>
+                <option value="">{{ setting('volunteer.common.all', 'الكلّ') }}</option>
                 @foreach ($tree as $root)
                     <optgroup label="{{ $root->name_ar }}">
                         <option value="{{ $root->id }}" @selected((int) $filters['entity'] === (int) $root->id)>{{ $root->name_ar }}</option>
@@ -47,8 +47,8 @@
         </label>
 
         <label class="text-sm flex-1 min-w-40">
-            <span class="block text-xs mb-1" style="color: var(--text-muted)">بحث</span>
-            <input type="search" name="q" value="{{ $filters['q'] }}" placeholder="الاسم أو الكود…"
+            <span class="block text-xs mb-1" style="color: var(--text-muted)">{{ setting('volunteer.common.search', 'بحث') }}</span>
+            <input type="search" name="q" value="{{ $filters['q'] }}" placeholder="{{ setting('volunteer.people_recruitment.placeholder', 'الاسم أو الكود…') }}"
                    class="w-full rounded-xl px-3 py-2 text-sm"
                    style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
         </label>
@@ -57,7 +57,7 @@
             {{-- ⭐ نطاق الدرجات: منزلق مدى **بلا بوردر** (قاعدة نظام التصميم) --}}
             <label class="text-sm flex-1 min-w-56">
                 <span class="block text-xs mb-1" style="color: var(--text-muted)">
-                    نطاق الدرجات <output data-range-out>{{ $filters['score_min'] ?? $scoreFloor }}–{{ $filters['score_max'] ?? $scoreCeiling }}</output>
+                    {{ setting('volunteer.people_recruitment.field_3', 'نطاق الدرجات') }} <output data-range-out>{{ $filters['score_min'] ?? $scoreFloor }}–{{ $filters['score_max'] ?? $scoreCeiling }}</output>
                 </span>
                 <div class="flex items-center gap-2">
                     <input type="range" name="score_min" data-range-min class="w-full" style="border: 0"
@@ -70,23 +70,23 @@
             </label>
 
             <label class="text-sm">
-                <span class="block text-xs mb-1" style="color: var(--text-muted)">مدّة الانتظار</span>
+                <span class="block text-xs mb-1" style="color: var(--text-muted)">{{ setting('volunteer.people_recruitment.field_4', 'مدّة الانتظار') }}</span>
                 <select name="waiting" class="rounded-xl px-3 py-2 text-sm"
                         style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
-                    <option value="">الكلّ</option>
-                    @foreach ([7 => 'أسبوع فأكثر', 30 => 'شهر فأكثر', 60 => 'شهرين فأكثر'] as $days => $label)
+                    <option value="">{{ setting('volunteer.common.all', 'الكلّ') }}</option>
+                    @foreach ([7 => setting('volunteer.people_recruitment.foreach', 'أسبوع فأكثر'), 30 => setting('volunteer.people_recruitment.foreach_2', 'شهر فأكثر'), 60 => setting('volunteer.people_recruitment.foreach_3', 'شهرين فأكثر')] as $days => $label)
                         <option value="{{ $days }}" @selected((string) $filters['waiting'] === (string) $days)>{{ $label }}</option>
                     @endforeach
                 </select>
             </label>
 
             <button type="submit" class="btn rounded-xl px-4 py-2 text-sm font-semibold"
-                    style="background: var(--color-brand-500); color: #04201c">طبّق</button>
+                    style="background: var(--color-brand-500); color: #04201c">{{ setting('volunteer.common.apply', 'طبّق') }}</button>
         </x-slot:advanced>
     </x-filters>
 
     @if ($total === 0)
-        <x-empty message="مفيش مرشّحين في المرحلة دي" action="شيل الفلاتر" :href="route('volunteer.recruitment')" />
+        <x-empty :message="setting('volunteer.people_recruitment.empty', 'مفيش مرشّحين في المرحلة دي')" :action="setting('volunteer.people_recruitment.action', 'شيل الفلاتر')" :href="route('volunteer.recruitment')" />
     @else
         {{-- الكانبان: أعمدة على الديسكتوب — وقائمة رأسيّة على الموبايل بلا تمرير أفقيّ --}}
         <div class="grid gap-4 md:grid-cols-5" data-board>
@@ -109,7 +109,7 @@
                                 'canMove' => $canMove,
                             ])
                         @empty
-                            <p class="text-xs py-3 text-center" style="color: var(--text-muted)">فاضي دلوقتي</p>
+                            <p class="text-xs py-3 text-center" style="color: var(--text-muted)">{{ setting('volunteer.people_recruitment.field_5', 'فاضي دلوقتي') }}</p>
                         @endforelse
                     </div>
                 </section>
@@ -118,41 +118,50 @@
     @endif
 
     {{-- تفاصيل المرشّح في بوب-أب — لا صفحة جديدة، فلا يفقد مكانه في اللوحة (2.15-أ-6) --}}
-    <x-modal id="candidate-modal" title="المرشّح">
+    <x-modal id="candidate-modal" :title="setting('volunteer.people_recruitment.tooltip', 'المرشّح')">
         <div data-candidate-body class="text-sm">
-            <p style="color: var(--text-muted)">بنحمّل التفاصيل…</p>
+            <p style="color: var(--text-muted)">{{ setting('volunteer.people_recruitment.field_6', 'بنحمّل التفاصيل…') }}</p>
         </div>
     </x-modal>
 
     {{-- سحب الكارت ⟵ تأكيد بسبب، والسبب يدخل سجلّ التدقيق (24.4-12) --}}
     @if ($canMove)
-        <x-modal id="move-modal" title="نقل المرشّح">
+        <x-modal id="move-modal" :title="setting('volunteer.people_recruitment.tooltip_2', 'نقل المرشّح')">
             <form method="post" data-move-form>
                 @csrf
                 <p class="text-sm mb-3" style="color: var(--text-muted)">
-                    بتنقل <strong data-move-name></strong> إلى <strong data-move-stage></strong>.
+                    {{ setting('volunteer.people_recruitment.field_7', 'بتنقل') }} <strong data-move-name></strong> {{ setting('volunteer.common.to', 'إلى') }} <strong data-move-stage></strong>.
                 </p>
                 <input type="hidden" name="stage" data-move-stage-input>
                 <label class="block text-sm">
-                    <span class="block text-xs mb-1" style="color: var(--text-muted)">سبب النقل (إلزاميّ)</span>
+                    <span class="block text-xs mb-1" style="color: var(--text-muted)">{{ setting('volunteer.people_recruitment.field_8', 'سبب النقل (إلزاميّ)') }}</span>
                     <textarea name="reason" rows="3" required minlength="3"
                               class="w-full rounded-xl px-3 py-2 text-sm"
                               style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)"
-                              placeholder="اكتب سببًا واضحًا يفيد اللي هيقرأ السجلّ بعدك"></textarea>
+                              placeholder="{{ setting('volunteer.people_recruitment.placeholder_2', 'اكتب سببًا واضحًا يفيد اللي هيقرأ السجلّ بعدك') }}"></textarea>
                 </label>
                 <div class="mt-4 flex gap-2">
                     <button type="submit" class="btn rounded-xl px-4 py-2 text-sm font-semibold"
-                            style="background: var(--color-brand-500); color: #04201c">أكّد النقل</button>
+                            style="background: var(--color-brand-500); color: #04201c">{{ setting('volunteer.people_recruitment.action_2', 'أكّد النقل') }}</button>
                     <button type="button" data-modal-close class="btn rounded-xl px-4 py-2 text-sm"
-                            style="background: var(--surface-sunken)">رجوع</button>
+                            style="background: var(--surface-sunken)">{{ setting('volunteer.people_recruitment.action_3', 'رجوع') }}</button>
                 </div>
             </form>
         </x-modal>
     @endif
 @endsection
 
+@php
+    /** نصوص السكربت — تُمرَّر بـ`@json` فلا يبقى حرفٌ عربيّ محروق داخله (2.13-أ) */
+    $jsText = [
+        'loading' => (string) setting('volunteer.people_recruitment.js_loading', 'بنحمّل التفاصيل…'),
+        'load_failed' => (string) setting('volunteer.people_recruitment.js_load_failed', 'تعذّر تحميل التفاصيل — جرّب تاني بعد شويّة.'),
+    ];
+@endphp
+
 @push('scripts')
 <script>
+const T = @json($jsText);
 (function () {
     // منزلق المدى: الحدّ الأدنى لا يتخطّى الأعلى — والقيمة تظهر لحظيًّا (2.17-ب)
     const min = document.querySelector('[data-range-min]');
@@ -205,7 +214,7 @@
     document.querySelectorAll('[data-detail-url]').forEach((btn) => {
         btn.addEventListener('click', () => {
             if (!detail || !detailBody) return;
-            detailBody.innerHTML = '<p style="color: var(--text-muted)">بنحمّل التفاصيل…</p>';
+            detailBody.innerHTML = '<p style="color: var(--text-muted)">' + T.loading + '</p>';
             detail.classList.remove('hidden');
             detail.classList.add('flex');
 
@@ -213,7 +222,7 @@
                 .then((r) => r.text())
                 .then((html) => { detailBody.innerHTML = html; })
                 .catch(() => {
-                    detailBody.innerHTML = '<p>تعذّر تحميل التفاصيل — جرّب تاني بعد شويّة.</p>';
+                    detailBody.innerHTML = '<p>' + T.load_failed + '</p>';
                 });
         });
     });

@@ -14,8 +14,8 @@
     $innerH = $h - $padTop - $padBottom;
 
     $series = [
-        ['key' => 'signups', 'label' => 'مسجّلون', 'color' => 'var(--color-brand-500)'],
-        ['key' => 'sales', 'label' => 'مبيعات', 'color' => 'var(--color-state-honor)'],
+        ['key' => 'signups', 'label' => setting('admin.dashboard.components.chart_lines.msjlwn', 'مسجّلون'), 'color' => 'var(--color-brand-500)'],
+        ['key' => 'sales', 'label' => setting('admin.dashboard.components.chart_lines.mbyaat', 'مبيعات'), 'color' => 'var(--color-state-honor)'],
     ];
 
     $max = 1;
@@ -32,7 +32,7 @@
 
 <section class="card p-4 min-w-0">
     <div class="flex items-baseline justify-between gap-2 flex-wrap">
-        <h3 class="font-bold text-sm">الحركة عبر الوقت</h3>
+        <h3 class="font-bold text-sm">{{ setting('admin.dashboard.components.chart_lines.alhrka_abr_alwqt', 'الحركة عبر الوقت') }}</h3>
         <div class="flex items-center gap-3 text-xs" style="color: var(--text-muted)">
             @foreach ($series as $line)
                 <span class="inline-flex items-center gap-1">
@@ -46,8 +46,8 @@
     {{-- الرسم داخل حاوية متمرّرة أفقيًّا فلا تمرير أفقيّ للصفحة (2.15-ج) --}}
     <div class="mt-3 min-w-0 overflow-x-auto no-scrollbar">
         <svg viewBox="0 0 {{ $w }} {{ $h }}" width="{{ $w }}" height="{{ $h }}" style="min-width: 100%"
-             role="img" aria-label="التسجيلات والمبيعات خلال المدى المختار">
-            <title>الحركة عبر الوقت</title>
+             role="img" aria-label="{{ setting('admin.dashboard.components.chart_lines.altsjylat_walmbyaat_khlal_almda_almkhtar', 'التسجيلات والمبيعات خلال المدى المختار') }}">
+            <title>{{ setting('admin.dashboard.components.chart_lines.alhrka_abr_alwqt', 'الحركة عبر الوقت') }}</title>
 
             @foreach ([0, 0.5, 1] as $ratio)
                 @php $gy = round($padTop + $innerH * $ratio, 2); @endphp

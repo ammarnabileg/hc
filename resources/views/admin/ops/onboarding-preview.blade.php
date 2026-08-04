@@ -1,18 +1,18 @@
 @extends('layouts.admin')
 
-@section('title', 'معاينة رحلة الترحيب')
+@section('title', setting('admin.ops.onboarding_preview.maayna_rhla_altrhyb', 'معاينة رحلة الترحيب'))
 
 @section('content')
-    <x-page-header title="معاينة كما يراها المستخدم"
+    <x-page-header :title="setting('admin.ops.onboarding_preview.maayna_kma_yraha_almstkhdm', 'معاينة كما يراها المستخدم')"
                    :subtitle="$journey['label']"
                    :breadcrumbs="[
-                       ['label' => 'لوحة الإدارة', 'url' => url('/admin')],
-                       ['label' => 'محتوى الـOnboarding', 'url' => route('admin.ops.onboarding')],
-                       ['label' => 'المعاينة'],
+                       ['label' => setting('admin.ops.onboarding_preview.lwha_alidara', 'لوحة الإدارة'), 'url' => url('/admin')],
+                       ['label' => setting('admin.ops.onboarding_preview.mhtwa_alonboarding', 'محتوى الـOnboarding'), 'url' => route('admin.ops.onboarding')],
+                       ['label' => setting('admin.ops.onboarding_preview.almaayna', 'المعاينة')],
                    ]">
         <x-slot:action>
             <a href="{{ route('admin.ops.onboarding', ['screen' => $screen]) }}"
-               class="rounded-xl px-4 py-2 text-sm" style="background: var(--surface-raised)">رجوع للتحرير</a>
+               class="rounded-xl px-4 py-2 text-sm" style="background: var(--surface-raised)">{{ setting('admin.ops.onboarding_preview.rjwa_llthryr', 'رجوع للتحرير') }}</a>
         </x-slot:action>
     </x-page-header>
 
@@ -28,14 +28,14 @@
 
     @unless ($journey['is_enabled'])
         <div class="card p-3 mb-4 text-sm flex items-center gap-2">
-            <x-state-badge state="warn" label="موقوفة" />
-            <span>الشاشة دي مش مفعّلة دلوقتي — المستخدم مش هيشوفها لحدّ ما تفعّلها.</span>
+            <x-state-badge state="warn" :label="setting('admin.ops.onboarding_preview.mwqwfa', 'موقوفة')" />
+            <span>{{ setting('admin.ops.onboarding_preview.alshasha_dy_msh_mfala_dlwqty_almstkhdm_msh', 'الشاشة دي مش مفعّلة دلوقتي — المستخدم مش هيشوفها لحدّ ما تفعّلها.') }}</span>
         </div>
     @endunless
 
     @if (empty($journey['stages']))
-        <x-empty message="مافيش مراحل مفعَّلة نعرضها — ضيف مرحلة الأوّل."
-                 action="رجوع للتحرير" :href="route('admin.ops.onboarding', ['screen' => $screen])" />
+        <x-empty :message="setting('admin.ops.onboarding_preview.mafysh_mrahl_mfala_nardha_dyf_mrhla_alawl', 'مافيش مراحل مفعَّلة نعرضها — ضيف مرحلة الأوّل.')"
+                 :action="setting('admin.ops.onboarding_preview.rjwa_llthryr', 'رجوع للتحرير')" :href="route('admin.ops.onboarding', ['screen' => $screen])" />
     @else
         {{-- ⭐ نفس البوب-أب بمراحله الذي سيراه المستخدم — لا رسمًا تقريبيًّا له (2.15-د) --}}
         <div class="card p-4 md:p-8" style="background: var(--surface-sunken)">
@@ -86,7 +86,19 @@
 @endsection
 
 @push('scripts')
+    @php
+        /*
+         | نصوص السكربت من الإعدادات (2.13-أ): لا حرفَ عربيّ داخل `<script>`،
+         | فالمحروق هناك لا يصل لوحةَ الإدارة ولا الترجمة.
+         */
+        $jsText = [
+            'next' => setting('admin.ops.onboarding_preview.altaly', 'التالي'),
+            'done' => setting('admin.ops.onboarding_preview.yla_nbda', 'يلا نبدأ'),
+        ];
+    @endphp
+
     <script>
+        const HC_TOUR_TEXT = @json($jsText);
         // المعاينة تتحرّك فعلًا: نفس تسلسل المراحل الذي سيمرّ به المستخدم
         (function () {
             const tour = document.querySelector('[data-tour]');
@@ -97,7 +109,7 @@
             const back = tour.querySelector('[data-tour-back]');
             const skip = tour.querySelector('[data-tour-skip]');
             const current = tour.querySelector('[data-current]');
-            const labels = @json(['next' => $journey['next_label'] ?? 'التالي', 'done' => $journey['done_label'] ?? 'يلا نبدأ']);
+            const labels = @json(['next' => $journey['next_label'] ?? $jsText['next'], 'done' => $journey['done_label'] ?? $jsText['done']]);
             let index = 0;
 
             const render = () => {

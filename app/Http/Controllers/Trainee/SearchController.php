@@ -38,7 +38,7 @@ class SearchController extends Controller
         $viewer = $request->user();
 
         // يراها كلّ مستخدم مفعَّل (24.5) — وغير المفعَّل لا يتصفّح الناس
-        abort_unless($viewer->isActive(), 403, 'الحساب لسّه تحت المراجعة.');
+        abort_unless($viewer->isActive(), 403, (string) setting('account.search_screen.payload_msg', 'الحساب لسّه تحت المراجعة.'));
 
         // ولا يفتحها إلّا مَن يملك مفتاحها المنصوص في المصفوفة (12.2.2)
         abort_unless($viewer->allows(UserSearch::PAGE_PERMISSION), 403);

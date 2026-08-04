@@ -13,10 +13,10 @@
     {{-- حسابات محتاجة موافقة + [عرض الكلّ] (12.3) --}}
     <section class="card p-4 min-w-0">
         <div class="flex items-baseline justify-between gap-2">
-            <h3 class="font-bold text-sm">حسابات محتاجة موافقة</h3>
+            <h3 class="font-bold text-sm">{{ setting('admin.dashboard.partials.overview.hsabat_mhtaja_mwafqa', 'حسابات محتاجة موافقة') }}</h3>
             @if ($pendingAccountsCount > 0 && auth()->user()->allows('user_approvals.list'))
                 <a href="{{ route('admin.users.approvals') }}" class="text-xs hover:underline"
-                   style="color: var(--color-brand-500)">عرض الكلّ ({{ $pendingAccountsCount }})</a>
+                   style="color: var(--color-brand-500)">{{ setting('admin.dashboard.partials.overview.ard_alkl', 'عرض الكلّ (') }}{{ $pendingAccountsCount }})</a>
             @endif
         </div>
 
@@ -42,7 +42,7 @@
 {{-- المهامّ المعلّقة: سحوبات وشكاوى — الأقدم أوّلًا وكلّ بند بزرّ [مراجعة] (12.3-16) --}}
 <section class="card p-4 mt-6">
     <div class="flex items-baseline justify-between gap-2 flex-wrap">
-        <h3 class="font-bold text-sm">مهامّ معلّقة</h3>
+        <h3 class="font-bold text-sm">{{ setting('admin.dashboard.partials.overview.mham_malqa', 'مهامّ معلّقة') }}</h3>
         <div class="flex items-center gap-2 text-xs" style="color: var(--text-muted)">
             @foreach ($pendingWorkCounts as $type => $count)
                 <span>{{ $type }}: {{ $count }}</span>
@@ -51,7 +51,7 @@
     </div>
 
     @if ($pendingWork->isEmpty())
-        <p class="mt-4 text-sm" style="color: var(--text-muted)">مفيش حاجة مستنّية — استريّح شويّة.</p>
+        <p class="mt-4 text-sm" style="color: var(--text-muted)">{{ setting('admin.dashboard.partials.overview.mfysh_haja_mstnya_astryh_shwya', 'مفيش حاجة مستنّية — استريّح شويّة.') }}</p>
     @else
         {{-- الجدول على الموبايل كروت رأسيّة بلا تمرير أفقيّ (2.15-ج) --}}
         <ul class="mt-3 space-y-2 md:space-y-0 md:divide-y" style="border-color: var(--border)">
@@ -65,7 +65,7 @@
                     <span class="inline-flex items-center gap-2 mt-2 md:mt-0">
                         <x-state-badge :state="$row['state']" :label="$row['at']?->diffForHumans()" />
                         @if ($row['url'])
-                            <a href="{{ $row['url'] }}" class="text-xs hover:underline" style="color: var(--color-brand-500)">مراجعة</a>
+                            <a href="{{ $row['url'] }}" class="text-xs hover:underline" style="color: var(--color-brand-500)">{{ setting('admin.dashboard.partials.overview.mrajaa', 'مراجعة') }}</a>
                         @endif
                     </span>
                 </li>
@@ -78,7 +78,7 @@
 @if ($canSeeActivity)
     <section class="card p-4 mt-6">
         <div class="flex items-baseline justify-between gap-2 flex-wrap">
-            <h3 class="font-bold text-sm">آخر النشاطات</h3>
+            <h3 class="font-bold text-sm">{{ setting('admin.dashboard.partials.overview.akhr_alnshatat', 'آخر النشاطات') }}</h3>
 
             {{-- ⭐ تصدير السجلّ (12.3-20) — بصلاحيّته المستقلّة، ويحمل نفس فلاتر الشاشة --}}
             @if ($canExportActivity)
@@ -104,8 +104,8 @@
 
                 <select name="actor" onchange="this.form.submit()" class="rounded-xl px-2 py-1 text-xs"
                         style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)"
-                        aria-label="فلتر الموظّف">
-                    <option value="">كلّ الموظّفين</option>
+                        aria-label="{{ setting('admin.dashboard.partials.overview.fltr_almwzf', 'فلتر الموظّف') }}">
+                    <option value="">{{ setting('admin.dashboard.partials.overview.kl_almwzfyn', 'كلّ الموظّفين') }}</option>
                     @foreach ($activityActors as $actor)
                         <option value="{{ $actor->id }}" @selected(request('actor') == $actor->id)>{{ $actor->name }}</option>
                     @endforeach
@@ -113,8 +113,8 @@
 
                 <select name="action" onchange="this.form.submit()" class="rounded-xl px-2 py-1 text-xs"
                         style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)"
-                        aria-label="فلتر النوع">
-                    <option value="">كلّ الأنواع</option>
+                        aria-label="{{ setting('admin.dashboard.partials.overview.fltr_alnwa', 'فلتر النوع') }}">
+                    <option value="">{{ setting('admin.dashboard.partials.overview.kl_alanwaa', 'كلّ الأنواع') }}</option>
                     @foreach (\App\Services\Admin\AuditTrail::ACTIONS as $key => $label)
                         <option value="{{ $key }}" @selected(request('action') === $key)>{{ $label }}</option>
                     @endforeach
@@ -126,7 +126,7 @@
             {{-- الحالة الفارغة سطر واحد + زرّ واحد: «غيّر الفترة» (2.15-د · 24.1) --}}
             <div class="mt-3">
                 <x-empty :message="setting('admin.dashboard.empty_message', 'مفيش بيانات في الفترة دي — وسّع المدى')"
-                         action="غيّر الفترة" :href="route('admin.dashboard')" />
+                         :action="setting('admin.dashboard.partials.overview.ghyr_alftra', 'غيّر الفترة')" :href="route('admin.dashboard')" />
             </div>
         @else
             <ul class="mt-3 divide-y" style="border-color: var(--border)">

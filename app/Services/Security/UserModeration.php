@@ -107,10 +107,10 @@ class UserModeration
         $reasons = setting('admin.moderation.reasons');
 
         return is_array($reasons) && $reasons !== [] ? array_values($reasons) : [
-            'إساءة لمستخدم تاني',
-            'محتوى مخالف',
-            'محاولة اختراق أو تلاعب',
-            'حساب مكرّر',
+            setting('security.user_moderation.reasons_1', 'إساءة لمستخدم تاني'),
+            setting('security.user_moderation.reasons_2', 'محتوى مخالف'),
+            setting('security.user_moderation.reasons_3', 'محاولة اختراق أو تلاعب'),
+            setting('security.user_moderation.reasons_4', 'حساب مكرّر'),
         ];
     }
 

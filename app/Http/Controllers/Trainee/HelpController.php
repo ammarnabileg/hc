@@ -69,8 +69,8 @@ class HelpController extends Controller
         $data = $request->validate([
             'helpful' => ['required', 'in:yes,no'],
         ], [
-            'helpful.required' => 'اختار «أيوه» أو «لأ».',
-            'helpful.in' => 'الاختيار ده مش متاح.',
+            'helpful.required' => (string) setting('help.screen.feedback_msg', 'اختار «أيوه» أو «لأ».'),
+            'helpful.in' => (string) setting('help.screen.feedback_denied', 'الاختيار ده مش متاح.'),
         ]);
 
         $voted = (array) $request->session()->get('help.voted', []);
@@ -82,7 +82,7 @@ class HelpController extends Controller
         }
 
         return back()->with('status', $data['helpful'] === 'yes'
-            ? 'شكرًا لك 💛 — رأيك بيساعدنا نحسّن الدليل.'
-            : 'تمام، هنشتغل على تحسين الشرح. ولو محتاج مساعدة دلوقتي افتح تذكرة.');
+            ? (string) setting('help.screen.feedback_msg_2', 'شكرًا لك 💛 — رأيك بيساعدنا نحسّن الدليل.')
+            : (string) setting('help.screen.feedback_msg_3', 'تمام، هنشتغل على تحسين الشرح. ولو محتاج مساعدة دلوقتي افتح تذكرة.'));
     }
 }

@@ -1,14 +1,14 @@
 @extends('layouts.admin')
 
-@section('title', $article->exists ? 'تعديل مقال' : 'مقال جديد')
+@section('title', $article->exists ? setting('admin.articles.edit.tadyl_mqal', 'تعديل مقال') : setting('admin.articles.edit.mqal_jdyd', 'مقال جديد'))
 
 @section('content')
-    <x-page-header :title="$article->exists ? $article->title : 'مقال جديد'"
-                   subtitle="اكتب، ابعت للمراجعة — وحدّ تاني بينشر."
+    <x-page-header :title="$article->exists ? $article->title : setting('admin.articles.edit.mqal_jdyd', 'مقال جديد')"
+                   :subtitle="setting('admin.articles.edit.aktb_abat_llmrajaa_whd_tany_bynshr', 'اكتب، ابعت للمراجعة — وحدّ تاني بينشر.')"
                    :breadcrumbs="[
-                       ['label' => 'لوحة الإدارة', 'url' => url('/admin')],
-                       ['label' => 'المقالات', 'url' => route('admin.articles.index')],
-                       ['label' => $article->exists ? 'تعديل' : 'جديد'],
+                       ['label' => setting('admin.articles.edit.lwha_alidara', 'لوحة الإدارة'), 'url' => url('/admin')],
+                       ['label' => setting('admin.articles.edit.almqalat', 'المقالات'), 'url' => route('admin.articles.index')],
+                       ['label' => $article->exists ? setting('admin.articles.edit.tadyl', 'تعديل') : setting('admin.articles.edit.jdyd', 'جديد')],
                    ]" />
 
     @if ($errors->any())
@@ -20,7 +20,7 @@
     @if ($article->exists && $article->review_notes)
         {{-- ملاحظات مراجعة مكتوبة يعدّل عليها الكاتب ويعيد الإرسال --}}
         <div class="card p-3 mb-4 text-sm" style="border: 1px solid var(--color-state-warn)">
-            <strong>ملاحظات المراجعة:</strong> {{ $article->review_notes }}
+            <strong>{{ setting('admin.articles.edit.mlahzat_almrajaa_2', 'ملاحظات المراجعة:') }}</strong> {{ $article->review_notes }}
         </div>
     @endif
 
@@ -31,14 +31,14 @@
             @csrf
             @if ($article->exists) @method('PUT') @endif
 
-            <x-form.input name="title" label="العنوان" :value="$article->title" required />
-            <x-form.input name="slug" label="الرابط (Slug)" :value="$article->slug" hint="فاضي = يتولّد من العنوان." />
+            <x-form.input name="title" :label="setting('admin.articles.edit.alanwan', 'العنوان')" :value="$article->title" required />
+            <x-form.input name="slug" :label="setting('admin.articles.edit.alrabt_slug', 'الرابط (Slug)')" :value="$article->slug" :hint="setting('admin.articles.edit.fady_ytwld_mn_alanwan', 'فاضي = يتولّد من العنوان.')" />
 
             <label class="block text-sm">
-                <span class="block mb-1">التصنيف</span>
+                <span class="block mb-1">{{ setting('admin.articles.edit.altsnyf', 'التصنيف') }}</span>
                 <select name="article_category_id" class="w-full rounded-xl px-3 py-2 text-sm"
                         style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
-                    <option value="">بلا تصنيف</option>
+                    <option value="">{{ setting('admin.articles.edit.bla_tsnyf', 'بلا تصنيف') }}</option>
                     @foreach ($categories as $category)
                         <option value="{{ $category->id }}" @selected($article->article_category_id == $category->id)>{{ $category->name_ar }}</option>
                     @endforeach
@@ -54,7 +54,7 @@
                 @foreach ($tagList as $tag)<option value="{{ $tag }}"></option>@endforeach
             </datalist>
 
-            <x-form.input name="cover_path" label="مسار صورة الغلاف" :value="$article->cover_path" />
+            <x-form.input name="cover_path" :label="setting('admin.articles.edit.msar_swra_alghlaf', 'مسار صورة الغلاف')" :value="$article->cover_path" />
 
             {{-- ⭐ «أيّ حقل رفع يفتح اختَر من المكتبة أو ارفع جديد» (12.4-هـ) — نفس البوب-أب --}}
             <div class="flex items-center gap-2">
@@ -67,46 +67,46 @@
             </div>
 
             <label class="block text-sm">
-                <span class="block mb-1">المقتطف</span>
+                <span class="block mb-1">{{ setting('admin.articles.edit.almqttf', 'المقتطف') }}</span>
                 <textarea name="excerpt" rows="2" class="w-full rounded-xl px-3 py-2 text-sm"
                           style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">{{ old('excerpt', $article->excerpt) }}</textarea>
             </label>
 
             <label class="block text-sm">
-                <span class="block mb-1">المحتوى</span>
+                <span class="block mb-1">{{ setting('admin.articles.edit.almhtwa', 'المحتوى') }}</span>
                 <textarea name="body" rows="12" class="w-full rounded-xl px-3 py-2 text-sm font-mono"
                           style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">{{ old('body', $article->body) }}</textarea>
             </label>
 
             <details>
-                <summary class="text-xs cursor-pointer" style="color: var(--text-muted)">بيانات SEO والربط</summary>
+                <summary class="text-xs cursor-pointer" style="color: var(--text-muted)">{{ setting('admin.articles.edit.byanat_seo_walrbt', 'بيانات SEO والربط') }}</summary>
                 <div class="mt-3 space-y-3">
-                    <x-form.input name="meta_title" label="عنوان الميتا" :value="$article->meta_title" />
-                    <x-form.input name="meta_description" label="وصف الميتا" :value="$article->meta_description" />
+                    <x-form.input name="meta_title" :label="setting('admin.articles.edit.anwan_almyta', 'عنوان الميتا')" :value="$article->meta_title" />
+                    <x-form.input name="meta_description" :label="setting('admin.articles.edit.wsf_almyta', 'وصف الميتا')" :value="$article->meta_description" />
                     <div class="grid grid-cols-2 gap-2">
-                        <x-form.input name="related_type" label="نوع العنصر المرتبط" :value="$article->related_type"
-                                      hint="مثال: App\Models\Course" />
-                        <x-form.input name="related_id" label="معرّفه" type="number" :value="$article->related_id" />
+                        <x-form.input name="related_type" :label="setting('admin.articles.edit.nwa_alansr_almrtbt', 'نوع العنصر المرتبط')" :value="$article->related_type"
+                                      :hint="setting('admin.articles.edit.mthal_app_models_course', 'مثال: App\\Models\\Course')" />
+                        <x-form.input name="related_id" :label="setting('admin.articles.edit.marfh', 'معرّفه')" type="number" :value="$article->related_id" />
                     </div>
                 </div>
             </details>
 
             <button class="btn rounded-xl px-4 py-2 text-sm font-semibold"
-                    style="background: var(--color-brand-500); color: #04201c">حفظ</button>
+                    style="background: var(--color-brand-500); color: #04201c">{{ setting('admin.articles.edit.hfz', 'حفظ') }}</button>
         </form>
 
         <div class="space-y-4">
             <div class="card p-4 space-y-2 text-sm">
-                <h2 class="font-bold">دورة النشر</h2>
+                <h2 class="font-bold">{{ setting('admin.articles.edit.dwra_alnshr', 'دورة النشر') }}</h2>
                 <x-state-badge :state="match ($article->status) { 'published' => 'ok', 'in_review' => 'warn', default => 'idle' }"
-                               :label="\App\Services\Admin\System\ArticleWorkflow::statuses()[$article->status] ?? 'مسودّة'" />
+                               :label="\App\Services\Admin\System\ArticleWorkflow::statuses()[$article->status] ?? setting('admin.articles.edit.mswda', 'مسودّة')" />
 
                 @if ($article->exists)
                     @if ($article->status === \App\Services\Admin\System\ArticleWorkflow::DRAFT)
                         @can('articles.edit')
                             <form method="post" action="{{ route('admin.articles.submit', $article) }}">
                                 @csrf
-                                <button class="w-full rounded-xl px-4 py-2 text-sm" style="background: var(--surface-raised)">ابعت للمراجعة</button>
+                                <button class="w-full rounded-xl px-4 py-2 text-sm" style="background: var(--surface-raised)">{{ setting('admin.articles.edit.abat_llmrajaa', 'ابعت للمراجعة') }}</button>
                             </form>
                         @endcan
                     @endif
@@ -115,10 +115,10 @@
                         @can('articles.review')
                             <form method="post" action="{{ route('admin.articles.review', $article) }}" class="space-y-2">
                                 @csrf
-                                <textarea name="notes" rows="3" required minlength="3" placeholder="ملاحظات المراجعة…"
+                                <textarea name="notes" rows="3" required minlength="3" placeholder="{{ setting('admin.articles.edit.mlahzat_almrajaa', 'ملاحظات المراجعة…') }}"
                                           class="w-full rounded-xl px-3 py-2 text-sm"
                                           style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)"></textarea>
-                                <button class="w-full rounded-xl px-4 py-2 text-sm" style="background: var(--surface-raised)">رجّعه بملاحظات</button>
+                                <button class="w-full rounded-xl px-4 py-2 text-sm" style="background: var(--surface-raised)">{{ setting('admin.articles.edit.rjah_bmlahzat', 'رجّعه بملاحظات') }}</button>
                             </form>
                         @endcan
 
@@ -126,12 +126,12 @@
                             <form method="post" action="{{ route('admin.articles.publish', $article) }}">
                                 @csrf
                                 <button class="btn w-full rounded-xl px-4 py-2 text-sm font-semibold"
-                                        style="background: var(--color-brand-500); color: #04201c">انشر المقال</button>
+                                        style="background: var(--color-brand-500); color: #04201c">{{ setting('admin.articles.edit.anshr_almqal', 'انشر المقال') }}</button>
                             </form>
                         @elseif ($workflow->isAuthor($article, auth()->user()))
                             {{-- ⭐ الكاتب لا ينشر مقاله بنفسه — والقاعدة مُتحقَّقة في الخادم كذلك --}}
                             <p class="text-xs" style="color: var(--text-muted)">
-                                إنت كاتب المقال ده — لازم حدّ تاني يراجعه وينشره.
+                                {{ setting('admin.articles.edit.int_katb_almqal_dh_lazm_hd_tany_yrajah', 'إنت كاتب المقال ده — لازم حدّ تاني يراجعه وينشره.') }}
                             </p>
                         @endif
                     @endif
@@ -140,7 +140,7 @@
                         @if ($article->status !== \App\Services\Admin\System\ArticleWorkflow::ARCHIVED)
                             <form method="post" action="{{ route('admin.articles.archive', $article) }}">
                                 @csrf
-                                <button class="w-full rounded-xl px-4 py-2 text-sm" style="background: var(--surface-raised)">أرشفة (مش حذف)</button>
+                                <button class="w-full rounded-xl px-4 py-2 text-sm" style="background: var(--surface-raised)">{{ setting('admin.articles.edit.arshfa_msh_hdhf', 'أرشفة (مش حذف)') }}</button>
                             </form>
                         @endif
                     @endcan
@@ -148,8 +148,8 @@
             </div>
 
             <div class="card p-4 text-xs" style="color: var(--text-muted)">
-                <p>الأرشفة بديل الحذف دائمًا — فالرابط المنشور ما يتحوّلش 404 فجأة.</p>
-                <p class="mt-1">كلّ تغيير حالة بيتسجّل في سجلّ التدقيق.</p>
+                <p>{{ setting('admin.articles.edit.alarshfa_bdyl_alhdhf_dayma_falrabt_almnshwr', 'الأرشفة بديل الحذف دائمًا — فالرابط المنشور ما يتحوّلش 404 فجأة.') }}</p>
+                <p class="mt-1">{{ setting('admin.articles.edit.kl_tghyyr_hala_bytsjl_fy_sjl_altdqyq', 'كلّ تغيير حالة بيتسجّل في سجلّ التدقيق.') }}</p>
             </div>
         </div>
     </div>

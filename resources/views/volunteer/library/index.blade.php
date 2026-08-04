@@ -1,6 +1,6 @@
 @extends('layouts.volunteer')
 
-@section('title', 'المكتبة الداخليّة')
+@section('title', setting('volunteer.library.title', 'المكتبة الداخليّة'))
 
 @php
     /**
@@ -13,13 +13,13 @@
 
 @section('content')
     <x-page-header
-        title="المكتبة الداخليّة"
-        :subtitle="$items->count().' مُدخَلًا — الفهرسة آليّة لحظة الاعتماد'"
-        :breadcrumbs="[['label' => 'لوحة التطوّع', 'url' => url('/volunteer')], ['label' => 'المكتبة الداخليّة']]">
+        :title="setting('volunteer.library.title', 'المكتبة الداخليّة')"
+        :subtitle="$items->count().setting('volunteer.library.subtitle', ' مُدخَلًا — الفهرسة آليّة لحظة الاعتماد')"
+        :breadcrumbs="[['label' => setting('volunteer.common.breadcrumb_root', 'لوحة التطوّع'), 'url' => url('/volunteer')], ['label' => setting('volunteer.library.title', 'المكتبة الداخليّة')]]">
         <x-slot:action>
             <a href="{{ route('volunteer.library', array_filter($filters + ['view' => $view === 'grid' ? 'list' : 'grid'])) }}"
                class="btn inline-flex items-center rounded-xl px-4 py-2 text-sm" style="background: var(--surface-sunken)">
-                {{ $view === 'grid' ? 'عرض قائمة' : 'عرض شبكة' }}
+                {{ $view === 'grid' ? setting('volunteer.library.text', 'عرض قائمة') : setting('volunteer.library.text_2', 'عرض شبكة') }}
             </a>
         </x-slot:action>
     </x-page-header>
@@ -29,17 +29,17 @@
 
         {{-- بحث نصّيّ بارز — وهو بطل الشاشة --}}
         <label class="text-sm flex-1 min-w-56 order-first">
-            <span class="block text-xs mb-1" style="color: var(--text-muted)">ابحث داخل المحتوى</span>
-            <input type="search" name="q" value="{{ $filters['q'] }}" placeholder="كلمة داخل المستند نفسه…"
+            <span class="block text-xs mb-1" style="color: var(--text-muted)">{{ setting('volunteer.library.field', 'ابحث داخل المحتوى') }}</span>
+            <input type="search" name="q" value="{{ $filters['q'] }}" placeholder="{{ setting('volunteer.library.placeholder', 'كلمة داخل المستند نفسه…') }}"
                    class="w-full rounded-xl px-3 py-2 text-sm"
                    style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
         </label>
 
         <label class="text-sm">
-            <span class="block text-xs mb-1" style="color: var(--text-muted)">النوع</span>
+            <span class="block text-xs mb-1" style="color: var(--text-muted)">{{ setting('volunteer.common.type', 'النوع') }}</span>
             <select name="type" onchange="this.form.submit()" class="rounded-xl px-3 py-2 text-sm"
                     style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
-                <option value="">الكلّ</option>
+                <option value="">{{ setting('volunteer.common.all', 'الكلّ') }}</option>
                 @foreach ($types as $key => $label)
                     <option value="{{ $key }}" @selected($filters['type'] === $key)>{{ $label }}</option>
                 @endforeach
@@ -48,15 +48,15 @@
 
         <label class="flex items-center gap-2 text-sm">
             <input type="checkbox" name="mine" value="1" @checked((bool) $filters['owner']) onchange="this.form.submit()">
-            مخرجاتي
+            {{ setting('volunteer.library.field_2', 'مخرجاتي') }}
         </label>
 
         <x-slot:advanced>
             <label class="text-sm">
-                <span class="block text-xs mb-1" style="color: var(--text-muted)">الكيان</span>
+                <span class="block text-xs mb-1" style="color: var(--text-muted)">{{ setting('volunteer.common.entity', 'الكيان') }}</span>
                 <select name="entity" class="rounded-xl px-3 py-2 text-sm"
                         style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
-                    <option value="">الكلّ</option>
+                    <option value="">{{ setting('volunteer.common.all', 'الكلّ') }}</option>
                     @foreach ($entities as $entity)
                         <option value="{{ $entity->id }}" @selected((int) $filters['entity'] === (int) $entity->id)>{{ $entity->name_ar }}</option>
                     @endforeach
@@ -64,10 +64,10 @@
             </label>
 
             <label class="text-sm">
-                <span class="block text-xs mb-1" style="color: var(--text-muted)">المسار</span>
+                <span class="block text-xs mb-1" style="color: var(--text-muted)">{{ setting('volunteer.library.field_3', 'المسار') }}</span>
                 <select name="track" class="rounded-xl px-3 py-2 text-sm"
                         style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
-                    <option value="">الكلّ</option>
+                    <option value="">{{ setting('volunteer.common.all', 'الكلّ') }}</option>
                     @foreach ($tracks as $track)
                         <option value="{{ $track->id }}" @selected((int) $filters['track'] === (int) $track->id)>{{ $track->name_ar }}</option>
                     @endforeach
@@ -75,10 +75,10 @@
             </label>
 
             <label class="text-sm">
-                <span class="block text-xs mb-1" style="color: var(--text-muted)">مستوى الوصول</span>
+                <span class="block text-xs mb-1" style="color: var(--text-muted)">{{ setting('volunteer.common.access_level', 'مستوى الوصول') }}</span>
                 <select name="access" class="rounded-xl px-3 py-2 text-sm"
                         style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
-                    <option value="">الكلّ</option>
+                    <option value="">{{ setting('volunteer.common.all', 'الكلّ') }}</option>
                     @foreach ($accessLevels as $key => $label)
                         <option value="{{ $key }}" @selected($filters['access'] === $key)>{{ $label }}</option>
                     @endforeach
@@ -86,10 +86,10 @@
             </label>
 
             <label class="text-sm">
-                <span class="block text-xs mb-1" style="color: var(--text-muted)">وسم</span>
+                <span class="block text-xs mb-1" style="color: var(--text-muted)">{{ setting('volunteer.library.field_4', 'وسم') }}</span>
                 <select name="tag" class="rounded-xl px-3 py-2 text-sm"
                         style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
-                    <option value="">الكلّ</option>
+                    <option value="">{{ setting('volunteer.common.all', 'الكلّ') }}</option>
                     @foreach ($tags as $tag)
                         <option value="{{ $tag }}" @selected($filters['tag'] === $tag)>{{ $tag }}</option>
                     @endforeach
@@ -97,24 +97,24 @@
             </label>
 
             <label class="text-sm">
-                <span class="block text-xs mb-1" style="color: var(--text-muted)">من</span>
+                <span class="block text-xs mb-1" style="color: var(--text-muted)">{{ setting('volunteer.common.from', 'من') }}</span>
                 <input type="date" name="from" value="{{ $filters['from'] }}" class="rounded-xl px-3 py-2 text-sm"
                        style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
             </label>
 
             <label class="text-sm">
-                <span class="block text-xs mb-1" style="color: var(--text-muted)">إلى</span>
+                <span class="block text-xs mb-1" style="color: var(--text-muted)">{{ setting('volunteer.common.to', 'إلى') }}</span>
                 <input type="date" name="to" value="{{ $filters['to'] }}" class="rounded-xl px-3 py-2 text-sm"
                        style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
             </label>
 
             <button type="submit" class="btn rounded-xl px-4 py-2 text-sm font-semibold"
-                    style="background: var(--color-brand-500); color: #04201c">طبّق</button>
+                    style="background: var(--color-brand-500); color: #04201c">{{ setting('volunteer.common.apply', 'طبّق') }}</button>
         </x-slot:advanced>
     </x-filters>
 
     @if ($items->isEmpty())
-        <x-empty message="المكتبة لسّه بتتكوّن — أوّل مخرج معتمَد هيظهر هنا تلقائيًّا" />
+        <x-empty :message="setting('volunteer.library.empty', 'المكتبة لسّه بتتكوّن — أوّل مخرج معتمَد هيظهر هنا تلقائيًّا')" />
     @else
         <div class="{{ $view === 'grid' ? 'grid gap-4 md:grid-cols-3' : 'space-y-3' }}">
             @foreach ($items as $item)
@@ -123,7 +123,7 @@
                         <h2 class="font-bold text-sm">{{ $item->title }}</h2>
                         @if ($item->locked)
                             {{-- المقيَّد يظهر بعنوانه وقفله — لا يُخفى (23-3.3) --}}
-                            <span class="text-xs shrink-0" style="color: var(--text-muted)" title="خارج نطاقك"><x-icon name="lock" size="16" /></span>
+                            <span class="text-xs shrink-0" style="color: var(--text-muted)" title="{{ setting('volunteer.library.tooltip', 'خارج نطاقك') }}"><x-icon name="lock" size="16" /></span>
                         @endif
                     </div>
 
@@ -152,22 +152,22 @@
                     <div class="mt-3 flex flex-wrap gap-2">
                         @if ($item->locked)
                             @if (in_array((int) $item->id, $pending, true))
-                                <x-state-badge state="warn" label="طلبك بانتظار قرار الدايركتور" />
+                                <x-state-badge state="warn" :label="setting('volunteer.library.label', 'طلبك بانتظار قرار الدايركتور')" />
                             @else
                                 <form method="post" action="{{ route('volunteer.library.request-access', $item) }}" class="flex gap-2">
                                     @csrf
-                                    <input type="text" name="reason" placeholder="سبب (اختياريّ)" class="rounded-xl px-3 py-2 text-xs"
+                                    <input type="text" name="reason" placeholder="{{ setting('volunteer.library.placeholder_2', 'سبب (اختياريّ)') }}" class="rounded-xl px-3 py-2 text-xs"
                                            style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
                                     <button type="submit" class="btn rounded-xl px-3 py-2 text-sm font-semibold"
-                                            style="background: var(--color-brand-500); color: #04201c">اطلب وصولًا</button>
+                                            style="background: var(--color-brand-500); color: #04201c">{{ setting('volunteer.library.action', 'اطلب وصولًا') }}</button>
                                 </form>
                             @endif
                         @else
                             <a href="{{ route('volunteer.library.show', $item) }}"
                                class="btn rounded-xl px-3 py-2 text-sm font-semibold"
-                               style="background: var(--color-brand-500); color: #04201c">افتح</a>
+                               style="background: var(--color-brand-500); color: #04201c">{{ setting('volunteer.library.link', 'افتح') }}</a>
                             @if ($item->task_id)
-                                <span class="text-xs self-center" style="color: var(--text-muted)">المهمّة المصدر #{{ $item->task_id }}</span>
+                                <span class="text-xs self-center" style="color: var(--text-muted)">{{ setting('volunteer.library.field_5', 'المهمّة المصدر #') }}{{ $item->task_id }}</span>
                             @endif
                         @endif
                     </div>

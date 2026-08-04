@@ -35,7 +35,7 @@
                         </span>
                         <div class="min-w-0">
                             <div class="font-bold text-xs truncate">{{ $tier['label'] }}</div>
-                            <div class="text-xs" style="color: var(--text-muted)">{{ $tier['threshold'] }} دعوة مفعّلة</div>
+                            <div class="text-xs" style="color: var(--text-muted)">{{ $tier['threshold'] }} {{ setting('ambassadors.page.text_1', 'دعوة مفعّلة') }}</div>
                         </div>
                     </div>
                 @endforeach
@@ -70,7 +70,7 @@
 
             @if ($nextTier)
                 <p class="mt-3 text-xs" style="color: var(--text-muted)">
-                    باقي {{ $nextTier['remaining'] }} دعوة مفعّلة على لقب «{{ $nextTier['label'] }}».
+                    {{ strtr((string) setting('ambassadors.page.text_2', 'باقي :a1 دعوة مفعّلة على لقب «:a2».'), [':a1' => (string) ($nextTier['remaining']), ':a2' => (string) ($nextTier['label'])]) }}
                 </p>
             @endif
 

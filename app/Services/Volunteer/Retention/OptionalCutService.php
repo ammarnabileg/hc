@@ -155,9 +155,9 @@ class OptionalCutService
         $until = $cut?->deprived_until ? Carbon::parse($cut->deprived_until)->format('Y-m-d') : null;
 
         throw ValidationException::withMessages([
-            'entity_id' => 'العضويّات الاختياريّة (المحافظات والملفات) مقفولة مؤقّتًا لهذا المتطوّع بعد بلوغه عتبة '
-                .number_format($this->threshold(), 2).' — وتُفتَح مع التصفير الشهريّ'
-                .($until ? ' يوم '.$until : '').'، وقسمه شغّال زيّ ما هو.',
+            'entity_id' => setting('volunteer_offboarding.optional_cut_service.assert_may_join_1', 'العضويّات الاختياريّة (المحافظات والملفات) مقفولة مؤقّتًا لهذا المتطوّع بعد بلوغه عتبة ')
+                .number_format($this->threshold(), 2).setting('volunteer_offboarding.optional_cut_service.assert_may_join_2', ' — وتُفتَح مع التصفير الشهريّ')
+                .($until ? strtr(setting('volunteer_offboarding.optional_cut_service.assert_may_join_3', ' يوم :p1'), [':p1' => (string) ($until)]) : '').setting('volunteer_offboarding.optional_cut_service.assert_may_join_4', '، وقسمه شغّال زيّ ما هو.'),
         ]);
     }
 
@@ -364,7 +364,7 @@ class OptionalCutService
         $count = 0;
 
         foreach ($tasks as $task) {
-            if ($this->noDelivery->miss($task, 'انتهت عضويّته الاختياريّة عند عتبة البتر — المهمّة تدور على مالك جديد', deduct: false)) {
+            if ($this->noDelivery->miss($task, setting('volunteer_offboarding.optional_cut_service.hand_over_tasks_1', 'انتهت عضويّته الاختياريّة عند عتبة البتر — المهمّة تدور على مالك جديد'), deduct: false)) {
                 $count++;
             }
         }
@@ -397,7 +397,7 @@ class OptionalCutService
                     $held,
                     'contribution.hold_released',
                     $contribution,
-                    'تحرير الرصيد المعلَّق بعد سحب المساهمة عند بتر الاختياريّ',
+                    setting('volunteer_offboarding.optional_cut_service.withdraw_contributions_1', 'تحرير الرصيد المعلَّق بعد سحب المساهمة عند بتر الاختياريّ'),
                     $owner->id,
                 );
             }
@@ -417,15 +417,12 @@ class OptionalCutService
     {
         // العنوان يقول ما حدث فعلًا — فمن لا عضويّة اختياريّة عنده لم يُقفَل له شيء
         $title = $ended > 0
-            ? 'اتقفلت عضويّاتك في المحافظات والملفات مؤقّتًا'
-            : 'درجة الالتزام وصلت عتبة تخفيف الحمل';
+            ? setting('volunteer_offboarding.optional_cut_service.announce_1', 'اتقفلت عضويّاتك في المحافظات والملفات مؤقّتًا')
+            : setting('volunteer_offboarding.optional_cut_service.announce_2', 'درجة الالتزام وصلت عتبة تخفيف الحمل');
 
         $body = $ended > 0
-            ? 'درجة الالتزام وصلت '.number_format($displayed, 2).'، فاتقفلت عضويّاتك الاختياريّة ('
-                .$ended.') عشان نخفّف الحمل. قسمك وحسابك شغّالين زيّ ما هما، ومهامّك هناك راحت لأبلايناتها '
-                .'بلا أيّ خصم جديد عليك، ونقاط الإنتاج كلّها باقية. الانضمام لمحافظة أو ملفّ يرجع مع التصفير الشهريّ.'
-            : 'درجة الالتزام وصلت '.number_format($displayed, 2).' — وما عندكش عضويّات اختياريّة تتقفل، فالعتبة عدّت بلا أثر. '
-                .'قسمك وحسابك شغّالين، والانضمام لمحافظة أو ملفّ يرجع مع التصفير الشهريّ.';
+            ? strtr(setting('volunteer_offboarding.optional_cut_service.announce_3', 'درجة الالتزام وصلت :p1، فاتقفلت عضويّاتك الاختياريّة (:p2) عشان نخفّف الحمل. قسمك وحسابك شغّالين زيّ ما هما، ومهامّك هناك راحت لأبلايناتها بلا أيّ خصم جديد عليك، ونقاط الإنتاج كلّها باقية. الانضمام لمحافظة أو ملفّ يرجع مع التصفير الشهريّ.'), [':p1' => (string) (number_format($displayed, 2)), ':p2' => (string) ($ended)])
+            : strtr(setting('volunteer_offboarding.optional_cut_service.announce_4', 'درجة الالتزام وصلت :p1 — وما عندكش عضويّات اختياريّة تتقفل، فالعتبة عدّت بلا أثر. قسمك وحسابك شغّالين، والانضمام لمحافظة أو ملفّ يرجع مع التصفير الشهريّ.'), [':p1' => (string) (number_format($displayed, 2))]);
 
         Notifier::send($user, 'account', $title, $body, null, 'volunteer');
     }

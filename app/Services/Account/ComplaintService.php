@@ -67,14 +67,14 @@ class ComplaintService
     public static function defaultReasons(): array
     {
         return [
-            'أحد المشرفين',
-            'الهيكل الإداريّ وأسلوب الإدارة',
-            'اللقاءات المباشرة',
-            'اللوائح والقوانين',
-            'المحتوى التدريبيّ',
-            'خدمة العملاء',
-            'المنصّة',
-            'أخرى',
+            setting('account.complaint_service.default_reasons_1', 'أحد المشرفين'),
+            setting('account.complaint_service.default_reasons_2', 'الهيكل الإداريّ وأسلوب الإدارة'),
+            setting('account.complaint_service.default_reasons_3', 'اللقاءات المباشرة'),
+            setting('account.complaint_service.default_reasons_4', 'اللوائح والقوانين'),
+            setting('account.complaint_service.default_reasons_5', 'المحتوى التدريبيّ'),
+            setting('account.complaint_service.default_reasons_6', 'خدمة العملاء'),
+            setting('account.complaint_service.default_reasons_7', 'المنصّة'),
+            setting('account.complaint_service.default_reasons_8', 'أخرى'),
         ];
     }
 

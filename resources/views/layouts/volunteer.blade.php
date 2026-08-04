@@ -8,7 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>@yield('title', 'لوحة التطوّع')</title>
+    <title>@yield('title', (string) setting('ux.layout_volunteer.yield_1', 'لوحة التطوّع'))</title>
     <meta name="robots" content="noindex">
 
     {{-- الخطوط محلّيّة داخل حزمة Vite — **بلا أيّ نداء خارجيّ** (2.10.1-2) --}}

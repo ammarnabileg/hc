@@ -1,6 +1,13 @@
+@php
+    /** نصوص السكربت — من الإعدادات لا محروقةً في الجافاسكربت (2.13-أ) */
+    $hcWords = array_merge($hcWords ?? [], [
+        'announcements.index.js_1' => (string) setting('announcements.index.js_1', 'افتح الرابط'),
+    ]);
+@endphp
+
 @extends('layouts.app')
 
-@section('title', 'التعليمات')
+@section('title', (string) setting('announcements.index.section_1', 'التعليمات'))
 
 @php
     /**
@@ -14,14 +21,14 @@
         'announcements.acknowledge.notice',
         'توجيه حرج — لازم تقرّ بقراءته قبل ما تكمّل تصفّح المنصّة.',
     );
-    $subtitle = $unread > 0 ? 'عندك '.$unread.' منشور لسّه ما اتقروش' : 'كلّ التعليمات مقروءة — تمام ✓';
+    $subtitle = $unread > 0 ? strtr((string) setting('announcements.index.php_1', 'عندك :a1 منشور لسّه ما اتقروش'), [':a1' => (string) ($unread)]) : (string) setting('announcements.index.php_2', 'كلّ التعليمات مقروءة — تمام ✓');
 @endphp
 
 @section('content')
     <x-page-header
-        title="التعليمات"
+        title="{{ setting('announcements.index.title_1', 'التعليمات') }}"
         :subtitle="$subtitle"
-        :breadcrumbs="[['label' => 'الرئيسيّة', 'url' => route('dashboard')], ['label' => 'التعليمات']]">
+        :breadcrumbs="[['label' => (string) setting('announcements.index.breadcrumbs_1', 'الرئيسيّة'), 'url' => route('dashboard')], ['label' => (string) setting('announcements.index.breadcrumbs_2', 'التعليمات')]]">
         <x-slot:action>
             @if ($unread > 0)
                 <form method="post" action="{{ route('announcements.read-all') }}" data-ajax-form>
@@ -29,7 +36,7 @@
                     <button type="submit"
                             class="btn inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
                             style="background: var(--color-brand-500); color: #04201c">
-                        تعليم الكلّ كمقروء
+                        {{ setting('announcements.index.text_1', 'تعليم الكلّ كمقروء') }}
                         <span class="rounded-full px-2 text-xs" style="background: rgb(0 0 0 / .15)">{{ $unread }}</span>
                     </button>
                 </form>
@@ -42,15 +49,15 @@
         <label class="flex items-center gap-2 text-sm">
             <input type="checkbox" name="unread" value="1" @checked($filters['unread'])
                    onchange="this.form.submit()" style="accent-color: var(--color-brand-500)">
-            غير المقروء
+            {{ setting('announcements.index.text_2', 'غير المقروء') }}
         </label>
 
         <label class="text-sm">
-            <span class="block text-xs mb-1" style="color: var(--text-muted)">النوع</span>
+            <span class="block text-xs mb-1" style="color: var(--text-muted)">{{ setting('announcements.index.text_3', 'النوع') }}</span>
             <select name="type" onchange="this.form.submit()"
                     class="rounded-xl px-3 py-2 text-sm"
                     style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
-                <option value="">الكلّ</option>
+                <option value="">{{ setting('announcements.index.text_4', 'الكلّ') }}</option>
                 @foreach ($types as $key => $label)
                     <option value="{{ $key }}" @selected($filters['type'] === $key)>{{ $label }}</option>
                 @endforeach
@@ -58,15 +65,15 @@
         </label>
 
         <label class="text-sm flex-1 min-w-40">
-            <span class="block text-xs mb-1" style="color: var(--text-muted)">بحث</span>
-            <input type="search" name="q" value="{{ $filters['q'] }}" placeholder="ابحث بالعنوان…"
+            <span class="block text-xs mb-1" style="color: var(--text-muted)">{{ setting('announcements.index.text_5', 'بحث') }}</span>
+            <input type="search" name="q" value="{{ $filters['q'] }}" placeholder="{{ setting('announcements.index.placeholder_1', 'ابحث بالعنوان…') }}"
                    class="w-full rounded-xl px-3 py-2 text-sm"
                    style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
         </label>
     </x-filters>
 
     @if ($items->isEmpty())
-        <x-empty :message="$emptyMessage" action="الرجوع للرئيسيّة" :href="route('dashboard')" />
+        <x-empty :message="$emptyMessage" action="{{ setting('announcements.index.action_1', 'الرجوع للرئيسيّة') }}" :href="route('dashboard')" />
     @else
         <div class="space-y-4">
             @foreach ($items as $announcement)
@@ -87,7 +94,7 @@
                 <a class="btn inline-flex items-center justify-center rounded-xl px-4 py-2 text-sm motion-standard"
                    style="background: var(--surface-raised); border: 1px solid var(--border)"
                    href="{{ route('announcements.index', array_filter($filters) + ['more' => $nextMore]) }}">
-                    عرض المزيد ({{ $total - $items->count() }})
+                    {{ strtr((string) setting('announcements.index.text_6', 'عرض المزيد (:a1)'), [':a1' => (string) ($total - $items->count())]) }}
                 </a>
             </div>
         @endif
@@ -115,7 +122,7 @@
                     @if ($pendingAck->cta_url)
                         <a href="{{ $pendingAck->cta_url }}" target="_blank" rel="noopener"
                            class="btn inline-flex items-center rounded-xl px-4 py-2 text-sm mt-4 motion-standard"
-                           style="background: var(--surface-sunken)">{{ $pendingAck->cta_label ?: 'افتح الرابط' }}</a>
+                           style="background: var(--surface-sunken)">{{ $pendingAck->cta_label ?: (string) setting('announcements.index.expr_1', 'افتح الرابط') }}</a>
                     @endif
                 </div>
                 <div class="modal-head px-5 py-4" style="border-top: 1px solid var(--border)">
@@ -131,7 +138,7 @@
     @endif
 
     {{-- تفاصيل المنشور: بانل/بوب-أب لا صفحة جديدة (2.15-أ-6) — Bottom Sheet على الموبايل --}}
-    <x-modal id="announcement-sheet" title="تفاصيل المنشور">
+    <x-modal id="announcement-sheet" title="{{ setting('announcements.index.title_2', 'تفاصيل المنشور') }}">
         <h3 class="font-bold mb-2" data-sheet-title></h3>
         <p class="text-sm leading-7 whitespace-pre-line" data-sheet-body></p>
         <a href="#" target="_blank" rel="noopener" data-sheet-cta
@@ -145,7 +152,7 @@
         <form method="post" action="{{ route('announcements.read-all') }}">
             @csrf
             <button type="submit" class="btn w-full rounded-xl px-4 py-3 text-sm font-bold motion-standard"
-                    style="background: var(--color-brand-500); color: #04201c">تعليم الكلّ كمقروء ({{ $unread }})</button>
+                    style="background: var(--color-brand-500); color: #04201c">{{ strtr((string) setting('announcements.index.text_7', 'تعليم الكلّ كمقروء (:a1)'), [':a1' => (string) ($unread)]) }}</button>
         </form>
     @endif
 @endsection
@@ -181,7 +188,7 @@
                 const cta = sheet.querySelector('[data-sheet-cta]');
                 if (btn.dataset.ctaUrl) {
                     cta.href = btn.dataset.ctaUrl;
-                    cta.textContent = btn.dataset.ctaLabel || 'افتح الرابط';
+                    cta.textContent = btn.dataset.ctaLabel || @json($hcWords['announcements.index.js_1']);
                     cta.classList.remove('hidden');
                     cta.classList.add('inline-flex');
                 } else {

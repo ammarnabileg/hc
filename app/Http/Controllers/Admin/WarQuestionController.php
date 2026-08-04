@@ -80,7 +80,7 @@ class WarQuestionController extends Controller
 
         $this->bank->save($question, $data, $request->user());
 
-        return back()->with('status', 'اتحفظ ✓');
+        return back()->with('status', (string) setting('wars.questions_admin.save_ok', 'اتحفظ ✓'));
     }
 
     public function destroy(Request $request, WarQuestion $warQuestion): RedirectResponse
@@ -88,7 +88,7 @@ class WarQuestionController extends Controller
         AuditTrail::log($request->user(), 'wars_bank.delete', $warQuestion, $warQuestion->only(['text']), []);
         $warQuestion->delete();
 
-        return back()->with('status', 'اتحذف السؤال ✓');
+        return back()->with('status', (string) setting('wars.questions_admin.destroy_ok', 'اتحذف السؤال ✓'));
     }
 
     public function bulk(Request $request): RedirectResponse
@@ -100,7 +100,7 @@ class WarQuestionController extends Controller
 
         $count = $this->bank->bulk($data['ids'], $data['action'], $request->user());
 
-        return back()->with('status', "اتنفّذ الإجراء على {$count} سؤال ✓");
+        return back()->with('status', strtr((string) setting('wars.questions_admin.bulk_ok', 'اتنفّذ الإجراء على :count سؤال ✓'), [':count' => (string) $count]));
     }
 
     /** كشف الإجابة مؤقّتًا — ويُسجَّل في Audit لأنّه استثناء على القفل (24.2) */
@@ -131,8 +131,8 @@ class WarQuestionController extends Controller
         $result = $this->bank->import($contents, $request->user());
 
         return back()->with('status', $result['errors']
-            ? $result['errors'][0].' — لم يُضَف شيء.'
-            : "اتضاف {$result['imported']} سؤال ✓");
+            ? strtr((string) setting('wars.questions_admin.import_msg', ':a1 — لم يُضَف شيء.'), [':a1' => (string) ($result['errors'][0])])
+            : strtr((string) setting('wars.questions_admin.import_ok', 'اتضاف :count سؤال ✓'), [':count' => (string) $result['imported']]));
     }
 
     public function export(Request $request): StreamedResponse

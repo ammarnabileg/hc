@@ -1,5 +1,5 @@
 @extends('layouts.guest')
-@section('title', 'حسابك تحت المراجعة')
+@section('title', (string) setting('auth.pending.section_1', 'حسابك تحت المراجعة'))
 
 @section('content')
 <div class="card p-8 w-full max-w-md text-center">
@@ -13,7 +13,7 @@
         </svg>
     </div>
 
-    <h1 class="text-xl font-extrabold mb-2">حسابك تحت المراجعة</h1>
+    <h1 class="text-xl font-extrabold mb-2">{{ setting('auth.pending.text_1', 'حسابك تحت المراجعة') }}</h1>
 
     {{-- 2.5-د-3: الأدمن يقدر يضيف فيها **كود HTML** من لوحة الإدارة (2.13) --}}
     <div class="text-sm mb-5" style="color: var(--text-muted)">
@@ -26,7 +26,7 @@
 
     <form method="post" action="{{ route('logout') }}">
         @csrf
-        <button class="text-sm" style="color: var(--color-brand-500); min-height: 44px">تسجيل الخروج</button>
+        <button class="text-sm" style="color: var(--color-brand-500); min-height: 44px">{{ setting('auth.pending.text_2', 'تسجيل الخروج') }}</button>
     </form>
 </div>
 @endsection

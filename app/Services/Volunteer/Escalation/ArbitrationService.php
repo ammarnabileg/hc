@@ -87,7 +87,7 @@ class ArbitrationService
     public function skipReason(Arbitration $arbitration): ?string
     {
         return $arbitration->conflict_of_interest_skipped
-            ? 'اتخطّى مستوى أقرب لأنّ بينه وبين أحد الطرفين علاقة أبلاين/داونلاين — تنازع مصالح.'
+            ? setting('volunteer.arbitration_service.skip_reason_1', 'اتخطّى مستوى أقرب لأنّ بينه وبين أحد الطرفين علاقة أبلاين/داونلاين — تنازع مصالح.')
             : null;
     }
 
@@ -118,17 +118,17 @@ class ArbitrationService
         $phone = (string) ($party?->phone ?? '');
 
         if ($phone === '') {
-            return ['value' => '—', 'masked' => true, 'hint' => 'لا رقم مسجَّل'];
+            return ['value' => '—', 'masked' => true, 'hint' => setting('volunteer.arbitration_service.contact_for_1', 'لا رقم مسجَّل')];
         }
 
         if ($viewer && $party && $this->chain->relatedByLine($viewer, $party)) {
-            return ['value' => $phone, 'masked' => false, 'hint' => 'ظاهر لأنّ بينكما علاقة أبلاين/داونلاين'];
+            return ['value' => $phone, 'masked' => false, 'hint' => setting('volunteer.arbitration_service.contact_for_2', 'ظاهر لأنّ بينكما علاقة أبلاين/داونلاين')];
         }
 
         return [
             'value' => $this->mask($phone),
             'masked' => true,
-            'hint' => 'التواصل بلا كشف الرقم — الرسائل تمرّ من داخل المنصّة',
+            'hint' => setting('volunteer.arbitration_service.contact_for_3', 'التواصل بلا كشف الرقم — الرسائل تمرّ من داخل المنصّة'),
         ];
     }
 
@@ -151,7 +151,7 @@ class ArbitrationService
     {
         if ($arbitration->status !== 'open') {
             throw ValidationException::withMessages([
-                'body' => 'الرسائل مقفولة على هذه القضيّة — القرار على مكتب المحكّم.',
+                'body' => setting('volunteer.arbitration_service.message_1', 'الرسائل مقفولة على هذه القضيّة — القرار على مكتب المحكّم.'),
             ]);
         }
 
@@ -166,7 +166,7 @@ class ArbitrationService
     /** قفل الرسائل — للمحكّم الذي على مكتبه القضيّة الآن وحده */
     public function lockMessages(Arbitration $arbitration, User $arbiter): void
     {
-        abort_unless((int) $arbitration->arbiter_id === (int) $arbiter->id, 403, 'قفل الرسائل للمحكّم الحاليّ وحده.');
+        abort_unless((int) $arbitration->arbiter_id === (int) $arbiter->id, 403, setting('volunteer.arbitration_service.lock_messages_1', 'قفل الرسائل للمحكّم الحاليّ وحده.'));
 
         $arbitration->forceFill(['status' => 'messages_locked'])->save();
     }
@@ -183,10 +183,10 @@ class ArbitrationService
         [$owner, $contributor] = $this->amountsFor($arbitration, $type, $ownerAmount, $contributorAmount);
 
         $summary = match ($type) {
-            'shelved' => 'حفظ القضيّة — لا شيء يتمّ، ولا يمسّ Rep أحدًا.',
-            'split' => 'قيمة وسط: '.$owner.' VXP للمالك · '.$contributor.' VXP للمساهم.',
-            'deduct' => 'خصم: '.$owner.' VXP للمالك · '.$contributor.' VXP للمساهم.',
-            default => 'منح: '.$owner.' VXP للمالك · '.$contributor.' VXP للمساهم.',
+            'shelved' => setting('volunteer.arbitration_service.preview_1', 'حفظ القضيّة — لا شيء يتمّ، ولا يمسّ Rep أحدًا.'),
+            'split' => strtr(setting('volunteer.arbitration_service.preview_2', 'قيمة وسط: :p1 VXP للمالك · :p2 VXP للمساهم.'), [':p1' => (string) ($owner), ':p2' => (string) ($contributor)]),
+            'deduct' => strtr(setting('volunteer.arbitration_service.preview_3', 'خصم: :p1 VXP للمالك · :p2 VXP للمساهم.'), [':p1' => (string) ($owner), ':p2' => (string) ($contributor)]),
+            default => strtr(setting('volunteer.arbitration_service.preview_4', 'منح: :p1 VXP للمالك · :p2 VXP للمساهم.'), [':p1' => (string) ($owner), ':p2' => (string) ($contributor)]),
         };
 
         return ['owner' => $owner, 'contributor' => $contributor, 'summary' => $summary];
@@ -207,8 +207,8 @@ class ArbitrationService
         // مبرّر إجباريّ في كلّ الحالات — إلّا التسوية الآليّة فمبرّرها النصّ نفسه
         if ($justification === '') {
             $justification = ! empty($extra['auto'])
-                ? 'تسوية آليّة بفوات نافذة السقف: 50% للطرفين.'
-                : throw ValidationException::withMessages(['decision_justification' => 'المبرّر إجباريّ في كلّ الحالات.']);
+                ? setting('volunteer.arbitration_service.apply_decision_1', 'تسوية آليّة بفوات نافذة السقف: 50% للطرفين.')
+                : throw ValidationException::withMessages(['decision_justification' => setting('volunteer.arbitration_service.apply_decision_2', 'المبرّر إجباريّ في كلّ الحالات.')]);
         }
 
         [$ownerAmount, $contributorAmount] = $this->amountsFor(
@@ -247,7 +247,7 @@ class ArbitrationService
             FlowNotifier::send(
                 $party,
                 'arbitration',
-                'صدر قرار التحكيم — نهائيّ ولا يُعاد',
+                setting('volunteer.arbitration_service.apply_decision_3', 'صدر قرار التحكيم — نهائيّ ولا يُعاد'),
                 $justification,
                 route('volunteer.arbitrations'),
                 about: $arbitration,
@@ -273,7 +273,7 @@ class ArbitrationService
             return;
         }
 
-        FlowLedger::rep($arbiter, rep_rule('task.slowdown'), 'arbitration.slowdown', $arbitration, 'فوات نافذة التحكيم');
+        FlowLedger::rep($arbiter, rep_rule('task.slowdown'), 'arbitration.slowdown', $arbitration, setting('volunteer.arbitration_service.apply_arbiter_slowdown_1', 'فوات نافذة التحكيم'));
     }
 
     // ------------------------------------------------------------------ داخليّ
@@ -296,8 +296,8 @@ class ArbitrationService
 
         // خصم VXP لا يقع إلّا بقرار محكّم موثَّق — ولا خصم آليّ إطلاقًا (23 القسم 5)
         $amount > 0
-            ? FlowLedger::creditVxp($user, $amount, 'arbitration.award', $arbitration, 'قرار تحكيم', $arbiter?->id)
-            : FlowLedger::debitVxp($user, abs($amount), 'arbitration.deduct', $arbitration, 'قرار تحكيم', $arbiter?->id ?? $user->id);
+            ? FlowLedger::creditVxp($user, $amount, 'arbitration.award', $arbitration, setting('volunteer.arbitration_service.settle_1', 'قرار تحكيم'), $arbiter?->id)
+            : FlowLedger::debitVxp($user, abs($amount), 'arbitration.deduct', $arbitration, setting('volunteer.arbitration_service.settle_2', 'قرار تحكيم'), $arbiter?->id ?? $user->id);
     }
 
     public function contributorOf(Arbitration $arbitration): ?User

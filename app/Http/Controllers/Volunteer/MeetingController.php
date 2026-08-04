@@ -177,9 +177,9 @@ class MeetingController extends Controller
             'attachments' => ['nullable', 'array'],
             'attachments.*' => ['file', 'max:8192'],
         ], [], [
-            'title' => 'العنوان',
-            'scheduled_at' => 'الموعد',
-            'audience' => 'الجمهور',
+            'title' => (string) setting('meetings.screen.store_msg', 'العنوان'),
+            'scheduled_at' => (string) setting('meetings.screen.store_msg_2', 'الموعد'),
+            'audience' => (string) setting('meetings.screen.store_msg_3', 'الجمهور'),
         ]);
 
         // «الكلّ» لا يفتحه إلّا مَن يملك نطاقًا واسعًا — وإلّا فكيان عضويّته
@@ -217,13 +217,13 @@ class MeetingController extends Controller
             $this->ledger->notify(
                 User::find($id),
                 'meeting',
-                'اجتماع جديد: '.$meeting->title,
-                'الموعد '.$meeting->scheduled_at->format('Y-m-d H:i').' — هنفكّرك قبلها بـ'.$hours.' ساعة.',
+                strtr((string) setting('meetings.screen.store_msg_4', 'اجتماع جديد: :a1'), [':a1' => (string) ($meeting->title)]),
+                strtr((string) setting('meetings.screen.store_msg_5', 'الموعد :a1 — هنفكّرك قبلها بـ:a2 ساعة.'), [':a1' => (string) ($meeting->scheduled_at->format('Y-m-d H:i')), ':a2' => (string) ($hours)]),
                 route('volunteer.meetings.show', $meeting),
             );
         }
 
-        return back()->with('status', 'اتعمل الاجتماع ✓ وابعتنا إشعارًا لجمهوره.');
+        return back()->with('status', (string) setting('meetings.screen.store_ok', 'اتعمل الاجتماع ✓ وابعتنا إشعارًا لجمهوره.'));
     }
 
     /** إنهاء الاجتماع: ساعات نافذة التسجيل + رفع المحضر */
@@ -237,7 +237,7 @@ class MeetingController extends Controller
             'minutes' => ['nullable', 'string', 'max:20000'],
             'attachments' => ['nullable', 'array'],
             'attachments.*' => ['file', 'max:8192'],
-        ], [], ['window_hours' => 'عدد ساعات نافذة التسجيل']);
+        ], [], ['window_hours' => (string) setting('meetings.screen.end_msg', 'عدد ساعات نافذة التسجيل')]);
 
         $result = $this->attendance->end($meeting, $user, (int) $data['window_hours'], $data['minutes'] ?? null);
 
@@ -267,8 +267,8 @@ class MeetingController extends Controller
         $added = $this->saveQuestions($meeting, $user->id, $request->input('questions', []));
 
         return back()->with('status', $added > 0
-            ? 'اتضافت '.$added.' سؤال للاجتماع ✓'
-            : 'اتحفظ كود الحضور ✓');
+            ? strtr((string) setting('meetings.screen.questions_ok', 'اتضافت :a1 سؤال للاجتماع ✓'), [':a1' => (string) ($added)])
+            : (string) setting('meetings.screen.questions_ok_2', 'اتحفظ كود الحضور ✓'));
     }
 
     /** تسجيل الحضور — التحقّق Server-side ورسالة بالقيمة المضافة */
@@ -289,7 +289,7 @@ class MeetingController extends Controller
     {
         $data = $request->validate([
             'reason' => ['required', 'string', 'max:500'],
-        ], [], ['reason' => 'سبب الاعتذار']);
+        ], [], ['reason' => (string) setting('meetings.screen.excuse_msg', 'سبب الاعتذار')]);
 
         $result = $this->attendance->excuse($meeting, $request->user(), $data['reason']);
 
@@ -307,7 +307,7 @@ class MeetingController extends Controller
             'body' => ['required', 'string', 'max:4000'],
             'parent_id' => ['nullable', 'integer', 'exists:meeting_posts,id'],
             'attachment' => ['nullable', 'file', 'max:8192'],
-        ], [], ['body' => 'النصّ']);
+        ], [], ['body' => (string) setting('meetings.screen.store_post_msg', 'النصّ')]);
 
         MeetingPost::create([
             'meeting_id' => $meeting->id,
@@ -319,7 +319,7 @@ class MeetingController extends Controller
                 : null,
         ]);
 
-        return back()->with('status', 'اتنشر ✓');
+        return back()->with('status', (string) setting('meetings.screen.store_post_ok', 'اتنشر ✓'));
     }
 
     /** Vote up/down — صوت واحد لكلّ عضو، وإعادة نفس الصوت تسحبه */
@@ -360,7 +360,7 @@ class MeetingController extends Controller
 
         $post->forceFill(['is_pinned' => ! $post->is_pinned])->save();
 
-        return back()->with('status', $post->is_pinned ? 'اتثبّت أعلى النقاش ✓' : 'اتفكّ التثبيت ✓');
+        return back()->with('status', $post->is_pinned ? (string) setting('meetings.screen.pin_ok', 'اتثبّت أعلى النقاش ✓') : (string) setting('meetings.screen.pin_ok_2', 'اتفكّ التثبيت ✓'));
     }
 
     // ------------------------------------------------------------------ حضوري والمحاضر
@@ -430,12 +430,12 @@ class MeetingController extends Controller
         $this->ledger->notify(
             $meeting->owner,
             'meeting',
-            'طلب وصول لمرفق اجتماع',
-            $request->user()->name.' طلب الوصول لمرفقات: '.$meeting->title,
+            (string) setting('meetings.screen.request_access_msg', 'طلب وصول لمرفق اجتماع'),
+            strtr((string) setting('meetings.screen.request_access_msg_2', ':a1 طلب الوصول لمرفقات: :a2'), [':a1' => (string) ($request->user()->name), ':a2' => (string) ($meeting->title)]),
             route('volunteer.meetings.show', $meeting),
         );
 
-        return back()->with('status', 'اتبعت طلبك لصاحب الاجتماع — هيوصلك ردّ في الإشعارات.');
+        return back()->with('status', (string) setting('meetings.screen.request_access_msg_3', 'اتبعت طلبك لصاحب الاجتماع — هيوصلك ردّ في الإشعارات.'));
     }
 
     // ------------------------------------------------------------------ داخليّ

@@ -1,3 +1,13 @@
+@php
+    /** نصوص السكربت — من الإعدادات لا محروقةً في الجافاسكربت (2.13-أ) */
+    $hcWords = array_merge($hcWords ?? [], [
+        'cv.autosave.saved_label' => (string) setting('cv.autosave.saved_label', 'اتحفظ ✓'),
+        'cv.autosave.error_label' => (string) setting('cv.autosave.error_label', 'ما اتحفظش — راجع النت وجرّب تاني.'),
+        'cv.completion.missing_prefix' => (string) setting('cv.completion.missing_prefix', 'ناقصك:'),
+        'cv.completion.done' => (string) setting('cv.completion.done', 'سيرتك مكتملة — جاهزة للتحميل.'),
+    ]);
+@endphp
+
 @extends('layouts.app')
 
 @section('title', setting('cv.page.title', 'سيرتي الذاتيّة'))
@@ -172,10 +182,10 @@
     if (!root) return;
 
     const steps = @json($stepKeys);
-    const savedLabel = @json(setting('cv.autosave.saved_label', 'اتحفظ ✓'));
-    const errorLabel = @json(setting('cv.autosave.error_label', 'ما اتحفظش — راجع النت وجرّب تاني.'));
-    const missingPrefix = @json(setting('cv.completion.missing_prefix', 'ناقصك:'));
-    const doneLabel = @json(setting('cv.completion.done', 'سيرتك مكتملة — جاهزة للتحميل.'));
+    const savedLabel = @json($hcWords['cv.autosave.saved_label']);
+    const errorLabel = @json($hcWords['cv.autosave.error_label']);
+    const missingPrefix = @json($hcWords['cv.completion.missing_prefix']);
+    const doneLabel = @json($hcWords['cv.completion.done']);
 
     const note = document.querySelector('[data-saved-note]');
     const preview = document.querySelector('[data-preview]');

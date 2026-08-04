@@ -1,6 +1,13 @@
+@php
+    /** نصوص السكربت — من الإعدادات لا محروقةً في الجافاسكربت (2.13-أ) */
+    $hcWords = array_merge($hcWords ?? [], [
+        'notifications.index.js_1' => (string) setting('notifications.index.js_1', 'افتح'),
+    ]);
+@endphp
+
 @extends('layouts.app')
 
-@section('title', 'الإشعارات')
+@section('title', (string) setting('notifications.index.section_1', 'الإشعارات'))
 
 @php
     /**
@@ -8,14 +15,14 @@
      * سؤال واحد للشاشة: «إيه اللي حصل ويخصّني؟» — وفعل رئيسيّ واحد: تعليم الكلّ كمقروء.
      */
     $emptyMessage = (string) setting('notifications.empty.message', 'مفيش إشعارات جديدة');
-    $subtitle = $unread > 0 ? 'عندك '.$unread.' إشعار غير مقروء' : 'مفيش غير مقروء — تمام ✓';
+    $subtitle = $unread > 0 ? strtr((string) setting('notifications.index.php_1', 'عندك :a1 إشعار غير مقروء'), [':a1' => (string) ($unread)]) : (string) setting('notifications.index.php_2', 'مفيش غير مقروء — تمام ✓');
 @endphp
 
 @section('content')
     <x-page-header
-        title="الإشعارات"
+        title="{{ setting('notifications.index.title_1', 'الإشعارات') }}"
         :subtitle="$subtitle"
-        :breadcrumbs="[['label' => 'الرئيسيّة', 'url' => route('dashboard')], ['label' => 'الإشعارات']]">
+        :breadcrumbs="[['label' => (string) setting('notifications.index.breadcrumbs_1', 'الرئيسيّة'), 'url' => route('dashboard')], ['label' => (string) setting('notifications.index.breadcrumbs_2', 'الإشعارات')]]">
         <x-slot:action>
             @if ($unread > 0)
                 <form method="post" action="{{ route('notifications.read-all') }}" data-ajax-form>
@@ -24,7 +31,7 @@
                     <button type="submit"
                             class="btn inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
                             style="background: var(--color-brand-500); color: #04201c">
-                        تعليم الكلّ كمقروء
+                        {{ setting('notifications.index.text_1', 'تعليم الكلّ كمقروء') }}
                         <span class="rounded-full px-2 text-xs" style="background: rgb(0 0 0 / .15)">{{ $unread }}</span>
                     </button>
                 </form>
@@ -36,7 +43,7 @@
     <x-tabs :tabs="$tabs" :current="$tab" />
 
     @if (empty($groups))
-        <x-empty :message="$emptyMessage" action="الرجوع للرئيسيّة" :href="route('dashboard')" />
+        <x-empty :message="$emptyMessage" action="{{ setting('notifications.index.action_1', 'الرجوع للرئيسيّة') }}" :href="route('dashboard')" />
     @else
         <div class="space-y-6">
             @foreach ($groups as $label => $rows)
@@ -59,7 +66,7 @@
                 <a class="btn inline-flex items-center justify-center rounded-xl px-4 py-2 text-sm motion-standard"
                    style="background: var(--surface-raised); border: 1px solid var(--border)"
                    href="{{ route('notifications.index', array_filter(['tab' => $tab, 'range' => $expanded ? 'all' : null, 'more' => $nextMore])) }}">
-                    عرض المزيد
+                    {{ setting('notifications.index.text_2', 'عرض المزيد') }}
                 </a>
             @endif
 
@@ -67,14 +74,14 @@
                 {{-- المدى الافتراضيّ آخر 30 يومًا مع زرّ «وسّع المدى» (2.15-ب) --}}
                 <a class="text-xs" style="color: var(--color-brand-500)"
                    href="{{ route('notifications.index', array_filter(['tab' => $tab, 'range' => 'all'])) }}">
-                    وسّع المدى (أقدم من {{ $rangeDays }} يومًا)
+                    {{ strtr((string) setting('notifications.index.text_3', 'وسّع المدى (أقدم من :a1 يومًا)'), [':a1' => (string) ($rangeDays)]) }}
                 </a>
             @endunless
         </div>
     @endif
 
     {{-- التفاصيل في بوب-أب لا صفحة جديدة — وعلى الموبايل Bottom Sheet (2.15-أ-6 · 2.15-ج) --}}
-    <x-modal id="notification-sheet" title="تفاصيل الإشعار">
+    <x-modal id="notification-sheet" title="{{ setting('notifications.index.title_2', 'تفاصيل الإشعار') }}">
         <h3 class="font-bold mb-2" data-sheet-title></h3>
         <p class="text-sm leading-7 whitespace-pre-line" data-sheet-body></p>
         <a href="#" data-sheet-cta
@@ -89,7 +96,7 @@
             @csrf
             <input type="hidden" name="tab" value="{{ $tab }}">
             <button type="submit" class="btn w-full rounded-xl px-4 py-3 text-sm font-bold motion-standard"
-                    style="background: var(--color-brand-500); color: #04201c">تعليم الكلّ كمقروء ({{ $unread }})</button>
+                    style="background: var(--color-brand-500); color: #04201c">{{ strtr((string) setting('notifications.index.text_4', 'تعليم الكلّ كمقروء (:a1)'), [':a1' => (string) ($unread)]) }}</button>
         </form>
     @endif
 @endsection
@@ -118,7 +125,7 @@
                 const cta = sheet.querySelector('[data-sheet-cta]');
                 if (btn.dataset.url) {
                     cta.href = btn.dataset.url;
-                    cta.textContent = btn.dataset.actionLabel || 'افتح';
+                    cta.textContent = btn.dataset.actionLabel || @json($hcWords['notifications.index.js_1']);
                     cta.classList.remove('hidden');
                     cta.classList.add('inline-flex');
                 } else {

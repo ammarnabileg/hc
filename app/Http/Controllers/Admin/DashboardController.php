@@ -94,7 +94,7 @@ class DashboardController extends Controller
         return response()->streamDownload(function () use ($rows) {
             $handle = fopen('php://output', 'w');
             fwrite($handle, "\xEF\xBB\xBF");
-            fputcsv($handle, ['الوقت', 'الموظّف', 'الإجراء', 'الكيان', 'IP']);
+            fputcsv($handle, [(string) setting('admin_dashboard.screen.export_activity_msg', 'الوقت'), (string) setting('admin_dashboard.screen.export_activity_msg_2', 'الموظّف'), (string) setting('admin_dashboard.screen.export_activity_msg_3', 'الإجراء'), (string) setting('admin_dashboard.screen.export_activity_msg_4', 'الكيان'), 'IP']);
 
             foreach ($rows as $row) {
                 fputcsv($handle, [
@@ -134,7 +134,7 @@ class DashboardController extends Controller
 
         Setting::updateOrCreate(['key' => 'admin.dashboard.role_layouts'], [
             'group' => 'admin_dashboard',
-            'label_ar' => 'تخصيص كروت لوحة القيادة لكلّ دور',
+            'label_ar' => (string) setting('admin_dashboard.screen.save_layout_msg', 'تخصيص كروت لوحة القيادة لكلّ دور'),
             'type' => 'json',
             'value' => json_encode($layouts, JSON_UNESCAPED_UNICODE),
         ]);
@@ -209,8 +209,8 @@ class DashboardController extends Controller
         ];
 
         return [
-            ['key' => 'overview', 'label' => 'نظرة عامّة', 'url' => route('admin.dashboard', array_filter($query))],
-            ['key' => 'details', 'label' => 'تفاصيل', 'url' => route('admin.dashboard', array_filter($query + ['tab' => 'details']))],
+            ['key' => 'overview', 'label' => (string) setting('admin_dashboard.screen.tabs_msg', 'نظرة عامّة'), 'url' => route('admin.dashboard', array_filter($query))],
+            ['key' => 'details', 'label' => (string) setting('admin_dashboard.screen.tabs_msg_2', 'تفاصيل'), 'url' => route('admin.dashboard', array_filter($query + ['tab' => 'details']))],
         ];
     }
 
@@ -221,11 +221,11 @@ class DashboardController extends Controller
     private function quickActions(User $user): array
     {
         $candidates = [
-            ['+ تدريب', 'admin.courses.index', 'courses.create'],
-            ['+ منشور تعليمات', 'admin.guidance.index', 'announcements.create'],
-            ['منح مكافأة', 'admin.rewards.index', 'manual_rewards.create'],
-            ['إرسال إشعار', 'admin.guidance.index', 'notifications.create'],
-            ['طلبات الاعتماد', 'admin.users.approvals', 'user_approvals.list'],
+            [(string) setting('admin_dashboard.screen.quick_actions_msg', '+ تدريب'), 'admin.courses.index', 'courses.create'],
+            [(string) setting('admin_dashboard.screen.quick_actions_msg_2', '+ منشور تعليمات'), 'admin.guidance.index', 'announcements.create'],
+            [(string) setting('admin_dashboard.screen.quick_actions_msg_3', 'منح مكافأة'), 'admin.rewards.index', 'manual_rewards.create'],
+            [(string) setting('admin_dashboard.screen.quick_actions_msg_4', 'إرسال إشعار'), 'admin.guidance.index', 'notifications.create'],
+            [(string) setting('admin_dashboard.screen.quick_actions_msg_5', 'طلبات الاعتماد'), 'admin.users.approvals', 'user_approvals.list'],
         ];
 
         $actions = [];

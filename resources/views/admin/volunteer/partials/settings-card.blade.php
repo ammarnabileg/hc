@@ -6,7 +6,7 @@
      * $open: يُفتَح افتراضيًّا؟ (الافتراضيّ: مطويّ — الأبسط أوّلًا 2.15-أ-10)
      */
     $lockedKeys = $lockedKeys ?? [];
-    $title = $title ?? 'الإعدادات';
+    $title = $title ?? setting('admin.volunteer.partials.settings_card.aliadadat', 'الإعدادات');
     $open = $open ?? false;
     $resetAction = $resetAction ?? null;
     $resetPayload = $resetPayload ?? [];
@@ -27,8 +27,8 @@
         <div class="flex items-center gap-2 mt-4">
             <button type="submit"
                     class="btn rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
-                    style="background: var(--color-brand-500); color: #04201c">احفظ</button>
-            <span class="text-xs" style="color: var(--text-muted)">التعديل يسري فورًا على المنصّة كلّها.</span>
+                    style="background: var(--color-brand-500); color: #04201c">{{ setting('admin.volunteer.partials.settings_card.ahfz', 'احفظ') }}</button>
+            <span class="text-xs" style="color: var(--text-muted)">{{ setting('admin.volunteer.partials.settings_card.altadyl_ysry_fwra_ala_almnsa_klha', 'التعديل يسري فورًا على المنصّة كلّها.') }}</span>
         </div>
     </form>
 
@@ -38,7 +38,7 @@
             @foreach ($resetPayload as $key => $value)
                 <input type="hidden" name="{{ $key }}" value="{{ $value }}">
             @endforeach
-            <button type="submit" class="text-xs underline" style="color: var(--text-muted)"><x-icon name="refresh" size="16" /> رجّع التاب كلّه للافتراضيّ</button>
+            <button type="submit" class="text-xs underline" style="color: var(--text-muted)"><x-icon name="refresh" size="16" /> {{ setting('admin.volunteer.partials.settings_card.rja_altab_klh_llaftrady', 'رجّع التاب كلّه للافتراضيّ') }}</button>
         </form>
     @endif
 </details>

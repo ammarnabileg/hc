@@ -39,11 +39,11 @@ class UserSearch
     public static function fieldLabels(): array
     {
         return [
-            'code' => 'الكود',
-            'name' => 'الاسم',
-            'phone' => 'رقم الموبايل',
-            'email' => 'البريد',
-            'all' => 'الكلّ',
+            'code' => setting('account.user_search.field_labels_1', 'الكود'),
+            'name' => setting('account.user_search.field_labels_2', 'الاسم'),
+            'phone' => setting('account.user_search.field_labels_3', 'رقم الموبايل'),
+            'email' => setting('account.user_search.field_labels_4', 'البريد'),
+            'all' => setting('account.user_search.field_labels_5', 'الكلّ'),
         ];
     }
 

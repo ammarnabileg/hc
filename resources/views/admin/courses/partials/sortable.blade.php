@@ -1,6 +1,18 @@
 @once
     @push('scripts')
+        @php
+            /*
+             | نصوص السكربت من الإعدادات (2.13-أ): لا حرفَ عربيّ داخل `<script>`،
+             | فالنصّ المحروق هناك لا يراه محرّرُ اللوحة ولا الترجمة.
+             */
+            $jsText = [
+                'saved' => setting('admin.courses.partials.sortable.atzbt_altrtyb', 'اتظبط الترتيب ✓'),
+                'failed' => setting('admin.courses.partials.sortable.altrtyb_ma_athfzsh_jrb_tany', 'الترتيب ما اتحفظش — جرّب تاني.'),
+            ];
+        @endphp
+
         <script>
+            const HC_SORT_TEXT = @json($jsText);
             /* -----------------------------------------------------------------
              | سحب الصفوف للترتيب — JS خام بلا أيّ مكتبة خارجيّة (دليل البناء).
              | وفشل الحفظ يسترجع الترتيب السابق فلا يكذب على المستخدم (24.1).
@@ -63,7 +75,7 @@
                         .then((r) => {
                             if (!r.ok) throw new Error();
                             snapshot = ids;
-                            window.hcToast?.('اتظبط الترتيب ✓');
+                            window.hcToast?.(HC_SORT_TEXT.saved);
                         })
                         .catch(() => {
                             /* استرجاع الترتيب السابق عند الفشل */
@@ -71,7 +83,7 @@
                                 const el = list.querySelector(`[data-sort-id="${id}"]`);
                                 if (el) list.appendChild(el);
                             });
-                            window.hcToast?.('الترتيب ما اتحفظش — جرّب تاني.', 'danger');
+                            window.hcToast?.(HC_SORT_TEXT.failed, 'danger');
                         });
                 }
             });

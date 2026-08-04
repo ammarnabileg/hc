@@ -37,7 +37,7 @@
     @if ($node['children'])
         <details class="ms-4">
             <summary class="text-xs py-1 cursor-pointer" style="color: var(--text-muted)">
-                الفريق ({{ count($node['children']) }})
+                {{ str_replace(':count', count($node['children']), (string) setting('volunteer.org_tree_node.summary', 'الفريق (:count)')) }}
             </summary>
             <ul>
                 @foreach ($node['children'] as $child)

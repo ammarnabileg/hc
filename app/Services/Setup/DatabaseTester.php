@@ -20,7 +20,7 @@ class DatabaseTester
         if (! extension_loaded('pdo_'.$driver)) {
             return [
                 'ok' => false,
-                'message' => 'امتداد pdo_'.$driver.' مش مفعَّل على الخادم، وبدونه مفيش اتّصال بقاعدة البيانات. فعّله من إعدادات PHP في الاستضافة وجرّب تاني.',
+                'message' => strtr(setting('setup.database_tester.test_1', 'امتداد pdo_:p1 مش مفعَّل على الخادم، وبدونه مفيش اتّصال بقاعدة البيانات. فعّله من إعدادات PHP في الاستضافة وجرّب تاني.'), [':p1' => (string) ($driver)]),
             ];
         }
 
@@ -45,7 +45,7 @@ class DatabaseTester
 
         return [
             'ok' => true,
-            'message' => 'تمام — الاتّصال بقاعدة البيانات «'.$credentials['db_database'].'» نجح. تقدر تكمل.',
+            'message' => strtr(setting('setup.database_tester.test_2', 'تمام — الاتّصال بقاعدة البيانات «:p1» نجح. تقدر تكمل.'), [':p1' => (string) ($credentials['db_database'])]),
         ];
     }
 
@@ -55,12 +55,12 @@ class DatabaseTester
         $message = $exception->getMessage();
 
         return match (true) {
-            str_contains($message, '1045') || str_contains($message, 'Access denied') => 'اسم المستخدم أو كلمة سرّ قاعدة البيانات مش مظبوطة. راجعهما من لوحة الاستضافة، وتأكّد إنّ المستخدم «'.$credentials['db_username'].'» مضاف لقاعدة البيانات «'.$credentials['db_database'].'» بكلّ الصلاحيّات.',
-            str_contains($message, '1049') || str_contains($message, 'Unknown database') => 'قاعدة البيانات «'.$credentials['db_database'].'» مش موجودة. أنشئها من لوحة الاستضافة بنفس الاسم بالظبط، وارجع اضغط اختبار الاتّصال.',
-            str_contains($message, '2002') || str_contains($message, 'Connection refused') || str_contains($message, 'refused') => 'مقدرناش نوصل لخادم قاعدة البيانات على «'.$credentials['db_host'].'». جرّب 127.0.0.1 أو المضيف اللي مكتوب في لوحة الاستضافة، وتأكّد من المنفذ.',
-            str_contains($message, 'getaddrinfo') || str_contains($message, 'Unknown host') || str_contains($message, 'php_network_getaddresses') => 'اسم المضيف «'.$credentials['db_host'].'» مش معروف على الشبكة. انسخه من لوحة الاستضافة زيّ ما هو.',
-            str_contains($message, 'timed out') || str_contains($message, '2006') => 'الاتّصال خد وقت طويل وانقطع. تأكّد إنّ الخادم شغّال وإنّ الجدار الناريّ سامح بالمنفذ '.$credentials['db_port'].'.',
-            default => 'الاتّصال فشل ومقدرناش نحدّد السبب بدقّة. راجع بيانات الاتّصال في لوحة الاستضافة وجرّب تاني، ولو استمرّت المشكلة كلّم الدعم الفنّيّ للاستضافة.',
+            str_contains($message, '1045') || str_contains($message, 'Access denied') => strtr(setting('setup.database_tester.explain_1', 'اسم المستخدم أو كلمة سرّ قاعدة البيانات مش مظبوطة. راجعهما من لوحة الاستضافة، وتأكّد إنّ المستخدم «:p1» مضاف لقاعدة البيانات «:p2» بكلّ الصلاحيّات.'), [':p1' => (string) ($credentials['db_username']), ':p2' => (string) ($credentials['db_database'])]),
+            str_contains($message, '1049') || str_contains($message, 'Unknown database') => strtr(setting('setup.database_tester.explain_2', 'قاعدة البيانات «:p1» مش موجودة. أنشئها من لوحة الاستضافة بنفس الاسم بالظبط، وارجع اضغط اختبار الاتّصال.'), [':p1' => (string) ($credentials['db_database'])]),
+            str_contains($message, '2002') || str_contains($message, 'Connection refused') || str_contains($message, 'refused') => strtr(setting('setup.database_tester.explain_3', 'مقدرناش نوصل لخادم قاعدة البيانات على «:p1». جرّب 127.0.0.1 أو المضيف اللي مكتوب في لوحة الاستضافة، وتأكّد من المنفذ.'), [':p1' => (string) ($credentials['db_host'])]),
+            str_contains($message, 'getaddrinfo') || str_contains($message, 'Unknown host') || str_contains($message, 'php_network_getaddresses') => strtr(setting('setup.database_tester.explain_4', 'اسم المضيف «:p1» مش معروف على الشبكة. انسخه من لوحة الاستضافة زيّ ما هو.'), [':p1' => (string) ($credentials['db_host'])]),
+            str_contains($message, 'timed out') || str_contains($message, '2006') => strtr(setting('setup.database_tester.explain_5', 'الاتّصال خد وقت طويل وانقطع. تأكّد إنّ الخادم شغّال وإنّ الجدار الناريّ سامح بالمنفذ :p1.'), [':p1' => (string) ($credentials['db_port'])]),
+            default => setting('setup.database_tester.explain_6', 'الاتّصال فشل ومقدرناش نحدّد السبب بدقّة. راجع بيانات الاتّصال في لوحة الاستضافة وجرّب تاني، ولو استمرّت المشكلة كلّم الدعم الفنّيّ للاستضافة.'),
         };
     }
 }

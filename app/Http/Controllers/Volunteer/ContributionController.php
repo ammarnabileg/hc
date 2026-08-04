@@ -126,8 +126,8 @@ class ContributionController extends Controller
             'sufficient' => $preview['sufficient'],
             'latest_internal_deadline' => $this->contributions->latestInternalDeadline($task)?->toDateTimeString(),
             'message' => $preview['sufficient']
-                ? 'تمام — رصيدك بعد الخصم: '.$preview['balance_after'].' VXP.'
-                : 'رصيدك مايكفّيش — قلّل القيمة أو خدها من وعاء المهمّة.',
+                ? strtr((string) setting('workflow.contribution.preview_msg', 'تمام — رصيدك بعد الخصم: :a1 VXP.'), [':a1' => (string) ($preview['balance_after'])])
+                : (string) setting('workflow.contribution.preview_msg_2', 'رصيدك مايكفّيش — قلّل القيمة أو خدها من وعاء المهمّة.'),
         ]);
     }
 
@@ -150,19 +150,19 @@ class ContributionController extends Controller
 
         $this->contributions->invite($task, $request->user(), $invitee, $data);
 
-        return back()->with('status', 'اتبعتت الدعوة ✓');
+        return back()->with('status', (string) setting('workflow.contribution.store_ok', 'اتبعتت الدعوة ✓'));
     }
 
     /** القبول يفتح البند، والرفض يعيده بندًا شخصيًّا للمالك */
     public function respond(Request $request, TaskContribution $contribution): RedirectResponse
     {
-        abort_unless((int) $contribution->contributor_id === (int) $request->user()->id, 403, 'الدعوة ليست لك.');
+        abort_unless((int) $contribution->contributor_id === (int) $request->user()->id, 403, (string) setting('workflow.contribution.respond_msg', 'الدعوة ليست لك.'));
 
         $data = $request->validate(['decision' => ['required', 'in:accept,reject']]);
 
         $this->contributions->respond($contribution, $data['decision'] === 'accept');
 
-        return back()->with('status', $data['decision'] === 'accept' ? 'اتفتح البند — يلّا بينا 💪' : 'اتسجّل اعتذارك ✓');
+        return back()->with('status', $data['decision'] === 'accept' ? (string) setting('workflow.contribution.respond_msg_2', 'اتفتح البند — يلّا بينا 💪') : (string) setting('workflow.contribution.respond_ok', 'اتسجّل اعتذارك ✓'));
     }
 
     /** ردّ نقطة تفتيش — نمط تذاكر، ومهلته ساعتان داخل نافذة النشاط */
@@ -176,13 +176,13 @@ class ContributionController extends Controller
 
         $this->contributions->respondToCheckpoint($checkpoint, $request->user(), $data['body']);
 
-        return back()->with('status', 'اتسجّل ردّك ✓');
+        return back()->with('status', (string) setting('workflow.contribution.checkpoint_ok', 'اتسجّل ردّك ✓'));
     }
 
     /** تسليم نهائيّ ⟵ مهلة المالك ثمّ اعتماد تلقائيّ بنقاطك كاملة */
     public function deliver(Request $request, TaskContribution $contribution): RedirectResponse
     {
-        abort_unless((int) $contribution->contributor_id === (int) $request->user()->id, 403, 'البند ليس لك.');
+        abort_unless((int) $contribution->contributor_id === (int) $request->user()->id, 403, (string) setting('workflow.contribution.deliver_msg', 'البند ليس لك.'));
 
         $data = $request->validate([
             'body' => ['nullable', 'string'],
@@ -192,13 +192,13 @@ class ContributionController extends Controller
 
         $this->contributions->deliver($contribution, $data);
 
-        return back()->with('status', 'اتسلّم البند ✓ — مهلة المالك '.$this->contributions->ownerReviewHours().' ساعة، وبعدها اعتماد تلقائيّ.');
+        return back()->with('status', strtr((string) setting('workflow.contribution.deliver_ok', 'اتسلّم البند ✓ — مهلة المالك :a1 ساعة، وبعدها اعتماد تلقائيّ.'), [':a1' => (string) ($this->contributions->ownerReviewHours())]));
     }
 
     /** طلب سحب مساهم ⟵ الحالة 6 على محرّك التصعيد (بلا أثر على درجة أيّ طرف) */
     public function withdraw(Request $request, TaskContribution $contribution): RedirectResponse
     {
-        abort_unless((int) $contribution->invited_by === (int) $request->user()->id, 403, 'الطلب للمالك وحده.');
+        abort_unless((int) $contribution->invited_by === (int) $request->user()->id, 403, (string) setting('workflow.contribution.withdraw_msg', 'الطلب للمالك وحده.'));
 
         $data = $request->validate(['reason' => ['required', 'string']]);
 
@@ -209,14 +209,14 @@ class ContributionController extends Controller
         abort_if(
             ! $hasCheckpoints && ! $deadlinePassed,
             422,
-            'مافيش نقاط تفتيش على البند ده — السحب مايتاحش قبل فوات الديدلاين الداخليّ.',
+            (string) setting('workflow.contribution.withdraw_empty', 'مافيش نقاط تفتيش على البند ده — السحب مايتاحش قبل فوات الديدلاين الداخليّ.'),
         );
 
         $this->engine->open(CaseCatalog::CONTRIBUTOR_WITHDRAW, $contribution, $request->user(), [
             'reason' => $data['reason'],
         ]);
 
-        return back()->with('status', 'اترفع طلب السحب للمراجِع ✓');
+        return back()->with('status', (string) setting('workflow.contribution.withdraw_ok', 'اترفع طلب السحب للمراجِع ✓'));
     }
 
     // ------------------------------------------------------------------ داخليّ
@@ -224,14 +224,14 @@ class ContributionController extends Controller
     private function statuses(): array
     {
         return [
-            'invited' => 'مدعوّ',
-            'accepted' => 'مقبول/مفتوح',
-            'delivered' => 'تسليم نهائيّ',
-            'approved' => 'معتمد',
-            'returned' => 'مُرجَع',
-            'withdrawn' => 'مسحوب',
-            'rejected' => 'معتذَر عنه',
-            'expired' => 'عدم تسليم',
+            'invited' => (string) setting('workflow.contribution.statuses_msg', 'مدعوّ'),
+            'accepted' => (string) setting('workflow.contribution.statuses_msg_2', 'مقبول/مفتوح'),
+            'delivered' => (string) setting('workflow.contribution.statuses_msg_3', 'تسليم نهائيّ'),
+            'approved' => (string) setting('workflow.contribution.statuses_msg_4', 'معتمد'),
+            'returned' => (string) setting('workflow.contribution.statuses_msg_5', 'مُرجَع'),
+            'withdrawn' => (string) setting('workflow.contribution.statuses_msg_6', 'مسحوب'),
+            'rejected' => (string) setting('workflow.contribution.statuses_msg_7', 'معتذَر عنه'),
+            'expired' => (string) setting('workflow.contribution.statuses_msg_8', 'عدم تسليم'),
         ];
     }
 
@@ -259,7 +259,7 @@ class ContributionController extends Controller
             (int) $contribution->invited_by,
         ], true);
 
-        abort_unless($allowed || $user->allows('contributions.view', $contribution), 403, 'البند ده مش في نطاقك.');
+        abort_unless($allowed || $user->allows('contributions.view', $contribution), 403, (string) setting('workflow.contribution.authorize_party_denied', 'البند ده مش في نطاقك.'));
     }
 
     /** رصيد المالك — يُعرَض في بوب-أب الدعوة قبل الإرسال */

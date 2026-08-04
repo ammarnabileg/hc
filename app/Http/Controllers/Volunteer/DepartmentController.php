@@ -115,7 +115,7 @@ class DepartmentController extends Controller
             'to_date' => ['required', 'date'],
             'delegate_membership_id' => ['nullable', 'integer', 'exists:memberships,id'],
             'reason' => ['nullable', 'string', 'max:300'],
-        ], [], ['from_date' => 'تاريخ البداية', 'to_date' => 'تاريخ النهاية']);
+        ], [], ['from_date' => (string) setting('volunteer_org.departments.absence_msg', 'تاريخ البداية'), 'to_date' => (string) setting('volunteer_org.departments.absence_msg_2', 'تاريخ النهاية')]);
 
         $absence = app(AbsenceService::class)->open(
             $membership,
@@ -128,8 +128,11 @@ class DepartmentController extends Controller
 
         $delegate = app(AbsenceService::class)->delegateOfAbsence($absence);
 
-        return back()->with('status', 'اتسجّل وضع «غائب» ✓'
-            .($delegate ? ' — البديل: '.$delegate->shortName().'، وكلّ القرارات هتروح له.' : ''));
+        $note = $delegate
+            ? strtr((string) setting('volunteer_org.departments.absence_delegate', ' — البديل: :name، وكلّ القرارات هتروح له.'), [':name' => (string) $delegate->shortName()])
+            : '';
+
+        return back()->with('status', strtr((string) setting('volunteer_org.departments.absence_ok', 'اتسجّل وضع «غائب» ✓:a1'), [':a1' => $note]));
     }
 
     /**

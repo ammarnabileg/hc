@@ -108,19 +108,19 @@ class EventPresenter
     public function stateLabel(Event $event): string
     {
         return match (true) {
-            $this->hasEnded($event) => 'انتهت',
-            $this->isLive($event) => 'شغّالة دلوقتي',
-            $this->isFull($event) => 'اكتمل العدد',
-            default => 'قادمة',
+            $this->hasEnded($event) => setting('events.event_presenter.state_label_1', 'انتهت'),
+            $this->isLive($event) => setting('events.event_presenter.state_label_2', 'شغّالة دلوقتي'),
+            $this->isFull($event) => setting('events.event_presenter.state_label_3', 'اكتمل العدد'),
+            default => setting('events.event_presenter.state_label_4', 'قادمة'),
         };
     }
 
     public function modeLabel(string $mode): string
     {
         return match ($mode) {
-            'offline' => 'أوفلاين',
-            'hybrid' => 'هجين',
-            default => 'أونلاين',
+            'offline' => setting('events.event_presenter.mode_label_1', 'أوفلاين'),
+            'hybrid' => setting('events.event_presenter.mode_label_2', 'هجين'),
+            default => setting('events.event_presenter.mode_label_3', 'أونلاين'),
         };
     }
 
@@ -128,15 +128,15 @@ class EventPresenter
     public function countdownText(Event $event): string
     {
         if ($this->hasEnded($event)) {
-            return 'انتهت';
+            return setting('events.event_presenter.countdown_text_1', 'انتهت');
         }
 
         $start = CarbonImmutable::parse($event->starts_at);
 
         if ($start->isPast()) {
-            return 'شغّالة دلوقتي';
+            return setting('events.event_presenter.countdown_text_2', 'شغّالة دلوقتي');
         }
 
-        return 'باقي '.$start->diffForHumans(now(), CarbonInterface::DIFF_ABSOLUTE, true, 2);
+        return strtr(setting('events.event_presenter.countdown_text_3', 'باقي :p1'), [':p1' => (string) ($start->diffForHumans(now(), CarbonInterface::DIFF_ABSOLUTE, true, 2))]);
     }
 }

@@ -57,7 +57,7 @@ class EnsurePermission
             }
         }
 
-        abort(403, 'ليس لديك صلاحيّة الوصول لهذه الصفحة.');
+        abort(403, (string) setting('admin_roles.permission_guard.handle_msg', 'ليس لديك صلاحيّة الوصول لهذه الصفحة.'));
     }
 
     /**

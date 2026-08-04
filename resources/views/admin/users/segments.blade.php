@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'شرائح الجمهور')
+@section('title', setting('admin.users.segments.shrayh_aljmhwr', 'شرائح الجمهور'))
 
 @php
     /*
@@ -15,18 +15,18 @@
 @endphp
 
 @section('content')
-    <x-page-header title="شرائح الجمهور"
-                   subtitle="ابنِ الشريحة مرّة، واستعملها في الإشعارات والمكافآت والفعاليّات"
+    <x-page-header :title="setting('admin.users.segments.shrayh_aljmhwr', 'شرائح الجمهور')"
+                   :subtitle="setting('admin.users.segments.abn_alshryha_mra_wastamlha_fy_alishaarat', 'ابنِ الشريحة مرّة، واستعملها في الإشعارات والمكافآت والفعاليّات')"
                    :breadcrumbs="[
-                       ['label' => 'لوحة الإدارة', 'url' => route('admin.dashboard')],
-                       ['label' => 'المستخدمون', 'url' => route('admin.users.index')],
-                       ['label' => 'شرائح الجمهور'],
+                       ['label' => setting('admin.users.segments.lwha_alidara', 'لوحة الإدارة'), 'url' => route('admin.dashboard')],
+                       ['label' => setting('admin.users.segments.almstkhdmwn', 'المستخدمون'), 'url' => route('admin.users.index')],
+                       ['label' => setting('admin.users.segments.shrayh_aljmhwr', 'شرائح الجمهور')],
                    ]">
         @if ($canCreate)
             <x-slot:action>
                 <button type="button" data-modal-open="segment-form"
                         class="btn rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
-                        style="background: var(--color-brand-500); color: #04201c">+ شريحة جديدة</button>
+                        style="background: var(--color-brand-500); color: #04201c">{{ setting('admin.users.segments.shryha_jdyda_2', '+ شريحة جديدة') }}</button>
             </x-slot:action>
         @endif
     </x-page-header>
@@ -34,17 +34,17 @@
     {{-- بحث + فلاتر: النوع · الحالة · الاستخدام (12.13 · 2.15-أ-4) --}}
     <x-filters :action="route('admin.users.segments')">
         <label class="block flex-1 min-w-[12rem]">
-            <span class="block text-sm mb-1">بحث</span>
-            <input type="search" name="q" value="{{ $filters['q'] }}" placeholder="اسم الشريحة…"
+            <span class="block text-sm mb-1">{{ setting('admin.users.segments.bhth', 'بحث') }}</span>
+            <input type="search" name="q" value="{{ $filters['q'] }}" placeholder="{{ setting('admin.users.segments.asm_alshryha', 'اسم الشريحة…') }}"
                    class="w-full rounded-xl px-3 py-2 text-sm"
                    style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
         </label>
 
         <label class="block">
-            <span class="block text-sm mb-1">النوع</span>
+            <span class="block text-sm mb-1">{{ setting('admin.users.segments.alnwa', 'النوع') }}</span>
             <select name="type" class="rounded-xl px-3 py-2 text-sm"
                     style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
-                <option value="">الكلّ</option>
+                <option value="">{{ setting('admin.users.segments.alkl', 'الكلّ') }}</option>
                 @foreach ($types as $key => $label)
                     <option value="{{ $key }}" @selected($filters['type'] === $key)>{{ $label }}</option>
                 @endforeach
@@ -52,35 +52,35 @@
         </label>
 
         <label class="block">
-            <span class="block text-sm mb-1">الحالة</span>
+            <span class="block text-sm mb-1">{{ setting('admin.users.segments.alhala', 'الحالة') }}</span>
             <select name="state" class="rounded-xl px-3 py-2 text-sm"
                     style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
-                <option value="">نشطة</option>
-                <option value="archived" @selected($filters['state'] === 'archived')>مؤرشفة</option>
-                <option value="all" @selected($filters['state'] === 'all')>الكلّ</option>
+                <option value="">{{ setting('admin.users.segments.nshta', 'نشطة') }}</option>
+                <option value="archived" @selected($filters['state'] === 'archived')>{{ setting('admin.users.segments.mwrshfa', 'مؤرشفة') }}</option>
+                <option value="all" @selected($filters['state'] === 'all')>{{ setting('admin.users.segments.alkl', 'الكلّ') }}</option>
             </select>
         </label>
 
         <label class="block">
-            <span class="block text-sm mb-1">الاستخدام</span>
+            <span class="block text-sm mb-1">{{ setting('admin.users.segments.alastkhdam', 'الاستخدام') }}</span>
             <select name="used" class="rounded-xl px-3 py-2 text-sm"
                     style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
-                <option value="">الكلّ</option>
-                <option value="used" @selected($filters['used'] === 'used')>مستخدَمة</option>
-                <option value="unused" @selected($filters['used'] === 'unused')>غير مستخدَمة</option>
+                <option value="">{{ setting('admin.users.segments.alkl', 'الكلّ') }}</option>
+                <option value="used" @selected($filters['used'] === 'used')>{{ setting('admin.users.segments.mstkhdma', 'مستخدَمة') }}</option>
+                <option value="unused" @selected($filters['used'] === 'unused')>{{ setting('admin.users.segments.ghyr_mstkhdma', 'غير مستخدَمة') }}</option>
             </select>
         </label>
 
-        <button class="btn rounded-xl px-4 py-2 text-sm" style="background: var(--surface-raised)">تصفية</button>
+        <button class="btn rounded-xl px-4 py-2 text-sm" style="background: var(--surface-raised)">{{ setting('admin.users.segments.tsfya', 'تصفية') }}</button>
     </x-filters>
 
     {{-- ⭐ المعاينة اللحظيّة: العدد + عيّنة أعضاء (عددها إعداد) — 12.13 --}}
     @if ($previewed)
         <div class="card p-4 mb-4">
             <div class="flex flex-wrap items-center justify-between gap-2">
-                <div class="text-sm">المطابقون الآن: <strong>{{ number_format((int) $previewCount) }}</strong></div>
+                <div class="text-sm">{{ setting('admin.users.segments.almtabqwn_alan', 'المطابقون الآن:') }} <strong>{{ number_format((int) $previewCount) }}</strong></div>
                 <x-state-badge :state="$previewCount > 0 ? 'ok' : 'warn'"
-                               :label="$previewCount > 0 ? 'الشريحة فيها ناس' : 'مافيش حدّ مطابق'" />
+                               :label="$previewCount > 0 ? setting('admin.users.segments.alshryha_fyha_nas', 'الشريحة فيها ناس') : setting('admin.users.segments.mafysh_hd_mtabq', 'مافيش حدّ مطابق')" />
             </div>
 
             <p class="text-xs mt-1" style="color: var(--text-muted)">{{ $service->summary($rule) }}</p>
@@ -104,22 +104,22 @@
             @if ($canCreate)
                 <button type="button" data-modal-open="segment-form"
                         class="btn rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
-                        style="background: var(--color-brand-500); color: #04201c">+ شريحة جديدة</button>
+                        style="background: var(--color-brand-500); color: #04201c">{{ setting('admin.users.segments.shryha_jdyda_2', '+ شريحة جديدة') }}</button>
             @endif
         </x-empty>
     @else
         <div class="card p-2">
-            <x-table label="شرائح الجمهور">
+            <x-table :label="setting('admin.users.segments.shrayh_aljmhwr', 'شرائح الجمهور')">
                 <thead>
                     <tr class="text-right text-xs" style="color: var(--text-muted)">
-                        <th class="p-2">الشريحة</th>
-                        <th class="p-2">ملخّص المعايير</th>
-                        <th class="p-2">الأعضاء</th>
-                        <th class="p-2">النوع</th>
-                        <th class="p-2">مستخدَمة في</th>
-                        <th class="p-2">آخر تحديث</th>
-                        <th class="p-2">الحالة</th>
-                        <th class="p-2">إجراءات</th>
+                        <th class="p-2">{{ setting('admin.users.segments.alshryha', 'الشريحة') }}</th>
+                        <th class="p-2">{{ setting('admin.users.segments.mlkhs_almaayyr', 'ملخّص المعايير') }}</th>
+                        <th class="p-2">{{ setting('admin.users.segments.alaada', 'الأعضاء') }}</th>
+                        <th class="p-2">{{ setting('admin.users.segments.alnwa', 'النوع') }}</th>
+                        <th class="p-2">{{ setting('admin.users.segments.mstkhdma_fy', 'مستخدَمة في') }}</th>
+                        <th class="p-2">{{ setting('admin.users.segments.akhr_thdyth', 'آخر تحديث') }}</th>
+                        <th class="p-2">{{ setting('admin.users.segments.alhala', 'الحالة') }}</th>
+                        <th class="p-2">{{ setting('admin.users.segments.ijraat', 'إجراءات') }}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -141,9 +141,9 @@
                             <td class="p-2 text-xs">{{ $types[$segment->segment_type] ?? $segment->segment_type }}</td>
                             <td class="p-2 text-xs">
                                 @if ($links->isEmpty())
-                                    <span style="color: var(--text-muted)">مش مستخدَمة</span>
+                                    <span style="color: var(--text-muted)">{{ setting('admin.users.segments.msh_mstkhdma', 'مش مستخدَمة') }}</span>
                                 @else
-                                    مستخدَمة في {{ $links->count() }} مكان
+                                    {!! strtr(setting('admin.users.segments.mstkhdma_fy_v1_mkan', 'مستخدَمة في :v1 مكان'), [':v1' => e($links->count())]) !!}
                                     <span class="block">
                                         @foreach ($links as $link)
                                             <a href="{{ $link['url'] }}" class="underline">{{ $link['label'] }}</a>@if (! $loop->last) · @endif
@@ -154,36 +154,36 @@
                             <td class="p-2 text-xs" style="color: var(--text-muted)">{{ $segment->last_built_at?->diffForHumans() ?? '—' }}</td>
                             <td class="p-2">
                                 <x-state-badge :state="$segment->archived_at ? 'idle' : 'ok'"
-                                               :label="$segment->archived_at ? 'مؤرشفة' : 'نشطة'" />
+                                               :label="$segment->archived_at ? setting('admin.users.segments.mwrshfa', 'مؤرشفة') : setting('admin.users.segments.nshta', 'نشطة')" />
                             </td>
                             <td class="p-2">
                                 <div class="flex flex-wrap gap-2 text-xs">
                                     @can('user_segments.edit')
-                                        <a href="{{ route('admin.users.segments', ['edit' => $segment->id]) }}" class="underline">تعديل</a>
+                                        <a href="{{ route('admin.users.segments', ['edit' => $segment->id]) }}" class="underline">{{ setting('admin.users.segments.tadyl', 'تعديل') }}</a>
                                     @endcan
 
                                     @can('user_segments.create')
                                         <form method="post" action="{{ route('admin.users.segments.duplicate', $segment) }}">
                                             @csrf
-                                            <button class="underline">تكرار</button>
+                                            <button class="underline">{{ setting('admin.users.segments.tkrar', 'تكرار') }}</button>
                                         </form>
                                     @endcan
 
-                                    <a href="{{ route('admin.users.segments.members', $segment) }}" class="underline">معاينة الأعضاء</a>
+                                    <a href="{{ route('admin.users.segments.members', $segment) }}" class="underline">{{ setting('admin.users.segments.maayna_alaada', 'معاينة الأعضاء') }}</a>
 
                                     @can('user_segments.archive')
                                         <form method="post" action="{{ route('admin.users.segments.archive', $segment) }}">
                                             @csrf
-                                            <button class="underline">{{ $segment->archived_at ? 'رجّعها للخدمة' : 'أرشفة' }}</button>
+                                            <button class="underline">{{ $segment->archived_at ? setting('admin.users.segments.rjaha_llkhdma', 'رجّعها للخدمة') : setting('admin.users.segments.arshfa', 'أرشفة') }}</button>
                                         </form>
                                     @endcan
 
                                     @can('user_segments.delete')
                                         <form method="post" action="{{ route('admin.users.segments.destroy', $segment) }}"
-                                              onsubmit="return confirm('{{ $links->isEmpty() ? 'تمسح الشريحة دي؟' : str_replace(':count', $links->count(), setting('admin.segments.delete_warning', 'الشريحة دي مستخدَمة في :count مكان — أرشفها بدل ما تمسحها.')) }}')">
+                                              onsubmit="return confirm('{{ $links->isEmpty() ? setting('admin.users.segments.tmsh_alshryha_dy', 'تمسح الشريحة دي؟') : str_replace(':count', $links->count(), setting('admin.segments.delete_warning', 'الشريحة دي مستخدَمة في :count مكان — أرشفها بدل ما تمسحها.')) }}')">
                                             @csrf
                                             @method('delete')
-                                            <button class="underline" style="color: var(--color-state-danger)">حذف</button>
+                                            <button class="underline" style="color: var(--color-state-danger)">{{ setting('admin.users.segments.hdhf', 'حذف') }}</button>
                                         </form>
                                     @endcan
                                 </div>
@@ -195,24 +195,24 @@
         </div>
 
         <p class="mt-3 text-xs">
-            <a href="{{ route('admin.users.segments.export') }}" class="underline">تصدير الشرائح (CSV)</a>
+            <a href="{{ route('admin.users.segments.export') }}" class="underline">{{ setting('admin.users.segments.tsdyr_alshrayh_csv', 'تصدير الشرائح (CSV)') }}</a>
         </p>
     @endif
 
     {{-- ================================================ باني المعايير (12.13) --}}
-    <x-modal id="segment-form" :title="$editing ? 'تعديل شريحة' : 'شريحة جديدة'">
+    <x-modal id="segment-form" :title="$editing ? setting('admin.users.segments.tadyl_shryha', 'تعديل شريحة') : setting('admin.users.segments.shryha_jdyda', 'شريحة جديدة')">
         <form method="post" action="{{ route('admin.users.segments.preview') }}" class="space-y-3">
             @csrf
             @if ($editing)
                 <input type="hidden" name="segment_id" value="{{ $editing->id }}">
             @endif
 
-            <x-form.input name="name" label="اسم الشريحة" required :value="$editing->name ?? ''" />
-            <x-form.input name="description" label="وصف مختصر" :value="$editing->description ?? ''" />
+            <x-form.input name="name" :label="setting('admin.users.segments.asm_alshryha_2', 'اسم الشريحة')" required :value="$editing->name ?? ''" />
+            <x-form.input name="description" :label="setting('admin.users.segments.wsf_mkhtsr', 'وصف مختصر')" :value="$editing->description ?? ''" />
 
             {{-- ⭐ النوع: الفرق سلوكيّ لا تسمية (12.13) --}}
             <label class="block text-sm">
-                النوع
+                {{ setting('admin.users.segments.alnwa', 'النوع') }}
                 <select name="segment_type" class="w-full rounded-xl px-3 py-2 text-sm mt-1"
                         style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
                     @foreach ($types as $key => $label)
@@ -226,7 +226,7 @@
 
             {{-- الربط بين المجموعات: AND / OR (12.13) --}}
             <label class="block text-sm">
-                الربط بين المجموعات
+                {{ setting('admin.users.segments.alrbt_byn_almjmwaat', 'الربط بين المجموعات') }}
                 <select name="match" class="w-full rounded-xl px-3 py-2 text-sm mt-1"
                         style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
                     @foreach ($matchModes as $key => $label)
@@ -242,10 +242,10 @@
                 @endphp
 
                 <details class="card p-3" @if ($g === 0 || $picked->isNotEmpty()) open @endif>
-                    <summary class="text-sm cursor-pointer">مجموعة {{ $g + 1 }}</summary>
+                    <summary class="text-sm cursor-pointer">{{ setting('admin.users.segments.mjmwaa', 'مجموعة') }} {{ $g + 1 }}</summary>
 
                     <label class="block text-sm mt-2">
-                        الربط داخل المجموعة
+                        {{ setting('admin.users.segments.alrbt_dakhl_almjmwaa', 'الربط داخل المجموعة') }}
                         <select name="groups[{{ $g }}][match]" class="w-full rounded-xl px-3 py-2 text-sm mt-1"
                                 style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
                             @foreach ($matchModes as $key => $label)
@@ -273,10 +273,10 @@
                                     </select>
                                 @elseif ($meta['type'] === 'range')
                                     <div class="flex gap-2">
-                                        <input type="number" name="groups[{{ $g }}][conditions][{{ $field }}][min]" placeholder="من"
+                                        <input type="number" name="groups[{{ $g }}][conditions][{{ $field }}][min]" placeholder="{{ setting('admin.users.segments.mn', 'من') }}"
                                                value="{{ $current['min'] ?? '' }}" class="w-full rounded-xl px-3 py-2 text-sm"
                                                style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
-                                        <input type="number" name="groups[{{ $g }}][conditions][{{ $field }}][max]" placeholder="إلى"
+                                        <input type="number" name="groups[{{ $g }}][conditions][{{ $field }}][max]" placeholder="{{ setting('admin.users.segments.ila', 'إلى') }}"
                                                value="{{ $current['max'] ?? '' }}" class="w-full rounded-xl px-3 py-2 text-sm"
                                                style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
                                     </div>
@@ -293,12 +293,12 @@
 
             <div class="flex flex-wrap gap-2">
                 <button type="submit" class="btn rounded-xl px-4 py-2 text-sm motion-standard"
-                        style="background: var(--surface-sunken)">معاينة لحظيّة</button>
+                        style="background: var(--surface-sunken)">{{ setting('admin.users.segments.maayna_lhzya', 'معاينة لحظيّة') }}</button>
 
                 @if ($canCreate)
                     <button type="submit" formaction="{{ route('admin.users.segments.store') }}"
                             class="btn rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
-                            style="background: var(--color-brand-500); color: #04201c">حفظ الشريحة</button>
+                            style="background: var(--color-brand-500); color: #04201c">{{ setting('admin.users.segments.hfz_alshryha', 'حفظ الشريحة') }}</button>
                 @endif
             </div>
         </form>

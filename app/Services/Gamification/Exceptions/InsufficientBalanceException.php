@@ -15,7 +15,7 @@ class InsufficientBalanceException extends RuntimeException
         public readonly float $available,
         public readonly string $currencyLabel,
     ) {
-        parent::__construct("رصيدك {$available} {$currencyLabel} والدخول محتاج {$required} — اشحن وارجع كمّل.");
+        parent::__construct(strtr(setting('gamification_xp.insufficient_balance_exception.construct_1', 'رصيدك :p1 :p2 والدخول محتاج :p3 — اشحن وارجع كمّل.'), [':p1' => (string) ($available), ':p2' => (string) ($currencyLabel), ':p3' => (string) ($required)]));
     }
 
     public function shortfall(): float

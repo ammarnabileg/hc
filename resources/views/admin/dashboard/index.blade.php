@@ -18,13 +18,13 @@
 @section('content')
     <x-page-header :title="setting('admin.dashboard.title', 'لوحة القيادة')"
                    :subtitle="setting('admin.dashboard.subtitle', 'حالة المنصّة والقرارات المستنّياك')"
-                   :breadcrumbs="[['label' => 'لوحة الإدارة', 'url' => route('admin.dashboard')], ['label' => 'لوحة القيادة']]">
+                   :breadcrumbs="[['label' => setting('admin.dashboard.index.lwha_alidara', 'لوحة الإدارة'), 'url' => route('admin.dashboard')], ['label' => setting('admin.dashboard.index.lwha_alqyada', 'لوحة القيادة')]]">
         <x-slot:action>
             {{-- فعل رئيسيّ واحد بارز، والباقي في «⋯» (2.15-أ-2) --}}
             @if (\Illuminate\Support\Facades\Route::has('admin.users.approvals') && auth()->user()->allows('user_approvals.list'))
                 <a href="{{ route('admin.users.approvals') }}"
                    class="btn hidden md:inline-flex items-center justify-center rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
-                   style="background: var(--color-brand-500); color: #04201c">راجع طلبات الاعتماد</a>
+                   style="background: var(--color-brand-500); color: #04201c">{{ setting('admin.dashboard.index.raja_tlbat_alaatmad', 'راجع طلبات الاعتماد') }}</a>
             @endif
 
             {{-- ⭐ [استخراج كصورة] بالمكوّن المشترك القائم لا بمكوّنٍ ثانٍ (12.14-هـ) --}}
@@ -35,7 +35,7 @@
             @if (count($quickActions) > 1 || $canCustomize)
                 <details class="relative">
                     <summary class="list-none cursor-pointer rounded-xl px-3 py-2 text-sm select-none"
-                             style="background: var(--surface-raised)" aria-label="اختصارات سريعة">⋯</summary>
+                             style="background: var(--surface-raised)" aria-label="{{ setting('admin.dashboard.index.akhtsarat_sryaa', 'اختصارات سريعة') }}">⋯</summary>
                     <div class="card absolute end-0 mt-2 w-56 p-1 z-40">
                         @foreach ($quickActions as $action)
                             <a href="{{ $action['url'] }}" class="block rounded-lg px-3 py-2 text-sm motion-standard">{{ $action['label'] }}</a>
@@ -44,7 +44,7 @@
                         {{-- تخصيص اللوحة لكلّ دور (12.3-3) — لمن يملك تعديل الإعدادات وحده --}}
                         @if ($canCustomize)
                             <button type="button" data-modal-open="dashboard-layout"
-                                    class="block w-full text-start rounded-lg px-3 py-2 text-sm motion-standard">تخصيص اللوحة</button>
+                                    class="block w-full text-start rounded-lg px-3 py-2 text-sm motion-standard">{{ setting('admin.dashboard.index.tkhsys_allwha', 'تخصيص اللوحة') }}</button>
                         @endif
                     </div>
                 </details>
@@ -73,14 +73,14 @@
         <input type="hidden" name="tab" value="{{ $tab }}">
 
         <label class="text-xs">
-            <span class="block mb-1" style="color: var(--text-muted)">من</span>
+            <span class="block mb-1" style="color: var(--text-muted)">{{ setting('admin.dashboard.index.mn', 'من') }}</span>
             <input type="date" name="from" value="{{ $period['from']->toDateString() }}"
                    class="rounded-xl px-3 py-2 text-sm"
                    style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
         </label>
 
         <label class="text-xs">
-            <span class="block mb-1" style="color: var(--text-muted)">إلى</span>
+            <span class="block mb-1" style="color: var(--text-muted)">{{ setting('admin.dashboard.index.ila', 'إلى') }}</span>
             <input type="date" name="to" value="{{ $period['to']->toDateString() }}"
                    class="rounded-xl px-3 py-2 text-sm"
                    style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
@@ -88,11 +88,11 @@
 
         <label class="text-xs flex items-center gap-2 cursor-pointer pb-2">
             <input type="checkbox" name="compare" value="1" @checked($compare)>
-            <span>مقارنة بالفترة السابقة</span>
+            <span>{{ setting('admin.dashboard.index.mqarna_balftra_alsabqa', 'مقارنة بالفترة السابقة') }}</span>
         </label>
 
         <button class="btn rounded-xl px-4 py-2 text-sm font-semibold"
-                style="background: var(--color-brand-500); color: #04201c; min-height: 44px">طبّق</button>
+                style="background: var(--color-brand-500); color: #04201c; min-height: 44px">{{ setting('admin.dashboard.index.tbq', 'طبّق') }}</button>
 
         <div class="flex flex-wrap items-center gap-2 basis-full">
             @foreach ($quickRanges as $range)
@@ -106,7 +106,7 @@
 
             {{-- مؤشّر «آخر تحديث HH:MM» + التحديث التلقائيّ (12.3-5) --}}
             <span class="ms-auto text-xs" style="color: var(--text-muted)" data-dashboard-updated>
-                آخر تحديث {{ $lastUpdated }}@if ($autoRefresh) · بيتحدّث كلّ {{ $refreshSeconds }} ثانية @endif
+                {{ setting('admin.dashboard.index.akhr_thdyth', 'آخر تحديث') }} {{ $lastUpdated }}@if ($autoRefresh) {!! strtr(setting('admin.dashboard.index.bythdth_kl_v1_thanya', '· بيتحدّث كلّ :v1 ثانية'), [':v1' => e($refreshSeconds)]) !!} @endif
             </span>
         </div>
     </form>
@@ -128,7 +128,7 @@
     @if (\Illuminate\Support\Facades\Route::has('admin.users.approvals') && auth()->user()->allows('user_approvals.list'))
         <a href="{{ route('admin.users.approvals') }}"
            class="btn flex items-center justify-center rounded-xl px-4 py-3 text-sm font-bold motion-standard"
-           style="background: var(--color-brand-500); color: #04201c">راجع طلبات الاعتماد</a>
+           style="background: var(--color-brand-500); color: #04201c">{{ setting('admin.dashboard.index.raja_tlbat_alaatmad', 'راجع طلبات الاعتماد') }}</a>
     @endif
 @endsection
 

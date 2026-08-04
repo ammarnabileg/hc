@@ -78,7 +78,7 @@ class StatsController extends Controller
         $tabs = $this->stats->tabsFor($user);
         $tab = $request->string('tab')->toString();
 
-        abort_unless(array_key_exists($tab, $tabs), 403, 'التاب ده مش متاح ليك.');
+        abort_unless(array_key_exists($tab, $tabs), 403, (string) setting('stats.admin.export_denied', 'التاب ده مش متاح ليك.'));
 
         $period = $this->stats->period(
             $request->string('from')->toString() ?: null,

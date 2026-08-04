@@ -61,8 +61,8 @@ class ConsentDirectory
     public static function fieldLabel(string $field): string
     {
         return match ($field) {
-            'phone' => 'رقم الموبايل',
-            'email' => 'البريد الإلكترونيّ',
+            'phone' => setting('account.consent_directory.field_label_1', 'رقم الموبايل'),
+            'email' => setting('account.consent_directory.field_label_2', 'البريد الإلكترونيّ'),
             default => $field,
         };
     }

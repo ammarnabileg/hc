@@ -119,7 +119,7 @@ class GatewayWebhookController extends Controller
 
         foreach ($request->headers->all() as $name => $values) {
             $headers[$name] = in_array(strtolower($name), self::REDACTED_HEADERS, true)
-                ? '[محجوب]'
+                ? (string) setting('topup.gateway.log_msg', '[محجوب]')
                 : implode(', ', $values);
         }
 

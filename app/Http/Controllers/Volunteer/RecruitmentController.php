@@ -76,8 +76,8 @@ class RecruitmentController extends Controller
             'stage' => ['required', 'string'],
             'reason' => ['required', 'string', 'min:3', 'max:255'],
         ], [], [
-            'stage' => 'المرحلة',
-            'reason' => 'سبب النقل',
+            'stage' => (string) setting('recruitment.screen.move_msg', 'المرحلة'),
+            'reason' => (string) setting('recruitment.screen.move_msg_2', 'سبب النقل'),
         ]);
 
         try {
@@ -86,6 +86,6 @@ class RecruitmentController extends Controller
             return back()->with('status', $e->getMessage());
         }
 
-        return back()->with('status', 'اتنقل ✓ الحركة اتسجّلت في سجلّ التدقيق.');
+        return back()->with('status', (string) setting('recruitment.screen.move_ok', 'اتنقل ✓ الحركة اتسجّلت في سجلّ التدقيق.'));
     }
 }

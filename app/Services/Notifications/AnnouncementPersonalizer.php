@@ -81,11 +81,11 @@ class AnnouncementPersonalizer
         $enrollment = $user ? $this->latestEnrollment($user) : null;
 
         return $this->cache[$cacheKey] = [
-            '[اسم]' => $user?->shortName() ?: $fallbackName,
-            '[الاسم]' => $user?->name ?: $fallbackName,
-            '[الكود]' => (string) ($user?->code ?? ''),
-            '[التدريب]' => $enrollment?->course?->name_ar ?: $fallbackCourse,
-            '[الديدلاين]' => $enrollment?->deadline_at?->format('Y-m-d') ?: $fallbackDeadline,
+            (string) setting('notifications.announcement_personalizer.values_1', '[اسم]') => $user?->shortName() ?: $fallbackName,
+            (string) setting('notifications.announcement_personalizer.values_2', '[الاسم]') => $user?->name ?: $fallbackName,
+            (string) setting('notifications.announcement_personalizer.values_3', '[الكود]') => (string) ($user?->code ?? ''),
+            (string) setting('notifications.announcement_personalizer.values_4', '[التدريب]') => $enrollment?->course?->name_ar ?: $fallbackCourse,
+            (string) setting('notifications.announcement_personalizer.values_5', '[الديدلاين]') => $enrollment?->deadline_at?->format('Y-m-d') ?: $fallbackDeadline,
         ];
     }
 

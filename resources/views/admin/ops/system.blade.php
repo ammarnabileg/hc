@@ -1,14 +1,14 @@
 @extends('layouts.admin')
 
-@section('title', 'النسخ الاحتياطيّ وصحّة النظام')
+@section('title', setting('admin.ops.system.alnskh_alahtyaty_wsha_alnzam', 'النسخ الاحتياطيّ وصحّة النظام'))
 
 @section('content')
-    <x-page-header title="النسخ الاحتياطيّ وصحّة النظام"
-                   subtitle="النظام سليم؟ ومعانا نسخة نقدر نرجع لها؟"
+    <x-page-header :title="setting('admin.ops.system.alnskh_alahtyaty_wsha_alnzam', 'النسخ الاحتياطيّ وصحّة النظام')"
+                   :subtitle="setting('admin.ops.system.alnzam_slym_wmaana_nskha_nqdr_nrja_lha', 'النظام سليم؟ ومعانا نسخة نقدر نرجع لها؟')"
                    :breadcrumbs="[
-                       ['label' => 'لوحة الإدارة', 'url' => url('/admin')],
-                       ['label' => 'الإعدادات والنظام', 'url' => route('admin.settings.index')],
-                       ['label' => 'النسخ الاحتياطيّ وصحّة النظام'],
+                       ['label' => setting('admin.ops.system.lwha_alidara', 'لوحة الإدارة'), 'url' => url('/admin')],
+                       ['label' => setting('admin.ops.system.aliadadat_walnzam', 'الإعدادات والنظام'), 'url' => route('admin.settings.index')],
+                       ['label' => setting('admin.ops.system.alnskh_alahtyaty_wsha_alnzam', 'النسخ الاحتياطيّ وصحّة النظام')],
                    ]">
         <x-slot:action>
             @can('backups.create')
@@ -17,7 +17,7 @@
                     @csrf
                     <input type="hidden" name="kind" value="{{ $schedule['kind'] }}">
                     <button class="btn rounded-xl px-4 py-2 text-sm font-semibold"
-                            style="background: var(--color-brand-500); color: #04201c">نسخة احتياطيّة الآن</button>
+                            style="background: var(--color-brand-500); color: #04201c">{{ setting('admin.ops.system.nskha_ahtyatya_alan', 'نسخة احتياطيّة الآن') }}</button>
                 </form>
             @endcan
 
@@ -27,14 +27,14 @@
                     @can('system_health.view')
                         <form method="post" action="{{ route('admin.ops.system.health') }}">
                             @csrf
-                            <button class="w-full text-start px-2 py-2 rounded hover:opacity-80"><x-icon name="health" size="16" /> تشغيل فحص صحّة</button>
+                            <button class="w-full text-start px-2 py-2 rounded hover:opacity-80"><x-icon name="health" size="16" /> {{ setting('admin.ops.system.tshghyl_fhs_sha', 'تشغيل فحص صحّة') }}</button>
                         </form>
                     @endcan
                     @can('system_health.export')
-                        <a class="block px-2 py-2 rounded hover:opacity-80" href="{{ route('admin.ops.system.health.export') }}"><x-icon name="download" size="16" /> تصدير تقرير الصحّة</a>
+                        <a class="block px-2 py-2 rounded hover:opacity-80" href="{{ route('admin.ops.system.health.export') }}"><x-icon name="download" size="16" /> {{ setting('admin.ops.system.tsdyr_tqryr_alsha', 'تصدير تقرير الصحّة') }}</a>
                     @endcan
                     @can('scheduled_jobs.view')
-                        <a class="block px-2 py-2 rounded hover:opacity-80" href="{{ route('admin.ops.system', ['tab' => 'schedule']) }}"><x-icon name="clock" size="16" /> جدولة النسخ</a>
+                        <a class="block px-2 py-2 rounded hover:opacity-80" href="{{ route('admin.ops.system', ['tab' => 'schedule']) }}"><x-icon name="clock" size="16" /> {{ setting('admin.ops.system.jdwla_alnskh', 'جدولة النسخ') }}</a>
                     @endcan
                 </div>
             </details>
@@ -51,8 +51,8 @@
     @if ($alerts !== [])
         <div class="card p-4 mb-4" style="border: 1px solid var(--color-state-danger)">
             <div class="flex items-center gap-2 mb-2">
-                <x-state-badge state="danger" label="محتاج إجراء" />
-                <h2 class="text-sm font-bold">تنبيهات النظام</h2>
+                <x-state-badge state="danger" :label="setting('admin.ops.system.mhtaj_ijra', 'محتاج إجراء')" />
+                <h2 class="text-sm font-bold">{{ setting('admin.ops.system.tnbyhat_alnzam', 'تنبيهات النظام') }}</h2>
             </div>
             <ul class="space-y-1 text-sm">
                 @foreach ($alerts as $alert)
@@ -63,9 +63,9 @@
     @endif
 
     <x-tabs :current="$tab" :tabs="[
-        ['key' => 'health', 'label' => 'صحّة النظام', 'url' => route('admin.ops.system', ['tab' => 'health'])],
-        ['key' => 'backups', 'label' => 'النسخ', 'url' => route('admin.ops.system', ['tab' => 'backups'])],
-        ['key' => 'schedule', 'label' => 'الجدولة والسجلّ', 'url' => route('admin.ops.system', ['tab' => 'schedule'])],
+        ['key' => 'health', 'label' => setting('admin.ops.system.sha_alnzam', 'صحّة النظام'), 'url' => route('admin.ops.system', ['tab' => 'health'])],
+        ['key' => 'backups', 'label' => setting('admin.ops.system.alnskh', 'النسخ'), 'url' => route('admin.ops.system', ['tab' => 'backups'])],
+        ['key' => 'schedule', 'label' => setting('admin.ops.system.aljdwla_walsjl', 'الجدولة والسجلّ'), 'url' => route('admin.ops.system', ['tab' => 'schedule'])],
     ]" />
 
     @if ($tab === 'backups')
@@ -83,7 +83,7 @@
             @csrf
             <input type="hidden" name="kind" value="{{ $schedule['kind'] }}">
             <button class="btn w-full rounded-xl px-4 py-3 text-sm font-semibold"
-                    style="background: var(--color-brand-500); color: #04201c">نسخة احتياطيّة الآن</button>
+                    style="background: var(--color-brand-500); color: #04201c">{{ setting('admin.ops.system.nskha_ahtyatya_alan', 'نسخة احتياطيّة الآن') }}</button>
         </form>
     @endcan
 @endsection

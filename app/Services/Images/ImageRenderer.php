@@ -75,7 +75,7 @@ class ImageRenderer
     public function draw(ImageTemplate $template, ?User $user, array $data): string
     {
         if (! function_exists('imagecreatetruecolor')) {
-            throw new RuntimeException('امتداد GD مش متاح على الخادم — التوليد متوقّف.');
+            throw new RuntimeException(setting('images.image_renderer.draw_1', 'امتداد GD مش متاح على الخادم — التوليد متوقّف.'));
         }
 
         $width = max(1, (int) $template->width_px);
@@ -126,7 +126,7 @@ class ImageRenderer
         $count = (int) Cache::get($bucket, 0);
 
         if ($count >= $limit) {
-            throw new RuntimeException('وصلت لحدّ التوليد في الدقيقة — استنّى دقيقة وجرّب تاني.');
+            throw new RuntimeException(setting('images.image_renderer.throttle_1', 'وصلت لحدّ التوليد في الدقيقة — استنّى دقيقة وجرّب تاني.'));
         }
 
         // نافذة العدّاد أطول قليلًا من الدقيقة كي لا يضيع العدّ على حدّها — وهي إعداد (2.13)

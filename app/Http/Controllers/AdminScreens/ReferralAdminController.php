@@ -22,16 +22,27 @@ class ReferralAdminController extends Controller
 {
     public function __construct(private readonly ReferralAdmin $referrals) {}
 
-    public const TABS = [
-        'invites' => 'المدعوّون',
-        'ambassadors' => 'السفراء',
-        'tiers' => 'العتبات والألقاب',
-    ];
+    /** مفاتيح التابات الثلاثة — مفاتيح داخليّة لا نصوصًا */
+    public const TAB_KEYS = ['invites', 'ambassadors', 'tiers'];
+
+    /**
+     * عناوين التابات — ميثودٌ لا `const` كي يحرّرها المالك (2.13-أ).
+     *
+     * @return array<string, string>
+     */
+    public static function tabs(): array
+    {
+        return [
+            'invites' => (string) setting('referral_admin.screen.tab_invites', 'المدعوّون'),
+            'ambassadors' => (string) setting('referral_admin.screen.tab_ambassadors', 'السفراء'),
+            'tiers' => (string) setting('referral_admin.screen.tab_tiers', 'العتبات والألقاب'),
+        ];
+    }
 
     public function index(Request $request): View
     {
         $tab = $request->string('tab')->toString();
-        $tab = array_key_exists($tab, self::TABS) ? $tab : 'invites';
+        $tab = in_array($tab, self::TAB_KEYS, true) ? $tab : 'invites';
 
         $filters = $this->filters($request);
         $user = $request->user();
@@ -39,7 +50,7 @@ class ReferralAdminController extends Controller
 
         return view('admin.referral-admin.index', [
             'tab' => $tab,
-            'tabs' => self::TABS,
+            'tabs' => self::tabs(),
             'filters' => $filters,
             'stats' => $this->referrals->stats($filters),
             'statuses' => ReferralAdmin::STATUSES,
@@ -69,7 +80,7 @@ class ReferralAdminController extends Controller
     {
         $data = $request->validate([
             'note' => ['nullable', 'string', 'max:500'],
-        ], [], ['note' => 'السبب']);
+        ], [], ['note' => (string) setting('referral_admin.screen.payout_msg', 'السبب')]);
 
         $result = $this->referrals->payout($referral, (string) ($data['note'] ?? ''), $request->user());
 
@@ -82,7 +93,7 @@ class ReferralAdminController extends Controller
     {
         $data = $request->validate([
             'note' => ['required', 'string', 'max:500'],
-        ], [], ['note' => 'سبب التعليق']);
+        ], [], ['note' => (string) setting('referral_admin.screen.hold_msg', 'سبب التعليق')]);
 
         $this->referrals->hold($referral, $data['note'], $request->user());
 
@@ -97,11 +108,11 @@ class ReferralAdminController extends Controller
             'tiers.*.key' => ['required', 'string', 'max:32'],
             'tiers.*.label' => ['required', 'string', 'max:64'],
             'tiers.*.threshold' => ['required', 'integer', 'min:1', 'max:100000'],
-        ], [], ['tiers' => 'العتبات']);
+        ], [], ['tiers' => (string) setting('referral_admin.screen.save_tiers_msg', 'العتبات')]);
 
         $count = $this->referrals->saveTiers($data['tiers'], $request->user());
 
-        return back()->with('status', 'اتحفظ سلّم الألقاب ('.$count.' لقب) ✓');
+        return back()->with('status', strtr((string) setting('referral_admin.screen.save_tiers_ok', 'اتحفظ سلّم الألقاب (:a1 لقب) ✓'), [':a1' => (string) ($count)]));
     }
 
     public function export(Request $request): StreamedResponse
@@ -130,14 +141,14 @@ class ReferralAdminController extends Controller
 
         ScreenSettings::putMany(ScreenSettings::SCREEN_REFERRAL, $data['settings'], $request->user());
 
-        return back()->with('status', 'اتحفظ ✓');
+        return back()->with('status', (string) setting('referral_admin.screen.save_settings_ok', 'اتحفظ ✓'));
     }
 
     public function resetSettings(Request $request): RedirectResponse
     {
         $count = ScreenSettings::resetScreen(ScreenSettings::SCREEN_REFERRAL, $request->user());
 
-        return back()->with('status', 'رجعت '.$count.' قيمة للافتراضيّ ✓');
+        return back()->with('status', strtr((string) setting('referral_admin.screen.reset_settings_ok', 'رجعت :a1 قيمة للافتراضيّ ✓'), [':a1' => (string) ($count)]));
     }
 
     /** 🔒 الأرقام الماليّة للمجموعة المحميّة وحدها (12.7 · 24.2 «بلا صلاحيّة») */

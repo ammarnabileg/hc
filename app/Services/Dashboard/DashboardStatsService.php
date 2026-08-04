@@ -84,12 +84,12 @@ class DashboardStatsService
 
         return [
             'segments' => [
-                ['label' => 'مكتمل', 'value' => $completed, 'color' => 'var(--color-state-ok)', 'icon' => '●'],
-                ['label' => 'جارٍ', 'value' => $started, 'color' => 'var(--color-brand-500)', 'icon' => '◐'],
-                ['label' => 'لسّه مابدأش', 'value' => $notStarted, 'color' => 'var(--color-state-idle)', 'icon' => '○'],
+                ['label' => setting('dashboard.dashboard_stats_service.completion_donut_1', 'مكتمل'), 'value' => $completed, 'color' => 'var(--color-state-ok)', 'icon' => '●'],
+                ['label' => setting('dashboard.dashboard_stats_service.completion_donut_2', 'جارٍ'), 'value' => $started, 'color' => 'var(--color-brand-500)', 'icon' => '◐'],
+                ['label' => setting('dashboard.dashboard_stats_service.completion_donut_3', 'لسّه مابدأش'), 'value' => $notStarted, 'color' => 'var(--color-state-idle)', 'icon' => '○'],
             ],
             'percent' => $lessonsTotal > 0 ? (int) round(($lessonsDone / $lessonsTotal) * 100) : 0,
-            'caption' => $lessonsDone.' من '.$lessonsTotal.' درسًا',
+            'caption' => strtr(setting('dashboard.dashboard_stats_service.completion_donut_4', ':p1 من :p2 درسًا'), [':p1' => (string) ($lessonsDone), ':p2' => (string) ($lessonsTotal)]),
         ];
     }
 

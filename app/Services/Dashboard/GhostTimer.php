@@ -30,7 +30,7 @@ final class GhostTimer
 
         // فات الموعد ⟵ أحمر (2.16): «فات · خطر»
         if ($seconds <= 0) {
-            return new self($deadline, 'danger', 'فات الموعد من '.self::humanize(abs($seconds)), $seconds);
+            return new self($deadline, 'danger', strtr(setting('dashboard.ghost_timer.make_1', 'فات الموعد من :p1'), [':p1' => (string) (self::humanize(abs($seconds)))]), $seconds);
         }
 
         $dangerHours = (int) setting('dashboard.deadline.danger_hours', 24);
@@ -43,7 +43,7 @@ final class GhostTimer
             default => 'ok',
         };
 
-        return new self($deadline, $state, 'باقي '.self::humanize($seconds), $seconds);
+        return new self($deadline, $state, strtr(setting('dashboard.ghost_timer.make_2', 'باقي :p1'), [':p1' => (string) (self::humanize($seconds))]), $seconds);
     }
 
     /** هل الموعد ضمن نافذة «أقرب المواعيد»؟ */
@@ -60,14 +60,14 @@ final class GhostTimer
         if ($seconds < 3600) {
             $minutes = intdiv($seconds, 60);
 
-            return $minutes < 1 ? 'أقلّ من دقيقة' : self::plural($minutes, 'دقيقة', 'دقيقتين', 'دقائق', 'دقيقة');
+            return $minutes < 1 ? setting('dashboard.ghost_timer.humanize_1', 'أقلّ من دقيقة') : self::plural($minutes, setting('dashboard.ghost_timer.humanize_2', 'دقيقة'), setting('dashboard.ghost_timer.humanize_3', 'دقيقتين'), setting('dashboard.ghost_timer.humanize_4', 'دقائق'), setting('dashboard.ghost_timer.humanize_5', 'دقيقة'));
         }
 
         if ($seconds < 86400) {
-            return self::plural(intdiv($seconds, 3600), 'ساعة', 'ساعتين', 'ساعات', 'ساعة');
+            return self::plural(intdiv($seconds, 3600), setting('dashboard.ghost_timer.humanize_6', 'ساعة'), setting('dashboard.ghost_timer.humanize_7', 'ساعتين'), setting('dashboard.ghost_timer.humanize_8', 'ساعات'), setting('dashboard.ghost_timer.humanize_9', 'ساعة'));
         }
 
-        return self::plural(intdiv($seconds, 86400), 'يوم', 'يومين', 'أيّام', 'يومًا');
+        return self::plural(intdiv($seconds, 86400), setting('dashboard.ghost_timer.humanize_10', 'يوم'), setting('dashboard.ghost_timer.humanize_11', 'يومين'), setting('dashboard.ghost_timer.humanize_12', 'أيّام'), setting('dashboard.ghost_timer.humanize_13', 'يومًا'));
     }
 
     private static function plural(int $n, string $one, string $two, string $few, string $many): string

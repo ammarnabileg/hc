@@ -1,6 +1,6 @@
 @extends('layouts.volunteer')
 
-@section('title', 'الهيكل التنظيميّ')
+@section('title', setting('volunteer.org_chart.title', 'الهيكل التنظيميّ'))
 
 @push('head')
     @include('volunteer.org.partials.chart-styles')
@@ -8,45 +8,45 @@
 
 @section('content')
     <x-page-header
-        title="الهيكل التنظيميّ"
-        :subtitle="$root ? $root->name_ar.' — شجرة الكيان وسلاسل الأبلاين' : null"
-        :breadcrumbs="[['label' => 'لوحة التطوّع', 'url' => url('/volunteer')], ['label' => 'قسمي'], ['label' => 'الهيكل التنظيميّ']]">
+        :title="setting('volunteer.org_chart.title', 'الهيكل التنظيميّ')"
+        :subtitle="$root ? $root->name_ar.setting('volunteer.org_chart.subtitle', ' — شجرة الكيان وسلاسل الأبلاين') : null"
+        :breadcrumbs="[['label' => setting('volunteer.common.breadcrumb_root', 'لوحة التطوّع'), 'url' => url('/volunteer')], ['label' => setting('volunteer.org_chart.label', 'قسمي')], ['label' => setting('volunteer.org_chart.title', 'الهيكل التنظيميّ')]]">
         <x-slot:action>
             @include('volunteer.org.partials.entity-switcher', ['action' => route('volunteer.org')])
             {{-- فعل رئيسيّ واحد بارز (2.15-أ-2) --}}
             <button type="button" data-org="snapshot"
                     class="btn rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
-                    style="background: var(--color-brand-500); color: #04201c">لقطة (Snapshot)</button>
+                    style="background: var(--color-brand-500); color: #04201c">{{ setting('volunteer.org_chart.action', 'لقطة (Snapshot)') }}</button>
         </x-slot:action>
     </x-page-header>
 
     @if (! $root || empty($chart['nodes']))
-        <x-empty message="مفيش فريق تحتك — دي شجرة كيانك لسّه في أوّلها" action="الأعضاء والبوزشنز" :href="route('volunteer.department')" />
+        <x-empty :message="setting('volunteer.org_chart.empty', 'مفيش فريق تحتك — دي شجرة كيانك لسّه في أوّلها')" :action="setting('volunteer.org_chart.action_2', 'الأعضاء والبوزشنز')" :href="route('volunteer.department')" />
     @else
         {{-- عدّاد شبكتك الكاملة بكلّ المستويات + أعلى رقم وصلته بلون هادئ بلا سهم نازل (13.4-م) --}}
         <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
             <div class="card p-4">
-                <div class="text-sm" style="color: var(--text-muted)">شبكتك الكاملة</div>
+                <div class="text-sm" style="color: var(--text-muted)">{{ setting('volunteer.org_chart.text', 'شبكتك الكاملة') }}</div>
                 {{-- الرقم النهائيّ يظهر في كلّ الأحوال (2.17-أ) --}}
                 <div class="mt-2 text-2xl font-extrabold" data-count-to="{{ $chart['network_total'] }}">{{ $chart['network_total'] }}</div>
                 <div class="mt-1 text-xs" style="color: var(--text-muted)">
-                    أعلى رقم وصلته: <span data-org="best">{{ $chart['network_total'] }}</span>
+                    {{ setting('volunteer.org_chart.text_2', 'أعلى رقم وصلته:') }} <span data-org="best">{{ $chart['network_total'] }}</span>
                 </div>
             </div>
-            <x-kpi label="أعضاء الكيان" :value="$chart['entity_members']" icon="people" />
+            <x-kpi :label="setting('volunteer.org_chart.label_2', 'أعضاء الكيان')" :value="$chart['entity_members']" icon="people" />
             <div class="card p-4 col-span-2 flex flex-col justify-center gap-2">
-                <input type="search" data-org="search" placeholder="ابحث بالاسم أو الكود — نقفز للعقدة ونضيئها"
-                       aria-label="بحث في الهيكل"
+                <input type="search" data-org="search" placeholder="{{ setting('volunteer.org_chart.placeholder', 'ابحث بالاسم أو الكود — نقفز للعقدة ونضيئها') }}"
+                       aria-label="{{ setting('volunteer.org_chart.aria', 'بحث في الهيكل') }}"
                        class="w-full rounded-xl px-3 py-2 text-sm"
                        style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
                 <div class="flex flex-wrap items-center gap-2 text-xs">
-                    <button type="button" data-org="center" class="rounded-full px-3 py-1" style="background: var(--surface-sunken)">توسيط عليّ</button>
-                    <button type="button" data-org="relayout" class="rounded-full px-3 py-1" style="background: var(--surface-sunken)">إعادة ترتيب تلقائيّ</button>
-                    <button type="button" data-org="zoom-in" class="rounded-full px-3 py-1" style="background: var(--surface-sunken)" aria-label="تكبير">＋</button>
-                    <button type="button" data-org="zoom-out" class="rounded-full px-3 py-1" style="background: var(--surface-sunken)" aria-label="تصغير">－</button>
+                    <button type="button" data-org="center" class="rounded-full px-3 py-1" style="background: var(--surface-sunken)">{{ setting('volunteer.org_chart.action_3', 'توسيط عليّ') }}</button>
+                    <button type="button" data-org="relayout" class="rounded-full px-3 py-1" style="background: var(--surface-sunken)">{{ setting('volunteer.org_chart.action_4', 'إعادة ترتيب تلقائيّ') }}</button>
+                    <button type="button" data-org="zoom-in" class="rounded-full px-3 py-1" style="background: var(--surface-sunken)" aria-label="{{ setting('volunteer.org_chart.aria_2', 'تكبير') }}">＋</button>
+                    <button type="button" data-org="zoom-out" class="rounded-full px-3 py-1" style="background: var(--surface-sunken)" aria-label="{{ setting('volunteer.org_chart.aria_3', 'تصغير') }}">－</button>
                     <label class="flex items-center gap-1">
                         <input type="checkbox" data-org="occupancy" checked style="accent-color: var(--color-brand-500)">
-                        إظهار مؤشّر الإشغال
+                        {{ setting('volunteer.org_chart.field', 'إظهار مؤشّر الإشغال') }}
                     </label>
                 </div>
             </div>
@@ -68,15 +68,15 @@
             </ul>
         </div>
 
-        <x-modal id="org-node-modal" title="تفاصيل سريعة">
+        <x-modal id="org-node-modal" :title="setting('volunteer.org_chart.tooltip', 'تفاصيل سريعة')">
             <div data-org-node-body class="text-sm">
-                <p style="color: var(--text-muted)">جارٍ التحميل…</p>
+                <p style="color: var(--text-muted)">{{ setting('volunteer.common.loading', 'جارٍ التحميل…') }}</p>
             </div>
         </x-modal>
 
-        <x-modal id="org-snapshot-modal" title="لقطة الهيكل">
+        <x-modal id="org-snapshot-modal" :title="setting('volunteer.org_chart.tooltip_2', 'لقطة الهيكل')">
             <div data-org-snapshot class="text-sm text-center">
-                <p style="color: var(--text-muted)">جارٍ تجهيز اللقطة…</p>
+                <p style="color: var(--text-muted)">{{ setting('volunteer.org_chart.field_2', 'جارٍ تجهيز اللقطة…') }}</p>
             </div>
         </x-modal>
     @endif
@@ -84,7 +84,33 @@
 
 @push('scripts')
 @if ($root && ! empty($chart['nodes']))
+@php
+    /** نصوص السكربت — تُمرَّر بـ`@json` فلا يبقى حرفٌ عربيّ محروق داخله (2.13-أ) */
+    $jsText = [
+        'honorary' => (string) setting('volunteer.org_chart.js_honorary', 'عنصر شرفيّ — خارج كلّ العدّادات'),
+        'absent_until' => (string) setting('volunteer.org_chart.js_absent_until', 'غائب حتى'),
+        'delegate' => (string) setting('volunteer.org_chart.js_delegate', '— البديل:'),
+        'acting' => (string) setting('volunteer.org_chart.js_acting', 'قائم بأعمال'),
+        'occupancy' => (string) setting('volunteer.org_chart.js_occupancy', 'إشغال'),
+        'load' => (string) setting('volunteer.org_chart.js_load', 'حِمل'),
+        'expand' => (string) setting('volunteer.org_chart.js_expand', 'وسّع (:count)'),
+        'collapse' => (string) setting('volunteer.org_chart.js_collapse', 'اطوِ'),
+        'loading' => (string) setting('volunteer.org_chart.js_loading', 'جارٍ التحميل…'),
+        'service_duration' => (string) setting('volunteer.org_chart.js_service_duration', 'مدّة الخدمة'),
+        'certificates' => (string) setting('volunteer.org_chart.js_certificates', 'الشهادات'),
+        'open_profile' => (string) setting('volunteer.org_chart.js_open_profile', 'فتح البروفايل'),
+        'load_failed' => (string) setting('volunteer.org_chart.js_load_failed', 'تعذّر تحميل التفاصيل — جرّب تاني.'),
+        'snapshot_preparing' => (string) setting('volunteer.org_chart.js_snapshot_preparing', 'جارٍ تجهيز اللقطة…'),
+        'network_total' => (string) setting('volunteer.org_chart.js_network_total', 'الشبكة:'),
+        'snapshot_at' => (string) setting('volunteer.org_chart.js_snapshot_at', '· لقطة'),
+        'snapshot_alt' => (string) setting('volunteer.org_chart.js_snapshot_alt', 'لقطة الهيكل'),
+        'save_image' => (string) setting('volunteer.org_chart.js_save_image', 'حفظ الصورة'),
+        'snapshot_failed' => (string) setting('volunteer.org_chart.js_snapshot_failed', 'تعذّر تجهيز اللقطة — جرّب تاني.'),
+    ];
+@endphp
+
 <script>
+const T = @json($jsText);
 /* -----------------------------------------------------------------
  | كانفاس الهيكل التنظيميّ (13.4-م-3) — JS خام بلا أيّ مكتبة رسم.
  | الخطوط منحنية ناعمة وتتحرّك مع السحب، والمواضع تُحفَظ لكلّ مستخدم.
@@ -159,15 +185,15 @@
                         <div class="org-node__meta" style="color: var(--color-state-honor)">★ ${n.position}</div>
                     </div>
                 </div>
-                <div class="org-node__meta" style="margin-block-start:10px">عنصر شرفيّ — خارج كلّ العدّادات</div>`;
+                <div class="org-node__meta" style="margin-block-start:10px">${T.honorary}</div>`;
         } else {
             const marks = [];
-            if (n.absent_until) marks.push(chip('idle', 'غائب حتى ' + n.absent_until + (n.delegate ? ' — البديل: ' + n.delegate : '')));
-            if (n.acting) marks.push(chip('warn', 'قائم بأعمال'));
+            if (n.absent_until) marks.push(chip('idle', T.absent_until + ' ' + n.absent_until + (n.delegate ? ' ' + T.delegate + ' ' + n.delegate : '')));
+            if (n.acting) marks.push(chip('warn', T.acting));
 
             const occupancy = n.occupancy === null ? '' : `
                 <div data-occupancy style="margin-block-start:6px">
-                    <div class="org-node__meta">إشغال ${n.occupancy}%</div>
+                    <div class="org-node__meta">${T.occupancy} ${n.occupancy}%</div>
                     <div class="org-bar"><span style="inline-size:${Math.min(100, n.occupancy)}%;
                         background: var(--color-state-${n.occupancy_state})"></span></div>
                 </div>`;
@@ -182,7 +208,7 @@
                 </div>
                 <div class="flex items-center gap-1 flex-wrap" style="margin-block-start:6px">
                     ${chip(n.rep_state, n.rep_label)}
-                    <span class="org-node__chip" style="background: var(--surface-sunken); color: var(--text-muted)">حِمل ${n.load}</span>
+                    <span class="org-node__chip" style="background: var(--surface-sunken); color: var(--text-muted)">${T.load} ${n.load}</span>
                 </div>
                 ${occupancy}
                 <div class="flex items-center gap-1 flex-wrap" style="margin-block-start:4px">${marks.join('')}</div>`;
@@ -244,7 +270,7 @@
             if (toggle) {
                 const n = childrenOf(id).length;
                 const isCollapsed = collapsed.has(id);
-                toggle.textContent = isCollapsed ? 'وسّع (' + n + ')' : 'اطوِ';
+                toggle.textContent = isCollapsed ? T.expand.replace(':count', n) : T.collapse;
                 toggle.style.display = n ? '' : 'none';
             }
         });
@@ -352,7 +378,7 @@
         const n = byId.get(id);
         if (!n || n.honorary || !nodeModal) return; // العنصر الشرفيّ بلا بروفايل ولا مؤشّرات
         nodeModal.classList.remove('hidden'); nodeModal.classList.add('flex');
-        nodeBody.innerHTML = '<p style="color: var(--text-muted)">جارٍ التحميل…</p>';
+        nodeBody.innerHTML = '<p style="color: var(--text-muted)">' + T.loading + '</p>';
         fetch(NODE_URL + '/' + id, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
             .then((r) => r.json())
             .then((d) => {
@@ -360,14 +386,14 @@
                     <div class="font-bold mb-1">${d.name}</div>
                     <div class="text-xs mb-3" style="color: var(--text-muted)">#${d.code} · ${d.position} · ${d.entity}</div>
                     <div class="grid grid-cols-3 gap-2 mb-4">
-                        <div class="card p-2 text-center"><div class="text-xs" style="color: var(--text-muted)">مدّة الخدمة</div><div class="font-bold text-sm mt-1">${d.service_duration}</div></div>
+                        <div class="card p-2 text-center"><div class="text-xs" style="color: var(--text-muted)">${T.service_duration}</div><div class="font-bold text-sm mt-1">${d.service_duration}</div></div>
                         <div class="card p-2 text-center"><div class="text-xs" style="color: var(--text-muted)">Kudos</div><div class="font-bold text-sm mt-1">${d.kudos}</div></div>
-                        <div class="card p-2 text-center"><div class="text-xs" style="color: var(--text-muted)">الشهادات</div><div class="font-bold text-sm mt-1">${d.certificates}</div></div>
+                        <div class="card p-2 text-center"><div class="text-xs" style="color: var(--text-muted)">${T.certificates}</div><div class="font-bold text-sm mt-1">${d.certificates}</div></div>
                     </div>
                     <a href="${d.profile_url}" class="btn rounded-xl px-4 py-2 text-sm font-semibold"
-                       style="background: var(--color-brand-500); color:#04201c">فتح البروفايل</a>`;
+                       style="background: var(--color-brand-500); color:#04201c">${T.open_profile}</a>`;
             })
-            .catch(() => { nodeBody.innerHTML = '<p>تعذّر تحميل التفاصيل — جرّب تاني.</p>'; });
+            .catch(() => { nodeBody.innerHTML = '<p>' + T.load_failed + '</p>'; });
     }
 
     // ----- أدوات الشريط
@@ -420,7 +446,7 @@
         const box = modal?.querySelector('[data-org-snapshot]');
         if (!modal || !box) return;
         modal.classList.remove('hidden'); modal.classList.add('flex');
-        box.innerHTML = '<p style="color: var(--text-muted)">جارٍ تجهيز اللقطة…</p>';
+        box.innerHTML = '<p style="color: var(--text-muted)">' + T.snapshot_preparing + '</p>';
 
         const css = getComputedStyle(document.documentElement);
         const val = (name, fallback) => (css.getPropertyValue(name) || fallback).trim();
@@ -458,7 +484,7 @@
         ctx.fillText(@json($chart['entity_name']), w - 26, 40);
         ctx.font = '500 13px Cairo, sans-serif';
         ctx.fillStyle = val('--text-muted', '#9bb3ad');
-        ctx.fillText('الشبكة: ' + DATA.network_total + ' · لقطة ' + @json($snapshotDate), w - 26, 62);
+        ctx.fillText(T.network_total + ' ' + DATA.network_total + ' ' + T.snapshot_at + ' ' + @json($snapshotDate), w - 26, 62);
 
         const ox = pad - minX, oy = head + pad - minY;
 
@@ -494,16 +520,16 @@
             ctx.fillStyle = val('--text-muted', '#9bb3ad');
             ctx.font = '500 11px Cairo, sans-serif';
             ctx.fillText(n.position, x + NODE_W - 12, y + 46, NODE_W - 24);
-            if (!n.honorary) ctx.fillText('حِمل ' + n.load, x + NODE_W - 12, y + 66, NODE_W - 24);
+            if (!n.honorary) ctx.fillText(T.load + ' ' + n.load, x + NODE_W - 12, y + 66, NODE_W - 24);
         });
 
         try {
             const url = cv.toDataURL('image/png');
-            box.innerHTML = `<img src="${url}" alt="لقطة الهيكل" style="max-inline-size:100%; border-radius:12px">
+            box.innerHTML = `<img src="${url}" alt="${T.snapshot_alt}" style="max-inline-size:100%; border-radius:12px">
                 <a href="${url}" download="org-snapshot.png" class="btn inline-block mt-3 rounded-xl px-4 py-2 text-sm font-semibold"
-                   style="background: var(--color-brand-500); color:#04201c">حفظ الصورة</a>`;
+                   style="background: var(--color-brand-500); color:#04201c">${T.save_image}</a>`;
         } catch (e) {
-            box.innerHTML = '<p>تعذّر تجهيز اللقطة — جرّب تاني.</p>';
+            box.innerHTML = '<p>' + T.snapshot_failed + '</p>';
         }
     });
 

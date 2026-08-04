@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Support\Access\PermissionExpander;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
+use Tests\Support\SidebarMap;
 
 /**
  * حارس ب-2: **كلّ شاشة إدارة تمتدّ من `layouts.admin`**.
@@ -99,15 +100,22 @@ class AdminLayoutGuardTest extends UiTestCase
 
             $response->assertOk();
 
-            // سايد بار الإدارة حاضر…
-            $response->assertSee('لوحة الإدارة', false);
-            $response->assertSee('رجوع لحسابي', false);
-            $response->assertSee(route('admin.settings.index'), false);
+            $destinations = SidebarMap::allDestinations($response->getContent());
+
+            /*
+             | ⭐ **بالوجهة لا باللافتة** (سجلّ القرارات 2026-08-04 · 2.13-ب):
+             | اسم البند قيمةٌ افتراضيّة يملك المالك تغييرها، أمّا العنوان الذي
+             | يذهب إليه فهو بنية الخريطة نفسها. فمَن أعاد تسمية «لوحة القيادة»
+             | لم يخالف، ومَن حذف بابها أسقط الحارس.
+             */
+            $this->assertContains(route('admin.dashboard'), $destinations);
+            $this->assertContains(route('admin.settings.index', ['tab' => 'platform']), $destinations);
+            $this->assertContains(route('dashboard'), $destinations, 'باب الرجوع لطبقة المتدرّب غائب.');
 
             // …وسايد بار المتدرّب غائب: البقاء داخله هو عين العطل ب-2
-            $response->assertDontSee('>تعلّمي<', false);
-            $response->assertDontSee('>مكتبتي<', false);
-            $response->assertDontSee('>إنجازاتي<', false);
+            foreach ([route('learning.courses'), route('library.index'), route('achievements.badges')] as $trainee) {
+                $this->assertNotContains($trainee, $destinations, "وجهة من سايد بار المتدرّب ظهرت في شاشة إدارة: {$trainee}");
+            }
         }
     }
 
@@ -133,45 +141,53 @@ class AdminLayoutGuardTest extends UiTestCase
         }
     }
 
-    /** خريطة 12.0: الاثنا عشر قسمًا بأسمائها وترتيبها، و«الإعدادات والنظام» آخرها دائمًا */
-    public function test_the_twelve_sections_appear_in_the_constitutional_order(): void
+    /**
+     * ⭐ **خريطة 12.0 كاملةً — بالوجهة لا باللافتة** (سجلّ القرارات 2026-08-04).
+     *
+     * كان هذا الفحص يقيس **الكلمة المكتوبة** على البند وترتيبَ ظهورها في الـHTML،
+     * فيسقط في وجه مالكٍ أعاد تسمية «إدارة التدريب» — وهو **حقٌّ يملكه** بنصّ
+     * 2.13-ب: كلّ نصٍّ في الدستور قيمةٌ افتراضيّة قابلة للتعديل ما لم يُنَصّ
+     * أنّه ثابتٌ نظاميّ، وأسماءُ القوائم ليست منه.
+     *
+     * **والمحفوظ من الخريطة بنيتُها:** عدد البنود · ترتيبها · **وجهتُها** ·
+     * ومَن يراها. فصار المقياس هو الـ`href` — العنوان الذي يفتحه البند.
+     * ومَن غيّر لافتةً مرّ، ومَن حذف بندًا أو أزاحه أو حوّل وجهته سقط.
+     *
+     * ⚠️ **وهو أقوى من سابقه لا أضعف:** الأوّل كان يكتفي بوجود الكلمة في أيّ
+     * موضعٍ من الصفحة وبترتيبها، وهذا يقارن **الشجرة كاملة** — الروابط المفردة
+     * والمجموعات وبنودَ كلّ مجموعة — بترتيب المستند نفسه، **من داخل السايد بار
+     * وحده**، فلا يُجزئ بندًا ناقصًا ولا زائدًا ولا مُزاحًا من مجموعةٍ لأختها.
+     */
+    public function test_the_map_of_12_0_keeps_its_entries_order_and_destinations(): void
     {
         $html = $this->actingAs($this->admin('platform_owner'))
             ->get(route('admin.dashboard'))
             ->assertOk()
             ->getContent();
 
-        $sections = [
-            'لوحة القيادة',
-            'إدارة المستخدمين',
-            'إدارة التدريب',
-            'إدارة الشهادات',
-            'إدارة التطوّع',
-            'التلعيب والتحديات',
-            'المتجر والماليّات',
-            'إدارة المكافآت',
-            'الفعاليّات',
-            'التوجيه والدعم',
-            'الإحصائيّات',
-            'الإعدادات والنظام',
+        $expected = [
+            ['type' => 'link', 'href' => route('admin.dashboard')],
         ];
 
-        $at = [];
-
-        foreach ($sections as $label) {
-            $position = mb_strpos($html, $label);
-            $this->assertNotFalse($position, "قسم «{$label}» غائب عن سايد بار الإدارة (12.0).");
-            $at[$label] = $position;
+        // 🎁 إدارة المكافآت بندٌ مسطّح (12.0 لا ترسم له دروب-داون)، وما عداه مجموعات
+        foreach ($this->constitutionalGroups() as [, $items, $flat]) {
+            $expected[] = $items === null
+                ? ['type' => 'link', 'href' => $flat]
+                : ['type' => 'group', 'items' => $items];
         }
 
-        $this->assertSame($sections, array_keys($at), 'ترتيب أقسام 12.0 اتغيّر.');
-        $this->assertSame(array_values($at), collect($at)->sort()->values()->all(), 'أقسام 12.0 مش بترتيب الدستور.');
+        // وباب الرجوع لطبقة المتدرّب — آخر رابطٍ في السايد بار
+        $expected[] = ['type' => 'link', 'href' => route('dashboard')];
 
-        // «الإعدادات والنظام» آخر قسمٍ دائمًا (12.7)
-        $this->assertSame(max($at), $at['الإعدادات والنظام']);
+        $this->assertSame(
+            $expected,
+            SidebarMap::outline($html),
+            'بنية خريطة 12.0 اتغيّرت — عدد البنود أو ترتيبها أو وجهتها. '.
+            '(واللافتة ليست محلّ القياس: تغييرها حقٌّ للمالك بنصّ 2.13-ب.)',
+        );
     }
 
-    /** بنود كلّ دروب-داون كما نصّت 12.0 — نقصٌ أو اختلافُ تسميةٍ يسقط الفحص */
+    /** بنود كلّ دروب-داون كما نصّت 12.0 — **بوجهاتها**؛ نقصٌ أو إزاحةٌ يسقط الفحص */
     public function test_every_dropdown_carries_the_items_the_map_names(): void
     {
         $html = $this->actingAs($this->admin('platform_owner'))
@@ -179,37 +195,152 @@ class AdminLayoutGuardTest extends UiTestCase
             ->assertOk()
             ->getContent();
 
-        foreach ([
-            // 12.13 إدارة المستخدمين
-            'قائمة المستخدمين', 'طلبات الاعتماد', 'شرائح الجمهور', 'الأدوار والصلاحيّات',
-            // 12.4 إدارة التدريب
-            'المسارات', 'التدريبات', 'بنك الأسئلة والامتحانات', 'مكتبة الوسائط', 'إعدادات التعلّم',
-            // 12.5 إدارة الشهادات
-            'الاعتمادات', 'الأنواع والقوالب', 'إصدار شهادة', 'سجلّ الصادر', 'صفحة التحقّق',
-            // إدارة التطوّع
-            'الإدارة المركزيّة', 'التوظيف والمرشّحون', 'الهيكل والبوزشنز والسعة',
-            'الاجتماعات', 'شهادات التطوّع', 'تحليلات التطوّع',
-            // 12.10 التلعيب والتحديات
-            'XP والتذاكر', 'الستريك ونادي الخامسة', 'الليدر بورد', 'الشارات والإنجازات',
-            'الريفيرال والسفراء', 'الرسائل الإيجابيّة', 'الاحتفالات',
-            'أسئلة المكافآت', 'بنك أسئلة الحروب', 'إعدادات الحروب',
-            // 12.12 المتجر والماليّات
-            'المنتجات والتصنيفات', 'البندلز', 'الكوبونات وOrder-bump',
-            'الطلبات والفواتير', 'المكتبة الرقميّة والحماية', 'الماليّات', 'أسعار الصرف',
-            // 12.6 التوجيه والدعم
-            'التعليمات', 'الإشعارات', 'دليل المستخدم', 'الشكاوى والمقترحات',
-            // 12.8 الإحصائيّات
-            'المستخدمون', 'المبيعات', 'التفاعل', 'الحضور', 'الحروب', 'التطوّع', 'التقارير المجدولة',
-            // 12.7 الإعدادات والنظام
-            'إعدادات المنصّة', 'الهويّة والمظهر', 'محتوى الـOnboarding', 'قوالب الـCV',
-            'الأمان والخصوصيّة', 'مفاتيح المزايا', 'بيانات الدول',
-            'وضع الصيانة', 'التحديثات والترحيل', 'النسخ الاحتياطيّ وصحّة النظام', 'سجلّ التدقيق',
-        ] as $item) {
-            $this->assertStringContainsString($item, $html, "بند «{$item}» من خريطة 12.0 غائب عن السايد بار.");
+        $groups = SidebarMap::groups($html);
+        $expected = array_values(array_filter(
+            $this->constitutionalGroups(),
+            fn (array $section) => $section[1] !== null,
+        ));
+
+        foreach ($expected as $index => [$section, $items]) {
+            $this->assertSame(
+                $items,
+                $groups[$index] ?? [],
+                "بنود مجموعة «{$section}» من خريطة 12.0 اختلفت عددًا أو ترتيبًا أو وجهةً.",
+            );
         }
+
+        $this->assertCount(count($expected), $groups, 'عدد مجموعات خريطة 12.0 اتغيّر.');
     }
 
-    /** ⛔ «الألعاب» ملغاة بقرار المالك (v5.3 — 7.5): لا بند لها في خريطة 12.0 */
+    /**
+     * خريطة 12.0 صفًّا صفًّا: اسم القسم **للرسالة وحدها** (فاللافتة ليست مقياسًا)،
+     * والقياس على قائمة الوجهات. و`null` تعني بندًا مسطّحًا بلا دروب-داون.
+     *
+     * @return list<array{0:string,1:list<string>|null,2:string|null}>
+     */
+    private function constitutionalGroups(): array
+    {
+        return [
+            // 12.13 إدارة المستخدمين
+            ['إدارة المستخدمين', [
+                route('admin.users.index'),
+                route('admin.users.approvals'),
+                route('admin.users.segments'),
+                route('admin.roles.index'),
+            ], null],
+            // 12.4 إدارة التدريب
+            ['إدارة التدريب', [
+                route('admin.paths.index'),
+                route('admin.courses.index'),
+                route('admin.question-bank.index'),
+                route('admin.media.index'),
+                route('admin.settings.index', ['tab' => 'learning']),
+                route('admin.availability.index'),
+            ], null],
+            // 12.5 إدارة الشهادات
+            ['إدارة الشهادات', [
+                route('admin.certificates.index', ['tab' => 'accreditations']),
+                route('admin.certificates.index', ['tab' => 'types']),
+                route('admin.certificates.index', ['tab' => 'issue']),
+                route('admin.certificates.index', ['tab' => 'ledger']),
+                route('verify.certificate'),
+            ], null],
+            // 🤝 إدارة التطوّع (وتستضيف 13.4-ك)
+            ['إدارة التطوّع', [
+                route('admin.volunteer.index'),
+                route('volunteer.recruitment'),
+                route('admin.volunteer.org'),
+                route('admin.meetings.index'),
+                route('admin.volunteer.certificates'),
+                route('admin.volunteer.analytics'),
+                route('admin.volunteer.org.capacity'),
+                route('admin.volunteer.rep'),
+                route('admin.volunteer.delegations'),
+                route('admin.volunteer.task-types.index'),
+                route('admin.volunteer.offboarding'),
+            ], null],
+            /*
+             | 12.10 التلعيب والتحديات
+             | ⛔ ولا بند «ألعاب» ولا تابّ `?tab=games` — ملغًى بقرار المالك (v5.3 · 7.5).
+             */
+            ['التلعيب والتحديات', [
+                route('admin.gamification.index', ['tab' => 'xp']),
+                route('admin.gamification.index', ['tab' => 'streaks']),
+                route('admin.gamification.index', ['tab' => 'leaderboard']),
+                route('admin.gamification.index', ['tab' => 'badges']),
+                route('admin.referrals.index'),
+                route('admin.positive.index'),
+                route('admin.gamification.index', ['tab' => 'celebrations']),
+                route('admin.gamification.index', ['tab' => 'reward_questions']),
+                route('admin.wars.bank.index'),
+                route('admin.gamification.index', ['tab' => 'wars']),
+            ], null],
+            // 12.12 المتجر والماليّات — و🔒 الماليّات لمالك المنصّة وحده
+            ['المتجر والماليّات', [
+                route('admin.store.index', ['tab' => 'products']),
+                route('admin.store.index', ['tab' => 'bundles']),
+                route('admin.store.index', ['tab' => 'coupons']),
+                route('admin.store.index', ['tab' => 'orders']),
+                route('admin.store.index', ['tab' => 'library']),
+                route('admin.topups.index'),
+                route('admin.finance.index'),
+                route('admin.wallet.rates'),
+                route('admin.finance.audit'),
+            ], null],
+            // 12.9 إدارة المكافآت — بندٌ مسطّح بلا دروب-داون
+            ['إدارة المكافآت', null, route('admin.rewards.index')],
+            // 12.11 الفعاليّات
+            ['الفعاليّات', [
+                route('admin.events.index'),
+                route('admin.events.registrations.index'),
+            ], null],
+            // 12.6 التوجيه والدعم
+            ['التوجيه والدعم', [
+                route('admin.guidance.index'),
+                route('admin.guidance.notifications'),
+                route('admin.guidance.help'),
+                route('admin.guidance.complaints'),
+                route('admin.articles.index'),
+                route('admin.ads.index'),
+                route('admin.growth.index'),
+            ], null],
+            // 12.8 الإحصائيّات
+            ['الإحصائيّات', [
+                route('admin.stats.index', ['tab' => 'users']),
+                route('admin.stats.index', ['tab' => 'sales']),
+                route('admin.stats.index', ['tab' => 'training']),
+                route('admin.stats.index', ['tab' => 'engagement']),
+                route('admin.stats.index', ['tab' => 'attendance']),
+                route('admin.stats.index', ['tab' => 'wars']),
+                route('admin.stats.index', ['tab' => 'volunteer']),
+                route('admin.stats.index', ['tab' => 'certificates']),
+                route('admin.report-schedules.index'),
+                route('admin.stats.index', ['tab' => 'acquisition']),
+            ], null],
+            // 12.7 الإعدادات والنظام — آخر قسم دائمًا
+            ['الإعدادات والنظام', [
+                route('admin.settings.index', ['tab' => 'platform']),
+                route('admin.settings.index', ['tab' => 'identity']),
+                route('admin.ops.onboarding'),
+                route('admin.cv-templates.index'),
+                route('admin.settings.index', ['tab' => 'security']),
+                route('admin.settings.index', ['tab' => 'features']),
+                route('admin.settings.index', ['tab' => 'countries']),
+                route('admin.settings.index', ['tab' => 'maintenance']),
+                route('admin.ops.updates'),
+                route('admin.ops.system'),
+                route('admin.settings.index', ['tab' => 'audit']),
+                route('admin.studio.index'),
+            ], null],
+        ];
+    }
+
+    /**
+     * ⛔ «الألعاب» ملغاة بقرار المالك (v5.3 — 7.5): لا بند لها في خريطة 12.0.
+     *
+     * والقياس على **الوجهة** لا على الاسم: بندٌ عاد بلافتةٍ أخرى وتابٍّ `games`
+     * عودةٌ للملغى، ولافتةٌ اسمها «الألعاب» على وجهةٍ قائمة إعادةُ تسميةٍ مباحة.
+     */
     public function test_the_cancelled_games_section_never_returns_to_the_sidebar(): void
     {
         $html = $this->actingAs($this->admin('platform_owner'))
@@ -217,10 +348,9 @@ class AdminLayoutGuardTest extends UiTestCase
             ->assertOk()
             ->getContent();
 
-        $sidebar = Str::between($html, '<aside data-sidebar', '</aside>');
-
-        $this->assertStringNotContainsString('tab=games', $sidebar);
-        $this->assertStringNotContainsString('>الألعاب<', $sidebar);
+        foreach (SidebarMap::allDestinations($html) as $href) {
+            $this->assertStringNotContainsString('games', $href, "وجهة ملغاة عادت للسايد بار: {$href}");
+        }
     }
 
     /** 12.2.1-أ · 2.15-أ-7: بلا صلاحيّة = **مخفيّ لا معطَّل** */
@@ -231,13 +361,21 @@ class AdminLayoutGuardTest extends UiTestCase
             ->assertOk()
             ->getContent();
 
-        // ما لا يملكه: لا رابط ولا اسمٌ باهت
-        foreach (['الماليّات', 'أسعار الصرف', 'درجة الالتزام (Rep)', 'طلبات الشحن'] as $forbidden) {
+        /*
+         | ما لا يملكه: **لا وجهة** — والقياس على العنوان لا على اللافتة، فمالكٌ
+         | أعاد تسمية «طلبات الشحن» لم يفتح بابًا لمن لا يملكه (2.13-ب).
+         */
+        $destinations = SidebarMap::allDestinations($html);
+
+        foreach ([
+            route('admin.finance.index'),
+            route('admin.wallet.rates'),
+            route('admin.volunteer.rep'),
+            route('admin.topups.index'),
+        ] as $forbidden) {
+            $this->assertNotContains($forbidden, $destinations, "بند ظهر لمن لا يملكه: {$forbidden}");
             $this->assertStringNotContainsString($forbidden, $html);
         }
-
-        $this->assertStringNotContainsString(route('admin.finance.index'), $html);
-        $this->assertStringNotContainsString(route('admin.wallet.rates'), $html);
 
         // ولا بندَ معطَّلًا في السايد بار: التعطيل يقول «ممنوع» بدل أن يصمت (2.15-أ-7)
         $sidebar = Str::between($html, '<aside data-sidebar', '</aside>');
@@ -245,8 +383,8 @@ class AdminLayoutGuardTest extends UiTestCase
         $this->assertStringNotContainsString('disabled', $sidebar);
 
         // وما يملكه حاضرٌ فعلًا — فالإخفاء ليس تعطيلًا شاملًا
-        $this->assertStringContainsString(route('admin.courses.index'), $html);
-        $this->assertStringContainsString(route('admin.media.index'), $html);
+        $this->assertContains(route('admin.courses.index'), $destinations);
+        $this->assertContains(route('admin.media.index'), $destinations);
     }
 
     /** المسؤول الماليّ لا يرى إلّا بابه — والمالك وحده يرى المجموعة المحميّة (2.13-و) */

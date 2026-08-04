@@ -28,10 +28,10 @@ class ArticleWorkflow
     public static function statuses(): array
     {
         return [
-            self::DRAFT => 'مسودّة',
-            self::IN_REVIEW => 'قيد المراجعة',
-            self::PUBLISHED => 'منشورة',
-            self::ARCHIVED => 'مؤرشفة',
+            self::DRAFT => setting('articles.article_workflow.statuses_1', 'مسودّة'),
+            self::IN_REVIEW => setting('articles.article_workflow.statuses_2', 'قيد المراجعة'),
+            self::PUBLISHED => setting('articles.article_workflow.statuses_3', 'منشورة'),
+            self::ARCHIVED => setting('articles.article_workflow.statuses_4', 'مؤرشفة'),
         ];
     }
 
@@ -39,7 +39,7 @@ class ArticleWorkflow
     public function submitForReview(Article $article, User $actor): Article
     {
         if (! in_array($article->status, [self::DRAFT], true)) {
-            throw new RuntimeException('المقال مش مسودّة — مافيش حاجة تتبعت للمراجعة.');
+            throw new RuntimeException(setting('articles.article_workflow.submit_for_review_1', 'المقال مش مسودّة — مافيش حاجة تتبعت للمراجعة.'));
         }
 
         $old = $article->status;
@@ -55,7 +55,7 @@ class ArticleWorkflow
         $notes = trim($notes);
 
         if ($notes === '') {
-            throw new RuntimeException('اكتب ملاحظات المراجعة — الكاتب لازم يعرف يعدّل إيه.');
+            throw new RuntimeException(setting('articles.article_workflow.request_changes_1', 'اكتب ملاحظات المراجعة — الكاتب لازم يعرف يعدّل إيه.'));
         }
 
         $old = $article->status;
@@ -77,15 +77,15 @@ class ArticleWorkflow
     public function publish(Article $article, User $actor): Article
     {
         if (! $actor->allows('articles.publish')) {
-            throw new RuntimeException('النشر لمن يملك صلاحيّة النشر وحده.');
+            throw new RuntimeException(setting('articles.article_workflow.publish_1', 'النشر لمن يملك صلاحيّة النشر وحده.'));
         }
 
         if ($this->isAuthor($article, $actor)) {
-            throw new RuntimeException('الكاتب لا ينشر مقاله بنفسه — لازم شخص تاني يراجع وينشر.');
+            throw new RuntimeException(setting('articles.article_workflow.publish_2', 'الكاتب لا ينشر مقاله بنفسه — لازم شخص تاني يراجع وينشر.'));
         }
 
         if ($article->status !== self::IN_REVIEW) {
-            throw new RuntimeException('لا يُنشَر إلّا مقالٌ «قيد المراجعة».');
+            throw new RuntimeException(setting('articles.article_workflow.publish_3', 'لا يُنشَر إلّا مقالٌ «قيد المراجعة».'));
         }
 
         $old = $article->status;

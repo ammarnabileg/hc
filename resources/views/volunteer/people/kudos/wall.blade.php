@@ -1,6 +1,6 @@
 @extends('layouts.volunteer')
 
-@section('title', 'حائط الشكر')
+@section('title', setting('volunteer.people_kudos_wall.title', 'حائط الشكر'))
 
 @php
     /**
@@ -13,13 +13,13 @@
 
 @section('content')
     <x-page-header
-        :title="'حائط الشكر — نادي +'.$thresholdText"
-        :subtitle="'السباق يتجدّد بعد '.$daysToReset.' يومًا مع التصفير الشهريّ'"
-        :breadcrumbs="[['label' => 'لوحة التطوّع', 'url' => url('/volunteer')], ['label' => 'التقدير'], ['label' => 'حائط الشكر']]" />
+        :title="setting('volunteer.people_kudos_wall.tooltip', 'حائط الشكر — نادي +').$thresholdText"
+        :subtitle="setting('volunteer.people_kudos_wall.subtitle', 'السباق يتجدّد بعد ').$daysToReset.setting('volunteer.people_kudos_wall.subtitle_2', ' يومًا مع التصفير الشهريّ')"
+        :breadcrumbs="[['label' => setting('volunteer.common.breadcrumb_root', 'لوحة التطوّع'), 'url' => url('/volunteer')], ['label' => setting('volunteer.people_kudos_wall.label', 'التقدير')], ['label' => setting('volunteer.people_kudos_wall.title', 'حائط الشكر')]]" />
 
     <x-tabs :current="$tab" :tabs="[
-        ['key' => 'wall', 'label' => 'الحائط', 'url' => route('volunteer.kudos.wall', ['tab' => 'wall'])],
-        ['key' => 'discussion', 'label' => 'النقاش', 'url' => route('volunteer.kudos.wall', ['tab' => 'discussion'])],
+        ['key' => 'wall', 'label' => setting('volunteer.people_kudos_wall.label_2', 'الحائط'), 'url' => route('volunteer.kudos.wall', ['tab' => 'wall'])],
+        ['key' => 'discussion', 'label' => setting('volunteer.people_kudos_wall.label_3', 'النقاش'), 'url' => route('volunteer.kudos.wall', ['tab' => 'discussion'])],
         ['key' => 'kudos', 'label' => 'Kudos', 'url' => route('volunteer.kudos')],
     ]" />
 
@@ -36,14 +36,14 @@
                 @csrf
                 <textarea name="body" rows="3" required class="w-full rounded-xl px-3 py-2 text-sm"
                           style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)"
-                          placeholder="اكتب حاجة تستاهل تتقال"></textarea>
+                          placeholder="{{ setting('volunteer.people_kudos_wall.placeholder', 'اكتب حاجة تستاهل تتقال') }}"></textarea>
                 <button type="submit" class="btn mt-3 rounded-xl px-4 py-2 text-sm font-semibold"
-                        style="background: var(--color-brand-500); color: #04201c">انشر</button>
+                        style="background: var(--color-brand-500); color: #04201c">{{ setting('volunteer.people_kudos_wall.action', 'انشر') }}</button>
             </form>
         @endif
 
         @if ($posts->isEmpty())
-            <x-empty message="النقاش لسّه فاضي — ابدأ إنت" />
+            <x-empty :message="setting('volunteer.people_kudos_wall.empty', 'النقاش لسّه فاضي — ابدأ إنت')" />
         @else
             <div class="space-y-3">
                 @foreach ($posts as $post)
@@ -59,7 +59,7 @@
                         <p class="mt-3 text-sm leading-7">{{ $post->body }}</p>
 
                         <div class="mt-3 flex items-center gap-2">
-                            @foreach ([1 => 'مفيد ▲', -1 => 'مش مفيد ▼'] as $value => $label)
+                            @foreach ([1 => setting('volunteer.people_kudos_wall.foreach', 'مفيد ▲'), -1 => setting('volunteer.people_kudos_wall.foreach_2', 'مش مفيد ▼')] as $value => $label)
                                 <form method="post" action="{{ route('volunteer.kudos.wall.vote', $post) }}">
                                     @csrf
                                     <input type="hidden" name="value" value="{{ $value }}">
@@ -75,7 +75,7 @@
     @else
         @if ($members->isEmpty())
             <div class="card p-6 text-center mb-4">
-                <p class="text-sm">مفيش حد بلغ +{{ $thresholdText }} الشهر ده لسّه — المقعد مفتوح.</p>
+                <p class="text-sm">{{ setting('volunteer.people_kudos_wall.text', 'مفيش حد بلغ +') }}{{ $thresholdText }} {{ setting('volunteer.people_kudos_wall.text_2', 'الشهر ده لسّه — المقعد مفتوح.') }}</p>
             </div>
         @else
             <div class="grid gap-4 md:grid-cols-3 mb-6">
@@ -90,13 +90,13 @@
                             <div class="min-w-0">
                                 <h2 class="font-bold text-sm truncate">{{ $row->user->name }}</h2>
                                 <p class="text-xs" style="color: var(--text-muted)">
-                                    الترتيب #{{ $index + 1 }} · Rep {{ $row->score }}
+                                    {{ setting('volunteer.people_kudos_wall.text_3', 'الترتيب #') }}{{ $index + 1 }} · Rep {{ $row->score }}
                                 </p>
                             </div>
                         </div>
 
                         <div class="relative mt-3">
-                            <x-state-badge state="honor" :label="'نادي +'.$thresholdText" />
+                            <x-state-badge state="honor" :label="setting('volunteer.people_kudos_wall.label_4', 'نادي +').$thresholdText" />
                         </div>
                     </article>
                 @endforeach
@@ -105,12 +105,12 @@
 
         {{-- بلوك «اقتربت» ببار تقدّم شخصيّ --}}
         <section class="card p-4">
-            <h2 class="font-bold text-sm mb-3">اقتربت</h2>
+            <h2 class="font-bold text-sm mb-3">{{ setting('volunteer.people_kudos_wall.heading', 'اقتربت') }}</h2>
 
             <div class="mb-4">
                 <div class="flex items-center justify-between text-xs mb-1">
-                    <span>رقمك دلوقتي {{ $progress['score'] }}</span>
-                    <span style="color: var(--text-muted)">باقي {{ $progress['remaining'] }} للعتبة</span>
+                    <span>{{ setting('volunteer.people_kudos_wall.text_4', 'رقمك دلوقتي') }} {{ $progress['score'] }}</span>
+                    <span style="color: var(--text-muted)">{{ setting('volunteer.people_kudos_wall.text_5', 'باقي') }} {{ $progress['remaining'] }} {{ setting('volunteer.people_kudos_wall.text_6', 'للعتبة') }}</span>
                 </div>
                 <div class="h-2 rounded-full" style="background: var(--surface-sunken)">
                     <div class="h-2 rounded-full motion-standard"
@@ -119,7 +119,7 @@
             </div>
 
             @if ($approaching->isEmpty())
-                <p class="text-xs" style="color: var(--text-muted)">محدّش قرّب للعتبة الشهر ده لسّه.</p>
+                <p class="text-xs" style="color: var(--text-muted)">{{ setting('volunteer.people_kudos_wall.text_7', 'محدّش قرّب للعتبة الشهر ده لسّه.') }}</p>
             @else
                 <ul class="space-y-2">
                     @foreach ($approaching as $row)

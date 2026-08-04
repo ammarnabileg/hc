@@ -1,37 +1,37 @@
 @extends('layouts.admin')
 
-@section('title', 'محتوى الـOnboarding')
+@section('title', setting('admin.ops.onboarding.mhtwa_alonboarding', 'محتوى الـOnboarding'))
 
 @section('content')
-    <x-page-header title="محتوى الـOnboarding"
-                   subtitle="أوّل ما يشوفه المستخدم الجديد — والمعاينة هي الحكم."
+    <x-page-header :title="setting('admin.ops.onboarding.mhtwa_alonboarding', 'محتوى الـOnboarding')"
+                   :subtitle="setting('admin.ops.onboarding.awl_ma_yshwfh_almstkhdm_aljdyd_walmaayna_hy', 'أوّل ما يشوفه المستخدم الجديد — والمعاينة هي الحكم.')"
                    :breadcrumbs="[
-                       ['label' => 'لوحة الإدارة', 'url' => url('/admin')],
-                       ['label' => 'الإعدادات والنظام', 'url' => route('admin.settings.index')],
-                       ['label' => 'محتوى الـOnboarding'],
+                       ['label' => setting('admin.ops.onboarding.lwha_alidara', 'لوحة الإدارة'), 'url' => url('/admin')],
+                       ['label' => setting('admin.ops.onboarding.aliadadat_walnzam', 'الإعدادات والنظام'), 'url' => route('admin.settings.index')],
+                       ['label' => setting('admin.ops.onboarding.mhtwa_alonboarding', 'محتوى الـOnboarding')],
                    ]">
         <x-slot:action>
             {{-- فعل رئيسيّ واحد بارز، والباقي في «⋯» (2.15-أ-2) --}}
             @can('onboarding.create')
                 <button type="button" data-modal-open="slide-form" data-slide-new
                         class="btn rounded-xl px-4 py-2 text-sm font-semibold"
-                        style="background: var(--color-brand-500); color: #04201c">+ شريحة</button>
+                        style="background: var(--color-brand-500); color: #04201c">{{ setting('admin.ops.onboarding.shryha', '+ شريحة') }}</button>
             @endcan
 
             <details class="relative">
                 <summary class="cursor-pointer rounded-xl px-3 py-2 text-sm" style="background: var(--surface-raised)">⋯</summary>
                 <div class="absolute end-0 mt-2 w-64 card p-2 z-20 text-sm space-y-1">
                     <a class="block px-2 py-1 rounded hover:opacity-80"
-                       href="{{ route('admin.ops.onboarding.preview', ['screen' => $screen]) }}"><x-icon name="eye" size="16" /> معاينة كما يراها المستخدم</a>
+                       href="{{ route('admin.ops.onboarding.preview', ['screen' => $screen]) }}"><x-icon name="eye" size="16" /> {{ setting('admin.ops.onboarding.maayna_kma_yraha_almstkhdm', 'معاينة كما يراها المستخدم') }}</a>
                     @can('onboarding.create')
                         <form method="post" action="{{ route('admin.ops.onboarding.template') }}">
                             @csrf
                             <input type="hidden" name="screen" value="{{ $screen }}">
-                            <button class="w-full text-start px-2 py-1 rounded hover:opacity-80"><x-icon name="game" size="16" /> استخدم القالب الجاهز</button>
+                            <button class="w-full text-start px-2 py-1 rounded hover:opacity-80"><x-icon name="game" size="16" /> {{ setting('admin.ops.onboarding.astkhdm_alqalb_aljahz', 'استخدم القالب الجاهز') }}</button>
                         </form>
                     @endcan
                     <a class="block px-2 py-1 rounded hover:opacity-80"
-                       href="{{ route('admin.settings.index', ['tab' => 'onboarding']) }}"><x-icon name="settings" size="16" /> إعدادات الـOnboarding</a>
+                       href="{{ route('admin.settings.index', ['tab' => 'onboarding']) }}"><x-icon name="settings" size="16" /> {{ setting('admin.ops.onboarding.iadadat_alonboarding', 'إعدادات الـOnboarding') }}</a>
                 </div>
             </details>
         </x-slot:action>
@@ -51,8 +51,8 @@
     </div>
 
     <x-tabs :current="$tab" :tabs="[
-        ['key' => 'slides', 'label' => 'سلسلة المراحل', 'url' => route('admin.ops.onboarding', ['tab' => 'slides', 'screen' => $screen])],
-        ['key' => 'first_time', 'label' => 'شاشة أوّل مرّة', 'url' => route('admin.ops.onboarding', ['tab' => 'first_time', 'screen' => $screen])],
+        ['key' => 'slides', 'label' => setting('admin.ops.onboarding.slsla_almrahl', 'سلسلة المراحل'), 'url' => route('admin.ops.onboarding', ['tab' => 'slides', 'screen' => $screen])],
+        ['key' => 'first_time', 'label' => setting('admin.ops.onboarding.shasha_awl_mra', 'شاشة أوّل مرّة'), 'url' => route('admin.ops.onboarding', ['tab' => 'first_time', 'screen' => $screen])],
     ]" />
 
     @if ($tab === 'slides')
@@ -68,6 +68,6 @@
     @can('onboarding.create')
         <button type="button" data-modal-open="slide-form" data-slide-new
                 class="btn w-full rounded-xl px-4 py-3 text-sm font-semibold"
-                style="background: var(--color-brand-500); color: #04201c">+ شريحة</button>
+                style="background: var(--color-brand-500); color: #04201c">{{ setting('admin.ops.onboarding.shryha', '+ شريحة') }}</button>
     @endcan
 @endsection

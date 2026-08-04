@@ -61,7 +61,7 @@ class PositiveMessageController extends Controller
 
         AuditTrail::log($request->user(), 'positive_messages.create', $message, [], $data);
 
-        return back()->with('status', 'اتحفظت الرسالة ✓');
+        return back()->with('status', (string) setting('engagement.admin.store_ok', 'اتحفظت الرسالة ✓'));
     }
 
     public function update(Request $request, PositiveMessage $message): RedirectResponse
@@ -73,7 +73,7 @@ class PositiveMessageController extends Controller
 
         AuditTrail::log($request->user(), 'positive_messages.update', $message, $old, $data);
 
-        return back()->with('status', 'اتحفظ التعديل ✓');
+        return back()->with('status', (string) setting('engagement.admin.update_ok', 'اتحفظ التعديل ✓'));
     }
 
     /** التفعيل/الإيقاف بضغطة — والموقوفة تبقى في المكتبة ولا تُحذَف */
@@ -83,7 +83,7 @@ class PositiveMessageController extends Controller
 
         AuditTrail::log($request->user(), 'positive_messages.toggle', $message, [], ['is_active' => $message->is_active]);
 
-        return back()->with('status', $message->is_active ? 'اترجّعت للخدمة ✓' : 'اتوقفت ✓');
+        return back()->with('status', $message->is_active ? (string) setting('engagement.admin.toggle_ok', 'اترجّعت للخدمة ✓') : (string) setting('engagement.admin.toggle_ok_2', 'اتوقفت ✓'));
     }
 
     public function destroy(Request $request, PositiveMessage $message): RedirectResponse
@@ -92,7 +92,7 @@ class PositiveMessageController extends Controller
 
         $message->delete();
 
-        return back()->with('status', 'اتحذفت الرسالة ✓');
+        return back()->with('status', (string) setting('engagement.admin.destroy_ok', 'اتحذفت الرسالة ✓'));
     }
 
     public function saveSettings(Request $request): RedirectResponse
@@ -101,14 +101,14 @@ class PositiveMessageController extends Controller
 
         EngagementSettings::putMany($data['settings'], $request->user());
 
-        return back()->with('status', 'اتحفظ ✓');
+        return back()->with('status', (string) setting('engagement.admin.save_settings_ok', 'اتحفظ ✓'));
     }
 
     public function resetSettings(Request $request): RedirectResponse
     {
         $count = EngagementSettings::resetAll($request->user());
 
-        return back()->with('status', 'رجعت '.$count.' قيمة للافتراضيّ ✓');
+        return back()->with('status', strtr((string) setting('engagement.admin.reset_settings_ok', 'رجعت :a1 قيمة للافتراضيّ ✓'), [':a1' => (string) ($count)]));
     }
 
     /**
@@ -122,7 +122,7 @@ class PositiveMessageController extends Controller
 
         return back()->with('status', $message
             ? trim(($message->emoji ? $message->emoji.' ' : '').$message->body_ar)
-            : 'مفيش رسائل مفعّلة في السياق ده لسّه.');
+            : (string) setting('engagement.admin.preview_empty', 'مفيش رسائل مفعّلة في السياق ده لسّه.'));
     }
 
     /**
@@ -137,8 +137,8 @@ class PositiveMessageController extends Controller
             'sort_order' => ['nullable', 'integer', 'min:0', 'max:9999'],
             'is_active' => ['nullable', 'boolean'],
         ], [], [
-            'context' => 'السياق',
-            'body_ar' => 'نصّ الرسالة',
+            'context' => (string) setting('engagement.admin.validated_msg', 'السياق'),
+            'body_ar' => (string) setting('engagement.admin.validated_msg_2', 'نصّ الرسالة'),
         ]);
 
         // سياق خارج القائمة المعتمَدة = رسالة لن تظهر أبدًا — نمنعه بدل أن نتركه صامتًا

@@ -14,7 +14,7 @@
 
     $panel = fn ($row) => [
         'date' => $row->created_at?->format('Y-m-d H:i'),
-        'type' => WalletController::SOURCE_LABELS[$row->source] ?? $row->source,
+        'type' => WalletController::sourceLabels()[$row->source] ?? $row->source,
         'currency' => $row->currency?->name_ar,
         'amount' => (float) $row->amount,
         'applied' => (float) ($row->applied_amount ?? $row->amount),

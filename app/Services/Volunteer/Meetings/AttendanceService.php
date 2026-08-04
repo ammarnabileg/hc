@@ -110,11 +110,11 @@ class AttendanceService
     public function excuse(Meeting $meeting, User $user, string $reason): array
     {
         if ($meeting->status === 'ended') {
-            return $this->fail('الاجتماع انتهى — الاعتذار المسبق بيتقدّم قبل الإنهاء. سجّل حضورك لو حضرت.');
+            return $this->fail(setting('meetings.attendance_service.excuse_1', 'الاجتماع انتهى — الاعتذار المسبق بيتقدّم قبل الإنهاء. سجّل حضورك لو حضرت.'));
         }
 
         if (! $this->scope->isAudience($user, $meeting)) {
-            return $this->fail('الاجتماع ده مش في نطاقك.');
+            return $this->fail(setting('meetings.attendance_service.excuse_2', 'الاجتماع ده مش في نطاقك.'));
         }
 
         $attendance = MeetingAttendance::query()->firstOrNew([
@@ -123,7 +123,7 @@ class AttendanceService
         ]);
 
         if ($attendance->exists && $attendance->status === 'registered') {
-            return $this->fail('إنت مسجّل حضورك بالفعل.');
+            return $this->fail(setting('meetings.attendance_service.excuse_3', 'إنت مسجّل حضورك بالفعل.'));
         }
 
         $attendance->fill([
@@ -134,7 +134,7 @@ class AttendanceService
 
         return [
             'ok' => true,
-            'message' => 'وصلنا اعتذارك — مفيش أيّ خصم على درجة التزامك.',
+            'message' => setting('meetings.attendance_service.excuse_4', 'وصلنا اعتذارك — مفيش أيّ خصم على درجة التزامك.'),
             'value' => (float) $attendance->rep_value,
         ];
     }
@@ -149,15 +149,15 @@ class AttendanceService
     public function register(Meeting $meeting, User $user, ?string $code, array $answers = []): array
     {
         if (! $this->scope->isAudience($user, $meeting)) {
-            return $this->fail('الاجتماع ده مش في نطاقك.');
+            return $this->fail(setting('meetings.attendance_service.register_1', 'الاجتماع ده مش في نطاقك.'));
         }
 
         if ($meeting->status !== 'ended') {
-            return $this->fail('نافذة التسجيل بتفتح بعد إنهاء الاجتماع — استنّى إشعار الإنهاء.');
+            return $this->fail(setting('meetings.attendance_service.register_2', 'نافذة التسجيل بتفتح بعد إنهاء الاجتماع — استنّى إشعار الإنهاء.'));
         }
 
         if (! $this->windowOpen($meeting)) {
-            return $this->fail('نافذة تسجيل الحضور اتقفلت. لو عندك عذر كلّم مسؤولك.');
+            return $this->fail(setting('meetings.attendance_service.register_3', 'نافذة تسجيل الحضور اتقفلت. لو عندك عذر كلّم مسؤولك.'));
         }
 
         $existing = MeetingAttendance::query()
@@ -166,12 +166,12 @@ class AttendanceService
             ->first();
 
         if ($existing && $existing->status === 'registered') {
-            return $this->fail('حضورك متسجّل خلاص — القيمة اتضافت قبل كده.');
+            return $this->fail(setting('meetings.attendance_service.register_4', 'حضورك متسجّل خلاص — القيمة اتضافت قبل كده.'));
         }
 
         if (! $this->verify($meeting, $code, $answers)) {
             // بلا سطر حضور وبلا معاملة: المحاولة الصحيحة ما زالت في يده
-            return $this->fail('الكود أو الإجابة مش مظبوطة. راجعها وجرّب تاني — محاولتك لسّه موجودة.');
+            return $this->fail(setting('meetings.attendance_service.register_5', 'الكود أو الإجابة مش مظبوطة. راجعها وجرّب تاني — محاولتك لسّه موجودة.'));
         }
 
         $hours = $this->hoursAfterEnd($meeting) ?? 0.0;
@@ -194,7 +194,7 @@ class AttendanceService
                 user: $user,
                 value: $tier['value'],
                 source: 'meeting',
-                reason: 'تسجيل حضور اجتماع: '.$meeting->title,
+                reason: strtr(setting('meetings.attendance_service.register_6', 'تسجيل حضور اجتماع: :p1'), [':p1' => (string) ($meeting->title)]),
                 reference: $meeting,
             );
 
@@ -204,7 +204,7 @@ class AttendanceService
 
             return [
                 'ok' => true,
-                'message' => 'اتسجّل حضورك ✓ '.$this->valueLabel($tier['value']).' على درجة التزامك.',
+                'message' => strtr(setting('meetings.attendance_service.register_7', 'اتسجّل حضورك ✓ :p1 على درجة التزامك.'), [':p1' => (string) ($this->valueLabel($tier['value']))]),
                 'value' => $tier['value'],
             ];
         });
@@ -217,7 +217,7 @@ class AttendanceService
     public function end(Meeting $meeting, User $user, int $windowHours, ?string $minutes): array
     {
         if ($meeting->status === 'ended') {
-            return $this->fail('الاجتماع منتهي بالفعل.');
+            return $this->fail(setting('meetings.attendance_service.end_1', 'الاجتماع منتهي بالفعل.'));
         }
 
         $windowHours = max(1, min($windowHours, $this->maxWindowHours()));
@@ -237,7 +237,7 @@ class AttendanceService
                     user: $meeting->owner ?? $user,
                     value: rep_rule('meeting.managed'),
                     source: 'meeting',
-                    reason: 'إدارة اجتماع وتوثيق محضره: '.$meeting->title,
+                    reason: strtr(setting('meetings.attendance_service.end_2', 'إدارة اجتماع وتوثيق محضره: :p1'), [':p1' => (string) ($meeting->title)]),
                     reference: $meeting,
                     createdBy: $user->id,
                 );
@@ -247,14 +247,14 @@ class AttendanceService
                 $this->ledger->notify(
                     User::find($userId),
                     'meeting.attendance_registered',
-                    'اتفتحت نافذة تسجيل حضور: '.$meeting->title,
-                    'سجّل حضورك خلال '.$windowHours.' ساعة.',
+                    strtr(setting('meetings.attendance_service.end_3', 'اتفتحت نافذة تسجيل حضور: :p1'), [':p1' => (string) ($meeting->title)]),
+                    strtr(setting('meetings.attendance_service.end_4', 'سجّل حضورك خلال :p1 ساعة.'), [':p1' => (string) ($windowHours)]),
                     route('volunteer.meetings.show', $meeting),
                 );
             }
         });
 
-        return ['ok' => true, 'message' => 'اتقفل الاجتماع، ونافذة التسجيل مفتوحة '.$windowHours.' ساعة.', 'value' => null];
+        return ['ok' => true, 'message' => strtr(setting('meetings.attendance_service.end_5', 'اتقفل الاجتماع، ونافذة التسجيل مفتوحة :p1 ساعة.'), [':p1' => (string) ($windowHours)]), 'value' => null];
     }
 
     /**
@@ -310,7 +310,7 @@ class AttendanceService
                 user: $user,
                 value: $value,
                 source: 'meeting',
-                reason: ($excused ? 'غياب باعتذار مسبق: ' : 'غياب بلا اعتذار: ').$meeting->title,
+                reason: ($excused ? setting('meetings.attendance_service.settle_absences_1', 'غياب باعتذار مسبق: ') : setting('meetings.attendance_service.settle_absences_2', 'غياب بلا اعتذار: ')).$meeting->title,
                 reference: $meeting,
             );
 

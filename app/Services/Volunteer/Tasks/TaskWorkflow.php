@@ -33,13 +33,13 @@ class TaskWorkflow
     {
         if (in_array($task->status, [TaskStatus::APPROVED, TaskStatus::CLOSED], true)) {
             throw ValidationException::withMessages([
-                'delivery' => 'المهمّة مقفولة بالفعل — مفيش تسليم جديد عليها.',
+                'delivery' => setting('workflow.task_workflow.deliver_1', 'المهمّة مقفولة بالفعل — مفيش تسليم جديد عليها.'),
             ]);
         }
 
         if (blank($payload['body'] ?? null) && blank($payload['link'] ?? null) && blank($payload['file_path'] ?? null)) {
             throw ValidationException::withMessages([
-                'delivery' => 'التسليم فاضي — ارفع ملفًّا أو حطّ رابطًا أو اكتب المخرج.',
+                'delivery' => setting('workflow.task_workflow.deliver_2', 'التسليم فاضي — ارفع ملفًّا أو حطّ رابطًا أو اكتب المخرج.'),
             ]);
         }
 
@@ -67,8 +67,8 @@ class TaskWorkflow
                 $this->bridge->notify(
                     $task->reviewer,
                     'task_delivered',
-                    'تسليم جديد: '.$task->title,
-                    'العدّاد وقف لحظة التسليم — المراجعة عليك.',
+                    strtr(setting('workflow.task_workflow.deliver_3', 'تسليم جديد: :p1'), [':p1' => (string) ($task->title)]),
+                    setting('workflow.task_workflow.deliver_4', 'العدّاد وقف لحظة التسليم — المراجعة عليك.'),
                     route('volunteer.tasks.show', $task),
                     $task,
                     true,
@@ -140,19 +140,19 @@ class TaskWorkflow
 
         if ($task->deadline_at && Carbon::parse($task->deadline_at)->isPast()) {
             throw ValidationException::withMessages([
-                'extension' => 'الديدلاين فات — مفيش طلب تمديد بعده. سلّم وسجّل سببك، أو اطلب اعتذارًا.',
+                'extension' => setting('workflow.task_workflow.request_extension_1', 'الديدلاين فات — مفيش طلب تمديد بعده. سلّم وسجّل سببك، أو اطلب اعتذارًا.'),
             ]);
         }
 
         if ((int) $task->extension_count >= $max) {
             throw ValidationException::withMessages([
-                'extension' => 'التمديد مرّة واحدة للمهمّة، وإنت استعملتها — كلّم مراجعك.',
+                'extension' => setting('workflow.task_workflow.request_extension_2', 'التمديد مرّة واحدة للمهمّة، وإنت استعملتها — كلّم مراجعك.'),
             ]);
         }
 
         if (trim($reason) === '') {
             throw ValidationException::withMessages([
-                'reason' => 'السبب إلزاميّ — اشرح باختصار ليه محتاج وقتًا زيادة.',
+                'reason' => setting('workflow.task_workflow.request_extension_3', 'السبب إلزاميّ — اشرح باختصار ليه محتاج وقتًا زيادة.'),
             ]);
         }
 
@@ -160,7 +160,7 @@ class TaskWorkflow
 
         if ($task->deadline_at && $requested->lessThanOrEqualTo(Carbon::parse($task->deadline_at))) {
             throw ValidationException::withMessages([
-                'new_deadline' => 'التاريخ الجديد لازم يكون بعد الديدلاين الحاليّ.',
+                'new_deadline' => setting('workflow.task_workflow.request_extension_4', 'التاريخ الجديد لازم يكون بعد الديدلاين الحاليّ.'),
             ]);
         }
 
@@ -171,14 +171,14 @@ class TaskWorkflow
             // ⭐ التاريخ المقترَح جزءٌ من الطلب لا من القرار — وبه وحده تسري الموافقة
             'new_deadline' => $requested->toDateTimeString(),
             'reason' => $reason,
-            'note' => 'طلب: تمديد إلى '.$requested->format('Y-m-d H:i').' — السبب: '.$reason,
+            'note' => strtr(setting('workflow.task_workflow.request_extension_5', 'طلب: تمديد إلى :p1 — السبب: :p2'), [':p1' => (string) ($requested->format('Y-m-d H:i')), ':p2' => (string) ($reason)]),
         ]);
 
         if ($task->reviewer) {
             $this->bridge->notify(
                 $task->reviewer,
                 'task_extension',
-                'طلب تمديد على: '.$task->title,
+                strtr(setting('workflow.task_workflow.request_extension_6', 'طلب تمديد على: :p1'), [':p1' => (string) ($task->title)]),
                 $reason,
                 route('volunteer.tasks.show', $task),
                 $task,
@@ -192,20 +192,20 @@ class TaskWorkflow
     {
         if (trim($reason) === '') {
             throw ValidationException::withMessages([
-                'reason' => 'اكتب سبب الاعتذار — المراجِع محتاج يفهم الموقف.',
+                'reason' => setting('workflow.task_workflow.apologize_1', 'اكتب سبب الاعتذار — المراجِع محتاج يفهم الموقف.'),
             ]);
         }
 
         $this->openEscalation($task, $user, CaseCatalog::APOLOGY, [
             'reason' => $reason,
-            'note' => 'طلب: اعتذار — السبب: '.$reason,
+            'note' => strtr(setting('workflow.task_workflow.apologize_2', 'طلب: اعتذار — السبب: :p1'), [':p1' => (string) ($reason)]),
         ]);
 
         if ($task->reviewer) {
             $this->bridge->notify(
                 $task->reviewer,
                 'task_apology',
-                'اعتذار عن: '.$task->title,
+                strtr(setting('workflow.task_workflow.apologize_3', 'اعتذار عن: :p1'), [':p1' => (string) ($task->title)]),
                 $reason,
                 route('volunteer.tasks.show', $task),
                 $task,
@@ -222,25 +222,25 @@ class TaskWorkflow
     {
         if ($task->late_due_to_child) {
             throw ValidationException::withMessages([
-                'flag' => 'العلم اترفع مرّة واحدة على المهمّة دي بالفعل.',
+                'flag' => setting('workflow.task_workflow.flag_late_due_to_child_1', 'العلم اترفع مرّة واحدة على المهمّة دي بالفعل.'),
             ]);
         }
 
         if ((int) $child->parent_task_id !== (int) $task->id) {
             throw ValidationException::withMessages([
-                'flag' => 'العلم لازم يشير لصب-تاسك تابع للمهمّة دي.',
+                'flag' => setting('workflow.task_workflow.flag_late_due_to_child_2', 'العلم لازم يشير لصب-تاسك تابع للمهمّة دي.'),
             ]);
         }
 
         if ($task->deadline_at && Carbon::parse($task->deadline_at)->isPast()) {
             throw ValidationException::withMessages([
-                'flag' => 'نافذتك فاتت — العلم يُرفَع قبل فواتها، وبعدها الحساب على إدارة الشغل.',
+                'flag' => setting('workflow.task_workflow.flag_late_due_to_child_3', 'نافذتك فاتت — العلم يُرفَع قبل فواتها، وبعدها الحساب على إدارة الشغل.'),
             ]);
         }
 
         if (! $this->isLate($child)) {
             throw ValidationException::withMessages([
-                'flag' => 'الصب-تاسك ده مش متأخّر فعلًا — العلم بيتقبل على ابنٍ متأخّر بس.',
+                'flag' => setting('workflow.task_workflow.flag_late_due_to_child_4', 'الصب-تاسك ده مش متأخّر فعلًا — العلم بيتقبل على ابنٍ متأخّر بس.'),
             ]);
         }
 
@@ -249,8 +249,8 @@ class TaskWorkflow
         $this->bridge->notify(
             $user,
             'task_flag',
-            'اترفع علم على: '.$task->title,
-            'اتسجّل إنّ التأخير بسبب: '.$child->title,
+            strtr(setting('workflow.task_workflow.flag_late_due_to_child_5', 'اترفع علم على: :p1'), [':p1' => (string) ($task->title)]),
+            strtr(setting('workflow.task_workflow.flag_late_due_to_child_6', 'اتسجّل إنّ التأخير بسبب: :p1'), [':p1' => (string) ($child->title)]),
             route('volunteer.tasks.show', $task),
             $task,
         );
@@ -314,7 +314,7 @@ class TaskWorkflow
                 'rep',
                 $value,
                 'task',
-                'تسليم مهمّة: '.$task->title.($halved ? ' (المكافأة منصَّفة بعد التعثّر الثاني)' : ''),
+                setting('workflow.task_workflow.record_delivery_rep_1', 'تسليم مهمّة: ').$task->title.($halved ? setting('workflow.task_workflow.record_delivery_rep_2', ' (المكافأة منصَّفة بعد التعثّر الثاني)') : ''),
                 $task,
                 $task->entity_id,
             ),
@@ -341,7 +341,7 @@ class TaskWorkflow
                     'vxp',
                     $earned,
                     'task',
-                    'مهمّة مُسلَّمة: '.$task->title,
+                    strtr(setting('workflow.task_workflow.record_delivery_rep_3', 'مهمّة مُسلَّمة: :p1'), [':p1' => (string) ($task->title)]),
                     $task,
                     $task->entity_id,
                 ),

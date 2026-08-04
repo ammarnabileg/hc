@@ -1,6 +1,6 @@
 @extends('layouts.volunteer')
 
-@section('title', 'السعة والأحمال')
+@section('title', setting('volunteer.org_capacity.title', 'السعة والأحمال'))
 
 @php
     /**
@@ -8,18 +8,18 @@
      * الشاشة **تقرأ فقط**: لا شاشات ضبط قيم هنا ولا زرّ يمنع إجراءً.
      */
     $tabs = [
-        ['key' => 'span', 'label' => 'نطاق الإشراف', 'url' => request()->fullUrlWithQuery(['tab' => 'span'])],
-        ['key' => 'occupancy', 'label' => 'الإشغال', 'url' => request()->fullUrlWithQuery(['tab' => 'occupancy'])],
-        ['key' => 'gaps', 'label' => 'الفجوات', 'url' => request()->fullUrlWithQuery(['tab' => 'gaps'])],
-        ['key' => 'loads', 'label' => 'الأحمال', 'url' => request()->fullUrlWithQuery(['tab' => 'loads'])],
+        ['key' => 'span', 'label' => setting('volunteer.org_capacity.label', 'نطاق الإشراف'), 'url' => request()->fullUrlWithQuery(['tab' => 'span'])],
+        ['key' => 'occupancy', 'label' => setting('volunteer.org_capacity.label_2', 'الإشغال'), 'url' => request()->fullUrlWithQuery(['tab' => 'occupancy'])],
+        ['key' => 'gaps', 'label' => setting('volunteer.org_capacity.label_3', 'الفجوات'), 'url' => request()->fullUrlWithQuery(['tab' => 'gaps'])],
+        ['key' => 'loads', 'label' => setting('volunteer.org_capacity.label_4', 'الأحمال'), 'url' => request()->fullUrlWithQuery(['tab' => 'loads'])],
     ];
 @endphp
 
 @section('content')
     <x-page-header
-        title="السعة والأحمال"
+        :title="setting('volunteer.org_capacity.title', 'السعة والأحمال')"
         :subtitle="$root?->name_ar"
-        :breadcrumbs="[['label' => 'لوحة التطوّع', 'url' => url('/volunteer')], ['label' => 'قسمي'], ['label' => 'السعة والأحمال']]">
+        :breadcrumbs="[['label' => setting('volunteer.common.breadcrumb_root', 'لوحة التطوّع'), 'url' => url('/volunteer')], ['label' => setting('volunteer.org_capacity.label_5', 'قسمي')], ['label' => setting('volunteer.org_capacity.title', 'السعة والأحمال')]]">
         <x-slot:action>
             @include('volunteer.org.partials.entity-switcher', ['action' => route('volunteer.capacity')])
         </x-slot:action>
@@ -32,7 +32,7 @@
     </div>
 
     @if (! $root)
-        <x-empty message="الهيكل صغير — لا مؤشّرات تجاوز" action="الأعضاء والبوزشنز" :href="route('volunteer.department')" />
+        <x-empty :message="setting('volunteer.org_capacity.empty', 'الهيكل صغير — لا مؤشّرات تجاوز')" :action="setting('volunteer.org_capacity.action', 'الأعضاء والبوزشنز')" :href="route('volunteer.department')" />
     @else
         <x-tabs :tabs="$tabs" :current="$tab" />
 
@@ -42,7 +42,7 @@
                     <div class="flex items-center justify-between gap-2 flex-wrap mb-3">
                         <div class="font-bold text-sm">{{ $row['position'] }}</div>
                         <div class="text-xs" style="color: var(--text-muted)">
-                            الأدنى {{ $row['min'] ?? '—' }} · الافتراضيّ {{ $row['default'] ?? '—' }} · الأقصى {{ $row['max'] ?? 'بلا حدّ' }}
+                            {{ setting('volunteer.org_capacity.text', 'الأدنى') }} {{ $row['min'] ?? '—' }} · {{ setting('volunteer.org_capacity.text_2', 'الافتراضيّ') }} {{ $row['default'] ?? '—' }} · {{ setting('volunteer.org_capacity.text_3', 'الأقصى') }} {{ $row['max'] ?? setting('volunteer.org_capacity.text_4', 'بلا حدّ') }}
                         </div>
                     </div>
                     @foreach ($row['holders'] as $holder)
@@ -59,7 +59,7 @@
                     @endforeach
                 </div>
             @empty
-                <x-empty message="الهيكل صغير — لا مؤشّرات تجاوز" action="الأعضاء والبوزشنز" :href="route('volunteer.department')" />
+                <x-empty :message="setting('volunteer.org_capacity.empty', 'الهيكل صغير — لا مؤشّرات تجاوز')" :action="setting('volunteer.org_capacity.action', 'الأعضاء والبوزشنز')" :href="route('volunteer.department')" />
             @endforelse
 
         @elseif ($tab === 'occupancy')
@@ -80,15 +80,15 @@
                         </div>
                     </button>
                 @empty
-                    <p class="text-sm" style="color: var(--text-muted)">لا كيانات فرعيّة بعد.</p>
+                    <p class="text-sm" style="color: var(--text-muted)">{{ setting('volunteer.org_capacity.text_5', 'لا كيانات فرعيّة بعد.') }}</p>
                 @endforelse
             </div>
 
         @elseif ($tab === 'gaps')
             <div class="grid gap-4 lg:grid-cols-2">
                 <div class="card p-4">
-                    <div class="text-sm font-bold mb-1">كيانات غير صحّيّة</div>
-                    <p class="text-xs mb-3" style="color: var(--text-muted)">تحت الحدّ الأدنى — والاقتراح اقتراح لا إلزام.</p>
+                    <div class="text-sm font-bold mb-1">{{ setting('volunteer.org_capacity.text_6', 'كيانات غير صحّيّة') }}</div>
+                    <p class="text-xs mb-3" style="color: var(--text-muted)">{{ setting('volunteer.org_capacity.text_7', 'تحت الحدّ الأدنى — والاقتراح اقتراح لا إلزام.') }}</p>
                     @forelse ($unhealthy as $row)
                         <div class="py-2 text-sm" style="border-top: 1px solid var(--border)">
                             <div class="flex items-center justify-between gap-2">
@@ -98,36 +98,36 @@
                             <div class="text-xs mt-1" style="color: var(--text-muted)">{{ $row['suggestion'] }}</div>
                         </div>
                     @empty
-                        <p class="text-sm" style="color: var(--text-muted)">كلّ الكيانات فوق الحدّ الأدنى.</p>
+                        <p class="text-sm" style="color: var(--text-muted)">{{ setting('volunteer.org_capacity.text_8', 'كلّ الكيانات فوق الحدّ الأدنى.') }}</p>
                     @endforelse
                 </div>
 
                 <div class="card p-4">
-                    <div class="text-sm font-bold mb-1">الشواغر</div>
-                    <p class="text-xs mb-3" style="color: var(--text-muted)">ومعها مرشّح سلّم الترقية الحاليّ وحالة «قائم بأعمال».</p>
+                    <div class="text-sm font-bold mb-1">{{ setting('volunteer.org_capacity.text_9', 'الشواغر') }}</div>
+                    <p class="text-xs mb-3" style="color: var(--text-muted)">{{ setting('volunteer.org_capacity.text_10', 'ومعها مرشّح سلّم الترقية الحاليّ وحالة «قائم بأعمال».') }}</p>
                     @forelse ($vacancies as $row)
                         <div class="py-2 text-sm" style="border-top: 1px solid var(--border)">
                             <div class="flex items-center justify-between gap-2">
                                 <span class="truncate font-semibold">{{ $row['entity'] }}</span>
                                 @if ($row['acting'])
-                                    <x-state-badge state="warn" :label="'قائم بأعمال: '.$row['acting']" />
+                                    <x-state-badge state="warn" :label="setting('volunteer.org_capacity.label_6', 'قائم بأعمال: ').$row['acting']" />
                                 @else
-                                    <x-state-badge state="idle" label="بلا مسؤول" />
+                                    <x-state-badge state="idle" :label="setting('volunteer.org_capacity.label_7', 'بلا مسؤول')" />
                                 @endif
                             </div>
                             <div class="text-xs mt-1" style="color: var(--text-muted)">
-                                المرشّح: {{ $row['candidate'] ?? '—' }}{{ $row['candidate_position'] ? ' · '.$row['candidate_position'] : '' }}
+                                {{ setting('volunteer.org_capacity.text_11', 'المرشّح:') }} {{ $row['candidate'] ?? '—' }}{{ $row['candidate_position'] ? ' · '.$row['candidate_position'] : '' }}
                             </div>
                         </div>
                     @empty
-                        <p class="text-sm" style="color: var(--text-muted)">مفيش شواغر مفتوحة.</p>
+                        <p class="text-sm" style="color: var(--text-muted)">{{ setting('volunteer.org_capacity.text_12', 'مفيش شواغر مفتوحة.') }}</p>
                     @endforelse
                 </div>
             </div>
 
         @else
             <div class="card p-4">
-                <div class="text-sm font-bold mb-1">الأحمال — الأقلّ حملًا أوّلًا</div>
+                <div class="text-sm font-bold mb-1">{{ setting('volunteer.org_capacity.text_13', 'الأحمال — الأقلّ حملًا أوّلًا') }}</div>
                 <p class="text-xs mb-3" style="color: var(--text-muted)">{{ setting('volunteer.capacity.load_note', 'منطق الموازن: يقترح ولا يُلزِم') }}</p>
                 @forelse ($loads as $row)
                     <div class="flex items-center justify-between gap-2 py-2 text-sm" style="border-top: 1px solid var(--border)">
@@ -136,28 +136,41 @@
                             <span class="text-xs" style="color: var(--text-muted)">· {{ $row['position'] }} · {{ $row['entity'] }}</span>
                         </span>
                         <span class="flex items-center gap-2 shrink-0">
-                            <span class="text-xs" style="color: var(--text-muted)">فريق {{ $row['team'] }} · مهامّ {{ $row['tasks'] }}</span>
+                            <span class="text-xs" style="color: var(--text-muted)">{{ setting('volunteer.org_capacity.text_14', 'فريق') }} {{ $row['team'] }} · {{ setting('volunteer.org_capacity.text_15', 'مهامّ') }} {{ $row['tasks'] }}</span>
                             @if ($row['suggested'])
                                 <x-state-badge state="ok" :label="$row['suggestion_note']" />
                             @endif
                         </span>
                     </div>
                 @empty
-                    <p class="text-sm" style="color: var(--text-muted)">لا أعضاء في هذا الكيان بعد.</p>
+                    <p class="text-sm" style="color: var(--text-muted)">{{ setting('volunteer.org_capacity.text_16', 'لا أعضاء في هذا الكيان بعد.') }}</p>
                 @endforelse
             </div>
         @endif
 
-        <x-modal id="capacity-modal" title="تفاصيل الكيان">
+        <x-modal id="capacity-modal" :title="setting('volunteer.org_capacity.tooltip', 'تفاصيل الكيان')">
             <div data-capacity-body class="text-sm">
-                <p style="color: var(--text-muted)">جارٍ التحميل…</p>
+                <p style="color: var(--text-muted)">{{ setting('volunteer.common.loading', 'جارٍ التحميل…') }}</p>
             </div>
         </x-modal>
     @endif
 @endsection
 
+@php
+    /** نصوص السكربت — تُمرَّر بـ`@json` فلا يبقى حرفٌ عربيّ محروق داخله (2.13-أ) */
+    $jsText = [
+        'loading' => (string) setting('volunteer.org_capacity.js_loading', 'جارٍ التحميل…'),
+        'over_limit' => (string) setting('volunteer.org_capacity.js_over_limit', 'فوق الحدّ'),
+        'no_breaches' => (string) setting('volunteer.org_capacity.js_no_breaches', 'لا تجاوزات.'),
+        'load_failed' => (string) setting('volunteer.org_capacity.js_load_failed', 'تعذّر تحميل التفاصيل — جرّب تاني.'),
+        'downline' => (string) setting('volunteer.org_capacity.js_downline', 'تحته'),
+        'occupancy_rate' => (string) setting('volunteer.org_capacity.js_occupancy_rate', 'نسبة الإشغال:'),
+    ];
+@endphp
+
 @push('scripts')
 <script>
+const T = @json($jsText);
 /* بوب-أب الكيان — أرقام تُقرأ فقط، والتجاوز تنبيهٌ لا منع (13.4-ف) */
 (() => {
     const modal = document.getElementById('capacity-modal');
@@ -168,25 +181,25 @@
         const trigger = e.target.closest('[data-capacity]');
         if (!trigger) return;
         modal.classList.remove('hidden'); modal.classList.add('flex');
-        body.innerHTML = '<p style="color: var(--text-muted)">جارٍ التحميل…</p>';
+        body.innerHTML = '<p style="color: var(--text-muted)">' + T.loading + '</p>';
         fetch(trigger.dataset.capacity, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
             .then((r) => r.json())
             .then((d) => {
                 const members = d.members.map((m) =>
                     `<div class="flex items-center justify-between gap-2 py-1" style="border-top:1px solid var(--border)">
                         <span class="truncate">${m.name} <span class="text-xs" style="color: var(--text-muted)">· ${m.position}</span></span>
-                        <span class="text-xs shrink-0" style="color: var(--text-muted)">تحته ${m.team}</span>
+                        <span class="text-xs shrink-0" style="color: var(--text-muted)">${T.downline} ${m.team}</span>
                      </div>`).join('');
                 const breaches = d.breaches.length
-                    ? d.breaches.map((b) => `<div class="text-xs py-1">${b.name}: ${b.actual} فوق الحدّ ${b.max} — ${d.notice}</div>`).join('')
-                    : `<div class="text-xs" style="color: var(--text-muted)">لا تجاوزات.</div>`;
+                    ? d.breaches.map((b) => `<div class="text-xs py-1">${b.name}: ${b.actual} ${T.over_limit} ${b.max} — ${d.notice}</div>`).join('')
+                    : `<div class="text-xs" style="color: var(--text-muted)">${T.no_breaches}</div>`;
                 body.innerHTML = `
                     <div class="font-bold mb-1">${d.entity}</div>
-                    <div class="text-xs mb-3" style="color: var(--text-muted)">نسبة الإشغال: ${d.percent === null ? '—' : d.percent + '%'}</div>
+                    <div class="text-xs mb-3" style="color: var(--text-muted)">${T.occupancy_rate} ${d.percent === null ? '—' : d.percent + '%'}</div>
                     <div class="mb-3">${members}</div>
                     <div class="card p-2">${breaches}</div>`;
             })
-            .catch(() => { body.innerHTML = '<p>تعذّر تحميل التفاصيل — جرّب تاني.</p>'; });
+            .catch(() => { body.innerHTML = '<p>' + T.load_failed + '</p>'; });
     });
 })();
 </script>

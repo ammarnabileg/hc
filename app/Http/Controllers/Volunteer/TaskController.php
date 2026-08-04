@@ -87,7 +87,7 @@ class TaskController extends Controller
 
         if (! $this->hasTeam($user, $membership)) {
             throw ValidationException::withMessages([
-                'title' => 'إنشاء المهامّ لمن له فريق — تقدر تعمل صب-تاسك على مهمّتك أو تدعو مساهمًا.',
+                'title' => (string) setting('workflow.tasks.store_msg', 'إنشاء المهامّ لمن له فريق — تقدر تعمل صب-تاسك على مهمّتك أو تدعو مساهمًا.'),
             ]);
         }
 
@@ -106,8 +106,8 @@ class TaskController extends Controller
             'blocked_by_task_id' => ['nullable', 'integer', 'exists:tasks,id'],
             'owner_id' => ['nullable', 'integer', 'exists:users,id'],
         ], [], [
-            'deliverable_spec' => 'شكل المخرجات',
-            'work_item_id' => 'البند التابع للمشروع',
+            'deliverable_spec' => (string) setting('workflow.tasks.store_msg_2', 'شكل المخرجات'),
+            'work_item_id' => (string) setting('workflow.tasks.store_msg_3', 'البند التابع للمشروع'),
         ]);
 
         // «لا تُسنَد إليه مهامّ جديدة» طول غيابه المعذور (23-6)
@@ -117,8 +117,12 @@ class TaskController extends Controller
             $delegate = app(AbsenceService::class)->delegateFor($target, $membership?->entity_id);
 
             throw ValidationException::withMessages([
-                'owner_id' => $target->shortName().' في وضع «غائب» دلوقتي'
-                    .($delegate ? ' — البديل: '.$delegate->shortName() : '').'. اختار حدًّا تاني.',
+                'owner_id' => strtr((string) setting('workflow.tasks.store_msg_4', ':a1 في وضع «غائب» دلوقتي:a2. اختار حدًّا تاني.'), [
+                    ':a1' => (string) $target->shortName(),
+                    ':a2' => $delegate
+                        ? strtr((string) setting('workflow.tasks.store_delegate', ' — البديل: :name'), [':name' => (string) $delegate->shortName()])
+                        : '',
+                ]),
             ]);
         }
 
@@ -141,7 +145,7 @@ class TaskController extends Controller
 
         return redirect()
             ->route('volunteer.tasks.show', $task)
-            ->with('status', 'اتحفظت ✓ — المهمّة اتسجّلت وعدّادها شغّال.');
+            ->with('status', (string) setting('workflow.tasks.store_ok', 'اتحفظت ✓ — المهمّة اتسجّلت وعدّادها شغّال.'));
     }
 
     /** صفحة المهمّة بتاباتها السبعة (24.4-2) */
@@ -149,7 +153,7 @@ class TaskController extends Controller
     {
         $user = $request->user();
 
-        abort_unless($this->board->canSee($user, $task), 403, 'المهمّة دي خارج نطاقك.');
+        abort_unless($this->board->canSee($user, $task), 403, (string) setting('workflow.tasks.show_msg', 'المهمّة دي خارج نطاقك.'));
 
         $task->load(['entity', 'task_type', 'work_item', 'owner', 'reviewer', 'parent_task', 'blocked_by_task']);
 
@@ -204,7 +208,7 @@ class TaskController extends Controller
 
         $this->workflow->deliver($task, $user, $data);
 
-        return back()->with('status', 'تمّ التسليم ✓ — العدّاد وقف دلوقتي، والتقييم على وقت تسليمك.');
+        return back()->with('status', (string) setting('workflow.tasks.deliver_ok', 'تمّ التسليم ✓ — العدّاد وقف دلوقتي، والتقييم على وقت تسليمك.'));
     }
 
     /** متعثّر: مدّة ≤ الحدّ بسبب إلزاميّ، أو Blocked By (23-3.4) */
@@ -225,10 +229,10 @@ class TaskController extends Controller
         $this->blocks->block($task, $user, $data['type'], $data['reason'], $data['days'] ?? null, $blocking);
 
         $note = $this->blocks->repRewardMultiplier($task->refresh()) < 1
-            ? ' وتنبيه: دي الإعادة التانية فمكافأة الالتزام على المهمّة دي بقت النصف.'
+            ? (string) setting('workflow.tasks.block_msg', ' وتنبيه: دي الإعادة التانية فمكافأة الالتزام على المهمّة دي بقت النصف.')
             : '';
 
-        return back()->with('status', 'اتسجّل التعثّر ✓ — مراجعك هيشوفه على محرّك التصعيد.'.$note);
+        return back()->with('status', strtr((string) setting('workflow.tasks.block_ok', 'اتسجّل التعثّر ✓ — مراجعك هيشوفه على محرّك التصعيد.:a1'), [':a1' => (string) ($note)]));
     }
 
     /** طلب تمديد: قبل الديدلاين ومرّة واحدة (23-3.5) */
@@ -244,7 +248,7 @@ class TaskController extends Controller
 
         $this->workflow->requestExtension($task, $user, $data['new_deadline'], $data['reason']);
 
-        return back()->with('status', 'اتبعت طلب التمديد ✓ — القرار عند مراجعك خلال نافذته.');
+        return back()->with('status', (string) setting('workflow.tasks.extension_ok', 'اتبعت طلب التمديد ✓ — القرار عند مراجعك خلال نافذته.'));
     }
 
     /** اعتذار — يُعرَض على الأبلاين ويمشي على محرّك التصعيد */
@@ -257,7 +261,7 @@ class TaskController extends Controller
 
         $this->workflow->apologize($task, $user, $data['reason']);
 
-        return back()->with('status', 'اتسجّل الاعتذار ✓ — مراجعك هيقرّر فيه.');
+        return back()->with('status', (string) setting('workflow.tasks.apology_ok', 'اتسجّل الاعتذار ✓ — مراجعك هيقرّر فيه.'));
     }
 
     /** رفع علم «متأخّر بسبب [ابن]» (23-3.9-4) */
@@ -270,7 +274,7 @@ class TaskController extends Controller
 
         $this->workflow->flagLateDueToChild($task, Task::findOrFail($data['child_task_id']), $user);
 
-        return back()->with('status', 'العلم اترفع ✓ — التأخير منسوب لصاحبه، ونافذتك محميّة.');
+        return back()->with('status', (string) setting('workflow.tasks.flag_ok', 'العلم اترفع ✓ — التأخير منسوب لصاحبه، ونافذتك محميّة.'));
     }
 
     /** Create Subtask دفعةً — بفحص قيد الديدلاين قبل الحفظ (23-2.3) */
@@ -284,7 +288,7 @@ class TaskController extends Controller
 
         $created = $this->batch->save($task, is_array($rows) ? $rows : [], $user);
 
-        return back()->with('status', 'اتحفظت الدفعة ✓ — '.$created->count().' صب-تاسك راحوا لمراجعة أبلاينك.');
+        return back()->with('status', strtr((string) setting('workflow.tasks.store_subtasks_ok', 'اتحفظت الدفعة ✓ — :a1 صب-تاسك راحوا لمراجعة أبلاينك.'), [':a1' => (string) ($created->count())]));
     }
 
     /** دعوة مساهم — على صب-تاسك معتمد، وبديدلاين داخليّ قبل ديدلاين المهمّة (23-4) */
@@ -300,18 +304,18 @@ class TaskController extends Controller
             'vxp_value' => ['nullable', 'numeric', 'min:0'],
             'instructions' => ['nullable', 'string'],
             'deliverable_spec' => ['required', 'string'],
-        ], [], ['deliverable_spec' => 'شكل المخرجات']);
+        ], [], ['deliverable_spec' => (string) setting('workflow.tasks.invite_contributor_msg', 'شكل المخرجات')]);
 
         $contributor = User::query()->where('code', $data['code'])->first();
 
         if (! $contributor) {
-            throw ValidationException::withMessages(['code' => 'مفيش متطوّع بالكود ده — راجع الكود وجرّب تاني.']);
+            throw ValidationException::withMessages(['code' => (string) setting('workflow.tasks.invite_contributor_empty', 'مفيش متطوّع بالكود ده — راجع الكود وجرّب تاني.')]);
         }
 
         // «ولا يُدعى مساهمًا» طول غيابه المعذور (23-6)
         if (app(AbsenceService::class)->isAbsent($contributor)) {
             throw ValidationException::withMessages([
-                'code' => $contributor->shortName().' في وضع «غائب» دلوقتي — ادعُ حدًّا تاني أو استنّى رجوعه.',
+                'code' => strtr((string) setting('workflow.tasks.invite_contributor_msg_2', ':a1 في وضع «غائب» دلوقتي — ادعُ حدًّا تاني أو استنّى رجوعه.'), [':a1' => (string) ($contributor->shortName())]),
             ]);
         }
 
@@ -320,8 +324,7 @@ class TaskController extends Controller
 
         if ($limit && $internal->greaterThan($limit)) {
             throw ValidationException::withMessages([
-                'internal_deadline_at' => 'الديدلاين الداخليّ لازم يكون قبل ديدلاين المهمّة بـ24 ساعة على الأقلّ ('
-                    .$limit->format('Y-m-d H:i').' كحدّ أقصى).',
+                'internal_deadline_at' => strtr((string) setting('workflow.tasks.invite_contributor_must', 'الديدلاين الداخليّ لازم يكون قبل ديدلاين المهمّة بـ24 ساعة على الأقلّ (:a1 كحدّ أقصى).'), [':a1' => (string) ($limit->format('Y-m-d H:i'))]),
             ]);
         }
 
@@ -339,7 +342,7 @@ class TaskController extends Controller
             'owner_review_due_at' => $internal->copy()->addHours((int) setting('workflow.contribution.owner_review_hours', 24)),
         ]);
 
-        return back()->with('status', 'اتبعتت الدعوة ✓ — هتظهر لـ'.$contributor->shortName().' في «مساهماتي».');
+        return back()->with('status', strtr((string) setting('workflow.tasks.invite_contributor_ok', 'اتبعتت الدعوة ✓ — هتظهر لـ:a1 في «مساهماتي».'), [':a1' => (string) ($contributor->shortName())]));
     }
 
     /** التودو: شخصيّ بلا اعتماد وبلا أثر على أيّ درجة (23-2.1) */
@@ -358,7 +361,7 @@ class TaskController extends Controller
                 ->where('user_id', $user->id)->max('sort_order') + 1,
         ]);
 
-        return back()->with('status', 'اتحفظ ✓');
+        return back()->with('status', (string) setting('workflow.tasks.store_todo_ok', 'اتحفظ ✓'));
     }
 
     public function toggleTodo(Request $request, Task $task, TaskTodo $todo)
@@ -367,7 +370,7 @@ class TaskController extends Controller
 
         $todo->forceFill(['is_done' => ! $todo->is_done])->save();
 
-        return back()->with('status', 'اتحفظ ✓');
+        return back()->with('status', (string) setting('workflow.tasks.toggle_todo_ok', 'اتحفظ ✓'));
     }
 
     public function destroyTodo(Request $request, Task $task, TaskTodo $todo)
@@ -376,7 +379,7 @@ class TaskController extends Controller
 
         $todo->delete();
 
-        return back()->with('status', 'اتشال ✓');
+        return back()->with('status', (string) setting('workflow.tasks.destroy_todo_ok', 'اتشال ✓'));
     }
 
     // ------------------------------------------------------------------ داخليّ
@@ -385,12 +388,12 @@ class TaskController extends Controller
     private function authorizeTodo(User $user, Task $task, TaskTodo $todo): void
     {
         abort_unless((int) $todo->task_id === (int) $task->id, 404);
-        abort_unless((int) $todo->user_id === (int) $user->id, 403, 'التودو ده شخصيّ لصاحبه.');
+        abort_unless((int) $todo->user_id === (int) $user->id, 403, (string) setting('workflow.tasks.authorize_todo_msg', 'التودو ده شخصيّ لصاحبه.'));
     }
 
     private function authorizeOwner(User $user, Task $task): void
     {
-        abort_unless((int) $task->owner_id === (int) $user->id, 403, 'الفعل ده لصاحب المهمّة.');
+        abort_unless((int) $task->owner_id === (int) $user->id, 403, (string) setting('workflow.tasks.authorize_owner_msg', 'الفعل ده لصاحب المهمّة.'));
     }
 
     /** هل تحته أفراد؟ — «الإنشاء لمن له فريق» (23-3.1) */

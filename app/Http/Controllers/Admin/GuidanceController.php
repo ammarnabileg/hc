@@ -72,28 +72,28 @@ class GuidanceController extends Controller
 
         return redirect()
             ->route('admin.guidance.index')
-            ->with('status', 'اتحفظ المنشور «'.$announcement->title.'» ✓');
+            ->with('status', strtr((string) setting('guidance.admin.store_announcement_ok', 'اتحفظ المنشور «:a1» ✓'), [':a1' => (string) ($announcement->title)]));
     }
 
     public function updateAnnouncement(Request $request, Announcement $announcement): RedirectResponse
     {
         $this->guidance->saveAnnouncement($announcement, $this->announcementRules($request));
 
-        return back()->with('status', 'اتحفظ ✓');
+        return back()->with('status', (string) setting('guidance.admin.update_announcement_ok', 'اتحفظ ✓'));
     }
 
     public function duplicateAnnouncement(Announcement $announcement): RedirectResponse
     {
         $this->guidance->duplicateAnnouncement($announcement);
 
-        return back()->with('status', 'اتعملت نسخة كمسودّة ✓');
+        return back()->with('status', (string) setting('guidance.admin.duplicate_announcement_ok', 'اتعملت نسخة كمسودّة ✓'));
     }
 
     public function archiveAnnouncement(Announcement $announcement): RedirectResponse
     {
         $this->guidance->archiveAnnouncement($announcement);
 
-        return back()->with('status', 'اتأرشف المنشور ✓');
+        return back()->with('status', (string) setting('guidance.admin.archive_announcement_ok', 'اتأرشف المنشور ✓'));
     }
 
     /** تحليلات عميقة: نسبة القراءة ومَن قرأ ومَن أقرّ + **أفضل توقيت** (12.6-أ). */
@@ -189,7 +189,7 @@ class GuidanceController extends Controller
 
         $sent = $this->guidance->sendManualNotification($data);
 
-        return back()->with('status', 'اتبعت الإشعار لـ'.$sent.' مستخدم ✓');
+        return back()->with('status', strtr((string) setting('guidance.admin.send_notification_ok', 'اتبعت الإشعار لـ:a1 مستخدم ✓'), [':a1' => (string) ($sent)]));
     }
 
     // ============================================================== ج) دليل المستخدم
@@ -219,21 +219,21 @@ class GuidanceController extends Controller
     {
         $this->guidance->saveArticle(null, $this->articleRules($request));
 
-        return back()->with('status', 'اتضاف الدليل ✓');
+        return back()->with('status', (string) setting('guidance.admin.store_article_ok', 'اتضاف الدليل ✓'));
     }
 
     public function updateArticle(Request $request, HelpArticle $article): RedirectResponse
     {
         $this->guidance->saveArticle($article, $this->articleRules($request));
 
-        return back()->with('status', 'اتحفظ ✓');
+        return back()->with('status', (string) setting('guidance.admin.update_article_ok', 'اتحفظ ✓'));
     }
 
     public function destroyArticle(HelpArticle $article): RedirectResponse
     {
         $article->delete();
 
-        return back()->with('status', 'اتشال الدليل ✓');
+        return back()->with('status', (string) setting('guidance.admin.destroy_article_ok', 'اتشال الدليل ✓'));
     }
 
     // ============================================================== د) الشكاوى
@@ -283,7 +283,7 @@ class GuidanceController extends Controller
 
         $this->guidance->assign($complaint, $data['assigned_to'] ?? null, $request->user());
 
-        return back()->with('status', 'اتظبط الإسناد ✓');
+        return back()->with('status', (string) setting('guidance.admin.assign_complaint_ok', 'اتظبط الإسناد ✓'));
     }
 
     /** ردّ داخليّ (للفريق) أو خارجيّ (يوصل للمستخدم إشعارًا) — 24.3. */
@@ -304,7 +304,7 @@ class GuidanceController extends Controller
             $data['status'] ?? null,
         );
 
-        return back()->with('status', ($data['is_internal'] ?? false) ? 'اتسجّلت ملاحظة داخليّة ✓' : 'اتبعت الردّ ✓');
+        return back()->with('status', ($data['is_internal'] ?? false) ? (string) setting('guidance.admin.reply_complaint_ok', 'اتسجّلت ملاحظة داخليّة ✓') : (string) setting('guidance.admin.reply_complaint_ok_2', 'اتبعت الردّ ✓'));
     }
 
     /** الإغلاق بسبب موثّق (24.3). */
@@ -314,7 +314,7 @@ class GuidanceController extends Controller
 
         $this->guidance->close($complaint, $data['reason'], $request->user());
 
-        return back()->with('status', 'اتقفلت الشكوى، والسبب متسجّل ✓');
+        return back()->with('status', (string) setting('guidance.admin.close_complaint_ok', 'اتقفلت الشكوى، والسبب متسجّل ✓'));
     }
 
     /**
@@ -342,13 +342,13 @@ class GuidanceController extends Controller
             'reasons' => ['required', 'array', 'min:1'],
             'reasons.*' => ['nullable', 'string', 'max:48'],
         ], [
-            'reasons.required' => 'سيب سببًا واحدًا على الأقلّ — الفورم محتاج قائمة يختار منها.',
-            'reasons.*.max' => 'السبب طويل — خلّيه في كلمات.',
+            'reasons.required' => (string) setting('guidance.admin.update_complaint_reasons_msg', 'سيب سببًا واحدًا على الأقلّ — الفورم محتاج قائمة يختار منها.'),
+            'reasons.*.max' => (string) setting('guidance.admin.update_complaint_reasons_msg_2', 'السبب طويل — خلّيه في كلمات.'),
         ]);
 
         $saved = $this->guidance->saveComplaintReasons($data['reasons'], $request->user());
 
-        return back()->with('status', 'اتحفظت الأسباب ✓ ('.count($saved).')');
+        return back()->with('status', strtr((string) setting('guidance.admin.update_complaint_reasons_ok', 'اتحفظت الأسباب ✓ (:a1)'), [':a1' => (string) (count($saved))]));
     }
 
     // ------------------------------------------------------------------ داخليّ
@@ -357,10 +357,10 @@ class GuidanceController extends Controller
     private function tabs(string $current): array
     {
         return [
-            ['key' => 'announcements', 'label' => 'التعليمات', 'url' => route('admin.guidance.index')],
-            ['key' => 'notifications', 'label' => 'الإشعارات', 'url' => route('admin.guidance.notifications')],
-            ['key' => 'help', 'label' => 'دليل المستخدم', 'url' => route('admin.guidance.help')],
-            ['key' => 'complaints', 'label' => 'الشكاوى', 'url' => route('admin.guidance.complaints')],
+            ['key' => 'announcements', 'label' => (string) setting('guidance.admin.tabs_msg', 'التعليمات'), 'url' => route('admin.guidance.index')],
+            ['key' => 'notifications', 'label' => (string) setting('guidance.admin.tabs_msg_2', 'الإشعارات'), 'url' => route('admin.guidance.notifications')],
+            ['key' => 'help', 'label' => (string) setting('guidance.admin.tabs_msg_3', 'دليل المستخدم'), 'url' => route('admin.guidance.help')],
+            ['key' => 'complaints', 'label' => (string) setting('guidance.admin.tabs_msg_4', 'الشكاوى'), 'url' => route('admin.guidance.complaints')],
         ];
     }
 
@@ -441,8 +441,8 @@ class GuidanceController extends Controller
             'onboarding_step' => ['nullable', 'integer', 'min:1', 'max:'.(int) setting('announcements.onboarding.max_steps', 12)],
             'onboarding_delay_days' => ['nullable', 'integer', 'min:0', 'max:'.(int) setting('announcements.onboarding.max_delay_days', 365)],
         ], [
-            'poll_options.max' => 'خيارات الاستطلاع كتيرة — قلّلها عشان القرار يبقى سهل.',
-            'onboarding_step.max' => 'السلسلة طويلة — خلّيها خطوات معدودة يقدر المستخدم يكمّلها.',
+            'poll_options.max' => (string) setting('guidance.admin.announcement_rules_msg', 'خيارات الاستطلاع كتيرة — قلّلها عشان القرار يبقى سهل.'),
+            'onboarding_step.max' => (string) setting('guidance.admin.announcement_rules_msg_2', 'السلسلة طويلة — خلّيها خطوات معدودة يقدر المستخدم يكمّلها.'),
         ]);
 
         // بناء الاستطلاع صلاحيّةٌ مستقلّة في المصفوفة (`announcement_polls.create`):

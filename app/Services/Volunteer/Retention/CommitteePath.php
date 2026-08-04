@@ -173,10 +173,8 @@ class CommitteePath
         Notifier::send(
             $user,
             'account',
-            'اتفتح ملفّ لجنة تحقيق على درجة الالتزام',
-            $this->reasonOf($trigger, $value, $windowDays)
-                .' — اللجنة هتسمع منك، ومن قراراتها فرصة بـ'
-                .number_format(rep_rule('task.committee_chance', 1), 2).' لمعدّل الالتزام وإعادة تفعيل.',
+            setting('volunteer_offboarding.committee_path.refer_1', 'اتفتح ملفّ لجنة تحقيق على درجة الالتزام'),
+            strtr(setting('volunteer_offboarding.committee_path.refer_2', ':p1 — اللجنة هتسمع منك، ومن قراراتها فرصة بـ:p2 لمعدّل الالتزام وإعادة تفعيل.'), [':p1' => (string) ($this->reasonOf($trigger, $value, $windowDays)), ':p2' => (string) (number_format(rep_rule('task.committee_chance', 1), 2))]),
             null,
             'volunteer',
         );
@@ -196,7 +194,7 @@ class CommitteePath
     private function reasonOf(string $trigger, float $value, ?int $windowDays): string
     {
         return $trigger === self::TRIGGER_CUMULATIVE
-            ? 'مجموع درجة الالتزام المكتسَبة خلال آخر '.$windowDays.' يومًا ('.number_format($value, 2).') بلغ العتبة'
-            : 'درجة الالتزام الظاهرة ('.number_format($value, 2).') بلغت عتبة التعليق';
+            ? strtr(setting('volunteer_offboarding.committee_path.reason_of_1', 'مجموع درجة الالتزام المكتسَبة خلال آخر :p1 يومًا (:p2) بلغ العتبة'), [':p1' => (string) ($windowDays), ':p2' => (string) (number_format($value, 2))])
+            : strtr(setting('volunteer_offboarding.committee_path.reason_of_2', 'درجة الالتزام الظاهرة (:p1) بلغت عتبة التعليق'), [':p1' => (string) (number_format($value, 2))]);
     }
 }

@@ -366,9 +366,7 @@ class LedgerService
     {
         $decimals = (int) $currency->decimals;
 
-        return 'رصيدك من '.$currency->name_ar.' مش مكفّي: عندك '
-            .number_format($balance, $decimals).' والمطلوب '
-            .number_format($needed, $decimals).'. قلّل القيمة أو اشحن الأوّل.';
+        return strtr(setting('wallet.ledger_service.insufficient_message_1', 'رصيدك من :p1 مش مكفّي: عندك :p2 والمطلوب :p3. قلّل القيمة أو اشحن الأوّل.'), [':p1' => (string) ($currency->name_ar), ':p2' => (string) (number_format($balance, $decimals)), ':p3' => (string) (number_format($needed, $decimals))]);
     }
 
     /** صفّ المحفظة مقفولًا حتى نهاية المعاملة — فلا يقرأ نداءان رصيدًا واحدًا معًا */

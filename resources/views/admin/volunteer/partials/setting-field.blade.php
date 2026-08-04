@@ -15,11 +15,11 @@
             {{ $row['label'] }}
             @if ($row['modified'])
                 <span class="text-xs rounded-full px-2 py-0.5 align-middle"
-                      style="background: color-mix(in srgb, var(--color-state-warn) 15%, transparent); color: var(--color-state-warn)">▲ معدَّل</span>
+                      style="background: color-mix(in srgb, var(--color-state-warn) 15%, transparent); color: var(--color-state-warn)">{{ setting('admin.volunteer.partials.setting_field.madl', '▲ معدَّل') }}</span>
             @endif
             @if ($locked)
                 <span class="text-xs rounded-full px-2 py-0.5 align-middle"
-                      style="background: var(--surface-sunken); color: var(--text-muted)"><x-icon name="lock" size="16" /> مقفول</span>
+                      style="background: var(--surface-sunken); color: var(--text-muted)"><x-icon name="lock" size="16" /> {{ setting('admin.volunteer.partials.setting_field.mqfwl', 'مقفول') }}</span>
             @endif
         </label>
 
@@ -31,8 +31,8 @@
             <select id="{{ $id }}" name="settings[{{ $row['key'] }}]" @disabled($locked)
                     class="w-full md:w-56 rounded-xl px-3 py-2 text-sm"
                     style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
-                <option value="1" @selected((string) $row['value'] === '1')>مفعَّل</option>
-                <option value="0" @selected((string) $row['value'] !== '1')>موقوف</option>
+                <option value="1" @selected((string) $row['value'] === '1')>{{ setting('admin.volunteer.partials.setting_field.mfal', 'مفعَّل') }}</option>
+                <option value="0" @selected((string) $row['value'] !== '1')>{{ setting('admin.volunteer.partials.setting_field.mwqwf', 'موقوف') }}</option>
             </select>
         @elseif ($row['type'] === 'json' || $row['type'] === 'text')
             <textarea id="{{ $id }}" name="settings[{{ $row['key'] }}]" rows="3" @disabled($locked)
@@ -48,5 +48,5 @@
 
     {{-- القيمة الافتراضيّة قد تكون JSON بلا مسافةٍ واحدة، فلا يجد المتصفّح
          موضعًا يكسر عنده السطر ويمدّ الصفحة. `anywhere` تكسر داخل الكلمة نفسها --}}
-    <div class="mt-1 text-xs" style="color: var(--text-muted); overflow-wrap: anywhere">الافتراضيّ: {{ \Illuminate\Support\Str::limit($row['default'], 90) }}</div>
+    <div class="mt-1 text-xs" style="color: var(--text-muted); overflow-wrap: anywhere">{{ setting('admin.volunteer.partials.setting_field.alaftrady', 'الافتراضيّ:') }} {{ \Illuminate\Support\Str::limit($row['default'], 90) }}</div>
 </div>

@@ -52,7 +52,7 @@ class SchemaLedger
                 'status' => 'applied',
                 'duration_ms' => 0,
                 'applied_at' => $now,
-                'note' => 'مزامنة من جدول الهجرات.',
+                'note' => setting('updates.schema_ledger.sync_1', 'مزامنة من جدول الهجرات.'),
                 'created_at' => $now,
                 'updated_at' => $now,
             ]);
@@ -191,14 +191,14 @@ class SchemaLedger
             }
 
             if (! array_key_exists($table, $after)) {
-                $problems[] = "الجدول «{$table}» اختفى ومعاه {$count} صفّ بلا نقل متحقَّق منه.";
+                $problems[] = strtr(setting('updates.schema_ledger.verify_step_1', 'الجدول «:p1» اختفى ومعاه :p2 صفّ بلا نقل متحقَّق منه.'), [':p1' => (string) ($table), ':p2' => (string) ($count)]);
 
                 continue;
             }
 
             if ($after[$table] < $count) {
                 $lost = $count - $after[$table];
-                $problems[] = "الجدول «{$table}» نقص {$lost} صفّ ({$count} ⟵ {$after[$table]}).";
+                $problems[] = strtr(setting('updates.schema_ledger.body_1', 'الجدول «:p1» نقص :p2 صفّ (:p3 ⟵ :p4).'), [':p1' => (string) ($table), ':p2' => (string) ($lost), ':p3' => (string) ($count), ':p4' => (string) ($after[$table])]);
             }
         }
 
@@ -245,7 +245,7 @@ class SchemaLedger
                 }
 
                 if ($orphans > 0) {
-                    $problems[] = "«{$table}.{$column}» فيه {$orphans} صفّ بيشير لـ«{$foreignTable}» مش موجود.";
+                    $problems[] = strtr(setting('updates.schema_ledger.text_1', '«:p1.:p2» فيه :p3 صفّ بيشير لـ«:p4» مش موجود.'), [':p1' => (string) ($table), ':p2' => (string) ($column), ':p3' => (string) ($orphans), ':p4' => (string) ($foreignTable)]);
                 }
             }
         }

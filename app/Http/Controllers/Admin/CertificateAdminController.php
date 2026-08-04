@@ -61,7 +61,7 @@ class CertificateAdminController extends Controller
         $accreditation = CertificateAccreditation::create($data + ['is_platform' => false]);
         $this->audit->record($accreditation, 'accreditation.created', [], $data);
 
-        return back()->with('status', 'اتضاف الاعتماد ✓');
+        return back()->with('status', (string) setting('certificates.admin.store_accreditation_ok', 'اتضاف الاعتماد ✓'));
     }
 
     public function updateAccreditation(Request $request, CertificateAccreditation $accreditation): RedirectResponse
@@ -69,7 +69,7 @@ class CertificateAdminController extends Controller
         $accreditation->update($this->accreditationRules($request));
         $this->audit->record($accreditation, 'accreditation.updated', [], []);
 
-        return back()->with('status', 'اتحفظ ✓');
+        return back()->with('status', (string) setting('certificates.admin.update_accreditation_ok', 'اتحفظ ✓'));
     }
 
     /** ⭐ اعتماد المنصّة **لا يُحذَف** أبدًا، ولا يُحذَف اعتمادٌ له أنواع مرتبطة (12.5-أ). */
@@ -83,13 +83,13 @@ class CertificateAdminController extends Controller
         }
 
         if (CertificateType::query()->where('accreditation_id', $accreditation->id)->exists()) {
-            return back()->with('status', 'فيه أنواع شهادات مربوطة بالاعتماد ده — فكّها الأوّل.');
+            return back()->with('status', (string) setting('certificates.admin.destroy_accreditation_msg', 'فيه أنواع شهادات مربوطة بالاعتماد ده — فكّها الأوّل.'));
         }
 
         $this->audit->record($accreditation, 'accreditation.deleted', ['name_ar' => $accreditation->name_ar], []);
         $accreditation->delete();
 
-        return back()->with('status', 'اتشال الاعتماد ✓');
+        return back()->with('status', (string) setting('certificates.admin.destroy_accreditation_ok', 'اتشال الاعتماد ✓'));
     }
 
     // ============================================================ 2) الأنواع والقوالب
@@ -105,7 +105,7 @@ class CertificateAdminController extends Controller
         $this->designer->templatesFor($type);
         $this->audit->record($type, 'certificate_type.created', [], $data);
 
-        return back()->with('status', 'اتضاف نوع الشهادة — وتصميمه الافتراضيّ جاهز ✓');
+        return back()->with('status', (string) setting('certificates.admin.store_type_ok', 'اتضاف نوع الشهادة — وتصميمه الافتراضيّ جاهز ✓'));
     }
 
     public function updateType(Request $request, CertificateType $type): RedirectResponse
@@ -113,19 +113,19 @@ class CertificateAdminController extends Controller
         $type->update($this->typeRules($request));
         $this->audit->record($type, 'certificate_type.updated', [], []);
 
-        return back()->with('status', 'اتحفظ ✓');
+        return back()->with('status', (string) setting('certificates.admin.update_type_ok', 'اتحفظ ✓'));
     }
 
     public function destroyType(CertificateType $type): RedirectResponse
     {
         if (Certificate::query()->where('certificate_type_id', $type->id)->exists()) {
-            return back()->with('status', 'فيه شهادات صادرة بالنوع ده — عطّله بدل ما تشيله.');
+            return back()->with('status', (string) setting('certificates.admin.destroy_type_msg', 'فيه شهادات صادرة بالنوع ده — عطّله بدل ما تشيله.'));
         }
 
         $this->audit->record($type, 'certificate_type.deleted', ['name_ar' => $type->name_ar], []);
         $type->delete();
 
-        return back()->with('status', 'اتشال النوع ✓');
+        return back()->with('status', (string) setting('certificates.admin.destroy_type_ok', 'اتشال النوع ✓'));
     }
 
     /** ⭐ تفعيل اللغات **مجمَّعًا** لكلّ الأنواع — وإفراديًّا من فورم النوع (12.5-ب). */
@@ -141,7 +141,7 @@ class CertificateAdminController extends Controller
             'lang_en_enabled' => (bool) ($data['lang_en_enabled'] ?? false),
         ]);
 
-        return back()->with('status', 'اتظبطت اللغات على كلّ الأنواع ✓');
+        return back()->with('status', (string) setting('certificates.admin.bulk_languages_ok', 'اتظبطت اللغات على كلّ الأنواع ✓'));
     }
 
     // ============================================================ 3) الإصدار
@@ -183,14 +183,14 @@ class CertificateAdminController extends Controller
 
         $result = $this->issuer->issueBatch($codes, $type, $language, $request->user());
 
-        $message = 'اتصدرت '.$result['issued'].' شهادة ✓';
+        $message = strtr((string) setting('certificates.admin.issue_ok', 'اتصدرت :a1 شهادة ✓'), [':a1' => (string) ($result['issued'])]);
 
         if ($result['skipped'] > 0) {
-            $message .= ' — و'.$result['skipped'].' اتخطّيناها لأنّها صدرت قبل كده.';
+            $message .= strtr((string) setting('certificates.admin.issue_msg', ' — و:a1 اتخطّيناها لأنّها صدرت قبل كده.'), [':a1' => (string) ($result['skipped'])]);
         }
 
         if ($result['failed'] !== []) {
-            $message .= ' وفيه '.count($result['failed']).' كود مش موجود.';
+            $message .= strtr((string) setting('certificates.admin.issue_denied', ' وفيه :a1 كود مش موجود.'), [':a1' => (string) (count($result['failed']))]);
         }
 
         return redirect()
@@ -210,7 +210,7 @@ class CertificateAdminController extends Controller
 
         $this->issuer->revoke($certificate, $data['reason'], (bool) ($data['notify'] ?? true), $request->user());
 
-        return back()->with('status', 'اتلغت الشهادة، والسبب متسجّل ✓');
+        return back()->with('status', (string) setting('certificates.admin.revoke_ok', 'اتلغت الشهادة، والسبب متسجّل ✓'));
     }
 
     /** إعادة إصدار/تصحيح: يُبطل القديمة ويصدر مصحّحة (12.5-د). */
@@ -227,8 +227,8 @@ class CertificateAdminController extends Controller
         );
 
         return back()->with('status', $fresh
-            ? 'اتصدرت نسخة مصحّحة بكود '.$fresh->code.' ✓'
-            : 'مقدرناش نعيد الإصدار — راجع نوع الشهادة.');
+            ? strtr((string) setting('certificates.admin.reissue_ok', 'اتصدرت نسخة مصحّحة بكود :a1 ✓'), [':a1' => (string) ($fresh->code)])
+            : (string) setting('certificates.admin.reissue_msg', 'مقدرناش نعيد الإصدار — راجع نوع الشهادة.'));
     }
 
     // ============================================================ 5) صفحة التحقّق والبلاغات
@@ -300,7 +300,7 @@ class CertificateAdminController extends Controller
         return response()->streamDownload(function () use ($rows) {
             $out = fopen('php://output', 'w');
             fwrite($out, "\xEF\xBB\xBF");
-            fputcsv($out, ['كود الشهادة', 'صاحبها', 'كوده', 'النوع', 'المصدر', 'تاريخ الإصدار', 'الحالة']);
+            fputcsv($out, [(string) setting('certificates.admin.export_msg', 'كود الشهادة'), (string) setting('certificates.admin.export_msg_2', 'صاحبها'), (string) setting('certificates.admin.export_msg_3', 'كوده'), (string) setting('certificates.admin.export_msg_4', 'النوع'), (string) setting('certificates.admin.export_msg_5', 'المصدر'), (string) setting('certificates.admin.export_msg_6', 'تاريخ الإصدار'), (string) setting('certificates.admin.export_msg_7', 'الحالة')]);
 
             foreach ($rows as $certificate) {
                 fputcsv($out, [

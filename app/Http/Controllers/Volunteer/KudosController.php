@@ -55,8 +55,8 @@ class KudosController extends Controller
             'receiver_id' => ['required', 'exists:users,id'],
             'reason' => ['required', 'string', 'min:3', 'max:1000'],
         ], [], [
-            'receiver_id' => 'الزميل',
-            'reason' => 'سبب الشكر',
+            'receiver_id' => (string) setting('kudos.screen.store_msg', 'الزميل'),
+            'reason' => (string) setting('kudos.screen.store_msg_2', 'سبب الشكر'),
         ]);
 
         try {
@@ -65,7 +65,7 @@ class KudosController extends Controller
             return back()->with('status', $e->getMessage())->withInput();
         }
 
-        return back()->with('status', 'اتبعت ✓ وصلت لزميلك.');
+        return back()->with('status', (string) setting('kudos.screen.store_ok', 'اتبعت ✓ وصلت لزميلك.'));
     }
 
     /** بحث حيّ عن الزميل بالكود/الاسم داخل بوب-أب الشكر */
@@ -107,7 +107,7 @@ class KudosController extends Controller
     {
         $data = $request->validate([
             'body' => ['required', 'string', 'min:2', 'max:2000'],
-        ], [], ['body' => 'النصّ']);
+        ], [], ['body' => (string) setting('kudos.screen.post_msg', 'النصّ')]);
 
         try {
             $this->wall->post($request->user(), $data['body']);
@@ -115,7 +115,7 @@ class KudosController extends Controller
             return back()->with('status', $e->getMessage());
         }
 
-        return back()->with('status', 'اتنشر ✓');
+        return back()->with('status', (string) setting('kudos.screen.post_ok', 'اتنشر ✓'));
     }
 
     public function vote(Request $request, ThanksWallPost $post): JsonResponse|RedirectResponse

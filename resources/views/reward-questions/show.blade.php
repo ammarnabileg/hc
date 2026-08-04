@@ -20,7 +20,7 @@
             <span class="flex items-center gap-2">
                 <x-state-badge :state="$state['state']" :label="$state['label']" />
                 <span class="text-xs" style="color: var(--text-muted)">
-                    المكافأة: {{ $question->reward_xp }} XP · {{ $question->reward_tickets }} تذكرة
+                    {{ strtr((string) setting('reward_questions.show.text_1', 'المكافأة: :a1 XP · :a2 تذكرة'), [':a1' => (string) ($question->reward_xp), ':a2' => (string) ($question->reward_tickets)]) }}
                 </span>
             </span>
 
@@ -39,9 +39,9 @@
             <div class="rounded-xl p-4" style="background: var(--surface-sunken)">
                 <p class="text-sm">{{ setting('reward_questions.already_message', 'جاوبت على السؤال ده قبل كده — مكافأتك اتصرفت مرّة واحدة.') }}</p>
                 <p class="text-xs mt-2" style="color: var(--text-muted)">
-                    إجابتك: <strong>{{ $mine->answer }}</strong>
+                    {{ setting('reward_questions.show.text_2', 'إجابتك:') }} <strong>{{ $mine->answer }}</strong>
                     @if ($mine->is_correct)
-                        · +{{ $mine->xp_awarded }} XP · +{{ $mine->tickets_awarded }} تذكرة
+                        · +{{ $mine->xp_awarded }} XP · +{{ $mine->tickets_awarded }} {{ setting('reward_questions.show.text_3', 'تذكرة') }}
                     @endif
                 </p>
             </div>
@@ -62,7 +62,7 @@
                         @endforeach
                     </div>
                 @else
-                    <label class="block text-sm">إجابتك
+                    <label class="block text-sm">{{ setting('reward_questions.show.text_4', 'إجابتك') }}
                         <input type="{{ $question->type === 'number' ? 'number' : 'text' }}" name="answer" required
                                step="any" class="w-full rounded-lg px-3 py-2 mt-1"
                                style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">

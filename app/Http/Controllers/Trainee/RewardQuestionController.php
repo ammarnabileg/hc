@@ -49,7 +49,7 @@ class RewardQuestionController extends Controller
         $message = $result['message'];
 
         if ($result['xp'] > 0 || $result['tickets'] > 0) {
-            $message .= ' (+'.$result['xp'].' XP · +'.$result['tickets'].' تذكرة)';
+            $message .= strtr((string) setting('reward_questions.screen.answer_msg', ' (+:a1 XP · +:a2 تذكرة)'), [':a1' => (string) ($result['xp']), ':a2' => (string) ($result['tickets'])]);
         }
 
         return redirect()

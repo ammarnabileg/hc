@@ -66,13 +66,13 @@ class TaskBlockService
     ): TaskBlock {
         if ((int) $task->blocked_count >= $this->maxBlocks()) {
             throw ValidationException::withMessages([
-                'block' => 'المهمّة اتعثّرت '.$this->maxBlocks().' مرّات وده الحدّ — كلّم مراجعك أو اطلب تحكيمًا.',
+                'block' => strtr(setting('workflow.task_block_service.block_1', 'المهمّة اتعثّرت :p1 مرّات وده الحدّ — كلّم مراجعك أو اطلب تحكيمًا.'), [':p1' => (string) ($this->maxBlocks())]),
             ]);
         }
 
         if (trim($reason) === '') {
             throw ValidationException::withMessages([
-                'reason' => 'السبب إلزاميّ — اكتب بوضوح إنت مستنّي إيه.',
+                'reason' => setting('workflow.task_block_service.block_2', 'السبب إلزاميّ — اكتب بوضوح إنت مستنّي إيه.'),
             ]);
         }
 
@@ -81,12 +81,12 @@ class TaskBlockService
 
             if ($days < 1 || $days > $this->maxDays()) {
                 throw ValidationException::withMessages([
-                    'days' => 'مدّة التعثّر لازم تكون من يوم لـ'.$this->maxDays().' أيّام — اختر مدّة جوّه الحدّ.',
+                    'days' => strtr(setting('workflow.task_block_service.block_3', 'مدّة التعثّر لازم تكون من يوم لـ:p1 أيّام — اختر مدّة جوّه الحدّ.'), [':p1' => (string) ($this->maxDays())]),
                 ]);
             }
         } elseif (! $blockingTask) {
             throw ValidationException::withMessages([
-                'blocking_task_id' => 'اختر المهمّة اللي بتستنّاها — «يعتمد على» لازم يشير لمهمّة بعينها.',
+                'blocking_task_id' => setting('workflow.task_block_service.block_4', 'اختر المهمّة اللي بتستنّاها — «يعتمد على» لازم يشير لمهمّة بعينها.'),
             ]);
         }
 
@@ -113,7 +113,7 @@ class TaskBlockService
             $this->bridge->notify(
                 $task->reviewer,
                 'task_blocked',
-                'تعثّر على مهمّة: '.$task->title,
+                strtr(setting('workflow.task_block_service.block_5', 'تعثّر على مهمّة: :p1'), [':p1' => (string) ($task->title)]),
                 $reason,
                 route('volunteer.tasks.show', $task),
                 $task,

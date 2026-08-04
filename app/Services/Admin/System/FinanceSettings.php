@@ -22,22 +22,22 @@ class FinanceSettings
     public function groups(): array
     {
         return [
-            'rates' => ['label' => 'أسعار الصرف', 'prefix' => 'finance.rates.', 'hint' => 'مبنيّة على الدولار — وأيّ تعديل يسري على العمليّات الجديدة.'],
-            'transfer_fees' => ['label' => 'رسوم إرسال الحوالة', 'prefix' => 'finance.transfer.', 'hint' => 'رسوم مرتفعة عمدًا على XP حفاظًا على نزاهة الليدر بورد.'],
-            'exchange_fees' => ['label' => 'رسوم تحويل العملة', 'prefix' => 'finance.exchange.', 'hint' => 'نسبة موحّدة لكلّ المسارات المسموحة.'],
-            'topup' => ['label' => 'الشحن', 'prefix' => 'finance.topup.', 'hint' => 'حدود العمليّة والمهل وإعادة محاولة الويب هوك.'],
-            'withdraw' => ['label' => 'السحب', 'prefix' => 'finance.withdraw.', 'hint' => 'الرسوم والحدود وطرق التحويل وSLA المعالجة.'],
-            'referral' => ['label' => 'عمولة الريفيرال', 'prefix' => 'finance.referral.', 'hint' => 'تُصرف عند نجاح الشحن إلى أرباح الداعي.'],
-            'pricing' => ['label' => 'التسعير العامّ', 'prefix' => 'finance.pricing.', 'hint' => 'العملة الافتراضيّة وسياسة التقريب ونصّ الـPaywall.'],
-            'refund' => ['label' => 'سياسة الاسترجاع', 'prefix' => 'finance.refund.', 'hint' => 'نصّ السياسة ونسختاه وأماكن ظهوره — بلا طلبات استرجاع.'],
-            'invoice' => ['label' => 'قالب الفاتورة', 'prefix' => 'finance.invoice.', 'hint' => 'الترقيم والحقول والتذييل وإشارة سياسة الاسترجاع.'],
+            'rates' => ['label' => setting('finance.finance_settings.groups_1', 'أسعار الصرف'), 'prefix' => 'finance.rates.', 'hint' => setting('finance.finance_settings.groups_2', 'مبنيّة على الدولار — وأيّ تعديل يسري على العمليّات الجديدة.')],
+            'transfer_fees' => ['label' => setting('finance.finance_settings.groups_3', 'رسوم إرسال الحوالة'), 'prefix' => 'finance.transfer.', 'hint' => setting('finance.finance_settings.groups_4', 'رسوم مرتفعة عمدًا على XP حفاظًا على نزاهة الليدر بورد.')],
+            'exchange_fees' => ['label' => setting('finance.finance_settings.groups_5', 'رسوم تحويل العملة'), 'prefix' => 'finance.exchange.', 'hint' => setting('finance.finance_settings.groups_6', 'نسبة موحّدة لكلّ المسارات المسموحة.')],
+            'topup' => ['label' => setting('finance.finance_settings.groups_7', 'الشحن'), 'prefix' => 'finance.topup.', 'hint' => setting('finance.finance_settings.groups_8', 'حدود العمليّة والمهل وإعادة محاولة الويب هوك.')],
+            'withdraw' => ['label' => setting('finance.finance_settings.groups_9', 'السحب'), 'prefix' => 'finance.withdraw.', 'hint' => setting('finance.finance_settings.groups_10', 'الرسوم والحدود وطرق التحويل وSLA المعالجة.')],
+            'referral' => ['label' => setting('finance.finance_settings.groups_11', 'عمولة الريفيرال'), 'prefix' => 'finance.referral.', 'hint' => setting('finance.finance_settings.groups_12', 'تُصرف عند نجاح الشحن إلى أرباح الداعي.')],
+            'pricing' => ['label' => setting('finance.finance_settings.groups_13', 'التسعير العامّ'), 'prefix' => 'finance.pricing.', 'hint' => setting('finance.finance_settings.groups_14', 'العملة الافتراضيّة وسياسة التقريب ونصّ الـPaywall.')],
+            'refund' => ['label' => setting('finance.finance_settings.groups_15', 'سياسة الاسترجاع'), 'prefix' => 'finance.refund.', 'hint' => setting('finance.finance_settings.groups_16', 'نصّ السياسة ونسختاه وأماكن ظهوره — بلا طلبات استرجاع.')],
+            'invoice' => ['label' => setting('finance.finance_settings.groups_17', 'قالب الفاتورة'), 'prefix' => 'finance.invoice.', 'hint' => setting('finance.finance_settings.groups_18', 'الترقيم والحقول والتذييل وإشارة سياسة الاسترجاع.')],
         ];
     }
 
     public function assertOwner(User $user): void
     {
         if (! $user->isPlatformOwner()) {
-            abort(403, 'المجموعة الماليّة لمالك المنصّة وحده.');
+            abort(403, setting('finance.finance_settings.assert_owner_1', 'المجموعة الماليّة لمالك المنصّة وحده.'));
         }
     }
 
@@ -68,7 +68,7 @@ class FinanceSettings
             'amount' => $amount,
             'fee' => $fee,
             'net' => max(0, $amount - $fee),
-            'note' => "على {$amount} كوين ⟵ رسوم {$percent}% = {$fee}، والصافي ".max(0, $amount - $fee),
+            'note' => strtr(setting('finance.finance_settings.preview_1', 'على :p1 كوين ⟵ رسوم :p2% = :p3، والصافي '), [':p1' => (string) ($amount), ':p2' => (string) ($percent), ':p3' => (string) ($fee)]).max(0, $amount - $fee),
         ];
     }
 
@@ -83,20 +83,20 @@ class FinanceSettings
         $this->assertOwner($actor);
 
         if (! in_array($locale, ['ar', 'en'], true)) {
-            throw new RuntimeException('اللغة لازم تكون «ar» أو «en».');
+            throw new RuntimeException(setting('finance.finance_settings.save_refund_policy_1', 'اللغة لازم تكون «ar» أو «en».'));
         }
 
         $reason = trim($reason);
 
         if ($reason === '') {
-            throw new RuntimeException('اكتب سبب التعديل — إلزاميّ في كلّ تغيير ماليّ.');
+            throw new RuntimeException(setting('finance.finance_settings.save_refund_policy_2', 'اكتب سبب التعديل — إلزاميّ في كلّ تغيير ماليّ.'));
         }
 
         $setting = Setting::query()->firstOrCreate(
             ['key' => 'finance.refund.policy_'.$locale],
             [
                 'group' => 'finance',
-                'label_ar' => 'نصّ سياسة الاسترجاع ('.$locale.')',
+                'label_ar' => strtr(setting('finance.finance_settings.save_refund_policy_3', 'نصّ سياسة الاسترجاع (:p1)'), [':p1' => (string) ($locale)]),
                 'type' => 'text',
                 'value' => '',
                 'default_value' => '',
@@ -120,9 +120,9 @@ class FinanceSettings
     public function refundPlacements(): array
     {
         return [
-            'finance.refund.show_standalone_page' => 'صفحة مستقلّة دائمة',
-            'finance.refund.show_before_payment' => 'إقرار/رابط قبل إتمام الدفع',
-            'finance.refund.show_on_invoice' => 'إشارة في الفاتورة',
+            'finance.refund.show_standalone_page' => setting('finance.finance_settings.refund_placements_1', 'صفحة مستقلّة دائمة'),
+            'finance.refund.show_before_payment' => setting('finance.finance_settings.refund_placements_2', 'إقرار/رابط قبل إتمام الدفع'),
+            'finance.refund.show_on_invoice' => setting('finance.finance_settings.refund_placements_3', 'إشارة في الفاتورة'),
         ];
     }
 

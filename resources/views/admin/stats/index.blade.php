@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'الإحصائيّات')
+@section('title', setting('admin.stats.index.alihsayyat', 'الإحصائيّات'))
 
 @php
     /*
@@ -20,16 +20,16 @@
 @endphp
 
 @section('content')
-    <x-page-header title="الإحصائيّات"
-                   subtitle="أرقام للعرض فقط — بفلتر فترة واحد على كلّ التابات."
+    <x-page-header :title="setting('admin.stats.index.alihsayyat', 'الإحصائيّات')"
+                   :subtitle="setting('admin.stats.index.arqam_llard_fqt_bfltr_ftra_wahd_ala_kl', 'أرقام للعرض فقط — بفلتر فترة واحد على كلّ التابات.')"
                    :breadcrumbs="[
-                       ['label' => 'لوحة الإدارة', 'url' => url('/admin')],
-                       ['label' => 'الإحصائيّات'],
+                       ['label' => setting('admin.stats.index.lwha_alidara', 'لوحة الإدارة'), 'url' => url('/admin')],
+                       ['label' => setting('admin.stats.index.alihsayyat', 'الإحصائيّات')],
                    ]">
         <x-slot:action>
             {{-- ⭐ «وكلّ اللوحات في المنصّة عمومًا قابلة للاستخراج كصورة» (12.14-هـ) --}}
             {{-- التاب مصفوفة [label · permission · owner_only] — العنوان منها لا منها كلّها --}}
-            <x-export-image kind="stats" :title="'إحصائيّات — '.($tabs[$tab]['label'] ?? $tab)"
+            <x-export-image kind="stats" :title="setting('admin.stats.index.ihsayyat', 'إحصائيّات — ').($tabs[$tab]['label'] ?? $tab)"
                             :subtitle="$period['from']->format('Y/m/d').' — '.$period['to']->format('Y/m/d')"
                             :rows="$exportRows" />
 
@@ -53,14 +53,14 @@
         <input type="hidden" name="tab" value="{{ $tab }}">
 
         <label class="text-xs">
-            <span class="block mb-1" style="color: var(--text-muted)">من</span>
+            <span class="block mb-1" style="color: var(--text-muted)">{{ setting('admin.stats.index.mn', 'من') }}</span>
             <input type="date" name="from" value="{{ $period['from']->toDateString() }}"
                    class="rounded-xl px-3 py-2 text-sm"
                    style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
         </label>
 
         <label class="text-xs">
-            <span class="block mb-1" style="color: var(--text-muted)">إلى</span>
+            <span class="block mb-1" style="color: var(--text-muted)">{{ setting('admin.stats.index.ila', 'إلى') }}</span>
             <input type="date" name="to" value="{{ $period['to']->toDateString() }}"
                    class="rounded-xl px-3 py-2 text-sm"
                    style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
@@ -68,11 +68,11 @@
 
         <label class="flex items-center gap-2 text-xs mt-4">
             <input type="checkbox" name="compare" value="1" @checked($period['compare'])>
-            <span>قارن بالفترة السابقة</span>
+            <span>{{ setting('admin.stats.index.qarn_balftra_alsabqa', 'قارن بالفترة السابقة') }}</span>
         </label>
 
         <button class="btn rounded-xl px-4 py-2 text-sm font-semibold"
-                style="background: var(--color-brand-500); color: #04201c">طبّق</button>
+                style="background: var(--color-brand-500); color: #04201c">{{ setting('admin.stats.index.tbq', 'طبّق') }}</button>
     </x-filters>
 
     {{-- التاب الماليّ لا يظهر أصلًا لغير المخوَّل — التصفية في الخادم (24.3) --}}

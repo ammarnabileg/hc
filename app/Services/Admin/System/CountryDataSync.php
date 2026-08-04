@@ -40,7 +40,10 @@ class CountryDataSync
 
     public const FORMAT_NATIVE = 'native';
 
-    public const FORMATS = [self::FORMAT_DR5HN => 'مصدر dr5hn', self::FORMAT_NATIVE => 'شكل مخرَج المنصّة'];
+    public static function formats(): array
+    {
+        return [self::FORMAT_DR5HN => setting('countries.country_data_sync.formats_1', 'مصدر dr5hn'), self::FORMAT_NATIVE => setting('countries.country_data_sync.formats_2', 'شكل مخرَج المنصّة')];
+    }
 
     /** أنواع الفروق الثلاثة كما ينصّ عليها 24.3: مضاف / محذوف / معدَّل. */
     public const CHANGES = ['added' => 'مضاف', 'removed' => 'محذوف من المصدر', 'changed' => 'معدَّل'];
@@ -64,12 +67,12 @@ class CountryDataSync
         $countries = $payload['countries'] ?? null;
 
         if (! is_array($countries) || $countries === []) {
-            throw new RuntimeException('الملفّ مالوش قايمة دول — تأكّد إنّه نسخة المصدر المعتمَد وجرّب تاني.');
+            throw new RuntimeException(setting('countries.country_data_sync.import_1', 'الملفّ مالوش قايمة دول — تأكّد إنّه نسخة المصدر المعتمَد وجرّب تاني.'));
         }
 
         foreach ($countries as $country) {
             if (! is_array($country) || trim((string) ($country['iso2'] ?? '')) === '') {
-                throw new RuntimeException('في صفّ دولة بلا كود ISO2 — النسخة ناقصة، ما نقدرش نفحصها.');
+                throw new RuntimeException(setting('countries.country_data_sync.import_2', 'في صفّ دولة بلا كود ISO2 — النسخة ناقصة، ما نقدرش نفحصها.'));
             }
         }
 
@@ -267,7 +270,7 @@ class CountryDataSync
     {
         $format = trim((string) setting('countries.source.format', self::FORMAT_DR5HN));
 
-        return array_key_exists($format, self::FORMATS) ? $format : self::FORMAT_DR5HN;
+        return array_key_exists($format, self::formats()) ? $format : self::FORMAT_DR5HN;
     }
 
     /**
@@ -655,7 +658,7 @@ class CountryDataSync
                     'before' => null,
                     'protected' => false,
                     'users' => 0,
-                    'note' => 'دولة جديدة بـ'.count($incoming['governorates']).' محافظة.',
+                    'note' => strtr(setting('countries.country_data_sync.diff_1', 'دولة جديدة بـ:p1 محافظة.'), [':p1' => (string) (count($incoming['governorates']))]),
                 ];
 
                 continue;
@@ -671,7 +674,7 @@ class CountryDataSync
                     'after' => $changes['after'],
                     'protected' => false,
                     'users' => (int) ($userCounts['countries'][$country->id] ?? 0),
-                    'note' => 'تحديث بيانات — بلا مساس بالارتباطات.',
+                    'note' => setting('countries.country_data_sync.diff_2', 'تحديث بيانات — بلا مساس بالارتباطات.'),
                 ];
             }
 
@@ -690,7 +693,7 @@ class CountryDataSync
                         'after' => $incomingGov['create'],
                         'protected' => false,
                         'users' => 0,
-                        'note' => 'محافظة جديدة.',
+                        'note' => setting('countries.country_data_sync.diff_3', 'محافظة جديدة.'),
                     ];
 
                     continue;
@@ -706,7 +709,7 @@ class CountryDataSync
                         'after' => $changes['after'],
                         'protected' => false,
                         'users' => (int) ($userCounts['governorates'][$existing->id] ?? 0),
-                        'note' => 'إعادة تسمية تحفظ الصفّ وارتباطاته كما هي (2.11-د).',
+                        'note' => setting('countries.country_data_sync.diff_4', 'إعادة تسمية تحفظ الصفّ وارتباطاته كما هي (2.11-د).'),
                     ];
                 }
             }
@@ -727,7 +730,7 @@ class CountryDataSync
                     // ⛔ المحافظة لا تُخفى أبدًا — محميّة دائمًا مهما كان عدد أهلها
                     'protected' => true,
                     'users' => (int) ($userCounts['governorates'][$existing->id] ?? 0),
-                    'note' => 'هتفضل زيّ ما هي — المحافظة لا تُخفى ولا تُحذف أبدًا.',
+                    'note' => setting('countries.country_data_sync.diff_5', 'هتفضل زيّ ما هي — المحافظة لا تُخفى ولا تُحذف أبدًا.'),
                 ];
             }
         }
@@ -750,8 +753,8 @@ class CountryDataSync
                 'protected' => $users > 0,
                 'users' => $users,
                 'note' => $users > 0
-                    ? 'محميّة: مرتبطة بـ'.$users.' مستخدم — ما تتغيّرش.'
-                    : 'هتتخفي بس (بلا حذف) لو وافقت.',
+                    ? strtr(setting('countries.country_data_sync.diff_6', 'محميّة: مرتبطة بـ:p1 مستخدم — ما تتغيّرش.'), [':p1' => (string) ($users)])
+                    : setting('countries.country_data_sync.diff_7', 'هتتخفي بس (بلا حذف) لو وافقت.'),
             ];
         }
 
@@ -791,7 +794,7 @@ class CountryDataSync
         ];
 
         if ($rows->isEmpty()) {
-            return $report + ['verified' => true, 'message' => 'ما اخترتش أيّ صفّ — مافيش حاجة اتغيّرت.'];
+            return $report + ['verified' => true, 'message' => setting('countries.country_data_sync.merge_1', 'ما اخترتش أيّ صفّ — مافيش حاجة اتغيّرت.')];
         }
 
         $before = $this->userCounts();
@@ -821,7 +824,7 @@ class CountryDataSync
                 DB::rollBack();
             }
 
-            return $report + ['verified' => $verified, 'message' => 'دي معاينة — مافيش حاجة اتكتبت.'];
+            return $report + ['verified' => $verified, 'message' => setting('countries.country_data_sync.merge_2', 'دي معاينة — مافيش حاجة اتكتبت.')];
         }
 
         DB::transaction(function () use ($apply, $before) {
@@ -829,7 +832,7 @@ class CountryDataSync
 
             if (! $this->verify($before)) {
                 // ⛔ لو نقص ارتباطُ مستخدمٍ واحد — تُلغى العمليّة كلّها
-                throw new RuntimeException('التحقّق بعد الدمج فشل — رجّعنا كلّ حاجة زيّ ما كانت. جرّب تاني أو راجع النسخة.');
+                throw new RuntimeException(setting('countries.country_data_sync.merge_3', 'التحقّق بعد الدمج فشل — رجّعنا كلّ حاجة زيّ ما كانت. جرّب تاني أو راجع النسخة.'));
             }
         });
 
@@ -839,7 +842,7 @@ class CountryDataSync
             'report' => $report,
         ]);
 
-        return $report + ['verified' => true, 'message' => 'اتدمجت النسخة بلا فقد ✓'];
+        return $report + ['verified' => true, 'message' => setting('countries.country_data_sync.merge_4', 'اتدمجت النسخة بلا فقد ✓')];
     }
 
     // ------------------------------------------------------------------ داخليّ

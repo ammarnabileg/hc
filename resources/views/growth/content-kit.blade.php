@@ -1,3 +1,13 @@
+@php
+    /** نصوص السكربت — من الإعدادات لا محروقةً في الجافاسكربت (2.13-أ) */
+    $hcWords = array_merge($hcWords ?? [], [
+        'growth.content_kit.js_1' => (string) setting('growth.content_kit.js_1', 'اتنسخ ✓'),
+        'growth.content_kit.js_2' => (string) setting('growth.content_kit.js_2', 'انسخه يدويًّا'),
+        'growth.content_kit.js_3' => (string) setting('growth.content_kit.js_3', 'اتنسخ ✓'),
+        'growth.content_kit.js_4' => (string) setting('growth.content_kit.js_4', 'انسخه يدويًّا'),
+    ]);
+@endphp
+
 @extends('layouts.app')
 
 @section('title', setting('growth.volunteer_kit.title', 'حزمة المحتوى'))
@@ -7,19 +17,19 @@
                    :subtitle="setting('growth.volunteer_kit.subtitle', 'خُد الرابط والصور والنصوص الجاهزة وانشرها.')" />
 
     {{-- 1) الكارت الأسبوعيّ (21.2-د): معلومة/نصيحة تدور بدوريّة معتمَدة، بلا مصمّم --}}
-    <section class="card p-4 mb-4" aria-label="الكارت الأسبوعيّ">
+    <section class="card p-4 mb-4" aria-label="{{ setting('growth.content_kit.aria_label_1', 'الكارت الأسبوعيّ') }}">
         <div class="flex items-center justify-between gap-3 flex-wrap mb-3">
             <div>
                 <h2 class="font-extrabold">{{ setting('growth.weekly_card.title', 'نصيحة الأسبوع') }}</h2>
                 <p class="text-xs mt-0.5" style="color: var(--text-muted)">
                     {{ $card['from']->translatedFormat('j F') }} — {{ $card['to']->translatedFormat('j F Y') }}
-                    · بيتغيّر كلّ {{ $periodDays }} يوم
+                    · {{ strtr((string) setting('growth.content_kit.text_1', 'بيتغيّر كلّ :a1 يوم'), [':a1' => (string) ($periodDays)]) }}
                 </p>
             </div>
 
             <a href="{{ $cardUrl }}" download="weekly-card.svg"
                class="rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
-               style="background: var(--color-brand-500); color: #04201c">نزّل الصورة</a>
+               style="background: var(--color-brand-500); color: #04201c">{{ setting('growth.content_kit.text_2', 'نزّل الصورة') }}</a>
         </div>
 
         <img src="{{ $cardUrl }}" alt="{{ $card['tip'] }}" loading="lazy"
@@ -27,7 +37,7 @@
     </section>
 
     {{-- 2) رابط الدعوة الشخصيّ موسومًا بـUTM (21.2-هـ · 21.2-ح) --}}
-    <section class="card p-4 mb-4" aria-label="رابط الدعوة">
+    <section class="card p-4 mb-4" aria-label="{{ setting('growth.content_kit.aria_label_2', 'رابط الدعوة') }}">
         <h2 class="font-extrabold mb-1">{{ setting('growth.volunteer_kit.link_label', 'رابط دعوتك') }}</h2>
         <p class="text-xs mb-3" style="color: var(--text-muted)">
             {{ setting('growth.volunteer_kit.link_hint', 'كلّ مَن يسجّل من الرابط ده بيتحسبلك — والرابط موسوم علشان نعرف عائد كلّ قناة.') }}
@@ -38,12 +48,12 @@
                   style="background: var(--surface-sunken)">{{ $link }}</code>
             <button type="button" data-copy="{{ $link }}"
                     class="rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
-                    style="background: var(--color-brand-500); color: #04201c">انسخ</button>
+                    style="background: var(--color-brand-500); color: #04201c">{{ setting('growth.content_kit.text_3', 'انسخ') }}</button>
         </div>
     </section>
 
     {{-- 3) نصوص جاهزة قابلة للتعديل — بلا مبالغة ولا ندرة مزيّفة (2.9) --}}
-    <section class="mb-4" aria-label="نصوص جاهزة">
+    <section class="mb-4" aria-label="{{ setting('growth.content_kit.aria_label_3', 'نصوص جاهزة') }}">
         <h2 class="font-extrabold mb-2">{{ setting('growth.volunteer_kit.scripts_label', 'نصوص جاهزة') }}</h2>
 
         <div class="grid gap-3 md:grid-cols-3">
@@ -55,7 +65,7 @@
                               data-script>{{ $script['body'] }}</textarea>
                     <button type="button" data-copy-textarea
                             class="rounded-xl px-3 py-2 text-xs motion-standard" style="background: var(--surface-sunken)">
-                        انسخ النصّ
+                        {{ setting('growth.content_kit.text_4', 'انسخ النصّ') }}
                     </button>
                 </div>
             @endforeach
@@ -63,7 +73,7 @@
     </section>
 
     {{-- 4) قوالب الاستوديو (12.14) — نستهلكها ولا نبني استوديو ثانيًا --}}
-    <section aria-label="قوالب الصور">
+    <section aria-label="{{ setting('growth.content_kit.aria_label_4', 'قوالب الصور') }}">
         <h2 class="font-extrabold mb-2">{{ setting('growth.volunteer_kit.templates_label', 'قوالب الصور') }}</h2>
 
         @if ($templates->isEmpty())
@@ -96,9 +106,9 @@
             button.addEventListener('click', async () => {
                 try {
                     await navigator.clipboard.writeText(button.dataset.copy);
-                    flash(button, 'اتنسخ ✓');
+                    flash(button, @json($hcWords['growth.content_kit.js_1']));
                 } catch (error) {
-                    flash(button, 'انسخه يدويًّا');
+                    flash(button, @json($hcWords['growth.content_kit.js_2']));
                 }
             });
         });
@@ -108,10 +118,10 @@
                 const field = button.parentElement.querySelector('[data-script]');
                 try {
                     await navigator.clipboard.writeText(field.value);
-                    flash(button, 'اتنسخ ✓');
+                    flash(button, @json($hcWords['growth.content_kit.js_3']));
                 } catch (error) {
                     field.select();
-                    flash(button, 'انسخه يدويًّا');
+                    flash(button, @json($hcWords['growth.content_kit.js_4']));
                 }
             });
         });

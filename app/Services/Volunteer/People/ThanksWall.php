@@ -152,7 +152,7 @@ class ThanksWall
     public function post(User $user, string $body): ThanksWallPost
     {
         if (trim($body) === '') {
-            throw new \InvalidArgumentException('اكتب حاجة الأوّل — البوست الفاضي مش هيوصل حد.');
+            throw new \InvalidArgumentException(setting('recruitment.thanks_wall.post_1', 'اكتب حاجة الأوّل — البوست الفاضي مش هيوصل حد.'));
         }
 
         return ThanksWallPost::create([

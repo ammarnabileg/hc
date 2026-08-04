@@ -5,15 +5,15 @@
     <div class="card p-4 mb-4"
          style="border: 1px solid var(--color-state-danger); background: color-mix(in srgb, var(--color-state-danger) 8%, transparent)">
         <div class="flex items-center gap-2 mb-2">
-            <x-state-badge state="danger" label="التحديث وقف" />
-            <h2 class="text-sm font-bold">{{ $failure['stage_label'] ?? 'تقرير الفشل' }}</h2>
+            <x-state-badge state="danger" :label="setting('admin.ops.partials.updates_overview.althdyth_wqf', 'التحديث وقف')" />
+            <h2 class="text-sm font-bold">{{ $failure['stage_label'] ?? setting('admin.ops.partials.updates_overview.tqryr_alfshl', 'تقرير الفشل') }}</h2>
         </div>
 
         <p class="text-sm mb-3">{{ $failure['what'] ?? '' }}</p>
 
         @if (! empty($failure['actions']))
             <div class="text-xs mb-3">
-                <div class="font-semibold mb-1">اللي عملناه تلقائيًّا:</div>
+                <div class="font-semibold mb-1">{{ setting('admin.ops.partials.updates_overview.ally_amlnah_tlqayya', 'اللي عملناه تلقائيًّا:') }}</div>
                 <ul class="space-y-1" style="color: var(--text-muted)">
                     @foreach ($failure['actions'] as $action)
                         <li>· {{ $action }}</li>
@@ -23,7 +23,7 @@
         @endif
 
         <div class="rounded-xl p-3 text-xs" style="background: var(--surface-sunken)">
-            <div class="font-semibold mb-1">ماذا تفعل الآن؟</div>
+            <div class="font-semibold mb-1">{{ setting('admin.ops.partials.updates_overview.madha_tfal_alan', 'ماذا تفعل الآن؟') }}</div>
             <div>{{ $failure['next_steps'] ?? '' }}</div>
         </div>
 
@@ -32,7 +32,7 @@
                 <button type="button" data-modal-open="restore-confirm"
                         class="mt-3 rounded-xl px-4 py-2 text-sm"
                         style="background: var(--surface-raised); color: var(--color-state-danger); min-height: 44px">
-                    ↩ استرجاع من النسخة الاحتياطيّة
+                    {{ setting('admin.ops.partials.updates_overview.astrjaa_mn_alnskha_alahtyatya', '↩ استرجاع من النسخة الاحتياطيّة') }}
                 </button>
             @endcan
         @endif
@@ -41,21 +41,19 @@
 
 {{-- قواعد مثبّتة تُعرَض دائمًا (2.11): لا تنفيذ بلا معاينة، ولا ترحيل بلا نسخة --}}
 <div class="card p-3 mb-4 text-xs" style="color: var(--text-muted)">
-    كلّ هجرة تتنفّذ مرّة واحدة · مافيش حذف أعمى — الحذف بعد نقل وتحقّق · الأعمدة الجديدة بقيم افتراضيّة ·
-    رفع الكود مابيمسّش الإعدادات ولا المرفوعات ولا الأسرار · النسخة الاحتياطيّة بتتاخد وتتفحص قبل الترحيل ·
-    وضع الصيانة بيتفعّل أثناء الترحيل ويترفع بعده
-    @if (setting('updates.dry_run_required', true)) · والـDry-run إلزاميّ قبل التنفيذ @endif
+    {{ setting('admin.ops.partials.updates_overview.kl_hjra_ttnfdh_mra_wahda_mafysh_hdhf_aama', 'كلّ هجرة تتنفّذ مرّة واحدة · مافيش حذف أعمى — الحذف بعد نقل وتحقّق · الأعمدة الجديدة بقيم افتراضيّة · رفع الكود مابيمسّش الإعدادات ولا المرفوعات ولا الأسرار · النسخة الاحتياطيّة بتتاخد وتتفحص قبل الترحيل · وضع الصيانة بيتفعّل أثناء الترحيل ويترفع بعده') }}
+    @if (setting('updates.dry_run_required', true)) {{ setting('admin.ops.partials.updates_overview.waldry_run_ilzamy_qbl_altnfydh', '· والـDry-run إلزاميّ قبل التنفيذ') }} @endif
 </div>
 
 {{-- الفحوص القبليّة (2.11-ب): بعلامات ✓/✗ — وفحص واحد فاشل يمنع التنفيذ --}}
 <div class="card overflow-hidden mb-4">
     <div class="px-4 py-3 flex items-center justify-between gap-2" style="border-bottom: 1px solid var(--border)">
-        <h2 class="text-sm font-bold">الفحوص القبليّة</h2>
+        <h2 class="text-sm font-bold">{{ setting('admin.ops.partials.updates_overview.alfhws_alqblya', 'الفحوص القبليّة') }}</h2>
         <div class="flex items-center gap-2">
-            <x-state-badge :state="$preflightOk ? 'ok' : 'danger'" :label="$preflightOk ? 'كلّها عدّت' : 'في فحص واقف'" />
+            <x-state-badge :state="$preflightOk ? 'ok' : 'danger'" :label="$preflightOk ? setting('admin.ops.partials.updates_overview.klha_adt', 'كلّها عدّت') : setting('admin.ops.partials.updates_overview.fy_fhs_waqf', 'في فحص واقف')" />
             <form method="post" action="{{ route('admin.ops.updates.preflight') }}">
                 @csrf
-                <button class="rounded-xl px-3 py-2 text-xs" style="background: var(--surface-raised); min-height: 44px">إعادة الفحص</button>
+                <button class="rounded-xl px-3 py-2 text-xs" style="background: var(--surface-raised); min-height: 44px">{{ setting('admin.ops.partials.updates_overview.iaada_alfhs', 'إعادة الفحص') }}</button>
             </form>
         </div>
     </div>
@@ -83,13 +81,13 @@
 {{-- الهجرات المعلّقة بالاسم — رقمٌ مجرّد لا يُبنى عليه قرار --}}
 <div class="card overflow-hidden mb-4">
     <div class="px-4 py-3 flex items-center justify-between gap-2" style="border-bottom: 1px solid var(--border)">
-        <h2 class="text-sm font-bold">الهجرات المعلّقة</h2>
+        <h2 class="text-sm font-bold">{{ setting('admin.ops.partials.updates_overview.alhjrat_almalqa', 'الهجرات المعلّقة') }}</h2>
         <x-state-badge :state="$pending === [] ? 'ok' : 'warn'"
-                       :label="$pending === [] ? 'مافيش' : count($pending) . ' معلّقة'" />
+                       :label="$pending === [] ? setting('admin.ops.partials.updates_overview.mafysh', 'مافيش') : count($pending) . setting('admin.ops.partials.updates_overview.malqa', ' معلّقة')" />
     </div>
 
     @if ($pending === [])
-        <p class="p-4 text-sm" style="color: var(--text-muted)">إنت على أحدث إصدار ✓</p>
+        <p class="p-4 text-sm" style="color: var(--text-muted)">{{ setting('admin.ops.partials.updates_overview.int_ala_ahdth_isdar', 'إنت على أحدث إصدار ✓') }}</p>
     @else
         <ul class="p-2">
             @foreach ($pending as $name)
@@ -103,8 +101,8 @@
     {{-- نتيجة Dry-run: ما سيُنفَّذ بالضبط — ولا حرف واحد اتغيّر في قاعدة البيانات --}}
     <div class="card overflow-hidden mb-4">
         <div class="px-4 py-3 flex items-center gap-2" style="border-bottom: 1px solid var(--border)">
-            <x-state-badge state="ok" label="بلا تنفيذ" />
-            <h2 class="text-sm font-bold">نتيجة الـDry-run</h2>
+            <x-state-badge state="ok" :label="setting('admin.ops.partials.updates_overview.bla_tnfydh', 'بلا تنفيذ')" />
+            <h2 class="text-sm font-bold">{{ setting('admin.ops.partials.updates_overview.ntyja_aldry_run', 'نتيجة الـDry-run') }}</h2>
         </div>
         <pre class="p-4 text-xs min-w-0 overflow-x-auto" style="color: var(--text-muted); white-space: pre-wrap">{{ $dryRun['output'] }}</pre>
     </div>
@@ -113,20 +111,20 @@
 {{-- جدول `schema_migrations` (2.11-أ): المعرّف · التوقيت · **Checksum** · الحالة --}}
 <div class="card overflow-hidden mb-4">
     <div class="px-4 py-3 flex items-center justify-between gap-2" style="border-bottom: 1px solid var(--border)">
-        <h2 class="text-sm font-bold">سجلّ الهجرات ببصمتها</h2>
-        <span class="text-xs" style="color: var(--text-muted)">{{ $ledger->total() }} هجرة</span>
+        <h2 class="text-sm font-bold">{{ setting('admin.ops.partials.updates_overview.sjl_alhjrat_bbsmtha', 'سجلّ الهجرات ببصمتها') }}</h2>
+        <span class="text-xs" style="color: var(--text-muted)">{{ $ledger->total() }} {{ setting('admin.ops.partials.updates_overview.hjra', 'هجرة') }}</span>
     </div>
 
     @if ($ledger->isEmpty())
-        <p class="p-4 text-sm" style="color: var(--text-muted)">مافيش هجرات مسجَّلة لسه.</p>
+        <p class="p-4 text-sm" style="color: var(--text-muted)">{{ setting('admin.ops.partials.updates_overview.mafysh_hjrat_msjla_lsh', 'مافيش هجرات مسجَّلة لسه.') }}</p>
     @else
         <table class="hidden md:table w-full text-sm">
             <thead style="background: var(--surface-sunken)">
                 <tr class="text-xs" style="color: var(--text-muted)">
-                    <th class="text-start p-3">المعرّف</th>
-                    <th class="text-start p-3">التوقيت</th>
+                    <th class="text-start p-3">{{ setting('admin.ops.partials.updates_overview.almarf', 'المعرّف') }}</th>
+                    <th class="text-start p-3">{{ setting('admin.ops.partials.updates_overview.altwqyt', 'التوقيت') }}</th>
                     <th class="text-start p-3">Checksum</th>
-                    <th class="text-start p-3">الحالة</th>
+                    <th class="text-start p-3">{{ setting('admin.ops.partials.updates_overview.alhala', 'الحالة') }}</th>
                 </tr>
             </thead>
             <tbody>
@@ -137,7 +135,7 @@
                         <td class="p-3 font-mono text-xs" title="{{ $row->checksum }}">{{ $row->checksum ? substr($row->checksum, 0, 12) : '—' }}</td>
                         <td class="p-3">
                             <x-state-badge :state="$row->status === 'applied' ? 'ok' : ($row->status === 'failed' ? 'danger' : 'idle')"
-                                           :label="$row->status === 'applied' ? 'مطبَّقة' : ($row->status === 'failed' ? 'فاشلة' : 'مسترجَعة')" />
+                                           :label="$row->status === 'applied' ? setting('admin.ops.partials.updates_overview.mtbqa', 'مطبَّقة') : ($row->status === 'failed' ? setting('admin.ops.partials.updates_overview.fashla', 'فاشلة') : setting('admin.ops.partials.updates_overview.mstrjaa', 'مسترجَعة'))" />
                         </td>
                     </tr>
                 @endforeach
@@ -150,7 +148,7 @@
                 <div class="p-3 text-sm" style="border-top: 1px solid var(--border)">
                     <div class="font-mono text-xs break-all">{{ $row->migration }}</div>
                     <div class="text-xs mt-1" style="color: var(--text-muted)">
-                        {{ $row->applied_at }} · {{ $row->checksum ? substr($row->checksum, 0, 12) : 'بلا بصمة' }}
+                        {{ $row->applied_at }} · {{ $row->checksum ? substr($row->checksum, 0, 12) : setting('admin.ops.partials.updates_overview.bla_bsma', 'بلا بصمة') }}
                     </div>
                 </div>
             @endforeach
@@ -163,14 +161,14 @@
 {{-- شريط التقدّم المرحليّ (12.7-هـ): نسخة ⟵ هجرات ⟵ تحقّق ⟵ إنهاء --}}
 @if ($runs !== [])
     @php($lastRun = $runs[0])
-    @php($stages = ['backup' => 'نسخة احتياطيّة', 'migrate' => 'هجرات على دفعات', 'verify' => 'تحقّق', 'finish' => 'إنهاء'])
+    @php($stages = ['backup' => setting('admin.ops.partials.updates_overview.nskha_ahtyatya', 'نسخة احتياطيّة'), 'migrate' => setting('admin.ops.partials.updates_overview.hjrat_ala_dfaat', 'هجرات على دفعات'), 'verify' => setting('admin.ops.partials.updates_overview.thqq', 'تحقّق'), 'finish' => setting('admin.ops.partials.updates_overview.inha', 'إنهاء')])
     @php($reached = array_search($lastRun->stage, array_keys($stages), true))
 
     <div class="card p-4 mb-4">
         <div class="flex items-center justify-between gap-2 mb-3">
-            <h2 class="text-sm font-bold">آخر تشغيل</h2>
+            <h2 class="text-sm font-bold">{{ setting('admin.ops.partials.updates_overview.akhr_tshghyl', 'آخر تشغيل') }}</h2>
             <x-state-badge :state="$lastRun->status === 'success' ? 'ok' : ($lastRun->status === 'failed' ? 'danger' : 'warn')"
-                           :label="$lastRun->status === 'success' ? 'نجح' : ($lastRun->status === 'failed' ? 'وقف' : 'شغّال')" />
+                           :label="$lastRun->status === 'success' ? setting('admin.ops.partials.updates_overview.njh', 'نجح') : ($lastRun->status === 'failed' ? setting('admin.ops.partials.updates_overview.wqf', 'وقف') : setting('admin.ops.partials.updates_overview.shghal', 'شغّال'))" />
         </div>
 
         <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
@@ -194,14 +192,14 @@
 @can('updates.restore')
     <div class="card p-4 mb-4">
         <div class="flex items-center gap-2 mb-2">
-            <x-state-badge state="danger" label="خطر" />
-            <h2 class="text-sm font-bold">استرجاع آخر دفعة</h2>
+            <x-state-badge state="danger" :label="setting('admin.ops.partials.updates_overview.khtr', 'خطر')" />
+            <h2 class="text-sm font-bold">{{ setting('admin.ops.partials.updates_overview.astrjaa_akhr_dfaa', 'استرجاع آخر دفعة') }}</h2>
         </div>
 
         @if ($lastBatch === [])
-            <p class="text-sm" style="color: var(--text-muted)">مافيش دفعة نرجع عنها.</p>
+            <p class="text-sm" style="color: var(--text-muted)">{{ setting('admin.ops.partials.updates_overview.mafysh_dfaa_nrja_anha', 'مافيش دفعة نرجع عنها.') }}</p>
         @else
-            <p class="text-sm mb-2">الاسترجاع هيشيل الهجرات دي — <strong>وكلّ البيانات اللي جواها هتروح ولا ترجع</strong>:</p>
+            <p class="text-sm mb-2">{{ setting('admin.ops.partials.updates_overview.alastrjaa_hyshyl_alhjrat_dy', 'الاسترجاع هيشيل الهجرات دي —') }} <strong>{{ setting('admin.ops.partials.updates_overview.wkl_albyanat_ally_jwaha_htrwh_wla_trja', 'وكلّ البيانات اللي جواها هتروح ولا ترجع') }}</strong>:</p>
             <ul class="mb-3">
                 @foreach ($lastBatch as $name)
                     <li class="font-mono text-xs break-all py-1">{{ $name }}</li>
@@ -209,7 +207,7 @@
             </ul>
             <button type="button" data-modal-open="rollback-confirm"
                     class="rounded-xl px-4 py-2 text-sm" style="background: var(--surface-raised); color: var(--color-state-danger); min-height: 44px">
-                استرجاع بتأكيد
+                {{ setting('admin.ops.partials.updates_overview.astrjaa_btakyd', 'استرجاع بتأكيد') }}
             </button>
         @endif
     </div>
@@ -219,20 +217,20 @@
 @if ($logs)
     <div class="card overflow-hidden">
         <div class="px-4 py-3 flex items-center justify-between gap-2" style="border-bottom: 1px solid var(--border)">
-            <h2 class="text-sm font-bold">آخر العمليّات</h2>
-            <span class="text-xs" style="color: var(--text-muted)">للقراءة فقط</span>
+            <h2 class="text-sm font-bold">{{ setting('admin.ops.partials.updates_overview.akhr_alamlyat', 'آخر العمليّات') }}</h2>
+            <span class="text-xs" style="color: var(--text-muted)">{{ setting('admin.ops.partials.updates_overview.llqraa_fqt', 'للقراءة فقط') }}</span>
         </div>
 
         @if ($logs->isEmpty())
-            <p class="p-4 text-sm" style="color: var(--text-muted)">مافيش عمليّات مسجّلة لسه.</p>
+            <p class="p-4 text-sm" style="color: var(--text-muted)">{{ setting('admin.ops.partials.updates_overview.mafysh_amlyat_msjla_lsh', 'مافيش عمليّات مسجّلة لسه.') }}</p>
         @else
             <table class="hidden md:table w-full text-sm">
                 <thead style="background: var(--surface-sunken)">
                     <tr class="text-xs" style="color: var(--text-muted)">
-                        <th class="text-start p-3">الوقت</th>
-                        <th class="text-start p-3">المنفِّذ</th>
-                        <th class="text-start p-3">العمليّة</th>
-                        <th class="text-start p-3">التفاصيل</th>
+                        <th class="text-start p-3">{{ setting('admin.ops.partials.updates_overview.alwqt', 'الوقت') }}</th>
+                        <th class="text-start p-3">{{ setting('admin.ops.partials.updates_overview.almnfdh', 'المنفِّذ') }}</th>
+                        <th class="text-start p-3">{{ setting('admin.ops.partials.updates_overview.alamlya', 'العمليّة') }}</th>
+                        <th class="text-start p-3">{{ setting('admin.ops.partials.updates_overview.altfasyl', 'التفاصيل') }}</th>
                         <th class="text-start p-3">IP</th>
                     </tr>
                 </thead>

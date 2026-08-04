@@ -12,6 +12,7 @@ use Database\Seeders\RolePermissionSeeder;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
+use Tests\Support\SidebarMap;
 use Tests\TestCase;
 
 /**
@@ -148,15 +149,24 @@ class SidebarEntryPointsTest extends TestCase
         }
     }
 
-    /** ومَن يملك الصلاحيّة يراه — فالإخفاء بالصلاحيّة لا بالحذف. */
+    /**
+     * ومَن يملك الصلاحيّة يراه — فالإخفاء بالصلاحيّة لا بالحذف.
+     *
+     * ⭐ **والقياس على الوجهة لا على اللافتة** (سجلّ القرارات 2026-08-04 · 2.13-ب):
+     * كان هنا `assertStringContainsString('الشكاوى والمقترحات')`، فمالكٌ أعاد
+     * تسمية البند من لوحته — **وهو حقٌّ يملكه** — يُسقِط حارسًا لا شأن له بالاسم.
+     * والمقصود أنّ **البند موجودٌ في السايد بار ويفتح بابه**، وذاك ما يُقاس هنا:
+     * الوجهة، ومن **داخل** `<aside data-sidebar>` لا من أيّ موضعٍ في الصفحة.
+     */
     public function test_the_entry_appears_for_whoever_owns_its_permission(): void
     {
         $html = $this->sidebar($this->userWith('complaints.list'));
+        $destinations = SidebarMap::allDestinations($html);
 
-        $this->assertStringContainsString('admin/guidance/complaints', $html);
-        $this->assertStringContainsString('الشكاوى والمقترحات', $html);
+        $this->assertContains(route('admin.guidance.complaints'), $destinations);
 
         // وما لا يملكه يبقى مخفيًّا في الشاشة نفسها
+        $this->assertNotContains(route('admin.guidance.help'), $destinations);
         $this->assertStringNotContainsString('admin/guidance/help', $html);
     }
 
@@ -168,7 +178,8 @@ class SidebarEntryPointsTest extends TestCase
     {
         $html = $this->sidebar($this->userWith('exchange_rates.view'));
 
+        // بالوجهة لا باللافتة: بابٌ مقفول يُقاس بغياب عنوانه لا بغياب اسمه
+        $this->assertNotContains(route('admin.wallet.rates'), SidebarMap::allDestinations($html));
         $this->assertStringNotContainsString('admin/wallet/rates', $html);
-        $this->assertStringNotContainsString('🔒 أسعار الصرف', $html);
     }
 }

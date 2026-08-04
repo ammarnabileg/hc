@@ -94,7 +94,7 @@ class ActivityWindow
     /** نصّ يشرح النافذة للمستخدم — يظهر تحت كلّ عدّاد قصير */
     public static function label(): string
     {
-        return 'نافذة النشاط '.self::format(self::startMinutes()).' — '.self::format(self::endMinutes());
+        return strtr(setting('workflow.activity_window.label_1', 'نافذة النشاط :p1 — :p2'), [':p1' => (string) (self::format(self::startMinutes())), ':p2' => (string) (self::format(self::endMinutes()))]);
     }
 
     // ------------------------------------------------------------------ داخليّ

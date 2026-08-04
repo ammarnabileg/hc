@@ -38,7 +38,7 @@ class LessonAdminController extends Controller
 
         $this->builder->addSection($course, $data['title_ar'], $data['title_en'] ?? null);
 
-        return back()->with('status', 'اتضاف السيكشن ✓');
+        return back()->with('status', (string) setting('lessons.admin.store_section_ok', 'اتضاف السيكشن ✓'));
     }
 
     public function updateSection(Request $request, Section $section): RedirectResponse
@@ -50,7 +50,7 @@ class LessonAdminController extends Controller
 
         $section->update($data);
 
-        return back()->with('status', 'اتحفظ ✓');
+        return back()->with('status', (string) setting('lessons.admin.update_section_ok', 'اتحفظ ✓'));
     }
 
     public function reorderSections(Request $request, Course $course): JsonResponse|RedirectResponse
@@ -59,14 +59,14 @@ class LessonAdminController extends Controller
 
         $this->builder->reorderSections($course, $data['ids']);
 
-        return $this->respond($request, 'اتظبط الترتيب ✓');
+        return $this->respond($request, (string) setting('lessons.admin.reorder_sections_ok', 'اتظبط الترتيب ✓'));
     }
 
     public function destroySection(Section $section): RedirectResponse
     {
         $section->delete();
 
-        return back()->with('status', 'اتشال السيكشن ✓');
+        return back()->with('status', (string) setting('lessons.admin.destroy_section_ok', 'اتشال السيكشن ✓'));
     }
 
     // ------------------------------------------------------------------ الدروس
@@ -92,7 +92,7 @@ class LessonAdminController extends Controller
     {
         $lesson = $this->builder->saveLesson($section, null, $this->lessonRules($request));
 
-        return redirect()->route('admin.lessons.show', $lesson)->with('status', 'اتضاف الدرس ✓');
+        return redirect()->route('admin.lessons.show', $lesson)->with('status', (string) setting('lessons.admin.store_lesson_ok', 'اتضاف الدرس ✓'));
     }
 
     public function updateLesson(Request $request, Lesson $lesson): RedirectResponse
@@ -101,7 +101,7 @@ class LessonAdminController extends Controller
 
         $this->builder->saveLesson($section, $lesson, $this->lessonRules($request));
 
-        return back()->with('status', 'اتحفظ ✓');
+        return back()->with('status', (string) setting('lessons.admin.update_lesson_ok', 'اتحفظ ✓'));
     }
 
     /** نقل الدرس بين السيكشنز — سحب-إفلات في الواجهة (12.4-هـ). */
@@ -114,21 +114,21 @@ class LessonAdminController extends Controller
 
         $this->builder->move($lesson, Section::query()->findOrFail($data['section_id']), $data['position'] ?? null);
 
-        return $this->respond($request, 'اتنقل الدرس ✓');
+        return $this->respond($request, (string) setting('lessons.admin.move_lesson_ok', 'اتنقل الدرس ✓'));
     }
 
     public function duplicateLesson(Lesson $lesson): RedirectResponse
     {
         $copy = $this->builder->duplicateLesson($lesson);
 
-        return redirect()->route('admin.lessons.show', $copy)->with('status', 'اتعملت نسخة ✓');
+        return redirect()->route('admin.lessons.show', $copy)->with('status', (string) setting('lessons.admin.duplicate_lesson_ok', 'اتعملت نسخة ✓'));
     }
 
     public function destroyLesson(Lesson $lesson): RedirectResponse
     {
         $lesson->delete();
 
-        return back()->with('status', 'اتشال الدرس ✓');
+        return back()->with('status', (string) setting('lessons.admin.destroy_lesson_ok', 'اتشال الدرس ✓'));
     }
 
     // ------------------------------------------------------------------ الأسئلة
@@ -137,7 +137,7 @@ class LessonAdminController extends Controller
     {
         $this->builder->saveQuestion($lesson, null, $this->questionRules($request));
 
-        return back()->with('status', 'اتضاف السؤال ✓');
+        return back()->with('status', (string) setting('lessons.admin.store_question_ok', 'اتضاف السؤال ✓'));
     }
 
     public function updateQuestion(Request $request, LessonQuestion $question): RedirectResponse
@@ -146,7 +146,7 @@ class LessonAdminController extends Controller
 
         $this->builder->saveQuestion($lesson, $question, $this->questionRules($request));
 
-        return back()->with('status', 'اتحفظ ✓');
+        return back()->with('status', (string) setting('lessons.admin.update_question_ok', 'اتحفظ ✓'));
     }
 
     /** تبديل «سؤال عامّ» — يدخل بنك الامتحان النهائيّ أو يخرج منه (12.4-ج). */
@@ -154,14 +154,14 @@ class LessonAdminController extends Controller
     {
         $question->update(['is_general' => ! $question->is_general]);
 
-        return $this->respond($request, $question->is_general ? 'بقى سؤالًا عامًّا ✓' : 'رجع سؤال درس ✓');
+        return $this->respond($request, $question->is_general ? (string) setting('lessons.admin.toggle_general_ok', 'بقى سؤالًا عامًّا ✓') : (string) setting('lessons.admin.toggle_general_ok_2', 'رجع سؤال درس ✓'));
     }
 
     public function destroyQuestion(LessonQuestion $question): RedirectResponse
     {
         $question->delete();
 
-        return back()->with('status', 'اتشال السؤال ✓');
+        return back()->with('status', (string) setting('lessons.admin.destroy_question_ok', 'اتشال السؤال ✓'));
     }
 
     /** استيراد أسئلة CSV — بتقرير صفّ-بصفّ لما فشل (12.4-هـ). */
@@ -173,10 +173,10 @@ class LessonAdminController extends Controller
 
         $result = $importer->import($lesson, $request->file('file'));
 
-        $message = 'اتستورد '.$result['imported'].' سؤالًا ✓';
+        $message = strtr((string) setting('lessons.admin.import_questions_ok', 'اتستورد :a1 سؤالًا ✓'), [':a1' => (string) ($result['imported'])]);
 
         if ($result['errors'] !== []) {
-            $message .= ' — وفيه '.count($result['errors']).' صفًّا محتاج مراجعة.';
+            $message .= strtr((string) setting('lessons.admin.import_questions_msg', ' — وفيه :a1 صفًّا محتاج مراجعة.'), [':a1' => (string) (count($result['errors']))]);
         }
 
         return back()->with('status', $message)->with('import_errors', $result['errors']);

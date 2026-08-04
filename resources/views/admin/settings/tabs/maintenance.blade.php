@@ -9,10 +9,10 @@
     <div class="flex flex-wrap items-center justify-between gap-3">
         <div>
             <div class="flex items-center gap-2">
-                <x-state-badge :state="$active ? 'danger' : 'ok'" :label="$active ? 'الصيانة شغّالة' : 'المنصّة شغّالة'" />
+                <x-state-badge :state="$active ? 'danger' : 'ok'" :label="$active ? setting('admin.settings.tabs.maintenance.alsyana_shghala', 'الصيانة شغّالة') : setting('admin.settings.tabs.maintenance.almnsa_shghala', 'المنصّة شغّالة')" />
                 @if ($window)
                     <span class="text-xs" style="color: var(--text-muted)">
-                        فعّلها {{ $window->started_by()->first()?->name ?? '—' }} · {{ $window->started_at?->diffForHumans() }}
+                        {{ setting('admin.settings.tabs.maintenance.falha', 'فعّلها') }} {{ $window->started_by()->first()?->name ?? '—' }} · {{ $window->started_at?->diffForHumans() }}
                     </span>
                 @endif
             </div>
@@ -32,7 +32,7 @@
                         <form method="post" action="{{ route('admin.settings.maintenance.extend') }}">
                             @csrf
                             <input type="hidden" name="hours" value="{{ $hours }}">
-                            <button class="rounded-xl px-3 py-2 text-sm" style="background: var(--surface-raised)">+{{ $hours }} ساعة</button>
+                            <button class="rounded-xl px-3 py-2 text-sm" style="background: var(--surface-raised)">+{{ $hours }} {{ setting('admin.settings.tabs.maintenance.saaa', 'ساعة') }}</button>
                         </form>
                     @endforeach
 
@@ -40,14 +40,14 @@
                         @csrf
                         <input type="number" name="hours" min="1" value="6" class="w-16 rounded-xl px-2 py-2 text-sm"
                                style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)"
-                               aria-label="تمديد مخصّص بالساعات">
-                        <button class="rounded-xl px-3 py-2 text-sm" style="background: var(--surface-raised)">تمديد</button>
+                               aria-label="{{ setting('admin.settings.tabs.maintenance.tmdyd_mkhss_balsaaat', 'تمديد مخصّص بالساعات') }}">
+                        <button class="rounded-xl px-3 py-2 text-sm" style="background: var(--surface-raised)">{{ setting('admin.settings.tabs.maintenance.tmdyd', 'تمديد') }}</button>
                     </form>
 
                     <form method="post" action="{{ route('admin.settings.maintenance.lift') }}">
                         @csrf
                         <button class="btn rounded-xl px-4 py-2 text-sm font-semibold"
-                                style="background: var(--color-brand-500); color: #04201c">رفع الصيانة</button>
+                                style="background: var(--color-brand-500); color: #04201c">{{ setting('admin.settings.tabs.maintenance.rfa_alsyana', 'رفع الصيانة') }}</button>
                     </form>
                 @endif
             @endcan
@@ -56,7 +56,7 @@
 
     @if ($active)
         <p class="text-xs mt-3" style="color: var(--text-muted)">
-            كلّ المهل والديدلاينات مجمّدة دلوقتي، وهتُستأنف من حيث وقفت عند الرفع — استئناف لا إلغاء.
+            {{ setting('admin.settings.tabs.maintenance.kl_almhl_waldydlaynat_mjmda_dlwqty_whtstanf', 'كلّ المهل والديدلاينات مجمّدة دلوقتي، وهتُستأنف من حيث وقفت عند الرفع — استئناف لا إلغاء.') }}
         </p>
     @endif
 </div>
@@ -65,10 +65,10 @@
     @can('maintenance.manage')
         <form method="post" action="{{ route('admin.settings.maintenance.start') }}" class="card p-4 space-y-3">
             @csrf
-            <h2 class="font-bold text-sm">تفعيل وضع الصيانة العامّ</h2>
+            <h2 class="font-bold text-sm">{{ setting('admin.settings.tabs.maintenance.tfayl_wda_alsyana_alaam', 'تفعيل وضع الصيانة العامّ') }}</h2>
 
             <label class="block text-sm">
-                <span class="block mb-1">رسالة الصيانة (اللي هيقراها المستخدم)</span>
+                <span class="block mb-1">{{ setting('admin.settings.tabs.maintenance.rsala_alsyana_ally_hyqraha_almstkhdm', 'رسالة الصيانة (اللي هيقراها المستخدم)') }}</span>
                 <textarea name="message" rows="3" required
                           class="w-full rounded-xl px-3 py-2 text-sm"
                           style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)"
@@ -77,7 +77,7 @@
 
             <div class="grid sm:grid-cols-2 gap-3">
                 <label class="block text-sm">
-                    <span class="block mb-1">عدد الساعات</span>
+                    <span class="block mb-1">{{ setting('admin.settings.tabs.maintenance.add_alsaaat', 'عدد الساعات') }}</span>
                     <input type="number" name="hours" min="1" required
                            value="{{ old('hours', (int) setting('system.maintenance.default_hours', 2)) }}"
                            class="w-full rounded-xl px-3 py-2 text-sm"
@@ -86,7 +86,7 @@
 
                 {{-- ⭐ «مجدول — يبدأ تلقائيًّا» (12.7-ج): سيبه فاضي تشتغل حالًا --}}
                 <label class="block text-sm">
-                    <span class="block mb-1">وقت البدء (اختياريّ — سيبه فاضي تبدأ حالًا)</span>
+                    <span class="block mb-1">{{ setting('admin.settings.tabs.maintenance.wqt_albd_akhtyary_sybh_fady_tbda_hala', 'وقت البدء (اختياريّ — سيبه فاضي تبدأ حالًا)') }}</span>
                     <input type="datetime-local" name="starts_at" value="{{ old('starts_at') }}"
                            class="w-full rounded-xl px-3 py-2 text-sm"
                            style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
@@ -95,12 +95,12 @@
 
             <button class="btn rounded-xl px-4 py-2 text-sm font-semibold"
                     style="background: color-mix(in srgb, var(--color-state-danger) 25%, transparent); color: var(--color-state-danger)">
-                تفعيل وضع الصيانة
+                {{ setting('admin.settings.tabs.maintenance.tfayl_wda_alsyana', 'تفعيل وضع الصيانة') }}
             </button>
 
             {{-- ⛔ ولا صيانة جزئيّة لميزة بعينها — أُلغيت؛ الإطفاء من «مفاتيح المزايا» --}}
             <p class="text-xs" style="color: var(--text-muted)">
-                الصيانة عامّة للمنصّة كلّها فقط — إطفاء ميزة بعينها بيتمّ من تاب «مفاتيح المزايا».
+                {{ setting('admin.settings.tabs.maintenance.alsyana_aama_llmnsa_klha_fqt_itfa_myza', 'الصيانة عامّة للمنصّة كلّها فقط — إطفاء ميزة بعينها بيتمّ من تاب «مفاتيح المزايا».') }}
             </p>
         </form>
     @endcan
@@ -110,13 +110,13 @@
 @if ($scheduled['at'] && ! $active)
     <div class="card p-4 flex flex-wrap items-center justify-between gap-3">
         <div class="text-sm">
-            <x-state-badge state="warn" label="صيانة مجدولة" />
-            <span class="ms-2">هتبدأ لوحدها {{ $scheduled['at'] }} لمدّة {{ $scheduled['hours'] }} ساعة.</span>
+            <x-state-badge state="warn" :label="setting('admin.settings.tabs.maintenance.syana_mjdwla', 'صيانة مجدولة')" />
+            <span class="ms-2">{!! strtr(setting('admin.settings.tabs.maintenance.htbda_lwhdha_v1_lmda_v2_saaa', 'هتبدأ لوحدها :v1 لمدّة :v2 ساعة.'), [':v1' => e($scheduled['at']), ':v2' => e($scheduled['hours'])]) !!}</span>
         </div>
         @can('maintenance.manage')
             <form method="post" action="{{ route('admin.settings.maintenance.unschedule') }}">
                 @csrf
-                <button class="rounded-xl px-3 py-2 text-sm" style="background: var(--surface-raised)">إلغاء الجدولة</button>
+                <button class="rounded-xl px-3 py-2 text-sm" style="background: var(--surface-raised)">{{ setting('admin.settings.tabs.maintenance.ilgha_aljdwla', 'إلغاء الجدولة') }}</button>
             </form>
         @endcan
     </div>
@@ -128,33 +128,33 @@
     @php($exemptSetting = \App\Models\Setting::query()->where('key', 'system.maintenance.exempt_ips')->first())
     @if ($exemptSetting)
         <div class="card p-4">
-            <h2 class="font-bold text-sm mb-2">استثناء IP الأدمن</h2>
+            <h2 class="font-bold text-sm mb-2">{{ setting('admin.settings.tabs.maintenance.astthna_ip_aladmn', 'استثناء IP الأدمن') }}</h2>
             @include('admin.settings.partials.field', [
                 'setting' => $exemptSetting,
                 'registry' => $registry,
                 'endpoint' => route('admin.settings.field'),
             ])
             <p class="text-xs mt-2" style="color: var(--text-muted)">
-                سطر أو فاصلة لكلّ IP — دي القائمة الوحيدة اللي بتفتح الموقع وقت الصيانة.
+                {{ setting('admin.settings.tabs.maintenance.str_aw_fasla_lkl_ip_dy_alqayma_alwhyda_ally', 'سطر أو فاصلة لكلّ IP — دي القائمة الوحيدة اللي بتفتح الموقع وقت الصيانة.') }}
             </p>
         </div>
     @endif
 @endcan
 
 <div class="card overflow-hidden">
-    <div class="p-3 text-sm font-bold" style="border-bottom: 1px solid var(--border)">فترات الصيانة السابقة</div>
+    <div class="p-3 text-sm font-bold" style="border-bottom: 1px solid var(--border)">{{ setting('admin.settings.tabs.maintenance.ftrat_alsyana_alsabqa', 'فترات الصيانة السابقة') }}</div>
 
     @forelse ($windows as $row)
         <div class="p-3 text-sm flex flex-wrap items-center justify-between gap-2" style="border-top: 1px solid var(--border)">
             <div>
-                <div>{{ $row->started_at?->format('Y/m/d H:i') }} ← {{ $row->ended_at?->format('Y/m/d H:i') ?? 'شغّالة' }}</div>
+                <div>{{ $row->started_at?->format('Y/m/d H:i') }} ← {{ $row->ended_at?->format('Y/m/d H:i') ?? setting('admin.settings.tabs.maintenance.shghala', 'شغّالة') }}</div>
                 <div class="text-xs" style="color: var(--text-muted)">{{ \Illuminate\Support\Str::limit((string) $row->message, 60) }}</div>
             </div>
             <x-state-badge :state="$row->deadlines_recomputed ? 'ok' : 'warn'"
-                           :label="$row->deadlines_recomputed ? 'اتعاد حساب المهل' : 'لسه'" />
+                           :label="$row->deadlines_recomputed ? setting('admin.settings.tabs.maintenance.ataad_hsab_almhl', 'اتعاد حساب المهل') : setting('admin.settings.tabs.maintenance.lsh', 'لسه')" />
         </div>
     @empty
-        <div class="p-4"><x-empty message="مافيش فترات صيانة سابقة." /></div>
+        <div class="p-4"><x-empty :message="setting('admin.settings.tabs.maintenance.mafysh_ftrat_syana_sabqa', 'مافيش فترات صيانة سابقة.')" /></div>
     @endforelse
 </div>
 

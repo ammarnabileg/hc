@@ -63,8 +63,8 @@ class UpdatePreflight
         $min = (string) setting('updates.preflight.min_php', '8.2');
         $ok = version_compare(PHP_VERSION, $min, '>=');
 
-        return $this->row('php', 'إصدار PHP', PHP_VERSION, $ok,
-            "المطلوب {$min} أو أحدث — كلّم مزوّد الاستضافة يرفّعه قبل التحديث.");
+        return $this->row('php', setting('updates.update_preflight.php_1', 'إصدار PHP'), PHP_VERSION, $ok,
+            strtr(setting('updates.update_preflight.php_2', 'المطلوب :p1 أو أحدث — كلّم مزوّد الاستضافة يرفّعه قبل التحديث.'), [':p1' => (string) ($min)]));
     }
 
     private function extensions(): array
@@ -73,10 +73,10 @@ class UpdatePreflight
         $required = is_array($required) ? $required : [];
         $missing = array_values(array_filter($required, fn ($ext) => ! extension_loaded((string) $ext)));
 
-        return $this->row('extensions', 'امتدادات PHP',
-            $missing === [] ? count($required).' امتداد موجود' : 'ناقص: '.implode(' · ', $missing),
+        return $this->row('extensions', setting('updates.update_preflight.extensions_1', 'امتدادات PHP'),
+            $missing === [] ? strtr(setting('updates.update_preflight.extensions_2', ':p1 امتداد موجود'), [':p1' => (string) (count($required))]) : strtr(setting('updates.update_preflight.extensions_3', 'ناقص: :p1'), [':p1' => (string) (implode(' · ', $missing))]),
             $missing === [],
-            'نصّب الامتدادات الناقصة من الخادم — بدونها النسخة الاحتياطيّة نفسها مش هتتعمل.');
+            setting('updates.update_preflight.extensions_4', 'نصّب الامتدادات الناقصة من الخادم — بدونها النسخة الاحتياطيّة نفسها مش هتتعمل.'));
     }
 
     private function writable(): array
@@ -99,10 +99,10 @@ class UpdatePreflight
             }
         }
 
-        return $this->row('writable', 'صلاحيّات الكتابة',
-            $blocked === [] ? count($paths).' مجلّد مفتوح' : 'مقفول: '.implode(' · ', $blocked),
+        return $this->row('writable', setting('updates.update_preflight.writable_1', 'صلاحيّات الكتابة'),
+            $blocked === [] ? strtr(setting('updates.update_preflight.writable_2', ':p1 مجلّد مفتوح'), [':p1' => (string) (count($paths))]) : strtr(setting('updates.update_preflight.writable_3', 'مقفول: :p1'), [':p1' => (string) (implode(' · ', $blocked))]),
             $blocked === [],
-            'اضبط ملكيّة المجلّدات دي للمستخدم اللي بيشغّل الخادم، وإلا النسخة الاحتياطيّة مش هتتكتب.');
+            setting('updates.update_preflight.writable_4', 'اضبط ملكيّة المجلّدات دي للمستخدم اللي بيشغّل الخادم، وإلا النسخة الاحتياطيّة مش هتتكتب.'));
     }
 
     /** ⭐ مساحة القرص: لا نبدأ ترحيلًا بلا مكان تسع فيه النسخة الاحتياطيّة */
@@ -115,14 +115,14 @@ class UpdatePreflight
         $needed = max($minMb * 1024 * 1024, (int) round($databaseBytes * $factor));
 
         if ($free === false) {
-            return $this->row('disk', 'مساحة القرص', 'غير متاحة للقراءة', false,
-                'الخادم مش بيسمح بقراءة المساحة — اتأكّد يدويًّا إنّ فيه '.$this->mb($needed).' فاضية قبل ما تكمّل.');
+            return $this->row('disk', setting('updates.update_preflight.disk_1', 'مساحة القرص'), setting('updates.update_preflight.disk_2', 'غير متاحة للقراءة'), false,
+                strtr(setting('updates.update_preflight.disk_3', 'الخادم مش بيسمح بقراءة المساحة — اتأكّد يدويًّا إنّ فيه :p1 فاضية قبل ما تكمّل.'), [':p1' => (string) ($this->mb($needed))]));
         }
 
-        return $this->row('disk', 'مساحة القرص',
-            'فاضي '.$this->mb((int) $free).' · المطلوب '.$this->mb($needed),
+        return $this->row('disk', setting('updates.update_preflight.disk_4', 'مساحة القرص'),
+            strtr(setting('updates.update_preflight.disk_5', 'فاضي :p1 · المطلوب :p2'), [':p1' => (string) ($this->mb((int) $free)), ':p2' => (string) ($this->mb($needed))]),
             $free >= $needed,
-            'فضّي مساحة أو امسح نسخًا قديمة — النسخة الاحتياطيّة المبتورة أسوأ من غيابها.');
+            setting('updates.update_preflight.disk_6', 'فضّي مساحة أو امسح نسخًا قديمة — النسخة الاحتياطيّة المبتورة أسوأ من غيابها.'));
     }
 
     private function database(): array
@@ -130,26 +130,26 @@ class UpdatePreflight
         try {
             DB::select('select 1');
         } catch (Throwable $e) {
-            return $this->row('database', 'الاتّصال بقاعدة البيانات', 'مش متّصلة', false,
-                'راجع بيانات الاتّصال في ملفّ البيئة قبل أيّ محاولة تانية.');
+            return $this->row('database', setting('updates.update_preflight.database_1', 'الاتّصال بقاعدة البيانات'), setting('updates.update_preflight.database_2', 'مش متّصلة'), false,
+                setting('updates.update_preflight.database_3', 'راجع بيانات الاتّصال في ملفّ البيئة قبل أيّ محاولة تانية.'));
         }
 
-        return $this->row('database', 'الاتّصال بقاعدة البيانات', DB::getDriverName(), true, 'الاتّصال سليم.');
+        return $this->row('database', setting('updates.update_preflight.database_4', 'الاتّصال بقاعدة البيانات'), DB::getDriverName(), true, setting('updates.update_preflight.database_5', 'الاتّصال سليم.'));
     }
 
     /** سلامة الإصدار الحاليّ: هل ملفّات الهجرات المطبَّقة هي نفسها التي طُبِّقت؟ */
     private function integrity(array $paths): array
     {
         if (! setting('updates.preflight.verify_checksums', true)) {
-            return $this->row('integrity', 'سلامة الإصدار الحاليّ', 'الفحص متوقّف من الإعدادات', true, 'فعّله من بلوك الإعدادات.');
+            return $this->row('integrity', setting('updates.update_preflight.integrity_1', 'سلامة الإصدار الحاليّ'), setting('updates.update_preflight.integrity_2', 'الفحص متوقّف من الإعدادات'), true, setting('updates.update_preflight.integrity_3', 'فعّله من بلوك الإعدادات.'));
         }
 
         $bad = $this->ledger->mismatches($paths);
 
-        return $this->row('integrity', 'سلامة الإصدار الحاليّ',
-            $bad === [] ? $this->ledger->appliedCount().' هجرة ببصمة مطابقة' : count($bad).' هجرة ملفّها اتغيّر بعد تطبيقها',
+        return $this->row('integrity', setting('updates.update_preflight.integrity_4', 'سلامة الإصدار الحاليّ'),
+            $bad === [] ? strtr(setting('updates.update_preflight.integrity_5', ':p1 هجرة ببصمة مطابقة'), [':p1' => (string) ($this->ledger->appliedCount())]) : strtr(setting('updates.update_preflight.integrity_6', ':p1 هجرة ملفّها اتغيّر بعد تطبيقها'), [':p1' => (string) (count($bad))]),
             $bad === [],
-            $bad === [] ? 'كلّ هجرة زيّ ما اتطبّقت بالظبط.' : 'ملفّ اتعدّل بعد تطبيقه ('.implode(' · ', array_slice($bad, 0, 3)).') — رجّع الملفّ لأصله أو اعمل هجرة جديدة بدل تعديل القديمة.');
+            $bad === [] ? setting('updates.update_preflight.integrity_7', 'كلّ هجرة زيّ ما اتطبّقت بالظبط.') : strtr(setting('updates.update_preflight.integrity_8', 'ملفّ اتعدّل بعد تطبيقه (:p1) — رجّع الملفّ لأصله أو اعمل هجرة جديدة بدل تعديل القديمة.'), [':p1' => (string) (implode(' · ', array_slice($bad, 0, 3)))]));
     }
 
     /**
@@ -164,10 +164,10 @@ class UpdatePreflight
             $lock = null;
         }
 
-        return $this->row('lock', 'قفل التحديث',
-            $lock ? 'مقفول من '.($lock->holder_name ?? 'تشغيل تاني') : 'مفتوح',
+        return $this->row('lock', setting('updates.update_preflight.lock_free_1', 'قفل التحديث'),
+            $lock ? setting('updates.update_preflight.lock_free_2', 'مقفول من ').($lock->holder_name ?? setting('updates.update_preflight.lock_free_3', 'تشغيل تاني')) : setting('updates.update_preflight.lock_free_4', 'مفتوح'),
             $lock === null,
-            'في تحديث شغّال دلوقتي — استنّاه يخلص، والقفل بيتحرّر لوحده بعد المهلة المضبوطة في الإعدادات.');
+            setting('updates.update_preflight.lock_free_5', 'في تحديث شغّال دلوقتي — استنّاه يخلص، والقفل بيتحرّر لوحده بعد المهلة المضبوطة في الإعدادات.'));
     }
 
     // ------------------------------------------------------------------ داخليّ
@@ -185,7 +185,7 @@ class UpdatePreflight
 
     private function mb(int $bytes): string
     {
-        return number_format($bytes / 1048576, 1).' م.ب';
+        return strtr(setting('updates.update_preflight.mb_1', ':p1 م.ب'), [':p1' => (string) (number_format($bytes / 1048576, 1))]);
     }
 
     private function row(string $key, string $label, string $value, bool $ok, string $hint): array

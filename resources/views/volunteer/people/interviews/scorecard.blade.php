@@ -1,6 +1,6 @@
 @extends('layouts.volunteer')
 
-@section('title', 'نتيجة المقابلة')
+@section('title', setting('volunteer.people_interviews_scorecard.title', 'نتيجة المقابلة'))
 
 @php
     /**
@@ -15,12 +15,12 @@
 
 @section('content')
     <x-page-header
-        title="نتيجة المقابلة"
+        :title="setting('volunteer.people_interviews_scorecard.title', 'نتيجة المقابلة')"
         :subtitle="$candidate?->user?->name.' — '.$interview->scheduled_at->translatedFormat('j F Y')"
         :breadcrumbs="[
-            ['label' => 'لوحة التطوّع', 'url' => url('/volunteer')],
-            ['label' => 'المقابلات', 'url' => route('volunteer.interviews')],
-            ['label' => 'النتيجة'],
+            ['label' => setting('volunteer.common.breadcrumb_root', 'لوحة التطوّع'), 'url' => url('/volunteer')],
+            ['label' => setting('volunteer.people_interviews_scorecard.label', 'المقابلات'), 'url' => route('volunteer.interviews')],
+            ['label' => setting('volunteer.common.result', 'النتيجة')],
         ]">
         <x-slot:action>
             <span class="text-xs" data-saved style="color: var(--color-state-ok)"></span>
@@ -31,10 +31,10 @@
         @csrf
 
         <section class="card p-4">
-            <h2 class="font-bold text-sm mb-3">المهارات وتحليل الشخصيّة</h2>
+            <h2 class="font-bold text-sm mb-3">{{ setting('volunteer.people_interviews_scorecard.heading', 'المهارات وتحليل الشخصيّة') }}</h2>
 
             <label class="block text-sm mb-3">
-                <span class="block text-xs mb-1" style="color: var(--text-muted)">المهارات</span>
+                <span class="block text-xs mb-1" style="color: var(--text-muted)">{{ setting('volunteer.people_interviews_scorecard.field', 'المهارات') }}</span>
                 <textarea name="skills_notes" rows="4" class="w-full rounded-xl px-3 py-2 text-sm"
                           style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)"
                           placeholder="{{ setting('scorecards.skills.placeholder', 'اكتب أمثلة ملموسة شفتها في المقابلة — مش صفات عامّة.') }}"
@@ -42,7 +42,7 @@
             </label>
 
             <label class="block text-sm">
-                <span class="block text-xs mb-1" style="color: var(--text-muted)">تحليل الشخصيّة</span>
+                <span class="block text-xs mb-1" style="color: var(--text-muted)">{{ setting('volunteer.people_interviews_scorecard.field_2', 'تحليل الشخصيّة') }}</span>
                 <textarea name="personality_notes" rows="4" class="w-full rounded-xl px-3 py-2 text-sm"
                           style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)"
                           placeholder="{{ setting('scorecards.personality.placeholder', 'إزاي بيتعامل مع الضغط والاختلاف؟ اذكر موقفًا.') }}"
@@ -52,9 +52,9 @@
 
         <section class="card p-4">
             <header class="flex items-center justify-between mb-3">
-                <h2 class="font-bold text-sm">المعايير</h2>
+                <h2 class="font-bold text-sm">{{ setting('volunteer.people_interviews_scorecard.heading_2', 'المعايير') }}</h2>
                 <div class="text-sm">
-                    الدرجة الإجماليّة:
+                    {{ setting('volunteer.people_interviews_scorecard.text', 'الدرجة الإجماليّة:') }}
                     <strong data-total>{{ $card->total_score ?? '0.00' }}</strong>/{{ $scale }}
                 </div>
             </header>
@@ -68,7 +68,7 @@
                                 {{-- الرماديّ = مؤرشف، وليس حالةً سيّئة (2.16-أ) --}}
                                 <x-state-badge state="idle" :label="$archivedTag" />
                             @else
-                                <span class="text-xs" style="color: var(--text-muted)">وزن {{ $row['weight'] }}</span>
+                                <span class="text-xs" style="color: var(--text-muted)">{{ setting('volunteer.people_interviews_scorecard.text_2', 'وزن') }} {{ $row['weight'] }}</span>
                             @endif
                         </span>
                         <output data-score-out="{{ $row['id'] }}">{{ $row['score'] ?? 0 }}</output>
@@ -88,20 +88,20 @@
                     @endif
                 </div>
             @empty
-                <p class="text-sm" style="color: var(--text-muted)">مفيش معايير مفعّلة حاليًّا.</p>
+                <p class="text-sm" style="color: var(--text-muted)">{{ setting('volunteer.people_interviews_scorecard.text_3', 'مفيش معايير مفعّلة حاليًّا.') }}</p>
             @endforelse
         </section>
 
         {{-- سكشن «الأقسام المناسبة»: شجرة باختيار متعدّد + عدّاد + بحث (13.4-د) --}}
         <section class="card p-4">
             <header class="flex items-center justify-between mb-3">
-                <h2 class="font-bold text-sm">الأقسام المناسبة</h2>
+                <h2 class="font-bold text-sm">{{ setting('volunteer.people_interviews_scorecard.heading_3', 'الأقسام المناسبة') }}</h2>
                 <span class="text-xs rounded-full px-2 py-0.5" style="background: var(--surface-sunken)">
-                    <span data-fits-count>{{ count($selectedIds) }}</span> مختار
+                    <span data-fits-count>{{ count($selectedIds) }}</span> {{ setting('volunteer.people_interviews_scorecard.text_4', 'مختار') }}
                 </span>
             </header>
 
-            <input type="search" data-fits-search placeholder="ابحث عن قسم…" class="w-full rounded-xl px-3 py-2 text-sm mb-3"
+            <input type="search" data-fits-search placeholder="{{ setting('volunteer.people_interviews_scorecard.placeholder', 'ابحث عن قسم…') }}" class="w-full rounded-xl px-3 py-2 text-sm mb-3"
                    style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
 
             <div class="space-y-3 max-h-72 overflow-y-auto">
@@ -129,40 +129,40 @@
         {{-- مؤشّر الحقول الناقصة — يتحدّث مع كلّ حفظ تلقائيّ (2.15-د) --}}
         <div class="card p-4" data-missing-box style="{{ $missing ? '' : 'display:none' }}">
             <p class="text-sm">
-                <x-state-badge state="warn" label="ناقص" />
+                <x-state-badge state="warn" :label="setting('volunteer.people_interviews_scorecard.label_2', 'ناقص')" />
                 <span data-missing-list>{{ implode(' · ', $missing) }}</span>
             </p>
         </div>
     </form>
 
     <section class="card p-4 mt-4">
-        <h2 class="font-bold text-sm mb-2">معاينة الملخّص</h2>
+        <h2 class="font-bold text-sm mb-2">{{ setting('volunteer.people_interviews_scorecard.heading_4', 'معاينة الملخّص') }}</h2>
         <pre class="text-xs whitespace-pre-wrap" data-preview style="color: var(--text-muted)">{{ $engine->summary($card) }}</pre>
     </section>
 
     @if ($canEdit)
         <div class="card p-4 mt-4">
-            <h2 class="font-bold text-sm mb-3">القرار</h2>
+            <h2 class="font-bold text-sm mb-3">{{ setting('volunteer.people_interviews_scorecard.heading_5', 'القرار') }}</h2>
             <div class="grid gap-3 md:grid-cols-2">
                 <form method="post" action="{{ route('volunteer.interviews.scorecard.decide', $interview) }}">
                     @csrf
                     <input type="hidden" name="decision" value="passed">
                     <button type="submit" class="btn w-full rounded-xl px-4 py-2 text-sm font-semibold"
-                            style="background: var(--color-brand-500); color: #04201c">نجح ⟵ القائمة النهائيّة</button>
+                            style="background: var(--color-brand-500); color: #04201c">{{ setting('volunteer.people_interviews_scorecard.action', 'نجح ⟵ القائمة النهائيّة') }}</button>
                 </form>
 
                 <form method="post" action="{{ route('volunteer.interviews.scorecard.decide', $interview) }}" class="flex gap-2">
                     @csrf
                     <input type="hidden" name="decision" value="rejected">
-                    <input type="text" name="rejection_reason" placeholder="سبب الرفض" required
+                    <input type="text" name="rejection_reason" placeholder="{{ setting('volunteer.people_interviews_scorecard.placeholder_2', 'سبب الرفض') }}" required
                            class="flex-1 rounded-xl px-3 py-2 text-sm"
                            style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
-                    <button type="submit" class="btn rounded-xl px-4 py-2 text-sm" style="background: var(--surface-sunken)">رفض</button>
+                    <button type="submit" class="btn rounded-xl px-4 py-2 text-sm" style="background: var(--surface-sunken)">{{ setting('volunteer.people_interviews_scorecard.action_2', 'رفض') }}</button>
                 </form>
             </div>
 
             <a href="{{ route('volunteer.interviews.scorecard.export', $interview) }}"
-               class="btn inline-flex mt-3 rounded-xl px-4 py-2 text-sm" style="background: var(--surface-sunken)">تصدير</a>
+               class="btn inline-flex mt-3 rounded-xl px-4 py-2 text-sm" style="background: var(--surface-sunken)">{{ setting('volunteer.people_interviews_scorecard.link', 'تصدير') }}</a>
         </div>
     @endif
 @endsection
@@ -170,11 +170,20 @@
 @section('mobile_action')
     <a href="{{ route('volunteer.interviews') }}"
        class="btn flex items-center justify-center rounded-xl px-4 py-3 text-sm font-semibold"
-       style="background: var(--color-brand-500); color: #04201c">رجوع للمقابلات</a>
+       style="background: var(--color-brand-500); color: #04201c">{{ setting('volunteer.people_interviews_scorecard.link_2', 'رجوع للمقابلات') }}</a>
 @endsection
+
+@php
+    /** نصوص السكربت — تُمرَّر بـ`@json` فلا يبقى حرفٌ عربيّ محروق داخله (2.13-أ) */
+    $jsText = [
+        'saved' => (string) setting('volunteer.people_interviews_scorecard.js_saved', 'اتحفظ ✓'),
+        'network_error' => (string) setting('volunteer.people_interviews_scorecard.js_network_error', 'الشبكة وقعت — شغلك محفوظ هنا لحدّ ما ترجع.'),
+    ];
+@endphp
 
 @push('scripts')
 <script>
+const T = @json($jsText);
 (function () {
     const form = document.querySelector('[data-scorecard]');
     if (!form) return;
@@ -210,14 +219,14 @@
             .then((r) => r.json())
             .then((json) => {
                 // «اتحفظ ✓» بجوار الحقل مع الحفظ التلقائيّ (2.17-ب)
-                if (savedOut) savedOut.textContent = json.message || 'اتحفظ ✓';
+                if (savedOut) savedOut.textContent = json.message || T.saved;
                 if (totalOut && typeof json.total === 'number') totalOut.textContent = json.total.toFixed(2);
                 if (missingBox && missingList) {
                     missingList.textContent = (json.missing || []).join(' · ');
                     missingBox.style.display = (json.missing || []).length ? '' : 'none';
                 }
             })
-            .catch(() => { if (savedOut) savedOut.textContent = 'الشبكة وقعت — شغلك محفوظ هنا لحدّ ما ترجع.'; });
+            .catch(() => { if (savedOut) savedOut.textContent = T.network_error; });
     };
 
     const queue = () => { clearTimeout(timer); timer = setTimeout(save, 800); };

@@ -1,13 +1,13 @@
 @extends('layouts.admin')
 
-@section('title', 'تعديل قالب: ' . $template->name)
+@section('title', setting('admin.studio.edit.tadyl_qalb', 'تعديل قالب: ') . $template->name)
 
 @section('content')
-    <x-page-header :title="'قالب: ' . $template->name"
-                   subtitle="طبقات · مقاسات · حقول من القائمة المقفولة — ومعاينة ببيانات حقيقيّة."
+    <x-page-header :title="setting('admin.studio.edit.qalb', 'قالب: ') . $template->name"
+                   :subtitle="setting('admin.studio.edit.tbqat_mqasat_hqwl_mn_alqayma_almqfwla', 'طبقات · مقاسات · حقول من القائمة المقفولة — ومعاينة ببيانات حقيقيّة.')"
                    :breadcrumbs="[
-                       ['label' => 'لوحة الإدارة', 'url' => url('/admin')],
-                       ['label' => 'استوديو الصور', 'url' => route('admin.studio.index')],
+                       ['label' => setting('admin.studio.edit.lwha_alidara', 'لوحة الإدارة'), 'url' => url('/admin')],
+                       ['label' => setting('admin.studio.edit.astwdyw_alswr', 'استوديو الصور'), 'url' => route('admin.studio.index')],
                        ['label' => $template->name],
                    ]" />
 
@@ -22,31 +22,31 @@
             @csrf @method('PUT')
 
             <div class="card p-4 space-y-3">
-                <h2 class="font-bold text-sm">الأساسيّات</h2>
-                <x-form.input name="name" label="اسم القالب" :value="$template->name" required />
+                <h2 class="font-bold text-sm">{{ setting('admin.studio.edit.alasasyat', 'الأساسيّات') }}</h2>
+                <x-form.input name="name" :label="setting('admin.studio.edit.asm_alqalb', 'اسم القالب')" :value="$template->name" required />
 
                 {{-- المقاس الجاهز عمودٌ في القاعدة (`preset`) — فيُرسَل باسمه لا كمساعدٍ بصريّ --}}
                 <label class="block text-sm">
-                    <span class="block mb-1">مقاس جاهز</span>
+                    <span class="block mb-1">{{ setting('admin.studio.edit.mqas_jahz', 'مقاس جاهز') }}</span>
                     <select name="preset" id="preset-select" class="w-full rounded-xl px-3 py-2 text-sm"
                             style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
-                        <option value="">مخصّص</option>
+                        <option value="">{{ setting('admin.studio.edit.mkhss', 'مخصّص') }}</option>
                         @foreach ($presets as $key => $preset)
                             <option value="{{ $key }}" data-size="{{ $preset['width'] }}x{{ $preset['height'] }}"
                                     @selected($template->preset === $key)>{{ $preset['label'] }} — {{ $preset['width'] }}×{{ $preset['height'] }}</option>
                         @endforeach
                     </select>
                     {{-- ⭐ تغيير المقاس يعيد ترتيب الطبقات نسبيًّا فلا يفسد التصميم --}}
-                    <span class="block text-xs mt-1" style="color: var(--text-muted)">تغيير المقاس بيعيد توزيع الطبقات نسبيًّا تلقائيًّا.</span>
+                    <span class="block text-xs mt-1" style="color: var(--text-muted)">{{ setting('admin.studio.edit.tghyyr_almqas_byayd_twzya_altbqat_nsbya', 'تغيير المقاس بيعيد توزيع الطبقات نسبيًّا تلقائيًّا.') }}</span>
                 </label>
 
                 <div class="grid grid-cols-2 gap-2">
-                    <x-form.input name="width_px" label="العرض" type="number" :value="$template->width_px" required />
-                    <x-form.input name="height_px" label="الطول" type="number" :value="$template->height_px" required />
+                    <x-form.input name="width_px" :label="setting('admin.studio.edit.alard', 'العرض')" type="number" :value="$template->width_px" required />
+                    <x-form.input name="height_px" :label="setting('admin.studio.edit.altwl', 'الطول')" type="number" :value="$template->height_px" required />
                 </div>
 
                 <label class="block text-sm">
-                    <span class="block mb-1">الجمهور</span>
+                    <span class="block mb-1">{{ setting('admin.studio.edit.aljmhwr', 'الجمهور') }}</span>
                     <select name="audience" class="w-full rounded-xl px-3 py-2 text-sm"
                             style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
                         @foreach ($audiences as $key => $label)
@@ -80,7 +80,7 @@
                 </div>
 
                 <label class="flex items-center gap-2 text-sm">
-                    <input type="checkbox" name="is_active" value="1" @checked($template->is_active)> مفعَّل
+                    <input type="checkbox" name="is_active" value="1" @checked($template->is_active)> {{ setting('admin.studio.edit.mfal', 'مفعَّل') }}
                 </label>
             </div>
 
@@ -139,10 +139,10 @@
             {{-- لوحة الطبقات: إظهار/إخفاء · رفع/إنزال · قفل (12.14-أ) --}}
             <div class="card p-4 space-y-3" id="layers-panel">
                 <div class="flex items-center justify-between">
-                    <h2 class="font-bold text-sm">لوحة الطبقات</h2>
+                    <h2 class="font-bold text-sm">{{ setting('admin.studio.edit.lwha_altbqat', 'لوحة الطبقات') }}</h2>
                     <div class="flex gap-2 text-xs">
-                        <button type="button" data-add-layer="text" class="underline">+ نصّ</button>
-                        <button type="button" data-add-layer="avatar" class="underline">+ صورة المستخدم</button>
+                        <button type="button" data-add-layer="text" class="underline">{{ setting('admin.studio.edit.ns', '+ نصّ') }}</button>
+                        <button type="button" data-add-layer="avatar" class="underline">{{ setting('admin.studio.edit.swra_almstkhdm', '+ صورة المستخدم') }}</button>
                     </div>
                 </div>
 
@@ -150,14 +150,14 @@
             </div>
 
             <button class="btn rounded-xl px-4 py-2 text-sm font-semibold"
-                    style="background: var(--color-brand-500); color: #04201c">حفظ القالب</button>
+                    style="background: var(--color-brand-500); color: #04201c">{{ setting('admin.studio.edit.hfz_alqalb', 'حفظ القالب') }}</button>
         </form>
 
         <div class="space-y-4">
             <div class="card p-4">
-                <h2 class="font-bold text-sm mb-2">معاينة ببيانات مستخدم حقيقيّ</h2>
+                <h2 class="font-bold text-sm mb-2">{{ setting('admin.studio.edit.maayna_bbyanat_mstkhdm_hqyqy', 'معاينة ببيانات مستخدم حقيقيّ') }}</h2>
                 <label class="block text-sm mb-2">
-                    <span class="block mb-1">المستخدم</span>
+                    <span class="block mb-1">{{ setting('admin.studio.edit.almstkhdm', 'المستخدم') }}</span>
                     <select id="preview-user" class="w-full rounded-xl px-3 py-2 text-sm"
                             style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
                         @foreach ($sampleUsers as $user)
@@ -166,35 +166,35 @@
                     </select>
                 </label>
                 <img id="preview-image" src="{{ route('admin.studio.preview', $template) }}"
-                     alt="معاينة القالب" class="w-full rounded-xl" style="max-width:100%; background: var(--surface-sunken)">
+                     alt="{{ setting('admin.studio.edit.maayna_alqalb', 'معاينة القالب') }}" class="w-full rounded-xl" style="max-width:100%; background: var(--surface-sunken)">
                 <p class="text-xs mt-2" style="color: var(--text-muted)">
-                    كلّ صورة مستخرَجة بتحمل تاريخ اللقطة وشعار المنصّة — فمحدش ينشر ترتيبًا قديمًا كأنّه حاليّ.
+                    {{ setting('admin.studio.edit.kl_swra_mstkhrja_bthml_tarykh_allqta_wshaar', 'كلّ صورة مستخرَجة بتحمل تاريخ اللقطة وشعار المنصّة — فمحدش ينشر ترتيبًا قديمًا كأنّه حاليّ.') }}
                 </p>
             </div>
 
             @can('image_templates.batch')
                 <form method="post" action="{{ route('admin.studio.batch', $template) }}" class="card p-4 space-y-3">
                     @csrf
-                    <h2 class="font-bold text-sm">توليد جماعيّ ⟵ ZIP</h2>
+                    <h2 class="font-bold text-sm">{{ setting('admin.studio.edit.twlyd_jmaay_zip', 'توليد جماعيّ ⟵ ZIP') }}</h2>
                     <label class="block text-sm">
-                        <span class="block mb-1">الشريحة</span>
+                        <span class="block mb-1">{{ setting('admin.studio.edit.alshryha', 'الشريحة') }}</span>
                         <select name="segment" class="w-full rounded-xl px-3 py-2 text-sm"
                                 style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
-                            <option value="top_xp">أوائل الليدر بورد (XP)</option>
-                            <option value="volunteers">المتطوّعون النشطون</option>
-                            <option value="active">الحسابات المفعَّلة</option>
+                            <option value="top_xp">{{ setting('admin.studio.edit.awayl_allydr_bwrd_xp', 'أوائل الليدر بورد (XP)') }}</option>
+                            <option value="volunteers">{{ setting('admin.studio.edit.almttwawn_alnshtwn', 'المتطوّعون النشطون') }}</option>
+                            <option value="active">{{ setting('admin.studio.edit.alhsabat_almfala', 'الحسابات المفعَّلة') }}</option>
                         </select>
                     </label>
-                    <x-form.input name="limit" label="العدد" type="number" value="10" required />
-                    <button class="rounded-xl px-4 py-2 text-sm" style="background: var(--surface-raised)">ولّد الأرشيف</button>
+                    <x-form.input name="limit" :label="setting('admin.studio.edit.aladd', 'العدد')" type="number" value="10" required />
+                    <button class="rounded-xl px-4 py-2 text-sm" style="background: var(--surface-raised)">{{ setting('admin.studio.edit.wld_alarshyf', 'ولّد الأرشيف') }}</button>
                 </form>
             @endcan
 
             <div class="card p-4 text-xs" style="color: var(--text-muted)">
-                <p class="font-bold mb-1" style="color: var(--text)">الحقول المسموحة فقط</p>
+                <p class="font-bold mb-1" style="color: var(--text)">{{ setting('admin.studio.edit.alhqwl_almsmwha_fqt', 'الحقول المسموحة فقط') }}</p>
                 <p>{{ implode(' · ', $allowedFields) }}</p>
                 {{-- ⛔ الممنوع غير موجود في القائمة أصلًا — لا معطَّلًا (12.14-د) --}}
-                <p class="mt-2">الموبايل والبريد وجهة الطوارئ والملاحظات الإداريّة مش موجودة في القائمة أصلًا.</p>
+                <p class="mt-2">{{ setting('admin.studio.edit.almwbayl_walbryd_wjha_altwary_walmlahzat', 'الموبايل والبريد وجهة الطوارئ والملاحظات الإداريّة مش موجودة في القائمة أصلًا.') }}</p>
             </div>
         </div>
     </div>
@@ -204,7 +204,43 @@
 @endsection
 
 @push('scripts')
+@php
+    /*
+     | نصوص السكربت من الإعدادات (2.13-أ): لا حرفَ عربيّ داخل `<script>`،
+     | فالمحروق هناك لا يصل لوحةَ الإدارة ولا الترجمة.
+     */
+    $jsText = [
+        'static_text' => setting('admin.studio.edit.ns_thabt', 'نصّ ثابت'),
+        'user_image' => setting('admin.studio.edit.tbqa_swra_almstkhdm', 'صورة المستخدم'),
+        'text' => setting('admin.studio.edit.tbqa_ns', 'نصّ'),
+        'visible' => setting('admin.studio.edit.zahra', 'ظاهرة'),
+        'locked' => setting('admin.studio.edit.mqfwla', 'مقفولة'),
+        'rotate' => setting('admin.studio.edit.dwran', 'دوران'),
+        'width' => setting('admin.studio.edit.alard', 'العرض'),
+        'height' => setting('admin.studio.edit.altwl', 'الطول'),
+        'shape' => setting('admin.studio.edit.alshkl', 'الشكل'),
+        'square' => setting('admin.studio.edit.mrba', 'مربّع'),
+        'circle' => setting('admin.studio.edit.dayra', 'دائرة'),
+        'circle_border' => setting('admin.studio.edit.dayra_bhd', 'دائرة بحدّ'),
+        'fit' => setting('admin.studio.edit.alqs', 'القصّ'),
+        'cover' => setting('admin.studio.edit.ymla', 'يملأ'),
+        'contain' => setting('admin.studio.edit.yhtwy', 'يحتوي'),
+        'field' => setting('admin.studio.edit.alhql', 'الحقل'),
+        'font_size' => setting('admin.studio.edit.hjm_alkht', 'حجم الخطّ'),
+        'color' => setting('admin.studio.edit.allwn', 'اللون'),
+        'align' => setting('admin.studio.edit.almhadha', 'المحاذاة'),
+        'align_right' => setting('admin.studio.edit.ymyn', 'يمين'),
+        'align_center' => setting('admin.studio.edit.wst', 'وسط'),
+        'align_left' => setting('admin.studio.edit.ysar', 'يسار'),
+        'max_chars' => setting('admin.studio.edit.hd_alahrf', 'حدّ الأحرف'),
+        'overflow' => setting('admin.studio.edit.and_altjawz', 'عند التجاوز'),
+        'overflow_shrink' => setting('admin.studio.edit.tsghyr_tlqay', 'تصغير تلقائيّ'),
+        'overflow_truncate' => setting('admin.studio.edit.qs_bthlath_nqat', 'قصّ بثلاث نقاط'),
+    ];
+@endphp
+
 <script>
+    const T = @json($jsText);
 /*
  | محرّر الطبقات بجافاسكربت خام — بلا أيّ مكتبة خارجيّة.
  | الحقول تأتي من القائمة المقفولة وحدها، والخادم يرفض أيّ حقل خارجها.
@@ -215,7 +251,7 @@
     var list = document.getElementById('layers-list');
 
     function fieldOptions(selected) {
-        var html = '<option value="">نصّ ثابت</option>';
+        var html = '<option value="">' + T.static_text + '</option>';
         Object.keys(allowed).forEach(function (key) {
             html += '<option value="' + key + '"' + (selected === key ? ' selected' : '') + '>' + allowed[key] + '</option>';
         });
@@ -228,10 +264,10 @@
         wrap.style.background = 'var(--surface-sunken)';
 
         var head = '<div class="flex items-center justify-between gap-2">'
-            + '<strong>' + (layer.type === 'avatar' ? 'صورة المستخدم' : 'نصّ') + ' #' + (index + 1) + '</strong>'
+            + '<strong>' + (layer.type === 'avatar' ? T.user_image : T.text) + ' #' + (index + 1) + '</strong>'
             + '<span class="flex gap-2 text-xs">'
-            + '<label><input type="checkbox" name="layers[' + index + '][visible]" value="1"' + (layer.visible !== false ? ' checked' : '') + '> ظاهرة</label>'
-            + '<label><input type="checkbox" name="layers[' + index + '][locked]" value="1"' + (layer.locked ? ' checked' : '') + '> مقفولة</label>'
+            + '<label><input type="checkbox" name="layers[' + index + '][visible]" value="1"' + (layer.visible !== false ? ' checked' : '') + '> ' + T.visible + '</label>'
+            + '<label><input type="checkbox" name="layers[' + index + '][locked]" value="1"' + (layer.locked ? ' checked' : '') + '> ' + T.locked + '</label>'
             + '<button type="button" class="underline" data-move="up" data-index="' + index + '">▲</button>'
             + '<button type="button" class="underline" data-move="down" data-index="' + index + '">▼</button>'
             + '<button type="button" class="underline" data-remove="' + index + '">✕</button>'
@@ -240,34 +276,34 @@
             + '<div class="grid grid-cols-2 gap-2">'
             + '<label class="text-xs">X<input type="number" class="w-full rounded-lg px-2 py-1" name="layers[' + index + '][x]" value="' + (layer.x || 0) + '"></label>'
             + '<label class="text-xs">Y<input type="number" class="w-full rounded-lg px-2 py-1" name="layers[' + index + '][y]" value="' + (layer.y || 0) + '"></label>'
-            + '<label class="text-xs">دوران<input type="number" class="w-full rounded-lg px-2 py-1" name="layers[' + index + '][rotate]" value="' + (layer.rotate || 0) + '"></label>';
+            + '<label class="text-xs">' + T.rotate + '<input type="number" class="w-full rounded-lg px-2 py-1" name="layers[' + index + '][rotate]" value="' + (layer.rotate || 0) + '"></label>';
 
         if (layer.type === 'avatar') {
-            head += '<label class="text-xs">العرض<input type="number" class="w-full rounded-lg px-2 py-1" name="layers[' + index + '][w]" value="' + (layer.w || 240) + '"></label>'
-                + '<label class="text-xs">الطول<input type="number" class="w-full rounded-lg px-2 py-1" name="layers[' + index + '][h]" value="' + (layer.h || 240) + '"></label>'
-                + '<label class="text-xs">الشكل<select class="w-full rounded-lg px-2 py-1" name="layers[' + index + '][shape]">'
-                + '<option value="square"' + (layer.shape === 'square' ? ' selected' : '') + '>مربّع</option>'
-                + '<option value="circle"' + (layer.shape === 'circle' ? ' selected' : '') + '>دائرة</option>'
-                + '<option value="circle_border"' + (layer.shape === 'circle_border' ? ' selected' : '') + '>دائرة بحدّ</option>'
+            head += '<label class="text-xs">' + T.width + '<input type="number" class="w-full rounded-lg px-2 py-1" name="layers[' + index + '][w]" value="' + (layer.w || 240) + '"></label>'
+                + '<label class="text-xs">' + T.height + '<input type="number" class="w-full rounded-lg px-2 py-1" name="layers[' + index + '][h]" value="' + (layer.h || 240) + '"></label>'
+                + '<label class="text-xs">' + T.shape + '<select class="w-full rounded-lg px-2 py-1" name="layers[' + index + '][shape]">'
+                + '<option value="square"' + (layer.shape === 'square' ? ' selected' : '') + '>' + T.square + '</option>'
+                + '<option value="circle"' + (layer.shape === 'circle' ? ' selected' : '') + '>' + T.circle + '</option>'
+                + '<option value="circle_border"' + (layer.shape === 'circle_border' ? ' selected' : '') + '>' + T.circle_border + '</option>'
                 + '</select></label>'
-                + '<label class="text-xs">القصّ<select class="w-full rounded-lg px-2 py-1" name="layers[' + index + '][fit]">'
-                + '<option value="cover"' + (layer.fit === 'cover' ? ' selected' : '') + '>يملأ</option>'
-                + '<option value="contain"' + (layer.fit === 'contain' ? ' selected' : '') + '>يحتوي</option>'
+                + '<label class="text-xs">' + T.fit + '<select class="w-full rounded-lg px-2 py-1" name="layers[' + index + '][fit]">'
+                + '<option value="cover"' + (layer.fit === 'cover' ? ' selected' : '') + '>' + T.cover + '</option>'
+                + '<option value="contain"' + (layer.fit === 'contain' ? ' selected' : '') + '>' + T.contain + '</option>'
                 + '</select></label>';
         } else {
-            head += '<label class="text-xs">الحقل<select class="w-full rounded-lg px-2 py-1" name="layers[' + index + '][field]">' + fieldOptions(layer.field) + '</select></label>'
-                + '<label class="text-xs">نصّ ثابت<input type="text" class="w-full rounded-lg px-2 py-1" name="layers[' + index + '][text]" value="' + (layer.text || '') + '"></label>'
-                + '<label class="text-xs">حجم الخطّ<input type="number" class="w-full rounded-lg px-2 py-1" name="layers[' + index + '][size]" value="' + (layer.size || 32) + '"></label>'
-                + '<label class="text-xs">اللون<input type="color" class="w-full rounded-lg" name="layers[' + index + '][color]" value="' + (layer.color || '#ffffff') + '"></label>'
-                + '<label class="text-xs">المحاذاة<select class="w-full rounded-lg px-2 py-1" name="layers[' + index + '][align]">'
-                + '<option value="right"' + (layer.align === 'right' ? ' selected' : '') + '>يمين</option>'
-                + '<option value="center"' + (layer.align === 'center' ? ' selected' : '') + '>وسط</option>'
-                + '<option value="left"' + (layer.align === 'left' ? ' selected' : '') + '>يسار</option>'
+            head += '<label class="text-xs">' + T.field + '<select class="w-full rounded-lg px-2 py-1" name="layers[' + index + '][field]">' + fieldOptions(layer.field) + '</select></label>'
+                + '<label class="text-xs">' + T.static_text + '<input type="text" class="w-full rounded-lg px-2 py-1" name="layers[' + index + '][text]" value="' + (layer.text || '') + '"></label>'
+                + '<label class="text-xs">' + T.font_size + '<input type="number" class="w-full rounded-lg px-2 py-1" name="layers[' + index + '][size]" value="' + (layer.size || 32) + '"></label>'
+                + '<label class="text-xs">' + T.color + '<input type="color" class="w-full rounded-lg" name="layers[' + index + '][color]" value="' + (layer.color || '#ffffff') + '"></label>'
+                + '<label class="text-xs">' + T.align + '<select class="w-full rounded-lg px-2 py-1" name="layers[' + index + '][align]">'
+                + '<option value="right"' + (layer.align === 'right' ? ' selected' : '') + '>' + T.align_right + '</option>'
+                + '<option value="center"' + (layer.align === 'center' ? ' selected' : '') + '>' + T.align_center + '</option>'
+                + '<option value="left"' + (layer.align === 'left' ? ' selected' : '') + '>' + T.align_left + '</option>'
                 + '</select></label>'
-                + '<label class="text-xs">حدّ الأحرف<input type="number" class="w-full rounded-lg px-2 py-1" name="layers[' + index + '][max_chars]" value="' + (layer.max_chars || 28) + '"></label>'
-                + '<label class="text-xs">عند التجاوز<select class="w-full rounded-lg px-2 py-1" name="layers[' + index + '][overflow]">'
-                + '<option value="shrink"' + (layer.overflow === 'shrink' ? ' selected' : '') + '>تصغير تلقائيّ</option>'
-                + '<option value="truncate"' + (layer.overflow === 'truncate' ? ' selected' : '') + '>قصّ بثلاث نقاط</option>'
+                + '<label class="text-xs">' + T.max_chars + '<input type="number" class="w-full rounded-lg px-2 py-1" name="layers[' + index + '][max_chars]" value="' + (layer.max_chars || 28) + '"></label>'
+                + '<label class="text-xs">' + T.overflow + '<select class="w-full rounded-lg px-2 py-1" name="layers[' + index + '][overflow]">'
+                + '<option value="shrink"' + (layer.overflow === 'shrink' ? ' selected' : '') + '>' + T.overflow_shrink + '</option>'
+                + '<option value="truncate"' + (layer.overflow === 'truncate' ? ' selected' : '') + '>' + T.overflow_truncate + '</option>'
                 + '</select></label>';
         }
 

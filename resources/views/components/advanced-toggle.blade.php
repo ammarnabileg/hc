@@ -27,7 +27,7 @@
         <input type="hidden" name="back" value="{{ request()->fullUrl() }}">
         <button type="submit" role="switch" aria-checked="{{ $on ? 'true' : 'false' }}"
                 data-advanced-toggle="{{ $on ? '1' : '0' }}"
-                title="{{ $on ? 'اقفل الوضع المتقدّم' : 'افتح كلّ اللي اتخفى' }}"
+                title="{{ $on ? (string) setting('ux.advanced_toggle.title_expr_1', 'اقفل الوضع المتقدّم') : (string) setting('ux.advanced_toggle.title_expr_2', 'افتح كلّ اللي اتخفى') }}"
                 class="inline-flex items-center gap-2 rounded-full px-3 text-xs motion-standard"
                 style="min-block-size: var(--touch-min, 44px); color: {{ $on ? 'var(--color-brand-500)' : 'var(--text-muted)' }}">
             <span>{{ $label }}</span>

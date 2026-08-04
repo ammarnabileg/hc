@@ -25,11 +25,11 @@ class IcsGenerator
 
         $where = $event->mode === 'offline'
             ? (string) $event->location
-            : ($event->join_link ? 'أونلاين' : (string) $event->location);
+            : ($event->join_link ? setting('events.ics_generator.for_event_1', 'أونلاين') : (string) $event->location);
 
         $description = trim(
             ($event->description ? strip_tags((string) $event->description)."\n\n" : '')
-            .'التوقيت المحلّيّ: '.$localStart->format('Y-m-d H:i').' ('.$tz.')'
+            .setting('events.ics_generator.for_event_2', 'التوقيت المحلّيّ: ').$localStart->format('Y-m-d H:i').' ('.$tz.')'
             ."\n".route('events.show', $event->slug)
         );
 
@@ -53,7 +53,7 @@ class IcsGenerator
             'BEGIN:VALARM',
             'TRIGGER:-PT'.max(5, (int) setting('events.reminder.minutes_before', 60)).'M',
             'ACTION:DISPLAY',
-            'DESCRIPTION:'.$this->escape('فاضل شويّة على: '.$event->title_ar),
+            'DESCRIPTION:'.$this->escape(strtr(setting('events.ics_generator.for_event_3', 'فاضل شويّة على: :p1'), [':p1' => (string) ($event->title_ar)])),
             'END:VALARM',
             'END:VEVENT',
             'END:VCALENDAR',

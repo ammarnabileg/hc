@@ -65,7 +65,7 @@ class RepAdminController extends Controller
             RepRuleWriter::put((string) $key, (float) $value, $request->user());
         }
 
-        return back()->with('status', 'اتحفظ ✓ — القيم الجديدة سارية من دلوقتي.');
+        return back()->with('status', (string) setting('rep.admin.save_rules_ok', 'اتحفظ ✓ — القيم الجديدة سارية من دلوقتي.'));
     }
 
     /** ↺ Reset لقيمة واحدة */
@@ -74,7 +74,7 @@ class RepAdminController extends Controller
         $data = $request->validate(['key' => ['required', 'string']]);
         RepRuleWriter::reset($data['key'], $request->user());
 
-        return back()->with('status', 'رجعت للافتراضيّ ✓');
+        return back()->with('status', (string) setting('rep.admin.reset_rule_ok', 'رجعت للافتراضيّ ✓'));
     }
 
     /** ↺ Reset لمجموعة كاملة */
@@ -83,7 +83,7 @@ class RepAdminController extends Controller
         $data = $request->validate(['group' => ['required', 'string', 'in:'.implode(',', array_keys(RepRuleWriter::GROUPS))]]);
         $count = RepRuleWriter::resetGroup($data['group'], $request->user());
 
-        return back()->with('status', 'رجعت '.$count.' قيمة للافتراضيّ ✓');
+        return back()->with('status', strtr((string) setting('rep.admin.reset_group_ok', 'رجعت :a1 قيمة للافتراضيّ ✓'), [':a1' => (string) ($count)]));
     }
 
     public function saveSettings(Request $request): RedirectResponse
@@ -91,7 +91,7 @@ class RepAdminController extends Controller
         $data = $request->validate(['settings' => ['required', 'array']]);
         SettingsWriter::putMany($data['settings'], $request->user());
 
-        return back()->with('status', 'اتحفظ ✓');
+        return back()->with('status', (string) setting('rep.admin.save_settings_ok', 'اتحفظ ✓'));
     }
 
     // ------------------------------------------------------------ المخالفات المكوَّدة
@@ -121,7 +121,7 @@ class RepAdminController extends Controller
 
         AuditTrail::log($request->user(), 'behavior_violation.save', $violation, $old, $violation->only(['code', 'label_ar', 'default_value']));
 
-        return back()->with('status', 'اتحفظ ✓');
+        return back()->with('status', (string) setting('rep.admin.save_violation_ok', 'اتحفظ ✓'));
     }
 
     // ------------------------------------------------------------ معاملة السلوك
@@ -137,7 +137,7 @@ class RepAdminController extends Controller
         $user = User::query()->where('code', mb_strtoupper($data['code']))->first();
 
         if (! $user) {
-            return response()->json(['ok' => false, 'message' => 'الكود ده مش موجود — راجع الكود وجرّب تاني.'], 422);
+            return response()->json(['ok' => false, 'message' => (string) setting('rep.admin.preview_behavior_denied', 'الكود ده مش موجود — راجع الكود وجرّب تاني.')], 422);
         }
 
         $violation = BehaviorViolation::findOrFail($data['violation_id']);
@@ -172,7 +172,7 @@ class RepAdminController extends Controller
         $target = User::query()->where('code', mb_strtoupper($data['code']))->first();
 
         if (! $target) {
-            return back()->withInput()->with('status', 'الكود ده مش موجود — راجع الكود وجرّب تاني.');
+            return back()->withInput()->with('status', (string) setting('rep.admin.record_behavior_denied', 'الكود ده مش موجود — راجع الكود وجرّب تاني.'));
         }
 
         $membership = Membership::query()
@@ -193,14 +193,14 @@ class RepAdminController extends Controller
         }
 
         return back()->with('status', $record->status === 'pending_approval'
-            ? 'اتسجّلت وبتنتظر موافقة المستوى الأعلى (نافذة '.setting('rep.behavior.severe_approval_window_hours', 24).' ساعة).'
-            : 'اتسجّلت وطُبِّقت ✓ — والعضو وصله إشعار بالنوع والمبرّر.');
+            ? strtr((string) setting('rep.admin.record_behavior_msg', 'اتسجّلت وبتنتظر موافقة المستوى الأعلى (نافذة :a1 ساعة).'), [':a1' => (string) (setting('rep.behavior.severe_approval_window_hours', 24))])
+            : (string) setting('rep.admin.record_behavior_ok', 'اتسجّلت وطُبِّقت ✓ — والعضو وصله إشعار بالنوع والمبرّر.'));
     }
 
     public function approveBehavior(Request $request, BehaviorTransaction $behaviorTransaction): RedirectResponse
     {
         BehaviorLedger::approve($request->user(), $behaviorTransaction);
 
-        return back()->with('status', 'اتعمدت المعاملة وطُبِّقت ✓');
+        return back()->with('status', (string) setting('rep.admin.approve_behavior_ok', 'اتعمدت المعاملة وطُبِّقت ✓'));
     }
 }

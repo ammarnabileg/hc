@@ -217,11 +217,11 @@ class RepService
     public function leadershipImpactTable(): array
     {
         return [
-            ['key' => 'leadership.ge_9', 'range' => '9 فأعلى', 'value' => rep_rule('leadership.ge_9')],
+            ['key' => 'leadership.ge_9', 'range' => setting('goals.rep_service.leadership_impact_table_1', '9 فأعلى'), 'value' => rep_rule('leadership.ge_9')],
             ['key' => 'leadership.8_to_8_9', 'range' => '8 – 8.9', 'value' => rep_rule('leadership.8_to_8_9')],
             ['key' => 'leadership.6_to_7_9', 'range' => '6 – 7.9', 'value' => rep_rule('leadership.6_to_7_9')],
             ['key' => 'leadership.4_to_5_9', 'range' => '4 – 5.9', 'value' => rep_rule('leadership.4_to_5_9')],
-            ['key' => 'leadership.lt_4', 'range' => 'أقلّ من 4', 'value' => rep_rule('leadership.lt_4')],
+            ['key' => 'leadership.lt_4', 'range' => setting('goals.rep_service.leadership_impact_table_2', 'أقلّ من 4'), 'value' => rep_rule('leadership.lt_4')],
         ];
     }
 
@@ -247,7 +247,7 @@ class RepService
             return null; // الشريحة المحايدة لا تكتب حركةً بلا أثر
         }
 
-        $reason = 'مؤشّر القيادة الأسبوعيّ — متوسّط '.number_format($average, 2);
+        $reason = strtr(setting('goals.rep_service.apply_leadership_impact_1', 'مؤشّر القيادة الأسبوعيّ — متوسّط :p1'), [':p1' => (string) (number_format($average, 2))]);
 
         $transaction = $value > 0
             ? Integrations::credit($evaluatee, self::CURRENCY, $value, 'leadership', null, $reason)

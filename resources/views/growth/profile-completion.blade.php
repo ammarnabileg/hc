@@ -42,7 +42,7 @@
                     <li class="px-4 py-3 flex items-center justify-between gap-3">
                         <span class="text-sm">{{ $label }}</span>
                         {{-- رمزٌ مع اللون دائمًا (2.16-ب) --}}
-                        <x-state-badge state="warn" label="ناقص" />
+                        <x-state-badge state="warn" label="{{ setting('growth.profile_completion.label_1', 'ناقص') }}" />
                     </li>
                 @endforeach
             </ul>

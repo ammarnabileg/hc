@@ -9,7 +9,7 @@
                 <input type="hidden" name="{{ $key }}" value="{{ $value }}">
             @endif
         @endforeach
-        <select name="entity" onchange="this.form.submit()" aria-label="مبدّل الكيان"
+        <select name="entity" onchange="this.form.submit()" aria-label="{{ setting('volunteer.org_entity_switcher.aria', 'مبدّل الكيان') }}"
                 class="rounded-xl px-3 py-2 text-sm"
                 style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
             @foreach ($roots as $option)

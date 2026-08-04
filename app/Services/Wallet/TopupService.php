@@ -72,10 +72,10 @@ class TopupService
 
             $this->notify(
                 $user,
-                $isDuplicate ? 'الإيصال ده مرفوع قبل كده' : 'استلمنا طلب الشحن',
+                $isDuplicate ? setting('wallet.topup_service.submit_1', 'الإيصال ده مرفوع قبل كده') : setting('wallet.topup_service.submit_2', 'استلمنا طلب الشحن'),
                 $isDuplicate
-                    ? 'الإيصال المرفق مطابق لإيصالٍ سابق، فاتوسم الطلب «مكرَّرة». ارفع إيصال العمليّة الصحيحة وابعت تاني.'
-                    : 'طلبك رقم '.$request->number.' تحت التحقّق، وهنبلّغك بأيّ تغيير في حالته.',
+                    ? setting('wallet.topup_service.submit_3', 'الإيصال المرفق مطابق لإيصالٍ سابق، فاتوسم الطلب «مكرَّرة». ارفع إيصال العمليّة الصحيحة وابعت تاني.')
+                    : strtr(setting('wallet.topup_service.submit_4', 'طلبك رقم :p1 تحت التحقّق، وهنبلّغك بأيّ تغيير في حالته.'), [':p1' => (string) ($request->number)]),
                 $request,
             );
 

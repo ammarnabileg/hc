@@ -12,7 +12,7 @@
     <div class="max-w-3xl mx-auto">
         <x-page-header :title="$course->name_ar"
                        :subtitle="setting('growth.preview.subtitle', 'جرّب قبل ما تسجّل — الدروس المفتوحة تحت متاحة بلا حساب.')"
-                       :breadcrumbs="[['label' => 'التدريبات', 'url' => route('store.index')], ['label' => $course->name_ar]]">
+                       :breadcrumbs="[['label' => (string) setting('growth.preview_course.breadcrumbs_1', 'التدريبات'), 'url' => route('store.index')], ['label' => $course->name_ar]]">
             <x-slot:action>
                 <a href="{{ $buyUrl }}"
                    class="btn hidden md:inline-flex items-center justify-center rounded-xl px-5 py-2.5 text-sm font-semibold motion-standard"
@@ -70,7 +70,7 @@
             <a href="{{ $registerUrl }}" class="card p-4 mt-4 flex items-center justify-between gap-3 motion-standard">
                 <span class="text-sm">{{ setting('growth.preview.register_note', 'التسجيل مجّانيّ والتفعيل باعتماد إداريّ — بلا أيّ رسوم.') }}</span>
                 <span class="rounded-xl px-4 py-2 text-sm font-semibold shrink-0"
-                      style="background: var(--color-brand-500); color: #04201c">سجّل حسابك</span>
+                      style="background: var(--color-brand-500); color: #04201c">{{ setting('growth.preview_course.text_1', 'سجّل حسابك') }}</span>
             </a>
         @endguest
     </div>

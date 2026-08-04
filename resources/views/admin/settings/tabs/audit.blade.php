@@ -1,20 +1,20 @@
 {{-- سجلّ التدقيق: Append-only — لا تعديل ولا حذف من الواجهة إطلاقًا (24.3) --}}
 <div class="card p-3 text-xs flex items-center justify-between" style="color: var(--text-muted)">
-    <span>للقراءة فقط — غير قابل للتعديل أو الحذف.</span>
-    <span>الاحتفاظ: {{ (int) setting('audit.retention_days', 365) }} يومًا للعامّ · بلا حدّ للماليّ <x-icon name="lock" size="16" /></span>
+    <span>{{ setting('admin.settings.tabs.audit.llqraa_fqt_ghyr_qabl_lltadyl_aw_alhdhf', 'للقراءة فقط — غير قابل للتعديل أو الحذف.') }}</span>
+    <span>{!! strtr(setting('admin.settings.tabs.audit.alahtfaz_v1_ywma_llaam_bla_hd_llmaly', 'الاحتفاظ: :v1 يومًا للعامّ · بلا حدّ للماليّ'), [':v1' => e((int) setting('audit.retention_days', 365))]) !!} <x-icon name="lock" size="16" /></span>
 </div>
 
 @if (! $logs || $logs->isEmpty())
-    <x-empty message="مافيش سجلّات في النطاق ده." />
+    <x-empty :message="setting('admin.settings.tabs.audit.mafysh_sjlat_fy_alntaq_dh', 'مافيش سجلّات في النطاق ده.')" />
 @else
     <div class="card overflow-hidden">
         <table class="hidden md:table w-full text-sm">
             <thead style="background: var(--surface-sunken)">
                 <tr class="text-xs" style="color: var(--text-muted)">
-                    <th class="text-start p-3">الوقت</th>
-                    <th class="text-start p-3">المنفِّذ</th>
-                    <th class="text-start p-3">المورد.الفعل</th>
-                    <th class="text-start p-3">قبل ← بعد</th>
+                    <th class="text-start p-3">{{ setting('admin.settings.tabs.audit.alwqt', 'الوقت') }}</th>
+                    <th class="text-start p-3">{{ setting('admin.settings.tabs.audit.almnfdh', 'المنفِّذ') }}</th>
+                    <th class="text-start p-3">{{ setting('admin.settings.tabs.audit.almwrd_alfal', 'المورد.الفعل') }}</th>
+                    <th class="text-start p-3">{{ setting('admin.settings.tabs.audit.qbl_bad', 'قبل ← بعد') }}</th>
                     <th class="text-start p-3">IP</th>
                 </tr>
             </thead>

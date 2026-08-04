@@ -87,7 +87,7 @@ class AudienceSegments
             self::TYPE_STATIC => 'ثابتة (تُجمَّد الآن)',
         ]);
 
-        return is_array($types) && $types !== [] ? $types : [self::TYPE_DYNAMIC => 'ديناميكيّة', self::TYPE_STATIC => 'ثابتة'];
+        return is_array($types) && $types !== [] ? $types : [self::TYPE_DYNAMIC => setting('admin_dashboard.audience_segments.types_1', 'ديناميكيّة'), self::TYPE_STATIC => setting('admin_dashboard.audience_segments.types_2', 'ثابتة')];
     }
 
     /** روابط منطق التجميع (AND/OR) — نصّ عربيّ من الإعدادات لا كود. */
@@ -95,7 +95,7 @@ class AudienceSegments
     {
         $modes = setting('admin.segments.match_modes', ['all' => 'كلّ الشروط (AND)', 'any' => 'أيّ شرط (OR)']);
 
-        return is_array($modes) && $modes !== [] ? $modes : ['all' => 'كلّ الشروط (AND)', 'any' => 'أيّ شرط (OR)'];
+        return is_array($modes) && $modes !== [] ? $modes : ['all' => setting('admin_dashboard.audience_segments.match_modes_1', 'كلّ الشروط (AND)'), 'any' => setting('admin_dashboard.audience_segments.match_modes_2', 'أيّ شرط (OR)')];
     }
 
     // ------------------------------------------------------------- القراءة والعرض
@@ -410,7 +410,7 @@ class AudienceSegments
             }
 
             if ($parts !== []) {
-                $glue = $group['match'] === 'any' ? ' أو ' : ' و';
+                $glue = $group['match'] === 'any' ? setting('admin_dashboard.audience_segments.summary_1', ' أو ') : ' و';
                 $groupTexts[] = implode($glue, $parts);
             }
         }
@@ -419,7 +419,7 @@ class AudienceSegments
             return (string) setting('admin.segments.summary_all', 'كلّ المستخدمين');
         }
 
-        $outer = $rule['match'] === 'any' ? ' — أو — ' : ' — و — ';
+        $outer = $rule['match'] === 'any' ? setting('admin_dashboard.audience_segments.summary_2', ' — أو — ') : ' — و — ';
 
         return implode($outer, array_map(
             fn ($text) => count($groupTexts) > 1 ? '('.$text.')' : $text,

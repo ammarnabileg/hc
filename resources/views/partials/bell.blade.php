@@ -9,18 +9,18 @@
 
 <div class="hidden absolute end-0 mt-2 w-[22rem] max-w-[92vw] modal-shell card z-50" data-bell-panel>
     <div class="modal-head px-4 py-3 flex items-center gap-2" style="border-bottom: 1px solid var(--border)">
-        <strong class="text-sm flex-1">الإشعارات</strong>
-        <button type="button" class="text-xs" style="color: var(--color-brand-500)" data-mark-all>تعليم الكلّ كمقروء</button>
+        <strong class="text-sm flex-1">{{ setting('notifications.bell.title', 'الإشعارات') }}</strong>
+        <button type="button" class="text-xs" style="color: var(--color-brand-500)" data-mark-all>{{ setting('notifications.bell.mark_all', 'تعليم الكلّ كمقروء') }}</button>
     </div>
 
     <div class="px-4 pt-3 flex gap-2">
         <button class="rounded-full px-3 py-1 text-xs" data-bell-tab="all"
-                style="background: var(--color-brand-500); color:#04201c">الكلّ</button>
+                style="background: var(--color-brand-500); color:#04201c">{{ setting('notifications.bell.tab_all', 'الكلّ') }}</button>
         <button class="rounded-full px-3 py-1 text-xs" data-bell-tab="platform"
-                style="background: var(--surface-sunken)">المنصّة</button>
+                style="background: var(--surface-sunken)">{{ setting('notifications.bell.tab_platform', 'المنصّة') }}</button>
         @volunteer
             <button class="rounded-full px-3 py-1 text-xs" data-bell-tab="volunteer"
-                    style="background: var(--surface-sunken)">التطوّع</button>
+                    style="background: var(--surface-sunken)">{{ setting('notifications.bell.tab_volunteer', 'التطوّع') }}</button>
         @endvolunteer
     </div>
 
@@ -40,7 +40,7 @@
                 @endif
             </a>
         @empty
-            <p class="text-sm text-center py-6" style="color: var(--text-muted)">مفيش إشعارات جديدة</p>
+            <p class="text-sm text-center py-6" style="color: var(--text-muted)">{{ setting('notifications.bell.empty', 'مفيش إشعارات جديدة') }}</p>
         @endforelse
     </div>
 </div>

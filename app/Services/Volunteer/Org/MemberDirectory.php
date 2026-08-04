@@ -144,10 +144,10 @@ final class MemberDirectory
         $rest = $months % 12;
 
         return match (true) {
-            $years > 0 && $rest > 0 => $years.' سنة و'.$rest.' شهر',
-            $years > 0 => $years.' سنة',
-            $months > 0 => $months.' شهر',
-            default => (int) $since->diffInDays(now()).' يوم',
+            $years > 0 && $rest > 0 => strtr(setting('volunteer_org.member_directory.service_duration_1', ':p1 سنة و:p2 شهر'), [':p1' => (string) ($years), ':p2' => (string) ($rest)]),
+            $years > 0 => strtr(setting('volunteer_org.member_directory.service_duration_2', ':p1 سنة'), [':p1' => (string) ($years)]),
+            $months > 0 => strtr(setting('volunteer_org.member_directory.service_duration_3', ':p1 شهر'), [':p1' => (string) ($months)]),
+            default => strtr(setting('volunteer_org.member_directory.service_duration_4', ':p1 يوم'), [':p1' => (string) ((int) $since->diffInDays(now()))]),
         };
     }
 

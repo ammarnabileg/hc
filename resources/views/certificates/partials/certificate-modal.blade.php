@@ -5,7 +5,7 @@
 
     // نصّ منشور لينكدإن جاهز وقابل للتعديل (21.1-أ)
     $shareText = str_replace(
-        ['[المسار]', '[الاسم]', '[الكود]'],
+        [(string) setting('certificates.modal.php_1', '[المسار]'), (string) setting('certificates.modal.php_2', '[الاسم]'), (string) setting('certificates.modal.php_3', '[الكود]')],
         [$data['certificate_name'] ?? ($type?->name_ar ?? ''), $data['holder_name'] ?? '', $certificate->code],
         (string) setting('growth.linkedin.share_text', 'أتممتُ [المسار] وحصلتُ على شهادة معتمدة.'),
     );

@@ -56,7 +56,7 @@ class VolunteerAdminController extends Controller
             'loads' => VolunteerAnalytics::loads()->take((int) setting('volunteer.admin.loads_preview', 5)),
             'page' => SettingsWriter::groupRows('volunteer_page'),
             'blocks' => self::blocks(),
-            'blockTypes' => self::BLOCK_TYPES,
+            'blockTypes' => self::blockTypes(),
             // 🔒 العنصر الشرفيّ: مجموعته تُحمَّل لمالك المنصّة وحده — والباقي لا يرى الحقول أصلًا
             'honorary' => $request->user()->isPlatformOwner() ? SettingsWriter::groupRows('volunteer_honorary') : [],
             'honoraryPlaces' => HonoraryElement::PLACES,
@@ -95,16 +95,26 @@ class VolunteerAdminController extends Controller
         SettingsWriter::putMany($settings, $request->user());
         AuditTrail::log($request->user(), 'honorary.settings.update', null, [], ['keys' => array_keys($settings)]);
 
-        return back()->with('status', 'اتحفظ ✓ — إعدادات العنصر الشرفيّ اتحدّثت.');
+        return back()->with('status', (string) setting('volunteer.admin.save_honorary_ok', 'اتحفظ ✓ — إعدادات العنصر الشرفيّ اتحدّثت.'));
     }
 
-    /** أنواع كتل صفحة التطوّع التعريفيّة (13.4-أ) */
-    public const BLOCK_TYPES = [
-        'faq' => 'سؤال شائع',
-        'story' => 'قصّة متطوّع',
-        'impact' => 'إبراز الأثر',
-        'section' => 'قسم حرّ',
-    ];
+    /** مفاتيح أنواع كتل صفحة التطوّع (13.4-أ) — مفاتيح داخليّة لا نصوصًا */
+    public const BLOCK_TYPE_KEYS = ['faq', 'story', 'impact', 'section'];
+
+    /**
+     * أسماء أنواع الكتل كما تُعرَض — ميثودٌ لا `const` كي يحرّرها المالك (2.13-أ).
+     *
+     * @return array<string, string>
+     */
+    public static function blockTypes(): array
+    {
+        return [
+            'faq' => (string) setting('volunteer.admin.block_type_faq', 'سؤال شائع'),
+            'story' => (string) setting('volunteer.admin.block_type_story', 'قصّة متطوّع'),
+            'impact' => (string) setting('volunteer.admin.block_type_impact', 'إبراز الأثر'),
+            'section' => (string) setting('volunteer.admin.block_type_section', 'قسم حرّ'),
+        ];
+    }
 
     /** حفظ حقول صفحة التطوّع (العنوان · الميثاق · الإحصائيّات …) */
     public function savePage(Request $request): RedirectResponse
@@ -115,7 +125,7 @@ class VolunteerAdminController extends Controller
 
         SettingsWriter::putMany($data['settings'], $request->user());
 
-        return back()->with('status', 'اتحفظ ✓ — محتوى صفحة التطوّع اتحدّث.');
+        return back()->with('status', (string) setting('volunteer.admin.save_page_ok', 'اتحفظ ✓ — محتوى صفحة التطوّع اتحدّث.'));
     }
 
     /** إضافة/تعديل كتلة محتوى — نفس المسار لأنّ الفرق مفتاح واحد */
@@ -123,7 +133,7 @@ class VolunteerAdminController extends Controller
     {
         $data = $request->validate([
             'index' => ['nullable', 'integer', 'min:0'],
-            'type' => ['required', 'string', 'in:'.implode(',', array_keys(self::BLOCK_TYPES))],
+            'type' => ['required', 'string', 'in:'.implode(',', self::BLOCK_TYPE_KEYS)],
             'title' => ['required', 'string', 'max:180'],
             'body' => ['required', 'string', 'max:4000'],
         ]);
@@ -135,10 +145,10 @@ class VolunteerAdminController extends Controller
 
         if ($index !== null && isset($blocks[$index])) {
             $blocks[$index] = $block;
-            $message = 'اتحفظ ✓ — الكتلة اتعدّلت.';
+            $message = (string) setting('volunteer.admin.save_block_ok', 'اتحفظ ✓ — الكتلة اتعدّلت.');
         } else {
             $blocks[] = $block;
-            $message = 'اتحفظ ✓ — الكتلة اتضافت.';
+            $message = (string) setting('volunteer.admin.save_block_ok_2', 'اتحفظ ✓ — الكتلة اتضافت.');
         }
 
         SettingsWriter::put('volunteer_page.blocks', array_values($blocks), $request->user());
@@ -153,13 +163,13 @@ class VolunteerAdminController extends Controller
         $blocks = self::blocks();
 
         if (! isset($blocks[$index])) {
-            return back()->with('status', 'الكتلة مش موجودة — يمكن اتحذفت قبل كده.');
+            return back()->with('status', (string) setting('volunteer.admin.delete_block_denied', 'الكتلة مش موجودة — يمكن اتحذفت قبل كده.'));
         }
 
         unset($blocks[$index]);
         SettingsWriter::put('volunteer_page.blocks', array_values($blocks), $request->user());
 
-        return back()->with('status', 'اتحذفت ✓');
+        return back()->with('status', (string) setting('volunteer.admin.delete_block_ok', 'اتحذفت ✓'));
     }
 
     // ------------------------------------------------------------ الشهادات (13.4-ع)
@@ -197,7 +207,7 @@ class VolunteerAdminController extends Controller
 
         SettingsWriter::putMany($data['settings'], $request->user());
 
-        return back()->with('status', 'اتحفظ ✓ — شروط شهادات التطوّع اتحدّثت.');
+        return back()->with('status', (string) setting('volunteer.admin.save_certificate_settings_ok', 'اتحفظ ✓ — شروط شهادات التطوّع اتحدّثت.'));
     }
 
     /** إصدار شهادة بوزشن — يحترم شرطَي المدّة وRep */
@@ -211,22 +221,22 @@ class VolunteerAdminController extends Controller
         $result = CertificateEligibility::issueForMembership($membership, $request->user());
 
         return back()->with('status', $result['issued']
-            ? 'صدرت الشهادة ✓ — واحتفال ذروة في انتظار صاحبها.'
-            : 'ما صدرتش: '.$result['reason']);
+            ? (string) setting('volunteer.admin.issue_certificate_ok', 'صدرت الشهادة ✓ — واحتفال ذروة في انتظار صاحبها.')
+            : strtr((string) setting('volunteer.admin.issue_certificate_msg', 'ما صدرتش: :a1'), [':a1' => (string) ($result['reason'])]));
     }
 
     /** الإصدار التلقائيّ لكلّ مستحقّ — واحتفال ذروة لكلّ صاحب شهادة (13.4-ع-د) */
     public function autoIssueCertificates(Request $request): RedirectResponse
     {
         if (! setting('volunteer_cert.auto_issue', true)) {
-            return back()->with('status', 'الإصدار التلقائيّ موقوف من الإعدادات — فعّله الأوّل.');
+            return back()->with('status', (string) setting('volunteer.admin.auto_issue_certificates_msg', 'الإصدار التلقائيّ موقوف من الإعدادات — فعّله الأوّل.'));
         }
 
         $count = CertificateEligibility::autoIssue($request->user());
 
         return back()->with('status', $count
-            ? 'صدرت '.$count.' شهادة ✓'
-            : 'مفيش مستحقّين جدد دلوقتي.');
+            ? strtr((string) setting('volunteer.admin.auto_issue_certificates_ok', 'صدرت :a1 شهادة ✓'), [':a1' => (string) ($count)])
+            : (string) setting('volunteer.admin.auto_issue_certificates_empty', 'مفيش مستحقّين جدد دلوقتي.'));
     }
 
     /** ⭐ الإلغاء للتزوير المثبَت وحده */
@@ -239,7 +249,7 @@ class VolunteerAdminController extends Controller
 
         CertificateEligibility::revoke($certificate, $data['reason'], $request->user());
 
-        return back()->with('status', 'اتلغت الشهادة وسُجِّل السبب — والإقصاء وحده لا يُلغي شهادة عن عمل حقيقيّ.');
+        return back()->with('status', (string) setting('volunteer.admin.revoke_certificate_msg', 'اتلغت الشهادة وسُجِّل السبب — والإقصاء وحده لا يُلغي شهادة عن عمل حقيقيّ.'));
     }
 
     // ------------------------------------------------------------ التحليلات
@@ -265,7 +275,7 @@ class VolunteerAdminController extends Controller
         $data = $request->validate(['settings' => ['required', 'array']]);
         SettingsWriter::putMany($data['settings'], $request->user());
 
-        return back()->with('status', 'اتحفظ ✓');
+        return back()->with('status', (string) setting('volunteer.admin.save_analytics_settings_ok', 'اتحفظ ✓'));
     }
 
     /** ↺ Reset لتاب كامل */
@@ -284,7 +294,7 @@ class VolunteerAdminController extends Controller
         $count = SettingsWriter::resetGroup($group, $request->user());
         AuditTrail::log($request->user(), 'settings.reset_group', null, [], ['group' => $group, 'count' => $count]);
 
-        return back()->with('status', 'رجعت '.$count.' قيمة للافتراضيّ ✓');
+        return back()->with('status', strtr((string) setting('volunteer.admin.reset_group_ok', 'رجعت :a1 قيمة للافتراضيّ ✓'), [':a1' => (string) ($count)]));
     }
 
     /**

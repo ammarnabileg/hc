@@ -1,3 +1,11 @@
+@php
+    /** نصوص السكربت — من الإعدادات لا محروقةً في الجافاسكربت (2.13-أ) */
+    $hcWords = array_merge($hcWords ?? [], [
+        'learning.lesson_view.js_1' => (string) setting('learning.lesson_view.js_1', 'اتحسبت المشاهدة ✓'),
+        'learning.lesson_view.js_2' => (string) setting('learning.lesson_view.js_2', 'المشاهدة: '),
+    ]);
+@endphp
+
 @extends('layouts.app')
 @section('title', $lesson->title_ar)
 
@@ -352,7 +360,7 @@
                     });
                     if (!res.ok) return;
                     const data = await res.json();
-                    if (note) note.textContent = data.watched ? 'اتحسبت المشاهدة ✓' : 'المشاهدة: ' + data.percent + '%';
+                    if (note) note.textContent = data.watched ? @json($hcWords['learning.lesson_view.js_1']) : @json($hcWords['learning.lesson_view.js_2']) + data.percent + '%';
                     if (data.watched) done = true;
                 } catch (e) { /* الشبكة اتقطعت — التقرير التالي يكمّل من مكانه */ }
             };

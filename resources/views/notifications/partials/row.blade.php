@@ -21,7 +21,7 @@
             @if ($isUnread)
                 {{-- نقطة «غير مقروء» — ومعها خلفيّة الصفّ فلا يحمل اللونُ المعنى وحده (2.16-ب) --}}
                 <span class="inline-block w-2 h-2 rounded-full shrink-0"
-                      style="background: var(--color-brand-500)" aria-label="غير مقروء"></span>
+                      style="background: var(--color-brand-500)" aria-label="{{ setting('notifications.row.aria_label_1', 'غير مقروء') }}"></span>
             @endif
             <span class="text-sm font-semibold truncate">{{ $notification->title }}</span>
         </div>
@@ -43,7 +43,7 @@
                     data-title="{{ $notification->title }}"
                     data-body="{{ $notification->body }}"
                     data-url="{{ $notification->url }}"
-                    data-action-label="{{ $actionLabel }}">التفاصيل</button>
+                    data-action-label="{{ $actionLabel }}">{{ setting('notifications.row.text_1', 'التفاصيل') }}</button>
         </div>
     </div>
 
@@ -59,7 +59,7 @@
             <form method="post" action="{{ route('notifications.read', $notification) }}" data-ajax-form>
                 @csrf
                 <button type="submit" class="btn rounded-xl px-3 py-1.5 text-xs motion-standard"
-                        style="background: var(--surface-raised); border: 1px solid var(--border)">تعليم كمقروء</button>
+                        style="background: var(--surface-raised); border: 1px solid var(--border)">{{ setting('notifications.row.text_2', 'تعليم كمقروء') }}</button>
             </form>
         @endif
     </div>

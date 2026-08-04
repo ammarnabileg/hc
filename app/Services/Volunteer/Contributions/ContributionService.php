@@ -65,16 +65,16 @@ class ContributionService
         $reasons = setting('workflow.review.return_reasons', []);
 
         return is_array($reasons) && $reasons !== [] ? $reasons : [
-            'quality_below' => 'جودة أقلّ من المطلوب',
-            'wrong_data' => 'خطأ في البيانات أو الأرقام',
-            'has_errors' => 'يحتوي على أخطاء',
-            'off_identity' => 'مخالف للهويّة',
-            'copied_or_generated' => 'منقول أو مُولَّد آليًّا بلا مراجعة',
-            'empty_or_dead_link' => 'تسليم فارغ أو رابط لا يفتح',
-            'wrong_format' => 'صيغة مخالفة',
-            'access_closed' => 'صلاحيّة الوصول مغلقة',
-            'out_of_scope' => 'خارج المطلوب',
-            'incomplete' => 'غير مكتمل',
+            'quality_below' => setting('workflow.contribution_service.return_reasons_1', 'جودة أقلّ من المطلوب'),
+            'wrong_data' => setting('workflow.contribution_service.return_reasons_2', 'خطأ في البيانات أو الأرقام'),
+            'has_errors' => setting('workflow.contribution_service.return_reasons_3', 'يحتوي على أخطاء'),
+            'off_identity' => setting('workflow.contribution_service.return_reasons_4', 'مخالف للهويّة'),
+            'copied_or_generated' => setting('workflow.contribution_service.return_reasons_5', 'منقول أو مُولَّد آليًّا بلا مراجعة'),
+            'empty_or_dead_link' => setting('workflow.contribution_service.return_reasons_6', 'تسليم فارغ أو رابط لا يفتح'),
+            'wrong_format' => setting('workflow.contribution_service.return_reasons_7', 'صيغة مخالفة'),
+            'access_closed' => setting('workflow.contribution_service.return_reasons_8', 'صلاحيّة الوصول مغلقة'),
+            'out_of_scope' => setting('workflow.contribution_service.return_reasons_9', 'خارج المطلوب'),
+            'incomplete' => setting('workflow.contribution_service.return_reasons_10', 'غير مكتمل'),
         ];
     }
 
@@ -165,14 +165,14 @@ class ContributionService
 
             // الرصيد المعلَّق يُخصَم لحظة الإرسال بموافقة المالك الصريحة
             if ($held > 0) {
-                FlowLedger::debitVxp($owner, $held, 'contribution.hold', $contribution, 'رصيد معلَّق لبند مساهمة', $owner->id);
+                FlowLedger::debitVxp($owner, $held, 'contribution.hold', $contribution, setting('workflow.contribution_service.invite_1', 'رصيد معلَّق لبند مساهمة'), $owner->id);
             }
 
             FlowNotifier::send(
                 $invitee,
                 'contribution',
-                'دعوة مساهمة: '.$contribution->item_title,
-                'عدم التسليم = '.rep_rule('task.contribution_no_delivery').' على درجة الالتزام، وعدم الردّ على تفتيش في مهلته مثله.',
+                strtr(setting('workflow.contribution_service.invite_2', 'دعوة مساهمة: :p1'), [':p1' => (string) ($contribution->item_title)]),
+                strtr(setting('workflow.contribution_service.invite_3', 'عدم التسليم = :p1 على درجة الالتزام، وعدم الردّ على تفتيش في مهلته مثله.'), [':p1' => (string) (rep_rule('task.contribution_no_delivery'))]),
                 route('volunteer.contributions'),
                 $deadline,
                 requiresAction: true,
@@ -188,7 +188,7 @@ class ContributionService
     /** القبول يفتح البند، والرفض يعيده بندًا شخصيًّا للمالك يدعو غيره */
     public function respond(TaskContribution $contribution, bool $accept): TaskContribution
     {
-        abort_unless($contribution->status === 'invited', 422, 'تمّ الردّ على هذه الدعوة بالفعل.');
+        abort_unless($contribution->status === 'invited', 422, setting('workflow.contribution_service.respond_1', 'تمّ الردّ على هذه الدعوة بالفعل.'));
 
         $contribution->forceFill([
             'status' => $accept ? 'accepted' : 'rejected',
@@ -202,7 +202,7 @@ class ContributionService
         FlowNotifier::send(
             User::query()->find($contribution->invited_by),
             'contribution',
-            ($accept ? 'قبل المساهمة: ' : 'اعتذر عن المساهمة: ').$contribution->item_title,
+            ($accept ? setting('workflow.contribution_service.respond_2', 'قبل المساهمة: ') : setting('workflow.contribution_service.respond_3', 'اعتذر عن المساهمة: ')).$contribution->item_title,
             null,
             route('volunteer.contributions'),
             about: $contribution,
@@ -260,7 +260,7 @@ class ContributionService
                         rep_rule('task.checkpoint_missed'),
                         'contribution.checkpoint_missed',
                         $contribution,
-                        'عدم الردّ على نقطة تفتيش في مهلتها',
+                        setting('workflow.contribution_service.run_missed_checkpoints_1', 'عدم الردّ على نقطة تفتيش في مهلتها'),
                     );
                 }
 
@@ -275,7 +275,7 @@ class ContributionService
     /** تسليم نهائيّ ⟵ تبدأ مهلة المالك، وبعدها اعتماد تلقائيّ */
     public function deliver(TaskContribution $contribution, array $data): TaskSubmission
     {
-        abort_unless(in_array($contribution->status, ['accepted', 'returned'], true), 422, 'البند غير مفتوح للتسليم.');
+        abort_unless(in_array($contribution->status, ['accepted', 'returned'], true), 422, setting('workflow.contribution_service.deliver_1', 'البند غير مفتوح للتسليم.'));
 
         return DB::transaction(function () use ($contribution, $data) {
             $version = (int) TaskSubmission::query()
@@ -302,8 +302,8 @@ class ContributionService
             FlowNotifier::send(
                 User::query()->find($contribution->invited_by),
                 'contribution',
-                'تسليم نهائيّ: '.$contribution->item_title,
-                'عندك '.$this->ownerReviewHours().' ساعة، وبعدها اعتماد تلقائيّ بنقاط المساهم كاملة.',
+                strtr(setting('workflow.contribution_service.deliver_2', 'تسليم نهائيّ: :p1'), [':p1' => (string) ($contribution->item_title)]),
+                strtr(setting('workflow.contribution_service.deliver_3', 'عندك :p1 ساعة، وبعدها اعتماد تلقائيّ بنقاط المساهم كاملة.'), [':p1' => (string) ($this->ownerReviewHours())]),
                 route('volunteer.reviews'),
                 $contribution->owner_review_due_at,
                 requiresAction: true,
@@ -340,15 +340,15 @@ class ContributionService
                     (float) $contribution->vxp_value,
                     'contribution.approved',
                     $contribution,
-                    $auto ? 'اعتماد تلقائيّ بفوات مهلة المالك — بنقاطك كاملة' : 'اعتماد المالك لبند المساهمة',
+                    $auto ? setting('workflow.contribution_service.approve_1', 'اعتماد تلقائيّ بفوات مهلة المالك — بنقاطك كاملة') : setting('workflow.contribution_service.approve_2', 'اعتماد المالك لبند المساهمة'),
                     $by?->id,
                 );
 
                 FlowNotifier::send(
                     $contributor,
                     'contribution',
-                    $auto ? 'اتعمد بندك تلقائيًّا ✓' : 'اتعمد بندك ✓',
-                    'نقاطك اتصرفت كاملة: '.$contribution->vxp_value.' VXP.',
+                    $auto ? setting('workflow.contribution_service.approve_3', 'اتعمد بندك تلقائيًّا ✓') : setting('workflow.contribution_service.approve_4', 'اتعمد بندك ✓'),
+                    strtr(setting('workflow.contribution_service.approve_5', 'نقاطك اتصرفت كاملة: :p1 VXP.'), [':p1' => (string) ($contribution->vxp_value)]),
                     route('volunteer.contributions'),
                     about: $contribution,
                 );
@@ -364,11 +364,11 @@ class ContributionService
         $reasons = $this->returnReasons();
 
         if (! array_key_exists($data['return_reason_code'] ?? '', $reasons)) {
-            throw ValidationException::withMessages(['return_reason_code' => 'اختر سبب الإرجاع من القائمة.']);
+            throw ValidationException::withMessages(['return_reason_code' => setting('workflow.contribution_service.return_item_1', 'اختر سبب الإرجاع من القائمة.')]);
         }
 
         if (trim((string) ($data['review_feedback'] ?? '')) === '') {
-            throw ValidationException::withMessages(['review_feedback' => 'الفيدباك المكتوب إجباريّ مع كلّ إرجاع.']);
+            throw ValidationException::withMessages(['review_feedback' => setting('workflow.contribution_service.return_item_2', 'الفيدباك المكتوب إجباريّ مع كلّ إرجاع.')]);
         }
 
         $fixHours = (float) ($data['fix_hours'] ?? setting('workflow.review.fix_hours', 24));
@@ -393,7 +393,7 @@ class ContributionService
         FlowNotifier::send(
             User::query()->find($contribution->contributor_id),
             'contribution',
-            'اترجّع بندك للإصلاح',
+            setting('workflow.contribution_service.return_item_3', 'اترجّع بندك للإصلاح'),
             $reasons[$data['return_reason_code']].' — '.$data['review_feedback'],
             route('volunteer.contributions'),
             now()->addMinutes((int) round($fixHours * 60)),
@@ -443,7 +443,7 @@ class ContributionService
                         rep_rule('task.contribution_no_delivery'),
                         'contribution.no_delivery',
                         $contribution,
-                        'فوات الديدلاين الداخليّ بلا تسليم',
+                        setting('workflow.contribution_service.run_missed_internal_deadlines_1', 'فوات الديدلاين الداخليّ بلا تسليم'),
                     );
                 }
 
@@ -487,14 +487,13 @@ class ContributionService
 
         if ($latest && $deadline->greaterThan($latest)) {
             throw ValidationException::withMessages([
-                'internal_deadline_at' => 'الديدلاين الداخليّ لازم يكون قبل ديدلاين المهمّة بـ'
-                    .$this->deadlineGapHours().' ساعة على الأقلّ — أقصى موعد: '.$latest->format('Y-m-d H:i').'.',
+                'internal_deadline_at' => strtr(setting('workflow.contribution_service.guard_internal_deadline_1', 'الديدلاين الداخليّ لازم يكون قبل ديدلاين المهمّة بـ:p1 ساعة على الأقلّ — أقصى موعد: :p2.'), [':p1' => (string) ($this->deadlineGapHours()), ':p2' => (string) ($latest->format('Y-m-d H:i'))]),
             ]);
         }
 
         if ($deadline->isPast()) {
             throw ValidationException::withMessages([
-                'internal_deadline_at' => 'اختر موعدًا في المستقبل — الموعد ده عدّى.',
+                'internal_deadline_at' => setting('workflow.contribution_service.guard_internal_deadline_2', 'اختر موعدًا في المستقبل — الموعد ده عدّى.'),
             ]);
         }
     }
@@ -503,14 +502,14 @@ class ContributionService
     {
         if (count($checkpoints) > $this->maxCheckpoints()) {
             throw ValidationException::withMessages([
-                'checkpoints' => 'نقاط التفتيش '.$this->maxCheckpoints().' كحدّ أقصى.',
+                'checkpoints' => strtr(setting('workflow.contribution_service.guard_checkpoints_1', 'نقاط التفتيش :p1 كحدّ أقصى.'), [':p1' => (string) ($this->maxCheckpoints())]),
             ]);
         }
 
         foreach ($checkpoints as $checkpoint) {
             if (CarbonImmutable::parse($checkpoint)->greaterThanOrEqualTo($deadline)) {
                 throw ValidationException::withMessages([
-                    'checkpoints' => 'نقطة التفتيش لازم تكون قبل الديدلاين الداخليّ.',
+                    'checkpoints' => setting('workflow.contribution_service.guard_checkpoints_2', 'نقطة التفتيش لازم تكون قبل الديدلاين الداخليّ.'),
                 ]);
             }
         }
@@ -529,7 +528,7 @@ class ContributionService
         if ($source === 'owner_balance') {
             if (FlowLedger::available() && FlowLedger::balance($owner) < $vxp) {
                 throw ValidationException::withMessages([
-                    'vxp_value' => 'رصيدك مايكفّيش القيمة دي — قلّلها أو خدها من وعاء المهمّة.',
+                    'vxp_value' => setting('workflow.contribution_service.guard_budget_1', 'رصيدك مايكفّيش القيمة دي — قلّلها أو خدها من وعاء المهمّة.'),
                 ]);
             }
 
@@ -549,7 +548,7 @@ class ContributionService
 
         if ($allocated + $vxp > $available) {
             throw ValidationException::withMessages([
-                'vxp_value' => 'وعاء المهمّة مايسمحش — المتاح للتوزيع '.$available.' VXP، ووزّعت منه '.$allocated.'.',
+                'vxp_value' => strtr(setting('workflow.contribution_service.guard_budget_2', 'وعاء المهمّة مايسمحش — المتاح للتوزيع :p1 VXP، ووزّعت منه :p2.'), [':p1' => (string) ($available), ':p2' => (string) ($allocated)]),
             ]);
         }
     }
@@ -565,7 +564,7 @@ class ContributionService
         $owner = User::query()->find($contribution->invited_by);
 
         if ($owner) {
-            FlowLedger::creditVxp($owner, $held, 'contribution.hold_released', $contribution, 'تحرير الرصيد المعلَّق', $owner->id);
+            FlowLedger::creditVxp($owner, $held, 'contribution.hold_released', $contribution, setting('workflow.contribution_service.release_hold_1', 'تحرير الرصيد المعلَّق'), $owner->id);
         }
 
         $contribution->forceFill(['held_amount' => 0])->save();

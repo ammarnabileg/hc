@@ -38,6 +38,6 @@
         {{-- «تمّ التعديل» — بالضغط بوب-أب بكلّ تعديلات هذا الحقل بعينه --}}
         <button type="button" data-build-edited data-key="{{ $key }}"
                 class="text-xs underline {{ $edits > 0 ? '' : 'hidden' }}"
-                style="color: var(--color-state-warn)">تمّ التعديل</button>
+                style="color: var(--color-state-warn)">{{ setting('volunteer.goals_build_field.action', 'تمّ التعديل') }}</button>
     </div>
 </div>

@@ -27,37 +27,37 @@ class RegistrationService
     public function register(Event $event, User $user, ?string $attendMode = null): array
     {
         if ($existing = $this->registrationFor($event, $user)) {
-            return $this->fail('إنت مسجّل في الفعاليّة دي بالفعل — تذكرتك تحت.', $existing);
+            return $this->fail(setting('events.registration_service.register_1', 'إنت مسجّل في الفعاليّة دي بالفعل — تذكرتك تحت.'), $existing);
         }
 
         if ($this->presenter->hasEnded($event)) {
-            return $this->fail('الفعاليّة دي خلصت. شوف تسجيلها أو اختار فعاليّة قادمة.');
+            return $this->fail(setting('events.registration_service.register_2', 'الفعاليّة دي خلصت. شوف تسجيلها أو اختار فعاليّة قادمة.'));
         }
 
         if ($this->presenter->isFull($event)) {
-            return $this->fail('اكتمل العدد في الفعاليّة دي. تابع الصفحة — بننزل مواعيد جديدة باستمرار.');
+            return $this->fail(setting('events.registration_service.register_3', 'اكتمل العدد في الفعاليّة دي. تابع الصفحة — بننزل مواعيد جديدة باستمرار.'));
         }
 
         // الهجين: المستخدم يختار نمط الحضور عند التسجيل (13.3)
         if ($event->mode === 'hybrid' && ! in_array($attendMode, ['online', 'offline'], true)) {
-            return $this->fail('اختار نمط الحضور الأوّل: أونلاين ولّا حضور بالمكان.');
+            return $this->fail(setting('events.registration_service.register_4', 'اختار نمط الحضور الأوّل: أونلاين ولّا حضور بالمكان.'));
         }
 
         $mode = $event->mode === 'hybrid' ? $attendMode : $event->mode;
         $coins = (float) $event->price_coins;
         $tickets = (float) $event->price_tickets;
 
-        if ($coins > 0 && ! $this->ledger->debit($user, 'coins', $coins, 'event', 'تسجيل في فعاليّة', $event)) {
-            return $this->fail('رصيد الكوينز مش كفاية للتسجيل. اشحن محفظتك وجرّب تاني.');
+        if ($coins > 0 && ! $this->ledger->debit($user, 'coins', $coins, 'event', setting('events.registration_service.register_5', 'تسجيل في فعاليّة'), $event)) {
+            return $this->fail(setting('events.registration_service.register_6', 'رصيد الكوينز مش كفاية للتسجيل. اشحن محفظتك وجرّب تاني.'));
         }
 
-        if ($tickets > 0 && ! $this->ledger->debit($user, 'tickets', $tickets, 'event', 'تسجيل في فعاليّة', $event)) {
+        if ($tickets > 0 && ! $this->ledger->debit($user, 'tickets', $tickets, 'event', setting('events.registration_service.register_7', 'تسجيل في فعاليّة'), $event)) {
             // إرجاع الكوينز فورًا لأنّ التسجيل لم يكتمل
             if ($coins > 0) {
-                $this->ledger->credit($user, 'coins', $coins, 'event', 'إلغاء خصم تسجيل لم يكتمل', $event);
+                $this->ledger->credit($user, 'coins', $coins, 'event', setting('events.registration_service.register_8', 'إلغاء خصم تسجيل لم يكتمل'), $event);
             }
 
-            return $this->fail('رصيد التذاكر مش كفاية للتسجيل. اشحن محفظتك وجرّب تاني.');
+            return $this->fail(setting('events.registration_service.register_9', 'رصيد التذاكر مش كفاية للتسجيل. اشحن محفظتك وجرّب تاني.'));
         }
 
         try {
@@ -69,14 +69,14 @@ class RegistrationService
             ]));
         } catch (QueryException) {
             // القيد الفريد (event_id,user_id) هو الحارس الأخير ضدّ التسجيل المكرَّر
-            return $this->fail('إنت مسجّل في الفعاليّة دي بالفعل — تذكرتك تحت.', $this->registrationFor($event, $user));
+            return $this->fail(setting('events.registration_service.register_10', 'إنت مسجّل في الفعاليّة دي بالفعل — تذكرتك تحت.'), $this->registrationFor($event, $user));
         }
 
         $this->tracker->record('event_register', $event, $user->id);
 
         return [
             'ok' => true,
-            'message' => 'تمّ تسجيلك ✓ — تذكرتك جاهزة وتقدر تشاركها.',
+            'message' => setting('events.registration_service.register_11', 'تمّ تسجيلك ✓ — تذكرتك جاهزة وتقدر تشاركها.'),
             'registration' => $registration,
         ];
     }

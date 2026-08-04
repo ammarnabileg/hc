@@ -54,7 +54,7 @@ class ChampionService
     /** بيان معيار الحسم — يُعرَض نصًّا في الشاشة كي لا يكون الترتيب صندوقًا أسود */
     public function criteriaStatement(): string
     {
-        return 'معدّل Rep آخر '.$this->windowDays().' يومًا، وعند التعادل معدّل زيادة VXP آخر '.$this->windowDays().' يومًا.';
+        return strtr(setting('goals.champion_service.criteria_statement_1', 'معدّل Rep آخر :p1 يومًا، وعند التعادل معدّل زيادة VXP آخر :p2 يومًا.'), [':p1' => (string) ($this->windowDays()), ':p2' => (string) ($this->windowDays())]);
     }
 
     /**

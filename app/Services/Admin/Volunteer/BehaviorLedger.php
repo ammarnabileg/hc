@@ -87,7 +87,7 @@ class BehaviorLedger
         $minChars = (int) setting('rep.behavior.justification_min_chars', 10);
 
         if (mb_strlen(trim($justification)) < $minChars) {
-            throw new RuntimeException('المبرّر إلزاميّ — اكتب سببًا واضحًا لا يقلّ عن '.$minChars.' حرفًا.');
+            throw new RuntimeException(strtr(setting('volunteer_rep.behavior_ledger.record_1', 'المبرّر إلزاميّ — اكتب سببًا واضحًا لا يقلّ عن :p1 حرفًا.'), [':p1' => (string) ($minChars)]));
         }
 
         $guard = app(BehaviorGuard::class);
@@ -102,7 +102,7 @@ class BehaviorLedger
         $remaining = self::remainingQuota($granter);
 
         if ($remaining !== null && $remaining <= 0) {
-            throw new RuntimeException('وصلت للسقف الشهريّ ('.self::monthlyCap().' معاملات). تقدر تكمّل الشهر الجاي أو ترفع الأمر لمستوى أعلى.');
+            throw new RuntimeException(strtr(setting('volunteer_rep.behavior_ledger.record_2', 'وصلت للسقف الشهريّ (:p1 معاملات). تقدر تكمّل الشهر الجاي أو ترفع الأمر لمستوى أعلى.'), [':p1' => (string) (self::monthlyCap())]));
         }
 
         // القيمتان لا غيرهما: تنبيه (−0.5) وجسيمة (−1) — تُقرآن من جدول Rep
@@ -143,7 +143,7 @@ class BehaviorLedger
 
             // إشعار فوريّ للعضو بالنوع والمبرّر — لا مفاجآت (13.4-ن-هـ)
             Integrations::notify(
-                $target, 'objection', 'معاملة سلوك على درجة الالتزام',
+                $target, 'objection', setting('volunteer_rep.behavior_ledger.record_3', 'معاملة سلوك على درجة الالتزام'),
                 $violation->label_ar.' — '.$record->justification, null, 'volunteer',
             );
         }
@@ -178,7 +178,7 @@ class BehaviorLedger
 
         // فاتت النافذة وتسوّت الحالة آليًّا ⟵ رفض، ولا تُطبَّق مهما تأخّر الزرّ
         if ($case) {
-            self::rejectPending($record, 'فاتت نافذة الاعتماد وتسوّت الحالة آليًّا بالرفض.');
+            self::rejectPending($record, setting('volunteer_rep.behavior_ledger.approve_1', 'فاتت نافذة الاعتماد وتسوّت الحالة آليًّا بالرفض.'));
 
             return;
         }
@@ -207,7 +207,7 @@ class BehaviorLedger
             'transaction_id' => $transaction?->id,
         ])->save();
 
-        Integrations::notify($target, 'objection', 'اعتُمدت معاملة سلوك على درجة الالتزام', $record->justification, null, 'volunteer');
+        Integrations::notify($target, 'objection', setting('volunteer_rep.behavior_ledger.apply_pending_1', 'اعتُمدت معاملة سلوك على درجة الالتزام'), $record->justification, null, 'volunteer');
 
         AuditTrail::log($approver, 'behavior.approve', $record, [], ['id' => $record->id]);
     }
@@ -224,7 +224,7 @@ class BehaviorLedger
         $target = $record->user()->first();
 
         if ($target) {
-            Integrations::notify($target, 'objection', 'اتقفلت معاملة سلوك بلا أثر على درجة الالتزام', $reason, null, 'volunteer');
+            Integrations::notify($target, 'objection', setting('volunteer_rep.behavior_ledger.reject_pending_1', 'اتقفلت معاملة سلوك بلا أثر على درجة الالتزام'), $reason, null, 'volunteer');
         }
 
         AuditTrail::log(null, 'behavior.reject', $record, [], ['id' => $record->id, 'reason' => $reason]);

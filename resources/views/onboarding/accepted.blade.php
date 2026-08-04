@@ -24,7 +24,7 @@
         <h1 class="text-2xl font-extrabold">{{ setting('onboarding.accepted.title', 'تمّ قبول حسابك 🎉') }}</h1>
 
         {{-- ★ رمز مع اللون — فاللون وحده لا يحمل المعنى (2.16) --}}
-        <p class="mt-2 text-sm" style="color: var(--color-state-honor)">★ {{ auth()->user()->shortName() }}، أهلًا بيك.</p>
+        <p class="mt-2 text-sm" style="color: var(--color-state-honor)">★ {{ auth()->user()->shortName() }}، {{ setting('onboarding.accepted.text_1', 'أهلًا بيك.') }}</p>
 
         <div class="mt-4 text-sm text-start prose-onboarding" style="line-height: 1.9">
             {!! setting('onboarding.accepted.html', '') !!}

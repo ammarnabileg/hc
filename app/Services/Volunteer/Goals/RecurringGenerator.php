@@ -125,8 +125,8 @@ class RecurringGenerator
             Integrations::notify(
                 user: $owner,
                 category: 'task',
-                title: 'نوبتك من «'.$item->name.'» جاهزة',
-                body: $byBalancer ? 'وُجِّهت إليك لأنّك الأقلّ حملًا حاليًّا.' : null,
+                title: strtr(setting('goals.recurring_generator.generate_1', 'نوبتك من «:p1» جاهزة'), [':p1' => (string) ($item->name)]),
+                body: $byBalancer ? setting('goals.recurring_generator.generate_2', 'وُجِّهت إليك لأنّك الأقلّ حملًا حاليًّا.') : null,
                 url: route('volunteer.recurring'),
                 deadlineAt: $task->deadline_at,
                 requiresAction: true,
@@ -252,7 +252,7 @@ class RecurringGenerator
              | فتح حالة، فتبقى المهمّة بلا مالك جديد ولا إغلاق. والمسحة نفسها
              | تحرس تكرار الخصم بمفتاح واقعته.
              */
-            if (app(NoDeliverySweeper::class)->miss($task, 'بند متكرّر فائت: '.$item->name)) {
+            if (app(NoDeliverySweeper::class)->miss($task, strtr(setting('goals.recurring_generator.mark_missed_1', 'بند متكرّر فائت: :p1'), [':p1' => (string) ($item->name)]))) {
                 $missed++;
             }
 

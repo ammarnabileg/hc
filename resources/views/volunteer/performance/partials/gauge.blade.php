@@ -30,7 +30,7 @@
 
 <div class="card p-4 text-center">
     <svg viewBox="0 0 {{ $w }} {{ $h }}" class="w-full max-w-xs mx-auto" style="height: {{ $h }}px"
-         role="img" aria-label="درجة الالتزام {{ $score }} من {{ $max }}">
+         role="img" aria-label="{{ setting('volunteer.performance_gauge.aria', 'درجة الالتزام') }} {{ $score }} {{ setting('volunteer.common.from', 'من') }} {{ $max }}">
         {{-- القوس الخلفيّ --}}
         <path d="M {{ $sx }} {{ $sy }} A {{ $r }} {{ $r }} 0 0 1 {{ $ex }} {{ $ey }}"
               fill="none" stroke="var(--surface-sunken)" stroke-width="14" stroke-linecap="round" />

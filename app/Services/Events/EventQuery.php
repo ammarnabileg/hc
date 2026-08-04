@@ -146,6 +146,6 @@ class EventQuery
     /** أسماء أيّام الأسبوع بترتيب الشبكة (السبت ← الجمعة) */
     public function weekdays(): array
     {
-        return ['السبت', 'الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة'];
+        return [setting('events.event_query.weekdays_1', 'السبت'), setting('events.event_query.weekdays_2', 'الأحد'), setting('events.event_query.weekdays_3', 'الاثنين'), setting('events.event_query.weekdays_4', 'الثلاثاء'), setting('events.event_query.weekdays_5', 'الأربعاء'), setting('events.event_query.weekdays_6', 'الخميس'), setting('events.event_query.weekdays_7', 'الجمعة')];
     }
 }

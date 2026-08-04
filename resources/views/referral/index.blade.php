@@ -1,6 +1,6 @@
 @extends('layouts.app')
-@section('title', 'ادعُ أصدقاءك')
-@section('meta_description', 'ادعُ أصدقاءك واكسب عمولة على شحناتهم — ولصاحبك تذكرة ترحيب.')
+@section('title', (string) setting('referral.index.section_1', 'ادعُ أصدقاءك'))
+@section('meta_description', (string) setting('referral.index.section_2', 'ادعُ أصدقاءك واكسب عمولة على شحناتهم — ولصاحبك تذكرة ترحيب.'))
 
 @section('content')
     @php
@@ -8,20 +8,20 @@
         $welcomeTickets = (int) setting('referral.welcome_tickets', 1);
     @endphp
 
-    <x-page-header title="ادعُ أصدقاءك"
-                   subtitle="كلّ صاحب تجيبه ليه تذكرة ترحيب، وليك عمولة على شحناته."
-                   :breadcrumbs="[['label' => 'الرئيسيّة', 'url' => route('dashboard')], ['label' => 'ادعُ أصدقاءك']]">
+    <x-page-header title="{{ setting('referral.index.title_1', 'ادعُ أصدقاءك') }}"
+                   subtitle="{{ setting('referral.index.subtitle_1', 'كلّ صاحب تجيبه ليه تذكرة ترحيب، وليك عمولة على شحناته.') }}"
+                   :breadcrumbs="[['label' => (string) setting('referral.index.breadcrumbs_1', 'الرئيسيّة'), 'url' => route('dashboard')], ['label' => (string) setting('referral.index.breadcrumbs_2', 'ادعُ أصدقاءك')]]">
         <x-slot:action>
-            @include('events.components.copy', ['text' => $link, 'label' => 'نسخ رابط الدعوة'])
+            @include('events.components.copy', ['text' => $link, 'label' => (string) setting('referral.index.include_1', 'نسخ رابط الدعوة')])
         </x-slot:action>
     </x-page-header>
 
     {{-- الصفحة اللي اتدعيت ليها تُفتَح لك بعد التسجيل (21.1-ج) --}}
     @if ($landingUrl)
         <div class="card p-4 mb-4 flex flex-wrap items-center justify-between gap-3">
-            <span class="text-sm">اتدعيت لـ«{{ $landingLabel ?? 'صفحة معيّنة' }}» — نكمّل من هناك؟</span>
+            <span class="text-sm">{{ strtr((string) setting('referral.index.text_1', 'اتدعيت لـ«:page» — نكمّل من هناك؟'), [':page' => (string) ($landingLabel ?? setting('referral.index.expr_1', 'صفحة معيّنة'))]) }}</span>
             <a href="{{ $landingUrl }}" class="btn rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
-               style="background: var(--color-brand-500); color: #04201c">افتح الصفحة</a>
+               style="background: var(--color-brand-500); color: #04201c">{{ setting('referral.index.text_3', 'افتح الصفحة') }}</a>
         </div>
     @endif
 
@@ -55,16 +55,16 @@
     <div class="card p-5 mb-4">
         <div class="flex flex-wrap items-start justify-between gap-4">
             <div class="min-w-0">
-                <div class="text-xs mb-1" style="color: var(--text-muted)">رابط دعوتك الخاصّ</div>
+                <div class="text-xs mb-1" style="color: var(--text-muted)">{{ setting('referral.index.text_4', 'رابط دعوتك الخاصّ') }}</div>
                 <div class="rounded-xl px-3 py-2 text-sm break-all" style="background: var(--surface-sunken)">{{ $link }}</div>
 
                 <div class="flex flex-wrap gap-2 mt-3">
-                    @include('events.components.copy', ['text' => $link, 'label' => 'نسخ'])
+                    @include('events.components.copy', ['text' => $link, 'label' => (string) setting('referral.index.include_2', 'نسخ')])
 
                     <a href="https://wa.me/?text={{ urlencode($shareText) }}" target="_blank" rel="noopener"
                        class="btn inline-flex items-center gap-1 rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
                        style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
-                        @include('events.components.icon', ['name' => 'share']) واتساب
+                        @include('events.components.icon', ['name' => 'share']) {{ setting('referral.index.text_5', 'واتساب') }}
                     </a>
 
                     {{-- ⭐ فيسبوك كان غائبًا من قائمة المشاركة رغم نصّ 7.6.2 --}}
@@ -88,11 +88,11 @@
 
     {{-- أربعة كروت KPI بحدّ أقصى (2.15-أ-3) --}}
     <div class="grid gap-3 grid-cols-2 lg:grid-cols-4 mb-4">
-        <x-kpi label="المدعوّون" :value="$stats['invited']" icon="people" />
-        <x-kpi label="أتمّوا التفعيل" :value="$stats['completed']" icon="check" />
-        <x-kpi label="في الانتظار" :value="$stats['pending']" icon="hourglass" />
-        <x-kpi label="العمولة المكتسبة" :value="$stats['commission']" icon="money"
-               :hint="'نسبتك '.$stats['percent'].'% مدى الحياة'" />
+        <x-kpi label="{{ setting('referral.index.label_1', 'المدعوّون') }}" :value="$stats['invited']" icon="people" />
+        <x-kpi label="{{ setting('referral.index.label_2', 'أتمّوا التفعيل') }}" :value="$stats['completed']" icon="check" />
+        <x-kpi label="{{ setting('referral.index.label_3', 'في الانتظار') }}" :value="$stats['pending']" icon="hourglass" />
+        <x-kpi label="{{ setting('referral.index.label_4', 'العمولة المكتسبة') }}" :value="$stats['commission']" icon="money"
+               :hint="strtr((string) setting('referral.index.hint_1', 'نسبتك :a1% مدى الحياة'), [':a1' => (string) ($stats['percent'])])" />
     </div>
 
     {{-- ⭐ الآلة الحاسبة التفاعليّة — «قلب التفاعل» (7.6.2) --}}
@@ -107,16 +107,16 @@
     {{-- ⭐ رابط دعوة لكلّ محتوى (Deep link) — 21.1-ج --}}
     @if ($deepLinks)
         <div class="card p-5 mb-4">
-            <h2 class="font-bold mb-1">ادعُ صديقك لمحتوى بعينه</h2>
+            <h2 class="font-bold mb-1">{{ setting('referral.index.text_6', 'ادعُ صديقك لمحتوى بعينه') }}</h2>
             <p class="text-xs mb-3" style="color: var(--text-muted)">
-                الرابط ده بيفتح الصفحة نفسها لصاحبك بعد ما يسجّل — ولصاحبك {{ $welcomeTickets }} تذكرة ترحيب.
+                {{ strtr((string) setting('referral.index.text_7', 'الرابط ده بيفتح الصفحة نفسها لصاحبك بعد ما يسجّل — ولصاحبك :a1 تذكرة ترحيب.'), [':a1' => (string) ($welcomeTickets)]) }}
             </p>
 
             <ul class="space-y-2">
                 @foreach ($deepLinks as $deep)
                     <li class="flex flex-wrap items-center justify-between gap-2 rounded-xl px-3 py-2" style="background: var(--surface-sunken)">
                         <span class="text-sm min-w-0 truncate">{{ $deep['label'] }}</span>
-                        @include('events.components.copy', ['text' => $deep['url'], 'label' => 'نسخ الرابط', 'tone' => 'ghost'])
+                        @include('events.components.copy', ['text' => $deep['url'], 'label' => (string) setting('referral.index.include_3', 'نسخ الرابط'), 'tone' => 'ghost'])
                     </li>
                 @endforeach
             </ul>
@@ -153,17 +153,17 @@
     </form>
 
     @if ($invited->isEmpty())
-        <x-empty message="ابدأ بدعوة أوّل صديق — الرابط جاهز فوق." action="افتح الفعاليّات" :href="route('events.index')" />
+        <x-empty message="{{ setting('referral.index.message_1', 'ابدأ بدعوة أوّل صديق — الرابط جاهز فوق.') }}" action="{{ setting('referral.index.action_1', 'افتح الفعاليّات') }}" :href="route('events.index')" />
     @else
         {{-- ديسكتوب: جدول بأعمدة محدودة (2.15-أ-5) --}}
         <div class="card overflow-hidden hidden md:block">
             <table class="w-full text-sm">
                 <thead>
                     <tr style="background: var(--surface-sunken); color: var(--text-muted)">
-                        <th class="text-start px-4 py-3 font-medium">مَن انضمّ</th>
-                        <th class="text-start px-4 py-3 font-medium">التاريخ</th>
-                        <th class="text-start px-4 py-3 font-medium">الحالة</th>
-                        <th class="text-start px-4 py-3 font-medium">العمولة</th>
+                        <th class="text-start px-4 py-3 font-medium">{{ setting('referral.index.text_8', 'مَن انضمّ') }}</th>
+                        <th class="text-start px-4 py-3 font-medium">{{ setting('referral.index.text_9', 'التاريخ') }}</th>
+                        <th class="text-start px-4 py-3 font-medium">{{ setting('referral.index.text_10', 'الحالة') }}</th>
+                        <th class="text-start px-4 py-3 font-medium">{{ setting('referral.index.text_11', 'العمولة') }}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -173,7 +173,7 @@
                             <td class="px-4 py-3">
                                 <span class="flex items-center gap-2">
                                     <x-avatar :user="$referral->referred" size="8" />
-                                    <span>{{ $referral->referred?->shortName() ?? 'حساب غير مكتمل' }}</span>
+                                    <span>{{ $referral->referred?->shortName() ?? (string) setting('referral.index.expr_2', 'حساب غير مكتمل') }}</span>
                                 </span>
                             </td>
                             <td class="px-4 py-3" style="color: var(--text-muted)" title="{{ $referral->created_at?->format('Y-m-d H:i') }}">
@@ -195,7 +195,7 @@
                     <span class="flex items-center gap-2 min-w-0">
                         <x-avatar :user="$referral->referred" size="9" />
                         <span class="min-w-0">
-                            <span class="block text-sm truncate">{{ $referral->referred?->shortName() ?? 'حساب غير مكتمل' }}</span>
+                            <span class="block text-sm truncate">{{ $referral->referred?->shortName() ?? (string) setting('referral.index.expr_3', 'حساب غير مكتمل') }}</span>
                             <span class="block text-xs" style="color: var(--text-muted)">{{ $referral->created_at?->diffForHumans() }}</span>
                         </span>
                     </span>
@@ -210,5 +210,5 @@
 @endsection
 
 @section('mobile_action')
-    @include('events.components.copy', ['text' => $link, 'label' => 'نسخ رابط الدعوة'])
+    @include('events.components.copy', ['text' => $link, 'label' => (string) setting('referral.index.include_4', 'نسخ رابط الدعوة')])
 @endsection

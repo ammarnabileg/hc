@@ -23,7 +23,7 @@ class SvgChart
     public function line(array $series, array $compare = [], int $height = 160): HtmlString
     {
         if ($series === []) {
-            return $this->emptyBox('لا بيانات في هذه الفترة');
+            return $this->emptyBox(setting('stats.svg_chart.line_1', 'لا بيانات في هذه الفترة'));
         }
 
         $w = 600;
@@ -40,11 +40,7 @@ class SvgChart
             $grid .= '<line x1="'.$pad.'" y1="'.round($y, 1).'" x2="'.($w - $pad).'" y2="'.round($y, 1).'" stroke="currentColor" stroke-opacity=".12" />';
         }
 
-        $svg = '<svg viewBox="0 0 '.$w.' '.$h.'" style="width:100%;height:auto" role="img" aria-label="رسم خطّيّ">'
-            .$grid
-            .($comparePath ? '<polyline points="'.$comparePath.'" fill="none" stroke="currentColor" stroke-opacity=".35" stroke-dasharray="5 4" stroke-width="2" />' : '')
-            .'<polyline points="'.$path.'" fill="none" stroke="var(--color-brand-500)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" />'
-            .'</svg>';
+        $svg = strtr(setting('stats.svg_chart.line_2', '<svg viewBox="0 0 :p1 :p2" style="width:100%;height:auto" role="img" aria-label="رسم خطّيّ">:p3:p4<polyline points=":p5" fill="none" stroke="var(--color-brand-500)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" /></svg>'), [':p1' => (string) ($w), ':p2' => (string) ($h), ':p3' => (string) ($grid), ':p4' => (string) (($comparePath ? '<polyline points="'.$comparePath.'" fill="none" stroke="currentColor" stroke-opacity=".35" stroke-dasharray="5 4" stroke-width="2" />' : '')), ':p5' => (string) ($path)]);
 
         return new HtmlString($svg);
     }
@@ -59,7 +55,7 @@ class SvgChart
         $rows = array_slice($rows, 0, $limit);
 
         if ($rows === []) {
-            return $this->emptyBox('لا بيانات في هذه الفترة');
+            return $this->emptyBox(setting('stats.svg_chart.bars_1', 'لا بيانات في هذه الفترة'));
         }
 
         $max = max(1, max(array_map(fn ($r) => (float) $r['value'], $rows)));
@@ -79,7 +75,7 @@ class SvgChart
                 .e($this->number($row['value'])).'</text>';
         }
 
-        return new HtmlString('<svg viewBox="0 0 '.$w.' '.$h.'" style="width:100%;height:auto" role="img" aria-label="أعمدة">'.$body.'</svg>');
+        return new HtmlString(strtr(setting('stats.svg_chart.bars_2', '<svg viewBox="0 0 :p1 :p2" style="width:100%;height:auto" role="img" aria-label="أعمدة">:p3</svg>'), [':p1' => (string) ($w), ':p2' => (string) ($h), ':p3' => (string) ($body)]));
     }
 
     /**
@@ -90,7 +86,7 @@ class SvgChart
     public function funnel(array $stages): HtmlString
     {
         if ($stages === []) {
-            return $this->emptyBox('لا بيانات في هذه الفترة');
+            return $this->emptyBox(setting('stats.svg_chart.funnel_1', 'لا بيانات في هذه الفترة'));
         }
 
         $w = 600;
@@ -112,13 +108,13 @@ class SvgChart
                 .'<text x="'.($w - 4).'" y="'.($y + 18).'" text-anchor="end" font-size="12" fill="currentColor">'.e($stage['label']).'</text>'
                 .'<text x="'.($w - 196 - $barW).'" y="'.($y + 18).'" text-anchor="end" font-size="11" fill="currentColor" fill-opacity=".75">'
                 .e($this->number($stage['value']).' · '.round($ratio * 100, 1).'%')
-                .($drop !== null && $drop > 0 ? e(' · تسرّب '.$drop.'%') : '')
+                .($drop !== null && $drop > 0 ? e(strtr(setting('stats.svg_chart.funnel_2', ' · تسرّب :p1%'), [':p1' => (string) ($drop)])) : '')
                 .'</text>';
 
             $previous = (float) $stage['value'];
         }
 
-        return new HtmlString('<svg viewBox="0 0 '.$w.' '.$h.'" style="width:100%;height:auto" role="img" aria-label="قمع تحويل">'.$body.'</svg>');
+        return new HtmlString(strtr(setting('stats.svg_chart.funnel_3', '<svg viewBox="0 0 :p1 :p2" style="width:100%;height:auto" role="img" aria-label="قمع تحويل">:p3</svg>'), [':p1' => (string) ($w), ':p2' => (string) ($h), ':p3' => (string) ($body)]));
     }
 
     /**
@@ -131,7 +127,7 @@ class SvgChart
     public function heatmap(array $matrix, array $rowLabels, array $colLabels): HtmlString
     {
         if ($matrix === []) {
-            return $this->emptyBox('لا بيانات في هذه الفترة');
+            return $this->emptyBox(setting('stats.svg_chart.heatmap_1', 'لا بيانات في هذه الفترة'));
         }
 
         $cell = 22;
@@ -169,7 +165,7 @@ class SvgChart
             }
         }
 
-        return new HtmlString('<svg viewBox="0 0 '.$w.' '.$h.'" style="width:100%;height:auto" role="img" aria-label="خريطة حراريّة">'.$body.'</svg>');
+        return new HtmlString(strtr(setting('stats.svg_chart.heatmap_2', '<svg viewBox="0 0 :p1 :p2" style="width:100%;height:auto" role="img" aria-label="خريطة حراريّة">:p3</svg>'), [':p1' => (string) ($w), ':p2' => (string) ($h), ':p3' => (string) ($body)]));
     }
 
     // ------------------------------------------------------------------ داخليّ
@@ -191,7 +187,7 @@ class SvgChart
     private function number(float $value): string
     {
         return $value >= 1000
-            ? rtrim(rtrim(number_format($value / 1000, 1, '.', ''), '0'), '.').' ألف'
+            ? strtr(setting('stats.svg_chart.number_1', ':p1 ألف'), [':p1' => (string) (rtrim(rtrim(number_format($value / 1000, 1, '.', ''), '0'), '.'))])
             : rtrim(rtrim(number_format($value, 2, '.', ''), '0'), '.');
     }
 

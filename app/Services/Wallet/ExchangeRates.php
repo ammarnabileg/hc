@@ -20,11 +20,14 @@ class ExchangeRates
     public const BASE = 'coins';
 
     /** مفاتيح الأسعار الثلاثة كما تظهر في شاشة الإدارة */
-    public const KEYS = [
-        'finance.rates.usd_to_coins' => ['label' => '1$ = كام كوين', 'default' => '50'],
-        'finance.rates.ticket_to_coins' => ['label' => '1 تذكرة = كام كوين', 'default' => '10'],
-        'finance.rates.ticket_to_xp' => ['label' => '1 تذكرة = كام XP', 'default' => '300'],
-    ];
+    public static function keys(): array
+    {
+        return [
+            'finance.rates.usd_to_coins' => ['label' => setting('wallet.exchange_rates.keys_1', '1$ = كام كوين'), 'default' => '50'],
+            'finance.rates.ticket_to_coins' => ['label' => setting('wallet.exchange_rates.keys_2', '1 تذكرة = كام كوين'), 'default' => '10'],
+            'finance.rates.ticket_to_xp' => ['label' => setting('wallet.exchange_rates.keys_3', '1 تذكرة = كام XP'), 'default' => '300'],
+        ];
+    }
 
     /** كم كوينًا يساوي الدولار الواحد */
     public function usdToCoins(): float
@@ -56,7 +59,7 @@ class ExchangeRates
             'tickets' => $this->ticketToCoins(),
             // 1 تذكرة = 10 كوينز = 300 XP ⟵ فالـXP الواحدة = 10/300 كوين
             'xp' => $this->ticketToCoins() / $this->ticketToXp(),
-            default => throw new RuntimeException('العملة «'.$code.'» مالهاش سعر صرف معتمَد.'),
+            default => throw new RuntimeException(strtr(setting('wallet.exchange_rates.unit_in_coins_1', 'العملة «:p1» مالهاش سعر صرف معتمَد.'), [':p1' => (string) ($code)])),
         };
     }
 
@@ -80,9 +83,9 @@ class ExchangeRates
     public function table(): array
     {
         return [
-            ['label' => 'الدولار', 'value' => '1$ = '.$this->number($this->usdToCoins()).' كوين'],
-            ['label' => 'التذكرة بالكوينز', 'value' => '1 تذكرة = '.$this->number($this->ticketToCoins()).' كوينز'],
-            ['label' => 'التذكرة بالـXP', 'value' => '1 تذكرة = '.$this->number($this->ticketToXp()).' XP'],
+            ['label' => setting('wallet.exchange_rates.table_1', 'الدولار'), 'value' => strtr(setting('wallet.exchange_rates.table_2', '1$ = :p1 كوين'), [':p1' => (string) ($this->number($this->usdToCoins()))])],
+            ['label' => setting('wallet.exchange_rates.table_3', 'التذكرة بالكوينز'), 'value' => strtr(setting('wallet.exchange_rates.table_4', '1 تذكرة = :p1 كوينز'), [':p1' => (string) ($this->number($this->ticketToCoins()))])],
+            ['label' => setting('wallet.exchange_rates.table_5', 'التذكرة بالـXP'), 'value' => strtr(setting('wallet.exchange_rates.table_6', '1 تذكرة = :p1 XP'), [':p1' => (string) ($this->number($this->ticketToXp()))])],
         ];
     }
 
@@ -100,7 +103,7 @@ class ExchangeRates
         $value = (float) setting($key, $fallback);
 
         if ($value <= 0) {
-            throw new RuntimeException('سعر الصرف «'.$key.'» لازم يكون أكبر من صفر — صلّحه من شاشة أسعار الصرف.');
+            throw new RuntimeException(strtr(setting('wallet.exchange_rates.positive_1', 'سعر الصرف «:p1» لازم يكون أكبر من صفر — صلّحه من شاشة أسعار الصرف.'), [':p1' => (string) ($key)]));
         }
 
         return $value;

@@ -6,7 +6,7 @@
     <div class="modal-shell card w-full max-w-2xl">
         <div class="modal-head flex items-center justify-between px-5 py-4" style="border-bottom: 1px solid var(--border)">
             <h2 class="font-bold">{{ $title }}</h2>
-            <button type="button" class="text-sm opacity-70 hover:opacity-100" data-modal-close aria-label="إغلاق">✕</button>
+            <button type="button" class="text-sm opacity-70 hover:opacity-100" data-modal-close aria-label="{{ setting('ux.modal.aria_label_1', 'إغلاق') }}">✕</button>
         </div>
         <div class="modal-body px-5 py-4">{{ $slot }}</div>
         @isset($footer)
