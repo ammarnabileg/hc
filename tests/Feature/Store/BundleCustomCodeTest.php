@@ -4,118 +4,161 @@ namespace Tests\Feature\Store;
 
 use App\Models\AuditLog;
 use App\Models\Bundle;
-use App\Models\Setting;
 use App\Models\User;
-use App\Services\Ads\Consent;
-use App\Services\Store\BundleLanding;
 use Illuminate\Cookie\Middleware\EncryptCookies;
-use Illuminate\Support\Facades\Cache;
 
 /**
- * ⭐ **[كود مخصّص] في صفحة البندل** — حقلان يحقنان كودًا حرًّا: أحدهما في `<head>`
- * والآخر **قبل `</body>` مباشرةً**، على مستويين (عامّ لكلّ البندلات + خاصّ لكلّ
- * بندل)، والترتيب: **العامّ أوّلًا ثمّ الخاصّ**.
+ * ⭐ **[كود مخصّص] في صفحة البندل** — بنصّ المالك حرفيًّا:
  *
- * والمحتوى يُطبَع **خامًّا بلا تعقيم** — هذا نصّ المالك: «مسموح أضيف فيهم أي حاجة».
- * ولذلك بالضبط قيدان لا يُتنازَل عنهما، وكلاهما مقيسٌ هنا:
+ * > «أنا طلبت إنّه يبقى فيه إنبوت **من جوّا البندل** أحطّ كود فيه، فيطلع بين
+ * >  وسمَي الـ`head` بتاع البندل. وإنبوت زيّه يبقى **فوق `</body>` مباشرة**. **فقط**.»
  *
- * **1) 🔒 مالك المنصّة وحده يحرّرهما.** جافاسكربت في `<head>` يملك جلسة كلّ من
- *    يفتح الصفحة — بما فيها جلسة المالك — فمنحُه لمسؤول التسويق (12.2.3-6)
+ * فحقلان اثنان لا غير، **لهذا البندل وحده**، يخرجان **خامّين بلا تعقيم**:
+ *  - **لا مستوًى عامّ** لكلّ البندلات.
+ *  - **لا خانة «متى يُحقَن؟»** ولا بوّابة موافقة — الكود يُحقَن **دائمًا**.
+ *
+ * 🔒 **والحارس الوحيد الباقي: مالك المنصّة.** جافاسكربت في `<head>` يملك جلسة كلّ
+ *    من يفتح الصفحة — بما فيها جلسة المالك. فمنحُه لمسؤول التسويق (12.2.3-6)
  *    يمنحه المنصّة كلّها من بابٍ خلفيّ ويُبطِل عزل الماليّات (12.7) وكلّ سقفٍ في
- *    مصفوفة 12.2.2. ولا مفتاح في 12.2.2 يصف حقن كودٍ حرّ، وممنوعٌ اختراع مفتاح —
- *    فالحارس صفةُ **مالك المنصّة** نفسها (12.2.1-ز-3)، وهي أضيق من أيّ مفتاح.
+ *    مصفوفة 12.2.2. وهذا حارسُ **مَن يحرّر**، لا طبقةَ سلوكٍ في الصفحة.
  *
- * **2) بوّابة «متى يُحقَن؟».** الرفض في المنصّة **يوقف التتبّع فعليًّا** (21.3-د · 2.9)،
- *    وأغلب ما يوضَع في هذين الحقلين بكسلاتُ تتبّع — فحقنُها بلا شرطٍ يكسر ضمانًا
- *    قائمًا بصمت ويجعل بانر الموافقة يَعِد بما لا يقع. والافتراضيّ **الأضيق** (`ads`).
- *
- * والطفرات: نزعُ حارس الموافقة ⟵ يسقط `a_consent_gated_snippet_is_absent_for_a_refuser`؛
- * نزعُ حارس المالك ⟵ يسقط `a_marketing_admin_cannot_write_custom_code`؛
- * حقنُ العامّ بلا الخاصّ ⟵ يسقط `both_levels_are_injected_global_first`.
+ * والطفرات: نقلُ الحقل لمستوًى عامّ ⟵ يسقط `code_belongs_to_one_bundle_only`؛
+ * إعادةُ شرطِ حقنٍ ⟵ يسقط `the_code_is_injected_for_everyone_including_a_tracking_refuser`؛
+ * نزعُ حارس المالك ⟵ يسقط `a_marketing_admin_cannot_write_custom_code`.
  */
 class BundleCustomCodeTest extends StoreTestCase
 {
-    private const GLOBAL_HEAD = '<meta name="hc-test-global-head" content="1">';
+    private const HEAD = '<meta name="hc-test-head" content="1">';
 
-    private const BUNDLE_HEAD = '<meta name="hc-test-bundle-head" content="1">';
+    private const BODY = '<span id="hc-test-body"></span>';
 
-    private const GLOBAL_BODY = '<span id="hc-test-global-body"></span>';
-
-    private const BUNDLE_BODY = '<span id="hc-test-bundle-body"></span>';
-
-    // ============================================================ الحقن والموضع
+    // ============================================================ الموضع
 
     /**
-     * ⭐ **المستويان معًا، والعامّ أوّلًا** — وموضعُ كلٍّ **مقيسٌ في الـHTML** لا
-     * بالعين: الهيد قبل `</head>`، والبودي **آخر ما قبل `</body>`**.
+     * ⭐ **الموضعان مقيسان في الـHTML لا بالعين**: الأوّل **بين وسمَي `<head>`**،
+     * والثاني **آخر ما قبل `</body>`**.
      */
-    public function test_both_levels_are_injected_global_first(): void
+    public function test_each_field_lands_in_its_exact_slot(): void
     {
         $bundle = $this->bundleWithCode();
-        $this->allowEverything();
 
         $html = $this->get(route('store.product', ['type' => 'bundle', 'slug' => $bundle->slug]))
             ->assertOk()
             ->getContent();
 
+        $headStart = strpos($html, '<head>');
         $headEnd = strpos($html, '</head>');
         $bodyEnd = strrpos($html, '</body>');
 
-        foreach ([self::GLOBAL_HEAD, self::BUNDLE_HEAD, self::GLOBAL_BODY, self::BUNDLE_BODY] as $snippet) {
-            $this->assertStringContainsString($snippet, $html, "المقطع «{$snippet}» مش موجود في المخرَج.");
-        }
+        $headAt = strpos($html, self::HEAD);
+        $bodyAt = strpos($html, self::BODY);
 
-        // الهيد **داخل** الهيد
-        $this->assertLessThan($headEnd, strpos($html, self::GLOBAL_HEAD));
-        $this->assertLessThan($headEnd, strpos($html, self::BUNDLE_HEAD));
+        $this->assertNotFalse($headAt, 'كود الهيد مش موجود في المخرَج.');
+        $this->assertNotFalse($bodyAt, 'كود نهاية البودي مش موجود في المخرَج.');
 
-        // ونهاية البودي **بعد** الهيد وقبل الوسم الخاتم
-        $this->assertGreaterThan($headEnd, strpos($html, self::GLOBAL_BODY));
-        $this->assertLessThan($bodyEnd, strpos($html, self::BUNDLE_BODY));
-
-        // ⭐ والترتيب: العامّ أوّلًا ثمّ الخاصّ — في الموضعين
-        $this->assertLessThan(strpos($html, self::BUNDLE_HEAD), strpos($html, self::GLOBAL_HEAD),
-            'الخاصّ سبق العامّ في الهيد — والترتيب المتّفق عليه: العامّ أوّلًا.');
-        $this->assertLessThan(strpos($html, self::BUNDLE_BODY), strpos($html, self::GLOBAL_BODY),
-            'الخاصّ سبق العامّ في نهاية البودي.');
+        // بين وسمَي الـhead بالضبط
+        $this->assertGreaterThan($headStart, $headAt);
+        $this->assertLessThan($headEnd, $headAt);
 
         /*
-         | ⭐ **آخر ما قبل `</body>`**: الكود يخرج داخل `@stack('scripts')` وهو آخر
-         | وسمٍ في القالب الأمّ قبل `</body>` مباشرةً — فلا محتوى صفحةٍ بعده.
+         | و**آخر ما قبل `</body>`**: يخرج داخل `@stack('scripts')` وهو آخر وسمٍ في
+         | القالب الأمّ قبل الوسم الخاتم.
          |
          | ⚠️ وحدٌّ معلَن بصدق: `layouts/app` **ليس ملفّي** (⛔ ممنوع تعديله)، وهو
-         |    يُدرِج الودجت العائمة **بعد** محتوى الصفحة، فتُلحِق دفعاتها بالمكدّس
+         |    يُدرِج الودجت العائمة **بعد** محتوى الصفحة فتُلحِق أنماطها بالمكدّس
          |    بعد دفعتي. فما بعد المقطع أنماطُ ودجتٍ عامّة **لا محتوى بندل** —
-         |    وهذا مقيسٌ لا مُدّعًى: لا يظهر بعده شيءٌ من الصفحة نفسها.
+         |    وهذا مقيسٌ لا مُدّعًى.
          */
-        $mainEnd = strrpos($html, '</main>');
-        $this->assertGreaterThan($mainEnd, strpos($html, self::BUNDLE_BODY),
-            'كود نهاية البودي اتطبع جوّه محتوى الصفحة لا في نهايتها.');
+        $this->assertGreaterThan(strrpos($html, '</main>'), $bodyAt);
+        $this->assertLessThan($bodyEnd, $bodyAt);
 
-        $tail = substr($html, strpos($html, self::BUNDLE_BODY) + strlen(self::BUNDLE_BODY));
+        $tail = substr($html, $bodyAt + strlen(self::BODY), $bodyEnd - $bodyAt - strlen(self::BODY));
         $this->assertStringNotContainsString('<section', $tail, 'في محتوى صفحةٍ بعد كود نهاية البودي.');
         $this->assertStringNotContainsString($bundle->name_ar, $tail);
     }
 
-    /** والكود يُطبَع **خامًّا بلا تعقيم** — وهذا نصّ المالك صراحةً */
+    /** ويُطبَع **خامًّا بلا تعقيم** — وهذا نصّ المالك صراحةً */
     public function test_the_snippet_is_printed_raw_without_escaping(): void
     {
         $bundle = $this->bundleWithCode();
-        $this->allowEverything();
 
         $html = $this->get(route('store.product', ['type' => 'bundle', 'slug' => $bundle->slug]))
             ->assertOk()
             ->getContent();
 
-        $this->assertStringNotContainsString('&lt;meta name=&quot;hc-test-global-head&quot;', $html,
+        $this->assertStringNotContainsString('&lt;meta name=&quot;hc-test-head&quot;', $html,
             'الكود اتهرب (escaped) — الحقل بيتحوّل لنصٍّ ظاهر بدل ما يشتغل.');
     }
 
     /**
-     * ووسمٌ ناقص الإغلاق **يُحفَظ كما هو** بلا تعقيم — وهذا ما طلبه المالك.
-     * ⚠️ ويُبلَّغ في التقرير: الوسم الناقص **يكسر التصيير فعلًا** في المتصفّح،
-     *    وهو ثمن «مسموح أضيف فيهم أي حاجة» — والحارس هو المالك لا المصفّي.
+     * ⭐ **الكود ملكُ بندلٍ واحد**: بندلٌ بلا كود ⟵ **صفر أثر** في صفحته.
+     * وهذا ما يسقط لو عاد أحدٌ فجعل الحقل إعدادًا عامًّا لكلّ البندلات.
      */
+    public function test_code_belongs_to_one_bundle_only(): void
+    {
+        $withCode = $this->bundleWithCode();
+        $withoutCode = $this->bundle([$this->product(['slug' => 'p-clean', 'name_ar' => 'منتج نظيف'])], [
+            'slug' => 'clean-pack',
+            'name_ar' => 'باقة بلا كود',
+        ]);
+
+        $this->get(route('store.product', ['type' => 'bundle', 'slug' => $withCode->slug]))
+            ->assertOk()
+            ->assertSee(self::HEAD, false)
+            ->assertSee(self::BODY, false);
+
+        $this->get(route('store.product', ['type' => 'bundle', 'slug' => $withoutCode->slug]))
+            ->assertOk()
+            ->assertDontSee(self::HEAD, false)
+            ->assertDontSee(self::BODY, false);
+    }
+
+    // ============================================================ بلا شرطِ حقن
+
+    /**
+     * ⭐ **الكود يُحقَن دائمًا — حتّى لزائرٍ رافضٍ للتتبّع.**
+     *
+     * وهذا **تغييرٌ مقصود ومسجَّل**: كانت هنا خانة «متى يُحقَن؟» وبوّابة موافقة
+     * تمنع الحقن عن الرافض، فحذفها المالك صراحةً. والاختبار يوثّق القرار بدل أن
+     * يبقى ضمنيًّا: من يضع بكسل تتبّعٍ هنا **يضعه بعلمه**، والحقل بيد مالك المنصّة
+     * وحده فهو صاحب القرار وصاحب تبعته.
+     */
+    public function test_the_code_is_injected_for_everyone_including_a_tracking_refuser(): void
+    {
+        $bundle = $this->bundleWithCode();
+        $url = route('store.product', ['type' => 'bundle', 'slug' => $bundle->slug]);
+
+        // زائرٌ لم يختر شيئًا
+        $this->get($url)->assertOk()->assertSee(self::HEAD, false)->assertSee(self::BODY, false);
+
+        // وزائرٌ **رفض** التتبّع صراحةً — والكود يظهر له كذلك
+        EncryptCookies::except(['tracking_consent', 'tracking_scopes']);
+        $this->withUnencryptedCookies([
+            'tracking_consent' => 'rejected',
+            'tracking_scopes' => json_encode([]),
+        ]);
+
+        $this->get($url)->assertOk()
+            ->assertSee(self::HEAD, false)
+            ->assertSee(self::BODY, false);
+    }
+
+    /** ولا أثر لأيّ إعدادٍ عامّ — فالمفاتيح محذوفة أصلًا ولا يقرؤها أحد */
+    public function test_no_global_code_setting_survives(): void
+    {
+        foreach ([
+            'store.bundle.head_code',
+            'store.bundle.head_code_when',
+            'store.bundle.body_end_code',
+            'store.bundle.body_end_code_when',
+            'store.bundle.code_when_labels',
+            'store.bundle.code_consent_note',
+        ] as $key) {
+            $this->assertDatabaseMissing('settings', ['key' => $key]);
+        }
+    }
+
+    /** ووسمٌ ناقص الإغلاق **يُحفَظ كما هو** بلا تعقيم — وهذا ما طلبه المالك */
     public function test_a_broken_tag_is_stored_verbatim_and_not_sanitised(): void
     {
         $bundle = $this->bundle([$this->product()]);
@@ -124,70 +167,11 @@ class BundleCustomCodeTest extends StoreTestCase
         $this->actingAs($this->owner())
             ->put(route('admin.store.bundles.update', $bundle), $this->payload($bundle, [
                 'landing_head_code' => $broken,
-                'landing_head_code_when' => BundleLanding::INJECT_ALWAYS,
             ]))
             ->assertRedirect();
 
         $this->assertSame($broken, Bundle::whereKey($bundle->id)->value('landing_head_code'),
             'الكود اتعقّم أو اتفلتر — والمالك نصّ على «مسموح أضيف فيهم أي حاجة».');
-    }
-
-    // ============================================================ بوّابة الموافقة
-
-    /** ⭐ «بعد موافقة الإعلان»: **رافضٌ ⟵ صفر أثر**، وموافقٌ ⟵ يظهر. */
-    public function test_a_consent_gated_snippet_is_absent_for_a_refuser(): void
-    {
-        $bundle = $this->bundleWithCode(BundleLanding::INJECT_ADS);
-        $url = route('store.product', ['type' => 'bundle', 'slug' => $bundle->slug]);
-
-        $this->refuseEverything();
-        $this->get($url)->assertOk()
-            ->assertDontSee(self::GLOBAL_HEAD, false)
-            ->assertDontSee(self::BUNDLE_HEAD, false)
-            ->assertDontSee(self::GLOBAL_BODY, false)
-            ->assertDontSee(self::BUNDLE_BODY, false);
-
-        $this->allowEverything();
-        $this->get($url)->assertOk()
-            ->assertSee(self::BUNDLE_HEAD, false)
-            ->assertSee(self::BUNDLE_BODY, false);
-    }
-
-    /** ونفسه لـ«بعد موافقة القياس» — والغرضان مستقلّان لا واحد */
-    public function test_the_analytics_gate_is_independent_of_the_ads_gate(): void
-    {
-        $bundle = $this->bundleWithCode(BundleLanding::INJECT_ANALYTICS);
-        $url = route('store.product', ['type' => 'bundle', 'slug' => $bundle->slug]);
-
-        // «تخصيص» بالإعلان وحده — والقياس مرفوض، فلا يُحقَن ما شُرِط بالقياس
-        $this->customConsent(['ads']);
-        $this->get($url)->assertOk()->assertDontSee(self::BUNDLE_HEAD, false);
-
-        $this->customConsent(['analytics']);
-        $this->get($url)->assertOk()->assertSee(self::BUNDLE_HEAD, false);
-    }
-
-    /** و«دائمًا» يمرّ للرافض — وهو خيارُ الكود غير التتبّعيّ (خطّ · ستايل · وسم ملكيّة) */
-    public function test_always_injects_even_for_a_refuser(): void
-    {
-        $bundle = $this->bundleWithCode(BundleLanding::INJECT_ALWAYS);
-
-        $this->refuseEverything();
-
-        $this->get(route('store.product', ['type' => 'bundle', 'slug' => $bundle->slug]))
-            ->assertOk()
-            ->assertSee(self::BUNDLE_HEAD, false)
-            ->assertSee(self::BUNDLE_BODY, false);
-    }
-
-    /** والافتراضيّ **الأضيق**: بندلٌ جديد بلا اختيارٍ يبدأ على «بعد موافقة الإعلان» */
-    public function test_the_default_gate_is_the_narrowest_one(): void
-    {
-        $bundle = $this->bundle([$this->product()])->fresh();
-
-        $this->assertSame(BundleLanding::INJECT_ADS, $bundle->landing_head_code_when);
-        $this->assertSame(BundleLanding::INJECT_ADS, $bundle->landing_body_end_code_when);
-        $this->assertSame(BundleLanding::INJECT_ADS, (string) setting('store.bundle.head_code_when'));
     }
 
     // ============================================================ 🔒 حارس المالك
@@ -228,19 +212,16 @@ class BundleCustomCodeTest extends StoreTestCase
         $this->actingAs($this->marketingAdmin())
             ->put(route('admin.store.bundles.update', $bundle), $this->payload($bundle, [
                 'landing_head_code' => '<script>steal(document.cookie)</script>',
-                'landing_head_code_when' => BundleLanding::INJECT_ALWAYS,
                 'landing_body_end_code' => '<script>steal()</script>',
-                'landing_body_end_code_when' => BundleLanding::INJECT_ALWAYS,
             ]))
             ->assertRedirect();
 
         $this->assertSame($headBefore, Bundle::whereKey($bundle->id)->value('landing_head_code'),
             'مسؤول تسويق كتب كودًا في الهيد — ده باب خلفيّ للمنصّة كلّها.');
         $this->assertSame($bodyBefore, Bundle::whereKey($bundle->id)->value('landing_body_end_code'));
-        $this->assertSame(BundleLanding::INJECT_ADS, Bundle::whereKey($bundle->id)->value('landing_head_code_when'));
     }
 
-    /** ⭐ والمحاولة **تُسجَّل في الأوديت** — فهو أخطر إعدادٍ في الشاشة */
+    /** ⭐ والمحاولة **تُسجَّل في الأوديت** — فهو أخطر حقلٍ في الشاشة */
     public function test_the_rejected_attempt_is_audited(): void
     {
         $bundle = $this->bundle([$this->product()]);
@@ -250,11 +231,6 @@ class BundleCustomCodeTest extends StoreTestCase
                 'landing_head_code' => '<script>x</script>',
             ]))
             ->assertRedirect();
-
-        $this->assertDatabaseHas('audit_logs', [
-            'action' => 'bundles.edit',
-            'auditable_id' => $bundle->id,
-        ]);
 
         $logged = AuditLog::where('auditable_id', $bundle->id)->get()
             ->contains(fn ($row) => isset(((array) $row->new_values)['rejected_custom_code']));
@@ -270,8 +246,7 @@ class BundleCustomCodeTest extends StoreTestCase
 
         $this->actingAs($owner)
             ->put(route('admin.store.bundles.update', $bundle), $this->payload($bundle, [
-                'landing_head_code' => self::BUNDLE_HEAD,
-                'landing_head_code_when' => BundleLanding::INJECT_ALWAYS,
+                'landing_head_code' => self::HEAD,
             ]))
             ->assertRedirect();
 
@@ -280,64 +255,17 @@ class BundleCustomCodeTest extends StoreTestCase
             'auditable_id' => $bundle->id,
             'user_id' => $owner->id,
         ]);
+
+        $this->assertSame(self::HEAD, Bundle::whereKey($bundle->id)->value('landing_head_code'));
     }
 
     // ============================================================ مساعدات
 
-    private function bundleWithCode(string $when = BundleLanding::INJECT_ALWAYS): Bundle
+    private function bundleWithCode(): Bundle
     {
-        $this->putSetting('store.bundle.head_code', self::GLOBAL_HEAD);
-        $this->putSetting('store.bundle.head_code_when', $when);
-        $this->putSetting('store.bundle.body_end_code', self::GLOBAL_BODY);
-        $this->putSetting('store.bundle.body_end_code_when', $when);
-
         return $this->bundle([$this->product()], [
-            'landing_head_code' => self::BUNDLE_HEAD,
-            'landing_head_code_when' => $when,
-            'landing_body_end_code' => self::BUNDLE_BODY,
-            'landing_body_end_code_when' => $when,
-        ]);
-    }
-
-    private function putSetting(string $key, string $value): void
-    {
-        Setting::query()->where('key', $key)->update(['value' => $value]);
-        Cache::forget('settings');
-    }
-
-    /** موافقة كاملة — والحارس نفسه الذي يحكم كلّ التتبّع في المنصّة (21.3-د) */
-    private function allowEverything(): void
-    {
-        $this->consent(Consent::ACCEPTED, Consent::PURPOSES);
-    }
-
-    private function refuseEverything(): void
-    {
-        $this->consent(Consent::REJECTED, []);
-    }
-
-    /** @param  array<int, string>  $scopes */
-    private function customConsent(array $scopes): void
-    {
-        $this->consent(Consent::CUSTOM, $scopes);
-    }
-
-    /**
-     * اختيار الموافقة كما تقرؤه المنصّة فعلًا — من الكوكي (21.3-د).
-     * ولا نمرّ من طريقٍ جانبيّ: نفس مصدر `Consent::choice()` نفسه.
-     *
-     * @param  array<int, string>  $scopes
-     */
-    private function consent(string $choice, array $scopes): void
-    {
-        $this->putSetting('ads.tracking.enabled', '1');
-
-        // كوكيّ الموافقة يُقرأ خامًّا في الاختبار — والمنطق المقيس هو `Consent` لا التشفير
-        EncryptCookies::except(['tracking_consent', 'tracking_scopes']);
-
-        $this->withUnencryptedCookies([
-            'tracking_consent' => $choice,
-            'tracking_scopes' => json_encode($scopes),
+            'landing_head_code' => self::HEAD,
+            'landing_body_end_code' => self::BODY,
         ]);
     }
 

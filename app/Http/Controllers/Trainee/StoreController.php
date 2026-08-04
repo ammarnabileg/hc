@@ -94,7 +94,7 @@ class StoreController extends Controller
                 'item' => $item,
                 'quote' => $quote,
                 'landing' => $landing->build($item, $user, $quote),
-                'injections' => $landing->injections($item, $user),
+                'injections' => $landing->injections($item),
                 'balance' => $quote['balance_before'],
                 'indexable' => $this->indexable($type, $item),
                 'ogImage' => $this->ogImage($item),

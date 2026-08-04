@@ -8,7 +8,6 @@ use App\Models\Exam;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\User;
-use App\Services\Ads\Consent;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -47,8 +46,9 @@ use Illuminate\Support\Facades\DB;
  *    والإثبات هنا **حقيقيّ**: ما بداخل الباقة بقيمته · الشهادة المعتمَدة بشرطها
  *    (8) · عدد العناصر والدروس · الوصول الدائم.
  *
- * **3) الكود المخصّص وبوّابة الموافقة.** الحقن خامٌّ بلا تعقيم (أمر المالك)،
- *    لكنّه **لا يُحقَن** إلّا إذا سمحت خانة «متى يُحقَن؟» — راجع `injections()`.
+ * **3) الكود المخصّص.** حقلان لهذا البندل وحده — `<head>` و**آخر ما قبل `</body>`** —
+ *    يخرجان **خامّين بلا تعقيم** (أمر المالك). ولا مستوًى عامّ ولا شرطَ حقنٍ:
+ *    الحارس الوحيد أنّ **مالك المنصّة وحده** يحرّرهما، ويُفرَض على الخادم.
  */
 class BundleLanding
 {
@@ -153,17 +153,7 @@ class BundleLanding
 
     public const STATE_HIDE = 'hide';
 
-    /** خيارات خانة «متى يُحقَن؟» — والافتراضيّ **الأضيق** (`ads`) */
-    public const INJECT_ALWAYS = 'always';
-
-    public const INJECT_ANALYTICS = 'analytics';
-
-    public const INJECT_ADS = 'ads';
-
-    public function __construct(
-        private readonly StoreCatalog $catalog,
-        private readonly Consent $consent,
-    ) {}
+    public function __construct(private readonly StoreCatalog $catalog) {}
 
     // ================================================================ 1) الوراثة الحيّة
 
@@ -332,51 +322,22 @@ class BundleLanding
     // ================================================================ 3) الكود المخصّص
 
     /**
-     * ⭐ **الكود المحقون** — العامّ أوّلًا ثمّ الخاصّ بالبندل، لكلٍّ من الموضعين.
-     *
-     * ولا يُحقَن شيءٌ إلّا بعد اجتياز **بوّابة الموافقة**: 21.3-د و2.9 يجعلان
-     * الرفض يوقف التتبّع **فعليًّا** — فبكسلٌ يُحقَن رغم الرفض يكسر ضمانًا قائمًا
-     * بصمت، ويجعل بانر الموافقة يَعِد بما لا يقع.
+     * ⭐ **كود هذا البندل** — موضعان لا ثالث لهما:
+     * `head` يخرج بين وسمَي `<head>`، و`body_end` **آخر ما قبل `</body>`**.
      *
      * ⚠️ والمخرَج **خام** بلا تعقيم ولا تصفية: هذا نصّ المالك «مسموح أضيف فيهم
-     *    أي حاجة» — ولذلك حصرناه بيده وحده (`isPlatformOwner`).
+     *    أي حاجة». ولا شرطَ حقنٍ ولا مستوًى عامّ — **الكود يُحقَن دائمًا**.
+     *    والحارس الوحيد أنّ **مالك المنصّة وحده** يملأ الحقلين (يُفرَض في
+     *    `StoreAdminController::updateBundle()`)، فلا يفتح به غيرُه بابًا خلفيًّا.
      *
      * @return array{head:array<int,string>, body_end:array<int,string>}
      */
-    public function injections(Bundle $bundle, ?User $user = null): array
+    public function injections(Bundle $bundle): array
     {
-        $out = ['head' => [], 'body_end' => []];
-
-        $sources = [
-            'head' => [
-                [(string) setting('store.bundle.head_code', ''), (string) setting('store.bundle.head_code_when', self::INJECT_ADS)],
-                [(string) $bundle->landing_head_code, (string) ($bundle->landing_head_code_when ?: self::INJECT_ADS)],
-            ],
-            'body_end' => [
-                [(string) setting('store.bundle.body_end_code', ''), (string) setting('store.bundle.body_end_code_when', self::INJECT_ADS)],
-                [(string) $bundle->landing_body_end_code, (string) ($bundle->landing_body_end_code_when ?: self::INJECT_ADS)],
-            ],
+        return [
+            'head' => array_values(array_filter([$this->trim($bundle->landing_head_code)])),
+            'body_end' => array_values(array_filter([$this->trim($bundle->landing_body_end_code)])),
         ];
-
-        foreach ($sources as $slot => $rows) {
-            foreach ($rows as [$code, $when]) {
-                if (trim($code) !== '' && $this->mayInject($when, $user)) {
-                    $out[$slot][] = $code;
-                }
-            }
-        }
-
-        return $out;
-    }
-
-    /** بوّابة الموافقة الواحدة — ولا مسارَ يلتفّ حولها */
-    public function mayInject(string $when, ?User $user = null): bool
-    {
-        return match ($when) {
-            self::INJECT_ALWAYS => true,
-            self::INJECT_ANALYTICS => $this->consent->allowsAnalytics($user),
-            default => $this->consent->allowsAds($user),
-        };
     }
 
     // ================================================================ العناصر والبونص

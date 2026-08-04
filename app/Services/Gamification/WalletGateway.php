@@ -40,7 +40,7 @@ class WalletGateway
     /** «الرصيد لا يكفي» من الدفتر — نميّزها عن غياب الخدمة فلا نكتب ما رفضه */
     private const WALLET_EXCEPTION = 'App\Services\Wallet\WalletException';
 
-    /** مُعرِّف خرقِ ثابتٍ داخليّ (إضافةٌ ردّت بعد خصمٍ نجح) — ليس نصًّا لمستخدم */
+    /** مُعرِّف خرقِ ثابتٍ داخليّ (إضافةٌ رُدَّت بعد خصمٍ نجح) — ليس نصًّا لمستخدم */
     private const CREDIT_FAILED = 'wallet.transfer.credit_refused_after_debit';
 
     /** رصيد المستخدم من عملةٍ بكودها (coins · tickets · xp) */

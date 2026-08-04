@@ -78,23 +78,18 @@ return new class extends Migration
              |------------------------------------------------------------------
              | ⭐ [كود مخصّص] — القسم السادس في الفورم (أمر المالك)
              |------------------------------------------------------------------
-             | كودٌ حرّ يُحقَن في `<head>` وقبل `</body>` مباشرةً، **بلا تعقيم**
-             | ولا تصفية — «مسموح أضيف فيهم أي حاجة» بنصّ المالك.
+             | حقلان اثنان **لهذا البندل وحده**: الأوّل يخرج بين وسمَي `<head>`،
+             | والثاني **آخر ما قبل `</body>`**. خامّان **بلا تعقيم** ولا تصفية —
+             | «مسموح أضيف فيهم أي حاجة» بنصّ المالك.
              |
-             | 🔒 **ولذلك بيد مالك المنصّة وحده**: جافاسكربت في `<head>` يملك جلسة
-             |    كلّ من يفتح الصفحة — بما فيها جلسة المالك. فمنحه لمسؤول التسويق
+             | 🔒 **وبيد مالك المنصّة وحده**: جافاسكربت في `<head>` يملك جلسة كلّ
+             |    من يفتح الصفحة — بما فيها جلسة المالك. فمنحُه لمسؤول التسويق
              |    (12.2.3-6) يمنحه المنصّة كلّها من بابٍ خلفيّ ويُبطِل عزل الماليّات
-             |    (12.7) وكلّ سقفٍ في مصفوفة 12.2.2.
-             |
-             | و`*_when` **خانة الموافقة الإلزاميّة**: `always` · `analytics` · `ads`.
-             |    والافتراضيّ **الأضيق** (`ads`) لأنّ أغلب ما يوضَع هنا بكسلاتُ تتبّع،
-             |    وحقنُها بلا شرطٍ يكسر بصمتٍ ضمانًا **قائمًا ومقيسًا** للمستخدم
-             |    (21.3-د · 2.9) ويجعل بانر الموافقة يَعِد بما لا يقع.
+             |    (12.7) وكلّ سقفٍ في مصفوفة 12.2.2. وهذا **الحارس الوحيد** هنا:
+             |    لا مستوًى عامّ، ولا خانة شروطٍ للحقن — قرار المالك صريح.
              */
             $table->text('landing_head_code')->nullable()->after('landing_faq');
-            $table->string('landing_head_code_when', 16)->default('ads')->after('landing_head_code');
-            $table->text('landing_body_end_code')->nullable()->after('landing_head_code_when');
-            $table->string('landing_body_end_code_when', 16)->default('ads')->after('landing_body_end_code');
+            $table->text('landing_body_end_code')->nullable()->after('landing_head_code');
 
             // ---------------------------------------------------- [العرض] (24)
             // «Toggle شطب السعر الطبيعيّ (Anchoring)» · «Toggle إظهار القيمة الإجماليّة»
@@ -146,8 +141,7 @@ return new class extends Migration
             $table->dropColumn([
                 'name_en', 'description_en', 'landing_texts', 'landing_sections',
                 'landing_outcomes', 'landing_fit_for', 'landing_not_fit_for', 'landing_faq',
-                'landing_head_code', 'landing_head_code_when',
-                'landing_body_end_code', 'landing_body_end_code_when',
+                'landing_head_code', 'landing_body_end_code',
                 'show_anchor_strikethrough', 'show_total_value', 'bonus_text_template',
                 'available_from', 'available_until', 'purchase_limit',
                 'og_image_path', 'is_indexable',

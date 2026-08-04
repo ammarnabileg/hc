@@ -17,7 +17,6 @@
     @php
         $sectionLabels = (array) setting('store.admin.bundles.section_labels', []);
         $typeLabels = (array) setting('store.bundle.item_type_labels', []);
-        $whenLabels = (array) setting('store.bundle.code_when_labels', []);
         $landingUrl = route('store.product', ['type' => 'bundle', 'slug' => $bundle->slug]);
         $sectionTitles = (array) setting('store.admin.bundles.section_titles', []);
         $codeSlotLabels = (array) setting('store.admin.bundles.code_slot_labels', []);
@@ -365,27 +364,15 @@
                 <h2 class="font-bold">{{ setting('store.bundle.code_section_title') }}</h2>
                 <p class="text-xs" style="color: var(--color-state-warn)">{{ setting('store.bundle.code_owner_only_note') }}</p>
 
-                @foreach ([['landing_head_code', 'landing_head_code_when', 'head'], ['landing_body_end_code', 'landing_body_end_code_when', 'body_end']] as [$field, $whenField, $slot])
+                {{-- حقلان اثنان لا غير: `<head>` وآخر ما قبل `</body>` — بلا شرطِ حقنٍ ولا مستوًى عامّ --}}
+                @foreach (['landing_head_code' => 'head', 'landing_body_end_code' => 'body_end'] as $field => $slot)
                     <label class="block text-sm">
                         <span class="block mb-1 font-semibold">{{ $codeSlotLabels[$slot] ?? $slot }}</span>
                         <textarea name="{{ $field }}" rows="5" dir="ltr" spellcheck="false"
                                   class="w-full rounded-xl px-3 py-2 text-sm"
                                   style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text); resize: vertical; font-family: monospace">{{ $bundle->{$field} }}</textarea>
                     </label>
-
-                    {{-- ⭐ خانة «متى يُحقَن؟» **إلزاميّة** — والافتراضيّ الأضيق (21.3-د · 2.9) --}}
-                    <label class="block text-sm">
-                        <span class="block mb-1 font-semibold">{{ setting('store.admin.bundles.code_when_label', 'متى يُحقَن؟') }}</span>
-                        <select name="{{ $whenField }}" required class="w-full rounded-xl px-3 py-2 text-sm"
-                                style="min-height: 44px; background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
-                            @foreach ($whenLabels as $value => $label)
-                                <option value="{{ $value }}" @selected(($bundle->{$whenField} ?: 'ads') === $value)>{{ $label }}</option>
-                            @endforeach
-                        </select>
-                    </label>
                 @endforeach
-
-                <p class="text-xs" style="color: var(--text-muted)">{{ setting('store.bundle.code_consent_note') }}</p>
             </section>
         @endif
 

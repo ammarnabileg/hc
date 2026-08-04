@@ -80,7 +80,7 @@ class StoreAdminController extends Controller
              | بلوك إعدادات شاشة البندلز (24) — **يُحذَف كلّه** لمن لا يملك
              | `bundles.edit`، فلا يرى مفاتيح لا يقدر على حفظها (2.15-أ-7).
              */
-            'bundleSettings' => ($tab === 'bundles' && $user->allows('bundles.edit')) ? $screenSettings->rows($user) : null,
+            'bundleSettings' => ($tab === 'bundles' && $user->allows('bundles.edit')) ? $screenSettings->rows() : null,
             'bundleLockedRules' => $screenSettings->lockedRules(),
             'rows' => match ($tab) {
                 'bundles' => $this->store->bundles($filters),
@@ -344,9 +344,7 @@ class StoreAdminController extends Controller
             // ---------------------------------------------------- [كود مخصّص 🔒]
             // ⚠️ بلا قيدٍ على المحتوى: «مسموح أضيف فيهم أي حاجة» — والحارس هو المالك لا المصفّي
             'landing_head_code' => ['nullable', 'string'],
-            'landing_head_code_when' => ['nullable', 'string', Rule::in($this->injectWhenKeys())],
             'landing_body_end_code' => ['nullable', 'string'],
-            'landing_body_end_code_when' => ['nullable', 'string', Rule::in($this->injectWhenKeys())],
         ]);
 
         $payload = [
@@ -392,9 +390,7 @@ class StoreAdminController extends Controller
         // 🔒 والكود الحرّ بيد مالك المنصّة وحده — بنفس المنطق: يُنزَع لا يُرفَض
         if ($this->canInjectCode($user)) {
             $payload['landing_head_code'] = $this->blankToNull($data['landing_head_code'] ?? null);
-            $payload['landing_head_code_when'] = $data['landing_head_code_when'] ?? BundleLanding::INJECT_ADS;
             $payload['landing_body_end_code'] = $this->blankToNull($data['landing_body_end_code'] ?? null);
-            $payload['landing_body_end_code_when'] = $data['landing_body_end_code_when'] ?? BundleLanding::INJECT_ADS;
         } elseif ($request->hasAny(['landing_head_code', 'landing_body_end_code'])) {
             $this->audit($request, $bundle, 'bundles.edit', [], ['rejected_custom_code' => true]);
         }
@@ -475,17 +471,11 @@ class StoreAdminController extends Controller
     /**
      * 🔒 الكود الحرّ: **لا مفتاح في 12.2.2 يصفه**، وممنوعٌ اختراع مفتاح — فالحارس
      * هو صفة **مالك المنصّة** نفسها (12.2.1-ز-3)، وهي أضيق من أيّ صلاحيّة.
+     * وهو **الحارس الوحيد** على الحقلين: لا شرطَ حقنٍ ولا مستوًى عامّ (قرار المالك).
      */
     private function canInjectCode(?User $user): bool
     {
         return (bool) $user?->isPlatformOwner();
-    }
-
-    /** @return array<int, string> */
-    private function injectWhenKeys(): array
-    {
-        return array_keys((array) setting('store.bundle.code_when_labels', []))
-            ?: [BundleLanding::INJECT_ALWAYS, BundleLanding::INJECT_ANALYTICS, BundleLanding::INJECT_ADS];
     }
 
     /**

@@ -106,6 +106,32 @@ class SpendableFloorTest extends WalletTestCase
         $this->assertSame(-90.0, $this->ledger()->balance($this->user, 'coins'));
     }
 
+    /**
+     * ⭐ **ولا يُقفَل باب 12.9:** «**الخصم (ماينص) يقدر ينزل تحت الصفر** (مسموح
+     * عادي)» — فخصمُ الأدمن **الموقَّع بإنسانٍ غير صاحب الرصيد** يمضي كاملًا،
+     * والقاع يسري على **الخصم الآليّ** وحده (بلا توقيع).
+     */
+    public function test_a_human_signed_admin_debit_may_go_below_zero(): void
+    {
+        $admin = $this->makeUser(['name' => 'أدمن']);
+
+        $transaction = $this->ledger()->debit(
+            $this->user, 'coins', 250, 'admin', null, 'training', 'خصم يدويّ', $admin->id,
+        );
+
+        $this->assertSame(-250.0, $this->ledger()->balance($this->user, 'coins'));
+        $this->assertSame('-250.00', (string) $transaction->amount);
+        // ولا يفترق الدفتر عن الرصيد: المسجَّل هو المطبَّق بعينه
+        $this->assertSame('-250.00', (string) $transaction->applied_amount);
+    }
+
+    /** أمّا الخصم **الآليّ** (بلا توقيع) فيقف عند القاع ولو حمل نفس المصدر */
+    public function test_the_same_debit_without_a_human_signature_is_refused(): void
+    {
+        $this->expectException(WalletException::class);
+        $this->ledger()->debit($this->user, 'coins', 250, 'admin', null, 'training', 'خصم آليّ');
+    }
+
     /** و`debitOrFail` يرمي **قبل** أن يكتب شيئًا — لا سطرٌ يتيم */
     public function test_debit_or_fail_writes_nothing_when_it_refuses(): void
     {

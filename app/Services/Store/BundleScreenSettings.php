@@ -39,16 +39,6 @@ class BundleScreenSettings
         'store.bundle.bonus_text',
         'store.bundle.bonus_text_en',
 
-        /*
-        | 🔒 **[كود مخصّص] العامّ لكلّ صفحات البندلات** — بيد **مالك المنصّة وحده**،
-        | ومعه خانة «متى يُحقَن؟». وهما مستثنيان من العرض لغير المالك في `rows()`،
-        | ومن الكتابة في `putMany()` — فالحصر على الخادم لا في القالب.
-        */
-        'store.bundle.head_code',
-        'store.bundle.head_code_when',
-        'store.bundle.body_end_code',
-        'store.bundle.body_end_code_when',
-
         // ------------------------------------------------ توجّلات بلوكات اللاندنج
         'store.bundle.blocks.fit_enabled',
         'store.bundle.blocks.outcomes_enabled',
@@ -99,40 +89,20 @@ class BundleScreenSettings
     }
 
     /**
-     * 🔒 المفاتيح التي **لا يراها ولا يكتبها إلّا مالك المنصّة**: كودٌ حرّ في
-     * `<head>` يملك جلسة كلّ من يفتح الصفحة، فمنحُه لغير المالك بابٌ خلفيّ
-     * يُبطِل كلّ سقفٍ في مصفوفة 12.2.2.
-     *
-     * @var array<int, string>
-     */
-    public const OWNER_ONLY_KEYS = [
-        'store.bundle.head_code',
-        'store.bundle.head_code_when',
-        'store.bundle.body_end_code',
-        'store.bundle.body_end_code_when',
-    ];
-
-    /**
      * صفوف البلوك بقيمها الحاليّة وحالة «معدَّل» — بالشكل الذي يقرؤه
      * `admin.screens24.settings` بلا قالبٍ ثانٍ يُصان مرّتين.
      *
-     * والحقول المحصورة **تُحذَف من العرض** لغير المالك — تُخفى لا تُعطَّل (2.15-أ-7).
+     * ⛔ ولا مفتاح كودٍ هنا: حقلا [كود مخصّص] **لكلّ بندل من فورمه** لا من هذا
+     *    البلوك — قرار المالك صريح، فلا مستوًى عامّ لهما.
      *
      * @return array<int, array<string, mixed>>
      */
-    public function rows(?User $viewer = null): array
+    public function rows(): array
     {
-        $isOwner = (bool) $viewer?->isPlatformOwner();
         $stored = Setting::query()->whereIn('key', self::KEYS)->get()->keyBy('key');
         $rows = [];
 
         foreach (self::KEYS as $key) {
-            $ownerOnly = in_array($key, self::OWNER_ONLY_KEYS, true);
-
-            if ($ownerOnly && ! $isOwner) {
-                continue;
-            }
-
             $setting = $stored->get($key);
 
             if (! $setting) {
@@ -151,7 +121,7 @@ class BundleScreenSettings
                 'value' => $value,
                 'hint' => (string) ($setting->hint ?? ''),
                 'modified' => $value !== $default,
-                'owner_only' => $ownerOnly,
+                'owner_only' => false,
             ];
         }
 
@@ -167,15 +137,8 @@ class BundleScreenSettings
     {
         $count = 0;
 
-        $isOwner = (bool) $actor?->isPlatformOwner();
-
         foreach ($values as $key => $value) {
             if (! in_array($key, self::KEYS, true)) {
-                continue;
-            }
-
-            // 🔒 الحصر على الخادم: حمولةٌ مزوَّرة بمفتاح الكود من غير المالك تُهمَل
-            if (in_array($key, self::OWNER_ONLY_KEYS, true) && ! $isOwner) {
                 continue;
             }
 
