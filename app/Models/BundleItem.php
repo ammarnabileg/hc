@@ -17,8 +17,12 @@ class BundleItem extends Model
 
     protected function casts(): array
     {
-        // null = السعر الطبيعيّ للعنصر، ورقم = Override داخل صفحة البندل وحدها (18)
-        return ['price_coins' => 'decimal:2'];
+        return [
+            // null = السعر الطبيعيّ للعنصر، ورقم = Override داخل صفحة البندل وحدها (18)
+            'price_coins' => 'decimal:2',
+            // ⭐ Toggle «اعرضه كبونص» (24) — والبونص قرارٌ لعنصرٍ بعينه لا وسمٌ للكلّ
+            'is_bonus' => 'bool',
+        ];
     }
 
     public function bundle(): BelongsTo

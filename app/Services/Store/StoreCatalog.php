@@ -493,11 +493,15 @@ class StoreCatalog
                 return [
                     'id' => $row->id,
                     'type' => $childType,
+                    // معرّف العنصر نفسه — تحتاجه اللاندنج لتعدّ الدروس وتكشف الامتحان (8)
+                    'itemable_id' => (int) $row->itemable_id,
                     'slug' => $child->slug,
                     'title' => $child->name_ar,
                     'list_value' => $listValue,
                     'value' => $override ?? $listValue,
                     'has_override' => $override !== null,
+                    // ⭐ Toggle «اعرضه كبونص» (24) — البونص قرارُ الأدمن لعنصرٍ بعينه
+                    'is_bonus' => (bool) $row->is_bonus,
                 ];
             })
             ->filter()
