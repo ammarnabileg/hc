@@ -140,7 +140,7 @@ class WarBankService
     /** تصدير — للمخوَّلين وحدهم لأنّ الإجابات فيه (24.2) */
     public function toCsv(iterable $questions): string
     {
-        $out = setting('gamification_wars.war_bank_service.to_csv_1', 'السؤال,الإجابة,الصعوبة,المصدر,الاختيارات,الحالة\\n');
+        $out = setting('gamification_wars.war_bank_service.to_csv_1', "السؤال,الإجابة,الصعوبة,المصدر,الاختيارات,الحالة\n");
 
         foreach ($questions as $q) {
             $out .= implode(',', array_map(

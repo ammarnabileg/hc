@@ -89,7 +89,6 @@ class SettingsCatalog
         };
     }
 
-
     /** القيمة الافتراضيّة المعتمَدة لمفتاح — مرجع زرّ الـReset */
     public static function defaultOf(string $key): ?string
     {

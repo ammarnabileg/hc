@@ -81,12 +81,21 @@ class AnnouncementPersonalizer
         $enrollment = $user ? $this->latestEnrollment($user) : null;
 
         return $this->cache[$cacheKey] = [
-            (string) setting('notifications.announcement_personalizer.values_1', '[اسم]') => $user?->shortName() ?: $fallbackName,
-            (string) setting('notifications.announcement_personalizer.values_2', '[الاسم]') => $user?->name ?: $fallbackName,
-            (string) setting('notifications.announcement_personalizer.values_3', '[الكود]') => (string) ($user?->code ?? ''),
-            (string) setting('notifications.announcement_personalizer.values_4', '[التدريب]') => $enrollment?->course?->name_ar ?: $fallbackCourse,
-            (string) setting('notifications.announcement_personalizer.values_5', '[الديدلاين]') => $enrollment?->deadline_at?->format('Y-m-d') ?: $fallbackDeadline,
+            self::token(setting('notifications.announcement_personalizer.values_1', '[اسم]')) => $user?->shortName() ?: $fallbackName,
+            self::token(setting('notifications.announcement_personalizer.values_2', '[الاسم]')) => $user?->name ?: $fallbackName,
+            self::token(setting('notifications.announcement_personalizer.values_3', '[الكود]')) => (string) ($user?->code ?? ''),
+            self::token(setting('notifications.announcement_personalizer.values_4', '[التدريب]')) => $enrollment?->course?->name_ar ?: $fallbackCourse,
+            self::token(setting('notifications.announcement_personalizer.values_5', '[الديدلاين]')) => $enrollment?->deadline_at?->format('Y-m-d') ?: $fallbackDeadline,
         ];
+    }
+
+    /**
+     * رمز الاستبدال مفتاحُ مصفوفة، فلازم يبقى **نصًّا**؛ وصفُّه في القاعدة قد
+     * يكون نوعه `json` فيعود مصفوفةً — فتُرَدّ لصورتها النصّيّة بدل الانفجار.
+     */
+    private static function token(mixed $value): string
+    {
+        return is_array($value) ? (string) json_encode($value, JSON_UNESCAPED_UNICODE) : (string) $value;
     }
 
     private function latestEnrollment(User $user): ?Enrollment

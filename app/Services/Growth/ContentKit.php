@@ -92,9 +92,9 @@ class ContentKit
         $configured = setting('growth.volunteer_kit.scripts');
 
         $rows = is_array($configured) && $configured !== [] ? $configured : [
-            ['title' => setting('growth.content_kit.scripts_1', 'رسالة واتساب قصيرة'), 'body' => setting('growth.content_kit.scripts_2', 'لو بتدوّر على تدريب عربيّ جادّ ومجّانيّ التفعيل، جرّب من هنا:\\n{link}')],
-            ['title' => setting('growth.content_kit.scripts_3', 'منشور لينكدإن'), 'body' => setting('growth.content_kit.scripts_4', 'بتعلّم على منصّة عربيّة بتشتغل بنظام: تدريب ⟵ امتحان ⟵ شهادة بكود تحقّق.\\nلو مهتمّ، الرابط ده هيوصّلك:\\n{link}')],
-            ['title' => setting('growth.content_kit.scripts_5', 'ستوري'), 'body' => setting('growth.content_kit.scripts_6', 'بنبدأ دفعة جديدة — لو ناوي تتعلّم حاجة جديدة الشهر ده، ده مكانك:\\n{link}')],
+            ['title' => setting('growth.content_kit.scripts_1', 'رسالة واتساب قصيرة'), 'body' => setting('growth.content_kit.scripts_2', "لو بتدوّر على تدريب عربيّ جادّ ومجّانيّ التفعيل، جرّب من هنا:\n{link}")],
+            ['title' => setting('growth.content_kit.scripts_3', 'منشور لينكدإن'), 'body' => setting('growth.content_kit.scripts_4', "بتعلّم على منصّة عربيّة بتشتغل بنظام: تدريب ⟵ امتحان ⟵ شهادة بكود تحقّق.\nلو مهتمّ، الرابط ده هيوصّلك:\n{link}")],
+            ['title' => setting('growth.content_kit.scripts_5', 'ستوري'), 'body' => setting('growth.content_kit.scripts_6', "بنبدأ دفعة جديدة — لو ناوي تتعلّم حاجة جديدة الشهر ده، ده مكانك:\n{link}")],
         ];
 
         return array_values(array_map(fn ($row) => [

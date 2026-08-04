@@ -95,12 +95,15 @@ class EngagementSettings
         };
     }
 
-
     /** السياقات الافتراضيّة — نفس ما يزرعه سيدر المجال */
     /** السياقات الافتراضيّة — قيمةٌ يعدّلها المالك، لا ثابتٌ نظاميّ (2.13-ب) */
     private static function defaultContexts(): string
     {
-        return (string) setting('engagement.engagement_settings.default_contexts', '{"any":"أيّ لحظة","surprise":"الأيقونة المفاجئة","lesson_complete":"بعد إكمال درس","course_complete":"بعد إتمام تدريب","streak_broken":"بعد انكسار الستريك","exam_failed":"بعد محاولة امتحان غير موفّقة","empty_state":"في الشاشات الفاضية","first_login":"أوّل دخول بعد التفعيل"}');
+        $value = setting('engagement.engagement_settings.default_contexts', '{"any":"أيّ لحظة","surprise":"الأيقونة المفاجئة","lesson_complete":"بعد إكمال درس","course_complete":"بعد إتمام تدريب","streak_broken":"بعد انكسار الستريك","exam_failed":"بعد محاولة امتحان غير موفّقة","empty_state":"في الشاشات الفاضية","first_login":"أوّل دخول بعد التفعيل"}');
+
+        // الصفّ قد يكون نوعه `json` في القاعدة فيعود مصفوفةً — وصورتُه
+        // النصّيّة هنا هي ترميز JSON نفسه، لا `(string)` التي تنفجر عليه.
+        return is_array($value) ? (string) json_encode($value, JSON_UNESCAPED_UNICODE) : (string) $value;
     }
 
     /** تحويل خريطة السياقات إلى أسطر يقرأها الأدمن بسهولة (والعكس عند الحفظ) */

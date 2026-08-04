@@ -257,8 +257,8 @@ class UpdateManager
             } catch (Throwable $e) {
                 // معاينةٌ تنفجر خبرٌ مفيد لا شاشةَ خطأ: الهجرة دي هتقع في التنفيذ
                 // كمان — فنعرضها للمالك بلغته بدل 500 (2.17).
-                $output = setting('updates.update_manager.dry_run_1', 'المعاينة وقفت على خطأ في الكود مش في قاعدة البيانات:\\n').$e->getMessage()
-                    .setting('updates.update_manager.dry_run_2', '\\nصلّح الهجرة الأوّل — التنفيذ من غير كده هيقف في نصّه.');
+                $output = setting('updates.update_manager.dry_run_1', "المعاينة وقفت على خطأ في الكود مش في قاعدة البيانات:\n").$e->getMessage()
+                    .setting('updates.update_manager.dry_run_2', "\nصلّح الهجرة الأوّل — التنفيذ من غير كده هيقف في نصّه.");
             }
         }
 

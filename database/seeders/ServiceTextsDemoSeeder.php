@@ -739,7 +739,8 @@ class ServiceTextsDemoSeeder extends Seeder
             ['gamification_wars.settings_catalog.wars_8', 'gamification_wars', 'مؤقّت الحسم (ثانية)', 'string', 'مؤقّت الحسم (ثانية)', false],
             ['gamification_wars.settings_catalog.wars_9', 'gamification_wars', 'وقت السؤال (ثانية)', 'string', 'وقت السؤال (ثانية)', false],
             ['gamification_wars.war_bank_service.parse_csv_1', 'gamification_wars', 'فشل الاستيراد في الصفّ رقم :p1 — نصّ السؤال فاضي.', 'string', 'فشل الاستيراد في الصفّ رقم :p1 — نصّ السؤال فاضي.', false],
-            ['gamification_wars.war_bank_service.to_csv_1', 'gamification_wars', 'السؤال,الإجابة,الصعوبة,المصدر,الاختيارات,الحالة\\n', 'string', 'السؤال,الإجابة,الصعوبة,المصدر,الاختيارات,الحالة\\n', false],
+            ['gamification_wars.war_bank_service.to_csv_1', 'gamification_wars', 'السؤال,الإجابة,الصعوبة,المصدر,الاختيارات,الحالة', 'text', 'السؤال,الإجابة,الصعوبة,المصدر,الاختيارات,الحالة
+', false],
             ['gamification_wars.war_match_service.settle_1', 'gamification_wars', 'مواجهة حرب #:p1', 'string', 'مواجهة حرب #:p1', false],
             ['gamification_wars.war_match_service.settle_2', 'gamification_wars', 'عقوبة انسحاب من مواجهة #:p1', 'string', 'عقوبة انسحاب من مواجهة #:p1', false],
             ['gamification_wars.war_match_service.transfer_1', 'gamification_wars', ':p1 — خسارة', 'string', ':p1 — خسارة', false],
@@ -805,11 +806,15 @@ class ServiceTextsDemoSeeder extends Seeder
             ['growth.acquisition_funnel.report_3', 'growth', 'تسجيلات', 'string', 'تسجيلات', false],
             ['growth.acquisition_funnel.report_4', 'growth', 'مشترون', 'string', 'مشترون', false],
             ['growth.content_kit.scripts_1', 'growth', 'رسالة واتساب قصيرة', 'string', 'رسالة واتساب قصيرة', false],
-            ['growth.content_kit.scripts_2', 'growth', 'لو بتدوّر على تدريب عربيّ جادّ ومجّانيّ التفعيل، جرّب من هنا:\\n{link}', 'string', 'لو بتدوّر على تدريب عربيّ جادّ ومجّانيّ التفعيل، جرّب من هنا:\\n{link}', false],
+            ['growth.content_kit.scripts_2', 'growth', 'لو بتدوّر على تدريب عربيّ جادّ ومجّانيّ التفعيل، جرّب من هنا: {link}', 'text', 'لو بتدوّر على تدريب عربيّ جادّ ومجّانيّ التفعيل، جرّب من هنا:
+{link}', false],
             ['growth.content_kit.scripts_3', 'growth', 'منشور لينكدإن', 'string', 'منشور لينكدإن', false],
-            ['growth.content_kit.scripts_4', 'growth', 'بتعلّم على منصّة عربيّة بتشتغل بنظام: تدريب ⟵ امتحان ⟵ شهادة بكود ت…', 'string', 'بتعلّم على منصّة عربيّة بتشتغل بنظام: تدريب ⟵ امتحان ⟵ شهادة بكود تحقّق.\\nلو مهتمّ، الرابط ده هيوصّلك:\\n{link}', false],
+            ['growth.content_kit.scripts_4', 'growth', 'بتعلّم على منصّة عربيّة بتشتغل بنظام: تدريب ⟵ امتحان ⟵ شهادة بكود ت…', 'text', 'بتعلّم على منصّة عربيّة بتشتغل بنظام: تدريب ⟵ امتحان ⟵ شهادة بكود تحقّق.
+لو مهتمّ، الرابط ده هيوصّلك:
+{link}', false],
             ['growth.content_kit.scripts_5', 'growth', 'ستوري', 'string', 'ستوري', false],
-            ['growth.content_kit.scripts_6', 'growth', 'بنبدأ دفعة جديدة — لو ناوي تتعلّم حاجة جديدة الشهر ده، ده مكانك:\\n{…', 'string', 'بنبدأ دفعة جديدة — لو ناوي تتعلّم حاجة جديدة الشهر ده، ده مكانك:\\n{link}', false],
+            ['growth.content_kit.scripts_6', 'growth', 'بنبدأ دفعة جديدة — لو ناوي تتعلّم حاجة جديدة الشهر ده، ده مكانك: {l…', 'text', 'بنبدأ دفعة جديدة — لو ناوي تتعلّم حاجة جديدة الشهر ده، ده مكانك:
+{link}', false],
             ['growth.content_kit.tips_1', 'growth', 'ذاكر ٢٥ دقيقة وارتاح ٥ — العقل بيثبّت المعلومة في الراحة مش في الزحمة.', 'string', 'ذاكر ٢٥ دقيقة وارتاح ٥ — العقل بيثبّت المعلومة في الراحة مش في الزحمة.', false],
             ['growth.content_kit.tips_2', 'growth', 'اكتب اللي فهمته بكلامك إنت. لو عرفت تشرحه، يبقى فهمته.', 'string', 'اكتب اللي فهمته بكلامك إنت. لو عرفت تشرحه، يبقى فهمته.', false],
             ['growth.content_kit.tips_3', 'growth', 'الاستمرار أهمّ من الشدّة: نصّ ساعة كلّ يوم أنفع من يوم كامل في الأس…', 'string', 'الاستمرار أهمّ من الشدّة: نصّ ساعة كلّ يوم أنفع من يوم كامل في الأسبوع.', false],
@@ -1059,7 +1064,11 @@ class ServiceTextsDemoSeeder extends Seeder
             ['setup.database_tester.explain_6', 'setup', 'الاتّصال فشل ومقدرناش نحدّد السبب بدقّة. راجع بيانات الاتّصال في لو…', 'text', 'الاتّصال فشل ومقدرناش نحدّد السبب بدقّة. راجع بيانات الاتّصال في لوحة الاستضافة وجرّب تاني، ولو استمرّت المشكلة كلّم الدعم الفنّيّ للاستضافة.', false],
             ['setup.database_tester.test_1', 'setup', 'امتداد pdo_:p1 مش مفعَّل على الخادم، وبدونه مفيش اتّصال بقاعدة البي…', 'string', 'امتداد pdo_:p1 مش مفعَّل على الخادم، وبدونه مفيش اتّصال بقاعدة البيانات. فعّله من إعدادات PHP في الاستضافة وجرّب تاني.', false],
             ['setup.database_tester.test_2', 'setup', 'تمام — الاتّصال بقاعدة البيانات «:p1» نجح. تقدر تكمل.', 'string', 'تمام — الاتّصال بقاعدة البيانات «:p1» نجح. تقدر تكمل.', false],
-            ['setup.env_writer.ensure_exists_1', 'setup', 'APP_NAME=\\"المنصّة\\"\\nAPP_ENV=production\\nAPP_KEY=\\nAPP_DEBUG=false\\n', 'string', 'APP_NAME=\\"المنصّة\\"\\nAPP_ENV=production\\nAPP_KEY=\\nAPP_DEBUG=false\\n', false],
+            ['setup.env_writer.ensure_exists_1', 'setup', 'APP_NAME="المنصّة" APP_ENV=production APP_KEY= APP_DEBUG=false', 'text', 'APP_NAME="المنصّة"
+APP_ENV=production
+APP_KEY=
+APP_DEBUG=false
+', false],
             ['setup.installer.create_owner_1', 'setup', 'دور «:p1» مش موجود في قاعدة البيانات — يبدو إنّ خطوة تجهيز البيانات…', 'text', 'دور «:p1» مش موجود في قاعدة البيانات — يبدو إنّ خطوة تجهيز البيانات الأساسيّة ماتمّتش. ارجع لخطوة قاعدة البيانات وشغّل التجهيز تاني.', false],
             ['setup.installer.store_logo_1', 'setup', 'شعار المنصّة', 'string', 'شعار المنصّة', false],
             ['setup.installer.store_logo_2', 'setup', 'الشعار الظاهر في الهيدر وصفحات الدخول والشهادات.', 'string', 'الشعار الظاهر في الهيدر وصفحات الدخول والشهادات.', false],
@@ -1099,7 +1108,9 @@ class ServiceTextsDemoSeeder extends Seeder
             ['stats.screen_settings.catalog_58', 'stats', 'مجلّد ملفّات التنزيل المؤقّت', 'string', 'مجلّد ملفّات التنزيل المؤقّت', false],
             ['stats.screen_settings.catalog_59', 'stats', 'داخل التخزين الخاصّ — مش المجلّد العامّ.', 'string', 'داخل التخزين الخاصّ — مش المجلّد العامّ.', false],
             ['stats.screen_settings.catalog_60', 'stats', 'نصّ سطر رابط التنزيل', 'string', 'نصّ سطر رابط التنزيل', false],
-            ['stats.screen_settings.catalog_61', 'stats', 'الملفّ أكبر من حدّ المرفق (:size ميجابايت)، فرفعناه على رابط تنزيل …', 'text', 'الملفّ أكبر من حدّ المرفق (:size ميجابايت)، فرفعناه على رابط تنزيل مؤقّت:\\n:url\\nالرابط شغّال :hours ساعة، وبعدها يتشال. لو خلصت مدّته اضغط «شغّل الآن» من شاشة التقارير المجدولة.', false],
+            ['stats.screen_settings.catalog_61', 'stats', 'الملفّ أكبر من حدّ المرفق (:size ميجابايت)، فرفعناه على رابط تنزيل …', 'text', 'الملفّ أكبر من حدّ المرفق (:size ميجابايت)، فرفعناه على رابط تنزيل مؤقّت:
+:url
+الرابط شغّال :hours ساعة، وبعدها يتشال. لو خلصت مدّته اضغط «شغّل الآن» من شاشة التقارير المجدولة.', false],
             ['stats.screen_settings.catalog_62', 'stats', 'المتغيّرات: :url · :hours · :size', 'string', 'المتغيّرات: :url · :hours · :size', false],
             ['stats.screen_settings.catalog_63', 'stats', 'سقف صفوف ملفّ Excel', 'string', 'سقف صفوف ملفّ Excel', false],
             ['stats.screen_settings.catalog_64', 'stats', 'الملفّ الذي لا يُفتَح لا ينفع أحدًا.', 'string', 'الملفّ الذي لا يُفتَح لا ينفع أحدًا.', false],
@@ -1121,7 +1132,8 @@ class ServiceTextsDemoSeeder extends Seeder
             ['stats.screen_settings.catalog_80', 'stats', 'تقرير :name — :date', 'string', 'تقرير :name — :date', false],
             ['stats.screen_settings.catalog_81', 'stats', 'المتغيّرات: :name · :date · :tab', 'string', 'المتغيّرات: :name · :date · :tab', false],
             ['stats.screen_settings.catalog_82', 'stats', 'نصّ رسالة التقرير', 'string', 'نصّ رسالة التقرير', false],
-            ['stats.screen_settings.catalog_83', 'stats', 'تقرير «:name» عن آخر :days يوم.\\nعدد الصفوف: :rows', 'string', 'تقرير «:name» عن آخر :days يوم.\\nعدد الصفوف: :rows', false],
+            ['stats.screen_settings.catalog_83', 'stats', 'تقرير «:name» عن آخر :days يوم. عدد الصفوف: :rows', 'text', 'تقرير «:name» عن آخر :days يوم.
+عدد الصفوف: :rows', false],
             ['stats.screen_settings.catalog_84', 'stats', 'المتغيّرات: :name · :days · :rows · :date', 'string', 'المتغيّرات: :name · :days · :rows · :date', false],
             ['stats.screen_settings.catalog_85', 'stats', 'نصّ الحالة الفارغة', 'string', 'نصّ الحالة الفارغة', false],
             ['stats.screen_settings.catalog_86', 'stats', 'مافيش تقارير مجدولة — ابعت تقريرك الأوّل تلقائيًّا.', 'string', 'مافيش تقارير مجدولة — ابعت تقريرك الأوّل تلقائيًّا.', false],
@@ -1519,8 +1531,10 @@ class ServiceTextsDemoSeeder extends Seeder
             ['updates.update_manager.body_2', 'updates', 'اتنفّذت', 'string', 'اتنفّذت ', false],
             ['updates.update_manager.body_3', 'updates', 'هجرة ✓ — الإصدار بقى :p1، والنسخة الاحتياطيّة محفوظة قبلها.', 'string', ' هجرة ✓ — الإصدار بقى :p1، والنسخة الاحتياطيّة محفوظة قبلها.', false],
             ['updates.update_manager.body_4', 'updates', 'الإصدار بقى :p1 ✓', 'string', 'الإصدار بقى :p1 ✓', false],
-            ['updates.update_manager.dry_run_1', 'updates', 'المعاينة وقفت على خطأ في الكود مش في قاعدة البيانات:\\n', 'string', 'المعاينة وقفت على خطأ في الكود مش في قاعدة البيانات:\\n', false],
-            ['updates.update_manager.dry_run_2', 'updates', '\\nصلّح الهجرة الأوّل — التنفيذ من غير كده هيقف في نصّه.', 'string', '\\nصلّح الهجرة الأوّل — التنفيذ من غير كده هيقف في نصّه.', false],
+            ['updates.update_manager.dry_run_1', 'updates', 'المعاينة وقفت على خطأ في الكود مش في قاعدة البيانات:', 'text', 'المعاينة وقفت على خطأ في الكود مش في قاعدة البيانات:
+', false],
+            ['updates.update_manager.dry_run_2', 'updates', 'صلّح الهجرة الأوّل — التنفيذ من غير كده هيقف في نصّه.', 'text', '
+صلّح الهجرة الأوّل — التنفيذ من غير كده هيقف في نصّه.', false],
             ['updates.update_manager.dry_run_3', 'updates', 'مافيش هجرات معلّقة — مفيش جملة واحدة هتتنفّذ.', 'string', 'مافيش هجرات معلّقة — مفيش جملة واحدة هتتنفّذ.', false],
             ['updates.update_manager.fail_1', 'updates', 'مقدرناش نرجّع الهجرات المطبَّقة — الاعتماد على الاستعادة.', 'string', 'مقدرناش نرجّع الهجرات المطبَّقة — الاعتماد على الاستعادة.', false],
             ['updates.update_manager.fail_10', 'updates', 'التحديث وقف: :p1', 'string', 'التحديث وقف: :p1', false],
