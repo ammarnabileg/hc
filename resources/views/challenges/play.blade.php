@@ -14,11 +14,11 @@
             <div class="min-w-0">
                 <h1 class="font-bold truncate">{{ $challenge->name_ar }}</h1>
                 <p class="text-xs" style="color: var(--text-muted)">
-                    خصمك: {{ $rival?->name ?? 'محارب' }}
+                    {{ str_replace(':rival', $rival?->name ?? setting('challenges.play.unknown_rival', 'محارب'), (string) setting('challenges.play.rival_line', 'خصمك: :rival')) }}
                     @if ($isSurvival)
-                        · سؤال <span data-current>{{ $startIndex + 1 }}</span> من {{ $total }}
+                        {!! str_replace([':index', ':total'], ['<span data-current>'.($startIndex + 1).'</span>', $total], e(setting('challenges.play.question_of', '· سؤال :index من :total'))) !!}
                     @else
-                        · <span data-answered>{{ count($answers) }}</span> من {{ $total }}
+                        {!! str_replace([':count', ':total'], ['<span data-answered>'.count($answers).'</span>', $total], e(setting('challenges.play.answered_of', '· :count من :total'))) !!}
                     @endif
                 </p>
             </div>
@@ -28,7 +28,7 @@
                 <div class="text-left">
                     <div class="text-xl font-extrabold tabular-nums" data-qtimer
                          style="color: var(--color-brand-400)">{{ $questionSecondsLeft ?? '—' }}</div>
-                    <div class="text-[11px]" style="color: var(--text-muted)">ثانية للسؤال</div>
+                    <div class="text-[11px]" style="color: var(--text-muted)">{{ setting('challenges.play.seconds_per_question', 'ثانية للسؤال') }}</div>
                 </div>
             @endif
         </div>
@@ -44,7 +44,7 @@
         <div class="max-w-2xl mx-auto card p-3 text-sm flex items-center gap-2" role="status"
              style="border-color: var(--color-state-warn)">
             <span aria-hidden="true">▲</span>
-            <span>خصمك خلّص — باقي <b data-decision-left>{{ $decisionSecondsLeft ?? 0 }}</b> ثانية وتُقفَل المواجهة.</span>
+            <span>{!! str_replace(':seconds', '<b data-decision-left>'.(int) ($decisionSecondsLeft ?? 0).'</b>', e(setting('challenges.play.decision_note', 'خصمك خلّص — باقي :seconds ثانية وتُقفَل المواجهة.'))) !!}</span>
         </div>
     </div>
 
@@ -53,15 +53,15 @@
         <div class="max-w-2xl mx-auto card p-3 text-sm flex items-center gap-2" role="status"
              style="border-color: var(--color-state-warn)">
             <span aria-hidden="true">▲</span>
-            <span>النت فصل — بس تقدّمك محفوظ، وأوّل ما يرجع هنكمّل من نفس المكان.</span>
+            <span>{{ setting('challenges.play.offline_note', 'النت فصل — بس تقدّمك محفوظ، وأوّل ما يرجع هنكمّل من نفس المكان.') }}</span>
         </div>
     </div>
 
     <main class="flex-1 px-4 md:px-6 py-6">
         <div class="max-w-2xl mx-auto">
             @if ($total === 0)
-                <x-empty message="المواجهة دي بلا أسئلة — سلّم وارجع بعدين."
-                         action="سلّم" :href="route('challenges.mine')" />
+                <x-empty :message="setting('challenges.play.no_questions', 'المواجهة دي بلا أسئلة — سلّم وارجع بعدين.')"
+                         :action="setting('challenges.play.no_questions_action', 'سلّم')" :href="route('challenges.mine')" />
             @else
                 <div class="space-y-4">
                     @foreach ($items as $item)
@@ -74,7 +74,7 @@
                             <div class="mt-5 space-y-2">
                                 @if ($item['kind'] === 'number')
                                     <label class="block">
-                                        <span class="block text-sm mb-1">تقديرك بالرقم{{ $item['unit'] ? ' ('.$item['unit'].')' : '' }}</span>
+                                        <span class="block text-sm mb-1">{{ setting('challenges.play.number_answer_label', 'تقديرك بالرقم') }}{{ $item['unit'] ? ' ('.$item['unit'].')' : '' }}</span>
                                         <input type="number" step="any" inputmode="decimal"
                                                data-answer="{{ $item['i'] }}" data-input
                                                value="{{ $answers[(string) $item['i']] ?? '' }}"
@@ -110,7 +110,7 @@
                     <button type="submit"
                             class="btn w-full rounded-xl px-4 py-3 text-sm font-bold motion-standard"
                             style="background: var(--color-brand-500); color: #04201c; min-height: 44px">
-                        خلّصت — سلّم
+                        {{ setting('challenges.play.submit_action', 'خلّصت — سلّم') }}
                     </button>
                 </form>
 
@@ -118,34 +118,45 @@
                 <button type="button" data-modal-open="withdraw-{{ $match->id }}"
                         class="rounded-xl px-4 py-3 text-sm motion-standard"
                         style="background: var(--surface-sunken); color: var(--text); border: 1px solid var(--border); min-height: 44px">
-                    انسحاب
+                    {{ setting('challenges.play.withdraw_action', 'انسحاب') }}
                 </button>
             </div>
         </div>
     </main>
 
-    <x-modal :id="'withdraw-'.$match->id" title="متأكّد إنك عايز تنسحب؟">
+    <x-modal :id="'withdraw-'.$match->id" :title="setting('challenges.play.withdraw_modal_title', 'متأكّد إنك عايز تنسحب؟')">
         <p class="text-sm">
-            الانسحاب بيحسب عليك <b>خسارة</b> وكمان <b>عقوبة انسحاب</b> — والخصم بيكسب المواجهة.
-            لو النت بيقطع منك، مفيش داعي تنسحب: تقدّمك محفوظ وهيتحسب لوحده.
+            {!! str_replace(
+                [':loss', ':penalty'],
+                ['<b>'.e(setting('challenges.play.withdraw_loss_word', 'خسارة')).'</b>', '<b>'.e(setting('challenges.play.withdraw_penalty_word', 'عقوبة انسحاب')).'</b>'],
+                e(setting('challenges.play.withdraw_modal_body', 'الانسحاب بيحسب عليك :loss وكمان :penalty — والخصم بيكسب المواجهة. لو النت بيقطع منك، مفيش داعي تنسحب: تقدّمك محفوظ وهيتحسب لوحده.')),
+            ) !!}
         </p>
         <x-slot:footer>
             <div class="flex items-center justify-end gap-2">
                 <button type="button" data-modal-close
                         class="btn rounded-xl px-4 py-2.5 text-sm font-semibold motion-standard"
-                        style="background: var(--color-brand-500); color: #04201c; min-height: 44px">أكمّل المواجهة</button>
+                        style="background: var(--color-brand-500); color: #04201c; min-height: 44px">{{ setting('challenges.play.withdraw_cancel', 'أكمّل المواجهة') }}</button>
                 <form method="post" action="{{ route('challenges.withdraw', $match) }}">
                     @csrf
                     <button type="submit" class="rounded-xl px-4 py-2.5 text-sm motion-standard"
-                            style="background: var(--surface-sunken); color: var(--text); min-height: 44px">أنسحب</button>
+                            style="background: var(--surface-sunken); color: var(--text); min-height: 44px">{{ setting('challenges.play.withdraw_confirm', 'أنسحب') }}</button>
                 </form>
             </div>
         </x-slot:footer>
     </x-modal>
 
     @push('scripts')
+        @php
+            // ردود الحفظ التلقائيّ من الإعدادات لا من السكربت (2.13)
+            $playWords = [
+                'saved' => (string) setting('challenges.play.answer_saved', 'اتحفظ ✓'),
+                'queued' => (string) setting('challenges.play.answer_queued', 'تقدّمك محفوظ — هنبعته أوّل ما النت يرجع'),
+            ];
+        @endphp
         <script>
             (() => {
+                const playWords = @json($playWords);
                 const total = {{ $total }};
                 const isSurvival = {{ $isSurvival ? 'true' : 'false' }};
                 const answerUrl = @json(route('challenges.answer', $match));
@@ -188,14 +199,14 @@
                         const data = await res.json();
                         if (data.redirect) return window.location.assign(data.redirect);
                         offline?.classList.add('hidden');
-                        if (note) note.textContent = 'اتحفظ ✓';
+                        if (note) note.textContent = playWords.saved;
                         answered.add(String(i));
                         paint();
                         if (isSurvival && data.saved) { show(i + 1); resetQuestionTimer(); }
                     } catch {
                         // الانقطاع لا يعاقِب: نطمئنه ونحتفظ بالإجابة لحدّ ما النت يرجع
                         offline?.classList.remove('hidden');
-                        if (note) note.textContent = 'تقدّمك محفوظ — هنبعته أوّل ما النت يرجع';
+                        if (note) note.textContent = playWords.queued;
                         pending.set(i, value);
                     }
                 };

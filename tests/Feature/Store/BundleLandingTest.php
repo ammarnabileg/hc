@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Store;
 
+use App\Models\BundleItem;
 use App\Models\LibraryEntitlement;
 use App\Models\Order;
 use App\Services\Store\PricingService;
@@ -130,7 +131,7 @@ class BundleLandingTest extends StoreTestCase
         $product = $this->product();
         $bundle = $this->bundle([$course, $product]);
 
-        \App\Models\BundleItem::where('bundle_id', $bundle->id)
+        BundleItem::where('bundle_id', $bundle->id)
             ->where('itemable_type', $product::class)
             ->update(['is_bonus' => true]);
 

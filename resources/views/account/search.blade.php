@@ -1,20 +1,20 @@
 @extends('layouts.app')
-@section('title', 'البحث')
+@section('title', setting('account.search.title', 'البحث'))
 
 @section('content')
     <x-page-header
-        title="البحث"
-        subtitle="ادخل على أيّ حدّ من الكود أو الاسم."
-        :breadcrumbs="[['label' => 'البحث']]" />
+        :title="setting('account.search.title', 'البحث')"
+        :subtitle="setting('account.search.subtitle', 'ادخل على أيّ حدّ من الكود أو الاسم.')"
+        :breadcrumbs="[['label' => setting('account.search.title', 'البحث')]]" />
 
     <form method="get" action="{{ route('search') }}" class="card p-4 mb-4" data-search-form>
         <div class="flex gap-2">
-            <input type="search" name="q" value="{{ $q }}" autofocus placeholder="اكتب كود أو اسم أو بريد أو رقم موبايل"
+            <input type="search" name="q" value="{{ $q }}" autofocus placeholder="{{ setting('account.search.placeholder', 'اكتب كود أو اسم أو بريد أو رقم موبايل') }}"
                    class="flex-1 rounded-xl px-4 py-3 text-sm"
                    style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)"
-                   aria-label="كلمة البحث">
+                   aria-label="{{ setting('account.search.input_aria', 'كلمة البحث') }}">
             <button type="submit" class="btn rounded-xl px-5 py-3 text-sm font-semibold motion-standard"
-                    style="background: var(--color-brand-500); color: #04201c">إبحث</button>
+                    style="background: var(--color-brand-500); color: #04201c">{{ setting('account.search.submit', 'إبحث') }}</button>
         </div>
 
         {{--
@@ -37,16 +37,16 @@
         </div>
 
         <p class="text-xs mt-3" style="color: var(--text-muted)">
-            البحث بالبريد أو رقم الموبايل وسيلة وصول بس — النتيجة بتفتح البروفايل العامّ ومفيش أيّ بيانات حسّاسة.
+            {{ setting('account.search.privacy_note', 'البحث بالبريد أو رقم الموبايل وسيلة وصول بس — النتيجة بتفتح البروفايل العامّ ومفيش أيّ بيانات حسّاسة.') }}
         </p>
     </form>
 
     @if ($q === '')
-        <x-empty message="اكتب كلمة وابدأ البحث." />
+        <x-empty :message="setting('account.search.empty_idle', 'اكتب كلمة وابدأ البحث.')" />
     @elseif ($total === 0)
-        <x-empty message="مفيش نتائج — جرّب كود أو اسم تاني." />
+        <x-empty :message="setting('account.search.empty_no_results', 'مفيش نتائج — جرّب كود أو اسم تاني.')" />
     @else
-        <p class="text-xs mb-3" style="color: var(--text-muted)">{{ $total }} نتيجة</p>
+        <p class="text-xs mb-3" style="color: var(--text-muted)">{{ str_replace(':total', $total, (string) setting('account.search.results_count', ':total نتيجة')) }}</p>
 
         <div class="grid md:grid-cols-2 gap-3" data-search-results>
             @include('account.partials.search-results')
@@ -71,7 +71,7 @@
                 <a href="{{ route('search.more', array_merge(request()->only('q', 'fields', 'last'), ['offset' => $nextOffset])) }}"
                    data-search-more data-next-offset="{{ $nextOffset }}"
                    class="btn inline-flex items-center rounded-xl px-4 py-2 text-sm motion-standard"
-                   style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">عرض المزيد</a>
+                   style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">{{ setting('account.search.load_more', 'عرض المزيد') }}</a>
             </div>
         @endif
     @endif

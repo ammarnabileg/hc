@@ -78,15 +78,10 @@ class LedgerService
         return DB::transaction(function () use ($user, $currencyCode, $amount, $source, $reference, $layer, $reason, $createdBy) {
             $currency = Currency::query()->where('code', $currencyCode)->firstOrFail();
             $wallet = $this->lockedWallet($user, (int) $currency->id);
-            $decimals = (int) $currency->decimals;
 
             // هامش 0.001 يمنع رفضًا كاذبًا من فروق الفاصلة العائمة
-            if ((float) $wallet->balance + 0.001 < $amount) {
-                throw new WalletException(
-                    'رصيدك من '.$currency->name_ar.' مش مكفّي: عندك '
-                    .number_format((float) $wallet->balance, $decimals).' والمطلوب '
-                    .number_format($amount, $decimals).'. قلّل القيمة أو اشحن الأوّل.'
-                );
+            if ((float) $wallet->balance - $amount + 0.001 < (float) ($currency->min_value ?? 0)) {
+                throw new WalletException($this->insufficientMessage($currency, (float) $wallet->balance, $amount));
             }
 
             return $this->record($user, $currencyCode, -$amount, $source, $reference, $layer, $reason, $createdBy);
@@ -202,10 +197,44 @@ class LedgerService
                 }
             }
 
+            /*
+             | ⭐⭐ **قاعُ الرصيد للعملة القابلة للصرف — يُرَدّ ولا يُقَصّ** (15.2-4 · 19.3)
+             |
+             | النصّ الحاكم — **15.2-4:** «**بوابة ≥ 12 تذكرة** للطرفين، **والتذاكر
+             | لا تنزل تحت الصفر**». وكان `debit()` ينزل بها تحت الصفر فعلًا:
+             | رصيد 3 · خصم 12 ⟵ `balance_after = −9` (مُثبَتٌ بالتشغيل).
+             |
+             | **ولماذا الردّ لا القصّ؟** لأنّ القصّ عند القاع يجعل `amount = −12`
+             | و`applied_amount = −3`: الدفتر يقول اثني عشر والرصيد نزل ثلاثة —
+             | وهذا **عين ثغرة السكّ**، إذ يكفي أن يقابله `credit` بـ12 لطرفٍ آخر
+             | فتُسَكّ تسع تذاكر من العدم وتسقط «المحصّلة الصفريّة» (15.2-6).
+             | فالقاعدة هنا هي قاعدة `debitOrFail` نفسها المنصوصة أعلاه:
+             | «**إمّا تُنفَّذ كاملة أو تُرَدّ برسالةٍ تشرح الناقص**».
+             |
+             | **ولماذا القابلة للصرف وحدها؟** لأنّ `rep` **مسقوفة عمدًا** −10…+10
+             | (13.4-ن) والقصّ عند حدّها **سلوكٌ منصوص** لا عطب — وهي غير قابلة
+             | للصرف. فالردّ للمال (كوينز · تذاكر · دولار الأرباح)، والقصّ للدرجات.
+             |
+             | **والتصحيح الموثّق مستثنًى** (19.4): المعاملة العكسيّة لخطأٍ تقنيّ
+             | أو لاسترجاعٍ من البوّابة يجب أن تُسجَّل كاملةً ولو تركت الرصيد
+             | مدينًا — وإلّا بقي في المحفظة رصيدٌ اعترف الدفتر بأنّه رُدّ.
+             */
+            if ($applied < 0 && ! $isCorrection && $currency->is_spendable && $currency->min_value !== null
+                && $before + $applied + 0.001 < (float) $currency->min_value) {
+                throw new WalletException($this->insufficientMessage($currency, $before, abs($applied)));
+            }
+
             // سقف العملة وحدّها الأدنى (Rep مسقوف −10…+10)
             $after = $before + $applied;
 
-            if ($currency->min_value !== null) {
+            /*
+             | ⭐ والتصحيح الموثّق في العملة القابلة للصرف **لا يُقَصّ عند القاع**:
+             | لو شحن 100 وصرف 90 ثمّ ردّت البوّابة الشحنة، فالعكسيّة −100 كاملة
+             | ورصيدُه **−10** يقول الحقيقة؛ أمّا القصّ عند صفر فيسجّل −100 ويطبّق
+             | −10 — دفترٌ يفارق الرصيد، وهو ما نغلقه هنا لا ما نفتحه (19.4).
+             | و`rep` غير قابلة للصرف فتبقى مقصوصةً بسقفها المنصوص أبدًا (13.4-ن).
+             */
+            if ($currency->min_value !== null && ! ($isCorrection && $currency->is_spendable)) {
                 $after = max($after, (float) $currency->min_value);
             }
 
@@ -311,6 +340,19 @@ class LedgerService
         $lines = is_array($raw) ? $raw : (preg_split('/[\r\n,]+/', (string) $raw) ?: []);
 
         return array_values(array_filter(array_map('trim', $lines), static fn ($v) => $v !== ''));
+    }
+
+    /**
+     * رسالة «الرصيد لا يكفي» — **صياغةٌ واحدة** يقرؤها المستخدم من `debitOrFail`
+     * ومن قاع `record()` معًا، فلا تختلف الرسالة باختلاف الباب الذي رُدّ منه.
+     */
+    private function insufficientMessage(Currency $currency, float $balance, float $needed): string
+    {
+        $decimals = (int) $currency->decimals;
+
+        return 'رصيدك من '.$currency->name_ar.' مش مكفّي: عندك '
+            .number_format($balance, $decimals).' والمطلوب '
+            .number_format($needed, $decimals).'. قلّل القيمة أو اشحن الأوّل.';
     }
 
     /** صفّ المحفظة مقفولًا حتى نهاية المعاملة — فلا يقرأ نداءان رصيدًا واحدًا معًا */

@@ -17,14 +17,14 @@
                 @if ($row['lesson_title'])
                     {{ $row['section_title'] }} ← {{ $row['lesson_title'] }}
                 @else
-                    خلّصت كلّ الدروس
+                    {{ setting('dashboard.course_card.all_lessons_done', 'خلّصت كلّ الدروس') }}
                 @endif
             </p>
 
             {{-- Ghost Timer مصغّر: لون الحالة ورمزها معًا (2.16-ب) --}}
             <div class="mt-2 flex flex-wrap items-center gap-2">
                 <x-state-badge :state="$timer->state" :label="$timer->label" />
-                <span class="text-xs" style="color: var(--text-muted)">{{ $row['completed_lessons'] }}/{{ $row['total_lessons'] }} درس</span>
+                <span class="text-xs" style="color: var(--text-muted)">{{ str_replace([':done', ':total'], [$row['completed_lessons'], $row['total_lessons']], (string) setting('dashboard.course_card.lessons_progress', ':done/:total درس')) }}</span>
             </div>
         </div>
     </div>
@@ -39,5 +39,5 @@
 
     <a href="{{ $row['next_lesson']['url'] ?? $row['course_url'] }}"
        class="btn mt-4 w-full inline-flex items-center justify-center rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
-       style="background: var(--color-brand-500); color: #04201c">إكمال</a>
+       style="background: var(--color-brand-500); color: #04201c">{{ setting('dashboard.course_card.continue_action', 'إكمال') }}</a>
 </article>

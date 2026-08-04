@@ -1,16 +1,16 @@
 @extends('layouts.app')
 
-@section('title', 'التذاكر')
+@section('title', setting('wallet.tickets.title', 'التذاكر'))
 
 @section('content')
     <x-page-header
-        title="التذاكر"
-        subtitle="التذكرة عملة تفاعل: بتكسبها من تعلّمك، وبتصرفها على اللي يهمّك."
-        :breadcrumbs="[['label' => 'المحفظة', 'url' => route('wallet.index')], ['label' => 'التذاكر']]">
+        :title="setting('wallet.tickets.title', 'التذاكر')"
+        :subtitle="setting('wallet.tickets.subtitle', 'التذكرة عملة تفاعل: بتكسبها من تعلّمك، وبتصرفها على اللي يهمّك.')"
+        :breadcrumbs="[['label' => setting('wallet.index.breadcrumb_root', 'المحفظة'), 'url' => route('wallet.index')], ['label' => setting('wallet.tickets.title', 'التذاكر')]]">
         <x-slot:action>
             <a href="{{ route('wallet.transactions', ['currency' => 'tickets']) }}"
                class="btn inline-flex items-center rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
-               style="background: var(--color-brand-500); color: #04201c">حركة تذاكري</a>
+               style="background: var(--color-brand-500); color: #04201c">{{ setting('wallet.tickets.history_action', 'حركة تذاكري') }}</a>
         </x-slot:action>
     </x-page-header>
 
@@ -21,7 +21,7 @@
       «10» هنا و«17» هناك بلا ما يفسّر الفارق (ن-2).
     --}}
     <section class="card p-5 md:p-6 animate-fadeup">
-        <div class="text-sm" style="color: var(--text-muted)">رصيد التذاكر</div>
+        <div class="text-sm" style="color: var(--text-muted)">{{ setting('wallet.tickets.balance_label', 'رصيد التذاكر') }}</div>
         <div class="mt-1 text-4xl font-extrabold"
              data-count-to="{{ number_format($balance) }}">{{ number_format($balance) }}</div>
 
@@ -34,7 +34,7 @@
         <div class="mt-4 space-y-2">
             <div>
                 <div class="flex items-baseline justify-between text-xs">
-                    <span>مكتسب</span>
+                    <span>{{ setting('wallet.tickets.earned_label', 'مكتسب') }}</span>
                     <span class="tabular-nums" style="color: var(--text-muted)">+{{ number_format($earned) }}</span>
                 </div>
                 <div class="mt-1 h-2 rounded-full overflow-hidden" style="background: var(--surface-sunken)">
@@ -44,7 +44,7 @@
 
             <div>
                 <div class="flex items-baseline justify-between text-xs">
-                    <span>مصروف</span>
+                    <span>{{ setting('wallet.tickets.spent_label', 'مصروف') }}</span>
                     <span class="tabular-nums" style="color: var(--text-muted)">−{{ number_format($spent) }}</span>
                 </div>
                 <div class="mt-1 h-2 rounded-full overflow-hidden" style="background: var(--surface-sunken)">
@@ -65,7 +65,7 @@
     {{-- عمودان على الشاشة الكبيرة، وشاشةٌ واحدة متتابعة على الموبايل (2.15-ج) --}}
     <section class="grid md:grid-cols-2 gap-4 mt-4">
         <div class="card p-4 md:p-5">
-            <h2 class="font-bold mb-3">إزّاي تكسب تذاكر</h2>
+            <h2 class="font-bold mb-3">{{ setting('wallet.tickets.earn_title', 'إزّاي تكسب تذاكر') }}</h2>
             <ul class="space-y-2 text-sm">
                 @foreach ($earnSources as $item)
                     <li class="flex items-start gap-2">
@@ -77,7 +77,7 @@
         </div>
 
         <div class="card p-4 md:p-5">
-            <h2 class="font-bold mb-3">تصرفها فين</h2>
+            <h2 class="font-bold mb-3">{{ setting('wallet.tickets.spend_title', 'تصرفها فين') }}</h2>
             <ul class="space-y-2 text-sm">
                 @foreach ($spendTargets as $item)
                     <li class="flex items-start gap-2">
@@ -90,7 +90,7 @@
     </section>
 
     <section class="card mt-4 p-4 md:p-5">
-        <h2 class="font-bold mb-3">آخر حركات التذاكر</h2>
+        <h2 class="font-bold mb-3">{{ setting('wallet.tickets.recent_title', 'آخر حركات التذاكر') }}</h2>
 
         @forelse ($recent as $row)
             <div class="flex items-center justify-between gap-3 py-3 {{ $loop->last ? '' : 'border-b' }}"
@@ -103,8 +103,8 @@
                 @include('wallet.components.amount', ['value' => $row->applied_amount ?? $row->amount])
             </div>
         @empty
-            <x-empty message="لسّه مافيش تذاكر — أوّل درس هيجيبلك أوّل تذكرة."
-                     action="ابدأ تعلّمك" :href="route('dashboard')" />
+            <x-empty :message="setting('wallet.tickets.empty_message', 'لسّه مافيش تذاكر — أوّل درس هيجيبلك أوّل تذكرة.')"
+                     :action="setting('wallet.tickets.empty_action', 'ابدأ تعلّمك')" :href="route('dashboard')" />
         @endforelse
     </section>
 @endsection

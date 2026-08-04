@@ -3,6 +3,7 @@
 namespace Tests\Feature\Store;
 
 use App\Models\Bundle;
+use App\Models\User;
 use App\Services\Store\BundleLanding;
 
 /**
@@ -203,9 +204,9 @@ class BundleLandingInheritanceTest extends StoreTestCase
         ], $overrides);
     }
 
-    protected function owner(): \App\Models\User
+    protected function owner(): User
     {
-        $owner = \App\Models\User::create([
+        $owner = User::create([
             'name' => 'مالك المنصّة',
             'email' => 'owner'.uniqid().'@test.local',
             'password' => 'secret-password',

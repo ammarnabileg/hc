@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Store;
 
+use App\Models\Exam;
 use App\Models\LibraryEntitlement;
 use App\Services\Store\BundleLanding;
 
@@ -214,7 +215,7 @@ class BundleScarcityAndHonestyTest extends StoreTestCase
             ->assertOk()
             ->assertDontSee(setting('store.bundle.certificate_title'));
 
-        \App\Models\Exam::create([
+        Exam::create([
             'examable_type' => $course::class,
             'examable_id' => $course->id,
             'title_ar' => 'الامتحان النهائيّ',

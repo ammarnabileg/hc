@@ -16,15 +16,15 @@
 
 <section class="mt-6">
     <div class="flex items-baseline justify-between gap-2 mb-3">
-        <h2 class="font-bold">تدريباتي الجارية</h2>
+        <h2 class="font-bold">{{ setting('dashboard.overview.active_courses_title', 'تدريباتي الجارية') }}</h2>
         @if (\Illuminate\Support\Facades\Route::has('learning.courses'))
-            <a href="{{ route('learning.courses') }}" class="text-xs hover:underline" style="color: var(--color-brand-500)">كلّ تدريباتي</a>
+            <a href="{{ route('learning.courses') }}" class="text-xs hover:underline" style="color: var(--color-brand-500)">{{ setting('dashboard.overview.all_courses_link', 'كلّ تدريباتي') }}</a>
         @endif
     </div>
 
     @if ($courses->isEmpty())
-        <x-empty message="خلّصت كلّ تدريباتك الجارية — تحفة"
-                 action="تصفّح المتجر"
+        <x-empty :message="setting('dashboard.overview.courses_empty_message', 'خلّصت كلّ تدريباتك الجارية — تحفة')"
+                 :action="setting('dashboard.overview.courses_empty_action', 'تصفّح المتجر')"
                  :href="\Illuminate\Support\Facades\Route::has('store.index') ? route('store.index') : url('/')" />
     @else
         <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
@@ -36,10 +36,10 @@
 </section>
 
 <section class="mt-6">
-    <h2 class="font-bold mb-3">أقرب المواعيد</h2>
+    <h2 class="font-bold mb-3">{{ setting('dashboard.overview.deadlines_title', 'أقرب المواعيد') }}</h2>
 
     @if ($deadlines->isEmpty())
-        <div class="card p-5 text-sm" style="color: var(--text-muted)">مفيش موعد قريب — خُد وقتك.</div>
+        <div class="card p-5 text-sm" style="color: var(--text-muted)">{{ setting('dashboard.overview.deadlines_empty', 'مفيش موعد قريب — خُد وقتك.') }}</div>
     @else
         <ul class="card divide-y" style="border-color: var(--border)">
             @foreach ($deadlines as $row)
@@ -51,7 +51,7 @@
                                    :label="$row['timer']->label"
                                    data-countdown="{{ $row['timer']->deadline?->toIso8601String() }}" />
 
-                    <span class="text-xs" style="color: var(--text-muted)">{{ $row['percent'] }}% مكتمل</span>
+                    <span class="text-xs" style="color: var(--text-muted)">{{ str_replace(':percent', $row['percent'], (string) setting('dashboard.overview.deadline_percent', ':percent% مكتمل')) }}</span>
                 </li>
             @endforeach
         </ul>

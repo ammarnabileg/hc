@@ -21,15 +21,15 @@
     <div class="min-w-0 flex-1">
         <div class="truncate text-sm font-semibold">
             {{ $row['name'] }}
-            @if ($pinned)<span class="text-xs font-normal" style="color: var(--color-brand-400)">— ده إنت</span>@endif
+            @if ($pinned)<span class="text-xs font-normal" style="color: var(--color-brand-400)">{{ setting('challenges.champion_row.you_label', '— ده إنت') }}</span>@endif
         </div>
         <div class="text-xs" style="color: var(--text-muted)">
-            #{{ $row['code'] }} · {{ $row['wins'] }} فوز من {{ $row['played'] }}
+            #{{ $row['code'] }} {{ str_replace([':wins', ':played'], [$row['wins'], $row['played']], (string) setting('challenges.champion_row.record', '· :wins فوز من :played')) }}
         </div>
     </div>
 
     <div class="text-end">
         <div class="text-sm font-extrabold tabular-nums">{{ (int) $row['points'] }}</div>
-        <div class="text-[11px]" style="color: var(--text-muted)">نقطة</div>
+        <div class="text-[11px]" style="color: var(--text-muted)">{{ setting('challenges.champion_row.points_word', 'نقطة') }}</div>
     </div>
 </div>

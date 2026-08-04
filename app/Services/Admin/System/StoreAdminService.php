@@ -12,6 +12,7 @@ use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\ProductCategory;
 use App\Models\User;
+use App\Services\Store\PricingService;
 use App\Services\Store\StoreCatalog;
 use App\Support\Scope\ScopeFilter;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -121,7 +122,7 @@ class StoreAdminService
         $rows = $query->paginate($this->bundlesPerPage())->withQueryString();
 
         // القيمة الإجماليّة **الحقيقيّة** من الكتالوج (Override + السعر الطبيعيّ)
-        $pricing = app(\App\Services\Store\PricingService::class);
+        $pricing = app(PricingService::class);
 
         $rows->getCollection()->transform(function (Bundle $bundle) use ($pricing) {
             $bundle->items_value = $pricing->bundleItemsValue($bundle);

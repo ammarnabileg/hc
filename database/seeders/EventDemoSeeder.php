@@ -23,8 +23,157 @@ class EventDemoSeeder extends Seeder
     public function run(): void
     {
         $this->settings();
+        $this->screenTextSettings();
         $this->permissions();
         $this->events();
+
+        Cache::forget('settings');
+    }
+
+    /**
+     * **نصوص شاشات الفعاليّات** (2.13-أ: «النصوص الظاهرة للمستخدم») — كلّ جملةٍ
+     * يقرؤها المتدرّب على `resources/views/events/**` لها مفتاحها هنا، والوحدة
+     * **جملةٌ كاملة** كما تُقرَأ لا كلمةً مقتطعة. و`:count` وأخواتها مواضع
+     * استبدال لا نصًّا.
+     *
+     * ⚠️ «الفعاليّات» و«الرئيسيّة» عنوانان **منصوصان حرفيًّا في الدستور**
+     * (24.5 · 12.0 — سايد بار المتدرّب)، فافتراضيُّهما هو النصّ المنصوص
+     * وتغييرُهما من اللوحة يخالف الخريطة.
+     */
+    public function screenTextSettings(): void
+    {
+        $rows = [
+            ['events.calendar.empty_month', 'التقويم: الحالة الفارغة للشهر', 'مفيش فعاليّات في الشهر ده.'],
+            ['events.calendar.next_month_aria', 'التقويم: زرّ الشهر التالي لقارئ الشاشة', 'الشهر التالي'],
+            ['events.calendar.prev_month_aria', 'التقويم: زرّ الشهر السابق لقارئ الشاشة', 'الشهر السابق'],
+            ['events.card.ended', 'الكارت: حالة انتهت', 'انتهت'],
+            ['events.card.full', 'الكارت: حالة اكتمال العدد', 'اكتمل العدد'],
+            ['events.card.join_link_soon', 'الكارت: سطر رابط الانضمام (أونلاين)', 'رابط الانضمام يفتح قبل الموعد'],
+            ['events.card.location_tbd', 'الكارت: المكان غير المحدَّد بعد', 'المكان يتحدّد قريبًا'],
+            ['events.card.price_coins', 'الكارت: سعر بالكوينز (:coins)', ':coins كوينز'],
+            ['events.card.price_free', 'الكارت: الفعاليّة المجّانيّة', 'مجّانيّ'],
+            ['events.card.price_tickets', 'الكارت: سعر بالتذاكر (:tickets)', ':tickets تذكرة'],
+            ['events.card.register_cta', 'الكارت: دعوة التسجيل', 'سجّل'],
+            ['events.card.registered', 'الكارت: حالة مسجَّل', 'مسجَّل'],
+            ['events.copy.default_label', 'زرّ النسخ: اللافتة الافتراضيّة', 'نسخ'],
+            ['events.copy.done_label', 'زرّ النسخ: الردّ بعد النسخ', 'اتنسخ ✓'],
+            ['events.countdown.days_few', 'العدّاد: 3–10 أيّام (:n)', ':n أيّام'],
+            ['events.countdown.days_many', 'العدّاد: أكثر من 10 أيّام (:n)', ':n يوم'],
+            ['events.countdown.days_one', 'العدّاد: يوم واحد', 'يوم'],
+            ['events.countdown.days_two', 'العدّاد: يومان', 'يومين'],
+            ['events.countdown.ended', 'العدّاد: الفعاليّة انتهت', 'انتهت'],
+            ['events.countdown.hours_few', 'العدّاد: 3–10 ساعات (:n)', ':n ساعات'],
+            ['events.countdown.hours_many', 'العدّاد: أكثر من 10 ساعات (:n)', ':n ساعة'],
+            ['events.countdown.hours_one', 'العدّاد: ساعة واحدة', 'ساعة'],
+            ['events.countdown.hours_two', 'العدّاد: ساعتان', 'ساعتين'],
+            ['events.countdown.joiner', 'العدّاد: الرابط بين الوحدات', ' و'],
+            ['events.countdown.live', 'العدّاد: الفعاليّة شغّالة الآن', 'شغّالة دلوقتي'],
+            ['events.countdown.minutes_few', 'العدّاد: 3–10 دقايق (:n)', ':n دقايق'],
+            ['events.countdown.minutes_many', 'العدّاد: أكثر من 10 دقايق (:n)', ':n دقيقة'],
+            ['events.countdown.minutes_one', 'العدّاد: دقيقة واحدة', 'دقيقة'],
+            ['events.countdown.minutes_two', 'العدّاد: دقيقتان', 'دقيقتين'],
+            ['events.countdown.remaining', 'العدّاد: صيغة الوقت المتبقّي (:parts)', 'باقي :parts'],
+            ['events.countdown.seconds_few', 'العدّاد: 3–10 ثوانٍ (:n)', ':n ثوانٍ'],
+            ['events.countdown.seconds_many', 'العدّاد: أكثر من 10 ثوانٍ (:n)', ':n ثانية'],
+            ['events.countdown.seconds_one', 'العدّاد: ثانية واحدة', 'ثانية'],
+            ['events.countdown.seconds_two', 'العدّاد: ثانيتان', 'ثانيتين'],
+            ['events.index.breadcrumb_home', 'القائمة: جذر مسار التنقّل (منصوص في 24.5)', 'الرئيسيّة'],
+            ['events.index.empty_action', 'القائمة: زرّ الحالة الفارغة', 'وسّع المدى'],
+            ['events.index.empty_message', 'القائمة: نصّ الحالة الفارغة', 'مفيش فعاليّات في المدى ده — جرّب توسّع الفترة.'],
+            ['events.index.filter_apply', 'القائمة: زرّ تطبيق الفلاتر', 'تصفية'],
+            ['events.index.filter_category', 'القائمة: عنوان فلتر التصنيف', 'التصنيف'],
+            ['events.index.filter_category_all', 'القائمة: خيار كلّ التصنيفات', 'كلّ التصنيفات'],
+            ['events.index.filter_mine', 'القائمة: خيار تسجيلاتي فقط', 'تسجيلاتي فقط'],
+            ['events.index.filter_mode', 'القائمة: عنوان فلتر النوع', 'النوع'],
+            ['events.index.filter_mode_all', 'القائمة: خيار كلّ الأنواع', 'كلّ الأنواع'],
+            ['events.index.filter_period', 'القائمة: عنوان فلتر الفترة', 'الفترة'],
+            ['events.index.filter_price', 'القائمة: عنوان فلتر السعر', 'السعر'],
+            ['events.index.filter_price_all', 'القائمة: خيار كلّ الأسعار', 'الكلّ'],
+            ['events.index.filter_price_free', 'القائمة: خيار المجّانيّ', 'مجّانيّ'],
+            ['events.index.filter_price_paid', 'القائمة: خيار المدفوع', 'مدفوع'],
+            ['events.index.filter_search', 'القائمة: عنوان خانة البحث', 'بحث'],
+            ['events.index.filter_search_placeholder', 'القائمة: تلميح خانة البحث', 'ابحث باسم الفعاليّة أو المكان'],
+            ['events.index.meta_description', 'القائمة: وصف الميتا', 'فعاليّات المنصّة: أونلاين وأوفلاين وهجين — سجّل واحضر واكسب شهادتك.'],
+            ['events.index.my_tickets', 'القائمة: زرّ تذاكري (:count)', 'تذاكري (:count)'],
+            ['events.index.subtitle', 'القائمة: السطر تحت العنوان', 'اختار فعاليّة، سجّل، واحضر — والشهادة والمكافأة بتتفتح بكود الحضور.'],
+            ['events.index.title', 'القائمة: العنوان (منصوص في 24.5)', 'الفعاليّات'],
+            ['events.index.view_calendar', 'القائمة: مبدّل العرض — تقويم', 'تقويم'],
+            ['events.index.view_calendar_aria', 'القائمة: مبدّل التقويم لقارئ الشاشة', 'عرض تقويم'],
+            ['events.index.view_cards', 'القائمة: مبدّل العرض — كروت', 'كروت'],
+            ['events.index.view_cards_aria', 'القائمة: مبدّل الكروت لقارئ الشاشة', 'عرض كروت'],
+            ['events.show.add_to_calendar', 'صفحة الفعاليّة: رابط إضافة الموعد للتقويم', 'أضِف لتقويمي'],
+            ['events.show.agenda_title', 'صفحة الفعاليّة: عنوان الأجندة', 'الأجندة'],
+            ['events.show.all_invites_link', 'صفحة الفعاليّة: رابط كلّ الدعوات', 'كلّ دعواتي وعمولتي'],
+            ['events.show.attend_mode_legend', 'صفحة الفعاليّة: عنوان اختيار نمط الحضور', 'نمط الحضور'],
+            ['events.show.attend_mode_offline', 'صفحة الفعاليّة: نمط الحضور بالمكان', 'حضور بالمكان'],
+            ['events.show.attend_mode_online', 'صفحة الفعاليّة: نمط الحضور أونلاين', 'أونلاين'],
+            ['events.show.attendance_title', 'صفحة الفعاليّة: عنوان بلوك الحضور', 'الحضور'],
+            ['events.show.attended_badge', 'صفحة الفعاليّة: شارة تأكيد الحضور', 'حضورك مؤكَّد'],
+            ['events.show.breadcrumb_events', 'صفحة الفعاليّة: مسار الفعاليّات (منصوص في 24.5)', 'الفعاليّات'],
+            ['events.show.breadcrumb_home', 'صفحة الفعاليّة: جذر مسار التنقّل (منصوص في 24.5)', 'الرئيسيّة'],
+            ['events.show.certificate_pending', 'صفحة الفعاليّة: الشهادة لم تُصدَر بعد', 'استحقاق الشهادة اتسجّل، وهتظهر أوّل ما تُصدَر.'],
+            ['events.show.certificate_ready', 'صفحة الفعاليّة: الشهادة اتفتحت', 'شهادة الحضور اتفتحت — كودها'],
+            ['events.show.checkin_action', 'صفحة الفعاليّة: زرّ تأكيد الحضور', 'أكّد حضوري'],
+            ['events.show.checkin_closed', 'صفحة الفعاليّة: الكود قبل بداية الفعاليّة', 'كود الحضور بيفتح مع بداية الفعاليّة. جهّز نفسك — والكود هيتعرض في الفعاليّة نفسها.'],
+            ['events.show.checkin_hint', 'صفحة الفعاليّة: شرح خانة الكود', 'أدخل الكود المعروض في الفعاليّة — وبيه تتفتح الشهادة والمكافأة.'],
+            ['events.show.checkin_title', 'صفحة الفعاليّة: عنوان تشيك-إن الأوفلاين', 'تشيك-إن الحضور'],
+            ['events.show.code_title', 'صفحة الفعاليّة: عنوان كود الحضور', 'كود الحضور'],
+            ['events.show.copy_invite', 'صفحة الفعاليّة: زرّ نسخ رابط الدعوة', 'نسخ رابط الدعوة'],
+            ['events.show.ended_note', 'صفحة الفعاليّة: سطر ما بعد الانتهاء', 'الفعاليّة دي خلصت — شوف تسجيلها فوق أو اختار فعاليّة قادمة.'],
+            ['events.show.full_badge', 'صفحة الفعاليّة: شارة اكتمال العدد', 'اكتمل العدد'],
+            ['events.show.full_note', 'صفحة الفعاليّة: سطر اكتمال العدد', 'العدد اكتمل في الفعاليّة دي. تابعنا — بننزل مواعيد جديدة.'],
+            ['events.show.invite_hint', 'صفحة الفعاليّة: شرح الدعوة (:percent)', 'صاحبك هيفتح الصفحة دي بالظبط بعد تسجيله — وليه تذكرة ترحيب، وليك :percent% من شحناته.'],
+            ['events.show.invite_title', 'صفحة الفعاليّة: عنوان بلوك الدعوة', 'ادعُ صديقك للفعاليّة دي'],
+            ['events.show.join_action', 'صفحة الفعاليّة: زرّ الدخول للفعاليّة', 'ادخل الفعاليّة'],
+            ['events.show.join_link_members_only', 'صفحة الفعاليّة: تنبيه أنّ الرابط للمسجَّلين', '— وبيظهر للمسجَّلين.'],
+            ['events.show.join_link_opens_at', 'صفحة الفعاليّة: موعد فتح رابط الانضمام (:at)', 'رابط الانضمام بيفتح :at'],
+            ['events.show.location_tbd', 'صفحة الفعاليّة: المكان غير المحدَّد بعد', 'المكان يتحدّد قريبًا.'],
+            ['events.show.my_ticket', 'صفحة الفعاليّة: زرّ تذكرتي', 'تذكرتي'],
+            ['events.show.open_map', 'صفحة الفعاليّة: رابط الخريطة', 'افتح الخريطة والاتجاهات'],
+            ['events.show.place_title', 'صفحة الفعاليّة: عنوان بلوك المكان', 'المكان'],
+            ['events.show.price_coins', 'صفحة الفعاليّة: سعر بالكوينز (:coins)', ':coins كوينز'],
+            ['events.show.price_free', 'صفحة الفعاليّة: التسجيل المجّانيّ', 'التسجيل مجّانيّ'],
+            ['events.show.price_paid', 'صفحة الفعاليّة: التسجيل المدفوع (:price)', 'التسجيل بـ:price'],
+            ['events.show.price_tickets', 'صفحة الفعاليّة: سعر بالتذاكر (:tickets)', ':tickets تذكرة'],
+            ['events.show.recording_action', 'صفحة الفعاليّة: زرّ التسجيل المرئيّ', 'تسجيل الفعاليّة'],
+            ['events.show.recording_pending', 'صفحة الفعاليّة: التسجيل المرئيّ لم ينشر بعد', 'التسجيل هيتنشر هنا أوّل ما يجهز.'],
+            ['events.show.register_action', 'صفحة الفعاليّة: زرّ التسجيل', 'سجّل'],
+            ['events.show.register_now', 'صفحة الفعاليّة: زرّ سجّل الآن أعلى الصفحة', 'سجّل الآن'],
+            ['events.show.registered_count', 'صفحة الفعاليّة: عدد المسجَّلين (:count)', ':count مسجَّل'],
+            ['events.show.reward_amount', 'صفحة الفعاليّة: قيمة المكافأة (:xp · :tickets)', ':xp XP · :tickets تذكرة'],
+            ['events.show.reward_full_until', 'صفحة الفعاليّة: مهلة المكافأة الكاملة (:until)', 'المكافأة الكاملة لحدّ :until.'],
+            ['events.show.reward_now', 'صفحة الفعاليّة: عنوان مكافأة الحضور', 'مكافأة الحضور دلوقتي:'],
+            ['events.show.seats_left', 'صفحة الفعاليّة: الأماكن المتبقّية (:seats)', '· باقي :seats مكان'],
+            ['events.show.share_action', 'صفحة الفعاليّة: زرّ المشاركة', 'مشاركة'],
+            ['events.show.speakers_title', 'صفحة الفعاليّة: عنوان المتحدّثين', 'المتحدّثون'],
+            ['events.ticket_card.add_to_calendar', 'كارت التذكرة: زرّ إضافة الموعد للتقويم', 'أضِف لتقويمي'],
+            ['events.ticket_card.attend_mode', 'كارت التذكرة: نمط الحضور (:mode)', 'نمط الحضور: :mode'],
+            ['events.ticket_card.attended_badge', 'كارت التذكرة: شارة الحضور المؤكَّد', 'حضور مؤكَّد'],
+            ['events.ticket_card.checkin_url', 'كارت التذكرة: رابط التشيك-إن (:url)', 'رابط التشيك-إن: :url'],
+            ['events.ticket_card.code_hint', 'كارت التذكرة: شرح الكود', 'كود التذكرة — اعرضه عند الاستقبال'],
+            ['events.ticket_card.confirmed_badge', 'كارت التذكرة: شارة التذكرة المؤكَّدة', 'مؤكَّدة'],
+            ['events.ticket_card.copy_code', 'كارت التذكرة: زرّ نسخ الكود', 'نسخ الكود'],
+            ['events.ticket_card.share_ticket', 'كارت التذكرة: زرّ مشاركة التذكرة', 'شارك تذكرتك'],
+            ['events.ticket_card.title', 'كارت التذكرة: العنوان', 'تذكرتك'],
+            ['events.ticket_page.breadcrumb_events', 'صفحة التذكرة: مسار الفعاليّات (منصوص في 24.5)', 'الفعاليّات'],
+            ['events.ticket_page.copy_share_text', 'صفحة التذكرة: زرّ نسخ نصّ المشاركة', 'نسخ نصّ المشاركة'],
+            ['events.ticket_page.event_page', 'صفحة التذكرة: زرّ صفحة الفعاليّة', 'صفحة الفعاليّة'],
+            ['events.ticket_page.heading', 'صفحة التذكرة: العنوان', 'تذكرتي'],
+            ['events.ticket_page.og_card', 'صفحة التذكرة: زرّ بطاقة الصورة', 'بطاقة الفعاليّة (صورة)'],
+            ['events.ticket_page.subtitle', 'صفحة التذكرة: السطر تحت العنوان', 'تذكرة حضورك جاهزة للنشر — والكود ده هو إثبات دخولك.'],
+            ['events.ticket_page.title', 'صفحة التذكرة: عنوان التبويب (:event)', 'تذكرتي — :event'],
+            ['events.ticket_page.whatsapp', 'صفحة التذكرة: زرّ واتساب', 'واتساب'],
+        ];
+
+        foreach ($rows as [$key, $label, $default]) {
+            Setting::updateOrCreate(['key' => $key], [
+                'group' => 'events',
+                'label_ar' => $label,
+                'type' => 'string',
+                'default_value' => $default,
+                'value' => $default,
+            ]);
+        }
 
         Cache::forget('settings');
     }

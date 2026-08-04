@@ -10,16 +10,16 @@
     $walletTabs = [];
 
     if ($me?->can('wallet.view')) {
-        $walletTabs[] = ['key' => 'balance', 'label' => 'رصيدي', 'url' => route('wallet.index')];
+        $walletTabs[] = ['key' => 'balance', 'label' => setting('wallet.tabs.balance', 'رصيدي'), 'url' => route('wallet.index')];
     }
 
     if ($me?->can('wallet.list')) {
-        $walletTabs[] = ['key' => 'transactions', 'label' => 'المعاملات', 'url' => route('wallet.transactions')];
+        $walletTabs[] = ['key' => 'transactions', 'label' => setting('wallet.tabs.transactions', 'المعاملات'), 'url' => route('wallet.transactions')];
     }
 
     // 🔒 المسحوبات والأرباح مجموعة محميّة لمالك المنصّة وحده في مصفوفة الصلاحيّات
     if ($me?->can('withdraw.list') || $me?->can('earnings.view')) {
-        $walletTabs[] = ['key' => 'withdrawals', 'label' => 'المسحوبات', 'url' => route('wallet.withdrawals')];
+        $walletTabs[] = ['key' => 'withdrawals', 'label' => setting('wallet.tabs.withdrawals', 'المسحوبات'), 'url' => route('wallet.withdrawals')];
     }
 @endphp
 

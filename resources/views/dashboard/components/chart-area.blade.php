@@ -29,15 +29,15 @@
 
 <section class="card p-4 min-w-0">
     <div class="flex items-baseline justify-between gap-2">
-        <h3 class="font-bold text-sm">XP عبر الزمن</h3>
-        <span class="text-xs" style="color: var(--text-muted)">مجموع المدى: {{ number_format($totalXp) }} XP</span>
+        <h3 class="font-bold text-sm">{{ setting('dashboard.chart.xp.title', 'XP عبر الزمن') }}</h3>
+        <span class="text-xs" style="color: var(--text-muted)">{{ str_replace(':total', number_format($totalXp), (string) setting('dashboard.chart.xp.range_total', 'مجموع المدى: :total XP')) }}</span>
     </div>
 
     {{-- الرسوم داخل حاوية متمرّرة أفقيًّا، فلا تمرير أفقيّ للصفحة نفسها (2.15-ج) --}}
     <div class="mt-3 min-w-0 overflow-x-auto no-scrollbar">
         <svg viewBox="0 0 {{ $areaW }} {{ $areaH }}" width="{{ $areaW }}" height="{{ $areaH }}"
-             style="min-width: 100%" role="img" aria-label="نقاط الخبرة المكتسبة يوميًّا خلال المدى المختار">
-            <title>XP عبر الزمن</title>
+             style="min-width: 100%" role="img" aria-label="{{ setting('dashboard.chart.xp.aria_label', 'نقاط الخبرة المكتسبة يوميًّا خلال المدى المختار') }}">
+            <title>{{ setting('dashboard.chart.xp.title', 'XP عبر الزمن') }}</title>
 
             <defs>
                 <linearGradient id="xpFill" x1="0" y1="0" x2="0" y2="1">

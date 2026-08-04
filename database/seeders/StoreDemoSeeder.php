@@ -49,12 +49,13 @@ class StoreDemoSeeder extends Seeder
             ['store.bundle.cta_label', 'نصّ زرّ شراء الباقة', 'string', 'احصل على الباقة كاملة'],
             ['store.bundle.price_label', 'تسمية سعر الباقة', 'string', 'سعر الباقة'],
             ['store.bundle.savings_label', 'تسمية التوفير في ميزان القيمة', 'string', 'اللي بتوفّره'],
-            ['store.bundle.items_count_text', 'سطر عدد عناصر الباقة', 'string', '{count} عناصر بتتفتح كلّها في مكتبتك فور الشراء'],
-            ['store.bundle.access_text', 'سطر دوام الوصول', 'string', 'اللي تشتريه بيفضل معاك في مكتبتك — من غير تجديد ولا اشتراك.'],
             ['store.bundle.owned_text', 'نصّ الباقة المملوكة', 'string', 'الباقة دي معاك بالفعل — كلّ عناصرها مفتوحة في مكتبتك.'],
+            ['store.bundle.owned_badge', 'شارة الباقة المملوكة', 'string', 'تملكه بالفعل'],
+            ['store.breadcrumb_label', 'فتات الخبز: المتجر', 'string', 'المتجر'],
+            ['store.bundles.breadcrumb_label', 'فتات الخبز: الباقات', 'string', 'الباقات'],
+            ['store.admin.breadcrumb_label', 'فتات خبز شاشة المتجر في الإدارة', 'string', 'المتجر'],
             // ⭐ سطرٌ يمنع الـDark Pattern بنصّه: القيمة **محسوبة** لا مكتوبة (2.9 · 18)
             ['store.bundle.honest_note', 'سطر شفافيّة القيمة الإجماليّة', 'string', 'القيمة الإجماليّة تحت محسوبة من أسعار العناصر نفسها دلوقتي — مش رقمًا مكتوبًا باليد.'],
-            ['store.bundle.closing_title', 'عنوان بلوك الإغلاق', 'string', 'جاهز تبدأ؟'],
             ['store.bundle.faq_title', 'عنوان أسئلة ما قبل الشراء', 'string', 'أسئلة قبل ما تشتري'],
             ['store.bundle.faq', 'أسئلة ما قبل الشراء للباقة', 'json', json_encode([
                 ['q' => 'العناصر دي بتتفتح إمتى؟', 'a' => 'كلّها بتتفتح في مكتبتك فور تأكيد الشراء — مافيش انتظار ولا تفعيل يدويّ.'],
@@ -104,7 +105,7 @@ class StoreDemoSeeder extends Seeder
             // ⭐ الشهادة **بشرطها** (8) — ولا وعد بشهادةٍ بلا امتحانٍ يجتازه
             ['store.bundle.blocks.certificate_enabled', 'إظهار بلوك الشهادة', 'bool', '1'],
             ['store.bundle.certificate_title', 'عنوان بلوك الشهادة', 'string', 'شهادة معتمدة — بشرطها'],
-            ['store.bundle.certificate_text', 'نصّ شرط الشهادة', 'text', 'التدريبات دي بتصدّر شهادة معتمدة، والشهادة **مش** بتيجي بمجرّد الشراء: بتتصدر بعد ما تجتاز الامتحان النهائيّ للتدريب بدرجة {score}% على الأقلّ.'],
+            ['store.bundle.certificate_text', 'نصّ شرط الشهادة', 'text', 'التدريبات دي بتصدّر شهادة معتمدة، والشهادة مش بتيجي بمجرّد الشراء: بتتصدر بعد ما تجتاز الامتحان النهائيّ للتدريب بدرجة {score}% على الأقلّ.'],
 
             // ميزان القيمة (18)
             ['store.bundle.blocks.ledger_enabled', 'إظهار ميزان القيمة', 'bool', '1'],
@@ -259,6 +260,7 @@ class StoreDemoSeeder extends Seeder
                 'hero.cta' => 'زرّ الشراء الرئيسيّ',
                 'hero.login_cta' => 'زرّ الزائر غير المسجَّل',
                 'hero.owned_text' => 'نصّ «معاك بالفعل»',
+                'hero.owned_badge' => 'شارة «معاك بالفعل»',
                 'hero.library_link' => 'زرّ فتح المكتبة',
                 'hero.fact_items' => 'حقيقة عدد العناصر',
                 'hero.fact_lessons' => 'حقيقة عدد الدروس',

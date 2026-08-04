@@ -1,9 +1,9 @@
 @extends('layouts.app')
-@section('title', 'لوحة الأبطال')
+@section('title', setting('challenges.champions.title', 'لوحة الأبطال'))
 
 @php
     // لقطة اللوحة لزرّ [استخراج كصورة] (12.14-هـ)
-    $exportSubtitle = 'آخر '.$filters['days'].' يوم';
+    $exportSubtitle = str_replace(':days', (string) $filters['days'], (string) setting('challenges.champions.range_label', 'آخر :days يوم'));
     $exportRows = collect($board['rows'] ?? [])->values()->map(fn ($row, $i) => [
         'rank' => $row['rank'] ?? $i + 1,
         'u' => $row['user']->id ?? null,
@@ -14,21 +14,21 @@
 
 @section('content')
     <x-page-header
-        title="لوحة الأبطال"
-        subtitle="ترتيب المتحدّين خلال آخر {{ $filters['days'] }} يوم."
-        :breadcrumbs="[['label' => 'التحديات', 'url' => route('challenges.index')], ['label' => 'لوحة الأبطال']]">
+        :title="setting('challenges.champions.title', 'لوحة الأبطال')"
+        :subtitle="str_replace(':days', (string) $filters['days'], (string) setting('challenges.champions.subtitle', 'ترتيب المتحدّين خلال آخر :days يوم.'))"
+        :breadcrumbs="[['label' => setting('challenges.index.title', 'التحديات'), 'url' => route('challenges.index')], ['label' => setting('challenges.champions.title', 'لوحة الأبطال')]]">
         {{-- ⭐ [استخراج كصورة] — ليدر بورد التحديات (12.14-هـ) --}}
         <x-slot:action>
-            <x-export-image title="لوحة الأبطال" :subtitle="$exportSubtitle" :rows="$exportRows" />
+            <x-export-image :title="setting('challenges.champions.title', 'لوحة الأبطال')" :subtitle="$exportSubtitle" :rows="$exportRows" />
         </x-slot:action>
     </x-page-header>
 
     <x-filters :action="route('challenges.leaderboard')">
         <label class="block">
-            <span class="block text-sm mb-1">التحدّي</span>
+            <span class="block text-sm mb-1">{{ setting('challenges.champions.filter_challenge', 'التحدّي') }}</span>
             <select name="challenge" class="rounded-xl px-3 py-2 text-sm"
                     style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
-                <option value="">كلّ الحروب</option>
+                <option value="">{{ setting('challenges.champions.filter_challenge_all', 'كلّ الحروب') }}</option>
                 @foreach ($challenges as $challenge)
                     <option value="{{ $challenge->id }}" @selected($filters['challenge'] === $challenge->id)>{{ $challenge->name_ar }}</option>
                 @endforeach
@@ -36,29 +36,33 @@
         </label>
 
         <label class="block">
-            <span class="block text-sm mb-1">الفترة</span>
+            <span class="block text-sm mb-1">{{ setting('challenges.champions.filter_period', 'الفترة') }}</span>
             <select name="days" class="rounded-xl px-3 py-2 text-sm"
                     style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
-                @foreach ([7 => 'آخر 7 أيّام', 30 => 'آخر 30 يوم', 90 => 'آخر 90 يوم'] as $value => $label)
+                @foreach ([
+                    7 => setting('challenges.champions.period_7', 'آخر 7 أيّام'),
+                    30 => setting('challenges.champions.period_30', 'آخر 30 يوم'),
+                    90 => setting('challenges.champions.period_90', 'آخر 90 يوم'),
+                ] as $value => $label)
                     <option value="{{ $value }}" @selected($filters['days'] === $value)>{{ $label }}</option>
                 @endforeach
             </select>
         </label>
 
         <label class="block flex-1 min-w-40">
-            <span class="block text-sm mb-1">بحث بالاسم</span>
-            <input type="search" name="q" value="{{ $filters['q'] }}" placeholder="اسم البطل…"
+            <span class="block text-sm mb-1">{{ setting('challenges.champions.filter_search', 'بحث بالاسم') }}</span>
+            <input type="search" name="q" value="{{ $filters['q'] }}" placeholder="{{ setting('challenges.champions.filter_search_placeholder', 'اسم البطل…') }}"
                    class="w-full rounded-xl px-3 py-2 text-sm"
                    style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
         </label>
 
         <button type="submit" class="btn rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
-                style="background: var(--color-brand-500); color: #04201c">طبّق</button>
+                style="background: var(--color-brand-500); color: #04201c">{{ setting('challenges.champions.filter_apply', 'طبّق') }}</button>
     </x-filters>
 
     @if ($board['rows']->isEmpty())
-        <x-empty message="لسّه بدري على أوّل ترتيب — ادخل أوّل حرب وابدأ."
-                 action="التحدّيات المتاحة" :href="route('challenges.index')" />
+        <x-empty :message="setting('challenges.champions.empty_message', 'لسّه بدري على أوّل ترتيب — ادخل أوّل حرب وابدأ.')"
+                 :action="setting('challenges.champions.empty_action', 'التحدّيات المتاحة')" :href="route('challenges.index')" />
     @else
         {{-- صفوف كروت رأسيّة: تشتغل على الموبايل بلا تمرير أفقيّ (2.15-ج) --}}
         <div class="space-y-2">
@@ -75,7 +79,7 @@
             </div>
         @else
             <p class="text-xs mt-4 text-center" style="color: var(--text-muted)">
-                لسّه مالكش ترتيب في الفترة دي — أوّل تحدّي هيحطّك على اللوحة.
+                {{ setting('challenges.champions.no_rank_note', 'لسّه مالكش ترتيب في الفترة دي — أوّل تحدّي هيحطّك على اللوحة.') }}
             </p>
         @endif
     @endif

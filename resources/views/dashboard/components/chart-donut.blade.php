@@ -11,13 +11,13 @@
 @endphp
 
 <section class="card p-4 min-w-0">
-    <h3 class="font-bold text-sm">إكمال المسار</h3>
+    <h3 class="font-bold text-sm">{{ setting('dashboard.chart.completion.title', 'إكمال المسار') }}</h3>
 
     <div class="mt-3 flex flex-wrap items-center gap-5">
         <div class="min-w-0 overflow-x-auto no-scrollbar">
             <svg viewBox="0 0 140 140" width="140" height="140" role="img"
-                 aria-label="نسبة إكمال تدريباتك {{ $donut['percent'] }}٪">
-                <title>إكمال المسار — {{ $donut['percent'] }}٪</title>
+                 aria-label="{{ str_replace(':percent', $donut['percent'], (string) setting('dashboard.chart.completion.aria_label', 'نسبة إكمال تدريباتك :percent٪')) }}">
+                <title>{{ str_replace(':percent', $donut['percent'], (string) setting('dashboard.chart.completion.svg_title', 'إكمال المسار — :percent٪')) }}</title>
 
                 <circle cx="70" cy="70" r="{{ $radius }}" fill="none" stroke="var(--surface-sunken)" stroke-width="16" />
 
@@ -35,7 +35,7 @@
                 @endforeach
 
                 <text x="70" y="64" text-anchor="middle" font-size="22" font-weight="800" fill="var(--text)">{{ $donut['percent'] }}%</text>
-                <text x="70" y="84" text-anchor="middle" font-size="10" fill="var(--text-muted)">من الدروس</text>
+                <text x="70" y="84" text-anchor="middle" font-size="10" fill="var(--text-muted)">{{ setting('dashboard.chart.completion.center_caption', 'من الدروس') }}</text>
             </svg>
         </div>
 

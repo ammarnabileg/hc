@@ -6,6 +6,8 @@ use App\Models\Bundle;
 use App\Models\BundleItem;
 use App\Models\User;
 use App\Services\Store\BundleLanding;
+use App\Services\Store\PricingService;
+use App\Services\Store\StoreCatalog;
 
 /**
  * ⭐ **شاشة البندلز في الإدارة** (24 ← «🖥️ البندلز») و**عزل الماليّات** (12.7).
@@ -118,7 +120,7 @@ class BundleAdminScreenTest extends StoreTestCase
         $this->assertStringNotContainsString('name="total_value"', $html);
 
         $landing = app(BundleLanding::class);
-        $quote = fn () => app(\App\Services\Store\PricingService::class)->quote(null, 'bundle', $bundle->fresh());
+        $quote = fn () => app(PricingService::class)->quote(null, 'bundle', $bundle->fresh());
 
         $before = $landing->build($bundle->fresh(), null, $quote());
         $this->assertSame(500.0, $before['total_value']);
@@ -240,6 +242,48 @@ class BundleAdminScreenTest extends StoreTestCase
         $this->assertNotSame($bundle->slug, $copy->slug);
         $this->assertSame(2, BundleItem::where('bundle_id', $copy->id)->count());
         $this->assertSame('500.00', (string) $copy->original_value);
+    }
+
+    // ============================================================ أعلامٌ لها أثر
+
+    /**
+     * ⭐ **علَمٌ لا يفعل شيئًا أسوأ من غيابه** (2.13-و): كلّ توجّلٍ في بلوك
+     * إعدادات 24 لازم يغيّر ما يراه المستخدم فعلًا — لا لافتةً في شاشة إعدادات.
+     */
+    public function test_the_bundles_enabled_flag_actually_hides_bundles(): void
+    {
+        $bundle = $this->bundle([$this->course(), $this->product()]);
+        $url = route('store.product', ['type' => 'bundle', 'slug' => $bundle->slug]);
+
+        $this->get($url)->assertOk();
+
+        $this->setting('store.bundles.enabled', '0', 'bool');
+
+        $this->get($url)->assertNotFound();
+        $this->assertTrue(app(StoreCatalog::class)->bundleCards([])->isEmpty(),
+            'الباقات فضلت في شبكة المتجر رغم إطفاء `bundles.enabled` — علَمٌ بلا أثر.');
+    }
+
+    /** وتوجّلا Anchoring والقيمة الإجماليّة العامّان يقفلان الشطب والميزان للمنصّة كلّها */
+    public function test_the_global_anchoring_and_total_value_flags_have_teeth(): void
+    {
+        $bundle = $this->bundle([$this->course(['price_coins' => 400]), $this->product(['price_coins' => 100])], [
+            'price_coins' => 420,
+        ]);
+        $url = route('store.product', ['type' => 'bundle', 'slug' => $bundle->slug]);
+
+        $html = $this->get($url)->assertOk()->getContent();
+        $this->assertStringContainsString('line-through', $html);
+        $this->assertStringContainsString((string) setting('store.bundle.ledger_title'), $html);
+
+        $this->setting('store.bundle.anchoring_enabled', '0', 'bool');
+        $this->setting('store.bundle.total_value_enabled', '0', 'bool');
+
+        $html = $this->get($url)->assertOk()->getContent();
+        $this->assertStringNotContainsString('line-through', $html,
+            'الشطب فضل شغّالًا رغم إطفاء Toggle Anchoring العامّ (24).');
+        $this->assertStringNotContainsString((string) setting('store.bundle.ledger_title'), $html,
+            'ميزان القيمة فضل ظاهرًا رغم إطفاء Toggle القيمة الإجماليّة العامّ (24).');
     }
 
     // ============================================================ مساعدات

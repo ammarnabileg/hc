@@ -1,27 +1,27 @@
 @extends('layouts.app')
 
-@section('title', 'طلبات الشحن')
+@section('title', setting('wallet.topup_requests.title', 'طلبات الشحن'))
 
 @php
     // الحالات الأربع المعتمَدة — لا خامسة (19.5-ب-4)
     $states = [
-        'pending_review' => ['label' => 'قيد التحقّق', 'state' => 'warn'],
-        'completed' => ['label' => 'مكتملة', 'state' => 'ok'],
-        'cancelled' => ['label' => 'ملغاة', 'state' => 'danger'],
-        'duplicate' => ['label' => 'مكرَّرة', 'state' => 'idle'],
+        'pending_review' => ['label' => setting('wallet.topup_requests.state_pending', 'قيد التحقّق'), 'state' => 'warn'],
+        'completed' => ['label' => setting('wallet.topup_requests.state_completed', 'مكتملة'), 'state' => 'ok'],
+        'cancelled' => ['label' => setting('wallet.topup_requests.state_cancelled', 'ملغاة'), 'state' => 'danger'],
+        'duplicate' => ['label' => setting('wallet.topup_requests.state_duplicate', 'مكرَّرة'), 'state' => 'idle'],
     ];
 @endphp
 
 @section('content')
     <x-page-header
-        title="طلبات الشحن"
-        subtitle="كلّ طلباتك وحالتها لحظةً بلحظة."
-        :breadcrumbs="[['label' => 'المحفظة', 'url' => route('wallet.index')], ['label' => 'شحن الحساب', 'url' => route('wallet.topup')], ['label' => 'طلبات الشحن']]">
+        :title="setting('wallet.topup_requests.title', 'طلبات الشحن')"
+        :subtitle="setting('wallet.topup_requests.subtitle', 'كلّ طلباتك وحالتها لحظةً بلحظة.')"
+        :breadcrumbs="[['label' => setting('wallet.index.breadcrumb_root', 'المحفظة'), 'url' => route('wallet.index')], ['label' => setting('wallet.topup.title', 'شحن الحساب'), 'url' => route('wallet.topup')], ['label' => setting('wallet.topup_requests.title', 'طلبات الشحن')]]">
         <x-slot:action>
             @can('topup.create')
                 <a href="{{ route('wallet.topup') }}"
                    class="btn inline-flex items-center rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
-                   style="background: var(--color-brand-500); color: #04201c">طلب شحن جديد</a>
+                   style="background: var(--color-brand-500); color: #04201c">{{ setting('wallet.topup_requests.new_action', 'طلب شحن جديد') }}</a>
             @endcan
         </x-slot:action>
     </x-page-header>
@@ -35,8 +35,8 @@
                     <div class="font-bold">{{ $row->number }}</div>
                     <div class="text-xs mt-1" style="color: var(--text-muted)">
                         {{ number_format((float) $row->transferred_amount, 2) }}
-                        · {{ $row->transfer_method?->name_ar ?? 'طريقة غير محدّدة' }}
-                        · دُفِع في {{ $row->paid_at?->format('Y-m-d H:i') }}
+                        · {{ $row->transfer_method?->name_ar ?? setting('wallet.topup_requests.method_unknown', 'طريقة غير محدّدة') }}
+                        {{ str_replace(':at', (string) $row->paid_at?->format('Y-m-d H:i'), (string) setting('wallet.topup_requests.paid_at', '· دُفِع في :at')) }}
                     </div>
                 </div>
                 <x-state-badge :state="$meta['state']" :label="$meta['label']" />
@@ -46,12 +46,12 @@
             <ol class="mt-4 space-y-2 text-sm">
                 <li class="flex items-center gap-2">
                     <span aria-hidden="true" style="color: var(--color-state-ok)">●</span>
-                    <span>أُرسِل</span>
+                    <span>{{ setting('wallet.topup_requests.step_sent', 'أُرسِل') }}</span>
                     <span class="text-xs" style="color: var(--text-muted)">{{ $row->created_at?->format('Y-m-d H:i') }}</span>
                 </li>
                 <li class="flex items-center gap-2">
                     <span aria-hidden="true" style="color: var(--color-state-{{ $row->status === 'pending_review' ? 'warn' : 'ok' }})">{{ $row->status === 'pending_review' ? '▲' : '●' }}</span>
-                    <span>قيد التحقّق</span>
+                    <span>{{ setting('wallet.topup_requests.state_pending', 'قيد التحقّق') }}</span>
                 </li>
                 @if ($row->status !== 'pending_review')
                     <li class="flex items-center gap-2">
@@ -63,7 +63,7 @@
             </ol>
 
             @if ($row->status === 'completed' && $row->credited_amount)
-                <p class="mt-3 text-sm">اتضاف لمحفظتك {{ number_format((float) $row->credited_amount) }} كوينز ✓</p>
+                <p class="mt-3 text-sm">{{ str_replace(':amount', number_format((float) $row->credited_amount), (string) setting('wallet.topup_requests.credited_note', 'اتضاف لمحفظتك :amount كوينز ✓')) }}</p>
             @endif
 
             @if ($row->cancel_reason)
@@ -76,13 +76,13 @@
                 @can('topup.create')
                     <a href="{{ route('wallet.topup', ['resend' => $row->id]) }}"
                        class="btn inline-flex items-center mt-3 rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
-                       style="background: var(--color-brand-500); color: #04201c">عدّل وأعد الإرسال</a>
+                       style="background: var(--color-brand-500); color: #04201c">{{ setting('wallet.topup_requests.resend_action', 'عدّل وأعد الإرسال') }}</a>
                 @endcan
             @endif
         </article>
     @empty
-        <x-empty message="لسّه مابعتّش أيّ طلب شحن."
-                 action="اشحن رصيدك" :href="route('wallet.topup')" />
+        <x-empty :message="setting('wallet.topup_requests.empty_message', 'لسّه مابعتّش أيّ طلب شحن.')"
+                 :action="setting('wallet.index.topup_action', 'اشحن رصيدك')" :href="route('wallet.topup')" />
     @endforelse
 
     <div class="mt-4">{{ $rows->links() }}</div>

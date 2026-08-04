@@ -2,11 +2,13 @@
 
 namespace Tests\Feature\Store;
 
+use App\Models\AuditLog;
 use App\Models\Bundle;
 use App\Models\Setting;
 use App\Models\User;
 use App\Services\Ads\Consent;
 use App\Services\Store\BundleLanding;
+use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Support\Facades\Cache;
 
 /**
@@ -254,7 +256,7 @@ class BundleCustomCodeTest extends StoreTestCase
             'auditable_id' => $bundle->id,
         ]);
 
-        $logged = \App\Models\AuditLog::where('auditable_id', $bundle->id)->get()
+        $logged = AuditLog::where('auditable_id', $bundle->id)->get()
             ->contains(fn ($row) => isset(((array) $row->new_values)['rejected_custom_code']));
 
         $this->assertTrue($logged, 'محاولة كتابة الكود المرفوضة ماتسجّلتش في الأوديت.');
@@ -331,7 +333,7 @@ class BundleCustomCodeTest extends StoreTestCase
         $this->putSetting('ads.tracking.enabled', '1');
 
         // كوكيّ الموافقة يُقرأ خامًّا في الاختبار — والمنطق المقيس هو `Consent` لا التشفير
-        \Illuminate\Cookie\Middleware\EncryptCookies::except(['tracking_consent', 'tracking_scopes']);
+        EncryptCookies::except(['tracking_consent', 'tracking_scopes']);
 
         $this->withUnencryptedCookies([
             'tracking_consent' => $choice,

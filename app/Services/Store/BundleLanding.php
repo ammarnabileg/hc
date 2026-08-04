@@ -72,6 +72,7 @@ class BundleLanding
         'hero.cta' => 'store.bundle.cta_label',
         'hero.login_cta' => 'store.bundle.login_cta',
         'hero.owned_text' => 'store.bundle.owned_text',
+        'hero.owned_badge' => 'store.bundle.owned_badge',
         'hero.library_link' => 'store.bundle.library_link_text',
         'hero.fact_items' => 'store.bundle.fact_items',
         'hero.fact_lessons' => 'store.bundle.fact_lessons',
@@ -285,9 +286,18 @@ class BundleLanding
             'savings' => $hasSavings ? $savings : 0.0,
             'has_savings' => $hasSavings,
             'percent_off' => $hasSavings ? (int) round($savings / $totalValue * 100) : 0,
-            // توجّلا [العرض] في 24 — والشطب لا يقع إلّا مع توفيرٍ حقيقيّ مهما كان التوجّل
-            'show_strikethrough' => $hasSavings && $bundle->show_anchor_strikethrough,
-            'show_total_value' => $hasSavings && $bundle->show_total_value,
+            /*
+             | توجّلا [العرض] في 24 — **عامٌّ وخاصّ معًا**: التوجّل العامّ في بلوك
+             | إعدادات الشاشة (`store.bundle.anchoring_enabled` · `…total_value_enabled`)
+             | يقفل الميزة للمنصّة كلّها، وتوجّل البندل يقفلها لهذه الباقة وحدها.
+             | ولا يقع الشطب أصلًا بلا **توفيرٍ حقيقيّ** مهما كان التوجّلان (2.9).
+             */
+            'show_strikethrough' => $hasSavings
+                && $bundle->show_anchor_strikethrough
+                && (bool) setting('store.bundle.anchoring_enabled', true),
+            'show_total_value' => $hasSavings
+                && $bundle->show_total_value
+                && (bool) setting('store.bundle.total_value_enabled', true),
 
             // ------------------------------------------------ قوائم يحرّرها الأدمن
             'outcomes' => $this->list($bundle->landing_outcomes),
@@ -310,6 +320,11 @@ class BundleLanding
             'unavailable_text' => $this->unavailableText($bundle, $texts),
 
             'item_type_labels' => (array) setting('store.bundle.item_type_labels', []),
+            // فتات الخبز — نصّان يحرّرهما الأدمن كغيرهما (2.13)
+            'breadcrumbs' => [
+                'store' => (string) setting('store.breadcrumb_label', 'المتجر'),
+                'bundles' => (string) setting('store.bundles.breadcrumb_label', 'الباقات'),
+            ],
             'owned' => (bool) $quote['owned'],
         ];
     }
@@ -386,8 +401,15 @@ class BundleLanding
      */
     public function bonusLines(Bundle $bundle, Collection $items): array
     {
-        // `bonus_text_template` عمودُ 24 المنصوص، ويسبق خريطة النصوص إن مُلِئ
-        $template = $this->trim($bundle->bonus_text_template) ?? $this->text($bundle, 'includes.bonus_template');
+        /*
+         | `bonus_text_template` عمودُ 24 المنصوص لهذا البندل، ويسبق خريطة النصوص.
+         | و24 ينصّ على **قالب نصّ البونص (ع/إ)** — فالنسخة الإنجليزيّة تُقرأ حين
+         | تكون لغة العرض إنجليزيّة، وإلّا فالعربيّة. ولو كانت الإنجليزيّة فارغة
+         | رجعنا للعربيّة بدل أن يختفي السطر كلّه.
+         */
+        $template = $this->trim($bundle->bonus_text_template)
+            ?? (app()->getLocale() === 'en' ? $this->trim(setting('store.bundle.bonus_text_en', '')) : null)
+            ?? $this->text($bundle, 'includes.bonus_template');
         $lines = [];
 
         foreach ($items as $line) {

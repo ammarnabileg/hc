@@ -169,9 +169,18 @@ class StoreCatalog
         return $this->finish($cards, $filters);
     }
 
-    /** @return Collection<int, array<string, mixed>> */
+    /**
+     * @return Collection<int, array<string, mixed>>
+     *
+     * ⭐ و`bundles.enabled` المطفأ يُخرِج الباقات من الشبكة كلّها — فالعلَم
+     * له أثرٌ حقيقيّ لا لافتةٌ في شاشة إعدادات (2.13-و).
+     */
     public function bundleCards(array $owned, array $filters = []): Collection
     {
+        if (! setting('store.bundles.enabled', true)) {
+            return collect();
+        }
+
         $query = Bundle::query()->where('status', 'published');
 
         if ($term = ($filters['q'] ?? null)) {

@@ -459,36 +459,53 @@ class WarMatchService
     }
 
     /**
-     * تحويل تذاكر بين مستخدمين — يُخصَم **بالضبط** ما يُضاف.
-     * نقرأ الرصيد قبل الخصم فلا نضيف للفائز أكثر ممّا خرج من الخاسر،
-     * وهذا هو ضمان المحصّلة الصفريّة عمليًّا (15.2-6).
+     * تحويل تذاكر بين مستخدمين — يُخصَم **بالضبط** ما يُضاف (15.2-6).
+     *
+     * ⚠️ **وكان الضمان قراءةً لا قفلًا:** نقرأ الرصيد خارج القفل، ثمّ نقصّ القيمة
+     * على ما قرأناه، ثمّ نخصم ونضيف — و**نتيجة الخصم مُهمَلة**. فلو رُدَّ الخصم
+     * (رصيدٌ نزل بين القراءة والكتابة، أو قاعُ العملة) مضت الإضافة وحدها
+     * و**سُكَّت تذاكر من العدم**.
+     *
+     * **ولماذا رُفِعت القراءة المسبقة أصلًا؟** لأنّها كانت تُحوّل «**−2 للخاسر
+     * و+2 للرابح**» (15.2-6) إلى «ما تيسّر»: خاسرٌ رصيده تذكرة يدفع واحدة والرابح
+     * يأخذ واحدة — وهذا **ليس نصّ الدستور**. والنصّ مضمونٌ ببوّابة **≥12 تذكرة**
+     * للطرفين (15.2-4)، فالنقص لا يقع إلّا في سباقٍ — وجوابه **الردّ** لا القصّ.
      */
     private function transfer(User $from, User $to, float $amount, string $reason, WarMatch $ref): float
     {
-        $available = $this->wallet->balance($from, 'tickets');
-        $moved = min($amount, max(0.0, $available));
-
-        if ($moved <= 0) {
+        if ($amount <= 0) {
             return 0.0;
         }
 
-        $this->wallet->debit($from, 'tickets', $moved, self::LEDGER_SOURCE, $reason.' — خسارة', $ref);
-        $this->wallet->credit($to, 'tickets', $moved, self::LEDGER_SOURCE, $reason.' — فوز', $ref);
-
-        return $moved;
+        return $this->wallet->transfer(
+            from: $from,
+            to: $to,
+            currencyCode: 'tickets',
+            amount: $amount,
+            source: self::LEDGER_SOURCE,
+            debitReason: $reason.' — خسارة',
+            creditReason: $reason.' — فوز',
+            reference: $ref,
+        );
     }
 
-    /** حرق عقوبة (لا يستلمها أحد) — سحبٌ من الاقتصاد لا ضخّ فيه */
+    /**
+     * حرق عقوبة (لا يستلمها أحد) — سحبٌ من الاقتصاد لا ضخّ فيه.
+     * والمُعاد هو ما **احترق فعلًا**: خصمٌ مردودٌ لا يُكتَب في التسوية عقوبةً
+     * وقعت، وإلّا صار الرقم المعروض للاعب أكبر ممّا خرج من محفظته.
+     */
     private function burn(User $from, float $amount, string $reason, WarMatch $ref): float
     {
         $available = $this->wallet->balance($from, 'tickets');
         $burned = min($amount, max(0.0, $available));
 
-        if ($burned > 0) {
-            $this->wallet->debit($from, 'tickets', $burned, self::LEDGER_SOURCE, $reason, $ref);
+        if ($burned <= 0) {
+            return 0.0;
         }
 
-        return $burned;
+        return $this->wallet->debit($from, 'tickets', $burned, self::LEDGER_SOURCE, $reason, $ref)
+            ? $burned
+            : 0.0;
     }
 
     private function correctCount(array $questions, array $answers): float

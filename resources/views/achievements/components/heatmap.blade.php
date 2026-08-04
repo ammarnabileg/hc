@@ -27,7 +27,7 @@
 
 <div class="min-w-0 overflow-x-auto no-scrollbar">
     <svg viewBox="0 0 {{ $width }} {{ $height }}" width="{{ $width }}" height="{{ $height }}"
-         role="img" aria-label="خريطة أيّامي النشطة" style="max-width: 100%">
+         role="img" aria-label="{{ setting('streaks.heatmap.aria_label', 'خريطة أيّامي النشطة') }}" style="max-width: 100%">
 
         @for ($w = 0; $w < $weeks; $w++)
             @for ($r = 0; $r < 7; $r++)
@@ -59,10 +59,10 @@
                           width="{{ $cell }}" height="{{ $cell }}" rx="3"
                           fill="{{ $fill }}" stroke="var(--border)" stroke-width="0.5">
                         <title>{{ $date->translatedFormat('j F Y') }} — {{ match (true) {
-                            (bool) ($day['club'] ?? false) => 'نادي الخامسة ★',
-                            (bool) ($day['freeze'] ?? false) => 'يوم محميّ بدرع ▲',
-                            (bool) ($day['active'] ?? false) => 'يوم نشط ●',
-                            default => 'بلا نشاط ○',
+                            (bool) ($day['club'] ?? false) => setting('streaks.heatmap.tooltip_club', 'نادي الخامسة ★'),
+                            (bool) ($day['freeze'] ?? false) => setting('streaks.heatmap.tooltip_freeze', 'يوم محميّ بدرع ▲'),
+                            (bool) ($day['active'] ?? false) => setting('streaks.heatmap.tooltip_active', 'يوم نشط ●'),
+                            default => setting('streaks.heatmap.tooltip_idle', 'بلا نشاط ○'),
                         } }}</title>
                     </rect>
                 @endif
@@ -79,15 +79,15 @@
 {{-- المفتاح: رمز مع كلّ لون دائمًا (2.16-ب) --}}
 <div class="flex flex-wrap items-center gap-4 mt-3 text-xs" style="color: var(--text-muted)">
     <span class="inline-flex items-center gap-1">
-        <span class="inline-block w-3 h-3 rounded" style="background: var(--surface-sunken)"></span> ○ بلا نشاط
+        <span class="inline-block w-3 h-3 rounded" style="background: var(--surface-sunken)"></span> ○ {{ setting('streaks.heatmap.legend_idle', 'بلا نشاط') }}
     </span>
     <span class="inline-flex items-center gap-1">
-        <span class="inline-block w-3 h-3 rounded" style="background: var(--color-brand-500)"></span> ● يوم نشط
+        <span class="inline-block w-3 h-3 rounded" style="background: var(--color-brand-500)"></span> ● {{ setting('streaks.heatmap.legend_active', 'يوم نشط') }}
     </span>
     <span class="inline-flex items-center gap-1">
-        <span class="inline-block w-3 h-3 rounded" style="background: var(--color-state-honor)"></span> ★ نادي الخامسة
+        <span class="inline-block w-3 h-3 rounded" style="background: var(--color-state-honor)"></span> ★ {{ setting('streaks.heatmap.legend_club', 'نادي الخامسة') }}
     </span>
     <span class="inline-flex items-center gap-1">
-        <span class="inline-block w-3 h-3 rounded" style="background: var(--color-state-warn)"></span> ▲ يوم محميّ بدرع
+        <span class="inline-block w-3 h-3 rounded" style="background: var(--color-state-warn)"></span> ▲ {{ setting('streaks.heatmap.legend_freeze', 'يوم محميّ بدرع') }}
     </span>
 </div>

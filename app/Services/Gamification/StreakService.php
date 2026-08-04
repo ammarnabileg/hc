@@ -6,6 +6,7 @@ use App\Models\Streak;
 use App\Models\StreakDay;
 use App\Models\StreakReward;
 use App\Models\User;
+use App\Services\Gamification\Wars\Exceptions\WarRuleException;
 use App\Services\Learning\UserClock;
 use Carbon\CarbonImmutable;
 use Carbon\CarbonInterface;
@@ -30,6 +31,9 @@ class StreakService
 {
     /** دلو دفتر الأستاذ الذي تُنسَب إليه حركات الستريك — بندٌ في السجلّ لا إعداد */
     private const LEDGER_SOURCE = 'streak';
+
+    /** علامةٌ داخليّة تُرجِع معاملة الدرع حين يُرَدّ الخصم — لا تُعرَض لمستخدم */
+    private const FREEZE_UNPAID = 'freeze.unpaid';
 
     public function __construct(
         private readonly CelebrationService $celebrations,
@@ -349,13 +353,36 @@ class StreakService
             return ['ok' => false, 'message' => (string) setting('streaks.freeze.no_tickets_message')];
         }
 
-        $streakDay = StreakDay::query()->firstOrCreate(
-            ['user_id' => $user->id, 'day' => $day->toDateString()],
-            ['club_5am' => false, 'xp_awarded' => 0, 'is_freeze' => true],
-        );
+        /*
+         | ⭐ الدرع والتذكرة **صفقةٌ واحدة**: اليوم يُنشَأ أوّلًا فلا تُخصَم تذكرة
+         | بلا حماية، والخصم داخل نفس المعاملة فلا يبقى درعٌ بلا تذكرة. وكانت
+         | نتيجة الخصم **مُهمَلة**: لو رُدَّ (رصيدٌ نزل بعد الفحص، أو قاعُ العملة)
+         | بقي الدرع **مجّانًا** — وهو سكُّ قيمةٍ من العدم بصورةٍ أخرى.
+         */
+        try {
+            DB::transaction(function () use ($user, $day, $cost) {
+                $streakDay = StreakDay::query()->firstOrCreate(
+                    ['user_id' => $user->id, 'day' => $day->toDateString()],
+                    ['club_5am' => false, 'xp_awarded' => 0, 'is_freeze' => true],
+                );
 
-        // الخصم بعد ضمان وجود اليوم — فلا تُخصَم تذكرة بلا حماية
-        $this->wallet->debit($user, 'tickets', $cost, self::LEDGER_SOURCE, (string) setting('streaks.freeze.reason'), $streakDay);
+                // درعٌ مجّانيّ بإعدادٍ صفريّ يمرّ بلا خصم — لا يُعَدّ ردًّا
+                $paid = $cost <= 0 || $this->wallet->debit(
+                    $user, 'tickets', $cost, self::LEDGER_SOURCE, (string) setting('streaks.freeze.reason'), $streakDay,
+                );
+
+                if (! $paid) {
+                    // الرمي وحده يُرجِع اليوم معه — والعودة بـ`false` كانت **تُثبِته**
+                    throw new WarRuleException(self::FREEZE_UNPAID);
+                }
+            });
+        } catch (WarRuleException $e) {
+            if ($e->getMessage() !== self::FREEZE_UNPAID) {
+                throw $e;
+            }
+
+            return ['ok' => false, 'message' => (string) setting('streaks.freeze.no_tickets_message')];
+        }
 
         $this->recalculate($user);
 

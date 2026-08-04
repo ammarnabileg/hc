@@ -16,13 +16,13 @@
     <div class="flex items-center justify-between gap-2 mb-3">
         <a href="{{ request()->fullUrlWithQuery(['view' => 'calendar', 'month' => $prev]) }}"
            class="btn rounded-xl px-3 py-2 text-sm motion-standard"
-           style="background: var(--surface-sunken)" aria-label="الشهر السابق">›</a>
+           style="background: var(--surface-sunken)" aria-label="{{ setting('events.calendar.prev_month_aria', 'الشهر السابق') }}">›</a>
 
         <div class="font-bold">{{ $monthLabel }}</div>
 
         <a href="{{ request()->fullUrlWithQuery(['view' => 'calendar', 'month' => $next]) }}"
            class="btn rounded-xl px-3 py-2 text-sm motion-standard"
-           style="background: var(--surface-sunken)" aria-label="الشهر التالي">‹</a>
+           style="background: var(--surface-sunken)" aria-label="{{ setting('events.calendar.next_month_aria', 'الشهر التالي') }}">‹</a>
     </div>
 
     {{-- شبكة الشهر: من الديسكتوب فقط --}}
@@ -85,7 +85,7 @@
         @endforeach
 
         @unless ($hasAny)
-            <p class="text-sm text-center py-6" style="color: var(--text-muted)">مفيش فعاليّات في الشهر ده.</p>
+            <p class="text-sm text-center py-6" style="color: var(--text-muted)">{{ setting('events.calendar.empty_month', 'مفيش فعاليّات في الشهر ده.') }}</p>
         @endunless
     </div>
 </div>

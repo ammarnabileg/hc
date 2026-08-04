@@ -15,6 +15,7 @@ use App\Models\UserPrivacySetting;
 use App\Models\WalletBalance;
 use App\Services\Gamification\LevelResolver;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 
 /**
@@ -26,6 +27,7 @@ class AccountDemoSeeder extends Seeder
     public function run(): void
     {
         $this->settings();
+        $this->screenTextSettings();
         $this->helpArticles();
 
         $users = $this->users();
@@ -33,6 +35,135 @@ class AccountDemoSeeder extends Seeder
         $this->privacy($users[0]);
         $this->devices($users[0]);
         $this->consents($users[0], $users[1]);
+    }
+
+    /**
+     * **نصوص شاشات الحساب** (2.13-أ: «النصوص الظاهرة للمستخدم») — كلّ جملةٍ
+     * يقرؤها المستخدم على `resources/views/account/**` لها مفتاحها هنا،
+     * والوحدة **جملةٌ كاملة** كما تُقرَأ لا كلمةً مقتطعة.
+     *
+     * ⚠️ عناوينٌ **منصوصة حرفيًّا في الدستور**: «حسابي» و«الإعدادات»
+     * و«الخصوصيّة والأمان» و«البحث» (24.5 · 12.0) وتاب «الأمان» (2.3) —
+     * افتراضيُّها هو النصّ المنصوص، وتغييرُه من اللوحة يخالف الخريطة.
+     *
+     * ⛔ وما **لم** يُنقَل عمدًا: قيم `data-keywords` — مفاتيح بحثٍ داخليّة
+     * **لا تُعرَض** على الشاشة، و2.13-أ تخصّ «النصوص الظاهرة للمستخدم».
+     */
+    public function screenTextSettings(): void
+    {
+        $rows = [
+            ['account.privacy.breadcrumb_root', 'الخصوصيّة: جذر مسار التنقّل (منصوص في 24.5)', 'حسابي'],
+            ['account.privacy.breadcrumb_settings', 'الخصوصيّة: مسار الإعدادات (منصوص في 24.5)', 'الإعدادات'],
+            ['account.privacy.consent_expires', 'الخصوصيّة: تاريخ انتهاء الموافقة (:date)', '· بتنتهي :date'],
+            ['account.privacy.consents_empty', 'الخصوصيّة: الحالة الفارغة لمَن يرى بياناتي', 'مفيش حدّ بيشوف بياناتك دلوقتي.'],
+            ['account.privacy.consents_hint', 'الخصوصيّة: شرح قائمة الموافقات', 'دي الموافقات اللي إنت وافقت عليها بنفسك — وتقدر تسحبها في أيّ وقت.'],
+            ['account.privacy.consents_title', 'الخصوصيّة: عنوان مَن يرى بياناتي', 'مَن يرى بياناتي'],
+            ['account.privacy.field_select_aria', 'الخصوصيّة: قائمة الحقل لقارئ الشاشة (:field)', 'خصوصيّة :field'],
+            ['account.privacy.fields_hint', 'الخصوصيّة: شرح خصوصيّة الحقول', 'اختار مين يشوف كلّ حقل — والحسّاس مقفول افتراضيًّا.'],
+            ['account.privacy.fields_title', 'الخصوصيّة: عنوان خصوصيّة كلّ حقل', 'خصوصيّة كلّ حقل'],
+            ['account.privacy.governorate_always_public', 'الخصوصيّة: قاعدة ظهور المحافظة (12.14-د)', 'المحافظة بتفضل ظاهرة للكلّ على طول — دي قاعدة ثابتة في المنصّة.'],
+            ['account.privacy.revoke_action', 'الخصوصيّة: زرّ سحب الموافقة', 'سحب'],
+            ['account.privacy.security_tab_link', 'الخصوصيّة: رابط تاب الأمان', 'نفس إعدادات الأمان موجودة كمان في تاب «الأمان» بصفحة الإعدادات'],
+            ['account.privacy.sensitive_tag', 'الخصوصيّة: وسم الحقل الحسّاس', '· حسّاس'],
+            ['account.privacy.subtitle', 'الخصوصيّة: السطر تحت العنوان', 'مين بيشوف بياناتك، وإزاي تحمي حسابك.'],
+            ['account.privacy.title', 'الخصوصيّة: عنوان الشاشة (منصوص في 24.5)', 'الخصوصيّة والأمان'],
+            ['account.search.empty_idle', 'البحث: الحالة قبل الكتابة', 'اكتب كلمة وابدأ البحث.'],
+            ['account.search.empty_no_results', 'البحث: الحالة الفارغة بلا نتائج', 'مفيش نتائج — جرّب كود أو اسم تاني.'],
+            ['account.search.input_aria', 'البحث: خانة البحث لقارئ الشاشة', 'كلمة البحث'],
+            ['account.search.load_more', 'البحث: زرّ عرض المزيد', 'عرض المزيد'],
+            ['account.search.place_missing', 'البحث: الدولة/المحافظة غير المضافة', 'مش مضافة'],
+            ['account.search.placeholder', 'البحث: تلميح خانة البحث', 'اكتب كود أو اسم أو بريد أو رقم موبايل'],
+            ['account.search.privacy_note', 'البحث: سطر سياسة الخصوصيّة', 'البحث بالبريد أو رقم الموبايل وسيلة وصول بس — النتيجة بتفتح البروفايل العامّ ومفيش أيّ بيانات حسّاسة.'],
+            ['account.search.results_count', 'البحث: عدد النتائج (:total)', ':total نتيجة'],
+            ['account.search.submit', 'البحث: زرّ البحث', 'إبحث'],
+            ['account.search.subtitle', 'البحث: السطر تحت العنوان', 'ادخل على أيّ حدّ من الكود أو الاسم.'],
+            ['account.search.title', 'البحث: عنوان الشاشة (منصوص في 24.5)', 'البحث'],
+            ['account.search.view_action', 'البحث: زرّ عرض البروفايل', 'عرض'],
+            ['account.security.change_password_action', 'الأمان: زرّ تغيير كلمة السرّ', 'تغيير'],
+            ['account.security.confirm_password', 'الأمان: خانة تأكيد كلمة السرّ', 'تأكيد كلمة السرّ'],
+            ['account.security.current_device', 'الأمان: وسم الجهاز الحاليّ', 'الجهاز الحاليّ'],
+            ['account.security.current_password', 'الأمان: خانة كلمة السرّ الحاليّة', 'كلمة السرّ الحاليّة'],
+            ['account.security.end_session_action', 'الأمان: زرّ إنهاء الجلسة', 'إنهاء'],
+            ['account.security.export_action', 'الأمان: زرّ تحميل البيانات', 'تحميل بياناتي'],
+            ['account.security.export_hint', 'الأمان: شرح ملفّ تحميل البيانات', 'ملفّ JSON فيه كلّ اللي المنصّة محتفظة بيه عنك.'],
+            ['account.security.last_active', 'الأمان: آخر نشاط للجهاز (:when)', '· آخر نشاط :when'],
+            ['account.security.logout_all_confirm', 'الأمان: تأكيد الخروج من كلّ الأجهزة', 'هنقفل كلّ الجلسات على كلّ الأجهزة — وهتحتاج تسجّل دخولك تاني. نكمّل؟'],
+            ['account.security.logout_all_hint', 'الأمان: شرح الخروج من كلّ الأجهزة', 'بيقفل حسابك على كلّ الأجهزة — بما فيها الجهاز ده.'],
+            ['account.security.new_password', 'الأمان: خانة كلمة السرّ الجديدة', 'كلمة السرّ الجديدة'],
+            ['account.security.password_title', 'الأمان: عنوان بلوك كلمة السرّ', 'كلمة السرّ'],
+            ['account.security.sessions_empty', 'الأمان: الحالة الفارغة للجلسات', 'مفيش جلسات مسجّلة دلوقتي.'],
+            ['account.security.sessions_hint', 'الأمان: شرح الجلسات النشطة', 'دي الأجهزة اللي حسابك مفتوح عليها دلوقتي.'],
+            ['account.security.sessions_title', 'الأمان: عنوان الجلسات النشطة', 'الجلسات النشطة'],
+            ['account.security.unknown_device', 'الأمان: اسم الجهاز المجهول', 'جهاز'],
+            ['account.settings.advanced_mode_hint', 'الإعدادات: شرح الوضع المتقدّم', 'بيفتح كلّ اللي اتخفى في الصفحات — وعلى الموبايل بيفتح كصفحة كاملة.'],
+            ['account.settings.autosave_failed', 'الإعدادات: رسالة تعثّر الحفظ', 'تعذّر الحفظ'],
+            ['account.settings.autosave_retry', 'الإعدادات: رسالة تعثّر الحفظ مع دعوة الإعادة', 'تعذّر الحفظ — جرّب تاني'],
+            ['account.settings.avatar_hint', 'الإعدادات: شرح الصورة الشخصيّة (:kb)', 'بنقصّها مربّعة تلقائيًّا، وأقصى حجم :kb كيلوبايت.'],
+            ['account.settings.avatar_label', 'الإعدادات: عنوان الصورة الشخصيّة', 'الصورة الشخصيّة'],
+            ['account.settings.avatar_save', 'الإعدادات: زرّ حفظ الصورة', 'حفظ الصورة'],
+            ['account.settings.breadcrumb_root', 'الإعدادات: جذر مسار التنقّل (منصوص في 24.5)', 'حسابي'],
+            ['account.settings.contact_warn_badge', 'الإعدادات: شارة تنبيه تغيير التواصل', 'خُد بالك'],
+            ['account.settings.contact_warn_message', 'الإعدادات: تنبيه أثر تغيير التواصل (:count)', 'لو غيّرت البريد أو رقم الموبايل، هيتوقف عرض بياناتك لـ :count من اللي وافقت لهم قبل كده — والموافقة القديمة مش بتنتقل للبيانات الجديدة.'],
+            ['account.settings.country_placeholder', 'الإعدادات: خيار اختيار الدولة', 'اختر الدولة'],
+            ['account.settings.email_channel_hint', 'الإعدادات: شرح قناة البريد', 'ده بيوقف رسايل المنشورات على بريدك بس — رموز الدخول واستعادة كلمة السرّ هتفضل توصلك دايمًا.'],
+            ['account.settings.email_channel_off', 'الإعدادات: خيار إيقاف رسايل البريد', 'متوصلنيش'],
+            ['account.settings.email_channel_on', 'الإعدادات: خيار تشغيل رسايل البريد', 'توصلني'],
+            ['account.settings.emergency_add', 'الإعدادات: زرّ إضافة جهة الطوارئ', 'إضافة'],
+            ['account.settings.emergency_delete', 'الإعدادات: زرّ مسح جهة الطوارئ', 'مسح'],
+            ['account.settings.emergency_empty', 'الإعدادات: الحالة الفارغة لجهات الطوارئ', 'مفيش جهة طوارئ مضافة.'],
+            ['account.settings.emergency_hint', 'الإعدادات: شرح جهة الطوارئ', 'بتظهر لمشرفيك وقت الحاجة بس — ومش بتظهر لباقي الناس.'],
+            ['account.settings.emergency_name', 'الإعدادات: خانة اسم جهة الطوارئ', 'الاسم'],
+            ['account.settings.emergency_phone', 'الإعدادات: خانة موبايل جهة الطوارئ', 'رقم الموبايل'],
+            ['account.settings.emergency_relation', 'الإعدادات: خانة صلة القرابة', 'صلة القرابة'],
+            ['account.settings.emergency_title', 'الإعدادات: عنوان بلوك جهة الطوارئ', 'جهة الطوارئ (اختياريّ)'],
+            ['account.settings.field_advanced_mode', 'الإعدادات: عنوان حقل الوضع المتقدّم', 'وضع متقدّم'],
+            ['account.settings.field_country', 'الإعدادات: عنوان حقل الدولة', 'الدولة'],
+            ['account.settings.field_email', 'الإعدادات: عنوان حقل البريد', 'البريد الإلكترونيّ'],
+            ['account.settings.field_email_channel', 'الإعدادات: عنوان حقل رسايل البريد', 'رسايل البريد'],
+            ['account.settings.field_governorate', 'الإعدادات: عنوان حقل المحافظة', 'المحافظة'],
+            ['account.settings.field_language', 'الإعدادات: عنوان حقل اللغة', 'اللغة'],
+            ['account.settings.field_name', 'الإعدادات: عنوان حقل الاسم', 'الاسم'],
+            ['account.settings.field_phone', 'الإعدادات: عنوان حقل رقم الموبايل', 'رقم الموبايل'],
+            ['account.settings.field_simple_mode', 'الإعدادات: عنوان حقل الوضع المبسّط', 'الوضع المبسّط العامّ'],
+            ['account.settings.field_sound', 'الإعدادات: عنوان حقل صوت المنصّة', 'صوت المنصّة'],
+            ['account.settings.field_theme', 'الإعدادات: عنوان حقل وضع المظهر', 'الوضع'],
+            ['account.settings.governorate_hint', 'الإعدادات: شرح ظهور المحافظة (12.14-د)', 'المحافظة بتظهر لكلّ الناس على بروفايلك — ودي قاعدة ثابتة في المنصّة.'],
+            ['account.settings.governorate_placeholder', 'الإعدادات: خيار اختيار المحافظة', 'اختر المحافظة'],
+            ['account.settings.language_ar', 'الإعدادات: اسم اللغة العربيّة في القائمة', 'العربيّة'],
+            ['account.settings.notifications_note', 'الإعدادات: سطر قنوات الإشعارات', 'الإشعارات بتوصلك في التاب والجرس دايمًا، وتقدر تظبط تفاصيلها من مركز الإشعارات.'],
+            ['account.settings.save_action', 'الإعدادات: زرّ الحفظ اليدويّ للحقل', 'حفظ'],
+            ['account.settings.saved_flag', 'الإعدادات: علامة تمام الحفظ', 'اتحفظ ✓'],
+            ['account.settings.search_aria', 'الإعدادات: خانة البحث لقارئ الشاشة', 'بحث داخل الإعدادات'],
+            ['account.settings.search_empty', 'الإعدادات: الحالة الفارغة لبحث الإعدادات', 'مفيش إعداد بالاسم ده — جرّب كلمة تانية.'],
+            ['account.settings.search_placeholder', 'الإعدادات: تلميح بحث الإعدادات', 'دوّر على إعداد… مثال: اللغة، الصوت، الأفاتار'],
+            ['account.settings.simple_mode_hint', 'الإعدادات: شرح الوضع المبسّط', 'بيخفي «الوضع المتقدّم» من كلّ الصفحات دفعةً واحدة.'],
+            ['account.settings.sound_hint', 'الإعدادات: شرح صوت المنصّة', 'بيتحكّم في أصوات الاحتفال ولحظات النجاح.'],
+            ['account.settings.subtitle', 'الإعدادات: السطر تحت العنوان', 'كلّ تعديل بيتحفظ لوحده — مش محتاج تدوس حفظ.'],
+            ['account.settings.tab_account', 'الإعدادات: تاب الحساب', 'الحساب'],
+            ['account.settings.tab_appearance', 'الإعدادات: تاب المظهر', 'المظهر'],
+            ['account.settings.tab_emergency', 'الإعدادات: تاب جهة الطوارئ', 'جهة الطوارئ'],
+            ['account.settings.tab_privacy', 'الإعدادات: رابط تاب الخصوصيّة', 'الخصوصيّة'],
+            ['account.settings.tab_security', 'الإعدادات: تاب الأمان (منصوص في 2.3)', 'الأمان'],
+            ['account.settings.tab_sound', 'الإعدادات: تاب الصوت', 'الصوت'],
+            ['account.settings.tabs_nav_aria', 'الإعدادات: شريط التابات لقارئ الشاشة', 'مجموعات الإعدادات'],
+            ['account.settings.theme_dark', 'الإعدادات: خيار الوضع الداكن', 'داكن'],
+            ['account.settings.theme_light', 'الإعدادات: خيار الوضع الفاتح', 'فاتح'],
+            ['account.settings.title', 'الإعدادات: عنوان الشاشة (منصوص في 24.5)', 'الإعدادات'],
+            ['account.settings.toggle_off', 'الإعدادات: خيار «متوقّف» في التوجلات', 'متوقّف'],
+            ['account.settings.toggle_on', 'الإعدادات: خيار «مفعَّل» في التوجلات', 'مفعَّل'],
+        ];
+
+        foreach ($rows as [$key, $label, $default]) {
+            Setting::updateOrCreate(['key' => $key], [
+                'group' => 'account',
+                'label_ar' => $label,
+                'type' => 'string',
+                'default_value' => $default,
+                'value' => $default,
+            ]);
+        }
+
+        Cache::forget('settings');
     }
 
     /** إعدادات المجال — نمط المفتاح «المجال.الميزة.المفتاح» (2.13) */

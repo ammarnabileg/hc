@@ -25,6 +25,8 @@ class ChallengeDemoSeeder extends Seeder
     {
         $this->settings();
         $this->streakSettings();
+        $this->achievementsScreenTextSettings();
+        $this->screenTextSettings();
         $this->rewardQuestions();
         $this->celebrations();
         $this->badges();
@@ -33,6 +35,205 @@ class ChallengeDemoSeeder extends Seeder
         $this->traineePermissions();
 
         // الإعدادات تُقرأ من كاش دائم — نُبطله بعد الكتابة (2.13)
+        Cache::forget('settings');
+    }
+
+    /**
+     * **نصوص شاشات التحديات** (2.13-أ: «النصوص الظاهرة للمستخدم») — كلّ جملةٍ
+     * يقرؤها المتدرّب على `resources/views/challenges/**` لها مفتاحها هنا،
+     * والوحدة **جملةٌ كاملة** كما تُقرَأ لا كلمةً مقتطعة. و`:n` وأخواتها
+     * مواضع استبدال لا نصًّا.
+     *
+     * ⚠️ «التحديات» و«الرئيسيّة» عنوانان **منصوصان حرفيًّا في الدستور**
+     * (24.5 · 12.0 — سايد بار المتدرّب)، و«لوحة الأبطال» منصوصة في وصف شاشة
+     * التحديات (24.5) — فافتراضيُّها هو النصّ المنصوص وتغييرُه يخالف الخريطة.
+     */
+    public function screenTextSettings(): void
+    {
+        $rows = [
+            ['celebrations.screen.close_aria', 'gamification_celebrations', '«شاشة الاحتفال» — زرّ الإغلاق لقارئ الشاشة', 'إغلاق'],
+            ['celebrations.screen.dismiss_action', 'gamification_celebrations', '«شاشة الاحتفال» — زرّ إغلاق الاحتفال', 'تمام'],
+            ['celebrations.screen.icon_label', 'gamification_celebrations', '«شاشة الاحتفال» — وصف الأيقونة لقارئ الشاشة', 'إنجاز'],
+            ['celebrations.screen.share_action', 'gamification_celebrations', '«شاشة الاحتفال» — زرّ لقطة الإنجاز', 'لقطة إنجاز'],
+            ['challenges.arena.all_arenas', 'challenges', '«ساحة الحرب» — زرّ كلّ الساحات', 'كلّ الساحات'],
+            ['challenges.arena.bank_not_ready', 'challenges', '«ساحة الحرب» — سطر بنك الأسئلة غير الجاهز', 'بنك أسئلة الساحة لسّه مش جاهز — جرّب ساحة تانية دلوقتي.'],
+            ['challenges.arena.duel_action', 'challenges', '«ساحة الحرب» — زرّ التحدّي', 'تحدّاه'],
+            ['challenges.arena.fighter_record', 'challenges', '«ساحة الحرب» — سجلّ المحارب (:wins · :losses)', 'الفوز: :wins · الخسارة: :losses'],
+            ['challenges.arena.fighters_empty', 'challenges', '«ساحة الحرب» — الحالة الفارغة لقائمة المحاربين', 'إنت لوحدك في الساحة دلوقتي — كن أوّل محارب فيها'],
+            ['challenges.arena.fighters_title', 'challenges', '«ساحة الحرب» — عنوان قائمة المحاربين', 'المحاربون الجاهزون'],
+            ['challenges.arena.gate_line', 'challenges', '«ساحة الحرب» — سطر شرط الدخول (:gate · :balance)', 'شرط الدخول: رصيدك ≥ :gate تذكرة · رصيدك دلوقتي :balance'],
+            ['challenges.arena.loss_line', 'challenges', '«ساحة الحرب» — سطر خسارة المواجهة (:n)', 'الخسارة: −:n تذكرة'],
+            ['challenges.arena.paused_badge', 'challenges', '«ساحة الحرب» — شارة الساحة الموقوفة', 'الساحة موقوفة مؤقّتًا'],
+            ['challenges.arena.ready_action', 'challenges', '«ساحة الحرب» — زرّ الاستعداد', 'استعداد'],
+            ['challenges.arena.ready_badge', 'challenges', '«ساحة الحرب» — شارة الاستعداد', 'إنت مستعدّ — استنّى محارب أو اتحدّى واحدًا'],
+            ['challenges.arena.ready_elsewhere', 'challenges', '«ساحة الحرب» — تنبيه الاستعداد في ساحة أخرى (:arena)', 'إنت مستعدّ لـ«:arena» — ألغِ استعدادك من الشريط فوق الأوّل.'],
+            ['challenges.arena.resume_match', 'challenges', '«ساحة الحرب» — زرّ العودة للمواجهة', 'ارجع لمواجهتك'],
+            ['challenges.arena.win_line', 'challenges', '«ساحة الحرب» — سطر مكسب الفوز (:n)', 'الفوز: +:n تذكرة'],
+            ['challenges.arena.withdraw_line', 'challenges', '«ساحة الحرب» — سطر عقوبة الانسحاب (:n)', 'الانسحاب: −:n تذاكر'],
+            ['challenges.champion_row.points_word', 'challenges', '«صفّ لوحة الأبطال» — كلمة النقطة', 'نقطة'],
+            ['challenges.champion_row.record', 'challenges', '«صفّ لوحة الأبطال» — سجلّ البطل (:wins · :played)', '· :wins فوز من :played'],
+            ['challenges.champion_row.you_label', 'challenges', '«صفّ لوحة الأبطال» — وسم صفّك أنت', '— ده إنت'],
+            ['challenges.champions.empty_action', 'challenges', '«لوحة الأبطال» — زرّ الحالة الفارغة', 'التحدّيات المتاحة'],
+            ['challenges.champions.empty_message', 'challenges', '«لوحة الأبطال» — نصّ الحالة الفارغة', 'لسّه بدري على أوّل ترتيب — ادخل أوّل حرب وابدأ.'],
+            ['challenges.champions.filter_apply', 'challenges', '«لوحة الأبطال» — زرّ تطبيق الفلاتر', 'طبّق'],
+            ['challenges.champions.filter_challenge', 'challenges', '«لوحة الأبطال» — عنوان فلتر الحرب', 'التحدّي'],
+            ['challenges.champions.filter_challenge_all', 'challenges', '«لوحة الأبطال» — خيار كلّ الحروب', 'كلّ الحروب'],
+            ['challenges.champions.filter_period', 'challenges', '«لوحة الأبطال» — عنوان فلتر الفترة', 'الفترة'],
+            ['challenges.champions.filter_search', 'challenges', '«لوحة الأبطال» — عنوان خانة البحث', 'بحث بالاسم'],
+            ['challenges.champions.filter_search_placeholder', 'challenges', '«لوحة الأبطال» — تلميح خانة البحث', 'اسم البطل…'],
+            ['challenges.champions.no_rank_note', 'challenges', '«لوحة الأبطال» — سطر مَن بلا ترتيب', 'لسّه مالكش ترتيب في الفترة دي — أوّل تحدّي هيحطّك على اللوحة.'],
+            ['challenges.champions.period_30', 'challenges', '«لوحة الأبطال» — خيار فترة 30 يوم', 'آخر 30 يوم'],
+            ['challenges.champions.period_7', 'challenges', '«لوحة الأبطال» — خيار فترة 7 أيّام', 'آخر 7 أيّام'],
+            ['challenges.champions.period_90', 'challenges', '«لوحة الأبطال» — خيار فترة 90 يوم', 'آخر 90 يوم'],
+            ['challenges.champions.range_label', 'challenges', '«لوحة الأبطال» — اسم الفترة في بطاقة الاستخراج (:days)', 'آخر :days يوم'],
+            ['challenges.champions.subtitle', 'challenges', '«لوحة الأبطال» — السطر تحت العنوان', 'ترتيب المتحدّين خلال آخر :days يوم.'],
+            ['challenges.champions.title', 'challenges', '«لوحة الأبطال» — العنوان', 'لوحة الأبطال'],
+            ['challenges.focus.badge_group', 'challenges', '«حرب التركيز» — شارة التحدّي الجماعيّ', 'جماعيّ'],
+            ['challenges.focus.badge_solo', 'challenges', '«حرب التركيز» — شارة التحدّي الفرديّ', 'فرديّ'],
+            ['challenges.focus.cancel_action', 'challenges', '«حرب التركيز» — زرّ إلغاء التحدّي', 'ألغِ التحدّي'],
+            ['challenges.focus.card_duration', 'challenges', '«حرب التركيز» — مدّة التحدّي في الكارت (:minutes)', ':minutes دقيقة تركيز'],
+            ['challenges.focus.card_owner', 'challenges', '«حرب التركيز» — صاحب التحدّي في الكارت (:owner)', '· صاحبه: :owner'],
+            ['challenges.focus.duration_legend', 'challenges', '«حرب التركيز» — عنوان اختيار المدّة', 'المدّة'],
+            ['challenges.focus.duration_option', 'challenges', '«حرب التركيز» — خيار المدّة (:minutes)', ':minutes دقيقة'],
+            ['challenges.focus.economy_note', 'challenges', '«حرب التركيز» — شرح اقتصاد التحدّي (:create · :join)', 'الإنشاء بـ:create تذاكر وغير قابلة للاسترجاع، وكلّ منضمّ بيدّيك :join تذكرة — يعني تحدّي حلو الناس تحبّه = مكسب.'],
+            ['challenges.focus.empty', 'challenges', '«حرب التركيز» — الحالة الفارغة', 'مفيش تحدّيات تركيز نشطة — ابدأ إنت أوّل واحد.'],
+            ['challenges.focus.group_toggle', 'challenges', '«حرب التركيز» — خيار التحدّي الجماعيّ', 'خلّيه تحدّيًا جماعيًّا — الناس تقدر تنضمّ بتذكرة تروح لك.'],
+            ['challenges.focus.icon_label', 'challenges', '«حرب التركيز» — وصف الأيقونة لقارئ الشاشة', 'حرب تركيز'],
+            ['challenges.focus.intention_label', 'challenges', '«حرب التركيز» — عنوان خانة النيّة', 'نيّتك (اختياريّ)'],
+            ['challenges.focus.intention_placeholder', 'challenges', '«حرب التركيز» — تلميح خانة النيّة', 'أقرأ كتاب كذا · أخلّص مهمّة كذا'],
+            ['challenges.focus.join_action', 'challenges', '«حرب التركيز» — زرّ الانضمام (:cost)', 'انضمّ بـ:cost تذكرة'],
+            ['challenges.focus.joined_note', 'challenges', '«حرب التركيز» — سطر المنضمّ', 'إنت منضمّ — ركّز'],
+            ['challenges.focus.joiners_label', 'challenges', '«حرب التركيز» — وسم المنضمّين', 'منضمّين معاه'],
+            ['challenges.focus.kpi_active', 'challenges', '«حرب التركيز» — كارت التحدّيات النشطة', 'تحدّياتي النشطة'],
+            ['challenges.focus.kpi_create_cost', 'challenges', '«حرب التركيز» — كارت تكلفة الإنشاء', 'تكلفة الإنشاء'],
+            ['challenges.focus.kpi_minutes', 'challenges', '«حرب التركيز» — كارت دقائق التركيز', 'دقائق تركيزي'],
+            ['challenges.focus.kpi_tickets', 'challenges', '«حرب التركيز» — كارت التذاكر', 'تذاكري'],
+            ['challenges.focus.modal_cancel', 'challenges', '«حرب التركيز» — زرّ إغلاق البوب-أب', 'مش دلوقتي'],
+            ['challenges.focus.modal_submit', 'challenges', '«حرب التركيز» — زرّ بدء التحدّي', 'ابدأ التحدّي'],
+            ['challenges.focus.modal_title', 'challenges', '«حرب التركيز» — عنوان بوب-أب التحدّي الجديد', 'تحدّي تركيز جديد'],
+            ['challenges.focus.new_action', 'challenges', '«حرب التركيز» — زرّ تحدّي جديد', 'تحدّي جديد'],
+            ['challenges.focus.no_intention', 'challenges', '«حرب التركيز» — الكارت بلا نيّة مكتوبة', 'بلا نيّة مكتوبة'],
+            ['challenges.focus.subtitle', 'challenges', '«حرب التركيز» — السطر تحت العنوان', 'عمل عميق بلا مقاطعة — والمكافأة دقائق تركيز مش تذاكر.'],
+            ['challenges.focus.title', 'challenges', '«حرب التركيز» — العنوان', 'حرب التركيز'],
+            ['challenges.focus_layout.default_title', 'challenges', '«شاشة التركيز» — عنوان شاشة التركيز الافتراضيّ', 'التحدّي'],
+            ['challenges.index.badge_bank_not_ready', 'challenges', '«التحديات» — شارة بنك الأسئلة غير الجاهز', 'البنك مش جاهز'],
+            ['challenges.index.badge_paused', 'challenges', '«التحديات» — شارة الساحة الموقوفة', 'موقوفة مؤقّتًا'],
+            ['challenges.index.badge_ready_here', 'challenges', '«التحديات» — شارة الاستعداد في هذه الساحة', 'إنت مستعدّ هنا'],
+            ['challenges.index.breadcrumb_home', 'challenges', '«التحديات» — جذر مسار التنقّل (منصوص في 24.5)', 'الرئيسيّة'],
+            ['challenges.index.empty', 'challenges', '«التحديات» — الحالة الفارغة', 'مفيش ساحات متاحة دلوقتي — تعالى بكرة، الساحة بتتجدّد.'],
+            ['challenges.index.enter_arena', 'challenges', '«التحديات» — زرّ دخول الساحة', 'ادخل الساحة'],
+            ['challenges.index.enter_focus', 'challenges', '«التحديات» — زرّ دخول ساحة التركيز', 'ادخل ساحة التركيز'],
+            ['challenges.index.filter_apply', 'challenges', '«التحديات» — زرّ تطبيق الفلاتر', 'طبّق'],
+            ['challenges.index.filter_search', 'challenges', '«التحديات» — عنوان خانة البحث', 'بحث'],
+            ['challenges.index.filter_search_placeholder', 'challenges', '«التحديات» — تلميح خانة البحث', 'اسم الحرب…'],
+            ['challenges.index.filter_state', 'challenges', '«التحديات» — عنوان فلتر الحالة', 'الحالة'],
+            ['challenges.index.filter_state_all', 'challenges', '«التحديات» — خيار كلّ الحالات', 'الكلّ'],
+            ['challenges.index.filter_state_open', 'challenges', '«التحديات» — خيار الحالة المفتوحة', 'مفتوحة'],
+            ['challenges.index.filter_state_paused', 'challenges', '«التحديات» — خيار الحالة الموقوفة', 'موقوفة'],
+            ['challenges.index.filter_type', 'challenges', '«التحديات» — عنوان فلتر النوع', 'النوع'],
+            ['challenges.index.filter_type_all', 'challenges', '«التحديات» — خيار كلّ الأنواع', 'كلّ الأنواع'],
+            ['challenges.index.kpi_gate', 'challenges', '«التحديات» — كارت شرط الاستعداد', 'شرط الاستعداد'],
+            ['challenges.index.kpi_losses', 'challenges', '«التحديات» — كارت الخسارة', 'خسارتي'],
+            ['challenges.index.kpi_tickets', 'challenges', '«التحديات» — كارت التذاكر', 'تذاكري'],
+            ['challenges.index.kpi_wins', 'challenges', '«التحديات» — كارت الفوز', 'فوزي'],
+            ['challenges.index.mine_action', 'challenges', '«التحديات» — زرّ تحدّياتي', 'تحدّياتي'],
+            ['challenges.index.reopen_soon', 'challenges', '«التحديات» — سطر الساحة الموقوفة', 'هترجع تفتح قريب.'],
+            ['challenges.index.resume_match', 'challenges', '«التحديات» — زرّ العودة للمواجهة', 'ارجع للمواجهة'],
+            ['challenges.index.running_note', 'challenges', '«التحديات» — سطر المواجهة الجارية', 'عندك مواجهة شغّالة دلوقتي.'],
+            ['challenges.index.stat_gate_value', 'challenges', '«التحديات» — قيمة شرط الاستعداد (:n)', '≥ :n تذكرة'],
+            ['challenges.index.stat_loss', 'challenges', '«التحديات» — عنوان خسارة المواجهة', 'الخسارة'],
+            ['challenges.index.stat_loss_value', 'challenges', '«التحديات» — قيمة خسارة المواجهة (:n)', '−:n تذكرة'],
+            ['challenges.index.stat_win', 'challenges', '«التحديات» — عنوان مكسب الفوز', 'الفوز'],
+            ['challenges.index.stat_win_value', 'challenges', '«التحديات» — قيمة مكسب الفوز (:n)', '+:n تذكرة'],
+            ['challenges.index.stat_withdraw', 'challenges', '«التحديات» — عنوان عقوبة الانسحاب', 'الانسحاب'],
+            ['challenges.index.stat_withdraw_value', 'challenges', '«التحديات» — قيمة عقوبة الانسحاب (:n)', '−:n تذاكر'],
+            ['challenges.index.subtitle', 'challenges', '«التحديات» — السطر تحت العنوان', 'حروب بين المحاربين — الرابح ياخد من الخاسر، ومحدّش بيكسب من العدم.'],
+            ['challenges.index.title', 'challenges', '«التحديات» — العنوان', 'التحديات'],
+            ['challenges.mine.arenas_action', 'challenges', '«تحدّياتي» — زرّ ساحات الحرب', 'ساحات الحرب'],
+            ['challenges.mine.badge_done', 'challenges', '«تحدّياتي» — شارة المواجهة المكتملة', 'مكتملة'],
+            ['challenges.mine.badge_running', 'challenges', '«تحدّياتي» — شارة المواجهة الجارية', 'شغّالة دلوقتي'],
+            ['challenges.mine.continue_action', 'challenges', '«تحدّياتي» — زرّ إكمال المواجهة', 'كمّل المواجهة'],
+            ['challenges.mine.empty_done', 'challenges', '«تحدّياتي» — الحالة الفارغة للمنتهية', 'لسّه مخلّصتش مواجهة — أوّل واحدة هتبان هنا.'],
+            ['challenges.mine.empty_running', 'challenges', '«تحدّياتي» — الحالة الفارغة للجارية', 'مفيش مواجهة شغّالة دلوقتي — الساحة مستنّياك.'],
+            ['challenges.mine.kpi_draws', 'challenges', '«تحدّياتي» — كارت التعادل', 'تعادلي'],
+            ['challenges.mine.kpi_focus_minutes', 'challenges', '«تحدّياتي» — كارت دقائق التركيز', 'دقائق تركيزي'],
+            ['challenges.mine.kpi_losses', 'challenges', '«تحدّياتي» — كارت الخسارة', 'خسارتي'],
+            ['challenges.mine.kpi_wins', 'challenges', '«تحدّياتي» — كارت الفوز', 'فوزي'],
+            ['challenges.mine.loss_streak_note', 'challenges', '«تحدّياتي» — تنبيه سلسلة الخسائر (:n)', 'عندك :n خسارة ورا بعض — لو وصلت للحدّ هتختفي من قائمة الجاهزين (حماية ليك)، وتفضل قادر تتحدّى الناس لحدّ ما تكسر السلسلة بفوز.'],
+            ['challenges.mine.my_score', 'challenges', '«تحدّياتي» — عنوان نقاطي', 'نقاطي'],
+            ['challenges.mine.result_action', 'challenges', '«تحدّياتي» — زرّ عرض النتيجة', 'شوف النتيجة'],
+            ['challenges.mine.result_draw', 'challenges', '«تحدّياتي» — وسم نتيجة التعادل', 'تعادل'],
+            ['challenges.mine.result_lose', 'challenges', '«تحدّياتي» — وسم نتيجة الخسارة', 'خسارة'],
+            ['challenges.mine.result_win', 'challenges', '«تحدّياتي» — وسم نتيجة الفوز', 'فوز'],
+            ['challenges.mine.settlement', 'challenges', '«تحدّياتي» — عنوان المحصّلة', 'المحصّلة'],
+            ['challenges.mine.subtitle', 'challenges', '«تحدّياتي» — السطر تحت العنوان', 'اللي شغّال دلوقتي واللي خلص — كلّه في مكان واحد.'],
+            ['challenges.mine.tab_done', 'challenges', '«تحدّياتي» — تاب المواجهات المنتهية', 'منتهية'],
+            ['challenges.mine.tab_running', 'challenges', '«تحدّياتي» — تاب المواجهات الجارية', 'جارية'],
+            ['challenges.mine.title', 'challenges', '«تحدّياتي» — العنوان', 'تحدّياتي'],
+            ['challenges.mine.withdrew_note', 'challenges', '«تحدّياتي» — سطر الانسحاب', 'انسحبت من المواجهة دي.'],
+            ['challenges.play.answer_queued', 'challenges', '«المواجهة» — ردّ حفظ الإجابة بلا شبكة', 'تقدّمك محفوظ — هنبعته أوّل ما النت يرجع'],
+            ['challenges.play.answer_saved', 'challenges', '«المواجهة» — ردّ حفظ الإجابة', 'اتحفظ ✓'],
+            ['challenges.play.answered_of', 'challenges', '«المواجهة» — عدد الإجابات (:count · :total)', '· :count من :total'],
+            ['challenges.play.decision_note', 'challenges', '«المواجهة» — تنبيه عدّاد الحسم (:seconds)', 'خصمك خلّص — باقي :seconds ثانية وتُقفَل المواجهة.'],
+            ['challenges.play.no_questions', 'challenges', '«المواجهة» — الحالة الفارغة للمواجهة', 'المواجهة دي بلا أسئلة — سلّم وارجع بعدين.'],
+            ['challenges.play.no_questions_action', 'challenges', '«المواجهة» — زرّ الحالة الفارغة', 'سلّم'],
+            ['challenges.play.number_answer_label', 'challenges', '«المواجهة» — عنوان خانة التقدير الرقميّ', 'تقديرك بالرقم'],
+            ['challenges.play.offline_note', 'challenges', '«المواجهة» — تطمين انقطاع الشبكة', 'النت فصل — بس تقدّمك محفوظ، وأوّل ما يرجع هنكمّل من نفس المكان.'],
+            ['challenges.play.question_of', 'challenges', '«المواجهة» — موضع السؤال (:index · :total)', '· سؤال :index من :total'],
+            ['challenges.play.rival_line', 'challenges', '«المواجهة» — سطر الخصم (:rival)', 'خصمك: :rival'],
+            ['challenges.play.seconds_per_question', 'challenges', '«المواجهة» — وسم مؤقّت السؤال', 'ثانية للسؤال'],
+            ['challenges.play.submit_action', 'challenges', '«المواجهة» — زرّ التسليم', 'خلّصت — سلّم'],
+            ['challenges.play.unknown_rival', 'challenges', '«المواجهة» — اسم الخصم المجهول', 'محارب'],
+            ['challenges.play.withdraw_action', 'challenges', '«المواجهة» — زرّ الانسحاب', 'انسحاب'],
+            ['challenges.play.withdraw_cancel', 'challenges', '«المواجهة» — زرّ إكمال المواجهة في البوب-أب', 'أكمّل المواجهة'],
+            ['challenges.play.withdraw_confirm', 'challenges', '«المواجهة» — زرّ تأكيد الانسحاب', 'أنسحب'],
+            ['challenges.play.withdraw_loss_word', 'challenges', '«المواجهة» — كلمة الخسارة في شرح الانسحاب', 'خسارة'],
+            ['challenges.play.withdraw_modal_body', 'challenges', '«المواجهة» — شرح كلفة الانسحاب (:loss · :penalty)', 'الانسحاب بيحسب عليك :loss وكمان :penalty — والخصم بيكسب المواجهة. لو النت بيقطع منك، مفيش داعي تنسحب: تقدّمك محفوظ وهيتحسب لوحده.'],
+            ['challenges.play.withdraw_modal_title', 'challenges', '«المواجهة» — عنوان بوب-أب الانسحاب', 'متأكّد إنك عايز تنسحب؟'],
+            ['challenges.play.withdraw_penalty_word', 'challenges', '«المواجهة» — كلمة العقوبة في شرح الانسحاب', 'عقوبة انسحاب'],
+            ['challenges.result.back_to_arena', 'challenges', '«نتيجة المواجهة» — زرّ العودة للساحة', 'ارجع الساحة'],
+            ['challenges.result.badge_done', 'challenges', '«نتيجة المواجهة» — شارة المواجهة المكتملة', 'مكتمل'],
+            ['challenges.result.badge_draw', 'challenges', '«نتيجة المواجهة» — شارة التعادل', 'تعادل'],
+            ['challenges.result.badge_lose', 'challenges', '«نتيجة المواجهة» — شارة الخسارة', 'خسارة'],
+            ['challenges.result.badge_pending', 'challenges', '«نتيجة المواجهة» — شارة انتظار الحسم', 'في انتظار الحسم'],
+            ['challenges.result.badge_win', 'challenges', '«نتيجة المواجهة» — شارة الفوز', 'فوز'],
+            ['challenges.result.breadcrumb_self', 'challenges', '«نتيجة المواجهة» — آخر مسار التنقّل', 'النتيجة'],
+            ['challenges.result.delta_draw', 'challenges', '«نتيجة المواجهة» — محصّلة التعادل', 'لا خصم ولا إضافة'],
+            ['challenges.result.delta_lose', 'challenges', '«نتيجة المواجهة» — محصّلة الخسارة (:n)', '−:n تذكرة'],
+            ['challenges.result.delta_win', 'challenges', '«نتيجة المواجهة» — محصّلة الفوز (:n)', '+:n تذكرة'],
+            ['challenges.result.draw_note', 'challenges', '«نتيجة المواجهة» — سطر التعادل (:unit)', 'تعادل بعدد :unit — فمحدّش خسر ومحدّش كسب.'],
+            ['challenges.result.draw_unit_answers', 'challenges', '«نتيجة المواجهة» — وحدة التعادل في باقي الحروب', 'الإجابات'],
+            ['challenges.result.draw_unit_survival', 'challenges', '«نتيجة المواجهة» — وحدة التعادل في حرب البقاء', 'الأسئلة اللي نجوتوا فيها'],
+            ['challenges.result.headline_draw', 'challenges', '«نتيجة المواجهة» — عنوان التعادل', 'تعادل'],
+            ['challenges.result.headline_lose', 'challenges', '«نتيجة المواجهة» — عنوان الخسارة', 'خسرت المواجهة'],
+            ['challenges.result.headline_waiting', 'challenges', '«نتيجة المواجهة» — عنوان انتظار الخصم', 'مستنّيين خصمك يخلّص…'],
+            ['challenges.result.headline_win', 'challenges', '«نتيجة المواجهة» — عنوان الفوز', 'كسبت المواجهة'],
+            ['challenges.result.headline_withdrew', 'challenges', '«نتيجة المواجهة» — عنوان الانسحاب', 'انسحبت من المواجهة'],
+            ['challenges.result.kpi_my_score', 'challenges', '«نتيجة المواجهة» — كارت نقاطي', 'نقاطي'],
+            ['challenges.result.kpi_questions', 'challenges', '«نتيجة المواجهة» — كارت عدد الأسئلة', 'عدد الأسئلة'],
+            ['challenges.result.kpi_rival_score', 'challenges', '«نتيجة المواجهة» — كارت نقاط الخصم', 'نقاط خصمي'],
+            ['challenges.result.kpi_survived', 'challenges', '«نتيجة المواجهة» — كارت آخر سؤال نجوت فيه', 'نجوت لسؤال'],
+            ['challenges.result.kpi_tickets', 'challenges', '«نتيجة المواجهة» — كارت التذاكر', 'تذاكري دلوقتي'],
+            ['challenges.result.lose_note', 'challenges', '«نتيجة المواجهة» — سطر تشجيع بعد الخسارة', 'مجهودك مش رايح — كلّ مواجهة بتقرّبك. جهّز نفسك وارجع الساحة.'],
+            ['challenges.result.page_title', 'challenges', '«نتيجة المواجهة» — عنوان التبويب (:challenge)', 'نتيجة: :challenge'],
+            ['challenges.result.penalty_note', 'challenges', '«نتيجة المواجهة» — شرح عقوبة الانسحاب (:n)', 'وعقوبة الانسحاب (:n تذاكر) بتتشال من الاقتصاد ومبتروحش لحدّ.'],
+            ['challenges.result.settlement_title', 'challenges', '«نتيجة المواجهة» — عنوان بلوك المحصّلة', 'محصّلة المواجهة'],
+            ['challenges.result.share_action', 'challenges', '«نتيجة المواجهة» — زرّ لقطة الإنجاز', 'لقطة إنجاز قابلة للمشاركة'],
+            ['challenges.result.waiting_note', 'challenges', '«نتيجة المواجهة» — تنبيه انتظار الحسم (:seconds)', 'سلّمت وخلّصت — باقي :seconds ثانية وتُقفَل المواجهة وتظهر النتيجة.'],
+            ['challenges.result.zero_sum_note', 'challenges', '«نتيجة المواجهة» — شرح الاقتصاد المنغلق', 'اللي بيكسبه الفائز هو بعينه اللي بيخسره الخاسر — مفيش تذكرة بتتولد من العدم.'],
+            ['challenges.war_icon.default_aria', 'challenges', '«أيقونة الحرب» — الوصف الافتراضيّ لقارئ الشاشة', 'أيقونة الحرب'],
+        ];
+
+        foreach ($rows as [$key, $group, $label, $default]) {
+            Setting::updateOrCreate(['key' => $key], [
+                'group' => $group,
+                'label_ar' => $label,
+                'type' => 'string',
+                'default_value' => $default,
+                'value' => $default,
+            ]);
+        }
+
         Cache::forget('settings');
     }
 
@@ -109,6 +310,104 @@ class ChallengeDemoSeeder extends Seeder
                 'group' => $group,
                 'label_ar' => $label,
                 'type' => $type,
+                'default_value' => $default,
+                'value' => $default,
+            ]);
+        }
+    }
+
+    /**
+     * **نصوص شاشتَي «الشارات» و«الستريك ونادي الخامسة»** (2.13-أ: «النصوص
+     * الظاهرة للمستخدم») — كلّ جملةٍ يقرؤها المتدرّب على
+     * `resources/views/achievements/**` لها مفتاحها هنا، والوحدة **جملةٌ
+     * كاملة** كما تُقرَأ لا كلمةً مقتطعة. و`:days` وأخواتها مواضع استبدال.
+     *
+     * ⚠️ عناوينٌ **منصوصة حرفيًّا في الدستور** (24.5 · 12.0): «إنجازاتي»
+     * و«الشارات» و«الستريك ونادي الخامسة» — افتراضيُّها هو النصّ المنصوص،
+     * وتغييرُه من اللوحة يخالف خريطة السايد بار.
+     */
+    public function achievementsScreenTextSettings(): void
+    {
+        $rows = [
+            // ---------------- شاشة الشارات (7.4 · 24.5)
+            ['badges.screen.title', 'gamification_badges', 'عنوان شاشة الشارات (منصوص في 24.5)', 'الشارات'],
+            ['badges.screen.subtitle', 'gamification_badges', 'سطر تحت العنوان (:unlocked · :total)', ':unlocked مفتوحة من :total'],
+            ['badges.screen.breadcrumb_root', 'gamification_badges', 'جذر مسار التنقّل (منصوص في 24.5)', 'إنجازاتي'],
+            ['badges.screen.export_title', 'gamification_badges', 'عنوان بطاقة الاستخراج كصورة', 'شاراتي'],
+            ['badges.screen.export_subtitle', 'gamification_badges', 'سطر بطاقة الاستخراج (:unlocked · :total)', ':unlocked من :total شارة'],
+            ['badges.screen.progress_label', 'gamification_badges', 'عنوان بار الإنجاز', 'إنجازي في الشارات'],
+            ['badges.screen.filter_state', 'gamification_badges', 'عنوان فلتر الحالة', 'الحالة'],
+            ['badges.screen.filter_state_all', 'gamification_badges', 'خيار الحالة: الكلّ', 'الكلّ'],
+            ['badges.screen.filter_state_unlocked', 'gamification_badges', 'خيار الحالة: المفتوحة', 'مفتوحة'],
+            ['badges.screen.filter_state_locked', 'gamification_badges', 'خيار الحالة: المقفولة', 'مقفولة'],
+            ['badges.screen.filter_search', 'gamification_badges', 'عنوان خانة البحث', 'بحث'],
+            ['badges.screen.filter_search_placeholder', 'gamification_badges', 'تلميح خانة البحث', 'اسم الشارة أو شرطها…'],
+            ['badges.screen.filter_apply', 'gamification_badges', 'زرّ تطبيق الفلاتر', 'طبّق'],
+            ['badges.screen.empty', 'gamification_badges', 'الحالة الفارغة بعد الفلترة', 'مفيش شارات بالوصف ده — جرّب بحثًا أوسع.'],
+            ['badges.screen.unlocked_at', 'gamification_badges', 'تاريخ فتح الشارة (:date)', 'اتفتحت :date'],
+            ['badges.screen.progress_of_condition', 'gamification_badges', 'تقدّم الشارة المقفولة (:percent)', ':percent% من الشرط'],
+            ['badges.icon.aria_unlocked', 'gamification_badges', 'وصف أيقونة الشارة المفتوحة لقارئ الشاشة', 'شارة مفتوحة'],
+            ['badges.icon.aria_locked', 'gamification_badges', 'وصف أيقونة الشارة المقفولة لقارئ الشاشة', 'شارة مقفولة'],
+
+            // ---------------- شريط نادي الخامسة العلويّ (7.2)
+            ['streaks.club_bar.message', 'gamification_streaks', 'نصّ شريط النادي العلويّ', 'نادي الخامسة مفتوح دلوقتي — سجّل حضورك وخُد'],
+            ['streaks.club_bar.checkin_action', 'gamification_streaks', 'زرّ التسجيل في الشريط العلويّ', 'سجّل حضوري'],
+
+            // ---------------- الخريطة الحراريّة (7.2)
+            ['streaks.heatmap.aria_label', 'gamification_streaks', 'وصف الخريطة لقارئ الشاشة', 'خريطة أيّامي النشطة'],
+            ['streaks.heatmap.tooltip_club', 'gamification_streaks', 'تلميح يوم النادي', 'نادي الخامسة ★'],
+            ['streaks.heatmap.tooltip_freeze', 'gamification_streaks', 'تلميح اليوم المحميّ بدرع', 'يوم محميّ بدرع ▲'],
+            ['streaks.heatmap.tooltip_active', 'gamification_streaks', 'تلميح اليوم النشط', 'يوم نشط ●'],
+            ['streaks.heatmap.tooltip_idle', 'gamification_streaks', 'تلميح اليوم بلا نشاط', 'بلا نشاط ○'],
+            ['streaks.heatmap.legend_idle', 'gamification_streaks', 'مفتاح الخريطة: بلا نشاط', 'بلا نشاط'],
+            ['streaks.heatmap.legend_active', 'gamification_streaks', 'مفتاح الخريطة: يوم نشط', 'يوم نشط'],
+            ['streaks.heatmap.legend_club', 'gamification_streaks', 'مفتاح الخريطة: نادي الخامسة', 'نادي الخامسة'],
+            ['streaks.heatmap.legend_freeze', 'gamification_streaks', 'مفتاح الخريطة: يوم محميّ بدرع', 'يوم محميّ بدرع'],
+
+            // ---------------- شاشة الستريك ونادي الخامسة (7.2 · 24.5)
+            ['streaks.screen.title', 'gamification_streaks', 'عنوان الشاشة (منصوص في 24.5)', 'الستريك ونادي الخامسة'],
+            ['streaks.screen.subtitle', 'gamification_streaks', 'سطر تحت العنوان', 'استمراريّتك اليوميّة — يوم ورا يوم، والعادة بتتبني.'],
+            ['streaks.screen.breadcrumb_root', 'gamification_streaks', 'جذر مسار التنقّل (منصوص في 24.5)', 'إنجازاتي'],
+            ['streaks.screen.breadcrumb_self', 'gamification_streaks', 'آخر مسار التنقّل', 'الستريك'],
+            ['streaks.screen.export_subtitle', 'gamification_streaks', 'سطر بطاقة الاستخراج (:date)', 'حتى :date'],
+            ['streaks.screen.export_days', 'gamification_streaks', 'صيغة عدد الأيّام في البطاقة (:days)', ':days يوم'],
+            ['streaks.screen.export_best', 'gamification_streaks', 'سطر أطول ستريك في البطاقة', 'أطول ستريك'],
+            ['streaks.screen.export_club', 'gamification_streaks', 'سطر نادي الخامسة في البطاقة', 'نادي الخامسة'],
+            ['streaks.screen.checkin_action', 'gamification_streaks', 'زرّ تسجيل حضور اليوم', 'سجّل حضور النهارده'],
+            ['streaks.screen.checked_in_today', 'gamification_streaks', 'إشعار أنّ اليوم سُجِّل', 'النهارده اتسجّل'],
+            ['streaks.screen.kpi_current', 'gamification_streaks', 'كارت الستريك الحاليّ — العنوان', 'ستريكي الحاليّ'],
+            ['streaks.screen.kpi_current_hint', 'gamification_streaks', 'كارت الستريك الحاليّ — التلميح', 'أيّام متواصلة'],
+            ['streaks.screen.kpi_best', 'gamification_streaks', 'كارت أطول ستريك — العنوان', 'أطول ستريك (Best)'],
+            ['streaks.screen.kpi_club_days', 'gamification_streaks', 'كارت أيّام النادي — العنوان', 'أيّام نادي الخامسة'],
+            ['streaks.screen.kpi_last_active', 'gamification_streaks', 'كارت آخر يوم نشط — العنوان', 'آخر يوم نشط'],
+            ['streaks.screen.reward_ready_badge', 'gamification_streaks', 'شارة جاهزيّة المكافأة', 'مكافأة جاهزة'],
+            ['streaks.screen.reward_ready_message', 'gamification_streaks', 'رسالة جاهزيّة المكافأة (:days)', 'كمّلت :days يوم متواصل — تذكرة الهدية في انتظارك'],
+            ['streaks.screen.broken_title', 'gamification_streaks', 'عنوان الستريك المنقطع', 'ابدأ من جديد النهارده'],
+            ['streaks.screen.broken_message', 'gamification_streaks', 'رسالة الستريك المنقطع (:best)', 'الستريك اتقطع، وده بيحصل. أطول ستريك عملته (:best يوم) لسّه محفوظ ليك — وأوّل يوم في السلسلة الجديدة بيبدأ بضغطة.'],
+            ['streaks.screen.days_title', 'gamification_streaks', 'عنوان بلوك الخريطة', 'أيّامي'],
+            ['streaks.screen.range_1_month', 'gamification_streaks', 'خيار المدى: شهر', 'آخر شهر'],
+            ['streaks.screen.range_3_months', 'gamification_streaks', 'خيار المدى: 3 شهور', 'آخر 3 شهور'],
+            ['streaks.screen.range_6_months', 'gamification_streaks', 'خيار المدى: 6 شهور', 'آخر 6 شهور'],
+            ['streaks.screen.club_title', 'gamification_streaks', 'عنوان بلوك النادي', 'نادي الخامسة صباحًا'],
+            ['streaks.screen.window_open', 'gamification_streaks', 'شارة النافذة المفتوحة', 'النافذة مفتوحة'],
+            ['streaks.screen.window_closed', 'gamification_streaks', 'شارة النافذة المقفولة', 'النافذة مقفولة'],
+            ['streaks.screen.club_window_hint', 'gamification_streaks', 'شرح نافذة النادي (:start · :end · :timezone)', 'سجّل حضورك بين :start و:end بتوقيتك المحلّيّ (:timezone)، فتُحسَب لك يوم في النادي وتاخد XP الحضور.'],
+            ['streaks.screen.next_checkin_gives', 'gamification_streaks', 'عنوان XP الحضور القادم', 'حضورك القادم يمنحك'],
+            ['streaks.screen.next_ladder_step', 'gamification_streaks', 'الدرجة التالية في سلّم XP (:days · :xp)', 'باقي :days يوم حضور توصل لدرجة :xp لكلّ يوم.'],
+            ['streaks.screen.rule_not_consecutive', 'gamification_streaks', 'قاعدة: الأيّام غير متتابعة', 'الأيّام مش لازم متتابعة — الهدف بناء العادة.'],
+            ['streaks.screen.rule_reward_cycle', 'gamification_streaks', 'قاعدة: دورة المكافأة (:days)', 'كلّ :days أيّام متواصلة = مكافأة تذكرة هدية'],
+            ['streaks.screen.rule_freeze', 'gamification_streaks', 'قاعدة: درع التجميد', 'درع التجميد بيحمي يوم فايت من كسر السلسلة.'],
+            ['streaks.screen.freeze_title', 'gamification_streaks', 'عنوان بلوك درع التجميد', 'درع التجميد'],
+            ['streaks.screen.freezable_day', 'gamification_streaks', 'اليوم القابل للحماية (:day · :cost)', 'يوم :day فايت — احميه بـ:cost تذكرة قبل ما السلسلة تنكسر.'],
+            ['streaks.screen.freezes_used', 'gamification_streaks', 'عدّاد الدروع المستعملة (:used · :cap)', 'استعملت :used من :cap دروع الشهر ده.'],
+            ['streaks.screen.recent_club_days', 'gamification_streaks', 'عنوان آخر أيّام النادي', 'آخر أيّامي في النادي'],
+        ];
+
+        foreach ($rows as [$key, $group, $label, $default]) {
+            Setting::updateOrCreate(['key' => $key], [
+                'group' => $group,
+                'label_ar' => $label,
+                'type' => 'string',
                 'default_value' => $default,
                 'value' => $default,
             ]);

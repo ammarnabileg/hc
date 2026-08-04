@@ -7,7 +7,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'التحدّي')</title>
+    <title>@yield('title', setting('challenges.focus_layout.default_title', 'التحدّي'))</title>
     <meta name="robots" content="noindex">
 
     {{-- الخطوط محلّيّة داخل حزمة Vite — **بلا أيّ نداء خارجيّ** (2.10.1-2) --}}

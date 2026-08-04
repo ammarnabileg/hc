@@ -11,7 +11,7 @@
             <div class="text-xs font-mono" style="color: var(--text-muted)">#{{ $person->code }}</div>
             <div class="text-xs mt-1" style="color: var(--text-muted)">
                 {{-- ⭐ المحافظة حقل عامّ دائمًا (12.14-د) --}}
-                {{ collect([$person->country?->name_ar, $person->governorate?->name_ar])->filter()->implode(' · ') ?: 'مش مضافة' }}
+                {{ collect([$person->country?->name_ar, $person->governorate?->name_ar])->filter()->implode(' · ') ?: setting('account.search.place_missing', 'مش مضافة') }}
             </div>
         </div>
 
@@ -24,7 +24,7 @@
 
             <a href="{{ route('u.profile', ['code' => $person->code]) }}"
                class="btn rounded-xl px-3 py-1.5 text-xs font-semibold motion-standard"
-               style="background: var(--color-brand-500); color: #04201c">عرض</a>
+               style="background: var(--color-brand-500); color: #04201c">{{ setting('account.search.view_action', 'عرض') }}</a>
         </div>
     </article>
 @endforeach

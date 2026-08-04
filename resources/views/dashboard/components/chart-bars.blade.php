@@ -24,14 +24,14 @@
 
 <section class="card p-4 min-w-0">
     <div class="flex items-baseline justify-between gap-2">
-        <h3 class="font-bold text-sm">التذاكر: مكتسب ومصروف</h3>
+        <h3 class="font-bold text-sm">{{ setting('dashboard.chart.tickets.title', 'التذاكر: مكتسب ومصروف') }}</h3>
         <span class="text-xs" style="color: var(--text-muted)">+{{ number_format($totalEarned) }} · −{{ number_format($totalSpent) }}</span>
     </div>
 
     <div class="mt-3 min-w-0 overflow-x-auto no-scrollbar">
         <svg viewBox="0 0 {{ $barsW }} {{ $barsH }}" width="{{ $barsW }}" height="{{ $barsH }}" role="img"
-             aria-label="التذاكر المكتسبة مقابل المصروفة خلال المدى المختار">
-            <title>التذاكر: مكتسب ومصروف</title>
+             aria-label="{{ setting('dashboard.chart.tickets.aria_label', 'التذاكر المكتسبة مقابل المصروفة خلال المدى المختار') }}">
+            <title>{{ setting('dashboard.chart.tickets.title', 'التذاكر: مكتسب ومصروف') }}</title>
 
             <defs>
                 <pattern id="spentPattern" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
@@ -58,12 +58,12 @@
 
                 <rect x="{{ $gx + $barW + 4 }}" y="{{ round($padTop + $innerH - $earnedH, 2) }}"
                       width="{{ $barW }}" height="{{ max(1, $earnedH) }}" rx="3" fill="var(--color-brand-500)">
-                    <title>{{ $group['label'] }} — مكتسب: {{ $group['earned'] }}</title>
+                    <title>{{ str_replace([':label', ':value'], [$group['label'], $group['earned']], (string) setting('dashboard.chart.tickets.earned_tooltip', ':label — مكتسب: :value')) }}</title>
                 </rect>
 
                 <rect x="{{ $gx }}" y="{{ round($padTop + $innerH - $spentH, 2) }}"
                       width="{{ $barW }}" height="{{ max(1, $spentH) }}" rx="3" fill="url(#spentPattern)">
-                    <title>{{ $group['label'] }} — مصروف: {{ $group['spent'] }}</title>
+                    <title>{{ str_replace([':label', ':value'], [$group['label'], $group['spent']], (string) setting('dashboard.chart.tickets.spent_tooltip', ':label — مصروف: :value')) }}</title>
                 </rect>
 
                 <text x="{{ $gx + $barW + 2 }}" y="{{ $barsH - 22 }}" font-size="9" text-anchor="middle" fill="var(--text-muted)">
@@ -74,8 +74,8 @@
     </div>
 
     <ul class="mt-2 flex flex-wrap gap-3 text-xs" style="color: var(--text-muted)">
-        <li><span aria-hidden="true" style="color: var(--color-brand-500)">▮</span> مكتسب</li>
-        <li><span aria-hidden="true" style="color: var(--color-state-idle)">▤</span> مصروف</li>
+        <li><span aria-hidden="true" style="color: var(--color-brand-500)">▮</span> {{ setting('dashboard.chart.tickets.legend_earned', 'مكتسب') }}</li>
+        <li><span aria-hidden="true" style="color: var(--color-state-idle)">▤</span> {{ setting('dashboard.chart.tickets.legend_spent', 'مصروف') }}</li>
     </ul>
 
     {{--

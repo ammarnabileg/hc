@@ -36,26 +36,31 @@
 
         <span class="rounded-full px-2 py-0.5"
               style="background: color-mix(in srgb, var(--color-brand-500) 14%, transparent); color: var(--color-brand-500)">
-            {{ $free ? 'مجّانيّ' : trim(((float) $event->price_coins > 0 ? (int) $event->price_coins.' كوينز ' : '').((float) $event->price_tickets > 0 ? (int) $event->price_tickets.' تذكرة' : '')) }}
+            {{ $free ? setting('events.card.price_free', 'مجّانيّ') : trim(
+                ((float) $event->price_coins > 0 ? str_replace(':coins', (string) (int) $event->price_coins, (string) setting('events.card.price_coins', ':coins كوينز')).' ' : '')
+                .((float) $event->price_tickets > 0 ? str_replace(':tickets', (string) (int) $event->price_tickets, (string) setting('events.card.price_tickets', ':tickets تذكرة')) : '')
+            ) }}
         </span>
     </div>
 
     <div class="text-xs truncate" style="color: var(--text-muted)">
         @include('events.components.icon', ['name' => $event->mode === 'offline' ? 'pin' : 'link'])
-        {{ $event->mode === 'offline' ? ($event->location ?: 'المكان يتحدّد قريبًا') : 'رابط الانضمام يفتح قبل الموعد' }}
+        {{ $event->mode === 'offline'
+            ? ($event->location ?: setting('events.card.location_tbd', 'المكان يتحدّد قريبًا'))
+            : setting('events.card.join_link_soon', 'رابط الانضمام يفتح قبل الموعد') }}
     </div>
 
     <div class="flex items-center justify-between gap-2 mt-auto pt-2" style="border-top: 1px solid var(--border)">
         @include('events.components.countdown', ['event' => $event, 'presenter' => $presenter])
 
         @if ($registered)
-            <span class="text-xs font-semibold" style="color: var(--color-state-ok)">● مسجَّل</span>
+            <span class="text-xs font-semibold" style="color: var(--color-state-ok)">● {{ setting('events.card.registered', 'مسجَّل') }}</span>
         @elseif ($ended)
-            <span class="text-xs" style="color: var(--text-muted)">○ انتهت</span>
+            <span class="text-xs" style="color: var(--text-muted)">○ {{ setting('events.card.ended', 'انتهت') }}</span>
         @elseif ($full)
-            <span class="text-xs" style="color: var(--color-state-warn)">▲ اكتمل العدد</span>
+            <span class="text-xs" style="color: var(--color-state-warn)">▲ {{ setting('events.card.full', 'اكتمل العدد') }}</span>
         @else
-            <span class="text-xs font-semibold" style="color: var(--color-brand-500)">سجّل ‹</span>
+            <span class="text-xs font-semibold" style="color: var(--color-brand-500)">{{ setting('events.card.register_cta', 'سجّل') }} ‹</span>
         @endif
     </div>
 </a>

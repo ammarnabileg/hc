@@ -1,11 +1,11 @@
 @php
     /** زرّ نسخ بردّ فوريّ «اتنسخ ✓» (2.17-ب) — بلا أيّ مكتبة خارجيّة */
-    $label = $label ?? 'نسخ';
+    $label = $label ?? setting('events.copy.default_label', 'نسخ');
     $text = (string) ($text ?? '');
     $tone = $tone ?? 'solid';
 @endphp
 
-<button type="button" data-copy="{{ $text }}" data-copy-done="اتنسخ ✓"
+<button type="button" data-copy="{{ $text }}" data-copy-done="{{ setting('events.copy.done_label', 'اتنسخ ✓') }}"
         class="btn inline-flex items-center gap-1 rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
         style="{{ $tone === 'solid'
             ? 'background: var(--color-brand-500); color: #04201c'

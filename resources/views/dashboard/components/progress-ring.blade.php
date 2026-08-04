@@ -12,8 +12,8 @@
 @endphp
 
 <svg width="{{ $ringSize }}" height="{{ $ringSize }}" viewBox="0 0 {{ $ringSize }} {{ $ringSize }}"
-     class="shrink-0" role="img" aria-label="نسبة الإكمال {{ $ringPercent }}٪">
-    <title>نسبة الإكمال {{ $ringPercent }}٪</title>
+     class="shrink-0" role="img" aria-label="{{ str_replace(':percent', $ringPercent, (string) setting('dashboard.progress_ring.aria_label', 'نسبة الإكمال :percent٪')) }}">
+    <title>{{ str_replace(':percent', $ringPercent, (string) setting('dashboard.progress_ring.aria_label', 'نسبة الإكمال :percent٪')) }}</title>
     <circle cx="{{ $ringSize / 2 }}" cy="{{ $ringSize / 2 }}" r="{{ round($ringR, 2) }}"
             fill="none" stroke="var(--surface-sunken)" stroke-width="{{ $ringStroke }}" />
     <circle cx="{{ $ringSize / 2 }}" cy="{{ $ringSize / 2 }}" r="{{ round($ringR, 2) }}"

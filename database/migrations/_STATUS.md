@@ -15,7 +15,9 @@
 
 ## ✅ المُنجَز
 <!-- تلقائيّ:بداية:المنجز -->
-- **مايجريشنز (240) — والقائم منها لا يُعدَّل (قاعدة البناء §1). الأحدث:**
+- **مايجريشنز (242) — والقائم منها لا يُعدَّل (قاعدة البناء §1). الأحدث:**
+  - `2026_09_03_100010_a_spendable_currency_needs_a_floor_not_only_a_ceiling.php`
+  - `2026_09_02_100010_the_bundle_landing_needs_fields_not_only_a_template.php`
   - `2026_09_01_100010_the_placement_test_bank_gets_a_screen.php`
   - `2026_08_31_100010_a_deferred_reminder_needs_a_catcher.php`
   - `2026_08_30_100020_minus_ten_suspends_the_account_and_covers_the_position.php`
@@ -26,9 +28,7 @@
   - `2026_08_28_100020_registration_two_screens_are_settings_not_text.php`
   - `2026_08_28_100010_governorate_identity_is_its_english_name.php`
   - `2026_08_27_100020_optional_cut_the_middle_rung_of_the_ladder.php`
-  - `2026_08_27_100010_absence_adder_names_a_real_position.php`
-  - `2026_08_26_100010_exam_entry_is_a_ticket_not_a_cooldown.php`
-  - … و228 غيرها.
+  - … و230 غيرها.
 <!-- تلقائيّ:نهاية:المنجز -->
 
 ## ⬜ المتبقّي
@@ -85,6 +85,6 @@
 
 ## 🕒 آخر تحديث
 <!-- تلقائيّ:بداية:التحديث -->
-- **آخر توليد لهذه الوثيقة:** 2026-08-03 — `php artisan docs:status`.
-- **آخر لمسة للمجلّد:** 2026-08-03 — Claude.
+- **آخر توليد لهذه الوثيقة:** 2026-08-04 — `php artisan docs:status`.
+- **آخر لمسة للمجلّد:** 2026-08-04 — Claude.
 <!-- تلقائيّ:نهاية:التحديث -->

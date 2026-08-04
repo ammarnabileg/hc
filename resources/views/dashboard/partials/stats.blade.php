@@ -2,14 +2,14 @@
 
 {{-- فلتر الفترة العامّ داخل هذا التاب وحده — لا فلاتر على رأس الصفحة (24.5) --}}
 <div class="flex items-center gap-2 mb-4">
-    <span class="text-xs" style="color: var(--text-muted)">الفترة</span>
+    <span class="text-xs" style="color: var(--text-muted)">{{ setting('dashboard.stats.range_label', 'الفترة') }}</span>
     @foreach ($rangeOptions as $option)
         <a href="{{ route('dashboard', ['tab' => 'stats', 'days' => $option]) }}"
            class="rounded-full px-3 py-1.5 text-xs motion-standard"
            style="{{ $days === $option
                ? 'background: var(--color-brand-500); color:#04201c; font-weight:700'
                : 'background: var(--surface-raised); color: var(--text)' }}">
-            {{ $option }} يوم
+            {{ str_replace(':days', $option, (string) setting('dashboard.stats.range_option', ':days يوم')) }}
         </a>
     @endforeach
 </div>

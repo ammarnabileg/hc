@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'رصيدي وشحن')
+@section('title', setting('wallet.index.title', 'رصيدي وشحن'))
 
 @php
     $num = fn ($v, $d = 2) => number_format((float) $v, $d);
@@ -10,9 +10,9 @@
 
 @section('content')
     <x-page-header
-        title="رصيدي وشحن"
-        subtitle="رصيدك وأرباحك وكلّ حركة عليه — في مكان واحد."
-        :breadcrumbs="[['label' => 'المحفظة', 'url' => route('wallet.index')], ['label' => 'رصيدي وشحن']]">
+        :title="setting('wallet.index.title', 'رصيدي وشحن')"
+        :subtitle="setting('wallet.index.subtitle', 'رصيدك وأرباحك وكلّ حركة عليه — في مكان واحد.')"
+        :breadcrumbs="[['label' => setting('wallet.index.breadcrumb_root', 'المحفظة'), 'url' => route('wallet.index')], ['label' => setting('wallet.index.title', 'رصيدي وشحن')]]">
         {{--
           ⭐ حسم التعارض: 19.2 يوجب أربعة أفعال، و2.15 يوجب فعلًا رئيسيًّا واحدًا.
           فالحلّ: [شحن] ظاهرٌ وحده، والثلاثة الباقية في قائمة إجراءات ثانويّة.
@@ -21,11 +21,11 @@
             @can('topup.create')
                 <a href="{{ route('wallet.topup') }}"
                    class="btn inline-flex items-center rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
-                   style="background: var(--color-brand-500); color: #04201c">اشحن رصيدك</a>
+                   style="background: var(--color-brand-500); color: #04201c">{{ setting('wallet.index.topup_action', 'اشحن رصيدك') }}</a>
             @endcan
             <details class="relative">
                 <summary class="cursor-pointer rounded-xl px-3 py-2 text-sm select-none"
-                         style="background: var(--surface-raised)" aria-label="إجراءات أخرى">⋯</summary>
+                         style="background: var(--surface-raised)" aria-label="{{ setting('wallet.index.more_actions_aria', 'إجراءات أخرى') }}">⋯</summary>
                 <div class="card absolute inset-inline-end-0 mt-2 w-60 p-2 text-sm z-30">
                     @if ($canTransfer)
                         <button type="button" data-modal-open="wallet-transfer"
@@ -34,7 +34,7 @@
                                  stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                                 <path d="M4 12h13" /><path d="M13 6l6 6-6 6" />
                             </svg>
-                            إرسال حوالة
+                            {{ setting('wallet.transfer.title', 'إرسال حوالة') }}
                         </button>
                         <button type="button" data-modal-open="wallet-exchange"
                                 class="w-full flex items-center gap-2 rounded-lg px-3 py-2 text-start hover:opacity-80">
@@ -42,7 +42,7 @@
                                  stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                                 <path d="M4 8h13l-3-3" /><path d="M20 16H7l3 3" />
                             </svg>
-                            تحويل العملة
+                            {{ setting('wallet.exchange.title', 'تحويل العملة') }}
                         </button>
                     @endif
                     @if ($canWithdraw)
@@ -52,12 +52,12 @@
                                  stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                                 <path d="M12 3v11" /><path d="M8 10l4 4 4-4" /><path d="M4 19h16" />
                             </svg>
-                            سحب الأرباح
+                            {{ setting('wallet.withdraw.title', 'سحب الأرباح') }}
                         </button>
                     @endif
-                    <a class="block rounded-lg px-3 py-2 hover:opacity-80" href="{{ route('wallet.tickets') }}">التذاكر <x-icon name="ticket" size="16" /></a>
+                    <a class="block rounded-lg px-3 py-2 hover:opacity-80" href="{{ route('wallet.tickets') }}">{{ setting('wallet.tickets.title', 'التذاكر') }} <x-icon name="ticket" size="16" /></a>
                     @can('topup.list')
-                        <a class="block rounded-lg px-3 py-2 hover:opacity-80" href="{{ route('wallet.topup.requests') }}">طلبات الشحن</a>
+                        <a class="block rounded-lg px-3 py-2 hover:opacity-80" href="{{ route('wallet.topup.requests') }}">{{ setting('wallet.topup_requests.title', 'طلبات الشحن') }}</a>
                     @endcan
                 </div>
             </details>
@@ -71,7 +71,7 @@
     <section class="card p-5 md:p-6 animate-fadeup">
         <div class="flex flex-wrap items-end justify-between gap-4">
             <div>
-                <div class="text-sm" style="color: var(--text-muted)">{{ $main?->name_ar ?? 'الرصيد' }}</div>
+                <div class="text-sm" style="color: var(--text-muted)">{{ $main?->name_ar ?? setting('wallet.index.balance_label', 'الرصيد') }}</div>
                 {{-- ⭐ الرقم النهائيّ يظهر في كلّ الأحوال ولا يعلق العدّاد أبدًا (2.17-أ) --}}
                 <div class="mt-1 text-4xl md:text-5xl font-extrabold"
                      data-count-to="{{ number_format($mainBalance, (int) ($main?->decimals ?? 0)) }}">{{ number_format($mainBalance, (int) ($main?->decimals ?? 0)) }}</div>
@@ -80,12 +80,12 @@
                 @can('topup.create')
                     <a href="{{ route('wallet.topup') }}"
                        class="btn hidden md:inline-flex items-center rounded-xl px-5 py-3 text-sm font-semibold motion-standard"
-                       style="background: var(--color-brand-500); color: #04201c">اشحن رصيدك</a>
+                       style="background: var(--color-brand-500); color: #04201c">{{ setting('wallet.index.topup_action', 'اشحن رصيدك') }}</a>
                 @endcan
                 @if ($canTransfer)
                     <button type="button" data-modal-open="wallet-exchange"
                             class="btn hidden md:inline-flex items-center rounded-xl px-5 py-3 text-sm font-semibold motion-standard"
-                            style="background: var(--surface-raised); color: var(--text)">تحويل</button>
+                            style="background: var(--surface-raised); color: var(--text)">{{ setting('wallet.index.exchange_action', 'تحويل') }}</button>
                 @endif
             </div>
         </div>
@@ -98,7 +98,7 @@
                 :label="$currency->name_ar"
                 :value="number_format($balances[$currency->id] ?? 0, (int) $currency->decimals)"
                 :icon="$currency->code === 'tickets' ? 'ticket' : ($currency->code === 'xp' ? 'xp' : 'clock')"
-                :hint="$currency->code === 'hours' ? 'عملة جايّة قدّام — بنعرضها من دلوقتي.' : null" />
+                :hint="$currency->code === 'hours' ? setting('wallet.index.hours_hint', 'عملة جايّة قدّام — بنعرضها من دلوقتي.') : null" />
         @endforeach
     </section>
 
@@ -106,19 +106,19 @@
     @if ($canEarnings && $earnings)
         <section class="mt-5">
             <div class="flex items-center justify-between gap-3 mb-3">
-                <h2 class="font-bold">أرباحي</h2>
+                <h2 class="font-bold">{{ setting('wallet.index.earnings_title', 'أرباحي') }}</h2>
                 @if ($canWithdraw)
                     <button type="button" data-modal-open="wallet-withdraw"
                             class="btn rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
-                            style="background: var(--color-brand-500); color: #04201c">سحب الأرباح</button>
+                            style="background: var(--color-brand-500); color: #04201c">{{ setting('wallet.withdraw.title', 'سحب الأرباح') }}</button>
                 @endif
             </div>
 
             <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-                <x-kpi label="جاهزة للسحب" :value="'$'.$num($earnings['ready'])" icon="money" />
-                <x-kpi label="قيد التحويل" :value="'$'.$num($earnings['in_transit'])" icon="hourglass" />
-                <x-kpi label="مستلمة" :value="'$'.$num($earnings['received'])" icon="check" />
-                <x-kpi label="إجماليّة" :value="'$'.$num($earnings['total'])" icon="chart" />
+                <x-kpi :label="setting('wallet.earnings.ready', 'جاهزة للسحب')" :value="'$'.$num($earnings['ready'])" icon="money" />
+                <x-kpi :label="setting('wallet.earnings.in_transit', 'قيد التحويل')" :value="'$'.$num($earnings['in_transit'])" icon="hourglass" />
+                <x-kpi :label="setting('wallet.earnings.received', 'مستلمة')" :value="'$'.$num($earnings['received'])" icon="check" />
+                <x-kpi :label="setting('wallet.earnings.total', 'إجماليّة')" :value="'$'.$num($earnings['total'])" icon="chart" />
             </div>
         </section>
     @endif
@@ -126,8 +126,8 @@
     {{-- آخر 5 حركات — والتفاصيل الكاملة في صفحة المعاملات --}}
     <section class="card mt-5 p-4 md:p-5">
         <div class="flex items-center justify-between gap-3 mb-3">
-            <h2 class="font-bold">آخر الحركات</h2>
-            <a class="text-sm underline" href="{{ route('wallet.transactions') }}">كلّ المعاملات</a>
+            <h2 class="font-bold">{{ setting('wallet.index.recent_title', 'آخر الحركات') }}</h2>
+            <a class="text-sm underline" href="{{ route('wallet.transactions') }}">{{ setting('wallet.index.all_transactions', 'كلّ المعاملات') }}</a>
         </div>
 
         @forelse ($recent as $row)
@@ -149,8 +149,8 @@
             </div>
         @empty
             {{-- الحالة الفارغة = سطر واحد + زرّ واحد، وتشجّع ولا تعاتب (2.15-د · 2.17-ج) --}}
-            <x-empty message="لسّه مافيش حركة على محفظتك — أوّل شحنة مستنّياك."
-                     action="اشحن رصيدك" :href="route('wallet.topup')" />
+            <x-empty :message="setting('wallet.index.recent_empty', 'لسّه مافيش حركة على محفظتك — أوّل شحنة مستنّياك.')"
+                     :action="setting('wallet.index.topup_action', 'اشحن رصيدك')" :href="route('wallet.topup')" />
         @endforelse
     </section>
 
@@ -161,6 +161,6 @@
     @can('topup.create')
         <a href="{{ route('wallet.topup') }}"
            class="btn flex items-center justify-center rounded-xl px-4 py-3 text-sm font-bold motion-standard"
-           style="background: var(--color-brand-500); color: #04201c">اشحن رصيدك</a>
+           style="background: var(--color-brand-500); color: #04201c">{{ setting('wallet.index.topup_action', 'اشحن رصيدك') }}</a>
     @endcan
 @endsection

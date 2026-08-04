@@ -24,6 +24,8 @@
 @php
     $t = $landing['texts'];
     $show = $landing['sections'];
+    // فتات الخبز ووسم الملكيّة — آخر نصّين كانا محروقين في هذا القالب (2.13)
+    $crumbs = $landing['breadcrumbs'];
 @endphp
 
 @section('title', $t['hero.headline'])
@@ -68,8 +70,8 @@
 
     <x-page-header :title="$item->name_ar"
                    :breadcrumbs="[
-                       ['label' => 'المتجر', 'url' => route('store.index')],
-                       ['label' => 'الباقات', 'url' => route('store.bundles')],
+                       ['label' => $crumbs['store'], 'url' => route('store.index')],
+                       ['label' => $crumbs['bundles'], 'url' => route('store.bundles')],
                        ['label' => $item->name_ar],
                    ]" />
 
@@ -94,7 +96,7 @@
                         </span>
 
                         @if ($owned)
-                            <x-state-badge state="ok" label="تملكه بالفعل" />
+                            <x-state-badge state="ok" :label="$t['hero.owned_badge']" />
                         @endif
 
                         {{--

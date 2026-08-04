@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Store;
 
+use App\Models\BundleItem;
 use App\Models\LibraryEntitlement;
 use App\Models\Order;
 use App\Models\Transaction;
@@ -147,7 +148,7 @@ class MultiCurrencyPricingTest extends StoreTestCase
         $course = $this->course();
         $bundle = $this->bundle([$course, $this->product()]);
 
-        \App\Models\BundleItem::where('bundle_id', $bundle->id)
+        BundleItem::where('bundle_id', $bundle->id)
             ->where('itemable_type', $course::class)
             ->update(['is_bonus' => true]);
 

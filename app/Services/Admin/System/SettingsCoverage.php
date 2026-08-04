@@ -6,7 +6,6 @@ use App\Models\Setting;
 use App\Services\Admin\Volunteer\SettingsCatalog;
 use App\Services\AdminScreens\ScreenSettings;
 use App\Services\Ads\AdEvents;
-use App\Services\Gamification\GamesAdminService;
 use Illuminate\Support\Collection;
 
 /**
@@ -76,7 +75,6 @@ class SettingsCoverage
         $viaCatalog = array_flip(array_merge(
             array_keys(SettingsCatalog::all()),
             array_keys(ScreenSettings::catalog()),
-            array_keys(GamesAdminService::catalog()),
             array_keys(AdEvents::catalog()),
         ));
 

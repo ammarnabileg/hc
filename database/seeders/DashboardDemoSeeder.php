@@ -36,6 +36,7 @@ class DashboardDemoSeeder extends Seeder
     public function run(): void
     {
         $this->settings();
+        $this->screenTextSettings();
 
         $user = $this->trainee();
         $courses = $this->courses();
@@ -90,6 +91,129 @@ class DashboardDemoSeeder extends Seeder
                 'group' => $group,
                 'label_ar' => $label,
                 'type' => $type,
+                'default_value' => $default,
+                'value' => $default,
+            ]);
+        }
+
+        Cache::forget('settings');
+    }
+
+    /**
+     * **نصوص شاشة اللوحة** (2.13-أ: «النصوص الظاهرة للمستخدم») — كلّ جملةٍ
+     * يقرؤها المتدرّب على `resources/views/dashboard/**` لها مفتاحها هنا،
+     * والوحدة **جملةٌ كاملة** كما تُقرَأ لا كلمةً مقتطعة، حتى تبقى الترجمة
+     * والتحرير ممكنَين. و`:name` وأخواتها **مواضع استبدال** لا نصًّا.
+     *
+     * ⚠️ `dashboard.page.title` عنوانٌ **منصوصٌ حرفيًّا في الدستور** (24.5 —
+     * أوّل عناصر سايد بار المتدرّب «الرئيسيّة»)، فافتراضيُّه هو النصّ المنصوص،
+     * وتغييرُه من اللوحة يخالف الخريطة.
+     */
+    public function screenTextSettings(): void
+    {
+        $rows = [
+            // ---------------- رأس الشاشة و«⋯» (24.5)
+            ['dashboard.page.title', 'عنوان صفحة اللوحة (منصوص في 24.5)', 'الرئيسيّة'],
+            ['dashboard.page.subtitle', 'سطر تحت عنوان اللوحة', 'أين إنت في تدريباتك دلوقتي'],
+            ['dashboard.page.more_actions_aria', 'وصف زرّ «⋯» لقارئ الشاشة', 'أفعال أخرى'],
+            ['dashboard.page.more_store', 'عنصر «⋯»: المتجر', 'تصفّح المتجر'],
+            ['dashboard.page.more_certificates', 'عنصر «⋯»: الشهادات', 'شهاداتي'],
+
+            // ---------------- تاب «نظرة عامّة»
+            ['dashboard.overview.active_courses_title', 'عنوان بلوك التدريبات الجارية', 'تدريباتي الجارية'],
+            ['dashboard.overview.all_courses_link', 'رابط كلّ التدريبات', 'كلّ تدريباتي'],
+            ['dashboard.overview.courses_empty_message', 'الحالة الفارغة للتدريبات الجارية', 'خلّصت كلّ تدريباتك الجارية — تحفة'],
+            ['dashboard.overview.courses_empty_action', 'زرّ الحالة الفارغة للتدريبات الجارية', 'تصفّح المتجر'],
+            ['dashboard.overview.deadlines_title', 'عنوان بلوك أقرب المواعيد', 'أقرب المواعيد'],
+            ['dashboard.overview.deadlines_empty', 'الحالة الفارغة لأقرب المواعيد', 'مفيش موعد قريب — خُد وقتك.'],
+            ['dashboard.overview.deadline_percent', 'نسبة إكمال التدريب في سطر الموعد (:percent)', ':percent% مكتمل'],
+
+            // ---------------- كارت التدريب الجاري
+            ['dashboard.course_card.all_lessons_done', 'سطر الكارت حين تنتهي كلّ الدروس', 'خلّصت كلّ الدروس'],
+            ['dashboard.course_card.lessons_progress', 'عدّاد دروس الكارت (:done · :total)', ':done/:total درس'],
+            ['dashboard.course_card.continue_action', 'زرّ متابعة التدريب في الكارت', 'إكمال'],
+            ['dashboard.progress_ring.aria_label', 'وصف حلقة التقدّم لقارئ الشاشة (:percent)', 'نسبة الإكمال :percent٪'],
+
+            // ---------------- عدّاد المواعيد الحيّ (صيغ الجمع العربيّة الأربع · :n مكان الرقم)
+            ['dashboard.countdown.minutes_one', 'العدّاد: دقيقة واحدة', 'دقيقة'],
+            ['dashboard.countdown.minutes_two', 'العدّاد: دقيقتان', 'دقيقتين'],
+            ['dashboard.countdown.minutes_few', 'العدّاد: 3–10 دقائق (:n)', ':n دقائق'],
+            ['dashboard.countdown.minutes_many', 'العدّاد: أكثر من 10 دقائق (:n)', ':n دقيقة'],
+            ['dashboard.countdown.hours_one', 'العدّاد: ساعة واحدة', 'ساعة'],
+            ['dashboard.countdown.hours_two', 'العدّاد: ساعتان', 'ساعتين'],
+            ['dashboard.countdown.hours_few', 'العدّاد: 3–10 ساعات (:n)', ':n ساعات'],
+            ['dashboard.countdown.hours_many', 'العدّاد: أكثر من 10 ساعات (:n)', ':n ساعة'],
+            ['dashboard.countdown.days_one', 'العدّاد: يوم واحد', 'يوم'],
+            ['dashboard.countdown.days_two', 'العدّاد: يومان', 'يومين'],
+            ['dashboard.countdown.days_few', 'العدّاد: 3–10 أيّام (:n)', ':n أيّام'],
+            ['dashboard.countdown.days_many', 'العدّاد: أكثر من 10 أيّام (:n)', ':n يومًا'],
+            ['dashboard.countdown.late', 'صيغة العدّاد بعد فوات الموعد (:duration)', 'فات الموعد من :duration'],
+            ['dashboard.countdown.remaining', 'صيغة العدّاد قبل الموعد (:duration)', 'باقي :duration'],
+
+            // ---------------- تاب «تفاصيل»
+            ['dashboard.details.completed_label', 'كارت التدريبات المكتملة — العنوان', 'تدريبات مكتملة'],
+            ['dashboard.details.completed_hint', 'كارت التدريبات المكتملة — التلميح', 'خلّصتها بالكامل'],
+            ['dashboard.details.active_label', 'كارت التدريبات الجارية — العنوان', 'تدريبات جارية'],
+            ['dashboard.details.active_hint', 'كارت التدريبات الجارية — التلميح', 'لسّه شغّال فيها'],
+            ['dashboard.details.rank_label', 'كارت الترتيب — العنوان', 'ترتيبك في الليدر بورد'],
+            ['dashboard.details.rank_hint', 'كارت الترتيب — التلميح (:peers)', 'من بين :peers متدرّبًا'],
+            ['dashboard.details.title', 'عنوان بلوك تفصيل التقدّم', 'تفصيل تقدّمك'],
+            ['dashboard.details.lessons_done', 'تفصيل التقدّم: الدروس المكتملة', 'دروس مكتملة'],
+            ['dashboard.details.lessons_total', 'تفصيل التقدّم: إجماليّ الدروس', 'إجمالي دروس تدريباتك'],
+            ['dashboard.details.xp_from_courses', 'تفصيل التقدّم: XP من التدريبات', 'XP من التدريبات'],
+
+            // ---------------- تاب «إحصائيّاتي» — الفلتر
+            ['dashboard.stats.range_label', 'عنوان فلتر الفترة', 'الفترة'],
+            ['dashboard.stats.range_option', 'خيار الفترة (:days)', ':days يوم'],
+
+            // ---------------- رسم XP عبر الزمن
+            ['dashboard.chart.xp.title', 'عنوان رسم XP عبر الزمن', 'XP عبر الزمن'],
+            ['dashboard.chart.xp.range_total', 'مجموع XP في المدى (:total)', 'مجموع المدى: :total XP'],
+            ['dashboard.chart.xp.aria_label', 'وصف رسم XP لقارئ الشاشة', 'نقاط الخبرة المكتسبة يوميًّا خلال المدى المختار'],
+
+            // ---------------- رسم التذاكر
+            ['dashboard.chart.tickets.title', 'عنوان رسم التذاكر', 'التذاكر: مكتسب ومصروف'],
+            ['dashboard.chart.tickets.aria_label', 'وصف رسم التذاكر لقارئ الشاشة', 'التذاكر المكتسبة مقابل المصروفة خلال المدى المختار'],
+            ['dashboard.chart.tickets.earned_tooltip', 'تلميح عمود المكتسب (:label · :value)', ':label — مكتسب: :value'],
+            ['dashboard.chart.tickets.spent_tooltip', 'تلميح عمود المصروف (:label · :value)', ':label — مصروف: :value'],
+            ['dashboard.chart.tickets.legend_earned', 'مفتاح الرسم: المكتسب', 'مكتسب'],
+            ['dashboard.chart.tickets.legend_spent', 'مفتاح الرسم: المصروف', 'مصروف'],
+
+            // ---------------- دونات إكمال المسار
+            ['dashboard.chart.completion.title', 'عنوان دونات إكمال المسار', 'إكمال المسار'],
+            ['dashboard.chart.completion.aria_label', 'وصف الدونات لقارئ الشاشة (:percent)', 'نسبة إكمال تدريباتك :percent٪'],
+            ['dashboard.chart.completion.svg_title', 'عنوان الدونات داخل الرسم (:percent)', 'إكمال المسار — :percent٪'],
+            ['dashboard.chart.completion.center_caption', 'سطر منتصف الدونات', 'من الدروس'],
+
+            // ---------------- خريطة الحضور
+            ['dashboard.chart.heatmap.title', 'عنوان خريطة الحضور', 'خريطة الحضور'],
+            ['dashboard.chart.heatmap.summary', 'ملخّص الخريطة (:present · :club)', ':present يوم حضور · ★ :club في النادي'],
+            ['dashboard.chart.heatmap.aria_label', 'وصف الخريطة لقارئ الشاشة', 'خريطة حضورك في الأسابيع الماضية'],
+            ['dashboard.chart.heatmap.day_sat', 'اسم يوم السبت على محور الخريطة', 'السبت'],
+            ['dashboard.chart.heatmap.day_mon', 'اسم يوم الاثنين على محور الخريطة', 'الاثنين'],
+            ['dashboard.chart.heatmap.day_wed', 'اسم يوم الأربعاء على محور الخريطة', 'الأربعاء'],
+            ['dashboard.chart.heatmap.day_fri', 'اسم يوم الجمعة على محور الخريطة', 'الجمعة'],
+            ['dashboard.chart.heatmap.tooltip_club', 'تلميح يوم نادي الخامسة', 'نادي الخامسة ★'],
+            ['dashboard.chart.heatmap.tooltip_present', 'تلميح يوم الحضور', 'حضور ●'],
+            ['dashboard.chart.heatmap.tooltip_absent', 'تلميح يوم بلا حضور', 'بلا حضور ○'],
+            ['dashboard.chart.heatmap.legend_present', 'مفتاح الخريطة: حضور', 'حضور'],
+            ['dashboard.chart.heatmap.legend_club', 'مفتاح الخريطة: نادي الخامسة', 'نادي الخامسة'],
+            ['dashboard.chart.heatmap.legend_absent', 'مفتاح الخريطة: بلا حضور', 'بلا حضور'],
+
+            // ---------------- رادار الإنجازات
+            ['dashboard.chart.radar.title', 'عنوان رادار الإنجازات', 'مسارات الإنجاز الخمسة'],
+            ['dashboard.chart.radar.max_level', 'سقف الرادار المعروض (:level)', 'السقف المعروض: مستوى :level'],
+            ['dashboard.chart.radar.aria_label', 'وصف الرادار لقارئ الشاشة', 'مستوياتك في مسارات الإنجاز الخمسة'],
+            ['dashboard.chart.radar.svg_title', 'عنوان الرادار داخل الرسم', 'رادار الإنجازات'],
+            ['dashboard.chart.radar.axis_tooltip', 'تلميح محور الرادار (:label · :level · :value · :unit)', ':label: مستوى :level — :value :unit'],
+            ['dashboard.chart.radar.axis_level', 'مستوى المحور تحت اسمه (:level)', 'مستوى :level'],
+        ];
+
+        foreach ($rows as [$key, $label, $default]) {
+            Setting::updateOrCreate(['key' => $key], [
+                'group' => 'dashboard',
+                'label_ar' => $label,
+                'type' => 'string',
                 'default_value' => $default,
                 'value' => $default,
             ]);

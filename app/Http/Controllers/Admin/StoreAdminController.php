@@ -10,10 +10,10 @@ use App\Models\Coupon;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\ProductCategory;
+use App\Models\User;
 use App\Services\Admin\System\StoreAdminService;
 use App\Services\Library\ProductToc;
 use App\Services\Library\ReadingAnalytics;
-use App\Models\User;
 use App\Services\Store\BundleLanding;
 use App\Services\Store\BundleScreenSettings;
 use App\Services\Store\PricingService;
@@ -80,7 +80,7 @@ class StoreAdminController extends Controller
              | بلوك إعدادات شاشة البندلز (24) — **يُحذَف كلّه** لمن لا يملك
              | `bundles.edit`، فلا يرى مفاتيح لا يقدر على حفظها (2.15-أ-7).
              */
-            'bundleSettings' => ($tab === 'bundles' && $user->allows('bundles.edit')) ? $screenSettings->rows() : null,
+            'bundleSettings' => ($tab === 'bundles' && $user->allows('bundles.edit')) ? $screenSettings->rows($user) : null,
             'bundleLockedRules' => $screenSettings->lockedRules(),
             'rows' => match ($tab) {
                 'bundles' => $this->store->bundles($filters),

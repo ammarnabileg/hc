@@ -9,6 +9,7 @@ use App\Services\Store\StoreCatalog;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 /**
@@ -65,6 +66,13 @@ class StoreController extends Controller
         $item = $this->catalog->resolve($type, $slug);
 
         abort_unless($item && $this->catalog->isAvailable($type, $item), 404);
+
+        /*
+         | ⭐ `bundles.enabled` من بلوك إعدادات 24 — **علَمٌ له أثر لا زينة**:
+         | إطفاؤه يُخفي صفحات البندلات فعلًا (2.13-و: العلَم الذي لا يفعل شيئًا
+         | أسوأ من غيابه لأنّه يَعِد بسلوكٍ غير موجود). و«يُخفى لا يُعطَّل» (2.15-أ-7).
+         */
+        abort_if($type === 'bundle' && ! setting('store.bundles.enabled', true), 404);
 
         $user = $request->user();
         $quote = $this->pricing->quote($user, $type, $item);
@@ -172,7 +180,7 @@ class StoreController extends Controller
     {
         $path = $item->og_image_path ?? $item->cover_path ?? null;
 
-        return $path ? url(\Illuminate\Support\Facades\Storage::url($path)) : null;
+        return $path ? url(Storage::url($path)) : null;
     }
 
     /**

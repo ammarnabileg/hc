@@ -25,9 +25,9 @@
         </label>
 
         <button type="submit" class="btn rounded-xl px-3 py-2 text-xs motion-standard" data-autosave-submit
-                style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">حفظ</button>
+                style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">{{ setting('account.settings.save_action', 'حفظ') }}</button>
 
         {{-- «اتحفظ ✓» يظهر بجوار الحقل لحظة الحفظ (2.17-ب) --}}
-        <span class="text-xs opacity-0 motion-standard" data-saved-flag style="color: var(--color-state-ok)">اتحفظ ✓</span>
+        <span class="text-xs opacity-0 motion-standard" data-saved-flag style="color: var(--color-state-ok)">{{ setting('account.settings.saved_flag', 'اتحفظ ✓') }}</span>
     </form>
 </div>

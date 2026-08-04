@@ -18,14 +18,14 @@
 
 <section class="card p-4 min-w-0">
     <div class="flex items-baseline justify-between gap-2">
-        <h3 class="font-bold text-sm">مسارات الإنجاز الخمسة</h3>
-        <span class="text-xs" style="color: var(--text-muted)">السقف المعروض: مستوى {{ $radar['max_level'] }}</span>
+        <h3 class="font-bold text-sm">{{ setting('dashboard.chart.radar.title', 'مسارات الإنجاز الخمسة') }}</h3>
+        <span class="text-xs" style="color: var(--text-muted)">{{ str_replace(':level', $radar['max_level'], (string) setting('dashboard.chart.radar.max_level', 'السقف المعروض: مستوى :level')) }}</span>
     </div>
 
     <div class="mt-3 min-w-0 overflow-x-auto no-scrollbar">
         <svg viewBox="0 0 300 250" width="300" height="250" role="img"
-             aria-label="مستوياتك في مسارات الإنجاز الخمسة">
-            <title>رادار الإنجازات</title>
+             aria-label="{{ setting('dashboard.chart.radar.aria_label', 'مستوياتك في مسارات الإنجاز الخمسة') }}">
+            <title>{{ setting('dashboard.chart.radar.svg_title', 'رادار الإنجازات') }}</title>
 
             @foreach ([0.25, 0.5, 0.75, 1] as $ratio)
                 <polygon points="{{ $ring($ratio) }}" fill="none" stroke="var(--border)" stroke-width="1" />
@@ -42,7 +42,7 @@
             @foreach ($axes as $i => $axis)
                 @php [$dx, $dy] = explode(' ', $point($i, max(0.06, (float) $axis['ratio']))); @endphp
                 <circle cx="{{ $dx }}" cy="{{ $dy }}" r="3" fill="var(--color-brand-500)">
-                    <title>{{ $axis['label'] }}: مستوى {{ $axis['level'] }} — {{ number_format($axis['value']) }} {{ $axis['unit'] }}</title>
+                    <title>{{ str_replace([':label', ':level', ':value', ':unit'], [$axis['label'], $axis['level'], number_format($axis['value']), $axis['unit']], (string) setting('dashboard.chart.radar.axis_tooltip', ':label: مستوى :level — :value :unit')) }}</title>
                 </circle>
             @endforeach
 
@@ -57,7 +57,7 @@
                     {{ $axis['label'] }}
                 </text>
                 <text x="{{ $lx }}" y="{{ $ly + 12 }}" font-size="10" font-weight="700" text-anchor="{{ $anchor }}" fill="var(--text)">
-                    مستوى {{ $axis['level'] }}
+                    {{ str_replace(':level', $axis['level'], (string) setting('dashboard.chart.radar.axis_level', 'مستوى :level')) }}
                 </text>
             @endforeach
         </svg>

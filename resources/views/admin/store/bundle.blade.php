@@ -26,7 +26,7 @@
     <x-page-header :title="$bundle->name_ar"
                    :subtitle="setting('store.admin.bundles.form_subtitle', 'كلّ ما في صفحة الباقة — من عناصرها لآخر نصّ فيها.')"
                    :breadcrumbs="[
-                       ['label' => 'المتجر', 'url' => route('admin.store.index', ['tab' => 'bundles'])],
+                       ['label' => setting('store.admin.breadcrumb_label', 'المتجر'), 'url' => route('admin.store.index', ['tab' => 'bundles'])],
                        ['label' => $bundle->name_ar],
                    ]">
         <x-slot:action>

@@ -6,7 +6,7 @@
         :title="$challenge->name_ar"
         :subtitle="$card['tagline']"
         :breadcrumbs="[
-            ['label' => 'التحديات', 'url' => route('challenges.index')],
+            ['label' => setting('challenges.index.title', 'التحديات'), 'url' => route('challenges.index')],
             ['label' => $challenge->name_ar],
         ]" />
 
@@ -21,36 +21,36 @@
             <p class="text-sm mt-2" style="color: var(--text-muted)">{{ $card['tagline'] }}</p>
 
             <p class="text-xs mt-4" style="color: var(--text-muted)">
-                <x-icon name="trophy" size="16" /> الفوز: +{{ (int) $card['win'] }} تذكرة | <x-icon name="warning" size="16" /> الخسارة: −{{ (int) $card['loss'] }} تذكرة
+                <x-icon name="trophy" size="16" /> {{ str_replace(':n', (int) $card['win'], (string) setting('challenges.arena.win_line', 'الفوز: +:n تذكرة')) }} | <x-icon name="warning" size="16" /> {{ str_replace(':n', (int) $card['loss'], (string) setting('challenges.arena.loss_line', 'الخسارة: −:n تذكرة')) }}
             </p>
             <p class="text-xs mt-1" style="color: var(--text-muted)">
-                الانسحاب: −{{ (int) $card['withdraw'] }} تذاكر
+                {{ str_replace(':n', (int) $card['withdraw'], (string) setting('challenges.arena.withdraw_line', 'الانسحاب: −:n تذاكر')) }}
             </p>
             <p class="text-xs mt-1" style="color: var(--text-muted)">
-                شرط الدخول: رصيدك ≥ {{ (int) $card['gate'] }} تذكرة · رصيدك دلوقتي {{ (int) $ticketsBalance }}
+                {{ str_replace([':gate', ':balance'], [(int) $card['gate'], (int) $ticketsBalance], (string) setting('challenges.arena.gate_line', 'شرط الدخول: رصيدك ≥ :gate تذكرة · رصيدك دلوقتي :balance')) }}
             </p>
 
             <div class="mt-6">
                 @if ($running)
                     <a href="{{ route('challenges.play', $running) }}"
                        class="btn inline-flex items-center justify-center rounded-xl px-6 py-3 text-sm font-bold motion-standard"
-                       style="background: var(--color-brand-500); color: #04201c">ارجع لمواجهتك</a>
+                       style="background: var(--color-brand-500); color: #04201c">{{ setting('challenges.arena.resume_match', 'ارجع لمواجهتك') }}</a>
 
                 @elseif (! $challenge->is_active)
-                    <x-state-badge state="idle" label="الساحة موقوفة مؤقّتًا" />
+                    <x-state-badge state="idle" :label="setting('challenges.arena.paused_badge', 'الساحة موقوفة مؤقّتًا')" />
 
                 @elseif (! $card['bank_ready'])
                     <p class="text-sm" style="color: var(--color-state-warn)">
-                        ▲ بنك أسئلة الساحة لسّه مش جاهز — جرّب ساحة تانية دلوقتي.
+                        ▲ {{ setting('challenges.arena.bank_not_ready', 'بنك أسئلة الساحة لسّه مش جاهز — جرّب ساحة تانية دلوقتي.') }}
                     </p>
 
                 @elseif ($isReadyHere)
-                    <x-state-badge state="ok" label="إنت مستعدّ — استنّى محارب أو اتحدّى واحدًا" />
+                    <x-state-badge state="ok" :label="setting('challenges.arena.ready_badge', 'إنت مستعدّ — استنّى محارب أو اتحدّى واحدًا')" />
 
                 @elseif ($readiness)
                     {{-- الاستعداد حصريّ: نوع واحد في اللحظة الواحدة (15.0) --}}
                     <p class="text-sm mb-3" style="color: var(--color-state-warn)">
-                        ▲ إنت مستعدّ لـ«{{ $readiness->challenge?->name_ar }}» — ألغِ استعدادك من الشريط فوق الأوّل.
+                        ▲ {{ str_replace(':arena', (string) $readiness->challenge?->name_ar, (string) setting('challenges.arena.ready_elsewhere', 'إنت مستعدّ لـ«:arena» — ألغِ استعدادك من الشريط فوق الأوّل.')) }}
                     </p>
 
                 @else
@@ -58,7 +58,7 @@
                         @csrf
                         <button type="submit"
                                 class="btn inline-flex items-center justify-center rounded-xl px-8 py-3 text-base font-bold motion-standard"
-                                style="background: var(--color-brand-500); color: #04201c; min-height: 44px">استعداد</button>
+                                style="background: var(--color-brand-500); color: #04201c; min-height: 44px">{{ setting('challenges.arena.ready_action', 'استعداد') }}</button>
                     </form>
                 @endif
             </div>
@@ -67,7 +67,7 @@
         @if ($isReadyHere)
             <section class="mt-6">
                 <div class="flex items-center justify-between gap-3 mb-3">
-                    <h2 class="font-bold">المحاربون الجاهزون</h2>
+                    <h2 class="font-bold">{{ setting('challenges.arena.fighters_title', 'المحاربون الجاهزون') }}</h2>
                     {{-- ⭐ «X جاهزين دلوقتي» بحدّ 3، وتحته القائمة نفسها + تأطير
                          الريادة «كن أوّل محارب في الساحة» (2.9-7) --}}
                     <x-social-proof context="war" icon="war" :count="count($fighters)" />
@@ -80,7 +80,7 @@
                             <div class="min-w-0">
                                 <p class="font-bold truncate">{{ $fighter['user']->name }}</p>
                                 <p class="text-xs" style="color: var(--text-muted)">
-                                    الفوز: {{ $fighter['wins'] }} · الخسارة: {{ $fighter['losses'] }}
+                                    {{ str_replace([':wins', ':losses'], [$fighter['wins'], $fighter['losses']], (string) setting('challenges.arena.fighter_record', 'الفوز: :wins · الخسارة: :losses')) }}
                                 </p>
                             </div>
                             <form method="post" class="ms-auto"
@@ -88,25 +88,34 @@
                                 @csrf
                                 <button type="submit"
                                         class="btn rounded-xl px-4 py-2.5 text-sm font-semibold motion-standard"
-                                        style="background: var(--color-brand-500); color: #04201c; min-height: 44px">تحدّاه</button>
+                                        style="background: var(--color-brand-500); color: #04201c; min-height: 44px">{{ setting('challenges.arena.duel_action', 'تحدّاه') }}</button>
                             </form>
                         </article>
                     @empty
                         <div class="sm:col-span-2">
-                            <x-empty message="إنت لوحدك في الساحة دلوقتي — كن أوّل محارب فيها" />
+                            <x-empty :message="setting('challenges.arena.fighters_empty', 'إنت لوحدك في الساحة دلوقتي — كن أوّل محارب فيها')" />
                         </div>
                     @endforelse
                 </div>
             </section>
 
             @push('scripts')
+                @php
+                    // نصوص القائمة الحيّة من الإعدادات لا من السكربت (2.13)
+                    $arenaWords = [
+                        'empty' => (string) setting('challenges.arena.fighters_empty', 'إنت لوحدك في الساحة دلوقتي — كن أوّل محارب فيها'),
+                        'record' => (string) setting('challenges.arena.fighter_record', 'الفوز: :wins · الخسارة: :losses'),
+                        'duel' => (string) setting('challenges.arena.duel_action', 'تحدّاه'),
+                    ];
+                @endphp
                 <script>
                     (() => {
                         // القائمة تتحدّث لحظة دخول أحدهم حربًا أو إلغائه الاستعداد (15.1)
                         const box = document.querySelector('[data-fighters]');
                         const url = @json(route('challenges.fighters', $challenge));
                         const token = document.querySelector('meta[name="csrf-token"]').content;
-                        const empty = @json('إنت لوحدك في الساحة دلوقتي — كن أوّل محارب فيها');
+                        const arenaWords = @json($arenaWords);
+                        const empty = arenaWords.empty;
                         if (!box) return;
 
                         const card = (f) => `
@@ -115,12 +124,12 @@
                                       style="width:3rem;height:3rem;background:var(--surface-sunken);color:var(--text-muted)">${f.name.slice(0, 1)}</span>
                                 <div class="min-w-0">
                                     <p class="font-bold truncate">${f.name}</p>
-                                    <p class="text-xs" style="color: var(--text-muted)">الفوز: ${f.wins} · الخسارة: ${f.losses}</p>
+                                    <p class="text-xs" style="color: var(--text-muted)">${arenaWords.record.split(':wins').join(f.wins).split(':losses').join(f.losses)}</p>
                                 </div>
                                 <form method="post" class="ms-auto" action="${f.url}">
                                     <input type="hidden" name="_token" value="${token}">
                                     <button type="submit" class="btn rounded-xl px-4 py-2.5 text-sm font-semibold motion-standard"
-                                            style="background: var(--color-brand-500); color:#04201c; min-height:44px">تحدّاه</button>
+                                            style="background: var(--color-brand-500); color:#04201c; min-height:44px">${arenaWords.duel}</button>
                                 </form>
                             </article>`;
 
@@ -151,11 +160,11 @@
             @csrf
             <button type="submit"
                     class="btn w-full inline-flex items-center justify-center rounded-xl px-4 py-3 text-sm font-bold"
-                    style="background: var(--color-brand-500); color: #04201c">استعداد</button>
+                    style="background: var(--color-brand-500); color: #04201c">{{ setting('challenges.arena.ready_action', 'استعداد') }}</button>
         </form>
     @else
         <a href="{{ route('challenges.index') }}"
            class="btn w-full inline-flex items-center justify-center rounded-xl px-4 py-3 text-sm font-semibold"
-           style="background: var(--color-brand-500); color: #04201c">كلّ الساحات</a>
+           style="background: var(--color-brand-500); color: #04201c">{{ setting('challenges.arena.all_arenas', 'كلّ الساحات') }}</a>
     @endif
 @endsection

@@ -8,7 +8,7 @@
 @endphp
 
 <svg width="{{ $size }}" height="{{ $size }}" viewBox="0 0 24 24" role="img"
-     aria-label="{{ $label ?? 'أيقونة الحرب' }}"
+     aria-label="{{ $label ?? setting('challenges.war_icon.default_aria', 'أيقونة الحرب') }}"
      fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
     @switch($type)
         @case('knowledge')

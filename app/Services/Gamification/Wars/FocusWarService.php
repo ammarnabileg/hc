@@ -38,6 +38,26 @@ class FocusWarService
         private readonly BadgeService $badges,
     ) {}
 
+    /**
+     * ⭐ **رسالةُ «الرصيد لا يكفي» — صياغةٌ واحدة لكلّ بابَي كلّ عمليّة.**
+     *
+     * لكلّ عمليّةٍ هنا **فحصان**: فحصٌ مسبَق يعطي رسالةً مفيدة قبل أن نبدأ،
+     * وحارسٌ بعد الخصم يمسك ما ينزلق بين الفحص والكتابة (سباقٌ أو قاعُ العملة).
+     * وكتابة الرسالة مرّتين تعني نصَّين يتباعدان مع الزمن ونصًّا محروقًا جديدًا
+     * (2.13) — فالصياغة هنا **مرّةً واحدة** يقرؤها البابان.
+     */
+    private function cannotAfford(string $action, float $needed, float $balance): WarRuleException
+    {
+        $message = match ($action) {
+            'create' => 'إنشاء التحدّي بـ'.(int) $needed.' تذاكر ورصيدك '.(int) $balance.' — اشحن وابدأ.',
+            'join' => 'الانضمام بـ'.(int) $needed.' تذكرة ورصيدك '.(int) $balance.' — اشحن وانضمّ.',
+            default => 'الإلغاء محتاج '.(int) $needed.' تذكرة ترجع للمنضمّين ورصيدك '.(int) $balance
+                .' — وفّر الفرق وارجع ألغِ.',
+        };
+
+        return new WarRuleException($message, max(0.0, $needed - $balance));
+    }
+
     /** رسالة الأمانة — نصّها إعداد لا نصّ محروق (2.13) */
     public function honestyMessage(): string
     {
@@ -70,16 +90,15 @@ class FocusWarService
         $balance = $this->wallet->balance($user, 'tickets');
 
         if ($balance < $cost) {
-            throw new WarRuleException(
-                'إنشاء التحدّي بـ'.(int) $cost.' تذاكر ورصيدك '.(int) $balance.' — اشحن وابدأ.',
-                $cost - $balance,
-            );
+            throw $this->cannotAfford('create', $cost, $balance);
         }
 
         return DB::transaction(function () use ($user, $challenge, $minutes, $intention, $isGroup, $cost) {
-            // رسوم الإنشاء غير قابلة للاسترجاع (15.3) — لذلك تُخصَم مرّة واحدة هنا
-            if ($cost > 0) {
-                $this->wallet->debit($user, 'tickets', $cost, self::LEDGER_SOURCE, 'إنشاء تحدّي تركيز', $challenge);
+            // رسوم الإنشاء غير قابلة للاسترجاع (15.3) — لذلك تُخصَم مرّة واحدة هنا.
+            // ⭐ ونتيجة الخصم **تُقرَأ**: لو رُدَّ (رصيدٌ نزل بعد الفحص) فلا تحدٍّ
+            // مجّانيّ — تُرتجَع المعاملة كلّها ويُقال له لماذا.
+            if ($cost > 0 && ! $this->wallet->debit($user, 'tickets', $cost, self::LEDGER_SOURCE, 'إنشاء تحدّي تركيز', $challenge)) {
+                throw $this->cannotAfford('create', $cost, $this->wallet->balance($user, 'tickets'));
             }
 
             $war = FocusWar::create([
@@ -127,17 +146,31 @@ class FocusWarService
         $balance = $this->wallet->balance($user, 'tickets');
 
         if ($balance < $cost) {
-            throw new WarRuleException(
-                'الانضمام بـ'.(int) $cost.' تذكرة ورصيدك '.(int) $balance.' — اشحن وانضمّ.',
-                $cost - $balance,
-            );
+            throw $this->cannotAfford('join', $cost, $balance);
         }
 
         return DB::transaction(function () use ($user, $war, $cost) {
-            // ⭐ تحويل مباشر لصاحب التحدّي — لا سكّ ولا حرق (15.3)
+            /*
+             | ⭐ تحويل مباشر لصاحب التحدّي — «**مش minting**، فالفارمينج مقفول»
+             | (15.3). وكان سطرَين متجاورَين تُهمَل نتيجة أوّلهما: لو رُدَّ الخصم
+             | مضت الإضافة **فسُكَّت تذكرة**. فصار نداءً ذرّيًّا واحدًا يخصم أوّلًا
+             | ولا يضيف إلّا بعد نجاحه.
+             */
             if ($cost > 0) {
-                $this->wallet->debit($user, 'tickets', $cost, self::LEDGER_SOURCE, 'انضمام لتحدّي تركيز', $war);
-                $this->wallet->credit($war->owner, 'tickets', $cost, self::LEDGER_SOURCE, 'تذكرة انضمام لتحدّيك', $war);
+                $moved = $this->wallet->transfer(
+                    from: $user,
+                    to: $war->owner,
+                    currencyCode: 'tickets',
+                    amount: $cost,
+                    source: self::LEDGER_SOURCE,
+                    debitReason: 'انضمام لتحدّي تركيز',
+                    creditReason: 'تذكرة انضمام لتحدّيك',
+                    reference: $war,
+                );
+
+                if ($moved <= 0) {
+                    throw $this->cannotAfford('join', $cost, $this->wallet->balance($user, 'tickets'));
+                }
             }
 
             return FocusWarMember::create([
@@ -181,19 +214,29 @@ class FocusWarService
         $balance = $this->wallet->balance($actor, 'tickets');
 
         if ($balance < $due) {
-            throw new WarRuleException(
-                'الإلغاء محتاج '.(int) $due.' تذكرة ترجع للمنضمّين ورصيدك '.(int) $balance
-                .' — وفّر الفرق وارجع ألغِ.',
-                $due - $balance,
-            );
+            throw $this->cannotAfford('cancel', $due, $balance);
         }
 
         return DB::transaction(function () use ($actor, $war, $refundables) {
             foreach ($refundables as $member) {
                 $amount = (float) $member->paid;
 
-                $this->wallet->debit($actor, 'tickets', $amount, self::LEDGER_SOURCE, 'استرجاع تذكرة انضمام بعد إلغاء تحدّيك', $war);
-                $this->wallet->credit($member->user, 'tickets', $amount, self::LEDGER_SOURCE, 'استرجاع تذكرة — التحدّي اتلغى', $war);
+                // ⭐ الاسترجاع تحويلٌ ذرّيّ كذلك: لا تصل التذكرة للمنضمّ إلّا
+                // إذا خرجت فعلًا من رصيد صاحب التحدّي (15.3 — شرط التغطية)
+                $moved = $this->wallet->transfer(
+                    from: $actor,
+                    to: $member->user,
+                    currencyCode: 'tickets',
+                    amount: $amount,
+                    source: self::LEDGER_SOURCE,
+                    debitReason: 'استرجاع تذكرة انضمام بعد إلغاء تحدّيك',
+                    creditReason: 'استرجاع تذكرة — التحدّي اتلغى',
+                    reference: $war,
+                );
+
+                if ($moved <= 0) {
+                    throw $this->cannotAfford('cancel', $amount, $this->wallet->balance($actor, 'tickets'));
+                }
 
                 $member->forceFill(['refunded_at' => now()])->save();
             }

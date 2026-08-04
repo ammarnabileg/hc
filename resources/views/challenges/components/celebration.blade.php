@@ -34,7 +34,7 @@
          ])>
         @if ($tier === 3)
             <div class="mx-auto mb-3 celebrate-pulse" style="color: var(--color-state-honor)">
-                @include('challenges.components.war-icon', ['type' => 'default', 'size' => 64, 'label' => 'إنجاز'])
+                @include('challenges.components.war-icon', ['type' => 'default', 'size' => 64, 'label' => setting('celebrations.screen.icon_label', 'إنجاز')])
             </div>
             <h2 class="text-xl font-extrabold">{{ $celebration['message'] }}</h2>
             <p class="text-sm mt-1" style="color: var(--text-muted)">{{ $celebration['label'] }}</p>
@@ -44,16 +44,16 @@
                     {{-- لقطة إنجاز قابلة للمشاركة (2.17-أ) — يبنيها استوديو الصور --}}
                     <a href="{{ $shareUrl }}"
                        class="btn rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
-                       style="background: var(--color-brand-500); color: #04201c">لقطة إنجاز</a>
+                       style="background: var(--color-brand-500); color: #04201c">{{ setting('celebrations.screen.share_action', 'لقطة إنجاز') }}</a>
                 @endif
                 <button type="button" data-celebration-close
                         class="rounded-xl px-4 py-2 text-sm motion-standard"
-                        style="background: var(--surface-sunken); color: var(--text)">تمام</button>
+                        style="background: var(--surface-sunken); color: var(--text)">{{ setting('celebrations.screen.dismiss_action', 'تمام') }}</button>
             </div>
         @else
             <span class="celebrate-pulse" aria-hidden="true"><x-icon name="celebrate" size="16" /></span>
             <span>{{ $celebration['message'] }}</span>
-            <button type="button" data-celebration-close class="opacity-70 hover:opacity-100" aria-label="إغلاق">✕</button>
+            <button type="button" data-celebration-close class="opacity-70 hover:opacity-100" aria-label="{{ setting('celebrations.screen.close_aria', 'إغلاق') }}">✕</button>
         @endif
     </div>
 </div>

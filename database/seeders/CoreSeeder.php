@@ -73,9 +73,13 @@ class CoreSeeder extends Seeder
     private function currencies(): void
     {
         $rows = [
-            ['coins', 'كوينز', 'Coins', 'training', true, true, null, null, false],
+            // ⭐ الكوينز والتذاكر **قابلتان للصرف فلهما قاعٌ صفريّ** (15.2-4:
+            // «والتذاكر لا تنزل تحت الصفر») — والقاع بيانٌ يقرؤه دفتر الأستاذ
+            // فيَرُدّ الخصم الذي يتجاوزه بدل أن يقصّه أو ينزل تحت الصفر.
+            ['coins', 'كوينز', 'Coins', 'training', true, true, 0, null, false],
+            // XP تراكميّة غير قابلة للصرف ولا تُخصَم آليًّا (13.4-ن) — حارسها آخر
             ['xp', 'نقاط الخبرة', 'XP', 'training', false, true, null, null, false],
-            ['tickets', 'تذاكر', 'Tickets', 'training', true, true, null, null, false],
+            ['tickets', 'تذاكر', 'Tickets', 'training', true, true, 0, null, false],
             // ⭐ الساعات: عملة محتملة مستقبلًا لكنّها **تُعرَض في المحفظة** من اليوم (19.1)
             ['hours', 'الساعات', 'Hours', 'training', false, true, 0, null, false],
             // ⭐ دولار الأرباح: وعاء الأرباح القابلة للسحب (عمولة الريفيرال والتحويلات) — 19.2/19.3
