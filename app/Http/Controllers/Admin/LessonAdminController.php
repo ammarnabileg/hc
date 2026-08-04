@@ -9,7 +9,6 @@ use App\Models\LessonAttachment;
 use App\Models\LessonQuestion;
 use App\Models\Section;
 use App\Services\Admin\Content\LessonBuilder;
-use App\Services\Admin\Content\MediaLibrary;
 use App\Services\Admin\Content\QuestionImporter;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -62,6 +61,23 @@ class LessonAdminController extends Controller
         return $this->respond($request, (string) setting('lessons.admin.reorder_sections_ok', 'اتظبط الترتيب ✓'));
     }
 
+    /**
+     * ⭐ **تكرار السيكشن** (12.4-هـ: «تكرار/نسخ (Duplicate) لتدريب · **سيكشن** · درس
+     * كقالب جاهز») — الثالث الذي كان بلا مسار أصلًا.
+     *
+     * والصلاحيّة `sections.create` **منصوصةٌ في 12.2.2** («إضافة سيكشن جديد داخل
+     * التدريب») — ولا مفتاح `duplicate` في المصفوفة، ولا يُخترَع مفتاح. وهو نفس
+     * قياس تكرار التدريب الذي يحرسه `courses.create`.
+     */
+    public function duplicateSection(Section $section): RedirectResponse
+    {
+        $copy = $this->builder->duplicateSection($section);
+
+        return redirect()
+            ->route('admin.courses.edit', $copy->course_id)
+            ->with('status', (string) setting('lessons.admin.duplicate_section_ok', 'اتعملت نسخة من السيكشن ✓'));
+    }
+
     public function destroySection(Section $section): RedirectResponse
     {
         $section->delete();
@@ -83,7 +99,12 @@ class LessonAdminController extends Controller
             'sections' => Section::query()->where('course_id', $course->id)->orderBy('sort_order')->get(),
             'questions' => LessonQuestion::query()->where('lesson_id', $lesson->id)->orderBy('sort_order')->get(),
             'attachments' => LessonAttachment::query()->with('media_item')->where('lesson_id', $lesson->id)->get(),
-            'mediaItems' => app(MediaLibrary::class)->search([])->take((int) setting('media.picker.limit', 12)),
+            /*
+             | ⛔ **لا `mediaItems` بعد اليوم.** كانت قائمةً مقصوصةً بـ
+             | `media.picker.limit` (12) تُطبَع في الصفحة Checkboxes بلا بحث —
+             | فالملفّ الثالث عشر لا يمكن إرفاقه. والمرفقات صارت تُختار من **بوب-أب
+             | المكتبة في وضعه المتعدّد** ببحثه وترقيمه (12.4-د · 12.4-هـ).
+             */
             'csvColumns' => app(QuestionImporter::class)->columns(),
         ]);
     }
@@ -187,7 +208,7 @@ class LessonAdminController extends Controller
     /** @return array<string, mixed> */
     private function lessonRules(Request $request): array
     {
-        return $request->validate([
+        $data = $request->validate([
             'title_ar' => ['required', 'string', 'max:190'],
             'title_en' => ['nullable', 'string', 'max:190'],
             'type' => ['required', 'string', 'in:video,document'],
@@ -198,7 +219,22 @@ class LessonAdminController extends Controller
             'is_free_preview' => ['nullable', 'boolean'],
             'attachment_ids' => ['nullable', 'array'],
             'attachment_ids.*' => ['integer', 'exists:media_items,id'],
+            'attachments_managed' => ['nullable', 'boolean'],
         ]);
+
+        /*
+         | ⚠️ **فارغٌ ≠ غائب.** فورم HTML لا يرسل مصفوفةً فارغة، فإزالة آخر مرفق
+         | كانت تصل الخادم **غيابًا** فيُبقي `syncAttachments` المرفق كما هو —
+         | والأدمن يرى فعلًا بلا أثر (2.17-ب). فالعلَم من القالب يقول «هذا الفورم
+         | يدير المرفقات»، ومعه يصير الغياب تفريغًا صريحًا.
+         */
+        if ($request->boolean('attachments_managed')) {
+            $data['attachment_ids'] = (array) ($data['attachment_ids'] ?? []);
+        }
+
+        unset($data['attachments_managed']);
+
+        return $data;
     }
 
     /** @return array<string, mixed> */

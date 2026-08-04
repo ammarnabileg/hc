@@ -191,6 +191,24 @@ class FocusWarService
      * (عدد مَن لم يُكمِل وقته × تذكرة). ومَن أكمل وقته لا يُستَرجَع له شيء
      * لأنّه استفاد كاملًا. والدقائق تبقى للجميع احترامًا للمجهود الحقيقيّ.
      *
+     * ⭐ **والقفل الذرّيّ شرطُ صحّةٍ لا تحسين** (15.2-1 حرفيًّا: «**قفل ذرّي
+     *    (Atomic Lock):** بمجرد بدء تحدٍّ يُقفَل الطرفان فورًا من البركة
+     *    (Transaction) لمنع تحدّيهما من شخصين في نفس اللحظة»).
+     *
+     * ⚠️ **العطب الذي أُصلِح:** كان فحص الحالة (`status !== 'active'`) وجمعُ
+     *    المستحقّين وفحصُ الرصيد **خارج المعاملة**، وصفُّ الحرب **بلا قفل** —
+     *    خلافًا لأخيه `WarMatchService::settle()` الذي يقرأ الصفّ داخل المعاملة
+     *    بـ`lockForUpdate()`. فطلبَا إلغاءٍ متزامنان (ضغطتان · تبويبتان ·
+     *    عاملان) يقرآن `status = active` معًا فيمرّان معًا، فيُستَرجَع لكلّ
+     *    منضمٍّ **مرّتان** — أي تذاكر تُسَكّ من العدم، وهو عين ما يمنعه 15.2-6:
+     *    «**منع الفارمينج:** الرابح +2 والخاسر −2 (**محصّلة صفرية**)».
+     *
+     * ⚠️ **وحدود ما يُقاس** (يجب أن يعلنها الحارس وإلّا قُرِئ رقمه تغطيةً كاملة):
+     *    السباق نفسه **غير قابل للإثبات في اختبارٍ أحاديّ الخيط** — ولذلك يقيس
+     *    `FocusWarCancelRaceTest` **البنية التي تمنعه** لا السباق: يسجّل
+     *    استعلامات القاعدة بـ`DB::listen` ويؤكّد أنّ صفّ الحرب يُقرَأ **داخل
+     *    معاملةٍ** و**بـ`for update`**. وهذا مقبولٌ ما دام معلَنًا.
+     *
      * @throws WarRuleException
      */
     public function cancel(User $actor, FocusWar $war): int
@@ -199,24 +217,37 @@ class FocusWarService
             throw new WarRuleException(setting('gamification_wars.focus_war_service.cancel_1', 'التحدّي ده مش بتاعك.'));
         }
 
-        if ($war->status !== 'active') {
-            throw new WarRuleException(setting('gamification_wars.focus_war_service.cancel_2', 'التحدّي ده مقفول أصلًا.'));
-        }
+        return DB::transaction(function () use ($actor, $war) {
+            /*
+             | ⭐ **القراءة الحاسمة داخل المعاملة وبقفل الصفّ** — كأخيه
+             | `WarMatchService::settle()`. الطلب الثاني ينتظر هنا حتّى تنتهي
+             | معاملة الأوّل، فيقرأ `cancelled` ويخرج بلا استرجاعٍ ثانٍ.
+             */
+            $fresh = FocusWar::query()->whereKey($war->id)->lockForUpdate()->first();
 
-        $refundables = $war->members()
-            ->where('user_id', '!=', $war->owner_id)
-            ->whereNull('refunded_at')
-            ->get()
-            ->filter(fn (FocusWarMember $m) => ! $m->isDue() && $m->paid > 0);
+            if (! $fresh || $fresh->status !== 'active') {
+                throw new WarRuleException(setting('gamification_wars.focus_war_service.cancel_2', 'التحدّي ده مقفول أصلًا.'));
+            }
 
-        $due = (float) $refundables->sum(fn (FocusWarMember $m) => (float) $m->paid);
-        $balance = $this->wallet->balance($actor, 'tickets');
+            /*
+             | وجمعُ المستحقّين وفحصُ الرصيد **بعد القفل** لا قبله: قائمةٌ حُسِبت
+             | قبل القفل تكون لقطةً قديمة، فيُسترجَع لمن سُدِّد له بالفعل.
+             */
+            $refundables = $fresh->members()
+                ->where('user_id', '!=', $fresh->owner_id)
+                ->whereNull('refunded_at')
+                ->get()
+                ->filter(fn (FocusWarMember $m) => ! $m->isDue() && $m->paid > 0);
 
-        if ($balance < $due) {
-            throw $this->cannotAfford('cancel', $due, $balance);
-        }
+            $due = (float) $refundables->sum(fn (FocusWarMember $m) => (float) $m->paid);
+            $balance = $this->wallet->balance($actor, 'tickets');
 
-        return DB::transaction(function () use ($actor, $war, $refundables) {
+            if ($balance < $due) {
+                throw $this->cannotAfford('cancel', $due, $balance);
+            }
+
+            $war = $fresh;
+
             foreach ($refundables as $member) {
                 $amount = (float) $member->paid;
 

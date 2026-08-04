@@ -82,6 +82,11 @@ Route::middleware(['auth', 'admin.panel'])->prefix('admin')->name('admin.')->gro
         Route::post('/courses/{course}/sections/reorder', [LessonAdminController::class, 'reorderSections'])->name('sections.reorder');
     });
 
+    // ⭐ تكرار السيكشن (12.4-هـ) — بمفتاح `sections.create` المنصوص في 12.2.2،
+    //    نفس قياس تكرار التدريب بـ`courses.create`. ولا مفتاح `duplicate` يُخترَع.
+    Route::middleware('permission:sections.create')
+        ->post('/sections/{section}/duplicate', [LessonAdminController::class, 'duplicateSection'])->name('sections.duplicate');
+
     Route::middleware('permission:sections.delete')
         ->delete('/sections/{section}', [LessonAdminController::class, 'destroySection'])->name('sections.destroy');
 

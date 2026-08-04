@@ -53,20 +53,50 @@
                               style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">{{ old('content', $lesson->content) }}</textarea>
                 </label>
 
-                {{-- المرفقات من المكتبة المركزيّة — يترفع مرّة ويُعاد استخدامه (12.4-د) --}}
+                {{--
+                    المرفقات من المكتبة المركزيّة — يترفع مرّة ويُعاد استخدامه (12.4-د).
+
+                    ⚠️ **لماذا لم تبقَ قائمة Checkbox؟** لأنّها كانت محدودةً بـ
+                    `media.picker.limit` (12 عنصرًا) **وبلا بحث** — فالملفّ الثالث
+                    عشر في المكتبة **لا يمكن إرفاقه أصلًا**. والدستور يوجب أن يفتح
+                    أيّ حقل رفعٍ **بوب-أب المكتبة** (12.4-هـ)، وللمكتبة **بحثٌ
+                    بالاسم** (12.4-د) — فالحلّ هو نفس البوب-أب في وضعه المتعدّد،
+                    لا قائمةٌ أطول.
+                --}}
                 <fieldset class="card p-3">
                     <legend class="text-sm px-1">{{ setting('admin.courses.lesson.mrfqat_mn_mktba_alwsayt', 'مرفقات من مكتبة الوسائط') }}</legend>
-                    <div class="grid md:grid-cols-2 gap-2 mt-2 max-h-48 overflow-y-auto">
-                        @php $attached = $attachments->pluck('media_item_id')->all(); @endphp
-                        @foreach ($mediaItems as $item)
-                            <label class="flex items-center gap-2 text-sm">
-                                <input type="checkbox" name="attachment_ids[]" value="{{ $item->id }}"
-                                       @checked(in_array($item->id, $attached, true))>
-                                <span class="truncate">{{ $item->name }}</span>
-                            </label>
+
+                    {{--
+                        ⚠️ **علَم «الفورم يدير المرفقات»**: إن شال الأدمن آخر مرفق
+                        فلن يُرسَل `attachment_ids` أصلًا (فورم HTML لا يرسل مصفوفةً
+                        فارغة)، فيقرأ الخادم غيابًا لا تفريغًا ويبقى المرفق ملتصقًا
+                        رغم إزالته. فالعلَم يفرّق بين **«لم يُرسَل»** و**«فُرِّغ»**.
+                    --}}
+                    <input type="hidden" name="attachments_managed" value="1">
+
+                    {{-- المرفقات الحاليّة رقائق، ولكلٍّ حقلٌ مخفيّ يحمل آيدي عنصر المكتبة --}}
+                    <div class="flex flex-wrap gap-2 mt-2" data-media-multi="attachment_ids">
+                        @foreach ($attachments as $row)
+                            @continue (! $row->media_item)
+                            <span class="inline-flex items-center gap-2 rounded-xl px-3 py-1.5 text-xs"
+                                  data-multi-id="{{ $row->media_item_id }}"
+                                  style="min-height: 44px; background: var(--surface-sunken); border: 1px solid var(--border)">
+                                <input type="hidden" name="attachment_ids[]" value="{{ $row->media_item_id }}">
+                                <span class="truncate" style="max-width: 12rem">{{ $row->media_item->name }}</span>
+                                <button type="button" data-multi-remove style="min-width: 44px; min-height: 44px"
+                                        aria-label="{{ setting('media.picker.remove') }}">✕</button>
+                            </span>
                         @endforeach
                     </div>
-                    <a href="{{ route('admin.media.index') }}" class="text-xs underline mt-2 inline-block">{{ setting('admin.courses.lesson.afth_almktba', 'افتح المكتبة') }}</a>
+
+                    <div class="flex flex-wrap items-center gap-2 mt-3">
+                        <button type="button" data-media-pick-multiple="attachment_ids"
+                                class="rounded-xl px-3 py-1.5 text-xs"
+                                style="min-height: 44px; background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
+                            <x-icon name="library" size="14" /> {{ setting('media.picker.multi_cta') }}
+                        </button>
+                        <a href="{{ route('admin.media.index') }}" class="text-xs underline">{{ setting('admin.courses.lesson.afth_almktba', 'افتح المكتبة') }}</a>
+                    </div>
                 </fieldset>
 
                 <div class="grid md:grid-cols-2 gap-3">
@@ -200,6 +230,9 @@
     </x-modal>
 
     @include('admin.courses.partials.toast')
+
+    {{-- بوب-أب المكتبة نفسه — مصدرٌ واحد لكلّ حقول الرفع (12.4-هـ · 2.14-ب) --}}
+    @include('admin.courses.partials.media-picker-modal')
 
     @push('scripts')
         <script>

@@ -83,6 +83,11 @@ class AdminContentDemoSeeder extends Seeder
 
             // ---------------- الدروس والأسئلة (12.4-ج)
             ['lessons.duplicate.suffix', 'lessons', 'لاحقة الدرس المكرّر', 'string', ' — نسخة'],
+            // «تكرار/نسخ (Duplicate) **لسيكشن**» (12.4-هـ) — الثالث الذي كان بلا مسار
+            ['sections.duplicate.suffix', 'lessons', 'لاحقة السيكشن المكرّر', 'string', ' — نسخة'],
+            ['sections.duplicate.action_label', 'lessons', 'نصّ إجراء تكرار السيكشن', 'string', 'تكرار السيكشن'],
+            ['sections.duplicate.confirm_text', 'lessons', 'نصّ تأكيد تكرار السيكشن', 'string', 'هنعمل نسخة من السيكشن بدروسه وأسئلته ومرفقاته — نكمّل؟'],
+            ['lessons.admin.duplicate_section_ok', 'lessons', 'رسالة نجاح تكرار السيكشن', 'string', 'اتعملت نسخة من السيكشن ✓'],
             ['lessons.questions.default_xp', 'lessons', 'XP السؤال الافتراضيّ', 'number', '0'],
             ['lessons.questions.placeholder_otp', 'lessons', 'Placeholder السؤال الرقميّ', 'string', 'اكتب الرقم'],
             ['lessons.questions.placeholder_text', 'lessons', 'Placeholder السؤال النصّيّ', 'string', 'اكتب إجابتك هنا…'],
@@ -221,6 +226,14 @@ class AdminContentDemoSeeder extends Seeder
             ['media.picker.upload_hint', 'media', 'شرح الرفع داخل البوب-أب', 'string', 'الملفّ المكرّر مش هيترفع مرّتين — هنستخدم النسخة الموجودة.'],
             ['media.picker.uploading', 'media', 'نصّ أثناء الرفع', 'string', 'بنرفع…'],
             ['media.picker.upload_error', 'media', 'نصّ تعذّر الرفع', 'string', 'ما قدرناش نرفع الملفّ — جرّب تاني.'],
+            // ---------------- الاختيار المتعدّد (مرفقات الدرس — 12.4-ج · 12.4-د)
+            ['media.picker.multi_cta', 'media', 'نصّ زرّ اختيار عدّة ملفّات', 'string', 'ضيف مرفقات من المكتبة'],
+            ['media.picker.multi_hint', 'media', 'شرح الاختيار المتعدّد', 'string', 'اضغط على الملفّات اللي عايزها — واختار «ضيف المحدَّد» في الآخر.'],
+            ['media.picker.confirm', 'media', 'نصّ زرّ تأكيد الاختيار المتعدّد', 'string', 'ضيف المحدَّد'],
+            ['media.picker.selected_none', 'media', 'نصّ «لم يُحدَّد شيء» في الاختيار المتعدّد', 'string', 'ما اخترتش حاجة لسه'],
+            ['media.picker.selected_count', 'media', 'عدّاد المحدَّد ({n} = العدد)', 'string', 'محدَّد: {n}'],
+            ['media.picker.remove', 'media', 'نصّ إزالة مرفق مختار', 'string', 'شيل'],
+            ['media.picker.attachments_empty', 'media', 'نصّ «لا مرفقات» في الدرس', 'string', 'مافيش مرفقات لسه.'],
             // مواضع استخدام إضافيّة للملفّ — تمنع حذف فريمٍ أو غلافٍ مستعمَل بلا تحذير
             ['media.usage.image_template_frames', 'media', 'اسم موضع: فريمات قوالب الصور', 'string', 'فريمات قوالب الصور'],
             ['media.usage.article_covers', 'media', 'اسم موضع: أغلفة المقالات', 'string', 'أغلفة المقالات'],

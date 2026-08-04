@@ -273,9 +273,26 @@
                                 @endforeach
                             </ul>
 
-                            <button type="button" data-modal-open="lesson-new-{{ $section->id }}"
-                                    class="btn mt-3 rounded-xl px-3 py-2 text-sm"
-                                    style="background: var(--surface-sunken)">{{ setting('admin.courses.form.drs', '+ درس') }}</button>
+                            <div class="flex flex-wrap items-center gap-2 mt-3">
+                                <button type="button" data-modal-open="lesson-new-{{ $section->id }}"
+                                        class="btn rounded-xl px-3 py-2 text-sm"
+                                        style="min-height: 44px; background: var(--surface-sunken)">{{ setting('admin.courses.form.drs', '+ درس') }}</button>
+
+                                {{--
+                                    ⭐ «**تكرار/نسخ (Duplicate)** لتدريب · **سيكشن** · درس كقالب جاهز» (12.4-هـ).
+                                    والزرّ يُرسِل فورمًا **خارج** فورم التدريب بسمة `form` — لأنّ
+                                    فورمًا داخل فورم ممنوعٌ في HTML. ويُخفى لمن لا يملك المفتاح
+                                    (`sections.create` — 12.2.2) لا يُعطَّل (2.15-أ-7).
+                                --}}
+                                @can('sections.create')
+                                    <button type="submit" form="section-duplicate-{{ $section->id }}"
+                                            class="btn rounded-xl px-3 py-2 text-sm"
+                                            style="min-height: 44px; background: var(--surface-sunken)"
+                                            onclick="return confirm('{{ setting('sections.duplicate.confirm_text') }}')">
+                                        {{ setting('sections.duplicate.action_label') }}
+                                    </button>
+                                @endcan
+                            </div>
                         </div>
                     @empty
                         <x-empty :message="setting('admin.courses.form.alsykshn_alawl_lsh_mstnyk', 'السيكشن الأوّل لسّه مستنّيك.')" />
@@ -298,6 +315,14 @@
                         style="background: var(--color-brand-500); color: #04201c">{{ setting('admin.courses.form.idafa', 'إضافة') }}</button>
             </form>
         </x-modal>
+
+        {{-- فورمات تكرار السيكشن (12.4-هـ) — خارج فورم التدريب، وتصلها الأزرار بسمة `form` --}}
+        @can('sections.create')
+            @foreach ($sections as $section)
+                <form method="post" id="section-duplicate-{{ $section->id }}" class="hidden"
+                      action="{{ route('admin.sections.duplicate', $section) }}">@csrf</form>
+            @endforeach
+        @endcan
 
         @foreach ($sections as $section)
             <x-modal :id="'lesson-new-'.$section->id" :title="setting('admin.courses.form.drs_fy', 'درس في: ').$section->title_ar">
