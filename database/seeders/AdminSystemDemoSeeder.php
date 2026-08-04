@@ -280,6 +280,9 @@ class AdminSystemDemoSeeder extends Seeder
             ['updates.forward_only', 'updates', 'منع الرجوع لإصدار أقدم', 'bool', '1', false],
             ['settings.audit.error.missing_key', 'system', 'رسالة سجلّ الإعداد بلا مفتاح', 'text', 'مافيش مفتاح إعداد في الطلب — افتح السجلّ من جنب الحقل نفسه.', false],
             ['settings.audit.error.unknown_key', 'system', 'رسالة سجلّ إعدادٍ غير موجود', 'text', 'الإعداد ده مش موجود — يمكن يكون اتشال، حدّث الصفحة وجرّب تاني.', false],
+            // ⭐ نقطة دفعة المجموعة (التحميل الكسول — 2.15-ب): رسالتا الخطأ فيها تقولان ماذا يفعل (2.17-ب)
+            ['settings.batch.error.unknown_tab', 'system', 'رسالة دفعةٍ لتابٍ مجهول', 'text', 'التاب ده مش موجود — حدّث الصفحة وجرّب تاني.', false],
+            ['settings.batch.error.unknown_group', 'system', 'رسالة دفعةٍ لمجموعةٍ خارج التاب', 'text', 'المجموعة دي مش في التاب ده — حدّث الصفحة.', false],
             ['countries.source', 'countries', 'مصدر بيانات الدول', 'string', 'dr5hn', false],
             ['countries.no_auto_delete', 'countries', 'لا حذف تلقائيّ — المحذوف يُخفى فقط', 'bool', '1', false],
             // ---------------- 12.7-د: فحص الفروق قبل الدمج بلا فقد

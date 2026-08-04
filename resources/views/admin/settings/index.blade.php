@@ -93,26 +93,42 @@
                 @include('admin.settings.tabs.countries')
 
                 <div class="space-y-3" id="settings-list">
-                    @foreach ($groups as $group => $rows)
+                    @foreach ($counts as $group => $meta)
                         @include('admin.settings.partials.group-card', [
                             'group' => $group,
-                            'rows' => $rows,
+                            'count' => $meta['count'],
+                            'ownerOnly' => $meta['owner_only'],
                             'registry' => $registry,
                             'endpoint' => route('admin.settings.field'),
+                            'tab' => $tab,
+                            'search' => $search,
+                            'batch' => $batch,
                             'open' => false,
                         ])
                     @endforeach
                 </div>
             @else
-                {{-- كلّ مجموعة كارت مطويّ بعنوان عربيّ — مولِّد عامّ لا 44 شاشة يدويّة --}}
+                {{--
+                 | ⭐ كلّ مجموعة كارت **مطويّ يُحمَّل عند فتحه** — مولِّد عامّ لا 44 شاشة
+                 | يدويّة. وكان التاب يُصيَّر بمفاتيحه كلّها دفعةً: 3,353 حقلًا في تابّ
+                 | التطوّع، فسقطت الشاشة بـTimeout. والآن الرأس وحده هو المصيَّر،
+                 | ودفعةٌ واحدة للمجموعة المفتوحة — و**كلّ** مفتاح باقٍ في متناول اليد
+                 | بـ«حمّل المزيد» وبالبحث الذي يمسح التاب كلّه لا المعروض (2.13).
+                --}}
                 <div class="space-y-3" id="settings-list">
-                    @forelse ($groups as $group => $rows)
+                    @forelse ($counts as $group => $meta)
                         @include('admin.settings.partials.group-card', [
                             'group' => $group,
-                            'rows' => $rows,
+                            'count' => $meta['count'],
+                            'ownerOnly' => $meta['owner_only'],
                             'registry' => $registry,
                             'endpoint' => route('admin.settings.field'),
-                            'open' => $loop->first || $search !== '' || $rows->contains('key', $highlight),
+                            'tab' => $tab,
+                            'search' => $search,
+                            'batch' => $batch,
+                            'open' => $group === $openGroup,
+                            'rows' => $group === $openGroup ? $openRows : collect(),
+                            'offset' => $group === $openGroup ? $openOffset : 0,
                         ])
                     @empty
                         <x-empty :message="setting('admin.settings.index.mafysh_iadadat_fy_altab_dh_lsh', 'مافيش إعدادات في التاب ده لسه.')" />

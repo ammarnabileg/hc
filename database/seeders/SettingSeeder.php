@@ -29,6 +29,8 @@ class SettingSeeder extends Seeder
             ['ux.undo.seconds', 'ux', 'مدّة التراجع (ثوانٍ)', 'number', '5'],
             ['ux.first_time.enabled_screens', 'ux', 'شاشات «أوّل مرّة» المفعَّلة', 'json', '[]'],
             ['ux.settings_search.max_results', 'ux', 'أقصى نتائج البحث الموحّد في الإعدادات', 'number', '40'],
+            // ⭐ حجم دفعة التحميل الكسول في شاشة الإعدادات (2.15-ب) — لا رقم محروق
+            ['ux.settings_batch_size', 'ux', 'عدد مفاتيح الدفعة الواحدة في شاشة الإعدادات', 'number', '25'],
 
             // ---------------- حدود شاشات كانت أرقامًا محروقة (2.13)
             ['admin_dashboard.online_window_minutes', 'admin_dashboard', 'نافذة «النشطون الآن» (دقيقة)', 'number', '15'],

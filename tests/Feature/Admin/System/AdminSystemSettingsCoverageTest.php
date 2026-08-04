@@ -145,9 +145,14 @@ class AdminSystemSettingsCoverageTest extends SystemTestCase
             );
         }
 
-        // ولا حتى في كروت التابات المولَّدة
+        /*
+         | ولا حتى في كروت التابات المولَّدة — و`$limit` صريحٌ هنا **عمدًا**:
+         | `forTab()` صارت تُرجع دفعةً واحدة افتراضيًّا بعد أن صار التاب يُحمَّل
+         | كسولًا (2.15-ب)، وحارسُ العزل لا يُقاس على دفعةٍ بل على **كلّ** ما
+         | يمكن أن يصل إليه الناظر في التاب. فلو ضاق الحدّ ضاق الحارس معه.
+         */
         foreach (array_keys($registry->tabsFor($admin)) as $tab) {
-            $keys = $registry->forTab($tab, $admin)->pluck('key');
+            $keys = $registry->forTab($tab, $admin, '', PHP_INT_MAX)->pluck('key');
 
             $this->assertEmpty(
                 $keys->intersect($protected),

@@ -44,15 +44,44 @@ class SettingsAdminController extends Controller
         }
 
         $search = $request->string('q')->toString();
+        $highlight = $request->string('key')->toString();
+
+        /*
+         | ⭐ الشاشة تُصيَّر **رؤوس كروتٍ فقط**: اسم المجموعة ووصفها وعدد مفاتيحها
+         | (عدّةُ SQL لا تصييرُ صفوف). ولا تُجلَب الحقول إلّا لدفعة المجموعة التي
+         | تُفتَح — تحميلٌ كسول كما تنصّ 2.15-ب، بلا حذف مفتاح ولا إخفائه (2.13).
+         | وكان التاب يُبنى كاملًا هنا: تابّ التطوّع 3,353 مفتاحًا في صفحةٍ واحدة.
+         */
+        $counts = $this->registry->countsForTab($tab, $user, $search);
+
+        // المجموعة التي تُفتَح أوّلًا: مجموعةُ المفتاح القادم من البحث، وإلّا الأولى
+        $openGroup = $highlight !== ''
+            ? (Setting::query()->where('key', $highlight)->value('group') ?: null)
+            : null;
+
+        if ($openGroup === null || ! array_key_exists($openGroup, $counts)) {
+            $openGroup = array_key_first($counts);
+            $highlight = '';
+        }
+
+        // ودفعةُ المفتاح المطلوب هي التي تُفتَح — لا الأولى دائمًا
+        $openOffset = ($openGroup !== null && $highlight !== '')
+            ? $this->registry->batchStartOfKey($openGroup, $highlight, $user, $search)
+            : 0;
 
         return view('admin.settings.index', [
             'tabs' => $tabs,
             'tab' => $tab,
             'search' => $search,
-            'settings' => $this->registry->forTab($tab, $user, $search),
-            'groups' => $this->registry->groupedForTab($tab, $user, $search),
+            'counts' => $counts,
+            'openGroup' => $openGroup,
+            'openOffset' => $openOffset,
+            'batch' => $this->registry->batchSize(),
+            'openRows' => $openGroup === null
+                ? collect()
+                : $this->registry->pageOfGroup($tab, $openGroup, $user, $search, $openOffset),
             'registry' => $this->registry,
-            'highlight' => $request->string('key')->toString(),
+            'highlight' => $highlight,
             'maintenance' => $this->maintenance,
             'window' => $this->maintenance->current(),
             'windows' => MaintenanceWindow::query()->latest('id')->limit((int) setting('maintenance.windows_history_limit', 10))->get(),
@@ -64,6 +93,50 @@ class SettingsAdminController extends Controller
             // 24.3: مفاتيح المزايا — كذلك كسولةً، فجدولُها واستعلاماتُه لا يُحمَّلان
             // في كلّ تابٍ آخر
             'features' => $tab === 'features' ? $this->featuresScreen($request) : null,
+        ]);
+    }
+
+    /**
+     * ⭐ **دفعة مفاتيح مجموعة** — نقطةُ التحميل الكسول التي تبني عليها الشاشة.
+     *
+     * تُنادى عند فتح كارت المجموعة، ثمّ عند كلّ «حمّل المزيد». وتردّ **قطعة
+     * HTML** لا JSON: الحقل هنا ليس قيمةً بل صفٌّ كامل بقواعد 2.13-و (المفتاح
+     * ظاهرًا · الافتراضيّ مرساةً · ↺ · مثال حيّ · Audit)، وبناؤه في الخادم
+     * يبقيه مصدرًا واحدًا لا نسختين تفترقان — واحدةٌ في Blade وأخرى في JS.
+     */
+    public function groupBatch(Request $request): JsonResponse
+    {
+        $user = $request->user();
+        $tabs = $this->registry->tabsFor($user);
+        $tab = $request->string('tab')->toString();
+
+        if (! array_key_exists($tab, $tabs)) {
+            return response()->json([
+                'message' => (string) setting('settings.batch.error.unknown_tab', 'التاب ده مش موجود — حدّث الصفحة وجرّب تاني.'),
+            ], 404);
+        }
+
+        $group = $request->string('group')->toString();
+        $search = $request->string('q')->toString();
+        $offset = max(0, (int) $request->integer('offset'));
+        $batch = $this->registry->batchSize();
+
+        $rows = $this->registry->pageOfGroup($tab, $group, $user, $search, $offset, $batch);
+
+        if ($rows->isEmpty() && $offset === 0) {
+            return response()->json([
+                'message' => (string) setting('settings.batch.error.unknown_group', 'المجموعة دي مش في التاب ده — حدّث الصفحة.'),
+            ], 404);
+        }
+
+        return response()->json([
+            'html' => view('admin.settings.partials.group-fields', [
+                'rows' => $rows,
+                'registry' => $this->registry,
+                'endpoint' => route('admin.settings.field'),
+            ])->render(),
+            'count' => $rows->count(),
+            'next' => $offset + $rows->count(),
         ]);
     }
 

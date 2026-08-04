@@ -5,6 +5,7 @@ namespace App\Services\Admin\System;
 use App\Models\AuditLog;
 use App\Models\Setting;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 
@@ -21,6 +22,20 @@ class SettingsRegistry
     private ?array $unmapped = null;
 
     /**
+     * ⚡ ذاكرة الطلب للكتالوجات — والسبب **مقيس** لا تجميليّ.
+     *
+     * `tabs()` تستدعي `setting()` ٤٨ مرّة و`groupCatalog()` ١٦٤ مرّة، والاستدعاء
+     * الواحد كلّف **9.4ms** (خزّان الكاش `database`: استعلامٌ + فكّ تسلسل لخريطة
+     * 12,177 مفتاحًا في كلّ نداء). فكلّ نداءٍ لـ`groupCatalog()` = **1.5 ثانية**،
+     * و`groupLabel()`+`groupHint()` تُستدعيان لكلّ كارت مجموعة: تابّ التطوّع
+     * بخمس عشرة مجموعة كان يدفع ثلاثين نداءً = **46 ثانية** من العنونة وحدها.
+     * والقيم هذه ثابتة داخل الطلب الواحد بالتعريف — فقراءتها مرّةً هي الصواب.
+     *
+     * @var array<string, mixed>
+     */
+    private array $memo = [];
+
+    /**
      * التابات الجانبيّة: المفتاح ⟵ [العنوان · المجموعات · سطر تعريفيّ].
      * وترتيبها هو ترتيب العرض — ولا يُبنى من قاعدة البيانات حتى لا يتغيّر بالصدفة.
      *
@@ -32,7 +47,7 @@ class SettingsRegistry
      */
     public function tabs(): array
     {
-        return [
+        return $this->memo['tabs'] ??= [
             'platform' => [
                 'label' => setting('system.settings_registry.tabs_1', 'إعدادات المنصّة'),
                 'groups' => ['system', 'accounts', 'integrations', 'ux', 'feel', 'setup'],
@@ -179,7 +194,7 @@ class SettingsRegistry
      */
     public function groupCatalog(): array
     {
-        return [
+        return $this->memo['catalog'] ??= [
             'system' => [setting('system.settings_registry.group_catalog_1', 'النظام'), setting('system.settings_registry.group_catalog_2', 'التوقيت وسلوك المنصّة العامّ.')],
             'accounts' => [setting('system.settings_registry.group_catalog_3', 'الحسابات والتفعيل'), setting('system.settings_registry.group_catalog_4', 'مجانيّة التفعيل والاعتماد الإداريّ وبادئة الكود.')],
             'integrations' => [setting('system.settings_registry.group_catalog_5', 'التكاملات'), setting('system.settings_registry.group_catalog_6', 'البريد والخدمات الخارجيّة.')],
@@ -279,6 +294,10 @@ class SettingsRegistry
     /** المجموعات المسنَدة لتاب ⟵ التاب (خريطة البحث الموحّد ومرجع التغطية) */
     public function groupToTab(): array
     {
+        if (isset($this->memo['group_to_tab'])) {
+            return $this->memo['group_to_tab'];
+        }
+
         $map = [];
 
         foreach ($this->tabs() as $tabKey => $tab) {
@@ -290,7 +309,7 @@ class SettingsRegistry
         // 🔒 الماليّات تاب خاصّ بمالك المنصّة، لكنّ خريطة البحث تعرف مكانها دائمًا
         $map['finance'] = 'finance';
 
-        return $map;
+        return $this->memo['group_to_tab'] = $map;
     }
 
     /**
@@ -338,24 +357,144 @@ class SettingsRegistry
         return $tabs;
     }
 
-    /** إعدادات تاب بعينه، مرتّبةً ومصفّاةً بحسب مَن ينظر */
-    public function forTab(string $tab, User $user, string $search = ''): Collection
+    /** مجموعات التاب بترتيب عرضها — و«متنوّعات» تأخذ ما لا تاب له */
+    public function groupsOfTab(string $tab, User $user): array
     {
-        $groups = $tab === 'misc'
+        return $tab === 'misc'
             ? $this->unmappedGroups()
             : ($this->tabsFor($user)[$tab]['groups'] ?? []);
+    }
+
+    /**
+     * ⭐ **حجم كلّ مجموعة بعدّة SQL واحدة** — لا بتصيير صفوفها.
+     *
+     * الكارت كان يطبع `count($rows)` بعد أن تُحمَّل الصفوف كلّها وتُهيّأ نماذج،
+     * فثمن رقمٍ في رأس كارتٍ **مطويّ** كان تحميلَ محتواه كلّه. والعدّ في القاعدة
+     * يعطي الرقم نفسه بصفٍّ واحد لكلّ مجموعة.
+     *
+     * @return array<string, array{count:int, owner_only:bool}> المجموعة ⟵ عددها وهل فيها مفتاحٌ محميّ
+     */
+    public function countsForTab(string $tab, User $user, string $search = ''): array
+    {
+        $groups = $this->groupsOfTab($tab, $user);
+
+        if ($groups === []) {
+            return [];
+        }
+
+        /*
+         | صفٌّ واحد لكلّ مجموعة: العدد وقفلُ المالك — لا تحميلَ صفوفٍ لأجلهما.
+         |
+         | و`group` يُختار بـ`select()` لا بـ`selectRaw('"group"…')`: الاقتباس
+         | المزدوج معرِّفٌ في SQLite وPostgres لكنّه **سلسلة نصّيّة في MySQL**
+         | (بلا `ANSI_QUOTES`) — فالعمود يصير ثابتًا نصّيًّا وينهار التجميع.
+         | ونحو Laravel يقتبس الاسم بما يناسب كلّ خزّان.
+         */
+        $rows = $this->visibleQuery($user)
+            ->whereIn('group', $groups)
+            ->when($search !== '', fn ($q) => $this->applySearch($q, $search))
+            ->select('group')
+            ->selectRaw('count(*) as c')
+            ->selectRaw('max(is_owner_only) as owned')
+            ->groupBy('group')
+            ->get()
+            ->keyBy('group');
+
+        // الترتيب ترتيبُ التاب المعلَن، والمجموعة الفارغة لا كارت لها
+        $ordered = [];
+
+        foreach ($groups as $group) {
+            $row = $rows->get($group);
+
+            if ($row && (int) $row->c > 0) {
+                $ordered[$group] = ['count' => (int) $row->c, 'owner_only' => (bool) $row->owned];
+            }
+        }
+
+        return $ordered;
+    }
+
+    /**
+     * ⭐ **دفعة واحدة** من مفاتيح مجموعة — هي وحدة التحميل الكسول في الشاشة.
+     *
+     * القرار (2.15-ب «تحميل كسول» · و2.15-د ترفض «ترقيم الصفحات بدل التمرير
+     * التدريجيّ»): المجموعة كارتٌ **مطويّ** لا يُحمَّل محتواه إلّا عند فتحه، ثمّ
+     * يكبر بـ«حمّل المزيد» دفعةً دفعة. ولا مفتاح يُحذَف ولا يُخفى (2.13) —
+     * الكلّ في متناول اليد، والمعروض وحده هو المصيَّر.
+     *
+     * @return Collection<int, Setting>
+     */
+    public function pageOfGroup(
+        string $tab,
+        string $group,
+        User $user,
+        string $search = '',
+        int $offset = 0,
+        ?int $limit = null,
+    ): Collection {
+        if (! in_array($group, $this->groupsOfTab($tab, $user), true)) {
+            return collect();
+        }
+
+        return $this->visibleQuery($user)
+            ->where('group', $group)
+            ->when($search !== '', fn ($q) => $this->applySearch($q, $search))
+            ->orderBy('key')
+            ->offset(max(0, $offset))
+            ->limit($limit ?? $this->batchSize())
+            ->get();
+    }
+
+    /** حجم الدفعة الواحدة — إعدادٌ يعدّله المالك لا رقمٌ محروق (2.13) */
+    public function batchSize(): int
+    {
+        return max(5, (int) setting('ux.settings_batch_size', 25));
+    }
+
+    /**
+     * ⭐ بداية **الدفعة التي تسكنها** هذه المفتاح داخل مجموعته.
+     *
+     * بلا هذا يصير التحميلُ الكسول حجابًا على البحث نفسه: نتيجةُ البحث تفتح
+     * التاب والمجموعة، لكنّ المفتاح في الترتيب 512 فلا يقع في الدفعة الأولى
+     * ولا يجده صاحبُ الشاشة. فنحسب رتبته بعدّةٍ واحدة ونفتح دفعتَه هو.
+     */
+    public function batchStartOfKey(string $group, string $key, User $user, string $search = ''): int
+    {
+        $rank = $this->visibleQuery($user)
+            ->where('group', $group)
+            ->when($search !== '', fn ($q) => $this->applySearch($q, $search))
+            ->where('key', '<', $key)
+            ->count();
+
+        $batch = $this->batchSize();
+
+        return intdiv($rank, $batch) * $batch;
+    }
+
+    /**
+     * إعدادات تاب بعينه — **بحدٍّ إلزاميّ**.
+     *
+     * بلا حدٍّ كانت تُرجع 3,353 نموذجًا لتابّ التطوّع في نداءٍ واحد، ويُنادى مرّتين
+     * في الطلب الواحد (`forTab` ثمّ `groupedForTab` التي تناديها من جديد).
+     * فمَن يريد الكلّ يطلبه صراحةً بـ`$limit`.
+     *
+     * @return Collection<int, Setting>
+     */
+    public function forTab(string $tab, User $user, string $search = '', ?int $limit = null, int $offset = 0): Collection
+    {
+        $groups = $this->groupsOfTab($tab, $user);
 
         if ($groups === []) {
             return collect();
         }
 
-        return $this->visible($user)
+        return $this->visibleQuery($user)
             ->whereIn('group', $groups)
-            ->when($search !== '', fn ($rows) => $rows->filter(
-                fn (Setting $s) => str_contains($s->key, $search) || str_contains($s->label_ar, $search)
-            ))
-            ->sortBy('key')
-            ->values();
+            ->when($search !== '', fn ($q) => $this->applySearch($q, $search))
+            ->orderBy('key')
+            ->offset(max(0, $offset))
+            ->limit($limit ?? $this->batchSize())
+            ->get();
     }
 
     /**
@@ -363,15 +502,16 @@ class SettingsRegistry
      * لماذا مقسَّمة؟ لأنّ تابًا فيه 190 مفتاحًا مسطّحًا شاشةٌ لا تُقرَأ (2.15)،
      * والكارت المطويّ يجعل «سؤالًا واحدًا» ظاهرًا في المرّة.
      *
+     * ⚠️ ولا تُستعمَل في تصيير الشاشة بعد اليوم: الشاشة تبني رؤوس الكروت من
+     * `countsForTab()` وتجلب كلّ دفعةٍ بـ`pageOfGroup()`. وتبقى هنا لمن يريد
+     * مقطعًا مجمَّعًا صراحةً — **بحدٍّ** كما في `forTab()`.
+     *
      * @return Collection<string, Collection<int, Setting>>
      */
-    public function groupedForTab(string $tab, User $user, string $search = ''): Collection
+    public function groupedForTab(string $tab, User $user, string $search = '', ?int $limit = null): Collection
     {
-        $order = $tab === 'misc'
-            ? $this->unmappedGroups()
-            : ($this->tabsFor($user)[$tab]['groups'] ?? []);
-
-        $rows = $this->forTab($tab, $user, $search)->groupBy('group');
+        $order = $this->groupsOfTab($tab, $user);
+        $rows = $this->forTab($tab, $user, $search, $limit)->groupBy('group');
 
         return collect($order)
             ->filter(fn (string $group) => $rows->has($group))
@@ -395,11 +535,17 @@ class SettingsRegistry
         $tabs = $this->tabsFor($user);
         $groupToTab = $this->groupToTab();
 
-        return $this->visible($user)
-            ->filter(fn (Setting $s) => str_contains(mb_strtolower($s->key), mb_strtolower($term))
-                || str_contains($s->label_ar, $term)
-                || str_contains((string) $s->value, $term))
-            ->take(max(5, (int) setting('ux.settings_search.max_results', 40)))
+        /*
+         | ⭐ البحث في **القاعدة** لا في مجموعةٍ محمَّلة في الذاكرة — وهذا شرطُ ألّا
+         | يصير التحميلُ الكسول حجابًا: مفتاحٌ في الدفعة الأربعين من تابّ التطوّع
+         | ليس في الـDOM أصلًا، فلو بحثنا في المعروض لَما وُجِد أبدًا. والاستعلام
+         | يمسح **كلّ** الصفوف المرئيّة لهذا المستخدم ويعيد أوّل ما يطابق بمساره.
+         */
+        return $this->visibleQuery($user)
+            ->where(fn ($q) => $this->applySearch($q, $term))
+            ->orderBy('key')
+            ->limit(max(5, (int) setting('ux.settings_search.max_results', 40)))
+            ->get()
             ->map(function (Setting $s) use ($tabs, $groupToTab) {
                 // ⭐ المفتاح يفتح **تابه هو**؛ والمجموعة بلا تاب تفتح «متنوّعات»
                 // — لا «إعدادات المنصّة» كما كان، فالنتيجة كانت تودّي لتابٍ لا تسكنه.
@@ -509,9 +655,8 @@ class SettingsRegistry
     /** تصدير الإعدادات المرئيّة لهذا المستخدم كـJSON (نقل التخصيص في ثوانٍ) */
     public function export(User $user): array
     {
-        return $this->visible($user)
-            ->mapWithKeys(fn (Setting $s) => [$s->key => $s->value])
-            ->all();
+        // عمودان لا نموذج كامل: التصدير لا يحتاج إلّا المفتاح وقيمته
+        return $this->visibleQuery($user)->orderBy('key')->pluck('value', 'key')->all();
     }
 
     /**
@@ -559,7 +704,12 @@ class SettingsRegistry
     {
         $toggle = $this->togglerOf($setting->key);
 
-        return $toggle !== null && ! setting($toggle, true);
+        if ($toggle === null) {
+            return false;
+        }
+
+        // قيمة المفتاح الحاكم ثابتة في الطلب — تُقرأ مرّةً لا مرّةً لكلّ صفّ
+        return ! ($this->memo['toggle:'.$toggle] ??= (bool) setting($toggle, true));
     }
 
     /** مفتاح الميزة الحاكم لهذا الإعداد (إن وُجد) */
@@ -610,8 +760,16 @@ class SettingsRegistry
 
     // ------------------------------------------------------------------ داخليّ
 
-    /** @return Collection<int, Setting> */
-    private function visible(User $user): Collection
+    /**
+     * ⭐ **استعلامُ** ما يراه هذا المستخدم — لا مجموعةً محمَّلة.
+     *
+     * كان `visible()` يُهيّئ 12,177 نموذجًا (**572ms** و54 م.ب) في كلّ نداء،
+     * ويُنادى مرّتين في تصيير الشاشة الواحدة. والعزل الماليّ يبقى كما هو —
+     * شرطُ `where` واحدٌ لا يتغيّر، لكنّه الآن يعمل في القاعدة لا في PHP.
+     *
+     * @return Builder<Setting>
+     */
+    private function visibleQuery(User $user): Builder
     {
         $query = Setting::query();
 
@@ -619,7 +777,36 @@ class SettingsRegistry
             $query->where('is_owner_only', false)->where('group', '!=', 'finance');
         }
 
-        return $query->orderBy('key')->get();
+        return $query;
+    }
+
+    /**
+     * شرط البحث بالاسم أو بالمفتاح أو بالقيمة (2.13-و) — في القاعدة.
+     *
+     * @param  Builder<Setting>  $query
+     */
+    private function applySearch(Builder $query, string $term): void
+    {
+        /*
+         | ⚠️ بلا تهريب لـ`%` و`_`. جرّبناه فسقط البحث كلّه: SQLite لا تعرف
+         | `\` محرِّفَ هروبٍ إلّا بجملة `ESCAPE` صريحة، فصار `capacity_is_blocking`
+         | يُطلَب حرفيًّا بـ`capacity\_is\_blocking` ولا يطابق شيئًا — وكلّ مفاتيح
+         | الإعدادات فيها `_`. وتركُهما محرفَي بدلٍ يوسّع النتيجة قليلًا لا أكثر،
+         | وهو سلوك صندوق بحثٍ مقبول. والقيمة **مربوطة** لا مدموجة، فلا حقن.
+         */
+        $like = '%'.$term.'%';
+
+        $query->where(function ($q) use ($like) {
+            $q->where('key', 'like', $like)
+                ->orWhere('label_ar', 'like', $like)
+                ->orWhere('value', 'like', $like);
+        });
+    }
+
+    /** @return Collection<int, Setting> */
+    private function visible(User $user): Collection
+    {
+        return $this->visibleQuery($user)->orderBy('key')->get();
     }
 
     /**
@@ -635,8 +822,8 @@ class SettingsRegistry
      */
     private function range(Setting $setting): array
     {
-        $map = setting('ux.settings_ranges', []);
-        $map = is_array($map) ? $map : [];
+        // خريطة النطاقات ثابتة في الطلب — لا تُقرأ مرّةً لكلّ حقلٍ رقميّ
+        $map = $this->memo['ranges'] ??= (is_array($raw = setting('ux.settings_ranges', [])) ? $raw : []);
 
         $best = null;
         $bestLength = -1;
@@ -702,6 +889,9 @@ class SettingsRegistry
     private function flush(): void
     {
         Cache::forget('settings');
+
+        // وذاكرةُ الطلب تسقط معها: الحفظ قد يغيّر مفتاح ميزةٍ حاكمًا أو خريطة نطاق
+        $this->memo = [];
     }
 
     /** بادئة الإعداد ⟵ مفتاح الميزة الحاكم */

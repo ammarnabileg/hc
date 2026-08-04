@@ -20,8 +20,17 @@
                 {{ $setting->label_ar }}
                 @if ($setting->is_owner_only)<span title="{{ setting('admin.settings.partials.field.mjmwaa_mhmya_lmalk_almnsa', 'مجموعة محميّة لمالك المنصّة') }}"><x-icon name="lock" size="16" /></span>@endif
             </div>
-            {{-- إظهار مفتاح الإعداد (Key) بنمط «المجال.الميزة.المفتاح» --}}
-            <code class="text-xs" style="color: var(--text-muted)">{{ $setting->key }}</code>
+            {{--
+             | إظهار مفتاح الإعداد (Key) بنمط «المجال.الميزة.المفتاح».
+             |
+             | ⚠️ و`overflow-wrap: anywhere` شرطُ 2.15-ج لا زينة: المفتاح **كلمة
+             | واحدة بلا فراغ**، والالتفاف الافتراضيّ لا يكسر كلمةً — فمفتاحٌ مثل
+             | `admin.volunteer.analytics.kyanat_...` يقيس 490px داخل عمودٍ عرضُه
+             | 343px فيمدّ الصفحة: **148px تمريرٍ أفقيّ على 375px**. وقياسٌ
+             | بالمتصفّح أظهره بعد أن صارت الشاشة تفتح أصلًا (كانت تسقط بـTimeout
+             | قبل أن يصل أحدٌ إلى قياسها)، وطالت المفاتيح بنقل النصّ المحروق.
+            --}}
+            <code class="text-xs" style="color: var(--text-muted); overflow-wrap: anywhere">{{ $setting->key }}</code>
         </div>
 
         <div class="flex items-center gap-2">

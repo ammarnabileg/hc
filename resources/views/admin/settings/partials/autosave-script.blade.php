@@ -11,6 +11,9 @@
         'reset_done' => setting('admin.settings.partials.autosave_script.rjat_llaftrady', 'رجعت للافتراضيّ ✓'),
         'audit_by' => setting('admin.settings.partials.autosave_script.adlha', 'عدّلها'),
         'audit_none' => setting('admin.settings.partials.autosave_script.mafysh_tadyl_msjl', 'مافيش تعديل مسجَّل'),
+        'batch_failed' => setting('admin.settings.partials.autosave_script.mawsltsh_almjmwaa', 'مااوصلتش مفاتيح المجموعة — اضغط «حمّل المزيد» تاني.'),
+        'batch_progress' => setting('admin.settings.partials.autosave_script.zahr_mn', 'ظاهر :shown من :total'),
+        'batch_all' => setting('admin.settings.partials.autosave_script.klha_zahra', 'كلّها ظاهرة'),
     ];
 @endphp
 
@@ -38,7 +41,10 @@
         return input.type === 'checkbox' ? (input.checked ? 1 : 0) : input.value;
     }
 
-    document.querySelectorAll('.setting-row').forEach(function (row) {
+    function wire(row) {
+        if (row.dataset.wired === '1') { return; }
+        row.dataset.wired = '1';
+
         var input = row.querySelector('[data-setting-input]');
         var status = row.querySelector('[data-setting-status]');
         var example = row.querySelector('[data-setting-example]');
@@ -108,6 +114,99 @@
             trigger.addEventListener('mouseleave', function () { clearTimeout(hoverTimer); });
             trigger.addEventListener('click', showAudit);
         }
+    }
+
+    /*
+     | ⭐ الربط يُعاد على **الوارد الجديد** لا على الصفحة مرّةً واحدة: الحقول
+     | تصل دفعةً دفعة بعد تحميل الصفحة، وصفٌّ بلا ربطٍ حقلٌ لا يُحفَظ — وهذا
+     | أخطر ما يمكن أن يكسره التحميل الكسول. و`data-wired` يمنع ربطًا مزدوجًا
+     | يحفظ مرّتين.
+     */
+    function wireAll(scope) {
+        (scope || document).querySelectorAll('.setting-row').forEach(wire);
+    }
+
+    wireAll(document);
+
+    /*
+     | ⭐ التحميل الكسول لكارت المجموعة (2.15-ب) + «حمّل المزيد» تدريجيًّا
+     | (2.15-د ترفض «ترقيم الصفحات بدل التمرير التدريجيّ» — فلا أرقام صفحات).
+     | ولا مفتاح يُحذَف: العدّاد يقول كم ظهر من كم، والزرّ يبلغ الآخِر.
+     */
+    var BATCH_URL = '{{ route('admin.settings.batch') }}';
+
+    document.querySelectorAll('details[data-group-card]').forEach(function (card) {
+        var body = card.querySelector('[data-group-fields]');
+        var skeleton = card.querySelector('[data-group-skeleton]');
+        var errorBox = card.querySelector('[data-group-error]');
+        var moreRow = card.querySelector('[data-group-more-row]');
+        var moreBtn = card.querySelector('[data-group-more]');
+        var progress = card.querySelector('[data-group-progress]');
+        var busy = false;
+
+        if (!body) { return; }
+
+        function total() { return Number(card.getAttribute('data-total')) || 0; }
+        function loaded() { return Number(card.getAttribute('data-loaded')) || 0; }
+        function start() { return Number(card.getAttribute('data-start')) || 0; }
+
+        function sync() {
+            var shown = loaded() - start();
+            var done = loaded() >= total();
+
+            if (progress) {
+                progress.textContent = done
+                    ? HC_SETTINGS_TEXT.batch_all
+                    : HC_SETTINGS_TEXT.batch_progress
+                        .replace(':shown', String(shown))
+                        .replace(':total', String(total() - start()));
+            }
+
+            if (moreRow) { moreRow.classList.toggle('hidden', done); }
+        }
+
+        function load() {
+            if (busy || loaded() >= total()) { return; }
+            busy = true;
+
+            if (errorBox) { errorBox.classList.add('hidden'); }
+            if (skeleton) { skeleton.classList.remove('hidden'); }
+
+            var url = BATCH_URL
+                + '?tab=' + encodeURIComponent(card.getAttribute('data-tab') || '')
+                + '&group=' + encodeURIComponent(card.getAttribute('data-group') || '')
+                + '&q=' + encodeURIComponent(card.getAttribute('data-q') || '')
+                + '&offset=' + encodeURIComponent(String(loaded()));
+
+            fetch(url, { headers: { 'Accept': 'application/json' } })
+                .then(function (r) { return r.ok ? r.json() : Promise.reject(r); })
+                .then(function (data) {
+                    body.insertAdjacentHTML('beforeend', data.html);
+                    card.setAttribute('data-loaded', String(data.next));
+                    wireAll(body);
+                    sync();
+                })
+                .catch(function () {
+                    if (errorBox) {
+                        errorBox.textContent = HC_SETTINGS_TEXT.batch_failed;
+                        errorBox.classList.remove('hidden');
+                    }
+                })
+                .then(function () {
+                    busy = false;
+                    if (skeleton) { skeleton.classList.add('hidden'); }
+                });
+        }
+
+        /*
+         | ⚠️ `loaded() === 0` شرطٌ لا زينة: كروم يُطلِق `toggle` **عند تحليل**
+         | كارتٍ وُلِد مفتوحًا، فبلا الشرط كان الكارت المصيَّر من الخادم يجلب
+         | دفعةً ثانية فورًا بلا طلبٍ من أحد — 50 حقلًا بدل 25 في كلّ فتحة.
+         | والفتح بعد الإغلاق لا يعيد الجلب كذلك: محتواه في الـDOM أصلًا.
+         */
+        card.addEventListener('toggle', function () { if (card.open && loaded() === 0) { load(); } });
+        moreBtn && moreBtn.addEventListener('click', load);
+        sync();
     });
 
     // البحث الموحّد: النتيجة بمسارها الكامل، والنقر ينقل للحقل بتظليل مؤقّت خفيف

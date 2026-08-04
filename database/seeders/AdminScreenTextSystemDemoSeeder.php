@@ -277,6 +277,10 @@ class AdminScreenTextSystemDemoSeeder extends Seeder
             ['admin.settings.index.sfha_almalyat', 'system', '↗ صفحة الماليّات', 'string', '↗ صفحة الماليّات', 'نصّ في resources/views/admin/settings/index.blade.php'],
             ['admin.settings.index.tsdyr_json', 'system', 'تصدير JSON', 'string', 'تصدير JSON', 'نصّ في resources/views/admin/settings/index.blade.php'],
             ['admin.settings.partials.autosave_script.adlha', 'system', 'عدّلها', 'string', 'عدّلها', 'نصّ في resources/views/admin/settings/partials/autosave-script.blade.php'],
+            // ⭐ التحميل الكسول لكارت المجموعة (2.15-ب): نصوص الحالات الثلاث — تقدّمٌ وخطأٌ وانتهاء
+            ['admin.settings.partials.autosave_script.klha_zahra', 'system', 'كلّها ظاهرة', 'string', 'كلّها ظاهرة', 'نصّ في resources/views/admin/settings/partials/autosave-script.blade.php — يظهر حين تُحمَّل آخر دفعة في المجموعة.'],
+            ['admin.settings.partials.autosave_script.mawsltsh_almjmwaa', 'system', 'مااوصلتش مفاتيح المجموعة — اضغط «حمّل المزيد» تاني.', 'text', 'مااوصلتش مفاتيح المجموعة — اضغط «حمّل المزيد» تاني.', 'نصّ في resources/views/admin/settings/partials/autosave-script.blade.php — حالة الخطأ في جلب دفعةٍ (2.17-ب: ماذا حدث + ماذا تفعل).'],
+            ['admin.settings.partials.autosave_script.zahr_mn', 'system', 'ظاهر :shown من :total', 'string', 'ظاهر :shown من :total', 'نصّ في resources/views/admin/settings/partials/autosave-script.blade.php — عدّاد الدفعات: كم مفتاحًا ظهر من كم.'],
             ['admin.settings.partials.autosave_script.aktb_sbb_altadyl_alawl', 'system', 'اكتب سبب التعديل الأوّل', 'string', 'اكتب سبب التعديل الأوّل', 'نصّ في resources/views/admin/settings/partials/autosave-script.blade.php'],
             ['admin.settings.partials.autosave_script.maathfzsh', 'system', 'مااتحفظش', 'string', 'مااتحفظش', 'نصّ في resources/views/admin/settings/partials/autosave-script.blade.php'],
             ['admin.settings.partials.autosave_script.mafysh_tadyl_msjl', 'system', 'مافيش تعديل مسجَّل', 'string', 'مافيش تعديل مسجَّل', 'نصّ في resources/views/admin/settings/partials/autosave-script.blade.php'],
@@ -288,6 +292,7 @@ class AdminScreenTextSystemDemoSeeder extends Seeder
             ['admin.settings.partials.field.mjmwaa_mhmya_lmalk_almnsa', 'system', 'مجموعة محميّة لمالك المنصّة', 'string', 'مجموعة محميّة لمالك المنصّة', 'نصّ في resources/views/admin/settings/partials/field.blade.php'],
             ['admin.settings.partials.field.sbb_altadyl_ilzamy', 'system', 'سبب التعديل (إلزاميّ)', 'string', 'سبب التعديل (إلزاميّ)', 'نصّ في resources/views/admin/settings/partials/field.blade.php'],
             ['admin.settings.partials.group_card.fyha_mfatyh_lmalk_almnsa_whdh', 'system', 'فيها مفاتيح لمالك المنصّة وحده', 'string', 'فيها مفاتيح لمالك المنصّة وحده', 'نصّ في resources/views/admin/settings/partials/group-card.blade.php'],
+            ['admin.settings.partials.group_card.hml_almzyd', 'system', 'حمّل المزيد', 'string', 'حمّل المزيد', 'نصّ في resources/views/admin/settings/partials/group-card.blade.php — زرّ الدفعة التالية (تمريرٌ تدريجيّ لا ترقيم صفحات — 2.15-د).'],
             ['admin.settings.tabs.audit.alahtfaz_v1_ywma_llaam_bla_hd_llmaly', 'system', 'الاحتفاظ: :v1 يومًا للعامّ · بلا حدّ للماليّ', 'string', 'الاحتفاظ: :v1 يومًا للعامّ · بلا حدّ للماليّ', 'نصّ في resources/views/admin/settings/tabs/audit.blade.php'],
             ['admin.settings.tabs.audit.almnfdh', 'system', 'المنفِّذ', 'string', 'المنفِّذ', 'نصّ في resources/views/admin/settings/tabs/audit.blade.php'],
             ['admin.settings.tabs.audit.almwrd_alfal', 'system', 'المورد.الفعل', 'string', 'المورد.الفعل', 'نصّ في resources/views/admin/settings/tabs/audit.blade.php'],

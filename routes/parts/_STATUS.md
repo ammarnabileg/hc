@@ -22,7 +22,7 @@
   - `admin-countries.php` — 8 مسارًا · 3 حارس صلاحيّة.
   - `admin-ops.php` — 27 مسارًا · 17 حارس صلاحيّة.
   - `admin-screens24.php` — 40 مسارًا · البادئة `admin.` · 23 حارس صلاحيّة.
-  - `admin-system.php` — 89 مسارًا · البادئة `admin.` · 41 حارس صلاحيّة.
+  - `admin-system.php` — 90 مسارًا · البادئة `admin.` · 41 حارس صلاحيّة.
   - `admin-volunteer.php` — 80 مسارًا · البادئة `admin.` · `volunteer.` · `gamification.` · `rewards.` · `events.` · 75 حارس صلاحيّة.
   - `announcements.php` — 9 مسارًا · 0 حارس صلاحيّة.
   - `availability.php` — 10 مسارًا · البادئة `admin.` · 2 حارس صلاحيّة.
@@ -112,6 +112,7 @@
 - **آخر نقطة وصلنا لها:** 2026-08-03 — ستّة مسارات مقيسة بطلبات HTTP فعليّة
   (`start` · `begin` · `take` · `answer` · `submit` · `result`) مقفولةً ومفتوحة.
 - **الخطوة الجاية:** —
+- **(2026-08-04)** `admin-system.php`: سطرٌ واحد مضاف — `GET /admin/settings/batch` باسم `admin.settings.batch` تحت `permission:settings_general.view` نفسها (دفعة مفاتيح مجموعة — التحميل الكسول 2.15-ب).
 <!-- بيدك:نهاية:الجاري -->
 
 ## 🔗 التبعيّات والملفّات المهمّة

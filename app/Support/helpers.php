@@ -6,7 +6,73 @@ use App\Models\SettingOverride;
 use App\Models\User;
 use App\Services\Features\FeatureGate;
 use App\Services\Ux\ViewMode;
+use Illuminate\Cache\Events\CacheFlushed;
+use Illuminate\Cache\Events\KeyForgotten;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Event;
+
+if (! function_exists('setting_map')) {
+    /**
+     * ⚡ خريطة الإعدادات كلّها — **تُقرأ مرّةً واحدة في الطلب**.
+     *
+     * لماذا؟ `Cache::rememberForever` **لا تتذكّر داخل الطلب**: كلّ نداءٍ يذهب
+     * لخزّان الكاش. وخزّاننا `database` (‏`CACHE_STORE=database`)، فالنداء الواحد
+     * = استعلامٌ + فكّ تسلسل لخريطة **12,177** مفتاحًا. القياس: **9.4ms للنداء
+     * الواحد**؛ وشاشةٌ إداريّةٌ فارغةٌ من الحقول (تابّ سجلّ التدقيق) كانت تدفع
+     * **3.2 ثانية** من نداءات هيكل الصفحة وحدها. فالذاكرة هنا ليست تحسينًا
+     * تجميليًّا بل هي الفارق بين شاشةٍ تفتح وشاشةٍ تسقط بـTimeout.
+     *
+     * والإبطال **آليّ لا يدويّ**: كلّ مَن يكتب إعدادًا في المنصّة ينادي
+     * `Cache::forget('settings')` (أو `Cache::flush()`)، وكلاهما يُطلِق حدثًا
+     * نلتقطه هنا فتسقط الذاكرة — فلا يقرأ الطلبُ قيمةً قديمة بعد حفظٍ فيه.
+     *
+     * @param  bool  $forget  إسقاط الذاكرة (يناديها مستمعُ الحدث)
+     * @return array<string, array{value:?string, type:?string}>
+     */
+    function setting_map(bool $forget = false): array
+    {
+        static $memo = null;
+        static $boundTo = null;
+
+        if ($forget) {
+            $memo = null;
+
+            return [];
+        }
+
+        /*
+         | الذاكرة مربوطة **بنسخة التطبيق** لا بعمر العمليّة: مجموعة الاختبارات
+         | تبني تطبيقًا جديدًا لكلّ اختبار في العمليّة نفسها، فذاكرةٌ ساكنة بلا هذا
+         | الرباط كانت ستُسرِّب إعدادات اختبارٍ إلى الذي يليه — وتُسقِط مستمعَ
+         | الإبطال معه لأنّه مسجَّل على التطبيق القديم.
+         */
+        $app = app();
+
+        if ($boundTo !== $app) {
+            $boundTo = $app;
+            $memo = null;
+
+            Event::listen(KeyForgotten::class, function (KeyForgotten $event): void {
+                if ($event->key === 'settings') {
+                    setting_map(true);
+                }
+            });
+
+            Event::listen(CacheFlushed::class, fn () => setting_map(true));
+        }
+
+        if ($memo !== null) {
+            return $memo;
+        }
+
+        return $memo = Cache::rememberForever('settings', function () {
+            return Setting::query()
+                ->get(['key', 'value', 'type'])
+                ->mapWithKeys(fn ($row) => [$row->key => ['value' => $row->value, 'type' => $row->type]])
+                ->all();
+        });
+    }
+}
 
 if (! function_exists('setting')) {
     /**
@@ -17,12 +83,7 @@ if (! function_exists('setting')) {
      */
     function setting(string $key, mixed $default = null, ?int $entityId = null): mixed
     {
-        $rows = Cache::rememberForever('settings', function () {
-            return Setting::query()
-                ->get(['key', 'value', 'type'])
-                ->mapWithKeys(fn ($row) => [$row->key => ['value' => $row->value, 'type' => $row->type]])
-                ->all();
-        });
+        $rows = setting_map();
 
         $value = $rows[$key]['value'] ?? null;
         $type = $rows[$key]['type'] ?? null;

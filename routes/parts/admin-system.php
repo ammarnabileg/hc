@@ -184,6 +184,8 @@ Route::middleware(['auth', 'admin.panel'])->prefix('admin')->name('admin.')->gro
     Route::middleware('permission:settings_general.view')->group(function () {
         Route::get('/settings', [SettingsAdminController::class, 'index'])->name('settings.index');
         Route::get('/settings/search', [SettingsAdminController::class, 'search'])->name('settings.search');
+        // دفعةُ مفاتيح مجموعة — التحميل الكسول لكارت المجموعة (2.15-ب)
+        Route::get('/settings/batch', [SettingsAdminController::class, 'groupBatch'])->name('settings.batch');
         Route::get('/settings/audit', [SettingsAdminController::class, 'audit'])->name('settings.audit');
         Route::get('/settings/export', [SettingsAdminController::class, 'export'])->name('settings.export');
     });
