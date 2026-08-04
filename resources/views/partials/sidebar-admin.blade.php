@@ -39,11 +39,17 @@
         return true;
     };
 
-    // بوّابات الصفحات ذات التابات — نسخةٌ حرفيّةٌ ممّا تحرسه المِدل-وير على المسار
+    /*
+     | بوّابات الصفحات ذات التابات — نسخةٌ حرفيّةٌ ممّا تحرسه المِدل-وير على المسار.
+     |
+     | ⭐ وبوّابتا الإحصائيّات والتلعيب **تُقرآن من مصدر الحارس نفسه** لا تُنسخان
+     | بالحرف: النسخة اليدويّة تشيخ عند أوّل تابٍّ جديد، فيعود البند مخفيًّا عن
+     | صاحبه — وهو العطب الذي كان قائمًا (باب `/admin/stats` أضيق من محتواه).
+     */
     $certGate = 'certificate_ledger.view|certificate_templates.view|accreditations.view';
-    $gameGate = 'xp_rules.view|badges.view|wars_settings.view|celebrations.view|reward_questions.view';
+    $gameGate = implode('|', \App\Http\Controllers\Admin\GamificationController::GATE_KEYS);
     $storeGate = 'store_products.list|bundles.list|coupons.list|orders.list';
-    $statsGate = 'reports_users.view';
+    $statsGate = implode('|', \App\Services\Admin\System\StatsService::gateKeys());
 
     $filter = function (array $items) use ($can) {
         return collect($items)
@@ -114,8 +120,9 @@
         // 🎮 التلعيب والتحديات (12.10 — موسّع) — أحد عشر بندًا بترتيب 12.0
         ['🎮', 'التلعيب والتحديات', $filter([
             ['XP والتذاكر', 'admin.gamification.index', 'xp_rules.view', ['tab' => 'xp']],
-            ['الستريك ونادي الخامسة', 'admin.gamification.index', ['streaks.view', $gameGate], ['tab' => 'streaks']],
-            ['الليدر بورد', 'admin.gamification.index', ['leaderboards.view', $gameGate], ['tab' => 'leaderboard']],
+            // المفتاح الإداريّ أو الشخصيّ — 12.2.2 تفرّق بينهما (`streaks.list` ALL · `streaks.view` SELF)
+            ['الستريك ونادي الخامسة', 'admin.gamification.index', ['streaks.view|streaks.list', $gameGate], ['tab' => 'streaks']],
+            ['الليدر بورد', 'admin.gamification.index', ['leaderboards.view|leaderboards.export', $gameGate], ['tab' => 'leaderboard']],
             ['الشارات والإنجازات', 'admin.gamification.index', 'badges.view', ['tab' => 'badges']],
             /*
              | ⛔ «الألعاب» ملغاة بقرار المالك (الدستور v5.3 — 7.5)، فسقط بندها من
@@ -186,10 +193,11 @@
             ['التفاعل', 'admin.stats.index', ['reports_engagement.view', $statsGate], ['tab' => 'engagement']],
             ['الحضور', 'admin.stats.index', ['reports_engagement.view', $statsGate], ['tab' => 'attendance']],
             ['الحروب', 'admin.stats.index', ['reports_engagement.view', $statsGate], ['tab' => 'wars']],
-            // التطوّع والشهادات: لوحتاهما مبنيّتان خارج صفحة الإحصائيّات لسّه،
-            // فالبند يفتح لوحته الحقيقيّة بدل أن يبقى بندًا في الخريطة بلا مدخل.
-            ['التطوّع', 'admin.volunteer.analytics', 'reports_volunteer.view'],
-            ['الشهادات', 'admin.certificates.index', ['reports_certificates.view', $certGate], ['tab' => 'ledger']],
+            // ⭐ تابّا التطوّع والشهادات مبنيّان الآن داخل صفحة الإحصائيّات نفسها
+            // (24.3-خامسًا)، فالبند يفتح **تابَّه** لا لوحةً أخرى. ومدخلا اللوحتين
+            // باقيان في مجموعتيهما («تحليلات التطوّع» · «سجلّ الصادر») فلا يتيتّم شيء.
+            ['التطوّع', 'admin.stats.index', ['reports_volunteer.view', $statsGate], ['tab' => 'volunteer']],
+            ['الشهادات', 'admin.stats.index', ['reports_certificates.view', $statsGate], ['tab' => 'certificates']],
             // التقارير المجدولة وسجلّ إرسالها (24.3-خامسًا)
             ['التقارير المجدولة', 'admin.report-schedules.index', 'report_schedules.list'],
             // ⬇︎ خارج نصّ 12.0: مصادر الاكتساب (21.3)

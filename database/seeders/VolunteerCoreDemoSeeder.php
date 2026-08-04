@@ -18,9 +18,9 @@ use App\Models\User;
 use App\Models\WorkItem;
 use App\Models\WorkPackage;
 use App\Services\Volunteer\Tasks\TaskStatus;
+use Database\Seeders\Concerns\GrantsWithinMatrixCeiling;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\DB;
 
 /**
  * بيانات تجريبيّة لمجال «لوحة التطوّع: النظرة العامّة والمهام» (24.4 · 23).
@@ -29,6 +29,9 @@ use Illuminate\Support\Facades\DB;
  */
 class VolunteerCoreDemoSeeder extends Seeder
 {
+    // كتابةُ الإسناد تمرّ بنقطة القصّ نفسها التي يمرّ بها مسار الإنتاج (12.2.2)
+    use GrantsWithinMatrixCeiling;
+
     public function run(): void
     {
         $this->settings();
@@ -98,23 +101,25 @@ class VolunteerCoreDemoSeeder extends Seeder
 
         $permissionIds = Permission::query()->whereIn('key', $keys)->pluck('id')->all();
 
+        /*
+         | ⭐ الكتابة بنقطة القصّ (12.2.2) لا بـ`DB::table()` مباشرةً: كانت هذه
+         | الحلقة تكتب `todos.create@ALL` لمشرف عام التطوّع بينما نطاق المفتاح
+         | **SELF وحده** («التودو قائمةٌ شخصيّة» — 12.2.2)، فتُقصّ الآن.
+         |
+         | و`matrixFloor` هنا **لازم لا زائد**: `public_board.view/list` نطاقهما
+         | **ALL وحده** بنصّ 12.2.2 («لوحة **مفتوحة لكلّ المتطوّعين**» · «البنود
+         | المتاحة للسحب مع عدّاد السقف»)، فطلبُهما بـTEAM/SELF لا يجد نطاقًا
+         | أضيق — وإسقاطهما يقفل اللوحة في وجه أصحابها ويخالف 12.2.3-ب-16 الذي
+         | يعطي الكوردنيتور `public_board.assign`. فتُكتَب بأضيق ما تسمح به
+         | المصفوفة (ALL) — وهو نفسه ما ينصّ عليه وصفُ المفتاح.
+         */
         foreach ($scopeByRole as $roleKey => $scope) {
-            $role = Role::query()->where('key', $roleKey)->first();
-
-            if (! $role || $permissionIds === []) {
-                continue;
-            }
-
-            $rows = array_map(fn ($id) => [
-                'role_id' => $role->id,
-                'permission_id' => $id,
-                'scope' => $scope,
-                'effect' => 'allow',
-                'created_at' => now(),
-                'updated_at' => now(),
-            ], $permissionIds);
-
-            DB::table('permission_role')->upsert($rows, ['role_id', 'permission_id', 'scope'], ['effect', 'updated_at']);
+            $this->insertRows(
+                Role::query()->where('key', $roleKey)->value('id'),
+                $permissionIds,
+                $scope,
+                matrixFloor: true,
+            );
         }
     }
 

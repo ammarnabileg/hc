@@ -48,6 +48,12 @@ class ImageTemplateFields
         'admin_notes', 'internal_notes', 'password', 'national_id', 'birthdate',
     ];
 
+    /** مفاتيح غرض القالب — يقرؤها الكود، ومسمّياتها العربيّة في الإعدادات */
+    public const PURPOSE_KEYS = ['marketing', 'leaderboard', 'achievement', 'volunteer_card'];
+
+    /** لغتا القالب (13.4-ر) */
+    public const LANGUAGE_KEYS = ['ar', 'en'];
+
     /** @return array<string,string> */
     public function all(): array
     {
@@ -125,6 +131,36 @@ class ImageTemplateFields
             'volunteers' => 'متاح للمتطوّعين',
             'everyone' => 'متاح للجميع',
         ];
+    }
+
+    /**
+     * أغراض القالب — العمود `image_templates.purpose` كان يُصادَق عليه بلا حقلٍ
+     * يملؤه، فتبقى قيمته «marketing» أبدًا مهما صمّم المصمّم. والمسمّيات إعدادٌ
+     * لا نصٌّ محروق (2.13)، والمفاتيح وحدها ثابتة لأنّ الكود يقرؤها.
+     *
+     * @return array<string,string>
+     */
+    public function purposes(): array
+    {
+        $configured = setting('images.purposes');
+
+        return is_array($configured) && $configured !== []
+            ? $configured
+            : array_combine(self::PURPOSE_KEYS, self::PURPOSE_KEYS);
+    }
+
+    /**
+     * لغة القالب — نسختان (ع/إ) كما في بطاقة المتطوّع (13.4-ر).
+     *
+     * @return array<string,string>
+     */
+    public function languages(): array
+    {
+        $configured = setting('images.languages');
+
+        return is_array($configured) && $configured !== []
+            ? $configured
+            : array_combine(self::LANGUAGE_KEYS, self::LANGUAGE_KEYS);
     }
 
     /** الترتيب على XP — يُحسب لحظةَ اللقطة، ولذلك كلّ صورة تحمل تاريخها (12.14-هـ) */

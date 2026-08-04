@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\Permission;
 use App\Models\Role;
 use App\Support\Access\PermissionExpander;
+use Database\Seeders\Concerns\GrantsWithinMatrixCeiling;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
@@ -14,6 +15,13 @@ use Illuminate\Support\Facades\DB;
  */
 class RolePermissionSeeder extends Seeder
 {
+    /*
+     | ⭐ نقطة القصّ **مشتركة** الآن مع سيدرات العرض: كانت هنا وحدها فصار مسار
+     | الإنتاج صفرًا، وبقيت سيدرات العرض تكتب من بابٍ خلفيّ فوق السقف.
+     | والحكم واحدٌ لا حكمان — وإلّا لعاد الخرق مع أوّل `DemoSeeder`.
+     */
+    use GrantsWithinMatrixCeiling;
+
     public function run(): void
     {
         $expander = app(PermissionExpander::class);
@@ -65,8 +73,36 @@ class RolePermissionSeeder extends Seeder
             'coordinator' => 'SELF',
         ];
 
+        /*
+         | ⭐⭐ **فتحُ «غائب» محصورٌ بثلاثة بوزشنات — نصًّا** (23 — القسم 6).
+         |
+         | النصّ الحاكم حرفيًّا: «**مَن يضيفه:** **مشرف عام التطوّع** أو **مشرف
+         | المسار** أو **دايركتور الكيان** — لا الشخص نفسه (منعًا للتهرّب)».
+         |
+         | وكان المورد `delegations` يُمنَح لكلّ أدوار التطوّع بنطاقاتها، فيأخذ
+         | **السوبرفايزر** `delegations.create@SUBTREE` و**التيم ليدر**
+         | `delegations.create@TEAM` — وكلاهما خارج الثلاثة. وقائمةُ البوزشنات في
+         | مسار الإضافة كانت تردّهما فعلًا، لكنّ **صلاحيّةً أوسع من سندها ثغرةٌ
+         | تنتظر حارسًا يسقط**: يكفي أن يُضاف مسارٌ ثانٍ للإضافة أو تُنسى القائمة
+         | فتنفتح القدرة بلا نصّ.
+         |
+         | ⚠️ والحصر على **`create` وحدها**: 23-6 يقيّد «مَن **يضيفه**» لا مَن
+         | يراه. و`delegations.list` («استعراض حالات «غائب» والبدلاء المفوَّضين»)
+         | و`delegations.view` تبقيان لكلّ الأدوار كما تسمح 12.2.2 — فالوسم يظهر
+         | «معلَّمًا في الهيكل والبروفايل … فيعرف الجميع لمن يرجعون» (23-6).
+         | ولا يُسحَب من الثلاثة شيء: `volunteer_gm@ALL` و`track_supervisor@TRACK`
+         | و`director@ENTITY` يأخذون المورد كاملًا.
+         */
+        $absenceAdders = ['volunteer_gm', 'track_supervisor', 'director'];
+
         foreach ($scaleByRole as $roleKey => $scope) {
-            $this->grantResources($roleKey, $volunteerResources, $scope, $expander);
+            $this->grantResources(
+                $roleKey,
+                $volunteerResources,
+                $scope,
+                $expander,
+                except: in_array($roleKey, $absenceAdders, true) ? [] : ['delegations.create'],
+            );
         }
 
         /*
@@ -289,107 +325,6 @@ class RolePermissionSeeder extends Seeder
 
         foreach ($byScope as $effective => $ids) {
             $this->insertRows($role->id, $ids, (string) $effective);
-        }
-    }
-
-    /** أضيق نطاقٍ تسمح به المصفوفة لهذا المفتاح */
-    private function narrowest(array $allowed): ?string
-    {
-        $order = config('access.scopes');
-
-        $candidates = array_values(array_filter($allowed, fn ($s) => in_array($s, $order, true)));
-
-        if ($candidates === []) {
-            return null;
-        }
-
-        usort($candidates, fn ($a, $b) => array_search($a, $order, true) <=> array_search($b, $order, true));
-
-        return $candidates[0];
-    }
-
-    /** أوسع نطاق مسموح لا يتجاوز المطلوب */
-    private function resolveScope(string $requested, array $allowed): ?string
-    {
-        $order = config('access.scopes');
-
-        if ($allowed === []) {
-            return $requested;
-        }
-
-        $max = array_search($requested, $order, true);
-        $candidates = array_filter($allowed, fn ($s) => array_search($s, $order, true) !== false
-            && array_search($s, $order, true) <= $max);
-
-        if ($candidates === []) {
-            return null;
-        }
-
-        usort($candidates, fn ($a, $b) => array_search($b, $order, true) <=> array_search($a, $order, true));
-
-        return $candidates[0];
-    }
-
-    /**
-     * ⭐⭐ **البوّابة الأخيرة: لا صفَّ يُكتَب فوق سقف المصفوفة** (12.2.2).
-     *
-     * كانت `grantAll()` و`grantReadOnly()` تكتبان `ALL` على كلّ مفتاح بلا مرورٍ
-     * بـ`resolveScope()`، فبقي في الإسنادات المزروعة مئاتُ الصفوف نطاقُها **خارج**
-     * `allowed_scopes` — مالك المنصّة والأدمن العامّ والمدقّق أكثرها.
-     *
-     * والحسم أنّ **النطاق يُقصّ إلى السقف ولا يُسحَب المنح**، والنصّان يُقرآن معًا:
-     *  • **12.2.3** تحدّد أيّ الموارد يغطّيها الدور ⟵ فسحبُ المنح يخالفها.
-     *  • **12.2.2** تحدّد أقصى نطاقٍ للمفتاح ⟵ فإعطاؤه نطاقًا فوقه يخالفها.
-     * فيبقى الصفّ بمورده ويُقصّ نطاقُه — ويُصان النصّان معًا.
-     *
-     * و**مالك المنصّة** ليس استثناءً: سلطته بنيويّة (12.2.1-ز-5) ويتخطّى الفحص
-     * أصلًا في `AccessEngine::evaluate()`، فقصُّ صفوفه لا ينقص من قدرته شيئًا
-     * ويُبقي الجدول متّسقًا مع المصفوفة صفًّا صفًّا.
-     *
-     * والقصّ هنا لا في المُنادين: فهذه هي **النقطة الوحيدة** التي تكتب في
-     * `permission_role` في هذا السيدر — فلا يبقى بابٌ خلفيّ لصفٍّ فوق السقف.
-     */
-    private function insertRows(int $roleId, array $permissionIds, string $scope): void
-    {
-        $allowedById = Permission::query()
-            ->whereIn('id', $permissionIds)
-            ->pluck('allowed_scopes', 'id');
-
-        $byScope = [];
-
-        foreach ($permissionIds as $id) {
-            $allowed = $allowedById[$id] ?? [];
-            $allowed = is_array($allowed) ? $allowed : (json_decode((string) $allowed, true) ?: []);
-
-            // صلاحيّة بلا سقفٍ منصوص تقبل الستّة — فيُكتَب المطلوب كما هو
-            $effective = $allowed === [] ? $scope : $this->resolveScope($scope, $allowed);
-
-            if ($effective === null) {
-                continue;
-            }
-
-            $byScope[$effective][] = $id;
-        }
-
-        foreach ($byScope as $effective => $ids) {
-            $this->writeRows($roleId, $ids, (string) $effective);
-        }
-    }
-
-    private function writeRows(int $roleId, array $permissionIds, string $scope): void
-    {
-        foreach (array_chunk($permissionIds, 400) as $chunk) {
-            $payload = array_map(fn ($id) => [
-                'role_id' => $roleId,
-                'permission_id' => $id,
-                'scope' => $scope,
-                'effect' => 'allow',
-                'conditions' => null,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ], $chunk);
-
-            DB::table('permission_role')->upsert($payload, ['role_id', 'permission_id', 'scope'], ['effect', 'updated_at']);
         }
     }
 }

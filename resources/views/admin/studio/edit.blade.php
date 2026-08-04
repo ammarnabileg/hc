@@ -25,13 +25,15 @@
                 <h2 class="font-bold text-sm">الأساسيّات</h2>
                 <x-form.input name="name" label="اسم القالب" :value="$template->name" required />
 
+                {{-- المقاس الجاهز عمودٌ في القاعدة (`preset`) — فيُرسَل باسمه لا كمساعدٍ بصريّ --}}
                 <label class="block text-sm">
                     <span class="block mb-1">مقاس جاهز</span>
-                    <select id="preset-select" class="w-full rounded-xl px-3 py-2 text-sm"
+                    <select name="preset" id="preset-select" class="w-full rounded-xl px-3 py-2 text-sm"
                             style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
                         <option value="">مخصّص</option>
-                        @foreach ($presets as $preset)
-                            <option value="{{ $preset['width'] }}x{{ $preset['height'] }}">{{ $preset['label'] }} — {{ $preset['width'] }}×{{ $preset['height'] }}</option>
+                        @foreach ($presets as $key => $preset)
+                            <option value="{{ $key }}" data-size="{{ $preset['width'] }}x{{ $preset['height'] }}"
+                                    @selected($template->preset === $key)>{{ $preset['label'] }} — {{ $preset['width'] }}×{{ $preset['height'] }}</option>
                         @endforeach
                     </select>
                     {{-- ⭐ تغيير المقاس يعيد ترتيب الطبقات نسبيًّا فلا يفسد التصميم --}}
@@ -53,9 +55,85 @@
                     </select>
                 </label>
 
+                <div class="grid grid-cols-2 gap-2">
+                    {{-- العمود `purpose` كان مُصادَقًا عليه بلا حقلٍ يملؤه — فيبقى «تسويق» أبدًا --}}
+                    <label class="block text-sm">
+                        <span class="block mb-1">{{ setting('images.template.purpose_label') }}</span>
+                        <select name="purpose" class="w-full rounded-xl px-3 py-2 text-sm"
+                                style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
+                            @foreach ($purposes as $key => $label)
+                                <option value="{{ $key }}" @selected($template->purpose === $key)>{{ $label }}</option>
+                            @endforeach
+                        </select>
+                    </label>
+
+                    {{-- نسختان (ع/إ) — 13.4-ر --}}
+                    <label class="block text-sm">
+                        <span class="block mb-1">{{ setting('images.template.language_label') }}</span>
+                        <select name="language" class="w-full rounded-xl px-3 py-2 text-sm"
+                                style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
+                            @foreach ($languages as $key => $label)
+                                <option value="{{ $key }}" @selected($template->language === $key)>{{ $label }}</option>
+                            @endforeach
+                        </select>
+                    </label>
+                </div>
+
                 <label class="flex items-center gap-2 text-sm">
                     <input type="checkbox" name="is_active" value="1" @checked($template->is_active)> مفعَّل
                 </label>
+            </div>
+
+            {{--
+              ⭐ **رفع الفريم/الخلفيّة** (12.14-أ): «رفع الفريم/الخلفيّة كصورة،
+              وتُبنى فوقها الطبقات». والمنتقي هو **بوب-أب مكتبة الوسائط نفسه**
+              المستعمَل في التدريبات والمسارات — مصدرٌ واحد لا نسختان (2.14-ب).
+            --}}
+            <div class="card p-4 space-y-3">
+                <h2 class="font-bold text-sm">{{ setting('images.template.frame_label') }}</h2>
+
+                <x-form.input name="frame_path" label="{{ setting('images.template.frame_label') }}"
+                              :value="$template->frame_path"
+                              hint="{{ setting('images.template.frame_hint') }}" />
+
+                <div class="flex flex-wrap items-center gap-2">
+                    <button type="button" data-media-pick="frame_path"
+                            class="rounded-xl px-3 py-1.5 text-xs"
+                            style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
+                        <x-icon name="library" size="14" /> {{ setting('media.picker.cta') }}
+                    </button>
+                    <button type="button" data-frame-clear
+                            class="rounded-xl px-3 py-1.5 text-xs"
+                            style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
+                        {{ setting('images.template.frame_clear') }}
+                    </button>
+                    <span data-media-preview="frame_path" class="inline-flex items-center">
+                        @if ($frameUrl)
+                            <img src="{{ $frameUrl }}" alt="{{ setting('images.template.frame_label') }}"
+                                 class="w-20 h-20 object-cover rounded-lg">
+                        @endif
+                    </span>
+                </div>
+            </div>
+
+            {{-- «حفظ باسم · نسخة · تفعيل/إيقاف · **مجلّدات ووسوم** · بحث» (12.14-أ) --}}
+            <div class="card p-4 space-y-3">
+                <h2 class="font-bold text-sm">{{ setting('images.template.organize_label') }}</h2>
+
+                <x-form.input name="folders" label="{{ setting('images.template.folders_label') }}"
+                              :value="implode(',', (array) ($template->folders ?? []))"
+                              hint="{{ setting('images.template.folders_hint') }}" list="studio-folder-list" />
+
+                <x-form.input name="tags" label="{{ setting('images.template.tags_label') }}"
+                              :value="implode(',', (array) ($template->tags ?? []))"
+                              hint="{{ setting('images.template.tags_hint') }}" list="studio-tag-list" />
+
+                <datalist id="studio-folder-list">
+                    @foreach ($folderList as $folder)<option value="{{ $folder }}"></option>@endforeach
+                </datalist>
+                <datalist id="studio-tag-list">
+                    @foreach ($tagList as $tag)<option value="{{ $tag }}"></option>@endforeach
+                </datalist>
             </div>
 
             {{-- لوحة الطبقات: إظهار/إخفاء · رفع/إنزال · قفل (12.14-أ) --}}
@@ -120,6 +198,9 @@
             </div>
         </div>
     </div>
+
+    {{-- ⭐ نفس بوب-أب «اختَر من المكتبة / ارفع جديد» — لا منتقي وسائط ثانٍ (2.14-ب) --}}
+    @include('admin.courses.partials.media-picker-modal')
 @endsection
 
 @push('scripts')
@@ -252,10 +333,20 @@
 
     var preset = document.getElementById('preset-select');
     preset && preset.addEventListener('change', function () {
-        if (!preset.value) { return; }
-        var parts = preset.value.split('x');
+        var size = preset.options[preset.selectedIndex].getAttribute('data-size');
+        if (!size) { return; }
+        var parts = size.split('x');
         document.getElementById('width_px').value = parts[0];
         document.getElementById('height_px').value = parts[1];
+    });
+
+    // شيل الفريم: تفريغ الحقل ومعاينته معًا — فلا تبقى صورة تقول إنّ ثمّة فريمًا
+    var frameClear = document.querySelector('[data-frame-clear]');
+    frameClear && frameClear.addEventListener('click', function () {
+        var field = document.getElementById('frame_path');
+        if (field) { field.value = ''; }
+        var preview = document.querySelector('[data-media-preview="frame_path"]');
+        if (preview) { preview.innerHTML = ''; }
     });
 
     var previewUser = document.getElementById('preview-user');

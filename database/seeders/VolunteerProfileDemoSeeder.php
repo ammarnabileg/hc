@@ -5,11 +5,11 @@ namespace Database\Seeders;
 use App\Models\ConsentRequest;
 use App\Models\EmergencyContact;
 use App\Models\Kudos;
-use App\Models\Permission;
 use App\Models\Role;
 use App\Models\Setting;
 use App\Models\User;
 use App\Models\UserPrivacySetting;
+use Database\Seeders\Concerns\GrantsWithinMatrixCeiling;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -24,6 +24,9 @@ use Illuminate\Support\Facades\DB;
  */
 class VolunteerProfileDemoSeeder extends Seeder
 {
+    // كتابةُ الإسناد تمرّ بنقطة القصّ نفسها التي يمرّ بها مسار الإنتاج (12.2.2)
+    use GrantsWithinMatrixCeiling;
+
     public function run(): void
     {
         $this->settings();
@@ -153,30 +156,13 @@ class VolunteerProfileDemoSeeder extends Seeder
             ],
         ];
 
+        /*
+         | ⭐ الكتابة بنقطة القصّ نفسها (12.2.2): كانت الحلقة تكتب النطاق المطلوب
+         | كما هو، فيدخل من هذا الباب الخلفيّ صفٌّ فوق سقف المصفوفة بينما مسار
+         | الإنتاج (`RolePermissionSeeder`) يقصّه. والحكم واحدٌ لا حكمان.
+         */
         foreach ($grants as $roleKey => $permissions) {
-            $role = Role::where('key', $roleKey)->first();
-
-            if (! $role) {
-                continue;
-            }
-
-            foreach ($permissions as $permissionKey => $scope) {
-                $permission = Permission::where('key', $permissionKey)->first();
-
-                if (! $permission) {
-                    continue;
-                }
-
-                DB::table('permission_role')->upsert([[
-                    'role_id' => $role->id,
-                    'permission_id' => $permission->id,
-                    'scope' => $scope,
-                    'effect' => 'allow',
-                    'conditions' => null,
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]], ['role_id', 'permission_id', 'scope'], ['effect', 'updated_at']);
-            }
+            $this->grantKeysWithinCeiling(Role::where('key', $roleKey)->value('id'), $permissions);
         }
     }
 

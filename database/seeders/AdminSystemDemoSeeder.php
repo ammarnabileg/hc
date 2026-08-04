@@ -19,6 +19,7 @@ use App\Models\User;
 use App\Services\Features\FeatureCatalog;
 use App\Services\Features\FeatureGate;
 use App\Support\Access\PermissionExpander;
+use Database\Seeders\Concerns\GrantsWithinMatrixCeiling;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -33,6 +34,9 @@ use Illuminate\Support\Facades\Schema;
  */
 class AdminSystemDemoSeeder extends Seeder
 {
+    // كتابةُ الإسناد تمرّ بنقطة القصّ نفسها التي يمرّ بها مسار الإنتاج (12.2.2)
+    use GrantsWithinMatrixCeiling;
+
     public function run(): void
     {
         $this->permissions();
@@ -88,18 +92,15 @@ class AdminSystemDemoSeeder extends Seeder
                 ->whereIn('resource', $resources)
                 // ⭐ منع تصعيد الامتياز: غير المالك لا يأخذ owner-only مهما كان الدور
                 ->when($roleKey !== 'platform_owner', fn ($q) => $q->where('is_owner_only', false))
-                ->pluck('id');
+                ->pluck('id')
+                ->all();
 
-            foreach ($ids as $id) {
-                DB::table('permission_role')->insertOrIgnore([
-                    'role_id' => $role->id,
-                    'permission_id' => $id,
-                    'scope' => 'ALL',
-                    'effect' => 'allow',
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]);
-            }
+            /*
+             | ⭐ `scope = ALL` كان يُكتَب لكلّ مفتاحٍ بلا مرورٍ بالمصفوفة —
+             | وهو عين ما صولح في مسار الإنتاج (12.2.2). فتمرّ الكتابة الآن
+             | بنقطة القصّ نفسها: المنح يبقى بمورده ويُقصّ نطاقُه إلى السقف.
+             */
+            $this->insertRows($role->id, $ids, 'ALL');
         }
 
         app(PermissionExpander::class);
@@ -207,6 +208,38 @@ class AdminSystemDemoSeeder extends Seeder
             ['exports.fallback_note', 'stats', 'ملاحظة تعذّر توليد الصيغة المطلوبة', 'string', 'تعذّر توليد ملفّ :format فبعتناه CSV.', false],
             ['stats.cache_minutes', 'stats', 'مدّة كاش التقرير (دقائق)', 'number', '10', false],
             ['stats.hide_finance_tab', 'stats', 'إخفاء التاب الماليّ عن غير المخوَّلين', 'bool', '1', true],
+            ['stats.forbidden.message', 'stats', 'رسالة الردّ حين لا تابَّ يملكه المستخدم', 'string', 'ليس لديك صلاحيّة الوصول لهذه الصفحة.', false],
+            ['stats.empty.message', 'stats', 'نصّ الحالة الفارغة في التقارير', 'string', 'لا بيانات في هذه الفترة — جرّب فترة أوسع', false],
+            ['stats.compare.hint', 'stats', 'تفسير خطّ المقارنة تحت الرسم', 'string', 'الخطّ المتقطّع = الفترة السابقة.', false],
+
+            /*
+             | ⭐ تابّا **التطوّع** و**الشهادات** (24.3-خامسًا) — كانا بندين في
+             | الخريطة بلا تابّ، فيفتحان لوحةً أخرى. ولافتاتهما وأعمدة جداولهما
+             | إعداداتٌ لا نصوصٌ محروقة (2.13-أ: «النصوص الظاهرة للمستخدم»).
+             */
+            ['stats.tabs.volunteer.label', 'stats', 'لافتة تاب التطوّع', 'string', 'التطوّع', false],
+            ['stats.volunteer.kpi.placed', 'stats', 'مؤشّر: التسكينات المقبولة', 'string', 'تسكينات مقبولة', false],
+            ['stats.volunteer.kpi.delivered', 'stats', 'مؤشّر: المهامّ المسلَّمة', 'string', 'مهامّ مسلَّمة', false],
+            ['stats.volunteer.kpi.approved', 'stats', 'مؤشّر: المهامّ المعتمَدة', 'string', 'مهامّ معتمَدة', false],
+            ['stats.volunteer.kpi.sla', 'stats', 'مؤشّر: التزام نوافذ التصعيد', 'string', 'التزام نوافذ التصعيد', false],
+            ['stats.volunteer.chart.placement', 'stats', 'عنوان رسم التسكين', 'string', 'طلبات التسكين عبر الفترة', false],
+            ['stats.volunteer.chart.entities', 'stats', 'عنوان رسم المهامّ حسب الكيان', 'string', 'المهامّ حسب الكيان', false],
+            ['stats.volunteer.table.sla', 'stats', 'عنوان جدول SLA المستويات', 'string', 'SLA مستويات التصعيد', false],
+            ['stats.volunteer.col.level', 'stats', 'عمود: مستوى التصعيد', 'string', 'مستوى التصعيد', false],
+            ['stats.volunteer.col.closed', 'stats', 'عمود: الحالات المغلقة', 'string', 'حالات مغلقة', false],
+            ['stats.volunteer.col.on_time', 'stats', 'عمود: المحسوم داخل النافذة', 'string', 'داخل النافذة', false],
+            ['stats.volunteer.col.rate', 'stats', 'عمود: نسبة الالتزام', 'string', 'نسبة الالتزام %', false],
+
+            ['stats.tabs.certificates.label', 'stats', 'لافتة تاب الشهادات', 'string', 'الشهادات', false],
+            ['stats.certificates.kpi.issued', 'stats', 'مؤشّر: الشهادات الصادرة', 'string', 'شهادات صادرة', false],
+            ['stats.certificates.kpi.rate', 'stats', 'مؤشّر: معدّل الإصدار اليوميّ', 'string', 'معدّل الإصدار اليوميّ', false],
+            ['stats.certificates.kpi.revoked', 'stats', 'مؤشّر: الإلغاءات', 'string', 'إلغاءات', false],
+            ['stats.certificates.kpi.expired', 'stats', 'مؤشّر: المنتهية', 'string', 'منتهية', false],
+            ['stats.certificates.chart.series', 'stats', 'عنوان رسم الإصدار', 'string', 'الإصدار عبر الفترة', false],
+            ['stats.certificates.chart.types', 'stats', 'عنوان رسم أنواع الشهادات', 'string', 'حسب نوع الشهادة', false],
+            ['stats.certificates.table.accreditations', 'stats', 'عنوان جدول جهات الاعتماد', 'string', 'حسب جهة الاعتماد', false],
+            ['stats.certificates.col.accreditation', 'stats', 'عمود: جهة الاعتماد', 'string', 'جهة الاعتماد', false],
+            ['stats.certificates.col.issued', 'stats', 'عمود: عدد الشهادات الصادرة', 'string', 'شهادات صادرة', false],
 
             // ---------------- وضع الصيانة (12.7-و-1)
             ['system.maintenance.enabled', 'maintenance', 'وضع الصيانة العامّ', 'bool', '0', false],
@@ -312,12 +345,35 @@ class AdminSystemDemoSeeder extends Seeder
             ['images.avatar.fallback_bg', 'images', 'خلفيّة بديل الأفاتار', 'color', '#071825', false],
             ['images.avatar.fallback_fg', 'images', 'لون أحرف بديل الأفاتار', 'color', '#00d4b8', false],
             ['images.presets', 'images', 'المقاسات الجاهزة', 'json', '{"square":{"label":"بوست مربّع","width":1080,"height":1080},"story":{"label":"ستوري","width":1080,"height":1920},"cover":{"label":"كوفر","width":1640,"height":856},"whatsapp":{"label":"واتساب","width":1080,"height":1350}}', false],
+            // ---------------- 12.14-أ: رفع الفريم · مجلّدات ووسوم — أعمدةٌ كانت بلا حقل
+            ['images.purposes', 'images', 'أغراض القوالب', 'json', '{"marketing":"تسويق","leaderboard":"ليدر بورد","achievement":"لقطة إنجاز","volunteer_card":"بطاقة متطوّع"}', false],
+            ['images.languages', 'images', 'لغات القوالب', 'json', '{"ar":"عربيّة","en":"إنجليزيّة"}', false],
+            ['images.folders.defaults', 'images', 'مجلّدات القوالب الافتراضيّة', 'json', '["تسويق","إنجازات","ليدر بورد","بطاقات"]', false],
+            ['images.template.frame_label', 'images', 'عنوان حقل الفريم/الخلفيّة', 'string', 'الفريم/الخلفيّة', false],
+            ['images.template.frame_hint', 'images', 'شرح حقل الفريم', 'string', 'اختَر الفريم من المكتبة أو ارفع جديدًا — والطبقات بتتبني فوقه.', false],
+            ['images.template.frame_clear', 'images', 'نصّ زرّ شيل الفريم', 'string', 'شيل الفريم', false],
+            ['images.template.organize_label', 'images', 'عنوان بلوك التنظيم', 'string', 'التنظيم', false],
+            ['images.template.folders_label', 'images', 'عنوان حقل المجلّدات', 'string', 'المجلّدات', false],
+            ['images.template.folders_hint', 'images', 'شرح حقل المجلّدات', 'string', 'افصل بينها بفاصلة.', false],
+            ['images.template.tags_label', 'images', 'عنوان حقل الوسوم', 'string', 'الوسوم', false],
+            ['images.template.tags_hint', 'images', 'شرح حقل الوسوم', 'string', 'افصل بينها بفاصلة.', false],
+            ['images.template.purpose_label', 'images', 'عنوان حقل غرض القالب', 'string', 'الغرض', false],
+            ['images.template.language_label', 'images', 'عنوان حقل لغة القالب', 'string', 'اللغة', false],
+            ['images.filters.any', 'images', 'خيار «الكلّ» في فلاتر الاستوديو', 'string', 'الكلّ', false],
 
             // ---------------- المقالات (21.2-ي)
             ['articles.admin.per_page', 'articles', 'عدد المقالات لكلّ صفحة', 'number', '20', false],
             ['articles.show_author', 'articles', 'إظهار اسم الكاتب', 'bool', '1', false],
             ['articles.index_public_pages', 'articles', 'فهرسة صفحات المقالات', 'bool', '1', false],
             ['articles.meta_title_template', 'articles', 'قالب عنوان الميتا', 'string', '{title} — {platform}', false],
+            // ---------------- 21.2-أ: «التصنيف **والوسوم**» — العمود كان بلا حقل
+            ['articles.tags_label', 'articles', 'عنوان حقل وسوم المقال', 'string', 'الوسوم', false],
+            ['articles.tags_hint', 'articles', 'شرح حقل وسوم المقال', 'string', 'افصل بينها بفاصلة — وبتظهر آخر المقال المنشور.', false],
+            ['articles.filters.any', 'articles', 'خيار «الكلّ» في فلتر الوسوم', 'string', 'الكلّ', false],
+            ['articles.categories_label', 'articles', 'عنوان بلوك تصنيفات المقالات', 'string', 'تصنيفات المقالات', false],
+            ['articles.category_name_label', 'articles', 'عنوان حقل اسم التصنيف', 'string', 'اسم التصنيف', false],
+            ['articles.category_order_label', 'articles', 'عنوان حقل ترتيب التصنيف', 'string', 'الترتيب', false],
+            ['articles.category_add_cta', 'articles', 'نصّ زرّ إضافة تصنيف', 'string', 'إضافة تصنيف', false],
 
             // ---------------- الإعلان المدفوع (21.3-و)
             ['ads.audience.max_rows', 'ads', 'أقصى صفوف في تصدير الشريحة', 'number', '50000', false],

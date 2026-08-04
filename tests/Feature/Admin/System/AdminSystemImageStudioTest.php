@@ -4,8 +4,10 @@ namespace Tests\Feature\Admin\System;
 
 use App\Models\ImageTemplate;
 use App\Models\NameParticle;
+use App\Services\Images\ImageRenderer;
 use App\Services\Images\ImageTemplateFields;
 use App\Services\Images\TemplateLayers;
+use Illuminate\Support\Facades\Storage;
 use RuntimeException;
 
 /**
@@ -165,6 +167,156 @@ class AdminSystemImageStudioTest extends SystemTestCase
         $this->assertDatabaseCount('generated_images', 1);
     }
 
+    // ================================================ أعمدة كانت بلا حقلٍ يملؤها
+
+    /**
+     * ⭐ 12.14-أ حرفيًّا: «**رفع الفريم/الخلفيّة** كصورة، وتُبنى فوقها الطبقات».
+     * العمود `frame_path` كان يقرؤه المحرّك ولا سبيل لملئه — فالفريم وعدٌ بلا باب.
+     */
+    public function test_frame_is_saved_and_read_back_on_reopen(): void
+    {
+        $admin = $this->admin(self::ADMIN);
+        $template = ImageTemplate::query()->firstOrFail();
+        $path = $this->putFrame('#ff0000');
+
+        $this->actingAs($admin)->put(route('admin.studio.update', $template), $this->payload($template, [
+            'frame_path' => $path,
+        ]))->assertRedirect();
+
+        $this->assertDatabaseHas('image_templates', ['id' => $template->id, 'frame_path' => $path]);
+
+        // وتُقرَأ عند إعادة الفتح — لا تُحفَظ في القاعدة وتختفي من الشاشة
+        $this->actingAs($admin)->get(route('admin.studio.edit', $template))
+            ->assertOk()
+            ->assertSee('name="frame_path"', false)
+            ->assertSee($path, false);
+    }
+
+    /**
+     * ⭐ **والمحرّك يرسمه فعلًا**: نفس القالب ونفس المستخدم — والبصمة تختلف
+     * قبل الفريم وبعده، والبكسل عند (1,1) يصير لون الفريم.
+     */
+    public function test_the_renderer_actually_draws_the_uploaded_frame(): void
+    {
+        $template = ImageTemplate::query()->firstOrFail();
+        $user = $this->makeUser('سلمى عبد الرحمن محمود');
+
+        $before = app(ImageRenderer::class)->draw($template, $user, []);
+
+        $template->update(['frame_path' => $this->putFrame('#ff0000')]);
+
+        $after = app(ImageRenderer::class)->draw($template->refresh(), $user, []);
+
+        $this->assertNotSame(md5($before), md5($after), 'الفريم اترفع والصورة ما اتغيّرتش — يبقى المحرّك مش بيقراه.');
+        $this->assertSame('ff0000', $this->pixelAt($after, 1, 1));
+        $this->assertNotSame('ff0000', $this->pixelAt($before, 1, 1));
+    }
+
+    /**
+     * ⭐ 2.14-ب «مصدر واحد … لا نسخ متعدّدة»: الفريم يفتح **نفس** بوب-أب
+     * «اختَر من المكتبة / ارفع جديد» — لا منتقي وسائط ثانٍ في الاستوديو.
+     */
+    public function test_frame_opens_the_shared_media_picker_not_a_second_one(): void
+    {
+        $admin = $this->admin(self::ADMIN);
+        $template = ImageTemplate::query()->firstOrFail();
+
+        $this->actingAs($admin)->get(route('admin.studio.edit', $template))
+            ->assertOk()
+            ->assertSee('data-media-pick="frame_path"', false)
+            ->assertSee('data-picker-modal', false)
+            ->assertSee('data-picker-upload', false);
+    }
+
+    /** ⛔ ومسارٌ لا وجود له لا يُحفَظ — فلا يظنّ المصمّم أنّه رفع وهو لم يرفع */
+    public function test_a_frame_path_that_is_not_on_disk_is_refused(): void
+    {
+        $admin = $this->admin(self::ADMIN);
+        $template = ImageTemplate::query()->firstOrFail();
+
+        $this->actingAs($admin)->put(route('admin.studio.update', $template), $this->payload($template, [
+            'frame_path' => 'media/مش-موجود.png',
+        ]))->assertRedirect();
+
+        $this->assertNull($template->refresh()->frame_path);
+    }
+
+    /**
+     * ⭐ 12.14-أ: «الحفظ والإدارة: حفظ باسم · نسخة · تفعيل/إيقاف · **مجلّدات
+     * ووسوم** · بحث». العمودان كانا مُصادَقًا عليهما بلا حقلٍ ولا فلتر.
+     */
+    public function test_folders_and_tags_are_saved_read_back_and_filter_the_list(): void
+    {
+        $admin = $this->admin(self::ADMIN);
+        $template = ImageTemplate::query()->firstOrFail();
+
+        $this->actingAs($admin)->put(route('admin.studio.update', $template), $this->payload($template, [
+            'folders' => 'حملات رمضان, أساسيّات',
+            'tags' => 'إنجاز,أخضر,إنجاز',
+        ]))->assertRedirect();
+
+        $template->refresh();
+
+        $this->assertSame(['حملات رمضان', 'أساسيّات'], $template->folders);
+        // والمكرّر لا يتكرّر — نفس منظّف مكتبة الوسائط
+        $this->assertSame(['إنجاز', 'أخضر'], $template->tags);
+
+        $this->actingAs($admin)->get(route('admin.studio.edit', $template))
+            ->assertOk()
+            ->assertSee('حملات رمضان', false)
+            ->assertSee('إنجاز,أخضر', false);
+
+        // والفلتر يُظهر **ويُخفي**: فلترٌ لا يُخفي شيئًا ليس فلترًا
+        $this->actingAs($admin)->get(route('admin.studio.index', ['folder' => 'حملات رمضان']))
+            ->assertOk()->assertSee($template->name, false);
+
+        $this->actingAs($admin)->get(route('admin.studio.index', ['folder' => 'مجلّد-مش-موجود']))
+            ->assertOk()->assertDontSee($template->name, false);
+
+        $this->actingAs($admin)->get(route('admin.studio.index', ['tag' => 'إنجاز']))
+            ->assertOk()->assertSee($template->name, false);
+
+        $this->actingAs($admin)->get(route('admin.studio.index', ['tag' => 'وسم-مش-موجود']))
+            ->assertOk()->assertDontSee($template->name, false);
+    }
+
+    /** والمقاس الجاهز والغرض عمودان كذلك — كان `preset` بلا `name` فلا يُرسَل أصلًا */
+    public function test_preset_purpose_and_language_are_persisted(): void
+    {
+        $admin = $this->admin(self::ADMIN);
+        $template = ImageTemplate::query()->firstOrFail();
+
+        $this->actingAs($admin)->put(route('admin.studio.update', $template), $this->payload($template, [
+            'preset' => 'story',
+            'purpose' => 'leaderboard',
+            'language' => 'en',
+        ]))->assertRedirect();
+
+        $template->refresh();
+
+        $this->assertSame('story', $template->preset);
+        $this->assertSame('leaderboard', $template->purpose);
+        $this->assertSame('en', $template->language);
+
+        // والشاشة ترسلها فعلًا: `preset` كان `<select>` **بلا `name`** فلا يصل الخادمَ أبدًا
+        $this->actingAs($admin)->get(route('admin.studio.edit', $template))
+            ->assertOk()
+            ->assertSee('name="preset"', false)
+            ->assertSee('name="purpose"', false)
+            ->assertSee('name="language"', false);
+    }
+
+    /** وقيمةٌ خارج القائمة تُرفَض — لا تُكتَب في العمود بلا حساب */
+    public function test_purpose_outside_the_list_is_rejected(): void
+    {
+        $admin = $this->admin(self::ADMIN);
+        $template = ImageTemplate::query()->firstOrFail();
+
+        $this->actingAs($admin)->put(route('admin.studio.update', $template), $this->payload($template, [
+            'purpose' => 'anything',
+        ]))->assertSessionHasErrors('purpose');
+    }
+
     public function test_forbidden_field_is_rejected_at_the_service_level_too(): void
     {
         $this->expectException(RuntimeException::class);
@@ -172,5 +324,51 @@ class AdminSystemImageStudioTest extends SystemTestCase
         app(ImageTemplateFields::class)->validateLayers([
             ['type' => 'text', 'field' => 'email'],
         ]);
+    }
+
+    // ------------------------------------------------------------------ أدوات
+
+    /** فريم حقيقيّ على قرص `public` — بلون واحد ليُقاس بالبكسل لا بالظنّ */
+    private function putFrame(string $hex): string
+    {
+        $image = imagecreatetruecolor(40, 40);
+        imagefilledrectangle($image, 0, 0, 39, 39, imagecolorallocate(
+            $image,
+            (int) hexdec(substr($hex, 1, 2)),
+            (int) hexdec(substr($hex, 3, 2)),
+            (int) hexdec(substr($hex, 5, 2)),
+        ));
+
+        ob_start();
+        imagepng($image);
+        $binary = (string) ob_get_clean();
+        imagedestroy($image);
+
+        $path = 'media/frame-'.substr($hex, 1).'.png';
+        Storage::disk('public')->put($path, $binary);
+
+        return $path;
+    }
+
+    private function pixelAt(string $png, int $x, int $y): string
+    {
+        $image = imagecreatefromstring($png);
+        $color = imagecolorat($image, $x, $y);
+        imagedestroy($image);
+
+        return sprintf('%02x%02x%02x', ($color >> 16) & 0xFF, ($color >> 8) & 0xFF, $color & 0xFF);
+    }
+
+    /** الحمولة الكاملة — الفورم يرسل كلّ الحقول، فالاختبار يرسلها كذلك */
+    private function payload(ImageTemplate $template, array $overrides = []): array
+    {
+        return array_merge([
+            'name' => $template->name,
+            'width_px' => $template->width_px,
+            'height_px' => $template->height_px,
+            'audience' => $template->audience,
+            'is_active' => 1,
+            'layers' => $template->layers ?? [],
+        ], $overrides);
     }
 }

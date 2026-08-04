@@ -5,12 +5,11 @@ namespace Database\Seeders;
 use App\Models\CertificateType;
 use App\Models\Event;
 use App\Models\EventAgendaItem;
-use App\Models\Permission;
 use App\Models\Role;
 use App\Models\Setting;
+use Database\Seeders\Concerns\GrantsWithinMatrixCeiling;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\DB;
 
 /**
  * بيانات وإعدادات مجال الفعاليّات والدعوات (13.3 · 7.6 · 21.1).
@@ -18,6 +17,9 @@ use Illuminate\Support\Facades\DB;
  */
 class EventDemoSeeder extends Seeder
 {
+    // كتابةُ الإسناد تمرّ بنقطة القصّ نفسها التي يمرّ بها مسار الإنتاج (12.2.2)
+    use GrantsWithinMatrixCeiling;
+
     public function run(): void
     {
         $this->settings();
@@ -254,22 +256,13 @@ class EventDemoSeeder extends Seeder
             'friend_invite.create' => 'SELF',
         ];
 
-        $permissions = Permission::query()->whereIn('key', array_keys($keys))->get();
-
-        foreach ($permissions as $permission) {
-            $scope = $keys[$permission->key];
-            $allowed = $permission->allowed_scopes ?: [$scope];
-
-            DB::table('permission_role')->updateOrInsert(
-                ['role_id' => $role->id, 'permission_id' => $permission->id],
-                [
-                    'scope' => in_array($scope, $allowed, true) ? $scope : $allowed[0],
-                    'effect' => 'allow',
-                    'updated_at' => now(),
-                    'created_at' => now(),
-                ],
-            );
-        }
+        /*
+         | ⭐ كان القصّ هنا **نسخةً ثالثة** من القاعدة وأضعفَها: عند تعذّر النطاق
+         | تكتب `$allowed[0]` — أوّل عنصرٍ في مصفوفةٍ **غير مرتَّبة**، فقد يكون
+         | **أوسع** من المطلوب لا أضيق. فتمرّ الكتابة الآن بنقطة القصّ الواحدة
+         | (12.2.2)، وهي وحدها التي تعرف أضيق ما تسمح به المصفوفة.
+         */
+        $this->grantKeysWithinCeiling($role->id, $keys, matrixFloor: true);
     }
 
     private function events(): void

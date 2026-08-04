@@ -27,10 +27,18 @@ class StatsController extends Controller
     {
         $user = $request->user();
         $tabs = $this->stats->tabsFor($user);
+
+        /*
+         | ⭐ حزامٌ وحمّالة مع حارس المسار: الباب يقبل **أيّ** مفتاح تقارير،
+         | فمَن لا تابَّ له لا يصل أصلًا. ولو وصل يومًا (تغيُّر مصفوفة أو
+         | استثناءٌ فرديّ) فلا يُفتَح له تابٌّ افتراضيّ لا يملكه — يُردّ.
+         */
+        abort_if($tabs === [], 403, (string) setting('stats.forbidden.message', 'ليس لديك صلاحيّة الوصول لهذه الصفحة.'));
+
         $tab = $request->string('tab')->toString();
 
         if (! array_key_exists($tab, $tabs)) {
-            $tab = (string) (array_key_first($tabs) ?: 'users');
+            $tab = (string) array_key_first($tabs);
         }
 
         $period = $this->stats->period(

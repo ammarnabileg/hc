@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\StatsController;
 use App\Http\Controllers\Admin\StoreAdminController;
 use App\Http\Controllers\Admin\TopupAdminController;
 use App\Http\Middleware\EnsureFeatureEnabled;
+use App\Services\Admin\System\StatsService;
 use Illuminate\Contracts\Http\Kernel as HttpKernel;
 use Illuminate\Support\Facades\Route;
 
@@ -136,8 +137,23 @@ Route::middleware(['auth', 'admin.panel'])->prefix('admin')->name('admin.')->gro
         Route::post('/topups/gateway/test', [TopupAdminController::class, 'testGateway'])->name('topups.gateway.test');
     });
 
-    // ------------------------------------------------------------ الإحصائيّات
-    Route::middleware('permission:reports_users.view')->group(function () {
+    /*
+     | ------------------------------------------------------------ الإحصائيّات
+     |
+     | ⭐⭐ **الباب بسعة محتواه** (12.8 · 12.2.1-أ).
+     |
+     | كان الحارس `permission:reports_users.view` **وحدها**، فصاحبُ
+     | `reports_training.view` — وسطرُه في 12.2.2 يقول «**دائمًا**» لا «مالك
+     | المنصّة فقط» وله تابٌّ منصوصٌ في 12.8 — يُردّ بـ403 قبل أن يُسأل عن تابِّه.
+     | وعولج مؤقّتًا بإخفاء البند من السايد بار: إخفاءٌ يمنع رسالة الخطأ ولا يعطي
+     | صاحبَ الحقّ حقَّه، والنصّ يقول «**بلا صلاحيّة: التاب نفسه لا يظهر**»
+     | (24.3-خامسًا) — التابّ لا الصفحة.
+     |
+     | فالقائمة تُشتقّ من `StatsService::tabs()` نفسها (دلالة الفاصلة «أيٌّ من»)،
+     | ثمّ `tabsFor()` تُري كلَّ واحدٍ تابَّه وحده. ومَن لا تابَّ له لا يملك
+     | مفتاحًا في القائمة فيُردّ عند الباب كما كان.
+     */
+    Route::middleware(StatsService::routeGate())->group(function () {
         Route::get('/stats', [StatsController::class, 'index'])->name('stats.index');
         Route::get('/stats/export', [StatsController::class, 'export'])->name('stats.export');
     });

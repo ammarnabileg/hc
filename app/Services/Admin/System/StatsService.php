@@ -18,18 +18,96 @@ use Illuminate\Support\Facades\Schema;
  */
 class StatsService
 {
+    /**
+     * ⭐ **مفتاحُ كلّ تابّ — بلا أيّ لمسة لقاعدة البيانات.**
+     *
+     * مفصولةٌ عن `tabs()` عمدًا: `routeGate()` تُنادى **وقت تسجيل المسارات**
+     * (قبل الطلب وقبل وجود جدول الإعدادات في التنصيب الأوّل)، فلو قرأت اللافتات
+     * لكسرت `artisan migrate` على قاعدةٍ فارغة. والباب لا يحتاج لافتةً أصلًا.
+     *
+     * @return array<string, array{permission:?string, owner_only:bool}>
+     */
+    private static function tabGuards(): array
+    {
+        return [
+            'users' => ['permission' => 'reports_users.view', 'owner_only' => false],
+            'sales' => ['permission' => 'finance.view', 'owner_only' => true],
+            'training' => ['permission' => 'reports_training.view', 'owner_only' => false],
+            'engagement' => ['permission' => 'reports_engagement.view', 'owner_only' => false],
+            'attendance' => ['permission' => 'reports_engagement.view', 'owner_only' => false],
+            'wars' => ['permission' => 'reports_engagement.view', 'owner_only' => false],
+            'volunteer' => ['permission' => 'reports_volunteer.view', 'owner_only' => false],
+            'certificates' => ['permission' => 'reports_certificates.view', 'owner_only' => false],
+            'acquisition' => ['permission' => 'acquisition_sources.view', 'owner_only' => false],
+        ];
+    }
+
     /** @return array<string, array{label:string, permission:?string, owner_only:bool}> */
     public function tabs(): array
     {
-        return [
-            'users' => ['label' => 'المستخدمون', 'permission' => 'reports_users.view', 'owner_only' => false],
-            'sales' => ['label' => '🔒 المبيعات والماليّات', 'permission' => 'finance.view', 'owner_only' => true],
-            'training' => ['label' => 'التدريبات', 'permission' => 'reports_training.view', 'owner_only' => false],
-            'engagement' => ['label' => 'التفاعل والتلعيب', 'permission' => 'reports_engagement.view', 'owner_only' => false],
-            'attendance' => ['label' => 'الحضور', 'permission' => 'reports_engagement.view', 'owner_only' => false],
-            'wars' => ['label' => 'الحروب', 'permission' => 'reports_engagement.view', 'owner_only' => false],
-            'acquisition' => ['label' => 'مصادر الاكتساب', 'permission' => 'acquisition_sources.view', 'owner_only' => false],
+        $labels = [
+            'users' => 'المستخدمون',
+            'sales' => '🔒 المبيعات والماليّات',
+            'training' => 'التدريبات',
+            'engagement' => 'التفاعل والتلعيب',
+            'attendance' => 'الحضور',
+            'wars' => 'الحروب',
+            /*
+             | ⭐ تابّا **التطوّع** و**الشهادات** — منصوصان في 24.3-خامسًا ضمن سطر
+             | التبويبات نفسه: «… · **الحضور** … · **الحروب** … · **التطوّع** ·
+             | **الشهادات** · **تقرير أثر المكافآت**». وكانا البندين الوحيدين في
+             | خريطة السايد بار اللذين يفتحان **لوحةً أخرى** بدل تابِّهما، فيقرأ
+             | صاحبُ `reports_volunteer.view` شاشة إدارة التطوّع لا تقريرَه.
+             |
+             | ومادّتهما من وصف المفتاحين في 12.2.2 حرفيًّا:
+             |  · «`reports_volunteer.view` … تقرير التطوّع: **التسكين · المهامّ ·
+             |     SLA المستويات**».
+             |  · «`reports_certificates.view` … تقرير الشهادات: **معدّل الإصدار ·
+             |     الإلغاءات · حسب الاعتماد**».
+             */
+            'volunteer' => (string) setting('stats.tabs.volunteer.label', 'التطوّع'),
+            'certificates' => (string) setting('stats.tabs.certificates.label', 'الشهادات'),
+            'acquisition' => 'مصادر الاكتساب',
         ];
+
+        $tabs = [];
+
+        foreach (self::tabGuards() as $key => $guard) {
+            $tabs[$key] = ['label' => (string) ($labels[$key] ?? $key)] + $guard;
+        }
+
+        return $tabs;
+    }
+
+    /**
+     * ⭐⭐ **مفاتيح باب الصفحة — الباب بسعة محتواه** (12.8 · 12.2.1-أ).
+     *
+     * كان المسار محروسًا بـ`reports_users.view` **وحدها**، فصاحب
+     * `reports_training.view` — وله تابٌّ منصوصٌ في 12.8 وسطرٌ في 12.2.2 يقول
+     * «**دائمًا**» لا «مالك المنصّة فقط» — **لا يصل تابَّه إطلاقًا**: يُردّ عند
+     * الباب قبل أن يُسأل عن التاب. وهو نقيض 12.2.1-أ نصًّا: «**ممنوع صلاحيّة
+     * باسم شاشة** — الشاشة نتيجةٌ للصلاحيّات لا صلاحيّةً بذاتها».
+     *
+     * والعلاج **ليس** إخفاء البند من السايد بار: الإخفاء يمنع 403 ولا يعطي
+     * صاحبَ الحقّ حقَّه. فالباب يقبل الآن **كلّ مفتاحٍ يملك صاحبُه تابًّا**،
+     * ثمّ `tabsFor()` تعطي كلَّ واحدٍ تابَّه وحده — ومَن لا تابَّ له لا يجد في
+     * القائمة مفتاحًا فيُردّ عند الباب كما كان.
+     *
+     * والقائمة تُشتقّ من `tabGuards()` — **مصدر التابات نفسه** — لا تُكتَب ثانيةً
+     * في ملفّ المسارات: قائمةٌ ثانية تنسى التابَّ الجديد فيعود الباب أضيق من
+     * محتواه بعد أوّل إضافة، وهو عين العطب الذي عولج هنا.
+     *
+     * @return array<int, string>
+     */
+    public static function gateKeys(): array
+    {
+        return array_values(array_unique(array_filter(array_column(self::tabGuards(), 'permission'))));
+    }
+
+    /** نفس القائمة لسطر الميدل-وير في ملفّ المسارات — `permission:a,b,c` */
+    public static function routeGate(): string
+    {
+        return 'permission:'.implode(',', self::gateKeys());
     }
 
     /** التابات التي يراها هذا المستخدم — وما لا يملكه لا يظهر أصلًا (2.15-أ-7) */
@@ -79,6 +157,8 @@ class StatsService
             'engagement' => $this->engagement($period),
             'attendance' => $this->attendance($period),
             'wars' => $this->wars($period),
+            'volunteer' => $this->volunteer($period),
+            'certificates' => $this->certificates($period),
             'acquisition' => $this->acquisition($period),
             default => $this->users($period),
         };
@@ -444,6 +524,185 @@ class StatsService
         ];
     }
 
+    // ---------------------------------------------------------------- التطوّع
+
+    /**
+     * ⭐ تاب **التطوّع** (24.3-خامسًا) — ومادّته من 12.2.2 حرفيًّا:
+     * «`reports_volunteer.view` … تقرير التطوّع: **التسكين · المهامّ · SLA
+     * المستويات**» — ثلاثتها لا واحدةً منها.
+     *
+     * و«SLA المستويات» تُقاس من محرّك التصعيد نفسه (23-5): **نافذة كلّ مستوى 24
+     * ساعة ونافذة السقف 48 ساعة**، فالحالة التي قُرِّرت قبل `window_due_at` داخل
+     * النافذة، والتي سُوّيت آليًّا (`auto_settled`) هي **الفائتة** — لأنّ التسوية
+     * الآليّة لا تقع إلّا بعد فوات النافذة.
+     */
+    private function volunteer(array $period): array
+    {
+        $placed = Schema::hasTable('placement_requests')
+            ? (int) DB::table('placement_requests')->where('status', 'accepted')
+                ->whereBetween('responded_at', [$period['from'], $period['to']])->count()
+            : 0;
+
+        $sent = Schema::hasTable('placement_requests')
+            ? (int) DB::table('placement_requests')->whereBetween('created_at', [$period['from'], $period['to']])->count()
+            : 0;
+
+        $delivered = Schema::hasTable('tasks')
+            ? (int) DB::table('tasks')->whereNull('deleted_at')
+                ->whereBetween('delivered_at', [$period['from'], $period['to']])->count()
+            : 0;
+
+        $approved = Schema::hasTable('tasks')
+            ? (int) DB::table('tasks')->whereNull('deleted_at')
+                ->whereBetween('approved_at', [$period['from'], $period['to']])->count()
+            : 0;
+
+        $sla = $this->escalationSla($period);
+        $onTime = array_sum(array_column($sla, 'on_time'));
+        $closed = array_sum(array_column($sla, 'closed'));
+
+        return [
+            'kpis' => [
+                ['label' => (string) setting('stats.volunteer.kpi.placed', 'تسكينات مقبولة'), 'value' => $placed, 'icon' => '🪑'],
+                ['label' => (string) setting('stats.volunteer.kpi.delivered', 'مهامّ مسلَّمة'), 'value' => $delivered, 'icon' => '📦'],
+                ['label' => (string) setting('stats.volunteer.kpi.approved', 'مهامّ معتمَدة'), 'value' => $approved, 'icon' => '✅'],
+                ['label' => (string) setting('stats.volunteer.kpi.sla', 'التزام نوافذ التصعيد'), 'value' => $closed > 0 ? round($onTime / $closed * 100).'%' : '0%', 'icon' => '⏱️'],
+            ],
+            // «التسكين»: المُرسَل مقابل المقبول عبر الفترة
+            'series' => Schema::hasTable('placement_requests')
+                ? $this->daily('placement_requests', 'created_at', $period['from'], $period['to'])
+                : [],
+            'series_prev' => $period['compare'] && Schema::hasTable('placement_requests')
+                ? $this->daily('placement_requests', 'created_at', $period['prev_from'], $period['prev_to'])
+                : [],
+            // «المهامّ»: الأكثر حملًا من الكيانات — أين يقع العمل فعلًا
+            'entities' => $this->tasksByEntity($period),
+            // «SLA المستويات»: نسبة الالتزام لكلّ مستوى في سلّم التصعيد
+            'sla' => $sla,
+            'placement_sent' => $sent,
+        ];
+    }
+
+    /** التزام نافذة القرار لكلّ مستوًى في سلّم التصعيد (23-5) */
+    private function escalationSla(array $period): array
+    {
+        if (! Schema::hasTable('escalations')) {
+            return [];
+        }
+
+        return DB::table('escalations')
+            ->whereBetween('created_at', [$period['from'], $period['to']])
+            ->whereIn('status', ['decided', 'approved', 'rejected', 'auto_settled'])
+            ->select('level', DB::raw('count(*) as closed'), DB::raw(
+                "sum(case when status <> 'auto_settled' and decided_at is not null and decided_at <= window_due_at then 1 else 0 end) as on_time"
+            ))
+            ->groupBy('level')
+            ->orderBy('level')
+            ->get()
+            ->map(fn ($r) => [
+                'level' => (int) $r->level,
+                'closed' => (int) $r->closed,
+                'on_time' => (int) $r->on_time,
+                'rate' => (int) $r->closed > 0 ? round((int) $r->on_time / (int) $r->closed * 100, 1) : 0.0,
+            ])
+            ->all();
+    }
+
+    private function tasksByEntity(array $period): array
+    {
+        if (! Schema::hasTable('tasks') || ! Schema::hasTable('entities')) {
+            return [];
+        }
+
+        return DB::table('tasks')
+            ->join('entities', 'entities.id', '=', 'tasks.entity_id')
+            ->whereNull('tasks.deleted_at')
+            ->whereBetween('tasks.created_at', [$period['from'], $period['to']])
+            ->select('entities.name_ar as title', DB::raw('count(*) as total'))
+            ->groupBy('entities.name_ar')
+            ->orderByDesc('total')
+            ->limit((int) setting('stats.top_list_size', 8))
+            ->get()
+            ->map(fn ($r) => ['label' => (string) $r->title, 'value' => (float) $r->total])
+            ->all();
+    }
+
+    // ---------------------------------------------------------------- الشهادات
+
+    /**
+     * ⭐ تاب **الشهادات** (24.3-خامسًا) — ومادّته من 12.2.2 حرفيًّا:
+     * «`reports_certificates.view` … تقرير الشهادات: **معدّل الإصدار ·
+     * الإلغاءات · حسب الاعتماد**».
+     *
+     * و«الإلغاء» غير «الانتهاء» (13.4-ق): المنتهية شهادةٌ صحيحةٌ انقضى العمل بها،
+     * والملغاة **تزويرٌ مثبَت** — فخلطهما في رقمٍ واحد اتّهامٌ لأصحاب الأولى.
+     */
+    private function certificates(array $period): array
+    {
+        if (! Schema::hasTable('certificates')) {
+            return ['kpis' => [], 'series' => [], 'accreditations' => [], 'types' => []];
+        }
+
+        $issued = (int) DB::table('certificates')->whereBetween('issued_at', [$period['from'], $period['to']])->count();
+        $revoked = (int) DB::table('certificates')->whereNotNull('revoked_at')
+            ->whereBetween('revoked_at', [$period['from'], $period['to']])->count();
+        $expired = (int) DB::table('certificates')->whereNotNull('expired_at')
+            ->whereBetween('expired_at', [$period['from'], $period['to']])->count();
+
+        return [
+            'kpis' => [
+                ['label' => (string) setting('stats.certificates.kpi.issued', 'شهادات صادرة'), 'value' => $issued, 'icon' => '🏅'],
+                ['label' => (string) setting('stats.certificates.kpi.rate', 'معدّل الإصدار اليوميّ'), 'value' => round($issued / max(1, (int) $period['days']), 2), 'icon' => '📈'],
+                ['label' => (string) setting('stats.certificates.kpi.revoked', 'إلغاءات'), 'value' => $revoked, 'icon' => '⛔'],
+                ['label' => (string) setting('stats.certificates.kpi.expired', 'منتهية'), 'value' => $expired, 'icon' => '🕓'],
+            ],
+            'series' => $this->daily('certificates', 'issued_at', $period['from'], $period['to']),
+            'series_prev' => $period['compare'] ? $this->daily('certificates', 'issued_at', $period['prev_from'], $period['prev_to']) : [],
+            'accreditations' => $this->certificatesByAccreditation($period),
+            'types' => $this->certificatesByType($period),
+        ];
+    }
+
+    /** «حسب الاعتماد»: النوع يحمل جهة اعتماده، والشهادة تحمل نوعها */
+    private function certificatesByAccreditation(array $period): array
+    {
+        if (! Schema::hasTable('certificate_types') || ! Schema::hasTable('certificate_accreditations')) {
+            return [];
+        }
+
+        $fallback = (string) setting('certificates.accreditation.default_name', 'اعتماد المنصّة');
+
+        return DB::table('certificates')
+            ->join('certificate_types', 'certificate_types.id', '=', 'certificates.certificate_type_id')
+            ->leftJoin('certificate_accreditations', 'certificate_accreditations.id', '=', 'certificate_types.accreditation_id')
+            ->whereBetween('certificates.issued_at', [$period['from'], $period['to']])
+            ->select('certificate_accreditations.name_ar as title', DB::raw('count(*) as total'))
+            ->groupBy('title')
+            ->orderByDesc('total')
+            ->limit((int) setting('stats.top_list_size', 8))
+            ->get()
+            ->map(fn ($r) => ['label' => (string) ($r->title ?: $fallback), 'value' => (float) $r->total])
+            ->all();
+    }
+
+    private function certificatesByType(array $period): array
+    {
+        if (! Schema::hasTable('certificate_types')) {
+            return [];
+        }
+
+        return DB::table('certificates')
+            ->join('certificate_types', 'certificate_types.id', '=', 'certificates.certificate_type_id')
+            ->whereBetween('certificates.issued_at', [$period['from'], $period['to']])
+            ->select('certificate_types.name_ar as title', DB::raw('count(*) as total'))
+            ->groupBy('title')
+            ->orderByDesc('total')
+            ->limit((int) setting('stats.top_list_size', 8))
+            ->get()
+            ->map(fn ($r) => ['label' => (string) $r->title, 'value' => (float) $r->total])
+            ->all();
+    }
+
     // ---------------------------------------------------------------- مصادر الاكتساب
 
     /**
@@ -564,6 +823,17 @@ class StatsService
             'acquisition' => $data['rows'] ?? [],
             'users' => array_map(fn ($p) => ['اليوم' => $p['label'], 'تسجيلات' => $p['value']], $data['growth'] ?? []),
             'sales' => array_map(fn ($p) => ['اليوم' => $p['label'], 'الإيراد' => $p['value']], $data['series'] ?? []),
+            // «جدول تفصيليّ قابل للتصدير» لكلّ تابّ (24.3-خامسًا) — لا كروتُه وحدها
+            'volunteer' => array_map(fn ($r) => [
+                (string) setting('stats.volunteer.col.level', 'مستوى التصعيد') => $r['level'],
+                (string) setting('stats.volunteer.col.closed', 'حالات مغلقة') => $r['closed'],
+                (string) setting('stats.volunteer.col.on_time', 'داخل النافذة') => $r['on_time'],
+                (string) setting('stats.volunteer.col.rate', 'نسبة الالتزام %') => $r['rate'],
+            ], $data['sla'] ?? []),
+            'certificates' => array_map(fn ($r) => [
+                (string) setting('stats.certificates.col.accreditation', 'جهة الاعتماد') => $r['label'],
+                (string) setting('stats.certificates.col.issued', 'شهادات صادرة') => $r['value'],
+            ], $data['accreditations'] ?? []),
             default => array_map(
                 fn ($k) => ['المؤشّر' => $k['label'], 'القيمة' => $k['value']],
                 $data['kpis'] ?? [],

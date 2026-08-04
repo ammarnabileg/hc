@@ -11,9 +11,9 @@ use App\Models\Permission;
 use App\Models\Role;
 use App\Models\Setting;
 use App\Services\Admin\Content\TemplateDesigner;
+use Database\Seeders\Concerns\GrantsWithinMatrixCeiling;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\DB;
 
 /**
  * بيانات مجال الامتحانات والشهادات (4 · 8 · 12.5 · 24.5).
@@ -21,6 +21,9 @@ use Illuminate\Support\Facades\DB;
  */
 class ExamDemoSeeder extends Seeder
 {
+    // كتابةُ الإسناد تمرّ بنقطة القصّ نفسها التي يمرّ بها مسار الإنتاج (12.2.2)
+    use GrantsWithinMatrixCeiling;
+
     public function run(): void
     {
         $this->settings();
@@ -256,26 +259,26 @@ class ExamDemoSeeder extends Seeder
     /**
      * المتدرّب يدخل امتحانه بنطاق SELF — مورد الصلاحيّة اسمه `course_exam`،
      * فنضيفه هنا كي لا يُحجَب صاحب الحساب عن امتحانه.
+     *
+     * ⭐ والكتابة تمرّ بنقطة القصّ (12.2.2) لا بـ`DB::table()` مباشرةً. وأثرُها
+     * هنا مقصود ومنصوص: `course_exam.view` نطاقاتها «**SELF · ENTITY · ALL**»
+     * فتُكتَب SELF كما طُلِبت — أمّا `course_exam.export` («**تصدير نتائج
+     * الامتحان ومحاولاته**») فنطاقاتها «**ENTITY · ALL**» بلا SELF، وهي قدرة
+     * **مدير المحتوى التعليميّ** (12.2.3-أ-3) لا قدرة المتدرّب (12.2.3-ج-19).
+     * فكتابتُها `@SELF` كانت **اختراعَ نطاقٍ لا تعرفه المصفوفة**، ورفعُها إلى
+     * ENTITY تصعيدُ امتياز — فتسقط، وهو الحكم الصحيح لا حذفٌ لإرضاء رقم.
      */
     private function traineeExamPermissions(): void
     {
         $role = Role::query()->where('key', 'trainee')->first();
 
-        if (! $role) {
-            return;
-        }
-
         $permissionIds = Permission::query()
             ->where('resource', 'course_exam')
             ->whereIn('action', ['view', 'export'])
-            ->pluck('id');
+            ->pluck('id')
+            ->all();
 
-        foreach ($permissionIds as $permissionId) {
-            DB::table('permission_role')->updateOrInsert(
-                ['role_id' => $role->id, 'permission_id' => $permissionId, 'scope' => 'SELF'],
-                ['effect' => 'allow', 'conditions' => null, 'created_at' => now(), 'updated_at' => now()],
-            );
-        }
+        $this->insertRows($role?->id, $permissionIds, 'SELF');
     }
 
     /**

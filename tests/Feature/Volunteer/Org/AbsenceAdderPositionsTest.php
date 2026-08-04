@@ -4,12 +4,14 @@ namespace Tests\Feature\Volunteer\Org;
 
 use App\Models\Membership;
 use App\Models\MembershipAbsence;
+use App\Models\Permission;
 use App\Models\Position;
 use App\Models\Setting;
 use App\Models\User;
 use App\Support\Access\AccessEngine;
 use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 /**
  * مَن يضيف وضع «غائب» (الدستور 23 — القسم 6) — منصوص بالحرف:
@@ -65,14 +67,48 @@ class AbsenceAdderPositionsTest extends OrgTestCase
     }
 
     /**
-     * التيم ليدر يحمل `delegations.create@TEAM` في مصفوفة الصلاحيّات، لكنّ
-     * 23-6 يحصر **إضافة الغياب** في ثلاثة بوزشنات ليس هو منها — فيُرَدّ بقائمة
-     * البوزشنات لا بالمفتاح. (حارسان لا حارس: المفتاح ثمّ البوزشن.)
+     * ⭐ التيم ليدر يُرَدّ — **وعند الباب الآن لا عند القائمة**.
+     *
+     * كانت المصفوفة تُسنِد إليه `delegations.create@TEAM`، فيمرّ من حارس المفتاح
+     * ويُردّ بقائمة البوزشنات وحدها. و23-6 يحصر مَن **يضيفه** في ثلاثة ليس هو
+     * منهم، فصار المفتاح نفسه لا يُمنَح له (`RolePermissionSeeder`) — **وصلاحيّةٌ
+     * أوسع من سندها ثغرةٌ تنتظر حارسًا يسقط**.
+     *
+     * والحارسان باقيان لا واحد: المفتاح يقف عند الباب، وقائمةُ البوزشنات تبقى
+     * حارسًا ثانيًا لمن يُمنَح المفتاح باستثناءٍ فرديّ (12.2.1-د).
      */
     public function test_team_leader_is_still_refused(): void
     {
         $actor = $this->actorWithRole('VOL-TL1', 'team_leader');
         $target = $this->membershipOf('VOL-C1');
+
+        $this->actingAs($actor)
+            ->post(route('volunteer.department.absence', $target), $this->payload())
+            ->assertForbidden();
+
+        $this->assertDatabaseMissing('membership_absences', ['membership_id' => $target->id]);
+    }
+
+    /**
+     * ⭐ والحارس الثاني لم يُلغَ بإلغاء الأوّل: مَن مُنِح المفتاح **باستثناءٍ
+     * فرديّ** (12.2.1-د) يمرّ من الباب ثمّ تردّه قائمةُ البوزشنات (23-6).
+     */
+    public function test_the_position_list_still_refuses_a_key_holder_outside_the_three(): void
+    {
+        $actor = $this->actorWithRole('VOL-TL1', 'team_leader');
+        $target = $this->membershipOf('VOL-C1');
+
+        DB::table('permission_user')->insert([
+            'permission_id' => Permission::where('key', 'delegations.create')->value('id'),
+            'user_id' => $actor->id,
+            'membership_id' => null,
+            'scope' => 'TEAM',
+            'effect' => 'allow',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        app(AccessEngine::class)->forget($actor);
 
         $this->actingAs($actor)
             ->post(route('volunteer.department.absence', $target), $this->payload())

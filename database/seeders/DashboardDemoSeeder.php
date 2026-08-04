@@ -20,6 +20,7 @@ use App\Models\StreakDay;
 use App\Models\Transaction;
 use App\Models\User;
 use App\Models\WalletBalance;
+use App\Services\Certificates\CertificateIssuer;
 use App\Services\Gamification\LevelResolver;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Carbon;
@@ -78,6 +79,8 @@ class DashboardDemoSeeder extends Seeder
             ['dashboard.achievements.tickets.step', 'dashboard', 'عتبة التذاكر — الزيادة (تذكرة)', 'number', '10'],
             ['dashboard.achievements.learning.base', 'dashboard', 'عتبة استمراريّة التعلّم — الأساس (درس)', 'number', '5'],
             ['dashboard.achievements.learning.step', 'dashboard', 'عتبة استمراريّة التعلّم — الزيادة (درس)', 'number', '3'],
+            // عمر شهادة العرض عند الزرع — رقمٌ في اللوحة لا محروقًا في السيدر (2.13)
+            ['dashboard.demo.certificate_age_days', 'dashboard', 'عمر شهادة العرض عند الزرع (أيّام)', 'number', '5'],
             ['wallet.currency.xp_code', 'wallet', 'كود عملة نقاط الخبرة', 'string', 'xp'],
             ['wallet.currency.tickets_code', 'wallet', 'كود عملة التذاكر', 'string', 'tickets'],
         ];
@@ -389,26 +392,50 @@ class DashboardDemoSeeder extends Seeder
 
     // ------------------------------------------------------------ الشهادة
 
+    /**
+     * ⭐⭐ **شهادة العرض تُصدَر بمحرّك الإصدار — لا ببصمةٍ مخترَعة** (8.1 · 12.5-هـ).
+     *
+     * كان الصفّ يُكتَب بيده: `'hash' => hash('sha256', $code)` — **بصمةُ محتوًى
+     * بلا مفتاح** يقدر أيّ أحدٍ يعرف الكود أن ينتجها، و`template_snapshot` و
+     * `data_snapshot` **فارغتان**. والنتيجة أنّ صفحة التحقّق العامّة — وهي التي
+     * يَعِد الدستور بأنّها «تتيح للجهات والشركات التحقّق من **صحّة** وصلاحيّة أيّ
+     * شهادة» (8.1) — تسم شهادة اللوحة بـ«**التوقيع لا يطابق**». وأوّل شهادةٍ
+     * يراها المجرِّب مطعونٌ في صحّتها، فيبدو المحرّك معطوبًا وهو سليم.
+     *
+     * والعلاج ليس بصمةً «أصحّ» تُكتَب هنا: `CertificateIssuer` هو **المسار
+     * المعتمَد الوحيد** — يجمّد لقطة القالب ولقطة البيانات ثمّ يوقّع بـ
+     * `CertificateSignature` بمفتاح التطبيق **بعد** اكتمالهما. فمصدر التوقيع
+     * واحدٌ للإصدار والتحقّق، ولا نسخةَ ثانية تنحرف عن الأولى.
+     *
+     * ⏳ والزمن يُثبَّت قبل النداء لا بعده: التوقيع يغطّي `issued_at`، فتعديلُ
+     * التاريخ بعد الإصدار يكسر التوقيع الذي وُقِّع للتوّ. فتُزرَع الشهادة
+     * **بتاريخها** في لحظةٍ واحدة، ويعود الزمن كما كان.
+     */
     private function certificate(User $user, Course $course): void
     {
         $type = CertificateType::where('key', 'course')->first();
 
-        if (! $type) {
+        if (! $type || Certificate::where('user_id', $user->id)->where('certificate_type_id', $type->id)->exists()) {
             return;
         }
 
-        Certificate::updateOrCreate(
-            ['code' => 'CRS-DASH-0001'],
-            [
-                'hash' => hash('sha256', 'CRS-DASH-0001'),
-                'user_id' => $user->id,
-                'certificate_type_id' => $type->id,
-                'subject_type' => Course::class,
-                'subject_id' => $course->id,
-                'language' => 'ar',
-                'issued_at' => now()->subDays(5),
-                'status' => 'valid',
-            ],
-        );
+        $issuedAt = Carbon::now()->subDays((int) setting('dashboard.demo.certificate_age_days', 5));
+
+        // ولا نمسح ساعةً مزوَّرة لغيرنا: نعيدها كما كانت لا إلى «الآن الحقيقيّ»
+        $previous = Carbon::getTestNow();
+
+        Carbon::setTestNow($issuedAt);
+
+        try {
+            app(CertificateIssuer::class)->issue(
+                user: $user,
+                typeKey: (string) $type->key,
+                subject: $course,
+                source: 'auto',
+                language: 'ar',
+            );
+        } finally {
+            Carbon::setTestNow($previous);
+        }
     }
 }

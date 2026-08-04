@@ -45,7 +45,26 @@
                 </select>
             </label>
 
+            {{-- ⭐ «التصنيف **والوسوم**» (21.2-أ) — والوسوم تظهر أسفل المقال المنشور --}}
+            <x-form.input name="tags" label="{{ setting('articles.tags_label') }}"
+                          :value="implode(',', (array) ($article->tags ?? []))"
+                          hint="{{ setting('articles.tags_hint') }}" list="article-tag-list" />
+
+            <datalist id="article-tag-list">
+                @foreach ($tagList as $tag)<option value="{{ $tag }}"></option>@endforeach
+            </datalist>
+
             <x-form.input name="cover_path" label="مسار صورة الغلاف" :value="$article->cover_path" />
+
+            {{-- ⭐ «أيّ حقل رفع يفتح اختَر من المكتبة أو ارفع جديد» (12.4-هـ) — نفس البوب-أب --}}
+            <div class="flex items-center gap-2">
+                <button type="button" data-media-pick="cover_path"
+                        class="rounded-xl px-3 py-1.5 text-xs"
+                        style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
+                    <x-icon name="library" size="14" /> {{ setting('media.picker.cta') }}
+                </button>
+                <span data-media-preview="cover_path" class="inline-flex items-center"></span>
+            </div>
 
             <label class="block text-sm">
                 <span class="block mb-1">المقتطف</span>
@@ -134,4 +153,7 @@
             </div>
         </div>
     </div>
+
+    {{-- ⭐ نفس بوب-أب «اختَر من المكتبة / ارفع جديد» — لا منتقي وسائط ثانٍ (2.14-ب) --}}
+    @include('admin.courses.partials.media-picker-modal')
 @endsection

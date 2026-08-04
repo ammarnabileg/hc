@@ -55,6 +55,18 @@
             </select>
         </label>
 
+        {{-- الوسوم صارت حقلًا في المحرّر — فصار لها فلتر يصل إليها (21.2-أ) --}}
+        <label class="text-xs">
+            <span class="block mb-1" style="color: var(--text-muted)">{{ setting('articles.tags_label') }}</span>
+            <select name="tag" class="rounded-xl px-3 py-2 text-sm"
+                    style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
+                <option value="">{{ setting('articles.filters.any') }}</option>
+                @foreach ($tagList as $tag)
+                    <option value="{{ $tag }}" @selected(request('tag') === $tag)>{{ $tag }}</option>
+                @endforeach
+            </select>
+        </label>
+
         <button class="btn rounded-xl px-4 py-2 text-sm font-semibold"
                 style="background: var(--color-brand-500); color: #04201c">فلترة</button>
     </x-filters>
@@ -119,6 +131,45 @@
 
         <div class="mt-5">{{ $articles->links() }}</div>
     @endif
+
+    {{--
+      مسار `admin.articles.categories.store` كان موجودًا بتحقّقٍ على `name_ar`
+      **وبلا فورمٍ واحد في المشروع كلّه** — نقطةُ نهايةٍ بلا شاشة. و`sort_order`
+      يُقرأ في أربعة `orderBy` ولا يُكتَب — فالترتيب كان صفرًا للجميع (21.2-ي).
+    --}}
+    @can('articles.create')
+        <div class="card p-4 mt-6">
+            <h2 class="font-bold text-sm mb-2">{{ setting('articles.categories_label') }}</h2>
+
+            <div class="flex flex-wrap gap-2 mb-3">
+                @foreach ($categories as $category)
+                    <span class="rounded-full px-3 py-1 text-xs" style="background: var(--surface-raised)">
+                        {{ $category->name_ar }} · {{ $category->sort_order }}
+                    </span>
+                @endforeach
+            </div>
+
+            <form method="post" action="{{ route('admin.articles.categories.store') }}"
+                  class="flex flex-wrap items-end gap-2">
+                @csrf
+                <label class="text-xs">
+                    <span class="block mb-1" style="color: var(--text-muted)">{{ setting('articles.category_name_label') }}</span>
+                    <input type="text" name="name_ar" required maxlength="190"
+                           class="rounded-xl px-3 py-2 text-sm"
+                           style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
+                </label>
+                <label class="text-xs">
+                    <span class="block mb-1" style="color: var(--text-muted)">{{ setting('articles.category_order_label') }}</span>
+                    <input type="number" name="sort_order" value="0" min="0" max="999"
+                           class="rounded-xl px-3 py-2 text-sm w-24"
+                           style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
+                </label>
+                <button class="rounded-xl px-4 py-2 text-sm" style="background: var(--surface-raised)">
+                    {{ setting('articles.category_add_cta') }}
+                </button>
+            </form>
+        </div>
+    @endcan
 @endsection
 
 @section('mobile_action')

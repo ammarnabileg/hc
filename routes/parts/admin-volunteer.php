@@ -139,8 +139,19 @@ Route::middleware(['auth', 'admin.panel'])->prefix('admin')->name('admin.')->gro
 
     // ------------------------------------------------------ التلعيب والتحديات 🎮
     Route::prefix('gamification')->name('gamification.')->group(function () {
+        /*
+         | ⭐ **الباب بسعة تاباته** — نظير ما وقع في الإحصائيّات (12.2.1-أ).
+         |
+         | الشاشة ثمانية تابات (`GamificationController::TABS`) منها **الستريكس
+         | ونادي الخامسة** و**الليدر بورد**، وقالب 12.2.3-أ-8 «مسؤول التلعيب
+         | والتحديات» يغطّي بالنصّ: «… `badges · achievements · **leaderboards ·
+         | streaks** · five_am_club · positive_messages · celebrations`».
+         | وكان الحارس يسقط المفتاحين، فمَن مُنِح إدارة الستريك أو الليدر بورد
+         | **وحدها** يُردّ عن شاشتهما الوحيدة — والبند مخفيٌّ في السايد بار فلا
+         | يعرف حتى أنّها موجودة.
+         */
         Route::get('/', [GamificationController::class, 'index'])
-            ->middleware('permission:xp_rules.view,badges.view,wars_settings.view,celebrations.view,reward_questions.view')->name('index');
+            ->middleware('permission:'.implode(',', GamificationController::GATE_KEYS))->name('index');
 
         Route::post('/settings', [GamificationController::class, 'saveSettings'])
             ->middleware('permission:xp_rules.edit,badges.edit,wars_settings.edit,celebrations.edit')->name('settings.save');

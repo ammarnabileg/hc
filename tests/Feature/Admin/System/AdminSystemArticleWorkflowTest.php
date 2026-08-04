@@ -122,6 +122,73 @@ class AdminSystemArticleWorkflowTest extends SystemTestCase
             ->assertDontSee(route('admin.articles.publish', $article));
     }
 
+    /**
+     * ⭐ 12.2.2 عن `articles.create` حرفيًّا: «إنشاء مقال جديد وتصنيفه **وربطه
+     * بوسومه**»، و21.2-أ: «العنوان · الرابط (Slug) · **التصنيف والوسوم** …».
+     * وكان العمود مُصادَقًا عليه بلا حقلٍ في المحرّر — والصفحة العامّة تعرض
+     * كتلة وسومٍ فارغةً أبدًا.
+     */
+    public function test_article_tags_are_saved_read_back_and_filter_the_list(): void
+    {
+        $author = $this->admin(self::WRITER, 'كاتب');
+
+        $this->actingAs($author)->post(route('admin.articles.store'), [
+            'title' => 'مقال بوسوم',
+            'body' => '<p>نصّ</p>',
+            'tags' => 'تطوّع, شهادات ,تطوّع',
+        ])->assertRedirect();
+
+        $article = Article::query()->where('title', 'مقال بوسوم')->firstOrFail();
+
+        // المكرّر لا يتكرّر والفراغ يُقصّ — نفس منظّف مكتبة الوسائط
+        $this->assertSame(['تطوّع', 'شهادات'], $article->tags);
+
+        // وتُقرَأ عند إعادة الفتح
+        $this->actingAs($author)->get(route('admin.articles.edit', $article))
+            ->assertOk()
+            ->assertSee('name="tags"', false)
+            ->assertSee('تطوّع,شهادات', false);
+
+        $this->actingAs($author)->get(route('admin.articles.index', ['tag' => 'تطوّع']))
+            ->assertOk()->assertSee('مقال بوسوم', false);
+
+        $this->actingAs($author)->get(route('admin.articles.index', ['tag' => 'وسم-مش-موجود']))
+            ->assertOk()->assertDontSee('مقال بوسوم', false);
+    }
+
+    /** ومحرّر المقال يفتح **نفس** بوب-أب مكتبة الوسائط للغلاف — لا منتقٍ ثانٍ (2.14-ب) */
+    public function test_cover_field_opens_the_shared_media_picker(): void
+    {
+        $author = $this->admin(self::WRITER, 'كاتب');
+        $article = $this->article($author, ArticleWorkflow::DRAFT);
+
+        $this->actingAs($author)->get(route('admin.articles.edit', $article))
+            ->assertOk()
+            ->assertSee('data-media-pick="cover_path"', false)
+            ->assertSee('data-picker-modal', false);
+    }
+
+    /**
+     * مسار `admin.articles.categories.store` كان بتحقّقٍ على `name_ar` **وبلا
+     * فورمٍ واحد في المشروع**، و`sort_order` يُقرأ في أربعة `orderBy` ولا يُكتَب.
+     */
+    public function test_category_form_exists_and_writes_the_sort_order(): void
+    {
+        $author = $this->admin(self::WRITER, 'كاتب');
+
+        $this->actingAs($author)->get(route('admin.articles.index'))
+            ->assertOk()
+            ->assertSee(route('admin.articles.categories.store'), false)
+            ->assertSee('name="sort_order"', false);
+
+        $this->actingAs($author)->post(route('admin.articles.categories.store'), [
+            'name_ar' => 'مسارات التعلّم',
+            'sort_order' => 7,
+        ])->assertRedirect();
+
+        $this->assertDatabaseHas('article_categories', ['name_ar' => 'مسارات التعلّم', 'sort_order' => 7]);
+    }
+
     private function article(User $author, string $status): Article
     {
         return Article::create([

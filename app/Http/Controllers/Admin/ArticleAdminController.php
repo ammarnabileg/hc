@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Article;
 use App\Models\ArticleCategory;
+use App\Services\Admin\Content\MediaLibrary;
 use App\Services\Admin\System\ArticleWorkflow;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -21,7 +22,10 @@ use RuntimeException;
  */
 class ArticleAdminController extends Controller
 {
-    public function __construct(private readonly ArticleWorkflow $workflow) {}
+    public function __construct(
+        private readonly ArticleWorkflow $workflow,
+        private readonly MediaLibrary $media,
+    ) {}
 
     public function index(Request $request): View
     {
@@ -32,6 +36,8 @@ class ArticleAdminController extends Controller
             ->when($request->string('q')->toString(), fn ($q, $term) => $q->where('title', 'like', "%{$term}%"))
             ->when($status && array_key_exists($status, ArticleWorkflow::statuses()), fn ($q) => $q->where('status', $status))
             ->when($request->integer('category'), fn ($q, $id) => $q->where('article_category_id', $id))
+            // الوسوم صارت حقلًا فصار لها فلتر — وإلّا فهي بيانات لا يصل إليها أحد
+            ->when($request->string('tag')->toString(), fn ($q, $tag) => $q->whereJsonContains('tags', $tag))
             ->latest('id')
             ->paginate((int) setting('articles.admin.per_page', 20))
             ->withQueryString();
@@ -40,6 +46,7 @@ class ArticleAdminController extends Controller
             'articles' => $articles,
             'statuses' => ArticleWorkflow::statuses(),
             'status' => $status,
+            'tagList' => $this->tagList(),
             'categories' => ArticleCategory::query()->orderBy('sort_order')->get(),
             'workflow' => $this->workflow,
             'counts' => Article::query()->selectRaw('status, count(*) as total')->groupBy('status')->pluck('total', 'status'),
@@ -51,6 +58,7 @@ class ArticleAdminController extends Controller
         return view('admin.articles.edit', [
             'article' => new Article(['status' => ArticleWorkflow::DRAFT]),
             'categories' => ArticleCategory::query()->orderBy('sort_order')->get(),
+            'tagList' => $this->tagList(),
             'workflow' => $this->workflow,
         ]);
     }
@@ -60,6 +68,7 @@ class ArticleAdminController extends Controller
         return view('admin.articles.edit', [
             'article' => $article,
             'categories' => ArticleCategory::query()->orderBy('sort_order')->get(),
+            'tagList' => $this->tagList(),
             'workflow' => $this->workflow,
         ]);
     }
@@ -119,14 +128,37 @@ class ArticleAdminController extends Controller
     {
         $data = $request->validate([
             'name_ar' => ['required', 'string', 'max:190'],
+            // `sort_order` يُقرَأ في أربعة مواضع (`orderBy`) ولم يكن يُكتَب أبدًا،
+            // فكان الترتيب صفرًا للجميع — عمودٌ حيٌّ في القراءة ميّتٌ في الكتابة.
+            'sort_order' => ['nullable', 'integer', 'min:0', 'max:999'],
         ]);
 
         ArticleCategory::create([
             'name_ar' => $data['name_ar'],
+            'sort_order' => (int) ($data['sort_order'] ?? 0),
             'slug' => Str::slug($data['name_ar']).'-'.Str::lower(Str::random(4)),
         ]);
 
         return back()->with('status', 'التصنيف اتضاف ✓');
+    }
+
+    /**
+     * الوسوم المستعمَلة فعلًا — اقتراحٌ يمنع تشتّت التسمية بلا أن يمنع وسمًا جديدًا.
+     *
+     * @return array<int,string>
+     */
+    private function tagList(): array
+    {
+        return Article::query()
+            ->whereNotNull('tags')
+            ->pluck('tags')
+            ->flatMap(fn ($tags) => is_array($tags) ? $tags : (json_decode((string) $tags, true) ?: []))
+            ->map(fn ($tag) => trim((string) $tag))
+            ->filter()
+            ->unique()
+            ->sort()
+            ->values()
+            ->all();
     }
 
     private function run(callable $action, string $message): RedirectResponse
@@ -149,7 +181,9 @@ class ArticleAdminController extends Controller
             'excerpt' => ['nullable', 'string', 'max:500'],
             'body' => ['nullable', 'string'],
             'cover_path' => ['nullable', 'string', 'max:255'],
-            'tags' => ['nullable', 'array'],
+            // «التصنيف **والوسوم**» (21.2-أ) — و`articles.create` نصُّها في 12.2.2:
+            // «إنشاء مقال جديد وتصنيفه **وربطه بوسومه**». كانت مُصادَقًا عليها بلا حقل.
+            'tags' => ['nullable'],
             // بيانات SEO — عنوان ووصف الميتا (21.2-أ)
             'meta_title' => ['nullable', 'string', 'max:190'],
             'meta_description' => ['nullable', 'string', 'max:300'],
@@ -158,7 +192,12 @@ class ArticleAdminController extends Controller
             'related_id' => ['nullable', 'integer'],
         ]);
 
-        $data['slug'] = Str::slug($data['slug'] ?: $data['title']) ?: Str::lower(Str::random(8));
+        // ⭐ نفس منظّف الوسوم المستعمَل في مكتبة الوسائط والاستوديو — مصدرٌ واحد (2.14-ب)
+        $data['tags'] = $this->media->cleanTags($data['tags'] ?? []);
+
+        // `nullable` لا يضع المفتاح في النتيجة إن غاب عن الطلب — فالقراءة المباشرة
+        // كانت تنفجر بـ500 على أيّ طلبٍ بلا حقل Slug (والفورم يرسله دائمًا فاختبأت)
+        $data['slug'] = Str::slug(($data['slug'] ?? '') ?: $data['title']) ?: Str::lower(Str::random(8));
 
         if (Article::query()->where('slug', $data['slug'])->where('id', '!=', $request->route('article')?->id)->exists()) {
             $data['slug'] .= '-'.Str::lower(Str::random(4));

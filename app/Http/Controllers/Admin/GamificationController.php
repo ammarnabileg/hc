@@ -39,6 +39,42 @@ class GamificationController extends Controller
         'celebrations' => 'الاحتفالات',
     ];
 
+    /**
+     * ⭐⭐ **مفاتيح باب الشاشة — بسعة تاباتها** (12.2.1-أ · 12.2.3-أ-8).
+     *
+     * كان الباب `xp_rules.view · badges.view · wars_settings.view ·
+     * celebrations.view · reward_questions.view` — خمسةٌ لثمانية تابات. فسقط
+     * منه تابّا **الستريكس ونادي الخامسة** و**الليدر بورد** و**المستويات**،
+     * ومَن مُنِح إدارتها **وحدها** يُردّ عن شاشتها الوحيدة. وقالب 12.2.3-أ-8
+     * يغطّي بالنصّ: «`wars_settings · wars_bank · war_types · wars_matches ·
+     * reward_questions · badges · **achievements · leaderboards · streaks** ·
+     * five_am_club · positive_messages · celebrations`».
+     *
+     * ⚠️ والمفاتيح **زوجان لكلّ تابّ** لا مفتاحًا واحدًا، والفرق مقصود في
+     * 12.2.2: `streaks.view` نطاقُها **SELF** ووصفُها «**ستريكي** الحاليّ
+     * وأيّامه المتبقّية» — مفتاح متدرّبٍ لا مفتاح إدارة؛ والمفتاح الإداريّ هو
+     * `streaks.list` («**متابعة الستريكات النشطة (صحّة التلعيب)**» — ALL).
+     * وكذلك `leaderboards.view` (SELF…ALL) مقابل `leaderboards.export` (ENTITY ·
+     * TRACK · ALL)، و`achievements.view` (SELF · ALL) مقابل `achievements.list`
+     * («قائمة المسارات وعتباتها الحاليّة» — ALL).
+     *
+     * فيُقبَل الوجهان معًا: الإداريّ يفتح فعلًا، والشخصيّ مذكورٌ لأنّه ما تحرس
+     * به الشاشةُ تابَّها (`@can('leaderboards.view')`) — ولا يفتح بابًا وحده
+     * لأنّ `EnsureAdminPanel` لا يعدّ مفاتيح قالب المستخدم النهائيّ سلطةً.
+     *
+     * @var list<string>
+     */
+    public const GATE_KEYS = [
+        'xp_rules.view',
+        'badges.view',
+        'streaks.view', 'streaks.list',
+        'leaderboards.view', 'leaderboards.export',
+        'achievements.view', 'achievements.list',
+        'wars_settings.view',
+        'celebrations.view',
+        'reward_questions.view',
+    ];
+
     public function index(Request $request): View
     {
         $tab = $request->string('tab')->toString() ?: 'xp';

@@ -36,6 +36,29 @@
             </select>
         </label>
 
+        {{-- «مجلّدات ووسوم · بحث» (12.14-أ) — العمودان بلا فلترٍ كانا زينةً في القاعدة --}}
+        <label class="text-xs">
+            <span class="block mb-1" style="color: var(--text-muted)">{{ setting('images.template.folders_label') }}</span>
+            <select name="folder" class="rounded-xl px-3 py-2 text-sm"
+                    style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
+                <option value="">{{ setting('images.filters.any') }}</option>
+                @foreach ($folderList as $folder)
+                    <option value="{{ $folder }}" @selected(request('folder') === $folder)>{{ $folder }}</option>
+                @endforeach
+            </select>
+        </label>
+
+        <label class="text-xs">
+            <span class="block mb-1" style="color: var(--text-muted)">{{ setting('images.template.tags_label') }}</span>
+            <select name="tag" class="rounded-xl px-3 py-2 text-sm"
+                    style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
+                <option value="">{{ setting('images.filters.any') }}</option>
+                @foreach ($tagList as $tag)
+                    <option value="{{ $tag }}" @selected(request('tag') === $tag)>{{ $tag }}</option>
+                @endforeach
+            </select>
+        </label>
+
         <label class="flex items-center gap-2 text-xs mt-4">
             <input type="checkbox" name="archived" value="1" @checked(request()->boolean('archived'))>
             <span>اعرض المؤرشف</span>
@@ -56,6 +79,7 @@
                             <div class="font-semibold text-sm">{{ $template->name }}</div>
                             <div class="text-xs" style="color: var(--text-muted)">
                                 {{ $template->width_px }}×{{ $template->height_px }} · {{ $audiences[$template->audience] ?? $template->audience }}
+                                · {{ $purposes[$template->purpose] ?? $template->purpose }}
                             </div>
                         </div>
                         <x-state-badge :state="$template->is_archived ? 'idle' : ($template->is_active ? 'ok' : 'warn')"
@@ -64,6 +88,19 @@
 
                     <img src="{{ route('admin.studio.preview', $template) }}" alt="معاينة {{ $template->name }}"
                          loading="lazy" class="w-full rounded-xl" style="max-width:100%; background: var(--surface-sunken)">
+
+                    @if (($template->folders ?? []) || ($template->tags ?? []))
+                        <div class="flex flex-wrap gap-1 text-xs">
+                            @foreach ((array) $template->folders as $folder)
+                                <a class="rounded-full px-2 py-0.5" style="background: var(--surface-raised)"
+                                   href="{{ route('admin.studio.index', ['folder' => $folder]) }}">{{ $folder }}</a>
+                            @endforeach
+                            @foreach ((array) $template->tags as $tag)
+                                <a class="rounded-full px-2 py-0.5" style="background: var(--surface-sunken)"
+                                   href="{{ route('admin.studio.index', ['tag' => $tag]) }}">#{{ $tag }}</a>
+                            @endforeach
+                        </div>
+                    @endif
 
                     <div class="flex flex-wrap gap-2 text-xs">
                         @can('image_templates.edit')
@@ -134,13 +171,23 @@
 
                 <label class="block text-sm">
                     <span class="block mb-1">مقاس جاهز</span>
-                    <select id="preset-select" class="w-full rounded-xl px-3 py-2 text-sm"
+                    <select name="preset" id="preset-select" class="w-full rounded-xl px-3 py-2 text-sm"
                             style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
                         <option value="">مخصّص</option>
                         @foreach ($presets as $key => $preset)
-                            <option value="{{ $preset['width'] }}x{{ $preset['height'] }}">
+                            <option value="{{ $key }}" data-size="{{ $preset['width'] }}x{{ $preset['height'] }}">
                                 {{ $preset['label'] }} — {{ $preset['width'] }}×{{ $preset['height'] }}
                             </option>
+                        @endforeach
+                    </select>
+                </label>
+
+                <label class="block text-sm">
+                    <span class="block mb-1">{{ setting('images.template.purpose_label') }}</span>
+                    <select name="purpose" class="w-full rounded-xl px-3 py-2 text-sm"
+                            style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
+                        @foreach ($purposes as $key => $label)
+                            <option value="{{ $key }}">{{ $label }}</option>
                         @endforeach
                     </select>
                 </label>
@@ -173,8 +220,9 @@
         if (!preset) { return; }
 
         preset.addEventListener('change', function () {
-            if (!preset.value) { return; }
-            var parts = preset.value.split('x');
+            var size = preset.options[preset.selectedIndex].getAttribute('data-size');
+            if (!size) { return; }
+            var parts = size.split('x');
             document.getElementById('width_px').value = parts[0];
             document.getElementById('height_px').value = parts[1];
         });

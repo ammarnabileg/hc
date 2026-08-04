@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\ImageTemplate;
 use App\Models\NameParticle;
 use App\Models\User;
+use App\Services\Admin\Content\MediaLibrary;
 use App\Services\Images\ImageBatchExporter;
 use App\Services\Images\ImageRenderer;
 use App\Services\Images\ImageTemplateFields;
@@ -14,6 +15,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 use RuntimeException;
 
@@ -31,6 +33,7 @@ class ImageStudioController extends Controller
         private readonly TemplateLayers $layers,
         private readonly ImageRenderer $renderer,
         private readonly ImageBatchExporter $batch,
+        private readonly MediaLibrary $media,
     ) {}
 
     public function index(Request $request): View
@@ -38,6 +41,9 @@ class ImageStudioController extends Controller
         $templates = ImageTemplate::query()
             ->when($request->string('q')->toString(), fn ($q, $term) => $q->where('name', 'like', "%{$term}%"))
             ->when($request->string('audience')->toString(), fn ($q, $a) => $q->where('audience', $a))
+            // «مجلّدات ووسوم · بحث» (12.14-أ) — العمودان بلا فلترٍ يقرؤهما كانا زينة
+            ->when($request->string('folder')->toString(), fn ($q, $f) => $q->whereJsonContains('folders', $f))
+            ->when($request->string('tag')->toString(), fn ($q, $t) => $q->whereJsonContains('tags', $t))
             ->when(! $request->boolean('archived'), fn ($q) => $q->where('is_archived', false))
             ->latest('id')
             ->paginate((int) setting('images.admin.per_page', 12))
@@ -47,6 +53,9 @@ class ImageStudioController extends Controller
             'templates' => $templates,
             'presets' => $this->layers->presets(),
             'audiences' => $this->fields->audiences(),
+            'purposes' => $this->fields->purposes(),
+            'folderList' => $this->folderList(),
+            'tagList' => $this->tagList(),
             'particles' => NameParticle::query()->orderBy('locale')->orderBy('particle')->get(),
         ]);
     }
@@ -57,6 +66,13 @@ class ImageStudioController extends Controller
             'template' => $template,
             'presets' => $this->layers->presets(),
             'audiences' => $this->fields->audiences(),
+            'purposes' => $this->fields->purposes(),
+            'languages' => $this->fields->languages(),
+            'folderList' => $this->folderList(),
+            'tagList' => $this->tagList(),
+            'frameUrl' => $template->frame_path && Storage::disk('public')->exists($template->frame_path)
+                ? Storage::disk('public')->url($template->frame_path)
+                : null,
             // ⭐ القائمة المقفولة وحدها تظهر في الاختيار — لا حقل ممنوع ولو معطَّلًا
             'allowedFields' => $this->fields->all(),
             'sampleUsers' => User::query()->where('status', 'active')->limit((int) setting('images.sample_users_limit', 20))->get(['id', 'name', 'code']),
@@ -198,25 +214,86 @@ class ImageStudioController extends Controller
 
     // ---------------------------------------------------------------- داخليّ
 
+    /**
+     * المجلّدات المتاحة: افتراضيّات الإعدادات + ما كتبه المصمّمون فعلًا —
+     * فالاقتراح يمنع تشتّت التسمية بلا أن يمنع مجلّدًا جديدًا.
+     *
+     * @return array<int,string>
+     */
+    private function folderList(): array
+    {
+        return $this->distinctJson('folders', (array) setting('images.folders.defaults', []));
+    }
+
+    /** @return array<int,string> */
+    private function tagList(): array
+    {
+        return $this->distinctJson('tags', []);
+    }
+
+    /**
+     * @param  array<int,string>  $defaults
+     * @return array<int,string>
+     */
+    private function distinctJson(string $column, array $defaults): array
+    {
+        return ImageTemplate::query()
+            ->whereNotNull($column)
+            ->pluck($column)
+            ->flatMap(fn ($value) => is_array($value) ? $value : (json_decode((string) $value, true) ?: []))
+            ->merge($defaults)
+            ->map(fn ($value) => trim((string) $value))
+            ->filter()
+            ->unique()
+            ->sort()
+            ->values()
+            ->all();
+    }
+
     private function validated(Request $request): array
     {
         $data = $request->validate([
             'name' => ['required', 'string', 'max:190'],
-            'purpose' => ['nullable', 'string', 'max:48'],
+            'purpose' => ['nullable', Rule::in(array_keys($this->fields->purposes()))],
             'width_px' => ['required', 'integer', 'min:64', 'max:4096'],
             'height_px' => ['required', 'integer', 'min:64', 'max:4096'],
-            'preset' => ['nullable', 'string', 'max:32'],
+            'preset' => ['nullable', Rule::in(array_keys($this->layers->presets()))],
+            // ⭐ «رفع الفريم/الخلفيّة كصورة وتُبنى فوقها الطبقات» (12.14-أ) —
+            //    والمسار يأتي من مكتبة الوسائط نفسها لا من منتقٍ ثانٍ (2.14-ب).
+            'frame_path' => ['nullable', 'string', 'max:255'],
             'audience' => ['required', 'in:admin,volunteers,everyone'],
+            'language' => ['nullable', Rule::in(array_keys($this->fields->languages()))],
             'is_active' => ['nullable', 'boolean'],
             'layers' => ['nullable', 'array'],
-            'tags' => ['nullable', 'array'],
-            'folders' => ['nullable', 'array'],
+            // «مجلّدات ووسوم» (12.14-أ): تُكتَب مفصولةً بفاصلة وتُخزَّن مصفوفةً
+            'tags' => ['nullable'],
+            'folders' => ['nullable'],
         ]);
 
         $data['layers'] = $this->layers->sanitize($data['layers'] ?? []);
         $data['is_active'] = (bool) ($data['is_active'] ?? true);
         $data['purpose'] = $data['purpose'] ?? 'marketing';
+        $data['language'] = $data['language'] ?? 'ar';
+        $data['frame_path'] = $this->frame($data['frame_path'] ?? null);
+        // ⭐ نفس منظّف الوسوم المستعمَل في مكتبة الوسائط — مصدرٌ واحد لا نسختان
+        $data['tags'] = $this->media->cleanTags($data['tags'] ?? []);
+        $data['folders'] = $this->media->cleanTags($data['folders'] ?? []);
 
         return $data;
+    }
+
+    /**
+     * مسار الفريم: لا يُقبل إلّا ملفٌّ موجود فعلًا على القرص العامّ — فمسارٌ
+     * مكتوب بيدٍ لا يرسم شيئًا ويترك المصمّم يظنّ أنّه رفع.
+     */
+    private function frame(?string $candidate): ?string
+    {
+        $path = trim((string) $candidate);
+
+        if ($path === '' || ! Storage::disk('public')->exists($path)) {
+            return null;
+        }
+
+        return $path;
     }
 }

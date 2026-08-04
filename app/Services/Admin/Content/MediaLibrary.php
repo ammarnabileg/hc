@@ -30,6 +30,22 @@ class MediaLibrary
     ];
 
     /**
+     * فريم قوالب الاستوديو (12.14-أ) وأغلفة المقالات (21.2-أ): صارا يُختاران من
+     * هذا البوب-أب نفسه، فلو غابا عن الجرد حُذِف ملفٌّ مستعمَل بلا تحذير.
+     *
+     * @return list<array{table:string,column:string,by:string,label:string}>
+     */
+    private function usageMap(): array
+    {
+        return array_merge(self::USAGE_MAP, [
+            ['table' => 'image_templates', 'column' => 'frame_path', 'by' => 'path',
+                'label' => (string) setting('media.usage.image_template_frames', 'فريمات قوالب الصور')],
+            ['table' => 'articles', 'column' => 'cover_path', 'by' => 'path',
+                'label' => (string) setting('media.usage.article_covers', 'أغلفة المقالات')],
+        ]);
+    }
+
+    /**
      * رفع ملفّ إلى المكتبة.
      *
      * @return array{item: MediaItem, duplicated: bool} — و`duplicated` تُظهر رسالة
@@ -120,7 +136,7 @@ class MediaLibrary
     {
         $rows = collect();
 
-        foreach (self::USAGE_MAP as $place) {
+        foreach ($this->usageMap() as $place) {
             $value = $place['by'] === 'id' ? $item->id : $item->path;
             $count = DB::table($place['table'])->where($place['column'], $value)->count();
 
@@ -142,7 +158,7 @@ class MediaLibrary
     {
         $ids = collect();
 
-        foreach (self::USAGE_MAP as $place) {
+        foreach ($this->usageMap() as $place) {
             $values = DB::table($place['table'])->whereNotNull($place['column'])->pluck($place['column']);
 
             $ids = $ids->merge($place['by'] === 'id'

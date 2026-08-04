@@ -216,6 +216,9 @@ class AdminContentDemoSeeder extends Seeder
             ['media.picker.upload_hint', 'media', 'شرح الرفع داخل البوب-أب', 'string', 'الملفّ المكرّر مش هيترفع مرّتين — هنستخدم النسخة الموجودة.'],
             ['media.picker.uploading', 'media', 'نصّ أثناء الرفع', 'string', 'بنرفع…'],
             ['media.picker.upload_error', 'media', 'نصّ تعذّر الرفع', 'string', 'ما قدرناش نرفع الملفّ — جرّب تاني.'],
+            // مواضع استخدام إضافيّة للملفّ — تمنع حذف فريمٍ أو غلافٍ مستعمَل بلا تحذير
+            ['media.usage.image_template_frames', 'media', 'اسم موضع: فريمات قوالب الصور', 'string', 'فريمات قوالب الصور'],
+            ['media.usage.article_covers', 'media', 'اسم موضع: أغلفة المقالات', 'string', 'أغلفة المقالات'],
 
             // ---------------- واجهة
             ['ux.toast.seconds', 'ux', 'مدّة الـToast (ثوانٍ)', 'number', '5'],
