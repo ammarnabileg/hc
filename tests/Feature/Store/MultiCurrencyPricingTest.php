@@ -137,15 +137,25 @@ class MultiCurrencyPricingTest extends StoreTestCase
             ->assertDontSee('وفّرت 4,580 كوين');
     }
 
+    /**
+     * ⭐ سطر البونص **لعنصرٍ وسمه الأدمن بونصًا وحده** (24: Toggle «اعرضه كبونص») —
+     * وكان يُطبَع لكلّ عنصرٍ له سعر، فيقرأ الزائر «🎁 بونص» أربع مرّات في باقةٍ من
+     * أربعة، وهي قيمةٌ مُدرَكة منفوخة أي عين ما تمنعه 2.9.
+     */
     public function test_bundle_page_shows_the_bonus_line_and_the_computed_total_value(): void
     {
-        $bundle = $this->bundle([$this->course(), $this->product()]);
+        $course = $this->course();
+        $bundle = $this->bundle([$course, $this->product()]);
+
+        \App\Models\BundleItem::where('bundle_id', $bundle->id)
+            ->where('itemable_type', $course::class)
+            ->update(['is_bonus' => true]);
 
         $this->actingAs($this->trainee(0))
             ->get(route('store.product', ['type' => 'bundle', 'slug' => $bundle->slug]))
             ->assertOk()
             ->assertSee('🎁 بونص: إكسل للشغل بقيمة 400 كوين — مجّانًا مع الباقة')
-            ->assertSee('القيمة الإجماليّة')
+            ->assertSee(setting('store.bundle.total_value_label'))
             ->assertSee('500 كوين');
     }
 
@@ -167,9 +177,14 @@ class MultiCurrencyPricingTest extends StoreTestCase
             ->assertSee('100 كوين')
             ->assertDontSee('60 كوين');
 
-        // والقيمة الإجماليّة تبقى مجموع القيم الطبيعيّة: 400 + 100
+        /*
+         | ⭐ والقيمة الإجماليّة **مجموع ما يقرؤه الزائر في السطور أمامه** —
+         | أيْ بالـOverride: 400 + 60 = 460 لا 500. ولو جمعنا الطبيعيّ بينما
+         | السطور تعرض الـOverride لصار مجموع ما على الشاشة ≠ الرقم المعلَن،
+         | وهو رقمٌ لا يسنده شيء (2.9 · 21.1-د).
+         */
         $this->assertEqualsWithDelta(
-            500.0,
+            460.0,
             app(PricingService::class)->bundleItemsValue($bundle),
             0.001,
         );

@@ -58,14 +58,36 @@ Route::middleware(['auth', 'admin.panel'])->prefix('admin')->name('admin.')->gro
         Route::get('/store/orders/{order}', [StoreAdminController::class, 'showOrder'])->name('store.orders.show');
     });
 
-    // ------------------------------------------------------------ عناصر البندل (18)
+    /*
+    |--------------------------------------------------------------------------
+    | ⭐ شاشة البندلز واللاندنج (18 · 24 ← «🖥️ البندلز»)
+    |--------------------------------------------------------------------------
+    | 🔒 ولا مسار هنا يفتح التسعير: `pricing.edit` («مالك المنصّة فقط» — 12.2.2)
+    |    يُفرَض **داخل المتحكّم** لا على المسار، لأنّ مسؤول التسويق والمتجر
+    |    (12.2.3-6) يملك `bundles.edit` ويجب أن يصل الشاشة ويحفظ باقي أقسامها —
+    |    فالحصر على **الحقل** لا على الباب، وحقول السعر تُنزَع من حمولته.
+    |    وكذلك حقلا [كود مخصّص]: بيد **مالك المنصّة** وحده داخل المتحكّم.
+    */
     Route::middleware('permission:bundles.view')
         ->get('/store/bundles/{bundle}', [StoreAdminController::class, 'showBundle'])->name('store.bundles.show');
 
     Route::middleware('permission:bundles.edit')->group(function () {
+        Route::put('/store/bundles/{bundle}', [StoreAdminController::class, 'updateBundle'])->name('store.bundles.update');
         Route::post('/store/bundles/{bundle}/items', [StoreAdminController::class, 'storeBundleItem'])->name('store.bundles.items.store');
+        Route::put('/store/bundles/{bundle}/items/{item}', [StoreAdminController::class, 'updateBundleItem'])->name('store.bundles.items.update');
         Route::delete('/store/bundles/{bundle}/items/{item}', [StoreAdminController::class, 'destroyBundleItem'])->name('store.bundles.items.destroy');
+
+        // بلوك إعدادات الشاشة و↺ Reset (24)
+        Route::post('/store/bundles-settings', [StoreAdminController::class, 'updateBundleSettings'])->name('store.bundles.settings');
+        Route::post('/store/bundles-settings/reset', [StoreAdminController::class, 'resetBundleSettings'])->name('store.bundles.settings.reset');
     });
+
+    // «تكرار بندل» من هيدر 24 — إنشاءٌ فيحتاج صلاحيّة الإنشاء لا التعديل
+    Route::middleware('permission:bundles.create')
+        ->post('/store/bundles/{bundle}/duplicate', [StoreAdminController::class, 'duplicateBundle'])->name('store.bundles.duplicate');
+
+    Route::middleware('permission:bundles.archive')
+        ->post('/store/bundles/{bundle}/archive', [StoreAdminController::class, 'archiveBundle'])->name('store.bundles.archive');
 
     Route::middleware('permission:store_products.create')
         ->post('/store/products', [StoreAdminController::class, 'storeProduct'])->name('store.products.store');

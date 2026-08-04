@@ -115,17 +115,31 @@ class BundleLandingTest extends StoreTestCase
 
     // ------------------------------------------------------------------ البونص والعناصر
 
-    /** كلّ عنصرٍ مضمَّن يُعرَض **بقيمته الطبيعيّة** كبونص (18). */
-    public function test_every_included_item_is_shown_as_a_bonus_with_its_natural_value(): void
+    /**
+     * ⭐ العنصر الموسوم بونصًا يُعرَض **بقيمته الطبيعيّة** بقالب 18 حرفيًّا —
+     * **والموسوم وحده**.
+     *
+     * وكان القالب يطبع السطر لكلّ عنصرٍ له سعر، فيقرأ الزائر «🎁 بونص» بعدد
+     * عناصر الباقة كلّها؛ والبونص الذي يشمل كلّ شيء لا يعني شيئًا، وهو قيمةٌ
+     * مُدرَكة منفوخة أيْ عين ما يمنعه 2.9. و24 يجعله **Toggle «اعرضه كبونص»**
+     * لصفّ العنصر — قرارَ الأدمن لا وسمًا للكلّ.
+     */
+    public function test_only_an_item_flagged_as_bonus_shows_the_bonus_line(): void
     {
-        $bundle = $this->bundle([$this->course(), $this->product()]);
+        $course = $this->course();
+        $product = $this->product();
+        $bundle = $this->bundle([$course, $product]);
+
+        \App\Models\BundleItem::where('bundle_id', $bundle->id)
+            ->where('itemable_type', $product::class)
+            ->update(['is_bonus' => true]);
 
         $this->actingAs($this->trainee(0))
             ->get(route('store.product', ['type' => 'bundle', 'slug' => $bundle->slug]))
             ->assertOk()
-            ->assertSee('ما يشمله')
-            ->assertSee('🎁 بونص: إكسل للشغل بقيمة 400 كوين — مجّانًا مع الباقة')
-            ->assertSee('🎁 بونص: دليل أسئلة المقابلات بقيمة 100 كوين — مجّانًا مع الباقة');
+            ->assertSee(setting('store.bundle.includes_title'))
+            ->assertSee('🎁 بونص: دليل أسئلة المقابلات بقيمة 100 كوين — مجّانًا مع الباقة')
+            ->assertDontSee('🎁 بونص: إكسل للشغل');
     }
 
     /** وOverride سعر العنصر لا يظهر إلّا هنا — «قاعدة السعر السياقيّ» (18). */
@@ -236,9 +250,11 @@ class BundleLandingTest extends StoreTestCase
 
         $this->get(route('store.product', ['type' => 'bundle', 'slug' => $bundle->slug]))
             ->assertOk()
-            ->assertSee('ما يشمله')
-            ->assertSee('سجّل دخولك للشراء')
-            ->assertSee('"@type":"Product"', false);
+            ->assertSee(setting('store.bundle.includes_title'))
+            ->assertSee(setting('store.bundle.login_cta'))
+            ->assertSee('"@type":"Product"', false)
+            // ⭐ توافرٌ حقيقيّ في Schema.org لا `InStock` دائمًا (21.2-ب · 2.9)
+            ->assertSee('"availability":"https://schema.org/InStock"', false);
     }
 
     /** وبوب-أب الشراء المشترك حاضر بإقرار سياسة عدم الاسترجاع (19.4). */

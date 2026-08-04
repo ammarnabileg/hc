@@ -13,6 +13,17 @@ use Illuminate\Support\Facades\Schema;
  * عمود هنا بلا حقلٍ يملؤه في الفورم وبلا موضعٍ يقرؤه في الصفحة** — فالعمود
  * اليتيم عطبٌ متكرّر في هذا المستودع.
  *
+ * ⭐⭐ **ولماذا `landing_texts` خريطةٌ واحدة لا ثلاثين عمودًا؟**
+ * لأنّ أمر المالك: «خلّي أيّ نصوص وأيّ سكشن في صفحة البندل قابل للتعديل من
+ * إعدادات نفس البندل» — وثلاثون نصًّا × عمود = هجرةٌ جديدة مع كلّ سطرٍ يُضاف.
+ * فالخريطة تقبل مفتاحًا جديدًا **بلا هجرة**، والمفتاح فيها **عين مفتاح الإعداد
+ * العامّ** فالوراثة تُقرأ بلا جدول ترجمة.
+ *
+ * ⚠️ **والفخّ الذي تتجنّبه هذه البنية عمدًا:** لا تُنسَخ القيمة العامّة إلى صفّ
+ * البندل عند الإنشاء أبدًا. لو نُسِخت لصار كلّ بندلٍ **لقطةً مجمّدة**، وتعديلُ
+ * المالك للنصّ العامّ لاحقًا **لا يصل أحدًا** — أي إعدادٌ بلا أثر، وهو نقضٌ
+ * لـ2.13 من داخلها. فالمفتاح الغائب = **وراثة**، والقيمة تُحسَب لحظةَ العرض.
+ *
  * وثلاثة أعمدةٍ **لم** تُضَف عمدًا، ولكلٍّ سببه المنصوص:
  *
  *  - **«القيمة الإجماليّة»** — 24 يصفها «(محسوبة تلقائيًّا، **للقراءة**)»، و18
@@ -35,26 +46,55 @@ return new class extends Migration
             $table->text('description_en')->nullable()->after('description');
 
             /*
-             | العنوان يبيع **النتيجة** لا الاسم: اسم البندل هويّةٌ إداريّة، و`headline`
-             | وعدٌ للزائر. وكلاهما اختياريّ — وإن تُرِكا فالصفحة ترجع للاسم والوصف
-             | بلا فراغ (2.15-أ: البساطة أوّلًا، ولا شاشة نصفها فارغ).
+             | ⭐ **override نصوص اللاندنج لهذا البندل** — خريطة `مفتاح ⟵ نصّ`
+             | بنفس مفاتيح `BundleLanding::TEXTS`. المفتاح الغائب أو الفارغ =
+             | **وراثةٌ حيّة** من الإعداد العامّ، لا لقطةٌ مجمّدة.
              */
-            $table->string('landing_headline')->nullable()->after('name_en');
-            $table->text('landing_promise')->nullable()->after('landing_headline');
+            $table->json('landing_texts')->nullable()->after('name_en');
 
             /*
-             | قوائم اللاندنج — كلّها يحرّرها الأدمن لكلّ بندل على حدة:
+             | ⭐ **حالة كلّ سكشن لهذا البندل** — خريطة `سكشن ⟵ حالة` بثلاث حالات:
+             | `inherit` (أو الغياب) · `show` · `hide`. وتوجّلٌ ثنائيّ **لا يكفي**:
+             | به يستحيل التمييز بين «أخفِه لهذا البندل» و«اتبع الإعداد العامّ»،
+             | فيتجمّد البندل على قيمة اليوم ويُبطِل الإعداد العامّ من حيث لا يُرى.
+             */
+            $table->json('landing_sections')->nullable()->after('landing_texts');
+
+            /*
+             | قوائم اللاندنج — محتوًى خاصّ بهذا البندل لا override لنصّ عامّ:
              |  - `landing_outcomes`: «بعد الباقة هتقدر…» (أفعال لا مزايا).
              |  - `landing_fit_for` / `landing_not_fit_for`: **التأهيل قبل البيع**.
              |    وهذا ليس زينة: 19.4 يمنع الاسترجاع نهائيًّا، فبيع الباقة لمن لا
              |    تناسبه ضررٌ **لا يُصلَح** — فالتصريح بمن لا تناسبه واجبٌ أخلاقيّ
              |    لا خيار تسويقيّ (2.9 «نصمّم لمصلحة المتدرب مش ضده»).
-             |  - `landing_faq`: أسئلة هذا البندل، وللإعدادات افتراضيٌّ عامّ.
+             |  - `landing_faq`: أسئلة هذا البندل، وفارغُها يرث الافتراضيّ العامّ.
              */
-            $table->json('landing_outcomes')->nullable()->after('landing_promise');
+            $table->json('landing_outcomes')->nullable()->after('landing_sections');
             $table->json('landing_fit_for')->nullable()->after('landing_outcomes');
             $table->json('landing_not_fit_for')->nullable()->after('landing_fit_for');
             $table->json('landing_faq')->nullable()->after('landing_not_fit_for');
+
+            /*
+             |------------------------------------------------------------------
+             | ⭐ [كود مخصّص] — القسم السادس في الفورم (أمر المالك)
+             |------------------------------------------------------------------
+             | كودٌ حرّ يُحقَن في `<head>` وقبل `</body>` مباشرةً، **بلا تعقيم**
+             | ولا تصفية — «مسموح أضيف فيهم أي حاجة» بنصّ المالك.
+             |
+             | 🔒 **ولذلك بيد مالك المنصّة وحده**: جافاسكربت في `<head>` يملك جلسة
+             |    كلّ من يفتح الصفحة — بما فيها جلسة المالك. فمنحه لمسؤول التسويق
+             |    (12.2.3-6) يمنحه المنصّة كلّها من بابٍ خلفيّ ويُبطِل عزل الماليّات
+             |    (12.7) وكلّ سقفٍ في مصفوفة 12.2.2.
+             |
+             | و`*_when` **خانة الموافقة الإلزاميّة**: `always` · `analytics` · `ads`.
+             |    والافتراضيّ **الأضيق** (`ads`) لأنّ أغلب ما يوضَع هنا بكسلاتُ تتبّع،
+             |    وحقنُها بلا شرطٍ يكسر بصمتٍ ضمانًا **قائمًا ومقيسًا** للمستخدم
+             |    (21.3-د · 2.9) ويجعل بانر الموافقة يَعِد بما لا يقع.
+             */
+            $table->text('landing_head_code')->nullable()->after('landing_faq');
+            $table->string('landing_head_code_when', 16)->default('ads')->after('landing_head_code');
+            $table->text('landing_body_end_code')->nullable()->after('landing_head_code_when');
+            $table->string('landing_body_end_code_when', 16)->default('ads')->after('landing_body_end_code');
 
             // ---------------------------------------------------- [العرض] (24)
             // «Toggle شطب السعر الطبيعيّ (Anchoring)» · «Toggle إظهار القيمة الإجماليّة»
@@ -104,8 +144,10 @@ return new class extends Migration
     {
         Schema::table('bundles', function (Blueprint $table) {
             $table->dropColumn([
-                'name_en', 'description_en', 'landing_headline', 'landing_promise',
+                'name_en', 'description_en', 'landing_texts', 'landing_sections',
                 'landing_outcomes', 'landing_fit_for', 'landing_not_fit_for', 'landing_faq',
+                'landing_head_code', 'landing_head_code_when',
+                'landing_body_end_code', 'landing_body_end_code_when',
                 'show_anchor_strikethrough', 'show_total_value', 'bonus_text_template',
                 'available_from', 'available_until', 'purchase_limit',
                 'og_image_path', 'is_indexable',

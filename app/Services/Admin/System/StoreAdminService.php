@@ -8,6 +8,7 @@ use App\Models\Coupon;
 use App\Models\Course;
 use App\Models\LearningPath;
 use App\Models\Order;
+use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\ProductCategory;
 use App\Models\User;
@@ -66,19 +67,83 @@ class StoreAdminService
             ->withQueryString();
     }
 
+    /**
+     * ⭐ **جدول البندلز بأعمدته التسعة** (24 حرفيًّا):
+     * الغلاف · الاسم (ع/إ) · عدد العناصر · **القيمة الإجماليّة للعناصر** · **سعر
+     * البندل** · نسبة التوفير المحسوبة · المشتريات · الحالة · إجراءات.
+     *
+     * وثلاثة من التسعة **تُحسَب في الاستعلام لا تُقرأ من عمودٍ مكتوب**:
+     *  - `items_count` من `bundle_items`.
+     *  - `items_value` — مجموع أسعار العناصر **الفعليّة** (Override إن وُجد وإلّا
+     *    السعر الطبيعيّ) لا `bundles.original_value`؛ فالعمود مرآةٌ قد تتأخّر عن
+     *    تغيير سعر تدريبٍ خارج شاشة الباقة، والرقم المعروض لا يجوز أن يتأخّر (18 · 2.9).
+     *  - `purchases` من `order_items` **المدفوعة** — وعليها يقوم «باقي N مقعدًا»،
+     *    فرقمٌ مخزَّن هناك يعني ندرةً كاذبة (21.1-د).
+     *
+     * والفلاتر أيضًا بنصّ 24: بحث بالاسم · الحالة · **نطاق السعر** · **الفرز
+     * (الأعلى مبيعًا/الأحدث)**.
+     */
     public function bundles(array $filters): LengthAwarePaginator
     {
-        return Bundle::query()
-            // عدد العناصر بعمود محسوب — بلا علاقة جديدة على الموديل المشترك
-            ->addSelect(['*', 'items_count' => BundleItem::query()
-                ->selectRaw('count(*)')
-                ->whereColumn('bundle_items.bundle_id', 'bundles.id'),
+        $itemsValue = BundleItem::query()
+            ->selectRaw('coalesce(sum(coalesce(bundle_items.price_coins, 0)), 0)')
+            ->whereColumn('bundle_items.bundle_id', 'bundles.id');
+
+        $purchases = OrderItem::query()
+            ->selectRaw('count(*)')
+            ->join('orders', 'orders.id', '=', 'order_items.order_id')
+            ->where('order_items.purchasable_type', Bundle::class)
+            ->whereColumn('order_items.purchasable_id', 'bundles.id')
+            ->where('orders.status', 'paid');
+
+        $query = Bundle::query()
+            // أعمدة محسوبة — بلا علاقة جديدة على الموديل المشترك
+            ->addSelect(['*',
+                'items_count' => BundleItem::query()
+                    ->selectRaw('count(*)')
+                    ->whereColumn('bundle_items.bundle_id', 'bundles.id'),
+                'override_value' => $itemsValue,
+                'purchases' => $purchases,
             ])
-            ->when($filters['q'] ?? null, fn ($q, $term) => $q->where('name_ar', 'like', "%{$term}%"))
+            ->when($filters['q'] ?? null, fn ($q, $term) => $q->where(
+                fn ($sub) => $sub->where('name_ar', 'like', "%{$term}%")->orWhere('name_en', 'like', "%{$term}%")
+            ))
             ->when($filters['status'] ?? null, fn ($q, $status) => $q->where('status', $status))
-            ->latest('id')
-            ->paginate($this->perPage())
-            ->withQueryString();
+            // نطاق السعر (24) — على **سعر البندل** لا على قيمة عناصره
+            ->when($filters['price_min'] ?? null, fn ($q, $min) => $q->where('price_coins', '>=', (float) $min))
+            ->when($filters['price_max'] ?? null, fn ($q, $max) => $q->where('price_coins', '<=', (float) $max));
+
+        $query = match ($filters['sort'] ?? null) {
+            'best_selling' => $query->orderByDesc('purchases'),
+            default => $query->latest('id'),
+        };
+
+        $rows = $query->paginate($this->bundlesPerPage())->withQueryString();
+
+        // القيمة الإجماليّة **الحقيقيّة** من الكتالوج (Override + السعر الطبيعيّ)
+        $pricing = app(\App\Services\Store\PricingService::class);
+
+        $rows->getCollection()->transform(function (Bundle $bundle) use ($pricing) {
+            $bundle->items_value = $pricing->bundleItemsValue($bundle);
+            $bundle->savings_percent = $bundle->items_value > 0
+                ? (int) round(max($bundle->items_value - (float) $bundle->price_coins, 0) / $bundle->items_value * 100)
+                : 0;
+
+            return $bundle;
+        });
+
+        return $rows;
+    }
+
+    /** خيارات فرز جدول البندلز (24) — من الإعدادات لا محروقة (2.13) */
+    public function bundleSortOptions(): array
+    {
+        return (array) setting('store.admin.bundles.sort_options', []);
+    }
+
+    private function bundlesPerPage(): int
+    {
+        return max((int) setting('store.admin.bundles.per_page', 20), 1);
     }
 
     /**

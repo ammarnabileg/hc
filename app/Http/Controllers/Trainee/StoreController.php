@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Trainee;
 
 use App\Http\Controllers\Controller;
+use App\Services\Store\BundleLanding;
 use App\Services\Store\PricingService;
 use App\Services\Store\StoreCatalog;
 use Illuminate\Http\Request;
@@ -72,8 +73,28 @@ class StoreController extends Controller
          | ⭐ الباقة لها **لاندنج بيدج مخصّصة** (18 — والبند المفتوح في القسم 22):
          | كانت تُعرَض بقالب المنتج نفسه فتضيع Anchoring وميزان القيمة والبونص.
          | والمسار واحد كما هو (`store.product`) — القالب وحده هو الذي يختلف.
+         |
+         | والقالب **يعرض ولا يحسب ولا يقرأ إعدادًا**: `BundleLanding` يحلّ كلّ
+         | نصٍّ وكلّ سكشن بقاعدة الوراثة الواحدة (قيمة البندل ⟵ الإعداد العامّ)،
+         | ويقرّر ما يُحقَن من كودٍ مخصّص بعد بوّابة الموافقة (21.3-د).
          */
-        return view($type === 'bundle' ? 'store.bundle' : 'store.product', [
+        if ($type === 'bundle') {
+            $landing = app(BundleLanding::class);
+
+            return view('store.bundle', [
+                'type' => $type,
+                'item' => $item,
+                'quote' => $quote,
+                'landing' => $landing->build($item, $user, $quote),
+                'injections' => $landing->injections($item, $user),
+                'balance' => $quote['balance_before'],
+                'indexable' => $this->indexable($type, $item),
+                'ogImage' => $this->ogImage($item),
+                'schema' => $this->schema($type, $item, $quote),
+            ]);
+        }
+
+        return view('store.product', [
             'type' => $type,
             'item' => $item,
             'quote' => $quote,
@@ -146,20 +167,33 @@ class StoreController extends Controller
         };
     }
 
+    /** صورة OG لهذا العنصر إن رفعها الأدمن — «صورة OG لكلّ رابط» (21.1-أ) */
+    private function ogImage(object $item): ?string
+    {
+        $path = $item->og_image_path ?? $item->cover_path ?? null;
+
+        return $path ? url(\Illuminate\Support\Facades\Storage::url($path)) : null;
+    }
+
     /**
      * Schema.org: التدريب والمسار بـ`Course`، وغيرهما بـ`Product` (21.1-أ).
+     *
+     * ⭐ و`availability` **حقيقيّ** لا `InStock` دائمًا: الباقة خارج نافذتها أو
+     * المستنفَدة مقاعدها تُعلَن `SoldOut` — فمحرّك البحث لا يَعِد بما لا يُباع،
+     * وهو الوجه التقنيّ لـ«لا أرقام وهميّة» (2.9 · 21.2-ب).
      *
      * @return array<string, mixed>
      */
     private function schema(string $type, object $item, array $quote): array
     {
         $currency = (string) setting('store.currency.schema_code', 'COINS');
+        $available = $type !== 'bundle' || app(BundleLanding::class)->purchasable($item);
 
         $offer = [
             '@type' => 'Offer',
             'price' => (string) $quote['total'],
             'priceCurrency' => $currency,
-            'availability' => 'https://schema.org/InStock',
+            'availability' => $available ? 'https://schema.org/InStock' : 'https://schema.org/SoldOut',
             'url' => route('store.product', ['type' => $type, 'slug' => $item->slug]),
         ];
 

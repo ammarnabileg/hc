@@ -105,8 +105,8 @@ class StoreBrowseTest extends StoreTestCase
         $this->actingAs($user)
             ->get(route('store.product', ['type' => 'bundle', 'slug' => $bundle->slug]))
             ->assertOk()
-            ->assertSee('ما يشمله')
-            ->assertSee('بقيمة 400 كوين')
+            ->assertSee(setting('store.bundle.includes_title'))
+            ->assertSee('400 كوين')
             ->assertSee('إتمام الشراء')
             ->assertSee('اشحن المحفظة')
             ->assertSee('قرأت سياسة عدم الاسترجاع وموافق عليها.');

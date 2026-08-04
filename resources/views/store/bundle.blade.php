@@ -1,23 +1,33 @@
 {{--
     ⭐ **لاندنج بيدج البندل** (18 — البند الذي كان «🕒 قيد التفصيل لاحقًا» في القسم 22،
-    وأمر المالك ببنائه). الصفحة تعرض ولا تحسب: كلّ رقمٍ فيها يأتي محسوبًا من
-    `App\Services\Store\BundleLanding` لحظةَ العرض.
+    وأمر المالك ببنائه).
 
-    ثلاثة أشياء **غائبةٌ هنا عمدًا**، ولكلٍّ نصُّه:
+    ⚠️ **قاعدة هذا الملفّ الوحيدة: لا `setting()` هنا ولا حساب.** كلّ نصّ يأتي من
+    `$landing['texts'][…]` وكلّ سكشن من `$landing['sections'][…]` — ومصدرهما
+    `BundleLanding` بقاعدة وراثةٍ واحدة (قيمة البندل ⟵ الإعداد العامّ). ولو قرأ
+    سطرٌ هنا إعدادًا مباشرةً لصار ذلك النصّ **غير قابل للتعديل من إعدادات البندل**،
+    وهو عين ما أمر المالك بمنعه — ويحرسه `BundleLandingInheritanceTest`.
+
+    وثلاثة أشياء **غائبةٌ هنا عمدًا**، ولكلٍّ نصُّه:
       · **لا شهادات عملاء ولا آراء** — لا جدول لها في المنصّة، ورأيٌ مفبرك خرقٌ
         صريح لـ«لا أرقام وهمية» (2.9 · 21.1-د).
       · **لا «ضمان استرجاع» ولا «جرّبها بلا مخاطرة»** — 19.4 قاعدةٌ نهائيّة: «لا
         استرجاع نقديّ لأيّ مدفوعات». والبديل الأمين: **وصولٌ دائم** + رابط السياسة
         **قبل** الزرّ.
-      · **لا عدّاد ولا مقاعد بلا بيانات حقيقيّة** — البلوك كلّه لا يُطبَع في الـHTML
+      · **لا عدّاد ولا مقاعد بلا بيانات حقيقيّة** — لا يُطبَع في الـHTML شيءٌ منهما
         ما لم يضبط الأدمن `available_until` أو `purchase_limit`.
 --}}
 @extends('layouts.app')
 
 @use('App\Services\Store\Coins')
 
-@section('title', $landing['headline'])
-@section('meta_description', \Illuminate\Support\Str::limit(strip_tags((string) ($landing['promise'] ?? $item->description ?? '')), 155))
+@php
+    $t = $landing['texts'];
+    $show = $landing['sections'];
+@endphp
+
+@section('title', $t['hero.headline'])
+@section('meta_description', \Illuminate\Support\Str::limit(strip_tags((string) $t['hero.promise']), 155))
 
 @if ($ogImage)
     {{-- صورة OG لكلّ بندل — أيّ رابط يُنشَر يظهر بطاقةً لا رابطًا أصلع (21.1-أ) --}}
@@ -32,22 +42,28 @@
 @push('head')
     {{-- Schema.org `Product` + `Offer` بسعرٍ وعملةٍ **وتوافرٍ حقيقيّ** (21.2-ب) --}}
     <script type="application/ld+json">{!! json_encode($schema, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) !!}</script>
+
+    {{--
+        ⭐ **الكود المخصّص في `<head>`** — العامّ أوّلًا ثمّ الخاصّ بالبندل.
+        ⚠️ يُطبَع **خامًّا** (`{!! !!}`) عن قصد: أمرُ المالك «مسموح أضيف فيهم أي
+        حاجة»، والهروب هنا يحوّل الوسم إلى نصٍّ ظاهر فيُبطِل الحقل كلّه. ولذلك
+        بالضبط حصرناه بيد **مالك المنصّة وحده** على الخادم، ووراء **بوّابة موافقة**
+        (`BundleLanding::mayInject`) — فما وصل هنا فقد اجتاز الاثنين معًا.
+    --}}
+    @foreach ($injections['head'] as $snippet)
+        {!! $snippet !!}
+    @endforeach
 @endpush
 
 @section('content')
     @php
         $owned = $landing['owned'];
-        $sellable = ! $owned && $landing['available'];
-        $canBuy = auth()->check() && $sellable;
+        $canBuy = auth()->check() && ! $owned && $landing['available'];
         $cover = $item->cover_path ? \Illuminate\Support\Facades\Storage::url($item->cover_path) : null;
         $libraryUrl = \Illuminate\Support\Facades\Route::has('library.index') ? route('library.index') : null;
-
-        // ⭐ نداءٌ واحد للفعل بنصٍّ واحد من الإعدادات، يتكرّر ولا يُنافَس (2.15-أ-2)
-        $buyLabel = (string) setting('store.bundle.cta_label', 'احصل على الباقة كاملة');
-        $priceLabel = $landing['price'] > 0
-            ? Coins::label($landing['price'], $quote['currency'])
-            : (string) setting('store.free_label', 'مجّانيّ');
-        $typeLabels = (array) setting('store.bundle.item_type_labels', []);
+        // ⭐ نداءٌ واحد للفعل بنصٍّ واحد، يتكرّر ولا يُنافَس (2.15-أ-2)
+        $buyLabel = $t['hero.cta'];
+        $priceLabel = $landing['price'] > 0 ? Coins::label($landing['price'], $quote['currency']) : $t['hero.free_label'];
     @endphp
 
     <x-page-header :title="$item->name_ar"
@@ -66,119 +82,121 @@
     @enderror
 
     {{-- ============================================================ 1) الهيرو --}}
-    <section class="card overflow-hidden">
-        <div class="grid gap-0 lg:grid-cols-5">
-            <div class="lg:col-span-3 min-w-0 p-5 sm:p-7 flex flex-col gap-4">
-                <div class="flex items-center gap-2 flex-wrap">
-                    <span class="text-xs rounded-full px-3 py-1 inline-flex items-center gap-1"
-                          style="background: color-mix(in srgb, var(--color-brand-500) 15%, transparent); color: var(--color-brand-400)">
-                        <x-icon name="bundle" size="14" />
-                        <span>{{ setting('store.bundle.hero_badge', 'باقة متكاملة') }}</span>
-                    </span>
+    @if ($show['hero'])
+        <section class="card overflow-hidden">
+            <div class="grid gap-0 lg:grid-cols-5">
+                <div class="lg:col-span-3 min-w-0 p-5 sm:p-7 flex flex-col gap-4">
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <span class="text-xs rounded-full px-3 py-1 inline-flex items-center gap-1"
+                              style="background: color-mix(in srgb, var(--color-brand-500) 15%, transparent); color: var(--color-brand-400)">
+                            <x-icon name="bundle" size="14" />
+                            <span>{{ $t['hero.badge'] }}</span>
+                        </span>
 
-                    @if ($owned)
-                        <x-state-badge state="ok" label="تملكه بالفعل" />
+                        @if ($owned)
+                            <x-state-badge state="ok" label="تملكه بالفعل" />
+                        @endif
+
+                        {{--
+                            ⭐ «وفّرت X» **محسوبة لا مكتوبة** (21.1-د)، ولا تُطبَع إطلاقًا
+                            إن كانت القيمة الإجماليّة ≤ سعر الباقة — لا صفرًا ولا سالبًا.
+                        --}}
+                        @if ($landing['has_savings'])
+                            <span class="text-xs rounded-full px-3 py-1 inline-flex items-center gap-1"
+                                  style="background: color-mix(in srgb, var(--color-state-honor) 18%, transparent); color: var(--color-state-honor)">
+                                <x-icon name="balance-scale" size="14" />
+                                <span>{{ str_replace('{amount}', Coins::label($landing['savings'], $quote['currency']), $t['hero.savings']) }}</span>
+                            </span>
+                        @endif
+                    </div>
+
+                    {{-- ⭐ العنوان يبيع **النتيجة**؛ وإن لم يكتبه الأدمن رجع لاسم الباقة بلا فراغ --}}
+                    <h1 class="text-2xl sm:text-3xl font-extrabold leading-9">{{ $t['hero.headline'] }}</h1>
+
+                    @if ($t['hero.promise'] !== '')
+                        <p class="text-sm leading-7" style="color: var(--text-muted)">{{ $t['hero.promise'] }}</p>
                     @endif
+
+                    {{-- كتلة السعر: مشطوب + سعر الباقة + «وفّرت» المحسوبة (Anchoring — 18) --}}
+                    <div class="flex items-baseline gap-3 flex-wrap">
+                        <span class="text-3xl font-extrabold">{{ $priceLabel }}</span>
+
+                        @if ($landing['show_strikethrough'])
+                            <span class="text-base line-through" style="color: var(--text-muted)">{{ Coins::fmt($landing['total_value']) }}</span>
+                            <span class="text-xs rounded-full px-2 py-0.5"
+                                  style="background: var(--surface-sunken); color: var(--text-muted)">
+                                {{ str_replace('{percent}', (string) $landing['percent_off'], $t['hero.percent_off']) }}
+                            </span>
+                        @endif
+                    </div>
+
+                    {{-- ============ 11) حالة المالك: «معاك بالفعل» ورابط المكتبة بدل الزرّ --}}
+                    <div class="flex flex-wrap items-center gap-3">
+                        @if ($owned)
+                            <p class="text-sm">{{ $t['hero.owned_text'] }}</p>
+                            @if ($libraryUrl)
+                                <a href="{{ $libraryUrl }}"
+                                   class="btn inline-flex items-center justify-center rounded-xl px-5 py-3 text-sm font-semibold motion-standard"
+                                   style="background: var(--color-brand-500); color: #04201c; min-height: 44px">{{ $t['hero.library_link'] }}</a>
+                            @endif
+                        @elseif (! $landing['available'])
+                            {{-- 2.15-أ-7: المحظور **يُخفى لا يُعطَّل** — فلا زرّ شراءٍ ميّت هنا --}}
+                            <p class="text-sm" style="color: var(--color-state-warn)">{{ $landing['unavailable_text'] }}</p>
+                        @elseif (auth()->check())
+                            <button type="button" data-modal-open="purchase-sheet"
+                                    class="btn inline-flex items-center justify-center rounded-xl px-6 py-3 text-sm font-bold motion-standard"
+                                    style="background: var(--color-brand-500); color: #04201c; min-height: 44px">{{ $buyLabel }}</button>
+
+                            <span class="text-sm" style="color: var(--text-muted)">
+                                {{ $t['hero.balance_label'] }} <b>{{ Coins::label($quote['balance_before'], $quote['currency']) }}</b>
+                            </span>
+                        @else
+                            <a href="{{ route('login') }}"
+                               class="btn inline-flex items-center justify-center rounded-xl px-6 py-3 text-sm font-bold motion-standard"
+                               style="background: var(--color-brand-500); color: #04201c; min-height: 44px">{{ $t['hero.login_cta'] }}</a>
+                        @endif
+                    </div>
 
                     {{--
-                        ⭐ «وفّرت X» **محسوبة لا مكتوبة** (21.1-د)، ولا تُطبَع إطلاقًا
-                        إن كانت القيمة الإجماليّة ≤ سعر الباقة — لا صفرًا ولا سالبًا.
+                        صفّ ثقةٍ من **حقائق** لا وعود: عدد العناصر · عدد الدروس (إن كانت
+                        البيانات موجودة) · الوصول الدائم بلا اشتراك. ولا رقم بلا مصدر (2.9).
                     --}}
-                    @if ($landing['has_savings'])
-                        <span class="text-xs rounded-full px-3 py-1 inline-flex items-center gap-1"
-                              style="background: color-mix(in srgb, var(--color-state-honor) 18%, transparent); color: var(--color-state-honor)">
-                            <x-icon name="balance-scale" size="14" />
-                            <span>{{ str_replace('{amount}', Coins::label($landing['savings'], $quote['currency']), setting('store.savings.text', 'وفّرت {amount}')) }}</span>
-                        </span>
-                    @endif
-                </div>
+                    <ul class="flex flex-wrap gap-x-4 gap-y-2 text-xs" style="color: var(--text-muted)">
+                        @foreach ($landing['facts'] as $fact)
+                            <li class="inline-flex items-center gap-1 min-w-0">
+                                <span aria-hidden="true" style="color: var(--color-brand-500)"><x-icon name="check" size="14" /></span>
+                                <span>{{ $fact }}</span>
+                            </li>
+                        @endforeach
 
-                {{-- ⭐ العنوان يبيع **النتيجة**؛ وإن لم يكتبه الأدمن رجع لاسم الباقة بلا فراغ --}}
-                <h1 class="text-2xl sm:text-3xl font-extrabold leading-9">{{ $landing['headline'] }}</h1>
-
-                @if ($landing['promise'])
-                    <p class="text-sm leading-7" style="color: var(--text-muted)">{{ $landing['promise'] }}</p>
-                @endif
-
-                {{-- كتلة السعر: مشطوب + سعر الباقة + «وفّرت» المحسوبة (Anchoring — 18) --}}
-                <div class="flex items-baseline gap-3 flex-wrap">
-                    <span class="text-3xl font-extrabold">{{ $priceLabel }}</span>
-
-                    @if ($landing['show_strikethrough'])
-                        <span class="text-base line-through" style="color: var(--text-muted)">{{ Coins::fmt($landing['total_value']) }}</span>
-                        <span class="text-xs rounded-full px-2 py-0.5"
-                              style="background: var(--surface-sunken); color: var(--text-muted)">
-                            {{ str_replace('{percent}', (string) $landing['percent_off'], setting('store.bundle.percent_off_text', 'أقلّ بـ{percent}%')) }}
-                        </span>
-                    @endif
-                </div>
-
-                {{-- ============ 11) حالة المالك: «معاك بالفعل» ورابط المكتبة بدل الزرّ --}}
-                <div class="flex flex-wrap items-center gap-3">
-                    @if ($owned)
-                        <p class="text-sm">{{ setting('store.bundle.owned_text', 'الباقة دي معاك بالفعل — كلّ عناصرها مفتوحة في مكتبتك.') }}</p>
-                        @if ($libraryUrl)
-                            <a href="{{ $libraryUrl }}"
-                               class="btn inline-flex items-center justify-center rounded-xl px-5 py-3 text-sm font-semibold motion-standard"
-                               style="background: var(--color-brand-500); color: #04201c; min-height: 44px">{{ setting('store.bundle.library_link_text', 'افتح من مكتبتي') }}</a>
+                        @if ($landing['certificate'])
+                            <li class="inline-flex items-center gap-1 min-w-0">
+                                <span aria-hidden="true" style="color: var(--color-brand-500)"><x-icon name="certificate" size="14" /></span>
+                                <span>{{ $t['hero.fact_certificate'] }}</span>
+                            </li>
                         @endif
-                    @elseif (! $landing['available'])
-                        {{-- 2.15-أ-7: المحظور **يُخفى لا يُعطَّل** — فلا زرّ شراءٍ ميّت هنا --}}
-                        <p class="text-sm" style="color: var(--color-state-warn)">{{ $landing['unavailable_text'] }}</p>
-                    @elseif (auth()->check())
-                        <button type="button" data-modal-open="purchase-sheet"
-                                class="btn inline-flex items-center justify-center rounded-xl px-6 py-3 text-sm font-bold motion-standard"
-                                style="background: var(--color-brand-500); color: #04201c; min-height: 44px">{{ $buyLabel }}</button>
-
-                        <span class="text-sm" style="color: var(--text-muted)">
-                            {{ setting('store.bundle.balance_label', 'رصيدك الآن:') }} <b>{{ Coins::label($quote['balance_before'], $quote['currency']) }}</b>
-                        </span>
-                    @else
-                        <a href="{{ route('login') }}"
-                           class="btn inline-flex items-center justify-center rounded-xl px-6 py-3 text-sm font-bold motion-standard"
-                           style="background: var(--color-brand-500); color: #04201c; min-height: 44px">{{ setting('store.bundle.login_cta', 'سجّل دخولك للشراء') }}</a>
-                    @endif
+                    </ul>
                 </div>
 
-                {{--
-                    صفّ ثقةٍ من **حقائق** لا وعود: عدد العناصر · عدد الدروس (إن كانت
-                    البيانات موجودة) · الوصول الدائم بلا اشتراك. ولا رقم بلا مصدر (2.9).
-                --}}
-                <ul class="flex flex-wrap gap-x-4 gap-y-2 text-xs" style="color: var(--text-muted)">
-                    @foreach ($landing['facts'] as $fact)
-                        <li class="inline-flex items-center gap-1 min-w-0">
-                            <span aria-hidden="true" style="color: var(--color-brand-500)"><x-icon name="check" size="14" /></span>
-                            <span>{{ $fact }}</span>
-                        </li>
-                    @endforeach
-
-                    @if ($landing['certificate'])
-                        <li class="inline-flex items-center gap-1 min-w-0">
-                            <span aria-hidden="true" style="color: var(--color-brand-500)"><x-icon name="certificate" size="14" /></span>
-                            <span>{{ setting('store.bundle.fact_certificate', 'شهادة معتمدة بعد اجتياز الامتحان') }}</span>
-                        </li>
+                <div class="lg:col-span-2 min-w-0 flex items-center justify-center" style="background: var(--surface-sunken); min-height: 12rem">
+                    @if ($cover)
+                        <img src="{{ $cover }}" alt="{{ $item->name_ar }}" class="w-full h-full object-cover" loading="lazy">
+                    @else
+                        <span aria-hidden="true" style="color: var(--color-brand-500)"><x-icon name="bundle" size="72" /></span>
                     @endif
-                </ul>
+                </div>
             </div>
-
-            <div class="lg:col-span-2 min-w-0 flex items-center justify-center" style="background: var(--surface-sunken); min-height: 12rem">
-                @if ($cover)
-                    <img src="{{ $cover }}" alt="{{ $item->name_ar }}" class="w-full h-full object-cover" loading="lazy">
-                @else
-                    <span aria-hidden="true" style="color: var(--color-brand-500)"><x-icon name="bundle" size="72" /></span>
-                @endif
-            </div>
-        </div>
-    </section>
+        </section>
+    @endif
 
     {{-- ================================================ 2) مناسبة لـ / مش مناسبة لـ --}}
-    @if (setting('store.bundle.blocks.fit_enabled', true) && ($landing['fit_for'] !== [] || $landing['not_fit_for'] !== []))
+    @if ($show['fit'] && ($landing['fit_for'] !== [] || $landing['not_fit_for'] !== []))
         <section class="grid gap-4 md:grid-cols-2 mt-5">
             @if ($landing['fit_for'] !== [])
                 <div class="card p-5 min-w-0">
                     <h2 class="font-bold mb-3 inline-flex items-center gap-2">
                         <span aria-hidden="true" style="color: var(--color-state-ok)"><x-icon name="check" size="18" /></span>
-                        <span>{{ setting('store.bundle.fit_title', 'الباقة دي مناسبة لـ') }}</span>
+                        <span>{{ $t['fit.title'] }}</span>
                     </h2>
                     <ul class="space-y-2 text-sm">
                         @foreach ($landing['fit_for'] as $line)
@@ -195,7 +213,7 @@
                 <div class="card p-5 min-w-0">
                     <h2 class="font-bold mb-3 inline-flex items-center gap-2">
                         <span aria-hidden="true" style="color: var(--text-muted)"><x-icon name="close" size="18" /></span>
-                        <span>{{ setting('store.bundle.not_fit_title', 'ومش مناسبة لـ') }}</span>
+                        <span>{{ $t['fit.not_title'] }}</span>
                     </h2>
                     <ul class="space-y-2 text-sm">
                         @foreach ($landing['not_fit_for'] as $line)
@@ -206,16 +224,16 @@
                         @endforeach
                     </ul>
                     {{-- ⭐ سببُ وجود هذا البلوك أصلًا: 19.4 يمنع الاسترجاع، فالبيع لمن لا تناسبه ضررٌ لا يُصلَح --}}
-                    <p class="text-xs mt-3" style="color: var(--text-muted)">{{ setting('store.bundle.not_fit_note') }}</p>
+                    <p class="text-xs mt-3" style="color: var(--text-muted)">{{ $t['fit.note'] }}</p>
                 </div>
             @endif
         </section>
     @endif
 
     {{-- ==================================================== 3) بعد الباقة هتقدر… --}}
-    @if (setting('store.bundle.blocks.outcomes_enabled', true) && $landing['outcomes'] !== [])
+    @if ($show['outcomes'] && $landing['outcomes'] !== [])
         <section class="card p-5 mt-5">
-            <h2 class="font-bold mb-3">{{ setting('store.bundle.outcomes_title', 'بعد الباقة هتقدر…') }}</h2>
+            <h2 class="font-bold mb-3">{{ $t['outcomes.title'] }}</h2>
             <ul class="grid gap-2 sm:grid-cols-2 text-sm">
                 @foreach ($landing['outcomes'] as $line)
                     <li class="flex items-start gap-2 min-w-0">
@@ -228,12 +246,10 @@
     @endif
 
     {{-- ================================================= 4) اللي جوّه الباقة + البونص --}}
-    @if (setting('store.bundle.blocks.includes_enabled', true) && $landing['items']->isNotEmpty())
+    @if ($show['includes'] && $landing['items']->isNotEmpty())
         <section class="card p-5 mt-5">
-            <h2 class="font-bold mb-1">{{ setting('store.bundle.includes_title', 'اللي جوّه الباقة') }}</h2>
-            <p class="text-xs mb-4" style="color: var(--text-muted)">
-                {{ setting('store.bundle.honest_note') }}
-            </p>
+            <h2 class="font-bold mb-1">{{ $t['includes.title'] }}</h2>
+            <p class="text-xs mb-4" style="color: var(--text-muted)">{{ $t['includes.honest_note'] }}</p>
 
             <ul class="space-y-4">
                 @foreach ($landing['items'] as $line)
@@ -244,7 +260,7 @@
                                 <span class="min-w-0">
                                     <a href="{{ route('store.product', ['type' => $line['type'], 'slug' => $line['slug']]) }}"
                                        class="text-sm font-semibold hover:underline">{{ $line['title'] }}</a>
-                                    <span class="block text-xs" style="color: var(--text-muted)">{{ $typeLabels[$line['type']] ?? $line['type'] }}</span>
+                                    <span class="block text-xs" style="color: var(--text-muted)">{{ $landing['item_type_labels'][$line['type']] ?? $line['type'] }}</span>
                                 </span>
                             </span>
 
@@ -269,7 +285,7 @@
                         --}}
                         @if ($line['is_bonus'] && $line['list_value'] > 0)
                             <p class="mt-1 text-xs" style="color: var(--color-brand-400); padding-inline-start: 1.5rem">
-                                {{ $bonusLines[$line['id']] }}
+                                {{ $landing['bonus_lines'][$line['id']] }}
                             </p>
                         @endif
                     </li>
@@ -279,16 +295,16 @@
     @endif
 
     {{-- ============================================ 5) الشهادة — بشرطها لا بمبالغة --}}
-    @if (setting('store.bundle.blocks.certificate_enabled', true) && $landing['certificate'])
+    @if ($show['certificate'] && $landing['certificate'])
         <section class="card p-5 mt-5">
             <h2 class="font-bold mb-2 inline-flex items-center gap-2">
                 <span aria-hidden="true" style="color: var(--color-brand-500)"><x-icon name="certificate" size="18" /></span>
-                <span>{{ setting('store.bundle.certificate_title', 'شهادة معتمدة — بشرطها') }}</span>
+                <span>{{ $t['certificate.title'] }}</span>
             </h2>
 
             {{-- ⭐ 8: «تُصدَر الشهادة **فقط بعد اجتياز الامتحان النهائي**» — والدرجة من الامتحان نفسه لا محروقة --}}
             <p class="text-sm leading-7" style="color: var(--text-muted)">
-                {{ str_replace('{score}', (string) $landing['certificate']['pass_score'], setting('store.bundle.certificate_text')) }}
+                {{ str_replace('{score}', (string) $landing['certificate']['pass_score'], $t['certificate.text']) }}
             </p>
 
             <ul class="mt-3 flex flex-wrap gap-2">
@@ -300,28 +316,28 @@
     @endif
 
     {{-- =================================================== 6) ميزان القيمة المحسوب --}}
-    @if (setting('store.bundle.blocks.ledger_enabled', true) && $landing['show_total_value'])
+    @if ($show['ledger'] && $landing['show_total_value'])
         <section class="card p-5 mt-5">
-            <h2 class="font-bold mb-3">{{ setting('store.bundle.ledger_title', 'ميزان القيمة') }}</h2>
+            <h2 class="font-bold mb-3">{{ $t['ledger.title'] }}</h2>
 
             <div class="space-y-2 text-sm">
                 <div class="flex items-center justify-between gap-3">
-                    <span style="color: var(--text-muted)">{{ setting('store.bundle.total_value_label', 'القيمة الإجماليّة') }}</span>
+                    <span style="color: var(--text-muted)">{{ $t['ledger.total_value_label'] }}</span>
                     <span class="line-through" style="color: var(--text-muted)">{{ Coins::label($landing['total_value']) }}</span>
                 </div>
 
                 <div class="flex items-center justify-between gap-3 font-bold">
-                    <span>{{ setting('store.bundle.price_label', 'سعر الباقة') }}</span>
+                    <span>{{ $t['ledger.price_label'] }}</span>
                     <span>{{ Coins::label($landing['price'], $quote['currency']) }}</span>
                 </div>
 
                 <div class="flex items-center justify-between gap-3 pt-2" style="color: var(--color-state-honor); border-top: 1px solid var(--border)">
-                    <span>{{ setting('store.bundle.savings_label', 'اللي بتوفّره') }}</span>
+                    <span>{{ $t['ledger.savings_label'] }}</span>
                     <span>{{ Coins::label($landing['savings'], $quote['currency']) }} ({{ $landing['percent_off'] }}%)</span>
                 </div>
             </div>
 
-            {{-- نداءٌ واحد مكرّر بعد ميزان القيمة — لا زرّ ثانويّ ينافسه بصريًّا (2.15-أ-2) --}}
+            {{-- نداءٌ واحد مكرّر بعد ميزان القيمة — ولا زرّ ثانويّ ينافسه بصريًّا (2.15-أ-2) --}}
             @if ($canBuy)
                 <button type="button" data-modal-open="purchase-sheet"
                         class="btn mt-4 inline-flex items-center justify-center rounded-xl px-6 py-3 text-sm font-bold motion-standard"
@@ -335,25 +351,25 @@
         هذا البلوك كلّه **لا يوجد في الـHTML** ما لم يضبط الأدمن تاريخ نهاية أو حدّ
         شراء. لا عدّاد بلا تاريخ · لا «باقي N» بلا حدّ · ولا رقم يُكتَب باليد (21.1-د).
     --}}
-    @if (setting('store.bundle.blocks.availability_enabled', true) && ($landing['countdown_ends_at'] || $landing['seats_left'] !== null))
+    @if ($show['availability'] && ($landing['countdown_ends_at'] || $landing['seats_left'] !== null))
         <section class="card p-5 mt-5">
             <h2 class="font-bold mb-2 inline-flex items-center gap-2">
                 <span aria-hidden="true" style="color: var(--color-state-warn)"><x-icon name="hourglass" size="18" /></span>
-                <span>{{ setting('store.bundle.countdown_title', 'نافذة الإتاحة') }}</span>
+                <span>{{ $t['availability.title'] }}</span>
             </h2>
 
             @if ($landing['countdown_ends_at'])
                 {{--
-                    العدّاد يقرأ **تاريخ الخادم** من `datetime`، ولا يبدأ من جديد لكلّ
-                    زائر ولا يُعاد ضبطه عند التحديث — الوقت ينقص لأنّ الموعد حقيقيّ.
+                    العدّاد يقرأ **تاريخ الخادم**، ولا يبدأ من جديد لكلّ زائر ولا
+                    يُعاد ضبطه عند التحديث — الوقت ينقص لأنّ الموعد حقيقيّ (2.9-10).
                 --}}
                 <p class="text-sm" style="color: var(--text-muted)">
-                    {{ str_replace('{date}', $landing['countdown_ends_at']->translatedFormat('j F Y — H:i'), setting('store.bundle.countdown_text')) }}
+                    {{ str_replace('{date}', $landing['countdown_ends_at']->translatedFormat('j F Y — H:i'), $t['availability.countdown_text']) }}
                 </p>
 
                 <p class="mt-3 text-2xl font-extrabold" style="font-variant-numeric: tabular-nums"
                    data-bundle-countdown data-ends-at="{{ $landing['countdown_ends_at']->toIso8601String() }}"
-                   data-units="{{ json_encode((array) setting('store.bundle.countdown_units', []), JSON_UNESCAPED_UNICODE) }}">
+                   data-units="{{ json_encode($landing['countdown_units'], JSON_UNESCAPED_UNICODE) }}">
                     <time datetime="{{ $landing['countdown_ends_at']->toIso8601String() }}">{{ $landing['countdown_ends_at']->translatedFormat('j F Y — H:i') }}</time>
                 </p>
             @endif
@@ -364,7 +380,7 @@
                     {{ str_replace(
                         ['{left}', '{limit}'],
                         [(string) $landing['seats_left'], (string) $item->purchase_limit],
-                        setting('store.bundle.seats_text'),
+                        $t['availability.seats_text'],
                     ) }}
                 </p>
             @endif
@@ -372,9 +388,9 @@
     @endif
 
     {{-- ================================================= 8) الأسئلة الشائعة --}}
-    @if ($landing['faq'] !== [])
+    @if ($show['faq'] && $landing['faq'] !== [])
         <section class="card p-5 mt-5">
-            <h2 class="font-bold mb-3">{{ setting('store.bundle.faq_title', 'أسئلة قبل ما تشتري') }}</h2>
+            <h2 class="font-bold mb-3">{{ $t['faq.title'] }}</h2>
 
             <ul class="space-y-2">
                 @foreach ($landing['faq'] as $entry)
@@ -391,32 +407,34 @@
     @endif
 
     {{-- ==================================================== 9) الإغلاق --}}
-    <section class="card p-5 mt-5">
-        <h2 class="font-bold mb-2">{{ setting('store.bundle.after_purchase_title', 'اللي بيحصل بعد الشراء') }}</h2>
-        <p class="text-sm leading-7" style="color: var(--text-muted)">{{ setting('store.bundle.after_purchase_text') }}</p>
+    @if ($show['closing'])
+        <section class="card p-5 mt-5">
+            <h2 class="font-bold mb-2">{{ $t['closing.title'] }}</h2>
+            <p class="text-sm leading-7" style="color: var(--text-muted)">{{ $t['closing.text'] }}</p>
 
-        {{--
-            ⭐ **عوض المخاطرة بلا ضمان استرجاع** (19.4): لا «جرّبها بلا مخاطرة»، بل
-            وصولٌ دائم + رابطٌ **بارز** لسياسة عدم الاسترجاع **قبل** الزرّ لا بعده —
-            «فلا يُفاجَأ أحد بعد الدفع» (19.4).
-        --}}
-        <p class="mt-3 text-sm rounded-xl px-4 py-3" style="background: var(--surface-sunken)">
-            <span aria-hidden="true" style="color: var(--color-state-warn)"><x-icon name="info" size="16" /></span>
-            {{ setting('store.bundle.no_refund_notice') }}
-            <a href="{{ route('store.refund-policy') }}" class="font-semibold hover:underline"
-               style="color: var(--color-brand-400)">{{ setting('store.refund.link_text', 'اقرأ سياسة عدم الاسترجاع') }}</a>
-        </p>
+            {{--
+                ⭐ **عوض المخاطرة بلا ضمان استرجاع** (19.4): لا «جرّبها بلا مخاطرة»، بل
+                وصولٌ دائم + رابطٌ **بارز** لسياسة عدم الاسترجاع **قبل** الزرّ لا بعده —
+                «فلا يُفاجَأ أحد بعد الدفع» (19.4).
+            --}}
+            <p class="mt-3 text-sm rounded-xl px-4 py-3" style="background: var(--surface-sunken)">
+                <span aria-hidden="true" style="color: var(--color-state-warn)"><x-icon name="info" size="16" /></span>
+                {{ $t['closing.no_refund_notice'] }}
+                <a href="{{ route('store.refund-policy') }}" class="font-semibold hover:underline"
+                   style="color: var(--color-brand-400)">{{ $t['closing.refund_link'] }}</a>
+            </p>
 
-        @if ($canBuy)
-            <button type="button" data-modal-open="purchase-sheet"
-                    class="btn mt-4 inline-flex items-center justify-center rounded-xl px-6 py-3 text-sm font-bold motion-standard"
-                    style="background: var(--color-brand-500); color: #04201c; min-height: 44px">{{ $buyLabel }}</button>
-        @elseif ($owned && $libraryUrl)
-            <a href="{{ $libraryUrl }}"
-               class="btn mt-4 inline-flex items-center justify-center rounded-xl px-6 py-3 text-sm font-bold motion-standard"
-               style="background: var(--color-brand-500); color: #04201c; min-height: 44px">{{ setting('store.bundle.library_link_text', 'افتح من مكتبتي') }}</a>
-        @endif
-    </section>
+            @if ($canBuy)
+                <button type="button" data-modal-open="purchase-sheet"
+                        class="btn mt-4 inline-flex items-center justify-center rounded-xl px-6 py-3 text-sm font-bold motion-standard"
+                        style="background: var(--color-brand-500); color: #04201c; min-height: 44px">{{ $buyLabel }}</button>
+            @elseif ($owned && $libraryUrl)
+                <a href="{{ $libraryUrl }}"
+                   class="btn mt-4 inline-flex items-center justify-center rounded-xl px-6 py-3 text-sm font-bold motion-standard"
+                   style="background: var(--color-brand-500); color: #04201c; min-height: 44px">{{ $t['hero.library_link'] }}</a>
+            @endif
+        </section>
+    @endif
 
     {{-- ⭐ الشراء نفسه بالبوب-أب المشترك — والسعر يُحسَب في الخادم ولا يُقبَل من الطلب --}}
     @if ($canBuy)
@@ -426,31 +444,34 @@
 
 {{-- ========================== 10) الشريط اللاصق على الموبايل: السعر + الزرّ --}}
 @section('mobile_action')
-    @if ($landing['owned'])
-        @if (\Illuminate\Support\Facades\Route::has('library.index'))
-            <a href="{{ route('library.index') }}"
+    @if ($landing['sections']['sticky'])
+        @php $st = $landing['texts']; @endphp
+
+        @if ($landing['owned'])
+            @if (\Illuminate\Support\Facades\Route::has('library.index'))
+                <a href="{{ route('library.index') }}"
+                   class="btn w-full inline-flex items-center justify-center rounded-xl px-4 py-3 text-sm font-semibold"
+                   style="background: var(--color-brand-500); color: #04201c; min-height: 44px">{{ $st['hero.library_link'] }}</a>
+            @endif
+        @elseif ($landing['available'] && auth()->check())
+            <div class="flex items-center gap-3 min-w-0">
+                <span class="text-sm min-w-0">
+                    <span class="block text-xs" style="color: var(--text-muted)">{{ $st['sticky.price_label'] }}</span>
+                    <b>{{ $landing['price'] > 0 ? \App\Services\Store\Coins::label($landing['price'], $quote['currency']) : $st['hero.free_label'] }}</b>
+                </span>
+                <button type="button" data-modal-open="purchase-sheet"
+                        class="btn flex-1 inline-flex items-center justify-center rounded-xl px-4 py-3 text-sm font-semibold"
+                        style="background: var(--color-brand-500); color: #04201c; min-height: 44px">{{ $st['hero.cta'] }}</button>
+            </div>
+        @elseif ($landing['available'])
+            <a href="{{ route('login') }}"
                class="btn w-full inline-flex items-center justify-center rounded-xl px-4 py-3 text-sm font-semibold"
-               style="background: var(--color-brand-500); color: #04201c; min-height: 44px">{{ setting('store.bundle.library_link_text', 'افتح من مكتبتي') }}</a>
+               style="background: var(--color-brand-500); color: #04201c; min-height: 44px">{{ $st['hero.login_cta'] }}</a>
         @endif
-    @elseif ($landing['available'] && auth()->check())
-        <div class="flex items-center gap-3 min-w-0">
-            <span class="text-sm min-w-0">
-                <span class="block text-xs" style="color: var(--text-muted)">{{ setting('store.bundle.sticky_price_label', 'سعر الباقة') }}</span>
-                <b>{{ $landing['price'] > 0 ? \App\Services\Store\Coins::label($landing['price'], $quote['currency']) : setting('store.free_label', 'مجّانيّ') }}</b>
-            </span>
-            <button type="button" data-modal-open="purchase-sheet"
-                    class="btn flex-1 inline-flex items-center justify-center rounded-xl px-4 py-3 text-sm font-semibold"
-                    style="background: var(--color-brand-500); color: #04201c; min-height: 44px">
-                {{ setting('store.bundle.cta_label', 'احصل على الباقة كاملة') }}
-            </button>
-        </div>
-    @elseif ($landing['available'] && ! auth()->check())
-        <a href="{{ route('login') }}"
-           class="btn w-full inline-flex items-center justify-center rounded-xl px-4 py-3 text-sm font-semibold"
-           style="background: var(--color-brand-500); color: #04201c; min-height: 44px">{{ setting('store.bundle.login_cta', 'سجّل دخولك للشراء') }}</a>
     @endif
 @endsection
 
+@if ($landing['countdown_ends_at'])
 @push('scripts')
     <script>
         /*
@@ -496,4 +517,17 @@
             });
         })();
     </script>
+@endpush
+@endif
+
+@push('scripts')
+    {{--
+        ⭐ **الكود المخصّص قبل `</body>` مباشرةً** — و`@stack('scripts')` آخر ما في
+        الصفحة قبل الوسم الخاتم، وهذه الدفعة آخر دفعةٍ في الملفّ فتخرج أخيرًا.
+        العامّ أوّلًا ثمّ الخاصّ، وكلاهما **خامٌّ بلا تعقيم** (أمر المالك) بعد
+        اجتياز حارس المالك على الخادم **وبوّابة الموافقة** (21.3-د · 2.9).
+    --}}
+    @foreach ($injections['body_end'] as $snippet)
+        {!! $snippet !!}
+    @endforeach
 @endpush

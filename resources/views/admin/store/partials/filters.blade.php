@@ -33,6 +33,30 @@
         </label>
     @endif
 
+    {{-- فلاتر البندلز بنصّ 24: بحث بالاسم · الحالة · نطاق السعر · الفرز --}}
+    @if ($tab === 'bundles')
+        <label class="text-xs">
+            <span class="block mb-1" style="color: var(--text-muted)">{{ setting('store.admin.bundles.col_status') }}</span>
+            <select name="status" class="rounded-xl px-3 py-2 text-sm"
+                    style="min-height: 44px; background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
+                <option value="">{{ setting('store.admin.filter_all_label', 'الكلّ') }}</option>
+                @foreach ((array) setting('store.admin.status_labels', []) as $key => $label)
+                    <option value="{{ $key }}" @selected($filters['status'] === $key)>{{ $label }}</option>
+                @endforeach
+            </select>
+        </label>
+
+        <label class="text-xs">
+            <span class="block mb-1" style="color: var(--text-muted)">{{ setting('store.admin.bundles.sort_label', 'الفرز') }}</span>
+            <select name="sort" class="rounded-xl px-3 py-2 text-sm"
+                    style="min-height: 44px; background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
+                @foreach ($bundleSortOptions as $key => $label)
+                    <option value="{{ $key }}" @selected($filters['sort'] === $key)>{{ $label }}</option>
+                @endforeach
+            </select>
+        </label>
+    @endif
+
     @if ($tab === 'library')
         <label class="text-xs">
             <span class="block mb-1" style="color: var(--text-muted)">وضع الحماية</span>
@@ -64,6 +88,20 @@
             style="background: var(--color-brand-500); color: #04201c">فلترة</button>
 
     <x-slot:advanced>
+        @if ($tab === 'bundles')
+            {{-- نطاق السعر (24) — على سعر البندل نفسه لا على قيمة عناصره --}}
+            <label class="text-xs">
+                <span class="block mb-1" style="color: var(--text-muted)">{{ setting('store.admin.bundles.price_min_label', 'أقلّ سعر') }}</span>
+                <input type="number" name="price_min" min="0" value="{{ request('price_min') }}"
+                       class="rounded-xl px-3 py-2 text-sm" style="min-height: 44px; background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
+            </label>
+            <label class="text-xs">
+                <span class="block mb-1" style="color: var(--text-muted)">{{ setting('store.admin.bundles.price_max_label', 'أعلى سعر') }}</span>
+                <input type="number" name="price_max" min="0" value="{{ request('price_max') }}"
+                       class="rounded-xl px-3 py-2 text-sm" style="min-height: 44px; background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
+            </label>
+        @endif
+
         <label class="text-xs">
             <span class="block mb-1" style="color: var(--text-muted)">من</span>
             <input type="date" name="from" value="{{ $filters['from'] }}" class="rounded-xl px-3 py-2 text-sm"

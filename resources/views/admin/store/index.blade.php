@@ -57,10 +57,41 @@
     @endif
 
     @if ($rows->isEmpty())
-        <x-empty message="مفيش حاجة هنا لسه — ابدأ بأوّل عنصر." action="+ عنصر جديد" :href="route('admin.store.index', ['tab' => $tab])" />
+        {{-- الحالة الفارغة بنصّها المنصوص في 24 لكلّ شاشة (2.15-ب) --}}
+        <x-empty :message="$tab === 'bundles'
+                    ? setting('store.admin.bundles.empty_text')
+                    : setting('store.admin.empty_text', 'مفيش حاجة هنا لسه — ابدأ بأوّل عنصر.')"
+                 :action="$tab === 'bundles' ? setting('store.admin.bundles.new_label') : setting('store.admin.new_item_label', '+ عنصر جديد')"
+                 :href="route('admin.store.index', ['tab' => $tab])" />
     @else
         @include('admin.store.partials.table-' . $tab)
         <div class="mt-5">{{ $rows->links() }}</div>
+    @endif
+
+    {{--
+        ⭐ **بلوك إعدادات شاشة البندلز** (24 حرفيًّا) — ومعه **قاعدتان مقفولتان**
+        تُعرَضان ملاحظتين لا مفتاحين: «قاعدة السعر السياقيّ» و«لا يوجد نوع هديّة».
+        فالقاعدة التي لا تُرى تُنسى فتُخالَف.
+    --}}
+    @if ($tab === 'bundles' && $bundleSettings !== null)
+        <div class="mt-4 grid gap-3 md:grid-cols-2">
+            @foreach ($bundleLockedRules as $rule)
+                <div class="card p-4 min-w-0">
+                    <h3 class="font-bold text-sm inline-flex items-center gap-2">
+                        <span aria-hidden="true" style="color: var(--color-state-honor)"><x-icon name="lock" size="16" /></span>
+                        <span>{{ $rule['title'] }}</span>
+                    </h3>
+                    <p class="text-xs mt-2" style="color: var(--text-muted)">{{ $rule['body'] }}</p>
+                </div>
+            @endforeach
+        </div>
+
+        @include('admin.screens24.settings', [
+            'settings' => $bundleSettings,
+            'saveRoute' => route('admin.store.bundles.settings'),
+            'resetRoute' => route('admin.store.bundles.settings.reset'),
+            'blockTitle' => setting('store.admin.bundles.settings_title'),
+        ])
     @endif
 
     @include('admin.store.partials.new-item-modal')

@@ -28,6 +28,9 @@ class Bundle extends Model
         return [
             'original_value' => 'decimal:2',
             'price_coins' => 'decimal:2',
+            // ⭐ override نصوص اللاندنج وحالات سكشناتها — والمفتاح الغائب = وراثةٌ حيّة
+            'landing_texts' => 'array',
+            'landing_sections' => 'array',
             'landing_outcomes' => 'array',
             'landing_fit_for' => 'array',
             'landing_not_fit_for' => 'array',
