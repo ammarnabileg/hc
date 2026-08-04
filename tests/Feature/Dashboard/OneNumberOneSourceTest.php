@@ -148,7 +148,6 @@ class OneNumberOneSourceTest extends TestCase
         $this->assertSame(4, $expected, 'عتبة 10.1: 2,250 ≤ 3,370 < 3,500 ⟵ المستوى 4');
 
         // (أ) كارت الـKPI
-        $kpis = collect(app(DashboardService::class)->kpis($user))->keyBy('key' ?? 'label');
         $levelCard = collect(app(DashboardService::class)->kpis($user))->firstWhere('icon', 'xp');
         $this->assertStringContainsString('المستوى '.$expected, (string) $levelCard['hint']);
         $this->assertSame(3370, $levelCard['value']);
