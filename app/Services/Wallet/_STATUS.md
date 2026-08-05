@@ -32,8 +32,8 @@
 
 ## ⬜ المتبقّي
 <!-- بيدك:بداية:المتبقّي -->
-### ⬜ نصٌّ محروق باقٍ في هذا المجلّد — بسببه مكتوبًا (دفعة `app/Services` · 2.13)
-- `WithdrawService.php` — **4** موضعًا داخل `WithdrawService::METHODS`: **تعبيرٌ ثابت (`const`) لا يقبل استدعاء `setting()`**، وتحويله إلى ميثود يستلزم تعديل مواضع قراءته في `app/Http/**` و`resources/**` — وهي **ملكيّة زملاء** (BUILD.md §1). فيبقى بانتظار مالك تلك الملفّات.
+### ✅ نصٌّ محروق سُدّ في هذا المجلّد (دفعة تحويل الثوابت إلى `setting()` · 2.13 — 2026-08-05)
+- `WithdrawService::METHODS` ⟵ `METHOD_KEYS` (مفاتيح داخليّة) + `methods()` (ميثود تقرأ `setting()`). حُدِّثت `WalletController` و`WalletOperationsController` و`resources/views/wallet/components/operations.blade.php` (`finance.withdraw.method.*`).
 
 **أ-1 اتقفلت (2026-08-03) — إصلاحٌ بدليل تشغيل ومعه اختبار طفرة لكلّ حارس.**
 
