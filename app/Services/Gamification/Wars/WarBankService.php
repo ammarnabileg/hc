@@ -14,11 +14,53 @@ use App\Services\Admin\Volunteer\AuditTrail;
  */
 class WarBankService
 {
-    public const DIFFICULTIES = ['easy' => 'سهل', 'medium' => 'متوسّط', 'hard' => 'صعب'];
+    /** مفاتيح داخليّة — لا نصّ (2.13-ب) */
+    public const DIFFICULTY_KEYS = ['easy', 'medium', 'hard'];
 
-    public const SOURCES = ['arena' => 'ساحة', 'training' => 'تدريبات'];
+    public const SOURCE_KEYS = ['arena', 'training'];
 
-    public const STATUSES = ['active' => 'مفعّل', 'draft' => 'مسودّة', 'archived' => 'مؤرشف'];
+    public const STATUS_KEYS = ['active', 'draft', 'archived'];
+
+    /**
+     * مستويات الصعوبة بعناوينها — من `setting()` لا محروقة (2.13).
+     *
+     * @return array<string, string>
+     */
+    public static function difficulties(): array
+    {
+        return [
+            'easy' => (string) setting('wars.bank.difficulty.easy', 'سهل'),
+            'medium' => (string) setting('wars.bank.difficulty.medium', 'متوسّط'),
+            'hard' => (string) setting('wars.bank.difficulty.hard', 'صعب'),
+        ];
+    }
+
+    /**
+     * مصادر السؤال بعناوينها — من `setting()` لا محروقة (2.13).
+     *
+     * @return array<string, string>
+     */
+    public static function sources(): array
+    {
+        return [
+            'arena' => (string) setting('wars.bank.source.arena', 'ساحة'),
+            'training' => (string) setting('wars.bank.source.training', 'تدريبات'),
+        ];
+    }
+
+    /**
+     * حالات السؤال بعناوينها — من `setting()` لا محروقة (2.13).
+     *
+     * @return array<string, string>
+     */
+    public static function statuses(): array
+    {
+        return [
+            'active' => (string) setting('wars.bank.status.active', 'مفعّل'),
+            'draft' => (string) setting('wars.bank.status.draft', 'مسودّة'),
+            'archived' => (string) setting('wars.bank.status.archived', 'مؤرشف'),
+        ];
+    }
 
     /** حفظ سؤال (إضافة أو تعديل) — و«رقميّ» تُشتَقّ من الإجابة لا من إدخال يدويّ */
     public function save(?WarQuestion $question, array $data, ?User $actor = null): WarQuestion
@@ -40,9 +82,9 @@ class WarBankService
             'is_numeric' => $answer !== null && $answer !== '' && is_numeric($answer),
             'tolerance' => ($data['tolerance'] ?? null) !== '' ? $data['tolerance'] ?? null : null,
             'unit' => $data['unit'] ?? null,
-            'difficulty' => array_key_exists($data['difficulty'] ?? '', self::DIFFICULTIES) ? $data['difficulty'] : 'medium',
-            'source' => array_key_exists($data['source'] ?? '', self::SOURCES) ? $data['source'] : 'arena',
-            'status' => array_key_exists($data['status'] ?? '', self::STATUSES) ? $data['status'] : 'draft',
+            'difficulty' => array_key_exists($data['difficulty'] ?? '', self::DIFFICULTY_KEYS) ? $data['difficulty'] : 'medium',
+            'source' => array_key_exists($data['source'] ?? '', self::SOURCE_KEYS) ? $data['source'] : 'arena',
+            'status' => array_key_exists($data['status'] ?? '', self::STATUS_KEYS) ? $data['status'] : 'draft',
         ]);
 
         if (! $question->exists) {
@@ -112,8 +154,8 @@ class WarBankService
             $rows[] = [
                 'text' => $text,
                 'answer' => $answer !== '' ? $answer : null,
-                'difficulty' => array_key_exists(trim((string) ($cells[2] ?? '')), self::DIFFICULTIES) ? trim((string) $cells[2]) : 'medium',
-                'source' => array_key_exists(trim((string) ($cells[3] ?? '')), self::SOURCES) ? trim((string) $cells[3]) : 'arena',
+                'difficulty' => array_key_exists(trim((string) ($cells[2] ?? '')), self::DIFFICULTY_KEYS) ? trim((string) $cells[2]) : 'medium',
+                'source' => array_key_exists(trim((string) ($cells[3] ?? '')), self::SOURCE_KEYS) ? trim((string) $cells[3]) : 'arena',
                 'options' => array_values(array_filter(array_map('trim', explode('|', (string) ($cells[4] ?? ''))))),
             ];
         }
