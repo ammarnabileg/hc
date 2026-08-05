@@ -126,6 +126,10 @@ class AdminContentDemoSeeder extends Seeder
             ['certificates.issue.batch_limit', 'certificates', 'حدّ الأكواد في الدفعة', 'number', '200'],
             ['certificates.issue.code_separators', 'certificates', 'فواصل الأكواد المقبولة', 'string', " \n\r\t,;،"],
             ['certificates.issue.error_not_found', 'certificates', 'نصّ الكود غير الموجود', 'string', 'الكود غير موجود'],
+            // عناوين حالات الشهادة (CertificateBulkIssuer::statuses — 2.13-ب)
+            ['certificates.bulk.status.valid', 'certificates', 'حالة: سارية', 'string', 'سارية'],
+            ['certificates.bulk.status.expired', 'certificates', 'حالة: منتهية', 'string', 'منتهية'],
+            ['certificates.bulk.status.revoked', 'certificates', 'حالة: ملغاة', 'string', 'ملغاة'],
             ['certificates.issue.error_duplicate', 'certificates', 'نصّ التكرار', 'string', 'صدرت له من قبل'],
             ['certificates.issue.notify_user', 'certificates', 'إشعار صاحب الشهادة عند الإصدار', 'bool', '1'],
             ['certificates.issue.notice_title', 'certificates', 'عنوان إشعار الإصدار', 'string', 'مبروك — صدرت شهادتك 🎓'],
