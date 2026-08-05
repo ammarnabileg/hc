@@ -3,8 +3,12 @@
 namespace Tests\Feature\Admin\System;
 
 use App\Models\Setting;
+use App\Services\Admin\System\SettingKeyScanner;
 use App\Services\Admin\System\SettingsCoverage;
 use App\Services\Admin\System\SettingsRegistry;
+use App\Services\Admin\Volunteer\SettingsCatalog;
+use App\Services\AdminScreens\ScreenSettings;
+use App\Services\Ads\AdEvents;
 use Database\Seeders\DemoSeeder;
 use Database\Seeders\SettingSeeder;
 
@@ -289,12 +293,12 @@ class AdminSystemSettingsCoverageTest extends SystemTestCase
 
         // نطفئ التسجيل يدويًّا بمحاكاة القارئ بلا كتالوجه، لا بتعديل الكود:
         // النسخة المصغّرة من نفس منطق deadKeys() بلا سطر تسجيل BundleLanding.
-        $scanner = app(\App\Services\Admin\System\SettingKeyScanner::class);
+        $scanner = app(SettingKeyScanner::class);
         $read = array_flip(array_keys($scanner->keys()));
         $viaCatalogWithoutBundle = array_flip(array_merge(
-            array_keys(\App\Services\Admin\Volunteer\SettingsCatalog::all()),
-            array_keys(\App\Services\AdminScreens\ScreenSettings::catalog()),
-            array_keys(\App\Services\Ads\AdEvents::catalog()),
+            array_keys(SettingsCatalog::all()),
+            array_keys(ScreenSettings::catalog()),
+            array_keys(AdEvents::catalog()),
         ));
 
         $stillFalselyDead = ! isset($read['store.bundle.hero_badge'])
