@@ -205,7 +205,7 @@ class SettingsAdminController extends Controller
             'snapshot' => $snapshot,
             // الفروق لا تُحسَب إلّا بعد فحصٍ صريح — فلا يفاجئ الشاشةَ حسابٌ ثقيل
             'diff' => $snapshot && $snapshot->status === 'checked' ? $sync->diff($snapshot) : null,
-            'changes' => CountryDataSync::CHANGES,
+            'changes' => CountryDataSync::changes(),
         ];
     }
 

@@ -45,8 +45,23 @@ class CountryDataSync
         return [self::FORMAT_DR5HN => setting('countries.country_data_sync.formats_1', 'مصدر dr5hn'), self::FORMAT_NATIVE => setting('countries.country_data_sync.formats_2', 'شكل مخرَج المنصّة')];
     }
 
-    /** أنواع الفروق الثلاثة كما ينصّ عليها 24.3: مضاف / محذوف / معدَّل. */
-    public const CHANGES = ['added' => 'مضاف', 'removed' => 'محذوف من المصدر', 'changed' => 'معدَّل'];
+    /** مفاتيح أنواع الفروق الداخليّة — لا نصّ (2.13-ب) */
+    public const CHANGE_KEYS = ['added', 'removed', 'changed'];
+
+    /**
+     * أنواع الفروق الثلاثة كما ينصّ عليها 24.3: مضاف / محذوف / معدَّل —
+     * من `setting()` لا محروقة (2.13).
+     *
+     * @return array<string, string>
+     */
+    public static function changes(): array
+    {
+        return [
+            'added' => (string) setting('countries.sync.change.added', 'مضاف'),
+            'removed' => (string) setting('countries.sync.change.removed', 'محذوف من المصدر'),
+            'changed' => (string) setting('countries.sync.change.changed', 'معدَّل'),
+        ];
+    }
 
     /** حقول الدولة القابلة للتحديث من المصدر — والمعرّف `iso2` ليس منها. */
     private const COUNTRY_FIELDS = ['name_ar', 'name_en', 'phone_code', 'timezone'];

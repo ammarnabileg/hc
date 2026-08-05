@@ -287,6 +287,10 @@ class AdminSystemDemoSeeder extends Seeder
             ['settings.batch.error.unknown_group', 'system', 'رسالة دفعةٍ لمجموعةٍ خارج التاب', 'text', 'المجموعة دي مش في التاب ده — حدّث الصفحة.', false],
             ['countries.source', 'countries', 'مصدر بيانات الدول', 'string', 'dr5hn', false],
             ['countries.no_auto_delete', 'countries', 'لا حذف تلقائيّ — المحذوف يُخفى فقط', 'bool', '1', false],
+            // عناوين أنواع الفروق (CountryDataSync::changes — 2.13-ب)
+            ['countries.sync.change.added', 'countries', 'نوع الفرق: مضاف', 'string', 'مضاف', false],
+            ['countries.sync.change.removed', 'countries', 'نوع الفرق: محذوف من المصدر', 'string', 'محذوف من المصدر', false],
+            ['countries.sync.change.changed', 'countries', 'نوع الفرق: معدَّل', 'string', 'معدَّل', false],
             // ---------------- 12.7-د: فحص الفروق قبل الدمج بلا فقد
             ['countries.source_url', 'countries', 'رابط المصدر', 'string', 'https://github.com/dr5hn/countries-states-cities-database', false],
             ['countries.attribution', 'countries', 'نصّ الإسناد (ODbL)', 'text', 'بيانات الدول والمحافظات من dr5hn/countries-states-cities-database — برخصة ODbL v1.0.', false],
