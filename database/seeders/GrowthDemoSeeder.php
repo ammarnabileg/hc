@@ -159,6 +159,9 @@ class GrowthDemoSeeder extends Seeder
             ['ads.consent.reject_label', 'ads', 'زرّ الرفض', 'string', 'أرفض', false],
             ['ads.consent.custom_label', 'ads', 'زرّ التخصيص', 'string', 'تخصيص', false],
             ['ads.consent.save_label', 'ads', 'زرّ حفظ التخصيص', 'string', 'احفظ اختياري', false],
+            // ⭐ التأجيل (21.1-د): ليس قرارًا — زرّ «لاحقًا» ومدّة عودة البانر
+            ['ads.consent.later_label', 'ads', 'زرّ التأجيل', 'string', 'لاحقًا', false],
+            ['ads.consent.snooze_days', 'ads', 'مدّة تأجيل البانر (أيّام)', 'number', '7', false],
             ['ads.consent.purpose_ads', 'ads', 'غرض: الإعلان', 'string', 'قياس الإعلانات وإعادة الاستهداف', false],
             ['ads.consent.purpose_analytics', 'ads', 'غرض: القياس الداخليّ', 'string', 'قياس داخليّ لتحسين المنصّة', false],
             ['ads.consent.policy_link', 'ads', 'رابط سياسة الخصوصيّة', 'string', 'سياسة الخصوصيّة وحقّ السحب', false],

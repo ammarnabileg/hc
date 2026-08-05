@@ -7,7 +7,27 @@
      * المتصفّح ولا من الخادم. ولا يظهر البانر أصلًا والتتبّع مطفأ كلّيًّا.
      */
     $adConsent = app(\App\Services\Ads\Consent::class);
-    $askConsent = $adConsent->shouldAsk();
+
+    /*
+     | ⭐ التأجيل (21.1-د · 21.3-د): «بلا Dark Patterns — البانر ليس حاصرًا».
+     | كوكيٌّ مستقلّ عن كوكيّ القرار (`tracking_consent`) تمامًا — **لا يُقرَأ هنا
+     | كقرار ولا يُكتَب كذلك أبدًا** — فطول عمره لا يعني موافقةً ولا رفضًا، بل
+     | يعني فقط «لا تُزعجني الآن». وإن انتهت مدّته يعود البانر من تلقاء نفسه —
+     | وإن كان القرار قد اتُّخِذ فعلًا (كوكي أو حساب) فـ`shouldAsk()` أصلًا لا
+     | تسأل بغضّ النظر عن التأجيل.
+     */
+    $snoozedUntil = request()->cookie('tracking_consent_snoozed_until');
+    $isSnoozed = false;
+
+    if (is_string($snoozedUntil) && trim($snoozedUntil) !== '') {
+        try {
+            $isSnoozed = \Illuminate\Support\Carbon::parse($snoozedUntil)->isFuture();
+        } catch (\Throwable) {
+            $isSnoozed = false;
+        }
+    }
+
+    $askConsent = $adConsent->shouldAsk() && ! $isSnoozed;
     $privacyUrl = \Illuminate\Support\Facades\Route::has('settings.privacy') ? route('settings.privacy') : null;
     $purposeLabels = [
         'ads' => setting('ads.consent.purpose_ads', 'قياس الإعلانات وإعادة الاستهداف'),
@@ -40,6 +60,17 @@
                     class="rounded-xl px-4 py-2 text-sm motion-standard" style="color: var(--color-brand-500)">
                 {{ setting('ads.consent.custom_label', 'تخصيص') }}
             </button>
+
+            {{-- ⭐ تأجيل — ليس قرارًا (21.1-د · 21.3-د): لا يُكتَب قبولٌ ولا رفض،
+                 والبانر يعود بعد مدّة الإعداد. وهدف لمسٍ ≥44px (2.15-ج) --}}
+            <form method="post" action="{{ route('consent.snooze') }}">
+                @csrf
+                <button data-consent-snooze
+                        class="rounded-xl px-4 text-sm motion-standard"
+                        style="min-height:44px; color: var(--text-muted)">
+                    {{ setting('ads.consent.later_label', 'لاحقًا') }}
+                </button>
+            </form>
         </div>
 
         {{-- لوحة التخصيص: غرضٌ غرض، ولا شيء مفعَّل مقدَّمًا — الصمت ليس موافقة --}}
