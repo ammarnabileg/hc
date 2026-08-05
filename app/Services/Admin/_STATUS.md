@@ -28,8 +28,8 @@
 ## ⬜ المتبقّي
 <!-- بيدك:بداية:المتبقّي -->
 ### ⬜ نصٌّ محروق باقٍ في هذا المجلّد — بسببه مكتوبًا (دفعة `app/Services` · 2.13)
-- `AuditTrail.php` — **10** موضعًا داخل `AuditTrail::ACTIONS`: **تعبيرٌ ثابت (`const`) لا يقبل استدعاء `setting()`**، وتحويله إلى ميثود يستلزم تعديل مواضع قراءته في `app/Http/**` و`resources/**` — وهي **ملكيّة زملاء** (BUILD.md §1). فيبقى بانتظار مالك تلك الملفّات.
-- `UserDirectory.php` — **14** موضعًا داخل `UserDirectory::COLUMNS · STATUSES`: **تعبيرٌ ثابت (`const`) لا يقبل استدعاء `setting()`**، وتحويله إلى ميثود يستلزم تعديل مواضع قراءته في `app/Http/**` و`resources/**` — وهي **ملكيّة زملاء** (BUILD.md §1). فيبقى بانتظار مالك تلك الملفّات.
+- ✅ **[مقفولة 2026-08-05] `AuditTrail::ACTIONS` صار `AuditTrail::actions()`.** الشجرة ساكنة فصار القارئ مِلكي: 10 عناوين أفعالٍ عربيّة صارت تُقرَأ من `setting()`، والأكواد وحدها بقيت ثابتًا داخليًّا (`ACTION_KEYS`). حُدِّثت 3 مواضع قراءة (`DashboardController` واحد + قالبان). المفاتيح في `AdminSystemDemoSeeder`. **الدليل:** `php artisan test --filter="AuditTrail|Dashboard"` (43) قبل/بعد بلا فرق؛ وتغيير قيمة `audit.action.role_created` في القاعدة يغيّر عنوان الفلتر فعلًا (مُجرَّب يدويًّا بـ`tinker`).
+- ✅ **[مقفولة 2026-08-05] `UserDirectory::COLUMNS`/`STATUSES` صارا `columns()`/`statuses()`.** 10 عناوين أعمدة + 5 حالات حساب صارت من `setting()`، والمفاتيح الداخليّة بقيت `COLUMN_KEYS`/`STATUS_KEYS`. حُدِّثت 7 مواضع قراءة (كنترولر واحد + 5 قوالب). المفاتيح في `AdminCoreDemoSeeder`. **الدليل:** `php artisan test --filter="UserDirectory|Admin.*User"` (31) قبل/بعد بلا فرق.
 - **فجوة `settings:coverage --dead` (2026-08-05):** `admin.segments.refresh_hours`
   مزروعٌ (`AdminCoreDemoSeeder`) ولا قارئ له — `AudienceSegments.php` لا يستشير
   دوريّة تحديث الشريحة الديناميكيّة (12.13) في أيّ مسار حاليّ (لا Job مجدوَل
