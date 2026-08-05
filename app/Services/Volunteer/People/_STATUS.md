@@ -33,8 +33,8 @@
 
 ## ⬜ المتبقّي
 <!-- بيدك:بداية:المتبقّي -->
-### ⬜ نصٌّ محروق باقٍ في هذا المجلّد — بسببه مكتوبًا (دفعة `app/Services` · 2.13)
-- `ScorecardEngine.php` — **1** موضعًا داخل `ScorecardEngine::ARCHIVED_TAG`: **تعبيرٌ ثابت (`const`) لا يقبل استدعاء `setting()`**، وتحويله إلى ميثود يستلزم تعديل مواضع قراءته في `app/Http/**` و`resources/**` — وهي **ملكيّة زملاء** (BUILD.md §1). فيبقى بانتظار مالك تلك الملفّات.
+### ✅ نصٌّ محروق سُدّ في هذا المجلّد (دفعة تحويل الثوابت إلى `setting()` · 2.13 — 2026-08-05)
+- `ScorecardEngine::ARCHIVED_TAG` (ثابتٌ ⟵ ميثود `archivedTag()` تقرأ `setting('scorecards.archived_tag', …)`). حُدِّثت `InterviewController` و`tests/Feature/Volunteer/People/ScorecardTest.php` والاستخدام الداخليّ في `summary()`.
 
 > فجوات أثبتها **أوديت المرحلة 8 (13.4)** بالتشغيل يوم 2026-08-03 — والدستور أصلٌ والمبنيّ فرعٌ عنه.
 

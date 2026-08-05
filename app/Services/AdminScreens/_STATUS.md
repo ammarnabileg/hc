@@ -28,10 +28,12 @@
 ## ⬜ المتبقّي
 <!-- بيدك:بداية:المتبقّي -->
 ### ⬜ نصٌّ محروق باقٍ في هذا المجلّد — بسببه مكتوبًا (دفعة `app/Services` · 2.13)
-- `MeetingsMirror.php` — **3** موضعًا داخل `MeetingsMirror::STATUSES`: **تعبيرٌ ثابت (`const`) لا يقبل استدعاء `setting()`**، وتحويله إلى ميثود يستلزم تعديل مواضع قراءته في `app/Http/**` و`resources/**` — وهي **ملكيّة زملاء** (BUILD.md §1). فيبقى بانتظار مالك تلك الملفّات.
 - `QuestionBank.php` — **1** موضعًا: قيمة **تُطابَق في مدخلات CSV** («نعم» · رأس عمود «السؤال») — ثابتُ تحليلٍ لا نصُّ عرض؛ نقلُه يكسر الاستيراد.
-- `ReferralAdmin.php` — **6** موضعًا داخل `ReferralAdmin::STATUSES · PAYOUTS`: **تعبيرٌ ثابت (`const`) لا يقبل استدعاء `setting()`**، وتحويله إلى ميثود يستلزم تعديل مواضع قراءته في `app/Http/**` و`resources/**` — وهي **ملكيّة زملاء** (BUILD.md §1). فيبقى بانتظار مالك تلك الملفّات.
 - `ReportScheduler.php` — **1** موضعًا: **رسالة سجلّ للمطوّر** (`Log::*` / `report()`) لا تصل شاشةً — 2.13-أ تقصر القاعدة على «النصوص الظاهرة للمستخدم».
+
+### ✅ نصٌّ محروق سُدّ في هذا المجلّد (دفعة تحويل الثوابت إلى `setting()` · 2.13 — 2026-08-05)
+- `MeetingsMirror::STATUSES` ⟵ `STATUS_KEYS` (مفاتيح داخليّة) + `statuses()` (ميثود تقرأ `setting()`). حُدِّثت `MeetingsAdminController` (`admin_meetings.status.*`).
+- `ReferralAdmin::STATUSES · PAYOUTS` ⟵ `STATUS_KEYS`/`PAYOUT_KEYS` + `statuses()`/`payouts()`. حُدِّثت `ReferralAdminController` (تابان + لوحة التدقيق) والملفّ نفسه (`exportRows()`) (`referral_admin.status.*` · `referral_admin.payout.*`).
 
 > **أوديت المرحلة 12 (القسم 24) — 2026-08-03.** الترتيب الحاكم: **الوظيفيّ (1→23) > 24 > الكود**.
 
