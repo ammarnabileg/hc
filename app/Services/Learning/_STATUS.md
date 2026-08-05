@@ -33,6 +33,12 @@
 
 ## ⬜ المتبقّي
 <!-- بيدك:بداية:المتبقّي -->
+- **فجوة `settings:coverage --dead` (2026-08-05):** ثماني مفاتيح `learning.icon.attachment/done`
+  و`learning.questions.open_label/retry_hint/reward_label/solved_label/submit/xp_reason`
+  مزروعةٌ (`LearningDemoSeeder`) ولا قارئ لها — مكوّن أسئلة الدرس التفاعليّة
+  (أيقونات المرفق/الإنجاز ونصوص زرّ الإرسال والمكافأة) غير موجودٍ بعد في
+  `app/Http/Controllers/Trainee` بصيغته الكاملة؛ الموجود يستعمل نصوصًا عامّة
+  أخرى. وصلٌ يحتاج بناء ذلك المكوّن لا ربط سطرٍ واحد.
 - ✅ **5 — الإتاحة صار لها حارس على الملاحظات** (`EnsureNotesWithinAvailability`) وعلى بلوك الامتحان في صفحة التدريب (`CredentialService::courseExam()` صار يقرأ الإتاحة). دليل تشغيل: `POST /learning/courses/assywt-lml-lttwwyw/notes` كان **200 «اتحفظ ✓»** والنافذة اليوميّة 05:00→07:00 والساعة 21:5x ⟵ صار **403** `{"saved":false,"locked":true}` بنصّ «الملاحظات جزء من التدريب… يفتح الثلاثاء 4 أغسطس — 05:00»، **والتصدير ما زال 200** ومن داخل النافذة الحفظ 200. واختباره `tests/Feature/Learning/NotesAvailabilityGateTest.php` (8 حالات).
 - **3 (مرفقات الفيديو) — HTML غير مدعوم أصلًا:** `media.upload.allowed_extensions` = `jpg,jpeg,png,webp,gif,pdf,doc,docx,mp3,wav,mp4,csv,txt` — بلا `html`/`htm`. والدستور ينصّ على **صور / PDF / HTML / Word / صوت / MP3**. ⇐ ناقص: إضافة نوع HTML إلى الأنواع المسموحة وعرضه.
 - **5 — الدولة ليست ديناميكيّة:** `TimezoneDetector::remember()` يكتب `country_id` **فقط إن كان فارغًا**. دليل تشغيل: الدولة EG ثمّ `remember('Asia/Riyadh')` ⟵ بقيت EG. والنصّ: «ديناميكي — يتبع مكانه دلوقتي، **مش دولة ثابتة عند التسجيل**». ⇐ ناقص: تحديث الدولة مع كلّ كشفٍ جديد.
