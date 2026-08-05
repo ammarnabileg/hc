@@ -64,8 +64,8 @@ class PaywallService
         return [
             'active' => true,
             'locked' => true,
-            'reason' => $this->text($course, 'learning.paywall.lock_reason'),
-            'headline' => $this->text($course, 'learning.paywall.headline'),
+            'reason' => $this->lockReasonText($course),
+            'headline' => $this->headlineText($course),
             'price' => $this->price($course),
             'buy_url' => $this->buyUrl($course),
             'percent' => $percent,
@@ -125,22 +125,26 @@ class PaywallService
     }
 
     /**
-     * نصّ الرسالة: **ما كتبه الأدمن للتدريب نفسه أوّلًا** (`paywall_text_ar/en`)
+     * عنوان الرسالة: **ما كتبه الأدمن للتدريب نفسه أوّلًا** (`paywall_text_ar/en`)
      * ثمّ الإعداد العامّ — ولا نصّ محروق في الكود (2.13).
      */
-    private function text(Course $course, string $key): string
+    private function headlineText(Course $course): string
     {
-        if ($key === 'learning.paywall.headline') {
-            $own = app()->getLocale() === 'en'
-                ? trim((string) ($course->paywall_text_en ?? '')) ?: trim((string) ($course->paywall_text_ar ?? ''))
-                : trim((string) ($course->paywall_text_ar ?? ''));
+        $own = app()->getLocale() === 'en'
+            ? trim((string) ($course->paywall_text_en ?? '')) ?: trim((string) ($course->paywall_text_ar ?? ''))
+            : trim((string) ($course->paywall_text_ar ?? ''));
 
-            if ($own !== '') {
-                return str_replace('{course}', (string) $course->name_ar, $own);
-            }
+        if ($own !== '') {
+            return str_replace('{course}', (string) $course->name_ar, $own);
         }
 
-        return str_replace('{course}', (string) $course->name_ar, (string) setting($key));
+        return str_replace('{course}', (string) $course->name_ar, (string) setting('learning.paywall.headline'));
+    }
+
+    /** سبب القفل — الإعداد العامّ وحده (لا تخصيص لكلّ تدريب هنا) */
+    private function lockReasonText(Course $course): string
+    {
+        return str_replace('{course}', (string) $course->name_ar, (string) setting('learning.paywall.lock_reason'));
     }
 
     private function buyUrl(Course $course): ?string

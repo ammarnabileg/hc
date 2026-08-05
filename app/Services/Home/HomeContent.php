@@ -71,7 +71,7 @@ class HomeContent
             ->where('status', (string) setting('events.published_status', 'published'))
             ->where('starts_at', '>=', now())
             ->orderBy('starts_at')
-            ->limit($this->limit('home.events.limit', 3))
+            ->limit($this->limit((int) setting('home.events.limit', 3)))
             ->get();
     }
 
@@ -134,8 +134,9 @@ class HomeContent
         return (string) setting('learning.course.published_status', 'published');
     }
 
-    private function limit(string $key, int $default): int
+    /** حدٌّ آمن 1–12 على قيمةٍ مقروءة سلفًا — القراءة نفسها تقع عند نقطة الاستدعاء */
+    private function limit(int $value): int
     {
-        return max(1, min(12, (int) setting($key, $default)));
+        return max(1, min(12, $value));
     }
 }
