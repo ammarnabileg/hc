@@ -32,11 +32,11 @@
 
 ## ⬜ المتبقّي
 <!-- بيدك:بداية:المتبقّي -->
-### ⬜ نصٌّ محروق باقٍ في هذا المجلّد — بسببه مكتوبًا (دفعة `app/Services` · 2.13)
-- `CertificateEligibility.php` — **4** موضعًا داخل `CertificateEligibility::TYPES`: **تعبيرٌ ثابت (`const`) لا يقبل استدعاء `setting()`**، وتحويله إلى ميثود يستلزم تعديل مواضع قراءته في `app/Http/**` و`resources/**` — وهي **ملكيّة زملاء** (BUILD.md §1). فيبقى بانتظار مالك تلك الملفّات.
-- `OffboardingService.php` — **3** موضعًا داخل `OffboardingService::TYPES`: **تعبيرٌ ثابت (`const`) لا يقبل استدعاء `setting()`**، وتحويله إلى ميثود يستلزم تعديل مواضع قراءته في `app/Http/**` و`resources/**` — وهي **ملكيّة زملاء** (BUILD.md §1). فيبقى بانتظار مالك تلك الملفّات.
-- `RepRuleWriter.php` — **6** موضعًا داخل `RepRuleWriter::GROUPS`: **تعبيرٌ ثابت (`const`) لا يقبل استدعاء `setting()`**، وتحويله إلى ميثود يستلزم تعديل مواضع قراءته في `app/Http/**` و`resources/**` — وهي **ملكيّة زملاء** (BUILD.md §1). فيبقى بانتظار مالك تلك الملفّات.
-- `WarSettingsService.php` — **6** موضعًا داخل `WarSettingsService::SECTIONS`: **تعبيرٌ ثابت (`const`) لا يقبل استدعاء `setting()`**، وتحويله إلى ميثود يستلزم تعديل مواضع قراءته في `app/Http/**` و`resources/**` — وهي **ملكيّة زملاء** (BUILD.md §1). فيبقى بانتظار مالك تلك الملفّات.
+### ✅ نصٌّ محروق سُدّ في هذا المجلّد (دفعة تحويل الثوابت إلى `setting()` · 2.13 — 2026-08-05)
+- `CertificateEligibility::TYPES` ⟵ `TYPE_KEYS` (مفاتيح داخليّة) + `types()` (ميثود تقرأ `setting()`). حُدِّثت مواضع القراءة في `VolunteerAdminController` والملفّ نفسه (`enabledTypes()`). مُثبَتٌ بطفرة وقيمة حيّة معدَّلة فعليًّا (`volunteer_cert.type.*`).
+- `OffboardingService::TYPES` ⟵ `TYPE_KEYS` + `types()`. حُدِّثت `OffboardingAdminController` و`VolunteerAnalytics` و`resources/views/admin/volunteer/{offboarding,reentries}.blade.php` (`volunteer.offboarding.type.*`).
+- `RepRuleWriter::GROUPS` ⟵ `GROUP_KEYS` + `groups()`. حُدِّثت `RepAdminController` (`rep_admin.group.*`). `DEFAULTS` (أرقام Rep الافتراضيّة) بقيت كما هي — خارج نطاق 2.13 (أرقام لا نصّ، ومصدرها جدول `rep_rules` بالفعل).
+- `WarSettingsService::SECTIONS` ⟵ `SECTION_KEYS` + `sections()`. حُدِّثت `GamificationController`، ونُظِّفت مصفوفتا `save()`/`reset()` الداخليّتان لتقرآ `self::SECTION_KEYS` بدل تكرار القائمة حرفيًّا (`wars.section.*`).
 
 **أوديت 12.9 · 12.10-ج — 2026-08-03 (ما يخصّ المرحلة 6):**
 
