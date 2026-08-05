@@ -16,19 +16,41 @@ use Illuminate\Http\Request;
  */
 class AuditTrail
 {
-    /** أفعال هذا المجال — قائمة مقفولة تُقرأ في الفلاتر */
-    public const ACTIONS = [
-        'role.created' => 'إنشاء دور',
-        'role.deleted' => 'حذف دور',
-        'role.permissions.updated' => 'تعديل صلاحيّات دور',
-        'role.assigned' => 'إسناد دور',
-        'role.unassigned' => 'سحب دور',
-        'permission.user.updated' => 'استثناء صلاحيّة لمستخدم',
-        'user.approved' => 'اعتماد حساب',
-        'user.rejected' => 'رفض حساب',
-        'segment.created' => 'إنشاء شريحة',
-        'segment.deleted' => 'حذف شريحة',
+    /** أكواد أفعال هذا المجال — مفتاحٌ داخليّ ثابت، لا نصًّا يُعرَض (2.13-ب) */
+    private const ACTION_KEYS = [
+        'role.created',
+        'role.deleted',
+        'role.permissions.updated',
+        'role.assigned',
+        'role.unassigned',
+        'permission.user.updated',
+        'user.approved',
+        'user.rejected',
+        'segment.created',
+        'segment.deleted',
     ];
+
+    /**
+     * أفعال هذا المجال بعناوينها العربيّة — قائمة مقفولة تُقرأ في الفلاتر.
+     * العناوين من `setting()` لا محروقة (2.13)؛ الأكواد وحدها ثابتة (مفاتيح لا نصّ).
+     *
+     * @return array<string, string>
+     */
+    public static function actions(): array
+    {
+        return [
+            'role.created' => (string) setting('audit.action.role_created', 'إنشاء دور'),
+            'role.deleted' => (string) setting('audit.action.role_deleted', 'حذف دور'),
+            'role.permissions.updated' => (string) setting('audit.action.role_permissions_updated', 'تعديل صلاحيّات دور'),
+            'role.assigned' => (string) setting('audit.action.role_assigned', 'إسناد دور'),
+            'role.unassigned' => (string) setting('audit.action.role_unassigned', 'سحب دور'),
+            'permission.user.updated' => (string) setting('audit.action.permission_user_updated', 'استثناء صلاحيّة لمستخدم'),
+            'user.approved' => (string) setting('audit.action.user_approved', 'اعتماد حساب'),
+            'user.rejected' => (string) setting('audit.action.user_rejected', 'رفض حساب'),
+            'segment.created' => (string) setting('audit.action.segment_created', 'إنشاء شريحة'),
+            'segment.deleted' => (string) setting('audit.action.segment_deleted', 'حذف شريحة'),
+        ];
+    }
 
     public function record(?User $actor, string $action, Model $subject, array $old = [], array $new = []): AuditLog
     {
@@ -97,6 +119,6 @@ class AuditTrail
 
     public static function label(string $action): string
     {
-        return self::ACTIONS[$action] ?? $action;
+        return self::actions()[$action] ?? $action;
     }
 }
