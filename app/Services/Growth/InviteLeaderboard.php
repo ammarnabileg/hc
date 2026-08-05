@@ -15,6 +15,18 @@ use Illuminate\Support\Collection;
  */
 class InviteLeaderboard
 {
+    /**
+     * ⭐ مفتاح إيقافٍ لهذه الحلقة بعينها (21.1-هـ) — «تفعيل/إيقاف كلّ حلقة على حدة».
+     *
+     * وكانت اللوحة بلا مفتاح: مسارها يفتح دائمًا مهما قال الإعداد. والمحظور
+     * يُخفى لا يُعطَّل (2.15-أ-7) — فالمتحكّم يردّ 404 حين الإيقاف، لا شاشةً
+     * بزرٍّ رماديّ. راجع `InviteBoardController::index()`.
+     */
+    public function enabled(): bool
+    {
+        return (bool) setting('growth.invite_board.enabled', true);
+    }
+
     /** دوريّة اللوحة إعدادٌ لا رقم محروق (21.1-هـ) */
     public function period(?string $month = null): array
     {

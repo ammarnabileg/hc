@@ -69,7 +69,8 @@ class GrowthDemoSeeder extends Seeder
             ['growth.preview.cta', 'growth', 'زرّ فتح التدريب', 'string', 'افتح التدريب كامل', false],
             ['growth.preview.embed_template', 'growth', 'قالب تضمين الفيديو', 'string', 'https://www.youtube.com/embed/{id}', false],
 
-            // ---------------- 21.1-ج — لوحة متصدّري الدعوات
+            // ---------------- 21.1-ج/هـ — لوحة متصدّري الدعوات
+            ['growth.invite_board.enabled', 'growth', 'تفعيل لوحة متصدّري الدعوات', 'bool', '1', false],
             ['growth.invite_board.title', 'growth', 'عنوان لوحة الدعوات', 'string', 'متصدّرو الدعوات', false],
             ['growth.invite_board.size', 'growth', 'عدد صفوف اللوحة', 'number', '10', false],
             ['growth.invite_board.months', 'growth', 'عدد الشهور المتاحة', 'number', '6', false],
