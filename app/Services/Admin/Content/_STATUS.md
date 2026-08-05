@@ -31,14 +31,14 @@
 ## ⬜ المتبقّي
 <!-- بيدك:بداية:المتبقّي -->
 ### ⬜ نصٌّ محروق باقٍ في هذا المجلّد — بسببه مكتوبًا (دفعة `app/Services` · 2.13)
-- `CertificateBulkIssuer.php` — **3** موضعًا داخل `CertificateBulkIssuer::STATUSES`: **تعبيرٌ ثابت (`const`) لا يقبل استدعاء `setting()`**، وتحويله إلى ميثود يستلزم تعديل مواضع قراءته في `app/Http/**` و`resources/**` — وهي **ملكيّة زملاء** (BUILD.md §1). فيبقى بانتظار مالك تلك الملفّات.
+- ✅ **[مقفولة 2026-08-05] `CertificateBulkIssuer::STATUSES` صار `statuses()`.** 3 عناوين حالة شهادة (سارية/منتهية/ملغاة) صارت من `setting()` — كانت تظهر فعلًا في تصدير CSV (عمود «الحالة») وشاشة الأدمن، لا نصًّا داخليًّا. المفاتيح الداخليّة `STATUS_KEYS`. حُدِّثت مواضع في `CertificateAdminController` (تصدير + شاشة) واختبارٌ واحد كان يستدعي الثابت مباشرةً. المفاتيح في `AdminContentDemoSeeder`. **الدليل:** `php artisan test --filter=Certificate` (89) قبل/بعد بلا فرق.
 - **فجوة `settings:coverage --dead` (2026-08-05):** `media.picker.attachments_empty`
   مزروعٌ (`AdminContentDemoSeeder`) ولا قارئ له — بقيّة نصوص منتقي الوسائط
   (`selected_none/selected_count/remove`) مقروءةٌ فعلًا في عدّة Controllers/
   Blades، ونصّ «لا مرفقات» تحديدًا نُسي عند الربط. وصلٌ بسيط (سطر واحد في
   موضع عرض قائمة مرفقات الدرس الفارغة) — لم يُنجَز لعدم تحديد الموضع الدقيق
   بثقة ضمن نطاق هذه الدفعة.
-- `GuidanceComposer.php` — **4** موضعًا داخل `GuidanceComposer::STATUSES`: **تعبيرٌ ثابت (`const`) لا يقبل استدعاء `setting()`**، وتحويله إلى ميثود يستلزم تعديل مواضع قراءته في `app/Http/**` و`resources/**` — وهي **ملكيّة زملاء** (BUILD.md §1). فيبقى بانتظار مالك تلك الملفّات.
+- ✅ **[مقفولة 2026-08-05] `GuidanceComposer::STATUSES` صار `statuses()`.** 4 عناوين حالة إعلان صارت من `setting()` — تظهر فعلًا في `admin/guidance/index.blade.php`/`complaint.blade.php`. المفاتيح الداخليّة `STATUS_KEYS`. حُدِّث موضع القراءة في `GuidanceController`. المفاتيح في `AdminContentDemoSeeder`. **الدليل:** `php artisan test --filter=Guidance` (28) قبل/بعد بلا فرق.
 - `QuestionImporter.php` — **1** موضعًا: قيمة **تُطابَق في مدخلات CSV** («نعم» · رأس عمود «السؤال») — ثابتُ تحليلٍ لا نصُّ عرض؛ نقلُه يكسر الاستيراد.
 
 **أوديت المرحلة 6 — 2026-08-03:**
