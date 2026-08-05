@@ -152,6 +152,11 @@ class AdminContentDemoSeeder extends Seeder
 
             // ---------------- التوجيه والدعم (12.6)
             ['announcements.admin.per_page', 'announcements', 'عدد صفوف جدول التعليمات', 'number', '15'],
+            // عناوين حالات الإعلان (GuidanceComposer::statuses — 2.13-ب)
+            ['admin_content.guidance.status.draft', 'announcements', 'حالة: مسودّة', 'string', 'مسودّة'],
+            ['admin_content.guidance.status.scheduled', 'announcements', 'حالة: مجدول', 'string', 'مجدول'],
+            ['admin_content.guidance.status.published', 'announcements', 'حالة: منشور', 'string', 'منشور'],
+            ['admin_content.guidance.status.archived', 'announcements', 'حالة: مؤرشف', 'string', 'مؤرشف'],
             ['announcements.acknowledge.default_xp', 'announcements', 'XP الإقرار الافتراضيّ', 'number', '10'],
             ['announcements.acknowledge.default_tickets', 'announcements', 'تذاكر الإقرار الافتراضيّة', 'number', '0'],
             ['announcements.acknowledge.max_xp', 'announcements', 'أقصى XP للإقرار', 'number', '500'],
