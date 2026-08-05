@@ -583,6 +583,23 @@ class ServiceTextsDemoSeeder extends Seeder
             ['gamification_badges.settings_catalog.streaks_and_leaderboard_49', 'gamification_badges', 'مستوى الاحتفال عند المنح', 'string', 'مستوى الاحتفال عند المنح', false],
             ['gamification_badges.settings_catalog.streaks_and_leaderboard_50', 'gamification_badges', 'إظهار عدد الحاصلين للمستخدم', 'string', 'إظهار عدد الحاصلين للمستخدم', false],
 
+            // عناوين مقاييس شروط الشارة (BadgeService::conditionLabels — 2.13-ب)
+            ['gamification.badge_condition.xp_total', 'gamification_badges', 'مقياس: إجمالي XP', 'string', 'إجمالي XP', false],
+            ['gamification.badge_condition.level_reached', 'gamification_badges', 'مقياس: المستوى المبلوغ', 'string', 'المستوى المبلوغ', false],
+            ['gamification.badge_condition.lesson_completed', 'gamification_badges', 'مقياس: عدد الدروس المكتملة', 'string', 'عدد الدروس المكتملة', false],
+            ['gamification.badge_condition.course_completed', 'gamification_badges', 'مقياس: عدد التدريبات المكتملة', 'string', 'عدد التدريبات المكتملة', false],
+            ['gamification.badge_condition.certificate_issued', 'gamification_badges', 'مقياس: عدد الشهادات السارية', 'string', 'عدد الشهادات السارية', false],
+            ['gamification.badge_condition.streak_days', 'gamification_badges', 'مقياس: الستريك الحاليّ (أيّام)', 'string', 'الستريك الحاليّ (أيّام)', false],
+            ['gamification.badge_condition.streak_best_days', 'gamification_badges', 'مقياس: أطول ستريك (أيّام)', 'string', 'أطول ستريك (أيّام)', false],
+            ['gamification.badge_condition.streak_current_days', 'gamification_badges', 'مقياس: الستريك الحاليّ (أيّام)', 'string', 'الستريك الحاليّ (أيّام)', false],
+            ['gamification.badge_condition.club_5am_days', 'gamification_badges', 'مقياس: أيّام نادي الخامسة', 'string', 'أيّام نادي الخامسة', false],
+            ['gamification.badge_condition.five_am_count', 'gamification_badges', 'مقياس: أيّام نادي الخامسة', 'string', 'أيّام نادي الخامسة', false],
+            ['gamification.badge_condition.membership_count', 'gamification_badges', 'مقياس: عدد البوزشنز التطوّعيّة', 'string', 'عدد البوزشنز التطوّعيّة', false],
+            ['gamification.badge_condition.referral_success', 'gamification_badges', 'مقياس: الدعوات الناجحة', 'string', 'الدعوات الناجحة', false],
+            ['gamification.badge_condition.challenges_finished', 'gamification_badges', 'مقياس: الحروب المنتهية', 'string', 'الحروب المنتهية', false],
+            ['gamification.badge_condition.challenges_wins', 'gamification_badges', 'مقياس: انتصارات الحروب', 'string', 'انتصارات الحروب', false],
+            ['gamification.badge_condition.focus_minutes', 'gamification_badges', 'مقياس: دقائق حرب التركيز', 'string', 'دقائق حرب التركيز', false],
+
             // ---------------- gamification_celebrations
             ['gamification_celebrations.settings_catalog.celebrations_1', 'gamification_celebrations', 'تفعيل نظام الاحتفالات', 'string', 'تفعيل نظام الاحتفالات', false],
             ['gamification_celebrations.settings_catalog.celebrations_2', 'gamification_celebrations', 'الحدّ اليوميّ لمستوى الذروة', 'string', 'الحدّ اليوميّ لمستوى الذروة', false],
