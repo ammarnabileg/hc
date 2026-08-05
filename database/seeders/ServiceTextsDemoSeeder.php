@@ -702,6 +702,15 @@ class ServiceTextsDemoSeeder extends Seeder
             ['gamification_streaks.settings_catalog.streaks_and_leaderboard_9', 'gamification_streaks', 'أقصى قِدَم لليوم الفايت القابل للتجميد', 'string', 'أقصى قِدَم لليوم الفايت القابل للتجميد', false],
 
             // ---------------- gamification_wars
+            // عناوين بنك أسئلة الحروب (WarBankService::difficulties/sources/statuses — 2.13-ب)
+            ['wars.bank.difficulty.easy', 'gamification_wars', 'صعوبة: سهل', 'string', 'سهل', false],
+            ['wars.bank.difficulty.medium', 'gamification_wars', 'صعوبة: متوسّط', 'string', 'متوسّط', false],
+            ['wars.bank.difficulty.hard', 'gamification_wars', 'صعوبة: صعب', 'string', 'صعب', false],
+            ['wars.bank.source.arena', 'gamification_wars', 'مصدر: ساحة', 'string', 'ساحة', false],
+            ['wars.bank.source.training', 'gamification_wars', 'مصدر: تدريبات', 'string', 'تدريبات', false],
+            ['wars.bank.status.active', 'gamification_wars', 'حالة: مفعّل', 'string', 'مفعّل', false],
+            ['wars.bank.status.draft', 'gamification_wars', 'حالة: مسودّة', 'string', 'مسودّة', false],
+            ['wars.bank.status.archived', 'gamification_wars', 'حالة: مؤرشف', 'string', 'مؤرشف', false],
             ['gamification_wars.focus_war_service.body_1', 'gamification_wars', 'إنشاء تحدّي تركيز', 'string', 'إنشاء تحدّي تركيز', false],
             ['gamification_wars.focus_war_service.cancel_1', 'gamification_wars', 'التحدّي ده مش بتاعك.', 'string', 'التحدّي ده مش بتاعك.', false],
             ['gamification_wars.focus_war_service.cancel_2', 'gamification_wars', 'التحدّي ده مقفول أصلًا.', 'string', 'التحدّي ده مقفول أصلًا.', false],
