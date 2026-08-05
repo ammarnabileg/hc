@@ -30,7 +30,7 @@
 ## ⬜ المتبقّي
 <!-- بيدك:بداية:المتبقّي -->
 ### ⬜ نصٌّ محروق باقٍ في هذا المجلّد — بسببه مكتوبًا (دفعة `app/Services` · 2.13)
-- `WarBankService.php` — **9** موضعًا داخل `WarBankService::DIFFICULTIES · SOURCES · STATUSES`: **تعبيرٌ ثابت (`const`) لا يقبل استدعاء `setting()`**، وتحويله إلى ميثود يستلزم تعديل مواضع قراءته في `app/Http/**` و`resources/**` — وهي **ملكيّة زملاء** (BUILD.md §1). فيبقى بانتظار مالك تلك الملفّات.
+- ✅ **[مقفولة 2026-08-05] `WarBankService::DIFFICULTIES`/`SOURCES`/`STATUSES` صارت `difficulties()`/`sources()`/`statuses()`.** 8 عناوين عربيّة صارت من `setting()`، والمفاتيح الداخليّة بقيت `DIFFICULTY_KEYS`/`SOURCE_KEYS`/`STATUS_KEYS` (وتحوّل `array_key_exists` إلى `in_array` معها لأنّها صارت مصفوفة قيمٍ لا `مفتاح⟵قيمة`). حُدِّثت 6 مواضع قراءة في `WarQuestionController`. المفاتيح في `ServiceTextsDemoSeeder`. **الدليل:** `php artisan test --filter="WarBank|WarQuestion|Wars"` (11) قبل/بعد بلا فرق.
 
 - ✅ **مقفولة (ج-3) — الدقائق تُقاس بحالة التحدّي لا بالساعة وحدها (15.3-1 · 15.3-2):**
   كان `settleDue()` يرشّح بـ`ends_at <= now()` وحده، فالمنضمّ لتحدٍّ **مُلغى** يأخذ المدّة
