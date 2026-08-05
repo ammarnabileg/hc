@@ -115,7 +115,7 @@
                         style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)"
                         aria-label="{{ setting('admin.dashboard.partials.overview.fltr_alnwa', 'فلتر النوع') }}">
                     <option value="">{{ setting('admin.dashboard.partials.overview.kl_alanwaa', 'كلّ الأنواع') }}</option>
-                    @foreach (\App\Services\Admin\AuditTrail::ACTIONS as $key => $label)
+                    @foreach (\App\Services\Admin\AuditTrail::actions() as $key => $label)
                         <option value="{{ $key }}" @selected(request('action') === $key)>{{ $label }}</option>
                     @endforeach
                 </select>

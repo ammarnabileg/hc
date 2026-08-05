@@ -336,6 +336,17 @@ class AdminSystemDemoSeeder extends Seeder
             ['audit.per_page', 'system', 'صفوف سجلّ التدقيق', 'number', '50', false],
             ['audit.retention_days', 'system', 'مدّة الاحتفاظ بالسجلّ (أيّام)', 'number', '365', false],
             ['audit.require_reason_on_finance', 'system', 'إلزام السبب في التغييرات الماليّة', 'bool', '1', true],
+            // ---------------- عناوين أفعال سجلّ التدقيق (AuditTrail::actions — 2.13-ب)
+            ['audit.action.role_created', 'system', 'فعل: إنشاء دور', 'string', 'إنشاء دور', false],
+            ['audit.action.role_deleted', 'system', 'فعل: حذف دور', 'string', 'حذف دور', false],
+            ['audit.action.role_permissions_updated', 'system', 'فعل: تعديل صلاحيّات دور', 'string', 'تعديل صلاحيّات دور', false],
+            ['audit.action.role_assigned', 'system', 'فعل: إسناد دور', 'string', 'إسناد دور', false],
+            ['audit.action.role_unassigned', 'system', 'فعل: سحب دور', 'string', 'سحب دور', false],
+            ['audit.action.permission_user_updated', 'system', 'فعل: استثناء صلاحيّة لمستخدم', 'string', 'استثناء صلاحيّة لمستخدم', false],
+            ['audit.action.user_approved', 'system', 'فعل: اعتماد حساب', 'string', 'اعتماد حساب', false],
+            ['audit.action.user_rejected', 'system', 'فعل: رفض حساب', 'string', 'رفض حساب', false],
+            ['audit.action.segment_created', 'system', 'فعل: إنشاء شريحة', 'string', 'إنشاء شريحة', false],
+            ['audit.action.segment_deleted', 'system', 'فعل: حذف شريحة', 'string', 'حذف شريحة', false],
             ['platform.identity.name', 'appearance', 'اسم المنصّة على الصور والفواتير', 'string', 'المنصّة', false],
 
             // ---------------- استوديو الصور (12.14-ح)
