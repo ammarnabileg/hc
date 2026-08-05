@@ -15,7 +15,8 @@
 
 ## ✅ المُنجَز
 <!-- تلقائيّ:بداية:المنجز -->
-- **مايجريشنز (242) — والقائم منها لا يُعدَّل (قاعدة البناء §1). الأحدث:**
+- **مايجريشنز (243) — والقائم منها لا يُعدَّل (قاعدة البناء §1). الأحدث:**
+  - `2026_09_04_100010_dead_flags_from_an_aborted_first_pass_get_swept.php`
   - `2026_09_03_100010_a_spendable_currency_needs_a_floor_not_only_a_ceiling.php`
   - `2026_09_02_100010_the_bundle_landing_needs_fields_not_only_a_template.php`
   - `2026_09_01_100010_the_placement_test_bank_gets_a_screen.php`
@@ -27,8 +28,7 @@
   - `2026_08_29_100010_feature_toggles_are_the_only_partial_switch.php`
   - `2026_08_28_100020_registration_two_screens_are_settings_not_text.php`
   - `2026_08_28_100010_governorate_identity_is_its_english_name.php`
-  - `2026_08_27_100020_optional_cut_the_middle_rung_of_the_ladder.php`
-  - … و230 غيرها.
+  - … و231 غيرها.
 <!-- تلقائيّ:نهاية:المنجز -->
 
 ## ⬜ المتبقّي
@@ -85,6 +85,6 @@
 
 ## 🕒 آخر تحديث
 <!-- تلقائيّ:بداية:التحديث -->
-- **آخر توليد لهذه الوثيقة:** 2026-08-04 — `php artisan docs:status`.
-- **آخر لمسة للمجلّد:** 2026-08-04 — Claude.
+- **آخر توليد لهذه الوثيقة:** 2026-08-05 — `php artisan docs:status`.
+- **آخر لمسة للمجلّد:** 2026-08-05 — Claude.
 <!-- تلقائيّ:نهاية:التحديث -->
