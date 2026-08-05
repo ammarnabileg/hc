@@ -19,6 +19,9 @@ class InviteBoardController extends Controller
 
     public function index(Request $request): View
     {
+        // ⭐ مفتاح إيقاف الحلقة (21.1-هـ) — يُخفى بردّ 404 لا بتعطيل شاشةٍ ظاهرة (2.15-أ-7)
+        abort_unless($this->board->enabled(), 404);
+
         $month = $request->string('month')->toString() ?: null;
         $period = $this->board->period($month);
 
