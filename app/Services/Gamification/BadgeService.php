@@ -107,28 +107,44 @@ class BadgeService
      *
      * @return array<string, string>
      */
-    public const CONDITIONS = [
-        'xp.total' => 'إجمالي XP',
-        'level.reached' => 'المستوى المبلوغ',
-        'lesson.completed' => 'عدد الدروس المكتملة',
-        'course.completed' => 'عدد التدريبات المكتملة',
-        'certificate.issued' => 'عدد الشهادات السارية',
-        'streak.days' => 'الستريك الحاليّ (أيّام)',
-        'streak.best_days' => 'أطول ستريك (أيّام)',
-        'streak.current_days' => 'الستريك الحاليّ (أيّام)',
-        'club_5am.days' => 'أيّام نادي الخامسة',
-        'five_am.count' => 'أيّام نادي الخامسة',
-        'membership.count' => 'عدد البوزشنز التطوّعيّة',
-        'referral.success' => 'الدعوات الناجحة',
-        'challenges.finished' => 'الحروب المنتهية',
-        'challenges.wins' => 'انتصارات الحروب',
-        'focus.minutes' => 'دقائق حرب التركيز',
+    /** مفاتيح المقاييس الداخليّة — ترتيب العرض، لا نصّ (2.13-ب) */
+    public const CONDITION_KEYS = [
+        'xp.total', 'level.reached', 'lesson.completed', 'course.completed',
+        'certificate.issued', 'streak.days', 'streak.best_days', 'streak.current_days',
+        'club_5am.days', 'five_am.count', 'membership.count', 'referral.success',
+        'challenges.finished', 'challenges.wins', 'focus.minutes',
     ];
+
+    /**
+     * المقاييس المتاحة بأسمائها العربيّة — من `setting()` لا محروقة (2.13).
+     *
+     * @return array<string, string>
+     */
+    public static function conditionLabels(): array
+    {
+        return [
+            'xp.total' => (string) setting('gamification.badge_condition.xp_total', 'إجمالي XP'),
+            'level.reached' => (string) setting('gamification.badge_condition.level_reached', 'المستوى المبلوغ'),
+            'lesson.completed' => (string) setting('gamification.badge_condition.lesson_completed', 'عدد الدروس المكتملة'),
+            'course.completed' => (string) setting('gamification.badge_condition.course_completed', 'عدد التدريبات المكتملة'),
+            'certificate.issued' => (string) setting('gamification.badge_condition.certificate_issued', 'عدد الشهادات السارية'),
+            'streak.days' => (string) setting('gamification.badge_condition.streak_days', 'الستريك الحاليّ (أيّام)'),
+            'streak.best_days' => (string) setting('gamification.badge_condition.streak_best_days', 'أطول ستريك (أيّام)'),
+            'streak.current_days' => (string) setting('gamification.badge_condition.streak_current_days', 'الستريك الحاليّ (أيّام)'),
+            'club_5am.days' => (string) setting('gamification.badge_condition.club_5am_days', 'أيّام نادي الخامسة'),
+            'five_am.count' => (string) setting('gamification.badge_condition.five_am_count', 'أيّام نادي الخامسة'),
+            'membership.count' => (string) setting('gamification.badge_condition.membership_count', 'عدد البوزشنز التطوّعيّة'),
+            'referral.success' => (string) setting('gamification.badge_condition.referral_success', 'الدعوات الناجحة'),
+            'challenges.finished' => (string) setting('gamification.badge_condition.challenges_finished', 'الحروب المنتهية'),
+            'challenges.wins' => (string) setting('gamification.badge_condition.challenges_wins', 'انتصارات الحروب'),
+            'focus.minutes' => (string) setting('gamification.badge_condition.focus_minutes', 'دقائق حرب التركيز'),
+        ];
+    }
 
     /** @return array<string, string> */
     public function conditions(): array
     {
-        return self::CONDITIONS;
+        return self::conditionLabels();
     }
 
     /**

@@ -158,7 +158,7 @@ class GamificationController extends Controller
              | الحقل الحرّ كان مصنع الشارات الميتة: مفتاحٌ لا يقابله مقياس =
              | شارةٌ لا تُمنَح أبدًا، والمتدرّب يرى «0% من الشرط» وهو مستوفيه.
              */
-            'condition_key' => ['nullable', 'string', Rule::in(array_keys(BadgeService::CONDITIONS))],
+            'condition_key' => ['nullable', 'string', Rule::in(BadgeService::CONDITION_KEYS)],
             'condition_value' => ['nullable', 'integer', 'min:0'],
             'icon' => ['nullable', 'image', 'max:'.(int) setting('badges.icon.max_kb', 512)],
             'icon_path' => ['nullable', 'string', 'max:255'],
@@ -399,7 +399,7 @@ class GamificationController extends Controller
                 'settings' => SettingsWriter::groupRows('gamification_badges'),
                 'badges' => Badge::query()->orderBy('id')->get(),
                 // ⭐ القائمة المقفولة للمقاييس — الأدمن يختار ولا يكتب (7.4)
-                'conditions' => BadgeService::CONDITIONS,
+                'conditions' => BadgeService::conditionLabels(),
             ],
             'streaks' => [
                 'settings' => SettingsWriter::groupRows('gamification_streaks'),
