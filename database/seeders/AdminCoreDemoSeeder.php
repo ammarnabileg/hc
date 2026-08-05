@@ -94,6 +94,23 @@ class AdminCoreDemoSeeder extends Seeder
             ['admin.users.sessions_hint', 'admin_users', 'شرح الجلسات النشطة', 'string', 'الأجهزة المفتوح عليها الحساب دلوقتي — وإنهاء الجلسات بيقفلها كلّها.'],
             ['admin.users.country_pin_hint', 'admin_users', 'شرح تثبيت الدولة يدويًّا', 'string', 'الكشف التلقائيّ بيتبع مكانه دلوقتي — والتثبيت اليدويّ بيعلو عليه ومابيتدهسش.'],
             ['admin.users.notes_hint', 'admin_users', 'شرح الملاحظات الإداريّة الداخليّة', 'string', 'ملاحظات للفريق فقط — المستخدم مابيشوفهاش أبدًا.'],
+            // عناوين أعمدة الجدول (UserDirectory::columns — 2.13-ب)
+            ['admin.users.column.name', 'admin_users', 'عمود: المستخدم', 'string', 'المستخدم'],
+            ['admin.users.column.code', 'admin_users', 'عمود: الكود', 'string', 'الكود'],
+            ['admin.users.column.email', 'admin_users', 'عمود: البريد', 'string', 'البريد'],
+            ['admin.users.column.phone', 'admin_users', 'عمود: الموبايل', 'string', 'الموبايل'],
+            ['admin.users.column.country', 'admin_users', 'عمود: الدولة', 'string', 'الدولة'],
+            ['admin.users.column.status', 'admin_users', 'عمود: الحالة', 'string', 'الحالة'],
+            ['admin.users.column.roles', 'admin_users', 'عمود: الأدوار', 'string', 'الأدوار'],
+            ['admin.users.column.xp', 'admin_users', 'عمود: XP', 'string', 'XP'],
+            ['admin.users.column.last_seen', 'admin_users', 'عمود: آخر دخول', 'string', 'آخر دخول'],
+            ['admin.users.column.created_at', 'admin_users', 'عمود: تاريخ التسجيل', 'string', 'تاريخ التسجيل'],
+            // عناوين حالات الحساب (UserDirectory::statuses — 2.5-د · 2.13-ب)
+            ['admin.users.status.pending', 'admin_users', 'حالة: تحت المراجعة', 'string', 'تحت المراجعة'],
+            ['admin.users.status.active', 'admin_users', 'حالة: معتمَد', 'string', 'معتمَد'],
+            ['admin.users.status.rejected', 'admin_users', 'حالة: مرفوض', 'string', 'مرفوض'],
+            ['admin.users.status.suspended', 'admin_users', 'حالة: معلّق', 'string', 'معلّق'],
+            ['admin.users.status.banned', 'admin_users', 'حالة: محظور', 'string', 'محظور'],
 
             // ---------------- طلبات الاعتماد (2.5-د)
             ['admin.approvals.bulk_max', 'admin_approvals', 'حدّ الاعتماد المجمّع في العمليّة الواحدة', 'number', '50'],
