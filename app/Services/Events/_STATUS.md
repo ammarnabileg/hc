@@ -33,7 +33,7 @@
 ## ⬜ المتبقّي
 <!-- بيدك:بداية:المتبقّي -->
 ### ⬜ نصٌّ محروق باقٍ في هذا المجلّد — بسببه مكتوبًا (دفعة `app/Services` · 2.13)
-- `EventQuery.php` — **8** موضعًا داخل `EventQuery::MODES · PERIODS`: **تعبيرٌ ثابت (`const`) لا يقبل استدعاء `setting()`**، وتحويله إلى ميثود يستلزم تعديل مواضع قراءته في `app/Http/**` و`resources/**` — وهي **ملكيّة زملاء** (BUILD.md §1). فيبقى بانتظار مالك تلك الملفّات.
+- ✅ **[مقفولة 2026-08-05] `EventQuery::MODES`/`PERIODS` صارا `modes()`/`periods()`.** 3 عناوين نوع + 5 عناوين فترة صارت من `setting()`، والمفاتيح الداخليّة بقيت `MODE_KEYS`/`PERIOD_KEYS`. حُدِّثت مواضع القراءة في `EventController` (فلترة) وقالب `events/index`. المفاتيح في `EventDemoSeeder`. **الدليل:** `php artisan test --filter="EventQuery|EventController|Events"` (69) قبل/بعد بلا فرق.
 - **فجوة `settings:coverage --dead` (2026-08-05):** `events.certificate.code_prefix`
   مزروعٌ (`EventDemoSeeder`) ولا قارئ له — بادئة كود شهادة الفعاليّة محروقةٌ في
   مولّد الكود الفعليّ بدل قراءتها من هذا المفتاح. وصلٌ صغيرٌ محتمل لاحقًا؛ لم
