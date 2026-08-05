@@ -511,7 +511,7 @@ class GoalController extends Controller
         ]);
 
         return response()->json([
-            'label' => GoalBuildService::EDITABLE[$data['subject']][$data['field']] ?? $data['field'],
+            'label' => GoalBuildService::editableFields()[$data['subject']][$data['field']] ?? $data['field'],
             'rows' => $this->build->revisions($data['subject'], (int) $data['id'], $data['field']),
         ]);
     }

@@ -34,27 +34,43 @@ use Illuminate\Validation\ValidationException;
  */
 class GoalBuildService
 {
-    /** الحقول القابلة للتحرير المباشر — وما ليس هنا لا يُكتَب مهما جاء في الطلب */
-    public const EDITABLE = [
-        'goal' => [
-            'name' => 'اسم الهدف',
-            'description' => 'وصف الهدف',
-            'reason' => 'سبب الهدف',
-        ],
-        'milestone' => [
-            'name' => 'اسم المَعلَم',
-            'verification_criteria' => 'معيار تحقّق المَعلَم',
-        ],
-        'package' => [
-            'name' => 'اسم الحزمة',
-        ],
-        'task' => [
-            'title' => 'اسم المهمّة',
-            'brief' => 'بريف المهمّة',
-            'deliverable_spec' => 'شكل المخرجات',
-            'vxp_value' => 'قيمة نقاط الإنتاج (VXP)',
-        ],
+    /** أسماء الحقول القابلة للتحرير — مفاتيح داخليّة، لا نصّ (2.13-ب) */
+    public const EDITABLE_FIELD_KEYS = [
+        'goal' => ['name', 'description', 'reason'],
+        'milestone' => ['name', 'verification_criteria'],
+        'package' => ['name'],
+        'task' => ['title', 'brief', 'deliverable_spec', 'vxp_value'],
     ];
+
+    /**
+     * الحقول القابلة للتحرير المباشر بعناوينها — وما ليس هنا لا يُكتَب مهما
+     * جاء في الطلب. العناوين من `setting()` لا محروقة (2.13).
+     *
+     * @return array<string, array<string, string>>
+     */
+    public static function editableFields(): array
+    {
+        return [
+            'goal' => [
+                'name' => (string) setting('goals.editable.goal_name', 'اسم الهدف'),
+                'description' => (string) setting('goals.editable.goal_description', 'وصف الهدف'),
+                'reason' => (string) setting('goals.editable.goal_reason', 'سبب الهدف'),
+            ],
+            'milestone' => [
+                'name' => (string) setting('goals.editable.milestone_name', 'اسم المَعلَم'),
+                'verification_criteria' => (string) setting('goals.editable.milestone_verification_criteria', 'معيار تحقّق المَعلَم'),
+            ],
+            'package' => [
+                'name' => (string) setting('goals.editable.package_name', 'اسم الحزمة'),
+            ],
+            'task' => [
+                'title' => (string) setting('goals.editable.task_title', 'اسم المهمّة'),
+                'brief' => (string) setting('goals.editable.task_brief', 'بريف المهمّة'),
+                'deliverable_spec' => (string) setting('goals.editable.task_deliverable_spec', 'شكل المخرجات'),
+                'vxp_value' => (string) setting('goals.editable.task_vxp_value', 'قيمة نقاط الإنتاج (VXP)'),
+            ],
+        ];
+    }
 
     public function __construct(
         private readonly EntityScope $scope,
@@ -448,7 +464,7 @@ class GoalBuildService
      */
     public function saveField(Goal $goal, string $subjectType, int $subjectId, string $field, mixed $value, User $actor): array
     {
-        $label = self::EDITABLE[$subjectType][$field] ?? null;
+        $label = self::editableFields()[$subjectType][$field] ?? null;
 
         abort_if($label === null, 422, setting('goals.goal_build_service.save_field_1', 'حقل غير قابل للتعديل.'));
 
