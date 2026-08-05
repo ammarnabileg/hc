@@ -23,7 +23,7 @@
                     <div class="min-w-0">
                         <div class="font-semibold">{{ $record->user?->name }} <span class="text-xs" style="color: var(--text-muted)">#{{ $record->user?->code }}</span></div>
                         <div class="text-xs mt-0.5" style="color: var(--text-muted)">
-                            {{ setting('admin.volunteer.reentries.khrj_fy', 'خرج في') }} {{ $record->completed_at?->format('Y-m-d') }} · {{ \App\Services\Admin\Volunteer\OffboardingService::TYPES[$record->type] ?? $record->type }}
+                            {{ setting('admin.volunteer.reentries.khrj_fy', 'خرج في') }} {{ $record->completed_at?->format('Y-m-d') }} · {{ \App\Services\Admin\Volunteer\OffboardingService::types()[$record->type] ?? $record->type }}
                         </div>
                     </div>
                     <x-state-badge :state="$row['state']" :label="$row['label']" />

@@ -28,11 +28,22 @@ class OffboardingService
      */
     public const CLOSABLE_STATUSES = ['active', SuspensionService::MEMBERSHIP_STATUS];
 
-    public const TYPES = [
-        'resignation' => 'استقالة طوعيّة',
-        'entity_ended' => 'انتهاء كيان مؤقّت (ملفّ)',
-        'exclusion' => 'إقصاء (عبر سلّم العتبات وحده)',
-    ];
+    /** أنواع الخروج الثلاثة — مفاتيح داخليّة لا نصّ (2.13-ب) */
+    public const TYPE_KEYS = ['resignation', 'entity_ended', 'exclusion'];
+
+    /**
+     * عناوين أنواع الخروج — من `setting()` لا محروقة (2.13).
+     *
+     * @return array<string, string>
+     */
+    public static function types(): array
+    {
+        return [
+            'resignation' => (string) setting('volunteer.offboarding.type.resignation', 'استقالة طوعيّة'),
+            'entity_ended' => (string) setting('volunteer.offboarding.type.entity_ended', 'انتهاء كيان مؤقّت (ملفّ)'),
+            'exclusion' => (string) setting('volunteer.offboarding.type.exclusion', 'إقصاء (عبر سلّم العتبات وحده)'),
+        ];
+    }
 
     /** بنود التصفية الإلزاميّة — لا إنهاء قبل اكتمالها */
     public static function clearanceItems(): array
@@ -73,7 +84,7 @@ class OffboardingService
      */
     public static function open(User $target, string $type, ?string $reason, User $actor, array $checklist = []): Offboarding
     {
-        if (! array_key_exists($type, self::TYPES)) {
+        if (! in_array($type, self::TYPE_KEYS, true)) {
             throw new RuntimeException(setting('volunteer_offboarding.offboarding_service.open_1', 'نوع الخروج غير معروف — الأنواع ثلاثة لا رابع لها.'));
         }
 

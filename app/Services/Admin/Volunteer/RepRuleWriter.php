@@ -53,15 +53,25 @@ class RepRuleWriter
         'limit.club_threshold' => 9.5,
     ];
 
-    /** عناوين المجموعات كما تظهر في التاب */
-    public const GROUPS = [
-        'tasks' => 'المهامّ',
-        'meetings' => 'الاجتماعات',
-        'academy' => 'الأكاديمية',
-        'leadership' => 'مؤشّر القيادة',
-        'behavior' => 'السلوك',
-        'limits' => 'الحدود والعتبات',
-    ];
+    /** مفاتيح المجموعات الستّ — مفاتيح داخليّة لا نصّ (2.13-ب) */
+    public const GROUP_KEYS = ['tasks', 'meetings', 'academy', 'leadership', 'behavior', 'limits'];
+
+    /**
+     * عناوين المجموعات كما تظهر في التاب — من `setting()` لا محروقة (2.13).
+     *
+     * @return array<string, string>
+     */
+    public static function groups(): array
+    {
+        return [
+            'tasks' => (string) setting('rep_admin.group.tasks', 'المهامّ'),
+            'meetings' => (string) setting('rep_admin.group.meetings', 'الاجتماعات'),
+            'academy' => (string) setting('rep_admin.group.academy', 'الأكاديمية'),
+            'leadership' => (string) setting('rep_admin.group.leadership', 'مؤشّر القيادة'),
+            'behavior' => (string) setting('rep_admin.group.behavior', 'السلوك'),
+            'limits' => (string) setting('rep_admin.group.limits', 'الحدود والعتبات'),
+        ];
+    }
 
     /** تعديل قيمة واحدة — ينعكس فورًا على `rep_rule()` */
     public static function put(string $key, float $value, ?User $actor = null): ?RepRule

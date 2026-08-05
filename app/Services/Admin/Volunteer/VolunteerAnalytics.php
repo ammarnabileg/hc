@@ -41,7 +41,7 @@ class VolunteerAnalytics
             ->groupBy('type')
             ->pluck('c', 'type')
             ->map(fn ($count, $type) => [
-                'label' => OffboardingService::TYPES[$type] ?? $type,
+                'label' => OffboardingService::types()[$type] ?? $type,
                 'count' => $count,
             ])
             ->values();

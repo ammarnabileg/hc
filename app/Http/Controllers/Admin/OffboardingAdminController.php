@@ -40,7 +40,7 @@ class OffboardingAdminController extends Controller
             ->get();
 
         return view('admin.volunteer.offboarding', [
-            'types' => OffboardingService::TYPES,
+            'types' => OffboardingService::types(),
             'records' => $records,
             'clearance' => OffboardingService::clearanceItems(),
             'settings' => SettingsWriter::groupRows('volunteer_offboarding'),
@@ -76,7 +76,7 @@ class OffboardingAdminController extends Controller
     {
         $data = $request->validate([
             'code' => ['required', 'string', 'max:32'],
-            'type' => ['required', 'string', 'in:'.implode(',', array_keys(OffboardingService::TYPES))],
+            'type' => ['required', 'string', 'in:'.implode(',', OffboardingService::TYPE_KEYS)],
             'reason' => ['nullable', 'string', 'max:1000'],
             'clearance' => ['nullable', 'array'],
         ]);

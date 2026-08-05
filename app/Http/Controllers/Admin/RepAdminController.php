@@ -33,7 +33,7 @@ class RepAdminController extends Controller
         $rules = RepRule::query()->orderBy('group')->orderBy('key')->get();
 
         return view('admin.volunteer.rep', [
-            'groups' => RepRuleWriter::GROUPS,
+            'groups' => RepRuleWriter::groups(),
             'rules' => $rules->groupBy('group'),
             'defaults' => RepRuleWriter::DEFAULTS,
             'violations' => BehaviorViolation::query()->orderBy('code')->get(),
@@ -80,7 +80,7 @@ class RepAdminController extends Controller
     /** ↺ Reset لمجموعة كاملة */
     public function resetGroup(Request $request): RedirectResponse
     {
-        $data = $request->validate(['group' => ['required', 'string', 'in:'.implode(',', array_keys(RepRuleWriter::GROUPS))]]);
+        $data = $request->validate(['group' => ['required', 'string', 'in:'.implode(',', RepRuleWriter::GROUP_KEYS)]]);
         $count = RepRuleWriter::resetGroup($data['group'], $request->user());
 
         return back()->with('status', strtr((string) setting('rep.admin.reset_group_ok', 'رجعت :a1 قيمة للافتراضيّ ✓'), [':a1' => (string) ($count)]));
