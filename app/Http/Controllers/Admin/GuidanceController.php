@@ -50,7 +50,7 @@ class GuidanceController extends Controller
             'announcements' => $announcements,
             'stats' => $this->guidance->readStats($announcements->getCollection()),
             'filters' => $filters,
-            'statuses' => GuidanceComposer::STATUSES,
+            'statuses' => GuidanceComposer::statuses(),
             'tabs' => $this->tabs('announcements'),
             'audiences' => $this->audienceOptions(),
             // الجدولة المتكرّرة: الترددات + موعد الدورة القادمة لكلّ قالب (12.6-أ)
