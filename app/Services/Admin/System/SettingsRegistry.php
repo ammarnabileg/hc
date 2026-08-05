@@ -894,6 +894,19 @@ class SettingsRegistry
         $this->memo = [];
     }
 
+    /**
+     * ⭐ مفاتيح الميزة الحاكمة كما تُقرأ فعلًا داخل `isDisabled()` — يسجّلها
+     * `SettingsCoverage::deadKeys()` فلا يُبلَّغ عنها «ميّتة»: هي مقروءةٌ
+     * بـ`setting($toggle, true)` حيث `$toggle` قيمةٌ من هذه المصفوفة لا نصًّا
+     * حرفيًّا مباشرًا، والماسح النصّيّ لا يتتبّع قيم المصفوفات.
+     *
+     * @return array<int, string>
+     */
+    public function toggleKeys(): array
+    {
+        return array_values($this->toggleMap());
+    }
+
     /** بادئة الإعداد ⟵ مفتاح الميزة الحاكم */
     private function toggleMap(): array
     {

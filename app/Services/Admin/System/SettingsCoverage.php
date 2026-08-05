@@ -3,9 +3,15 @@
 namespace App\Services\Admin\System;
 
 use App\Models\Setting;
+use App\Services\Account\ComplaintService;
 use App\Services\Admin\Volunteer\SettingsCatalog;
 use App\Services\AdminScreens\ScreenSettings;
 use App\Services\Ads\AdEvents;
+use App\Services\Store\BundleLanding;
+use App\Services\Store\CartService;
+use App\Services\Store\PurchaseException;
+use App\Services\Ui\DesignTokens;
+use App\Services\Wallet\ExchangeRates;
 use Illuminate\Support\Collection;
 
 /**
@@ -76,6 +82,17 @@ class SettingsCoverage
             array_keys(SettingsCatalog::all()),
             array_keys(ScreenSettings::catalog()),
             array_keys(AdEvents::catalog()),
+            // ⭐ كتالوجات أخرى تُقرَأ بمفتاحٍ متغيّر — مسجَّلةٌ هنا فلا يكذب
+            // الفحص عليها (كانت كلّ `store.bundle.*` و`design.*` تظهر «ميّتة»
+            // رغم أنّ `BundleLanding`/`DesignTokens` تقرآنها فعلًا سطرًا سطرًا):
+            array_values(array_filter(BundleLanding::TEXTS)),
+            array_values(BundleLanding::SECTIONS),
+            DesignTokens::keys(),
+            array_keys(ExchangeRates::keys()),
+            $this->registry->toggleKeys(),
+            PurchaseException::MESSAGE_KEYS,
+            CartService::FAIL_MESSAGE_KEYS,
+            [ComplaintService::REASONS_KEY],
         ));
 
         return Setting::query()
