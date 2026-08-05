@@ -33,7 +33,7 @@
 ## ⬜ المتبقّي
 <!-- بيدك:بداية:المتبقّي -->
 ### ⬜ نصٌّ محروق باقٍ في هذا المجلّد — بسببه مكتوبًا (دفعة `app/Services` · 2.13)
-- `GoalBuildService.php` — **10** موضعًا داخل `GoalBuildService::EDITABLE`: **تعبيرٌ ثابت (`const`) لا يقبل استدعاء `setting()`**، وتحويله إلى ميثود يستلزم تعديل مواضع قراءته في `app/Http/**` و`resources/**` — وهي **ملكيّة زملاء** (BUILD.md §1). فيبقى بانتظار مالك تلك الملفّات.
+- ✅ **[مقفولة 2026-08-05] `GoalBuildService::EDITABLE` صار `GoalBuildService::editableFields()`.** 10 عناوين حقولٍ عربيّة (هدف/معلَم/حزمة/مهمّة) صارت من `setting()`، والبنية الداخليّة (أيّ حقول مسموح تعديلها لكلّ صنف) بقيت `EDITABLE_FIELD_KEYS`. حُدِّث موضع القراءة في `GoalController::saveField` (تحقّق مسبق) وداخل الخدمة نفسها. المفاتيح في `VolunteerGoalsDemoSeeder`. **الدليل:** `php artisan test --filter="GoalBuild|GoalController|VolunteerGoals"` (17) قبل/بعد بلا فرق.
 - **فجوة `settings:coverage --dead` (2026-08-05):** `goals.objection.window_hours`
   مزروعٌ (`VolunteerGoalsDemoSeeder`) ولا قارئ له في `app/` — نافذة الاعتراض
   على الهدف (Objection) غير مطبَّقة زمنيًّا في أيّ حارس حاليّ. وصلٌ محتمل عند

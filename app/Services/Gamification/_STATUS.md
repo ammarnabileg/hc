@@ -32,7 +32,7 @@
 ## ⬜ المتبقّي
 <!-- بيدك:بداية:المتبقّي -->
 ### ⬜ نصٌّ محروق باقٍ في هذا المجلّد — بسببه مكتوبًا (دفعة `app/Services` · 2.13)
-- `BadgeService.php` — **15** موضعًا داخل `BadgeService::CONDITIONS`: **تعبيرٌ ثابت (`const`) لا يقبل استدعاء `setting()`**، وتحويله إلى ميثود يستلزم تعديل مواضع قراءته في `app/Http/**` و`resources/**` — وهي **ملكيّة زملاء** (BUILD.md §1). فيبقى بانتظار مالك تلك الملفّات.
+- ✅ **[مقفولة 2026-08-05] `BadgeService::CONDITIONS` صار `BadgeService::conditionLabels()`.** 15 عنوان مقياسٍ عربيّ صارت من `setting()`، والمفاتيح الداخليّة بقيت `CONDITION_KEYS`. حُدِّثت مواضع القراءة في `GamificationController` (كانت تقرأ الثابت مباشرةً). المفاتيح في `ServiceTextsDemoSeeder` (مجموعة `gamification_badges`). **الدليل:** `php artisan test --filter="Badge|Gamification"` (26) قبل/بعد بلا فرق.
 - `EconomyRules.php` — **3** موضعًا داخل `EconomyRules::CONSUMED_EARN`: **تعبيرٌ ثابت (`const`) لا يقبل استدعاء `setting()`**، وتحويله إلى ميثود يستلزم تعديل مواضع قراءته في `app/Http/**` و`resources/**` — وهي **ملكيّة زملاء** (BUILD.md §1). فيبقى بانتظار مالك تلك الملفّات.
 
 - ✅ **أُصلِح (ن-2) — رقمٌ واحد لكلّ معنًى:** كان **كارت الـKPI يقول «المستوى 3»
