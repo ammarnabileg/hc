@@ -38,6 +38,42 @@
 - `GatewayAdminService.php` — **10** موضعًا داخل `GatewayAdminService::PUBLIC_KEYS`: **تعبيرٌ ثابت (`const`) لا يقبل استدعاء `setting()`**، وتحويله إلى ميثود يستلزم تعديل مواضع قراءته في `app/Http/**` و`resources/**` — وهي **ملكيّة زملاء** (BUILD.md §1). فيبقى بانتظار مالك تلك الملفّات.
 - `HardcodedTextScanner.php` — **14** موضعًا: نصُّ «ما لا يقيسه الفحص» **يُطبَع في الطرفيّة** لمشغّل النظام، لا في شاشة مستخدم — خارج «النصوص الظاهرة للمستخدم» (2.13-أ)، وهو عين علّة استثناء `app/Console/`.
 
+### ⬜ فجوات `settings:coverage --dead` — مزروعةٌ صادقةٌ بلا قارئ (2026-08-05)
+مفاتيح `AdminSystemDemoSeeder` مزروعةٌ فعلًا **وموصوفة في نصّ 24.3 كبلوك إعدادات
+شاشةٍ**، لكنّ الشاشة تعرضها للتحرير فقط (عبر أعمدة `Setting` نفسها: `label_ar`/
+`value` بلا قراءة `setting($key)` من أيّ خدمةٍ لتطبيقها على سلوكٍ حقيقيّ) —
+فتعديلها من الأدمن **بلا أثر**، وهذا عين ما يحاسب عليه الحارس. كلٌّ منها يحتاج
+الخدمة التي تستهلك قيمتها فعلًا — ميزةٌ تُبنى لا سطرًا يُربَط:
+- **الماليّات (`FinanceSettings.php`):** `finance.invoice.footer_ar` (تذييل
+  الفاتورة) · `finance.pricing.default_currency` · `finance.refund.policy_ar/en`
+  و`show_before_payment/show_standalone_page` (أماكن ظهور السياسة — القيم
+  تُبنى مصفوفةً في `refundPlacements()` لكن لا أحد يتحقّق منها في مسار الدفع
+  الفعليّ) · `finance.topup.daily_limit/max_amount/min_amount` (حدود الشحن) ·
+  `finance.withdraw.sla_hours`.
+- **البوّابة (`GatewayAdminService::PUBLIC_KEYS`):** `topup.gateway.success_url`
+  · `fail_url` · `pending_url` · `methods` · `min_amount` · `max_amount` ·
+  `fees_on` — معروضةٌ للتحرير في شاشة البوّابة، لكنّ **تكامل البوّابة الفعليّ لم
+  يُبنَ بعد** (النصّ 3505 يشترط تأكيد الأسماء الدقيقة من داشبورد التاجر وقت
+  البناء) فلا مستهلك لها غير `PUBLIC_KEYS` نفسها. الأربعة الباقية من نفس
+  الكتالوج (`enabled`·`sandbox`·`currency`·`api_key`·`vendor_key`·
+  `timeout_seconds`) مقروءةٌ فعلًا في `testConnection()`/`GatewayGuard` وسُجِّلت
+  في `SettingsCoverage::deadKeys()`.
+- **المتجر (`StoreAdminService.php`):** `store.admin.bundles.error_text` ·
+  `store.invoice.digits/prefix` · `store.order.pending_expiry_minutes` ·
+  `store.products_per_page` · `store.unified_grid` (قاعدة 17 — شبكة موحّدة).
+- **الصيانة (`MaintenanceService.php`):** `system.maintenance.animation` ·
+  `system.maintenance.resume_toast_ar` — `MaintenanceGate`/`MaintenanceAlert`
+  يطبّقان القفل والتنبيه لكن لا يقرآن هذين المفتاحين تحديدًا.
+- **الإحصائيّات (`StatsService.php`):** `stats.cache_minutes` ·
+  `stats.compare.default_on` · `stats.hide_finance_tab`.
+- **التدقيق:** `audit.require_reason_on_finance` — البلوك في 24.3 ينصّ عليه
+  Toggle، والتنفيذ الفعليّ (إلزام حقل السبب في شاشات التعديل الماليّ) لم يُبنَ.
+- **المقالات:** `articles.index_public_pages` · `articles.meta_title_template`
+  · `articles.show_author` — `ArticleWorkflow.php` يدير دورة النشر لا صفحة
+  العرض العامّة؛ لا Controller عامّ يقرأ هذه الثلاثة بعد.
+- **الإعلانات:** `ads.consent.retention_days` — مدّة الاحتفاظ بالموافقة (`Ads/`)
+  غير مطبَّقة في أيّ مهمّة تنظيف مجدولة.
+
 - ✅ **[مقفولة 2026-08-04] باب `/admin/stats` صار بسعة محتواه (12.8 · 12.2.1-أ).**
   كان المسار محروسًا بـ`reports_users.view` **وحدها**، فصاحب `reports_training.view`
   أو `reports_certificates.view` أو `reports_volunteer.view` يُردّ بـ403 **قبل أن
