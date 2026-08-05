@@ -310,7 +310,7 @@ class CertificateAdminController extends Controller
                     $certificate->certificate_type?->name_ar,
                     $certificate->source,
                     $certificate->issued_at?->format('Y-m-d'),
-                    CertificateBulkIssuer::STATUSES[$certificate->status] ?? $certificate->status,
+                    CertificateBulkIssuer::statuses()[$certificate->status] ?? $certificate->status,
                 ]);
             }
 
@@ -402,7 +402,7 @@ class CertificateAdminController extends Controller
             'certificates' => $this->issuer->ledger($filters, $request->user()),
             'filters' => $filters,
             'types' => CertificateType::query()->orderBy('name_ar')->get(),
-            'statuses' => CertificateBulkIssuer::STATUSES,
+            'statuses' => CertificateBulkIssuer::statuses(),
             'sources' => (array) setting('certificates.sources', ['manual' => 'يدويّ', 'auto' => 'تلقائيّ', 'import' => 'مستورد']),
             'revokeReasons' => (array) setting('certificates.revoke.reasons', ['تزوير مثبَت', 'بيانات خاطئة', 'طلب صاحبها']),
         ];

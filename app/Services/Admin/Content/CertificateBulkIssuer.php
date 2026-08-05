@@ -34,8 +34,22 @@ class CertificateBulkIssuer
         private readonly ContentAudit $audit,
     ) {}
 
-    /** الحالات الثلاث المعتمَدة: سارية · منتهية · ملغاة (13.4-ق) */
-    public const STATUSES = ['valid' => 'سارية', 'expired' => 'منتهية', 'revoked' => 'ملغاة'];
+    /** الحالات الثلاث المعتمَدة: سارية · منتهية · ملغاة (13.4-ق) — مفاتيح داخليّة لا نصّ (2.13-ب) */
+    public const STATUS_KEYS = ['valid', 'expired', 'revoked'];
+
+    /**
+     * حالات الشهادة بعناوينها — من `setting()` لا محروقة (2.13).
+     *
+     * @return array<string, string>
+     */
+    public static function statuses(): array
+    {
+        return [
+            'valid' => (string) setting('certificates.bulk.status.valid', 'سارية'),
+            'expired' => (string) setting('certificates.bulk.status.expired', 'منتهية'),
+            'revoked' => (string) setting('certificates.bulk.status.revoked', 'ملغاة'),
+        ];
+    }
 
     /**
      * تفكيك الأكواد الملصوقة — الفواصل المقبولة من الإعدادات لا من الكود (2.13).
@@ -273,7 +287,7 @@ class CertificateBulkIssuer
             $query->where('certificate_type_id', $type);
         }
 
-        if (($status = (string) ($filters['status'] ?? '')) !== '' && isset(self::STATUSES[$status])) {
+        if (($status = (string) ($filters['status'] ?? '')) !== '' && in_array($status, self::STATUS_KEYS, true)) {
             $query->where('status', $status);
         }
 
