@@ -63,4 +63,22 @@ class SitemapTest extends GrowthTestCase
             ->assertOk()
             ->assertSee('Sitemap: '.route('sitemap.xml'));
     }
+
+    /**
+     * ⭐ الحارس ضدّ عودة الملفّ الثابت: `php artisan serve` (وأيّ خادم PHP مدمج
+     * أو Nginx بقاعدة `try_files`) **يردّ الملفّ الثابت في `public/` قبل أن
+     * يصل الطلب إلى الراوتر إطلاقًا** — فلو عاد `public/robots.txt`، صار
+     * `SeoController::robots()` كودًا ميّتًا مرّةً أخرى **ولن يمسك ذلك أيّ
+     * اختبار PHPUnit** لأنّ عميل الاختبار يُرسِل الطلب مباشرةً إلى نواة
+     * Laravel متجاوزًا طبقة الخادم كلّها (أثبتنا هذا بـ`curl` حقيقيّ وقت
+     * التنفيذ: الملفّ الثابت يعود بنصّ `Sitemap: /sitemap.xml` نسبيًّا رغم
+     * أنّ هذا الاختبار نفسه يبقى ناجحًا). فهذا الفحص وحده يمسك الطفرة.
+     */
+    public function test_no_static_robots_file_shadows_the_controller(): void
+    {
+        $this->assertFileDoesNotExist(
+            public_path('robots.txt'),
+            'ملفّ robots.txt ثابت في public/ يسبق الراوتر ويُسكِت المتحكّم — Sitemap::robots() يصير كودًا ميّتًا.',
+        );
+    }
 }

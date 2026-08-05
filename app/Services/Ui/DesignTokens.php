@@ -71,6 +71,18 @@ class DesignTokens
         '--btn-radius', '--btn-hover-opacity', '--btn-hover-scale', '--touch-min',
     ];
 
+    /**
+     * ⭐ مفاتيح التوكنز كما تُقرأ فعلًا — يسجّلها `SettingsCoverage::deadKeys()`
+     * فلا يُبلَّغ عنها «ميّتة»: هي مقروءةٌ بمفتاحٍ ثابت داخل `variables()` أعلاه،
+     * والماسح النصّيّ لا يرى ثوابت `MAP` لأنّها مصفوفة خاصّة لا استدعاء مباشر.
+     *
+     * @return array<int, string>
+     */
+    public static function keys(): array
+    {
+        return array_keys(self::MAP);
+    }
+
     /** @return array<string,string> المتغيّر ⟵ قيمته النهائيّة بلاحقتها */
     public function variables(): array
     {
