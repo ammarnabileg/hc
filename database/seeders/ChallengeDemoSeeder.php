@@ -243,6 +243,13 @@ class ChallengeDemoSeeder extends Seeder
         $rows = [
             // ---------------- الحروب (15)
             // عدد أسئلة الجولة لكلّ نوع (15.1 · 15.5 · 15.6)
+            // عناوين سكشنز إعدادات الحرب (WarSettingsService::sections — 2.13-ب)
+            ['wars.section.costs', 'gamification_wars', 'عنوان سكشن: التكاليف', 'string', 'التكاليف'],
+            ['wars.section.rewards', 'gamification_wars', 'عنوان سكشن: المكافآت', 'string', 'المكافآت'],
+            ['wars.section.timers', 'gamification_wars', 'عنوان سكشن: المؤقّتات', 'string', 'المؤقّتات'],
+            ['wars.section.question_source', 'gamification_wars', 'عنوان سكشن: مصدر الأسئلة', 'string', 'مصدر الأسئلة'],
+            ['wars.section.limits', 'gamification_wars', 'عنوان سكشن: الحدود', 'string', 'الحدود'],
+            ['wars.section.texts', 'gamification_wars', 'عنوان سكشن: النصوص والهويّة', 'string', 'النصوص والهويّة'],
             ['wars.count.knowledge', 'gamification_wars', 'عدد أسئلة حرب المعلومات', 'number', '20'],
             ['wars.count.survival', 'gamification_wars', 'عدد أسئلة حرب البقاء', 'number', '12'],
             ['wars.count.estimation', 'gamification_wars', 'عدد أسئلة حرب التقدير', 'number', '7'],
