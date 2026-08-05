@@ -82,9 +82,9 @@ class WarBankService
             'is_numeric' => $answer !== null && $answer !== '' && is_numeric($answer),
             'tolerance' => ($data['tolerance'] ?? null) !== '' ? $data['tolerance'] ?? null : null,
             'unit' => $data['unit'] ?? null,
-            'difficulty' => array_key_exists($data['difficulty'] ?? '', self::DIFFICULTY_KEYS) ? $data['difficulty'] : 'medium',
-            'source' => array_key_exists($data['source'] ?? '', self::SOURCE_KEYS) ? $data['source'] : 'arena',
-            'status' => array_key_exists($data['status'] ?? '', self::STATUS_KEYS) ? $data['status'] : 'draft',
+            'difficulty' => in_array($data['difficulty'] ?? '', self::DIFFICULTY_KEYS, true) ? $data['difficulty'] : 'medium',
+            'source' => in_array($data['source'] ?? '', self::SOURCE_KEYS, true) ? $data['source'] : 'arena',
+            'status' => in_array($data['status'] ?? '', self::STATUS_KEYS, true) ? $data['status'] : 'draft',
         ]);
 
         if (! $question->exists) {
@@ -154,8 +154,8 @@ class WarBankService
             $rows[] = [
                 'text' => $text,
                 'answer' => $answer !== '' ? $answer : null,
-                'difficulty' => array_key_exists(trim((string) ($cells[2] ?? '')), self::DIFFICULTY_KEYS) ? trim((string) $cells[2]) : 'medium',
-                'source' => array_key_exists(trim((string) ($cells[3] ?? '')), self::SOURCE_KEYS) ? trim((string) $cells[3]) : 'arena',
+                'difficulty' => in_array(trim((string) ($cells[2] ?? '')), self::DIFFICULTY_KEYS, true) ? trim((string) $cells[2]) : 'medium',
+                'source' => in_array(trim((string) ($cells[3] ?? '')), self::SOURCE_KEYS, true) ? trim((string) $cells[3]) : 'arena',
                 'options' => array_values(array_filter(array_map('trim', explode('|', (string) ($cells[4] ?? ''))))),
             ];
         }

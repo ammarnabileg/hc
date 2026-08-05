@@ -36,9 +36,9 @@ class WarQuestionController extends Controller
 
         $questions = WarQuestion::query()
             ->when($search !== '', fn ($q) => $q->where('text', 'like', "%{$search}%"))
-            ->when(array_key_exists($difficulty, WarBankService::DIFFICULTIES), fn ($q) => $q->where('difficulty', $difficulty))
-            ->when(array_key_exists($status, WarBankService::STATUSES), fn ($q) => $q->where('status', $status))
-            ->when(array_key_exists($source, WarBankService::SOURCES), fn ($q) => $q->where('source', $source))
+            ->when(in_array($difficulty, WarBankService::DIFFICULTY_KEYS, true), fn ($q) => $q->where('difficulty', $difficulty))
+            ->when(in_array($status, WarBankService::STATUS_KEYS, true), fn ($q) => $q->where('status', $status))
+            ->when(in_array($source, WarBankService::SOURCE_KEYS, true), fn ($q) => $q->where('source', $source))
             // فلتر «بلا إجابة» — أسئلة لا تصلح للحرب حتى تُستكمَل (24.2)
             ->when($missing, fn ($q) => $q->where(fn ($w) => $w->whereNull('answer')->orWhere('answer', '')))
             ->latest('id')
@@ -48,9 +48,9 @@ class WarQuestionController extends Controller
         return view('admin.wars.bank.index', [
             'questions' => $questions,
             'filters' => compact('search', 'difficulty', 'status', 'source', 'missing'),
-            'difficulties' => WarBankService::DIFFICULTIES,
-            'sources' => WarBankService::SOURCES,
-            'statuses' => WarBankService::STATUSES,
+            'difficulties' => WarBankService::difficulties(),
+            'sources' => WarBankService::sources(),
+            'statuses' => WarBankService::statuses(),
             'counts' => [
                 'all' => WarQuestion::count(),
                 'active' => WarQuestion::where('status', 'active')->count(),
