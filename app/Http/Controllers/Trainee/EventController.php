@@ -48,8 +48,8 @@ class EventController extends Controller
             : null;
 
         $filters = [
-            'mode' => $this->pick($request->query('mode'), array_keys(EventQuery::MODES)),
-            'period' => $this->pick($request->query('period'), array_keys(EventQuery::PERIODS)) ?? 'upcoming',
+            'mode' => $this->pick($request->query('mode'), EventQuery::MODE_KEYS),
+            'period' => $this->pick($request->query('period'), EventQuery::PERIOD_KEYS) ?? 'upcoming',
             'category' => $request->query('category') ?: null,
             'q' => (string) $request->query('q', ''),
             'price' => $this->pick($request->query('price'), ['free', 'paid']),

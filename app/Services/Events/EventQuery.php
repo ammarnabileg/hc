@@ -14,15 +14,41 @@ use Illuminate\Support\Collection;
  */
 class EventQuery
 {
-    public const MODES = ['online' => 'أونلاين', 'offline' => 'أوفلاين', 'hybrid' => 'هجين'];
+    /** مفاتيح النوع الداخليّة — لا نصّ (2.13-ب) */
+    public const MODE_KEYS = ['online', 'offline', 'hybrid'];
 
-    public const PERIODS = [
-        'upcoming' => 'قادمة',
-        'today' => 'اليوم',
-        'week' => 'الأسبوع ده',
-        'past' => 'منتهية',
-        'all' => 'الكلّ',
-    ];
+    /** مفاتيح الفترة الداخليّة — لا نصّ (2.13-ب) */
+    public const PERIOD_KEYS = ['upcoming', 'today', 'week', 'past', 'all'];
+
+    /**
+     * أنواع الفعاليّة بعناوينها — من `setting()` لا محروقة (2.13).
+     *
+     * @return array<string, string>
+     */
+    public static function modes(): array
+    {
+        return [
+            'online' => (string) setting('events.query.mode.online', 'أونلاين'),
+            'offline' => (string) setting('events.query.mode.offline', 'أوفلاين'),
+            'hybrid' => (string) setting('events.query.mode.hybrid', 'هجين'),
+        ];
+    }
+
+    /**
+     * فترات الفلترة بعناوينها — من `setting()` لا محروقة (2.13).
+     *
+     * @return array<string, string>
+     */
+    public static function periods(): array
+    {
+        return [
+            'upcoming' => (string) setting('events.query.period.upcoming', 'قادمة'),
+            'today' => (string) setting('events.query.period.today', 'اليوم'),
+            'week' => (string) setting('events.query.period.week', 'الأسبوع ده'),
+            'past' => (string) setting('events.query.period.past', 'منتهية'),
+            'all' => (string) setting('events.query.period.all', 'الكلّ'),
+        ];
+    }
 
     public function __construct(private readonly EventPresenter $presenter) {}
 

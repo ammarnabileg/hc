@@ -4,8 +4,8 @@
 
 @section('content')
     @php
-        $modes = \App\Services\Events\EventQuery::MODES;
-        $periods = \App\Services\Events\EventQuery::PERIODS;
+        $modes = \App\Services\Events\EventQuery::modes();
+        $periods = \App\Services\Events\EventQuery::periods();
         $isCalendar = $view === 'calendar';
         $activeAdvanced = (int) (bool) $filters['price'] + (int) (bool) $filters['mine'];
     @endphp
