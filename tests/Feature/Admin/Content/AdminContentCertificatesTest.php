@@ -157,9 +157,9 @@ class AdminContentCertificatesTest extends AdminContentTestCase
 
         $this->assertSame('revoked', $certificate->status);
         $this->assertSame('تزوير مثبَت', $certificate->revoked_reason);
-        $this->assertArrayHasKey('revoked', CertificateBulkIssuer::STATUSES);
-        $this->assertArrayHasKey('expired', CertificateBulkIssuer::STATUSES);
-        $this->assertArrayHasKey('valid', CertificateBulkIssuer::STATUSES);
+        $this->assertArrayHasKey('revoked', CertificateBulkIssuer::statuses());
+        $this->assertArrayHasKey('expired', CertificateBulkIssuer::statuses());
+        $this->assertArrayHasKey('valid', CertificateBulkIssuer::statuses());
     }
 
     /** ⭐ المصمّم: نسختان مستقلّتان (ع/إ) + ربط لا يخرج عن القائمة البيضاء (12.5-ب). */
