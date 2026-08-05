@@ -19,15 +19,25 @@ use RuntimeException;
  */
 class WarSettingsService
 {
-    /** حقول الحرب مجمّعة في سكشنز مطويّة — نفس ترتيب الدستور */
-    public const SECTIONS = [
-        'costs' => 'التكاليف',
-        'rewards' => 'المكافآت',
-        'timers' => 'المؤقّتات',
-        'question_source' => 'مصدر الأسئلة',
-        'limits' => 'الحدود',
-        'texts' => 'النصوص والهويّة',
-    ];
+    /** مفاتيح سكشنز الحرب الستّة — نفس ترتيب الدستور — مفاتيح داخليّة لا نصّ (2.13-ب) */
+    public const SECTION_KEYS = ['costs', 'rewards', 'timers', 'question_source', 'limits', 'texts'];
+
+    /**
+     * عناوين سكشنز الحرب — من `setting()` لا محروقة (2.13).
+     *
+     * @return array<string, string>
+     */
+    public static function sections(): array
+    {
+        return [
+            'costs' => (string) setting('wars.section.costs', 'التكاليف'),
+            'rewards' => (string) setting('wars.section.rewards', 'المكافآت'),
+            'timers' => (string) setting('wars.section.timers', 'المؤقّتات'),
+            'question_source' => (string) setting('wars.section.question_source', 'مصدر الأسئلة'),
+            'limits' => (string) setting('wars.section.limits', 'الحدود'),
+            'texts' => (string) setting('wars.section.texts', 'النصوص والهويّة'),
+        ];
+    }
 
     /** هل للحرب جولة جارية الآن؟ */
     public static function isActive(Challenge $challenge): bool
@@ -132,7 +142,7 @@ class WarSettingsService
         }
 
         // السكشنز المطويّة: الحقل الفارغ يعني «اتبع العامّ» فيُحذَف من الـOverride
-        foreach (['costs', 'rewards', 'timers', 'question_source', 'limits', 'texts'] as $section) {
+        foreach (self::SECTION_KEYS as $section) {
             if (! array_key_exists($section, $payload)) {
                 continue;
             }
@@ -159,7 +169,7 @@ class WarSettingsService
             throw new RuntimeException(self::lockMessage());
         }
 
-        foreach (['costs', 'rewards', 'timers', 'question_source', 'limits', 'texts'] as $section) {
+        foreach (self::SECTION_KEYS as $section) {
             $challenge->setAttribute($section, null);
         }
 

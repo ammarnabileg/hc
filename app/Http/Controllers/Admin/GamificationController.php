@@ -415,7 +415,7 @@ class GamificationController extends Controller
             'wars' => [
                 'settings' => SettingsWriter::groupRows('gamification_wars'),
                 'shared' => WarSettingsService::sharedDefaults(),
-                'sections' => WarSettingsService::SECTIONS,
+                'sections' => WarSettingsService::sections(),
                 'challenges' => Challenge::query()->orderBy('id')->get(),
                 'selected' => $this->selectedWar($request),
             ],

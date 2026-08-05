@@ -39,7 +39,7 @@ class MeetingsAdminController extends Controller
             'counts' => $this->mirror->attendanceCounts($meetings->items()),
             'stats' => $this->mirror->stats($user, $filters),
             'filters' => $filters,
-            'statuses' => MeetingsMirror::STATUSES,
+            'statuses' => MeetingsMirror::statuses(),
             'entities' => $this->mirror->entities(),
             'attendance' => $this->attendance,
             'settings' => ScreenSettings::rows(ScreenSettings::SCREEN_MEETINGS, $user),

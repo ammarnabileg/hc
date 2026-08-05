@@ -32,11 +32,22 @@ class MeetingsMirror
         private readonly AttendanceService $attendance,
     ) {}
 
-    public const STATUSES = [
-        'scheduled' => 'قادم',
-        'running' => 'جارٍ',
-        'ended' => 'منتهٍ',
-    ];
+    /** حالات الاجتماع الثلاث — مفاتيح داخليّة لا نصّ (2.13-ب) */
+    public const STATUS_KEYS = ['scheduled', 'running', 'ended'];
+
+    /**
+     * عناوين حالات الاجتماع — من `setting()` لا محروقة (2.13).
+     *
+     * @return array<string, string>
+     */
+    public static function statuses(): array
+    {
+        return [
+            'scheduled' => (string) setting('admin_meetings.status.scheduled', 'قادم'),
+            'running' => (string) setting('admin_meetings.status.running', 'جارٍ'),
+            'ended' => (string) setting('admin_meetings.status.ended', 'منتهٍ'),
+        ];
+    }
 
     public function defaultRangeDays(): int
     {
