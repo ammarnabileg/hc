@@ -34,6 +34,10 @@ class ScreenLimitsDemoSeeder extends Seeder
             // ---------------- الاجتماعات
             ['meetings.list_limit', 'meetings', 'عدد الاجتماعات المعروضة في القائمة', 'number', '60'],
             ['admin_meetings.export.max_meetings', 'meetings', 'أقصى اجتماعات في تصدير الحضور', 'number', '2000'],
+            // عناوين حالات الاجتماع (MeetingsMirror::statuses — 2.13-ب)
+            ['admin_meetings.status.scheduled', 'meetings', 'حالة: قادم', 'string', 'قادم'],
+            ['admin_meetings.status.running', 'meetings', 'حالة: جارٍ', 'string', 'جارٍ'],
+            ['admin_meetings.status.ended', 'meetings', 'حالة: منتهٍ', 'string', 'منتهٍ'],
 
             // ---------------- الإعلان المدفوع
             ['ads.audiences.per_page', 'ads', 'عدد الشرائح في الصفحة', 'number', '20'],
@@ -67,6 +71,13 @@ class ScreenLimitsDemoSeeder extends Seeder
             // ---------------- الدعوات والإحالة
             ['referral_admin.preview_rows', 'growth', 'عدد صفوف معاينة الدعوات', 'number', '100'],
             ['referral_admin.export.max_rows', 'growth', 'أقصى صفوف تصدير الدعوات', 'number', '50000'],
+            // عناوين حالات الدعوة والمكافأة (ReferralAdmin::statuses/payouts — 2.13-ب)
+            ['referral_admin.status.completed', 'growth', 'حالة دعوة: مكتمل', 'string', 'مكتمل'],
+            ['referral_admin.status.waiting', 'growth', 'حالة دعوة: بانتظار التفعيل', 'string', 'بانتظار التفعيل'],
+            ['referral_admin.status.incomplete', 'growth', 'حالة دعوة: لم يكمل التسجيل', 'string', 'لم يكمل التسجيل'],
+            ['referral_admin.payout.pending', 'growth', 'حالة مكافأة: معلّقة', 'string', 'معلّقة'],
+            ['referral_admin.payout.paid', 'growth', 'حالة مكافأة: مصروفة', 'string', 'مصروفة'],
+            ['referral_admin.payout.held', 'growth', 'حالة مكافأة: موقوفة', 'string', 'موقوفة'],
 
             // ---------------- التقارير المجدولة
             ['report_schedules.per_page', 'stats', 'عدد الجدولات في الصفحة', 'number', '20'],

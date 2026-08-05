@@ -104,6 +104,8 @@ class VolunteerPeopleDemoSeeder extends Seeder
             ['interviews.status.no_show.label', 'recruitment', 'حالة: لم يحضر', 'string', 'لم يحضر'],
             ['interviews.status.cancelled.label', 'recruitment', 'حالة: مُلغاة', 'string', 'مُلغاة'],
             ['scorecards.scale_max', 'recruitment', 'مقياس المعايير', 'number', '10'],
+            // وسم المعيار المؤرشف (ScorecardEngine::archivedTag — 2.13-ب)
+            ['scorecards.archived_tag', 'recruitment', 'وسم المعيار المؤرشف', 'string', 'معيار مؤرشف'],
             ['scorecards.skills.required', 'recruitment', 'المهارات حقل إجباريّ', 'bool', '1'],
             ['scorecards.skills.label', 'recruitment', 'تسمية حقل المهارات', 'string', 'المهارات'],
             ['scorecards.skills.placeholder', 'recruitment', 'تلميح حقل المهارات', 'string', 'اكتب أمثلة ملموسة شفتها في المقابلة — مش صفات عامّة.'],

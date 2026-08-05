@@ -293,6 +293,11 @@ class WalletDemoSeeder extends Seeder
             ['topup.min_amount', 'store', 'أدنى قيمة تحويل مقبولة', 'number', '10'],
             ['topup.gateway.currency', 'store', 'عملة البوّابة', 'string', 'EGP'],
             ['topup.gateway.customer_address', 'store', 'عنوان العميل المرسَل للبوّابة', 'string', '-'],
+            // عناوين طرق سحب الأرباح (WithdrawService::methods — 2.13-ب)
+            ['finance.withdraw.method.wallet', 'wallet', 'طريقة سحب: محفظة موبايل', 'string', 'محفظة موبايل'],
+            ['finance.withdraw.method.bank', 'wallet', 'طريقة سحب: حساب بنكيّ', 'string', 'حساب بنكيّ'],
+            ['finance.withdraw.method.instapay', 'wallet', 'طريقة سحب: إنستا باي', 'string', 'إنستا باي'],
+            ['finance.withdraw.method.other', 'wallet', 'طريقة سحب: أخرى', 'string', 'أخرى'],
             ['wallet.tickets.earn_sources', 'wallet', 'مصادر كسب التذاكر', 'json', json_encode([
                 'إكمال درس قبل نصف الديدلاين',
                 'إكمال ستريك 7 أيّام متواصلة',
