@@ -307,6 +307,16 @@ class SettingKeyScanner
                     }
                 }
 
+                preg_match_all(self::TERNARY, $source, $ternaryMatches, PREG_SET_ORDER);
+
+                foreach ($ternaryMatches as $match) {
+                    foreach ([$match[2], $match[4]] as $key) {
+                        if (preg_match(self::KEY_SHAPE, $key) === 1) {
+                            $keys[$key][] = $place;
+                        }
+                    }
+                }
+
                 $variable += preg_match_all(self::VARIABLE, $source);
             }
         }

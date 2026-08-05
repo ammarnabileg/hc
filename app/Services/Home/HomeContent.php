@@ -28,7 +28,7 @@ class HomeContent
             ->where('is_indexable', true)
             ->orderByDesc('published_at')
             ->orderByDesc('id')
-            ->limit($this->limit('home.courses.limit', 4))
+            ->limit($this->limit((int) setting('home.courses.limit', 4)))
             ->get();
     }
 
@@ -42,7 +42,7 @@ class HomeContent
             ->where('is_indexable', true)
             ->orderBy('sort_order')
             ->orderByDesc('published_at')
-            ->limit($this->limit('home.paths.limit', 3))
+            ->limit($this->limit((int) setting('home.paths.limit', 3)))
             ->get();
     }
 
@@ -56,7 +56,7 @@ class HomeContent
             ->where('status', (string) setting('home.articles.published_status', 'published'))
             ->whereNotNull('published_at')
             ->orderByDesc('published_at')
-            ->limit($this->limit('home.articles.limit', 3))
+            ->limit($this->limit((int) setting('home.articles.limit', 3)))
             ->get();
     }
 

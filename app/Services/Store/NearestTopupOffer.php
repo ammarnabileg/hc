@@ -76,10 +76,6 @@ class NearestTopupOffer
             return null;
         }
 
-        $key = $offer['covers']
-            ? 'store.topup.nearest_offer_text'
-            : 'store.topup.largest_offer_text';
-
         return str_replace(
             ['{pay}', '{credit}', '{bonus}', '{needed}', '{label}'],
             [
@@ -89,7 +85,7 @@ class NearestTopupOffer
                 Coins::fmt($suggestion['needed']),
                 $offer['label'],
             ],
-            (string) setting($key),
+            (string) setting($offer['covers'] ? 'store.topup.nearest_offer_text' : 'store.topup.largest_offer_text'),
         );
     }
 
