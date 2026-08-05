@@ -1,6 +1,6 @@
 @php
     /** خليّة واحدة من جدول المستخدمين — والحسّاس مقنَّع بإعداد قابل للإطفاء (24.1) */
-    $statuses = \App\Services\Admin\UserDirectory::STATUSES;
+    $statuses = \App\Services\Admin\UserDirectory::statuses();
 @endphp
 
 @switch($column)

@@ -12,7 +12,7 @@
                    ]">
         <x-slot:action>
             <x-state-badge :state="$directory->statusState($user->status)"
-                           :label="\App\Services\Admin\UserDirectory::STATUSES[$user->status] ?? $user->status" />
+                           :label="\App\Services\Admin\UserDirectory::statuses()[$user->status] ?? $user->status" />
         </x-slot:action>
     </x-page-header>
 

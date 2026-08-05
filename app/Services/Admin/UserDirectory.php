@@ -18,28 +18,51 @@ use Throwable;
  */
 class UserDirectory
 {
-    /** كلّ الأعمدة المتاحة: المفتاح => العنوان — والافتراضيّ منها في الإعدادات */
-    public const COLUMNS = [
-        'name' => 'المستخدم',
-        'code' => 'الكود',
-        'email' => 'البريد',
-        'phone' => 'الموبايل',
-        'country' => 'الدولة',
-        'status' => 'الحالة',
-        'roles' => 'الأدوار',
-        'xp' => 'XP',
-        'last_seen' => 'آخر دخول',
-        'created_at' => 'تاريخ التسجيل',
+    /** مفاتيح الأعمدة الداخليّة — ترتيب العرض، لا نصّ (2.13-ب) */
+    private const COLUMN_KEYS = [
+        'name', 'code', 'email', 'phone', 'country', 'status', 'roles', 'xp', 'last_seen', 'created_at',
     ];
 
-    /** حالات الحساب (2.5-د) */
-    public const STATUSES = [
-        'pending' => 'تحت المراجعة',
-        'active' => 'معتمَد',
-        'rejected' => 'مرفوض',
-        'suspended' => 'معلّق',
-        'banned' => 'محظور',
-    ];
+    /** مفاتيح حالات الحساب الداخليّة (2.5-د) — لا نصّ */
+    private const STATUS_KEYS = ['pending', 'active', 'rejected', 'suspended', 'banned'];
+
+    /**
+     * كلّ الأعمدة المتاحة: المفتاح => العنوان — والافتراضيّ منها في الإعدادات.
+     * العناوين من `setting()` لا محروقة (2.13).
+     *
+     * @return array<string, string>
+     */
+    public static function columns(): array
+    {
+        return [
+            'name' => (string) setting('admin.users.column.name', 'المستخدم'),
+            'code' => (string) setting('admin.users.column.code', 'الكود'),
+            'email' => (string) setting('admin.users.column.email', 'البريد'),
+            'phone' => (string) setting('admin.users.column.phone', 'الموبايل'),
+            'country' => (string) setting('admin.users.column.country', 'الدولة'),
+            'status' => (string) setting('admin.users.column.status', 'الحالة'),
+            'roles' => (string) setting('admin.users.column.roles', 'الأدوار'),
+            'xp' => (string) setting('admin.users.column.xp', 'XP'),
+            'last_seen' => (string) setting('admin.users.column.last_seen', 'آخر دخول'),
+            'created_at' => (string) setting('admin.users.column.created_at', 'تاريخ التسجيل'),
+        ];
+    }
+
+    /**
+     * حالات الحساب بعناوينها العربيّة (2.5-د) — من `setting()` لا محروقة.
+     *
+     * @return array<string, string>
+     */
+    public static function statuses(): array
+    {
+        return [
+            'pending' => (string) setting('admin.users.status.pending', 'تحت المراجعة'),
+            'active' => (string) setting('admin.users.status.active', 'معتمَد'),
+            'rejected' => (string) setting('admin.users.status.rejected', 'مرفوض'),
+            'suspended' => (string) setting('admin.users.status.suspended', 'معلّق'),
+            'banned' => (string) setting('admin.users.status.banned', 'محظور'),
+        ];
+    }
 
     public function query(Request $request): LengthAwarePaginator
     {
@@ -86,7 +109,7 @@ class UserDirectory
         $default = setting('admin.users.default_columns', ['name', 'code', 'email', 'status', 'roles', 'last_seen']);
 
         $columns = is_array($saved) && $saved !== [] ? $saved : (is_array($default) ? $default : []);
-        $columns = array_values(array_intersect($columns, array_keys(self::COLUMNS)));
+        $columns = array_values(array_intersect($columns, self::COLUMN_KEYS));
 
         // الاسم عمود الهويّة ولا يُخفى أبدًا حتى لا يصير الجدول بلا مرساة
         return $columns === [] ? ['name'] : (in_array('name', $columns, true) ? $columns : array_merge(['name'], $columns));
@@ -94,7 +117,7 @@ class UserDirectory
 
     public function saveColumns(User $viewer, array $columns): void
     {
-        $columns = array_values(array_intersect($columns, array_keys(self::COLUMNS)));
+        $columns = array_values(array_intersect($columns, self::COLUMN_KEYS));
         $tables = $viewer->table_columns ?? [];
         $tables['admin_users'] = $columns;
 

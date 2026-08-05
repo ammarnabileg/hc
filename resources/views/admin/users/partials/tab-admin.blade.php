@@ -19,7 +19,7 @@
             <div class="flex flex-wrap items-center gap-2 mb-1">
                 <h3 class="font-bold text-sm">{{ setting('admin.users.partials.tab_admin.hala_alaatmad', 'حالة الاعتماد') }}</h3>
                 <x-state-badge :state="$directory->statusState($user->status)"
-                               :label="\App\Services\Admin\UserDirectory::STATUSES[$user->status] ?? $user->status" />
+                               :label="\App\Services\Admin\UserDirectory::statuses()[$user->status] ?? $user->status" />
             </div>
 
             <p class="text-xs mb-3" style="color: var(--text-muted)">

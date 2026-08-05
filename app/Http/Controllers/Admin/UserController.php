@@ -45,8 +45,8 @@ class UserController extends Controller
         return view('admin.users.index', [
             'users' => $this->directory->query($request),
             'columns' => $this->directory->visibleColumns($request->user()),
-            'allColumns' => UserDirectory::COLUMNS,
-            'statuses' => UserDirectory::STATUSES,
+            'allColumns' => UserDirectory::columns(),
+            'statuses' => UserDirectory::statuses(),
             'roles' => $this->directory->roleOptions(),
             'directory' => $this->directory,
         ]);
@@ -432,7 +432,7 @@ class UserController extends Controller
         $limit = (int) setting('admin.segments.option_rows', 50);
 
         return [
-            'status' => UserDirectory::STATUSES,
+            'status' => UserDirectory::statuses(),
             'role' => $this->directory->roleOptions(),
             'country' => Country::query()->orderBy('name_ar')->limit($limit)->pluck('name_ar', 'id')->all(),
             // المحافظات المستعملة فعلًا وحدها — قائمةٌ بلا معنى أسوأ من غيابها

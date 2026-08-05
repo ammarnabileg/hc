@@ -45,7 +45,7 @@
                         <tr style="border-top: 1px solid var(--border)">
                             <td class="p-2">{{ $member->shortName() }}</td>
                             <td class="p-2 text-xs" style="color: var(--text-muted)">#{{ $member->code }}</td>
-                            <td class="p-2 text-xs">{{ \App\Services\Admin\UserDirectory::STATUSES[$member->status] ?? $member->status }}</td>
+                            <td class="p-2 text-xs">{{ \App\Services\Admin\UserDirectory::statuses()[$member->status] ?? $member->status }}</td>
                         </tr>
                     @endforeach
                 </tbody>
