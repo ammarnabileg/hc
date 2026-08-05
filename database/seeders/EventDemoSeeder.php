@@ -163,6 +163,15 @@ class EventDemoSeeder extends Seeder
             ['events.ticket_page.subtitle', 'صفحة التذكرة: السطر تحت العنوان', 'تذكرة حضورك جاهزة للنشر — والكود ده هو إثبات دخولك.'],
             ['events.ticket_page.title', 'صفحة التذكرة: عنوان التبويب (:event)', 'تذكرتي — :event'],
             ['events.ticket_page.whatsapp', 'صفحة التذكرة: زرّ واتساب', 'واتساب'],
+            // عناوين النوع والفترة (EventQuery::modes/periods — 2.13-ب)
+            ['events.query.mode.online', 'فلتر النوع: أونلاين', 'أونلاين'],
+            ['events.query.mode.offline', 'فلتر النوع: أوفلاين', 'أوفلاين'],
+            ['events.query.mode.hybrid', 'فلتر النوع: هجين', 'هجين'],
+            ['events.query.period.upcoming', 'فلتر الفترة: قادمة', 'قادمة'],
+            ['events.query.period.today', 'فلتر الفترة: اليوم', 'اليوم'],
+            ['events.query.period.week', 'فلتر الفترة: الأسبوع ده', 'الأسبوع ده'],
+            ['events.query.period.past', 'فلتر الفترة: منتهية', 'منتهية'],
+            ['events.query.period.all', 'فلتر الفترة: الكلّ', 'الكلّ'],
         ];
 
         foreach ($rows as [$key, $label, $default]) {
