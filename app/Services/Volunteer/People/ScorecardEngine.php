@@ -19,7 +19,11 @@ use Illuminate\Support\Collection;
  */
 class ScorecardEngine
 {
-    public const ARCHIVED_TAG = 'معيار مؤرشف';
+    /** وسم المعيار المؤرشف — من `setting()` لا محروق (2.13). */
+    public static function archivedTag(): string
+    {
+        return (string) setting('scorecards.archived_tag', 'معيار مؤرشف');
+    }
 
     /** @var Collection<int, InterviewCriterion>|null كاش للطلب الواحد — الحساب يتكرّر لكلّ صفّ */
     private ?Collection $activeCache = null;
@@ -227,7 +231,7 @@ class ScorecardEngine
         $lines[] = strtr(setting('recruitment.scorecard_engine.summary_2', 'تحليل الشخصيّة: :p1'), [':p1' => (string) ((trim((string) $card->personality_notes) ?: '—'))]);
 
         foreach ($this->rows($card) as $row) {
-            $lines[] = strtr(setting('recruitment.scorecard_engine.summary_3', ':p1:p2: :p3/:p4 — وزن :p5'), [':p1' => (string) ($row['label']), ':p2' => (string) (($row['archived'] ? ' ('.self::ARCHIVED_TAG.')' : '')), ':p3' => (string) (($row['score'] ?? '—')), ':p4' => (string) ($this->scale()), ':p5' => (string) ($row['weight'])]);
+            $lines[] = strtr(setting('recruitment.scorecard_engine.summary_3', ':p1:p2: :p3/:p4 — وزن :p5'), [':p1' => (string) ($row['label']), ':p2' => (string) (($row['archived'] ? ' ('.self::archivedTag().')' : '')), ':p3' => (string) (($row['score'] ?? '—')), ':p4' => (string) ($this->scale()), ':p5' => (string) ($row['weight'])]);
         }
 
         $lines[] = strtr(setting('recruitment.scorecard_engine.summary_4', 'الدرجة الإجماليّة: :p1/:p2'), [':p1' => (string) ((string) $card->total_score), ':p2' => (string) ($this->scale())]);

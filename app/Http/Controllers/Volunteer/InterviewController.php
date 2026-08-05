@@ -138,7 +138,7 @@ class InterviewController extends Controller
             'tree' => $this->pipeline->entityTree(),
             'selectedFits' => $this->pipeline->fitsFor([$interview->recruitment_candidate_id])[$interview->recruitment_candidate_id]
                 ?? collect(),
-            'archivedTag' => ScorecardEngine::ARCHIVED_TAG,
+            'archivedTag' => ScorecardEngine::archivedTag(),
             'canEdit' => $request->user()->allows('scorecards.edit') || $request->user()->allows('scorecards.create'),
         ]);
     }

@@ -64,7 +64,7 @@ class ScorecardTest extends PeopleTestCase
 
         // ولا يدخل حساب اليوم — فالإجماليّ = درجة الحيّ وحده
         $this->assertSame(8.0, $engine->total([$live->id => 8, $old->id => 2]));
-        $this->assertStringContainsString(ScorecardEngine::ARCHIVED_TAG, $engine->summary($card));
+        $this->assertStringContainsString(ScorecardEngine::archivedTag(), $engine->summary($card));
     }
 
     public function test_decision_is_blocked_until_required_fields_are_complete(): void
