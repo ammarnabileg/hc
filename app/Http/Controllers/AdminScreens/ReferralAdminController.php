@@ -53,8 +53,8 @@ class ReferralAdminController extends Controller
             'tabs' => self::tabs(),
             'filters' => $filters,
             'stats' => $this->referrals->stats($filters),
-            'statuses' => ReferralAdmin::STATUSES,
-            'payouts' => ReferralAdmin::PAYOUTS,
+            'statuses' => ReferralAdmin::statuses(),
+            'payouts' => ReferralAdmin::payouts(),
             'canSeeMoney' => $canSeeMoney,
             'service' => $this->referrals,
             // تحميل كسول: كلّ تاب يحسب بياناته وحده
@@ -71,7 +71,7 @@ class ReferralAdminController extends Controller
         return view('admin.referral-admin.audit', [
             'referrer' => $user,
             'audit' => $this->referrals->audit($user),
-            'statuses' => ReferralAdmin::STATUSES,
+            'statuses' => ReferralAdmin::statuses(),
             'service' => $this->referrals,
         ]);
     }

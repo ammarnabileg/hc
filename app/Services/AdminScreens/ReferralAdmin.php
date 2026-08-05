@@ -33,18 +33,38 @@ class ReferralAdmin
         private readonly ReferralService $referrals,
     ) {}
 
-    /** حالة الدعوة الظاهرة للأدمن (24.2): مكتمل · انتظار التفعيل · لم يكمل التسجيل */
-    public const STATUSES = [
-        'completed' => 'مكتمل',
-        'waiting' => 'بانتظار التفعيل',
-        'incomplete' => 'لم يكمل التسجيل',
-    ];
+    /** حالة الدعوة الظاهرة للأدمن (24.2): مكتمل · انتظار التفعيل · لم يكمل التسجيل — مفاتيح داخليّة لا نصّ (2.13-ب) */
+    public const STATUS_KEYS = ['completed', 'waiting', 'incomplete'];
 
-    public const PAYOUTS = [
-        'pending' => 'معلّقة',
-        'paid' => 'مصروفة',
-        'held' => 'موقوفة',
-    ];
+    public const PAYOUT_KEYS = ['pending', 'paid', 'held'];
+
+    /**
+     * عناوين حالات الدعوة — من `setting()` لا محروقة (2.13).
+     *
+     * @return array<string, string>
+     */
+    public static function statuses(): array
+    {
+        return [
+            'completed' => (string) setting('referral_admin.status.completed', 'مكتمل'),
+            'waiting' => (string) setting('referral_admin.status.waiting', 'بانتظار التفعيل'),
+            'incomplete' => (string) setting('referral_admin.status.incomplete', 'لم يكمل التسجيل'),
+        ];
+    }
+
+    /**
+     * عناوين حالات المكافأة — من `setting()` لا محروقة (2.13).
+     *
+     * @return array<string, string>
+     */
+    public static function payouts(): array
+    {
+        return [
+            'pending' => (string) setting('referral_admin.payout.pending', 'معلّقة'),
+            'paid' => (string) setting('referral_admin.payout.paid', 'مصروفة'),
+            'held' => (string) setting('referral_admin.payout.held', 'موقوفة'),
+        ];
+    }
 
     public function defaultRangeDays(): int
     {
@@ -297,15 +317,18 @@ class ReferralAdmin
      */
     public function exportRows(array $filters, bool $withCommission): array
     {
-        return $this->invitesQuery($filters)->limit((int) setting('referral_admin.export.max_rows', 50000))->get()->map(function (Referral $referral) use ($withCommission) {
+        $statuses = self::statuses();
+        $payouts = self::payouts();
+
+        return $this->invitesQuery($filters)->limit((int) setting('referral_admin.export.max_rows', 50000))->get()->map(function (Referral $referral) use ($withCommission, $statuses, $payouts) {
             $row = [
                 'code' => $referral->code,
                 'referrer' => $referral->referrer?->name,
                 'referred' => $referral->referred?->name,
                 'invited_at' => $referral->created_at?->format('Y-m-d H:i'),
-                'status' => self::STATUSES[$this->statusOf($referral)],
+                'status' => $statuses[$this->statusOf($referral)],
                 'welcome_ticket' => $referral->welcome_ticket_granted ? setting('growth.referral_admin.export_rows_1', 'صُرفت') : setting('growth.referral_admin.export_rows_2', 'لم تُصرَف'),
-                'payout' => self::PAYOUTS[$referral->payout_status] ?? $referral->payout_status,
+                'payout' => $payouts[$referral->payout_status] ?? $referral->payout_status,
             ];
 
             if ($withCommission) {
