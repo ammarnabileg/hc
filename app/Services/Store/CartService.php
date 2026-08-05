@@ -22,6 +22,19 @@ class CartService
     /** مفتاح الجلسة — والقيمة قائمة [type, slug] لا أكثر */
     public const SESSION_KEY = 'store.cart';
 
+    /**
+     * ⭐ مفاتيح رسائل الفشل التي تقرؤها `fail()` عبر `$settingKey` — يسجّلها
+     * `SettingsCoverage::deadKeys()` فلا يُبلَّغ عنها «ميّتة» (نفس علّة
+     * `PurchaseException::MESSAGE_KEYS`: مفتاحٌ يصل بمعامل الدالّة لا حرفيًّا).
+     *
+     * @var array<int, string>
+     */
+    public const FAIL_MESSAGE_KEYS = [
+        'store.unavailable_text',
+        'store.owned_text',
+        'store.cart.full_text',
+    ];
+
     public function __construct(
         private readonly StoreCatalog $catalog,
         private readonly PricingService $pricing,
