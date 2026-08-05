@@ -18,20 +18,40 @@ use App\Models\User;
  */
 final class HonoraryElement
 {
-    /** أماكن الظهور الثلاثة لا رابع لها (13.4-ص-ب) */
-    public const PLACES = [
-        'canvas' => 'الهيكل التنظيميّ (الكانفاس)',
-        'members' => 'صفحة الأعضاء والبوزشنز',
-        'landing' => 'صفحة التطوّع التعريفيّة',
-    ];
+    /** أماكن الظهور الثلاثة لا رابع لها (13.4-ص-ب) — مفاتيح داخليّة لا نصّ (2.13-ب) */
+    public const PLACE_KEYS = ['canvas', 'members', 'landing'];
 
     /** أشكال الإطار المتاحة — قائمة مقفولة فلا يُحقن CSS من إعداد */
-    public const FRAMES = [
-        'soft' => 'إطار هادئ',
-        'gold' => 'إطار ذهبيّ',
-        'dashed' => 'إطار متقطّع',
-        'none' => 'بلا إطار',
-    ];
+    public const FRAME_KEYS = ['soft', 'gold', 'dashed', 'none'];
+
+    /**
+     * عناوين أماكن الظهور — من `setting()` لا محروقة (2.13).
+     *
+     * @return array<string, string>
+     */
+    public static function placeLabels(): array
+    {
+        return [
+            'canvas' => (string) setting('volunteer.honorary.place.canvas', 'الهيكل التنظيميّ (الكانفاس)'),
+            'members' => (string) setting('volunteer.honorary.place.members', 'صفحة الأعضاء والبوزشنز'),
+            'landing' => (string) setting('volunteer.honorary.place.landing', 'صفحة التطوّع التعريفيّة'),
+        ];
+    }
+
+    /**
+     * عناوين أشكال الإطار — من `setting()` لا محروقة (2.13).
+     *
+     * @return array<string, string>
+     */
+    public static function frameLabels(): array
+    {
+        return [
+            'soft' => (string) setting('volunteer.honorary.frame.soft', 'إطار هادئ'),
+            'gold' => (string) setting('volunteer.honorary.frame.gold', 'إطار ذهبيّ'),
+            'dashed' => (string) setting('volunteer.honorary.frame.dashed', 'إطار متقطّع'),
+            'none' => (string) setting('volunteer.honorary.frame.none', 'بلا إطار'),
+        ];
+    }
 
     public function enabled(): bool
     {
@@ -54,7 +74,7 @@ final class HonoraryElement
 
         $out = [];
 
-        foreach (array_keys(self::PLACES) as $place) {
+        foreach (self::PLACE_KEYS as $place) {
             // الافتراضيّ: الكانفاس والأعضاء نعم، والصفحة التعريفيّة اختياريّة (13.4-ص-ب)
             $out[$place] = array_key_exists($place, $raw)
                 ? (bool) $raw[$place]
@@ -73,7 +93,7 @@ final class HonoraryElement
     {
         $frame = (string) setting('volunteer.honorary.frame_style', 'soft');
 
-        return array_key_exists($frame, self::FRAMES) ? $frame : 'soft';
+        return in_array($frame, self::FRAME_KEYS, true) ? $frame : 'soft';
     }
 
     /**

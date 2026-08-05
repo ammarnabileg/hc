@@ -9,7 +9,7 @@
      * ⭐ ولا يُحسَب رقمٌ ماليّ في هذا الملفّ: كلّ ملخّصٍ لحظيّ يُطلَب من الخادم،
      * فالرقم المعروض قبل التأكيد هو نفسه المنفَّذ بعده.
      */
-    $methods = \App\Services\Wallet\WithdrawService::METHODS;
+    $methods = \App\Services\Wallet\WithdrawService::methods();
     $num = fn ($v) => rtrim(rtrim(number_format((float) $v, 2, '.', ''), '0'), '.');
 @endphp
 

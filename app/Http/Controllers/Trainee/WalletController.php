@@ -169,7 +169,7 @@ class WalletController extends Controller
 
         return view('wallet.withdrawals', array_merge([
             'rows' => $rows,
-            'methods' => WithdrawService::METHODS,
+            'methods' => WithdrawService::methods(),
         ], $this->operationsData($request)));
     }
 

@@ -148,7 +148,7 @@ class WalletOperationsController extends Controller
     {
         $data = $request->validate([
             'amount' => ['required', 'numeric', 'min:0.01'],
-            'method' => ['required', 'string', 'in:'.implode(',', array_keys(WithdrawService::METHODS))],
+            'method' => ['required', 'string', 'in:'.implode(',', WithdrawService::METHOD_KEYS)],
             'account_number' => ['required', 'string', 'max:120'],
             'account_name' => ['nullable', 'string', 'max:120'],
         ]);

@@ -59,8 +59,8 @@ class VolunteerAdminController extends Controller
             'blockTypes' => self::blockTypes(),
             // 🔒 العنصر الشرفيّ: مجموعته تُحمَّل لمالك المنصّة وحده — والباقي لا يرى الحقول أصلًا
             'honorary' => $request->user()->isPlatformOwner() ? SettingsWriter::groupRows('volunteer_honorary') : [],
-            'honoraryPlaces' => HonoraryElement::PLACES,
-            'honoraryFrames' => HonoraryElement::FRAMES,
+            'honoraryPlaces' => HonoraryElement::placeLabels(),
+            'honoraryFrames' => HonoraryElement::frameLabels(),
             'honoraryAccounts' => $request->user()->isPlatformOwner() ? self::honoraryAccounts() : collect(),
         ]);
     }
@@ -76,7 +76,7 @@ class VolunteerAdminController extends Controller
         $data = $request->validate([
             'settings' => ['required', 'array'],
             'settings.volunteer\\.honorary\\.user_id' => ['nullable', 'integer', 'min:0'],
-            'settings.volunteer\\.honorary\\.frame_style' => ['nullable', 'string', 'in:'.implode(',', array_keys(HonoraryElement::FRAMES))],
+            'settings.volunteer\\.honorary\\.frame_style' => ['nullable', 'string', 'in:'.implode(',', HonoraryElement::FRAME_KEYS)],
         ]);
 
         $settings = $data['settings'];
@@ -85,7 +85,7 @@ class VolunteerAdminController extends Controller
         if ($request->has('places')) {
             $places = [];
 
-            foreach (array_keys(HonoraryElement::PLACES) as $place) {
+            foreach (HonoraryElement::PLACE_KEYS as $place) {
                 $places[$place] = (bool) $request->input('places.'.$place, false);
             }
 

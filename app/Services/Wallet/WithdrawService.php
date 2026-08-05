@@ -22,13 +22,23 @@ class WithdrawService
     /** عملة الأرباح — الدولار (19.3) */
     public const CURRENCY = 'usd';
 
-    /** طرق التحويل المعتمَدة (19.3) */
-    public const METHODS = [
-        'wallet' => 'محفظة موبايل',
-        'bank' => 'حساب بنكيّ',
-        'instapay' => 'إنستا باي',
-        'other' => 'أخرى',
-    ];
+    /** طرق التحويل المعتمَدة (19.3) — مفاتيح داخليّة لا نصّ (2.13-ب) */
+    public const METHOD_KEYS = ['wallet', 'bank', 'instapay', 'other'];
+
+    /**
+     * عناوين طرق التحويل — من `setting()` لا محروقة (2.13).
+     *
+     * @return array<string, string>
+     */
+    public static function methods(): array
+    {
+        return [
+            'wallet' => (string) setting('finance.withdraw.method.wallet', 'محفظة موبايل'),
+            'bank' => (string) setting('finance.withdraw.method.bank', 'حساب بنكيّ'),
+            'instapay' => (string) setting('finance.withdraw.method.instapay', 'إنستا باي'),
+            'other' => (string) setting('finance.withdraw.method.other', 'أخرى'),
+        ];
+    }
 
     public function __construct(private readonly LedgerService $ledger) {}
 
@@ -103,7 +113,7 @@ class WithdrawService
     /** طلب سحب: يُخصَم فورًا ويُسجَّل في دفتر الأستاذ ثمّ ينتظر المراجعة */
     public function request(User $user, float $amount, string $method, string $account, ?string $accountName = null): WalletWithdrawal
     {
-        if (! array_key_exists($method, self::METHODS)) {
+        if (! in_array($method, self::METHOD_KEYS, true)) {
             throw new WalletException(setting('wallet.withdraw_service.request_1', 'اختر طريقة تحويل من القائمة: محفظة موبايل أو بنكيّ أو إنستا باي أو أخرى.'));
         }
 
