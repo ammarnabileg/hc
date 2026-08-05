@@ -119,7 +119,9 @@ class AdminSystemDemoSeeder extends Seeder
             ['store.products_per_page', 'store', 'عدد المنتجات لكلّ صفحة', 'number', '24', false],
             ['store.empty.text', 'store', 'نصّ الحالة الفارغة', 'text', 'مفيش نتائج للفلتر ده — جرّب توسّع شويّة.', false],
             ['bundles.enabled', 'store', 'تفعيل البندلز', 'bool', '1', false],
-            ['bundles.anchoring', 'store', 'شطب السعر الطبيعيّ (Anchoring)', 'bool', '1', false],
+            // ⛔ 'bundles.anchoring' حُذفت (ولها هجرة حذفٍ من settings) — استُبدلت
+            // بـ'store.bundle.anchoring_enabled' (تقرؤها BundleLanding فعلًا)
+            // ولم يقرأ أحدٌ الاسم القديم قطّ.
             ['coupons.enabled', 'store', 'تفعيل الكوبونات', 'bool', '1', false],
             ['order_bump.enabled', 'store', 'تفعيل Order-bump', 'bool', '1', false],
             ['order_bump.max_per_checkout', 'store', 'أقصى عروض Bump في صفحة المراجعة', 'number', '2', false],
@@ -466,7 +468,9 @@ class AdminSystemDemoSeeder extends Seeder
             ['features.ui.beta', 'features', 'شارة تجريبيّة', 'string', 'تجريبيّة', false],
 
             ['features.ui.col.feature', 'features', 'عمود الميزة', 'string', 'الميزة', false],
-            ['features.ui.col.key', 'features', 'عمود المفتاح', 'string', 'المفتاح', false],
+            // ⛔ 'features.ui.col.key' حُذفت (ولها هجرة حذفٍ من settings) — الجدول
+            // لا عمود «مفتاح» مستقلًّا فيه أصلًا (يظهر تحت اسم الميزة، انظر تعليق
+            // `features.blade.php`)، فلم يقرأ أحد هذا العنوان قطّ.
             ['features.ui.col.group', 'features', 'عمود المجموعة', 'string', 'المجموعة', false],
             ['features.ui.col.toggle', 'features', 'عمود التبديل', 'string', 'تشغيل/إيقاف', false],
             ['features.ui.col.scope', 'features', 'عمود النطاق', 'string', 'النطاق', false],

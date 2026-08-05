@@ -244,11 +244,10 @@ class LibraryDemoSeeder extends Seeder
             ['cv.template.free_badge', 'cv', 'شارة القالب المجّانيّ', 'string', 'مجّانيّ'],
             ['cv.template.owned_badge', 'cv', 'شارة القالب المملوك', 'string', 'مملوك'],
             ['cv.template.price_label', 'cv', 'سعر القالب', 'string', ':n تذكرة'],
-            ['cv.template.buy_title', 'cv', 'عنوان بوب-أب الشراء', 'string', 'شراء القالب'],
-            ['cv.template.price_title', 'cv', 'سطر السعر', 'string', 'السعر'],
-            ['cv.template.balance_before', 'cv', 'الرصيد قبل', 'string', 'الرصيد قبل'],
-            ['cv.template.balance_after', 'cv', 'الرصيد بعد', 'string', 'الرصيد بعد'],
-            ['cv.template.confirm_label', 'cv', 'زرّ تأكيد الشراء', 'string', 'أكّد الشراء'],
+            // ⛔ حُذفت هنا (ولمقابلها هجرة حذفٍ من settings): buy_title · price_title ·
+            // balance_before · balance_after · confirm_label — استُبدلت بـ
+            // selected_message/selected_paid_message في `CvController::selectTemplate`
+            // ولم يقرأها أحد قطّ (`settings:coverage --dead`).
             ['cv.template.selected_message', 'cv', 'رسالة تغيير القالب', 'string', 'اتغيّر القالب — شوف المعاينة.'],
             ['cv.template.purchased_message', 'cv', 'رسالة نجاح الشراء', 'string', 'القالب بقى ملكك — استمتع.'],
             ['cv.template.insufficient_message', 'cv', 'رسالة نقص الرصيد', 'string', 'رصيد التذاكر لا يكفي — اكسب تذاكر أو اختر قالبًا آخر.'],

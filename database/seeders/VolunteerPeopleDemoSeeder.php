@@ -185,7 +185,12 @@ class VolunteerPeopleDemoSeeder extends Seeder
      */
     private function qualifyingPathSetting(): void
     {
-        $slug = (string) setting('volunteer.qualifying.path_slug', 'volunteer-qualifying');
+        // ⛔ 'volunteer.qualifying.path_slug' حُذفت (ولها هجرة حذفٍ من settings):
+        // الحقيقيّ الذي يقرؤه `JourneyService::path()` هو 'volunteer.qualifying.path_id'
+        // (بالأسفل) — والـslug لا يُستشار بعد الزرع الأوّل، فتعديله من الأدمن
+        // كان بلا أثر. والاسم يبقى ثابتًا هنا لأنّه معرّفٌ داخليّ لإيجاد/إنشاء
+        // صفّ المسار مرّةً واحدة، لا نصًّا معروضًا.
+        $slug = 'volunteer-qualifying';
 
         $path = LearningPath::withTrashed()->firstOrCreate(['slug' => $slug], [
             'name_ar' => 'المسار التأهيليّ للتطوّع',
@@ -194,14 +199,6 @@ class VolunteerPeopleDemoSeeder extends Seeder
             'status' => 'published',
             'published_at' => now(),
             'sort_order' => 0,
-        ]);
-
-        Setting::updateOrCreate(['key' => 'volunteer.qualifying.path_slug'], [
-            'group' => 'recruitment',
-            'label_ar' => 'مُعرّف المسار التأهيليّ (slug)',
-            'type' => 'string',
-            'default_value' => $slug,
-            'value' => $slug,
         ]);
 
         Setting::query()

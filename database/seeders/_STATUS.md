@@ -96,6 +96,13 @@
 
 - **{m}:** أربعة سيدرات جديدة (`AdminScreenTextLearning/People/Engagement/SystemDemoSeeder`) تحمل **2,878 مفتاحًا** لنصوص `resources/views/admin/**` — تعريفاتٌ فقط بلا بيانات عرض، يلتقطها `SettingDefinitionsSeeder` تلقائيًّا بلاحقة `…settings` فتصل مسار الإنتاج. ومجموعاتها كلّها **مجموعات قائمة لها تابات** في `SettingsRegistry`، فلا تتيتّم واحدة. و122 صفًّا معلَّمًا بـ«⚠️ 24»: لافتاتٌ منصوصةٌ حرفيًّا في القسم 24 وتعديلُها يخالف الخريطة.
 - **(2026-08-04)** سبعة مفاتيح جديدة لشاشة الإعدادات الكسولة: `ux.settings_batch_size` في `SettingSeeder` · `settings.batch.error.{unknown_tab,unknown_group}` في `AdminSystemDemoSeeder` · وأربعة نصوص واجهة في `AdminScreenTextSystemDemoSeeder`. و`settings:coverage` رجع **100%** (11,854 من 11,854).
+- **(2026-08-05)** `GrowthDemoSeeder.php` — أقلّ لمسة، أربعة مفاتيح فقط، بلا حذفٍ
+  ولا إعادة ترتيب: `growth.invite_board.enabled` (bool، افتراضه `1` — مفتاح
+  إيقاف لوحة الدعوات · 21.1-هـ) · `ads.consent.later_label` (زرّ «لاحقًا») ·
+  `ads.consent.snooze_days` (number، افتراضه `7` — مدّة عودة البانر بعد
+  التأجيل · 21.1-د). كلّها ضمن مجموعتين قائمتين (`growth` و`ads`) ولهما تابان
+  جاهزان في `GrowthAdminController::TAB_PREFIXES` (`growth.invite_board.` و
+  `ads.consent.` مذكورتان بالفعل) — فلا يتيتّم مفتاحٌ واحد.
 <!-- بيدك:نهاية:الجاري -->
 
 ## 🔗 التبعيّات والملفّات المهمّة
