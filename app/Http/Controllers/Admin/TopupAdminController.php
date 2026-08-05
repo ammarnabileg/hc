@@ -248,7 +248,6 @@ class TopupAdminController extends Controller
     {
         return view('admin.store.topups.gateway', [
             'settings' => $this->gateway->settingsFor($request->user()),
-            'labels' => GatewayAdminService::PUBLIC_KEYS,
             'secretKeys' => GatewayAdminService::SECRET_KEYS,
             // 🔒 المفاتيح لمالك المنصّة وحده — وغيره لا يرى الحقول أصلًا
             'maySeeSecrets' => $this->gateway->maySeeSecrets($request->user()),
@@ -263,7 +262,7 @@ class TopupAdminController extends Controller
             'value' => ['nullable'],
         ]);
 
-        $allowed = array_keys(GatewayAdminService::PUBLIC_KEYS);
+        $allowed = GatewayAdminService::PUBLIC_KEYS;
 
         if ($this->gateway->maySeeSecrets($request->user())) {
             $allowed = array_merge($allowed, GatewayAdminService::SECRET_KEYS);

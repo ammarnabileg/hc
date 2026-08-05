@@ -25,24 +25,35 @@ class GatewayAdminService
         'topup.gateway.vendor_key',
     ];
 
-    /** إعدادات البوّابة غير السرّيّة — يراها المسؤول الماليّ ويعدّلها */
+    /**
+     * إعدادات البوّابة غير السرّيّة — يراها المسؤول الماليّ ويعدّلها.
+     *
+     * ⭐ **مفاتيحٌ فقط لا نصّ**: كانت مصفوفة `مفتاح ⟵ تسمية عربيّة`، لكنّ الشاشة
+     * (`admin.store.topups.gateway`) تعرض تسمية كلّ إعداد من عمود `label_ar`
+     * في القاعدة نفسه عبر `admin.settings.partials.field` — والتسمية هنا كانت
+     * تُمرَّر للقالب باسم `labels` **ولا تُقرَأ فيه قطّ** (تحقّقنا: لا أثر لها في
+     * `gateway.blade.php`). فليست نصًّا محروقًا ظاهرًا للمستخدم بل بيانات ميتة
+     * مكرَّرة — حُذفت التسميات وبقيت المفاتيح وحدها.
+     *
+     * @var array<int, string>
+     */
     public const PUBLIC_KEYS = [
-        'topup.gateway.enabled' => 'تفعيل البوّابة',
-        'topup.gateway.sandbox' => 'وضع الاختبار (Sandbox) ⇄ الإنتاج',
-        'topup.gateway.currency' => 'العملة',
-        'topup.gateway.success_url' => 'رابط النجاح',
-        'topup.gateway.fail_url' => 'رابط الفشل',
-        'topup.gateway.pending_url' => 'رابط المعلّق',
-        'topup.gateway.methods' => 'وسائل الدفع المفعَّلة',
-        'topup.gateway.min_amount' => 'الحدّ الأدنى للعمليّة',
-        'topup.gateway.max_amount' => 'الحدّ الأقصى للعمليّة',
-        'topup.gateway.fees_on' => 'تحميل الرسوم (المنصّة/المستخدم)',
+        'topup.gateway.enabled',
+        'topup.gateway.sandbox',
+        'topup.gateway.currency',
+        'topup.gateway.success_url',
+        'topup.gateway.fail_url',
+        'topup.gateway.pending_url',
+        'topup.gateway.methods',
+        'topup.gateway.min_amount',
+        'topup.gateway.max_amount',
+        'topup.gateway.fees_on',
     ];
 
     /** @return Collection<int, Setting> */
     public function settingsFor(User $user): Collection
     {
-        $keys = array_keys(self::PUBLIC_KEYS);
+        $keys = self::PUBLIC_KEYS;
 
         // 🔒 المفاتيح تُضاف فقط لمالك المنصّة — وغيره لا يعرف بوجودها أصلًا
         if ($user->isPlatformOwner()) {
