@@ -61,7 +61,18 @@ class RetentionDemoSeeder extends Seeder
     {
         $rows = [
             ['rep.inactivity.deduction_every_days', 'rep', 'دورة خصم الخمول (أيّام)', 'number', '7'],
+            // عناوين مجموعات شاشة ضبط Rep (RepRuleWriter::groups — 2.13-ب)
+            ['rep_admin.group.tasks', 'volunteer_rep', 'عنوان مجموعة: المهامّ', 'string', 'المهامّ'],
+            ['rep_admin.group.meetings', 'volunteer_rep', 'عنوان مجموعة: الاجتماعات', 'string', 'الاجتماعات'],
+            ['rep_admin.group.academy', 'volunteer_rep', 'عنوان مجموعة: الأكاديمية', 'string', 'الأكاديمية'],
+            ['rep_admin.group.leadership', 'volunteer_rep', 'عنوان مجموعة: مؤشّر القيادة', 'string', 'مؤشّر القيادة'],
+            ['rep_admin.group.behavior', 'volunteer_rep', 'عنوان مجموعة: السلوك', 'string', 'السلوك'],
+            ['rep_admin.group.limits', 'volunteer_rep', 'عنوان مجموعة: الحدود والعتبات', 'string', 'الحدود والعتبات'],
             ['volunteer.offboarding.cumulative_window_days', 'offboarding', 'نافذة المكتسَب التراكميّ (يوم)', 'number', '90'],
+            // عناوين أنواع الخروج (OffboardingService::types — 2.13-ب)
+            ['volunteer.offboarding.type.resignation', 'offboarding', 'نوع خروج: استقالة طوعيّة', 'string', 'استقالة طوعيّة'],
+            ['volunteer.offboarding.type.entity_ended', 'offboarding', 'نوع خروج: انتهاء كيان مؤقّت', 'string', 'انتهاء كيان مؤقّت (ملفّ)'],
+            ['volunteer.offboarding.type.exclusion', 'offboarding', 'نوع خروج: إقصاء', 'string', 'إقصاء (عبر سلّم العتبات وحده)'],
             // ⭐ بتر الاختياريّ (23-0.2-2): «المحافظات والملفات **عضويّات
             // اختياريّة** تُبتَر أوّلًا … أمّا **الأقسام فأساسيّة**». والمفاتيح
             // مفاتيح جدول `tracks` بالحرف — و«department» لا يدخلها أبدًا.

@@ -141,10 +141,23 @@ class SettingSeeder extends Seeder
 
             // ---------------- شهادات التطوّع والبطاقة (13.4-ع · 13.4-ر)
             ['volunteer_cert.min_days_in_position', 'volunteer_cert', 'أدنى مدّة في البوزشن (أيّام)', 'number', '30'],
+            // عناوين أنواع الشهادات (CertificateEligibility::types — 2.13-ب)
+            ['volunteer_cert.type.volunteer_position', 'volunteer_cert', 'نوع شهادة: بوزشن', 'string', 'شهادة بوزشن'],
+            ['volunteer_cert.type.volunteer_experience', 'volunteer_cert', 'نوع شهادة: خبرة تطوّع', 'string', 'شهادة خبرة تطوّع'],
+            ['volunteer_cert.type.volunteer_case_file', 'volunteer_cert', 'نوع شهادة: مشاركة في ملفّ', 'string', 'شهادة مشاركة في ملفّ'],
+            ['volunteer_cert.type.volunteer_appreciation', 'volunteer_cert', 'نوع شهادة: تقدير استثنائيّة', 'string', 'شهادة تقدير استثنائيّة'],
             ['volunteer_card.enabled', 'volunteer', 'تفعيل بطاقة المتطوّع الرقميّة', 'bool', '1'],
             ['volunteer_card.show_rep', 'volunteer', 'إظهار Rep على البطاقة العامّة', 'bool', '0'],
             ['volunteer.honorary.enabled', 'volunteer', 'إظهار العنصر الشرفيّ «أخوكم»', 'bool', '1'],
             ['volunteer.honorary.label_ar', 'volunteer', 'وصف العنصر الشرفيّ', 'string', 'أخوكم'],
+            // عناوين أماكن الظهور وأشكال الإطار (HonoraryElement::placeLabels/frameLabels — 2.13-ب)
+            ['volunteer.honorary.place.canvas', 'volunteer', 'مكان ظهور: الهيكل التنظيميّ (الكانفاس)', 'string', 'الهيكل التنظيميّ (الكانفاس)'],
+            ['volunteer.honorary.place.members', 'volunteer', 'مكان ظهور: صفحة الأعضاء والبوزشنز', 'string', 'صفحة الأعضاء والبوزشنز'],
+            ['volunteer.honorary.place.landing', 'volunteer', 'مكان ظهور: صفحة التطوّع التعريفيّة', 'string', 'صفحة التطوّع التعريفيّة'],
+            ['volunteer.honorary.frame.soft', 'volunteer', 'شكل إطار: هادئ', 'string', 'إطار هادئ'],
+            ['volunteer.honorary.frame.gold', 'volunteer', 'شكل إطار: ذهبيّ', 'string', 'إطار ذهبيّ'],
+            ['volunteer.honorary.frame.dashed', 'volunteer', 'شكل إطار: متقطّع', 'string', 'إطار متقطّع'],
+            ['volunteer.honorary.frame.none', 'volunteer', 'شكل إطار: بلا إطار', 'string', 'بلا إطار'],
 
             // ---------------- التقدير (13.4-ي)
             ['kudos.daily_limit', 'kudos', 'حدّ Kudos اليوميّ', 'number', '2'],
