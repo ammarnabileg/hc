@@ -35,8 +35,23 @@ class GuidanceComposer
 {
     public function __construct(private readonly ContentAudit $audit) {}
 
-    /** حالات المنشور (24.3) */
-    public const STATUSES = ['draft' => 'مسودّة', 'scheduled' => 'مجدول', 'published' => 'منشور', 'archived' => 'مؤرشف'];
+    /** حالات المنشور (24.3) — مفاتيح داخليّة لا نصّ (2.13-ب) */
+    public const STATUS_KEYS = ['draft', 'scheduled', 'published', 'archived'];
+
+    /**
+     * حالات الإعلان بعناوينها — من `setting()` لا محروقة (2.13).
+     *
+     * @return array<string, string>
+     */
+    public static function statuses(): array
+    {
+        return [
+            'draft' => (string) setting('admin_content.guidance.status.draft', 'مسودّة'),
+            'scheduled' => (string) setting('admin_content.guidance.status.scheduled', 'مجدول'),
+            'published' => (string) setting('admin_content.guidance.status.published', 'منشور'),
+            'archived' => (string) setting('admin_content.guidance.status.archived', 'مؤرشف'),
+        ];
+    }
 
     // ============================================================== التعليمات
 
@@ -49,7 +64,7 @@ class GuidanceComposer
             $query->where('title', 'like', '%'.$q.'%');
         }
 
-        if (($status = (string) ($filters['status'] ?? '')) !== '' && isset(self::STATUSES[$status])) {
+        if (($status = (string) ($filters['status'] ?? '')) !== '' && in_array($status, self::STATUS_KEYS, true)) {
             $query->where('status', $status);
         }
 
@@ -213,7 +228,7 @@ class GuidanceComposer
     public function saveAnnouncement(?Announcement $announcement, array $data): Announcement
     {
         $isNew = $announcement === null;
-        $status = isset(self::STATUSES[$data['status'] ?? '']) ? (string) $data['status'] : 'draft';
+        $status = in_array($data['status'] ?? '', self::STATUS_KEYS, true) ? (string) $data['status'] : 'draft';
 
         $payload = [
             'title' => $data['title'],
