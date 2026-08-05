@@ -21,13 +21,23 @@ use Illuminate\Support\Collection;
  */
 class CertificateEligibility
 {
-    /** الأنواع الأربعة لا خامس لها */
-    public const TYPES = [
-        'volunteer_position' => 'شهادة بوزشن',
-        'volunteer_experience' => 'شهادة خبرة تطوّع',
-        'volunteer_case_file' => 'شهادة مشاركة في ملفّ',
-        'volunteer_appreciation' => 'شهادة تقدير استثنائيّة',
-    ];
+    /** الأنواع الأربعة لا خامس لها — مفاتيح داخليّة لا نصّ (2.13-ب) */
+    public const TYPE_KEYS = ['volunteer_position', 'volunteer_experience', 'volunteer_case_file', 'volunteer_appreciation'];
+
+    /**
+     * عناوين أنواع الشهادات — من `setting()` لا محروقة (2.13).
+     *
+     * @return array<string, string>
+     */
+    public static function types(): array
+    {
+        return [
+            'volunteer_position' => (string) setting('volunteer_cert.type.volunteer_position', 'شهادة بوزشن'),
+            'volunteer_experience' => (string) setting('volunteer_cert.type.volunteer_experience', 'شهادة خبرة تطوّع'),
+            'volunteer_case_file' => (string) setting('volunteer_cert.type.volunteer_case_file', 'شهادة مشاركة في ملفّ'),
+            'volunteer_appreciation' => (string) setting('volunteer_cert.type.volunteer_appreciation', 'شهادة تقدير استثنائيّة'),
+        ];
+    }
 
     /** الحدّ الأدنى للمدّة — عامّ، ويجوز تخصيصه لكلّ بوزشن */
     public static function minDays(?string $positionKey = null): int
@@ -386,7 +396,7 @@ class CertificateEligibility
 
         $out = [];
 
-        foreach (self::TYPES as $key => $label) {
+        foreach (self::types() as $key => $label) {
             $out[$key] = ['label' => $label, 'enabled' => (bool) ($flags[$key] ?? true)];
         }
 

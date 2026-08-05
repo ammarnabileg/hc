@@ -177,7 +177,7 @@ class VolunteerAdminController extends Controller
     public function certificates(Request $request): View
     {
         $typeIds = CertificateType::query()
-            ->whereIn('key', array_keys(CertificateEligibility::TYPES))
+            ->whereIn('key', CertificateEligibility::TYPE_KEYS)
             ->pluck('id', 'key');
 
         return view('admin.volunteer.certificates', [
