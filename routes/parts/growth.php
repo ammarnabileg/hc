@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Growth\ArticleController;
+use App\Http\Controllers\Growth\ConsentSnoozeController;
 use App\Http\Controllers\Growth\ContentKitController;
 use App\Http\Controllers\Growth\GrowthAdminController;
 use App\Http\Controllers\Growth\InviteBoardController;
@@ -25,6 +26,12 @@ use Illuminate\Support\Facades\Route;
 // ==================================================== أ) تحسين الظهور في البحث (21.2-ب)
 Route::get('/sitemap.xml', [SeoController::class, 'sitemap'])->name('sitemap.xml');
 Route::get('/robots.txt', [SeoController::class, 'robots'])->name('robots.txt');
+
+/*
+| تأجيل بانر الموافقة (21.1-د · 21.3-د) — «لاحقًا» ليس قرارًا فلا صلاحيّة عليه
+| ولا تسجيل دخول: البانر يُعرَض من أوّل زيارة، والزائر بلا حسابٍ بعد.
+*/
+Route::post('/consent/snooze', [ConsentSnoozeController::class, 'store'])->name('consent.snooze');
 
 // ==================================================== ب) مركز المقالات — الواجهة العامّة (21.2-أ)
 Route::get('/articles', [ArticleController::class, 'index'])->name('growth.articles.index');
