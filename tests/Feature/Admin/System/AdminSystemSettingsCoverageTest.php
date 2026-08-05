@@ -220,4 +220,89 @@ class AdminSystemSettingsCoverageTest extends SystemTestCase
             $this->assertDatabaseHas('settings', ['key' => $key]);
         }
     }
+
+    /**
+     * الأيتام الحقيقيّون من `settings:coverage --dead` (2026-08-05) لا يعودون:
+     * حُذفوا بمايجريشن **ومن السيدرات معًا** — وإلّا عادوا في أوّل `migrate:fresh`.
+     */
+    public function test_swept_dead_orphans_do_not_come_back(): void
+    {
+        $this->seed(SettingSeeder::class);
+        $this->seed(DemoSeeder::class);
+
+        $swept = [
+            // رقمٌ ناقص من تسلسل مُرقَّم — تجربة استخراج نصٍّ محروق سابقة
+            'volunteer.contributions.field_22',
+            'volunteer.contributions_invite_form.legend_2',
+            'volunteer.escalations_arbitrations_file.option_3',
+            'volunteer.overview_report.text_13',
+            'volunteer.performance_rep.text_8',
+            'volunteer.performance_rep.text_9',
+            'volunteer.profile_report.text_5',
+            'volunteer.tasks_action_modals.option_2',
+            'volunteer.tasks_action_modals.text_9',
+            'volunteer.tasks_show.text_12',
+            // لا وجود له في أيّ سيدر أو ملفّ بيانات — تجربة أولى مُجهَضة
+            'cv.attestations_page.js_1',
+            'cv.attestations_page.js_2',
+            'cv.index.js_1',
+            'cv.index.js_2',
+            'cv.index.js_3',
+            'cv.index.js_4',
+            'cv.step_certificates.js_1',
+            'cv.templates_partial.js_1',
+            'exams.take.js_1',
+            'exams.take.js_2',
+            'exams.take.js_3',
+            // استُبدِل باسمٍ آخر يُقرَأ فعلًا
+            'bundles.anchoring',
+            'cv.template.buy_title',
+            'cv.template.price_title',
+            'cv.template.balance_before',
+            'cv.template.balance_after',
+            'cv.template.confirm_label',
+            'features.ui.col.key',
+            'volunteer.qualifying.path_slug',
+        ];
+
+        foreach ($swept as $key) {
+            $this->assertDatabaseMissing('settings', ['key' => $key]);
+        }
+
+        // والمعتمَد الذي حلّ محلّ بعضها ما زال يقرأه القارئ الحقيقيّ
+        $this->assertDatabaseHas('settings', ['key' => 'store.bundle.anchoring_enabled']);
+        $this->assertDatabaseHas('settings', ['key' => 'volunteer.qualifying.path_id']);
+    }
+
+    /**
+     * ⭐ الطفرة: كتالوجٌ مُسجَّل في `deadKeys()` (`BundleLanding::TEXTS` هنا) —
+     * فُصِلَ تسجيله ⟵ يعود `store.bundle.hero_badge` «ميّتًا» زورًا رغم قراءته
+     * فعلًا. يثبت أنّ التسجيل هو ما يمنع البلاغ الكاذب لا صدفة.
+     */
+    public function test_unregistering_a_catalog_makes_the_false_dead_report_return(): void
+    {
+        $this->seed(SettingSeeder::class);
+        $this->seed(DemoSeeder::class);
+
+        $before = app(SettingsCoverage::class)->deadKeys();
+        $this->assertFalse($before->contains('store.bundle.hero_badge'));
+
+        // نطفئ التسجيل يدويًّا بمحاكاة القارئ بلا كتالوجه، لا بتعديل الكود:
+        // النسخة المصغّرة من نفس منطق deadKeys() بلا سطر تسجيل BundleLanding.
+        $scanner = app(\App\Services\Admin\System\SettingKeyScanner::class);
+        $read = array_flip(array_keys($scanner->keys()));
+        $viaCatalogWithoutBundle = array_flip(array_merge(
+            array_keys(\App\Services\Admin\Volunteer\SettingsCatalog::all()),
+            array_keys(\App\Services\AdminScreens\ScreenSettings::catalog()),
+            array_keys(\App\Services\Ads\AdEvents::catalog()),
+        ));
+
+        $stillFalselyDead = ! isset($read['store.bundle.hero_badge'])
+            && ! isset($viaCatalogWithoutBundle['store.bundle.hero_badge']);
+
+        $this->assertTrue(
+            $stillFalselyDead,
+            'دون تسجيل BundleLanding في الكتالوج، store.bundle.hero_badge كان سيُبلَّغ ميّتًا زورًا — وهذا يثبت أنّ التسجيل هو الإصلاح الفعليّ.',
+        );
+    }
 }
