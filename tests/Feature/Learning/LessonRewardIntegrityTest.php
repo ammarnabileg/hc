@@ -91,7 +91,7 @@ class LessonRewardIntegrityTest extends LearningTestCase
     {
         $metrics = app(BadgeService::class)->metrics($this->trainee());
 
-        foreach (array_keys(BadgeService::CONDITIONS) as $key) {
+        foreach (BadgeService::CONDITION_KEYS as $key) {
             $this->assertArrayHasKey($key, $metrics, 'المفتاح «'.$key.'» معروضٌ في الفورم بلا مقياس.');
         }
     }
