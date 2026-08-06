@@ -107,6 +107,16 @@
 
 ## 🔄 الجاري الآن
 <!-- بيدك:بداية:الجاري -->
+- **(2026-08-06) 🧩 المطوّرين (12.15، v5.5):** ملفّان جديدان.
+  `admin-developers.php` (5 مسارات · `admin.developers.*`) — الباب بسعة تابيه
+  (`integrations.view,integrations.list,webhooks.view,webhooks.list`) ثمّ
+  إنشاء/تدوير/إبطال مفتاح API كلٌّ بمفتاحه (`integrations.create/edit/delete`)
+  — **ولا مسارٌ يستخدم `integrations.manage`** (owner-only) عمدًا؛ لا شيء
+  ماليّ بُني في هذه الدفعة. و`api-v1.php` (4 مسارات، بلا حارس `permission:` —
+  المصادقة عبر `api.key` بمفتاح API لا بجلسة مستخدم): `ping` بلا Scope،
+  `courses` و`certificates/{code}/verify` كلٌّ بـScope من `ApiKeyService::SCOPES`.
+  **تاب Webhooks سقالته فقط** (رابطٌ في السايد بار + تاب placeholder) — محتواه
+  للعميل التالي فوق نفس المسار `admin.developers.index?tab=webhooks`.
 - **الحالة:** `exams.php` — أُضيف **حاجز الإتاحة** (5) على مجموعة مسارات الامتحان:
   `Route::middleware(['permission:course_exam.view', EnsureExamWithinAvailability::class])`.
   والحاجز على **المجموعة** لا على مسارٍ بعينه كي يشمل أيّ مسارٍ يُضاف لاحقًا،
