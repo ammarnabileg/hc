@@ -24,6 +24,9 @@ use Illuminate\View\View;
  */
 class CourseAdminController extends Controller
 {
+    /** الحقول المعزولة لمالك المنصّة حصرًا (12.2.2: paywall.edit/manage) */
+    private const PAYWALL_FIELDS = ['is_free', 'price_coins', 'offer_price_coins', 'offer_ends_at', 'free_first_time'];
+
     public function __construct(
         private readonly CourseFormService $courses,
         private readonly PathCourseService $paths,
@@ -66,7 +69,7 @@ class CourseAdminController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
-        $course = $this->courses->save(null, $this->validated($request), $request->boolean('continue'));
+        $course = $this->courses->save(null, $this->withGuardedPricing($request, null), $request->boolean('continue'));
 
         // «حفظ واستمرار» يبقيك في التحرير · «حفظ» يخرج (12.4-ب)
         return $request->boolean('continue')
@@ -76,11 +79,41 @@ class CourseAdminController extends Controller
 
     public function update(Request $request, Course $course): RedirectResponse
     {
-        $saved = $this->courses->save($course, $this->validated($request), $request->boolean('continue'));
+        $saved = $this->courses->save($course, $this->withGuardedPricing($request, $course), $request->boolean('continue'));
 
         return $request->boolean('continue')
             ? back()->with('status', $this->savedLabel($saved))
             : redirect()->route('admin.courses.index')->with('status', (string) setting('courses.admin.update_ok', 'اتحفظ التدريب ✓'));
+    }
+
+    /**
+     * ⭐ الحجب والمجّانيّة 🔒 (12.2.2 · `paywall.edit`/`paywall.manage`) —
+     * مالك المنصّة فقط. تاب "التسعير" داخل فورم التدريب العاديّ مفتوح لأيّ
+     * محرِّر محتوى (`courses.edit`)، فحقول السعر النهائيّ وقاعدة المجّانيّة
+     * تحديدًا تُستثنى هنا من بيانات غير المالك — قيمة قديمة (تعديل) أو
+     * افتراضيّة آمنة (إنشاء) بدل ما أرسله، ومحاولته تُسجَّل بالتدقيق.
+     *
+     * @return array<string, mixed>
+     */
+    private function withGuardedPricing(Request $request, ?Course $course): array
+    {
+        $data = $this->validated($request);
+
+        if ($request->user()?->isPlatformOwner()) {
+            return $data;
+        }
+
+        $rejected = array_intersect_key($data, array_flip(self::PAYWALL_FIELDS));
+
+        foreach (self::PAYWALL_FIELDS as $field) {
+            $data[$field] = $course?->getAttribute($field);
+        }
+
+        if ($course && $rejected !== [] && array_filter($rejected, fn ($value, $key) => (string) $value !== (string) $course->getAttribute($key), ARRAY_FILTER_USE_BOTH) !== []) {
+            $this->audit->record($course, 'course.paywall_edit_rejected', [], ['rejected' => $rejected], $request->user());
+        }
+
+        return $data;
     }
 
     /**

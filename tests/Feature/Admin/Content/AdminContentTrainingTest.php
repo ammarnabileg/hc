@@ -8,9 +8,13 @@ use App\Models\LearningPath;
 use App\Models\Lesson;
 use App\Models\LessonQuestion;
 use App\Models\MediaItem;
+use App\Models\Permission;
 use App\Models\Section;
+use App\Models\User;
 use App\Services\Admin\Content\MediaLibrary;
+use App\Support\Access\AccessEngine;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 /**
@@ -212,5 +216,79 @@ class AdminContentTrainingTest extends AdminContentTestCase
         foreach (['admin.paths.index', 'admin.courses.index', 'admin.media.index'] as $route) {
             $this->actingAs($stranger)->get(route($route))->assertForbidden();
         }
+    }
+
+    /**
+     * ⭐ الحجب والمجّانيّة 🔒 (12.2.2: paywall.edit/manage — مالك المنصّة فقط).
+     * محرِّر محتوى عاديّ يملك `courses.edit` يقدر يعدّل اسم التدريب ووصفه، لكن
+     * السعر النهائيّ وقاعدة المجّانيّة **يتجاهلهما الخادم** مهما أرسل — لا
+     * يكفي إخفاء الحقل في الواجهة، فالحارس على الخادم لا العميل.
+     */
+    public function test_only_the_platform_owner_can_change_pricing_fields(): void
+    {
+        $course = Course::query()->where('slug', 'shared-communication')->firstOrFail();
+        $originalPrice = (float) $course->price_coins;
+        $editor = $this->editorWith('courses.edit');
+
+        $this->actingAs($editor)->put(route('admin.courses.update', $course), [
+            'name_ar' => 'اسم معدَّل من محرِّر عاديّ',
+            'status' => $course->status,
+            'is_free' => true,
+            'price_coins' => 999999,
+            'offer_price_coins' => 1,
+            'free_first_time' => true,
+        ])->assertRedirect();
+
+        $course->refresh();
+
+        $this->assertSame('اسم معدَّل من محرِّر عاديّ', $course->name_ar, 'الحقول العاديّة يعدّلها محرِّر المحتوى بلا مشكلة');
+        $this->assertSame($originalPrice, (float) $course->price_coins, 'السعر لازم يفضل زيّ ما هو — محرِّر عاديّ مالوش صلاحيّة تغييره');
+        $this->assertFalse((bool) $course->free_first_time, 'قاعدة المجّانيّة أوّل مرّة معزولة لمالك المنصّة فقط');
+
+        $owner = $this->admin();
+
+        $this->actingAs($owner)->put(route('admin.courses.update', $course), [
+            'name_ar' => $course->name_ar,
+            'status' => $course->status,
+            'is_free' => true,
+            'price_coins' => 777,
+        ])->assertRedirect();
+
+        $this->assertSame(777.0, (float) $course->refresh()->price_coins, 'مالك المنصّة يقدر يغيّر السعر فعليًّا');
+    }
+
+    private function editorWith(string ...$keys): User
+    {
+        $user = $this->makeUser(['name' => 'محرِّر محتوى عاديّ']);
+
+        foreach ($keys as $key) {
+            $permission = Permission::query()->where('key', $key)->first();
+
+            if (! $permission) {
+                [$resource, $action] = explode('.', $key);
+                $permission = Permission::create([
+                    'key' => $key,
+                    'resource' => $resource,
+                    'action' => $action,
+                    'group' => 'التعلّم والمحتوى والشهادات',
+                    'label_ar' => $key,
+                    'allowed_scopes' => ['ALL'],
+                ]);
+            }
+
+            DB::table('permission_user')->insertOrIgnore([
+                'permission_id' => $permission->id,
+                'user_id' => $user->id,
+                'membership_id' => null,
+                'scope' => 'ALL',
+                'effect' => 'allow',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
+
+        app(AccessEngine::class)->forget();
+
+        return $user->fresh();
     }
 }
