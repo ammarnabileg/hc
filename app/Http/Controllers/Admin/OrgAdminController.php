@@ -6,10 +6,13 @@ use App\Http\Controllers\Controller;
 use App\Models\Entity;
 use App\Models\Membership;
 use App\Models\Position;
+use App\Models\PromotionDecision;
 use App\Models\Track;
+use App\Models\User;
 use App\Services\Admin\Volunteer\AuditTrail;
 use App\Services\Admin\Volunteer\CapacityReport;
 use App\Services\Admin\Volunteer\SettingsWriter;
+use App\Services\Volunteer\Org\PromotionLadder;
 use App\Support\Access\AccessEngine;
 use App\Support\Scope\ScopeFilter;
 use Illuminate\Http\RedirectResponse;
@@ -60,6 +63,20 @@ class OrgAdminController extends Controller
                 ->where('status', 'active')
                 ->when($trackId, fn ($q) => $q->whereHas('entity', fn ($e) => $e->where('track_id', $trackId)))
                 ->limit((int) setting('volunteer.org.members_limit', 50))
+                ->get(),
+            // ⭐ سلّم الترقية الفوريّ (القسم 0): بانتظار الاعتماد — قائمو أعمال الدايركتور وتعادلات كاملة
+            'actingApprovals' => Membership::query()
+                ->tap(fn ($q) => app(ScopeFilter::class)->apply($q, $request->user(), 'org_chart.view', 'user_id', 'entity_id'))
+                ->with(['user:id,name,code', 'entity:id,name_ar', 'position'])
+                ->where('status', 'active')
+                ->where('is_acting', true)
+                ->latest('started_at')
+                ->get(),
+            'tieDecisions' => PromotionDecision::query()
+                ->tap(fn ($q) => app(ScopeFilter::class)->apply($q, $request->user(), 'org_chart.view', null, 'entity_id'))
+                ->with(['entity:id,name_ar', 'position'])
+                ->where('status', 'awaiting_decision')
+                ->latest()
                 ->get(),
         ]);
     }
@@ -201,6 +218,51 @@ class OrgAdminController extends Controller
         SettingsWriter::dropOverride($data['key'], Entity::findOrFail($data['entity_id']), $request->user());
 
         return back()->with('status', (string) setting('volunteer_org.admin.drop_override_ok', 'رجع الكيان للقيمة العامّة ✓'));
+    }
+
+    // ------------------------------------------------------------ سلّم الترقية الفوريّ (القسم 0)
+
+    /** ⭐ اعتماد «القائم بأعمال» — تثبيتٌ نهائيّ في البوزشن (23-0.2) */
+    public function confirmActing(Request $request, Membership $membership): RedirectResponse
+    {
+        abort_unless($membership->is_acting && $membership->status === 'active', 404);
+
+        app(PromotionLadder::class)->confirmActing($membership, $request->user());
+
+        return back()->with('status', (string) setting('volunteer_org.admin.promotion_ladder_confirm_ok', 'اتثبّت القائم بأعمال في البوزشن ✓'));
+    }
+
+    /** ⭐ ردّ اعتماد «القائم بأعمال» بمبرّر مكتوب — والسلّم يُعاد حسابه فورًا (23-0.2) */
+    public function rejectActing(Request $request, Membership $membership): RedirectResponse
+    {
+        abort_unless($membership->is_acting && $membership->status === 'active', 404);
+
+        $data = $request->validate(['reason' => ['required', 'string', 'min:10', 'max:500']]);
+
+        app(PromotionLadder::class)->rejectActing($membership, $request->user(), $data['reason']);
+
+        return back()->with('status', (string) setting('volunteer_org.admin.promotion_ladder_reject_ok', 'اترَدّ الاعتماد — وسلّم الترقية أعاد الحساب فورًا.'));
+    }
+
+    /** ⭐ حسم تعادلٍ كامل — قرار الدايركتور (أو مشرف عام التطوّع) بمبرّر مكتوب (23-0.2) */
+    public function decideTie(Request $request, PromotionDecision $decision): RedirectResponse
+    {
+        abort_unless($decision->status === 'awaiting_decision', 404);
+
+        $data = $request->validate([
+            'winner_user_id' => ['required', 'integer'],
+            'reason' => ['required', 'string', 'min:10', 'max:500'],
+        ]);
+
+        if (! in_array((int) $data['winner_user_id'], (array) $decision->candidate_user_ids, true)) {
+            return back()->with('status', (string) setting('volunteer_org.admin.promotion_ladder_decide_msg', 'المختار لازم يكون من ضمن المرشّحين المتعادلين.'));
+        }
+
+        $winner = User::findOrFail($data['winner_user_id']);
+
+        app(PromotionLadder::class)->decideTie($decision, $winner, $request->user(), $data['reason']);
+
+        return back()->with('status', (string) setting('volunteer_org.admin.promotion_ladder_decide_ok', 'اتحسم التعادل — والبوزشن اتصعّد له فورًا.'));
     }
 
     /** تقرير السعة: أكثر الأقسام تخمةً وأكثرها فراغًا — مادّة قرار */

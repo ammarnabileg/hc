@@ -252,6 +252,10 @@ class HttpTextDemoSeeder extends Seeder
             ['volunteer_org.admin.save_settings_ok', 'volunteer_org', 'saveSettings() — اتحفظ ✓', 'اتحفظ ✓'],
             ['volunteer_org.admin.save_override_ok', 'volunteer_org', 'saveOverride() — اتحفظ الـOverride للكيان ✓', 'اتحفظ الـOverride للكيان ✓'],
             ['volunteer_org.admin.drop_override_ok', 'volunteer_org', 'dropOverride() — رجع الكيان للقيمة العامّة ✓', 'رجع الكيان للقيمة العامّة ✓'],
+            ['volunteer_org.admin.promotion_ladder_confirm_ok', 'volunteer_org', 'confirmActing() — اتثبّت القائم بأعمال في البوزشن ✓', 'اتثبّت القائم بأعمال في البوزشن ✓'],
+            ['volunteer_org.admin.promotion_ladder_reject_ok', 'volunteer_org', 'rejectActing() — اترَدّ الاعتماد — وسلّم الترقية أعاد الحساب فورًا.', 'اترَدّ الاعتماد — وسلّم الترقية أعاد الحساب فورًا.'],
+            ['volunteer_org.admin.promotion_ladder_decide_ok', 'volunteer_org', 'decideTie() — اتحسم التعادل — والبوزشن اتصعّد له فورًا.', 'اتحسم التعادل — والبوزشن اتصعّد له فورًا.'],
+            ['volunteer_org.admin.promotion_ladder_decide_msg', 'volunteer_org', 'decideTie() — المختار لازم يكون من ضمن المرشّحين المتعادلين.', 'المختار لازم يكون من ضمن المرشّحين المتعادلين.'],
             // ---- app/Http/Controllers/Admin/PathAdminController.php
             ['paths.admin.store_ok', 'paths', 'store() — اتحفظ المسار «:a1» ✓', 'اتحفظ المسار «:a1» ✓'],
             ['paths.admin.update_ok', 'paths', 'update() — اتحفظ ✓', 'اتحفظ ✓'],

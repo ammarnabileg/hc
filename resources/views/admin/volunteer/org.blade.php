@@ -31,6 +31,8 @@
         <span>{{ setting('admin.volunteer.org.alsaa', 'السعة') }} <strong>{{ setting('admin.volunteer.org.mwshrat_wtnbyhat_fqt', 'مؤشّرات وتنبيهات فقط') }}</strong> {{ setting('admin.volunteer.org.la_twqf_tskyna_wla_trqya_wla_nqla_walmtjawz', '— لا تُوقِف تسكينًا ولا ترقيةً ولا نقلًا. والمتجاوز يظهر في صحّة فريقه بلا تعطيل أحد.') }}</span>
     </div>
 
+    @include('admin.volunteer.partials.promotion-ladder-pending', ['actingApprovals' => $actingApprovals, 'tieDecisions' => $tieDecisions])
+
     {{-- ثلاثة فلاتر ظاهرة + بحث (2.15-أ-4) --}}
     <x-filters :action="route('admin.volunteer.org')">
         <div>

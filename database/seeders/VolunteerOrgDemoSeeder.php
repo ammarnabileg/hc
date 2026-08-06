@@ -107,6 +107,10 @@ class VolunteerOrgDemoSeeder extends Seeder
             ['volunteer.absence.audit_rows', 'volunteer', 'عدد صفوف سجلّ تدقيق الغيابات', 'number', '15'],
             ['volunteer.absence.upcoming_days', 'volunteer', 'مدى «غيابات قادمة» في الكروت (أيّام)', 'number', '14'],
             ['volunteer.absence.ending_soon_days', 'volunteer', 'مدى «تنتهي قريبًا» في الكروت (أيّام)', 'number', '3'],
+
+            // ---------------- سلّم الترقية الفوريّ (القسم 0 · 23-0.2)
+            // نوافذ كسر التعادل المتناقصة — أوّل نافذة يظهر فيها فرق VXP تحسم
+            ['volunteer.promotion_ladder.tiebreak_windows_days', 'volunteer', 'نوافذ كسر تعادل سلّم الترقية (أيّام، من الأكبر للأصغر)', 'json', '[30,21,10,7,3,1]'],
         ];
 
         foreach ($rows as [$key, $group, $label, $type, $default]) {

@@ -62,6 +62,14 @@ Route::middleware(['auth', 'admin.panel'])->prefix('admin')->name('admin.')->gro
         Route::get('/org/capacity', [OrgAdminController::class, 'capacityReport'])
             ->middleware('permission:capacity.view')->name('org.capacity');
 
+        // ⭐ سلّم الترقية الفوريّ (القسم 0 · 23-0.2): اعتماد/ردّ القائم بأعمال + حسم التعادل
+        Route::post('/org/promotion-ladder/{membership}/confirm', [OrgAdminController::class, 'confirmActing'])
+            ->middleware('permission:vacancies.approve,promotion_ladder.approve')->name('org.promotion-ladder.confirm');
+        Route::post('/org/promotion-ladder/{membership}/reject', [OrgAdminController::class, 'rejectActing'])
+            ->middleware('permission:promotion_ladder.reject')->name('org.promotion-ladder.reject');
+        Route::post('/org/promotion-ladder/decisions/{decision}', [OrgAdminController::class, 'decideTie'])
+            ->middleware('permission:promotion_ladder.approve')->name('org.promotion-ladder.decide');
+
         /*
         | ⭐ الغيابات والتفويض المؤقّت (23-6 · 24) — شاشة **إدارة** لا إضافة:
         | الإضافة موضعها «الأعضاء والبوزشنز» بـ`delegations.create`، وهنا

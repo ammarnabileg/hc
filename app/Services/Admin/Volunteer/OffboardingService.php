@@ -8,6 +8,7 @@ use App\Models\Offboarding;
 use App\Models\Reentry;
 use App\Models\User;
 use App\Models\VolunteerCard;
+use App\Services\Volunteer\Org\PromotionLadder;
 use App\Services\Volunteer\People\PositionRoleAssigner;
 use App\Services\Volunteer\Retention\SuspensionService;
 use Illuminate\Support\Carbon;
@@ -190,6 +191,17 @@ class OffboardingService
 
         foreach ($closing as $membership) {
             $assigner->revoke($membership);
+        }
+
+        /*
+         | ⭐ **لا فترة شغور أصلًا** (القسم 0 · 23-0.2): كلّ عضويّةٍ أُغلِقت للتوّ
+         | قد تكون بوزشنًا شاغرًا الآن — وسلّم الترقية يملؤه فورًا من داونلاينه
+         | المباشر، أو يعيّن «قائم بأعمال» إن كان دايركتورًا بانتظار الاعتماد.
+         */
+        $ladder = app(PromotionLadder::class);
+
+        foreach ($closing as $membership) {
+            $ladder->fillVacancy($membership, $actor);
         }
 
         $user = $record->user;
