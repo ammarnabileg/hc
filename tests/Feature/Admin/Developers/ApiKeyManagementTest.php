@@ -233,6 +233,39 @@ class ApiKeyManagementTest extends TestCase
             ->assertJson(['status' => 'not_found']);
     }
 
+    /** نفس استعلام صفحة التحقّق العامّة (مصدر حقيقةٍ واحد — 2.11) يُرجع حالةً حقيقيّة لا وهميّة */
+    public function test_certificate_verification_endpoint_reports_the_real_status_for_a_known_code(): void
+    {
+        $type = \App\Models\CertificateType::create([
+            'key' => 'course-'.str()->random(6),
+            'name_ar' => 'شهادة تدريب',
+            'name_en' => 'Course certificate',
+        ]);
+        $holder = User::create([
+            'name' => 'حامل شهادة',
+            'email' => str()->random(10).'@test.local',
+            'password' => 'secret-password',
+            'code' => str()->upper(str()->random(8)),
+            'status' => 'active',
+        ]);
+        $certificate = \App\Models\Certificate::create([
+            'code' => 'CERT-'.str()->upper(str()->random(8)),
+            'hash' => str()->random(40),
+            'user_id' => $holder->id,
+            'certificate_type_id' => $type->id,
+            'issued_at' => now(),
+            'status' => 'valid',
+        ]);
+
+        $admin = $this->userWith('integrations.view', 'integrations.create');
+        $result = app(ApiKeyService::class)->create('شهادات', ['read:certificates'], $admin);
+
+        $this->withHeaders($this->bearer($result['plain_key']))
+            ->getJson('/api/v1/certificates/'.$certificate->code.'/verify')
+            ->assertOk()
+            ->assertJson(['code' => $certificate->code, 'status' => 'valid']);
+    }
+
     // =================================================================== حدّ المعدّل
 
     public function test_rate_limit_is_enforced_with_429(): void
