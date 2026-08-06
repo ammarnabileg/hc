@@ -10,6 +10,7 @@ use App\Models\Referral;
 use App\Models\Role;
 use App\Models\User;
 use App\Services\Ads\Consent;
+use App\Services\Developers\WebhookDispatcher;
 use App\Services\Growth\AcquisitionSource;
 use App\Services\Learning\TimezoneDetector;
 use App\Services\Onboarding\OnboardingJourney;
@@ -364,6 +365,19 @@ class AuthController extends Controller
 
             return $user;
         });
+
+        /*
+         | ⭐ 12.15-ب: نقطة الدخول الحقيقيّة لحدث `user.registered` — **بعد**
+         | التزام المعاملة لا داخلها، فلا يتأخّر التسجيل نفسه لو تعطّلت وجهة
+         | ويب-هوكٍ خارجيّة (`WebhookDispatcher::dispatch` لا ينتظر الإرسال).
+         */
+        WebhookDispatcher::dispatch('user.registered', [
+            'user_id' => $user->id,
+            'code' => $user->code,
+            'name' => $user->name,
+            'status' => $user->status,
+            'registered_at' => $user->created_at?->toIso8601String(),
+        ]);
 
         // نفس قاعدة 2.3 عند التسجيل: الجلسة تبدأ دائمةً لا مؤقّتة
         Auth::login($user, (bool) setting('auth.session.remember_always', true));
