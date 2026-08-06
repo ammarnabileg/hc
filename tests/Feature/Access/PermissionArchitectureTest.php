@@ -427,9 +427,11 @@ class PermissionArchitectureTest extends TestCase
         $this->assertSame([], array_values(array_diff(Permission::pluck('key')->all(), $matrix)));
 
         // 1033 ⟵ **1027**: نزلت **ستّة** بحذف صفوف مورد `games` من مصفوفة 12.2.2
-        // إثر إلغاء البند 7.5 بقرار المالك (الدستور v5.3 — 2026-08-03). والرقم
-        // يبقى مثبَّتًا كي يلتقط أيّ زيادةٍ أو نقصٍ **لا أمرَ خلفه**.
-        $this->assertSame(1027, count($matrix));
+        // إثر إلغاء البند 7.5 بقرار المالك (الدستور v5.3 — 2026-08-03).
+        // 1027 ⟵ **1028**: `user_attestation.manage` — اعتماد/رفض طلبات الإفادة
+        // (9.1 · 24.5) كانت بلا أيّ مسارٍ لتغيير حالتها؛ لا شاشة أدمن ولا صلاحيّة
+        // تحرسها. والرقم يبقى مثبَّتًا كي يلتقط أيّ زيادةٍ أو نقصٍ **لا أمرَ خلفه**.
+        $this->assertSame(1028, count($matrix));
         $this->assertSame([], array_values(array_filter(
             $matrix,
             fn (string $key) => str_starts_with($key, 'games.'),
