@@ -283,6 +283,8 @@ class SettingsRegistry
             'updates' => [setting('system.settings_registry.group_catalog_159', 'التحديثات'), setting('system.settings_registry.group_catalog_160', 'الترقية والاسترجاع.')],
             'backups' => [setting('system.settings_registry.group_catalog_161', 'النسخ الاحتياطيّ'), setting('system.settings_registry.group_catalog_162', 'الجدولة والاحتفاظ.')],
             'finance' => [setting('system.settings_registry.group_catalog_163', '🔒 الماليّات'), setting('system.settings_registry.group_catalog_164', 'الأسعار والعمولات والسحب والاسترجاع — لمالك المنصّة وحده.')],
+            // 🧩 المطوّرين — API (12.15، v5.5)
+            'developers' => [setting('system.settings_registry.group_catalog_165', 'المطوّرين — API'), setting('system.settings_registry.group_catalog_166', 'تفعيل الواجهة وحدّ المعدّل ونصوص شاشة مفاتيح الـAPI.')],
         ];
     }
 
