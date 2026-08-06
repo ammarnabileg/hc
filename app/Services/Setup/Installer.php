@@ -117,7 +117,8 @@ class Installer
             $user = User::create([
                 'name' => $data['name'],
                 'email' => $data['email'],
-                'phone' => $data['phone'],
+                // العمود Nullable+Unique أصلًا؛ هاتف المالك لم يعد يُطلَب في /setup (2.2)
+                'phone' => $data['phone'] ?? null,
                 'password' => $data['password'],
                 'code' => $this->generateCode(),
                 'status' => 'active',

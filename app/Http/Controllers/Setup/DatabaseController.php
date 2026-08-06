@@ -14,8 +14,9 @@ use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 /**
- * الخطوة 2 — قاعدة البيانات (2.2): المضيف · المنفذ · الاسم · المستخدم · السرّ،
- * و**[اختبار الاتّصال] قبل الحفظ** — فلا يُكتَب ‎.env‎ إلّا ببيانات مجرَّبة.
+ * الخطوة 2 — قاعدة البيانات (2.2): الاسم · المستخدم · السرّ فقط (ثمانية حقول
+ * التنصيب بالضبط) — أمّا المضيف والمنفذ فثابتان من إعدادات المنصّة ولا يُدخِلهما
+ * المستخدم، و**[اختبار الاتّصال] قبل الحفظ** — فلا يُكتَب ‎.env‎ إلّا ببيانات مجرَّبة.
  * ثمّ الخطوة 3: المايجريشنز والبيانات الأساسيّة من داخل الويب بلا تيرمينال.
  */
 class DatabaseController extends Controller
@@ -43,7 +44,7 @@ class DatabaseController extends Controller
     /** الاختبار أوّلًا: ردّ فوريّ يقول نجح أو فشل ولماذا (2.17-ب) */
     public function test(Request $request, SetupState $state): RedirectResponse
     {
-        $data = $this->validated($request);
+        $data = $this->withFixedConnection($this->validated($request));
 
         $state->remember($data);
 
@@ -60,7 +61,7 @@ class DatabaseController extends Controller
 
     public function store(Request $request, SetupState $state): RedirectResponse
     {
-        $data = $this->validated($request);
+        $data = $this->withFixedConnection($this->validated($request));
 
         $state->remember($data);
 
@@ -133,12 +134,28 @@ class DatabaseController extends Controller
         return redirect()->route('setup.migrate')->with('setup_log', $log);
     }
 
+    /**
+     * المضيف والمنفذ لم يعودا مُدخَلين من المستخدم (الدستور 2.2: ثمانية حقول
+     * بالضبط) — بل ثابتان من إعدادات المنصّة، فيُشتقّان هنا لا يُقرَآن من الجلسة.
+     */
+    private function fixedConnection(): array
+    {
+        return [
+            'db_host' => (string) SetupSettings::text('setup.database.default_host', '127.0.0.1'),
+            'db_port' => (string) SetupSettings::number('setup.database.default_port', 3306),
+        ];
+    }
+
+    /** حقن المضيف/المنفذ الثابتين بعد التحقّق مباشرة، قبل الاختبار أو الحفظ */
+    private function withFixedConnection(array $data): array
+    {
+        return $this->fixedConnection() + $data;
+    }
+
     /** @return array<string, string> */
     private function draft(SetupState $state): array
     {
-        return [
-            'db_host' => (string) $state->draft('db_host', SetupSettings::text('setup.database.default_host', '127.0.0.1')),
-            'db_port' => (string) $state->draft('db_port', (string) SetupSettings::number('setup.database.default_port', 3306)),
+        return $this->fixedConnection() + [
             'db_database' => (string) $state->draft('db_database', ''),
             'db_username' => (string) $state->draft('db_username', ''),
             'db_password' => (string) $state->draft('db_password', ''),
@@ -148,16 +165,12 @@ class DatabaseController extends Controller
     private function validated(Request $request): array
     {
         return $request->validate([
-            'db_host' => ['required', 'string', 'max:190'],
-            'db_port' => ['required', 'integer', 'between:1,65535'],
             'db_database' => ['required', 'string', 'max:64', 'regex:/^[A-Za-z0-9_\-]+$/'],
             'db_username' => ['required', 'string', 'max:64'],
             'db_password' => ['nullable', 'string', 'max:190'],
         ], [
             'db_database.regex' => (string) setting('setup.database.validated_msg', 'اسم قاعدة البيانات يقبل حروفًا إنجليزيّة وأرقامًا و«_» و«-» فقط — انسخه من لوحة الاستضافة كما هو.'),
         ], [
-            'db_host' => (string) setting('setup.database.validated_msg_2', 'مضيف قاعدة البيانات'),
-            'db_port' => (string) setting('setup.database.validated_msg_3', 'منفذ قاعدة البيانات'),
             'db_database' => (string) setting('setup.database.validated_msg_4', 'اسم قاعدة البيانات'),
             'db_username' => (string) setting('setup.database.validated_msg_5', 'مستخدم قاعدة البيانات'),
             'db_password' => (string) setting('setup.database.validated_msg_6', 'كلمة سرّ قاعدة البيانات'),

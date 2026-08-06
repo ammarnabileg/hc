@@ -15,13 +15,6 @@
         <form method="post" class="space-y-4">
             @csrf
 
-            <div class="grid gap-4 sm:grid-cols-2">
-                <x-form.input name="db_host" label="{{ setting('setup.database_view.label_1', 'المضيف') }}" dir="ltr" :value="$draft['db_host']" required
-                              hint="{{ setting('setup.database_view.hint_1', 'غالبًا 127.0.0.1 على نفس الخادم.') }}" />
-                <x-form.input name="db_port" label="{{ setting('setup.database_view.label_2', 'المنفذ') }}" type="number" dir="ltr" :value="$draft['db_port']" required
-                              hint="{{ setting('setup.database_view.hint_2', 'الافتراضيّ 3306.') }}" />
-            </div>
-
             <x-form.input name="db_database" label="{{ setting('setup.database_view.label_3', 'اسم قاعدة البيانات') }}" dir="ltr" :value="$draft['db_database']" required />
             <x-form.input name="db_username" label="{{ setting('setup.database_view.label_4', 'مستخدم قاعدة البيانات') }}" dir="ltr" :value="$draft['db_username']" required />
             <x-form.input name="db_password" type="password" label="{{ setting('setup.database_view.label_5', 'كلمة سرّ قاعدة البيانات') }}" dir="ltr" :value="$draft['db_password']"

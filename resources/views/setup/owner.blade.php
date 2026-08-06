@@ -21,9 +21,6 @@
             <x-form.input name="email" type="email" label="{{ setting('setup.owner_view.label_2', 'البريد') }}" dir="ltr" :value="$draft['email']" required
                           hint="{{ setting('setup.owner_view.hint_2', 'هتدخل بيه، وعليه هتوصلك تنبيهات المنصّة.') }}" />
 
-            <x-form.input name="phone" label="{{ setting('setup.owner_view.label_3', 'رقم الموبايل') }}" dir="ltr" :value="$draft['phone']" required
-                          hint="{{ setting('setup.owner_view.hint_3', 'بمفتاح الدولة، مثال: ‎+201000000000‎.') }}" />
-
             <div class="grid gap-4 sm:grid-cols-2">
                 <x-form.input name="password" type="password" label="{{ setting('setup.owner_view.label_4', 'كلمة السرّ') }}" required
                               hint="8 {{ setting('setup.owner_view.hint_4', 'حروف على الأقلّ.') }}" />
