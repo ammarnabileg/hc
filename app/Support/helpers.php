@@ -81,7 +81,12 @@ if (! function_exists('setting_map')) {
         } catch (Throwable $exception) {
             report($exception);
 
-            return $memo = [];
+            /*
+             | $memo يبقى null عمدًا (لا يُخزَّن []) — فطلبٌ لاحقٌ في نفس العمر
+             | (بعد اكتمال المايجريشن مثلًا) يعيد المحاولة بدل التجمّد على فراغ
+             | دائم. القيمة المُعادة هنا لهذا النداء وحده لا تُذكَّر.
+             */
+            return [];
         }
     }
 }
