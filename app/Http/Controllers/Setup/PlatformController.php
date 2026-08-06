@@ -49,11 +49,11 @@ class PlatformController extends Controller
             'app_name' => ['required', 'string', 'max:120'],
             'logo' => ['nullable', 'file', 'mimes:png,jpg,jpeg,webp,svg', 'max:'.$maxLogoKb],
         ], [
-            'logo.mimes' => (string) setting('setup.platform.store_msg', 'الشعار يقبل صيغ PNG أو JPG أو WEBP أو SVG فقط.'),
-            'logo.max' => strtr((string) setting('setup.platform.store_must_2', 'حجم الشعار أكبر من اللازم. صغّره لأقلّ من :a1 كيلوبايت وجرّب تاني.'), [':a1' => (string) ($maxLogoKb)]),
+            'logo.mimes' => (string) SetupSettings::text('setup.platform.store_msg', 'الشعار يقبل صيغ PNG أو JPG أو WEBP أو SVG فقط.'),
+            'logo.max' => strtr((string) SetupSettings::text('setup.platform.store_must_2', 'حجم الشعار أكبر من اللازم. صغّره لأقلّ من :a1 كيلوبايت وجرّب تاني.'), [':a1' => (string) ($maxLogoKb)]),
         ], [
-            'app_name' => (string) setting('setup.platform.store_msg_2', 'اسم المنصّة'),
-            'logo' => (string) setting('setup.platform.store_msg_6', 'الشعار'),
+            'app_name' => (string) SetupSettings::text('setup.platform.store_msg_2', 'اسم المنصّة'),
+            'logo' => (string) SetupSettings::text('setup.platform.store_msg_6', 'الشعار'),
         ]);
 
         // الرابط/المنطقة الزمنيّة/اللغة ثابتة أو مُشتَقّة — لا إدخال مستخدم لها (2.2)
@@ -65,7 +65,7 @@ class PlatformController extends Controller
 
         if (! $this->installer->writePlatformEnv($data)) {
             return back()->withErrors([
-                'app_name' => (string) setting('setup.platform.store_msg_7', 'مقدرناش نحفظ بيانات المنصّة في ملفّ ‎.env‎. اضبط صلاحيّة الكتابة على مجلّد المشروع (775) وجرّب تاني.'),
+                'app_name' => (string) SetupSettings::text('setup.platform.store_msg_7', 'مقدرناش نحفظ بيانات المنصّة في ملفّ ‎.env‎. اضبط صلاحيّة الكتابة على مجلّد المشروع (775) وجرّب تاني.'),
             ]);
         }
 

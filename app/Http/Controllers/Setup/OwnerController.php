@@ -51,12 +51,12 @@ class OwnerController extends Controller
             'email' => ['required', 'email', 'max:190', 'unique:users,email'],
             'password' => ['required', 'confirmed', Password::min($minimum)],
         ], [
-            'email.unique' => (string) setting('setup.owner.store_msg', 'البريد ده متسجّل قبل كده. جرّب بريدًا تانيًا، أو ادخل بحسابك لو أنت أنشأته.'),
-            'password.confirmed' => (string) setting('setup.owner.store_denied_2', 'تأكيد كلمة السرّ مش مطابق. اكتب نفس الكلمة في الخانتين.'),
+            'email.unique' => (string) SetupSettings::text('setup.owner.store_msg', 'البريد ده متسجّل قبل كده. جرّب بريدًا تانيًا، أو ادخل بحسابك لو أنت أنشأته.'),
+            'password.confirmed' => (string) SetupSettings::text('setup.owner.store_denied_2', 'تأكيد كلمة السرّ مش مطابق. اكتب نفس الكلمة في الخانتين.'),
         ], [
-            'name' => (string) setting('setup.owner.store_msg_2', 'الاسم'),
-            'email' => (string) setting('setup.owner.store_msg_3', 'البريد'),
-            'password' => (string) setting('setup.owner.store_msg_5', 'كلمة السرّ'),
+            'name' => (string) SetupSettings::text('setup.owner.store_msg_2', 'الاسم'),
+            'email' => (string) SetupSettings::text('setup.owner.store_msg_3', 'البريد'),
+            'password' => (string) SetupSettings::text('setup.owner.store_msg_5', 'كلمة السرّ'),
         ]);
 
         $state->remember([

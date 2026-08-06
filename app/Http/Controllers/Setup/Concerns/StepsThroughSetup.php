@@ -35,7 +35,7 @@ trait StepsThroughSetup
         $next = $state->nextStep();
 
         return redirect()->route($this->routeFor($next))->withErrors([
-            'setup' => strtr((string) setting('setup.steps.guard_step_must', 'لازم تخلّص «:a1» الأوّل عشان نكمل بأمان — رجّعناك لمكانها.'), [':a1' => (string) ($this->stepLabel($next))]),
+            'setup' => strtr((string) SetupSettings::text('setup.steps.guard_step_must', 'لازم تخلّص «:a1» الأوّل عشان نكمل بأمان — رجّعناك لمكانها.'), [':a1' => (string) ($this->stepLabel($next))]),
         ]);
     }
 

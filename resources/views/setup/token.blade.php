@@ -1,5 +1,5 @@
 @extends('layouts.guest')
-@section('title', (string) setting('setup.token_view.section_1', 'تنصيب المنصّة — توكن التنصيب'))
+@section('title', (string) \App\Services\Setup\SetupSettings::text('setup.token_view.section_1', 'تنصيب المنصّة — توكن التنصيب'))
 
 @section('content')
 <div class="w-full max-w-3xl">
@@ -7,8 +7,8 @@
 
     <div class="card p-6">
         <x-page-header
-            title="{{ setting('setup.token_view.title_1', 'أهلًا بيك — نبدأ التنصيب') }}"
-            subtitle="{{ setting('setup.token_view.subtitle_1', 'خطوة أمان أولى: أثبت إنّ الخادم ده بتاعك قبل ما نفتح المعالج.') }}" />
+            title="{{ \App\Services\Setup\SetupSettings::text('setup.token_view.title_1', 'أهلًا بيك — نبدأ التنصيب') }}"
+            subtitle="{{ \App\Services\Setup\SetupSettings::text('setup.token_view.subtitle_1', 'خطوة أمان أولى: أثبت إنّ الخادم ده بتاعك قبل ما نفتح المعالج.') }}" />
 
         @include('setup.partials.alert', ['keys' => ['token']])
 
@@ -19,8 +19,8 @@
                         border: 1px solid var(--color-state-danger)">
                 <span aria-hidden="true">◉</span>
                 <span>
-                    {{ setting('setup.token_view.text_1', 'مقدرناش ننشئ ملفّ التوكن') }} <span dir="ltr">{{ $tokenFile }}</span>.
-                    {{ setting('setup.token_view.text_2', 'من مدير الملفّات في الاستضافة اضبط صلاحيّة مجلّد') }} <span dir="ltr">storage</span> {{ setting('setup.token_view.text_3', 'على 775، وبعدين حدّث الصفحة.') }}
+                    {{ \App\Services\Setup\SetupSettings::text('setup.token_view.text_1', 'مقدرناش ننشئ ملفّ التوكن') }} <span dir="ltr">{{ $tokenFile }}</span>.
+                    {{ \App\Services\Setup\SetupSettings::text('setup.token_view.text_2', 'من مدير الملفّات في الاستضافة اضبط صلاحيّة مجلّد') }} <span dir="ltr">storage</span> {{ \App\Services\Setup\SetupSettings::text('setup.token_view.text_3', 'على 775، وبعدين حدّث الصفحة.') }}
                 </span>
             </div>
         @elseif ($visibleToken)
@@ -28,14 +28,14 @@
             <div class="rounded-xl p-3 mb-4 text-sm"
                  style="background: var(--surface-sunken); border: 1px solid var(--border)">
                 <p class="mb-2" style="color: var(--text-muted)">
-                    {{ setting('setup.token_view.text_4', 'وضع التطوير مفتوح، فالتوكن قدّامك:') }}
+                    {{ \App\Services\Setup\SetupSettings::text('setup.token_view.text_4', 'وضع التطوير مفتوح، فالتوكن قدّامك:') }}
                 </p>
                 <code class="block text-sm font-mono select-all" dir="ltr">{{ $visibleToken }}</code>
             </div>
         @else
             <p class="text-sm mb-4" style="color: var(--text-muted)">
-                {{ setting('setup.token_view.text_5', 'افتح الملفّ') }} <span dir="ltr" class="font-mono">{{ $tokenFile }}</span> {{ setting('setup.token_view.text_6', 'من مدير الملفّات في الاستضافة،') }}
-                {{ setting('setup.token_view.text_7', 'وانسخ السطر اللي جوّاه هنا.') }}
+                {{ \App\Services\Setup\SetupSettings::text('setup.token_view.text_5', 'افتح الملفّ') }} <span dir="ltr" class="font-mono">{{ $tokenFile }}</span> {{ \App\Services\Setup\SetupSettings::text('setup.token_view.text_6', 'من مدير الملفّات في الاستضافة،') }}
+                {{ \App\Services\Setup\SetupSettings::text('setup.token_view.text_7', 'وانسخ السطر اللي جوّاه هنا.') }}
             </p>
         @endif
 
@@ -43,15 +43,15 @@
             @csrf
             <x-form.input
                 name="token"
-                label="{{ setting('setup.token_view.label_1', 'توكن التنصيب') }}"
+                label="{{ \App\Services\Setup\SetupSettings::text('setup.token_view.label_1', 'توكن التنصيب') }}"
                 dir="ltr"
                 autocomplete="off"
                 autofocus
                 required
-                hint="{{ setting('setup.token_view.hint_1', 'التوكن اتولّد لوحده عند أوّل فتح للصفحة.') }}" />
+                hint="{{ \App\Services\Setup\SetupSettings::text('setup.token_view.hint_1', 'التوكن اتولّد لوحده عند أوّل فتح للصفحة.') }}" />
 
             <button class="btn w-full rounded-xl py-2 font-semibold motion-standard"
-                    style="background: var(--color-brand-500); color:#04201c">{{ setting('setup.token_view.text_8', 'ادخل المعالج') }}</button>
+                    style="background: var(--color-brand-500); color:#04201c">{{ \App\Services\Setup\SetupSettings::text('setup.token_view.text_8', 'ادخل المعالج') }}</button>
         </form>
     </div>
 </div>

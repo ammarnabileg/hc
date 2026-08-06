@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Setup;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Setup\Concerns\StepsThroughSetup;
 use App\Services\Setup\Installer;
+use App\Services\Setup\SetupSettings;
 use App\Services\Setup\SetupState;
 use App\Services\Setup\SetupToken;
 use Illuminate\Http\RedirectResponse;
@@ -38,12 +39,12 @@ class FinishController extends Controller
              | اللافتة عن القيمة فصارت اللافتة إعدادًا كباقي نصوص الشاشة (2.13-أ).
              */
             'summary' => [
-                ['label' => (string) setting('setup.finish.summary_app_name', 'اسم المنصّة'), 'value' => (string) $state->draft('app_name', '')],
-                ['label' => (string) setting('setup.finish.summary_app_url', 'رابط المنصّة'), 'value' => (string) $state->draft('app_url', '')],
-                ['label' => (string) setting('setup.finish.summary_timezone', 'المنطقة الزمنيّة'), 'value' => (string) $state->draft('timezone', '')],
-                ['label' => (string) setting('setup.finish.summary_database', 'قاعدة البيانات'), 'value' => (string) $state->draft('db_database', '')],
-                ['label' => (string) setting('setup.finish.summary_owner', 'مالك المنصّة'), 'value' => (string) $state->draft('owner_name', '')],
-                ['label' => (string) setting('setup.finish.summary_owner_email', 'بريد المالك'), 'value' => (string) $state->draft('owner_email', '')],
+                ['label' => (string) SetupSettings::text('setup.finish.summary_app_name', 'اسم المنصّة'), 'value' => (string) $state->draft('app_name', '')],
+                ['label' => (string) SetupSettings::text('setup.finish.summary_app_url', 'رابط المنصّة'), 'value' => (string) $state->draft('app_url', '')],
+                ['label' => (string) SetupSettings::text('setup.finish.summary_timezone', 'المنطقة الزمنيّة'), 'value' => (string) $state->draft('timezone', '')],
+                ['label' => (string) SetupSettings::text('setup.finish.summary_database', 'قاعدة البيانات'), 'value' => (string) $state->draft('db_database', '')],
+                ['label' => (string) SetupSettings::text('setup.finish.summary_owner', 'مالك المنصّة'), 'value' => (string) $state->draft('owner_name', '')],
+                ['label' => (string) SetupSettings::text('setup.finish.summary_owner_email', 'بريد المالك'), 'value' => (string) $state->draft('owner_email', '')],
             ],
         ]);
     }
@@ -64,7 +65,7 @@ class FinishController extends Controller
 
         if (! $locked) {
             return back()->withErrors([
-                'finish' => (string) setting('setup.finish.install_msg', 'مقدرناش نكتب ملفّ القفل ‎storage/installed.lock‎، ومن غيره تفضل صفحة التنصيب مفتوحة للكلّ. اضبط صلاحيّة مجلّد ‎storage‎ على 775 واضغط «أنهِ التنصيب» تاني.'),
+                'finish' => (string) SetupSettings::text('setup.finish.install_msg', 'مقدرناش نكتب ملفّ القفل ‎storage/installed.lock‎، ومن غيره تفضل صفحة التنصيب مفتوحة للكلّ. اضبط صلاحيّة مجلّد ‎storage‎ على 775 واضغط «أنهِ التنصيب» تاني.'),
             ]);
         }
 

@@ -65,12 +65,24 @@ if (! function_exists('setting_map')) {
             return $memo;
         }
 
-        return $memo = Cache::rememberForever('settings', function () {
-            return Setting::query()
-                ->get(['key', 'value', 'type'])
-                ->mapWithKeys(fn ($row) => [$row->key => ['value' => $row->value, 'type' => $row->type]])
-                ->all();
-        });
+        /*
+         | قبل التنصيب (أو أثناء المايجريشن) لا جدول ‎settings‎ بعد — وقراءة
+         | إعدادٍ مش لازم تُسقِط الصفحة (2.13، وبنفس مبدأ SetupSettings). فشلٌ هنا
+         | يرجع خريطةً فارغة (فكلّ ‎setting()‎ يرجع الافتراضيّ) **بلا** تخزينه أبدًا
+         | في الكاش الدائم — عشان أوّل طلبٍ بعد جهوزيّة الجدول يقرأ القيم الحقيقيّة.
+         */
+        try {
+            return $memo = Cache::rememberForever('settings', function () {
+                return Setting::query()
+                    ->get(['key', 'value', 'type'])
+                    ->mapWithKeys(fn ($row) => [$row->key => ['value' => $row->value, 'type' => $row->type]])
+                    ->all();
+            });
+        } catch (Throwable $exception) {
+            report($exception);
+
+            return $memo = [];
+        }
     }
 }
 

@@ -6,6 +6,7 @@ use App\Models\Setting;
 use App\Models\User;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Schema;
 
 /**
  * معالج التنصيب (الدستور 2.2): بلا تيرمينال وبلا تحكّم من داخل السيرفر.
@@ -366,6 +367,26 @@ class SetupWizardTest extends SetupTestCase
         $this->assertSame('active', $owner->status);
         // العمود Nullable+Unique؛ هاتف المالك لم يعد يُطلَب في فورم /setup (2.2)
         $this->assertNull($owner->phone);
+    }
+
+    /**
+     * ⭐ العطل الحقيقيّ الذي وقع أوّل تجربة نشرٍ فعليّة (2026-08-06): كلّ
+     * شاشات المعالج كانت تستدعي ‎setting()‎ العاديّة — وهي تضرب قاعدة البيانات
+     * مباشرةً بلا التقاط أخطاء — بينما لا قاعدة بيانات ولا جدول ‎settings‎
+     * موجودان بعد (الخطوة الأولى في السلسلة كلّها، قبل حتّى خطوة قاعدة
+     * البيانات). فسقطت الصفحة الأولى بـ500 على أوّل خادمٍ حقيقيّ. العلاج:
+     * كلّ شاشات المعالج يجب أن تستخدم ‎SetupSettings::text()‎ فقط (تُرجِع
+     * الافتراضيّ بصمتٍ عند أيّ فشل قراءة)، لا ‎setting()‎ الخام أبدًا.
+     */
+    public function test_wizard_pages_render_even_before_the_settings_table_exists(): void
+    {
+        Schema::dropIfExists('settings');
+
+        $this->get(route('setup.token'))->assertOk();
+
+        $this->post(route('setup.token.verify'), ['token' => $this->tokenFromFile()]);
+
+        $this->get(route('setup.requirements'))->assertOk();
     }
 
     /**

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Setup;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Setup\Concerns\StepsThroughSetup;
 use App\Services\Setup\RequirementsChecker;
+use App\Services\Setup\SetupSettings;
 use App\Services\Setup\SetupState;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
@@ -36,7 +37,7 @@ class RequirementsController extends Controller
     {
         if (! $this->checker->passed()) {
             return back()->withErrors([
-                'requirements' => strtr((string) setting('setup.requirements.store_msg', 'لسّه ناقص: :a1. صحّحها من لوحة الاستضافة، وبعدين اضغط «أعد الفحص».'), [':a1' => (string) (implode(' · ', $this->checker->missing()))]),
+                'requirements' => strtr((string) SetupSettings::text('setup.requirements.store_msg', 'لسّه ناقص: :a1. صحّحها من لوحة الاستضافة، وبعدين اضغط «أعد الفحص».'), [':a1' => (string) (implode(' · ', $this->checker->missing()))]),
             ]);
         }
 

@@ -1,12 +1,12 @@
 @php
     /** نصوص السكربت — من الإعدادات لا محروقةً في الجافاسكربت (2.13-أ) */
     $hcWords = array_merge($hcWords ?? [], [
-        'setup.finish_view.js_1' => (string) setting('setup.finish_view.js_1', 'بنقفل التنصيب…'),
+        'setup.finish_view.js_1' => (string) \App\Services\Setup\SetupSettings::text('setup.finish_view.js_1', 'بنقفل التنصيب…'),
     ]);
 @endphp
 
 @extends('layouts.guest')
-@section('title', (string) setting('setup.finish_view.section_1', 'تنصيب المنصّة — الإنهاء'))
+@section('title', (string) \App\Services\Setup\SetupSettings::text('setup.finish_view.section_1', 'تنصيب المنصّة — الإنهاء'))
 
 @section('content')
 <div class="w-full max-w-3xl">
@@ -14,8 +14,8 @@
 
     <div class="card p-6">
         <x-page-header
-            title="{{ setting('setup.finish_view.title_1', 'فاضل ضغطة واحدة') }}"
-            subtitle="{{ setting('setup.finish_view.subtitle_1', 'هنولّد مفتاح أمان جديد ونقفل صفحة التنصيب نهائيًّا.') }}" />
+            title="{{ \App\Services\Setup\SetupSettings::text('setup.finish_view.title_1', 'فاضل ضغطة واحدة') }}"
+            subtitle="{{ \App\Services\Setup\SetupSettings::text('setup.finish_view.subtitle_1', 'هنولّد مفتاح أمان جديد ونقفل صفحة التنصيب نهائيًّا.') }}" />
 
         @include('setup.partials.alert', ['keys' => ['finish', 'setup']])
 
@@ -30,7 +30,7 @@
         </ul>
 
         <p class="text-sm mb-4" style="color: var(--text-muted)">
-            {{ setting('setup.finish_view.text_1', 'بعد الضغط هتتقفل كلّ صفحات التنصيب، ومحدّش هيقدر يفتحها تاني — لا أنت ولا غيرك.') }}
+            {{ \App\Services\Setup\SetupSettings::text('setup.finish_view.text_1', 'بعد الضغط هتتقفل كلّ صفحات التنصيب، ومحدّش هيقدر يفتحها تاني — لا أنت ولا غيرك.') }}
         </p>
 
         <form method="post" action="{{ route('setup.finish.install') }}" data-setup-progress>
@@ -43,7 +43,7 @@
             </div>
 
             <button class="btn rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
-                    style="background: var(--color-brand-500); color:#04201c">{{ setting('setup.finish_view.text_2', 'أنهِ التنصيب') }}</button>
+                    style="background: var(--color-brand-500); color:#04201c">{{ \App\Services\Setup\SetupSettings::text('setup.finish_view.text_2', 'أنهِ التنصيب') }}</button>
         </form>
 
         <script>
