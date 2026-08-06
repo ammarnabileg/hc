@@ -166,6 +166,7 @@ Route::middleware(['auth', 'admin.panel'])->prefix('admin')->name('admin.')->gro
         Route::post('/certificates/types/{type}/designer', [TemplateDesignerController::class, 'save'])->name('certificates.designer.save');
         Route::post('/certificates/templates/{template}/background', [TemplateDesignerController::class, 'background'])->name('certificates.designer.background');
         Route::post('/certificates/templates/{template}/reset', [TemplateDesignerController::class, 'reset'])->name('certificates.designer.reset');
+        Route::post('/certificates/templates/{template}/duplicate', [TemplateDesignerController::class, 'duplicate'])->name('certificates.designer.duplicate');
     });
 
     // الربط بأعمدة قاعدة البيانات — صلاحيّة مستقلّة وحسّاسة (24.1)

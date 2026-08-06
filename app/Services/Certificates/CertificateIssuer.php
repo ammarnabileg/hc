@@ -38,6 +38,7 @@ class CertificateIssuer
         string $source = 'auto',
         ?string $language = null,
         ?User $issuedBy = null,
+        bool $dedupe = true,
     ): ?Certificate {
         $type = CertificateType::query()->where('key', $typeKey)->where('is_active', true)->first();
 
@@ -45,10 +46,19 @@ class CertificateIssuer
             return null;
         }
 
-        $existing = $this->existing($user, $type, $subject);
+        /*
+         | ⭐ منع التكرار (12.5-ج) يحمي أنواعًا مصدرها **واحد بطبيعته** — بوزشن×كيان،
+         | خبرة تطوّع واحدة. أمّا «تقدير استثنائيّة» (13.4-ع) فمصمَّمة تُمنَح مرارًا
+         | لإنجازاتٍ مختلفة لنفس الشخص («مشرف الشهر» شهرًا بعد شهر) بلا `$subject`
+         | طبيعيّ يفرّق بينها — فتعطيل الفحص هنا صريحٌ من المستدعي (الإصدار اليدويّ)
+         | لا افتراضٌ ضمنيّ يكسر الحماية عن الأنواع الأخرى.
+         */
+        if ($dedupe) {
+            $existing = $this->existing($user, $type, $subject);
 
-        if ($existing) {
-            return $existing;
+            if ($existing) {
+                return $existing;
+            }
         }
 
         $language ??= $type->lang_ar_enabled ? 'ar' : 'en';

@@ -108,6 +108,16 @@ class TemplateDesignerController extends Controller
         return back()->with('status', (string) setting('certificates.designer.reset_ok', 'رجع للتصميم الافتراضيّ ✓'));
     }
 
+    /** ⭐ نسخ التصميم إلى اللغة الشقيقة لنفس النوع — نقطة بداية لا تصميم من الصفر (24.2). */
+    public function duplicate(CertificateTemplate $template): RedirectResponse
+    {
+        $target = $this->designer->duplicateToOtherLanguage($template);
+
+        $this->audit->record($target, 'certificate_template.duplicated', [], ['from_language' => $template->language]);
+
+        return back()->with('status', (string) setting('certificates.designer.duplicated_ok', 'اتنسخ التصميم للغة التانية ✓'));
+    }
+
     /** ⭐ معاينة بالمقاس الحقيقيّ — نفس الوحدات التي يرسم بها الخادم. */
     public function preview(CertificateTemplate $template): View
     {

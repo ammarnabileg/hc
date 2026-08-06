@@ -111,17 +111,25 @@ Route::middleware(['auth', 'admin.panel'])->prefix('admin')->name('admin.')->gro
         Route::post('/offboarding/settings', [OffboardingAdminController::class, 'saveSettings'])
             ->middleware('permission:volunteer_central_settings.edit')->name('offboarding.settings.save');
 
-        // شهادات التطوّع (13.4-ع)
+        // شهادات التطوّع (13.4-ع · 24.2)
         Route::get('/certificates', [VolunteerAdminController::class, 'certificates'])
             ->middleware('permission:volunteer_certificates.view')->name('certificates');
+        Route::get('/certificates/more', [VolunteerAdminController::class, 'certificatesMore'])
+            ->middleware('permission:volunteer_certificates.view')->name('certificates.more');
+        Route::get('/certificates/export', [VolunteerAdminController::class, 'exportCertificates'])
+            ->middleware('permission:volunteer_certificates.list')->name('certificates.export');
         Route::post('/certificates/settings', [VolunteerAdminController::class, 'saveCertificateSettings'])
             ->middleware('permission:volunteer_certificates.edit')->name('certificates.settings.save');
         Route::post('/certificates/issue', [VolunteerAdminController::class, 'issueCertificate'])
             ->middleware('permission:volunteer_certificates.create')->name('certificates.issue');
+        Route::post('/certificates/issue-appreciation', [VolunteerAdminController::class, 'issueAppreciationCertificate'])
+            ->middleware('permission:volunteer_certificates.create')->name('certificates.issue-appreciation');
         Route::post('/certificates/auto-issue', [VolunteerAdminController::class, 'autoIssueCertificates'])
             ->middleware('permission:volunteer_certificates.create')->name('certificates.auto-issue');
         Route::post('/certificates/{certificate}/revoke', [VolunteerAdminController::class, 'revokeCertificate'])
             ->middleware('permission:volunteer_certificates.edit')->name('certificates.revoke');
+        Route::post('/certificates/types/{type}/toggle', [VolunteerAdminController::class, 'toggleCertificateType'])
+            ->middleware('permission:volunteer_certificates.edit')->name('certificates.types.toggle');
 
         // ⭐ أنواع المهامّ (23-0.3): قالب وتشيك ليست وقيم مقترحة — بلا سلوك خاصّ
         Route::get('/task-types', [TaskTypeController::class, 'index'])

@@ -17,14 +17,14 @@
 <!-- تلقائيّ:بداية:المنجز -->
 - **ملفّات مسارات (35):**
   - `account.php` — 23 مسارًا · 12 حارس صلاحيّة.
-  - `admin-content.php` — 95 مسارًا · البادئة `admin.` · 54 حارس صلاحيّة.
+  - `admin-content.php` — 96 مسارًا · البادئة `admin.` · 54 حارس صلاحيّة.
   - `admin-core.php` — 30 مسارًا · البادئة `admin.` · 28 حارس صلاحيّة.
   - `admin-countries.php` — 8 مسارًا · 3 حارس صلاحيّة.
   - `admin-developers.php` — 13 مسارًا · 11 حارس صلاحيّة.
   - `admin-ops.php` — 27 مسارًا · 17 حارس صلاحيّة.
   - `admin-screens24.php` — 40 مسارًا · البادئة `admin.` · 23 حارس صلاحيّة.
   - `admin-system.php` — 90 مسارًا · البادئة `admin.` · 41 حارس صلاحيّة.
-  - `admin-volunteer.php` — 85 مسارًا · البادئة `admin.` · `volunteer.` · `gamification.` · `rewards.` · `events.` · 80 حارس صلاحيّة.
+  - `admin-volunteer.php` — 89 مسارًا · البادئة `admin.` · `volunteer.` · `gamification.` · `rewards.` · `events.` · 84 حارس صلاحيّة.
   - `announcements.php` — 9 مسارًا · 0 حارس صلاحيّة.
   - `api-v1.php` — 4 مسارًا · 0 حارس صلاحيّة.
   - `availability.php` — 10 مسارًا · البادئة `admin.` · 2 حارس صلاحيّة.

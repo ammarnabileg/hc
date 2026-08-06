@@ -110,6 +110,8 @@ class ScreenLimitsDemoSeeder extends Seeder
             ['volunteer_cert.pending_scan_limit', 'volunteer_cert', 'أقصى عضويّات يفحصها كشف الاستحقاق', 'number', '200'],
             ['volunteer_cert.pending_rows', 'volunteer_cert', 'عدد المستحقّين المعروضين', 'number', '20'],
             ['volunteer_cert.issued_rows', 'volunteer_cert', 'عدد الشهادات الصادرة المعروضة', 'number', '30'],
+            ['volunteer_cert.ledger_per_page', 'volunteer_cert', 'شريحة سجلّ الشهادات في كلّ تمرير تدريجيّ', 'number', '20'],
+            ['volunteer_cert.export_limit', 'volunteer_cert', 'أقصى صفوف في تصدير سجلّ شهادات التطوّع CSV', 'number', '5000'],
             ['rep.admin.recent_rows', 'volunteer_rep', 'عدد حركات السلوك الأخيرة في لوحة Rep', 'number', '15'],
             ['rep.movements_rows', 'volunteer_rep', 'عدد صفوف جدول حركات Rep', 'number', '200'],
             ['recruitment.card.course_scores_shown', 'recruitment', 'عدد درجات التدريبات على كارت المرشّح', 'number', '3'],

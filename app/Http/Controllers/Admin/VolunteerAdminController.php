@@ -5,11 +5,15 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Certificate;
 use App\Models\CertificateType;
+use App\Models\Entity;
 use App\Models\Membership;
 use App\Models\Offboarding;
 use App\Models\Position;
 use App\Models\Setting;
+use App\Models\Track;
 use App\Models\User;
+use App\Services\Admin\Content\CertificateBulkIssuer;
+use App\Services\Admin\Content\TemplateDesigner;
 use App\Services\Admin\Volunteer\AuditTrail;
 use App\Services\Admin\Volunteer\CapacityReport;
 use App\Services\Admin\Volunteer\CertificateEligibility;
@@ -21,6 +25,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
  * الإدارة المركزيّة للتطوّع (13.4-ك · 24.2).
@@ -174,27 +179,38 @@ class VolunteerAdminController extends Controller
 
     // ------------------------------------------------------------ الشهادات (13.4-ع)
 
+    /**
+     * شاشة شهادات التطوّع (13.4-ع · 24.2): تابان — **القوالب** (شبكة الأنواع
+     * الأربعة، تحرير عبر مصمّم القوالب المشترك 12.5-ب بلا نظام موازٍ) و**السجلّ
+     * الصادر** (جدول مفلتَر بالتمرير التدريجيّ 13.1، وفيه أيضًا «مستحقّ ولم تُصدَر»).
+     */
     public function certificates(Request $request): View
     {
-        $typeIds = CertificateType::query()
-            ->whereIn('key', CertificateEligibility::TYPE_KEYS)
-            ->pluck('id', 'key');
+        $tab = $request->string('tab')->toString() ?: 'ledger';
+        $tab = in_array($tab, ['templates', 'ledger'], true) ? $tab : 'ledger';
 
-        return view('admin.volunteer.certificates', [
+        return view('admin.volunteer.certificates', array_merge([
+            'tab' => $tab,
             'types' => CertificateEligibility::enabledTypes(),
             'settings' => SettingsWriter::groupRows('volunteer_cert'),
             'minDays' => CertificateEligibility::minDays(),
-            // المستحقّون والصادر — كلاهما داخل نطاق صاحب الشاشة (12.2.1-ب)
-            'pending' => CertificateEligibility::pending((int) setting('volunteer_cert.pending_rows', 20), $request->user()),
-            'issued' => Certificate::query()
-                ->tap(fn ($q) => app(ScopeFilter::class)->apply($q, $request->user(), 'volunteer_certificates.view'))
-                ->with(['user:id,name,code'])
-                ->whereIn('certificate_type_id', $typeIds->values())
-                ->when($request->string('status')->toString(), fn ($q, $s) => $q->where('status', $s))
-                ->latest('issued_at')
-                ->limit((int) setting('volunteer_cert.issued_rows', 30))
-                ->get(),
-            'positions' => Position::query()->where('is_honorary', false)->orderBy('rank')->get(),
+        ], $tab === 'templates' ? $this->certificateTemplatesData() : $this->certificateLedgerData($request)));
+    }
+
+    /** ⭐ تمرير تدريجيّ (13.1 · قرار §25): شريحة إضافيّة لسجلّ الشهادات الصادرة بلا ترقيم صفحات */
+    public function certificatesMore(Request $request): View
+    {
+        $filters = $this->certificateFilters($request);
+        $perPage = max(1, (int) setting('volunteer_cert.ledger_per_page', 20));
+        $offset = max(0, (int) $request->integer('offset'));
+
+        $result = CertificateEligibility::ledger($filters, $request->user(), $offset, $perPage);
+
+        return view('admin.volunteer.certificates.partials.ledger-rows-fragment', [
+            'issued' => $result['items'],
+            'nextOffset' => $offset + $perPage,
+            'hasMore' => $offset + $result['items']->count() < $result['total'],
+            'pageSize' => $perPage,
         ]);
     }
 
@@ -239,6 +255,30 @@ class VolunteerAdminController extends Controller
             : (string) setting('volunteer.admin.auto_issue_certificates_empty', 'مفيش مستحقّين جدد دلوقتي.'));
     }
 
+    /**
+     * ⭐ إصدار يدويّ — **تقدير استثنائيّة وحدها** (13.4-ع-4): مستفيدٌ بالكود
+     * ومبرّرٌ إلزاميّ، ومتكرّرة بطبيعتها فلا تُحجَب بشهادةٍ سابقة لنفس الشخص.
+     */
+    public function issueAppreciationCertificate(Request $request): RedirectResponse
+    {
+        $data = $request->validate([
+            'code' => ['required', 'string', 'max:32'],
+            'reason' => ['required', 'string', 'min:10', 'max:500'],
+        ]);
+
+        $user = User::query()->where('code', $data['code'])->first();
+
+        if (! $user) {
+            return back()->with('status', (string) setting('volunteer.admin.appreciation_no_user', 'مفيش مستخدم بالكود ده.'));
+        }
+
+        $result = CertificateEligibility::issueAppreciation($user, $data['reason'], $request->user());
+
+        return back()->with('status', $result['issued']
+            ? (string) setting('volunteer.admin.appreciation_ok', 'صدرت شهادة التقدير ✓')
+            : strtr((string) setting('volunteer.admin.appreciation_fail', 'ما صدرتش: :a1'), [':a1' => (string) ($result['reason'])]));
+    }
+
     /** ⭐ الإلغاء للتزوير المثبَت وحده */
     public function revokeCertificate(Request $request, Certificate $certificate): RedirectResponse
     {
@@ -250,6 +290,138 @@ class VolunteerAdminController extends Controller
         CertificateEligibility::revoke($certificate, $data['reason'], $request->user());
 
         return back()->with('status', (string) setting('volunteer.admin.revoke_certificate_msg', 'اتلغت الشهادة وسُجِّل السبب — والإقصاء وحده لا يُلغي شهادة عن عمل حقيقيّ.'));
+    }
+
+    /** ⭐ تفعيل/إيقاف نوعٍ من الأربعة — من كرت القالب نفسه لا الإعدادات وحدها فقط (24.2) */
+    public function toggleCertificateType(Request $request, string $type): RedirectResponse
+    {
+        abort_unless(in_array($type, CertificateEligibility::TYPE_KEYS, true), 404);
+
+        $flags = (array) setting('volunteer_cert.types', []);
+        $flags[$type] = ! (bool) ($flags[$type] ?? true);
+
+        SettingsWriter::putMany(['volunteer_cert.types' => $flags], $request->user());
+
+        return back()->with('status', (string) setting('volunteer.admin.certificate_type_toggled', 'اتحدّثت حالة النوع ✓'));
+    }
+
+    /** تصدير سجلّ شهادات التطوّع المفلتَر CSV (24.2 «تصدير السجلّ») */
+    public function exportCertificates(Request $request): StreamedResponse
+    {
+        $filters = $this->certificateFilters($request);
+        $result = CertificateEligibility::ledger($filters, $request->user(), 0, (int) setting('volunteer_cert.export_limit', 5000));
+        $filename = 'volunteer-certificates-'.now()->format('Ymd-His').'.csv';
+        $statuses = CertificateBulkIssuer::statuses();
+
+        return response()->streamDownload(function () use ($result, $statuses) {
+            $out = fopen('php://output', 'w');
+            fwrite($out, "\xEF\xBB\xBF");
+            fputcsv($out, [
+                (string) setting('volunteer.admin.export_col_code', 'كود الشهادة'),
+                (string) setting('volunteer.admin.export_col_user', 'المستفيد'),
+                (string) setting('volunteer.admin.export_col_type', 'النوع'),
+                (string) setting('volunteer.admin.export_col_position', 'البوزشن/الكيان'),
+                (string) setting('volunteer.admin.export_col_period', 'المدّة من–إلى'),
+                (string) setting('volunteer.admin.export_col_team', 'نطاق المسؤوليّة'),
+                (string) setting('volunteer.admin.export_col_issued', 'تاريخ الإصدار'),
+                (string) setting('volunteer.admin.export_col_lang', 'اللغة'),
+                (string) setting('volunteer.admin.export_col_status', 'الحالة'),
+            ]);
+
+            foreach ($result['items'] as $certificate) {
+                $summary = CertificateEligibility::rowSummary($certificate);
+
+                fputcsv($out, [
+                    $certificate->code,
+                    trim(($certificate->user?->name ?? '').' ('.($certificate->user?->code ?? '').')'),
+                    $certificate->certificate_type?->name_ar,
+                    $summary['position_entity'],
+                    $summary['period'],
+                    $summary['team_size'] !== null ? (string) $summary['team_size'] : '',
+                    $certificate->issued_at?->format('Y-m-d'),
+                    $certificate->language,
+                    $statuses[$certificate->status] ?? $certificate->status,
+                ]);
+            }
+
+            fclose($out);
+        }, $filename, ['Content-Type' => 'text/csv; charset=UTF-8']);
+    }
+
+    // -------------------------------------------------------- شهادات التطوّع: داخليّ
+
+    /** @return array<string, mixed> */
+    private function certificateTemplatesData(): array
+    {
+        $types = CertificateType::query()->whereIn('key', CertificateEligibility::TYPE_KEYS)->get()->keyBy('key');
+        $labels = CertificateEligibility::types();
+        $designer = app(TemplateDesigner::class);
+
+        $cards = [];
+
+        foreach (CertificateEligibility::TYPE_KEYS as $key) {
+            $type = $types[$key] ?? null;
+
+            $cards[] = [
+                'key' => $key,
+                'label' => $labels[$key] ?? $key,
+                'type' => $type,
+                'templates' => $type ? $designer->templatesFor($type) : null,
+            ];
+        }
+
+        return ['cards' => $cards];
+    }
+
+    /** @return array<string, mixed> */
+    private function certificateLedgerData(Request $request): array
+    {
+        $view = $request->string('view')->toString() === 'pending' ? 'pending' : 'ledger';
+        $filters = $this->certificateFilters($request);
+        $data = ['view' => $view, 'filters' => $filters, 'filterOptions' => $this->certificateFilterOptions()];
+
+        if ($view === 'pending') {
+            // المستحقّون والصادر — كلاهما داخل نطاق صاحب الشاشة (12.2.1-ب)
+            return $data + ['pending' => CertificateEligibility::pending((int) setting('volunteer_cert.pending_rows', 20), $request->user())];
+        }
+
+        $perPage = max(1, (int) setting('volunteer_cert.ledger_per_page', 20));
+        $result = CertificateEligibility::ledger($filters, $request->user(), 0, $perPage);
+
+        return $data + [
+            'issued' => $result['items'],
+            'total' => $result['total'],
+            'nextOffset' => $perPage,
+            'hasMore' => $result['items']->count() < $result['total'],
+            'pageSize' => $perPage,
+        ];
+    }
+
+    /** @return array<string, mixed> */
+    private function certificateFilters(Request $request): array
+    {
+        return [
+            'q' => trim($request->string('q')->toString()),
+            'type' => $request->string('type')->toString(),
+            'entity_id' => $request->integer('entity_id'),
+            'track_id' => $request->integer('track_id'),
+            'position_id' => $request->integer('position_id'),
+            'language' => $request->string('language')->toString(),
+            'status' => $request->string('status')->toString(),
+            'from' => $request->string('from')->toString(),
+            'to' => $request->string('to')->toString(),
+        ];
+    }
+
+    /** @return array<string, mixed> */
+    private function certificateFilterOptions(): array
+    {
+        return [
+            'types' => CertificateEligibility::types(),
+            'tracks' => Track::query()->orderBy('name_ar')->get(['id', 'name_ar']),
+            'entities' => Entity::query()->where('status', 'active')->orderBy('name_ar')->get(['id', 'name_ar', 'track_id']),
+            'positions' => Position::query()->where('is_honorary', false)->orderBy('rank')->get(['id', 'name_ar']),
+        ];
     }
 
     // ------------------------------------------------------------ التحليلات

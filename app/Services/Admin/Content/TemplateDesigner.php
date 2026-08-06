@@ -162,6 +162,28 @@ class TemplateDesigner
         ]);
     }
 
+    /**
+     * ⭐ نسخ تصميم لغةٍ إلى شقيقتها لنفس النوع (24.2 «نسخ») — نقطة بداية لا
+     * تصميمٌ من الصفر، فالخلفيّة والطبقات تنتقل معًا، والنصوص الثابتة تبقى
+     * كما كُتبت (يترجمها الأدمن بعدها) لأنّ الترجمة الآليّة ليست من اختصاصنا.
+     */
+    public function duplicateToOtherLanguage(CertificateTemplate $template): CertificateTemplate
+    {
+        $type = CertificateType::query()->findOrFail($template->certificate_type_id);
+        $targetLanguage = $template->language === 'ar' ? 'en' : 'ar';
+        $target = $this->templatesFor($type)[$targetLanguage];
+
+        $target->update([
+            'width_px' => $template->width_px,
+            'height_px' => $template->height_px,
+            'background_path' => $template->background_path,
+            'layers' => $template->layers,
+            'version' => (int) $target->version + 1,
+        ]);
+
+        return $target->refresh();
+    }
+
     /** إعادة القالب لتصميمه الافتراضيّ (24.1 — «افتراضيّ + Reset»). */
     public function reset(CertificateTemplate $template): CertificateTemplate
     {

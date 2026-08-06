@@ -4,6 +4,7 @@ namespace App\Services\Admin\Volunteer;
 
 use App\Models\Certificate;
 use App\Models\CertificateType;
+use App\Models\Entity;
 use App\Models\Membership;
 use App\Models\User;
 use App\Services\Certificates\CertificateIssuer;
@@ -292,6 +293,121 @@ class CertificateEligibility
     }
 
     /**
+     * ⭐ **تقدير استثنائيّة** (13.4-ع-4) — النوع الوحيد **الذي يُمنَح يدويًّا
+     * بمبرّر** («مشرف الشهر · نادي +9.5 · إنجاز خاصّ»)، ومتكرّرٌ بطبيعته: نفس
+     * الشخص قد يستحقّها مرارًا لإنجازاتٍ مختلفة — فتمرّ **بلا Dedup الافتراضيّ**
+     * (`CertificateIssuer::issue($dedupe: false)`) الذي يحمي الأنواع ذات
+     * المصدر الواحد (بوزشن×كيان، خبرة) لا هذا النوع المتكرّر بتصميمه.
+     *
+     * @return array{issued:bool,reason:?string,certificate:?Certificate}
+     */
+    public static function issueAppreciation(User $user, string $reason, ?User $actor = null): array
+    {
+        $flags = setting('volunteer_cert.types', []);
+
+        if (is_array($flags) && array_key_exists('volunteer_appreciation', $flags) && ! $flags['volunteer_appreciation']) {
+            return ['issued' => false, 'reason' => setting('volunteer_cert.certificate_eligibility.issue_appreciation_1', 'نوع شهادة التقدير موقوف من الإعدادات.'), 'certificate' => null];
+        }
+
+        $type = CertificateType::query()->where('key', 'volunteer_appreciation')->first();
+
+        if (! $type) {
+            return ['issued' => false, 'reason' => setting('volunteer_cert.certificate_eligibility.issue_appreciation_2', 'نوع شهادة التقدير غير مُعرَّف.'), 'certificate' => null];
+        }
+
+        $certificate = app(CertificateIssuer::class)->issue(
+            $user, $type->key, null, ['reason' => $reason],
+            'manual', null, $actor, false,
+        );
+
+        if (! $certificate) {
+            return ['issued' => false, 'reason' => self::issuerFailureReason(), 'certificate' => null];
+        }
+
+        if ((bool) setting('volunteer_cert.notify_on_issue', true)) {
+            Integrations::notify(
+                $user, 'certificate',
+                (string) setting('volunteer_cert.appreciation.notify_title', 'صدرت شهادة تقدير باسمك 🎖️'),
+                $reason,
+                null, 'volunteer',
+            );
+        }
+
+        AuditTrail::log($actor, 'volunteer_certificate.appreciation_issued', $certificate, [], [
+            'user_id' => $user->id,
+            'reason' => $reason,
+        ]);
+
+        return ['issued' => true, 'reason' => null, 'certificate' => $certificate];
+    }
+
+    /**
+     * ⭐ سجلّ شهادات التطوّع الصادرة مفلترًا — بالتمرير التدريجيّ لا ترقيم
+     * الصفحات (13.1 · قرار §25)، ونطاق `$viewer` يحصر ما يراه (12.2.1-ب).
+     *
+     * الكيان/البوزشن يُفلتَران من `data_snapshot` لا عمودٍ مستقلّ: النوعان
+     * «بوزشن» و«خبرة» وحدهما يحملانه، وما سواهما لن يطابق — فلترة تُضيّق
+     * لا تدّعي شمول أنواعٍ لا تحمل الحقل أصلًا.
+     *
+     * @return array{items: Collection<int, Certificate>, total: int}
+     */
+    public static function ledger(array $filters, ?User $viewer, int $offset, int $take): array
+    {
+        $typeIds = CertificateType::query()->whereIn('key', self::TYPE_KEYS)->pluck('id', 'key');
+
+        $query = Certificate::query()
+            ->with(['user:id,name,code', 'certificate_type.accreditation'])
+            ->whereIn('certificate_type_id', $typeIds->values())
+            ->when($viewer !== null, fn ($q) => app(ScopeFilter::class)->apply($q, $viewer, 'volunteer_certificates.list'))
+            ->latest('issued_at');
+
+        if (($q = trim((string) ($filters['q'] ?? ''))) !== '') {
+            $query->where(function ($inner) use ($q) {
+                $inner->where('code', 'like', '%'.$q.'%')
+                    ->orWhereHas('user', fn ($u) => $u->where('name', 'like', '%'.$q.'%')->orWhere('code', 'like', '%'.$q.'%'));
+            });
+        }
+
+        if (($type = (string) ($filters['type'] ?? '')) !== '' && isset($typeIds[$type])) {
+            $query->where('certificate_type_id', $typeIds[$type]);
+        }
+
+        if (($entity = (int) ($filters['entity_id'] ?? 0)) > 0) {
+            $query->where('data_snapshot->entity_id', $entity);
+        }
+
+        if (($track = (int) ($filters['track_id'] ?? 0)) > 0) {
+            $query->whereIn('data_snapshot->entity_id', Entity::query()->where('track_id', $track)->pluck('id'));
+        }
+
+        if (($position = (int) ($filters['position_id'] ?? 0)) > 0) {
+            $query->where('data_snapshot->position_id', $position);
+        }
+
+        if (($language = (string) ($filters['language'] ?? '')) !== '' && in_array($language, ['ar', 'en'], true)) {
+            $query->where('language', $language);
+        }
+
+        // الحالة هنا اثنتان لا خامس لهما نصًّا (24.2): صادرة (سارية) · ملغاة — والمنتهية تظهر ببشارتها داخل «الكلّ»
+        if (($status = (string) ($filters['status'] ?? '')) !== '' && in_array($status, ['valid', 'revoked'], true)) {
+            $query->where('status', $status);
+        }
+
+        if (($from = (string) ($filters['from'] ?? '')) !== '') {
+            $query->whereDate('issued_at', '>=', $from);
+        }
+
+        if (($to = (string) ($filters['to'] ?? '')) !== '') {
+            $query->whereDate('issued_at', '<=', $to);
+        }
+
+        $total = (clone $query)->count();
+        $items = $query->skip($offset)->take($take)->get();
+
+        return ['items' => $items, 'total' => $total];
+    }
+
+    /**
      * ⭐ **لا إصدار خارج المحرّك** (13.4-ع · 12.5) — وهو نفس ما استقرّ عليه
      * `Services/Events/CertificateBridge` بعد حذف مساره الاحتياطيّ.
      *
@@ -386,6 +502,28 @@ class CertificateEligibility
             ->filter(fn ($row) => $row['eligible'])
             ->take($limit)
             ->values();
+    }
+
+    /**
+     * ⭐ ملخّص صفٍّ في سجلّ الشهادات (24.2): البوزشن/الكيان والمدّة ونطاق
+     * المسؤوليّة (حجم الفريق) كلّها من `data_snapshot` — ومصدرها هنا **واحد**
+     * يقرأه الجدول والتصدير CSV معًا، فلا يختلفان لو تغيّر شكل اللقطة مستقبلًا.
+     *
+     * @return array{position_entity: string, period: string, team_size: ?int}
+     */
+    public static function rowSummary(Certificate $certificate): array
+    {
+        $snapshot = (array) ($certificate->data_snapshot ?? []);
+
+        $positionEntity = trim(($snapshot['position'] ?? '').' / '.($snapshot['entity'] ?? ''), ' /');
+        $from = $snapshot['from'] ?? null;
+        $to = $snapshot['to'] ?? null;
+
+        return [
+            'position_entity' => $positionEntity !== '' ? $positionEntity : '—',
+            'period' => ($from || $to) ? trim(($from ?? '').' – '.($to ?? ''), ' –') : '—',
+            'team_size' => array_key_exists('team_size', $snapshot) ? (int) $snapshot['team_size'] : null,
+        ];
     }
 
     /** أنواع الشهادات المفعّلة من الإعدادات */

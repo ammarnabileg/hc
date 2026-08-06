@@ -8,13 +8,21 @@
         :subtitle="setting('admin.volunteer.certificates.arbaa_anwaa_la_khams_lha_mjanya_balkaml_wbla', 'أربعة أنواع لا خامس لها — مجّانيّة بالكامل، وبلا أيّ أرقام داخليّة على الورقة.')"
         :breadcrumbs="[['label' => setting('admin.volunteer.certificates.alttwa', 'التطوّع'), 'url' => route('admin.volunteer.index')], ['label' => setting('admin.volunteer.certificates.alshhadat', 'الشهادات')]]">
         <x-slot:action>
-            @can('volunteer_certificates.create')
-                <form method="post" action="{{ route('admin.volunteer.certificates.auto-issue') }}">
-                    @csrf
-                    <button type="submit" class="btn rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
-                            style="background: var(--color-brand-500); color: #04201c">{{ setting('admin.volunteer.certificates.shghl_alisdar_altlqayy', 'شغّل الإصدار التلقائيّ') }}</button>
-                </form>
-            @endcan
+            <div class="flex items-center gap-2 flex-wrap justify-end">
+                @can('volunteer_certificates.create')
+                    <button type="button" data-modal-open="appreciation-form"
+                            class="btn rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
+                            style="background: var(--color-brand-500); color: #04201c">{{ setting('admin.volunteer.certificates.isdar_ydwy', 'إصدار يدويّ (تقدير استثنائيّة)') }}</button>
+                    <form method="post" action="{{ route('admin.volunteer.certificates.auto-issue') }}">
+                        @csrf
+                        <button type="submit" class="btn rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
+                                style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">{{ setting('admin.volunteer.certificates.shghl_alisdar_altlqayy', 'شغّل الإصدار التلقائيّ') }}</button>
+                    </form>
+                @endcan
+                <a href="{{ route('verify.certificate') }}" target="_blank" rel="noopener"
+                   class="btn rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
+                   style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">{{ setting('admin.volunteer.certificates.sfha_althqq', 'صفحة التحقّق') }}</a>
+            </div>
         </x-slot:action>
     </x-page-header>
 
@@ -27,76 +35,35 @@
         <div><x-icon name="lock" size="16" /> {{ setting('admin.volunteer.certificates.shhada_wahda_lkl_bwzshn_kyan_waltrqya_tsdr', 'شهادة واحدة لكلّ (بوزشن × كيان) — والترقية تُصدر الأعلى لا نسخة مكرّرة.') }}</div>
     </div>
 
-    <section class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
-        @foreach ($types as $key => $type)
-            <div class="card p-4">
-                <div class="text-sm font-semibold">{{ $type['label'] }}</div>
-                <div class="mt-2"><x-state-badge :state="$type['enabled'] ? 'ok' : 'idle'" :label="$type['enabled'] ? setting('admin.volunteer.certificates.mfala', 'مفعّلة') : setting('admin.volunteer.certificates.mwqwfa', 'موقوفة')" /></div>
-            </div>
-        @endforeach
-    </section>
+    {{-- تابا الشاشة (24.2): القوالب · السجلّ الصادر --}}
+    <div class="flex items-center gap-2 mb-4">
+        <a href="{{ route('admin.volunteer.certificates', ['tab' => 'templates']) }}"
+           class="rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
+           style="{{ $tab === 'templates' ? 'background: var(--color-brand-500); color:#04201c' : 'background: var(--surface-sunken); color: var(--text)' }}">{{ setting('admin.volunteer.certificates.alqwalb', 'القوالب') }}</a>
+        <a href="{{ route('admin.volunteer.certificates', ['tab' => 'ledger']) }}"
+           class="rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
+           style="{{ $tab === 'ledger' ? 'background: var(--color-brand-500); color:#04201c' : 'background: var(--surface-sunken); color: var(--text)' }}">{{ setting('admin.volunteer.certificates.alsjl_alsadr', 'السجلّ الصادر') }}</a>
+    </div>
 
-    {{-- مستحقّ ولم تُصدَر — الإصدار التلقائيّ يغطّيها، وهنا الإصدار اليدويّ --}}
-    <section class="card p-4 md:p-5">
-        <div class="flex items-center justify-between gap-3 flex-wrap mb-3">
-            <h2 class="font-bold">{{ setting('admin.volunteer.certificates.msthq_wlm_tsdr', 'مستحقّ ولم تُصدَر') }}</h2>
-            <span class="text-xs" style="color: var(--text-muted)">
-                {!! strtr(setting('admin.volunteer.certificates.alisdar_altlqayy_v1_ahtfal_almstwa_v2_dhrwa', 'الإصدار التلقائيّ: :v1 · احتفال المستوى :v2 (ذروة)'), [':v1' => e(setting('volunteer_cert.auto_issue', true) ? setting('admin.volunteer.certificates.mfal', 'مفعَّل') : setting('admin.volunteer.certificates.mwqwf', 'موقوف')), ':v2' => e(setting('volunteer_cert.celebration_tier', 3))]) !!}
-            </span>
-        </div>
+    @unless (auth()->user()->allows('volunteer_certificates.edit') || auth()->user()->allows('volunteer_certificates.create'))
+        <p class="text-xs mb-3" style="color: var(--text-muted)">{{ setting('admin.volunteer.certificates.qraa_fqt', 'وضع القراءة فقط — بلا إصدار ولا إلغاء ولا تحرير قوالب.') }}</p>
+    @endunless
 
-        @forelse ($pending as $row)
-            <div class="flex items-center justify-between gap-3 py-2 text-sm {{ $loop->last ? '' : 'border-b' }}" style="border-color: var(--border)">
-                <div class="min-w-0">
-                    <div class="truncate font-semibold">{{ $row['membership']->user?->name }}</div>
-                    <div class="text-xs" style="color: var(--text-muted)">
-                        {{ $row['membership']->position?->name_ar }} · {{ $row['membership']->entity?->name_ar }} · {{ $row['days'] }} {{ setting('admin.volunteer.certificates.ywma_2', 'يومًا') }}
-                    </div>
-                </div>
-                @can('volunteer_certificates.create')
-                    <form method="post" action="{{ route('admin.volunteer.certificates.issue') }}">
-                        @csrf
-                        <input type="hidden" name="membership_id" value="{{ $row['membership']->id }}">
-                        <button type="submit" class="btn rounded-xl px-3 py-1.5 text-xs font-semibold"
-                                style="background: var(--color-brand-500); color: #04201c">{{ setting('admin.volunteer.certificates.asdr', 'أصدر') }}</button>
-                    </form>
-                @endcan
-            </div>
-        @empty
-            <x-empty :message="setting('admin.volunteer.certificates.mfysh_msthqyn_dlwqty_alshrwt_bthmy_qyma', 'مفيش مستحقّين دلوقتي — الشروط بتحمي قيمة الشهادة.')" />
-        @endforelse
-    </section>
-
-    {{-- السجلّ الصادر --}}
-    <section class="card p-4 md:p-5 mt-4">
-        <h2 class="font-bold mb-3">{{ setting('admin.volunteer.certificates.alsjl_alsadr', 'السجلّ الصادر') }}</h2>
-
-        @forelse ($issued as $certificate)
-            <div class="flex items-center justify-between gap-3 py-2 text-sm {{ $loop->last ? '' : 'border-b' }}" style="border-color: var(--border)">
-                <div class="min-w-0">
-                    <div class="truncate font-semibold">{{ $certificate->user?->name }}</div>
-                    <div class="text-xs" style="color: var(--text-muted)">
-                        <code>{{ $certificate->code }}</code> · {{ $certificate->issued_at?->format('Y-m-d') }}
-                        @if (($certificate->data_snapshot['position'] ?? null))
-                            · {{ $certificate->data_snapshot['position'] }}
-                        @endif
-                    </div>
-                </div>
-                <div class="flex items-center gap-2 shrink-0">
-                    <x-state-badge :state="match ($certificate->status) { 'valid' => 'ok', 'expired' => 'idle', default => 'danger' }"
-                                   :label="match ($certificate->status) { 'valid' => setting('admin.volunteer.certificates.sarya', 'سارية'), 'expired' => setting('admin.volunteer.certificates.mnthya', 'منتهية'), default => setting('admin.volunteer.certificates.mlghaa', 'ملغاة') }" />
-                    @can('volunteer_certificates.edit')
-                        @if ($certificate->status === 'valid')
-                            <button type="button" class="text-xs underline" style="color: var(--color-state-danger)"
-                                    data-revoke data-id="{{ $certificate->id }}">{{ setting('admin.volunteer.certificates.ilgha', 'إلغاء') }}</button>
-                        @endif
-                    @endcan
-                </div>
-            </div>
-        @empty
-            <x-empty :message="setting('admin.volunteer.certificates.la_shhadat_sadra_bad', 'لا شهادات صادرة بعد.')" />
-        @endforelse
-    </section>
+    @if ($tab === 'templates')
+        @include('admin.volunteer.certificates.partials.templates-tab', ['cards' => $cards, 'types' => $types])
+    @else
+        @include('admin.volunteer.certificates.partials.ledger-tab', [
+            'view' => $view,
+            'filters' => $filters,
+            'filterOptions' => $filterOptions,
+            'pending' => $pending ?? collect(),
+            'issued' => $issued ?? collect(),
+            'total' => $total ?? 0,
+            'nextOffset' => $nextOffset ?? 0,
+            'hasMore' => $hasMore ?? false,
+            'pageSize' => $pageSize ?? 0,
+        ])
+    @endif
 
     @can('volunteer_certificates.edit')
         @include('admin.volunteer.partials.settings-card', [
@@ -110,12 +77,39 @@
                 'volunteer_cert.hide_internal_numbers',
                 'volunteer_cert.revoke_only_on_fraud',
             ],
-            'open' => true,
+            'open' => false,
         ])
     @endcan
 @endsection
 
 @push('modals')
+    @can('volunteer_certificates.create')
+        {{-- ⭐ إصدار يدويّ — تقدير استثنائيّة وحدها: مستفيدٌ بالكود ومبرّرٌ إلزاميّ (13.4-ع-4 · 24.2) --}}
+        <x-modal id="appreciation-form" :title="setting('admin.volunteer.certificates.isdar_shhadat_tqdyr', 'إصدار شهادة تقدير استثنائيّة')">
+            <form method="post" action="{{ route('admin.volunteer.certificates.issue-appreciation') }}" class="space-y-3">
+                @csrf
+                <p class="text-sm" style="color: var(--text-muted)">{{ setting('admin.volunteer.certificates.tqdyr_hint', 'النوع الوحيد الذي يُمنَح يدويًّا — مشرف الشهر · نادي +9.5 · إنجاز خاصّ. ومتكرّرٌ بطبيعته لا يُحجَب بشهادةٍ سابقة.') }}</p>
+
+                <label class="block">
+                    <span class="block text-sm mb-1">{{ setting('admin.volunteer.certificates.almstfyd_balkwd', 'المستفيد (بالكود)') }}</span>
+                    <input type="text" name="code" required maxlength="32"
+                           class="w-full rounded-xl px-3 py-2 text-sm"
+                           style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
+                </label>
+
+                <label class="block">
+                    <span class="block text-sm mb-1">{{ setting('admin.volunteer.certificates.almbrr_alilzamy', 'المبرّر (إلزاميّ)') }}</span>
+                    <textarea name="reason" rows="3" required minlength="10" maxlength="500"
+                              class="w-full rounded-xl px-3 py-2 text-sm"
+                              style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)"></textarea>
+                </label>
+
+                <button type="submit" class="btn w-full rounded-xl px-4 py-3 text-sm font-semibold"
+                        style="background: var(--color-brand-500); color: #04201c">{{ setting('admin.volunteer.certificates.asdr_alshhada', 'أصدر الشهادة') }}</button>
+            </form>
+        </x-modal>
+    @endcan
+
     @can('volunteer_certificates.edit')
         <x-modal id="revoke-modal" :title="setting('admin.volunteer.certificates.ilgha_shhada_lltzwyr_almthbt_whdh', 'إلغاء شهادة — للتزوير المثبَت وحده')">
             <form method="post" action="{{ route('admin.volunteer.certificates.revoke', 0) }}" id="revoke-form">
@@ -143,14 +137,16 @@
 
 @push('scripts')
     <script>
-        document.querySelectorAll('[data-revoke]').forEach((btn) => {
-            btn.addEventListener('click', () => {
-                const form = document.getElementById('revoke-form');
-                form.action = '{{ route('admin.volunteer.certificates.revoke', 0) }}'.replace(/0$/, btn.dataset.id);
-                const modal = document.getElementById('revoke-modal');
-                modal.classList.remove('hidden');
-                modal.classList.add('flex');
-            });
+        {{-- ⭐ تفويضٌ لا ربطٌ مباشر: صفوف السجلّ تصل لاحقًا بالتمرير التدريجيّ (13.1) --}}
+        document.addEventListener('click', (e) => {
+            const btn = e.target.closest('[data-revoke]');
+            if (!btn) return;
+
+            const form = document.getElementById('revoke-form');
+            form.action = '{{ route('admin.volunteer.certificates.revoke', 0) }}'.replace(/0$/, btn.dataset.id);
+            const modal = document.getElementById('revoke-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
         });
     </script>
 @endpush
