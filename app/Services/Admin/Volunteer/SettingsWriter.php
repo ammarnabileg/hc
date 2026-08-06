@@ -160,6 +160,44 @@ class SettingsWriter
         return $rows;
     }
 
+    /**
+     * كلّ إعدادات قائمة مفاتيح صريحة بقيمها الحاليّة وحالة «معدَّل» — مادّة
+     * تابات الإدارة المركزيّة العرضيّة (24.2 · 13.4-ك) التي لا تطابق مجموعة
+     * كتالوج واحدة (VXP · النوافذ · السلوك · الاعتراضات · الترقّي المدموج).
+     */
+    public static function rowsFor(array $keys): array
+    {
+        $catalog = SettingsCatalog::pick($keys);
+        $rows = [];
+        $stored = Setting::query()->whereIn('key', array_keys($catalog))->pluck('value', 'key');
+
+        foreach ($catalog as $key => [$g, $label, $type, $default]) {
+            $rows[$key] = [
+                'key' => $key,
+                'label' => $label,
+                'type' => $type,
+                'default' => $default,
+                'value' => $stored[$key] ?? $default,
+                'modified' => isset($stored[$key]) && (string) $stored[$key] !== (string) $default,
+            ];
+        }
+
+        return $rows;
+    }
+
+    /** ↺ Reset لقائمة مفاتيح صريحة إلى افتراضيّاتها — نظير resetGroup() للتابات العرضيّة */
+    public static function resetKeys(array $keys, ?User $actor = null): int
+    {
+        $count = 0;
+
+        foreach (SettingsCatalog::pick($keys) as $key => $row) {
+            self::put($key, $row[3], $actor);
+            $count++;
+        }
+
+        return $count;
+    }
+
     private static function normalize(mixed $value): ?string
     {
         if (is_bool($value)) {

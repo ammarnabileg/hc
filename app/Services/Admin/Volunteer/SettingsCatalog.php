@@ -32,6 +32,9 @@ class SettingsCatalog
             self::rewards(),
             self::events(),
             self::availability(),
+            self::kudos(),
+            self::evaluations(),
+            self::workflowWindows(),
         );
 
         return array_map(
@@ -99,6 +102,25 @@ class SettingsCatalog
     public static function group(string $group): array
     {
         return array_filter(self::all(), fn ($row) => $row[0] === $group);
+    }
+
+    /**
+     * انتقاء مفاتيح صريحة عبر مجموعات متعدّدة بترتيبها المطلوب — للتابات
+     * العرضيّة في الإدارة المركزيّة (24.2 · 13.4-ك) التي لا تطابق مجموعة
+     * واحدة (مثل VXP والنوافذ والسلوك)، فلا تُنسَخ الصفوف ولا يتفرّق مصدرها.
+     */
+    public static function pick(array $keys): array
+    {
+        $all = self::all();
+        $rows = [];
+
+        foreach ($keys as $key) {
+            if (isset($all[$key])) {
+                $rows[$key] = $all[$key];
+            }
+        }
+
+        return $rows;
     }
 
     // ---------------------------------------------------------------- صفحة التطوّع (13.4-أ)
@@ -184,6 +206,7 @@ class SettingsCatalog
             'rep.behavior.attachment_enabled' => ['volunteer_rep', setting('volunteer_rep.settings_catalog.rep_4', 'السماح بمرفق مع معاملة السلوك'), 'bool', '1'],
             'rep.behavior.show_granter_count_in_team_health' => ['volunteer_rep', setting('volunteer_rep.settings_catalog.rep_5', 'إظهار عدد معاملات المانح في صحّة فريقه'), 'bool', '1'],
             'rep.objection.window_days' => ['volunteer_rep', setting('volunteer_rep.settings_catalog.rep_6', 'مهلة الاعتراض (يوم)'), 'number', '5'],
+            'rep.objection.sla_hours' => ['volunteer_rep', setting('volunteer_rep.settings_catalog.rep_15', 'مهلة ردّ المسؤول على الاعتراض (ساعة)'), 'number', '24'],
             'rep.inactivity.days_before_alert' => ['volunteer_rep', setting('volunteer_rep.settings_catalog.rep_7', 'أيّام الخمول قبل التنبيه'), 'number', '21'],
             'rep.reset.day_of_month' => ['volunteer_rep', setting('volunteer_rep.settings_catalog.rep_8', 'يوم التصفير الشهريّ'), 'number', '1'],
             'rep.reset.hour' => ['volunteer_rep', setting('volunteer_rep.settings_catalog.rep_9', 'ساعة التصفير'), 'number', '5'],
@@ -491,6 +514,67 @@ class SettingsCatalog
             'availability.timezone.source_auto' => ['availability', setting('availability.settings_catalog.availability_24', 'وصف المصدر: تلقائيّ'), 'string', setting('availability.settings_catalog.availability_25', 'اتكتشف تلقائيًّا حسب مكانك دلوقتي.')],
             'availability.timezone.source_country' => ['availability', setting('availability.settings_catalog.availability_26', 'وصف المصدر: دولتك'), 'string', setting('availability.settings_catalog.availability_27', 'مأخوذ من دولتك في ملفّك.')],
             'availability.timezone.source_platform' => ['availability', setting('availability.settings_catalog.availability_28', 'وصف المصدر: المنصّة'), 'string', setting('availability.settings_catalog.availability_29', 'توقيت المنصّة الافتراضيّ — ظبّطه عشان مواعيدك تبقى مضبوطة.')],
+        ];
+    }
+
+    // ---------------------------------------------------------------- Kudos ونادي +9.5 (24.2 — التاب 4)
+
+    private static function kudos(): array
+    {
+        return [
+            'kudos.daily_limit' => ['kudos', setting('kudos.settings_catalog.kudos_1', 'حدّ Kudos اليوميّ'), 'number', '2'],
+            'kudos.weekly_people_limit' => ['kudos', setting('kudos.settings_catalog.kudos_2', 'حدّ الأشخاص المختلفين أسبوعيًّا'), 'number', '7'],
+            'kudos.vxp_value' => ['kudos', setting('kudos.settings_catalog.kudos_3', 'قيمة الشكر بالـVXP'), 'number', '20'],
+            'kudos.search_limit' => ['kudos', setting('kudos.settings_catalog.kudos_4', 'عدد نتائج البحث عن زميل'), 'number', '8'],
+            'kudos.reason.placeholder' => ['kudos', setting('kudos.settings_catalog.kudos_5', 'تلميح سبب الشكر'), 'string', setting('kudos.settings_catalog.kudos_5_v', 'احكِ الموقف نفسه — الحكاية هي اللي بتفضل.')],
+            'kudos.reason_required.message' => ['kudos', setting('kudos.settings_catalog.kudos_6', 'رسالة السبب الإلزاميّ'), 'string', setting('kudos.settings_catalog.kudos_6_v', 'اكتب سبب الشكر — القصّة هي اللي بتفرق مش الرقم.')],
+            'kudos.daily_limit.message' => ['kudos', setting('kudos.settings_catalog.kudos_7', 'رسالة بلوغ حدّ اليوم'), 'string', setting('kudos.settings_catalog.kudos_7_v', 'وصلت لحدّ اليوم — بكرة تقدر تشكر تاني.')],
+            'kudos.weekly_limit.message' => ['kudos', setting('kudos.settings_catalog.kudos_8', 'رسالة بلوغ حدّ الأسبوع'), 'string', setting('kudos.settings_catalog.kudos_8_v', 'وصلت لحدّ الأسبوع — الأسبوع الجاي مفتوح.')],
+            'kudos.duplicate.message' => ['kudos', setting('kudos.settings_catalog.kudos_9', 'رسالة تكرار نفس الشخص'), 'string', setting('kudos.settings_catalog.kudos_9_v', 'شكرت الشخص ده الأسبوع ده بالفعل — دوّر على حد تاني يستاهل.')],
+            'kudos.self.message' => ['kudos', setting('kudos.settings_catalog.kudos_10', 'رسالة شكر النفس'), 'string', setting('kudos.settings_catalog.kudos_10_v', 'الشكر بيروح لغيرك — اختر زميلًا 🙂')],
+            'kudos.screen.store_msg' => ['kudos', setting('kudos.settings_catalog.kudos_11', 'اسم حقل «الزميل» في رسائل التحقّق'), 'string', setting('kudos.settings_catalog.kudos_11_v', 'الزميل')],
+            'kudos.screen.store_msg_2' => ['kudos', setting('kudos.settings_catalog.kudos_12', 'اسم حقل «سبب الشكر» في رسائل التحقّق'), 'string', setting('kudos.settings_catalog.kudos_12_v', 'سبب الشكر')],
+            'kudos.screen.store_ok' => ['kudos', setting('kudos.settings_catalog.kudos_13', 'رسالة إرسال الشكر بنجاح'), 'string', setting('kudos.settings_catalog.kudos_13_v', 'اتبعت ✓ وصلت لزميلك.')],
+            'kudos.screen.post_msg' => ['kudos', setting('kudos.settings_catalog.kudos_14', 'اسم حقل «النصّ» في رسائل التحقّق'), 'string', setting('kudos.settings_catalog.kudos_14_v', 'النصّ')],
+            'kudos.screen.post_ok' => ['kudos', setting('kudos.settings_catalog.kudos_15', 'رسالة نشر البوست بنجاح'), 'string', setting('kudos.settings_catalog.kudos_15_v', 'اتنشر ✓')],
+            // ⭐ حائط الشكر جزء من نفس التاب دستوريًّا (24.2 — التاب 4)
+            'thanks_wall.approaching_gap' => ['kudos', setting('kudos.settings_catalog.kudos_16', 'فجوة بلوك «اقتربت» تحت عتبة نادي +9.5'), 'number', '1.5'],
+        ];
+    }
+
+    // ---------------------------------------------------------------- التقييم — مؤشّر القيادة (24.2 — التاب 3)
+
+    private static function evaluations(): array
+    {
+        // ⭐ المجموعة 'performance' — الوسم الفعليّ لهذه الصفوف في قاعدة البيانات
+        // (VolunteerGoalsDemoSeeder) والمسجَّل شاشةً في SettingsRegistry بالفعل؛
+        // وسمٌ جديد هنا كان يفصل الصفوف عن شاشتها المسجَّلة (2.13).
+        return [
+            'evaluations.min_raters' => ['performance', setting('evaluations.settings_catalog.evaluations_1', 'الحدّ الأدنى لعدد المقيّمين لإظهار المتوسّط'), 'number', '3'],
+            'evaluations.window_weeks' => ['performance', setting('evaluations.settings_catalog.evaluations_2', 'نافذة عرض التقييمات (أسبوع)'), 'number', '12'],
+            'evaluations.max_score' => ['performance', setting('evaluations.settings_catalog.evaluations_3', 'أقصى درجة للمنزلق'), 'number', '10'],
+        ];
+    }
+
+    // ---------------------------------------------------------------- النوافذ والمهل (24.2 — التاب 8)
+
+    /**
+     * ⭐ المجموعة 'workflow' مزروعةٌ ومسجَّلة شاشةً في SettingsRegistry منذ
+     * دورة العمل (23)، لكن بلا كتالوج هنا فبقيت بلا شاشة إدارة فعليّة — هذا
+     * سطحها الحقيقيّ فقط، لا اختراع لبنودٍ لم تُبرمَج بعد.
+     */
+    private static function workflowWindows(): array
+    {
+        return [
+            'workflow.escalation.window_hours' => ['workflow', setting('workflow.settings_catalog.workflow_1', 'نافذة القرار لكلّ مستوى (ساعة)'), 'number', '24'],
+            'workflow.escalation.top_window_hours' => ['workflow', setting('workflow.settings_catalog.workflow_2', 'نافذة السقف (ساعة)'), 'number', '48'],
+            'workflow.escalation.max_attempts' => ['workflow', setting('workflow.settings_catalog.workflow_3', 'محاولات معالجة الحالة قبل عزلها'), 'number', '3'],
+            'workflow.activity_window.start' => ['workflow', setting('workflow.settings_catalog.workflow_4', 'بداية نافذة النشاط اليوميّة (القاهرة)'), 'string', '09:00'],
+            'workflow.activity_window.end' => ['workflow', setting('workflow.settings_catalog.workflow_5', 'نهاية نافذة النشاط اليوميّة (القاهرة)'), 'string', '00:00'],
+            'workflow.contribution.owner_review_hours' => ['workflow', setting('workflow.settings_catalog.workflow_6', 'مهلة مراجعة المالك للمساهم (ساعة)'), 'number', '24'],
+            'workflow.checkpoint.response_hours' => ['workflow', setting('workflow.settings_catalog.workflow_7', 'مهلة ردّ نقطة التفتيش (ساعة)'), 'number', '2'],
+            'workflow.blocked.max_days' => ['workflow', setting('workflow.settings_catalog.workflow_8', 'أقصى مدّة تعثّر (يوم)'), 'number', '3'],
+            'workflow.vxp.parent_min_share_percent' => ['workflow', setting('workflow.settings_catalog.workflow_9', 'أدنى شريحة VXP محفوظة للأب (%)'), 'number', '10'],
         ];
     }
 }

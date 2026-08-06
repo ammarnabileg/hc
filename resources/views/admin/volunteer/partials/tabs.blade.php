@@ -2,6 +2,7 @@
     /** تابات إدارة التطوّع — رقائق أفقيّة متمرّرة على الموبايل (2.15-ج) */
     $items = [
         ['key' => 'index', 'label' => setting('admin.volunteer.partials.tabs.allwha', 'اللوحة'), 'route' => 'admin.volunteer.index', 'can' => 'volunteer_central_settings.view'],
+        ['key' => 'settings-hub', 'label' => setting('admin.volunteer.partials.tabs.alidara_almrkzya', 'الإدارة المركزيّة'), 'route' => 'admin.volunteer.settings-hub', 'can' => 'volunteer_central_settings.view'],
         ['key' => 'org', 'label' => setting('admin.volunteer.partials.tabs.alhykl_walsaa', 'الهيكل والسعة'), 'route' => 'admin.volunteer.org', 'can' => 'org_chart.view'],
         ['key' => 'rep', 'label' => setting('admin.volunteer.partials.tabs.dbt_rep', 'ضبط Rep'), 'route' => 'admin.volunteer.rep', 'can' => 'rep_transactions.view'],
         // الغيابات والتفويض المؤقّت (23-6) — استعراضٌ وإنهاءٌ مبكّر، والإضافة في «الأعضاء والبوزشنز»

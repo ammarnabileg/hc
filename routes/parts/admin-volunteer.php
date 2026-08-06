@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\RewardController;
 use App\Http\Controllers\Admin\ScorecardCriteriaController;
 use App\Http\Controllers\Admin\TaskTypeController;
 use App\Http\Controllers\Admin\VolunteerAdminController;
+use App\Http\Controllers\Admin\VolunteerSettingsHubController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -43,6 +44,20 @@ Route::middleware(['auth', 'admin.panel'])->prefix('admin')->name('admin.')->gro
 
         Route::post('/reset/{group}', [VolunteerAdminController::class, 'resetGroup'])
             ->middleware('permission:volunteer_central_settings.manage')->name('reset');
+
+        // ⭐ الإدارة المركزيّة للتطوّع (24.2 · 13.4-ك) — مرجعٌ واحد بتسعة تابات
+        Route::get('/settings-hub', [VolunteerSettingsHubController::class, 'index'])
+            ->middleware('permission:volunteer_central_settings.view')->name('settings-hub');
+        Route::post('/settings-hub/save-all', [VolunteerSettingsHubController::class, 'saveAll'])
+            ->middleware('permission:volunteer_central_settings.manage')->name('settings-hub.save-all');
+        Route::post('/settings-hub/{tab}/save', [VolunteerSettingsHubController::class, 'saveTab'])
+            ->middleware('permission:volunteer_central_settings.manage')->name('settings-hub.save');
+        // ⭐ مسارٌ صريحٌ لا بديل عنه — لازمٌ يسبق `/{tab}/reset` وإلّا ابتلعه
+        // wildcard التاب فصار `resetTab('field')` بدل `resetField()` (404 صامت)
+        Route::post('/settings-hub/field/reset', [VolunteerSettingsHubController::class, 'resetField'])
+            ->middleware('permission:volunteer_central_settings.manage')->name('settings-hub.reset-field');
+        Route::post('/settings-hub/{tab}/reset', [VolunteerSettingsHubController::class, 'resetTab'])
+            ->middleware('permission:volunteer_central_settings.manage')->name('settings-hub.reset-tab');
 
         // الهيكل والبوزشنز والسعة (13.4-ف)
         Route::get('/org', [OrgAdminController::class, 'index'])
