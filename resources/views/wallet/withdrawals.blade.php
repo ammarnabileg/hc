@@ -70,56 +70,25 @@
                             <th class="text-start font-semibold px-4 py-3">{{ setting('wallet.withdrawals.col_receipt', 'صورة الفاتورة') }}</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        @foreach ($rows as $row)
-                            <tr style="border-top: 1px solid var(--border)">
-                                <td class="px-4 py-3 whitespace-nowrap">{{ $row->number }}</td>
-                                <td class="px-4 py-3 whitespace-nowrap" title="{{ $row->created_at?->format('Y-m-d H:i') }}">
-                                    {{ $row->created_at?->diffForHumans() }}
-                                </td>
-                                <td class="px-4 py-3 font-semibold">${{ $num($row->amount) }}</td>
-                                <td class="px-4 py-3" style="color: var(--text-muted)">${{ $num($row->fee_amount) }}</td>
-                                <td class="px-4 py-3">
-                                    <x-state-badge :state="$row->state()" :label="$row->statusLabel()" />
-                                </td>
-                                <td class="px-4 py-3">
-                                    @if ($row->receipt_path)
-                                        <a class="underline" target="_blank" rel="noopener"
-                                           href="{{ \Illuminate\Support\Facades\Storage::url($row->receipt_path) }}">{{ setting('wallet.withdrawals.open_receipt', 'افتح الصورة') }}</a>
-                                    @else
-                                        <span style="color: var(--text-muted)">—</span>
-                                    @endif
-                                </td>
-                            </tr>
-                        @endforeach
+                    <tbody data-wallet-wd-desktop>
+                        @include('wallet.partials.withdrawals-rows-desktop', ['rows' => $rows])
                     </tbody>
                 </table>
             </div>
 
             {{-- الموبايل: كروت رأسيّة بلا تمرير أفقيّ (2.15-ج) --}}
-            <div class="md:hidden space-y-3">
-                @foreach ($rows as $row)
-                    <div class="card p-4">
-                        <div class="flex items-center justify-between gap-3">
-                            <span class="text-sm font-semibold">{{ $row->number }}</span>
-                            <x-state-badge :state="$row->state()" :label="$row->statusLabel()" />
-                        </div>
-                        <div class="mt-2 text-sm flex items-center justify-between gap-2">
-                            <span>${{ $num($row->amount) }}</span>
-                            <span style="color: var(--text-muted)">{{ str_replace(':net', $num($row->net_amount), (string) setting('wallet.withdrawals.net_inline', 'يوصلك $:net')) }}</span>
-                        </div>
-                        <div class="mt-2 text-xs flex items-center justify-between gap-2" style="color: var(--text-muted)">
-                            <span>{{ $row->created_at?->format('Y-m-d H:i') }}</span>
-                            @if ($row->receipt_path)
-                                <a class="underline" target="_blank" rel="noopener"
-                                   href="{{ \Illuminate\Support\Facades\Storage::url($row->receipt_path) }}">{{ setting('wallet.withdrawals.col_receipt', 'صورة الفاتورة') }}</a>
-                            @endif
-                        </div>
-                    </div>
-                @endforeach
+            <div class="md:hidden space-y-3" data-wallet-wd-mobile>
+                @include('wallet.partials.withdrawals-rows-mobile', ['rows' => $rows])
             </div>
 
-            <div class="mt-4">{{ $rows->links() }}</div>
+            {{-- تمرير تدريجيّ بلا ترقيم صفحات (13.1 · قرار §25) --}}
+            @include('partials.load-more', [
+                'hasMore' => $hasMore,
+                'moreUrl' => route('wallet.withdrawals.more', ['offset' => $nextOffset]),
+                'nextOffset' => $nextOffset,
+                'pageSize' => $pageSize,
+                'targetSelector' => '[data-wallet-wd-desktop], [data-wallet-wd-mobile]',
+            ])
         @endif
     </section>
 

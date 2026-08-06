@@ -24,13 +24,18 @@
     @else
         <p class="text-xs mb-3" style="color: var(--text-muted)">{{ $total }} باقة</p>
 
-        <div class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-            @foreach ($cards as $card)
-                @include('store.partials.card', ['card' => $card])
-            @endforeach
+        <div class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" data-store-bundles-results>
+            @include('store.partials.cards', ['cards' => $cards])
         </div>
 
-        <div class="mt-6">{{ $cards->links() }}</div>
+        {{-- تمرير تدريجيّ بلا ترقيم صفحات (13.1 · قرار §25) --}}
+        @include('partials.load-more', [
+            'hasMore' => $hasMore,
+            'moreUrl' => route('store.bundles.more', array_merge(request()->except('offset'), ['offset' => $nextOffset])),
+            'nextOffset' => $nextOffset,
+            'pageSize' => $pageSize,
+            'targetSelector' => '[data-store-bundles-results]',
+        ])
     @endif
 @endsection
 

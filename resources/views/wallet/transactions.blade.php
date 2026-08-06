@@ -128,67 +128,25 @@
                         <th class="text-start font-semibold px-4 py-3">{{ setting('wallet.transactions.col_date', 'التاريخ') }}</th>
                     </tr>
                 </thead>
-                <tbody>
-                    @foreach ($rows as $row)
-                        @php($line = $flow($row))
-                        <tr class="cursor-pointer motion-standard hover:opacity-90"
-                            style="border-top: 1px solid var(--border)"
-                            data-tx='@json($panel($row))'>
-                            <td class="px-4 py-3 font-mono whitespace-nowrap">{{ $row->id }}</td>
-                            <td class="px-4 py-3 whitespace-nowrap">{{ $row->currency?->name_ar }}</td>
-                            <td class="px-4 py-3">
-                                @include('wallet.components.amount', [
-                                    'value' => $row->applied_amount ?? $row->amount,
-                                    'decimals' => (int) ($row->currency?->decimals ?? 0),
-                                ])
-                            </td>
-                            <td class="px-4 py-3 whitespace-nowrap">{{ $line['from'] }} ← {{ $line['to'] }}</td>
-                            <td class="px-4 py-3" style="color: var(--text-muted)">{{ $row->reason ?: '—' }}</td>
-                            <td class="px-4 py-3 text-xs" style="color: var(--text-muted)">
-                                {{ WalletController::notesOf($row) ?: '—' }}
-                                @if ($row->exceeded_daily_cap)
-                                    <x-state-badge state="warn" :label="setting('wallet.transactions.badge_capped', 'تجاوز الحدّ اليوميّ')" />
-                                @endif
-                                @if ($row->is_correction)
-                                    <x-state-badge state="idle" :label="setting('wallet.transactions.badge_correction', 'تصحيح')" />
-                                @endif
-                            </td>
-                            <td class="px-4 py-3 whitespace-nowrap" title="{{ $row->created_at?->format('Y-m-d H:i') }}">
-                                {{ $row->created_at?->diffForHumans() }}
-                            </td>
-                        </tr>
-                    @endforeach
+                <tbody data-wallet-tx-desktop>
+                    @include('wallet.partials.transactions-rows-desktop', ['rows' => $rows])
                 </tbody>
             </table>
         </div>
 
         {{-- الموبايل: كروت رأسيّة بلا تمرير أفقيّ (2.15-ج) --}}
-        <div class="md:hidden space-y-3">
-            @foreach ($rows as $row)
-                <div class="card p-4 cursor-pointer"
-                     data-tx='@json($panel($row))'>
-                    <div class="flex items-center justify-between gap-3">
-                        <span class="text-sm font-semibold">{{ $row->currency?->name_ar }}</span>
-                        @include('wallet.components.amount', [
-                            'value' => $row->applied_amount ?? $row->amount,
-                            'decimals' => (int) ($row->currency?->decimals ?? 0),
-                        ])
-                    </div>
-                    <div class="mt-1 text-xs" style="color: var(--text-muted)">
-                        {{ $flow($row)['from'] }} ← {{ $flow($row)['to'] }} · {{ $row->reason ?: '—' }}
-                    </div>
-                    @if ($notes = WalletController::notesOf($row))
-                        <div class="mt-1 text-xs" style="color: var(--text-muted)">{{ $notes }}</div>
-                    @endif
-                    <div class="mt-2 text-xs flex items-center justify-between gap-2" style="color: var(--text-muted)">
-                        <span>{{ $row->created_at?->format('Y-m-d H:i') }}</span>
-                        <span>{{ str_replace(':balance', number_format((float) $row->balance_after, (int) ($row->currency?->decimals ?? 0)), (string) setting('wallet.transactions.balance_after_inline', 'الرصيد بعدها: :balance')) }}</span>
-                    </div>
-                </div>
-            @endforeach
+        <div class="md:hidden space-y-3" data-wallet-tx-mobile>
+            @include('wallet.partials.transactions-rows-mobile', ['rows' => $rows])
         </div>
 
-        <div class="mt-4">{{ $rows->links() }}</div>
+        {{-- تمرير تدريجيّ بلا ترقيم صفحات (13.1 · قرار §25) --}}
+        @include('partials.load-more', [
+            'hasMore' => $hasMore,
+            'moreUrl' => route('wallet.transactions.more', array_merge(request()->except('offset'), ['offset' => $nextOffset])),
+            'nextOffset' => $nextOffset,
+            'pageSize' => $pageSize,
+            'targetSelector' => '[data-wallet-tx-desktop], [data-wallet-tx-mobile]',
+        ])
     @endif
 @endsection
 

@@ -19,6 +19,11 @@ Route::get('/i/{code}', [ReferralController::class, 'invite'])->name('referral.i
 
 Route::middleware(['auth', 'permission:events.view'])->group(function () {
     Route::get('/events', [EventController::class, 'index'])->name('events.index');
+
+    // ⭐ تمرير تدريجيّ (13.1 · قرار §25 — ⛔ ممنوع ترقيم الصفحات): شريحة Fragment وحدها
+    // ولازم يسبق `{event:slug}` وإلّا التقطه المسار ده على أنّه slug فعاليّة.
+    Route::get('/events/more', [EventController::class, 'more'])->name('events.more');
+
     Route::get('/events/{event:slug}', [EventController::class, 'show'])->name('events.show');
     Route::get('/events/{event:slug}/ticket', [EventController::class, 'ticket'])->name('events.ticket');
     Route::get('/events/{event:slug}/calendar.ics', [EventController::class, 'ics'])->name('events.ics');

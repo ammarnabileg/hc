@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Trainee;
 use App\Http\Controllers\Controller;
 use App\Models\Currency;
 use App\Models\Transaction;
+use App\Models\User;
 use App\Models\WalletBalance;
 use App\Models\WalletWithdrawal;
 use App\Services\Gamification\TicketsAccount;
@@ -160,17 +161,30 @@ class WalletController extends Controller
     public function withdrawals(Request $request)
     {
         $user = $request->user();
+        $perPage = max((int) setting('wallet.transactions.per_page', 20), 1);
 
-        $rows = WalletWithdrawal::query()
-            ->where('user_id', $user->id)
-            ->latest('id')
-            ->paginate((int) setting('wallet.transactions.per_page', 20))
-            ->withQueryString();
+        $total = $this->withdrawalsQuery($user)->count();
+        $rows = $this->withdrawalsQuery($user)->skip(0)->take($perPage)->get();
 
         return view('wallet.withdrawals', array_merge([
             'rows' => $rows,
             'methods' => WithdrawService::methods(),
+            'hasMore' => $rows->count() < $total,
+            'nextOffset' => $perPage,
+            'pageSize' => $perPage,
         ], $this->operationsData($request)));
+    }
+
+    /** ⭐ تمرير تدريجيّ (13.1 · قرار §25 — ⛔ ممنوع ترقيم الصفحات): شريحة Fragment وحدها */
+    public function withdrawalsMore(Request $request)
+    {
+        $user = $request->user();
+        $perPage = max((int) setting('wallet.transactions.per_page', 20), 1);
+        $offset = max((int) $request->integer('offset'), 0);
+
+        $rows = $this->withdrawalsQuery($user)->skip($offset)->take($perPage)->get();
+
+        return view('wallet.partials.withdrawals-rows-fragment', ['rows' => $rows]);
     }
 
     /** 🖥️ التذاكر 🎟️ — الرصيد ومصادر الكسب ومواضع الصرف (7.1) */
@@ -219,19 +233,31 @@ class WalletController extends Controller
     public function transactions(Request $request)
     {
         $filters = $this->filters($request);
+        $perPage = max((int) setting('wallet.transactions.per_page', 20), 1);
 
-        $rows = $this->transactionsQuery($request)
-            ->with('currency')
-            ->latest('id')
-            ->paginate((int) setting('wallet.transactions.per_page', 20))
-            ->withQueryString();
+        $total = $this->transactionsQuery($request)->count();
+        $rows = $this->transactionsQuery($request)->with('currency')->latest('id')->skip(0)->take($perPage)->get();
 
         return view('wallet.transactions', [
             'rows' => $rows,
             'filters' => $filters,
             'currencies' => Currency::query()->where('layer', 'training')->where('is_active', true)->get(),
             'sources' => $this->availableSources($request->user()->id),
+            'hasMore' => $rows->count() < $total,
+            'nextOffset' => $perPage,
+            'pageSize' => $perPage,
         ]);
+    }
+
+    /** ⭐ تمرير تدريجيّ (13.1 · قرار §25 — ⛔ ممنوع ترقيم الصفحات): شريحة Fragment وحدها */
+    public function transactionsMore(Request $request)
+    {
+        $perPage = max((int) setting('wallet.transactions.per_page', 20), 1);
+        $offset = max((int) $request->integer('offset'), 0);
+
+        $rows = $this->transactionsQuery($request)->with('currency')->latest('id')->skip($offset)->take($perPage)->get();
+
+        return view('wallet.partials.transactions-rows-fragment', ['rows' => $rows]);
     }
 
     /** [تصدير كشف CSV] — بنفس الفلاتر الظاهرة على الشاشة */
@@ -349,6 +375,13 @@ class WalletController extends Controller
             'q' => $request->string('q')->toString(),
             'all_time' => $request->boolean('all_time'),
         ];
+    }
+
+    private function withdrawalsQuery(User $user)
+    {
+        return WalletWithdrawal::query()
+            ->where('user_id', $user->id)
+            ->latest('id');
     }
 
     private function transactionsQuery(Request $request)

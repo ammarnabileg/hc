@@ -3,11 +3,11 @@
 namespace App\Http\Controllers\Trainee;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use App\Services\Store\BundleLanding;
 use App\Services\Store\PricingService;
 use App\Services\Store\StoreCatalog;
 use Illuminate\Http\Request;
-use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
@@ -31,9 +31,7 @@ class StoreController extends Controller
         // منزلق السعر يتحرّك **ضمن العملة المختارة** (17) — وسقفه يتبعها
         $rangeCurrency = $this->catalog->rangeCurrency($filters['currencies']);
 
-        return view('store.index', [
-            'cards' => $this->paginate($cards, $request),
-            'total' => $cards->count(),
+        return view('store.index', array_merge($this->offsetPayload($cards, $request, 0), [
             'filters' => $filters,
             'categories' => $this->catalog->categories(),
             'typeOptions' => $this->catalog->typeOptions(),
@@ -41,24 +39,42 @@ class StoreController extends Controller
             'rangeCurrency' => $rangeCurrency,
             'priceCeiling' => $this->catalog->priceCeiling($rangeCurrency),
             'balance' => $this->catalog->balance($user),
-        ]);
+        ]));
+    }
+
+    /** ⭐ تمرير تدريجيّ (13.1 · قرار §25): شريحة إضافيّة بلا ترقيم صفحات — يردّ بالكروت وحدها */
+    public function indexMore(Request $request): View
+    {
+        $user = $request->user();
+        $filters = $this->filters($request);
+        $cards = $this->catalog->cards($user, $filters);
+        $offset = max((int) $request->integer('offset'), 0);
+
+        return view('store.partials.cards', $this->offsetPayload($cards, $request, $offset));
     }
 
     public function bundles(Request $request): View
     {
         $user = $request->user();
         $filters = $this->filters($request);
-        $cards = $this->catalog->bundleCards($this->catalog->ownedMap($user), $filters);
-        $cards = $cards->filter(fn ($c) => $c['price'] >= (float) ($filters['min'] ?? 0)
-            && $c['price'] <= (float) ($filters['max'] ?? $this->catalog->priceCeiling()))->values();
+        $cards = $this->bundleCards($user, $filters);
 
-        return view('store.bundles', [
-            'cards' => $this->paginate($cards, $request),
-            'total' => $cards->count(),
+        return view('store.bundles', array_merge($this->offsetPayload($cards, $request, 0), [
             'filters' => $filters,
             'priceCeiling' => $this->catalog->priceCeiling(),
             'balance' => $this->catalog->balance($user),
-        ]);
+        ]));
+    }
+
+    /** ⭐ تمرير تدريجيّ (13.1 · قرار §25) لشبكة الباقات */
+    public function bundlesMore(Request $request): View
+    {
+        $user = $request->user();
+        $filters = $this->filters($request);
+        $cards = $this->bundleCards($user, $filters);
+        $offset = max((int) $request->integer('offset'), 0);
+
+        return view('store.partials.cards', $this->offsetPayload($cards, $request, $offset));
     }
 
     public function product(Request $request, string $type, string $slug): View
@@ -148,19 +164,36 @@ class StoreController extends Controller
         ];
     }
 
-    /** @param  Collection<int, array<string, mixed>>  $cards */
-    private function paginate(Collection $cards, Request $request): LengthAwarePaginator
+    /** @return Collection<int, array<string, mixed>> */
+    private function bundleCards(User $user, array $filters): Collection
+    {
+        $cards = $this->catalog->bundleCards($this->catalog->ownedMap($user), $filters);
+
+        return $cards->filter(fn ($c) => $c['price'] >= (float) ($filters['min'] ?? 0)
+            && $c['price'] <= (float) ($filters['max'] ?? $this->catalog->priceCeiling()))->values();
+    }
+
+    /**
+     * ⭐ تمرير تدريجيّ لا ترقيم صفحات (13.1 · قرار §25 دستوريّ صريح — مرفوض ⛔).
+     * `$cards` مجموعة كاملة جاهزة سلفًا (`StoreCatalog::cards/bundleCards`)،
+     * فالتقطيع هنا بإزاحة/حجم لا بصفحة — تمامًا كنمط `account/search`.
+     *
+     * @param  Collection<int, array<string, mixed>>  $cards
+     * @return array{cards: Collection, total: int, offset: int, nextOffset: int, hasMore: bool, pageSize: int}
+     */
+    private function offsetPayload(Collection $cards, Request $request, int $offset): array
     {
         $perPage = max((int) setting('store.grid.per_page', 24), 1);
-        $page = max((int) $request->input('page', 1), 1);
+        $slice = $cards->skip($offset)->take($perPage)->values();
 
-        return new LengthAwarePaginator(
-            $cards->forPage($page, $perPage)->values(),
-            $cards->count(),
-            $perPage,
-            $page,
-            ['path' => $request->url(), 'query' => $request->query()],
-        );
+        return [
+            'cards' => $slice,
+            'total' => $cards->count(),
+            'offset' => $offset,
+            'nextOffset' => $offset + $perPage,
+            'hasMore' => $offset + $slice->count() < $cards->count(),
+            'pageSize' => $perPage,
+        ];
     }
 
     private function indexable(string $type, object $item): bool

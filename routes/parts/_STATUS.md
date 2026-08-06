@@ -30,7 +30,7 @@
   - `availability.php` — 10 مسارًا · البادئة `admin.` · 2 حارس صلاحيّة.
   - `challenges.php` — 39 مسارًا · البادئة `challenges.` · `focus.` · `reward-questions.` · `achievements.` · `admin.` · 33 حارس صلاحيّة.
   - `dashboard.php` — 1 مسارًا · 1 حارس صلاحيّة.
-  - `events.php` — 10 مسارًا · 2 حارس صلاحيّة.
+  - `events.php` — 11 مسارًا · 2 حارس صلاحيّة.
   - `exams.php` — 13 مسارًا · 2 حارس صلاحيّة.
   - `growth.php` — 23 مسارًا · البادئة `admin.` · 5 حارس صلاحيّة.
   - `home.php` — 12 مسارًا · البادئة `admin.` · 5 حارس صلاحيّة.
@@ -41,7 +41,7 @@
   - `referral.php` — 1 مسارًا · 0 حارس صلاحيّة.
   - `security.php` — 23 مسارًا · البادئة `admin.` · 10 حارس صلاحيّة.
   - `setup.php` — 17 مسارًا · البادئة `setup.` · 0 حارس صلاحيّة.
-  - `store.php` — 11 مسارًا · 2 حارس صلاحيّة.
+  - `store.php` — 13 مسارًا · 2 حارس صلاحيّة.
   - `ui.php` — 16 مسارًا · 6 حارس صلاحيّة.
   - `volunteer-core.php` — 20 مسارًا · البادئة `volunteer.` · 14 حارس صلاحيّة.
   - `volunteer-flow.php` — 34 مسارًا · البادئة `volunteer.` · 27 حارس صلاحيّة.
@@ -50,7 +50,7 @@
   - `volunteer-org.php` — 12 مسارًا · 5 حارس صلاحيّة.
   - `volunteer-people.php` — 29 مسارًا · البادئة `volunteer.` · 25 حارس صلاحيّة.
   - `volunteer-profile.php` — 7 مسارًا · 7 حارس صلاحيّة.
-  - `wallet.php` — 21 مسارًا · البادئة `wallet.` · 11 حارس صلاحيّة.
+  - `wallet.php` — 23 مسارًا · البادئة `wallet.` · 13 حارس صلاحيّة.
 <!-- تلقائيّ:نهاية:المنجز -->
 
 ## ⬜ المتبقّي

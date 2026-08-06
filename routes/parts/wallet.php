@@ -36,6 +36,11 @@ Route::middleware('auth')->prefix('wallet')->name('wallet.')->group(function () 
         ->middleware('permission:wallet.list')
         ->name('transactions');
 
+    // ⭐ تمرير تدريجيّ (13.1 · قرار §25 — ⛔ ممنوع ترقيم الصفحات): شريحة Fragment وحدها
+    Route::get('/transactions/more', [WalletController::class, 'transactionsMore'])
+        ->middleware('permission:wallet.list')
+        ->name('transactions.more');
+
     Route::get('/transactions/export', [WalletController::class, 'export'])
         ->middleware('permission:wallet.export')
         ->name('transactions.export');
@@ -47,6 +52,10 @@ Route::middleware('auth')->prefix('wallet')->name('wallet.')->group(function () 
     Route::get('/withdrawals', [WalletController::class, 'withdrawals'])
         ->middleware('permission:withdraw.list,earnings.view')
         ->name('withdrawals');
+
+    Route::get('/withdrawals/more', [WalletController::class, 'withdrawalsMore'])
+        ->middleware('permission:withdraw.list,earnings.view')
+        ->name('withdrawals.more');
 
     /*
     | العمليّات المالِيّة الثلاث (19.3).

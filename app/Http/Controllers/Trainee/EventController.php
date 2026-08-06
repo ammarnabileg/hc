@@ -47,21 +47,21 @@ class EventController extends Controller
             ? $this->month((string) $request->query('month', ''))
             : null;
 
-        $filters = [
-            'mode' => $this->pick($request->query('mode'), EventQuery::MODE_KEYS),
-            'period' => $this->pick($request->query('period'), EventQuery::PERIOD_KEYS) ?? 'upcoming',
-            'category' => $request->query('category') ?: null,
-            'q' => (string) $request->query('q', ''),
-            'price' => $this->pick($request->query('price'), ['free', 'paid']),
-            'mine' => $request->boolean('mine'),
-            'month' => $month,
-        ];
-
+        $filters = $this->filters($request) + ['month' => $month];
         $builder = $this->query->build($filters, $user);
+        $perPage = max((int) setting('events.list.per_page', 12), 1);
 
-        $events = $view === 'calendar'
-            ? $builder->get()
-            : $builder->paginate((int) setting('events.list.per_page', 12))->withQueryString();
+        if ($view === 'calendar') {
+            $events = $builder->get();
+            $hasMore = false;
+            $nextOffset = 0;
+        } else {
+            // ⭐ تمرير تدريجيّ بلا ترقيم صفحات (13.1 · قرار §25 — ⛔ مرفوض صراحةً)
+            $total = (clone $builder)->count();
+            $events = (clone $builder)->skip(0)->take($perPage)->get();
+            $hasMore = $events->count() < $total;
+            $nextOffset = $perPage;
+        }
 
         $mine = EventRegistration::query()
             ->where('user_id', $user->id)
@@ -80,7 +80,45 @@ class EventController extends Controller
             'presenter' => $this->presenter,
             'myRegistrations' => $mine,
             'myTicketsCount' => $mine->count(),
+            'hasMore' => $hasMore,
+            'nextOffset' => $nextOffset,
+            'pageSize' => $perPage,
         ]);
+    }
+
+    /** ⭐ تمرير تدريجيّ (13.1 · قرار §25): شريحة كروت إضافيّة — بلا ترقيم صفحات إطلاقًا */
+    public function more(Request $request): View
+    {
+        $user = $request->user();
+        $filters = $this->filters($request) + ['month' => null];
+        $builder = $this->query->build($filters, $user);
+        $perPage = max((int) setting('events.list.per_page', 12), 1);
+        $offset = max((int) $request->integer('offset'), 0);
+
+        $events = (clone $builder)->skip($offset)->take($perPage)->get();
+
+        $mine = EventRegistration::query()
+            ->where('user_id', $user->id)
+            ->pluck('attend_mode', 'event_id');
+
+        return view('events.partials.cards', [
+            'events' => $events,
+            'presenter' => $this->presenter,
+            'myRegistrations' => $mine,
+        ]);
+    }
+
+    /** @return array<string, mixed> */
+    private function filters(Request $request): array
+    {
+        return [
+            'mode' => $this->pick($request->query('mode'), EventQuery::MODE_KEYS),
+            'period' => $this->pick($request->query('period'), EventQuery::PERIOD_KEYS) ?? 'upcoming',
+            'category' => $request->query('category') ?: null,
+            'q' => (string) $request->query('q', ''),
+            'price' => $this->pick($request->query('price'), ['free', 'paid']),
+            'mine' => $request->boolean('mine'),
+        ];
     }
 
     public function show(Request $request, Event $event, CheckinQr $qr): View

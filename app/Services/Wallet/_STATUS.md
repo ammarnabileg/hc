@@ -180,13 +180,13 @@
 ## 🔗 التبعيّات والملفّات المهمّة
 <!-- تلقائيّ:بداية:التبعيات -->
 - **الطبقات الأخرى لنفس المجال:** `resources/views/wallet` · `routes/parts` · `tests/Feature/Wallet`
-- **الاختبارات:** 9 ملفّ Feature في `tests/Feature/Wallet` — شغّلها بـ`php artisan test tests/Feature/Wallet`.
+- **الاختبارات:** 10 ملفّ Feature في `tests/Feature/Wallet` — شغّلها بـ`php artisan test tests/Feature/Wallet`.
 - **المرجع الحاكم:** `دستور اساسي.md` · **وكيف نكتب:** `docs/BUILD.md`.
 - **المجلّد الأب:** `app/Services/_STATUS.md`.
 <!-- تلقائيّ:نهاية:التبعيات -->
 
 ## 🕒 آخر تحديث
 <!-- تلقائيّ:بداية:التحديث -->
-- **آخر توليد لهذه الوثيقة:** 2026-08-05 — `php artisan docs:status`.
+- **آخر توليد لهذه الوثيقة:** 2026-08-06 — `php artisan docs:status`.
 - **آخر لمسة للمجلّد:** 2026-08-05 — Claude.
 <!-- تلقائيّ:نهاية:التحديث -->

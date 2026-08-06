@@ -29,13 +29,18 @@
         <p class="text-xs mb-3" style="color: var(--text-muted)">{{ $total }} عنصر</p>
 
         {{-- شبكة واحدة لكلّ الأنواع (17) — ومرنة على الموبايل بلا تمرير أفقيّ (2.15-ج) --}}
-        <div class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            @foreach ($cards as $card)
-                @include('store.partials.card', ['card' => $card])
-            @endforeach
+        <div class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" data-store-results>
+            @include('store.partials.cards', ['cards' => $cards])
         </div>
 
-        <div class="mt-6">{{ $cards->links() }}</div>
+        {{-- تمرير تدريجيّ بلا ترقيم صفحات (13.1 · قرار §25) --}}
+        @include('partials.load-more', [
+            'hasMore' => $hasMore,
+            'moreUrl' => route('store.index.more', array_merge(request()->except('offset'), ['offset' => $nextOffset])),
+            'nextOffset' => $nextOffset,
+            'pageSize' => $pageSize,
+            'targetSelector' => '[data-store-results]',
+        ])
     @endif
 @endsection
 

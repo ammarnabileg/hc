@@ -26,6 +26,8 @@ class SettingSeeder extends Seeder
             ['ux.tables.default_columns', 'ux', 'عدد الأعمدة الافتراضيّة', 'number', '6'],
             ['ux.forms.max_fields_before_stepper', 'ux', 'حدّ حقول الفورم قبل التقسيم لخطوات', 'number', '7'],
             ['ux.lists.default_range_days', 'ux', 'المدى الزمنيّ الافتراضيّ للقوائم (أيّام)', 'number', '30'],
+            // ⭐ زرّ التمرير التدريجيّ العامّ (13.1 · قرار §25 — ⛔ ممنوع ترقيم الصفحات)
+            ['ux.lists.load_more', 'ux', 'نصّ زرّ «عرض المزيد» في التمرير التدريجيّ', 'string', 'عرض المزيد'],
             ['ux.undo.seconds', 'ux', 'مدّة التراجع (ثوانٍ)', 'number', '5'],
             ['ux.first_time.enabled_screens', 'ux', 'شاشات «أوّل مرّة» المفعَّلة', 'json', '[]'],
             ['ux.settings_search.max_results', 'ux', 'أقصى نتائج البحث الموحّد في الإعدادات', 'number', '40'],

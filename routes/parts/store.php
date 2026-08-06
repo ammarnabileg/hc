@@ -25,6 +25,10 @@ Route::get('/store/{type}/{slug}', [StoreController::class, 'product'])
 Route::middleware(['auth', 'permission:store_products.list,orders.create'])->group(function () {
     Route::get('/store', [StoreController::class, 'index'])->name('store.index');
     Route::get('/store/bundles', [StoreController::class, 'bundles'])->name('store.bundles');
+
+    // ⭐ تمرير تدريجيّ (13.1 · قرار §25 — ⛔ ممنوع ترقيم الصفحات): شريحة Fragment وحدها
+    Route::get('/store/more', [StoreController::class, 'indexMore'])->name('store.index.more');
+    Route::get('/store/bundles/more', [StoreController::class, 'bundlesMore'])->name('store.bundles.more');
 });
 
 Route::middleware(['auth', 'permission:orders.create'])->group(function () {

@@ -114,17 +114,22 @@
     @else
         {{-- `min-w-0` على أعمدة الشبكة: عنوان الكارت `truncate` — وهو `nowrap` —
              يساهم بمقاس محتواه في تحديد عرض العمود، فيمدّه فوق الشاشة (2.15-ج) --}}
-        <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 [&>*]:min-w-0">
-            @foreach ($events as $event)
-                @include('events.components.card', [
-                    'event' => $event,
-                    'presenter' => $presenter,
-                    'myRegistrations' => $myRegistrations,
-                ])
-            @endforeach
+        <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 [&>*]:min-w-0" data-events-results>
+            @include('events.partials.cards', [
+                'events' => $events,
+                'presenter' => $presenter,
+                'myRegistrations' => $myRegistrations,
+            ])
         </div>
 
-        <div class="mt-5">{{ $events->links() }}</div>
+        {{-- تمرير تدريجيّ بلا ترقيم صفحات (13.1 · قرار §25) — والتقويم بلا هذا الزرّ أصلًا --}}
+        @include('partials.load-more', [
+            'hasMore' => $hasMore,
+            'moreUrl' => route('events.more', array_merge(request()->except('offset', 'view', 'month'), ['offset' => $nextOffset])),
+            'nextOffset' => $nextOffset,
+            'pageSize' => $pageSize,
+            'targetSelector' => '[data-events-results]',
+        ])
     @endif
 @endsection
 
