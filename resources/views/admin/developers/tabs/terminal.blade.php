@@ -108,8 +108,32 @@
         </div>
     </section>
 
+    @php
+        /*
+         | نصوص السكربت من الإعدادات (2.13-أ): لا حرفَ عربيّ داخل `<script>` —
+         | تُحسَب مباشرةً هنا ثمّ تُبثّ عبر `@json()` مرّةً واحدة، بنفس أسلوب
+         | `admin/settings/partials/autosave-script.blade.php` حرفيًّا.
+         */
+        $jsText = [
+            'run' => (string) setting('developers.admin.terminal_run_cta', 'تنفيذ'),
+            'running' => (string) setting('developers.admin.terminal_running_label', 'جارٍ التنفيذ…'),
+            'error' => (string) setting('developers.admin.terminal_error_generic', 'تعذّر تنفيذ الأمر — حاول ثانيةً.'),
+            'exitLabel' => (string) setting('developers.admin.terminal_exit_code_label', 'كود الخروج'),
+            'durationLabel' => (string) setting('developers.admin.terminal_duration_label', 'المدّة'),
+            'viewOutput' => (string) setting('developers.admin.terminal_view_output_cta', 'عرض المخرَجات'),
+            'iconOk' => (string) setting('ux.state.ok.icon', '●'),
+            'iconDanger' => (string) setting('ux.state.danger.icon', '◉'),
+            'runUrl' => route('admin.developers.terminal.run'),
+            'actorName' => (string) ($u->name ?? ''),
+            'actorCode' => (string) ($u->code ?? ''),
+        ];
+    @endphp
+
     <script>
+        const HC_TERMINAL_TEXT = @json($jsText);
+
         (function () {
+            var T = HC_TERMINAL_TEXT;
             var form = document.getElementById('terminal-form');
             if (!form) return;
 
@@ -119,18 +143,6 @@
             var runBtn = document.getElementById('terminal-run-btn');
             var outputBox = document.getElementById('terminal-output');
             var metaBox = document.getElementById('terminal-meta');
-
-            var LABEL_RUN = {{ Js::from((string) setting('developers.admin.terminal_run_cta', 'تنفيذ')) }};
-            var LABEL_RUNNING = {{ Js::from((string) setting('developers.admin.terminal_running_label', 'جارٍ التنفيذ…')) }};
-            var LABEL_ERROR = {{ Js::from((string) setting('developers.admin.terminal_error_generic', 'تعذّر تنفيذ الأمر — حاول ثانيةً.')) }};
-            var LABEL_EXIT = {{ Js::from((string) setting('developers.admin.terminal_exit_code_label', 'كود الخروج')) }};
-            var LABEL_DURATION = {{ Js::from((string) setting('developers.admin.terminal_duration_label', 'المدّة')) }};
-            var LABEL_VIEW_OUTPUT = {{ Js::from((string) setting('developers.admin.terminal_view_output_cta', 'عرض المخرَجات')) }};
-            var RUN_URL = {{ Js::from(route('admin.developers.terminal.run')) }};
-            var ACTOR_NAME = {{ Js::from((string) ($u->name ?? '')) }};
-            var ACTOR_CODE = {{ Js::from((string) ($u->code ?? '')) }};
-            var ICON_OK = {{ Js::from((string) setting('ux.state.ok.icon', '●')) }};
-            var ICON_DANGER = {{ Js::from((string) setting('ux.state.danger.icon', '◉')) }};
 
             /** يُضيف صفًّا جديدًا أعلى جدول السجلّ فورًا — بلا إعادة تحميل الصفحة (يفقد المخرَجات المعروضة للتوّ) */
             function prependLogRow(command, exitCode, durationMs, output) {
@@ -152,7 +164,7 @@
 
                 var tdUser = document.createElement('td');
                 tdUser.className = 'px-4 py-3 text-xs';
-                tdUser.textContent = ACTOR_NAME + (ACTOR_CODE ? ' #' + ACTOR_CODE : '');
+                tdUser.textContent = T.actorName + (T.actorCode ? ' #' + T.actorCode : '');
                 tr.appendChild(tdUser);
 
                 var tdCmd = document.createElement('td');
@@ -170,7 +182,7 @@
                 var ok = exitCode === 0;
                 badge.style.background = 'color-mix(in srgb, var(--color-state-' + (ok ? 'ok' : 'danger') + ') 15%, transparent)';
                 badge.style.color = 'var(--color-state-' + (ok ? 'ok' : 'danger') + ')';
-                badge.textContent = (ok ? ICON_OK : ICON_DANGER) + ' ' + String(exitCode);
+                badge.textContent = (ok ? T.iconOk : T.iconDanger) + ' ' + String(exitCode);
                 tdExit.appendChild(badge);
                 tr.appendChild(tdExit);
 
@@ -184,7 +196,7 @@
                 var details = document.createElement('details');
                 var summary = document.createElement('summary');
                 summary.className = 'cursor-pointer underline';
-                summary.textContent = LABEL_VIEW_OUTPUT;
+                summary.textContent = T.viewOutput;
                 var pre = document.createElement('pre');
                 pre.className = 'mt-2 rounded-xl p-2 whitespace-pre-wrap break-all';
                 pre.style.background = 'var(--surface-sunken)';
@@ -206,10 +218,10 @@
                 if (!command) return;
 
                 runBtn.disabled = true;
-                runBtn.textContent = LABEL_RUNNING;
+                runBtn.textContent = T.running;
                 metaBox.textContent = '';
 
-                fetch(RUN_URL, {
+                fetch(T.runUrl, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -223,15 +235,15 @@
                     })
                     .then(function (result) {
                         runBtn.disabled = false;
-                        runBtn.textContent = LABEL_RUN;
+                        runBtn.textContent = T.run;
 
                         if (!result.ok) {
-                            outputBox.textContent = (result.body && result.body.message) ? result.body.message : LABEL_ERROR;
+                            outputBox.textContent = (result.body && result.body.message) ? result.body.message : T.error;
                             return;
                         }
 
                         outputBox.textContent = result.body.output || '';
-                        metaBox.textContent = LABEL_EXIT + ': ' + result.body.exit_code + '  ·  ' + LABEL_DURATION + ': ' + result.body.duration_ms + 'ms';
+                        metaBox.textContent = T.exitLabel + ': ' + result.body.exit_code + '  ·  ' + T.durationLabel + ': ' + result.body.duration_ms + 'ms';
 
                         // انعكاسٌ فوريّ في جدول السجلّ بصفٍّ جديد أعلاه — بلا إعادة تحميل
                         // الصفحة (كانت ستمحو المخرَجات المعروضة للتوّ في outputBox أعلاه)
@@ -241,8 +253,8 @@
                     })
                     .catch(function () {
                         runBtn.disabled = false;
-                        runBtn.textContent = LABEL_RUN;
-                        outputBox.textContent = LABEL_ERROR;
+                        runBtn.textContent = T.run;
+                        outputBox.textContent = T.error;
                     });
             });
         })();

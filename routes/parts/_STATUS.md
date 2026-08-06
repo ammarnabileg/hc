@@ -20,7 +20,7 @@
   - `admin-content.php` — 95 مسارًا · البادئة `admin.` · 54 حارس صلاحيّة.
   - `admin-core.php` — 28 مسارًا · البادئة `admin.` · 26 حارس صلاحيّة.
   - `admin-countries.php` — 8 مسارًا · 3 حارس صلاحيّة.
-  - `admin-developers.php` — 12 مسارًا · 11 حارس صلاحيّة.
+  - `admin-developers.php` — 13 مسارًا · 11 حارس صلاحيّة.
   - `admin-ops.php` — 27 مسارًا · 17 حارس صلاحيّة.
   - `admin-screens24.php` — 40 مسارًا · البادئة `admin.` · 23 حارس صلاحيّة.
   - `admin-system.php` — 90 مسارًا · البادئة `admin.` · 41 حارس صلاحيّة.
@@ -107,6 +107,7 @@
 
 ## 🔄 الجاري الآن
 <!-- بيدك:بداية:الجاري -->
+- **(2026-08-06) 🧩 المطوّرين — تاب الطرفيّة (12.15-هـ · v5.6، سجلّ القرارات 25):** سطرٌ واحد مضاف في `admin-developers.php` نفسه — `POST /admin/developers/terminal/run` باسم `admin.developers.terminal.run`، **بلا** `permission:` على المسار (لا صلاحيّة لهذا التاب إطلاقًا — مالك المنصّة حصرًا بأمرٍ مباشر)؛ الحارس الوحيد `isPlatformOwner()` داخل `TerminalController::run()` نفسه، ومجموعة الميدلوير (`auth` + `admin.panel`) هي فقط باب الدخول العامّ للوحة. وWebhooks لم تعُد سقالة — الفقرة القديمة أسفله توثّق مرحلةً سابقة.
 - **(2026-08-06) 🧩 المطوّرين (12.15، v5.5):** ملفّان جديدان.
   `admin-developers.php` (5 مسارات · `admin.developers.*`) — الباب بسعة تابيه
   (`integrations.view,integrations.list,webhooks.view,webhooks.list`) ثمّ
