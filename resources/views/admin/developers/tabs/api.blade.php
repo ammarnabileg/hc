@@ -103,7 +103,7 @@
             <x-empty :message="setting('developers.admin.empty_keys', 'لا مفاتيح بعد — أنشئ أوّل مفتاح API.')" />
         </div>
     @else
-        <div class="overflow-x-auto">
+        <div class="overflow-x-auto min-w-0">
             <table class="w-full text-sm">
                 <thead>
                     <tr style="background: var(--surface-sunken)">
@@ -180,7 +180,7 @@
             <x-empty :message="setting('developers.admin.usage_empty', 'لا طلبات مسجَّلة بعد على هذا المفتاح.')" />
         </div>
     @else
-        <div class="overflow-x-auto">
+        <div class="overflow-x-auto min-w-0">
             <table class="w-full text-sm">
                 <thead>
                     <tr style="background: var(--surface-sunken)">
@@ -215,7 +215,7 @@
 <section class="card p-0 overflow-hidden">
     <h2 class="font-bold p-4 pb-0">{{ setting('developers.admin.catalog_title', 'كتالوج نقاط النهاية (Endpoints)') }}</h2>
 
-    <div class="overflow-x-auto">
+    <div class="overflow-x-auto min-w-0">
         <table class="w-full text-sm">
             <thead>
                 <tr style="background: var(--surface-sunken)">

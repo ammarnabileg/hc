@@ -104,7 +104,7 @@
             <x-empty :message="setting('developers.admin.webhooks_empty', 'لا ويب-هوكس بعد — سجّل أوّل ويب-هوك.')" />
         </div>
     @else
-        <div class="overflow-x-auto">
+        <div class="overflow-x-auto min-w-0">
             <table class="w-full text-sm">
                 <thead>
                     <tr style="background: var(--surface-sunken)">
@@ -192,7 +192,7 @@
             <x-empty :message="setting('developers.admin.deliveries_empty', 'لا محاولات إرسال بعد.')" />
         </div>
     @else
-        <div class="overflow-x-auto">
+        <div class="overflow-x-auto min-w-0">
             <table class="w-full text-sm">
                 <thead>
                     <tr style="background: var(--surface-sunken)">
