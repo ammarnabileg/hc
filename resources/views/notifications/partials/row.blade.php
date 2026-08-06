@@ -5,8 +5,10 @@
      */
     use App\Services\Notifications\Notifier;
 
-    $isUnread = ! $notification->read_at;
     $deadlineState = Notifier::deadlineState($notification->deadline_at);
+    // منتهية المهلة: الصفّ يبقى مقروءًا بشارة «انتهت المهلة» بلا زرّ (13) — لا فعل يُطلَب على وعدٍ فات
+    $expired = $deadlineState === 'danger';
+    $isUnread = ! $notification->read_at && ! $expired;
 @endphp
 
 <div class="flex items-start gap-3 px-3 py-3 motion-standard"
@@ -34,7 +36,9 @@
             <span class="text-xs" style="color: var(--text-muted)"
                   title="{{ $notification->created_at?->format('Y-m-d H:i') }}">{{ $notification->created_at?->diffForHumans() }}</span>
 
-            @if ($deadlineState)
+            @if ($expired)
+                <x-state-badge state="idle" :label="setting('notifications.row.expired_label', 'انتهت المهلة')" />
+            @elseif ($deadlineState)
                 <x-state-badge :state="$deadlineState" :label="$notification->deadline_at->diffForHumans()" />
             @endif
 
@@ -48,8 +52,8 @@
     </div>
 
     <div class="flex flex-col items-end gap-1 shrink-0">
-        {{-- صفّ «يحتاج إجراء»: الفعل داخل الصفّ نفسه بلا بوب-أب (2.15-ب) --}}
-        @if ($notification->requires_action && $notification->url)
+        {{-- صفّ «يحتاج إجراء»: الفعل داخل الصفّ نفسه بلا بوب-أب (2.15-ب) — وينتهي بانتهاء المهلة (13) --}}
+        @if ($notification->requires_action && $notification->url && ! $expired)
             <a href="{{ $notification->url }}"
                class="btn inline-flex items-center rounded-xl px-3 py-1.5 text-xs font-bold motion-standard"
                style="background: var(--color-brand-500); color: #04201c">{{ $actionLabel }}</a>

@@ -201,6 +201,25 @@ class AnnouncementDemoSeeder extends Seeder
                 'escalation' => '⚠️', 'objection' => '⚖️', 'complaint' => '📮', 'event' => '📅',
                 'system' => '🔔',
             ], JSON_UNESCAPED_UNICODE)],
+            // ⭐ فئات إشعارات التطوّع العشر (13) — لافتة كلّ فئة + خريطة القيم الخام
+            ['notifications.category.bucket_label_tasks', 'notifications', 'فئة الفلتر: مهامّ', 'string', 'مهامّ'],
+            ['notifications.category.bucket_label_contributions', 'notifications', 'فئة الفلتر: مساهمات ونقاط تفتيش', 'string', 'مساهمات ونقاط تفتيش'],
+            ['notifications.category.bucket_label_decisions', 'notifications', 'فئة الفلتر: نوافذ قرار', 'string', 'نوافذ قرار'],
+            ['notifications.category.bucket_label_meetings', 'notifications', 'فئة الفلتر: اجتماعات', 'string', 'اجتماعات'],
+            ['notifications.category.bucket_label_transactions', 'notifications', 'فئة الفلتر: معاملات واعتراضات', 'string', 'معاملات واعتراضات'],
+            ['notifications.category.bucket_label_escalations', 'notifications', 'فئة الفلتر: تصعيدات وتحكيمات', 'string', 'تصعيدات وتحكيمات'],
+            ['notifications.category.bucket_label_academy', 'notifications', 'فئة الفلتر: أكاديمية وتسجيلات', 'string', 'أكاديمية وتسجيلات'],
+            ['notifications.category.bucket_label_recognition', 'notifications', 'فئة الفلتر: تقدير', 'string', 'تقدير'],
+            ['notifications.category.bucket_label_structure', 'notifications', 'فئة الفلتر: هيكل وترقيات', 'string', 'هيكل وترقيات'],
+            ['notifications.category.bucket_label_recruitment', 'notifications', 'فئة الفلتر: توظيف', 'string', 'توظيف'],
+            ['notifications.category.bucket_map', 'notifications', 'خريطة قيم category الخام ⟵ فئة الفلتر', 'json', json_encode([
+                'task' => 'tasks', 'task_delivered' => 'tasks', 'task_extension' => 'tasks',
+                'task_apology' => 'tasks', 'task_flag' => 'tasks', 'task_blocked' => 'tasks',
+                'contribution' => 'contributions', 'goal' => 'decisions', 'meeting.' => 'meetings',
+                'objection' => 'transactions', 'consent' => 'transactions', 'escalation' => 'escalations',
+                'arbitration' => 'escalations', 'academy' => 'academy', 'recognition' => 'recognition',
+                'account' => 'structure', 'volunteer' => 'structure', 'recruitment' => 'recruitment',
+            ], JSON_UNESCAPED_UNICODE)],
         ];
 
         foreach ($rows as [$key, $group, $label, $type, $default]) {

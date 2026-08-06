@@ -26,10 +26,30 @@ class NotificationController extends Controller
         $user = $request->user();
         $tab = $this->resolveTab($request, $user->isVolunteer());
 
+        $availableCategories = $this->availableCategories($user, $tab);
+        $category = $request->string('category')->toString() ?: null;
+        $category = in_array($category, array_keys($availableCategories), true) ? $category : null;
+
+        // مبدّل «الكلّ / يحتاج إجراء» في الهيدر (13) — والفلتر «غير المقروء» معه
+        $needsAction = $request->boolean('need_action');
+        $unreadOnly = $request->boolean('unread');
+
         $query = $user->notificationsFeed()->latest();
 
         if ($tab !== 'all') {
             $query->where('layer', $tab);
+        }
+
+        if ($category) {
+            Notifier::scopeToCategory($query, $category);
+        }
+
+        if ($needsAction) {
+            $query->where('requires_action', true);
+        }
+
+        if ($unreadOnly) {
+            $query->whereNull('read_at');
         }
 
         // المدى الافتراضيّ آخر 30 يومًا مع زرّ «وسّع المدى» (2.15-ب)
@@ -57,6 +77,10 @@ class NotificationController extends Controller
             'rangeDays' => $rangeDays,
             'unread' => Notifier::unreadCount($user, $tab),
             'actionLabel' => (string) setting('notifications.action.default_label', 'نفّذ الآن'),
+            'availableCategories' => $availableCategories,
+            'category' => $category,
+            'needsAction' => $needsAction,
+            'unreadOnly' => $unreadOnly,
         ]);
     }
 
@@ -83,6 +107,28 @@ class NotificationController extends Controller
         return $this->respond($request, [
             'unread' => Notifier::unreadCount($user),
         ], (string) setting('notifications.screen.read_all_ok', 'اتعلّمت كلّها كمقروءة ✓'));
+    }
+
+    /**
+     * فئات الفلتر — **موجودة فعلًا في إشعارات هذا المستخدم وحده** (13: «الفئات
+     * خارج نطاقي لا تظهر في الفلتر أصلًا»). والإشعار أصلًا لا يصل مستخدمًا لم
+     * يكن معنيًّا به، فحصر الفلتر بما وصله فعلًا هو الحارس نفسه — بلا مصفوفة
+     * صلاحيّات مستقلّة لكلّ فئة تتزحزح عن منطق الإرسال الحقيقيّ.
+     *
+     * @return array<string, string>
+     */
+    private function availableCategories(User $user, string $tab): array
+    {
+        $categories = $user->notificationsFeed()
+            ->when($tab !== 'all', fn ($q) => $q->where('layer', $tab))
+            ->distinct()
+            ->pluck('category');
+
+        $buckets = array_unique(array_filter(
+            $categories->map(fn (string $c) => Notifier::categoryBucket($c))->all(),
+        ));
+
+        return array_intersect_key(Notifier::categoryBuckets(), array_flip($buckets));
     }
 
     // ------------------------------------------------------------------ داخليّ

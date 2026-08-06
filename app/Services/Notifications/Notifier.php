@@ -207,6 +207,116 @@ class Notifier
         return is_array($layers) && $layers !== [] ? array_values($layers) : ['platform', 'volunteer'];
     }
 
+    /**
+     * فئات إشعارات التطوّع العشر (13 · قرار §25): مفتاح الفلتر ⟵ لافتته
+     * العربيّة — إعداد قابل للتعديل (2.13) لا قائمة محروقة.
+     *
+     * @return array<string, string>
+     */
+    public static function categoryBuckets(): array
+    {
+        return [
+            'tasks' => (string) setting('notifications.category.bucket_label_tasks', 'مهامّ'),
+            'contributions' => (string) setting('notifications.category.bucket_label_contributions', 'مساهمات ونقاط تفتيش'),
+            'decisions' => (string) setting('notifications.category.bucket_label_decisions', 'نوافذ قرار'),
+            'meetings' => (string) setting('notifications.category.bucket_label_meetings', 'اجتماعات'),
+            'transactions' => (string) setting('notifications.category.bucket_label_transactions', 'معاملات واعتراضات'),
+            'escalations' => (string) setting('notifications.category.bucket_label_escalations', 'تصعيدات وتحكيمات'),
+            'academy' => (string) setting('notifications.category.bucket_label_academy', 'أكاديمية وتسجيلات'),
+            'recognition' => (string) setting('notifications.category.bucket_label_recognition', 'تقدير'),
+            'structure' => (string) setting('notifications.category.bucket_label_structure', 'هيكل وترقيات'),
+            'recruitment' => (string) setting('notifications.category.bucket_label_recruitment', 'توظيف'),
+        ];
+    }
+
+    /**
+     * قيمة `category` الخام في الصفّ ⟵ مفتاح إحدى الفئات العشر — تُبنى بادئةً
+     * لا مطابقةً حرفيّة (`meeting.attendance_registered` تقع تحت `meetings`).
+     * وترجع `null` لفئةٍ لا تخصّ طبقة التطوّع (شهادة/شحن/شكوى... إلخ) — فلا
+     * تظهر أصلًا في فلتر شاشة إشعارات التطوّع.
+     */
+    public static function categoryBucket(string $category): ?string
+    {
+        $map = setting('notifications.category.bucket_map', []);
+        $map = is_array($map) && $map !== [] ? $map : self::defaultCategoryMap();
+
+        if (array_key_exists($category, $map)) {
+            return $map[$category];
+        }
+
+        foreach ($map as $prefix => $bucket) {
+            if (str_ends_with($prefix, '.') && str_starts_with($category, $prefix)) {
+                return $bucket;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * تضييق الاستعلام لفئةٍ من الفئات العشر — يطابق القيم الحرفيّة والبادئات
+     * معًا (`meeting.` تطابق `meeting.attendance_registered`)، عكس
+     * `categoryBucket()` تمامًا حتى لا يفترق الفلتر عن العرض.
+     */
+    public static function scopeToCategory(mixed $query, string $bucket): void
+    {
+        $map = setting('notifications.category.bucket_map', []);
+        $map = is_array($map) && $map !== [] ? $map : self::defaultCategoryMap();
+
+        $exact = [];
+        $prefixes = [];
+
+        foreach ($map as $key => $b) {
+            if ($b !== $bucket) {
+                continue;
+            }
+
+            str_ends_with($key, '.') ? $prefixes[] = $key : $exact[] = $key;
+        }
+
+        $query->where(function ($q) use ($exact, $prefixes) {
+            if ($exact !== []) {
+                $q->whereIn('category', $exact);
+            }
+
+            foreach ($prefixes as $prefix) {
+                $q->orWhere('category', 'like', $prefix.'%');
+            }
+        });
+    }
+
+    /**
+     * الخريطة الافتراضيّة — من الفئات الحقيقيّة التي يكتبها كود المجالات
+     * فعليًّا (لا افتراضًا نظريًّا)؛ راجع `app/Services/Volunteer/**` لمصدر كلّ قيمة.
+     *
+     * @return array<string, string>
+     */
+    private static function defaultCategoryMap(): array
+    {
+        return [
+            'task' => 'tasks',
+            'task_delivered' => 'tasks',
+            'task_extension' => 'tasks',
+            'task_apology' => 'tasks',
+            'task_flag' => 'tasks',
+            'task_blocked' => 'tasks',
+            'contribution' => 'contributions',
+            'goal' => 'decisions',
+            'meeting.' => 'meetings',
+            'objection' => 'transactions',
+            'consent' => 'transactions',
+            'escalation' => 'escalations',
+            'arbitration' => 'escalations',
+            'academy' => 'academy',
+            'recognition' => 'recognition',
+            // ⚠️ حكم اجتهاديّ: تنبيهات الحساب (إنذار/تعليق/عودة) أقرب لموضوعها
+            // إلى مسار العضو التنظيميّ منها إلى بقيّة الفئات — لا تصنيف أدقّ متاح اليوم
+            'account' => 'structure',
+            'volunteer' => 'structure',
+            'recruitment' => 'recruitment',
+        ];
+    }
+
     // ---------------------------------------------- التجميع وحدّ الهدوء (12.6-ب)
 
     /** مفتاح التجميع: الفئة + العنوان — «المتشابه» بمعناه الحرفيّ لا التقريبيّ. */

@@ -138,8 +138,8 @@ class AnnouncementsNotificationCenterTest extends TestCase
 
         $response = $this->actingAs($user)->get(route('notifications.index'))->assertOk();
 
-        // الرموز الثلاثة من قاموس الحالة: ▲ انتبه · ● سليم · ◉ خطر
-        $response->assertSee('▲')->assertSee('●')->assertSee('◉');
+        // ▲ انتبه · ● سليم — والفائتة تتحوّل لبشارة «انتهت المهلة» نصّيّة لا رمز خطر (13)
+        $response->assertSee('▲')->assertSee('●')->assertSee('انتهت المهلة');
 
         // زرّ الإجراء المباشر داخل الصفّ
         $response->assertSee('نفّذ الآن');

@@ -42,6 +42,46 @@
     {{-- ثلاثة تابات: الكلّ · المنصّة · التطوّع — وعلى الموبايل رقائق أفقيّة (2.8 · 2.15-ج) --}}
     <x-tabs :tabs="$tabs" :current="$tab" />
 
+    {{-- مبدّل «الكلّ / يحتاج إجراء» + الفلاتر (13): الفئة (لِما هو موجود فعلًا)
+         · العضويّة/الكيان · غير المقروء · الفترة (الفترة مُدارة أسفل الصفحة بزرّ «وسّع المدى») --}}
+    <div class="flex flex-wrap items-center gap-2 mb-4">
+        <div class="inline-flex rounded-xl p-1 text-xs" style="background: var(--surface-sunken)">
+            <a href="{{ route('notifications.index', array_filter(['tab' => $tab, 'category' => $category, 'unread' => $unreadOnly ? 1 : null])) }}"
+               class="px-3 py-1.5 rounded-lg font-semibold motion-standard"
+               style="{{ ! $needsAction ? 'background: var(--surface-raised); color: var(--text)' : 'color: var(--text-muted)' }}">
+                {{ setting('notifications.index.filter_all', 'الكلّ') }}
+            </a>
+            <a href="{{ route('notifications.index', array_filter(['tab' => $tab, 'category' => $category, 'unread' => $unreadOnly ? 1 : null, 'need_action' => 1])) }}"
+               class="px-3 py-1.5 rounded-lg font-semibold motion-standard"
+               style="{{ $needsAction ? 'background: var(--surface-raised); color: var(--text)' : 'color: var(--text-muted)' }}">
+                {{ setting('notifications.index.filter_needs_action', 'يحتاج إجراء') }}
+            </a>
+        </div>
+
+        @if (! empty($availableCategories))
+            <form method="get" class="inline-flex items-center">
+                <input type="hidden" name="tab" value="{{ $tab }}">
+                @if ($needsAction) <input type="hidden" name="need_action" value="1"> @endif
+                @if ($unreadOnly) <input type="hidden" name="unread" value="1"> @endif
+                <select name="category" onchange="this.form.submit()"
+                        class="rounded-xl px-3 py-1.5 text-xs" style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
+                    <option value="">{{ setting('notifications.index.filter_category_all', 'كلّ الفئات') }}</option>
+                    @foreach ($availableCategories as $key => $label)
+                        <option value="{{ $key }}" @selected($category === $key)>{{ $label }}</option>
+                    @endforeach
+                </select>
+            </form>
+        @endif
+
+        <label class="inline-flex items-center gap-1.5 text-xs" style="color: var(--text-muted)">
+            <input type="checkbox" class="w-4 h-4" @checked($unreadOnly)
+                   onchange="window.location.href = this.checked
+                       ? '{{ route('notifications.index', array_filter(['tab' => $tab, 'category' => $category, 'need_action' => $needsAction ? 1 : null])) }}&unread=1'
+                       : '{{ route('notifications.index', array_filter(['tab' => $tab, 'category' => $category, 'need_action' => $needsAction ? 1 : null])) }}'">
+            {{ setting('notifications.index.filter_unread', 'غير المقروء فقط') }}
+        </label>
+    </div>
+
     @if (empty($groups))
         <x-empty :message="$emptyMessage" action="{{ setting('notifications.index.action_1', 'الرجوع للرئيسيّة') }}" :href="route('dashboard')" />
     @else
@@ -62,10 +102,14 @@
         </div>
 
         <div class="mt-5 flex flex-wrap items-center justify-center gap-2">
+            @php
+                $carry = array_filter(['tab' => $tab, 'category' => $category, 'need_action' => $needsAction ? 1 : null, 'unread' => $unreadOnly ? 1 : null]);
+            @endphp
+
             @if ($hasMore)
                 <a class="btn inline-flex items-center justify-center rounded-xl px-4 py-2 text-sm motion-standard"
                    style="background: var(--surface-raised); border: 1px solid var(--border)"
-                   href="{{ route('notifications.index', array_filter(['tab' => $tab, 'range' => $expanded ? 'all' : null, 'more' => $nextMore])) }}">
+                   href="{{ route('notifications.index', array_filter($carry + ['range' => $expanded ? 'all' : null, 'more' => $nextMore])) }}">
                     {{ setting('notifications.index.text_2', 'عرض المزيد') }}
                 </a>
             @endif
@@ -73,7 +117,7 @@
             @unless ($expanded)
                 {{-- المدى الافتراضيّ آخر 30 يومًا مع زرّ «وسّع المدى» (2.15-ب) --}}
                 <a class="text-xs" style="color: var(--color-brand-500)"
-                   href="{{ route('notifications.index', array_filter(['tab' => $tab, 'range' => 'all'])) }}">
+                   href="{{ route('notifications.index', array_filter($carry + ['range' => 'all'])) }}">
                     {{ strtr((string) setting('notifications.index.text_3', 'وسّع المدى (أقدم من :a1 يومًا)'), [':a1' => (string) ($rangeDays)]) }}
                 </a>
             @endunless

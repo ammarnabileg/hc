@@ -301,10 +301,15 @@ class ScreenTextDemoSeeder extends Seeder
             ['notifications.index.title_2', 'notifications', 'index: تفاصيل الإشعار', 'تفاصيل الإشعار'],
             ['notifications.index.text_4', 'notifications', 'index: تعليم الكلّ كمقروء (:a1)', 'تعليم الكلّ كمقروء (:a1)'],
             ['notifications.index.js_1', 'notifications', 'index: افتح', 'افتح'],
+            ['notifications.index.filter_all', 'notifications', 'index: الكلّ (مبدّل)', 'الكلّ'],
+            ['notifications.index.filter_needs_action', 'notifications', 'index: يحتاج إجراء (مبدّل)', 'يحتاج إجراء'],
+            ['notifications.index.filter_category_all', 'notifications', 'index: كلّ الفئات (فلتر)', 'كلّ الفئات'],
+            ['notifications.index.filter_unread', 'notifications', 'index: غير المقروء فقط (فلتر)', 'غير المقروء فقط'],
             // ---- resources/views/notifications/partials/row.blade.php
             ['notifications.row.aria_label_1', 'notifications', 'row: غير مقروء', 'غير مقروء'],
             ['notifications.row.text_1', 'notifications', 'row: التفاصيل', 'التفاصيل'],
             ['notifications.row.text_2', 'notifications', 'row: تعليم كمقروء', 'تعليم كمقروء'],
+            ['notifications.row.expired_label', 'notifications', 'row: انتهت المهلة', 'انتهت المهلة'],
             // ---- resources/views/onboarding/accepted.blade.php
             ['onboarding.accepted.text_1', 'onboarding', 'accepted: أهلًا بيك.', 'أهلًا بيك.'],
             // ---- resources/views/onboarding/instructions.blade.php
