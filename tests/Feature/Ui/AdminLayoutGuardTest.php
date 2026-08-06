@@ -321,6 +321,7 @@ class AdminLayoutGuardTest extends UiTestCase
             ['المطوّرين', [
                 route('admin.developers.index', ['tab' => 'api']),
                 route('admin.developers.index', ['tab' => 'webhooks']),
+                route('admin.developers.index', ['tab' => 'terminal']),
             ], null],
             // 12.7 الإعدادات والنظام — آخر قسم دائمًا
             ['الإعدادات والنظام', [

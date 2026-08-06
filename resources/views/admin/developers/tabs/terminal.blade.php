@@ -60,7 +60,7 @@
             <h2 class="font-bold">{{ setting('developers.admin.terminal_output_title', 'المخرَجات') }}</h2>
             <span id="terminal-meta" class="text-xs" style="color: var(--text-muted)"></span>
         </div>
-        <pre id="terminal-output" class="rounded-xl p-3 text-xs overflow-x-auto"
+        <pre id="terminal-output" class="rounded-xl p-3 text-xs overflow-x-auto min-w-0"
              style="background: #0b0f0d; color: #d6ffe8; min-height: 4rem; white-space: pre-wrap; word-break: break-all; font-family: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace">{{ setting('developers.admin.terminal_output_empty', 'لا مخرَجات بعد — نفّذ أمرًا لعرضها هنا.') }}</pre>
     </section>
 
