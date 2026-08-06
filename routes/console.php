@@ -83,3 +83,8 @@ Schedule::command('events:remind')->everyFiveMinutes()->withoutOverlapping();
 // التقارير المجدولة (24.3-خامسًا): مسحة كلّ ساعة تلتقط المستحقّ بساعته
 // ومنطقته الزمنيّة — والساعة أصغر وحدة تسمح بها شاشة الجدولة، فلا حاجة لأدقّ.
 Schedule::command('reports:dispatch')->hourly()->withoutOverlapping();
+
+// 🧩 المطوّرين — API (12.15-أ ⭐): حدّ «آخر 100 سجلّ استخدامٍ لكلّ مفتاح»
+// مفروضٌ فعليًّا لا وصفًا — مسحة كلّ ساعة تكفي؛ الجدول يكبر بمعدّل الطلبات
+// الفعليّ لا بمعدّلٍ يستدعي أدقّ من ذلك.
+Schedule::command('api:prune-request-logs')->hourly()->withoutOverlapping();

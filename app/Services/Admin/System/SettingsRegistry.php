@@ -173,6 +173,12 @@ class SettingsRegistry
                 'groups' => ['backups'],
                 'hint' => setting('system.settings_registry.tabs_44', 'النسخ اليدويّة والمجدولة ومراقبة صحّة النظام.'),
             ],
+            // 🧩 المطوّرين — API (12.15، v5.5): مجموعة إعدادات شاشة `admin.developers.index`
+            'developers' => [
+                'label' => setting('system.settings_registry.tabs_49', 'المطوّرين — API'),
+                'groups' => ['developers'],
+                'hint' => setting('system.settings_registry.tabs_50', 'تفعيل واجهة الـAPI وحدّ المعدّل الافتراضيّ ومدّة الاحتفاظ بسجلّ الطلبات.'),
+            ],
             'misc' => [
                 'label' => setting('system.settings_registry.tabs_45', 'متنوّعات'),
                 'groups' => [],
