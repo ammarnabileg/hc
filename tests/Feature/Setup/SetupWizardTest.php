@@ -97,19 +97,51 @@ class SetupWizardTest extends SetupTestCase
     {
         $credentials = $this->credentials();
 
+        // المضيف والمنفذ ثابتان (2.2) ولا يُرسَلان في الطلب، لكنّهما يدخلان في
+        // بصمة الاتّصال داخل المتحكّم — فنُحاكيهما هنا كما سيشتقّهما هو بالضبط.
+        $fingerprintCredentials = $credentials + ['db_host' => '127.0.0.1', 'db_port' => '3306'];
+
         $this->withSession([
             'setup' => [
                 'token_ok' => true,
                 'completed' => ['requirements'],
                 'draft' => $credentials,
-                'db_fingerprint' => $this->fingerprintFor($credentials),
+                'db_fingerprint' => $this->fingerprintFor($fingerprintCredentials),
             ],
         ])->post(route('setup.database.store'), $credentials)
             ->assertRedirect(route('setup.migrate'))
             ->assertSessionHasNoErrors();
 
         $this->assertFileExists($this->root.'/.env');
-        $this->assertStringContainsString('DB_DATABASE='.$credentials['db_database'], file_get_contents($this->root.'/.env'));
+        $env = (string) file_get_contents($this->root.'/.env');
+        $this->assertStringContainsString('DB_DATABASE='.$credentials['db_database'], $env);
+        $this->assertStringContainsString('DB_HOST=127.0.0.1', $env);
+        $this->assertStringContainsString('DB_PORT=3306', $env);
+    }
+
+    public function test_database_form_no_longer_accepts_or_needs_host_and_port(): void
+    {
+        $credentials = $this->credentials();
+        $fingerprintCredentials = $credentials + ['db_host' => '127.0.0.1', 'db_port' => '3306'];
+
+        // حتّى لو أُرسِل db_host/db_port بالغلط (عميلٌ قديم مثلًا) فهما يُتجاهَلان
+        // تمامًا؛ القيمتان الثابتتان من الإعدادات هما اللتان تُكتَبان دائمًا.
+        $this->withSession([
+            'setup' => [
+                'token_ok' => true,
+                'completed' => ['requirements'],
+                'draft' => $credentials,
+                'db_fingerprint' => $this->fingerprintFor($fingerprintCredentials),
+            ],
+        ])->post(route('setup.database.store'), $credentials + ['db_host' => '203.0.113.9', 'db_port' => '9999'])
+            ->assertRedirect(route('setup.migrate'))
+            ->assertSessionHasNoErrors();
+
+        $env = (string) file_get_contents($this->root.'/.env');
+        $this->assertStringContainsString('DB_HOST=127.0.0.1', $env);
+        $this->assertStringContainsString('DB_PORT=3306', $env);
+        $this->assertStringNotContainsString('203.0.113.9', $env);
+        $this->assertStringNotContainsString('DB_PORT=9999', $env);
     }
 
     // ------------------------------------------------ حساب مالك المنصّة
@@ -122,7 +154,6 @@ class SetupWizardTest extends SetupTestCase
             ->post(route('setup.owner.store'), [
                 'name' => 'مالك المنصّة',
                 'email' => 'owner@platform.test',
-                'phone' => '+201000000000',
                 'password' => 'a-very-strong-password',
                 'password_confirmation' => 'a-very-strong-password',
             ])
@@ -135,6 +166,18 @@ class SetupWizardTest extends SetupTestCase
         $this->assertNotNull($owner->activated_at);
         $this->assertNotEmpty($owner->code);
         $this->assertTrue($owner->hasRole('platform_owner'));
+        // العمود Nullable+Unique؛ هاتف المالك لم يعد يُطلَب في فورم /setup (2.2)
+        $this->assertNull($owner->phone);
+    }
+
+    public function test_owner_form_no_longer_requires_a_phone_number(): void
+    {
+        $this->seed(RoleSeeder::class);
+
+        $this->state(['requirements', 'database', 'migrate', 'platform'])
+            ->get(route('setup.owner'))
+            ->assertOk()
+            ->assertDontSee('name="phone"', false);
     }
 
     public function test_owner_step_is_not_reachable_before_the_earlier_steps(): void
@@ -162,7 +205,10 @@ class SetupWizardTest extends SetupTestCase
         $this->state(['requirements', 'database', 'migrate'])
             ->get(route('setup.platform'))
             ->assertOk()
-            ->assertSee('Africa/Cairo');
+            ->assertSee('اسم المنصّة')
+            ->assertDontSee('name="app_url"', false)
+            ->assertDontSee('name="timezone"', false)
+            ->assertDontSee('name="locale"', false);
 
         $this->state(['requirements', 'database', 'migrate', 'platform'])
             ->get(route('setup.owner'))
@@ -222,12 +268,15 @@ class SetupWizardTest extends SetupTestCase
         $this->assertStringContainsString('APP_KEY=base64:', file_get_contents($this->root.'/.env'));
     }
 
-    /** @return array<string, string> */
+    /**
+     * الحقول الثلاثة التي يطلبها فورم قاعدة البيانات فقط بعد 2.2 — المضيف
+     * والمنفذ لم يعودا يُرسَلان من العميل إطلاقًا (ثابتان من الإعدادات).
+     *
+     * @return array<string, string>
+     */
     private function credentials(): array
     {
         return [
-            'db_host' => '127.0.0.1',
-            'db_port' => '3306',
             'db_database' => 'platform_db',
             'db_username' => 'platform_user',
             'db_password' => 'platform-secret',
