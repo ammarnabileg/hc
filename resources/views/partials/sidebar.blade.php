@@ -145,9 +145,6 @@
                 ['label' => setting('nav.trainee.item_referral_kit', 'حزمة المحتوى'), 'route' => 'growth.kit.index'],
             ]" />
 
-            {{-- مركز المقالات العامّ (21.2-أ) --}}
-            <x-nav-link route="growth.articles.index" :label="setting('nav.trainee.item_articles', 'المقالات')" icon="📰" />
-
             <x-nav-group :label="setting('nav.trainee.group_support', 'الدعم')" icon="📮" :items="[
                 ['label' => setting('nav.trainee.item_support_complaints', 'الشكاوى والمقترحات'), 'route' => 'complaints.index'],
                 ['label' => setting('nav.trainee.item_support_help', 'دليل المستخدم'), 'route' => 'help.index'],

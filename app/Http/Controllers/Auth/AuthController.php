@@ -64,6 +64,25 @@ class AuthController extends Controller
             'password' => ['required', 'string'],
         ]);
 
+        /*
+         | ⭐ حدّ محاولات الدخول (12.7): مفتاحٌ مركَّب من المعرِّف المُدخَل + IP —
+         | فمهاجمٌ يجرِّب حسابًا واحدًا من أجهزة كثيرة، أو حسابات كثيرة من جهازٍ
+         | واحد، كلاهما يُحسَب على قيده الخاصّ لا يُخلَط بأحداث دخولٍ ناجحة
+         | لمستخدمين آخرين. والرقمان إعدادان لا محروقان (2.13).
+         */
+        $throttleKey = 'login:'.Str::lower($data['identifier']).'|'.$request->ip();
+        $maxAttempts = max(1, (int) setting('auth.login.max_attempts', 5));
+        $window = max(1, (int) setting('auth.login.window_seconds', 900));
+
+        if (RateLimiter::tooManyAttempts($throttleKey, $maxAttempts)) {
+            return back()->withInput()->withErrors([
+                'identifier' => (string) setting(
+                    'auth.login.throttled',
+                    'محاولات كتير غلط. استنّى شويّة وجرّب تاني.',
+                ),
+            ]);
+        }
+
         $field = filter_var($data['identifier'], FILTER_VALIDATE_EMAIL) ? 'email'
             : (preg_match('/^\+?\d[\d\s-]{6,}$/', $data['identifier']) ? 'phone' : 'code');
 
@@ -73,10 +92,14 @@ class AuthController extends Controller
             : $request->boolean('remember');
 
         if (! Auth::attempt([$field => $data['identifier'], 'password' => $data['password']], $remember)) {
+            RateLimiter::hit($throttleKey, $window);
+
             return back()->withInput()->withErrors([
                 'identifier' => (string) setting('auth.screen.login_denied', 'البيانات مش مظبوطة. راجع الكود أو البريد وكلمة السرّ.'),
             ]);
         }
+
+        RateLimiter::clear($throttleKey);
 
         $request->session()->regenerate();
         $request->user()->forceFill(['last_seen_at' => now()])->saveQuietly();

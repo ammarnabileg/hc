@@ -66,6 +66,30 @@ class AuthFlowTest extends TestCase
         $this->assertAuthenticatedAs($user);
     }
 
+    /**
+     * ⭐ حدّ محاولات الدخول (12.7): محاولةٌ سادسة خاطئة على نفس المعرّف من
+     * نفس الـIP تُرفَض برسالة انتظار لا برسالة "بيانات خاطئة" العاديّة —
+     * حتى لو كانت كلمة السرّ الصحيحة نفسها في تلك المحاولة السادسة.
+     */
+    public function test_login_locks_after_too_many_wrong_attempts(): void
+    {
+        User::create([
+            'name' => 'ليلى', 'email' => 'l@test.local', 'password' => 'secret-password',
+            'code' => 'UABL2222', 'status' => 'active',
+        ]);
+
+        for ($i = 0; $i < 5; $i++) {
+            $this->post('/login', ['identifier' => 'l@test.local', 'password' => 'wrong-password'])
+                ->assertSessionHasErrors('identifier');
+        }
+
+        // السادسة بالباسوورد الصحيح — لازم تُرفَض بالقفل لا بالنجاح
+        $this->post('/login', ['identifier' => 'l@test.local', 'password' => 'secret-password'])
+            ->assertSessionHasErrors('identifier');
+
+        $this->assertGuest();
+    }
+
     public function test_pending_user_sees_pending_page(): void
     {
         $user = User::create([

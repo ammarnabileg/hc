@@ -161,6 +161,39 @@ class ApiKeyManagementTest extends TestCase
         $this->getJson('/api/v1/ping')->assertStatus(401)->assertJson(['error' => 'missing_or_invalid_key']);
     }
 
+    /**
+     * ⭐ «كلّ طلب API مُسجَّل — لا استثناء صامت» (12.15-ج) يشمل الطلب المرفوض
+     * أيضًا لا الناجح وحده: مفتاحٌ مفقود أو خاطئ لازم يترك أثرًا في
+     * `api_request_logs` (بـ`api_key_id = null`)، لا أن يمرّ بلا أيّ سجلّ.
+     */
+    public function test_a_request_with_no_key_at_all_is_still_audited(): void
+    {
+        $this->getJson('/api/v1/ping')->assertStatus(401);
+
+        $this->assertDatabaseHas('api_request_logs', [
+            'api_key_id' => null,
+            'path' => '/api/v1/ping',
+            'status_code' => 401,
+        ]);
+    }
+
+    public function test_a_request_with_a_wrong_key_is_still_audited(): void
+    {
+        $admin = $this->userWith('integrations.view', 'integrations.create');
+        $result = app(ApiKeyService::class)->create('بادئة صحيحة لكن مفتاح خطأ', ['read:courses'], $admin);
+
+        [$prefix] = explode('.', $result['plain_key'], 2);
+        $wrongKey = $prefix.'.'.str()->random(40);
+
+        $this->withHeaders($this->bearer($wrongKey))->getJson('/api/v1/ping')->assertStatus(401);
+
+        $this->assertDatabaseHas('api_request_logs', [
+            'api_key_id' => null,
+            'path' => '/api/v1/ping',
+            'status_code' => 401,
+        ]);
+    }
+
     public function test_expired_key_is_rejected_with_401(): void
     {
         $admin = $this->userWith('integrations.view', 'integrations.create');

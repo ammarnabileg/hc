@@ -76,17 +76,18 @@ class AuthenticateApiKey
         return response()->json(['error' => $error], $status, $headers);
     }
 
-    /** تسجيل الطلب (12.15-ج: لا استثناء صامت) + تحديث آخر استخدام على المفتاح */
+    /**
+     * تسجيل الطلب (12.15-ج: **لا استثناء صامت**) + تحديث آخر استخدام على
+     * المفتاح إن وُجد. طلبٌ بمفتاح مفقود أو خاطئ **يُسجَّل أيضًا**
+     * (`api_key_id = null`) — فالرفض نفسه حدثٌ أمنيّ يستحقّ أثرًا في السجلّ،
+     * لا مجرّد ردٍّ للمستدعي بلا أيّ بصمة على الخادم.
+     */
     private function finish(Request $request, int $status, float $start, ?ApiKey $apiKey): void
     {
-        if (! $apiKey) {
-            return;
-        }
-
         $durationMs = (int) round((microtime(true) - $start) * 1000);
 
         ApiRequestLog::create([
-            'api_key_id' => $apiKey->id,
+            'api_key_id' => $apiKey?->id,
             'method' => $request->method(),
             'path' => '/'.ltrim($request->path(), '/'),
             'status_code' => $status,
@@ -95,7 +96,7 @@ class AuthenticateApiKey
             'created_at' => now(),
         ]);
 
-        $apiKey->forceFill([
+        $apiKey?->forceFill([
             'last_used_at' => now(),
             'last_used_ip' => $request->ip(),
         ])->saveQuietly();
