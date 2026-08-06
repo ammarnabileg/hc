@@ -43,6 +43,20 @@ class ImageRenderer
     public function render(ImageTemplate $template, ?User $user, ?User $actor = null): string
     {
         $data = $user ? $this->fields->values($user) : [];
+
+        return $this->renderWithData($template, $user, $data, $actor);
+    }
+
+    /**
+     * توليد بصورة يُحدَّد **مصدر بياناتها من خارج المصنع** — نفس محرّك الرسم
+     * والكاش والحدّ، لمستهلكٍ له بياناته الخاصّة (مثل بطاقة المتطوّع 13.4-ر
+     * التي مصدرها `CardIssuer::imageData()` لا `ImageTemplateFields::values()`).
+     * **مصدر رسمٍ واحد** يبقى واحدًا — فقط البيانات المُغذَّاة تختلف.
+     *
+     * @throws RuntimeException عند تجاوز حدّ التوليد في الدقيقة
+     */
+    public function renderWithData(ImageTemplate $template, ?User $user, array $data, ?User $actor = null): string
+    {
         $key = $this->cacheKey($template, $user, $data);
 
         $cached = GeneratedImage::query()->where('cache_key', $key)->first();

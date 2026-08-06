@@ -24,6 +24,8 @@ class TemplateLayers
             'story' => ['label' => setting('images.template_layers.presets_2', 'ستوري'), 'width' => 1080, 'height' => 1920],
             'cover' => ['label' => setting('images.template_layers.presets_3', 'كوفر'), 'width' => 1640, 'height' => 856],
             'whatsapp' => ['label' => setting('images.template_layers.presets_4', 'واتساب'), 'width' => 1080, 'height' => 1350],
+            // بادج فعاليّات بمقاس طباعة قياسيّ (13.4-ر-د) — 4×6 بوصة عند 300dpi
+            'badge' => ['label' => setting('images.template_layers.presets_5', 'بادج فعاليّات'), 'width' => 1200, 'height' => 1800],
         ];
     }
 

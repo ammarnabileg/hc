@@ -83,6 +83,24 @@
             </div>
         </div>
 
+        {{-- صورة البطاقة الفعليّة — نسختان جاهزتان + QR الدعوة اختياريًّا (13.4-ر-د · هـ) --}}
+        <div class="card p-4 mt-3 text-sm">
+            <label class="flex items-center gap-2 mb-3">
+                <input type="checkbox" id="card-invite-toggle" class="w-4 h-4">
+                {{ setting('volunteer_card.show.invite_toggle', 'أضِف QR دعوتي على الصورة') }}
+            </label>
+            <div class="flex flex-wrap gap-2">
+                <a id="card-image-badge" href="{{ route('card.image', [$card->code, 'badge']) }}" download
+                   class="btn rounded-xl px-3 py-2 text-xs font-semibold" style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
+                    {{ setting('volunteer_card.show.download_badge', 'تحميل بادج الفعاليّات') }}
+                </a>
+                <a id="card-image-story" href="{{ route('card.image', [$card->code, 'story']) }}" download
+                   class="btn rounded-xl px-3 py-2 text-xs font-semibold" style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
+                    {{ setting('volunteer_card.show.download_story', 'تحميل صورة للنشر') }}
+                </a>
+            </div>
+        </div>
+
         <p class="text-center text-xs mt-3" style="color: var(--text-muted)">
             {{ config('app.name') }}
         </p>
@@ -98,6 +116,17 @@
             await navigator.clipboard.writeText(url);
             done(@json($hcWords['volunteer_card.show.js_2']));
         } catch (err) { done(@json($hcWords['volunteer_card.show.js_3'])); }
+    });
+
+    // QR الدعوة اختياريّ فوق صورة البطاقة — يُضاف بـ?invite=1 (13.4-ر-هـ)
+    document.getElementById('card-invite-toggle')?.addEventListener('change', (e) => {
+        ['card-image-badge', 'card-image-story'].forEach((id) => {
+            const link = document.getElementById(id);
+            if (!link) return;
+            const url = new URL(link.href);
+            if (e.currentTarget.checked) { url.searchParams.set('invite', '1'); } else { url.searchParams.delete('invite'); }
+            link.href = url.toString();
+        });
     });
     </script>
 @endsection

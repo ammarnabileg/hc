@@ -919,10 +919,12 @@ class ServiceTextsDemoSeeder extends Seeder
             ['images.image_template_fields.volunteer_fields_2', 'images', 'القسم', 'string', 'القسم', false],
             ['images.image_template_fields.volunteer_fields_3', 'images', 'مدّة الخدمة', 'string', 'مدّة الخدمة', false],
             ['images.image_template_fields.volunteer_fields_4', 'images', 'درجة الالتزام (Rep)', 'string', 'درجة الالتزام (Rep)', false],
+            ['images.image_template_fields.volunteer_fields_5', 'images', 'المسار', 'string', 'المسار', false],
             ['images.template_layers.presets_1', 'images', 'بوست مربّع', 'string', 'بوست مربّع', false],
             ['images.template_layers.presets_2', 'images', 'ستوري', 'string', 'ستوري', false],
             ['images.template_layers.presets_3', 'images', 'كوفر', 'string', 'كوفر', false],
             ['images.template_layers.presets_4', 'images', 'واتساب', 'string', 'واتساب', false],
+            ['images.template_layers.presets_5', 'images', 'بادج فعاليّات', 'string', 'بادج فعاليّات', false],
 
             // ---------------- learning
             ['learning.deadline_service.humanize_1', 'learning', 'يوم', 'string', 'يوم', false],

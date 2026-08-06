@@ -82,3 +82,6 @@ Route::middleware('auth')->group(function () {
 // ---------------------------------------------- بطاقة المتطوّع الرقميّة — عامّة بلا تسجيل (13.4-ر)
 Route::get('/card/{code}', [VolunteerCardController::class, 'show'])->name('card.show');
 Route::get('/card/{code}/verify', [VolunteerCardController::class, 'verify'])->name('card.verify');
+// صورة البطاقة الفعليّة — نسختان جاهزتان (13.4-ر-د)
+Route::get('/card/{code}/image/{variant}', [VolunteerCardController::class, 'image'])
+    ->whereIn('variant', ['badge', 'story'])->name('card.image');

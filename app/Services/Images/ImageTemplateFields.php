@@ -40,6 +40,7 @@ class ImageTemplateFields
         return [
             'position' => setting('images.image_template_fields.volunteer_fields_1', 'البوزشن'),
             'department' => setting('images.image_template_fields.volunteer_fields_2', 'القسم'),
+            'track' => setting('images.image_template_fields.volunteer_fields_5', 'المسار'),
             'service_duration' => setting('images.image_template_fields.volunteer_fields_3', 'مدّة الخدمة'),
             'rep' => setting('images.image_template_fields.volunteer_fields_4', 'درجة الالتزام (Rep)'),
         ];

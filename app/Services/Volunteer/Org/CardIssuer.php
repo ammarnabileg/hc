@@ -2,6 +2,7 @@
 
 namespace App\Services\Volunteer\Org;
 
+use App\Models\ImageTemplate;
 use App\Models\Membership;
 use App\Models\RepScore;
 use App\Models\VolunteerCard;
@@ -131,6 +132,46 @@ final class CardIssuer
             'issued_at' => $card->issued_at,
             'expired_at' => $card->expired_at,
         ];
+    }
+
+    /**
+     * بيانات نصّية جاهزة لمحرّك رسم الصور — نفس مصدر `publicPayload()` نفسه
+     * (13.4-ر-أ: **مصدر واحد**، الصورة تمثيلٌ بصريّ للصفحة لا نسخةٌ منفصلة).
+     *
+     * @return array<string, string>
+     */
+    public function imageData(VolunteerCard $card): array
+    {
+        $payload = $this->publicPayload($card);
+
+        return [
+            'name' => (string) $payload['name'],
+            'code' => '#'.(string) $payload['code'],
+            'position' => (string) $payload['position'],
+            'department' => (string) $payload['department'],
+            'track' => (string) $payload['track'],
+            'service_duration' => (string) $payload['service_duration'],
+            'country' => (string) $payload['country'],
+            'governorate' => (string) $payload['governorate'],
+            'joined_at' => $payload['joined_at'] ? $payload['joined_at']->translatedFormat('F Y') : '',
+            'rep' => (string) ($payload['rep_label'] ?? ''),
+        ];
+    }
+
+    /**
+     * القالب الافتراضيّ الجاهز لغرض `volunteer_card` باللغة المطلوبة — **تصميمٌ
+     * افتراضيّ جاهز** (13.4-ر-د)، والأدمن يستبدله بقالبه الخاصّ عبر استوديو الصور.
+     */
+    public function defaultTemplate(string $language): ?ImageTemplate
+    {
+        return ImageTemplate::query()
+            ->where('purpose', 'volunteer_card')
+            ->where('is_active', true)
+            ->where('is_archived', false)
+            ->where(fn ($q) => $q->where('language', $language)->orWhereNull('language'))
+            ->orderByRaw('language IS NULL')
+            ->orderBy('id')
+            ->first();
     }
 
     /** @return array<string, mixed> */

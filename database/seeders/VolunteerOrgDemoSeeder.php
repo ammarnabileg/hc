@@ -88,6 +88,12 @@ class VolunteerOrgDemoSeeder extends Seeder
             ['volunteer_card.verify_hint', 'volunteer', 'سطر تحت الـQR', 'string', 'امسح الكود للتحقّق من البطاقة'],
             ['volunteer_card.verify.valid_text', 'volunteer', 'نصّ البطاقة السارية', 'text', 'البطاقة سارية، وصاحبها متطوّع مُسكَّن عندنا.'],
             ['volunteer_card.verify.expired_text', 'volunteer', 'نصّ البطاقة المنتهية', 'text', 'البطاقة منتهية — انتهت عضويّة صاحبها، والسجلّ محفوظ.'],
+            ['volunteer_card.image.no_template', 'volunteer', 'صورة البطاقة: لا تصميم مُفعَّل', 'string', 'مفيش تصميم بطاقة مُفعَّل بعد.'],
+            ['volunteer_card.image.invite_qr_size', 'volunteer', 'صورة البطاقة: مقاس QR الدعوة (بكسل)', 'number', '220'],
+            ['volunteer_card.image.invite_qr_margin', 'volunteer', 'صورة البطاقة: هامش QR الدعوة (بكسل)', 'number', '32'],
+            ['volunteer_card.show.invite_toggle', 'volunteer', 'صفحة البطاقة: تفعيل QR الدعوة', 'string', 'أضِف QR دعوتي على الصورة'],
+            ['volunteer_card.show.download_badge', 'volunteer', 'صفحة البطاقة: تحميل البادج', 'string', 'تحميل بادج الفعاليّات'],
+            ['volunteer_card.show.download_story', 'volunteer', 'صفحة البطاقة: تحميل الستوري', 'string', 'تحميل صورة للنشر'],
 
             // ---------------- وضع «غائب» والتفويض المؤقّت (23-6)
             ['volunteer.absence.max_days', 'volunteer', 'أقصى غياب متّصل (أيّام)', 'number', '14'],
