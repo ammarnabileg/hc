@@ -9,6 +9,7 @@ use App\Models\CertificateTemplate;
 use App\Models\CertificateType;
 use App\Models\Country;
 use App\Models\User;
+use App\Services\Developers\WebhookDispatcher;
 use App\Services\Onboarding\HolderIdentity;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
@@ -52,7 +53,7 @@ class CertificateIssuer
 
         $language ??= $type->lang_ar_enabled ? 'ar' : 'en';
 
-        return DB::transaction(function () use ($user, $type, $subject, $data, $source, $language, $issuedBy) {
+        $certificate = DB::transaction(function () use ($user, $type, $subject, $data, $source, $language, $issuedBy) {
             $code = $this->numbers->next($type);
             $issuedAt = now();
 
@@ -93,6 +94,23 @@ class CertificateIssuer
 
             return $certificate;
         });
+
+        /*
+         | ⭐ 12.15-ب: نقطة الدخول الحقيقيّة لحدث `certificate.issued` — **بعد**
+         | التزام المعاملة لا داخلها، فلا يتأخّر إصدار الشهادة نفسه لو تعطّلت
+         | وجهة ويب-هوكٍ خارجيّة (`WebhookDispatcher::dispatch` لا ينتظر الإرسال).
+         */
+        WebhookDispatcher::dispatch('certificate.issued', [
+            'certificate_id' => $certificate->id,
+            'code' => $certificate->code,
+            'user_id' => $certificate->user_id,
+            'holder_code' => $user->code,
+            'type_key' => $type->key,
+            'language' => $certificate->language,
+            'issued_at' => $certificate->issued_at?->toIso8601String(),
+        ]);
+
+        return $certificate;
     }
 
     /**
