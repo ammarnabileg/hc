@@ -14,7 +14,7 @@
 
 ## ✅ المُنجَز
 <!-- تلقائيّ:بداية:المنجز -->
-- **مجلّدات فرعيّة (27):** `Account/` · `Admin/` · `AdminScreens/` · `Ads/` · `Certificates/` · `Dashboard/` · `Engagement/` · `Events/` · `Export/` · `Features/` · `Gamification/` · `Geo/` · `Growth/` · `Home/` · `Images/` · `Learning/` · `Library/` · `Notifications/` · `Onboarding/` · `Referral/` · `Security/` · `Setup/` · `Store/` · `Ui/` · `Ux/` · `Volunteer/` · `Wallet/` — ولكلٍّ منها وثيقتها.
+- **مجلّدات فرعيّة (28):** `Account/` · `Admin/` · `AdminScreens/` · `Ads/` · `Certificates/` · `Dashboard/` · `Developers/` · `Engagement/` · `Events/` · `Export/` · `Features/` · `Gamification/` · `Geo/` · `Growth/` · `Home/` · `Images/` · `Learning/` · `Library/` · `Notifications/` · `Onboarding/` · `Referral/` · `Security/` · `Setup/` · `Store/` · `Ui/` · `Ux/` · `Volunteer/` · `Wallet/` — ولكلٍّ منها وثيقتها.
 <!-- تلقائيّ:نهاية:المنجز -->
 
 ## ⬜ المتبقّي
@@ -38,6 +38,6 @@
 
 ## 🕒 آخر تحديث
 <!-- تلقائيّ:بداية:التحديث -->
-- **آخر توليد لهذه الوثيقة:** 2026-08-03 — `php artisan docs:status`.
-- **آخر لمسة للمجلّد:** 2026-08-03 — Claude.
+- **آخر توليد لهذه الوثيقة:** 2026-08-06 — `php artisan docs:status`.
+- **آخر لمسة للمجلّد:** 2026-08-06 — Claude.
 <!-- تلقائيّ:نهاية:التحديث -->
