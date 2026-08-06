@@ -5,17 +5,19 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\ApiKey;
 use App\Models\ApiRequestLog;
+use App\Models\Webhook;
+use App\Models\WebhookDelivery;
 use App\Services\Developers\ApiEndpointCatalog;
 use App\Services\Developers\ApiKeyService;
+use App\Services\Developers\WebhookEventCatalog;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 /**
  * 🧩 المطوّرين — API و Webhooks (12.15 · v5.5 قسمٌ جديد، سجلّ القرارات 25).
  *
- * دروب-داون بصفحتين كما أمر المالك حرفيًّا: **API** (مبنيّة كاملةً هنا) و
- * **Webhooks** (سقالتها فقط — تُبنى لاحقًا فوق نفس المسار `?tab=webhooks`
- * بلا إعادة هيكلة، كما ينصّ 12.15-ب).
+ * دروب-داون بصفحتين كما أمر المالك حرفيًّا: **API** (12.15-أ) و**Webhooks**
+ * (12.15-ب) — كلاهما مبنيّ كاملًا الآن فوق نفس الراوت بـ`?tab=`.
  *
  * ⭐ **كلّ تابٍّ يُحرَس بصلاحيّته هو لا بباب الشاشة العامّ وحده** — تاب `api`
  * يتطلّب `integrations.view` تحديدًا وتاب `webhooks` يتطلّب `webhooks.view`،
@@ -25,7 +27,6 @@ use Illuminate\View\View;
  */
 class DevelopersController extends Controller
 {
-    /** الثاني يُبنى لاحقًا لكن يُذكَر الآن كي لا يُعاد ترقيم الشجرة (12.15-ب) */
     public const TAB_KEYS = ['api', 'webhooks'];
 
     /** باب الشاشة بسعة تابيها معًا — ومَن لا يملك أيًّا منهما لا يفتح الباب أصلًا */
@@ -76,6 +77,19 @@ class DevelopersController extends Controller
                     ->limit((int) setting('developers.api.log_retention_count', 100))
                     ->get(),
                 'plainKey' => session('plain_api_key'),
+            ],
+            'webhooks' => [
+                'webhooks' => Webhook::query()->with(['created_by:id,name,code'])->latest('id')->get(),
+                'eventOptions' => WebhookEventCatalog::EVENT_KEYS,
+                'eventLabels' => WebhookEventCatalog::labels(),
+                // آخر 100 محاولة عبر كلّ الويب-هوكس معًا — أحدث ما جرى أوّلًا (12.15-ب)
+                'deliveries' => WebhookDelivery::query()
+                    ->with('webhook:id,name')
+                    ->latest('id')
+                    ->limit((int) setting('developers.webhooks.log_retention_count', 100))
+                    ->get(),
+                'plainSecret' => session('plain_webhook_secret'),
+                'plainSecretName' => session('plain_webhook_secret_name'),
             ],
             default => [],
         };
