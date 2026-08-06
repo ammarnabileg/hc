@@ -14,6 +14,7 @@ use App\Services\Developers\WebhookDispatcher;
 use App\Services\Developers\WebhookEventCatalog;
 use App\Services\Developers\WebhookService;
 use App\Services\Developers\WebhookSigner;
+use App\Services\Security\OtpService;
 use App\Support\Access\AccessEngine;
 use Database\Seeders\CoreSeeder;
 use Database\Seeders\RoleSeeder;
@@ -22,7 +23,6 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
-use Tests\Feature\Auth\RegistersThroughTwoScreens;
 use Tests\TestCase;
 
 /**
@@ -449,7 +449,7 @@ class WebhookManagementTest extends TestCase
         $this->post(route('register.verify.send'), ['email' => $email]);
         $code = decrypt(DB::table('security_otp_codes')
             ->where('email', $email)
-            ->where('purpose', \App\Services\Security\OtpService::PURPOSE_REGISTER)
+            ->where('purpose', OtpService::PURPOSE_REGISTER)
             ->value('code'), false);
         $this->post(route('register.verify.confirm'), ['email' => $email, 'code' => $code]);
 
@@ -463,6 +463,7 @@ class WebhookManagementTest extends TestCase
 
         $this->post('/register', [
             'step' => AuthController::STEP_IDENTITY,
+            'title' => 'السيد',
             'name_ar' => 'مستخدم ربط الويب هوك',
             'name_en' => 'Webhook Wiring User',
             'gender' => 'male',
