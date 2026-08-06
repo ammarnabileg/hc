@@ -3,6 +3,8 @@
 namespace Tests\Feature\Admin\Developers;
 
 use App\Models\ApiKey;
+use App\Models\Certificate;
+use App\Models\CertificateType;
 use App\Models\Course;
 use App\Models\Permission;
 use App\Models\User;
@@ -236,7 +238,7 @@ class ApiKeyManagementTest extends TestCase
     /** نفس استعلام صفحة التحقّق العامّة (مصدر حقيقةٍ واحد — 2.11) يُرجع حالةً حقيقيّة لا وهميّة */
     public function test_certificate_verification_endpoint_reports_the_real_status_for_a_known_code(): void
     {
-        $type = \App\Models\CertificateType::create([
+        $type = CertificateType::create([
             'key' => 'course-'.str()->random(6),
             'name_ar' => 'شهادة تدريب',
             'name_en' => 'Course certificate',
@@ -248,7 +250,7 @@ class ApiKeyManagementTest extends TestCase
             'code' => str()->upper(str()->random(8)),
             'status' => 'active',
         ]);
-        $certificate = \App\Models\Certificate::create([
+        $certificate = Certificate::create([
             'code' => 'CERT-'.str()->upper(str()->random(8)),
             'hash' => str()->random(40),
             'user_id' => $holder->id,
