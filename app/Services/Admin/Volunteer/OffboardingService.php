@@ -3,6 +3,7 @@
 namespace App\Services\Admin\Volunteer;
 
 use App\Models\ConsentRequest;
+use App\Models\Entity;
 use App\Models\Membership;
 use App\Models\Offboarding;
 use App\Models\Reentry;
@@ -80,10 +81,14 @@ class OffboardingService
      * فتح ملفّ إنهاء عضويّة.
      *
      * @param  array<int,bool>  $checklist  حالة بنود التصفية
+     * @param  ?Entity  $entity  ⭐ لـ«انتهاء كيان مؤقّت (ملفّ)» وحده — يحصر `complete()` إغلاق
+     *                           العضويّات بهذا الكيان دون سواه (23-0.2 · §1518 · §3813)، فمَن
+     *                           له عضويّة قسمٍ أخرى لا تُقفَل ظلمًا لمجرّد انتهاء ملفّه. وما عداه
+     *                           (استقالة/إقصاء) يبقى بلا تحديد — السلوك القديم: كلّ العضويّات.
      *
      * @throws RuntimeException عند نوعٍ غير مسموح أو إقصاءٍ بلا عتبة
      */
-    public static function open(User $target, string $type, ?string $reason, User $actor, array $checklist = []): Offboarding
+    public static function open(User $target, string $type, ?string $reason, User $actor, array $checklist = [], ?Entity $entity = null): Offboarding
     {
         if (! in_array($type, self::TYPE_KEYS, true)) {
             throw new RuntimeException(setting('volunteer_offboarding.offboarding_service.open_1', 'نوع الخروج غير معروف — الأنواع ثلاثة لا رابع لها.'));
@@ -98,6 +103,7 @@ class OffboardingService
 
         $record = Offboarding::create([
             'user_id' => $target->id,
+            'entity_id' => $entity?->id,
             'type' => $type,
             // ⭐ السبب لا يُنشَر للفريق — يبقى في الملاحظات الإداريّة وحدها
             'reason' => $reason,
@@ -161,18 +167,31 @@ class OffboardingService
          | وحلقتُه قائمة في سلسلة التصعيد، ولا شغور يُملأ — أي أنّ الإقصاء يصير
          | إجراءً بلا أثر على مَن هو وحده أهلٌ له.
          */
+        /*
+         | ⭐ **انتهاء كيان مؤقّت (ملفّ) يحصر الإغلاق بكيانه وحده** (23-0.2 ·
+         | §1518 · §3813): «إنهاء الملفّ فتُقفَل عضويّاته تلقائيًّا» — عضويّاته
+         | هو لا كلّ عضويّات صاحبها. فمَن له عضويّة قسمٍ أخرى معه لا تُقفَل
+         | ظلمًا لمجرّد أنّ ملفًّا شارك فيه انتهى. أمّا الاستقالة والإقصاء
+         | فيبقيان بلا تحديدٍ — السلوك القديم: كلّ العضويّات (`entity_id` هنا).
+         */
         $closing = Membership::query()
             ->where('user_id', $record->user_id)
             ->whereIn('status', self::CLOSABLE_STATUSES)
+            ->when($record->entity_id, fn ($q) => $q->where('entity_id', $record->entity_id))
             ->get();
 
         Membership::query()
             ->where('user_id', $record->user_id)
             ->whereIn('status', self::CLOSABLE_STATUSES)
+            ->when($record->entity_id, fn ($q) => $q->where('entity_id', $record->entity_id))
             ->update(['status' => 'ended', 'ended_at' => now(), 'end_reason' => $record->type]);
 
-        // ويُقفَل صفّ التعليق بسببه: تغطيةٌ مؤقّتة صارت شغورًا حقيقيًّا
-        if ($record->user) {
+        /*
+         | ⭐ إفراج التعليق حسابٌ كامل — لا يجوز أن يفكّه إغلاق ملفٍّ واحد فقط.
+         | فتعليق الحساب أثرٌ على المستخدم كلّه (12.2.1)، ولو فُكّ لمجرّد إغلاق
+         | كيانٍ مؤقّت واحد لعاد المعلَّق نشِطًا بقيّة عضويّاته بلا قرار لجنة.
+         */
+        if ($record->user && ! $record->entity_id) {
             app(SuspensionService::class)->release(
                 $record->user,
                 $actor,
@@ -216,8 +235,24 @@ class OffboardingService
             $issued = CertificateEligibility::issueExperience($user, $actor)['issued'];
         }
 
-        $revoked = $user ? self::revokeContactConsents($user) : 0;
-        $expiredCards = $user ? self::expireCards($user) : 0;
+        // ⭐ شهادة «مشاركة في ملفّ» (13.4-ع-3) — لكلّ عضويّة كيانٍ مؤقّت أُغلِقت هنا فعلًا
+        $caseFileCertificates = 0;
+
+        if ($record->type === 'entity_ended') {
+            foreach ($closing as $membership) {
+                if (CertificateEligibility::issueCaseFile($membership, $actor)['issued']) {
+                    $caseFileCertificates++;
+                }
+            }
+        }
+
+        /*
+         | ⭐ **الآثار الحسابيّة الكاملة (موافقات التواصل · انتهاء البطاقة) تخصّ
+         | خروجًا كاملًا لا إغلاق كيانٍ واحد** — فمَن له عضويّة قسمٍ نشِطة معه لا
+         | تُسحَب موافقاته ولا تنتهي بطاقته لمجرّد أنّ ملفًّا شارك فيه انتهى.
+         */
+        $revoked = $user && ! $record->entity_id ? self::revokeContactConsents($user) : 0;
+        $expiredCards = $user && ! $record->entity_id ? self::expireCards($user) : 0;
 
         $record->forceFill([
             'approved_by' => $actor->id,
@@ -227,9 +262,12 @@ class OffboardingService
         ])->save();
 
         if ($user) {
-            // الرسالة للفريق بلا سبب — «انتهت عضويّة فلان» فقط
+            // الرسالة للفريق بلا سبب — و«انتهى الملفّ» تختلف عن «انتهت عضويّتك» كاملةً
             Integrations::notify(
-                $user, 'account', setting('volunteer_offboarding.offboarding_service.complete_2', 'انتهت عضويّتك التطوّعيّة'),
+                $user, 'account',
+                $record->entity_id
+                    ? (string) setting('volunteer_offboarding.offboarding_service.complete_3', 'انتهى ملفّك التطوّعيّ')
+                    : setting('volunteer_offboarding.offboarding_service.complete_2', 'انتهت عضويّتك التطوّعيّة'),
                 str_replace('{name}', $user->name, (string) setting('volunteer.offboarding.team_message', '')),
                 null, 'platform',
             );
@@ -238,6 +276,7 @@ class OffboardingService
         AuditTrail::log($actor, 'offboarding.complete', $record, [], [
             'honorable' => $honorable,
             'experience_certificate_issued' => $issued,
+            'case_file_certificates_issued' => $caseFileCertificates,
             'consents_revoked' => $revoked,
             'cards_expired' => $expiredCards,
         ]);

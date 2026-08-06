@@ -31,6 +31,12 @@ class Offboarding extends Model
         return $this->belongsTo(User::class, 'user_id');
     }
 
+    /** الكيان — لـ«انتهاء كيان مؤقّت (ملفّ)» وحده؛ null = كلّ عضويّات المستخدم (استقالة/إقصاء) */
+    public function entity(): BelongsTo
+    {
+        return $this->belongsTo(Entity::class);
+    }
+
     public function initiated_by(): BelongsTo
     {
         return $this->belongsTo(User::class, 'initiated_by');

@@ -248,6 +248,7 @@ class HttpTextDemoSeeder extends Seeder
             ['volunteer_org.admin.save_entity_ok', 'volunteer_org', 'saveEntity() — اتحفظ ✓', 'اتحفظ ✓'],
             ['volunteer_org.admin.archive_entity_msg', 'volunteer_org', 'archiveEntity() — إنهاء الملفّ المؤقّت لمشرف عام التطوّع وحده.', 'إنهاء الملفّ المؤقّت لمشرف عام التطوّع وحده.'],
             ['volunteer_org.admin.archive_entity_ok', 'volunteer_org', 'archiveEntity() — اتأرشف الكيان ✓ — وعضويّاته تُقفَل بمسار الأوفبوردنج.', 'اتأرشف الكيان ✓ — وعضويّاته تُقفَل بمسار الأوفبوردنج.'],
+            ['volunteer_org.admin.archive_entity_ok_cascaded', 'volunteer_org', 'archiveEntity() — اتأرشف الكيان ✓ — وأُقفلت :a1 عضويّة تلقائيًّا بمسار الأوفبوردنج.', 'اتأرشف الكيان ✓ — وأُقفلت :a1 عضويّة تلقائيًّا بمسار الأوفبوردنج.'],
             ['volunteer_org.admin.save_positions_ok', 'volunteer_org', 'savePositions() — اتحفظ ✓ — والسعة مؤشّرات لا موانع.', 'اتحفظ ✓ — والسعة مؤشّرات لا موانع.'],
             ['volunteer_org.admin.save_settings_ok', 'volunteer_org', 'saveSettings() — اتحفظ ✓', 'اتحفظ ✓'],
             ['volunteer_org.admin.save_override_ok', 'volunteer_org', 'saveOverride() — اتحفظ الـOverride للكيان ✓', 'اتحفظ الـOverride للكيان ✓'],

@@ -11,6 +11,7 @@ use App\Models\Track;
 use App\Models\User;
 use App\Services\Admin\Volunteer\AuditTrail;
 use App\Services\Admin\Volunteer\CapacityReport;
+use App\Services\Admin\Volunteer\OffboardingService;
 use App\Services\Admin\Volunteer\SettingsWriter;
 use App\Services\Volunteer\Org\PromotionLadder;
 use App\Support\Access\AccessEngine;
@@ -139,7 +140,48 @@ class OrgAdminController extends Controller
 
         AuditTrail::log($request->user(), 'entity.archive', $entity);
 
-        return back()->with('status', (string) setting('volunteer_org.admin.archive_entity_ok', 'اتأرشف الكيان ✓ — وعضويّاته تُقفَل بمسار الأوفبوردنج.'));
+        /*
+         | ⭐ «إنهاء الملفّ فتُقفَل عضويّاته تلقائيًّا» (§1518 · §3054 · §3813) —
+         | لا اثنتا عشرة خطوةً يدويّة لكلّ عضوٍ، بل مسار أوفبوردنج آليّ محصورٌ
+         | بهذا الكيان وحده لكلٍّ منهم (لا يمسّ عضويّاتهم الأخرى).
+         */
+        $closed = $entity->track?->is_temporary ? $this->closeCaseFileMemberships($entity, $request->user()) : 0;
+
+        return back()->with('status', $closed
+            ? strtr((string) setting('volunteer_org.admin.archive_entity_ok_cascaded', 'اتأرشف الكيان ✓ — وأُقفلت :a1 عضويّة تلقائيًّا بمسار الأوفبوردنج.'), [':a1' => (string) $closed])
+            : (string) setting('volunteer_org.admin.archive_entity_ok', 'اتأرشف الكيان ✓ — وعضويّاته تُقفَل بمسار الأوفبوردنج.'));
+    }
+
+    /**
+     * ⭐ إغلاق آليّ لكلّ عضويّات الملفّ المؤقّت لحظة أرشفته — أوفبوردنج
+     * `entity_ended` مفتوحٌ ومكتمَلٌ فورًا لكلّ عضوٍ، محصورًا بهذا الكيان
+     * وحده (لا تُمَسّ عضويّاتهم الأخرى — 23-0.2). وبنود التصفية تُعلَّم
+     * منجَزةً: هذا إجراءٌ نظاميّ بقرار مشرف عام التطوّع لا مراجعةً فرديّة.
+     */
+    private function closeCaseFileMemberships(Entity $entity, User $actor): int
+    {
+        $userIds = Membership::query()
+            ->where('entity_id', $entity->id)
+            ->whereIn('status', OffboardingService::CLOSABLE_STATUSES)
+            ->pluck('user_id')
+            ->unique();
+
+        $checklist = array_fill(0, count(OffboardingService::clearanceItems()), true);
+        $closed = 0;
+
+        foreach ($userIds as $userId) {
+            $user = User::find($userId);
+
+            if (! $user) {
+                continue;
+            }
+
+            $record = OffboardingService::open($user, 'entity_ended', null, $actor, $checklist, $entity);
+            OffboardingService::complete($record->fresh(), $actor);
+            $closed++;
+        }
+
+        return $closed;
     }
 
     // ------------------------------------------------------------ البوزشنز والسعة

@@ -293,6 +293,117 @@ class CertificateEligibility
     }
 
     /**
+     * ⭐ **مشاركة في ملفّ** (13.4-ع-3) — «عند إنهاء كيان مؤقّت شارك فيه فعليًّا»
+     * (§1518 · §3054 · §3813). عضويّةٌ واحدة (لا حساب المستخدم كلّه)، بنفس
+     * لقطة شهادة البوزشن (§ع-ج: البوزشن · الكيان · المدّة · نطاق المسؤوليّة) —
+     * ونفس شرطَي §ع-ب العامّين (المدّة والRep غير السالب) حمايةً من التضخّم،
+     * لا `alreadyIssued()` الخاصّة بالبوزشن (تقيس نوعًا آخر بمصادفة أعمدة
+     * مشتركة لا علاقة حقيقيّة) — فمنعُ التكرار هنا من `CertificateIssuer`
+     * نفسه (نفس المستخدم + نفس النوع + نفس العضويّة كـ`subject`).
+     *
+     * @return array{issued:bool,reason:?string,certificate:?Certificate}
+     */
+    public static function issueCaseFile(Membership $membership, ?User $actor = null): array
+    {
+        $flags = setting('volunteer_cert.types', []);
+
+        if (is_array($flags) && array_key_exists('volunteer_case_file', $flags) && ! $flags['volunteer_case_file']) {
+            return ['issued' => false, 'reason' => setting('volunteer_cert.certificate_eligibility.issue_case_file_1', 'نوع شهادة الملفّ موقوف من الإعدادات.'), 'certificate' => null];
+        }
+
+        $type = CertificateType::query()->where('key', 'volunteer_case_file')->first();
+
+        if (! $type) {
+            return ['issued' => false, 'reason' => setting('volunteer_cert.certificate_eligibility.issue_case_file_2', 'نوع شهادة الملفّ غير مُعرَّف.'), 'certificate' => null];
+        }
+
+        $check = self::caseFileEligibility($membership);
+
+        if (! $check['eligible']) {
+            return ['issued' => false, 'reason' => $check['reason'], 'certificate' => null];
+        }
+
+        $membership->loadMissing(['user', 'entity', 'position']);
+        $start = $membership->started_at ?? $membership->created_at;
+        $end = $membership->ended_at ?? now();
+
+        $snapshot = [
+            'position_id' => $membership->position_id,
+            'position' => $membership->position?->name_ar,
+            'entity_id' => $membership->entity_id,
+            'entity' => $membership->entity?->name_ar,
+            'from' => $start?->toDateString(),
+            'to' => $end?->toDateString(),
+            'days' => $check['days'],
+            'team_size' => $membership->id
+                ? Membership::query()->where('upline_id', $membership->id)->where('status', 'active')->count()
+                : 0,
+        ];
+
+        $certificate = self::issueViaIssuer($membership, $type, $snapshot, $actor);
+
+        if (! $certificate) {
+            return ['issued' => false, 'reason' => self::issuerFailureReason(), 'certificate' => null];
+        }
+
+        if ((bool) setting('volunteer_cert.notify_on_issue', true) && $membership->user) {
+            Integrations::notify(
+                $membership->user, 'certificate',
+                (string) setting('volunteer_cert.case_file.notify_title', 'صدرت شهادة مشاركتك في الملفّ 🎖️'),
+                strtr((string) setting('volunteer_cert.case_file.notify_body', 'شكرًا لمشاركتك في :p1.'), [':p1' => (string) ($membership->entity?->name_ar ?? '')]),
+                null, 'volunteer',
+            );
+        }
+
+        AuditTrail::log($actor, 'volunteer_certificate.case_file_issued', $certificate, [], [
+            'membership_id' => $membership->id,
+        ]);
+
+        return ['issued' => true, 'reason' => null, 'certificate' => $certificate];
+    }
+
+    /**
+     * ⭐ استحقاق شهادة الملفّ — شرطا §ع-ب العامّان (المدّة والRep غير السالب)
+     * وحدهما، **بلا** `alreadyIssued()`: تلك تقيس تكرار شهادة **البوزشن**
+     * تحديدًا (`certificate_type_id` مقفولٌ على `volunteer_position`)، وإعادة
+     * استخدامها هنا كانت ستربط استحقاق شهادة الملفّ خطأً بوجود شهادة بوزشنٍ
+     * سابقة لنفس التوليفة — عمودان مشتركان بالمصادفة لا قاعدة عملٍ حقيقيّة.
+     * ومنع تكرار شهادة الملفّ نفسها متروكٌ لـ`CertificateIssuer::issue()`.
+     *
+     * @return array{eligible:bool,days:int,reason:?string}
+     */
+    private static function caseFileEligibility(Membership $membership): array
+    {
+        $start = $membership->started_at ?? $membership->created_at;
+        $end = $membership->ended_at ?? now();
+        $days = $start ? (int) $start->diffInDays($end) : 0;
+        $minDays = self::minDays($membership->position?->key);
+
+        if ($days < $minDays) {
+            return [
+                'eligible' => false,
+                'days' => $days,
+                'reason' => strtr(setting('volunteer_cert.certificate_eligibility.case_file_check_1', 'المدّة في الملفّ :p1 يومًا، والمطلوب :p2 يومًا على الأقلّ.'), [':p1' => (string) ($days), ':p2' => (string) ($minDays)]),
+            ];
+        }
+
+        if ((bool) setting('volunteer_cert.require_non_negative_rep', true)) {
+            $user = $membership->user;
+            $rep = $user ? Integrations::balance($user, BehaviorLedger::REP) : 0.0;
+
+            if ($rep < 0) {
+                return [
+                    'eligible' => false,
+                    'days' => $days,
+                    'reason' => strtr(setting('volunteer_cert.certificate_eligibility.case_file_check_2', 'درجة الالتزام سالبة الآن (:p1) — الشهادة تتطلّب رقمًا غير سالب.'), [':p1' => (string) (number_format($rep, 2))]),
+                ];
+            }
+        }
+
+        return ['eligible' => true, 'days' => $days, 'reason' => null];
+    }
+
+    /**
      * ⭐ **تقدير استثنائيّة** (13.4-ع-4) — النوع الوحيد **الذي يُمنَح يدويًّا
      * بمبرّر** («مشرف الشهر · نادي +9.5 · إنجاز خاصّ»)، ومتكرّرٌ بطبيعته: نفس
      * الشخص قد يستحقّها مرارًا لإنجازاتٍ مختلفة — فتمرّ **بلا Dedup الافتراضيّ**
