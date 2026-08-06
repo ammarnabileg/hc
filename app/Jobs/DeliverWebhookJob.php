@@ -11,6 +11,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Throwable;
 
@@ -74,14 +75,28 @@ class DeliverWebhookJob implements ShouldQueue
                 'next_retry_at' => null,
             ])->save();
 
-            $webhook->fill([
+            Webhook::whereKey($webhook->id)->update([
                 'last_triggered_at' => now(),
                 'last_response_code' => $responseCode,
                 'consecutive_failures' => 0,
-            ])->save();
+            ]);
 
             return;
         }
+
+        /*
+         | ⭐ **تحديثٌ ذرّيّ (`consecutive_failures + 1` في SQL نفسه) لا قراءة-ثمّ-كتابة**:
+         | هذا التحديث يقع **قبل** إعادة الجدولة المتعاودة أدناه — والإعادة تحت
+         | `QUEUE_CONNECTION=sync` تُنفَّذ **فورًا ومتداخلة** (job جديدة تُشتغَّل
+         | قبل أن تعود هذه للسطر التالي)، فأيّ قراءةٍ سابقة لِـ`$webhook` هنا
+         | تصير قيمةً بائتة (Stale) بمجرّد أن تكتب الاستدعاءات المتداخلة فوقها.
+         | التحديث الذرّيّ يتجنّب فقدان أيّ زيادةٍ مهما كان ترتيب التنفيذ.
+         */
+        Webhook::whereKey($webhook->id)->update([
+            'last_triggered_at' => now(),
+            'last_response_code' => $responseCode,
+            'consecutive_failures' => DB::raw('consecutive_failures + 1'),
+        ]);
 
         $maxRetries = max(1, (int) setting('developers.webhooks.max_retries', 3));
 
@@ -104,12 +119,6 @@ class DeliverWebhookJob implements ShouldQueue
                 'next_retry_at' => null,
             ])->save();
         }
-
-        $webhook->fill([
-            'last_triggered_at' => now(),
-            'last_response_code' => $responseCode,
-            'consecutive_failures' => $webhook->consecutive_failures + 1,
-        ])->save();
     }
 
     /** تأخير الإعادة بحسب رقم المحاولة الفاشلة — `1,2,3 ⟵ الفهرس 0,1,2` مع ارتدادٍ لآخر قيمة إن قصرت القائمة */
