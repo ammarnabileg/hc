@@ -1926,6 +1926,8 @@ APP_DEBUG=false
             ['volunteer.promotion_ladder.notify_confirmed_title', 'volunteer_org', 'اتثبّتّ في البوزشن ✓', 'string', 'اتثبّتّ في البوزشن ✓', false],
             ['volunteer.promotion_ladder.notify_confirmed_body', 'volunteer_org', 'الاعتماد وصل — البوزشن بتاعك ثابت دلوقتي.', 'string', 'الاعتماد وصل — البوزشن بتاعك ثابت دلوقتي.', false],
             ['volunteer.promotion_ladder.notify_rejected_title', 'volunteer_org', 'رُدّ اعتماد القائم بأعمال', 'string', 'رُدّ اعتماد القائم بأعمال', false],
+            ['volunteer.promotion_ladder.notify_track_vacancy_title', 'volunteer_org', 'شغور مشرف مسار — بانتظار ملئك', 'string', 'شغور مشرف مسار — بانتظار ملئك', false],
+            ['volunteer.promotion_ladder.notify_track_vacancy_body', 'volunteer_org', 'رفعتُ دايركتورات المسار إليك مؤقّتًا — املأه بكودٍ مباشر أو مرشّح السلّم.', 'string', 'رفعتُ دايركتورات المسار إليك مؤقّتًا — املأه بكودٍ مباشر أو مرشّح السلّم.', false],
 
             // ---------------- volunteer_page
             ['volunteer_page.settings_catalog.volunteer_page_1', 'volunteer_page', 'عنوان صفحة التطوّع', 'string', 'عنوان صفحة التطوّع', false],

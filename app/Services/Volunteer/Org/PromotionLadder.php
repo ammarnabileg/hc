@@ -37,9 +37,12 @@ use Illuminate\Support\Facades\DB;
  * البشريّ (`confirmActing`/`rejectActing`) — ودرجاته المكتسَبة في الفترة
  * تُحسَب له عاديًّا حتى لو رُدَّ الاعتماد، لأنّها مجرّد صفوف Rep/VXP عاديّة.
  *
- * ⛔ **مشرف عام المسار** (رتبة 5) وما فوقه **مستثنيان من هذه الخدمة عمدًا**:
- * شغورهما مسارٌ مختلف كليًّا (تصعيدٌ مؤقّت لمشرف عام التطوّع + تعيينٌ يدويّ
- * بأحد مسارين) — زيادةٌ منفصلة موثَّقة في الـBacklog، لا تُخلَط هنا.
+ * ⛔ **مشرف عام المسار** (رتبة 5) مستثنًى من الترقية الفوريّة — «قاعدة
+ * نهائيّة» (23-0.2): شغوره يرفع دايركتورات المسار **مؤقّتًا** لعضويّة
+ * مشرف عام التطوّع نفسه (`escalateTrackVacancy`)، ثمّ يملؤه هو بأحد
+ * مسارين — كودٌ مباشر، أو مرشّح السلّم بمعاينة كاملة — ولا تصعيد إلّا
+ * بموافقته النهائيّة (`resolveTrackVacancy`). **ومشرف عام التطوّع نفسه**
+ * (رتبة 6) خارج هذه الخدمة كليًّا — لا نصّ يحكم شغوره.
  *
  * والشغور **الثانويّ** الناتج عن ترقية الفائز نفسه (بوزشنه القديم يصير
  * شاغرًا بدوره) يُملأ بنفس المنطق **تكراريًّا** — بحارس عمقٍ يمنع أيّ حلقة
@@ -53,8 +56,11 @@ class PromotionLadder
     /** رتبة الدايركتور — الوحيدة التي تحتاج اعتمادًا بشريًّا («قائم بأعمال») */
     private const APPROVAL_RANK = 4;
 
-    /** مشرف عام المسار فما فوق — خارج هذه الخدمة (استثناء منصوص) */
-    private const EXCLUDED_MIN_RANK = 5;
+    /** مشرف عام المسار — استثناءٌ منصوص: تصعيدٌ مؤقّت لمشرف عام التطوّع لا ترقية فوريّة */
+    private const TRACK_SUPERVISOR_RANK = 5;
+
+    /** مشرف عام التطوّع — أعلى السلّم، خارج هذه الخدمة كليًّا (لا نصّ يحكم شغوره) */
+    private const GM_RANK = 6;
 
     private const VXP = 'vxp';
 
@@ -142,14 +148,18 @@ class PromotionLadder
 
         $rank = (int) $position->rank;
 
-        if ($rank >= self::EXCLUDED_MIN_RANK) {
+        if ($rank >= self::GM_RANK) {
             return null;
+        }
+
+        if ($rank === self::TRACK_SUPERVISOR_RANK) {
+            return $this->escalateTrackVacancy($vacated, $actor);
         }
 
         $result = $this->rank($vacated, $excludeUserIds);
 
         if ($result['tie']) {
-            $this->recordTie($vacated, $result['candidates']);
+            $this->recordDecision($vacated, $result['candidates'], 'tie');
 
             return ['outcome' => 'tie', 'vacated_membership_id' => $vacated->id];
         }
@@ -288,7 +298,144 @@ class PromotionLadder
         return $this->fillVacancy($vacated, $decidedBy, $excludeUserIds);
     }
 
+    /**
+     * ⭐ شغور مشرف عام المسار (رتبة 5 — استثناءٌ منصوص، 23-0.2): **لا ترقية
+     * فوريّة**. دايركتورات المسار يرفعون **مؤقّتًا** لعضويّة مشرف عام
+     * التطوّع نفسه — فيقوم هو بدور مشرف المسار حتى الملء — ويُسجَّل قرارٌ
+     * بمرشّحي السلّم (دايركتورات المسار) لمعاينته، دون تصعيدٍ آليّ لأيٍّ منهم.
+     */
+    public function escalateTrackVacancy(Membership $vacated, ?User $actor = null): ?array
+    {
+        $gmMembership = $this->activeGmMembership();
+
+        if (! $gmMembership) {
+            return null;
+        }
+
+        Membership::query()
+            ->where('upline_id', $vacated->id)
+            ->where('status', 'active')
+            ->update(['upline_id' => $gmMembership->id]);
+
+        $preview = $this->rank($vacated);
+        $decision = $this->recordDecision($vacated, $preview['candidates'], 'track_vacancy');
+
+        AuditTrail::log($actor, 'promotion_ladder.track_escalated', $decision, [], [
+            'vacated_membership_id' => $vacated->id,
+            'gm_membership_id' => $gmMembership->id,
+        ]);
+
+        if ($gmMembership->user) {
+            Integrations::notify(
+                $gmMembership->user, 'volunteer',
+                (string) setting('volunteer.promotion_ladder.notify_track_vacancy_title', 'شغور مشرف مسار — بانتظار ملئك'),
+                (string) setting('volunteer.promotion_ladder.notify_track_vacancy_body', 'رفعتُ دايركتورات المسار إليك مؤقّتًا — املأه بكودٍ مباشر أو مرشّح السلّم.'),
+                null, 'volunteer',
+            );
+        }
+
+        return ['outcome' => 'track_escalated', 'vacated_membership_id' => $vacated->id, 'decision_id' => $decision->id];
+    }
+
+    /**
+     * ⭐ ملء شغور مشرف عام المسار — قرار مشرف عام التطوّع النهائيّ وحده
+     * (23-0.2): مرشّحٌ من معاينة السلّم، أو أيّ شخصٍ آخر بكودٍ مباشر —
+     * ولا فرق هنا بين المسارين، فكلاهما «موافقته النهائيّة» شرطًا وحيدًا.
+     * ولو كان الفائز دايركتورًا حاليًّا في المسار، شغوره القديم يُملأ تكراريًّا.
+     */
+    public function resolveTrackVacancy(PromotionDecision $decision, User $winnerUser, User $decidedBy, string $reason): ?array
+    {
+        $vacated = $decision->vacatedMembership;
+
+        if (! $vacated) {
+            return null;
+        }
+
+        $vacated->loadMissing('entity');
+        $trackId = $vacated->entity?->track_id;
+
+        $decision->forceFill([
+            'status' => 'decided',
+            'decided_by' => $decidedBy->id,
+            'decision_user_id' => $winnerUser->id,
+            'reason' => $reason,
+            'decided_at' => now(),
+        ])->save();
+
+        return DB::transaction(function () use ($vacated, $trackId, $winnerUser, $decidedBy) {
+            $assigner = app(PositionRoleAssigner::class);
+
+            $newMembership = Membership::create([
+                'user_id' => $winnerUser->id,
+                'entity_id' => $vacated->entity_id,
+                'position_id' => $vacated->position_id,
+                'upline_id' => $vacated->upline_id,
+                'is_primary' => true,
+                'is_acting' => false,
+                'started_at' => now(),
+                'status' => 'active',
+            ]);
+
+            $assigner->grant($newMembership, $decidedBy->id);
+
+            // دايركتورات المسار المرفوعون مؤقّتًا لمشرف عام التطوّع يتبعون البوزشن الجديد الآن
+            $gmMembership = $this->activeGmMembership();
+
+            if ($gmMembership) {
+                Membership::query()
+                    ->where('upline_id', $gmMembership->id)
+                    ->where('status', 'active')
+                    ->whereHas('position', fn ($q) => $q->where('key', 'director'))
+                    ->when($trackId, fn ($q) => $q->whereHas('entity', fn ($e) => $e->where('track_id', $trackId)))
+                    ->update(['upline_id' => $newMembership->id]);
+            }
+
+            // الفائز إن كان دايركتورًا حاليًّا في نفس المسار: بوزشنه القديم يشغر بدوره ويُملأ تكراريًّا
+            $winnerOldMembership = Membership::query()
+                ->where('user_id', $winnerUser->id)
+                ->where('status', 'active')
+                ->where('id', '!=', $newMembership->id)
+                ->whereHas('position', fn ($q) => $q->where('key', 'director'))
+                ->when($trackId, fn ($q) => $q->whereHas('entity', fn ($e) => $e->where('track_id', $trackId)))
+                ->first();
+
+            if ($winnerOldMembership) {
+                $winnerOldMembership->forceFill(['status' => 'ended', 'ended_at' => now(), 'end_reason' => 'promotion'])->save();
+                $assigner->revoke($winnerOldMembership);
+                $this->fillVacancy($winnerOldMembership, $decidedBy);
+            }
+
+            AuditTrail::log($decidedBy, 'promotion_ladder.track_resolved', $newMembership, [], [
+                'vacated_membership_id' => $vacated->id,
+                'winner_user_id' => $winnerUser->id,
+            ]);
+
+            Integrations::notify(
+                $winnerUser, 'volunteer',
+                (string) setting('volunteer.promotion_ladder.notify_title', 'مبروك الترقية 🎖️'),
+                (string) setting('volunteer.promotion_ladder.notify_body', 'سلّم الترقية رشّحك واستلمت البوزشن فورًا.'),
+                null, 'volunteer',
+            );
+
+            return [
+                'outcome' => 'promoted',
+                'membership_id' => $newMembership->id,
+                'user_id' => $winnerUser->id,
+                'vacated_membership_id' => $vacated->id,
+            ];
+        });
+    }
+
     // ------------------------------------------------------------------ داخليّ
+
+    private function activeGmMembership(): ?Membership
+    {
+        return Membership::query()
+            ->where('status', 'active')
+            ->whereHas('position', fn ($q) => $q->where('key', 'volunteer_gm'))
+            ->with('user')
+            ->first();
+    }
 
     /** نوافذ كسر التعادل المتناقصة — إعداد لا رقمٌ محروق (القاعدة الذهبيّة 2.13) */
     private function tiebreakWindows(): array
@@ -321,12 +468,13 @@ class PromotionLadder
         return 0;
     }
 
-    private function recordTie(Membership $vacated, array $candidates): void
+    private function recordDecision(Membership $vacated, array $candidates, string $kind): PromotionDecision
     {
-        PromotionDecision::create([
+        return PromotionDecision::create([
             'vacated_membership_id' => $vacated->id,
             'entity_id' => $vacated->entity_id,
             'position_id' => $vacated->position_id,
+            'kind' => $kind,
             'candidate_user_ids' => array_map(fn (array $row) => $row['user']->id, $candidates),
             'status' => 'awaiting_decision',
         ]);

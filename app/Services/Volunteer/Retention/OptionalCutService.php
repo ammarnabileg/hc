@@ -11,6 +11,7 @@ use App\Services\Admin\Volunteer\AuditTrail;
 use App\Services\Notifications\Notifier;
 use App\Services\Volunteer\Escalation\FlowLedger;
 use App\Services\Volunteer\Goals\RepService;
+use App\Services\Volunteer\Org\PromotionLadder;
 use App\Services\Volunteer\People\PositionRoleAssigner;
 use App\Services\Volunteer\Tasks\NoDeliverySweeper;
 use App\Services\Volunteer\Tasks\TaskStatus;
@@ -66,6 +67,7 @@ class OptionalCutService
         private readonly RepService $rep,
         private readonly NoDeliverySweeper $noDelivery,
         private readonly PositionRoleAssigner $roles,
+        private readonly PromotionLadder $ladder,
     ) {}
 
     // ------------------------------------------------------------------ القراءة
@@ -257,6 +259,16 @@ class OptionalCutService
             ])->save();
 
             $this->roles->revoke($membership);
+
+            /*
+             | ⭐ **لا فترة شغور أصلًا** (القسم 0 · 23-0.2) هنا أيضًا: العضويّة
+             | الاختياريّة المبتورة قد تكون بوزشنًا لداونلاينَ حقيقيّ (محافظة/
+             | ملفّ لهما هرمهما الخاصّ). و`fillVacancy` **لا تكتب حركة Rep ولا
+             | VXP إطلاقًا** (عضويّات وأدوار وإشعارات فقط) — فلا تُعيد فتح حلقة
+             | `afterRepMovement()` الموثَّقة أعلاه؛ الحارس هناك يخصّ حركات
+             | الرصيد وحدها، وهذا الاستدعاء ليس منها.
+             */
+            $this->ladder->fillVacancy($membership, null);
         }
 
         // ⚠️ VXP لا يُمَسّ هنا بحرفٍ واحد: «نقاط الإنتاج (VXP) **تبقى كاملة**».

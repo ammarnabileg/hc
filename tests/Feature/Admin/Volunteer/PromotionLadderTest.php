@@ -211,19 +211,117 @@ class PromotionLadderTest extends AdminVolunteerTestCase
     }
 
     /** ⭐ مشرف عام المسار مستثنًى صراحةً — لا ترقية آليّة ولا قرار تلقائيّ */
-    public function test_track_supervisor_vacancy_is_excluded_from_the_automatic_ladder(): void
+    /** ⭐ شغور مشرف عام المسار: لا ترقية آليّة، بل تصعيدٌ مؤقّت لمشرف عام التطوّع */
+    public function test_track_supervisor_vacancy_escalates_to_the_gm_instead_of_auto_promoting(): void
     {
         $gm = $this->membership($this->makeUser('مشرف عام'), 'volunteer_gm');
         $trackSupervisor = $this->membership($this->makeUser('مشرف مسار'), 'track_supervisor', $gm);
         $director = $this->makeUser('دايركتور تحت المسار');
-        $this->membership($director, 'director', $trackSupervisor);
+        $directorM = $this->membership($director, 'director', $trackSupervisor);
 
         $vacated = $this->endMembership($trackSupervisor);
         $result = app(PromotionLadder::class)->fillVacancy($vacated);
 
-        $this->assertNull($result);
-        $this->assertSame(0, PromotionDecision::query()->count());
-        $this->assertSame('active', Membership::where('user_id', $director->id)->value('status'));
+        $this->assertSame('track_escalated', $result['outcome']);
+        $this->assertSame(1, PromotionDecision::query()->where('kind', 'track_vacancy')->count());
+
+        // الدايركتور لم يترقَّ آليًّا — لكنّه صار يتبع مشرف عام التطوّع مؤقّتًا
+        $this->assertSame('active', $directorM->fresh()->status);
+        $this->assertSame($gm->id, $directorM->fresh()->upline_id);
+    }
+
+    /** حسم شغور المسار بمرشّح من معاينة السلّم — يترقّى، وشغوره القديم يُملأ تكراريًّا */
+    public function test_resolving_a_track_vacancy_with_a_ladder_candidate_promotes_them_and_cascades(): void
+    {
+        $gmUser = $this->makeUser('مشرف عام');
+        $gm = $this->membership($gmUser, 'volunteer_gm');
+        $trackSupervisor = $this->membership($this->makeUser('مشرف مسار'), 'track_supervisor', $gm);
+        $director = $this->makeUser('دايركتور مرشّح');
+        $directorM = $this->membership($director, 'director', $trackSupervisor);
+        $teamLeader = $this->makeUser('تيم ليدر تحت الدايركتور');
+        $teamLeaderM = $this->membership($teamLeader, 'team_leader', $directorM);
+
+        $ladder = app(PromotionLadder::class);
+        $ladder->fillVacancy($this->endMembership($trackSupervisor));
+        $decision = PromotionDecision::where('kind', 'track_vacancy')->firstOrFail();
+
+        $result = $ladder->resolveTrackVacancy($decision, $director, $gmUser, 'أقدم دايركتورات المسار وأعلاهم Rep.');
+
+        $this->assertSame('promoted', $result['outcome']);
+        $this->assertTrue(Membership::where('user_id', $director->id)->where('status', 'active')
+            ->whereHas('position', fn ($q) => $q->where('key', 'track_supervisor'))->exists());
+
+        // بوزشن الدايركتور القديم شغَرَ وامتلأ تكراريًّا بالتيم ليدر تحته
+        $this->assertSame('ended', $directorM->fresh()->status);
+        $this->assertTrue(Membership::where('user_id', $teamLeader->id)->where('status', 'active')
+            ->whereHas('position', fn ($q) => $q->where('key', 'director'))->exists());
+    }
+
+    /** حسم شغور المسار بكودٍ مباشر — شخصٌ من خارج قائمة المرشّحين تمامًا */
+    public function test_resolving_a_track_vacancy_with_a_direct_code_pick_works_even_outside_the_candidates(): void
+    {
+        $gmUser = $this->makeUser('مشرف عام');
+        $gm = $this->membership($gmUser, 'volunteer_gm');
+        $trackSupervisor = $this->membership($this->makeUser('مشرف مسار'), 'track_supervisor', $gm);
+        $this->membership($this->makeUser('دايركتور تحت المسار'), 'director', $trackSupervisor);
+
+        $outsider = $this->makeUser('مُصعَّد بالكود مباشرةً');
+
+        $ladder = app(PromotionLadder::class);
+        $ladder->fillVacancy($this->endMembership($trackSupervisor));
+        $decision = PromotionDecision::where('kind', 'track_vacancy')->firstOrFail();
+
+        $result = $ladder->resolveTrackVacancy($decision, $outsider, $gmUser, 'تصعيدٌ مباشر بقرار مشرف عام التطوّع.');
+
+        $this->assertSame('promoted', $result['outcome']);
+        $this->assertSame($outsider->id, $result['user_id']);
+    }
+
+    /** حسم شغور المسار عبر الواجهة الإداريّة بالكود — HTTP كاملة */
+    public function test_admin_can_resolve_a_track_vacancy_via_the_http_action(): void
+    {
+        $gmUser = $this->grant($this->makeUser('مشرف عام'), 'promotion_ladder.approve');
+        $gm = $this->membership($gmUser, 'volunteer_gm');
+        $trackSupervisor = $this->membership($this->makeUser('مشرف مسار'), 'track_supervisor', $gm);
+        $this->membership($this->makeUser('دايركتور تحت المسار'), 'director', $trackSupervisor);
+
+        app(PromotionLadder::class)->fillVacancy($this->endMembership($trackSupervisor));
+        $decision = PromotionDecision::where('kind', 'track_vacancy')->firstOrFail();
+
+        $outsider = $this->makeUser('مُصعَّد بالكود عبر الواجهة');
+
+        $this->actingAs($gmUser)
+            ->post(route('admin.volunteer.org.promotion-ladder.resolve-track', $decision), [
+                'winner_code' => $outsider->code,
+                'reason' => 'كفاءته مثبَتة في مسارٍ مشابه سابقًا.',
+            ])
+            ->assertRedirect();
+
+        $this->assertSame('decided', $decision->fresh()->status);
+        $this->assertTrue(Membership::where('user_id', $outsider->id)->where('status', 'active')
+            ->whereHas('position', fn ($q) => $q->where('key', 'track_supervisor'))->exists());
+    }
+
+    /** حسم شغور المسار لا يعمل عبر مسار حسم التعادل، والعكس — الأنواع منفصلة */
+    public function test_decide_tie_and_resolve_track_routes_reject_the_wrong_decision_kind(): void
+    {
+        $director = $this->membership($this->makeUser('دايركتور'), 'director');
+        $a = $this->makeUser('متعادل أ');
+        $b = $this->makeUser('متعادل ب');
+        $this->membership($a, 'supervisor', $director);
+        $this->membership($b, 'supervisor', $director);
+
+        app(PromotionLadder::class)->fillVacancy($this->endMembership($director));
+        $tieDecision = PromotionDecision::where('kind', 'tie')->firstOrFail();
+
+        $admin = $this->grant($this->makeUser(), 'promotion_ladder.approve');
+
+        $this->actingAs($admin)
+            ->post(route('admin.volunteer.org.promotion-ladder.resolve-track', $tieDecision), [
+                'winner_code' => $a->code,
+                'reason' => 'محاولة استخدام المسار الخطأ.',
+            ])
+            ->assertNotFound();
     }
 
     // ------------------------------------------------------------ التعادل الكامل

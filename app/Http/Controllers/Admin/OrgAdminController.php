@@ -73,7 +73,8 @@ class OrgAdminController extends Controller
                 ->where('is_acting', true)
                 ->latest('started_at')
                 ->get(),
-            'tieDecisions' => PromotionDecision::query()
+            // ⭐ نوعان يشتركان الجدول: 'tie' (تعادلٌ كامل) و'track_vacancy' (شغور مشرف عام مسار — 23-0.2)
+            'pendingDecisions' => PromotionDecision::query()
                 ->tap(fn ($q) => app(ScopeFilter::class)->apply($q, $request->user(), 'org_chart.view', null, 'entity_id'))
                 ->with(['entity:id,name_ar', 'position'])
                 ->where('status', 'awaiting_decision')
@@ -289,7 +290,7 @@ class OrgAdminController extends Controller
     /** ⭐ حسم تعادلٍ كامل — قرار الدايركتور (أو مشرف عام التطوّع) بمبرّر مكتوب (23-0.2) */
     public function decideTie(Request $request, PromotionDecision $decision): RedirectResponse
     {
-        abort_unless($decision->status === 'awaiting_decision', 404);
+        abort_unless($decision->status === 'awaiting_decision' && $decision->kind === 'tie', 404);
 
         $data = $request->validate([
             'winner_user_id' => ['required', 'integer'],
@@ -305,6 +306,31 @@ class OrgAdminController extends Controller
         app(PromotionLadder::class)->decideTie($decision, $winner, $request->user(), $data['reason']);
 
         return back()->with('status', (string) setting('volunteer_org.admin.promotion_ladder_decide_ok', 'اتحسم التعادل — والبوزشن اتصعّد له فورًا.'));
+    }
+
+    /**
+     * ⭐ ملء شغور مشرف عام المسار — قرار مشرف عام التطوّع النهائيّ بأحد
+     * مسارين: كود مباشر لأيّ شخص، أو أحد مرشّحي معاينة السلّم (23-0.2).
+     * لا فرقَ إجرائيًّا بينهما هنا — كلاهما كودٌ يُبحَث عنه ويُصعَّد صاحبه.
+     */
+    public function resolveTrackVacancy(Request $request, PromotionDecision $decision): RedirectResponse
+    {
+        abort_unless($decision->status === 'awaiting_decision' && $decision->kind === 'track_vacancy', 404);
+
+        $data = $request->validate([
+            'winner_code' => ['required', 'string', 'max:32'],
+            'reason' => ['required', 'string', 'min:10', 'max:500'],
+        ]);
+
+        $winner = User::query()->where('code', $data['winner_code'])->first();
+
+        if (! $winner) {
+            return back()->with('status', (string) setting('volunteer_org.admin.promotion_ladder_track_msg', 'مفيش مستخدم بالكود ده.'));
+        }
+
+        app(PromotionLadder::class)->resolveTrackVacancy($decision, $winner, $request->user(), $data['reason']);
+
+        return back()->with('status', (string) setting('volunteer_org.admin.promotion_ladder_track_ok', 'اتملا شغور مشرف المسار ✓'));
     }
 
     /** تقرير السعة: أكثر الأقسام تخمةً وأكثرها فراغًا — مادّة قرار */

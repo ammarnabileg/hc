@@ -84,6 +84,36 @@ class OptionalCutTest extends RetentionTestCase
         $this->assertEqualsWithDelta(-9.5, (float) $row->threshold, 0.001);
     }
 
+    /**
+     * ⭐ سلّم الترقية الفوريّ (القسم 0 · 23-0.2) يعمل هنا أيضًا: عضويّةٌ
+     * اختياريّة مبتورة قد تكون بوزشنًا لداونلاينَ حقيقيّ في هرم المحافظة
+     * الخاصّ بها — والشغور يُملأ فورًا بلا استثناءٍ لمصدر الإغلاق.
+     */
+    public function test_the_promotion_ladder_fills_the_vacancy_left_by_an_optional_cut(): void
+    {
+        $user = $this->makeUser('مشرف محافظة');
+        $governorate = $this->makeEntity('محافظة الجيزة', 'governorate');
+        $supervisorM = $this->makeMembership($user, $governorate, null, 'supervisor');
+
+        $successor = $this->makeUser('تيم ليدر تحته');
+        $this->makeMembership($successor, $governorate, $supervisorM, 'team_leader');
+
+        $this->setRep($user, -9.5);
+
+        app(OptionalCutService::class)->sweep();
+
+        $this->assertSame('ended', $supervisorM->fresh()->status);
+
+        $promoted = Membership::query()
+            ->where('user_id', $successor->id)
+            ->where('entity_id', $governorate->id)
+            ->where('status', 'active')
+            ->whereHas('position', fn ($q) => $q->where('key', 'supervisor'))
+            ->exists();
+
+        $this->assertTrue($promoted, 'التيم ليدر يترقّى تلقائيًّا ليملأ شغور السوبرفايزر المبتور.');
+    }
+
     /** «مهامه المفتوحة هناك ⟵ مسار عدم التسليم … **بلا خصم جديد عليه**» */
     public function test_open_tasks_go_to_the_no_delivery_path_without_a_new_deduction(): void
     {

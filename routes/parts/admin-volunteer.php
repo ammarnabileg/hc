@@ -69,6 +69,8 @@ Route::middleware(['auth', 'admin.panel'])->prefix('admin')->name('admin.')->gro
             ->middleware('permission:promotion_ladder.reject')->name('org.promotion-ladder.reject');
         Route::post('/org/promotion-ladder/decisions/{decision}', [OrgAdminController::class, 'decideTie'])
             ->middleware('permission:promotion_ladder.approve')->name('org.promotion-ladder.decide');
+        Route::post('/org/promotion-ladder/track-vacancy/{decision}', [OrgAdminController::class, 'resolveTrackVacancy'])
+            ->middleware('permission:promotion_ladder.approve')->name('org.promotion-ladder.resolve-track');
 
         /*
         | ⭐ الغيابات والتفويض المؤقّت (23-6 · 24) — شاشة **إدارة** لا إضافة:
