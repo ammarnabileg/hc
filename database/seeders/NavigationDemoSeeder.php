@@ -130,6 +130,7 @@ class NavigationDemoSeeder extends Seeder
             ['nav.admin.item_volunteer_rep', 'nav', 'سايد بار الإدارة: درجة الالتزام (Rep)', 'درجة الالتزام (Rep)'],
             ['nav.admin.item_volunteer_delegations', 'nav', 'سايد بار الإدارة: الغيابات والتفويض', 'الغيابات والتفويض'],
             ['nav.admin.item_volunteer_task_types', 'nav', 'سايد بار الإدارة: أنواع المهامّ', 'أنواع المهامّ'],
+            ['nav.admin.item_volunteer_scorecard_criteria', 'nav', 'سايد بار الإدارة: معايير المقابلة', 'معايير المقابلة'],
             ['nav.admin.item_volunteer_offboarding', 'nav', 'سايد بار الإدارة: الخروج والعودة', 'الخروج والعودة'],
             ['nav.admin.group_gamification', 'nav', 'سايد بار الإدارة: التلعيب والتحديات', 'التلعيب والتحديات'],
             ['nav.admin.item_gamification_xp', 'nav', 'سايد بار الإدارة: XP والتذاكر', 'XP والتذاكر'],

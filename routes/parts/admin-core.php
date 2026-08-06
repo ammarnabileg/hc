@@ -81,6 +81,12 @@ Route::middleware(['auth', 'admin.panel'])
         Route::get('/users/{user}', [UserController::class, 'show'])
             ->middleware('permission:admin_user_detail.view,users.view')->name('users.show');
 
+        // طلبات الإفادة (9.1 · 24.5): بلا هذين المسارين تبقى «قيد الانتظار» للأبد
+        Route::post('/users/{user}/attestations/{attestation}/approve', [UserController::class, 'approveAttestation'])
+            ->middleware('permission:user_attestation.manage')->name('users.attestations.approve');
+        Route::post('/users/{user}/attestations/{attestation}/reject', [UserController::class, 'rejectAttestation'])
+            ->middleware('permission:user_attestation.manage')->name('users.attestations.reject');
+
         // ---------------------------------------------- الأدوار والصلاحيّات
         Route::get('/roles', [RoleController::class, 'index'])
             ->middleware('permission:roles.list')->name('roles.index');

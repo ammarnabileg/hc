@@ -86,4 +86,45 @@
             </p>
         @endif
     </section>
+
+    {{-- طلبات الإفادة المعلَّقة (9.1 · 24.5) --}}
+    @if ($viewer->allows('user_attestation.manage'))
+        <section class="card p-4 lg:col-span-2">
+            <h3 class="font-bold text-sm mb-3">{{ setting('admin.users.partials.tab_admin.tlbat_alifada', 'طلبات الإفادة') }}</h3>
+
+            @forelse ($pendingAttestations as $attestation)
+                <div class="p-3 mb-2 rounded-xl" style="background: var(--surface-sunken)">
+                    <div class="flex items-center justify-between gap-2 mb-1">
+                        <span class="text-sm font-semibold">{{ $attestation->from_name }}</span>
+                        <span class="text-xs" style="color: var(--text-muted)">{{ $attestation->created_at?->diffForHumans() }}</span>
+                    </div>
+                    @if ($attestation->body)
+                        <p class="text-xs mb-2 whitespace-pre-line" style="color: var(--text-muted)">{{ $attestation->body }}</p>
+                    @endif
+
+                    <div class="flex flex-wrap items-center gap-2">
+                        <form method="post" action="{{ route('admin.users.attestations.approve', [$user, $attestation]) }}">
+                            @csrf
+                            <button class="btn rounded-xl px-4 text-sm font-semibold motion-standard"
+                                    style="min-height: 40px; background: var(--color-brand-500); color: #04201c">
+                                {{ setting('admin.users.partials.tab_admin.aatmad', 'اعتماد') }}
+                            </button>
+                        </form>
+
+                        <form method="post" action="{{ route('admin.users.attestations.reject', [$user, $attestation]) }}" class="flex flex-wrap items-center gap-2">
+                            @csrf
+                            <input name="reason" required placeholder="{{ setting('admin.users.attestations.reject_reason_label', 'سبب الرفض') }}"
+                                   class="rounded-xl px-3 text-sm" style="min-height: 40px; background: var(--surface); border: 1px solid var(--border); color: var(--text)">
+                            <button class="btn rounded-xl px-4 text-sm"
+                                    style="min-height: 40px; background: var(--color-state-danger); color: #fff">
+                                {{ setting('admin.users.partials.tab_admin.rfd', 'رفض') }}
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            @empty
+                <p class="text-sm" style="color: var(--text-muted)">{{ setting('admin.users.partials.tab_admin.mafysh_tlbat_iafada_mstnya', 'مافيش طلبات إفادة مستنّية.') }}</p>
+            @endforelse
+        </section>
+    @endif
 </div>

@@ -14,7 +14,7 @@
 
 ## ✅ المُنجَز
 <!-- تلقائيّ:بداية:المنجز -->
-- **مجلّدات فرعيّة (28):** `articles/` · `availability/` · `certificates/` · `courses/` · `cv-templates/` · `dashboard/` · `developers/` · `events/` · `features/` · `gamification/` · `guidance/` · `meetings-admin/` · `moderation/` · `ops/` · `positive/` · `question-bank/` · `referral-admin/` · `report-schedules/` · `roles/` · `screens24/` · `settings/` · `stats/` · `store/` · `studio/` · `task-types/` · `users/` · `volunteer/` · `wars/` — ولكلٍّ منها وثيقتها.
+- **مجلّدات فرعيّة (29):** `articles/` · `availability/` · `certificates/` · `courses/` · `cv-templates/` · `dashboard/` · `developers/` · `events/` · `features/` · `gamification/` · `guidance/` · `meetings-admin/` · `moderation/` · `ops/` · `positive/` · `question-bank/` · `referral-admin/` · `report-schedules/` · `roles/` · `scorecard-criteria/` · `screens24/` · `settings/` · `stats/` · `store/` · `studio/` · `task-types/` · `users/` · `volunteer/` · `wars/` — ولكلٍّ منها وثيقتها.
 <!-- تلقائيّ:نهاية:المنجز -->
 
 ## ⬜ المتبقّي

@@ -3510,6 +3510,23 @@
     "is_owner_only": false
   },
   {
+    "key": "user_attestation.manage",
+    "resource": "user_attestation",
+    "action": "manage",
+    "group": "المستخدمون والحسابات والخصوصيّة",
+    "label_ar": "user_attestation",
+    "description": "اعتماد أو رفض طلب إفادة بسببٍ يصل للمستخدم — من صفحة حساب المستخدم (12.1).",
+    "allowed_scopes": [
+      "ALL",
+      "ENTITY",
+      "TEAM"
+    ],
+    "conditions": [],
+    "condition_keys": [],
+    "is_sensitive": false,
+    "is_owner_only": false
+  },
+  {
     "key": "user_sessions.list",
     "resource": "user_sessions",
     "action": "list",

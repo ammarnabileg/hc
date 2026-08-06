@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\OffboardingAdminController;
 use App\Http\Controllers\Admin\OrgAdminController;
 use App\Http\Controllers\Admin\RepAdminController;
 use App\Http\Controllers\Admin\RewardController;
+use App\Http\Controllers\Admin\ScorecardCriteriaController;
 use App\Http\Controllers\Admin\TaskTypeController;
 use App\Http\Controllers\Admin\VolunteerAdminController;
 use Illuminate\Support\Facades\Route;
@@ -129,6 +130,21 @@ Route::middleware(['auth', 'admin.panel'])->prefix('admin')->name('admin.')->gro
             ->middleware('permission:task_types.manage')->name('task-types.save');
         Route::post('/task-types/{taskType}/toggle', [TaskTypeController::class, 'toggle'])
             ->middleware('permission:task_types.manage')->name('task-types.toggle');
+
+        /*
+         | ⭐ معايير المقابلة (13.4-د): «معايير يضيفها الأدمن... عبر صفحة
+         | الأدمن» — بلا هذه الشاشة الكتالوج رقمٌ محروق في سيدر (2.13).
+         */
+        Route::get('/scorecard-criteria', [ScorecardCriteriaController::class, 'index'])
+            ->middleware('permission:scorecard_criteria.list')->name('scorecard-criteria.index');
+        Route::post('/scorecard-criteria', [ScorecardCriteriaController::class, 'store'])
+            ->middleware('permission:scorecard_criteria.create')->name('scorecard-criteria.store');
+        Route::put('/scorecard-criteria/{criterion}', [ScorecardCriteriaController::class, 'update'])
+            ->middleware('permission:scorecard_criteria.edit')->name('scorecard-criteria.update');
+        Route::delete('/scorecard-criteria/{criterion}', [ScorecardCriteriaController::class, 'destroy'])
+            ->middleware('permission:scorecard_criteria.delete')->name('scorecard-criteria.destroy');
+        Route::post('/scorecard-criteria/{criterion}/restore', [ScorecardCriteriaController::class, 'restore'])
+            ->middleware('permission:scorecard_criteria.restore')->name('scorecard-criteria.restore');
 
         // تحليلات التطوّع
         Route::get('/analytics', [VolunteerAdminController::class, 'analytics'])

@@ -254,8 +254,8 @@ class UserDirectory
             $tabs['security'] = setting('admin_users.user_directory.tabs_for_6', 'الأمان');
         }
 
-        // تاب الإدارة: اعتماد/رفض الحساب وتعيين الأدوار (12.1-الإدارة)
-        if ($viewer->allows('user_approvals.approve') || $viewer->allows('user_approvals.reject') || $viewer->allows('roles.assign')) {
+        // تاب الإدارة: اعتماد/رفض الحساب وتعيين الأدوار وطلبات الإفادة (12.1-الإدارة · 9.1)
+        if ($viewer->allows('user_approvals.approve') || $viewer->allows('user_approvals.reject') || $viewer->allows('roles.assign') || $viewer->allows('user_attestation.manage')) {
             $tabs['admin'] = setting('admin_users.user_directory.tabs_for_7', 'الإدارة');
         }
 

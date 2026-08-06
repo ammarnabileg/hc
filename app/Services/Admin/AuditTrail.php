@@ -49,6 +49,8 @@ class AuditTrail
             'user.rejected' => (string) setting('audit.action.user_rejected', 'رفض حساب'),
             'segment.created' => (string) setting('audit.action.segment_created', 'إنشاء شريحة'),
             'segment.deleted' => (string) setting('audit.action.segment_deleted', 'حذف شريحة'),
+            'attestation.approved' => (string) setting('audit.action.attestation_approved', 'اعتماد إفادة'),
+            'attestation.rejected' => (string) setting('audit.action.attestation_rejected', 'رفض إفادة'),
         ];
     }
 

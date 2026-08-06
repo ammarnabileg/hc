@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\AdAudience;
+use App\Models\Attestation;
 use App\Models\Country;
 use App\Models\Course;
 use App\Models\Governorate;
@@ -95,6 +96,12 @@ class UserController extends Controller
             'admin' => [
                 'roleOptions' => $this->directory->roleOptions(),
                 'rejectReasons' => $this->approval->rejectReasons(),
+                // طلبات الإفادة المعلَّقة (9.1 · 24.5) — بلا هذه الشاشة تبقى «قيد الانتظار» للأبد
+                'pendingAttestations' => Attestation::query()
+                    ->where('user_id', $user->id)
+                    ->where('status', 'requested')
+                    ->latest()
+                    ->get(),
             ],
             'advanced' => [
                 'countries' => Country::query()->where('is_active', true)->orderBy('name_ar')->get(),
@@ -215,6 +222,44 @@ class UserController extends Controller
         }
 
         return back()->with('status', strtr((string) setting('admin_users.screen.reject_ok', 'اترفض :count حساب — واتبعت للمستخدم سبب واضح.'), [':count' => (string) $done]));
+    }
+
+    // ---------------------------------------------------------- طلبات الإفادة (9.1)
+
+    /**
+     * اعتماد طلب إفادة (9.1 · 24.5): الحالة تتحوّل من «قيد الانتظار» إلى
+     * «صدرت» — وبعدها يظهر في الرابط العامّ ومِلَفّ الاستخراج (`approved()`).
+     */
+    public function approveAttestation(Request $request, User $user, Attestation $attestation): RedirectResponse
+    {
+        abort_unless($attestation->user_id === $user->id, 404);
+
+        $old = $attestation->only('status');
+        $attestation->update(['status' => 'approved']);
+
+        $this->audit->record($request->user(), 'attestation.approved', $attestation, $old, ['status' => 'approved']);
+
+        return back()->with('status', (string) setting('admin.users.attestations.approve_ok', 'اتعمدت الإفادة ✓'));
+    }
+
+    /** رفض طلب إفادة بسبب — يوصل للمستخدم في قائمة إفاداته (9.1 · 24.5) */
+    public function rejectAttestation(Request $request, User $user, Attestation $attestation): RedirectResponse
+    {
+        abort_unless($attestation->user_id === $user->id, 404);
+
+        $validated = $request->validate([
+            'reason' => ['required', 'string', 'max:255'],
+        ], [], ['reason' => (string) setting('admin.users.attestations.reject_reason_label', 'سبب الرفض')]);
+
+        $old = $attestation->only('status', 'rejection_reason');
+        $attestation->update([
+            'status' => 'rejected',
+            'rejection_reason' => $validated['reason'],
+        ]);
+
+        $this->audit->record($request->user(), 'attestation.rejected', $attestation, $old, ['status' => 'rejected', 'reason' => $validated['reason']]);
+
+        return back()->with('status', (string) setting('admin.users.attestations.reject_ok', 'اترفض الطلب — والسبب واضح للمستخدم.'));
     }
 
     // ---------------------------------------------------------- شرائح الجمهور

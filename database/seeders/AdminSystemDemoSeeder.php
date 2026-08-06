@@ -351,6 +351,8 @@ class AdminSystemDemoSeeder extends Seeder
             ['audit.action.user_rejected', 'system', 'فعل: رفض حساب', 'string', 'رفض حساب', false],
             ['audit.action.segment_created', 'system', 'فعل: إنشاء شريحة', 'string', 'إنشاء شريحة', false],
             ['audit.action.segment_deleted', 'system', 'فعل: حذف شريحة', 'string', 'حذف شريحة', false],
+            ['audit.action.attestation_approved', 'system', 'فعل: اعتماد إفادة', 'string', 'اعتماد إفادة', false],
+            ['audit.action.attestation_rejected', 'system', 'فعل: رفض إفادة', 'string', 'رفض إفادة', false],
             ['platform.identity.name', 'appearance', 'اسم المنصّة على الصور والفواتير', 'string', 'المنصّة', false],
 
             // ---------------- استوديو الصور (12.14-ح)

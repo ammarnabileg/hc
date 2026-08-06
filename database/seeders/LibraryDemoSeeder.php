@@ -279,6 +279,7 @@ class LibraryDemoSeeder extends Seeder
             ['attestations.status.rejected_label', 'attestations', 'حالة: مرفوضة', 'string', 'مرفوضة'],
             ['attestations.status.other_label', 'attestations', 'حالة: مؤرشفة', 'string', 'مؤرشفة'],
             ['attestations.list.title', 'attestations', 'عنوان قائمة الإفادات', 'string', 'إفاداتي'],
+            ['attestations.list.rejection_reason_prefix', 'attestations', 'لافتة سبب الرفض', 'string', 'سبب الرفض:'],
             ['attestations.empty.message', 'attestations', 'الحالة الفارغة', 'string', 'مفيش إفادات لسّه'],
             ['attestations.record.title', 'attestations', 'عنوان الإفادة المولَّدة', 'string', 'إفادتك من المنصّة'],
             ['attestations.record.subtitle', 'attestations', 'شرح الإفادة المولَّدة', 'string', 'بتتولّد لوحدها من تدريباتك وشهاداتك وشاراتك ونقاطك.'],

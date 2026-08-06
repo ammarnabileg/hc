@@ -91,6 +91,11 @@
             @if ($attestation->body)
                 <p class="text-sm mt-2 whitespace-pre-line">{{ $attestation->body }}</p>
             @endif
+            @if ($attestation->status === 'rejected' && $attestation->rejection_reason)
+                <p class="text-xs mt-2" style="color: var(--color-state-danger)">
+                    {{ setting('attestations.list.rejection_reason_prefix', 'سبب الرفض:') }} {{ $attestation->rejection_reason }}
+                </p>
+            @endif
         </article>
     @empty
         <x-empty :message="setting('attestations.empty.message', 'مفيش إفادات لسّه')"
