@@ -203,6 +203,18 @@
             // ⬇︎ خارج نصّ 12.0: مصادر الاكتساب (21.3)
             [setting('nav.admin.item_stats_acquisition', 'مصادر الاكتساب'), 'admin.stats.index', ['acquisition_sources.view', $statsGate], ['tab' => 'acquisition']],
         ])],
+
+        /*
+         | 🧩 المطوّرين (12.15 — مستحدَثٌ بأمر المالك 2026-08-06، سجلّ القرارات 25):
+         | يظهر **فوق** «الإعدادات والنظام» تطبيقًا لملاحظة 12.7 نفسها («سيأتي
+         | فوقه أقسامٌ لاحقًا») — فالإعدادات تبقى آخر قسمٍ دائمًا ولا تنزاح.
+         | تاب Webhooks مذكورٌ هنا **رابطًا فقط** — محتواه يُبنى لاحقًا (12.15-ب)
+         | فوق نفس المسار `admin.developers.index?tab=webhooks` بلا تعديل سايد بار ثانٍ.
+         */
+        ['🧩', setting('nav.admin.group_developers', 'المطوّرين'), $filter([
+            [setting('nav.admin.item_developers_api', 'API'), 'admin.developers.index', 'integrations.view', ['tab' => 'api']],
+            [setting('nav.admin.item_developers_webhooks', 'Webhooks'), 'admin.developers.index', 'webhooks.view', ['tab' => 'webhooks']],
+        ])],
     ];
 
     // ⚙️ الإعدادات والنظام — آخر قسم دائمًا (12.0)
@@ -246,6 +258,7 @@
         'admin.gamification.index' => 'xp',
         'admin.store.index' => 'products',
         'admin.stats.index' => 'users',
+        'admin.developers.index' => 'api',
     ];
 
     $currentTab = request()->query('tab')
