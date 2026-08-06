@@ -8,6 +8,10 @@
         :subtitle="setting('admin.volunteer.settings_hub.subtitle', 'مرجعٌ واحد لكلّ أرقام منظومة التطوّع — Rep · VXP · التقييم · Kudos · الاعتراضات · الترقّي · السلوك · النوافذ · النصوص.')"
         :breadcrumbs="[['label' => setting('admin.volunteer.org.alttwa', 'التطوّع'), 'url' => route('admin.volunteer.index')], ['label' => setting('admin.volunteer.settings_hub.title', 'الإدارة المركزيّة للتطوّع')]]">
         <x-slot:action>
+            @if ($canManage)
+                <button type="button" data-modal-open="hub-audit-modal"
+                        class="rounded-xl px-3 py-2 text-sm" style="background: var(--surface-raised)">{{ setting('admin.volunteer.settings_hub.audit_log', 'سجلّ التدقيق') }}</button>
+            @endif
             <span class="text-xs" style="color: var(--text-muted)">
                 @if ($lastChange)
                     {{ strtr(setting('admin.volunteer.settings_hub.last_change', 'آخر تعديل: :name · :when'), [
@@ -82,6 +86,53 @@
         @endforeach
     </form>
 
+    @if ($canManage)
+        <x-modal id="hub-override-modal" :title="setting('admin.volunteer.settings_hub.override_title', 'Override لكيان')">
+            <form method="post" action="{{ route('admin.volunteer.settings-hub.override.save') }}">
+                @csrf
+                <p class="text-sm font-semibold mb-3" id="hub-override-field-label"></p>
+                <input type="hidden" name="key" id="hub-override-key">
+
+                <label class="block text-sm font-semibold mb-1" for="hub-ov-entity">{{ setting('admin.volunteer.org.alkyan', 'الكيان') }}</label>
+                <select name="entity_id" id="hub-ov-entity" required class="w-full rounded-xl px-3 py-2 text-sm mb-3"
+                        style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
+                    @foreach ($entities as $entity)
+                        <option value="{{ $entity->id }}">{{ $entity->name_ar }}</option>
+                    @endforeach
+                </select>
+
+                <label class="block text-sm font-semibold mb-1" for="hub-ov-value">{{ setting('admin.volunteer.org.alqyma_aljdyda', 'القيمة الجديدة') }}</label>
+                <input type="text" name="value" id="hub-ov-value" required maxlength="255"
+                       class="w-full rounded-xl px-3 py-2 text-sm mb-3"
+                       style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
+
+                <label class="block text-sm font-semibold mb-1" for="hub-ov-reason">{{ setting('admin.volunteer.org.alsbb_ilzamy', 'السبب (إلزاميّ)') }}</label>
+                <textarea name="reason" id="hub-ov-reason" rows="2" required minlength="5" maxlength="300"
+                          class="w-full rounded-xl px-3 py-2 text-sm"
+                          style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)"></textarea>
+
+                <button type="submit" class="btn mt-4 rounded-xl px-4 py-2 text-sm font-semibold"
+                        style="background: var(--color-brand-500); color: #04201c">{{ setting('admin.volunteer.org.ahfz_aloverride', 'احفظ الـOverride') }}</button>
+            </form>
+        </x-modal>
+
+        <x-modal id="hub-audit-modal" :title="setting('admin.volunteer.settings_hub.audit_log', 'سجلّ التدقيق')">
+            @forelse ($auditLog as $entry)
+                <div class="py-2 text-sm" style="border-bottom: 1px solid var(--border)">
+                    <div class="flex items-center justify-between gap-2">
+                        <span class="font-semibold">{{ $entry->user->name ?? setting('admin.volunteer.settings_hub.system', 'النظام') }}</span>
+                        <span class="text-xs" style="color: var(--text-muted)">{{ $entry->created_at->diffForHumans() }}</span>
+                    </div>
+                    <div class="text-xs mt-1" style="color: var(--text-muted)">
+                        {{ $entry->action }} — <code>{{ data_get($entry->new_values, 'key', '—') }}</code>
+                    </div>
+                </div>
+            @empty
+                <p class="text-sm" style="color: var(--text-muted)">{{ setting('admin.volunteer.settings_hub.no_changes_yet', 'مفيش تعديل مسجَّل بعد') }}</p>
+            @endforelse
+        </x-modal>
+    @endif
+
     <script>
         (function () {
             const panels = Array.from(document.querySelectorAll('[data-hub-panel]'));
@@ -137,6 +188,13 @@
 
             search.addEventListener('input', applyFilters);
             modifiedOnly.addEventListener('change', applyFilters);
+
+            document.querySelectorAll('[data-hub-override-key]').forEach((btn) => {
+                btn.addEventListener('click', () => {
+                    document.getElementById('hub-override-key').value = btn.dataset.hubOverrideKey;
+                    document.getElementById('hub-override-field-label').textContent = btn.dataset.hubOverrideLabel;
+                });
+            });
         })();
     </script>
 @endsection

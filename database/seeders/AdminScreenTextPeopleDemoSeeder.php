@@ -752,7 +752,13 @@ class AdminScreenTextPeopleDemoSeeder extends Seeder
             ['admin.volunteer.settings_hub.empty_state', 'volunteer', 'لم تُضبَط إعدادات هذا التاب بعد — تعمل بالقيم الافتراضيّة.', 'string', 'لم تُضبَط إعدادات هذا التاب بعد — تعمل بالقيم الافتراضيّة.', 'حالة فارغة رسميّة (24.2) — settings-hub.blade.php'],
             ['admin.volunteer.settings_hub.last_change', 'volunteer', 'آخر تعديل: :name · :when', 'string', 'آخر تعديل: :name · :when', 'شارة آخر تعديل — settings-hub.blade.php'],
             ['admin.volunteer.settings_hub.no_changes_yet', 'volunteer', 'مفيش تعديل مسجَّل بعد', 'string', 'مفيش تعديل مسجَّل بعد', 'شارة آخر تعديل حين لا سجلّ — settings-hub.blade.php'],
+            ['admin.volunteer.settings_hub.audit_log', 'volunteer', 'سجلّ التدقيق', 'string', 'سجلّ التدقيق', 'زرّ وعنوان بوب-أب السجلّ — settings-hub.blade.php'],
+            ['admin.volunteer.settings_hub.override_title', 'volunteer', 'Override لكيان', 'string', 'Override لكيان', 'عنوان بوب-أب الـOverride — settings-hub.blade.php'],
+            ['admin.volunteer.settings_hub.override_ok', 'volunteer', 'اتحفظ الـOverride للكيان ✓', 'string', 'اتحفظ الـOverride للكيان ✓', 'رسالة نجاح Override — VolunteerSettingsHubController@saveOverride'],
+            ['admin.volunteer.settings_hub.override_drop_ok', 'volunteer', 'اتشال الـOverride ✓', 'string', 'اتشال الـOverride ✓', 'رسالة نجاح حذف Override — VolunteerSettingsHubController@dropOverride'],
+            ['admin.volunteer.settings_hub.system', 'volunteer', 'النظام', 'string', 'النظام', 'اسم الفاعل حين لا مستخدم في سجلّ التدقيق — settings-hub.blade.php'],
             ['admin.volunteer.partials.hub_setting_field.rja_llhql', 'volunteer', 'رجّع الحقل للافتراضيّ', 'string', 'رجّع الحقل للافتراضيّ', 'نصّ في resources/views/admin/volunteer/partials/hub-setting-field.blade.php'],
+            ['admin.volunteer.partials.hub_setting_field.override_lkyan', 'volunteer', 'Override لكيان', 'string', 'Override لكيان', 'نصّ في resources/views/admin/volunteer/partials/hub-setting-field.blade.php'],
         ]);
     }
 

@@ -2,7 +2,9 @@
 
 namespace Tests\Feature\Admin\Volunteer;
 
+use App\Models\Entity;
 use App\Models\Setting;
+use App\Models\SettingOverride;
 use App\Services\Admin\Volunteer\SettingsCatalog;
 use App\Services\Admin\Volunteer\SettingsWriter;
 
@@ -146,5 +148,94 @@ class VolunteerSettingsHubTest extends AdminVolunteerTestCase
         foreach (array_slice($offKeys, 0, 2) as $key) {
             $response->assertSee($key, false);
         }
+    }
+
+    // ------------------------------------------------------------ Override لكيان
+
+    private function entity(): Entity
+    {
+        return Entity::query()->where('name_ar', 'فريق المونتاج')->firstOrFail();
+    }
+
+    public function test_manager_can_set_an_override_for_a_hub_key_on_one_entity(): void
+    {
+        $manager = $this->grant($this->makeUser(), 'volunteer_central_settings.manage');
+        $entity = $this->entity();
+
+        $this->actingAs($manager)
+            ->post(route('admin.volunteer.settings-hub.override.save'), [
+                'entity_id' => $entity->id,
+                'key' => 'kudos.daily_limit',
+                'value' => '9',
+                'reason' => 'فريق المونتاج بحاجة حدٍّ أعلى مؤقّتًا لحملة الشكر.',
+            ])
+            ->assertRedirect();
+
+        $setting = Setting::where('key', 'kudos.daily_limit')->firstOrFail();
+        $this->assertSame('9', SettingOverride::where('setting_id', $setting->id)->where('entity_id', $entity->id)->value('value'));
+        // العامّ لم يتأثّر — الـOverride محصور بالكيان وحده (2.13-هـ)
+        $this->assertSame('2', (string) setting('kudos.daily_limit'));
+    }
+
+    /** ⭐ الحارس: Override كـReset مقصور على مفاتيح الهَب — لا أيّ مفتاح في المنصّة (2.13) */
+    public function test_override_rejects_a_key_outside_the_hub(): void
+    {
+        $manager = $this->grant($this->makeUser(), 'volunteer_central_settings.manage');
+
+        $this->actingAs($manager)
+            ->post(route('admin.volunteer.settings-hub.override.save'), [
+                'entity_id' => $this->entity()->id,
+                'key' => 'gamification_wars.shared.win',
+                'value' => '9',
+                'reason' => 'محاولة تجاوز نطاق الهَب.',
+            ])
+            ->assertNotFound();
+    }
+
+    public function test_manager_can_drop_an_override(): void
+    {
+        $manager = $this->grant($this->makeUser(), 'volunteer_central_settings.manage');
+        $entity = $this->entity();
+        SettingsWriter::override('kudos.daily_limit', $entity, '9', $manager);
+
+        $this->actingAs($manager)
+            ->post(route('admin.volunteer.settings-hub.override.drop'), [
+                'entity_id' => $entity->id,
+                'key' => 'kudos.daily_limit',
+            ])
+            ->assertRedirect();
+
+        $setting = Setting::where('key', 'kudos.daily_limit')->firstOrFail();
+        $this->assertFalse(SettingOverride::where('setting_id', $setting->id)->where('entity_id', $entity->id)->exists());
+    }
+
+    public function test_view_only_user_cannot_set_an_override(): void
+    {
+        $viewer = $this->grant($this->makeUser(), 'volunteer_central_settings.view');
+
+        $this->actingAs($viewer)
+            ->post(route('admin.volunteer.settings-hub.override.save'), [
+                'entity_id' => $this->entity()->id,
+                'key' => 'kudos.daily_limit',
+                'value' => '9',
+                'reason' => 'بلا صلاحيّة إدارة.',
+            ])
+            ->assertForbidden();
+    }
+
+    // ------------------------------------------------------------ سجلّ التدقيق
+
+    public function test_audit_log_shows_settings_changes_to_managers_only(): void
+    {
+        $manager = $this->grant($this->makeUser('مسؤول السجلّ'), 'volunteer_central_settings.manage', 'volunteer_central_settings.view');
+        SettingsWriter::put('kudos.daily_limit', '3', $manager);
+
+        $this->actingAs($manager)->get(route('admin.volunteer.settings-hub'))
+            ->assertSee('مسؤول السجلّ')
+            ->assertSee('kudos.daily_limit', false);
+
+        $viewer = $this->grant($this->makeUser(), 'volunteer_central_settings.view');
+        $this->actingAs($viewer)->get(route('admin.volunteer.settings-hub'))
+            ->assertDontSee('سجلّ التدقيق');
     }
 }

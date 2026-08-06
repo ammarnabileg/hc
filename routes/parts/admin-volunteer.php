@@ -58,6 +58,10 @@ Route::middleware(['auth', 'admin.panel'])->prefix('admin')->name('admin.')->gro
             ->middleware('permission:volunteer_central_settings.manage')->name('settings-hub.reset-field');
         Route::post('/settings-hub/{tab}/reset', [VolunteerSettingsHubController::class, 'resetTab'])
             ->middleware('permission:volunteer_central_settings.manage')->name('settings-hub.reset-tab');
+        Route::post('/settings-hub/override', [VolunteerSettingsHubController::class, 'saveOverride'])
+            ->middleware('permission:volunteer_central_settings.manage')->name('settings-hub.override.save');
+        Route::post('/settings-hub/override/drop', [VolunteerSettingsHubController::class, 'dropOverride'])
+            ->middleware('permission:volunteer_central_settings.manage')->name('settings-hub.override.drop');
 
         // الهيكل والبوزشنز والسعة (13.4-ف)
         Route::get('/org', [OrgAdminController::class, 'index'])

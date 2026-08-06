@@ -24,6 +24,9 @@
         <div class="flex items-center gap-2">
             <code class="text-xs" style="color: var(--text-muted)">{{ $row['key'] }}</code>
             @if ($canManage)
+                <button type="button" data-modal-open="hub-override-modal"
+                        data-hub-override-key="{{ $row['key'] }}" data-hub-override-label="{{ $row['label'] }}"
+                        class="text-xs underline" style="color: var(--text-muted)">{{ setting('admin.volunteer.partials.hub_setting_field.override_lkyan', 'Override لكيان') }}</button>
                 <button type="submit" formaction="{{ route('admin.volunteer.settings-hub.reset-field') }}"
                         name="key" value="{{ $row['key'] }}"
                         class="text-xs underline" style="color: var(--text-muted)"

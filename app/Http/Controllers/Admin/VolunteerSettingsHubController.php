@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Entity;
 use App\Services\Admin\Volunteer\AuditTrail;
 use App\Services\Admin\Volunteer\SettingsCatalog;
 use App\Services\Admin\Volunteer\SettingsWriter;
+use App\Support\Scope\ScopeFilter;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -17,8 +19,8 @@ use Illuminate\View\View;
  * كلّ تاب يعرض ما هو **حقيقيّ** فقط: مفتاحٌ مزروع وله قارئٌ في الكود (2.13)
  * — لا وعدًا بحقلٍ لا قاعدة له. حيث لا إعداد حقيقيّ بعد (تاب «النصوص
  * والمحتوى» كاملًا، وأجزاءٌ من VXP والتقييم) تظهر حالة «فارغة» الرسميّة
- * (24.2) بدل حقلٍ مختلَق. Override لكيان · معاينة الأثر · تصدير/استيراد
- * JSON · سجلّ التدقيق الكامل: مؤجّلة — موثّقة لا مبنيّة جزئيًّا.
+ * (24.2) بدل حقلٍ مختلَق. معاينة الأثر وتصدير/استيراد JSON: مؤجّلان —
+ * موثّقان لا مبنيّان جزئيًّا (Override لكيان وسجلّ التدقيق مبنيّان هنا).
  */
 class VolunteerSettingsHubController extends Controller
 {
@@ -38,11 +40,59 @@ class VolunteerSettingsHubController extends Controller
             ];
         }
 
+        $canManage = $request->user()->allows('volunteer_central_settings.manage');
+
         return view('admin.volunteer.settings-hub', [
             'tabs' => $tabs,
             'lastChange' => AuditTrail::latest('settings.update', 1)->first(),
-            'canManage' => $request->user()->allows('volunteer_central_settings.manage'),
+            'canManage' => $canManage,
+            // ⭐ Override وسجلّ التدقيق فعلٌ إداريّ — لا داعي لجلبهما لمن يملك عرضًا فقط
+            'entities' => $canManage
+                ? Entity::query()
+                    ->tap(fn ($q) => app(ScopeFilter::class)->apply($q, $request->user(), 'volunteer_central_settings.manage', null, 'id'))
+                    ->orderBy('name_ar')->get(['id', 'name_ar'])
+                : collect(),
+            'auditLog' => $canManage ? AuditTrail::latest('settings.', 20) : collect(),
         ]);
+    }
+
+    /** Override لكيان بعينه — يعلو القيمة العامّة داخل الكيان وحده (2.13-هـ) */
+    public function saveOverride(Request $request): RedirectResponse
+    {
+        abort_unless($request->user()->allows('volunteer_central_settings.manage'), 403);
+
+        $data = $request->validate([
+            'entity_id' => ['required', 'integer', 'exists:entities,id'],
+            'key' => ['required', 'string'],
+            'value' => ['required', 'string', 'max:255'],
+            'reason' => ['required', 'string', 'min:5', 'max:300'],
+        ]);
+
+        // ⭐ نفس حارس Reset — Override مقصور على مفاتيح الهَب نفسها (2.13)
+        abort_unless(in_array($data['key'], self::allKeys(), true), 404);
+
+        $entity = Entity::findOrFail($data['entity_id']);
+        SettingsWriter::override($data['key'], $entity, $data['value'], $request->user());
+
+        AuditTrail::log($request->user(), 'settings.override_reason', $entity, [], ['key' => $data['key'], 'reason' => $data['reason']]);
+
+        return back()->with('status', (string) setting('admin.volunteer.settings_hub.override_ok', 'اتحفظ الـOverride للكيان ✓'));
+    }
+
+    public function dropOverride(Request $request): RedirectResponse
+    {
+        abort_unless($request->user()->allows('volunteer_central_settings.manage'), 403);
+
+        $data = $request->validate([
+            'entity_id' => ['required', 'integer', 'exists:entities,id'],
+            'key' => ['required', 'string'],
+        ]);
+
+        abort_unless(in_array($data['key'], self::allKeys(), true), 404);
+
+        SettingsWriter::dropOverride($data['key'], Entity::findOrFail($data['entity_id']), $request->user());
+
+        return back()->with('status', (string) setting('admin.volunteer.settings_hub.override_drop_ok', 'اتشال الـOverride ✓'));
     }
 
     /** «حفظ الكلّ» (24.2) — فورمٌ واحد يجمع كلّ التابات التسعة، الظاهر منها والمطويّ */
