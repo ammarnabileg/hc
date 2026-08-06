@@ -317,6 +317,11 @@ class AdminLayoutGuardTest extends UiTestCase
                 route('admin.report-schedules.index'),
                 route('admin.stats.index', ['tab' => 'acquisition']),
             ], null],
+            // 🧩 المطوّرين (12.15 — مستحدَثٌ بأمر المالك 2026-08-06) — فوق الإعدادات دائمًا
+            ['المطوّرين', [
+                route('admin.developers.index', ['tab' => 'api']),
+                route('admin.developers.index', ['tab' => 'webhooks']),
+            ], null],
             // 12.7 الإعدادات والنظام — آخر قسم دائمًا
             ['الإعدادات والنظام', [
                 route('admin.settings.index', ['tab' => 'platform']),
