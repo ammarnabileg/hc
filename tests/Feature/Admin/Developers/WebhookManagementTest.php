@@ -30,7 +30,17 @@ use Tests\TestCase;
  *
  * القيود الأمنيّة المُثبَتة هنا لا موصوفة فقط: حارس توقيع HMAC وحارس حدّ
  * إعادة المحاولة أُعيد زرع عيبهما فعليًّا أثناء البناء وأُثبِت سقوط
- * اختباريهما، ثمّ أُعيد الإصلاح فورًا — والتفصيل في `_STATUS.md`.
+ * اختباريهما، ثمّ أُعيد الإصلاح فورًا — تفصيل كلّ زرعٍ في تعليق اختباره
+ * أدناه، والملخّص في `_STATUS.md`.
+ *
+ * ⭐ **علّةٌ حقيقيّة رصدها هذا الملفّ لا مُختلَقة للتوثيق:** أوّل صياغة لـ
+ * `DeliverWebhookJob` كانت تُحمِّل `$webhook` مرّةً أعلى `handle()` ثمّ تكتب
+ * `consecutive_failures = $webhook->consecutive_failures + 1` **بعد** إعادة
+ * الجدولة المتعاودة — وتحت `QUEUE_CONNECTION=sync` تُنفَّذ الاستدعاءات
+ * المتداخلة (Job تستدعي نفسها) **فورًا**، فتكتب المحاولة الأولى فوق ما كتبته
+ * الثانية والثالثة (تحديثٌ مفقود/Lost Update): توقّع الاختبار `3` ورصد `1`.
+ * الإصلاح: تحديثٌ ذرّيّ بـ`DB::raw('consecutive_failures + 1')` **قبل**
+ * إعادة الجدولة لا قراءة-ثمّ-كتابة بعدها.
  *
  * ⛔ ولا اختبار هنا يلمس شبكةً حقيقيّة: `Http::fake` + `preventStrayRequests`.
  */
@@ -140,6 +150,13 @@ class WebhookManagementTest extends TestCase
 
     // =================================================================== الإطلاق والتوقيع
 
+    /**
+     * ⭐ **Mutation مُثبَت (12.15-ج):** عند تفريغ رأس `X-Webhook-Signature`
+     * مؤقّتًا في `DeliverWebhookJob::send()` (`'sha256='` بلا توقيعٍ فعليّ)
+     * أثناء البناء، سقط هذا الاختبار فعلًا («An expected request was not
+     * recorded» — `Http::assertSent()` لم تجد طلبًا بالتوقيع الصحيح). أُعيد
+     * الإصلاح فورًا. والتفصيل الكامل في `_STATUS.md`.
+     */
     public function test_dispatching_a_subscribed_event_creates_a_delivery_and_sends_a_correctly_signed_post(): void
     {
         Http::fake(['hooks.test/*' => Http::response('ok', 200)]);
@@ -231,11 +248,13 @@ class WebhookManagementTest extends TestCase
     }
 
     /**
-     * ⭐ **Mutation مُثبَت (12.15-ب):** عند تعطيل شرط `attempt_count < $maxRetries`
-     * في `DeliverWebhookJob::handle()` مؤقّتًا (جُعِل الشرط `true` دائمًا) أثناء
-     * البناء، سقط هذا الاختبار فعلًا — الحلقة استمرّت تعيد الجدولة إلى ما لا
-     * نهاية بلا `exhausted` أبدًا (والاختبار السابق توقّف بلا نتيجة). أُعيد
-     * الإصلاح فورًا. والتفصيل الكامل لخطوات الزرع والإسقاط في `_STATUS.md`.
+     * ⭐ **Mutation مُثبَت (12.15-ب):** عند تخفيف شرط `attempt_count < $maxRetries`
+     * إلى `<=` مؤقّتًا في `DeliverWebhookJob::handle()` أثناء البناء (فسمح
+     * بمحاولةٍ رابعة قبل الاستنفاد)، سقط هذا الاختبار **وسقط معه** اختبار
+     * «3 محاولات ثمّ استُنفدت» أعلاه — كلاهما رصد `attempt_count = 4` بدل
+     * الحدّ الأقصى 3 («Failed asserting that 4 is equal to 3 or is less
+     * than 3.»). أُعيد الإصلاح فورًا (`<` كما كانت). والتفصيل الكامل
+     * لخطوات الزرع والإسقاط في `_STATUS.md`.
      */
     public function test_the_retry_ceiling_guard_is_real_not_cosmetic(): void
     {
