@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\ApiKeyController;
 use App\Http\Controllers\Admin\DevelopersController;
+use App\Http\Controllers\Admin\TerminalController;
 use App\Http\Controllers\Admin\WebhookController;
 use Illuminate\Support\Facades\Route;
 
@@ -46,4 +47,13 @@ Route::middleware(['auth', 'admin.panel'])->prefix('admin/developers')->name('ad
         ->middleware('permission:webhooks.manage')->name('webhooks.test');
     Route::post('/webhook-deliveries/{delivery}/retry', [WebhookController::class, 'retry'])
         ->middleware('permission:webhooks.manage')->name('webhook-deliveries.retry');
+
+    /*
+     | تاب Terminal (12.15-هـ) — مالك المنصّة حصرًا، **لا `permission:` هنا**:
+     | لا صلاحيّة تُمنَح لأيّ دورٍ آخر لهذا التاب (الدستور صريح)، والحارس
+     | الوحيد `isPlatformOwner()` داخل `TerminalController::run()` نفسه —
+     | مجموعة الميدلوير هنا (`auth` + `admin.panel`) هي فقط باب الدخول العامّ
+     | للوحة، لا حارس هذا المسار تحديدًا.
+     */
+    Route::post('/terminal/run', [TerminalController::class, 'run'])->name('terminal.run');
 });

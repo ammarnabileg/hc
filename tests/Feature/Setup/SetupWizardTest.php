@@ -268,6 +268,106 @@ class SetupWizardTest extends SetupTestCase
         $this->assertStringContainsString('APP_KEY=base64:', file_get_contents($this->root.'/.env'));
     }
 
+    // ------------------------------------------------ التدفّق الكامل بلا الحقول الزائدة (2.2 — القرار 25)
+
+    /**
+     * إثبات شامل: التنصيب الكامل من التوكن حتّى «أنهِ التنصيب» ينجح رغم أنّ
+     * أيًّا من الطلبات لا يحمل db_host/db_port/app_url/timezone/locale،
+     * وأنّ القيم الافتراضيّة الصحيحة (127.0.0.1 · 3306 · رابط الطلب · Africa/Cairo · ar)
+     * تنتهي فعليًّا في ‎.env‎ — لا نظريًّا فقط.
+     */
+    public function test_full_installation_succeeds_without_the_removed_fields_and_defaults_land_in_env(): void
+    {
+        $this->seed(RoleSeeder::class);
+
+        // 1) التوكن
+        $this->get(route('setup.token'))->assertOk();
+
+        $this->post(route('setup.token.verify'), ['token' => $this->tokenFromFile()])
+            ->assertRedirect(route('setup.requirements'))
+            ->assertSessionHas('setup.token_ok', true);
+
+        // 2) فحص المتطلّبات
+        @mkdir($this->root.'/bootstrap/cache', 0777, true);
+
+        $this->post(route('setup.requirements.store'))
+            ->assertRedirect(route('setup.database'))
+            ->assertSessionHasNoErrors();
+
+        // 3) قاعدة البيانات — بلا db_host ولا db_port في الطلب إطلاقًا
+        $dbInput = [
+            'db_database' => 'platform_db',
+            'db_username' => 'platform_user',
+            'db_password' => 'platform-secret',
+        ];
+
+        // بيئة الاختبار بلا خادم MySQL فعليّ، فنُحاكي نجاح [اختبار الاتّصال]
+        // بوضع بصمة مطابقة لما سيشتقّه المتحكّم تلقائيًّا (مضيف/منفذ ثابتان).
+        session()->put(
+            'setup.db_fingerprint',
+            $this->fingerprintFor($dbInput + ['db_host' => '127.0.0.1', 'db_port' => '3306'])
+        );
+
+        $this->post(route('setup.database.store'), $dbInput)
+            ->assertRedirect(route('setup.migrate'))
+            ->assertSessionHasNoErrors();
+
+        $this->assertFileExists($this->root.'/.env');
+
+        // 4) المايجريشن: تشغيله الفعليّ يُبدّل اتّصال قاعدة بيانات الاختبار
+        // نفسه (RefreshDatabase) — فنُتِمّه في الجلسة كبقيّة اختبارات هذا الملف
+        // (owner/platform) بلا تشغيلٍ فعليّ، لأنّ الجداول والأدوار مُجهَّزة
+        // بالفعل عبر seed(RoleSeeder::class) أعلاه.
+        session()->put('setup.completed', [...session('setup.completed', []), 'migrate']);
+
+        // 5) بيانات المنصّة — بلا app_url ولا timezone ولا locale في الطلب إطلاقًا
+        $this->post(route('setup.platform.store'), ['app_name' => 'منصّة الاختبار الكاملة'])
+            ->assertRedirect(route('setup.owner'))
+            ->assertSessionHasNoErrors();
+
+        // 6) حساب المالك — بلا phone في الطلب إطلاقًا
+        $this->post(route('setup.owner.store'), [
+            'name' => 'مالك المنصّة',
+            'email' => 'owner-full-flow@platform.test',
+            'password' => 'a-very-strong-password',
+            'password_confirmation' => 'a-very-strong-password',
+        ])->assertRedirect(route('setup.finish'))
+            ->assertSessionHasNoErrors();
+
+        // 7) الإنهاء
+        Setting::create([
+            'key' => 'setup.finish.link_storage',
+            'group' => 'setup',
+            'label_ar' => 'ربط مجلّد التخزين بعد التنصيب',
+            'type' => 'bool',
+            'value' => '0',
+        ]);
+
+        Cache::forget('settings');
+
+        $this->post(route('setup.finish.install'))
+            ->assertOk()
+            ->assertSee('منصّة الاختبار الكاملة');
+
+        $this->assertFileExists($this->root.'/storage/installed.lock');
+
+        $env = (string) file_get_contents($this->root.'/.env');
+
+        $this->assertStringContainsString('DB_HOST=127.0.0.1', $env);
+        $this->assertStringContainsString('DB_PORT=3306', $env);
+        $this->assertStringContainsString('DB_DATABASE=platform_db', $env);
+        $this->assertStringContainsString('APP_URL=http://localhost', $env);
+        $this->assertStringContainsString('APP_TIMEZONE=Africa/Cairo', $env);
+        $this->assertStringContainsString('APP_LOCALE=ar', $env);
+
+        $owner = User::where('email', 'owner-full-flow@platform.test')->firstOrFail();
+
+        $this->assertTrue($owner->hasRole('platform_owner'));
+        $this->assertSame('active', $owner->status);
+        // العمود Nullable+Unique؛ هاتف المالك لم يعد يُطلَب في فورم /setup (2.2)
+        $this->assertNull($owner->phone);
+    }
+
     /**
      * الحقول الثلاثة التي يطلبها فورم قاعدة البيانات فقط بعد 2.2 — المضيف
      * والمنفذ لم يعودا يُرسَلان من العميل إطلاقًا (ثابتان من الإعدادات).

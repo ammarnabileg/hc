@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\ApiKey;
 use App\Models\ApiRequestLog;
+use App\Models\TerminalCommandLog;
 use App\Models\Webhook;
 use App\Models\WebhookDelivery;
 use App\Services\Developers\ApiEndpointCatalog;
@@ -14,25 +15,25 @@ use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 /**
- * 🧩 المطوّرين — API و Webhooks (12.15 · v5.5 قسمٌ جديد، سجلّ القرارات 25).
+ * 🧩 المطوّرين — API وWebhooks والطرفيّة (12.15 · v5.5/v5.6، سجلّ القرارات 25).
  *
- * دروب-داون بصفحتين كما أمر المالك حرفيًّا: **API** (12.15-أ) و**Webhooks**
- * (12.15-ب) — كلاهما مبنيّ كاملًا الآن فوق نفس الراوت بـ`?tab=`.
+ * دروب-داون بثلاث صفحات: **API** (12.15-أ) و**Webhooks** (12.15-ب) و**الطرفيّة**
+ * (12.15-هـ، مستحدَثةٌ بأمر المالك 2026-08-06) — الثلاثة فوق نفس الراوت بـ`?tab=`.
  *
  * ⭐ **كلّ تابٍّ يُحرَس بصلاحيّته هو لا بباب الشاشة العامّ وحده** — تاب `api`
- * يتطلّب `integrations.view` تحديدًا وتاب `webhooks` يتطلّب `webhooks.view`،
- * على نمط `StatsController::tabsFor()` (12.2.1-أ) لا `GamificationController`
- * الذي يكتفي بباب الشاشة الجامع — فمَن يملك إحدى الصلاحيّتين فقط لا يُخيَّر
- * افتراضيًّا في تابٍّ لا يملكه.
+ * يتطلّب `integrations.view` وتاب `webhooks` يتطلّب `webhooks.view`، على نمط
+ * `StatsController::tabsFor()` (12.2.1-أ). أمّا تاب `terminal` **فلا صلاحيّة
+ * له إطلاقًا** — الدستور صريح: «مالك المنصّة حصرًا — لا صلاحيّة تُمنَح لأيّ
+ * دورٍ آخر، ولا استثناء»، فحارسه `isPlatformOwner()` مباشرةً لا `TAB_PERMISSIONS`.
  */
 class DevelopersController extends Controller
 {
-    public const TAB_KEYS = ['api', 'webhooks'];
+    public const TAB_KEYS = ['api', 'webhooks', 'terminal'];
 
-    /** باب الشاشة بسعة تابيها معًا — ومَن لا يملك أيًّا منهما لا يفتح الباب أصلًا */
+    /** باب الشاشة بسعة التابات معًا — ومَن لا يملك أيًّا منها لا يفتح الباب أصلًا */
     public const GATE_KEYS = ['integrations.view', 'integrations.list', 'webhooks.view', 'webhooks.list'];
 
-    /** صلاحيّة كلّ تابّ على حدة (12.2.1-أ) */
+    /** صلاحيّة كلّ تابّ على حدة (12.2.1-أ) — `terminal` عمدًا غائبٌ هنا (owner-only بلا صلاحيّة) */
     private const TAB_PERMISSIONS = [
         'api' => 'integrations.view',
         'webhooks' => 'webhooks.view',
@@ -44,6 +45,7 @@ class DevelopersController extends Controller
         return [
             'api' => (string) setting('developers.admin.tab_api', 'API'),
             'webhooks' => (string) setting('developers.admin.tab_webhooks', 'Webhooks'),
+            'terminal' => (string) setting('developers.admin.tab_terminal', 'الطرفيّة'),
         ];
     }
 
@@ -52,7 +54,13 @@ class DevelopersController extends Controller
         $tab = $request->string('tab')->toString() ?: 'api';
 
         abort_unless(in_array($tab, self::TAB_KEYS, true), 404);
-        abort_unless($request->user()?->can(self::TAB_PERMISSIONS[$tab]), 403);
+
+        // تاب الطرفيّة owner-only بلا مفتاح صلاحيّة (12.15-هـ) — التابان الآخران بمفتاحيهما المعتادَين
+        if ($tab === 'terminal') {
+            abort_unless($request->user()?->isPlatformOwner(), 403);
+        } else {
+            abort_unless($request->user()?->can(self::TAB_PERMISSIONS[$tab]), 403);
+        }
 
         return view('admin.developers.index', [
             'tab' => $tab,
@@ -90,6 +98,15 @@ class DevelopersController extends Controller
                     ->get(),
                 'plainSecret' => session('plain_webhook_secret'),
                 'plainSecretName' => session('plain_webhook_secret_name'),
+            ],
+            'terminal' => [
+                // آخر 200 أمر — أحدث ما نُفِّذ أوّلًا (12.15-هـ · 12.15-و)
+                'logs' => TerminalCommandLog::query()
+                    ->with('user:id,name,code')
+                    ->latest('id')
+                    ->limit((int) setting('developers.terminal.log_retention_count', 200))
+                    ->get(),
+                'enabled' => (bool) setting('developers.terminal.enabled', true),
             ],
             default => [],
         };

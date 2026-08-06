@@ -208,12 +208,19 @@
          | 🧩 المطوّرين (12.15 — مستحدَثٌ بأمر المالك 2026-08-06، سجلّ القرارات 25):
          | يظهر **فوق** «الإعدادات والنظام» تطبيقًا لملاحظة 12.7 نفسها («سيأتي
          | فوقه أقسامٌ لاحقًا») — فالإعدادات تبقى آخر قسمٍ دائمًا ولا تنزاح.
-         | تاب Webhooks مذكورٌ هنا **رابطًا فقط** — محتواه يُبنى لاحقًا (12.15-ب)
-         | فوق نفس المسار `admin.developers.index?tab=webhooks` بلا تعديل سايد بار ثانٍ.
+         |
+         | تابٌ ثالث «الطرفيّة» (12.15-هـ · v5.6، سجلّ القرارات 25) — **مالك
+         | المنصّة حصرًا، لا صلاحيّة تُمنَح لأيّ دورٍ آخر** — فبنده يُبنى بنفس
+         | أسلوب «🔒 الماليّات» owner-only أعلاه: `permission` **null** (لا مفتاح
+         | صلاحيّةٍ اختُرِع له) + شرط `isPlatformOwner()` فوقه في الـspread، لا
+         | فحص صلاحيّةٍ من `$can()` إطلاقًا.
          */
         ['🧩', setting('nav.admin.group_developers', 'المطوّرين'), $filter([
             [setting('nav.admin.item_developers_api', 'API'), 'admin.developers.index', 'integrations.view', ['tab' => 'api']],
             [setting('nav.admin.item_developers_webhooks', 'Webhooks'), 'admin.developers.index', 'webhooks.view', ['tab' => 'webhooks']],
+            ...($u->isPlatformOwner() ? [
+                [setting('nav.admin.item_developers_terminal', 'الطرفيّة'), 'admin.developers.index', null, ['tab' => 'terminal']],
+            ] : []),
         ])],
     ];
 
