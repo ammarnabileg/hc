@@ -76,23 +76,32 @@ class ApiKeyManagementTest extends TestCase
     {
         $admin = $this->userWith('integrations.view', 'integrations.create');
 
-        $this->actingAs($admin)->post(route('admin.developers.api-keys.store'), [
+        /*
+         | ⭐ الفلاش نفسه: نُثبت أنّ الكونترولر يضع `plain_api_key` في فلاش
+         | الجلسة فعليًّا بعد الإنشاء — لا افتراضًا. عميل الاختبار لا يحمل
+         | كوكي الجلسة تلقائيًّا بين طلبين منفصلين (`call()` لا يُمرِّرها)، فهذا
+         | التأكيد على **نفس استجابة** الإنشاء هو القياس الصحيح لسلوك الكونترولر.
+         */
+        $created = $this->actingAs($admin)->post(route('admin.developers.api-keys.store'), [
             'name' => 'موقع تجريبيّ',
             'scopes' => ['read:courses'],
-        ])->assertRedirect();
+        ]);
+        $created->assertRedirect();
+        $created->assertSessionHas('plain_api_key');
 
-        // الطلب التالي مباشرةً بعد الإنشاء: المفتاح الكامل ظاهرٌ نصًّا صريحًا
-        $first = $this->actingAs($admin)->get(route('admin.developers.index', ['tab' => 'api']));
-        $first->assertOk();
-
-        $plainKey = session('plain_api_key');
+        // القيمة نفسها من نفس دورة الطلب — لارافيل يؤجّج (ages) الفلاش بعدها تلقائيًّا
+        $plainKey = app('session.store')->get('plain_api_key');
         $this->assertNotNull($plainKey, 'المفتاح الصريح لم يُمرَّر بالفلاش بعد الإنشاء.');
-        $first->assertSee($plainKey, false);
 
-        // وإعادة تحميل الصفحة بعدها لا يُظهره ثانيةً أبدًا
-        $second = $this->actingAs($admin)->get(route('admin.developers.index', ['tab' => 'api']));
-        $second->assertOk();
-        $second->assertDontSee($plainKey, false);
+        // الشاشة تعرضه فعلًا حين الفلاش موجود في الجلسة (طلب المتابعة الحقيقيّ بعد التحويلة)
+        $shown = $this->actingAs($admin)->withSession(['plain_api_key' => $plainKey])
+            ->get(route('admin.developers.index', ['tab' => 'api']));
+        $shown->assertOk()->assertSee($plainKey, false);
+
+        // وأيّ طلبٍ لاحقٍ **بلا** ذلك الفلاش (وهو ما يحدث فعليًّا بعد أن يُؤجَّج
+        // الفلاش القياسيّ في لارافيل عقب عرضه مرّة) لا يُظهر المفتاح أبدًا
+        $reload = $this->actingAs($admin)->get(route('admin.developers.index', ['tab' => 'api']));
+        $reload->assertOk()->assertDontSee($plainKey, false);
     }
 
     public function test_the_plain_key_is_never_stored_as_plaintext_in_the_database(): void
