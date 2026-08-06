@@ -137,6 +137,23 @@ class ApiKeyManagementTest extends TestCase
         $response->assertStatus(401)->assertJson(['error' => 'missing_or_invalid_key']);
     }
 
+    /**
+     * ⭐ **Mutation مُثبَت (12.15-ج):** عند تعطيل `Hash::check()` في `resolve()`
+     * مؤقّتًا أثناء البناء سقط هذا الاختبار فعلًا (بادئة صحيحة + سرّ خاطئ ردّت
+     * 200 لا 401) — والتفصيل في `_STATUS.md`. أُعيد الفحص فورًا.
+     */
+    public function test_a_correct_prefix_with_the_wrong_secret_is_rejected_with_401(): void
+    {
+        $admin = $this->userWith('integrations.view', 'integrations.create');
+        $result = app(ApiKeyService::class)->create('بادئة صحيحة', ['read:courses'], $admin);
+
+        [$prefix] = explode('.', $result['plain_key'], 2);
+        $wrongKey = $prefix.'.'.str()->random(40);
+
+        $this->withHeaders($this->bearer($wrongKey))->getJson('/api/v1/ping')
+            ->assertStatus(401)->assertJson(['error' => 'missing_or_invalid_key']);
+    }
+
     public function test_missing_authorization_header_is_rejected_with_401(): void
     {
         $this->getJson('/api/v1/ping')->assertStatus(401)->assertJson(['error' => 'missing_or_invalid_key']);
