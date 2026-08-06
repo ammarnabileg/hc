@@ -19,6 +19,18 @@ use Illuminate\View\View;
  */
 class PublicVerificationController extends Controller
 {
+    /**
+     * الاستعلام الوحيد لإيجاد شهادة بكودها — مصدر الحقيقة الذي تعتمد عليه
+     * أيّ نقطة تحقّق أخرى (2.11)، ومنها `GET /api/v1/certificates/{code}/verify`
+     * (12.15-أ) — فلا يُكتَب شرط «موجودة/صالحة» مرّتين قد يختلفان يومًا.
+     */
+    public static function lookup(string $code): ?Certificate
+    {
+        $code = ltrim(trim($code), '#');
+
+        return $code === '' ? null : Certificate::query()->where('code', $code)->first();
+    }
+
     public function show(Request $request, ?string $code = null): View
     {
         $code = trim((string) ($code ?? $request->query('code', '')));
