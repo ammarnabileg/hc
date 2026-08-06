@@ -170,7 +170,7 @@
                 var ok = exitCode === 0;
                 badge.style.background = 'color-mix(in srgb, var(--color-state-' + (ok ? 'ok' : 'danger') + ') 15%, transparent)';
                 badge.style.color = 'var(--color-state-' + (ok ? 'ok' : 'danger') + ')';
-                badge.textContent = String(exitCode);
+                badge.textContent = (ok ? ICON_OK : ICON_DANGER) + ' ' + String(exitCode);
                 tdExit.appendChild(badge);
                 tr.appendChild(tdExit);
 
@@ -233,8 +233,11 @@
                         outputBox.textContent = result.body.output || '';
                         metaBox.textContent = LABEL_EXIT + ': ' + result.body.exit_code + '  ·  ' + LABEL_DURATION + ': ' + result.body.duration_ms + 'ms';
 
-                        // انعكاسٌ فوريّ في جدول السجلّ بلا إعادة تحميل الصفحة (سيراه كاملًا بعد أوّل تحديث للصفحة أيضًا)
-                        window.location.reload();
+                        // انعكاسٌ فوريّ في جدول السجلّ بصفٍّ جديد أعلاه — بلا إعادة تحميل
+                        // الصفحة (كانت ستمحو المخرَجات المعروضة للتوّ في outputBox أعلاه)
+                        prependLogRow(command, result.body.exit_code, result.body.duration_ms, result.body.output || '');
+
+                        input.value = '';
                     })
                     .catch(function () {
                         runBtn.disabled = false;
