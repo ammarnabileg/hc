@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\AuthenticateApiKey;
 use App\Http\Middleware\EnsureAccountNotContained;
 use App\Http\Middleware\EnsureAdminPanel;
 use App\Http\Middleware\EnsureCriticalAcknowledged;
@@ -27,6 +28,8 @@ return Application::configure(basePath: dirname(__DIR__))
             'admin.panel' => EnsureAdminPanel::class,
             // شاشة «قسمي» (24.4-7): المفتاح + (النطاق **أو** عضويّة القسم) — لا مشيَ نطاقٍ وحده
             'department.member' => EnsureDepartmentMembership::class,
+            // بوّابة الـAPI الخارجيّة (12.15-ج): مفتاح + Scope اختياريّ + حدّ معدّل + تسجيل
+            'api.key' => AuthenticateApiKey::class,
         ]);
 
         // سياق العضويّة النشطة يُحدَّد قبل أيّ تقييم صلاحيّة
