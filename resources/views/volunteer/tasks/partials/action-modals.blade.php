@@ -166,30 +166,9 @@
         </form>
     </x-modal>
 
-    {{-- دعوة مساهم (23-4) --}}
+    {{-- دعوة مساهم (23-4) — النموذج الموحَّد بمعاينته الحيّة قبل الإرسال --}}
     <x-modal id="invite-contributor" :title="setting('volunteer.tasks_action_modals.tooltip_6', 'دعوة مساهم')">
-        <form method="post" action="{{ route('volunteer.tasks.contributors.store', $task) }}" class="space-y-3">
-            @csrf
-
-            <x-form.input name="code" :label="setting('volunteer.tasks_action_modals.label_6', 'كود المتطوّع')" required />
-            <x-form.input name="item_title" :label="setting('volunteer.common.item', 'البند')" required />
-            <x-form.input name="internal_deadline_at" :label="setting('volunteer.tasks_action_modals.label_7', 'الديدلاين الداخليّ')" type="datetime-local" required
-                          :hint="setting('volunteer.tasks_action_modals.hint_5', 'لازم يسبق ديدلاين المهمّة بـ24 ساعة على الأقلّ.')" />
-            <x-form.input name="vxp_value" label="VXP" type="number" step="0.01" min="0" />
-
-            <label class="block">
-                <span class="block text-sm mb-1">{{ setting('volunteer.common.output_format', 'شكل المخرجات') }}</span>
-                <textarea name="deliverable_spec" rows="2" required class="w-full rounded-xl px-3 py-2 text-sm"
-                          style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)"></textarea>
-            </label>
-
-            <div class="flex justify-end gap-2 pt-2">
-                <button type="button" data-modal-close class="rounded-xl px-4 py-2 text-sm"
-                        style="background: var(--surface-raised)">{{ setting('volunteer.common.cancel', 'إلغاء') }}</button>
-                <button type="submit" class="btn rounded-xl px-4 py-2 text-sm font-semibold"
-                        style="background: var(--color-brand-500); color: #04201c">{{ setting('volunteer.tasks_action_modals.action_7', 'ابعت الدعوة') }}</button>
-            </div>
-        </form>
+        @include('volunteer.contributions.partials.invite-form', ['task' => $task])
     </x-modal>
 
     {{-- رفع علم «متأخّر بسبب…» (23-3.9-4) --}}

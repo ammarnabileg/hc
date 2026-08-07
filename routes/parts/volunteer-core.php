@@ -59,10 +59,6 @@ Route::middleware('auth')->prefix('volunteer')->name('volunteer.')->group(functi
     Route::post('/tasks/{task}/subtasks', [TaskController::class, 'storeSubtasks'])
         ->whereNumber('task')->middleware('permission:subtasks.create')->name('tasks.subtasks.store');
 
-    // دعوة مساهم — على صب-تاسك معتمد (23-4)
-    Route::post('/tasks/{task}/contributors', [TaskController::class, 'inviteContributor'])
-        ->whereNumber('task')->middleware('permission:contributions.create')->name('tasks.contributors.store');
-
     // التودو: شخصيّ بلا اعتماد وبلا أثر على أيّ درجة (23-2.1)
     Route::post('/tasks/{task}/todos', [TaskController::class, 'storeTodo'])
         ->whereNumber('task')->middleware('permission:todos.create')->name('tasks.todos.store');

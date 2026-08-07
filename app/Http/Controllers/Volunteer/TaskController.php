@@ -13,6 +13,7 @@ use App\Models\TaskTodo;
 use App\Models\TaskType;
 use App\Models\User;
 use App\Models\WorkItem;
+use App\Services\Volunteer\Contributions\ContributionService;
 use App\Services\Volunteer\Org\AbsenceService;
 use App\Services\Volunteer\Tasks\ActivityWindow;
 use App\Services\Volunteer\Tasks\SubtaskBatch;
@@ -43,6 +44,7 @@ class TaskController extends Controller
         private readonly TaskBlockService $blocks,
         private readonly SubtaskBatch $batch,
         private readonly ActivityWindow $window,
+        private readonly ContributionService $contributions,
     ) {}
 
     /** مهامّي: عدّاد سقف الانشغال + [مهمّة جديدة] + تبديل (قائمة/كانبان) */
@@ -289,60 +291,6 @@ class TaskController extends Controller
         $created = $this->batch->save($task, is_array($rows) ? $rows : [], $user);
 
         return back()->with('status', strtr((string) setting('workflow.tasks.store_subtasks_ok', 'اتحفظت الدفعة ✓ — :a1 صب-تاسك راحوا لمراجعة أبلاينك.'), [':a1' => (string) ($created->count())]));
-    }
-
-    /** دعوة مساهم — على صب-تاسك معتمد، وبديدلاين داخليّ قبل ديدلاين المهمّة (23-4) */
-    public function inviteContributor(Request $request, Task $task)
-    {
-        $user = $request->user();
-        $this->authorizeOwner($user, $task);
-
-        $data = $request->validate([
-            'code' => ['required', 'string'],
-            'item_title' => ['required', 'string', 'max:180'],
-            'internal_deadline_at' => ['required', 'date'],
-            'vxp_value' => ['nullable', 'numeric', 'min:0'],
-            'instructions' => ['nullable', 'string'],
-            'deliverable_spec' => ['required', 'string'],
-        ], [], ['deliverable_spec' => (string) setting('workflow.tasks.invite_contributor_msg', 'شكل المخرجات')]);
-
-        $contributor = User::query()->where('code', $data['code'])->first();
-
-        if (! $contributor) {
-            throw ValidationException::withMessages(['code' => (string) setting('workflow.tasks.invite_contributor_empty', 'مفيش متطوّع بالكود ده — راجع الكود وجرّب تاني.')]);
-        }
-
-        // «ولا يُدعى مساهمًا» طول غيابه المعذور (23-6)
-        if (app(AbsenceService::class)->isAbsent($contributor)) {
-            throw ValidationException::withMessages([
-                'code' => strtr((string) setting('workflow.tasks.invite_contributor_msg_2', ':a1 في وضع «غائب» دلوقتي — ادعُ حدًّا تاني أو استنّى رجوعه.'), [':a1' => (string) ($contributor->shortName())]),
-            ]);
-        }
-
-        $internal = Carbon::parse($data['internal_deadline_at']);
-        $limit = $task->deadline_at ? Carbon::parse($task->deadline_at)->subDay() : null;
-
-        if ($limit && $internal->greaterThan($limit)) {
-            throw ValidationException::withMessages([
-                'internal_deadline_at' => strtr((string) setting('workflow.tasks.invite_contributor_must', 'الديدلاين الداخليّ لازم يكون قبل ديدلاين المهمّة بـ24 ساعة على الأقلّ (:a1 كحدّ أقصى).'), [':a1' => (string) ($limit->format('Y-m-d H:i'))]),
-            ]);
-        }
-
-        TaskContribution::create([
-            'task_id' => $task->id,
-            'contributor_id' => $contributor->id,
-            'invited_by' => $user->id,
-            'item_title' => $data['item_title'],
-            'instructions' => $data['instructions'] ?? null,
-            'deliverable_spec' => $data['deliverable_spec'],
-            'internal_deadline_at' => $internal,
-            'vxp_value' => $data['vxp_value'] ?? 0,
-            'status' => 'invited',
-            'invited_at' => now(),
-            'owner_review_due_at' => $internal->copy()->addHours((int) setting('workflow.contribution.owner_review_hours', 24)),
-        ]);
-
-        return back()->with('status', strtr((string) setting('workflow.tasks.invite_contributor_ok', 'اتبعتت الدعوة ✓ — هتظهر لـ:a1 في «مساهماتي».'), [':a1' => (string) ($contributor->shortName())]));
     }
 
     /** التودو: شخصيّ بلا اعتماد وبلا أثر على أيّ درجة (23-2.1) */

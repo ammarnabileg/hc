@@ -171,8 +171,20 @@ class Integrations
                 ['balance' => 0, 'lifetime_earned' => 0, 'lifetime_spent' => 0],
             );
 
+            /*
+             | ⭐ نفس حارس LedgerService::documentedHumanDeduction() (13.4-ن ·
+             | §23-5: لا خصم آليّ على VXP/XP إطلاقًا). هذا المسار احتياطيّ نائم
+             | لا يعمل إلّا إذا تعطّل الدفتر الأصليّ، ولا يجوز أن يفتح بابًا خلفيًّا
+             | للخصم الآليّ كان الدفتر الأصليّ يقفله — السطر يبقى شاهدًا على
+             | المحاولة بقيمتها، لكنّها لا تُطبَّق على الرصيد.
+             */
+            $blocked = $signedAmount < 0 && $currency->is_cumulative && ! $currency->is_spendable
+                && ! self::documentedHumanDeduction($user, $actor, $source);
+
+            $effective = $blocked ? 0.0 : $signedAmount;
+
             // بلا قصٍّ عند الصفر — النزول تحت الصفر مسموح صراحةً (12.9)
-            $after = round((float) $wallet->balance + $signedAmount, 2);
+            $after = round((float) $wallet->balance + $effective, 2);
 
             if ($currency->min_value !== null) {
                 $after = max($after, (float) $currency->min_value);
@@ -187,8 +199,8 @@ class Integrations
             $wallet->forceFill([
                 'balance' => $after,
                 // المكتسَب التراكميّ من **المطلوب كاملًا** لا من المسقوف (13.4-ن-و)
-                'lifetime_earned' => round((float) $wallet->lifetime_earned + max(round($signedAmount, 2), 0), 2),
-                'lifetime_spent' => round((float) $wallet->lifetime_spent + abs(min(round($signedAmount, 2), 0)), 2),
+                'lifetime_earned' => round((float) $wallet->lifetime_earned + max(round($effective, 2), 0), 2),
+                'lifetime_spent' => round((float) $wallet->lifetime_spent + abs(min(round($effective, 2), 0)), 2),
             ])->save();
 
             return Transaction::create([
@@ -206,5 +218,28 @@ class Integrations
                 'objection_deadline_at' => now()->addDays((int) setting('rep.objection.window_days', 5)),
             ]);
         });
+    }
+
+    /** نظير LedgerService::documentedHumanDeduction() — بلا مسار «تصحيح» هنا لأنّ `post()` لا يمرّره أصلًا */
+    private static function documentedHumanDeduction(User $user, ?User $actor, string $source): bool
+    {
+        if ($actor === null) {
+            return false;
+        }
+
+        if ((int) $actor->id !== (int) $user->id) {
+            return true;
+        }
+
+        return in_array($source, self::selfSpendSources(), true);
+    }
+
+    /** @return array<int,string> */
+    private static function selfSpendSources(): array
+    {
+        $raw = setting('wallet.cumulative.self_spend_sources', "contribution.hold\ntask");
+        $lines = is_array($raw) ? $raw : (preg_split('/[\r\n,]+/', (string) $raw) ?: []);
+
+        return array_values(array_filter(array_map('trim', $lines), static fn ($v) => $v !== ''));
     }
 }

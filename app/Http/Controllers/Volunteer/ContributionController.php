@@ -12,9 +12,11 @@ use App\Services\Volunteer\Contributions\ContributionService;
 use App\Services\Volunteer\Escalation\CaseCatalog;
 use App\Services\Volunteer\Escalation\EscalationEngine;
 use App\Services\Volunteer\Escalation\FlowLedger;
+use App\Services\Volunteer\Org\AbsenceService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 /**
@@ -28,6 +30,7 @@ class ContributionController extends Controller
     public function __construct(
         private readonly ContributionService $contributions,
         private readonly EscalationEngine $engine,
+        private readonly AbsenceService $absence,
     ) {}
 
     public function index(Request $request): View
@@ -131,9 +134,20 @@ class ContributionController extends Controller
         ]);
     }
 
-    /** إرسال الدعوة بعد فحص القيود كلّها في الخدمة */
+    /**
+     * إرسال الدعوة بعد فحص القيود كلّها في الخدمة.
+     *
+     * ⭐ ملكيّة المهمّة تُفحَص هنا صراحةً — `contributions.create` وحدها لا
+     * تكفي (نطاقها لا يقيّد بالمهمّة بعينها)، والدعوة فعلٌ لصاحب المهمّة فقط
+     * (23-4)، تمامًا كما كان `TaskController::authorizeOwner()` يفعل في
+     * المسار المزدوَج القديم قبل توحيدهما في هذا المسار الوحيد.
+     */
     public function store(Request $request, Task $task): RedirectResponse
     {
+        $user = $request->user();
+
+        abort_unless((int) $task->owner_id === (int) $user->id, 403, (string) setting('workflow.tasks.authorize_owner_msg', 'الفعل ده لصاحب المهمّة.'));
+
         $data = $request->validate([
             'code' => ['required', 'string'],
             'item_title' => ['required', 'string', 'max:255'],
@@ -148,7 +162,14 @@ class ContributionController extends Controller
 
         $invitee = User::query()->where('code', $data['code'])->firstOrFail();
 
-        $this->contributions->invite($task, $request->user(), $invitee, $data);
+        // «ولا يُدعى مساهمًا» طول غيابه المعذور (23-6)
+        if ($this->absence->isAbsent($invitee)) {
+            throw ValidationException::withMessages([
+                'code' => strtr((string) setting('workflow.tasks.invite_contributor_msg_2', ':a1 في وضع «غائب» دلوقتي — ادعُ حدًّا تاني أو استنّى رجوعه.'), [':a1' => (string) ($invitee->shortName())]),
+            ]);
+        }
+
+        $this->contributions->invite($task, $user, $invitee, $data);
 
         return back()->with('status', (string) setting('workflow.contribution.store_ok', 'اتبعتت الدعوة ✓'));
     }
