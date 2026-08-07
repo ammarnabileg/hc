@@ -113,6 +113,10 @@ class AvailabilityService
      */
     public function dailyWindow(Course $course): ?array
     {
+        if (! (bool) setting('learning.lock.outside_hours_enabled', true)) {
+            return null;
+        }
+
         $open = $this->clampTime($course->daily_open_at);
         $close = $this->clampTime($course->daily_close_at);
 

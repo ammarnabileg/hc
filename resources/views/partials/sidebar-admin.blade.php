@@ -83,8 +83,8 @@
             [setting('nav.admin.item_training_question_bank', 'بنك الأسئلة والامتحانات'), 'admin.question-bank.index', 'question_bank.list'],
             // مكتبة الوسائط — بند صريح في خريطة 12.0
             [setting('nav.admin.item_training_media', 'مكتبة الوسائط'), 'admin.media.index', 'media_library.list'],
-            // إعدادات التعلّم — تابٌ داخل صفحة الإعدادات
-            [setting('nav.admin.item_training_settings', 'إعدادات التعلّم'), 'admin.settings.index', 'settings_general.view', ['tab' => 'learning']],
+            // إعدادات التعلّم — شاشة مستقلّة بصلاحيّة `learning_ux.*` من 12.2.2 (24.4)
+            [setting('nav.admin.item_training_settings', 'إعدادات التعلّم'), 'admin.learning-settings.index', 'learning_ux.view'],
             // ⬇︎ خارج نصّ 12.0: شاشةٌ مبنيّة لولاها لبقيت يتيمة (الإتاحة الزمنيّة — 5)
             [setting('nav.admin.item_training_availability', 'الإتاحة والتوقيت'), 'admin.availability.index', 'courses.list'],
         ])],

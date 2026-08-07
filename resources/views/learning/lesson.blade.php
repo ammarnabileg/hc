@@ -48,14 +48,16 @@
                    ]">
         <x-slot:action>
             {{-- ⭐ حفظ الدرس (3.4-34): حالة يقرّرها الخادم لا زينة في المتصفّح --}}
-            <form method="post" action="{{ route('learning.lesson.bookmark', [$course, $lesson]) }}">
-                @csrf
-                <button type="submit" class="inline-flex items-center rounded-xl px-3 py-2 text-sm motion-standard"
-                        style="background: var(--surface-raised); color: {{ $bookmarked ? 'var(--color-state-honor)' : 'var(--text-muted)' }}; min-block-size: 44px"
-                        aria-label="{{ $bookmarked ? setting('learning.bookmark.remove', 'إزالة الحفظ') : setting('learning.bookmark.add', 'احفظ الدرس') }}">
-                    <x-icon name="badge" size="16" />
-                </button>
-            </form>
+            @if (setting('learning.ux.bookmark_enabled', true))
+                <form method="post" action="{{ route('learning.lesson.bookmark', [$course, $lesson]) }}">
+                    @csrf
+                    <button type="submit" class="inline-flex items-center rounded-xl px-3 py-2 text-sm motion-standard"
+                            style="background: var(--surface-raised); color: {{ $bookmarked ? 'var(--color-state-honor)' : 'var(--text-muted)' }}; min-block-size: 44px"
+                            aria-label="{{ $bookmarked ? setting('learning.bookmark.remove', 'إزالة الحفظ') : setting('learning.bookmark.add', 'احفظ الدرس') }}">
+                        <x-icon name="badge" size="16" />
+                    </button>
+                </form>
+            @endif
 
             {{-- [التالي] هو الفعل الرئيسيّ، وسهم [السابق] بجواره (24.5) --}}
             @if ($previousUrl)
@@ -169,9 +171,11 @@
             @endif
 
             {{-- ملاحظات التدريب: مساحة واحدة مشتركة يصلها من أيّ درس (3.2) --}}
-            @can('course_notes.view')
-                @include('learning.partials.notes')
-            @endcan
+            @if ($notes_enabled)
+                @can('course_notes.view')
+                    @include('learning.partials.notes')
+                @endcan
+            @endif
 
             {{-- إكمال الدرس: سجلّ واحد لكلّ (مستخدم، درس) والقرار في الخادم --}}
             <section class="card p-4 flex items-center justify-between gap-3 flex-wrap">

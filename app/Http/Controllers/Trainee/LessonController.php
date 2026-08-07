@@ -79,10 +79,11 @@ class LessonController extends Controller
             'embed_url' => $this->embedUrl($lesson),
 
             // تعليقات الفيديو (3.1): تحت المشغّل، وأوّل دفعة فقط ثمّ تحميل تدريجيّ
-            'comments' => $isVideo ? $this->comments->paginate($lesson, $user) : null,
-            'comments_count' => $isVideo ? $this->comments->countFor($lesson, $user) : 0,
+            'comments' => $isVideo && $this->commentsEnabled() ? $this->comments->paginate($lesson, $user) : null,
+            'comments_count' => $isVideo && $this->commentsEnabled() ? $this->comments->countFor($lesson, $user) : 0,
 
             // ملاحظات التدريب (3.2): مساحة واحدة مشتركة يصلها من أيّ درس
+            'notes_enabled' => (bool) setting('learning.notes.enabled', true),
             'note_body' => $this->notes->bodyFor($user, $course),
             'note_max_length' => $this->notes->maxLength(),
         ]);
@@ -171,6 +172,8 @@ class LessonController extends Controller
      */
     public function bookmark(Request $request, Course $course, Lesson $lesson): RedirectResponse
     {
+        abort_unless((bool) setting('learning.ux.bookmark_enabled', true), 404);
+
         $user = $request->user();
         $this->enrollmentOrFail($user->id, $course->id);
         $this->assertBelongs($course, $lesson);
@@ -183,6 +186,11 @@ class LessonController extends Controller
     }
 
     // ------------------------------------------------------------ داخليّ
+
+    private function commentsEnabled(): bool
+    {
+        return (bool) setting('learning.comments.enabled', true);
+    }
 
     private function enrollmentOrFail(int $userId, int $courseId): Enrollment
     {

@@ -1517,6 +1517,18 @@ APP_DEBUG=false
             ['system.settings_registry.tabs_for_2', 'system', 'مصدر الحقيقة الوحيد لكلّ رقم ماليّ — مجموعة محميّة.', 'string', 'مصدر الحقيقة الوحيد لكلّ رقم ماليّ — مجموعة محميّة.', false],
             ['system.settings_registry.undo_1', 'system', 'مفيش تغيير سابق نرجع له.', 'string', 'مفيش تغيير سابق نرجع له.', false],
 
+            // ⭐ إعدادات التعلّم (24.4) — App\Services\Admin\System\LearningUxSettings::groups()
+            ['system.learning_ux_settings.groups_1', 'system', 'عرض الدرس', 'string', 'عرض الدرس', false],
+            ['system.learning_ux_settings.groups_2', 'system', 'التبديلات التي تظهر للمتدرّب أثناء الدرس والتدريب.', 'string', 'التبديلات التي تظهر للمتدرّب أثناء الدرس والتدريب.', false],
+            ['system.learning_ux_settings.groups_3', 'system', 'التعليقات', 'string', 'التعليقات', false],
+            ['system.learning_ux_settings.groups_4', 'system', 'تعليقات الفيديو تحت الدرس — تفعيل · لايك وردّ · تحميل تدريجيّ · حدّ الطول.', 'string', 'تعليقات الفيديو تحت الدرس — تفعيل · لايك وردّ · تحميل تدريجيّ · حدّ الطول.', false],
+            ['system.learning_ux_settings.groups_5', 'system', 'الملاحظات', 'string', 'الملاحظات', false],
+            ['system.learning_ux_settings.groups_6', 'system', 'مساحة ملاحظات التدريب المشتركة بين دروسه.', 'string', 'مساحة ملاحظات التدريب المشتركة بين دروسه.', false],
+            ['system.learning_ux_settings.groups_7', 'system', 'التوقيت والقفل', 'string', 'التوقيت والقفل', false],
+            ['system.learning_ux_settings.groups_8', 'system', 'كشف المنطقة الزمنيّة · منطقة الفشل الافتراضيّة · قفل خارج الأوقات · نصّ القفل.', 'string', 'كشف المنطقة الزمنيّة · منطقة الفشل الافتراضيّة · قفل خارج الأوقات · نصّ القفل.', false],
+            ['system.learning_ux_settings.groups_9', 'system', 'الاختبارات', 'string', 'الاختبارات', false],
+            ['system.learning_ux_settings.groups_10', 'system', 'القيم الافتراضيّة العامّة التي يرثها كلّ تدريب جديد.', 'string', 'القيم الافتراضيّة العامّة التي يرثها كلّ تدريب جديد.', false],
+
             // ---------------- updates
             ['updates.batch_migrator.body_1', 'updates', 'بصمة المحتوى مختلفة بين المصدر والهدف.', 'string', 'بصمة المحتوى مختلفة بين المصدر والهدف.', false],
             ['updates.batch_migrator.body_2', 'updates', 'الأعداد متطابقة لكنّ المحتوى مختلف — مفيش حذف.', 'string', 'الأعداد متطابقة لكنّ المحتوى مختلف — مفيش حذف.', false],

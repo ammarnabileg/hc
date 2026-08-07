@@ -33,6 +33,28 @@ class AdminScreenTextLearningDemoSeeder extends Seeder
         $this->questionBankScreenTextSettings();
         $this->availabilityScreenTextSettings();
         $this->articlesScreenTextSettings();
+        $this->learningSettingsScreenTextSettings();
+    }
+
+    /** نصوص شاشة «إعدادات التعلّم» (24.4) — resources/views/admin/content/learning-settings/** */
+    public function learningSettingsScreenTextSettings(): void
+    {
+        $this->write([
+            ['admin.content.learning_settings.index.title', 'courses', 'إعدادات التعلّم', 'string', 'إعدادات التعلّم', 'نصّ في resources/views/admin/content/learning-settings/index.blade.php — عنوانٌ منصوصٌ حرفيًّا في القسم 24.'],  // ⚠️ 24
+            ['admin.content.learning_settings.index.subtitle', 'courses', 'الضبط العامّ لتجربة التعلّم والتعليقات والملاحظات ومؤثّراتها.', 'string', 'الضبط العامّ لتجربة التعلّم والتعليقات والملاحظات ومؤثّراتها.', 'نصّ في resources/views/admin/content/learning-settings/index.blade.php'],
+            ['admin.content.learning_settings.index.crumb_1', 'courses', 'إدارة التدريب', 'string', 'إدارة التدريب', 'نصّ في resources/views/admin/content/learning-settings/index.blade.php'],
+            ['admin.content.learning_settings.index.reset_group', 'courses', 'إعادة المجموعة للافتراضيّ', 'string', 'إعادة المجموعة للافتراضيّ', 'نصّ في resources/views/admin/content/learning-settings/index.blade.php'],
+            ['admin.content.learning_settings.index.empty', 'courses', 'مجموعة فاضية — مفاتيحها لسّه بلا قارئ في الكود.', 'string', 'مجموعة فاضية — مفاتيحها لسّه بلا قارئ في الكود.', 'نصّ في resources/views/admin/content/learning-settings/index.blade.php'],
+            ['admin.content.learning_settings.index.read_only', 'courses', 'عرض فقط — بلا صلاحيّة تعديل.', 'string', 'عرض فقط — بلا صلاحيّة تعديل.', 'نصّ في resources/views/admin/content/learning-settings/index.blade.php'],
+            ['admin.content.learning_settings.index.js_saved', 'courses', 'تم الحفظ ✓', 'string', 'تم الحفظ ✓', 'نصّ في <script> — resources/views/admin/content/learning-settings/index.blade.php'],
+            ['admin.content.learning_settings.index.js_save_failed', 'courses', 'مااتحفظش', 'string', 'مااتحفظش', 'نصّ في <script> — resources/views/admin/content/learning-settings/index.blade.php'],
+            ['admin.content.learning_settings.index.js_reset_done', 'courses', 'رجعت للافتراضيّ ✓', 'string', 'رجعت للافتراضيّ ✓', 'نصّ في <script> — resources/views/admin/content/learning-settings/index.blade.php'],
+            ['admin.content.learning_settings.index.js_reset_group_confirm', 'courses', 'هل تُرجِع كلّ إعدادات هذه المجموعة للافتراضيّ؟', 'string', 'هل تُرجِع كلّ إعدادات هذه المجموعة للافتراضيّ؟', 'نصّ في <script> — resources/views/admin/content/learning-settings/index.blade.php'],
+            ['admin.content.learning_settings.field.reset', 'courses', 'Reset', 'string', 'Reset', 'نصّ في resources/views/admin/content/learning-settings/field.blade.php'],
+            ['admin.content.learning_settings.field.enabled', 'courses', 'مفعَّل', 'string', 'مفعَّل', 'نصّ في resources/views/admin/content/learning-settings/field.blade.php'],
+            ['admin.content.learning_settings.field.enable_first', 'courses', 'فعّل الميزة أوّلًا:', 'string', 'فعّل الميزة أوّلًا:', 'نصّ في resources/views/admin/content/learning-settings/field.blade.php'],
+            ['admin.content.learning_settings.reset_group_ok', 'courses', 'رجعت :count إعداد للافتراضيّ ✓', 'string', 'رجعت :count إعداد للافتراضيّ ✓', 'نصّ في app/Http/Controllers/Admin/LearningSettingsController.php'],
+        ]);
     }
 
     /** نصوص شاشات «إدارة التدريب» — 291 مفتاحًا */

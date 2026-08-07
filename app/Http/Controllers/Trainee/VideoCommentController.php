@@ -35,6 +35,8 @@ class VideoCommentController extends Controller
     /** دفعة تعليقات إضافيّة للتحميل التدريجيّ — تُعاد كجزء HTML جاهز للإلحاق */
     public function index(Request $request, Course $course, Lesson $lesson): View
     {
+        abort_unless($this->enabled(), 404);
+
         [$user] = $this->context($request, $course, $lesson);
 
         $page = max(1, (int) $request->query('page', 1));
@@ -50,11 +52,13 @@ class VideoCommentController extends Controller
 
     public function store(Request $request, Course $course, Lesson $lesson): RedirectResponse
     {
+        abort_unless($this->enabled(), 404);
+
         [$user] = $this->context($request, $course, $lesson);
 
         $data = $request->validate([
             'body' => ['required', 'string', 'min:1', 'max:'.$this->maxLength()],
-            'parent_id' => ['nullable', 'integer'],
+            'parent_id' => $this->likeReplyEnabled() ? ['nullable', 'integer'] : ['prohibited'],
         ], [
             // رسالة الخطأ = ماذا حدث + ماذا تفعل (2.17-ب)
             'body.required' => setting('learning.comments.empty_error'),
@@ -75,6 +79,8 @@ class VideoCommentController extends Controller
     /** تبديل اللايك — يردّ JSON للردّ الفوريّ، ويعمل كفورم عاديّ بلا جافاسكربت (2.17-أ) */
     public function like(Request $request, Course $course, Lesson $lesson, VideoComment $comment): JsonResponse|RedirectResponse
     {
+        abort_unless($this->enabled() && $this->likeReplyEnabled(), 404);
+
         [$user] = $this->context($request, $course, $lesson);
         $this->assertOnLesson($lesson, $comment);
 
@@ -128,6 +134,16 @@ class VideoCommentController extends Controller
     }
 
     // ------------------------------------------------------------ داخليّ
+
+    private function enabled(): bool
+    {
+        return (bool) setting('learning.comments.enabled', true);
+    }
+
+    private function likeReplyEnabled(): bool
+    {
+        return (bool) setting('learning.comments.like_reply_enabled', true);
+    }
 
     private function maxLength(): int
     {

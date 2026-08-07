@@ -17,7 +17,7 @@
         : null);
 @endphp
 
-@if (! empty($resume))
+@if (! empty($resume) && setting('learning.ux.resume_enabled', true))
     <a href="{{ route('learning.lesson', [$resume['course'], $resume['lesson_id']]) }}"
        class="btn fixed z-40 inline-flex items-center gap-2 rounded-full px-4 py-3 text-sm font-semibold motion-standard shadow-lg"
        style="inset-inline-end: 1rem; inset-block-end: 5.5rem; background: var(--color-brand-500); color: #04201c; min-block-size: 44px"

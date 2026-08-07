@@ -173,7 +173,7 @@
                                 @endif
 
                                 {{-- ⭐ حفظ الدرس (Bookmark — 3.4-34): القرار والتخزين في الخادم --}}
-                                @if ($unlocked)
+                                @if ($unlocked && setting('learning.ux.bookmark_enabled', true))
                                     <form method="post" action="{{ route('learning.lesson.bookmark', [$course, $lessonRow['id']]) }}">
                                         @csrf
                                         <button type="submit" class="motion-standard opacity-70 hover:opacity-100"
@@ -198,7 +198,7 @@
     </div>
 
     {{-- ⭐ مشاركة إنجاز/شهادة على السوشيال (3.4-47) — بعد الإنجاز الحقيقيّ فقط --}}
-    @if ($outline['total'] > 0 && $outline['percent'] >= (int) setting('learning.progress.complete_percent', 100))
+    @if (setting('learning.ux.share_enabled', true) && $outline['total'] > 0 && $outline['percent'] >= (int) setting('learning.progress.complete_percent', 100))
         @php
             $shareUrl = $certificate['exists'] && $certificate['url']
                 ? url($certificate['url'])

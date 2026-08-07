@@ -13,7 +13,7 @@
      */
 @endphp
 
-@if (! empty($half['reached']))
+@if (! empty($half['reached']) && setting('learning.ux.half_banner_enabled', true))
     <div role="status" aria-live="polite"
          class="card p-3 mb-4 flex items-center gap-3 flex-wrap animate-fadeup"
          style="border-inline-start: 3px solid var(--color-state-honor)">

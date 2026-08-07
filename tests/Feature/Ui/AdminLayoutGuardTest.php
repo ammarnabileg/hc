@@ -234,7 +234,7 @@ class AdminLayoutGuardTest extends UiTestCase
                 route('admin.courses.index'),
                 route('admin.question-bank.index'),
                 route('admin.media.index'),
-                route('admin.settings.index', ['tab' => 'learning']),
+                route('admin.learning-settings.index'),
                 route('admin.availability.index'),
             ], null],
             // 12.5 إدارة الشهادات

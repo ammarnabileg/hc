@@ -115,6 +115,7 @@ class LearningDemoSeeder extends Seeder
             // ---- الإتاحة والقفل: السبب مكتوب دائمًا ولا يُخفى العنصر (24.5)
             ['learning.course.published_status', 'string', 'published'],
             ['learning.lock.badge', 'string', 'مقفول'],
+            ['learning.lock.outside_hours_enabled', 'bool', '1'],
             ['learning.lock.forced_order_reason', 'string', 'يفتح بعد إكمال الدرس السابق'],
             ['learning.lock.quiz_reason', 'string', 'أجب عن أسئلة الدرس أوّلًا ليُحتسَب إكماله'],
             ['learning.lock.expired_reason', 'string', 'انتهت فترة إتاحة هذا التدريب'],
@@ -212,6 +213,8 @@ class LearningDemoSeeder extends Seeder
             // ---- تعليقات الفيديو (3.1)
             ['learning.comments.title', 'string', 'تعليقات الفيديو'],
             ['learning.comments.unit', 'string', 'تعليقًا'],
+            ['learning.comments.enabled', 'bool', '1'],
+            ['learning.comments.like_reply_enabled', 'bool', '1'],
             ['learning.comments.per_page', 'number', '6'],
             ['learning.comments.max_length', 'number', '1000'],
             ['learning.comments.placeholder', 'string', 'اكتب سؤالك أو خلاصتك من الفيديو…'],
@@ -240,6 +243,7 @@ class LearningDemoSeeder extends Seeder
             ['learning.notes.title', 'string', 'ملاحظاتي على التدريب'],
             ['learning.notes.hint', 'string', 'مساحة واحدة لكلّ دروس التدريب — تُحفَظ تلقائيًّا'],
             ['learning.notes.placeholder', 'string', 'اكتب خلاصتك، وستجدها في أيّ درسٍ آخر…'],
+            ['learning.notes.enabled', 'bool', '1'],
             ['learning.notes.max_length', 'number', '20000'],
             ['learning.notes.autosave_delay_ms', 'number', '800'],
             ['learning.notes.saving', 'string', 'بنحفظ…'],
@@ -344,9 +348,13 @@ class LearningDemoSeeder extends Seeder
             ['learning.paths.rank_of', 'string', 'من'],
             ['learning.paths.friends_limit', 'number', '12'],
 
-            // ---- اقتراحات العرض المعتمدة (3.4)
+            // ---- اقتراحات العرض المعتمدة (3.4) — Toggle كلّ ميزة (24.4: «Toggle 14 ميزة عرض التعلّم»)
+            ['learning.ux.resume_enabled', 'bool', '1'],
             ['learning.cta.resume_where_left', 'string', 'أكمل من حيث توقفت'],
             ['learning.resume.scan_limit', 'number', '10'],
+            ['learning.ux.half_banner_enabled', 'bool', '1'],
+            ['learning.ux.bookmark_enabled', 'bool', '1'],
+            ['learning.ux.share_enabled', 'bool', '1'],
             ['learning.bookmark.add', 'string', 'احفظ الدرس'],
             ['learning.bookmark.remove', 'string', 'إزالة الحفظ'],
             ['learning.bookmark.saved_label', 'string', 'محفوظ'],

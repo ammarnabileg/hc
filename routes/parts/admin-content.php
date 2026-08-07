@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\CertificateAdminController;
 use App\Http\Controllers\Admin\CourseAdminController;
 use App\Http\Controllers\Admin\GuidanceController;
+use App\Http\Controllers\Admin\LearningSettingsController;
 use App\Http\Controllers\Admin\LessonAdminController;
 use App\Http\Controllers\Admin\MediaController;
 use App\Http\Controllers\Admin\PathAdminController;
@@ -133,6 +134,23 @@ Route::middleware(['auth', 'admin.panel'])->prefix('admin')->name('admin.')->gro
 
     Route::middleware('permission:media_library.delete')
         ->delete('/media/{media}', [MediaController::class, 'destroy'])->name('media.destroy');
+
+    /*
+     |==================================================== أ) إدارة التدريب — إعدادات التعلّم (24.4 · 1039)
+     | الصلاحيّة `learning_ux.*` من 12.2.2 حرفيًّا — لا `learning_settings.manage`
+     | التي يسمّيها نثر 24.4 وحدها بلا مقابل في المصفوفة (15 · 6077).
+     */
+    Route::middleware('permission:learning_ux.view,learning_ux.edit,learning_ux.manage')
+        ->get('/learning-settings', [LearningSettingsController::class, 'index'])->name('learning-settings.index');
+
+    Route::middleware('permission:learning_ux.edit,learning_ux.manage')->group(function () {
+        Route::post('/learning-settings/field', [LearningSettingsController::class, 'save'])->name('learning-settings.field');
+        Route::post('/learning-settings/reset', [LearningSettingsController::class, 'resetField'])->name('learning-settings.reset');
+    });
+
+    // ⭐ «إعادة الكلّ للافتراضيّ» لمجموعة كاملة — أثرٌ أوسع من حقلٍ واحد فيتطلّب `manage` (24.4)
+    Route::middleware('permission:learning_ux.manage')
+        ->post('/learning-settings/reset-group', [LearningSettingsController::class, 'resetGroup'])->name('learning-settings.reset-group');
 
     // ==================================================== ب) إدارة الشهادات (12.5) — نعرّف ⟵ نُعِدّ ⟵ نُصدِر ⟵ نتابع
     Route::middleware('permission:certificate_ledger.view,certificate_templates.view,accreditations.view')

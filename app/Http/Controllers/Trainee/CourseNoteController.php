@@ -24,6 +24,8 @@ class CourseNoteController extends Controller
     /** حفظ تلقائيّ: يردّ JSON للواجهة، ويعمل كفورم عاديّ لو الجافاسكربت مقفول */
     public function save(Request $request, Course $course): JsonResponse|RedirectResponse
     {
+        abort_unless((bool) setting('learning.notes.enabled', true), 404);
+
         $user = $request->user();
         $this->enrollmentOrFail($user->id, $course->id);
 
@@ -50,6 +52,8 @@ class CourseNoteController extends Controller
 
     public function clear(Request $request, Course $course): RedirectResponse
     {
+        abort_unless((bool) setting('learning.notes.enabled', true), 404);
+
         $user = $request->user();
         $this->enrollmentOrFail($user->id, $course->id);
 
