@@ -557,6 +557,9 @@ class ServiceTextsDemoSeeder extends Seeder
             ['finance.finance_settings.groups_16', 'finance', 'نصّ السياسة ونسختاه وأماكن ظهوره — بلا طلبات استرجاع.', 'string', 'نصّ السياسة ونسختاه وأماكن ظهوره — بلا طلبات استرجاع.', true],
             ['finance.finance_settings.groups_17', 'finance', 'قالب الفاتورة', 'string', 'قالب الفاتورة', true],
             ['finance.finance_settings.groups_18', 'finance', 'الترقيم والحقول والتذييل وإشارة سياسة الاسترجاع.', 'string', 'الترقيم والحقول والتذييل وإشارة سياسة الاسترجاع.', true],
+            // ⭐ عملة Hours (19.1 · 24 القسم 12)
+            ['finance.finance_settings.groups_19', 'finance', 'عملة الساعات', 'string', 'عملة الساعات', true],
+            ['finance.finance_settings.groups_20', 'finance', 'عملة محتملة مستقبلًا — الإظهار وسعر الصرف ومصادر الكسب أرقامٌ لك وحدك.', 'string', 'عملة محتملة مستقبلًا — الإظهار وسعر الصرف ومصادر الكسب أرقامٌ لك وحدك.', true],
             ['finance.finance_settings.groups_2', 'finance', 'مبنيّة على الدولار — وأيّ تعديل يسري على العمليّات الجديدة.', 'string', 'مبنيّة على الدولار — وأيّ تعديل يسري على العمليّات الجديدة.', true],
             ['finance.finance_settings.groups_3', 'finance', 'رسوم إرسال الحوالة', 'string', 'رسوم إرسال الحوالة', true],
             ['finance.finance_settings.groups_4', 'finance', 'رسوم مرتفعة عمدًا على XP حفاظًا على نزاهة الليدر بورد.', 'string', 'رسوم مرتفعة عمدًا على XP حفاظًا على نزاهة الليدر بورد.', true],

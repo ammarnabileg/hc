@@ -132,6 +132,8 @@ class WalletController extends Controller
             ->whereIn('code', self::SECONDARY_CURRENCIES)
             ->where('is_active', true)
             ->get()
+            // 🔒 Toggle الإظهار في المحفظة لعملة Hours وحدها (24 القسم 12 · finance.hours.*)
+            ->reject(fn ($c) => $c->code === 'hours' && ! setting('finance.hours.show_in_wallet', true))
             ->sortBy(fn ($c) => array_search($c->code, self::SECONDARY_CURRENCIES, true))
             ->values();
 

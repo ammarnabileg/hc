@@ -148,6 +148,11 @@ class AdminSystemDemoSeeder extends Seeder
             ['finance.withdraw.min_fee_usd', 'finance', 'حدّ أدنى للرسوم بالدولار', 'number', '0.5', true],
             ['finance.withdraw.sla_hours', 'finance', 'SLA معالجة السحب (ساعات)', 'number', '72', true],
             ['finance.referral.commission_percent', 'finance', 'عمولة الريفيرال (%)', 'number', '7', true],
+            // ⭐ عملة Hours (19.1 · 24 القسم 12): موجودة في المحفظة من اليوم بلا مصدر كسبٍ مفعَّل بعد —
+            // سعر الصرف ومصادر الكسب أرقامٌ يقرّرها المالك لاحقًا لا افتراضٌ محروق.
+            ['finance.hours.show_in_wallet', 'finance', 'إظهار عملة الساعات في المحفظة', 'bool', '1', true],
+            ['finance.hours.exchange_rate', 'finance', 'سعر صرف الساعة (كوين)', 'number', '0', true],
+            ['finance.hours.earn_sources', 'finance', 'مصادر كسب الساعات', 'json', '[]', true],
             ['finance.pricing.default_currency', 'finance', 'العملة الافتراضيّة', 'string', 'coins', true],
             ['finance.preview.example_amount', 'finance', 'قيمة المثال في المعاينة اللحظيّة', 'number', '1000', true],
             ['finance.refund.policy_ar', 'finance', 'نصّ سياسة الاسترجاع (عربيّ)', 'text', 'لا يوجد استرجاع نقديّ للمدفوعات، ويبقى رصيدك في محفظتك تشتري به ما تشاء من الموقع.', true],
