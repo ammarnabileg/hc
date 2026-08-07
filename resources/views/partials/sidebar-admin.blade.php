@@ -115,6 +115,7 @@
             [setting('nav.admin.item_volunteer_delegations', 'الغيابات والتفويض'), 'admin.volunteer.delegations', 'delegations.list'],
             [setting('nav.admin.item_volunteer_task_types', 'أنواع المهامّ'), 'admin.volunteer.task-types.index', 'task_types.list'],
             [setting('nav.admin.item_volunteer_scorecard_criteria', 'معايير المقابلة'), 'admin.volunteer.scorecard-criteria.index', 'scorecard_criteria.list'],
+            [setting('nav.admin.item_volunteer_leadership_criteria', 'معايير مؤشّر القيادة'), 'admin.volunteer.leadership-criteria.index', 'leadership_criteria.list'],
             [setting('nav.admin.item_volunteer_offboarding', 'الخروج والعودة'), 'admin.volunteer.offboarding', 'offboarding.view'],
         ])],
 

@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\DelegationAdminController;
 use App\Http\Controllers\Admin\EventAdminController;
 use App\Http\Controllers\Admin\EventRegistrationsController;
 use App\Http\Controllers\Admin\GamificationController;
+use App\Http\Controllers\Admin\LeadershipCriteriaController;
 use App\Http\Controllers\Admin\OffboardingAdminController;
 use App\Http\Controllers\Admin\OrgAdminController;
 use App\Http\Controllers\Admin\RepAdminController;
@@ -186,6 +187,22 @@ Route::middleware(['auth', 'admin.panel'])->prefix('admin')->name('admin.')->gro
             ->middleware('permission:scorecard_criteria.delete')->name('scorecard-criteria.destroy');
         Route::post('/scorecard-criteria/{criterion}/restore', [ScorecardCriteriaController::class, 'restore'])
             ->middleware('permission:scorecard_criteria.restore')->name('scorecard-criteria.restore');
+
+        /*
+         | ⭐ معايير مؤشّر القيادة (13.4-ن-د · 24 — التاب 3): «بنود يحدّدها
+         | الأدمن من لوحة الإدارة... قابلة للتعديل (2.13)» — بلا هذه الشاشة
+         | البنك فارغ أبدًا و`LeadershipService::submit()` يرفض كلّ تقييم.
+         */
+        Route::get('/leadership-criteria', [LeadershipCriteriaController::class, 'index'])
+            ->middleware('permission:leadership_criteria.list')->name('leadership-criteria.index');
+        Route::post('/leadership-criteria', [LeadershipCriteriaController::class, 'store'])
+            ->middleware('permission:leadership_criteria.create')->name('leadership-criteria.store');
+        Route::put('/leadership-criteria/{criterion}', [LeadershipCriteriaController::class, 'update'])
+            ->middleware('permission:leadership_criteria.edit')->name('leadership-criteria.update');
+        Route::delete('/leadership-criteria/{criterion}', [LeadershipCriteriaController::class, 'destroy'])
+            ->middleware('permission:leadership_criteria.delete')->name('leadership-criteria.destroy');
+        Route::post('/leadership-criteria/{criterion}/restore', [LeadershipCriteriaController::class, 'restore'])
+            ->middleware('permission:leadership_criteria.restore')->name('leadership-criteria.restore');
 
         // تحليلات التطوّع
         Route::get('/analytics', [VolunteerAdminController::class, 'analytics'])

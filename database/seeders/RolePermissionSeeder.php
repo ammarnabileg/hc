@@ -119,6 +119,9 @@ class RolePermissionSeeder extends Seeder
 
         $this->grantResources('recruiter', ['candidates', 'interviews', 'scorecards', 'scorecard_criteria', 'shortlists', 'placements', 'placement_test', 'recruitment_analytics', 'vacancies', 'qualifying_path'], 'ALL', $expander);
 
+        // معايير مؤشّر القيادة (13.4-ن-د · 24 — التاب 3): «يحدّدها الأدمن» — نفس مستوى بنود الإدارة المركزيّة
+        $this->grantResources('volunteer_gm', ['leadership_criteria'], 'ALL', $expander);
+
         // 12.2.3-ب-18: «`academy_paths · academy_recordings` **داخل قسمه**» — النطاق ENTITY لا TRACK
         $this->grantResources('academy_manager', ['academy_paths', 'academy_recordings', 'otp_verification', 'paths', 'courses'], 'ENTITY', $expander);
 

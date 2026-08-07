@@ -5204,6 +5204,85 @@
     "is_owner_only": false
   },
   {
+    "key": "leadership_criteria.list",
+    "resource": "leadership_criteria",
+    "action": "list",
+    "group": "التطوّع — الرحلة والتوظيف والهيكل",
+    "label_ar": "leadership_criteria",
+    "description": "استعراض معايير مؤشّر القيادة وأوزانها.",
+    "allowed_scopes": [
+      "ALL"
+    ],
+    "conditions": [],
+    "condition_keys": [],
+    "is_sensitive": false,
+    "is_owner_only": false
+  },
+  {
+    "key": "leadership_criteria.create",
+    "resource": "leadership_criteria",
+    "action": "create",
+    "group": "التطوّع — الرحلة والتوظيف والهيكل",
+    "label_ar": "leadership_criteria",
+    "description": "إضافة معيار جديد لمؤشّر القيادة الأسبوعيّ بوزنه.",
+    "allowed_scopes": [
+      "ALL"
+    ],
+    "conditions": [],
+    "condition_keys": [],
+    "is_sensitive": false,
+    "is_owner_only": false
+  },
+  {
+    "key": "leadership_criteria.edit",
+    "resource": "leadership_criteria",
+    "action": "edit",
+    "group": "التطوّع — الرحلة والتوظيف والهيكل",
+    "label_ar": "leadership_criteria",
+    "description": "تعديل نصّ المعيار أو وزنه أو ترتيبه.",
+    "allowed_scopes": [
+      "ALL"
+    ],
+    "conditions": [],
+    "condition_keys": [],
+    "is_sensitive": false,
+    "is_owner_only": false
+  },
+  {
+    "key": "leadership_criteria.delete",
+    "resource": "leadership_criteria",
+    "action": "delete",
+    "group": "التطوّع — الرحلة والتوظيف والهيكل",
+    "label_ar": "leadership_criteria",
+    "description": "حذف سوفت بخيارَي «من الجديد فقط» (أرشفة) أو «من الجديد والقديم» (حذف نهائيّ).",
+    "allowed_scopes": [
+      "ALL"
+    ],
+    "conditions": [],
+    "condition_keys": [],
+    "is_sensitive": false,
+    "is_owner_only": false
+  },
+  {
+    "key": "leadership_criteria.restore",
+    "resource": "leadership_criteria",
+    "action": "restore",
+    "group": "التطوّع — الرحلة والتوظيف والهيكل",
+    "label_ar": "leadership_criteria",
+    "description": "التراجع (Undo) وإعادة تفعيل معيار مؤرشف.",
+    "allowed_scopes": [
+      "ALL"
+    ],
+    "conditions": [
+      "الحالة = محذوف"
+    ],
+    "condition_keys": [
+      "state:deleted"
+    ],
+    "is_sensitive": false,
+    "is_owner_only": false
+  },
+  {
     "key": "shortlists.list",
     "resource": "shortlists",
     "action": "list",

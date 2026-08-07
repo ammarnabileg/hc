@@ -14,7 +14,7 @@
 
 ## ✅ المُنجَز
 <!-- تلقائيّ:بداية:المنجز -->
-- **مجلّدات فرعيّة (29):** `articles/` · `availability/` · `certificates/` · `courses/` · `cv-templates/` · `dashboard/` · `developers/` · `events/` · `features/` · `gamification/` · `guidance/` · `meetings-admin/` · `moderation/` · `ops/` · `positive/` · `question-bank/` · `referral-admin/` · `report-schedules/` · `roles/` · `scorecard-criteria/` · `screens24/` · `settings/` · `stats/` · `store/` · `studio/` · `task-types/` · `users/` · `volunteer/` · `wars/` — ولكلٍّ منها وثيقتها.
+- **مجلّدات فرعيّة (30):** `articles/` · `availability/` · `certificates/` · `courses/` · `cv-templates/` · `dashboard/` · `developers/` · `events/` · `features/` · `gamification/` · `guidance/` · `leadership-criteria/` · `meetings-admin/` · `moderation/` · `ops/` · `positive/` · `question-bank/` · `referral-admin/` · `report-schedules/` · `roles/` · `scorecard-criteria/` · `screens24/` · `settings/` · `stats/` · `store/` · `studio/` · `task-types/` · `users/` · `volunteer/` · `wars/` — ولكلٍّ منها وثيقتها.
 <!-- تلقائيّ:نهاية:المنجز -->
 
 ## ⬜ المتبقّي
@@ -50,6 +50,6 @@
 
 ## 🕒 آخر تحديث
 <!-- تلقائيّ:بداية:التحديث -->
-- **آخر توليد لهذه الوثيقة:** 2026-08-06 — `php artisan docs:status`.
-- **آخر لمسة للمجلّد:** 2026-08-06 — Claude.
+- **آخر توليد لهذه الوثيقة:** 2026-08-07 — `php artisan docs:status`.
+- **آخر لمسة للمجلّد:** 2026-08-07 — Claude.
 <!-- تلقائيّ:نهاية:التحديث -->
