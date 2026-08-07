@@ -62,6 +62,10 @@ Route::middleware(['auth', 'admin.panel'])->prefix('admin')->name('admin.')->gro
             ->middleware('permission:volunteer_central_settings.manage')->name('settings-hub.override.save');
         Route::post('/settings-hub/override/drop', [VolunteerSettingsHubController::class, 'dropOverride'])
             ->middleware('permission:volunteer_central_settings.manage')->name('settings-hub.override.drop');
+        Route::get('/settings-hub/export', [VolunteerSettingsHubController::class, 'exportJson'])
+            ->middleware('permission:volunteer_central_settings.manage')->name('settings-hub.export');
+        Route::post('/settings-hub/import', [VolunteerSettingsHubController::class, 'importJson'])
+            ->middleware('permission:volunteer_central_settings.manage')->name('settings-hub.import');
 
         // الهيكل والبوزشنز والسعة (13.4-ف)
         Route::get('/org', [OrgAdminController::class, 'index'])

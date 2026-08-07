@@ -1,9 +1,9 @@
 @php
     /**
      * حقل إعداد واحد داخل الإدارة المركزيّة (24.2 · 13.4-ك) — نظير
-     * setting-field.blade.php لكن بإجراء صفٍّ إضافيّ: **Reset للحقل**
-     * (formaction بلا فورم متداخل)، وقفلٌ كامل حين لا تملك الصلاحيّة
-     * (بلا صلاحيّة = عرض فقط — 24.2 «الحالات»).
+     * setting-field.blade.php لكن بإجراءَي صفٍّ إضافيَّين: **Override لكيان**
+     * و**Reset للحقل** (بوب-أب تأكيد مشترك — زرّ «لا» أبرز، 24.2)، وقفلٌ كامل
+     * حين لا تملك الصلاحيّة (بلا صلاحيّة = عرض فقط — 24.2 «الحالات»).
      * $row: ['key','label','type','default','value','modified']
      */
     $canManage = $canManage ?? false;
@@ -27,8 +27,10 @@
                 <button type="button" data-modal-open="hub-override-modal"
                         data-hub-override-key="{{ $row['key'] }}" data-hub-override-label="{{ $row['label'] }}"
                         class="text-xs underline" style="color: var(--text-muted)">{{ setting('admin.volunteer.partials.hub_setting_field.override_lkyan', 'Override لكيان') }}</button>
-                <button type="submit" formaction="{{ route('admin.volunteer.settings-hub.reset-field') }}"
-                        name="key" value="{{ $row['key'] }}"
+                <button type="button" data-modal-open="hub-reset-confirm-modal"
+                        data-hub-reset-action="{{ route('admin.volunteer.settings-hub.reset-field') }}"
+                        data-hub-reset-key="{{ $row['key'] }}"
+                        data-hub-reset-message="{{ strtr(setting('admin.volunteer.settings_hub.reset_field_confirm', 'ترجّع «:label» للافتراضيّ؟ القيمة الحاليّة هتتشال.'), [':label' => $row['label']]) }}"
                         class="text-xs underline" style="color: var(--text-muted)"
                         title="{{ setting('admin.volunteer.partials.hub_setting_field.rja_llhql', 'رجّع الحقل للافتراضيّ') }}">↺</button>
             @endif

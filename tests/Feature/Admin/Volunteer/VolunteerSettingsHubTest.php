@@ -3,10 +3,13 @@
 namespace Tests\Feature\Admin\Volunteer;
 
 use App\Models\Entity;
+use App\Models\Membership;
+use App\Models\Position;
 use App\Models\Setting;
 use App\Models\SettingOverride;
 use App\Services\Admin\Volunteer\SettingsCatalog;
 use App\Services\Admin\Volunteer\SettingsWriter;
+use Illuminate\Http\UploadedFile;
 
 /**
  * الإدارة المركزيّة للتطوّع (24.2 · 13.4-ك): مرجعٌ واحد بتسعة تابات — بعضها
@@ -111,7 +114,7 @@ class VolunteerSettingsHubTest extends AdminVolunteerTestCase
         $manager = $this->grant($this->makeUser(), 'volunteer_central_settings.manage');
 
         $this->actingAs($manager)
-            ->post(route('admin.volunteer.settings-hub.reset-field'), ['key' => 'gamification_wars.shared.win'])
+            ->post(route('admin.volunteer.settings-hub.reset-field'), ['key' => 'wars.shared.win'])
             ->assertNotFound();
     }
 
@@ -185,7 +188,7 @@ class VolunteerSettingsHubTest extends AdminVolunteerTestCase
         $this->actingAs($manager)
             ->post(route('admin.volunteer.settings-hub.override.save'), [
                 'entity_id' => $this->entity()->id,
-                'key' => 'gamification_wars.shared.win',
+                'key' => 'wars.shared.win',
                 'value' => '9',
                 'reason' => 'محاولة تجاوز نطاق الهَب.',
             ])
@@ -237,5 +240,83 @@ class VolunteerSettingsHubTest extends AdminVolunteerTestCase
         $viewer = $this->grant($this->makeUser(), 'volunteer_central_settings.view');
         $this->actingAs($viewer)->get(route('admin.volunteer.settings-hub'))
             ->assertDontSee('سجلّ التدقيق');
+    }
+
+    // ------------------------------------------------------------ تصدير/استيراد JSON
+
+    public function test_export_returns_current_hub_values_as_json(): void
+    {
+        $manager = $this->grant($this->makeUser(), 'volunteer_central_settings.manage');
+        SettingsWriter::put('kudos.daily_limit', '6', $manager);
+
+        $response = $this->actingAs($manager)->get(route('admin.volunteer.settings-hub.export'));
+
+        $response->assertOk();
+        $response->assertHeader('Content-Disposition', 'attachment; filename="volunteer-settings-hub.json"');
+        $this->assertSame('6', $response->json('settings')['kudos.daily_limit']);
+    }
+
+    public function test_view_only_user_cannot_export(): void
+    {
+        $viewer = $this->grant($this->makeUser(), 'volunteer_central_settings.view');
+
+        $this->actingAs($viewer)->get(route('admin.volunteer.settings-hub.export'))->assertForbidden();
+    }
+
+    public function test_import_writes_only_hub_keys_and_ignores_the_rest(): void
+    {
+        $manager = $this->grant($this->makeUser(), 'volunteer_central_settings.manage');
+        // ⭐ 'wars.shared.win' مفتاحٌ حقيقيّ في الكتالوج لكن خارج الهَب —
+        // يميّز حارس نطاق الهَب عن فلترة SettingsCatalog العامّة في putMany() نفسها
+        $file = UploadedFile::fake()->createWithContent('hub.json', json_encode([
+            'settings' => ['kudos.daily_limit' => '7', 'wars.shared.win' => '99', 'not.a.hub.key' => 'x'],
+        ]));
+
+        $this->actingAs($manager)
+            ->post(route('admin.volunteer.settings-hub.import'), ['file' => $file])
+            ->assertRedirect();
+
+        $this->assertSame('7', (string) setting('kudos.daily_limit'));
+        $this->assertNotSame('99', (string) setting('wars.shared.win'));
+        $this->assertFalse(Setting::where('key', 'not.a.hub.key')->exists());
+    }
+
+    public function test_import_rejects_a_file_with_no_hub_keys_and_writes_nothing(): void
+    {
+        $manager = $this->grant($this->makeUser(), 'volunteer_central_settings.manage');
+        $file = UploadedFile::fake()->createWithContent('hub.json', json_encode(['settings' => ['not.a.hub.key' => 'x']]));
+
+        $this->actingAs($manager)
+            ->post(route('admin.volunteer.settings-hub.import'), ['file' => $file])
+            ->assertRedirect()
+            ->assertSessionHas('status', 'الملفّ ده مفيهوش مفتاح واحد من مفاتيح الهَب — اترفض.');
+
+        $this->assertSame('2', (string) setting('kudos.daily_limit'));
+    }
+
+    // ------------------------------------------------------------ معاينة الأثر
+
+    public function test_the_save_form_previews_the_real_active_volunteer_count(): void
+    {
+        $manager = $this->grant($this->makeUser(), 'volunteer_central_settings.manage', 'volunteer_central_settings.view');
+        $position = Position::query()->where('key', 'coordinator')->firstOrFail();
+
+        Membership::create([
+            'user_id' => $this->makeUser()->id,
+            'entity_id' => $this->entity()->id,
+            'position_id' => $position->id,
+            'is_primary' => true,
+            'started_at' => now(),
+            'status' => 'active',
+        ]);
+
+        // ⭐ العدد الحقيقيّ لا رقمًا محروقًا — يطابق استعلام الـController نفسه
+        $expected = Membership::query()->where('status', 'active')->distinct('user_id')->count('user_id');
+        $this->assertGreaterThan(0, $expected);
+
+        $response = $this->actingAs($manager)->get(route('admin.volunteer.settings-hub'));
+
+        $response->assertOk();
+        $response->assertSee("التغيير هيسري فورًا على {$expected} متطوّعًا نشطًا الآن", false);
     }
 }

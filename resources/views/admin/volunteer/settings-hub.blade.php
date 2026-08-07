@@ -9,6 +9,10 @@
         :breadcrumbs="[['label' => setting('admin.volunteer.org.alttwa', 'التطوّع'), 'url' => route('admin.volunteer.index')], ['label' => setting('admin.volunteer.settings_hub.title', 'الإدارة المركزيّة للتطوّع')]]">
         <x-slot:action>
             @if ($canManage)
+                <a href="{{ route('admin.volunteer.settings-hub.export') }}"
+                   class="rounded-xl px-3 py-2 text-sm inline-block" style="background: var(--surface-raised); color: var(--text)">{{ setting('admin.volunteer.settings_hub.export', 'تصدير JSON') }}</a>
+                <button type="button" data-modal-open="hub-import-modal"
+                        class="rounded-xl px-3 py-2 text-sm" style="background: var(--surface-raised)">{{ setting('admin.volunteer.settings_hub.import', 'استيراد JSON') }}</button>
                 <button type="button" data-modal-open="hub-audit-modal"
                         class="rounded-xl px-3 py-2 text-sm" style="background: var(--surface-raised)">{{ setting('admin.volunteer.settings_hub.audit_log', 'سجلّ التدقيق') }}</button>
             @endif
@@ -34,7 +38,8 @@
         </div>
     @endunless
 
-    <form method="post" action="{{ route('admin.volunteer.settings-hub.save-all') }}" id="hub-form">
+    <form method="post" action="{{ route('admin.volunteer.settings-hub.save-all') }}" id="hub-form"
+          @if ($canManage) onsubmit="return confirm('{{ strtr(setting('admin.volunteer.settings_hub.impact_preview', 'التغيير هيسري فورًا على :count متطوّعًا نشطًا الآن — تأكيد الحفظ؟'), [':count' => (string) $activeVolunteersCount]) }}')" @endif>
         @csrf
 
         <div class="card p-3 mb-4 flex flex-wrap items-center gap-3">
@@ -68,7 +73,9 @@
                 <div class="flex items-center justify-between gap-3 mb-2">
                     <h2 class="font-bold">{{ $tab['label'] }}</h2>
                     @if ($canManage && count($tab['rows']))
-                        <button type="submit" formaction="{{ route('admin.volunteer.settings-hub.reset-tab', ['tab' => $key]) }}"
+                        <button type="button" data-modal-open="hub-reset-confirm-modal"
+                                data-hub-reset-action="{{ route('admin.volunteer.settings-hub.reset-tab', ['tab' => $key]) }}"
+                                data-hub-reset-message="{{ strtr(setting('admin.volunteer.settings_hub.reset_tab_confirm', 'ترجّع تاب «:tab» كلّه للافتراضيّ؟ كلّ التعديلات فيه هتتشال.'), [':tab' => $tab['label']]) }}"
                                 class="text-xs underline shrink-0" style="color: var(--text-muted)">{{ setting('admin.volunteer.settings_hub.reset_tab', '↺ رجّع هذا التاب للافتراضيّ') }}</button>
                     @endif
                 </div>
@@ -130,6 +137,35 @@
             @empty
                 <p class="text-sm" style="color: var(--text-muted)">{{ setting('admin.volunteer.settings_hub.no_changes_yet', 'مفيش تعديل مسجَّل بعد') }}</p>
             @endforelse
+        </x-modal>
+
+        {{-- بوب-أب تأكيد Reset مشترك (تاب أو حقل) — زرّ «لا» أبرز وأكبر (24.2) --}}
+        <x-modal id="hub-reset-confirm-modal" :title="setting('admin.volunteer.settings_hub.reset_confirm_title', 'تأكيد الرجوع للافتراضيّ')">
+            <p class="text-sm mb-4" id="hub-reset-message"></p>
+            <form method="post" id="hub-reset-form">
+                @csrf
+                <input type="hidden" name="key" id="hub-reset-key-input">
+                <div class="flex items-center gap-3">
+                    <button type="button" data-modal-close
+                            class="btn rounded-xl px-6 py-3 text-base font-bold flex-1"
+                            style="background: var(--color-brand-500); color: #04201c">{{ setting('admin.volunteer.settings_hub.reset_confirm_no', 'لا') }}</button>
+                    <button type="submit"
+                            class="rounded-xl px-4 py-2 text-xs" style="background: var(--surface-sunken); color: var(--text-muted)">{{ setting('admin.volunteer.settings_hub.reset_confirm_yes', 'نعم، رجّع للافتراضيّ') }}</button>
+                </div>
+            </form>
+        </x-modal>
+
+        <x-modal id="hub-import-modal" :title="setting('admin.volunteer.settings_hub.import', 'استيراد JSON')">
+            <form method="post" action="{{ route('admin.volunteer.settings-hub.import') }}" enctype="multipart/form-data"
+                  onsubmit="return confirm('{{ setting('admin.volunteer.settings_hub.import_confirm', 'الاستيراد يستبدل قيم مفاتيح الهَب الموجودة في الملفّ — تأكيد؟') }}')">
+                @csrf
+                <label class="block text-sm font-semibold mb-1" for="hub-import-file">{{ setting('admin.volunteer.settings_hub.import_file_label', 'ملفّ JSON مُصدَّر من نفس الشاشة') }}</label>
+                <input type="file" name="file" id="hub-import-file" accept="application/json" required
+                       class="w-full rounded-xl px-3 py-2 text-sm mb-3"
+                       style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
+                <button type="submit" class="btn rounded-xl px-4 py-2 text-sm font-semibold"
+                        style="background: var(--color-brand-500); color: #04201c">{{ setting('admin.volunteer.settings_hub.import', 'استيراد JSON') }}</button>
+            </form>
         </x-modal>
     @endif
 
@@ -193,6 +229,14 @@
                 btn.addEventListener('click', () => {
                     document.getElementById('hub-override-key').value = btn.dataset.hubOverrideKey;
                     document.getElementById('hub-override-field-label').textContent = btn.dataset.hubOverrideLabel;
+                });
+            });
+
+            document.querySelectorAll('[data-hub-reset-action]').forEach((btn) => {
+                btn.addEventListener('click', () => {
+                    document.getElementById('hub-reset-form').action = btn.dataset.hubResetAction;
+                    document.getElementById('hub-reset-message').textContent = btn.dataset.hubResetMessage;
+                    document.getElementById('hub-reset-key-input').value = btn.dataset.hubResetKey || '';
                 });
             });
         })();

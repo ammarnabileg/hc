@@ -4,10 +4,12 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Entity;
+use App\Models\Membership;
 use App\Services\Admin\Volunteer\AuditTrail;
 use App\Services\Admin\Volunteer\SettingsCatalog;
 use App\Services\Admin\Volunteer\SettingsWriter;
 use App\Support\Scope\ScopeFilter;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -19,8 +21,12 @@ use Illuminate\View\View;
  * كلّ تاب يعرض ما هو **حقيقيّ** فقط: مفتاحٌ مزروع وله قارئٌ في الكود (2.13)
  * — لا وعدًا بحقلٍ لا قاعدة له. حيث لا إعداد حقيقيّ بعد (تاب «النصوص
  * والمحتوى» كاملًا، وأجزاءٌ من VXP والتقييم) تظهر حالة «فارغة» الرسميّة
- * (24.2) بدل حقلٍ مختلَق. معاينة الأثر وتصدير/استيراد JSON: مؤجّلان —
- * موثّقان لا مبنيّان جزئيًّا (Override لكيان وسجلّ التدقيق مبنيّان هنا).
+ * (24.2) بدل حقلٍ مختلَق.
+ *
+ * ⭐ «معاينة الأثر» (24.2): بما أنّ كلّ إعداد هنا **عامّ لا مقصور على كيان**
+ * (خلا الـOverride)، فأثر تعديله يطال كلّ متطوّع نشط بلا استثناء — فالعدد
+ * الصادق الوحيد هو عدد المتطوّعين النشطين، ويُعرَض في تأكيد «حفظ الكلّ»
+ * بنمط `confirm()` القائم فعلًا في اللوحة (لا بوب-أب مخترَع جديد).
  */
 class VolunteerSettingsHubController extends Controller
 {
@@ -46,14 +52,56 @@ class VolunteerSettingsHubController extends Controller
             'tabs' => $tabs,
             'lastChange' => AuditTrail::latest('settings.update', 1)->first(),
             'canManage' => $canManage,
-            // ⭐ Override وسجلّ التدقيق فعلٌ إداريّ — لا داعي لجلبهما لمن يملك عرضًا فقط
+            // ⭐ Override وسجلّ التدقيق ومعاينة الأثر فعلٌ إداريّ — لا داعي لجلبها لمن يملك عرضًا فقط
             'entities' => $canManage
                 ? Entity::query()
                     ->tap(fn ($q) => app(ScopeFilter::class)->apply($q, $request->user(), 'volunteer_central_settings.manage', null, 'id'))
                     ->orderBy('name_ar')->get(['id', 'name_ar'])
                 : collect(),
             'auditLog' => $canManage ? AuditTrail::latest('settings.', 20) : collect(),
+            'activeVolunteersCount' => $canManage ? self::activeVolunteersCount() : 0,
         ]);
+    }
+
+    /** تصدير كامل قيم الهَب الحاليّة كملفّ JSON (24.2) */
+    public function exportJson(Request $request): JsonResponse
+    {
+        abort_unless($request->user()->allows('volunteer_central_settings.manage'), 403);
+
+        $values = [];
+
+        foreach (SettingsWriter::rowsFor(self::allKeys()) as $key => $row) {
+            $values[$key] = $row['value'];
+        }
+
+        return response()->json(
+            ['exported_at' => now()->toIso8601String(), 'settings' => $values],
+            200,
+            ['Content-Disposition' => 'attachment; filename="volunteer-settings-hub.json"'],
+            JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT,
+        );
+    }
+
+    /** استيراد ملفّ JSON مُصدَّر سابقًا — يكتب فقط مفاتيح الهَب المعروفة (2.13) */
+    public function importJson(Request $request): RedirectResponse
+    {
+        abort_unless($request->user()->allows('volunteer_central_settings.manage'), 403);
+
+        $data = $request->validate(['file' => ['required', 'file', 'max:512']]);
+
+        $decoded = json_decode((string) file_get_contents($data['file']->getRealPath()), true);
+        $values = is_array($decoded) ? ((array) ($decoded['settings'] ?? $decoded)) : [];
+
+        // ⭐ نفس حارس Reset/Override — الاستيراد لا يكتب إلّا مفاتيح الهَب نفسها (2.13)
+        $scoped = array_intersect_key($values, array_flip(self::allKeys()));
+
+        if (! $scoped) {
+            return back()->with('status', (string) setting('admin.volunteer.settings_hub.import_empty', 'الملفّ ده مفيهوش مفتاح واحد من مفاتيح الهَب — اترفض.'));
+        }
+
+        $count = SettingsWriter::putMany($scoped, $request->user());
+
+        return back()->with('status', strtr((string) setting('admin.volunteer.settings_hub.import_ok', 'اتحفظ :count مفتاح من الملفّ ✓'), [':count' => (string) $count]));
     }
 
     /** Override لكيان بعينه — يعلو القيمة العامّة داخل الكيان وحده (2.13-هـ) */
@@ -147,6 +195,11 @@ class VolunteerSettingsHubController extends Controller
     private static function allKeys(): array
     {
         return array_merge(...array_map(fn (string $tab) => self::keys($tab), self::TAB_ORDER));
+    }
+
+    private static function activeVolunteersCount(): int
+    {
+        return Membership::query()->where('status', 'active')->distinct('user_id')->count('user_id');
     }
 
     private static function label(string $tab): string

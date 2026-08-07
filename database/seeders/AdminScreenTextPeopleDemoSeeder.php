@@ -759,6 +759,18 @@ class AdminScreenTextPeopleDemoSeeder extends Seeder
             ['admin.volunteer.settings_hub.system', 'volunteer', 'النظام', 'string', 'النظام', 'اسم الفاعل حين لا مستخدم في سجلّ التدقيق — settings-hub.blade.php'],
             ['admin.volunteer.partials.hub_setting_field.rja_llhql', 'volunteer', 'رجّع الحقل للافتراضيّ', 'string', 'رجّع الحقل للافتراضيّ', 'نصّ في resources/views/admin/volunteer/partials/hub-setting-field.blade.php'],
             ['admin.volunteer.partials.hub_setting_field.override_lkyan', 'volunteer', 'Override لكيان', 'string', 'Override لكيان', 'نصّ في resources/views/admin/volunteer/partials/hub-setting-field.blade.php'],
+            ['admin.volunteer.settings_hub.export', 'volunteer', 'تصدير JSON', 'string', 'تصدير JSON', 'زرّ التصدير — settings-hub.blade.php'],
+            ['admin.volunteer.settings_hub.import', 'volunteer', 'استيراد JSON', 'string', 'استيراد JSON', 'زرّ وعنوان بوب-أب الاستيراد — settings-hub.blade.php'],
+            ['admin.volunteer.settings_hub.import_confirm', 'volunteer', 'الاستيراد يستبدل قيم مفاتيح الهَب الموجودة في الملفّ — تأكيد؟', 'string', 'الاستيراد يستبدل قيم مفاتيح الهَب الموجودة في الملفّ — تأكيد؟', 'تأكيد الاستيراد — settings-hub.blade.php'],
+            ['admin.volunteer.settings_hub.import_file_label', 'volunteer', 'ملفّ JSON مُصدَّر من نفس الشاشة', 'string', 'ملفّ JSON مُصدَّر من نفس الشاشة', 'تسمية حقل الملفّ — settings-hub.blade.php'],
+            ['admin.volunteer.settings_hub.import_empty', 'volunteer', 'الملفّ ده مفيهوش مفتاح واحد من مفاتيح الهَب — اترفض.', 'string', 'الملفّ ده مفيهوش مفتاح واحد من مفاتيح الهَب — اترفض.', 'رسالة رفض استيراد فارغ — VolunteerSettingsHubController@importJson'],
+            ['admin.volunteer.settings_hub.import_ok', 'volunteer', 'اتحفظ :count مفتاح من الملفّ ✓', 'string', 'اتحفظ :count مفتاح من الملفّ ✓', 'رسالة نجاح الاستيراد — VolunteerSettingsHubController@importJson'],
+            ['admin.volunteer.settings_hub.impact_preview', 'volunteer', 'التغيير هيسري فورًا على :count متطوّعًا نشطًا الآن — تأكيد الحفظ؟', 'string', 'التغيير هيسري فورًا على :count متطوّعًا نشطًا الآن — تأكيد الحفظ؟', 'تأكيد معاينة الأثر عند حفظ الكلّ — settings-hub.blade.php'],
+            ['admin.volunteer.settings_hub.reset_confirm_title', 'volunteer', 'تأكيد الرجوع للافتراضيّ', 'string', 'تأكيد الرجوع للافتراضيّ', 'عنوان بوب-أب تأكيد Reset — settings-hub.blade.php'],
+            ['admin.volunteer.settings_hub.reset_confirm_no', 'volunteer', 'لا', 'string', 'لا', 'زرّ الرفض الأبرز في تأكيد Reset — settings-hub.blade.php'],
+            ['admin.volunteer.settings_hub.reset_confirm_yes', 'volunteer', 'نعم، رجّع للافتراضيّ', 'string', 'نعم، رجّع للافتراضيّ', 'زرّ التأكيد في تأكيد Reset — settings-hub.blade.php'],
+            ['admin.volunteer.settings_hub.reset_field_confirm', 'volunteer', 'ترجّع «:label» للافتراضيّ؟ القيمة الحاليّة هتتشال.', 'string', 'ترجّع «:label» للافتراضيّ؟ القيمة الحاليّة هتتشال.', 'نصّ تأكيد Reset الحقل — hub-setting-field.blade.php'],
+            ['admin.volunteer.settings_hub.reset_tab_confirm', 'volunteer', 'ترجّع تاب «:tab» كلّه للافتراضيّ؟ كلّ التعديلات فيه هتتشال.', 'string', 'ترجّع تاب «:tab» كلّه للافتراضيّ؟ كلّ التعديلات فيه هتتشال.', 'نصّ تأكيد Reset التاب — settings-hub.blade.php'],
         ]);
     }
 
