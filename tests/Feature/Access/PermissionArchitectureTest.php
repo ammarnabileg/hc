@@ -431,7 +431,11 @@ class PermissionArchitectureTest extends TestCase
         // 1027 ⟵ **1028**: `user_attestation.manage` — اعتماد/رفض طلبات الإفادة
         // (9.1 · 24.5) كانت بلا أيّ مسارٍ لتغيير حالتها؛ لا شاشة أدمن ولا صلاحيّة
         // تحرسها. والرقم يبقى مثبَّتًا كي يلتقط أيّ زيادةٍ أو نقصٍ **لا أمرَ خلفه**.
-        $this->assertSame(1028, count($matrix));
+        // 1028 ⟵ **1034**: زادت **ستّة** — `candidates.create` (مرشّح يدويّ، شاشة
+        // التوظيف كانت بلا مساره) + خمسة `leadership_criteria.*` (list/create/
+        // edit/delete/restore — شاشة CRUD لمعايير مؤشّر القيادة كانت غائبة كليًّا،
+        // 13.4-ن-د · 24 التاب 3).
+        $this->assertSame(1034, count($matrix));
         $this->assertSame([], array_values(array_filter(
             $matrix,
             fn (string $key) => str_starts_with($key, 'games.'),

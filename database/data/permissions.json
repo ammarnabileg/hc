@@ -4813,6 +4813,22 @@
     "is_owner_only": false
   },
   {
+    "key": "candidates.create",
+    "resource": "candidates",
+    "action": "create",
+    "group": "التطوّع — الرحلة والتوظيف والهيكل",
+    "label_ar": "candidates",
+    "description": "إضافة مرشّح يدويًّا خارج مسار الدخول التلقائيّ عبر المسار التأهيليّ.",
+    "allowed_scopes": [
+      "ENTITY",
+      "TRACK"
+    ],
+    "conditions": [],
+    "condition_keys": [],
+    "is_sensitive": false,
+    "is_owner_only": false
+  },
+  {
     "key": "candidates.view",
     "resource": "candidates",
     "action": "view",

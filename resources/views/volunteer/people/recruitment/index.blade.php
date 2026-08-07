@@ -15,7 +15,27 @@
     <x-page-header
         :title="setting('volunteer.people_recruitment.title', 'المرشّحون')"
         subtitle="{{ $total }} {{ setting('volunteer.people_recruitment.subtitle', 'مرشّحًا في الرحلة دلوقتي') }}"
-        :breadcrumbs="[['label' => setting('volunteer.common.breadcrumb_root', 'لوحة التطوّع'), 'url' => url('/volunteer')], ['label' => setting('volunteer.people_recruitment.label', 'التوظيف')], ['label' => setting('volunteer.people_recruitment.title', 'المرشّحون')]]" />
+        :breadcrumbs="[['label' => setting('volunteer.common.breadcrumb_root', 'لوحة التطوّع'), 'url' => url('/volunteer')], ['label' => setting('volunteer.people_recruitment.label', 'التوظيف')], ['label' => setting('volunteer.people_recruitment.title', 'المرشّحون')]]">
+        <x-slot:action>
+            <div class="flex flex-wrap gap-2">
+                @can('interviews.list')
+                    <a href="{{ route('volunteer.interviews') }}" class="rounded-xl px-4 py-2 text-sm"
+                       style="background: var(--surface-sunken)">{{ setting('volunteer.people_recruitment.header_interviews', 'تقويم المقابلات') }}</a>
+                @endcan
+
+                @can('candidates.export')
+                    <a href="{{ route('volunteer.recruitment.export', $filters) }}" class="rounded-xl px-4 py-2 text-sm"
+                       style="background: var(--surface-sunken)">{{ setting('volunteer.people_recruitment.header_export', 'تصدير CSV') }}</a>
+                @endcan
+
+                @can('candidates.create')
+                    <button type="button" data-modal-open="candidate-new-modal"
+                            class="btn rounded-xl px-4 py-2 text-sm font-semibold"
+                            style="background: var(--color-brand-500); color: #04201c">{{ setting('volunteer.people_recruitment.header_add', '+ مرشّح يدويّ') }}</button>
+                @endcan
+            </div>
+        </x-slot:action>
+    </x-page-header>
 
     {{-- ثلاثة فلاتر ظاهرة + بحث، والباقي مطويّ (2.15-أ-4) --}}
     <x-filters :action="route('volunteer.recruitment')">
@@ -116,6 +136,28 @@
             @endforeach
         </div>
     @endif
+
+    {{-- + مرشّح يدويّ (24.4-12): خارج مسار الدخول التلقائيّ عبر المسار التأهيليّ --}}
+    @can('candidates.create')
+        <x-modal id="candidate-new-modal" :title="setting('volunteer.people_recruitment.header_add', '+ مرشّح يدويّ')">
+            <form method="post" action="{{ route('volunteer.recruitment.store') }}" class="space-y-3">
+                @csrf
+                <label class="block text-sm">
+                    <span class="block text-xs mb-1" style="color: var(--text-muted)">{{ setting('volunteer.people_recruitment.store_msg', 'كود المستخدم') }}</span>
+                    <input type="text" name="code" required maxlength="32"
+                           class="w-full rounded-xl px-3 py-2 text-sm"
+                           style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
+                </label>
+                <p class="text-xs" style="color: var(--text-muted)">{{ setting('volunteer.people_recruitment.store_hint', 'هيدخل عمود «تقديم» مباشرةً — بلا درجة تأهيليّة، لأنّه دخل خارج المسار التلقائيّ.') }}</p>
+                <div class="flex gap-2 pt-2">
+                    <button type="submit" class="btn rounded-xl px-4 py-2 text-sm font-semibold"
+                            style="background: var(--color-brand-500); color: #04201c">{{ setting('volunteer.people_recruitment.header_add', '+ مرشّح يدويّ') }}</button>
+                    <button type="button" data-modal-close class="btn rounded-xl px-4 py-2 text-sm"
+                            style="background: var(--surface-sunken)">{{ setting('volunteer.people_recruitment.action_3', 'رجوع') }}</button>
+                </div>
+            </form>
+        </x-modal>
+    @endcan
 
     {{-- تفاصيل المرشّح في بوب-أب — لا صفحة جديدة، فلا يفقد مكانه في اللوحة (2.15-أ-6) --}}
     <x-modal id="candidate-modal" :title="setting('volunteer.people_recruitment.tooltip', 'المرشّح')">

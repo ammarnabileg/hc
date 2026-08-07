@@ -24,6 +24,14 @@ Route::middleware('auth')->prefix('volunteer')->name('volunteer.')->group(functi
         Route::get('/recruitment', [RecruitmentController::class, 'index'])->name('recruitment');
     });
 
+    // + مرشّح يدويّ — خارج مسار الدخول التلقائيّ عبر المسار التأهيليّ (24.4-12)
+    Route::post('/recruitment', [RecruitmentController::class, 'store'])
+        ->middleware('permission:candidates.create')->name('recruitment.store');
+
+    // تصدير CSV — قبل {candidate} كي لا يُقرأ «export» معرِّفًا (24.4-12)
+    Route::get('/recruitment/export', [RecruitmentController::class, 'export'])
+        ->middleware('permission:candidates.export')->name('recruitment.export');
+
     Route::get('/recruitment/{candidate}', [RecruitmentController::class, 'show'])
         ->middleware('permission:candidates.view')->name('recruitment.show');
 
