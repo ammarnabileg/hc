@@ -12,6 +12,9 @@
     {{-- التحسين التدريجيّ: رسالة وخطوات تفعيل الجافاسكربت (2.1) --}}
     @include('security.noscript')
 
+    {{-- شريط تقدّم التمرير — ثابتٌ على كلّ الصفحات بلا استثناء (2.10.1-25) --}}
+    <div class="scroll-progress" style="transform: scaleX(0)" data-scroll-progress></div>
+
     @if ($errors->any())
         <div class="fixed top-4 inset-x-4 md:inset-x-auto md:w-96 md:mx-auto card p-3 text-sm"
              style="border-color: var(--color-state-danger)">

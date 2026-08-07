@@ -54,6 +54,14 @@ class AuthFlowTest extends TestCase
         $this->assertTrue($user->hasRole('pending_review'));
     }
 
+    /** ⭐ ثابتٌ على كلّ الصفحات بلا استثناء (2.10.1-25) — كان غائبًا عن تخطيط الضيف كلّه */
+    public function test_the_scroll_progress_bar_appears_on_the_login_screen(): void
+    {
+        $this->get('/login')
+            ->assertOk()
+            ->assertSee('data-scroll-progress', false);
+    }
+
     public function test_login_accepts_code_or_email(): void
     {
         $user = User::create([

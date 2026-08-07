@@ -223,6 +223,19 @@ class SetupWizardTest extends SetupTestCase
             ->assertSee('منصّة الاختبار');
     }
 
+    /** ⭐ ثابتٌ على كلّ الصفحات بلا استثناء (2.10.1-25) — كان غائبًا عن تخطيط الضيف كلّه */
+    public function test_the_scroll_progress_bar_appears_on_every_wizard_screen(): void
+    {
+        $this->get(route('setup.token'))
+            ->assertOk()
+            ->assertSee('data-scroll-progress', false);
+
+        $this->state(['requirements'], $this->credentials())
+            ->get(route('setup.database'))
+            ->assertOk()
+            ->assertSee('data-scroll-progress', false);
+    }
+
     // ------------------------------------------------ القفل النهائيّ
 
     public function test_every_setup_route_returns_404_once_the_lock_file_exists(): void
