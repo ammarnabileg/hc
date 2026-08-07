@@ -271,6 +271,7 @@ class HttpTextDemoSeeder extends Seeder
             ['admin_roles.permissions.update_msg_2', 'admin_roles', 'update() — النطاق', 'النطاق'],
             ['admin_roles.permissions.update_msg_3', 'admin_roles', 'update() — الأثر', 'الأثر'],
             ['admin_roles.permissions.update_ok', 'admin_roles', 'update() — اتحفظ الاستثناء ✓ — والمنع يغلب الإذن دائمًا', 'اتحفظ الاستثناء ✓ — والمنع يغلب الإذن دائمًا'],
+            ['admin_roles.permissions.destroy_ok', 'admin_roles', 'destroy() — اتسحب الاستثناء ✓', 'اتسحب الاستثناء ✓'],
             // ---- app/Http/Controllers/Admin/PositiveMessageController.php
             ['engagement.admin.store_ok', 'engagement', 'store() — اتحفظت الرسالة ✓', 'اتحفظت الرسالة ✓'],
             ['engagement.admin.update_ok', 'engagement', 'update() — اتحفظ التعديل ✓', 'اتحفظ التعديل ✓'],

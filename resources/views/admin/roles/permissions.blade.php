@@ -9,7 +9,15 @@
                        ['label' => setting('admin.roles.permissions.lwha_alidara', 'لوحة الإدارة'), 'url' => route('admin.dashboard')],
                        ['label' => setting('admin.roles.permissions.aladwar_walslahyat', 'الأدوار والصلاحيّات'), 'url' => route('admin.roles.index')],
                        ['label' => setting('admin.roles.permissions.msfwfa_alslahyat', 'مصفوفة الصلاحيّات')],
-                   ]" />
+                   ]">
+        @can('permissions.assign')
+            <x-slot:action>
+                <a href="{{ route('admin.permissions.assign') }}"
+                   class="rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
+                   style="background: var(--color-brand-500); color: #04201c">{{ setting('admin.roles.permission_assign.anwan', 'منح صلاحيّة فرديّة') }}</a>
+            </x-slot:action>
+        @endcan
+    </x-page-header>
 
     <form method="get" class="card p-3 mb-4 flex flex-wrap items-end gap-3">
         <label class="flex flex-col gap-1 flex-1 min-w-[12rem]">

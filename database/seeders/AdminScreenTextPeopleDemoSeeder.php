@@ -100,6 +100,7 @@ class AdminScreenTextPeopleDemoSeeder extends Seeder
             ['admin.users.partials.tab_admin.rfd', 'admin_users', 'رفض', 'string', 'رفض', 'نصّ في resources/views/admin/users/partials/tab-admin.blade.php'],
             ['admin.users.partials.tab_admin.rfd_alhsab', 'admin_users', 'رفض الحساب', 'string', 'رفض الحساب', 'نصّ في resources/views/admin/users/partials/tab-admin.blade.php'],
             ['admin.users.partials.tab_admin.sbb_alrfd_hywsl_llmstkhdm', 'admin_users', 'سبب الرفض (هيوصل للمستخدم)', 'string', 'سبب الرفض (هيوصل للمستخدم)', 'نصّ في resources/views/admin/users/partials/tab-admin.blade.php'],
+            ['admin.users.partials.tab_admin.mnh_slahya_frdya', 'admin_users', 'منح صلاحيّة فرديّة', 'string', 'منح صلاحيّة فرديّة', 'نصّ في resources/views/admin/users/partials/tab-admin.blade.php'],
             ['admin.users.partials.tab_admin.tayyn_dwr', 'admin_users', 'تعيين دور', 'string', 'تعيين دور', 'نصّ في resources/views/admin/users/partials/tab-admin.blade.php'],
             ['admin.users.partials.tab_admin.tlbat_alifada', 'admin_users', 'طلبات الإفادة', 'string', 'طلبات الإفادة', 'نصّ في resources/views/admin/users/partials/tab-admin.blade.php'],
             ['admin.users.attestations.approve_ok', 'admin_users', 'اتعمدت الإفادة ✓', 'string', 'اتعمدت الإفادة ✓', 'نصّ في app/Http/Controllers/Admin/UserController.php'],
@@ -219,6 +220,18 @@ class AdminScreenTextPeopleDemoSeeder extends Seeder
     {
         $this->write([
             ['admin.roles.assign.aard_adwyath', 'admin_roles', 'اعرض عضويّاته', 'string', 'اعرض عضويّاته', 'نصّ في resources/views/admin/roles/assign.blade.php'],
+            ['admin.roles.permission_assign.aard_astthnaath', 'admin_roles', 'اعرض استثناءاته', 'string', 'اعرض استثناءاته', 'نصّ في resources/views/admin/roles/permission-assign.blade.php'],
+            ['admin.roles.permission_assign.alastthnaat_alqaima', 'admin_roles', 'الاستثناءات القائمة', 'string', 'الاستثناءات القائمة', 'نصّ في resources/views/admin/roles/permission-assign.blade.php'],
+            ['admin.roles.permission_assign.alathr', 'admin_roles', 'الأثر', 'string', 'الأثر', 'نصّ في resources/views/admin/roles/permission-assign.blade.php'],
+            ['admin.roles.permission_assign.alntaq', 'admin_roles', 'النطاق', 'string', 'النطاق', 'نصّ في resources/views/admin/roles/permission-assign.blade.php'],
+            ['admin.roles.permission_assign.alslahya', 'admin_roles', 'الصلاحيّة', 'string', 'الصلاحيّة', 'نصّ في resources/views/admin/roles/permission-assign.blade.php'],
+            ['admin.roles.permission_assign.amnh', 'admin_roles', 'امنح', 'string', 'امنح', 'نصّ في resources/views/admin/roles/permission-assign.blade.php'],
+            ['admin.roles.permission_assign.anwan', 'admin_roles', 'منح صلاحيّة فرديّة', 'string', 'منح صلاحيّة فرديّة', 'نصّ في resources/views/admin/roles/permission-assign.blade.php'],
+            ['admin.roles.permission_assign.mafysh_astthnaat_lsh', 'admin_roles', 'مافيش استثناءات فرديّة لسّه.', 'string', 'مافيش استثناءات فرديّة لسّه.', 'نصّ في resources/views/admin/roles/permission-assign.blade.php'],
+            ['admin.roles.permission_assign.mnaa', 'admin_roles', 'منع', 'string', 'منع', 'نصّ في resources/views/admin/roles/permission-assign.blade.php'],
+            ['admin.roles.permission_assign.mnh_jdyd', 'admin_roles', 'منح جديد', 'string', 'منح جديد', 'نصّ في resources/views/admin/roles/permission-assign.blade.php'],
+            ['admin.roles.permission_assign.smah', 'admin_roles', 'سماح', 'string', 'سماح', 'نصّ في resources/views/admin/roles/permission-assign.blade.php'],
+            ['admin.roles.permission_assign.wsf', 'admin_roles', 'الاستثناء الفرديّ يجلس فوق الأدوار — والمنع يغلب الإذن دائمًا.', 'string', 'الاستثناء الفرديّ يجلس فوق الأدوار — والمنع يغلب الإذن دائمًا.', 'نصّ في resources/views/admin/roles/permission-assign.blade.php'],
             ['admin.roles.assign.akhr_alisnadat', 'admin_roles', 'آخر الإسنادات', 'string', 'آخر الإسنادات', 'نصّ في resources/views/admin/roles/assign.blade.php'],
             ['admin.roles.assign.akhtr_almstkhdm_alawl_ashan_nard_adwyath', 'admin_roles', 'اختر المستخدم الأوّل عشان نعرض عضويّاته.', 'string', 'اختر المستخدم الأوّل عشان نعرض عضويّاته.', 'نصّ في resources/views/admin/roles/assign.blade.php'],
             ['admin.roles.assign.aladwar_walslahyat', 'admin_roles', 'الأدوار والصلاحيّات', 'string', 'الأدوار والصلاحيّات', 'نصّ في resources/views/admin/roles/assign.blade.php — عنوانٌ منصوصٌ حرفيًّا في القسم 24، وتغييرُه يخالف خريطة الشاشات.'],  // ⚠️ 24

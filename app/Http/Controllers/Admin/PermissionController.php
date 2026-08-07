@@ -136,6 +136,61 @@ class PermissionController extends Controller
         return back()->with('status', (string) setting('admin_roles.permissions.update_ok', 'اتحفظ الاستثناء ✓ — والمنع يغلب الإذن دائمًا'));
     }
 
+    // ------------------------------------------------------- شاشة الاستثناء الفرديّ
+
+    /**
+     * شاشة «منح صلاحيّة فرديّة» (12.2.2 · `permissions.assign`): الباك-إند
+     * (`update()` أعلاه) كان يعمل بلا واجهة — نُفِّذ سابقًا بـ`curl` مباشرةً.
+     * نفس نمط `RoleController::assign()`: كود المستخدم أوّلًا، ثمّ فورم المنح
+     * وقائمة الاستثناءات القائمة له.
+     */
+    public function assign(Request $request): View
+    {
+        $actor = $request->user();
+        $target = $request->integer('user') ? User::find($request->integer('user')) : null;
+
+        return view('admin.roles.permission-assign', [
+            'target' => $target,
+            'permissions' => Permission::query()
+                ->when(! $this->access->isPlatformOwner($actor), fn ($q) => $q->where('is_owner_only', false))
+                ->orderBy('group')
+                ->orderBy('resource')
+                ->orderBy('id')
+                ->get()
+                ->groupBy('group'),
+            'scopes' => config('access.scopes'),
+            'overrides' => $target
+                ? PermissionUser::query()->where('user_id', $target->id)->with('permission', 'assigned_by')->latest('id')->get()
+                : collect(),
+        ]);
+    }
+
+    /** سحب استثناء فرديّ — بنفس عزل الحسّاس على الكتابة (12.2.1-ز-3) */
+    public function destroy(Request $request, PermissionUser $override): RedirectResponse
+    {
+        $actor = $request->user();
+        $permission = Permission::findOrFail($override->permission_id);
+
+        if ($permission->is_owner_only && ! $this->access->isPlatformOwner($actor)) {
+            return back()->with('problem', (string) setting('admin.roles.owner_only_note', 'الصلاحيّة دي لمالك المنصّة وحده.'));
+        }
+
+        $user = User::find($override->user_id);
+        $scope = $override->scope;
+        $override->delete();
+
+        if ($user) {
+            $this->access->forget($user);
+        }
+
+        $this->audit->record($actor, 'permission.user.revoked', $user ?? $permission, [], [
+            'permission' => $permission->key,
+            'scope' => $scope,
+        ]);
+
+        return back()->with('status', (string) setting('admin_roles.permissions.destroy_ok', 'اتسحب الاستثناء ✓'));
+    }
+
     /** رسالة رفض السقف — بنصٍّ من الإعدادات لا محروق (2.13) */
     private function ceilingMessage(Permission $permission, string $scope): string
     {

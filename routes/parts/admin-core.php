@@ -116,6 +116,12 @@ Route::middleware(['auth', 'admin.panel'])
         Route::get('/permissions', [PermissionController::class, 'index'])
             ->middleware('permission:permissions.list')->name('permissions.index');
 
+        Route::get('/permissions/assign', [PermissionController::class, 'assign'])
+            ->middleware('permission:permissions.assign')->name('permissions.assign');
+
         Route::post('/permissions/users/{user}', [PermissionController::class, 'update'])
             ->middleware('permission:permissions.assign')->name('permissions.update');
+
+        Route::delete('/permissions/users/{override}', [PermissionController::class, 'destroy'])
+            ->middleware('permission:permissions.assign')->name('permissions.destroy');
     });

@@ -85,6 +85,15 @@
                 {{ setting('admin.roles.assign_hint', 'الدور يحدّد «ماذا» والعضويّة تحدّد «أين» — فأدوار التطوّع تُسنَد داخل عضويّة.') }}
             </p>
         @endif
+
+        {{-- الاستثناءات الفرديّة: صلاحيّة تُمنح أو تُمنع لهذا المستخدم بعينه فوق أدواره (12.2.2) --}}
+        @if ($viewer->allows('permissions.assign'))
+            <a href="{{ route('admin.permissions.assign', ['user' => $user->id]) }}"
+               class="btn inline-flex items-center justify-center w-full mt-3 rounded-xl py-2 text-sm font-semibold motion-standard"
+               style="min-block-size: 44px; background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
+                {{ setting('admin.users.partials.tab_admin.mnh_slahya_frdya', 'منح صلاحيّة فرديّة') }}
+            </a>
+        @endif
     </section>
 
     {{-- طلبات الإفادة المعلَّقة (9.1 · 24.5) --}}
