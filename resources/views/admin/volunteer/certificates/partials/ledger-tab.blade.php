@@ -111,7 +111,7 @@
     @if ($issued->isEmpty())
         <x-empty :message="setting('admin.volunteer.certificates.la_shhadat_sadra_bad', 'لا شهادات صادرة بعد.')" />
     @else
-        <div class="card p-0 overflow-hidden hidden md:block overflow-x-auto">
+        <div class="card p-0 overflow-hidden hidden md:block overflow-x-auto min-w-0">
             <table class="w-full text-sm">
                 <thead>
                     <tr style="background: var(--surface-sunken)">
