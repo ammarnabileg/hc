@@ -7,6 +7,7 @@ use App\Models\Task;
 use App\Models\TaskContribution;
 use App\Services\Volunteer\Contributions\ContributionService;
 use App\Services\Volunteer\Contributions\ReviewService;
+use App\Services\Volunteer\Goals\VxpDistributionService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -55,21 +56,29 @@ class ReviewController extends Controller
             'filters' => $filters,
             'accessLevels' => $this->accessLevels(),
             'canLibrary' => $user->allows('internal_library.create'),
+            'canQuality' => $user->allows('vxp_manual.create'),
+            'qualityTiers' => app(VxpDistributionService::class)->qualityTiers(),
         ]);
     }
 
-    /** اعتماد التسليم + سويتش «أضِف المخرج للمكتبة الداخليّة» بمستوى وصول */
+    /** اعتماد التسليم + سويتش «أضِف المخرج للمكتبة الداخليّة» بمستوى وصول + معامل جودة اختياريّ */
     public function approveTask(Request $request, Task $task): RedirectResponse
     {
         $data = $request->validate([
             'add_to_library' => ['nullable', 'boolean'],
             'access_level' => ['nullable', 'in:entity,all_volunteers,restricted'],
             'library_type' => ['nullable', 'string', 'max:32'],
+            'quality_tier' => ['nullable', 'in:'.implode(',', array_keys(app(VxpDistributionService::class)->qualityTiers()))],
         ]);
 
         // مستوى الوصول يحدّده دايركتور الكيان — فلا إضافة لمن لا يملكها (23 — 3.3)
         if (! empty($data['add_to_library'])) {
             abort_unless($request->user()->allows('internal_library.create', $task), 403, (string) setting('workflow.review.approve_task_msg', 'إضافة المكتبة لدايركتور الكيان.'));
+        }
+
+        // ⭐ خصم VXP المسموح وحده: الأدمن أو مشرف عام التطوّع بصلاحيّة vxp_manual.create — لا أيّ مراجع (23 — القسم 5)
+        if (! empty($data['quality_tier'])) {
+            abort_unless($request->user()->allows('vxp_manual.create', $task), 403, (string) setting('workflow.review.approve_task_msg_2', 'تحجيم VXP بالجودة لمالك صلاحيّة الخصم اليدويّ وحده.'));
         }
 
         $this->reviews->approveTask($task, $request->user(), $data);

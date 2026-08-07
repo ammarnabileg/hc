@@ -227,9 +227,14 @@ class VolunteerSettingsHubController extends Controller
     {
         return match ($tab) {
             'rep' => array_keys(SettingsCatalog::group('volunteer_rep')),
-            // ⭐ الشريحة المحفوظة للأب هي البند الوحيد المزروع من VXP (24.2 التاب 2)؛
-            // معامل الجودة وقيد مجموع الأبناء وسقوف الانشغال أرقامٌ دستوريّة لا قارئ لها بعد.
-            'vxp' => ['workflow.vxp.parent_min_share_percent'],
+            // ⭐ الشريحة المحفوظة للأب + معامل جودة الإنجاز الثلاثيّ مزروعان الآن (24.2
+            // التاب 2)؛ قيد مجموع الأبناء وسقوف الانشغال ما زالا أرقامًا دستوريّة لا قارئ لها.
+            'vxp' => [
+                'workflow.vxp.parent_min_share_percent',
+                'workflow.vxp.quality_tier_low',
+                'workflow.vxp.quality_tier_mid',
+                'workflow.vxp.quality_tier_high',
+            ],
             'evaluations' => array_keys(SettingsCatalog::group('performance')),
             'kudos' => array_keys(SettingsCatalog::group('kudos')),
             // ⭐ «اعتراض واحد لكلّ معاملة» تحكّمٌ برمجيّ في ObjectionService لا إعداد (2.13-أ حدود المسح)

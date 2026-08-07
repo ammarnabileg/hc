@@ -38,6 +38,34 @@ class VxpDistributionService
         return (float) setting('workflow.vxp.parent_min_share_percent', 10);
     }
 
+    /**
+     * ⭐ معامل جودة الإنجاز ⟵ VXP (24.2 التاب 2): جدول ثلاثيّ قابل للتحرير —
+     * 60% / 80% / 100% افتراضيًّا. **الجودة تحجِّم VXP وحده ولا تمسّ Rep**
+     * (مبدأ الفصل §6) — فهذا الجدول لا علاقة له بـ`rep_rules` عمدًا.
+     *
+     * @return array<string, float> tier key => نسبة مئويّة
+     */
+    public function qualityTiers(): array
+    {
+        return [
+            'low' => (float) setting('workflow.vxp.quality_tier_low', 60),
+            'mid' => (float) setting('workflow.vxp.quality_tier_mid', 80),
+            'high' => (float) setting('workflow.vxp.quality_tier_high', 100),
+        ];
+    }
+
+    /** معامل الجودة كنسبة (1.0 = كامل) — والمستوى الغائب أو غير المعروف لا يحجِّم شيئًا */
+    public function qualityCoefficient(?string $tier): float
+    {
+        $tiers = $this->qualityTiers();
+
+        if ($tier === null || ! array_key_exists($tier, $tiers)) {
+            return 1.0;
+        }
+
+        return max(0.0, $tiers[$tier] / 100);
+    }
+
     /** أقصى ما يجوز توزيعه من وعاء الأب بعد حجز شريحته */
     public function maxDistributable(Task $parent): float
     {

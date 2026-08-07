@@ -11,6 +11,9 @@ use App\Models\User;
 use App\Services\Volunteer\Escalation\CaseCatalog;
 use App\Services\Volunteer\Escalation\EscalationEngine;
 use App\Services\Volunteer\Escalation\FlowNotifier;
+use App\Services\Volunteer\Goals\Integrations;
+use App\Services\Volunteer\Goals\VxpDistributionService;
+use App\Services\Volunteer\Tasks\RepOnce;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -202,6 +205,9 @@ class ReviewService
              | و−1.50 بدل −0.75) فيبلغ المتطوّع عتبات الهبوط في نصف الوقت المنصوص.
              */
 
+            // ⭐ معامل جودة الإنجاز ⟵ VXP وحده (24.2 التاب 2 · مبدأ الفصل §6) — اختياريّ
+            $this->applyQualityCoefficient($task, $data['quality_tier'] ?? null, $reviewer);
+
             // اعتماد آخر ابن يبدأ عدّاد الأب الشخصيّ فورًا (23-3.9-3)
             $this->startParentMergeWindow($task);
 
@@ -220,6 +226,64 @@ class ReviewService
 
             return $task;
         });
+    }
+
+    /**
+     * ⭐ معامل جودة الإنجاز ⟵ VXP (24.2 التاب 2 · مبدأ الفصل §6 — الدستور 4266):
+     * جدول ثلاثيّ قابل للتحرير (60% / 80% / 100% افتراضيًّا) يختاره المراجِع
+     * لحظة الاعتماد. VXP يُدفَع فعلًا لحظة **التسليم** لا الاعتماد (`TaskWorkflow`)،
+     * فهذه **حركة تصحيحيّة** لا إعادة دفعٍ — ومحروسة بمفتاح واقعتها فلا تتكرّر
+     * لو اعتُمدت المهمّة أكثر من مرّة. ولا تمسّ Rep إطلاقًا — القيد الحاكم صريح:
+     * «الجودة الضعيفة تحجِّم VXP ولا تمسّ Rep».
+     *
+     * ⚠️ **خصم VXP المسموح وحده** (23 — القسم 5 · 24 تاب VXP «الخصم الآليّ
+     * ممنوع»): قرار المحكّم أو معاملة خصم يدويّة موثَّقة من الأدمن أو مشرف عام
+     * التطوّع — بصلاحيّة `vxp_manual.create` بعينها، لا أيّ مراجعٍ. فالتحقّق من
+     * الصلاحيّة هنا **دفاعٌ ثانٍ** بعد بوّابة الكنترولر — لا نفتح بابًا خامسًا
+     * للخصم الآليّ بتوقيعٍ صامت.
+     *
+     * ⚠️ لا مستوًى مُختارًا = بلا تصحيح (توافقٌ خلفيّ لمسارات الاعتماد التي لا
+     * تمرّر تقييم جودة) — والمستوى «الكامل» (100%) لا يكتب حركةً بقيمة صفر.
+     */
+    private function applyQualityCoefficient(Task $task, ?string $tier, User $reviewer): void
+    {
+        if ($tier === null || ! $task->owner_id || ! $reviewer->allows('vxp_manual.create', $task)) {
+            return;
+        }
+
+        $distribution = app(VxpDistributionService::class);
+        $coefficient = $distribution->qualityCoefficient($tier);
+
+        if (abs($coefficient - 1.0) < 0.0001) {
+            return;
+        }
+
+        $earned = $distribution->parentEarning($task);
+        $delta = round($earned * ($coefficient - 1), 2);
+
+        if (abs($delta) < 0.01) {
+            return;
+        }
+
+        $owner = User::query()->find($task->owner_id);
+
+        if (! $owner) {
+            return;
+        }
+
+        RepOnce::record('task.vxp.quality:'.$task->id, fn () => Integrations::debit(
+            $owner,
+            'vxp',
+            abs($delta),
+            'task',
+            $task,
+            strtr(setting('workflow.review_service.quality_coefficient_1', 'تعديل جودة الإنجاز: :p1 (:p2%)'), [
+                ':p1' => (string) $task->title,
+                ':p2' => (string) round($coefficient * 100),
+            ]),
+            // ⭐ توقيع المراجِع لا صاحب الرصيد — هو ما يجعل الخصم «قرارًا موثَّقًا» لا آليًّا
+            $reviewer->id,
+        ));
     }
 
     /**

@@ -150,6 +150,19 @@
             <x-modal :id="'approve-task-'.$row['id']" :title="setting('volunteer.reviews.tooltip', 'اعتماد التسليم')">
                 <form method="post" action="{{ route('volunteer.reviews.task.approve', $row['id']) }}" class="space-y-3">
                     @csrf
+                    {{-- ⭐ معامل جودة الإنجاز ⟵ VXP (24.2 التاب 2) — لمالك صلاحيّة الخصم اليدويّ وحده (23 — القسم 5)، ولا يمسّ Rep إطلاقًا --}}
+                    @if ($canQuality)
+                        <label class="block text-sm">
+                            <span class="block text-xs mb-1" style="color: var(--text-muted)">{{ setting('volunteer.reviews.quality_label', 'جودة الإنجاز') }}</span>
+                            <select name="quality_tier" class="w-full rounded-xl px-3 py-2 text-sm"
+                                    style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
+                                <option value="">{{ setting('volunteer.reviews.quality_default', 'كاملة (بلا تحجيم)') }}</option>
+                                @foreach ($qualityTiers as $key => $percent)
+                                    <option value="{{ $key }}">{{ $percent }}%</option>
+                                @endforeach
+                            </select>
+                        </label>
+                    @endif
                     @if ($canLibrary)
                         <label class="flex items-center gap-2 text-sm">
                             <input type="checkbox" name="add_to_library" value="1" style="accent-color: var(--color-brand-500)">

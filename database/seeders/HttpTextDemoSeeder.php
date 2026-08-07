@@ -1064,6 +1064,7 @@ class HttpTextDemoSeeder extends Seeder
             ['recruitment.screen.move_ok', 'recruitment', 'move() — اتنقل ✓ الحركة اتسجّلت في سجلّ التدقيق.', 'اتنقل ✓ الحركة اتسجّلت في سجلّ التدقيق.'],
             // ---- app/Http/Controllers/Volunteer/ReviewController.php
             ['workflow.review.approve_task_msg', 'workflow', 'approveTask() — إضافة المكتبة لدايركتور الكيان.', 'إضافة المكتبة لدايركتور الكيان.'],
+            ['workflow.review.approve_task_msg_2', 'workflow', 'approveTask() — تحجيم VXP بالجودة لمالك صلاحيّة الخصم اليدويّ وحده.', 'تحجيم VXP بالجودة لمالك صلاحيّة الخصم اليدويّ وحده.'],
             ['workflow.review.approve_task_ok', 'workflow', 'approveTask() — اتعمدت ✓', 'اتعمدت ✓'],
             ['workflow.review.return_task_ok', 'workflow', 'returnTask() — اترجّعت بمهلة إصلاح ✓', 'اترجّعت بمهلة إصلاح ✓'],
             ['workflow.review.approve_contribution_msg', 'workflow', 'approveContribution() — الاعتماد للمالك وحده.', 'الاعتماد للمالك وحده.'],

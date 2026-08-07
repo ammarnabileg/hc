@@ -2079,6 +2079,9 @@ APP_DEBUG=false
             ['workflow.settings_catalog.workflow_7', 'workflow', 'مهلة ردّ نقطة التفتيش (ساعة)', 'string', 'مهلة ردّ نقطة التفتيش (ساعة)', false],
             ['workflow.settings_catalog.workflow_8', 'workflow', 'أقصى مدّة تعثّر (يوم)', 'string', 'أقصى مدّة تعثّر (يوم)', false],
             ['workflow.settings_catalog.workflow_9', 'workflow', 'أدنى شريحة VXP محفوظة للأب (%)', 'string', 'أدنى شريحة VXP محفوظة للأب (%)', false],
+            ['workflow.settings_catalog.workflow_10', 'workflow', 'معامل الجودة — المستوى الأدنى (%)', 'string', 'معامل الجودة — المستوى الأدنى (%)', false],
+            ['workflow.settings_catalog.workflow_11', 'workflow', 'معامل الجودة — المستوى المتوسّط (%)', 'string', 'معامل الجودة — المستوى المتوسّط (%)', false],
+            ['workflow.settings_catalog.workflow_12', 'workflow', 'معامل الجودة — المستوى الكامل (%)', 'string', 'معامل الجودة — المستوى الكامل (%)', false],
 
             // ---------------- wallet
             ['wallet.exchange_rates.keys_1', 'wallet', '1$ = كام كوين', 'string', '1$ = كام كوين', false],
@@ -2174,6 +2177,7 @@ APP_DEBUG=false
             ['workflow.no_delivery_sweeper.miss_1', 'workflow', 'عدم تسليم: :p1', 'string', 'عدم تسليم: :p1', false],
             ['workflow.no_delivery_sweeper.miss_2', 'workflow', 'فات الديدلاين بلا تسليم', 'string', 'فات الديدلاين بلا تسليم', false],
             ['workflow.review_service.approve_task_1', 'workflow', 'اتعمدت مهمّتك ✓', 'string', 'اتعمدت مهمّتك ✓', false],
+            ['workflow.review_service.quality_coefficient_1', 'workflow', 'تعديل جودة الإنجاز: :p1 (:p2%)', 'string', 'تعديل جودة الإنجاز: :p1 (:p2%)', false],
             ['workflow.review_service.remove_batch_item_1', 'workflow', 'بندك رجع مسودّة', 'string', 'بندك رجع مسودّة', false],
             ['workflow.review_service.return_task_1', 'workflow', 'اختر سبب الإرجاع من القائمة.', 'string', 'اختر سبب الإرجاع من القائمة.', false],
             ['workflow.review_service.return_task_2', 'workflow', 'الفيدباك المكتوب إجباريّ مع كلّ إرجاع.', 'string', 'الفيدباك المكتوب إجباريّ مع كلّ إرجاع.', false],

@@ -577,6 +577,11 @@ class SettingsCatalog
             'workflow.checkpoint.response_hours' => ['workflow', setting('workflow.settings_catalog.workflow_7', 'مهلة ردّ نقطة التفتيش (ساعة)'), 'number', '2'],
             'workflow.blocked.max_days' => ['workflow', setting('workflow.settings_catalog.workflow_8', 'أقصى مدّة تعثّر (يوم)'), 'number', '3'],
             'workflow.vxp.parent_min_share_percent' => ['workflow', setting('workflow.settings_catalog.workflow_9', 'أدنى شريحة VXP محفوظة للأب (%)'), 'number', '10'],
+            // ⭐ معامل جودة الإنجاز ⟵ VXP (24.2 التاب 2 · مبدأ الفصل §6): جدول ثلاثيّ
+            // قابل للتحرير — والجودة الضعيفة تحجِّم VXP وحده، ولا تمسّ Rep إطلاقًا.
+            'workflow.vxp.quality_tier_low' => ['workflow', setting('workflow.settings_catalog.workflow_10', 'معامل الجودة — المستوى الأدنى (%)'), 'number', '60'],
+            'workflow.vxp.quality_tier_mid' => ['workflow', setting('workflow.settings_catalog.workflow_11', 'معامل الجودة — المستوى المتوسّط (%)'), 'number', '80'],
+            'workflow.vxp.quality_tier_high' => ['workflow', setting('workflow.settings_catalog.workflow_12', 'معامل الجودة — المستوى الكامل (%)'), 'number', '100'],
         ];
     }
 }
