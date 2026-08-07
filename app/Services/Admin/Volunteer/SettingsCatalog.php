@@ -241,6 +241,11 @@ class SettingsCatalog
             'volunteer.offboarding.reentry_exam_required' => ['volunteer_offboarding', setting('volunteer_offboarding.settings_catalog.offboarding_17', 'إلزام الامتحان للعائدين'), 'bool', '1'],
             'volunteer.offboarding.cooldown_copy' => ['volunteer_offboarding', setting('volunteer_offboarding.settings_catalog.offboarding_18', 'نصّ صفحة التطوّع داخل التبريد'), 'string', setting('volunteer_offboarding.settings_catalog.offboarding_19', 'أهلًا بعودتك 👋 مكانك محفوظ عندنا. تقدر تبدأ من جديد يوم {date}.')],
             'volunteer.offboarding.excluded_copy' => ['volunteer_offboarding', setting('volunteer_offboarding.settings_catalog.offboarding_20', 'نصّ صفحة التطوّع بعد الإقصاء'), 'string', setting('volunteer_offboarding.settings_catalog.offboarding_21', 'العودة بعد الاستبعاد بتحتاج قرارًا من مشرف عام التطوّع. تواصل معنا من صفحة الدعم.')],
+
+            // ⭐ لجنة التحقيق (23-0.2-4) — نفس تاب الأوفبوردنج: مسارٌ واحدٌ في المجال نفسه
+            'volunteer_investigation.dossier_window_days' => ['volunteer_offboarding', setting('volunteer_offboarding.settings_catalog.investigation_1', 'نافذة ملفّ القضيّة المتجمّع آليًّا (يوم)'), 'number', '90'],
+            'volunteer_investigation.reschedule_limit' => ['volunteer_offboarding', setting('volunteer_offboarding.settings_catalog.investigation_2', 'عدد إعادات جدولة الميتينج قبل «مضيّ غيابيّ»'), 'number', '1'],
+            'volunteer_investigation.min_seat_position' => ['volunteer_offboarding', setting('volunteer_offboarding.settings_catalog.investigation_3', 'أدنى بوزشن للترشّح لمقعد قسم المتطوّعين'), 'string', 'team_leader'],
         ];
     }
 

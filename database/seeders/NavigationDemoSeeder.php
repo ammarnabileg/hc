@@ -133,6 +133,7 @@ class NavigationDemoSeeder extends Seeder
             ['nav.admin.item_volunteer_scorecard_criteria', 'nav', 'سايد بار الإدارة: معايير المقابلة', 'معايير المقابلة'],
             ['nav.admin.item_volunteer_leadership_criteria', 'nav', 'سايد بار الإدارة: معايير مؤشّر القيادة', 'معايير مؤشّر القيادة'],
             ['nav.admin.item_volunteer_offboarding', 'nav', 'سايد بار الإدارة: الخروج والعودة', 'الخروج والعودة'],
+            ['nav.admin.item_volunteer_investigations', 'nav', 'سايد بار الإدارة: لجنة التحقيق', 'لجنة التحقيق'],
             ['nav.admin.group_gamification', 'nav', 'سايد بار الإدارة: التلعيب والتحديات', 'التلعيب والتحديات'],
             ['nav.admin.item_gamification_xp', 'nav', 'سايد بار الإدارة: XP والتذاكر', 'XP والتذاكر'],
             ['nav.admin.item_gamification_streaks', 'nav', 'سايد بار الإدارة: الستريك ونادي الخامسة', 'الستريك ونادي الخامسة'],

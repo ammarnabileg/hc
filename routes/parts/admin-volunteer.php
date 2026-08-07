@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\DelegationAdminController;
 use App\Http\Controllers\Admin\EventAdminController;
 use App\Http\Controllers\Admin\EventRegistrationsController;
 use App\Http\Controllers\Admin\GamificationController;
+use App\Http\Controllers\Admin\InvestigationAdminController;
 use App\Http\Controllers\Admin\LeadershipCriteriaController;
 use App\Http\Controllers\Admin\OffboardingAdminController;
 use App\Http\Controllers\Admin\OrgAdminController;
@@ -144,6 +145,26 @@ Route::middleware(['auth', 'admin.panel'])->prefix('admin')->name('admin.')->gro
             ->middleware('permission:offboarding.approve')->name('offboarding.reentry');
         Route::post('/offboarding/settings', [OffboardingAdminController::class, 'saveSettings'])
             ->middleware('permission:volunteer_central_settings.edit')->name('offboarding.settings.save');
+
+        // لجنة التحقيق (23-0.2-4)
+        Route::prefix('investigations')->name('investigations.')->group(function () {
+            Route::get('/', [InvestigationAdminController::class, 'index'])
+                ->middleware('permission:investigations.view')->name('index');
+            Route::post('/{referral}/activate', [InvestigationAdminController::class, 'activate'])
+                ->whereNumber('referral')->middleware('permission:investigations.create')->name('activate');
+            Route::get('/{case}', [InvestigationAdminController::class, 'show'])
+                ->whereNumber('case')->middleware('permission:investigations.view')->name('show');
+            Route::post('/{case}/seats', [InvestigationAdminController::class, 'assignSeats'])
+                ->whereNumber('case')->middleware('permission:investigations.assign')->name('seats');
+            Route::post('/{case}/meeting', [InvestigationAdminController::class, 'scheduleMeeting'])
+                ->whereNumber('case')->middleware('permission:investigations.view')->name('meeting');
+            Route::post('/{case}/verdict', [InvestigationAdminController::class, 'recordVerdict'])
+                ->whereNumber('case')->middleware('permission:investigations.edit')->name('verdict');
+            Route::post('/{case}/decision', [InvestigationAdminController::class, 'decide'])
+                ->whereNumber('case')->middleware('permission:investigations.approve')->name('decision');
+            Route::post('/{case}/archive', [InvestigationAdminController::class, 'archive'])
+                ->whereNumber('case')->middleware('permission:investigations.archive')->name('archive');
+        });
 
         // شهادات التطوّع (13.4-ع · 24.2)
         Route::get('/certificates', [VolunteerAdminController::class, 'certificates'])

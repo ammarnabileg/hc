@@ -260,6 +260,7 @@ class AdminLayoutGuardTest extends UiTestCase
                 route('admin.volunteer.scorecard-criteria.index'),
                 route('admin.volunteer.leadership-criteria.index'),
                 route('admin.volunteer.offboarding'),
+                route('admin.volunteer.investigations.index'),
             ], null],
             /*
              | 12.10 التلعيب والتحديات

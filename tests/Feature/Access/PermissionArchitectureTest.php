@@ -381,9 +381,13 @@ class PermissionArchitectureTest extends TestCase
             'coordinator: academy_paths.list@SUBTREE',
             'coordinator: academy_paths.view@SUBTREE',
             'coordinator: academy_recordings.list@SUBTREE',
+            'supervisor: investigations.edit@ENTITY',
+            'supervisor: investigations.view@ENTITY',
             'team_leader: academy_paths.list@SUBTREE',
             'team_leader: academy_paths.view@SUBTREE',
             'team_leader: academy_recordings.list@SUBTREE',
+            'team_leader: investigations.edit@ENTITY',
+            'team_leader: investigations.view@ENTITY',
         ], $forced, 'الصفوف فوق سقف 12.2.3 هي ما تفرضه 12.2.2 وحدها — لا غيرها');
     }
 

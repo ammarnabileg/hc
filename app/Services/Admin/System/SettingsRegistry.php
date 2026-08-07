@@ -117,7 +117,7 @@ class SettingsRegistry
                 'label' => setting('system.settings_registry.tabs_23', 'التطوّع والفرق'),
                 'groups' => [
                     'volunteer', 'volunteer_page', 'volunteer_org', 'volunteer_rep',
-                    'volunteer_cert', 'volunteer_offboarding', 'volunteer_analytics', 'volunteer_honorary',
+                    'volunteer_cert', 'volunteer_offboarding', 'volunteer_investigation', 'volunteer_analytics', 'volunteer_honorary',
                     'recruitment', 'meetings', 'workflow', 'goals', 'performance',
                     'rep', 'offboarding',
                 ],
@@ -252,6 +252,7 @@ class SettingsRegistry
             'volunteer_rep' => [setting('system.settings_registry.group_catalog_97', 'السمعة (Rep)'), setting('system.settings_registry.group_catalog_98', 'السقوف والتصفير والاعتراض والخمول.')],
             'volunteer_cert' => [setting('system.settings_registry.group_catalog_99', 'شهادات التطوّع'), setting('system.settings_registry.group_catalog_100', 'شروط الإصدار والأنواع والعرض.')],
             'volunteer_offboarding' => [setting('system.settings_registry.group_catalog_101', 'الخروج والعودة'), setting('system.settings_registry.group_catalog_102', 'التصفية والتبريد ومقابلة الخروج.')],
+            'volunteer_investigation' => [setting('system.settings_registry.group_catalog_investigation_1', 'لجنة التحقيق'), setting('system.settings_registry.group_catalog_investigation_2', 'نصوص شاشة لجنة التحقيق وميعاد الميتينج والقرار.')],
             'volunteer_analytics' => [setting('system.settings_registry.group_catalog_103', 'تحليلات التطوّع'), setting('system.settings_registry.group_catalog_104', 'المدى والمؤشّرات.')],
             'volunteer_honorary' => [setting('system.settings_registry.group_catalog_105', 'المناصب الفخريّة'), setting('system.settings_registry.group_catalog_106', 'الألقاب الفخريّة وشروط منحها وعرضها.')],
             'recruitment' => [setting('system.settings_registry.group_catalog_107', 'التوظيف والترشيح'), setting('system.settings_registry.group_catalog_108', 'الفرز والمقابلات والقبول.')],

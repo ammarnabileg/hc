@@ -122,6 +122,22 @@ class RolePermissionSeeder extends Seeder
         // معايير مؤشّر القيادة (13.4-ن-د · 24 — التاب 3): «يحدّدها الأدمن» — نفس مستوى بنود الإدارة المركزيّة
         $this->grantResources('volunteer_gm', ['leadership_criteria'], 'ALL', $expander);
 
+        /*
+         | لجنة التحقيق (23-0.2-4): تفعيل الملفّ وتعيين المقعدين والقرار
+         | النهائيّ والأرشفة — **حصريّة مشرف عام التطوّع** بنصّ الدستور. أمّا
+         | المطالعة وتسجيل قرار الميتينج فلمَن قد يقع عليه مقعد قسم المتطوّعين
+         | فعلًا (تيم ليدر فأعلى — عتبة الترشّح المنصوصة)، وإلّا فلن يصل
+         | العضوَ المعيَّن آليًّا شاشةٌ يرى فيها ملفّه أصلًا.
+         */
+        $this->grantResources('volunteer_gm', ['investigations'], 'ALL', $expander);
+
+        // المطالعة وتسجيل القرار — بسقف نطاق دوره (12.2.3-ب)، وأضيق ما تسمح به المصفوفة عند تجاوزه (12.2.2)
+        $investigationSeatKeys = ['investigations.view', 'investigations.edit'];
+
+        foreach (['track_supervisor' => 'TRACK', 'director' => 'ENTITY', 'supervisor' => 'SUBTREE', 'team_leader' => 'TEAM'] as $roleKey => $scope) {
+            $this->grantKeys($roleKey, $investigationSeatKeys, $scope, matrixFloor: true);
+        }
+
         // 12.2.3-ب-18: «`academy_paths · academy_recordings` **داخل قسمه**» — النطاق ENTITY لا TRACK
         $this->grantResources('academy_manager', ['academy_paths', 'academy_recordings', 'otp_verification', 'paths', 'courses'], 'ENTITY', $expander);
 

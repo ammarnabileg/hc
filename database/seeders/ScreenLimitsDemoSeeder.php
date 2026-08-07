@@ -107,6 +107,7 @@ class ScreenLimitsDemoSeeder extends Seeder
             ['volunteer.analytics.top_rows', 'volunteer_analytics', 'عدد صفوف قوائم «الأعلى» في التحليلات', 'number', '10'],
             ['volunteer.offboarding.admin_rows', 'volunteer_offboarding', 'عدد صفوف جداول الخروج', 'number', '50'],
             ['volunteer.offboarding.reentry_rows', 'volunteer_offboarding', 'عدد طلبات العودة المفتوحة المعروضة', 'number', '30'],
+            ['volunteer_investigation.admin_rows', 'volunteer_investigation', 'عدد صفوف جداول لجنة التحقيق', 'number', '50'],
             ['volunteer_cert.pending_scan_limit', 'volunteer_cert', 'أقصى عضويّات يفحصها كشف الاستحقاق', 'number', '200'],
             ['volunteer_cert.pending_rows', 'volunteer_cert', 'عدد المستحقّين المعروضين', 'number', '20'],
             ['volunteer_cert.issued_rows', 'volunteer_cert', 'عدد الشهادات الصادرة المعروضة', 'number', '30'],

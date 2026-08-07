@@ -117,6 +117,7 @@
             [setting('nav.admin.item_volunteer_scorecard_criteria', 'معايير المقابلة'), 'admin.volunteer.scorecard-criteria.index', 'scorecard_criteria.list'],
             [setting('nav.admin.item_volunteer_leadership_criteria', 'معايير مؤشّر القيادة'), 'admin.volunteer.leadership-criteria.index', 'leadership_criteria.list'],
             [setting('nav.admin.item_volunteer_offboarding', 'الخروج والعودة'), 'admin.volunteer.offboarding', 'offboarding.view'],
+            [setting('nav.admin.item_volunteer_investigations', 'لجنة التحقيق'), 'admin.volunteer.investigations.index', 'investigations.view'],
         ])],
 
         // 🎮 التلعيب والتحديات (12.10 — موسّع) — أحد عشر بندًا بترتيب 12.0
