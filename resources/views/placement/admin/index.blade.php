@@ -27,6 +27,18 @@
         </x-slot:action>
     </x-page-header>
 
+    @if ($silentlySkipped)
+        {{-- الخطوة مفعَّلة إعداديًّا لكن بلا سؤال نشِط واحد ⟵ تُتخطّى صامتةً لكلّ مُسجَّل جديد (2.5-د-2) --}}
+        <div class="card p-4 mb-4" style="border: 1px solid var(--color-state-warning)">
+            <div class="font-bold" style="color: var(--color-state-warning)">
+                {{ setting('onboarding.placement.admin.skipped_title', 'الاختبار التمهيديّ متوقّف فعليًّا الآن') }}
+            </div>
+            <p class="text-xs mt-1" style="color: var(--text-muted)">
+                {{ setting('onboarding.placement.admin.skipped_warning', 'الإعداد «مفعَّل» لكن ولا سؤال نشِط في البنك — فكلّ مُسجَّل جديد يتخطّى هذه الخطوة صامتًا. أضِف سؤالًا نشِطًا أو أوقف الخطوة من الإعدادات صراحةً.') }}
+            </p>
+        </div>
+    @endif
+
     @if ($questions->isEmpty())
         {{-- الحالة الفارغة المنصوصة: سطر واحد + زرّ واحد (24) --}}
         <x-empty :message="setting('onboarding.placement.admin.empty')" />

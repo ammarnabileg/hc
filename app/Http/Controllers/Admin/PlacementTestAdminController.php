@@ -52,6 +52,8 @@ class PlacementTestAdminController extends Controller
 
     public function index(Request $request): View
     {
+        $activeCount = PlacementTestQuestion::query()->where('is_active', true)->count();
+
         return view('placement.admin.index', [
             'questions' => PlacementTestQuestion::query()
                 ->orderBy('sort_order')
@@ -63,6 +65,10 @@ class PlacementTestAdminController extends Controller
                 ->select('placement_test_question_id', DB::raw('count(*) as total'))
                 ->groupBy('placement_test_question_id')
                 ->pluck('total', 'placement_test_question_id'),
+            // ⭐ الخطوة مفعَّلة إعداديًّا لكن بلا سؤال نشِط واحد — تُتخطّى صامتةً
+            // لكلّ مُسجَّل جديد (`PlacementTest::isEnabled()`) ولا يرى أحد ذلك
+            // إلّا هنا: التحذير الصريح بديل التخطّي الصامت الذي كان يخفي الفجوة.
+            'silentlySkipped' => (bool) setting('onboarding.placement.enabled', true) && $activeCount === 0,
         ]);
     }
 
