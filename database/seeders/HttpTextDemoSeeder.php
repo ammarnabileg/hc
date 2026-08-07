@@ -1186,6 +1186,17 @@ class HttpTextDemoSeeder extends Seeder
             ['growth.admin.tab_reach_label', 'growth', 'tab_reach_label — الفهرسة والمحتوى', 'الفهرسة والمحتوى'],
             // ---- app/Http/Controllers/Volunteer/InterviewController.php
             ['interviews.screen.export_title', 'recruitment', 'export_title — نتيجة مقابلة — :name', 'نتيجة مقابلة — :name'],
+            // ⭐ تصدير PDF حقيقيّ (13.4-د · §12 scorecards.export) — أقسامه
+            ['interviews.screen.export_msg', 'recruitment', 'export() — مرشّح (اسم افتراضيّ لو غاب اسم المستخدم)', 'مرشّح'],
+            ['interviews.screen.export_section_interview', 'recruitment', 'export() — عنوان قسم بيانات المقابلة', 'بيانات المقابلة'],
+            ['interviews.screen.export_interviewer', 'recruitment', 'export() — المُقابِل: :p1', 'المُقابِل: :p1'],
+            ['interviews.screen.export_scheduled_at', 'recruitment', 'export() — الموعد: :p1', 'الموعد: :p1'],
+            ['interviews.screen.export_section_notes', 'recruitment', 'export() — عنوان قسم المهارات والشخصيّة', 'المهارات وتحليل الشخصيّة'],
+            ['interviews.screen.export_section_criteria', 'recruitment', 'export() — عنوان قسم المعايير', 'المعايير'],
+            ['interviews.screen.export_section_decision', 'recruitment', 'export() — عنوان قسم القرار', 'القرار'],
+            ['interviews.screen.export_decision_passed', 'recruitment', 'export() — نجح ⟵ القائمة النهائيّة', 'نجح ⟵ القائمة النهائيّة'],
+            ['interviews.screen.export_decision_rejected', 'recruitment', 'export() — رفض', 'رفض'],
+            ['interviews.screen.export_decision_reason', 'recruitment', 'export() — السبب: :p1', 'السبب: :p1'],
             // ---- app/Http/Controllers/Admin/MaintenanceController.php
             ['maintenance.admin.lift_ok', 'maintenance', 'lift_ok — الصيانة اترفعت — :rows مهلة اتعاد حسابها بفارق :ho', 'الصيانة اترفعت — :rows مهلة اتعاد حسابها بفارق :hours ساعة.'],
             // ---- app/Http/Controllers/Admin/OnboardingContentController.php

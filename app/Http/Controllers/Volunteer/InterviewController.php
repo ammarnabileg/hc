@@ -7,6 +7,7 @@ use App\Models\Interview;
 use App\Models\InterviewScorecard;
 use App\Models\RecruitmentCandidate;
 use App\Models\User;
+use App\Services\Library\AtsPdfWriter;
 use App\Services\Volunteer\People\CandidatePipeline;
 use App\Services\Volunteer\People\InterviewScheduler;
 use App\Services\Volunteer\People\ScorecardEngine;
@@ -29,6 +30,7 @@ class InterviewController extends Controller
         private readonly InterviewScheduler $scheduler,
         private readonly ScorecardEngine $engine,
         private readonly CandidatePipeline $pipeline,
+        private readonly AtsPdfWriter $pdf,
     ) {}
 
     public function index(Request $request): View
@@ -190,18 +192,86 @@ class InterviewController extends Controller
                 : (string) setting('interviews.screen.decide_ok_2', 'اتسجّل ✓ القرار والسبب اتحفظوا.'));
     }
 
-    /** تصدير الملخّص للأرشيف */
-    public function export(Request $request, Interview $interview): Response
+    /**
+     * ⭐ تصدير PDF للأرشيف (13.4-د · §12 · scorecards.export) — يُبنى على الخادم
+     * بلا مكتبة خارجيّة، بنفس كاتب الـATS المستخدَم لتصدير الـCV (9).
+     * ولو غاب الخطّ المضمَّن نشرح ماذا حدث بدل صفحة خطأ (2.17-ب).
+     */
+    public function export(Request $request, Interview $interview): Response|RedirectResponse
     {
         $card = InterviewScorecard::firstOrNew(['interview_id' => $interview->id]);
-        $name = $interview->recruitment_candidate?->user?->name ?? 'candidate';
+        $interview->load(['recruitment_candidate.user', 'interviewer']);
+        $name = (string) ($interview->recruitment_candidate?->user?->name ?? setting('interviews.screen.export_msg', 'مرشّح'));
 
-        $body = strtr((string) setting('interviews.screen.export_title', 'نتيجة مقابلة — :name'), [':name' => (string) $name])
-            ."\n".str_repeat('─', 32)."\n".$this->engine->summary($card);
+        if (! $this->pdf->available()) {
+            return redirect()->route('volunteer.interviews.scorecard', $interview)->with('status', $this->pdf->unavailableReason());
+        }
 
-        return response($body, 200, [
-            'Content-Type' => 'text/plain; charset=UTF-8',
-            'Content-Disposition' => 'attachment; filename="scorecard-'.$interview->id.'.txt"',
+        $binary = $this->pdf->build(
+            $name,
+            strtr((string) setting('interviews.screen.export_title', 'نتيجة مقابلة — :name'), [':name' => $name]),
+            $this->exportSections($interview, $card),
+        );
+
+        return response($binary, 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'attachment; filename="scorecard-'.$interview->id.'.pdf"',
         ]);
+    }
+
+    /**
+     * أقسام الـPDF: بيانات المقابلة · المهارات وتحليل الشخصيّة · المعايير بدرجاتها · القرار.
+     *
+     * @return array<int, array{heading:string, lines:array<int,string>}>
+     */
+    private function exportSections(Interview $interview, InterviewScorecard $card): array
+    {
+        $sections = [];
+
+        $sections[] = [
+            'heading' => (string) setting('interviews.screen.export_section_interview', 'بيانات المقابلة'),
+            'lines' => array_filter([
+                strtr((string) setting('interviews.screen.export_interviewer', 'المُقابِل: :p1'), [':p1' => (string) ($interview->interviewer?->name ?? '—')]),
+                strtr((string) setting('interviews.screen.export_scheduled_at', 'الموعد: :p1'), [':p1' => (string) ($interview->scheduled_at?->format('Y-m-d H:i') ?? '—')]),
+            ]),
+        ];
+
+        $sections[] = [
+            'heading' => (string) setting('interviews.screen.export_section_notes', 'المهارات وتحليل الشخصيّة'),
+            'lines' => [
+                strtr((string) setting('recruitment.scorecard_engine.summary_1', 'المهارات: :p1'), [':p1' => (string) (trim((string) $card->skills_notes) ?: '—')]),
+                strtr((string) setting('recruitment.scorecard_engine.summary_2', 'تحليل الشخصيّة: :p1'), [':p1' => (string) (trim((string) $card->personality_notes) ?: '—')]),
+            ],
+        ];
+
+        $criteriaLines = [];
+
+        foreach ($this->engine->rows($card->exists ? $card : null) as $row) {
+            $criteriaLines[] = strtr((string) setting('recruitment.scorecard_engine.summary_3', ':p1:p2: :p3/:p4 — وزن :p5'), [
+                ':p1' => (string) $row['label'],
+                ':p2' => (string) ($row['archived'] ? ' ('.ScorecardEngine::archivedTag().')' : ''),
+                ':p3' => (string) ($row['score'] ?? '—'),
+                ':p4' => (string) $this->engine->scale(),
+                ':p5' => (string) $row['weight'],
+            ]);
+        }
+
+        $criteriaLines[] = strtr((string) setting('recruitment.scorecard_engine.summary_4', 'الدرجة الإجماليّة: :p1/:p2'), [':p1' => (string) $card->total_score, ':p2' => (string) $this->engine->scale()]);
+
+        $sections[] = ['heading' => (string) setting('interviews.screen.export_section_criteria', 'المعايير'), 'lines' => $criteriaLines];
+
+        if ($card->decision) {
+            $sections[] = [
+                'heading' => (string) setting('interviews.screen.export_section_decision', 'القرار'),
+                'lines' => array_filter([
+                    $card->decision === 'passed'
+                        ? (string) setting('interviews.screen.export_decision_passed', 'نجح ⟵ القائمة النهائيّة')
+                        : (string) setting('interviews.screen.export_decision_rejected', 'رفض'),
+                    $card->rejection_reason ? strtr((string) setting('interviews.screen.export_decision_reason', 'السبب: :p1'), [':p1' => (string) $card->rejection_reason]) : null,
+                ]),
+            ];
+        }
+
+        return $sections;
     }
 }
