@@ -2,9 +2,7 @@
 
 namespace App\Services\Images\Concerns;
 
-use App\Services\Library\ArabicShaper;
-use App\Services\Library\TrueTypeFont;
-use Throwable;
+use App\Services\Certificates\ArabicText;
 
 /**
  * أدوات الرسم المشتركة بـGD (12.14-و) — **محرّك واحد وصفر ازدواج**:
@@ -113,33 +111,18 @@ trait DrawsWithGd
     }
 
     /**
-     * ⭐ تشكيل النصّ العربيّ قبل الرسم (نفس محرّك القسم 9 — صفر ازدواج).
+     * ⭐ تشكيل النصّ العربيّ قبل الرسم (12.14 — **نفس محرّك 12.5-ب**: مصمّم
+     * الشهادات هو المحرّك المرجعيّ، وهذه الوحدة تستهلكه بدل تكرار خوارزميّة
+     * تشكيلٍ مستقلّة — صفر ازدواج حرفيًّا لا تعليقًا فقط).
      *
      * **لماذا؟** لأنّ GD يرسم الحروف كما تُعطى له: بلا وصل وبلا ترتيب من اليمين،
-     * فتخرج «محمد» أربعة حروف مفكوكة مقلوبة. فنحوّل كلّ حرف إلى صورته المتّصلة
-     * ونرتّب السطر بصريًّا، **ولو غاب شكلٌ في الخطّ رجعنا للحرف الأصل** فيرسمه
-     * الخطّ منفردًا بدل مربّع فارغ.
+     * فتخرج «محمد» أربعة حروف مفكوكة مقلوبة. و`ArabicText::prepare()` (خطّ
+     * Cairo نفسه في الاستوديو والشهادات) يحوّل كلّ حرف إلى صورته المتّصلة
+     * ويرتّب السطر بصريًّا.
      */
     protected function shapeRtl(string $text): string
     {
-        if (! preg_match('/\p{Arabic}/u', $text)) {
-            return $text; // سطر لاتينيّ خالص — لا تشكيل ولا عكس
-        }
-
-        $font = $this->fontTables();
-        $out = '';
-
-        foreach (app(ArabicShaper::class)->shape($text) as $glyph) {
-            $code = $glyph['form'];
-
-            if ($font !== null && $font->glyphFor($code) === 0) {
-                $code = $glyph['logical'][0];
-            }
-
-            $out .= mb_chr($code, 'UTF-8');
-        }
-
-        return $out;
+        return ArabicText::prepare($text);
     }
 
     /** عرض النصّ بالبكسل — لمحاذاة RTL الصحيحة */
@@ -186,28 +169,5 @@ trait DrawsWithGd
         $box = imagettfbbox($size, 0, $font, $shaped);
 
         return (int) abs($box[2] - $box[0]);
-    }
-
-    /** جداول الخطّ تُقرأ مرّة واحدة — قراءتها لكلّ حرف مكلفة بلا داعٍ */
-    private function fontTables(): ?TrueTypeFont
-    {
-        static $cache = [];
-
-        $path = $this->fontPath();
-
-        if ($path === null) {
-            return null;
-        }
-
-        if (! array_key_exists($path, $cache)) {
-            try {
-                $cache[$path] = new TrueTypeFont($path);
-            } catch (Throwable) {
-                // خطّ غير مقروء: نرسم بلا فحص أشكال بدل أن نكسر الصورة
-                $cache[$path] = null;
-            }
-        }
-
-        return $cache[$path];
     }
 }
