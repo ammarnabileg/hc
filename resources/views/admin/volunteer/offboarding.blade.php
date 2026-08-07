@@ -156,9 +156,13 @@
                 </select>
 
                 <label class="block text-sm font-semibold mb-1" for="ob-reason">{{ setting('admin.volunteer.offboarding.alsbb_llmlahzat_alidarya_whdha', 'السبب (للملاحظات الإداريّة وحدها)') }}</label>
-                <textarea name="reason" id="ob-reason" rows="3" maxlength="1000"
-                          class="w-full rounded-xl px-3 py-2 text-sm mb-2"
-                          style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)"></textarea>
+                <select name="reason" id="ob-reason" class="w-full rounded-xl px-3 py-2 text-sm mb-2"
+                        style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
+                    <option value="">{{ setting('admin.volunteer.offboarding.bla_sbb', '— بلا سبب —') }}</option>
+                    @foreach ($reasons as $reason)
+                        <option value="{{ $reason }}">{{ $reason }}</option>
+                    @endforeach
+                </select>
                 <p class="text-xs mb-3" style="color: var(--text-muted)"><x-icon name="lock" size="16" /> {{ setting('admin.volunteer.offboarding.alsbb', 'السبب') }} <strong>{{ setting('admin.volunteer.offboarding.la_ynshr_llfryq', 'لا يُنشَر للفريق') }}</strong> {{ setting('admin.volunteer.offboarding.yzhr_antht_adwya_flan_fqt', '— يظهر «انتهت عضويّة فلان» فقط.') }}</p>
 
                 <div class="text-sm font-semibold mb-1">{{ setting('admin.volunteer.offboarding.altsfya_alilzamya', 'التصفية الإلزاميّة') }}</div>

@@ -12,6 +12,7 @@ use App\Services\Admin\Volunteer\SettingsWriter;
 use App\Support\Scope\ScopeFilter;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 use RuntimeException;
 
@@ -43,6 +44,7 @@ class OffboardingAdminController extends Controller
             'types' => OffboardingService::types(),
             'records' => $records,
             'clearance' => OffboardingService::clearanceItems(),
+            'reasons' => OffboardingService::reasons(),
             'settings' => SettingsWriter::groupRows('volunteer_offboarding'),
             'questions' => (array) setting('volunteer.offboarding.exit_interview_questions', []),
             'filters' => ['type' => $type, 'q' => $request->string('q')->toString()],
@@ -77,7 +79,8 @@ class OffboardingAdminController extends Controller
         $data = $request->validate([
             'code' => ['required', 'string', 'max:32'],
             'type' => ['required', 'string', 'in:'.implode(',', OffboardingService::TYPE_KEYS)],
-            'reason' => ['nullable', 'string', 'max:1000'],
+            // ⭐ قائمة مقنَّنة يختارها الأدمن — لا نصّ حرّ (§س-ي)
+            'reason' => ['nullable', 'string', Rule::in(OffboardingService::reasons())],
             'clearance' => ['nullable', 'array'],
         ]);
 

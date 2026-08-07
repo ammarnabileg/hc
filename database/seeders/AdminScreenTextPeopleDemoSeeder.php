@@ -531,6 +531,7 @@ class AdminScreenTextPeopleDemoSeeder extends Seeder
             ['admin.volunteer.offboarding.alkl', 'volunteer', 'الكلّ', 'string', 'الكلّ', 'نصّ في resources/views/admin/volunteer/offboarding.blade.php'],
             ['admin.volunteer.offboarding.alnwa', 'volunteer', 'النوع', 'string', 'النوع', 'نصّ في resources/views/admin/volunteer/offboarding.blade.php'],
             ['admin.volunteer.offboarding.alsbb', 'volunteer', 'السبب', 'string', 'السبب', 'نصّ في resources/views/admin/volunteer/offboarding.blade.php'],
+            ['admin.volunteer.offboarding.bla_sbb', 'volunteer', '— بلا سبب —', 'string', '— بلا سبب —', 'نصّ في resources/views/admin/volunteer/offboarding.blade.php'],
             ['admin.volunteer.offboarding.alsbb_la_ynshr_llfryq', 'volunteer', 'السبب لا يُنشَر للفريق', 'string', 'السبب لا يُنشَر للفريق', 'نصّ في resources/views/admin/volunteer/offboarding.blade.php'],
             ['admin.volunteer.offboarding.alsbb_llmlahzat_alidarya_whdha', 'volunteer', 'السبب (للملاحظات الإداريّة وحدها)', 'string', 'السبب (للملاحظات الإداريّة وحدها)', 'نصّ في resources/views/admin/volunteer/offboarding.blade.php'],
             ['admin.volunteer.offboarding.altsfya_alilzamya', 'volunteer', 'التصفية الإلزاميّة', 'string', 'التصفية الإلزاميّة', 'نصّ في resources/views/admin/volunteer/offboarding.blade.php'],

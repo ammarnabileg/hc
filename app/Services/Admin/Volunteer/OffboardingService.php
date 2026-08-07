@@ -55,6 +55,14 @@ class OffboardingService
         return is_array($items) ? $items : [];
     }
 
+    /** قائمة الأسباب المقنَّنة (§س-ي) — يختار منها الأدمن لا يكتب نصًّا حرًّا */
+    public static function reasons(): array
+    {
+        $reasons = setting('volunteer.offboarding.reasons', []);
+
+        return is_array($reasons) ? $reasons : [];
+    }
+
     /** هل بلغ المتطوّع عتبة الإقصاء؟ الإقصاء لا يُفتَح إلّا بها */
     public static function reachedExclusionThreshold(User $user): bool
     {

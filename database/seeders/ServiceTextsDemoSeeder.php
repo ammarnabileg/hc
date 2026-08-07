@@ -1892,6 +1892,8 @@ APP_DEBUG=false
             ['volunteer_offboarding.settings_catalog.offboarding_7', 'volunteer_offboarding', 'أسئلة مقابلة الخروج', 'string', 'أسئلة مقابلة الخروج', false],
             ['volunteer_offboarding.settings_catalog.offboarding_8', 'volunteer_offboarding', '["إيه أكتر حاجة عجبتك في تجربتك معنا؟","إيه اللي كان ممكن يخلّيك تك…', 'string', '["إيه أكتر حاجة عجبتك في تجربتك معنا؟","إيه اللي كان ممكن يخلّيك تكمّل؟","سبب المغادرة باختصار؟"]', false],
             ['volunteer_offboarding.settings_catalog.offboarding_9', 'volunteer_offboarding', 'شهادة خبرة عند الخروج المشرَّف', 'string', 'شهادة خبرة عند الخروج المشرَّف', false],
+            ['volunteer_offboarding.settings_catalog.offboarding_reasons', 'volunteer_offboarding', 'قائمة أسباب إنهاء العضويّة المقنَّنة', 'string', 'قائمة أسباب إنهاء العضويّة المقنَّنة', false],
+            ['volunteer_offboarding.settings_catalog.offboarding_reasons_default', 'volunteer_offboarding', '["لا وقت كافٍ","ظروف شخصيّة","عدم رضا عن التجربة","انتقال/سفر","أسباب صحّيّة","أخرى"]', 'string', '["لا وقت كافٍ","ظروف شخصيّة","عدم رضا عن التجربة","انتقال/سفر","أسباب صحّيّة","أخرى"]', false],
 
             // ---------------- volunteer_org
             ['volunteer_org.absence_service.assert_can_add_1', 'volunteer_org', 'وضع «غائب» بيضيفه مشرفك مش إنت — كلّم دايركتور كيانك.', 'string', 'وضع «غائب» بيضيفه مشرفك مش إنت — كلّم دايركتور كيانك.', false],
