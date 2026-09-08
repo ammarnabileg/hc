@@ -76,6 +76,9 @@ class ImageStudioController extends Controller
             // ⭐ القائمة المقفولة وحدها تظهر في الاختيار — لا حقل ممنوع ولو معطَّلًا
             'allowedFields' => $this->fields->all(),
             'sampleUsers' => User::query()->where('status', 'active')->limit((int) setting('images.sample_users_limit', 20))->get(['id', 'name', 'code']),
+            // ⭐ نفس إمكانات محرّك 12.5-ب على الاستوديو (12.14): سحب-إفلات + شبكة محاذاة
+            'grid' => (int) setting('images.studio.grid_step', 5),
+            'snap' => (bool) setting('images.studio.snap_enabled', true),
         ]);
     }
 

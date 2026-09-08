@@ -362,6 +362,9 @@ class AdminSystemDemoSeeder extends Seeder
 
             // ---------------- استوديو الصور (12.14-ح)
             ['images.admin.per_page', 'images', 'عدد القوالب لكلّ صفحة', 'number', '12', false],
+            // ⭐ محرّر السحب-إفلات (12.14 — نفس محرّك 12.5-ب): شبكة المحاذاة
+            ['images.studio.grid_step', 'images', 'خطوة شبكة المحاذاة (Snap) %', 'number', '5', false],
+            ['images.studio.snap_enabled', 'images', 'تفعيل شبكة المحاذاة افتراضيًّا', 'bool', '1', false],
             ['images.short_name.units', 'images', 'عدد وحدات الاسم المختصر', 'number', '2', false],
             ['images.text.default_max_chars', 'images', 'حدّ الأحرف الافتراضيّ', 'number', '28', false],
             ['images.text.default_overflow', 'images', 'سلوك التجاوز الافتراضيّ', 'string', 'shrink', false],

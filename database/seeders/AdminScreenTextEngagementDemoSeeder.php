@@ -870,6 +870,7 @@ class AdminScreenTextEngagementDemoSeeder extends Seeder
             ['admin.studio.edit.alhsabat_almfala', 'images', 'الحسابات المفعَّلة', 'string', 'الحسابات المفعَّلة', 'نصّ في resources/views/admin/studio/edit.blade.php'],
             ['admin.studio.edit.aljmhwr', 'images', 'الجمهور', 'string', 'الجمهور', 'نصّ في resources/views/admin/studio/edit.blade.php'],
             ['admin.studio.edit.allwn', 'images', 'اللون', 'string', 'اللون', 'نصّ في resources/views/admin/studio/edit.blade.php'],
+            ['admin.studio.edit.lwn_alhd', 'images', 'لون الحدّ', 'string', 'لون الحدّ', 'نصّ في resources/views/admin/studio/edit.blade.php'],
             ['admin.studio.edit.almhadha', 'images', 'المحاذاة', 'string', 'المحاذاة', 'نصّ في resources/views/admin/studio/edit.blade.php'],
             ['admin.studio.edit.almstkhdm', 'images', 'المستخدم', 'string', 'المستخدم', 'نصّ في resources/views/admin/studio/edit.blade.php'],
             ['admin.studio.edit.almttwawn_alnshtwn', 'images', 'المتطوّعون النشطون', 'string', 'المتطوّعون النشطون', 'نصّ في resources/views/admin/studio/edit.blade.php'],
@@ -917,6 +918,14 @@ class AdminScreenTextEngagementDemoSeeder extends Seeder
             ['admin.studio.edit.ymyn', 'images', 'يمين', 'string', 'يمين', 'نصّ في resources/views/admin/studio/edit.blade.php'],
             ['admin.studio.edit.ysar', 'images', 'يسار', 'string', 'يسار', 'نصّ في resources/views/admin/studio/edit.blade.php'],
             ['admin.studio.edit.zahra', 'images', 'ظاهرة', 'string', 'ظاهرة', 'نصّ في resources/views/admin/studio/edit.blade.php'],
+
+            // ⭐ محرّر السحب-إفلات (12.14 — نفس محرّك 12.5-ب): إضافات الكانفس
+            ['admin.studio.edit.shbka_mhadhaa_snap', 'images', 'شبكة محاذاة (Snap)', 'string', 'شبكة محاذاة (Snap)', 'نصّ في resources/views/admin/studio/edit.blade.php'],
+            ['admin.studio.edit.maayna_balmqas_alhqyqy_nfs_alrsam', 'images', 'معاينة بالمقاس الحقيقيّ — نفس الرسّام الذي يُنتِج الصورة الفعليّة.', 'string', 'معاينة بالمقاس الحقيقيّ — نفس الرسّام الذي يُنتِج الصورة الفعليّة.', 'نصّ في resources/views/admin/studio/edit.blade.php'],
+            ['admin.studio.edit.smk_alhd', 'images', 'سمك الحدّ', 'string', 'سمك الحدّ', 'نصّ في resources/views/admin/studio/edit.blade.php'],
+            ['admin.studio.edit.x_bksl', 'images', 'X (بكسل)', 'string', 'X (بكسل)', 'نصّ في resources/views/admin/studio/edit.blade.php'],
+            ['admin.studio.edit.y_bksl', 'images', 'Y (بكسل)', 'string', 'Y (بكسل)', 'نصّ في resources/views/admin/studio/edit.blade.php'],
+
             ['admin.studio.index.aard_almwrshf', 'images', 'اعرض المؤرشف', 'string', 'اعرض المؤرشف', 'نصّ في resources/views/admin/studio/index.blade.php'],
             ['admin.studio.index.adaa_jdyda', 'images', 'أداة جديدة', 'string', 'أداة جديدة', 'نصّ في resources/views/admin/studio/index.blade.php'],
             ['admin.studio.index.adwat_alasm', 'images', 'أدوات الاسم', 'string', 'أدوات الاسم', 'نصّ في resources/views/admin/studio/index.blade.php'],
