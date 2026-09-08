@@ -120,8 +120,12 @@ class SidebarEntryPointsTest extends TestCase
             // 🎮 التلعيب: الاحتفالات تابٌ داخل اللوحة
             // (⛔ و«الألعاب» ملغاة بقرار المالك — الدستور v5.3 · 7.5 — فلا بند لها)
             'tab=celebrations',
-            // 📚 إعدادات التعلّم
-            'tab=learning',
+            /*
+             | 📚 إعدادات التعلّم — كانت `tab=learning` (تابٌ عامّ لا شاشة مخصّصة،
+             | 24.4)، وصارت شاشةً مستقلّة `admin/learning-settings` بصلاحيّة
+             | `learning_ux.*` من 12.2.2 — لا فرقًا في المدخل بل ترقيةً له.
+             */
+            'admin/learning-settings',
             // 🤝 التوظيف والمرشّحون
             'volunteer/recruitment',
         ] as $needle) {
@@ -142,7 +146,7 @@ class SidebarEntryPointsTest extends TestCase
             'admin/wallet/rates',
             'tab=audit',
             'tab=celebrations',
-            'tab=learning',
+            'admin/learning-settings',
             'volunteer/recruitment',
         ] as $needle) {
             $this->assertStringNotContainsString($needle, $html, "بند ظهر لمن لا يملكه: {$needle}");
