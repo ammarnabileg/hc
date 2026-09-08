@@ -3,6 +3,7 @@
 namespace App\Services\Images\Concerns;
 
 use App\Services\Certificates\ArabicText;
+use App\Services\Certificates\GdEngine;
 
 /**
  * أدوات الرسم المشتركة بـGD (12.14-و) — **محرّك واحد وصفر ازدواج**:
@@ -11,13 +12,16 @@ use App\Services\Certificates\ArabicText;
  */
 trait DrawsWithGd
 {
-    /** خطّ Cairo المضمَّن — ومساره إعداد فلا يُحرَق في الكود (2.13) */
+    /**
+     * خطّ Cairo المضمَّن — ومساره إعداد فلا يُحرَق في الكود (2.13). ولو غاب من
+     * القرص فخطوط النظام المرشّحة نفسها التي يرتدّ إليها مصمّم الشهادات
+     * (12.14 — نفس المحرّك) بدل الردّ الفوريّ بلا خطّ.
+     */
     public function fontPath(): ?string
     {
         $path = (string) setting('images.font.path', 'fonts/Cairo-Regular.ttf');
-        $full = public_path($path);
 
-        return is_file($full) ? $full : null;
+        return GdEngine::fontPath(public_path($path));
     }
 
     /**
@@ -49,9 +53,7 @@ trait DrawsWithGd
 
     protected function allocate($canvas, string $hex): int
     {
-        [$r, $g, $b] = sscanf($hex, '#%02x%02x%02x') ?: [255, 255, 255];
-
-        return (int) imagecolorallocate($canvas, (int) $r, (int) $g, (int) $b);
+        return GdEngine::color($canvas, $hex);
     }
 
     protected function loadImage(string $path)

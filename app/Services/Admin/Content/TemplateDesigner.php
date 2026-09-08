@@ -4,6 +4,7 @@ namespace App\Services\Admin\Content;
 
 use App\Models\CertificateTemplate;
 use App\Models\CertificateType;
+use App\Services\Certificates\GdEngine;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 
@@ -440,15 +441,7 @@ class TemplateDesigner
      */
     public function renderLayer(array $layer, array $data): string
     {
-        $static = (string) ($layer['text'] ?? '');
-        $field = $layer['field'] ?? null;
-        $dynamic = $field ? (string) ($data[$field] ?? '') : '';
-
-        if ($field && $dynamic === '') {
-            return '';
-        }
-
-        return trim($static.($static !== '' && $dynamic !== '' ? ' ' : '').$dynamic);
+        return GdEngine::layerValue($layer, $data);
     }
 
     // ------------------------------------------------------------------ داخليّ
@@ -482,7 +475,7 @@ class TemplateDesigner
     {
         $color = trim((string) $color);
 
-        return preg_match('/^#[0-9a-fA-F]{6}$/', $color)
+        return GdEngine::isValidHex($color)
             ? $color
             : (string) setting('certificates.designer.default_color', '#e8f5f2');
     }

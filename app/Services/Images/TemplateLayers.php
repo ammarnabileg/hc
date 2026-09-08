@@ -2,6 +2,8 @@
 
 namespace App\Services\Images;
 
+use App\Services\Certificates\GdEngine;
+
 /**
  * طبقات القالب: الترتيب والرفع/الإنزال والقفل وإعادة التوزيع النسبيّ عند تغيير المقاس (12.14-أ).
  *
@@ -150,6 +152,6 @@ class TemplateLayers
     {
         $value = (string) $value;
 
-        return preg_match('/^#[0-9a-fA-F]{6}$/', $value) ? $value : '#ffffff';
+        return GdEngine::isValidHex($value) ? $value : '#ffffff';
     }
 }

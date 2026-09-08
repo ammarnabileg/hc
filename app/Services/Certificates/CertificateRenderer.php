@@ -15,14 +15,6 @@ use Illuminate\Support\Facades\Storage;
  */
 class CertificateRenderer
 {
-    /** خطوط النظام المرشّحة حين لا يحدّد الأدمن خطًّا (الشبكة محجوبة فلا تنزيل) */
-    private const FONT_CANDIDATES = [
-        'resources/fonts/Cairo.ttf',
-        '/usr/share/fonts/truetype/cairo/Cairo.ttf',
-        '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf',
-        '/usr/share/fonts/truetype/freefont/FreeSerif.ttf',
-    ];
-
     /**
      * صورة الشهادة PNG — مع كاش على القرص لأنّ الرسم أغلى من القراءة (2.7).
      *
@@ -361,16 +353,7 @@ class CertificateRenderer
 
     private function resolveValue(array $layer, array $data): string
     {
-        // «نصّ ثابت يكتبه الأدمن + العمود المختار» (12.5-ب)
-        $static = (string) ($layer['text'] ?? '');
-        $field = $layer['field'] ?? null;
-        $dynamic = $field ? (string) ($data[$field] ?? '') : '';
-
-        if ($field && $dynamic === '') {
-            return '';
-        }
-
-        return trim($static.($static !== '' && $dynamic !== '' ? ' ' : '').$dynamic);
+        return GdEngine::layerValue($layer, $data);
     }
 
     /** التصميم الافتراضيّ: مواضع نسبيّة كي يعمل على أيّ مقاس */
@@ -394,34 +377,11 @@ class CertificateRenderer
     {
         $configured = (string) setting('certificates.render.font_path', '');
 
-        foreach (array_merge($configured !== '' ? [$configured] : [], self::FONT_CANDIDATES) as $candidate) {
-            $path = str_starts_with($candidate, '/') ? $candidate : base_path($candidate);
-
-            if (is_file($path)) {
-                return $path;
-            }
-        }
-
-        return null;
+        return GdEngine::fontPath($configured !== '' ? $configured : null);
     }
 
     private function color(\GdImage $image, string $hex): int
     {
-        $hex = ltrim(trim($hex), '#');
-
-        if (strlen($hex) === 3) {
-            $hex = $hex[0].$hex[0].$hex[1].$hex[1].$hex[2].$hex[2];
-        }
-
-        if (strlen($hex) !== 6 || ! ctype_xdigit($hex)) {
-            $hex = 'ffffff';
-        }
-
-        return (int) imagecolorallocate(
-            $image,
-            (int) hexdec(substr($hex, 0, 2)),
-            (int) hexdec(substr($hex, 2, 2)),
-            (int) hexdec(substr($hex, 4, 2)),
-        );
+        return GdEngine::color($image, $hex);
     }
 }
