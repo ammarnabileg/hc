@@ -24,7 +24,23 @@ class DatabaseTester
             ];
         }
 
-        $timeout = (int) SetupSettings::number('setup.database.timeout_seconds', 5);
+        $timeout = max(2, (int) SetupSettings::number('setup.database.timeout_seconds', 5));
+
+        /*
+         | ⭐ فحص وصول خامّ بمهلة مضمونة **قبل** PDO: `PDO::ATTR_TIMEOUT` لا يضبط
+         | مرحلة الاتّصال الأولى (TCP connect) بثباتٍ على كلّ نظام/عميل — فجدارٌ
+         | ناريّ يُسقط الحزم صامتًا (DROP لا REJECT) يترك PDO معلّقًا لمهلة
+         | النظام الافتراضيّة (قد تتجاوز الدقيقة) فتعلَّق الصفحة كلّها بلا ردّ
+         | ولا رسالة (2.17-ب: كلّ فشلٍ له سببٌ واضح — لا تعليقٌ صامت). و`fsockopen`
+         | يحترم مهلته فعليًّا على مستوى نظام التشغيل، فيضمن سقفًا حقيقيًّا.
+         */
+        $probe = @fsockopen($credentials['db_host'], (int) $credentials['db_port'], $errno, $errstr, $timeout);
+
+        if ($probe === false) {
+            return ['ok' => false, 'message' => $this->explainProbeFailure($errno, $errstr, $credentials, $timeout)];
+        }
+
+        fclose($probe);
 
         $dsn = sprintf(
             '%s:host=%s;port=%d;dbname=%s',
@@ -37,7 +53,7 @@ class DatabaseTester
         try {
             new PDO($dsn, $credentials['db_username'], (string) ($credentials['db_password'] ?? ''), [
                 PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-                PDO::ATTR_TIMEOUT => max(2, $timeout),
+                PDO::ATTR_TIMEOUT => $timeout,
             ]);
         } catch (PDOException $exception) {
             return ['ok' => false, 'message' => $this->explain($exception, $credentials)];
@@ -47,6 +63,25 @@ class DatabaseTester
             'ok' => true,
             'message' => strtr(setting('setup.database_tester.test_2', 'تمام — الاتّصال بقاعدة البيانات «:p1» نجح. تقدر تكمل.'), [':p1' => (string) ($credentials['db_database'])]),
         ];
+    }
+
+    /**
+     * ⭐ ترجمة فشل فحص الوصول الخامّ (2.17-ب) — قبل أن يصل الأمر لـPDO أصلًا.
+     * نميّز «رفض صريح» (منفذٌ مقفول على خادمٍ يردّ فعلًا) عن «لا ردّ إطلاقًا»
+     * (جدارٌ ناريّ يُسقط الحزم صامتًا) لأنّ العلاج مختلف تمامًا لكلٍّ منهما.
+     */
+    private function explainProbeFailure(int $errno, string $errstr, array $credentials, int $timeout): string
+    {
+        if ($errno === 111 || str_contains($errstr, 'refused')) {
+            return strtr(setting('setup.database_tester.explain_3', 'مقدرناش نوصل لخادم قاعدة البيانات على «:p1». جرّب 127.0.0.1 أو المضيف اللي مكتوب في لوحة الاستضافة، وتأكّد من المنفذ.'), [':p1' => (string) ($credentials['db_host'])]);
+        }
+
+        if (str_contains($errstr, 'getaddrinfo') || str_contains($errstr, 'Unknown host') || str_contains($errstr, 'Name or service not known')) {
+            return strtr(setting('setup.database_tester.explain_4', 'اسم المضيف «:p1» مش معروف على الشبكة. انسخه من لوحة الاستضافة زيّ ما هو.'), [':p1' => (string) ($credentials['db_host'])]);
+        }
+
+        // ⭐ لا رفضٌ صريح ولا خطأ DNS — الحزم اتسقطت صامتًا (جدارٌ ناريّ عادةً)
+        return strtr(setting('setup.database_tester.unreachable_1', 'مقدرناش نوصل لخادم قاعدة البيانات على «:p1» على المنفذ :p2 خلال :p3 ثانية. تأكّد إنّ الخادم شغّال، وإنّ الجدار الناريّ سامح بالاتّصال من نفس السيرفر على هذا المنفذ.'), [':p1' => (string) ($credentials['db_host']), ':p2' => (string) ((int) $credentials['db_port']), ':p3' => (string) $timeout]);
     }
 
     /** ترجمة خطأ الاتّصال إلى «ماذا حدث + ماذا تفعل» (2.17-ب) */
