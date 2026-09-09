@@ -76,6 +76,15 @@ Route::middleware(['auth', 'admin.panel'])->prefix('admin')->name('admin.')->gro
             ->middleware('permission:org_chart.edit')->name('org.entity.save');
         Route::post('/org/entity/{entity}/archive', [OrgAdminController::class, 'archiveEntity'])
             ->middleware('permission:org_chart.edit')->name('org.entity.archive');
+        /*
+         | ⭐ [2026-09-10] «دعوة أعضاء لملفٍّ مفتوحٍ بالفعل» (case_files.assign —
+         | سطر 1517). المِدل-وير هنا سقفٌ عامٌّ (`org_chart.edit`، كأخواتها في
+         | هذا القسم) لا الحارس الدقيق — الحارس الفعليّ `FileDrafts::canAssign()`
+         | داخل الكنترولر: مشرف عام مسار الملفّات **أو** صاحب `case_files.assign`
+         | على هذا الملفّ بعينه (ENTITY)، وهما بابان لا يفي بهما مفتاحٌ واحد.
+         */
+        Route::post('/org/case-files/{entity}/assign', [OrgAdminController::class, 'assignCaseFileMember'])
+            ->middleware('permission:org_chart.edit')->name('org.case-files.assign');
         Route::post('/org/positions', [OrgAdminController::class, 'savePositions'])
             ->middleware('permission:positions.edit')->name('org.positions.save');
         Route::post('/org/settings', [OrgAdminController::class, 'saveSettings'])

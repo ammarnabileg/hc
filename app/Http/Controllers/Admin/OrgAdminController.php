@@ -13,6 +13,7 @@ use App\Services\Admin\Volunteer\AuditTrail;
 use App\Services\Admin\Volunteer\CapacityReport;
 use App\Services\Admin\Volunteer\OffboardingService;
 use App\Services\Admin\Volunteer\SettingsWriter;
+use App\Services\Volunteer\Goals\FileDrafts;
 use App\Services\Volunteer\Goals\OperationalProject;
 use App\Services\Volunteer\Org\PromotionLadder;
 use App\Services\Volunteer\Org\TransferService;
@@ -30,7 +31,7 @@ use Illuminate\View\View;
  */
 class OrgAdminController extends Controller
 {
-    public function index(Request $request): View
+    public function index(Request $request, FileDrafts $files): View
     {
         $trackId = (int) $request->integer('track');
 
@@ -60,6 +61,23 @@ class OrgAdminController extends Controller
             'filters' => ['track' => $trackId, 'q' => $request->string('q')->toString()],
             'caseFileOpener' => (string) setting('volunteer.org.case_file_opener_position', 'volunteer_gm'),
             'canOpenCaseFile' => $this->canOpenCaseFile($request),
+            /*
+             | ⭐ [2026-09-10] «دعوة أعضاء لملفٍّ مفتوحٍ بالفعل» (case_files.assign
+             | — سطر 1517): مفتوحٌ فعلًا لكلّ ملفٍّ (track = مسار الملفّات نفسه،
+             | status = active) يقدر عليه صاحب الشاشة — بنفس حارس `FileDrafts::
+             | canAssign()` تمامًا، لا حزرًا في الفيو (2.15-أ-7).
+             */
+            'caseFileTrackId' => $files->track()?->id,
+            'assignableCaseFiles' => $entities
+                ->where('status', 'active')
+                ->filter(fn (Entity $e) => $e->track_id === $files->track()?->id)
+                ->filter(fn (Entity $e) => $files->canAssign($request->user(), $e))
+                ->pluck('id')
+                ->all(),
+            'caseFilePositions' => $files->invitablePositions(),
+            'caseFileInviteLinks' => $files->inviteLinksFor(
+                $entities->where('track_id', $files->track()?->id)->where('status', 'active'),
+            ),
             'members' => Membership::query()
                 ->tap(fn ($q) => app(ScopeFilter::class)->apply($q, $request->user(), 'org_chart.view', 'user_id', 'entity_id'))
                 ->with(['user:id,name,code', 'entity:id,name_ar', 'position'])
@@ -163,6 +181,36 @@ class OrgAdminController extends Controller
         return back()->with('status', $closed
             ? strtr((string) setting('volunteer_org.admin.archive_entity_ok_cascaded', 'اتأرشف الكيان ✓ — وأُقفلت :a1 عضويّة تلقائيًّا بمسار الأوفبوردنج.'), [':a1' => (string) $closed])
             : (string) setting('volunteer_org.admin.archive_entity_ok', 'اتأرشف الكيان ✓ — وعضويّاته تُقفَل بمسار الأوفبوردنج.'));
+    }
+
+    /**
+     * ⭐ [2026-09-10] دعوة عضوٍ لملفٍّ مؤقّتٍ **مفتوحٍ بالفعل** — برابطٍ أو
+     * بإضافةٍ مباشرة بكود العضو (سطر 1517: `case_files.assign`). كانت
+     * `FileDrafts::generateInviteLink()` جاهزةً بلا أيّ زرٍّ يستدعيها بعد
+     * فتح الملفّ — موثَّقٌ في `app/Services/Volunteer/Goals/_STATUS.md`.
+     */
+    public function assignCaseFileMember(Request $request, Entity $entity, FileDrafts $files): RedirectResponse
+    {
+        $data = $request->validate([
+            'position_id' => ['required', 'integer', 'exists:positions,id'],
+            'user_code' => ['nullable', 'string', 'max:32'],
+        ]);
+
+        if (($code = trim((string) ($data['user_code'] ?? ''))) !== '') {
+            $user = User::query()->where('code', $code)->first();
+
+            if (! $user) {
+                return back()->with('status', (string) setting('volunteer_org.admin.case_file_user_not_found', 'كود العضو ده مش موجود.'));
+            }
+
+            $files->assignMember($entity, $user, (int) $data['position_id'], $request->user());
+
+            return back()->with('status', (string) setting('volunteer_org.admin.case_file_assigned_ok', 'اتضاف العضو للملفّ فورًا ✓'));
+        }
+
+        $files->generateInviteLink($entity, (int) $data['position_id'], $request->user());
+
+        return back()->with('status', (string) setting('volunteer_org.admin.case_file_link_ok', 'اترسم رابط الدعوة — انسخه من تحت اسم الملفّ.'));
     }
 
     /**

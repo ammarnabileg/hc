@@ -183,13 +183,25 @@ class FileDrafts
     }
 
     /**
+     * ⭐ [2026-09-10] مَن يدعو أعضاء لملفٍّ **مفتوحٍ بالفعل**؟ (`case_files.assign`
+     * — ENTITY، الدستور سطر 1517). توسيعٌ إضافيّ لا استبدال: مشرف عام مسار
+     * الملفّات (`canCreate()`) يظلّ يقدر دائمًا — والجديد أنّ صاحب `case_files.assign`
+     * على **هذا الكيان بعينه** (عضوٌ فيه بصلاحيّةٍ ENTITY، لا مسارٌ كامل) يقدر
+     * كذلك، فلا يحتاج كلّ عضوٍ جديدٍ لملفٍّ مفتوح المرورَ على مشرف المسار العامّ.
+     */
+    public function canAssign(User $actor, Entity $entity): bool
+    {
+        return $this->canCreate($actor) || $actor->can('case_files.assign', $entity);
+    }
+
+    /**
      * توليد رابط دعوة لبوزشنٍ داخل ملفٍّ — مسودّةً أو مفتوحًا بالفعل — رمزٌ
-     * عشوائيّ طويل بمدّة صلاحيّة قابلة للإعداد (2.13). نفس حارس `canCreate()`
-     * على المسار كلّه — لا فرق بين توليده أثناء كتابة المسودّة أو بعدها.
+     * عشوائيّ طويل بمدّة صلاحيّة قابلة للإعداد (2.13). الحارس `canAssign()`:
+     * مشرف عام مسار الملفّات دائمًا، أو صاحب `case_files.assign` على هذا الملفّ.
      */
     public function generateInviteLink(Entity $entity, int $positionId, User $actor): FileInviteLink
     {
-        abort_unless($this->canCreate($actor), 403, (string) setting(
+        abort_unless($this->canAssign($actor, $entity), 403, (string) setting(
             'goals.build.error.file_draft_forbidden',
             'فتح الملفّات لمشرف عام مسار الملفّات — مش من صلاحيّتك.',
         ));
@@ -203,6 +215,35 @@ class FileDrafts
             'created_by' => $actor->id,
             'expires_at' => $days > 0 ? now()->addDays($days) : null,
         ]);
+    }
+
+    /**
+     * ⭐ [2026-09-10] إضافة عضوٍ مباشرةً لملفٍّ **مفتوحٍ بالفعل** — الشقّ الثاني
+     * من «دعوة أعضاء على بوزشنات محدّدة برابط **أو إضافة مباشرة**» (سطر 1517).
+     * كانت `attachMember()` تُستهلَك أثناء بناء المسودّة أو قبول رابط دعوة فقط —
+     * ولا بابَ ثالثًا لإضافة عضوٍ فورًا على ملفٍّ يعمل بالفعل. العضويّة تبدأ
+     * `active` مباشرةً — الملفّ مفتوحٌ فلا معنى لحالة `invited` معلَّقة.
+     */
+    public function assignMember(Entity $entity, User $user, int $positionId, User $actor): Membership
+    {
+        abort_unless($this->canAssign($actor, $entity), 403, (string) setting(
+            'goals.build.error.file_draft_forbidden',
+            'فتح الملفّات لمشرف عام مسار الملفّات — مش من صلاحيّتك.',
+        ));
+
+        abort_unless($entity->status === 'active', 404);
+
+        if (Membership::query()->where('entity_id', $entity->id)->where('user_id', $user->id)->where('status', '!=', 'ended')->exists()) {
+            throw ValidationException::withMessages(['user_code' => (string) setting('goals.build.file_draft.invite_already_member', 'إنت عضوٌ في الملفّ ده بالفعل.')]);
+        }
+
+        $uplineId = Membership::query()
+            ->where('user_id', $user->id)
+            ->where('status', 'active')
+            ->orderByDesc('is_primary')
+            ->value('id');
+
+        return $this->attachMember($entity, $user->id, $positionId, $uplineId, 'active');
     }
 
     /**

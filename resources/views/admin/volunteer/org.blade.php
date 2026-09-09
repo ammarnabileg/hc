@@ -73,7 +73,15 @@
                     @if ($root->status === 'archived')
                         <x-state-badge state="idle" :label="setting('admin.volunteer.org.mwrshf', 'مؤرشف')" />
                     @endif
+                    @if (in_array($root->id, $assignableCaseFiles, true))
+                        <button type="button" class="text-xs underline ms-2" data-modal-open="case-file-assign-{{ $root->id }}"
+                                onclick="event.preventDefault()">{{ setting('admin.volunteer.org.daawt_ado', 'دعوة عضو') }}</button>
+                    @endif
                 </summary>
+
+                @if (in_array($root->id, $assignableCaseFiles, true))
+                    @include('admin.volunteer.partials.case-file-assign', ['entity' => $root])
+                @endif
 
                 <div class="ps-4 mt-1 space-y-1">
                     @foreach ($entities->where('parent_id', $root->id) as $child)
@@ -91,8 +99,16 @@
                                         <button type="submit" class="text-xs underline" style="color: var(--text-muted)">{{ setting('admin.volunteer.org.arshfa', 'أرشفة') }}</button>
                                     </form>
                                 @endcan
+                                @if (in_array($child->id, $assignableCaseFiles, true))
+                                    <button type="button" class="text-xs underline" data-modal-open="case-file-assign-{{ $child->id }}">
+                                        {{ setting('admin.volunteer.org.daawt_ado', 'دعوة عضو') }}
+                                    </button>
+                                @endif
                             </span>
                         </div>
+                        @if (in_array($child->id, $assignableCaseFiles, true))
+                            @include('admin.volunteer.partials.case-file-assign', ['entity' => $child])
+                        @endif
                     @endforeach
                 </div>
             </details>
