@@ -301,7 +301,7 @@ class UpdateManager
 
             return $this->result(false, 'lock', [], $before, $before,
                 setting('updates.update_manager.run_2', 'في تحديث شغّال دلوقتي').($holder?->holder_name ? strtr(setting('updates.update_manager.run_3', ' بدأه :p1'), [':p1' => (string) ($holder->holder_name)]) : '').setting('updates.update_manager.run_4', ' — استنّاه يخلص.'),
-                $this->report('lock', null, 'تحديث تاني ماسك القفل.', [], null, false, false), 0, '');
+                $this->report('lock', null, (string) setting('updates.update_manager.report_11', 'تحديث تاني ماسك القفل.'), [], null, false, false), 0, '');
         }
 
         $runId = (int) DB::table('update_runs')->insertGetId([

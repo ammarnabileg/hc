@@ -1607,6 +1607,7 @@ APP_DEBUG=false
             ['updates.update_manager.record_version_1', 'updates', 'الاتّجاه أمامًا فقط — لازم يكون أحدث من :p1.', 'string', 'الاتّجاه أمامًا فقط — لازم يكون أحدث من :p1.', false],
             ['updates.update_manager.report_1', 'updates', 'قفل التحديث', 'string', 'قفل التحديث', false],
             ['updates.update_manager.report_10', 'updates', 'في الهجرة :p1', 'string', ' في الهجرة :p1', false],
+            ['updates.update_manager.report_11', 'updates', 'تحديث تاني ماسك القفل.', 'string', 'تحديث تاني ماسك القفل.', false],
             ['updates.update_manager.report_2', 'updates', 'الفحوص القبليّة', 'string', 'الفحوص القبليّة', false],
             ['updates.update_manager.report_3', 'updates', 'تفعيل وضع الصيانة', 'string', 'تفعيل وضع الصيانة', false],
             ['updates.update_manager.report_4', 'updates', 'النسخة الاحتياطيّة', 'string', 'النسخة الاحتياطيّة', false],

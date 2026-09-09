@@ -123,6 +123,30 @@ class AdminOpsUpdatePipelineTest extends OpsTestCase
         $this->assertTrue(Schema::hasTable('ops_probe'));
     }
 
+    /**
+     * تقرير فشل «القفل ماسكه حدّ تاني» نصّ ظاهر للمستخدم على شاشة الفشل (2.17) —
+     * فلازم يمرّ بـ setting() لا نصًّا مكتوبًا داخل الكود (2.13-أ)، مثل بقيّة
+     * نصوص report() المجاورة له بالظبط.
+     */
+    public function test_lock_failure_report_text_is_configurable_and_shown_on_screen(): void
+    {
+        $admin = $this->admin(self::MANAGER);
+        $this->set('updates.migrations_path', self::OK_PATH);
+
+        app(UpdateLock::class)->acquire($this->makeUser('أدمن تاني'));
+
+        $this->set('updates.update_manager.report_11', 'نصّ اختبار مخصَّص لقفل التحديث');
+
+        $this->actingAs($admin)->post(route('admin.ops.updates.dry-run'));
+        $this->actingAs($admin)->post(route('admin.ops.updates.migrate'), ['confirm' => 'تنفيذ', 'understood' => '1'])
+            ->assertRedirect()
+            ->assertSessionHas('ops.failure', fn (array $failure) => str_contains($failure['what'], 'نصّ اختبار مخصَّص لقفل التحديث'));
+
+        $this->actingAs($admin)->get(route('admin.ops.updates'))
+            ->assertOk()
+            ->assertSee('نصّ اختبار مخصَّص لقفل التحديث');
+    }
+
     /** والقفل المنتهية مهلته ليس قفلًا — وإلّا بقيت المنصّة ممنوعة من التحديث للأبد */
     public function test_expired_lock_does_not_block_forever(): void
     {

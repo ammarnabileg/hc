@@ -32,7 +32,25 @@
 ## ⬜ المتبقّي
 <!-- بيدك:بداية:المتبقّي -->
 ### ⬜ نصٌّ محروق باقٍ في هذا المجلّد — بسببه مكتوبًا (دفعة `app/Services` · 2.13)
-- `UpdateManager.php` — **1** موضعًا: **رسالة سجلّ للمطوّر** (`Log::*` / `report()`) لا تصل شاشةً — 2.13-أ تقصر القاعدة على «النصوص الظاهرة للمستخدم».
+- ✅ **[مقفولة 2026-09-09] `UpdateManager.php` — النصّ الوحيد المتبقّي كان فعلًا ظاهرًا للمستخدم، لا رسالة سجلّ.**
+  السطر أعلاه استثنى الموضع بحجّة 2.13-أ («لا تصل شاشةً»)، لكنّ التتبّع الفعليّ
+  يكذّب الحجّة: نداء `report('lock', …, 'تحديث تاني ماسك القفل.', …)` (كان في
+  السطر 304) يغذّي القيمة المرجَعة من `run()`، و`UpdatesController::migrate()`
+  (`app/Http/Controllers/Admin/UpdatesController.php:119-122`) يفلش
+  `$result['report']` إلى `session('ops.failure')` كلّما فشل التحديث — ومنها
+  `resources/views/admin/ops/partials/updates-overview.blade.php:12` يعرض
+  `{{ $failure['what'] ?? '' }}` مباشرةً على شاشة «التحديثات». فالنصّ **شاشةٌ
+  حقيقيّةٌ لا لوجًا**، ولا ينطبق عليه استثناء 2.13-أ. الإصلاح: استبداله بـ
+  `(string) setting('updates.update_manager.report_11', 'تحديث تاني ماسك القفل.')`
+  على نمط الأسطر المجاورة تمامًا (`report_1`..`report_10` في `report()` نفسها)،
+  وأُضيف الصفّ في `database/seeders/ServiceTextsDemoSeeder.php` بنفس العمود
+  السداسيّ ومجموعة `updates` المستخدَمة لجيرانه. **الدليل:** اختبار جديد
+  `test_lock_failure_report_text_is_configurable_and_shown_on_screen` في
+  `tests/Feature/Admin/Ops/AdminOpsUpdatePipelineTest.php` يضبط قيمة الإعداد
+  إلى نصٍّ مخصَّص ويتحقّق من ظهوره حرفيًّا في `session('ops.failure')['what']`
+  وعلى شاشة `admin.ops.updates` نفسها — و`php artisan test --filter=AdminOpsUpdatePipelineTest`
+  أخضر (17/17). ⚠️ عتبة `settings:hardcoded` لم تُحكَم هنا (`--update-baseline`)
+  عمدًا — قرارٌ مركزيّ يجمعه المدمِج بعد كلّ الجلسات، كما `docs:status`.
 
 **أوديت 12.7-أ/هـ/و — 2026-08-03:**
 
