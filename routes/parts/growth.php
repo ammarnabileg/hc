@@ -73,6 +73,7 @@ Route::middleware('auth')->group(function () {
     Route::middleware('permission:user_profile.view')->group(function () {
         Route::get('/profile/completion', [ProfileCompletionController::class, 'show'])->name('growth.profile.completion');
         Route::post('/profile/completion/dismiss', [ProfileCompletionController::class, 'dismiss'])->name('growth.profile.completion.dismiss');
+        Route::post('/profile/completion/claim', [ProfileCompletionController::class, 'claim'])->name('growth.profile.completion.claim');
     });
 
     // لوحة متصدّري الدعوات شهريًّا (21.1-ج)

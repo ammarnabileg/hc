@@ -46,17 +46,27 @@
 
 > فجوات أثبتها **أوديت المرحلة 8 (13.4)** بالتشغيل يوم 2026-08-03 على `php artisan serve`.
 
-- ❌ **كلّ مسارات `/volunteer/*` مغلقة في وجه المتطوّع المُسكَّن حديثًا.** المسارات محروسة
-  بمفاتيح صحيحة، لكنّ **التسكين لا يمنح دور البوزشن**، فالمصفوفة تردّه.
-  **الدليل:** بعد رحلةٍ كاملة انتهت بعضويّة `كوردنيتور` نشطة:
-  `/volunteer` · `/volunteer/tasks` · `/volunteer/department` · `/volunteer/org` ·
-  `/volunteer/kudos` · `/volunteer/transactions` · `/volunteer/contributions` ·
-  `/volunteer/reviews` ⟵ **403 كلّها**؛ ونفسها **200** لمتطوّعٍ يحمل دور `coordinator`.
-  فالحارس سليم والمصدر في `PlacementService::activate()`.
-- ❌ **`AcademyController` غير قابلٍ للوصول من أيّ دور بوزشن.** `/volunteer/academy` و
-  `/volunteer/academy/recordings` ⟵ **403** لدور `coordinator` (و200 للمالك) — لأنّ
-  `academy_paths.*` و`academy_recordings.*` غير ممنوحة لأيّ دور تطوّعيّ.
-- ⚠️ **`InterviewController::export` يردّ `text/plain` لا PDF** خلافًا لنصّ 13.4-د.
+- ✅ **[تصحيح توثيقٍ 2026-09-10] «كلّ مسارات `/volunteer/*` مغلقة في وجه
+  المتطوّع المُسكَّن حديثًا» — أُغلِقت فعلًا 2026-08-03 (ب-1)** ولم يُشطَب
+  البند من هذا الأوديت الأقدم وقتها. التفصيل والدليل الكامل في
+  `app/Services/Volunteer/People/_STATUS.md`: `PositionRoleAssigner` صار
+  يمنح دور البوزشن داخل العضويّة عند `PlacementService::activate()`
+  ويسحبه `OffboardingService::complete()` عند انتهائها.
+  `tests/Feature/Volunteer/People/PlacementRoleJourneyTest.php` (9
+  اختبارات) أخضر.
+- ✅ **[تصحيح توثيقٍ 2026-09-10] «`AcademyController` غير قابلٍ للوصول من
+  أيّ دور بوزشن» — أُغلِقت فعلًا 2026-08-03 (ب-4)** ولم يُشطَب البند من
+  هذا الأوديت الأقدم وقتها. أدوار البوزشنز الستّة تحمل الآن
+  `academy_paths.view/list` و`academy_recordings.view/list` قراءةً فقط —
+  التفصيل في `app/Services/Volunteer/People/_STATUS.md`.
+- ✅ **[تصحيح توثيقٍ 2026-09-10] «`InterviewController::export` يردّ
+  `text/plain` لا PDF» — أُغلِق فعلًا بالكوميت `a2870d7`** («إصلاح: تصدير
+  Scorecard المقابلة PDF حقيقيّ لا text/plain») ولم يُشطَب من هنا وقتها.
+  تحقّقٌ مباشر اليوم: `export()` يبني PDF حقيقيًّا عبر `AtsPdfWriter`
+  (`Content-Type: application/pdf`، الجسم يبدأ بـ`%PDF-1.4`)، وبلا خطٍّ
+  مضمَّن يرجع لصفحة النتيجة برسالةٍ توضّح السبب بدل ملفٍّ فارغ (2.17-ب).
+  `tests/Feature/Volunteer/People/ScorecardExportTest.php` (3 اختبارات)
+  أخضر.
 
 **مُثبَتٌ سليمًا بالتشغيل:** `PlacementController::respond` محروسٌ بصلاحيّة فريق التوظيف
 وحده، بينما ردّ **المرشّح نفسه** له مسارٌ صحيح بحارس الملكيّة

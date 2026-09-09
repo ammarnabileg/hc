@@ -21,11 +21,25 @@ class ProfileCompletionController extends Controller
     public function show(Request $request): View
     {
         $state = $this->completion->sync($request->user());
+        $state['granted'] = (bool) $request->session()->pull('growth.completion.granted', false);
 
         return view('growth.profile-completion', [
             'state' => $state,
             'fields' => $this->completion->fields(),
         ]);
+    }
+
+    /**
+     * ⭐ المِنح الفعليّ — POST محميٌّ بـCSRF لا GET (12.9): الشاشة تُرسِله تلقائيًّا
+     * (بلا ضغطة زائدة من المستخدم) لحظة ما تعرض ملفًّا مكتملًا لم يُصرَف بعد،
+     * فتبقى التجربة «تلقائيّة» كما كانت — لكن الفعل المالي صار خلف فعلٍ لا
+     * يمكن توليده بطلب قراءة مموَّه (`<img src>`/Prefetch).
+     */
+    public function claim(Request $request): RedirectResponse
+    {
+        $granted = $this->completion->grant($request->user());
+
+        return redirect()->route('growth.profile.completion')->with('growth.completion.granted', $granted);
     }
 
     /** إخفاء البار لهذه الجلسة — زرّ إيقافٍ صريح لكلّ تذكير (21.1-د) */

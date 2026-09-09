@@ -113,9 +113,16 @@ class ProfileCompletion
     }
 
     /**
-     * حساب النسبة وحفظها، ومنح المكافأة عند 100% **مرّة واحدة**.
+     * ⭐ **قراءةٌ بلا مِنح** — الحساب وتحديث الكاش فقط. `sync()` كانت تُستدعى من
+     * `GET /profile/completion` نفسه ومن بار التذكير على شاشاتٍ عاديّة (dashboard
+     * · profile.me · settings.index)، وكانت تمنح المكافأة **داخل طلب GET** —
+     * فعلٌ ماليٌّ (12.9-جهة) على فعلٍ يُفترَض به ألّا يغيّر شيئًا (طلبٌ مموَّه
+     * بـ`<img>`/Prefetch يقدر يُطلقها بلا أن يضغط المستخدم شيئًا). المِنح
+     * الفعليّ صار محصورًا في نقطتين غير-GET فقط: `SettleGrowthOnLogin` (حدث
+     * دخولٍ حقيقيّ) و`ProfileCompletionController::claim()` (POST محميٌّ
+     * بـCSRF) — فلا يبقى مسارٌ يمنح على طلب قراءة.
      *
-     * @return array{percent:int, missing:array<string,string>, granted:bool, tickets:int, rewarded:bool}
+     * @return array{percent:int, missing:array<string,string>, granted:bool, eligible:bool, tickets:int, rewarded:bool}
      */
     public function sync(User $user): array
     {
@@ -125,14 +132,15 @@ class ProfileCompletion
             $user->forceFill(['profile_completion_percent' => $percent])->saveQuietly();
         }
 
-        $granted = $percent >= 100 ? $this->grant($user) : false;
+        $rewarded = $this->rewarded($user);
 
         return [
             'percent' => $percent,
             'missing' => $this->missing($user),
-            'granted' => $granted,
+            'granted' => false,
+            'eligible' => $percent >= 100 && ! $rewarded,
             'tickets' => $this->rewardTickets(),
-            'rewarded' => $this->rewarded($user->refresh()),
+            'rewarded' => $rewarded,
         ];
     }
 

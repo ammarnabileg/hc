@@ -12,6 +12,19 @@
             <x-toast :message="str_replace('{tickets}', $state['tickets'], (string) setting('growth.profile_completion.granted', 'تمام! ملفّك اكتمل و{tickets} تذاكر اتضافت لمحفظتك ✓'))" />
         @endif
 
+        @if ($state['eligible'] ?? false)
+            {{--
+                ⭐ المِنح فعلٌ ماليٌّ (12.9) — لازم POST محميّ بـCSRF لا GET (2.17-ب).
+                الفورم هنا تُرسَل تلقائيًّا لحظة عرض الصفحة فتبقى التجربة كأنّها
+                منحٌ فوريّ من غير ضغطة زائدة، لكنّ الفعل الفعليّ خلف POST لا يقدر
+                طلب قراءةٍ مموَّه (`<img src>`/Prefetch) يُطلقه.
+            --}}
+            <form id="growth-completion-claim" method="post" action="{{ route('growth.profile.completion.claim') }}" class="hidden">
+                @csrf
+            </form>
+            <script>document.getElementById('growth-completion-claim')?.submit();</script>
+        @endif
+
         <div class="card p-5">
             <div class="flex items-end justify-between gap-3">
                 <p class="text-sm" style="color: var(--text-muted)">{{ setting('growth.profile_completion.progress_label', 'نسبة الاكتمال') }}</p>

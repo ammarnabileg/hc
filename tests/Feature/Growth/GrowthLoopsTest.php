@@ -50,7 +50,7 @@ class GrowthLoopsTest extends GrowthTestCase
         $this->assertSame(100, $service->percent($this->completeUser()));
     }
 
-    /** ⭐ المكافأة 3 تذاكر ومرّة واحدة مهما تكرّر النداء (idempotent) */
+    /** ⭐ المكافأة 3 تذاكر ومرّة واحدة مهما تكرّر النداء (idempotent) — `grant()` نفسها لا `sync()` */
     public function test_reward_is_granted_once_only(): void
     {
         Currency::query()->firstOrCreate(['code' => 'tickets'], ['name_ar' => 'تذاكر', 'symbol' => '🎟️']);
@@ -58,10 +58,95 @@ class GrowthLoopsTest extends GrowthTestCase
         $user = $this->completeUser();
         $service = app(ProfileCompletion::class);
 
-        $this->assertTrue($service->sync($user)['granted']);
-        $this->assertFalse($service->sync($user->fresh())['granted']);
-        $this->assertFalse($service->sync($user->fresh())['granted']);
+        $this->assertTrue($service->grant($user));
+        $this->assertFalse($service->grant($user->fresh()));
+        $this->assertFalse($service->grant($user->fresh()));
 
+        $this->assertSame(
+            (float) setting('growth.profile_completion.reward_tickets', 3),
+            $user->fresh()->balance('tickets'),
+        );
+    }
+
+    /**
+     * ⭐ [2026-09-10] `sync()` لا تمنح أبدًا — كانت تمنح داخل طلب GET نفسه
+     * (الصفحة والبار)، وفعلٌ ماليٌّ (12.9) على GET يقدر يُطلَق بطلب قراءة
+     * مموَّه بلا ضغطة مستخدم. المِنح صار محصورًا في `grant()` مباشرةً من
+     * نقطتين غير-GET فقط: حدث الدخول والـPOST المخصَّص.
+     */
+    public function test_sync_never_grants_even_when_the_profile_is_already_complete(): void
+    {
+        Currency::query()->firstOrCreate(['code' => 'tickets'], ['name_ar' => 'تذاكر', 'symbol' => '🎟️']);
+
+        $user = $this->completeUser();
+        $service = app(ProfileCompletion::class);
+
+        $state = $service->sync($user);
+
+        $this->assertSame(100, $state['percent']);
+        $this->assertTrue($state['eligible']);
+        $this->assertFalse($state['granted']);
+        $this->assertFalse($state['rewarded']);
+        $this->assertSame(0.0, $user->fresh()->balance('tickets'));
+
+        // وتكرار النداء (كما يحدث مع كلّ صفحةٍ فيها البار) لا يمنح أيضًا
+        $service->sync($user->fresh());
+        $this->assertSame(0.0, $user->fresh()->balance('tickets'));
+    }
+
+    /**
+     * ⭐ زيارة صفحة الإكمال (GET) لا تمنح المكافأة — الـPOST المخصَّص
+     * (`claim`) هو الوحيد الذي يمنح، وهو محميٌّ بـCSRF فلا يُزوَّر بطلب قراءة.
+     */
+    public function test_visiting_the_completion_page_does_not_grant_but_claiming_does(): void
+    {
+        Currency::query()->firstOrCreate(['code' => 'tickets'], ['name_ar' => 'تذاكر', 'symbol' => '🎟️']);
+
+        $user = $this->completeUser();
+
+        $this->actingAs($user)->get(route('growth.profile.completion'))
+            ->assertOk()
+            // الفورم المرسَلة تلقائيًّا موجودة — فالتجربة تبقى «بلا ضغطة زائدة»
+            ->assertSee(route('growth.profile.completion.claim'), false);
+
+        $this->assertSame(0.0, $user->fresh()->balance('tickets'), 'زيارة الصفحة وحدها منحت المكافأة — فعلٌ ماليٌّ على GET.');
+
+        $this->actingAs($user)->post(route('growth.profile.completion.claim'))->assertRedirect(route('growth.profile.completion'));
+
+        $this->assertSame(
+            (float) setting('growth.profile_completion.reward_tickets', 3),
+            $user->fresh()->balance('tickets'),
+        );
+
+        // وتكرار المطالبة لا يضاعف — نفس ضمان idempotent السابق
+        $this->actingAs($user->fresh())->post(route('growth.profile.completion.claim'));
+        $this->assertSame(
+            (float) setting('growth.profile_completion.reward_tickets', 3),
+            $user->fresh()->balance('tickets'),
+        );
+    }
+
+    /**
+     * ⭐ الدخول (حدثٌ حقيقيّ لا GET) يمنح المكافأة لو كان الملفّ مكتملًا
+     * بالفعل قبل الدخول — `SettleGrowthOnLogin` هو الموضع الآمن للمِنح
+     * التلقائيّ خارج الشاشة المخصَّصة (انظر `test_sync_never_grants_…`).
+     */
+    public function test_logging_in_grants_the_reward_when_the_profile_is_already_complete(): void
+    {
+        Currency::query()->firstOrCreate(['code' => 'tickets'], ['name_ar' => 'تذاكر', 'symbol' => '🎟️']);
+
+        $user = $this->completeUser();
+
+        Auth::login($user);
+
+        $this->assertSame(
+            (float) setting('growth.profile_completion.reward_tickets', 3),
+            $user->fresh()->balance('tickets'),
+        );
+
+        // وتسجيلا دخولٍ لاحقان لا يضاعفان — idempotent كعادة grant()
+        Auth::logout();
+        Auth::login($user->fresh());
         $this->assertSame(
             (float) setting('growth.profile_completion.reward_tickets', 3),
             $user->fresh()->balance('tickets'),
