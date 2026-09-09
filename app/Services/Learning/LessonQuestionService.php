@@ -128,10 +128,15 @@ class LessonQuestionService
         return $this->matches($question, $submitted);
     }
 
-    /** عدد خانات الإدخال الرقميّ = عدد أرقام الإجابة (4) */
-    public function otpLength(LessonQuestion $question): int
+    /**
+     * عدد خانات الإدخال الرقميّ = عدد أرقام الإجابة (4). يقبل نصّ الإجابة
+     * الصحيحة مباشرةً لا نموذج درسٍ خاصًّا — فسؤالٌ رقميّ استُنسِخ إلى امتحان
+     * تدريب (`QuestionBank::reuse`) يحسب نفس عدد الخانات بنفس المنطق تمامًا،
+     * لا نسخةً موازية قد تختلف عنه (2.13).
+     */
+    public function otpLength(?string $correctAnswer): int
     {
-        $digits = mb_strlen($this->normalize((string) $question->correct_answer));
+        $digits = mb_strlen($this->normalize((string) $correctAnswer));
         $max = (int) setting('learning.otp.max_length', 8);
 
         return max(1, min($max, $digits));

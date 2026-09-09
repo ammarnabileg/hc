@@ -59,7 +59,7 @@
                         </div>
 
                         <div class="mt-3">
-                            @include('exams.partials.question-input', ['q' => $q, 'value' => $value])
+                            @include('exams.partials.question-input', ['q' => $q, 'value' => $value, 'otpLength' => $otp_lengths[$q->id] ?? 1])
                         </div>
 
                         <a href="{{ route('exams.take', ['exam' => $exam, 'q' => $i + 1]) }}"
@@ -88,7 +88,7 @@
                 </p>
                 <p class="text-base font-semibold mb-4">{{ $question->prompt }}</p>
 
-                @include('exams.partials.question-input', ['q' => $question, 'value' => $answers[(string) $question->id] ?? null])
+                @include('exams.partials.question-input', ['q' => $question, 'value' => $answers[(string) $question->id] ?? null, 'otpLength' => $otp_lengths[$question->id] ?? 1])
 
                 <p id="save-hint" class="mt-3 text-xs" style="color: var(--text-muted)"></p>
             </div>
@@ -160,10 +160,32 @@
         }
     }
 
+    // خانة OTP واحدة لسؤالٍ رقميّ = قيمتها وحدها؛ عدّة خانات لنفس السؤال (OTP) تُجمَع رقمًا واحدًا (4)
     form.querySelectorAll('[data-question]').forEach((field) => {
-        const handler = () => save(parseInt(field.dataset.question, 10), field.value ?? '');
+        const handler = () => {
+            const id = field.dataset.question;
+            const group = form.querySelectorAll('[data-question="' + id + '"]');
+            const value = group.length > 1
+                ? Array.from(group).map((el) => el.value ?? '').join('')
+                : (field.value ?? '');
+            save(parseInt(id, 10), value);
+        };
         field.addEventListener('change', handler);
         field.addEventListener('blur', handler);
+    });
+
+    // خانات OTP: انتقال تلقائيّ بين الخانات — والفورم يعمل كاملًا بدونه (4)
+    form.querySelectorAll('.otp-row').forEach((row) => {
+        const boxes = [...row.querySelectorAll('.otp-box')];
+        boxes.forEach((box, index) => {
+            box.addEventListener('input', () => {
+                box.value = box.value.replace(/\D/g, '').slice(0, 1);
+                if (box.value && boxes[index + 1]) boxes[index + 1].focus();
+            });
+            box.addEventListener('keydown', (e) => {
+                if (e.key === 'Backspace' && !box.value && boxes[index - 1]) boxes[index - 1].focus();
+            });
+        });
     });
 
     // إعادة المحاولة أوّل ما الشبكة ترجع — ويُستأنف من مكانه

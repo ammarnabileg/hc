@@ -47,6 +47,69 @@ class ExamFlowTest extends ExamTestCase
         $this->assertFalse($attempt->passed, 'الدرجة أقلّ من درجة النجاح فلا يمرّ.');
     }
 
+    /**
+     * ⭐ «عدد أسئلة الامتحان» في فورم التدريب («تقييم») يحكم الامتحان الفعليّ —
+     * لا الحدّ العامّ وحده (4.2 · 2.13). كان `ExamController::questions()` يقرأ
+     * `exams.questions.max` العامّ فقط، فتعديل الأدمن لهذا الحقل بلا أثر:
+     * الامتحان يظلّ بعدد الأسئلة القديم مهما ضبطه.
+     */
+    public function test_the_course_specific_question_count_overrides_the_global_default(): void
+    {
+        $user = $this->trainee();
+        $exam = $this->courseExam(); // ثلاثة أسئلة مزروعة (seedQuestions)
+        $exam->update(['questions_count' => 2]);
+        $this->enroll($user, $exam);
+
+        $attempt = $this->startedAttempt($exam, $user);
+
+        $this->actingAs($user)
+            ->get(route('exams.take', ['exam' => $exam, 'q' => 1]))
+            ->assertOk()
+            ->assertSee('من 2', false)
+            ->assertDontSee('من 3', false);
+    }
+
+    /**
+     * ⭐ سؤال رقميّ مستنسَخ من درسٍ (`type='otp'`) يُعرَض بخانات OTP منفصلة —
+     * لا Textarea معدَّة للمقالات (4). كان `question-input.blade.php` بلا حالة
+     * لهذا النوع فيرتدّ لـ`@else` (Textarea)، ولا خانات ولا حدّ أرقام.
+     */
+    public function test_an_otp_question_renders_as_separate_digit_boxes_not_a_textarea(): void
+    {
+        $user = $this->trainee();
+        $exam = $this->courseExam();
+        ExamQuestion::query()->where('exam_id', $exam->id)->delete();
+        $question = ExamQuestion::create([
+            'exam_id' => $exam->id,
+            'type' => 'otp',
+            'prompt' => 'كام رقم؟',
+            'correct_answer' => '347',
+            'weight' => 1,
+            'sort_order' => 1,
+        ]);
+        $this->enroll($user, $exam);
+
+        $attempt = $this->startedAttempt($exam, $user);
+
+        $html = $this->actingAs($user)
+            ->get(route('exams.take', ['exam' => $exam, 'q' => 1]))
+            ->assertOk()
+            ->assertDontSee('<textarea', false)
+            ->getContent();
+
+        // ثلاث خانات بالضبط — بعدد أرقام «347»
+        $this->assertSame(3, substr_count($html, 'name="digits['.$question->id.'][]"'));
+
+        // والتسليم عبر خانات digits[] يُصحَّح صحيحًا حين تطابق الأرقام المجمَّعة الإجابة
+        $this->actingAs($user)
+            ->post(route('exams.submit', $exam), [
+                'digits' => [$question->id => ['3', '4', '7']],
+            ])
+            ->assertRedirect(route('exams.result', $attempt->fresh()));
+
+        $this->assertTrue($attempt->fresh()->passed);
+    }
+
     /** انتهاء الوقت ⟵ تسليم تلقائيّ برسالة واضحة (24.5) */
     public function test_time_out_submits_automatically(): void
     {

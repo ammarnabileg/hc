@@ -162,7 +162,7 @@ class LessonQuizController extends Controller
             'options' => $attempt
                 ? $questions->mapWithKeys(fn ($q) => [$q->id => $this->quiz->optionsOf($attempt, $q)])->all()
                 : [],
-            'otp_lengths' => $questions->mapWithKeys(fn ($q) => [$q->id => $this->questions->otpLength($q)])->all(),
+            'otp_lengths' => $questions->mapWithKeys(fn ($q) => [$q->id => $this->questions->otpLength($q->correct_answer)])->all(),
             'wait_seconds' => $this->quiz->waitSecondsLeft($user, $lesson),
             'quiz_passed' => $this->questions->allAnsweredCorrectly($user, $lesson),
         ]);

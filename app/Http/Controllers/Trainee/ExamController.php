@@ -13,6 +13,7 @@ use App\Models\User;
 use App\Services\Certificates\CertificateIssuer;
 use App\Services\Gamification\EconomyLedger;
 use App\Services\Gamification\EconomyRules;
+use App\Services\Learning\LessonQuestionService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -38,6 +39,7 @@ class ExamController extends Controller
         private readonly CertificateIssuer $issuer,
         private readonly EconomyRules $rules,
         private readonly EconomyLedger $economy,
+        private readonly LessonQuestionService $questionLengths,
     ) {}
 
     /** بوب-أب ما قبل البدء: المدّة · المحاولات · التكلفة بعملتها والرصيد قبل/بعد (24.5) */
@@ -191,6 +193,9 @@ class ExamController extends Controller
             'answered' => count(array_filter($answers, fn ($a) => $a !== null && $a !== '')),
             'review' => $review,
             'secondsLeft' => $this->secondsLeft($attempt),
+            // ⭐ سؤال «otp» مستنسَخ من درسٍ (QuestionBank::reuse) يحسب خاناته
+            // بنفس منطق الدرس نفسه — لا نسخةً موازية قد تختلف عنه (2.13 · 4)
+            'otp_lengths' => $questions->mapWithKeys(fn ($q) => [$q->id => $this->questionLengths->otpLength($q->correct_answer)])->all(),
         ]);
     }
 
@@ -261,6 +266,13 @@ class ExamController extends Controller
 
         foreach ((array) $request->input('answers', []) as $questionId => $value) {
             $answers[(string) (int) $questionId] = is_string($value) ? $value : null;
+        }
+
+        // ⭐ سؤال OTP يصل خاناتٍ منفصلة (نفس صيغة الدرس — LessonQuestionService::readAnswer)
+        foreach ((array) $request->input('digits', []) as $questionId => $parts) {
+            if (is_array($parts)) {
+                $answers[(string) (int) $questionId] = implode('', array_map(fn ($d) => trim((string) $d), $parts));
+            }
         }
 
         $attempt->update(['answers' => $answers]);
@@ -384,13 +396,20 @@ class ExamController extends Controller
             ->first();
     }
 
+    /**
+     * ⭐ عدد أسئلة الامتحان: قيمة التدريب المحدَّدة من «تقييم» أوّلًا
+     * (عمود `exams.questions_count` — «عدد أسئلة الامتحان» في فورم التدريب)،
+     * وإلّا الحدّ العامّ الحاكم `exams.questions.max` (4.2 · 2.13).
+     */
     private function questions(Exam $exam)
     {
+        $limit = (int) $exam->questions_count ?: (int) setting('exams.questions.max', 20);
+
         return ExamQuestion::query()
             ->where('exam_id', $exam->id)
             ->orderBy('sort_order')
             ->orderBy('id')
-            ->take((int) setting('exams.questions.max', 20))
+            ->take($limit)
             ->get();
     }
 
