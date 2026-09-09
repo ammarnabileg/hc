@@ -2,6 +2,8 @@
 
 namespace Tests\Feature\Library;
 
+use App\Models\Certificate;
+use App\Models\CertificateType;
 use App\Models\Referral;
 
 /** مكتبتي (20 · 24.5): الرفّ والعدّادات والفلاتر والحالة الفارغة والبوب-أب. */
@@ -70,5 +72,71 @@ class LibraryIndexTest extends LibraryTestCase
             (float) setting('library.recommend.commission_percent', 7),
             (float) Referral::where('referrer_id', $owner->id)->value('commission_percent'),
         );
+    }
+
+    /**
+     * ⭐ 20.1: «رفّ أنيق يجمّع العناصر حسب النوع، وعرض الشهادات كأوسمة على رفّ»
+     * — كان الكلّ يظهر في شبكةٍ مسطّحة واحدة بلا تجميع وبلا فرق شكل للشهادات.
+     */
+    public function test_the_all_tab_groups_items_into_shelves_by_type_with_certificates_as_badges(): void
+    {
+        $user = $this->trainee('USHELF02');
+        $product = $this->protectedProduct();
+        $this->entitle($user, $product);
+
+        $type = CertificateType::create([
+            'key' => 'course-'.uniqid(),
+            'name_ar' => 'شهادة اختبار الرفّ',
+            'name_en' => 'Shelf test certificate',
+        ]);
+        Certificate::create([
+            'code' => 'CERT-'.strtoupper(uniqid()),
+            'hash' => str()->random(40),
+            'user_id' => $user->id,
+            'certificate_type_id' => $type->id,
+            'issued_at' => now(),
+            'status' => 'valid',
+        ]);
+
+        $html = $this->actingAs($user)->get(route('library.index'))->assertOk()->getContent();
+
+        // عنوانا الرفّين ظاهران، والمنتج يسبق الشهادة (نفس ترتيب TABS: منتجات قبل شهادات)
+        $this->assertStringContainsString(setting('library.tab.products_label', 'منتجات'), $html);
+        $this->assertStringContainsString(setting('library.tab.certificates_label', 'شهادات'), $html);
+        // تلافي التقاط تسمية التاب نفسه أعلى الصفحة: نبحث عن رفّ الشهادات بعد اسم المنتج
+        $productPos = strpos($html, $product->name_ar);
+        $certificateShelfPos = strpos($html, setting('library.tab.certificates_label', 'شهادات'), $productPos);
+        $this->assertNotFalse($productPos);
+        $this->assertNotFalse($certificateShelfPos);
+
+        // الشهادة صارت وسامًا: جزء `certificate-badge.blade.php` لا كارت `card.blade.php` العاديّ
+        $this->assertStringContainsString('شهادة اختبار الرفّ', $html);
+        $this->assertSame(1, substr_count($html, 'data-library-item="certificate-badge"'));
+    }
+
+    /** والفلترة بتاب «شهادات» وحده تعرض الوسام أيضًا — لا الكارت العاديّ */
+    public function test_the_certificates_tab_alone_also_renders_the_badge_style(): void
+    {
+        $user = $this->trainee('USHELF03');
+        $type = CertificateType::create([
+            'key' => 'course-'.uniqid(),
+            'name_ar' => 'شهادة تاب مستقلّ',
+            'name_en' => 'Standalone tab certificate',
+        ]);
+        Certificate::create([
+            'code' => 'CERT-'.strtoupper(uniqid()),
+            'hash' => str()->random(40),
+            'user_id' => $user->id,
+            'certificate_type_id' => $type->id,
+            'issued_at' => now(),
+            'status' => 'valid',
+        ]);
+
+        $html = $this->actingAs($user)->get(route('library.index', ['tab' => 'certificates']))
+            ->assertOk()
+            ->assertSee('شهادة تاب مستقلّ', false)
+            ->getContent();
+
+        $this->assertStringContainsString('data-library-item="certificate-badge"', $html);
     }
 }

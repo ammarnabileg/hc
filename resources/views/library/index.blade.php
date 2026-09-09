@@ -88,11 +88,26 @@
             <x-empty :message="setting('library.empty.filtered_message', 'مفيش نتائج للفلتر ده')"
                      :action="setting('library.empty.reset_label', 'امسح الفلاتر')"
                      :href="route('library.index', ['tab' => $tab])" />
+        @elseif ($tab === 'all')
+            {{-- رفّ أنيق يجمّع العناصر حسب النوع — لا شبكة واحدة مختلطة (20.1) --}}
+            @foreach (collect(\App\Services\Library\LibraryShelf::TABS)->reject(fn ($t) => $t === 'all') as $shelfTab)
+                @php $shelfItems = $items->where('tab', $shelfTab)->values(); @endphp
+                @continue($shelfItems->isEmpty())
+
+                <section class="mb-5">
+                    <h2 class="text-sm font-bold mb-2">{{ $tabLabels[$shelfTab] }}</h2>
+                    <div class="grid gap-3 grid-cols-2 md:grid-cols-3 xl:grid-cols-4">
+                        @foreach ($shelfItems as $item)
+                            @include($shelfTab === 'certificates' ? 'library.partials.certificate-badge' : 'library.partials.card', ['item' => $item])
+                        @endforeach
+                    </div>
+                </section>
+            @endforeach
         @else
-            {{-- الرفّ: شبكة مرنة بلا تمرير أفقيّ على الموبايل (2.15-ج) --}}
+            {{-- تاب نوعٍ واحد: شبكة مرنة بلا تمرير أفقيّ على الموبايل (2.15-ج) --}}
             <div class="grid gap-3 grid-cols-2 md:grid-cols-3 xl:grid-cols-4">
                 @foreach ($items as $item)
-                    @include('library.partials.card', ['item' => $item])
+                    @include($tab === 'certificates' ? 'library.partials.certificate-badge' : 'library.partials.card', ['item' => $item])
                 @endforeach
             </div>
         @endif
