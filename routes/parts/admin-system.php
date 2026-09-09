@@ -112,6 +112,16 @@ Route::middleware(['auth', 'admin.panel'])->prefix('admin')->name('admin.')->gro
         Route::post('/store/coupons/{coupon}/toggle', [StoreAdminController::class, 'toggleCoupon'])->name('store.coupons.toggle');
     });
 
+    // ------------------------------------------------------------ Order-bump (17)
+    Route::middleware('permission:order_bump.create')
+        ->post('/store/order-bumps', [StoreAdminController::class, 'storeOrderBump'])->name('store.order-bumps.store');
+
+    Route::middleware('permission:order_bump.edit')
+        ->post('/store/order-bumps/{orderBump}/toggle', [StoreAdminController::class, 'toggleOrderBump'])->name('store.order-bumps.toggle');
+
+    Route::middleware('permission:order_bump.delete')
+        ->delete('/store/order-bumps/{orderBump}', [StoreAdminController::class, 'destroyOrderBump'])->name('store.order-bumps.destroy');
+
     // ⛔ بديل الاسترجاع الوحيد: تصحيح خطأ تقنيّ موثّق 🔒 (19.4)
     Route::middleware('permission:finance.manage')
         ->post('/store/orders/{order}/correction', [StoreAdminController::class, 'correctOrder'])->name('store.orders.correction');

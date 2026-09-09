@@ -286,6 +286,7 @@ class AdminLayoutGuardTest extends UiTestCase
                 route('admin.store.index', ['tab' => 'orders']),
                 route('admin.store.index', ['tab' => 'library']),
                 route('admin.topups.index'),
+                route('admin.withdrawals.index'),
                 route('admin.finance.index'),
                 route('admin.wallet.rates'),
                 route('admin.finance.audit'),
@@ -381,6 +382,7 @@ class AdminLayoutGuardTest extends UiTestCase
             route('admin.wallet.rates'),
             route('admin.volunteer.rep'),
             route('admin.topups.index'),
+            route('admin.withdrawals.index'),
         ] as $forbidden) {
             $this->assertNotContains($forbidden, $destinations, "بند ظهر لمن لا يملكه: {$forbidden}");
             $this->assertStringNotContainsString($forbidden, $html);

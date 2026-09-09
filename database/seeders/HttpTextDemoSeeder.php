@@ -384,6 +384,12 @@ class HttpTextDemoSeeder extends Seeder
             ['store.admin.store_coupon_ok', 'store', 'storeCoupon() — الكوبون اتحفظ ✓', 'الكوبون اتحفظ ✓'],
             ['store.admin.toggle_coupon_ok', 'store', 'toggleCoupon() — الكوبون اشتغل ✓', 'الكوبون اشتغل ✓'],
             ['store.admin.toggle_coupon_ok_2', 'store', 'toggleCoupon() — الكوبون اتوقف ✓', 'الكوبون اتوقف ✓'],
+            ['store.admin.destroy_order_bump_ok', 'store', 'destroyOrderBump() — العرض اتشال ✓', 'العرض اتشال ✓'],
+            ['store.admin.order_bump_bump_denied', 'store', 'storeOrderBump() — عنصر الـBump ده مش موجود — اختر من القائمة.', 'عنصر الـBump ده مش موجود — اختر من القائمة.'],
+            ['store.admin.order_bump_parent_denied', 'store', 'storeOrderBump() — عنصر الأصل ده مش موجود — اختر من القائمة.', 'عنصر الأصل ده مش موجود — اختر من القائمة.'],
+            ['store.admin.store_order_bump_ok', 'store', 'storeOrderBump() — عرض الـBump اتحفظ ✓', 'عرض الـBump اتحفظ ✓'],
+            ['store.admin.toggle_order_bump_ok', 'store', 'toggleOrderBump() — العرض اشتغل ✓', 'العرض اشتغل ✓'],
+            ['store.admin.toggle_order_bump_ok_2', 'store', 'toggleOrderBump() — العرض اتوقف ✓', 'العرض اتوقف ✓'],
             ['store.admin.correct_order_msg', 'store', 'correctOrder() — التصحيح الماليّ لمالك المنصّة وحده.', 'التصحيح الماليّ لمالك المنصّة وحده.'],
             ['store.admin.correct_order_denied', 'store', 'correctOrder() — اتسجّل تصحيح خطأ تقنيّ موثّق — مش استرجاع نقديّ.', 'اتسجّل تصحيح خطأ تقنيّ موثّق — مش استرجاع نقديّ.'],
             // ---- app/Http/Controllers/Admin/SystemHealthController.php

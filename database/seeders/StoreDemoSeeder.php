@@ -355,16 +355,9 @@ class StoreDemoSeeder extends Seeder
             // ---------------- Order-bump (17 — اثنان كحدٍّ أقصى)
             ['store.order_bump.enabled', 'تفعيل Order-bump', 'bool', '1'],
             ['store.order_bump.max', 'أقصى عدد عروض Bump في البوب-أب', 'number', '2'],
-            ['store.order_bump.offers', 'عروض Order-bump', 'json', json_encode([
-                [
-                    'parent_type' => 'course',
-                    'parent_slug' => 'excel-for-work',
-                    'bump_type' => 'product',
-                    'bump_slug' => 'excel-formulas-cheatsheet',
-                    'price_coins' => 45,
-                    'teaser' => 'ضيف ملخّص المعادلات معاك — يوفّر عليك وقت البحث.',
-                ],
-            ], JSON_UNESCAPED_UNICODE)],
+            // ⛔ 'store.order_bump.offers' حُذفت — عروض الـBump صارت صفوفًا حقيقيّة في
+            // جدول order_bump_offers تُدار من شاشة إدارةٍ حقيقيّة، لا نصّ JSON حرّ
+            // (2026_09_09_100010_order_bump_offers_get_their_own_table.php).
 
             // ---------------- الشراء والرسائل (2.17-ب: ماذا حدث + ماذا تفعل)
             ['store.order.number_prefix', 'بادئة رقم الطلب', 'string', 'ORD-'],

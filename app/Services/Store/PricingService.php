@@ -4,6 +4,7 @@ namespace App\Services\Store;
 
 use App\Models\Coupon;
 use App\Models\Order;
+use App\Models\OrderBumpOffer;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
@@ -325,8 +326,9 @@ class PricingService
     }
 
     /**
-     * عروض الـBump المرتبطة بالعنصر (17) — كلّها من الإعدادات (2.13)،
-     * وبحدٍّ أقصى مضبوط في `store.order_bump.max` (قاعدة 17: اثنان كحدٍّ أقصى).
+     * عروض الـBump المرتبطة بالعنصر (17) — كلّ عرضٍ صفٌّ مستقلّ في `order_bump_offers`
+     * يُدار من شاشة إدارةٍ حقيقيّة لا نصّ JSON حرّ، وبحدٍّ أقصى مضبوط في
+     * `store.order_bump.max` (قاعدة 17: اثنان كحدٍّ أقصى).
      *
      * @return array<int, array<string, mixed>>
      */
@@ -336,18 +338,17 @@ class PricingService
             return [];
         }
 
-        $configured = setting('store.order_bump.offers', []);
-        $configured = is_array($configured) ? $configured : [];
+        $configured = OrderBumpOffer::query()
+            ->where('parent_type', $type)
+            ->where('parent_slug', $item->slug)
+            ->where('is_active', true)
+            ->get();
         $max = (int) setting('store.order_bump.max', 2);
         $offers = [];
 
         foreach ($configured as $row) {
-            if (($row['parent_type'] ?? null) !== $type || ($row['parent_slug'] ?? null) !== $item->slug) {
-                continue;
-            }
-
-            $bumpType = (string) ($row['bump_type'] ?? '');
-            $bumpItem = $this->catalog->resolve($bumpType, (string) ($row['bump_slug'] ?? ''));
+            $bumpType = (string) $row->bump_type;
+            $bumpItem = $this->catalog->resolve($bumpType, (string) $row->bump_slug);
 
             if (! $bumpItem || ! $this->catalog->isAvailable($bumpType, $bumpItem)) {
                 continue;
@@ -367,9 +368,9 @@ class PricingService
                 'type' => $bumpType,
                 'slug' => $bumpItem->slug,
                 'title' => $bumpItem->name_ar,
-                'price' => round((float) ($row['price_coins'] ?? $this->priceOf($bumpType, $bumpItem)), 2),
+                'price' => round((float) ($row->price_coins ?? $this->priceOf($bumpType, $bumpItem)), 2),
                 'list_price' => $this->priceOf($bumpType, $bumpItem),
-                'teaser' => (string) ($row['teaser'] ?? ''),
+                'teaser' => (string) ($row->teaser ?? ''),
             ];
 
             if (count($offers) >= max($max, 1)) {

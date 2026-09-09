@@ -7,6 +7,7 @@ use App\Models\Course;
 use App\Models\Enrollment;
 use App\Models\LibraryEntitlement;
 use App\Models\Order;
+use App\Models\OrderBumpOffer;
 use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\Transaction;
@@ -228,14 +229,14 @@ class CheckoutTest extends StoreTestCase
         $product = $this->product(['price_coins' => 100]);
         $user = $this->trainee(600);
 
-        $this->setting('store.order_bump.offers', json_encode([[
+        OrderBumpOffer::create([
             'parent_type' => 'course',
             'parent_slug' => $course->slug,
             'bump_type' => 'product',
             'bump_slug' => $product->slug,
             'price_coins' => 45,
             'teaser' => 'ضيفه معاك.',
-        ]], JSON_UNESCAPED_UNICODE));
+        ]);
 
         $this->actingAs($user)->post(route('store.checkout'), [
             'type' => 'course', 'slug' => $course->slug, 'refund_ack' => 1, 'add_bump' => 1,

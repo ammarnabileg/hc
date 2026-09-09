@@ -8,6 +8,7 @@ use App\Models\Bundle;
 use App\Models\BundleItem;
 use App\Models\Coupon;
 use App\Models\Order;
+use App\Models\OrderBumpOffer;
 use App\Models\Product;
 use App\Models\ProductCategory;
 use App\Models\User;
@@ -89,6 +90,9 @@ class StoreAdminController extends Controller
                 'library' => $this->store->protectedItems($filters),
                 default => $this->store->products($filters),
             },
+            // عروض Order-bump (17) — صفوفٌ حقيقيّة تُدار من نفس تاب الكوبونات
+            'orderBumps' => $tab === 'coupons' ? OrderBumpOffer::query()->latest('id')->get() : null,
+            'orderBumpOptions' => $tab === 'coupons' ? $this->store->bundleItemOptions() : null,
         ]);
     }
 
@@ -699,6 +703,57 @@ class StoreAdminController extends Controller
         $this->audit($request, $coupon, 'coupons.edit', $old, ['is_active' => $coupon->is_active]);
 
         return back()->with('status', $coupon->is_active ? (string) setting('store.admin.toggle_coupon_ok', 'الكوبون اشتغل ✓') : (string) setting('store.admin.toggle_coupon_ok_2', 'الكوبون اتوقف ✓'));
+    }
+
+    // ---------------------------------------------------------------- Order-bump (17)
+
+    /**
+     * ⭐ كلّ عرضٍ صفٌّ مستقلّ يتحقّق من وجود عنصريه فعليًّا في الكتالوج —
+     * لا نصّ JSON حرّ يقبل أيّ سلاج مكتوب غلط فيكسر بوب-أب الشراء بصمت.
+     */
+    public function storeOrderBump(Request $request): RedirectResponse
+    {
+        $catalog = app(StoreCatalog::class);
+
+        $data = $request->validate([
+            'parent_type' => ['required', 'string', Rule::in(array_keys(StoreCatalog::TYPES))],
+            'parent_slug' => ['required', 'string', 'max:190'],
+            'bump_type' => ['required', 'string', Rule::in(array_keys(StoreCatalog::TYPES))],
+            'bump_slug' => ['required', 'string', 'max:190'],
+            'price_coins' => ['nullable', 'numeric', 'min:0'],
+            'teaser' => ['nullable', 'string', 'max:255'],
+        ]);
+
+        if (! $catalog->resolve($data['parent_type'], $data['parent_slug'])) {
+            return back()->withErrors(['parent_slug' => (string) setting('store.admin.order_bump_parent_denied', 'عنصر الأصل ده مش موجود — اختر من القائمة.')])->withInput();
+        }
+
+        if (! $catalog->resolve($data['bump_type'], $data['bump_slug'])) {
+            return back()->withErrors(['bump_slug' => (string) setting('store.admin.order_bump_bump_denied', 'عنصر الـBump ده مش موجود — اختر من القائمة.')])->withInput();
+        }
+
+        $offer = OrderBumpOffer::create($data + ['is_active' => true]);
+        $this->audit($request, $offer, 'order_bump.create', [], $data);
+
+        return back()->with('status', (string) setting('store.admin.store_order_bump_ok', 'عرض الـBump اتحفظ ✓'));
+    }
+
+    public function toggleOrderBump(Request $request, OrderBumpOffer $orderBump): RedirectResponse
+    {
+        $old = ['is_active' => $orderBump->is_active];
+        $orderBump->update(['is_active' => ! $orderBump->is_active]);
+        $this->audit($request, $orderBump, 'order_bump.edit', $old, ['is_active' => $orderBump->is_active]);
+
+        return back()->with('status', $orderBump->is_active ? (string) setting('store.admin.toggle_order_bump_ok', 'العرض اشتغل ✓') : (string) setting('store.admin.toggle_order_bump_ok_2', 'العرض اتوقف ✓'));
+    }
+
+    public function destroyOrderBump(Request $request, OrderBumpOffer $orderBump): RedirectResponse
+    {
+        $old = $orderBump->only(['parent_type', 'parent_slug', 'bump_type', 'bump_slug', 'price_coins', 'teaser']);
+        $orderBump->delete();
+        $this->audit($request, $orderBump, 'order_bump.delete', $old, []);
+
+        return back()->with('status', (string) setting('store.admin.destroy_order_bump_ok', 'العرض اتشال ✓'));
     }
 
     // ---------------------------------------------------------------- الطلبات

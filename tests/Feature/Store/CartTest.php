@@ -4,6 +4,7 @@ namespace Tests\Feature\Store;
 
 use App\Models\LibraryEntitlement;
 use App\Models\Order;
+use App\Models\OrderBumpOffer;
 use App\Models\OrderItem;
 use App\Models\TopupOffer;
 
@@ -124,18 +125,16 @@ class CartTest extends StoreTestCase
         $second = $this->product(['slug' => 'bump-two', 'name_ar' => 'كرّاسة التمارين', 'price_coins' => 80]);
         $user = $this->trainee(1000);
 
-        $this->setting('store.order_bump.offers', json_encode([
-            [
-                'parent_type' => 'course', 'parent_slug' => $course->slug,
-                'bump_type' => 'product', 'bump_slug' => $first->slug,
-                'price_coins' => 45, 'teaser' => 'ضيفه معاك.',
-            ],
-            [
-                'parent_type' => 'course', 'parent_slug' => $course->slug,
-                'bump_type' => 'product', 'bump_slug' => $second->slug,
-                'price_coins' => 30, 'teaser' => 'وده كمان.',
-            ],
-        ], JSON_UNESCAPED_UNICODE));
+        OrderBumpOffer::create([
+            'parent_type' => 'course', 'parent_slug' => $course->slug,
+            'bump_type' => 'product', 'bump_slug' => $first->slug,
+            'price_coins' => 45, 'teaser' => 'ضيفه معاك.',
+        ]);
+        OrderBumpOffer::create([
+            'parent_type' => 'course', 'parent_slug' => $course->slug,
+            'bump_type' => 'product', 'bump_slug' => $second->slug,
+            'price_coins' => 30, 'teaser' => 'وده كمان.',
+        ]);
 
         // العرضان يظهران في بوب-أب الشراء داخل صفحة العنصر
         $this->actingAs($user)
@@ -164,8 +163,7 @@ class CartTest extends StoreTestCase
         $stranger = $this->product(['slug' => 'not-offered', 'price_coins' => 100]);
         $user = $this->trainee(1000);
 
-        $this->setting('store.order_bump.offers', json_encode([], JSON_UNESCAPED_UNICODE));
-
+        // بلا عروض مضبوطة أصلًا — العرض الغريب يُتجاهَل مهما طُلِب (17)
         $this->actingAs($user)->post(route('store.checkout'), [
             'type' => 'course', 'slug' => $course->slug, 'refund_ack' => 1, 'bumps' => [$stranger->slug],
         ])->assertRedirect();
