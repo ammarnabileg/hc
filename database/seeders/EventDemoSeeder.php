@@ -228,6 +228,10 @@ class EventDemoSeeder extends Seeder
             ['events.checkin.qr_dark', 'events', 'لون وحدات الـQR', 'color', '#0b1512'],
             ['events.checkin.qr_light', 'events', 'خلفيّة الـQR', 'color', '#ffffff'],
             ['events.checkin.qr_alt', 'events', 'وصف صورة الـQR', 'string', 'رمز تشيك-إن الحضور'],
+
+            // ---------------- أفاتارات المسجّلين — دليل اجتماعيّ (13.3 · 24.3-سطر-5040)
+            ['events.show.registrant_avatars_enabled', 'events', 'Toggle أفاتارات المسجّلين (دليل اجتماعيّ)', 'bool', '1'],
+            ['events.show.avatars_limit', 'events', 'أقصى عدد أفاتارات معروضة في صفحة الفعاليّة', 'number', '8'],
             ['events.checkin.qr_hint', 'events', 'شرح الـQR للمتدرّب', 'text', 'اعرض الرمز ده للمنظّم عشان يمسحه — بيتجدّد كلّ'],
             ['events.checkin.qr_seconds_word', 'events', 'كلمة الثانية', 'string', 'ثانية'],
             ['events.checkin.qr_msg_ok', 'events', 'رسالة الرمز الصحيح', 'text', 'الرمز سليم ✓'],

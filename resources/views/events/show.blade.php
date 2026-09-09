@@ -72,6 +72,21 @@
                     </span>
                 </div>
 
+                {{-- ⭐ أفاتارات المسجّلين — دليل اجتماعيّ (13.3) خلف Toggle إداريّ --}}
+                @if ($registrantAvatars->isNotEmpty())
+                    <div class="flex items-center -space-x-2 rtl:space-x-reverse">
+                        @foreach ($registrantAvatars as $registrant)
+                            <x-avatar :user="$registrant" size="7" />
+                        @endforeach
+                        @if ($event->registrations_count > $registrantAvatars->count())
+                            <span class="inline-flex items-center justify-center rounded-full text-xs font-semibold"
+                                  style="width: 1.75rem; height: 1.75rem; background: var(--surface-sunken); color: var(--text-muted)">
+                                +{{ $event->registrations_count - $registrantAvatars->count() }}
+                            </span>
+                        @endif
+                    </div>
+                @endif
+
                 {{-- العدّاد التنازليّ (13.3) --}}
                 <div>@include('events.components.countdown', ['event' => $event, 'presenter' => $presenter, 'size' => 'lg'])</div>
 

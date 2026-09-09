@@ -145,6 +145,10 @@ class EventController extends Controller
             'inviteLink' => $this->referrals->deepLinkFor($user, 'event', $event->id),
             'commissionPercent' => $this->referrals->commissionPercent(),
             'speakers' => $event->agenda->pluck('speaker')->filter()->unique()->values(),
+            // ⭐ أفاتارات المسجّلين — دليل اجتماعيّ خلف Toggle إداريّ (13.3 · 24.3-سطر-5040)
+            'registrantAvatars' => (bool) setting('events.show.registrant_avatars_enabled', true)
+                ? $event->registrations()->with('user')->latest()->limit((int) setting('events.show.avatars_limit', 8))->get()->pluck('user')->filter()
+                : collect(),
         ]);
     }
 
