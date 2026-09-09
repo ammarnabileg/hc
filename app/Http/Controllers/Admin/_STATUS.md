@@ -40,7 +40,10 @@
 - ✅ **`StoreAdminController@updateBundle` صار يكتب `og_image_path` (2026-08-04 · 21.1-أ):** العمود كان يُقرَأ في `<head>` بلا حقلٍ يكتبه — «عمودٌ ومصادقةٌ بلا حقل». صار له حقلٌ في تاب [الهويّة] يفتح **نفس بوب-أب المكتبة** (مصدرٌ واحد لا منتقٍ ثانٍ)، والفارغ يُخزَّن `null` فيبقى الارتداد للغلاف حيًّا. الحارس: `tests/Feature/Store/BundleOgImageTest.php`.
 - ✅ **`LessonAdminController@duplicateSection` (2026-08-04 · 12.4-هـ):** الثالث المنصوص («تكرار/نسخ (Duplicate) لتدريب · سيكشن · درس») صار مبنيًّا بصلاحيّة **`sections.create`** من 12.2.2 — بلا مفتاحٍ مخترَع. الحارس: `tests/Feature/Admin/Content/SectionDuplicateTest.php`.
 - ✅ **`CourseAdminController@duplicate` صار له زرّ** في «⋯» وفي كارت الموبايل بصلاحيّة `courses.create` (12.4-هـ) — مُثبَت: 15 ⟵ 16 تدريبًا ونسخةٌ `draft`.
-- ❌ **`StatsController@export` يتجاهل `format`:** `xlsx` و`pdf` يخرجان CSV بنفس الترويسة والحجم (12.8).
+- ✅ **[تصحيح توثيقٍ 2026-09-10] «`StatsController@export` يتجاهل `format`» —
+  أُغلِق فعلًا عبر `App\Services\Export\TabularExport` (`xlsx`/`pdf`
+  حقيقيّان بلا مكتبةٍ خارجيّة) ولم يُشطَب من هنا وقتها. التفصيل في
+  `resources/views/admin/stats/_STATUS.md`.
 - ✅ **صار كنترولر لأسئلة الاختبار التمهيديّ:** `PlacementTestAdminController` (فهرس · إنشاء · تعديل · تبديل الحالة · حذف · ترتيب · تصدير) بموارد `placement_test.*` من 12.2.2، وشاشته `resources/views/placement/admin` — وفيه **فحص اتّزان وسوم HTML قبل الحفظ** كما ينصّ 24. ⚠️ وموضعها المنصوص تابٌ داخل «محتوى الـOnboarding» (شاشة إيجنت آخر) فبُنيت مستقلّةً مؤقّتًا — التفصيل في `resources/views/placement/_STATUS.md`.
 - ⚠️ **61 من 77 فيو إدارة تمتدّ `layouts.app`** فتُعرَض داخل سايد بار المتدرّب — والكنترولرات هي التي ترجعها؛ التفصيل في `resources/views/admin/_STATUS.md`.
 - **مُثبَت شغّالًا:** كلّ مسارات `/admin` المفتوحة ردّت 200 للمالك و403 لمن لا يملك (`support_admin` ⟵ 403 على الإعدادات والمكافآت والاستوديو والشهادات والتدريبات والماليّات) · `UserModerationController` له أثرٌ حقيقيّ: التعليق أنهى جلسة المتدرّب فورًا ومنع دخوله، والحظر منعه كذلك · `CountriesController` يفصل الفحص عن الدمج ويحمي المرتبط بمستخدم · `MaintenanceController` + `EnsureNotUnderMaintenance` يقفلان المنصّة فعلًا (503).
