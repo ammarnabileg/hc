@@ -84,6 +84,32 @@ class NotificationController extends Controller
         ]);
     }
 
+    /**
+     * ⭐ استطلاعٌ لحظيّ (Toast — 2.8): «الجديد منذ آخر ما رآه» — لا الفيد كلّه،
+     * وإلّا صار كلّ نداءٍ إعادة تحميل الصفحة بشكلٍ آخر. الحارس نفسه (ملكيّة
+     * الفيد) يمنع أن يرى مستخدمٌ إشعار غيره حتى لو خمّن رقم `after_id`.
+     */
+    public function poll(Request $request): JsonResponse
+    {
+        $user = $request->user();
+        $afterId = max(0, $request->integer('after_id'));
+        $limit = max(1, (int) setting('notifications.toast.poll_limit', 10));
+
+        $rows = $user->notificationsFeed()
+            ->where('id', '>', $afterId)
+            ->orderBy('id')
+            ->limit($limit)
+            ->get();
+
+        return response()->json([
+            'items' => $rows->filter(fn (AppNotification $n) => Notifier::shouldToast($n))
+                ->map(fn (AppNotification $n) => ['id' => $n->id, 'title' => $n->title, 'url' => $n->url])
+                ->values(),
+            'last_id' => (int) ($rows->max('id') ?? $afterId),
+            'unread' => Notifier::unreadCount($user),
+        ]);
+    }
+
     /** تعليم إشعار واحد كمقروء (POST). */
     public function read(Request $request, AppNotification $notification): JsonResponse|RedirectResponse
     {

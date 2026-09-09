@@ -1,6 +1,8 @@
 @php
     $u = auth()->user();
     $unread = $u->notificationsFeed()->whereNull('read_at')->count();
+    // نقطة انطلاق الاستطلاع اللحظيّ (Toast — 2.8): لا نُطالِع القديم عند أوّل نبضة
+    $lastNotificationId = (int) ($u->notificationsFeed()->max('id') ?? 0);
 @endphp
 
 {{-- شريط نادي الخامسة العلويّ: يظهر داخل النافذة بتوقيت المستخدم وحدها (7.2) --}}
@@ -52,13 +54,13 @@
     @endvolunteer
 
     {{-- جرس الإشعارات بتاباته: الكلّ · المنصّة · التطوّع (2.8) --}}
-    <div class="relative" x-data="{ open: false }">
+    <div class="relative" x-data="{ open: false }" data-notifications-poll
+         data-last-id="{{ $lastNotificationId }}" data-poll-url="{{ route('notifications.poll') }}"
+         data-poll-seconds="{{ (int) setting('notifications.toast.poll_seconds', 20) }}">
         <button type="button" class="relative text-xl" data-bell aria-label="{{ setting('nav.header.bell_aria', 'الإشعارات') }}">
             <x-icon name="bell" size="16" />
-            @if ($unread > 0)
-                <span class="absolute -top-1 -end-1 text-[10px] rounded-full px-1.5"
-                      style="background: var(--color-state-danger); color: #fff">{{ $unread }}</span>
-            @endif
+            <span @class(['absolute -top-1 -end-1 text-[10px] rounded-full px-1.5', 'hidden' => $unread <= 0]) data-unread-badge
+                  style="background: var(--color-state-danger); color: #fff">{{ $unread }}</span>
         </button>
         @include('partials.bell')
     </div>

@@ -105,6 +105,23 @@ class Notifier
         return $notification;
     }
 
+    /**
+     * ⭐ هل يستحقّ هذا الإشعار Toast لحظيًّا؟ (2.8: «للأحداث المهمّة» — لا لكلّ
+     * شيء، وإلّا أغرق مسارُ التطوّع وحده المستخدم في Toast متتابع). و«المهمّة»
+     * هنا إشارتان لا حَدسًا: **إمّا** إشعارٌ **يحتاج إجراءً** (`requires_action`)
+     * — إشارةٌ حقيقيّة يستعملها كلّ مجالٍ فعلًا (محرّك التصعيد · نافذة التفكيك ·
+     * الإقرار الإلزاميّ) — **أو** نوعٌ من الستّة المحكومة بمصفوفة 24.3 وعمود
+     * «Toast» فيها مفتوحٌ له صراحةً من الأدمن.
+     */
+    public static function shouldToast(AppNotification $notification): bool
+    {
+        if ($notification->requires_action) {
+            return true;
+        }
+
+        return self::matrixGoverned($notification->category) && self::matrixAllows($notification->category, 'toast');
+    }
+
     /** هل هذا النوع من الأنواع الستّة المحكومة بمصفوفة 24.3؟ */
     private static function matrixGoverned(string $category): bool
     {

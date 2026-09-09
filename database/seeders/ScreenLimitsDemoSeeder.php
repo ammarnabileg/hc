@@ -63,6 +63,8 @@ class ScreenLimitsDemoSeeder extends Seeder
 
             // ---------------- الإشعارات
             ['notifications.bell.max_items', 'notifications', 'عدد إشعارات الجرس', 'number', '20'],
+            ['notifications.toast.poll_seconds', 'notifications', 'دوريّة استطلاع الإشعارات اللحظيّة (ثوانٍ)', 'number', '20'],
+            ['notifications.toast.poll_limit', 'notifications', 'أقصى إشعارات في كلّ استطلاع لحظيّ', 'number', '10'],
 
             // ---------------- بنك الأسئلة
             ['question_bank.lessons_picker_limit', 'exams', 'عدد الدروس في منتقي بنك الأسئلة', 'number', '500'],

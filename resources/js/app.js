@@ -270,6 +270,42 @@ if (bell && panel) {
 }
 
 /*
+ | ⭐ استطلاعٌ لحظيّ (Toast — 2.8): «إشعار لحظيّ للأحداث المهمّة + سجلّ دائم في
+ | المركز». السجلّ الدائم موجودٌ من الأوّل — والفجوة كانت هنا: حدثٌ يقع
+ | والمستخدم على الصفحة لا يُنتج أيّ Toast إطلاقًا. لا Websocket ولا SSE هنا —
+ | استطلاعٌ خفيف (polling) بفارق `after_id` وحده، فلا يُعاد جلب ما رآه المستخدم.
+ */
+(() => {
+    const box = document.querySelector('[data-notifications-poll]');
+    if (!box) return;
+
+    const url = box.dataset.pollUrl;
+    const seconds = parseInt(box.dataset.pollSeconds, 10) || 20;
+    const badge = box.querySelector('[data-unread-badge]');
+    let lastId = parseInt(box.dataset.lastId, 10) || 0;
+
+    const tick = () => {
+        fetch(`${url}?after_id=${lastId}`, { headers: { Accept: 'application/json' } })
+            .then((r) => (r.ok ? r.json() : null))
+            .then((data) => {
+                if (!data) return;
+
+                lastId = data.last_id || lastId;
+                (data.items || []).forEach((item) => toast(item.title));
+
+                if (badge) {
+                    const n = data.unread || 0;
+                    badge.textContent = n;
+                    badge.classList.toggle('hidden', n <= 0);
+                }
+            })
+            .catch(() => {});
+    };
+
+    setInterval(tick, seconds * 1000);
+})();
+
+/*
  | Drawer الموبايل انتقل إلى `resources/views/partials/sidebar-drawer.blade.php`
  | (الدستور 13: «لوحة جانبيّة منزلقة»). كان هنا قلبُ `!block` على أوّل `<aside>`
  | فيغطّي الشاشة كلّها بلا خلفيّة ولا زرّ إغلاق ولا انزلاق — والسايد بار نفسه كان

@@ -31,4 +31,7 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/notifications/read-all', [NotificationController::class, 'readAll'])->name('notifications.read-all');
     Route::post('/notifications/{notification}/read', [NotificationController::class, 'read'])->name('notifications.read');
+
+    // ⭐ استطلاعٌ لحظيّ (Toast — 2.8): «الجديد منذ آخر ما رآه» لا الفيد كلّه
+    Route::get('/notifications/poll', [NotificationController::class, 'poll'])->name('notifications.poll');
 });
