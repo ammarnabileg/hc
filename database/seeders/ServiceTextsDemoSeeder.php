@@ -873,6 +873,7 @@ class ServiceTextsDemoSeeder extends Seeder
             ['growth.referral_service.grant_welcome_ticket_1', 'growth', 'تذكرة ترحيب بالدعوة', 'string', 'تذكرة ترحيب بالدعوة', false],
             ['growth.referral_service.status_of_1', 'growth', 'لم يكمل التسجيل', 'string', 'لم يكمل التسجيل', false],
             ['growth.referral_service.status_of_2', 'growth', 'مكتمل', 'string', 'مكتمل', false],
+            ['growth.referral_service.variable_reward_1', 'growth', 'مكافأة مفاجئة — دعوة ناجحة 🎉', 'string', 'مكافأة مفاجئة — دعوة ناجحة 🎉', false],
             ['growth.referral_service.status_of_3', 'growth', 'في انتظار الاعتماد', 'string', 'في انتظار الاعتماد', false],
             ['growth.screen_settings.catalog_29', 'growth', 'عدد صفوف الصفحة', 'string', 'عدد صفوف الصفحة', false],
             ['growth.screen_settings.catalog_30', 'growth', 'المدى الافتراضيّ (أيّام)', 'string', 'المدى الافتراضيّ (أيّام)', false],

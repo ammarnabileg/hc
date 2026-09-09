@@ -284,6 +284,29 @@ class ReferralService
         $this->ledger->credit($referrer, 'tickets', $tickets, 'referral', setting('growth.referral_service.grant_referrer_ticket_1', 'تذكرة دعوة ناجحة'), $referral);
         $this->tracker->record('referral_referrer_ticket', $referral, $referrer->id);
 
+        // ⭐ مكافأة مفاجئة متغيّرة أحيانًا بجانب التذكرة (7.6.1) — والاحتمال حقيقيّ لا موجَّه (2.9)
+        $this->grantVariableReward($referrer, $referral);
+
+        return true;
+    }
+
+    /**
+     * ⭐ مكافأة السفراء المفاجئة المتغيّرة (7.6.1: «Variable Reward — أحيانًا
+     * بجانب تذكرة الدعوة الناجحة»). تُقرَع مرّةً واحدة فقط — داخل نفس القفل
+     * الذري الذي يمنح تذكرة الداعي، فلا تتكرّر مهما تكرّر النداء.
+     */
+    private function grantVariableReward(User $referrer, Referral $referral): bool
+    {
+        $chance = max(0, min(100, (int) setting('referral.variable_reward.chance_percent', 20)));
+        $amount = (int) setting('referral.variable_reward.tickets', 3);
+
+        if ($chance <= 0 || $amount <= 0 || random_int(1, 100) > $chance) {
+            return false;
+        }
+
+        $this->ledger->credit($referrer, 'tickets', $amount, 'referral_bonus', setting('growth.referral_service.variable_reward_1', 'مكافأة مفاجئة — دعوة ناجحة 🎉'), $referral);
+        $this->tracker->record('referral_variable_reward', $referral, $referrer->id);
+
         return true;
     }
 

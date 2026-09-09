@@ -195,6 +195,9 @@ class SettingSeeder extends Seeder
             ['referral.welcome_tickets', 'growth', 'تذاكر ترحيب للمدعوّ', 'number', '1'],
             // ⭐ 7.6: «كلٌ من الداعي والمدعو» — فللداعي تذكرته كذلك
             ['referral.referrer_tickets', 'growth', 'تذاكر الداعي عن الدعوة الناجحة', 'number', '1'],
+            // ⭐ مكافأة السفراء المفاجئة المتغيّرة (7.6.1) — احتمال حقيقيّ لا موجَّه (2.9)
+            ['referral.variable_reward.chance_percent', 'growth', 'احتمال المكافأة المفاجئة (%)', 'number', '20'],
+            ['referral.variable_reward.tickets', 'growth', 'قيمة المكافأة المفاجئة (تذاكر)', 'number', '3'],
             ['growth.profile_completion.reward_tickets', 'growth', 'مكافأة إكمال الملفّ (تذاكر)', 'number', '3'],
             ['growth.seo.index_certificates', 'growth', 'فهرسة صفحات الشهادات', 'bool', '1'],
             ['growth.seo.index_courses', 'growth', 'فهرسة صفحات التدريبات', 'bool', '1'],

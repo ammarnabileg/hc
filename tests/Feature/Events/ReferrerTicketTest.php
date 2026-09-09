@@ -3,9 +3,11 @@
 namespace Tests\Feature\Events;
 
 use App\Models\Referral;
+use App\Models\Setting;
 use App\Models\Transaction;
 use App\Models\User;
 use App\Services\Referral\ReferralService;
+use Illuminate\Support\Facades\Cache;
 
 /**
  * 7.6: «عند نجاح الدعوة يحصل **كلٌ من الداعي والمدعو** على تذكرة» —
@@ -15,6 +17,21 @@ use App\Services\Referral\ReferralService;
  */
 class ReferrerTicketTest extends EventsTestCase
 {
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        // ⭐ المكافأة المفاجئة احتماليّة (7.6.1) — تُوقَف هنا كي تبقى أرقام
+        // هذا الملفّ محدَّدة يقينًا؛ سلوكها الاحتماليّ له اختبار مستقلّ أدناه.
+        $this->setVariableRewardChance(0);
+    }
+
+    private function setVariableRewardChance(int $percent): void
+    {
+        Setting::query()->where('key', 'referral.variable_reward.chance_percent')->update(['value' => (string) $percent]);
+        Cache::forget('settings');
+    }
+
     public function test_both_sides_get_a_ticket_after_the_invited_account_is_activated(): void
     {
         [$referrer, $invited] = $this->pair();
@@ -83,6 +100,39 @@ class ReferrerTicketTest extends EventsTestCase
         $this->actingAs($referrer)->get(route('referral.index'))->assertOk();
 
         $this->assertSame((float) setting('referral.referrer_tickets'), $this->balanceOf($referrer, 'tickets'));
+    }
+
+    // ------------------------------------------------------------ 7.6.1 المكافأة المفاجئة المتغيّرة
+
+    /** ⭐ احتمال 100%: المكافأة المفاجئة تُمنَح بجانب تذكرة الداعي دائمًا */
+    public function test_the_variable_reward_is_granted_alongside_the_referrer_ticket_when_the_roll_always_hits(): void
+    {
+        $this->setVariableRewardChance(100);
+        [$referrer, $invited] = $this->pair();
+        $invited->forceFill(['status' => 'active', 'activated_at' => now()])->save();
+
+        app(ReferralService::class)->grantReferrerTicket($invited->fresh());
+
+        $expected = (float) setting('referral.referrer_tickets') + (float) setting('referral.variable_reward.tickets');
+        $this->assertSame($expected, $this->balanceOf($referrer, 'tickets'));
+
+        $this->assertSame(1, Transaction::query()
+            ->where('user_id', $referrer->id)
+            ->where('source', 'referral_bonus')
+            ->count());
+    }
+
+    /** واحتمال 0%: بلا مكافأة مفاجئة — التذكرة الثابتة وحدها */
+    public function test_the_variable_reward_never_fires_when_the_chance_is_zero(): void
+    {
+        $this->setVariableRewardChance(0);
+        [$referrer, $invited] = $this->pair();
+        $invited->forceFill(['status' => 'active', 'activated_at' => now()])->save();
+
+        app(ReferralService::class)->grantReferrerTicket($invited->fresh());
+
+        $this->assertSame((float) setting('referral.referrer_tickets'), $this->balanceOf($referrer, 'tickets'));
+        $this->assertSame(0, Transaction::query()->where('source', 'referral_bonus')->count());
     }
 
     /** @return array{0:User,1:User} */
