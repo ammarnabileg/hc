@@ -410,6 +410,7 @@ class AdminScreenTextLearningDemoSeeder extends Seeder
             ['admin.certificates.index.idara_alshhadat', 'certificates', 'إدارة الشهادات', 'string', 'إدارة الشهادات', 'نصّ في resources/views/admin/certificates/index.blade.php'],
             ['admin.certificates.index.lwha_alidara', 'certificates', 'لوحة الإدارة', 'string', 'لوحة الإدارة', 'نصّ في resources/views/admin/certificates/index.blade.php'],
             ['admin.certificates.partials.accreditations.aatmad', 'certificates', '+ اعتماد', 'string', '+ اعتماد', 'نصّ في resources/views/admin/certificates/partials/accreditations.blade.php'],
+            ['admin.certificates.partials.accreditations.alaatmadat', 'certificates', 'الاعتمادات', 'string', 'الاعتمادات', 'نصّ في resources/views/admin/certificates/partials/accreditations.blade.php'],
             ['admin.certificates.partials.accreditations.aatmad_almnsa_thabt_wla_ytshal', 'certificates', 'اعتماد المنصّة — ثابت ولا يتشال', 'string', 'اعتماد المنصّة — ثابت ولا يتشال', 'نصّ في resources/views/admin/certificates/partials/accreditations.blade.php'],
             ['admin.certificates.partials.accreditations.aatmad_jdyd', 'certificates', 'اعتماد جديد', 'string', 'اعتماد جديد', 'نصّ في resources/views/admin/certificates/partials/accreditations.blade.php'],
             ['admin.certificates.partials.accreditations.alasm', 'certificates', 'الاسم', 'string', 'الاسم', 'نصّ في resources/views/admin/certificates/partials/accreditations.blade.php'],

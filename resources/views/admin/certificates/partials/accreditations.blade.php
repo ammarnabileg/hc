@@ -45,8 +45,8 @@
 @if ($accreditations->isEmpty())
     <x-empty :message="setting('admin.certificates.partials.accreditations.mfysh_aatmadat_fy_alflatr_dy', 'مفيش اعتمادات في الفلاتر دي.')" />
 @else
-    <div class="overflow-x-auto card">
-        <table class="w-full text-sm">
+    <div class="card p-2">
+        <x-table :label="setting('admin.certificates.partials.accreditations.alaatmadat', 'الاعتمادات')">
             <thead>
                 <tr style="border-bottom: 1px solid var(--border)">
                     <th class="p-3 text-start">{{ setting('admin.certificates.partials.accreditations.alshaar', 'الشعار') }}</th>
@@ -121,7 +121,7 @@
                     </tr>
                 @endforeach
             </tbody>
-        </table>
+        </x-table>
     </div>
 
     @can('accreditations.edit')
