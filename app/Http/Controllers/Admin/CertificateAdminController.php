@@ -603,6 +603,7 @@ class CertificateAdminController extends Controller
             'signature_enabled' => ['nullable', 'boolean'],
             'signature_path' => ['nullable', 'string', 'max:255'],
             'stamp_path' => ['nullable', 'string', 'max:255'],
+            'security_elements_enabled' => ['nullable', 'boolean'],
             'is_active' => ['nullable', 'boolean'],
             // كلّ ربط سطر واحد بصيغة «الجدول.العمود»
             'bindings' => ['nullable', 'array'],

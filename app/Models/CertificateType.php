@@ -22,6 +22,7 @@ class CertificateType extends Model
             'lang_ar_enabled' => 'boolean',
             'lang_en_enabled' => 'boolean',
             'signature_enabled' => 'boolean',
+            'security_elements_enabled' => 'boolean',
         ];
     }
 

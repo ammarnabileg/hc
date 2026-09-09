@@ -118,6 +118,11 @@ class CertificateRenderer
             $this->drawDefaultBackground($image, $width, $height, $certificate);
         }
 
+        // ⭐ [2026-09-10] عناصر أمان بصريّة اختياريّة — اختياريّة (سطر 2407 · 4644 · Toggle)
+        if ($template['security_elements_enabled'] ?? false) {
+            $this->drawSecurityElements($image, $width, $height, $certificate);
+        }
+
         foreach ($this->layers($template) as $layer) {
             $this->drawLayer($image, $layer, $data, $certificate, $width, $height);
         }
@@ -229,6 +234,82 @@ class CertificateRenderer
 
         imagecopyresampled($image, $mark, $x, $y, 0, 0, $markWidth, $markHeight, imagesx($mark), imagesy($mark));
         imagedestroy($mark);
+    }
+
+    /**
+     * ⭐ [2026-09-10] «عناصر أمان بصريّة اختياريّة (Guilloché/Microtext)» (سطر
+     * 2407 · 4644 · 12.5-ب) — اسمان مذكوران في الدستور بلا حقلٍ ولا راسمٍ
+     * يقرؤهما، كحال الختم/التوقيع قبل إصلاحهما. النقش والنصّ المصغّر
+     * **مُشتقّان من كود الشهادة نفسه** لا من مولّد عشوائيّ عامّ — ففريدان لكلّ
+     * شهادة بلا لمس RNG العامّ (لا يؤثّران على أيّ كودٍ آخر في نفس الطلب)،
+     * وإعادة رسم نفس الشهادة تنتج نفس البايتات بالضبط (يوافق بصمة الكاش 8.1).
+     */
+    private function drawSecurityElements(\GdImage $image, int $width, int $height, Certificate $certificate): void
+    {
+        $this->drawGuilloche($image, $width, $height, $certificate);
+        $this->drawMicrotext($image, $width, $height, $certificate);
+    }
+
+    /** نقش خطوطٍ متموّجة في شريطٍ علويّ وسفليّ — سعته وطوره مُشتقّان من كود الشهادة */
+    private function drawGuilloche(\GdImage $image, int $width, int $height, Certificate $certificate): void
+    {
+        $seed = array_values(unpack('C*', substr(hash('sha256', $certificate->code, true), 0, 16)) ?: []);
+
+        if ($seed === []) {
+            return;
+        }
+
+        $lines = max(1, (int) setting('certificates.render.security_lines', 10));
+        $band = $height * (float) setting('certificates.render.security_band', 0.045);
+        $rgb = GdEngine::hexToRgb((string) setting('certificates.render.security_color', '#d4af37'));
+        $color = imagecolorallocatealpha($image, $rgb[0], $rgb[1], $rgb[2], 100);
+        imagesetthickness($image, 1);
+
+        for ($i = 0; $i < $lines; $i++) {
+            $byte = $seed[$i % count($seed)];
+            $amplitude = $band * (0.3 + (($byte % 50) / 100));
+            $phase = ($byte / 255) * 2 * M_PI;
+            $frequency = 2 + ($i % 5);
+
+            $prevX = null;
+            $prevY = null;
+
+            for ($x = 0; $x <= $width; $x += 4) {
+                $t = $x / max(1, $width);
+                $y = (int) round($band + $amplitude * sin(($t * $frequency * 2 * M_PI) + $phase + $i));
+
+                if ($prevX !== null && $prevY !== null) {
+                    imageline($image, $prevX, $prevY, $x, $y, $color);
+                    imageline($image, $prevX, $height - $prevY, $x, $height - $y, $color);
+                }
+
+                $prevX = $x;
+                $prevY = $y;
+            }
+        }
+    }
+
+    /** نصٌّ مصغّر متكرّر بمحاذاة الحافّة السفليّة — يحمل كود الشهادة فهو فريدٌ لكلّ شهادة */
+    private function drawMicrotext(\GdImage $image, int $width, int $height, Certificate $certificate): void
+    {
+        $font = $this->fontPath();
+
+        if (! $font) {
+            // بلا خطّ TTF: البديل القياسيّ (imagestring) لا يصغر لمقاس نصٍّ مصغّرٍ حقيقيّ — يُترَك بلا رسمٍ بدل صندوقٍ مشوَّه
+            return;
+        }
+
+        $label = (string) setting('certificates.render.microtext_label', 'شهادة أصيلة').' '.$certificate->code.'  ';
+        $shaped = ArabicText::prepare($label);
+        $size = max(3, (int) round($height * (float) setting('certificates.render.microtext_size_ratio', 0.006)));
+        $color = $this->color($image, (string) setting('certificates.render.microtext_color', '#9bb3ad'));
+        $y = (int) round($height * (float) setting('certificates.render.microtext_y', 0.965));
+
+        $box = imagettfbbox($size, 0, $font, $shaped);
+        $chunkWidth = max(1, abs($box[2] - $box[0]));
+        $repeats = (int) ceil($width / $chunkWidth) + 1;
+
+        imagettftext($image, $size, 0, 0, $y, $color, $font, str_repeat($shaped, $repeats));
     }
 
     private function loadBackground(?string $path): ?\GdImage

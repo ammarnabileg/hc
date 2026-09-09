@@ -262,6 +262,8 @@ class CertificateIssuer
             'signature_enabled' => (bool) $type->signature_enabled,
             'signature_path' => $type->signature_path,
             'stamp_path' => $type->stamp_path,
+            // ⭐ [2026-09-10] عناصر أمان بصريّة اختياريّة (Guilloché/Microtext) — مجمَّدة كالختم (سطر 2407 · 12.5-ج)
+            'security_elements_enabled' => (bool) $type->security_elements_enabled,
             'accreditation' => [
                 'name_ar' => $accreditation?->name_ar,
                 'name_en' => $accreditation?->name_en,

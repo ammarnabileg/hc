@@ -121,6 +121,11 @@
                     <x-form.input name="signature_path" :label="setting('admin.certificates.partials.types.msar_altwqya', 'مسار التوقيع')" />
                     <x-form.input name="stamp_path" :label="setting('admin.certificates.partials.types.msar_alkhtm', 'مسار الختم')" />
 
+                    {{-- ⭐ [2026-09-10] عناصر أمان بصريّة اختياريّة (Guilloché/Microtext) — سطر 2407 · 4644 · 12.5-ب --}}
+                    <label class="flex items-center gap-2 text-sm">
+                        <input type="checkbox" name="security_elements_enabled" value="1"> {{ setting('admin.certificates.partials.types.anasr_aman_bsrya', 'عناصر أمان بصريّة (نقش Guilloché ونصّ مصغّر)') }}
+                    </label>
+
                     {{-- الربط بأعمدة قاعدة البيانات بلا حدود — من قائمة آمنة (12.5-ب) --}}
                     <fieldset class="card p-3">
                         <legend class="text-sm px-1">{{ setting('admin.certificates.partials.types.alrbt_bqaada_albyanat', 'الربط بقاعدة البيانات') }}</legend>

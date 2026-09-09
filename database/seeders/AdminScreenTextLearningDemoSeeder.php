@@ -491,6 +491,7 @@ class AdminScreenTextLearningDemoSeeder extends Seeder
             ['admin.certificates.partials.types.allghat_lkl_alanwaa', 'certificates', 'اللغات لكلّ الأنواع:', 'string', 'اللغات لكلّ الأنواع:', 'نصّ في resources/views/admin/certificates/partials/types.blade.php'],
             ['admin.certificates.partials.types.alrbt_bqaada_albyanat', 'certificates', 'الربط بقاعدة البيانات', 'string', 'الربط بقاعدة البيانات', 'نصّ في resources/views/admin/certificates/partials/types.blade.php'],
             ['admin.certificates.partials.types.alshkl_badya_sna_tslsl_bla_fjwat', 'certificates', 'الشكل: بادئة-سنة-تسلسل بلا فجوات.', 'string', 'الشكل: بادئة-سنة-تسلسل بلا فجوات.', 'نصّ في resources/views/admin/certificates/partials/types.blade.php'],
+            ['admin.certificates.partials.types.anasr_aman_bsrya', 'certificates', 'عناصر أمان بصريّة (نقش Guilloché ونصّ مصغّر)', 'string', 'عناصر أمان بصريّة (نقش Guilloché ونصّ مصغّر)', 'نصّ في resources/views/admin/certificates/partials/types.blade.php'],
             ['admin.certificates.partials.types.arbya', 'certificates', 'عربيّة', 'string', 'عربيّة', 'نصّ في resources/views/admin/certificates/partials/types.blade.php'],
             ['admin.certificates.partials.types.badya_altrqym', 'certificates', 'بادئة الترقيم', 'string', 'بادئة الترقيم', 'نصّ في resources/views/admin/certificates/partials/types.blade.php'],
             ['admin.certificates.partials.types.hfz_alnwa', 'certificates', 'حفظ النوع', 'string', 'حفظ النوع', 'نصّ في resources/views/admin/certificates/partials/types.blade.php'],

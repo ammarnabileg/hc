@@ -61,6 +61,26 @@ class GdEngine
         );
     }
 
+    /** مكوّنات Hex الثلاثة خامًا — لما يحتاج الرسم شفافيّةً (`imagecolorallocatealpha`) لا لونًا جاهزًا */
+    public static function hexToRgb(string $hex): array
+    {
+        $hex = ltrim(trim($hex), '#');
+
+        if (strlen($hex) === 3) {
+            $hex = $hex[0].$hex[0].$hex[1].$hex[1].$hex[2].$hex[2];
+        }
+
+        if (strlen($hex) !== 6 || ! ctype_xdigit($hex)) {
+            $hex = 'ffffff';
+        }
+
+        return [
+            (int) hexdec(substr($hex, 0, 2)),
+            (int) hexdec(substr($hex, 2, 2)),
+            (int) hexdec(substr($hex, 4, 2)),
+        ];
+    }
+
     /** صيغة Hex صالحة للتخزين — `#` + 6 أرقام بالضبط (لا 3 أرقام هنا، هذا تحقّق حفظ لا رسم) */
     public static function isValidHex(string $hex): bool
     {
