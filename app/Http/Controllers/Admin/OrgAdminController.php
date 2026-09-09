@@ -13,6 +13,7 @@ use App\Services\Admin\Volunteer\AuditTrail;
 use App\Services\Admin\Volunteer\CapacityReport;
 use App\Services\Admin\Volunteer\OffboardingService;
 use App\Services\Admin\Volunteer\SettingsWriter;
+use App\Services\Volunteer\Goals\OperationalProject;
 use App\Services\Volunteer\Org\PromotionLadder;
 use App\Services\Volunteer\Org\TransferService;
 use App\Support\Access\AccessEngine;
@@ -107,6 +108,7 @@ class OrgAdminController extends Controller
 
         $entity = isset($data['id']) ? Entity::findOrFail($data['id']) : new Entity;
         $old = $entity->exists ? $entity->only(['name_ar', 'parent_id', 'member_cap']) : [];
+        $isNew = ! $entity->exists;
 
         $entity->fill([
             'track_id' => $data['track_id'],
@@ -117,12 +119,21 @@ class OrgAdminController extends Controller
             'member_cap' => $data['member_cap'] ?? null,
         ]);
 
-        if (! $entity->exists) {
+        if ($isNew) {
             $entity->status = 'active';
             $entity->opened_at = now();
         }
 
         $entity->save();
+
+        /*
+         | ⭐ «المشروع التشغيليّ لقسم [الاسم]» (23 — 1.8): «واحد لكلّ كيان رئيسي
+         | بأيّ مسار … يُنشأ تلقائيًّا مع إنشاء الكيان». `ensureFor()` نفسها
+         | تتجاهل الكيانات الفرعيّة (`parent_id` غير فارغ) فلا حارس إضافيّ هنا.
+         */
+        if ($isNew) {
+            app(OperationalProject::class)->ensureFor($entity);
+        }
 
         AuditTrail::log($request->user(), 'entity.save', $entity, $old, $entity->only(['name_ar', 'parent_id', 'member_cap']));
 

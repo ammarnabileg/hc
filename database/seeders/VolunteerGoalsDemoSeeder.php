@@ -117,6 +117,10 @@ class VolunteerGoalsDemoSeeder extends Seeder
             ['goals.build.error.locked', 'goals', 'رسالة القفل الطبقيّ بعد رفع المعاينة', 'string',
                 'الهدف اترفع معاينة — التحرير بقى عند الطبقة الأعلى وإنت قارئ بس.'],
 
+            // المشروع التشغيليّ (23 — 1.8): وعاء دائم يُنشأ تلقائيًّا مع كلّ كيان رئيسي
+            ['goals.operational_project.name', 'goals', 'اسم المشروع التشغيليّ (:p1 = اسم الكيان)', 'string', 'المشروع التشغيليّ لـ:p1'],
+            ['goals.operational_project.default_package', 'goals', 'اسم حزمة العمل الافتراضيّة فيه', 'string', 'الإيقاع اليوميّ'],
+
             // البنود المتكرّرة والموازن
             ['recurring.default_relative_deadline_hours', 'goals', 'الديدلاين النسبيّ الافتراضيّ (ساعات)', 'number', '24'],
             ['recurring.load.open_statuses', 'goals', 'حالات المهامّ المحتسَبة في الحمل', 'json', '["in_progress","blocked","in_review","returned"]'],

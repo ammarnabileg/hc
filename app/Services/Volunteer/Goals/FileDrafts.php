@@ -206,6 +206,16 @@ class FileDrafts
                 'updated_at' => $now,
             ]);
 
+            /*
+             | ⭐ «المشروع التشغيليّ لقسم [الاسم]» (23 — 1.8): «يُنشأ تلقائيًّا
+             | مع إنشاء الكيان» — وملفٌّ مؤقّت لا يصير كيانًا حقيقيًّا إلّا هنا،
+             | لحظة التفعيل، لا لحظة كتابة المسودّة (نفس مبدأ «الفتح حصريًّا
+             | للقمّة بصفر خطوة إضافيّة» أعلاه).
+             */
+            foreach (Entity::query()->whereIn('id', $ids)->get() as $entity) {
+                app(OperationalProject::class)->ensureFor($entity);
+            }
+
             return Membership::query()
                 ->whereIn('entity_id', $ids)
                 ->where('status', 'invited')
