@@ -77,6 +77,41 @@
         </div>
     @endif
 
+    @if ($canApprove && $nominations->isNotEmpty())
+        {{--
+         | ترشيحات معلَّقة — مشرف عام التطوّع والأدمن حصرًا (8.1):
+         | «يستقبل ترشيحات القادة ويقرّر ما ينزل» — الاعتماد يحوّل جمهور
+         | البند فعليًّا إلى `public_board`، والرفض يُبقيه على حاله.
+        --}}
+        <div class="card p-4 mb-4">
+            <h2 class="font-bold text-sm mb-3">{{ setting('volunteer.tasks_board.nominations_title', 'ترشيحات معلَّقة') }}</h2>
+            <div class="space-y-2">
+                @foreach ($nominations as $item)
+                    <div class="flex items-center justify-between gap-2 rounded-xl p-3" style="background: var(--surface-sunken)">
+                        <div class="text-sm">
+                            <span class="font-semibold">{{ $item->name }}</span>
+                            @if ($item->work_package?->entity)
+                                <span class="text-xs" style="color: var(--text-muted)">— {{ $item->work_package->entity->name_ar }}</span>
+                            @endif
+                        </div>
+                        <div class="flex items-center gap-2 shrink-0">
+                            <form method="post" action="{{ route('volunteer.tasks.nominations.approve', $item) }}">
+                                @csrf
+                                <button type="submit" class="btn rounded-xl px-3 py-1.5 text-xs font-semibold"
+                                        style="background: var(--color-brand-500); color: #04201c">{{ setting('volunteer.tasks_board.nominations_approve', 'اعتماد') }}</button>
+                            </form>
+                            <form method="post" action="{{ route('volunteer.tasks.nominations.reject', $item) }}">
+                                @csrf
+                                <button type="submit" class="rounded-xl px-3 py-1.5 text-xs font-semibold"
+                                        style="background: var(--surface-raised)">{{ setting('volunteer.tasks_board.nominations_reject', 'رفض') }}</button>
+                            </form>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+    @endif
+
     @if ($tasks->isEmpty())
         <x-empty :message="setting('volunteer.tasks_board.empty', 'مفيش مهامّ عامّة متاحة حاليًّا — تابع تاب الإشعارات')"
                  :action="setting('volunteer.tasks_board.action_3', 'إشعارات التطوّع')"

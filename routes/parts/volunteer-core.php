@@ -37,6 +37,14 @@ Route::middleware('auth')->prefix('volunteer')->name('volunteer.')->group(functi
     Route::post('/tasks/board/nominate', [PublicBoardController::class, 'nominate'])
         ->middleware('permission:public_board.create,work_packages.edit,tasks.assign')->name('tasks.nominate');
 
+    // اعتماد/رفض الترشيح — مشرف عام التطوّع والأدمن حصرًا (8.1)
+    Route::middleware('permission:public_board.create')->group(function () {
+        Route::post('/tasks/board/nominations/{workItem}/approve', [PublicBoardController::class, 'approveNomination'])
+            ->whereNumber('workItem')->name('tasks.nominations.approve');
+        Route::post('/tasks/board/nominations/{workItem}/reject', [PublicBoardController::class, 'rejectNomination'])
+            ->whereNumber('workItem')->name('tasks.nominations.reject');
+    });
+
     // ------------------------------------------------------------ مهامّي وصفحة المهمّة (24.4-2)
     Route::get('/tasks', [TaskController::class, 'index'])
         ->middleware('permission:tasks.list')->name('tasks.index');

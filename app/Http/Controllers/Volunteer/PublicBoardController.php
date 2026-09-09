@@ -39,6 +39,9 @@ class PublicBoardController extends Controller
             'due_soon' => $request->boolean('due_soon') ?: null,
         ];
 
+        // اعتماد الترشيحات لمشرف عام التطوّع والأدمن حصرًا (8.1) — لا القادة
+        $canApprove = $user->allows('public_board.create');
+
         return view('volunteer.tasks.board', [
             'user' => $user,
             'membership' => $membership,
@@ -47,11 +50,19 @@ class PublicBoardController extends Controller
             'filters' => $filters,
             'types' => TaskType::query()->where('is_active', true)->get(),
             // الترشيح للقادة فقط — ومَن لا يملكه لا يراه أصلًا (2.15-أ-7)
-            'canNominate' => $user->allows('public_board.create')
+            'canNominate' => $canApprove
                 || $user->allows('work_packages.edit')
                 || $user->allows('tasks.assign'),
             'nominatable' => $user->allows('work_packages.edit') || $user->allows('tasks.assign')
-                ? WorkItem::query()->where('is_public_board_candidate', false)->latest('id')->limit((int) setting('workflow.work_items.picker_limit', 50))->get()
+                ? WorkItem::query()
+                    ->where('is_public_board_candidate', false)
+                    ->where(fn ($q) => $q->whereNull('audience_mode')->orWhere('audience_mode', '!=', 'public_board'))
+                    ->latest('id')->limit((int) setting('workflow.work_items.picker_limit', 50))->get()
+                : collect(),
+            'canApprove' => $canApprove,
+            // قائمة الترشيحات المعلَّقة — «يستقبل ترشيحات القادة ويقرّر ما ينزل» (8.1)
+            'nominations' => $canApprove
+                ? WorkItem::query()->where('is_public_board_candidate', true)->with('work_package.entity')->latest('id')->get()
                 : collect(),
         ]);
     }
@@ -110,5 +121,27 @@ class PublicBoardController extends Controller
         );
 
         return back()->with('status', (string) setting('volunteer_page.board.nominate_ok', 'اترفع الترشيح ✓ — مشرف عام التطوّع هو اللي يقرّر يخلّيه عامًّا.'));
+    }
+
+    /**
+     * اعتماد الترشيح — هنا فقط يتحوّل جمهور البند فعليًّا إلى «مهمّة عامّة»
+     * (23 — 1.8 · 8.1): «يستقبل ترشيحات القادة ويقرّر ما ينزل».
+     */
+    public function approveNomination(WorkItem $workItem)
+    {
+        $workItem->forceFill([
+            'audience_mode' => 'public_board',
+            'is_public_board_candidate' => false,
+        ])->save();
+
+        return back()->with('status', (string) setting('volunteer_page.board.nominate_approve_ok', 'اعتُمد الترشيح ✓ — البند بقى مهمّة عامّة.'));
+    }
+
+    /** رفض الترشيح — البند يفضل على جمهوره الحاليّ من غير تغيير */
+    public function rejectNomination(WorkItem $workItem)
+    {
+        $workItem->forceFill(['is_public_board_candidate' => false])->save();
+
+        return back()->with('status', (string) setting('volunteer_page.board.nominate_reject_ok', 'اترفض الترشيح — البند فضل على حاله.'));
     }
 }
