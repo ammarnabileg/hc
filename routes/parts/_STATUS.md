@@ -24,7 +24,7 @@
   - `admin-ops.php` — 27 مسارًا · 17 حارس صلاحيّة.
   - `admin-screens24.php` — 40 مسارًا · البادئة `admin.` · 23 حارس صلاحيّة.
   - `admin-system.php` — 97 مسارًا · البادئة `admin.` · 47 حارس صلاحيّة.
-  - `admin-volunteer.php` — 116 مسارًا · البادئة `admin.` · `volunteer.` · `investigations.` · `gamification.` · `rewards.` · `events.` · 110 حارس صلاحيّة.
+  - `admin-volunteer.php` — 118 مسارًا · البادئة `admin.` · `volunteer.` · `investigations.` · `gamification.` · `rewards.` · `events.` · 112 حارس صلاحيّة.
   - `announcements.php` — 10 مسارًا · 0 حارس صلاحيّة.
   - `api-v1.php` — 4 مسارًا · 0 حارس صلاحيّة.
   - `availability.php` — 10 مسارًا · البادئة `admin.` · 2 حارس صلاحيّة.

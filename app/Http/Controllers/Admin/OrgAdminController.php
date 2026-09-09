@@ -14,6 +14,7 @@ use App\Services\Admin\Volunteer\CapacityReport;
 use App\Services\Admin\Volunteer\OffboardingService;
 use App\Services\Admin\Volunteer\SettingsWriter;
 use App\Services\Volunteer\Org\PromotionLadder;
+use App\Services\Volunteer\Org\TransferService;
 use App\Support\Access\AccessEngine;
 use App\Support\Scope\ScopeFilter;
 use Illuminate\Http\RedirectResponse;
@@ -331,6 +332,44 @@ class OrgAdminController extends Controller
         app(PromotionLadder::class)->resolveTrackVacancy($decision, $winner, $request->user(), $data['reason']);
 
         return back()->with('status', (string) setting('volunteer_org.admin.promotion_ladder_track_ok', 'اتملا شغور مشرف المسار ✓'));
+    }
+
+    /** فورم النقل — كيانات مسار العضويّة نفسه وحدها، فلا يُعرَض ما `TransferService` سيرفضه أصلًا */
+    public function transferForm(Request $request, Membership $membership): View
+    {
+        abort_unless($membership->status === 'active', 404);
+        $membership->loadMissing('user', 'entity.track', 'position');
+
+        return view('admin.volunteer.membership-transfer', [
+            'membership' => $membership,
+            'destinations' => Entity::query()
+                ->where('track_id', $membership->entity?->track_id)
+                ->where('id', '!=', $membership->entity_id)
+                ->where('status', 'active')
+                ->orderBy('name_ar')
+                ->get(),
+        ]);
+    }
+
+    /**
+     * ⭐ النقل بين الأقسام (23-0.2): «المتطوّع يشغل بوزشن منسّق في القسم الجديد
+     * أيًّا كانت درجته السابقة» — أو يحتفظ بدرجته إن كان النقل داخل القسم
+     * الرئيسي نفسه (بين أقسامه الفرعيّة). `TransferService` يرفض عبور المسار.
+     */
+    public function transfer(Request $request, Membership $membership): RedirectResponse
+    {
+        abort_unless($membership->status === 'active', 404);
+
+        $data = $request->validate([
+            'entity_id' => ['required', 'integer', 'exists:entities,id'],
+            'reason' => ['nullable', 'string', 'max:500'],
+        ]);
+
+        $to = Entity::findOrFail($data['entity_id']);
+
+        app(TransferService::class)->transfer($membership, $to, $request->user(), $data['reason'] ?? null);
+
+        return back()->with('status', (string) setting('volunteer_org.admin.transfer_ok', 'اتنقلت العضويّة ✓'));
     }
 
     /** تقرير السعة: أكثر الأقسام تخمةً وأكثرها فراغًا — مادّة قرار */

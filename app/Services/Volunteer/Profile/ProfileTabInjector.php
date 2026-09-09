@@ -160,7 +160,7 @@ final class ProfileTabInjector
             $links[] = [
                 'key' => 'org',
                 'label' => (string) setting('volunteer.profile.actions.org', 'نقل / ترقية / تغيير أبلاين'),
-                'url' => route('admin.volunteer.org', ['entity' => $membership->entity_id]),
+                'url' => route('admin.volunteer.org.memberships.transfer.form', $membership),
             ];
         }
 

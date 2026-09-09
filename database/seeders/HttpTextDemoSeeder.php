@@ -268,6 +268,7 @@ class HttpTextDemoSeeder extends Seeder
             ['volunteer_org.admin.promotion_ladder_decide_msg', 'volunteer_org', 'decideTie() — المختار لازم يكون من ضمن المرشّحين المتعادلين.', 'المختار لازم يكون من ضمن المرشّحين المتعادلين.'],
             ['volunteer_org.admin.promotion_ladder_track_ok', 'volunteer_org', 'resolveTrackVacancy() — اتملا شغور مشرف المسار ✓', 'اتملا شغور مشرف المسار ✓'],
             ['volunteer_org.admin.promotion_ladder_track_msg', 'volunteer_org', 'resolveTrackVacancy() — مفيش مستخدم بالكود ده.', 'مفيش مستخدم بالكود ده.'],
+            ['volunteer_org.admin.transfer_ok', 'volunteer_org', 'transfer() — اتنقلت العضويّة ✓', 'اتنقلت العضويّة ✓'],
             // ---- app/Http/Controllers/Admin/PathAdminController.php
             ['paths.admin.store_ok', 'paths', 'store() — اتحفظ المسار «:a1» ✓', 'اتحفظ المسار «:a1» ✓'],
             ['paths.admin.update_ok', 'paths', 'update() — اتحفظ ✓', 'اتحفظ ✓'],

@@ -97,6 +97,12 @@ Route::middleware(['auth', 'admin.panel'])->prefix('admin')->name('admin.')->gro
         Route::post('/org/promotion-ladder/track-vacancy/{decision}', [OrgAdminController::class, 'resolveTrackVacancy'])
             ->middleware('permission:promotion_ladder.approve')->name('org.promotion-ladder.resolve-track');
 
+        // ⭐ النقل بين الأقسام (23-0.2): يبدأ ببوزشن كوردنيتور — أو يحتفظ بدرجته داخل نفس القسم الرئيسي
+        Route::get('/org/memberships/{membership}/transfer', [OrgAdminController::class, 'transferForm'])
+            ->middleware('permission:memberships.edit')->name('org.memberships.transfer.form');
+        Route::post('/org/memberships/{membership}/transfer', [OrgAdminController::class, 'transfer'])
+            ->middleware('permission:memberships.edit')->name('org.memberships.transfer');
+
         /*
         | ⭐ الغيابات والتفويض المؤقّت (23-6 · 24) — شاشة **إدارة** لا إضافة:
         | الإضافة موضعها «الأعضاء والبوزشنز» بـ`delegations.create`، وهنا
