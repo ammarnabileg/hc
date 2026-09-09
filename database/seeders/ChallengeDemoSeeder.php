@@ -59,7 +59,7 @@ class ChallengeDemoSeeder extends Seeder
             ['challenges.arena.bank_not_ready', 'challenges', '«ساحة الحرب» — سطر بنك الأسئلة غير الجاهز', 'بنك أسئلة الساحة لسّه مش جاهز — جرّب ساحة تانية دلوقتي.'],
             ['challenges.arena.duel_action', 'challenges', '«ساحة الحرب» — زرّ التحدّي', 'تحدّاه'],
             ['challenges.arena.fighter_record', 'challenges', '«ساحة الحرب» — سجلّ المحارب (:wins · :losses)', 'الفوز: :wins · الخسارة: :losses'],
-            ['challenges.arena.fighters_empty', 'challenges', '«ساحة الحرب» — الحالة الفارغة لقائمة المحاربين', 'إنت لوحدك في الساحة دلوقتي — كن أوّل محارب فيها'],
+            ['challenges.arena.fighters_empty', 'challenges', '«ساحة الحرب» — الحالة الفارغة لقائمة المحاربين', 'يبدو أنك قضيت على كل خصومك! 🔥 أنت وحدك في ساحة الحرب..'],
             ['challenges.arena.fighters_title', 'challenges', '«ساحة الحرب» — عنوان قائمة المحاربين', 'المحاربون الجاهزون'],
             ['challenges.arena.gate_line', 'challenges', '«ساحة الحرب» — سطر شرط الدخول (:gate · :balance)', 'شرط الدخول: رصيدك ≥ :gate تذكرة · رصيدك دلوقتي :balance'],
             ['challenges.arena.loss_line', 'challenges', '«ساحة الحرب» — سطر خسارة المواجهة (:n)', 'الخسارة: −:n تذكرة'],

@@ -62,7 +62,10 @@ class ChallengeScreensTest extends ChallengeTestCase
             ->assertSee('استعداد', false);
     }
 
-    /** بعد الاستعداد تظهر «المحاربون الجاهزون» بحالتها الفارغة المكتوبة (15.1). */
+    /**
+     * بعد الاستعداد تظهر «المحاربون الجاهزون» بحالتها الفارغة المكتوبة (15.1)،
+     * بنصّها المنصوص حرفيًّا في الدستور (15.1 · 15.5 · 15.6 · 2.13-ب).
+     */
     public function test_ready_state_shows_the_fighters_list_and_its_empty_line(): void
     {
         $user = $this->trainee();
@@ -74,8 +77,8 @@ class ChallengeScreensTest extends ChallengeTestCase
             ->get(route('challenges.arena', $challenge))
             ->assertOk()
             ->assertSee('المحاربون الجاهزون', false)
-            // تأطير الريادة حين يقلّ العدد (2.9-7)
-            ->assertSee('كن أوّل محارب فيها', false);
+            // نصّ الدستور الحرفيّ، لا الصياغة القديمة المخالفة له
+            ->assertSee('يبدو أنك قضيت على كل خصومك! 🔥 أنت وحدك في ساحة الحرب..', false);
     }
 
     /** كارت المحارب: اسمه وفوزه وخسارته وزرّ [تحدّاه] (15.1). */

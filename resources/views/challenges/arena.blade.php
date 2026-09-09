@@ -93,7 +93,7 @@
                         </article>
                     @empty
                         <div class="sm:col-span-2">
-                            <x-empty :message="setting('challenges.arena.fighters_empty', 'إنت لوحدك في الساحة دلوقتي — كن أوّل محارب فيها')" />
+                            <x-empty :message="setting('challenges.arena.fighters_empty', 'يبدو أنك قضيت على كل خصومك! 🔥 أنت وحدك في ساحة الحرب..')" />
                         </div>
                     @endforelse
                 </div>
@@ -103,7 +103,7 @@
                 @php
                     // نصوص القائمة الحيّة من الإعدادات لا من السكربت (2.13)
                     $arenaWords = [
-                        'empty' => (string) setting('challenges.arena.fighters_empty', 'إنت لوحدك في الساحة دلوقتي — كن أوّل محارب فيها'),
+                        'empty' => (string) setting('challenges.arena.fighters_empty', 'يبدو أنك قضيت على كل خصومك! 🔥 أنت وحدك في ساحة الحرب..'),
                         'record' => (string) setting('challenges.arena.fighter_record', 'الفوز: :wins · الخسارة: :losses'),
                         'duel' => (string) setting('challenges.arena.duel_action', 'تحدّاه'),
                     ];
