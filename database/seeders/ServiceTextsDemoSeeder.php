@@ -1947,6 +1947,7 @@ APP_DEBUG=false
             ['volunteer_investigation.committee.decision_unknown', 'volunteer_investigation', 'قرارٌ غير معروف.', 'string', 'قرارٌ غير معروف.', false],
             ['volunteer_investigation.committee.no_recommendation', 'volunteer_investigation', 'لا توصية إقصاء مرفوعة على هذا الملفّ.', 'string', 'لا توصية إقصاء مرفوعة على هذا الملفّ.', false],
             ['volunteer_investigation.committee.not_decided', 'volunteer_investigation', 'القرار البشريّ لم يصدر بعد على هذا الملفّ.', 'string', 'القرار البشريّ لم يصدر بعد على هذا الملفّ.', false],
+            ['volunteer_investigation.meeting.title', 'volunteer_investigation', 'ميتينج لجنة تحقيق: :p1', 'string', 'ميتينج لجنة تحقيق: :p1', false],
             ['volunteer_investigation.notify.seat_title', 'volunteer_investigation', 'اتعيّنت في لجنة تحقيق', 'string', 'اتعيّنت في لجنة تحقيق', false],
             ['volunteer_investigation.notify.seat_body', 'volunteer_investigation', 'هتسمعوا من العضو المعلَّق في ميتينج قريب، وقراركم بعده: فرصة أو توصية إقصاء.', 'string', 'هتسمعوا من العضو المعلَّق في ميتينج قريب، وقراركم بعده: فرصة أو توصية إقصاء.', false],
 

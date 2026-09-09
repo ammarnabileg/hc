@@ -48,6 +48,11 @@
                             @endif
                         </p>
                     @endif
+                    {{-- ⭐ الميتينج فعاليّة بكود حضور — الانعقاد والحضور موثَّقان بنظام الفعاليّات القائم (23-0.2-4-5) --}}
+                    @if ($case->meeting)
+                        <p class="text-sm mb-1">{{ setting('admin.volunteer.investigations.show.kwd_alhdwr', 'كود الحضور:') }} <strong>{{ $case->meeting->attendance_code }}</strong></p>
+                        <p class="text-xs" style="color: var(--text-muted)">{{ setting('admin.volunteer.investigations.show.hal_alajtmaa', 'حالة الاجتماع:') }} {{ $case->meeting->status }}</p>
+                    @endif
                     <form method="post" action="{{ route('admin.volunteer.investigations.meeting', $case) }}" class="flex items-end gap-2 flex-wrap">
                         @csrf
                         <div>

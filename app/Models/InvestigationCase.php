@@ -44,6 +44,11 @@ class InvestigationCase extends Model
         return $this->belongsTo(Offboarding::class);
     }
 
+    public function meeting(): BelongsTo
+    {
+        return $this->belongsTo(Meeting::class);
+    }
+
     /** أحد مقعدَي اللجنة — لا يُخلط بمشرف عام التطوّع صاحب القرار النهائيّ (23-0.2-4) */
     public function hasSeat(User $user): bool
     {

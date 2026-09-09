@@ -75,7 +75,10 @@ class MeetingScope
                 // اجتماع القسم يصل لأعضاء فرعيّاته أيضًا
                 ->orWhere(fn (Builder $s) => $s->where('audience', 'entity')->whereIn('entity_id', $mine))
                 // اجتماع الفرعيّ لأعضائه وحدهم
-                ->orWhere(fn (Builder $s) => $s->where('audience', 'sub_entity')->whereIn('entity_id', $own));
+                ->orWhere(fn (Builder $s) => $s->where('audience', 'sub_entity')->whereIn('entity_id', $own))
+                // ⭐ جمهورٌ اسميّ محدَّد — لا كيان له (لجنة التحقيق: 23-0.2-4-5)
+                ->orWhere(fn (Builder $s) => $s->where('audience', 'specific')
+                    ->whereHas('invitees', fn (Builder $i) => $i->where('users.id', $user->id)));
         });
     }
 
@@ -83,6 +86,10 @@ class MeetingScope
     {
         if ($meeting->audience === 'all' || (int) $meeting->owner_id === (int) $user->id) {
             return true;
+        }
+
+        if ($meeting->audience === 'specific') {
+            return $meeting->invitees()->where('users.id', $user->id)->exists();
         }
 
         $ids = $meeting->audience === 'sub_entity'
@@ -95,6 +102,15 @@ class MeetingScope
     /** كلّ مَن يشمله الاجتماع — الأساس الذي تُقاس عليه نسبة الحضور وتسوية الغياب */
     public function audienceUserIds(Meeting $meeting): array
     {
+        if ($meeting->audience === 'specific') {
+            return $meeting->invitees()->pluck('users.id')
+                ->map(fn ($id) => (int) $id)
+                ->push((int) $meeting->owner_id)
+                ->unique()
+                ->values()
+                ->all();
+        }
+
         $query = Membership::query()->where('status', 'active');
 
         if ($meeting->audience !== 'all' && $meeting->entity_id) {

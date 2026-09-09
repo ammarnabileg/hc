@@ -4,14 +4,18 @@ namespace Tests\Feature\Volunteer\Retention;
 
 use App\Models\Currency;
 use App\Models\Entity;
+use App\Models\Meeting;
 use App\Models\Membership;
 use App\Models\Offboarding;
 use App\Models\User;
 use App\Services\Admin\Volunteer\Integrations;
+use App\Services\Volunteer\Meetings\AttendanceService;
+use App\Services\Volunteer\Meetings\MeetingScope;
 use App\Services\Volunteer\Retention\CommitteePath;
 use App\Services\Volunteer\Retention\InvestigationCommitteeService;
 use App\Services\Volunteer\Retention\SuspensionService;
 use App\Services\Wallet\LedgerService;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
@@ -121,6 +125,163 @@ class InvestigationCommitteeTest extends RetentionTestCase
 
         $this->assertSame($first->id, $second->id);
         $this->assertDatabaseCount('investigation_cases', 1);
+    }
+
+    // ------------------------------------------------------------------ الميتينج كفعاليّة حقيقيّة
+
+    /**
+     * ⭐ «الميتينج فعاليّة بكود حضور — والانعقاد والحضور موثَّقان آليًّا بنظام
+     * الفعاليّات القائم» (23-0.2-4-5): كان `meeting_scheduled_at` طابعًا
+     * زمنيًّا مجرَّدًا بلا صفٍّ حقيقيّ في `meetings`.
+     */
+    public function test_scheduling_the_meeting_creates_a_real_event_with_an_attendance_code(): void
+    {
+        [$user, $lead, , $otherLead] = $this->tree();
+        $referral = $this->suspend($user);
+        $gm = $this->actor();
+        $case = $this->committee()->activate($referral, $gm);
+
+        $at = Carbon::now()->addDay();
+        $updated = $this->committee()->scheduleMeeting($case, $at, $gm);
+
+        $this->assertNotNull($updated->meeting, 'الجدولة تُنشئ صفًّا حقيقيًّا في meetings — لا طابعًا زمنيًّا وحده.');
+        $this->assertSame('specific', $updated->meeting->audience);
+        $this->assertNotEmpty($updated->meeting->attendance_code);
+        $this->assertSame($at->toDateTimeString(), $updated->meeting->scheduled_at->toDateTimeString());
+
+        $invited = $updated->meeting->invitees->pluck('id')->sort()->values()->all();
+        $expected = collect([$user->id, $lead->id, $otherLead->id])->sort()->values()->all();
+        $this->assertSame($expected, $invited, 'الجمهور اسميّ: المعلَّق ومقعدا اللجنة حصرًا — لا الكيان كلّه.');
+    }
+
+    /** ⭐ `scheduleMeeting()` نفسها Idempotent — بنفس منطق `activate()` في هذا الملفّ */
+    public function test_scheduling_the_meeting_twice_does_not_duplicate_the_event(): void
+    {
+        [$user] = $this->tree();
+        $referral = $this->suspend($user);
+        $gm = $this->actor();
+        $case = $this->committee()->activate($referral, $gm);
+
+        $first = $this->committee()->scheduleMeeting($case, Carbon::now()->addDay(), $gm);
+        $second = $this->committee()->scheduleMeeting($first, Carbon::now()->addDays(2), $gm);
+
+        $this->assertSame($first->meeting_id, $second->meeting_id);
+        $this->assertSame(1, Meeting::query()->count());
+    }
+
+    public function test_rescheduling_updates_the_same_meeting_not_a_new_one(): void
+    {
+        [$user] = $this->tree();
+        $referral = $this->suspend($user);
+        $gm = $this->actor();
+        $case = $this->committee()->activate($referral, $gm);
+
+        $first = $this->committee()->scheduleMeeting($case, Carbon::now()->addDay(), $gm);
+        $meetingId = $first->meeting_id;
+
+        $secondAt = Carbon::now()->addDays(3);
+        $second = $this->committee()->reschedule($first, $secondAt, $gm);
+
+        $this->assertSame($meetingId, $second->meeting_id, 'إعادة الجدولة تحدّث نفس الاجتماع — لا تفتح ثانيًا.');
+        $this->assertSame($secondAt->toDateTimeString(), $second->meeting->scheduled_at->toDateTimeString());
+        $this->assertSame(1, Meeting::query()->count());
+    }
+
+    /**
+     * ⭐ الدليل القاطع: أحد مقعدَي اللجنة يسجّل حضوره فعليًّا بالكود عبر
+     * `AttendanceService` القائمة نفسها — بلا آليّةٍ موازية جديدة.
+     */
+    public function test_a_committee_seat_can_register_real_attendance_through_the_existing_meetings_system(): void
+    {
+        [$user, $lead] = $this->tree();
+        $referral = $this->suspend($user);
+        $gm = $this->actor();
+        $case = $this->committee()->activate($referral, $gm);
+        $case = $this->committee()->scheduleMeeting($case, Carbon::now()->addHour(), $gm);
+
+        $attendance = app(AttendanceService::class);
+        $attendance->end($case->meeting, $gm, 12, 'محضر الميتينج الأوّل');
+
+        $result = $attendance->register($case->meeting->fresh(), $lead, $case->meeting->attendance_code);
+
+        $this->assertTrue($result['ok'], 'مقعد اللجنة داخل جمهور الاجتماع — التسجيل بالكود الصحيح ينجح.');
+        $this->assertDatabaseHas('meeting_attendances', ['meeting_id' => $case->meeting_id, 'user_id' => $lead->id, 'status' => 'registered']);
+    }
+
+    /**
+     * ⭐ خصوصيّةٌ من نوعٍ آخر: `AttendanceService::end()` يُخطر «جمهور الاجتماع»
+     * كلّه — ولو حُسِب هذا الجمهور بمنطق الكيان (بلا كيانٍ هنا أصلًا) لأُخطِر
+     * كلّ عضوٍ نشِط في المنصّة بميتينج تحقيقٍ سرّيّ. الثلاثة المدعوّون حصرًا.
+     */
+    public function test_ending_the_meeting_notifies_only_the_three_invited_members(): void
+    {
+        [$user, $lead, , $otherLead] = $this->tree();
+        $referral = $this->suspend($user);
+        $gm = $this->actor();
+        $case = $this->committee()->activate($referral, $gm);
+        $case = $this->committee()->scheduleMeeting($case, Carbon::now()->addHour(), $gm);
+
+        $bystander = $this->makeUser('زميل بلا صلة');
+
+        app(AttendanceService::class)->end($case->meeting, $gm, 12, 'محضر');
+
+        $notified = DB::table('app_notifications')
+            ->where('category', 'meeting.attendance_registered')
+            ->pluck('user_id')
+            ->map(fn ($id) => (int) $id)
+            ->unique()
+            ->values()
+            ->all();
+
+        $eligible = [$user->id, $lead->id, $otherLead->id, $gm->id];
+
+        // كلّ مَن أُخطِر داخل الدائرة الأربعة — وليس بالضرورة كلّهم (حدّ الهدوء اليوميّ قد يؤجّل واحدًا)
+        foreach ($notified as $id) {
+            $this->assertContains($id, $eligible, "أُخطِر مستخدمٌ ({$id}) خارج جمهور الاجتماع الاسميّ.");
+        }
+
+        $this->assertNotContains($bystander->id, $notified, 'الزميل بلا صلة لا يظهر في جمهور اجتماعٍ اسميّ بلا كيان.');
+        $this->assertContains($lead->id, $notified, 'أحد المقعدين على الأقلّ (بلا إشعاراتٍ سابقة اليوم) لازم يُخطَر.');
+    }
+
+    /** ⭐ الاجتماع الاسميّ يظهر في «اجتماعاتي» للمدعوّين وحدهم — لا في قائمة أيّ عضوٍ آخر بالكيان */
+    public function test_the_meeting_appears_in_the_seats_own_meetings_list_only(): void
+    {
+        [$user, $lead, $department] = $this->tree();
+        $referral = $this->suspend($user);
+        $gm = $this->actor();
+        $case = $this->committee()->activate($referral, $gm);
+        $case = $this->committee()->scheduleMeeting($case, Carbon::now()->addHour(), $gm);
+
+        $scope = app(MeetingScope::class);
+
+        $this->assertTrue($scope->visibleQuery($lead)->whereKey($case->meeting_id)->exists(), 'أحد مقعدَي اللجنة يرى الاجتماع في قائمته.');
+
+        $bystander = $this->makeUser('زميل بلا صلة');
+        $this->makeMembership($bystander, $department, position: 'coordinator');
+
+        $this->assertFalse($scope->visibleQuery($bystander)->whereKey($case->meeting_id)->exists(), 'زميلٌ بنفس الكيان — بلا دعوةٍ اسميّة — لا يراه في قائمته.');
+    }
+
+    /** ⭐ الخصوصيّة: عضوٌ من نفس كيان أحد المقعدين — ولا صلة له بالملفّ — لا يرى الاجتماع ولا يسجّل حضوره */
+    public function test_someone_not_invited_cannot_register_attendance_even_from_the_same_entity(): void
+    {
+        [$user, $lead, $department] = $this->tree();
+        $referral = $this->suspend($user);
+        $gm = $this->actor();
+        $case = $this->committee()->activate($referral, $gm);
+        $case = $this->committee()->scheduleMeeting($case, Carbon::now()->addHour(), $gm);
+
+        $bystander = $this->makeUser('زميل بلا صلة');
+        $this->makeMembership($bystander, $department, position: 'coordinator');
+
+        $attendance = app(AttendanceService::class);
+        $attendance->end($case->meeting, $gm, 12, 'محضر');
+
+        $result = $attendance->register($case->meeting->fresh(), $bystander, $case->meeting->attendance_code);
+
+        $this->assertFalse($result['ok'], 'الجمهور اسميّ لا كيانيّ — عضويّة نفس القسم لا تكفي.');
+        $this->assertDatabaseMissing('meeting_attendances', ['meeting_id' => $case->meeting_id, 'user_id' => $bystander->id, 'status' => 'registered']);
     }
 
     // ------------------------------------------------------------------ قرار الميتينج

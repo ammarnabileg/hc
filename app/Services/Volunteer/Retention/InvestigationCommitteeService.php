@@ -4,6 +4,7 @@ namespace App\Services\Volunteer\Retention;
 
 use App\Models\Currency;
 use App\Models\InvestigationCase;
+use App\Models\Meeting;
 use App\Models\Membership;
 use App\Models\Position;
 use App\Models\Transaction;
@@ -17,6 +18,7 @@ use App\Services\Wallet\LedgerService;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 /**
@@ -252,9 +254,37 @@ class InvestigationCommitteeService
 
     // ------------------------------------------------------------------ الميتينج
 
-    /** جدولة الميتينج الأوّل — خلال 72 ساعة من التعليق افتراضًا (23-0.2-4-5) */
+    /**
+     * جدولة الميتينج الأوّل — خلال 72 ساعة من التعليق افتراضًا (23-0.2-4-5).
+     *
+     * ⭐ «الميتينج فعاليّة بكود حضور — والانعقاد والحضور موثَّقان آليًّا بنظام
+     * الفعاليّات القائم»: صفٌّ حقيقيّ في `meetings` (`audience='specific'`،
+     * جمهورٌ اسميّ محصورٌ في المعلَّق ومقعدَي اللجنة وحدهم — لا الكيان كلّه)
+     * بكود حضورٍ عشوائيّ، فتعمل عليه شاشة الاجتماع والتسجيل القائمتان فعلًا
+     * بلا كودٍ جديد. لا يمسّ هذا شرط `recordVerdict()` — مقعدا اللجنة
+     * يسجّلان قرارهما كما كانا دائمًا، فهذا توثيقٌ للانعقاد لا قفلٌ جديد عليه.
+     */
     public function scheduleMeeting(InvestigationCase $case, Carbon $at, User $actor): InvestigationCase
     {
+        if ($case->meeting) {
+            $case->meeting->forceFill(['scheduled_at' => $at])->save();
+        } else {
+            $meeting = Meeting::create([
+                'title' => strtr((string) setting('volunteer_investigation.meeting.title', 'ميتينج لجنة تحقيق: :p1'), [':p1' => (string) $case->user->name]),
+                'audience' => 'specific',
+                'owner_id' => $actor->id,
+                'scheduled_at' => $at,
+                'status' => 'scheduled',
+                'attendance_code' => Str::upper(Str::random(6)),
+            ]);
+
+            $meeting->invitees()->sync(
+                collect([$case->user_id, $case->seat_upline_id, $case->seat_dept_id])->filter()->unique()
+            );
+
+            $case->forceFill(['meeting_id' => $meeting->id])->save();
+        }
+
         $case->forceFill(['meeting_scheduled_at' => $at])->save();
 
         AuditTrail::log($actor, 'investigation.schedule_meeting', $case, [], ['at' => $at->toDateTimeString()]);
@@ -272,6 +302,8 @@ class InvestigationCommitteeService
 
             return $case->refresh();
         }
+
+        $case->meeting?->forceFill(['scheduled_at' => $at])->save();
 
         $case->forceFill([
             'meeting_scheduled_at' => $at,

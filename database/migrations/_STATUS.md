@@ -15,7 +15,8 @@
 
 ## ✅ المُنجَز
 <!-- تلقائيّ:بداية:المنجز -->
-- **مايجريشنز (260) — والقائم منها لا يُعدَّل (قاعدة البناء §1). الأحدث:**
+- **مايجريشنز (261) — والقائم منها لا يُعدَّل (قاعدة البناء §1). الأحدث:**
+  - `2026_09_10_100050_a_committee_meeting_needs_a_real_attendance_event.php`
   - `2026_09_10_100040_a_nomination_needs_to_know_who_nominated.php`
   - `2026_09_10_100030_an_operational_project_needs_a_real_first_approval.php`
   - `2026_09_10_100020_investigation_committee_needs_its_own_case_file.php`
@@ -27,8 +28,7 @@
   - `2026_09_08_100020_a_rejected_attestation_deserves_its_own_reason.php`
   - `2026_09_08_100010_a_rejected_key_still_deserves_an_audit_row.php`
   - `2026_09_07_100020_a_shell_needs_labels_and_a_leash_on_time.php`
-  - `2026_09_07_100010_an_owner_only_shell_needs_its_own_audit_table.php`
-  - … و248 غيرها.
+  - … و249 غيرها.
 <!-- تلقائيّ:نهاية:المنجز -->
 
 ## ⬜ المتبقّي
