@@ -8,6 +8,7 @@ use App\Models\Position;
 use App\Models\RecruitmentCandidate;
 use App\Models\Role;
 use App\Models\Setting;
+use App\Models\Track;
 use App\Models\User;
 use App\Models\VolunteerRecording;
 use App\Services\Admin\Volunteer\OffboardingService;
@@ -192,9 +193,17 @@ class PlacementRoleJourneyTest extends PeopleTestCase
     {
         [$user, $first] = $this->place('صاحب عضويّتين', 'coordinator');
 
-        // بوزشن ثانٍ في كيان آخر — لنفس الشخص
+        /*
+         | ⭐ بوزشن ثانٍ **في مسارٍ آخر** — لا قسمٍ آخر: «يجوز للمتطوّع الجمع بين
+         | بوزشنات مختلفة في المسارات الثلاثة في نفس الوقت» (23-0.2)، لكنّ الحدّ
+         | **1 لكلّ مسار** يمنع قسمين معًا لنفس الشخص (`TrackCapacityGuard`).
+         */
         $service = app(PlacementService::class);
-        $second = $this->makeEntity('قسم الإشراف');
+        $second = Entity::create([
+            'track_id' => Track::firstWhere('key', 'governorate')->id,
+            'name_ar' => 'محافظة الإشراف',
+            'status' => 'active',
+        ]);
 
         $candidate = RecruitmentCandidate::where('user_id', $user->id)->firstOrFail();
         $request = $service->request($candidate->fresh(), $second, Position::firstWhere('key', 'supervisor'), $this->makeUser('مشرف'));

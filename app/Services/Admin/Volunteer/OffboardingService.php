@@ -12,6 +12,7 @@ use App\Models\VolunteerCard;
 use App\Services\Volunteer\Org\PromotionLadder;
 use App\Services\Volunteer\People\PositionRoleAssigner;
 use App\Services\Volunteer\Retention\SuspensionService;
+use App\Services\Volunteer\Tasks\TaskOwnershipTransfer;
 use Illuminate\Support\Carbon;
 use RuntimeException;
 
@@ -218,6 +219,20 @@ class OffboardingService
 
         foreach ($closing as $membership) {
             $assigner->revoke($membership);
+        }
+
+        /*
+         | ⭐ **تصفية المهامّ المفتوحة قبل انتهاء العضويّة** (23-0.2-H3): «تنتقل
+         | ملكيّتها لأبلاينه المباشر بنفس ديدلاييناتها … بلا أيّ خصم على
+         | المنقول». وقبل هذا السطر لم يكن أيّ مسارٍ في المنصّة يعيد إسناد
+         | `tasks.owner_id` — فتبقى مهامّ الخارج المفتوحة يتيمةً على مالكٍ ما عاد
+         | عضوًا. والنقل **بالعضويّة المنتهية نفسها** (لا بحساب المستخدم) فينتقل
+         | لأبلاين كيان تلك العضويّة بعينه، لا لأبلاين عضويّةٍ أخرى له.
+         */
+        $transferred = app(TaskOwnershipTransfer::class);
+
+        foreach ($closing as $membership) {
+            $transferred->toUpline($membership);
         }
 
         /*
