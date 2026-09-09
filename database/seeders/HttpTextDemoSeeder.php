@@ -1076,7 +1076,9 @@ class HttpTextDemoSeeder extends Seeder
             ['volunteer_page.board.nominate_msg', 'volunteer_page', 'nominate() — اترفع ترشيحك: :a1', 'اترفع ترشيحك: :a1'],
             ['volunteer_page.board.nominate_msg_2', 'volunteer_page', 'nominate() — السبب: :a1', 'السبب: :a1'],
             ['volunteer_page.board.nominate_ok', 'volunteer_page', 'nominate() — اترفع الترشيح ✓ — مشرف عام التطوّع هو اللي يقرّر يخلّيه عامً', 'اترفع الترشيح ✓ — مشرف عام التطوّع هو اللي يقرّر يخلّيه عامًّا.'],
+            ['volunteer_page.board.nominate_approve_msg', 'volunteer_page', 'approveNomination() — اتعمد ترشيحك: :a1 — بقى مهمّة عامّة.', 'اتعمد ترشيحك: :a1 — بقى مهمّة عامّة.'],
             ['volunteer_page.board.nominate_approve_ok', 'volunteer_page', 'approveNomination() — اعتُمد الترشيح ✓ — البند بقى مهمّة عامّة.', 'اعتُمد الترشيح ✓ — البند بقى مهمّة عامّة.'],
+            ['volunteer_page.board.nominate_reject_msg', 'volunteer_page', 'rejectNomination() — اترفض ترشيحك: :a1.', 'اترفض ترشيحك: :a1.'],
             ['volunteer_page.board.nominate_reject_ok', 'volunteer_page', 'rejectNomination() — اترفض الترشيح — البند فضل على حاله.', 'اترفض الترشيح — البند فضل على حاله.'],
             // ---- app/Http/Controllers/Volunteer/RecruitmentController.php
             ['recruitment.screen.move_msg', 'recruitment', 'move() — المرحلة', 'المرحلة'],

@@ -119,4 +119,79 @@ class PublicBoardNominationTest extends VolunteerCoreTestCase
         $response->assertSee('بند قابل للترشيح');
         $response->assertDontSee('بند عامّ بالفعل');
     }
+
+    /** ⭐ القائد الذي رشّح البند يعرف مصير ترشيحه — لا يبقى الترشيح إشعارًا لنفسه وقت الرفع وحده */
+    public function test_the_nominating_lead_is_notified_when_their_nomination_is_approved(): void
+    {
+        $entity = $this->makeEntity();
+        $item = $this->makeWorkItem($entity);
+        $item->forceFill(['name' => 'بند التغطية اليوميّة'])->save();
+
+        $lead = $this->makeUser('قائد الترشيح');
+        $this->makeMembership($lead, $entity);
+        $this->grant($lead, ['public_board.list', 'work_packages.edit']);
+
+        $this->actingAs($lead)->post(route('volunteer.tasks.nominate'), [
+            'work_item_id' => $item->id,
+            'reason' => 'محتاج ناس أكتر',
+        ])->assertSessionHasNoErrors();
+
+        $this->assertSame($lead->id, $item->fresh()->nominated_by);
+
+        $approver = $this->makeUser();
+        $this->makeMembership($approver, $entity);
+        $this->grant($approver, ['public_board.list', 'public_board.create']);
+
+        $this->actingAs($approver)->post(route('volunteer.tasks.nominations.approve', $item))->assertRedirect();
+
+        $this->assertDatabaseHas('app_notifications', [
+            'user_id' => $lead->id,
+            'category' => 'public_board_nomination_decided',
+        ]);
+    }
+
+    public function test_the_nominating_lead_is_notified_when_their_nomination_is_rejected(): void
+    {
+        $entity = $this->makeEntity();
+        $item = $this->makeWorkItem($entity);
+
+        $lead = $this->makeUser('قائد الترشيح');
+        $this->makeMembership($lead, $entity);
+        $this->grant($lead, ['public_board.list', 'work_packages.edit']);
+
+        $this->actingAs($lead)->post(route('volunteer.tasks.nominate'), [
+            'work_item_id' => $item->id,
+            'reason' => 'محتاج ناس أكتر',
+        ])->assertSessionHasNoErrors();
+
+        $approver = $this->makeUser();
+        $this->makeMembership($approver, $entity);
+        $this->grant($approver, ['public_board.list', 'public_board.create']);
+
+        $this->actingAs($approver)->post(route('volunteer.tasks.nominations.reject', $item))->assertRedirect();
+
+        $this->assertDatabaseHas('app_notifications', [
+            'user_id' => $lead->id,
+            'category' => 'public_board_nomination_decided',
+        ]);
+    }
+
+    /** بندٌ اتعمد اعتماده مباشرةً بدون رفعه بمسار الترشيح (مثلًا زُرِع مباشرةً) — بلا مُرشِّح، فبلا إشعارٍ يُرسَل ولا خطأ */
+    public function test_approving_an_item_with_no_recorded_nominator_does_not_error(): void
+    {
+        $entity = $this->makeEntity();
+        $item = $this->makeWorkItem($entity);
+        $item->forceFill(['is_public_board_candidate' => true])->save();
+
+        $approver = $this->makeUser();
+        $this->makeMembership($approver, $entity);
+        $this->grant($approver, ['public_board.list', 'public_board.create']);
+
+        $this->actingAs($approver)
+            ->post(route('volunteer.tasks.nominations.approve', $item))
+            ->assertSessionHasNoErrors()
+            ->assertRedirect();
+
+        $this->assertDatabaseMissing('app_notifications', ['category' => 'public_board_nomination_decided']);
+    }
 }

@@ -109,7 +109,7 @@ class PublicBoardController extends Controller
 
         $item = WorkItem::findOrFail($data['work_item_id']);
 
-        $item->forceFill(['is_public_board_candidate' => true])->save();
+        $item->forceFill(['is_public_board_candidate' => true, 'nominated_by' => $user->id])->save();
 
         $this->bridge->notify(
             $user,
@@ -134,6 +134,8 @@ class PublicBoardController extends Controller
             'is_public_board_candidate' => false,
         ])->save();
 
+        $this->notifyNominator($workItem, (string) setting('volunteer_page.board.nominate_approve_msg', 'اتعمد ترشيحك: :a1 — بقى مهمّة عامّة.'));
+
         return back()->with('status', (string) setting('volunteer_page.board.nominate_approve_ok', 'اعتُمد الترشيح ✓ — البند بقى مهمّة عامّة.'));
     }
 
@@ -142,6 +144,25 @@ class PublicBoardController extends Controller
     {
         $workItem->forceFill(['is_public_board_candidate' => false])->save();
 
+        $this->notifyNominator($workItem, (string) setting('volunteer_page.board.nominate_reject_msg', 'اترفض ترشيحك: :a1.'));
+
         return back()->with('status', (string) setting('volunteer_page.board.nominate_reject_ok', 'اترفض الترشيح — البند فضل على حاله.'));
+    }
+
+    /** يخاطب القائد الذي رفع الترشيح لحظة اعتماده أو رفضه — لا نفسه فقط لحظة الرفع */
+    private function notifyNominator(WorkItem $workItem, string $message): void
+    {
+        if (! $workItem->nominator) {
+            return;
+        }
+
+        $this->bridge->notify(
+            $workItem->nominator,
+            'public_board_nomination_decided',
+            strtr($message, [':a1' => (string) $workItem->name]),
+            null,
+            route('volunteer.tasks.board'),
+            $workItem,
+        );
     }
 }
