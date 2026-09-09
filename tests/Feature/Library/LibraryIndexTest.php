@@ -5,6 +5,8 @@ namespace Tests\Feature\Library;
 use App\Models\Certificate;
 use App\Models\CertificateType;
 use App\Models\Referral;
+use App\Services\Images\BoardSnapshot;
+use App\Services\Referral\ReferralService;
 
 /** مكتبتي (20 · 24.5): الرفّ والعدّادات والفلاتر والحالة الفارغة والبوب-أب. */
 class LibraryIndexTest extends LibraryTestCase
@@ -112,6 +114,35 @@ class LibraryIndexTest extends LibraryTestCase
         // الشهادة صارت وسامًا: جزء `certificate-badge.blade.php` لا كارت `card.blade.php` العاديّ
         $this->assertStringContainsString('شهادة اختبار الرفّ', $html);
         $this->assertSame(1, substr_count($html, 'data-library-item="certificate-badge"'));
+    }
+
+    /**
+     * ⭐ 20.4: «مشاركة اقتباس/صفحة كصورة (بعلامة مائيّة + رابط ريفيرال)» —
+     * كانت غائبة كلّيًّا؛ «أوصِ بهذا» وحده كان منفَّذًا.
+     */
+    public function test_an_owned_item_can_be_shared_as_an_image_carrying_the_referral_link(): void
+    {
+        $user = $this->trainee('USHARE01');
+        $product = $this->protectedProduct();
+        $this->entitle($user, $product);
+
+        // زرّ الاستخراج مقفولٌ بصلاحيّة `image_export.use` (12.2.1) — لا يُمنَح افتراضيًّا لأيّ دور
+        $this->grant($user, 'image_export.use');
+
+        $html = $this->actingAs($user)->get(route('library.index'))->assertOk()->getContent();
+
+        // زرّ [استخراج كصورة] موجود لكلّ عنصر
+        $this->assertStringContainsString(setting('images.export_panel.text_1', 'استخراج كصورة'), $html);
+
+        // ورابط الدعوة الحقيقيّ محقونٌ في حمولة الفورم الموقَّعة (d=) لا نصًّا زائفًا
+        preg_match('/name="d"\s+value="([^"]+)"/', $html, $matches);
+        $this->assertNotEmpty($matches, 'الحمولة الموقَّعة (d=) لازم تكون موجودة في الفورم.');
+
+        $snapshot = BoardSnapshot::decode(html_entity_decode($matches[1]));
+        $referralLink = app(ReferralService::class)->link($user->fresh());
+
+        $this->assertSame($product->name_ar, $snapshot->title);
+        $this->assertSame($referralLink, $snapshot->rows[0][1] ?? null);
     }
 
     /** والفلترة بتاب «شهادات» وحده تعرض الوسام أيضًا — لا الكارت العاديّ */

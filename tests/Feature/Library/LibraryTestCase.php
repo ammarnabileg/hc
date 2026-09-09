@@ -4,6 +4,7 @@ namespace Tests\Feature\Library;
 
 use App\Models\Currency;
 use App\Models\LibraryEntitlement;
+use App\Models\Permission;
 use App\Models\Product;
 use App\Models\User;
 use App\Models\WalletBalance;
@@ -16,6 +17,7 @@ use Database\Seeders\RoleSeeder;
 use Database\Seeders\SettingSeeder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
@@ -50,6 +52,23 @@ abstract class LibraryTestCase extends TestCase
         app(AccessEngine::class)->forget();
 
         return $user;
+    }
+
+    protected function grant(User $user, string $permissionKey, string $scope = 'ALL'): void
+    {
+        $permission = Permission::query()->where('key', $permissionKey)->firstOrFail();
+
+        DB::table('permission_user')->insertOrIgnore([
+            'permission_id' => $permission->id,
+            'user_id' => $user->id,
+            'membership_id' => null,
+            'scope' => $scope,
+            'effect' => 'allow',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        app(AccessEngine::class)->forget($user);
     }
 
     /** منتج PDF محميّ بملفّ حقيقيّ على القرص الخاصّ */

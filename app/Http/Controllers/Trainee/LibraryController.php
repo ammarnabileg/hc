@@ -8,6 +8,7 @@ use App\Models\Product;
 use App\Models\Referral;
 use App\Services\Library\EntitlementGuard;
 use App\Services\Library\LibraryShelf;
+use App\Services\Referral\ReferralService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -23,6 +24,7 @@ class LibraryController extends Controller
     public function __construct(
         private readonly LibraryShelf $shelf,
         private readonly EntitlementGuard $guard,
+        private readonly ReferralService $referrals,
     ) {}
 
     public function index(Request $request): View
@@ -52,6 +54,8 @@ class LibraryController extends Controller
             'sort' => (string) ($request->query('sort') ?: setting('library.shelf.default_sort', 'recent')),
             'hasAnything' => $items->isNotEmpty(),
             'storeUrl' => Route::has('store.index') ? route('store.index') : url('/'),
+            // ⭐ رابط الدعوة يظهر على صورة المشاركة (20.4) — من محرّك الريفيرال الواحد
+            'referralLink' => $this->referrals->link($user),
         ]);
     }
 

@@ -108,6 +108,9 @@ class LibraryDemoSeeder extends Seeder
             ['library.modal.recommend_label', 'library', 'زرّ أوصِ بهذا', 'string', 'أوصِ بهذا'],
             ['library.invoice.date_format', 'library', 'صيغة تاريخ الفاتورة', 'string', 'j F Y'],
             ['library.recommend.commission_percent', 'library', 'نسبة عمولة الترشيح (%)', 'number', '7'],
+            // مشاركة العنصر كصورة (20.4) — بعلامة مائيّة + رابط ريفيرال
+            ['library.share_image.subtitle', 'library', 'العنوان الفرعيّ لصورة المشاركة', 'string', 'من مكتبتي على المنصّة'],
+            ['library.share_image.referral_row_label', 'library', 'تسمية سطر رابط الدعوة في صورة المشاركة', 'string', 'رابط دعوتي'],
             ['library.recommend.utm_source', 'library', 'UTM source للترشيح', 'string', 'library'],
             ['library.recommend.utm_medium', 'library', 'UTM medium للترشيح', 'string', 'recommend'],
             ['library.recommend.utm_campaign', 'library', 'UTM campaign للترشيح', 'string', 'organic'],
