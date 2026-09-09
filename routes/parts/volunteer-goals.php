@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Volunteer\FileInviteController;
 use App\Http\Controllers\Volunteer\GoalController;
 use App\Http\Controllers\Volunteer\PerformanceController;
 use App\Http\Controllers\Volunteer\ProjectController;
@@ -200,4 +201,13 @@ Route::middleware('auth')->prefix('volunteer')->group(function () {
         Route::post('/performance/evaluations', [PerformanceController::class, 'storeEvaluation'])
             ->name('volunteer.performance.evaluations.store');
     });
+
+    /*
+    | رابط دعوة ملفٍّ مبنيّ على البوزشن (23-0.2 · 8.1) — أيّ عضوٍ موثَّق يحمل
+    | الرابط يقبله بنفسه؛ لا صلاحيّة إضافيّة هنا لأنّ الحرّاس الحقيقيّة
+    | (الحرمان بعد بتر الاختياريّ · سقف المسار · عدم تكرار العضويّة) داخل
+    | `FileDrafts::acceptInviteLink()` نفسها.
+    */
+    Route::get('/file-invites/{token}', [FileInviteController::class, 'show'])->name('volunteer.file-invites.show');
+    Route::post('/file-invites/{token}', [FileInviteController::class, 'accept'])->name('volunteer.file-invites.accept');
 });

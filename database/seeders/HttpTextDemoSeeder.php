@@ -914,6 +914,8 @@ class HttpTextDemoSeeder extends Seeder
             ['workflow.escalation.decide_msg', 'workflow', 'decide() — المبرّر إجباريّ مع قيمة Rep اليدويّة.', 'المبرّر إجباريّ مع قيمة Rep اليدويّة.'],
             ['workflow.escalation.decide_ok', 'workflow', 'decide() — اتسجّل قرارك ✓', 'اتسجّل قرارك ✓'],
             ['workflow.escalation.authorize_handler_msg', 'workflow', 'authorizeHandler() — الحالة دي على مكتب غيرك.', 'الحالة دي على مكتب غيرك.'],
+            // ---- app/Http/Controllers/Volunteer/FileInviteController.php
+            ['volunteer.file_invites.accept_ok', 'volunteer', 'accept() — انضممت لملفّ «:a1» ✓', 'انضممت لملفّ «:a1» ✓'],
             // ---- app/Http/Controllers/Volunteer/GoalController.php
             ['goals.screen.send_denied', 'goals', 'send() — مش هيتبعت: :a1', 'مش هيتبعت: :a1'],
             ['goals.screen.send_ok', 'goals', 'send() — اتبعت للتنفيذ ✓ — نافذة التفكيك بدأت لـ:a1 مهمّة، وبتقفل :a2', 'اتبعت للتنفيذ ✓ — نافذة التفكيك بدأت لـ:a1 مهمّة، وبتقفل :a2.'],

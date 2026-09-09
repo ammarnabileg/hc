@@ -450,6 +450,13 @@ class VolunteerScreensDemoSeeder extends Seeder
     public function goalScreenSettings(): void
     {
         $this->put([
+            // رابط دعوة ملفٍّ مبنيّ على البوزشن (23-0.2 · 8.1)
+            ['volunteer.file_invites.title', 'المشاريع والأهداف: دعوة انضمام لملفّ', 'دعوة انضمام لملفّ'],
+            ['volunteer.file_invites.heading', 'المشاريع والأهداف: دعوة للانضمام', 'دعوة للانضمام'],
+            ['volunteer.file_invites.expired', 'المشاريع والأهداف: رابط الدعوة ده منتهي الصلاحيّة — كلّم اللي بعتهولك.', 'رابط الدعوة ده منتهي الصلاحيّة — كلّم اللي بعتهولك.'],
+            ['volunteer.file_invites.body', 'المشاريع والأهداف: إنت مدعوّ تنضمّ لملفّ', 'إنت مدعوّ تنضمّ لملفّ'],
+            ['volunteer.file_invites.body_2', 'المشاريع والأهداف: بوزشن', 'بوزشن'],
+            ['volunteer.file_invites.action', 'المشاريع والأهداف: انضمّ دلوقتي', 'انضمّ دلوقتي'],
             ['volunteer.goals.action', 'المشاريع والأهداف: تقرير الإغلاق', 'تقرير الإغلاق'],
             ['volunteer.goals.action_2', 'المشاريع والأهداف: افتح المشروع التشغيليّ', 'افتح المشروع التشغيليّ'],
             ['volunteer.goals.action_3', 'المشاريع والأهداف: إعلان تحقّق المعيار بدليل مرفق', 'إعلان تحقّق المعيار بدليل مرفق'],
@@ -575,10 +582,12 @@ class VolunteerScreensDemoSeeder extends Seeder
             ['volunteer.goals_build_breakdown.label_8', 'المشاريع والأهداف: مسودّة — لسّه ما اتفتحتش', 'مسودّة — لسّه ما اتفتحتش'],
             ['volunteer.goals_build_breakdown.label_9', 'المشاريع والأهداف: اسم المَعلَم', 'اسم المَعلَم'],
             ['volunteer.goals_build_breakdown.option', 'المشاريع والأهداف: مسودّة لسّه ما اتفتحتش', 'مسودّة لسّه ما اتفتحتش'],
+            ['volunteer.goals_build_breakdown.option_2', 'المشاريع والأهداف: — سطر فاضي —', '— سطر فاضي —'],
             ['volunteer.goals_build_breakdown.placeholder', 'المشاريع والأهداف: كود المستخدم', 'كود المستخدم'],
             ['volunteer.goals_build_breakdown.strong', 'المشاريع والأهداف: ما بتشتغلش', 'ما بتشتغلش'],
             ['volunteer.goals_build_breakdown.text', 'المشاريع والأهداف: سبب الهدف:', 'سبب الهدف:'],
             ['volunteer.goals_build_breakdown.text_10', 'المشاريع والأهداف: بتتفعّل كلّها لحظة ضغط «إرسال للتنفيذ» من مشرف عام التطوّع، مش قبلها.', 'بتتفعّل كلّها لحظة ضغط «إرسال للتنفيذ» من مشرف عام التطوّع، مش قبلها.'],
+            ['volunteer.goals_build_breakdown.text_11', 'المشاريع والأهداف: بوزشن بلا عضو ⟵ رابط دعوة يُشارَك مع أيّ عضو — إضافة …', 'بوزشن بلا عضو ⟵ رابط دعوة يُشارَك مع أيّ عضو — إضافة مباشرة أو رابط، مش الاثنان.'],
             ['volunteer.goals_build_breakdown.text_2', 'المشاريع والأهداف: معيار التحقّق:', 'معيار التحقّق:'],
             ['volunteer.goals_build_breakdown.text_3', 'المشاريع والأهداف: رقم من', 'رقم من'],
             ['volunteer.goals_build_breakdown.text_4', 'المشاريع والأهداف: حالة تتفحص بنعم/لا', 'حالة تتفحص بنعم/لا'],

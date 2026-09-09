@@ -81,6 +81,9 @@ class VolunteerGoalsDemoSeeder extends Seeder
             ['goals.build.file_draft.notify_body', 'goals', 'نصّ إشعار تفعيل الملفّ', 'text', 'اتفتح ملفّ «{file}» وإنت فيه {position} — ضمن هدف «{goal}».'],
             ['goals.build.error.file_draft_forbidden', 'goals', 'رسالة رفض فتح ملفّ لغير مشرف مسار الملفّات', 'text', 'فتح الملفّات لمشرف عام مسار الملفّات — مش من صلاحيّتك.'],
             ['goals.build.error.file_track_missing', 'goals', 'رسالة غياب مسار الملفّات', 'text', 'مسار الملفّات مش معرَّف في المنصّة — اضبطه من الإعدادات الأوّل.'],
+            ['goals.build.file_draft.invite_link_days', 'goals', 'مدّة صلاحيّة رابط دعوة الملفّ بالأيّام (0 = بلا انتهاء)', 'number', '14'],
+            ['goals.build.file_draft.invite_expired', 'goals', 'رسالة رابط دعوة منتهي الصلاحيّة', 'text', 'رابط الدعوة ده منتهي الصلاحيّة.'],
+            ['goals.build.file_draft.invite_already_member', 'goals', 'رسالة عضويّة سابقة عند قبول رابط الدعوة', 'text', 'إنت عضوٌ في الملفّ ده بالفعل.'],
             ['goals.build.max_field_chars', 'goals', 'أقصى طول للحقل في التعديل المباشر', 'number', '2000'],
             // عناوين الحقول القابلة للتحرير المباشر (GoalBuildService::editableFields — 2.13-ب)
             ['goals.editable.goal_name', 'goals', 'حقل: اسم الهدف', 'string', 'اسم الهدف'],

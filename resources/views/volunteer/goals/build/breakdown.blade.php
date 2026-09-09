@@ -131,12 +131,25 @@
             @if ($fileDrafts->isNotEmpty())
                 <ul class="mt-3 space-y-2">
                     @foreach ($fileDrafts as $draft)
-                        <li class="flex items-center justify-between gap-2 rounded-xl px-3 py-2 text-sm flex-wrap"
-                            style="background: var(--surface-sunken)">
-                            <span class="font-semibold">{{ $draft->name_ar }}</span>
+                        <li class="rounded-xl px-3 py-2 text-sm" style="background: var(--surface-sunken)">
+                            <div class="flex items-center justify-between gap-2 flex-wrap">
+                                <span class="font-semibold">{{ $draft->name_ar }}</span>
 
-                            {{-- الحالة بوسمٍ نصّيّ لا بلونٍ وحده (2.16-ج) --}}
-                            <x-state-badge state="warn" :label="setting('volunteer.goals_build_breakdown.label_8', 'مسودّة — لسّه ما اتفتحتش')" />
+                                {{-- الحالة بوسمٍ نصّيّ لا بلونٍ وحده (2.16-ج) --}}
+                                <x-state-badge state="warn" :label="setting('volunteer.goals_build_breakdown.label_8', 'مسودّة — لسّه ما اتفتحتش')" />
+                            </div>
+
+                            {{-- روابط الدعوة (23-0.2 · 8.1) — انسخها وشاركها مع أيّ عضو --}}
+                            @if ($fileInviteLinks->get($draft->id)?->isNotEmpty())
+                                <ul class="mt-2 space-y-1 text-xs" style="color: var(--text-muted)">
+                                    @foreach ($fileInviteLinks->get($draft->id) as $link)
+                                        <li class="flex items-center gap-2 flex-wrap">
+                                            <span>{{ $link->position?->name_ar }}:</span>
+                                            <code class="rounded px-1.5 py-0.5" style="background: var(--surface-raised)" dir="ltr">{{ route('volunteer.file-invites.show', $link->token) }}</code>
+                                        </li>
+                                    @endforeach
+                                </ul>
+                            @endif
                         </li>
                     @endforeach
                 </ul>
@@ -178,6 +191,8 @@
                         <p>{{ setting('volunteer.goals_build_breakdown.text_10', 'بتتفعّل كلّها لحظة ضغط «إرسال للتنفيذ» من مشرف عام التطوّع، مش قبلها.') }}</p>
                     </div>
 
+                    <p class="text-xs" style="color: var(--text-muted)">{{ setting('volunteer.goals_build_breakdown.text_11', 'بوزشن بلا عضو ⟵ رابط دعوة يُشارَك مع أيّ عضو — إضافة مباشرة أو رابط، مش الاثنان.') }}</p>
+
                     @for ($i = 0; $i < (int) setting('goals.build.file_draft.form_rows', 3); $i++)
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
                             <label class="block">
@@ -192,6 +207,7 @@
                                 <select name="invitations[{{ $i }}][position_id]"
                                         class="w-full rounded-xl px-3 py-2 text-sm"
                                         style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text); min-height: 44px">
+                                    <option value="">{{ setting('volunteer.goals_build_breakdown.option_2', '— سطر فاضي —') }}</option>
                                     @foreach ($invitablePositions as $position)
                                         <option value="{{ $position->id }}">{{ $position->name_ar }}</option>
                                     @endforeach

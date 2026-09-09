@@ -3,6 +3,7 @@
 namespace App\Services\Volunteer\Goals;
 
 use App\Models\Entity;
+use App\Models\FileInviteLink;
 use App\Models\Goal;
 use App\Models\Membership;
 use App\Models\Position;
@@ -12,7 +13,10 @@ use App\Services\Notifications\Notifier;
 use App\Services\Volunteer\Org\TrackCapacityGuard;
 use App\Services\Volunteer\Retention\OptionalCutService;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Collection as SupportCollection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 
 /**
  * ⭐ **مسودّات الملفّات** (الدستور 23 — 1.2 سيناريو مشرف عام الملفّات · 1.6).
@@ -79,7 +83,10 @@ class FileDrafts
     /**
      * إنشاء مسودّة ملفٍّ داخل بناء هدفٍ بعينه، ومعها **دعواتٌ مكتوبة لا مُرسَلة**.
      *
-     * @param  array<int, array{user_id: int|string, position_id: int|string}>  $invitations
+     * ⭐ كلّ صفٍّ فيه بوزشن بلا عضوٍ بعينه (23-0.2 · 8.1: «رابط دعوة مبنيّ على
+     * البوزشن، أو إضافة مباشرة») يولِّد **رابط دعوة** بدل أن يُتجاهَل صمتًا.
+     *
+     * @param  array<int, array{user_id?: int|string|null, position_id: int|string}>  $invitations
      */
     public function create(User $actor, Goal $goal, string $name, array $invitations = []): Entity
     {
@@ -109,7 +116,7 @@ class FileDrafts
             ->orderByDesc('is_primary')
             ->value('id');
 
-        return DB::transaction(function () use ($goal, $name, $invitations, $track, $uplineId) {
+        return DB::transaction(function () use ($goal, $name, $invitations, $track, $uplineId, $actor) {
             $entity = Entity::create([
                 'track_id' => $track->id,
                 'parent_id' => null,
@@ -123,39 +130,138 @@ class FileDrafts
                 $userId = (int) ($invitation['user_id'] ?? 0);
                 $positionId = (int) ($invitation['position_id'] ?? 0);
 
-                if ($userId === 0 || $positionId === 0) {
+                if ($positionId === 0) {
                     continue;
                 }
 
-                /*
-                 | ⭐ **الحرمان بعد بتر الاختياريّ** (23-0.2-3): «لا يفتح عضويّة
-                 | جديدة في مسارَي المحافظات والملفات **حتى التصفير الشهري
-                 | التالي**». والملفّ أحد المسارين — فدعوته لا تمرّ على محرومٍ،
-                 | وإلّا رجع من الباب الذي خرج منه بالأمس.
-                 */
-                $invited = User::query()->find($userId);
+                if ($userId === 0) {
+                    // بوزشنٌ بلا عضوٍ بعينه ⟵ رابط دعوة بدل إضافة مباشرة
+                    $this->generateInviteLink($entity, $positionId, $actor);
 
-                if ($invited) {
-                    $entity->loadMissing('track');
-                    app(OptionalCutService::class)->assertMayJoin($invited, $entity);
-                    app(TrackCapacityGuard::class)->assertWithinCap($invited, $entity);
+                    continue;
                 }
 
-                Membership::create([
-                    'user_id' => $userId,
-                    'entity_id' => $entity->id,
-                    'position_id' => $positionId,
-                    'upline_id' => $uplineId,
-                    'is_primary' => false,
-                    // الصفّ مكتوبٌ ولا يعمل: كلّ استعلامات المنصّة تشترط `active`
-                    'status' => 'invited',
-                    'invited_at' => now(),
-                    'started_at' => null,
-                ]);
+                $this->attachMember($entity, $userId, $positionId, $uplineId, 'invited');
             }
 
             return $entity;
         });
+    }
+
+    /**
+     * إضافة عضوٍ بعينه لملفٍّ — مباشرةً (`create()`) أو بقبول رابط دعوة
+     * (`acceptInviteLink()`). نفس الحرّاس دائمًا مهما كان الباب.
+     */
+    private function attachMember(Entity $entity, int $userId, int $positionId, ?int $uplineId, string $status): Membership
+    {
+        /*
+         | ⭐ **الحرمان بعد بتر الاختياريّ** (23-0.2-3): «لا يفتح عضويّة
+         | جديدة في مسارَي المحافظات والملفات **حتى التصفير الشهري
+         | التالي**». والملفّ أحد المسارين — فدعوته لا تمرّ على محرومٍ،
+         | وإلّا رجع من الباب الذي خرج منه بالأمس.
+         */
+        $invited = User::query()->find($userId);
+
+        if ($invited) {
+            $entity->loadMissing('track');
+            app(OptionalCutService::class)->assertMayJoin($invited, $entity);
+            app(TrackCapacityGuard::class)->assertWithinCap($invited, $entity);
+        }
+
+        return Membership::create([
+            'user_id' => $userId,
+            'entity_id' => $entity->id,
+            'position_id' => $positionId,
+            'upline_id' => $uplineId,
+            'is_primary' => false,
+            // 'invited': مكتوبٌ ولا يعمل بعد — كلّ استعلامات المنصّة تشترط `active`
+            'status' => $status,
+            'invited_at' => now(),
+            'started_at' => $status === 'active' ? now() : null,
+            'activated_at' => $status === 'active' ? now() : null,
+        ]);
+    }
+
+    /**
+     * توليد رابط دعوة لبوزشنٍ داخل ملفٍّ — مسودّةً أو مفتوحًا بالفعل — رمزٌ
+     * عشوائيّ طويل بمدّة صلاحيّة قابلة للإعداد (2.13). نفس حارس `canCreate()`
+     * على المسار كلّه — لا فرق بين توليده أثناء كتابة المسودّة أو بعدها.
+     */
+    public function generateInviteLink(Entity $entity, int $positionId, User $actor): FileInviteLink
+    {
+        abort_unless($this->canCreate($actor), 403, (string) setting(
+            'goals.build.error.file_draft_forbidden',
+            'فتح الملفّات لمشرف عام مسار الملفّات — مش من صلاحيّتك.',
+        ));
+
+        $days = (int) setting('goals.build.file_draft.invite_link_days', 14);
+
+        return FileInviteLink::create([
+            'entity_id' => $entity->id,
+            'position_id' => $positionId,
+            'token' => Str::random(48),
+            'created_by' => $actor->id,
+            'expires_at' => $days > 0 ? now()->addDays($days) : null,
+        ]);
+    }
+
+    /**
+     * ⭐ قبول رابط الدعوة (23-0.2 · 8.1) — بنفس حرّاس الإضافة المباشرة تمامًا.
+     *
+     * والحالة تتبع حالة الملفّ لحظة القبول: `draft` ⟵ عضويّةٌ مكتوبة تنتظر
+     * «إرسال للتنفيذ» كأيّ دعوةٍ مباشرة أخرى، و`active` ⟵ عضويّةٌ تعمل فورًا
+     * لأنّ الملفّ مفتوحٌ بالفعل ولا انتظار بعده.
+     */
+    public function acceptInviteLink(FileInviteLink $link, User $user): Membership
+    {
+        if ($link->isExpired()) {
+            throw ValidationException::withMessages(['token' => (string) setting('goals.build.file_draft.invite_expired', 'رابط الدعوة ده منتهي الصلاحيّة.')]);
+        }
+
+        $entity = $link->entity;
+
+        abort_unless($entity && in_array($entity->status, ['draft', 'active'], true), 404);
+
+        if (Membership::query()->where('entity_id', $entity->id)->where('user_id', $user->id)->where('status', '!=', 'ended')->exists()) {
+            throw ValidationException::withMessages(['token' => (string) setting('goals.build.file_draft.invite_already_member', 'إنت عضوٌ في الملفّ ده بالفعل.')]);
+        }
+
+        $uplineId = Membership::query()
+            ->where('user_id', $user->id)
+            ->where('status', 'active')
+            ->orderByDesc('is_primary')
+            ->value('id');
+
+        return DB::transaction(function () use ($link, $entity, $user, $uplineId) {
+            $membership = $this->attachMember(
+                $entity,
+                $user->id,
+                $link->position_id,
+                $uplineId,
+                $entity->status === 'active' ? 'active' : 'invited',
+            );
+
+            $link->increment('uses_count');
+
+            return $membership;
+        });
+    }
+
+    /**
+     * روابط الدعوة المولَّدة لهذه المسودّات — كي يراها مشرف عام الملفّات
+     * ويشاركها بعد الحفظ (التوليد وحده لا يُخطِر أحدًا).
+     *
+     * @param  Collection<int, Entity>  $drafts
+     * @return SupportCollection<int, Collection<int, FileInviteLink>>
+     */
+    public function inviteLinksFor(Collection $drafts): SupportCollection
+    {
+        return FileInviteLink::query()
+            ->whereIn('entity_id', $drafts->pluck('id'))
+            ->with('position')
+            ->orderBy('id')
+            ->get()
+            ->groupBy('entity_id');
     }
 
     /**

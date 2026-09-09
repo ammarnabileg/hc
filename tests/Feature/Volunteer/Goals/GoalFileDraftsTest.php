@@ -19,6 +19,7 @@ use Database\Seeders\SettingSeeder;
 use Database\Seeders\VolunteerGoalsDemoSeeder;
 use Illuminate\Support\Facades\Cache;
 use PHPUnit\Framework\Attributes\Test;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 /**
  * ⭐ **مسودّات الملفّات** (الدستور 23 — 1.2 سيناريو مشرف عام الملفّات · 1.6).
@@ -520,5 +521,132 @@ class GoalFileDraftsTest extends GoalsTestCase
             Entity::query()->where('name_ar', 'ملفّ ثانٍ لنفس المسار')->exists(),
             'اتفتحت مسودّة ملفّ رغم سقوط حارس العضويّة أثناء إنشائها.',
         );
+    }
+
+    // ============================================== رابط الدعوة المبنيّ على البوزشن (23-0.2 · 8.1)
+
+    /**
+     * ⭐ كان صفّ «بوزشن بلا عضوٍ بعينه» يُتجاهَل صمتًا رغم أنّ الفورم نفسه
+     * يصف الحقل «اختياريّ» — صار الآن رابط دعوة حقيقيّ بدل الصمت.
+     */
+    #[Test]
+    public function a_position_only_row_generates_an_invite_link_instead_of_being_silently_dropped(): void
+    {
+        $goal = $this->linkedGoal();
+
+        $this->actingAs($this->filesSupervisor)
+            ->post(route('volunteer.goals.build.file_drafts', $goal), [
+                'name' => 'ملفّ برابط دعوة',
+                'invitations' => [
+                    ['position_id' => $this->coordinatorPositionId()],
+                ],
+            ])->assertRedirect()->assertSessionHasNoErrors();
+
+        $draft = Entity::query()->where('name_ar', 'ملفّ برابط دعوة')->firstOrFail();
+
+        $this->assertDatabaseHas('file_invite_links', [
+            'entity_id' => $draft->id,
+            'position_id' => $this->coordinatorPositionId(),
+        ]);
+        $this->assertSame(0, Membership::query()->where('entity_id', $draft->id)->count(), 'الرابط يُولَّد ولا يفتح عضويّةً لأحد قبل أن يُقبَل.');
+    }
+
+    /** ⭐ `generateInviteLink()` عامّةٌ وقابلة للنداء المباشر (مثلًا لملفٍّ مفتوحٍ بالفعل) — فحارسها لازم يعمل بمفرده لا بالاتّكال على حارس `create()` وحده */
+    #[Test]
+    public function generating_a_link_directly_still_rejects_an_unauthorized_actor(): void
+    {
+        $this->expectException(HttpException::class);
+
+        app(FileDrafts::class)->generateInviteLink($this->fileEntity, $this->coordinatorPositionId(), $this->deptSupervisor);
+    }
+
+    #[Test]
+    public function visiting_and_accepting_a_valid_link_invites_into_a_draft_file_pending_launch(): void
+    {
+        $goal = $this->linkedGoal();
+        $draft = $this->makeDraft($goal, withInvite: false);
+
+        $link = app(FileDrafts::class)->generateInviteLink($draft, $this->coordinatorPositionId(), $this->filesSupervisor);
+
+        $joiner = $this->makeUser('عضو جديد بالرابط');
+
+        $this->actingAs($joiner)->get(route('volunteer.file-invites.show', $link->token))->assertOk();
+
+        $this->actingAs($joiner)
+            ->post(route('volunteer.file-invites.accept', $link->token))
+            ->assertRedirect()->assertSessionHasNoErrors();
+
+        $membership = Membership::query()->where('entity_id', $draft->id)->where('user_id', $joiner->id)->firstOrFail();
+
+        $this->assertSame('invited', $membership->status, 'الملفّ لسّه مسودّة — العضويّة تنتظر «إرسال للتنفيذ» كأيّ دعوة مباشرة.');
+        $this->assertNull($membership->started_at);
+        $this->assertSame(1, $link->fresh()->uses_count);
+    }
+
+    #[Test]
+    public function accepting_a_link_on_an_already_active_file_activates_membership_immediately(): void
+    {
+        $link = app(FileDrafts::class)->generateInviteLink($this->fileEntity, $this->coordinatorPositionId(), $this->filesSupervisor);
+
+        $joiner = $this->makeUser('عضو جديد بالرابط');
+
+        $this->actingAs($joiner)
+            ->post(route('volunteer.file-invites.accept', $link->token))
+            ->assertRedirect()->assertSessionHasNoErrors();
+
+        $membership = Membership::query()->where('entity_id', $this->fileEntity->id)->where('user_id', $joiner->id)->firstOrFail();
+
+        $this->assertSame('active', $membership->status, 'الملفّ مفتوحٌ بالفعل — لا انتظار «إرسال للتنفيذ».');
+        $this->assertNotNull($membership->started_at);
+    }
+
+    #[Test]
+    public function an_expired_link_cannot_be_accepted(): void
+    {
+        $link = app(FileDrafts::class)->generateInviteLink($this->fileEntity, $this->coordinatorPositionId(), $this->filesSupervisor);
+        $link->forceFill(['expires_at' => now()->subDay()])->save();
+
+        $joiner = $this->makeUser('عضو متأخّر');
+
+        $this->actingAs($joiner)
+            ->post(route('volunteer.file-invites.accept', $link->token))
+            ->assertSessionHasErrors('token');
+
+        $this->assertDatabaseMissing('memberships', ['entity_id' => $this->fileEntity->id, 'user_id' => $joiner->id]);
+    }
+
+    #[Test]
+    public function a_link_cannot_be_accepted_twice_by_the_same_member(): void
+    {
+        $link = app(FileDrafts::class)->generateInviteLink($this->fileEntity, $this->coordinatorPositionId(), $this->filesSupervisor);
+
+        $joiner = $this->makeUser('عضو جديد بالرابط');
+
+        $this->actingAs($joiner)->post(route('volunteer.file-invites.accept', $link->token))->assertSessionHasNoErrors();
+        $this->actingAs($joiner)->post(route('volunteer.file-invites.accept', $link->token))->assertSessionHasErrors('token');
+
+        $this->assertSame(1, Membership::query()->where('entity_id', $this->fileEntity->id)->where('user_id', $joiner->id)->count());
+    }
+
+    /** ⭐ نفس حرّاس الإضافة المباشرة تمامًا — لأنّ الطريقين ينتهيان لنفس `attachMember()` الداخليّة */
+    #[Test]
+    public function accepting_a_link_enforces_the_same_one_membership_per_track_cap_as_direct_addition(): void
+    {
+        $this->makeMembership($this->invitee, $this->fileEntity, null, 'coordinator');
+
+        $secondFile = Entity::create([
+            'track_id' => $this->fileTrackId(),
+            'name_ar' => 'ملفّ ثانٍ',
+            'status' => 'active',
+            'opened_at' => now()->subWeek(),
+        ]);
+
+        $link = app(FileDrafts::class)->generateInviteLink($secondFile, $this->coordinatorPositionId(), $this->filesSupervisor);
+
+        $this->actingAs($this->invitee)
+            ->post(route('volunteer.file-invites.accept', $link->token))
+            ->assertSessionHasErrors();
+
+        $this->assertDatabaseMissing('memberships', ['entity_id' => $secondFile->id, 'user_id' => $this->invitee->id]);
     }
 }

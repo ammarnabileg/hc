@@ -324,7 +324,8 @@ class GoalController extends Controller
             'entities' => $this->scope->linkableEntities($user),
             // مسودّات هذا الهدف تُعرَض بجانب الكيانات القائمة، **موسومةً** بأنّها
             // لم تُفتَح بعد — فلا يظنّها أحدٌ ملفًّا شغّالًا (2.16-ج: اللون لا يكفي)
-            'fileDrafts' => $this->fileDrafts->draftsFor($goal),
+            'fileDrafts' => $fileDrafts = $this->fileDrafts->draftsFor($goal),
+            'fileInviteLinks' => $this->fileDrafts->inviteLinksFor($fileDrafts),
             'canOpenFiles' => $user->allows('work_packages.create')
                 && $this->fileDrafts->canCreate($user)
                 && $this->access->holds($user, $goal),
@@ -405,7 +406,8 @@ class GoalController extends Controller
         $data = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'invitations' => ['nullable', 'array', 'max:'.(int) setting('goals.build.file_draft.max_invitations', 20)],
-            'invitations.*.user_id' => ['required', 'integer', 'exists:users,id'],
+            // ⭐ عضوٌ بلا بوزشن لا معنى له، وبوزشنٌ بلا عضو = رابط دعوة (23-0.2 · 8.1) — فالبوزشن وحده إلزاميّ
+            'invitations.*.user_id' => ['nullable', 'integer', 'exists:users,id'],
             'invitations.*.position_id' => ['required', 'integer', 'exists:positions,id'],
         ], [], ['name' => (string) setting('goals.screen.store_file_draft_msg_2', 'اسم الملفّ')]);
 
