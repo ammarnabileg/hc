@@ -18,6 +18,7 @@ class Project extends Model
     {
         return [
             'is_permanent' => 'boolean',
+            'approved_at' => 'datetime',
         ];
     }
 
@@ -29,5 +30,10 @@ class Project extends Model
     public function goal(): BelongsTo
     {
         return $this->belongsTo(Goal::class, 'goal_id');
+    }
+
+    public function approver(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'approved_by');
     }
 }

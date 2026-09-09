@@ -1068,6 +1068,8 @@ class HttpTextDemoSeeder extends Seeder
             ['workflow.projects.status_labels_msg_3', 'workflow', 'statusLabels() — معتمدة', 'معتمدة'],
             ['workflow.projects.status_labels_msg_4', 'workflow', 'statusLabels() — فائتة', 'فائتة'],
             ['workflow.projects.status_labels_msg_5', 'workflow', 'statusLabels() — مُغلَقة', 'مُغلَقة'],
+            ['workflow.projects.approve_msg', 'workflow', 'approve() — المشروع معتمَدٌ بالفعل.', 'المشروع معتمَدٌ بالفعل.'],
+            ['workflow.projects.approve_ok', 'workflow', 'approve() — اعتُمد المشروع التشغيليّ ✓ — دائمٌ ويعمل باستمرار.', 'اعتُمد المشروع التشغيليّ ✓ — دائمٌ ويعمل باستمرار.'],
             // ---- app/Http/Controllers/Volunteer/PublicBoardController.php
             ['volunteer_page.board.claim_msg', 'volunteer_page', 'claim() — المهمّة دي اتسحبت خلاص — شوف باقي اللوحة.', 'المهمّة دي اتسحبت خلاص — شوف باقي اللوحة.'],
             ['volunteer_page.board.claim_ok', 'volunteer_page', 'claim() — المهمّة بقت عليك ✓ — سقف انشغالك دلوقتي :a1.', 'المهمّة بقت عليك ✓ — سقف انشغالك دلوقتي :a1.'],

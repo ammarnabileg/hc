@@ -15,7 +15,8 @@
 
 ## ✅ المُنجَز
 <!-- تلقائيّ:بداية:المنجز -->
-- **مايجريشنز (258) — والقائم منها لا يُعدَّل (قاعدة البناء §1). الأحدث:**
+- **مايجريشنز (259) — والقائم منها لا يُعدَّل (قاعدة البناء §1). الأحدث:**
+  - `2026_09_10_100030_an_operational_project_needs_a_real_first_approval.php`
   - `2026_09_10_100020_investigation_committee_needs_its_own_case_file.php`
   - `2026_09_10_100010_the_admin_should_see_a_silently_skipped_placement_step.php`
   - `2026_09_09_100030_a_track_vacancy_is_not_a_tie.php`
@@ -27,8 +28,7 @@
   - `2026_09_07_100020_a_shell_needs_labels_and_a_leash_on_time.php`
   - `2026_09_07_100010_an_owner_only_shell_needs_its_own_audit_table.php`
   - `2026_09_06_100020_a_filled_in_tab_retires_its_own_placeholder.php`
-  - `2026_09_06_100010_a_signed_payload_needs_a_secret_it_can_still_read.php`
-  - … و246 غيرها.
+  - … و247 غيرها.
 <!-- تلقائيّ:نهاية:المنجز -->
 
 ## ⬜ المتبقّي
@@ -86,5 +86,5 @@
 ## 🕒 آخر تحديث
 <!-- تلقائيّ:بداية:التحديث -->
 - **آخر توليد لهذه الوثيقة:** 2026-09-09 — `php artisan docs:status`.
-- **آخر لمسة للمجلّد:** 2026-08-07 — Claude.
+- **آخر لمسة للمجلّد:** 2026-09-09 — Claude.
 <!-- تلقائيّ:نهاية:التحديث -->

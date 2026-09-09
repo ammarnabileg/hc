@@ -166,6 +166,10 @@ Route::middleware('auth')->prefix('volunteer')->group(function () {
         Route::get('/project', [ProjectController::class, 'index'])->name('volunteer.project');
     });
 
+    // الاعتماد الأوّل — مشرف المسار أو القمّة (23 — 1.8، هيدر السطر 5332)
+    Route::post('/project/{project}/approve', [ProjectController::class, 'approve'])
+        ->whereNumber('project')->middleware('permission:operational_projects.approve')->name('volunteer.project.approve');
+
     // ------------------------------------------- البنود المتكرّرة — نوبتي
     Route::middleware('permission:recurring_items.view')->group(function () {
         Route::get('/recurring', [ProjectController::class, 'shift'])->name('volunteer.recurring');

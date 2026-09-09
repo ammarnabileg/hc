@@ -47,6 +47,7 @@ class ProjectController extends Controller
         $items = $this->recurringItems($project, $filters);
 
         return view('volunteer.goals.project', [
+            'user' => $user,
             'project' => $project,
             'entityId' => $entityId,
             'items' => $items,
@@ -56,6 +57,23 @@ class ProjectController extends Controller
             'memberships' => $this->scope->memberships($user),
             'history' => $this->historyFor($items),
         ]);
+    }
+
+    /**
+     * الاعتماد الأوّل للمشروع التشغيليّ (23 — 1.8، هيدر السطر 5332) — مرّةً
+     * واحدة فقط، ثمّ «يعمل باستمرار»؛ لا اعتراض ولا رفض منصوصان له.
+     */
+    public function approve(Request $request, Project $project)
+    {
+        abort_if($project->approval_status === 'approved', 422, (string) setting('workflow.projects.approve_msg', 'المشروع معتمَدٌ بالفعل.'));
+
+        $project->forceFill([
+            'approval_status' => 'approved',
+            'approved_at' => now(),
+            'approved_by' => $request->user()->id,
+        ])->save();
+
+        return back()->with('status', (string) setting('workflow.projects.approve_ok', 'اعتُمد المشروع التشغيليّ ✓ — دائمٌ ويعمل باستمرار.'));
     }
 
     /**

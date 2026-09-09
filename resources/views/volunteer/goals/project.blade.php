@@ -15,8 +15,16 @@
             {{-- شارة «دائم — لا يُغلَق» (23 — 1.8) --}}
             <x-state-badge state="honor" :label="setting('volunteer.goals_project.label_2', 'دائم — لا يُغلَق')" />
             @if ($project)
-                <x-state-badge :state="$project->status === 'active' ? 'ok' : 'idle'"
-                               :label="$project->status === 'active' ? setting('volunteer.goals_project.label_3', 'الاعتماد الأوّل تمّ') : setting('volunteer.goals_project.label_4', 'بانتظار الاعتماد الأوّل')" />
+                <x-state-badge :state="$project->approval_status === 'approved' ? 'ok' : 'idle'"
+                               :label="$project->approval_status === 'approved' ? setting('volunteer.goals_project.label_3', 'الاعتماد الأوّل تمّ') : setting('volunteer.goals_project.label_4', 'بانتظار الاعتماد الأوّل')" />
+
+                @if ($project->approval_status !== 'approved' && $user->allows('operational_projects.approve', $project))
+                    <form method="post" action="{{ route('volunteer.project.approve', $project) }}">
+                        @csrf
+                        <button type="submit" class="btn rounded-xl px-4 py-2 text-sm font-semibold"
+                                style="background: var(--color-brand-500); color: #04201c">{{ setting('volunteer.goals_project.action_2', 'اعتماد المشروع') }}</button>
+                    </form>
+                @endif
             @endif
         </x-slot:action>
     </x-page-header>

@@ -51,6 +51,7 @@ class OperationalProject
             'type' => 'operational',
             'is_permanent' => true,
             'status' => 'active',
+            'approval_status' => 'pending',
         ]);
 
         WorkPackage::create([

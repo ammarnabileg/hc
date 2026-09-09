@@ -704,6 +704,7 @@ class VolunteerScreensDemoSeeder extends Seeder
             ['volunteer.goals_progress.text', 'المشاريع والأهداف: الإنجاز', 'الإنجاز'],
             ['volunteer.goals_progress.text_2', 'المشاريع والأهداف: مهمّة مُغلَقة — مستبعَدة من حساب النسبة', 'مهمّة مُغلَقة — مستبعَدة من حساب النسبة'],
             ['volunteer.goals_project.action', 'المشاريع والأهداف: شوف نوبتك', 'شوف نوبتك'],
+            ['volunteer.goals_project.action_2', 'المشاريع والأهداف: اعتماد المشروع', 'اعتماد المشروع'],
             ['volunteer.goals_project.empty', 'المشاريع والأهداف: المشروع التشغيليّ جاهز — لسّه بلا بنود', 'المشروع التشغيليّ جاهز — لسّه بلا بنود'],
             ['volunteer.goals_project.field', 'المشاريع والأهداف: التكرار', 'التكرار'],
             ['volunteer.goals_project.field_2', 'المشاريع والأهداف: الجمهور', 'الجمهور'],
