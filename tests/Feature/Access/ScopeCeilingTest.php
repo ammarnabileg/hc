@@ -6,6 +6,7 @@ use App\Models\Permission;
 use App\Models\PermissionUser;
 use App\Models\Role;
 use App\Models\User;
+use App\Services\Admin\RoleEditor;
 use App\Support\Access\AccessEngine;
 use Database\Seeders\AdminCoreDemoSeeder;
 use Database\Seeders\CoreSeeder;
@@ -199,6 +200,36 @@ class ScopeCeilingTest extends TestCase
             ->where('role_id', $role->id)
             ->where('permission_id', $permission->id)
             ->value('scope'));
+    }
+
+    /**
+     * ⭐⭐ **`RoleEditor::save()` آمنة بذاتها — بلا المرور على حارس الكنترولر.**
+     *
+     * كان الفحص السابق موجودًا فقط في `RoleController::scopesBeyondCeiling()`
+     * (حارسٌ يسبق النداء)، وداخل `save()` نفسها النطاق الخارج عن السقف كان
+     * **يُستبدَل بالافتراضيّ صامتًا** (`@ALL` ⟵ `@SELF`) بلا رفضٍ ولا رسالة —
+     * فمن نادى الخدمة مباشرةً (خارج هذا الكنترولر) كان يُصغَّر منحه في السرّ.
+     * هذا الاختبار ينادي `save()` وحدها، متجاوزًا الكنترولر كلّيًّا.
+     */
+    public function test_role_editor_save_itself_refuses_instead_of_narrowing_silently(): void
+    {
+        $owner = $this->owner();
+        $role = Role::create(['key' => 'r_ceiling_direct', 'name_ar' => 'دور اختبار مباشر', 'layer' => 'platform']);
+        $permission = Permission::where('key', self::CAPPED_KEY)->firstOrFail();
+
+        $result = app(RoleEditor::class)->save($role, $owner, $permission->group, [
+            $permission->id => ['on' => '1', 'scope' => 'ALL', 'effect' => 'allow'],
+        ]);
+
+        $this->assertNotSame([], $result['rejected'], 'save() نفسها ترفض — لا تصغّر النطاق صامتًا');
+        $this->assertSame(0, $result['written']);
+
+        $written = DB::table('permission_role')
+            ->where('role_id', $role->id)
+            ->where('permission_id', $permission->id)
+            ->first();
+
+        $this->assertNull($written, 'ما اتحفظش سطر بنطاق @SELF ولا بأيّ نطاق آخر — لا وراثة صامتة (12.2.1-د)');
     }
 
     // ------------------------------------------ قاعدةٌ واحدة تحرس البابين

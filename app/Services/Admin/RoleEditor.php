@@ -135,8 +135,26 @@ class RoleEditor
             $scope = (string) ($row['scope'] ?? $this->defaultScope($permission));
             $effect = ($row['effect'] ?? 'allow') === 'deny' ? 'deny' : 'allow';
 
-            if (! in_array($scope, $permission->allowed_scopes ?: config('access.scopes'), true)) {
-                $scope = $this->defaultScope($permission);
+            /*
+             | ⭐ سقف نطاق المصفوفة (12.2.2): نطاقٌ خارج `allowed_scopes` **يُرفَض
+             | صراحةً**، لا يُستبدَل بالافتراضيّ في السرّ — فالتضييق الصامت نقيض
+             | 12.2.1-د «يرى بعينه ما مُنِح». هذا الفحص يحمي `save()` بذاتها حتى
+             | لو نودِيَت مباشرةً بلا مرور على `RoleController::scopesBeyondCeiling()`.
+             */
+            if ($effect === 'allow' && ! in_array($scope, $permission->allowed_scopes ?: config('access.scopes'), true)) {
+                $rejected[] = strtr(
+                    (string) setting(
+                        'admin.roles.scope_ceiling_message',
+                        'مقدرناش نحفظ «:permission» بنطاق :scope — المصفوفة (12.2.2) بتحدّد لها :scopes وبس.',
+                    ),
+                    [
+                        ':permission' => $permission->label_ar.' ('.$permission->key.')',
+                        ':scope' => $scope,
+                        ':scopes' => implode(' · ', $permission->allowed_scopes ?: config('access.scopes')),
+                    ],
+                );
+
+                continue;
             }
 
             // ⭐ منع تصعيد الامتياز — يُفحَص **قبل** كتابة أيّ سطر، والرفض برسالة تشرح
