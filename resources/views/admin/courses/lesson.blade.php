@@ -76,6 +76,8 @@
 
                     {{-- المرفقات الحاليّة رقائق، ولكلٍّ حقلٌ مخفيّ يحمل آيدي عنصر المكتبة --}}
                     <div class="flex flex-wrap gap-2 mt-2" data-media-multi="attachment_ids">
+                        <span class="text-xs {{ $attachments->isEmpty() ? '' : 'hidden' }}" data-multi-empty
+                              style="color: var(--text-muted)">{{ setting('media.picker.attachments_empty', 'مافيش مرفقات لسه.') }}</span>
                         @foreach ($attachments as $row)
                             @continue (! $row->media_item)
                             <span class="inline-flex items-center gap-2 rounded-xl px-3 py-1.5 text-xs"

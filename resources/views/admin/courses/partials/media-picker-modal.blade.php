@@ -187,6 +187,7 @@
                     box.appendChild(chip);
                 });
 
+                box.querySelector('[data-multi-empty]')?.classList.toggle('hidden', !!box.querySelector('[data-multi-id]'));
                 box.dispatchEvent(new Event('change', { bubbles: true }));
                 close();
             }
@@ -199,6 +200,7 @@
                     const chip = remove.closest('[data-multi-id]');
                     const box = chip?.parentElement;
                     chip?.remove();
+                    box?.querySelector('[data-multi-empty]')?.classList.toggle('hidden', !!box?.querySelector('[data-multi-id]'));
                     box?.dispatchEvent(new Event('change', { bubbles: true }));
                     return;
                 }

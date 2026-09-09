@@ -110,6 +110,48 @@ class LessonAttachmentsPickerTest extends AdminContentTestCase
         );
     }
 
+    /**
+     * ⭐ فجوة `settings:coverage --dead`: `media.picker.attachments_empty` كان
+     * مزروعًا بلا قارئ — درسٌ بلا مرفقات كان يطبع صفًّا فارغًا بلا أيّ نصّ.
+     */
+    public function test_the_empty_state_text_shows_when_the_lesson_has_no_attachments(): void
+    {
+        $lesson = $this->anyLesson();
+        $this->assertSame(0, LessonAttachment::query()->where('lesson_id', $lesson->id)->count(),
+            'الدرس عنده مرفقات فعلًا — فالاختبار لا يقيس الحالة الفارغة.');
+
+        $html = $this->actingAs($this->admin())
+            ->get(route('admin.lessons.show', $lesson))
+            ->assertOk()->getContent();
+
+        $this->assertStringContainsString(setting('media.picker.attachments_empty'), $html,
+            'نصّ «لا مرفقات» مزروعٌ في الإعدادات لكنّه لا يُطبَع — الإعداد بلا قارئ.');
+
+        // والنصّ مطبوعٌ ظاهرًا لا بصنف `hidden` — فالحالة الفارغة فعلًا فارغة
+        $this->assertStringNotContainsString('hidden', $this->emptyStateTag($html),
+            'النصّ مطبوعٌ لكنّه مخفيٌّ بصنف hidden رغم عدم وجود مرفقات.');
+    }
+
+    /** ⭐ وحين توجد مرفقات، نصّ الحالة الفارغة موجودٌ في الشجرة لكن مخفيّ — لا يظهر مكرَّرًا بجوار الرقائق. */
+    public function test_the_empty_state_text_stays_hidden_when_the_lesson_has_attachments(): void
+    {
+        $items = $this->seedLibrary(1);
+        $lesson = $this->anyLesson();
+
+        $this->actingAs($this->admin())
+            ->put(route('admin.lessons.update', $lesson), $this->lessonPayload($lesson, [
+                'attachment_ids' => [$items->first()->id],
+            ]))->assertRedirect();
+
+        $html = $this->actingAs($this->admin())
+            ->get(route('admin.lessons.show', $lesson))
+            ->assertOk()->getContent();
+
+        $this->assertStringContainsString('data-multi-id="'.$items->first()->id.'"', $html);
+        $this->assertStringContainsString('hidden', $this->emptyStateTag($html),
+            'النصّ الفارغ ظاهرٌ رغم وجود مرفق فعليّ — فسيظهر مكرَّرًا بجوار الرقاقة.');
+    }
+
     /** ⚠️ **الغياب تفريغٌ لا سهو**: إزالة آخر مرفق تصل الخادم فعلًا. */
     public function test_clearing_every_attachment_actually_clears_them(): void
     {
@@ -145,6 +187,17 @@ class LessonAttachmentsPickerTest extends AdminContentTestCase
             'size' => 1024,
             'hash' => hash('sha256', 'library-'.$i),
         ]));
+    }
+
+    /** يعزل وسم نصّ الحالة الفارغة `data-multi-empty` من صفحة الدرس لفحص صنفه. */
+    private function emptyStateTag(string $html): string
+    {
+        $this->assertMatchesRegularExpression('/<span[^>]*data-multi-empty[^>]*>/', $html,
+            'وسم `data-multi-empty` غائبٌ عن الصفحة إطلاقًا.');
+
+        preg_match('/<span[^>]*data-multi-empty[^>]*>/', $html, $matches);
+
+        return $matches[0];
     }
 
     private function anyLesson(): Lesson
