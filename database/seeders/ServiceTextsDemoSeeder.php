@@ -1286,6 +1286,16 @@ APP_DEBUG=false
             ['store.topup_review_service.money_1', 'store', ':p1 كوينز', 'string', ':p1 كوينز', false],
             ['store.topup_review_service.resolve_amount_1', 'store', 'اختار عرضًا مفعَّلًا من القائمة.', 'string', 'اختار عرضًا مفعَّلًا من القائمة.', false],
             ['store.topup_review_service.resolve_amount_2', 'store', 'القيمة اليدويّة لازم تكون من :p1 إلى :p2.', 'string', 'القيمة اليدويّة لازم تكون من :p1 إلى :p2.', false],
+            ['finance.withdraw_review.approve_1', 'store', 'الطلب ده مش في حالة «قيد المراجعة» — راجع حالته الأوّل.', 'string', 'الطلب ده مش في حالة «قيد المراجعة» — راجع حالته الأوّل.', false],
+            ['finance.withdraw_review.approve_2', 'store', 'اكتب ملاحظة الصرف — بيتسجّل في سجلّ التدقيق ويوصل صاحب الطلب.', 'string', 'اكتب ملاحظة الصرف — بيتسجّل في سجلّ التدقيق ويوصل صاحب الطلب.', false],
+            ['finance.withdraw_review.approve_3', 'store', 'الطلب اتعالج بالفعل.', 'string', 'الطلب اتعالج بالفعل.', false],
+            ['finance.withdraw_review.approve_4', 'store', 'طلب السحب اتصرف ✓', 'string', 'طلب السحب اتصرف ✓', false],
+            ['finance.withdraw_review.approve_5', 'store', 'طلبك رقم :p1 اتحوّل — :p2.', 'string', 'طلبك رقم :p1 اتحوّل — :p2.', false],
+            ['finance.withdraw_review.reject_1', 'store', 'الطلب ده مش في حالة «قيد المراجعة» — راجع حالته الأوّل.', 'string', 'الطلب ده مش في حالة «قيد المراجعة» — راجع حالته الأوّل.', false],
+            ['finance.withdraw_review.reject_2', 'store', 'سبب الرفض إلزاميّ — المستخدم لازم يفهم يعدّل إيه.', 'string', 'سبب الرفض إلزاميّ — المستخدم لازم يفهم يعدّل إيه.', false],
+            ['finance.withdraw_review.reject_3', 'store', 'الطلب اتعالج بالفعل.', 'string', 'الطلب اتعالج بالفعل.', false],
+            ['finance.withdraw_review.reject_4', 'store', 'طلب السحب اترفض', 'string', 'طلب السحب اترفض', false],
+            ['finance.withdraw_review.reject_5', 'store', ':p1 — والمبلغ رجع لمحفظتك، تقدر تبعت طلبًا جديدًا.', 'string', ':p1 — والمبلغ رجع لمحفظتك، تقدر تبعت طلبًا جديدًا.', false],
 
             // ---------------- system
             ['system.settings_registry.group_catalog_1', 'system', 'النظام', 'string', 'النظام', false],

@@ -144,6 +144,14 @@ class HttpTextDemoSeeder extends Seeder
             ['events.admin.save_settings_ok', 'events', 'saveSettings() — اتحفظ ✓', 'اتحفظ ✓'],
             // ---- app/Http/Controllers/Admin/FinanceController.php
             ['finance.admin.save_refund_policy_ok', 'finance', 'saveRefundPolicy() — نصّ سياسة الاسترجاع اتحفظ ✓', 'نصّ سياسة الاسترجاع اتحفظ ✓'],
+            // ---- app/Http/Controllers/Admin/WithdrawAdminController.php
+            ['finance.withdraw.admin.approve_ok', 'store', 'approve() — الطلب اتصرف ✓', 'الطلب اتصرف ✓'],
+            ['finance.withdraw.admin.owner_only', 'store', 'assertOwner() — اعتماد السحب ورفضه لمالك المنصّة وحده.', 'اعتماد السحب ورفضه لمالك المنصّة وحده.'],
+            ['finance.withdraw.admin.reject_ok', 'store', 'reject() — الطلب اترفض والمبلغ رجع لصاحبه ✓', 'الطلب اترفض والمبلغ رجع لصاحبه ✓'],
+            ['finance.withdraw.admin.status_paid', 'store', 'statuses() — 🟢 مستلمة', '🟢 مستلمة'],
+            ['finance.withdraw.admin.status_pending', 'store', 'statuses() — 🟡 قيد المراجعة', '🟡 قيد المراجعة'],
+            ['finance.withdraw.admin.status_processing', 'store', 'statuses() — 🔵 قيد التحويل', '🔵 قيد التحويل'],
+            ['finance.withdraw.admin.status_rejected', 'store', 'statuses() — 🔴 مرفوضة', '🔴 مرفوضة'],
             // ---- app/Http/Controllers/Admin/GamificationController.php
             ['gamification.admin.save_settings_ok', 'gamification_xp', 'saveSettings() — اتحفظ ✓', 'اتحفظ ✓'],
             ['gamification.admin.reset_group_ok', 'gamification_xp', 'resetGroup() — رجعت :a1 قيمة للافتراضيّ ✓', 'رجعت :a1 قيمة للافتراضيّ ✓'],

@@ -23,7 +23,7 @@
   - `admin-developers.php` — 13 مسارًا · 11 حارس صلاحيّة.
   - `admin-ops.php` — 27 مسارًا · 17 حارس صلاحيّة.
   - `admin-screens24.php` — 40 مسارًا · البادئة `admin.` · 23 حارس صلاحيّة.
-  - `admin-system.php` — 90 مسارًا · البادئة `admin.` · 41 حارس صلاحيّة.
+  - `admin-system.php` — 94 مسارًا · البادئة `admin.` · 44 حارس صلاحيّة.
   - `admin-volunteer.php` — 116 مسارًا · البادئة `admin.` · `volunteer.` · `investigations.` · `gamification.` · `rewards.` · `events.` · 110 حارس صلاحيّة.
   - `announcements.php` — 9 مسارًا · 0 حارس صلاحيّة.
   - `api-v1.php` — 4 مسارًا · 0 حارس صلاحيّة.
@@ -141,6 +141,6 @@
 
 ## 🕒 آخر تحديث
 <!-- تلقائيّ:بداية:التحديث -->
-- **آخر توليد لهذه الوثيقة:** 2026-08-07 — `php artisan docs:status`.
+- **آخر توليد لهذه الوثيقة:** 2026-09-09 — `php artisan docs:status`.
 - **آخر لمسة للمجلّد:** 2026-08-07 — Claude.
 <!-- تلقائيّ:نهاية:التحديث -->

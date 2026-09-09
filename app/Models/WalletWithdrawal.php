@@ -42,6 +42,11 @@ class WalletWithdrawal extends Model
         return $this->belongsTo(User::class, 'user_id');
     }
 
+    public function processed_by(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'processed_by');
+    }
+
     /** حالة بقاموس 2.16 — لون ومعه رمز دائمًا */
     public function state(): string
     {

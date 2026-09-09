@@ -50,13 +50,13 @@
 ## 🔗 التبعيّات والملفّات المهمّة
 <!-- تلقائيّ:بداية:التبعيات -->
 - **الطبقات الأخرى لنفس المجال:** `app/Services/Admin` · `app/Http/Controllers/Admin` · `resources/views/admin` · `routes/parts` · `tests/Feature/Admin`
-- **الاختبارات:** 1 ملفّ Feature في `tests/Feature/Admin` — شغّلها بـ`php artisan test tests/Feature/Admin`.
+- **الاختبارات:** 2 ملفّ Feature في `tests/Feature/Admin` — شغّلها بـ`php artisan test tests/Feature/Admin`.
 - **المرجع الحاكم:** `دستور اساسي.md` · **وكيف نكتب:** `docs/BUILD.md`.
 - **المجلّد الأب:** `app/Services/Admin/_STATUS.md`.
 <!-- تلقائيّ:نهاية:التبعيات -->
 
 ## 🕒 آخر تحديث
 <!-- تلقائيّ:بداية:التحديث -->
-- **آخر توليد لهذه الوثيقة:** 2026-08-03 — `php artisan docs:status`.
-- **آخر لمسة للمجلّد:** 2026-08-03 — Claude.
+- **آخر توليد لهذه الوثيقة:** 2026-09-09 — `php artisan docs:status`.
+- **آخر لمسة للمجلّد:** 2026-08-06 — Claude.
 <!-- تلقائيّ:نهاية:التحديث -->

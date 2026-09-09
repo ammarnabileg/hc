@@ -86,6 +86,8 @@ class ScreenLimitsDemoSeeder extends Seeder
             // ---------------- المتجر والشحن
             ['topup.admin.user_history_rows', 'store', 'عدد طلبات الشحن السابقة في شاشة المراجعة', 'number', '5'],
             ['topup.history.per_page', 'store', 'عدد طلبات الشحن في صفحة المتدرّب', 'number', '10'],
+            ['finance.withdraw.admin.per_page', 'store', 'عدد طلبات السحب لكلّ صفحة', 'number', '20'],
+            ['finance.withdraw.admin.user_history_rows', 'store', 'عدد طلبات السحب السابقة في شاشة المراجعة', 'number', '5'],
 
             // ---------------- المحفظة
             ['wallet.recent_rows', 'wallet', 'عدد المعاملات الأخيرة في المحفظة', 'number', '5'],

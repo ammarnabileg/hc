@@ -151,6 +151,8 @@
             [setting('nav.admin.item_store_library', 'المكتبة الرقميّة والحماية'), 'admin.store.index', ['product_protection.view', $storeGate], ['tab' => 'library']],
             // ⬇︎ خارج نصّ 12.0: شاشة طلبات الشحن المبنيّة (18)
             [setting('nav.admin.item_store_topups', 'طلبات الشحن'), 'admin.topups.index', 'topup_requests.list'],
+            // ⬇︎ خارج نصّ 12.0: شاشة طلبات السحب المبنيّة (19.2 · 19.3)
+            [setting('nav.admin.item_store_withdrawals', 'طلبات السحب'), 'admin.withdrawals.index', 'withdraw.list'],
             // 🔒 الماليّات مجموعة محميّة **لمالك المنصّة وحده** (12.0 · 2.13-و):
             // شرط الملكيّة فوق فحص الصلاحيّة — حزامٌ وحمّالة، والبند يُخفى لا يُعطَّل.
             ...($u->isPlatformOwner() ? [

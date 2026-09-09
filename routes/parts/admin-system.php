@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\SettingsAdminController;
 use App\Http\Controllers\Admin\StatsController;
 use App\Http\Controllers\Admin\StoreAdminController;
 use App\Http\Controllers\Admin\TopupAdminController;
+use App\Http\Controllers\Admin\WithdrawAdminController;
 use App\Http\Middleware\EnsureFeatureEnabled;
 use App\Services\Admin\System\StatsService;
 use Illuminate\Contracts\Http\Kernel as HttpKernel;
@@ -158,6 +159,19 @@ Route::middleware(['auth', 'admin.panel'])->prefix('admin')->name('admin.')->gro
         Route::post('/topups/gateway', [TopupAdminController::class, 'saveGateway'])->name('topups.gateway.save');
         Route::post('/topups/gateway/test', [TopupAdminController::class, 'testGateway'])->name('topups.gateway.test');
     });
+
+    // ------------------------------------------------------------ طلبات السحب (19.2 · 19.3)
+    Route::middleware('permission:withdraw.list')->group(function () {
+        Route::get('/withdrawals', [WithdrawAdminController::class, 'index'])->name('withdrawals.index');
+        Route::get('/withdrawals/{withdrawal}', [WithdrawAdminController::class, 'show'])->name('withdrawals.show');
+    });
+
+    // 🔒 الاعتماد والرفض لمالك المنصّة وحده — is_owner_only في المصفوفة
+    Route::middleware('permission:withdraw.approve')
+        ->post('/withdrawals/{withdrawal}/approve', [WithdrawAdminController::class, 'approve'])->name('withdrawals.approve');
+
+    Route::middleware('permission:withdraw.reject')
+        ->post('/withdrawals/{withdrawal}/reject', [WithdrawAdminController::class, 'reject'])->name('withdrawals.reject');
 
     /*
      | ------------------------------------------------------------ الإحصائيّات
