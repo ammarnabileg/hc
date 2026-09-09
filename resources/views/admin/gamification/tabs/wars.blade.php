@@ -31,9 +31,22 @@
     {{-- يمين: بطاقة لكلّ حرب (أيقونة SVG + لون + سويتش + آخر تعديل) --}}
     <aside class="lg:col-span-1 space-y-2">
         @forelse ($data['challenges'] as $challenge)
-            <a href="{{ route('admin.gamification.index', ['tab' => 'wars', 'war' => $challenge->id]) }}"
-               class="card p-3 flex items-center gap-3 motion-standard hover:opacity-90"
-               style="{{ $selected?->id === $challenge->id ? 'border-color: var(--color-brand-500)' : '' }}">
+            {{--
+                ⭐ [2026-09-10] بطاقة الحرب (12.10-ج سطر 2553 · 4928): «أيقونة SVG
+                + لون مميّز + سويتش تفعيل/إيقاف + آخر تعديل». الأيقونة واللون
+                وآخر التعديل كانت موجودةً فعلًا — الناقص وحده سويتشٌ فعليّ؛ ما
+                كان موجودًا شارة «● مفعّلة» للعرض فقط، والتفعيل الحقيقيّ مدفونٌ
+                داخل فورم التفاصيل. فالبطاقة صارت `<div>` لا `<a>` (لا تُعشِّش
+                سويتشًا تفاعليًّا داخل رابطٍ — HTML غير صالح) والاسم وحده رابطٌ
+                للتفاصيل، والسويتش يرسل نفس مسار الحفظ القائم بحقلٍ واحد فقط
+                (`is_active`) — وWarSettingsService::save() يتجاهل الحقول
+                الغائبة فلا يمسح شيئًا آخر.
+            --}}
+            @php
+                $rowLocked = WarSettingsService::isLocked($challenge);
+            @endphp
+            <div class="card p-3 flex items-center gap-3"
+                 style="{{ $selected?->id === $challenge->id ? 'border-color: var(--color-brand-500)' : '' }}">
                 <span class="shrink-0 inline-flex items-center justify-center rounded-xl"
                       style="width: 40px; height: 40px; background: {{ $challenge->color ?: 'var(--surface-sunken)' }}20; border: 1px solid var(--border)">
                     {{-- أيقونة الحرب SVG بهويّة المنصّة — ممنوع أيّ مكتبة أيقونات (2.16-ج) --}}
@@ -45,17 +58,36 @@
                     </svg>
                 </span>
 
-                <span class="min-w-0 flex-1">
+                <a href="{{ route('admin.gamification.index', ['tab' => 'wars', 'war' => $challenge->id]) }}"
+                   class="min-w-0 flex-1 block motion-standard hover:opacity-90">
                     <span class="block truncate font-semibold text-sm">{{ $challenge->name_ar }}</span>
                     <span class="block text-xs" style="color: var(--text-muted)"
                           title="{{ $challenge->updated_at?->format('Y-m-d H:i') }}">
                         {{ setting('admin.gamification.tabs.wars.akhr_tadyl', 'آخر تعديل') }} {{ $challenge->updated_at?->diffForHumans() }}
                     </span>
-                </span>
+                </a>
 
-                <x-state-badge :state="$challenge->is_active ? 'ok' : 'idle'"
-                               :label="$challenge->is_active ? setting('admin.gamification.tabs.wars.mfala', 'مفعّلة') : setting('admin.gamification.tabs.wars.mwqwfa', 'موقوفة')" />
-            </a>
+                @can('wars_settings.edit')
+                    {{-- سويتشٌ فعليّ — ضغطةٌ واحدة ترسل نفس مسار الحفظ بحقل is_active وحده --}}
+                    <form method="post" action="{{ route('admin.gamification.wars.save', $challenge) }}" class="shrink-0">
+                        @csrf
+                        <input type="hidden" name="is_active" value="0">
+                        <label class="relative inline-flex items-center cursor-pointer select-none"
+                               style="min-block-size: var(--touch-min, 44px)"
+                               @if ($rowLocked) title="{{ WarSettingsService::lockMessage() }}" @endif>
+                            <input type="checkbox" name="is_active" value="1" @checked($challenge->is_active) @disabled($rowLocked)
+                                   onchange="this.form.requestSubmit()" class="absolute"
+                                   style="inline-size: 1px; block-size: 1px; padding: 0; margin: -1px;
+                                          overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0"
+                                   aria-label="{{ $challenge->is_active ? setting('admin.gamification.tabs.wars.mfala', 'مفعّلة') : setting('admin.gamification.tabs.wars.mwqwfa', 'موقوفة') }}">
+                            <span class="hc-switch" aria-hidden="true"></span>
+                        </label>
+                    </form>
+                @else
+                    <x-state-badge :state="$challenge->is_active ? 'ok' : 'idle'"
+                                   :label="$challenge->is_active ? setting('admin.gamification.tabs.wars.mfala', 'مفعّلة') : setting('admin.gamification.tabs.wars.mwqwfa', 'موقوفة')" />
+                @endcan
+            </div>
         @empty
             <x-empty :message="setting('admin.gamification.tabs.wars.lm_tdf_hrwb_bad', 'لم تُضَف حروب بعد.')" />
         @endforelse
