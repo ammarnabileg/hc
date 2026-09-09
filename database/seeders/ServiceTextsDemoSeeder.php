@@ -1976,6 +1976,7 @@ APP_DEBUG=false
             ['volunteer_org.settings_catalog.org_7', 'volunteer_org', 'اقتراح الموازن للأقلّ إشغالًا', 'string', 'اقتراح الموازن للأقلّ إشغالًا', false],
             ['volunteer_org.settings_catalog.org_8', 'volunteer_org', 'حدّ العضويّات لكلّ مسار', 'string', 'حدّ العضويّات لكلّ مسار', false],
             ['volunteer_org.settings_catalog.org_9', 'volunteer_org', 'البوزشن الذي يفتح الملفّ المؤقّت ويُنهيه', 'string', 'البوزشن الذي يفتح الملفّ المؤقّت ويُنهيه', false],
+            ['volunteer_org.track_capacity_guard.assert_within_cap_1', 'volunteer_org', 'عنده بالفعل :p1 عضويّة فعّالة في هذا المسار — الحدّ :p2.', 'string', 'عنده بالفعل :p1 عضويّة فعّالة في هذا المسار — الحدّ :p2.', false],
             ['volunteer.promotion_ladder.notify_title', 'volunteer_org', 'مبروك الترقية 🎖️', 'string', 'مبروك الترقية 🎖️', false],
             ['volunteer.promotion_ladder.notify_body', 'volunteer_org', 'سلّم الترقية رشّحك واستلمت البوزشن فورًا.', 'string', 'سلّم الترقية رشّحك واستلمت البوزشن فورًا.', false],
             ['volunteer.promotion_ladder.notify_acting_title', 'volunteer_org', 'اتصعّدت «قائم بأعمال» 🎖️', 'string', 'اتصعّدت «قائم بأعمال» 🎖️', false],

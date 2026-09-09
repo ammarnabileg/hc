@@ -9,6 +9,7 @@ use App\Models\Position;
 use App\Models\RecruitmentCandidate;
 use App\Models\User;
 use App\Services\Volunteer\Org\CardIssuer;
+use App\Services\Volunteer\Org\TrackCapacityGuard;
 use App\Services\Volunteer\Retention\OptionalCutService;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -378,10 +379,10 @@ class PlacementService
         $candidateUser = $candidate->user ?: User::query()->find($candidate->user_id);
 
         if ($candidateUser) {
-            app(OptionalCutService::class)->assertMayJoin(
-                $candidateUser,
-                Entity::query()->with('track')->find($request->entity_id),
-            );
+            $entity = Entity::query()->with('track')->find($request->entity_id);
+
+            app(OptionalCutService::class)->assertMayJoin($candidateUser, $entity);
+            app(TrackCapacityGuard::class)->assertWithinCap($candidateUser, $entity);
         }
 
         $hasPrimary = Membership::query()

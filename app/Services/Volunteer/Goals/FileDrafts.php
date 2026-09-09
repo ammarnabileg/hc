@@ -9,6 +9,7 @@ use App\Models\Position;
 use App\Models\Track;
 use App\Models\User;
 use App\Services\Notifications\Notifier;
+use App\Services\Volunteer\Org\TrackCapacityGuard;
 use App\Services\Volunteer\Retention\OptionalCutService;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
@@ -135,7 +136,9 @@ class FileDrafts
                 $invited = User::query()->find($userId);
 
                 if ($invited) {
-                    app(OptionalCutService::class)->assertMayJoin($invited, $entity->loadMissing('track'));
+                    $entity->loadMissing('track');
+                    app(OptionalCutService::class)->assertMayJoin($invited, $entity);
+                    app(TrackCapacityGuard::class)->assertWithinCap($invited, $entity);
                 }
 
                 Membership::create([

@@ -493,4 +493,32 @@ class GoalFileDraftsTest extends GoalsTestCase
         $this->assertSame($this->filesSupervisor->id, (int) $upline->user_id,
             'أبلاين الدعوة عضويّةُ شخصٍ آخر — الرقم اتحطّ كمعرّف مستخدم لا كمعرّف عضويّة.');
     }
+
+    /**
+     * ⭐ حدّ العضويّة الواحدة لكلّ مسار (23-0.2): مدعوٌّ عنده عضويّة فعّالة في
+     * ملفٍّ آخر بالفعل لا تُفتَح له عضويّة ثانية في نفس مسار الملفّات — الحدّ
+     * إعدادٌ افتراضه 1، وكان مزروعًا بلا قارئٍ له إطلاقًا.
+     */
+    #[Test]
+    public function an_invitee_already_active_on_the_files_track_cannot_be_invited_to_a_second_file(): void
+    {
+        $this->makeMembership($this->invitee, $this->fileEntity, null, 'coordinator');
+
+        $goal = $this->linkedGoal();
+
+        $this->actingAs($this->filesSupervisor)
+            ->post(route('volunteer.goals.build.file_drafts', $goal), [
+                'name' => 'ملفّ ثانٍ لنفس المسار',
+                'invitations' => [
+                    ['user_id' => $this->invitee->id, 'position_id' => $this->coordinatorPositionId()],
+                ],
+            ])
+            ->assertSessionHasErrors();
+
+        // الحارس داخل نفس معاملة إنشاء المسودّة — فسقوطه يسقط الإنشاء كلّه، ولا تبقى مسودّة معلَّقة
+        $this->assertFalse(
+            Entity::query()->where('name_ar', 'ملفّ ثانٍ لنفس المسار')->exists(),
+            'اتفتحت مسودّة ملفّ رغم سقوط حارس العضويّة أثناء إنشائها.',
+        );
+    }
 }
