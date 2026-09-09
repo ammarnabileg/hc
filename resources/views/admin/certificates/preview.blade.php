@@ -1,17 +1,30 @@
-@extends('layouts.admin')
+@php
+    /*
+     | ⭐ [2026-09-10] «معاينة قبل الإصدار (بوب-أب، الشهادات تحت بعضها)» (سطر
+     | 4660 · 12.5-ج) — كانت صفحةً كاملة لا بوب-أب. نفس الفيو بوجهين تمامًا
+     | كما في بوب-أب مكتبة الوسائط (`admin.courses.media-picker`): صفحةً
+     | كاملة كمسارٍ مباشر، وجزءًا عاريًا يُحقَن في البوب-أب حين يُطلَب
+     | بـ`?fragment=1` — مصدر واحد لا نسختان تتباعدان (2.15).
+     */
+    $fragment = request()->boolean('fragment');
+@endphp
+
+@extends($fragment ? 'admin.courses.partials.bare' : 'layouts.admin')
 
 @section('title', setting('admin.certificates.preview.maayna_qbl_alisdar_2', 'معاينة قبل الإصدار'))
 
 @section('content')
-    {{-- معاينة قبل الإصدار: الشهادات تحت بعضها ببياناتها الحقيقيّة (12.5-ج) --}}
-    <x-page-header
-        :title="setting('admin.certificates.preview.maayna_qbl_alisdar', 'معاينة قبل الإصدار — ').$type->name_ar"
-        :subtitle="$rows->count().setting('admin.certificates.preview.shhada_jahza_llmrajaa', ' شهادة جاهزة للمراجعة')"
-        :breadcrumbs="[
-            ['label' => setting('admin.certificates.preview.alshhadat', 'الشهادات'), 'url' => route('admin.certificates.index')],
-            ['label' => setting('admin.certificates.preview.isdar', 'إصدار'), 'url' => route('admin.certificates.index', ['tab' => 'issue'])],
-            ['label' => setting('admin.certificates.preview.almaayna', 'المعاينة')],
-        ]" />
+    @unless ($fragment)
+        {{-- معاينة قبل الإصدار: الشهادات تحت بعضها ببياناتها الحقيقيّة (12.5-ج) --}}
+        <x-page-header
+            :title="setting('admin.certificates.preview.maayna_qbl_alisdar', 'معاينة قبل الإصدار — ').$type->name_ar"
+            :subtitle="$rows->count().setting('admin.certificates.preview.shhada_jahza_llmrajaa', ' شهادة جاهزة للمراجعة')"
+            :breadcrumbs="[
+                ['label' => setting('admin.certificates.preview.alshhadat', 'الشهادات'), 'url' => route('admin.certificates.index')],
+                ['label' => setting('admin.certificates.preview.isdar', 'إصدار'), 'url' => route('admin.certificates.index', ['tab' => 'issue'])],
+                ['label' => setting('admin.certificates.preview.almaayna', 'المعاينة')],
+            ]" />
+    @endunless
 
     @if ($rows->isEmpty())
         <x-empty :message="setting('admin.certificates.preview.mfysh_kwd_salh_llmaayna', 'مفيش كود صالح للمعاينة.')"
@@ -52,5 +65,7 @@
         </form>
     @endif
 
-    @include('admin.courses.partials.toast')
+    @unless ($fragment)
+        @include('admin.courses.partials.toast')
+    @endunless
 @endsection

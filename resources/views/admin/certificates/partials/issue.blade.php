@@ -3,7 +3,7 @@
     <x-empty :message="setting('admin.certificates.partials.issue.jhz_nwa_shhada_alawl_ashan_tqdr_tsdr', 'جهّز نوع شهادة الأوّل عشان تقدر تصدر.')"
              :action="setting('admin.certificates.partials.issue.alanwaa_walqwalb', 'الأنواع والقوالب')" :href="route('admin.certificates.index', ['tab' => 'types'])" />
 @else
-    <form method="post" action="{{ route('admin.certificates.verify-codes') }}" class="card p-4 space-y-4">
+    <form method="post" action="{{ route('admin.certificates.verify-codes') }}" data-issue-form class="card p-4 space-y-4">
         @csrf
 
         <div class="grid md:grid-cols-2 gap-3">
@@ -55,10 +55,22 @@
         <div class="flex gap-2 flex-wrap">
             <button class="btn rounded-xl px-4 py-2 text-sm font-semibold"
                     style="background: var(--color-brand-500); color: #04201c">{{ setting('admin.certificates.partials.issue.thqq_mn_alakwad', 'تحقّق من الأكواد') }}</button>
-            <button formaction="{{ route('admin.certificates.preview') }}"
+            <button type="button" data-issue-preview-open
                     class="btn rounded-xl px-4 py-2 text-sm" style="background: var(--surface-raised)">{{ setting('admin.certificates.partials.issue.maayna_qbl_alisdar', 'معاينة قبل الإصدار') }}</button>
         </div>
     </form>
+
+    {{--
+        ⭐ [2026-09-10] «معاينة قبل الإصدار (بوب-أب، الشهادات تحت بعضها)»
+        (سطر 4660 · 12.5-ج) — كانت صفحةً كاملة لا بوب-أب. الرأس ثابت والجسم
+        `overflow-y:auto` كنصّ pop-box (17)، ومحتواه نفس فيو المعاينة بوجهه
+        العاري (`?fragment=1`) — فزرّ «أصدِر الشهادات» داخله حقيقيٌّ لا نسخة.
+    --}}
+    <x-modal id="issue-preview-modal" :title="setting('admin.certificates.partials.issue.maayna_qbl_alisdar', 'معاينة قبل الإصدار')">
+        <div data-issue-preview-body class="min-h-[6rem]">
+            <p class="text-sm" style="color: var(--text-muted)">{{ setting('admin.certificates.partials.issue.jar_altjhyz', 'جارٍ التجهيز…') }}</p>
+        </div>
+    </x-modal>
 
     @push('scripts')
         <script>
@@ -89,6 +101,37 @@
                 typeSelect.addEventListener('change', syncTemplates);
                 languageSelect.addEventListener('change', syncTemplates);
                 syncTemplates();
+            })();
+
+            // ⭐ [2026-09-10] «معاينة قبل الإصدار» بوب-أب — يجلب نفس الفيو بوجهه العاري (?fragment=1) بدل مغادرة الصفحة
+            (() => {
+                const openButton = document.querySelector('[data-issue-preview-open]');
+                const form = document.querySelector('[data-issue-form]');
+                const modal = document.getElementById('issue-preview-modal');
+                const body = modal?.querySelector('[data-issue-preview-body]');
+
+                if (! openButton || ! form || ! modal || ! body) return;
+
+                openButton.addEventListener('click', () => {
+                    body.innerHTML = '<p class="text-sm" style="color: var(--text-muted)">' + @json(setting('admin.certificates.partials.issue.jar_altjhyz')) + '</p>';
+                    modal.classList.remove('hidden');
+                    modal.classList.add('flex');
+
+                    const data = new FormData(form);
+                    data.set('fragment', '1');
+
+                    fetch('{{ route('admin.certificates.preview') }}', {
+                        method: 'POST',
+                        body: data,
+                        credentials: 'same-origin',
+                        headers: {'X-Requested-With': 'XMLHttpRequest'},
+                    })
+                        .then((response) => response.text())
+                        .then((html) => { body.innerHTML = html; })
+                        .catch(() => {
+                            body.innerHTML = '<p class="text-sm">' + @json(setting('admin.certificates.partials.issue.tathr_almaayna')) + '</p>';
+                        });
+                });
             })();
         </script>
     @endpush

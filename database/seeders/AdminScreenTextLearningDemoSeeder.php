@@ -440,6 +440,9 @@ class AdminScreenTextLearningDemoSeeder extends Seeder
             ['admin.certificates.partials.issue.akwad_alashkhas', 'certificates', 'أكواد الأشخاص', 'string', 'أكواد الأشخاص', 'نصّ في resources/views/admin/certificates/partials/issue.blade.php'],
             // ⭐ [2026-09-10] اختيار القالب وقت الإصدار (سطر 2406)
             ['admin.certificates.partials.issue.alqalb_akhtyary', 'certificates', 'القالب (اختياريّ)', 'string', 'القالب (اختياريّ)', 'نصّ في resources/views/admin/certificates/partials/issue.blade.php'],
+            // ⭐ [2026-09-10] بوب-أب «معاينة قبل الإصدار» (سطر 4660 · 12.5-ج)
+            ['admin.certificates.partials.issue.jar_altjhyz', 'certificates', 'جارٍ التجهيز…', 'string', 'جارٍ التجهيز…', 'نصّ في resources/views/admin/certificates/partials/issue.blade.php'],
+            ['admin.certificates.partials.issue.tathr_almaayna', 'certificates', 'تعذّرت المعاينة — جرّب تاني.', 'string', 'تعذّرت المعاينة — جرّب تاني.', 'نصّ في resources/views/admin/certificates/partials/issue.blade.php'],
             ['admin.certificates.partials.issue.altsmym_alaftraady_alahdth', 'certificates', 'التصميم الافتراضيّ/الأحدث', 'string', 'التصميم الافتراضيّ/الأحدث', 'نصّ في resources/views/admin/certificates/partials/issue.blade.php'],
             ['admin.certificates.partials.issue.nskha', 'certificates', 'نسخة', 'string', 'نسخة', 'نصّ في resources/views/admin/certificates/partials/issue.blade.php'],
             ['admin.certificates.partials.issue.alaftraadya', 'certificates', 'الافتراضيّة', 'string', 'الافتراضيّة', 'نصّ في resources/views/admin/certificates/partials/issue.blade.php'],
