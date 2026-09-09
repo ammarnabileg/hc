@@ -123,7 +123,7 @@ class FocusWarService
     }
 
     /** @throws WarRuleException */
-    public function join(User $user, FocusWar $war): FocusWarMember
+    public function join(User $user, FocusWar $war, ?Challenge $challenge = null): FocusWarMember
     {
         if ($war->status !== 'active') {
             throw new WarRuleException(setting('gamification_wars.focus_war_service.join_1', 'التحدّي ده اتقفل — اختار واحدًا نشطًا.'));
@@ -141,7 +141,9 @@ class FocusWarService
             throw new WarRuleException(setting('gamification_wars.focus_war_service.join_4', 'إنت منضمّ للتحدّي ده بالفعل — كمّل تركيزك.'));
         }
 
-        $cost = $this->rules->focusJoinCost();
+        // ⭐ نفس الحرب المعروضة على الشاشة (12.2.1) — Override السكشن ثمّ عمود
+        // `entry_cost` كانا يُحرَّران من اللوحة بلا أثر على الخصم الفعليّ (2.13)
+        $cost = $this->rules->focusJoinCost($challenge);
         $balance = $this->wallet->balance($user, 'tickets');
 
         if ($balance < $cost) {

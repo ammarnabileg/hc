@@ -47,6 +47,30 @@ class FocusWarTest extends ChallengeTestCase
         $this->assertEqualsWithDelta($before, $this->systemTickets(), 0.001);
     }
 
+    /**
+     * ⭐ تكلفة الانضمام المعروضة على الشاشة هي **نفسها** المخصومة فعليًّا (2.13):
+     * Override عمود `entry_cost` كان يُحرَّر من اللوحة بلا أثر على الخصم — لأنّ
+     * `FocusWarController::join()` كان يستدعي `FocusWarService::join()` بلا
+     * تمرير الحرب المُعدَّة، فيرتدّ الخصم دائمًا للقيمة العامّة الحاكمة.
+     */
+    public function test_the_entry_cost_override_is_the_amount_actually_charged_on_join(): void
+    {
+        $owner = $this->trainee(tickets: 20);
+        $joiner = $this->trainee(tickets: 20);
+
+        $challenge = $this->challenge('focus_war');
+        $default = (int) setting('wars.shared.join_tickets', 1);
+        $override = $default + 4;
+        $challenge->update(['entry_cost' => $override]);
+
+        $war = app(FocusWarService::class)->create($owner, $challenge, 15, null, true);
+
+        $this->actingAs($joiner)->post(route('challenges.focus.join', $war))->assertRedirect();
+
+        // الفرق المخصوم من المنضمّ = قيمة الـOverride، لا القيمة العامّة الافتراضيّة
+        $this->assertEqualsWithDelta(20 - $override, $this->ticketsOf($joiner), 0.001);
+    }
+
     /** حدّ أقصى 5 تحديات نشطة لكلّ حساب (15.3). */
     public function test_active_focus_wars_are_capped(): void
     {

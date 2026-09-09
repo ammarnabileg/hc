@@ -77,7 +77,7 @@ class FocusWarController extends Controller
     public function join(Request $request, FocusWar $focus_war): RedirectResponse
     {
         try {
-            $this->focus->join($request->user(), $focus_war);
+            $this->focus->join($request->user(), $focus_war, $this->challenge());
         } catch (WarRuleException $e) {
             return back()->with('status', $e->getMessage())->with('topup_needed', $e->shortfall());
         }
