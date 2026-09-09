@@ -8,6 +8,7 @@ use App\Models\Announcement;
 use App\Models\Complaint;
 use App\Models\ComplaintMessage;
 use App\Models\Course;
+use App\Models\EmailTemplate;
 use App\Models\HelpArticle;
 use App\Models\LearningPath;
 use App\Models\Role;
@@ -161,8 +162,10 @@ class GuidanceController extends Controller
 
     public function notifications(): View
     {
+        $types = $this->guidance->notificationTypes();
+
         return view('admin.guidance.notifications', [
-            'types' => $this->guidance->notificationTypes(),
+            'types' => $types,
             'grouping' => $this->guidance->groupingPreview(),
             'tabs' => $this->tabs('notifications'),
             'audiences' => $this->audienceOptions(),
@@ -170,6 +173,8 @@ class GuidanceController extends Controller
             'rateLimit' => (int) setting('notifications.rate_limit.per_user_per_day', 3),
             // ⭐ حالة حدّ الهدوء كما يُطبَّق فعلًا لا كما يُوعَد به (12.6-ب)
             'quietLimit' => $this->guidance->quietLimitState(),
+            // ⭐ عمودا «نصّ القالب»/«مفعّل» (24.3 سطر 5069) — قالب كلّ نوعٍ إن وُجد
+            'emailTemplates' => EmailTemplate::query()->whereIn('category', array_keys($types))->get()->keyBy('category'),
         ]);
     }
 
@@ -204,6 +209,31 @@ class GuidanceController extends Controller
         $this->guidance->saveNotificationMatrix($data['matrix'], $request->user());
 
         return back()->with('status', (string) setting('guidance.admin.save_matrix_ok', 'اتحفظت مصفوفة القنوات ✓'));
+    }
+
+    /**
+     * ⭐ معاينة الجرس (24.3 سطر 5067): العنوان والجسم كما سيصلان فعليًّا —
+     * قالب النوع لو مفعّلًا وإلّا نصٌّ افتراضيّ، ومركَّبًا بنفس محرّك التخصيص
+     * الذي يستهلكه `Notifier::send()` فعلًا (12.14: محرّك واحد لا ازدواج).
+     */
+    public function bellPreview(Request $request, AnnouncementPersonalizer $personalizer): View
+    {
+        $category = $request->string('category')->toString();
+        $types = $this->guidance->notificationTypes();
+        $category = array_key_exists($category, $types) ? $category : (string) array_key_first($types);
+
+        $template = EmailTemplate::forCategory($category);
+        $user = $request->user();
+
+        return view('admin.guidance.partials.bell-preview', [
+            'category' => $category,
+            'label' => $types[$category] ?? $category,
+            'title' => $template?->subject ? $personalizer->render($template->subject, $user) : ($types[$category] ?? $category),
+            'body' => $template
+                ? $personalizer->render($template->body, $user)
+                : (string) setting('guidance.admin.bell_preview_fallback', 'مفيش قالبٌ مفعّل لهذا النوع — هيوصل بالنصّ اللي بيبعته الحدث نفسه وقتها.'),
+            'hasTemplate' => (bool) $template,
+        ]);
     }
 
     // ============================================================== ج) دليل المستخدم

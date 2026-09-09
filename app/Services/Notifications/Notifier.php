@@ -4,6 +4,7 @@ namespace App\Services\Notifications;
 
 use App\Mail\AnnouncementMail;
 use App\Models\AppNotification;
+use App\Models\EmailTemplate;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
@@ -42,6 +43,14 @@ class Notifier
         bool $requiresAction = false,
     ): AppNotification {
         $layer = self::normalizeLayer($layer);
+
+        /*
+         | ⭐ «نصّ القالب»/«مفعّل» (24.3 سطر 5069): قالب `email_templates` المفعّل
+         | لهذا النوع يستبدل عنوان/جسم المستدعي — بلا قالبٍ مفعّل يبقى السلوك
+         | كما هو تمامًا (المستدعي حرٌّ كما كان). والاستبدال الديناميكيّ عبر نفس
+         | محرّك `AnnouncementPersonalizer` — لا محرّك ثانٍ (12.14).
+         */
+        [$title, $body] = self::applyTemplate($category, $title, $body, $user);
 
         /*
          | ⭐ مصفوفة النوع × القناة (24.3): نوعٌ محكومٌ بالمصفوفة وعمود «جرس»
@@ -120,6 +129,28 @@ class Notifier
         }
 
         return self::matrixGoverned($notification->category) && self::matrixAllows($notification->category, 'toast');
+    }
+
+    /**
+     * تطبيق قالب البريد المفعّل لهذا النوع (24.3 سطر 5069) — أو إرجاع النصّ
+     * كما وصل بلا تغيير لو لم يوجد قالبٌ مفعّل، فلا ينكسر أيّ مستدعٍ قائم.
+     *
+     * @return array{0: string, 1: ?string}
+     */
+    private static function applyTemplate(string $category, string $title, ?string $body, User $user): array
+    {
+        $template = EmailTemplate::forCategory($category);
+
+        if (! $template) {
+            return [$title, $body];
+        }
+
+        $personalizer = app(AnnouncementPersonalizer::class);
+
+        return [
+            $template->subject ? $personalizer->render($template->subject, $user) : $title,
+            $personalizer->render($template->body, $user),
+        ];
     }
 
     /** هل هذا النوع من الأنواع الستّة المحكومة بمصفوفة 24.3؟ */

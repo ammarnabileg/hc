@@ -9,11 +9,22 @@
         :subtitle="setting('admin.guidance.notifications.adbt_alanwaa_wabat_ishaara_ydwya_ljmhwr_mhdd', 'اضبط الأنواع، وابعت إشعارًا يدويًّا لجمهور محدَّد.')"
         :breadcrumbs="[['label' => setting('admin.guidance.notifications.altwjyh_waldam', 'التوجيه والدعم'), 'url' => route('admin.guidance.index')], ['label' => setting('admin.guidance.notifications.alishaarat', 'الإشعارات')]]">
         <x-slot:action>
-            @can('announcements.create')
-                <button type="button" data-modal-open="manual-notification"
-                        class="btn rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
-                        style="background: var(--color-brand-500); color: #04201c">{{ setting('admin.guidance.notifications.irsal_ishaar_ydwy', 'إرسال إشعار يدويّ') }}</button>
-            @endcan
+            <div class="flex items-center gap-2 flex-wrap">
+                @can('announcements.create')
+                    <button type="button" data-modal-open="manual-notification"
+                            class="btn rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
+                            style="background: var(--color-brand-500); color: #04201c">{{ setting('admin.guidance.notifications.irsal_ishaar_ydwy', 'إرسال إشعار يدويّ') }}</button>
+                @endcan
+                {{-- الهيدر المنصوص (24.3 سطر 5067): «قوالب البريد» · «معاينة الجرس» --}}
+                @can('email_templates.list')
+                    <a href="{{ route('admin.guidance.email-templates.index') }}"
+                       class="btn rounded-xl px-4 py-2 text-sm font-semibold"
+                       style="background: var(--surface-raised)">{{ setting('admin.guidance.notifications.qwalb_albryd', 'قوالب البريد') }}</a>
+                @endcan
+                <button type="button" data-modal-open="bell-preview"
+                        class="btn rounded-xl px-4 py-2 text-sm font-semibold"
+                        style="background: var(--surface-raised)">{{ setting('admin.guidance.notifications.maayna_aljrs', 'معاينة الجرس') }}</button>
+            </div>
         </x-slot:action>
     </x-page-header>
 
@@ -37,6 +48,16 @@
                                     {{ $channelLabel }}
                                 </label>
                             @endforeach
+                            {{-- عمودا «نصّ القالب»/«مفعّل» (24.3 سطر 5069) — من نفس جدول email_templates --}}
+                            @php $rowTemplate = $emailTemplates->get($key); @endphp
+                            <span class="flex items-center gap-1 text-xs" style="color: {{ $rowTemplate?->is_enabled ? 'var(--color-state-ok)' : 'var(--text-muted)' }}">
+                                {{ $rowTemplate?->is_enabled ? '✓' : '—' }} {{ setting('admin.guidance.notifications.mfaal', 'مفعّل') }}
+                            </span>
+                            @can('email_templates.edit')
+                                <button type="button" data-modal-open="template-{{ $key }}" class="text-xs underline">
+                                    {{ setting('admin.guidance.notifications.ns_alqalb', 'نصّ القالب') }}
+                                </button>
+                            @endcan
                         </div>
                     @endforeach
                 </div>
@@ -56,9 +77,47 @@
                                 {{ $on ? '✓' : '—' }} {{ $channelLabel }}
                             </span>
                         @endforeach
+                        @php $rowTemplate = $emailTemplates->get($key); @endphp
+                        <span class="flex items-center gap-1 text-xs" style="color: {{ $rowTemplate?->is_enabled ? 'var(--color-state-ok)' : 'var(--text-muted)' }}">
+                            {{ $rowTemplate?->is_enabled ? '✓' : '—' }} {{ setting('admin.guidance.notifications.mfaal', 'مفعّل') }}
+                        </span>
                     </div>
                 @endforeach
             </div>
+        @endcan
+
+        @can('email_templates.edit')
+            @foreach ($types as $key => $label)
+                @php $rowTemplate = $emailTemplates->get($key); @endphp
+                <x-modal :id="'template-'.$key" :title="setting('admin.guidance.notifications.ns_alqalb', 'نصّ القالب').' — '.$label">
+                    <form id="template-form-{{ $key }}" method="post"
+                          action="{{ route('admin.guidance.notifications.matrix.template', $key) }}" class="space-y-3">
+                        @csrf
+                        <x-form.input name="subject" :label="setting('admin.guidance.email_templates.aleenwan', 'عنوان الرسالة (اختياريّ)')" :value="$rowTemplate?->subject" />
+
+                        <label class="block">
+                            <span class="block text-sm mb-1">{{ setting('admin.guidance.email_templates.mhtwa_alqalb', 'محتوى القالب') }}</span>
+                            <textarea name="body" rows="4" required class="w-full rounded-xl px-3 py-2 text-sm"
+                                      style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">{{ $rowTemplate?->body }}</textarea>
+                            <span class="block text-xs mt-1" style="color: var(--text-muted)">
+                                {{ setting('admin.guidance.email_templates.wswm_mtaha', 'الوسوم المتاحة:') }} {{ implode(' · ', array_keys(\App\Services\Notifications\AnnouncementPersonalizer::tokens())) }}
+                            </span>
+                        </label>
+
+                        <label class="flex items-center gap-2 text-sm">
+                            <input type="hidden" name="is_enabled" value="0">
+                            <input type="checkbox" name="is_enabled" value="1" @checked($rowTemplate?->is_enabled)>
+                            {{ setting('admin.guidance.notifications.mfaal', 'مفعّل') }}
+                        </label>
+                    </form>
+
+                    <x-slot:footer>
+                        <button type="submit" form="template-form-{{ $key }}"
+                                class="btn w-full rounded-xl px-4 py-3 text-sm font-semibold"
+                                style="background: var(--color-brand-500); color: #04201c">{{ setting('admin.guidance.email_templates.hfz', 'احفظ') }}</button>
+                    </x-slot:footer>
+                </x-modal>
+            @endforeach
         @endcan
 
         {{-- حدّ الهدوء كما يُطبَّق فعلًا في الخادم (12.6-ب) — لا وعدًا على الشاشة --}}
@@ -155,6 +214,20 @@
         </x-modal>
     @endcan
 
+    {{-- ⭐ معاينة الجرس (24.3 سطر 5067) --}}
+    <x-modal id="bell-preview" :title="setting('admin.guidance.notifications.maayna_aljrs', 'معاينة الجرس')">
+        <label class="block mb-3">
+            <span class="block text-sm mb-1">{{ setting('admin.guidance.notifications.alnwa', 'النوع') }}</span>
+            <select data-bell-preview-category class="w-full rounded-xl px-3 py-2 text-sm"
+                    style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
+                @foreach ($types as $key => $label)
+                    <option value="{{ $key }}">{{ $label }}</option>
+                @endforeach
+            </select>
+        </label>
+        <div data-bell-preview-body></div>
+    </x-modal>
+
     @include('admin.courses.partials.toast')
 
     @push('scripts')
@@ -165,6 +238,23 @@
                     panel.classList.toggle('hidden', panel.dataset.audiencePanel !== audience.value);
                 });
             });
+
+            // ⭐ معاينة الجرس (24.3 سطر 5067): جزءٌ يُجلَب لنوعٍ بعينه بدل صفحةٍ كاملة
+            const bellPreviewSelect = document.querySelector('[data-bell-preview-category]');
+            const bellPreviewBody = document.querySelector('[data-bell-preview-body]');
+
+            const loadBellPreview = () => {
+                if (! bellPreviewSelect || ! bellPreviewBody) return;
+
+                fetch('{{ route('admin.guidance.notifications.bell-preview') }}?category=' + encodeURIComponent(bellPreviewSelect.value), {
+                    headers: {'X-Requested-With': 'XMLHttpRequest'},
+                })
+                    .then((response) => response.text())
+                    .then((html) => { bellPreviewBody.innerHTML = html; });
+            };
+
+            bellPreviewSelect?.addEventListener('change', loadBellPreview);
+            document.querySelector('[data-modal-open="bell-preview"]')?.addEventListener('click', loadBellPreview);
         </script>
     @endpush
 @endsection

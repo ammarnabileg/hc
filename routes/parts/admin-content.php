@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\CertificateAdminController;
 use App\Http\Controllers\Admin\CourseAdminController;
+use App\Http\Controllers\Admin\EmailTemplateAdminController;
 use App\Http\Controllers\Admin\GuidanceController;
 use App\Http\Controllers\Admin\LearningSettingsController;
 use App\Http\Controllers\Admin\LessonAdminController;
@@ -248,6 +249,28 @@ Route::middleware(['auth', 'admin.panel'])->prefix('admin')->name('admin.')->gro
         ->post('/guidance/notifications', [GuidanceController::class, 'sendNotification'])->name('guidance.notifications.send');
     Route::middleware('permission:notifications.manage')
         ->post('/guidance/notifications/matrix', [GuidanceController::class, 'saveNotificationMatrix'])->name('guidance.notifications.matrix.save');
+    // ⭐ معاينة الجرس (24.3 سطر 5067) — العنوان والجسم كما سيصلان فعليًّا لنوعٍ بعينه
+    Route::middleware('permission:announcements.view,announcements.list')
+        ->get('/guidance/notifications/bell-preview', [GuidanceController::class, 'bellPreview'])->name('guidance.notifications.bell-preview');
+
+    // ⭐ قوالب البريد (24.3 سطر 5067 · email_templates.* — صلاحيّةٌ كانت بلا شاشة إطلاقًا)
+    Route::middleware('permission:email_templates.list,email_templates.view')
+        ->get('/guidance/email-templates', [EmailTemplateAdminController::class, 'index'])->name('guidance.email-templates.index');
+    Route::middleware('permission:email_templates.create')
+        ->post('/guidance/email-templates', [EmailTemplateAdminController::class, 'store'])->name('guidance.email-templates.store');
+    Route::middleware('permission:email_templates.edit')->group(function () {
+        Route::put('/guidance/email-templates/{template}', [EmailTemplateAdminController::class, 'update'])->name('guidance.email-templates.update');
+        // زرّ «نصّ القالب»/«مفعّل» داخل مصفوفة الإشعارات نفسها — لا يمرّ بالشاشة الكاملة
+        Route::post('/guidance/notifications/matrix/{category}/template', [EmailTemplateAdminController::class, 'upsertForCategory'])->name('guidance.notifications.matrix.template');
+    });
+    Route::middleware('permission:email_templates.delete')
+        ->delete('/guidance/email-templates/{template}', [EmailTemplateAdminController::class, 'destroy'])->name('guidance.email-templates.destroy');
+    Route::middleware('permission:email_templates.archive')
+        ->post('/guidance/email-templates/{template}/archive', [EmailTemplateAdminController::class, 'archive'])->name('guidance.email-templates.archive');
+    Route::middleware('permission:email_templates.export')
+        ->get('/guidance/email-templates/export', [EmailTemplateAdminController::class, 'export'])->name('guidance.email-templates.export');
+    Route::middleware('permission:email_templates.import')
+        ->post('/guidance/email-templates/import', [EmailTemplateAdminController::class, 'import'])->name('guidance.email-templates.import');
 
     // دليل المستخدم (12.6-ج)
     Route::middleware('permission:user_guide.list,user_guide.view')
