@@ -47,6 +47,13 @@
   (3 اختبارات، Mutation-tested لكلٍّ من حصر الحالات المفتوحة وحصر الكيان
   وأصل الاستدعاء من `OffboardingService`).
 
+- ✅ **مقفولة (2026-09-09) — بند «مهمّة عامّة» المتولَّد من المشروع التشغيليّ
+  (23-1.8) صار قابلًا للظهور والسحب من لوحة المهامّ العامّة.** تفصيلها الكامل
+  في `app/Services/Volunteer/Goals/_STATUS.md` — والأثر هنا: `TaskBoard::publicBoard()`
+  و`PublicBoardController::claim()` صارا يقبلان `source IN ('public_board','recurring')`
+  مع `owner_id IS NULL` بدل `'public_board'` وحدها. **الدليل:**
+  `tests/Feature/Volunteer/Core/PublicBoardTest.php`.
+
 **فجوات أثبتها تشغيلُ أوديت المرحلة 11 (الدستور 23 — 3.9 · 2.3) — 2026-08-03:**
 
 - ✅ **[أُغلقت 2026-08-03] خصم تأخّر التفكيك كان يزيد يومًا كاملًا على المنصوص.**

@@ -32,12 +32,21 @@ class TaskBoard
         return $this->applyFilters($query, $filters);
     }
 
-    /** لوحة المهام العامّة: مهامّ مفتوحة بلا مالك يسحبها المتطوّع بنفسه */
+    /**
+     * لوحة المهام العامّة: مهامّ مفتوحة بلا مالك يسحبها المتطوّع بنفسه.
+     *
+     * ⭐ **ومصدرها اثنان لا واحد** (23 — 1.8): `public_board` المباشر،
+     * و`recurring` حين يُرشَّح بند متكرّر «مهمّة عامّة» — `RecurringGenerator`
+     * لا يُنشئ صفًّا بلا مالكٍ إطلاقًا إلّا في هذه الحالة بعينها (البنود
+     * الفرديّة بلا مالكٍ لا تُولَّد أصلًا)، فالتقاطع هنا آمنٌ بالبناء لا حَدسًا.
+     * وبقاء `source='recurring'` (لا تحويله إلى `public_board`) مقصودٌ: هو ما
+     * يُبقي `RecurringGenerator::markMissed()` قادرةً على إيجادها لو فاتت.
+     */
     public function publicBoard(array $filters = []): Builder
     {
         $query = Task::query()
             ->with(['entity', 'task_type', 'work_item'])
-            ->where('source', 'public_board')
+            ->whereIn('source', ['public_board', 'recurring'])
             ->whereNull('owner_id')
             ->whereIn('status', [TaskStatus::IN_PROGRESS, TaskStatus::BLOCKED]);
 

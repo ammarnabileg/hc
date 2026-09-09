@@ -62,7 +62,8 @@ class PublicBoardController extends Controller
         $user = $request->user();
         $membership = $user->activeMembership();
 
-        if ($task->source !== 'public_board' || $task->owner_id !== null) {
+        // ⭐ نفس مصدرَي اللوحة (23 — 1.8): مباشر أو بند متكرّر رُشِّح «مهمّة عامّة»
+        if (! in_array($task->source, ['public_board', 'recurring'], true) || $task->owner_id !== null) {
             throw ValidationException::withMessages([
                 'claim' => (string) setting('volunteer_page.board.claim_msg', 'المهمّة دي اتسحبت خلاص — شوف باقي اللوحة.'),
             ]);
