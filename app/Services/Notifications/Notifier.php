@@ -2,13 +2,16 @@
 
 namespace App\Services\Notifications;
 
+use App\Mail\AnnouncementMail;
 use App\Models\AppNotification;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
 use InvalidArgumentException;
+use Throwable;
 
 /**
  * بوّابة الإشعارات الموحّدة (الدستور 2.8).
@@ -41,6 +44,20 @@ class Notifier
         $layer = self::normalizeLayer($layer);
 
         /*
+         | ⭐ مصفوفة النوع × القناة (24.3): نوعٌ محكومٌ بالمصفوفة وعمود «جرس»
+         | موقوفٌ له يعني **لا سجلّ إطلاقًا** — الجرس هو السجلّ الدائم نفسه
+         | (2.8)، فإيقافه إيقافٌ حقيقيّ للحدث كلّه لا لواجهة عرضه وحدها.
+         | وترجع نسخةٌ غير محفوظة حفاظًا على عقد الإرجاع لمن يستعمل الناتج.
+         */
+        if (self::matrixGoverned($category) && ! self::matrixAllows($category, 'bell')) {
+            return new AppNotification([
+                'user_id' => $user->id, 'layer' => $layer, 'category' => $category,
+                'title' => $title, 'body' => $body, 'url' => $url,
+                'deadline_at' => $deadlineAt, 'requires_action' => $requiresAction,
+            ]);
+        }
+
+        /*
          | ⭐ تجميع المتشابه في إشعارٍ واحد (12.6-ب): نفس العنوان ونفس الفئة
          | لنفس المستخدم داخل نافذةٍ قصيرة وهو **لم يقرأه بعد** ⟵ عدّادٌ يزيد
          | على الصفّ القائم بدل صفٍّ جديد. كان «التجميع» عدّاد عرضٍ في شاشة
@@ -59,7 +76,7 @@ class Notifier
             return self::digest($user, $layer, $title);
         }
 
-        return AppNotification::create([
+        $notification = AppNotification::create([
             'user_id' => $user->id,
             'layer' => $layer,
             'category' => $category,
@@ -71,6 +88,36 @@ class Notifier
             'deadline_at' => $deadlineAt,
             'requires_action' => $requiresAction,
         ]);
+
+        /*
+         | ⭐ عمود «بريد» في نفس المصفوفة — يعمل فعليًّا لا يُعرَض وحده (24.3).
+         | نفس محرّك بريد منشورات التعليمات (`AnnouncementMail`) لا Mailable
+         | موازٍ لكلّ نوع (12.14) — وفشل بريد واحد لا يُسقِط الإشعار نفسه.
+         */
+        if (self::matrixGoverned($category) && self::matrixAllows($category, 'email') && $user->email) {
+            try {
+                Mail::to($user->email)->send(new AnnouncementMail($title, $title, (string) $body, null, $url));
+            } catch (Throwable) {
+                // بريدٌ فشل لا يُسقِط الإشعار نفسه — السجلّ الدائم أهمّ (2.8)
+            }
+        }
+
+        return $notification;
+    }
+
+    /** هل هذا النوع من الأنواع الستّة المحكومة بمصفوفة 24.3؟ */
+    private static function matrixGoverned(string $category): bool
+    {
+        return array_key_exists($category, setting('notifications.types', [
+            'account' => '', 'certificate' => '', 'exam' => '',
+            'announcement' => '', 'wallet' => '', 'order' => '',
+        ]));
+    }
+
+    /** قراءة خليّة المصفوفة — الجرس مفتوحٌ افتراضيًّا وحده (24.3). */
+    private static function matrixAllows(string $category, string $channel): bool
+    {
+        return (bool) setting('notifications.matrix.'.$category.'.'.$channel, $channel === 'bell');
     }
 
     /**

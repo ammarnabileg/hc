@@ -192,6 +192,20 @@ class GuidanceController extends Controller
         return back()->with('status', strtr((string) setting('guidance.admin.send_notification_ok', 'اتبعت الإشعار لـ:a1 مستخدم ✓'), [':a1' => (string) ($sent)]));
     }
 
+    /** ⭐ حفظ مصفوفة النوع × القناة (24.3) — كانت لا تُحفَظ أصلًا */
+    public function saveNotificationMatrix(Request $request): RedirectResponse
+    {
+        $data = $request->validate([
+            'matrix' => ['required', 'array'],
+            'matrix.*' => ['array'],
+            'matrix.*.*' => ['nullable'],
+        ]);
+
+        $this->guidance->saveNotificationMatrix($data['matrix'], $request->user());
+
+        return back()->with('status', (string) setting('guidance.admin.save_matrix_ok', 'اتحفظت مصفوفة القنوات ✓'));
+    }
+
     // ============================================================== ج) دليل المستخدم
 
     public function help(Request $request): View

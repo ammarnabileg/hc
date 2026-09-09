@@ -23,20 +23,43 @@
     <div class="card p-4">
         <h2 class="font-bold mb-3">{{ setting('admin.guidance.notifications.anwaa_alishaarat_wqnwatha', 'أنواع الإشعارات وقنواتها') }}</h2>
 
-        <div class="space-y-2">
-            @foreach ($types as $key => $label)
-                <div class="flex items-center gap-3 flex-wrap py-2" style="border-top: 1px solid var(--border)">
-                    <span class="flex-1 text-sm">{{ $label }}</span>
-                    @foreach ($channels as $channelKey => $channelLabel)
-                        <label class="flex items-center gap-1 text-xs">
-                            <input type="checkbox"
-                                   @checked(setting('notifications.matrix.'.$key.'.'.$channelKey, $channelKey === 'bell'))>
-                            {{ $channelLabel }}
-                        </label>
+        @can('notifications.manage')
+            <form method="post" action="{{ route('admin.guidance.notifications.matrix.save') }}">
+                @csrf
+                <div class="space-y-2">
+                    @foreach ($types as $key => $label)
+                        <div class="flex items-center gap-3 flex-wrap py-2" style="border-top: 1px solid var(--border)">
+                            <span class="flex-1 text-sm">{{ $label }}</span>
+                            @foreach ($channels as $channelKey => $channelLabel)
+                                <label class="flex items-center gap-1 text-xs">
+                                    <input type="checkbox" name="matrix[{{ $key }}][{{ $channelKey }}]" value="1"
+                                           @checked(setting('notifications.matrix.'.$key.'.'.$channelKey, $channelKey === 'bell'))>
+                                    {{ $channelLabel }}
+                                </label>
+                            @endforeach
+                        </div>
                     @endforeach
                 </div>
-            @endforeach
-        </div>
+
+                <button class="btn rounded-xl px-4 py-2 text-sm font-semibold motion-standard mt-3"
+                        style="background: var(--color-brand-500); color: #04201c">{{ setting('admin.guidance.notifications.hfz_almsfwfa', 'احفظ المصفوفة') }}</button>
+            </form>
+        @else
+            {{-- بلا صلاحيّة الحفظ: عرضُ حالةٍ لا عنصر تحكّمٍ يبدو تفاعليًّا (2.15-أ-7: المحظور يُخفى لا يُعطَّل) --}}
+            <div class="space-y-2">
+                @foreach ($types as $key => $label)
+                    <div class="flex items-center gap-3 flex-wrap py-2" style="border-top: 1px solid var(--border)">
+                        <span class="flex-1 text-sm">{{ $label }}</span>
+                        @foreach ($channels as $channelKey => $channelLabel)
+                            @php $on = (bool) setting('notifications.matrix.'.$key.'.'.$channelKey, $channelKey === 'bell'); @endphp
+                            <span class="flex items-center gap-1 text-xs" style="color: {{ $on ? 'var(--color-state-ok)' : 'var(--text-muted)' }}">
+                                {{ $on ? '✓' : '—' }} {{ $channelLabel }}
+                            </span>
+                        @endforeach
+                    </div>
+                @endforeach
+            </div>
+        @endcan
 
         {{-- حدّ الهدوء كما يُطبَّق فعلًا في الخادم (12.6-ب) — لا وعدًا على الشاشة --}}
         <p class="text-xs mt-3" style="color: var(--text-muted)">

@@ -347,6 +347,46 @@ class GuidanceComposer
     }
 
     /**
+     * ⭐ حفظ مصفوفة النوع × القناة (24.3) — كانت شاشة عرضٍ بلا حفظٍ إطلاقًا:
+     * الخليّة تتغيّر في المتصفّح ولا تصل أيّ مسار، فيرجع الوضع الأصليّ بأوّل
+     * تحديث. كلّ خليّةٍ صفّ إعدادٍ مستقلّ — لا JSON واحد — فيقرأها `Notifier`
+     * بمفتاحها المباشر كما كانت الشاشة تقرأها للعرض تمامًا (12.14).
+     *
+     * @param  array<string, array<string, mixed>>  $matrix  نوع ⟵ [قناة ⟵ '1'|غائب]
+     */
+    public function saveNotificationMatrix(array $matrix, ?User $actor = null): void
+    {
+        $channels = (array) setting('notifications.channels', ['bell' => 'الجرس', 'toast' => 'Toast', 'email' => 'بريد']);
+
+        foreach ($this->notificationTypes() as $type => $typeLabel) {
+            foreach ($channels as $channel => $channelLabel) {
+                $key = 'notifications.matrix.'.$type.'.'.$channel;
+                // الجرس مفتوحٌ افتراضيًّا وحده — نفس افتراض الشاشة قبل أيّ حفظ
+                $default = $channel === 'bell';
+                $old = (bool) setting($key, $default);
+                $new = (bool) ($matrix[$type][$channel] ?? false);
+
+                $setting = Setting::updateOrCreate(
+                    ['key' => $key],
+                    [
+                        'group' => 'notifications',
+                        'label_ar' => $typeLabel.' — '.$channelLabel,
+                        'type' => 'bool',
+                        'default_value' => $default ? '1' : '0',
+                        'value' => $new ? '1' : '0',
+                    ],
+                );
+
+                if ($old !== $new) {
+                    $this->audit->record($setting, 'notifications.matrix.edit', ['value' => $old], ['value' => $new], $actor);
+                }
+            }
+        }
+
+        Cache::forget('settings');
+    }
+
+    /**
      * ⭐ أثر التجميع الفعليّ (12.6-ب): كم إشعارًا **اندمج فعلًا** في إشعارٍ واحد.
      *
      * كان هذا عدّاد عرضٍ يحصي ما وصل في نافذة زمنيّة **بلا أن يدمج شيئًا** —

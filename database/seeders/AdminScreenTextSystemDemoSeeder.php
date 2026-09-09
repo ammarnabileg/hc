@@ -553,6 +553,7 @@ class AdminScreenTextSystemDemoSeeder extends Seeder
             ['admin.guidance.notifications.anwaa_alishaarat_wqnwatha', 'help', 'أنواع الإشعارات وقنواتها', 'string', 'أنواع الإشعارات وقنواتها', 'نصّ في resources/views/admin/guidance/notifications.blade.php'],
             ['admin.guidance.notifications.atjma_alywm_bsbb_alhd_v1_ishaara', 'help', 'اتجمّع اليوم بسبب الحدّ: :v1 إشعارًا.', 'string', 'اتجمّع اليوم بسبب الحدّ: :v1 إشعارًا.', 'نصّ في resources/views/admin/guidance/notifications.blade.php'],
             ['admin.guidance.notifications.hd_alhdw_v1_ishaarat_llmstkhdm_fy_alywm', 'help', 'حدّ الهدوء: :v1 إشعارات للمستخدم في اليوم — والزيادة تتجمّع في إشعار واحد بدل ما تنهال عليه.', 'text', 'حدّ الهدوء: :v1 إشعارات للمستخدم في اليوم — والزيادة تتجمّع في إشعار واحد بدل ما تنهال عليه.', 'نصّ في resources/views/admin/guidance/notifications.blade.php'],
+            ['admin.guidance.notifications.hfz_almsfwfa', 'help', 'احفظ المصفوفة', 'string', 'احفظ المصفوفة', 'نصّ في resources/views/admin/guidance/notifications.blade.php'],
             ['admin.guidance.notifications.hsb_aldwr', 'help', 'حسب الدور', 'string', 'حسب الدور', 'نصّ في resources/views/admin/guidance/notifications.blade.php'],
             ['admin.guidance.notifications.hsb_almsar', 'help', 'حسب المسار', 'string', 'حسب المسار', 'نصّ في resources/views/admin/guidance/notifications.blade.php'],
             ['admin.guidance.notifications.hsb_altdryb', 'help', 'حسب التدريب', 'string', 'حسب التدريب', 'نصّ في resources/views/admin/guidance/notifications.blade.php'],

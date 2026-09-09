@@ -179,6 +179,7 @@ class HttpTextDemoSeeder extends Seeder
             ['guidance.admin.duplicate_announcement_ok', 'onboarding', 'duplicateAnnouncement() — اتعملت نسخة كمسودّة ✓', 'اتعملت نسخة كمسودّة ✓'],
             ['guidance.admin.archive_announcement_ok', 'onboarding', 'archiveAnnouncement() — اتأرشف المنشور ✓', 'اتأرشف المنشور ✓'],
             ['guidance.admin.send_notification_ok', 'onboarding', 'sendNotification() — اتبعت الإشعار لـ:a1 مستخدم ✓', 'اتبعت الإشعار لـ:a1 مستخدم ✓'],
+            ['guidance.admin.save_matrix_ok', 'onboarding', 'saveNotificationMatrix() — اتحفظت مصفوفة القنوات ✓', 'اتحفظت مصفوفة القنوات ✓'],
             ['guidance.admin.store_article_ok', 'onboarding', 'storeArticle() — اتضاف الدليل ✓', 'اتضاف الدليل ✓'],
             ['guidance.admin.update_article_ok', 'onboarding', 'updateArticle() — اتحفظ ✓', 'اتحفظ ✓'],
             ['guidance.admin.destroy_article_ok', 'onboarding', 'destroyArticle() — اتشال الدليل ✓', 'اتشال الدليل ✓'],

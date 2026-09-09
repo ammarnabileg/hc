@@ -246,6 +246,8 @@ Route::middleware(['auth', 'admin.panel'])->prefix('admin')->name('admin.')->gro
         ->get('/guidance/notifications', [GuidanceController::class, 'notifications'])->name('guidance.notifications');
     Route::middleware('permission:announcements.create')
         ->post('/guidance/notifications', [GuidanceController::class, 'sendNotification'])->name('guidance.notifications.send');
+    Route::middleware('permission:notifications.manage')
+        ->post('/guidance/notifications/matrix', [GuidanceController::class, 'saveNotificationMatrix'])->name('guidance.notifications.matrix.save');
 
     // دليل المستخدم (12.6-ج)
     Route::middleware('permission:user_guide.list,user_guide.view')
