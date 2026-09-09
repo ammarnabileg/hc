@@ -12,6 +12,7 @@ use App\Services\Admin\Volunteer\Integrations;
 use App\Services\Admin\Volunteer\SettingsWriter;
 use App\Services\Events\AttendanceService;
 use App\Support\Scope\ScopeFilter;
+use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -28,17 +29,36 @@ class EventAdminController extends Controller
     public function index(Request $request): View
     {
         $status = $request->string('status')->toString() ?: (string) setting('events.default_tab', 'upcoming');
+        $view = $request->string('view')->toString() ?: (string) setting('events.default_view', 'table');
 
-        $events = Event::query()
+        $baseQuery = fn () => Event::query()
             ->withCount('registrations')
             ->when($request->string('q')->toString(), fn ($q, $term) => $q->where('title_ar', 'like', '%'.$term.'%'))
-            ->when($request->string('mode')->toString(), fn ($q, $mode) => $q->where('mode', $mode))
+            ->when($request->string('mode')->toString(), fn ($q, $mode) => $q->where('mode', $mode));
+
+        $events = $baseQuery()
             ->when($status === 'upcoming', fn ($q) => $q->where('starts_at', '>=', now()))
             ->when($status === 'past', fn ($q) => $q->where('starts_at', '<', now()))
             ->when($status === 'draft', fn ($q) => $q->where('status', 'draft'))
             ->orderBy('starts_at', $status === 'past' ? 'desc' : 'asc')
             ->limit((int) setting('events.admin.list_limit', 50))
             ->get();
+
+        /*
+         | ⭐ [2026-09-10] «عرض تقويم + جدول (تبديل)» (12.11) — `view=` كان
+         | يُقرَأ ولا يقرؤه أحد: لا زرّ تبديلٍ في الواجهة ولا فرعٌ في الفيو
+         | يستهلكه. تقويم الشهر يُبنى **بأيدينا** بلا أيّ مكتبة تقويم خارجيّة
+         | (2.16-ج)، ويحترم نفس فلاتر البحث/النوع — لا حالة «قادمة/منتهية»
+         | فلا معنى لها داخل شهرٍ بعينه.
+         */
+        $requestedMonth = $request->string('month')->toString();
+        $month = preg_match('/^\d{4}-\d{2}$/', $requestedMonth)
+            ? Carbon::createFromFormat('Y-m', $requestedMonth)->startOfMonth()
+            : now()->startOfMonth();
+        $calendarEvents = $view === 'calendar'
+            ? $baseQuery()->whereBetween('starts_at', [$month->copy()->startOfMonth(), $month->copy()->endOfMonth()])
+                ->orderBy('starts_at')->get()->groupBy(fn ($event) => $event->starts_at?->format('j'))
+            : collect();
 
         return view('admin.events.index', [
             'events' => $events,
@@ -52,7 +72,9 @@ class EventAdminController extends Controller
                 'mode' => $request->string('mode')->toString(),
                 'status' => $status,
             ],
-            'view' => $request->string('view')->toString() ?: (string) setting('events.default_view', 'table'),
+            'view' => $view,
+            'month' => $month,
+            'calendarEvents' => $calendarEvents,
         ]);
     }
 

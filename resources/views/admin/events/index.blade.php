@@ -48,6 +48,68 @@
         <button type="submit" class="btn rounded-xl px-4 py-2 text-sm font-semibold" style="background: var(--surface-raised)">{{ setting('admin.events.index.fltr', 'فلتر') }}</button>
     </x-filters>
 
+    {{--
+        ⭐ [2026-09-10] «عرض تقويم + جدول (تبديل)» (12.11) — كان `view=` يُقرَأ
+        في المتحكّم بلا زرّ تبديلٍ ولا فرعٍ يستهلكه. تقويم الشهر مبنيٌّ بأيدينا
+        بلا أيّ مكتبة خارجيّة (2.16-ج).
+    --}}
+    <div class="flex items-center gap-2 mb-4">
+        <a href="{{ route('admin.events.index', array_filter(['q' => $filters['q'], 'mode' => $filters['mode'], 'status' => $filters['status'], 'view' => 'table'])) }}"
+           class="rounded-xl px-4 py-2 text-sm font-semibold"
+           style="background: {{ $view === 'table' ? 'var(--color-brand-500)' : 'var(--surface-raised)' }}; color: {{ $view === 'table' ? '#04201c' : 'var(--text)' }}">{{ setting('admin.events.index.jdwl', 'جدول') }}</a>
+        <a href="{{ route('admin.events.index', array_filter(['q' => $filters['q'], 'mode' => $filters['mode'], 'status' => $filters['status'], 'view' => 'calendar'])) }}"
+           class="rounded-xl px-4 py-2 text-sm font-semibold"
+           style="background: {{ $view === 'calendar' ? 'var(--color-brand-500)' : 'var(--surface-raised)' }}; color: {{ $view === 'calendar' ? '#04201c' : 'var(--text)' }}">{{ setting('admin.events.index.tqwym', 'تقويم') }}</a>
+    </div>
+
+    @if ($view === 'calendar')
+        <div class="card p-3 md:p-4 mb-4">
+            <div class="flex items-center justify-between gap-3 mb-3">
+                <a href="{{ route('admin.events.index', array_filter(['q' => $filters['q'], 'mode' => $filters['mode'], 'status' => $filters['status'], 'view' => 'calendar', 'month' => $month->copy()->subMonthNoOverflow()->format('Y-m')])) }}"
+                   class="rounded-lg px-3 py-1.5 text-sm" style="background: var(--surface-sunken)">‹ {{ setting('admin.events.index.alshhr_alsabq', 'الشهر السابق') }}</a>
+                <span class="font-semibold text-sm">{{ $month->translatedFormat('F Y') }}</span>
+                <a href="{{ route('admin.events.index', array_filter(['q' => $filters['q'], 'mode' => $filters['mode'], 'status' => $filters['status'], 'view' => 'calendar', 'month' => $month->copy()->addMonthNoOverflow()->format('Y-m')])) }}"
+                   class="rounded-lg px-3 py-1.5 text-sm" style="background: var(--surface-sunken)">{{ setting('admin.events.index.alshhr_altaly', 'الشهر التالي') }} ›</a>
+            </div>
+
+            {{-- شبكة الشهر تمرّر أفقيًّا داخل حاويتها وحدها لا الصفحة (2.15-ج) --}}
+            <div class="min-w-0 overflow-x-auto">
+                <div class="grid grid-cols-7 gap-1" style="min-width: 560px">
+                    @foreach ([
+                        setting('admin.events.index.ahd', 'أحد'), setting('admin.events.index.athnyn', 'إثنين'), setting('admin.events.index.thlatha', 'ثلاثاء'),
+                        setting('admin.events.index.arbaa', 'أربعاء'), setting('admin.events.index.khmys', 'خميس'), setting('admin.events.index.jmaa', 'جمعة'), setting('admin.events.index.sbt', 'سبت'),
+                    ] as $dayName)
+                        <div class="text-xs font-semibold text-center py-1" style="color: var(--text-muted)">{{ $dayName }}</div>
+                    @endforeach
+
+                    @php $leading = $month->copy()->startOfMonth()->dayOfWeek; @endphp
+                    @for ($i = 0; $i < $leading; $i++)
+                        <div></div>
+                    @endfor
+
+                    @for ($day = 1; $day <= $month->daysInMonth; $day++)
+                        <div class="rounded-lg p-1.5" style="background: var(--surface-sunken); min-height: 5.5rem">
+                            <div class="text-xs tabular-nums" style="color: var(--text-muted)">{{ $day }}</div>
+                            <div class="space-y-1 mt-1">
+                                @foreach ($calendarEvents->get((string) $day, collect()) as $event)
+                                    <a href="{{ route('admin.events.registrations', $event) }}"
+                                       class="block truncate rounded px-1.5 py-0.5 text-xs"
+                                       style="background: {{ $event->status === 'cancelled' ? 'var(--color-state-danger)' : 'var(--color-brand-500)' }}; color: #04201c"
+                                       title="{{ $event->title_ar }} — {{ $event->starts_at?->format('H:i') }}">
+                                        {{ $event->starts_at?->format('H:i') }} {{ $event->title_ar }}
+                                    </a>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endfor
+                </div>
+            </div>
+
+            @if ($calendarEvents->isEmpty())
+                <p class="text-xs mt-3" style="color: var(--text-muted)">{{ setting('admin.events.index.mfysh_faalyat_fy_alshhr_dh', 'مفيش فعاليّات في الشهر ده.') }}</p>
+            @endif
+        </div>
+    @else
     {{-- كروت رأسيّة — لا تمرير أفقيّ على الموبايل (2.15-ج) --}}
     <section class="space-y-3">
         @forelse ($events as $event)
@@ -115,6 +177,7 @@
             <x-empty :message="setting('events.empty_message', 'لا فعاليّات — أنشئ أوّل لقاء.')" />
         @endforelse
     </section>
+    @endif
 
     @can('events.manage')
         @include('admin.volunteer.partials.settings-card', [

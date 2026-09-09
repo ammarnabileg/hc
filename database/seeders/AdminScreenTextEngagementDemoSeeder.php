@@ -353,6 +353,7 @@ class AdminScreenTextEngagementDemoSeeder extends Seeder
     public function eventsScreenTextSettings(): void
     {
         $this->write([
+            ['admin.events.index.ahd', 'events', 'أحد', 'string', 'أحد', 'نصّ في resources/views/admin/events/index.blade.php'],
             ['admin.events.index.ahfz_alfaalya', 'events', 'احفظ الفعاليّة', 'string', 'احفظ الفعاليّة', 'نصّ في resources/views/admin/events/index.blade.php'],
             ['admin.events.index.alajnda', 'events', 'الأجندة', 'string', 'الأجندة', 'نصّ في resources/views/admin/events/index.blade.php'],
             ['admin.events.index.alajnda_walmthdthwn', 'events', 'الأجندة والمتحدّثون', 'string', 'الأجندة والمتحدّثون', 'نصّ في resources/views/admin/events/index.blade.php'],
@@ -362,6 +363,17 @@ class AdminScreenTextEngagementDemoSeeder extends Seeder
             ['admin.events.index.alfaalyat', 'events', 'الفعاليّات', 'string', 'الفعاليّات', 'نصّ في resources/views/admin/events/index.blade.php — عنوانٌ منصوصٌ حرفيًّا في القسم 24، وتغييرُه يخالف خريطة الشاشات.'],  // ⚠️ 24
             ['admin.events.index.alhala', 'events', 'الحالة', 'string', 'الحالة', 'نصّ في resources/views/admin/events/index.blade.php'],
             ['admin.events.index.alkl', 'events', 'الكلّ', 'string', 'الكلّ', 'نصّ في resources/views/admin/events/index.blade.php'],
+            ['admin.events.index.alshhr_alsabq', 'events', 'الشهر السابق', 'string', 'الشهر السابق', 'نصّ في resources/views/admin/events/index.blade.php'],
+            ['admin.events.index.alshhr_altaly', 'events', 'الشهر التالي', 'string', 'الشهر التالي', 'نصّ في resources/views/admin/events/index.blade.php'],
+            ['admin.events.index.arbaa', 'events', 'أربعاء', 'string', 'أربعاء', 'نصّ في resources/views/admin/events/index.blade.php'],
+            ['admin.events.index.athnyn', 'events', 'إثنين', 'string', 'إثنين', 'نصّ في resources/views/admin/events/index.blade.php'],
+            ['admin.events.index.jdwl', 'events', 'جدول', 'string', 'جدول', 'نصّ في resources/views/admin/events/index.blade.php'],
+            ['admin.events.index.jmaa', 'events', 'جمعة', 'string', 'جمعة', 'نصّ في resources/views/admin/events/index.blade.php'],
+            ['admin.events.index.khmys', 'events', 'خميس', 'string', 'خميس', 'نصّ في resources/views/admin/events/index.blade.php'],
+            ['admin.events.index.mfysh_faalyat_fy_alshhr_dh', 'events', 'مفيش فعاليّات في الشهر ده.', 'string', 'مفيش فعاليّات في الشهر ده.', 'نصّ في resources/views/admin/events/index.blade.php'],
+            ['admin.events.index.sbt', 'events', 'سبت', 'string', 'سبت', 'نصّ في resources/views/admin/events/index.blade.php'],
+            ['admin.events.index.thlatha', 'events', 'ثلاثاء', 'string', 'ثلاثاء', 'نصّ في resources/views/admin/events/index.blade.php'],
+            ['admin.events.index.tqwym', 'events', 'تقويم', 'string', 'تقويم', 'نصّ في resources/views/admin/events/index.blade.php'],
             ['admin.events.index.allqaat_almbashra_awflayn_wawnlayn_whjyn', 'events', 'اللقاءات المباشرة أوفلاين وأونلاين وهجين — بسعتها وكود حضورها ومكافأتها المتدرّجة.', 'text', 'اللقاءات المباشرة أوفلاين وأونلاين وهجين — بسعتها وكود حضورها ومكافأتها المتدرّجة.', 'نصّ في resources/views/admin/events/index.blade.php'],
             ['admin.events.index.almkafaa_almtdrja_zmnya', 'events', 'المكافأة المتدرّجة زمنيًّا', 'string', 'المكافأة المتدرّجة زمنيًّا', 'نصّ في resources/views/admin/events/index.blade.php'],
             ['admin.events.index.almkan_llawflayn_walhjyn', 'events', 'المكان (للأوفلاين والهجين)', 'string', 'المكان (للأوفلاين والهجين)', 'نصّ في resources/views/admin/events/index.blade.php'],
