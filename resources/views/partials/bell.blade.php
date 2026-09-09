@@ -1,26 +1,43 @@
 @php
     /**
-     * مركز الإشعارات (2.8): ثلاثة تابات — الكلّ · المنصّة · التطوّع.
+     * مركز الإشعارات (2.8): ثلاثة تابات — الكلّ · المنصّة · التطوّع، كلّ تاب
+     * بعدّاده الخاصّ لا عدّادًا إجماليًّا واحدًا يُنسَب لكلّ التابات.
      * وتاب التطوّع لا يظهر إلا للمتطوّعين.
      */
     $u = auth()->user();
     $items = $u->notificationsFeed()->latest()->limit((int) setting('notifications.bell.max_items', 20))->get();
+    $isVolunteer = $u->isVolunteer();
+    $unreadAll = \App\Services\Notifications\Notifier::unreadCount($u);
+    $unreadPlatform = \App\Services\Notifications\Notifier::unreadCount($u, 'platform');
+    $unreadVolunteer = $isVolunteer ? \App\Services\Notifications\Notifier::unreadCount($u, 'volunteer') : 0;
 @endphp
 
 <div class="hidden absolute end-0 mt-2 w-[22rem] max-w-[92vw] modal-shell card z-50" data-bell-panel>
     <div class="modal-head px-4 py-3 flex items-center gap-2" style="border-bottom: 1px solid var(--border)">
         <strong class="text-sm flex-1">{{ setting('notifications.bell.title', 'الإشعارات') }}</strong>
-        <button type="button" class="text-xs" style="color: var(--color-brand-500)" data-mark-all>{{ setting('notifications.bell.mark_all', 'تعليم الكلّ كمقروء') }}</button>
+        <form method="post" action="{{ route('notifications.read-all') }}">
+            @csrf
+            <button type="submit" class="text-xs" style="color: var(--color-brand-500)">{{ setting('notifications.bell.mark_all', 'تعليم الكلّ كمقروء') }}</button>
+        </form>
     </div>
 
     <div class="px-4 pt-3 flex gap-2">
-        <button class="rounded-full px-3 py-1 text-xs" data-bell-tab="all"
-                style="background: var(--color-brand-500); color:#04201c">{{ setting('notifications.bell.tab_all', 'الكلّ') }}</button>
-        <button class="rounded-full px-3 py-1 text-xs" data-bell-tab="platform"
-                style="background: var(--surface-sunken)">{{ setting('notifications.bell.tab_platform', 'المنصّة') }}</button>
+        <button class="rounded-full px-3 py-1 text-xs inline-flex items-center gap-1" data-bell-tab="all"
+                style="background: var(--color-brand-500); color:#04201c">
+            {{ setting('notifications.bell.tab_all', 'الكلّ') }}
+            @if ($unreadAll > 0)<span class="rounded-full px-1.5" style="background: rgba(4,32,28,.25)">{{ $unreadAll }}</span>@endif
+        </button>
+        <button class="rounded-full px-3 py-1 text-xs inline-flex items-center gap-1" data-bell-tab="platform"
+                style="background: var(--surface-sunken)">
+            {{ setting('notifications.bell.tab_platform', 'المنصّة') }}
+            @if ($unreadPlatform > 0)<span class="rounded-full px-1.5" style="background: var(--color-state-danger); color: #fff">{{ $unreadPlatform }}</span>@endif
+        </button>
         @volunteer
-            <button class="rounded-full px-3 py-1 text-xs" data-bell-tab="volunteer"
-                    style="background: var(--surface-sunken)">{{ setting('notifications.bell.tab_volunteer', 'التطوّع') }}</button>
+            <button class="rounded-full px-3 py-1 text-xs inline-flex items-center gap-1" data-bell-tab="volunteer"
+                    style="background: var(--surface-sunken)">
+                {{ setting('notifications.bell.tab_volunteer', 'التطوّع') }}
+                @if ($unreadVolunteer > 0)<span class="rounded-full px-1.5" style="background: var(--color-state-danger); color: #fff">{{ $unreadVolunteer }}</span>@endif
+            </button>
         @endvolunteer
     </div>
 
