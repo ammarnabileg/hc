@@ -30,11 +30,17 @@
 ### ⬜ نصٌّ محروق باقٍ في هذا المجلّد — بسببه مكتوبًا (دفعة `app/Services` · 2.13)
 - ✅ **[مقفولة 2026-08-05] `AuditTrail::ACTIONS` صار `AuditTrail::actions()`.** الشجرة ساكنة فصار القارئ مِلكي: 10 عناوين أفعالٍ عربيّة صارت تُقرَأ من `setting()`، والأكواد وحدها بقيت ثابتًا داخليًّا (`ACTION_KEYS`). حُدِّثت 3 مواضع قراءة (`DashboardController` واحد + قالبان). المفاتيح في `AdminSystemDemoSeeder`. **الدليل:** `php artisan test --filter="AuditTrail|Dashboard"` (43) قبل/بعد بلا فرق؛ وتغيير قيمة `audit.action.role_created` في القاعدة يغيّر عنوان الفلتر فعلًا (مُجرَّب يدويًّا بـ`tinker`).
 - ✅ **[مقفولة 2026-08-05] `UserDirectory::COLUMNS`/`STATUSES` صارا `columns()`/`statuses()`.** 10 عناوين أعمدة + 5 حالات حساب صارت من `setting()`، والمفاتيح الداخليّة بقيت `COLUMN_KEYS`/`STATUS_KEYS`. حُدِّثت 7 مواضع قراءة (كنترولر واحد + 5 قوالب). المفاتيح في `AdminCoreDemoSeeder`. **الدليل:** `php artisan test --filter="UserDirectory|Admin.*User"` (31) قبل/بعد بلا فرق.
-- **فجوة `settings:coverage --dead` (2026-08-05):** `admin.segments.refresh_hours`
-  مزروعٌ (`AdminCoreDemoSeeder`) ولا قارئ له — `AudienceSegments.php` لا يستشير
-  دوريّة تحديث الشريحة الديناميكيّة (12.13) في أيّ مسار حاليّ (لا Job مجدوَل
-  يقرأها). يحتاج بناء المُجدوِل نفسه لا ربط سطرٍ واحد؛ مسجَّلة بانتظار صاحب
-  مجال الشرائح.
+- ✅ **[مقفولة 2026-09-09] فجوة `settings:coverage --dead`: `admin.segments.refresh_hours` صار له قارئ ومُجدوِل.**
+  كان مزروعًا (`AdminCoreDemoSeeder`) بلا قارئ — `AudienceSegments.php` لا تستشير دوريّة تحديث الشريحة
+  الديناميكيّة (12.13) في أيّ مسار، ولا Job مجدوَل يقرأها؛ فأثره الوحيد المفقود كان عدّاد «عدد الأعضاء»
+  و«آخر تحديث» في قائمة الشرائح يبقى محروقًا على لحظة آخر حفظٍ يدويّ (العضويّة الحيّة نفسها كانت تُعاد
+  حسبتها دومًا بصرف النظر — `membersQuery()` لم يتأثّر). أضيفت `AudienceSegments::refreshDue()` على غرار
+  `isScheduleDue()`/`isCheckDue()`/`isResetMoment()` (القرار كلّه داخل الخدمة، لا تعبير كرونٍ يتجمّد على
+  القيمة القديمة)، ومسحة ساعيّة جديدة في `routes/console.php` (`segments:refresh-dynamic`) تعيد بناء كلّ
+  شريحة ديناميكيّة غير مؤرشفة حان موعدها. **الدليل:** `php artisan test --filter=AudienceSegmentsTest`
+  (16 اختبارًا، 54 تأكيدًا) — اختباران جديدان يُثبتان أنّ المسحة **مسجَّلة فعلًا** في `routes/console.php`
+  (لا وعدًا في التوثيق) وأنّ تشغيلها يحدّث العدّاد المحروق فعلًا، وأنّ الثابتة والمؤرشفة خارج المسحة؛
+  وتحوير `isPast()`→`isFuture()` في `refreshDue()` أسقط الاختبار الجديد فورًا (مُثبَتة الفعاليّة).
 
 **أوديت المرحلة 6 — 2026-08-03:**
 

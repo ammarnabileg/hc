@@ -9,6 +9,7 @@ use App\Models\Entity;
 use App\Models\Membership;
 use App\Models\Permission;
 use App\Models\Position;
+use App\Models\Setting;
 use App\Models\Track;
 use App\Models\User;
 use App\Services\Admin\AudienceSegments;
@@ -19,7 +20,9 @@ use Database\Seeders\CoreSeeder;
 use Database\Seeders\PermissionSeeder;
 use Database\Seeders\RolePermissionSeeder;
 use Database\Seeders\RoleSeeder;
+use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Tests\TestCase;
@@ -69,6 +72,19 @@ class AudienceSegmentsTest extends TestCase
     private function segments(): AudienceSegments
     {
         return app(AudienceSegments::class);
+    }
+
+    private function putSetting(string $key, string $value, string $group = 'admin_segments'): void
+    {
+        Setting::updateOrCreate(['key' => $key], [
+            'group' => $group,
+            'label_ar' => $key,
+            'type' => 'number',
+            'default_value' => $value,
+            'value' => $value,
+        ]);
+
+        Cache::forget('settings');
     }
 
     /** @param  array<int, array<string, mixed>>  $conditions */
@@ -407,6 +423,70 @@ class AudienceSegmentsTest extends TestCase
 
         $this->assertTrue($feed->isVisibleTo($announcement, $inside));
         $this->assertFalse($feed->isVisibleTo($announcement, $outside));
+    }
+
+    // ------------------------------------------------- ⭐ التحديث الدوريّ للعدّاد
+
+    /**
+     * ⭐ فجوة settings:coverage --dead: `admin.segments.refresh_hours` كان
+     * مزروعًا بلا قارئ — لا Job مجدوَل يقرأه. الآن `refreshDue()` تستشيره،
+     * والمسحة الساعيّة في routes/console.php مسجَّلة وتستدعيها فعلًا (12.13).
+     */
+    public function test_dynamic_segment_refresh_is_scheduled_and_reads_the_configured_hours(): void
+    {
+        $owner = $this->owner();
+        $rule = $this->rule([['field' => 'status', 'values' => ['active']]]);
+
+        $dynamic = $this->segments()->save('نشطون', $rule, AudienceSegments::TYPE_DYNAMIC, $owner);
+
+        // فترة التحديث ساعة واحدة بدل الافتراضيّ 24 — الإعداد نفسه يُستشار
+        $this->putSetting('admin.segments.refresh_hours', '1');
+
+        $beforeSize = $dynamic->refresh()->size;
+
+        // مباشرةً بعد الحفظ لم يحن الموعد بعد
+        $this->assertFalse($this->segments()->refreshDue($dynamic));
+
+        // عضو جديد يستوفي الشرط دون أن يعيد أحدٌ بناء الشريحة يدويًّا
+        $this->makeUser('عضو جديد', 'active');
+
+        // بعد مرور فترة التحديث المضبوطة يحين الموعد
+        $this->travelTo(now()->addHours(2));
+        $this->assertTrue($this->segments()->refreshDue($dynamic->refresh()));
+
+        // والمسحة مسجَّلة فعلًا في routes/console.php لا وعدًا في التوثيق فقط
+        $event = collect(app(Schedule::class)->events())
+            ->first(fn ($e) => $e->description === 'segments:refresh-dynamic');
+        $this->assertNotNull($event, 'segments:refresh-dynamic مجدولة في routes/console.php');
+
+        // وتشغيلها فعليًّا يحدّث العدّاد المحروق — لا اكتفاء بالتسجيل بلا تنفيذ
+        $event->run($this->app);
+
+        $after = $dynamic->refresh();
+        $this->assertSame($beforeSize + 1, $after->size, 'المسحة الدوريّة حدّثت العدّاد بلا تدخّل يدويّ');
+        $this->assertFalse($this->segments()->refreshDue($after), 'وبعد التحديث لم يعد الموعد حانيًا');
+
+        $this->travelBack();
+    }
+
+    /** ⛔ الثابتة والمؤرشفة لا تُستهدَفان بهذه المسحة أبدًا (12.13). */
+    public function test_refresh_due_ignores_static_and_archived_segments(): void
+    {
+        $owner = $this->owner();
+        $rule = $this->rule([['field' => 'status', 'values' => ['active']]]);
+
+        $static = $this->segments()->save('ثابتة', $rule, AudienceSegments::TYPE_STATIC, $owner);
+        $dynamic = $this->segments()->save('ديناميكيّة', $rule, AudienceSegments::TYPE_DYNAMIC, $owner);
+
+        $this->putSetting('admin.segments.refresh_hours', '1');
+        $this->travelTo(now()->addHours(2));
+
+        $this->assertFalse($this->segments()->refreshDue($static->refresh()), 'الثابتة لا تُحدَّث دوريًّا أبدًا');
+
+        $this->segments()->toggleArchive($dynamic);
+        $this->assertFalse($this->segments()->refreshDue($dynamic->refresh()), 'المؤرشفة خارج المسحة الدوريّة');
+
+        $this->travelBack();
     }
 
     // ------------------------------------------------------------------ داخليّ

@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\AdAudience;
+use App\Services\Admin\AudienceSegments;
 use App\Services\Admin\Ops\BackupManager;
 use App\Services\Admin\Ops\OpsSettings;
 use Illuminate\Support\Facades\Schedule;
@@ -60,6 +62,26 @@ Schedule::call(function () {
     app(OpsSettings::class)
         ->put('system.schedule.last_run_at', now()->toDateTimeString());
 })->hourly()->name('backups:scheduled')->withoutOverlapping();
+
+// تحديث عدّاد شرائح الجمهور الديناميكيّة (12.13): **مسحة كلّ ساعة والقرار داخل
+// `AudienceSegments::refreshDue()` وحده** — على غرار `backups:scheduled` فوق،
+// فالفترة إعدادٌ يحرّره الأدمن (`admin.segments.refresh_hours`) لا تعبير كرونٍ
+// يتجمّد على القيمة القديمة. والعضويّة نفسها تبقى حيّة الحساب دومًا (12.13) —
+// كلّ ما يحدّثه هذا هو عدّاد «عدد الأعضاء» و«آخر تحديث» الظاهرَين في القائمة،
+// وبلا هذه الجدولة يبقيان محروقَين على لحظة آخر حفظٍ يدويّ فقط.
+Schedule::call(function () {
+    $segments = app(AudienceSegments::class);
+
+    AdAudience::query()
+        ->where('kind', AudienceSegments::KIND)
+        ->where('segment_type', AudienceSegments::TYPE_DYNAMIC)
+        ->whereNull('archived_at')
+        ->each(function (AdAudience $segment) use ($segments) {
+            if ($segments->refreshDue($segment)) {
+                $segments->rebuild($segment);
+            }
+        });
+})->hourly()->name('segments:refresh-dynamic')->withoutOverlapping();
 
 // الفحص الدوريّ لمصدر الدول (12.7-د): **مسحة كلّ ساعة والقرار داخل
 // `CountryDataSync::isCheckDue()` وحده** — على غرار `rep:reset-monthly` فوق.

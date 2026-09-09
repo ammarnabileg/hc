@@ -274,6 +274,29 @@ class AudienceSegments
     }
 
     /**
+     * ⭐ هل حان موعد تحديث **عدّاد** هذه الشريحة الديناميكيّة؟ — **القرار كلّه هنا**.
+     *
+     * الجدولة في `routes/console.php` مسحةٌ كلّ ساعة لا موعدٌ مكتوبٌ فيها، على
+     * غرار `BackupManager::isScheduleDue()`: تعبير كرونٍ يُقرأ مرّةً عند تحميل
+     * الملفّ يتجمّد على القيمة القديمة بعد أن يغيّر الأدمن الفترة من الإعدادات.
+     *
+     * ⚠️ هذا **لا يمسّ حلّ العضويّة نفسه** — العضويّة الديناميكيّة تُعاد حسبتها
+     * حيّةً في كلّ استخدام (`membersQuery()`) بصرف النظر عن هذا التحديث؛ أثره
+     * الوحيد هو عدّاد `size`/`last_built_at` الظاهر في قائمة الشرائح (12.13).
+     */
+    public function refreshDue(AdAudience $segment): bool
+    {
+        if ($this->isStatic($segment) || $segment->archived_at !== null) {
+            return false;
+        }
+
+        $hours = max(1, (int) setting('admin.segments.refresh_hours', 24));
+
+        return $segment->last_built_at === null
+            || $segment->last_built_at->addHours($hours)->isPast();
+    }
+
+    /**
      * إعادة بناء الشريحة: الثابتة تُجمَّد من جديد، والديناميكيّة يُحدَّث عدّادها.
      * والنطاق المستعمَل هو نطاق **صاحب الشريحة** أو مَن يعيد بناءها إن غاب.
      */
