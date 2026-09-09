@@ -34,10 +34,13 @@
 <!-- بيدك:بداية:المتبقّي -->
 ### ⬜ نصٌّ محروق باقٍ في هذا المجلّد — بسببه مكتوبًا (دفعة `app/Services` · 2.13)
 - ✅ **[مقفولة 2026-08-05] `GoalBuildService::EDITABLE` صار `GoalBuildService::editableFields()`.** 10 عناوين حقولٍ عربيّة (هدف/معلَم/حزمة/مهمّة) صارت من `setting()`، والبنية الداخليّة (أيّ حقول مسموح تعديلها لكلّ صنف) بقيت `EDITABLE_FIELD_KEYS`. حُدِّث موضع القراءة في `GoalController::saveField` (تحقّق مسبق) وداخل الخدمة نفسها. المفاتيح في `VolunteerGoalsDemoSeeder`. **الدليل:** `php artisan test --filter="GoalBuild|GoalController|VolunteerGoals"` (17) قبل/بعد بلا فرق.
-- **فجوة `settings:coverage --dead` (2026-08-05):** `goals.objection.window_hours`
-  مزروعٌ (`VolunteerGoalsDemoSeeder`) ولا قارئ له في `app/` — نافذة الاعتراض
-  على الهدف (Objection) غير مطبَّقة زمنيًّا في أيّ حارس حاليّ. وصلٌ محتمل عند
-  بناء مسار اعتراض الأهداف؛ مسجَّلة بانتظاره.
+- ✅ **[مقفولة 2026-09-09] فجوة `settings:coverage --dead`: `goals.objection.window_hours`
+  صار له قارئٌ حقيقيّ.** `GoalLaunchService::objectionWindowHours()` تقرأه الآن
+  وتختم به `work_packages.objection_due_at` عند «إرسال للتنفيذ» — راجع
+  `app/Services/Volunteer/Escalation/_STATUS.md` («الحالة العاشرة») للتفصيل
+  الكامل: الشاشة والكنترولر كانا مبنيَّين قبل هذا التاريخ ولا يفتحهما شيء.
+  **الدليل:** `PackageObjectionTest::test_the_objection_window_uses_its_own_setting_not_the_breakdown_window`
+  — Mutation-tested (إرجاعها لقراءة نافذة التفكيك بدل إعدادها الخاصّ أسقط الاختبار).
 
 - `BuildAccess` تقيس طبقة الدايركتور برتبة البوزشن (`goals.build.director_min_rank`)؛
   لو دخلت بوزشنات جديدة فوق الدايركتور راجع الرتبة قبل أن تعتمد عليها.

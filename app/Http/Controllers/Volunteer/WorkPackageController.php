@@ -8,6 +8,8 @@ use App\Models\Milestone;
 use App\Models\Task;
 use App\Models\WorkItem;
 use App\Models\WorkPackage;
+use App\Services\Volunteer\Escalation\CaseCatalog;
+use App\Services\Volunteer\Escalation\EscalationEngine;
 use App\Services\Volunteer\Goals\BuildAccess;
 use App\Services\Volunteer\Goals\EntityScope;
 use App\Services\Volunteer\Goals\GoalBuildService;
@@ -33,6 +35,7 @@ class WorkPackageController extends Controller
         private readonly EntityScope $scope,
         private readonly BuildAccess $access,
         private readonly GoalBuildService $build,
+        private readonly EscalationEngine $engine,
     ) {}
 
     // ============================================================================
@@ -262,6 +265,9 @@ class WorkPackageController extends Controller
             'objection_at' => now(),
         ])->save();
 
+        // ⭐ «هيتصعّد للطبقة الأعلى» فعلًا — على محرّك التصعيد نفسه (23 — 1.6)
+        $this->engine->open(CaseCatalog::PACKAGE_OBJECTION, $workPackage, $request->user(), ['note' => $data['note']]);
+
         return back()->with('status', (string) setting('workflow.packages.object_ok', 'اترفع اعتراضك ✓ — هيتصعّد للطبقة الأعلى.'));
     }
 
@@ -313,7 +319,11 @@ class WorkPackageController extends Controller
             $after = $approved[$field] ?? null;
 
             if ($before !== $after) {
-                $diff[] = ['field' => $field, 'submitted' => $before, 'approved' => $after];
+                $diff[] = [
+                    'field' => $field,
+                    'submitted' => is_array($before) ? implode('، ', $before) : $before,
+                    'approved' => is_array($after) ? implode('، ', $after) : $after,
+                ];
             }
         }
 

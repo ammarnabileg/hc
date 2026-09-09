@@ -3,7 +3,7 @@
 namespace App\Services\Volunteer\Escalation;
 
 /**
- * الحالات التسع على محرّك التصعيد وتسوياتها الآليّة (الدستور 23 — القسم 5).
+ * الحالات العشر على محرّك التصعيد (23 — القسم 5 · 1.6) وتسوياتها الآليّة.
  *
  * لماذا جدول واحد؟ لأنّ «التسوية عند فوات نافذة السقف» قاعدة دستوريّة نصًّا،
  * فلو تفرّقت في الكنترولرات اختلفت من شاشة لشاشة — وهنا مرجعها الوحيد.
@@ -32,7 +32,16 @@ class CaseCatalog
     public const BEHAVIOR_SEVERE = 'behavior_severe';
 
     /**
-     * الحالات التسع بترتيب الدستور: النوع · الاسم · الأيقونة · القرارات المتاحة ·
+     * ⭐ اعتراض دايركتور الكيان على نسخة اعتماد حزمته (23 — 1.6): «زرّ اعتراض
+     * واحد خلال 24 ساعة على محرّك التصعيد — وسكوته قبول». وحدها بين العشرة
+     * تُفتَح **بفعل المعترِض نفسه** لا بحدثٍ آليّ — والتسوية عند فوات السقف
+     * «رفض» عمدًا: فالسكوت (سواء عن فتح الاعتراض أو عن حسمه) قبولٌ للاعتماد
+     * القائم، لا إلغاءً له.
+     */
+    public const PACKAGE_OBJECTION = 'package_objection';
+
+    /**
+     * الحالات العشر بترتيب الدستور: النوع · الاسم · الأيقونة · القرارات المتاحة ·
      * التسوية الآليّة عند فوات نافذة السقف · وصفها المكتوب صراحةً في الشاشة.
      */
     public static function all(): array
@@ -131,6 +140,16 @@ class CaseCatalog
                 'decisions' => ['approved' => setting('volunteer.case_catalog.all_45', 'اعتماد المخالفة'), 'rejected' => setting('volunteer.case_catalog.all_46', 'رفض المخالفة')],
                 'settlement' => 'rejected',
                 'settlement_label' => setting('volunteer.case_catalog.all_47', 'رفض — لا تُطبَّق على درجة الالتزام'),
+            ],
+            self::PACKAGE_OBJECTION => [
+                'label' => setting('volunteer.case_catalog.all_48', 'اعتراض على نسخة اعتماد حزمة'),
+                'icon' => '🗳️',
+                'decisions' => [
+                    'upheld' => setting('volunteer.case_catalog.all_49', 'اعتماد الاعتراض'),
+                    'rejected' => setting('volunteer.case_catalog.all_50', 'رفض الاعتراض'),
+                ],
+                'settlement' => 'rejected',
+                'settlement_label' => setting('volunteer.case_catalog.all_51', 'رفض — الاعتماد قائم (السكوت قبول)'),
             ],
         ];
     }

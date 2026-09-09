@@ -18,6 +18,9 @@ class WorkPackage extends Model
     {
         return [
             'progress_percent' => 'decimal:2',
+            'submitted_at' => 'datetime',
+            'objection_due_at' => 'datetime',
+            'objection_at' => 'datetime',
         ];
     }
 

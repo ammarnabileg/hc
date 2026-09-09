@@ -10,6 +10,7 @@ use App\Models\TaskBlock;
 use App\Models\TaskContribution;
 use App\Models\Transaction;
 use App\Models\User;
+use App\Models\WorkPackage;
 use App\Services\Volunteer\Org\AbsenceService;
 use App\Services\Volunteer\Retention\BehaviorEscalation;
 use App\Services\Wallet\LedgerService;
@@ -283,7 +284,7 @@ class EscalationEngine
      * معالجة كلّ النوافذ الفائتة دفعةً — يستدعيها أمر `escalations:run`.
      *
      * ⭐ **حالةٌ واحدة تالفة لا تُسقِط الدورة كلّها.** المحرّك يعمل كلّ خمس دقائق
-     * على المنصّة بأسرها: التسويات التسع · الاعتماد التلقائيّ للمساهمين · خصم
+     * على المنصّة بأسرها: التسويات العشر · الاعتماد التلقائيّ للمساهمين · خصم
      * نقاط التفتيش · الديدلاينات الداخليّة. فصفٌّ بنوعٍ لا يعرفه `CaseCatalog`
      * — أو أيّ استثناء آخر — يُسجَّل ويُنبَّه عليه، **ويكمل الباقي**.
      *
@@ -571,6 +572,7 @@ class EscalationEngine
             CaseCatalog::SUBTASK_BATCH => $this->applySubtaskBatch($subject, $decision, $extra),
             // أثر المخالفة الجسيمة يعيش في مجاله — والمحرّك ينادي عليه (13.4-ن-هـ)
             CaseCatalog::BEHAVIOR_SEVERE => app(BehaviorEscalation::class)->apply($subject, $decision, $decider),
+            CaseCatalog::PACKAGE_OBJECTION => $this->applyPackageObjection($subject, $decision),
             default => null,
         };
     }
@@ -842,6 +844,22 @@ class EscalationEngine
         }
     }
 
+    /**
+     * 10) اعتراض حزمة العمل (23 — 1.6): اعتماد الاعتراض يعلّم الحزمة صراحةً
+     * لإعادة النظر — والقرار البشريّ في المراجعة نفسها لا في محرّك التصعيد،
+     * فلا يُخترَع هنا تراجُعٌ آليّ عن مسودّات ملفّاتٍ فُتحت أو نوافذَ تفكيكٍ
+     * فُتحت بالفعل. رفض الاعتراض (أو تسويته الآليّة بفوات السقف) يبقي العلَم
+     * كما هو — أي: الاعتماد قائم.
+     */
+    private function applyPackageObjection(?Model $subject, string $decision): void
+    {
+        if (! $subject instanceof WorkPackage) {
+            return;
+        }
+
+        $subject->forceFill(['objection_status' => $decision === 'upheld' ? 'upheld' : 'rejected'])->save();
+    }
+
     // ------------------------------------------------------------------ أدوات
 
     private function closeTask(Task $task): void
@@ -895,6 +913,10 @@ class EscalationEngine
 
         if ($subject instanceof TaskBlock) {
             return Task::query()->whereKey($subject->task_id)->value('entity_id');
+        }
+
+        if ($subject instanceof WorkPackage) {
+            return $subject->entity_id;
         }
 
         return null;

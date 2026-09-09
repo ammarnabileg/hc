@@ -37,12 +37,19 @@ class GoalLaunchService
     public function __construct(
         private readonly SubtaskBatch $batches,
         private readonly FileDrafts $fileDrafts,
+        private readonly GoalBuildService $build,
     ) {}
 
     /** نافذة التفكيك بالساعات — مصدرٌ واحد مع الخصم نفسه، فلا يفترقان */
     public function windowHours(): int
     {
         return $this->batches->breakdownWindowHours();
+    }
+
+    /** نافذة الاعتراض على نسخة الاعتماد (23 — 1.6) — إعدادها الخاصّ لا نافذة التفكيك */
+    public function objectionWindowHours(): int
+    {
+        return (int) setting('goals.objection.window_hours', 24);
     }
 
     /**
@@ -107,13 +114,16 @@ class GoalLaunchService
 
         $now = now();
         $dueAt = $now->copy()->addHours($this->windowHours());
+        $objectionDueAt = $now->copy()->addHours($this->objectionWindowHours());
 
-        $stamped = DB::transaction(function () use ($goal, $actor, $now, $dueAt) {
+        $stamped = DB::transaction(function () use ($goal, $actor, $now, $dueAt, $objectionDueAt) {
             $goal->forceFill([
                 'status' => 'sent_to_execution',
                 'sent_to_execution_at' => $now,
                 'created_by' => $goal->created_by ?? $actor->id,
             ])->save();
+
+            $this->stampApprovedSnapshots($goal, $objectionDueAt);
 
             return $this->stampBreakdownWindow($goal, $dueAt);
         });
@@ -161,6 +171,34 @@ class GoalLaunchService
             ->whereNull('breakdown_due_at')
             ->whereIn('status', TaskStatus::OPEN)
             ->update(['breakdown_due_at' => $dueAt]);
+    }
+
+    /**
+     * ⭐ **حقّ الاعتراض** (23 — 1.6): يختم على كلّ حزمة **لقطة ما اعتُمد** —
+     * فرقها مع `submitted_snapshot` (ما رفعه الدايركتور في 1.3) هو «فرق النسخة»
+     * الذي تعرضه شاشة الحزمة — ومهلة اعتراضها بإعدادها الخاصّ
+     * `goals.objection.window_hours`، لا نافذة التفكيك: كانت هذه القيمة
+     * مزروعةً في `VolunteerGoalsDemoSeeder` بلا قارئٍ حقيقيّ لها في `app/`.
+     *
+     * وبدون هذا الختم كانت `objection_due_at` تبقى فارغةً للأبد فتُقفَل نافذة
+     * الاعتراض قبل أن تُفتَح، و`approved_snapshot` فارغةً فيعرض الفرق «مفيش
+     * فروق» دائمًا — بابٌ وزرٌّ بُنيا كاملين ولا يفتحهما شيء (كانا مبنيَّين في
+     * الشاشة والكنترولر منذ البداية، والفجوة كانت هنا فقط: لا أحد يختمهما).
+     */
+    private function stampApprovedSnapshots(Goal $goal, Carbon $objectionDueAt): int
+    {
+        $packages = WorkPackage::query()
+            ->whereIn('milestone_id', Milestone::query()->where('goal_id', $goal->id)->select('id'))
+            ->get();
+
+        foreach ($packages as $package) {
+            $package->forceFill([
+                'approved_snapshot' => json_encode($this->build->snapshot($package), JSON_UNESCAPED_UNICODE),
+                'objection_due_at' => $objectionDueAt,
+            ])->save();
+        }
+
+        return $packages->count();
     }
 
     /** @return list<int> */
