@@ -248,6 +248,25 @@ class AdminSystemDemoSeeder extends Seeder
             ['stats.certificates.col.accreditation', 'stats', 'عمود: جهة الاعتماد', 'string', 'جهة الاعتماد', false],
             ['stats.certificates.col.issued', 'stats', 'عمود: عدد الشهادات الصادرة', 'string', 'شهادات صادرة', false],
 
+            /*
+             | ⭐ تاب «تقرير أثر المكافآت» (24.3-خامسًا · 12.9) — كان بندًا في نفس
+             | سطر التبويبات («… التطوّع · الشهادات · تقرير أثر المكافآت») ولم
+             | يُبنَ. 🔒 owner_only كسائر إعدادات `manual_rewards`/`finance` (12.9
+             | كلّها `is_owner_only=true`) — لا «دائمًا» كتابَي التطوّع والشهادات.
+             */
+            ['stats.tabs.rewards.label', 'stats', 'لافتة تاب أثر المكافآت', 'string', 'تقرير أثر المكافآت', true],
+            ['stats.rewards.kpi.granted', 'stats', 'مؤشّر: إجماليّ الممنوح', 'string', 'إجماليّ الممنوح', true],
+            ['stats.rewards.kpi.deducted', 'stats', 'مؤشّر: إجماليّ المخصوم', 'string', 'إجماليّ المخصوم', true],
+            ['stats.rewards.kpi.net', 'stats', 'مؤشّر: الصافي', 'string', 'الصافي', true],
+            ['stats.rewards.kpi.currencies', 'stats', 'مؤشّر: عدد العملات المتأثّرة', 'string', 'عملات متأثّرة', true],
+            ['stats.rewards.chart.series', 'stats', 'عنوان رسم الحركة اليوميّة', 'string', 'الحركة اليوميّة الصافية', true],
+            ['stats.rewards.chart.granted', 'stats', 'عنوان رسم الممنوح حسب العملة', 'string', 'الممنوح حسب العملة', true],
+            ['stats.rewards.table.currencies', 'stats', 'عنوان جدول العملات', 'string', 'إجماليّ الممنوح والمخصوم لكلّ عملة', true],
+            ['stats.rewards.col.currency', 'stats', 'عمود: العملة', 'string', 'العملة', true],
+            ['stats.rewards.col.granted', 'stats', 'عمود: الممنوح', 'string', 'الممنوح', true],
+            ['stats.rewards.col.deducted', 'stats', 'عمود: المخصوم', 'string', 'المخصوم', true],
+            ['stats.rewards.col.net', 'stats', 'عمود: الصافي', 'string', 'الصافي', true],
+
             // ---------------- وضع الصيانة (12.7-و-1)
             ['system.maintenance.enabled', 'maintenance', 'وضع الصيانة العامّ', 'bool', '0', false],
             ['system.maintenance.message', 'maintenance', 'رسالة الصيانة', 'text', 'بنطوّر حاجة حلوة — هنرجع قريب.', false],

@@ -39,6 +39,19 @@ class StatsService
             'volunteer' => ['permission' => 'reports_volunteer.view', 'owner_only' => false],
             'certificates' => ['permission' => 'reports_certificates.view', 'owner_only' => false],
             'acquisition' => ['permission' => 'acquisition_sources.view', 'owner_only' => false],
+            /*
+             | ⭐ تاب **«تقرير أثر المكافآت»** (24.3-خامسًا: «… · التطوّع · الشهادات ·
+             | تقرير أثر المكافآت») — 12.9 يسمّي مفتاحه حرفيًّا في 12.2.2: صفّ
+             | `manual_rewards.export` وحدها تحمل نصّ «**تصدير سجلّ المنح/الخصم
+             | وتقرير الأثر**»، وليس مفتاحًا جديدًا باسم `reports_rewards.*` —
+             | 12.2.2 لا تذكر مفتاحًا كهذا في مصفوفتها المعتمَدة إطلاقًا.
+             |
+             | وخلافًا لبقيّة تابات `reports_*` («دائمًا»)، مجموعة `manual_rewards`
+             | كلّها 🔒 «مالك المنصّة فقط» (`is_owner_only=true` في
+             | database/data/permissions.json) — فالتاب owner_only هنا كتاب
+             | المبيعات (12.7)، لا كتاب التطوّع/الشهادات.
+             */
+            'rewards' => ['permission' => 'manual_rewards.export', 'owner_only' => true],
         ];
     }
 
@@ -68,6 +81,7 @@ class StatsService
             'volunteer' => (string) setting('stats.tabs.volunteer.label', 'التطوّع'),
             'certificates' => (string) setting('stats.tabs.certificates.label', 'الشهادات'),
             'acquisition' => setting('stats.stats_service.tabs_7', 'مصادر الاكتساب'),
+            'rewards' => (string) setting('stats.tabs.rewards.label', 'تقرير أثر المكافآت'),
         ];
 
         $tabs = [];
@@ -160,6 +174,7 @@ class StatsService
             'volunteer' => $this->volunteer($period),
             'certificates' => $this->certificates($period),
             'acquisition' => $this->acquisition($period),
+            'rewards' => $this->rewards($period),
             default => $this->users($period),
         };
     }
@@ -721,6 +736,75 @@ class StatsService
         return app(AcquisitionFunnel::class)->report($period['from'], $period['to']);
     }
 
+    // ---------------------------------------------------------------- تقرير أثر المكافآت
+
+    /**
+     * ⭐ تقرير أثر المكافآت (24.3-خامسًا · 12.9) — ومادّته من 12.9 حرفيًّا:
+     * «**تقرير الأثر** (إجماليّ الممنوح/المخصوم لكلّ عملة في فترة) — ضمن
+     * الإحصائيّات (12.8)».
+     *
+     * المصدر نفسه الذي تقرأ منه `RewardGrantService::ledger()`: صفوف
+     * `transactions` بـ`source='admin'` — كلّ منحة/خصم يدويّ من 12.9 يمرّ عبر
+     * `Integrations::post(..., 'admin', ...)` ولا مصدر آخر يكتب بهذا الوسم.
+     */
+    private function rewards(array $period): array
+    {
+        if (! Schema::hasTable('transactions')) {
+            return ['kpis' => [], 'series' => [], 'series_prev' => [], 'currencies' => []];
+        }
+
+        $base = fn () => DB::table('transactions')->where('source', 'admin')
+            ->whereBetween('created_at', [$period['from'], $period['to']]);
+
+        $granted = (float) $base()->where('amount', '>', 0)->sum('amount');
+        $deducted = (float) $base()->where('amount', '<', 0)->sum('amount'); // سالبة أصلًا
+        $currenciesTouched = (int) $base()->distinct()->count('currency_id');
+
+        return [
+            'kpis' => [
+                ['label' => (string) setting('stats.rewards.kpi.granted', 'إجماليّ الممنوح'), 'value' => round($granted, 2), 'icon' => '🎁'],
+                ['label' => (string) setting('stats.rewards.kpi.deducted', 'إجماليّ المخصوم'), 'value' => round(abs($deducted), 2), 'icon' => '➖'],
+                ['label' => (string) setting('stats.rewards.kpi.net', 'الصافي'), 'value' => round($granted + $deducted, 2), 'icon' => '⚖️'],
+                ['label' => (string) setting('stats.rewards.kpi.currencies', 'عملات متأثّرة'), 'value' => $currenciesTouched, 'icon' => '🪙'],
+            ],
+            // «الصافي» اليوميّ: الممنوح موجبٌ والمخصوم سالبٌ فيتّضح الاتّجاه بخطّ واحد
+            'series' => $this->dailySum('transactions', 'created_at', 'amount', $period['from'], $period['to'], ['source' => 'admin']),
+            'series_prev' => $period['compare']
+                ? $this->dailySum('transactions', 'created_at', 'amount', $period['prev_from'], $period['prev_to'], ['source' => 'admin'])
+                : [],
+            // «جدول تفصيليّ قابل للتصدير» — إجماليّ الممنوح/المخصوم لكلّ عملة حرفيًّا (12.9)
+            'currencies' => $this->rewardsByCurrency($period),
+        ];
+    }
+
+    /** إجماليّ الممنوح/المخصوم لكلّ عملة — نصّ 12.9 حرفيًّا */
+    private function rewardsByCurrency(array $period): array
+    {
+        if (! Schema::hasTable('transactions') || ! Schema::hasTable('currencies')) {
+            return [];
+        }
+
+        return DB::table('transactions')
+            ->join('currencies', 'currencies.id', '=', 'transactions.currency_id')
+            ->where('transactions.source', 'admin')
+            ->whereBetween('transactions.created_at', [$period['from'], $period['to']])
+            ->select(
+                'currencies.name_ar as title',
+                DB::raw('sum(case when transactions.amount > 0 then transactions.amount else 0 end) as granted'),
+                DB::raw('sum(case when transactions.amount < 0 then -transactions.amount else 0 end) as deducted'),
+            )
+            ->groupBy('currencies.name_ar')
+            ->orderByDesc('granted')
+            ->get()
+            ->map(fn ($r) => [
+                'label' => (string) $r->title,
+                'granted' => round((float) $r->granted, 2),
+                'deducted' => round((float) $r->deducted, 2),
+                'net' => round((float) $r->granted - (float) $r->deducted, 2),
+            ])
+            ->all();
+    }
+
     // ---------------------------------------------------------------- أدوات
 
     /** @return array<int, array{label:string, value:float}> */
@@ -834,6 +918,13 @@ class StatsService
                 (string) setting('stats.certificates.col.accreditation', 'جهة الاعتماد') => $r['label'],
                 (string) setting('stats.certificates.col.issued', 'شهادات صادرة') => $r['value'],
             ], $data['accreditations'] ?? []),
+            // «إجماليّ الممنوح/المخصوم لكلّ عملة» حرفيًّا (12.9)
+            'rewards' => array_map(fn ($r) => [
+                (string) setting('stats.rewards.col.currency', 'العملة') => $r['label'],
+                (string) setting('stats.rewards.col.granted', 'الممنوح') => $r['granted'],
+                (string) setting('stats.rewards.col.deducted', 'المخصوم') => $r['deducted'],
+                (string) setting('stats.rewards.col.net', 'الصافي') => $r['net'],
+            ], $data['currencies'] ?? []),
             default => array_map(
                 fn ($k) => [(string) setting('stats.stats_service.export_rows_5', 'المؤشّر') => $k['label'], (string) setting('stats.stats_service.export_rows_6', 'القيمة') => $k['value']],
                 $data['kpis'] ?? [],

@@ -3,8 +3,10 @@
 namespace Tests\Feature\Access;
 
 use App\Http\Controllers\Admin\GamificationController;
+use App\Models\Currency;
 use App\Models\Permission;
 use App\Models\Role;
+use App\Models\Transaction;
 use App\Models\User;
 use App\Services\Admin\System\StatsService;
 use App\Support\Access\AccessEngine;
@@ -184,6 +186,83 @@ class ReportTabsDoorTest extends TestCase
         foreach (['series', 'accreditations', 'types'] as $block) {
             $this->assertArrayHasKey($block, $certificates, "تاب الشهادات يحمل «{$block}» — معدّل الإصدار · الإلغاءات · حسب الاعتماد (12.2.2)");
         }
+    }
+
+    // -------------------------------------------------- تقرير أثر المكافآت (12.9)
+
+    /**
+     * ⭐ 🔒 `manual_rewards.export` منصوصة «مالك المنصّة فقط» (12.2.2) — فمنحُها
+     * وحدها لا يفتح التاب، تمامًا كتاب المبيعات (12.7).
+     */
+    public function test_the_rewards_tab_stays_owner_only_even_with_the_permission_granted(): void
+    {
+        // + `reports_volunteer.view` كي يدخل الباب أصلًا — الاختبار على تابِّ المكافآت وحده
+        $actor = $this->actorHolding(
+            ['manual_rewards.export' => 'ALL', 'reports_volunteer.view' => 'ALL'],
+            'r_rewards_no_owner',
+        );
+
+        $this->assertArrayNotHasKey(
+            'rewards',
+            app(StatsService::class)->tabsFor($actor),
+            '🔒 تقرير أثر المكافآت لمالك المنصّة وحده — شرط الملكيّة فوق فحص الصلاحيّة',
+        );
+
+        // طلب تابٍّ لا يملكه لا يُحسَب له — يعود لتابِّه هو (نظير test_asking_for_a_tab_he_does_not_own_never_computes_it)
+        $this->actingAs($actor)->get('/admin/stats?tab=rewards')->assertOk()
+            ->assertDontSee((string) setting('stats.rewards.table.currencies'), false);
+
+        $this->actingAs($actor)->get('/admin/stats/export?tab=rewards&format=csv')->assertForbidden();
+    }
+
+    /** ومالك المنصّة يصل التابّ ويُحسَب فعلًا — إجماليّ الممنوح/المخصوم لكلّ عملة حرفيًّا (12.9) */
+    public function test_the_platform_owner_reaches_the_rewards_tab_and_it_computes_real_ledger_rows(): void
+    {
+        $owner = $this->makeUser('مالك المنصّة');
+        $owner->assignRole('platform_owner');
+        app(AccessEngine::class)->forget();
+
+        $recipient = $this->makeUser('مستلِم');
+        $coins = Currency::where('code', 'coins')->firstOrFail();
+
+        // منحة 100 + خصم 30 بعملة الكوينز — «إجماليّ الممنوح/المخصوم لكلّ عملة» (12.9)
+        Transaction::create([
+            'user_id' => $recipient->id, 'currency_id' => $coins->id,
+            'amount' => 100, 'source' => 'admin', 'layer' => 'training',
+        ]);
+        Transaction::create([
+            'user_id' => $recipient->id, 'currency_id' => $coins->id,
+            'amount' => -30, 'source' => 'admin', 'layer' => 'training',
+        ]);
+        // معاملة من مصدرٍ آخر — يجب ألّا تدخل تقرير المنح اليدويّة
+        Transaction::create([
+            'user_id' => $recipient->id, 'currency_id' => $coins->id,
+            'amount' => 9999, 'source' => 'purchase', 'layer' => 'training',
+        ]);
+
+        $this->actingAs($owner)->get('/admin/stats?tab=rewards')->assertOk()
+            ->assertSee((string) setting('stats.rewards.table.currencies'), false);
+
+        $stats = app(StatsService::class);
+        $this->assertArrayHasKey('rewards', $stats->tabsFor($owner));
+        $this->assertArrayHasKey('rewards', $stats->tabs());
+
+        $data = $stats->data('rewards', $stats->period(null, null, false));
+        $this->assertCount(4, $data['kpis']);
+
+        $byLabel = collect($data['kpis'])->keyBy('label');
+        $this->assertSame(100.0, $byLabel[(string) setting('stats.rewards.kpi.granted')]['value']);
+        $this->assertSame(30.0, $byLabel[(string) setting('stats.rewards.kpi.deducted')]['value']);
+        $this->assertSame(70.0, $byLabel[(string) setting('stats.rewards.kpi.net')]['value']);
+
+        $this->assertCount(1, $data['currencies'], 'عملة واحدة تحرّكت — الكوينز');
+        $this->assertSame('كوينز', $data['currencies'][0]['label']);
+        $this->assertSame(100.0, $data['currencies'][0]['granted']);
+        $this->assertSame(30.0, $data['currencies'][0]['deducted']);
+        $this->assertSame(70.0, $data['currencies'][0]['net']);
+
+        // والتصدير أصرم أيضًا: تابٌّ يملكه صاحبُه يخرج له ملفًّا
+        $this->actingAs($owner)->get('/admin/stats/export?tab=rewards&format=csv')->assertOk();
     }
 
     // ------------------------------------------------------- لا انحراف بين الباب والمحتوى
