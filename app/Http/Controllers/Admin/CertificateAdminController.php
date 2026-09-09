@@ -8,16 +8,20 @@ use App\Models\CertificateAccreditation;
 use App\Models\CertificateReport;
 use App\Models\CertificateTemplate;
 use App\Models\CertificateType;
+use App\Models\Event;
 use App\Services\Admin\Content\CertificateBulkIssuer;
 use App\Services\Admin\Content\ContentAudit;
 use App\Services\Admin\Content\TemplateDesigner;
+use App\Services\Certificates\CertificateRenderer;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 use Symfony\Component\HttpFoundation\StreamedResponse;
+use ZipArchive;
 
 /**
  * إدارة الشهادات (12.5 · 24.1) — أربعة تبويبات بترتيب منطقيّ:
@@ -32,6 +36,7 @@ class CertificateAdminController extends Controller
         private readonly CertificateBulkIssuer $issuer,
         private readonly TemplateDesigner $designer,
         private readonly ContentAudit $audit,
+        private readonly CertificateRenderer $renderer,
     ) {}
 
     public function index(Request $request): View
@@ -44,8 +49,8 @@ class CertificateAdminController extends Controller
             'tab' => $tab,
             'tabs' => $this->tabs(),
         ], match ($tab) {
-            'accreditations' => $this->accreditationsData(),
-            'types' => $this->typesData(),
+            'accreditations' => $this->accreditationsData($request),
+            'types' => $this->typesData($request),
             'issue' => $this->issueData(),
             'verification' => $this->verificationData($request),
             default => $this->ledgerData($request),
@@ -162,10 +167,17 @@ class CertificateAdminController extends Controller
     /** معاينة قبل الإصدار: الشهادات تحت بعضها ببياناتها الحقيقيّة (12.5-ج). */
     public function previewIssue(Request $request): View
     {
-        [$type, $codes, $language] = $this->issueInput($request);
+        [$type, $codes, $language, $templateId] = $this->issueInput($request);
 
-        $templates = $this->designer->templatesFor($type);
-        $template = $templates[$language] ?? $templates['ar'];
+        // ⭐ [2026-09-10] القالب المختار صراحةً وقت الإصدار — أو الافتراضيّ/الأحدث كما كان (سطر 2406)
+        $template = $templateId
+            ? CertificateTemplate::query()->where('id', $templateId)->where('certificate_type_id', $type->id)->where('language', $language)->first()
+            : null;
+
+        if (! $template) {
+            $templates = $this->designer->templatesFor($type);
+            $template = $templates[$language] ?? $templates['ar'];
+        }
 
         return view('admin.certificates.preview', [
             'type' => $type,
@@ -179,9 +191,9 @@ class CertificateAdminController extends Controller
 
     public function issue(Request $request): RedirectResponse
     {
-        [$type, $codes, $language] = $this->issueInput($request);
+        [$type, $codes, $language, $templateId] = $this->issueInput($request);
 
-        $result = $this->issuer->issueBatch($codes, $type, $language, $request->user());
+        $result = $this->issuer->issueBatch($codes, $type, $language, $request->user(), templateId: $templateId);
 
         $message = strtr((string) setting('certificates.admin.issue_ok', 'اتصدرت :a1 شهادة ✓'), [':a1' => (string) ($result['issued'])]);
 
@@ -291,10 +303,38 @@ class CertificateAdminController extends Controller
         return back()->with('status', (string) setting('certificates.reports.reviewed_text', 'اتراجع البلاغ ✓'));
     }
 
-    /** تصدير/طباعة جماعيّة بالنوع أو بأكواد الأشخاص (12.5-د). */
+    /**
+     * ⭐ تصدير/طباعة جماعيّة (24.1 سطر 4676: pop-box «بالنوع/الفعاليّة **أو
+     * بأكواد الأشخاص** + الصيغة») — كانت وصلة CSV مباشرة بفلاتر الصفحة
+     * الحاليّة فقط، بلا بوب-أب ولا اختيار صيغة ولا فلترة بأكواد الأشخاص، وتصدّر
+     * **صفحة السجلّ المعروضة (20) لا كلّ ما طابق** لأنّها كانت تستهلك `ledger()`
+     * المُصفَّح. الآن `ledgerForExport()` غير مُصفَّحة (سقفها `certificates.export.row_limit`)،
+     * والصيغة CSV أو صورٌ (ZIP) عبر `CertificateRenderer::png()` نفسها — لا مولِّد ثانٍ.
+     */
     public function export(Request $request): StreamedResponse
     {
-        $rows = $this->issuer->ledger($request->all())->getCollection();
+        abort_unless((bool) setting('certificates.export.bulk_enabled', true), 403);
+
+        // «أو» حرفيّة (24.1 سطر 4676): وضعا الفلترة متمانعان — كودٌ ملصوق لا يخلط
+        // مع النوع/الفعاليّة، حتى لو بقيت حقول اللوحة الأخرى معبّأةً من اختيارٍ سابق.
+        $input = $request->all();
+
+        if ($request->string('mode')->toString() === 'codes') {
+            unset($input['type'], $input['event_id']);
+        } else {
+            unset($input['codes']);
+        }
+
+        $rows = $this->issuer->ledgerForExport($input, $request->user());
+
+        return $request->string('format')->toString() === 'images'
+            ? $this->exportImages($rows)
+            : $this->exportCsv($rows);
+    }
+
+    /** @param  Collection<int, Certificate>  $rows */
+    private function exportCsv($rows): StreamedResponse
+    {
         $filename = 'certificates-'.now()->format('Ymd-His').'.csv';
 
         return response()->streamDownload(function () use ($rows) {
@@ -318,32 +358,73 @@ class CertificateAdminController extends Controller
         }, $filename, ['Content-Type' => 'text/csv; charset=UTF-8']);
     }
 
+    /** @param  Collection<int, Certificate>  $rows */
+    private function exportImages($rows): StreamedResponse
+    {
+        $zipPath = tempnam(sys_get_temp_dir(), 'certs-').'.zip';
+        $zip = new ZipArchive;
+        $zip->open($zipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE);
+
+        foreach ($rows as $certificate) {
+            $zip->addFromString($certificate->code.'.png', $this->renderer->png($certificate));
+        }
+
+        $zip->close();
+
+        return response()->streamDownload(function () use ($zipPath) {
+            fpassthru(fopen($zipPath, 'r'));
+            unlink($zipPath);
+        }, 'certificates-'.now()->format('Ymd-His').'.zip', ['Content-Type' => 'application/zip']);
+    }
+
     // ------------------------------------------------------------------ داخليّ
 
     /** @return array{0: CertificateType, 1: array<int, string>, 2: string} */
+    /** @return array{0: CertificateType, 1: array<int, string>, 2: string, 3: ?int} */
     private function issueInput(Request $request): array
     {
         $data = $request->validate([
             'certificate_type_id' => ['required', 'integer', 'exists:certificate_types,id'],
             'codes' => ['required', 'string'],
             'language' => ['nullable', 'string', 'in:ar,en'],
+            // ⭐ [2026-09-10] اختيار القالب وقت الإصدار (سطر 2406) — فاضي = الافتراضيّ/الأحدث كما كان
+            'template_id' => ['nullable', 'integer', 'exists:certificate_templates,id'],
         ]);
 
         $type = CertificateType::query()->findOrFail($data['certificate_type_id']);
         $language = $data['language'] ?? ($type->lang_ar_enabled ? 'ar' : 'en');
 
-        return [$type, $this->issuer->parseCodes($data['codes']), $language];
+        return [$type, $this->issuer->parseCodes($data['codes']), $language, $data['template_id'] ?? null];
     }
 
     /** @return array<string, mixed> */
-    private function accreditationsData(): array
+    /**
+     * ⭐ [2026-09-10] العرض المنصوص (24.1 سطر 4619-4620): **جدول** لا كروت —
+     * بحثٌ بالاسم + Chips: الحالة (نشط/معطّل) · مستخدَم/غير مستخدَم.
+     */
+    private function accreditationsData(Request $request): array
     {
-        $accreditations = CertificateAccreditation::query()->orderByDesc('is_platform')->orderBy('id')->get();
+        $filters = [
+            'q' => trim($request->string('q')->toString()),
+            'status' => $request->string('status')->toString(),
+            'used' => $request->string('used')->toString(),
+        ];
 
         $typeCounts = CertificateType::query()
             ->selectRaw('accreditation_id, count(*) as total')
             ->groupBy('accreditation_id')
             ->pluck('total', 'accreditation_id');
+
+        $accreditations = CertificateAccreditation::query()
+            ->when($filters['q'] !== '', fn ($q) => $q->where(fn ($w) => $w->where('name_ar', 'like', '%'.$filters['q'].'%')->orWhere('name_en', 'like', '%'.$filters['q'].'%')))
+            ->when($filters['status'] !== '', fn ($q) => $q->where('is_active', $filters['status'] === 'active'))
+            ->when($filters['used'] !== '', function ($q) use ($filters, $typeCounts) {
+                $ids = $typeCounts->keys()->all();
+                $filters['used'] === 'used' ? $q->whereIn('id', $ids) : $q->whereNotIn('id', $ids);
+            })
+            ->orderByDesc('is_platform')
+            ->orderBy('id')
+            ->get();
 
         $issuedCounts = DB::table('certificates')
             ->join('certificate_types', 'certificate_types.id', '=', 'certificates.certificate_type_id')
@@ -351,13 +432,19 @@ class CertificateAdminController extends Controller
             ->groupBy('certificate_types.accreditation_id')
             ->pluck('total', 'accreditation_id');
 
-        return compact('accreditations', 'typeCounts', 'issuedCounts');
+        return compact('accreditations', 'typeCounts', 'issuedCounts', 'filters');
     }
 
     /** @return array<string, mixed> */
-    private function typesData(): array
+    private function typesData(Request $request): array
     {
-        $types = CertificateType::query()->with('accreditation')->orderBy('id')->get();
+        // ⭐ [2026-09-10] «الضغط ← الأنواع المفلترة» من عمود عدد الأنواع في الاعتمادات (سطر 4620)
+        $accreditationId = $request->integer('accreditation_id');
+
+        $types = CertificateType::query()->with('accreditation')
+            ->when($accreditationId, fn ($q) => $q->where('accreditation_id', $accreditationId))
+            ->orderBy('id')
+            ->get();
 
         $templateCounts = CertificateTemplate::query()
             ->selectRaw('certificate_type_id, count(*) as total')
@@ -375,6 +462,7 @@ class CertificateAdminController extends Controller
             'issuedCounts' => $issued,
             'accreditations' => CertificateAccreditation::query()->where('is_active', true)->get(),
             'bindableTables' => $this->designer->bindableTables(),
+            'accreditationFilter' => $accreditationId ? CertificateAccreditation::find($accreditationId) : null,
         ];
     }
 
@@ -384,6 +472,8 @@ class CertificateAdminController extends Controller
         return [
             'types' => CertificateType::query()->where('is_active', true)->orderBy('name_ar')->get(),
             'batchLimit' => (int) setting('certificates.issue.batch_limit', 200),
+            // ⭐ [2026-09-10] «قوالب متعدّدة للنوع … اختيار القالب وقت الإصدار» (سطر 2406)
+            'templates' => CertificateTemplate::query()->orderByDesc('is_default')->orderByDesc('version')->get(['id', 'certificate_type_id', 'language', 'version', 'is_default']),
         ];
     }
 
@@ -405,6 +495,9 @@ class CertificateAdminController extends Controller
             'statuses' => CertificateBulkIssuer::statuses(),
             'sources' => (array) setting('certificates.sources', ['manual' => 'يدويّ', 'auto' => 'تلقائيّ', 'import' => 'مستورد']),
             'revokeReasons' => (array) setting('certificates.revoke.reasons', ['تزوير مثبَت', 'بيانات خاطئة', 'طلب صاحبها']),
+            // ⭐ بوب-أب «تصدير/طباعة جماعيّة» (24.1 سطر 4676) — [بالنوع/الفعاليّة أو بأكواد الأشخاص + الصيغة]
+            'events' => Event::query()->latest('starts_at')->limit(200)->get(['id', 'title_ar']),
+            'exportEnabled' => (bool) setting('certificates.export.bulk_enabled', true),
         ];
     }
 

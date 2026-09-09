@@ -9,7 +9,7 @@
         <div class="grid md:grid-cols-2 gap-3">
             <label class="block">
                 <span class="block text-sm mb-1">{{ setting('admin.certificates.partials.issue.nwa_alshhada', 'نوع الشهادة') }}</span>
-                <select name="certificate_type_id" required class="w-full rounded-xl px-3 py-2 text-sm"
+                <select name="certificate_type_id" data-issue-type required class="w-full rounded-xl px-3 py-2 text-sm"
                         style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
                     @foreach ($types as $type)
                         <option value="{{ $type->id }}">{{ $type->name_ar }}</option>
@@ -19,13 +19,27 @@
 
             <label class="block">
                 <span class="block text-sm mb-1">{{ setting('admin.certificates.partials.issue.allgha', 'اللغة') }}</span>
-                <select name="language" class="w-full rounded-xl px-3 py-2 text-sm"
+                <select name="language" data-issue-language class="w-full rounded-xl px-3 py-2 text-sm"
                         style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
                     <option value="ar">{{ setting('admin.certificates.partials.issue.arbya', 'عربيّة') }}</option>
                     <option value="en">{{ setting('admin.certificates.partials.issue.injlyzya', 'إنجليزيّة') }}</option>
                 </select>
             </label>
         </div>
+
+        {{-- ⭐ [2026-09-10] اختيار القالب وقت الإصدار (سطر 2406) — فاضي = الافتراضيّ/الأحدث كما كان دائمًا --}}
+        <label class="block">
+            <span class="block text-sm mb-1">{{ setting('admin.certificates.partials.issue.alqalb_akhtyary', 'القالب (اختياريّ)') }}</span>
+            <select name="template_id" data-issue-template class="w-full rounded-xl px-3 py-2 text-sm"
+                    style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
+                <option value="">{{ setting('admin.certificates.partials.issue.altsmym_alaftraady_alahdth', 'التصميم الافتراضيّ/الأحدث') }}</option>
+                @foreach ($templates as $template)
+                    <option value="{{ $template->id }}" data-type="{{ $template->certificate_type_id }}" data-language="{{ $template->language }}" class="hidden">
+                        {{ setting('admin.certificates.partials.issue.nskha', 'نسخة') }} {{ $template->version }}{{ $template->is_default ? ' — '.setting('admin.certificates.partials.issue.alaftraadya', 'الافتراضيّة') : '' }}
+                    </option>
+                @endforeach
+            </select>
+        </label>
 
         <label class="block">
             <span class="block text-sm mb-1">{{ setting('admin.certificates.partials.issue.akwad_alashkhas', 'أكواد الأشخاص') }}</span>
@@ -45,4 +59,37 @@
                     class="btn rounded-xl px-4 py-2 text-sm" style="background: var(--surface-raised)">{{ setting('admin.certificates.partials.issue.maayna_qbl_alisdar', 'معاينة قبل الإصدار') }}</button>
         </div>
     </form>
+
+    @push('scripts')
+        <script>
+            (() => {
+                const typeSelect = document.querySelector('[data-issue-type]');
+                const languageSelect = document.querySelector('[data-issue-language]');
+                const templateSelect = document.querySelector('[data-issue-template]');
+
+                if (! typeSelect || ! languageSelect || ! templateSelect) return;
+
+                const syncTemplates = () => {
+                    const type = typeSelect.value;
+                    const language = languageSelect.value;
+                    let matched = false;
+
+                    templateSelect.querySelectorAll('option[data-type]').forEach((option) => {
+                        const visible = option.dataset.type === type && option.dataset.language === language;
+                        option.classList.toggle('hidden', ! visible);
+                        if (visible) matched = true;
+                    });
+
+                    // القالب المختار سابقًا قد لا يخصّ النوع/اللغة الجديدين — يرجع للافتراضيّ لا يبقى مختارًا زورًا
+                    const current = templateSelect.querySelector('option:checked');
+                    if (current && current.classList.contains('hidden')) templateSelect.value = '';
+                    if (! matched) templateSelect.value = '';
+                };
+
+                typeSelect.addEventListener('change', syncTemplates);
+                languageSelect.addEventListener('change', syncTemplates);
+                syncTemplates();
+            })();
+        </script>
+    @endpush
 @endif

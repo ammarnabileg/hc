@@ -1,4 +1,12 @@
 {{-- 2) الأنواع والقوالب (12.5-ب) --}}
+@if ($accreditationFilter)
+    {{-- ⭐ «الضغط ← الأنواع المفلترة» من تاب الاعتمادات (24.1 سطر 4620) --}}
+    <div class="card p-3 mb-3 flex items-center justify-between gap-2 text-sm">
+        <span>{{ setting('admin.certificates.partials.types.mfltra_baatmad', 'مفلترة باعتماد:') }} <strong>{{ $accreditationFilter->name_ar }}</strong></span>
+        <a href="{{ route('admin.certificates.index', ['tab' => 'types']) }}" class="underline">{{ setting('admin.certificates.partials.types.ilgha_altsfya', 'إلغاء التصفية') }}</a>
+    </div>
+@endif
+
 <div class="flex justify-between items-center gap-2 mb-3 flex-wrap">
     @can('certificate_templates.edit')
         {{-- ⭐ تفعيل اللغات مجمَّعًا لكلّ الشهادات — والإفراديّ داخل فورم النوع (12.5-ب) --}}

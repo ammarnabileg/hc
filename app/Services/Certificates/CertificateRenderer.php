@@ -122,6 +122,12 @@ class CertificateRenderer
             $this->drawLayer($image, $layer, $data, $certificate, $width, $height);
         }
 
+        // ⭐ [2026-09-10] ختم/توقيع معتمِد — اختياريّ (سطر 2407 · 4644 · 4646: Toggle)
+        if ($template['signature_enabled'] ?? false) {
+            $this->drawStampOrSignature($image, (string) ($template['stamp_path'] ?? ''), $width, $height, 'stamp');
+            $this->drawStampOrSignature($image, (string) ($template['signature_path'] ?? ''), $width, $height, 'signature');
+        }
+
         ob_start();
         imagepng($image);
         $png = (string) ob_get_clean();
@@ -195,6 +201,34 @@ class CertificateRenderer
         $layers = $template['layers'] ?? null;
 
         return is_array($layers) && $layers !== [] ? array_values($layers) : $this->defaultLayers();
+    }
+
+    /**
+     * ⭐ [2026-09-10] ختم/توقيع معتمِد (سطر 2407 · 4644): كانا حقلين مزروعين
+     * (`signature_path`/`stamp_path`) بفورمٍ يحفظهما بلا أيّ راسمٍ يقرؤهما —
+     * عمودان ومصادقةٌ بلا أثرٍ على الصورة الفعليّة. الموضع نسبيٌّ كطبقات
+     * النصّ تمامًا، والمقاس يحفظ نسبة العرض للارتفاع فلا ينكمش الختم.
+     */
+    private function drawStampOrSignature(\GdImage $image, string $path, int $width, int $height, string $kind): void
+    {
+        if ($path === '') {
+            return;
+        }
+
+        $mark = $this->loadBackground($path);
+
+        if (! $mark) {
+            return;
+        }
+
+        $markWidth = (int) round($width * (float) setting('certificates.render.'.$kind.'_width', 0.14));
+        $markHeight = (int) round($markWidth * (imagesy($mark) / max(1, imagesx($mark))));
+
+        $x = (int) round(($width * (float) setting('certificates.render.'.$kind.'_x', $kind === 'stamp' ? 0.18 : 0.82)) - ($markWidth / 2));
+        $y = (int) round($height * (float) setting('certificates.render.'.$kind.'_y', 0.85)) - (int) round($markHeight / 2);
+
+        imagecopyresampled($image, $mark, $x, $y, 0, 0, $markWidth, $markHeight, imagesx($mark), imagesy($mark));
+        imagedestroy($mark);
     }
 
     private function loadBackground(?string $path): ?\GdImage

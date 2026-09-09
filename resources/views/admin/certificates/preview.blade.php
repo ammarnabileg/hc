@@ -45,6 +45,8 @@
             <input type="hidden" name="certificate_type_id" value="{{ $type->id }}">
             <input type="hidden" name="language" value="{{ $language }}">
             <input type="hidden" name="codes" value="{{ $raw }}">
+            {{-- ⭐ [2026-09-10] نفس القالب المعايَن بالضبط يُصدَر به — لا يعود لافتراضٍ آخر (سطر 2406) --}}
+            <input type="hidden" name="template_id" value="{{ $template->id }}">
             <button class="btn w-full rounded-xl px-4 py-3 text-sm font-semibold"
                     style="background: var(--color-brand-500); color: #04201c">{{ setting('admin.certificates.preview.asdr_alshhadat', 'أصدِر الشهادات') }}</button>
         </form>

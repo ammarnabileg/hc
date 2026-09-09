@@ -4,12 +4,14 @@ namespace App\Services\Admin\Content;
 
 use App\Models\Certificate;
 use App\Models\CertificateType;
+use App\Models\Event;
 use App\Models\User;
 use App\Services\Certificates\CertificateIssuer;
 use App\Services\Certificates\CertificateRenderer;
 use App\Services\Notifications\Notifier;
 use App\Support\Scope\ScopeFilter;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
@@ -148,7 +150,7 @@ class CertificateBulkIssuer
      * @param  array<int, string>  $codes
      * @return array{issued: int, skipped: int, failed: array<int, string>, certificates: Collection<int, Certificate>}
      */
-    public function issueBatch(array $codes, CertificateType $type, string $language, ?User $actor = null, array $extra = []): array
+    public function issueBatch(array $codes, CertificateType $type, string $language, ?User $actor = null, array $extra = [], ?int $templateId = null): array
     {
         $verified = $this->verify($codes, $type);
         $issued = collect();
@@ -176,6 +178,7 @@ class CertificateBulkIssuer
                 source: 'manual',
                 language: $language,
                 issuedBy: $actor,
+                templateId: $templateId,
             );
 
             if (! $certificate) {
@@ -267,6 +270,29 @@ class CertificateBulkIssuer
      */
     public function ledger(array $filters = [], ?User $viewer = null): LengthAwarePaginator
     {
+        return $this->ledgerQuery($filters, $viewer)
+            ->paginate((int) setting('certificates.ledger.per_page', 20))
+            ->withQueryString();
+    }
+
+    /**
+     * ⭐ نفس فلاتر السجلّ لكن **بلا تصفّح صفحات** — لأنّ «تصدير/طباعة جماعيّة»
+     * (24.1 سطر 4676) يعني كلّ ما طابق الفلاتر لا صفحة العشرين المعروضة وحدها.
+     * وسقف `certificates.export.row_limit` يمنع تصديرًا بلا حدّ يُنهك الخادم.
+     *
+     * @param  array<string, mixed>  $filters
+     * @return Collection<int, Certificate>
+     */
+    public function ledgerForExport(array $filters, ?User $viewer = null): Collection
+    {
+        return $this->ledgerQuery($filters, $viewer)
+            ->limit((int) setting('certificates.export.row_limit', 500))
+            ->get();
+    }
+
+    /** @param  array<string, mixed>  $filters */
+    private function ledgerQuery(array $filters, ?User $viewer): Builder
+    {
         $query = Certificate::query()->with(['user', 'certificate_type'])->latest('issued_at');
 
         if ($viewer !== null) {
@@ -299,7 +325,28 @@ class CertificateBulkIssuer
             $query->whereDate('issued_at', '>=', $from);
         }
 
-        return $query->paginate((int) setting('certificates.ledger.per_page', 20))->withQueryString();
+        // ⭐ «تصدير/طباعة جماعيّة» (24.1 سطر 4676): بالفعاليّة — نفس رابط `subject`
+        // الذي يصله `CertificateBridge::issueForRegistration()` عند الإصدار (لا عمود جديد).
+        if (($eventId = (int) ($filters['event_id'] ?? 0)) > 0) {
+            $query->where('subject_type', (new Event)->getMorphClass())->where('subject_id', $eventId);
+        }
+
+        // ⭐ «أو بأكواد الأشخاص» — أكواد مفصولة بمسافة/فاصلة، غير موجود يُتجاهَل بصمت (بحثٌ لا فورم مُدخَل)
+        if (($codes = $this->splitCodes((string) ($filters['codes'] ?? ''))) !== []) {
+            $query->whereIn('user_id', User::query()->whereIn('code', $codes)->pluck('id'));
+        }
+
+        return $query;
+    }
+
+    /** @return array<int, string> */
+    private function splitCodes(string $raw): array
+    {
+        return collect(preg_split('/[\s,]+/u', trim($raw)) ?: [])
+            ->map(fn (string $code) => trim($code))
+            ->filter()
+            ->values()
+            ->all();
     }
 
     /**

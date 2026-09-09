@@ -137,6 +137,9 @@ class AdminContentDemoSeeder extends Seeder
             ['certificates.issue.codes_placeholder', 'certificates', 'Placeholder حقل الأكواد', 'string', 'الصق الأكواد مفصولة بمسافة أو فاصلة…'],
             ['certificates.issue.preview_code_placeholder', 'certificates', 'نصّ الكود في المعاينة', 'string', '— يُولَّد عند الإصدار —'],
             ['certificates.revoke.reasons', 'certificates', 'أسباب الإلغاء', 'json', '["تزوير مثبَت","بيانات خاطئة","طلب صاحبها"]'],
+            // ⭐ [2026-09-10] «تصدير/طباعة جماعيّة» سجلّ الصادر (24.1 سطر 4676 · 4678-4679)
+            ['certificates.export.bulk_enabled', 'certificates', 'إتاحة التصدير/الطباعة الجماعيّة', 'bool', '1'],
+            ['certificates.export.row_limit', 'certificates', 'حدّ صفوف التصدير', 'number', '500'],
             ['certificates.revoke.notice_title', 'certificates', 'عنوان إشعار الإلغاء', 'string', 'تحديث على إحدى شهاداتك'],
             ['certificates.revoke.notice_body', 'certificates', 'نصّ إشعار الإلغاء', 'string', 'راجعنا شهادتك وأوقفنا العمل بها — تواصل معنا لو محتاج توضيحًا.'],
             ['certificates.reissue.reason', 'certificates', 'سبب إبطال القديمة عند إعادة الإصدار', 'string', 'أُعيد إصدارها مصحَّحةً'],

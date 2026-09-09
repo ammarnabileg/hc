@@ -97,6 +97,13 @@ class ExamDemoSeeder extends Seeder
             ['certificates.render.max_chars_per_line', 'certificates', 'أقصى حروف في السطر', 'number', '48'],
             ['certificates.render.qr_size_px', 'certificates', 'مقاس الـQR (بكسل)', 'number', '240'],
             ['certificates.render.qr_margin_modules', 'certificates', 'هامش الـQR (وحدات)', 'number', '4'],
+            // ⭐ [2026-09-10] ختم/توقيع معتمِد — اختياريّ (سطر 2407 · 4644) — الموضع والمقاس النسبيّان
+            ['certificates.render.stamp_width', 'certificates', 'عرض الختم (نسبة من عرض الشهادة)', 'number', '0.14'],
+            ['certificates.render.stamp_x', 'certificates', 'موضع الختم أفقيًّا (نسبة)', 'number', '0.18'],
+            ['certificates.render.stamp_y', 'certificates', 'موضع الختم رأسيًّا (نسبة)', 'number', '0.85'],
+            ['certificates.render.signature_width', 'certificates', 'عرض التوقيع (نسبة من عرض الشهادة)', 'number', '0.14'],
+            ['certificates.render.signature_x', 'certificates', 'موضع التوقيع أفقيًّا (نسبة)', 'number', '0.82'],
+            ['certificates.render.signature_y', 'certificates', 'موضع التوقيع رأسيًّا (نسبة)', 'number', '0.85'],
             ['certificates.render.cache_enabled', 'certificates', 'كاش صور الشهادات', 'bool', '1'],
             ['certificates.render.http_cache_seconds', 'certificates', 'كاش المتصفّح للصورة (ثوانٍ)', 'number', '3600'],
             ['certificates.render.paper_color', 'certificates', 'لون خلفيّة التصميم الافتراضيّ', 'color', '#0b1512'],

@@ -39,6 +39,8 @@ class CertificateIssuer
         ?string $language = null,
         ?User $issuedBy = null,
         bool $dedupe = true,
+        // ⭐ [2026-09-10] اختيار القالب وقت الإصدار (سطر 2406) — null = التصميم الافتراضيّ/الأحدث كما كان دائمًا
+        ?int $templateId = null,
     ): ?Certificate {
         $type = CertificateType::query()->where('key', $typeKey)->where('is_active', true)->first();
 
@@ -63,7 +65,7 @@ class CertificateIssuer
 
         $language ??= $type->lang_ar_enabled ? 'ar' : 'en';
 
-        $certificate = DB::transaction(function () use ($user, $type, $subject, $data, $source, $language, $issuedBy) {
+        $certificate = DB::transaction(function () use ($user, $type, $subject, $data, $source, $language, $issuedBy, $templateId) {
             $code = $this->numbers->next($type);
             $issuedAt = now();
 
@@ -72,7 +74,7 @@ class CertificateIssuer
                 'user_id' => $user->id,
                 'certificate_type_id' => $type->id,
                 'language' => $language,
-                'template_snapshot' => $this->templateSnapshot($type, $language),
+                'template_snapshot' => $this->templateSnapshot($type, $language, $templateId),
                 'data_snapshot' => $this->dataSnapshot($user, $type, $subject, $data, $code, $issuedAt, $language),
                 'source' => $source,
                 'issued_at' => $issuedAt,
@@ -222,9 +224,24 @@ class CertificateIssuer
     }
 
     /** تجميد نسخة القالب لحظة الإصدار (12.5-ج) */
-    private function templateSnapshot(CertificateType $type, string $language): array
+    private function templateSnapshot(CertificateType $type, string $language, ?int $templateId = null): array
     {
-        $template = CertificateTemplate::query()
+        /*
+         | ⭐ [2026-09-10] «قوالب متعدّدة للنوع … اختيار القالب وقت الإصدار» (سطر
+         | 2406) — كان الإصدار يأخذ الأحدث/الافتراضيّ دائمًا بلا اختيار. القالب
+         | المطلوب صراحةً يُستعمَل فقط لو **كان فعلًا** لهذا النوع وهذه اللغة —
+         | وإلّا رجع لنفس السلوك الافتراضيّ القديم بصمتٍ لا بخطأ (طلبٌ متعمَّدٌ
+         | متسامح: قالبٌ حُذف بين فتح الفورم وإرساله لا يُسقِط الإصدار كلّه).
+         */
+        $template = $templateId
+            ? CertificateTemplate::query()
+                ->where('id', $templateId)
+                ->where('certificate_type_id', $type->id)
+                ->where('language', $language)
+                ->first()
+            : null;
+
+        $template ??= CertificateTemplate::query()
             ->where('certificate_type_id', $type->id)
             ->where('language', $language)
             ->orderByDesc('is_default')
@@ -241,6 +258,10 @@ class CertificateIssuer
             'height_px' => $template?->height_px ?? (int) setting('certificates.render.default_height_px', 1240),
             'background_path' => $template?->background_path,
             'layers' => $template?->layers ?? [],
+            // ⭐ [2026-09-10] ختم/توقيع معتمِد — اختياريّ ومجمَّد كالخلفيّة (سطر 2407 · 12.5-ج)
+            'signature_enabled' => (bool) $type->signature_enabled,
+            'signature_path' => $type->signature_path,
+            'stamp_path' => $type->stamp_path,
             'accreditation' => [
                 'name_ar' => $accreditation?->name_ar,
                 'name_en' => $accreditation?->name_en,

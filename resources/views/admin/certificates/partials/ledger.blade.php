@@ -52,12 +52,91 @@
     </x-slot:advanced>
 </x-filters>
 
+{{--
+    ⭐ تصدير/طباعة جماعيّة (24.1 سطر 4676): pop-box حقيقيّ — بالنوع/الفعاليّة
+    **أو** بأكواد الأشخاص + اختيار الصيغة. اللافتة محروسةٌ حرفًا (القسم 24)،
+    والزرّ يُخفى لا يُعطَّل لو أُوقف Toggle «إتاحة التصدير الجماعيّ» (2.15-أ-7).
+--}}
 @can('certificate_ledger.export')
-    <div class="mb-3 text-end">
-        <a href="{{ route('admin.certificates.export', request()->query()) }}" class="text-sm underline">
-            {{ setting('admin.certificates.partials.ledger.tsdyr_tbaaa_jmaaya', 'تصدير/طباعة جماعيّة') }}
-        </a>
-    </div>
+    @if ($exportEnabled)
+        <div class="mb-3 text-end">
+            <button type="button" data-modal-open="bulk-export" class="text-sm underline">
+                {{ setting('admin.certificates.partials.ledger.tsdyr_tbaaa_jmaaya', 'تصدير/طباعة جماعيّة') }}
+            </button>
+        </div>
+
+        <x-modal id="bulk-export" :title="setting('admin.certificates.partials.ledger.tsdyr_tbaaa_jmaaya', 'تصدير/طباعة جماعيّة')">
+            <form method="get" action="{{ route('admin.certificates.export') }}" class="space-y-3">
+                <div class="flex gap-4 text-sm">
+                    <label class="flex items-center gap-1">
+                        <input type="radio" name="mode" value="filters" data-bulk-export-mode checked>
+                        {{ setting('admin.certificates.partials.ledger.balnwa_alfaalya', 'بالنوع/الفعاليّة') }}
+                    </label>
+                    <label class="flex items-center gap-1">
+                        <input type="radio" name="mode" value="codes" data-bulk-export-mode>
+                        {{ setting('admin.certificates.partials.ledger.bakwad_alashkhas', 'بأكواد الأشخاص') }}
+                    </label>
+                </div>
+
+                <div data-bulk-export-panel="filters" class="space-y-3">
+                    <label class="block">
+                        <span class="block text-sm mb-1">{{ setting('admin.certificates.partials.ledger.alnwa', 'النوع') }}</span>
+                        <select name="type" class="w-full rounded-xl px-3 py-2 text-sm"
+                                style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
+                            <option value="">{{ setting('admin.certificates.partials.ledger.alkl', 'الكلّ') }}</option>
+                            @foreach ($types as $type)
+                                <option value="{{ $type->id }}" @selected($filters['type'] === $type->id)>{{ $type->name_ar }}</option>
+                            @endforeach
+                        </select>
+                    </label>
+                    <label class="block">
+                        <span class="block text-sm mb-1">{{ setting('admin.certificates.partials.ledger.alfaalya', 'الفعاليّة (اختياريّ)') }}</span>
+                        <select name="event_id" class="w-full rounded-xl px-3 py-2 text-sm"
+                                style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
+                            <option value="">{{ setting('admin.certificates.partials.ledger.bla_thdyd', 'بلا تحديد') }}</option>
+                            @foreach ($events as $event)
+                                <option value="{{ $event->id }}">{{ $event->title_ar }}</option>
+                            @endforeach
+                        </select>
+                    </label>
+                </div>
+
+                <div data-bulk-export-panel="codes" class="hidden">
+                    <label class="block">
+                        <span class="block text-sm mb-1">{{ setting('admin.certificates.partials.ledger.akwad_alashkhas', 'أكواد الأشخاص') }}</span>
+                        <textarea name="codes" rows="3" class="w-full rounded-xl px-3 py-2 text-sm"
+                                  placeholder="{{ setting('certificates.issue.codes_placeholder', 'الصق الأكواد مفصولة بمسافة أو فاصلة…') }}"
+                                  style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)"></textarea>
+                    </label>
+                </div>
+
+                <label class="block">
+                    <span class="block text-sm mb-1">{{ setting('admin.certificates.partials.ledger.alsygha', 'الصيغة') }}</span>
+                    <select name="format" class="w-full rounded-xl px-3 py-2 text-sm"
+                            style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
+                        <option value="csv">{{ setting('admin.certificates.partials.ledger.csv', 'CSV') }}</option>
+                        <option value="images">{{ setting('admin.certificates.partials.ledger.swr_zip', 'صور (ZIP)') }}</option>
+                    </select>
+                </label>
+
+                <button class="btn w-full rounded-xl px-4 py-3 text-sm font-semibold"
+                        style="background: var(--color-brand-500); color: #04201c">{{ setting('admin.certificates.partials.ledger.tsdyr', 'تصدير') }}</button>
+            </form>
+        </x-modal>
+
+        @push('scripts')
+            <script>
+                document.querySelectorAll('[data-bulk-export-mode]').forEach((radio) => {
+                    radio.addEventListener('change', () => {
+                        const mode = document.querySelector('[data-bulk-export-mode]:checked').value;
+                        document.querySelectorAll('[data-bulk-export-panel]').forEach((panel) => {
+                            panel.classList.toggle('hidden', panel.dataset.bulkExportPanel !== mode);
+                        });
+                    });
+                });
+            </script>
+        @endpush
+    @endif
 @endcan
 
 @if ($certificates->isEmpty())
