@@ -3,7 +3,12 @@
 namespace Tests\Feature\Admin\System;
 
 use App\Models\AdAudience;
+use App\Models\AdAudienceExport;
 use App\Models\Setting;
+use App\Models\User;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 /**
  * تأكّد أنّ كلّ شاشة في المجال تفتح فعلًا لمن يملكها — ولا تنكسر بحالة فارغة.
@@ -81,6 +86,73 @@ class AdminSystemScreensTest extends SystemTestCase
 
         $admin = $this->admin(['ad_audiences.view', 'ad_audiences.create']);
         $this->actingAs($admin)->post(route('admin.ads.audiences.export', $audience))->assertForbidden();
+    }
+
+    /**
+     * ⭐ من لا هاتف له يخرج بخانة فارغة في التصدير — لا ببصمة النصّ الفارغ
+     * (e3b0c442…) التي تُطابِق كلّ عضوٍ بلا هاتف في المنصّات الإعلانيّة بلا فائدة.
+     */
+    public function test_audience_export_leaves_phone_blank_when_user_has_no_phone(): void
+    {
+        Storage::fake('local');
+
+        // بلا أيّ شرطٍ إضافيّ في «أفضل المستخدمين» — النشاط والموافقة وحدهما يكفيان (21.3-ج)
+        // (الإعداد معرَّف أصلًا في database/seeders/SettingSeeder.php:212 ولا يُزرَع هنا؛
+        // SystemTestCase لا يشغّله، فنكتب نفس الصفّ يدويًّا بنفس القيم)
+        Setting::query()->updateOrCreate(
+            ['key' => 'ads.best_user.rule'],
+            [
+                'group' => 'ads',
+                'label_ar' => 'تعريف «أفضل مستخدم»',
+                'type' => 'json',
+                'value' => '{"completed_course":false,"purchased":false,"returned":false}',
+                'default_value' => '{"completed_course":true,"purchased":true,"returned":true}',
+            ],
+        );
+        Cache::forget('settings');
+
+        $withPhone = User::create([
+            'name' => 'له هاتف',
+            'email' => Str::lower(Str::random(10)).'@test.local',
+            'phone' => '0100 111 2222',
+            'password' => 'secret-password',
+            'code' => Str::upper(Str::random(8)),
+            'status' => 'active',
+            'tracking_consent' => 'accepted',
+        ]);
+
+        $noPhone = User::create([
+            'name' => 'بلا هاتف',
+            'email' => Str::lower(Str::random(10)).'@test.local',
+            'phone' => null,
+            'password' => 'secret-password',
+            'code' => Str::upper(Str::random(8)),
+            'status' => 'active',
+            'tracking_consent' => 'accepted',
+        ]);
+
+        $audience = AdAudience::create([
+            'name' => 'أفضل المستخدمين — اختبار',
+            'kind' => 'lookalike_source',
+            'rule' => ['key' => 'best_users'],
+            'ttl_days' => 30,
+            'refresh_hours' => 24,
+            'is_active' => true,
+        ]);
+
+        $owner = $this->owner();
+        $this->actingAs($owner)->post(route('admin.ads.audiences.export', $audience))->assertRedirect();
+
+        $export = AdAudienceExport::query()->where('ad_audience_id', $audience->id)->firstOrFail();
+        $csv = Storage::disk('local')->get($export->file_path);
+
+        $emptyPhoneHash = hash('sha256', '');
+        $withPhoneRow = hash('sha256', mb_strtolower(trim($withPhone->email))).','.hash('sha256', '01001112222');
+        $noPhoneRow = hash('sha256', mb_strtolower(trim($noPhone->email))).',';
+
+        $this->assertStringContainsString($withPhoneRow, $csv);
+        $this->assertStringContainsString($noPhoneRow, $csv);
+        $this->assertStringNotContainsString(','.$emptyPhoneHash, $csv);
     }
 
     /** طرق التحويل وعروض الشحن تُدار كلّها من اللوحة (19.5-ب-1/2) */

@@ -85,8 +85,10 @@ class AdsController extends Controller
         $lines = ['email_sha256,phone_sha256'];
 
         foreach ($users as $user) {
+            // ⭐ من لا هاتف له يخرج بخانة فارغة لا ببصمة النصّ الفارغ — فلا يُطابِق أحدًا (21.3)
+            $digits = preg_replace('/\D+/', '', (string) $user->phone);
             $lines[] = hash('sha256', mb_strtolower(trim((string) $user->email)))
-                .','.hash('sha256', preg_replace('/\D+/', '', (string) $user->phone) ?: '');
+                .','.($digits !== '' ? hash('sha256', $digits) : '');
         }
 
         $path = 'exports/audiences/'.$audience->id.'-'.now()->format('Ymd-His').'.csv';
