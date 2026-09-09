@@ -9,11 +9,14 @@ use App\Models\Enrollment;
 use App\Models\Membership;
 use App\Models\RepScore;
 use App\Models\User;
+use App\Services\Dashboard\DashboardService;
 use App\Services\Engagement\AmbassadorService;
 use App\Services\Gamification\LeaderboardService;
 use App\Services\Gamification\LevelResolver;
+use App\Services\Gamification\StreakService;
 use App\Services\Gamification\TicketsAccount;
 use App\Services\Library\CvBuilder;
+use Illuminate\Support\Carbon;
 
 /**
  * بيانات تابات البروفايل (الدستور 10 · 10.0 · 24.5).
@@ -39,6 +42,8 @@ class ProfileTabs
         private readonly LeaderboardService $leaderboard,
         private readonly LevelResolver $levels,
         private readonly TicketsAccount $tickets,
+        private readonly StreakService $streaks,
+        private readonly DashboardService $dashboard,
     ) {}
 
     /** @return array<int, array{key:string,label:string}> */
@@ -163,6 +168,10 @@ class ProfileTabs
     {
         $account = $this->levels->forUser($owner);
 
+        // خريطة حراريّة للحضور — عرض السنة كتقويم (10.0-أ)، بساعة صاحب البروفايل (5)
+        $to = Carbon::now($this->streaks->timezoneFor($owner))->endOfMonth();
+        $from = $to->copy()->subMonths(max(1, (int) setting('account.profile.heatmap.months', 12)) - 1)->startOfMonth();
+
         return [
             'kpis' => $this->kpis($owner),
             // المستوى وXP من المصدر الواحد — لا من العمودين المخبَّأين على المستخدم
@@ -180,6 +189,12 @@ class ProfileTabs
             // ⭐ المحافظة عامّة دائمًا (12.14-د)
             'governorate' => $owner->governorate?->name_ar,
             'can_see_country' => $this->visibility->canSee('country', $viewer, $owner, $level),
+            // ⭐ خريطة حراريّة للحضور (10.0-أ) — من محرّك نادي الخامسة نفسه لا حساب موازٍ
+            'heatmap' => $this->streaks->heatmap($owner, $from, $to),
+            'heatmap_from' => $from,
+            'heatmap_to' => $to,
+            // ⭐ تقدّم التدريبات: بطاقة لكلّ تدريبٍ أخذه ببار تقدّم ونسبة — من داشبورد المستخدم 14 (10.0-أ)
+            'progress' => $this->dashboard->progress($owner),
         ];
     }
 

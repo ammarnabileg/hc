@@ -14,6 +14,34 @@
        class="underline" style="color: var(--color-brand-500)">{{ setting('account.profile.kpi.more_link', 'باقي أرقامك في تاب «تفاصيل»') }}</a>
 </p>
 
+{{-- ⭐ تقدّم التدريبات والمسارات: بطاقة لكلّ تدريبٍ أخذه ببار تقدّم ونسبة (10.0-أ) --}}
+@if (($overview['progress'] ?? collect())->isNotEmpty())
+    <section class="card p-4 mb-4">
+        <h2 class="font-bold text-sm mb-3">{{ setting('account.profile.overview.progress_title', 'تقدّم التدريبات') }}</h2>
+        <div class="grid md:grid-cols-2 gap-3">
+            @foreach ($overview['progress'] as $row)
+                <div class="rounded-xl p-3" style="background: var(--surface-sunken)">
+                    <div class="flex items-center justify-between gap-2 text-sm">
+                        <span class="truncate">{{ $row['course']->name_ar }}</span>
+                        <span class="shrink-0 tabular-nums" style="color: var(--text-muted)">{{ $row['percent'] }}%</span>
+                    </div>
+                    <div class="rounded-full overflow-hidden mt-2" style="background: var(--surface-raised); height: 6px">
+                        <div class="h-full motion-standard" style="width: {{ $row['percent'] }}%; background: var(--color-brand-500)"></div>
+                    </div>
+                </div>
+            @endforeach
+        </div>
+    </section>
+@endif
+
+{{-- ⭐ خريطة حراريّة للحضور — نادي الخامسة، عرض السنة كتقويم (10.0-أ) --}}
+@if (($overview['heatmap'] ?? []) !== [])
+    <section class="card p-4 mb-4">
+        <h2 class="font-bold text-sm mb-3">{{ setting('account.profile.overview.heatmap_title', 'خريطة الحضور') }}</h2>
+        @include('achievements.components.heatmap', ['heatmap' => $overview['heatmap'], 'from' => $overview['heatmap_from'], 'to' => $overview['heatmap_to']])
+    </section>
+@endif
+
 <div class="grid md:grid-cols-2 gap-3">
     <section class="card p-4">
         <h2 class="font-bold text-sm mb-3">{{ setting('account.profile.overview.general_title', 'بيانات عامّة') }}</h2>

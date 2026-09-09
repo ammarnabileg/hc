@@ -184,6 +184,10 @@ class AccountDemoSeeder extends Seeder
             ['account.profile.online_window_minutes', 'account', 'نافذة نقطة النشاط (دقائق)', 'number', '10'],
             ['account.profile.rep_danger_below', 'account', 'حدّ Rep الأحمر', 'number', '-8'],
             ['account.profile.excellence_club_threshold', 'account', 'عتبة نادي التميّز (Rep)', 'number', '9.5'],
+            // تعزيزات «نظرة عامّة» (10.0-أ): تقدّم التدريبات + خريطة الحضور
+            ['account.profile.heatmap.months', 'account', 'عدد شهور خريطة الحضور في البروفايل', 'number', '12'],
+            ['account.profile.overview.progress_title', 'account', 'عنوان بطاقة تقدّم التدريبات', 'string', 'تقدّم التدريبات'],
+            ['account.profile.overview.heatmap_title', 'account', 'عنوان خريطة الحضور', 'string', 'خريطة الحضور'],
 
             // الإعدادات والخصوصيّة (24.5 · 12.14-د)
             ['account.avatar.max_kb', 'account', 'أقصى حجم الأفاتار (KB)', 'number', '2048'],

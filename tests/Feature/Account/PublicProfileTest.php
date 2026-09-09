@@ -3,7 +3,10 @@
 namespace Tests\Feature\Account;
 
 use App\Models\Country;
+use App\Models\Course;
+use App\Models\Enrollment;
 use App\Models\Governorate;
+use App\Models\StreakDay;
 use App\Models\UserPrivacySetting;
 use App\Services\Account\ProfileVisibility;
 
@@ -155,5 +158,52 @@ class PublicProfileTest extends AccountTestCase
     public function test_unknown_code_returns_not_found(): void
     {
         $this->get(route('u.profile', ['code' => 'UNOTHERE']))->assertNotFound();
+    }
+
+    /**
+     * ⭐ 10.0-أ: بار تقدّم ونسبة لكلّ تدريب أخذه، وخريطة حراريّة للحضور —
+     * كانا غائبين كلّيًّا عن تاب «نظرة عامّة».
+     */
+    public function test_overview_shows_course_progress_cards_and_an_attendance_heatmap(): void
+    {
+        $owner = $this->located();
+
+        $course = Course::create([
+            'slug' => 'excel-profile-test',
+            'name_ar' => 'تدريب إكسل',
+            'status' => 'published',
+            'xp_max' => 300,
+        ]);
+        Enrollment::create([
+            'user_id' => $owner->id,
+            'course_id' => $course->id,
+            'status' => 'active',
+            'progress_percent' => 40,
+        ]);
+
+        StreakDay::create([
+            'user_id' => $owner->id,
+            'day' => now()->toDateString(),
+            'club_5am' => true,
+        ]);
+
+        $response = $this->actingAs($owner)->get(route('profile.me'));
+
+        $response->assertOk()
+            ->assertSee('تدريب إكسل')
+            ->assertSee('40%')
+            ->assertSeeText(setting('account.profile.overview.heatmap_title', 'خريطة الحضور'));
+
+        $this->assertStringContainsString('<svg', $response->getContent());
+    }
+
+    /** بلا تدريبات أو أيّام مسجّلة: القسم لا ينكسر ولا يعرض كارت فارغًا (2.15-د) */
+    public function test_overview_hides_the_progress_section_when_there_is_nothing_to_show(): void
+    {
+        $owner = $this->located();
+
+        $this->actingAs($owner)->get(route('profile.me'))
+            ->assertOk()
+            ->assertDontSee(setting('account.profile.overview.progress_title', 'تقدّم التدريبات'));
     }
 }
