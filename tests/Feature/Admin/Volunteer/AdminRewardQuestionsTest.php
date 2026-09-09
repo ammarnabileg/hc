@@ -25,6 +25,44 @@ class AdminRewardQuestionsTest extends AdminVolunteerTestCase
             ->assertSee('بنك أسئلة المكافآت', false);
     }
 
+    /**
+     * ⭐ [2026-09-10] جدولٌ حقيقيّ لا كروت (12.10-أ): الأعمدة الثمانية
+     * المنصوصة حرفًا — السؤال · الإجابة · الرابط · النوع · المكافأة ·
+     * مدّة التفعيل · الحالة · إجراءات.
+     */
+    public function test_the_bank_is_a_real_table_with_the_stated_columns(): void
+    {
+        $admin = $this->grant($this->makeUser(), 'reward_questions.view');
+
+        RewardQuestion::create([
+            'token' => 'tablecols1',
+            'prompt' => 'سؤال الجدول',
+            'type' => 'choice',
+            'correct_answer' => 'تمام',
+            'reward_xp' => 10,
+            'reward_tickets' => 1,
+            'active_minutes' => 60,
+            'opens_at' => now()->subMinute(),
+            'closes_at' => now()->addMinutes(59),
+            'status' => 'published',
+        ]);
+
+        $html = $this->actingAs($admin)
+            ->get(route('admin.gamification.index', ['tab' => 'reward_questions']))
+            ->assertOk()
+            ->getContent();
+
+        $this->assertStringContainsString('<table', $html, 'مفيش جدول — لسّه كروت.');
+        $this->assertStringContainsString('>السؤال<', $html);
+        $this->assertStringContainsString('>الإجابة<', $html);
+        $this->assertStringContainsString('>الرابط<', $html);
+        $this->assertStringContainsString('>النوع<', $html);
+        $this->assertStringContainsString('>المكافأة<', $html);
+        $this->assertStringContainsString('>مدّة التفعيل<', $html);
+        $this->assertStringContainsString('>الحالة<', $html);
+        $this->assertStringContainsString('>إجراءات<', $html);
+    }
+
     public function test_admin_creates_a_question_and_gets_a_shareable_link(): void
     {
         $admin = $this->grant($this->makeUser(), 'reward_questions.view', 'reward_questions.create', 'reward_questions.edit');

@@ -35,86 +35,123 @@
         {{ setting('admin.gamification.tabs.reward_questions.lkl_swal_rabt_mwqt_qr_tsharkh_ma_almtdrbyn', 'لكلّ سؤال رابط مؤقّت + QR تشاركه مع المتدرّبين؛ وفوق السؤال تايمر نازل، وبعد انتهاء الوقت يقفل الرابط ويظهر «') }}{{ setting('reward_questions.closed_text', 'انتهى وقت الإجابة') }}».
     </p>
 
-    <div class="space-y-3">
-        @forelse ($data['questions'] as $question)
-            @php($state = $service->liveState($question))
-            <article class="rounded-xl p-3" style="background: var(--surface-sunken)">
-                <div class="flex items-start justify-between gap-3 flex-wrap">
-                    <div class="min-w-0">
-                        <div class="font-semibold text-sm">{{ \Illuminate\Support\Str::limit($question->prompt, 90) }}</div>
-                        <p class="text-xs mt-1" style="color: var(--text-muted)">
-                            {{ setting('admin.gamification.tabs.reward_questions.almkafaa', 'المكافأة:') }} <strong>{{ $question->reward_xp }}</strong> XP ·
-                            <strong>{{ $question->reward_tickets }}</strong> {{ setting('admin.gamification.tabs.reward_questions.tdhkra_mda_altfayl', 'تذكرة · مدّة التفعيل:') }} <strong>{{ $question->active_minutes }}</strong> {{ setting('admin.gamification.tabs.reward_questions.dqyqa', 'دقيقة') }}
-                        </p>
-                    </div>
+    {{--
+        ⭐ [2026-09-10] جدولٌ حقيقيّ لا كروت (12.10-أ) — الأعمدة الثمانية
+        المنصوصة حرفًا: السؤال · الإجابة · الرابط · النوع · المكافأة ·
+        مدّة التفعيل · الحالة · إجراءات. كلّ سلوكٍ كان بالكرت (الإجابة
+        مخفيّة بفتحٍ صريح · الرابط للنسخ · QR · مشاركة واتساب · معاينة ·
+        النتائج · تعديل · إغلاق فوريّ) محفوظٌ حرفيًّا — نقله لعمودٍ لا حذفه.
+    --}}
+    @if ($data['questions']->isEmpty())
+        <x-empty :message="setting('reward_questions.empty_message', 'لا أسئلة مكافآت بعد.')" />
+    @else
+        <div class="card p-2">
+            <x-table :label="setting('admin.gamification.tabs.reward_questions.bnk_asyla_almkafat', 'بنك أسئلة المكافآت')">
+                <thead>
+                    <tr style="border-bottom: 1px solid var(--border)">
+                        <th class="p-3 text-start">{{ setting('admin.gamification.tabs.reward_questions.alswal', 'السؤال') }}</th>
+                        <th class="p-3 text-start">{{ setting('admin.gamification.tabs.reward_questions.alijaba', 'الإجابة') }}</th>
+                        <th class="p-3 text-start">{{ setting('admin.gamification.tabs.reward_questions.alrabt', 'الرابط') }}</th>
+                        <th class="p-3 text-start">{{ setting('admin.gamification.tabs.reward_questions.alnwa', 'النوع') }}</th>
+                        <th class="p-3 text-start">{{ setting('admin.gamification.tabs.reward_questions.mkafaa', 'المكافأة') }}</th>
+                        <th class="p-3 text-start">{{ setting('admin.gamification.tabs.reward_questions.mda_altfayl', 'مدّة التفعيل') }}</th>
+                        <th class="p-3 text-start">{{ setting('admin.gamification.tabs.reward_questions.alhala', 'الحالة') }}</th>
+                        <th class="p-3 text-start">{{ setting('admin.gamification.tabs.reward_questions.ijraat', 'إجراءات') }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach ($data['questions'] as $question)
+                        @php($state = $service->liveState($question))
+                        <tr style="border-bottom: 1px solid var(--border)">
+                            <td class="p-3">{{ \Illuminate\Support\Str::limit($question->prompt, 60) }}</td>
 
-                    <div class="flex items-center gap-2">
-                        <x-state-badge :state="$state['state']" :label="$state['label']" />
-                        @if ($state['open'] && $state['seconds_left'] !== null)
-                            {{-- العدّاد النازل = ندرة صادقة تحفّز الإجابة الفوريّة (12.10-أ) --}}
-                            <span class="text-xs font-mono" data-countdown="{{ $state['seconds_left'] }}"
-                                  style="color: var(--text-muted)">{{ gmdate('H:i:s', $state['seconds_left']) }}</span>
-                        @endif
-                    </div>
-                </div>
+                            <td class="p-3">
+                                @can('reward_questions.manage')
+                                    {{-- الإجابة مخفيّة افتراضيًّا ولا تظهر إلّا بفتحٍ صريح --}}
+                                    <details class="text-xs">
+                                        <summary class="cursor-pointer" style="color: var(--text-muted)">{{ setting('admin.gamification.tabs.reward_questions.izhar_alijaba_alshyha', 'إظهار الإجابة الصحيحة') }}</summary>
+                                        <p class="mt-1 font-mono">{{ $question->correct_answer }}</p>
+                                    </details>
+                                @else
+                                    <span class="text-xs" style="color: var(--text-muted)">—</span>
+                                @endcan
+                            </td>
 
-                <div class="flex items-start gap-3 mt-3 flex-wrap">
-                    <div class="shrink-0 rounded-lg overflow-hidden" style="border: 1px solid var(--border)">
-                        {!! $service->qrSvg($question, 96) !!}
-                    </div>
+                            <td class="p-3 min-w-0">
+                                <input type="text" readonly value="{{ $service->url($question) }}"
+                                       class="w-full rounded-lg px-2 py-1.5 text-xs font-mono" data-copy-source
+                                       style="background: var(--surface); border: 1px solid var(--border); color: var(--text)">
+                                <details class="mt-1 text-xs">
+                                    <summary class="cursor-pointer" style="color: var(--text-muted)">{{ setting('admin.gamification.tabs.reward_questions.izhar_qr', 'إظهار QR') }}</summary>
+                                    <div class="mt-1 rounded-lg overflow-hidden inline-block" style="border: 1px solid var(--border)">
+                                        {!! $service->qrSvg($question, 96) !!}
+                                    </div>
+                                </details>
+                                <div class="flex items-center gap-3 mt-1 flex-wrap text-xs">
+                                    <a href="https://wa.me/?text={{ urlencode($service->shareText($question)) }}"
+                                       target="_blank" rel="noopener" class="underline">{{ setting('admin.gamification.tabs.reward_questions.msharka_watsab', 'مشاركة واتساب') }}</a>
+                                    <a href="{{ $service->url($question) }}" target="_blank" rel="noopener" class="underline">{{ setting('admin.gamification.tabs.reward_questions.maayna', 'معاينة') }}</a>
+                                </div>
+                            </td>
 
-                    <div class="min-w-0 flex-1">
-                        <label class="text-xs" style="color: var(--text-muted)">{{ setting('admin.gamification.tabs.reward_questions.rabt_alswal', 'رابط السؤال') }}</label>
-                        <input type="text" readonly value="{{ $service->url($question) }}"
-                               class="w-full rounded-lg px-2 py-1.5 mt-1 text-xs font-mono" data-copy-source
-                               style="background: var(--surface); border: 1px solid var(--border); color: var(--text)">
+                            <td class="p-3">
+                                {{ match ($question->type) {
+                                    'choice' => setting('admin.gamification.tabs.reward_questions.akhtyarat', 'اختيارات'),
+                                    'number' => setting('admin.gamification.tabs.reward_questions.ijaba_rqmya', 'إجابة رقميّة'),
+                                    default => setting('admin.gamification.tabs.reward_questions.ijaba_nsya', 'إجابة نصّيّة'),
+                                } }}
+                            </td>
 
-                        <div class="flex items-center gap-3 mt-2 flex-wrap text-xs">
-                            <a href="https://wa.me/?text={{ urlencode($service->shareText($question)) }}"
-                               target="_blank" rel="noopener" class="underline">{{ setting('admin.gamification.tabs.reward_questions.msharka_watsab', 'مشاركة واتساب') }}</a>
+                            <td class="p-3 text-xs">
+                                <strong>{{ $question->reward_xp }}</strong> XP ·
+                                <strong>{{ $question->reward_tickets }}</strong> {{ setting('admin.gamification.tabs.reward_questions.mkafaa_tdhakr', 'مكافأة تذاكر') }}
+                            </td>
 
-                            <a href="{{ $service->url($question) }}" target="_blank" rel="noopener" class="underline">{{ setting('admin.gamification.tabs.reward_questions.maayna', 'معاينة') }}</a>
+                            <td class="p-3">{{ $question->active_minutes }} {{ setting('admin.gamification.tabs.reward_questions.dqyqa', 'دقيقة') }}</td>
 
-                            @can('reward_questions.view')
-                                <a href="{{ route('admin.gamification.reward-questions.results', $question) }}" class="underline">{{ setting('admin.gamification.tabs.reward_questions.alntayj', 'النتائج') }}</a>
-                            @endcan
-
-                            @can('reward_questions.edit')
-                                <button type="button" class="underline" data-reward-question-edit
-                                        data-id="{{ $question->id }}"
-                                        data-prompt="{{ $question->prompt }}"
-                                        data-type="{{ $question->type }}"
-                                        data-options="{{ implode("\n", (array) $question->options) }}"
-                                        data-answer="{{ $question->correct_answer }}"
-                                        data-xp="{{ $question->reward_xp }}"
-                                        data-tickets="{{ $question->reward_tickets }}"
-                                        data-minutes="{{ $question->active_minutes }}"
-                                        data-status="{{ $question->status }}">{{ setting('admin.gamification.tabs.reward_questions.tadyl', 'تعديل') }}</button>
-
-                                @if ($state['open'])
-                                    <form method="post" action="{{ route('admin.gamification.reward-questions.close', $question) }}"
-                                          onsubmit="return confirm('{{ setting('admin.gamification.tabs.reward_questions.tqfl_alswal_dlwqty', 'تقفل السؤال دلوقتي؟') }}')">
-                                        @csrf
-                                        <button type="submit" class="underline" style="color: var(--color-state-danger)">{{ setting('admin.gamification.tabs.reward_questions.ighlaq_fwry', 'إغلاق فوريّ') }}</button>
-                                    </form>
+                            <td class="p-3">
+                                <x-state-badge :state="$state['state']" :label="$state['label']" />
+                                @if ($state['open'] && $state['seconds_left'] !== null)
+                                    {{-- العدّاد النازل = ندرة صادقة تحفّز الإجابة الفوريّة (12.10-أ) --}}
+                                    <div class="text-xs font-mono mt-1" data-countdown="{{ $state['seconds_left'] }}"
+                                         style="color: var(--text-muted)">{{ gmdate('H:i:s', $state['seconds_left']) }}</div>
                                 @endif
-                            @endcan
-                        </div>
+                            </td>
 
-                        @can('reward_questions.manage')
-                            {{-- الإجابة مخفيّة افتراضيًّا ولا تظهر إلّا بفتحٍ صريح --}}
-                            <details class="mt-2 text-xs">
-                                <summary class="cursor-pointer" style="color: var(--text-muted)">{{ setting('admin.gamification.tabs.reward_questions.izhar_alijaba_alshyha', 'إظهار الإجابة الصحيحة') }}</summary>
-                                <p class="mt-1 font-mono">{{ $question->correct_answer }}</p>
-                            </details>
-                        @endcan
-                    </div>
-                </div>
-            </article>
-        @empty
-            <x-empty :message="setting('reward_questions.empty_message', 'لا أسئلة مكافآت بعد.')" />
-        @endforelse
-    </div>
+                            <td class="p-3">
+                                <div class="flex items-center gap-2 text-xs flex-wrap">
+                                    @can('reward_questions.view')
+                                        <a href="{{ route('admin.gamification.reward-questions.results', $question) }}" class="underline">{{ setting('admin.gamification.tabs.reward_questions.alntayj', 'النتائج') }}</a>
+                                    @endcan
+
+                                    @can('reward_questions.edit')
+                                        <button type="button" class="underline" data-reward-question-edit
+                                                data-id="{{ $question->id }}"
+                                                data-prompt="{{ $question->prompt }}"
+                                                data-type="{{ $question->type }}"
+                                                data-options="{{ implode("\n", (array) $question->options) }}"
+                                                data-answer="{{ $question->correct_answer }}"
+                                                data-xp="{{ $question->reward_xp }}"
+                                                data-tickets="{{ $question->reward_tickets }}"
+                                                data-minutes="{{ $question->active_minutes }}"
+                                                data-status="{{ $question->status }}">{{ setting('admin.gamification.tabs.reward_questions.tadyl', 'تعديل') }}</button>
+
+                                        @if ($state['open'])
+                                            <form method="post" action="{{ route('admin.gamification.reward-questions.close', $question) }}"
+                                                  onsubmit="return confirm('{{ setting('admin.gamification.tabs.reward_questions.tqfl_alswal_dlwqty', 'تقفل السؤال دلوقتي؟') }}')">
+                                                @csrf
+                                                <button type="submit" class="underline" style="color: var(--color-state-danger)">{{ setting('admin.gamification.tabs.reward_questions.ighlaq_fwry', 'إغلاق فوريّ') }}</button>
+                                            </form>
+                                        @endif
+                                    @endcan
+                                </div>
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </x-table>
+        </div>
+    @endif
 </section>
 
 @can('reward_questions.edit')
