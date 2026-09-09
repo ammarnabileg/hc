@@ -27,6 +27,9 @@
                 trim(($card['name'] ?? '').' · #'.($card['code'] ?? '')),
                 [[
                     'rank' => 1,
+                    // ⭐ [2026-09-10] «صورته» (12.9) — كان صندوقًا فارغًا لأنّ الصفّ لم يحمل
+                    // آيدي مستخدمٍ إطلاقًا؛ نفس مفتاح `u` الذي يقرؤه BoardSnapshot::normalizedRows()
+                    'u' => $card['user_id'] ?? null,
                     'name' => (string) ($card['name'] ?? ''),
                     'value' => number_format((float) $card['value'], 2).' '.($card['currency'] ?? ''),
                 ]],

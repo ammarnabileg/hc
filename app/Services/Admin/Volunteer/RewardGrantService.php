@@ -146,6 +146,9 @@ class RewardGrantService
 
                 // بطاقة التهنئة الاحترافيّة: صورته + القيمة — بأسهم تنقّل في الواجهة
                 $cards[] = [
+                    // ⭐ [2026-09-10] «صورته» (12.9) — الآيدي وحده، فـBoardSnapshot يجلب
+                    // الأفاتار الحقيقيّ من القاعدة وقت الرسم لا نسخةً مجمَّدة هنا
+                    'user_id' => $user->id,
                     'name' => $user->name,
                     'code' => $user->code,
                     'value' => (float) $row['value'],
