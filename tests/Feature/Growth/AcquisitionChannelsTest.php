@@ -46,12 +46,12 @@ class AcquisitionChannelsTest extends GrowthTestCase
     {
         $kit = app(ContentKit::class);
 
-        $now = now();
-        $sameWeek = $kit->currentCard($now->copy()->addDay());
-        $today = $kit->currentCard($now);
+        $today = $kit->currentCard(now());
+        $sameBucket = $kit->currentCard($today['from']->copy()->addHours(1));
+        $nextBucket = $kit->currentCard($today['to']->copy()->addDay());
 
-        $this->assertSame($today['tip'], $sameWeek['tip']);
-        $this->assertNotSame($today['index'], $kit->currentCard($now->copy()->addDays(8))['index']);
+        $this->assertSame($today['tip'], $sameBucket['tip']);
+        $this->assertNotSame($today['index'], $nextBucket['index']);
     }
 
     public function test_weekly_card_image_is_public(): void
