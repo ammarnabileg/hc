@@ -79,7 +79,7 @@
 <main class="max-w-2xl mx-auto px-4 py-10">
 
     <header class="text-center mb-6">
-        <div class="text-3xl mb-2" aria-hidden="true"><x-icon name="training" size="16" /></div>
+        <div class="text-3xl mb-2" aria-hidden="true"><x-icon name="badge" size="16" /></div>
         <h1 class="text-2xl font-extrabold">{{ setting('certificates.verify.title', 'التحقّق من الشهادة') }}</h1>
         <p class="text-sm mt-2" style="color: var(--text-muted)">
             {{ setting('certificates.verify.intro', 'اكتب كود الشهادة وتأكّد من صحّتها وصلاحيّتها — بلا تسجيل دخول ولا حساب.') }}
