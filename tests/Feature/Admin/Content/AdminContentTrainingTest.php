@@ -368,7 +368,7 @@ class AdminContentTrainingTest extends AdminContentTestCase
             ->assertOk();
 
         $response->assertSee(
-            setting('ui.empty.filtered_message', 'مفيش نتائج تطابق البحث/الفلتر الحاليّ — جرّب فلترًا تانيًا.'),
+            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث/الفلتر الحاليّ — جرّب فلترًا تانيًا.'),
             false,
         );
         $response->assertDontSee(
@@ -391,7 +391,7 @@ class AdminContentTrainingTest extends AdminContentTestCase
             false,
         );
         $response->assertDontSee(
-            setting('ui.empty.filtered_message', 'مفيش نتائج تطابق البحث/الفلتر الحاليّ — جرّب فلترًا تانيًا.'),
+            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث/الفلتر الحاليّ — جرّب فلترًا تانيًا.'),
             false,
         );
     }

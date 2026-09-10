@@ -152,6 +152,7 @@ class ScreenTextDemoSeeder extends Seeder
             ['ux.command_palette.text_1', 'ux', 'command-palette: اكتب حرفين وهنوصّلك على طول.', 'اكتب حرفين وهنوصّلك على طول.'],
             // ---- resources/views/components/empty.blade.php
             ['ux.empty_state.props_1', 'ux', 'empty: مفيش حاجة هنا', 'مفيش حاجة هنا'],
+            ['ux.empty_state.filtered_message', 'ux', 'empty: فلترٌ نشطٌ بلا نتائج مطابقة', 'مفيش نتائج تطابق البحث/الفلتر الحاليّ — جرّب فلترًا تانيًا.'],
             // ---- resources/views/components/export-image.blade.php
             ['images.export_panel.aria_label_1', 'images', 'export-image: استخراج كصورة', 'استخراج كصورة'],
             ['images.export_panel.title_1', 'images', 'export-image: استخراج كصورة', 'استخراج كصورة'],

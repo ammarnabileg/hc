@@ -11,7 +11,7 @@
 --}}
 @php
     $displayMessage = $filtered
-        ? (string) setting('ui.empty.filtered_message', 'مفيش نتائج تطابق البحث/الفلتر الحاليّ — جرّب فلترًا تانيًا.')
+        ? (string) setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث/الفلتر الحاليّ — جرّب فلترًا تانيًا.')
         : $message;
 @endphp
 <div class="card p-8 text-center">
