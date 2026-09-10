@@ -8,6 +8,7 @@ use App\Models\CvTemplate;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 /**
  * شاشة إدارة قوالب الـCV (الدستور 9 · 12.0 ⟵ «قوالب الـCV»).
@@ -75,6 +76,20 @@ class CvTemplateAdminController extends Controller
         $template->delete();
 
         return back()->with('status', (string) setting('cv.template.admin.deleted_message', 'اتشال القالب ✓'));
+    }
+
+    /**
+     * تنزيل ملفّ البلايد الخامّ للقالب (12.7-ب · cv_templates.export) — الحارس
+     * `permission:cv_templates.export` وحده يفتح المسار، والزرّ نفسه مخفيّ
+     * لا معطّل عن غير صاحب الصلاحيّة (2.15-أ-7).
+     */
+    public function download(CvTemplate $template): BinaryFileResponse
+    {
+        $path = resource_path('views/cv/templates/'.$template->view_path.'.blade.php');
+
+        abort_unless(is_file($path), 404);
+
+        return response()->download($path, $template->view_path.'.blade.php');
     }
 
     /** @return array<string, mixed> */

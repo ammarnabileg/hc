@@ -370,6 +370,7 @@ class SettingSeeder extends Seeder
             ['cv.template.admin.create_label', 'cv', 'زرّ إضافة القالب', 'string', 'إضافة'],
             ['cv.template.admin.save_label', 'cv', 'زرّ حفظ القالب', 'string', 'حفظ'],
             ['cv.template.admin.delete_label', 'cv', 'زرّ حذف القالب', 'string', 'حذف'],
+            ['cv.template.admin.download_label', 'cv', 'زرّ تحميل ملفّ القالب', 'string', 'تحميل'],
             ['cv.template.admin.name_label', 'cv', 'تسمية اسم القالب', 'string', 'اسم القالب'],
             ['cv.template.admin.description_label', 'cv', 'تسمية وصف القالب', 'string', 'وصف مختصر'],
             ['cv.template.admin.view_label', 'cv', 'تسمية ملفّ العرض', 'string', 'ملفّ العرض'],

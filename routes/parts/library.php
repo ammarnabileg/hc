@@ -84,6 +84,9 @@ Route::middleware(['auth', 'admin.panel'])->prefix('admin')->name('admin.')->gro
 
     Route::middleware('permission:cv_templates.delete')
         ->delete('/cv-templates/{template}', [CvTemplateAdminController::class, 'destroy'])->name('cv-templates.destroy');
+
+    Route::middleware('permission:cv_templates.export')
+        ->get('/cv-templates/{template}/download', [CvTemplateAdminController::class, 'download'])->name('cv-templates.download');
 });
 
 /*

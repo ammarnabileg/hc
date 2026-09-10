@@ -8,6 +8,7 @@ use App\Models\Role;
 use App\Models\RoleUser;
 use App\Models\User;
 use App\Support\Access\AccessEngine;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * شاشة إدارة قوالب الـCV (الدستور 9): «الأدمن يضيف قوالب، وكلّ قالب له عدد
@@ -79,6 +80,57 @@ class CvTemplateAdminTest extends LibraryTestCase
         $this->actingAs($this->trainee('UCVNOAD1'))
             ->get(route('admin.cv-templates.index'))
             ->assertForbidden();
+    }
+
+    /** زرّ «تحميل أيّ قالب» (12.7-ب) — يُرجع ملفّ البلايد الفعليّ للقالب */
+    public function test_admin_downloads_the_template_blade_file(): void
+    {
+        $template = CvTemplate::where('is_free', false)->orderBy('sort_order')->firstOrFail();
+
+        $response = $this->actingAs($this->owner())
+            ->get(route('admin.cv-templates.download', $template));
+
+        $response->assertOk();
+        $response->assertDownload($template->view_path.'.blade.php');
+
+        $expected = file_get_contents(resource_path('views/cv/templates/'.$template->view_path.'.blade.php'));
+        $this->assertSame($expected, $response->getFile()->getContent());
+    }
+
+    /** زرّ التحميل نفسه مخفيّ عن غير صاحب `cv_templates.export` — لا معطّل (2.15-أ-7) */
+    public function test_the_download_button_is_hidden_without_the_export_permission(): void
+    {
+        $user = $this->trainee('UCVNOEXP');
+        $this->grant($user, 'cv_templates.list');
+
+        $response = $this->actingAs($user)->get(route('admin.cv-templates.index'));
+
+        $response->assertOk();
+        $response->assertDontSee(setting('cv.template.admin.download_label', 'تحميل'), false);
+    }
+
+    /** ومحاولة الوصول للمسار مباشرةً بلا الصلاحيّة تُرفَض (12.7-ب) */
+    public function test_downloading_without_the_export_permission_is_forbidden(): void
+    {
+        $user = $this->trainee('UCVNOEXP2');
+        $this->grant($user, 'cv_templates.list');
+        $template = CvTemplate::where('is_free', false)->orderBy('sort_order')->firstOrFail();
+
+        $this->actingAs($user)
+            ->get(route('admin.cv-templates.download', $template))
+            ->assertForbidden();
+    }
+
+    /** صورة المعاينة الفعليّة تظهر لا مجرّد مسارها نصًّا (12.7-ب) */
+    public function test_the_template_preview_thumbnail_is_rendered(): void
+    {
+        $template = CvTemplate::where('is_free', false)->orderBy('sort_order')->firstOrFail();
+        $template->update(['preview_path' => 'cv-templates/preview-test.png']);
+
+        $this->actingAs($this->owner())
+            ->get(route('admin.cv-templates.index'))
+            ->assertOk()
+            ->assertSee(Storage::disk('public')->url('cv-templates/preview-test.png'), false);
     }
 
     private function owner(): User

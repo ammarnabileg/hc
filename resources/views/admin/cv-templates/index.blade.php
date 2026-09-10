@@ -47,9 +47,18 @@
                         </span>
                     </div>
 
-                    <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                        <x-form.input name="name" :label="setting('cv.template.admin.name_label', 'اسم القالب')" :value="$template->name" required />
-                        <x-form.input name="description" :label="setting('cv.template.admin.description_label', 'وصف مختصر')" :value="$template->description" />
+                    <div class="grid gap-3 sm:grid-cols-[auto_1fr]">
+                        {{-- معاينة القالب الفعليّة، لا مجرّد مسارها نصًّا (12.7-ب) --}}
+                        <span class="block rounded-lg overflow-hidden shrink-0" style="width: 96px; aspect-ratio: 3/4; background: var(--surface-sunken)">
+                            @if ($template->preview_path)
+                                <img src="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($template->preview_path) }}"
+                                     alt="{{ $template->name }}" loading="lazy" class="w-full h-full object-cover">
+                            @endif
+                        </span>
+
+                        <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                            <x-form.input name="name" :label="setting('cv.template.admin.name_label', 'اسم القالب')" :value="$template->name" required />
+                            <x-form.input name="description" :label="setting('cv.template.admin.description_label', 'وصف مختصر')" :value="$template->description" />
 
                         <label class="block">
                             <span class="block text-sm mb-1">{{ setting('cv.template.admin.view_label', 'ملفّ العرض') }}</span>
@@ -72,8 +81,9 @@
                             </span>
                         </label>
 
-                        <x-form.input name="preview_path" :label="setting('cv.template.admin.preview_label', 'مسار صورة المعاينة')" :value="$template->preview_path" />
-                        <x-form.input name="sort_order" type="number" :label="setting('cv.template.admin.sort_label', 'الترتيب')" :value="$template->sort_order" />
+                            <x-form.input name="preview_path" :label="setting('cv.template.admin.preview_label', 'مسار صورة المعاينة')" :value="$template->preview_path" />
+                            <x-form.input name="sort_order" type="number" :label="setting('cv.template.admin.sort_label', 'الترتيب')" :value="$template->sort_order" />
+                        </div>
                     </div>
 
                     {{-- أثر القالب في مخرَج الـATS — العمق خلف خطوة واحدة (2.15) --}}
@@ -115,6 +125,14 @@
                         </div>
 
                         <div class="flex items-center gap-2">
+                            {{-- تنزيل ملفّ البلايد الخامّ (12.7-ب) — المحظور يُخفى لا يُعطَّل (2.15-أ-7) --}}
+                            @can('cv_templates.export')
+                                <a href="{{ route('admin.cv-templates.download', $template) }}"
+                                   class="btn rounded-xl px-4 text-sm"
+                                   style="min-height: 44px; background: var(--surface-sunken); color: var(--text-muted)">
+                                    {{ setting('cv.template.admin.download_label', 'تحميل') }}
+                                </a>
+                            @endcan
                             @can('cv_templates.delete')
                                 <button type="submit" formmethod="post"
                                         formaction="{{ route('admin.cv-templates.destroy', $template) }}"
