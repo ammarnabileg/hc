@@ -11,6 +11,7 @@ use App\Services\AdminScreens\ScreenSettings;
 use App\Services\Ads\AdEvents;
 use Database\Seeders\DemoSeeder;
 use Database\Seeders\SettingSeeder;
+use Illuminate\Support\Facades\DB;
 
 /**
  * تغطية الإعدادات (2.13): **لكلّ مفتاح شاشةٌ يعدّله منها المالك**.
@@ -279,6 +280,64 @@ class AdminSystemSettingsCoverageTest extends SystemTestCase
         // والمعتمَد الذي حلّ محلّ بعضها ما زال يقرأه القارئ الحقيقيّ
         $this->assertDatabaseHas('settings', ['key' => 'store.bundle.anchoring_enabled']);
         $this->assertDatabaseHas('settings', ['key' => 'volunteer.qualifying.path_id']);
+    }
+
+    /**
+     * فجوة `settings:coverage --dead` (2026-08-05) في مكتبة القارئ — أيتامٌ
+     * حقيقيّون: `library.watermark.font_size`/`opacity_percent` تكرارٌ
+     * لـ`reader.watermark.font_size_px`/`opacity_percent` (يقرأهما
+     * `PageWatermark.php` فعلًا)، و`library.reader.session_minutes` يتيمٌ
+     * بلا قارئ ولا مواصفة دستوريّة — هجرة `2026_09_10_100090` تدمج الاثنين
+     * الأوّلين وتحذف الثالث، ومن السيدر معًا فلا يعودون بـ`migrate:fresh`.
+     */
+    public function test_library_dead_watermark_and_session_settings_are_swept(): void
+    {
+        $this->seed(SettingSeeder::class);
+        $this->seed(DemoSeeder::class);
+
+        // الأيتام الثلاثة اختفوا
+        $this->assertDatabaseMissing('settings', ['key' => 'library.watermark.font_size']);
+        $this->assertDatabaseMissing('settings', ['key' => 'library.watermark.opacity_percent']);
+        $this->assertDatabaseMissing('settings', ['key' => 'library.reader.session_minutes']);
+
+        // والمعتمَدان الحقيقيّان اللذان يقرأهما PageWatermark ما زالا موجودَين
+        $this->assertDatabaseHas('settings', ['key' => 'reader.watermark.font_size_px']);
+        $this->assertDatabaseHas('settings', ['key' => 'reader.watermark.opacity_percent']);
+    }
+
+    /**
+     * ⭐ تخصيص المالك لا يضيع في الدمج: لو عدّل المالك `library.watermark.font_size`
+     * قبل الهجرة ولم يمسّ `reader.watermark.font_size_px`، القيمة المعدَّلة
+     * هي التي تبقى — لا الافتراضيّة القديمة للمعتمَد.
+     */
+    public function test_owner_edited_watermark_value_survives_the_merge(): void
+    {
+        $this->seed(SettingSeeder::class);
+        $this->seed(DemoSeeder::class);
+
+        // نحاكي الوضع "قبل الهجرة": نعيد زرع المهجور بقيمةٍ عدّلها المالك،
+        // والمعتمَد على افتراضيّته (لم يُلمَس)، ثمّ نعيد تشغيل الهجرة.
+        $canonical = Setting::query()->where('key', 'reader.watermark.font_size_px')->firstOrFail();
+        $this->assertSame($canonical->value, $canonical->default_value, 'شرط الاختبار: المعتمَد لازم يبدأ بلا تعديل');
+
+        DB::table('settings')->insert([
+            'key' => 'library.watermark.font_size',
+            'group' => 'library',
+            'label_ar' => 'حجم خطّ العلامة المائيّة',
+            'type' => 'number',
+            'value' => '30',
+            'default_value' => '14',
+            'is_owner_only' => false,
+        ]);
+
+        // الهجرة سُجِّلت مُنفَّذة بالفعل من `migrate:fresh` الأصليّة — فنستدعي
+        // `up()` مباشرةً على نسخةٍ ثانية بدل `artisan migrate` (يتجاهله لأنّه
+        // مُسجَّلٌ منفَّذًا) — نفس أسلوب اختبار كودٍ في ملفّ هجرة بلا اسم صفّ.
+        $migration = require database_path('migrations/2026_09_10_100090_library_dead_watermark_and_session_settings_are_swept.php');
+        $migration->up();
+
+        $this->assertDatabaseMissing('settings', ['key' => 'library.watermark.font_size']);
+        $this->assertSame('30', $canonical->refresh()->value);
     }
 
     /**
