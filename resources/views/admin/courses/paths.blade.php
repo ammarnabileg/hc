@@ -72,6 +72,8 @@
                 <thead style="background: var(--surface-sunken)">
                     <tr class="text-start">
                         <th class="p-3 w-8"></th>
+                        {{-- عمود صورة المسار المصغّرة — cover_path موجودٌ ومُحرَّرٌ لكنّه غير معروضٍ بالجدول (12.4-أ) --}}
+                        <th class="p-3 text-start">{{ setting('admin.courses.paths.swra_msghra', 'صورة مصغّرة') }}</th>
                         <th class="p-3 text-start">{{ setting('admin.courses.paths.almsar', 'المسار') }}</th>
                         <th class="p-3 text-start">{{ setting('admin.courses.paths.add_altdrybat', 'عدد التدريبات') }}</th>
                         <th class="p-3 text-start">{{ setting('admin.courses.paths.sar_amthan_alshhada', 'سعر امتحان الشهادة') }}</th>
@@ -84,6 +86,14 @@
                     @foreach ($paths as $path)
                         <tr data-sort-id="{{ $path->id }}" style="border-top: 1px solid var(--border)">
                             <td class="p-3 cursor-grab select-none" aria-label="{{ setting('admin.courses.paths.mqbd_alshb', 'مقبض السحب') }}">⠿</td>
+                            <td class="p-3">
+                                @if ($path->cover_path)
+                                    <img src="{{ \Illuminate\Support\Facades\Storage::url($path->cover_path) }}" alt=""
+                                         class="w-10 h-10 rounded-lg object-cover" loading="lazy">
+                                @else
+                                    <span style="color: var(--text-muted)">—</span>
+                                @endif
+                            </td>
                             <td class="p-3">
                                 <div class="font-semibold">{{ $path->name_ar }}</div>
                                 @if ($path->name_en)
@@ -135,10 +145,18 @@
             @foreach ($paths as $path)
                 <div class="card p-4" data-sort-id="{{ $path->id }}">
                     <div class="flex items-start justify-between gap-2">
-                        <div class="min-w-0">
-                            <div class="font-semibold truncate">{{ $path->name_ar }}</div>
-                            <a href="{{ route('admin.paths.courses', $path) }}" class="text-sm underline"
-                               style="color: var(--color-brand-400)">{{ $path->courses_count }} {{ setting('admin.courses.paths.tdryb', 'تدريب') }}</a>
+                        <div class="flex items-start gap-2 min-w-0">
+                            @if ($path->cover_path)
+                                <img src="{{ \Illuminate\Support\Facades\Storage::url($path->cover_path) }}" alt=""
+                                     class="w-10 h-10 rounded-lg object-cover shrink-0" loading="lazy">
+                            @else
+                                <span style="color: var(--text-muted)">—</span>
+                            @endif
+                            <div class="min-w-0">
+                                <div class="font-semibold truncate">{{ $path->name_ar }}</div>
+                                <a href="{{ route('admin.paths.courses', $path) }}" class="text-sm underline"
+                                   style="color: var(--color-brand-400)">{{ $path->courses_count }} {{ setting('admin.courses.paths.tdryb', 'تدريب') }}</a>
+                            </div>
                         </div>
                         <x-state-badge :state="$path->status === 'published' ? 'ok' : 'warn'"
                                        :label="$statuses[$path->status] ?? $path->status" />

@@ -109,6 +109,8 @@
                                     <input type="checkbox" data-bulk-all>
                                 </label>
                             </th>
+                            {{-- عمود الغلاف — التدريبات كانت بلا صورةٍ ظاهرة رغم وجود cover_path (12.4-ب) --}}
+                            <th class="p-3 text-start">{{ setting('admin.courses.index.alghlaf', 'الغلاف') }}</th>
                             <th class="p-3 text-start">{{ setting('admin.courses.index.asm_alard', 'اسم العرض') }}</th>
                             <th class="p-3 text-start">{{ setting('admin.courses.index.asm_alshhada', 'اسم الشهادة') }}</th>
                             <th class="p-3 text-start">{{ setting('admin.courses.index.almsar_at', 'المسار(ات)') }}</th>
@@ -127,6 +129,14 @@
                                     <label class="inline-flex items-center" aria-label="{{ setting('courses.bulk.pick_one', 'اختيار هذا التدريب') }}">
                                         <input type="checkbox" name="ids[]" value="{{ $course->id }}" data-bulk-item>
                                     </label>
+                                </td>
+                                <td class="p-3">
+                                    @if ($course->cover_path)
+                                        <img src="{{ \Illuminate\Support\Facades\Storage::url($course->cover_path) }}" alt=""
+                                             class="w-10 h-10 rounded-lg object-cover" loading="lazy">
+                                    @else
+                                        <span style="color: var(--text-muted)">—</span>
+                                    @endif
                                 </td>
                                 <td class="p-3 font-semibold">{{ $course->name_ar }}</td>
                                 <td class="p-3">{{ $course->cert_name_ar ?: '—' }}</td>
@@ -181,6 +191,12 @@
                             <label class="inline-flex items-center" aria-label="{{ setting('courses.bulk.pick_one', 'اختيار هذا التدريب') }}">
                                 <input type="checkbox" name="ids[]" value="{{ $course->id }}" data-bulk-item>
                             </label>
+                            @if ($course->cover_path)
+                                <img src="{{ \Illuminate\Support\Facades\Storage::url($course->cover_path) }}" alt=""
+                                     class="w-10 h-10 rounded-lg object-cover shrink-0" loading="lazy">
+                            @else
+                                <span style="color: var(--text-muted)">—</span>
+                            @endif
                             <div class="flex-1 min-w-0">
                                 <div class="font-semibold truncate">{{ $course->name_ar }}</div>
                                 <div class="text-xs mt-1" style="color: var(--text-muted)">

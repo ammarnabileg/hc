@@ -219,6 +219,76 @@ class AdminContentTrainingTest extends AdminContentTestCase
     }
 
     /**
+     * ⭐ عمود «الغلاف» في جدول التدريبات: صورةٌ لمن يملك `cover_path`، وشرطةٌ لمن
+     * لا يملكه — العمود كان غائبًا رغم أنّ الحقل موجودٌ ومُحرَّرٌ فعلًا (12.4-ب).
+     */
+    public function test_courses_index_table_shows_cover_thumbnail_or_dash(): void
+    {
+        $withCover = Course::query()->firstOrFail();
+        $withCover->update(['cover_path' => 'media/course-cover-test.jpg']);
+
+        $withoutCover = Course::query()->where('id', '!=', $withCover->id)->firstOrFail();
+        $withoutCover->update(['cover_path' => null]);
+
+        $html = $this->actingAs($this->admin())
+            ->get(route('admin.courses.index'))
+            ->assertOk()
+            ->getContent();
+
+        $this->assertStringContainsString(
+            Storage::url('media/course-cover-test.jpg'),
+            $html,
+            'التدريب صاحب الغلاف لازم يظهر بصورةٍ مصغّرة في عمود الجدول (12.4-ب)',
+        );
+
+        $row = $this->firstTableRowContaining($html, $withoutCover->name_ar);
+        $this->assertStringNotContainsString('<img', $row, 'التدريب بلا غلافٍ ما يظهرش له img');
+        $this->assertStringContainsString('—', $row, 'التدريب بلا غلافٍ يظهر له شرطة بدل الصورة');
+    }
+
+    /**
+     * ⭐ عمود «صورة مصغّرة» في جدول المسارات: نفس القاعدة — صورةٌ أو شرطة (12.4-أ).
+     */
+    public function test_paths_index_table_shows_cover_thumbnail_or_dash(): void
+    {
+        $withCover = LearningPath::query()->firstOrFail();
+        $withCover->update(['cover_path' => 'media/path-cover-test.jpg']);
+
+        $withoutCover = LearningPath::query()->where('id', '!=', $withCover->id)->firstOrFail();
+        $withoutCover->update(['cover_path' => null]);
+
+        $html = $this->actingAs($this->admin())
+            ->get(route('admin.paths.index'))
+            ->assertOk()
+            ->getContent();
+
+        $this->assertStringContainsString(
+            Storage::url('media/path-cover-test.jpg'),
+            $html,
+            'المسار صاحب الغلاف لازم يظهر بصورةٍ مصغّرة في عمود الجدول (12.4-أ)',
+        );
+
+        $row = $this->firstTableRowContaining($html, $withoutCover->name_ar);
+        $this->assertStringNotContainsString('<img', $row, 'المسار بلا غلافٍ ما يظهرش له img');
+        $this->assertStringContainsString('—', $row, 'المسار بلا غلافٍ يظهر له شرطة بدل الصورة');
+    }
+
+    /** يستخرج أوّل صفّ جدول (`<tr>…</tr>`) يحوي هذا النصّ — لعزل عمود صفٍّ بعينه عن باقي الصفحة. */
+    private function firstTableRowContaining(string $html, string $needle): string
+    {
+        $needlePos = mb_strpos($html, $needle);
+        $this->assertNotFalse($needlePos, 'النصّ المطلوب لازم يظهر في الصفحة أصلًا');
+
+        $rowStart = mb_strrpos(mb_substr($html, 0, $needlePos), '<tr');
+        $this->assertNotFalse($rowStart, 'لازم يكون النصّ داخل صفّ جدول');
+
+        $rowEndOffset = mb_strpos($html, '</tr>', $needlePos);
+        $this->assertNotFalse($rowEndOffset, 'لازم يُقفَل صفّ الجدول بعد النصّ');
+
+        return mb_substr($html, $rowStart, $rowEndOffset - $rowStart);
+    }
+
+    /**
      * ⭐ الحجب والمجّانيّة 🔒 (12.2.2: paywall.edit/manage — مالك المنصّة فقط).
      * محرِّر محتوى عاديّ يملك `courses.edit` يقدر يعدّل اسم التدريب ووصفه، لكن
      * السعر النهائيّ وقاعدة المجّانيّة **يتجاهلهما الخادم** مهما أرسل — لا
