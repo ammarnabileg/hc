@@ -123,6 +123,18 @@
                                         @endcan
                                         <a href="{{ route('admin.paths.courses', $path) }}"
                                            class="block px-2 py-1 rounded-lg text-sm">{{ setting('admin.courses.paths.idara_tdrybath', 'إدارة تدريباته') }}</a>
+
+                                        {{-- «تكرار/نسخ (Duplicate) لمسار» (12.4-هـ) — بصلاحيّة الإنشاء
+                                             لأنّها تُنشئ مسارًا جديدًا فعلًا، ومَن لا يملكها لا يرى العنصر (2.15-أ-7) --}}
+                                        @can('paths.create')
+                                            <form method="post" action="{{ route('admin.paths.duplicate', $path) }}"
+                                                  onsubmit="return confirm('{{ setting('paths.duplicate.confirm_text') }}')">
+                                                @csrf
+                                                <button type="submit" class="block w-full text-start px-2 py-1 rounded-lg text-sm">
+                                                    {{ setting('paths.duplicate.action_label') }}
+                                                </button>
+                                            </form>
+                                        @endcan
                                         @can('paths.delete')
                                             <form method="post" action="{{ route('admin.paths.destroy', $path) }}"
                                                   onsubmit="return confirm('{{ setting('paths.delete.confirm_text', 'هنشيل المسار — وتدريباته هتفضل زيّ ما هي. نكمّل؟') }}')">
@@ -177,6 +189,17 @@
                            class="btn rounded-xl px-3 py-2 text-sm flex-1 text-center"
                            style="background: var(--surface-raised)">{{ setting('admin.courses.paths.tdrybath', 'تدريباته') }}</a>
                     </div>
+
+                    {{-- ونفس الإجراء على الموبايل: لا ميزة تسقط بالمقاس (2.15-ج) --}}
+                    @can('paths.create')
+                        <form method="post" action="{{ route('admin.paths.duplicate', $path) }}" class="mt-2"
+                              onsubmit="return confirm('{{ setting('paths.duplicate.confirm_text') }}')">
+                            @csrf
+                            <button type="submit" class="underline text-sm">
+                                {{ setting('paths.duplicate.action_label') }}
+                            </button>
+                        </form>
+                    @endcan
                 </div>
             @endforeach
         </div>

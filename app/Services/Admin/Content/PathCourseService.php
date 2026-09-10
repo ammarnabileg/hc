@@ -6,6 +6,7 @@ use App\Models\Course;
 use App\Models\CourseLearningPath;
 use App\Models\Exam;
 use App\Models\LearningPath;
+use App\Models\User;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -90,6 +91,37 @@ class PathCourseService
     {
         $this->audit->record($path, 'path.deleted', ['name_ar' => $path->name_ar], []);
         $path->delete();
+    }
+
+    /**
+     * ⭐ تكرار/نسخ (Duplicate) المسار (12.4-هـ) — بنفس منطق تكرار التدريب
+     * (`CourseFormService::duplicate()`) حرفيًّا: نسخة **مسودّة** بعنوانٍ يحمل
+     * لاحقة «نسخة»، وسلاج فريد، وعلاقاتها بتدريباتها منسوخةً معها بنفس ترتيبها —
+     * فهي قالبٌ جاهز لا هيكل فارغ، والأصل يبقى كما هو.
+     */
+    public function duplicate(LearningPath $path, ?User $actor = null): LearningPath
+    {
+        return DB::transaction(function () use ($path, $actor) {
+            $copy = $path->replicate(['slug', 'published_at', 'created_at', 'updated_at']);
+            $suffix = (string) setting('paths.duplicate.suffix', ' — نسخة');
+            $copy->name_ar = $path->name_ar.$suffix;
+            $copy->slug = $this->uniqueSlug($copy->name_ar);
+            $copy->status = 'draft';
+            $copy->published_at = null;
+            $copy->save();
+
+            foreach (CourseLearningPath::query()->where('learning_path_id', $path->id)->orderBy('sort_order')->get() as $pivot) {
+                CourseLearningPath::create([
+                    'learning_path_id' => $copy->id,
+                    'course_id' => $pivot->course_id,
+                    'sort_order' => $pivot->sort_order,
+                ]);
+            }
+
+            $this->audit->record($copy, 'path.duplicated', ['from' => $path->id], [], $actor);
+
+            return $copy;
+        });
     }
 
     /** @param  array<int, int>  $orderedIds */

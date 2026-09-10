@@ -30,8 +30,11 @@ Route::middleware(['auth', 'admin.panel'])->prefix('admin')->name('admin.')->gro
         Route::get('/paths/{path}/courses', [PathAdminController::class, 'courses'])->name('paths.courses');
     });
 
-    Route::middleware('permission:paths.create')
-        ->post('/paths', [PathAdminController::class, 'store'])->name('paths.store');
+    Route::middleware('permission:paths.create')->group(function () {
+        Route::post('/paths', [PathAdminController::class, 'store'])->name('paths.store');
+        // ⭐ تكرار/نسخ (Duplicate) المسار (12.4-هـ) — بنفس قياس تكرار التدريب بـ`courses.create`
+        Route::post('/paths/{path}/duplicate', [PathAdminController::class, 'duplicate'])->name('paths.duplicate');
+    });
 
     Route::middleware('permission:paths.edit')->group(function () {
         Route::put('/paths/{path}', [PathAdminController::class, 'update'])->name('paths.update');

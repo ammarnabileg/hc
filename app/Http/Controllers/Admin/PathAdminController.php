@@ -55,6 +55,16 @@ class PathAdminController extends Controller
         return back()->with('status', (string) setting('paths.admin.update_ok', 'اتحفظ ✓'));
     }
 
+    /** ⭐ تكرار/نسخ (Duplicate) المسار (12.4-هـ) — نسخة مسودّة بتدريباتها منسوخة معها. */
+    public function duplicate(LearningPath $path): RedirectResponse
+    {
+        $this->paths->duplicate($path, auth()->user());
+
+        return redirect()
+            ->route('admin.paths.index')
+            ->with('status', (string) setting('paths.admin.duplicate_ok', 'اتعمل نسخة من المسار — عدّلها وانشرها ✓'));
+    }
+
     /** الحذف بتأكيد — ولا يمسّ التدريبات (12.4-أ). */
     public function destroy(LearningPath $path): RedirectResponse
     {

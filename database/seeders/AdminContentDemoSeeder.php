@@ -50,6 +50,11 @@ class AdminContentDemoSeeder extends Seeder
             ['paths.detach.confirm_text', 'paths', 'نصّ تأكيد الإزالة من المسار', 'string', 'هنشيله من المسار بس — التدريب هيفضل موجود. نكمّل؟'],
             ['paths.detach.success_text', 'paths', 'نصّ نجاح الإزالة من المسار', 'string', 'اتشال من المسار — والتدريب زيّ ما هو ✓'],
             ['paths.statuses', 'paths', 'حالات المسار', 'json', '{"draft":"مسودّة","scheduled":"مجدول","published":"منشور","archived":"مؤرشف"}'],
+            // ⭐ تكرار/نسخ (Duplicate) المسار (12.4-هـ) — نظير تكرار التدريب بالضبط
+            ['paths.duplicate.suffix', 'paths', 'لاحقة نسخة المسار المكرّر', 'string', ' — نسخة'],
+            ['paths.duplicate.action_label', 'paths', 'نصّ إجراء تكرار المسار', 'string', 'تكرار المسار'],
+            ['paths.duplicate.confirm_text', 'paths', 'نصّ تأكيد تكرار المسار', 'string', 'هنعمل نسخة كاملة بتدريباته كمسودّة — نكمّل؟'],
+            ['paths.admin.duplicate_ok', 'paths', 'نصّ نجاح تكرار المسار', 'string', 'اتعمل نسخة من المسار — عدّلها وانشرها ✓'],
 
             // ---------------- التدريبات (12.4-ب)
             ['courses.statuses', 'courses', 'حالات التدريب', 'json', '{"draft":"مسودّة","scheduled":"مجدول","published":"منشور","archived":"مؤرشف"}'],
