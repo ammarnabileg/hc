@@ -90,6 +90,9 @@ class EventAdminController extends Controller
             'starts_at' => ['required', 'date'],
             'ends_at' => ['nullable', 'date', 'after_or_equal:starts_at'],
             'location' => ['nullable', 'string', 'max:255'],
+            // إحداثيّتا الخريطة (12.11: المكان + الخريطة) — أوفلاين/هجين، واختياريّتان دومًا
+            'lat' => ['nullable', 'numeric', 'between:-90,90'],
+            'lng' => ['nullable', 'numeric', 'between:-180,180'],
             'join_link' => ['nullable', 'url', 'max:255'],
             'registration_link' => ['nullable', 'url', 'max:255'],
             'recording_link' => ['nullable', 'url', 'max:255'],
@@ -138,6 +141,8 @@ class EventAdminController extends Controller
             'starts_at' => $data['starts_at'],
             'ends_at' => $data['ends_at'] ?? null,
             'location' => $data['location'] ?? null,
+            'lat' => $data['lat'] ?? null,
+            'lng' => $data['lng'] ?? null,
             'join_link' => $data['join_link'] ?? null,
             'registration_link' => $data['registration_link'] ?? null,
             'recording_link' => $data['recording_link'] ?? null,

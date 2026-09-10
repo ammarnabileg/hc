@@ -109,74 +109,145 @@
                 <p class="text-xs mt-3" style="color: var(--text-muted)">{{ setting('admin.events.index.mfysh_faalyat_fy_alshhr_dh', 'مفيش فعاليّات في الشهر ده.') }}</p>
             @endif
         </div>
+    @elseif ($events->isEmpty())
+        <x-empty :message="setting('events.empty_message', 'لا فعاليّات — أنشئ أوّل لقاء.')" />
     @else
-    {{-- كروت رأسيّة — لا تمرير أفقيّ على الموبايل (2.15-ج) --}}
-    <section class="space-y-3">
-        @forelse ($events as $event)
-            @php
-                $registered = $event->registrations_count;
-                $capacity = $event->capacity ?: 0;
-                $percent = $capacity ? min(100, round($registered / $capacity * 100)) : 0;
-            @endphp
+        {{--
+          ⭐ [2026-09-10] «القائمة جدولًا لا كروتًا» (12.11: الغلاف · العنوان ·
+          النوع · التاريخ · السعة/المسجّلون · السعر · الحالة · إجراءات) — كانت
+          كروتًا بلا عمودَي الغلاف والسعر رغم أنّ `cover_path`/`price_coins`/
+          `price_tickets` حقولٌ محفوظةٌ بالفعل. جدولٌ على الديسكتوب وكروتٌ
+          رأسيّة على الموبايل بلا تمرير أفقيّ (2.15-ج)، على نمط
+          `registrations-index.blade.php`.
+        --}}
+        <div class="card p-0 overflow-hidden hidden md:block min-w-0">
+            <div class="overflow-x-auto min-w-0">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr style="background: var(--surface-sunken)">
+                            <th class="text-start px-4 py-3 font-semibold">{{ setting('admin.events.index.col_ghlaf', 'الغلاف') }}</th>
+                            <th class="text-start px-4 py-3 font-semibold">{{ setting('admin.events.index.col_alanwan', 'العنوان') }}</th>
+                            <th class="text-start px-4 py-3 font-semibold">{{ setting('admin.events.index.alnwa', 'النوع') }}</th>
+                            <th class="text-start px-4 py-3 font-semibold">{{ setting('admin.events.index.col_altarykh', 'التاريخ') }}</th>
+                            <th class="text-start px-4 py-3 font-semibold">{{ setting('admin.events.index.col_alsaa_almsjlwn', 'السعة/المسجّلون') }}</th>
+                            <th class="text-start px-4 py-3 font-semibold">{{ setting('admin.events.index.col_alsar', 'السعر') }}</th>
+                            <th class="text-start px-4 py-3 font-semibold">{{ setting('admin.events.index.alhala', 'الحالة') }}</th>
+                            <th class="text-start px-4 py-3 font-semibold">{{ setting('admin.events.index.col_ijraat', 'إجراءات') }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($events as $event)
+                            @php
+                                $registered = $event->registrations_count;
+                                $capacity = $event->capacity ?: 0;
+                                $percent = $capacity ? min(100, round($registered / $capacity * 100)) : 0;
+                                $free = (float) $event->price_coins <= 0 && (float) $event->price_tickets <= 0;
+                            @endphp
+                            <tr style="border-top: 1px solid var(--border)">
+                                <td class="px-4 py-3">
+                                    @if ($event->cover_path)
+                                        <img src="{{ \Illuminate\Support\Facades\Storage::url($event->cover_path) }}" alt=""
+                                             class="rounded-lg object-cover" style="width: 44px; height: 44px" loading="lazy">
+                                    @else
+                                        <span class="inline-flex items-center justify-center rounded-lg"
+                                              style="width: 44px; height: 44px; background: var(--surface-sunken); color: var(--color-brand-500)">
+                                            <x-icon name="event" size="20" />
+                                        </span>
+                                    @endif
+                                </td>
+                                <td class="px-4 py-3 font-semibold min-w-0">
+                                    {{ $event->title_ar }}
+                                    @if ($event->attendance_code)
+                                        <span class="block text-xs font-normal font-mono" style="color: var(--text-muted)">{{ setting('admin.events.index.kwd_alhdwr', '· كود الحضور') }} {{ $event->attendance_code }}</span>
+                                    @endif
+                                </td>
+                                <td class="px-4 py-3 text-xs">{{ $modes[$event->mode] ?? $event->mode }}</td>
+                                <td class="px-4 py-3 text-xs" title="{{ $event->starts_at?->format('Y-m-d H:i') }}">{{ $event->starts_at?->diffForHumans() }}</td>
+                                <td class="px-4 py-3">
+                                    <div class="flex items-center gap-2" style="min-width: 7rem">
+                                        <div class="h-1.5 flex-1 rounded-full overflow-hidden" style="background: var(--surface-sunken)">
+                                            <div class="h-full" style="width: {{ $percent }}%; background: var(--color-brand-500)"></div>
+                                        </div>
+                                        <span class="text-xs shrink-0" style="color: var(--text-muted)">{{ $registered }}{{ $capacity ? '/'.$capacity : '' }}</span>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-3 text-xs">
+                                    @if ($free)
+                                        {{ setting('admin.events.index.mjanya', 'مجّانيّة') }}
+                                    @else
+                                        {{ trim(((float) $event->price_coins > 0 ? (int) $event->price_coins.' '.setting('admin.events.index.kwynz', 'كوينز').' ' : '').((float) $event->price_tickets > 0 ? (int) $event->price_tickets.' '.setting('admin.events.index.tdhkra', 'تذكرة') : '')) }}
+                                    @endif
+                                </td>
+                                <td class="px-4 py-3">
+                                    <x-state-badge :state="match ($event->status) { 'published' => 'ok', 'cancelled' => 'danger', default => 'idle' }"
+                                                   :label="match ($event->status) { 'published' => setting('admin.events.index.mnshwra', 'منشورة'), 'cancelled' => setting('admin.events.index.mlghaa', 'ملغاة'), default => setting('admin.events.index.mswda', 'مسودّة') }" />
+                                </td>
+                                <td class="px-4 py-3">
+                                    @include('admin.events.partials.event-actions', ['event' => $event])
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
 
-            <article class="card p-4">
-                <div class="flex items-start justify-between gap-3 flex-wrap">
-                    <div class="min-w-0">
-                        <div class="font-semibold">{{ $event->title_ar }}</div>
-                        <div class="text-xs mt-0.5" style="color: var(--text-muted)"
-                             title="{{ $event->starts_at?->format('Y-m-d H:i') }}">
-                            {{ $modes[$event->mode] ?? $event->mode }} · {{ $event->starts_at?->diffForHumans() }}
-                            @if ($event->attendance_code) {{ setting('admin.events.index.kwd_alhdwr', '· كود الحضور') }} <code>{{ $event->attendance_code }}</code> @endif
+        {{-- الموبايل: كروت رأسيّة — بلا تمرير أفقيّ (2.15-ج) --}}
+        <section class="md:hidden space-y-3">
+            @foreach ($events as $event)
+                @php
+                    $registered = $event->registrations_count;
+                    $capacity = $event->capacity ?: 0;
+                    $percent = $capacity ? min(100, round($registered / $capacity * 100)) : 0;
+                    $free = (float) $event->price_coins <= 0 && (float) $event->price_tickets <= 0;
+                @endphp
+
+                <article class="card p-4">
+                    <div class="flex items-start justify-between gap-3 flex-wrap">
+                        <div class="min-w-0 flex items-start gap-3">
+                            @if ($event->cover_path)
+                                <img src="{{ \Illuminate\Support\Facades\Storage::url($event->cover_path) }}" alt=""
+                                     class="rounded-lg object-cover shrink-0" style="width: 44px; height: 44px" loading="lazy">
+                            @else
+                                <span class="inline-flex items-center justify-center rounded-lg shrink-0"
+                                      style="width: 44px; height: 44px; background: var(--surface-sunken); color: var(--color-brand-500)">
+                                    <x-icon name="event" size="20" />
+                                </span>
+                            @endif
+                            <div class="min-w-0">
+                                <div class="font-semibold">{{ $event->title_ar }}</div>
+                                <div class="text-xs mt-0.5" style="color: var(--text-muted)"
+                                     title="{{ $event->starts_at?->format('Y-m-d H:i') }}">
+                                    {{ $modes[$event->mode] ?? $event->mode }} · {{ $event->starts_at?->diffForHumans() }}
+                                    @if ($event->attendance_code) {{ setting('admin.events.index.kwd_alhdwr', '· كود الحضور') }} <code>{{ $event->attendance_code }}</code> @endif
+                                </div>
+                            </div>
                         </div>
+
+                        <x-state-badge :state="match ($event->status) { 'published' => 'ok', 'cancelled' => 'danger', default => 'idle' }"
+                                       :label="match ($event->status) { 'published' => setting('admin.events.index.mnshwra', 'منشورة'), 'cancelled' => setting('admin.events.index.mlghaa', 'ملغاة'), default => setting('admin.events.index.mswda', 'مسودّة') }" />
                     </div>
 
-                    <x-state-badge :state="match ($event->status) { 'published' => 'ok', 'cancelled' => 'danger', default => 'idle' }"
-                                   :label="match ($event->status) { 'published' => setting('admin.events.index.mnshwra', 'منشورة'), 'cancelled' => setting('admin.events.index.mlghaa', 'ملغاة'), default => setting('admin.events.index.mswda', 'مسودّة') }" />
-                </div>
-
-                <div class="flex items-center gap-2 mt-3">
-                    <div class="h-1.5 flex-1 rounded-full overflow-hidden" style="background: var(--surface-sunken)">
-                        <div class="h-full" style="width: {{ $percent }}%; background: var(--color-brand-500)"></div>
+                    <div class="flex items-center gap-2 mt-3">
+                        <div class="h-1.5 flex-1 rounded-full overflow-hidden" style="background: var(--surface-sunken)">
+                            <div class="h-full" style="width: {{ $percent }}%; background: var(--color-brand-500)"></div>
+                        </div>
+                        <span class="text-xs shrink-0" style="color: var(--text-muted)">
+                            {{ $registered }}{{ $capacity ? '/'.$capacity : '' }} {{ setting('admin.events.index.msjl', 'مسجّل') }}
+                            @if (! $free)
+                                · {{ trim(((float) $event->price_coins > 0 ? (int) $event->price_coins.' '.setting('admin.events.index.kwynz', 'كوينز').' ' : '').((float) $event->price_tickets > 0 ? (int) $event->price_tickets.' '.setting('admin.events.index.tdhkra', 'تذكرة') : '')) }}
+                            @else
+                                · {{ setting('admin.events.index.mjanya', 'مجّانيّة') }}
+                            @endif
+                        </span>
                     </div>
-                    <span class="text-xs shrink-0" style="color: var(--text-muted)">
-                        {{ $registered }}{{ $capacity ? '/'.$capacity : '' }} {{ setting('admin.events.index.msjl', 'مسجّل') }}
-                    </span>
-                </div>
 
-                <div class="flex items-center gap-3 mt-3 flex-wrap text-xs">
-                    @can('event_registrations.list')
-                        <a class="underline" href="{{ route('admin.events.registrations', $event) }}">{{ setting('admin.events.index.almsjlwn_walhdwr', 'المسجّلون والحضور') }}</a>
-                    @endcan
-                    @can('events.edit')
-                        <button type="button" class="underline" data-event-edit
-                                data-id="{{ $event->id }}" data-title="{{ $event->title_ar }}"
-                                data-title-en="{{ $event->title_en }}" data-mode="{{ $event->mode }}"
-                                data-starts="{{ $event->starts_at?->format('Y-m-d\TH:i') }}"
-                                data-capacity="{{ $event->capacity }}" data-code="{{ $event->attendance_code }}"
-                                data-location="{{ $event->location }}" data-join="{{ $event->join_link }}"
-                                data-registration="{{ $event->registration_link }}"
-                                data-price-coins="{{ (int) $event->price_coins }}"
-                                data-price-tickets="{{ (int) $event->price_tickets }}"
-                                data-coupon="{{ $event->coupon_id }}" data-cover="{{ $event->cover_path }}"
-                                data-status="{{ $event->status }}"
-                                data-reminders="{{ $event->reminders_enabled ? 1 : 0 }}">{{ setting('admin.events.index.tadyl', 'تعديل') }}</button>
-                        @if ($event->status !== 'cancelled')
-                            <form method="post" action="{{ route('admin.events.cancel', $event) }}"
-                                  onsubmit="return confirm('{{ setting('admin.events.index.tlghy_alfaalya_dy', 'تلغي الفعاليّة دي؟') }}')">
-                                @csrf
-                                <button type="submit" class="underline" style="color: var(--color-state-danger)">{{ setting('admin.events.index.ilgha', 'إلغاء') }}</button>
-                            </form>
-                        @endif
-                    @endcan
-                    @if ($event->registration_link)
-                        <a class="underline" href="{{ $event->registration_link }}" target="_blank" rel="noopener">{{ setting('admin.events.index.rabt_altsjyl_alkharjy', 'رابط التسجيل الخارجيّ') }}</a>
-                    @endif
-                </div>
-            </article>
-        @empty
-            <x-empty :message="setting('events.empty_message', 'لا فعاليّات — أنشئ أوّل لقاء.')" />
-        @endforelse
-    </section>
+                    <div class="mt-3">
+                        @include('admin.events.partials.event-actions', ['event' => $event])
+                    </div>
+                </article>
+            @endforeach
+        </section>
     @endif
 
     @can('events.manage')
@@ -264,6 +335,28 @@
                                class="w-full rounded-xl px-3 py-2 text-sm mt-1"
                                style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
                     </label>
+                </div>
+
+                {{--
+                  ⭐ [2026-09-10] «المكان + الخريطة» (12.11) — العمودان lat/lng
+                  محفوظان في المايجريشن ومحوَّلان بالفعل في الموديل، وصفحة
+                  الفعاليّة العامّة تعرض بالفعل رابط خريطة OpenStreetMap منهما
+                  (events/show.blade.php)، فالناقص كان حقلَي الإدخال هنا فقط.
+                  اختياريّان دومًا — غيابهما لا يُسقِط الحفظ ولا يمنع رابط الخريطة
+                  من الاختفاء بأمان في الصفحة العامّة.
+                --}}
+                <div class="grid sm:grid-cols-2 gap-3 mt-3">
+                    <label class="text-sm font-semibold">{{ setting('admin.events.index.kht_alard', 'خط العرض') }}
+                        <input type="number" step="0.0000001" min="-90" max="90" name="lat" id="ev-lat"
+                               class="w-full rounded-xl px-3 py-2 text-sm mt-1"
+                               style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
+                    </label>
+                    <label class="text-sm font-semibold">{{ setting('admin.events.index.kht_altwl', 'خط الطول') }}
+                        <input type="number" step="0.0000001" min="-180" max="180" name="lng" id="ev-lng"
+                               class="w-full rounded-xl px-3 py-2 text-sm mt-1"
+                               style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
+                    </label>
+                    <span class="block text-xs sm:col-span-2" style="color: var(--text-muted)">{{ setting('admin.events.index.alihdathyat_hint', 'اختياريّ — تُستخدَم لعرض رابط خريطة في صفحة الفعاليّة العامّة (أوفلاين/هجين).') }}</span>
                 </div>
 
                 <div class="grid sm:grid-cols-3 gap-3 mt-3">
@@ -419,6 +512,8 @@
                 document.getElementById('ev-capacity').value = btn.dataset.capacity || '';
                 document.getElementById('ev-code').value = btn.dataset.code || '';
                 document.getElementById('ev-location').value = btn.dataset.location || '';
+                document.getElementById('ev-lat').value = btn.dataset.lat || '';
+                document.getElementById('ev-lng').value = btn.dataset.lng || '';
                 document.getElementById('ev-join').value = btn.dataset.join || '';
                 document.getElementById('ev-registration').value = btn.dataset.registration || '';
                 document.getElementById('ev-price-coins').value = btn.dataset.priceCoins || 0;

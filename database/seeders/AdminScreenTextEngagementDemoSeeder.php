@@ -423,6 +423,21 @@ class AdminScreenTextEngagementDemoSeeder extends Seeder
             ['admin.events.index.ybda', 'events', 'يبدأ', 'string', 'يبدأ', 'نصّ في resources/views/admin/events/index.blade.php'],
             ['admin.events.index.ynthy_akhtyary', 'events', 'ينتهي (اختياريّ)', 'string', 'ينتهي (اختياريّ)', 'نصّ في resources/views/admin/events/index.blade.php'],
             ['admin.events.index.ywld_tlqayya_lw_fady', 'events', 'يُولَّد تلقائيًّا لو فاضي', 'string', 'يُولَّد تلقائيًّا لو فاضي', 'نصّ في resources/views/admin/events/index.blade.php'],
+            // ⭐ [2026-09-10] «المكان + الخريطة» · «معاينة صفحة الفعاليّة» ·
+            // «القائمة جدولًا لا كروتًا» (12.11) — 13 مفتاحًا جديدًا لنفس القالب.
+            ['admin.events.index.kht_alard', 'events', 'خط العرض', 'string', 'خط العرض', 'نصّ في resources/views/admin/events/index.blade.php'],
+            ['admin.events.index.kht_altwl', 'events', 'خط الطول', 'string', 'خط الطول', 'نصّ في resources/views/admin/events/index.blade.php'],
+            ['admin.events.index.alihdathyat_hint', 'events', 'اختياريّ — تُستخدَم لعرض رابط خريطة في صفحة الفعاليّة العامّة (أوفلاين/هجين).', 'text', 'اختياريّ — تُستخدَم لعرض رابط خريطة في صفحة الفعاليّة العامّة (أوفلاين/هجين).', 'نصّ في resources/views/admin/events/index.blade.php'],
+            ['admin.events.index.maayna', 'events', 'معاينة', 'string', 'معاينة', 'نصّ في resources/views/admin/events/index.blade.php'],
+            ['admin.events.index.col_ghlaf', 'events', 'الغلاف', 'string', 'الغلاف', 'نصّ في resources/views/admin/events/index.blade.php'],
+            ['admin.events.index.col_alanwan', 'events', 'العنوان', 'string', 'العنوان', 'نصّ في resources/views/admin/events/index.blade.php'],
+            ['admin.events.index.col_altarykh', 'events', 'التاريخ', 'string', 'التاريخ', 'نصّ في resources/views/admin/events/index.blade.php'],
+            ['admin.events.index.col_alsaa_almsjlwn', 'events', 'السعة/المسجّلون', 'string', 'السعة/المسجّلون', 'نصّ في resources/views/admin/events/index.blade.php'],
+            ['admin.events.index.col_alsar', 'events', 'السعر', 'string', 'السعر', 'نصّ في resources/views/admin/events/index.blade.php'],
+            ['admin.events.index.col_ijraat', 'events', 'إجراءات', 'string', 'إجراءات', 'نصّ في resources/views/admin/events/index.blade.php'],
+            ['admin.events.index.mjanya', 'events', 'مجّانيّة', 'string', 'مجّانيّة', 'نصّ في resources/views/admin/events/index.blade.php'],
+            ['admin.events.index.kwynz', 'events', 'كوينز', 'string', 'كوينز', 'نصّ في resources/views/admin/events/index.blade.php'],
+            ['admin.events.index.tdhkra', 'events', 'تذكرة', 'string', 'تذكرة', 'نصّ في resources/views/admin/events/index.blade.php'],
             ['admin.events.registrations.aldrjat', 'events', 'الدرجات:', 'string', 'الدرجات:', 'نصّ في resources/views/admin/events/registrations.blade.php'],
             ['admin.events.registrations.alfaalyat', 'events', 'الفعاليّات', 'string', 'الفعاليّات', 'نصّ في resources/views/admin/events/registrations.blade.php — عنوانٌ منصوصٌ حرفيًّا في القسم 24، وتغييرُه يخالف خريطة الشاشات.'],  // ⚠️ 24
             ['admin.events.registrations.alkl', 'events', 'الكلّ', 'string', 'الكلّ', 'نصّ في resources/views/admin/events/registrations.blade.php'],
