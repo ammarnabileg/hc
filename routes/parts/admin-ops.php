@@ -32,6 +32,7 @@ Route::middleware(['auth', 'admin.panel'])->prefix('admin/ops')->name('admin.ops
         Route::post('/onboarding/slides/{slide}/toggle', [OnboardingContentController::class, 'toggle'])->name('onboarding.slides.toggle');
         Route::post('/onboarding/reorder', [OnboardingContentController::class, 'reorder'])->name('onboarding.reorder');
         Route::post('/onboarding/first-time', [OnboardingContentController::class, 'saveFirstTime'])->name('onboarding.first-time');
+        Route::post('/onboarding/pages', [OnboardingContentController::class, 'savePages'])->name('onboarding.pages');
     });
 
     Route::middleware('permission:onboarding.delete')

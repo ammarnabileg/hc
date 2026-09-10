@@ -23,7 +23,7 @@
 ## ⬜ المتبقّي
 <!-- بيدك:بداية:المتبقّي -->
 - **2.5-د-2:** الاختبار التمهيديّ لا يظهر في تنصيب افتراضيّ لأنّ بنك الأسئلة غير مزروع — والخطوة تُتخطّى صامتةً (تفاصيل في `app/Services/Onboarding/_STATUS.md`).
-- **2.5-د-3 (صفحة «تحت المراجعة»):** المسار `/pending` يعرض `onboarding.review.html` من الإعدادات ✅، لكنّ **الشاشة نفسها في `resources/views/auth/pending.blade.php` لا في `views/onboarding`** — مخالفة لتجميع الرحلة، ولم يُثبَت أنّ الأدمن يضيف فيها كود HTML من اللوحة.
+- **2.5-د-3 (صفحة «تحت المراجعة»):** المسار `/pending` يعرض `onboarding.review.html` من الإعدادات ✅، لكنّ **الشاشة نفسها في `resources/views/auth/pending.blade.php` لا في `views/onboarding`** — لا تزال مخالفة لتجميع الرحلة. ✅ أمّا كتابة الكود من اللوحة فصارت مثبَتةً: تاب «تحت المراجعة وتمّ القبول» في `Admin\OnboardingContentController@index` (`tab=pages`) يحفظ `onboarding.review.html`/`onboarding.accepted.html` عبر `OnboardingContent::savePages()`.
 - **2.5-د-4:** صفحة «تمّ قبول حسابك» تعمل والاحتفال يُطلَق مرّة واحدة Server-side ✅ — **لكن بلا زرّ مشاركة وبلا عرض رسالة التهنئة** (تفاصيل في `resources/views/onboarding/_STATUS.md`).
 <!-- بيدك:نهاية:المتبقّي -->
 

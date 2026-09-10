@@ -123,6 +123,20 @@ class OnboardingContent
         ];
     }
 
+    /**
+     * صفحتا «تحت المراجعة» و«تم قبول حسابك» — نفس المفتاحين اللذين تقرأهما
+     * `auth/pending` و`onboarding/accepted` بالضبط، فلا يوجد نسخٌ ثانٍ يتباعد (12.7-أ).
+     *
+     * @return array{review_html: string, accepted_html: string}
+     */
+    public function pages(): array
+    {
+        return [
+            'review_html' => (string) setting('onboarding.review.html', ''),
+            'accepted_html' => (string) setting('onboarding.accepted.html', ''),
+        ];
+    }
+
     /** ثلاثة أرقام تكفي رأس الصفحة — والحدّ أربعة (2.15-أ-3) */
     public function kpis(): array
     {
@@ -316,6 +330,27 @@ class OnboardingContent
         ], 'settings');
 
         return $result + ['screens' => $clean];
+    }
+
+    /**
+     * حفظ صفحتَي HTML معًا — نفس مسار `OpsSettings::save()` الذي تستعمله
+     * `saveEnabledScreens()` بالفعل، فلا سباكة جديدة لكتابة إعداد (2.13).
+     *
+     * @param  array<string, string>  $values  مفتاح الإعداد ⟵ الـHTML الجديد
+     */
+    public function savePages(array $values, User $actor): array
+    {
+        $review = $this->settings->save('onboarding.review.html', $values['onboarding.review.html'] ?? '', $actor);
+        $accepted = $this->settings->save('onboarding.accepted.html', $values['onboarding.accepted.html'] ?? '', $actor);
+
+        $saved = (bool) ($review['saved'] ?? false) && (bool) ($accepted['saved'] ?? false);
+
+        $this->audit->record($actor, 'ops.onboarding.pages.updated', [
+            'review_saved' => (bool) ($review['saved'] ?? false),
+            'accepted_saved' => (bool) ($accepted['saved'] ?? false),
+        ], 'settings');
+
+        return ['saved' => $saved];
     }
 
     public function find(int $id): ?object

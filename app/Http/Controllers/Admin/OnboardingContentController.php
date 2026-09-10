@@ -27,7 +27,7 @@ class OnboardingContentController extends Controller
         $screen = array_key_exists($screen, $screens) ? $screen : OnboardingContent::WELCOME;
 
         $tab = $request->string('tab')->toString() ?: 'slides';
-        $tab = in_array($tab, ['slides', 'first_time'], true) ? $tab : 'slides';
+        $tab = in_array($tab, ['slides', 'first_time', 'pages'], true) ? $tab : 'slides';
 
         return view('admin.ops.onboarding', [
             'tab' => $tab,
@@ -41,6 +41,7 @@ class OnboardingContentController extends Controller
             'templates' => $this->content->templates(),
             'isFull' => $this->content->isFull($screen),
             'journey' => $this->content->journey($screen),
+            'pages' => $tab === 'pages' ? $this->content->pages() : [],
         ]);
     }
 
@@ -145,6 +146,25 @@ class OnboardingContentController extends Controller
         return back()->with('status', ($result['saved'] ?? false)
             ? strtr((string) setting('onboarding.admin.save_first_time_ok', 'اتحفظ ✓ — :a1 شاشة مفعَّلة.'), [':a1' => (string) (count($result['screens']))])
             : ($result['message'] ?? (string) setting('onboarding.admin.save_first_time_msg', 'مقدرناش نحفظ.')));
+    }
+
+    /**
+     * حفظ صفحتَي «تحت المراجعة» و«تم قبول حسابك» — نفس الـHTML الذي يراه
+     * المستخدم بالضبط في `auth/pending` و`onboarding/accepted` (12.7-أ).
+     */
+    public function savePages(Request $request): RedirectResponse
+    {
+        $data = $request->validate([
+            'review_html' => ['nullable', 'string', 'max:20000'],
+            'accepted_html' => ['nullable', 'string', 'max:20000'],
+        ]);
+
+        $this->content->savePages([
+            'onboarding.review.html' => $data['review_html'] ?? '',
+            'onboarding.accepted.html' => $data['accepted_html'] ?? '',
+        ], $request->user());
+
+        return back()->with('status', (string) setting('onboarding.admin.save_pages_ok', 'اتحفظ ✓'));
     }
 
     // ------------------------------------------------------------------ داخليّ

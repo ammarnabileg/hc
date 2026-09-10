@@ -53,12 +53,15 @@
     <x-tabs :current="$tab" :tabs="[
         ['key' => 'slides', 'label' => setting('admin.ops.onboarding.slsla_almrahl', 'سلسلة المراحل'), 'url' => route('admin.ops.onboarding', ['tab' => 'slides', 'screen' => $screen])],
         ['key' => 'first_time', 'label' => setting('admin.ops.onboarding.shasha_awl_mra', 'شاشة أوّل مرّة'), 'url' => route('admin.ops.onboarding', ['tab' => 'first_time', 'screen' => $screen])],
+        ['key' => 'pages', 'label' => setting('admin.ops.onboarding.taht_almrajaa_wtm_alqbwl', 'تحت المراجعة وتمّ القبول'), 'url' => route('admin.ops.onboarding', ['tab' => 'pages', 'screen' => $screen])],
     ]" />
 
     @if ($tab === 'slides')
         @include('admin.ops.partials.onboarding-slides')
-    @else
+    @elseif ($tab === 'first_time')
         @include('admin.ops.partials.onboarding-first-time')
+    @else
+        @include('admin.ops.partials.onboarding-pages')
     @endif
 
     @include('admin.ops.partials.onboarding-form')
