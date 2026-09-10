@@ -202,6 +202,88 @@ class AdminContentTrainingTest extends AdminContentTestCase
         $this->assertSame(1, MediaItem::query()->where('hash', $first['item']->hash)->count());
     }
 
+    /**
+     * ⭐ مكتبة الوسائط: تبديل العرض شبكة/قائمة يغيّر **البنية المطبوعة فعليًّا**
+     * لا مجرّد رابطٍ يُقرَأ ولا يُستهلَك (12.4-د).
+     */
+    public function test_media_view_toggle_actually_switches_the_rendered_markup(): void
+    {
+        $admin = $this->admin();
+
+        MediaItem::create([
+            'disk' => 'public', 'path' => 'media/view-toggle.txt', 'name' => 'ملفّ التبديل.txt',
+            'mime' => 'text/plain', 'size' => 10 * 1024, 'hash' => 'hash-view-toggle',
+        ]);
+
+        // الشبكة (الافتراضيّ حين لا يُمرَّر view): كروتٌ — بلا عنصر <table>
+        $grid = $this->actingAs($admin)->get(route('admin.media.index'));
+        $grid->assertOk();
+        $grid->assertSee('grid grid-cols-2 md:grid-cols-4', false);
+        $grid->assertDontSee('<table', false);
+
+        // القائمة (view=list): جدولٌ حقيقيّ عبر x-table — لا كروت الشبكة
+        $list = $this->actingAs($admin)->get(route('admin.media.index', ['view' => 'list']));
+        $list->assertOk();
+        $list->assertSee('<table', false);
+        $list->assertDontSee('grid grid-cols-2 md:grid-cols-4', false);
+
+        // ونفس العنصر يظهر في الحالتين — التبديل عرضٌ لا فلترة
+        $grid->assertSee('ملفّ التبديل.txt', false);
+        $list->assertSee('ملفّ التبديل.txt', false);
+    }
+
+    /**
+     * ⭐ مكتبة الوسائط: فلترا **التاريخ** و**الحجم** يُرشِّحان النتائج فعليًّا —
+     * لا حقلَي فورمٍ بلا أثر على `MediaLibrary::search()` (12.4-د).
+     */
+    public function test_media_date_and_size_filters_actually_narrow_the_results(): void
+    {
+        $admin = $this->admin();
+
+        $old = MediaItem::create([
+            'disk' => 'public', 'path' => 'media/old.bin', 'name' => 'قديم_كبير.bin',
+            'mime' => 'application/octet-stream', 'size' => 3000 * 1024, 'hash' => 'hash-old-big',
+        ]);
+        DB::table('media_items')->where('id', $old->id)->update(['created_at' => now()->subDays(30)]);
+
+        $recentBig = MediaItem::create([
+            'disk' => 'public', 'path' => 'media/recent-big.bin', 'name' => 'حديث_كبير.bin',
+            'mime' => 'application/octet-stream', 'size' => 3000 * 1024, 'hash' => 'hash-recent-big',
+        ]);
+        DB::table('media_items')->where('id', $recentBig->id)->update(['created_at' => now()->subDays(1)]);
+
+        $recentSmall = MediaItem::create([
+            'disk' => 'public', 'path' => 'media/recent-small.bin', 'name' => 'حديث_صغير.bin',
+            'mime' => 'application/octet-stream', 'size' => 50 * 1024, 'hash' => 'hash-recent-small',
+        ]);
+        DB::table('media_items')->where('id', $recentSmall->id)->update(['created_at' => now()->subDays(1)]);
+
+        // فلترا التاريخ (آخر 5 أيّام) والحجم (١٠٠٠ ك.ب فأكثر) معًا — ينجو ملفّ واحد فقط
+        $response = $this->actingAs($admin)->get(route('admin.media.index', [
+            'date_from' => now()->subDays(5)->format('Y-m-d'),
+            'date_to' => now()->format('Y-m-d'),
+            'size_min' => 1000,
+        ]));
+
+        $response->assertOk();
+        $response->assertSee('حديث_كبير.bin', false);
+        $response->assertDontSee('حديث_صغير.bin', false);
+        $response->assertDontSee('قديم_كبير.bin', false);
+
+        // والفلترة نفسها على مستوى الخدمة — تأكيدًا أنّها ليست زخرفةً في القالب وحده
+        $library = app(MediaLibrary::class);
+
+        $byDateOnly = $library->search(['date_from' => now()->subDays(5)->format('Y-m-d')])->pluck('id')->all();
+        $this->assertContains($recentBig->id, $byDateOnly);
+        $this->assertContains($recentSmall->id, $byDateOnly);
+        $this->assertNotContains($old->id, $byDateOnly);
+
+        $bySizeOnly = $library->search(['size_max' => 100])->pluck('id')->all();
+        $this->assertContains($recentSmall->id, $bySizeOnly);
+        $this->assertNotContains($recentBig->id, $bySizeOnly);
+        $this->assertNotContains($old->id, $bySizeOnly);
+    }
+
     /** الشاشات الرئيسيّة تفتح لمن يملك الصلاحيّة، وتُمنَع عمّن لا يملكها (12.2.1). */
     public function test_main_screens_require_permission(): void
     {

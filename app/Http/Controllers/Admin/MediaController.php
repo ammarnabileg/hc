@@ -133,6 +133,11 @@ class MediaController extends Controller
             'folder' => $request->string('folder')->toString(),
             'tag' => $request->string('tag')->toString(),
             'unused' => $request->boolean('unused'),
+            // فلترا التاريخ والحجم (12.4-د): تاريخ الرفع + حجم الملفّ بالكيلوبايت
+            'date_from' => $request->string('date_from')->toString(),
+            'date_to' => $request->string('date_to')->toString(),
+            'size_min' => $request->string('size_min')->toString(),
+            'size_max' => $request->string('size_max')->toString(),
         ];
     }
 

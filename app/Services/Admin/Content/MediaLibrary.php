@@ -94,7 +94,7 @@ class MediaLibrary
     }
 
     /**
-     * قائمة المكتبة: بحث بالاسم + فلاتر النوع/المجلّد/الوسم/«غير مستخدَم» (24.1).
+     * قائمة المكتبة: بحث بالاسم + فلاتر النوع/المجلّد/الوسم/«غير مستخدَم»/التاريخ/الحجم (24.1 · 12.4-د).
      *
      * @param  array<string, mixed>  $filters
      */
@@ -125,6 +125,33 @@ class MediaLibrary
         if (! empty($filters['unused'])) {
             $used = $this->usedIds();
             $query->whereNotIn('id', $used->isEmpty() ? [0] : $used->all());
+        }
+
+        // فلتر التاريخ: تاريخ الرفع (created_at) — طرفٌ واحد أو الاثنان معًا (12.4-د)
+        $dateFrom = trim((string) ($filters['date_from'] ?? ''));
+        $dateTo = trim((string) ($filters['date_to'] ?? ''));
+
+        if ($dateFrom !== '' && $dateTo !== '') {
+            $query->whereBetween('created_at', [
+                $dateFrom.' 00:00:00',
+                $dateTo.' 23:59:59',
+            ]);
+        } elseif ($dateFrom !== '') {
+            $query->where('created_at', '>=', $dateFrom.' 00:00:00');
+        } elseif ($dateTo !== '') {
+            $query->where('created_at', '<=', $dateTo.' 23:59:59');
+        }
+
+        // فلتر الحجم: القيم المُدخَلة بالكيلوبايت، والعمود مخزَّن بالبايت
+        $sizeMin = trim((string) ($filters['size_min'] ?? ''));
+        $sizeMax = trim((string) ($filters['size_max'] ?? ''));
+
+        if ($sizeMin !== '' && $sizeMax !== '') {
+            $query->whereBetween('size', [((int) $sizeMin) * 1024, ((int) $sizeMax) * 1024]);
+        } elseif ($sizeMin !== '') {
+            $query->where('size', '>=', ((int) $sizeMin) * 1024);
+        } elseif ($sizeMax !== '') {
+            $query->where('size', '<=', ((int) $sizeMax) * 1024);
         }
 
         return $query->paginate((int) setting('media.grid.per_page', 24))->withQueryString();

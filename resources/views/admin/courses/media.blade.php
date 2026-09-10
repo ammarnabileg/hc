@@ -62,11 +62,102 @@
             <label class="flex items-center gap-2 text-sm mt-6">
                 <input type="checkbox" name="unused" value="1" @checked($filters['unused'])> {{ setting('admin.courses.media.ghyr_mstkhdm_fqt', 'غير مستخدَم فقط') }}
             </label>
+            <label class="block">
+                <span class="block text-sm mb-1">{{ setting('admin.courses.media.mn_tarykh', 'من تاريخ') }}</span>
+                <input type="date" name="date_from" value="{{ $filters['date_from'] }}"
+                       class="rounded-xl px-3 py-2 text-sm"
+                       style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
+            </label>
+            <label class="block">
+                <span class="block text-sm mb-1">{{ setting('admin.courses.media.ila_tarykh', 'إلى تاريخ') }}</span>
+                <input type="date" name="date_to" value="{{ $filters['date_to'] }}"
+                       class="rounded-xl px-3 py-2 text-sm"
+                       style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
+            </label>
+            <label class="block">
+                <span class="block text-sm mb-1">{{ setting('admin.courses.media.asghr_hjm_k_b', 'أصغر حجم (ك.ب)') }}</span>
+                <input type="number" min="0" name="size_min" value="{{ $filters['size_min'] }}"
+                       class="w-24 rounded-xl px-3 py-2 text-sm"
+                       style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
+            </label>
+            <label class="block">
+                <span class="block text-sm mb-1">{{ setting('admin.courses.media.akbr_hjm_k_b', 'أكبر حجم (ك.ب)') }}</span>
+                <input type="number" min="0" name="size_max" value="{{ $filters['size_max'] }}"
+                       class="w-24 rounded-xl px-3 py-2 text-sm"
+                       style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
+            </label>
         </x-slot:advanced>
     </x-filters>
 
+    {{--
+        ⭐ عرض شبكة/قائمة (تبديل) (12.4-د) — كان `$view` يُمرَّر من المتحكّم بلا
+        زرّ تبديلٍ ولا فرعٍ يستهلكه، فالشبكة كانت العرض الوحيد مهما كبرت
+        المكتبة. النمط مطابقٌ لـ admin/events/index.blade.php (12.11).
+    --}}
+    @php
+        $mediaViewQuery = array_filter([
+            'q' => $filters['q'],
+            'kind' => $filters['kind'],
+            'folder' => $filters['folder'],
+            'tag' => $filters['tag'],
+            'unused' => $filters['unused'] ? 1 : null,
+            'date_from' => $filters['date_from'],
+            'date_to' => $filters['date_to'],
+            'size_min' => $filters['size_min'],
+            'size_max' => $filters['size_max'],
+        ]);
+    @endphp
+    <div class="flex items-center gap-2 mb-4">
+        <a href="{{ route('admin.media.index', $mediaViewQuery + ['view' => 'grid']) }}"
+           class="rounded-xl px-4 py-2 text-sm font-semibold"
+           style="background: {{ $view === 'grid' ? 'var(--color-brand-500)' : 'var(--surface-raised)' }}; color: {{ $view === 'grid' ? '#04201c' : 'var(--text)' }}">{{ setting('admin.courses.media.shbka', 'شبكة') }}</a>
+        <a href="{{ route('admin.media.index', $mediaViewQuery + ['view' => 'list']) }}"
+           class="rounded-xl px-4 py-2 text-sm font-semibold"
+           style="background: {{ $view === 'list' ? 'var(--color-brand-500)' : 'var(--surface-raised)' }}; color: {{ $view === 'list' ? '#04201c' : 'var(--text)' }}">{{ setting('admin.courses.media.qaema', 'قائمة') }}</a>
+    </div>
+
     @if ($items->isEmpty())
         <x-empty :message="setting('admin.courses.media.almktba_fadya_arfa_awl_mlf', 'المكتبة فاضية — ارفع أوّل ملفّ.')" />
+    @elseif ($view === 'list')
+        <x-table :label="setting('admin.courses.media.mktba_alwsayt', 'مكتبة الوسائط')">
+            <thead>
+                <tr class="text-right text-xs" style="color: var(--text-muted)">
+                    <th class="p-2">{{ setting('admin.courses.media.msghra', 'مصغّرة') }}</th>
+                    <th class="p-2">{{ setting('admin.courses.media.alasm', 'الاسم') }}</th>
+                    <th class="p-2">{{ setting('admin.courses.media.alnwa', 'النوع') }}</th>
+                    <th class="p-2">{{ setting('admin.courses.media.almjld', 'المجلّد') }}</th>
+                    <th class="p-2">{{ setting('admin.courses.media.alhjm', 'الحجم') }}</th>
+                    <th class="p-2">{{ setting('admin.courses.media.add_alastkhdamat', 'عدد الاستخدامات') }}</th>
+                    <th class="p-2">{{ setting('admin.courses.media.ijraat', 'إجراءات') }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach ($items as $item)
+                    <tr style="border-top: 1px solid var(--border)">
+                        <td class="p-2">
+                            @if (str_starts_with((string) $item->mime, 'image/'))
+                                <img src="{{ \Illuminate\Support\Facades\Storage::disk($item->disk ?: 'public')->url($item->path) }}"
+                                     alt="{{ $item->name }}" loading="lazy"
+                                     class="w-10 h-10 object-cover rounded-lg">
+                            @else
+                                <div class="w-10 h-10 rounded-lg flex items-center justify-center"
+                                     style="background: var(--surface-sunken)" aria-hidden="true"><x-icon name="document" size="16" /></div>
+                            @endif
+                        </td>
+                        <td class="p-2 text-sm font-semibold truncate max-w-[16rem]" title="{{ $item->name }}">{{ $item->name }}</td>
+                        <td class="p-2 text-xs" style="color: var(--text-muted)">{{ $item->mime }}</td>
+                        <td class="p-2 text-xs" style="color: var(--text-muted)">{{ $item->folder ?: '—' }}</td>
+                        <td class="p-2 text-xs" style="color: var(--text-muted)">{{ $item->size ? round($item->size / 1024).setting('admin.courses.media.k_b', ' ك.ب') : '—' }}</td>
+                        <td class="p-2 text-xs" style="color: var(--text-muted)">{{ $usage[$item->id] ?? 0 }}</td>
+                        <td class="p-2">
+                            @include('admin.courses.partials.media-item-actions', ['item' => $item, 'usage' => $usage])
+                        </td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </x-table>
+
+        <div class="mt-4">{{ $items->links() }}</div>
     @else
         <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
             @foreach ($items as $item)
@@ -86,41 +177,7 @@
                         {!! strtr(setting('admin.courses.media.mstkhdm_fy_v1_mkan', '· مستخدَم في :v1 مكان'), [':v1' => e($usage[$item->id] ?? 0)]) !!}
                     </div>
 
-                    <details class="mt-2">
-                        <summary class="text-xs cursor-pointer" style="color: var(--text-muted)">{{ setting('admin.courses.media.ijraat', 'إجراءات') }}</summary>
-                        <div class="mt-2 space-y-2">
-                            <input type="text" readonly value="{{ $item->path }}"
-                                   class="w-full rounded-lg px-2 py-1 text-xs" data-copy
-                                   style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
-
-                            @can('media_library.edit')
-                                <form method="post" action="{{ route('admin.media.update', $item) }}" class="space-y-2">
-                                    @csrf @method('put')
-                                    <input type="text" name="name" value="{{ $item->name }}"
-                                           class="w-full rounded-lg px-2 py-1 text-xs"
-                                           style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
-                                    <input type="text" name="tags" value="{{ implode(',', (array) $item->tags) }}"
-                                           placeholder="{{ setting('admin.courses.media.wswm_mfswla_bfasla', 'وسوم مفصولة بفاصلة') }}" class="w-full rounded-lg px-2 py-1 text-xs"
-                                           style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
-                                    <input type="text" name="folder" value="{{ $item->folder }}" placeholder="{{ setting('admin.courses.media.mjld', 'مجلّد') }}"
-                                           class="w-full rounded-lg px-2 py-1 text-xs"
-                                           style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
-                                    <button class="text-xs underline">{{ setting('admin.courses.media.hfz', 'حفظ') }}</button>
-                                </form>
-                            @endcan
-
-                            @can('media_library.delete')
-                                <form method="post" action="{{ route('admin.media.destroy', $item) }}"
-                                      onsubmit="return confirm('{{ ($usage[$item->id] ?? 0) > 0 ? setting('media.delete.in_use_warning', 'الملفّ ده مستخدَم في أماكن تانية — متأكّد؟') : setting('admin.courses.media.nshyl_almlf', 'نشيل الملفّ؟') }}')">
-                                    @csrf @method('delete')
-                                    @if (($usage[$item->id] ?? 0) > 0)
-                                        <input type="hidden" name="force" value="1">
-                                    @endif
-                                    <button class="text-xs underline" style="color: var(--color-state-danger)">{{ setting('admin.courses.media.hdhf', 'حذف') }}</button>
-                                </form>
-                            @endcan
-                        </div>
-                    </details>
+                    @include('admin.courses.partials.media-item-actions', ['item' => $item, 'usage' => $usage])
                 </div>
             @endforeach
         </div>
