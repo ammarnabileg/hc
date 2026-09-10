@@ -147,6 +147,30 @@
             </section>
         @endif
 
+        {{--
+          ⭐ الإفادة (9.1): «خبراتي = الـCV + الإفادة إن وُجدت» (10.0-أ، قاعدة
+          نهائيّة ✅) — بنفس حراسة الرؤية أعلاه ($canSee)، وتظهر فقط لو صدرت
+          فعلًا (موافَق عليها/منشورة)، والرابط العامّ فقط لو فعّل صاحبها النشر.
+        --}}
+        @if ($experience['attestation'])
+            <section class="card p-4">
+                <div class="flex items-center justify-between gap-2 mb-2">
+                    <h2 class="font-bold text-sm">{{ setting('account.profile.experience.attestation_title', 'الإفادة من المنصّة') }}</h2>
+                    <x-state-badge :state="$experience['attestation_meta']['state']" :label="$experience['attestation_meta']['label']" />
+                </div>
+
+                @if ($experience['attestation']->body)
+                    <p class="text-sm leading-7" style="color: var(--text-muted)">{{ $experience['attestation']->body }}</p>
+                @endif
+
+                @if ($experience['attestation_public_url'])
+                    <a href="{{ $experience['attestation_public_url'] }}" target="_blank" rel="noopener"
+                       class="underline text-xs mt-2 inline-block"
+                       style="color: var(--color-brand-500)">{{ setting('account.profile.experience.attestation_link_label', 'شوف الإفادة العامّة') }}</a>
+                @endif
+            </section>
+        @endif
+
         <p class="text-xs" style="color: var(--text-muted)">
             {{ setting('cv.completion.label', 'اكتمال السيرة') }} {{ $experience['cv']->completion_percent }}%
         </p>

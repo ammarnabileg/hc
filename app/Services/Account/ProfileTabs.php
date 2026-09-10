@@ -2,6 +2,7 @@
 
 namespace App\Services\Account;
 
+use App\Models\Attestation;
 use App\Models\BadgeUser;
 use App\Models\Certificate;
 use App\Models\Cv;
@@ -15,24 +16,27 @@ use App\Services\Gamification\LeaderboardService;
 use App\Services\Gamification\LevelResolver;
 use App\Services\Gamification\StreakService;
 use App\Services\Gamification\TicketsAccount;
+use App\Services\Library\AttestationBuilder;
 use App\Services\Library\CvBuilder;
 use Illuminate\Support\Carbon;
 
 /**
  * بيانات تابات البروفايل (الدستور 10 · 10.0 · 24.5).
  *
- * الترتيب النهائيّ: نظرة عامّة · الإنجازات · الشهادات · خبراتي —
- * **ثمّ تابات التطوّع** التي يحقنها مجالُ التطوّع في `volunteer_profile_tabs`.
- * وكلّ تاب يُحمَّل عند فتحه فقط (تحميل كسول — 2.15-د).
+ * الترتيب النهائيّ (10.0-د — قاعدة نهائيّة ✅): نظرة عامّة · الإنجازات ·
+ * الشهادات · خبراتي — **ثمّ تابات التطوّع** التي يحقنها مجالُ التطوّع في
+ * `volunteer_profile_tabs`. وكلّ تاب يُحمَّل عند فتحه فقط (تحميل كسول — 2.15-د).
  */
 class ProfileTabs
 {
     /**
-     * ⭐ تاب «تفاصيل» ليس زيادةً على الدستور بل **حلُّه**: 10.0-أ يطلب سبعة كروت
-     * KPI، و2.15-أ-3 يحدّ الشاشة بأربعة — والنصّ نفسه يحسم التعارض: «الأربعة
-     * الأهمّ ظاهرة والباقي في تاب تفاصيل» — لا حذف الثلاثة الباقية.
+     * ⭐ تابات البروفايل الأربعة بحسب 10.0-د (قاعدة نهائيّة ✅) — بلا تاب خامس.
+     * كان هنا تاب «تفاصيل» مستحدَث يحمل ثلاثة من كروت الـKPI السبعة التي
+     * ينصّ 10.0-أ على ظهورها كلّها في «نظرة عامّة»؛ وحين يتعارض بندٌ خاصّ
+     * بهذه الشاشة (10.0-أ) مع قاعدةٍ عامّة (2.15-أ-3: أربعة كروت كحدٍّ أقصى)
+     * يُقدَّم الخاصّ الأحدث هنا وهنا فقط — لا حذف التاب الزائد نفسه.
      */
-    public const KEYS = ['overview', 'details', 'achievements', 'certificates', 'experience'];
+    public const KEYS = ['overview', 'achievements', 'certificates', 'experience'];
 
     public function __construct(
         private readonly ProfileVisibility $visibility,
@@ -44,6 +48,7 @@ class ProfileTabs
         private readonly TicketsAccount $tickets,
         private readonly StreakService $streaks,
         private readonly DashboardService $dashboard,
+        private readonly AttestationBuilder $attestations,
     ) {}
 
     /** @return array<int, array{key:string,label:string}> */
@@ -51,7 +56,6 @@ class ProfileTabs
     {
         return [
             ['key' => 'overview', 'label' => (string) setting('account.profile.tab.overview_label', 'نظرة عامّة')],
-            ['key' => 'details', 'label' => (string) setting('account.profile.tab.details_label', 'تفاصيل')],
             ['key' => 'achievements', 'label' => (string) setting('account.profile.tab.achievements_label', 'الإنجازات')],
             ['key' => 'certificates', 'label' => (string) setting('account.profile.tab.certificates_label', 'الشهادات')],
             ['key' => 'experience', 'label' => (string) setting('account.profile.tab.experience_label', 'خبراتي')],
@@ -100,10 +104,11 @@ class ProfileTabs
     }
 
     /**
-     * الكروت السبعة التي يطلبها 10.0-أ — **الأربعة الأهمّ** منها تظهر في
-     * «نظرة عامّة» والباقي في تاب «تفاصيل» (2.15-أ-3).
+     * الكروت السبعة التي يطلبها 10.0-أ (قاعدة نهائيّة ✅) — **كلّها** في تاب
+     * «نظرة عامّة». وقاعدة 2.15-أ-3 العامّة («أربعة كروت كحدٍّ أقصى») لا تُطبَّق
+     * هنا: 10.0 بندٌ خاصّ بهذه الشاشة تحديدًا ويُقدَّم على القاعدة العامّة.
      *
-     * @return array<int, array{key:string,label:string,value:mixed,icon:string,primary:bool}>
+     * @return array<int, array{key:string,label:string,value:mixed,icon:string}>
      */
     public function kpis(User $owner): array
     {
@@ -131,16 +136,12 @@ class ProfileTabs
                 'value' => $ambassador ?: (string) setting('account.profile.kpi.no_ambassador', 'لسّه')],
         ];
 
-        $primary = (int) setting('ux.kpi.max_cards', 4);
-
         return array_map(
-            fn (array $card, int $i) => [
+            fn (array $card) => [
                 ...$card,
                 'label' => (string) setting("account.profile.kpi.{$card['key']}_label", $card['label']),
-                'primary' => $i < $primary,
             ],
             $cards,
-            array_keys($cards),
         );
     }
 
@@ -222,7 +223,8 @@ class ProfileTabs
     }
 
     /**
-     * «خبراتي» = الـCV معروضًا (قسم 9).
+     * «خبراتي» = الـCV معروضًا (قسم 9) + **الإفادة** (9.1) إن وُجدت (10.0-أ،
+     * قاعدة نهائيّة ✅).
      *
      * والبيانات تُسلَّم **بمفاتيح المخزن نفسها** (`profile.summary` · `experience`
      * · `skills` نصًّا) لا بمفاتيح مخترَعة — فأيّ اختلاف يُسقط القسم بصمت.
@@ -232,11 +234,24 @@ class ProfileTabs
         $cv = Cv::where('user_id', $owner->id)->first();
         $data = is_array($cv?->data) ? $cv->data : [];
 
+        // ⭐ آخر إفادة صادرة (موافَق عليها/منشورة) — «إن وُجدت» تحديدًا لا كلّ الطلبات (9.1 · 10.0-أ)
+        $attestation = Attestation::query()
+            ->where('user_id', $owner->id)
+            ->whereIn('status', ['approved', 'published'])
+            ->latest()
+            ->first();
+
         return [
             'cv' => $cv,
             'data' => $data,
             // الربط التلقائيّ بالمنصّة: التدريبات المكتملة والشهادات (9)
             'pulled' => $cv ? $this->cv->pulled($owner, $data) : ['certificates' => collect(), 'trainings' => collect()],
+            'attestation' => $attestation,
+            'attestation_meta' => $attestation ? $this->attestations->statusMeta($attestation->status) : null,
+            // رابط الإفادة العامّة — يظهر فقط بموافقة صاحبها الصريحة على الـCV (10.0-ج)
+            'attestation_public_url' => ($cv && $cv->attestation_is_public && $cv->attestation_slug)
+                ? route('attestations.public', $cv->attestation_slug)
+                : null,
         ];
     }
 }

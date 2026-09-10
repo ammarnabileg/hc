@@ -74,8 +74,6 @@ class ProfileController extends Controller
 
         // تحميل كسول: التاب لا يُحمَّل إلّا عند فتحه (2.15-د · 2.7)
         $payload = match ($tab) {
-            // تاب «تفاصيل»: بقيّة كروت 10.0-أ التي لا تسعها الأربعة (2.15-أ-3)
-            'details' => ['overview' => $this->tabs->overview($owner, $viewer, $level)],
             'achievements' => ['achievements' => $this->tabs->achievements($owner)],
             'certificates' => ['certificates' => $this->tabs->certificates($owner)],
             'experience' => ['experience' => $this->tabs->experience($owner)],

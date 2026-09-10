@@ -441,6 +441,8 @@ class SettingSeeder extends Seeder
             ['account.profile.experience.hidden_message', 'account', 'رسالة إخفاء خبراتي', 'text', 'الخبرات مش متاحة على البروفايل ده.'],
             ['account.profile.experience.empty_message', 'account', 'رسالة لا سيرة ذاتيّة', 'text', 'لسّه مفيش سيرة ذاتيّة هنا.'],
             ['account.profile.experience.empty_action', 'account', 'زرّ بدء السيرة', 'string', 'ابدأ سيرتك'],
+            ['account.profile.experience.attestation_title', 'account', 'عنوان بطاقة الإفادة في خبراتي', 'string', 'الإفادة من المنصّة'],
+            ['account.profile.experience.attestation_link_label', 'account', 'رابط الإفادة العامّة في خبراتي', 'string', 'شوف الإفادة العامّة'],
             ['leaderboard.profile_range_days', 'leaderboard', 'مدى ترتيب الليدربورد على البروفايل (أيّام)', 'number', '30'],
             ['cv.public.empty_message', 'cv', 'رسالة السيرة العامّة الفارغة', 'text', 'السيرة لسّه فاضية — صاحبها بيجهّزها.'],
             ['account.profile.header.online_label', 'account', 'تسمية «نشط دلوقتي»', 'string', 'نشط دلوقتي'],

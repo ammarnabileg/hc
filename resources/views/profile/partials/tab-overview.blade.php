@@ -1,18 +1,21 @@
 {{--
-  10.0-أ يطلب **سبعة** كروت KPI، و2.15-أ-3 يحدّ الشاشة بـ**أربعة**.
-  والحلّ الذي ينصّ عليه 2.15-أ-3 نفسه: الأربعة الأهمّ هنا، والباقي في تاب
-  «تفاصيل» — لا حذفها.
+  10.0-أ (قاعدة نهائيّة ✅) يطلب **سبعة** كروت KPI كاملةً في «نظرة عامّة».
+  وقاعدة 2.15-أ-3 العامّة («أربعة كحدٍّ أقصى») لا تُطبَّق هنا: بندٌ خاصّ بهذه
+  الشاشة يُقدَّم عليها. والشبكة عمودان على الموبايل (2.15-ج: صفّ قابل
+  للتمرير الأفقيّ أو شبكة 2×2 — لا أربعة مضغوطة) وأربعة من `md` فأعلى.
 --}}
 <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
-    @foreach (collect($overview['kpis'])->where('primary', true) as $card)
+    @foreach ($overview['kpis'] as $card)
         <x-kpi :label="$card['label']" :value="$card['value']" :icon="$card['icon']" />
     @endforeach
 </div>
 
-<p class="text-xs mb-4" style="color: var(--text-muted)">
-    <a href="{{ $isOwner ? route('profile.me', ['tab' => 'details']) : route('u.profile', ['code' => $owner->code, 'tab' => 'details']) }}"
-       class="underline" style="color: var(--color-brand-500)">{{ setting('account.profile.kpi.more_link', 'باقي أرقامك في تاب «تفاصيل»') }}</a>
-</p>
+<section class="card p-4 mb-4">
+    <h2 class="font-bold text-sm mb-3">{{ setting('account.profile.details.badges_title', 'الشارات') }}</h2>
+    <p class="text-sm" style="color: var(--text-muted)">
+        {{ $overview['badges_count'] }} {{ setting('account.profile.details.badges_suffix', 'شارة مفتوحة') }}
+    </p>
+</section>
 
 {{-- ⭐ تقدّم التدريبات والمسارات: بطاقة لكلّ تدريبٍ أخذه ببار تقدّم ونسبة (10.0-أ) --}}
 @if (($overview['progress'] ?? collect())->isNotEmpty())
