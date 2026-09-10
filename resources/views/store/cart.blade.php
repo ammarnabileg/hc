@@ -43,24 +43,38 @@
                 {{-- أسطر الطلب --}}
                 <div class="card overflow-hidden">
                     @foreach ($quote['lines'] as $line)
-                        <div class="flex items-center justify-between gap-3 p-4" style="border-bottom: 1px solid var(--border)">
-                            <div class="min-w-0">
-                                <p class="text-sm font-semibold truncate">{{ $line['title'] }}</p>
-                                @if ($line['is_order_bump'])
-                                    <p class="text-xs mt-0.5" style="color: var(--text-muted)">{{ setting('store.cart.bump_line_label') }}</p>
-                                @endif
+                        <div class="p-4" style="border-bottom: 1px solid var(--border)">
+                            <div class="flex items-center justify-between gap-3">
+                                <div class="min-w-0">
+                                    <p class="text-sm font-semibold truncate">{{ $line['title'] }}</p>
+                                    @if ($line['is_order_bump'])
+                                        <p class="text-xs mt-0.5" style="color: var(--text-muted)">{{ setting('store.cart.bump_line_label') }}</p>
+                                    @endif
+                                </div>
+
+                                <div class="flex items-center gap-3 shrink-0">
+                                    <span class="text-sm font-semibold tabular-nums">{{ Coins::label($line['price'], $currency) }}</span>
+
+                                    @unless ($line['is_order_bump'])
+                                        <button type="submit" form="cart-remove-{{ $loop->index }}"
+                                                class="text-xs hover:underline" style="color: var(--text-muted)">
+                                            {{ setting('store.cart.remove_label') }}
+                                        </button>
+                                    @endunless
+                                </div>
                             </div>
 
-                            <div class="flex items-center gap-3 shrink-0">
-                                <span class="text-sm font-semibold tabular-nums">{{ Coins::label($line['price'], $currency) }}</span>
-
-                                @unless ($line['is_order_bump'])
-                                    <button type="submit" form="cart-remove-{{ $loop->index }}"
-                                            class="text-xs hover:underline" style="color: var(--text-muted)">
-                                        {{ setting('store.cart.remove_label') }}
-                                    </button>
-                                @endunless
-                            </div>
+                            {{--
+                                التدريب بنافذةٍ يوميّة (16) يظهر مقفولًا هنا ولو بقي **قابلًا للشراء** —
+                                النافذة تؤثّر على الوصول لا الشراء (isSellable/isAvailable في StoreCatalog).
+                                نفس النمط البصريّ والنصّ اللذين تنتجهما availability-notice.blade.php.
+                            --}}
+                            @if (($line['availability']['open'] ?? true) === false)
+                                <div class="flex items-start gap-2 flex-wrap mt-2">
+                                    <x-state-badge :state="$line['availability']['state']" :label="setting('learning.lock.badge')" />
+                                    <p class="text-xs flex-1 min-w-48" style="color: var(--text-muted)">{{ $line['availability']['reason'] }}</p>
+                                </div>
+                            @endif
                         </div>
                     @endforeach
                 </div>

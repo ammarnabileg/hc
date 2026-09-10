@@ -7,6 +7,7 @@ use App\Models\Order;
 use App\Models\OrderBumpOffer;
 use App\Models\OrderItem;
 use App\Models\TopupOffer;
+use Illuminate\Support\Carbon;
 
 /**
  * السلّة الاختياريّة وصفحة مراجعة الطلب (17) + Order-bump اثنان (17)
@@ -228,5 +229,82 @@ class CartTest extends StoreTestCase
         $this->actingAs($user)->postJson(route('store.quote'), [
             'type' => 'product', 'slug' => $product->slug,
         ])->assertOk()->assertJsonPath('suggestion', null);
+    }
+
+    // ------------------------------------------------------------ الإتاحة الزمنيّة (16)
+
+    /**
+     * تدريبٌ بنافذة يوميّة (مثل «نادي الفجر» 5→7 ص) خارج نافذته الآن يظهر في
+     * السلّة بشارة إغلاقٍ وسببها — بنفس آليّة `AvailabilityService` المستعملة
+     * في شاشات التعلّم، لا حسابًا موازيًا يمكن أن يختلف عنها.
+     */
+    public function test_a_course_outside_its_daily_window_shows_a_closed_badge_in_the_cart(): void
+    {
+        $this->setting('learning.lock.badge', 'مقفول');
+        $this->setting('learning.lock.outside_daily_reason', 'التدريب بيفتح يوميًّا من :from إلى :to بتوقيتك');
+        $this->setting('learning.lock.opens_at_prefix', 'يفتح');
+
+        $course = $this->course([
+            'slug' => 'nadi-al-fajr', 'name_ar' => 'نادي الفجر', 'price_coins' => 400,
+            'daily_open_at' => '05:00', 'daily_close_at' => '07:00',
+            // نشرٌ قديم صريح كي لا تتداخل «الجدولة» مع تثبيت الوقت في الاختبار
+            'published_at' => Carbon::parse('2020-01-01'),
+        ]);
+        $user = $this->trainee(1000);
+
+        $this->actingAs($user)->post(route('store.cart.add'), ['type' => 'course', 'slug' => $course->slug]);
+
+        // خارج نافذة 5→7 ص بتوقيت مصر (system.timezone الافتراضيّ) — نفس اللحظة
+        // المستعملة في AvailabilityTest لإثبات أنّ التدريب مقفول وقتها.
+        Carbon::setTestNow(Carbon::parse('2026-07-15 18:00:00', 'UTC'));
+
+        $this->actingAs($user)->get(route('store.cart'))
+            ->assertOk()
+            ->assertSee($course->name_ar)
+            ->assertSee('مقفول')
+            ->assertSee('05:00');
+
+        Carbon::setTestNow();
+    }
+
+    /** وداخل نافذته لا تظهر أيّ شارة إغلاق — العنصر متاحٌ فعلًا الآن */
+    public function test_a_course_inside_its_daily_window_shows_no_closed_badge(): void
+    {
+        $this->setting('learning.lock.badge', 'مقفول');
+
+        $course = $this->course([
+            'slug' => 'nadi-al-fajr', 'name_ar' => 'نادي الفجر', 'price_coins' => 400,
+            'daily_open_at' => '05:00', 'daily_close_at' => '07:00',
+            'published_at' => Carbon::parse('2020-01-01'),
+        ]);
+        $user = $this->trainee(1000);
+
+        $this->actingAs($user)->post(route('store.cart.add'), ['type' => 'course', 'slug' => $course->slug]);
+
+        // داخل نافذة 5→7 ص — نفس اللحظة التي يثبت AvailabilityTest أنّها مفتوحة
+        Carbon::setTestNow(Carbon::parse('2026-07-15 02:00:00', 'UTC'));
+
+        $this->actingAs($user)->get(route('store.cart'))
+            ->assertOk()
+            ->assertSee($course->name_ar)
+            ->assertDontSee('مقفول');
+
+        Carbon::setTestNow();
+    }
+
+    /** وتدريبٌ بلا نافذة يوميّة أصلًا (لا `daily_open_at` ولا `daily_close_at`) بلا شارة إطلاقًا */
+    public function test_a_course_without_a_daily_window_shows_no_closed_badge(): void
+    {
+        $this->setting('learning.lock.badge', 'مقفول');
+
+        $course = $this->course(['price_coins' => 400]);
+        $user = $this->trainee(1000);
+
+        $this->actingAs($user)->post(route('store.cart.add'), ['type' => 'course', 'slug' => $course->slug]);
+
+        $this->actingAs($user)->get(route('store.cart'))
+            ->assertOk()
+            ->assertSee($course->name_ar)
+            ->assertDontSee('مقفول');
     }
 }

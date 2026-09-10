@@ -2,7 +2,9 @@
 
 namespace App\Services\Store;
 
+use App\Models\Course;
 use App\Models\User;
+use App\Services\Learning\AvailabilityService;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 
@@ -39,6 +41,7 @@ class CartService
         private readonly StoreCatalog $catalog,
         private readonly PricingService $pricing,
         private readonly NearestTopupOffer $topups,
+        private readonly AvailabilityService $availability,
     ) {}
 
     // ------------------------------------------------------------ الحالة
@@ -201,6 +204,9 @@ class CartService
                 'title' => $item->name_ar,
                 'price' => $price,
                 'is_order_bump' => false,
+                // النافذة الزمنيّة تؤثّر على **الوصول** لا **إمكانيّة الشراء** (16) —
+                // فالسطر يبقى في السلّة ويُشترى، لكن يُعرَض بحالة إغلاقه الحاليّة.
+                'availability' => $this->courseAvailability($row['type'], $item, $user),
             ];
 
             foreach ($this->pricing->bumpOffers($user, $row['type'], $item) as $offer) {
@@ -218,12 +224,15 @@ class CartService
         ));
 
         foreach ($chosen as $offer) {
+            $bumpItem = $this->catalog->resolve($offer['type'], $offer['slug']);
+
             $lines[] = [
                 'type' => $offer['type'],
                 'slug' => $offer['slug'],
                 'title' => $offer['title'],
                 'price' => $offer['price'],
                 'is_order_bump' => true,
+                'availability' => $bumpItem ? $this->courseAvailability($offer['type'], $bumpItem, $user) : null,
             ];
             $listTotal += (float) $offer['list_price'];
         }
@@ -258,6 +267,25 @@ class CartService
             'sellable' => true,
             'suggestion' => $this->topups->forDeficit(round($total - $balance, 2), $currency),
         ];
+    }
+
+    /**
+     * إتاحة التدريب الزمنيّة لسطر السلّة (16) — نفس الآليّة المستعملة في شاشات
+     * التعلّم (`AvailabilityService::forCourse`)، فلا حساب ثانٍ للنافذة اليوميّة
+     * وفترات الإتاحة. `null` لغير التدريبات — لا معنى للنافذة الزمنيّة لمنتجٍ رقميّ.
+     *
+     * ⭐ `StoreCatalog::isAvailable()` تبقى بوّابة النشر/الحالة وحدها (سطر 71 هناك) —
+     * هذا الفحص لا يمنع الشراء، يُعلِم فقط: الوصول شيءٌ والشراء شيءٌ آخر.
+     *
+     * @return array{open:bool,state:string,reason:?string}|null
+     */
+    private function courseAvailability(string $type, Model $item, ?User $user): ?array
+    {
+        if ($type !== 'course' || ! $item instanceof Course) {
+            return null;
+        }
+
+        return $this->availability->forCourse($item, null, $user);
     }
 
     /** ما هو في السلّة أصلًا لا يُعرَض كـBump */
