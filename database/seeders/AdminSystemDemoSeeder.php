@@ -429,6 +429,7 @@ class AdminSystemDemoSeeder extends Seeder
             // ---------------- الإعلان المدفوع (21.3-و)
             ['ads.audience.max_rows', 'ads', 'أقصى صفوف في تصدير الشريحة', 'number', '50000', false],
             ['ads.consent.retention_days', 'ads', 'مدّة حفظ الموافقة (أيّام)', 'number', '180', false],
+            ['ads.exports.retention_days', 'ads', 'مدّة حفظ ملفّات تصدير الشرائح (أيّام)', 'number', '30', false],
         ];
 
         foreach ($rows as [$key, $group, $label, $type, $default, $ownerOnly]) {

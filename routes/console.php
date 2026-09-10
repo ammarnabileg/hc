@@ -5,6 +5,7 @@ use App\Services\Admin\AudienceSegments;
 use App\Services\Admin\Ops\BackupManager;
 use App\Services\Admin\Ops\OpsSettings;
 use Illuminate\Support\Facades\Schedule;
+use Illuminate\Support\Facades\Storage;
 
 /*
 |--------------------------------------------------------------------------
@@ -110,3 +111,21 @@ Schedule::command('reports:dispatch')->hourly()->withoutOverlapping();
 // مفروضٌ فعليًّا لا وصفًا — مسحة كلّ ساعة تكفي؛ الجدول يكبر بمعدّل الطلبات
 // الفعليّ لا بمعدّلٍ يستدعي أدقّ من ذلك.
 Schedule::command('api:prune-request-logs')->hourly()->withoutOverlapping();
+
+// تنظيف تصديرات شرائح الإعلان (21.3-و): ملفّات CSV يكتبها AdsController::export()
+// في exports/audiences/ بلا أيّ مدّة حفظٍ ولا محوٍ — فتتراكم إلى الأبد. مسحة كلّ
+// ساعة تحذف كلّ ملفٍّ أقدم من `ads.exports.retention_days` (افتراضيًّا 30 يومًا)
+// عبر طبقة التخزين نفسها المستعملة في الكتابة (`Storage::disk('local')`) — على
+// غرار `segments:refresh-dynamic` فوق. الملفّات عمليّاتيّة لا سجلّ موافقاتٍ
+// قانونيّ (فمدّتها أقصر من `ads.consent.retention_days`)، وسجلّ AdAudienceExport
+// في القاعدة يبقى كما هو — هذه المسحة تمحو الملفّ على القرص فقط.
+Schedule::call(function () {
+    $retentionDays = (int) setting('ads.exports.retention_days', 30);
+    $cutoff = now()->subDays($retentionDays)->timestamp;
+
+    foreach (Storage::disk('local')->files('exports/audiences') as $file) {
+        if (Storage::disk('local')->lastModified($file) < $cutoff) {
+            Storage::disk('local')->delete($file);
+        }
+    }
+})->hourly()->name('ads:prune-exports')->withoutOverlapping();

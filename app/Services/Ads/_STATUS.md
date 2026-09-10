@@ -44,10 +44,18 @@
   يُطلَق من `SettleGrowthOnLogin` أثناء **POST /register** الذي لا query له —
   فالحدث يُكتَب دائمًا بـ`utm_source = NULL`. مقيسٌ: الحدث الوحيد الذي حمل
   `utm_source=audit_ch2` هو `registration_started` وبـ`user_id = NULL`.
-- ⚠️ **تصديرات الشرائح تتراكم بلا مدّة حفظ ولا مسار محو.**
-  `storage/app/private/exports/audiences/` فيه **158 ملفّ CSV**، بلا إعداد
-  احتفاظ وبلا أمرٍ ينظّفها وبلا مسار تنزيلٍ يقرؤها — وحقّ السحب (21.3-د) لا
-  يمسّ ما خرج منها.
+- ✅ **مقفولة (2026-09-10) — تصديرات الشرائح كانت تتراكم بلا مدّة حفظ ولا مسار محو.**
+  `storage/app/private/exports/audiences/` كان فيه **33+ ملفّ CSV** بلا إعداد
+  احتفاظ وبلا أمرٍ ينظّفها. **الإصلاح:** إعداد `ads.exports.retention_days`
+  جديد (افتراضه 30 يومًا — عمليّاتيّ لا سجلّ موافقاتٍ قانونيّ كـ
+  `ads.consent.retention_days`) + مسحة `ads:prune-exports` الساعيّة في
+  `routes/console.php` (نمط `Schedule::call(...)->hourly()->withoutOverlapping()`
+  نفسه المتّبَع في `segments:refresh-dynamic`) تحذف عبر
+  `Storage::disk('local')` كلّ ملفّ أقدم من الحدّ. مسار التنزيل نفسه خارج
+  نطاق هذا الإصلاح — يبقى مفقودًا. **الدليل:**
+  `tests/Feature/Admin/System/AdsExportRetentionTest.php` — ملفّ أقدم من
+  الحدّ يُحذَف فعليًّا بعد تشغيل المسحة، وملفّ حديث (وملفّ ضمن حدٍّ أوسع
+  مضبوط) يبقيان.
 - ✅ **مقفولة (2026-09-09) — بصمة هاتفٍ فارغ كانت تُصدَّر.** في
   `AdsController::export()` كان السطر `hash('sha256', preg_replace('/\D+/', '',
   (string) $user->phone) ?: '')`: `preg_replace()` على هاتفٍ فارغ/فارغٍ يعيد
