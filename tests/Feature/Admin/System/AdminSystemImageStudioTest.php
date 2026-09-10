@@ -365,6 +365,92 @@ class AdminSystemImageStudioTest extends SystemTestCase
         ]);
     }
 
+    // ============================================== محرّر السحب-إفلات (12.14)
+    // الكانفس نفسه (pointerdown/move/up) جافاسكربت متصفّح لا يغطّيه PHPUnit،
+    // لكنّ ما يصل الخادم **بعد** السحب هو نفس حقول `layers[i][key]` المخفيّة
+    // التي كانت الشاشة القديمة ترسلها بالضبط (`syncHiddenInputs()` في
+    // edit.blade.php) — وهذا قابلٌ للتحقّق Feature تمامًا: نرسل موضعًا جديدًا
+    // كما يرسله الكانفس فعلًا ونتأكّد أنّه يصل `ImageTemplate::layers` ويُعاد
+    // رسمه بنفس البكسل.
+
+    /** ⭐ سحب طبقةٍ لموضعٍ جديد: X/Y الجديدان يصلان الخادم ويُخزَّنان فعليًّا */
+    public function test_dragging_a_layer_saves_its_new_pixel_position(): void
+    {
+        $admin = $this->admin(self::ADMIN);
+        $template = ImageTemplate::query()->firstOrFail();
+        $layers = $template->layers;
+
+        // طبقة الاسم (index 1) من بذرة العرض — نحرّكها كما يفعل pointermove فعليًّا
+        $this->assertSame('text', $layers[1]['type']);
+        $user = $this->makeUser('سلمى عبد الرحمن محمود');
+        $before = app(ImageRenderer::class)->draw($template, $user, ['short_name' => 'سلمى']);
+
+        $layers[1]['x'] = 733;
+        $layers[1]['y'] = 291;
+
+        $this->actingAs($admin)->put(route('admin.studio.update', $template), $this->payload($template, [
+            'layers' => $layers,
+        ]))->assertRedirect();
+
+        $template->refresh();
+        $this->assertSame(733, $template->layers[1]['x']);
+        $this->assertSame(291, $template->layers[1]['y']);
+
+        // والمعاينة تعيد رسمه فعليًّا بالمكان الجديد — بصمة مختلفة عن القديمة
+        $after = app(ImageRenderer::class)->draw($template, $user, ['short_name' => 'سلمى']);
+        $this->assertNotSame(md5($before), md5($after), 'الطبقة اتحرّكت في القاعدة لكنّ الرسم فضل بنفس الموضع القديم.');
+    }
+
+    /** ⭐ الحجم والخطّ واللون والمحاذاة لطبقة نصٍّ يُحفَظون بالمثل عبر نفس حقول layers[i][key] */
+    public function test_text_layer_size_color_and_alignment_are_saved(): void
+    {
+        $admin = $this->admin(self::ADMIN);
+        $template = ImageTemplate::query()->firstOrFail();
+        $layers = $template->layers;
+
+        $layers[1]['size'] = 71;
+        $layers[1]['color'] = '#112233';
+        $layers[1]['align'] = 'left';
+        $layers[1]['rotate'] = 15;
+
+        $this->actingAs($admin)->put(route('admin.studio.update', $template), $this->payload($template, [
+            'layers' => $layers,
+        ]))->assertRedirect();
+
+        $saved = $template->refresh()->layers[1];
+        $this->assertSame(71, $saved['size']);
+        $this->assertSame('#112233', $saved['color']);
+        $this->assertSame('left', $saved['align']);
+        $this->assertSame(15, $saved['rotate']);
+    }
+
+    /**
+     * ⚠️ Snap (شبكة المحاذاة) **تقريبٌ في الواجهة فقط**: التقريب للشبكة
+     * (`Math.round(fx / GRID) * GRID`) يحدث في `pointermove` بالمتصفّح قبل
+     * كتابة x/y في الطبقة أصلًا — والخادم (`TemplateLayers::sanitize`) لا
+     * يعرف عن Snap شيئًا: لا تقريب ولا حتى قراءة لإعداد `images.studio.grid_step`
+     * هناك. فموضعٌ **لا يقع على خطوط الشبكة إطلاقًا** يُقبَل ويُخزَّن بالحرف —
+     * وهذا إثباتٌ (لا افتراض) أنّ الخادم يثق بأيّ X/Y صحيح يصله، Snap أو بدونه.
+     */
+    public function test_server_stores_off_grid_pixel_positions_exactly_snap_is_client_side_only(): void
+    {
+        $admin = $this->admin(self::ADMIN);
+        $template = ImageTemplate::query()->firstOrFail();
+        $layers = $template->layers;
+
+        // شبكة 5% على عرض 1080 = خطوط كلّ 54px — 137 و 209 بعيدان عن أيّ خطّ شبكة عمدًا
+        $layers[1]['x'] = 137;
+        $layers[1]['y'] = 209;
+
+        $this->actingAs($admin)->put(route('admin.studio.update', $template), $this->payload($template, [
+            'layers' => $layers,
+        ]))->assertRedirect();
+
+        $saved = $template->refresh()->layers[1];
+        $this->assertSame(137, $saved['x']);
+        $this->assertSame(209, $saved['y']);
+    }
+
     // ------------------------------------------------------------------ أدوات
 
     /** فريم حقيقيّ على قرص `public` — بلون واحد ليُقاس بالبكسل لا بالظنّ */
