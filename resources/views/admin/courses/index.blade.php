@@ -63,9 +63,12 @@
     </x-filters>
 
     @if ($courses->isEmpty())
+        {{-- تمييز «مفيش بيانات أصلًا» عن «الفلتر الحاليّ ما طابقش حاجة» — فلا تُعرَض
+             رسالة «ابدأ بأوّل واحد» المضلّلة لمّا يكون السبب فلترًا نشطًا لا نقصًا فعليًّا. --}}
         <x-empty :message="setting('admin.courses.index.lsh_mfysh_tdrybat_abda_bawl_wahd', 'لسّه مفيش تدريبات — ابدأ بأوّل واحد.')"
                  :action="auth()->user()->can('courses.create') ? setting('admin.courses.index.tdryb_jdyd', 'تدريب جديد') : null"
-                 :href="route('admin.courses.create')" />
+                 :href="route('admin.courses.create')"
+                 :filtered="$filters['q'] !== '' || $filters['path'] !== 0 || $filters['status'] !== '' || $filters['pricing'] !== ''" />
     @else
         <form method="post" action="{{ route('admin.courses.bulk') }}" data-bulk-form>
             @csrf

@@ -355,6 +355,47 @@ class AdminContentTrainingTest extends AdminContentTestCase
         $this->assertStringContainsString('—', $row, 'المسار بلا غلافٍ يظهر له شرطة بدل الصورة');
     }
 
+    /**
+     * ⭐ الحالة الفارغة تميّز «مفيش بيانات أصلًا» عن «الفلتر ما طابقش حاجة» —
+     * بحثٌ بلا نتائج ما يقولش «ابدأ بأوّل واحد» رغم وجود تدريبات فعليّة.
+     */
+    public function test_a_search_with_no_matches_shows_a_filtered_empty_message_not_the_start_message(): void
+    {
+        $this->assertGreaterThan(0, Course::query()->count(), 'لازم يكون في تدريبات فعليّة قبل الاختبار');
+
+        $response = $this->actingAs($this->admin())
+            ->get(route('admin.courses.index', ['q' => 'zzzznotexist']))
+            ->assertOk();
+
+        $response->assertSee(
+            setting('ui.empty.filtered_message', 'مفيش نتائج تطابق البحث/الفلتر الحاليّ — جرّب فلترًا تانيًا.'),
+            false,
+        );
+        $response->assertDontSee(
+            setting('admin.courses.index.lsh_mfysh_tdrybat_abda_bawl_wahd', 'لسّه مفيش تدريبات — ابدأ بأوّل واحد.'),
+            false,
+        );
+    }
+
+    /** وشاشةٌ فارغةٌ فعليًّا (بلا فلتر) تفضل تعرض رسالة البداية الأصليّة زيّ ما كانت. */
+    public function test_an_actually_empty_screen_without_filters_keeps_the_original_start_message(): void
+    {
+        Course::query()->delete();
+
+        $response = $this->actingAs($this->admin())
+            ->get(route('admin.courses.index'))
+            ->assertOk();
+
+        $response->assertSee(
+            setting('admin.courses.index.lsh_mfysh_tdrybat_abda_bawl_wahd', 'لسّه مفيش تدريبات — ابدأ بأوّل واحد.'),
+            false,
+        );
+        $response->assertDontSee(
+            setting('ui.empty.filtered_message', 'مفيش نتائج تطابق البحث/الفلتر الحاليّ — جرّب فلترًا تانيًا.'),
+            false,
+        );
+    }
+
     /** يستخرج أوّل صفّ جدول (`<tr>…</tr>`) يحوي هذا النصّ — لعزل عمود صفٍّ بعينه عن باقي الصفحة. */
     private function firstTableRowContaining(string $html, string $needle): string
     {
