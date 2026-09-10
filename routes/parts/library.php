@@ -82,6 +82,11 @@ Route::middleware(['auth', 'admin.panel'])->prefix('admin')->name('admin.')->gro
     Route::middleware('permission:cv_templates.edit')
         ->put('/cv-templates/{template}', [CvTemplateAdminController::class, 'update'])->name('cv-templates.update');
 
+    // ⭐ المحرّر المرئيّ (Drag-drop) — الطبقة الزخرفيّة (المرحلة 1/2 · 12.7-ب)،
+    // بنفس صلاحيّة تعديل القالب — واجهة السحب-والإفلات نفسها مرحلةٌ لاحقة
+    Route::middleware('permission:cv_templates.edit')
+        ->put('/cv-templates/{template}/decor', [CvTemplateAdminController::class, 'updateDecor'])->name('cv-templates.decor.update');
+
     Route::middleware('permission:cv_templates.delete')
         ->delete('/cv-templates/{template}', [CvTemplateAdminController::class, 'destroy'])->name('cv-templates.destroy');
 

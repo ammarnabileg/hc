@@ -23,6 +23,10 @@
         * { box-sizing: border-box; }
         html, body { margin: 0; padding: 0; background: #e9edec; font-family: 'Cairo', system-ui, sans-serif; }
         .sheet {
+            /* position:relative دائمًا — لا بشرط العلامة المائيّة فقط — فهي المرساة
+               التي تُبنى عليها الطبقة الزخرفيّة (Drag-drop المرحلة 1 · 12.7-ب)
+               بـposition:absolute؛ راجع resources/views/cv/templates/partials/decor-layer.blade.php */
+            position: relative;
             inline-size: 210mm; min-block-size: 297mm; margin: 0 auto; background: #fff; color: #16241f;
             padding: 14mm 14mm 16mm; box-shadow: 0 2px 18px rgb(0 0 0 / .12);
         }
@@ -112,6 +116,7 @@
             'user' => $sheet['user'],
             'data' => $sheet['data'],
             'pulled' => $sheet['pulled'],
+            'decorLayers' => $sheet['decorLayers'] ?? [],
         ])
 
         @if ($watermark)

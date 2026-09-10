@@ -12,6 +12,9 @@
 @endphp
 
 <div class="sheet" style="padding: 0">
+    {{-- ⭐ الطبقة الزخرفيّة (Drag-drop المرحلة 1 · 12.7-ب) — فوق/خلف المحتوى بلا ربط بيانات --}}
+    @include('cv.templates.partials.decor-layer')
+
     <div style="display: flex; min-block-size: 297mm">
         <aside style="inline-size: 62mm; background: #05423a; color: #e8f5f2; padding: 12mm 8mm">
             @if ($photo)

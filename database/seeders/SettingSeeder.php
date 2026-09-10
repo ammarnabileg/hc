@@ -386,6 +386,9 @@ class SettingSeeder extends Seeder
             ['cv.template.admin.empty_message', 'cv', 'رسالة لا قوالب', 'text', 'مفيش قوالب لسّه — ابدأ بواحد.'],
             ['cv.template.admin.created_message', 'cv', 'رسالة إضافة قالب', 'string', 'اتضاف القالب ✓'],
             ['cv.template.admin.saved_message', 'cv', 'رسالة حفظ قالب', 'string', 'اتحفظ ✓'],
+            // 'cv.template.admin.decor_saved_message' و'cv.template.decor.max_layers'
+            // مزروعان في database/seeders/LibraryDemoSeeder.php::settings()
+            // (مسار الإنتاج عبر SettingDefinitionsSeeder) — لا مصدر ثانٍ هنا (2.13-د).
             ['cv.template.admin.deleted_message', 'cv', 'رسالة حذف قالب', 'string', 'اتشال القالب ✓'],
             ['cv.template.admin.archived_message', 'cv', 'رسالة إيقاف قالب مستعمَل', 'text', 'القالب مستعمَل في سِيَر قايمة — وقّفناه بدل ما نحذفه.'],
             ['cv.template.admin.ats_summary', 'cv', 'عنوان إعدادات مخرَج الـATS', 'string', 'تباعد وأحجام مخرَج الـATS'],

@@ -254,6 +254,9 @@ class LibraryDemoSeeder extends Seeder
             ['cv.template.selected_message', 'cv', 'رسالة تغيير القالب', 'string', 'اتغيّر القالب — شوف المعاينة.'],
             // زرّ «تحميل أيّ قالب» في شاشة إدارة قوالب الـCV (12.7-ب · cv_templates.export)
             ['cv.template.admin.download_label', 'cv', 'زرّ تحميل ملفّ القالب', 'string', 'تحميل'],
+            // ⭐ المحرّر المرئيّ (Drag-drop) — الطبقة الزخرفيّة (المرحلة 1/2 · 12.7-ب)
+            ['cv.template.admin.decor_saved_message', 'cv', 'رسالة حفظ الطبقة الزخرفيّة', 'string', 'اتحفظت الطبقة الزخرفيّة ✓'],
+            ['cv.template.decor.max_layers', 'cv', 'أقصى عدد طبقات زخرفيّة لكلّ قالب', 'number', '20'],
             ['cv.template.purchased_message', 'cv', 'رسالة نجاح الشراء', 'string', 'القالب بقى ملكك — استمتع.'],
             ['cv.template.insufficient_message', 'cv', 'رسالة نقص الرصيد', 'string', 'رصيد التذاكر لا يكفي — اكسب تذاكر أو اختر قالبًا آخر.'],
             ['cv.template.currency_missing_message', 'cv', 'رسالة محفظة غير مهيّأة', 'string', 'محفظة التذاكر غير مهيّأة — جرّب بعد قليل.'],

@@ -21,6 +21,8 @@ class CvTemplate extends Model
             'is_free' => 'boolean',
             'price_tickets' => 'decimal:2',
             'ats_options' => 'array',
+            // الطبقة الزخرفيّة (Drag-drop المرحلة 1 · 12.7-ب) — راجع CvTemplateDecor
+            'decor_layers' => 'array',
         ];
     }
 
@@ -58,5 +60,16 @@ class CvTemplate extends Model
             $this->getAttribute('price_tickets'),
             (float) setting('cv.template.default_price_tickets', 2),
         );
+    }
+
+    /**
+     * الطبقة الزخرفيّة (Drag-drop المرحلة 1 · 12.7-ب) — مُنقّاة عند الحفظ في
+     * `CvTemplateDecor::sanitize()` بالفعل، فتُقرَأ هنا كما هي بلا تنقيةٍ ثانية.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    public function decorLayers(): array
+    {
+        return (array) ($this->getAttribute('decor_layers') ?? []);
     }
 }

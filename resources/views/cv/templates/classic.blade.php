@@ -13,6 +13,9 @@
 @endphp
 
 <div class="sheet">
+    {{-- ⭐ الطبقة الزخرفيّة (Drag-drop المرحلة 1 · 12.7-ب) — فوق/خلف المحتوى بلا ربط بيانات --}}
+    @include('cv.templates.partials.decor-layer')
+
     <header @class(['with-photo' => (bool) $photo])>
         @if ($photo)
             <img class="cv-photo" src="{{ \Illuminate\Support\Facades\Storage::url($photo) }}" alt="">

@@ -264,6 +264,11 @@ class CvController extends Controller
             'data' => $data,
             'pulled' => $user->exists ? $this->builder->pulled($user, $data) : ['profile' => [], 'certificates' => collect()],
             'templateName' => $template?->name ?? (string) setting('cv.template.default_name', 'كلاسيك'),
+            // ⭐ الطبقة الزخرفيّة (Drag-drop المرحلة 1 · 12.7-ب) — نفس نقطة
+            // بناء [$sheet] الواحدة التي يقرأ منها preview/download معًا، فتصل
+            // كلا المسارين بلا ازدواج منطق. مُنقّاة مسبقًا عند الحفظ (سطر التوثيق
+            // في CvTemplateDecor) فتُقرأ هنا كما هي.
+            'decorLayers' => $template?->decorLayers() ?? [],
         ];
     }
 }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Cv;
 use App\Models\CvTemplate;
+use App\Services\Library\CvTemplateDecor;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -76,6 +77,27 @@ class CvTemplateAdminController extends Controller
         $template->delete();
 
         return back()->with('status', (string) setting('cv.template.admin.deleted_message', 'اتشال القالب ✓'));
+    }
+
+    /**
+     * ⭐ المحرّر المرئيّ (Drag-drop) لقوالب الـCV — حفظ الطبقة الزخرفيّة
+     * (المرحلة 1/2 · 12.7-ب): هذه المرحلة خلفيّةٌ فقط، وواجهة السحب-والإفلات
+     * نفسها مرحلةٌ ثانية لاحقة — الحارس هنا `cv_templates.edit` نفسه المستعمَل
+     * لباقي تعديلات القالب، فلا صلاحيّة جديدة.
+     *
+     * `layers` تصل إمّا JSON خامّ (حقل مخفيّ واحد يكتبه محرّر Canvas لاحقًا —
+     * أقرب لنمط `TemplateDesigner::sanitizeLayers()`) أو مصفوفةً مُرسَلة
+     * بنمط الفورم `layers[i][key]` كالاستوديو (12.14) — الاثنان مقبولان هنا
+     * فلا يتقيّد شكل الفورم القادم في المرحلة 2 بواحدٍ منهما مسبقًا.
+     */
+    public function updateDecor(Request $request, CvTemplate $template, CvTemplateDecor $decor): RedirectResponse
+    {
+        $raw = $request->input('layers', []);
+        $raw = is_string($raw) ? (json_decode($raw, true) ?: []) : (array) $raw;
+
+        $template->update(['decor_layers' => $decor->sanitize($raw)]);
+
+        return back()->with('status', (string) setting('cv.template.admin.decor_saved_message', 'اتحفظت الطبقة الزخرفيّة ✓'));
     }
 
     /**
