@@ -38,6 +38,29 @@ class LibraryIndexTest extends LibraryTestCase
         $response->assertSee(setting('library.tab.products_label', 'منتجات'), false);
     }
 
+    /**
+     * ⭐ 20.1: «تابات مقسّمة بعدّادات … كلٌّ برقمه» — دائمًا، حتى لو كان الرقم صفرًا.
+     * كان الشرط `empty($tab['count'])` يُخفي عدّاد أيّ تابٍ رصيده صفر (`empty(0) === true`)
+     * فتاب «تدريبات» بلا أيّ تدريب مملوك كان يظهر بلا رقمٍ إطلاقًا.
+     */
+    public function test_tabs_show_their_counter_even_when_it_is_zero(): void
+    {
+        $user = $this->trainee('UZERO001');
+        $product = $this->protectedProduct();
+        $this->entitle($user, $product); // يملك منتجًا واحدًا فقط، فبقيّة التابات رصيدها صفر
+
+        $html = $this->actingAs($user)->get(route('library.index'))->assertOk()->getContent();
+
+        // تاب «تدريبات» رصيده صفر — لازم يظهر «(0)» بجانب اسمه داخل تاب المكتبة نفسه
+        // (لا رابط السايد بار الذي يحمل نفس التسمية) — نميّزه برابطه `tab=courses`.
+        $coursesTabPos = strpos($html, 'tab=courses');
+        $this->assertNotFalse($coursesTabPos, 'تاب التدريبات (برابطه tab=courses) لازم يكون موجودًا.');
+
+        $tabAnchor = substr($html, $coursesTabPos, 300);
+        $this->assertStringContainsString(setting('library.tab.courses_label', 'تدريبات'), $tabAnchor);
+        $this->assertStringContainsString('<span class="opacity-70">(0)</span>', $tabAnchor);
+    }
+
     public function test_search_filters_the_shelf(): void
     {
         $user = $this->trainee('USEARCH1');

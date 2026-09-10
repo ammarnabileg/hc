@@ -11,7 +11,8 @@
                     ? 'background: var(--color-brand-500); color:#04201c; font-weight:700'
                     : 'background: var(--surface-raised); color: var(--text)' }}">
                 {{ $tab['label'] }}
-                @if (! empty($tab['count']))
+                {{-- isset لا empty: empty(0) === true فيُخفي عدّاد الصفر رغم أنّ 0 عددٌ صحيحٌ مقصود (20.1: «كلٌّ برقمه» دومًا) --}}
+                @if (isset($tab['count']))
                     <span class="opacity-70">({{ $tab['count'] }})</span>
                 @endif
             </a>
