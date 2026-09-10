@@ -61,8 +61,15 @@
         </div>
     @endif
 
-    {{-- ثلاثة فلاتر ظاهرة + بحث (2.15-أ-4) --}}
+    {{-- بحث أوّلًا دائمًا، ثمّ فلترين إضافيّين ظاهرين، والباقي مطويّ (2.15-أ-4) --}}
     <x-filters :action="route('admin.wars.bank.index')">
+        <label class="block flex-1 min-w-40">
+            <span class="block text-sm mb-1">{{ setting('admin.wars.bank.index.bhth', 'بحث') }}</span>
+            <input type="search" name="q" value="{{ $filters['search'] }}" placeholder="{{ setting('admin.wars.bank.index.ns_alswal', 'نصّ السؤال…') }}"
+                   class="w-full rounded-xl px-3 py-2 text-sm"
+                   style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
+        </label>
+
         <label class="block">
             <span class="block text-sm mb-1">{{ setting('admin.wars.bank.index.alsawba', 'الصعوبة') }}</span>
             <select name="difficulty" class="rounded-xl px-3 py-2 text-sm"
@@ -85,31 +92,26 @@
             </select>
         </label>
 
-        <label class="block">
-            <span class="block text-sm mb-1">{{ setting('admin.wars.bank.index.almsdr', 'المصدر') }}</span>
-            <select name="source" class="rounded-xl px-3 py-2 text-sm"
-                    style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
-                <option value="">{{ setting('admin.wars.bank.index.alkl', 'الكلّ') }}</option>
-                @foreach ($sources as $key => $label)
-                    <option value="{{ $key }}" @selected($filters['source'] === $key)>{{ $label }}</option>
-                @endforeach
-            </select>
-        </label>
-
-        <label class="block flex-1 min-w-40">
-            <span class="block text-sm mb-1">{{ setting('admin.wars.bank.index.bhth', 'بحث') }}</span>
-            <input type="search" name="q" value="{{ $filters['search'] }}" placeholder="{{ setting('admin.wars.bank.index.ns_alswal', 'نصّ السؤال…') }}"
-                   class="w-full rounded-xl px-3 py-2 text-sm"
-                   style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
-        </label>
-
-        <label class="flex items-center gap-2 text-sm">
-            <input type="checkbox" name="missing" value="1" class="w-5 h-5" @checked($filters['missing'])>
-            <span>{{ setting('admin.wars.bank.index.bla_ijaba', 'بلا إجابة') }}</span>
-        </label>
-
         <button type="submit" class="btn rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
                 style="background: var(--color-brand-500); color: #04201c">{{ setting('admin.wars.bank.index.tbq', 'طبّق') }}</button>
+
+        <x-slot:advanced>
+            <label class="block">
+                <span class="block text-sm mb-1">{{ setting('admin.wars.bank.index.almsdr', 'المصدر') }}</span>
+                <select name="source" class="rounded-xl px-3 py-2 text-sm"
+                        style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
+                    <option value="">{{ setting('admin.wars.bank.index.alkl', 'الكلّ') }}</option>
+                    @foreach ($sources as $key => $label)
+                        <option value="{{ $key }}" @selected($filters['source'] === $key)>{{ $label }}</option>
+                    @endforeach
+                </select>
+            </label>
+
+            <label class="flex items-center gap-2 text-sm">
+                <input type="checkbox" name="missing" value="1" class="w-5 h-5" @checked($filters['missing'])>
+                <span>{{ setting('admin.wars.bank.index.bla_ijaba', 'بلا إجابة') }}</span>
+            </label>
+        </x-slot:advanced>
     </x-filters>
 
     @if ($questions->isEmpty())
@@ -135,7 +137,9 @@
 
             {{-- على الموبايل كروت رأسيّة بلا تمرير أفقيّ (2.15-ج) --}}
             <div class="hidden md:block min-w-0 overflow-x-auto">
-                <table class="w-full text-sm">
+                <table class="w-full text-sm"
+                       {{-- حدّ الأعمدة الافتراضيّ من الإعدادات، و«وضع متقدّم» يرفعه (2.15-أ-5) --}}
+                       @unless (advanced_mode()) data-columns-cap="{{ view_mode()->defaultColumns() }}" @endunless>
                     <thead>
                         <tr style="color: var(--text-muted)">
                             <th class="p-2 text-start"><span class="sr-only">{{ setting('admin.wars.bank.index.thdyd', 'تحديد') }}</span></th>

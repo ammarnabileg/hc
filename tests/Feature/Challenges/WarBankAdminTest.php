@@ -135,6 +135,32 @@ class WarBankAdminTest extends ChallengeTestCase
             ->assertHeader('Content-Type', 'text/csv; charset=UTF-8');
     }
 
+    /**
+     * ⭐ الأعمدة والفلاتر الزائدة عن حدّ 2.15 (5-7 عمودًا · 3 فلاتر ظاهرة)
+     * تظهر فقط في «وضع متقدّم» — في المبسّط الجدول محدود بحدّه الافتراضيّ
+     * والباقي خلف «فلاتر متقدّمة» لا حذفًا (2.15-أ-4 · 2.15-أ-5).
+     */
+    public function test_extra_columns_and_filters_are_gated_behind_advanced_mode(): void
+    {
+        $admin = $this->warAdmin();
+
+        $simple = $this->actingAs($admin)->get(route('admin.wars.bank.index'))
+            ->assertOk()->getContent();
+
+        $this->assertStringContainsString('data-columns-cap="', $simple, 'حدّ الأعمدة غائب في المبسّط.');
+        $this->assertStringContainsString('data-filters-cap="', $simple, 'حدّ الفلاتر غائب في المبسّط.');
+        $this->assertStringContainsString(setting('ux.filters.text_1', 'فلاتر متقدّمة'), $simple, 'إفصاح «فلاتر متقدّمة» غائب.');
+
+        $admin->forceFill(['simple_mode' => false, 'advanced_mode' => true])->save();
+
+        $advanced = $this->actingAs($admin->fresh())->get(route('admin.wars.bank.index'))
+            ->assertOk()->getContent();
+
+        $this->assertStringNotContainsString('data-columns-cap="', $advanced, 'حدّ الأعمدة باقٍ رغم الوضع المتقدّم.');
+        $this->assertStringNotContainsString('data-filters-cap="', $advanced, 'حدّ الفلاتر باقٍ رغم الوضع المتقدّم.');
+        $this->assertStringContainsString('data-filters-mode="advanced"', $advanced);
+    }
+
     /** بلا صلاحيّة البنك: المسار محظور تمامًا (12.2.1). */
     public function test_bank_requires_permission(): void
     {
