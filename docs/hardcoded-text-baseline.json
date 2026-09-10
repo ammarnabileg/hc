@@ -14,12 +14,11 @@
         "رسائل الاستثناءات والسجلّات في `app\/` **تُحسَب** وإن كان جمهورها المطوّر — الفحص لا يقرأ النيّة.",
         "`app\/Console\/` مستثنًى — مخرجاتها للطرفيّة (مشغّل النظام) لا لشاشة المستخدم — خارج «النصوص الظاهرة للمستخدم» (2.13-أ). وهذا **الاستثناء الوحيد المخترَع هنا**، وما عداه حدودُ مسحٍ معلَنة لا استثناءات."
     ],
-    "قيس_في": "2026-08-05",
-    "الإجماليّ": 234,
+    "قيس_في": "2026-09-10",
+    "الإجماليّ": 233,
     "الملفّات": {
         "app\/Models\/WalletWithdrawal.php": 4,
         "app\/Services\/Admin\/Content\/QuestionImporter.php": 1,
-        "app\/Services\/Admin\/Ops\/UpdateManager.php": 1,
         "app\/Services\/Admin\/System\/HardcodedTextScanner.php": 14,
         "app\/Services\/AdminScreens\/QuestionBank.php": 1,
         "app\/Services\/AdminScreens\/ReportScheduler.php": 1,

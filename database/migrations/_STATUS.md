@@ -15,7 +15,9 @@
 
 ## ✅ المُنجَز
 <!-- تلقائيّ:بداية:المنجز -->
-- **مايجريشنز (264) — والقائم منها لا يُعدَّل (قاعدة البناء §1). الأحدث:**
+- **مايجريشنز (266) — والقائم منها لا يُعدَّل (قاعدة البناء §1). الأحدث:**
+  - `2026_09_10_100090_library_dead_watermark_and_session_settings_are_swept.php`
+  - `2026_09_10_100090_a_certificate_prefix_setting_was_a_dead_promise.php`
   - `2026_09_10_100080_a_certificate_type_needs_optional_security_elements.php`
   - `2026_09_10_100070_email_templates_need_a_real_table.php`
   - `2026_09_10_100060_a_file_position_needs_a_shareable_invite_link.php`
@@ -26,9 +28,7 @@
   - `2026_09_10_100010_the_admin_should_see_a_silently_skipped_placement_step.php`
   - `2026_09_09_100030_a_track_vacancy_is_not_a_tie.php`
   - `2026_09_09_100020_closing_a_case_file_should_not_end_unrelated_memberships.php`
-  - `2026_09_09_100010_order_bump_offers_get_their_own_table.php`
-  - `2026_09_09_100010_a_full_tie_needs_a_human_and_a_record.php`
-  - … و252 غيرها.
+  - … و254 غيرها.
 <!-- تلقائيّ:نهاية:المنجز -->
 
 ## ⬜ المتبقّي
@@ -85,6 +85,6 @@
 
 ## 🕒 آخر تحديث
 <!-- تلقائيّ:بداية:التحديث -->
-- **آخر توليد لهذه الوثيقة:** 2026-09-09 — `php artisan docs:status`.
-- **آخر لمسة للمجلّد:** 2026-09-09 — Claude.
+- **آخر توليد لهذه الوثيقة:** 2026-09-10 — `php artisan docs:status`.
+- **آخر لمسة للمجلّد:** 2026-09-10 — Claude.
 <!-- تلقائيّ:نهاية:التحديث -->
