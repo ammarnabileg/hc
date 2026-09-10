@@ -210,6 +210,57 @@ class AdminContentGuidanceTest extends AdminContentTestCase
         $response->assertSee('الحساب');
     }
 
+    /**
+     * ⭐ 12.6-ج: محرّر دليل المستخدم فيه حقل وسائط (`media_path`) — العمود
+     * لم يكن موجودًا أصلًا على `help_articles`، وكان النصّ الدستوريّ ينصّ
+     * على «محرّر لكلّ دليل يقبل إرفاق ملفّات بكلّ الأنواع» بلا أيّ حقلٍ يملأه.
+     * يثبت هذا الاختبار: الحقل يظهر في فورم الإنشاء، يُحفَظ فعليًّا، يظهر
+     * معبَّئًا في زرّ «تعديل» الصفّ، ويظهر للمتدرّب في صفحة عرض الدليل العامّة.
+     */
+    public function test_help_article_form_has_media_field_and_saves_and_shows_it(): void
+    {
+        $admin = $this->admin();
+
+        // الحقل يظهر في نموذج «دليل جديد»
+        $this->actingAs($admin)->get(route('admin.guidance.help'))
+            ->assertOk()
+            ->assertSee('name="media_path"', false)
+            ->assertSee('data-media-pick="media_path"', false);
+
+        $this->actingAs($admin)->post(route('admin.guidance.help.store'), [
+            'title' => 'دليل بمرفق',
+            'category' => 'الحساب',
+            'body' => 'محتوى فيه شرح.',
+            'status' => 'published',
+            'media_path' => 'media/help-screenshot.png',
+        ])->assertRedirect();
+
+        $article = HelpArticle::query()->where('title', 'دليل بمرفق')->firstOrFail();
+        $this->assertSame('media/help-screenshot.png', $article->media_path);
+
+        // المرفق يظهر معبَّئًا في زرّ «تعديل» الصفّ — بلا فقدان قيمةٍ محفوظة
+        $this->actingAs($admin)->get(route('admin.guidance.help'))
+            ->assertOk()
+            ->assertSee('media\/help-screenshot.png', false);
+
+        // التعديل يحدّث المرفق فعليًّا عبر مسار PUT الحاليّ
+        $this->actingAs($admin)->put(route('admin.guidance.help.update', $article), [
+            'title' => 'دليل بمرفق',
+            'category' => 'الحساب',
+            'body' => 'محتوى فيه شرح.',
+            'status' => 'published',
+            'media_path' => 'media/help-screenshot-2.png',
+        ])->assertRedirect();
+
+        $this->assertSame('media/help-screenshot-2.png', $article->fresh()->media_path);
+
+        // ويظهر في صفحة عرض الدليل العامّة للمتدرّب
+        $this->actingAs($this->makeUser())
+            ->get(route('help.show', $article->fresh()->slug))
+            ->assertOk()
+            ->assertSee(asset('media/help-screenshot-2.png'), false);
+    }
+
     /** الشكاوى: ردّ داخليّ/خارجيّ + إغلاق بسبب موثّق (24.3). */
     public function test_complaint_reply_and_close_with_reason(): void
     {

@@ -1,6 +1,13 @@
 @extends('layouts.app')
 @section('title', $article->title)
 
+@php
+    // مرفق الدليل: صورة/فيديو/أيّ نوع من مكتبة الوسائط (12.6-ج)
+    $media = $article->media_path;
+    $isVideo = $media && preg_match('/\.(mp4|webm|ogg)$/i', $media);
+    $mediaUrl = $media ? (str_starts_with($media, 'http') ? $media : asset($media)) : null;
+@endphp
+
 @section('content')
     <x-page-header
         :title="$article->title"
@@ -10,6 +17,16 @@
             ['label' => (string) setting('help.show.breadcrumbs_2', 'دليل المستخدم'), 'url' => route('help.index')],
             ['label' => $article->title],
         ]" />
+
+    @if ($mediaUrl)
+        <div class="mb-4 overflow-hidden rounded-xl">
+            @if ($isVideo)
+                <video src="{{ $mediaUrl }}" controls class="w-full" preload="none"></video>
+            @else
+                <img src="{{ $mediaUrl }}" alt="{{ $article->title }}" class="w-full" loading="lazy">
+            @endif
+        </div>
+    @endif
 
     <article class="card p-5 leading-8 text-sm">
         {!! $article->body !!}

@@ -511,6 +511,8 @@ class GuidanceController extends Controller
             'category' => ['nullable', 'string', 'max:64'],
             'body' => ['nullable', 'string'],
             'tags' => ['nullable'],
+            // ⭐ مرفقٌ من مكتبة الوسائط — بكلّ الأنواع (12.6-ج)
+            'media_path' => ['nullable', 'string', 'max:255'],
             'status' => ['required', 'string', 'in:draft,published,archived'],
         ]);
     }

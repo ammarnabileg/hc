@@ -456,6 +456,8 @@ class AdminScreenTextSystemDemoSeeder extends Seeder
             ['admin.guidance.help.almhtwa', 'help', 'المحتوى', 'string', 'المحتوى', 'نصّ في resources/views/admin/guidance/help.blade.php'],
             ['admin.guidance.help.altsnyf', 'help', 'التصنيف', 'string', 'التصنيف', 'نصّ في resources/views/admin/guidance/help.blade.php'],
             ['admin.guidance.help.altwjyh_waldam', 'help', 'التوجيه والدعم', 'string', 'التوجيه والدعم', 'نصّ في resources/views/admin/guidance/help.blade.php'],
+            // ⭐ مرفقٌ من مكتبة الوسائط — بكلّ الأنواع، نفس نمط تسمية الإعلانات (12.6-ج)
+            ['admin.guidance.help.alwsayt_msr_mn_mktbt_alwsayt', 'help', 'الوسائط (مسار من مكتبة الوسائط)', 'string', 'الوسائط (مسار من مكتبة الوسائط)', 'نصّ في resources/views/admin/guidance/help.blade.php'],
             ['admin.guidance.help.bhth', 'help', 'بحث', 'string', 'بحث', 'نصّ في resources/views/admin/guidance/help.blade.php'],
             ['admin.guidance.help.bla_tsnyf', 'help', 'بلا تصنيف', 'string', 'بلا تصنيف', 'نصّ في resources/views/admin/guidance/help.blade.php'],
             ['admin.guidance.help.dlyl', 'help', '+ دليل', 'string', '+ دليل', 'نصّ في resources/views/admin/guidance/help.blade.php'],
@@ -470,6 +472,7 @@ class AdminScreenTextSystemDemoSeeder extends Seeder
             ['admin.guidance.help.mswda', 'help', 'مسودّة', 'string', 'مسودّة', 'نصّ في resources/views/admin/guidance/help.blade.php'],
             ['admin.guidance.help.mwrshf', 'help', 'مؤرشف', 'string', 'مؤرشف', 'نصّ في resources/views/admin/guidance/help.blade.php'],
             ['admin.guidance.help.nshyl_aldlyl_dh', 'help', 'نشيل الدليل ده؟', 'string', 'نشيل الدليل ده؟', 'نصّ في resources/views/admin/guidance/help.blade.php'],
+            ['admin.guidance.help.tadyl', 'help', 'تعديل', 'string', 'تعديل', 'نصّ في resources/views/admin/guidance/help.blade.php'],
             ['admin.guidance.help.tfasyl_aktr', 'help', 'تفاصيل أكتر', 'string', 'تفاصيل أكتر', 'نصّ في resources/views/admin/guidance/help.blade.php'],
             ['admin.guidance.help.tsfya', 'help', 'تصفية', 'string', 'تصفية', 'نصّ في resources/views/admin/guidance/help.blade.php'],
             ['admin.guidance.help.wswm', 'help', 'وسوم', 'string', 'وسوم', 'نصّ في resources/views/admin/guidance/help.blade.php'],

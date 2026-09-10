@@ -456,6 +456,8 @@ class GuidanceComposer
             'category' => $data['category'] ?? null,
             'body' => $data['body'] ?? null,
             'tags' => $this->tags($data['tags'] ?? []),
+            // ⭐ مرفقٌ من مكتبة الوسائط — بكلّ الأنواع (12.6-ج)
+            'media_path' => $data['media_path'] ?? null,
             'status' => in_array($data['status'] ?? 'draft', ['draft', 'published', 'archived'], true) ? (string) ($data['status'] ?? 'draft') : 'draft',
         ];
 
