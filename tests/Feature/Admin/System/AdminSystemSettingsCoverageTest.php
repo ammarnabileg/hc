@@ -267,6 +267,9 @@ class AdminSystemSettingsCoverageTest extends SystemTestCase
             'cv.template.confirm_label',
             'features.ui.col.key',
             'volunteer.qualifying.path_slug',
+            // استُبدِل بآليةٍ أدقّ تُقرَأ فعلًا (2026-09-09):
+            // events.certificate.code_prefix ⟵ CertificateType::numbering_prefix
+            'events.certificate.code_prefix',
         ];
 
         foreach ($swept as $key) {

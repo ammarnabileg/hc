@@ -34,10 +34,27 @@
 <!-- بيدك:بداية:المتبقّي -->
 ### ⬜ نصٌّ محروق باقٍ في هذا المجلّد — بسببه مكتوبًا (دفعة `app/Services` · 2.13)
 - ✅ **[مقفولة 2026-08-05] `EventQuery::MODES`/`PERIODS` صارا `modes()`/`periods()`.** 3 عناوين نوع + 5 عناوين فترة صارت من `setting()`، والمفاتيح الداخليّة بقيت `MODE_KEYS`/`PERIOD_KEYS`. حُدِّثت مواضع القراءة في `EventController` (فلترة) وقالب `events/index`. المفاتيح في `EventDemoSeeder`. **الدليل:** `php artisan test --filter="EventQuery|EventController|Events"` (69) قبل/بعد بلا فرق.
-- **فجوة `settings:coverage --dead` (2026-08-05):** `events.certificate.code_prefix`
-  مزروعٌ (`EventDemoSeeder`) ولا قارئ له — بادئة كود شهادة الفعاليّة محروقةٌ في
-  مولّد الكود الفعليّ بدل قراءتها من هذا المفتاح. وصلٌ صغيرٌ محتمل لاحقًا؛ لم
-  يُنجَز في هذه الدفعة لعدم إيجاد الموضع الدقيق للتوليد بثقة.
+- ✅ **[مقفولة 2026-09-09] فجوة `settings:coverage --dead`: `events.certificate.code_prefix` كان وعدًا كاذبًا — شُطِب لا وُصِل.**
+  تتبّعتُ التوليد الفعليّ: `CertificateBridge` ⟵ `CertificateIssuer::issue()`
+  ⟵ `CertificateNumber::next()` (`app/Services/Certificates/CertificateNumber.php:27`)
+  يقرأ `$type->numbering_prefix` — عمودٌ على `CertificateType` نفسه، مضبوطٌ
+  لكلّ نوع شهادةٍ من شاشة إدارة الشهادات
+  (`admin/certificates/partials/types.blade.php:92`، «بادئة الترقيم») — لا
+  من `events.certificate.code_prefix` بالمرّة؛ الحرق الفعليّ في
+  `CoreSeeder::certificateTypes()` (~سطر 299) كان في العمود لا في الكود
+  المولِّد. ولا وصلَ ممكنٌ أصلًا: `CoreSeeder` يزرع `numbering_prefix` ضمن
+  `DatabaseSeeder` **قبل** `SettingDefinitionsSeeder` (الذي يزرع هذا المفتاح
+  عبر اكتشاف `EventDemoSeeder::settings()`)، فقراءته من هناك كانت سترتدّ
+  لنفس الافتراضيّ بلا أثر. والعمود أدقّ من مفتاحٍ عامٍّ واحد أصلًا: بادئةٌ
+  مستقلّة لكلّ نوعٍ من الأنواع الثمانية (12.5-ب)، لا بادئة فعاليّاتٍ واحدة.
+  **الفعل:** حُذف الصفّ من `EventDemoSeeder` وشُطب بمايجريشن
+  `2026_09_10_100090_a_certificate_prefix_setting_was_a_dead_promise.php`
+  (نمط الفئة (3) من `2026_09_04_100010_dead_flags_from_an_aborted_first_pass_get_swept`).
+  **الدليل:** `php artisan test --filter=AdminSystemSettingsCoverageTest` (10/10) +
+  `php artisan test --filter=Events` (82/82) — و`php artisan settings:coverage --dead`
+  بعد `migrate:fresh --seed` لم يعد يذكر `events.certificate.code_prefix` ولا
+  مجموعة `events` بالمرّة. Mutation-tested: إعادة صفّ السيدر أسقطت
+  `test_swept_dead_orphans_do_not_come_back` بالضبط كما يُتوقَّع، ثمّ اُستُعيد.
 
 
 - ✅ **13.3 · 12.11: تشيك-إن QR — مبنيّ ومُثبَت (2026-08-31).** مُرمِّز QR مكتوب

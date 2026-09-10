@@ -205,7 +205,11 @@ class EventDemoSeeder extends Seeder
             ['events.reward.late_percent', 'events', 'نسبة المكافأة بعد انتهاء النافذة (%)', 'number', '50'],
             ['events.reminder.minutes_before', 'events', 'تذكير التقويم قبل الموعد (دقايق)', 'number', '60'],
             ['events.certificate.default_type_key', 'events', 'مفتاح نوع شهادة الحضور', 'string', 'event'],
-            ['events.certificate.code_prefix', 'events', 'بادئة كود شهادة الحضور', 'string', 'EVT'],
+            // بادئة كود شهادة الفعاليّة: لا مفتاح إعداد مستقلّ — الضبط الفعليّ
+            // الحيّ والأدقّ لكلّ نوعٍ على حدة هو `CertificateType::numbering_prefix`
+            // (إدارة الشهادات › الأنواع)، ويقرؤه `CertificateNumber::next()` فعلًا؛
+            // مفتاح `events.certificate.code_prefix` كان وعدًا كاذبًا بلا قارئ
+            // (`settings:coverage --dead`) — انظر مايجريشن سَطر شطبه.
             // العنوان الإنجليزيّ اختياريّ، فالـslug يرتدّ للعربيّ ثمّ لهذه الكلمة (12.11)
             ['events.slug.fallback', 'events', 'كلمة الـslug الاحتياطيّة', 'string', 'event'],
             ['events.share.text', 'events', 'نصّ مشاركة الفعاليّة', 'text', 'شوف الفعاليّة دي معايا:'],
