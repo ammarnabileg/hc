@@ -45,9 +45,149 @@
     @if ($announcements->isEmpty())
         <x-empty :message="setting('admin.guidance.index.la_mnshwrat_abda_awl_bth', 'لا منشورات — ابدأ أوّل بثّ.')" />
     @else
-        <div class="space-y-3">
+        @php
+            $audienceLabels = [
+                'all' => setting('admin.guidance.index.alkl', 'الكلّ'),
+                'role' => setting('admin.guidance.index.dwr', 'دور'),
+                'course' => setting('admin.guidance.index.tdryb', 'تدريب'),
+                'path' => setting('admin.guidance.index.msar', 'مسار'),
+                'user' => setting('admin.guidance.index.ashkhas', 'أشخاص'),
+                'segment' => setting('admin.guidance.index.shryha_mhfwza', 'شريحة محفوظة'),
+            ];
+        @endphp
+
+        {{-- ديسكتوب: جدول العنوان · النوع · الجمهور · الحالة · نسبة القراءة · الإقرارات · مثبَّت؟ · إجراءات (24 · 2.15-ج) --}}
+        <div class="hidden md:block card overflow-hidden">
+            <x-table :label="setting('admin.guidance.index.altalymat', 'التعليمات')">
+                <thead style="background: var(--surface-sunken)">
+                    <tr>
+                        <th class="p-3 text-start">{{ setting('admin.guidance.index.alanwan', 'العنوان') }}</th>
+                        <th class="p-3 text-start">{{ setting('admin.guidance.index.alnwa', 'النوع') }}</th>
+                        <th class="p-3 text-start">{{ setting('admin.guidance.index.aljmhwr_2', 'الجمهور') }}</th>
+                        <th class="p-3 text-start">{{ setting('admin.guidance.index.alhala', 'الحالة') }}</th>
+                        <th class="p-3 text-start">{{ setting('admin.guidance.index.nsba_alqraa', 'نسبة القراءة') }}</th>
+                        <th class="p-3 text-start">{{ setting('admin.guidance.index.aliqrarat', 'الإقرارات') }}</th>
+                        <th class="p-3 text-start">{{ setting('admin.guidance.index.mthbt_2', 'مثبَّت؟') }}</th>
+                        <th class="p-3"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach ($announcements as $announcement)
+                        @php
+                            $stat = $stats[$announcement->id] ?? ['reads' => 0, 'acks' => 0, 'rate' => 0];
+                            $open = collect([
+                                'feed' => (bool) $announcement->show_in_feed,
+                                'push' => (bool) $announcement->push_to_notifications,
+                                'email' => (bool) $announcement->email_enabled,
+                            ])->filter()->keys()->map(fn ($key) => $channels[$key] ?? $key);
+                            $mail = $emailStats[$announcement->id] ?? [];
+                        @endphp
+                        <tr style="border-top: 1px solid var(--border)">
+                            <td class="p-3 min-w-0">
+                                <div class="font-semibold flex items-center gap-2">{{ $announcement->title }}</div>
+
+                                {{-- التفاصيل المطويّة: القنوات/البريد/الاستطلاع/التكرار/التثبيت — بلا فقدان معلومة (2.15-أ-5) --}}
+                                <details class="mt-1">
+                                    <summary class="text-xs cursor-pointer" style="color: var(--text-muted)">{{ setting('admin.guidance.index.tfasyl_aktr', 'تفاصيل أكتر') }}</summary>
+                                    <div class="text-xs mt-1 space-y-0.5" style="color: var(--text-muted)">
+                                        <div>
+                                            {{ setting('admin.guidance.index.alqnwat', '· القنوات:') }}
+                                            {{ $open->isEmpty() ? setting('admin.guidance.index.mafysh', 'مافيش') : $open->implode(' · ') }}
+                                            @if ($announcement->email_enabled)
+                                                {!! strtr(setting('admin.guidance.index.bryd_v1_atbat', '· بريد: :v1 اتبعت'), [':v1' => e((int) ($mail['sent'] ?? 0))]) !!}
+                                                @if (($mail['deferred'] ?? 0) > 0) · {{ (int) $mail['deferred'] }} {{ setting('admin.guidance.index.atajlt', 'اتأجّلت') }} @endif
+                                                @if (($mail['skipped'] ?? 0) > 0) · {{ (int) $mail['skipped'] }} {{ setting('admin.guidance.index.mstbad', 'مستبعَد') }} @endif
+                                                @if (($mail['failed'] ?? 0) > 0) · {{ (int) $mail['failed'] }} {{ setting('admin.guidance.index.tathrt', 'تعثّرت') }} @endif
+                                            @endif
+                                        </div>
+                                        <div>
+                                            {{ setting('admin.guidance.index.altfaal', '· التفاعل') }} {{ $announcement->reactions_enabled ? setting('admin.guidance.index.msmwh', 'مسموح') : setting('admin.guidance.index.mmnwa', 'ممنوع') }}
+                                            @if ($announcement->poll_question)
+                                                {{ setting('admin.guidance.index.asttlaa', '· استطلاع (') }}{{ $announcement->poll_results_public ? setting('admin.guidance.index.ntyjth_aama', 'نتيجته عامّة') : setting('admin.guidance.index.ntyjth_mkhfya', 'نتيجته مخفيّة') }})
+                                            @endif
+                                            @if ($announcement->recurrence)
+                                                · {{ $frequencies[$announcement->recurrence] ?? setting('admin.guidance.index.mtkrr', 'متكرّر') }}
+                                                @if ($nextRuns[$announcement->id] ?? null)
+                                                    {{ setting('admin.guidance.index.aldwra_aljaya', '— الدورة الجاية') }} {{ $nextRuns[$announcement->id]->diffForHumans() }}
+                                                @endif
+                                            @endif
+                                            @if ($announcement->onboarding_step)
+                                                {!! strtr(setting('admin.guidance.index.khtwa_v1_fy_slsla_altaryf', '· خطوة :v1 في سلسلة التعريف'), [':v1' => e($announcement->onboarding_step)]) !!}
+                                            @endif
+                                        </div>
+                                    </div>
+                                </details>
+                            </td>
+                            <td class="p-3 text-xs">{{ $types[$announcement->type] ?? ($announcement->type ?: '—') }}</td>
+                            <td class="p-3 text-xs">{{ $audienceLabels[$announcement->audience['type'] ?? 'all'] ?? $audienceLabels['all'] }}</td>
+                            <td class="p-3">
+                                <x-state-badge
+                                    :state="$announcement->status === 'published' ? 'ok' : ($announcement->status === 'archived' ? 'idle' : 'warn')"
+                                    :label="$statuses[$announcement->status] ?? $announcement->status" />
+                            </td>
+                            <td class="p-3" style="min-width: 8rem">
+                                <div class="flex items-center justify-between text-xs">
+                                    <span>{{ $stat['rate'] }}%</span>
+                                    <span style="color: var(--text-muted)">{{ $stat['reads'] }} {{ setting('admin.guidance.index.qraa', 'قراءة') }}</span>
+                                </div>
+                                <div class="h-1 rounded-full overflow-hidden mt-1" style="background: var(--surface-sunken)">
+                                    <div class="h-full" style="width: {{ $stat['rate'] }}%; background: var(--color-brand-500)"></div>
+                                </div>
+                            </td>
+                            <td class="p-3 text-xs">
+                                {{ $stat['acks'] }}
+                                @if ($announcement->requires_acknowledge)
+                                    <span style="color: var(--text-muted)">{!! strtr(setting('admin.guidance.index.b_v1_xp', '(بـ:v1 XP)'), [':v1' => e($announcement->acknowledge_xp)]) !!}</span>
+                                @endif
+                            </td>
+                            <td class="p-3">
+                                @if ($announcement->is_pinned)
+                                    <span title="{{ setting('admin.guidance.index.mthbt', 'مثبَّت') }}" aria-label="{{ setting('admin.guidance.index.mthbt', 'مثبَّت') }}"><x-icon name="placement" size="16" /></span>
+                                @else
+                                    <span style="color: var(--text-muted)">—</span>
+                                @endif
+                            </td>
+                            <td class="p-3 text-end">
+                                <div class="flex gap-3 text-xs flex-wrap justify-end">
+                                    <a href="{{ route('admin.guidance.analytics', $announcement) }}" class="underline">{{ setting('admin.guidance.index.thlylat', 'تحليلات') }}</a>
+                                    {{-- معاينة على الأجهزة قبل النشر (12.6-أ) --}}
+                                    <a href="{{ route('admin.guidance.preview', $announcement) }}" class="underline">{{ setting('admin.guidance.index.maayna', 'معاينة') }}</a>
+
+                                    @can('announcements.edit')
+                                        <form method="post" action="{{ route('admin.guidance.announcements.duplicate', $announcement) }}">
+                                            @csrf
+                                            <button class="underline">{{ setting('admin.guidance.index.nskha_jdyda', 'نسخة جديدة') }}</button>
+                                        </form>
+                                    @endcan
+
+                                    @can('announcements.archive')
+                                        @if ($announcement->status !== 'archived')
+                                            <form method="post" action="{{ route('admin.guidance.announcements.archive', $announcement) }}">
+                                                @csrf
+                                                <button class="underline">{{ setting('admin.guidance.index.arshfa', 'أرشفة') }}</button>
+                                            </form>
+                                        @endif
+                                    @endcan
+                                </div>
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </x-table>
+        </div>
+
+        {{-- موبايل: كروت رأسيّة — نفس المعلومة بلا تمرير أفقيّ (2.15-ج) --}}
+        <div class="md:hidden space-y-3">
             @foreach ($announcements as $announcement)
-                @php $stat = $stats[$announcement->id] ?? ['reads' => 0, 'acks' => 0, 'rate' => 0]; @endphp
+                @php
+                    $stat = $stats[$announcement->id] ?? ['reads' => 0, 'acks' => 0, 'rate' => 0];
+                    $open = collect([
+                        'feed' => (bool) $announcement->show_in_feed,
+                        'push' => (bool) $announcement->push_to_notifications,
+                        'email' => (bool) $announcement->email_enabled,
+                    ])->filter()->keys()->map(fn ($key) => $channels[$key] ?? $key);
+                    $mail = $emailStats[$announcement->id] ?? [];
+                @endphp
                 <div class="card p-4">
                     <div class="flex items-start justify-between gap-3 flex-wrap">
                         <div class="min-w-0">
@@ -56,40 +196,8 @@
                                 @if ($announcement->is_pinned)<span title="{{ setting('admin.guidance.index.mthbt', 'مثبَّت') }}" aria-label="{{ setting('admin.guidance.index.mthbt', 'مثبَّت') }}"><x-icon name="placement" size="16" /></span>@endif
                             </div>
                             <div class="text-xs mt-1" style="color: var(--text-muted)">
-                                {{ setting('admin.guidance.index.aljmhwr', 'الجمهور:') }} {{ ['all' => setting('admin.guidance.index.alkl', 'الكلّ'), 'role' => setting('admin.guidance.index.dwr', 'دور'), 'course' => setting('admin.guidance.index.tdryb', 'تدريب'), 'path' => setting('admin.guidance.index.msar', 'مسار'), 'user' => setting('admin.guidance.index.ashkhas', 'أشخاص'), 'segment' => setting('admin.guidance.index.shryha_mhfwza', 'شريحة محفوظة')][$announcement->audience['type'] ?? 'all'] ?? setting('admin.guidance.index.alkl', 'الكلّ') }}
-                                {{-- القنوات المفتوحة لهذا المنشور — تُقرأ من الصفّ لا من الوعد (12.6-أ) --}}
-                                {{ setting('admin.guidance.index.alqnwat', '· القنوات:') }}
-                                @php
-                                    $open = collect([
-                                        'feed' => (bool) $announcement->show_in_feed,
-                                        'push' => (bool) $announcement->push_to_notifications,
-                                        'email' => (bool) $announcement->email_enabled,
-                                    ])->filter()->keys()->map(fn ($key) => $channels[$key] ?? $key);
-                                @endphp
-                                {{ $open->isEmpty() ? setting('admin.guidance.index.mafysh', 'مافيش') : $open->implode(' · ') }}
-                                @if ($announcement->email_enabled)
-                                    @php $mail = $emailStats[$announcement->id] ?? []; @endphp
-                                    {!! strtr(setting('admin.guidance.index.bryd_v1_atbat', '· بريد: :v1 اتبعت'), [':v1' => e((int) ($mail['sent'] ?? 0))]) !!}
-                                    @if (($mail['deferred'] ?? 0) > 0) · {{ (int) $mail['deferred'] }} {{ setting('admin.guidance.index.atajlt', 'اتأجّلت') }} @endif
-                                    @if (($mail['skipped'] ?? 0) > 0) · {{ (int) $mail['skipped'] }} {{ setting('admin.guidance.index.mstbad', 'مستبعَد') }} @endif
-                                    @if (($mail['failed'] ?? 0) > 0) · {{ (int) $mail['failed'] }} {{ setting('admin.guidance.index.tathrt', 'تعثّرت') }} @endif
-                                @endif
-                                @if ($announcement->requires_acknowledge)
-                                    {!! strtr(setting('admin.guidance.index.iqrar_b_v1_xp_mra_wahda', '· إقرار بـ:v1 XP (مرّة واحدة)'), [':v1' => e($announcement->acknowledge_xp)]) !!}
-                                @endif
-                                {{ setting('admin.guidance.index.altfaal', '· التفاعل') }} {{ $announcement->reactions_enabled ? setting('admin.guidance.index.msmwh', 'مسموح') : setting('admin.guidance.index.mmnwa', 'ممنوع') }}
-                                @if ($announcement->poll_question)
-                                    {{ setting('admin.guidance.index.asttlaa', '· استطلاع (') }}{{ $announcement->poll_results_public ? setting('admin.guidance.index.ntyjth_aama', 'نتيجته عامّة') : setting('admin.guidance.index.ntyjth_mkhfya', 'نتيجته مخفيّة') }})
-                                @endif
-                                @if ($announcement->recurrence)
-                                    · {{ $frequencies[$announcement->recurrence] ?? setting('admin.guidance.index.mtkrr', 'متكرّر') }}
-                                    @if ($nextRuns[$announcement->id] ?? null)
-                                        {{ setting('admin.guidance.index.aldwra_aljaya', '— الدورة الجاية') }} {{ $nextRuns[$announcement->id]->diffForHumans() }}
-                                    @endif
-                                @endif
-                                @if ($announcement->onboarding_step)
-                                    {!! strtr(setting('admin.guidance.index.khtwa_v1_fy_slsla_altaryf', '· خطوة :v1 في سلسلة التعريف'), [':v1' => e($announcement->onboarding_step)]) !!}
-                                @endif
+                                {{ setting('admin.guidance.index.alnwa', 'النوع') }}: {{ $types[$announcement->type] ?? ($announcement->type ?: '—') }}
+                                · {{ setting('admin.guidance.index.aljmhwr', 'الجمهور:') }} {{ $audienceLabels[$announcement->audience['type'] ?? 'all'] ?? $audienceLabels['all'] }}
                             </div>
                         </div>
                         <x-state-badge
@@ -97,7 +205,7 @@
                             :label="$statuses[$announcement->status] ?? $announcement->status" />
                     </div>
 
-                    {{-- نسبة القراءة كشريط (24.3) --}}
+                    {{-- نسبة القراءة كشريط + الإقرارات (24.3) --}}
                     <div class="mt-3">
                         <div class="flex items-center justify-between text-xs">
                             <span>{{ setting('admin.guidance.index.nsba_alqraa', 'نسبة القراءة') }} {{ $stat['rate'] }}%</span>
@@ -108,9 +216,32 @@
                         </div>
                     </div>
 
+                    <details class="mt-3">
+                        <summary class="text-xs cursor-pointer" style="color: var(--text-muted)">{{ setting('admin.guidance.index.tfasyl_aktr', 'تفاصيل أكتر') }}</summary>
+                        <div class="mt-2 text-xs space-y-1" style="color: var(--text-muted)">
+                            <div>
+                                {{ setting('admin.guidance.index.alqnwat', '· القنوات:') }}
+                                {{ $open->isEmpty() ? setting('admin.guidance.index.mafysh', 'مافيش') : $open->implode(' · ') }}
+                                @if ($announcement->email_enabled)
+                                    {!! strtr(setting('admin.guidance.index.bryd_v1_atbat', '· بريد: :v1 اتبعت'), [':v1' => e((int) ($mail['sent'] ?? 0))]) !!}
+                                @endif
+                            </div>
+                            @if ($announcement->requires_acknowledge)
+                                <div>{!! strtr(setting('admin.guidance.index.iqrar_b_v1_xp_mra_wahda', '· إقرار بـ:v1 XP (مرّة واحدة)'), [':v1' => e($announcement->acknowledge_xp)]) !!}</div>
+                            @endif
+                            @if ($announcement->recurrence)
+                                <div>
+                                    {{ $frequencies[$announcement->recurrence] ?? setting('admin.guidance.index.mtkrr', 'متكرّر') }}
+                                    @if ($nextRuns[$announcement->id] ?? null)
+                                        {{ setting('admin.guidance.index.aldwra_aljaya', '— الدورة الجاية') }} {{ $nextRuns[$announcement->id]->diffForHumans() }}
+                                    @endif
+                                </div>
+                            @endif
+                        </div>
+                    </details>
+
                     <div class="flex gap-3 mt-3 text-xs flex-wrap">
                         <a href="{{ route('admin.guidance.analytics', $announcement) }}" class="underline">{{ setting('admin.guidance.index.thlylat', 'تحليلات') }}</a>
-                        {{-- معاينة على الأجهزة قبل النشر (12.6-أ) --}}
                         <a href="{{ route('admin.guidance.preview', $announcement) }}" class="underline">{{ setting('admin.guidance.index.maayna', 'معاينة') }}</a>
 
                         @can('announcements.edit')
@@ -152,6 +283,34 @@
                 <div class="grid md:grid-cols-2 gap-3">
                     <x-form.input name="cta_label" :label="setting('admin.guidance.index.ns_zr_cta', 'نصّ زرّ CTA')" />
                     <x-form.input name="cta_url" :label="setting('admin.guidance.index.rabt_alzr_deep_link', 'رابط الزرّ (Deep link)')" />
+                </div>
+
+                {{-- ⭐ النوع (12.6-أ · القسم 24): عمود جدولٍ منصوصٌ حرفيًّا — وقيمه نفس
+                     قائمة الفلتر اللي بيشوفها المتدرّب (`AnnouncementFeed::types`) --}}
+                <div class="grid md:grid-cols-2 gap-3">
+                    <label class="block">
+                        <span class="block text-sm mb-1">{{ setting('admin.guidance.index.alnwa', 'النوع') }}</span>
+                        <select name="type" class="w-full rounded-xl px-3 py-2 text-sm"
+                                style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
+                            <option value="">{{ setting('admin.guidance.index.bla_nwa', 'بلا نوع') }}</option>
+                            @foreach ($types as $key => $label)
+                                <option value="{{ $key }}">{{ $label }}</option>
+                            @endforeach
+                        </select>
+                    </label>
+
+                    {{-- ⭐ «أيّ حقل رفع يفتح اختَر من المكتبة أو ارفع جديد» (12.4-هـ) — بلا نسخٍ ولا لصق --}}
+                    <div>
+                        <x-form.input name="media_path" :label="setting('admin.guidance.index.alwsayt_msr_mn_mktbt_alwsayt', 'الوسائط (مسار من مكتبة الوسائط)')" />
+                        <div class="flex items-center gap-2 mt-2">
+                            <button type="button" data-media-pick="media_path"
+                                    class="rounded-xl px-3 py-1.5 text-xs"
+                                    style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
+                                <x-icon name="library" size="14" /> {{ setting('media.picker.cta') }}
+                            </button>
+                            <span data-media-preview="media_path" class="inline-flex items-center"></span>
+                        </div>
+                    </div>
                 </div>
 
                 {{-- استهداف بشرائح (12.6-أ) --}}
@@ -351,6 +510,8 @@
     @endcan
 
     @include('admin.courses.partials.toast')
+    {{-- بوب-أب «اختَر من المكتبة / ارفع جديد» لحقل الوسائط (12.4-هـ · 12.6-أ) --}}
+    @include('admin.courses.partials.media-picker-modal')
 
     @push('scripts')
         <script>

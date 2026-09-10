@@ -52,12 +52,66 @@
     @if ($articles->isEmpty())
         <x-empty :message="setting('admin.guidance.help.la_adla_bad_aktb_awl_wahd', 'لا أدلّة بعد — اكتب أوّل واحد.')" />
     @else
-        <div class="space-y-3">
+        {{-- ديسكتوب: جدول العنوان (ع/إ) · التصنيف · الحالة · إجراءات (24 · 2.15-ج) --}}
+        <div class="hidden md:block card overflow-hidden">
+            <x-table :label="setting('admin.guidance.help.dlyl_almstkhdm', 'دليل المستخدم')">
+                <thead style="background: var(--surface-sunken)">
+                    <tr>
+                        <th class="p-3 text-start">{{ setting('admin.guidance.help.alanwan_arby_iinjlyzy', 'العنوان (ع/إ)') }}</th>
+                        <th class="p-3 text-start">{{ setting('admin.guidance.help.altsnyf', 'التصنيف') }}</th>
+                        <th class="p-3 text-start">{{ setting('admin.guidance.help.alhala', 'الحالة') }}</th>
+                        <th class="p-3"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach ($articles as $article)
+                        <tr style="border-top: 1px solid var(--border)">
+                            <td class="p-3 min-w-0">
+                                <div class="font-semibold">{{ $article->title }}</div>
+                                @if ($article->title_en)
+                                    <div class="text-xs" style="color: var(--text-muted)" dir="ltr">{{ $article->title_en }}</div>
+                                @endif
+                                {{-- التفاصيل المطويّة: المشاهدات/نسبة «مفيد»/الوسوم — بلا فقدان معلومة (2.15-أ-5) --}}
+                                <details class="mt-1">
+                                    <summary class="text-xs cursor-pointer" style="color: var(--text-muted)">{{ setting('admin.guidance.help.tfasyl_aktr', 'تفاصيل أكتر') }}</summary>
+                                    <div class="text-xs mt-1" style="color: var(--text-muted)">
+                                        {{ $article->views }} {{ setting('admin.guidance.help.mshahda_mfyd', 'مشاهدة · «مفيد»') }} {{ $rates[$article->id] ?? 0 }}%
+                                        @if ($article->tags)
+                                            · {{ implode(' · ', (array) $article->tags) }}
+                                        @endif
+                                    </div>
+                                </details>
+                            </td>
+                            <td class="p-3 text-xs">{{ $article->category ?: setting('admin.guidance.help.bla_tsnyf', 'بلا تصنيف') }}</td>
+                            <td class="p-3">
+                                <x-state-badge :state="$article->status === 'published' ? 'ok' : 'warn'"
+                                               :label="$article->status === 'published' ? setting('admin.guidance.help.mnshwr', 'منشور') : setting('admin.guidance.help.mswda', 'مسودّة')" />
+                            </td>
+                            <td class="p-3 text-end">
+                                @can('user_guide.delete')
+                                    <form method="post" action="{{ route('admin.guidance.help.destroy', $article) }}"
+                                          onsubmit="return confirm('{{ setting('admin.guidance.help.nshyl_aldlyl_dh', 'نشيل الدليل ده؟') }}')">
+                                        @csrf @method('delete')
+                                        <button class="text-xs underline" style="color: var(--color-state-danger)">{{ setting('admin.guidance.help.hdhf', 'حذف') }}</button>
+                                    </form>
+                                @endcan
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </x-table>
+        </div>
+
+        {{-- موبايل: كروت رأسيّة — نفس المعلومة بلا تمرير أفقيّ (2.15-ج) --}}
+        <div class="md:hidden space-y-3">
             @foreach ($articles as $article)
                 <div class="card p-4">
                     <div class="flex items-start justify-between gap-3 flex-wrap">
                         <div class="min-w-0">
                             <div class="font-semibold">{{ $article->title }}</div>
+                            @if ($article->title_en)
+                                <div class="text-xs" style="color: var(--text-muted)" dir="ltr">{{ $article->title_en }}</div>
+                            @endif
                             <div class="text-xs mt-1" style="color: var(--text-muted)">
                                 {{ $article->category ?: setting('admin.guidance.help.bla_tsnyf', 'بلا تصنيف') }}
                                 · {{ $article->views }} {{ setting('admin.guidance.help.mshahda_mfyd', 'مشاهدة · «مفيد»') }} {{ $rates[$article->id] ?? 0 }}%

@@ -69,6 +69,62 @@ class AdminContentGuidanceTest extends AdminContentTestCase
         $this->assertNotNull($announcement->expires_at, 'الأرشفة التلقائيّة لازم تتضبط من الإعدادات');
     }
 
+    /**
+     * ⭐ 12.6-أ: محرّر المنشور فيه حقل وسائط (`media_path`) وحقل نوع
+     * (`type`) — العمودان موجودان على `announcements` من زمان، وكانا
+     * بلا حقلٍ في الفورم يملأهما.
+     */
+    public function test_announcement_form_has_media_and_type_fields_and_saves_them(): void
+    {
+        $admin = $this->admin();
+
+        // الحقلان يظهران في نموذج «منشور جديد»
+        $this->actingAs($admin)->get(route('admin.guidance.index'))
+            ->assertOk()
+            ->assertSee('name="type"', false)
+            ->assertSee('name="media_path"', false)
+            ->assertSee('data-media-pick="media_path"', false);
+
+        $this->actingAs($admin)->post(route('admin.guidance.announcements.store'), [
+            'title' => 'منشور بوسائط ونوع',
+            'audience_type' => 'all',
+            'status' => 'published',
+            'type' => 'critical',
+            'media_path' => 'media/announcement-banner.png',
+        ])->assertRedirect(route('admin.guidance.index'));
+
+        $announcement = Announcement::query()->where('title', 'منشور بوسائط ونوع')->firstOrFail();
+
+        $this->assertSame('critical', $announcement->type);
+        $this->assertSame('media/announcement-banner.png', $announcement->media_path);
+
+        // وعمود «النوع» يظهر في الجدول
+        $this->actingAs($admin)->get(route('admin.guidance.index'))
+            ->assertOk()
+            ->assertSee('يحتاج إقرار');
+    }
+
+    /** ⭐ التعليمات جدولٌ لا كروتٌ — بأعمدته الدستوريّة (24 · 12.6-أ). */
+    public function test_announcements_list_renders_as_a_table_with_required_columns(): void
+    {
+        $this->actingAs($this->admin())->post(route('admin.guidance.announcements.store'), [
+            'title' => 'منشور للجدول',
+            'audience_type' => 'all',
+            'status' => 'published',
+            'is_pinned' => 1,
+        ]);
+
+        $response = $this->actingAs($this->admin())->get(route('admin.guidance.index'))->assertOk();
+
+        $response->assertSee('<table', false);
+        $response->assertSee('منشور للجدول');
+        $response->assertSee('النوع');
+        $response->assertSee('الجمهور');
+        $response->assertSee('نسبة القراءة');
+        $response->assertSee('الإقرارات');
+        $response->assertSee('مثبَّت؟');
+    }
+
     /** أقصى منشورات مثبَّتة يُفرَض على الخادم (24.3). */
     public function test_pinned_limit_is_enforced(): void
     {
@@ -131,6 +187,27 @@ class AdminContentGuidanceTest extends AdminContentTestCase
             ->get(route('admin.guidance.help', ['q' => 'كلمة المرور']))
             ->assertOk()
             ->assertSee('إزاي أغيّر كلمة المرور؟');
+    }
+
+    /** ⭐ دليل المستخدم جدولٌ لا كروتٌ — بأعمدته الدستوريّة (24 · 12.6-ج). */
+    public function test_help_articles_list_renders_as_a_table_with_required_columns(): void
+    {
+        $this->actingAs($this->admin())->post(route('admin.guidance.help.store'), [
+            'title' => 'دليل الجدول',
+            'title_en' => 'Table Guide',
+            'category' => 'الحساب',
+            'body' => 'محتوى.',
+            'status' => 'published',
+        ]);
+
+        $response = $this->actingAs($this->admin())->get(route('admin.guidance.help'))->assertOk();
+
+        $response->assertSee('<table', false);
+        $response->assertSee('دليل الجدول');
+        $response->assertSee('Table Guide');
+        $response->assertSee('العنوان (ع/إ)');
+        $response->assertSee('التصنيف');
+        $response->assertSee('الحساب');
     }
 
     /** الشكاوى: ردّ داخليّ/خارجيّ + إغلاق بسبب موثّق (24.3). */

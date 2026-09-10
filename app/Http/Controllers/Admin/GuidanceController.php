@@ -17,6 +17,7 @@ use App\Services\Account\ComplaintService;
 use App\Services\Admin\AudienceSegments;
 use App\Services\Admin\Content\AnnouncementRecurrence;
 use App\Services\Admin\Content\GuidanceComposer;
+use App\Services\Notifications\AnnouncementFeed;
 use App\Services\Notifications\AnnouncementMailer;
 use App\Services\Notifications\AnnouncementPersonalizer;
 use App\Services\Notifications\AnnouncementPoll;
@@ -52,6 +53,9 @@ class GuidanceController extends Controller
             'stats' => $this->guidance->readStats($announcements->getCollection()),
             'filters' => $filters,
             'statuses' => GuidanceComposer::statuses(),
+            // النوع (12.6-أ · القسم 24): عمود جدولٍ منصوصٌ حرفيًّا، وحقلُ الفورم
+            // يستعمل نفس القائمة التي يفلتر بها المتدرّب (`AnnouncementFeed::types`).
+            'types' => AnnouncementFeed::types(),
             'tabs' => $this->tabs('announcements'),
             'audiences' => $this->audienceOptions(),
             // الجدولة المتكرّرة: الترددات + موعد الدورة القادمة لكلّ قالب (12.6-أ)
