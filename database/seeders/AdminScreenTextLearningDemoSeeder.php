@@ -442,6 +442,7 @@ class AdminScreenTextLearningDemoSeeder extends Seeder
             ['admin.certificates.partials.accreditations.km_nwa', 'certificates', 'كم نوع', 'string', 'كم نوع', 'نصّ في resources/views/admin/certificates/partials/accreditations.blade.php'],
             ['admin.certificates.partials.accreditations.matl', 'certificates', 'معطّل', 'string', 'معطّل', 'نصّ في resources/views/admin/certificates/partials/accreditations.blade.php'],
             ['admin.certificates.partials.accreditations.mfysh_aatmadat_fy_alflatr_dy', 'certificates', 'مفيش اعتمادات في الفلاتر دي.', 'string', 'مفيش اعتمادات في الفلاتر دي.', 'نصّ في resources/views/admin/certificates/partials/accreditations.blade.php'],
+            ['admin.certificates.partials.accreditations.mfysh_aatmadat_msjla_asla', 'certificates', 'مفيش اعتمادات مسجّلة أصلًا.', 'string', 'مفيش اعتمادات مسجّلة أصلًا.', 'نصّ في resources/views/admin/certificates/partials/accreditations.blade.php — الحالة الفارغة بلا فلترٍ نشط (24.2).'],
             ['admin.certificates.partials.accreditations.mqfwl', 'certificates', 'مقفول', 'string', 'مقفول', 'نصّ في resources/views/admin/certificates/partials/accreditations.blade.php'],
             ['admin.certificates.partials.accreditations.mstkhdm', 'certificates', 'مستخدَم', 'string', 'مستخدَم', 'نصّ في resources/views/admin/certificates/partials/accreditations.blade.php'],
             ['admin.certificates.partials.accreditations.ns_sfha_althqq_arby', 'certificates', 'نصّ صفحة التحقّق (عربيّ)', 'string', 'نصّ صفحة التحقّق (عربيّ)', 'نصّ في resources/views/admin/certificates/partials/accreditations.blade.php'],
@@ -488,6 +489,7 @@ class AdminScreenTextLearningDemoSeeder extends Seeder
             ['admin.certificates.partials.ledger.ilgha_shhada', 'certificates', 'إلغاء شهادة', 'string', 'إلغاء شهادة', 'نصّ في resources/views/admin/certificates/partials/ledger.blade.php'],
             ['admin.certificates.partials.ledger.kwd_alshhada_aw_asm_sahbha', 'certificates', 'كود الشهادة أو اسم صاحبها…', 'string', 'كود الشهادة أو اسم صاحبها…', 'نصّ في resources/views/admin/certificates/partials/ledger.blade.php'],
             ['admin.certificates.partials.ledger.mfysh_shhadat_fy_alflatr_dy', 'certificates', 'مفيش شهادات في الفلاتر دي.', 'string', 'مفيش شهادات في الفلاتر دي.', 'نصّ في resources/views/admin/certificates/partials/ledger.blade.php'],
+            ['admin.certificates.partials.ledger.mfysh_shhadat_sadra_asla', 'certificates', 'مفيش شهادات صادرة أصلًا.', 'string', 'مفيش شهادات صادرة أصلًا.', 'نصّ في resources/views/admin/certificates/partials/ledger.blade.php — الحالة الفارغة بلا فلترٍ نشط (24.2).'],
             ['admin.certificates.partials.ledger.mn_tarykh', 'certificates', 'من تاريخ', 'string', 'من تاريخ', 'نصّ في resources/views/admin/certificates/partials/ledger.blade.php'],
             ['admin.certificates.partials.ledger.nblgh_sahbha_blbaqa', 'certificates', 'نبلّغ صاحبها بلباقة', 'string', 'نبلّغ صاحبها بلباقة', 'نصّ في resources/views/admin/certificates/partials/ledger.blade.php'],
             ['admin.certificates.partials.ledger.rabt_althqq', 'certificates', 'رابط التحقّق', 'string', 'رابط التحقّق', 'نصّ في resources/views/admin/certificates/partials/ledger.blade.php'],
@@ -647,6 +649,7 @@ class AdminScreenTextLearningDemoSeeder extends Seeder
     {
         $this->write([
             ['admin.availability.index.aard', 'availability', 'اعرض', 'string', 'اعرض', 'نصّ في resources/views/admin/availability/index.blade.php'],
+            ['admin.availability.index.lsh_mfysh_tdrybat_fy_almnsa_asla', 'availability', 'لسّه مفيش تدريبات في المنصّة أصلًا.', 'string', 'لسّه مفيش تدريبات في المنصّة أصلًا.', 'نصّ في resources/views/admin/availability/index.blade.php — الحالة الفارغة بلا فلترٍ نشط (24.2).'],
             ['admin.availability.index.abhth_basm_altdryb', 'availability', 'ابحث باسم التدريب', 'string', 'ابحث باسم التدريب', 'نصّ في resources/views/admin/availability/index.blade.php'],
             ['admin.availability.index.adf_ftra', 'availability', 'أضِف فترة', 'string', 'أضِف فترة', 'نصّ في resources/views/admin/availability/index.blade.php'],
             ['admin.availability.index.ahdhf', 'availability', 'احذف', 'string', 'احذف', 'نصّ في resources/views/admin/availability/index.blade.php'],
