@@ -2,15 +2,19 @@
 
 namespace App\Services\Events;
 
+use App\Models\AdAudience;
 use App\Models\Event;
 use App\Models\EventNotice;
 use App\Models\EventRegistration;
 use App\Models\EventReminder;
 use App\Models\User;
+use App\Services\Admin\AudienceSegments;
 use App\Services\Notifications\Notifier;
 use Carbon\CarbonImmutable;
+use Illuminate\Database\Query\Builder as QueryBuilder;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
@@ -28,8 +32,13 @@ use Throwable;
  *
  * ولذلك: المواعيد **قائمةٌ في الإعدادات** لا رقمان محروقان، والقرار **داخل هذه
  * الخدمة وحدها** لا في تعبير كرون يتجمّد على القيمة القديمة بعد أن يغيّرها
- * الأدمن. والمُستقبِل: **المسجّلون في الفعاليّة** — لأنّ النصّ يضع التذكير في
- * بند «التسجيل والتذكرة»، أمّا الدعوة بشريحةٍ فبندٌ آخر مستقلّ في 12.11.
+ * الأدمن. ومستلِم **التذكير المجدول** (`dispatchDue`): المسجّلون في الفعاليّة
+ * وحدهم — لأنّ النصّ يضع التذكير في بند «التسجيل والتذكرة».
+ *
+ * أمّا «إشعار المسجّلين» (`deliverNotice`) فبندٌ آخر مستقلّ في 12.11، وله
+ * مصدر مستلمين ثانٍ: **دعوة شريحة** محفوظة (AdAudience) حين يحمل صفّ
+ * `EventNotice` قيمة `segment_id` — مطروحًا منها مَن سجَّل بالفعل في نفس
+ * الفعاليّة، فلا يصله الإشعار مزدوجًا.
  *
  * ⚠️ **وحارس عدم التكرار في القاعدة لا في الذاكرة:** صفٌّ فريد لكلّ
  * (فعاليّة · مستخدم · موعد · قناة)، فإعادة التشغيل — أو مسحتان متداخلتان —
@@ -41,7 +50,10 @@ class ReminderScheduler
 
     public const CHANNEL_EMAIL = 'email';
 
-    public function __construct(private readonly EventPresenter $presenter) {}
+    public function __construct(
+        private readonly EventPresenter $presenter,
+        private readonly AudienceSegments $segments,
+    ) {}
 
     /**
      * مسحةٌ واحدة: كلّ فعاليّةٍ منشورةٍ لم تبدأ بعد × كلّ موعدٍ حان × كلّ مسجَّل.
@@ -134,7 +146,10 @@ class ReminderScheduler
         return $result;
     }
 
-    /** بثّ إشعارٍ واحدٍ لكلّ مسجّلي الفعاليّة — ويُرجِع عدد مَن وصلهم */
+    /**
+     * بثّ إشعارٍ واحد — لكلّ مسجّلي الفعاليّة، أو لأعضاء شريحةٍ محفوظة حين
+     * يحمل الصفّ `segment_id` (12.11) — ويُرجِع عدد مَن وصلهم.
+     */
     public function deliverNotice(EventNotice $notice): int
     {
         $event = $notice->event;
@@ -147,9 +162,7 @@ class ReminderScheduler
 
         $count = 0;
 
-        foreach ($this->registrations($event) as $registration) {
-            $user = $registration->user;
-
+        foreach ($this->noticeRecipients($notice, $event) as $user) {
             if (! $user) {
                 continue;
             }
@@ -186,6 +199,52 @@ class ReminderScheduler
         $notice->forceFill(['status' => 'sent', 'sent_at' => now(), 'recipients' => $count])->save();
 
         return $count;
+    }
+
+    /**
+     * ⭐ مصدر مستلمي «إشعار المسجّلين» الواحد — والفرق هنا هو **12.11**:
+     *
+     * بلا `segment_id`: مسجّلو الفعاليّة كما كان دومًا.
+     *
+     * وبـ`segment_id`: أعضاء الشريحة المحفوظة (ثابتة أو ديناميكيّة — الفرق
+     * محسومٌ داخل `AudienceSegments::membersQuery()` لا هنا) **مطروحًا منهم**
+     * مَن سجَّل بالفعل في نفس الفعاليّة عبر `whereNotExists` على القاعدة —
+     * فلا يصل الإشعار مزدوجًا لعضوٍ هو مسجَّلٌ أصلًا (وقد يكون استُهدِف
+     * بإشعار مسجّلين عاديّ منفصل، وهذا لا يمنعه هذا الاستبعاد).
+     *
+     * شريحةٌ محذوفةٌ أو مؤرشَفةٌ لاحقًا (بعد إنشاء الإشعار) تُرجِع مجموعةً
+     * فارغة بدل كسر التسليم — الصفّ يُقفَل `sent` بصفر مستلِم لا يبقى معلَّقًا.
+     *
+     * @return Collection<int, User>
+     */
+    private function noticeRecipients(EventNotice $notice, Event $event): Collection
+    {
+        if (! $notice->segment_id) {
+            return $this->registrations($event)
+                ->map(fn (EventRegistration $registration) => $registration->user)
+                ->filter()
+                ->values();
+        }
+
+        $segment = AdAudience::query()
+            ->where('kind', AudienceSegments::KIND)
+            ->whereNull('archived_at')
+            ->find($notice->segment_id);
+
+        if (! $segment) {
+            return collect();
+        }
+
+        return $this->segments->membersQuery($segment)
+            ->select(['users.id', 'users.name', 'users.email', 'users.country_id'])
+            ->whereNotExists(function (QueryBuilder $query) use ($event) {
+                $query->select(DB::raw(1))
+                    ->from('event_registrations')
+                    ->whereColumn('event_registrations.user_id', 'users.id')
+                    ->where('event_registrations.event_id', $event->id);
+            })
+            ->limit((int) setting('events.reminder.recipients_per_event', 2000))
+            ->get();
     }
 
     /**

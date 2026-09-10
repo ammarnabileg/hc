@@ -2,11 +2,13 @@
 
 namespace Tests\Feature\Events;
 
+use App\Models\AdAudience;
 use App\Models\AppNotification;
 use App\Models\EventNotice;
 use App\Models\EventRegistration;
 use App\Models\Permission;
 use App\Models\User;
+use App\Services\Admin\AudienceSegments;
 use App\Support\Access\AccessEngine;
 use Illuminate\Support\Facades\DB;
 
@@ -235,6 +237,131 @@ class EventRegistrationsScreenTest extends EventsTestCase
         );
     }
 
+    /** ⭐ 12.11: دعوة أعضاء شريحةٍ محفوظة لفعاليّة تصل فعليًّا لعضوٍ من الشريحة */
+    public function test_inviting_a_segment_actually_notifies_its_members(): void
+    {
+        $admin = $this->eventsAdmin();
+        $member = $this->trainee('عضو الشريحة');
+
+        $event = $this->makeEvent(['title_ar' => 'حفل التخرّج']);
+        $segment = $this->staticSegment('خريجو الدفعة', [$member->id]);
+
+        $this->actingAs($admin)
+            ->post(route('admin.events.registrations.invite-segment', $event), [
+                'segment_id' => $segment->id,
+                'body' => 'تعالَ احتفل معانا.',
+                'channel' => 'bell',
+            ])
+            ->assertRedirect();
+
+        $notice = EventNotice::where('event_id', $event->id)->firstOrFail();
+        $this->assertSame($segment->id, $notice->segment_id);
+        $this->assertSame('sent', $notice->status);
+        $this->assertSame(1, $notice->recipients);
+
+        $this->assertTrue(
+            AppNotification::where('user_id', $member->id)->where('title', 'حفل التخرّج')->exists(),
+            'عضو الشريحة لازم يوصله الجرس فعليًّا',
+        );
+    }
+
+    /** ⭐ 12.11: عضو الشريحة المسجَّل بالفعل في نفس الفعاليّة يُستبعَد فلا يصله ازدواج */
+    public function test_a_segment_member_already_registered_for_the_event_is_excluded(): void
+    {
+        $admin = $this->eventsAdmin();
+        $registered = $this->trainee('مسجَّلة بالفعل');
+
+        $event = $this->makeEvent();
+        $this->actingAs($registered)->post(route('events.register', $event->slug));
+
+        $before = AppNotification::where('user_id', $registered->id)->count();
+
+        $segment = $this->staticSegment('كلّ المتدرّبين', [$registered->id]);
+
+        $this->actingAs($admin)
+            ->post(route('admin.events.registrations.invite-segment', $event), [
+                'segment_id' => $segment->id,
+                'body' => 'دعوة عامّة.',
+                'channel' => 'bell',
+            ])
+            ->assertRedirect();
+
+        $notice = EventNotice::where('event_id', $event->id)->where('segment_id', $segment->id)->firstOrFail();
+        $this->assertSame('sent', $notice->status, 'يُقفَل مُرسَلًا حتّى بصفر مستلِم — لا يبقى معلَّقًا');
+        $this->assertSame(0, $notice->recipients, 'المسجَّل مسبقًا مُستبعَدٌ من دعوة الشريحة');
+
+        $this->assertSame(
+            $before,
+            AppNotification::where('user_id', $registered->id)->count(),
+            'ولا إشعار مزدوج وصله عبر مسار الشريحة',
+        );
+    }
+
+    /** ⭐ 12.11: الزرّ والمسار محجوبان عمّن لا يملك events.edit (2.15-أ-7) */
+    public function test_invite_segment_is_hidden_from_whoever_lacks_events_edit(): void
+    {
+        $viewer = $this->viewOnlyAdmin();
+        $event = $this->makeEvent(['title_ar' => 'فعاليّة محجوبة']);
+        $segment = $this->staticSegment('شريحة', []);
+
+        $this->actingAs($viewer)
+            ->get(route('admin.events.registrations.index', ['event_id' => $event->id]))
+            ->assertOk()
+            ->assertDontSee('دعوة شريحة');
+
+        $this->actingAs($viewer)
+            ->post(route('admin.events.registrations.invite-segment', $event), [
+                'segment_id' => $segment->id,
+                'body' => 'دعوة.',
+                'channel' => 'bell',
+            ])
+            ->assertForbidden();
+    }
+
+    /** ⭐ 12.13: شريحةٌ مؤرشفة أو من kind مختلف لا تظهر في المنتقي ولا تُقبَل مباشرةً */
+    public function test_archived_or_wrong_kind_segments_are_rejected(): void
+    {
+        $admin = $this->eventsAdmin();
+        $event = $this->makeEvent();
+
+        $archived = $this->staticSegment('شريحة مؤرشفة', []);
+        $archived->update(['archived_at' => now()]);
+
+        $adSegment = AdAudience::create([
+            'name' => 'جمهور إعلان',
+            'kind' => 'retargeting',
+            'segment_type' => AudienceSegments::TYPE_STATIC,
+            'rule' => [],
+            'is_active' => true,
+        ]);
+
+        // المنتقي لا يعرض أيًّا منهما
+        $this->actingAs($admin)
+            ->get(route('admin.events.registrations.index', ['event_id' => $event->id]))
+            ->assertOk()
+            ->assertDontSee('شريحة مؤرشفة')
+            ->assertDontSee('جمهور إعلان');
+
+        // والإرسال المباشر بمعرّفها مرفوضٌ من الحارس لا فقط من الواجهة
+        $this->actingAs($admin)
+            ->post(route('admin.events.registrations.invite-segment', $event), [
+                'segment_id' => $archived->id,
+                'body' => 'دعوة.',
+                'channel' => 'bell',
+            ])
+            ->assertSessionHasErrors('segment_id');
+
+        $this->actingAs($admin)
+            ->post(route('admin.events.registrations.invite-segment', $event), [
+                'segment_id' => $adSegment->id,
+                'body' => 'دعوة.',
+                'channel' => 'bell',
+            ])
+            ->assertSessionHasErrors('segment_id');
+
+        $this->assertSame(0, EventNotice::where('event_id', $event->id)->count());
+    }
+
     public function test_manual_check_in_still_goes_through_the_ledger(): void
     {
         $admin = $this->eventsAdmin();
@@ -310,6 +437,65 @@ class EventRegistrationsScreenTest extends EventsTestCase
             'events.list', 'events.edit', 'event_registrations.list',
             'event_registrations.export', 'event_attendance.create', 'event_attendance.edit',
         ];
+
+        foreach ($keys as $key) {
+            $permission = Permission::where('key', $key)->first();
+
+            if (! $permission) {
+                continue;
+            }
+
+            DB::table('permission_user')->insertOrIgnore([
+                'permission_id' => $permission->id,
+                'user_id' => $user->id,
+                'membership_id' => null,
+                'scope' => 'ALL',
+                'effect' => 'allow',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
+
+        app(AccessEngine::class)->forget($user);
+
+        return $user->fresh();
+    }
+
+    /**
+     * شريحةٌ ثابتة بأعضائها مباشرةً في `audience_segment_members` — بلا مرور
+     * بحلّ الشرط أو نطاق مالكٍ، فالاختبار يقيس مصدر المستلمين لا بناء الشريحة.
+     *
+     * @param  list<int>  $userIds
+     */
+    private function staticSegment(string $name, array $userIds): AdAudience
+    {
+        $segment = AdAudience::create([
+            'name' => $name,
+            'kind' => AudienceSegments::KIND,
+            'segment_type' => AudienceSegments::TYPE_STATIC,
+            'rule' => [],
+            'is_active' => true,
+            'size' => count($userIds),
+        ]);
+
+        foreach ($userIds as $userId) {
+            DB::table('audience_segment_members')->insert([
+                'ad_audience_id' => $segment->id,
+                'user_id' => $userId,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
+
+        return $segment;
+    }
+
+    /** أدمنٌ يرى شاشة المسجّلين لكن **بلا events.edit** — لاختبار حارس دعوة الشريحة وحده */
+    private function viewOnlyAdmin(): User
+    {
+        $user = $this->trainee('أدمن بلا events.edit');
+
+        $keys = ['events.list', 'event_registrations.list'];
 
         foreach ($keys as $key) {
             $permission = Permission::where('key', $key)->first();

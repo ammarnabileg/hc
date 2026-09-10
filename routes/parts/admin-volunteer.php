@@ -330,6 +330,9 @@ Route::middleware(['auth', 'admin.panel'])->prefix('admin')->name('admin.')->gro
             ->middleware('permission:event_registrations.export')->name('registrations.export');
         Route::post('/registrations/notify/{event}', [EventRegistrationsController::class, 'notify'])
             ->middleware('permission:events.edit')->name('registrations.notify');
+        // ⭐ دعوة شريحة + إشعار (12.11) — نفس صلاحيّة notify() لا صلاحيّة جديدة
+        Route::post('/registrations/invite-segment/{event}', [EventRegistrationsController::class, 'inviteSegment'])
+            ->middleware('permission:events.edit')->name('registrations.invite-segment');
 
         // مسح QR للتشيك-إن (13.3 · 12.11 · 24.3) — الرابط الذي تفتحه كاميرا المنظِّم
         Route::get('/scan/{token}', [EventRegistrationsController::class, 'scan'])

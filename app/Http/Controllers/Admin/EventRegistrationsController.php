@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\AdAudience;
 use App\Models\Event;
 use App\Models\EventNotice;
 use App\Models\EventRegistration;
+use App\Services\Admin\AudienceSegments;
 use App\Services\Admin\Volunteer\AuditTrail;
 use App\Services\Events\AttendanceService;
 use App\Services\Events\CheckinQr;
@@ -14,6 +16,7 @@ use App\Support\Scope\ScopeFilter;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -64,6 +67,14 @@ class EventRegistrationsController extends Controller
                 ->get(['id', 'title_ar', 'starts_at']),
             'attendance' => $this->attendance,
             'qr' => $this->qr,
+            // ⭐ منتقي «دعوة شريحة» (12.11): شرائح المستخدمين النشطة وحدها —
+            // شريحةٌ مؤرشفة أو من kind إعلانٍ لا تظهر (12.13)
+            'segments' => AdAudience::query()
+                ->where('kind', AudienceSegments::KIND)
+                ->whereNull('archived_at')
+                ->orderByDesc('id')
+                ->limit((int) setting('events.registrations.segment_picker_limit', 30))
+                ->get(['id', 'name', 'segment_type', 'size']),
         ]);
     }
 
@@ -163,6 +174,58 @@ class EventRegistrationsController extends Controller
         return back()->with('status', (string) setting(
             $sendAt->isFuture() ? 'events.notice.scheduled_message' : 'events.notice.sent_message',
             $sendAt->isFuture() ? 'الإشعار اتجدول ✓ — هيوصل في معاده.' : 'الإشعار اتبعت للمسجّلين ✓',
+        ));
+    }
+
+    /**
+     * ⭐ «الاستهداف/الدعوة بشريحة + إشعار» (12.11) — دعوة أعضاء شريحة جمهورٍ
+     * محفوظة لهذه الفعاليّة، لا مسجّليها وحدهم. نفس بناء `EventNotice` ونفس
+     * منطق الآن/مجدول في `notify()` حرفيًّا؛ الفرق الوحيد `segment_id`، الذي
+     * يحوّل مصدر المستلمين داخل `ReminderScheduler::deliverNotice()`.
+     *
+     * والشريحة المقبولة: من `kind` المستخدمين وحده (لا شرائح إعلانٍ أخرى في
+     * نفس الجدول)، وغير مؤرشفة — شريحةٌ خارج الخدمة لا تُخاطَب (12.13).
+     */
+    public function inviteSegment(Request $request, Event $event, ReminderScheduler $scheduler): RedirectResponse
+    {
+        $data = $request->validate([
+            'segment_id' => [
+                'required',
+                'integer',
+                Rule::exists('ad_audiences', 'id')->where(
+                    fn ($query) => $query->where('kind', AudienceSegments::KIND)->whereNull('archived_at'),
+                ),
+            ],
+            'body' => ['required', 'string', 'max:'.(int) setting('events.notice.max_chars', 2000)],
+            'channel' => ['required', 'in:bell,email'],
+            'send_at' => ['nullable', 'date'],
+        ]);
+
+        $sendAt = ! empty($data['send_at'])
+            ? CarbonImmutable::parse($data['send_at'])
+            : CarbonImmutable::now();
+
+        $notice = EventNotice::create([
+            'event_id' => $event->id,
+            'segment_id' => $data['segment_id'],
+            'created_by' => $request->user()?->id,
+            'body' => $data['body'],
+            'channel' => $data['channel'],
+            'send_at' => $sendAt,
+            'status' => 'pending',
+        ]);
+
+        if (! $sendAt->isFuture()) {
+            EventNotice::query()->whereKey($notice->id)->where('status', 'pending')->update(['status' => 'sending']);
+            $notice->refresh();
+            $scheduler->deliverNotice($notice);
+        }
+
+        AuditTrail::log($request->user(), 'event.invite_segment', $notice);
+
+        return back()->with('status', (string) setting(
+            $sendAt->isFuture() ? 'events.notice.segment_scheduled_message' : 'events.notice.segment_sent_message',
+            $sendAt->isFuture() ? 'الدعوة اتجدولت ✓ — هتوصل في معادها.' : 'الدعوة اتبعت لأعضاء الشريحة ✓',
         ));
     }
 

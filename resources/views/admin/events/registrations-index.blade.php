@@ -128,6 +128,13 @@
                     style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
                 {{ setting('events.registrations.notify_button', 'إشعار المسجّلين') }}
             </button>
+
+            {{-- ⭐ دعوة أعضاء شريحة جمهورٍ محفوظة لهذه الفعاليّة، لا مسجّليها وحدهم (12.11) --}}
+            <button type="button" data-modal-open="invite-segment-modal"
+                    class="btn rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
+                    style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
+                {{ setting('events.registrations.invite_segment_button', 'دعوة شريحة') }}
+            </button>
         @endif
 
         @if ($canScan && $event)
@@ -304,6 +311,69 @@
                     <textarea name="body" rows="4" required
                               maxlength="{{ (int) setting('events.notice.max_chars', 2000) }}"
                               placeholder="{{ setting('events.registrations.notify_placeholder', 'مثال: اترفع رابط التسجيل — تقدر تتفرّج عليه من صفحة الفعاليّة.') }}"
+                              class="w-full rounded-xl px-3 py-2 text-sm mt-1"
+                              style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)"></textarea>
+                </label>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <label class="block text-sm font-semibold">
+                        {{ setting('events.registrations.notify_channel_label', 'القناة') }}
+                        <select name="channel" class="w-full rounded-xl px-3 py-2 text-sm mt-1"
+                                style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
+                            <option value="bell">{{ setting('events.registrations.channel_bell', 'الجرس') }}</option>
+                            <option value="email">{{ setting('events.registrations.channel_email', 'البريد') }}</option>
+                        </select>
+                    </label>
+
+                    <label class="block text-sm font-semibold">
+                        {{ setting('events.registrations.notify_when_label', 'الموعد (سيبه فاضي = دلوقتي)') }}
+                        <input type="datetime-local" name="send_at"
+                               class="w-full rounded-xl px-3 py-2 text-sm mt-1"
+                               style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
+                    </label>
+                </div>
+
+                <button type="submit" class="btn w-full rounded-xl px-4 py-3 text-sm font-bold motion-standard"
+                        style="background: var(--color-brand-500); color: #04201c">
+                    {{ setting('events.registrations.notify_submit', 'ابعت') }}
+                </button>
+            </form>
+        </x-modal>
+    @endif
+
+    {{--
+      [دعوة شريحة] (12.11) — دعوة أعضاء شريحة جمهورٍ محفوظة لهذه الفعاليّة،
+      بإشعارٍ فعليّ يصلهم فعلًا — لا إشعار مسجّلين عاديّ. نفس فورم notify() حرفيًّا
+      مع منتقي شريحةٍ إضافيّ، ومَن سجَّل بالفعل يُستبعَد على السيرفر (لا هنا).
+    --}}
+    @if ($canNotify && $event)
+        <x-modal id="invite-segment-modal" :title="setting('events.registrations.invite_segment_button', 'دعوة شريحة')">
+            <form method="post" action="{{ route('admin.events.registrations.invite-segment', $event) }}" class="space-y-3">
+                @csrf
+                <label class="block text-sm font-semibold">
+                    {{ setting('events.registrations.invite_segment_label', 'الشريحة') }}
+                    <select name="segment_id" required class="w-full rounded-xl px-3 py-2 text-sm mt-1"
+                            style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
+                        <option value="">{{ setting('events.registrations.invite_segment_placeholder', '— اختر شريحة —') }}</option>
+                        @foreach ($segments as $segment)
+                            <option value="{{ $segment->id }}">
+                                {{ $segment->name }} — {{ \App\Services\Admin\AudienceSegments::types()[$segment->segment_type] ?? $segment->segment_type }}
+                                ({{ number_format((int) $segment->size) }})
+                            </option>
+                        @endforeach
+                    </select>
+                </label>
+                @if ($segments->isEmpty())
+                    <p class="text-xs" style="color: var(--text-muted)">
+                        <a href="{{ route('admin.users.segments') }}" class="underline">{{ setting('events.registrations.invite_segment_empty', 'مفيش شرائح محفوظة لسّه — ابنِ واحدة') }}</a>
+                    </p>
+                @endif
+
+                <label class="block text-sm font-semibold">
+                    {{ setting('events.registrations.notify_body_label', 'نصّ الإشعار') }}
+                    <textarea name="body" rows="4" required
+                              maxlength="{{ (int) setting('events.notice.max_chars', 2000) }}"
+                              placeholder="{{ setting('events.registrations.invite_segment_body_placeholder', 'مثال: يشرّفنا حضورك — التفاصيل في صفحة الفعاليّة.') }}"
                               class="w-full rounded-xl px-3 py-2 text-sm mt-1"
                               style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)"></textarea>
                 </label>

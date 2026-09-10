@@ -28,4 +28,10 @@ class EventNotice extends Model
     {
         return $this->belongsTo(Event::class, 'event_id');
     }
+
+    /** الشريحة المحفوظة إن كان الإشعار دعوة شريحةٍ لا إشعار مسجّلين عاديّ (12.11) */
+    public function segment(): BelongsTo
+    {
+        return $this->belongsTo(AdAudience::class, 'segment_id');
+    }
 }

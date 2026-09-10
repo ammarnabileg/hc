@@ -264,6 +264,10 @@ class EventDemoSeeder extends Seeder
             ['events.notice.sent_message', 'events', 'رسالة إرسال الإشعار', 'string', 'الإشعار اتبعت للمسجّلين ✓'],
             ['events.notice.scheduled_message', 'events', 'رسالة جدولة الإشعار', 'string', 'الإشعار اتجدول ✓ — هيوصل في معاده.'],
 
+            // ---------------- دعوة شريحة + إشعار (12.11)
+            ['events.notice.segment_sent_message', 'events', 'رسالة إرسال دعوة الشريحة', 'string', 'الدعوة اتبعت لأعضاء الشريحة ✓'],
+            ['events.notice.segment_scheduled_message', 'events', 'رسالة جدولة دعوة الشريحة', 'string', 'الدعوة اتجدولت ✓ — هتوصل في معادها.'],
+
             // ---------------- شاشة «المسجّلون والحضور» الجامعة (12.11 · 24.3)
             ['events.admin.export_limit', 'events', 'أقصى صفوف تصدير المسجّلين', 'number', '5000'],
             ['events.registrations.page_title', 'events', 'عنوان شاشة المسجّلين والحضور', 'string', 'المسجّلون والحضور'],
@@ -315,6 +319,14 @@ class EventDemoSeeder extends Seeder
             ['events.registrations.notify_submit', 'events', 'زرّ إرسال الإشعار', 'string', 'ابعت'],
             ['events.registrations.channel_bell', 'events', 'قناة الجرس', 'string', 'الجرس'],
             ['events.registrations.channel_email', 'events', 'قناة البريد', 'string', 'البريد'],
+
+            // ---------------- دعوة شريحة + إشعار (12.11)
+            ['events.registrations.segment_picker_limit', 'events', 'أقصى شرائح في منتقي الدعوة', 'number', '30'],
+            ['events.registrations.invite_segment_button', 'events', 'زرّ دعوة شريحة', 'string', 'دعوة شريحة'],
+            ['events.registrations.invite_segment_label', 'events', 'عنوان منتقي الشريحة', 'string', 'الشريحة'],
+            ['events.registrations.invite_segment_placeholder', 'events', 'خيار منتقي الشريحة الفارغ', 'string', '— اختر شريحة —'],
+            ['events.registrations.invite_segment_empty', 'events', 'رابط بلا شرائح محفوظة', 'string', 'مفيش شرائح محفوظة لسّه — ابنِ واحدة'],
+            ['events.registrations.invite_segment_body_placeholder', 'events', 'مثال نصّ دعوة الشريحة', 'text', 'مثال: يشرّفنا حضورك — التفاصيل في صفحة الفعاليّة.'],
             ['events.registrations.export_button', 'events', 'زرّ تصدير CSV', 'string', 'تصدير CSV'],
             ['events.registrations.csv_filename', 'events', 'اسم ملفّ التصدير', 'string', 'event-registrations'],
             ['events.registrations.csv_headers', 'events', 'رؤوس أعمدة ملفّ التصدير', 'json', '["الفعاليّة","التاريخ","الاسم","الكود","نمط الحضور","حالة الحضور","وقت التشيك-إن"]'],
