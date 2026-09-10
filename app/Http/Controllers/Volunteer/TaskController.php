@@ -24,6 +24,7 @@ use App\Services\Volunteer\Tasks\TaskStatus;
 use App\Services\Volunteer\Tasks\TaskWorkflow;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Validation\ValidationException;
 
@@ -77,6 +78,8 @@ class TaskController extends Controller
             'filters' => $filters,
             'types' => TaskType::query()->where('is_active', true)->get(),
             'workItems' => $this->workItemsFor($membership),
+            // فريقه في سلكت بوكس عند الـAssign، وجنب كلّ واحد عدد مهامّه (23-3.1)
+            'teamMembers' => $this->teamMembersFor($user, $membership),
             'columns' => TaskStatus::boardColumns(),
         ]);
     }
@@ -355,6 +358,32 @@ class TaskController extends Controller
             ->where('upline_id', $membership->id)
             ->where('status', 'active')
             ->exists();
+    }
+
+    /**
+     * أعضاء فريق مَن ينشئ المهمّة (داونلاينه المباشر) وعدد مهامّه الحاليّة —
+     * للسلكت بوكس عند الإسناد في شاشة الإنشاء (23-3.1): «فريقه في سلكت بوكس
+     * وجنب كلّ واحد عدد المهامّ اللي بينفّذها». والحمل والسقف لكلّ عضوٍ
+     * يُحسَبان على عضويّته **هو** — دوره وكيانه — لا على عضويّة مَن ينشئ.
+     *
+     * @return Collection<int, array{user: User, load: int, cap: ?int}>
+     */
+    private function teamMembersFor(User $user, $membership): Collection
+    {
+        if (! $membership) {
+            return collect();
+        }
+
+        return Membership::query()
+            ->where('upline_id', $membership->id)
+            ->where('status', 'active')
+            ->with(['user', 'position'])
+            ->get()
+            ->map(fn (Membership $member) => [
+                'user' => $member->user,
+                'load' => $this->cap->loadFor($member->user, $member),
+                'cap' => $this->cap->capFor($member),
+            ]);
     }
 
     /** بنود الكيان — الربط إلزاميّ لكلّ مهمّة جديدة */

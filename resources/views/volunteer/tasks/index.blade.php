@@ -152,6 +152,14 @@
 @endsection
 
 @push('scripts')
+    {{--
+        نصّ تحذير الإسناد يُحسَب هنا خارج <script> — فلا يبقى حرفٌ عربيّ محروق
+        داخل السكربت نفسه، ويصل الجافاسكربت مُحلولًا جاهزًا عبر @json (2.13).
+    --}}
+    @php
+        $ownerWarningTemplate = (string) setting('volunteer.tasks_new_task_modal.text_2', ':name عند :load من :cap — الإسناد فوق طاقته.');
+    @endphp
+
     <script>
         /* كانبان بالسحب: الإفلات ينقل لصفحة المهمّة على الفعل الصحيح،
            لأنّ تغيير الحالة يمرّ بأفعالها المعتمدة (تسليم/تعثّر) لا بسحبٍ صامت. */
@@ -173,5 +181,34 @@
                     : `/volunteer/tasks/${id}`;
             });
         });
+
+        /* الإسناد المباشر لا يخترق السقف بصمت: تحذير إلزاميّ يظهر لحظة اختيار
+           عضوٍ تجاوز سقف دوره — بلا منع الإسناد (23-3.1). */
+        (function () {
+            const select = document.getElementById('new-task-owner');
+            const warning = document.getElementById('new-task-owner-warning');
+            if (!select || !warning) return;
+
+            const template = @json($ownerWarningTemplate);
+
+            const refresh = () => {
+                const opt = select.options[select.selectedIndex];
+                const cap = opt?.dataset.cap ?? '';
+                const load = opt?.dataset.load ?? '';
+
+                if (opt && opt.value && cap !== '' && Number(load) >= Number(cap)) {
+                    warning.textContent = template
+                        .replace(':name', opt.textContent.split('—')[0].trim())
+                        .replace(':load', load)
+                        .replace(':cap', cap);
+                    warning.hidden = false;
+                } else {
+                    warning.hidden = true;
+                }
+            };
+
+            select.addEventListener('change', refresh);
+            refresh();
+        })();
     </script>
 @endpush

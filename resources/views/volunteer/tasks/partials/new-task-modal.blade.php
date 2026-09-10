@@ -49,6 +49,28 @@
                     </label>
 
                     <x-form.input name="vxp_value" :label="setting('volunteer.tasks_new_task_modal.label_3', 'قيمة VXP')" type="number" step="0.01" min="0" />
+
+                    {{-- الإسناد: فريقه في سلكت بوكس وجنب كلّ واحد عدد المهامّ اللي بينفّذها (23-3.1) --}}
+                    <label class="block">
+                        <span class="block text-sm mb-1">{{ setting('volunteer.tasks_new_task_modal.label_4', 'إسناد لعضو فريق') }}</span>
+                        <select name="owner_id" id="new-task-owner" class="w-full rounded-xl px-3 py-2 text-sm"
+                                style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
+                            <option value="">{{ setting('volunteer.tasks_new_task_modal.option_3', 'أنا (بلا إسناد)') }}</option>
+                            @foreach ($teamMembers as $member)
+                                @php($overCap = $member['cap'] !== null && $member['load'] >= $member['cap'])
+                                <option value="{{ $member['user']->id }}"
+                                        data-load="{{ $member['load'] }}"
+                                        data-cap="{{ $member['cap'] ?? '' }}">
+                                    {{ $member['user']->shortName() }} — {{ strtr((string) setting('volunteer.tasks_new_task_modal.option_4', ':p1 مهمّة حاليًّا'), [':p1' => (string) $member['load']]) }}
+                                    @if ($overCap)
+                                        ⚠ {{ setting('volunteer.tasks_new_task_modal.option_5', 'فوق سقف دوره') }}
+                                    @endif
+                                </option>
+                            @endforeach
+                        </select>
+                        {{-- تحذيرٌ إلزاميّ يظهر عند اختيار مَن تجاوز سقف دوره — ولا يمنع الإسناد (23-3.1) --}}
+                        <p id="new-task-owner-warning" hidden class="text-xs mt-1" style="color: var(--color-danger-500, #dc2626)"></p>
+                    </label>
                 </div>
             </details>
 
