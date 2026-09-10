@@ -1172,6 +1172,10 @@ class HttpTextDemoSeeder extends Seeder
             ['volunteer_org.membership_guard.handle_denied', 'volunteer_org', 'handle() — ده مش عضو في قسمك.', 'ده مش عضو في قسمك.'],
             // ---- app/Http/Middleware/EnsurePermission.php
             ['admin_roles.permission_guard.handle_msg', 'admin_roles', 'handle() — ليس لديك صلاحيّة الوصول لهذه الصفحة.', 'ليس لديك صلاحيّة الوصول لهذه الصفحة.'],
+            // ---- resources/views/errors/403.blade.php (بديل صفحة Laravel الخام لكلّ abort(403))
+            ['admin_roles.permission_guard.forbidden_page_title', 'admin_roles', 'errors/403 — عنوان التبويب — بلا صلاحيّة', 'بلا صلاحيّة'],
+            ['admin_roles.permission_guard.forbidden_page_message', 'admin_roles', 'errors/403 — نفس رسالة handle() الافتراضيّة', 'ليس لديك صلاحيّة الوصول لهذه الصفحة.'],
+            ['admin_roles.permission_guard.forbidden_page_action', 'admin_roles', 'errors/403 — زرّ العودة — الرجوع للوحة الرئيسيّة', 'الرجوع للوحة الرئيسيّة'],
 
             // ═══ نصوصٌ نُقِلت بيدٍ: ثوابتُ `const` (لا تقبل `setting()`) ·
             //     نصوصٌ مزدوجة بمتغيّرات · نصٌّ كان **مفتاحَ مصفوفة** فصُيِّر قيمةً.
