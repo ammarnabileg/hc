@@ -71,7 +71,8 @@ class PdfPageRenderer
     public function renderPage(Product $product, int $page, int $width): array
     {
         $path = $this->absolutePath($product);
-        $cacheKey = $this->cachePath($product, $path, $page, $width);
+        $stamp = $this->fileStamp($path);
+        $cacheKey = $this->cachePath($product, $stamp, $page, $width);
         $disk = Storage::disk('local');
 
         if ($disk->exists($cacheKey)) {
@@ -86,7 +87,9 @@ class PdfPageRenderer
             : null;
 
         $placeholder = $body === null;
-        $body ??= $this->placeholder($page, $width);
+        // بصمة الملفّ تدخل حتّى في البديل الآمن (GD) — فتحديث الأدمن للملفّ يصل
+        // للمالك تلقائيًّا (20.3) ولو كان محرّك الرسم الحقيقيّ غير متاح على الخادم.
+        $body ??= $this->placeholder($page, $width, $stamp);
 
         $disk->put($cacheKey, $body);
 
@@ -117,11 +120,14 @@ class PdfPageRenderer
         return trim((string) setting('reader.cache.directory', 'library/reader-cache'), '/').'/'.$product->id;
     }
 
-    private function cachePath(Product $product, ?string $path, int $page, int $width): string
+    /** بصمة الملفّ (مسار+وقت تعديل+حجم): تحديث الأدمن للملفّ يبطل الكاش تلقائيًّا (20.3) */
+    private function fileStamp(?string $path): string
     {
-        // بصمة الملفّ داخل المفتاح: تحديث الأدمن للملفّ يبطل الكاش تلقائيًّا (20.3)
-        $stamp = $path ? substr(sha1($path.'|'.filemtime($path).'|'.filesize($path)), 0, 16) : 'missing';
+        return $path ? substr(sha1($path.'|'.filemtime($path).'|'.filesize($path)), 0, 16) : 'missing';
+    }
 
+    private function cachePath(Product $product, string $stamp, int $page, int $width): string
+    {
         return $this->cacheDirectory($product)."/{$stamp}-p{$page}-w{$width}.png";
     }
 
@@ -150,8 +156,11 @@ class PdfPageRenderer
     /**
      * البديل الآمن: ورقةٌ فارغة بحدودٍ ورقمِ صفحة — والرسالة النصّيّة تُعرَض
      * في الواجهة بالعربيّة (GD لا يرسم عربيًّا بلا خطّ مثبَّت).
+     *
+     * بصمة الملفّ ($stamp) تُطبَع كذيلٍ صغير: فحتّى بلا محرّك رسمٍ حقيقيّ، تحديث
+     * الأدمن للملفّ يُنتج صورةً مختلفةً بايتيًّا لا نسخةً مطابقةً لسابقتها (20.3).
      */
-    private function placeholder(int $page, int $width): string
+    private function placeholder(int $page, int $width, string $stamp = 'missing'): string
     {
         $ratio = (float) setting('reader.page.aspect_ratio', 1.414);
         $height = (int) round($width * $ratio);
@@ -174,6 +183,7 @@ class PdfPageRenderer
         }
 
         imagestring($image, 5, $margin, (int) round($height * 0.1), (string) $page, $ink);
+        imagestring($image, 2, $margin, $height - $margin, $stamp, $line);
 
         ob_start();
         imagepng($image);

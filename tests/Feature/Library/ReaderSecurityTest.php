@@ -3,6 +3,7 @@
 namespace Tests\Feature\Library;
 
 use App\Models\ReadingProgress;
+use Illuminate\Support\Facades\Storage;
 
 /** القارئ المحميّ (20.3): الأمان أوّلًا — الملكيّة والعلامة المائيّة وبلا رابط ملفّ مباشر. */
 class ReaderSecurityTest extends LibraryTestCase
@@ -99,6 +100,57 @@ class ReaderSecurityTest extends LibraryTestCase
         $this->get(route('library.teaser', $product))
             ->assertOk()
             ->assertSee(setting('reader.teaser.buy_label', 'شراء'), false);
+    }
+
+    /**
+     * (20.3) «تحديث الملفّ يصل للمالك تلقائيًّا»: مفتاح الكاش في PdfPageRenderer
+     * يتضمّن بصمة الملفّ (مسار+mtime+حجم) — فاستبدال الأدمن للـPDF يجب أن يُنتج
+     * صورةً جديدةً فعلًا لا نسخةً مخزَّنةً قديمة، عبر ReaderController::page.
+     */
+    public function test_replacing_the_pdf_file_invalidates_the_cache_and_reaches_the_owner_automatically(): void
+    {
+        Storage::fake('local');
+
+        $owner = $this->trainee('USWAP001');
+        $product = $this->protectedProduct();
+        $this->entitle($owner, $product);
+
+        $disk = Storage::disk('local');
+        $cacheDir = trim((string) setting('reader.cache.directory', 'library/reader-cache'), '/').'/'.$product->id;
+
+        // الطلب الأوّل يملأ كاش الصفحة الأولى بالملفّ الحاليّ
+        $first = $this->actingAs($owner)->get(route('library.page', ['product' => $product->id, 'page' => 1]));
+        $first->assertOk();
+
+        $filesAfterFirst = $disk->files($cacheDir);
+        $this->assertCount(1, $filesAfterFirst, 'ملفّ كاشٍ واحد يُتوقَّع بعد أوّل طلب');
+        $originalCacheFile = $filesAfterFirst[0];
+
+        // الأدمن يستبدل ملفّ نفس المنتج بمحتوًى مختلفٍ فعليًّا، مع تحديث mtime صراحةً
+        $newContent = "%PDF-1.4\n1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n"
+            ."2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n"
+            ."3 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] >>\nendobj\n"
+            ."trailer\n<< /Size 4 /Root 1 0 R >>\n%%EOF\n".str_repeat('Z', 512);
+        $disk->put($product->file_path, $newContent);
+        $absolutePath = $disk->path($product->file_path);
+        touch($absolutePath, time() + 5);
+        clearstatcache(true, $absolutePath);
+
+        // نفس صفحة القارئ تُطلَب مرّةً أخرى بعد الاستبدال
+        $second = $this->actingAs($owner)->get(route('library.page', ['product' => $product->id, 'page' => 1]));
+        $second->assertOk();
+
+        // (أ) بايتات الصورة المُرجَعة تختلف عن الاستجابة الأولى
+        $this->assertNotSame($first->getContent(), $second->getContent());
+
+        // (ب) ملفّ كاشٍ جديد وُجِد تحت مجلّد كاش القارئ — لا إعادة استعمال المفتاح القديم
+        $filesAfterSecond = $disk->files($cacheDir);
+        $this->assertCount(2, $filesAfterSecond, 'الكاش القديم يبقى بجانب ملفٍّ جديد بعد الاستبدال');
+        $this->assertContains($originalCacheFile, $filesAfterSecond);
+
+        $newCacheFiles = array_values(array_diff($filesAfterSecond, [$originalCacheFile]));
+        $this->assertCount(1, $newCacheFiles);
+        $this->assertNotSame($originalCacheFile, $newCacheFiles[0]);
     }
 
     public function test_item_outside_its_availability_window_is_not_readable(): void
