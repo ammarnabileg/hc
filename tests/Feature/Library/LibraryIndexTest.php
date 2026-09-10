@@ -168,6 +168,44 @@ class LibraryIndexTest extends LibraryTestCase
         $this->assertSame($referralLink, $snapshot->rows[0][1] ?? null);
     }
 
+    /**
+     * ⭐ 20.4: بوب-أب العنصر (item-modal.blade.php) كان بلا زرّ استخراج كصورة —
+     * «أوصِ بهذا» وحده كان موجودًا فيه، رغم أنّ الكارت خارج البوب-أب صار يملكه.
+     * export_url في استجابة JSON: مقفول بـ`image_export.use` (المحظور يُخفى، 2.15-أ-7)،
+     * ونفس محرّك export.image الواحد (12.14-هـ) — فرابطه ينتج صورةً فعليّة.
+     */
+    public function test_item_popup_exposes_a_working_export_url_only_with_the_permission(): void
+    {
+        $owner = $this->trainee('UMODAL01');
+        $product = $this->protectedProduct();
+        $entitlement = $this->entitle($owner, $product);
+
+        // بلا صلاحيّة `image_export.use` ⟵ export_url غائب من الاستجابة (يُخفى لا يُعطَّل)
+        $this->actingAs($owner)->getJson(route('library.item', $entitlement))
+            ->assertOk()
+            ->assertJsonPath('export_url', null);
+
+        $this->grant($owner, 'image_export.use');
+
+        $response = $this->actingAs($owner)->getJson(route('library.item', $entitlement))->assertOk();
+        $exportUrl = $response->json('export_url');
+        $this->assertNotEmpty($exportUrl, 'export_url لازم يظهر بعد منح الصلاحيّة.');
+
+        // الحمولة الموقَّعة تحمل عنوان العنصر الحقيقيّ ورابط الدعوة الحقيقيّ — لا نصًّا زائفًا
+        parse_str((string) parse_url($exportUrl, PHP_URL_QUERY), $query);
+        $snapshot = BoardSnapshot::decode($query['d']);
+        $referralLink = app(ReferralService::class)->link($owner->fresh());
+
+        $this->assertSame($product->name_ar, $snapshot->title);
+        $this->assertSame($referralLink, $snapshot->rows[0][1] ?? null);
+
+        // ونفس الرابط الموقَّع ينتج صورة PNG فعليّة عبر محرّك export.image الواحد
+        $image = $this->actingAs($owner)->get($exportUrl);
+        $image->assertOk();
+        $this->assertSame('image/png', $image->headers->get('Content-Type'));
+        $this->assertStringStartsWith("\x89PNG", $image->getContent());
+    }
+
     /** والفلترة بتاب «شهادات» وحده تعرض الوسام أيضًا — لا الكارت العاديّ */
     public function test_the_certificates_tab_alone_also_renders_the_badge_style(): void
     {

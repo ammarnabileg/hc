@@ -6,13 +6,16 @@ use App\Http\Controllers\Controller;
 use App\Models\LibraryEntitlement;
 use App\Models\Product;
 use App\Models\Referral;
+use App\Services\Images\BoardSnapshot;
 use App\Services\Library\EntitlementGuard;
 use App\Services\Library\LibraryShelf;
 use App\Services\Referral\ReferralService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\URL;
 use Illuminate\View\View;
 
 /**
@@ -92,7 +95,26 @@ class LibraryController extends Controller
                     : null,
             ] : null,
             'recommend_url' => route('library.recommend', $entitlement),
+            // مشاركة كصورة (20.4) — نفس محرّك الاستخراج الواحد المستعمَل في card.blade.php
+            // (12.14-هـ)، والمحظور يُخفى لا يُعطَّل (2.15-أ-7): null لمن لا يملك الصلاحيّة.
+            'export_url' => $this->exportUrl($request, $item),
         ]);
+    }
+
+    /** رابط الاستخراج الموقَّع — نفس بناء export-image.blade.php حرفًا بحرف (12.14-هـ) */
+    private function exportUrl(Request $request, mixed $item): ?string
+    {
+        if (! Gate::allows('image_export.use')) {
+            return null;
+        }
+
+        $title = (string) ($item?->name_ar ?? '');
+
+        $snapshot = new BoardSnapshot('card', $title, (string) setting('library.share_image.subtitle', 'من مكتبتي على المنصّة'), [
+            [setting('library.share_image.referral_row_label', 'رابط دعوتي'), $this->referrals->link($request->user())],
+        ]);
+
+        return URL::signedRoute('export.image', ['d' => $snapshot->encode()]);
     }
 
     /**
