@@ -37,13 +37,13 @@
 ## 🔗 التبعيّات والملفّات المهمّة
 <!-- تلقائيّ:بداية:التبعيات -->
 - **الطبقات الأخرى لنفس المجال:** `app/Services/Onboarding` · `resources/views/onboarding` · `routes/parts` · `tests/Feature/Onboarding`
-- **الاختبارات:** 5 ملفّ Feature في `tests/Feature/Onboarding` — شغّلها بـ`php artisan test tests/Feature/Onboarding`.
+- **الاختبارات:** 6 ملفّ Feature في `tests/Feature/Onboarding` — شغّلها بـ`php artisan test tests/Feature/Onboarding`.
 - **المرجع الحاكم:** `دستور اساسي.md` · **وكيف نكتب:** `docs/BUILD.md`.
 - **المجلّد الأب:** `app/Http/Controllers/_STATUS.md`.
 <!-- تلقائيّ:نهاية:التبعيات -->
 
 ## 🕒 آخر تحديث
 <!-- تلقائيّ:بداية:التحديث -->
-- **آخر توليد لهذه الوثيقة:** 2026-08-02 — `php artisan docs:status`.
-- **آخر لمسة للمجلّد:** 2026-08-02 — Claude.
+- **آخر توليد لهذه الوثيقة:** 2026-09-10 — `php artisan docs:status`.
+- **آخر لمسة للمجلّد:** 2026-09-10 — Claude.
 <!-- تلقائيّ:نهاية:التحديث -->

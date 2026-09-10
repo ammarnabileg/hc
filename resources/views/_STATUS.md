@@ -18,7 +18,7 @@
 - **شاشات/أجزاء بليد (2):**
   - `placeholder.blade.php`
   - `welcome.blade.php` — Schema.org — نتيجة غنيّة بلا مكتبة خارجيّة (21.2-ب)
-- **مجلّدات فرعيّة (34):** `account/` · `achievements/` · `admin/` · `announcements/` · `auth/` · `cards/` · `certificates/` · `challenges/` · `components/` · `cv/` · `dashboard/` · `events/` · `exams/` · `features/` · `growth/` · `home/` · `layouts/` · `learning/` · `library/` · `maintenance/` · `notifications/` · `onboarding/` · `partials/` · `placement/` · `profile/` · `public/` · `referral/` · `reward-questions/` · `security/` · `setup/` · `store/` · `support/` · `volunteer/` · `wallet/` — ولكلٍّ منها وثيقتها.
+- **مجلّدات فرعيّة (35):** `account/` · `achievements/` · `admin/` · `announcements/` · `auth/` · `cards/` · `certificates/` · `challenges/` · `components/` · `cv/` · `dashboard/` · `errors/` · `events/` · `exams/` · `features/` · `growth/` · `home/` · `layouts/` · `learning/` · `library/` · `maintenance/` · `notifications/` · `onboarding/` · `partials/` · `placement/` · `profile/` · `public/` · `referral/` · `reward-questions/` · `security/` · `setup/` · `store/` · `support/` · `volunteer/` · `wallet/` — ولكلٍّ منها وثيقتها.
 <!-- تلقائيّ:نهاية:المنجز -->
 
 ## ⬜ المتبقّي
@@ -52,6 +52,6 @@
 
 ## 🕒 آخر تحديث
 <!-- تلقائيّ:بداية:التحديث -->
-- **آخر توليد لهذه الوثيقة:** 2026-08-03 — `php artisan docs:status`.
-- **آخر لمسة للمجلّد:** 2026-08-03 — Claude.
+- **آخر توليد لهذه الوثيقة:** 2026-09-10 — `php artisan docs:status`.
+- **آخر لمسة للمجلّد:** 2026-09-10 — Claude.
 <!-- تلقائيّ:نهاية:التحديث -->

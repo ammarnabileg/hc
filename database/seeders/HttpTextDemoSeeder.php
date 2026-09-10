@@ -252,6 +252,7 @@ class HttpTextDemoSeeder extends Seeder
             ['onboarding.admin.apply_template_empty', 'onboarding', 'applyTemplate() — مافيش قالب جاهز للشاشة دي لسه.', 'مافيش قالب جاهز للشاشة دي لسه.'],
             ['onboarding.admin.save_first_time_ok', 'onboarding', 'saveFirstTime() — اتحفظ ✓ — :a1 شاشة مفعَّلة.', 'اتحفظ ✓ — :a1 شاشة مفعَّلة.'],
             ['onboarding.admin.save_first_time_msg', 'onboarding', 'saveFirstTime() — مقدرناش نحفظ.', 'مقدرناش نحفظ.'],
+            ['onboarding.admin.save_pages_ok', 'onboarding', 'savePages() — اتحفظ ✓', 'اتحفظ ✓'],
             // ---- app/Http/Controllers/Admin/OrgAdminController.php
             ['volunteer_org.admin.save_entity_msg', 'volunteer_org', 'saveEntity() — فتح الملفّ المؤقّت لمشرف عام التطوّع وحده — كلّمه يفتحه لك.', 'فتح الملفّ المؤقّت لمشرف عام التطوّع وحده — كلّمه يفتحه لك.'],
             ['volunteer_org.admin.save_entity_ok', 'volunteer_org', 'saveEntity() — اتحفظ ✓', 'اتحفظ ✓'],

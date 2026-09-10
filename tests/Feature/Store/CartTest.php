@@ -284,10 +284,12 @@ class CartTest extends StoreTestCase
         // داخل نافذة 5→7 ص — نفس اللحظة التي يثبت AvailabilityTest أنّها مفتوحة
         Carbon::setTestNow(Carbon::parse('2026-07-15 02:00:00', 'UTC'));
 
-        $this->actingAs($user)->get(route('store.cart'))
+        $html = $this->actingAs($user)->get(route('store.cart'))
             ->assertOk()
             ->assertSee($course->name_ar)
-            ->assertDontSee('مقفول');
+            ->getContent();
+
+        $this->assertStringNotContainsString('مقفول', $this->cartBodyWithoutNoscript($html));
 
         Carbon::setTestNow();
     }
@@ -302,9 +304,21 @@ class CartTest extends StoreTestCase
 
         $this->actingAs($user)->post(route('store.cart.add'), ['type' => 'course', 'slug' => $course->slug]);
 
-        $this->actingAs($user)->get(route('store.cart'))
+        $html = $this->actingAs($user)->get(route('store.cart'))
             ->assertOk()
             ->assertSee($course->name_ar)
-            ->assertDontSee('مقفول');
+            ->getContent();
+
+        $this->assertStringNotContainsString('مقفول', $this->cartBodyWithoutNoscript($html));
+    }
+
+    /**
+     * يشطب جزء `<noscript>` (تنبيه «الجافاسكربت مقفول في متصفّحك» — موجودٌ في كلّ
+     * صفحة عبر security.noscript) قبل فحص غياب «مقفول» — وإلّا يتصادم بحث النصّ
+     * الحرفيّ مع هذا التنبيه العامّ بلا علاقةٍ بشارة إتاحة السلّة (16).
+     */
+    private function cartBodyWithoutNoscript(string $html): string
+    {
+        return (string) preg_replace('#<noscript>.*?</noscript>#s', '', $html);
     }
 }

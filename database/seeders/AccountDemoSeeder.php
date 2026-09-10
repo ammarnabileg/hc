@@ -181,6 +181,9 @@ class AccountDemoSeeder extends Seeder
             ['account.help.related_count', 'account', 'عدد المقالات القريبة', 'number', '3'],
 
             // البروفايل (10 · 13.4-م)
+            // ⭐ بطاقة الإفادة في تاب «خبراتي» (9.1 · 10.0-أ) — resources/views/profile/partials/tab-experience.blade.php
+            ['account.profile.experience.attestation_title', 'account', 'عنوان بطاقة الإفادة في خبراتي', 'string', 'الإفادة من المنصّة'],
+            ['account.profile.experience.attestation_link_label', 'account', 'رابط الإفادة العامّة في خبراتي', 'string', 'شوف الإفادة العامّة'],
             ['account.profile.online_window_minutes', 'account', 'نافذة نقطة النشاط (دقائق)', 'number', '10'],
             ['account.profile.rep_danger_below', 'account', 'حدّ Rep الأحمر', 'number', '-8'],
             ['account.profile.excellence_club_threshold', 'account', 'عتبة نادي التميّز (Rep)', 'number', '9.5'],

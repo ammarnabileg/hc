@@ -370,7 +370,8 @@ class SettingSeeder extends Seeder
             ['cv.template.admin.create_label', 'cv', 'زرّ إضافة القالب', 'string', 'إضافة'],
             ['cv.template.admin.save_label', 'cv', 'زرّ حفظ القالب', 'string', 'حفظ'],
             ['cv.template.admin.delete_label', 'cv', 'زرّ حذف القالب', 'string', 'حذف'],
-            ['cv.template.admin.download_label', 'cv', 'زرّ تحميل ملفّ القالب', 'string', 'تحميل'],
+            // 'cv.template.admin.download_label' مزروعٌ في database/seeders/LibraryDemoSeeder.php::settings()
+            // (مسار الإنتاج عبر SettingDefinitionsSeeder) — لا مصدر ثانٍ هنا (2.13-د).
             ['cv.template.admin.name_label', 'cv', 'تسمية اسم القالب', 'string', 'اسم القالب'],
             ['cv.template.admin.description_label', 'cv', 'تسمية وصف القالب', 'string', 'وصف مختصر'],
             ['cv.template.admin.view_label', 'cv', 'تسمية ملفّ العرض', 'string', 'ملفّ العرض'],
@@ -441,8 +442,8 @@ class SettingSeeder extends Seeder
             ['account.profile.experience.hidden_message', 'account', 'رسالة إخفاء خبراتي', 'text', 'الخبرات مش متاحة على البروفايل ده.'],
             ['account.profile.experience.empty_message', 'account', 'رسالة لا سيرة ذاتيّة', 'text', 'لسّه مفيش سيرة ذاتيّة هنا.'],
             ['account.profile.experience.empty_action', 'account', 'زرّ بدء السيرة', 'string', 'ابدأ سيرتك'],
-            ['account.profile.experience.attestation_title', 'account', 'عنوان بطاقة الإفادة في خبراتي', 'string', 'الإفادة من المنصّة'],
-            ['account.profile.experience.attestation_link_label', 'account', 'رابط الإفادة العامّة في خبراتي', 'string', 'شوف الإفادة العامّة'],
+            // 'account.profile.experience.attestation_title'/'attestation_link_label' مزروعان في
+            // database/seeders/AccountDemoSeeder.php::settings() (مسار الإنتاج) — لا مصدر ثانٍ هنا (2.13-د).
             ['leaderboard.profile_range_days', 'leaderboard', 'مدى ترتيب الليدربورد على البروفايل (أيّام)', 'number', '30'],
             ['cv.public.empty_message', 'cv', 'رسالة السيرة العامّة الفارغة', 'text', 'السيرة لسّه فاضية — صاحبها بيجهّزها.'],
             ['account.profile.header.online_label', 'account', 'تسمية «نشط دلوقتي»', 'string', 'نشط دلوقتي'],

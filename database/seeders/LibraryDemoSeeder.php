@@ -252,6 +252,8 @@ class LibraryDemoSeeder extends Seeder
             // selected_message/selected_paid_message في `CvController::selectTemplate`
             // ولم يقرأها أحد قطّ (`settings:coverage --dead`).
             ['cv.template.selected_message', 'cv', 'رسالة تغيير القالب', 'string', 'اتغيّر القالب — شوف المعاينة.'],
+            // زرّ «تحميل أيّ قالب» في شاشة إدارة قوالب الـCV (12.7-ب · cv_templates.export)
+            ['cv.template.admin.download_label', 'cv', 'زرّ تحميل ملفّ القالب', 'string', 'تحميل'],
             ['cv.template.purchased_message', 'cv', 'رسالة نجاح الشراء', 'string', 'القالب بقى ملكك — استمتع.'],
             ['cv.template.insufficient_message', 'cv', 'رسالة نقص الرصيد', 'string', 'رصيد التذاكر لا يكفي — اكسب تذاكر أو اختر قالبًا آخر.'],
             ['cv.template.currency_missing_message', 'cv', 'رسالة محفظة غير مهيّأة', 'string', 'محفظة التذاكر غير مهيّأة — جرّب بعد قليل.'],
