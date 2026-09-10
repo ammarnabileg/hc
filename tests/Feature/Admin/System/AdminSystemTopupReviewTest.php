@@ -3,6 +3,7 @@
 namespace Tests\Feature\Admin\System;
 
 use App\Models\Currency;
+use App\Models\GatewayWebhookLog;
 use App\Models\TopupOffer;
 use App\Models\TopupRequest;
 use App\Models\TransferMethod;
@@ -163,6 +164,48 @@ class AdminSystemTopupReviewTest extends SystemTestCase
             ->assertSee('مكرَّرة', false);
     }
 
+    /**
+     * ⭐ 24.2: بحثٌ بلا نتائج يقول كده صراحةً بدل «مافيش طلبات في النطاق ده».
+     * تبويب الحالة الافتراضيّ («قيد المراجعة») ليس فلترًا مُختارًا فلا يُحتسَب.
+     */
+    public function test_a_search_with_no_matches_shows_a_filtered_empty_message(): void
+    {
+        $admin = $this->admin(self::ADMIN_PERMISSIONS);
+        $this->pendingRequest();
+
+        $response = $this->actingAs($admin)
+            ->get(route('admin.topups.index', ['q' => 'zzzznotexist']))
+            ->assertOk();
+
+        $response->assertSee(
+            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث/الفلتر الحاليّ — جرّب فلترًا تانيًا.'),
+            false,
+        );
+        $response->assertDontSee(
+            setting('admin.store.topups.index.mafysh_tlbat_fy_alntaq_dh_kl_haja_hadya', 'مافيش طلبات في النطاق ده — كلّ حاجة هادية.'),
+            false,
+        );
+    }
+
+    /** وشاشةٌ فارغةٌ فعليًّا (بلا فلتر ولا طلبات حتّى على التبويب الافتراضيّ) تعرض الرسالة الأصليّة. */
+    public function test_actually_empty_without_filters_keeps_the_original_start_message(): void
+    {
+        $admin = $this->admin(self::ADMIN_PERMISSIONS);
+
+        $response = $this->actingAs($admin)
+            ->get(route('admin.topups.index'))
+            ->assertOk();
+
+        $response->assertSee(
+            setting('admin.store.topups.index.mafysh_tlbat_fy_alntaq_dh_kl_haja_hadya', 'مافيش طلبات في النطاق ده — كلّ حاجة هادية.'),
+            false,
+        );
+        $response->assertDontSee(
+            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث/الفلتر الحاليّ — جرّب فلترًا تانيًا.'),
+            false,
+        );
+    }
+
     /** القيمة اليدويّة خارج النطاق تُرفَض — الحدود إعدادات لا أرقام محروقة */
     public function test_manual_amount_outside_the_configured_range_is_rejected(): void
     {
@@ -174,6 +217,45 @@ class AdminSystemTopupReviewTest extends SystemTestCase
         $this->expectException(RuntimeException::class);
 
         app(TopupReviewService::class)->approve($request, $admin, 'manual', null, 0.0, 'محاولة بقيمة صفر');
+    }
+
+    /** ⭐ 24.2: بحثٌ برقم فاتورة بلا نتائج يقول كده صراحةً بدل «مافيش نداءات مسجَّلة». */
+    public function test_webhook_log_search_with_no_matches_shows_a_filtered_empty_message(): void
+    {
+        GatewayWebhookLog::create([
+            'provider' => 'fawaterk', 'invoice_id' => 'INV-1', 'ip' => '127.0.0.1',
+            'headers' => [], 'body' => '{}', 'hash_valid' => true, 'result' => 'accepted',
+        ]);
+
+        $response = $this->actingAs($this->owner())
+            ->get(route('admin.topups.gateway.logs', ['invoice' => 'zzzznotexist']))
+            ->assertOk();
+
+        $response->assertSee(
+            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث/الفلتر الحاليّ — جرّب فلترًا تانيًا.'),
+            false,
+        );
+        $response->assertDontSee(
+            setting('admin.store.topups.webhooks.mafysh_ndaat_msjla_lsh', 'مافيش نداءات مسجَّلة لسه.'),
+            false,
+        );
+    }
+
+    /** وسجلّ الـWebhook الفارغ فعليًّا (بلا نداءات ولا فلتر) يفضل يعرض رسالة البداية الأصليّة. */
+    public function test_webhook_log_actually_empty_without_filters_keeps_the_original_start_message(): void
+    {
+        $response = $this->actingAs($this->owner())
+            ->get(route('admin.topups.gateway.logs'))
+            ->assertOk();
+
+        $response->assertSee(
+            setting('admin.store.topups.webhooks.mafysh_ndaat_msjla_lsh', 'مافيش نداءات مسجَّلة لسه.'),
+            false,
+        );
+        $response->assertDontSee(
+            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث/الفلتر الحاليّ — جرّب فلترًا تانيًا.'),
+            false,
+        );
     }
 
     // ---------------------------------------------------------------- أدوات

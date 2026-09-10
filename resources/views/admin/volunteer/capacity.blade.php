@@ -37,7 +37,10 @@
                 <x-state-badge :state="$row['state']" :label="$row['members'].'/'.$row['cap'].' · '.$row['percent'].'%'" />
             </div>
         @empty
-            <x-empty :message="setting('admin.volunteer.capacity.mfysh_kyanat_fy_alntaq_dh', 'مفيش كيانات في النطاق ده.')" />
+            {{-- تمييز «مفيش كيانات أصلًا» عن «فلتر المسار ما طابقش حاجة» (24.2) —
+                 القسم التالي (نطاق الإشراف) بلا فلترٍ خاصٍّ به فلم يُلمَس. --}}
+            <x-empty :message="setting('admin.volunteer.capacity.mfysh_kyanat_fy_alntaq_dh', 'مفيش كيانات في النطاق ده.')"
+                     :filtered="$filters['track'] !== 0" />
         @endforelse
     </section>
 

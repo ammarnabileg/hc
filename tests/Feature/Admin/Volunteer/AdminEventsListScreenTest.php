@@ -3,6 +3,7 @@
 namespace Tests\Feature\Admin\Volunteer;
 
 use App\Models\Event;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * ⭐ [2026-09-10] شاشة قائمة الفعاليّات (12.11): «معاينة صفحة الفعاليّة قبل
@@ -72,10 +73,50 @@ class AdminEventsListScreenTest extends AdminVolunteerTestCase
             ->assertOk()->getContent();
 
         $this->assertStringContainsString('<table', $html, 'القائمة ما زالت كروتًا لا جدولًا.');
-        $this->assertStringContainsString(\Illuminate\Support\Facades\Storage::url($event->cover_path), $html, 'الغلاف غير ظاهر في الجدول.');
+        $this->assertStringContainsString(Storage::url($event->cover_path), $html, 'الغلاف غير ظاهر في الجدول.');
         $this->assertStringContainsString('25', $html, 'سعر الكوينز غير ظاهر في الجدول.');
         $this->assertStringContainsString(setting('admin.events.index.col_alsar', 'السعر'), $html);
         $this->assertStringContainsString(setting('admin.events.index.col_ghlaf', 'الغلاف'), $html);
+    }
+
+    /** ⭐ 24.2: بحثٌ بلا نتائج يقول كده صراحةً بدل «لا فعاليّات — أنشئ أوّل لقاء». */
+    public function test_a_search_with_no_matches_shows_a_filtered_empty_message(): void
+    {
+        $this->publishedEvent();
+        $admin = $this->grant($this->makeUser(), 'events.list');
+
+        $response = $this->actingAs($admin)
+            ->get(route('admin.events.index', ['view' => 'table', 'q' => 'zzzznotexist']))
+            ->assertOk();
+
+        $response->assertSee(
+            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث/الفلتر الحاليّ — جرّب فلترًا تانيًا.'),
+            false,
+        );
+        $response->assertDontSee(
+            setting('events.empty_message', 'لا فعاليّات — أنشئ أوّل لقاء.'),
+            false,
+        );
+    }
+
+    /** وشاشةٌ فارغةٌ فعليًّا (بلا فلتر ولا فعاليّات، حتّى على التبويب الافتراضيّ) تعرض الرسالة الأصليّة. */
+    public function test_an_actually_empty_screen_without_filters_keeps_the_original_start_message(): void
+    {
+        Event::query()->delete();
+        $admin = $this->grant($this->makeUser(), 'events.list');
+
+        $response = $this->actingAs($admin)
+            ->get(route('admin.events.index', ['view' => 'table']))
+            ->assertOk();
+
+        $response->assertSee(
+            setting('events.empty_message', 'لا فعاليّات — أنشئ أوّل لقاء.'),
+            false,
+        );
+        $response->assertDontSee(
+            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث/الفلتر الحاليّ — جرّب فلترًا تانيًا.'),
+            false,
+        );
     }
 
     /** وفعاليّة مجّانيّة بلا غلاف تُعرَض «مجّانيّة» بأيقونة افتراضيّة — لا انهيار على null */

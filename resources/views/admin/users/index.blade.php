@@ -77,8 +77,10 @@
     </x-filters>
 
     @if ($users->isEmpty())
+        {{-- تمييز «مفيش مستخدمين أصلًا» عن «الفلتر ما طابقش حاجة» (24.2) --}}
         <x-empty :message="setting('admin.users.empty_message', 'مفيش نتائج — امسح الفلاتر وجرّب تاني')"
-                 :action="setting('admin.users.index.amsh_alflatr', 'امسح الفلاتر')" :href="route('admin.users.index')" />
+                 :action="setting('admin.users.index.amsh_alflatr', 'امسح الفلاتر')" :href="route('admin.users.index')"
+                 :filtered="request('q') || request('status') || request('role') || request('days') || request('min_xp') || request('idle_days')" />
     @else
         {{-- سطح المكتب: جدول بأعمدته الافتراضيّة (5–7) --}}
         <div class="card p-0 overflow-hidden hidden md:block">

@@ -110,7 +110,11 @@
             @endif
         </div>
     @elseif ($events->isEmpty())
-        <x-empty :message="setting('events.empty_message', 'لا فعاليّات — أنشئ أوّل لقاء.')" />
+        {{-- تمييز «لا فعاليّات أصلًا» عن «الفلتر/التبويب الحاليّ ما طابقش حاجة» (24.2).
+             تبويب الحالة إلزاميّ (بلا خيار «الكلّ») فالمعيار هو الخروج عن التبويب
+             الافتراضيّ («قادمة») لا مجرّد وجود قيمة فيه. --}}
+        <x-empty :message="setting('events.empty_message', 'لا فعاليّات — أنشئ أوّل لقاء.')"
+                 :filtered="$filters['q'] !== '' || $filters['mode'] !== '' || $filters['status'] !== (string) setting('events.default_tab', 'upcoming')" />
     @else
         {{--
           ⭐ [2026-09-10] «القائمة جدولًا لا كروتًا» (12.11: الغلاف · العنوان ·

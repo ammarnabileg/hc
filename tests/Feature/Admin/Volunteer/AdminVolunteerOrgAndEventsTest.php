@@ -80,6 +80,60 @@ class AdminVolunteerOrgAndEventsTest extends AdminVolunteerTestCase
         $this->assertSame('danger', CapacityReport::occupancyState(80));
     }
 
+    /** ⭐ 24.2: بحثٌ بلا نتائج في شاشتَي الهيكل والسعة يقول كده صراحةً. */
+    public function test_a_search_with_no_matches_shows_a_filtered_empty_message(): void
+    {
+        $admin = $this->grant($this->makeUser(), 'org_chart.view', 'capacity.view');
+
+        $orgResponse = $this->actingAs($admin)
+            ->get(route('admin.volunteer.org', ['q' => 'zzzznotexist']))
+            ->assertOk();
+        $orgResponse->assertSee(
+            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث/الفلتر الحاليّ — جرّب فلترًا تانيًا.'),
+            false,
+        );
+        $orgResponse->assertDontSee(
+            setting('admin.volunteer.org.mfysh_kyanat_lsh_abda_bawl_kyan', 'مفيش كيانات لسّه — ابدأ بأوّل كيان.'),
+            false,
+        );
+
+        $trackWithoutEntities = Track::query()->create(['key' => 'no_entities_track_test', 'name_ar' => 'مسار بلا كيانات']);
+
+        $capacityResponse = $this->actingAs($admin)
+            ->get(route('admin.volunteer.org.capacity', ['track' => $trackWithoutEntities->id]))
+            ->assertOk();
+        $capacityResponse->assertSee(
+            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث/الفلتر الحاليّ — جرّب فلترًا تانيًا.'),
+            false,
+        );
+        $capacityResponse->assertDontSee(
+            setting('admin.volunteer.capacity.mfysh_kyanat_fy_alntaq_dh', 'مفيش كيانات في النطاق ده.'),
+            false,
+        );
+    }
+
+    /** والهيكل الفارغ فعليًّا (بلا كيانات ولا فلتر) يفضل يعرض رسالة البداية الأصليّة. */
+    public function test_actually_empty_org_screen_without_filters_keeps_the_original_start_message(): void
+    {
+        $admin = $this->grant($this->makeUser(), 'org_chart.view', 'capacity.view');
+
+        Membership::query()->delete();
+        Entity::query()->delete();
+
+        $response = $this->actingAs($admin)
+            ->get(route('admin.volunteer.org'))
+            ->assertOk();
+
+        $response->assertSee(
+            setting('admin.volunteer.org.mfysh_kyanat_lsh_abda_bawl_kyan', 'مفيش كيانات لسّه — ابدأ بأوّل كيان.'),
+            false,
+        );
+        $response->assertDontSee(
+            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث/الفلتر الحاليّ — جرّب فلترًا تانيًا.'),
+            false,
+        );
+    }
+
     /** الملفّ المؤقّت لا يفتحه إلّا مشرف عام التطوّع. */
     public function test_case_file_entity_is_opened_by_the_volunteer_gm_only(): void
     {

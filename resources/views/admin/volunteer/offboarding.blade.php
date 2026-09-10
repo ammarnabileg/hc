@@ -121,7 +121,9 @@
                 </div>
             </article>
         @empty
-            <x-empty :message="setting('admin.volunteer.offboarding.mfysh_mlfat_inha_wdh_khbr_kwys', 'مفيش ملفّات إنهاء — وده خبر كويّس.')" />
+            {{-- تمييز «مفيش ملفّات إنهاء أصلًا» عن «الفلتر ما طابقش حاجة» (24.2) --}}
+            <x-empty :message="setting('admin.volunteer.offboarding.mfysh_mlfat_inha_wdh_khbr_kwys', 'مفيش ملفّات إنهاء — وده خبر كويّس.')"
+                     :filtered="$filters['q'] !== '' || $filters['type'] !== ''" />
         @endforelse
     </section>
 

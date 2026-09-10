@@ -284,6 +284,50 @@ class AdminContentTrainingTest extends AdminContentTestCase
         $this->assertNotContains($old->id, $bySizeOnly);
     }
 
+    /** ⭐ 24.2: بحثٌ بلا نتائج في مكتبة الوسائط يقول كده صراحةً بدل «المكتبة فاضية». */
+    public function test_media_search_with_no_matches_shows_a_filtered_empty_message(): void
+    {
+        $admin = $this->admin();
+
+        MediaItem::create([
+            'disk' => 'public', 'path' => 'media/exists.txt', 'name' => 'ملفّ موجود.txt',
+            'mime' => 'text/plain', 'size' => 10 * 1024, 'hash' => 'hash-exists',
+        ]);
+
+        $response = $this->actingAs($admin)
+            ->get(route('admin.media.index', ['q' => 'zzzznotexist']))
+            ->assertOk();
+
+        $response->assertSee(
+            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث/الفلتر الحاليّ — جرّب فلترًا تانيًا.'),
+            false,
+        );
+        $response->assertDontSee(
+            setting('admin.courses.media.almktba_fadya_arfa_awl_mlf', 'المكتبة فاضية — ارفع أوّل ملفّ.'),
+            false,
+        );
+    }
+
+    /** ومكتبة الوسائط الفارغة فعليًّا (بلا فلتر) تفضل تعرض رسالة البداية الأصليّة. */
+    public function test_media_actually_empty_without_filters_keeps_the_original_start_message(): void
+    {
+        $admin = $this->admin();
+        MediaItem::query()->delete();
+
+        $response = $this->actingAs($admin)
+            ->get(route('admin.media.index'))
+            ->assertOk();
+
+        $response->assertSee(
+            setting('admin.courses.media.almktba_fadya_arfa_awl_mlf', 'المكتبة فاضية — ارفع أوّل ملفّ.'),
+            false,
+        );
+        $response->assertDontSee(
+            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث/الفلتر الحاليّ — جرّب فلترًا تانيًا.'),
+            false,
+        );
+    }
+
     /** الشاشات الرئيسيّة تفتح لمن يملك الصلاحيّة، وتُمنَع عمّن لا يملكها (12.2.1). */
     public function test_main_screens_require_permission(): void
     {
@@ -353,6 +397,45 @@ class AdminContentTrainingTest extends AdminContentTestCase
         $row = $this->firstTableRowContaining($html, $withoutCover->name_ar);
         $this->assertStringNotContainsString('<img', $row, 'المسار بلا غلافٍ ما يظهرش له img');
         $this->assertStringContainsString('—', $row, 'المسار بلا غلافٍ يظهر له شرطة بدل الصورة');
+    }
+
+    /** ⭐ 24.2: بحثٌ بلا نتائج في المسارات يقول كده صراحةً بدل «لسّه بدري». */
+    public function test_paths_search_with_no_matches_shows_a_filtered_empty_message(): void
+    {
+        $this->assertGreaterThan(0, LearningPath::query()->count(), 'لازم يكون في مسارات فعليّة قبل الاختبار');
+
+        $response = $this->actingAs($this->admin())
+            ->get(route('admin.paths.index', ['q' => 'zzzznotexist']))
+            ->assertOk();
+
+        $response->assertSee(
+            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث/الفلتر الحاليّ — جرّب فلترًا تانيًا.'),
+            false,
+        );
+        $response->assertDontSee(
+            setting('admin.courses.paths.lsh_bdry_adf_msark_alawl', 'لسّه بدري — أضِف مسارك الأوّل.'),
+            false,
+        );
+    }
+
+    /** والمسارات الفارغة فعليًّا (بلا فلتر) تفضل تعرض رسالة البداية الأصليّة زيّ ما كانت. */
+    public function test_paths_actually_empty_without_filters_keeps_the_original_start_message(): void
+    {
+        CourseLearningPath::query()->delete();
+        LearningPath::query()->delete();
+
+        $response = $this->actingAs($this->admin())
+            ->get(route('admin.paths.index'))
+            ->assertOk();
+
+        $response->assertSee(
+            setting('admin.courses.paths.lsh_bdry_adf_msark_alawl', 'لسّه بدري — أضِف مسارك الأوّل.'),
+            false,
+        );
+        $response->assertDontSee(
+            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث/الفلتر الحاليّ — جرّب فلترًا تانيًا.'),
+            false,
+        );
     }
 
     /**

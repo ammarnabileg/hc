@@ -30,6 +30,46 @@ class WarBankAdminTest extends ChallengeTestCase
             ->assertSee('كم دقيقة في اليوم الواحد؟', false);
     }
 
+    /** ⭐ 24.2: بحثٌ بلا نتائج يقول كده صراحةً بدل «البنك فارغ — الحروب لن تعمل». */
+    public function test_a_search_with_no_matches_shows_a_filtered_empty_message(): void
+    {
+        $this->assertGreaterThan(0, WarQuestion::query()->count(), 'لازم يكون في أسئلة فعليّة قبل الاختبار');
+        $admin = $this->warAdmin();
+
+        $response = $this->actingAs($admin)
+            ->get(route('admin.wars.bank.index', ['q' => 'zzzznotexist']))
+            ->assertOk();
+
+        $response->assertSee(
+            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث/الفلتر الحاليّ — جرّب فلترًا تانيًا.'),
+            false,
+        );
+        $response->assertDontSee(
+            setting('admin.wars.bank.index.albnk_fargh_alhrwb_ln_taml', 'البنك فارغ — الحروب لن تعمل.'),
+            false,
+        );
+    }
+
+    /** وبنك الأسئلة الفارغ فعليًّا (بلا فلتر ولا أسئلة) يفضل يعرض رسالة البداية الأصليّة. */
+    public function test_actually_empty_without_filters_keeps_the_original_start_message(): void
+    {
+        WarQuestion::query()->delete();
+        $admin = $this->warAdmin();
+
+        $response = $this->actingAs($admin)
+            ->get(route('admin.wars.bank.index'))
+            ->assertOk();
+
+        $response->assertSee(
+            setting('admin.wars.bank.index.albnk_fargh_alhrwb_ln_taml', 'البنك فارغ — الحروب لن تعمل.'),
+            false,
+        );
+        $response->assertDontSee(
+            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث/الفلتر الحاليّ — جرّب فلترًا تانيًا.'),
+            false,
+        );
+    }
+
     /** ⭐ الإجابة مخفيّة افتراضيًّا — والكشف مؤقّت ومسجَّل في Audit (24.2). */
     public function test_answers_are_hidden_until_a_logged_reveal(): void
     {

@@ -100,7 +100,9 @@
     @endif
 
     @if ($segments->isEmpty())
-        <x-empty :message="setting('admin.segments.empty_message', 'ابنِ شريحتك الأولى')">
+        {{-- تمييز «مفيش شرائح أصلًا» عن «الفلتر ما طابقش حاجة» (24.2) --}}
+        <x-empty :message="setting('admin.segments.empty_message', 'ابنِ شريحتك الأولى')"
+                 :filtered="$filters['q'] !== '' || $filters['type'] !== '' || $filters['state'] !== '' || $filters['used'] !== ''">
             @if ($canCreate)
                 <button type="button" data-modal-open="segment-form"
                         class="btn rounded-xl px-4 py-2 text-sm font-semibold motion-standard"

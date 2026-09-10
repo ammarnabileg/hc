@@ -35,6 +35,30 @@ class QuestionBankTest extends ScreensTestCase
             ->assertSee('لسّه مافيش أسئلة في البنك');
     }
 
+    /**
+     * ⭐ 24.2: بحثٌ بلا نتائج يقول كده صراحةً بدل «لسّه مافيش أسئلة في البنك».
+     * الملاحظة: نصّ الحالة الافتراضيّة يظهر أيضًا داخل «لوحة الإعدادات» أسفل
+     * الشاشة كقيمةٍ قابلة للتعديل — فالتحقّق هنا داخل بطاقة الحالة الفارغة وحدها.
+     */
+    public function test_a_search_with_no_matches_shows_a_filtered_empty_message(): void
+    {
+        $lesson = $this->makeLesson();
+        $this->makeQuestion($lesson);
+
+        $html = $this->actingAs($this->owner())
+            ->get(route('admin.question-bank.index', ['q' => 'zzzznotexist']))
+            ->assertOk()
+            ->getContent();
+
+        $emptyCard = substr($html, strpos($html, 'card p-8 text-center'), 400);
+
+        $this->assertStringContainsString(
+            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث/الفلتر الحاليّ — جرّب فلترًا تانيًا.'),
+            $emptyCard,
+        );
+        $this->assertStringNotContainsString('لسّه مافيش أسئلة في البنك', $emptyCard);
+    }
+
     public function test_permission_blocks_the_screen(): void
     {
         $this->actingAs($this->admin(['users.list']))

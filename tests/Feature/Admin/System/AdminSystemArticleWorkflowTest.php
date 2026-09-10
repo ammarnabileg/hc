@@ -189,6 +189,45 @@ class AdminSystemArticleWorkflowTest extends SystemTestCase
         $this->assertDatabaseHas('article_categories', ['name_ar' => 'مسارات التعلّم', 'sort_order' => 7]);
     }
 
+    /** ⭐ 24.2: بحثٌ بلا نتائج يقول كده صراحةً بدل رسالة «اكتب أوّل واحد» المضلّلة. */
+    public function test_a_search_with_no_matches_shows_a_filtered_empty_message_not_the_start_message(): void
+    {
+        $author = $this->admin(self::WRITER, 'كاتب');
+        $this->article($author, ArticleWorkflow::DRAFT);
+
+        $response = $this->actingAs($author)
+            ->get(route('admin.articles.index', ['q' => 'zzzznotexist']))
+            ->assertOk();
+
+        $response->assertSee(
+            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث/الفلتر الحاليّ — جرّب فلترًا تانيًا.'),
+            false,
+        );
+        $response->assertDontSee(
+            setting('admin.articles.index.mafysh_mqalat_lsh_aktb_awl_wahd', 'مافيش مقالات لسه — اكتب أوّل واحد.'),
+            false,
+        );
+    }
+
+    /** وشاشةٌ فارغةٌ فعليًّا (بلا فلتر) تفضل تعرض رسالة البداية الأصليّة زيّ ما كانت. */
+    public function test_an_actually_empty_screen_without_filters_keeps_the_original_start_message(): void
+    {
+        $author = $this->admin(self::WRITER, 'كاتب');
+
+        $response = $this->actingAs($author)
+            ->get(route('admin.articles.index'))
+            ->assertOk();
+
+        $response->assertSee(
+            setting('admin.articles.index.mafysh_mqalat_lsh_aktb_awl_wahd', 'مافيش مقالات لسه — اكتب أوّل واحد.'),
+            false,
+        );
+        $response->assertDontSee(
+            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث/الفلتر الحاليّ — جرّب فلترًا تانيًا.'),
+            false,
+        );
+    }
+
     private function article(User $author, string $status): Article
     {
         return Article::create([

@@ -66,6 +66,57 @@ class ReferralAdminTest extends ScreensTestCase
         $this->assertNotNull($completed->id);
     }
 
+    /**
+     * ⭐ 24.2: بحثٌ بلا نتائج في تابَي الدعوات والسفراء يقول كده صراحةً — لا
+     * رسالة البداية المضلِّلة. الملاحظة: نصّ الحالة الافتراضيّة يظهر أيضًا
+     * داخل «لوحة الإعدادات» أسفل الشاشة، فالتحقّق داخل بطاقة الحالة الفارغة وحدها.
+     */
+    public function test_a_search_with_no_matches_shows_a_filtered_empty_message(): void
+    {
+        $this->makeReferral($this->makeUser('داعٍ'), $this->makeUser('مدعوّ'));
+        $owner = $this->owner();
+
+        $invitesHtml = $this->actingAs($owner)
+            ->get(route('admin.referrals.index', ['tab' => 'invites', 'q' => 'zzzznotexist']))
+            ->assertOk()
+            ->getContent();
+        $invitesCard = substr($invitesHtml, strpos($invitesHtml, 'card p-8 text-center'), 400);
+
+        $this->assertStringContainsString(
+            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث/الفلتر الحاليّ — جرّب فلترًا تانيًا.'),
+            $invitesCard,
+        );
+        $this->assertStringNotContainsString('لسّه مافيش دعوات في المدى ده', $invitesCard);
+
+        $ambassadorsHtml = $this->actingAs($owner)
+            ->get(route('admin.referrals.index', ['tab' => 'ambassadors', 'q' => 'zzzznotexist']))
+            ->assertOk()
+            ->getContent();
+        $ambassadorsCard = substr($ambassadorsHtml, strpos($ambassadorsHtml, 'card p-8 text-center'), 400);
+
+        $this->assertStringContainsString(
+            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث/الفلتر الحاليّ — جرّب فلترًا تانيًا.'),
+            $ambassadorsCard,
+        );
+        $this->assertStringNotContainsString('لسّه محدّش وصل لأوّل لقب', $ambassadorsCard);
+    }
+
+    /** والتابان الفارغان فعليًّا (بلا فلتر) يفضّلان رسالة البداية الأصليّة. */
+    public function test_actually_empty_tabs_without_filters_keep_the_original_start_message(): void
+    {
+        $owner = $this->owner();
+
+        $this->actingAs($owner)
+            ->get(route('admin.referrals.index', ['tab' => 'invites']))
+            ->assertOk()
+            ->assertSee('لسّه مافيش دعوات في المدى ده');
+
+        $this->actingAs($owner)
+            ->get(route('admin.referrals.index', ['tab' => 'ambassadors']))
+            ->assertOk()
+            ->assertSee('لسّه محدّش وصل لأوّل لقب');
+    }
+
     /** 🔒 العمولة رقم ماليّ: تظهر لمالك المنصّة وتختفي عن غيره — واجهةً وتصديرًا */
     public function test_commission_is_hidden_from_non_owners_in_screen_and_export(): void
     {

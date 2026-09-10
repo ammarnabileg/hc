@@ -158,7 +158,11 @@
                 @endif
             </article>
         @empty
-            <x-empty :message="setting('admin.volunteer.delegations.mfysh_ghyabat_fy_alhala_dy_alfryq_kaml', 'مفيش غيابات في الحالة دي — الفريق كامل.')" />
+            {{-- تمييز «مفيش غيابات أصلًا» عن «الفلتر/التبويب الحاليّ ما طابقش حاجة»
+                 (24.2). تبويب الحالة إلزاميّ فالمعيار الخروج عن الافتراضيّ («سارية
+                 الآن») لا مجرّد وجود قيمة فيه. --}}
+            <x-empty :message="setting('admin.volunteer.delegations.mfysh_ghyabat_fy_alhala_dy_alfryq_kaml', 'مفيش غيابات في الحالة دي — الفريق كامل.')"
+                     :filtered="$filters['q'] !== '' || $filters['entity'] !== null || $filters['state'] !== 'current'" />
         @endforelse
     </section>
 

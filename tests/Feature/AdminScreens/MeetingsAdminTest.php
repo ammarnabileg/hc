@@ -30,6 +30,32 @@ class MeetingsAdminTest extends ScreensTestCase
             ->assertSee('مافيش اجتماعات في النطاق ده');
     }
 
+    /**
+     * ⭐ 24.2: بحثٌ بلا نتائج يقول كده صراحةً بدل «مافيش اجتماعات في النطاق ده».
+     * الملاحظة: نصّ الحالة الافتراضيّة يظهر أيضًا داخل «لوحة الإعدادات» أسفل
+     * الشاشة كقيمةٍ قابلة للتعديل — فالتحقّق هنا بعدد التكرار لا بمجرّد الوجود.
+     */
+    public function test_a_search_with_no_matches_shows_a_filtered_empty_message(): void
+    {
+        $this->makeMeeting($this->makeUser('صاحب الاجتماع'));
+
+        $html = $this->actingAs($this->owner())
+            ->get(route('admin.meetings.index', ['q' => 'zzzznotexist']))
+            ->assertOk()
+            ->getContent();
+
+        $emptyCardStart = strpos($html, 'card p-8 text-center');
+        $emptyCard = substr($html, $emptyCardStart, 400);
+
+        $this->assertStringContainsString(
+            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث/الفلتر الحاليّ — جرّب فلترًا تانيًا.'),
+            $emptyCard,
+        );
+        // نصّ البداية الافتراضيّ يظهر في لوحة الإعدادات أسفل الشاشة دائمًا — فالتحقّق
+        // هنا داخل بطاقة الحالة الفارغة نفسها لا الصفحة كلّها.
+        $this->assertStringNotContainsString('مافيش اجتماعات في النطاق ده', $emptyCard);
+    }
+
     public function test_permission_blocks_the_screen_and_its_actions(): void
     {
         $meeting = $this->makeMeeting($this->makeUser('صاحب الاجتماع'));

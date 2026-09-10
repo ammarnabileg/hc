@@ -117,7 +117,9 @@
     </div>
 
     @if ($items->isEmpty())
-        <x-empty :message="setting('admin.courses.media.almktba_fadya_arfa_awl_mlf', 'المكتبة فاضية — ارفع أوّل ملفّ.')" />
+        {{-- تمييز «المكتبة فاضية أصلًا» عن «الفلتر ما طابقش حاجة» (24.2) --}}
+        <x-empty :message="setting('admin.courses.media.almktba_fadya_arfa_awl_mlf', 'المكتبة فاضية — ارفع أوّل ملفّ.')"
+                 :filtered="$filters['q'] !== '' || $filters['kind'] !== '' || $filters['folder'] !== '' || $filters['tag'] !== '' || $filters['unused'] || $filters['date_from'] !== '' || $filters['date_to'] !== '' || $filters['size_min'] !== '' || $filters['size_max'] !== ''" />
     @elseif ($view === 'list')
         <x-table :label="setting('admin.courses.media.mktba_alwsayt', 'مكتبة الوسائط')">
             <thead>

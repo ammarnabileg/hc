@@ -43,7 +43,9 @@
 </x-filters>
 
 @if ($accreditations->isEmpty())
-    <x-empty :message="setting('admin.certificates.partials.accreditations.mfysh_aatmadat_fy_alflatr_dy', 'مفيش اعتمادات في الفلاتر دي.')" />
+    {{-- تمييز «مفيش اعتمادات أصلًا» عن «الفلتر ما طابقش حاجة» (24.2) --}}
+    <x-empty :message="setting('admin.certificates.partials.accreditations.mfysh_aatmadat_msjla_asla', 'مفيش اعتمادات مسجّلة أصلًا.')"
+             :filtered="$filters['q'] !== '' || $filters['status'] !== '' || $filters['used'] !== ''" />
 @else
     <div class="card p-2">
         <x-table :label="setting('admin.certificates.partials.accreditations.alaatmadat', 'الاعتمادات')">

@@ -113,7 +113,9 @@
                 </div>
             </details>
         @empty
-            <x-empty :message="setting('admin.volunteer.org.mfysh_kyanat_lsh_abda_bawl_kyan', 'مفيش كيانات لسّه — ابدأ بأوّل كيان.')" />
+            {{-- تمييز «مفيش كيانات أصلًا» عن «الفلتر ما طابقش حاجة» (24.2) --}}
+            <x-empty :message="setting('admin.volunteer.org.mfysh_kyanat_lsh_abda_bawl_kyan', 'مفيش كيانات لسّه — ابدأ بأوّل كيان.')"
+                     :filtered="$filters['q'] !== '' || $filters['track'] !== 0" />
         @endforelse
     </section>
 
@@ -186,7 +188,10 @@
                 </div>
             </div>
         @empty
-            <x-empty :message="setting('admin.volunteer.org.mfysh_kyanat_fy_alntaq_dh', 'مفيش كيانات في النطاق ده.')" />
+            {{-- تمييز «مفيش كيانات أصلًا» عن «فلتر المسار ما طابقش حاجة» (24.2) —
+                 هذا القسم لا يتأثّر بفلتر البحث النصّيّ، بالمسار فقط. --}}
+            <x-empty :message="setting('admin.volunteer.org.mfysh_kyanat_fy_alntaq_dh', 'مفيش كيانات في النطاق ده.')"
+                     :filtered="$filters['track'] !== 0" />
         @endforelse
     </section>
 

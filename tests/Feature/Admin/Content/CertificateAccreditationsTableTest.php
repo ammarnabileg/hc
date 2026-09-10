@@ -47,6 +47,44 @@ class CertificateAccreditationsTableTest extends AdminContentTestCase
         $response->assertDontSee('جهة نشطة');
     }
 
+    /** ⭐ 24.2: بحثٌ بلا نتائج يقول كده صراحةً بدل رسالة توهم بعدم وجود اعتمادات أصلًا. */
+    public function test_a_search_with_no_matches_shows_a_filtered_empty_message_not_the_start_message(): void
+    {
+        $this->assertGreaterThan(0, CertificateAccreditation::query()->count(), 'اعتماد المنصّة موجودٌ دائمًا');
+
+        $response = $this->actingAs($this->admin())
+            ->get(route('admin.certificates.index', ['tab' => 'accreditations', 'q' => 'zzzznotexist']))
+            ->assertOk();
+
+        $response->assertSee(
+            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث/الفلتر الحاليّ — جرّب فلترًا تانيًا.'),
+            false,
+        );
+        $response->assertDontSee(
+            setting('admin.certificates.partials.accreditations.mfysh_aatmadat_msjla_asla', 'مفيش اعتمادات مسجّلة أصلًا.'),
+            false,
+        );
+    }
+
+    /** وشاشةٌ فارغةٌ فعليًّا (بلا فلتر) تفضل تعرض رسالة البداية الأصليّة زيّ ما كانت. */
+    public function test_an_actually_empty_screen_without_filters_keeps_the_original_start_message(): void
+    {
+        CertificateAccreditation::query()->delete();
+
+        $response = $this->actingAs($this->admin())
+            ->get(route('admin.certificates.index', ['tab' => 'accreditations']))
+            ->assertOk();
+
+        $response->assertSee(
+            setting('admin.certificates.partials.accreditations.mfysh_aatmadat_msjla_asla', 'مفيش اعتمادات مسجّلة أصلًا.'),
+            false,
+        );
+        $response->assertDontSee(
+            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث/الفلتر الحاليّ — جرّب فلترًا تانيًا.'),
+            false,
+        );
+    }
+
     /** ⭐ «الضغط ← الأنواع المفلترة» — العدّاد رابطٌ حقيقيّ لا نصٌّ ميّت */
     public function test_the_type_count_links_to_a_filtered_types_tab(): void
     {

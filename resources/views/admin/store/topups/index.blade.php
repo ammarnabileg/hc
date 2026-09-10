@@ -68,7 +68,11 @@
     </x-filters>
 
     @if ($rows->isEmpty())
-        <x-empty :message="setting('admin.store.topups.index.mafysh_tlbat_fy_alntaq_dh_kl_haja_hadya', 'مافيش طلبات في النطاق ده — كلّ حاجة هادية.')" />
+        {{-- تمييز «مافيش طلبات أصلًا» عن «الفلتر/التبويب الحاليّ ما طابقش حاجة» (24.2).
+             تبويب الحالة إلزاميّ (بلا خيار افتراضيّ «الكلّ») فالمعيار هو الخروج عن
+             التبويب الافتراضيّ («قيد المراجعة») لا مجرّد وجود قيمة فيه. --}}
+        <x-empty :message="setting('admin.store.topups.index.mafysh_tlbat_fy_alntaq_dh_kl_haja_hadya', 'مافيش طلبات في النطاق ده — كلّ حاجة هادية.')"
+                 :filtered="$filters['q'] || $filters['method'] || $filters['from'] || $filters['to'] || $filters['status'] !== \App\Services\Wallet\TopupService::PENDING" />
     @else
         <div class="card overflow-hidden">
             <table class="hidden md:table w-full text-sm">

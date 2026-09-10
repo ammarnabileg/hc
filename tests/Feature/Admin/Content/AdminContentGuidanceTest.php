@@ -304,4 +304,128 @@ class AdminContentGuidanceTest extends AdminContentTestCase
         $this->assertSame('اتحلّت', $complaint->close_reason);
         $this->assertNotNull($complaint->closed_at);
     }
+
+    /** ⭐ 24.2: بحثٌ بلا نتائج في الشكاوى يقول كده صراحةً بدل «كلّ شيء هادئ». */
+    public function test_complaints_search_with_no_matches_shows_a_filtered_empty_message(): void
+    {
+        $this->complaint();
+
+        $response = $this->actingAs($this->admin())
+            ->get(route('admin.guidance.complaints', ['q' => 'zzzznotexist']))
+            ->assertOk();
+
+        $response->assertSee(
+            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث/الفلتر الحاليّ — جرّب فلترًا تانيًا.'),
+            false,
+        );
+        $response->assertDontSee(
+            setting('admin.guidance.complaints.la_shkawa_kl_shy_hady', 'لا شكاوى — كلّ شيء هادئ.'),
+            false,
+        );
+    }
+
+    /** والشكاوى الفارغة فعليًّا (بلا فلتر) تفضل تعرض رسالة البداية الأصليّة. */
+    public function test_complaints_actually_empty_without_filters_keeps_the_original_start_message(): void
+    {
+        Complaint::query()->delete();
+
+        $response = $this->actingAs($this->admin())
+            ->get(route('admin.guidance.complaints'))
+            ->assertOk();
+
+        $response->assertSee(
+            setting('admin.guidance.complaints.la_shkawa_kl_shy_hady', 'لا شكاوى — كلّ شيء هادئ.'),
+            false,
+        );
+        $response->assertDontSee(
+            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث/الفلتر الحاليّ — جرّب فلترًا تانيًا.'),
+            false,
+        );
+    }
+
+    /** ⭐ 24.2: بحثٌ بلا نتائج في دليل المستخدم يقول كده صراحةً بدل «اكتب أوّل واحد». */
+    public function test_help_articles_search_with_no_matches_shows_a_filtered_empty_message(): void
+    {
+        $this->actingAs($this->admin())->post(route('admin.guidance.help.store'), [
+            'title' => 'دليل موجود',
+            'category' => 'الحساب',
+            'body' => 'محتوى.',
+            'status' => 'published',
+        ]);
+
+        $response = $this->actingAs($this->admin())
+            ->get(route('admin.guidance.help', ['q' => 'zzzznotexist']))
+            ->assertOk();
+
+        $response->assertSee(
+            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث/الفلتر الحاليّ — جرّب فلترًا تانيًا.'),
+            false,
+        );
+        $response->assertDontSee(
+            setting('admin.guidance.help.la_adla_bad_aktb_awl_wahd', 'لا أدلّة بعد — اكتب أوّل واحد.'),
+            false,
+        );
+    }
+
+    /** ودليل المستخدم الفارغ فعليًّا (بلا فلتر) يفضل يعرض رسالة البداية الأصليّة. */
+    public function test_help_articles_actually_empty_without_filters_keeps_the_original_start_message(): void
+    {
+        HelpArticle::query()->delete();
+
+        $response = $this->actingAs($this->admin())
+            ->get(route('admin.guidance.help'))
+            ->assertOk();
+
+        $response->assertSee(
+            setting('admin.guidance.help.la_adla_bad_aktb_awl_wahd', 'لا أدلّة بعد — اكتب أوّل واحد.'),
+            false,
+        );
+        $response->assertDontSee(
+            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث/الفلتر الحاليّ — جرّب فلترًا تانيًا.'),
+            false,
+        );
+    }
+
+    /** ⭐ 24.2: بحثٌ بلا نتائج في المنشورات يقول كده صراحةً بدل «ابدأ أوّل بثّ». */
+    public function test_announcements_search_with_no_matches_shows_a_filtered_empty_message(): void
+    {
+        $this->actingAs($this->admin())->post(route('admin.guidance.announcements.store'), [
+            'title' => 'منشور موجود',
+            'body' => 'محتوى.',
+            'audience_type' => 'all',
+            'status' => 'published',
+        ]);
+
+        $response = $this->actingAs($this->admin())
+            ->get(route('admin.guidance.index', ['q' => 'zzzznotexist']))
+            ->assertOk();
+
+        $response->assertSee(
+            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث/الفلتر الحاليّ — جرّب فلترًا تانيًا.'),
+            false,
+        );
+        $response->assertDontSee(
+            setting('admin.guidance.index.la_mnshwrat_abda_awl_bth', 'لا منشورات — ابدأ أوّل بثّ.'),
+            false,
+        );
+    }
+
+    /** والمنشورات الفارغة فعليًّا (بلا فلتر) تفضل تعرض رسالة البداية الأصليّة. */
+    public function test_announcements_actually_empty_without_filters_keeps_the_original_start_message(): void
+    {
+        Announcement::query()->delete();
+
+        $response = $this->actingAs($this->admin())
+            ->get(route('admin.guidance.index'))
+            ->assertOk();
+
+        $response->assertSee(
+            setting('admin.guidance.index.la_mnshwrat_abda_awl_bth', 'لا منشورات — ابدأ أوّل بثّ.'),
+            false,
+        );
+        $response->assertDontSee(
+            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث/الفلتر الحاليّ — جرّب فلترًا تانيًا.'),
+            false,
+        );
+    }
 }

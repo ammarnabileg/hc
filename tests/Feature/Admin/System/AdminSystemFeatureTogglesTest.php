@@ -55,6 +55,29 @@ class AdminSystemFeatureTogglesTest extends SystemTestCase
     }
 
     /**
+     * ⭐ 24.2: بحثٌ بلا نتائج يقول كده صراحةً بدل «مافيش مزايا في الفلتر ده».
+     * ملاحظة: سجلّ المزايا ثابتٌ من الكود فلا يكون فارغًا أصلًا بلا فلتر —
+     * فلا مقابل لحالة «فارغة فعليًّا بلا فلتر» هنا (24.2 · انظر ملخّص المهمّة).
+     */
+    public function test_a_search_with_no_matches_shows_a_filtered_empty_message(): void
+    {
+        $admin = $this->admin(self::ADMIN);
+
+        $response = $this->actingAs($admin)
+            ->get(route('admin.settings.index', ['tab' => 'features', 'fq' => 'zzzznotexist']))
+            ->assertOk();
+
+        $response->assertSee(
+            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث/الفلتر الحاليّ — جرّب فلترًا تانيًا.'),
+            false,
+        );
+        $response->assertDontSee(
+            setting('features.ui.state.empty', 'مافيش مزايا في الفلتر ده — وسّع الفلتر شويّة.'),
+            false,
+        );
+    }
+
+    /**
      * 2.15-ج: «الجداول كروت رأسيّة **بلا تمرير أفقيّ**» على الموبايل.
      *
      * ولا يدّعي هذا الاختبار قياسَ التمرير — ذاك لا يُقاس إلّا في متصفّح

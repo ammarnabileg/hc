@@ -91,7 +91,10 @@
     </x-filters>
 
     @if ($meetings->isEmpty())
-        <x-empty :message="setting('admin_meetings.empty_text', 'مافيش اجتماعات في النطاق ده.')" />
+        {{-- تمييز «مافيش اجتماعات أصلًا» عن «الفلتر ما طابقش حاجة» (24.2) —
+             نطاق الصلاحيّة نفسه ليس فلترًا يختاره المستخدم فلا يُحتسَب هنا. --}}
+        <x-empty :message="setting('admin_meetings.empty_text', 'مافيش اجتماعات في النطاق ده.')"
+                 :filtered="$filters['q'] !== '' || $filters['entity'] !== '' || $filters['status'] !== '' || $filters['window'] !== '' || $filters['no_minutes'] !== '' || $filters['from'] !== '' || $filters['to'] !== ''" />
     @else
         <div class="card p-0 overflow-hidden hidden md:block">
             <table class="w-full text-sm"

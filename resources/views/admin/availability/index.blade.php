@@ -79,7 +79,9 @@
                                    :label="$row['unrestricted'] ? setting('admin.availability.index.bla_qyd_zmny', 'بلا قيد زمنيّ') : setting('admin.availability.index.mjdwl', 'مجدول')" />
                 </a>
             @empty
-                <x-empty :message="setting('admin.availability.index.mfysh_tdrybat_mtabqa_jrb_bhtha_awsa', 'مفيش تدريبات مطابقة — جرّب بحثًا أوسع.')" />
+                {{-- تمييز «مفيش تدريبات في المنصّة أصلًا» عن «الفلتر ما طابقش حاجة» (24.2) --}}
+                <x-empty :message="setting('admin.availability.index.lsh_mfysh_tdrybat_fy_almnsa_asla', 'لسّه مفيش تدريبات في المنصّة أصلًا.')"
+                         :filtered="$filters['q'] !== '' || $filters['state'] !== ''" />
             @endforelse
 
             <div class="mt-3">{{ $courses->links() }}</div>

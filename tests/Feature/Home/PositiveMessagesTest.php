@@ -153,6 +153,47 @@ class PositiveMessagesTest extends HomeTestCase
         $this->assertDatabaseMissing('positive_messages', ['id' => $message->id]);
     }
 
+    /** ⭐ 24.2: فلتر بلا نتائج يقول كده صراحةً بدل «لسّه مافيش رسائل». */
+    public function test_filter_with_no_matches_shows_a_filtered_empty_message(): void
+    {
+        $admin = $this->user('gamification_admin', 'مسؤول التلعيب');
+        // السيدر يُنشئ رسائل مفعّلة فقط — ففلتر «موقوفة» بلا نتائج دائمًا هنا
+        $this->assertGreaterThan(0, PositiveMessage::query()->count());
+
+        $response = $this->actingAs($admin)
+            ->get(route('admin.positive.index', ['state' => 'paused']))
+            ->assertOk();
+
+        $response->assertSee(
+            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث/الفلتر الحاليّ — جرّب فلترًا تانيًا.'),
+            false,
+        );
+        $response->assertDontSee(
+            setting('admin.positive.index.lsh_mafysh_rsayl_adf_awl_klma_tshjya_mn_zr', 'لسّه مافيش رسائل — أضف أوّل كلمة تشجيع من زرّ «+ رسالة» فوق.'),
+            false,
+        );
+    }
+
+    /** والرسائل الفارغة فعليًّا (بلا فلتر) تفضل تعرض رسالة البداية الأصليّة. */
+    public function test_actually_empty_without_filters_keeps_the_original_start_message(): void
+    {
+        $admin = $this->user('gamification_admin', 'مسؤول التلعيب');
+        PositiveMessage::query()->delete();
+
+        $response = $this->actingAs($admin)
+            ->get(route('admin.positive.index'))
+            ->assertOk();
+
+        $response->assertSee(
+            setting('admin.positive.index.lsh_mafysh_rsayl_adf_awl_klma_tshjya_mn_zr', 'لسّه مافيش رسائل — أضف أوّل كلمة تشجيع من زرّ «+ رسالة» فوق.'),
+            false,
+        );
+        $response->assertDontSee(
+            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث/الفلتر الحاليّ — جرّب فلترًا تانيًا.'),
+            false,
+        );
+    }
+
     /** سياق خارج القائمة المعتمَدة مرفوض — رسالة لن تظهر أبدًا لا تُحفَظ صامتة */
     public function test_unknown_context_is_rejected(): void
     {

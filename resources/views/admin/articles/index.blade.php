@@ -72,8 +72,10 @@
     </x-filters>
 
     @if ($articles->isEmpty())
+        {{-- تمييز «مفيش بيانات أصلًا» عن «الفلتر الحاليّ ما طابقش حاجة» (24.2) --}}
         <x-empty :message="setting('admin.articles.index.mafysh_mqalat_lsh_aktb_awl_wahd', 'مافيش مقالات لسه — اكتب أوّل واحد.')"
-                 :action="setting('admin.articles.index.mqal', '+ مقال')" :href="\Illuminate\Support\Facades\Route::has('admin.articles.create') ? route('admin.articles.create') : '#'" />
+                 :action="setting('admin.articles.index.mqal', '+ مقال')" :href="\Illuminate\Support\Facades\Route::has('admin.articles.create') ? route('admin.articles.create') : '#'"
+                 :filtered="request('q') || request('category') || request('tag') || $status !== ''" />
     @else
         <div class="card overflow-hidden">
             <table class="hidden md:table w-full text-sm">

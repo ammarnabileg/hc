@@ -43,7 +43,9 @@
     </x-filters>
 
     @if ($announcements->isEmpty())
-        <x-empty :message="setting('admin.guidance.index.la_mnshwrat_abda_awl_bth', 'لا منشورات — ابدأ أوّل بثّ.')" />
+        {{-- تمييز «لا منشورات أصلًا» عن «الفلتر ما طابقش حاجة» (24.2) --}}
+        <x-empty :message="setting('admin.guidance.index.la_mnshwrat_abda_awl_bth', 'لا منشورات — ابدأ أوّل بثّ.')"
+                 :filtered="$filters['q'] !== '' || $filters['status'] !== '' || $filters['pinned']" />
     @else
         @php
             $audienceLabels = [

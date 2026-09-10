@@ -153,7 +153,9 @@
     </x-filters>
 
     @if ($questions->isEmpty())
-        <x-empty :message="setting('question_bank.empty_text', 'لسّه مافيش أسئلة في البنك — ابدأ بسؤال واحد وهيكبر معاك.')" />
+        {{-- تمييز «لسّه مافيش أسئلة أصلًا» عن «الفلتر ما طابقش حاجة» (24.2) --}}
+        <x-empty :message="setting('question_bank.empty_text', 'لسّه مافيش أسئلة في البنك — ابدأ بسؤال واحد وهيكبر معاك.')"
+                 :filtered="$filters['q'] !== '' || $filters['course'] !== '' || $filters['lesson'] !== '' || $filters['type'] !== '' || $filters['difficulty'] !== '' || $filters['general'] !== '' || $filters['state'] !== ''" />
     @else
         {{-- جدول 6 أعمدة على الديسكتوب · كروت رأسيّة بلا تمرير أفقيّ على الموبايل (2.15-ج) --}}
         <div class="card p-0 overflow-hidden hidden md:block">

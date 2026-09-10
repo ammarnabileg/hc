@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Admin\Core;
 
+use App\Models\AdAudience;
 use App\Models\Entity;
 use App\Models\Membership;
 use App\Models\Position;
@@ -59,6 +60,71 @@ class AdminCoreScreensTest extends TestCase
         $this->actingAs($this->owner)->get(route('admin.roles.index'))->assertOk()->assertSee('الأدوار والصلاحيّات');
         $this->actingAs($this->owner)->get(route('admin.roles.assign'))->assertOk()->assertSee('إسناد دور');
         $this->actingAs($this->owner)->get(route('admin.permissions.index'))->assertOk()->assertSee('مصفوفة الصلاحيّات');
+    }
+
+    /**
+     * ⭐ 24.2: بحثٌ بلا نتائج في المستخدمين وطلبات الاعتماد والشرائح يقول كده
+     * صراحةً — لا رسالة البداية المضلِّلة.
+     */
+    public function test_a_search_with_no_matches_shows_a_filtered_empty_message_across_screens(): void
+    {
+        $usersResponse = $this->actingAs($this->owner)
+            ->get(route('admin.users.index', ['q' => 'zzzznotexist']))
+            ->assertOk();
+        $usersResponse->assertSee(
+            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث/الفلتر الحاليّ — جرّب فلترًا تانيًا.'),
+            false,
+        );
+        $usersResponse->assertDontSee(
+            setting('admin.users.empty_message', 'مفيش نتائج — امسح الفلاتر وجرّب تاني'),
+            false,
+        );
+
+        $approvalsResponse = $this->actingAs($this->owner)
+            ->get(route('admin.users.approvals', ['q' => 'zzzznotexist']))
+            ->assertOk();
+        $approvalsResponse->assertSee(
+            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث/الفلتر الحاليّ — جرّب فلترًا تانيًا.'),
+            false,
+        );
+        $approvalsResponse->assertDontSee(
+            setting('admin.approvals.empty_message', 'مفيش طلبات معلّقة — كلّ حاجة تمام'),
+            false,
+        );
+
+        $segmentsResponse = $this->actingAs($this->owner)
+            ->get(route('admin.users.segments', ['q' => 'zzzznotexist']))
+            ->assertOk();
+        $segmentsResponse->assertSee(
+            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث/الفلتر الحاليّ — جرّب فلترًا تانيًا.'),
+            false,
+        );
+        $segmentsResponse->assertDontSee(
+            setting('admin.segments.empty_message', 'ابنِ شريحتك الأولى'),
+            false,
+        );
+    }
+
+    /**
+     * وطلبات الاعتماد والشرائح الفارغتان فعليًّا (بلا فلتر) تفضّلان رسالة
+     * البداية الأصليّة. (شاشة المستخدمين نفسها لا تخلو أبدًا من مستخدمٍ فعليّ
+     * — الأدمن صاحب الجلسة نفسه سطرٌ فيها — فلا مقابل «فارغة فعليًّا» لها.)
+     */
+    public function test_actually_empty_screens_without_filters_keep_the_original_start_message(): void
+    {
+        User::query()->where('status', 'pending')->update(['status' => 'active']);
+
+        $this->actingAs($this->owner)
+            ->get(route('admin.users.approvals'))
+            ->assertOk()
+            ->assertSee(setting('admin.approvals.empty_message', 'مفيش طلبات معلّقة — كلّ حاجة تمام'), false);
+
+        AdAudience::query()->delete();
+
+        $this->actingAs($this->owner)
+            ->get(route('admin.users.segments'))
+            ->assertOk()
+            ->assertSee(setting('admin.segments.empty_message', 'ابنِ شريحتك الأولى'), false);
     }
 
     /** محرّر الدور: بحث + مجموعات + نطاق لكلّ سطر + Deny/Allow (12.2.1-ط). */

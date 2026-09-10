@@ -94,6 +94,41 @@ class AdminSystemCountriesTest extends SystemTestCase
             ->assertForbidden();
     }
 
+    /** ⭐ 24.2: بحثٌ بلا نتائج يقول كده صراحةً بدل «مافيش دول مطابقة». */
+    public function test_a_search_with_no_matches_shows_a_filtered_empty_message(): void
+    {
+        $this->seedGeography();
+
+        $response = $this->actingAs($this->countriesAdmin())
+            ->get(route('admin.settings.index', ['tab' => 'countries', 'cq' => 'zzzznotexist']))
+            ->assertOk();
+
+        $response->assertSee(
+            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث/الفلتر الحاليّ — جرّب فلترًا تانيًا.'),
+            false,
+        );
+        $response->assertDontSee(
+            setting('admin.settings.tabs.countries.mafysh_dwl_mtabqa_wsa_albhth', 'مافيش دول مطابقة — وسّع البحث.'),
+            false,
+        );
+    }
+
+    /** ولائحة الدول الفارغة فعليًّا (بلا فلتر ولا دول) تفضل تعرض رسالة البداية الأصليّة. */
+    public function test_actually_empty_without_filters_keeps_the_original_start_message(): void
+    {
+        Country::query()->delete();
+
+        $response = $this->actingAs($this->countriesAdmin())
+            ->get(route('admin.settings.index', ['tab' => 'countries']))
+            ->assertOk();
+
+        $response->assertSee('مافيش دول مطابقة — وسّع البحث.');
+        $response->assertDontSee(
+            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث/الفلتر الحاليّ — جرّب فلترًا تانيًا.'),
+            false,
+        );
+    }
+
     /** الشاشة تعرض جدول الفروق بأعمدته الثلاثة وشارة «سيُدمج بلا فقد» (24.3). */
     public function test_the_screen_shows_the_three_diff_columns_before_merging(): void
     {

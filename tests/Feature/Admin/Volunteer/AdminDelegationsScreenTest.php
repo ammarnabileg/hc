@@ -100,6 +100,45 @@ class AdminDelegationsScreenTest extends AdminVolunteerTestCase
             ->assertSee(today()->addDays(5)->format('Y-m-d'));
     }
 
+    /** ⭐ 24.2: بحثٌ بلا نتائج يقول كده صراحةً بدل «الفريق كامل». */
+    public function test_a_search_with_no_matches_shows_a_filtered_empty_message(): void
+    {
+        $this->absence();
+        $viewer = $this->grant($this->makeUser(), 'delegations.list');
+
+        $response = $this->actingAs($viewer)
+            ->get(route('admin.volunteer.delegations', ['q' => 'zzzznotexist']))
+            ->assertOk();
+
+        $response->assertSee(
+            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث/الفلتر الحاليّ — جرّب فلترًا تانيًا.'),
+            false,
+        );
+        $response->assertDontSee(
+            setting('admin.volunteer.delegations.mfysh_ghyabat_fy_alhala_dy_alfryq_kaml', 'مفيش غيابات في الحالة دي — الفريق كامل.'),
+            false,
+        );
+    }
+
+    /** وشاشةٌ فارغةٌ فعليًّا (بلا فلتر ولا غيابات حتّى على التبويب الافتراضيّ) تعرض الرسالة الأصليّة. */
+    public function test_actually_empty_without_filters_keeps_the_original_start_message(): void
+    {
+        $viewer = $this->grant($this->makeUser(), 'delegations.list');
+
+        $response = $this->actingAs($viewer)
+            ->get(route('admin.volunteer.delegations'))
+            ->assertOk();
+
+        $response->assertSee(
+            setting('admin.volunteer.delegations.mfysh_ghyabat_fy_alhala_dy_alfryq_kaml', 'مفيش غيابات في الحالة دي — الفريق كامل.'),
+            false,
+        );
+        $response->assertDontSee(
+            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث/الفلتر الحاليّ — جرّب فلترًا تانيًا.'),
+            false,
+        );
+    }
+
     /** والتابات الثلاثة تفصل فعلًا: القادم لا يظهر في «سارية» والعكس */
     public function test_the_three_states_really_separate_the_rows(): void
     {

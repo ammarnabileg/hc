@@ -220,7 +220,10 @@
 </form>
 
 @if ($rows->isEmpty())
-    <x-empty :message="setting('admin.settings.tabs.countries.mafysh_dwl_mtabqa_wsa_albhth', 'مافيش دول مطابقة — وسّع البحث.')" />
+    {{-- سجلّ الدول ثابتٌ من الكود فلا يكون فارغًا أصلًا بلا فلتر — لكنّ :filtered
+         يبقى صريحًا هنا اتّساقًا مع بقيّة الشاشات (24.2). --}}
+    <x-empty :message="setting('admin.settings.tabs.countries.mafysh_dwl_mtabqa_wsa_albhth', 'مافيش دول مطابقة — وسّع البحث.')"
+             :filtered="$filters['q'] !== '' || $filters['status'] !== '' || $filters['with_users']" />
 @else
     {{-- كروت رأسيّة على الموبايل بلا تمرير أفقيّ (2.15-ج) --}}
     <div class="space-y-2 mt-3">

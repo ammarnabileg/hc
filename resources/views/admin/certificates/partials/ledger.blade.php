@@ -140,7 +140,9 @@
 @endcan
 
 @if ($certificates->isEmpty())
-    <x-empty :message="setting('admin.certificates.partials.ledger.mfysh_shhadat_fy_alflatr_dy', 'مفيش شهادات في الفلاتر دي.')" />
+    {{-- تمييز «مفيش شهادات صادرة أصلًا» عن «الفلتر ما طابقش حاجة» (24.2) --}}
+    <x-empty :message="setting('admin.certificates.partials.ledger.mfysh_shhadat_sadra_asla', 'مفيش شهادات صادرة أصلًا.')"
+             :filtered="$filters['q'] !== '' || $filters['type'] !== 0 || $filters['status'] !== '' || $filters['source'] !== '' || $filters['from'] !== ''" />
 @else
     <div class="space-y-3">
         @foreach ($certificates as $certificate)

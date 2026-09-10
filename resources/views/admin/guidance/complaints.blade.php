@@ -53,7 +53,9 @@
     </x-filters>
 
     @if ($complaints->isEmpty())
-        <x-empty :message="setting('admin.guidance.complaints.la_shkawa_kl_shy_hady', 'لا شكاوى — كلّ شيء هادئ.')" />
+        {{-- تمييز «لا شكاوى أصلًا» عن «الفلتر ما طابقش حاجة» (24.2) --}}
+        <x-empty :message="setting('admin.guidance.complaints.la_shkawa_kl_shy_hady', 'لا شكاوى — كلّ شيء هادئ.')"
+                 :filtered="$filters['q'] !== '' || $filters['status'] !== '' || $filters['category'] !== ''" />
     @else
         <div class="space-y-3">
             @foreach ($complaints as $complaint)

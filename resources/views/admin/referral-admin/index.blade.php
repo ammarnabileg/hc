@@ -110,7 +110,9 @@
         </x-filters>
 
         @if ($invites->isEmpty())
-            <x-empty :message="setting('referral_admin.empty_text', 'لسّه مافيش دعوات في المدى ده — جرّب مدى أوسع.')" />
+            {{-- تمييز «لسّه مافيش دعوات أصلًا» عن «الفلتر ما طابقش حاجة» (24.2) --}}
+            <x-empty :message="setting('referral_admin.empty_text', 'لسّه مافيش دعوات في المدى ده — جرّب مدى أوسع.')"
+                     :filtered="$filters['q'] !== '' || $filters['status'] !== '' || $filters['payout'] !== '' || $filters['flagged'] !== '' || $filters['from'] !== '' || $filters['to'] !== ''" />
         @else
             <div class="card p-0 overflow-hidden hidden md:block">
                 <table class="w-full text-sm">
@@ -189,7 +191,9 @@
         </x-filters>
 
         @if ($ambassadors->isEmpty())
-            <x-empty :message="setting('admin.referral_admin.index.lsh_mhdsh_wsl_lawl_lqb_awl_dawa_mfala_hy', 'لسّه محدّش وصل لأوّل لقب — أوّل دعوة مفعّلة هي البداية.')" />
+            {{-- تمييز «لسّه محدّش وصل أصلًا» عن «الفلتر ما طابقش حاجة» (24.2) --}}
+            <x-empty :message="setting('admin.referral_admin.index.lsh_mhdsh_wsl_lawl_lqb_awl_dawa_mfala_hy', 'لسّه محدّش وصل لأوّل لقب — أوّل دعوة مفعّلة هي البداية.')"
+                     :filtered="$filters['q'] !== ''" />
         @else
             <div class="card p-0 overflow-hidden hidden md:block">
                 <table class="w-full text-sm">

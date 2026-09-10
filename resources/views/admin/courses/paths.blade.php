@@ -64,7 +64,9 @@
     @endif
 
     @if ($paths->isEmpty())
-        <x-empty :message="setting('admin.courses.paths.lsh_bdry_adf_msark_alawl', 'لسّه بدري — أضِف مسارك الأوّل.')" />
+        {{-- تمييز «لسّه بدري أصلًا» عن «الفلتر ما طابقش حاجة» (24.2) --}}
+        <x-empty :message="setting('admin.courses.paths.lsh_bdry_adf_msark_alawl', 'لسّه بدري — أضِف مسارك الأوّل.')"
+                 :filtered="$filters['q'] !== '' || $filters['status'] !== ''" />
     @else
         {{-- ديسكتوب: جدول قابل لسحب الصفوف للترتيب --}}
         <div class="hidden md:block card overflow-hidden">

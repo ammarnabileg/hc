@@ -115,7 +115,9 @@
     </x-filters>
 
     @if ($questions->isEmpty())
-        <x-empty :message="setting('admin.wars.bank.index.albnk_fargh_alhrwb_ln_taml', 'البنك فارغ — الحروب لن تعمل.')" />
+        {{-- تمييز «البنك فارغ أصلًا» عن «الفلتر ما طابقش حاجة» (24.2) --}}
+        <x-empty :message="setting('admin.wars.bank.index.albnk_fargh_alhrwb_ln_taml', 'البنك فارغ — الحروب لن تعمل.')"
+                 :filtered="$filters['search'] !== '' || $filters['difficulty'] !== '' || $filters['status'] !== '' || $filters['source'] !== '' || $filters['missing']" />
     @else
         <form method="post" action="{{ route('admin.wars.bank.bulk') }}">
             @csrf

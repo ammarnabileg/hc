@@ -4,10 +4,12 @@ namespace Tests\Feature\Admin\Content;
 
 use App\Models\Certificate;
 use App\Models\CertificateAccreditation;
+use App\Models\CertificateReport;
 use App\Models\CertificateTemplate;
 use App\Models\CertificateType;
 use App\Services\Admin\Content\CertificateBulkIssuer;
 use App\Services\Admin\Content\TemplateDesigner;
+use App\Services\Certificates\CertificateIssuer;
 
 /**
  * إدارة الشهادات (12.5 · 24.1) — التجميد والترقيم ومنع التكرار قواعد لا تتفاوض.
@@ -234,5 +236,83 @@ class AdminContentCertificatesTest extends AdminContentTestCase
         $this->actingAs($this->makeUser())
             ->get(route('admin.certificates.index'))
             ->assertForbidden();
+    }
+
+    /** ⭐ 24.2: بحثٌ بلا نتائج في سجلّ الصادر يقول كده صراحةً لا «مفيش شهادات صادرة أصلًا». */
+    public function test_ledger_search_with_no_matches_shows_a_filtered_empty_message(): void
+    {
+        app(CertificateIssuer::class)->issue($this->makeUser(['name' => 'حائز الشهادة']), 'course');
+
+        $response = $this->actingAs($this->admin())
+            ->get(route('admin.certificates.index', ['tab' => 'ledger', 'q' => 'zzzznotexist']))
+            ->assertOk();
+
+        $response->assertSee(
+            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث/الفلتر الحاليّ — جرّب فلترًا تانيًا.'),
+            false,
+        );
+        $response->assertDontSee(
+            setting('admin.certificates.partials.ledger.mfysh_shhadat_sadra_asla', 'مفيش شهادات صادرة أصلًا.'),
+            false,
+        );
+    }
+
+    /** وسجلّ الصادر الفارغ فعليًّا (بلا شهاداتٍ ولا فلتر) يفضل يعرض رسالة البداية الأصليّة. */
+    public function test_ledger_actually_empty_without_filters_keeps_the_original_start_message(): void
+    {
+        $response = $this->actingAs($this->admin())
+            ->get(route('admin.certificates.index', ['tab' => 'ledger']))
+            ->assertOk();
+
+        $response->assertSee(
+            setting('admin.certificates.partials.ledger.mfysh_shhadat_sadra_asla', 'مفيش شهادات صادرة أصلًا.'),
+            false,
+        );
+        $response->assertDontSee(
+            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث/الفلتر الحاليّ — جرّب فلترًا تانيًا.'),
+            false,
+        );
+    }
+
+    /** ⭐ 24.2: بحثٌ بلا نتائج في البلاغات يقول كده صراحةً لا «مفيش بلاغات — وده خبر كويّس». */
+    public function test_reports_search_with_no_matches_shows_a_filtered_empty_message(): void
+    {
+        $certificate = app(CertificateIssuer::class)->issue($this->makeUser(['name' => 'صاحب الشهادة']), 'course');
+        CertificateReport::create([
+            'certificate_id' => $certificate->id,
+            'code' => $certificate->code,
+            'reason' => 'الورقة مريبة.',
+            'status' => CertificateReport::NEW,
+        ]);
+
+        $response = $this->actingAs($this->admin())
+            ->get(route('admin.certificates.index', ['tab' => 'verification', 'q' => 'zzzznotexist']))
+            ->assertOk();
+
+        $response->assertSee(
+            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث/الفلتر الحاليّ — جرّب فلترًا تانيًا.'),
+            false,
+        );
+        $response->assertDontSee(
+            setting('certificates.reports.empty', 'مفيش بلاغات — وده خبر كويّس.'),
+            false,
+        );
+    }
+
+    /** والبلاغات الفارغة فعليًّا (بلا فلتر) تفضل تعرض الرسالة الإيجابيّة الأصليّة. */
+    public function test_reports_actually_empty_without_filters_keeps_the_original_start_message(): void
+    {
+        $response = $this->actingAs($this->admin())
+            ->get(route('admin.certificates.index', ['tab' => 'verification']))
+            ->assertOk();
+
+        $response->assertSee(
+            setting('certificates.reports.empty', 'مفيش بلاغات — وده خبر كويّس.'),
+            false,
+        );
+        $response->assertDontSee(
+            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث/الفلتر الحاليّ — جرّب فلترًا تانيًا.'),
+            false,
+        );
     }
 }

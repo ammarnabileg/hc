@@ -60,6 +60,25 @@ class EventRegistrationsScreenTest extends EventsTestCase
             ->assertSee('لا مسجّلين بعد — شارك رابط الفعاليّة.');
     }
 
+    /** ⭐ 24.2: بحثٌ بلا نتائج يقول كده صراحةً بدل «لا مسجّلين بعد». */
+    public function test_a_search_with_no_matches_shows_a_filtered_empty_message(): void
+    {
+        $admin = $this->eventsAdmin();
+        $user = $this->trainee();
+        $event = $this->makeEvent(['title_ar' => 'ورشة الخطابة', 'mode' => 'offline']);
+        $this->actingAs($user)->post(route('events.register', $event->slug));
+
+        $response = $this->actingAs($admin)
+            ->get(route('admin.events.registrations.index', ['q' => 'zzzznotexist']))
+            ->assertOk();
+
+        $response->assertSee(
+            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث/الفلتر الحاليّ — جرّب فلترًا تانيًا.'),
+            false,
+        );
+        $response->assertDontSee('لا مسجّلين بعد — شارك رابط الفعاليّة.');
+    }
+
     public function test_the_screen_is_hidden_from_whoever_lacks_the_permission(): void
     {
         $outsider = $this->trainee('بلا صلاحيّة');
@@ -238,6 +257,48 @@ class EventRegistrationsScreenTest extends EventsTestCase
             ->assertRedirect();
 
         $this->assertTrue(EventRegistration::where('event_id', $event->id)->value('attended'));
+    }
+
+    /** ⭐ 24.2: شاشة مسجّلي فعاليّةٍ بعينها — بحثٌ بلا نتائج يقول كده صراحةً. */
+    public function test_per_event_registrations_search_with_no_matches_shows_a_filtered_empty_message(): void
+    {
+        $admin = $this->eventsAdmin();
+        $user = $this->trainee();
+        $event = $this->makeEvent(['title_ar' => 'ورشة الخطابة', 'mode' => 'offline']);
+        $this->actingAs($user)->post(route('events.register', $event->slug));
+
+        $response = $this->actingAs($admin)
+            ->get(route('admin.events.registrations', [$event, 'q' => 'zzzznotexist']))
+            ->assertOk();
+
+        $response->assertSee(
+            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث/الفلتر الحاليّ — جرّب فلترًا تانيًا.'),
+            false,
+        );
+        $response->assertDontSee(
+            setting('admin.events.registrations.la_msjlyn_bad_shark_rabt_alfaalya', 'لا مسجّلين بعد — شارك رابط الفعاليّة.'),
+            false,
+        );
+    }
+
+    /** وفعاليّةٌ فارغةٌ فعليًّا (بلا مسجّلين ولا فلتر) تفضل تعرض رسالة البداية الأصليّة. */
+    public function test_per_event_registrations_actually_empty_without_filters_keeps_the_original_start_message(): void
+    {
+        $admin = $this->eventsAdmin();
+        $event = $this->makeEvent(['title_ar' => 'ورشة بلا مسجّلين']);
+
+        $response = $this->actingAs($admin)
+            ->get(route('admin.events.registrations', $event))
+            ->assertOk();
+
+        $response->assertSee(
+            setting('admin.events.registrations.la_msjlyn_bad_shark_rabt_alfaalya', 'لا مسجّلين بعد — شارك رابط الفعاليّة.'),
+            false,
+        );
+        $response->assertDontSee(
+            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث/الفلتر الحاليّ — جرّب فلترًا تانيًا.'),
+            false,
+        );
     }
 
     /** أدمن فعاليّات بصلاحيّاته المنصوصة وحدها — لا دورًا مفتوحًا */

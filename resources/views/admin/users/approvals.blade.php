@@ -43,8 +43,10 @@
     </x-filters>
 
     @if ($pending->isEmpty())
+        {{-- تمييز «مفيش طلبات معلّقة أصلًا» عن «الفلتر ما طابقش حاجة» (24.2) --}}
         <x-empty :message="setting('admin.approvals.empty_message', 'مفيش طلبات معلّقة — كلّ حاجة تمام')"
-                 :action="setting('admin.users.approvals.rjwa_llqyada', 'رجوع للقيادة')" :href="route('admin.dashboard')" />
+                 :action="setting('admin.users.approvals.rjwa_llqyada', 'رجوع للقيادة')" :href="route('admin.dashboard')"
+                 :filtered="request('q') || request('age') || request('source')" />
     @else
         <div data-bulk-scope>
             <form method="post" action="{{ route('admin.users.approve') }}" id="approvals-form">

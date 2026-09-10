@@ -62,7 +62,9 @@
     </x-filters>
 
     @if ($messages->isEmpty())
-        <x-empty :message="setting('admin.positive.index.lsh_mafysh_rsayl_adf_awl_klma_tshjya_mn_zr', 'لسّه مافيش رسائل — أضف أوّل كلمة تشجيع من زرّ «+ رسالة» فوق.')" />
+        {{-- تمييز «لسّه مافيش رسائل أصلًا» عن «الفلتر ما طابقش حاجة» (24.2) --}}
+        <x-empty :message="setting('admin.positive.index.lsh_mafysh_rsayl_adf_awl_klma_tshjya_mn_zr', 'لسّه مافيش رسائل — أضف أوّل كلمة تشجيع من زرّ «+ رسالة» فوق.')"
+                 :filtered="$context !== '' || $state !== ''" />
     @else
         <div class="grid gap-3 md:grid-cols-2">
             @foreach ($messages as $message)

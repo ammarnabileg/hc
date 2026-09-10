@@ -86,6 +86,47 @@ class AdminVolunteerCertificatesTest extends AdminVolunteerTestCase
         $this->assertSame('revoked', $issued['certificate']->fresh()->status);
     }
 
+    /** ⭐ 24.2: بحثٌ بلا نتائج في سجلّ الشهادات يقول كده صراحةً بدل «لا شهادات صادرة بعد». */
+    public function test_a_search_with_no_matches_shows_a_filtered_empty_message(): void
+    {
+        $membership = $this->membership(days: 90);
+        CertificateEligibility::issueForMembership($membership);
+
+        $admin = $this->grant($this->makeUser(), 'volunteer_certificates.view');
+
+        $response = $this->actingAs($admin)
+            ->get(route('admin.volunteer.certificates', ['q' => 'zzzznotexist']))
+            ->assertOk();
+
+        $response->assertSee(
+            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث/الفلتر الحاليّ — جرّب فلترًا تانيًا.'),
+            false,
+        );
+        $response->assertDontSee(
+            setting('admin.volunteer.certificates.la_shhadat_sadra_bad', 'لا شهادات صادرة بعد.'),
+            false,
+        );
+    }
+
+    /** وسجلّ الشهادات الفارغ فعليًّا (بلا شهاداتٍ ولا فلتر) يفضل يعرض رسالة البداية الأصليّة. */
+    public function test_actually_empty_without_filters_keeps_the_original_start_message(): void
+    {
+        $admin = $this->grant($this->makeUser(), 'volunteer_certificates.view');
+
+        $response = $this->actingAs($admin)
+            ->get(route('admin.volunteer.certificates'))
+            ->assertOk();
+
+        $response->assertSee(
+            setting('admin.volunteer.certificates.la_shhadat_sadra_bad', 'لا شهادات صادرة بعد.'),
+            false,
+        );
+        $response->assertDontSee(
+            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث/الفلتر الحاليّ — جرّب فلترًا تانيًا.'),
+            false,
+        );
+    }
+
     /** الشاشة تفتح لمن يملك الصلاحيّة وتُمنَع عن غيره. */
     public function test_certificates_screen_permission(): void
     {

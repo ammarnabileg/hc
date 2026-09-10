@@ -50,6 +50,41 @@ class ReportScheduleTest extends ScreensTestCase
             ->assertDontSee('تقرير التدريبات الشهريّ');
     }
 
+    /**
+     * ⭐ 24.2: بحثٌ بلا نتائج يقول كده صراحةً بدل «مافيش تقارير مجدولة».
+     * الملاحظة: نصّ الحالة الافتراضيّة يظهر أيضًا داخل «لوحة الإعدادات» أسفل
+     * الشاشة، فالتحقّق هنا داخل بطاقة الحالة الفارغة وحدها.
+     */
+    public function test_a_search_with_no_matches_shows_a_filtered_empty_message(): void
+    {
+        $admin = $this->admin(['report_schedules.list', 'report_schedules.view']);
+
+        $html = $this->actingAs($admin)
+            ->get(route('admin.report-schedules.index', ['q' => 'zzzznotexist']))
+            ->assertOk()
+            ->getContent();
+
+        $emptyCard = substr($html, strpos($html, 'card p-8 text-center'), 400);
+
+        $this->assertStringContainsString(
+            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث/الفلتر الحاليّ — جرّب فلترًا تانيًا.'),
+            $emptyCard,
+        );
+        $this->assertStringNotContainsString('مافيش تقارير مجدولة', $emptyCard);
+    }
+
+    /** والتقارير الفارغة فعليًّا (بلا فلتر ولا صفوف) تفضل تعرض رسالة البداية الأصليّة. */
+    public function test_actually_empty_without_filters_keeps_the_original_start_message(): void
+    {
+        ReportSchedule::query()->delete();
+        $admin = $this->admin(['report_schedules.list', 'report_schedules.view']);
+
+        $this->actingAs($admin)
+            ->get(route('admin.report-schedules.index'))
+            ->assertOk()
+            ->assertSee('مافيش تقارير مجدولة');
+    }
+
     /** 🔒 التقرير الماليّ لا يُنشئه غير مالك المنصّة ولا يظهر له أصلًا */
     public function test_financial_report_is_owner_only(): void
     {

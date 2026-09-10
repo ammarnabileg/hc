@@ -109,7 +109,9 @@
     </x-filters>
 
     @if ($issued->isEmpty())
-        <x-empty :message="setting('admin.volunteer.certificates.la_shhadat_sadra_bad', 'لا شهادات صادرة بعد.')" />
+        {{-- تمييز «لا شهادات صادرة أصلًا» عن «الفلتر ما طابقش حاجة» (24.2) --}}
+        <x-empty :message="setting('admin.volunteer.certificates.la_shhadat_sadra_bad', 'لا شهادات صادرة بعد.')"
+                 :filtered="$filters['q'] !== '' || $filters['type'] !== '' || $filters['status'] !== ''" />
     @else
         <div class="card p-0 overflow-hidden hidden md:block overflow-x-auto min-w-0">
             <table class="w-full text-sm">

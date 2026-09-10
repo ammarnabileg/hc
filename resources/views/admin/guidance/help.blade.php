@@ -64,7 +64,9 @@
     </x-filters>
 
     @if ($articles->isEmpty())
-        <x-empty :message="setting('admin.guidance.help.la_adla_bad_aktb_awl_wahd', 'لا أدلّة بعد — اكتب أوّل واحد.')" />
+        {{-- تمييز «لا أدلّة أصلًا» عن «الفلتر ما طابقش حاجة» (24.2) --}}
+        <x-empty :message="setting('admin.guidance.help.la_adla_bad_aktb_awl_wahd', 'لا أدلّة بعد — اكتب أوّل واحد.')"
+                 :filtered="$filters['q'] !== '' || $filters['category'] !== '' || $filters['status'] !== ''" />
     @else
         {{-- ديسكتوب: جدول العنوان (ع/إ) · التصنيف · الحالة · إجراءات (24 · 2.15-ج) --}}
         <div class="hidden md:block card overflow-hidden">

@@ -34,7 +34,9 @@
     </x-filters>
 
     @if ($logs->isEmpty())
-        <x-empty :message="setting('admin.store.topups.webhooks.mafysh_ndaat_msjla_lsh', 'مافيش نداءات مسجَّلة لسه.')" />
+        {{-- تمييز «مافيش نداءات مسجَّلة أصلًا» عن «الفلتر ما طابقش حاجة» (24.2) --}}
+        <x-empty :message="setting('admin.store.topups.webhooks.mafysh_ndaat_msjla_lsh', 'مافيش نداءات مسجَّلة لسه.')"
+                 :filtered="request('invoice') || request('hash')" />
     @else
         <div class="space-y-3">
             @foreach ($logs as $log)

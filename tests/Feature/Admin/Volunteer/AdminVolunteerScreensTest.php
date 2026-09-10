@@ -60,6 +60,54 @@ class AdminVolunteerScreensTest extends AdminVolunteerTestCase
         $this->actingAs($owner)->get(route('admin.rewards.index'))->assertOk();
     }
 
+    /** ⭐ 24.2: بحثٌ بلا نتائج في الأوفبوردنج يقول كده صراحةً بدل «وده خبر كويّس». */
+    public function test_offboarding_search_with_no_matches_shows_a_filtered_empty_message(): void
+    {
+        $target = $this->makeUser('عضو منتهٍ');
+        $actor = $this->makeUser('منفِّذ الإنهاء');
+
+        Offboarding::create([
+            'user_id' => $target->id,
+            'type' => 'resignation',
+            'initiated_by' => $actor->id,
+            'notice_until' => now(),
+        ]);
+
+        $admin = $this->grant($this->makeUser(), 'offboarding.view');
+
+        $response = $this->actingAs($admin)
+            ->get(route('admin.volunteer.offboarding', ['q' => 'zzzznotexist']))
+            ->assertOk();
+
+        $response->assertSee(
+            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث/الفلتر الحاليّ — جرّب فلترًا تانيًا.'),
+            false,
+        );
+        $response->assertDontSee(
+            setting('admin.volunteer.offboarding.mfysh_mlfat_inha_wdh_khbr_kwys', 'مفيش ملفّات إنهاء — وده خبر كويّس.'),
+            false,
+        );
+    }
+
+    /** والأوفبوردنج الفارغ فعليًّا (بلا فلتر ولا ملفّات) يفضل يعرض الرسالة الإيجابيّة الأصليّة. */
+    public function test_offboarding_actually_empty_without_filters_keeps_the_original_start_message(): void
+    {
+        $admin = $this->grant($this->makeUser(), 'offboarding.view');
+
+        $response = $this->actingAs($admin)
+            ->get(route('admin.volunteer.offboarding'))
+            ->assertOk();
+
+        $response->assertSee(
+            setting('admin.volunteer.offboarding.mfysh_mlfat_inha_wdh_khbr_kwys', 'مفيش ملفّات إنهاء — وده خبر كويّس.'),
+            false,
+        );
+        $response->assertDontSee(
+            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث/الفلتر الحاليّ — جرّب فلترًا تانيًا.'),
+            false,
+        );
+    }
+
     /** تابات التلعيب السبعة تفتح كلّها بلا خطأ. */
     public function test_all_gamification_tabs_render(): void
     {

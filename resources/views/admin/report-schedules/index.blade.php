@@ -82,7 +82,9 @@
     </x-filters>
 
     @if ($schedules->isEmpty())
-        <x-empty :message="setting('report_schedules.empty_text', 'مافيش تقارير مجدولة — ابعت تقريرك الأوّل تلقائيًّا.')" />
+        {{-- تمييز «مافيش تقارير مجدولة أصلًا» عن «الفلتر ما طابقش حاجة» (24.2) --}}
+        <x-empty :message="setting('report_schedules.empty_text', 'مافيش تقارير مجدولة — ابعت تقريرك الأوّل تلقائيًّا.')"
+                 :filtered="$filters['q'] !== '' || $filters['tab'] !== '' || $filters['frequency'] !== '' || $filters['status'] !== ''" />
     @else
         <div class="card p-0 overflow-hidden hidden md:block">
             <table class="w-full text-sm">

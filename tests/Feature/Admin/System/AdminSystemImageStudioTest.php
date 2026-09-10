@@ -154,6 +154,45 @@ class AdminSystemImageStudioTest extends SystemTestCase
             ->assertSee('أدوات الاسم', false);
     }
 
+    /** ⭐ 24.2: بحثٌ بلا نتائج يقول كده صراحةً بدل «مافيش قوالب لسه». */
+    public function test_a_search_with_no_matches_shows_a_filtered_empty_message(): void
+    {
+        $admin = $this->admin(self::ADMIN);
+
+        $response = $this->actingAs($admin)
+            ->get(route('admin.studio.index', ['q' => 'zzzznotexist']))
+            ->assertOk();
+
+        $response->assertSee(
+            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث/الفلتر الحاليّ — جرّب فلترًا تانيًا.'),
+            false,
+        );
+        $response->assertDontSee(
+            setting('admin.studio.index.mafysh_qwalb_lsh_abda_bawl_qalb', 'مافيش قوالب لسه — ابدأ بأوّل قالب.'),
+            false,
+        );
+    }
+
+    /** وشاشة القوالب الفارغة فعليًّا (بلا فلتر ولا قوالب) تفضل تعرض رسالة البداية الأصليّة. */
+    public function test_actually_empty_without_filters_keeps_the_original_start_message(): void
+    {
+        ImageTemplate::query()->delete();
+        $admin = $this->admin(self::ADMIN);
+
+        $response = $this->actingAs($admin)
+            ->get(route('admin.studio.index'))
+            ->assertOk();
+
+        $response->assertSee(
+            setting('admin.studio.index.mafysh_qwalb_lsh_abda_bawl_qalb', 'مافيش قوالب لسه — ابدأ بأوّل قالب.'),
+            false,
+        );
+        $response->assertDontSee(
+            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث/الفلتر الحاليّ — جرّب فلترًا تانيًا.'),
+            false,
+        );
+    }
+
     /** المولّد يعمل على الخادم ويكتب الصورة في الكاش بمفتاحها */
     public function test_server_side_render_produces_a_cached_png(): void
     {

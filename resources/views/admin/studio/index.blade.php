@@ -69,7 +69,10 @@
     </x-filters>
 
     @if ($templates->isEmpty())
-        <x-empty :message="setting('admin.studio.index.mafysh_qwalb_lsh_abda_bawl_qalb', 'مافيش قوالب لسه — ابدأ بأوّل قالب.')" />
+        {{-- تمييز «مافيش قوالب أصلًا» عن «الفلتر ما طابقش حاجة» (24.2) —
+             استبعاد المؤرشَف افتراضيّ لا فلترًا يختاره المستخدم فلا يُحتسَب هنا. --}}
+        <x-empty :message="setting('admin.studio.index.mafysh_qwalb_lsh_abda_bawl_qalb', 'مافيش قوالب لسه — ابدأ بأوّل قالب.')"
+                 :filtered="request('q') || request('audience') || request('folder') || request('tag') || request()->boolean('archived')" />
     @else
         <div class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
             @foreach ($templates as $template)

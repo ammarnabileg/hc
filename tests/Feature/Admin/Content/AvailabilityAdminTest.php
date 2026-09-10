@@ -23,6 +23,44 @@ class AvailabilityAdminTest extends AdminContentTestCase
             ->assertSee($course->name_ar, false);
     }
 
+    /** ⭐ 24.2: بحثٌ بلا نتائج يقول كده صراحةً بدل رسالة تُوهم بأنّ المنصّة بلا تدريبات. */
+    public function test_a_search_with_no_matches_shows_a_filtered_empty_message_not_the_start_message(): void
+    {
+        $this->assertGreaterThan(0, Course::query()->count(), 'لازم يكون في تدريبات فعليّة قبل الاختبار');
+
+        $response = $this->actingAs($this->admin())
+            ->get(route('admin.availability.index', ['q' => 'zzzznotexist']))
+            ->assertOk();
+
+        $response->assertSee(
+            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث/الفلتر الحاليّ — جرّب فلترًا تانيًا.'),
+            false,
+        );
+        $response->assertDontSee(
+            setting('admin.availability.index.lsh_mfysh_tdrybat_fy_almnsa_asla', 'لسّه مفيش تدريبات في المنصّة أصلًا.'),
+            false,
+        );
+    }
+
+    /** وشاشةٌ فارغةٌ فعليًّا (بلا فلتر) تعرض رسالة «مفيش تدريبات أصلًا» لا رسالة الفلتر. */
+    public function test_an_actually_empty_screen_without_filters_keeps_the_original_start_message(): void
+    {
+        Course::query()->delete();
+
+        $response = $this->actingAs($this->admin())
+            ->get(route('admin.availability.index'))
+            ->assertOk();
+
+        $response->assertSee(
+            setting('admin.availability.index.lsh_mfysh_tdrybat_fy_almnsa_asla', 'لسّه مفيش تدريبات في المنصّة أصلًا.'),
+            false,
+        );
+        $response->assertDontSee(
+            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث/الفلتر الحاليّ — جرّب فلترًا تانيًا.'),
+            false,
+        );
+    }
+
     public function test_an_admin_adds_a_period_and_a_daily_window(): void
     {
         $admin = $this->admin();
