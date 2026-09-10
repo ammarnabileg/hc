@@ -45,6 +45,43 @@ class CvBuilderTest extends LibraryTestCase
         $this->assertGreaterThan(0, $cv->completion_percent);
     }
 
+    /**
+     * مقابض السحب لإعادة ترتيب الصفوف (row-*.blade.php + reindex(list) في
+     * index.blade.php) — نحاكي هنا ما يرسله العميل بعد السحب: نفس الحفظ
+     * التلقائيّ لكن بفهارس `[name]` معاد ترتيبها (B قبل A)، ونتحقّق أنّ
+     * الترتيب الجديد هو ما يُخزَّن فعلًا في العمود.
+     */
+    public function test_reordering_persists_the_new_row_order(): void
+    {
+        $user = $this->trainee('UCVORD1');
+
+        // الترتيب الأصليّ: A ثمّ B
+        $this->actingAs($user)->postJson(route('cv.autosave'), [
+            'step' => 'experience',
+            'data' => ['experience' => [
+                ['title' => 'وظيفة A', 'company' => 'شركة A', 'from' => '2020'],
+                ['title' => 'وظيفة B', 'company' => 'شركة B', 'from' => '2021'],
+            ]],
+        ])->assertOk();
+
+        $cv = Cv::where('user_id', $user->id)->firstOrFail();
+        $this->assertSame('وظيفة A', $cv->data['experience'][0]['title']);
+        $this->assertSame('وظيفة B', $cv->data['experience'][1]['title']);
+
+        // بعد السحب: reindex(list) يعيد إرسال نفس الصفّين بفهارس 0/1 لكن B أوّلًا
+        $this->actingAs($user)->postJson(route('cv.autosave'), [
+            'step' => 'experience',
+            'data' => ['experience' => [
+                ['title' => 'وظيفة B', 'company' => 'شركة B', 'from' => '2021'],
+                ['title' => 'وظيفة A', 'company' => 'شركة A', 'from' => '2020'],
+            ]],
+        ])->assertOk();
+
+        $cv->refresh();
+        $this->assertSame('وظيفة B', $cv->data['experience'][0]['title']);
+        $this->assertSame('وظيفة A', $cv->data['experience'][1]['title']);
+    }
+
     public function test_free_template_is_selectable_without_tickets(): void
     {
         $user = $this->trainee('UCVFREE1');
