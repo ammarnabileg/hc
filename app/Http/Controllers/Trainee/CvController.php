@@ -10,7 +10,6 @@ use App\Services\Library\CvExport;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\View as ViewFactory;
 use Illuminate\View\View;
 
 /**
@@ -247,28 +246,15 @@ class CvController extends Controller
         ];
     }
 
-    /** ورقة المعاينة: القالب المختار — ولا يُحمَّل إلّا من مجلّد قوالبنا */
+    /**
+     * ورقة المعاينة: القالب المختار — ولا يُحمَّل إلّا من مجلّد قوالبنا.
+     *
+     * ⭐ المنطق نفسه انتقل إلى `CvBuilder::sheet()` (12.7-ب المرحلة 2/2):
+     * محرّر الديكور المرئيّ للأدمن يحتاج نفس بناء الورقة لكن بقالبٍ مُحدَّد
+     * صراحةً لا قالب المستخدم المختار، فصار مشتركًا هناك بدل تكراره هنا.
+     */
     private function sheet(User $user, array $data, ?int $templateId): array
     {
-        $template = $templateId ? CvTemplate::find($templateId) : null;
-        $key = preg_replace('/[^a-z0-9_\-]/', '', (string) ($template?->view_path ?? '')) ?: 'classic';
-        $view = 'cv.templates.'.$key;
-
-        if (! ViewFactory::exists($view)) {
-            $view = 'cv.templates.classic';
-        }
-
-        return [
-            'view' => $view,
-            'user' => $user,
-            'data' => $data,
-            'pulled' => $user->exists ? $this->builder->pulled($user, $data) : ['profile' => [], 'certificates' => collect()],
-            'templateName' => $template?->name ?? (string) setting('cv.template.default_name', 'كلاسيك'),
-            // ⭐ الطبقة الزخرفيّة (Drag-drop المرحلة 1 · 12.7-ب) — نفس نقطة
-            // بناء [$sheet] الواحدة التي يقرأ منها preview/download معًا، فتصل
-            // كلا المسارين بلا ازدواج منطق. مُنقّاة مسبقًا عند الحفظ (سطر التوثيق
-            // في CvTemplateDecor) فتُقرأ هنا كما هي.
-            'decorLayers' => $template?->decorLayers() ?? [],
-        ];
+        return $this->builder->sheet($user, $data, $templateId ? CvTemplate::find($templateId) : null);
     }
 }

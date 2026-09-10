@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Cv;
 use App\Models\CvTemplate;
+use App\Services\Library\CvBuilder;
 use App\Services\Library\CvTemplateDecor;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -98,6 +99,61 @@ class CvTemplateAdminController extends Controller
         $template->update(['decor_layers' => $decor->sanitize($raw)]);
 
         return back()->with('status', (string) setting('cv.template.admin.decor_saved_message', 'اتحفظت الطبقة الزخرفيّة ✓'));
+    }
+
+    /**
+     * ⭐ المحرّر المرئيّ (Drag-drop) لقوالب الـCV — شاشة التحرير نفسها
+     * (المرحلة 2/2 · 12.7-ب). كانفسٌ حقيقيّ يحتاج مساحةً فصفحةٌ مستقلّة لا
+     * بوب-أب صغير، ونفس حارس `cv_templates.edit` المستعمَل في الحفظ — بلا
+     * صلاحيّة جديدة.
+     */
+    public function decor(CvTemplate $template): View
+    {
+        return view('admin.cv-templates.decor', [
+            'template' => $template,
+            'grid' => (int) setting('cv.template.decor.grid_step', 5),
+            'snap' => (bool) setting('cv.template.decor.snap_enabled', true),
+        ]);
+    }
+
+    /**
+     * ⭐ محتوى الإطار الحيّ (iframe) خلف الكانفس (المرحلة 2/2 · 12.7-ب):
+     * **معاينة حقيقيّة** لمحتوى القالب المتدفّق (خبرات/تعليم/مهارات) بنفس
+     * محرّك `cv.preview` تمامًا — لا تخمينًا ولا صورة سكرين-شوت.
+     *
+     * ⚠️ لماذا **ليس** `route('cv.preview')` مباشرةً كما قد يُظنّ للوهلة
+     * الأولى: ذاك المسار (أ) محروسٌ بصلاحيّة **مختلفة تمامًا** `user_cv.view`
+     * (صلاحيّة متدرّب) لا علاقة لها بـ`cv_templates.edit` — فأدمنٌ يملك تعديل
+     * القوالب وحده (بلا `user_cv.view`) يُرفَض 403 عن معاينة القالب الذي يملك
+     * صلاحيّة تعديله فعلًا؛ و(ب) **لا يقبل أيّ باراميتر قالب إطلاقًا** — يعرض
+     * دائمًا القالب الذي اختاره صاحب الحساب الحاليّ لسيرته الذاتيّة **هو**، لا
+     * القالب `$template` الذي يحرّره الأدمن هنا تحديدًا. فاستعماله حرفيًّا
+     * كان سيعرض تارةً 403 لا مبرّر له، وتارةً قالبًا خطأ تمامًا. الحلّ: مسارٌ
+     * إداريّ مخصَّص بنفس حارس `cv_templates.edit`، يفرض `$template` من مسار
+     * الرابط نفسه صراحةً — ويستعمل بيانات الأدمن الحاليّ نفسها (سيرته
+     * الذاتيّة الشخصيّة إن وُجدت، أو الفارغة الابتدائيّة) كمحتوًى تجريبيّ حيّ
+     * حقيقيّ — أحد البديلين اللذين تسمح بهما 12.7-ب صراحةً بدل بيانات مستخدمٍ
+     * آخر لا علاقة له بالأدمن.
+     *
+     * والطبقة الزخرفيّة نفسها **لا** تُرسَم هنا: كانفس `decor.blade.php`
+     * (الأب) هو من يرسمها فوق هذا الإطار (محفوظةً كانت أو قيد التحرير الآن)،
+     * فتفادينا ازدواج رسمها مرّتين (مرّةً هنا بالحالة المحفوظة، ومرّةً في
+     * الكانفس بالحالة الحيّة) بصورةٍ قد تتضارب بصريًّا أثناء السحب.
+     */
+    public function decorPreview(Request $request, CvTemplate $template, CvBuilder $builder): View
+    {
+        $user = $request->user();
+        $cv = $builder->forUser($user);
+        $data = array_replace($builder->blank(), (array) $cv->data);
+
+        $sheet = $builder->sheet($user, $data, $template);
+        $sheet['decorLayers'] = [];
+
+        return view('cv.preview', [
+            'sheet' => $sheet,
+            'standalone' => true,
+            'print' => false,
+        ]);
     }
 
     /**

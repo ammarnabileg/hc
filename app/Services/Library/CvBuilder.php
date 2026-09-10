@@ -14,6 +14,7 @@ use App\Services\Images\AvatarProcessor;
 use App\Services\Onboarding\HolderIdentity;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\View as ViewFactory;
 
 /**
  * منشئ السيرة الذاتيّة (9 · 24.5): خطوات بحفظ تلقائيّ + معاينة حيّة + قوالب بالتذاكر.
@@ -297,6 +298,38 @@ class CvBuilder
     }
 
     // ------------------------------------------------------------------ القوالب
+
+    /**
+     * ورقة المعاينة المشتركة — نقطة بناء `[$sheet]` **الوحيدة** التي يقرأ
+     * منها preview/download (`CvController`) **ومعاينة محرّر الديكور المرئيّ
+     * للأدمن** (`CvTemplateAdminController::decorPreview` — 12.7-ب المرحلة
+     * 2/2) معًا، فلا يتكرّر منطق اختيار ملفّ العرض والتراجع للقالب الافتراضيّ
+     * في أكثر من مكانٍ واحد (كانت هذه الميثود دالّةً خاصّة داخل `CvController`
+     * وحده قبل أن يحتاجها الأدمن أيضًا بقالبٍ مُحدَّد صراحةً بدل قالب المستخدم
+     * المختار).
+     *
+     * @return array<string, mixed>
+     */
+    public function sheet(User $user, array $data, ?CvTemplate $template): array
+    {
+        $key = preg_replace('/[^a-z0-9_\-]/', '', (string) ($template?->view_path ?? '')) ?: 'classic';
+        $view = 'cv.templates.'.$key;
+
+        if (! ViewFactory::exists($view)) {
+            $view = 'cv.templates.classic';
+        }
+
+        return [
+            'view' => $view,
+            'user' => $user,
+            'data' => $data,
+            'pulled' => $user->exists ? $this->pulled($user, $data) : ['profile' => [], 'certificates' => collect()],
+            'templateName' => $template?->name ?? (string) setting('cv.template.default_name', 'كلاسيك'),
+            // ⭐ الطبقة الزخرفيّة (Drag-drop المرحلة 1 · 12.7-ب) — مُنقّاة مسبقًا
+            // عند الحفظ في `CvTemplateDecor::sanitize()`، فتُقرأ هنا كما هي.
+            'decorLayers' => $template?->decorLayers() ?? [],
+        ];
+    }
 
     public function templates(): Collection
     {

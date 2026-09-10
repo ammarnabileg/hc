@@ -125,6 +125,15 @@
                         </div>
 
                         <div class="flex items-center gap-2">
+                            {{-- المحرّر المرئيّ (Drag-drop) — كانفسٌ حقيقيّ فصفحةٌ مستقلّة لا بوب-أب (12.7-ب
+                                 المرحلة 2/2) — المحظور يُخفى لا يُعطَّل (2.15-أ-7) --}}
+                            @can('cv_templates.edit')
+                                <a href="{{ route('admin.cv-templates.decor.edit', $template) }}"
+                                   class="btn rounded-xl px-4 text-sm"
+                                   style="min-height: 44px; background: var(--surface-sunken); color: var(--text-muted)">
+                                    {{ setting('cv.template.admin.decor_editor_label', 'المحرّر المرئيّ (Drag-drop)') }}
+                                </a>
+                            @endcan
                             {{-- تنزيل ملفّ البلايد الخامّ (12.7-ب) — المحظور يُخفى لا يُعطَّل (2.15-أ-7) --}}
                             @can('cv_templates.export')
                                 <a href="{{ route('admin.cv-templates.download', $template) }}"
