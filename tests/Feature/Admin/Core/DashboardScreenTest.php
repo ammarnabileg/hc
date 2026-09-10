@@ -171,6 +171,38 @@ class DashboardScreenTest extends TestCase
         $this->assertSame('div', $tags['courses'] ?? null, 'ولا يملك إدارة التدريبات فالكارت رقمٌ بلا رابط');
     }
 
+    // ------------------------------------------------- 12.3-2 · مقارنة بالفترة السابقة
+
+    /**
+     * ⭐ كارت قيمته في الفترة السابقة صفرٌ حرفيًّا (كـ«النشطون الآن» الذي يمرّر
+     * previous=0 بنيويًّا) لازم يعرض المقارنة برضه لا يسقط منها: صفر ← قيمةٌ
+     * موجبة صعودٌ كاملٌ 100% لا "غياب مقارنة" (12.3-2).
+     */
+    public function test_kpi_card_with_zero_previous_baseline_still_shows_the_comparison(): void
+    {
+        // مستخدمون "نشطون الآن" فعلًا — كارت "online" يمرّر previous=0 دائمًا
+        // (لا تاريخ سابق لهذا المؤشّر) فقيمته الحاليّة وحدها تكفي لإثبات الفجوة.
+        User::factory()->count(2)->create(['last_seen_at' => now()]);
+
+        // "online" سادس كارتٍ ترتيبًا، وسقف تاب الملخّص الافتراضيّ 4 كروت
+        // فيهاجر الزائد لتاب "تفاصيل" (2.15-أ-3) — نوسّع السقف ليبقى بالملخّص.
+        $this->setting('admin.dashboard.kpi_max_cards', '6', 'number');
+
+        $html = $this->actingAs($this->owner())
+            ->get(route('admin.dashboard', ['compare' => 1]))
+            ->assertOk()
+            ->getContent();
+
+        if (! preg_match('/data-kpi-card="online".*?<\/a>/us', $html, $match)) {
+            $this->fail('كارت "online" لازم يكون موجودًا وقابلًا للنقر');
+        }
+
+        $cardHtml = $match[0];
+
+        $this->assertStringContainsString('▲', $cardHtml, 'خطّ أساسٍ صفريّ مع قيمةٍ موجبة لازم يعرض سهم صعود');
+        $this->assertStringContainsString('100%', $cardHtml, 'صفر ← قيمة موجبة يعني صعودًا كاملًا 100%');
+    }
+
     // ------------------------------------------- 12.3-5 · التحديث التلقائيّ وآخر تحديث
 
     /** ⭐ «آخر تحديث HH:MM» + التحديث التلقائيّ بفترته من الإعدادات (12.3-5). */

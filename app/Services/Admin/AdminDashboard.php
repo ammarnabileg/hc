@@ -671,7 +671,14 @@ class AdminDashboard
      */
     private function card(string $key, string $label, string $icon, int $value, int $previous, string $hint, ?string $url = null): array
     {
-        $delta = $previous > 0 ? round((($value - $previous) / $previous) * 100, 1) : null;
+        // خطّ أساسٍ صفريّ ليس انعدام تغيّرٍ بل غياب مقارنةٍ رياضيّةٍ ممكنة (12.3-2):
+        // 0 → قيمة موجبة صعودٌ كاملٌ (100%)، و0 → 0 ثباتٌ فعليّ (0%) — كلاهما دلتا محدَّدة
+        // بدل null، فلا يسقط الكارت من مقارنة الفترة السابقة على خطّ أساسٍ صفريّ.
+        $delta = match (true) {
+            $previous > 0 => round((($value - $previous) / $previous) * 100, 1),
+            $value > 0 => 100.0,
+            default => 0.0,
+        };
 
         return [
             'key' => $key,
