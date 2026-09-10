@@ -3,15 +3,74 @@
 namespace Tests\Feature\Account;
 
 use App\Models\ConsentRequest;
+use App\Models\Role;
+use App\Models\User;
 use App\Models\UserDevice;
 use App\Models\UserPrivacySetting;
 use App\Services\Account\PrivacyFields;
+use Illuminate\Support\Str;
 
 /**
  * حسابي ← الخصوصيّة والأمان (الدستور 13.4-م · 12.14-د · 24.5).
  */
 class PrivacySecurityTest extends AccountTestCase
 {
+    /** متطوّعٌ بدورٍ واحدٍ من طبقة التطوّع فقط — بلا `trainee` معه أصلًا. */
+    private function volunteerOnly(string $roleKey): User
+    {
+        $user = User::create([
+            'name' => 'متطوّع تجريبيّ',
+            'email' => Str::lower(Str::random(8)).'@test.local',
+            'phone' => '+2010'.random_int(10000000, 99999999),
+            'password' => 'secret-password',
+            'code' => 'U'.Str::upper(Str::random(7)),
+            'status' => 'active',
+        ]);
+
+        $user->assignRole(Role::where('key', $roleKey)->firstOrFail());
+
+        return $user->fresh();
+    }
+
+    /**
+     * ⭐ صاحب البروفايل لا يُحجَب عن شاشات إعداداته وخصوصيّته حتّى لو حمل
+     * دور تطوّعٍ فقط بلا `trainee` معه — 13.4-م يبني كلّ آليّة الموافقة على
+     * أنّ صاحب الحقل يضبط خصوصيّته بنفسه، فلا حارسَ يقفل عليه بابه.
+     */
+    public function test_a_coordinator_only_volunteer_can_reach_their_own_settings_and_privacy(): void
+    {
+        $user = $this->volunteerOnly('coordinator');
+
+        $this->actingAs($user)->get(route('settings.index'))->assertOk();
+
+        $this->actingAs($user)->get(route('settings.privacy'))->assertOk();
+
+        $this->actingAs($user)
+            ->patchJson(route('settings.privacy.field'), ['field' => 'phone', 'visibility' => 'all_volunteers'])
+            ->assertOk()
+            ->assertJson(['saved' => true]);
+
+        $this->assertSame('all_volunteers', UserPrivacySetting::where('user_id', $user->id)
+            ->where('field', 'phone')->value('visibility'));
+
+        $this->actingAs($user)
+            ->patchJson(route('settings.field'), ['field' => 'name', 'value' => 'اسمٌ جديد'])
+            ->assertOk();
+
+        $this->assertSame('اسمٌ جديد', $user->fresh()->name);
+    }
+
+    /** ولا فرق بين الكوردنيتور وبقيّة السبعة أدوار — الفتح شاملٌ للطبقة كلّها. */
+    public function test_other_volunteer_only_roles_also_reach_their_own_settings(): void
+    {
+        foreach (['team_leader', 'supervisor', 'director', 'track_supervisor', 'volunteer_gm', 'recruiter', 'academy_manager'] as $roleKey) {
+            $user = $this->volunteerOnly($roleKey);
+
+            $this->actingAs($user)->get(route('settings.privacy'))
+                ->assertOk("الدور {$roleKey} لا يزال محجوبًا عن /settings/privacy.");
+        }
+    }
+
     public function test_governorate_can_never_be_hidden(): void
     {
         $user = $this->trainee();

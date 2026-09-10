@@ -106,6 +106,22 @@ class RolePermissionSeeder extends Seeder
         }
 
         /*
+         | ⭐ صاحب البروفايل نفسه لا يُحجَب عن شاشات إعداداته وخصوصيّته: أدوار
+         | طبقة التطوّع الثمانية كانت تُمنَح موارد التطوّع وحدها لا موارد الحساب
+         | الشخصيّة — فمتطوّعٌ يحمل واحدًا منها فقط (بلا `trainee` معه) كان يصطدم
+         | بـ403 على `/settings` و`/settings/privacy`، رغم أنّ 13.4-م يبني كلّ
+         | آليّة الموافقة على أنّ صاحب الحقل يضبط خصوصيّته بنفسه — فالحارس هنا
+         | كان يقفل الباب على صاحب البيت. المنح بنطاق **SELF** فقط: هو نفسه
+         | سقف المصفوفة الذي يأخذه `trainee` أصلًا لهذه الموارد بعينها (12.2.2)،
+         | فلا تضييقَ ولا توسيعًا فوق ما تُتيحه — إضافةٌ محضة.
+         */
+        $selfAccountResources = ['user_profile', 'privacy_settings', 'emergency_contact', 'user_sessions', 'data_export', 'contact_consent'];
+
+        foreach ([...array_keys($scaleByRole), 'recruiter', 'academy_manager'] as $roleKey) {
+            $this->grantResources($roleKey, $selfAccountResources, 'SELF', $expander);
+        }
+
+        /*
          | الرقابة (صحّة القسم · السعة · الهيكل) لسوبرفايزر فأعلى —
          | فالكوردنيتور والتيم ليدر لا يريان مؤشّرات الفريق ولا مخاطر الفقدان (24.4).
          */
