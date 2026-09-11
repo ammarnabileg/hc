@@ -419,4 +419,80 @@ class FocusWarService
     {
         return (int) $this->stats->of($user)->focus_minutes;
     }
+
+    // ------------------------------------------------------------------ العدّاد الحيّ
+
+    /**
+     * جلسات التركيز الجارية للمستخدم — مادّة العدّاد الحيّ (15.3).
+     *
+     * ⭐ **لماذا لا جدول جديد:** لحظة البدء مكتوبة على الخادم أصلًا في
+     * `focus_war_members.joined_at`، والنهاية في `ends_at` — كُتبتا وقت الإنشاء
+     * والانضمام. فالسلطة الزمنيّة موجودة، وما كان ناقصًا هو **قراءتها وعرضها**.
+     * وإضافة جدولٍ ثانٍ للحظة البدء تعني مصدرَي حقيقةٍ للزمن نفسه يتباعدان.
+     *
+     * والجلسة «جارية» بشرطَين معًا: حربها **نشطة** (لا ملغاة) و**لم تُسوَّ** بعدُ
+     * ووقتها لم ينقضِ — فالمنقضي شأنُ `settleDue()` لا شأنُ العدّاد.
+     *
+     * @return Collection<int, array<string, mixed>>
+     */
+    public function liveSessions(User $user): Collection
+    {
+        return FocusWarMember::query()
+            ->with('focusWar.owner')
+            ->where('user_id', $user->id)
+            ->whereNull('completed_at')
+            ->where('ends_at', '>', now())
+            ->whereHas('focusWar', fn ($war) => $war->where('status', 'active'))
+            ->orderBy('ends_at')
+            ->get()
+            ->map(fn (FocusWarMember $member) => $this->progressOf($member))
+            ->values();
+    }
+
+    /**
+     * تقدّم جلسةٍ واحدة **محسوبًا على الخادم** (15.3 · 2.17-أ).
+     *
+     * ⚠️ **العطب الذي يسدّه هذا:** الشاشة كانت تعرض «50 دقيقة تركيز» نصًّا
+     *    ساكنًا، والنصّ يشترط «**إظهار الدقائق وهي بتكبر**» لأنّ النفور من
+     *    الخسارة هو محرّك الإكمال (15.3 — مراجعة الخبير النفسيّ). وعدّادٌ يعيش
+     *    في `setInterval` وحده يصفَّر مع كلّ Reload ويتوقّف مع قفل الشاشة —
+     *    خلافًا للقرار (ب): «**العدّاد يكمل طوال المدّة المختارة حتى لو قفل
+     *    الشاشة أو خرج من التبويب**».
+     *
+     * فالأرقام كلّها تُشتقّ هنا من `joined_at`/`ends_at` وساعة الخادم؛ والمتصفّح
+     * لا يُسأل عن الوقت ولا يُصدَّق فيه — يأخذ اللحظات ويرسم، لا أكثر.
+     *
+     * @return array<string, mixed>
+     */
+    public function progressOf(FocusWarMember $member): array
+    {
+        $war = $member->focusWar;
+        $duration = max(0, (int) ($war?->duration_minutes ?? 0));
+        $total = $duration * 60;
+
+        $now = now();
+        $startedAt = $member->joined_at ?? $now;
+        $endsAt = $member->ends_at ?? $startedAt;
+
+        $elapsed = max(0, (int) $startedAt->diffInSeconds($now, absolute: false));
+        $elapsed = $total > 0 ? min($total, $elapsed) : $elapsed;
+        $remaining = max(0, $total - $elapsed);
+
+        return [
+            'member_id' => (int) $member->id,
+            'war_id' => (int) $member->focus_war_id,
+            'intention' => $war?->intention,
+            'duration_minutes' => $duration,
+            'started_at' => $startedAt->clone()->utc()->format('Y-m-d\TH:i:s\Z'),
+            'ends_at' => $endsAt->clone()->utc()->format('Y-m-d\TH:i:s\Z'),
+            'server_now' => $now->clone()->utc()->format('Y-m-d\TH:i:s\Z'),
+            'elapsed_seconds' => $elapsed,
+            'remaining_seconds' => $remaining,
+            // «الدقائق وهي بتكبر» — دقيقة كاملة مبذولة، لا كسرٌ مقرَّب لأعلى
+            'elapsed_minutes' => intdiv($elapsed, 60),
+            // شريط التقدّم يُرسَم من الخادم كذلك فلا يبدأ من صفرٍ كاذب قبل أوّل نبضة
+            'percent' => $total > 0 ? min(100, (int) floor($elapsed * 100 / $total)) : 0,
+            'done' => $total > 0 && $remaining <= 0,
+        ];
+    }
 }

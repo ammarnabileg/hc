@@ -28,7 +28,7 @@
   - `announcements.php` — 10 مسارًا · 0 حارس صلاحيّة.
   - `api-v1.php` — 4 مسارًا · 0 حارس صلاحيّة.
   - `availability.php` — 10 مسارًا · البادئة `admin.` · 2 حارس صلاحيّة.
-  - `challenges.php` — 39 مسارًا · البادئة `challenges.` · `focus.` · `reward-questions.` · `achievements.` · `admin.` · 33 حارس صلاحيّة.
+  - `challenges.php` — 40 مسارًا · البادئة `challenges.` · `focus.` · `reward-questions.` · `achievements.` · `admin.` · 34 حارس صلاحيّة.
   - `dashboard.php` — 1 مسارًا · 1 حارس صلاحيّة.
   - `events.php` — 11 مسارًا · 2 حارس صلاحيّة.
   - `exams.php` — 13 مسارًا · 2 حارس صلاحيّة.
@@ -142,5 +142,5 @@
 ## 🕒 آخر تحديث
 <!-- تلقائيّ:بداية:التحديث -->
 - **آخر توليد لهذه الوثيقة:** 2026-09-11 — `php artisan docs:status`.
-- **آخر لمسة للمجلّد:** 2026-09-10 — Claude.
+- **آخر لمسة للمجلّد:** 2026-09-11 — Claude.
 <!-- تلقائيّ:نهاية:التحديث -->

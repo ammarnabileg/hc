@@ -32,6 +32,9 @@ Route::middleware('auth')->group(function () {
         Route::prefix('focus')->name('focus.')->group(function () {
             Route::get('/', [FocusWarController::class, 'index'])
                 ->middleware('permission:war_participation.view')->name('index');
+            // حالة العدّاد — يقرؤها المتصفّح ليعيد المزامنة مع ساعة الخادم (15.3-ب)
+            Route::get('/status', [FocusWarController::class, 'status'])
+                ->middleware('permission:war_participation.view')->name('status');
             Route::post('/', [FocusWarController::class, 'store'])
                 ->middleware('permission:war_participation.create')->name('store');
             Route::post('/{focus_war}/join', [FocusWarController::class, 'join'])

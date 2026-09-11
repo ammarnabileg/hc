@@ -9,6 +9,7 @@ use App\Services\Gamification\WalletGateway;
 use App\Services\Gamification\Wars\Exceptions\WarRuleException;
 use App\Services\Gamification\Wars\FocusWarService;
 use App\Services\Gamification\Wars\WarRules;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -45,9 +46,34 @@ class FocusWarController extends Controller
             'maxActive' => $this->rules->maxActiveFocus($challenge),
             'activeOwned' => $this->focus->activeOwnedCount($user),
             'board' => $this->focus->activeBoard($user),
+            // العدّاد الحيّ: لحظاته من الخادم فالـReload لا يصفّره (15.3-ب)
+            'sessions' => $this->focus->liveSessions($user),
             'focusMinutes' => $this->focus->focusMinutes($user),
             'honesty' => $this->focus->honestyMessage(),
             'ticketsBalance' => $this->wallet->balance($user, 'tickets'),
+        ]);
+    }
+
+    /**
+     * حالة جلسات التركيز الجارية — **مصدر الحقيقة الزمنيّة** للعدّاد (15.3-ب).
+     *
+     * ⭐ الطلب **لا يقبل زمنًا من العميل** ولا يقرأ منه شيئًا: الدقائق المنقضية
+     * والباقية تُحسَب كلّها من `joined_at`/`ends_at` وساعة الخادم. فلو غيّر
+     * المتصفّح ساعته أو زوّر عدّاده، الرقم لا يتغيّر.
+     *
+     * ولماذا يُسوّى المستحقّ هنا أيضًا: لأنّ الجلسة قد تنتهي والشاشة مفتوحة،
+     * فأوّل نداءٍ بعد انقضائها هو الذي يسجّل الدقائق ويفتح الشارة (15.3).
+     */
+    public function status(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        $this->focus->settleDue($user);
+
+        return response()->json([
+            'server_now' => now()->utc()->format('Y-m-d\TH:i:s\Z'),
+            'focus_minutes' => $this->focus->focusMinutes($user),
+            'sessions' => $this->focus->liveSessions($user)->all(),
         ]);
     }
 

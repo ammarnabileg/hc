@@ -13,6 +13,63 @@
         </x-slot:action>
     </x-page-header>
 
+    {{-- ⭐ عدّاد جلسة التركيز الحيّ — «إظهار الدقائق وهي بتكبر» ويكمل حتى لو قفل الشاشة (15.3) --}}
+    {{-- ولحظاته من الخادم (`started_at`/`ends_at`) لا من عدّادٍ يعيش في المتصفّح،
+         فـ«العدّاد يكمل حتى لو قفل الشاشة أو خرج من التبويب» (15.3-ب): الـReload
+         يرسم الرقم الصحيح فورًا لأنّه محسوبٌ من فارق لحظتين لا من عدٍّ متراكم. --}}
+    @foreach ($sessions as $session)
+        @php
+            $remainingText = sprintf('%02d:%02d', intdiv($session['remaining_seconds'], 60), $session['remaining_seconds'] % 60);
+        @endphp
+
+        <section class="card p-5 mb-5 animate-fadeup"
+                 data-focus-timer
+                 data-focus-started="{{ $session['started_at'] }}"
+                 data-focus-ends="{{ $session['ends_at'] }}"
+                 data-focus-server-now="{{ $session['server_now'] }}"
+                 data-focus-duration="{{ $session['duration_minutes'] }}"
+                 style="border: 1px solid var(--color-brand-500)">
+            <div class="flex items-center justify-between gap-3 mb-3">
+                <h2 class="font-bold text-sm" style="color: var(--color-brand-400)">
+                    {{ setting('challenges.focus.live_title', 'جلسة تركيز جارية') }}
+                </h2>
+                <span class="text-sm font-mono" data-focus-remaining
+                      style="color: var(--text-muted)">{{ $remainingText }}</span>
+            </div>
+
+            {{-- الرقم الكبير: الدقائق وهي بتكبر — والنفور من الخسارة محرّكها (15.3) --}}
+            <div class="flex items-end gap-2 mb-3">
+                <span class="text-5xl font-black leading-none" data-focus-elapsed
+                      style="color: var(--color-brand-500)">{{ $session['elapsed_minutes'] }}</span>
+                <span class="text-xs pb-1" style="color: var(--text-muted)">
+                    {{ str_replace(':total', (string) $session['duration_minutes'], (string) setting('challenges.focus.live_of_total', 'دقيقة من :total')) }}
+                </span>
+            </div>
+
+            <div class="w-full rounded-full overflow-hidden" style="height: 8px; background: var(--surface-sunken)"
+                 role="progressbar" aria-valuemin="0" aria-valuemax="100"
+                 aria-valuenow="{{ $session['percent'] }}"
+                 aria-label="{{ setting('challenges.focus.live_progress_label', 'تقدّم جلسة التركيز') }}">
+                <div class="h-full motion-standard" data-focus-bar
+                     style="width: {{ $session['percent'] }}%; background: var(--color-brand-500)"></div>
+            </div>
+
+            @if ($session['intention'])
+                <p class="text-xs mt-3" style="color: var(--text-muted)">
+                    {{ str_replace(':intention', (string) $session['intention'], (string) setting('challenges.focus.live_intention', 'نيّتك: :intention')) }}
+                </p>
+            @endif
+
+            <p class="text-xs mt-2" style="color: var(--text-muted)">
+                {{ setting('challenges.focus.live_note', 'العدّاد ماشي على ساعة السيرفر — بيكمل حتى لو قفلت الشاشة أو خرجت من التبويب.') }}
+            </p>
+
+            <p class="text-xs mt-2 font-bold" data-focus-done hidden style="color: var(--color-brand-400)">
+                {{ setting('challenges.focus.live_done', 'خلصت المدّة — دقائق تركيزك اتسجّلت ✓') }}
+            </p>
+        </section>
+    @endforeach
+
     {{-- أربعة كروت KPI بحدّ أقصى (2.15-أ-3) --}}
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
         <x-kpi :label="setting('challenges.focus.kpi_minutes', 'دقائق تركيزي')" :value="$focusMinutes" icon="shield" />
@@ -148,6 +205,95 @@
             </x-slot:footer>
         </x-modal>
     @endpush
+
+    @if ($sessions->isNotEmpty())
+        @push('scripts')
+            <script>
+                /*
+                 | عدّاد حرب التركيز (15.3).
+                 |
+                 | ⭐ **السلطة للخادم لا للمتصفّح:** لا عدَّ تنازليًّا متراكمًا هنا — كلّ
+                 | نبضة تُعيد الحساب من `started_at`/`ends_at` المرسومَين من الخادم،
+                 | مصحّحَين بفارق الساعتين (`server_now` − ساعة المتصفّح لحظة الرسم).
+                 | فلو نامت الشاشة أو غاب التبويب دقائق، أوّل نبضة بعد العودة تقفز
+                 | للرقم الصحيح بدل أن تستأنف من حيث توقّفت — وهذا عين ما يشترطه
+                 | القرار (ب): «العدّاد يكمل حتى لو قفل الشاشة».
+                 |
+                 | و**النصّ الصحيح مرسوم من الخادم أصلًا** (2.17-أ)، فلو تعطّل السكربت
+                 | بقي الرقم صحيحًا لحظة الفتح ولا يعلق العدّاد فارغًا أبدًا.
+                 */
+                (function () {
+                    const cards = document.querySelectorAll('[data-focus-timer]');
+                    if (!cards.length) return;
+
+                    const statusUrl = @json(route('challenges.focus.status'));
+                    const pad = (n) => String(n).padStart(2, '0');
+
+                    // فارق ساعة المتصفّح عن ساعة الخادم — يُطرَح من كلّ قراءة
+                    let skew = 0;
+                    const firstNow = Date.parse(cards[0].dataset.focusServerNow);
+                    if (Number.isFinite(firstNow)) skew = Date.now() - firstNow;
+
+                    const serverNow = () => Date.now() - skew;
+
+                    let settling = false;
+
+                    const render = (card) => {
+                        const start = Date.parse(card.dataset.focusStarted);
+                        const end = Date.parse(card.dataset.focusEnds);
+                        if (!Number.isFinite(start) || !Number.isFinite(end)) return false;
+
+                        const total = Math.max(0, Math.round((end - start) / 1000));
+                        if (!total) return false;
+
+                        const elapsed = Math.min(total, Math.max(0, Math.floor((serverNow() - start) / 1000)));
+                        const left = total - elapsed;
+
+                        const minutes = card.querySelector('[data-focus-elapsed]');
+                        const remaining = card.querySelector('[data-focus-remaining]');
+                        const bar = card.querySelector('[data-focus-bar]');
+                        const done = card.querySelector('[data-focus-done]');
+                        const meter = card.querySelector('[role="progressbar"]');
+                        const percent = Math.min(100, Math.floor((elapsed * 100) / total));
+
+                        if (minutes) minutes.textContent = Math.floor(elapsed / 60);
+                        if (remaining) remaining.textContent = pad(Math.floor(left / 60)) + ':' + pad(left % 60);
+                        if (bar) bar.style.width = percent + '%';
+                        if (meter) meter.setAttribute('aria-valuenow', percent);
+                        if (done && left <= 0) done.hidden = false;
+
+                        return left <= 0;
+                    };
+
+                    // انقضت المدّة ⟵ نسأل الخادم ليسجّل الدقائق ويفتح الشارة، ثمّ نعرض الحصيلة
+                    const settle = () => {
+                        if (settling) return;
+                        settling = true;
+
+                        fetch(statusUrl, { headers: { 'Accept': 'application/json' }, credentials: 'same-origin' })
+                            .then(() => window.location.reload())
+                            .catch(() => { settling = false; });
+                    };
+
+                    const tick = () => {
+                        let finished = false;
+
+                        cards.forEach((card) => {
+                            try { finished = render(card) || finished; } catch (e) { /* نصّ الخادم يبقى كما هو */ }
+                        });
+
+                        if (finished) settle();
+                    };
+
+                    tick();
+                    setInterval(tick, 1000);
+
+                    // العودة من قفل الشاشة: نبضة فوريّة بدل انتظار الثانية التالية
+                    document.addEventListener('visibilitychange', () => { if (!document.hidden) tick(); });
+                })();
+            </script>
+        @endpush
+    @endif
 @endsection
 
 @section('mobile_action')
