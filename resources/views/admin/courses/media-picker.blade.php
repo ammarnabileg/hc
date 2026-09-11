@@ -43,7 +43,10 @@
     </form>
 
     @if ($items->isEmpty())
-        <x-empty :message="setting('media.picker.empty')" :action="setting('media.picker.open_library')" :href="route('admin.media.index')" />
+        {{-- تمييز «المكتبة فاضية أصلًا» عن «الفلتر الحاليّ ما طابقش حاجة» — فلا تُعرَض
+             رسالة «ارفع أوّل ملفّ» المضلّلة لمّا يكون السبب بحثًا نشطًا لا مكتبةً خاوية. --}}
+        <x-empty :message="setting('media.picker.empty')" :action="setting('media.picker.open_library')" :href="route('admin.media.index')"
+                 :filtered="$filters['q'] !== '' || $filters['kind'] !== '' || $filters['folder'] !== '' || $filters['tag'] !== '' || $filters['unused'] || $filters['date_from'] !== '' || $filters['date_to'] !== '' || $filters['size_min'] !== '' || $filters['size_max'] !== ''" />
     @else
         <div class="grid grid-cols-2 md:grid-cols-4 gap-3" @if ($multiple) data-picker-multiple @endif>
             @foreach ($items as $item)

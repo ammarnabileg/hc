@@ -40,8 +40,12 @@ class MediaController extends Controller
     /** بوب-أب «اختَر من المكتبة / ارفع جديد» المستدعى من أيّ حقل رفع (12.4-د). */
     public function picker(Request $request): View
     {
+        $filters = $this->filters($request);
+
         return view('admin.courses.media-picker', [
-            'items' => $this->library->search($this->filters($request)),
+            'items' => $this->library->search($filters),
+            // الفلاتر تسافر للقالب ليميّز «المكتبة فاضية» عن «الفلتر ما طابقش حاجة» (24.2)
+            'filters' => $filters,
             'target' => $request->string('target')->toString(),
             'multiple' => $request->boolean('multiple'),
         ]);

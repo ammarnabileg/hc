@@ -27,7 +27,10 @@
     </form>
 
     @if ($courses->isEmpty())
-        <x-empty :message="setting('admin.courses.path_courses.almsar_lsh_fady_dyf_awl_tdryb', 'المسار لسّه فاضي — ضيف أوّل تدريب.')" />
+        {{-- تمييز «المسار فاضي فعلًا» عن «البحث الحاليّ ما طابقش حاجة» — فلا تُعرَض
+             رسالة «ضيف أوّل تدريب» المضلّلة لمّا يكون السبب بحثًا نشطًا لا فراغًا فعليًّا. --}}
+        <x-empty :message="setting('admin.courses.path_courses.almsar_lsh_fady_dyf_awl_tdryb', 'المسار لسّه فاضي — ضيف أوّل تدريب.')"
+                 :filtered="$search !== ''" />
     @else
         <div class="space-y-3" data-sortable="{{ route('admin.paths.courses.reorder', $path) }}">
             @foreach ($courses as $course)

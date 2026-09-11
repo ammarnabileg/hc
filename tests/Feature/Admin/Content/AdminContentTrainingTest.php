@@ -479,6 +479,86 @@ class AdminContentTrainingTest extends AdminContentTestCase
         );
     }
 
+    /** ⭐ 24.2: بحثٌ بلا نتائج في «تدريبات المسار» يقول كده صراحةً بدل «المسار لسّه فاضي». */
+    public function test_path_courses_search_with_no_matches_shows_a_filtered_empty_message(): void
+    {
+        $path = LearningPath::query()->orderBy('id')->firstOrFail();
+
+        $this->assertGreaterThan(
+            0,
+            CourseLearningPath::query()->where('learning_path_id', $path->id)->count(),
+            'لازم يكون في تدريبات مربوطة بالمسار قبل الاختبار',
+        );
+
+        $response = $this->actingAs($this->admin())
+            ->get(route('admin.paths.courses', [$path, 'q' => 'zzzznotexist']))
+            ->assertOk();
+
+        $response->assertSee(
+            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث/الفلتر الحاليّ — جرّب فلترًا تانيًا.'),
+            false,
+        );
+        $response->assertDontSee(
+            setting('admin.courses.path_courses.almsar_lsh_fady_dyf_awl_tdryb', 'المسار لسّه فاضي — ضيف أوّل تدريب.'),
+            false,
+        );
+    }
+
+    /** ومسارٌ فاضٍ فعليًّا (بلا بحث) يفضل يعرض رسالة البداية الأصليّة زيّ ما كانت. */
+    public function test_path_courses_actually_empty_without_search_keeps_the_original_start_message(): void
+    {
+        $path = LearningPath::query()->orderBy('id')->firstOrFail();
+        CourseLearningPath::query()->where('learning_path_id', $path->id)->delete();
+
+        $response = $this->actingAs($this->admin())
+            ->get(route('admin.paths.courses', $path))
+            ->assertOk();
+
+        $response->assertSee(
+            setting('admin.courses.path_courses.almsar_lsh_fady_dyf_awl_tdryb', 'المسار لسّه فاضي — ضيف أوّل تدريب.'),
+            false,
+        );
+        $response->assertDontSee(
+            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث/الفلتر الحاليّ — جرّب فلترًا تانيًا.'),
+            false,
+        );
+    }
+
+    /** ⭐ 24.2: بحثٌ بلا نتائج في بوب-أب «اختَر من المكتبة» يقول كده بدل «المكتبة فاضية». */
+    public function test_media_picker_search_with_no_matches_shows_a_filtered_empty_message(): void
+    {
+        MediaItem::create([
+            'disk' => 'public', 'path' => 'media/picker-exists.txt', 'name' => 'ملفّ موجود في البيكر.txt',
+            'mime' => 'text/plain', 'size' => 10 * 1024, 'hash' => 'hash-picker-exists',
+        ]);
+
+        $response = $this->actingAs($this->admin())
+            ->get(route('admin.media.picker', ['fragment' => 1, 'target' => 'cover_path', 'q' => 'zzzznotexist']))
+            ->assertOk();
+
+        $response->assertSee(
+            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث/الفلتر الحاليّ — جرّب فلترًا تانيًا.'),
+            false,
+        );
+        $response->assertDontSee(setting('media.picker.empty'), false);
+    }
+
+    /** ومكتبةٌ خاويةٌ فعليًّا (بلا فلتر) يفضل البوب-أب يعرض رسالة البداية الأصليّة. */
+    public function test_media_picker_actually_empty_without_filters_keeps_the_original_start_message(): void
+    {
+        MediaItem::query()->delete();
+
+        $response = $this->actingAs($this->admin())
+            ->get(route('admin.media.picker', ['fragment' => 1, 'target' => 'cover_path']))
+            ->assertOk();
+
+        $response->assertSee(setting('media.picker.empty'), false);
+        $response->assertDontSee(
+            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث/الفلتر الحاليّ — جرّب فلترًا تانيًا.'),
+            false,
+        );
+    }
+
     /** يستخرج أوّل صفّ جدول (`<tr>…</tr>`) يحوي هذا النصّ — لعزل عمود صفٍّ بعينه عن باقي الصفحة. */
     private function firstTableRowContaining(string $html, string $needle): string
     {
