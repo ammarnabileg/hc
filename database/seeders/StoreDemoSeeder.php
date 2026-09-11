@@ -44,6 +44,16 @@ class StoreDemoSeeder extends Seeder
             // ---------------- التوفير والخصم — بقيمته الحقيقيّة (2.9 · 18)
             ['store.savings.text', 'نصّ «وفّرت كذا»', 'string', 'وفّرت {amount}'],
 
+            // ---------------- ⭐ شارة الإتاحة الزمنيّة على الكارت (16 ⟵ 5)
+            // التدريب ذو النافذة اليوميّة/فترات الإتاحة يقول حالته بصراحة في الشبكة،
+            // و«متى يفتح» جزءٌ من الرسالة لا زينة فيها (2.17).
+            ['store.availability.open_badge', 'شارة «متاح الآن» بلا وقت إغلاق', 'string', 'متاح الآن'],
+            ['store.availability.open_until_text', 'شارة «متاح الآن حتى وقتٍ ما»', 'string', 'متاح الآن حتى {time}'],
+            ['store.availability.closed_badge', 'شارة «مغلق» بلا موعد فتحٍ قادم', 'string', 'مغلق حاليًّا'],
+            ['store.availability.opens_at_text', 'شارة «مغلق الآن — يفتح كذا»', 'string', 'مغلق الآن — يفتح {time}'],
+            ['store.availability.time_format', 'صيغة وقتٍ في يوم اليوم نفسه', 'string', 'H:i'],
+            ['store.availability.day_time_format', 'صيغة وقتٍ في يومٍ آخر', 'string', 'l — H:i'],
+
             // ---------------- ⭐ لاندنج بيدج الباقة (18 · القسم 22)
             ['store.bundle.hero_badge', 'وسم الباقة في الهيرو', 'string', 'باقة متكاملة'],
             ['store.bundle.cta_label', 'نصّ زرّ شراء الباقة', 'string', 'احصل على الباقة كاملة'],

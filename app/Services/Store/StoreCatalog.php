@@ -5,6 +5,7 @@ namespace App\Services\Store;
 use App\Models\Bundle;
 use App\Models\BundleItem;
 use App\Models\Course;
+use App\Models\CourseAvailabilityPeriod;
 use App\Models\Currency;
 use App\Models\Enrollment;
 use App\Models\LearningPath;
@@ -13,6 +14,9 @@ use App\Models\Product;
 use App\Models\ProductCategory;
 use App\Models\User;
 use App\Models\WalletBalance;
+use App\Services\Learning\AvailabilityService;
+use App\Services\Learning\UserClock;
+use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
@@ -68,7 +72,16 @@ class StoreCatalog
         return $class::query()->where('slug', $slug)->first();
     }
 
-    /** المنشور فقط يُباع ويُعرَض (شرط «الحالة = منشور» في مصفوفة الصلاحيّات) */
+    /**
+     * المنشور فقط يُباع ويُعرَض (شرط «الحالة = منشور» في مصفوفة الصلاحيّات).
+     *
+     * ⭐ وهذه بوّابة **البيع** لا بوّابة **الوصول**: القسم 5 يقول إنّ التدريب خارج
+     * ساعاته اليوميّة «مقفول» — مقفولٌ عن المشاهدة، لا ممنوعٌ عن الشراء. ولو
+     * خلطنا البابين لصار «نادي الفجر» (5→7 ص) صفحةَ 404 طولَ اليوم، ولاختفى من
+     * السلّة سطرٌ اشتراه صاحبه بالفعل. فالسؤالان منفصلان بقصد:
+     *  - `isAvailable()`  : أيُباع ويُعرَض؟ ⟵ الحالة وحدها.
+     *  - `isOpenNow()` / `availability()` : أيُفتَح الآن؟ ⟵ النافذة اليوميّة والفترات.
+     */
     public function isAvailable(string $type, ?Model $item): bool
     {
         if (! $item) {
@@ -76,6 +89,84 @@ class StoreCatalog
         }
 
         return in_array($item->status, ['published', 'active'], true);
+    }
+
+    /**
+     * أمفتوحٌ الآن للوصول؟ (16 ⟵ 5) — وما لا نافذة له ولا فترات مفتوحٌ دائمًا.
+     */
+    public function isOpenNow(string $type, ?Model $item, ?User $user = null): bool
+    {
+        return ($this->availability($type, $item, $user)['open'] ?? true) === true;
+    }
+
+    /**
+     * الإتاحة الزمنيّة لعنصر المتجر (16 ⟵ 5): **النافذة اليوميّة**
+     * (`courses.daily_open_at/daily_close_at`) و**فترات الإتاحة المتعدّدة**
+     * (`course_availability_periods`) — وهما آليّتان تخدمان بندًا دستوريًّا
+     * واحدًا: «فترات تشغيل (بداية/نهاية، متعدّدة) + ساعة مشاهدة يوميّة» (16)،
+     * وتفصيلهما في القسم 5. فلا تُقرأ إحداهما دون الأخرى، وإلّا ظهر تدريبٌ
+     * انتهت فترته «متاحًا الآن» لأنّ ساعة اليوم وحدها صادفت نافذته.
+     *
+     * والحساب كلّه عبر `AvailabilityService` نفسها التي تحكم شاشات التعلّم
+     * والسلّة — لا نسخةَ ثانية للمنطق تفترق عنها، وبساعة **المستخدم** لا
+     * الخادم كما يفرض القسم 5 (`UserClock`: اختياره ⟵ المكتشَف ⟵ دولته ⟵
+     * `system.timezone`). و`null` تعني «لا قيد زمنيّ» فلا شارة على الكارت.
+     *
+     * @return array{open:bool,state:string,reason:?string,opens_at:?string,closes_at:?string}|null
+     */
+    public function availability(string $type, ?Model $item, ?User $user = null): ?array
+    {
+        if ($type !== 'course' || ! $item instanceof Course) {
+            return null;
+        }
+
+        $state = app(AvailabilityService::class)->forCourse($item, null, $user);
+
+        // بلا نافذة يوميّة وبلا فتراتٍ فعّالة ⟵ العنصر بلا قيدٍ زمنيّ أصلًا
+        if ($state['daily'] === null && $state['periods']->isEmpty()) {
+            return null;
+        }
+
+        $now = app(UserClock::class)->now($user);
+
+        return [
+            'open' => (bool) $state['open'],
+            'state' => (string) $state['state'],
+            'reason' => $state['reason'],
+            'opens_at' => $this->stamp($state['opens_at'], $now),
+            'closes_at' => $this->stamp($state['closes_at'], $now),
+        ];
+    }
+
+    /**
+     * ساعةُ اليوم تكفي لنافذةٍ تُفتَح أو تُغلَق اليوم، وما جاوز اليوم يحتاج يومَه
+     * معه — و«يفتح 05:00» بلا يومٍ بعد ثلاثة أسابيع وعدٌ كاذب لا اختصار (2.9).
+     */
+    private function stamp(?CarbonImmutable $at, CarbonImmutable $now): ?string
+    {
+        if ($at === null) {
+            return null;
+        }
+
+        return $at->translatedFormat((string) ($at->isSameDay($now)
+            ? setting('store.availability.time_format', 'H:i')
+            : setting('store.availability.day_time_format', 'l — H:i')));
+    }
+
+    /**
+     * التدريبات المقيَّدة بفترات إتاحة — استعلامٌ واحد للشبكة كلّها بدل استعلامٍ
+     * لكلّ كارت، فلا يدفع تدريبٌ بلا قيدٍ زمنيّ ثمنَ فحصٍ لا يعنيه.
+     *
+     * @return array<int, int>
+     */
+    private function periodBoundCourseIds(): array
+    {
+        return CourseAvailabilityPeriod::query()
+            ->where('is_active', true)
+            ->distinct()
+            ->pluck('course_id')
+            ->map(fn ($id) => (int) $id)
+            ->all();
     }
 
     /** المسار حاوية بلا سعر — يُباع داخل باقة فقط (16) */
@@ -149,7 +240,7 @@ class StoreCatalog
         $cards = collect();
 
         if (array_intersect($types, ['course'])) {
-            $cards = $cards->concat($this->courseCards($owned, $filters));
+            $cards = $cards->concat($this->courseCards($owned, $filters, $user));
         }
 
         if (array_intersect($types, ['bundle'])) {
@@ -200,7 +291,7 @@ class StoreCatalog
     }
 
     /** @return Collection<int, array<string, mixed>> */
-    private function courseCards(array $owned, array $filters): Collection
+    private function courseCards(array $owned, array $filters, ?User $user = null): Collection
     {
         $query = Course::query()->where('status', 'published');
 
@@ -209,8 +300,13 @@ class StoreCatalog
                 ->orWhere('description_ar', 'like', '%'.$term.'%'));
         }
 
-        return $query->get()->map(function (Course $course) use ($owned) {
+        // ⭐ حالة الإتاحة الزمنيّة على الكارت (16 ⟵ 5) — التدريب وحده له نافذة
+        $periodBound = $this->periodBoundCourseIds();
+
+        return $query->get()->map(function (Course $course) use ($owned, $user, $periodBound) {
             $offer = $this->activeOffer($course);
+            $timed = ($course->daily_open_at && $course->daily_close_at)
+                || in_array((int) $course->id, $periodBound, true);
 
             return $this->card(
                 type: 'course',
@@ -220,6 +316,7 @@ class StoreCatalog
                 listPrice: (float) $course->price_coins,
                 owned: in_array($course->id, $owned['course'] ?? [], true),
                 summary: $course->description_ar,
+                availability: $timed ? $this->availability('course', $course, $user) : null,
             );
         });
     }
@@ -297,6 +394,7 @@ class StoreCatalog
         ?string $summary = null,
         ?int $categoryId = null,
         ?string $currency = null,
+        ?array $availability = null,
     ): array {
         $currency = $currency ?: Coins::defaultCode();
 
@@ -315,6 +413,8 @@ class StoreCatalog
             'savings' => round(max($listPrice - $price, 0), 2),
             'owned' => $owned,
             'sellable' => $this->isSellable($type),
+            // `null` = بلا قيدٍ زمنيّ ⟵ الكارت كما كان بلا شارة إتاحة (16 ⟵ 5)
+            'availability' => $availability,
             'category_id' => $categoryId,
             'created_at' => $item->created_at,
         ];

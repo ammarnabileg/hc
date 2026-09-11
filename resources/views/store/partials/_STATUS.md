@@ -29,7 +29,13 @@
 
 - ⬜ **`purchase-sheet.blade.php` — تشيك بوكس الـBump لم يُثبَت بالتشغيل داخل السلّة**
   (مسار العنصر الواحد مُثبَت: العرض يُضاف والإجماليّ يتحدّث بلا مغادرة الصفحة).
-- ⬜ **`card.blade.php` — لا شارة إتاحة زمنيّة** (فترة تشغيل / ساعة يوميّة — 16).
+- ✅ **[أُغلِقت 2026-09-11] `card.blade.php` — صارت له شارة إتاحة زمنيّة**
+  (فترة تشغيل / ساعة يوميّة — 16 ⟵ 5): «متاح الآن حتى HH:MM» أو «مغلق الآن —
+  يفتح HH:MM» بنصوص `store.availability.*` ولونٍ من `x-state-badge`. القرار كلّه
+  في الخادم (`StoreCatalog::availability()` ⟵ `AvailabilityService::forCourse()`)
+  وبساعة المستخدم لا الخادم، والشارة **لا تظهر أصلًا** لعنصرٍ بلا نافذة ولا
+  فترات فلا يتغيّر شكل الكارت القديم.
+  **الدليل:** `tests/Feature/Store/StoreAvailabilityBadgeTest.php`.
 
 **المُثبَت بالتشغيل:** `filters.blade.php` — `currencies[]` Multi-select و`min/max`
 شريط نطاق السعر و`types[]` و`sort` و`owned` كلّها تغيّر النتائج فعلًا ·

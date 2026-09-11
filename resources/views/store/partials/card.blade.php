@@ -9,6 +9,27 @@
         'product' => 'منتج',
         'path' => 'مسار',
     ];
+
+    /*
+     | شارة الإتاحة الزمنيّة (16 ⟵ 5): «نادي الفجر» 5→7 ص كان يظهر في الشبكة
+     | الساعة 09:00 كأنّه مفتوح — والدستور يقول إنّه **مقفول** خارج ساعاته.
+     | والقرار كلّه في الخادم (`StoreCatalog::availability`) بساعة المستخدم؛
+     | و`null` تعني «بلا نافذة ولا فترات» فلا شارة أصلًا ولا يتغيّر شكل الكارت.
+     */
+    $availability = $card['availability'] ?? null;
+
+    $availabilityLabel = $availability === null ? null : match (true) {
+        $availability['open'] && $availability['closes_at'] !== null => str_replace(
+            '{time}', $availability['closes_at'],
+            (string) setting('store.availability.open_until_text', 'متاح الآن حتى {time}'),
+        ),
+        $availability['open'] => (string) setting('store.availability.open_badge', 'متاح الآن'),
+        $availability['opens_at'] !== null => str_replace(
+            '{time}', $availability['opens_at'],
+            (string) setting('store.availability.opens_at_text', 'مغلق الآن — يفتح {time}'),
+        ),
+        default => (string) setting('store.availability.closed_badge', 'مغلق حاليًّا'),
+    };
 @endphp
 
 <a href="{{ route('store.product', ['type' => $card['type'], 'slug' => $card['slug']]) }}"
@@ -33,6 +54,12 @@
             {{-- شارة «تملكه بالفعل» — ولا يُخفى ما اشتراه (24.5) --}}
             @if ($card['owned'])
                 <x-state-badge state="ok" label="تملكه بالفعل" />
+            @endif
+
+            {{-- شارة الإتاحة الزمنيّة — لا تظهر إلّا لعنصرٍ له نافذة/فترات (16 ⟵ 5) --}}
+            @if ($availabilityLabel !== null)
+                <x-state-badge :state="$availability['open'] ? 'ok' : $availability['state']"
+                               :label="$availabilityLabel" />
             @endif
 
             {{-- شارة الخصم/الباقة بقيمتها الحقيقيّة — بلا ندرة مزيّفة (2.9) --}}
