@@ -3,6 +3,8 @@
 namespace Tests\Feature\AdminScreens;
 
 use App\Models\Referral;
+use App\Services\AdminScreens\ReferralAdmin;
+use App\Services\Wallet\LedgerService;
 
 /**
  * لوحة الريفيرال والسفراء (24.2): ترندر · الصلاحيّة تحجب · الفلاتر تشتغل ·
@@ -139,6 +141,48 @@ class ReferralAdminTest extends ScreensTestCase
         $export->assertOk();
 
         $this->assertStringNotContainsString('commission', $export->streamedContent());
+    }
+
+    /**
+     * ⭐ 24.2: عمود **«إجمالي شحنه»** في جدول المدعوّين — كان غائبًا كلّيًّا،
+     * فالأدمن يرى عمولةً مستحقّة بلا الرقم الذي حُسِبت منه، ولا يقدر يراجعها.
+     *
+     * والقيمة تُقاس لا العنوان وحده: شحنتان بقيمتين مختلفتين ومجموعهما بالدولار
+     * هو ما يظهر في الصفّ — فعمودٌ يرندر صفرًا دائمًا يمرّ على اختبار العنوان.
+     */
+    public function test_the_invitees_table_shows_the_invitee_total_topup(): void
+    {
+        $referred = $this->makeUser('مدعوّ شحّان');
+        $referral = $this->makeReferral($this->makeUser('داعٍ'), $referred);
+
+        // شحنتان: 500 + 250 كوينًا = 10$ + 5$ بسعر العرض (1$ = 50 كوينًا)
+        app(LedgerService::class)->credit($referred, 'coins', 500, 'topup', null, 'training', 'شحنة أولى');
+        app(LedgerService::class)->credit($referred, 'coins', 250, 'topup', null, 'training', 'شحنة تانية');
+
+        $this->assertSame(15.0, app(ReferralAdmin::class)->topupTotal($referral->refresh()));
+
+        $this->actingAs($this->owner())
+            ->get(route('admin.referrals.index', ['tab' => 'invites']))
+            ->assertOk()
+            ->assertSee('إجمالي شحنه')
+            ->assertSee('15.00');
+    }
+
+    /**
+     * 🔒 والرقم ماليّ: العمولة = النسبة × إجمالي الشحن، فكشف الأساس لغير
+     * المجموعة المحميّة يكشف العمولة المحجوبة نفسها (24.2 «بلا صلاحيّة» · 12.7).
+     */
+    public function test_the_total_topup_column_is_hidden_from_non_owners(): void
+    {
+        $referred = $this->makeUser('مدعوّ شحّان');
+        $this->makeReferral($this->makeUser('داعٍ'), $referred);
+
+        app(LedgerService::class)->credit($referred, 'coins', 500, 'topup', null, 'training', 'شحنة أولى');
+
+        $this->actingAs($this->admin(['referrals.list', 'referrals.view']))
+            ->get(route('admin.referrals.index', ['tab' => 'invites']))
+            ->assertOk()
+            ->assertDontSee('إجمالي شحنه');
     }
 
     /** الصرف يشترط تفعيل حساب المدعوّ — وإلّا بقيت المكافأة معلّقة برسالة تشرح */

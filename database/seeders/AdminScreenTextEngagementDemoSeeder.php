@@ -569,6 +569,7 @@ class AdminScreenTextEngagementDemoSeeder extends Seeder
             ['admin.referral_admin.index.fltra', 'growth', 'فلترة', 'string', 'فلترة', 'نصّ في resources/views/admin/referral-admin/index.blade.php'],
             ['admin.referral_admin.index.hala_aldawa', 'growth', 'حالة الدعوة', 'string', 'حالة الدعوة', 'نصّ في resources/views/admin/referral-admin/index.blade.php'],
             ['admin.referral_admin.index.iadadat_alryfyral_walsfra', 'growth', 'إعدادات الريفيرال والسفراء', 'string', 'إعدادات الريفيرال والسفراء', 'نصّ في resources/views/admin/referral-admin/index.blade.php'],
+            ['admin.referral_admin.index.ijmaly_shhnh', 'growth', 'إجمالي شحنه', 'string', 'إجمالي شحنه', 'نصّ في resources/views/admin/referral-admin/index.blade.php — عمودٌ منصوصٌ حرفيًّا في 24.2 (جدول المدعوّين)، وتغييرُه يخالف خريطة الشاشات.'],  // ⚠️ 24
             ['admin.referral_admin.index.ila_tarykh', 'growth', 'إلى تاريخ', 'string', 'إلى تاريخ', 'نصّ في resources/views/admin/referral-admin/index.blade.php'],
             ['admin.referral_admin.index.lm_ysjl_bad', 'growth', 'لم يسجّل بعد', 'string', 'لم يسجّل بعد', 'نصّ في resources/views/admin/referral-admin/index.blade.php'],
             ['admin.referral_admin.index.lqb_jdyd', 'growth', '+ لقب جديد', 'string', '+ لقب جديد', 'نصّ في resources/views/admin/referral-admin/index.blade.php'],

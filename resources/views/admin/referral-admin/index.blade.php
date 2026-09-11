@@ -115,7 +115,16 @@
                      :filtered="$filters['q'] !== '' || $filters['status'] !== '' || $filters['payout'] !== '' || $filters['flagged'] !== '' || $filters['from'] !== '' || $filters['to'] !== ''" />
         @else
             <div class="card p-0 overflow-hidden hidden md:block">
-                <table class="w-full text-sm">
+                {{--
+                 | جدول المدعوّين بأعمدة 24.2 الثمانية: الداعي · المدعو · تاريخ الدعوة ·
+                 | الحالة · تذكرة الترحيب · **إجمالي شحنه** · العمولة · إجراءات.
+                 |
+                 | و`x-table` لا `<table>` عارية لأنّ الأعمدة تجاوزت حدّ 2.15-أ-5 (5–7):
+                 | الزائد **موجودٌ ومخفيّ** يفتحه «وضع متقدّم» — لا حذف ولا فقدان بيانات.
+                 |
+                 | والوسم من مفتاح التاب نفسه — نصٌّ واحدٌ لمعنًى واحد لا مفتاحان (2.13).
+                --}}
+                <x-table :label="setting('referral_admin.screen.tab_invites', 'المدعوّون')">
                     <thead>
                         <tr style="background: var(--surface-sunken)">
                             <th class="text-start px-4 py-3 font-semibold">{{ setting('admin.referral_admin.index.aldaay', 'الداعي') }}</th>
@@ -124,6 +133,13 @@
                             <th class="text-start px-4 py-3 font-semibold">{{ setting('admin.referral_admin.index.alhala', 'الحالة') }}</th>
                             <th class="text-start px-4 py-3 font-semibold">{{ setting('admin.referral_admin.index.tdhkra_altrhyb', 'تذكرة الترحيب') }}</th>
                             @if ($canSeeMoney)
+                                {{--
+                                 | 🔒 «إجمالي شحنه» رقمٌ ماليّ كالعمولة تمامًا فيسير بنفس حارسها
+                                 | (24.2 «بلا صلاحيّة» · 12.7): العمولة = النسبة × هذا الرقم، والنسبة
+                                 | معلَنة في صفحة الدعوات — فإظهار الأساس لغير المجموعة المحميّة
+                                 | يكشف العمولة نفسها بضربةٍ واحدة، ويُبطل حجب العمود المجاور.
+                                --}}
+                                <th class="text-start px-4 py-3 font-semibold"><x-icon name="lock" size="16" /> {{ setting('admin.referral_admin.index.ijmaly_shhnh', 'إجمالي شحنه') }}</th>
                                 <th class="text-start px-4 py-3 font-semibold"><x-icon name="lock" size="16" /> {{ setting('admin.referral_admin.index.alamwla', 'العمولة') }}</th>
                             @endif
                             <th class="text-start px-4 py-3 font-semibold">⋯</th>
@@ -145,6 +161,7 @@
                                                    :label="$referral->welcome_ticket_granted ? setting('admin.referral_admin.index.srft', 'صُرفت') : ($payouts[$referral->payout_status] ?? setting('admin.referral_admin.index.malqa', 'معلّقة'))" />
                                 </td>
                                 @if ($canSeeMoney)
+                                    <td class="px-4 py-3">{{ number_format($service->topupTotal($referral), 2) }}</td>
                                     <td class="px-4 py-3">{{ number_format((float) $referral->commission_earned, 2) }}</td>
                                 @endif
                                 <td class="px-4 py-3">
@@ -153,7 +170,7 @@
                             </tr>
                         @endforeach
                     </tbody>
-                </table>
+                </x-table>
             </div>
 
             <div class="grid gap-3 md:hidden">

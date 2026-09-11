@@ -38,6 +38,9 @@ class ReferralAdmin
 
     public const PAYOUT_KEYS = ['pending', 'paid', 'held'];
 
+    /** اسم العمود المحسوب لـ«إجمالي شحنه» — اسمٌ واحد يكتبه الاستعلام ويقرؤه العارض */
+    public const TOPUP_SUM = 'topup_total_usd';
+
     /**
      * عناوين حالات الدعوة — من `setting()` لا محروقة (2.13).
      *
@@ -117,8 +120,35 @@ class ReferralAdmin
     public function invites(array $filters, ?User $viewer = null): LengthAwarePaginator
     {
         return $this->invitesQuery($filters, $viewer)
+            /*
+             | ⭐ «إجمالي شحنه» (24.2) — مجموعٌ في **نفس الاستعلام** لا صفًّا صفًّا:
+             | عشرون سطرًا في الصفحة تعني عشرين استعلامًا زائدًا لو حُسِب في الواجهة.
+             */
+            ->withSum('commissions as '.self::TOPUP_SUM, 'base_usd')
             ->paginate(max(5, (int) setting('referral_admin.per_page', 20)))
             ->withQueryString();
+    }
+
+    /**
+     * «إجمالي شحنه» (24.2): كم شحن المدعوّ **بالدولار** منذ انضمّ.
+     *
+     * المصدر سطور `referral_commissions` لا جدول الحركات، لأنّ كلّ سطرٍ منها
+     * يحمل `base_usd` — قيمة الشحنة محوَّلةً **بسعر الصرف لحظة تنفيذها** — بينما
+     * جمع `transactions.amount` مباشرةً يجمع كوينزَ على دولاراتٍ فيخرج رقمًا
+     * بلا معنى. وهو نفسه الأساس الذي حُسِبت عليه العمولة، فالعمودان متّسقان:
+     * العمولة = النسبة × هذا الرقم، ولا يختلف الرقمان على نفس الصفّ.
+     *
+     * ولا يقتصر على الشحن «الآتي من الدعوة»: الدعوة تربط المستخدم بداعيه **مدى
+     * الحياة** (7.6)، فكلّ شحنةٍ ناجحة له تدخل الإجمالي أيًّا كان مصدر دخوله.
+     */
+    public function topupTotal(Referral $referral): float
+    {
+        $attributes = $referral->getAttributes();
+
+        // المجموع جاهزٌ من `invites()`؛ وخارجها نسأل القاعدة مرّةً بدل أن نكذب بصفر
+        return array_key_exists(self::TOPUP_SUM, $attributes)
+            ? (float) $attributes[self::TOPUP_SUM]
+            : (float) $referral->commissions()->sum('base_usd');
     }
 
     /** حالة سطر الدعوة — تُحسَب ولا تُخزَّن كي لا تتناقض مع حالة المستخدم */
