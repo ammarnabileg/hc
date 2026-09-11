@@ -54,6 +54,12 @@ class StatsController extends Controller
             'data' => $this->stats->data($tab, $period),
             'chart' => $this->chart,
             /*
+             | ⭐ **قائمة أعمدة بوب-أب [تصدير]** (24.3-خامسًا) — من `StatsService`
+             | نفسها لا من قائمةٍ ثانية في القالب: قائمةٌ ثانية تنسى عمودًا جديدًا
+             | فيظهر في الملفّ ولا يظهر في الاختيار (أو العكس).
+             */
+            'exportColumns' => $this->stats->exportColumns($tab),
+            /*
              | أزرار «تصدير CSV/Excel/PDF» — اللافتات إعدادٌ لا نصٌّ محروق (2.13)،
              | ولو غاب الصفّ **لا تختفي الأزرار بصمت**: تظهر بمفاتيح الصيغ نفسها،
              | فيرى الأدمن أنّ لافتةً نقصت بدل أن تختفي قدرةٌ منصوصة (2.17-ب).
@@ -88,8 +94,18 @@ class StatsController extends Controller
 
         $label = (string) ($tabs[$tab]['label'] ?? $tab);
 
+        /*
+         | ⭐ **«[تصدير] الصيغة + الأعمدة المختارة + الفترة + Toggle ضمّ المقارنة»**
+         | (24.3-خامسًا). الاختيار يصل `columns[]` من البوب-أب، ويصفّيه
+         | `StatsService` بقائمته هو — فلا يدخل الملفَّ عمودٌ لم يُعرَض للاختيار،
+         | ولا يخرج ملفٌّ بلا أعمدة إن وصل الرابط بلا اختيارٍ أصلًا (الكلّ).
+         */
+        $columns = $request->has('columns')
+            ? array_map('strval', array_filter((array) $request->input('columns'), 'is_scalar'))
+            : null;
+
         $file = $export->build(
-            rows: $this->stats->exportRows($tab, $period),
+            rows: $this->stats->exportRows($tab, $period, $columns),
             format: $request->string('format')->toString(),
             title: (string) setting('stats.export.title_prefix', 'الإحصائيّات').' — '.$label,
             subtitle: $period['from']->format('Y/m/d').' — '.$period['to']->format('Y/m/d'),

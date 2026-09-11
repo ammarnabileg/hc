@@ -210,6 +210,25 @@ class AdminSystemDemoSeeder extends Seeder
             // ولافتة كلّ زرّ إعدادٌ لا نصٌّ محروق في القالب (2.13).
             ['stats.export.formats', 'stats', 'أزرار التصدير: المفتاح = لافتة الزرّ', 'json', '{"csv":"تصدير CSV","xlsx":"تصدير Excel","pdf":"تصدير PDF"}', false],
             ['stats.export.title_prefix', 'stats', 'بادئة عنوان ملفّ التصدير', 'string', 'الإحصائيّات', false],
+            /*
+             | ⭐ بوب-أب **[تصدير]** (24.3-خامسًا: «**[تصدير]** الصيغة + **الأعمدة
+             | المختارة** + الفترة + Toggle «ضمّ المقارنة»») — كانت الشاشة ثلاثة
+             | روابط مباشرة بلا خطوة اختيار أعمدة أصلًا، فبندٌ من أربعة يقع وثلاثة لا.
+             */
+            ['stats.export.popup.open', 'stats', 'لافتة زرّ فتح بوب-أب التصدير', 'string', 'تصدير CSV/Excel/PDF', false],
+            ['stats.export.popup.title', 'stats', 'عنوان بوب-أب التصدير', 'string', 'تصدير', false],
+            ['stats.export.popup.format', 'stats', 'لافتة حقل الصيغة في بوب-أب التصدير', 'string', 'الصيغة', false],
+            ['stats.export.popup.columns', 'stats', 'لافتة قائمة الأعمدة في بوب-أب التصدير', 'string', 'الأعمدة المختارة', false],
+            ['stats.export.popup.columns_hint', 'stats', 'تفسير حالة «بلا عمود معلَّم»', 'string', 'لو مافيش عمود متعلّم هيتصدّر الجدول كامل.', false],
+            ['stats.export.popup.compare', 'stats', 'لافتة Toggle ضمّ المقارنة في التصدير', 'string', 'ضمّ المقارنة', false],
+            ['stats.export.popup.submit', 'stats', 'لافتة زرّ تنزيل ملفّ التصدير', 'string', 'تنزيل الملفّ', false],
+            ['stats.export.col.compare', 'stats', 'عمود: قيمة الفترة السابقة في الملفّ', 'string', 'الفترة السابقة', false],
+            // أعمدة تاب مصادر الاكتساب في الملفّ — لافتاتها إعدادٌ كباقي الأعمدة
+            ['stats.acquisition.col.source', 'stats', 'عمود: مصدر الاكتساب', 'string', 'المصدر (utm_source)', false],
+            ['stats.acquisition.col.visits', 'stats', 'عمود: الزيارات الموسومة', 'string', 'زيارات', false],
+            ['stats.acquisition.col.registered', 'stats', 'عمود: التسجيلات من المصدر', 'string', 'تسجيل', false],
+            ['stats.acquisition.col.activated', 'stats', 'عمود: التفعيلات من المصدر', 'string', 'تفعيل', false],
+            ['stats.acquisition.col.purchased', 'stats', 'عمود: المشترون من المصدر', 'string', 'شراء', false],
             ['exports.xlsx_row_limit', 'stats', 'سقف صفوف ملفّ Excel', 'number', '20000', false],
             ['exports.pdf_row_limit', 'stats', 'سقف صفوف ملفّ PDF', 'number', '500', false],
             ['exports.pdf_empty_line', 'stats', 'سطر الـPDF حين لا بيانات', 'string', 'مافيش بيانات في المدى ده.', false],

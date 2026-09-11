@@ -893,44 +893,225 @@ class StatsService
             ->sum('transactions.amount');
     }
 
+    // ------------------------------------------------------------------- التصدير
+
     /**
-     * تصدير مرن: الأعمدة المختارة + الفترة + ضمّ المقارنة — وحدّ الصفوف إعداد.
+     * ⭐ مفتاح عمود المقارنة — Toggle «**ضمّ المقارنة**» يضيفه، ولا يُختار من القائمة:
+     * النصّ يعدّه بندًا مستقلًّا عن «الأعمدة المختارة» (24.3-خامسًا).
+     */
+    public const COMPARE_COLUMN = '__compare';
+
+    /**
+     * ⭐⭐ **«[تصدير] الصيغة + الأعمدة المختارة + الفترة + Toggle ضمّ المقارنة»**
+     * (24.3-خامسًا) — وهذه هي **قائمة الأعمدة** التي يختار منها الأدمن.
      *
+     * لماذا مفاتيح ثابتة ولافتات من `setting()`؟ لأنّ الصفّ المصدَّر كان يُبنى
+     * **بلافتاته عناوينَ**، فلو غيّر الأدمن لافتة عمودٍ من الإعدادات انكسر أيّ
+     * اختيارٍ محفوظ أو رابطٍ منسوخ. فالمفتاح للاختيار، واللافتة للعنوان — والاثنان
+     * لا يختلطان (2.13).
+     *
+     * والقائمة **مصدرٌ واحد**: تبنيها الشاشة مربّعاتِ اختيار، ويصفّيها التصدير
+     * نفسه — فلا يظهر في البوب-أب عمودٌ لا يقع في الملفّ.
+     *
+     * @return array<string, string> مفتاح العمود ⟵ لافتته
+     */
+    public function exportColumns(string $tab): array
+    {
+        return match ($tab) {
+            'acquisition' => [
+                'source' => (string) setting('stats.acquisition.col.source', 'المصدر (utm_source)'),
+                'visits' => (string) setting('stats.acquisition.col.visits', 'زيارات'),
+                'registered' => (string) setting('stats.acquisition.col.registered', 'تسجيل'),
+                'activated' => (string) setting('stats.acquisition.col.activated', 'تفعيل'),
+                'purchased' => (string) setting('stats.acquisition.col.purchased', 'شراء'),
+            ],
+            'users' => [
+                'day' => (string) setting('stats.stats_service.export_rows_1', 'اليوم'),
+                'registered' => (string) setting('stats.stats_service.export_rows_2', 'تسجيلات'),
+            ],
+            'sales' => [
+                'day' => (string) setting('stats.stats_service.export_rows_3', 'اليوم'),
+                'revenue' => (string) setting('stats.stats_service.export_rows_4', 'الإيراد'),
+            ],
+            // «جدول تفصيليّ قابل للتصدير» لكلّ تابّ (24.3-خامسًا) — لا كروتُه وحدها
+            'volunteer' => [
+                'level' => (string) setting('stats.volunteer.col.level', 'مستوى التصعيد'),
+                'closed' => (string) setting('stats.volunteer.col.closed', 'حالات مغلقة'),
+                'on_time' => (string) setting('stats.volunteer.col.on_time', 'داخل النافذة'),
+                'rate' => (string) setting('stats.volunteer.col.rate', 'نسبة الالتزام %'),
+            ],
+            'certificates' => [
+                'accreditation' => (string) setting('stats.certificates.col.accreditation', 'جهة الاعتماد'),
+                'issued' => (string) setting('stats.certificates.col.issued', 'شهادات صادرة'),
+            ],
+            // «إجماليّ الممنوح/المخصوم لكلّ عملة» حرفيًّا (12.9)
+            'rewards' => [
+                'currency' => (string) setting('stats.rewards.col.currency', 'العملة'),
+                'granted' => (string) setting('stats.rewards.col.granted', 'الممنوح'),
+                'deducted' => (string) setting('stats.rewards.col.deducted', 'المخصوم'),
+                'net' => (string) setting('stats.rewards.col.net', 'الصافي'),
+            ],
+            default => [
+                'metric' => (string) setting('stats.stats_service.export_rows_5', 'المؤشّر'),
+                'value' => (string) setting('stats.stats_service.export_rows_6', 'القيمة'),
+            ],
+        };
+    }
+
+    /**
+     * الأعمدة المختارة بعد تنقيتها — بترتيب القائمة لا بترتيب ما وصل.
+     *
+     * ولماذا «لا اختيار ⟵ الكلّ»؟ لأنّ رابط تصديرٍ قديمًا (أو مجدولًا) بلا
+     * `columns[]` يجب أن يظلّ يُخرِج الملفّ كاملًا — لا ملفًّا فارغ الأعمدة.
+     *
+     * @param  array<int,string>|null  $columns
+     * @return array<int, string>
+     */
+    public function selectedExportColumns(string $tab, ?array $columns): array
+    {
+        $available = array_keys($this->exportColumns($tab));
+
+        if ($columns === null) {
+            return $available;
+        }
+
+        $picked = array_values(array_intersect($available, array_map('strval', $columns)));
+
+        return $picked !== [] ? $picked : $available;
+    }
+
+    /**
+     * تصدير مرن: **الأعمدة المختارة + الفترة + ضمّ المقارنة** — وحدّ الصفوف إعداد.
+     *
+     * @param  array<int,string>|null  $columns  مفاتيح الأعمدة المطلوبة (null = الكلّ)
      * @return array<int, array<string,mixed>>
      */
-    public function exportRows(string $tab, array $period): array
+    public function exportRows(string $tab, array $period, ?array $columns = null): array
     {
-        $data = $this->data($tab, $period);
+        $labels = $this->exportColumns($tab);
+        $selected = $this->selectedExportColumns($tab, $columns);
         $limit = (int) setting('stats.export.max_rows', 50000);
 
-        $rows = match ($tab) {
-            'acquisition' => $data['rows'] ?? [],
-            'users' => array_map(fn ($p) => [(string) setting('stats.stats_service.export_rows_1', 'اليوم') => $p['label'], (string) setting('stats.stats_service.export_rows_2', 'تسجيلات') => $p['value']], $data['growth'] ?? []),
-            'sales' => array_map(fn ($p) => [(string) setting('stats.stats_service.export_rows_3', 'اليوم') => $p['label'], (string) setting('stats.stats_service.export_rows_4', 'الإيراد') => $p['value']], $data['series'] ?? []),
-            // «جدول تفصيليّ قابل للتصدير» لكلّ تابّ (24.3-خامسًا) — لا كروتُه وحدها
+        $data = $this->data($tab, $period);
+        $rows = $this->rawExportRows($tab, $data);
+
+        if ($period['compare']) {
+            $rows = $this->withComparison($tab, $rows, $data, $period);
+            $labels[self::COMPARE_COLUMN] = (string) setting('stats.export.col.compare', 'الفترة السابقة');
+            $selected[] = self::COMPARE_COLUMN;
+        }
+
+        return array_map(
+            function (array $row) use ($labels, $selected): array {
+                $out = [];
+
+                foreach ($selected as $key) {
+                    $out[$labels[$key] ?? $key] = $row[$key] ?? '';
+                }
+
+                return $out;
+            },
+            array_slice($rows, 0, $limit),
+        );
+    }
+
+    /**
+     * صفوف التابّ **بمفاتيح الأعمدة** لا بلافتاتها — طبقةٌ وسطى تجعل التصفية
+     * والمقارنة ممكنتين قبل أن تتحوّل المفاتيح إلى عناوين في الملفّ.
+     *
+     * @param  array<string,mixed>  $data
+     * @return array<int, array<string,mixed>>
+     */
+    private function rawExportRows(string $tab, array $data): array
+    {
+        return match ($tab) {
+            'acquisition' => array_map(fn ($r) => [
+                'source' => $r['source'] ?? '',
+                'visits' => $r['visits'] ?? 0,
+                'registered' => $r['registered'] ?? 0,
+                'activated' => $r['activated'] ?? 0,
+                'purchased' => $r['purchased'] ?? 0,
+            ], $data['rows'] ?? []),
+            'users' => array_map(fn ($p) => ['day' => $p['label'], 'registered' => $p['value']], $data['growth'] ?? []),
+            'sales' => array_map(fn ($p) => ['day' => $p['label'], 'revenue' => $p['value']], $data['series'] ?? []),
             'volunteer' => array_map(fn ($r) => [
-                (string) setting('stats.volunteer.col.level', 'مستوى التصعيد') => $r['level'],
-                (string) setting('stats.volunteer.col.closed', 'حالات مغلقة') => $r['closed'],
-                (string) setting('stats.volunteer.col.on_time', 'داخل النافذة') => $r['on_time'],
-                (string) setting('stats.volunteer.col.rate', 'نسبة الالتزام %') => $r['rate'],
+                'level' => $r['level'],
+                'closed' => $r['closed'],
+                'on_time' => $r['on_time'],
+                'rate' => $r['rate'],
             ], $data['sla'] ?? []),
             'certificates' => array_map(fn ($r) => [
-                (string) setting('stats.certificates.col.accreditation', 'جهة الاعتماد') => $r['label'],
-                (string) setting('stats.certificates.col.issued', 'شهادات صادرة') => $r['value'],
+                'accreditation' => $r['label'],
+                'issued' => $r['value'],
             ], $data['accreditations'] ?? []),
-            // «إجماليّ الممنوح/المخصوم لكلّ عملة» حرفيًّا (12.9)
             'rewards' => array_map(fn ($r) => [
-                (string) setting('stats.rewards.col.currency', 'العملة') => $r['label'],
-                (string) setting('stats.rewards.col.granted', 'الممنوح') => $r['granted'],
-                (string) setting('stats.rewards.col.deducted', 'المخصوم') => $r['deducted'],
-                (string) setting('stats.rewards.col.net', 'الصافي') => $r['net'],
+                'currency' => $r['label'],
+                'granted' => $r['granted'],
+                'deducted' => $r['deducted'],
+                'net' => $r['net'],
             ], $data['currencies'] ?? []),
             default => array_map(
-                fn ($k) => [(string) setting('stats.stats_service.export_rows_5', 'المؤشّر') => $k['label'], (string) setting('stats.stats_service.export_rows_6', 'القيمة') => $k['value']],
+                fn ($k) => ['metric' => $k['label'], 'value' => $k['value']],
                 $data['kpis'] ?? [],
             ),
         };
+    }
 
-        return array_slice($rows, 0, $limit);
+    /**
+     * ⭐ Toggle «**ضمّ المقارنة**» — عمودٌ يقع فعلًا في الملفّ، لا علامةٌ في الرابط.
+     *
+     * والمطابقة تختلف بطبيعة الصفّ، ولا نتظاهر بغير ذلك:
+     *  · **تابّا السلاسل اليوميّة** (المستخدمون/المبيعات): الصفّ يومٌ، وتاريخُ
+     *    الفترة السابقة **لا يساوي** تاريخ الحاليّة — فالمطابقة **بالترتيب**
+     *    (اليوم الأوّل باليوم الأوّل)، وهي نفس مطابقة الخطّ المتقطّع في الرسم.
+     *  · **التابّات التصنيفيّة** (عملة/جهة اعتماد/مصدر/مستوى/مؤشّر): المطابقة
+     *    **بمفتاح الصفّ نفسه**، وما لا مقابل له في الفترة السابقة يخرج صفرًا.
+     *
+     * @param  array<int, array<string,mixed>>  $rows
+     * @param  array<string,mixed>  $data
+     * @return array<int, array<string,mixed>>
+     */
+    private function withComparison(string $tab, array $rows, array $data, array $period): array
+    {
+        // سلسلة الفترة السابقة محسوبةٌ أصلًا مع بيانات التابّ — لا نحسبها ثانيةً
+        $series = match ($tab) {
+            'users' => array_column($data['growth_prev'] ?? [], 'value'),
+            'sales' => array_column($data['series_prev'] ?? [], 'value'),
+            default => null,
+        };
+
+        if ($series !== null) {
+            foreach ($rows as $i => $row) {
+                $rows[$i][self::COMPARE_COLUMN] = $series[$i] ?? 0;
+            }
+
+            return $rows;
+        }
+
+        $keys = array_keys($this->exportColumns($tab));
+        $keyColumn = $keys[0] ?? null;
+        $valueColumn = $keys[1] ?? null;
+
+        if ($keyColumn === null || $valueColumn === null) {
+            return $rows;
+        }
+
+        $previous = $this->rawExportRows($tab, $this->data($tab, $this->period(
+            $period['prev_from']->toDateString(),
+            $period['prev_to']->toDateString(),
+            false,
+        )));
+
+        $index = [];
+
+        foreach ($previous as $row) {
+            $index[(string) ($row[$keyColumn] ?? '')] = $row[$valueColumn] ?? 0;
+        }
+
+        foreach ($rows as $i => $row) {
+            $rows[$i][self::COMPARE_COLUMN] = $index[(string) ($row[$keyColumn] ?? '')] ?? 0;
+        }
+
+        return $rows;
     }
 }
