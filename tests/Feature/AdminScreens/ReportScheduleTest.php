@@ -20,6 +20,47 @@ class ReportScheduleTest extends ScreensTestCase
             ->assertSee('تقرير المستخدمين الأسبوعيّ');
     }
 
+    /**
+     * ⭐ أعمدة 24.3-خامسًا الثلاثة (اليوم والساعة · الصيغة · المستقبِلون) كانت
+     * **غائبةً تمامًا** لا مخفيّة: الجدول ستّة أعمدة ثابتة بلا أيّ مفتاح أعمدة،
+     * فلا سبيل لإظهارها أبدًا. الآن هي في الترميز خلف حدّ 2.15-أ-5، و«وضع
+     * متقدّم» يرفع الحدّ فتظهر — إخفاءٌ وتدرّج لا تقليل (2.15).
+     */
+    public function test_the_spec_extra_columns_exist_behind_the_column_cap(): void
+    {
+        $admin = $this->admin(['report_schedules.list', 'report_schedules.view']);
+        $weekly = ReportSchedule::query()->where('name', 'تقرير المستخدمين الأسبوعيّ')->firstOrFail();
+        $recipient = $weekly->recipient_emails[0];
+
+        $simple = $this->actingAs($admin)->get(route('admin.report-schedules.index'))
+            ->assertOk()->getContent();
+
+        // المبسّط: الحدّ مكتوب — والأعمدة الزائدة مخفيّةٌ بالـCSS لا محذوفة
+        $this->assertStringContainsString('data-columns-cap="', $simple, 'حدّ الأعمدة غائب في المبسّط.');
+
+        $admin->forceFill(['simple_mode' => false, 'advanced_mode' => true])->save();
+
+        $advanced = $this->actingAs($admin->fresh())->get(route('admin.report-schedules.index'))
+            ->assertOk()->getContent();
+
+        $this->assertStringNotContainsString('data-columns-cap="', $advanced, 'حدّ الأعمدة باقٍ رغم الوضع المتقدّم.');
+
+        // اللافتات الثلاث كما نصّ عليها 24.3-خامسًا
+        foreach ([
+            setting('admin.report_schedules.index.alywm_walsaaa', 'اليوم والساعة'),
+            setting('admin.report_schedules.index.alsygha', 'الصيغة'),
+            setting('admin.report_schedules.index.almstqblwn', 'المستقبِلون'),
+        ] as $header) {
+            $this->assertStringContainsString('>'.$header.'</th>', $advanced, "لافتة العمود «{$header}» غائبة.");
+        }
+
+        // وبياناتها الصحيحة للجدولة المزروعة: الأحد · 07:00 · CSV · مستقبِلٌ واحد
+        $this->assertStringContainsString('الأحد · 07:00', $advanced, 'عمود «اليوم والساعة» بلا قيمة.');
+        $this->assertStringContainsString($recipient, $advanced, 'عمود «المستقبِلون» بلا بريد المستقبِل.');
+        $this->assertStringContainsString('1 '.setting('admin.report_schedules.index.mstqbl', 'مستقبِل'), $advanced);
+        $this->assertStringContainsString('>CSV</td>', $advanced, 'عمود «الصيغة» بلا قيمة.');
+    }
+
     public function test_permission_blocks_the_screen_and_its_actions(): void
     {
         $schedule = ReportSchedule::query()->firstOrFail();

@@ -87,7 +87,19 @@
                  :filtered="$filters['q'] !== '' || $filters['tab'] !== '' || $filters['frequency'] !== '' || $filters['status'] !== ''" />
     @else
         <div class="card p-0 overflow-hidden hidden md:block">
-            <table class="w-full text-sm">
+            {{--
+             | أعمدة 24.3-خامسًا كاملةً: الاسم · التقرير · التكرار · **اليوم والساعة**
+             | · **الصيغة** · **المستقبِلون** · آخر إرسال · التالي · الحالة · إجراءات.
+             | وثلاثتُها الأخيرة كانت **غائبةً تمامًا** لا مخفيّةً — فلا سبيل لإظهارها.
+             |
+             | والترتيب هنا يقدّم أعمدة الجواب على السؤال الواحد للشاشة («وصلت
+             | ولّا لأ؟») على ترتيب الوصف، لأنّ 2.15-أ-5 يحدّ الظاهر بـ5–7 أعمدة
+             | والباقي خلف «وضع متقدّم» — **وعند التعارض تسبق القاعدةُ الوصفَ**
+             | (مقدّمة القسم 24). فلا حذف: العمق موجود خلف خطوةٍ واحدة.
+            --}}
+            <table class="w-full text-sm"
+                   {{-- حدّ الأعمدة الافتراضيّ من الإعدادات، و«وضع متقدّم» يرفعه (2.15-أ-5) --}}
+                   @unless (advanced_mode()) data-columns-cap="{{ view_mode()->defaultColumns() }}" @endunless>
                 <thead>
                     <tr style="background: var(--surface-sunken)">
                         <th class="text-start px-4 py-3 font-semibold">{{ setting('admin.report_schedules.index.alasm', 'الاسم') }}</th>
@@ -96,19 +108,37 @@
                         <th class="text-start px-4 py-3 font-semibold">{{ setting('admin.report_schedules.index.akhr_irsal', 'آخر إرسال') }}</th>
                         <th class="text-start px-4 py-3 font-semibold">{{ setting('admin.report_schedules.index.altaly', 'التالي') }}</th>
                         <th class="text-start px-4 py-3 font-semibold">{{ setting('admin.report_schedules.index.alhala', 'الحالة') }}</th>
+                        <th class="text-start px-4 py-3 font-semibold">{{ setting('admin.report_schedules.index.alywm_walsaaa', 'اليوم والساعة') }}</th>
+                        <th class="text-start px-4 py-3 font-semibold">{{ setting('admin.report_schedules.index.alsygha', 'الصيغة') }}</th>
+                        <th class="text-start px-4 py-3 font-semibold">{{ setting('admin.report_schedules.index.almstqblwn', 'المستقبِلون') }}</th>
                         <th class="text-start px-4 py-3 font-semibold">⋯</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach ($schedules as $schedule)
+                        @php
+                            /*
+                             | اليوم والساعة (24.3-خامسًا): «الأحد · 07:00» للأسبوعيّ،
+                             | و«يوم 1 · 08:00» للشهريّ، والساعة وحدها لليوميّ.
+                             */
+                            $dayLabel = match ($schedule->frequency) {
+                                'weekly' => $days[$schedule->day_of_week] ?? '',
+                                'monthly' => setting('admin.report_schedules.index.ywm_2', 'يوم').' '.$schedule->day_of_month,
+                                default => '',
+                            };
+                            $recipientCount = count($schedule->recipient_emails ?? [])
+                                + count($schedule->recipient_role_ids ?? [])
+                                + count($schedule->recipient_user_ids ?? []);
+                        @endphp
                         <tr style="border-top: 1px solid var(--border)">
                             <td class="px-4 py-3">
                                 {{ $schedule->name }}
                                 @if ($schedule->is_financial)
                                     <span class="text-xs" style="color: var(--color-state-honor)"><x-icon name="lock" size="16" /></span>
                                 @endif
+                                {{-- سطرٌ ثانويّ يُبقي الصيغة والمستقبِلين حاضرين حتى في الوضع المبسّط (2.15-د) --}}
                                 <div class="text-xs" style="color: var(--text-muted)">
-                                    {{ strtoupper($schedule->format) }} · {{ count($schedule->recipient_emails ?? []) + count($schedule->recipient_role_ids ?? []) + count($schedule->recipient_user_ids ?? []) }} {{ setting('admin.report_schedules.index.mstqbl', 'مستقبِل') }}
+                                    {{ strtoupper($schedule->format) }} · {{ $recipientCount }} {{ setting('admin.report_schedules.index.mstqbl', 'مستقبِل') }}
                                 </div>
                             </td>
                             <td class="px-4 py-3">{{ $reports[$schedule->report_tab] ?? $schedule->report_tab }}</td>
@@ -136,6 +166,17 @@
                             <td class="px-4 py-3">
                                 <x-state-badge :state="$schedule->isActive() ? 'ok' : 'idle'"
                                                :label="$schedule->isActive() ? setting('admin.report_schedules.index.nshta', 'نشطة') : setting('admin.report_schedules.index.mwqwfa', 'موقوفة')" />
+                            </td>
+                            {{-- الأعمدة الثلاثة الزائدة عن الحدّ — موجودة ومخفيّة يفتحها «وضع متقدّم» (2.15-أ-5) --}}
+                            <td class="px-4 py-3 text-xs">
+                                {{ $dayLabel !== '' ? $dayLabel.' · ' : '' }}{{ str_pad((string) $schedule->hour, 2, '0', STR_PAD_LEFT) }}:00
+                            </td>
+                            <td class="px-4 py-3 text-xs">{{ $formats[$schedule->format] ?? strtoupper($schedule->format) }}</td>
+                            <td class="px-4 py-3 text-xs">
+                                {{ $recipientCount }} {{ setting('admin.report_schedules.index.mstqbl', 'مستقبِل') }}
+                                @if (($schedule->recipient_emails ?? []) !== [])
+                                    <div style="color: var(--text-muted)">{{ \Illuminate\Support\Str::limit(implode(', ', $schedule->recipient_emails), 60) }}</div>
+                                @endif
                             </td>
                             <td class="px-4 py-3">
                                 @include('admin.report-schedules.partials.row-actions', ['schedule' => $schedule])

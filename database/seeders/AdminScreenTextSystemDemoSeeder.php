@@ -757,7 +757,7 @@ class AdminScreenTextSystemDemoSeeder extends Seeder
         ]);
     }
 
-    /** نصوص شاشات «التقارير المجدولة» — 76 مفتاحًا */
+    /** نصوص شاشات «التقارير المجدولة» — 79 مفتاحًا */
     public function reportSchedulesScreenTextSettings(): void
     {
         $this->write([
@@ -772,6 +772,7 @@ class AdminScreenTextSystemDemoSeeder extends Seeder
             ['admin.report_schedules.index.alkhmys', 'stats', 'الخميس', 'string', 'الخميس', 'نصّ في resources/views/admin/report-schedules/index.blade.php'],
             ['admin.report_schedules.index.alkl', 'stats', 'الكلّ', 'string', 'الكلّ', 'نصّ في resources/views/admin/report-schedules/index.blade.php'],
             ['admin.report_schedules.index.almntqa_alzmnya', 'stats', 'المنطقة الزمنيّة', 'string', 'المنطقة الزمنيّة', 'نصّ في resources/views/admin/report-schedules/index.blade.php'],
+            ['admin.report_schedules.index.almstqblwn', 'stats', 'المستقبِلون', 'string', 'المستقبِلون', 'نصّ في resources/views/admin/report-schedules/index.blade.php — لافتة عمودٍ منصوصٍ حرفيًّا في 24.3-خامسًا، وتغييرُه يخالف خريطة الشاشات.'],  // ⚠️ 24
             ['admin.report_schedules.index.almstqblwn_bryd_afsl_bfasla', 'stats', 'المستقبِلون (بريد، افصل بفاصلة)', 'string', 'المستقبِلون (بريد، افصل بفاصلة)', 'نصّ في resources/views/admin/report-schedules/index.blade.php'],
             ['admin.report_schedules.index.alsbt', 'stats', 'السبت', 'string', 'السبت', 'نصّ في resources/views/admin/report-schedules/index.blade.php'],
             ['admin.report_schedules.index.alsygha', 'stats', 'الصيغة', 'string', 'الصيغة', 'نصّ في resources/views/admin/report-schedules/index.blade.php'],
@@ -784,6 +785,7 @@ class AdminScreenTextSystemDemoSeeder extends Seeder
             ['admin.report_schedules.index.altqryr', 'stats', 'التقرير', 'string', 'التقرير', 'نصّ في resources/views/admin/report-schedules/index.blade.php'],
             ['admin.report_schedules.index.altqryr_2', 'stats', 'التقرير:', 'string', 'التقرير:', 'نصّ في resources/views/admin/report-schedules/index.blade.php'],
             ['admin.report_schedules.index.altqryr_almsdr', 'stats', 'التقرير المصدر', 'string', 'التقرير المصدر', 'نصّ في resources/views/admin/report-schedules/index.blade.php'],
+            ['admin.report_schedules.index.alywm_walsaaa', 'stats', 'اليوم والساعة', 'string', 'اليوم والساعة', 'نصّ في resources/views/admin/report-schedules/index.blade.php — لافتة عمودٍ منصوصٍ حرفيًّا في 24.3-خامسًا، وتغييرُه يخالف خريطة الشاشات.'],  // ⚠️ 24
             ['admin.report_schedules.index.arf_altqryr_mra_wywsl_balbryd_kl_mra_bla_ma', 'stats', 'عرّف التقرير مرّة، ويوصل بالبريد كلّ مرّة — بلا ما حد يفتكر.', 'string', 'عرّف التقرير مرّة، ويوصل بالبريد كلّ مرّة — بلا ما حد يفتكر.', 'نصّ في resources/views/admin/report-schedules/index.blade.php'],
             ['admin.report_schedules.index.asm_altqryr', 'stats', 'اسم التقرير', 'string', 'اسم التقرير', 'نصّ في resources/views/admin/report-schedules/index.blade.php'],
             ['admin.report_schedules.index.atbat_alnhardh', 'stats', 'اتبعت النهارده', 'string', 'اتبعت النهارده', 'نصّ في resources/views/admin/report-schedules/index.blade.php'],
@@ -809,6 +811,7 @@ class AdminScreenTextSystemDemoSeeder extends Seeder
             ['admin.report_schedules.index.saaa_alirsal', 'stats', 'ساعة الإرسال', 'string', 'ساعة الإرسال', 'نصّ في resources/views/admin/report-schedules/index.blade.php'],
             ['admin.report_schedules.index.wsl', 'stats', 'وصل', 'string', 'وصل', 'نصّ في resources/views/admin/report-schedules/index.blade.php'],
             ['admin.report_schedules.index.ywm', 'stats', '· يوم', 'string', '· يوم', 'نصّ في resources/views/admin/report-schedules/index.blade.php'],
+            ['admin.report_schedules.index.ywm_2', 'stats', 'يوم', 'string', 'يوم', 'نصّ في resources/views/admin/report-schedules/index.blade.php'],
             ['admin.report_schedules.index.ywm_alasbwa', 'stats', 'يوم الأسبوع', 'string', 'يوم الأسبوع', 'نصّ في resources/views/admin/report-schedules/index.blade.php'],
             ['admin.report_schedules.index.ywm_alshhr', 'stats', 'يوم الشهر', 'string', 'يوم الشهر', 'نصّ في resources/views/admin/report-schedules/index.blade.php'],
             ['admin.report_schedules.log.aljdwla_dy_mashtghltsh_lsh_htlaqy_awl_str', 'stats', 'الجدولة دي ماشتغلتش لسّه — هتلاقي أوّل سطر هنا بعد أوّل إرسال.', 'string', 'الجدولة دي ماشتغلتش لسّه — هتلاقي أوّل سطر هنا بعد أوّل إرسال.', 'نصّ في resources/views/admin/report-schedules/log.blade.php'],
