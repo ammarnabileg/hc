@@ -38,6 +38,7 @@ class ScreenLimitsDemoSeeder extends Seeder
             ['admin_meetings.status.scheduled', 'meetings', 'حالة: قادم', 'string', 'قادم'],
             ['admin_meetings.status.running', 'meetings', 'حالة: جارٍ', 'string', 'جارٍ'],
             ['admin_meetings.status.ended', 'meetings', 'حالة: منتهٍ', 'string', 'منتهٍ'],
+            ['admin_meetings.status.cancelled', 'meetings', 'حالة: ملغيّ', 'string', 'ملغيّ'],
 
             // ---------------- الإعلان المدفوع
             ['ads.audiences.per_page', 'ads', 'عدد الشرائح في الصفحة', 'number', '20'],

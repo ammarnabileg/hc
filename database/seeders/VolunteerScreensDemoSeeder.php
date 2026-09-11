@@ -945,6 +945,9 @@ class VolunteerScreensDemoSeeder extends Seeder
             ['volunteer.meetings_card.action', 'الاجتماعات: سجّل حضورك', 'سجّل حضورك'],
             ['volunteer.meetings_card.action_2', 'الاجتماعات: اعتذار مسبق', 'اعتذار مسبق'],
             ['volunteer.meetings_card.action_3', 'الاجتماعات: إنهاء الاجتماع', 'إنهاء الاجتماع'],
+            // ⭐ [2026-09-11] الاجتماع الملغى (24.2-أوّلًا: «إلغاء بسبب»)
+            ['volunteer.meetings_card.cancelled', 'الاجتماعات: اتلغى', 'اتلغى'],
+            ['volunteer.meetings_card.cancel_reason', 'الاجتماعات: سبب الإلغاء:', 'سبب الإلغاء:'],
             ['volunteer.meetings_card.label', 'الاجتماعات: نافذة التسجيل مفتوحة', 'نافذة التسجيل مفتوحة'],
             ['volunteer.meetings_card.label_2', 'الاجتماعات: النافذة اتقفلت', 'النافذة اتقفلت'],
             ['volunteer.meetings_card.link', 'الاجتماعات: رابط الاجتماع', 'رابط الاجتماع'],
@@ -1013,6 +1016,8 @@ class VolunteerScreensDemoSeeder extends Seeder
             ['volunteer.meetings_show.empty', 'الاجتماعات: مفيش تسجيلات حضور لسّه', 'مفيش تسجيلات حضور لسّه'],
             ['volunteer.meetings_show.empty_2', 'الاجتماعات: ابدأ أوّل بوست — النقاش بيبدأ بواحد', 'ابدأ أوّل بوست — النقاش بيبدأ بواحد'],
             ['volunteer.meetings_show.ended', 'الاجتماعات: منتهٍ', 'منتهٍ'],
+            ['volunteer.meetings_show.cancelled', 'الاجتماعات: اتلغى', 'اتلغى'],
+            ['volunteer.meetings_show.cancel_reason', 'الاجتماعات: سبب الإلغاء:', 'سبب الإلغاء:'],
             ['volunteer.meetings_show.excused', 'الاجتماعات: اعتذر', 'اعتذر'],
             ['volunteer.meetings_show.field', 'الاجتماعات: كود حضور / OTP', 'كود حضور / OTP'],
             ['volunteer.meetings_show.label', 'الاجتماعات: الاجتماعات', 'الاجتماعات'],

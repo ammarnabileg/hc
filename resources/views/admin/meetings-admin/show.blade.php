@@ -28,7 +28,10 @@
         <dl class="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
             <div><dt class="text-xs" style="color: var(--text-muted)">{{ setting('admin.meetings_admin.show.almwad', 'الموعد') }}</dt><dd>{{ $meeting->scheduled_at?->format('Y-m-d H:i') }}</dd></div>
             <div><dt class="text-xs" style="color: var(--text-muted)">{{ setting('admin.meetings_admin.show.alhala', 'الحالة') }}</dt>
-                <dd><x-state-badge :state="$meeting->status === 'ended' ? 'ok' : 'idle'" :label="$meeting->status === 'ended' ? setting('admin.meetings_admin.show.mnth', 'منتهٍ') : setting('admin.meetings_admin.show.qadm', 'قادم')" /></dd>
+                {{-- ⭐ [2026-09-11] الحالة من قاموس الشاشة نفسه: كانت «منتهٍ/قادم»
+                     فقط، فالملغى كان يُقرَأ «قادمًا» — وهو كذبٌ صريح. --}}
+                <dd><x-state-badge :state="match ($meeting->status) { 'cancelled' => 'danger', 'ended' => 'ok', 'running' => 'warn', default => 'idle' }"
+                                   :label="$statuses[$meeting->status] ?? $meeting->status" /></dd>
             </div>
             <div><dt class="text-xs" style="color: var(--text-muted)">{{ setting('admin.meetings_admin.show.nafdha_altsjyl', 'نافذة التسجيل') }}</dt>
                 <dd>
@@ -42,10 +45,37 @@
             </div>
         </dl>
 
+        @if (filled($meeting->cancel_reason))
+            <div class="mt-4 pt-4" style="border-top: 1px solid var(--border)">
+                <h2 class="text-sm font-bold mb-2">{{ setting('admin.meetings_admin.show.sbb_alilgha', 'سبب الإلغاء') }}</h2>
+                <p class="text-sm whitespace-pre-line" style="color: var(--text-muted)">{{ $meeting->cancel_reason }}</p>
+            </div>
+        @endif
+
         @if (filled($meeting->minutes))
             <div class="mt-4 pt-4" style="border-top: 1px solid var(--border)">
                 <h2 class="text-sm font-bold mb-2">{{ setting('admin.meetings_admin.show.almhdr', 'المحضر') }}</h2>
                 <p class="text-sm whitespace-pre-line" style="color: var(--text-muted)">{{ $meeting->minutes }}</p>
+            </div>
+        @endif
+
+        {{-- ⭐ [2026-09-11] «المحضر والمرفقات» و«التسجيل» عمودان في جدول الشاشة
+             (24.2-أوّلًا) — فمن فتح الصفّ يجب أن يجد ما وعده به العمود. --}}
+        @if ($attachments->isNotEmpty() || filled($meeting->recording_url))
+            <div class="mt-4 pt-4" style="border-top: 1px solid var(--border)">
+                <h2 class="text-sm font-bold mb-2">{{ setting('admin.meetings_admin.show.almrfqat_waltsjyl', 'المرفقات والتسجيل') }}</h2>
+
+                @if (filled($meeting->recording_url))
+                    <p class="text-sm mb-2">
+                        <a class="underline" href="{{ $meeting->recording_url }}" rel="noopener" target="_blank">{{ setting('admin.meetings_admin.show.fth_altsjyl', 'افتح التسجيل') }}</a>
+                    </p>
+                @endif
+
+                <ul class="text-sm space-y-1" style="color: var(--text-muted)">
+                    @foreach ($attachments as $attachment)
+                        <li>{{ $attachment->name }}</li>
+                    @endforeach
+                </ul>
             </div>
         @endif
     </div>

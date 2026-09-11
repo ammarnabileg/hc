@@ -4,15 +4,13 @@ namespace App\Http\Controllers\Volunteer;
 
 use App\Http\Controllers\Controller;
 use App\Models\Entity;
-use App\Models\MediaItem;
 use App\Models\Meeting;
 use App\Models\MeetingAttendance;
 use App\Models\MeetingPost;
-use App\Models\MeetingQuestion;
 use App\Models\PostVote;
-use App\Models\User;
 use App\Services\Volunteer\Meetings\AttendanceService;
 use App\Services\Volunteer\Meetings\MeetingLedger;
+use App\Services\Volunteer\Meetings\MeetingManager;
 use App\Services\Volunteer\Meetings\MeetingScope;
 use App\Services\Volunteer\Meetings\MinutesTaskService;
 use App\Services\Volunteer\Objections\ObjectionService;
@@ -36,6 +34,7 @@ class MeetingController extends Controller
         private readonly MeetingLedger $ledger,
         private readonly MinutesTaskService $minutesTasks,
         private readonly TaskCreation $taskCreation,
+        private readonly MeetingManager $manager,
     ) {}
 
     // ------------------------------------------------------------------ الاجتماعات
@@ -187,74 +186,34 @@ class MeetingController extends Controller
             'myVotes' => $this->myVotes($user->id, $posts),
             'myAttendance' => $this->myAttendances($user->id, [$meeting->id])[$meeting->id] ?? null,
             'attendance' => $this->attendance,
-            'attachments' => $this->attachmentsOf($meeting),
+            'attachments' => $this->manager->attachments($meeting),
             'sort' => $request->string('sort')->toString() === 'top' ? 'top' : 'new',
         ]);
     }
 
-    /** إنشاء اجتماع — والجمهور محدود بما تسمح به صلاحيّة المُنشئ */
+    /**
+     * إنشاء اجتماع — والجمهور محدود بما تسمح به صلاحيّة المُنشئ.
+     *
+     * والمنطق نفسه في `MeetingManager` لا هنا: لوحة الإدارة تُنشئ بالفعل
+     * نفسه (24.2-أوّلًا)، واجتماعٌ من هناك يجب أن يكون اجتماعًا من هنا حرفيًّا.
+     */
     public function store(Request $request): RedirectResponse
     {
         $user = $request->user();
 
-        $data = $request->validate([
-            'title' => ['required', 'string', 'max:180'],
-            'description' => ['nullable', 'string', 'max:4000'],
-            'scheduled_at' => ['required', 'date'],
-            'audience' => ['required', 'in:entity,sub_entity,all'],
-            'entity_id' => ['nullable', 'integer', 'exists:entities,id'],
-            'external_link' => ['nullable', 'url', 'max:500'],
-            'reminder_hours' => ['nullable', 'integer', 'min:0', 'max:168'],
-            'attendance_code' => ['nullable', 'string', 'max:32'],
-            'questions' => ['nullable', 'array'],
-            'attachments' => ['nullable', 'array'],
-            'attachments.*' => ['file', 'max:8192'],
-        ], [], [
-            'title' => (string) setting('meetings.screen.store_msg', 'العنوان'),
-            'scheduled_at' => (string) setting('meetings.screen.store_msg_2', 'الموعد'),
-            'audience' => (string) setting('meetings.screen.store_msg_3', 'الجمهور'),
-        ]);
+        $data = $request->validate(
+            $this->manager->creationRules(),
+            [],
+            $this->manager->creationAttributes(),
+        );
 
-        // «الكلّ» لا يفتحه إلّا مَن يملك نطاقًا واسعًا — وإلّا فكيان عضويّته
-        $widest = $user->widestScope('meetings.create');
-
-        if ($data['audience'] === 'all' && ! in_array($widest, ['ALL', 'TRACK'], true)) {
-            $data['audience'] = 'entity';
-        }
-
-        $entityId = $data['entity_id'] ?? $user->activeMembership()?->entity_id;
-
-        if ($data['audience'] !== 'all' && ! in_array((int) $entityId, $this->scope->entityIdsWithAncestors($user), true)) {
-            $entityId = $user->activeMembership()?->entity_id;
-        }
-
-        $meeting = Meeting::create([
-            'title' => $data['title'],
-            'description' => $data['description'] ?? null,
-            'entity_id' => $data['audience'] === 'all' ? null : $entityId,
-            'audience' => $data['audience'],
-            'owner_id' => $user->id,
-            'scheduled_at' => $data['scheduled_at'],
-            'external_link' => $data['external_link'] ?? null,
-            'status' => 'scheduled',
-            'attendance_code' => $data['attendance_code'] ?: null,
-        ]);
-
-        $this->saveQuestions($meeting, $user->id, $request->input('questions', []));
-        $this->saveAttachments($request, $meeting, $user->id);
-
-        // تذكير قبل الموعد بعدد ساعات يحدّده المنشئ
-        $hours = (int) ($data['reminder_hours'] ?? setting('meetings.reminder.hours_before', 2));
-
-        foreach ($this->scope->audienceUserIds($meeting) as $id) {
-            $this->ledger->notify(
-                User::find($id),
-                'meeting',
-                strtr((string) setting('meetings.screen.store_msg_4', 'اجتماع جديد: :a1'), [':a1' => (string) ($meeting->title)]),
-                strtr((string) setting('meetings.screen.store_msg_5', 'الموعد :a1 — هنفكّرك قبلها بـ:a2 ساعة.'), [':a1' => (string) ($meeting->scheduled_at->format('Y-m-d H:i')), ':a2' => (string) ($hours)]),
-                route('volunteer.meetings.show', $meeting),
-            );
-        }
+        $this->manager->create(
+            $user,
+            $data,
+            (array) $request->input('questions', []),
+            (array) $request->file('attachments', []),
+            $request->boolean('restricted'),
+        );
 
         return back()->with('status', (string) setting('meetings.screen.store_ok', 'اتعمل الاجتماع ✓ وابعتنا إشعارًا لجمهوره.'));
     }
@@ -274,7 +233,7 @@ class MeetingController extends Controller
 
         $result = $this->attendance->end($meeting, $user, (int) $data['window_hours'], $data['minutes'] ?? null);
 
-        $this->saveAttachments($request, $meeting, $user->id);
+        $this->manager->saveAttachments($meeting, $user->id, (array) $request->file('attachments', []), $request->boolean('restricted'));
 
         return back()->with('status', $result['message']);
     }
@@ -331,15 +290,15 @@ class MeetingController extends Controller
             'questions.*.correct_answer' => ['nullable', 'string', 'max:120'],
         ]);
 
-        if ($request->filled('attendance_code')) {
-            $meeting->forceFill(['attendance_code' => $data['attendance_code']])->save();
-        }
+        $result = $this->manager->saveCodeAndQuestions(
+            $meeting,
+            $user,
+            $data['attendance_code'] ?? null,
+            (array) $request->input('questions', []),
+            $request->filled('attendance_code'),
+        );
 
-        $added = $this->saveQuestions($meeting, $user->id, $request->input('questions', []));
-
-        return back()->with('status', $added > 0
-            ? strtr((string) setting('meetings.screen.questions_ok', 'اتضافت :a1 سؤال للاجتماع ✓'), [':a1' => (string) ($added)])
-            : (string) setting('meetings.screen.questions_ok_2', 'اتحفظ كود الحضور ✓'));
+        return back()->with('status', $result['message']);
     }
 
     /** تسجيل الحضور — التحقّق Server-side ورسالة بالقيمة المضافة */
@@ -429,9 +388,7 @@ class MeetingController extends Controller
         $meeting = $post->meeting;
         abort_unless($meeting && $this->scope->canManage($request->user(), $meeting), 403);
 
-        $post->forceFill(['is_pinned' => ! $post->is_pinned])->save();
-
-        return back()->with('status', $post->is_pinned ? (string) setting('meetings.screen.pin_ok', 'اتثبّت أعلى النقاش ✓') : (string) setting('meetings.screen.pin_ok_2', 'اتفكّ التثبيت ✓'));
+        return back()->with('status', $this->manager->togglePin($post)['message']);
     }
 
     // ------------------------------------------------------------------ حضوري والمحاضر
@@ -481,7 +438,7 @@ class MeetingController extends Controller
             'tab' => $tab,
             'rows' => $rows,
             'minutes' => $minutes,
-            'attachments' => $this->attachmentsFor($minutes),
+            'attachments' => $this->manager->attachmentsFor($minutes),
             'rate' => $rate,
             'registered' => $registered,
             'filters' => ['days' => $days, 'entity' => $entity, 'q' => $q],
@@ -547,78 +504,5 @@ class MeetingController extends Controller
             ->whereIn('id', $this->scope->entityIdsWithAncestors($user))
             ->orderBy('name_ar')
             ->get();
-    }
-
-    /** مرفقات الاجتماع من مكتبة الوسائط المركزيّة — بلا جدول جديد */
-    private function attachmentsOf(Meeting $meeting): Collection
-    {
-        return MediaItem::query()
-            ->whereJsonContains('tags->meeting_id', $meeting->id)
-            ->orderBy('id')
-            ->get();
-    }
-
-    /** @return Collection<int,Collection> مرفقات مجموعة اجتماعات مفهرسة بمعرّف الاجتماع */
-    private function attachmentsFor(Collection $meetings): Collection
-    {
-        if ($meetings->isEmpty()) {
-            return collect();
-        }
-
-        return MediaItem::query()
-            ->where(function ($q) use ($meetings) {
-                foreach ($meetings->pluck('id') as $id) {
-                    $q->orWhereJsonContains('tags->meeting_id', (int) $id);
-                }
-            })
-            ->get()
-            ->groupBy(fn (MediaItem $m) => (int) ($m->tags['meeting_id'] ?? 0));
-    }
-
-    private function saveAttachments(Request $request, Meeting $meeting, int $uploadedBy): void
-    {
-        foreach ((array) $request->file('attachments', []) as $file) {
-            if (! $file) {
-                continue;
-            }
-
-            MediaItem::create([
-                'disk' => 'public',
-                'path' => $file->store('meetings/'.$meeting->id, 'public'),
-                'name' => $file->getClientOriginalName(),
-                'mime' => $file->getClientMimeType(),
-                'size' => $file->getSize(),
-                'tags' => ['meeting_id' => $meeting->id, 'restricted' => $request->boolean('restricted')],
-                'uploaded_by' => $uploadedBy,
-            ]);
-        }
-    }
-
-    /** أسئلة الاختيارات: الخيارات مفصولة بفاصلة، والإجابة الصحيحة لا تغادر الخادم */
-    private function saveQuestions(Meeting $meeting, int $createdBy, array $questions): int
-    {
-        $added = 0;
-
-        foreach ($questions as $row) {
-            $prompt = trim((string) ($row['prompt'] ?? ''));
-
-            if ($prompt === '') {
-                continue;
-            }
-
-            MeetingQuestion::create([
-                'meeting_id' => $meeting->id,
-                'created_by' => $createdBy,
-                'type' => 'choice',
-                'prompt' => $prompt,
-                'options' => collect(explode(',', (string) ($row['options'] ?? '')))
-                    ->map(fn ($o) => trim($o))->filter()->values()->all(),
-                'correct_answer' => trim((string) ($row['correct_answer'] ?? '')) ?: null,
-            ]);
-
-            $added++;
-        }
-
-        return $added;
     }
 }

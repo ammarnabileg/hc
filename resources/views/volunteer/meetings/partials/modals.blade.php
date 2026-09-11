@@ -41,7 +41,7 @@
     </x-modal>
 @endif
 
-@if ($meeting->status !== 'ended' && ! in_array($status, ['excused', 'excused_settled'], true))
+@if ($meeting->status !== 'ended' && $meeting->status !== 'cancelled' && ! in_array($status, ['excused', 'excused_settled'], true))
     <x-modal :id="'excuse-'.$meeting->id" title="{{ setting('volunteer.meetings_modals.tooltip_2', 'اعتذار مسبق —') }} {{ $meeting->title }}">
         <form method="post" action="{{ route('volunteer.meetings.excuse', $meeting) }}" class="space-y-3">
             @csrf
@@ -58,7 +58,7 @@
     </x-modal>
 @endif
 
-@if ($canManage && $meeting->status !== 'ended')
+@if ($canManage && $meeting->status !== 'ended' && $meeting->status !== 'cancelled')
     <x-modal :id="'end-'.$meeting->id" title="{{ setting('volunteer.meetings_modals.tooltip_3', 'إنهاء الاجتماع —') }} {{ $meeting->title }}">
         <form method="post" action="{{ route('volunteer.meetings.end', $meeting) }}"
               enctype="multipart/form-data" class="space-y-3">

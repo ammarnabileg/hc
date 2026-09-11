@@ -5,8 +5,10 @@ namespace App\Services\AdminScreens;
 use App\Models\Entity;
 use App\Models\Meeting;
 use App\Models\MeetingAttendance;
+use App\Models\MeetingPost;
 use App\Models\User;
 use App\Services\Volunteer\Meetings\AttendanceService;
+use App\Services\Volunteer\Meetings\MeetingManager;
 use App\Services\Volunteer\Meetings\MeetingScope;
 use App\Support\Scope\ScopeFilter;
 use Carbon\CarbonImmutable;
@@ -15,25 +17,31 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 
 /**
- * مرآة اجتماعات التطوّع في لوحة الإدارة (24.2-أوّلًا).
+ * شاشة اجتماعات التطوّع في لوحة الإدارة (24.2-أوّلًا).
  *
- * الاجتماعات تُدار من لوحة التطوّع، لكنّ الدستور يطلب لها **مرآةً إداريّة**:
- * لأنّ مسؤول اللوحة يحتاج نظرةً عرضيّة على الأقسام كلّها — أيّ نافذة حضور
- * لسّه مفتوحة، وأيّ اجتماع انتهى بلا محضر — وهي أسئلة لا تجيب عنها شاشة
- * المتطوّع التي تعرض نطاقه هو.
+ * ⭐ [2026-09-11] كانت **مرآةً** تُراجِع وتُنهي وتُصدِّر فقط، ونصّ 24.2-أوّلًا
+ * يصف شاشةً أوسع: **+ اجتماع** · **تبديل (تقويم/جدول)** · عمودا **المحضر
+ * والمرفقات** و**التسجيل** · وإجراءات صفّ **إدارة الكود/الأسئلة** و**رفع
+ * المحضر** و**تثبيت بوست** و**إلغاء بسبب**. فاتّسعت الشاشة إلى النصّ.
  *
- * ولا نُعيد بناء منطق الحضور: نستدعي `AttendanceService` نفسها، فمرآةٌ لها
- * منطقٌ خاصّ بها ليست مرآة.
+ * ومع ذلك تبقى «مرآة» بالمعنى الذي يهمّ: **لا منطق إدارةٍ ثانيًا هنا**.
+ * الإنشاء والمحضر والكود والتثبيت والإلغاء كلّها `MeetingManager` نفسها التي
+ * تستدعيها لوحة التطوّع، والحضور `AttendanceService` نفسها — فاجتماعٌ أُنشئ
+ * من اللوحة هو حرفيًّا اجتماعٌ أُنشئ من لوحة التطوّع، لا نسخةٌ شبيهة منه.
+ *
+ * وما تزيده هذه الشاشة على شاشة المتطوّع هو **العرض العَرضيّ**: كلّ الأقسام
+ * معًا، وأيّ نافذة حضور لسّه مفتوحة، وأيّ اجتماع انتهى بلا محضر.
  */
 class MeetingsMirror
 {
     public function __construct(
         private readonly MeetingScope $scope,
         private readonly AttendanceService $attendance,
+        private readonly MeetingManager $manager,
     ) {}
 
-    /** حالات الاجتماع الثلاث — مفاتيح داخليّة لا نصّ (2.13-ب) */
-    public const STATUS_KEYS = ['scheduled', 'running', 'ended'];
+    /** حالات الاجتماع — مفاتيح داخليّة لا نصّ (2.13-ب) */
+    public const STATUS_KEYS = ['scheduled', 'running', 'ended', 'cancelled'];
 
     /**
      * عناوين حالات الاجتماع — من `setting()` لا محروقة (2.13).
@@ -46,6 +54,7 @@ class MeetingsMirror
             'scheduled' => (string) setting('admin_meetings.status.scheduled', 'قادم'),
             'running' => (string) setting('admin_meetings.status.running', 'جارٍ'),
             'ended' => (string) setting('admin_meetings.status.ended', 'منتهٍ'),
+            'cancelled' => (string) setting('admin_meetings.status.cancelled', 'ملغيّ'),
         ];
     }
 
@@ -164,10 +173,83 @@ class MeetingsMirror
         return $counts;
     }
 
-    /** الكيانات لقائمة فلتر النطاق */
+    /** الكيانات لقائمة فلتر النطاق — وهي نفسها قائمة «النطاق» في فورم «+ اجتماع» */
     public function entities(): Collection
     {
         return Entity::query()->where('status', 'active')->orderBy('name_ar')->get(['id', 'name_ar']);
+    }
+
+    /**
+     * ⭐ **تبديل (تقويم / جدول)** (24.2-أوّلًا) — والتقويم مرسومٌ بأيدينا بشبكة
+     * شهرٍ بلا أيّ مكتبة خارجيّة، على نمط `admin/events/index.blade.php` نفسه
+     * الذي بُني لـ12.11 — فلا widget ثانٍ باصطلاحٍ ثالث.
+     *
+     * والمدى هنا **الشهر المعروض** لا مدى الفلاتر: تقويمٌ يعرض 30 يومًا
+     * موزّعةً على شهرين شبكةٌ نصفها فارغ.
+     *
+     * @return Collection<string,Collection<int,Meeting>> مفهرسة برقم اليوم
+     */
+    public function calendar(User $viewer, array $filters, CarbonImmutable $month): Collection
+    {
+        $filters['from'] = $month->startOfMonth()->toDateString();
+        $filters['to'] = $month->endOfMonth()->toDateString();
+
+        return $this->query($viewer, $filters)
+            ->limit(max(1, (int) setting('admin_meetings.calendar_max', 300)))
+            ->get()
+            ->groupBy(fn (Meeting $meeting) => (string) $meeting->scheduled_at?->day);
+    }
+
+    /**
+     * الشهر المعروض في التقويم — من الطلب أو الشهر الحاليّ.
+     *
+     * والصيغة تُتحقَّق قبل التحليل: `?month=` قيمةٌ يكتبها المستخدم في شريط
+     * العنوان، و`createFromFormat` على نصٍّ عشوائيّ تنفجر بـ500 لا بشهرٍ فارغ.
+     */
+    public function calendarMonth(?string $requested): CarbonImmutable
+    {
+        return $requested && preg_match('/^\d{4}-\d{2}$/', $requested) === 1
+            ? CarbonImmutable::createFromFormat('Y-m', $requested)->startOfMonth()
+            : CarbonImmutable::now()->startOfMonth();
+    }
+
+    /**
+     * ⭐ عمود **«المحضر والمرفقات»** (24.2-أوّلًا): هل للاجتماع محضرٌ مكتوب،
+     * وكم مرفقًا معه — استعلامٌ واحد للصفحة كلّها لا استعلامٌ لكلّ صفّ (2.7).
+     *
+     * @return array<int,int> معرّف الاجتماع ⟵ عدد مرفقاته
+     */
+    public function attachmentCounts(iterable $meetings): array
+    {
+        return $this->manager
+            ->attachmentsFor($meetings)
+            ->map(fn (Collection $items) => $items->count())
+            ->all();
+    }
+
+    /**
+     * بوستات كلّ اجتماع في الصفحة — يقرأها بوب-أب **«تثبيت بوست»** ليختار
+     * الأدمن أيّها يعلو النقاش. والزرّ نفسه لا يظهر لاجتماعٍ بلا بوستات.
+     *
+     * @return array<int,Collection<int,MeetingPost>>
+     */
+    public function postsFor(iterable $meetings): array
+    {
+        $ids = collect($meetings)->pluck('id');
+
+        if ($ids->isEmpty()) {
+            return [];
+        }
+
+        return MeetingPost::query()
+            ->whereIn('meeting_id', $ids)
+            ->whereNull('parent_id')
+            ->orderByDesc('is_pinned')
+            ->orderByDesc('votes')
+            ->limit(max(1, (int) setting('admin_meetings.pinnable_posts_limit', 200)))
+            ->get(['id', 'meeting_id', 'body', 'is_pinned'])
+            ->groupBy('meeting_id')
+            ->all();
     }
 
     /** تفاصيل اللوحة الجانبيّة: الحضور بأسمائه وقيمه — لا صفحة جديدة (2.15-أ-8) */

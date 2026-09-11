@@ -220,6 +220,16 @@ class AttendanceService
             return $this->fail(setting('meetings.attendance_service.end_1', 'الاجتماع منتهي بالفعل.'));
         }
 
+        /*
+         | ⭐ [2026-09-11] الملغى لا يُنهى (24.2-أوّلًا: «إلغاء بسبب»). وليس هذا
+         | تجميلًا: «الإنهاء» يفتح نافذة تسجيلٍ، وقفلُها يستدعي `settleAbsences`
+         | فيُخصَم **غيابٌ بلا اعتذار** على كلّ جمهور اجتماعٍ لم ينعقد أصلًا.
+         | فالحارس هنا في الخدمة لا في الواجهة وحدها.
+         */
+        if ($meeting->status === 'cancelled') {
+            return $this->fail(setting('meetings.attendance_service.end_6', 'الاجتماع ملغيّ — مافيش نافذة حضور لاجتماع ما انعقدش.'));
+        }
+
         $windowHours = max(1, min($windowHours, $this->maxWindowHours()));
 
         DB::transaction(function () use ($meeting, $user, $windowHours, $minutes) {

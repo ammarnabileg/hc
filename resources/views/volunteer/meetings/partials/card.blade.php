@@ -3,7 +3,15 @@
     $status = $mine[$meeting->id]->status ?? null;
     $myValue = $mine[$meeting->id]->rep_value ?? null;
 
-    $badge = match ($status) {
+    /*
+     | ⭐ [2026-09-11] الاجتماع الملغى (24.2-أوّلًا: «إلغاء بسبب») حالةٌ رابعة
+     | مستحدَثة. وكارتٌ يعرض عدّادًا لموعدٍ لن يأتي وشارةَ «لسّه ما سجّلتش»
+     | لاجتماعٍ لن ينعقد يكذب على قارئه — فالإلغاء يسبق كلّ شارةٍ أخرى،
+     | ويُخفي أفعالًا لا معنى لها بعده (اعتذار · إنهاء).
+     */
+    $cancelled = $meeting->status === 'cancelled';
+
+    $badge = $cancelled ? ['danger', setting('volunteer.meetings_card.cancelled', 'اتلغى')] : match ($status) {
         'registered' => ['ok', setting('volunteer.meetings_card.text', 'سجّلت حضوري')],
         'excused', 'excused_settled' => ['idle', setting('volunteer.meetings_card.text_2', 'اعتذرت مسبقًا')],
         'absent' => ['danger', setting('volunteer.meetings_card.text_3', 'غياب بلا اعتذار')],
@@ -43,7 +51,7 @@
     </div>
 
     {{-- عدّاد الموعد للاجتماع القادم --}}
-    @if ($meeting->status !== 'ended' && $meeting->scheduled_at)
+    @if (! $cancelled && $meeting->status !== 'ended' && $meeting->scheduled_at)
         <p class="mt-3 text-xs" style="color: var(--text-muted)">
             <span data-countdown="{{ $meeting->scheduled_at->toIso8601String() }}"
                   data-prefix="{{ setting('volunteer.meetings_card.prefix', 'باقي على الموعد') }}">{{ $meeting->scheduled_at->diffForHumans() }}</span>
@@ -70,6 +78,12 @@
         </div>
     @endif
 
+    @if ($cancelled && filled($meeting->cancel_reason))
+        <p class="mt-3 rounded-xl px-3 py-2 text-xs" style="background: color-mix(in srgb, var(--color-state-danger) 12%, transparent)">
+            {{ setting('volunteer.meetings_card.cancel_reason', 'سبب الإلغاء:') }} {{ $meeting->cancel_reason }}
+        </p>
+    @endif
+
     <div class="mt-3 flex flex-wrap items-center gap-2">
         @if ($meeting->external_link)
             <a href="{{ $meeting->external_link }}" target="_blank" rel="noopener"
@@ -85,14 +99,14 @@
                     style="background: var(--color-brand-500); color: #04201c">{{ setting('volunteer.meetings_card.action', 'سجّل حضورك') }}</button>
         @endif
 
-        @if ($meeting->status !== 'ended' && ! in_array($status, ['excused', 'excused_settled'], true))
+        @if (! $cancelled && $meeting->status !== 'ended' && ! in_array($status, ['excused', 'excused_settled'], true))
             <button type="button" data-modal-open="excuse-{{ $meeting->id }}"
                     class="btn inline-flex items-center rounded-xl px-3 py-1.5 text-xs"
                     style="border: 1px solid var(--border)">{{ setting('volunteer.meetings_card.action_2', 'اعتذار مسبق') }}</button>
         @endif
 
         {{-- بلا صلاحيّة = مخفيّ فعلًا لا معطَّل (2.15-أ-7) --}}
-        @if ($canManage && $meeting->status !== 'ended')
+        @if ($canManage && ! $cancelled && $meeting->status !== 'ended')
             <button type="button" data-modal-open="end-{{ $meeting->id }}"
                     class="btn inline-flex items-center rounded-xl px-3 py-1.5 text-xs"
                     style="border: 1px solid var(--border)">{{ setting('volunteer.meetings_card.action_3', 'إنهاء الاجتماع') }}</button>

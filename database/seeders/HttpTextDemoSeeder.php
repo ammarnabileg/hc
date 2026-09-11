@@ -564,6 +564,10 @@ class HttpTextDemoSeeder extends Seeder
             ['meetings.admin.end_msg_2', 'meetings', 'end() — :a1 جرّب تاني، ولو فضل الخطأ راجع حالة الاجتماع.', ':a1 جرّب تاني، ولو فضل الخطأ راجع حالة الاجتماع.'],
             ['meetings.admin.grant_msg', 'meetings', 'grant() — العضو', 'العضو'],
             ['meetings.admin.grant_msg_2', 'meetings', 'grant() — سبب المنح', 'سبب المنح'],
+            ['meetings.admin.minutes_msg', 'meetings', 'minutes() — المحضر', 'المحضر'],
+            ['meetings.admin.minutes_msg_2', 'meetings', 'minutes() — رابط التسجيل', 'رابط التسجيل'],
+            ['meetings.admin.pin_msg', 'meetings', 'pin() — البوست', 'البوست'],
+            ['meetings.admin.cancel_msg', 'meetings', 'cancel() — سبب الإلغاء', 'سبب الإلغاء'],
             ['meetings.admin.save_settings_ok', 'meetings', 'saveSettings() — اتحفظ ✓', 'اتحفظ ✓'],
             ['meetings.admin.reset_settings_ok', 'meetings', 'resetSettings() — رجعت :a1 قيمة للافتراضيّ ✓', 'رجعت :a1 قيمة للافتراضيّ ✓'],
             // ---- app/Http/Controllers/AdminScreens/QuestionBankController.php

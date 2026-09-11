@@ -6,12 +6,15 @@
     /** صفحة الاجتماع (24.4): تابات التفاصيل · الحضور · المحضر · النقاش — بتحميل كسول. */
     $mine = collect([$meeting->id => $myAttendance])->filter();
     $windowOpen = $attendance->windowOpen($meeting);
+    // ⭐ [2026-09-11] الحالة الرابعة: ملغيّ (24.2-أوّلًا: «إلغاء بسبب»)
     $statusState = match ($meeting->status) {
+        'cancelled' => 'danger',
         'ended' => 'idle',
         'running' => 'ok',
         default => 'warn',
     };
     $statusLabel = match ($meeting->status) {
+        'cancelled' => setting('volunteer.meetings_show.cancelled', 'اتلغى'),
         'ended' => setting('volunteer.meetings_show.ended', 'منتهٍ'),
         'running' => setting('volunteer.meetings_show.running', 'جارٍ'),
         default => setting('volunteer.meetings_show.text', 'قادم'),
@@ -39,11 +42,11 @@
                 <summary class="btn list-none cursor-pointer rounded-xl px-3 py-2 text-sm"
                          style="border: 1px solid var(--border)">⋯</summary>
                 <div class="card absolute end-0 mt-2 w-56 p-2 z-40 space-y-1">
-                    @if ($meeting->status !== 'ended' && ! in_array($myAttendance->status ?? null, ['excused', 'excused_settled'], true))
+                    @if ($meeting->status !== 'ended' && $meeting->status !== 'cancelled' && ! in_array($myAttendance->status ?? null, ['excused', 'excused_settled'], true))
                         <button type="button" data-modal-open="excuse-{{ $meeting->id }}"
                                 class="w-full text-start rounded-xl px-3 py-2 text-sm">{{ setting('volunteer.meetings_show.action_2', 'اعتذار مسبق') }}</button>
                     @endif
-                    @if ($canManage && $meeting->status !== 'ended')
+                    @if ($canManage && $meeting->status !== 'ended' && $meeting->status !== 'cancelled')
                         <button type="button" data-modal-open="end-{{ $meeting->id }}"
                                 class="w-full text-start rounded-xl px-3 py-2 text-sm">{{ setting('volunteer.meetings_show.action_3', 'إنهاء الاجتماع') }}</button>
                     @endif
@@ -55,6 +58,12 @@
             </details>
         </x-slot:action>
     </x-page-header>
+
+    @if ($meeting->status === 'cancelled' && filled($meeting->cancel_reason))
+        <p class="card p-3 mb-4 text-sm" style="border-color: var(--color-state-danger)">
+            <strong>{{ setting('volunteer.meetings_show.cancel_reason', 'سبب الإلغاء:') }}</strong> {{ $meeting->cancel_reason }}
+        </p>
+    @endif
 
     <div class="flex flex-wrap items-center gap-2 mb-4">
         <x-state-badge :state="$statusState" :label="$statusLabel" />

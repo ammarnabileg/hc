@@ -110,14 +110,30 @@ Route::middleware(['auth', 'admin.panel'])->prefix('admin')->name('admin.')->gro
     Route::middleware('permission:report_schedules.delete')
         ->delete('/report-schedules/{schedule}', [ReportScheduleController::class, 'destroy'])->name('report-schedules.destroy');
 
-    // ============================================ 4) مرآة اجتماعات التطوّع (24.2-أوّلًا)
+    // ============================================ 4) اجتماعات التطوّع في اللوحة (24.2-أوّلًا)
     Route::middleware('permission:meetings.list,meetings.view')->group(function () {
         Route::get('/meetings', [MeetingsAdminController::class, 'index'])->name('meetings.index');
         Route::get('/meetings/{meeting}', [MeetingsAdminController::class, 'show'])->name('meetings.show');
     });
 
-    Route::middleware('permission:meetings.manage,meetings.edit')
-        ->post('/meetings/{meeting}/end', [MeetingsAdminController::class, 'end'])->name('meetings.end');
+    /*
+     | ⭐ [2026-09-11] «+ اجتماع» من اللوحة — بصلاحيّة الإنشاء نفسها التي تحرس
+     | `volunteer.meetings.store` حرفيًّا (`meetings.create`)، لا بصلاحيّة إدارةٍ
+     | أوسع: مَن لا يُنشئ من لوحة التطوّع لا يُنشئ من هنا. و24.2-أوّلًا يقول
+     | صراحةً في حالة «بلا صلاحيّة»: «يرى اجتماعات نطاقه فقط **بلا إنشاء ولا
+     | إدارة كود**».
+     */
+    Route::middleware('permission:meetings.create')
+        ->post('/meetings', [MeetingsAdminController::class, 'store'])->name('meetings.store');
+
+    Route::middleware('permission:meetings.manage,meetings.edit')->group(function () {
+        Route::post('/meetings/{meeting}/end', [MeetingsAdminController::class, 'end'])->name('meetings.end');
+        // إدارة الكود/الأسئلة · رفع المحضر والمرفقات · تثبيت بوست · إلغاء بسبب
+        Route::post('/meetings/{meeting}/questions', [MeetingsAdminController::class, 'questions'])->name('meetings.questions');
+        Route::post('/meetings/{meeting}/minutes', [MeetingsAdminController::class, 'minutes'])->name('meetings.minutes');
+        Route::post('/meetings/{meeting}/pin', [MeetingsAdminController::class, 'pin'])->name('meetings.pin');
+        Route::post('/meetings/{meeting}/cancel', [MeetingsAdminController::class, 'cancel'])->name('meetings.cancel');
+    });
 
     // منح الحضور الاستثنائيّ صلاحيّة الحضور لا صلاحيّة الاجتماع
     Route::middleware('permission:meeting_attendance.manage,meeting_attendance.edit')

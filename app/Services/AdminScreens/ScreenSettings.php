@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Cache;
 
 /**
  * كتالوج إعدادات الشاشات الأربع الناقصة من القسم 24
- * (بنك الأسئلة · الريفيرال والسفراء · التقارير المجدولة · مرآة الاجتماعات).
+ * (بنك الأسئلة · الريفيرال والسفراء · التقارير المجدولة · الاجتماعات).
  *
  * 🏆 القاعدة الذهبيّة (2.13): لا رقم ولا نصّ محروق في كود هذه الشاشات —
  * وكلّ مفتاح هنا له **شاشة يعدّله منها الأدمن** داخل بلوك إعدادات شاشته،
@@ -95,7 +95,7 @@ class ScreenSettings
             'report_schedules.frequencies' => [self::SCREEN_REPORTS, 'stats', setting('stats.screen_settings.catalog_87', 'التكرارات المتاحة'), 'lines', setting('stats.screen_settings.catalog_88', '{"daily":"يوميّ","weekly":"أسبوعيّ","monthly":"شهريّ"}'), setting('stats.screen_settings.catalog_89', 'سطر لكلّ تكرار بصيغة: المفتاح = اللافتة.'), false],
             'report_schedules.formats' => [self::SCREEN_REPORTS, 'stats', setting('stats.screen_settings.catalog_90', 'الصيغ المتاحة'), 'lines', '{"csv":"CSV","xlsx":"Excel","pdf":"PDF"}', setting('stats.screen_settings.catalog_91', 'سطر لكلّ صيغة بصيغة: المفتاح = اللافتة.'), false],
 
-            // ------------------------------------------------ مرآة الاجتماعات الإداريّة (24.2-أوّلًا)
+            // ------------------------------------------------ شاشة الاجتماعات في اللوحة (24.2-أوّلًا)
             'admin_meetings.per_page' => [self::SCREEN_MEETINGS, 'meetings', setting('meetings.screen_settings.catalog_92', 'عدد صفوف الصفحة'), 'number', '20', '', false],
             'admin_meetings.default_range_days' => [self::SCREEN_MEETINGS, 'meetings', setting('meetings.screen_settings.catalog_93', 'المدى الافتراضيّ (أيّام)'), 'number', '30', '', false],
             'admin_meetings.default_window_hours' => [self::SCREEN_MEETINGS, 'meetings', setting('meetings.screen_settings.catalog_94', 'نافذة تسجيل الحضور الافتراضيّة (ساعات)'), 'number', '12', setting('meetings.screen_settings.catalog_95', 'تُفتَح لحظة «إنهاء الاجتماع».'), false],
@@ -104,6 +104,9 @@ class ScreenSettings
             'admin_meetings.freeze_windows_in_maintenance' => [self::SCREEN_MEETINGS, 'meetings', setting('meetings.screen_settings.catalog_99', 'تجميد النوافذ في وضع الصيانة'), 'bool', '1', '', false],
             'admin_meetings.stats_scan_limit' => [self::SCREEN_MEETINGS, 'meetings', setting('meetings.screen_settings.catalog_100', 'سقف الاجتماعات في حساب الكروت'), 'number', '200', setting('meetings.screen_settings.catalog_101', 'حساب «المدعوّين» يمرّ على شجرة كلّ اجتماع — والسقف يمنع بطء الشاشة.'), false],
             'admin_meetings.empty_text' => [self::SCREEN_MEETINGS, 'meetings', setting('meetings.screen_settings.catalog_102', 'نصّ الحالة الفارغة'), 'text', setting('meetings.screen_settings.catalog_103', 'مافيش اجتماعات في النطاق ده.'), '', false],
+            // ⭐ [2026-09-11] سقوف عرض «تبديل (تقويم/جدول)» و«تثبيت بوست» (24.2-أوّلًا)
+            'admin_meetings.calendar_max' => [self::SCREEN_MEETINGS, 'meetings', setting('meetings.screen_settings.catalog_104', 'سقف اجتماعات شهر التقويم'), 'number', '300', setting('meetings.screen_settings.catalog_105', 'شبكة الشهر تُرسَم دفعةً واحدة — والسقف يمنع شهرًا ضخمًا من إبطائها.'), false],
+            'admin_meetings.pinnable_posts_limit' => [self::SCREEN_MEETINGS, 'meetings', setting('meetings.screen_settings.catalog_106', 'سقف البوستات في قائمة التثبيت'), 'number', '200', setting('meetings.screen_settings.catalog_107', 'قائمة اختيار البوست المراد تثبيته — لكلّ اجتماعات الصفحة معًا.'), false],
         ];
 
         return array_map(

@@ -15,8 +15,9 @@
 
 ## ✅ المُنجَز
 <!-- تلقائيّ:بداية:المنجز -->
-- **مايجريشنز (271) — والقائم منها لا يُعدَّل (قاعدة البناء §1). الأحدث:**
+- **مايجريشنز (272) — والقائم منها لا يُعدَّل (قاعدة البناء §1). الأحدث:**
   - `2026_09_11_120000_trim_cv_templates_to_real_designs.php`
+  - `2026_09_11_100020_a_meeting_needs_a_recording_and_a_reasoned_cancellation.php`
   - `2026_09_11_100010_a_minutes_item_needs_a_real_task.php`
   - `2026_09_10_201152_add_decor_layers_to_cv_templates_table.php`
   - `2026_09_10_100110_event_notices_need_a_segment_source.php`
