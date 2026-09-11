@@ -115,13 +115,13 @@
 ## 🔗 التبعيّات والملفّات المهمّة
 <!-- تلقائيّ:بداية:التبعيات -->
 - **الطبقات الأخرى لنفس المجال:** `resources/views/library` · `routes/parts` · `tests/Feature/Library`
-- **الاختبارات:** 9 ملفّ Feature في `tests/Feature/Library` — شغّلها بـ`php artisan test tests/Feature/Library`.
+- **الاختبارات:** 10 ملفّ Feature في `tests/Feature/Library` — شغّلها بـ`php artisan test tests/Feature/Library`.
 - **المرجع الحاكم:** `دستور اساسي.md` · **وكيف نكتب:** `docs/BUILD.md`.
 - **المجلّد الأب:** `app/Services/_STATUS.md`.
 <!-- تلقائيّ:نهاية:التبعيات -->
 
 ## 🕒 آخر تحديث
 <!-- تلقائيّ:بداية:التحديث -->
-- **آخر توليد لهذه الوثيقة:** 2026-09-10 — `php artisan docs:status`.
-- **آخر لمسة للمجلّد:** 2026-09-10 — Claude.
+- **آخر توليد لهذه الوثيقة:** 2026-09-11 — `php artisan docs:status`.
+- **آخر لمسة للمجلّد:** 2026-09-11 — Claude.
 <!-- تلقائيّ:نهاية:التحديث -->
