@@ -185,23 +185,11 @@ class EscalationEngine
                 ? User::query()->find($escalation->current_handler_id)
                 : null;
 
-            if ($missed && ! CaseCatalog::skipsSlowdown($escalation->case_type) && ! $escalation->slowdown_penalty_applied) {
-                // الغائب المعذور لا يقع عليه أثر تباطؤ إطلاقًا (23-6 — وضع «غائب»)
-                if (! app(AbsenceService::class)->isAbsent($missed)) {
-                    CaseCatalog::suspendsSlowdown($escalation->case_type)
-                        // بلاغ الرابط: قيمة معلَّقة تُعتمَد أو تُشال بعد التحقّق (23-5)
-                        ? $this->suspendSlowdown($escalation, $missed, rep_rule('task.slowdown'))
-                        : FlowLedger::rep(
-                            $missed,
-                            rep_rule('task.slowdown'),
-                            'escalation.slowdown',
-                            $escalation,
-                            strtr(setting('volunteer.escalation_engine.escalate_1', 'فوات نافذة القرار في: :p1'), [':p1' => (string) (CaseCatalog::label($escalation->case_type))]),
-                        );
-                }
-
-                $escalation->slowdown_penalty_applied = true;
-            }
+            $this->recordSlowdown(
+                $escalation,
+                $missed,
+                strtr(setting('volunteer.escalation_engine.escalate_1', 'فوات نافذة القرار في: :p1'), [':p1' => (string) (CaseCatalog::label($escalation->case_type))]),
+            );
 
             EscalationStep::query()
                 ->where('escalation_id', $escalation->id)
@@ -238,9 +226,62 @@ class EscalationEngine
         });
     }
 
+    /**
+     * ⭐ **أثر التباطؤ على مَن فوّت نافذته — بميكانيزم واحد لكلّ المستويات.**
+     *
+     * ولماذا ميثود واحدة لا نسختان؟ لأنّ القاعدة نفسها واحدة (23-5): «اللي
+     * فوّتها ياخد أثر التباطؤ» — والسقف ليس استثناءً منها (23-8.1: «مبدأ
+     * **المراجِع مقيس** بلا استثناء للقمّة»). فلو كُتِبت للسقف نسخةٌ موازية
+     * لانحرفت عن أصلها مع أوّل تعديل: استثناءُ عدم التسليم، أو تعليقُ قيمة
+     * بلاغ الرابط، أو إعفاءُ الغائب المعذور — كلّها هنا في موضعٍ واحد.
+     *
+     * وثلاثة قيود تحكمها جميعًا:
+     *  1) **مسار عدم التسليم** يصعد بلا أثر — مهمّة يتيمة لا قرارٌ متأخّر.
+     *  2) **الغائب المعذور** لا يقع عليه أثرٌ إطلاقًا (23-6).
+     *  3) **قيمة واحدة لواقعة واحدة** — `slowdown_penalty_applied` يمنع تكرار
+     *     الأثر على المكتب نفسه حين تنقطع السلسلة فيبقى الأمر عند صاحبه ثمّ
+     *     تُسوّى حالته آليًّا.
+     */
+    private function recordSlowdown(Escalation $escalation, ?User $missed, string $reason): void
+    {
+        if (! $missed || CaseCatalog::skipsSlowdown($escalation->case_type) || $escalation->slowdown_penalty_applied) {
+            return;
+        }
+
+        // الغائب المعذور لا يقع عليه أثر تباطؤ إطلاقًا (23-6 — وضع «غائب»)
+        if (! app(AbsenceService::class)->isAbsent($missed)) {
+            CaseCatalog::suspendsSlowdown($escalation->case_type)
+                // بلاغ الرابط: قيمة معلَّقة تُعتمَد أو تُشال بعد التحقّق (23-5)
+                ? $this->suspendSlowdown($escalation, $missed, rep_rule('task.slowdown'))
+                : FlowLedger::rep(
+                    $missed,
+                    rep_rule('task.slowdown'),
+                    'escalation.slowdown',
+                    $escalation,
+                    $reason,
+                );
+        }
+
+        $escalation->slowdown_penalty_applied = true;
+    }
+
     // ------------------------------------------------------------------ التسوية الآليّة
 
-    /** فوات نافذة السقف ⟵ التسوية المنصوصة لنوع الحالة، بلا تدخّل بشريّ */
+    /**
+     * فوات نافذة السقف ⟵ التسوية المنصوصة لنوع الحالة، بلا تدخّل بشريّ.
+     *
+     * ⭐ **وتأخير صاحب السقف يُسجَّل عليه هو أيضًا** (23-8.1): «ولا اعتماد صامت
+     * أبدًا؛ **تأخيره يتسجّل على مؤشّره**» — ومعها «**مبدأ المراجِع مقيس بلا
+     * استثناء للقمّة**». وكانت التسوية الآليّة تقع وحدها: تُطبَّق مهالك الجدول
+     * على أطراف الحالة، ومكتبُ القمّة — الذي ترك النافذة تنضج 48 ساعة — لا
+     * يُكتَب عنده شيء. فصار **الصمت مجّانيًّا عند القمّة وحدها**، وهو نقيض
+     * النصّ حرفًا: لا مؤشّر يقرأ فوات نافذة السقف أصلًا.
+     *
+     * والتسجيل بنفس ميكانيزم المستويات الأدنى لا بموازٍ له: صفُّ `escalation.
+     * slowdown` في سجلّ المعاملات بقيمة `rep_rule('task.slowdown')` مرجعُه
+     * الحالةُ نفسها — فيظهر حيث تظهر آثارُ غيره بلا شاشةٍ جديدة: «معاملاتي»
+     * وتاب «الأداء» وحركة درجة الالتزام.
+     */
     public function autoSettle(Escalation $escalation): Escalation
     {
         $settlement = CaseCatalog::settlement($escalation->case_type);
@@ -248,6 +289,17 @@ class EscalationEngine
         abort_if($settlement === null, 422, setting('volunteer.escalation_engine.auto_settle_1', 'لا تسوية آليّة لهذا النوع.'));
 
         return DB::transaction(function () use ($escalation, $settlement) {
+            /*
+             | قبل أثر التسوية لا بعده: في بلاغ الرابط تسويةُ السقف هي **نفسها**
+             | التحقّق («الرابط يعمل») — فالقيمة تُعلَّق ثمّ تُشال في النفس ذاته،
+             | ولو سُجِّلت بعده لبقيت معلّقةً على حالةٍ محسومة لا يحسمها أحد.
+             */
+            $this->recordSlowdown(
+                $escalation,
+                $this->handlerOf($escalation),
+                strtr(setting('volunteer.escalation_engine.auto_settle_4', 'فوات نافذة السقف في: :p1'), [':p1' => (string) (CaseCatalog::label($escalation->case_type))]),
+            );
+
             $this->applyEffect($escalation, $settlement, null, ['auto' => true]);
 
             $escalation->forceFill([
@@ -255,6 +307,7 @@ class EscalationEngine
                 'decision' => $settlement,
                 'decision_note' => strtr(setting('volunteer.escalation_engine.auto_settle_2', 'تسوية آليّة بفوات نافذة السقف: :p1'), [':p1' => (string) (CaseCatalog::settlementLabel($escalation->case_type))]),
                 'auto_settled' => true,
+                'slowdown_penalty_applied' => (bool) $escalation->slowdown_penalty_applied,
                 'decided_at' => now(),
             ])->save();
 
@@ -883,13 +936,21 @@ class EscalationEngine
         ]);
     }
 
+    /**
+     * ⭐ ونصُّ التحذير يتبع موقعَ المكتب: فوق السقف لا أبلاين ترتفع إليه الحالة،
+     * بل **تسويةٌ آليّة** — ومعها أثر التباطؤ نفسه (23-8.1: «ولا اعتماد صامت
+     * أبدًا؛ تأخيره يتسجّل على مؤشّره»). ونصٌّ يَعِد القمّةَ بصعودٍ لا يقع كان
+     * يقرأ عندها **«لا شيء يحدث»** — وهو عين الاعتماد الصامت الذي ينفيه النصّ.
+     */
     private function notifyHandler(Escalation $escalation, ?User $handler, bool $escalated = false): void
     {
         FlowNotifier::send(
             $handler,
             'escalation',
             ($escalated ? setting('volunteer.escalation_engine.notify_handler_1', 'صعدت إليك: ') : setting('volunteer.escalation_engine.notify_handler_2', 'يحتاج قرارك: ')).CaseCatalog::label($escalation->case_type),
-            setting('volunteer.escalation_engine.notify_handler_3', 'فوات نافذتك يرفع الحالة لأبلاينك وعليك أثر التباطؤ.'),
+            $escalation->is_top_level
+                ? setting('volunteer.escalation_engine.notify_handler_4', 'فوات نافذتك يسوّي الحالة آليًّا وعليك أثر التباطؤ.')
+                : setting('volunteer.escalation_engine.notify_handler_3', 'فوات نافذتك يرفع الحالة لأبلاينك وعليك أثر التباطؤ.'),
             route('volunteer.escalations'),
             $escalation->window_due_at,
             requiresAction: true,

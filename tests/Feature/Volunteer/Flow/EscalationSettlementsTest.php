@@ -4,10 +4,12 @@ namespace Tests\Feature\Volunteer\Flow;
 
 use App\Models\Arbitration;
 use App\Models\Escalation;
+use App\Models\Membership;
 use App\Models\Task;
 use App\Models\TaskBlock;
 use App\Models\TaskContribution;
 use App\Models\Transaction;
+use App\Models\User;
 use App\Services\Volunteer\Escalation\CaseCatalog;
 use App\Services\Volunteer\Escalation\EscalationEngine;
 use Illuminate\Database\Eloquent\Model;
@@ -268,7 +270,124 @@ class EscalationSettlementsTest extends FlowTestCase
         $this->assertSame('approved', $parent->refresh()->batch_status);
     }
 
+    // ------------------------------------------------------ تأخير السقف يتسجّل عليه هو
+
+    /**
+     * ⭐ **«ولا اعتماد صامت أبدًا؛ تأخيره يتسجّل على مؤشّره»** (23-8.1) —
+     * ومعها «مبدأ المراجِع مقيس **بلا استثناء للقمّة**». فالتسوية الآليّة تقع
+     * على الحالة، **وأثر التباطؤ يقع على مكتب السقف** بنفس ميكانيزم كلّ مستوًى
+     * تحته: صفّ `escalation.slowdown` بقيمة `rep_rule('task.slowdown')`.
+     */
+    public function test_the_top_handler_takes_the_slowdown_when_the_ceiling_window_lapses(): void
+    {
+        $task = $this->makeTask();
+
+        $escalation = $this->settle(CaseCatalog::EXTENSION, $task);
+
+        $this->assertSame('auto_settled', $escalation->status);
+        $this->assertTrue((bool) $escalation->slowdown_penalty_applied);
+
+        $this->assertDatabaseHas('transactions', [
+            'user_id' => $this->top->id,
+            'source' => 'escalation.slowdown',
+        ]);
+
+        $applied = (float) Transaction::query()
+            ->where('user_id', $this->top->id)
+            ->where('source', 'escalation.slowdown')
+            ->value('amount');
+
+        $this->assertSame(rep_rule('task.slowdown'), $applied, 'قيمة أثر التباطؤ على السقف = قيمة كلّ مستوًى تحته.');
+    }
+
+    /** والنسبة لصاحب النافذة وحده — لا لطالب الحالة ولا لمن تحته في السلسلة */
+    public function test_the_ceiling_slowdown_is_attributed_to_the_top_handler_alone(): void
+    {
+        $this->settle(CaseCatalog::EXTENSION, $this->makeTask());
+
+        foreach ([$this->owner, $this->reviewer, $this->contributor] as $other) {
+            $this->assertDatabaseMissing('transactions', [
+                'user_id' => $other->id,
+                'source' => 'escalation.slowdown',
+            ]);
+        }
+    }
+
+    /** ومَن حسم داخل نافذته لا يقع عليه شيء — العقوبة على الفوات لا على الحسم */
+    public function test_the_top_handler_who_decides_within_the_window_takes_no_slowdown(): void
+    {
+        $task = $this->makeTask();
+
+        $escalation = $this->engine()->open(CaseCatalog::EXTENSION, $task, $this->owner, [], $this->top);
+
+        $this->assertTrue((bool) $escalation->is_top_level);
+
+        $this->engine()->decide($escalation, $this->top, 'approved');
+
+        $this->assertSame('decided', $escalation->refresh()->status);
+        $this->assertFalse((bool) $escalation->slowdown_penalty_applied);
+
+        $this->assertDatabaseMissing('transactions', [
+            'user_id' => $this->top->id,
+            'source' => 'escalation.slowdown',
+        ]);
+    }
+
+    /** واستثناء «عدم التسليم» يظلّ استثناءً عند السقف كما هو تحته (قاعدة نهائيّة) */
+    public function test_no_delivery_settles_at_the_ceiling_without_slowdown_on_the_top(): void
+    {
+        $escalation = $this->settle(CaseCatalog::NO_DELIVERY, $this->makeTask());
+
+        $this->assertSame('closed', $escalation->decision);
+        $this->assertFalse((bool) $escalation->slowdown_penalty_applied);
+
+        $this->assertDatabaseMissing('transactions', [
+            'user_id' => $this->top->id,
+            'source' => 'escalation.slowdown',
+        ]);
+    }
+
+    /**
+     * ⭐ **قيمة واحدة لواقعة واحدة.** حين تنقطع السلسلة يبقى الأمر على مكتب
+     * صاحبه نفسه بنافذة السقف — وقد أخذ أثره لحظة الفوات الأوّل، فلا تعيده
+     * التسويةُ الآليّة عليه مرّةً ثانية.
+     */
+    public function test_a_broken_chain_does_not_charge_the_same_desk_twice(): void
+    {
+        $task = $this->makeTask();
+
+        $escalation = $this->engine()->open(CaseCatalog::EXTENSION, $task, $this->owner);
+        $this->assertSame($this->reviewer->id, (int) $escalation->current_handler_id);
+        $this->assertFalse((bool) $escalation->is_top_level);
+
+        // انقطعت السلسلة فوق المراجِع: لا أبلاين ترتفع إليه الحالة
+        Membership::query()->where('user_id', $this->top->id)->update(['status' => 'ended']);
+
+        $escalation->forceFill(['window_due_at' => now()->subHour()])->save();
+        $this->engine()->run();
+
+        $escalation->refresh();
+        $this->assertSame($this->reviewer->id, (int) $escalation->current_handler_id);
+        $this->assertTrue((bool) $escalation->is_top_level);
+        $this->assertSame(1, $this->slowdownCountOf($this->reviewer));
+
+        // وفاتت نافذة السقف على المكتب نفسه ⟵ تسوية آليّة بلا أثرٍ ثانٍ
+        $escalation->forceFill(['window_due_at' => now()->subHour()])->save();
+        $this->engine()->run();
+
+        $this->assertSame('auto_settled', $escalation->refresh()->status);
+        $this->assertSame(1, $this->slowdownCountOf($this->reviewer), 'واقعة واحدة = قيمة واحدة.');
+    }
+
     // ------------------------------------------------------------ أدوات
+
+    private function slowdownCountOf(User $user): int
+    {
+        return Transaction::query()
+            ->where('user_id', $user->id)
+            ->where('source', 'escalation.slowdown')
+            ->count();
+    }
 
     private function makeContribution(Task $task, float $vxp): TaskContribution
     {
