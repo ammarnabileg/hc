@@ -10,6 +10,7 @@ use App\Models\Exam;
 use App\Models\ExamAttempt;
 use App\Models\ExamQuestion;
 use App\Models\User;
+use App\Services\AdminScreens\QuestionBank;
 use App\Services\Certificates\CertificateIssuer;
 use App\Services\Gamification\EconomyLedger;
 use App\Services\Gamification\EconomyRules;
@@ -40,6 +41,7 @@ class ExamController extends Controller
         private readonly EconomyRules $rules,
         private readonly EconomyLedger $economy,
         private readonly LessonQuestionService $questionLengths,
+        private readonly QuestionBank $bank,
     ) {}
 
     /** بوب-أب ما قبل البدء: المدّة · المحاولات · التكلفة بعملتها والرصيد قبل/بعد (24.5) */
@@ -397,20 +399,16 @@ class ExamController extends Controller
     }
 
     /**
-     * ⭐ عدد أسئلة الامتحان: قيمة التدريب المحدَّدة من «تقييم» أوّلًا
-     * (عمود `exams.questions_count` — «عدد أسئلة الامتحان» في فورم التدريب)،
-     * وإلّا الحدّ العامّ الحاكم `exams.questions.max` (4.2 · 2.13).
+     * ⭐ أسئلة الامتحان — **من مصدر الحقيقة الواحد** لا من استعلامٍ محلّيّ:
+     * عدد الأسئلة قيمةُ التدريب في تاب «التقييم» (`exams.questions_count`)
+     * وإلّا الحدّ العامّ `exams.questions.max` (4.2 · 2.13).
+     *
+     * ونفس الميثود تقرؤها **معاينة الأدمن** «كما سيُبنى» (12.4-هـ)، فما يراه
+     * الأدمن في المعاينة هو نفسه ما يمتحنه المتدرّب هنا — بلا نسختين تفترقان.
      */
     private function questions(Exam $exam)
     {
-        $limit = (int) $exam->questions_count ?: (int) setting('exams.questions.max', 20);
-
-        return ExamQuestion::query()
-            ->where('exam_id', $exam->id)
-            ->orderBy('sort_order')
-            ->orderBy('id')
-            ->take($limit)
-            ->get();
+        return $this->bank->builtQuestions($exam);
     }
 
     private function secondsLeft(ExamAttempt $attempt): int

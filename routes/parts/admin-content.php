@@ -57,6 +57,9 @@ Route::middleware(['auth', 'admin.panel'])->prefix('admin')->name('admin.')->gro
         Route::get('/courses/{course}/stats', [CourseAdminController::class, 'stats'])->name('courses.stats');
         // معاينة كطالب قبل النشر (12.4-هـ)
         Route::get('/courses/{course}/preview', [CourseAdminController::class, 'preview'])->name('courses.preview');
+        // ⭐ معاينة الامتحان النهائيّ **كما سيُبنى** لهذا التدريب (12.4-هـ) —
+        // غير «المعاينة كطالب» (محتوى التدريب) وغير معاينة البنك العامّة (24.1-3)
+        Route::get('/courses/{course}/exam-preview', [CourseAdminController::class, 'examPreview'])->name('courses.exam-preview');
         Route::get('/courses/{course}/audit', [CourseAdminController::class, 'audit'])->name('courses.audit');
     });
 

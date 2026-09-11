@@ -164,6 +164,8 @@
                                             @endcan
                                             <a href="{{ route('admin.courses.stats', $course) }}" class="block px-2 py-1 text-sm">{{ setting('admin.courses.index.ihsayyat', 'إحصائيّات') }}</a>
                                             <a href="{{ route('admin.courses.preview', $course) }}" class="block px-2 py-1 text-sm">{{ setting('admin.courses.index.maayna_ktalb', 'معاينة كطالب') }}</a>
+                                            {{-- ⭐ معاينة الامتحان النهائيّ كما سيُبنى (12.4-هـ) — غير «معاينة كطالب» --}}
+                                            <a href="{{ route('admin.courses.exam-preview', $course) }}" class="block px-2 py-1 text-sm">{{ setting('admin.courses.index.maayna_alamthan_alnhayy', 'معاينة الامتحان النهائيّ') }}</a>
                                             <a href="{{ route('admin.courses.audit', $course) }}" class="block px-2 py-1 text-sm">{{ setting('admin.courses.index.sjl_altdqyq', 'سجلّ التدقيق') }}</a>
 
                                             {{-- «تكرار/نسخ (Duplicate) لتدريب» (12.4-هـ) — بصلاحيّة الإنشاء

@@ -205,6 +205,19 @@ class CourseAdminController extends Controller
         ]);
     }
 
+    /**
+     * ⭐ معاينة الامتحان النهائيّ **كما سيُبنى** لهذا التدريب (12.4-هـ) — توأم
+     * مؤشّر «الأسئلة العامّة مقابل حدّ الامتحان» في نفس البند، ولذلك يظهران معًا.
+     */
+    public function examPreview(Course $course): View
+    {
+        return view('admin.courses.exam-preview', [
+            'course' => $course,
+            'preview' => $this->courses->examPreview($course),
+            'indicator' => $this->courses->generalQuestionsIndicator($course),
+        ]);
+    }
+
     /** سجلّ التدقيق: مَن عدّل ماذا ومتى (12.4-هـ). */
     public function audit(Course $course): View
     {

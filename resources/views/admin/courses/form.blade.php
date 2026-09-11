@@ -233,13 +233,18 @@
             </label>
 
             @if ($indicator)
-                {{-- ⭐ مؤشّر الأسئلة العامّة مقابل حدّ الامتحان (12.4-هـ) --}}
-                <div class="card p-3 flex items-center gap-2">
+                {{-- ⭐ مؤشّر الأسئلة العامّة مقابل حدّ الامتحان **ومعاينة الامتحان
+                     النهائيّ كما سيُبنى** — البند يقرنهما في جملةٍ واحدة (12.4-هـ):
+                     المؤشّر يقول «ناقصك كام»، والمعاينة تقول «وإيه اللي هيتبني». --}}
+                <div class="card p-3 flex flex-wrap items-center gap-2">
                     <x-state-badge :state="$indicator['state']"
                                    :label="setting('admin.courses.form.alasyla_alaama', 'الأسئلة العامّة ').$indicator['available'].setting('admin.courses.form.mn', ' من ').$indicator['required']" />
                     @if ($indicator['short'] > 0)
                         <span class="text-sm">{!! strtr(setting('admin.courses.form.naqsk_v1_swal_aam_ashan_alamthan_ytbny', 'ناقصك :v1 سؤال عامّ عشان الامتحان يتبني.'), [':v1' => e($indicator['short'])]) !!}</span>
                     @endif
+                    <a href="{{ route('admin.courses.exam-preview', $course) }}" id="exam-preview-{{ $course->id }}"
+                       class="btn rounded-xl px-3 py-2 text-sm ms-auto"
+                       style="min-height: 44px; background: var(--surface-sunken)">{{ setting('admin.courses.form.maayna_alamthan_alnhayy', 'معاينة الامتحان النهائيّ') }}</a>
                 </div>
             @endif
         </section>

@@ -6,10 +6,12 @@ use App\Models\Course;
 use App\Models\CourseLearningPath;
 use App\Models\Enrollment;
 use App\Models\Exam;
+use App\Models\ExamQuestion;
 use App\Models\Lesson;
 use App\Models\LessonQuestion;
 use App\Models\Section;
 use App\Models\User;
+use App\Services\AdminScreens\QuestionBank;
 use App\Support\Scope\ScopeFilter;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
@@ -407,6 +409,66 @@ class CourseFormService
         ];
     }
 
+    /**
+     * ⭐ **معاينة الامتحان النهائيّ كما سيُبنى** — لهذا التدريب بعينه (12.4-هـ).
+     *
+     * توأم المؤشّر في نفس البند حرفيًّا: المؤشّر يقول «ناقصك كام سؤال عامّ»،
+     * والمعاينة تقول «وإيه اللي هيتبني فعلًا لو الامتحان اتبنى دلوقتي». ومعاينة
+     * البنك (24.1-3) تجيب عن سؤال المنصّة كلّها — «هل البنك يكفي؟» — ولا تجيب
+     * أبدًا عن «امتحان **هذا** التدريب بقواعده هو».
+     *
+     * و«كما سيُبنى» تُؤخَذ حرفيًّا: الأسئلة المعروضة تأتي من
+     * `QuestionBank::builtQuestions()` — **نفس الميثود** التي تقرؤها شاشة
+     * الامتحان (24.5 · 4.2) — فالمعاينة لا تستطيع أن تفترق عن المبنيّ. وما لا
+     * يُبنى يُقال صراحةً: النقص عن العدد المطلوب، والمرشّحون لسدّه من أسئلة هذا
+     * التدريب العامّة النشطة. والأرقام صادقة أو لا تُعرَض (2.9-7).
+     *
+     * @return array<string, mixed>
+     */
+    public function examPreview(Course $course): array
+    {
+        $bank = app(QuestionBank::class);
+        $exam = $this->exam($course);
+
+        if (! $exam) {
+            // ⛔ لا امتحان محفوظًا بعدُ ⟵ إرشادٌ لا شاشةٌ مكسورة ولا أصفارٌ كاذبة (2.15-د)
+            return [
+                'state' => 'unconfigured',
+                'exam' => null,
+                'questions' => collect(),
+                'candidates' => collect(),
+                'attached' => 0,
+                'required' => (int) setting('exams.questions.default_count', 20),
+                'shortfall' => 0,
+                'by_type' => [],
+                'by_difficulty' => [],
+                'by_source' => [],
+                'types' => $bank->types(),
+                'difficulties' => $bank->difficulties(),
+            ];
+        }
+
+        $questions = $bank->builtQuestions($exam);
+        $required = $bank->builtLimit($exam);
+        $attached = (int) ExamQuestion::query()->where('exam_id', $exam->id)->count();
+        $shortfall = max(0, $required - $questions->count());
+
+        return [
+            'state' => $shortfall > 0 ? 'warn' : 'ok',
+            'exam' => $exam,
+            'questions' => $questions,
+            'candidates' => $this->examCandidates($course, $exam, $shortfall),
+            'attached' => $attached,
+            'required' => $required,
+            'shortfall' => $shortfall,
+            'by_type' => $this->groupCount($questions, fn (ExamQuestion $q) => (string) $q->type),
+            'by_difficulty' => $this->examDifficultyBreakdown($questions),
+            'by_source' => $this->examSourceBreakdown($course, $questions),
+            'types' => $bank->types(),
+            'difficulties' => $bank->difficulties(),
+        ];
+    }
+
     public function exam(Course $course): ?Exam
     {
         return Exam::query()
@@ -532,6 +594,123 @@ class CourseFormService
             ->join('sections', 'sections.id', '=', 'lessons.section_id')
             ->where('sections.course_id', $course->id)
             ->count();
+    }
+
+    /**
+     * المرشّحون لسدّ نقص الامتحان: أسئلة **هذا التدريب** المعلَّمة «عامّ» والنشطة
+     * ولم تُضمَّ بعدُ — وهي وحدها المؤهّلة (4 · 4.2)، وبنفس شرط `QuestionBank::reuse()`.
+     *
+     * @return Collection<int, LessonQuestion>
+     */
+    private function examCandidates(Course $course, Exam $exam, int $shortfall): Collection
+    {
+        if ($shortfall <= 0) {
+            return collect();
+        }
+
+        $taken = ExamQuestion::query()
+            ->where('exam_id', $exam->id)
+            ->whereNotNull('source_question_id')
+            ->pluck('source_question_id')
+            ->all();
+
+        return LessonQuestion::query()
+            ->join('lessons', 'lessons.id', '=', 'lesson_questions.lesson_id')
+            ->join('sections', 'sections.id', '=', 'lessons.section_id')
+            ->where('sections.course_id', $course->id)
+            ->where('lesson_questions.is_general', true)
+            ->where('lesson_questions.is_active', true)
+            ->when($taken !== [], fn ($q) => $q->whereNotIn('lesson_questions.id', $taken))
+            ->orderBy('lesson_questions.id')
+            ->limit($shortfall)
+            ->get(['lesson_questions.*', 'lessons.title_ar as lesson_title']);
+    }
+
+    /**
+     * توزيع الصعوبة — تُقرَأ من **أصل السؤال في البنك** لأنّ نسخة الامتحان لا
+     * تحمل العمود. والسؤال المكتوب في الامتحان مباشرةً بلا أصلٍ يُعَدّ
+     * `unknown` صراحةً بدل أن يُحسَب «متوسّطًا» كذبًا (2.9-7).
+     *
+     * @param  Collection<int, ExamQuestion>  $questions
+     * @return array<string, int>
+     */
+    private function examDifficultyBreakdown(Collection $questions): array
+    {
+        $meta = $this->examSourceMeta($questions);
+
+        return $this->groupCount(
+            $questions,
+            fn (ExamQuestion $q) => (string) ($meta[(int) $q->source_question_id]->difficulty ?? 'unknown'),
+        );
+    }
+
+    /**
+     * ⭐ توزيع **المصدر**: من دروس هذا التدريب · عامّ من تدريبٍ آخر · مكتوبٌ في
+     * الامتحان مباشرةً. وهو الرقم الذي يجيب عن «هل امتحاني امتحانُ تدريبي فعلًا؟».
+     *
+     * @param  Collection<int, ExamQuestion>  $questions
+     * @return array<string, int>
+     */
+    private function examSourceBreakdown(Course $course, Collection $questions): array
+    {
+        $meta = $this->examSourceMeta($questions);
+
+        return $this->groupCount($questions, function (ExamQuestion $q) use ($course, $meta) {
+            $row = $meta[(int) $q->source_question_id] ?? null;
+
+            return match (true) {
+                $row === null => 'manual',
+                (int) $row->course_id === (int) $course->id => 'own',
+                default => 'other',
+            };
+        });
+    }
+
+    /**
+     * بيانات أصول أسئلة الامتحان — استعلامٌ واحد لا استعلامٌ لكلّ صفّ.
+     *
+     * @param  Collection<int, ExamQuestion>  $questions
+     * @return Collection<int, object>
+     */
+    private function examSourceMeta(Collection $questions): Collection
+    {
+        $ids = $questions->pluck('source_question_id')->filter()->map(fn ($id) => (int) $id)->unique()->all();
+
+        if ($ids === []) {
+            return collect();
+        }
+
+        return DB::table('lesson_questions')
+            ->join('lessons', 'lessons.id', '=', 'lesson_questions.lesson_id')
+            ->join('sections', 'sections.id', '=', 'lessons.section_id')
+            ->whereIn('lesson_questions.id', $ids)
+            ->get([
+                'lesson_questions.id',
+                'lesson_questions.difficulty',
+                'lessons.title_ar as lesson_title',
+                'sections.course_id as course_id',
+            ])
+            ->keyBy('id');
+    }
+
+    /**
+     * عدّ مجموعاتٍ بترتيبٍ ثابت — فالمعاينة لا تتبدّل ترتيبًا بين تحميلين.
+     *
+     * @param  Collection<int, mixed>  $items
+     * @return array<string, int>
+     */
+    private function groupCount(Collection $items, callable $key): array
+    {
+        $counts = [];
+
+        foreach ($items as $item) {
+            $bucket = (string) $key($item);
+            $counts[$bucket] = ($counts[$bucket] ?? 0) + 1;
+        }
+
+        ksort($counts);
+
+        return $counts;
     }
 
     private function generalQuestionsCount(Course $course): int
