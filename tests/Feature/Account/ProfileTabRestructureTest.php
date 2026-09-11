@@ -4,6 +4,7 @@ namespace Tests\Feature\Account;
 
 use App\Models\Attestation;
 use App\Models\Cv;
+use App\Services\Account\ProfileTabs;
 
 /**
  * تصحيح بنية تابات البروفايل (10.0-د · 10.0-أ · 9.1 — بنودٌ نهائيّة ✅):
@@ -25,7 +26,7 @@ class ProfileTabRestructureTest extends AccountTestCase
 
         $this->assertSame(
             ['overview', 'achievements', 'certificates', 'experience'],
-            array_column(\App\Services\Account\ProfileTabs::definitions(), 'key'),
+            array_column(ProfileTabs::definitions(), 'key'),
         );
 
         // زيارة الرابط القديم `tab=details` لا تنكسر — تسقط لـ«نظرة عامّة» الافتراضيّة (لا تاب خامس)
