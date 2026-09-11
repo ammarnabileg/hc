@@ -46,6 +46,15 @@ class Announcement extends Model
         return $this->hasMany(AnnouncementPollVote::class);
     }
 
+    /**
+     * صفوف القراءة والإقرار (12.6-أ) — تُعَدّ في الاستعلام نفسه كي يقدر
+     * عمودا «نسبة القراءة» و«الإقرارات» على الفرز بالخادم لا بصفحةٍ واحدة.
+     */
+    public function reads(): HasMany
+    {
+        return $this->hasMany(AnnouncementRead::class);
+    }
+
     public function created_by(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');

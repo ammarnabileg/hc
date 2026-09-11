@@ -456,6 +456,8 @@ class AdminScreenTextSystemDemoSeeder extends Seeder
             ['admin.guidance.help.almhtwa', 'help', 'المحتوى', 'string', 'المحتوى', 'نصّ في resources/views/admin/guidance/help.blade.php'],
             ['admin.guidance.help.altsnyf', 'help', 'التصنيف', 'string', 'التصنيف', 'نصّ في resources/views/admin/guidance/help.blade.php'],
             ['admin.guidance.help.altwjyh_waldam', 'help', 'التوجيه والدعم', 'string', 'التوجيه والدعم', 'نصّ في resources/views/admin/guidance/help.blade.php'],
+            // ⭐ [2026-09-11] عمود «إجراءات» صار مسمًّى لا رأسًا فارغًا — 12.6-ج ينصّ عليه بالاسم.
+            ['admin.guidance.help.ijraat', 'help', 'إجراءات', 'string', 'إجراءات', 'نصّ في resources/views/admin/guidance/help.blade.php — عمود جدولٍ منصوصٌ حرفيًّا في القسم 24.'],  // ⚠️ 24
             // ⭐ مرفقٌ من مكتبة الوسائط — بكلّ الأنواع، نفس نمط تسمية الإعلانات (12.6-ج)
             ['admin.guidance.help.alwsayt_msr_mn_mktbt_alwsayt', 'help', 'الوسائط (مسار من مكتبة الوسائط)', 'string', 'الوسائط (مسار من مكتبة الوسائط)', 'نصّ في resources/views/admin/guidance/help.blade.php'],
             ['admin.guidance.help.bhth', 'help', 'بحث', 'string', 'بحث', 'نصّ في resources/views/admin/guidance/help.blade.php'],
@@ -516,6 +518,8 @@ class AdminScreenTextSystemDemoSeeder extends Seeder
             ['admin.guidance.index.hsb_aldwr', 'help', 'حسب الدور', 'string', 'حسب الدور', 'نصّ في resources/views/admin/guidance/index.blade.php'],
             ['admin.guidance.index.hsb_almsar', 'help', 'حسب المسار', 'string', 'حسب المسار', 'نصّ في resources/views/admin/guidance/index.blade.php'],
             ['admin.guidance.index.hsb_altdryb', 'help', 'حسب التدريب', 'string', 'حسب التدريب', 'نصّ في resources/views/admin/guidance/index.blade.php'],
+            // ⭐ [2026-09-11] عمود «إجراءات» صار مسمًّى لا رأسًا فارغًا — 12.6-أ ينصّ عليه بالاسم.
+            ['admin.guidance.index.ijraat', 'help', 'إجراءات', 'string', 'إجراءات', 'نصّ في resources/views/admin/guidance/index.blade.php — عمود جدولٍ منصوصٌ حرفيًّا في القسم 24.'],  // ⚠️ 24
             ['admin.guidance.index.ilzam_iqrar_qrat_wfhmt', 'help', 'إلزام إقرار «قرأتُ وفهمت»', 'string', 'إلزام إقرار «قرأتُ وفهمت»', 'نصّ في resources/views/admin/guidance/index.blade.php'],
             ['admin.guidance.index.iqrar_b_v1_xp_mra_wahda', 'help', '· إقرار بـ:v1 XP (مرّة واحدة)', 'string', '· إقرار بـ:v1 XP (مرّة واحدة)', 'نصّ في resources/views/admin/guidance/index.blade.php'],
             ['admin.guidance.index.ishaar_toast', 'help', 'إشعار / Toast', 'string', 'إشعار / Toast', 'نصّ في resources/views/admin/guidance/index.blade.php'],

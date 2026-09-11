@@ -408,6 +408,9 @@ class CertificateAdminController extends Controller
             'q' => trim($request->string('q')->toString()),
             'status' => $request->string('status')->toString(),
             'used' => $request->string('used')->toString(),
+            // ⭐ فرز الأعمدة على الخادم (12.5-أ) — والمسموح في `ACCREDITATION_SORTS`.
+            'sort' => $request->string('sort')->toString(),
+            'dir' => strtolower($request->string('dir')->toString()) === 'asc' ? 'asc' : 'desc',
         ];
 
         $typeCounts = CertificateType::query()
@@ -432,7 +435,47 @@ class CertificateAdminController extends Controller
             ->groupBy('certificate_types.accreditation_id')
             ->pluck('total', 'accreditation_id');
 
+        $accreditations = $this->sortAccreditations($accreditations, $filters, $typeCounts, $issuedCounts);
+
         return compact('accreditations', 'typeCounts', 'issuedCounts', 'filters');
+    }
+
+    /**
+     * ⭐ [2026-09-11] فرز أعمدة جدول الاعتمادات (12.5-أ · 24.1 سطر 4619-4620):
+     * الشعار · الاسم · كم نوع شهادة يستخدمه · عدد الشهادات الصادرة · الحالة.
+     *
+     * ويقع على المجموعة لا على الاستعلام لأنّ عمودَي العدّ **ليسا في الجدول**
+     * أصلًا — يُحسَبان بتجميعَين مستقلَّين، والقائمة كلّها تُجلَب بلا ترقيمٍ
+     * (جهات الاعتماد قليلةٌ بطبعها) فالفرز هنا يرتّب **كلّ** الصفوف لا صفحةً.
+     *
+     * وبلا `sort` يبقى الترتيب الأصليّ كما هو: اعتماد المنصّة أوّلًا (24.1).
+     *
+     * @param  Collection<int, CertificateAccreditation>  $accreditations
+     * @param  array<string, mixed>  $filters
+     * @param  Collection<int, int>  $typeCounts
+     * @param  Collection<int, int>  $issuedCounts
+     * @return Collection<int, CertificateAccreditation>
+     */
+    private function sortAccreditations(Collection $accreditations, array $filters, Collection $typeCounts, Collection $issuedCounts): Collection
+    {
+        /** @var array<string, callable(CertificateAccreditation): mixed> $keys */
+        $keys = [
+            'logo' => fn (CertificateAccreditation $a) => $a->logo_path ? 1 : 0,
+            'name' => fn (CertificateAccreditation $a) => (string) $a->name_ar,
+            'types' => fn (CertificateAccreditation $a) => (int) ($typeCounts[$a->id] ?? 0),
+            'issued' => fn (CertificateAccreditation $a) => (int) ($issuedCounts[$a->id] ?? 0),
+            'status' => fn (CertificateAccreditation $a) => $a->is_active ? 1 : 0,
+        ];
+
+        $by = $keys[(string) ($filters['sort'] ?? '')] ?? null;
+
+        if (! $by) {
+            return $accreditations;
+        }
+
+        return $accreditations
+            ->sortBy($by, SORT_REGULAR, $filters['dir'] === 'desc')
+            ->values();
     }
 
     /** @return array<string, mixed> */

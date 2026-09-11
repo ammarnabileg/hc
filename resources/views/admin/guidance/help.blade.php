@@ -71,12 +71,13 @@
         {{-- ديسكتوب: جدول العنوان (ع/إ) · التصنيف · الحالة · إجراءات (24 · 2.15-ج) --}}
         <div class="hidden md:block card overflow-hidden">
             <x-table :label="setting('admin.guidance.help.dlyl_almstkhdm', 'دليل المستخدم')">
+                {{-- كلّ عمودٍ منصوصٍ قابلٌ للفرز بالخادم (12.6-ج) — `x-sort-th` --}}
                 <thead style="background: var(--surface-sunken)">
                     <tr>
-                        <th class="p-3 text-start">{{ setting('admin.guidance.help.alanwan_arby_iinjlyzy', 'العنوان (ع/إ)') }}</th>
-                        <th class="p-3 text-start">{{ setting('admin.guidance.help.altsnyf', 'التصنيف') }}</th>
-                        <th class="p-3 text-start">{{ setting('admin.guidance.help.alhala', 'الحالة') }}</th>
-                        <th class="p-3"></th>
+                        <x-sort-th key="title" :label="setting('admin.guidance.help.alanwan_arby_iinjlyzy', 'العنوان (ع/إ)')" />
+                        <x-sort-th key="category" :label="setting('admin.guidance.help.altsnyf', 'التصنيف')" />
+                        <x-sort-th key="status" :label="setting('admin.guidance.help.alhala', 'الحالة')" />
+                        <th class="p-3 text-end">{{ setting('admin.guidance.help.ijraat', 'إجراءات') }}</th>
                     </tr>
                 </thead>
                 <tbody>

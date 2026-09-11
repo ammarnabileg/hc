@@ -55,10 +55,60 @@ class GuidanceComposer
 
     // ============================================================== التعليمات
 
+    /**
+     * ⭐ أعمدة جدول التعليمات القابلة للفرز (12.6-أ): العنوان · النوع ·
+     * الجمهور · الحالة · نسبة القراءة · الإقرارات · مثبَّت؟.
+     *
+     * المفتاح **اسم العمود في الواجهة** والقيمة **تعبير الترتيب في الاستعلام**،
+     * فلا يصل إلى `orderBy` إلّا ما في هذه القائمة — سلسلة الاستعلام مدخلُ
+     * مستخدمٍ لا يُوثَق به.
+     *
+     * و«نسبة القراءة» تُرتَّب بعدد القراءات لأنّ المقام (حجم الجمهور) واحدٌ
+     * لكلّ الصفوف، فترتيب العدد هو ترتيب النسبة نفسه بلا حسابٍ في PHP.
+     *
+     * @var array<string, string>
+     */
+    private const ANNOUNCEMENT_SORTS = [
+        'title' => 'title',
+        'type' => 'type',
+        'audience' => 'audience->type',
+        'status' => 'status',
+        'rate' => 'reads_total',
+        'acks' => 'acks_total',
+        'pinned' => 'is_pinned',
+    ];
+
+    /** أعمدة جدول دليل المستخدم القابلة للفرز (12.6-ج): العنوان · التصنيف · الحالة. */
+    private const ARTICLE_SORTS = [
+        'title' => 'title',
+        'category' => 'category',
+        'status' => 'status',
+    ];
+
+    /**
+     * اتّجاه الفرز كما وصل من سلسلة الاستعلام — تصاعديّ إن قيل ذلك صراحةً،
+     * وإلّا تنازليّ. (لا يصل إلى SQL إلّا `asc` أو `desc` حرفيًّا.)
+     */
+    public static function sortDirection(mixed $dir): string
+    {
+        return strtolower(trim((string) $dir)) === 'asc' ? 'asc' : 'desc';
+    }
+
     /** @param  array<string, mixed>  $filters */
     public function announcements(array $filters = []): LengthAwarePaginator
     {
-        $query = Announcement::query()->latest('id');
+        $query = Announcement::query()->withCount([
+            'reads as reads_total' => fn ($q) => $q->whereNotNull('read_at'),
+            'reads as acks_total' => fn ($q) => $q->whereNotNull('acknowledged_at'),
+        ]);
+
+        // الفرز المطلوب أوّلًا ثمّ `id` فاصلًا للتعادل — فترتيب الصفحات ثابتٌ
+        // لا يتأرجح بين طلبٍ وآخر عند تساوي قيم العمود (12.6-أ).
+        $column = self::ANNOUNCEMENT_SORTS[(string) ($filters['sort'] ?? '')] ?? null;
+
+        $column
+            ? $query->orderBy($column, self::sortDirection($filters['dir'] ?? ''))->orderByDesc('id')
+            : $query->latest('id');
 
         if (($q = trim((string) ($filters['q'] ?? ''))) !== '') {
             $query->where('title', 'like', '%'.$q.'%');
@@ -430,7 +480,13 @@ class GuidanceComposer
     /** @param  array<string, mixed>  $filters */
     public function articles(array $filters = []): LengthAwarePaginator
     {
-        $query = HelpArticle::query()->latest('id');
+        $query = HelpArticle::query();
+
+        $column = self::ARTICLE_SORTS[(string) ($filters['sort'] ?? '')] ?? null;
+
+        $column
+            ? $query->orderBy($column, self::sortDirection($filters['dir'] ?? ''))->orderByDesc('id')
+            : $query->latest('id');
 
         if (($q = trim((string) ($filters['q'] ?? ''))) !== '') {
             $query->where(fn ($i) => $i->where('title', 'like', '%'.$q.'%')->orWhere('body', 'like', '%'.$q.'%'));

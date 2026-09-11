@@ -49,13 +49,14 @@
 @else
     <div class="card p-2">
         <x-table :label="setting('admin.certificates.partials.accreditations.alaatmadat', 'الاعتمادات')">
+            {{-- كلّ عمودٍ منصوصٍ قابلٌ للفرز بالخادم (12.5-أ) — `x-sort-th` --}}
             <thead>
                 <tr style="border-bottom: 1px solid var(--border)">
-                    <th class="p-3 text-start">{{ setting('admin.certificates.partials.accreditations.alshaar', 'الشعار') }}</th>
-                    <th class="p-3 text-start">{{ setting('admin.certificates.partials.accreditations.alasm', 'الاسم') }}</th>
-                    <th class="p-3 text-start">{{ setting('admin.certificates.partials.accreditations.km_nwa', 'كم نوع') }}</th>
-                    <th class="p-3 text-start">{{ setting('admin.certificates.partials.accreditations.shhadat_sadra', 'شهادات صادرة') }}</th>
-                    <th class="p-3 text-start">{{ setting('admin.certificates.partials.accreditations.alhala', 'الحالة') }}</th>
+                    <x-sort-th key="logo" :label="setting('admin.certificates.partials.accreditations.alshaar', 'الشعار')" />
+                    <x-sort-th key="name" :label="setting('admin.certificates.partials.accreditations.alasm', 'الاسم')" />
+                    <x-sort-th key="types" :label="setting('admin.certificates.partials.accreditations.km_nwa', 'كم نوع')" />
+                    <x-sort-th key="issued" :label="setting('admin.certificates.partials.accreditations.shhadat_sadra', 'شهادات صادرة')" />
+                    <x-sort-th key="status" :label="setting('admin.certificates.partials.accreditations.alhala', 'الحالة')" />
                     <th class="p-3 text-start">{{ setting('admin.certificates.partials.accreditations.ijraat', 'إجراءات') }}</th>
                 </tr>
             </thead>

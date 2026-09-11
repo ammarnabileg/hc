@@ -61,16 +61,17 @@
         {{-- ديسكتوب: جدول العنوان · النوع · الجمهور · الحالة · نسبة القراءة · الإقرارات · مثبَّت؟ · إجراءات (24 · 2.15-ج) --}}
         <div class="hidden md:block card overflow-hidden">
             <x-table :label="setting('admin.guidance.index.altalymat', 'التعليمات')">
+                {{-- كلّ عمودٍ منصوصٍ قابلٌ للفرز بالخادم (12.6-أ) — `x-sort-th` --}}
                 <thead style="background: var(--surface-sunken)">
                     <tr>
-                        <th class="p-3 text-start">{{ setting('admin.guidance.index.alanwan', 'العنوان') }}</th>
-                        <th class="p-3 text-start">{{ setting('admin.guidance.index.alnwa', 'النوع') }}</th>
-                        <th class="p-3 text-start">{{ setting('admin.guidance.index.aljmhwr_2', 'الجمهور') }}</th>
-                        <th class="p-3 text-start">{{ setting('admin.guidance.index.alhala', 'الحالة') }}</th>
-                        <th class="p-3 text-start">{{ setting('admin.guidance.index.nsba_alqraa', 'نسبة القراءة') }}</th>
-                        <th class="p-3 text-start">{{ setting('admin.guidance.index.aliqrarat', 'الإقرارات') }}</th>
-                        <th class="p-3 text-start">{{ setting('admin.guidance.index.mthbt_2', 'مثبَّت؟') }}</th>
-                        <th class="p-3"></th>
+                        <x-sort-th key="title" :label="setting('admin.guidance.index.alanwan', 'العنوان')" />
+                        <x-sort-th key="type" :label="setting('admin.guidance.index.alnwa', 'النوع')" />
+                        <x-sort-th key="audience" :label="setting('admin.guidance.index.aljmhwr_2', 'الجمهور')" />
+                        <x-sort-th key="status" :label="setting('admin.guidance.index.alhala', 'الحالة')" />
+                        <x-sort-th key="rate" :label="setting('admin.guidance.index.nsba_alqraa', 'نسبة القراءة')" />
+                        <x-sort-th key="acks" :label="setting('admin.guidance.index.aliqrarat', 'الإقرارات')" />
+                        <x-sort-th key="pinned" :label="setting('admin.guidance.index.mthbt_2', 'مثبَّت؟')" />
+                        <th class="p-3 text-end">{{ setting('admin.guidance.index.ijraat', 'إجراءات') }}</th>
                     </tr>
                 </thead>
                 <tbody>

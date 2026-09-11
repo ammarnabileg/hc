@@ -43,6 +43,9 @@ class GuidanceController extends Controller
             'q' => trim($request->string('q')->toString()),
             'status' => $request->string('status')->toString(),
             'pinned' => $request->boolean('pinned'),
+            // فرز الأعمدة على الخادم (12.6-أ) — والقائمة المسموحة في الكمبوزر.
+            'sort' => $request->string('sort')->toString(),
+            'dir' => GuidanceComposer::sortDirection($request->string('dir')->toString()),
         ];
 
         $announcements = $this->guidance->announcements($filters);
@@ -248,6 +251,9 @@ class GuidanceController extends Controller
             'q' => trim($request->string('q')->toString()),
             'category' => $request->string('category')->toString(),
             'status' => $request->string('status')->toString(),
+            // فرز الأعمدة على الخادم (12.6-ج) — والقائمة المسموحة في الكمبوزر.
+            'sort' => $request->string('sort')->toString(),
+            'dir' => GuidanceComposer::sortDirection($request->string('dir')->toString()),
         ];
 
         $articles = $this->guidance->articles($filters);

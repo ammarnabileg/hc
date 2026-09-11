@@ -192,6 +192,8 @@ class ScreenTextDemoSeeder extends Seeder
             ['ux.saved_views.text_2', 'ux', 'saved-views: اسم العرض', 'اسم العرض'],
             ['ux.saved_views.placeholder_1', 'ux', 'saved-views: مثلًا: محافظتي — آخر 7 أيّام', 'مثلًا: محافظتي — آخر 7 أيّام'],
             ['ux.saved_views.text_3', 'ux', 'saved-views: احفظ', 'احفظ'],
+            // ---- resources/views/components/sort-th.blade.php
+            ['ux.sort_th.title_1', 'ux', 'sort-th: تلميح رأس العمود القابل للفرز', 'رتّب بهذا العمود'],
             // ---- resources/views/components/table.blade.php
             ['ux.table.text_1', 'ux', 'table: بنعرض أهمّ :a1 أعمدة — «وضع متقدّم» أعلى الصفحة بيفتح الباقي', 'بنعرض أهمّ :a1 أعمدة — «وضع متقدّم» أعلى الصفحة بيفتح الباقي.'],
             // ---- resources/views/components/undo-toast.blade.php
