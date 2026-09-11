@@ -310,6 +310,7 @@ class LibraryDemoSeeder extends Seeder
             ['cv.missing.languages_label', 'cv', 'ناقص: اللغات', 'string', 'لغة واحدة على الأقلّ'],
             ['cv.guest.note', 'cv', 'ملاحظة القالب المجّانيّ بلا تسجيل', 'text', 'إنت بتجرّب القالب المجّانيّ بلا تسجيل — التحميل بيطلب إنشاء حساب، وشغلك محفوظ لحدّ ما تسجّل.'],
             ['cv.guest.download_label', 'cv', 'زرّ التحميل للزائر', 'string', 'أنشئ حساب وحمّل PDF'],
+            ['cv.guest.register_prompt', 'cv', 'رسالة بوّابة التحميل للزائر', 'text', 'سيرتك جاهزة ومحفوظة ✓ — أنشئ حسابك دلوقتي وحمّلها PDF.'],
 
             // ---------------- الإفادة (9.1)
             ['attestations.page.title', 'attestations', 'عنوان صفحة الإفادة', 'string', 'الإفادة'],

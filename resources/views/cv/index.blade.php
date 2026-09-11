@@ -45,7 +45,9 @@
         ]">
         <x-slot:action>
             {{-- الفعل الرئيسيّ الوحيد (2.15-أ-2) --}}
-            <a href="{{ $downloadUrl }}" target="_blank" rel="noopener"
+            {{-- وتبويبٌ جديد لملفٍّ يُطبَع، أمّا «أنشئ حساب» فرحلةٌ تُكمَل في **نفس
+                 التبويب** — فلا تُترَك نافذةٌ يتيمة خلف صفحة التسجيل (21.2-ج). --}}
+            <a href="{{ $downloadUrl }}" @unless ($guest) target="_blank" rel="noopener" @endunless
                class="btn hidden md:inline-flex items-center rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
                style="background: var(--color-brand-500); color: #04201c">
                 {{ $guest ? setting('cv.guest.download_label', 'أنشئ حساب وحمّل PDF') : setting('cv.download_label', 'تحميل PDF') }}
@@ -167,7 +169,7 @@
 @endsection
 
 @section('mobile_action')
-    <a href="{{ $downloadUrl }}" target="_blank" rel="noopener"
+    <a href="{{ $downloadUrl }}" @unless ($guest) target="_blank" rel="noopener" @endunless
        class="btn flex items-center justify-center w-full rounded-xl px-4 py-3 text-sm font-semibold"
        style="background: var(--color-brand-500); color: #04201c">
         {{ $guest ? setting('cv.guest.download_label', 'أنشئ حساب وحمّل PDF') : setting('cv.download_label', 'تحميل PDF') }}

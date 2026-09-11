@@ -73,6 +73,39 @@ class CvBuilder
         return $cv;
     }
 
+    /**
+     * ⭐ تسليم مسودّة الزائر لحسابه بعد إنشائه (21.2-ج).
+     *
+     * القالب المجّانيّ بلا تسجيل **باب دخول**: الزائر يملأ سيرته، ثمّ يُطلَب منه
+     * إنشاء حساب لحظة التحميل. وكانت المسودّة تعيش في الجلسة ولا يقرؤها أحدٌ
+     * بعد التسجيل — فيصل الداخل إلى **صفحةٍ بيضاء** في اللحظة التي وعدناه فيها
+     * بشغله محفوظًا، فيسقط التحويل عند آخر خطوة فيه لا عند أوّلها.
+     *
+     * وشرطان يحرسان النقل: لا نكتب مسودّةً فارغة (فلا تُنشَأ سيرةٌ بلا سبب)،
+     * ولا نطمس سيرةً فيها بيانات فعلًا — فمن جرّب المنشئ زائرًا ثمّ دخل على
+     * **حسابٍ قديم** له سيرةٌ مكتوبة لا يخسر ما كتبه من قبل.
+     */
+    public function adoptGuestDraft(User $user, array $draft): bool
+    {
+        $draft = array_replace($this->blank(), $draft);
+
+        if ($this->completion($draft) === 0) {
+            return false;
+        }
+
+        $cv = $this->forUser($user);
+
+        if ($this->completion(array_replace($this->blank(), (array) $cv->data)) > 0) {
+            return false;
+        }
+
+        $cv->data = $draft;
+        $cv->completion_percent = $this->completion($draft);
+        $cv->save();
+
+        return true;
+    }
+
     public function blank(): array
     {
         return [

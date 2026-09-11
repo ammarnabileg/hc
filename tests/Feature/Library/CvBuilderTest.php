@@ -2,9 +2,12 @@
 
 namespace Tests\Feature\Library;
 
+use App\Http\Controllers\Trainee\CvController;
 use App\Models\Cv;
 use App\Models\CvTemplate;
 use App\Models\Transaction;
+use App\Models\User;
+use App\Services\Library\CvBuilder;
 
 /** السيرة الذاتيّة (9 · 24.5): الحفظ التلقائيّ بين الخطوات والقوالب بالتذاكر. */
 class CvBuilderTest extends LibraryTestCase
@@ -216,5 +219,138 @@ class CvBuilderTest extends LibraryTestCase
             ->assertSee(setting('cv.guest.download_label', 'أنشئ حساب وحمّل PDF'), false);
 
         $this->get(route('cv.free.preview'))->assertOk()->assertSee('مسوّق رقميّ', false);
+    }
+
+    /**
+     * ⭐ الزائر يبني بالقالب المجّانيّ **وحده** — ولا يرى معرض القوالب المدفوعة
+     * ولا رصيد تذاكر لحسابٍ لا وجود له (21.2-ج: «بقالبٍ واحد مجّانيّ»).
+     */
+    public function test_guest_builder_offers_the_one_free_template_only(): void
+    {
+        $free = CvTemplate::where('is_free', true)->where('is_active', true)->firstOrFail();
+        $paid = CvTemplate::where('is_free', false)->where('is_active', true)->firstOrFail();
+
+        // «بقالبٍ واحد مجّانيّ» — واحدٌ لا أكثر، وهو الذي تراه معاينة الزائر
+        $this->assertSame(1, CvTemplate::where('is_free', true)->where('is_active', true)->count());
+        $this->assertSame($free->id, app(CvBuilder::class)->freeTemplate()?->id);
+
+        $this->get(route('cv.free'))
+            ->assertOk()
+            // معرض القوالب نفسه غائب — لا قالبٌ مدفوع ولا سطر رصيد تذاكر
+            ->assertDontSee('data-templates', false)
+            ->assertDontSee($paid->name, false);
+
+        // والمعاينة موسومة دائمًا للزائر — النسخة النظيفة خلف الحساب (9 · 21.2-ج)
+        $this->get(route('cv.free.preview'))->assertOk()->assertSee('data-cv-watermark', false);
+    }
+
+    /**
+     * ⭐ بوّابة التحميل (21.2-ج): «التحميل يطلب إنشاء حساب» — على الخادم لا في
+     * نصّ الزرّ وحده، فالزائر لا يخرج بملفٍّ ولو كتب العنوان بيده.
+     */
+    public function test_guest_download_is_gated_behind_creating_an_account(): void
+    {
+        $this->post(route('cv.free.autosave'), [
+            'step' => 'profile',
+            'data' => ['profile' => ['job_title' => 'مسوّق رقميّ']],
+        ])->assertOk();
+
+        $this->get(route('cv.free.download'))
+            ->assertRedirect(route('register'))
+            ->assertSessionHas('status', setting('cv.guest.register_prompt'));
+
+        // وباب التحميل المحروس نفسه يبقى مقفولًا في وجهه كما كان
+        $this->get(route('cv.download'))->assertRedirect(route('login'));
+    }
+
+    /**
+     * ⭐ المسودّة تعبر لحظة التحويل: من ملأ سيرته زائرًا يجدها في حسابه بعد
+     * الدخول — وإلّا كان طلبُ الحساب عقوبةً تُفقِد الأداةَ معناها كباب دخول.
+     */
+    public function test_guest_draft_moves_into_the_account_on_first_login(): void
+    {
+        $user = $this->trainee('UCVGUES1');
+
+        $this->post(route('cv.free.autosave'), [
+            'step' => 'profile',
+            'data' => ['profile' => ['job_title' => 'مسوّق رقميّ', 'city' => 'طنطا']],
+        ])->assertOk();
+
+        $this->post(route('login'), [
+            'identifier' => $user->email,
+            'password' => 'secret-password',
+        ])->assertRedirect();
+
+        $cv = Cv::where('user_id', $user->id)->firstOrFail();
+
+        $this->assertSame('مسوّق رقميّ', $cv->data['profile']['job_title']);
+        $this->assertSame('طنطا', $cv->data['profile']['city']);
+        $this->assertGreaterThan(0, (int) $cv->completion_percent);
+        $this->assertNull(session(CvController::GUEST_KEY));
+    }
+
+    /** ولا تطمس سيرةً مكتوبة: العائد لحسابه القديم لا يخسر ما كتبه فيه */
+    public function test_guest_draft_never_overwrites_a_cv_that_already_has_data(): void
+    {
+        $user = $this->trainee('UCVGUES2');
+
+        Cv::create([
+            'user_id' => $user->id,
+            'data' => ['profile' => ['job_title' => 'محاسب قانونيّ']],
+            'completion_percent' => 30,
+        ]);
+
+        $this->post(route('cv.free.autosave'), [
+            'step' => 'profile',
+            'data' => ['profile' => ['job_title' => 'مسوّق رقميّ']],
+        ])->assertOk();
+
+        $this->post(route('login'), [
+            'identifier' => $user->email,
+            'password' => 'secret-password',
+        ])->assertRedirect();
+
+        $this->assertSame(
+            'محاسب قانونيّ',
+            Cv::where('user_id', $user->id)->firstOrFail()->data['profile']['job_title'],
+        );
+    }
+
+    /**
+     * ⭐ والمسار العامّ ليس بابًا خلفيًّا حول الصلاحيّة (12.2.1): صاحب الحساب
+     * يُحوَّل لمساره المحروس فيُسأل عن `user_cv.view` هناك — ولا تُعرَض له
+     * شاشةُ المنشئ بالقوالب المدفوعة ورصيد التذاكر من مسارٍ بلا حارس.
+     */
+    public function test_free_route_is_no_back_door_around_the_cv_permission(): void
+    {
+        $user = $this->trainee('UCVFREE1');
+
+        $this->actingAs($user)->get(route('cv.free'))->assertRedirect(route('cv.index'));
+        $this->actingAs($user)->get(route('cv.free.preview'))->assertRedirect(route('cv.preview'));
+        $this->actingAs($user)->get(route('cv.free.download'))->assertRedirect(route('cv.download'));
+
+        $stranger = User::create([
+            'name' => 'زائر بحساب بلا صلاحيّة',
+            'email' => 'ucvnoperm@test.local',
+            'password' => 'secret-password',
+            'code' => 'UCVNOPR1',
+            'status' => 'active',
+        ]);
+
+        $this->actingAs($stranger)->get(route('cv.free'))->assertRedirect(route('cv.index'));
+        $this->actingAs($stranger)->get(route('cv.index'))->assertForbidden();
+    }
+
+    /** والمسجَّل لا يتغيّر عليه شيء: شاشته وحفظه وتحميله كما كانت بالضبط */
+    public function test_signed_in_builder_keeps_its_own_urls_and_actions(): void
+    {
+        $user = $this->trainee('UCVSAME1');
+
+        $this->actingAs($user)->get(route('cv.index'))
+            ->assertOk()
+            ->assertSee(setting('cv.download_label', 'تحميل PDF'), false)
+            ->assertSee(setting('cv.templates.title', 'القالب'), false)
+            ->assertSee(route('cv.autosave'), false)
+            ->assertDontSee(setting('cv.guest.note'), false);
     }
 }

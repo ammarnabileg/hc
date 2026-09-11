@@ -54,6 +54,28 @@ class HomePageTest extends HomeTestCase
             ->assertSee('تفعيل الحساب مجّانيّ');
     }
 
+    /**
+     * ⭐ الأداة المجّانيّة كباب دخول (21.2-ج): منشئ الـCV بلا تسجيل له **مقبض**
+     * على الصفحة العامّة — وبابٌ لا يصل إليه إلّا من يكتب عنوانه بيده لا يجذب
+     * «من لم يأتِ للتعلّم أصلًا».
+     */
+    public function test_free_cv_builder_has_a_visible_door_on_the_landing_page(): void
+    {
+        $this->get('/')
+            ->assertOk()
+            ->assertSee(setting('home.free.cv_title'), false)
+            ->assertSee(setting('home.free.cv_cta'), false)
+            ->assertSee(route('cv.free'), false);
+    }
+
+    /** والمالك يقفل البلوك بإعدادٍ واحد — بلا لمس قالب (2.13) */
+    public function test_free_cv_block_is_hidden_when_the_owner_turns_it_off(): void
+    {
+        $this->forceSetting('home.free.cv_enabled', '0');
+
+        $this->get('/')->assertOk()->assertDontSee(setting('home.free.cv_title'), false);
+    }
+
     /** المنشور وحده يظهر — والمسودّة وغير المفهرَس لا مكان لهما في صفحة عامّة */
     public function test_only_published_and_indexable_content_is_listed(): void
     {

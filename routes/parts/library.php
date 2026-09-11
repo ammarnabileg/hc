@@ -107,6 +107,8 @@ Route::middleware(['auth', 'admin.panel'])->prefix('admin')->name('admin.')->gro
 Route::get('/cv-free', [CvController::class, 'free'])->name('cv.free');
 Route::get('/cv-free/preview', [CvController::class, 'freePreview'])->name('cv.free.preview');
 Route::post('/cv-free/autosave', [CvController::class, 'freeAutosave'])->name('cv.free.autosave');
+// ⭐ بوّابة التحميل: الزائر يُحوَّل لإنشاء حساب، وصاحب الحساب يمرّ لمساره المحروس
+Route::get('/cv-free/download', [CvController::class, 'freeDownload'])->name('cv.free.download');
 
 Route::get('/library/teaser/{product}', [ReaderController::class, 'teaser'])->name('library.teaser');
 Route::get('/library/teaser/{product}/page/{page}', [ReaderController::class, 'teaserPage'])

@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Services\Library\CvBuilder;
 use App\Services\Library\CvExport;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\View\View;
@@ -20,8 +21,15 @@ use Illuminate\View\View;
  */
 class CvController extends Controller
 {
-    /** مفتاح جلسة الزائر في القالب المجّانيّ بلا تسجيل (21.2-ج) */
-    private const GUEST_KEY = 'cv.guest.draft';
+    /**
+     * مفتاح جلسة الزائر في القالب المجّانيّ بلا تسجيل (21.2-ج).
+     *
+     * ⭐ **عامّ** لا خاصّ: `AdoptGuestCvOnLogin` يقرؤه لحظة الدخول ليُسلِّم
+     * مسودّة الزائر لحسابه الجديد — ومفتاحٌ واحدٌ معلَنٌ خيرٌ من نصٍّ مكرّر
+     * في موضعين يفترقان بسكونٍ يوم يتغيّر أحدهما (كما يفعل
+     * `OnboardingController::SESSION_CODE` مع متحكّم المصادقة).
+     */
+    public const GUEST_KEY = 'cv.guest.draft';
 
     public function __construct(
         private readonly CvBuilder $builder,
@@ -172,11 +180,18 @@ class CvController extends Controller
 
     // ------------------------------------------------------------------ بلا تسجيل (21.2-ج)
 
-    /** منشئ CV بقالبٍ واحد مجّانيّ بلا تسجيل، والتحميل يطلب إنشاء حساب */
-    public function free(Request $request): View
+    /**
+     * منشئ CV بقالبٍ واحد مجّانيّ بلا تسجيل، والتحميل يطلب إنشاء حساب.
+     *
+     * ⭐ ولصاحب الحساب **تحويلٌ** إلى بابه المحروس لا عرضٌ هنا: `index()` تُقرأ
+     * خلف `permission:user_cv.view` (12.2.1)، فنداؤها من مسارٍ عامّ كان يسلّم
+     * الشاشة نفسها — بالقوالب المدفوعة ورصيد التذاكر والشهادات — لمن لا يملك
+     * الصلاحيّة. والمجّانيّ المفتوح هو **مسودّة الزائر وحدها** لا أكثر.
+     */
+    public function free(Request $request): View|RedirectResponse
     {
         if ($request->user()) {
-            return $this->index($request);
+            return redirect()->route('cv.index');
         }
 
         $data = array_replace($this->builder->blank(), (array) $request->session()->get(self::GUEST_KEY, []));
@@ -185,14 +200,14 @@ class CvController extends Controller
         return view('cv.index', $this->payload(new User, $data, $free?->id) + [
             'guest' => true,
             'autosaveUrl' => route('cv.free.autosave'),
-            'downloadUrl' => Route::has('register') ? route('register') : url('/'),
+            'downloadUrl' => route('cv.free.download'),
         ]);
     }
 
-    public function freePreview(Request $request): View
+    public function freePreview(Request $request): View|RedirectResponse
     {
         if ($request->user()) {
-            return $this->preview($request);
+            return redirect()->route('cv.preview');
         }
 
         $data = array_replace($this->builder->blank(), (array) $request->session()->get(self::GUEST_KEY, []));
@@ -222,6 +237,28 @@ class CvController extends Controller
             'completion' => $this->builder->completion($data),
             'missing' => $this->builder->missing($data),
         ]);
+    }
+
+    /**
+     * **بوّابة التحميل** للزائر (21.2-ج): «التحميل يطلب إنشاء حساب».
+     *
+     * لماذا مسارٌ لا مجرّد رابطٍ في الزرّ: الزرّ وحده وعدٌ بصريّ يسقط بأوّل
+     * عنوانٍ يُكتَب باليد، والبوّابة قرارٌ على الخادم يُختبَر. ومسودّته لا تضيع
+     * في الطريق — `AdoptGuestCvOnLogin` يسلّمها لحسابه لحظة أوّل دخول، فيجد
+     * ما كتبه في انتظاره لا صفحةً بيضاء (وإلّا فقد التحويلُ نفسه معناه).
+     */
+    public function freeDownload(Request $request): RedirectResponse
+    {
+        if ($request->user()) {
+            return redirect()->route('cv.download');
+        }
+
+        $target = Route::has('register') ? route('register') : url('/');
+
+        return redirect()->to($target)->with('status', (string) setting(
+            'cv.guest.register_prompt',
+            'سيرتك جاهزة ومحفوظة ✓ — أنشئ حسابك دلوقتي وحمّلها PDF.',
+        ));
     }
 
     // ------------------------------------------------------------------ داخليّ
