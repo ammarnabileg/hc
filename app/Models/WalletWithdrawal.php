@@ -58,13 +58,20 @@ class WalletWithdrawal extends Model
         };
     }
 
+    /**
+     * وسم الحالة على شاشات صاحب المحفظة (2.13).
+     *
+     * مفاتيح مستقلّة عن `finance.withdraw.admin.status_*`: نسخة الأدمن تحمل
+     * رمزًا ملوّنًا في النصّ نفسه، وهنا الرمز يأتي من `x-state-badge` بحكم
+     * قاموس 2.16 — فالنصّان جمهوران وصياغتان لا صياغة واحدة مكرّرة.
+     */
     public function statusLabel(): string
     {
         return match ($this->status) {
-            self::PAID => 'مستلمة',
-            self::PROCESSING => 'قيد التحويل',
-            self::REJECTED => 'مرفوضة',
-            default => 'قيد المراجعة',
+            self::PAID => (string) setting('finance.withdraw.status_paid', 'مستلمة'),
+            self::PROCESSING => (string) setting('finance.withdraw.status_processing', 'قيد التحويل'),
+            self::REJECTED => (string) setting('finance.withdraw.status_rejected', 'مرفوضة'),
+            default => (string) setting('finance.withdraw.status_pending', 'قيد المراجعة'),
         };
     }
 }

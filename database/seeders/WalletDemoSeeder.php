@@ -298,6 +298,12 @@ class WalletDemoSeeder extends Seeder
             ['finance.withdraw.method.bank', 'wallet', 'طريقة سحب: حساب بنكيّ', 'string', 'حساب بنكيّ'],
             ['finance.withdraw.method.instapay', 'wallet', 'طريقة سحب: إنستا باي', 'string', 'إنستا باي'],
             ['finance.withdraw.method.other', 'wallet', 'طريقة سحب: أخرى', 'string', 'أخرى'],
+            // أوسمة حالة طلب السحب على شاشة صاحب المحفظة (WalletWithdrawal::statusLabel — 2.13-ب).
+            // بلا رمزٍ في النصّ: الرمز من `x-state-badge` بحكم قاموس 2.16 — بخلاف نسخة الأدمن.
+            ['finance.withdraw.status_pending', 'wallet', 'حالة سحب (المحفظة): قيد المراجعة', 'string', 'قيد المراجعة'],
+            ['finance.withdraw.status_processing', 'wallet', 'حالة سحب (المحفظة): قيد التحويل', 'string', 'قيد التحويل'],
+            ['finance.withdraw.status_paid', 'wallet', 'حالة سحب (المحفظة): مستلمة', 'string', 'مستلمة'],
+            ['finance.withdraw.status_rejected', 'wallet', 'حالة سحب (المحفظة): مرفوضة', 'string', 'مرفوضة'],
             ['wallet.tickets.earn_sources', 'wallet', 'مصادر كسب التذاكر', 'json', json_encode([
                 'إكمال درس قبل نصف الديدلاين',
                 'إكمال ستريك 7 أيّام متواصلة',

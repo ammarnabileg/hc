@@ -16,6 +16,7 @@ use App\Services\Wallet\TransferService;
 use App\Services\Wallet\WalletException;
 use App\Services\Wallet\WithdrawService;
 use Database\Seeders\RoleSeeder;
+use Illuminate\Support\Facades\Cache;
 
 /**
  * العمليّات المالِيّة الثلاث (19.3) + عزل أسعار الصرف (19.1).
@@ -85,6 +86,60 @@ class WalletOperationsTest extends WalletTestCase
             ->assertOk()
             ->assertSee('متاح للسحب', false)
             ->assertSee('جدول المسحوبات', false);
+    }
+
+    /**
+     * ⭐ 2.13: وسم حالة طلب السحب على شاشة صاحب المحفظة يُقرَأ من الإعداد لا من
+     * نصٍّ محروق في `WalletWithdrawal::statusLabel()`. نغيّر المفاتيح الأربعة
+     * إلى قيمٍ شاهدة، فلو عاد أيّ نصٍّ للكود سقط الاختبار في الحال. والقالبان
+     * (سطح المكتب والموبايل) يُصدَران معًا في الصفحة نفسها، فالمرّتان لكلٍّ منهما.
+     */
+    public function test_withdrawal_status_label_comes_from_settings_on_both_row_partials(): void
+    {
+        $owner = $this->owner();
+
+        $labels = [
+            WalletWithdrawal::PENDING => ['finance.withdraw.status_pending', 'تحت الفحص (شاهد)'],
+            WalletWithdrawal::PROCESSING => ['finance.withdraw.status_processing', 'في الطريق (شاهد)'],
+            WalletWithdrawal::PAID => ['finance.withdraw.status_paid', 'وصلت (شاهد)'],
+            WalletWithdrawal::REJECTED => ['finance.withdraw.status_rejected', 'مردودة (شاهد)'],
+        ];
+
+        foreach ($labels as $status => [$key, $value]) {
+            Setting::updateOrCreate(['key' => $key], [
+                'group' => 'wallet',
+                'label_ar' => 'وسم حالة سحب',
+                'type' => 'string',
+                'default_value' => $value,
+                'value' => $value,
+            ]);
+
+            WalletWithdrawal::create([
+                'number' => 'WD-'.$status,
+                'user_id' => $owner->id,
+                'amount' => 100,
+                'fee_percent' => 1,
+                'fee_amount' => 1,
+                'net_amount' => 99,
+                'method' => 'wallet',
+                'account_number' => '01000000000',
+                'status' => $status,
+            ]);
+        }
+
+        Cache::forget('settings');
+
+        $response = $this->actingAs($owner)->get(route('wallet.withdrawals'))->assertOk();
+
+        foreach ($labels as [, $value]) {
+            // مرّة في صفّ سطح المكتب ومرّة في كارت الموبايل — القالبان كلاهما مشمول
+            $response->assertSeeText($value, false);
+            $this->assertSame(2, substr_count($response->getContent(), $value),
+                "وسم «{$value}» لازم يظهر في القالبين معًا (سطح المكتب والموبايل).");
+        }
+
+        // ولا يبقى النصّ القديم المحروق في الصفحة بعد تغيير الإعداد
+        $this->assertStringNotContainsString('مرفوضة', $response->getContent());
     }
 
     /** المحظور يُخفى ولا يُعطَّل — والتاب أصلًا لا يظهر لغير المالك (2.15-أ-7) */

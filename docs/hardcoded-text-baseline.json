@@ -15,9 +15,8 @@
         "`app\/Console\/` مستثنًى — مخرجاتها للطرفيّة (مشغّل النظام) لا لشاشة المستخدم — خارج «النصوص الظاهرة للمستخدم» (2.13-أ). وهذا **الاستثناء الوحيد المخترَع هنا**، وما عداه حدودُ مسحٍ معلَنة لا استثناءات."
     ],
     "قيس_في": "2026-09-11",
-    "الإجماليّ": 163,
+    "الإجماليّ": 159,
     "الملفّات": {
-        "app\/Models\/WalletWithdrawal.php": 4,
         "app\/Services\/Admin\/Content\/QuestionImporter.php": 1,
         "app\/Services\/Admin\/System\/HardcodedTextScanner.php": 14,
         "app\/Services\/AdminScreens\/QuestionBank.php": 1,
