@@ -8,6 +8,7 @@
 # نفسه الذي يوقّع الشهادات (CertificateSignature). فالاستثناء بالاسم لا يكفي.
 .phpactor.json
 .phpunit.result.cache
+/.claude/
 /.codex
 /.cursor/
 /.idea
