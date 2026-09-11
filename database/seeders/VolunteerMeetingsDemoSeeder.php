@@ -65,6 +65,12 @@ class VolunteerMeetingsDemoSeeder extends Seeder
             ['meetings.attendance.default_window_hours', 'meetings', 'نافذة التسجيل الافتراضيّة (ساعات)', 'number', '12'],
             ['meetings.attendance.max_window_hours', 'meetings', 'أقصى نافذة تسجيل (ساعات)', 'number', '48'],
             ['meetings.reminder.hours_before', 'meetings', 'التذكير قبل الموعد (ساعات)', 'number', '2'],
+            // توليد مهمّة «تنفيذ» من بند المحضر (23-0.3)
+            ['meetings.minutes.task_type_key', 'meetings', 'مفتاح نوع المهمّة المتولّدة من بند المحضر', 'string', 'execution'],
+            ['meetings.minutes.min_item_length', 'meetings', 'أقلّ طول سطرٍ حتى يُعَدّ بندًا في المحضر (حروف)', 'number', '3'],
+            ['meetings.minutes.max_items', 'meetings', 'أقصى عدد بنودٍ تُعرَض من المحضر', 'number', '60'],
+            ['meetings.minutes.stale_item', 'meetings', 'رسالة: بند المحضر لم يعد موجودًا', 'string', 'البند ده مبقاش موجود في المحضر — اقفل الصفحة وافتحها تاني وشوف المحضر الحاليّ.'],
+            ['meetings.minutes.brief_template', 'meetings', 'قالب بريف المهمّة المتولّدة من بند المحضر', 'string', 'بند من محضر اجتماع «:meeting»: :item'],
             ['rep.objection.sla_hours', 'rep', 'مهلة ردّ المسؤول على الاعتراض (ساعات)', 'number', '24'],
         ];
 

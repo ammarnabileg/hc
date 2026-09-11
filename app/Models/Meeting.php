@@ -50,6 +50,12 @@ class Meeting extends Model
         return $this->hasMany(MeetingPost::class, 'meeting_id');
     }
 
+    /** المهامّ المتولّدة من بنود محضره — «وتقدر تولّد مهمّة تنفيذ لبنود المحضر» (23-0.3) */
+    public function generated_tasks(): HasMany
+    {
+        return $this->hasMany(Task::class, 'source_meeting_id');
+    }
+
     /** جمهورٌ اسميّ محدَّد — حصرًا لاجتماعات `audience === 'specific'` (لجنة التحقيق) */
     public function invitees(): BelongsToMany
     {

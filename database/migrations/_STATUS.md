@@ -15,7 +15,8 @@
 
 ## ✅ المُنجَز
 <!-- تلقائيّ:بداية:المنجز -->
-- **مايجريشنز (269) — والقائم منها لا يُعدَّل (قاعدة البناء §1). الأحدث:**
+- **مايجريشنز (270) — والقائم منها لا يُعدَّل (قاعدة البناء §1). الأحدث:**
+  - `2026_09_11_100010_a_minutes_item_needs_a_real_task.php`
   - `2026_09_10_201152_add_decor_layers_to_cv_templates_table.php`
   - `2026_09_10_100110_event_notices_need_a_segment_source.php`
   - `2026_09_10_100100_a_help_article_needs_a_real_attachment_column.php`
@@ -27,8 +28,7 @@
   - `2026_09_10_100050_a_committee_meeting_needs_a_real_attendance_event.php`
   - `2026_09_10_100040_a_nomination_needs_to_know_who_nominated.php`
   - `2026_09_10_100030_an_operational_project_needs_a_real_first_approval.php`
-  - `2026_09_10_100020_investigation_committee_needs_its_own_case_file.php`
-  - … و257 غيرها.
+  - … و258 غيرها.
 <!-- تلقائيّ:نهاية:المنجز -->
 
 ## ⬜ المتبقّي
@@ -85,6 +85,6 @@
 
 ## 🕒 آخر تحديث
 <!-- تلقائيّ:بداية:التحديث -->
-- **آخر توليد لهذه الوثيقة:** 2026-09-10 — `php artisan docs:status`.
+- **آخر توليد لهذه الوثيقة:** 2026-09-11 — `php artisan docs:status`.
 - **آخر لمسة للمجلّد:** 2026-09-10 — Claude.
 <!-- تلقائيّ:نهاية:التحديث -->

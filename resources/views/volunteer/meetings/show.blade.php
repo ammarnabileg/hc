@@ -154,11 +154,41 @@
     @endif
 
     @if ($tab === 'minutes')
-        <div class="card p-4">
-            @if (filled($meeting->minutes))
+        <div class="card p-4 space-y-4">
+            @if (! filled($meeting->minutes))
+                <p class="text-sm" style="color: var(--text-muted)">{{ setting('volunteer.meetings_show.text_12', 'المحضر لسّه ما اترفعش.') }}</p>
+            @elseif ($minutesItems->isEmpty())
                 <div class="text-sm whitespace-pre-line">{{ $meeting->minutes }}</div>
             @else
-                <p class="text-sm" style="color: var(--text-muted)">{{ setting('volunteer.meetings_show.text_12', 'المحضر لسّه ما اترفعش.') }}</p>
+                {{-- بنود المحضر بندًا بندًا — ولكلّ بندٍ زرّ توليد مهمّة «تنفيذ» (23-0.3) --}}
+                <ul class="space-y-2">
+                    @foreach ($minutesItems as $item)
+                        <li class="flex flex-wrap items-start justify-between gap-2 rounded-xl px-3 py-2"
+                            style="border: 1px solid var(--border)">
+                            <span class="text-sm min-w-0 flex-1">{{ $item['text'] }}</span>
+                            @if ($canGenerateTask)
+                                <button type="button" data-modal-open="minutes-task-{{ $item['index'] }}"
+                                        class="btn shrink-0 rounded-xl px-3 py-1.5 text-xs"
+                                        style="border: 1px solid var(--border)">{{ setting('volunteer.meetings_show.action_7', 'ولّد مهمّة تنفيذ') }}</button>
+                            @endif
+                        </li>
+                    @endforeach
+                </ul>
+            @endif
+
+            @if ($generatedTasks->isNotEmpty())
+                <div class="rounded-xl p-3 space-y-2" style="border: 1px solid var(--border)">
+                    <p class="text-xs font-semibold">{{ setting('volunteer.meetings_show.label_6', 'مهامّ متولّدة من المحضر') }}</p>
+                    @foreach ($generatedTasks as $generated)
+                        <a href="{{ route('volunteer.tasks.show', $generated) }}"
+                           class="flex flex-wrap items-center justify-between gap-2 text-sm">
+                            <span class="min-w-0 flex-1">{{ $generated->title }}</span>
+                            <span class="text-xs" style="color: var(--text-muted)">
+                                {{ $generated->owner?->shortName() }} · {{ \App\Services\Volunteer\Tasks\TaskStatus::label($generated->status) }}
+                            </span>
+                        </a>
+                    @endforeach
+                </div>
             @endif
 
             @include('volunteer.meetings.partials.attachments', [
@@ -203,6 +233,16 @@
     @endif
 
     @push('modals')
+        @if ($tab === 'minutes' && $canGenerateTask)
+            @foreach ($minutesItems as $item)
+                @include('volunteer.meetings.partials.minutes-task-modal', [
+                    'meeting' => $meeting, 'item' => $item,
+                    'workItems' => $workItems, 'teamMembers' => $teamMembers,
+                    'minutesTasks' => $minutesTasks,
+                ])
+            @endforeach
+        @endif
+
         @include('volunteer.meetings.partials.modals', [
             'meeting' => $meeting, 'mine' => $mine,
             'attendance' => $attendance, 'scope' => app(\App\Services\Volunteer\Meetings\MeetingScope::class),

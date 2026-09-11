@@ -37,6 +37,13 @@ Route::middleware(['auth'])->prefix('volunteer')->group(function () {
         Route::post('/meetings/posts/{post}/pin', [MeetingController::class, 'pin'])->name('volunteer.meetings.posts.pin');
     });
 
+    // ⭐ توليد مهمّة «تنفيذ» من بند المحضر (23-0.3) — صلاحيّة إنشاء المهامّ
+    // نفسها، وفوقها تحقّقُ إدارة الاجتماع داخل المتحكّم.
+    Route::middleware('permission:tasks.create')->group(function () {
+        Route::post('/meetings/{meeting}/minutes/tasks', [MeetingController::class, 'storeMinutesTask'])
+            ->name('volunteer.meetings.minutes.tasks');
+    });
+
     // تسجيل الحضور والاعتذار المسبق — فعلٌ شخصيّ داخل نطاق الاجتماع
     Route::middleware('permission:meeting_attendance.create,meetings.view')->group(function () {
         Route::post('/meetings/{meeting}/register', [MeetingController::class, 'register'])->name('volunteer.meetings.register');

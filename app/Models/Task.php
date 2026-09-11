@@ -68,4 +68,10 @@ class Task extends Model
     {
         return $this->belongsTo(Task::class, 'blocked_by_task_id');
     }
+
+    /** الاجتماع الذي تولّدت من بند محضره — فارغٌ لكلّ مهمّة أخرى (23-0.3) */
+    public function source_meeting(): BelongsTo
+    {
+        return $this->belongsTo(Meeting::class, 'source_meeting_id');
+    }
 }

@@ -14,7 +14,9 @@ use App\Models\User;
 use App\Services\Volunteer\Meetings\AttendanceService;
 use App\Services\Volunteer\Meetings\MeetingLedger;
 use App\Services\Volunteer\Meetings\MeetingScope;
+use App\Services\Volunteer\Meetings\MinutesTaskService;
 use App\Services\Volunteer\Objections\ObjectionService;
+use App\Services\Volunteer\Tasks\TaskCreation;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -32,6 +34,8 @@ class MeetingController extends Controller
         private readonly MeetingScope $scope,
         private readonly AttendanceService $attendance,
         private readonly MeetingLedger $ledger,
+        private readonly MinutesTaskService $minutesTasks,
+        private readonly TaskCreation $taskCreation,
     ) {}
 
     // ------------------------------------------------------------------ الاجتماعات
@@ -144,9 +148,38 @@ class MeetingController extends Controller
                 ->get();
         }
 
+        /*
+         | تاب المحضر: بنوده معروضة بندًا بندًا، ولمن يملك إدارته + `tasks.create`
+         | زرُّ **توليد مهمّة «تنفيذ»** لكلّ بند (23-0.3) — بنفس حقول فورم المهمّة
+         | الجديدة حرفيًّا، فلا بابٌ ثانٍ بعقدٍ أضعف.
+         */
+        $minutesItems = collect();
+        $generatedTasks = collect();
+        $canGenerateTask = false;
+        $workItems = collect();
+        $teamMembers = collect();
+
+        if ($tab === 'minutes') {
+            $minutesItems = $this->minutesTasks->items($meeting);
+            $generatedTasks = $meeting->generated_tasks()->with('owner', 'work_item')->orderBy('id')->get();
+            $canGenerateTask = $this->minutesTasks->canGenerate($user, $meeting);
+
+            if ($canGenerateTask) {
+                $membership = $user->activeMembership();
+                $workItems = $this->taskCreation->workItemsFor($membership);
+                $teamMembers = $this->taskCreation->teamMembersFor($user, $membership);
+            }
+        }
+
         return view('volunteer.meetings.show', [
             'meeting' => $meeting->load('owner', 'entity', 'questions'),
             'tab' => $tab,
+            'minutesItems' => $minutesItems,
+            'generatedTasks' => $generatedTasks,
+            'canGenerateTask' => $canGenerateTask,
+            'minutesTasks' => $this->minutesTasks,
+            'workItems' => $workItems,
+            'teamMembers' => $teamMembers,
             'canManage' => $canManage,
             'canSeeFull' => $full,
             'rows' => $rows,
@@ -244,6 +277,44 @@ class MeetingController extends Controller
         $this->saveAttachments($request, $meeting, $user->id);
 
         return back()->with('status', $result['message']);
+    }
+
+    /**
+     * ⭐ **توليد مهمّة «تنفيذ» من بند المحضر** (23-0.3): «~~اجتماع~~ ممنوع كنوع
+     * مهمّة — والبديل الفعاليّات بكود الحضور، **وتقدر تولّد مهمّة «تنفيذ» لبنود
+     * المحضر**». فالبند لا يبقى نصًّا حرًّا خارج شجرة التنفيذ.
+     *
+     * والفعل بابٌ إضافيّ لا عقدٌ ثانٍ: نفس قواعد `TaskCreation` ونفس حرّاسها
+     * (الفريق · سقف الانشغال · الغياب المعذور · الربط الإلزاميّ ببند).
+     */
+    public function storeMinutesTask(Request $request, Meeting $meeting): RedirectResponse
+    {
+        $user = $request->user();
+        abort_unless($this->scope->canManage($user, $meeting), 403);
+
+        $membership = $user->activeMembership();
+
+        $this->taskCreation->guard($user, $membership);
+
+        $data = $request->validate(
+            array_merge($this->taskCreation->rules(), [
+                // العنوان يُملأ مسبقًا من نصّ البند، ويبقى قابلًا للتحرير قبل الحفظ
+                'title' => ['nullable', 'string', 'max:180'],
+                'minutes_item' => ['required', 'integer', 'min:0'],
+            ]),
+            [],
+            array_merge($this->taskCreation->attributes(), [
+                'minutes_item' => (string) setting('meetings.screen.store_minutes_task_msg', 'بند المحضر'),
+            ]),
+        );
+
+        $this->taskCreation->guardAssignee($data, $membership);
+
+        $task = $this->minutesTasks->generate($meeting, $user, (int) $data['minutes_item'], $data);
+
+        return redirect()
+            ->route('volunteer.tasks.show', $task)
+            ->with('status', strtr((string) setting('meetings.screen.store_minutes_task_ok', 'اتولّدت مهمّة «:a1» من بند المحضر ✓ — بقت مهمّة عاديّة بعدّادها ومراجعها.'), [':a1' => (string) $task->title]));
     }
 
     /** ⭐ الأسئلة والـOTP: صاحب الاجتماع أو أيّ أبلاين فوقه حتى السقف (13.4-ن-ب) */

@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Volunteer;
 
 use App\Http\Controllers\Controller;
 use App\Models\Arbitration;
-use App\Models\Membership;
 use App\Models\Task;
 use App\Models\TaskBlock;
 use App\Models\TaskContribution;
@@ -12,21 +11,18 @@ use App\Models\TaskSubmission;
 use App\Models\TaskTodo;
 use App\Models\TaskType;
 use App\Models\User;
-use App\Models\WorkItem;
 use App\Services\Volunteer\Contributions\ContributionService;
-use App\Services\Volunteer\Org\AbsenceService;
 use App\Services\Volunteer\Tasks\ActivityWindow;
 use App\Services\Volunteer\Tasks\SubtaskBatch;
 use App\Services\Volunteer\Tasks\TaskBlockService;
 use App\Services\Volunteer\Tasks\TaskBoard;
+use App\Services\Volunteer\Tasks\TaskCreation;
 use App\Services\Volunteer\Tasks\TaskLoadCap;
 use App\Services\Volunteer\Tasks\TaskStatus;
 use App\Services\Volunteer\Tasks\TaskWorkflow;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Validation\ValidationException;
 
 /**
  * المهام (الدستور 24.4-2 · 23-3): «مهامّي» وصفحة المهمّة بتاباتها وأفعالها.
@@ -46,6 +42,7 @@ class TaskController extends Controller
         private readonly SubtaskBatch $batch,
         private readonly ActivityWindow $window,
         private readonly ContributionService $contributions,
+        private readonly TaskCreation $creation,
     ) {}
 
     /** مهامّي: عدّاد سقف الانشغال + [مهمّة جديدة] + تبديل (قائمة/كانبان) */
@@ -72,14 +69,14 @@ class TaskController extends Controller
             'counts' => $this->board->statusCounts($user, $membership),
             'summary' => $summary,
             // زرّ «مهمّة جديدة» لمن له فريق — ويُعطَّل عند بلوغ السقف برسالة تشرح
-            'canCreate' => $this->hasTeam($user, $membership) && $user->allows('tasks.create'),
+            'canCreate' => $this->creation->hasTeam($user, $membership) && $user->allows('tasks.create'),
             'createBlockedReason' => $summary['reason'],
             'view' => $request->string('view')->toString() ?: 'list',
             'filters' => $filters,
             'types' => TaskType::query()->where('is_active', true)->get(),
-            'workItems' => $this->workItemsFor($membership),
+            'workItems' => $this->creation->workItemsFor($membership),
             // فريقه في سلكت بوكس عند الـAssign، وجنب كلّ واحد عدد مهامّه (23-3.1)
-            'teamMembers' => $this->teamMembersFor($user, $membership),
+            'teamMembers' => $this->creation->teamMembersFor($user, $membership),
             'columns' => TaskStatus::boardColumns(),
         ]);
     }
@@ -90,63 +87,14 @@ class TaskController extends Controller
         $user = $request->user();
         $membership = $user->activeMembership();
 
-        if (! $this->hasTeam($user, $membership)) {
-            throw ValidationException::withMessages([
-                'title' => (string) setting('workflow.tasks.store_msg', 'إنشاء المهامّ لمن له فريق — تقدر تعمل صب-تاسك على مهمّتك أو تدعو مساهمًا.'),
-            ]);
-        }
+        // العقد الموحّد للإنشاء — ويمرّ به كذلك توليد المهمّة من بند المحضر (23-0.3)
+        $this->creation->guard($user, $membership);
 
-        if ($reason = $this->cap->blockReason($user, $membership)) {
-            throw ValidationException::withMessages(['title' => $reason]);
-        }
+        $data = $request->validate($this->creation->rules(), [], $this->creation->attributes());
 
-        $data = $request->validate([
-            'title' => ['required', 'string', 'max:180'],
-            'task_type_id' => ['nullable', 'integer', 'exists:task_types,id'],
-            'brief' => ['nullable', 'string'],
-            'deliverable_spec' => ['required', 'string'],
-            'deadline_at' => ['required', 'date'],
-            'vxp_value' => ['nullable', 'numeric', 'min:0'],
-            'work_item_id' => ['required', 'integer', 'exists:work_items,id'],
-            'blocked_by_task_id' => ['nullable', 'integer', 'exists:tasks,id'],
-            'owner_id' => ['nullable', 'integer', 'exists:users,id'],
-        ], [], [
-            'deliverable_spec' => (string) setting('workflow.tasks.store_msg_2', 'شكل المخرجات'),
-            'work_item_id' => (string) setting('workflow.tasks.store_msg_3', 'البند التابع للمشروع'),
-        ]);
+        $this->creation->guardAssignee($data, $membership);
 
-        // «لا تُسنَد إليه مهامّ جديدة» طول غيابه المعذور (23-6)
-        $target = ! empty($data['owner_id']) ? User::query()->find($data['owner_id']) : null;
-
-        if ($target && app(AbsenceService::class)->isAbsent($target, $membership?->entity_id)) {
-            $delegate = app(AbsenceService::class)->delegateFor($target, $membership?->entity_id);
-
-            throw ValidationException::withMessages([
-                'owner_id' => strtr((string) setting('workflow.tasks.store_msg_4', ':a1 في وضع «غائب» دلوقتي:a2. اختار حدًّا تاني.'), [
-                    ':a1' => (string) $target->shortName(),
-                    ':a2' => $delegate
-                        ? strtr((string) setting('workflow.tasks.store_delegate', ' — البديل: :name'), [':name' => (string) $delegate->shortName()])
-                        : '',
-                ]),
-            ]);
-        }
-
-        $task = Task::create([
-            'title' => $data['title'],
-            'task_type_id' => $data['task_type_id'] ?? null,
-            'brief' => $data['brief'] ?? null,
-            'deliverable_spec' => $data['deliverable_spec'],
-            'deadline_at' => Carbon::parse($data['deadline_at']),
-            'vxp_value' => $data['vxp_value'] ?? 0,
-            'work_item_id' => $data['work_item_id'],
-            'blocked_by_task_id' => $data['blocked_by_task_id'] ?? null,
-            'entity_id' => $membership?->entity_id,
-            'owner_id' => $data['owner_id'] ?? $user->id,
-            'reviewer_id' => $user->id,
-            'created_by' => $user->id,
-            'status' => TaskStatus::IN_PROGRESS,
-            'source' => 'assigned',
-        ]);
+        $task = $this->creation->create($data, $user, $membership);
 
         return redirect()
             ->route('volunteer.tasks.show', $task)
@@ -345,55 +293,5 @@ class TaskController extends Controller
     private function authorizeOwner(User $user, Task $task): void
     {
         abort_unless((int) $task->owner_id === (int) $user->id, 403, (string) setting('workflow.tasks.authorize_owner_msg', 'الفعل ده لصاحب المهمّة.'));
-    }
-
-    /** هل تحته أفراد؟ — «الإنشاء لمن له فريق» (23-3.1) */
-    private function hasTeam(User $user, $membership): bool
-    {
-        if (! $membership) {
-            return false;
-        }
-
-        return Membership::query()
-            ->where('upline_id', $membership->id)
-            ->where('status', 'active')
-            ->exists();
-    }
-
-    /**
-     * أعضاء فريق مَن ينشئ المهمّة (داونلاينه المباشر) وعدد مهامّه الحاليّة —
-     * للسلكت بوكس عند الإسناد في شاشة الإنشاء (23-3.1): «فريقه في سلكت بوكس
-     * وجنب كلّ واحد عدد المهامّ اللي بينفّذها». والحمل والسقف لكلّ عضوٍ
-     * يُحسَبان على عضويّته **هو** — دوره وكيانه — لا على عضويّة مَن ينشئ.
-     *
-     * @return Collection<int, array{user: User, load: int, cap: ?int}>
-     */
-    private function teamMembersFor(User $user, $membership): Collection
-    {
-        if (! $membership) {
-            return collect();
-        }
-
-        return Membership::query()
-            ->where('upline_id', $membership->id)
-            ->where('status', 'active')
-            ->with(['user', 'position'])
-            ->get()
-            ->map(fn (Membership $member) => [
-                'user' => $member->user,
-                'load' => $this->cap->loadFor($member->user, $member),
-                'cap' => $this->cap->capFor($member),
-            ]);
-    }
-
-    /** بنود الكيان — الربط إلزاميّ لكلّ مهمّة جديدة */
-    private function workItemsFor($membership)
-    {
-        if (! $membership) {
-            return collect();
-        }
-
-        // طول قائمة الاختيار إعداد لا رقم محروق (2.13)
-        return WorkItem::query()->latest('id')->limit((int) setting('workflow.work_items.picker_limit', 50))->get();
     }
 }

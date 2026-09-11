@@ -46,7 +46,7 @@
   - `volunteer-core.php` — 21 مسارًا · البادئة `volunteer.` · 14 حارس صلاحيّة.
   - `volunteer-flow.php` — 34 مسارًا · البادئة `volunteer.` · 27 حارس صلاحيّة.
   - `volunteer-goals.php` — 39 مسارًا · 23 حارس صلاحيّة.
-  - `volunteer-meetings.php` — 17 مسارًا · 11 حارس صلاحيّة.
+  - `volunteer-meetings.php` — 18 مسارًا · 12 حارس صلاحيّة.
   - `volunteer-org.php` — 12 مسارًا · 5 حارس صلاحيّة.
   - `volunteer-people.php` — 31 مسارًا · البادئة `volunteer.` · 27 حارس صلاحيّة.
   - `volunteer-profile.php` — 7 مسارًا · 7 حارس صلاحيّة.

@@ -992,6 +992,8 @@ class HttpTextDemoSeeder extends Seeder
             ['meetings.screen.store_msg_5', 'meetings', 'store() — الموعد :a1 — هنفكّرك قبلها بـ:a2 ساعة.', 'الموعد :a1 — هنفكّرك قبلها بـ:a2 ساعة.'],
             ['meetings.screen.store_ok', 'meetings', 'store() — اتعمل الاجتماع ✓ وابعتنا إشعارًا لجمهوره.', 'اتعمل الاجتماع ✓ وابعتنا إشعارًا لجمهوره.'],
             ['meetings.screen.end_msg', 'meetings', 'end() — عدد ساعات نافذة التسجيل', 'عدد ساعات نافذة التسجيل'],
+            ['meetings.screen.store_minutes_task_msg', 'meetings', 'storeMinutesTask() — بند المحضر', 'بند المحضر'],
+            ['meetings.screen.store_minutes_task_ok', 'meetings', 'storeMinutesTask() — اتولّدت مهمّة «:a1» من بند المحضر ✓', 'اتولّدت مهمّة «:a1» من بند المحضر ✓ — بقت مهمّة عاديّة بعدّادها ومراجعها.'],
             ['meetings.screen.questions_ok', 'meetings', 'questions() — اتضافت :a1 سؤال للاجتماع ✓', 'اتضافت :a1 سؤال للاجتماع ✓'],
             ['meetings.screen.questions_ok_2', 'meetings', 'questions() — اتحفظ كود الحضور ✓', 'اتحفظ كود الحضور ✓'],
             ['meetings.screen.excuse_msg', 'meetings', 'excuse() — سبب الاعتذار', 'سبب الاعتذار'],
