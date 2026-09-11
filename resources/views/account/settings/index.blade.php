@@ -5,6 +5,15 @@
     $inputStyle = 'background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)';
     $inputClass = 'w-full rounded-xl px-3 py-2 text-sm';
 
+    /*
+     | ⭐ 2.7-1 — «قصّ مربّع إجباريّ **بواسطة المستخدم** أوّلًا».
+     | مقاس الناتج = أكبر نسخة يشتقّها الخادم (500 افتراضًا) فلا نرفع بكسلًا
+     | زائدًا ولا ننقص عمّا سيُعرَض. والمصدر خدمة المعالجة نفسها لا رقمٌ ثانٍ
+     | يتقادم بجوارها (2.13).
+     */
+    $avatarCropPx = app(\App\Services\Images\AvatarProcessor::class)->sizes()[0] ?? 500;
+    $avatarZoomMax = 4;
+
     // صفحات الإعدادات تتجمّع في صفحة واحدة بتابات جانبيّة (2.15-ب)
     $groups = [
         'account' => ['label' => setting('account.settings.tab_account', 'الحساب'), 'icon' => 'user'],
@@ -60,8 +69,8 @@
                     'control' => '<input type="text" name="value" value="'.e($user->name).'" class="'.$inputClass.'" style="'.$inputStyle.'">',
                 ])
 
-                {{-- الأفاتار بقصّ ومعاينة (24.5) --}}
-                <div class="py-3" data-settings-item data-keywords="الأفاتار الصورة الشخصيّة avatar"
+                {{-- الأفاتار بقصّ ومعاينة (24.5) — والقصّ **بيد المستخدم** (2.7-1) --}}
+                <div class="py-3" data-settings-item data-keywords="الأفاتار الصورة الشخصيّة قصّ قص avatar crop"
                      style="border-bottom: 1px solid var(--border)">
                     <form method="post" action="{{ route('settings.avatar') }}" enctype="multipart/form-data"
                           class="flex flex-wrap items-end gap-3">
@@ -76,14 +85,59 @@
                             <span class="block text-sm mb-1">{{ setting('account.settings.avatar_label', 'الصورة الشخصيّة') }}</span>
                             <input type="file" name="avatar" accept="image/*" data-avatar-input class="text-xs">
                             <span class="block text-xs mt-1" style="color: var(--text-muted)">
-                                {{ str_replace(':kb', $avatarMaxKb, (string) setting('account.settings.avatar_hint', 'بنقصّها مربّعة تلقائيًّا، وأقصى حجم :kb كيلوبايت.')) }}
+                                {{ str_replace(':kb', $avatarMaxKb, (string) setting('account.settings.avatar_hint', 'هتقصّها مربّعة بنفسك قبل الحفظ، وأقصى حجم :kb كيلوبايت.')) }}
                             </span>
                         </label>
 
                         <input type="hidden" name="avatar_data" data-avatar-data>
-                        <button type="submit" class="btn rounded-xl px-4 py-2 text-xs motion-standard"
+                        <button type="submit" data-avatar-save class="btn rounded-xl px-4 py-2 text-xs motion-standard"
                                 style="background: var(--color-brand-500); color: #04201c">{{ setting('account.settings.avatar_save', 'حفظ الصورة') }}</button>
                     </form>
+
+                    {{--
+                      ✂️ محرّر القصّ المربّع (2.7-1): «قص مربّع إجباري **بواسطة
+                      المستخدم** أولًا». القصّ التلقائيّ من المنتصف كان يختار
+                      عن صاحب الصورة فيقصّ رأسه أحيانًا؛ هنا هو يسحب ويكبّر
+                      ويؤكّد، والمربّع الناتج يدخل **نفس** مسار الرفع القديم
+                      (`avatar_data`) فيكمّل الخادم اشتقاق النسخ الثلاث
+                      (500 · 150 · 50) بلا تغيير.
+                    --}}
+                    <div data-avatar-cropper hidden class="mt-3 rounded-2xl p-3"
+                         style="background: var(--surface-sunken); border: 1px solid var(--border)">
+                        <h3 class="text-sm font-bold mb-1">{{ setting('account.settings.avatar_crop_title', 'اقصّ صورتك') }}</h3>
+                        <p class="text-xs mb-3" style="color: var(--text-muted)">
+                            {{ setting('account.settings.avatar_crop_hint', 'حرّك الصورة جوّه المربّع واظبط التكبير — اللي بيّن جوّه بالظبط هو اللي هيتحفظ.') }}
+                        </p>
+
+                        <div data-avatar-stage tabindex="0" role="application"
+                             aria-label="{{ setting('account.settings.avatar_crop_stage_aria', 'منطقة القصّ — اسحب بالماوس أو بإصبعك، والأسهم تحرّك، و+ و− يكبّرا ويصغّرا.') }}"
+                             class="relative mx-auto select-none motion-standard"
+                             style="width: 16rem; max-width: 100%; aspect-ratio: 1 / 1; overflow: hidden; border-radius: 1rem; cursor: grab; touch-action: none; background: var(--surface-raised); border: 1px solid var(--border)">
+                            <canvas data-avatar-crop-canvas class="block" style="width: 100%; height: 100%"></canvas>
+
+                            {{-- تعتيم ما خارج الدائرة: المربّع هو المحفوظ، والدائرة شكله كأفاتار --}}
+                            <span aria-hidden="true" class="pointer-events-none absolute inset-0"
+                                  style="box-shadow: inset 0 0 0 9999px color-mix(in srgb, var(--surface-sunken) 55%, transparent); -webkit-mask: radial-gradient(circle at center, transparent 49.5%, #000 50%); mask: radial-gradient(circle at center, transparent 49.5%, #000 50%)"></span>
+                            <span aria-hidden="true" class="pointer-events-none absolute inset-0 rounded-full"
+                                  style="border: 2px dashed color-mix(in srgb, var(--color-brand-500) 70%, transparent)"></span>
+                        </div>
+
+                        <label class="block mt-3">
+                            <span class="block text-xs mb-1">{{ setting('account.settings.avatar_crop_zoom', 'التكبير') }}</span>
+                            {{-- بلا `accent-color` (2.10.1-11) — المنزلق المخصّص في `app.css` --}}
+                            <input type="range" data-avatar-zoom min="1" max="{{ $avatarZoomMax }}" step="0.01" value="1"
+                                   class="w-full" style="border: none; outline: none; min-height: 44px">
+                        </label>
+
+                        <div class="flex flex-wrap gap-2 mt-2">
+                            <button type="button" data-avatar-confirm class="btn rounded-xl px-4 py-2 text-xs font-semibold motion-standard"
+                                    style="background: var(--color-brand-500); color: #04201c">{{ setting('account.settings.avatar_crop_confirm', 'تأكيد القصّ') }}</button>
+                            <button type="button" data-avatar-cancel class="rounded-xl px-4 py-2 text-xs motion-standard"
+                                    style="background: var(--surface-raised); color: var(--text); border: 1px solid var(--border)">{{ setting('account.settings.avatar_crop_cancel', 'إلغاء') }}</button>
+                        </div>
+                    </div>
+
+                    <p class="text-xs mt-2" data-avatar-crop-note hidden></p>
                 </div>
 
                 @include('account.partials.autosave-field', [
@@ -298,6 +352,12 @@
             'saved' => (string) setting('account.settings.saved_flag', 'اتحفظ ✓'),
             'retry' => (string) setting('account.settings.autosave_retry', 'تعذّر الحفظ — جرّب تاني'),
         ];
+
+        // ونصوص محرّر القصّ كذلك — لا نصّ عربيّ داخل السكربت (2.13)
+        $cropWords = [
+            'required' => (string) setting('account.settings.avatar_crop_required', 'اقصّ الصورة الأوّل عشان تقدر تحفظها.'),
+            'done' => (string) setting('account.settings.avatar_crop_done', 'تمّ القصّ ✓ — تقدر تحفظ دلوقتي.'),
+        ];
     @endphp
     <script>
         const autosaveWords = @json($autosaveWords);
@@ -390,24 +450,218 @@
             });
         });
 
-        // الأفاتار: قصّ مربّع ومعاينة قبل الرفع (24.5)
+        /* ------------------------------------------------------------------
+         | الأفاتار: **قصّ مربّع بيد المستخدم** قبل الرفع (2.7-1 · 24.5)
+         |
+         | البند يقول «قص مربّع إجباري **بواسطة المستخدم** أولًا» — فالقصّ
+         | التلقائيّ من المنتصف كان يختار عن صاحب الصورة. هنا: المستخدم
+         | يسحب الصورة داخل مربّعٍ ثابت ويكبّر (عجلة · شريط · إصبعين ·
+         | لوحة مفاتيح) ثمّ **يؤكّد**، وناتج المربّع يدخل نفس الحقل القديم
+         | `avatar_data` فلا يتغيّر شيء في الخادم: هو يستقبل مربّعًا كما كان،
+         | لكنّه الآن المربّع الذي **اختاره المستخدم**، ويكمّل اشتقاق النسخ
+         | الثلاث (500 · 150 · 50) بلا مساس.
+         ------------------------------------------------------------------ */
+        const cropWords = @json($cropWords);
+        const cropPx = @json($avatarCropPx);
+        const zoomMax = @json($avatarZoomMax);
+
         const avatarInput = document.querySelector('[data-avatar-input]');
-        const canvas = document.querySelector('[data-avatar-canvas]');
+        const preview = document.querySelector('[data-avatar-canvas]');
         const avatarData = document.querySelector('[data-avatar-data]');
-        avatarInput?.addEventListener('change', () => {
-            const file = avatarInput.files?.[0];
-            if (!file || !canvas) return;
-            const img = new Image();
-            img.onload = () => {
-                const side = Math.min(img.width, img.height);
-                const ctx = canvas.getContext('2d');
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                ctx.drawImage(img, (img.width - side) / 2, (img.height - side) / 2, side, side, 0, 0, canvas.width, canvas.height);
-                canvas.classList.remove('hidden');
-                document.querySelector('[data-avatar-current]')?.classList.add('hidden');
-                if (avatarData) avatarData.value = canvas.toDataURL('image/png');
+        const cropper = document.querySelector('[data-avatar-cropper]');
+        const stage = document.querySelector('[data-avatar-stage]');
+        const stageCanvas = document.querySelector('[data-avatar-crop-canvas]');
+        const zoomBar = document.querySelector('[data-avatar-zoom]');
+        const avatarSave = document.querySelector('[data-avatar-save]');
+        const cropNote = document.querySelector('[data-avatar-crop-note]');
+
+        if (avatarInput && stage && stageCanvas) {
+            // مخزن الكانفس = مقاس الناتج نفسه، فالمربّع المعروض هو المحفوظ حرفيًّا
+            stageCanvas.width = cropPx;
+            stageCanvas.height = cropPx;
+            const ctx = stageCanvas.getContext('2d');
+
+            let img = null;      // الصورة المختارة
+            let baseScale = 1;   // أصغر تكبير يغطّي المربّع (cover)
+            let level = 1;       // تكبير المستخدم فوق الأساس
+            let offX = 0;
+            let offY = 0;
+
+            const drawnSize = () => {
+                const s = baseScale * level;
+                return { w: img.width * s, h: img.height * s };
             };
-            img.src = URL.createObjectURL(file);
-        });
+
+            // الصورة تغطّي المربّع دائمًا — فلا فراغ أبيض في زاويةٍ من الأفاتار
+            const draw = () => {
+                if (!img) return;
+                const { w, h } = drawnSize();
+                offX = Math.min(0, Math.max(cropPx - w, offX));
+                offY = Math.min(0, Math.max(cropPx - h, offY));
+                ctx.clearRect(0, 0, cropPx, cropPx);
+                ctx.drawImage(img, offX, offY, w, h);
+            };
+
+            // التكبير حول نقطةٍ ثابتة (مركز المربّع أو موضع المؤشّر) فلا تقفز الصورة
+            const setZoom = (next, ax = cropPx / 2, ay = cropPx / 2) => {
+                if (!img) return;
+                const prev = level;
+                level = Math.min(zoomMax, Math.max(1, Number.isFinite(next) ? next : prev));
+                const k = level / prev;
+                offX = ax - (ax - offX) * k;
+                offY = ay - (ay - offY) * k;
+                if (zoomBar) {
+                    zoomBar.value = String(level);
+                    // تلوين المنزلق في `app.js` يسمع الأحداث لا الإسناد البرمجيّ —
+                    // فالتكبير بالعجلة أو بالإصبعين يترك الشريط متخلّفًا بلا هذه.
+                    zoomBar.dispatchEvent(new Event('change'));
+                }
+                draw();
+            };
+
+            // حالة «لسه ما قصّش»: الحفظ موقوف حتى يؤكّد — القصّ إجباريّ (2.7-1)
+            const setPending = (on) => {
+                if (avatarSave) {
+                    avatarSave.disabled = on;
+                    avatarSave.style.opacity = on ? '0.5' : '1';
+                    avatarSave.style.cursor = on ? 'not-allowed' : '';
+                }
+                if (cropNote) {
+                    cropNote.hidden = false;
+                    cropNote.textContent = on ? cropWords.required : cropWords.done;
+                    cropNote.style.color = on ? 'var(--color-state-warn)' : 'var(--color-state-ok)';
+                }
+                if (on && avatarData) avatarData.value = '';
+            };
+
+            const toCanvasPx = (px) => {
+                const rect = stage.getBoundingClientRect();
+                return rect.width ? px * (cropPx / rect.width) : px;
+            };
+
+            // ----------------------------------------------------- السحب واللمس
+            const pointers = new Map();
+            let lastDist = 0;
+
+            stage.addEventListener('pointerdown', (e) => {
+                if (!img) return;
+                stage.setPointerCapture(e.pointerId);
+                pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+                lastDist = 0;
+                stage.style.cursor = 'grabbing';
+            });
+
+            stage.addEventListener('pointermove', (e) => {
+                if (!img || !pointers.has(e.pointerId)) return;
+                const prev = pointers.get(e.pointerId);
+                pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+
+                const pts = [...pointers.values()];
+                if (pts.length >= 2) {
+                    // إصبعان = تكبير بالقرص
+                    const dist = Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
+                    if (lastDist > 0) setZoom(level * (dist / lastDist));
+                    lastDist = dist;
+                    return;
+                }
+
+                offX += toCanvasPx(e.clientX - prev.x);
+                offY += toCanvasPx(e.clientY - prev.y);
+                draw();
+            });
+
+            const release = (e) => {
+                pointers.delete(e.pointerId);
+                lastDist = 0;
+                stage.style.cursor = 'grab';
+            };
+            stage.addEventListener('pointerup', release);
+            stage.addEventListener('pointercancel', release);
+
+            // ----------------------------------------------------- عجلة الماوس
+            stage.addEventListener('wheel', (e) => {
+                if (!img) return;
+                e.preventDefault();
+                const rect = stage.getBoundingClientRect();
+                const f = rect.width ? cropPx / rect.width : 1;
+                setZoom(level * (e.deltaY < 0 ? 1.1 : 1 / 1.1), (e.clientX - rect.left) * f, (e.clientY - rect.top) * f);
+            }, { passive: false });
+
+            // ------------------------------------- لوحة المفاتيح (وصوليّة 2.12)
+            stage.addEventListener('keydown', (e) => {
+                if (!img) return;
+                const step = cropPx / 20;
+                const moves = { ArrowLeft: [-step, 0], ArrowRight: [step, 0], ArrowUp: [0, -step], ArrowDown: [0, step] };
+                if (moves[e.key]) {
+                    offX += moves[e.key][0];
+                    offY += moves[e.key][1];
+                    draw();
+                    e.preventDefault();
+                } else if (e.key === '+' || e.key === '=') {
+                    setZoom(level + 0.1);
+                    e.preventDefault();
+                } else if (e.key === '-' || e.key === '_') {
+                    setZoom(level - 0.1);
+                    e.preventDefault();
+                }
+            });
+
+            zoomBar?.addEventListener('input', () => setZoom(parseFloat(zoomBar.value)));
+
+            // ----------------------------------------------- فتح المحرّر بالاختيار
+            avatarInput.addEventListener('change', () => {
+                const file = avatarInput.files?.[0];
+                if (!file) return;
+
+                const url = URL.createObjectURL(file);
+                const next = new Image();
+                next.onload = () => {
+                    img = next;
+                    baseScale = Math.max(cropPx / img.width, cropPx / img.height);
+                    level = 1;
+                    if (zoomBar) zoomBar.value = '1';
+                    const { w, h } = drawnSize();
+                    offX = (cropPx - w) / 2;
+                    offY = (cropPx - h) / 2;
+                    if (cropper) cropper.hidden = false;
+                    setPending(true);
+                    draw();
+                    stage.focus({ preventScroll: true });
+                    URL.revokeObjectURL(url);
+                };
+                next.src = url;
+            });
+
+            // ----------------------------------------------------- تأكيد وإلغاء
+            document.querySelector('[data-avatar-confirm]')?.addEventListener('click', () => {
+                if (!img) return;
+                draw();
+                if (avatarData) avatarData.value = stageCanvas.toDataURL('image/png');
+                if (preview) {
+                    const pctx = preview.getContext('2d');
+                    pctx.clearRect(0, 0, preview.width, preview.height);
+                    pctx.drawImage(stageCanvas, 0, 0, preview.width, preview.height);
+                    preview.classList.remove('hidden');
+                    document.querySelector('[data-avatar-current]')?.classList.add('hidden');
+                }
+                if (cropper) cropper.hidden = true;
+                setPending(false);
+            });
+
+            document.querySelector('[data-avatar-cancel]')?.addEventListener('click', () => {
+                img = null;
+                avatarInput.value = '';
+                if (avatarData) avatarData.value = '';
+                if (cropper) cropper.hidden = true;
+                preview?.classList.add('hidden');
+                document.querySelector('[data-avatar-current]')?.classList.remove('hidden');
+                if (avatarSave) {
+                    avatarSave.disabled = false;
+                    avatarSave.style.opacity = '1';
+                    avatarSave.style.cursor = '';
+                }
+                if (cropNote) cropNote.hidden = true;
+            });
+        }
     </script>
 @endpush

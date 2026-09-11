@@ -4,6 +4,8 @@ namespace Tests\Feature\Account;
 
 use App\Models\ConsentRequest;
 use App\Models\EmergencyContact;
+use App\Models\Setting;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Schema;
 
 /**
@@ -274,5 +276,68 @@ class SettingsTest extends AccountTestCase
             ->assertOk()
             ->assertSee('email_channel', false)
             ->assertSee('رسايل البريد');
+    }
+
+    // -------------------------------------------- قصّ الأفاتار بيد المستخدم (2.7-1)
+
+    /**
+     * ✂️ 2.7-1 — «**قص مربّع إجباري (Square Crop) بواسطة المستخدم أولًا**».
+     *
+     * كانت الشاشة تقصّ من المنتصف **تلقائيًّا** بمجرّد اختيار الملفّ، وتَعِد
+     * بذلك نصًّا: «بنقصّها مربّعة تلقائيًّا» — فصاحب الصورة لا يملك اختيار ما
+     * يبقى منها، وقد يخرج وجهه خارج المربّع. والحارس يقيس **وجود المحرّر**
+     * (مربّعٌ يُسحَب داخله ويُكبَّر ثمّ يُؤكَّد) و**غياب** وعد القصّ التلقائيّ.
+     */
+    public function test_the_avatar_is_cropped_by_the_user_not_automatically(): void
+    {
+        $page = $this->actingAs($this->trainee())->get(route('settings.index'))->assertOk();
+
+        // 1) المحرّر نفسه: مسرح القصّ · شريط التكبير · زرّ التأكيد
+        foreach (['data-avatar-cropper', 'data-avatar-stage', 'data-avatar-crop-canvas', 'data-avatar-zoom', 'data-avatar-confirm'] as $hook) {
+            $page->assertSee($hook, false);
+        }
+
+        // 2) ولا وعدَ بقصٍّ يختار عن المستخدم
+        $page->assertDontSee('بنقصّها مربّعة تلقائيًّا');
+    }
+
+    /** ولا نصَّ محروقًا في المحرّر — كلّ كلمةٍ فيه من الإعدادات (2.13). */
+    public function test_the_avatar_crop_texts_come_from_settings(): void
+    {
+        $texts = [
+            'account.settings.avatar_hint' => 'شرح الصورة من اللوحة — :kb كيلوبايت.',
+            'account.settings.avatar_crop_title' => 'عنوان القصّ من اللوحة',
+            'account.settings.avatar_crop_hint' => 'شرح القصّ من اللوحة',
+            'account.settings.avatar_crop_confirm' => 'تأكيد من اللوحة',
+            'account.settings.avatar_crop_cancel' => 'إلغاء من اللوحة',
+            'account.settings.avatar_crop_zoom' => 'تكبير من اللوحة',
+            'account.settings.avatar_crop_required' => 'لازم تقصّ الأوّل — من اللوحة',
+            'account.settings.avatar_crop_done' => 'خلص القصّ — من اللوحة',
+        ];
+
+        foreach ($texts as $key => $value) {
+            Setting::updateOrCreate(
+                ['key' => $key],
+                ['group' => 'account', 'label_ar' => $key, 'type' => 'string', 'value' => $value],
+            );
+        }
+
+        Cache::forget('settings');
+
+        $page = $this->actingAs($this->trainee())->get(route('settings.index'))->assertOk();
+
+        // نصّا المحرّر اللذان يذهبان للسكربت يُطبَعان مُرمَّزَين بـ`@json`
+        $inScript = ['account.settings.avatar_crop_required', 'account.settings.avatar_crop_done'];
+
+        foreach ($texts as $key => $value) {
+            $needle = match (true) {
+                // الشرح وحده يمرّ باستبدال :kb — فنقيس الجزء الثابت منه
+                $key === 'account.settings.avatar_hint' => 'شرح الصورة من اللوحة',
+                in_array($key, $inScript, true) => trim((string) json_encode($value), '"'),
+                default => $value,
+            };
+
+            $page->assertSee($needle, false);
+        }
     }
 }

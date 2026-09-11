@@ -135,6 +135,58 @@ class ProfileExtrasTest extends UiTestCase
         }
     }
 
+    /**
+     * ✂️ 2.7-1 — القصّ **بواسطة المستخدم** أوّلًا، ثمّ النسخ الثلاث.
+     *
+     * الشاشة صارت ترسل مربّعًا **اختار المستخدم إطاره** في الحقل نفسه
+     * (`avatar_data`) الذي كان يستقبل مربّع القصّ التلقائيّ — فالخادم لم
+     * يتغيّر حرفًا. والحارس يقيس أمرين: أنّ المسار ما زال يشتقّ الثلاث
+     * (500 · 150 · 50) مربّعةً، وأنّ **الإطار الذي اختاره المستخدم ينجو**
+     * فلا يُعاد قصّه من المنتصف فيضيع اختياره.
+     */
+    public function test_a_user_cropped_square_flows_through_the_pipeline_untouched(): void
+    {
+        Storage::fake('public');
+
+        $user = $this->trainee();
+
+        // مربّعٌ «مقصوص من المستخدم»: نصفه الأيسر أحمر ونصفه الأيمن أزرق
+        $canvas = imagecreatetruecolor(400, 400);
+        imagefilledrectangle($canvas, 0, 0, 199, 399, imagecolorallocate($canvas, 255, 0, 0));
+        imagefilledrectangle($canvas, 200, 0, 399, 399, imagecolorallocate($canvas, 0, 0, 255));
+        ob_start();
+        imagepng($canvas);
+        $binary = (string) ob_get_clean();
+        imagedestroy($canvas);
+
+        $this->actingAs($user)
+            ->post(route('settings.avatar'), [
+                'avatar_data' => 'data:image/png;base64,'.base64_encode($binary),
+            ])
+            ->assertRedirect();
+
+        $sizes = $user->fresh()->avatar_sizes;
+
+        $this->assertSame([500, 150, 50], array_map('intval', array_keys($sizes)));
+
+        foreach ($sizes as $size => $path) {
+            Storage::disk('public')->assertExists($path);
+
+            [$width, $height] = getimagesize(Storage::disk('public')->path($path));
+            $this->assertSame((int) $size, $width);
+            $this->assertSame($width, $height);
+        }
+
+        // الإطار الذي اختاره المستخدم كما هو: الربع الأيسر أحمر والأيمن أزرق
+        $image = imagecreatefrompng(Storage::disk('public')->path($sizes['500']));
+        $left = imagecolorsforindex($image, imagecolorat($image, 125, 250));
+        $right = imagecolorsforindex($image, imagecolorat($image, 375, 250));
+        imagedestroy($image);
+
+        $this->assertGreaterThan(200, $left['red'], 'النصف الأيسر اتغيّر — يبقى الخادم أعاد القصّ.');
+        $this->assertGreaterThan(200, $right['blue'], 'النصف الأيمن اتغيّر — يبقى الخادم أعاد القصّ.');
+    }
+
     public function test_each_context_gets_the_size_it_needs(): void
     {
         $user = $this->trainee();
