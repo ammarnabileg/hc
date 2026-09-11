@@ -28,8 +28,7 @@
   - `2026_09_10_100070_email_templates_need_a_real_table.php`
   - `2026_09_10_100060_a_file_position_needs_a_shareable_invite_link.php`
   - `2026_09_10_100050_a_committee_meeting_needs_a_real_attendance_event.php`
-  - `2026_09_10_100040_a_nomination_needs_to_know_who_nominated.php`
-  - … و259 غيرها.
+  - … و260 غيرها.
 <!-- تلقائيّ:نهاية:المنجز -->
 
 ## ⬜ المتبقّي
