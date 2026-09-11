@@ -6,7 +6,11 @@ use App\Models\MediaItem;
 use App\Models\Meeting;
 use App\Models\MeetingPost;
 use App\Models\MeetingQuestion;
+use App\Models\Permission;
+use App\Support\Access\AccessEngine;
+use Database\Seeders\PermissionSeeder;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 /**
@@ -316,5 +320,77 @@ class MeetingsAdminManagementTest extends ScreensTestCase
 
         $this->assertNull($meeting->minutes);
         $this->assertSame('scheduled', $meeting->status);
+    }
+
+    /**
+     * ⭐ [2026-09-11] **تثبيتُ تغطيةٍ لا إصلاح** — تحقّقٌ من مسحٍ ختاميّ ادّعى
+     * ثغرة هنا ولم تكن موجودة، والحكم عليه لا يصحّ بلا تحوّرٍ فعليّ (mutation).
+     *
+     * الادّعاء: صاحب `meetings.edit` بنطاقٍ ضيّق (`SELF`) — كما هو منصوصٌ فعليًّا
+     * لكوردينيتور/تيم-ليدر في `database/data/permissions.json` — يملك المبدأ
+     * فيقدر يُدير **أيّ اجتماعٍ على المنصّة** لأنّ المِدل-وير «لا يعرف عن أيّ
+     * سجلٍّ نتكلّم». **وهذا غير صحيح**: تحقّقتُ بالتحوّر (إزالة الحراسة المقترَحة
+     * كليًّا) قبل كتابة أيّ إصلاح، ونجح كلّ الطلبات على اجتماع «زميلٍ» رغم ذلك —
+     * ثمّ تتبّعت السبب: `EnsurePermission::targetOf()` يمرّر سجلّ المسار كهدفٍ
+     * **للنطاق** إلى `AccessEngine::allowsOnRecord()`، و`ScopeResolver::covers()`
+     * لنطاق `SELF` يقرأ `owner_id` **من السجلّ نفسه** (`targetUserId()`) قبل أن
+     * يقارنه بصاحب الطلب — فالحماية بالملكيّة قائمةٌ فعلًا **في طبقة النطاق**،
+     * لا في شرط `is_owner` وحده الذي يتخطّاه `allowsOnRecord()` عمدًا (موثَّقٌ
+     * في تعليق الصنف نفسه: النطاق وحده حقّ بوّابة المسار، والشرط حقّ المجال).
+     * فلا حاجة لحارسٍ ثانٍ في المتحكّم يكرّر فحصًا يجريه المِدل-وير أصلًا.
+     *
+     * فبقي الاختبار **تثبيتَ تغطيةٍ** لا إصلاحًا: يثبت أنّ حماية المنصّة
+     * القائمة (لا كودٌ جديد) تصمد حتى في الحالة الأدقّ — زميلٌ في **نفس الكيان**
+     * (لا كيانٍ مختلف، الذي كان سيَحجب بفارق الكيان وحده ويُخفي الحقيقة). ولو
+     * انكسر يومًا `targetUserId()`/`isScopable()` لتوقّف الميزة بلا إنذار،
+     * فالحارس هنا يحرس ذلك الافتراض بعينه.
+     */
+    public function test_platform_scope_protection_already_confines_a_self_scoped_editor_to_their_own_meetings(): void
+    {
+        $this->seed(PermissionSeeder::class);
+
+        $narrow = $this->makeUser('كوردينيتور نطاقه ضيّق');
+
+        // meetings.edit (SELF · شرط is_owner) لأفعال الإدارة الستّة (وهي أيضًا
+        // ما يحسم canManage() داخل show() نفسها) · meetings.view (SELF) لفتح
+        // باب show() فقط — مِدل-ويره منفصلٌ عن meetings.manage/edit · و
+        // meeting_attendance.manage (SELF · شرط is_owner كذلك) لباب grant() المنفصل
+        foreach (['meetings.edit', 'meetings.view', 'meeting_attendance.manage'] as $key) {
+            DB::table('permission_user')->insert([
+                'permission_id' => Permission::query()->where('key', $key)->value('id'),
+                'user_id' => $narrow->id,
+                'membership_id' => null,
+                'scope' => 'SELF',
+                'effect' => 'allow',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
+        app(AccessEngine::class)->forget($narrow);
+
+        // نفس الكيان للاثنين — انظر التعليق أعلاه: فارق النطاق وحده لا يكفي حارسًا
+        $entity = $this->makeEntity();
+        $own = $this->makeMeeting($narrow, $entity, ['status' => 'ended']);
+        $stranger = $this->makeMeeting($this->makeUser('زميلٌ في الكيان نفسه'), $entity, ['status' => 'ended']);
+
+        // على اجتماعه هو: يمرّ (403 لا يقع)
+        $this->actingAs($narrow)->get(route('admin.meetings.show', $own))->assertOk();
+        $this->actingAs($narrow)->post(route('admin.meetings.questions', $own), [])->assertRedirect();
+
+        // على اجتماع غيره: يُرَدّ على كلّ فعلٍ — الباب فتحه المبدأ، والسجلّ ردّه النطاق
+        $this->actingAs($narrow)->get(route('admin.meetings.show', $stranger))->assertForbidden();
+        $this->actingAs($narrow)->post(route('admin.meetings.questions', $stranger), [])->assertForbidden();
+        $this->actingAs($narrow)->post(route('admin.meetings.minutes', $stranger), ['minutes' => 'محاولة اختراق'])->assertForbidden();
+        $this->actingAs($narrow)->post(route('admin.meetings.pin', $stranger), ['post_id' => 1])->assertForbidden();
+        $this->actingAs($narrow)->post(route('admin.meetings.cancel', $stranger), ['reason' => 'محاولة اختراق'])->assertForbidden();
+        $this->actingAs($narrow)->post(route('admin.meetings.end', $stranger), ['window_hours' => 6])->assertForbidden();
+        $this->actingAs($narrow)->post(route('admin.meetings.grant', $stranger), [
+            'user_id' => $narrow->id,
+            'reason' => 'محاولة اختراق',
+        ])->assertForbidden();
+
+        $stranger->refresh();
+        $this->assertNull($stranger->minutes);
+        $this->assertSame('ended', $stranger->status);
     }
 }
