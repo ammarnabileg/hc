@@ -183,6 +183,12 @@ class AdminSystemDemoSeeder extends Seeder
             ['topup.gateway.min_amount', 'store', 'الحدّ الأدنى لعمليّة البوّابة', 'number', '50', false],
             ['topup.gateway.max_amount', 'store', 'الحدّ الأقصى لعمليّة البوّابة', 'number', '20000', false],
             ['topup.gateway.fees_on', 'store', 'تحميل الرسوم (platform/user)', 'string', 'platform', false],
+            /*
+            | ⚠️ صفرٌ عمدًا: 19.5-ج-1 يؤجّل «رسوم كلّ وسيلة» لحين تأكيدها من
+            | داشبورد التاجر، فالصفر يعني «لم تُعرَف بعد» لا «لا رسوم» — وبه
+            | يبقى `fees_on` بلا أثرٍ ماليّ حتى يكتب المالك النسبة الحقيقيّة.
+            */
+            ['topup.gateway.fee_percent', 'store', 'نسبة رسوم البوّابة (%)', 'number', '0', false],
             ['topup.gateway.timeout_seconds', 'store', 'مهلة نداء البوّابة (ثوانٍ)', 'number', '8', false],
             ['topup.gateway.logs_per_page', 'store', 'صفوف سجلّ الويب هوك', 'number', '25', false],
             ['topup.gateway.customer_address', 'store', 'عنوان العميل الافتراضيّ', 'string', '-', false],

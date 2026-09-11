@@ -7,6 +7,7 @@ use App\Models\TopupOffer;
 use App\Models\TopupRequest;
 use App\Models\TransferMethod;
 use App\Services\Wallet\GatewayService;
+use App\Services\Wallet\TopupLimits;
 use App\Services\Wallet\TopupService;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -20,7 +21,10 @@ use Throwable;
  */
 class TopupController extends Controller
 {
-    public function __construct(private readonly TopupService $topups) {}
+    public function __construct(
+        private readonly TopupService $topups,
+        private readonly TopupLimits $limits,
+    ) {}
 
     /** 🖥️ صفحة الشحن — التاب الافتراضيّ من لوحة الأدمن */
     public function index(Request $request)
@@ -75,7 +79,12 @@ class TopupController extends Controller
 
         $data = $request->validate([
             'topup_offer_id' => ['nullable', Rule::exists('topup_offers', 'id')->where('method', 'manual')->where('is_active', true)],
-            'transferred_amount' => ['required', 'numeric', 'min:'.(float) setting('topup.min_amount', 1)],
+            /*
+            | الحدّ الأدنى والأقصى والحدّ اليوميّ من **مصدرٍ واحد** (`TopupLimits`)،
+            | لا من `topup.min_amount` الذي كان مفتاحًا ثالثًا مخفيًّا (قيمته 10)
+            | يتجاوز صامتًا ما يضبطه المالك في شاشة 🔒 الماليّات (50).
+            */
+            'transferred_amount' => ['required', 'numeric', $this->limits->rule($user, TopupLimits::CHANNEL_MANUAL)],
             'paid_at' => ['required', 'date', 'before_or_equal:now'],
             'transfer_method_id' => ['required', Rule::exists('transfer_methods', 'id')->where('is_active', true)],
             'contact_phone' => ['required', 'string', 'max:32'],
@@ -106,18 +115,30 @@ class TopupController extends Controller
             return back()->with('status', (string) setting('topup.screen.start_gateway_msg', 'بوّابة الدفع متوقّفة حاليًّا — تقدر تستعمل التحويل اليدويّ.'));
         }
 
+        // ⛔ ولا وسيلة دفعٍ مفعَّلة (19.5-ج-5) = صفحة دفعٍ بلا زرّ دفع — فلا نبدأ أصلًا
+        if ($gateway->enabledMethods() === []) {
+            return back()->with('status', (string) setting('topup.screen.start_gateway_msg_4', 'مافيش وسيلة دفع مفعَّلة على البوّابة دلوقتي — استعمل التحويل اليدويّ.'));
+        }
+
         $data = $request->validate([
             'topup_offer_id' => ['required', Rule::exists('topup_offers', 'id')->where('method', 'gateway')->where('is_active', true)],
         ]);
 
         $offer = TopupOffer::query()->findOrFail($data['topup_offer_id']);
 
+        /*
+        | ⭐ الحدود تُفحَص على **قيمة العرض من الخادم** لا على رقمٍ من المتصفّح
+        | (19.5-أ)، ونافذة البوّابة تضيّق سياسة المنصّة ولا توسّعها (19.5-ج-5).
+        */
+        $rejection = $this->limits->rejectionFor($request->user(), (float) $offer->pay_amount, TopupLimits::CHANNEL_GATEWAY);
+
+        if ($rejection !== null) {
+            return back()->with('status', $rejection);
+        }
+
         try {
-            $invoice = $gateway->startInvoice($request->user(), $offer, [
-                'successUrl' => route('wallet.topup.return', ['state' => 'success']),
-                'failUrl' => route('wallet.topup.return', ['state' => 'fail']),
-                'pendingUrl' => route('wallet.topup.return', ['state' => 'pending']),
-            ]);
+            // روابط الرجوع الثلاثة من الإعدادات — لا `route()` محروقة (19.5-ج-5)
+            $invoice = $gateway->startInvoice($request->user(), $offer, $gateway->redirectionUrls());
         } catch (Throwable $e) {
             report($e);
 

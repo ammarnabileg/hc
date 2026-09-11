@@ -827,6 +827,7 @@ class HttpTextDemoSeeder extends Seeder
             ['topup.screen.start_gateway_msg', 'store', 'startGateway() — بوّابة الدفع متوقّفة حاليًّا — تقدر تستعمل التحويل اليدويّ.', 'بوّابة الدفع متوقّفة حاليًّا — تقدر تستعمل التحويل اليدويّ.'],
             ['topup.screen.start_gateway_msg_2', 'store', 'startGateway() — ما قدرناش نفتح صفحة الدفع دلوقتي. جرّب تاني بعد شويّة أو است', 'ما قدرناش نفتح صفحة الدفع دلوقتي. جرّب تاني بعد شويّة أو استعمل التحويل اليدويّ.'],
             ['topup.screen.start_gateway_msg_3', 'store', 'startGateway() — البوّابة ما رجّعتش رابط دفع. جرّب تاني أو استعمل التحويل الي', 'البوّابة ما رجّعتش رابط دفع. جرّب تاني أو استعمل التحويل اليدويّ.'],
+            ['topup.screen.start_gateway_msg_4', 'store', 'startGateway() — مافيش وسيلة دفع مفعَّلة على البوّابة دلوقتي — استعمل التحوي', 'مافيش وسيلة دفع مفعَّلة على البوّابة دلوقتي — استعمل التحويل اليدويّ.'],
             // ---- app/Http/Controllers/Trainee/WalletController.php
             ['wallet.screen.export_msg', 'wallet', 'export() — العملة', 'العملة'],
             ['wallet.screen.export_msg_2', 'wallet', 'export() — الكمية', 'الكمية'],

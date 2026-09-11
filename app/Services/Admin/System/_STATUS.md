@@ -48,16 +48,35 @@
   الفاتورة) · `finance.pricing.default_currency` · `finance.refund.policy_ar/en`
   و`show_before_payment/show_standalone_page` (أماكن ظهور السياسة — القيم
   تُبنى مصفوفةً في `refundPlacements()` لكن لا أحد يتحقّق منها في مسار الدفع
-  الفعليّ) · `finance.topup.daily_limit/max_amount/min_amount` (حدود الشحن) ·
-  `finance.withdraw.sla_hours`.
-- **البوّابة (`GatewayAdminService::PUBLIC_KEYS`):** `topup.gateway.success_url`
-  · `fail_url` · `pending_url` · `methods` · `min_amount` · `max_amount` ·
-  `fees_on` — معروضةٌ للتحرير في شاشة البوّابة، لكنّ **تكامل البوّابة الفعليّ لم
-  يُبنَ بعد** (النصّ 3505 يشترط تأكيد الأسماء الدقيقة من داشبورد التاجر وقت
-  البناء) فلا مستهلك لها غير `PUBLIC_KEYS` نفسها. الأربعة الباقية من نفس
-  الكتالوج (`enabled`·`sandbox`·`currency`·`api_key`·`vendor_key`·
-  `timeout_seconds`) مقروءةٌ فعلًا في `testConnection()`/`GatewayGuard` وسُجِّلت
-  في `SettingsCoverage::deadKeys()`.
+  الفعليّ) · `finance.withdraw.sla_hours`.
+- ✅ **[مقفولة 2026-09-11] `finance.topup.daily_limit/max_amount/min_amount`
+  صارت مقروءةً ومطبَّقة — وكانت أسوأ من «بلا أثر»: كان لها أثرٌ كاذب.**
+  تحقّقنا بقراءة المسار كاملًا لا بملخّص: `TopupController::storeManual()` كان
+  يقرأ مفتاحًا **ثالثًا مخفيًّا** `topup.min_amount` (مزروعًا في
+  `WalletDemoSeeder` بقيمة **10**) فيتجاوز صامتًا الحدّ الذي يضبطه المالك في
+  شاشة 🔒 الماليّات (**50**)، **ولا حدَّ أقصى ولا حدَّ يوميّ مطبَّقًا في أيّ
+  مسار** (يدويّ أو بوّابة). الحلّ: `App\Services\Wallet\TopupLimits` مصدرٌ واحد
+  يقرأ `finance.topup.*` كسياسة منصّةٍ تسري على الطريقتين، و`topup.min_amount`
+  حُذف بمايجريشن `2026_09_11_130010` **ومن `WalletDemoSeeder` معًا**.
+  **الدليل:** `tests/Feature/Wallet/TopupLimitsTest.php` — رفض ما دون الأدنى
+  وما فوق الأقصى وما يتخطّى اليوميّ، ولكلٍّ اختبار طفرة (بإرجاع الحدّ يمرّ
+  الطلب نفسه).
+- ✅ **[مقفولة 2026-09-11] `GatewayAdminService::PUBLIC_KEYS` — كلّ مفتاحٍ
+  معروضٍ للتحرير صار له قارئٌ يطبّقه.** كانت سبعةٌ منها بلا قارئ:
+  `success_url`·`fail_url`·`pending_url` **محروقةً** ثلاثَ نداءات
+  `route('wallet.topup.return', …)` في `TopupController::startGateway()`
+  (والعميل `FawaterkClient` يمرّر `redirectionUrls` للبوّابة فعلًا، فالوصل
+  كان ممكنًا طوال الوقت)، و`methods`·`min_amount`·`max_amount`·`fees_on` لا
+  يقرؤها أحد. الآن: `GatewayService::redirectionUrls()` (والرابط لا يخرج عن
+  نطاق المنصّة — وإلّا صار إعدادُ أدمنٍ **إعادةَ توجيهٍ مفتوحة**) ·
+  `GatewayService::enabledMethods()` (الفارغة تمنع فتح الفاتورة) ·
+  `TopupLimits` بقناة البوّابة · `GatewayService::feeBreakdown()`.
+  **⚠️ ولم نخمّن اسم حقلٍ لدى البوّابة:** النصّ 19.5-ج-1 يشترط تأكيد الأسماء
+  الدقيقة و**رسوم كلّ وسيلة** من داشبورد التاجر وقت البناء، فـ`methods` تُطبَّق
+  عندنا لا تُمرَّر في `createInvoiceLink`، و`topup.gateway.fee_percent` (جديد)
+  مزروعٌ **صفرًا** فيبقى `fees_on` بلا أثرٍ ماليّ حتى يكتب المالك النسبة.
+  **الدليل:** `tests/Feature/Wallet/GatewaySettingsTest.php` — ومنه حارسٌ دائم
+  يُسقِط أيّ مفتاحٍ يُضاف للشاشة غدًا بلا قارئ.
 - **المتجر (`StoreAdminService.php`):** `store.admin.bundles.error_text` ·
   `store.invoice.digits/prefix` · `store.order.pending_expiry_minutes` ·
   `store.products_per_page` · `store.unified_grid` (قاعدة 17 — شبكة موحّدة).

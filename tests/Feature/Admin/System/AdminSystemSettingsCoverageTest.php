@@ -271,6 +271,10 @@ class AdminSystemSettingsCoverageTest extends SystemTestCase
             // استُبدِل بآليةٍ أدقّ تُقرَأ فعلًا (2026-09-09):
             // events.certificate.code_prefix ⟵ CertificateType::numbering_prefix
             'events.certificate.code_prefix',
+            // تكرارٌ صامتٌ كان **يتجاوز** شاشة المالك (2026-09-11):
+            // topup.min_amount (10) يتخطّى finance.topup.min_amount (50)
+            // الذي يضبطه المالك في 🔒 الماليّات — و`TopupLimits` مصدرها الواحد الآن.
+            'topup.min_amount',
         ];
 
         foreach ($swept as $key) {

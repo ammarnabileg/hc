@@ -290,7 +290,13 @@ class WalletDemoSeeder extends Seeder
     {
         $rows = [
             ['topup.credit_currency', 'store', 'عملة الشحن', 'string', 'coins'],
-            ['topup.min_amount', 'store', 'أدنى قيمة تحويل مقبولة', 'number', '10'],
+            /*
+            | ⛔ `topup.min_amount` حُذف (مايجريشن `2026_09_11_130010`): كان
+            | مفتاحًا ثالثًا مخفيًّا (10) يقرؤه `TopupController::storeManual()`
+            | وحده فيتجاوز صامتًا `finance.topup.min_amount` (50) الذي يضبطه
+            | المالك في شاشة 🔒 الماليّات — و24.3 تنصّ أنّها «مصدر الحقيقة
+            | الوحيد لكلّ رقم ماليّ». الحدود كلّها الآن في `TopupLimits`.
+            */
             ['topup.gateway.currency', 'store', 'عملة البوّابة', 'string', 'EGP'],
             ['topup.gateway.customer_address', 'store', 'عنوان العميل المرسَل للبوّابة', 'string', '-'],
             // عناوين طرق سحب الأرباح (WithdrawService::methods — 2.13-ب)

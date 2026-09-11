@@ -35,6 +35,17 @@ class GatewayAdminService
      * `gateway.blade.php`). فليست نصًّا محروقًا ظاهرًا للمستخدم بل بيانات ميتة
      * مكرَّرة — حُذفت التسميات وبقيت المفاتيح وحدها.
      *
+     * ⭐ **ولكلّ مفتاحٍ هنا قارئٌ يطبّقه فعلًا** (2.13 — وإلّا فهو وعدٌ كاذب):
+     * | المفتاح | مَن يقرؤه ويطبّقه |
+     * |---|---|
+     * | `enabled` | `GatewayGuard::isEnabled()` · `TopupController` |
+     * | `sandbox` | `FawaterkClient::baseUrl()` · `testConnection()` أدناه |
+     * | `currency` | `GatewayService::startInvoice()` |
+     * | `success_url`·`fail_url`·`pending_url` | `GatewayService::redirectionUrls()` ⟵ `createInvoiceLink` |
+     * | `methods` | `GatewayService::enabledMethods()` — والفارغة تمنع فتح الفاتورة |
+     * | `min_amount`·`max_amount` | `TopupLimits::min()/max()` بقناة البوّابة |
+     * | `fees_on`·`fee_percent` | `GatewayService::feeBreakdown()` ⟵ `cartTotal` |
+     *
      * @var array<int, string>
      */
     public const PUBLIC_KEYS = [
@@ -48,6 +59,7 @@ class GatewayAdminService
         'topup.gateway.min_amount',
         'topup.gateway.max_amount',
         'topup.gateway.fees_on',
+        'topup.gateway.fee_percent',
     ];
 
     /** @return Collection<int, Setting> */
