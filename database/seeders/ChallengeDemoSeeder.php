@@ -55,6 +55,10 @@ class ChallengeDemoSeeder extends Seeder
             ['celebrations.screen.dismiss_action', 'gamification_celebrations', '«شاشة الاحتفال» — زرّ إغلاق الاحتفال', 'تمام'],
             ['celebrations.screen.icon_label', 'gamification_celebrations', '«شاشة الاحتفال» — وصف الأيقونة لقارئ الشاشة', 'إنجاز'],
             ['celebrations.screen.share_action', 'gamification_celebrations', '«شاشة الاحتفال» — زرّ لقطة الإنجاز', 'لقطة إنجاز'],
+            // «زرّ مشاركة» شاشة الذروة (2.14-أ · 3) حيث لا لقطة إنجاز — يُشارَك رابط الدعوة
+            ['celebrations.screen.share_link_action', 'gamification_celebrations', '«شاشة الاحتفال» — زرّ مشاركة رابط الدعوة', 'شارك الخبر'],
+            ['celebrations.screen.share_copied', 'gamification_celebrations', '«شاشة الاحتفال» — ردّ نسخ رابط المشاركة', 'اتنسخ ✓'],
+            ['celebrations.screen.share_failed', 'gamification_celebrations', '«شاشة الاحتفال» — ردّ تعذُّر النسخ', 'انسخ الرابط من المتصفّح'],
             ['challenges.arena.all_arenas', 'challenges', '«ساحة الحرب» — زرّ كلّ الساحات', 'كلّ الساحات'],
             ['challenges.arena.bank_not_ready', 'challenges', '«ساحة الحرب» — سطر بنك الأسئلة غير الجاهز', 'بنك أسئلة الساحة لسّه مش جاهز — جرّب ساحة تانية دلوقتي.'],
             ['challenges.arena.duel_action', 'challenges', '«ساحة الحرب» — زرّ التحدّي', 'تحدّاه'],
