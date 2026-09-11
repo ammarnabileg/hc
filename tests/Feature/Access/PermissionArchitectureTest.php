@@ -460,4 +460,96 @@ class PermissionArchitectureTest extends TestCase
             }
         }
     }
+
+    // ------------------------------------------- 12.2.2 · صفّ `refunds` ومورده
+
+    /**
+     * ⭐⭐ **«دائمًا» لا تُقرَأ «مالك المنصّة فقط»** (12.2.2 — صفّا `refunds`).
+     *
+     * صفّا المصفوفة حرفيًّا: «`refunds.view` 🔒 | ALL | **دائمًا**» و«`refunds.edit`
+     * 🔒 | ALL | **دائمًا**» — و🔒 في ترويسة 12.2.2 «= صلاحيّة **حسّاسة**» لا عزلًا،
+     * والعزل نصُّه «مالك المنصّة فقط» ⟵ `is_owner_only` وحده. وكان الملفّ يكتب
+     * للصفّين شرطًا مُقحَمًا (`condition_keys: ["platform_owner"]`) **بلا** وسم عزل،
+     * فيجتمع أسوأ الوجهين: الصفّ **يُمنَح** لدور «المسؤول الماليّ» (لأنّ
+     * `grantResources` تستثني `is_owner_only` وحده)، ثمّ **يسقط عند التقييم** لأنّ
+     * `platform_owner` خارج `ConditionEvaluator::TARGET_BOUND` فتُقاس بلا هدفٍ
+     * وتردّ `isPlatformOwner()` — أي **صفٌّ ميّت في `permission_role`**.
+     *
+     * و12.2.3-أ-7 تنصّ على أنّ «**المسؤول الماليّ**» يغطّي `… · refunds · …` بنطاق
+     * **ALL**، فالحبس مخالفةٌ للصفّ وللدور معًا.
+     */
+    public function test_the_finance_admin_actually_holds_the_refunds_resource(): void
+    {
+        $financeAdmin = $this->withRole('finance_admin', 'المسؤول الماليّ');
+        $owner = $this->withRole('platform_owner', 'مالك المنصّة');
+        $trainee = $this->withRole('trainee', 'متدرّب');
+
+        foreach (['refunds.view', 'refunds.edit'] as $key) {
+            // (أ) الصفّ مزروعٌ فعلًا بنطاق ALL — 12.2.3-أ-7
+            $this->assertTrue(
+                DB::table('permission_role')
+                    ->join('roles', 'roles.id', '=', 'permission_role.role_id')
+                    ->join('permissions', 'permissions.id', '=', 'permission_role.permission_id')
+                    ->where('roles.key', 'finance_admin')
+                    ->where('permissions.key', $key)
+                    ->where('permission_role.scope', 'ALL')
+                    ->where('permission_role.effect', 'allow')
+                    ->exists(),
+                "«{$key}» غير ممنوحة لدور المسؤول الماليّ رغم نصّ 12.2.3-أ-7",
+            );
+
+            // (ب) ⭐ ويَنفُذ — لا صفًّا ميّتًا يسقط على شرطٍ لا سند له في المصفوفة
+            $this->assertTrue($financeAdmin->allows($key), "المسؤول الماليّ محبوسٌ عن «{$key}» رغم أنّ شرط صفّها «دائمًا»");
+
+            // (ج) والمالك فوق الجميع كما كان (12.2.1-ز-5)
+            $this->assertTrue($owner->allows($key), "مالك المنصّة حُرِم من «{$key}»");
+
+            // (د) ومَن لا صفَّ له يبقى ممنوعًا — الإصلاح لم يفتح المورد للجميع
+            $this->assertFalse($trainee->allows($key), "المتدرّب كسب «{$key}» بلا منح");
+        }
+    }
+
+    /**
+     * ⭐ ولا هجين بين الوجهين: `platform_owner` شرطًا **لا يُكتَب** إلّا مع وسم
+     * العزل. فالمفتاح — كما يقول `ConditionMap::keysFor` — «دفاعٌ **ثانٍ** لو سقط
+     * وسم `is_owner_only` يومًا»، فوجودُه وحده يعني صلاحيّةً **تُمنَح ولا تنفُذ**.
+     */
+    public function test_the_platform_owner_condition_never_stands_without_the_isolation_flag(): void
+    {
+        $hybrids = Permission::query()
+            ->where('is_owner_only', false)
+            ->get(['key', 'condition_keys'])
+            ->filter(function (Permission $permission): bool {
+                $keys = $permission->condition_keys;
+                $keys = is_array($keys) ? $keys : (json_decode((string) $keys, true) ?: []);
+
+                return in_array('platform_owner', $keys, true);
+            })
+            ->pluck('key')
+            ->values()
+            ->all();
+
+        $this->assertSame([], $hybrids, 'شرط «platform_owner» بلا وسم عزل = صفٌّ يُمنَح ولا ينفُذ: '.implode(' · ', $hybrids));
+    }
+
+    /**
+     * ⛔ **وما لم يُفتَح لم يُفتَح:** شاشة 🔒 الماليّات (24.3 · 2.13-و) محروسةٌ
+     * بـ`finance.view`/`finance.edit` وهما **معزولتان** بنصّ صفّيهما («مالك المنصّة
+     * فقط») — فتصحيحُ صفّ `refunds` لا يمسّها، والمسؤول الماليّ يبقى خارجها.
+     */
+    public function test_the_protected_finance_screen_stays_shut_for_the_finance_admin(): void
+    {
+        $financeAdmin = $this->withRole('finance_admin', 'المسؤول الماليّ');
+
+        $this->assertFalse($financeAdmin->allows('finance.view'));
+        $this->assertFalse($financeAdmin->allows('finance.edit'));
+
+        $this->actingAs($financeAdmin)->get(route('admin.finance.index'))->assertForbidden();
+        $this->actingAs($financeAdmin)->get(route('admin.finance.audit'))->assertForbidden();
+        $this->actingAs($financeAdmin)->post(route('admin.finance.refund-policy'), [
+            'locale' => 'ar',
+            'body' => 'محاولة تحرير',
+            'reason' => 'اختبار العزل',
+        ])->assertForbidden();
+    }
 }

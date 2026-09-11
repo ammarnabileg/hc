@@ -14938,12 +14938,8 @@
     "allowed_scopes": [
       "ALL"
     ],
-    "conditions": [
-      "مالك المنصّة فقط"
-    ],
-    "condition_keys": [
-      "platform_owner"
-    ],
+    "conditions": [],
+    "condition_keys": [],
     "is_sensitive": true,
     "is_owner_only": false
   },
@@ -14957,12 +14953,8 @@
     "allowed_scopes": [
       "ALL"
     ],
-    "conditions": [
-      "مالك المنصّة فقط"
-    ],
-    "condition_keys": [
-      "platform_owner"
-    ],
+    "conditions": [],
+    "condition_keys": [],
     "is_sensitive": true,
     "is_owner_only": false
   },
