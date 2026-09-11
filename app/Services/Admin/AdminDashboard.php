@@ -32,6 +32,13 @@ use Illuminate\Support\Facades\Schema;
  * ⭐ **الماليّات لمالك المنصّة وحده**: كارت الإيرادات وAOV والأعلى مبيعًا
  * والسحوبات وعمولة الريفيرال **لا تُحسَب ولا تُعرَض** لغيره — يُحذف الكارت
  * ولا يُعطَّل (2.15-أ-7 · 12.7).
+ *
+ * ⭐ **وكارت «مبيعات (كوينز)» منها**: قيمته هي **مجموع الطلبات المدفوعة** نفسه
+ * الذي يحمله كارت «🔒 الإيرادات»، وكان يخرج بقيمته لكلّ أدمن بينما **رابطه
+ * وحده** محروس — فيقرأ مسؤول الدعم إيراد المنصّة من كارتٍ بلا قفل. و«بلا
+ * صلاحيّة = **مخفيّ فعلًا**، لا معطَّل ولا رماديّ» (2.15-أ-7)، و12.3 ينصّ على
+ * أنّ الكارت الممنوع **يُحذف لا يُعطَّل**. ومعه **خطّ المبيعات في الرسم**:
+ * إخفاءُ الكارت وحده يترك الرقم نفسه مرسومًا بجواره فيكون إخفاءً بالاسم.
  */
 class AdminDashboard
 {
@@ -108,13 +115,32 @@ class AdminDashboard
         $prevFrom = $period['prev_from'];
         $prevTo = $period['prev_to'];
 
-        $owner = $user->isPlatformOwner();
+        /*
+         | 🔒 بوّابة **كلّ رقمٍ ماليّ** في اللوحة: مفتاح `finance.view` (12.7) —
+         | وهو في مصفوفة 12.2.2 «**مالك المنصّة فقط**» (`is_owner_only`)، فمحرّك
+         | الصلاحيّات يردّه عن أيّ دورٍ آخر مهما مُنِح. والحراسة **بالمفتاح لا
+         | باسم الدور**: الشاشة نتيجةُ الصلاحيّة لا صلاحيّةٌ بذاتها (12.2.1-أ).
+         */
+        $money = $user->allows('finance.view');
 
-        $paid = Order::where('status', 'paid')->whereBetween('paid_at', [$from, $to]);
-        $paidCount = (clone $paid)->count();
-        $revenue = (float) (clone $paid)->sum('total');
+        /*
+         | و«**لا تُحسَب ولا تُعرَض**» حرفيًّا: لا استعلامَ إيرادٍ أصلًا لمن لا
+         | يملك المفتاح — فلا رقم يُبنى ثمّ يُخفى، ولا استعلامَ بلا مستهلك.
+         */
+        $paidCount = 0;
+        $revenue = 0.0;
+        $prevRevenue = 0.0;
 
-        $cards = [
+        if ($money) {
+            $paid = Order::where('status', 'paid')->whereBetween('paid_at', [$from, $to]);
+            $paidCount = (clone $paid)->count();
+            $revenue = (float) (clone $paid)->sum('total');
+            $prevRevenue = (float) Order::where('status', 'paid')
+                ->whereBetween('paid_at', [$prevFrom, $prevTo])
+                ->sum('total');
+        }
+
+        $cards = array_values(array_filter([
             $this->card('users', setting('admin_dashboard.admin_dashboard.cards_1', 'كلّ المستخدمين'), 'people',
                 User::where('created_at', '<=', $to)->count(),
                 User::where('created_at', '<=', $prevTo)->count(),
@@ -127,11 +153,18 @@ class AdminDashboard
                 setting('admin_dashboard.admin_dashboard.cards_4', 'حسابات اتسجّلت داخل الفترة'),
                 $this->urlFor('admin.users.approvals', $user, 'user_approvals.list')),
 
-            $this->card('sales', setting('admin_dashboard.admin_dashboard.cards_5', 'مبيعات (كوينز)'), 'store',
+            /*
+             | 🔒 «مبيعات (كوينز)» = مجموع الطلبات المدفوعة = **الإيراد نفسه**،
+             | فيُحذف الكارت كلّه لمن لا يملك `finance.view` ولا يُكتفى بنزع
+             | رابطه: الرابط المنزوع يمنع الباب ويُبقي الرقم — وهو عين ما نهت
+             | عنه 2.15-أ-7 («بلا صلاحيّة = مخفيّ فعلًا») و12.3 («الكارت الممنوع
+             | يُحذف لا يُعطَّل»).
+             */
+            $money ? $this->card('sales', setting('admin_dashboard.admin_dashboard.cards_5', 'مبيعات (كوينز)'), 'store',
                 (int) round($revenue),
-                (int) round((float) Order::where('status', 'paid')->whereBetween('paid_at', [$prevFrom, $prevTo])->sum('total')),
+                (int) round($prevRevenue),
                 setting('admin_dashboard.admin_dashboard.cards_6', 'إجمالي الطلبات المدفوعة داخل الفترة'),
-                $this->urlFor('admin.store.index', $user, 'orders.list')),
+                $this->urlFor('admin.store.index', $user, 'orders.list')) : null,
 
             $this->card('courses', setting('admin_dashboard.admin_dashboard.cards_7', 'تدريبات نشطة'), 'training',
                 Course::where('status', 'published')->count(),
@@ -150,12 +183,12 @@ class AdminDashboard
                 0,
                 setting('admin_dashboard.admin_dashboard.cards_12', 'مستخدمون ظهروا في آخر ربع ساعة'),
                 $this->urlFor('admin.users.index', $user, 'users.list')),
-        ];
+        ], static fn (?array $card): bool => $card !== null));
 
-        // 🔒 الكروت الماليّة (12.3-6 · 12.3-8 · 12.3-9): لمالك المنصّة وحده
-        if ($owner) {
+        // 🔒 الكروت الماليّة (12.3-6 · 12.3-8 · 12.3-9): لصاحب `finance.view` وحده
+        if ($money) {
             $cards[] = $this->card('revenue', setting('admin_dashboard.admin_dashboard.cards_13', '🔒 الإيرادات'), 'money', (int) round($revenue),
-                (int) round((float) Order::where('status', 'paid')->whereBetween('paid_at', [$prevFrom, $prevTo])->sum('total')),
+                (int) round($prevRevenue),
                 setting('admin_dashboard.admin_dashboard.cards_14', 'إجمالي المدفوع داخل الفترة'),
                 $this->urlFor('admin.finance.index', $user, 'finance.view'));
 
@@ -217,9 +250,20 @@ class AdminDashboard
         ];
     }
 
-    /** سلسلة زمنيّة للتسجيلات والمبيعات — تُرسَم SVG بأيدينا بلا مكتبة خارجيّة */
-    public function series(array $period): array
+    /**
+     * سلسلة زمنيّة للتسجيلات والمبيعات — تُرسَم SVG بأيدينا بلا مكتبة خارجيّة.
+     *
+     * 🔒 و**خطّ المبيعات رقمٌ ماليّ** كسائر الأرقام الماليّة: لا يُحسَب ولا
+     * يُرسَم لمن لا يملك `finance.view` (12.7). فحذفُ كارت المبيعات وحده كان
+     * سيبقي الرقم نفسه معروضًا في الرسم بجواره — على محور القيم وفي تلميح كلّ
+     * نقطة — فيصير الإخفاء اسمًا بلا معنى (2.15-أ-7).
+     *
+     * والمستخدم اختياريّ ويقفل عند غيابه: **ما لا نعرف صاحبه لا نكشف له مالًا**.
+     */
+    public function series(array $period, ?User $user = null): array
     {
+        $money = $user !== null && $user->allows('finance.view');
+
         $days = max(1, (int) $period['days']);
         $buckets = min($days, 30);
         $step = max(1, (int) ceil($days / $buckets));
@@ -229,12 +273,17 @@ class AdminDashboard
             $start = $period['from']->addDays($i * $step);
             $end = $start->addDays($step);
 
-            $points[] = [
+            $point = [
                 'label' => $start->translatedFormat('j M'),
                 'short' => $start->format('j/n'),
                 'signups' => User::whereBetween('created_at', [$start, $end])->count(),
-                'sales' => (int) round((float) Order::where('status', 'paid')->whereBetween('paid_at', [$start, $end])->sum('total')),
             ];
+
+            if ($money) {
+                $point['sales'] = (int) round((float) Order::where('status', 'paid')->whereBetween('paid_at', [$start, $end])->sum('total'));
+            }
+
+            $points[] = $point;
         }
 
         return $points;

@@ -59,7 +59,8 @@ class DashboardController extends Controller
             ? ['details' => $this->dashboard->details($period, $user)]
             : [
                 'kpis' => $this->dashboard->kpis($period, $user),
-                'series' => $this->dashboard->series($period),
+                // 🔒 وخطّ المبيعات في الرسم لا يُحسَب إلّا لصاحب الماليّات (12.7)
+                'series' => $this->dashboard->series($period, $user),
                 'pendingAccounts' => $this->dashboard->pendingAccounts(),
                 'pendingAccountsCount' => $this->dashboard->pendingAccountsCount(),
                 'pendingWork' => $this->dashboard->pendingWork(),

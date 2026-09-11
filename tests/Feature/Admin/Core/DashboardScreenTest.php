@@ -307,6 +307,96 @@ class DashboardScreenTest extends TestCase
         }
     }
 
+    /**
+     * ⭐⭐ **كارت «مبيعات (كوينز)» رقمٌ ماليّ — يُحذف لا يُعطَّل** (2.15-أ-7 · 12.7).
+     *
+     * قيمته هي **مجموع الطلبات المدفوعة** نفسه الذي يحمله كارت «🔒 الإيرادات»،
+     * وكان **الرابط وحده** محروسًا بينما الرقم يخرج لكلّ أدمن — فيقرأ مسؤول
+     * الدعم إيراد المنصّة من كارتٍ بلا قفل، وهو عين ما تنهى عنه القاعدة:
+     * «بلا صلاحيّة = **مخفيّ فعلًا**، لا معطَّل ولا رماديّ».
+     *
+     * والفحص على **الرقم المنسَّق في الوسم** لا على الرابط: لو عاد الكارت رقمًا
+     * بلا رابطٍ (العلاج الناقص القديم) يسقط الاختبار فورًا.
+     */
+    public function test_sales_card_number_is_hidden_from_an_admin_without_finance_view(): void
+    {
+        // مبلغٌ غريب لا يظهر في الصفحة إلّا من مجموع الطلبات المدفوعة — فلا يمرّ مصادفةً
+        $this->paidOrder($this->makeUser('مشترٍ'), 73469);
+
+        $figure = number_format(73469);
+
+        $owner = $this->owner();
+        $support = $this->supportAdmin();
+
+        $this->assertTrue($owner->allows('finance.view'), 'مالك المنصّة يملك مفتاح الماليّات');
+        $this->assertFalse($support->allows('finance.view'), 'ومسؤول الدعم لا يملكه — فهو owner-only');
+
+        // مَن يملك `finance.view` يرى الكارت ورقمه
+        $this->actingAs($owner)->get(route('admin.dashboard'))
+            ->assertOk()
+            ->assertSee('مبيعات (كوينز)')
+            ->assertSee($figure);
+
+        // ومَن لا يملكه لا يرى الرقم نفسه — لا في كارتٍ ولا في رسمٍ ولا في عدّاد
+        $this->actingAs($support)->get(route('admin.dashboard'))
+            ->assertOk()
+            ->assertDontSee('مبيعات (كوينز)')
+            ->assertDontSee($figure)
+            ->assertDontSee('data-kpi-card="sales"', false)
+            ->assertDontSee('data-count-to="'.$figure.'"', false);
+
+        // ولا في تاب «تفاصيل» الذي يستقبل الكروت الزائدة عن الأربعة (2.15-أ-3)
+        $this->actingAs($support)->get(route('admin.dashboard', ['tab' => 'details']))
+            ->assertOk()
+            ->assertDontSee('مبيعات (كوينز)')
+            ->assertDontSee($figure);
+    }
+
+    /** ومحذوفٌ **من المصدر** لا مخفيًّا بالعرض: لا مفتاح `sales` في أيّ تابّ. */
+    public function test_sales_card_key_is_absent_from_the_source_for_a_non_finance_admin(): void
+    {
+        $this->paidOrder($this->makeUser('مشترٍ'), 73469);
+
+        $support = $this->supportAdmin();
+
+        $overview = collect($this->actingAs($support)->get(route('admin.dashboard'))->assertOk()->viewData('kpis'))
+            ->pluck('key');
+
+        $details = collect($this->actingAs($support)->get(route('admin.dashboard', ['tab' => 'details']))
+            ->assertOk()->viewData('details')['cards'])->pluck('key');
+
+        $this->assertNotContains('sales', $overview->all());
+        $this->assertNotContains('sales', $details->all());
+
+        // وصاحب المفتاح يبقى كارته في مكانه من الترتيب (الإخفاء لا يُعيد ترتيب غيره)
+        $ownerKeys = collect($this->actingAs($this->owner())->get(route('admin.dashboard'))->assertOk()->viewData('kpis'))
+            ->pluck('key')->all();
+
+        $this->assertContains('sales', $ownerKeys);
+    }
+
+    /**
+     * ⭐ وخطّ المبيعات في «الحركة عبر الوقت» يتبع الكارت: إخفاء الكارت وحده
+     * يترك الرقم نفسه مرسومًا بجواره — على محور القيم وفي تلميح كلّ نقطة.
+     */
+    public function test_sales_line_is_dropped_from_the_chart_for_a_non_finance_admin(): void
+    {
+        $this->paidOrder($this->makeUser('مشترٍ'), 73469);
+
+        $ownerPoints = $this->actingAs($this->owner())->get(route('admin.dashboard'))
+            ->assertOk()->viewData('series');
+
+        $supportPoints = $this->actingAs($this->supportAdmin())->get(route('admin.dashboard'))
+            ->assertOk()->viewData('series');
+
+        $this->assertNotEmpty($ownerPoints);
+        $this->assertArrayHasKey('sales', $ownerPoints[0], 'صاحب الماليّات يرى خطّ المبيعات');
+        $this->assertArrayNotHasKey('sales', $supportPoints[0], 'وغيره لا يُحسَب له أصلًا');
+
+        // والمجموع محسوبٌ فعلًا لصاحبه — فالاختبار لا يمرّ بخطٍّ فارغ عند الطرفين
+        $this->assertSame(73469, collect($ownerPoints)->sum('sales'));
+    }
+
     // ------------------------------------------------- 12.3-10 · الهدف الشهريّ
 
     /** ⭐ هدف شهريّ قابل للتخصيص، ومتحقّقُه **محسوبٌ من الطلبات المدفوعة** لا مكتوبًا. */

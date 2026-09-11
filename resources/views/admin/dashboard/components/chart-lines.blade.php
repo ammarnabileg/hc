@@ -13,10 +13,17 @@
     $innerW = $w - $gutter - $padLeft;
     $innerH = $h - $padTop - $padBottom;
 
-    $series = [
+    /*
+     | 🔒 خطّ **المبيعات** رقمٌ ماليّ: الخدمة تُسقِط مفتاح `sales` من النقاط أصلًا
+     | لمن لا يملك `finance.view` (12.7)، فالرسم يتبع ما وصله ولا يخترع رقمًا —
+     | والخطّ **يُحذف ولا يُعطَّل**، ومعه اسمه من وسيلة الإيضاح (2.15-أ-7).
+     */
+    $hasSales = collect($points)->contains(fn ($point) => array_key_exists('sales', (array) $point));
+
+    $series = array_values(array_filter([
         ['key' => 'signups', 'label' => setting('admin.dashboard.components.chart_lines.msjlwn', 'مسجّلون'), 'color' => 'var(--color-brand-500)'],
-        ['key' => 'sales', 'label' => setting('admin.dashboard.components.chart_lines.mbyaat', 'مبيعات'), 'color' => 'var(--color-state-honor)'],
-    ];
+        $hasSales ? ['key' => 'sales', 'label' => setting('admin.dashboard.components.chart_lines.mbyaat', 'مبيعات'), 'color' => 'var(--color-state-honor)'] : null,
+    ]));
 
     $max = 1;
     foreach ($points as $point) {
