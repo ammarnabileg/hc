@@ -41,11 +41,17 @@
                 </button>
             </form>
 
-            {{-- المعاينة + سؤال «تبديل ولا إضافة؟» قبل أيّ كتابة (9) --}}
+            {{--
+              المعاينة التحريريّة + سؤال «تبديل ولا إضافة؟» قبل أيّ كتابة (9):
+              كلّ صفٍّ مستخرَج بنفس حقول بنّاء السيرة، قابل للتعديل أو الحذف
+              فرديًّا — والحفظ يرسل ما بعد التعديل لا المستخرَج الخام كما هو.
+            --}}
             <div data-cv-import-preview class="hidden mt-3 rounded-xl p-3 text-sm"
                  style="background: var(--surface-sunken); border: 1px solid var(--border)">
                 <p data-cv-import-summary class="mb-2"></p>
-                <p class="text-xs mb-3" style="color: var(--text-muted)">{{ setting('cv.tools.import_hint', 'راجع الأرقام — والحفظ مش هيحصل غير لما تختار.') }}</p>
+                <p class="text-xs mb-3" style="color: var(--text-muted)">{{ setting('cv.tools.import_hint', 'راجع الحقول وعدّل أو احذف اللي مش محتاجه — والحفظ مش هيحصل غير لما تختار.') }}</p>
+
+                <div data-cv-import-fields class="mb-3"></div>
 
                 <div class="flex flex-wrap gap-2">
                     <button type="button" data-cv-import-mode="replace"

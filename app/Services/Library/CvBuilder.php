@@ -424,6 +424,23 @@ class CvBuilder
         ];
     }
 
+    /**
+     * ⭐ تنقية صفوف قسمٍ متكرّر بنفس مخطّط `FIELDS` المعتمَد لخطوات المنشئ —
+     * يستعملها استيراد CV (9) بعد أن يعدّل المستخدم صفوف المعاينة، فلا يتكرّر
+     * تعريف الحقول البيضاء في مكانٍ ثانٍ ولا يتسرّب حقلٌ غير متوقَّع أو صفّ
+     * يتجاوز `cv.section.max_rows` عبر مسارٍ لا يمرّ بـ`merge()`.
+     */
+    public function sanitizeRows(string $section, mixed $rows): array
+    {
+        return $this->rows($rows, self::FIELDS[$section] ?? []);
+    }
+
+    /** نظير `sanitizeRows()` لحقول البروفايل غير المتكرّرة (9). */
+    public function sanitizeProfile(mixed $profile): array
+    {
+        return $this->pick(is_array($profile) ? $profile : [], self::FIELDS['profile']);
+    }
+
     // ------------------------------------------------------------------ داخليّ
 
     private function pick(array $input, array $fields): array

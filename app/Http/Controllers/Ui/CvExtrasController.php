@@ -58,6 +58,10 @@ class CvExtrasController extends Controller
         return response()->json([
             'ok' => true,
             'preview' => $parsed,
+            // ⭐ معاينةٌ تحريريّة حقيقيّة لا عدّاداتٌ فقط (9): نفس أجزاء صفوف
+            // بنّاء السيرة (`row-experience.blade.php` إلخ) معبَّأةً بالمستخرَج
+            // وقابلة للتعديل أو الحذف فرديًّا قبل أيّ حفظ — بدل الكتابة المباشرة.
+            'html' => view('cv.partials.import-preview', ['parsed' => $parsed])->render(),
             'counts' => [
                 'experience' => count($parsed['experience'] ?? []),
                 'education' => count($parsed['education'] ?? []),
@@ -75,14 +79,30 @@ class CvExtrasController extends Controller
             'preview' => ['nullable', 'array'],
         ]);
 
-        $parsed = (array) ($data['preview'] ?? $request->session()->get('cv.import.preview', []));
+        // ⭐ هذا يصل **بعد** تعديل المستخدم لحقول المعاينة (أو الخام لو لم
+        // يعدّل شيئًا) — لا الاستخراج الأصليّ الخام دائمًا (9).
+        $raw = (array) ($data['preview'] ?? $request->session()->get('cv.import.preview', []));
 
-        if ($parsed === []) {
+        if ($raw === []) {
             return response()->json([
                 'ok' => false,
                 'message' => (string) setting('cv.extras.apply_import_empty', 'مفيش تحليل محفوظ — ارفع الملفّ تاني وراجع المعاينة.'),
             ], 422);
         }
+
+        /*
+         | ⭐ تنقيةٌ بنفس مخطّط حقول المنشئ قبل الدمج: «preview» يصل من طلب
+         | JSON مفتوح (لا فورم Laravel محروس)، فلو مرّت كما هي مباشرةً لخطر
+         | تسرّب حقلٍ غير متوقَّع أو صفوفٍ بلا حدّ أقصى داخل `$cv->data` —
+         | بخلاف أيّ حفظٍ عاديّ من خطوات المنشئ الذي يمرّ دائمًا بـ`merge()`.
+         */
+        $parsed = [
+            'profile' => $this->builder->sanitizeProfile($raw['profile'] ?? []),
+            'experience' => $this->builder->sanitizeRows('experience', $raw['experience'] ?? []),
+            'education' => $this->builder->sanitizeRows('education', $raw['education'] ?? []),
+            'languages' => $this->builder->sanitizeRows('languages', $raw['languages'] ?? []),
+            'skills' => mb_substr(trim((string) ($raw['skills'] ?? '')), 0, (int) setting('cv.skills.max_chars', 600)),
+        ];
 
         $cv = $this->builder->forUser($request->user());
         $current = array_replace($this->builder->blank(), (array) $cv->data);

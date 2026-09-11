@@ -359,7 +359,7 @@ class SettingSeeder extends Seeder
             ['cv.tools.import_summary', 'cv', 'عنوان استيراد CV جاهز', 'string', 'ارفع CV جاهز وهنملّي بدالك'],
             ['cv.tools.file_label', 'cv', 'تسمية ملفّ السيرة', 'string', 'ملفّ السيرة'],
             ['cv.tools.parse_label', 'cv', 'زرّ تحليل الملفّ', 'string', 'حلّل الملفّ'],
-            ['cv.tools.import_hint', 'cv', 'سطر معاينة الاستيراد', 'text', 'راجع الأرقام — والحفظ مش هيحصل غير لما تختار.'],
+            ['cv.tools.import_hint', 'cv', 'سطر معاينة الاستيراد', 'text', 'راجع الحقول وعدّل أو احذف اللي مش محتاجه — والحفظ مش هيحصل غير لما تختار.'],
             ['cv.tools.replace_label', 'cv', 'زرّ تبديل البيانات', 'string', 'بدّل بياناتي'],
             ['cv.tools.append_label', 'cv', 'زرّ الإضافة على البيانات', 'string', 'أضف عليها'],
             ['cv.tools.public_toggle_label', 'cv', 'مفتاح الرابط العامّ للسيرة', 'string', 'شغّل الرابط العامّ للسيرة'],

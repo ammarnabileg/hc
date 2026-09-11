@@ -118,6 +118,7 @@ class UiDemoSeeder extends Seeder
             ['cv.import.max_kb', 'cv', 'أقصى حجم ملفّ استيراد الـCV (كيلوبايت)', 'number', '4096'],
             ['cv.import.question', 'cv', 'سؤال ما قبل الاستيراد', 'string', 'نبدّل بياناتك بالملفّ ولا نضيف عليها؟'],
             ['cv.import.headings', 'cv', 'عناوين أقسام الـCV المتعرَّف عليها', 'json', '[]'],
+            ['cv.import.profile_label', 'cv', 'عنوان قسم البيانات الأساسيّة في معاينة الاستيراد', 'string', 'البيانات الأساسيّة'],
             ['cv.summary.max_chars', 'cv', 'أقصى طول للملخّص المهنيّ', 'number', '600'],
             ['cv.public.slug_length', 'cv', 'طول رمز الرابط العامّ للسيرة', 'number', '12'],
             ['cv.ats.font_path', 'cv', 'مسار الخطّ المضمَّن في PDF الـATS', 'string', 'fonts/Cairo-Regular.ttf'],

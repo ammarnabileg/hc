@@ -87,6 +87,93 @@ class CvExtrasTest extends UiTestCase
         $this->assertCount(2, Cv::where('user_id', $user->id)->first()->data['experience']);
     }
 
+    // ------------------------------------------------------------ المعاينة التحريريّة (9)
+
+    /** المعاينة حقولٌ فعليّة قابلة للتعديل — لا عدّاداتٌ فقط. */
+    public function test_import_response_returns_editable_preview_fields_not_only_counts(): void
+    {
+        $response = $this->actingAs($this->trainee())->post(route('cv.import'), [
+            'file' => UploadedFile::fake()->createWithContent('cv.txt', self::SAMPLE),
+        ]);
+
+        $response->assertOk();
+        $html = (string) $response->json('html');
+
+        $this->assertNotEmpty($html);
+        // صفّ الخبرة الأولى معبّأً فعليًّا بالمستخرَج — بنفس جزء بنّاء السيرة
+        $this->assertStringContainsString('data[experience][0][title]', $html);
+        $this->assertStringContainsString('data[experience][0][company]', $html);
+        $this->assertStringContainsString('مطوّر واجهات', $html);
+        $this->assertStringContainsString('شركة نور', $html);
+        // زرّ حذف الصفّ الفرديّ موجود — قابليّة الحذف قبل الحفظ
+        $this->assertStringContainsString('data-repeat-remove', $html);
+        // حقول البروفايل قابلة للتعديل أيضًا (بريد استُخرِج ربّما بخطإ)
+        $this->assertStringContainsString('mohamed@test.local', $html);
+    }
+
+    /** تعديل المستخدم لحقلٍ في المعاينة يصل فعليًّا للبيانات المحفوظة — لا المستخرَج الخام. */
+    public function test_user_edited_preview_row_reaches_saved_cv_not_the_raw_extraction(): void
+    {
+        $user = $this->trainee();
+        $parsed = app(CvImporter::class)->parse(self::SAMPLE);
+
+        // محاكاة: المستخدم صحّح اسم شركة أخطأ محرّك الاستخراج في قراءته
+        $edited = $parsed;
+        $edited['experience'][0]['company'] = 'الاسم المصحَّح يدويًّا';
+
+        $this->actingAs($user)
+            ->postJson(route('cv.import.apply'), ['mode' => 'replace', 'preview' => $edited])
+            ->assertOk()->assertJson(['ok' => true]);
+
+        $saved = Cv::where('user_id', $user->id)->first()->data;
+        $this->assertSame('الاسم المصحَّح يدويًّا', $saved['experience'][0]['company']);
+        $this->assertNotSame($parsed['experience'][0]['company'], $saved['experience'][0]['company']);
+    }
+
+    /** حذف صفٍّ فرديّ من المعاينة قبل الحفظ لا يصل للبيانات النهائيّة. */
+    public function test_deleted_preview_row_never_reaches_saved_cv(): void
+    {
+        $user = $this->trainee();
+        $parsed = app(CvImporter::class)->parse(self::SAMPLE);
+        $this->assertCount(2, $parsed['experience']); // ضمانة على شكل العيّنة قبل الحذف
+
+        // محاكاة: المستخدم ضغط ✕ على الصفّ الثاني قبل الحفظ
+        $withoutSecondRow = $parsed;
+        $withoutSecondRow['experience'] = [$parsed['experience'][0]];
+
+        $this->actingAs($user)
+            ->postJson(route('cv.import.apply'), ['mode' => 'replace', 'preview' => $withoutSecondRow])
+            ->assertOk();
+
+        $saved = Cv::where('user_id', $user->id)->first()->data;
+        $this->assertCount(1, $saved['experience']);
+        $this->assertSame($parsed['experience'][0]['title'], $saved['experience'][0]['title']);
+    }
+
+    /** الصفوف/الحقول المرسلة بعد التعديل تُنقَّى بنفس مخطّط حقول المنشئ — لا حقل مخترَع يتسرّب. */
+    public function test_apply_import_strips_fields_outside_the_builder_whitelist(): void
+    {
+        $user = $this->trainee();
+
+        $this->actingAs($user)
+            ->postJson(route('cv.import.apply'), [
+                'mode' => 'replace',
+                'preview' => [
+                    'profile' => ['job_title' => 'مطوّر', 'not_a_real_field' => 'قيمة خطرة'],
+                    'experience' => [['title' => 'مطوّر', 'company' => 'شركة', 'not_a_field' => 'x']],
+                    'education' => [],
+                    'languages' => [],
+                    'skills' => '',
+                ],
+            ])
+            ->assertOk()->assertJson(['ok' => true]);
+
+        $saved = Cv::where('user_id', $user->id)->first()->data;
+        $this->assertArrayNotHasKey('not_a_real_field', $saved['profile']);
+        $this->assertArrayNotHasKey('not_a_field', $saved['experience'][0]);
+        $this->assertSame('مطوّر', $saved['profile']['job_title']);
+    }
+
     public function test_unsupported_file_says_what_happened_and_what_to_do(): void
     {
         $this->actingAs($this->trainee())

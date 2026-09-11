@@ -576,7 +576,7 @@ window.platformToast = toast;
     const token = () => document.querySelector('meta[name="csrf-token"]')?.content || '';
     const preview = box.querySelector('[data-cv-import-preview]');
     const summary = box.querySelector('[data-cv-import-summary]');
-    let parsed = null;
+    const fields = box.querySelector('[data-cv-import-fields]');
 
     box.querySelector('[data-cv-import]')?.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -594,17 +594,68 @@ window.platformToast = toast;
             return;
         }
 
-        parsed = data.preview;
+        // ⭐ معاينةٌ تحريريّة حقيقيّة (9) — حقول بنّاء السيرة نفسها (لا عدّادات
+        // فقط)، والخادم يرسلها جاهزةً بنفس أجزاء `row-*.blade.php` فلا تتكرّر
+        // واجهة الإدخال هنا من جديد.
         summary.textContent = `${data.question} — لقينا ${data.counts.experience} خبرة و${data.counts.education} مؤهّل و${data.counts.languages} لغة.`;
+        fields.innerHTML = data.html || '';
         preview.classList.remove('hidden');
     });
 
+    // حذف صفٍّ فرديّ من المعاينة قبل الحفظ — لا يصل للبيانات النهائيّة (9)
+    fields?.addEventListener('click', (e) => {
+        const btn = e.target.closest('[data-repeat-remove]');
+        if (!btn) return;
+        btn.closest('[data-repeat-row]')?.remove();
+    });
+
+    // آخر مقطع من اسم الحقل (`data[experience][0][title]` ⟵ `title`) —
+    // بلا اعتمادٍ على رقم الفهرس أصلًا، فحذف صفّ في المنتصف لا يكسر الباقي.
+    function fieldKey(name) {
+        const m = /\[([a-zA-Z_]+)\]$/.exec(name || '');
+        return m ? m[1] : null;
+    }
+
+    /** صفوف قسمٍ متكرّر **بعد** تعديل/حذف المستخدم — لا المستخرَج الخام (9) */
+    function collectRows(section) {
+        const list = fields?.querySelector(`[data-import-list="${section}"]`);
+        if (!list) return [];
+
+        return [...list.querySelectorAll('[data-repeat-row]')].map((row) => {
+            const obj = {};
+            row.querySelectorAll('[name]').forEach((el) => {
+                const key = fieldKey(el.name);
+                if (!key) return;
+                obj[key] = el.type === 'checkbox' ? el.checked : el.value.trim();
+            });
+            return obj;
+        }).filter((obj) => Object.values(obj).some((v) => v !== '' && v !== false));
+    }
+
+    function collectProfile() {
+        const obj = {};
+        fields?.querySelectorAll('[data-import-profile] [data-field]').forEach((el) => {
+            const v = el.value.trim();
+            if (v !== '') obj[el.dataset.field] = v;
+        });
+        return obj;
+    }
+
     box.querySelectorAll('[data-cv-import-mode]').forEach((btn) => {
         btn.addEventListener('click', async () => {
+            // ⭐ الصفوف بعد تعديل المستخدم لها (9) — لا الاستخراج الخام الأصليّ
+            const editedPreview = {
+                profile: collectProfile(),
+                experience: collectRows('experience'),
+                education: collectRows('education'),
+                languages: collectRows('languages'),
+                skills: fields?.querySelector('[data-import-skills]')?.value.trim() || '',
+            };
+
             const res = await fetch('/cv/import/apply', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': token(), Accept: 'application/json' },
-                body: JSON.stringify({ mode: btn.dataset.cvImportMode, preview: parsed }),
+                body: JSON.stringify({ mode: btn.dataset.cvImportMode, preview: editedPreview }),
             });
             const data = await res.json().catch(() => ({}));
             window.platformToast?.(data.message || 'مقدرناش نحفظ — جرّب تاني.');
