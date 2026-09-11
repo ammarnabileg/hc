@@ -3,12 +3,8 @@
 @php
     /** كارت الشبكة الموحّدة (17 · 24.5): الغلاف · الاسم · السعر بعملته · الشارات. */
     $cover = $card['cover'] ? \Illuminate\Support\Facades\Storage::url($card['cover']) : null;
-    $typeLabels = [
-        'course' => 'تدريب',
-        'bundle' => 'باقة',
-        'product' => 'منتج',
-        'path' => 'مسار',
-    ];
+    // تسميات الأنواع من الإعدادات — المفتاح ثابتٌ في الكود والنصّ وحده يُدار (2.13)
+    $typeLabels = (array) setting('store.card.type_labels', ['course' => 'تدريب', 'bundle' => 'باقة', 'product' => 'منتج', 'path' => 'مسار']);
 
     /*
      | شارة الإتاحة الزمنيّة (16 ⟵ 5): «نادي الفجر» 5→7 ص كان يظهر في الشبكة
@@ -48,12 +44,12 @@
         <div class="flex items-center gap-2 flex-wrap">
             <span class="text-xs rounded-full px-2 py-0.5"
                   style="background: var(--surface-sunken); color: var(--text-muted)">
-                {{ $typeLabels[$card['type']] ?? 'عنصر' }}
+                {{ $typeLabels[$card['type']] ?? setting('store.card.type_fallback_label', 'عنصر') }}
             </span>
 
             {{-- شارة «تملكه بالفعل» — ولا يُخفى ما اشتراه (24.5) --}}
             @if ($card['owned'])
-                <x-state-badge state="ok" label="تملكه بالفعل" />
+                <x-state-badge state="ok" :label="setting('store.owned_badge', 'تملكه بالفعل')" />
             @endif
 
             {{-- شارة الإتاحة الزمنيّة — لا تظهر إلّا لعنصرٍ له نافذة/فترات (16 ⟵ 5) --}}

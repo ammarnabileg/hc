@@ -23,13 +23,15 @@
 
 <div id="purchase-sheet"
      class="fixed inset-0 z-50 {{ $reopen ? 'flex' : 'hidden' }} items-end md:items-center justify-center md:p-4"
-     style="background: rgb(0 0 0 / .55)" data-modal role="dialog" aria-modal="true" aria-label="إتمام الشراء">
+     style="background: rgb(0 0 0 / .55)" data-modal role="dialog" aria-modal="true"
+     aria-label="{{ setting('store.purchase.sheet_title', 'إتمام الشراء') }}">
 
     {{-- Bottom Sheet على الموبايل، وبوب-أب في المنتصف على الشاشات الأكبر --}}
     <div class="modal-shell card w-full md:max-w-lg rounded-b-none md:rounded-2xl">
         <div class="modal-head flex items-center justify-between px-5 py-4" style="border-bottom: 1px solid var(--border)">
-            <h2 class="font-bold">إتمام الشراء</h2>
-            <button type="button" class="text-sm opacity-70 hover:opacity-100" data-modal-close aria-label="إغلاق">✕</button>
+            <h2 class="font-bold">{{ setting('store.purchase.sheet_title', 'إتمام الشراء') }}</h2>
+            <button type="button" class="text-sm opacity-70 hover:opacity-100" data-modal-close
+                    aria-label="{{ setting('store.purchase.close_label', 'إغلاق') }}">✕</button>
         </div>
 
         <form method="post" action="{{ route('store.checkout') }}" data-purchase-form
@@ -70,7 +72,7 @@
                 {{-- الكوبون: يُتحقَّق منه في الخادم --}}
                 @if (setting('store.coupons.enabled', true))
                     <label class="block">
-                        <span class="block text-sm mb-1">كود خصم <span class="text-xs" style="color: var(--text-muted)">(اختياريّ)</span></span>
+                        <span class="block text-sm mb-1">{{ setting('store.purchase.coupon_label', 'كود خصم') }} <span class="text-xs" style="color: var(--text-muted)">{{ setting('store.purchase.coupon_optional_label', '(اختياريّ)') }}</span></span>
                         <input type="text" name="coupon_code" value="{{ old('coupon_code') }}" autocomplete="off"
                                class="w-full rounded-xl px-3 py-2 text-sm" data-quote-trigger
                                style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
@@ -81,23 +83,23 @@
                 {{-- الرصيد قبل/بعد والإجماليّ --}}
                 <div class="card p-3 space-y-2 text-sm" style="background: var(--surface-sunken)">
                     <div class="flex items-center justify-between">
-                        <span style="color: var(--text-muted)">المجموع</span>
+                        <span style="color: var(--text-muted)">{{ setting('store.purchase.subtotal_label', 'المجموع') }}</span>
                         <span data-quote="subtotal">{{ Coins::label($quote['subtotal'], $currency) }}</span>
                     </div>
                     <div class="flex items-center justify-between">
-                        <span style="color: var(--text-muted)">الخصم</span>
+                        <span style="color: var(--text-muted)">{{ setting('store.purchase.discount_label', 'الخصم') }}</span>
                         <span data-quote="discount">{{ Coins::label($quote['discount'], $currency) }}</span>
                     </div>
                     <div class="flex items-center justify-between font-bold">
-                        <span>الإجماليّ</span>
+                        <span>{{ setting('store.purchase.total_label', 'الإجماليّ') }}</span>
                         <span data-quote="total">{{ Coins::label($quote['total'], $currency) }}</span>
                     </div>
                     <div class="flex items-center justify-between" style="color: var(--text-muted)">
-                        <span>رصيدك قبل</span>
+                        <span>{{ setting('store.purchase.balance_before_label', 'رصيدك قبل') }}</span>
                         <span data-quote="balance_before">{{ Coins::label($quote['balance_before'], $currency) }}</span>
                     </div>
                     <div class="flex items-center justify-between" style="color: var(--text-muted)">
-                        <span>رصيدك بعد</span>
+                        <span>{{ setting('store.purchase.balance_after_label', 'رصيدك بعد') }}</span>
                         <span data-quote="balance_after">{{ Coins::label($quote['balance_after'], $currency) }}</span>
                     </div>
                 </div>
@@ -122,13 +124,13 @@
                     <span>
                         {{ setting('store.refund.ack_text', 'قرأت سياسة عدم الاسترجاع وموافق عليها.') }}
                         <a href="{{ route('store.refund-policy') }}" target="_blank" rel="noopener"
-                           class="hover:underline" style="color: var(--color-brand-400)">اقرأ السياسة</a>
+                           class="hover:underline" style="color: var(--color-brand-400)">{{ setting('store.purchase.policy_link_label', 'اقرأ السياسة') }}</a>
                     </span>
                 </label>
 
                 {{-- النصّ الكامل حاضر هنا كي لا يُفاجَأ أحد بعد الدفع (19.4) — ويقبل HTML --}}
                 <details class="text-xs" style="color: var(--text-muted)">
-                    <summary class="cursor-pointer">نصّ السياسة</summary>
+                    <summary class="cursor-pointer">{{ setting('store.purchase.policy_details_label', 'نصّ السياسة') }}</summary>
                     <div class="mt-2 leading-6">
                         {!! setting('store.refund.policy_text', 'لا يوجد استرجاع نقديّ للمدفوعات، ويبقى رصيدك في محفظتك تشتري به ما تشاء من الموقع.') !!}
                     </div>
@@ -143,11 +145,11 @@
                 <button type="submit" data-purchase-submit @disabled(! $quote['sufficient'])
                         class="btn flex-1 inline-flex items-center justify-center rounded-xl px-4 py-3 text-sm font-semibold motion-standard"
                         style="background: var(--color-brand-500); color: #04201c; opacity: {{ $quote['sufficient'] ? '1' : '.5' }}">
-                    تأكيد الشراء
+                    {{ setting('store.purchase.submit_label', 'تأكيد الشراء') }}
                 </button>
                 <button type="button" data-modal-close
                         class="rounded-xl px-4 py-3 text-sm motion-standard"
-                        style="background: var(--surface-sunken); color: var(--text)">إلغاء</button>
+                        style="background: var(--surface-sunken); color: var(--text)">{{ setting('store.purchase.cancel_label', 'إلغاء') }}</button>
             </div>
         </form>
     </div>

@@ -41,6 +41,71 @@ class StoreDemoSeeder extends Seeder
             ['store.empty.text', 'نصّ الحالة الفارغة', 'string', 'مفيش نتائج للفلتر ده — جرّب توسّع شويّة.'],
             ['store.bundles.empty_text', 'نصّ الحالة الفارغة للباقات', 'string', 'مفيش باقات متاحة دلوقتي.'],
 
+            // ---------------- ⭐ نصوص شاشتَي المتجر والباقات (2.13 — القاعدة الذهبيّة)
+            // كانت عناوين الشاشتين وفتات خبزهما وأزرار حالتهما الفارغة **محروقة**
+            // في القوالب، فلا يملك الأدمن تغيير كلمةٍ منها. صارت إعدادات كالبقيّة.
+            ['store.home_breadcrumb_label', 'فتات الخبز: الرئيسيّة', 'string', 'الرئيسيّة'],
+            ['store.bundles_link_label', 'رابط «شوف الباقات»', 'string', 'شوف الباقات'],
+            ['store.owned_badge', 'شارة «تملكه بالفعل» في الشبكة وصفحة العنصر', 'string', 'تملكه بالفعل'],
+            ['store.index.page_title', 'عنوان شاشة المتجر', 'string', 'المتجر'],
+            ['store.index.page_subtitle', 'سطر شرح شاشة المتجر', 'text', 'اختار اللي يفيدك — والأسعار كلّها بالكوينز.'],
+            ['store.index.empty_action_label', 'زرّ الحالة الفارغة في المتجر', 'string', 'اعرض كلّ المتجر'],
+            ['store.index.results_unit_label', 'وحدة عدّ النتائج في المتجر', 'string', 'عنصر'],
+            ['store.bundles.page_title', 'عنوان شاشة الباقات', 'string', 'الباقات'],
+            ['store.bundles.page_subtitle', 'سطر شرح شاشة الباقات', 'text', 'عناصر مجمّعة بسعر واحد — والتوفير مكتوب بقيمته الحقيقيّة.'],
+            ['store.bundles.empty_action_label', 'زرّ الحالة الفارغة في الباقات', 'string', 'اتفرّج على المتجر'],
+            ['store.bundles.results_unit_label', 'وحدة عدّ النتائج في الباقات', 'string', 'باقة'],
+            ['store.bundles.back_link_label', 'زرّ الرجوع للمتجر على الموبايل', 'string', 'ارجع للمتجر'],
+            ['store.balance.label', 'وسم الرصيد في هيدر المتجر', 'string', 'رصيدي'],
+
+            // ---------------- ⭐ فلاتر المتجر — كلّ لافتةٍ وخيارٍ إعداد (2.13 · 17)
+            ['store.filters.search_label', 'فلتر: بحث', 'string', 'بحث'],
+            ['store.filters.search_placeholder', 'تلميح حقل البحث', 'string', 'اكتب اسم اللي بتدوّر عليه'],
+            ['store.filters.price_range_label', 'فلتر: نطاق السعر', 'string', 'نطاق السعر'],
+            ['store.filters.price_min_label', 'وصف منزلق أقلّ سعر', 'string', 'أقلّ سعر'],
+            ['store.filters.price_max_label', 'وصف منزلق أعلى سعر', 'string', 'أعلى سعر'],
+            ['store.filters.apply_label', 'زرّ تطبيق الفلاتر', 'string', 'طبّق'],
+            ['store.filters.category_label', 'فلتر: التصنيف', 'string', 'التصنيف'],
+            ['store.filters.all_label', 'خيار «الكلّ» في الفلاتر', 'string', 'الكلّ'],
+            ['store.filters.type_label', 'فلتر: النوع', 'string', 'النوع'],
+            ['store.filters.sort_label', 'فلتر: الفرز', 'string', 'الفرز'],
+            // ⭐ المفتاح ثابتٌ يقرؤه الخادم، والنصّ وحده قابل للتغيير من اللوحة
+            ['store.filters.sort_options', 'خيارات الفرز في المتجر', 'json', json_encode([
+                'newest' => 'الأحدث', 'price_asc' => 'الأرخص أوّلًا', 'price_desc' => 'الأغلى أوّلًا',
+            ], JSON_UNESCAPED_UNICODE)],
+            ['store.filters.owned_label', 'فلتر: الملكيّة', 'string', 'الملكيّة'],
+            ['store.filters.owned_options', 'خيارات فلتر الملكيّة', 'json', json_encode([
+                'new' => 'اللي مش معايا', 'mine' => 'اللي معايا',
+            ], JSON_UNESCAPED_UNICODE)],
+
+            // ---------------- ⭐ كارت الشبكة الموحّدة (17 · 24.5)
+            ['store.card.type_labels', 'تسميات أنواع عناصر الشبكة', 'json', json_encode([
+                'course' => 'تدريب', 'bundle' => 'باقة', 'product' => 'منتج', 'path' => 'مسار',
+            ], JSON_UNESCAPED_UNICODE)],
+            ['store.card.type_fallback_label', 'تسمية النوع غير المعروف', 'string', 'عنصر'],
+
+            // ---------------- ⭐ صفحة العنصر (24.5 · 21.1)
+            ['store.product.library_link_label', 'زرّ فتح العنصر من المكتبة', 'string', 'افتح من مكتبتي'],
+            ['store.product.login_cta_label', 'زرّ الزائر غير المسجَّل', 'string', 'سجّل دخولك للشراء'],
+            ['store.product.no_description_text', 'نصّ العنصر بلا وصف', 'string', 'لسّه مافيش وصف للعنصر ده.'],
+            ['store.product.preview_title', 'عنوان بلوك المعاينة', 'string', 'معاينة قبل الشراء'],
+            ['store.product.balance_label', 'وسم الرصيد في صفحة العنصر', 'string', 'رصيدك الآن:'],
+
+            // ---------------- ⭐ بوب-أب الشراء (24.5 · 19.4)
+            ['store.purchase.sheet_title', 'عنوان بوب-أب الشراء', 'string', 'إتمام الشراء'],
+            ['store.purchase.close_label', 'زرّ إغلاق البوب-أب', 'string', 'إغلاق'],
+            ['store.purchase.coupon_label', 'وسم حقل الكوبون', 'string', 'كود خصم'],
+            ['store.purchase.coupon_optional_label', 'إشارة اختياريّة الكوبون', 'string', '(اختياريّ)'],
+            ['store.purchase.subtotal_label', 'وسم المجموع', 'string', 'المجموع'],
+            ['store.purchase.discount_label', 'وسم الخصم', 'string', 'الخصم'],
+            ['store.purchase.total_label', 'وسم الإجماليّ', 'string', 'الإجماليّ'],
+            ['store.purchase.balance_before_label', 'وسم الرصيد قبل', 'string', 'رصيدك قبل'],
+            ['store.purchase.balance_after_label', 'وسم الرصيد بعد', 'string', 'رصيدك بعد'],
+            ['store.purchase.policy_link_label', 'رابط قراءة السياسة في الإقرار', 'string', 'اقرأ السياسة'],
+            ['store.purchase.policy_details_label', 'وسم فتح نصّ السياسة كاملًا', 'string', 'نصّ السياسة'],
+            ['store.purchase.submit_label', 'زرّ تأكيد الشراء', 'string', 'تأكيد الشراء'],
+            ['store.purchase.cancel_label', 'زرّ إلغاء الشراء', 'string', 'إلغاء'],
+
             // ---------------- التوفير والخصم — بقيمته الحقيقيّة (2.9 · 18)
             ['store.savings.text', 'نصّ «وفّرت كذا»', 'string', 'وفّرت {amount}'],
 
@@ -393,6 +458,7 @@ class StoreDemoSeeder extends Seeder
             ['store.cart.added_text', 'نصّ الإضافة للسلّة', 'string', 'اتضاف للسلّة ✓'],
             ['store.cart.removed_text', 'نصّ الحذف من السلّة', 'string', 'اتشال من السلّة ✓'],
             ['store.cart.empty_text', 'نصّ السلّة الفارغة', 'string', 'سلّتك فاضية — ضيف حاجة الأوّل.'],
+            ['store.cart.empty_action_label', 'زرّ الحالة الفارغة في السلّة', 'string', 'اتفرّج على المتجر'],
             ['store.cart.full_text', 'نصّ امتلاء السلّة', 'string', 'السلّة وصلت أقصى عدد — أكمل الطلب ده الأوّل.'],
             ['store.cart.bump_line_label', 'وسم سطر الـBump', 'string', 'إضافة للطلب'],
             ['store.cart.coupon_label', 'عنوان حقل الكوبون في المراجعة', 'string', 'كود خصم (اختياريّ)'],
@@ -414,6 +480,8 @@ class StoreDemoSeeder extends Seeder
             ['store.refund.ack_required_text', 'نصّ رفض الشراء بلا إقرار', 'string', 'محتاجين إقرارك بسياسة عدم الاسترجاع الأوّل، وبعدها نكمّل الشراء.'],
             ['store.refund.link_text', 'نصّ رابط السياسة', 'string', 'اقرأ سياسة عدم الاسترجاع'],
             ['store.refund.alternative_text', 'نصّ البديل المعتمَد', 'string', 'البديل المعتمَد: رصيدك يفضل في محفظتك وتشتري بيه اللي تحبّه من الموقع.'],
+            ['store.refund.page_subtitle', 'سطر شرح صفحة السياسة', 'text', 'واضحة قبل الدفع — عشان محدّش يتفاجئ بعده.'],
+            ['store.refund.meta_description', 'وصف صفحة السياسة لمحرّكات البحث', 'text', 'سياسة الاسترجاع المعتمَدة في المنصّة.'],
         ];
 
         foreach ($rows as [$key, $label, $type, $default]) {

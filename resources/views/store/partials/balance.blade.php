@@ -36,7 +36,7 @@
     @endif
 
     <span class="card px-3 py-1.5 text-sm whitespace-nowrap">
-        <span style="color: var(--text-muted)">رصيدي</span>
+        <span style="color: var(--text-muted)">{{ setting('store.balance.label', 'رصيدي') }}</span>
         {{-- عدّاد تصاعديّ — والرقم النهائيّ يظهر في كلّ الأحوال (2.17-أ) --}}
         <b data-count-to="{{ Coins::fmt($balance) }}">{{ Coins::fmt($balance) }}</b>
         <span style="color: var(--text-muted)">{{ Coins::currencyLabel($balanceCurrency) }}</span>

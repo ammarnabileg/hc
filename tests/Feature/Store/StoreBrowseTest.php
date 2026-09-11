@@ -18,7 +18,7 @@ class StoreBrowseTest extends StoreTestCase
             ->assertOk()
             ->assertSee('دليل أسئلة المقابلات')
             ->assertSee('100 كوين')
-            ->assertSee('رصيدي')
+            ->assertSee(setting('store.balance.label'))
             ->assertSee('500');
     }
 
@@ -37,7 +37,7 @@ class StoreBrowseTest extends StoreTestCase
         $this->actingAs($user)->get(route('store.index'))
             ->assertOk()
             ->assertSee('دليل أسئلة المقابلات')
-            ->assertSee('تملكه بالفعل');
+            ->assertSee(setting('store.owned_badge'));
     }
 
     public function test_price_range_filter_narrows_the_unified_grid(): void
@@ -107,7 +107,7 @@ class StoreBrowseTest extends StoreTestCase
             ->assertOk()
             ->assertSee(setting('store.bundle.includes_title'))
             ->assertSee('400 كوين')
-            ->assertSee('إتمام الشراء')
+            ->assertSee(setting('store.purchase.sheet_title'))
             ->assertSee('اشحن المحفظة')
             ->assertSee('قرأت سياسة عدم الاسترجاع وموافق عليها.');
     }
@@ -125,7 +125,7 @@ class StoreBrowseTest extends StoreTestCase
             ->get(route('store.product', ['type' => 'path', 'slug' => $path->slug]))
             ->assertOk()
             ->assertSee('يُفتَح ضمن الباقات')
-            ->assertDontSee('إتمام الشراء');
+            ->assertDontSee(setting('store.purchase.sheet_title'));
     }
 
     public function test_draft_item_is_not_reachable(): void

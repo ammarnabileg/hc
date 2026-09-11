@@ -1,11 +1,11 @@
 @extends('layouts.app')
 
-@section('title', 'الباقات')
+@section('title', setting('store.bundles.page_title', 'الباقات'))
 
 @section('content')
-    <x-page-header title="الباقات"
-                   subtitle="عناصر مجمّعة بسعر واحد — والتوفير مكتوب بقيمته الحقيقيّة."
-                   :breadcrumbs="[['label' => 'المتجر', 'url' => route('store.index')], ['label' => 'الباقات']]">
+    <x-page-header :title="setting('store.bundles.page_title', 'الباقات')"
+                   :subtitle="setting('store.bundles.page_subtitle', 'عناصر مجمّعة بسعر واحد — والتوفير مكتوب بقيمته الحقيقيّة.')"
+                   :breadcrumbs="[['label' => setting('store.breadcrumb_label', 'المتجر'), 'url' => route('store.index')], ['label' => setting('store.bundles.breadcrumb_label', 'الباقات')]]">
         <x-slot:action>
             @include('store.partials.balance', ['balance' => $balance])
         </x-slot:action>
@@ -19,10 +19,10 @@
 
     @if ($cards->isEmpty())
         <x-empty :message="setting('store.bundles.empty_text', 'مفيش باقات متاحة دلوقتي.')"
-                 action="اتفرّج على المتجر"
+                 :action="setting('store.bundles.empty_action_label', 'اتفرّج على المتجر')"
                  :href="route('store.index')" />
     @else
-        <p class="text-xs mb-3" style="color: var(--text-muted)">{{ $total }} باقة</p>
+        <p class="text-xs mb-3" style="color: var(--text-muted)">{{ $total }} {{ setting('store.bundles.results_unit_label', 'باقة') }}</p>
 
         <div class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" data-store-bundles-results>
             @include('store.partials.cards', ['cards' => $cards])
@@ -42,5 +42,5 @@
 @section('mobile_action')
     <a href="{{ route('store.index') }}"
        class="btn w-full inline-flex items-center justify-center rounded-xl px-4 py-3 text-sm font-semibold"
-       style="background: var(--color-brand-500); color: #04201c">ارجع للمتجر</a>
+       style="background: var(--color-brand-500); color: #04201c">{{ setting('store.bundles.back_link_label', 'ارجع للمتجر') }}</a>
 @endsection

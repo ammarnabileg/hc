@@ -14,8 +14,8 @@
         "رسائل الاستثناءات والسجلّات في `app\/` **تُحسَب** وإن كان جمهورها المطوّر — الفحص لا يقرأ النيّة.",
         "`app\/Console\/` مستثنًى — مخرجاتها للطرفيّة (مشغّل النظام) لا لشاشة المستخدم — خارج «النصوص الظاهرة للمستخدم» (2.13-أ). وهذا **الاستثناء الوحيد المخترَع هنا**، وما عداه حدودُ مسحٍ معلَنة لا استثناءات."
     ],
-    "قيس_في": "2026-09-10",
-    "الإجماليّ": 233,
+    "قيس_في": "2026-09-11",
+    "الإجماليّ": 163,
     "الملفّات": {
         "app\/Models\/WalletWithdrawal.php": 4,
         "app\/Services\/Admin\/Content\/QuestionImporter.php": 1,
@@ -31,15 +31,6 @@
         "app\/Support\/Access\/ConditionMap.php": 99,
         "resources\/views\/account\/settings\/index.blade.php": 14,
         "resources\/views\/account\/settings\/partials\/security.blade.php": 5,
-        "resources\/views\/components\/icon.blade.php": 15,
-        "resources\/views\/store\/bundles.blade.php": 8,
-        "resources\/views\/store\/cart.blade.php": 2,
-        "resources\/views\/store\/index.blade.php": 8,
-        "resources\/views\/store\/partials\/balance.blade.php": 1,
-        "resources\/views\/store\/partials\/card.blade.php": 6,
-        "resources\/views\/store\/partials\/filters.blade.php": 17,
-        "resources\/views\/store\/partials\/purchase-sheet.blade.php": 14,
-        "resources\/views\/store\/product.blade.php": 11,
-        "resources\/views\/store\/refund-policy.blade.php": 3
+        "resources\/views\/components\/icon.blade.php": 15
     }
 }

@@ -266,7 +266,7 @@ class BundleLandingTest extends StoreTestCase
         $this->actingAs($this->trainee(100))
             ->get(route('store.product', ['type' => 'bundle', 'slug' => $bundle->slug]))
             ->assertOk()
-            ->assertSee('إتمام الشراء')
+            ->assertSee(setting('store.purchase.sheet_title'))
             ->assertSee('قرأت سياسة عدم الاسترجاع وموافق عليها.')
             ->assertSee('اشحن المحفظة');
     }

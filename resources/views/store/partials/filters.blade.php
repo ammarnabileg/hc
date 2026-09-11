@@ -11,12 +11,16 @@
     // اسم عملة المنزلق — والمنزلق يتحرّك ضمنها وحدها (17)
     $rangeLabel = \App\Services\Store\Coins::currencyLabel($rangeCurrency ?? null);
     $allTypeOptions = isset($typeOptions) ? array_merge($typeOptions['visible'], $typeOptions['folded']) : [];
+    // خيارات الفرز والملكيّة من الإعدادات — القيمة مفتاحٌ ثابت والنصّ وحده يتغيّر (2.13)
+    $sortOptions = (array) setting('store.filters.sort_options', ['newest' => 'الأحدث', 'price_asc' => 'الأرخص أوّلًا', 'price_desc' => 'الأغلى أوّلًا']);
+    $ownedOptions = (array) setting('store.filters.owned_options', ['new' => 'اللي مش معايا', 'mine' => 'اللي معايا']);
+    $allLabel = setting('store.filters.all_label', 'الكلّ');
 @endphp
 
 <x-filters :action="$action">
     <label class="block grow min-w-[12rem]">
-        <span class="block text-sm mb-1">بحث</span>
-        <input type="search" name="q" value="{{ $filters['q'] }}" placeholder="اكتب اسم اللي بتدوّر عليه"
+        <span class="block text-sm mb-1">{{ setting('store.filters.search_label', 'بحث') }}</span>
+        <input type="search" name="q" value="{{ $filters['q'] }}" placeholder="{{ setting('store.filters.search_placeholder', 'اكتب اسم اللي بتدوّر عليه') }}"
                class="w-full rounded-xl px-3 py-2 text-sm" style="{{ $inputStyle }}">
     </label>
 
@@ -39,7 +43,7 @@
 
     <div class="block min-w-[14rem] grow" data-price-range>
         <span class="block text-sm mb-1">
-            نطاق السعر
+            {{ setting('store.filters.price_range_label', 'نطاق السعر') }}
             <span class="text-xs" style="color: var(--text-muted)">
                 (<span data-price-min>{{ (int) $min }}</span> — <span data-price-max>{{ (int) $max }}</span>
                 {{ $rangeLabel }})
@@ -47,21 +51,21 @@
         </span>
         {{-- منزلقان بلا بوردر: الأدنى والأعلى --}}
         <input type="range" name="min" min="0" max="{{ (int) $priceCeiling }}" value="{{ (int) $min }}"
-               class="w-full" aria-label="أقلّ سعر" data-price-input="min">
+               class="w-full" aria-label="{{ setting('store.filters.price_min_label', 'أقلّ سعر') }}" data-price-input="min">
         <input type="range" name="max" min="0" max="{{ (int) $priceCeiling }}" value="{{ (int) $max }}"
-               class="w-full" aria-label="أعلى سعر" data-price-input="max">
+               class="w-full" aria-label="{{ setting('store.filters.price_max_label', 'أعلى سعر') }}" data-price-input="max">
     </div>
 
     <button type="submit"
             class="btn rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
-            style="background: var(--color-brand-500); color: #04201c">طبّق</button>
+            style="background: var(--color-brand-500); color: #04201c">{{ setting('store.filters.apply_label', 'طبّق') }}</button>
 
     <x-slot:advanced>
         @isset($categories)
             <label class="block min-w-[10rem]">
-                <span class="block text-sm mb-1">التصنيف</span>
+                <span class="block text-sm mb-1">{{ setting('store.filters.category_label', 'التصنيف') }}</span>
                 <select name="category" class="w-full rounded-xl px-3 py-2 text-sm" style="{{ $inputStyle }}">
-                    <option value="">الكلّ</option>
+                    <option value="">{{ $allLabel }}</option>
                     @foreach ($categories as $category)
                         <option value="{{ $category->id }}" @selected($filters['category'] === $category->id)>{{ $category->name_ar }}</option>
                     @endforeach
@@ -72,7 +76,7 @@
         @isset($typeOptions)
             {{-- نوع العنصر مطويّ: الفلتران الظاهران هما **العملة ونطاق السعر** كما ينصّ 17 --}}
             <fieldset class="min-w-[14rem]">
-                <legend class="block text-sm mb-1">النوع</legend>
+                <legend class="block text-sm mb-1">{{ setting('store.filters.type_label', 'النوع') }}</legend>
                 <div class="flex flex-wrap gap-2">
                     @foreach ($allTypeOptions as $key => $label)
                         <label class="text-sm rounded-full px-3 py-1.5 cursor-pointer"
@@ -86,20 +90,21 @@
         @endisset
 
         <label class="block min-w-[10rem]">
-            <span class="block text-sm mb-1">الفرز</span>
+            <span class="block text-sm mb-1">{{ setting('store.filters.sort_label', 'الفرز') }}</span>
             <select name="sort" class="w-full rounded-xl px-3 py-2 text-sm" style="{{ $inputStyle }}">
-                <option value="newest" @selected($filters['sort'] === 'newest')>الأحدث</option>
-                <option value="price_asc" @selected($filters['sort'] === 'price_asc')>الأرخص أوّلًا</option>
-                <option value="price_desc" @selected($filters['sort'] === 'price_desc')>الأغلى أوّلًا</option>
+                @foreach ($sortOptions as $key => $label)
+                    <option value="{{ $key }}" @selected($filters['sort'] === $key)>{{ $label }}</option>
+                @endforeach
             </select>
         </label>
 
         <label class="block min-w-[10rem]">
-            <span class="block text-sm mb-1">الملكيّة</span>
+            <span class="block text-sm mb-1">{{ setting('store.filters.owned_label', 'الملكيّة') }}</span>
             <select name="owned" class="w-full rounded-xl px-3 py-2 text-sm" style="{{ $inputStyle }}">
-                <option value="">الكلّ</option>
-                <option value="new" @selected($filters['owned'] === 'new')>اللي مش معايا</option>
-                <option value="mine" @selected($filters['owned'] === 'mine')>اللي معايا</option>
+                <option value="">{{ $allLabel }}</option>
+                @foreach ($ownedOptions as $key => $label)
+                    <option value="{{ $key }}" @selected($filters['owned'] === $key)>{{ $label }}</option>
+                @endforeach
             </select>
         </label>
     </x-slot:advanced>

@@ -31,14 +31,14 @@
     @endphp
 
     <x-page-header :title="$item->name_ar"
-                   :breadcrumbs="[['label' => 'المتجر', 'url' => route('store.index')], ['label' => $item->name_ar]]">
+                   :breadcrumbs="[['label' => setting('store.breadcrumb_label', 'المتجر'), 'url' => route('store.index')], ['label' => $item->name_ar]]">
         <x-slot:action>
             {{-- فعل رئيسيّ واحد وحيد (2.15-أ-2) --}}
             @if ($owned)
                 @if ($libraryUrl)
                     <a href="{{ $libraryUrl }}"
                        class="btn hidden md:inline-flex items-center justify-center rounded-xl px-5 py-2.5 text-sm font-semibold motion-standard"
-                       style="background: var(--color-brand-500); color: #04201c">افتح من مكتبتي</a>
+                       style="background: var(--color-brand-500); color: #04201c">{{ setting('store.product.library_link_label', 'افتح من مكتبتي') }}</a>
                 @endif
             @elseif ($canBuy)
                 <button type="button" data-modal-open="purchase-sheet"
@@ -49,7 +49,7 @@
             @elseif (! auth()->check() && $quote['sellable'])
                 <a href="{{ route('login') }}"
                    class="btn hidden md:inline-flex items-center justify-center rounded-xl px-5 py-2.5 text-sm font-semibold motion-standard"
-                   style="background: var(--color-brand-500); color: #04201c">سجّل دخولك للشراء</a>
+                   style="background: var(--color-brand-500); color: #04201c">{{ setting('store.product.login_cta_label', 'سجّل دخولك للشراء') }}</a>
             @endif
         </x-slot:action>
     </x-page-header>
@@ -76,7 +76,7 @@
                 <div class="p-5 space-y-3">
                     <div class="flex items-center gap-2 flex-wrap">
                         @if ($owned)
-                            <x-state-badge state="ok" label="تملكه بالفعل" />
+                            <x-state-badge state="ok" :label="setting('store.owned_badge', 'تملكه بالفعل')" />
                         @endif
                         @if ($quote['savings'] > 0)
                             <span class="text-xs rounded-full px-2 py-0.5 inline-flex items-center gap-1"
@@ -88,7 +88,7 @@
                     </div>
 
                     <p class="text-sm leading-7" style="color: var(--text-muted)">
-                        {{ $item->description_ar ?? $item->description ?? 'لسّه مافيش وصف للعنصر ده.' }}
+                        {{ $item->description_ar ?? $item->description ?? setting('store.product.no_description_text', 'لسّه مافيش وصف للعنصر ده.') }}
                     </p>
                 </div>
             </div>
@@ -96,7 +96,7 @@
             {{-- المعاينة / صفحات العيّنة (20.3 · 21.1-أ) --}}
             @if ($previewNote)
                 <div class="card p-5">
-                    <h2 class="font-bold mb-2">معاينة قبل الشراء</h2>
+                    <h2 class="font-bold mb-2">{{ setting('store.product.preview_title', 'معاينة قبل الشراء') }}</h2>
                     <p class="text-sm" style="color: var(--text-muted)">{{ $previewNote }}</p>
 
                     {{-- ⭐ الوعد له باب: مسار درسٍ عامّ بلا تسجيل (21.1-أ) --}}
@@ -165,7 +165,7 @@
             <div class="card p-5 space-y-3">
                 @if (! $quote['sellable'])
                     <p class="text-sm" style="color: var(--text-muted)">{{ setting('store.path.note_text', 'يُفتَح ضمن الباقات') }}</p>
-                    <a href="{{ route('store.bundles') }}" class="text-sm hover:underline" style="color: var(--color-brand-400)">شوف الباقات</a>
+                    <a href="{{ route('store.bundles') }}" class="text-sm hover:underline" style="color: var(--color-brand-400)">{{ setting('store.bundles_link_label', 'شوف الباقات') }}</a>
                 @else
                     <div class="flex items-baseline gap-2">
                         <span class="text-2xl font-extrabold">
@@ -177,13 +177,13 @@
                     </div>
 
                     <div class="text-sm" style="color: var(--text-muted)">
-                        رصيدك الآن: <b>{{ Coins::label($quote['balance_before'], $quote['currency']) }}</b>
+                        {{ setting('store.product.balance_label', 'رصيدك الآن:') }} <b>{{ Coins::label($quote['balance_before'], $quote['currency']) }}</b>
                     </div>
 
                     @if ($owned)
                         <p class="text-sm">{{ setting('store.owned_text', 'ده معاك بالفعل — تلاقيه في مكتبتك.') }}</p>
                         @if ($libraryUrl)
-                            <a href="{{ $libraryUrl }}" class="text-sm hover:underline" style="color: var(--color-brand-400)">افتح من مكتبتي</a>
+                            <a href="{{ $libraryUrl }}" class="text-sm hover:underline" style="color: var(--color-brand-400)">{{ setting('store.product.library_link_label', 'افتح من مكتبتي') }}</a>
                         @endif
                     @elseif (auth()->check())
                         <button type="button" data-modal-open="purchase-sheet"
@@ -209,7 +209,7 @@
                     @else
                         <a href="{{ route('login') }}"
                            class="btn w-full inline-flex items-center justify-center rounded-xl px-4 py-3 text-sm font-semibold motion-standard"
-                           style="background: var(--color-brand-500); color: #04201c">سجّل دخولك للشراء</a>
+                           style="background: var(--color-brand-500); color: #04201c">{{ setting('store.product.login_cta_label', 'سجّل دخولك للشراء') }}</a>
                     @endif
 
                     <a href="{{ route('store.refund-policy') }}" class="block text-xs hover:underline" style="color: var(--text-muted)">
@@ -230,7 +230,7 @@
         @if (\Illuminate\Support\Facades\Route::has('library.index'))
             <a href="{{ route('library.index') }}"
                class="btn w-full inline-flex items-center justify-center rounded-xl px-4 py-3 text-sm font-semibold"
-               style="background: var(--color-brand-500); color: #04201c">افتح من مكتبتي</a>
+               style="background: var(--color-brand-500); color: #04201c">{{ setting('store.product.library_link_label', 'افتح من مكتبتي') }}</a>
         @endif
     @elseif (auth()->check() && $quote['sellable'])
         <button type="button" data-modal-open="purchase-sheet"

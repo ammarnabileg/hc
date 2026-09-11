@@ -17,7 +17,7 @@
     <x-page-header :title="setting('store.cart.page_title')"
                    :subtitle="setting('store.cart.page_subtitle')"
                    :breadcrumbs="[
-                       ['label' => 'المتجر', 'url' => $storeUrl],
+                       ['label' => setting('store.breadcrumb_label', 'المتجر'), 'url' => $storeUrl],
                        ['label' => setting('store.cart.page_title')],
                    ]">
         <x-slot:action>
@@ -32,7 +32,7 @@
     @if ($quote['lines'] === [])
         {{-- حالة فارغة: سطر واحد وزرّ واحد يشجّع ولا يعاتب (2.15-أ-8 · 2.17) --}}
         <x-empty :message="setting('store.cart.empty_text')"
-                 action="اتفرّج على المتجر"
+                 :action="setting('store.cart.empty_action_label', 'اتفرّج على المتجر')"
                  :href="$storeUrl" />
     @else
         <form id="cart-checkout-form" method="post" action="{{ route('store.cart.checkout') }}" data-cart-form
