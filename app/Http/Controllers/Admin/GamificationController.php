@@ -14,8 +14,11 @@ use App\Services\Admin\Volunteer\WarSettingsService;
 use App\Services\Gamification\BadgeService;
 use App\Services\Gamification\EconomyRules;
 use App\Services\Gamification\RewardQuestionService;
+use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 use RuntimeException;
@@ -23,12 +26,33 @@ use RuntimeException;
 /**
  * التلعيب والتحديات (12.10 موسّع · 2.14 · 7 · 7.1 · 7.2 · 7.3 · 7.4).
  *
- * شاشة واحدة بتابات داخليّة تُحمَّل كسولًا (2.15-د): XP · التذاكر · الشارات ·
- * الستريكس ونادي الخامسة · الليدر بورد · المستويات · الحروب · الاحتفالات.
+ * ⭐ **12.10 لم تعد ثلاثة تبويبات.** نصُّها الأوّل (12.10 الأصليّة · 2026-07-23)
+ * كان «دروب-داون بـ3 تبويبات: أسئلة المكافآت / بنك أسئلة الحروب / إعدادات
+ * الحروب»، ثمّ **وسّعها الدستور نفسه** في «🎮 ثانيًا — التلعيب والتحديات (12.10
+ * موسّع)»: «**12.10 توسّعت من 3 تبويبات إلى 11 صفحة** فاستوعبت `xp_rules` ·
+ * `streaks` · `five_am_club` · `badges` · `referrals` · `positive_messages` ·
+ * `celebrations` التي كانت صلاحيّات بلا شاشات» — والحادية عشرة (الألعاب) سقطت
+ * بإلغاء 7.5، فبقيت **عشر وجهات** هي بعينها بنود مجموعة «🎮 التلعيب والتحديات»
+ * في خريطة سايد بار الإدارة المعتمَدة (12.0).
+ *
+ * فالوجهات العشر مصدرُها **`menu()` وحده** يقرأ منه سايد بار الإدارة وشريط
+ * الشاشة معًا — ولو نُسِخت في الاثنين لشاخت إحدى النسختين عند أوّل وجهةٍ جديدة،
+ * وهو بالضبط ما كان: شريط الشاشة يعرض ثمانية تابات مسطّحة **لا تذكر** بنك أسئلة
+ * الحروب ولا الريفيرال ولا الرسائل الإيجابيّة (وهي وجهات 12.0 نفسها بشاشاتها
+ * المستقلّة)، ويعرض تابّ «المستويات» وهو **ليس بندًا في 12.0** ولا في السايد بار
+ * — فكان يُبلَغ بالعنوان وحده. وقد صار قسمًا داخل صفحة «XP والتذاكر» التي هي
+ * موضعُه الطبيعيّ (عتبات XP = اقتصاد XP)، فلا قدرة ضاعت ولا وجهة يتيمة بقيت.
+ *
+ * والتابات تُحمَّل كسولًا: التاب المفتوح وحده يجهّز بياناته (2.15-د).
  */
 class GamificationController extends Controller
 {
-    /** مفاتيح التابات الثمانية — **مفاتيح داخليّة** لا نصوصًا، فلا تُنقَل */
+    /**
+     * مفاتيح التابات — **مفاتيح داخليّة** لا نصوصًا، فلا تُنقَل.
+     *
+     * سبعةٌ منها وجهاتٌ في `menu()`، و`levels` **ليس وجهة** (قسمٌ داخل صفحة XP
+     * كما شُرح أعلاه) لكنّه يبقى مفتاحًا صالحًا فلا ينكسر رابطٌ قديم محفوظ.
+     */
     public const TAB_KEYS = ['xp', 'badges', 'streaks', 'leaderboard', 'levels', 'wars', 'reward_questions', 'celebrations'];
 
     /**
@@ -87,6 +111,104 @@ class GamificationController extends Controller
         'reward_questions.view',
     ];
 
+    /**
+     * ⭐⭐ **وجهات مجموعة «التلعيب والتحديات» العشر — مصدرٌ واحد** (12.0 · 12.10
+     * موسّع).
+     *
+     * سبعٌ منها تابٌّ في هذه الشاشة، وثلاثٌ **شاشاتٌ مستقلّة بمسارها الخاصّ**:
+     * بنك أسئلة الحروب (12.10-ب) · الريفيرال والسفراء (24.2) · الرسائل
+     * الإيجابيّة (2.6-ب). والبنك بالذات شاشةٌ قائمة بذاتها كما تنصّ 12.10-ب
+     * (بنك · استيراد · تصدير · كشف مؤقّت بـAudit) لا مرساةً داخل صفحةٍ عملاقة.
+     *
+     * وصلاحيّة كلّ بند **نسخةٌ حرفيّةٌ ممّا تحرسه المِدل-وير على مساره**: القائمة
+     * تُقرَأ «كلّها لازمة»، وكلّ بندٍ فيها «أيٌّ من» مفصولةً بـ`|`. فبند التاب له
+     * صلاحيّتان: صلاحيّة التاب نفسه، و**باب الصفحة** الذي تحرسه المِدل-وير —
+     * ولولا الثانية لظهر بندٌ يفتح 403، وهو أسوأ من إخفائه (2.15-أ-7).
+     *
+     * @return list<array{label: string, route: string, params: array<string, string>, permission: string|list<string>}>
+     */
+    public static function menu(): array
+    {
+        // باب الشاشة كما تحرسه المِدل-وير — يُقرَأ من مصدره لا يُنسَخ بالحرف
+        $door = implode('|', self::GATE_KEYS);
+
+        return [
+            ['label' => (string) setting('nav.admin.item_gamification_xp', 'XP والتذاكر'), 'route' => 'admin.gamification.index', 'params' => ['tab' => 'xp'], 'permission' => 'xp_rules.view'],
+            // المفتاح الإداريّ أو الشخصيّ — 12.2.2 تفرّق بينهما (`streaks.list` ALL · `streaks.view` SELF)
+            ['label' => (string) setting('nav.admin.item_gamification_streaks', 'الستريك ونادي الخامسة'), 'route' => 'admin.gamification.index', 'params' => ['tab' => 'streaks'], 'permission' => ['streaks.view|streaks.list', $door]],
+            ['label' => (string) setting('nav.admin.item_gamification_leaderboard', 'الليدر بورد'), 'route' => 'admin.gamification.index', 'params' => ['tab' => 'leaderboard'], 'permission' => ['leaderboards.view|leaderboards.export', $door]],
+            ['label' => (string) setting('nav.admin.item_gamification_badges', 'الشارات والإنجازات'), 'route' => 'admin.gamification.index', 'params' => ['tab' => 'badges'], 'permission' => 'badges.view'],
+            /*
+             | ⛔ «الألعاب» ملغاة بقرار المالك (الدستور v5.3 — 7.5)، فسقط بندها من
+             | خريطة 12.0. ولا مدخل لها هنا، ولا تابّ `?tab=games`.
+             */
+            // الطرف الإداريّ للدعوات والألقاب (24.2) — شاشةٌ مستقلّة
+            ['label' => (string) setting('nav.admin.item_gamification_referrals', 'الريفيرال والسفراء'), 'route' => 'admin.referrals.index', 'params' => [], 'permission' => 'referrals.list'],
+            // الرسائل الإيجابيّة لأيقونة المفاجأة (2.6-ب · 12.0) — شاشةٌ مستقلّة
+            ['label' => (string) setting('nav.admin.item_gamification_positive', 'الرسائل الإيجابيّة'), 'route' => 'admin.positive.index', 'params' => [], 'permission' => 'positive_messages.list'],
+            ['label' => (string) setting('nav.admin.item_gamification_celebrations', 'الاحتفالات'), 'route' => 'admin.gamification.index', 'params' => ['tab' => 'celebrations'], 'permission' => 'celebrations.view'],
+            ['label' => (string) setting('nav.admin.item_gamification_reward_questions', 'أسئلة المكافآت'), 'route' => 'admin.gamification.index', 'params' => ['tab' => 'reward_questions'], 'permission' => 'reward_questions.view'],
+            // بنك أسئلة الحروب — بند صريح في 12.0 (12.10-ب) بشاشته المستقلّة
+            ['label' => (string) setting('nav.admin.item_gamification_wars_bank', 'بنك أسئلة الحروب'), 'route' => 'admin.wars.bank.index', 'params' => [], 'permission' => 'wars_bank.list'],
+            ['label' => (string) setting('nav.admin.item_gamification_wars_settings', 'إعدادات الحروب'), 'route' => 'admin.gamification.index', 'params' => ['tab' => 'wars'], 'permission' => 'wars_settings.view'],
+        ];
+    }
+
+    /**
+     * مفاتيح تابات هذه الشاشة **التي هي وجهةٌ في 12.0** — وما عداها (`levels`)
+     * قسمٌ داخل صفحةٍ منها، يُفتَح برابطٍ قديم ولا يُعلَن بندًا.
+     *
+     * @return list<string>
+     */
+    public static function menuTabs(): array
+    {
+        return array_values(array_filter(array_map(
+            fn (array $item) => $item['route'] === 'admin.gamification.index' ? ($item['params']['tab'] ?? null) : null,
+            self::menu(),
+        )));
+    }
+
+    /**
+     * وجهات 12.10 التي يراها **هذا المستخدم** — والمحظور يُخفى ولا يُعطَّل
+     * (2.15-أ-7)، والمسار غير الموجود لا يُعرَض أصلًا فلا رابط ميّت.
+     *
+     * @return list<array{label: string, route: string, params: array<string, string>, permission: string|list<string>, href: string}>
+     */
+    public static function menuFor(?Authenticatable $user): array
+    {
+        $allows = function ($permission) use ($user): bool {
+            foreach ((array) $permission as $clause) {
+                $any = false;
+
+                foreach (explode('|', $clause) as $key) {
+                    if (Gate::forUser($user)->allows($key)) {
+                        $any = true;
+                        break;
+                    }
+                }
+
+                if (! $any) {
+                    return false;
+                }
+            }
+
+            return true;
+        };
+
+        $items = [];
+
+        foreach (self::menu() as $item) {
+            if (! Route::has($item['route']) || ! $allows($item['permission'])) {
+                continue;
+            }
+
+            $item['href'] = route($item['route'], $item['params']);
+            $items[] = $item;
+        }
+
+        return $items;
+    }
+
     public function index(Request $request): View
     {
         $tab = $request->string('tab')->toString() ?: 'xp';
@@ -96,6 +218,9 @@ class GamificationController extends Controller
         return view('admin.gamification.index', [
             'tab' => $tab,
             'tabs' => self::tabs(),
+            // وجهات 12.10 العشر — نفس مصدر السايد بار، فلا يفترق الشريط عنه
+            'menu' => self::menuFor($request->user()),
+            'menuTabs' => self::menuTabs(),
             // تحميل كسول: التاب المفتوح وحده يجهّز بياناته (2.15-د · 2.7)
             'data' => $this->dataFor($tab, $request),
         ]);
@@ -394,6 +519,12 @@ class GamificationController extends Controller
                 'spend' => (array) setting('xp_rules.spend', []),
                 // ⭐ أيّ صفٍّ لا يقرؤه الكود يُعلَّم في الشاشة — لا إعداد بلا أثر (2.13)
                 'earnConsumed' => EconomyRules::CONSUMED_EARN,
+                /*
+                 | ⭐ المستويات قسمٌ في صفحة «XP والتذاكر» لا وجهةً في 12.0:
+                 | عتبة المستوى **رقم XP**، فموضعُها اقتصاد XP. وكانت تابًّا
+                 | لا يذكره السايد بار ولا خريطة 12.0 — يُبلَغ بالعنوان وحده.
+                 */
+                'levels' => Level::query()->orderBy('level')->get(),
             ],
             'badges' => [
                 'settings' => SettingsWriter::groupRows('gamification_badges'),

@@ -132,6 +132,16 @@
     <p class="text-xs mt-2" style="color: var(--text-muted)">{{ setting('admin.gamification.tabs.xp.tadl_mn_blwk_aliadadat_tht', 'تُعدَّل من بلوك الإعدادات تحت.') }}</p>
 </section>
 
+{{--
+  ⭐ المستويات وعتبات XP — قسمٌ في هذه الصفحة لا وجهةً في خريطة 12.0: العتبة
+  رقم XP فموضعُها اقتصاد XP. وكانت تابًّا لا يذكره السايد بار ولا الخريطة،
+  فما كان يُبلَغ إلّا بكتابة `?tab=levels` بالعنوان. وصلاحيّاته كما هي
+  (`achievements.edit` للتعديل · `achievements.manage` للحذف).
+--}}
+<div class="mt-4">
+    @include('admin.gamification.tabs.levels')
+</div>
+
 @can('xp_rules.edit')
     @include('admin.volunteer.partials.settings-card', [
         'title' => setting('admin.gamification.tabs.xp.iadadat_xp_waltdhakr', 'إعدادات XP والتذاكر'),

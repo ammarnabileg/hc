@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Admin\Volunteer;
 
+use App\Http\Controllers\Admin\GamificationController;
 use App\Models\Entity;
 use App\Models\Membership;
 use App\Models\Offboarding;
@@ -108,12 +109,16 @@ class AdminVolunteerScreensTest extends AdminVolunteerTestCase
         );
     }
 
-    /** تابات التلعيب السبعة تفتح كلّها بلا خطأ. */
+    /**
+     * تابات التلعيب تفتح كلّها بلا خطأ — **من `TAB_KEYS` لا من قائمةٍ منسوخة**،
+     * فكانت تسقط `reward_questions` بلا أن يلحظها أحد. ووجهات 12.10 العشر
+     * وحرّاسها في `AdminGamificationMenuTest`.
+     */
     public function test_all_gamification_tabs_render(): void
     {
         $admin = $this->grant($this->makeUser(), 'xp_rules.view');
 
-        foreach (['xp', 'badges', 'streaks', 'leaderboard', 'levels', 'wars', 'celebrations'] as $tab) {
+        foreach (GamificationController::TAB_KEYS as $tab) {
             $this->actingAs($admin)
                 ->get(route('admin.gamification.index', ['tab' => $tab]))
                 ->assertOk();

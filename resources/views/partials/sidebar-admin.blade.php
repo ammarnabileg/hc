@@ -42,12 +42,12 @@
     /*
      | بوّابات الصفحات ذات التابات — نسخةٌ حرفيّةٌ ممّا تحرسه المِدل-وير على المسار.
      |
-     | ⭐ وبوّابتا الإحصائيّات والتلعيب **تُقرآن من مصدر الحارس نفسه** لا تُنسخان
-     | بالحرف: النسخة اليدويّة تشيخ عند أوّل تابٍّ جديد، فيعود البند مخفيًّا عن
-     | صاحبه — وهو العطب الذي كان قائمًا (باب `/admin/stats` أضيق من محتواه).
+     | ⭐ وبوّابة الإحصائيّات **تُقرَأ من مصدر الحارس نفسه** لا تُنسَخ بالحرف:
+     | النسخة اليدويّة تشيخ عند أوّل تابٍّ جديد، فيعود البند مخفيًّا عن صاحبه —
+     | وهو العطب الذي كان قائمًا (باب `/admin/stats` أضيق من محتواه). ومجموعة
+     | التلعيب تذهب أبعد: **بنودها كلّها** من `GamificationController::menu()`.
      */
     $certGate = 'certificate_ledger.view|certificate_templates.view|accreditations.view';
-    $gameGate = implode('|', \App\Http\Controllers\Admin\GamificationController::GATE_KEYS);
     $storeGate = 'store_products.list|bundles.list|coupons.list|orders.list';
     $statsGate = implode('|', \App\Services\Admin\System\StatsService::gateKeys());
 
@@ -120,27 +120,21 @@
             [setting('nav.admin.item_volunteer_investigations', 'لجنة التحقيق'), 'admin.volunteer.investigations.index', 'investigations.view'],
         ])],
 
-        // 🎮 التلعيب والتحديات (12.10 — موسّع) — أحد عشر بندًا بترتيب 12.0
-        ['🎮', setting('nav.admin.group_gamification', 'التلعيب والتحديات'), $filter([
-            [setting('nav.admin.item_gamification_xp', 'XP والتذاكر'), 'admin.gamification.index', 'xp_rules.view', ['tab' => 'xp']],
-            // المفتاح الإداريّ أو الشخصيّ — 12.2.2 تفرّق بينهما (`streaks.list` ALL · `streaks.view` SELF)
-            [setting('nav.admin.item_gamification_streaks', 'الستريك ونادي الخامسة'), 'admin.gamification.index', ['streaks.view|streaks.list', $gameGate], ['tab' => 'streaks']],
-            [setting('nav.admin.item_gamification_leaderboard', 'الليدر بورد'), 'admin.gamification.index', ['leaderboards.view|leaderboards.export', $gameGate], ['tab' => 'leaderboard']],
-            [setting('nav.admin.item_gamification_badges', 'الشارات والإنجازات'), 'admin.gamification.index', 'badges.view', ['tab' => 'badges']],
-            /*
-             | ⛔ «الألعاب» ملغاة بقرار المالك (الدستور v5.3 — 7.5)، فسقط بندها من
-             | خريطة 12.0. ولا مدخل لها هنا، ولا تابّ `?tab=games`.
-             */
-            // الطرف الإداريّ للدعوات والألقاب (24.2)
-            [setting('nav.admin.item_gamification_referrals', 'الريفيرال والسفراء'), 'admin.referrals.index', 'referrals.list'],
-            // الرسائل الإيجابيّة لأيقونة المفاجأة (2.6-ب · 12.0)
-            [setting('nav.admin.item_gamification_positive', 'الرسائل الإيجابيّة'), 'admin.positive.index', 'positive_messages.list'],
-            [setting('nav.admin.item_gamification_celebrations', 'الاحتفالات'), 'admin.gamification.index', 'celebrations.view', ['tab' => 'celebrations']],
-            [setting('nav.admin.item_gamification_reward_questions', 'أسئلة المكافآت'), 'admin.gamification.index', 'reward_questions.view', ['tab' => 'reward_questions']],
-            // بنك أسئلة الحروب — بند صريح في 12.0 (12.10-ب)
-            [setting('nav.admin.item_gamification_wars_bank', 'بنك أسئلة الحروب'), 'admin.wars.bank.index', 'wars_bank.list'],
-            [setting('nav.admin.item_gamification_wars_settings', 'إعدادات الحروب'), 'admin.gamification.index', 'wars_settings.view', ['tab' => 'wars']],
-        ])],
+        /*
+         | 🎮 التلعيب والتحديات (12.10 — موسّع) — عشر وجهات بترتيب 12.0،
+         | **تُقرَأ من `GamificationController::menu()`** لا تُنسَخ هنا بالحرف.
+         |
+         | ليه؟ لأنّ نفس الوجهات يعرضها شريط شاشة التلعيب نفسها، والنسختان
+         | تشيخ إحداهما عند أوّل وجهةٍ جديدة — وهو ما وقع فعلًا: الشريط كان
+         | ثمانية تابات مسطّحة لا تذكر بنك أسئلة الحروب ولا الريفيرال ولا
+         | الرسائل الإيجابيّة، ويذكر «المستويات» وليست بندًا في 12.0 أصلًا.
+         */
+        ['🎮', setting('nav.admin.group_gamification', 'التلعيب والتحديات'), $filter(
+            array_map(
+                fn (array $item) => [$item['label'], $item['route'], $item['permission'], $item['params']],
+                \App\Http\Controllers\Admin\GamificationController::menu(),
+            ),
+        )],
 
         // 🛒 المتجر والماليّات (12.12) — تابات المتجر الخمسة ثمّ المجموعة المحميّة
         ['🛒', setting('nav.admin.group_store', 'المتجر والماليّات'), $filter([
