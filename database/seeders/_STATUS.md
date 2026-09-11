@@ -34,6 +34,15 @@
 
 ## ⬜ المتبقّي
 <!-- بيدك:بداية:المتبقّي -->
+- ✅ **[مقفولة 2026-09-11] قمع التدريبات الرقميّ في `ChallengeDemoSeeder` (15.6).**
+  كانت الأسئلة الرقميّة كلّها (24) بمصدر `arena`، وأسئلة `training` الستّة اختيارًا من
+  متعدّد — فحرب التقدير (`is_numeric` فقط) تجد قمع التدريبات **فارغًا** ويتراجع سحبها
+  كلّه للساحة (**7/7**) خلافًا لنصّ «30% تدريبات رقميّة + 70% قمع». صارت
+  `numericQuestions()` تحمل **عمود مصدرٍ** كأختها `choiceQuestions()`، وأُضيف **14 سؤالًا
+  رقميًّا بمصدر `training`**. **الدليل:**
+  `WarMatchPlayTest::test_estimation_war_keeps_the_training_share_of_the_funnel`
+  — خمس جولات، كلّ واحدة 5 ساحة + 2 تدريبات بالضبط. ولا لمسةَ على `WarQuestionFunnel`:
+  الفجوة محتوًى لا منطق.
 - ✅ **[2026-08-04] تعريفات نصوص شاشات المستخدم النهائيّ (2.13-أ).** أُضيفت
   ميثود `screenTextSettings()` إلى خمسة سيدرات — `DashboardDemoSeeder` (79 مفتاحًا)
   و`ChallengeDemoSeeder` (171 + `achievementsScreenTextSettings()` بـ65) و

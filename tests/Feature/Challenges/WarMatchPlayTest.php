@@ -6,6 +6,7 @@ use App\Models\WarQuestion;
 use App\Services\Gamification\Wars\MatchmakingService;
 use App\Services\Gamification\Wars\WarMatchService;
 use App\Services\Gamification\Wars\WarQuestionFunnel;
+use App\Services\Gamification\Wars\WarRules;
 use App\Services\Gamification\Wars\WarStats;
 
 /**
@@ -270,5 +271,54 @@ class WarMatchPlayTest extends ChallengeTestCase
         // 30% من عشرين = ستّة — ونقبل نقصانًا إن شحّ قمع التدريبات
         $this->assertGreaterThan(0, $fromTraining);
         $this->assertLessThanOrEqual(20, $fromTraining);
+    }
+
+    /**
+     * ⭐ 15.6: **«30% تدريبات رقميّة + 70% قمع»** — والنسبة تُقاس **مرصودةً**
+     * في حرب التقدير لا محسوبةً في الكود وحده.
+     *
+     * الفرق ليس نظريًّا: حساب `draw()` كان سليمًا دائمًا، لكنّ القمع الرقميّ
+     * من التدريبات كان **فارغًا** في البيانات، فيسدّ السطر الذي «لا يُنقِص
+     * الجولة» العجزَ كلّه من الساحة وتخرج المواجهة **7/7 ساحة**. فالحارس
+     * هنا يحرس **المحتوى** كما يحرس المنطق: يسقط بحذف القسم الرقميّ من
+     * `training` في `ChallengeDemoSeeder` وإن لم يتغيّر حرفٌ في الخدمة.
+     */
+    public function test_estimation_war_keeps_the_training_share_of_the_funnel(): void
+    {
+        $rules = app(WarRules::class);
+        $challenge = $this->challenge('estimation_war');
+
+        $count = $rules->questionCount('estimation');
+        $arenaShare = (int) round($count * $rules->arenaRatio($challenge) / 100);
+        $trainingShare = $count - $arenaShare;
+
+        // البيانات أوّلًا: قمعُ تدريباتٍ رقميّ لا يكفي جولةً واحدة = النسبة ساقطة
+        $this->assertGreaterThanOrEqual(
+            $trainingShare,
+            WarQuestion::query()->where('source', 'training')->where('is_numeric', true)->count(),
+            'القمع الرقميّ من التدريبات لا يكفي حصّة الـ30% التي يشترطها 15.6',
+        );
+
+        $trainingRefs = WarQuestion::query()->where('source', 'training')->pluck('id')
+            ->map(fn ($id) => 'war:'.$id)->all();
+        $arenaRefs = WarQuestion::query()->where('source', 'arena')->pluck('id')
+            ->map(fn ($id) => 'war:'.$id)->all();
+
+        // خمس جولات: النسبة عادةٌ لا صدفةَ سحبةٍ واحدة
+        foreach (range(1, 5) as $round) {
+            $refs = array_column(app(WarQuestionFunnel::class)->draw($challenge, $count), 'ref');
+
+            $this->assertCount($count, $refs);
+            $this->assertSame(
+                $trainingShare,
+                count(array_intersect($refs, $trainingRefs)),
+                "الجولة $round: حصّة التدريبات خرجت عن الـ30%",
+            );
+            $this->assertSame(
+                $arenaShare,
+                count(array_intersect($refs, $arenaRefs)),
+                "الجولة $round: حصّة الساحة خرجت عن الـ70%",
+            );
+        }
     }
 }
