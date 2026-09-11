@@ -18,6 +18,9 @@
     $canReuse = $u?->can('course_exam.edit') || $u?->can('question_bank.manage');
     $canImport = $u?->can('question_bank.import') && setting('question_bank.import_enabled', true);
     $canExport = $u?->can('question_bank.export');
+    // بلا صلاحيّة = مخفيّ فعلًا لا معطَّل (2.15-أ-7): بلوك الإعدادات لا يُعرَض
+    // أصلًا لمن لا يملك حفظه، فلا نملأ نموذجًا نهايته 403.
+    $canSettings = $u?->can('question_bank.manage');
 @endphp
 
 @section('content')
@@ -231,12 +234,14 @@
         <div class="mt-4">{{ $questions->links() }}</div>
     @endif
 
-    @include('admin.screens24.settings', [
-        'settings' => $settings,
-        'saveRoute' => route('admin.question-bank.settings'),
-        'resetRoute' => route('admin.question-bank.settings.reset'),
-        'blockTitle' => setting('admin.question_bank.index.iadadat_bnk_alasyla', 'إعدادات بنك الأسئلة'),
-    ])
+    @if ($canSettings)
+        @include('admin.screens24.settings', [
+            'settings' => $settings,
+            'saveRoute' => route('admin.question-bank.settings'),
+            'resetRoute' => route('admin.question-bank.settings.reset'),
+            'blockTitle' => setting('admin.question_bank.index.iadadat_bnk_alasyla', 'إعدادات بنك الأسئلة'),
+        ])
+    @endif
 @endsection
 
 @section('mobile_action')

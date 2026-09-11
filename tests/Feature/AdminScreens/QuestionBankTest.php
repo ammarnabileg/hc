@@ -192,4 +192,53 @@ class QuestionBankTest extends ScreensTestCase
 
         $this->assertSame(20, (int) setting('question_bank.exam_question_cap'));
     }
+
+    /**
+     * بلا صلاحيّة = مخفيّ فعلًا لا معطَّل ولا رماديّ (2.15-أ-7).
+     *
+     * مَن يقرأ البنك فقط لا يملك `question_bank.manage`، فبلوك إعدادات الشاشة
+     * لا يُرسَم له أصلًا — كي لا يملأ نموذجًا نهايته 403.
+     */
+    public function test_settings_block_is_hidden_from_a_reader_without_manage(): void
+    {
+        $this->makeQuestion($this->makeLesson());
+
+        $reader = $this->admin(['question_bank.list', 'question_bank.view']);
+
+        $this->actingAs($reader)
+            ->get(route('admin.question-bank.index'))
+            ->assertOk()
+            ->assertDontSee(setting('admin.question_bank.index.iadadat_bnk_alasyla', 'إعدادات بنك الأسئلة'))
+            ->assertDontSee('name="settings[', false)
+            ->assertDontSee(route('admin.question-bank.settings'), false);
+
+        // والإخفاء ليس واجهةً وحدها: المسار نفسه يرفض (12.2.1)
+        $this->actingAs($reader)
+            ->post(route('admin.question-bank.settings'), [
+                'settings' => ['question_bank.exam_question_cap' => 33],
+            ])
+            ->assertForbidden();
+    }
+
+    /** ومَن يملك `question_bank.manage` يراه ويحفظ منه — الطريق السعيد سليم */
+    public function test_settings_block_stays_visible_and_savable_for_a_manager(): void
+    {
+        $this->makeQuestion($this->makeLesson());
+
+        $manager = $this->admin(['question_bank.list', 'question_bank.view', 'question_bank.manage']);
+
+        $this->actingAs($manager)
+            ->get(route('admin.question-bank.index'))
+            ->assertOk()
+            ->assertSee(setting('admin.question_bank.index.iadadat_bnk_alasyla', 'إعدادات بنك الأسئلة'))
+            ->assertSee('name="settings[question_bank.exam_question_cap]"', false);
+
+        $this->actingAs($manager)
+            ->post(route('admin.question-bank.settings'), [
+                'settings' => ['question_bank.exam_question_cap' => 33],
+            ])
+            ->assertRedirect();
+
+        $this->assertSame(33, (int) setting('question_bank.exam_question_cap'));
+    }
 }
