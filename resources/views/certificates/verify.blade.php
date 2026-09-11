@@ -78,7 +78,12 @@
 <body class="min-h-screen">
 <main class="max-w-2xl mx-auto px-4 py-10">
 
-    <header class="text-center mb-6">
+    <header class="relative overflow-hidden text-center mb-6">
+        {{-- خلفيّة زخرفيّة صرفة (8.1) — خريطة عالم منقّطة، خلف النصّ ولا تمسّ قابليّة قراءته (z-index سالب محليًّا داخل هذه الترويسة) --}}
+        <div class="pointer-events-none absolute inset-0 -z-10">
+            @include('certificates.partials.dotted-world-map')
+        </div>
+
         <div class="text-3xl mb-2" aria-hidden="true"><x-icon name="badge" size="16" /></div>
         <h1 class="text-2xl font-extrabold">{{ setting('certificates.verify.title', 'التحقّق من الشهادة') }}</h1>
         <p class="text-sm mt-2" style="color: var(--text-muted)">
