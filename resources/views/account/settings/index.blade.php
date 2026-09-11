@@ -159,7 +159,7 @@
                     'hint' => setting('account.settings.governorate_hint', 'المحافظة بتظهر لكلّ الناس على بروفايلك — ودي قاعدة ثابتة في المنصّة.'),
                     'control' => '<select name="value" class="'.$inputClass.'" style="'.$inputStyle.'">'
                         .'<option value="">'.e(setting('account.settings.governorate_placeholder', 'اختر المحافظة')).'</option>'
-                        .$governorates->map(fn ($g) => '<option value="'.$g->id.'"'.($user->governorate_id === $g->id ? ' selected' : '').'>'.e($g->name_ar).'</option>')->implode('')
+                        .$governorates->map(fn ($g) => '<option value="'.$g->id.'"'.($user->governorate_id === $g->id ? ' selected' : '').'>'.e($governorateLabels[$g->id] ?? $g->name_ar).'</option>')->implode('')
                         .'</select>',
                 ])
 

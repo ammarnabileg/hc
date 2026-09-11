@@ -94,7 +94,7 @@
                         style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
                     <option value="">{{ setting('leaderboard.filter.any_governorate', 'كلّ المحافظات') }}</option>
                     @foreach ($governorates as $governorate)
-                        <option value="{{ $governorate->id }}" @selected((int) $filters['governorate_id'] === (int) $governorate->id)>{{ $governorate->name_ar }}</option>
+                        <option value="{{ $governorate->id }}" @selected((int) $filters['governorate_id'] === (int) $governorate->id)>{{ $governorateLabels[$governorate->id] ?? $governorate->name_ar }}</option>
                     @endforeach
                 </select>
             </label>

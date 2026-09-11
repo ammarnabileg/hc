@@ -51,7 +51,7 @@
                         style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
                     <option value="">—</option>
                     @foreach ($governorates as $governorate)
-                        <option value="{{ $governorate->id }}" @selected($user->governorate_id === $governorate->id)>{{ $governorate->name_ar }}</option>
+                        <option value="{{ $governorate->id }}" @selected($user->governorate_id === $governorate->id)>{{ $governorateLabels[$governorate->id] ?? $governorate->name_ar }}</option>
                     @endforeach
                 </select>
             </label>

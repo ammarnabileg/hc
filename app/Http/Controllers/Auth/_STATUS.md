@@ -68,13 +68,13 @@
 ## 🔗 التبعيّات والملفّات المهمّة
 <!-- تلقائيّ:بداية:التبعيات -->
 - **الطبقات الأخرى لنفس المجال:** `resources/views/auth` · `routes/parts` · `tests/Feature/Auth`
-- **الاختبارات:** 2 ملفّ Feature في `tests/Feature/Auth` — شغّلها بـ`php artisan test tests/Feature/Auth`.
+- **الاختبارات:** 3 ملفّ Feature في `tests/Feature/Auth` — شغّلها بـ`php artisan test tests/Feature/Auth`.
 - **المرجع الحاكم:** `دستور اساسي.md` · **وكيف نكتب:** `docs/BUILD.md`.
 - **المجلّد الأب:** `app/Http/Controllers/_STATUS.md`.
 <!-- تلقائيّ:نهاية:التبعيات -->
 
 ## 🕒 آخر تحديث
 <!-- تلقائيّ:بداية:التحديث -->
-- **آخر توليد لهذه الوثيقة:** 2026-08-06 — `php artisan docs:status`.
+- **آخر توليد لهذه الوثيقة:** 2026-09-11 — `php artisan docs:status`.
 - **آخر لمسة للمجلّد:** 2026-08-06 — Claude.
 <!-- تلقائيّ:نهاية:التحديث -->

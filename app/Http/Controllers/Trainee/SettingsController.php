@@ -14,6 +14,7 @@ use App\Services\Account\ConsentDirectory;
 use App\Services\Account\PrivacyFields;
 use App\Services\Account\ProfileVisibility;
 use App\Services\Account\SettingsAutosave;
+use App\Services\Geo\GovernorateLabels;
 use App\Services\Security\AccountDeletion;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -43,13 +44,18 @@ class SettingsController extends Controller
     {
         $user = $request->user();
 
+        $governorates = Governorate::where('is_active', true)
+            ->when($user->country_id, fn ($q) => $q->where('country_id', $user->country_id))
+            ->orderBy('sort_order')
+            ->get(['id', 'name_ar', 'name_en']);
+
         return view('account.settings.index', [
             'user' => $user,
             'countries' => Country::where('is_active', true)->orderBy('sort_order')->get(['id', 'name_ar']),
-            'governorates' => Governorate::where('is_active', true)
-                ->when($user->country_id, fn ($q) => $q->where('country_id', $user->country_id))
-                ->orderBy('sort_order')
-                ->get(['id', 'name_ar']),
+            'governorates' => $governorates,
+            // محافظتان بنفس الاسم العربيّ في الدولة نفسها تخرجان سطرين متطابقين —
+            // فالفكّ عند العرض وحده (`GovernorateLabels`)، والاسم الفريد كما هو.
+            'governorateLabels' => app(GovernorateLabels::class)->labels($governorates),
             'emergencyContacts' => EmergencyContact::where('user_id', $user->id)->get(),
             'emergencyMax' => max(1, (int) setting('account.emergency_contacts.max', 2)),
             // تنبيه تغيير البريد/الموبايل: «هيتوقف عرض بياناتك لـ N أشخاص» (13.4-م)

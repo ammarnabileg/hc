@@ -11,6 +11,7 @@ use App\Models\Role;
 use App\Models\User;
 use App\Services\Ads\Consent;
 use App\Services\Developers\WebhookDispatcher;
+use App\Services\Geo\GovernorateLabels;
 use App\Services\Growth\AcquisitionSource;
 use App\Services\Learning\TimezoneDetector;
 use App\Services\Onboarding\OnboardingJourney;
@@ -606,6 +607,11 @@ class AuthController extends Controller
     /**
      * «المحافظة: Select **مبني على الدولة**، يُملأ **تلقائيًّا**» (2.5-ج).
      *
+     * ⭐ والتسمية تمرّ على `GovernorateLabels`: سبعُ محافظاتٍ في المصدر تشارك
+     *    غيرَها **نفس الاسم العربيّ داخل دولتها**، فكانت تخرج هنا **سطرين
+     *    متطابقين حرفيًّا** لا يعرف المُسجِّل أيّهما يختار. والفكّ عرضٌ خالص —
+     *    لا يمسّ الصفّ ولا الملفّ المولَّد — ولا يلمس الاسم الفريد أصلًا.
+     *
      * @return array<int, array{id: int, name: string}>
      */
     private function governoratesOf(int $countryId): array
@@ -614,14 +620,14 @@ class AuthController extends Controller
             return [];
         }
 
-        return Governorate::query()
-            ->where('country_id', $countryId)
-            // ⛔ ولا شرط `is_active` هنا: «**المحافظة لا تُخفى أبدًا**» (قاعدة
-            // مالك صريحة في 12.7-د) — فقائمة الاختيار لا تُسقِط واحدةً أبدًا.
-            ->orderBy('sort_order')->orderBy('name_ar')
-            ->get(['id', 'name_ar'])
-            ->map(fn (Governorate $g) => ['id' => (int) $g->id, 'name' => (string) $g->name_ar])
-            ->all();
+        return app(GovernorateLabels::class)->options(
+            Governorate::query()
+                ->where('country_id', $countryId)
+                // ⛔ ولا شرط `is_active` هنا: «**المحافظة لا تُخفى أبدًا**» (قاعدة
+                // مالك صريحة في 12.7-د) — فقائمة الاختيار لا تُسقِط واحدةً أبدًا.
+                ->orderBy('sort_order')->orderBy('name_ar')
+                ->get(['id', 'name_ar', 'name_en']),
+        );
     }
 
     /**

@@ -17,6 +17,7 @@ use App\Services\Admin\AccountApproval;
 use App\Services\Admin\AudienceSegments;
 use App\Services\Admin\AuditTrail;
 use App\Services\Admin\UserDirectory;
+use App\Services\Geo\GovernorateLabels;
 use App\Support\Scope\ScopeFilter;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -108,14 +109,31 @@ class UserController extends Controller
                 'lastChange' => $this->audit->lastChange($user),
             ],
             // التعديل اليدويّ يحتاج محافظات دولته وحدها — لا كلّ محافظات العالم
-            default => [
-                'governorates' => Governorate::query()
-                    ->when($user->country_id, fn ($q, $country) => $q->where('country_id', $country))
-                    ->orderBy('name_ar')->get(),
-            ],
+            default => $this->profileTab($user),
         };
 
         return view('admin.users.show', $data);
+    }
+
+    /**
+     * تاب البروفايل: محافظات **دولة المستخدم وحدها** بتسمياتٍ متمايزة.
+     *
+     * ⭐ ولماذا `GovernorateLabels`؟ لأنّ سبع محافظاتٍ في المصدر تشارك غيرَها
+     *    **نفس الاسم العربيّ داخل دولتها**، فتخرج القائمة بسطرين متطابقين
+     *    حرفيًّا — ومَن يعدّل محافظة مستخدمٍ بيده لا يعرف أيّهما يختار.
+     *
+     * @return array<string, mixed>
+     */
+    private function profileTab(User $user): array
+    {
+        $governorates = Governorate::query()
+            ->when($user->country_id, fn ($q, $country) => $q->where('country_id', $country))
+            ->orderBy('name_ar')->get();
+
+        return [
+            'governorates' => $governorates,
+            'governorateLabels' => app(GovernorateLabels::class)->labels($governorates),
+        ];
     }
 
     /**

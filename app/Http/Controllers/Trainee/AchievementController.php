@@ -8,6 +8,7 @@ use App\Models\Governorate;
 use App\Services\Gamification\BadgeService;
 use App\Services\Gamification\LeaderboardService;
 use App\Services\Gamification\StreakService;
+use App\Services\Geo\GovernorateLabels;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -50,6 +51,13 @@ class AchievementController extends Controller
         $governorateId = (int) $request->query('governorate_id') ?: null;
         $search = trim((string) $request->query('q', ''));
 
+        // اسمان عربيّان متطابقان في الدولة نفسها يخرجان خيارين لا يفرّق بينهما
+        // أحد — فالفكّ عند العرض وحده (`GovernorateLabels`)، والفريد كما هو.
+        $governorates = $countryId
+            ? Governorate::query()->where('country_id', $countryId)->where('is_active', true)
+                ->orderBy('name_ar')->get(['id', 'name_ar', 'name_en'])
+            : collect();
+
         return view('achievements.leaderboard', [
             'board' => $this->leaderboards->xp(
                 $request->user(),
@@ -62,9 +70,8 @@ class AchievementController extends Controller
             'ranges' => $ranges,
             'customEnabled' => $this->leaderboards->customRangeEnabled(),
             'countries' => Country::query()->where('is_active', true)->orderBy('sort_order')->orderBy('name_ar')->get(['id', 'name_ar']),
-            'governorates' => $countryId
-                ? Governorate::query()->where('country_id', $countryId)->where('is_active', true)->orderBy('name_ar')->get(['id', 'name_ar'])
-                : collect(),
+            'governorates' => $governorates,
+            'governorateLabels' => app(GovernorateLabels::class)->labels($governorates),
             'filters' => [
                 'scope' => $scope,
                 'days' => $days,

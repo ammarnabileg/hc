@@ -346,6 +346,10 @@ class AdminSystemDemoSeeder extends Seeder
             ['countries.source_url', 'countries', 'رابط المصدر', 'string', 'https://github.com/dr5hn/countries-states-cities-database', false],
             ['countries.attribution', 'countries', 'نصّ الإسناد (ODbL)', 'text', 'بيانات الدول والمحافظات من dr5hn/countries-states-cities-database — برخصة ODbL v1.0.', false],
             ['countries.admin.per_page', 'countries', 'عدد الدول في جدول الإدارة', 'number', '25', false],
+            // ⭐ محافظتان بنفس الاسم العربيّ داخل الدولة نفسها (7 حالات في المصدر)
+            // تخرجان سطرين متطابقين في قائمة الاختيار — فتُفَكّان **عند العرض**
+            // بلاحقة الاسم الإنجليزيّ (`App\Services\Geo\GovernorateLabels`).
+            ['countries.governorate.duplicate_format', 'countries', 'قالب فكّ المحافظتين المتطابقتَي الاسم (:name · :tag)', 'string', ':name (:tag)', false],
             ['countries.import.max_kb', 'countries', 'أقصى حجم لملفّ النسخة (KB)', 'number', '8192', false],
             ['countries.default_timezone', 'countries', 'المنطقة الزمنيّة الافتراضيّة للدولة الجديدة', 'string', 'Africa/Cairo', false],
             // ---------------- 12.7-د: «Toggle كود الهاتف في التسجيل (عرض 110px)» + «الدولة الافتراضيّة»
