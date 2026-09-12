@@ -153,6 +153,7 @@ class NavigationDemoSeeder extends Seeder
             ['nav.admin.item_store_library', 'nav', 'سايد بار الإدارة: المكتبة الرقميّة والحماية', 'المكتبة الرقميّة والحماية'],
             ['nav.admin.item_store_topups', 'nav', 'سايد بار الإدارة: طلبات الشحن', 'طلبات الشحن'],
             ['nav.admin.item_store_withdrawals', 'nav', 'سايد بار الإدارة: طلبات السحب', 'طلبات السحب'],
+            ['nav.admin.item_store_refund_policy', 'nav', 'سايد بار الإدارة: سياسة الاسترجاع', 'سياسة الاسترجاع'],
             ['nav.admin.item_store_finance', 'nav', 'سايد بار الإدارة: 🔒 الماليّات', '🔒 الماليّات'],
             ['nav.admin.item_store_rates', 'nav', 'سايد بار الإدارة: 🔒 أسعار الصرف', '🔒 أسعار الصرف'],
             ['nav.admin.item_store_finance_audit', 'nav', 'سايد بار الإدارة: 🔒 سجلّ الماليّات', '🔒 سجلّ الماليّات'],

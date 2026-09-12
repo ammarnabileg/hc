@@ -79,11 +79,18 @@ class FinanceSettings
      * **نسختان (عربيّة/إنجليزيّة)**، **معاينة قبل الحفظ**، و**Audit لكلّ تعديل** (19.4).
      *
      * والمورد `refunds` هنا = **عرض وتحرير النصّ فقط** — بلا طلبات ولا اعتماد ولا رفض.
+     *
+     * ⚠️ **بلا `assertOwner()` هنا عمدًا** — بخلاف بقيّة هذا الصنف: صفّا `refunds.view`/
+     * `refunds.edit` في المصفوفة (12.2.2) `is_owner_only: false` وشرطهما «دائمًا»، وتغطيتهما
+     * منصوصةٌ صراحةً لدور **المسؤول الماليّ** (12.2.3-أ-7) — فقفل الملكيّة هنا يناقض المصفوفة
+     * لا يحرسها. الحارس الحقيقيّ صار على **المسار**: `FinanceController::saveRefundPolicy` يمرّ
+     * بمِدل-وير `permission:finance.edit` (owner-only فعلًا) و`RefundPolicyController::save`
+     * الجديد يمرّ بـ`permission:refunds.edit` — فكلّ طالبٍ يُحرَس ببوّابته المنصوصة، والاثنان
+     * يكتبان نفس المفتاح (`finance.refund.policy_ar/en`) فلا يفترق النصّ بين الشاشتين
+     * (database/data/_STATUS.md — إغلاق فجوة «قدرة في المصفوفة بانتظار شاشتها»).
      */
     public function saveRefundPolicy(User $actor, string $locale, string $body, string $reason): Setting
     {
-        $this->assertOwner($actor);
-
         if (! in_array($locale, ['ar', 'en'], true)) {
             throw new RuntimeException(setting('finance.finance_settings.save_refund_policy_1', 'اللغة لازم تكون «ar» أو «en».'));
         }

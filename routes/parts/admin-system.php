@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\FeatureFlagController;
 use App\Http\Controllers\Admin\FinanceController;
 use App\Http\Controllers\Admin\ImageStudioController;
 use App\Http\Controllers\Admin\MaintenanceController;
+use App\Http\Controllers\Admin\RefundPolicyController;
 use App\Http\Controllers\Admin\SettingsAdminController;
 use App\Http\Controllers\Admin\StatsController;
 use App\Http\Controllers\Admin\StoreAdminController;
@@ -137,6 +138,27 @@ Route::middleware(['auth', 'admin.panel'])->prefix('admin')->name('admin.')->gro
         Route::post('/finance/save', [FinanceController::class, 'save'])->name('finance.save');
         Route::post('/finance/refund-policy', [FinanceController::class, 'saveRefundPolicy'])->name('finance.refund-policy');
     });
+
+    /*
+    |--------------------------------------------------------------------------
+    | ⭐ سياسة الاسترجاع — شاشة مستقلّة بصلاحيّة المورد `refunds` (12.2.2 · 12.2.3-أ-7)
+    |--------------------------------------------------------------------------
+    | ⚠️ **عمدًا خارج حارس 🔒 الماليّات** أعلاه: `refunds.view`/`refunds.edit` في
+    | المصفوفة `is_owner_only: false` وشرطهما «دائمًا» — بخلاف `finance.view`/
+    | `finance.edit` المعزولتين. والمسؤول الماليّ يملك المفتاحين فعلًا (12.2.3-أ-7)
+    | ولم يكن في المستودع مسارٌ يحرسه `refunds.*` أصلًا (database/data/_STATUS.md).
+    | فهذه الشاشة تسدّ الفجوة بحارس المورد نفسه — لا بتوسيع الحارس المعزول.
+    |
+    | ونفس التخزين تمامًا: `RefundPolicyController` يقرأ ويكتب عبر `FinanceSettings`
+    | التي تخدم 🔒 الماليّات، فلا يفترق النصّ بين الشاشتين ولا الـAudit.
+    */
+    Route::middleware('permission:refunds.view')->group(function () {
+        Route::get('/refund-policy', [RefundPolicyController::class, 'index'])->name('refund-policy.index');
+        Route::post('/refund-policy/preview', [RefundPolicyController::class, 'preview'])->name('refund-policy.preview');
+    });
+
+    Route::middleware('permission:refunds.edit')
+        ->post('/refund-policy', [RefundPolicyController::class, 'save'])->name('refund-policy.save');
 
     // ------------------------------------------------------------ طلبات الشحن
     Route::middleware('permission:topup_requests.list')->group(function () {

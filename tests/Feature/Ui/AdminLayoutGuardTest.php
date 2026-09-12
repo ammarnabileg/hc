@@ -287,6 +287,10 @@ class AdminLayoutGuardTest extends UiTestCase
                 route('admin.store.index', ['tab' => 'library']),
                 route('admin.topups.index'),
                 route('admin.withdrawals.index'),
+                // ⭐ خارج نصّ 12.0 الحرفيّ (12.2.3-أ-7 · database/data/_STATUS.md):
+                // شاشة سياسة الاسترجاع المستقلّة بصلاحيّة المورد `refunds` — يصلها
+                // المسؤول الماليّ لا مالك المنصّة وحده، بخلاف الثلاثة التالية.
+                route('admin.refund-policy.index'),
                 route('admin.finance.index'),
                 route('admin.wallet.rates'),
                 route('admin.finance.audit'),

@@ -2,7 +2,14 @@
   سياسة الاسترجاع (19.4): Textarea يقبل HTML أو نصًّا عاديًّا · نسختان (ع/إ) ·
   معاينة قبل الحفظ · Audit لكلّ تعديل · Toggles أماكن الظهور.
   ⭐ والمورد `refunds` هنا = عرض وتحرير النصّ فقط — بلا طلبات ولا اعتماد ولا رفض.
+
+  ⭐ هذا الجزء الآن **مشتركٌ** بين شاشتين تكتبان نفس المفتاح فلا يفترق النصّ:
+  - 🔒 شاشة الماليّات (`admin.finance.index?group=refund`) — لمالك المنصّة عبر `finance.edit`.
+  - شاشة سياسة الاسترجاع المستقلّة (`admin.refund-policy.index`) — للمسؤول الماليّ (وغيره
+    ممّن يملك `refunds.edit`) عبر مسارٍ بصلاحيّة المورد نفسه لا صلاحيّة الماليّة المعزولة.
+  ولذلك مسار الحفظ يُمرَّر متغيّرًا (`$policyFormRoute`) بدل أن يكون محروقًا هنا.
 --}}
+@php($policyFormRoute ??= 'admin.finance.refund-policy')
 <div class="card p-4">
     <p class="text-sm mb-1"><strong>{{ setting('admin.store.finance.refund_policy.la_astrjaa_nqdy_lay_mdfwaat', 'لا استرجاع نقديّ لأيّ مدفوعات') }}</strong> {{ setting('admin.store.finance.refund_policy.walrsyd_ybqa_fy_mhfza_sahbh_yshtry_bh_mn', '— والرصيد يبقى في محفظة صاحبه يشتري به من الموقع.') }}</p>
     <p class="text-xs" style="color: var(--text-muted)">
@@ -11,7 +18,7 @@
 </div>
 
 @foreach (['ar' => setting('admin.store.finance.refund_policy.alnskha_alarbya', 'النسخة العربيّة'), 'en' => setting('admin.store.finance.refund_policy.alnskha_alinjlyzya', 'النسخة الإنجليزيّة')] as $locale => $title)
-    <form method="post" action="{{ route('admin.finance.refund-policy') }}" class="card p-4 space-y-3" data-policy-form>
+    <form method="post" action="{{ route($policyFormRoute) }}" class="card p-4 space-y-3" data-policy-form>
         @csrf
         <input type="hidden" name="locale" value="{{ $locale }}">
 

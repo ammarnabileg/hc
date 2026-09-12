@@ -147,6 +147,14 @@
             [setting('nav.admin.item_store_topups', 'طلبات الشحن'), 'admin.topups.index', 'topup_requests.list'],
             // ⬇︎ خارج نصّ 12.0: شاشة طلبات السحب المبنيّة (19.2 · 19.3)
             [setting('nav.admin.item_store_withdrawals', 'طلبات السحب'), 'admin.withdrawals.index', 'withdraw.list'],
+            /*
+             | ⭐ خارج نصّ 12.0 (الذي يضع «سياسة الاسترجاع» تحت 🔒 الماليّات
+             | owner-only وحدها): شاشةٌ مستقلّة بصلاحيّة المورد `refunds` نفسه
+             | (12.2.2 · 12.2.3-أ-7) — فيصلها **المسؤول الماليّ** كما ينصّ دوره
+             | صراحةً، لا مالك المنصّة وحده. وكانت القدرة ممنوحةً في المصفوفة
+             | بلا شاشة تُظهرها (database/data/_STATUS.md).
+             */
+            [setting('nav.admin.item_store_refund_policy', 'سياسة الاسترجاع'), 'admin.refund-policy.index', 'refunds.view'],
             // 🔒 الماليّات مجموعة محميّة **لمالك المنصّة وحده** (12.0 · 2.13-و):
             // شرط الملكيّة فوق فحص الصلاحيّة — حزامٌ وحمّالة، والبند يُخفى لا يُعطَّل.
             ...($u->isPlatformOwner() ? [
