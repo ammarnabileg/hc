@@ -5,9 +5,20 @@
 @section('content')
     @php
         $action = $course->exists ? route('admin.courses.update', $course) : route('admin.courses.store');
+
+        /* ⭐ تاب «التسعير» 🔒 (12.4 · «الحالات»: بلا صلاحيّة = التاب مخفيّ لمن لا
+           يملكه): يُحذَف من المخرَج كليًّا لمن لا يملك `paywall.view` — لا
+           يُعطَّل (2.15-أ-7). `courses.edit` وحدها لا تكفي: محرِّر المحتوى
+           (`content_admin`) لا يحمل مورد `paywall` أصلًا، بينما مسؤول
+           التسويق/المتجر (`marketing_admin`) يحمله — فالتاب ظاهرٌ له رغم أنّه لا
+           يملك `courses.edit`. والحفظ الفعليّ محروسٌ خادميًّا بالفعل
+           (`CourseAdminController::withGuardedPricing` — `paywall.edit`/
+           `paywall.manage` لمالك المنصّة حصرًا)؛ هذا يغلق فجوة **العرض**. */
+        $canPricing = (bool) auth()->user()?->can('paywall.view');
+
         $formTabs = [
             'data' => setting('admin.courses.form.albyanat', 'البيانات'),
-            'pricing' => setting('admin.courses.form.altsayr', 'التسعير'),
+            ...($canPricing ? ['pricing' => setting('admin.courses.form.altsayr', 'التسعير')] : []),
             'availability' => setting('admin.courses.form.alitaha', 'الإتاحة'),
             'grading' => setting('admin.courses.form.altqyym', 'التقييم'),
             'content' => setting('admin.courses.form.almhtwa', 'المحتوى'),
@@ -17,6 +28,14 @@
            على تدريبٍ حيّ لا يمسّ المنشور، فلو لم ترجع هنا لضاع عمل المحرّر لحظة
            ضغطه «حفظ» — لأنّ الفورم كان سيرسل قيم النسخة المنشورة فوقها. */
         $draft = $pendingDraft ?? [];
+
+        /* 🔒 نفس حجب `paywall.view` يشمل بانر «مسودّة تحرير» فوق: هذه المسوّدة
+           قد تحمل قيم سعرٍ حفظها مالك المنصّة تلقائيًّا قبل أن يضغط «حفظ»، وبانر
+           الحقول أدناه يسرد كلّ حقولها بلا تمييز — فلولا هذا الفلتر لتسرّبت نفس
+           قيم `pricing تاب` من بابٍ آخر رغم إخفاء التاب نفسه. */
+        if (! $canPricing) {
+            $draft = collect($draft)->except(['price_coins', 'offer_price_coins', 'paywall_text_ar', 'paywall_text_en'])->all();
+        }
         $draftValue = fn (string $field, $fallback = null) => $draft[$field] ?? $fallback;
         $draftLabels = [
             'name_ar' => setting('admin.courses.form.asm_alard_arby', 'اسم العرض (عربيّ)'),
@@ -152,33 +171,37 @@
         </section>
 
         {{-- ------------------------------------------------ تاب التسعير --}}
-        <section data-form-panel="pricing" class="space-y-4 hidden">
-            <label class="flex items-center gap-2 text-sm">
-                <input type="hidden" name="is_free" value="0">
-                <input type="checkbox" name="is_free" value="1" @checked($course->is_free)> {{ setting('admin.courses.form.mjany_tmama', 'مجّانيّ تمامًا') }}
-            </label>
-
-            <div class="grid md:grid-cols-3 gap-3">
-                <x-form.input name="price_coins" :label="setting('admin.courses.form.alsar_alasasy_kwynz', 'السعر الأساسيّ (كوينز)')" type="number" :value="(int) $draftValue('price_coins', $course->price_coins)" />
-                <x-form.input name="offer_price_coins" :label="setting('admin.courses.form.sar_alard', 'سعر العرض')" type="number" :value="$draftValue('offer_price_coins', $course->offer_price_coins)" />
-                <x-form.input name="offer_ends_at" :label="setting('admin.courses.form.ynthy_alard_fy', 'ينتهي العرض في')" type="date"
-                              :value="$course->offer_ends_at?->format('Y-m-d')" />
-            </div>
-
-            <label class="flex items-center gap-2 text-sm">
-                <input type="hidden" name="free_first_time" value="0">
-                <input type="checkbox" name="free_first_time" value="1" @checked($course->free_first_time)> {{ setting('admin.courses.form.mjany_awl_mra', 'مجّانيّ أوّل مرّة') }}
-            </label>
-
-            <details>
-                <summary class="text-xs cursor-pointer" style="color: var(--text-muted)">{{ setting('admin.courses.form.ns_alpaywall', 'نصّ الـPaywall') }}</summary>
-                <label class="block mt-3">
-                    <span class="block text-sm mb-1">{{ setting('admin.courses.form.alns_arby', 'النصّ (عربيّ)') }}</span>
-                    <textarea name="paywall_text_ar" rows="2" class="w-full rounded-xl px-3 py-2 text-sm"
-                              style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">{{ old('paywall_text_ar', $draftValue('paywall_text_ar', $course->paywall_text_ar)) }}</textarea>
+        {{-- 🔒 يُحذَف كليًّا من المخرَج لمن لا يملك `paywall.view` — لا يُعطَّل
+             (2.15-أ-7 · 12.4 «الحالات»). انظر شرح `$canPricing` أعلى الملفّ. --}}
+        @can('paywall.view')
+            <section data-form-panel="pricing" class="space-y-4 hidden">
+                <label class="flex items-center gap-2 text-sm">
+                    <input type="hidden" name="is_free" value="0">
+                    <input type="checkbox" name="is_free" value="1" @checked($course->is_free)> {{ setting('admin.courses.form.mjany_tmama', 'مجّانيّ تمامًا') }}
                 </label>
-            </details>
-        </section>
+
+                <div class="grid md:grid-cols-3 gap-3">
+                    <x-form.input name="price_coins" :label="setting('admin.courses.form.alsar_alasasy_kwynz', 'السعر الأساسيّ (كوينز)')" type="number" :value="(int) $draftValue('price_coins', $course->price_coins)" />
+                    <x-form.input name="offer_price_coins" :label="setting('admin.courses.form.sar_alard', 'سعر العرض')" type="number" :value="$draftValue('offer_price_coins', $course->offer_price_coins)" />
+                    <x-form.input name="offer_ends_at" :label="setting('admin.courses.form.ynthy_alard_fy', 'ينتهي العرض في')" type="date"
+                                  :value="$course->offer_ends_at?->format('Y-m-d')" />
+                </div>
+
+                <label class="flex items-center gap-2 text-sm">
+                    <input type="hidden" name="free_first_time" value="0">
+                    <input type="checkbox" name="free_first_time" value="1" @checked($course->free_first_time)> {{ setting('admin.courses.form.mjany_awl_mra', 'مجّانيّ أوّل مرّة') }}
+                </label>
+
+                <details>
+                    <summary class="text-xs cursor-pointer" style="color: var(--text-muted)">{{ setting('admin.courses.form.ns_alpaywall', 'نصّ الـPaywall') }}</summary>
+                    <label class="block mt-3">
+                        <span class="block text-sm mb-1">{{ setting('admin.courses.form.alns_arby', 'النصّ (عربيّ)') }}</span>
+                        <textarea name="paywall_text_ar" rows="2" class="w-full rounded-xl px-3 py-2 text-sm"
+                                  style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">{{ old('paywall_text_ar', $draftValue('paywall_text_ar', $course->paywall_text_ar)) }}</textarea>
+                    </label>
+                </details>
+            </section>
+        @endcan
 
         {{-- ------------------------------------------------ تاب الإتاحة --}}
         <section data-form-panel="availability" class="space-y-4 hidden">
