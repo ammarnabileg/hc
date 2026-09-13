@@ -23,7 +23,7 @@
   - `admin-developers.php` — 13 مسارًا · 11 حارس صلاحيّة.
   - `admin-ops.php` — 28 مسارًا · 17 حارس صلاحيّة.
   - `admin-screens24.php` — 45 مسارًا · البادئة `admin.` · 24 حارس صلاحيّة.
-  - `admin-system.php` — 101 مسارًا · البادئة `admin.` · 49 حارس صلاحيّة.
+  - `admin-system.php` — 106 مسارًا · البادئة `admin.` · 53 حارس صلاحيّة.
   - `admin-volunteer.php` — 120 مسارًا · البادئة `admin.` · `volunteer.` · `investigations.` · `gamification.` · `rewards.` · `events.` · 114 حارس صلاحيّة.
   - `announcements.php` — 10 مسارًا · 0 حارس صلاحيّة.
   - `api-v1.php` — 4 مسارًا · 0 حارس صلاحيّة.
@@ -48,7 +48,7 @@
   - `volunteer-goals.php` — 39 مسارًا · 23 حارس صلاحيّة.
   - `volunteer-meetings.php` — 18 مسارًا · 12 حارس صلاحيّة.
   - `volunteer-org.php` — 12 مسارًا · 5 حارس صلاحيّة.
-  - `volunteer-people.php` — 31 مسارًا · البادئة `volunteer.` · 27 حارس صلاحيّة.
+  - `volunteer-people.php` — 32 مسارًا · البادئة `volunteer.` · 28 حارس صلاحيّة.
   - `volunteer-profile.php` — 7 مسارًا · 7 حارس صلاحيّة.
   - `wallet.php` — 23 مسارًا · البادئة `wallet.` · 13 حارس صلاحيّة.
 <!-- تلقائيّ:نهاية:المنجز -->
@@ -146,5 +146,5 @@
 ## 🕒 آخر تحديث
 <!-- تلقائيّ:بداية:التحديث -->
 - **آخر توليد لهذه الوثيقة:** 2026-09-13 — `php artisan docs:status`.
-- **آخر لمسة للمجلّد:** 2026-09-12 — Claude.
+- **آخر لمسة للمجلّد:** 2026-09-13 — Claude.
 <!-- تلقائيّ:نهاية:التحديث -->
