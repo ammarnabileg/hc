@@ -1,3 +1,9 @@
+@php
+    /** نصوص السكربت — من الإعدادات لا محروقةً في الجافاسكربت (2.13-أ) */
+    $hcWords = array_merge($hcWords ?? [], [
+        'admin.roles.edit.mtakd_ink_aayz_tmnh_alslahya_alhsasa_dy_v1' => (string) setting('admin.roles.edit.mtakd_ink_aayz_tmnh_alslahya_alhsasa_dy_v1', 'دي صلاحيّة حسّاسة 🔒 — متأكّد إنك عايز تمنح: :v1؟'),
+    ]);
+@endphp
 {{-- ⛔ لا توجّل للأنيميشن ولا سمة تُطفئه — «الأنيميشن حاضر دائمًا لأنّه روح
      المنصّة» (2.3 · 2.14-ب)، ولا `prefers-reduced-motion` بديلًا عنه فهو
      مرفوضٌ بالاسم في 2.3. الحركة هنا **لا تُطفأ**. --}}
@@ -141,6 +147,30 @@
             /* الصفوف المخفيّة بالبحث لا تتأثّر — تشتغل على اللي قدّامك بس */
             document.querySelectorAll('[data-perm-row]:not(.hidden) [data-perm-toggle]')
                 .forEach((box) => { box.checked = on; });
+        }));
+    })();
+
+    /*
+     | بوب-أب تأكيد لكلّ صلاحيّة 🔒 قبل منحها — الفورم/البوب-أب لشاشة «الأدوار والصلاحيّات» (12.2).
+     | 🔒 وحده كان Tooltip زخرفيًّا بلا أثر: تفعيل الـcheckbox يدخل ضمن الفورم المُرسَل بلا أيّ
+     | وقفة، فيتحفظ المنح الحسّاس بضغطة واحدة زي أيّ صلاحيّة عاديّة. السحب (إلغاء التفعيل) لا
+     | يحتاج نفس الاحتكاك — النصّ في 12.2 عن «تأكيد لكلّ صلاحيّة 🔒» فعل المنح لا فعل السحب.
+     */
+    (function () {
+        const boxes = document.querySelectorAll('[data-perm-toggle][data-perm-sensitive]');
+        if (!boxes.length) return;
+
+        const template = @json($hcWords['admin.roles.edit.mtakd_ink_aayz_tmnh_alslahya_alhsasa_dy_v1']);
+        const confirmGrant = (box) => window.confirm(template.replace(':v1', box.dataset.permSensitiveLabel || ''));
+
+        boxes.forEach((box) => box.addEventListener('change', () => {
+            if (box.checked && !confirmGrant(box)) box.checked = false;
+        }));
+
+        /* «تفعيل المجموعة كلّها» يمرّ بنفس التأكيد سطرًا سطرًا — بعد أن يضبطها الكتلة اللي فوق كلّها ON */
+        document.querySelectorAll('[data-perm-bulk="on"]').forEach((button) => button.addEventListener('click', () => {
+            document.querySelectorAll('[data-perm-row]:not(.hidden) [data-perm-toggle][data-perm-sensitive]')
+                .forEach((box) => { if (!confirmGrant(box)) box.checked = false; });
         }));
     })();
 </script>

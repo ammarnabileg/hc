@@ -269,6 +269,7 @@ class AdminScreenTextPeopleDemoSeeder extends Seeder
             ['admin.roles.edit.mjmwaat_alslahyat', 'admin_roles', 'مجموعات الصلاحيّات', 'string', 'مجموعات الصلاحيّات', 'نصّ في resources/views/admin/roles/edit.blade.php'],
             ['admin.roles.edit.mmnwha', 'admin_roles', 'ممنوحة', 'string', 'ممنوحة', 'نصّ في resources/views/admin/roles/edit.blade.php'],
             ['admin.roles.edit.mna', 'admin_roles', 'منع', 'string', 'منع', 'نصّ في resources/views/admin/roles/edit.blade.php'],
+            ['admin.roles.edit.mtakd_ink_aayz_tmnh_alslahya_alhsasa_dy_v1', 'admin_roles', 'دي صلاحيّة حسّاسة 🔒 — متأكّد إنك عايز تمنح: :v1؟', 'string', 'دي صلاحيّة حسّاسة 🔒 — متأكّد إنك عايز تمنح: :v1؟', 'نصّ في resources/views/layouts/admin.blade.php — بوب-أب تأكيد منح صلاحيّة 🔒 في شاشة الأدوار (12.2)'],
             ['admin.roles.edit.mtakd_ink_aayz_tmsh_aldwr_dh_alijra_dh', 'admin_roles', 'متأكّد إنك عايز تمسح الدور ده؟ الإجراء ده مالوش رجعة.', 'string', 'متأكّد إنك عايز تمسح الدور ده؟ الإجراء ده مالوش رجعة.', 'نصّ في resources/views/admin/roles/edit.blade.php'],
             ['admin.roles.edit.ntaq_v1', 'admin_roles', 'نطاق :v1', 'string', 'نطاق :v1', 'نصّ في resources/views/admin/roles/edit.blade.php'],
             ['admin.roles.edit.qraa_fqt_malksh_slahya_tadyl_aladwar', 'admin_roles', 'قراءة فقط — مالكش صلاحيّة تعديل الأدوار.', 'string', 'قراءة فقط — مالكش صلاحيّة تعديل الأدوار.', 'نصّ في resources/views/admin/roles/edit.blade.php'],

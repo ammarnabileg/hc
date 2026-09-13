@@ -541,4 +541,71 @@ class AdminCoreTest extends TestCase
             collect(AuditLog::where('auditable_id', $role->id)->get())->unique('auditable_id'),
         );
     }
+
+    /**
+     * ⭐ بوب-أب تأكيد لكلّ صلاحيّة 🔒 قبل منحها (12.2 الفورم/البوب-أب) — 🔒 لم يعد Tooltip
+     * زخرفيًّا فقط: الـcheckbox الحسّاس يحمل الوسمَين اللذين تلتقطهما سكربت التأكيد المشترك
+     * (`resources/views/layouts/admin.blade.php`) ليوقف المنح حتى يُؤكَّد صراحةً، وغيرُ
+     * الحسّاس لا يحمل أيًّا منهما — فلا احتكاك على صفٍّ عاديّ ولا على السحب أصلًا.
+     */
+    public function test_sensitive_permission_checkbox_carries_the_grant_confirmation_hooks_and_plain_ones_do_not(): void
+    {
+        $sensitive = Permission::create([
+            'key' => 'sensitive_probe.view',
+            'resource' => 'sensitive_probe',
+            'action' => 'view',
+            'group' => 'مجموعة اختبار التأكيد',
+            'label_ar' => 'صلاحيّة حسّاسة للاختبار',
+            'allowed_scopes' => ['ALL'],
+            'is_sensitive' => true,
+        ]);
+
+        $plain = Permission::create([
+            'key' => 'plain_probe.view',
+            'resource' => 'plain_probe',
+            'action' => 'view',
+            'group' => $sensitive->group,
+            'label_ar' => 'صلاحيّة عاديّة للاختبار',
+            'allowed_scopes' => ['ALL'],
+            'is_sensitive' => false,
+        ]);
+
+        $role = Role::where('key', 'trainee')->firstOrFail();
+
+        $html = $this->actingAs($this->owner())
+            ->get(route('admin.roles.edit', ['role' => $role, 'group' => $sensitive->group]))
+            ->assertOk()
+            ->getContent();
+
+        preg_match('/<input[^>]*name="rows\['.$sensitive->id.'\]\[on\]"[^>]*>/', $html, $sensitiveBox);
+        $this->assertNotEmpty($sensitiveBox, 'checkbox الصلاحيّة الحسّاسة مش موجود في الصفحة.');
+        $this->assertStringContainsString('data-perm-sensitive', $sensitiveBox[0]);
+        $this->assertStringContainsString('data-perm-sensitive-label="', $sensitiveBox[0]);
+        $this->assertStringContainsString($sensitive->key, $sensitiveBox[0]);
+
+        preg_match('/<input[^>]*name="rows\['.$plain->id.'\]\[on\]"[^>]*>/', $html, $plainBox);
+        $this->assertNotEmpty($plainBox, 'checkbox الصلاحيّة العاديّة مش موجود في الصفحة.');
+        $this->assertStringNotContainsString('data-perm-sensitive', $plainBox[0]);
+    }
+
+    /** سكربت بوب-أب التأكيد مرسومٌ في الـlayout المشترك، ونصّه من setting() لا محروقًا (2.13). */
+    public function test_the_sensitive_grant_confirmation_script_is_wired_and_text_driven(): void
+    {
+        $role = Role::where('key', 'trainee')->firstOrFail();
+        $group = Permission::query()->value('group');
+
+        $html = $this->actingAs($this->owner())
+            ->get(route('admin.roles.edit', ['role' => $role, 'group' => $group]))
+            ->assertOk()
+            ->getContent();
+
+        $this->assertStringContainsString('data-perm-toggle][data-perm-sensitive', $html);
+
+        // النصّ يصل السكربت عبر @json — مرمّزًا لا عربيًّا حرفيًّا (نفس أعلام Blade @json الافتراضيّة)
+        $expectedText = (string) setting('admin.roles.edit.mtakd_ink_aayz_tmnh_alslahya_alhsasa_dy_v1', 'دي صلاحيّة حسّاسة 🔒 — متأكّد إنك عايز تمنح: :v1؟');
+        $this->assertStringContainsString(
+            json_encode($expectedText, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT),
+            $html,
+        );
+    }
 }
