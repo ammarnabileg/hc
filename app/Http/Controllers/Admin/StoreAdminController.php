@@ -14,6 +14,7 @@ use App\Models\ProductCategory;
 use App\Models\User;
 use App\Services\Admin\System\StoreAdminService;
 use App\Services\Library\ProductToc;
+use App\Services\Library\ProtectedFileStorage;
 use App\Services\Library\ReadingAnalytics;
 use App\Services\Store\BundleLanding;
 use App\Services\Store\BundleScreenSettings;
@@ -36,7 +37,10 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
  */
 class StoreAdminController extends Controller
 {
-    public function __construct(private readonly StoreAdminService $store) {}
+    public function __construct(
+        private readonly StoreAdminService $store,
+        private readonly ProtectedFileStorage $fileStorage,
+    ) {}
 
     public function index(Request $request): View
     {
@@ -110,7 +114,19 @@ class StoreAdminController extends Controller
             'price_currency' => ['required', 'string', Rule::in($this->currencies())],
             'price' => ['required', 'numeric', 'min:0'],
             'status' => ['required', 'in:draft,published,archived'],
+            // منتج المكتبة الرقميّة (24.3): الملفّ + الغلاف + الوصف — كلّها اختياريّة
+            // وقت الإنشاء (منتجٌ ملموس/قالب CV لا يحتاجها) وتُستكمَل لاحقًا لو خلت
+            'cover_path' => ['nullable', 'string', 'max:255'],
+            'description' => ['nullable', 'string', 'max:5000'],
+            'file' => $this->fileStorage->rules(),
         ]);
+
+        $file = $request->file('file');
+        unset($data['file']);
+
+        if ($file) {
+            $data['file_path'] = $this->fileStorage->store($file);
+        }
 
         $payload = $this->withPricing($data);
         $product = Product::create($payload + ['slug' => Str::slug($data['name_ar']).'-'.Str::lower(Str::random(5))]);
@@ -127,6 +143,8 @@ class StoreAdminController extends Controller
             'price_currency' => ['required', 'string', Rule::in($this->currencies())],
             'price' => ['required', 'numeric', 'min:0'],
             'status' => ['required', 'in:draft,published,archived'],
+            'cover_path' => ['nullable', 'string', 'max:255'],
+            'description' => ['nullable', 'string', 'max:5000'],
         ]);
 
         $payload = $this->withPricing($data);
@@ -135,6 +153,25 @@ class StoreAdminController extends Controller
         $this->audit($request, $product, 'store_products.edit', $old, $payload);
 
         return back()->with('status', (string) setting('store.admin.update_product_ok', 'التعديل اتحفظ ✓'));
+    }
+
+    /**
+     * استبدال الملفّ المحميّ (صفّ جدول المكتبة الرقميّة 24.3) — والنسخة الجديدة
+     * تصل المالكين تلقائيًّا: كاش صفحات القارئ يُبطَل فور الاستبدال (20.3).
+     */
+    public function replaceProductFile(Request $request, Product $product): RedirectResponse
+    {
+        $data = $request->validate([
+            'file' => $this->fileStorage->rules(required: true),
+        ]);
+
+        $old = ['file_path' => $product->file_path];
+        $newPath = $this->fileStorage->replace($product, $data['file']);
+        $product->update(['file_path' => $newPath]);
+
+        $this->audit($request, $product, 'store_products.replace_file', $old, ['file_path' => $newPath]);
+
+        return back()->with('status', (string) setting('store.admin.replace_file_ok', 'اتبدّل الملفّ ✓ — والنسخة الجديدة وصلت لكلّ المالكين.'));
     }
 
     /**

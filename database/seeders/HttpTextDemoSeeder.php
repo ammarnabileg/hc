@@ -378,6 +378,7 @@ class HttpTextDemoSeeder extends Seeder
             ['store.admin.update_product_ok', 'store', 'updateProduct() — التعديل اتحفظ ✓', 'التعديل اتحفظ ✓'],
             ['store.admin.archive_product_msg', 'store', 'archiveProduct() — المنتج اتأرشف — ومحدش هيفقد نسخته.', 'المنتج اتأرشف — ومحدش هيفقد نسخته.'],
             ['store.admin.update_protection_ok', 'store', 'updateProtection() — إعدادات الحماية اتحفظت ✓', 'إعدادات الحماية اتحفظت ✓'],
+            ['store.admin.replace_file_ok', 'store', 'replaceProductFile() — اتبدّل الملفّ ✓', 'اتبدّل الملفّ ✓ — والنسخة الجديدة وصلت لكلّ المالكين.'],
             ['store.admin.store_category_ok', 'store', 'storeCategory() — التصنيف اتضاف ✓', 'التصنيف اتضاف ✓'],
             ['store.admin.update_category_ok', 'store', 'updateCategory() — التصنيف اتعدّل ✓', 'التصنيف اتعدّل ✓'],
             ['store.admin.archive_category_ok', 'store', 'toggleCategoryArchive() — التصنيف اتخفى عن فورم المنتج الجديد', 'التصنيف اتخفى عن فورم المنتج الجديد — ومنتجاته زيّ ما هي ✓'],

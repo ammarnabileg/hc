@@ -23,7 +23,7 @@
   - `admin-developers.php` — 13 مسارًا · 11 حارس صلاحيّة.
   - `admin-ops.php` — 28 مسارًا · 17 حارس صلاحيّة.
   - `admin-screens24.php` — 45 مسارًا · البادئة `admin.` · 24 حارس صلاحيّة.
-  - `admin-system.php` — 100 مسارًا · البادئة `admin.` · 49 حارس صلاحيّة.
+  - `admin-system.php` — 101 مسارًا · البادئة `admin.` · 49 حارس صلاحيّة.
   - `admin-volunteer.php` — 120 مسارًا · البادئة `admin.` · `volunteer.` · `investigations.` · `gamification.` · `rewards.` · `events.` · 114 حارس صلاحيّة.
   - `announcements.php` — 10 مسارًا · 0 حارس صلاحيّة.
   - `api-v1.php` — 4 مسارًا · 0 حارس صلاحيّة.
@@ -107,6 +107,10 @@
 
 ## 🔄 الجاري الآن
 <!-- بيدك:بداية:الجاري -->
+- **(2026-09-13) 🖥️ المكتبة الرقميّة (24.3):** سطرٌ واحدٌ مضاف في `admin-system.php`
+  داخل مجموعة `permission:store_products.edit` — `POST /store/products/{product}/file`
+  باسم `admin.store.products.file.update` (`StoreAdminController::replaceProductFile`).
+  التفصيل الكامل في `resources/views/admin/store/_STATUS.md`.
 - **(2026-08-06) 🧩 المطوّرين — تاب الطرفيّة (12.15-هـ · v5.6، سجلّ القرارات 25):** سطرٌ واحد مضاف في `admin-developers.php` نفسه — `POST /admin/developers/terminal/run` باسم `admin.developers.terminal.run`، **بلا** `permission:` على المسار (لا صلاحيّة لهذا التاب إطلاقًا — مالك المنصّة حصرًا بأمرٍ مباشر)؛ الحارس الوحيد `isPlatformOwner()` داخل `TerminalController::run()` نفسه، ومجموعة الميدلوير (`auth` + `admin.panel`) هي فقط باب الدخول العامّ للوحة. وWebhooks لم تعُد سقالة — الفقرة القديمة أسفله توثّق مرحلةً سابقة.
 - **(2026-08-06) 🧩 المطوّرين (12.15، v5.5):** ملفّان جديدان.
   `admin-developers.php` (5 مسارات · `admin.developers.*`) — الباب بسعة تابيه
@@ -141,6 +145,6 @@
 
 ## 🕒 آخر تحديث
 <!-- تلقائيّ:بداية:التحديث -->
-- **آخر توليد لهذه الوثيقة:** 2026-09-12 — `php artisan docs:status`.
-- **آخر لمسة للمجلّد:** 2026-09-11 — Claude.
+- **آخر توليد لهذه الوثيقة:** 2026-09-13 — `php artisan docs:status`.
+- **آخر لمسة للمجلّد:** 2026-09-12 — Claude.
 <!-- تلقائيّ:نهاية:التحديث -->

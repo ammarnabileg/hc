@@ -651,6 +651,7 @@ class AdminScreenTextEngagementDemoSeeder extends Seeder
             ['admin.store.index.kl_ma_ybaa_wkl_ma_yhsl_fy_mkan_wahd', 'store', 'كلّ ما يُباع وكلّ ما يُحصَّل — في مكان واحد.', 'string', 'كلّ ما يُباع وكلّ ما يُحصَّل — في مكان واحد.', 'نصّ في resources/views/admin/store/index.blade.php'],
             ['admin.store.index.lwha_alidara', 'store', 'لوحة الإدارة', 'string', 'لوحة الإدارة', 'نصّ في resources/views/admin/store/index.blade.php'],
             ['admin.store.index.mafysh_astrjaa_nqdy_alrsyd_yfdl_fy_mhfza', 'store', 'مافيش استرجاع نقديّ — الرصيد يفضل في محفظة صاحبه، والخطأ التقنيّ يتصحَّح بمعاملة موثّقة بمرجعها.', 'text', 'مافيش استرجاع نقديّ — الرصيد يفضل في محفظة صاحبه، والخطأ التقنيّ يتصحَّح بمعاملة موثّقة بمرجعها.', 'نصّ في resources/views/admin/store/index.blade.php'],
+            ['admin.store.index.mlf_mhmy', 'store', '+ ملفّ محميّ', 'string', '+ ملفّ محميّ', 'نصّ في resources/views/admin/store/index.blade.php — زرّ الهيدر في تاب المكتبة الرقميّة (24.3 حرفيًّا).'],
             ['admin.store.index.tlbat_alshhn', 'store', 'طلبات الشحن', 'string', 'طلبات الشحن', 'نصّ في resources/views/admin/store/index.blade.php'],
             ['admin.store.index.trq_althwyl_walarwd', 'store', 'طرق التحويل والعروض', 'string', 'طرق التحويل والعروض', 'نصّ في resources/views/admin/store/index.blade.php'],
             ['admin.store.index.tsnyf_jdyd', 'store', '+ تصنيف', 'string', '+ تصنيف', 'نصّ في resources/views/admin/store/index.blade.php — منصوصةٌ حرفيًّا بجوار «+ منتج» في هيدر 24.3.'],  // ⚠️ 24
@@ -689,17 +690,23 @@ class AdminScreenTextEngagementDemoSeeder extends Seeder
             ['admin.store.partials.filters.mswda', 'store', 'مسودّة', 'string', 'مسودّة', 'نصّ في resources/views/admin/store/partials/filters.blade.php'],
             ['admin.store.partials.filters.mwrshf', 'store', 'مؤرشف', 'string', 'مؤرشف', 'نصّ في resources/views/admin/store/partials/filters.blade.php'],
             ['admin.store.partials.filters.wda_alhmaya', 'store', 'وضع الحماية', 'string', 'وضع الحماية', 'نصّ في resources/views/admin/store/partials/filters.blade.php'],
+            ['admin.store.partials.new_item_modal.alghlaf', 'store', 'الغلاف', 'string', 'الغلاف', 'نصّ في resources/views/admin/store/partials/new-item-modal.blade.php'],
             ['admin.store.partials.new_item_modal.alhala', 'store', 'الحالة', 'string', 'الحالة', 'نصّ في resources/views/admin/store/partials/new-item-modal.blade.php'],
+            ['admin.store.partials.new_item_modal.alml_almhmy', 'store', 'ملفّ محميّ جديد', 'string', 'ملفّ محميّ جديد', 'نصّ في resources/views/admin/store/partials/new-item-modal.blade.php — عنوان البوب-أب في تاب المكتبة (24.3).'],  // ⚠️ 24
+            ['admin.store.partials.new_item_modal.alml', 'store', 'الملفّ', 'string', 'الملفّ', 'نصّ في resources/views/admin/store/partials/new-item-modal.blade.php'],
             ['admin.store.partials.new_item_modal.alnwa', 'store', 'النوع', 'string', 'النوع', 'نصّ في resources/views/admin/store/partials/new-item-modal.blade.php'],
             ['admin.store.partials.new_item_modal.alqyma', 'store', 'القيمة', 'string', 'القيمة', 'نصّ في resources/views/admin/store/partials/new-item-modal.blade.php'],
             ['admin.store.partials.new_item_modal.alqyma_alijmalya_btthsb_tlqayya_mn_anasr', 'store', 'القيمة الإجماليّة بتتحسب تلقائيًّا من عناصر الباقة بعد ما تضيفها.', 'string', 'القيمة الإجماليّة بتتحسب تلقائيًّا من عناصر الباقة بعد ما تضيفها.', 'نصّ في resources/views/admin/store/partials/new-item-modal.blade.php'],
             ['admin.store.partials.new_item_modal.alsar', 'store', 'السعر', 'string', 'السعر', 'نصّ في resources/views/admin/store/partials/new-item-modal.blade.php'],
             ['admin.store.partials.new_item_modal.altsnyf', 'store', 'التصنيف', 'string', 'التصنيف', 'نصّ في resources/views/admin/store/partials/new-item-modal.blade.php'],
+            ['admin.store.partials.new_item_modal.alwsf', 'store', 'الوصف', 'string', 'الوصف', 'نصّ في resources/views/admin/store/partials/new-item-modal.blade.php'],
             ['admin.store.partials.new_item_modal.amla_alsar', 'store', 'عملة السعر', 'string', 'عملة السعر', 'نصّ في resources/views/admin/store/partials/new-item-modal.blade.php'],
             ['admin.store.partials.new_item_modal.ansr_jdyd', 'store', 'عنصر جديد', 'string', 'عنصر جديد', 'نصّ في resources/views/admin/store/partials/new-item-modal.blade.php'],
             ['admin.store.partials.new_item_modal.asm_albndl', 'store', 'اسم البندل', 'string', 'اسم البندل', 'نصّ في resources/views/admin/store/partials/new-item-modal.blade.php'],
+            ['admin.store.partials.new_item_modal.asm_alml', 'store', 'اسم الملفّ', 'string', 'اسم الملفّ', 'نصّ في resources/views/admin/store/partials/new-item-modal.blade.php'],
             ['admin.store.partials.new_item_modal.asm_almntj', 'store', 'اسم المنتج', 'string', 'اسم المنتج', 'نصّ في resources/views/admin/store/partials/new-item-modal.blade.php'],
             ['admin.store.partials.new_item_modal.bla_tsnyf', 'store', 'بلا تصنيف', 'string', 'بلا تصنيف', 'نصّ في resources/views/admin/store/partials/new-item-modal.blade.php'],
+            ['admin.store.partials.new_item_modal.hfz_alml_almhmy', 'store', 'حفظ الملفّ المحميّ', 'string', 'حفظ الملفّ المحميّ', 'نصّ في resources/views/admin/store/partials/new-item-modal.blade.php'],
             ['admin.store.partials.new_item_modal.hd_alastkhdam_alkly_fady_bla_hd', 'store', 'حدّ الاستخدام الكلّيّ (فاضي = بلا حدّ)', 'string', 'حدّ الاستخدام الكلّيّ (فاضي = بلا حدّ)', 'نصّ في resources/views/admin/store/partials/new-item-modal.blade.php'],
             ['admin.store.partials.new_item_modal.hd_alastkhdam_llmstkhdm', 'store', 'حدّ الاستخدام للمستخدم', 'string', 'حدّ الاستخدام للمستخدم', 'نصّ في resources/views/admin/store/partials/new-item-modal.blade.php'],
             ['admin.store.partials.new_item_modal.hfz_albndl', 'store', 'حفظ البندل', 'string', 'حفظ البندل', 'نصّ في resources/views/admin/store/partials/new-item-modal.blade.php'],
@@ -711,6 +718,7 @@ class AdminScreenTextEngagementDemoSeeder extends Seeder
             ['admin.store.partials.new_item_modal.nsba', 'store', 'نسبة %', 'string', 'نسبة %', 'نصّ في resources/views/admin/store/partials/new-item-modal.blade.php'],
             ['admin.store.partials.new_item_modal.nwa_alkhsm', 'store', 'نوع الخصم', 'string', 'نوع الخصم', 'نصّ في resources/views/admin/store/partials/new-item-modal.blade.php'],
             ['admin.store.partials.new_item_modal.pdf_mhmy_flip_only', 'store', 'PDF محميّ (Flip-only)', 'string', 'PDF محميّ (Flip-only)', 'نصّ في resources/views/admin/store/partials/new-item-modal.blade.php'],
+            ['admin.store.partials.new_item_modal.pdf_mp3_wav_mp4_html', 'store', 'PDF · MP3 · WAV · MP4 · HTML', 'string', 'PDF · MP3 · WAV · MP4 · HTML', 'نصّ في resources/views/admin/store/partials/new-item-modal.blade.php'],
             ['admin.store.partials.new_item_modal.qalb_cv', 'store', 'قالب CV', 'string', 'قالب CV', 'نصّ في resources/views/admin/store/partials/new-item-modal.blade.php'],
             ['admin.store.partials.new_item_modal.qyma_thabta', 'store', 'قيمة ثابتة', 'string', 'قيمة ثابتة', 'نصّ في resources/views/admin/store/partials/new-item-modal.blade.php'],
             ['admin.store.partials.new_item_modal.rqmy', 'store', 'رقميّ', 'string', 'رقميّ', 'نصّ في resources/views/admin/store/partials/new-item-modal.blade.php'],
@@ -757,15 +765,23 @@ class AdminScreenTextEngagementDemoSeeder extends Seeder
             ['admin.store.partials.table_coupons.tshghyl', 'store', 'تشغيل', 'string', 'تشغيل', 'نصّ في resources/views/admin/store/partials/table-coupons.blade.php'],
             ['admin.store.partials.table_library.alalama_almayya', 'store', 'العلامة المائيّة', 'string', 'العلامة المائيّة', 'نصّ في resources/views/admin/store/partials/table-library.blade.php'],
             ['admin.store.partials.table_library.alama_mayya', 'store', '· علامة مائيّة', 'string', '· علامة مائيّة', 'نصّ في resources/views/admin/store/partials/table-library.blade.php'],
+            ['admin.store.partials.table_library.alghlaf', 'store', 'الغلاف', 'string', 'الغلاف', 'نصّ في resources/views/admin/store/partials/table-library.blade.php — عمودٌ منصوصٌ حرفيًّا في القسم 24.3.'],  // ⚠️ 24
+            ['admin.store.partials.table_library.alhjm', 'store', 'الحجم', 'string', 'الحجم', 'نصّ في resources/views/admin/store/partials/table-library.blade.php — عمودٌ منصوصٌ حرفيًّا في القسم 24.3.'],  // ⚠️ 24
+            ['admin.store.partials.table_library.almalkwn', 'store', 'المالكون', 'string', 'المالكون', 'نصّ في resources/views/admin/store/partials/table-library.blade.php — عمودٌ منصوصٌ حرفيًّا في القسم 24.3 («المالكون (عدد)»).'],  // ⚠️ 24
             ['admin.store.partials.table_library.almlf', 'store', 'الملفّ', 'string', 'الملفّ', 'نصّ في resources/views/admin/store/partials/table-library.blade.php'],
             ['admin.store.partials.table_library.alslahya', 'store', 'الصلاحيّة', 'string', 'الصلاحيّة', 'نصّ في resources/views/admin/store/partials/table-library.blade.php'],
+            ['admin.store.partials.table_library.arfa', 'store', 'ارفع', 'string', 'ارفع', 'نصّ في resources/views/admin/store/partials/table-library.blade.php'],
+            ['admin.store.partials.table_library.astbdal_alml', 'store', 'استبدال الملفّ', 'string', 'استبدال الملفّ', 'نصّ في resources/views/admin/store/partials/table-library.blade.php — إجراءٌ منصوصٌ حرفيًّا في القسم 24.3.'],  // ⚠️ 24
             ['admin.store.partials.table_library.ayna_v1_sfha', 'store', '· عيّنة :v1 صفحة', 'string', '· عيّنة :v1 صفحة', 'نصّ في resources/views/admin/store/partials/table-library.blade.php'],
             ['admin.store.partials.table_library.fargh_daym', 'store', '(فارغ = دائم)', 'string', '(فارغ = دائم)', 'نصّ في resources/views/admin/store/partials/table-library.blade.php'],
             ['admin.store.partials.table_library.fhrs_alqary_str_lkl_fsl', 'store', 'فهرس القارئ — سطر لكلّ فصل:', 'string', 'فهرس القارئ — سطر لكلّ فصل:', 'نصّ في resources/views/admin/store/partials/table-library.blade.php'],
             ['admin.store.partials.table_library.flip_only_mhmy', 'store', 'Flip-only محميّ', 'string', 'Flip-only محميّ', 'نصّ في resources/views/admin/store/partials/table-library.blade.php'],
             ['admin.store.partials.table_library.hfz', 'store', 'حفظ', 'string', 'حفظ', 'نصّ في resources/views/admin/store/partials/table-library.blade.php — عنوانٌ منصوصٌ حرفيًّا في القسم 24، وتغييرُه يخالف خريطة الشاشات.'],  // ⚠️ 24
+            ['admin.store.partials.table_library.ijraat', 'store', 'إجراءات', 'string', 'إجراءات', 'نصّ في resources/views/admin/store/partials/table-library.blade.php'],
+            ['admin.store.partials.table_library.kb', 'store', ' ك.ب', 'string', ' ك.ب', 'نصّ في resources/views/admin/store/partials/table-library.blade.php'],
             ['admin.store.partials.table_library.mfala', 'store', 'مفعَّلة', 'string', 'مفعَّلة', 'نصّ في resources/views/admin/store/partials/table-library.blade.php'],
             ['admin.store.partials.table_library.mtwqfa', 'store', 'متوقّفة', 'string', 'متوقّفة', 'نصّ في resources/views/admin/store/partials/table-library.blade.php'],
+            ['admin.store.partials.table_library.myana_alqary', 'store', 'معاينة القارئ', 'string', 'معاينة القارئ', 'نصّ في resources/views/admin/store/partials/table-library.blade.php — إجراءٌ منصوصٌ حرفيًّا في القسم 24.3، رابطه route(library.teaser).'],  // ⚠️ 24
             ['admin.store.partials.table_library.qabl_llthmyl', 'store', 'قابل للتحميل', 'string', 'قابل للتحميل', 'نصّ في resources/views/admin/store/partials/table-library.blade.php'],
             ['admin.store.partials.table_library.rqm_alsfha_alanwan', 'store', 'رقم الصفحة | العنوان', 'string', 'رقم الصفحة | العنوان', 'نصّ في resources/views/admin/store/partials/table-library.blade.php'],
             ['admin.store.partials.table_library.sfhat_alayna', 'store', 'صفحات العيّنة', 'string', 'صفحات العيّنة', 'نصّ في resources/views/admin/store/partials/table-library.blade.php'],

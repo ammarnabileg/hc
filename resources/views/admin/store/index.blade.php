@@ -10,10 +10,11 @@
                        ['label' => setting('admin.store.index.almtjr_walmalyat', 'المتجر والماليّات')],
                    ]">
         <x-slot:action>
-            {{-- فعل رئيسيّ واحد بارز، والباقي في «⋯» (2.15-أ-2) --}}
+            {{-- فعل رئيسيّ واحد بارز، والباقي في «⋯» (2.15-أ-2) — وفي تاب المكتبة
+                 الفعل نفسه يفتح فورم منتج المكتبة مباشرةً بدل عنصرٍ عامّ (24.3) --}}
             <button type="button" data-modal-open="new-item"
                     class="btn rounded-xl px-4 py-2 text-sm font-semibold"
-                    style="background: var(--color-brand-500); color: #04201c">{{ setting('admin.store.index.ansr_jdyd', '+ عنصر جديد') }}</button>
+                    style="background: var(--color-brand-500); color: #04201c">{{ $tab === 'library' ? setting('admin.store.index.mlf_mhmy', '+ ملفّ محميّ') : setting('admin.store.index.ansr_jdyd', '+ عنصر جديد') }}</button>
 
             @php
                 /* «+ تصنيف» منصوصةٌ حرفيًّا بجوار «+ منتج» في هيدر 24.3 — وشاشتها مودال
@@ -117,10 +118,14 @@
     @if ($tab === 'products')
         @include('admin.store.partials.categories-modal')
     @endif
+
+    {{-- بوب-أب «اختَر من المكتبة / ارفع جديد» (12.4-د · 12.4-هـ) — يخدم حقل الغلاف
+         في فورم منتج المكتبة أعلاه --}}
+    @include('admin.courses.partials.media-picker-modal')
 @endsection
 
 @section('mobile_action')
     <button type="button" data-modal-open="new-item"
             class="btn w-full rounded-xl px-4 py-3 text-sm font-semibold"
-            style="background: var(--color-brand-500); color: #04201c">{{ setting('admin.store.index.ansr_jdyd', '+ عنصر جديد') }}</button>
+            style="background: var(--color-brand-500); color: #04201c">{{ $tab === 'library' ? setting('admin.store.index.mlf_mhmy', '+ ملفّ محميّ') : setting('admin.store.index.ansr_jdyd', '+ عنصر جديد') }}</button>
 @endsection

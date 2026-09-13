@@ -170,6 +170,11 @@ class LibraryDemoSeeder extends Seeder
             ['library.analytics.top_limit', 'library', 'عدد عناصر الأكثر قراءةً', 'number', '5'],
             ['library.analytics.min_readers', 'library', 'أدنى عدد قرّاء لعرض المنتج', 'number', '1'],
 
+            // ---------------- رفع الملفّ المحميّ من لوحة الإدارة (24.3 · 20.5)
+            ['library.upload.allowed_extensions', 'library', 'صيغ الملفّ المحميّ المسموحة', 'json', '["pdf","mp3","wav","mp4","html"]'],
+            ['library.upload.max_kb', 'library', 'أقصى حجم للملفّ المحميّ (ك.ب)', 'number', '51200'],
+            ['library.storage.directory', 'library', 'مجلّد تخزين الملفّ المحميّ', 'string', 'library'],
+
             // ---------------- السيرة الذاتيّة (9)
             ['cv.page.title', 'cv', 'عنوان صفحة السيرة', 'string', 'سيرتي الذاتيّة'],
             ['cv.page.subtitle', 'cv', 'سطر تعريف السيرة', 'string', 'املأ الخطوات، والمعاينة بتتحدّث معاك لحظة بلحظة.'],
