@@ -217,9 +217,10 @@ class StoreAdminService
     }
 
     /** @return array<int, ProductCategory> */
+    /** ⭐ `withCount('products')` — تُستعمَل في مودال إدارة التصنيفات (24.3) لتنبيه الحذف بعدد المنتجات المتأثّرة */
     public function categories()
     {
-        return ProductCategory::query()->orderBy('sort_order')->get();
+        return ProductCategory::query()->withCount('products')->orderBy('sort_order')->get();
     }
 
     /** أربعة كروت KPI بحدّ أقصى (2.15-أ-3) */

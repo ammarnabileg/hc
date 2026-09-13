@@ -3,6 +3,7 @@
 namespace Tests\Feature\Admin\System;
 
 use App\Models\Product;
+use App\Models\ProductCategory;
 use App\Services\Admin\System\StatsService;
 
 /**
@@ -16,7 +17,8 @@ class AdminSystemStoreAndStatsTest extends SystemTestCase
         'store_products.list', 'store_products.create', 'store_products.edit', 'store_products.archive',
         'bundles.list', 'bundles.create', 'coupons.list', 'coupons.create', 'coupons.edit',
         'orders.list', 'product_protection.view', 'product_protection.manage',
-        'product_categories.create',
+        'product_categories.list', 'product_categories.create', 'product_categories.edit',
+        'product_categories.archive', 'product_categories.delete',
     ];
 
     private const STATS_ADMIN = [
@@ -59,6 +61,101 @@ class AdminSystemStoreAndStatsTest extends SystemTestCase
 
         $this->assertSame('archived', $product->refresh()->status);
         $this->assertDatabaseHas('products', ['id' => $product->id]);
+    }
+
+    /** ⭐ «+ تصنيف» منصوصةٌ حرفيًّا بجوار «+ منتج» في هيدر 24.3-أوّلًا — تظهر في تاب المنتجات فقط */
+    public function test_categories_header_button_appears_on_the_products_tab_only(): void
+    {
+        $admin = $this->admin(self::STORE_ADMIN);
+
+        $this->actingAs($admin)->get(route('admin.store.index', ['tab' => 'products']))
+            ->assertOk()->assertSee('+ تصنيف', false);
+
+        $this->actingAs($admin)->get(route('admin.store.index', ['tab' => 'bundles']))
+            ->assertOk()->assertDontSee('+ تصنيف', false);
+    }
+
+    /** المحظور يُخفى لا يُعطَّل (2.15-أ-7): بلا أيّ صلاحيّة على التصنيفات، الزرّ لا يظهر */
+    public function test_categories_header_button_is_hidden_without_any_category_permission(): void
+    {
+        $admin = $this->admin([
+            'store_products.list', 'store_products.create', 'bundles.list', 'coupons.list', 'orders.list',
+        ]);
+
+        $this->actingAs($admin)->get(route('admin.store.index', ['tab' => 'products']))
+            ->assertOk()->assertDontSee('+ تصنيف', false);
+    }
+
+    public function test_category_can_be_created_edited_and_reordered(): void
+    {
+        $admin = $this->admin(self::STORE_ADMIN);
+
+        $this->actingAs($admin)->post(route('admin.store.categories.store'), [
+            'name_ar' => 'تصنيف اختبار',
+        ])->assertRedirect()->assertSessionHasNoErrors();
+
+        $category = ProductCategory::query()->where('name_ar', 'تصنيف اختبار')->firstOrFail();
+
+        $this->actingAs($admin)->put(route('admin.store.categories.update', $category), [
+            'name_ar' => 'تصنيف اتعدّل',
+            'name_en' => 'Edited Category',
+        ])->assertRedirect();
+
+        $category->refresh();
+        $this->assertSame('تصنيف اتعدّل', $category->name_ar);
+        $this->assertSame('Edited Category', $category->name_en);
+
+        // ---------------------------------------------------------------- الترتيب
+        $second = ProductCategory::create(['name_ar' => 'تصنيف ثانٍ', 'slug' => 'second-cat', 'sort_order' => 1]);
+        $category->update(['sort_order' => 0]);
+
+        $this->actingAs($admin)->post(route('admin.store.categories.reorder'), [
+            'ids' => [$second->id, $category->id],
+        ])->assertRedirect();
+
+        $this->assertSame(0, $second->refresh()->sort_order);
+        $this->assertSame(1, $category->refresh()->sort_order);
+    }
+
+    /** ⭐ أرشفة لا حذف (`product_categories.archive`): التصنيف يختفي عن الفورم ومنتجاته زيّ ما هي */
+    public function test_archiving_a_category_keeps_its_products_linked(): void
+    {
+        $admin = $this->admin(self::STORE_ADMIN);
+        $category = ProductCategory::create(['name_ar' => 'تصنيف يتأرشف', 'slug' => 'archived-cat', 'is_active' => true]);
+        $product = Product::create(['name_ar' => 'منتج التصنيف', 'slug' => 'product-in-cat', 'product_category_id' => $category->id]);
+
+        $this->actingAs($admin)->post(route('admin.store.categories.archive', $category))->assertRedirect();
+
+        $this->assertFalse((bool) $category->refresh()->is_active);
+        $this->assertSame($category->id, $product->refresh()->product_category_id);
+        $this->assertDatabaseHas('product_categories', ['id' => $category->id]);
+    }
+
+    /**
+     * ⭐ **الحذف النهائيّ لا يمسّ المنتج**: `product_category_id` `nullOnDelete`
+     * بالمخطّط، فالمنتج يصير بلا تصنيف لا يُحذَف ولا يُفقَد (24.3).
+     */
+    public function test_deleting_a_category_with_products_unlinks_them_instead_of_deleting_them(): void
+    {
+        $admin = $this->admin(self::STORE_ADMIN);
+        $category = ProductCategory::create(['name_ar' => 'تصنيف فيه منتجات', 'slug' => 'cat-with-products']);
+        $product = Product::create(['name_ar' => 'منتج هيتيتّم', 'slug' => 'orphaned-product', 'product_category_id' => $category->id]);
+
+        $this->actingAs($admin)->delete(route('admin.store.categories.destroy', $category))->assertRedirect();
+
+        $this->assertDatabaseMissing('product_categories', ['id' => $category->id]);
+        $this->assertDatabaseHas('products', ['id' => $product->id]);
+        $this->assertNull($product->refresh()->product_category_id);
+    }
+
+    /** ولا صلاحيّة بلا حارس: مَن لا يملك `product_categories.delete` يُرفَض 403 */
+    public function test_deleting_a_category_is_forbidden_without_the_delete_permission(): void
+    {
+        $admin = $this->admin(['store_products.list', 'product_categories.list', 'product_categories.edit']);
+        $category = ProductCategory::create(['name_ar' => 'تصنيف محميّ', 'slug' => 'protected-cat']);
+
+        $this->actingAs($admin)->delete(route('admin.store.categories.destroy', $category))->assertForbidden();
+        $this->assertDatabaseHas('product_categories', ['id' => $category->id]);
     }
 
     /** نوع كلّ منتج وإعدادات حمايته تُضبَط من هنا (20.2 · 20.5) */
