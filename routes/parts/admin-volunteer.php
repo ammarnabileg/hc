@@ -14,7 +14,9 @@ use App\Http\Controllers\Admin\ScorecardCriteriaController;
 use App\Http\Controllers\Admin\TaskTypeController;
 use App\Http\Controllers\Admin\VolunteerAdminController;
 use App\Http\Controllers\Admin\VolunteerSettingsHubController;
+use App\Services\Admin\Volunteer\AdminVolunteerTabInjector;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\View;
 
 /*
 |--------------------------------------------------------------------------
@@ -23,6 +25,11 @@ use Illuminate\Support\Facades\Route;
 | الصلاحيّة إلزاميّة على كلّ مسار (12.2.1)، والعنصر الذي لا يملكه المستخدم
 | يُخفى من السايد بار ولا يُعطَّل (2.15-أ-7).
 */
+
+// ⭐ تاب «التطوّع» في صفحة المستخدم بالأدمن (12.1 · 1103): التاب والستاك معرَّفان
+//    فعلًا في UserDirectory::tabsFor() و admin/users/show.blade.php — وهذا
+//    الحاقن وحده يملأ الستاك بسجلّ المشرف، بنفس صلاحيّة ظهور التاب (12.2.1).
+View::composer('admin.users.show', fn ($view) => app(AdminVolunteerTabInjector::class)->compose($view));
 
 Route::middleware(['auth', 'admin.panel'])->prefix('admin')->name('admin.')->group(function () {
 

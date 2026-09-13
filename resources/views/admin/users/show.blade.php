@@ -138,11 +138,16 @@
             @break
 
         @case('volunteer')
-            {{-- سجلّ المشرف — يملأه مجال التطوّع، ويظهر التاب لمن له صلاحيّته وحده (12.1) --}}
-            <section class="card p-4">
-                <h3 class="font-bold text-sm mb-3">{{ setting('admin.users.show.sjl_alttwa', 'سجلّ التطوّع') }}</h3>
+            {{--
+                سجلّ المشرف (1103 · 2886): البوزشنز · التسكينات · المهامّ · VXP ·
+                تاريخ الالتزام · شهادات التطوّع · الاجتماعات — يملؤه حاقن مجال
+                التطوّع (`AdminVolunteerTabInjector`) في ستاك كروتٍ مستقلّة، لا
+                كارتًا واحدًا يُضاعِف الحدّ والحشو حول كروت الستاك (2.15-ج).
+            --}}
+            <h3 class="font-bold text-sm mb-3">{{ setting('admin.users.show.sjl_alttwa', 'سجلّ التطوّع') }}</h3>
+            <div class="grid gap-4">
                 @stack('admin_user_volunteer_tab')
-            </section>
+            </div>
             @break
 
         @default
