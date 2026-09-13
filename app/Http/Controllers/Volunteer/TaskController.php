@@ -145,6 +145,8 @@ class TaskController extends Controller
                 ? Arbitration::query()->where('task_id', $task->id)->latest()->get()
                 : collect(),
             'isOwner' => $isOwner,
+            // دعوة المساهم لا تُفتَح إلا على صب-تاسك معتمد (23-2.3-٥ · 23-4-الأساس)
+            'canInviteContributor' => $this->batch->isApprovedForInvite($task),
             'counterState' => $this->workflow->counterState($task),
             'isLate' => $this->workflow->isLate($task),
             'maxBlockDays' => $this->blocks->maxDays(),

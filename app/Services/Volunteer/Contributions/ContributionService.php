@@ -9,6 +9,7 @@ use App\Models\TaskSubmission;
 use App\Models\User;
 use App\Services\Volunteer\Escalation\FlowLedger;
 use App\Services\Volunteer\Escalation\FlowNotifier;
+use App\Services\Volunteer\Tasks\SubtaskBatch;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -26,6 +27,8 @@ use Illuminate\Validation\ValidationException;
  */
 class ContributionService
 {
+    public function __construct(private readonly SubtaskBatch $batch) {}
+
     // -------------------------------------------------------------- الإعدادات
 
     /** الفجوة الإلزاميّة بين الديدلاين الداخليّ وديدلاين المهمّة الأمّ */
@@ -128,6 +131,7 @@ class ContributionService
         $source = $data['vxp_source'] ?? 'task_pool';
         $checkpoints = array_values(array_filter((array) ($data['checkpoints'] ?? [])));
 
+        $this->guardSubtaskApproval($task);
         $this->guardInternalDeadline($task, $deadline);
         $this->guardCheckpoints($checkpoints, $deadline);
         $this->guardBudget($task, $owner, $vxp, $source);
@@ -480,6 +484,20 @@ class ContributionService
     }
 
     // -------------------------------------------------------------- الحرّاس
+
+    /**
+     * ⭐ دعوة المساهم لا تُفتَح إلا على صب-تاسك معتمد (23-2.3-٥ · 23-4-الأساس) —
+     * تنفيذ الشرط `state:subtask_approved` (مصفوفة 12.2.2، سطر `contributions.create`).
+     * الحارس الحقيقيّ هنا لا في التلميح الواجهيّ وحده (`SubtaskBatch::isApprovedForInvite()`).
+     */
+    private function guardSubtaskApproval(Task $task): void
+    {
+        if (! $this->batch->isApprovedForInvite($task)) {
+            throw ValidationException::withMessages([
+                'code' => setting('workflow.contribution_service.guard_subtask_approval_1', 'دعوة المساهم لا تُفتَح إلا على صب-تاسك معتمد — استنّى اعتماد الدفعة من الأبلاين أوّلاً.'),
+            ]);
+        }
+    }
 
     private function guardInternalDeadline(Task $task, CarbonImmutable $deadline): void
     {
