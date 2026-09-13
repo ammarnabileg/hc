@@ -20,6 +20,7 @@ use App\Services\Volunteer\Tasks\TaskCreation;
 use App\Services\Volunteer\Tasks\TaskLoadCap;
 use App\Services\Volunteer\Tasks\TaskStatus;
 use App\Services\Volunteer\Tasks\TaskWorkflow;
+use App\Support\Access\ScopeResolver;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Schema;
@@ -43,6 +44,7 @@ class TaskController extends Controller
         private readonly ActivityWindow $window,
         private readonly ContributionService $contributions,
         private readonly TaskCreation $creation,
+        private readonly ScopeResolver $scopes,
     ) {}
 
     /** مهامّي: عدّاد سقف الانشغال + [مهمّة جديدة] + تبديل (قائمة/كانبان) */
@@ -112,18 +114,29 @@ class TaskController extends Controller
 
         $subtasks = Task::query()->where('parent_task_id', $task->id)->orderBy('deadline_at')->get();
 
+        $isOwner = (int) $task->owner_id === (int) $user->id;
+
+        /*
+         | التودو **شخصيّ**: «لا يظهر لأحد إلا صاحبه — ويطّلع عليه الأبلاين
+         | المباشر للقراءة فقط» (23-2.1 · مصفوفة `todos.view`: SELF المالك ·
+         | TEAM الأبلاين المباشر — لا SUBTREE ولا ENTITY نصًّا). فمجرّد رؤية
+         | صفحة المهمّة (`tasks.view` تصل SUBTREE/ENTITY، والمساهم يصل بلا نطاقٍ
+         | أصلًا عبر `TaskBoard::canSee`) لا يخوّل رؤية تودو صاحبها — فيُقاس
+         | «الأبلاين المباشر» بنفس أداة النطاقات التي تحكم كلّ صلاحيّات TEAM
+         | الأخرى (`ScopeResolver::covers('TEAM', …)`، وهي عين ما يستدعيه
+         | شرط `direct_upline` في `ConditionEvaluator`) لا بفحصٍ مخترَع هنا.
+         */
+        $canSeeTodos = $isOwner || $this->scopes->covers('TEAM', $user, $task, $user->activeMembership());
+
         return view('volunteer.tasks.show', [
             'user' => $user,
             'task' => $task,
             'tab' => $request->string('tab')->toString() ?: 'details',
-            /*
-             | التودو **شخصيّ**: «لا يظهر لأحد إلا صاحبه — ويطّلع عليه الأبلاين
-             | للقراءة فقط» (23-2.1). فالمالك يرى قائمته هو، والأبلاين يرى قائمة
-             | المالك الحاليّ قراءةً — **ولا يرث المالك الجديد قائمة السابق**.
-             */
-            'todos' => TaskTodo::query()->where('task_id', $task->id)
-                ->where('user_id', (int) $task->owner_id === (int) $user->id ? $user->id : $task->owner_id)
-                ->orderBy('sort_order')->orderBy('id')->get(),
+            'todos' => $canSeeTodos
+                ? TaskTodo::query()->where('task_id', $task->id)
+                    ->where('user_id', $task->owner_id)
+                    ->orderBy('sort_order')->orderBy('id')->get()
+                : collect(),
             'subtasks' => $subtasks,
             'contributions' => TaskContribution::query()->with('contributor')->where('task_id', $task->id)->get(),
             'submissions' => TaskSubmission::query()->with('user')->where('task_id', $task->id)->latest('version')->get(),
@@ -131,7 +144,7 @@ class TaskController extends Controller
             'arbitrations' => Schema::hasTable('arbitrations')
                 ? Arbitration::query()->where('task_id', $task->id)->latest()->get()
                 : collect(),
-            'isOwner' => (int) $task->owner_id === (int) $user->id,
+            'isOwner' => $isOwner,
             'counterState' => $this->workflow->counterState($task),
             'isLate' => $this->workflow->isLate($task),
             'maxBlockDays' => $this->blocks->maxDays(),
