@@ -40,7 +40,15 @@ class RolePermissionSeeder extends Seeder
             'marketing_admin' => ['store_products', 'product_categories', 'product_protection', 'bundles', 'coupons', 'order_bump', 'pricing', 'paywall', 'landing_pages', 'public_pages', 'share_links', 'referrals', 'ambassadors', 'invitations_page', 'events', 'event_registrations', 'event_recordings'],
             'finance_admin' => ['orders', 'invoices', 'purchases', 'topup', 'transfer', 'wallet', 'currencies', 'exchange_rates', 'refunds', 'reports_sales', 'reports_finance'],
             'gamification_admin' => ['badges', 'streaks', 'five_am_club', 'streak_freeze', 'leaderboards', 'public_leaderboard', 'achievements', 'tickets_xp', 'xp_rules', 'tickets_rules', 'wars_settings', 'war_types', 'wars_bank', 'wars_matches', 'reward_questions', 'celebrations', 'positive_messages'],
-            'tech_admin' => ['settings_general', 'settings_audit', 'maintenance', 'backups', 'system_health', 'updates', 'error_logs', 'scheduled_jobs', 'storage_files', 'audit_logs', 'feature_toggles', 'integrations', 'email_templates', 'rate_limits', 'localization', 'countries_data', 'password_policy', 'version_history', 'setup_installer'],
+            /*
+             | ⭐ `soft_delete_recovery` أُضيف هنا (2026-09-13 · 12.2.2 سطر 2188-2191):
+             | كان معرَّفًا في `permissions.json` بأربعة أفعال — ولا دور واحد
+             | يحمله، فالشاشة التي تُبنى عليه تبقى بلا زائر رغم فتح بابها
+             | (`مصفوفة صلاحيّاتٍ ميّتة» — نفس عطب `scorecards.restore` قبله).
+             | ومكانه الطبيعيّ **مع أخواته** في نفس مجموعة «النظام والتقارير»
+             | (`error_logs · backups · audit_logs`) — لا مجالٌ متخصّصٌ يملكه.
+             */
+            'tech_admin' => ['settings_general', 'settings_audit', 'maintenance', 'backups', 'system_health', 'updates', 'error_logs', 'scheduled_jobs', 'storage_files', 'audit_logs', 'feature_toggles', 'integrations', 'email_templates', 'rate_limits', 'localization', 'countries_data', 'password_policy', 'version_history', 'setup_installer', 'soft_delete_recovery'],
         ];
 
         foreach ($map as $roleKey => $resources) {

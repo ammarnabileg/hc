@@ -34,6 +34,14 @@
 
 ## ⬜ المتبقّي
 <!-- بيدك:بداية:المتبقّي -->
+- ✅ **[مقفولة 2026-09-13] `RolePermissionSeeder`: مورد `soft_delete_recovery` كان
+  مصفوفة صلاحيّاتٍ ميّتة (12.2.2 سطر 2188-2191) — مزروع في `permissions.json`
+  ولا دور يحمله. أُضيف لقائمة موارد `tech_admin` (مع `error_logs · backups ·
+  audit_logs` — نفس مجموعة «النظام والتقارير»). و`SecurityDemoSeeder`: مفتاح
+  `admin.trash.retention_days` (افتراضيًّا 30 — مطابقًا حرفيًّا لـ«Soft-delete =
+  30 يومًا» سطر 5169) لشاشة سلّة المحذوفات الجديدة. التفصيل الكامل في
+  `app/Services/Admin/System/_STATUS.md`. الحارس:
+  `tests/Feature/Admin/System/TrashRecoveryTest.php`.
 - ✅ **[مقفولة 2026-09-11] قمع التدريبات الرقميّ في `ChallengeDemoSeeder` (15.6).**
   كانت الأسئلة الرقميّة كلّها (24) بمصدر `arena`، وأسئلة `training` الستّة اختيارًا من
   متعدّد — فحرب التقدير (`is_numeric` فقط) تجد قمع التدريبات **فارغًا** ويتراجع سحبها

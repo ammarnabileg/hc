@@ -243,6 +243,8 @@
         [setting('nav.admin.item_settings_maintenance', 'وضع الصيانة'), 'admin.settings.index', 'settings_general.view', ['tab' => 'maintenance']],
         [setting('nav.admin.item_settings_updates', 'التحديثات والترحيل'), 'admin.ops.updates', 'updates.view'],
         [setting('nav.admin.item_settings_system', 'النسخ الاحتياطيّ وصحّة النظام'), 'admin.ops.system', 'system_health.view'],
+        // ⭐ سلّة المحذوفات الموحّدة (12.2.2 سطر 2188-2191 — `soft_delete_recovery`)
+        [setting('nav.admin.item_settings_trash', 'سلّة المحذوفات'), 'admin.ops.trash', 'soft_delete_recovery.list'],
         /*
          | سجلّ التدقيق — آخر بند في خريطة 12.0 (2.13-هـ).
          | وكان مربوطًا بـ`admin.settings.audit`، وهو **مسار JSON** لآخر تغييرٍ
