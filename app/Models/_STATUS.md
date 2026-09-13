@@ -41,10 +41,11 @@
 ## 🔄 الجاري الآن
 <!-- بيدك:بداية:الجاري -->
 - **الحالة:** مافيش شغل جارٍ.
-- **آخر نقطة وصلنا لها:** `Product.php` صار يحمل `entitlements()` (علاقة مورفيّة على
-  `library_entitlements` — «المالكون (عدد)» في شاشة المكتبة 24.3) و`fileSizeBytes()`
-  (حجم الملفّ المحميّ محسوبًا حيًّا من قرص `local` لا عمودًا مخزَّنًا). التفصيل الكامل
-  في `resources/views/admin/store/_STATUS.md`.
+- **آخر نقطة وصلنا لها:** `LearningPath.php` صار يحمل `is_academy` بالكاست بوليان،
+  و`targetPath()` (BelongsTo على نفسه — «مسار الشهادة المستهدَف» 13.4-ل)،
+  و`entities()` (BelongsToMany عبر `academy_path_entity` — الربط بالأقسام). العمودان
+  والجدول كانا موجودَين من قبل بلا مستهلكٍ في طبقة الأدمن — التفصيل الكامل في
+  `app/Services/Admin/Content/_STATUS.md` و`app/Http/Controllers/Admin/_STATUS.md`.
 - **الخطوة الجاية:** —
 <!-- بيدك:نهاية:الجاري -->
 

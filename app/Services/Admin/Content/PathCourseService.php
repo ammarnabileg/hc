@@ -64,6 +64,10 @@ class PathCourseService
             'status' => $data['status'] ?? 'draft',
             // سعر امتحان شهادة المسار بالكوينز — لكلّ مسار على حدة فوق الافتراضيّ العامّ
             'exam_price_coins' => (float) ($data['exam_price_coins'] ?? setting('paths.exam.default_price_coins', 0)),
+            // الأكاديمية (13.4-ل): مسار أكاديمية = نفس المسار بعلامة — لا كيان موازٍ
+            'is_academy' => (bool) ($data['is_academy'] ?? false),
+            // «مسار الشهادة المستهدَف» Nullable — فراغه يعني تعليميّ صِرف بلا CTA شهادة
+            'target_path_id' => $data['target_path_id'] ?? null,
         ];
 
         if ($payload['status'] === 'published' && ! ($path?->published_at)) {
@@ -78,9 +82,27 @@ class PathCourseService
         }
 
         $this->syncPathExam($path);
+        // الربط بقسم/أكثر — بلا اختيار يعني «الكلّ» (AcademyService::paths)
+        $path->entities()->sync($data['entity_ids'] ?? []);
         $this->audit->record($path, $isNew ? 'path.created' : 'path.updated', $before, $payload);
 
         return $path->refresh();
+    }
+
+    /**
+     * أقسام كلّ مسار مربوطة بالفعل — لتعبئة فورم الأدمن عند التعديل (13.4-ل).
+     *
+     * @param  Collection<int, LearningPath>  $paths
+     * @return array<int, array<int, int>>
+     */
+    public function entityIdsFor(Collection $paths): array
+    {
+        return DB::table('academy_path_entity')
+            ->whereIn('learning_path_id', $paths->pluck('id'))
+            ->get(['learning_path_id', 'entity_id'])
+            ->groupBy('learning_path_id')
+            ->map(fn ($rows) => $rows->pluck('entity_id')->map(fn ($id) => (int) $id)->all())
+            ->all();
     }
 
     /**
@@ -117,6 +139,9 @@ class PathCourseService
                     'sort_order' => $pivot->sort_order,
                 ]);
             }
+
+            // ⭐ مسار أكاديميّ ينسخ ربطه بالأقسام كذلك — قالبٌ جاهزٌ كاملًا لا ناقص الإعدادات (13.4-ل)
+            $copy->entities()->sync($path->entities()->pluck('entities.id')->all());
 
             $this->audit->record($copy, 'path.duplicated', ['from' => $path->id], [], $actor);
 

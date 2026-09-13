@@ -4,11 +4,13 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Course;
+use App\Models\Entity;
 use App\Models\LearningPath;
 use App\Services\Admin\Content\PathCourseService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 /**
@@ -36,6 +38,12 @@ class PathAdminController extends Controller
             'statuses' => $this->statuses(),
             // ⭐ السعر من مصدره الواحد (صفّ الامتحان) لا من عمود المرآة (12.4-أ)
             'examPrices' => $this->paths->examPricesFor($paths),
+            // الأكاديمية (13.4-ل): مسار الشهادة المستهدَف يُختار من كلّ المسارات الأخرى
+            'targetablePaths' => LearningPath::query()->orderBy('name_ar')->get(['id', 'name_ar']),
+            // والربط بالأقسام — كلّ كيان نشط (12.2.2-ب-18 · 13.4-ل)
+            'entities' => Entity::query()->where('status', 'active')->orderBy('name_ar')->get(['id', 'name_ar']),
+            // أقسام كلّ مسار أكاديميّ مربوطة بالفعل — لتعبئة فورم التعديل (بلا اختيار = الكلّ)
+            'pathEntityIds' => $this->paths->entityIdsFor($paths),
         ]);
     }
 
@@ -50,7 +58,7 @@ class PathAdminController extends Controller
 
     public function update(Request $request, LearningPath $path): RedirectResponse
     {
-        $this->paths->save($path, $this->validated($request));
+        $this->paths->save($path, $this->validated($request, $path));
 
         return back()->with('status', (string) setting('paths.admin.update_ok', 'اتحفظ ✓'));
     }
@@ -130,7 +138,7 @@ class PathAdminController extends Controller
     // ------------------------------------------------------------------ داخليّ
 
     /** @return array<string, mixed> */
-    private function validated(Request $request): array
+    private function validated(Request $request, ?LearningPath $path = null): array
     {
         return $request->validate([
             'name_ar' => ['required', 'string', 'max:190'],
@@ -143,6 +151,16 @@ class PathAdminController extends Controller
             'forced_order' => ['nullable', 'boolean'],
             // سعر امتحان شهادة المسار بالكوينز (12.4-أ)
             'exam_price_coins' => ['nullable', 'numeric', 'min:0'],
+            // الأكاديمية (13.4-ل): مسار أكاديمية = نفس المسار بعلامة
+            'is_academy' => ['nullable', 'boolean'],
+            // «مسار الشهادة المستهدَف» Nullable — فراغه يعني تعليميّ صِرف، ولا يجوز أن يستهدف المسار نفسه
+            'target_path_id' => [
+                'nullable', 'integer', 'exists:learning_paths,id',
+                Rule::notIn(array_filter([$path?->id])),
+            ],
+            // الربط بقسم/أكثر — بلا اختيار يعني «الكلّ» (AcademyService::paths)
+            'entity_ids' => ['nullable', 'array'],
+            'entity_ids.*' => ['integer', 'exists:entities,id'],
         ]);
     }
 
