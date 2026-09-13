@@ -184,6 +184,70 @@ class StoreAdminService
             ->withQueryString();
     }
 
+    /**
+     * تقرير استخدام الكوبونات (24.3 — «تصدير تقرير الاستخدام» في هيدر تاب
+     * الكوبونات): صفٌّ لكلّ طلبٍ مدفوعٍ استخدم الكوبون — الطلب والمستخدم وقيمة
+     * الخصم — وكوبونٌ لم يُستخدَم بعد يخرج **بصفٍّ واحدٍ فارغ الاستخدام**، لا
+     * يختفي من التقرير، فيرى المالك الكوبونات الميتة لا الفعّالة فقط.
+     *
+     * @return list<array<string,string>>
+     */
+    public function couponUsageRows(): array
+    {
+        $typeLabel = fn (Coupon $coupon) => $coupon->type === 'percent'
+            ? (string) setting('admin.store.partials.table_coupons.nsba', 'نسبة %')
+            : (string) setting('admin.store.partials.table_coupons.thabt', 'ثابت');
+
+        $statusLabel = fn (Coupon $coupon) => $coupon->is_active
+            ? (string) setting('admin.store.partials.table_coupons.nsht', 'نشط')
+            : (string) setting('admin.store.partials.table_coupons.mwqwf', 'موقوف');
+
+        $noUsageText = (string) setting('admin.store.coupons_export.no_usage', 'لا استخدام بعد');
+
+        $rows = [];
+
+        Coupon::query()
+            ->with(['orders' => fn ($q) => $q->with(['user', 'currency'])->orderByDesc('paid_at')])
+            ->orderBy('code')
+            ->each(function (Coupon $coupon) use (&$rows, $typeLabel, $statusLabel, $noUsageText) {
+                $base = [
+                    'code' => $coupon->code,
+                    'type' => $typeLabel($coupon),
+                    'value' => rtrim(rtrim(number_format((float) $coupon->value, 2), '0'), '.'),
+                    'used_total' => $coupon->used_count.' / '.($coupon->max_uses ?? '∞'),
+                    'status' => $statusLabel($coupon),
+                ];
+
+                if ($coupon->orders->isEmpty()) {
+                    $rows[] = $base + [
+                        'order_number' => $noUsageText,
+                        'user_code' => '',
+                        'user_name' => '',
+                        'discount_amount' => '',
+                        'order_total' => '',
+                        'currency' => '',
+                        'order_date' => '',
+                    ];
+
+                    return;
+                }
+
+                foreach ($coupon->orders as $order) {
+                    $rows[] = $base + [
+                        'order_number' => (string) ($order->number ?? $order->id),
+                        'user_code' => (string) ($order->user->code ?? ''),
+                        'user_name' => (string) ($order->user->name ?? ''),
+                        'discount_amount' => rtrim(rtrim(number_format((float) $order->discount, 2), '0'), '.'),
+                        'order_total' => rtrim(rtrim(number_format((float) $order->total, 2), '0'), '.'),
+                        'currency' => (string) ($order->currency->code ?? ''),
+                        'order_date' => optional($order->paid_at ?? $order->created_at)->format('Y-m-d H:i'),
+                    ];
+                }
+            });
+
+        return $rows;
+    }
+
     /** الطلبات — **بلا مسار استرجاع نقديّ** (19.4)، والتصحيح التقنيّ وحده البديل */
     /** الطلبات — ومع `$viewer` تُحصَر بنطاقه (12.2.1-ب) */
     public function orders(array $filters, ?User $viewer = null): LengthAwarePaginator

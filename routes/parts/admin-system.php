@@ -124,6 +124,10 @@ Route::middleware(['auth', 'admin.panel'])->prefix('admin')->name('admin.')->gro
         Route::post('/store/coupons/{coupon}/toggle', [StoreAdminController::class, 'toggleCoupon'])->name('store.coupons.toggle');
     });
 
+    // تصدير تقرير الاستخدام (24.3) — سلطةُ تصديرٍ مستقلّة عن سلطة العرض (12.2.2)
+    Route::middleware('permission:coupons.export')
+        ->get('/store/coupons/export', [StoreAdminController::class, 'exportCoupons'])->name('store.coupons.export');
+
     // ------------------------------------------------------------ Order-bump (17)
     Route::middleware('permission:order_bump.create')
         ->post('/store/order-bumps', [StoreAdminController::class, 'storeOrderBump'])->name('store.order-bumps.store');
