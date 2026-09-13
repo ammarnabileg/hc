@@ -92,8 +92,13 @@
                                         <td class="px-3 py-2">
                                             {{-- ما لا يملكه المستخدم **يُخفى** ولا يُعطَّل (2.15-أ-7) --}}
                                             @if ($canEdit)
+                                                {{-- منح صلاحيّة حسّاسة 🔒 يمرّ ببوب-أب تأكيد يسمّيها قبل أن يُتاح حفظه (12.2 الفورم/البوب-أب) --}}
                                                 <input type="checkbox" name="rows[{{ $permission->id }}][on]" value="1"
                                                        data-perm-toggle
+                                                       @if ($permission->is_sensitive)
+                                                           data-perm-sensitive
+                                                           data-perm-sensitive-label="{{ e($permission->label_ar).' ('.e($permission->key).')' }}"
+                                                       @endif
                                                        @checked($row['granted'])
                                                        aria-label="{{ strtr(setting('admin.roles.edit.tfayl_v1', 'تفعيل :v1'), [':v1' => e($permission->key)]) }}">
                                             @else
