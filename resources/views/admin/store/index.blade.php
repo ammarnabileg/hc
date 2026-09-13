@@ -24,6 +24,12 @@
                         {{-- 🔒 مجموعة معزولة: لا تظهر أصلًا لغير مالك المنصّة (12.2.1) --}}
                         <a class="block px-2 py-1 rounded hover:opacity-80" href="{{ route('admin.finance.index') }}"><x-icon name="lock" size="16" /> {{ setting('admin.store.index.almalyat', 'الماليّات') }}</a>
                     @endif
+                    @if ($tab === 'coupons')
+                        {{-- «تصدير تقرير الاستخدام» — سلطة مستقلّة `coupons.export` عن `coupons.list` (24.3 · 12.2.2) --}}
+                        @can('coupons.export')
+                            <a class="block px-2 py-1 rounded hover:opacity-80" href="{{ route('admin.store.coupons.export') }}">{{ setting('admin.store.index.tsdyr_tqryr_alistkhdam', 'تصدير تقرير الاستخدام') }}</a>
+                        @endcan
+                    @endif
                 </div>
             </details>
         </x-slot:action>

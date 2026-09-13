@@ -24,6 +24,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
  * لوحة المتجر (24.3-أوّلًا): المنتجات والتصنيفات · البندلز · الكوبونات وOrder-bump ·
@@ -703,6 +704,44 @@ class StoreAdminController extends Controller
         $this->audit($request, $coupon, 'coupons.edit', $old, ['is_active' => $coupon->is_active]);
 
         return back()->with('status', $coupon->is_active ? (string) setting('store.admin.toggle_coupon_ok', 'الكوبون اشتغل ✓') : (string) setting('store.admin.toggle_coupon_ok_2', 'الكوبون اتوقف ✓'));
+    }
+
+    /**
+     * «تصدير تقرير الاستخدام» في هيدر تاب الكوبونات (24.3) — صلاحيّةٌ مستقلّة
+     * `coupons.export` عن صلاحيّة العرض `coupons.list` (12.2.2)، فمن يرى الجدول
+     * لا يملك بالضرورة تصدير ملفٍّ منه.
+     */
+    public function exportCoupons(): StreamedResponse
+    {
+        $rows = $this->store->couponUsageRows();
+        $name = 'coupons-usage-'.now()->format('Ymd-His').'.csv';
+
+        return response()->streamDownload(function () use ($rows) {
+            $handle = fopen('php://output', 'w');
+            // BOM ليفتح إكسل العربيّة سليمةً بلا خطوة يدويّة
+            fwrite($handle, "\xEF\xBB\xBF");
+
+            fputcsv($handle, [
+                (string) setting('admin.store.coupons_export.col_code', 'الكود'),
+                (string) setting('admin.store.coupons_export.col_type', 'نوع الخصم'),
+                (string) setting('admin.store.coupons_export.col_value', 'القيمة'),
+                (string) setting('admin.store.coupons_export.col_used_total', 'إجماليّ الاستخدام / الحدّ'),
+                (string) setting('admin.store.coupons_export.col_status', 'الحالة'),
+                (string) setting('admin.store.coupons_export.col_order_number', 'رقم الطلب'),
+                (string) setting('admin.store.coupons_export.col_user_code', 'كود المستخدم'),
+                (string) setting('admin.store.coupons_export.col_user_name', 'اسم المستخدم'),
+                (string) setting('admin.store.coupons_export.col_discount_amount', 'قيمة الخصم في الطلب'),
+                (string) setting('admin.store.coupons_export.col_order_total', 'إجماليّ الطلب'),
+                (string) setting('admin.store.coupons_export.col_currency', 'العملة'),
+                (string) setting('admin.store.coupons_export.col_order_date', 'تاريخ الطلب'),
+            ]);
+
+            foreach ($rows as $row) {
+                fputcsv($handle, array_values($row));
+            }
+
+            fclose($handle);
+        }, $name, ['Content-Type' => 'text/csv; charset=UTF-8']);
     }
 
     // ---------------------------------------------------------------- Order-bump (17)
