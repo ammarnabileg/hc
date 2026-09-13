@@ -14,6 +14,11 @@
             'status' => $path->status,
             'forced_order' => (bool) $path->forced_order,
             'exam_price_coins' => (float) ($examPrices[$path->id] ?? $path->exam_price_coins),
+            // الأكاديمية (13.4-ل): العلامة + مسار الشهادة المستهدَف + الأقسام المربوطة
+            'id' => $path->id,
+            'is_academy' => (bool) $path->is_academy,
+            'target_path_id' => $path->target_path_id,
+            'entity_ids' => $pathEntityIds[$path->id] ?? [],
             'url' => route('admin.paths.update', $path),
         ], JSON_UNESCAPED_UNICODE);
     @endphp
@@ -97,7 +102,13 @@
                                 @endif
                             </td>
                             <td class="p-3">
-                                <div class="font-semibold">{{ $path->name_ar }}</div>
+                                <div class="font-semibold flex items-center gap-2">
+                                    {{ $path->name_ar }}
+                                    {{-- الأكاديمية (13.4-ل): مسار أكاديمية = نفس المسار بعلامة --}}
+                                    @if ($path->is_academy)
+                                        <x-state-badge state="ok" :label="setting('admin.courses.paths.akadymy', 'أكاديميّ')" />
+                                    @endif
+                                </div>
                                 @if ($path->name_en)
                                     <div class="text-xs" style="color: var(--text-muted)">{{ $path->name_en }}</div>
                                 @endif
@@ -252,6 +263,40 @@
                     </label>
                 </fieldset>
 
+                {{-- ⭐ الأكاديمية (13.4-ل): مسار أكاديمية = نفس المسار بعلامة + ربطه بأقسام + مسار الشهادة المستهدَف --}}
+                <fieldset class="card p-3">
+                    <legend class="text-sm px-1">{{ setting('admin.courses.paths.alakadymya', 'الأكاديمية') }}</legend>
+                    <label class="flex items-center gap-2 text-sm mt-2">
+                        <input type="checkbox" name="is_academy" value="1" data-academy-toggle>
+                        {{ setting('admin.courses.paths.msar_akadymy', 'مسار أكاديميّ (يظهر في تاب الأكاديمية بلوحة التطوّع)') }}
+                    </label>
+
+                    <div data-academy-fields hidden class="mt-3 space-y-3">
+                        <label class="block">
+                            <span class="block text-sm mb-1">{{ setting('admin.courses.paths.msar_alshhada_almstahdf', 'مسار الشهادة المستهدَف') }}</span>
+                            <select name="target_path_id" class="w-full rounded-xl px-3 py-2 text-sm"
+                                    style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
+                                <option value="">{{ setting('admin.courses.paths.bdwn_taalymy_srf', 'بدون — تعليميّ صِرف') }}</option>
+                                @foreach ($targetablePaths as $targetable)
+                                    <option value="{{ $targetable->id }}" data-target-path-option>{{ $targetable->name_ar }}</option>
+                                @endforeach
+                            </select>
+                            <span class="block text-xs mt-1" style="color: var(--text-muted)">{{ setting('admin.courses.paths.frath_yany_almsar_taalymy_srf_wla_yzh', 'فراغه يعني المسار تعليميّ صِرف، ولا يظهر زرّ «احصل على الشهادة».') }}</span>
+                        </label>
+
+                        <label class="block">
+                            <span class="block text-sm mb-1">{{ setting('admin.courses.paths.alaqsam_almrbwta', 'الأقسام المربوطة') }}</span>
+                            <select name="entity_ids[]" multiple size="5" class="w-full rounded-xl px-3 py-2 text-sm"
+                                    style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
+                                @foreach ($entities as $entity)
+                                    <option value="{{ $entity->id }}">{{ $entity->name_ar }}</option>
+                                @endforeach
+                            </select>
+                            <span class="block text-xs mt-1" style="color: var(--text-muted)">{{ setting('admin.courses.paths.bla_akhtyar_yany_kl_alaqsam', 'بلا اختيار = يظهر لكلّ الأقسام.') }}</span>
+                        </label>
+                    </div>
+                </fieldset>
+
                 <details>
                     <summary class="text-xs cursor-pointer" style="color: var(--text-muted)">{{ setting('admin.courses.paths.khyarat_mtqdma', 'خيارات متقدّمة') }}</summary>
                     <div class="mt-3 space-y-3">
@@ -288,6 +333,11 @@
             const pathForm = document.querySelector('[data-path-form]');
             const pathStoreUrl = @json(route('admin.paths.store'));
 
+            const academyToggle = pathForm?.querySelector('[data-academy-toggle]');
+            const academyFields = pathForm?.querySelector('[data-academy-fields]');
+            const syncAcademyVisibility = () => { if (academyFields) academyFields.hidden = !academyToggle?.checked; };
+            academyToggle?.addEventListener('change', syncAcademyVisibility);
+
             document.addEventListener('click', (e) => {
                 const btn = e.target.closest('[data-path], [data-path-new]');
                 if (!btn || !pathForm) return;
@@ -307,6 +357,25 @@
                 pathForm.querySelectorAll('[name="forced_order"]').forEach((radio) => {
                     radio.checked = String(Number(data?.forced_order ?? 0)) === radio.value;
                 });
+
+                // الأكاديمية (13.4-ل): العلامة + مسار الشهادة المستهدَف (بلا نفسه) + الأقسام المربوطة
+                if (academyToggle) academyToggle.checked = !!data?.is_academy;
+                syncAcademyVisibility();
+
+                const targetSelect = pathForm.querySelector('[name="target_path_id"]');
+                if (targetSelect) {
+                    targetSelect.querySelectorAll('[data-target-path-option]').forEach((opt) => {
+                        // مسار لا يجوز يستهدف شهادته نفسه
+                        opt.hidden = !!(data?.id) && Number(opt.value) === Number(data.id);
+                    });
+                    targetSelect.value = data?.target_path_id ? String(data.target_path_id) : '';
+                }
+
+                const entitySelect = pathForm.querySelector('[name="entity_ids[]"]');
+                if (entitySelect) {
+                    const selected = new Set((data?.entity_ids ?? []).map((id) => String(id)));
+                    [...entitySelect.options].forEach((opt) => { opt.selected = selected.has(opt.value); });
+                }
             });
         </script>
     @endpush

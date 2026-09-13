@@ -116,6 +116,8 @@ Round-trip · زرّ المصفوفة ينشئ/يحدّث قالب النوع و
   **مقيس:** `tests/Feature/Access/ScopeCeilingTest::test_role_editor_save_itself_refuses_instead_of_narrowing_silently`
   ينادي `RoleEditor::save()` مباشرةً (بلا كنترولر) بـ`org_chart.view@ALL` ⟵ رفضٌ
   في `rejected` ولا صفّ يُكتَب — `php artisan test --filter=ScopeCeilingTest`: 11/11 نجحت.
+
+- ✅ **[مقفولة 2026-09-13] `PathAdminController` — الأكاديمية (13.4-ل): لا واجهة لإنشاء/وسم مسارٍ أكاديميّ ولا لربطه بالأقسام.** الجهاز كان جاهزًا بالكامل خلف الكواليس (`learning_paths.is_academy`/`target_path_id` + جدول `academy_path_entity` + `AcademyService`/`AcademyController` يستهلكانهما فعليًّا في تاب الأكاديمية بلوحة التطوّع)، لكن `validated()` لا تصادق على هذه الحقول إطلاقًا — فالأدمن لا يملك أيّ طريقٍ لإنشاء مسارٍ أكاديميّ من الواجهة. أُضيف: `is_academy` (بوليان) · `target_path_id` (Nullable، `exists:learning_paths,id`، ويُمنَع أن يستهدف المسار نفسه بـ`Rule::notIn`) · `entity_ids[]` (Nullable، كلّ عنصر `exists:entities,id`) — بلا مفتاح صلاحيّةٍ جديد: الحقول امتدادٌ لنفس فورم `paths.create`/`paths.edit` الموجود، لا شاشة مستقلّة. **الدليل:** `tests/Feature/Volunteer/People/AcademyPathAdminLinkTest.php` — يغطّي الحفظ + القراءة في فورم التعديل + رفض التصويب الذاتيّ + الأثر الحقيقيّ على مَن يرى المسار بحسب قسمه.
 <!-- بيدك:نهاية:المتبقّي -->
 
 ## 🔄 الجاري الآن
@@ -127,6 +129,7 @@ Round-trip · زرّ المصفوفة ينشئ/يحدّث قالب النوع و
 - **✅ `WebhookController` جديد (2026-08-06 · 12.15-ب):** تسجيل/إيقاف/استئناف/تدوير سرّ/حذف/إعادة إرسال/اختبار — يُغلق الشقّ الثاني من §12.15 (تاب Webhooks) بجوار `ApiKeyController` من العميل السابق. الحارس: `tests/Feature/Admin/Developers/WebhookManagementTest.php` (20 اختبارًا).
 - **✅ `TerminalController` جديد (2026-08-06 · 12.15-هـ · v5.6، سجلّ القرارات 25):** إجراءٌ واحد (`run`) بحارسٍ owner-only صريح (`abort_unless($request->user()?->isPlatformOwner(), 403)`) **بلا** `permission:` على المسار — لا صلاحيّة لهذا التاب إطلاقًا بأمر المالك المباشر. و`DevelopersController::index()` عدَّل حراسته: تاب `terminal` يفحص `isPlatformOwner()` مباشرةً بدل `TAB_PERMISSIONS`. الحارس: `tests/Feature/Admin/Developers/TerminalTest.php` (8 اختبارات، منها Mutation حقيقيّ لحارس الملكيّة وحارس المهلة الزمنيّة).
 - **✅ [أُغلِقت 2026-09-10] شاشة `GuidanceController::notifications()`** — زرّا «قوالب البريد»/«معاينة الجرس» وعمودا «نصّ القالب»/«مفعّل» صاروا مبنيَّين فعليًّا بميزة `email_templates` الكاملة (`EmailTemplateAdminController` جديد) — التفصيل في البند أعلاه.
+- **✅ [أُغلِقت 2026-09-13] `PathAdminController` — الأكاديمية (13.4-ل)** — العلامة + مسار الشهادة المستهدَف + الربط بالأقسام صارت حقولًا في فورم `admin.courses.paths` — التفصيل في البند أعلاه.
 <!-- بيدك:نهاية:الجاري -->
 
 ## 🔗 التبعيّات والملفّات المهمّة

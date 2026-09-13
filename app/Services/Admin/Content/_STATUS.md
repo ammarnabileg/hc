@@ -35,6 +35,7 @@
 - ✅ **[مقفولة 2026-09-09] فجوة `settings:coverage --dead`: `media.picker.attachments_empty` صار مقروءًا.** كان مزروعًا (`AdminContentDemoSeeder:248`) بلا قارئ — `resources/views/admin/courses/lesson.blade.php` كانت تطبع مرفقات الدرس بـ`@foreach` عاريةٍ بلا فرعٍ للحالة الفارغة، فدرسٌ بلا مرفقات يطبع صفًّا فارغًا بلا أيّ نصّ. أُضيف وسمٌ ثابتٌ (`data-multi-empty`) داخل صندوق الرقائق يطبع `setting('media.picker.attachments_empty', …)`، ويُخفى بصنف `hidden` حين توجد مرفقات ابتداءً. وبما أنّ الرقائق تُضاف/تُزال أيضًا من جافاسكربت البوب-أب المشترك (`media-picker-modal.blade.php`) بلا إعادة تحميل الصفحة، أُضيف تبديل الصنف نفسه في مساري `applyMany()` وزرّ الإزالة حتّى لا يبقى النصّ ظاهرًا زورًا بجوار رقاقةٍ مضافةً لتوٍّها. لا صفّ سيدر جديد — المفتاح موجودٌ أصلًا. **الدليل:** اختباران جديدان في `LessonAttachmentsPickerTest` (`test_the_empty_state_text_shows_when_the_lesson_has_no_attachments` · `test_the_empty_state_text_stays_hidden_when_the_lesson_has_attachments`)، و`php artisan test --filter=LessonAttachmentsPickerTest` (6/6) و`tests/Feature/Admin/Content` كاملةً (128/128) قبل/بعد بلا فرق. `php artisan settings:hardcoded` بلا نصٍّ محروقٍ جديد (234 كالعتبة)، و`php artisan settings:coverage --dead` لم يعد يذكر المفتاح. طفرةٌ (قلب شرط `isEmpty()`) أسقطت الاختبارين الجديدين فأثبتت أنّهما يقيسان الفجوة فعلًا.
 - ✅ **[مقفولة 2026-08-05] `GuidanceComposer::STATUSES` صار `statuses()`.** 4 عناوين حالة إعلان صارت من `setting()` — تظهر فعلًا في `admin/guidance/index.blade.php`/`complaint.blade.php`. المفاتيح الداخليّة `STATUS_KEYS`. حُدِّث موضع القراءة في `GuidanceController`. المفاتيح في `AdminContentDemoSeeder`. **الدليل:** `php artisan test --filter=Guidance` (28) قبل/بعد بلا فرق.
 - `QuestionImporter.php` — **1** موضعًا: قيمة **تُطابَق في مدخلات CSV** («نعم» · رأس عمود «السؤال») — ثابتُ تحليلٍ لا نصُّ عرض؛ نقلُه يكسر الاستيراد.
+- ✅ **[مقفولة 2026-09-13] الأكاديمية (13.4-ل): `PathCourseService::save()` صار يكتب `is_academy`/`target_path_id`/الربط بالأقسام.** الفجوة: عمودا `learning_paths.is_academy`/`target_path_id` وجدول `academy_path_entity` **موجودون فعلًا** ويستهلكهما `AcademyService`/`AcademyController` بالكامل (تصفية «حسب قسمي» · نسبة التغطية · زرّ «احصل على الشهادة»)، لكن `PathAdminController::validated()` لا تعرف هذه الحقول إطلاقًا — فمسارٌ أكاديميّ **لم يكن قابلًا للإنشاء من الواجهة إطلاقًا** رغم أنّ الجهاز المستهلك جاهزٌ بالكامل. لم يكن هناك عمودٌ ناقص ولا جدولٌ ناقص — الفجوة كانت في الفورم والخدمة وحدهما. أُضيف: `save()` تكتب العلامة + مسار الشهادة المستهدَف، وتُزامِن `$path->entities()->sync(...)` (بلا اختيار = «الكلّ» كما يقرأها `AcademyService::paths()`)، و`entityIdsFor()` جديدة لتعبئة فورم التعديل، و`duplicate()` صار ينسخ ربط الأقسام أيضًا (كان يتوقّف عند الكورسات). **الدليل:** `tests/Feature/Volunteer/People/AcademyPathAdminLinkTest.php` (2 اختبارين) — الأوّل يثبت الحفظ + القراءة في فورم التعديل (Round-trip) + رفض استهداف المسار لنفسه بمسار شهادة؛ والثاني يثبت **الأثر الحقيقيّ**: متطوّعٌ في قسم الإعلام يرى مسارًا أكاديميًّا مربوطًا بقسمه فقط، ومتطوّع قسمٍ آخر لا يراه، ومسارٌ بلا علامة `is_academy` لا يظهر إطلاقًا ولو رُبِط بنفس القسم.
 
 **أوديت المرحلة 6 — 2026-08-03:**
 
@@ -47,8 +48,8 @@
 
 ## 🔄 الجاري الآن
 <!-- بيدك:بداية:الجاري -->
-- **الحالة:** أوديت فقط — بلا إصلاح.
-- **آخر نقطة وصلنا لها:** أُصدِرت شهادتان ونُشِر منشور واستُورِدت أسئلة عبر الشاشات.
+- **الحالة:** أُغلِقت فجوة الأكاديمية (13.4-ل) في `PathCourseService`.
+- **آخر نقطة وصلنا لها:** فورم المسار الحاليّ (`admin.courses.paths`) صار يحفظ/يقرأ `is_academy`/`target_path_id`/الربط بالأقسام — بلا شاشة جديدة.
 - **الخطوة الجاية:** —
 <!-- بيدك:نهاية:الجاري -->
 
