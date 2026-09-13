@@ -40,7 +40,10 @@
                         @endif
                         <button type="button" data-modal-open="apology-task" class="block w-full text-start rounded-lg px-2 py-1.5">{{ setting('volunteer.tasks_show.action_4', 'اعتذار') }}</button>
                         <button type="button" data-modal-open="subtasks-batch" class="block w-full text-start rounded-lg px-2 py-1.5">{{ setting('volunteer.tasks_show.action_5', 'Create Subtask (دفعة)') }}</button>
-                        <button type="button" data-modal-open="invite-contributor" class="block w-full text-start rounded-lg px-2 py-1.5">{{ setting('volunteer.tasks_show.action_6', 'دعوة مساهم') }}</button>
+                        {{-- دعوة المساهم لا تُفتَح إلا على صب-تاسك معتمد (23-2.3-٥) — تُخفى لا تُعطَّل (2.15-أ-7) --}}
+                        @if ($canInviteContributor)
+                            <button type="button" data-modal-open="invite-contributor" class="block w-full text-start rounded-lg px-2 py-1.5">{{ setting('volunteer.tasks_show.action_6', 'دعوة مساهم') }}</button>
+                        @endif
                         @if ($subtasks->isNotEmpty())
                             <button type="button" data-modal-open="flag-task" class="block w-full text-start rounded-lg px-2 py-1.5">{{ setting('volunteer.tasks_show.action_7', 'رفع علم: متأخّر بسبب…') }}</button>
                         @endif
@@ -228,7 +231,7 @@
                 </div>
             @empty
                 <p class="text-sm mb-3" style="color: var(--text-muted)">{{ setting('volunteer.tasks_show.text_17', 'مفيش مساهمين على المهمّة دي.') }}</p>
-                @if ($isOwner)
+                @if ($isOwner && $canInviteContributor)
                     <button type="button" data-modal-open="invite-contributor"
                             class="btn rounded-xl px-4 py-2 text-sm font-semibold"
                             style="background: var(--color-brand-500); color: #04201c">{{ setting('volunteer.tasks_show.action_6', 'دعوة مساهم') }}</button>
