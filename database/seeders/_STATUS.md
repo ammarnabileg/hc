@@ -100,6 +100,10 @@
 ## 🔄 الجاري الآن
 <!-- بيدك:بداية:الجاري -->
 - **الحالة:** مافيش شغل جارٍ.
+- **(2026-09-13) لمسة المكتبة الرقميّة (24.3):** صفوفٌ جديدة في `AdminScreenTextEngagementDemoSeeder`
+  (نصوص `new-item-modal.blade.php`/`table-library.blade.php` الجديدة)، و`HttpTextDemoSeeder`
+  (`store.admin.replace_file_ok`)، و`LibraryDemoSeeder` (`library.upload.*`/`library.storage.directory`
+  — إعدادات رفع الملفّ المحميّ). التفصيل الكامل في `resources/views/admin/store/_STATUS.md`.
 - **آخر نقطة وصلنا لها:** سيدران جديدان لنصوص الشاشات: `NavigationDemoSeeder` (لافتات السايد بارات — **الاسم يُعدَّل والبنية لا تُمَسّ**) و`VolunteerScreensDemoSeeder` (نصوص شاشات لوحة التطوّع — 1,705 مفاتيح). ولا يُسجَّلان في `DatabaseSeeder`؛ يلتقط `SettingDefinitionsSeeder` ميثوداتهما المنتهية بـ`settings` في مسار الإنتاج.
 - **الخطوة الجاية:** لا شيء معلّق من ناحية نصوص التطوّع والسايد بار.
 

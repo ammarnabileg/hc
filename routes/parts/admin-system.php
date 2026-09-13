@@ -97,6 +97,8 @@ Route::middleware(['auth', 'admin.panel'])->prefix('admin')->name('admin.')->gro
     Route::middleware('permission:store_products.edit')->group(function () {
         Route::put('/store/products/{product}', [StoreAdminController::class, 'updateProduct'])->name('store.products.update');
         Route::post('/store/products/{product}/archive', [StoreAdminController::class, 'archiveProduct'])->name('store.products.archive');
+        // استبدال الملفّ المحميّ (صفّ جدول المكتبة 24.3) — بمرفوعٍ لا برابط
+        Route::post('/store/products/{product}/file', [StoreAdminController::class, 'replaceProductFile'])->name('store.products.file.update');
     });
 
     Route::middleware('permission:product_protection.manage')

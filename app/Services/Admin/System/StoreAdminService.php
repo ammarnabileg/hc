@@ -208,6 +208,8 @@ class StoreAdminService
     {
         return Product::query()
             ->whereIn('type', ['digital', 'protected_pdf'])
+            // المالكون (عدد) — صفّ الجدول 24.3: كم مستخدمًا يملك هذا الملفّ الآن
+            ->withCount('entitlements')
             ->when($filters['q'] ?? null, fn ($q, $term) => $q->where('name_ar', 'like', "%{$term}%"))
             ->when(($filters['protection'] ?? null) === 'flip', fn ($q) => $q->where('is_downloadable', false))
             ->when(($filters['protection'] ?? null) === 'download', fn ($q) => $q->where('is_downloadable', true))
