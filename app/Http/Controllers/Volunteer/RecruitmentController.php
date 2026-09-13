@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Services\Volunteer\People\AuditTrail;
 use App\Services\Volunteer\People\CandidatePipeline;
 use App\Services\Volunteer\People\PlacementService;
+use App\Services\Volunteer\People\RecruitmentFunnel;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -27,6 +28,7 @@ class RecruitmentController extends Controller
         private readonly CandidatePipeline $pipeline,
         private readonly PlacementService $placement,
         private readonly AuditTrail $audit,
+        private readonly RecruitmentFunnel $funnel,
     ) {}
 
     public function index(Request $request): View
@@ -139,6 +141,52 @@ class RecruitmentController extends Controller
         }, (string) setting('volunteer.people_recruitment.export_file', 'candidates.csv'), [
             'Content-Type' => 'text/csv; charset=UTF-8',
         ]);
+    }
+
+    /**
+     * ⭐ قمع التطوّع (24.4 — تحليلات التطوّع): بدأ ⟵ أتمّ ⟵ مقابلة ⟵ مقبول ⟵
+     * مُسكَّن مع متوسّط زمن كلّ مرحلة — شاشة مستقلّة بصلاحيّتها الخاصّة
+     * `recruitment_analytics.view` لا `candidates.list` (12.2.1-ب).
+     */
+    public function analytics(Request $request): View
+    {
+        $user = $request->user();
+
+        $filters = [
+            'days' => $request->integer('days') ?: null,
+            'entity' => $request->integer('entity') ?: null,
+        ];
+
+        return view('volunteer.people.recruitment.analytics', [
+            'funnel' => $this->funnel->compute($user, $filters),
+            'filters' => $filters,
+            'tree' => $this->pipeline->entityTree(),
+            'canExport' => $user->allows('recruitment_analytics.export'),
+        ]);
+    }
+
+    /** تصدير CSV لقمع التطوّع — بصلاحيّة التصدير المستقلّة `recruitment_analytics.export` */
+    public function exportAnalytics(Request $request): StreamedResponse
+    {
+        $filters = [
+            'days' => $request->integer('days') ?: null,
+            'entity' => $request->integer('entity') ?: null,
+        ];
+
+        $computed = $this->funnel->compute($request->user(), $filters);
+        $rows = $this->funnel->toCsvRows($computed);
+        $filename = 'recruitment-funnel-'.now()->format('Ymd-His').'.csv';
+
+        return response()->streamDownload(function () use ($rows) {
+            $out = fopen('php://output', 'w');
+            fwrite($out, "\xEF\xBB\xBF");
+
+            foreach ($rows as $row) {
+                fputcsv($out, $row);
+            }
+
+            fclose($out);
+        }, $filename, ['Content-Type' => 'text/csv; charset=UTF-8']);
     }
 
     /** بانل تفاصيل المرشّح — يفتح بوب-أب بلا مغادرة اللوحة (2.15-أ-6) */

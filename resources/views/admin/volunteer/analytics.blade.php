@@ -58,6 +58,57 @@
         </section>
     </div>
 
+    @if ($canViewFunnel)
+        @php $durationsByFrom = collect($funnel['durations'])->keyBy('from_key'); @endphp
+        <section class="card p-4 md:p-5 mt-4">
+            <div class="flex items-center justify-between gap-3 mb-3">
+                <h2 class="font-bold">{{ setting('admin.volunteer.analytics.qmc_alttwa', 'قمع التطوّع') }}</h2>
+                @if ($canExportFunnel)
+                    <a href="{{ route('admin.volunteer.analytics.recruitment-funnel.export', ['days' => $days]) }}"
+                       class="rounded-xl px-3 py-1.5 text-xs" style="background: var(--surface-sunken)">{{ setting('admin.volunteer.analytics.tsdyr_csv', 'تصدير CSV') }}</a>
+                @endif
+            </div>
+
+            @if ($funnel['total'] === 0)
+                <x-empty :message="setting('admin.volunteer.analytics.la_byanat_kafya_fy_almda_dh', 'لا بيانات كافية في المدى ده.')" />
+            @else
+                <div class="space-y-3">
+                    @foreach ($funnel['stages'] as $stage)
+                        <div>
+                            <div class="flex items-center justify-between text-sm mb-1">
+                                <span class="font-semibold">{{ $stage['label'] }}</span>
+                                <span style="color: var(--text-muted)">
+                                    {{ $stage['count'] }}
+                                    @if ($stage['pct_of_start'] !== null)
+                                        ({{ $stage['pct_of_start'] }}%)
+                                    @endif
+                                </span>
+                            </div>
+                            <div class="rounded-full overflow-hidden" style="background: var(--surface-sunken); height: 10px">
+                                <div style="width: {{ $stage['pct_of_start'] ?? 0 }}%; background: var(--color-brand-500); height: 100%"></div>
+                            </div>
+
+                            @php $duration = $durationsByFrom->get($stage['key']); @endphp
+                            @if ($duration)
+                                <p class="text-xs mt-1" style="color: var(--text-muted)">
+                                    @if ($duration['avg_days'] !== null)
+                                        {!! strtr(setting('admin.volunteer.analytics.qmc_mtwsst_alzmn', 'متوسّط الزمن حتّى :to — :days يومًا (:sample مرشّحًا)'), [
+                                            ':to' => $duration['to_label'],
+                                            ':days' => $duration['avg_days'],
+                                            ':sample' => $duration['sample'],
+                                        ]) !!}
+                                    @else
+                                        {{ setting('admin.volunteer.analytics.qmc_bla_ayna', 'لا مرشّح أكمل هذه النقلة بعد.') }}
+                                    @endif
+                                </p>
+                            @endif
+                        </div>
+                    @endforeach
+                </div>
+            @endif
+        </section>
+    @endif
+
     <section class="card p-4 md:p-5 mt-4">
         <h2 class="font-bold mb-3">{{ setting('admin.volunteer.analytics.tqryr_alsaa_alakthr_tkhma_walakthr_fragha', 'تقرير السعة — الأكثر تخمةً والأكثر فراغًا') }}</h2>
         @forelse ($capacity->sortByDesc('percent')->take((int) setting('volunteer.analytics.top_rows', 10)) as $row)
