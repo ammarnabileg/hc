@@ -105,6 +105,17 @@ Route::middleware(['auth', 'admin.panel'])->prefix('admin')->name('admin.')->gro
     Route::middleware('permission:product_categories.create')
         ->post('/store/categories', [StoreAdminController::class, 'storeCategory'])->name('store.categories.store');
 
+    Route::middleware('permission:product_categories.edit')->group(function () {
+        Route::put('/store/categories/{category}', [StoreAdminController::class, 'updateCategory'])->name('store.categories.update');
+        Route::post('/store/categories/reorder', [StoreAdminController::class, 'reorderCategories'])->name('store.categories.reorder');
+    });
+
+    Route::middleware('permission:product_categories.archive')
+        ->post('/store/categories/{category}/archive', [StoreAdminController::class, 'toggleCategoryArchive'])->name('store.categories.archive');
+
+    Route::middleware('permission:product_categories.delete')
+        ->delete('/store/categories/{category}', [StoreAdminController::class, 'destroyCategory'])->name('store.categories.destroy');
+
     Route::middleware('permission:bundles.create')
         ->post('/store/bundles', [StoreAdminController::class, 'storeBundle'])->name('store.bundles.store');
 

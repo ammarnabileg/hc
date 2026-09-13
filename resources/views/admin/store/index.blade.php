@@ -15,6 +15,19 @@
                     class="btn rounded-xl px-4 py-2 text-sm font-semibold"
                     style="background: var(--color-brand-500); color: #04201c">{{ setting('admin.store.index.ansr_jdyd', '+ عنصر جديد') }}</button>
 
+            @php
+                /* «+ تصنيف» منصوصةٌ حرفيًّا بجوار «+ منتج» في هيدر 24.3 — وشاشتها مودال
+                   إدارة كامل (إضافة/تعديل/أرشفة/حذف/ترتيب)، فتظهر لمن يملك أيّ فعل عليها
+                   (2.15-أ-7: المحظور يُخفى لا يُعطَّل) لا صلاحيّة العرض وحدها. */
+                $canManageCategories = collect(['list', 'create', 'edit', 'archive', 'delete'])
+                    ->contains(fn ($action) => auth()->user()?->allows("product_categories.{$action}"));
+            @endphp
+            @if ($tab === 'products' && $canManageCategories)
+                <button type="button" data-modal-open="categories"
+                        class="btn rounded-xl px-4 py-2 text-sm font-semibold"
+                        style="background: var(--surface-raised)">{{ setting('admin.store.index.tsnyf_jdyd', '+ تصنيف') }}</button>
+            @endif
+
             <details class="relative">
                 <summary class="cursor-pointer rounded-xl px-3 py-2 text-sm" style="background: var(--surface-raised)">⋯</summary>
                 <div class="absolute end-0 mt-2 w-56 card p-2 z-20 text-sm space-y-1">
@@ -95,6 +108,9 @@
     @endif
 
     @include('admin.store.partials.new-item-modal')
+    @if ($tab === 'products')
+        @include('admin.store.partials.categories-modal')
+    @endif
 @endsection
 
 @section('mobile_action')

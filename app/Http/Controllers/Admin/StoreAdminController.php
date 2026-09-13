@@ -19,6 +19,7 @@ use App\Services\Store\BundleLanding;
 use App\Services\Store\BundleScreenSettings;
 use App\Services\Store\PricingService;
 use App\Services\Store\StoreCatalog;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -235,6 +236,70 @@ class StoreAdminController extends Controller
         $this->audit($request, $category, 'product_categories.create', [], $data);
 
         return back()->with('status', (string) setting('store.admin.store_category_ok', 'التصنيف اتضاف ✓'));
+    }
+
+    /** ⭐ تعديل اسم التصنيف (`product_categories.edit` — «تعديل اسم التصنيف وترتيبه») */
+    public function updateCategory(Request $request, ProductCategory $category): RedirectResponse
+    {
+        $data = $request->validate([
+            'name_ar' => ['required', 'string', 'max:190'],
+            'name_en' => ['nullable', 'string', 'max:190'],
+        ]);
+
+        $old = $category->only(array_keys($data));
+        $category->update($data);
+        $this->audit($request, $category, 'product_categories.edit', $old, $data);
+
+        return back()->with('status', (string) setting('store.admin.update_category_ok', 'التصنيف اتعدّل ✓'));
+    }
+
+    /**
+     * ⭐ **أرشفة لا حذف** (`product_categories.archive` — «أرشفة تصنيف دون فقد
+     * ارتباط منتجاته»): يختفي التصنيف من فورم منتج جديد وحده، ومنتجاته
+     * الحاليّة تبقى مرتبطة به بلا أيّ تغيير — عكس `destroyCategory` الذي يفكّ
+     * الارتباط فعلًا.
+     */
+    public function toggleCategoryArchive(Request $request, ProductCategory $category): RedirectResponse
+    {
+        $old = ['is_active' => $category->is_active];
+        $category->update(['is_active' => ! $category->is_active]);
+        $this->audit($request, $category, 'product_categories.archive', $old, ['is_active' => $category->is_active]);
+
+        return back()->with('status', $category->is_active
+            ? (string) setting('store.admin.unarchive_category_ok', 'التصنيف رجع ظاهر ✓')
+            : (string) setting('store.admin.archive_category_ok', 'التصنيف اتخفى عن فورم المنتج الجديد — ومنتجاته زيّ ما هي ✓'));
+    }
+
+    /**
+     * ⭐ **حذف نهائيّ بتأكيد** (`product_categories.delete`). ولا يمسّ منتجًا
+     * واحدًا: `product_category_id` `nullOnDelete` بالمخطّط، فمنتجات التصنيف
+     * تصير **بلا تصنيف** لا تُحذَف ولا تُفقَد — والعدد المتأثّر يُسجَّل بالأوديت.
+     */
+    public function destroyCategory(Request $request, ProductCategory $category): RedirectResponse
+    {
+        $affected = $category->products()->count();
+        $old = $category->only(['name_ar', 'name_en', 'sort_order']);
+        $category->delete();
+
+        $this->audit($request, $category, 'product_categories.delete', $old, ['products_uncategorized' => $affected]);
+
+        return back()->with('status', $affected > 0
+            ? strtr((string) setting('store.admin.destroy_category_with_products_ok', 'التصنيف اتحذف — و:a1 منتج بقى بلا تصنيف ✓'), [':a1' => (string) $affected])
+            : (string) setting('store.admin.destroy_category_ok', 'التصنيف اتحذف ✓'));
+    }
+
+    /** سحب لإعادة الترتيب — نفس منطق `sortable.blade.php` العامّ (`product_categories.edit`) */
+    public function reorderCategories(Request $request): JsonResponse|RedirectResponse
+    {
+        $data = $request->validate(['ids' => ['required', 'array'], 'ids.*' => ['integer']]);
+
+        foreach ($data['ids'] as $index => $id) {
+            ProductCategory::whereKey($id)->update(['sort_order' => $index]);
+        }
+
+        $message = (string) setting('store.admin.reorder_category_ok', 'اتظبط ترتيب التصنيفات ✓');
+
+        return $request->expectsJson() ? response()->json(['message' => $message]) : back()->with('status', $message);
     }
 
     /**
