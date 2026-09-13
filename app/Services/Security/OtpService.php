@@ -7,6 +7,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 
 /**
@@ -78,6 +79,24 @@ class OtpService
     public function verify(string $email, string $purpose, string $code): array
     {
         $email = Str::lower(trim($email));
+
+        /*
+        | ⛔ **حدٌّ كلّيٌّ مستقلٌّ عن عدّاد الصفّ** (2.5-ب — الملاحظة الأمنيّة الصريحة
+        | على رمز التسجيل الثابت): عدّاد `attempts` على الصفّ يُصفَّر مع كلّ
+        | إعادة إرسال (`send()`)، فمهاجمٌ يطلب إعادة إرسال كلّ دقيقة (المهلة
+        | الدنيا بين الإرسالتين) يمحو قفل الخمس محاولات ويُخمِّن مدى الحياة —
+        | ورمز التسجيل تحديدًا **لا يتغيّر أبدًا** فلا مهلة صلاحيّة تحميه أيضًا.
+        | فحدٌّ ثانٍ بـ`RateLimiter` على البريد نفسه (لا على الصفّ) لا يُصفَّر
+        | بإعادة الإرسال، لأنّه لا يُمَسّ إلا هنا — عند تخمينٍ خاطئ.
+        */
+        $rateKey = "otp-verify:{$purpose}:{$email}";
+        $rateMax = max(1, (int) setting('auth.otp.rate_limit.max_attempts', 15));
+        $rateWindow = max(60, (int) setting('auth.otp.rate_limit.window_minutes', 60)) * 60;
+
+        if (RateLimiter::tooManyAttempts($rateKey, $rateMax)) {
+            return ['ok' => false, 'message' => (string) setting('auth.otp.error_locked', 'جرّبت كتير. استنّى شويّة واطلب رمزًا جديدًا.')];
+        }
+
         $row = $this->row($email, $purpose);
 
         if (! $row) {
@@ -98,11 +117,15 @@ class OtpService
             DB::table('security_otp_codes')->where('id', $row->id)
                 ->update(['attempts' => (int) $row->attempts + 1, 'updated_at' => now()]);
 
+            RateLimiter::hit($rateKey, $rateWindow);
+
             return ['ok' => false, 'message' => (string) setting('auth.otp.error_wrong', 'الرمز مش مظبوط. راجع بريدك وجرّب تاني.')];
         }
 
         DB::table('security_otp_codes')->where('id', $row->id)
             ->update(['verified_at' => now(), 'attempts' => 0, 'updated_at' => now()]);
+
+        RateLimiter::clear($rateKey);
 
         return ['ok' => true, 'message' => (string) setting('auth.otp.success', 'اتأكّد ✓')];
     }

@@ -2,10 +2,12 @@
 
 namespace Tests\Feature\Security;
 
+use App\Models\Setting;
 use App\Models\User;
 use App\Services\Onboarding\OnboardingJourney;
 use App\Services\Security\OtpService;
 use App\Services\Security\RequireVerifiedEmail;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
@@ -204,6 +206,64 @@ class PasswordAndOtpTest extends SecurityTestCase
         $this->assertFalse($second['sent']);
         $this->assertGreaterThan(0, $second['wait']);
         $this->assertGreaterThan(0, $otp->secondsUntilResend('wait@test.local', OtpService::PURPOSE_REGISTER));
+    }
+
+    /**
+     * ⛔ **الحدّ الكلّيّ لا يُصفَّر بإعادة الإرسال** (2.5-ب — الملاحظة الأمنيّة على
+     * الرمز الثابت). قبل هذا الإصلاح: عدّاد `attempts` على الصفّ يُصفَّر مع كلّ
+     * `send()`، فمهاجمٌ يطلب إعادة إرسال (بعد مهلةٍ قصيرة) كلّما وصل لخمس محاولات
+     * خاطئة يمحو القفل ويخمّن رمزًا **ثابتًا مدى الحياة** بلا حدٍّ نهائيّ. هنا
+     * نكرّر «تخمين خاطئ ثمّ إعادة إرسال» أكثر من `auth.otp.max_attempts` بكثير
+     * (أكثر من حدّنا الكلّيّ الجديد `auth.otp.rate_limit.max_attempts`)، ونثبت أنّ
+     * القفل يصمد رغم إعادة الإرسال المتكرّرة — لا يعود لصفرٍ كلّ مرّة.
+     */
+    public function test_a_total_attempt_cap_survives_repeated_resends(): void
+    {
+        Mail::fake();
+
+        Setting::updateOrCreate(['key' => 'auth.otp.rate_limit.max_attempts'], ['value' => '3', 'group' => 'security', 'type' => 'number']);
+        Setting::updateOrCreate(['key' => 'auth.otp.max_attempts'], ['value' => '2', 'group' => 'security', 'type' => 'number']);
+        Cache::forget('settings');
+
+        $otp = app(OtpService::class);
+        $email = 'grinder@test.local';
+
+        // خمس دورات «إعادة إرسال (يُصفِّر عدّاد الصفّ) ⟵ تخمين خاطئ» — أكثر من
+        // حدّ الصفّ (2) وأكثر من الحدّ الكلّيّ الجديد (3) معًا
+        $result = null;
+
+        for ($i = 0; $i < 5; $i++) {
+            $otp->send($email, OtpService::PURPOSE_REGISTER);
+            DB::table('security_otp_codes')->where('email', $email)->update(['sent_at' => now()->subHour()]);
+
+            $result = $otp->verify($email, OtpService::PURPOSE_REGISTER, '0000');
+        }
+
+        // ⭐ لو كان الحدّ الكلّيّ غائبًا لبقي الردّ «رمز غلط» — لا «قفلًا» — رغم خمس محاولاتٍ فعليّة
+        $this->assertSame((string) setting('auth.otp.error_locked'), $result['message']);
+    }
+
+    /** ⭐ والنجاح يمسح الحدّ الكلّيّ — مستخدمٌ أخطأ مرّتين ثمّ أصاب لا يبقى مقفولًا لاحقًا */
+    public function test_a_correct_code_clears_the_total_attempt_cap(): void
+    {
+        Mail::fake();
+
+        $otp = app(OtpService::class);
+        $email = 'redeemed@test.local';
+
+        $otp->send($email, OtpService::PURPOSE_REGISTER);
+        $otp->verify($email, OtpService::PURPOSE_REGISTER, '0000');
+        $otp->verify($email, OtpService::PURPOSE_REGISTER, '1111');
+
+        $code = $this->plainCode($email, OtpService::PURPOSE_REGISTER);
+        $this->assertTrue($otp->verify($email, OtpService::PURPOSE_REGISTER, $code)['ok']);
+
+        // دورة جديدة بعد النجاح — ومفروض تفتح عاديّ بلا أثرٍ من الأخطاء القديمة
+        DB::table('security_otp_codes')->where('email', $email)->update(['sent_at' => now()->subHour()]);
+        $otp->send($email, OtpService::PURPOSE_REGISTER);
+        $again = $this->plainCode($email, OtpService::PURPOSE_REGISTER);
+
+        $this->assertTrue($otp->verify($email, OtpService::PURPOSE_REGISTER, $again)['ok']);
     }
 
     /** بريد مستعمَل بالفعل يعدّي للمتحكّم ليقول رسالته — ولا نبعت رمزًا لبريد مرفوض */

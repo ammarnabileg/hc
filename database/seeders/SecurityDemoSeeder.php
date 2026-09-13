@@ -44,6 +44,9 @@ class SecurityDemoSeeder extends Seeder
             ['auth.otp.resend_seconds', 'security', 'مهلة إعادة إرسال الرمز (ثوانٍ)', 'number', '60'],
             ['auth.otp.max_attempts', 'security', 'أقصى محاولات للرمز', 'number', '5'],
             ['auth.otp.ttl_minutes', 'security', 'صلاحيّة الرموز المؤقّتة (دقائق)', 'number', '15'],
+            // ⛔ حدٌّ كلّيٌّ لا يُصفَّر بإعادة الإرسال (2.5-ب) — يحمي الرمز الثابت من التخمين مدى الحياة
+            ['auth.otp.rate_limit.max_attempts', 'security', 'أقصى محاولات خاطئة إجماليّة قبل القفل الطويل', 'number', '15'],
+            ['auth.otp.rate_limit.window_minutes', 'security', 'مدّة القفل الطويل بعد تجاوز الحدّ (دقائق)', 'number', '60'],
             ['auth.otp.title', 'security', 'عنوان شاشة التحقّق', 'string', 'أكّد بريدك'],
             ['auth.otp.hint', 'security', 'شرح شاشة التحقّق', 'text', 'هنبعت رمز من {length} أرقام على {email} — نتأكّد إنّه بريدك فعلًا.'],
             ['auth.otp.send_label', 'security', 'زرّ الإرسال', 'string', 'إرسال'],
