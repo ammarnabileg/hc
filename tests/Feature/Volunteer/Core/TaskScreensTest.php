@@ -4,6 +4,7 @@ namespace Tests\Feature\Volunteer\Core;
 
 use App\Models\Membership;
 use App\Models\Task;
+use App\Models\TaskContribution;
 use App\Models\TaskTodo;
 use App\Models\Transaction;
 use Database\Seeders\VolunteerCoreDemoSeeder;
@@ -92,6 +93,81 @@ class TaskScreensTest extends VolunteerCoreTestCase
         $this->assertTrue($todo->refresh()->is_done);
         // ولا معاملة واحدة تولّدت من التودو
         $this->assertSame(0, Transaction::count());
+    }
+
+    /**
+     * تسريب خصوصيّة التودو (23-2.1 · مصفوفة 12.2.2 `todos.view`: SELF المالك ·
+     * TEAM الأبلاين المباشر فقط — لا SUBTREE ولا ENTITY نصًّا): المالك يرى
+     * تودوه، وأبلاينه المباشر يراه قراءةً — وأيّ طرفٍ آخر وصل شاشة المهمّة
+     * بنطاقٍ أوسع (SUBTREE) أو كمساهم **لا يرى تودو المالك إطلاقًا**، رغم أنّ
+     * وصوله لصفحة المهمّة نفسها مشروعٌ تمامًا عبر `tasks.view`/`TaskBoard::canSee`.
+     */
+    public function test_todo_visibility_is_owner_and_direct_upline_only_not_wider_task_viewers(): void
+    {
+        $entity = $this->makeEntity();
+
+        $owner = $this->makeUser('صاحب المهمّة');
+        $directUpline = $this->makeUser('الأبلاين المباشر');
+        $skipLevelUpline = $this->makeUser('أبلاين أعلى بنطاق SUBTREE');
+        $contributor = $this->makeUser('مساهم على المهمّة');
+
+        // السلسلة: صاحب المهمّة ⟵ (upline) الأبلاين المباشر ⟵ (upline) الأبلاين الأعلى
+        $skipLevelMembership = $this->makeMembership($skipLevelUpline, $entity, 'supervisor');
+        $directUplineMembership = $this->makeMembership($directUpline, $entity, 'team_leader', $skipLevelMembership);
+        $this->makeMembership($owner, $entity, 'coordinator', $directUplineMembership);
+        $this->makeMembership($contributor, $entity, 'coordinator');
+
+        $this->grant($owner, ['tasks.view', 'tasks.list', 'todos.create', 'todos.edit', 'todos.delete'], 'SELF');
+        $this->grant($directUpline, ['tasks.view', 'tasks.list'], 'TEAM');
+        // نطاقٌ أوسع من TEAM — SUBTREE يوصّله شرعًا لشاشة المهمّة، لا لتودو صاحبها
+        $this->grant($skipLevelUpline, ['tasks.view', 'tasks.list'], 'SUBTREE');
+        // ENTITY لا TEAM ولا SELF — كيان المساهم نفس كيان المهمّة، ومصفوفة
+        // 12.2.2 تُجيز ENTITY لـ`tasks.view` صراحةً؛ مساهمته الحقيقيّة أدناه
+        // تفتح له الصفحة كذلك عبر `TaskBoard::canSee` بصرف النظر عن النطاق.
+        $this->grant($contributor, ['tasks.view', 'tasks.list'], 'ENTITY');
+
+        $task = $this->makeTask($owner, $entity);
+
+        // مساهمة حقيقيّة تفتح صفحة المهمّة لمساهمٍ بلا أيّ نطاق أصلًا (`TaskBoard::canSee`)
+        TaskContribution::create([
+            'task_id' => $task->id,
+            'contributor_id' => $contributor->id,
+            'invited_by' => $owner->id,
+            'item_title' => 'بند مساهمة',
+            'internal_deadline_at' => now()->addDay(),
+            'status' => 'accepted',
+            'invited_at' => now(),
+        ]);
+
+        $this->actingAs($owner)
+            ->post(route('volunteer.tasks.todos.store', $task), ['body' => 'بند سرّي لصاحب المهمّة'])
+            ->assertSessionHasNoErrors();
+
+        $this->assertTrue(TaskTodo::where('task_id', $task->id)->exists());
+
+        // المالك يرى تودوه
+        $this->actingAs($owner)
+            ->get(route('volunteer.tasks.show', ['task' => $task, 'tab' => 'todos']))
+            ->assertOk()
+            ->assertSee('بند سرّي لصاحب المهمّة');
+
+        // الأبلاين المباشر يرى تودو صاحبه — قراءةً فقط، وهذا حقّه المنصوص
+        $this->actingAs($directUpline)
+            ->get(route('volunteer.tasks.show', ['task' => $task, 'tab' => 'todos']))
+            ->assertOk()
+            ->assertSee('بند سرّي لصاحب المهمّة');
+
+        // الأبلاين الأعلى يصل الصفحة شرعًا (SUBTREE) — ولا يرى تودو المالك
+        $this->actingAs($skipLevelUpline)
+            ->get(route('volunteer.tasks.show', ['task' => $task, 'tab' => 'todos']))
+            ->assertOk()
+            ->assertDontSee('بند سرّي لصاحب المهمّة');
+
+        // المساهم يصل صفحة المهمّة (canSee) — ولا يرى تودو المالك
+        $this->actingAs($contributor)
+            ->get(route('volunteer.tasks.show', ['task' => $task, 'tab' => 'todos']))
+            ->assertOk()
+            ->assertDontSee('بند سرّي لصاحب المهمّة');
     }
 
     /**
