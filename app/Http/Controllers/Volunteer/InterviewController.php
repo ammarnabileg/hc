@@ -100,7 +100,14 @@ class InterviewController extends Controller
         return back()->with('status', (string) setting('interviews.screen.store_ok', 'اتجدولت ✓ والطرفان اتبلّغوا.'));
     }
 
-    /** الحالات الأربع: مجدولة · تمّت · لم يحضر · مُلغاة */
+    /**
+     * الحالات الأربع: مجدولة · تمّت · لم يحضر · مُلغاة.
+     *
+     * ⭐ الإلغاء فعلٌ مستقلّ بصلاحيّته الخاصّة (12.2.2 · `interviews.delete` ·
+     * شرط «الحالة = مجدولة») — لا يكفي فيه `interviews.edit` الذي يحرس المسار
+     * عمومًا (إعادة الجدولة أو تعديل الرابط قبل الديدلاين، 12.2.2). فمَن يملك
+     * `interviews.edit` وحدها يقدر يعيد الجدولة لكن **لا يلغي**.
+     */
     public function status(Request $request, Interview $interview): RedirectResponse
     {
         $data = $request->validate([
@@ -108,6 +115,11 @@ class InterviewController extends Controller
             'reason' => ['nullable', 'string', 'max:255'],
             'scheduled_at' => ['nullable', 'date'],
         ]);
+
+        if ($data['status'] === 'cancelled') {
+            abort_unless($request->user()->allows('interviews.delete', $interview), 403,
+                (string) setting('interviews.screen.status_forbidden_cancel', 'إلغاء المقابلة يحتاج صلاحيّة مستقلّة (interviews.delete) — لا يكفيها تعديلها.'));
+        }
 
         try {
             if (! empty($data['scheduled_at'])) {

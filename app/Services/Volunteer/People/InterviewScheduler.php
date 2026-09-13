@@ -128,7 +128,34 @@ class InterviewScheduler
         $this->audit->record($actor, 'interview.status_changed', $interview,
             ['status' => $old], ['status' => $status, 'reason' => $reason]);
 
+        if ($status === 'cancelled') {
+            $this->notifyCancellation($interview, (string) $reason);
+        }
+
         return $interview;
+    }
+
+    /**
+     * إشعار الطرفين بإلغاء المقابلة وسببها — نفس آليّة `schedule()` أعلاه
+     * (12.2.2 · `interviews.delete` · «إلغاء المقابلة بسبب إلزاميّ مع إشعار الطرفين»).
+     */
+    private function notifyCancellation(Interview $interview, string $reason): void
+    {
+        $interview->loadMissing(['interviewer', 'recruitment_candidate.user']);
+        $candidate = $interview->recruitment_candidate;
+
+        if ($interview->interviewer) {
+            $this->bridge->notify($interview->interviewer, 'recruitment', setting('recruitment.interview_scheduler.set_status_3', 'اتلغت مقابلة'),
+                strtr(setting('recruitment.interview_scheduler.set_status_4', 'مقابلتك مع المرشّح :p1 اتلغت — السبب: :p2'), [
+                    ':p1' => (string) ($candidate?->user?->name ?? '—'),
+                    ':p2' => $reason,
+                ]), route('volunteer.interviews'));
+        }
+
+        if ($candidate?->user) {
+            $this->bridge->notify($candidate->user, 'recruitment', setting('recruitment.interview_scheduler.set_status_5', 'اتلغت مقابلتك'),
+                strtr(setting('recruitment.interview_scheduler.set_status_6', 'مقابلتك المجدولة اتلغت — السبب: :p1'), [':p1' => $reason]));
+        }
     }
 
     /** إعادة الجدولة بعد «لم يحضر» — دعوة جديدة بموعد جديد */

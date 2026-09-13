@@ -38,6 +38,19 @@
 
 > فجوات أثبتها **أوديت المرحلة 8 (13.4)** بالتشغيل يوم 2026-08-03 — والدستور أصلٌ والمبنيّ فرعٌ عنه.
 
+- ✅ **[مقفولة 2026-09-13] `interviews.delete` معرَّفة في المصفوفة (12.2.2 ·
+  1473) ولا تُفحَص في أيّ مكان — والإلغاء بلا إشعارٍ للطرفين رغم نصّ الصلاحيّة
+  صراحةً «مع إشعار الطرفين».** `InterviewController::status()` صار يفرض
+  `interviews.delete` حين `status === 'cancelled'` (تفصيله في
+  `app/Http/Controllers/Volunteer/_STATUS.md`)، و`InterviewScheduler::setStatus()`
+  صار يستدعي `notifyCancellation()` — نفس آليّة `PeopleBridge::notify()`
+  المستعملة في `schedule()` أعلاه — فيصل إشعارٌ للمُقابِل وللمرشّح معًا بسبب
+  الإلغاء، ونصوصه عبر `setting()` لا محروقة (2.13).
+  **الدليل:** `tests/Feature/Volunteer/People/InterviewCancellationTest.php`
+  (4 اختبارات) أخضر: (أ) `interviews.edit` وحدها ⟵ 403 على الإلغاء،
+  (ب) `interviews.delete` ⟵ الإلغاء ينفذ، (ج) صفّان في `app_notifications`
+  (للمُقابِل وللمرشّح)، (د) حارس السبب الإلزاميّ ما زال يعمل.
+
 - ✅ **[مقفولة 2026-08-03] التسكين يمنح دور البوزشن (ب-1).**
   `PositionRoleAssigner` صنفٌ جديد: `PlacementService::activate()` يمنح دور البوزشن **داخل
   العضويّة** (`role_user.membership_id`)، و`OffboardingService::complete()` يسحبه بانتهائها.
