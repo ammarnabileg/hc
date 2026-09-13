@@ -27,6 +27,24 @@
         </x-slot:action>
     </x-page-header>
 
+    {{-- النتيجة المغلقة (قرار محفوظ) — تُعرَض للقراءة فقط حتى تُعاد فتحها بصلاحيّة موثّقة (scorecards.restore · 12.2.2) --}}
+    @if ($isClosed)
+        <div class="card p-4 mb-4 flex items-center justify-between gap-3 flex-wrap">
+            <p class="text-sm flex items-center gap-2">
+                <x-state-badge state="idle" :label="setting('volunteer.people_interviews_scorecard.closed_label', 'مغلقة — قرار محفوظ')" />
+                <span style="color: var(--text-muted)">{{ setting('volunteer.people_interviews_scorecard.closed_hint', 'اتحفظ القرار خلاص. عايز تعدّل؟ لازم إعادة فتح أوّلًا.') }}</span>
+            </p>
+
+            @if ($canRestore)
+                <form method="post" action="{{ route('volunteer.interviews.scorecard.restore', $interview) }}">
+                    @csrf
+                    <button type="submit" class="btn rounded-xl px-4 py-2 text-sm font-semibold"
+                            style="background: var(--surface-sunken)">{{ setting('volunteer.people_interviews_scorecard.restore_action', 'إعادة فتح') }}</button>
+                </form>
+            @endif
+        </div>
+    @endif
+
     <form data-scorecard data-autosave-url="{{ route('volunteer.interviews.scorecard.autosave', $interview) }}" class="space-y-4">
         @csrf
 

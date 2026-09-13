@@ -129,6 +129,10 @@ class InterviewController extends Controller
         $card = InterviewScorecard::firstOrNew(['interview_id' => $interview->id]);
         $interview->load(['recruitment_candidate.user', 'interviewer']);
 
+        // ⭐ النتيجة المغلقة (قرار محفوظ) لا تُعدَّل مباشرةً — لازم إعادة فتح أوّلًا
+        // بصلاحيّة موثّقة (`scorecards.restore` · شرط «الحالة = مغلقة»، 12.2.2).
+        $isClosed = $card->exists && ! $card->is_draft;
+
         return view('volunteer.people.interviews.scorecard', [
             'interview' => $interview,
             'card' => $card,
@@ -141,7 +145,9 @@ class InterviewController extends Controller
             'selectedFits' => $this->pipeline->fitsFor([$interview->recruitment_candidate_id])[$interview->recruitment_candidate_id]
                 ?? collect(),
             'archivedTag' => ScorecardEngine::archivedTag(),
-            'canEdit' => $request->user()->allows('scorecards.edit') || $request->user()->allows('scorecards.create'),
+            'canEdit' => ($request->user()->allows('scorecards.edit') || $request->user()->allows('scorecards.create')) && ! $isClosed,
+            'isClosed' => $isClosed,
+            'canRestore' => $isClosed && $request->user()->allows('scorecards.restore'),
         ]);
     }
 
@@ -156,7 +162,11 @@ class InterviewController extends Controller
             'entity_ids.*' => ['integer'],
         ]);
 
-        $card = $this->engine->autosave($interview, $data, $request->user());
+        try {
+            $card = $this->engine->autosave($interview, $data, $request->user());
+        } catch (\RuntimeException $e) {
+            return response()->json(['saved' => false, 'message' => $e->getMessage()], 422);
+        }
 
         if ($request->has('entity_ids')) {
             $this->engine->syncFits($interview, $data['entity_ids'] ?? [], $request->user());
@@ -181,7 +191,7 @@ class InterviewController extends Controller
 
         try {
             $this->engine->decide($card, $data['decision'], $data['rejection_reason'] ?? null, $request->user());
-        } catch (\InvalidArgumentException $e) {
+        } catch (\InvalidArgumentException|\RuntimeException $e) {
             return back()->with('status', $e->getMessage());
         }
 
@@ -190,6 +200,26 @@ class InterviewController extends Controller
             ->with('status', $data['decision'] === 'passed'
                 ? (string) setting('interviews.screen.decide_ok', 'اتسجّل ✓ المرشّح راح للقائمة النهائيّة.')
                 : (string) setting('interviews.screen.decide_ok_2', 'اتسجّل ✓ القرار والسبب اتحفظوا.'));
+    }
+
+    /**
+     * ⭐ إعادة فتح نتيجة مغلقة لتعديلها — `scorecards.restore` (12.2.2 · شرط
+     * «الحالة = مغلقة»). لا تلمس قرار المرشّح المحفوظ ولا مرحلته — تفتح البطاقة
+     * للتعديل فقط، ومَن يريد قرارًا جديدًا يعيد الضغط على «نجح/رفض».
+     */
+    public function restore(Request $request, Interview $interview): RedirectResponse
+    {
+        $card = InterviewScorecard::firstOrNew(['interview_id' => $interview->id]);
+
+        try {
+            $this->engine->restore($card, $request->user());
+        } catch (\RuntimeException $e) {
+            return back()->with('status', $e->getMessage());
+        }
+
+        return redirect()
+            ->route('volunteer.interviews.scorecard', $interview)
+            ->with('status', (string) setting('interviews.screen.restore_ok', 'اتفتحت تاني ✓ — تقدر تعدّل وتاخد قرار جديد.'));
     }
 
     /**

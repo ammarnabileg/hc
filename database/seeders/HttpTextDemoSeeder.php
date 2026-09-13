@@ -981,6 +981,7 @@ class HttpTextDemoSeeder extends Seeder
             ['interviews.screen.autosave_ok', 'recruitment', 'autosave() — اتحفظ ✓', 'اتحفظ ✓'],
             ['interviews.screen.decide_ok', 'recruitment', 'decide() — اتسجّل ✓ المرشّح راح للقائمة النهائيّة.', 'اتسجّل ✓ المرشّح راح للقائمة النهائيّة.'],
             ['interviews.screen.decide_ok_2', 'recruitment', 'decide() — اتسجّل ✓ القرار والسبب اتحفظوا.', 'اتسجّل ✓ القرار والسبب اتحفظوا.'],
+            ['interviews.screen.restore_ok', 'recruitment', 'restore() — اتفتحت تاني ✓ — تقدر تعدّل وتاخد قرار جديد.', 'اتفتحت تاني ✓ — تقدر تعدّل وتاخد قرار جديد.'],
             // ---- app/Http/Controllers/Volunteer/KudosController.php
             ['kudos.screen.store_msg', 'kudos', 'store() — الزميل', 'الزميل'],
             ['kudos.screen.store_msg_2', 'kudos', 'store() — سبب الشكر', 'سبب الشكر'],

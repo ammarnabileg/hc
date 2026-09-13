@@ -61,6 +61,10 @@ Route::middleware('auth')->prefix('volunteer')->name('volunteer.')->group(functi
     Route::post('/interviews/{interview}/scorecard/decide', [InterviewController::class, 'decide'])
         ->middleware('permission:scorecards.create,scorecards.edit')->name('interviews.scorecard.decide');
 
+    // إعادة فتح نتيجة مغلقة — بصلاحيّة موثّقة مستقلّة (12.2.2 · scorecards.restore)
+    Route::post('/interviews/{interview}/scorecard/restore', [InterviewController::class, 'restore'])
+        ->middleware('permission:scorecards.restore')->name('interviews.scorecard.restore');
+
     Route::get('/interviews/{interview}/scorecard/export', [InterviewController::class, 'export'])
         ->middleware('permission:scorecards.export')->name('interviews.scorecard.export');
 

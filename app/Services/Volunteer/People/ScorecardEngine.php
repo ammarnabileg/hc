@@ -140,6 +140,8 @@ class ScorecardEngine
     {
         $card = InterviewScorecard::firstOrNew(['interview_id' => $interview->id]);
 
+        $this->assertOpen($card);
+
         $scores = $this->clamp($payload['criteria_scores'] ?? []);
 
         $card->fill([
@@ -160,6 +162,8 @@ class ScorecardEngine
      */
     public function decide(InterviewScorecard $card, string $decision, ?string $reason, User $actor): InterviewScorecard
     {
+        $this->assertOpen($card);
+
         if (! in_array($decision, ['passed', 'rejected'], true)) {
             throw new \InvalidArgumentException(setting('recruitment.scorecard_engine.decide_1', 'القرار لازم يكون «نجح» أو «رفض».'));
         }
@@ -193,6 +197,30 @@ class ScorecardEngine
                 ['stage' => $from],
                 ['stage' => $candidate->stage, 'decision' => $decision, 'reason' => $reason]);
         }
+
+        return $card;
+    }
+
+    /**
+     * ⭐ إعادة فتح نتيجة **مغلقة** لتعديلها — `scorecards.restore` (12.2.2 · شرط
+     * «الحالة = مغلقة»). تفتح الحقول والحفظ التلقائيّ والقرار من جديد فقط —
+     * ولا تلمس مرحلة المرشّح ولا قراره المحفوظ سابقًا: مَن يريد قرارًا جديدًا
+     * يضغط «نجح/رفض» مرّةً أخرى بعد التعديل (نفس مسار `decide()` بصلاحيّته
+     * الأصليّة)، تمامًا كما تسمح `candidates.edit` بنقل المرشّح يدويًّا لأيّ
+     * عمود لاحقًا — فالتحريك اليدويّ للمرحلة قرارٌ بشريّ مسجَّلٌ بسببه في كلا
+     * المسارين، لا أثرًا تلقائيًّا يُعاد حسابه هنا.
+     *
+     * @throws \RuntimeException لو كانت النتيجة مفتوحة أصلًا (لا شيء لإعادة فتحه)
+     */
+    public function restore(InterviewScorecard $card, User $actor): InterviewScorecard
+    {
+        if (! $card->exists || $card->is_draft) {
+            throw new \RuntimeException(setting('recruitment.scorecard_engine.restore_1', 'النتيجة دي مفتوحة أصلًا — مفيش داعي لإعادة الفتح.'));
+        }
+
+        $card->forceFill(['is_draft' => true])->save();
+
+        $this->audit->record($actor, 'scorecard.reopened', $card, ['is_draft' => false], ['is_draft' => true]);
 
         return $card;
     }
@@ -237,6 +265,19 @@ class ScorecardEngine
         $lines[] = strtr(setting('recruitment.scorecard_engine.summary_4', 'الدرجة الإجماليّة: :p1/:p2'), [':p1' => (string) ((string) $card->total_score), ':p2' => (string) ($this->scale())]);
 
         return implode("\n", $lines);
+    }
+
+    /**
+     * ⭐ النتيجة المغلقة لا تُعدَّل مباشرةً — لازم تُعاد فتحها بصلاحيّة موثّقة
+     * أوّلًا (`scorecards.restore`). وبطاقة جديدة (لسه ما اتحفظتش) دايمًا مفتوحة.
+     *
+     * @throws \RuntimeException
+     */
+    private function assertOpen(InterviewScorecard $card): void
+    {
+        if ($card->exists && ! $card->is_draft) {
+            throw new \RuntimeException(setting('recruitment.scorecard_engine.assert_open_1', 'النتيجة دي مقفولة — لازم تتفتح الأوّل (إعادة فتح) قبل التعديل.'));
+        }
     }
 
     /** @param array<int|string, mixed> $scores */
