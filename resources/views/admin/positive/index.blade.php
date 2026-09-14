@@ -204,7 +204,7 @@
                 @else
                     <div class="envelope" aria-hidden="true">
                         <div class="envelope-pocket"></div>
-                        <div class="envelope-letter-tab" style="transform: translateY(-65px)"></div>
+                        <div class="envelope-letter-tab" style="transform: translateY(-22px)"></div>
                         <div class="envelope-flap" style="transform: rotateX(180deg)"></div>
                     </div>
                     <div class="rounded-2xl p-4 mt-4 text-sm max-w-xs mx-auto"

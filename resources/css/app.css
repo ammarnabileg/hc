@@ -886,9 +886,15 @@
   }
   .animate-flap { animation: flap 700ms var(--ease-standard) forwards; }
 
-  /* ⭐ جديد: رسالة المظروف تخرج لأعلى — 900ms بتأخير 200ms */
+  /*
+   | ⭐ جديد: رسالة المظروف تخرج لأعلى — 900ms بتأخير 200ms (المدّة منصوصة
+   | حرفًا). والمسافة `-22px` قِيسَت على حجم `.envelope` الفعليّ (78px ارتفاعًا،
+   | app.css أسفله) — كانت `-65px` (قياس مرجعٍ بحجمٍ مختلف) تُخرج التاب من
+   | حدود بطاقة المودال (`p-6`) فيطفو خارجها بصريًّا؛ اكتُشِف بمعاينة بصريّة
+   | فعليّة لا مسحًا نمطيًّا (§25 v5.11).
+   */
   @keyframes letter-reveal {
-    to { transform: translateY(-65px); }
+    to { transform: translateY(-22px); }
   }
   .animate-letter { animation: letter-reveal 900ms 200ms var(--ease-standard) forwards; }
 }

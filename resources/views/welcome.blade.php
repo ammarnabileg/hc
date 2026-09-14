@@ -36,6 +36,4 @@
     @include('home.partials.ambassadors')
     @include('home.partials.cta')
     @include('home.partials.footer')
-
-    @include('home.partials.surprise')
 @endsection
