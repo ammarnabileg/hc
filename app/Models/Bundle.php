@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 
 /**
  * البندل (18): كيانٌ بسعر **واحد مستقلّ** يجمع مسارات وتدريبات وملفّات ومنتجات،
@@ -48,5 +49,14 @@ class Bundle extends Model
     public function items(): HasMany
     {
         return $this->hasMany(BundleItem::class, 'bundle_id')->orderBy('sort_order');
+    }
+
+    /**
+     * ⭐ صفحة الهبوط **المستقلّة** (12.2.3 `landing_pages`) — لا تخلط مع حقول
+     * `landing_*` أعلاه (تلك `BundleLanding` المبنيّة داخل شاشة البندل نفسها).
+     */
+    public function landingPage(): MorphOne
+    {
+        return $this->morphOne(LandingPage::class, 'landingable');
     }
 }

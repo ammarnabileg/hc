@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Storage;
 
@@ -56,5 +57,14 @@ class Product extends Model
         $disk = Storage::disk('local');
 
         return $disk->exists($this->file_path) ? $disk->size($this->file_path) : null;
+    }
+
+    /**
+     * ⭐ صفحة هبوط **مستقلّة** (12.2.3 `landing_pages`) — أوّل مرّة يصير فيها
+     * لمنتج متجرٍ مستقلٍّ صفحة هبوط أصلًا (كانت الميزة محصورة في البندل وحده).
+     */
+    public function landingPage(): MorphOne
+    {
+        return $this->morphOne(LandingPage::class, 'landingable');
     }
 }

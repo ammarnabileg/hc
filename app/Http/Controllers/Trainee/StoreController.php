@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Trainee;
 
 use App\Http\Controllers\Controller;
+use App\Models\LandingPage;
 use App\Models\User;
 use App\Services\Store\BundleLanding;
 use App\Services\Store\PricingService;
@@ -140,6 +141,24 @@ class StoreController extends Controller
                 'store.refund.policy_text',
                 'لا يوجد استرجاع نقديّ للمدفوعات، ويبقى رصيدك في محفظتك تشتري به ما تشاء من الموقع.',
             ),
+        ]);
+    }
+
+    /**
+     * ⭐⭐ صفحة الهبوط **المستقلّة** (12.2.3 `landing_pages.view`) — للزائر
+     * بلا أيّ شرط تسجيل، وحارسها الوحيد **الحالة = منشور** حرفَ نصّ المصفوفة.
+     * راجع تعليق `LandingPageController` لشرح لماذا لا `permission:` على هذا
+     * المسار (`EnsurePermission` يردّ 401 لغير المسجَّل، وهذا مسار الزائر).
+     */
+    public function landingPage(string $slug): View
+    {
+        $landingPage = LandingPage::query()->published()->where('slug', $slug)->with('landingable')->first();
+
+        abort_unless($landingPage && $landingPage->landingable, 404);
+
+        return view('store.landing-page', [
+            'landingPage' => $landingPage,
+            'indexable' => (bool) setting('store.landing_pages.indexable', true),
         ]);
     }
 

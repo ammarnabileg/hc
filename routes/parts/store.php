@@ -22,6 +22,16 @@ Route::get('/store/{type}/{slug}', [StoreController::class, 'product'])
     ->whereIn('type', ['product', 'bundle', 'course', 'path'])
     ->name('store.product');
 
+/*
+| ⭐⭐ صفحة الهبوط **المستقلّة** (12.2.3 `landing_pages.view`: نطاق ALL · شرط
+| «الحالة = منشور» — «فتح صفحة هبوط البندل/المنتج للزائر»). ومسارٌ **بلا**
+| `permission:` — بالضبط كسطر `store.product` أعلاه — لأنّ `EnsurePermission`
+| يردّ 401 لغير المسجَّل، وهذه الصفحة **للزائر غير المسجَّل بالتعريف**.
+| والشرط المنصوص («الحالة = منشور») هو حارسها الوحيد، مفروضًا داخل المتحكّم
+| لا على المسار (راجع تعليق `LandingPageController` للتفصيل الكامل).
+*/
+Route::get('/lp/{slug}', [StoreController::class, 'landingPage'])->name('landing-pages.show');
+
 Route::middleware(['auth', 'permission:store_products.list,orders.create'])->group(function () {
     Route::get('/store', [StoreController::class, 'index'])->name('store.index');
     Route::get('/store/bundles', [StoreController::class, 'bundles'])->name('store.bundles');
