@@ -16,17 +16,23 @@ class HelpController extends Controller
 {
     public function index(Request $request): View
     {
-        $q = trim($request->string('q')->toString());
+        // ⭐ Toggle البحث (12.6-ج سطر 5087): موقوفًا يُهمَل `q` خادميًّا أيضًا —
+        // «المحظور يُخفى لا يُعطَّل» (2.15-أ-7) يعني ألّا يبقى شغّالًا خفيةً.
+        $searchEnabled = (bool) setting('help.search_enabled', true);
+        $sidebarCategoriesEnabled = (bool) setting('help.sidebar_categories_enabled', true);
+
+        $q = $searchEnabled ? trim($request->string('q')->toString()) : '';
         $category = $request->string('category')->toString();
 
         $published = HelpArticle::query()->where('status', 'published');
 
-        $categories = (clone $published)
-            ->whereNotNull('category')
-            ->selectRaw('category, count(*) as total')
-            ->groupBy('category')
-            ->orderByDesc('total')
-            ->get();
+        $categories = $sidebarCategoriesEnabled
+            ? (clone $published)->whereNotNull('category')
+                ->selectRaw('category, count(*) as total')
+                ->groupBy('category')
+                ->orderByDesc('total')
+                ->get()
+            : collect();
 
         $articles = (clone $published)
             ->when($category !== '', fn ($b) => $b->where('category', $category))
@@ -35,14 +41,16 @@ class HelpController extends Controller
                     ->orWhere('body', 'like', '%'.$q.'%');
             }))
             ->orderByDesc('helpful_yes')
-            ->take(max(1, (int) setting('account.help.page_size', 20)))
-            ->get();
+            ->paginate(max(1, (int) setting('account.help.page_size', 12)))
+            ->withQueryString();
 
         return view('support.help.index', [
             'articles' => $articles,
             'categories' => $categories,
             'q' => $q,
             'category' => $category,
+            'searchEnabled' => $searchEnabled,
+            'sidebarCategoriesEnabled' => $sidebarCategoriesEnabled,
         ]);
     }
 
@@ -66,6 +74,10 @@ class HelpController extends Controller
      */
     public function feedback(Request $request, HelpArticle $article): RedirectResponse
     {
+        // ⭐ Toggle «هل كان مفيدًا؟» موقوفًا (12.6-ج سطر 5087): لا يُسجَّل تصويتٌ
+        // من طلبٍ يدويّ بعد إخفاء الزرّين — الإيقاف حقيقيّ لا شكليّ فقط.
+        abort_unless((bool) setting('help.feedback_enabled', true), 404);
+
         $data = $request->validate([
             'helpful' => ['required', 'in:yes,no'],
         ], [

@@ -23,11 +23,19 @@
         :subtitle="setting('admin.guidance.help.mhtwa_almsaada_ally_byshwfh_almstkhdm_mqalat', 'محتوى المساعدة اللي بيشوفه المستخدم — مقالات وفيديوهات How-to.')"
         :breadcrumbs="[['label' => setting('admin.guidance.help.altwjyh_waldam', 'التوجيه والدعم'), 'url' => route('admin.guidance.index')], ['label' => setting('admin.guidance.help.dlyl_almstkhdm', 'دليل المستخدم')]]">
         <x-slot:action>
-            @can('user_guide.create')
-                <button type="button" data-modal-open="article-form" data-article-new
-                        class="btn rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
-                        style="background: var(--color-brand-500); color: #04201c">{{ setting('admin.guidance.help.dlyl', '+ دليل') }}</button>
-            @endcan
+            <div class="flex items-center gap-2 flex-wrap">
+                {{-- ⭐ بلوك إعدادات الدليل (12.6-ج سطر 5087) — كان بلا شاشة إطلاقًا --}}
+                @can('user_guide.edit')
+                    <a href="{{ route('admin.guidance.help.settings') }}"
+                       class="btn rounded-xl px-4 py-2 text-sm font-semibold"
+                       style="background: var(--surface-raised)">{{ setting('admin_content.help_guide.settings_link', 'إعدادات الدليل') }}</a>
+                @endcan
+                @can('user_guide.create')
+                    <button type="button" data-modal-open="article-form" data-article-new
+                            class="btn rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
+                            style="background: var(--color-brand-500); color: #04201c">{{ setting('admin.guidance.help.dlyl', '+ دليل') }}</button>
+                @endcan
+            </div>
         </x-slot:action>
     </x-page-header>
 
@@ -178,8 +186,21 @@
                     <x-form.input name="title_en" :label="setting('admin.guidance.help.alanwan_injlyzy', 'العنوان (إنجليزيّ)')" />
                 </div>
 
-                <x-form.input name="category" :label="setting('admin.guidance.help.altsnyf', 'التصنيف')" />
-                <x-form.input name="tags" :label="setting('admin.guidance.help.wswm', 'وسوم')" :hint="setting('admin.guidance.help.afsl_bynha_bfasla', 'افصل بينها بفاصلة.')" />
+                {{-- ⭐ التصنيفات والوسوم المُدارة من «إعدادات الدليل» (12.6-ج) تظهر
+                     اقتراحًا هنا — والحقل يبقى حرًّا فلا ينكسر إدخالٌ قديم --}}
+                <x-form.input name="category" list="help-categories-list" :label="setting('admin.guidance.help.altsnyf', 'التصنيف')" />
+                <datalist id="help-categories-list">
+                    @foreach ($categories as $categoryOption)
+                        <option value="{{ $categoryOption }}"></option>
+                    @endforeach
+                </datalist>
+
+                <x-form.input name="tags" list="help-tags-list" :label="setting('admin.guidance.help.wswm', 'وسوم')" :hint="setting('admin.guidance.help.afsl_bynha_bfasla', 'افصل بينها بفاصلة.')" />
+                <datalist id="help-tags-list">
+                    @foreach ($managedTags as $tagOption)
+                        <option value="{{ $tagOption }}"></option>
+                    @endforeach
+                </datalist>
 
                 <label class="block">
                     <span class="block text-sm mb-1">{{ setting('admin.guidance.help.almhtwa', 'المحتوى') }}</span>

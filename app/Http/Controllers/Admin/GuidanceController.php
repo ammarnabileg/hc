@@ -17,6 +17,7 @@ use App\Services\Account\ComplaintService;
 use App\Services\Admin\AudienceSegments;
 use App\Services\Admin\Content\AnnouncementRecurrence;
 use App\Services\Admin\Content\GuidanceComposer;
+use App\Services\Admin\Content\HelpGuideSettings;
 use App\Services\Notifications\AnnouncementFeed;
 use App\Services\Notifications\AnnouncementMailer;
 use App\Services\Notifications\AnnouncementPersonalizer;
@@ -265,6 +266,7 @@ class GuidanceController extends Controller
             ),
             'filters' => $filters,
             'categories' => $this->guidance->articleCategories(),
+            'managedTags' => HelpGuideSettings::tags(),
             'tabs' => $this->tabs('help'),
         ]);
     }
@@ -288,6 +290,73 @@ class GuidanceController extends Controller
         $article->delete();
 
         return back()->with('status', (string) setting('guidance.admin.destroy_article_ok', 'اتشال الدليل ✓'));
+    }
+
+    /**
+     * ⭐ بلوك إعدادات دليل المستخدم (12.6-ج — فجوة مسدودة): توجّلات البحث
+     * و«هل كان مفيدًا؟» وعرض التصنيفات + عدد المقالات/صفحة + CRUD التصنيفات
+     * والوسوم + نصّ الحالة الفارغة — كلّها كانت بلا شاشة (انظر `HelpGuideSettings`).
+     */
+    public function helpSettings(): View
+    {
+        return view('admin.guidance.help-settings', [
+            'settings' => HelpGuideSettings::rows(),
+            'categories' => HelpGuideSettings::categories(),
+            'defaultCategories' => HelpGuideSettings::defaultCategories(),
+            'tags' => HelpGuideSettings::tags(),
+            'tabs' => $this->tabs('help'),
+        ]);
+    }
+
+    public function updateHelpSettings(Request $request): RedirectResponse
+    {
+        $data = $request->validate(['settings' => ['required', 'array']]);
+
+        HelpGuideSettings::putMany($data['settings'], $request->user());
+
+        return back()->with('status', (string) setting('guidance.admin.update_help_settings_ok', 'اتحفظت إعدادات الدليل ✓'));
+    }
+
+    public function updateHelpCategories(Request $request): RedirectResponse
+    {
+        $data = $request->validate([
+            'categories' => [
+                'required', 'array', 'min:1',
+                // ⭐ صفّان فارغان يمرّان على `min:1` (العدد موجود) لكنّهما لا
+                // يتركان تصنيفًا حقيقيًّا بعد التقليم — فالتحقّق الحقيقيّ هنا.
+                function (string $attribute, mixed $value, \Closure $fail): void {
+                    if (collect((array) $value)->map(fn ($item) => trim((string) $item))->filter()->isEmpty()) {
+                        $fail((string) setting('guidance.admin.update_help_categories_msg', 'سيب تصنيفًا واحدًا على الأقلّ.'));
+                    }
+                },
+            ],
+            'categories.*' => ['nullable', 'string', 'max:64'],
+        ], [
+            'categories.required' => (string) setting('guidance.admin.update_help_categories_msg', 'سيب تصنيفًا واحدًا على الأقلّ.'),
+        ]);
+
+        $saved = HelpGuideSettings::saveCategories($data['categories'], $request->user());
+
+        return back()->with('status', strtr((string) setting('guidance.admin.update_help_categories_ok', 'اتحفظت التصنيفات ✓ (:a1)'), [':a1' => (string) count($saved)]));
+    }
+
+    public function updateHelpTags(Request $request): RedirectResponse
+    {
+        $data = $request->validate([
+            'tags' => ['nullable', 'array'],
+            'tags.*' => ['nullable', 'string', 'max:32'],
+        ]);
+
+        $saved = HelpGuideSettings::saveTags($data['tags'] ?? [], $request->user());
+
+        return back()->with('status', strtr((string) setting('guidance.admin.update_help_tags_ok', 'اتحفظت الوسوم ✓ (:a1)'), [':a1' => (string) count($saved)]));
+    }
+
+    public function resetHelpSettings(Request $request): RedirectResponse
+    {
+        $count = HelpGuideSettings::resetAll($request->user());
+
+        return back()->with('status', strtr((string) setting('guidance.admin.reset_help_settings_ok', 'رجعت :a1 قيمة للافتراضيّ ✓'), [':a1' => (string) $count]));
     }
 
     // ============================================================== د) الشكاوى

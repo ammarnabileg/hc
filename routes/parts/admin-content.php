@@ -288,6 +288,17 @@ Route::middleware(['auth', 'admin.panel'])->prefix('admin')->name('admin.')->gro
     Route::middleware('permission:user_guide.delete')
         ->delete('/guidance/help/{article}', [GuidanceController::class, 'destroyArticle'])->name('guidance.help.destroy');
 
+    // ⭐ بلوك إعدادات الدليل (12.6-ج سطر 5087): البحث · «هل كان مفيدًا؟» ·
+    // التصنيفات بالشريط الجانبيّ · عدد المقالات/صفحة · CRUD التصنيفات والوسوم ·
+    // نصّ الحالة الفارغة · ↺ Reset — كانت كلّها بلا شاشة (فجوة مسدودة).
+    Route::middleware('permission:user_guide.edit')->group(function () {
+        Route::get('/guidance/help/settings', [GuidanceController::class, 'helpSettings'])->name('guidance.help.settings');
+        Route::post('/guidance/help/settings', [GuidanceController::class, 'updateHelpSettings'])->name('guidance.help.settings.update');
+        Route::put('/guidance/help/settings/categories', [GuidanceController::class, 'updateHelpCategories'])->name('guidance.help.settings.categories');
+        Route::put('/guidance/help/settings/tags', [GuidanceController::class, 'updateHelpTags'])->name('guidance.help.settings.tags');
+        Route::post('/guidance/help/settings/reset', [GuidanceController::class, 'resetHelpSettings'])->name('guidance.help.settings.reset');
+    });
+
     // الشكاوى: طابور بالحالات + إسناد + ردّ داخليّ/خارجيّ + إغلاق بسبب (24.3)
     Route::middleware('permission:complaints.list,complaints.view')->group(function () {
         Route::get('/guidance/complaints', [GuidanceController::class, 'complaints'])->name('guidance.complaints');

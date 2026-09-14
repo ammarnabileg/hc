@@ -186,7 +186,9 @@ class AccountDemoSeeder extends Seeder
             ['account.complaints.attachment_max_kb', 'account', 'أقصى حجم مرفق التذكرة (KB)', 'number', '4096'],
 
             // دليل المستخدم
-            ['account.help.page_size', 'account', 'عدد مقالات الدليل في الصفحة', 'number', '20'],
+            // ⭐ الافتراضيّ 12 (12.6-ج سطر 5087: «عدد المقالات/صفحة (12)») —
+            // يعدّله الأدمن من «إعدادات الدليل» (`HelpGuideSettings`).
+            ['account.help.page_size', 'account', 'عدد مقالات الدليل في الصفحة', 'number', '12'],
             ['account.help.related_count', 'account', 'عدد المقالات القريبة', 'number', '3'],
 
             // البروفايل (10 · 13.4-م)
