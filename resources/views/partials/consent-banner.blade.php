@@ -28,7 +28,13 @@
     }
 
     $askConsent = $adConsent->shouldAsk() && ! $isSnoozed;
-    $privacyUrl = \Illuminate\Support\Facades\Route::has('settings.privacy') ? route('settings.privacy') : null;
+
+    /*
+     | ⭐ الرابط لازم يفتح **بلا تسجيل دخول** — البانر نفسه يظهر للزائر قبل أيّ
+     | حساب (`layouts.guest` و`layouts.app` معًا)، فرابطٌ محجوب خلف `auth`
+     | (كما كان `settings.privacy` قبلًا) لا يقدر الزائر يفتحه أصلًا (21.3-د).
+     */
+    $privacyUrl = \Illuminate\Support\Facades\Route::has('privacy.policy') ? route('privacy.policy') : null;
     $purposeLabels = [
         'ads' => setting('ads.consent.purpose_ads', 'قياس الإعلانات وإعادة الاستهداف'),
         'analytics' => setting('ads.consent.purpose_analytics', 'قياس داخليّ لتحسين المنصّة'),

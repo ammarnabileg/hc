@@ -4,10 +4,12 @@ namespace Tests\Feature\Account;
 
 use App\Models\ConsentRequest;
 use App\Models\Role;
+use App\Models\Setting;
 use App\Models\User;
 use App\Models\UserDevice;
 use App\Models\UserPrivacySetting;
 use App\Services\Account\PrivacyFields;
+use App\Services\Ads\Consent;
 use Illuminate\Support\Str;
 
 /**
@@ -141,6 +143,54 @@ class PrivacySecurityTest extends AccountTestCase
         $this->actingAs($owner)->get(route('settings.privacy'))
             ->assertOk()
             ->assertSee('مفيش حدّ بيشوف بياناتك دلوقتي');
+    }
+
+    /**
+     * ⭐ **حقّ السحب في أيّ وقت من إعدادات الخصوصيّة والأمان** (21.3-د · 24.5) —
+     * مستقلٌّ تمامًا عن بانر أوّل زيارة: مَن قبِل التتبّع من قبل يقدر يرجع
+     * ويرفضه من هذه الشاشة نفسها، بلا انتظار البانر يرجع (وهو لا يرجع أصلًا
+     * لمن اختار من قبل — `Consent::shouldAsk()`).
+     */
+    public function test_a_logged_in_user_can_withdraw_tracking_consent_from_settings_privacy(): void
+    {
+        Setting::where('key', 'ads.tracking.enabled')->update(['value' => '1']);
+        cache()->forget('settings');
+
+        $user = $this->trainee(['tracking_consent' => Consent::ACCEPTED]);
+
+        // الشاشة تعرض بلوك الموافقة الحاليّة
+        $this->actingAs($user)->get(route('settings.privacy'))
+            ->assertOk()
+            ->assertSee('الموافقة على التتبّع');
+
+        // السحب الفعليّ: من «أوافق» إلى «أرفض» — من نفس الشاشة لا من البانر
+        $this->actingAs($user)
+            ->from(route('settings.privacy'))
+            ->post(route('consent.tracking'), ['choice' => 'rejected'])
+            ->assertRedirect(route('settings.privacy'));
+
+        $this->assertSame(Consent::REJECTED, $user->fresh()->tracking_consent);
+
+        // وتغييرٌ لاحق إلى «تخصيص» بغرضٍ بعينه يُحفَظ هو الآخر من نفس الشاشة
+        $this->actingAs($user)
+            ->from(route('settings.privacy'))
+            ->post(route('consent.tracking'), ['choice' => 'custom', 'scopes' => ['analytics']])
+            ->assertRedirect(route('settings.privacy'));
+
+        $user->refresh();
+        $this->assertSame(Consent::CUSTOM, $user->tracking_consent);
+        $this->assertSame(['analytics'], $user->tracking_scopes);
+    }
+
+    /** وحين يكون التتبّع مطفأً كلّيًّا لا تظهر شاشة موافقةٍ لا معنى لها (2.9) */
+    public function test_the_tracking_consent_block_is_hidden_when_tracking_is_disabled(): void
+    {
+        Setting::where('key', 'ads.tracking.enabled')->update(['value' => '0']);
+        cache()->forget('settings');
+
+        $this->actingAs($this->trainee())->get(route('settings.privacy'))
+            ->assertOk()
+            ->assertDontSee('الموافقة على التتبّع');
     }
 
     public function test_ending_an_active_session_works(): void

@@ -108,6 +108,79 @@
     </div>
 
     {{--
+      ⭐ **سحب/تغيير موافقة التتبّع في أيّ وقت** (21.3-د: «وحقّ السحب في أيّ وقت
+      من إعدادات الخصوصيّة والأمان») — مستقلٌّ عن بانر أوّل زيارة تمامًا: يعمل
+      لمن قبِل أو رفض أو خصَّص من قبل، وهنا يقدر يغيّر رأيه في أيّ لحظة. والحفظ
+      عبر نفس نقطة النهاية التي يكتب لها البانر (`route('consent.tracking')`)
+      فلا يوجد مصدرا حقيقةٍ لقرارٍ واحد.
+    --}}
+    @if ($trackingEnabled)
+        <section class="card p-4 mt-4" id="tracking-consent">
+            <h2 class="font-bold text-sm">{{ setting('account.privacy.tracking_title', 'الموافقة على التتبّع') }}</h2>
+            <p class="text-xs mt-1 mb-3" style="color: var(--text-muted)">
+                {{ setting('account.privacy.tracking_hint', 'ده اختيارك بخصوص تتبّع الإعلانات والقياس — وتقدر تغيّره أو تسحبه في أيّ وقت.') }}
+            </p>
+
+            <form method="post" action="{{ route('consent.tracking') }}" data-tracking-consent-form>
+                @csrf
+                <input type="hidden" name="choice" value="{{ $trackingChoice ?? 'rejected' }}" data-tracking-choice-input>
+
+                <div class="flex flex-col gap-2">
+                    @foreach (['accepted' => setting('ads.consent.accept_label', 'أوافق'), 'rejected' => setting('ads.consent.reject_label', 'أرفض'), 'custom' => setting('ads.consent.custom_label', 'تخصيص')] as $choiceKey => $choiceLabel)
+                        <label class="flex items-center gap-2 text-sm">
+                            <input type="radio" name="tracking_choice_radio" value="{{ $choiceKey }}"
+                                   data-tracking-choice-radio
+                                   style="accent-color: var(--color-brand-500)"
+                                   @checked(($trackingChoice ?? 'rejected') === $choiceKey)>
+                            <span>{{ $choiceLabel }}</span>
+                        </label>
+                    @endforeach
+                </div>
+
+                {{-- أغراض «تخصيص» — تُرسَل باسم scopes[] فقط لمّا يكون الاختيار تخصيص --}}
+                <div class="mt-2 ps-6 {{ ($trackingChoice ?? null) === 'custom' ? '' : 'hidden' }}" data-tracking-scopes>
+                    @foreach ($trackingPurposes as $purpose => $label)
+                        <label class="flex items-center gap-2 text-sm py-1">
+                            <input type="checkbox" name="scopes[]" value="{{ $purpose }}"
+                                   style="accent-color: var(--color-brand-500)"
+                                   @checked(in_array($purpose, $trackingScopes ?? [], true))>
+                            <span>{{ $label }}</span>
+                        </label>
+                    @endforeach
+                </div>
+
+                <button type="submit" class="btn mt-3 rounded-xl px-4 py-2 text-sm font-semibold"
+                        style="background: var(--color-brand-500); color:#04201c">
+                    {{ setting('account.privacy.tracking_save', 'احفظ اختياري') }}
+                </button>
+            </form>
+
+            <p class="text-xs mt-3">
+                <a href="{{ route('privacy.policy') }}" class="hover:underline" style="color: var(--color-brand-500)">
+                    {{ setting('account.privacy.tracking_policy_link', 'سياسة الخصوصيّة') }}
+                </a>
+            </p>
+        </section>
+
+        @push('scripts')
+            <script>
+                // إظهار/إخفاء أغراض «تخصيص» + مزامنة الحقل الخفيّ `choice` مع الراديو المختار
+                document.querySelectorAll('[data-tracking-consent-form]').forEach((form) => {
+                    const hidden = form.querySelector('[data-tracking-choice-input]');
+                    const scopesBox = form.querySelector('[data-tracking-scopes]');
+
+                    form.querySelectorAll('[data-tracking-choice-radio]').forEach((radio) => {
+                        radio.addEventListener('change', () => {
+                            if (hidden) hidden.value = radio.value;
+                            scopesBox?.classList.toggle('hidden', radio.value !== 'custom');
+                        });
+                    });
+                });
+            </script>
+        @endpush
+    @endif
+
+    {{--
       ⭐ **الأمان** — بلوك واحد يُضمَّن هنا وفي تاب «الأمان» بصفحة الإعدادات:
       كلمة السرّ · **الجلسات النشطة** · تحميل بياناتي · **منطقة الخطر**.
 
