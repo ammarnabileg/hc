@@ -2,66 +2,75 @@
 
 /*
 | الخطوط محلّيّة بالكامل — **بلا أيّ نداء خارجيّ** (2.10.1-2).
-| Cairo لكلّ العربيّ، وBricolage Grotesque للعناوين اللاتينيّة،
-| وPlus Jakarta Sans لنصّ الـLTR. الملفّات تُحزَم مع البناء (Vite)
-| فلا يتسرّب طلبٌ لأيّ CDN ولا تتعطّل المنصّة لو انقطع الإنترنت.
+| خطٌّ واحد لكلّ نصٍّ في المنصّة، عربيًّا كان أو لاتينيًّا: **Alexandria**
+| (400/500/600/700/800) — الهويّة البصريّة 2.0 (v5.7). الملفّات تُحزَم مع
+| البناء (Vite) فلا يتسرّب طلبٌ لأيّ CDN ولا تتعطّل المنصّة لو انقطع الإنترنت.
 */
-@import '@fontsource/cairo/arabic-400.css';
-@import '@fontsource/cairo/arabic-500.css';
-@import '@fontsource/cairo/arabic-600.css';
-@import '@fontsource/cairo/arabic-700.css';
-@import '@fontsource/cairo/arabic-800.css';
-@import '@fontsource/cairo/latin-400.css';
-@import '@fontsource/cairo/latin-500.css';
-@import '@fontsource/cairo/latin-600.css';
-@import '@fontsource/cairo/latin-700.css';
-@import '@fontsource/cairo/latin-800.css';
-@import '@fontsource/bricolage-grotesque/latin-400.css';
-@import '@fontsource/bricolage-grotesque/latin-600.css';
-@import '@fontsource/bricolage-grotesque/latin-700.css';
-@import '@fontsource/bricolage-grotesque/latin-800.css';
-@import '@fontsource/plus-jakarta-sans/latin-300.css';
-@import '@fontsource/plus-jakarta-sans/latin-400.css';
-@import '@fontsource/plus-jakarta-sans/latin-500.css';
-@import '@fontsource/plus-jakarta-sans/latin-600.css';
-@import '@fontsource/plus-jakarta-sans/latin-700.css';
+@import '@fontsource/alexandria/arabic-400.css';
+@import '@fontsource/alexandria/arabic-500.css';
+@import '@fontsource/alexandria/arabic-600.css';
+@import '@fontsource/alexandria/arabic-700.css';
+@import '@fontsource/alexandria/arabic-800.css';
+@import '@fontsource/alexandria/latin-400.css';
+@import '@fontsource/alexandria/latin-500.css';
+@import '@fontsource/alexandria/latin-600.css';
+@import '@fontsource/alexandria/latin-700.css';
+@import '@fontsource/alexandria/latin-800.css';
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
 
 /*
-| نظام التصميم (الدستور 2.10.1 · 2.16 · 2.17)
-| - الوضع الداكن افتراضيّ + وضع فاتح
-| - RTL وخطّ Cairo
-| - لون الهويّة تركوازيّ واحد #00d4b8 — ولا يُستخدَم كحالة أبدًا (2.16)
+| نظام التصميم (الدستور 2.10.1 · 2.16 · 2.17 — الهويّة البصريّة 2.0، v5.7)
+| - الوضع الفاتح افتراضيّ + وضع داكن تجريبيّ بنفس الهويّة
+| - RTL وخطّ Alexandria واحد للعربيّ واللاتينيّ معًا
+| - لمسة حمراء واحدة صلبة (Brand Red) — بلا تدرّج ولا توهّج (2.10.1-1)
+| - أحمر الهويّة (`--brand`) ≠ أحمر الحالة (`--danger`) — لونان مختلفان
+|   بالـHex تمامًا رغم الاسم المشترك (2.16 المُحدَّث)
 */
 
 @theme {
-  --font-sans: 'Cairo', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+  --font-sans: 'Alexandria', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
     'Segoe UI Symbol', 'Noto Color Emoji';
 
-  /* الخطوط اللاتينيّة (2.10.1-2): عناوين LTR ونصّ LTR — عربيّ الصفحة يبقى Cairo */
-  --font-display: 'Bricolage Grotesque', 'Cairo', ui-sans-serif, system-ui, sans-serif;
-  --font-body-ltr: 'Plus Jakarta Sans', 'Cairo', ui-sans-serif, system-ui, sans-serif;
+  /*
+   | ⭐ خطٌّ واحد لا ثلاثة (2.10.1-2): أُلغيت الأسماء المنفصلة القديمة
+   | (font-display لعناوين LTR · font-body-ltr لنصّ LTR)، وصارت أليست
+   | كذلك أسماء متوافقة تشير لنفس المتغيّر الوحيد — فأيّ استخدامٍ قديم
+   | لـ`var(--font-display)`/`var(--font-body-ltr)` في أوراق أخرى يستمرّ
+   | يعمل بلا كسر، لكنّه يعطي Alexandria مثل كلّ شيء.
+   */
+  --font-display: 'Alexandria', ui-sans-serif, system-ui, sans-serif;
+  --font-body-ltr: 'Alexandria', ui-sans-serif, system-ui, sans-serif;
 
-  /* لون الهويّة — للأفعال والعناصر فقط */
-  --color-brand-50:  #e6fffb;
-  --color-brand-100: #b8fff4;
-  --color-brand-200: #7cf7e6;
-  --color-brand-300: #45ecd7;
-  --color-brand-400: #16dcc5;
-  --color-brand-500: #00d4b8;
-  --color-brand-600: #00b39c;
-  --color-brand-700: #00806c;
-  --color-brand-800: #05423a;
-  --color-brand-900: #032b26;
+  /*
+   | ⭐ أحمر الهويّة (Brand Red) — لمسةٌ واحدة صلبة، لا تدرّج (2.10.1-1/3).
+   | الرمّة 50–900 **مُشتقّة** من نقطتين حرفيّتين من نصّ الدستور فقط:
+   | 50 = `--brand-soft` الحرفيّة، 500 = `--brand` الحرفيّة، 600 = `--brand-hover`
+   | الحرفيّة — والباقي تدرّجٌ بصريّ بينها لتبقى أدوات Tailwind (bg-brand-400
+   | ونحوها، 70 موضعًا في الكود القائم) متّسقةً بلا كسر. والقيم الفعلية
+   | تُستبدَل بنظائرها الداكنة تحت `:root[data-theme='dark']` (طبقة القاعدة).
+   */
+  --color-brand-50:  #fbece9; /* = --brand-soft (فاتح) حرفيًّا */
+  --color-brand-100: #f8d9d2;
+  --color-brand-200: #f0b3a6;
+  --color-brand-300: #e88d79;
+  --color-brand-400: #e35848;
+  --color-brand-500: #d9231b; /* = --brand (فاتح) حرفيًّا */
+  --color-brand-600: #b61b15; /* = --brand-hover (فاتح) حرفيًّا */
+  --color-brand-700: #8f150f;
+  --color-brand-800: #6b0f0b;
+  --color-brand-900: #470a07;
 
-  /* قاموس الحالة (2.16) — معنًى واحد لكلّ لون في المنصّة كلّها */
-  --color-state-ok:     #22c55e; /* سليم · في الوقت · إيجابيّ */
-  --color-state-warn:   #eab308; /* انتبه · اقترب */
-  --color-state-danger: #ef4444; /* فات · خطر · سلبيّ */
-  --color-state-idle:   #94a3b8; /* غير نشط · مؤرشف · لا ينطبق */
-  --color-state-honor:  #d4af37; /* شرف وتميّز — لا حالة تشغيليّة */
+  /*
+   | قاموس الحالة (2.16 المُحدَّث) — معنًى واحد لكلّ لون، وأحمر الحالة هنا
+   | **مختلفٌ تمامًا بالـHex** عن أحمر الهويّة أعلاه — لا يُدمَجان أبدًا.
+   */
+  --color-state-ok:     #276344; /* سليم · في الوقت · إيجابيّ */
+  --color-state-warn:   #87600b; /* انتبه · اقترب */
+  --color-state-danger: #9e2430; /* فات · خطر · سلبيّ — ≠ أحمر الهويّة */
+  --color-state-idle:   #65645f; /* غير نشط · مؤرشف · لا ينطبق */
+  --color-state-honor:  #86682a; /* شرف وتميّز — لا حالة تشغيليّة */
 
   /* الحركة (2.17-د): سرعة موحّدة ومنحنى واحد — والمنحنى المنصوص في 2.10.1-5 */
   --ease-standard: cubic-bezier(0.22, 1, 0.36, 1);
@@ -69,15 +78,40 @@
 
 @layer base {
   :root {
-    color-scheme: dark;
-    /* لوحة 2.10.1-3 حرفيًّا: --bg #030d17 · --bg2 #04111e · --bg3 #071825 */
-    --surface:        #030d17;
-    --surface-raised: #071825;
-    --surface-sunken: #04111e;
-    --border:         rgb(0 212 184 / 0.15);
-    --text:           #e8f5f2;
-    --text-muted:     #9bb3ad;
-    --header-h:       64px;
+    color-scheme: light;
+    /*
+     | لوحة 2.10.1-3 حرفيًّا (الوضع الفاتح — الافتراضيّ):
+     | الأسماء القديمة (`--surface`/`--surface-raised`/`--surface-sunken`/
+     | `--border`/`--text`/`--text-muted`) **أُبقيت كما هي** — 580+ ملفّ Blade
+     | يستهلكها بـ`style="...var(--surface)..."` — وقيمتها فقط تغيّرت لتطابق
+     | أدوار الهويّة الجديدة: --surface⟵bg (خلفيّة الصفحة) ·
+     | --surface-raised⟵surface (الكروت) · --surface-sunken⟵soft (الغسيل) ·
+     | --border⟵line · --text⟵ink · --text-muted⟵muted. فتتلوّن كلّ الصفحات
+     | بلا تعديل ملفٍّ واحد منها.
+     */
+    --surface:        #fcfbf8; /* --bg */
+    --surface-raised: #ffffff; /* --surface */
+    --surface-sunken: #f3efe7; /* --soft */
+    --border:         #dfddd5; /* --line — صلبٌ لا شفّاف (2.10.1-6/17) */
+    --text:           #171715; /* --ink */
+    --text-muted:     #65645f; /* --muted */
+
+    /* أسماء الدستور الحرفيّة — لكلّ CSS جديد يُكتَب بنصّ 2.10.1 مباشرة */
+    --bg:           var(--surface);
+    --surfacec:     var(--surface-raised);
+    --soft:         var(--surface-sunken);
+    --line:         var(--border);
+    --ink:          var(--text);
+    --muted:        var(--text-muted);
+    --brand:        var(--color-brand-500);
+    --brand-hover:  var(--color-brand-600);
+    --brand-soft:   var(--color-brand-50);
+    --success:      var(--color-state-ok);
+    --warning:      var(--color-state-warn);
+    --danger:       var(--color-state-danger);
+    --gold:         var(--color-state-honor);
+
+    --header-h: 76px; /* 2.10.1-14: 76px ديسكتوب/تابلت */
     /* اتّجاه تعبئة المنزلق: يمينًا في LTR ويسارًا في RTL (2.10.1-11) */
     --range-dir:      right;
     /* اتّجاه شريط `ticker` (2.10.1-20) — يتبع اتّجاه الصفحة لا العكس */
@@ -86,19 +120,42 @@
 
   [dir='rtl'] { --range-dir: left; --ticker-dir: -1; }
 
-  :root[data-theme='light'] {
-    color-scheme: light;
-    --surface:        #ffffff;
-    --surface-raised: #f6fbfa;
-    --surface-sunken: #eef6f4;
-    --border:         rgb(0 128 108 / 0.18);
-    --text:           #16241f;
-    --text-muted:     #56706a;
+  @media (max-width: 767px) {
+    :root { --header-h: 64px; } /* 2.10.1-14: 64px موبايل */
+  }
+
+  :root[data-theme='dark'] {
+    color-scheme: dark;
+    /* لوحة 2.10.1-3 حرفيًّا (الوضع الداكن — تجريبيّ) */
+    --surface:        #191917;
+    --surface-raised: #22221f;
+    --surface-sunken: #2c2b26;
+    --border:         #424139;
+    --text:           #f7f4ec;
+    --text-muted:     #b8b5ab;
+
+    --color-brand-50:  #352321; /* = --brand-soft (داكن) حرفيًّا */
+    --color-brand-100: #4a2e2a;
+    --color-brand-200: #6b3630;
+    --color-brand-300: #96453a;
+    --color-brand-400: #c85648;
+    --color-brand-500: #f36b60; /* = --brand (داكن) حرفيًّا */
+    --color-brand-600: #ff8277; /* = --brand-hover (داكن) حرفيًّا — أفتح من 500 كما ينصّ الأصل */
+    --color-brand-700: #ffab9f;
+    --color-brand-800: #ffcec7;
+    --color-brand-900: #ffe8e4;
+
+    --color-state-ok:     #91caa6;
+    --color-state-warn:   #edc26c;
+    --color-state-danger: #f3a2aa;
+    --color-state-idle:   #b8b5ab;
+    --color-state-honor:  #d9bb79;
   }
 
   /*
-   | الوضع الداكن هو الافتراضيّ (2.10.1) — لا يتبع تفضيل النظام.
-   | والفاتح لا يُفعَّل إلّا باختيار المستخدم صراحةً (data-theme="light").
+   | ⭐ الوضع الفاتح هو الافتراضيّ (2.10.1-1 — الهويّة 2.0، v5.7): لا يتبع
+   | تفضيل النظام. والداكن تجريبيّ، لا يُفعَّل إلّا باختيار المستخدم صراحةً
+   | (data-theme="dark"). عكس ما كان قبل v5.7 تمامًا.
    */
 
   html { scroll-behavior: smooth; }
@@ -107,76 +164,32 @@
     background-color: var(--surface);
     color: var(--text);
     font-family: var(--font-sans);
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 1.8; /* 2.10.1-2: نصّ أساسيّ 16px/400/1.8 */
     -webkit-font-smoothing: antialiased;
-    /* سياق تكديس خاصّ بالـbody حتى تُرسَم طبقتا الخلفيّة فوق لونه لا تحته */
-    position: relative;
-    isolation: isolate;
   }
 
-  /* العناوين والنصّ في صفحات LTR (2.10.1-2) — العربيّ يبقى Cairo كما هو */
-  [dir='ltr'] body,
-  :root:lang(en) body { font-family: var(--font-body-ltr); line-height: 1.65; }
-  [dir='ltr'] h1, [dir='ltr'] h2, [dir='ltr'] h3,
-  :root:lang(en) h1, :root:lang(en) h2, :root:lang(en) h3 { font-family: var(--font-display); line-height: 1.1; }
+  /* السلّم النصّيّ (2.10.1-2) — خطٌّ واحد، العربيّ واللاتينيّ معًا */
+  h1 { font-size: 40px; font-weight: 700; line-height: 1.45; }
+  h2 { font-size: 24px; font-weight: 600; line-height: 1.55; }
+  h3 { font-size: 18px; font-weight: 600; line-height: 1.60; }
 
-  /*
-   | خلفيّة قمة جبل طوبوغرافيّة بنقاط كنتور (2.10) + شبكة النقاط 32px
-   | وشبكة الخطوط 64px (2.10.1-4). طبقة واحدة ثابتة خلف المحتوى:
-   | حلقاتٌ متّحدة المركز تنطلق من أسفل الشاشة («القمة»)، ثمّ قناع نقطيّ
-   | يحوّل الخطوط إلى **نقاط كنتور** بدل خطوط مصمتة.
-   */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    z-index: -2;
-    pointer-events: none;
-    background-image: repeating-radial-gradient(
-      circle at 50% 116%,
-      transparent 0 44px,
-      rgb(0 212 184 / 0.28) 44px 46px
-    );
-    /* القناع النقطيّ يحوّل حلقات الكنتور إلى **نقاط** (Dotted contour) */
-    -webkit-mask-image: radial-gradient(#000 0.9px, transparent 1px);
-    mask-image: radial-gradient(#000 0.9px, transparent 1px);
-    -webkit-mask-size: 5px 5px;
-    mask-size: 5px 5px;
+  @media (max-width: 767px) {
+    h1 { font-size: 28px; }
+    h2 { font-size: 21px; }
+    h3 { font-size: 17px; }
   }
 
-  /*
-   | شبكة النقاط 32px وشبكة الخطوط 64px وملمس الضوضاء fractalNoise
-   | بشفافيّة .04 (2.10.1-4). الضوضاء SVG مضمَّن (Data URI) بشفافيّته
-   | مخبوزةً داخله — فلا نداء خارجيّ ولا `opacity` على الحاوية.
-   */
-  body::after {
-    content: '';
-    position: fixed;
-    inset: 0;
-    z-index: -1;
-    pointer-events: none;
-    background-image:
-      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E"),
-      radial-gradient(rgb(0 212 184 / 0.07) 1px, transparent 1px),
-      linear-gradient(rgb(0 212 184 / 0.05) 1px, transparent 1px),
-      linear-gradient(90deg, rgb(0 212 184 / 0.05) 1px, transparent 1px);
-    background-size: 160px 160px, 32px 32px, 64px 64px, 64px 64px;
-  }
-
-  /*
-   | الوضع الفاتح: تُزال الزخرفة بإلغاء `background-image` لا بتعتيم العنصر
-   | (قاعدة 2.10.1 الإلزاميّة رقم 4 — وإلّا صارت الصفحة بيضاء فارغة).
-   */
-  :root[data-theme='light'] body::before,
-  :root[data-theme='light'] body::after { background-image: none; }
-
-  /* الأفاتار بلا هالة — قاعدة صريحة في الدستور */
-  .avatar { box-shadow: none !important; filter: none !important; }
+  /* الأفاتار بلا هالة — قاعدة صريحة في الدستور (2.10.1-16) */
+  .avatar { box-shadow: none !important; filter: none !important; border: none !important; }
 
   /*
    | المنزلقات (2.10.1-11): منزلق **مخصّص بلا بوردر**.
    | ⛔ ممنوع `accent-color` لأنّه يترك إطارًا نايتف لا يُزال بـ`border:none` —
    | لذلك نلغي المظهر النايتف بالكامل، والتعبئة تدرّجٌ على خلفيّة المنزلق
-   | يحدّثه الـJS من القيمة (`--range-fill`)، والمقبض دائرة تركوازيّة بلا حدّ.
+   | يحدّثه الـJS من القيمة (`--range-fill`)، والمقبض دائرة حمراء بلا حدّ.
+   | القسم غير الممتلئ **صلبٌ (`--line`)** لا شفّافٌ تركوازيّ كالسابق.
    */
   input[type='range'] {
     -webkit-appearance: none;
@@ -189,13 +202,16 @@
     background-color: transparent;
     background-image: linear-gradient(
       to var(--range-dir, left),
-      var(--color-brand-500) var(--range-fill, 0%),
-      rgb(0 212 184 / 0.12) var(--range-fill, 0%)
+      var(--brand) var(--range-fill, 0%),
+      var(--line) var(--range-fill, 0%)
     );
     cursor: pointer;
   }
 
   input[type='range']:focus { outline: none; }
+  input[type='range']:focus-visible {
+    box-shadow: 0 0 0 5px var(--brand-soft); /* 2.10.1-11: هالة تركيز بدل الحدّ */
+  }
 
   input[type='range']::-webkit-slider-runnable-track {
     block-size: 6px;
@@ -207,67 +223,46 @@
   input[type='range']::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
-    inline-size: 16px;
-    block-size: 16px;
-    margin-block-start: -5px;
+    inline-size: 18px;
+    block-size: 18px;
+    margin-block-start: -6px;
     border: none;
     border-radius: 999px;
-    background: var(--color-brand-500);
+    background: var(--brand);
   }
 
   input[type='range']::-moz-range-track {
     block-size: 6px;
     border: none;
     border-radius: 999px;
-    background: rgb(0 212 184 / 0.12);
+    background: var(--line);
   }
 
   input[type='range']::-moz-range-progress {
     block-size: 6px;
     border: none;
     border-radius: 999px;
-    background: var(--color-brand-500);
+    background: var(--brand);
   }
 
   input[type='range']::-moz-range-thumb {
-    inline-size: 16px;
-    block-size: 16px;
+    inline-size: 18px;
+    block-size: 18px;
     border: none;
     border-radius: 999px;
-    background: var(--color-brand-500);
+    background: var(--brand);
   }
 
   /*
-   | ⭐ (23) شريط التمرير: «عرض **5px**، مقبض `--ta20`، مسار `--bg`، `radius:3px`».
-   | كان غائبًا بالكامل فيرسم كلُّ نظامٍ شريطَه (17px رماديّ على ويندوز) —
-   | فيقطع الهويّة عند أوّل قائمةٍ طويلة. والمقاسان إعدادٌ لا رقمٌ محروق (2.13).
-   |
-   | ⚠️ ولماذا `@supports not selector(::-webkit-scrollbar)`؟ لأنّ `scrollbar-width`
-   | القياسيّة **تعلو** على `::-webkit-scrollbar` في كروم، و`thin` فيها **عرضٌ
-   | ثابت يقرّره المحرّك (~2px)** لا يقبل رقمنا — فكتابةُ الاثنتين معًا تُلغي
-   | الخمسة بصمت وتترك خيطًا لا يكاد يُمسَك. فالقياسيّة **لفَيَرفُكس وحده**
-   | (حيث لا `::-webkit-scrollbar` أصلًا)، والويب-كِت تأخذ المقاس المنصوص.
+   | ⭐ (23) شريط التمرير — الهويّة 2.0: **أصليّ رفيع فقط** (2.10.1-23)،
+   | يُلغى الشريط المرسوم يدويًّا بالكامل (كان `::-webkit-scrollbar` مخصّصًا
+   | بعرض 5px — أُزيل). `scrollbar-width`/`scrollbar-color` القياسيّتان
+   | مدعومتان الآن في العائلتين (كروم 121+ وفَيَرفُكس)، فلا حاجة لفرعين.
    */
-  @supports not selector(::-webkit-scrollbar) {
-    * {
-      scrollbar-width: thin;
-      scrollbar-color: rgb(0 212 184 / 0.20) var(--surface);
-    }
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--line) transparent;
   }
-
-  ::-webkit-scrollbar {
-    inline-size: var(--sb-w, 5px);
-    block-size: var(--sb-w, 5px);
-  }
-
-  ::-webkit-scrollbar-track { background: var(--surface); }
-
-  ::-webkit-scrollbar-thumb {
-    background: rgb(0 212 184 / 0.20);
-    border-radius: var(--sb-r, 3px);
-  }
-
-  ::-webkit-scrollbar-thumb:hover { background: rgb(0 212 184 / 0.30); }
 
   /*
    | ⭐ 2.15-ج: «**الحدّ الأدنى لمساحة اللمس 44×44 بكسل**».
@@ -331,12 +326,12 @@
       block-size: 6px;
       background-image: linear-gradient(
         to var(--range-dir, left),
-        var(--color-brand-500) var(--range-fill, 0%),
-        rgb(0 212 184 / 0.12) var(--range-fill, 0%)
+        var(--brand) var(--range-fill, 0%),
+        var(--line) var(--range-fill, 0%)
       );
     }
 
-    input[type='range']::-webkit-slider-thumb { margin-block-start: -5px; }
+    input[type='range']::-webkit-slider-thumb { margin-block-start: -6px; }
 
     /*
      | ⭐ الروابط **داخل نصٍّ جارٍ**: `min-block-size` لا أثر له على عنصرٍ
@@ -358,26 +353,27 @@
 }
 
 @layer components {
-  /* شريط تقدّم التمرير أعلى الصفحة (2.10.1-25) */
+  /* شريط تقدّم التمرير أعلى الصفحة (2.10.1-25) — لونٌ صلبٌ لا تدرّج */
   .scroll-progress {
     position: fixed;
     inset-block-start: 0;
     inset-inline: 0;
     block-size: 2px;
-    background: linear-gradient(90deg, var(--color-brand-400), var(--color-brand-600));
+    background: var(--brand);
     transform-origin: 0 50%;
     z-index: 60;
   }
 
-  /* الكارت: radius 1rem وحدّ خفيف */
+  /* الكارت: radius 12px وحدّ خفيف (2.10.1-6) — مسطّح تمامًا، بلا ظلّ */
   .card {
     background-color: var(--surface-raised);
     border: 1px solid var(--border);
-    border-radius: 1rem;
+    border-radius: 12px;
+    box-shadow: none;
   }
 
-  /* بوب-أب: رأس ثابت وجسم متمرّر بحدّ أقصى 92vh (2.10.1-17) */
-  .modal-shell { display: flex; flex-direction: column; max-block-size: 92vh; border-radius: 1rem; }
+  /* بوب-أب: رأس ثابت وجسم متمرّر بحدّ أقصى 90dvh (2.10.1-17) */
+  .modal-shell { display: flex; flex-direction: column; max-block-size: 90dvh; border-radius: 12px; }
   .modal-head  { flex: 0 0 auto; }
   .modal-body  { flex: 1 1 auto; overflow-y: auto; }
 
@@ -407,105 +403,91 @@
   [data-columns-cap='7'] tr > *:nth-child(n + 8),
   [data-columns-cap='8'] tr > *:nth-child(n + 9) { display: none; }
 
-  /* الأشرطة اللاصقة تبدأ تحت الهيدر بـ12px على الأقلّ (2.10.1-13/14) */
+  /* الأشرطة اللاصقة تبدأ تحت الهيدر بـ12px على الأقلّ (2.10.1-14) */
   .sticky-bar {
     position: sticky;
-    inset-block-start: calc(var(--header-h, 64px) + 12px);
+    inset-block-start: calc(var(--header-h, 76px) + 12px);
     z-index: 30;
   }
 
-  /* ================= (7) الأزرار — التدرّج لا اللون المسطّح =================
+  /* ================= (7) الأزرار — لونٌ صلبٌ لا تدرّج =================
    |
-   | نصّ 2.10.1-7 حرفيًّا: «**أساسيّ (btn-p):** `linear-gradient(135deg,#2de0ca,
-   | #009e85)`، نصّ `#020e18`، `700`، `radius:~.72rem`، Hover `opacity:.9` +
-   | `scale(1.01–1.015)`». · «**شبح (btn-g/outline):** `border:1px --ta20`، نصّ
-   | `--w80`، خلفيّة `--ta08`؛ Hover حدّ `--ta30` + خلفيّة `--ta12`».
+   | نصّ 2.10.1-7 حرفيًّا (الهويّة 2.0): «**أساسيّ:** خلفيّة صلبة `--brand`
+   | (لا تدرّج)، نصّ أبيض في الفاتح / `--ink` الداكن فوق الأحمر الفاتح في
+   | الوضع الداكن، وزن `600`، ارتفاع أدنى `48px`، راديوس `8px`. Hover:
+   | خلفيّة `--brand-hover` (لا opacity/scale)». · «**ثانويّ:** حدّ
+   | `1px solid var(--line)`، خلفيّة `--surface`، نصّ `--ink`؛ Hover حدّ
+   | `--muted`».
    |
-   | وكان `.btn` **صنفًا بلا تعريف** في الورقة كلّها: 285 موضعًا تكتبه ثمّ تلوّن
-   | نفسها بـ`style="background: var(--color-brand-500)"` — لونٌ **مسطّح** لا
-   | تدرّج، فضاع أوّل ما يراه العين من الهويّة.
+   | والمُحدِّد `.btn[style*='--color-brand-500']` **مقصود**: 337 موضعًا في
+   | الكود القائم يكتب `style="background: var(--color-brand-500)"` مباشرة
+   | بلا صنف `.btn-p` — فيُصطاد بهذا المُحدِّد بلا تعديل ملفٍّ واحد منها.
    */
   .btn-p, .btn[style*='--color-brand-500'] {
-    background-image: var(--btn-grad, linear-gradient(135deg, #2de0ca, #009e85)) !important;
-    color: var(--btn-text, #020e18) !important;
-    font-weight: 700;
+    background-color: var(--brand) !important;
+    background-image: none !important;
+    color: #fff !important;
+    font-weight: 600;
     border: none;
+    min-block-size: 48px;
+  }
+
+  :root[data-theme='dark'] .btn-p,
+  :root[data-theme='dark'] .btn[style*='--color-brand-500'] {
+    color: var(--ink) !important;
   }
 
   .btn-p:hover, .btn[style*='--color-brand-500']:hover {
-    opacity: var(--btn-hover-opacity, 0.9);
-    transform: scale(var(--btn-hover-scale, 1.015));
+    background-color: var(--brand-hover) !important;
   }
 
   .btn, .btn-p, .btn-g {
-    border-radius: calc(var(--btn-radius, 0.72) * 1rem);
-    transition: opacity 0.18s var(--ease-standard), transform 0.18s var(--ease-standard),
-      background-color 0.18s var(--ease-standard), border-color 0.18s var(--ease-standard);
+    border-radius: 8px;
+    min-block-size: 48px;
+    transition: background-color 0.18s var(--ease-standard), color 0.18s var(--ease-standard),
+      border-color 0.18s var(--ease-standard);
   }
 
   .btn-g {
-    border: 1px solid rgb(0 212 184 / 0.20);
-    background: rgb(0 212 184 / 0.08);
-    color: rgb(255 255 255 / 0.80);
-    font-weight: 700;
+    border: 1px solid var(--line);
+    background: var(--surface-raised);
+    color: var(--text);
+    font-weight: 600;
   }
 
-  .btn-g:hover {
-    border-color: rgb(0 212 184 / 0.30);
-    background: rgb(0 212 184 / 0.12);
-  }
+  .btn-g:hover { border-color: var(--text-muted); }
 
-  :root[data-theme='light'] .btn-g { color: var(--text); }
-
-  /* تدرّج الإبراز على النصّ (2.10.1-3): `background-clip:text` */
-  .text-accent {
-    background-image: var(--accent-grad, linear-gradient(135deg, #2de0ca 0%, #00d4b8 55%, #009e85 100%));
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-  }
+  /* لمسة نصّ الهويّة (2.10.1-1) — لونٌ صلبٌ، لا `background-clip:text` بعد الآن */
+  .text-accent { color: var(--brand); }
 
   /* ================= (10) السويتش (Toggle) =================
    |
-   | نصّ 2.10.1-10 حرفيًّا: «المسار `40×22px`/`999px`/`rgba(255,255,255,.15)`؛
-   | عند التفعيل → `--t`. · الإبهام دائرة `16px` بيضاء تنزلق `3px→21px`
-   | (RTL عبر `inset-inline-start`)».
+   | نصّ 2.10.1-10 حرفيًّا (الهويّة 2.0): «المسار `42×24px`/`999px`/خلفيّة
+   | `--line`؛ عند التفعيل → `--brand`. الإبهام دائرة `18px` بيضاء تنزلق
+   | `3px→21px`».
    |
-   | ⭐ و`21px` ليست رقمًا مستقلًّا بل **مشتقّة**: 40 − 16 − 3. فلو غيّر المالك
-   | عرض المسار من شاشته انزلق الإبهام إلى موضعه الصحيح، ولم يقف في الفراغ.
-   | ولذلك `--sw-end` تُحسَب في `DesignTokens` لا تُكتَب.
-   */
-  /*
-   | ⚠️ لون المسار المطفأ **متغيّرٌ** (`--sw-off`) لا خلفيّةً مباشرة.
-   |
-   | ولماذا؟ لأنّ الصياغة الأولى كتبت للوضع الفاتح قاعدةً أخرى تضبط `background`،
-   | فصارت `:root[data-theme='light'] .hc-switch` (0,2,1) **تعلو** على قاعدة
-   | التفعيل `.hc-switch[data-on='1']` (0,2,0) — فالسويتش في الوضع الفاتح
-   | **لا يخضرّ أبدًا مهما فُعِّل**. سقطت صامتةً بلا خطأ ولا تحذير، ولم تنكشف
-   | إلّا **بالنظر إلى لقطة الوضع الفاتح**. والمتغيّر يحلّها من أصلها: الفاتح
-   | يغيّر **قيمة اللون المطفأ** ولا يمسّ الخلفيّة، فتبقى الأسبقيّة سليمة.
+   | ⭐ و`21px` **مشتقّة**: 42 − 18 − 3. فلو غيّر المالك عرض المسار من شاشته
+   | انزلق الإبهام إلى موضعه الصحيح، ولم يقف في الفراغ (`--sw-end` تُحسَب
+   | في `DesignTokens` لا تُكتَب).
    */
   .hc-switch {
-    --sw-off: rgb(255 255 255 / 0.15);
     position: relative;
     display: inline-block;
     flex: none;
-    inline-size: var(--sw-track-w, 40px);
-    block-size: var(--sw-track-h, 22px);
+    inline-size: var(--sw-track-w, 42px);
+    block-size: var(--sw-track-h, 24px);
     border-radius: 999px;
-    background: var(--sw-off);
+    background: var(--line);
     transition: background-color 0.2s var(--ease-standard);
   }
-
-  :root[data-theme='light'] .hc-switch { --sw-off: rgb(10 34 32 / 0.15); }
 
   .hc-switch::after {
     content: '';
     position: absolute;
     inset-block-start: var(--sw-inset, 3px);
     inset-inline-start: var(--sw-inset, 3px);
-    inline-size: var(--sw-thumb, 16px);
-    block-size: var(--sw-thumb, 16px);
+    inline-size: var(--sw-thumb, 18px);
+    block-size: var(--sw-thumb, 18px);
     border-radius: 999px;
     background: #fff;
     transition: inset-inline-start 0.2s var(--ease-standard);
@@ -513,7 +495,7 @@
 
   [aria-checked='true'] .hc-switch,
   input:checked + .hc-switch,
-  .hc-switch[data-on='1'] { background: var(--color-brand-500); }
+  .hc-switch[data-on='1'] { background: var(--brand); }
 
   [aria-checked='true'] .hc-switch::after,
   input:checked + .hc-switch::after,
@@ -521,13 +503,10 @@
 
   /* ================= (18) المؤشّر المخصّص (Custom Cursor) =================
    |
-   | نصّ 2.10.1-18 حرفيًّا: «نقطة `8px` تركوازيّة تكبر إلى `42px` (شفّافة بحدّ)
-   | فوق العناصر التفاعليّة بانتقال `cubic-bezier(.22,1,.36,1)`؛ **تُخفى على
-   | اللمس**». · وعنوانه في النصّ: «**الفأرة فقط**».
-   |
-   | فالإخفاء على اللمس ليس تحسينًا اختياريًّا: نقطةٌ تتبع آخر لمسةٍ على الموبايل
-   | تبقى واقفةً في مكانها كأنّها عطب. ولذلك `(pointer: fine)` **شرطُ الظهور**
-   | لا شرطُ الإخفاء — فما لا فأرةَ له لا يُنشَأ له مؤشّر أصلًا.
+   | نصّ 2.10.1-18 حرفيًّا (الهويّة 2.0): «نقطة `8px` حدّها وخلفيّتها `--brand`
+   | تكبر فوق العناصر التفاعليّة إلى `42px` مع تفريغ الخلفيّة، بانتقال `.2s`
+   | على width/height/background؛ تظهر فقط لجهاز فأرة (pointer:fine) وتُخفى
+   | على اللمس».
    */
   /*
    | ⚠️ **مقاييس فيزيائيّة هنا عمدًا** (`top`/`left` لا `inset-*-start`).
@@ -535,10 +514,11 @@
    | سقط هذا صامتًا أوّل مرّة: المؤشّر يتبع `clientX` و`clientY` وهما **إحداثيّان
    | فيزيائيّان** من يسار الشاشة دائمًا، بينما `inset-inline-start` في صفحةٍ
    | عربيّة (RTL) تعني **من اليمين** — فكان المؤشّر يُزاح بـ`clientX` بكسل إلى
-   | اليمين من الحافّة اليمنى، أي **خارج الشاشة دائمًا**. وكلّ قياسٍ برمجيّ كان
-   | يقول إنّه سليم (8px · تركوازيّ · `data-visible=1`)، ولم ينكشف إلّا **بالنظر
-   | إلى لقطة الشاشة** فإذا هي خالية. ولذلك لا تُعَد هذه الخاصّيّات مخالفةً
-   | لقاعدة RTL: النظام هنا فيزيائيّ من طرفَيه — الحدث والموضع.
+   | اليمين من الحافّة اليمنى، أي **خارج الشاشة دائمًا**. ولذلك لا تُعَد هذه
+   | الخاصّيّات مخالفةً لقاعدة RTL: النظام هنا فيزيائيّ من طرفَيه — الحدث
+   | والموضع. و`margin-top`/`margin-left` (بدل `transform:translate(-50%,-50%)`
+   | الثابت في المرجع) هي أسلوب هذه القاعدة نفسها للتمركز، فتبقى متحرّكةً مع
+   | تغيّر المقاس — وإلّا انزاح المؤشّر عن مركز نقطة اللمس عند التكبير.
    */
   .hc-cursor {
     position: fixed;
@@ -549,18 +529,14 @@
     margin-top: calc(var(--cursor-dot, 8px) / -2);
     margin-left: calc(var(--cursor-dot, 8px) / -2);
     border-radius: 999px;
-    background: var(--color-brand-500);
-    border: 1px solid transparent;
+    background: var(--brand);
+    border: 1px solid var(--brand);
     pointer-events: none;
     z-index: 9998;
     opacity: 0;
     transition:
-      inline-size 0.28s var(--ease-standard),
-      block-size 0.28s var(--ease-standard),
-      margin-top 0.28s var(--ease-standard),
-      margin-left 0.28s var(--ease-standard),
-      background-color 0.28s var(--ease-standard),
-      border-color 0.28s var(--ease-standard),
+      inline-size 0.2s, block-size 0.2s, background-color 0.2s,
+      margin-top 0.2s, margin-left 0.2s,
       opacity 0.2s var(--ease-standard);
   }
 
@@ -572,7 +548,7 @@
     margin-top: calc(var(--cursor-hover, 42px) / -2);
     margin-left: calc(var(--cursor-hover, 42px) / -2);
     background: transparent;
-    border-color: var(--color-brand-500);
+    border-color: var(--brand);
   }
 
   /* لا مؤشّر بلا فأرة — ولا يُبنى أصلًا على اللمس */
@@ -593,19 +569,17 @@
    | `data-motion` ولا صنفٌ يُصفّر `animation-duration`. الحركة تعمل، نقطة.
    */
 
-  /* ================= (20) الحركات — الثماني كاملةً =================
+  /* ================= (20) الحركات — الكتالوج الكامل (19 حركة) =================
    |
-   | نصّ 2.10.1-20 حرفيًّا: «`fadeup` .55s ease (ظهور 16px) · `float` 5s (طفوّ
-   | −4px) · `text-shimmer/shimmer` 5s/3s (لمعان) · `pulse-dot` 2s · `spin-slow`
-   | 11s · `ticker` 22s · `blink` 2s».
+   | ثمانٍ **بلا أيّ تغيير في المدّة** عن ما قبل الهويّة 2.0 (2.10.1-20):
+   | fadeup · float · text-shimmer · shimmer · pulse-dot · spin-slow ·
+   | ticker · blink — مُددها من `DesignTokens` كما كانت (2.13-ب).
    |
-   | ثمانٍ بالعدّ: fadeup · float · text-shimmer · shimmer · pulse-dot ·
-   | spin-slow · ticker · blink. وكان المبنيّ منها **اثنتين** بمُدّتين مخالفتين
-   | (fadeup 250ms بدل .55s وإزاحة 8px بدل 16px · shimmer 2s بدل 3s)، والستّ
-   | الباقيات غائبات — فتُستعار `animate-pulse` من تايلوند بدل `pulse-dot`
-   | المنصوصة، وهي حركةٌ أخرى بمنحنًى آخر.
-   |
-   | والمُدد كلّها من `DesignTokens` — لا رقم محروق (2.13-ب).
+   | وإحدى عشرة حركةً جديدة (الهويّة 2.0، v5.7): enter · stagger · tabline ·
+   | dropdown · unlock · check-draw · xp-float · shake · flap · letter، بمُددٍ
+   | ثابتةٍ حرفيّةٍ من نصّ الدستور — لم يَنُصَّ 2.10.1-20 على جعلها إعداداتٍ
+   | قابلةً للتعديل كالثماني الأصليّة، فبقيت هنا محروقةً بالقيمة المنصوصة
+   | حرفًا (2.13-ب لا يشمل ما نصّ الدستور نفسه على ثباته).
    */
 
   @keyframes fadeup {
@@ -633,17 +607,14 @@
   /*
    | `text-shimmer` أطول من `shimmer` وأبطأ (5s مقابل 3s) لأنّها تلمع **على
    | حروف النصّ نفسها** عبر `background-clip:text` — لا على سطحٍ فارغ.
+   | وتدرّجها (2.10.1-20) الآن `--ink → --brand → --ink` بدل درجات التركوازيّ.
    */
   @keyframes text-shimmer {
     from { background-position: 200% center; }
     to   { background-position: -200% center; }
   }
   .animate-text-shimmer {
-    background-image: linear-gradient(
-      90deg,
-      var(--color-brand-600) 0%, var(--color-brand-300) 45%,
-      var(--color-brand-600) 90%
-    );
+    background-image: linear-gradient(90deg, var(--ink) 0%, var(--brand) 45%, var(--ink) 90%);
     background-size: 200% auto;
     -webkit-background-clip: text;
     background-clip: text;
@@ -652,9 +623,9 @@
   }
 
   @keyframes pulse-dot {
-    0%   { box-shadow: 0 0 0 0 rgb(0 212 184 / 0.55); }
-    70%  { box-shadow: 0 0 0 8px rgb(0 212 184 / 0); }
-    100% { box-shadow: 0 0 0 0 rgb(0 212 184 / 0); }
+    0%   { box-shadow: 0 0 0 0 rgb(217 35 27 / 0.55); }
+    70%  { box-shadow: 0 0 0 8px rgb(217 35 27 / 0); }
+    100% { box-shadow: 0 0 0 0 rgb(217 35 27 / 0); }
   }
   .animate-pulse-dot { animation: pulse-dot var(--anim-pulse-dot, 2s) var(--ease-standard) infinite; }
 
@@ -683,4 +654,73 @@
     50%      { opacity: 0.25; }
   }
   .animate-blink { animation: blink var(--anim-blink, 2s) step-end infinite; }
+
+  /* ⭐ جديد (الهويّة 2.0): دخول الصفحة/العنصر من اليمين (RTL) — 220ms */
+  @keyframes enter {
+    from { opacity: 0.3; transform: translateX(16px); }
+    to   { opacity: 1; transform: none; }
+  }
+  @keyframes enter-back {
+    from { opacity: 0.3; transform: translateX(-16px); }
+    to   { opacity: 1; transform: none; }
+  }
+  .animate-enter { animation: enter 220ms var(--ease-standard) both; }
+  .animate-enter.back { animation-name: enter-back; }
+
+  /* ⭐ جديد: ظهورٌ متتابع — نفس fadeup بتأخيرٍ تراكميّ 40ms لكلّ عنصر (`--i`) */
+  .animate-stagger > * {
+    animation: fadeup 550ms var(--ease-standard) both;
+    animation-delay: calc(var(--i, 0) * 40ms);
+  }
+
+  /* ⭐ جديد: خطّ التبويب النشط — 220ms */
+  @keyframes tabline {
+    from { transform: scaleX(0.6); }
+    to   { transform: scaleX(1); }
+  }
+  .animate-tabline { animation: tabline 220ms var(--ease-standard); }
+
+  /* ⭐ جديد: فتح القوائم المنسدلة — 220ms */
+  @keyframes dropdown-in {
+    from { opacity: 0; transform: translateY(-6px); }
+    to   { opacity: 1; transform: none; }
+  }
+  .animate-dropdown { animation: dropdown-in 220ms var(--ease-standard); }
+
+  /* ⭐ جديد: فتح إنجاز/شارة — 550ms */
+  @keyframes unlock {
+    50% { transform: scale(1.12); }
+  }
+  .animate-unlock { animation: unlock 550ms var(--ease-standard); }
+
+  /* ⭐ جديد: رسم علامة صحّ (✓) — 500ms، يحتاج `stroke-dasharray` مطابقًا على العنصر */
+  @keyframes draw {
+    to { stroke-dashoffset: 0; }
+  }
+  .animate-check-draw { animation: draw 500ms var(--ease-standard) forwards; }
+
+  /* ⭐ جديد: رقم XP يطفو ويتلاشى لأعلى — 1000ms */
+  @keyframes xp-rise {
+    to { opacity: 0; transform: translateY(-100px); }
+  }
+  .animate-xp-float { animation: xp-rise 1000ms var(--ease-standard) forwards; }
+
+  /* ⭐ جديد: اهتزاز تحذيريّ (Ghost Timer عند الخطر) — 400ms × 3 */
+  @keyframes shake {
+    25% { transform: translateX(2px); }
+    75% { transform: translateX(-2px); }
+  }
+  .animate-shake { animation: shake 400ms 3; }
+
+  /* ⭐ جديد: غطاء المظروف يفتح — 700ms */
+  @keyframes flap {
+    to { transform: rotateX(180deg); }
+  }
+  .animate-flap { animation: flap 700ms var(--ease-standard) forwards; }
+
+  /* ⭐ جديد: رسالة المظروف تخرج لأعلى — 900ms بتأخير 200ms */
+  @keyframes letter-reveal {
+    to { transform: translateY(-65px); }
+  }
+  .animate-letter { animation: letter-reveal 900ms 200ms var(--ease-standard) forwards; }
 }

@@ -11,7 +11,7 @@ use RuntimeException;
 /**
  * رسم «الاستخراج كصورة» لأيّ لوحة في المنصّة (12.14-هـ · 12.14-و).
  *
- * ⭐ الرسم على الخادم بـPHP/GD بخطّ Cairo المضمَّن — بلا خدمة خارجيّة وبلا
+ * ⭐ الرسم على الخادم بـPHP/GD بخطّ Alexandria المضمَّن — بلا خدمة خارجيّة وبلا
  *   تراخيص، والنتيجة واحدة على كلّ الأجهزة.
  * ⭐ وقالب الاستوديو اختياريّ: لو اختاره المستخدم صار **فريمًا وطبقاتٍ** فوق
  *   اللوحة أو تحتها — وهذا معنى «رفع الطبقة وإنزالها» في الاستخراج (12.14-أ/ب).
@@ -125,8 +125,8 @@ class BoardImageRenderer
 
     private function background($canvas, int $width, int $height): void
     {
-        $top = $this->rgb((string) setting('images.board.bg_top', '#04121d'));
-        $bottom = $this->rgb((string) setting('images.board.bg_bottom', '#030d17'));
+        $top = $this->rgb((string) setting('images.board.bg_top', '#fcfbf8'));
+        $bottom = $this->rgb((string) setting('images.board.bg_bottom', '#f3efe7'));
 
         // تدرّج رأسيّ هادئ بهويّة المنصّة — بلا صور خارجيّة
         for ($y = 0; $y < $height; $y++) {
@@ -180,9 +180,9 @@ class BoardImageRenderer
         $pad = (int) round($width * 0.07);
         $right = $width - $pad;
 
-        $ink = $this->allocate($canvas, (string) setting('images.board.text', '#eaf2f8'));
-        $muted = $this->allocate($canvas, (string) setting('images.board.muted', '#9fb3c8'));
-        $brand = $this->allocate($canvas, (string) setting('images.board.brand', '#00d4b8'));
+        $ink = $this->allocate($canvas, (string) setting('images.board.text', '#171715'));
+        $muted = $this->allocate($canvas, (string) setting('images.board.muted', '#65645f'));
+        $brand = $this->allocate($canvas, (string) setting('images.board.brand', '#d9231b'));
 
         $titleSize = max(18, (int) round($width * 0.045));
         $y = $pad;
@@ -208,7 +208,8 @@ class BoardImageRenderer
         $textBox = $rowH - 16;                       // ما يتبقّى للسطرين داخل الصفّ
         $nameSize = max(12, (int) min($width * 0.036, $textBox / 2.15));
         $metaSize = max(9, (int) round($nameSize * 0.58));
-        // فجوة السطرين تتبع حجم الاسم — لخطّ Cairo نزولاتٌ عميقة تحت خطّ الأساس
+        // فجوة السطرين تتبع حجم الاسم — نسبةٌ ضُبطت على خطّ Cairo (نزولاتٌ عميقة تحت خطّ الأساس)
+        // ولم تُعَد معايرتها بعد لمقاييس Alexandria (2.10.1-2) — تحتاج تحقّقًا بصريًّا
         $lineGap = (int) round($nameSize * 0.45);
         $blockH = $nameSize + $lineGap + $metaSize;
         $avatarSize = (int) min($rowH * 0.66, $width * 0.09);
@@ -278,14 +279,14 @@ class BoardImageRenderer
     private function rowPlate($canvas, int $x1, int $y1, int $x2, int $y2, bool $highlight): void
     {
         $hex = $highlight
-            ? (string) setting('images.board.row_me', '#0b2c33')
-            : (string) setting('images.board.row', '#08192a');
+            ? (string) setting('images.board.row_me', '#fbece9')
+            : (string) setting('images.board.row', '#ffffff');
 
         imagefilledrectangle($canvas, $x1, $y1, $x2, $y2, $this->allocate($canvas, $hex));
 
         if ($highlight) {
             // شريط جانبيّ يميّز صفّي — شكل مع اللون دائمًا (2.16-ب)
-            imagefilledrectangle($canvas, $x2 - 6, $y1, $x2, $y2, $this->allocate($canvas, (string) setting('images.board.brand', '#00d4b8')));
+            imagefilledrectangle($canvas, $x2 - 6, $y1, $x2, $y2, $this->allocate($canvas, (string) setting('images.board.brand', '#d9231b')));
         }
     }
 

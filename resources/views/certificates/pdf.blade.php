@@ -11,11 +11,11 @@
       **بلا أيّ مكتبة أو خطّ خارجيّ** (الشبكة محجوبة)، والخطّ من خطوط النظام.
     --}}
     <style>
-        :root { --ink: #16241f; --muted: #56706a; --brand: #00806c; --honor: #a8862a; }
+        :root { --ink: #171715; --muted: #65645f; --brand: #d9231b; --honor: #86682a; }
         * { box-sizing: border-box; }
         body {
             margin: 0; padding: 24px; background: #fff; color: var(--ink);
-            font-family: 'Cairo', 'Noto Naskh Arabic', 'Segoe UI', system-ui, sans-serif;
+            font-family: 'Alexandria', 'Noto Naskh Arabic', 'Segoe UI', system-ui, sans-serif;
         }
         .sheet {
             max-width: 1000px; margin: 0 auto; padding: 48px;
@@ -31,7 +31,7 @@
         .qr img { inline-size: 140px; block-size: 140px; }
         .status { margin-top: 18px; font-size: 14px; }
         .status[data-state="expired"] { color: var(--muted); }
-        .status[data-state="revoked"] { color: #b91c1c; }
+        .status[data-state="revoked"] { color: #9e2430; }
         .print-hint { text-align: center; margin: 16px auto 0; font-size: 13px; color: var(--muted); }
         @media print { .print-hint { display: none; } body { padding: 0; } }
     </style>

@@ -16,7 +16,7 @@ use RuntimeException;
  *
  * **ولماذا كتبناه بأنفسنا؟** لأنّ كلّ مولّدات الـPDF مكتبات خارجيّة، والشرط
  * «التوليد بالخادم بلا مكتبات خارجيّة». فنكتب الملفّ بمواصفة PDF مباشرةً،
- * ونضمّن خطّ المنصّة (Cairo) كـCIDFontType2 بترميز Identity-H ليدعم العربيّة.
+ * ونضمّن خطّ المنصّة (Alexandria) كـCIDFontType2 بترميز Identity-H ليدعم العربيّة.
  */
 class AtsPdfWriter
 {
@@ -172,7 +172,7 @@ class AtsPdfWriter
     }
 
     /**
-     * رقم الشكل مع بديلٍ آمن: كثيرٌ من الخطوط — ومنها Cairo — **لا تُدرج الأشكال
+     * رقم الشكل مع بديلٍ آمن: كثيرٌ من الخطوط العربيّة — **لا تُدرج الأشكال
      * المنفردة** في جدول الربط لأنّها تُشتقّ من الحرف الأصل عبر GSUB. فلو غاب
      * الشكل رجعنا إلى الحرف نفسه، وهو ما يرسمه الخطّ منفردًا أصلًا — فلا يظهر
      * مربّع فارغ ولا تتصادم خرائط `ToUnicode` على الشكل صفر.
@@ -396,7 +396,7 @@ class AtsPdfWriter
 
     private function fontFile(): ?string
     {
-        $path = (string) setting('cv.ats.font_path', (string) setting('images.font.path', 'fonts/Cairo-Regular.ttf'));
+        $path = (string) setting('cv.ats.font_path', (string) setting('images.font.path', 'fonts/Alexandria-Regular.ttf'));
         $full = public_path($path);
 
         return is_file($full) ? $full : null;

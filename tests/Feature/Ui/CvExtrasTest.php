@@ -231,7 +231,7 @@ class CvExtrasTest extends UiTestCase
 
         $response = $this->actingAs($user)->get(route('cv.ats'));
 
-        if (is_file(public_path((string) setting('cv.ats.font_path', 'fonts/Cairo-Regular.ttf')))) {
+        if (is_file(public_path((string) setting('cv.ats.font_path', 'fonts/Alexandria-Regular.ttf')))) {
             $response->assertOk();
             $this->assertSame('application/pdf', $response->headers->get('Content-Type'));
             $this->assertStringStartsWith('%PDF-1.4', $response->getContent());

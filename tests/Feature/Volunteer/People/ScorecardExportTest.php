@@ -59,7 +59,7 @@ class ScorecardExportTest extends PeopleTestCase
 
         $response = $this->actingAs($actor)->get(route('volunteer.interviews.scorecard.export', $interview));
 
-        if (is_file(public_path((string) setting('cv.ats.font_path', 'fonts/Cairo-Regular.ttf')))) {
+        if (is_file(public_path((string) setting('cv.ats.font_path', 'fonts/Alexandria-Regular.ttf')))) {
             $response->assertOk();
             $this->assertSame('application/pdf', $response->headers->get('Content-Type'));
             $this->assertStringStartsWith('%PDF-1.4', $response->getContent());
@@ -92,7 +92,7 @@ class ScorecardExportTest extends PeopleTestCase
 
         $response = $this->actingAs($actor)->get(route('volunteer.interviews.scorecard.export', $interview));
 
-        if (! is_file(public_path((string) setting('cv.ats.font_path', 'fonts/Cairo-Regular.ttf')))) {
+        if (! is_file(public_path((string) setting('cv.ats.font_path', 'fonts/Alexandria-Regular.ttf')))) {
             $this->markTestSkipped('الخطّ المضمَّن غير مرفوع على بيئة الاختبار.');
         }
 

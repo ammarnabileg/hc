@@ -36,7 +36,13 @@
     $height = max(2, (int) setting('celebrations.confetti.piece_height_px', 14));
 
     $wave = max(1, (int) ceil($pieces / 3));
-    $palette = ['var(--color-brand-400)', 'var(--color-state-honor)', 'var(--color-brand-200)'];
+    /*
+     | ⭐ ألوان الكونفيتي الثلاثة — حرفيّة من نصّ 2.10.1-26 (الهويّة 2.0):
+     | أحمر الهويّة · الحبر الأساسيّ · ذهبيّ دافئ مائل للبنّيّ **يختلف عن
+     | Hex الذهبيّ الرسميّ `--gold`** المخصَّص للشرف وحده — فلا يُستعار
+     | `--color-state-honor` هنا، ولا يتغيّر الثلاثي بين الوضعين.
+     */
+    $palette = ['#D9231B', '#171715', '#B79C6C'];
 @endphp
 
 @if ($pieces > 0)

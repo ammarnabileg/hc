@@ -184,7 +184,7 @@
                                                style="background: var(--surface); border: 1px solid var(--border); color: var(--text)">
                                     </label>
                                     <label class="text-xs">{{ setting('admin.gamification.tabs.wars.lwn_alhrb', 'لون الحرب') }}
-                                        <input type="text" name="color" value="{{ $selected->color }}" placeholder="#00d4b8" @disabled($locked)
+                                        <input type="text" name="color" value="{{ $selected->color }}" placeholder="#d9231b" @disabled($locked)
                                                class="w-full rounded-lg px-2 py-1.5 mt-1"
                                                style="background: var(--surface); border: 1px solid var(--border); color: var(--text)">
                                     </label>

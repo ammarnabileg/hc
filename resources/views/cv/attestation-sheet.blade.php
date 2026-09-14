@@ -19,15 +19,15 @@
     <style>
         @page { size: A4; margin: 0; }
         * { box-sizing: border-box; }
-        html, body { margin: 0; background: #e9edec; font-family: 'Cairo', system-ui, sans-serif; }
-        .sheet { inline-size: 210mm; min-block-size: 297mm; margin: 0 auto; background: #fff; color: #16241f; padding: 16mm; box-shadow: 0 2px 18px rgb(0 0 0 / .12); }
+        html, body { margin: 0; background: #f3efe7; font-family: 'Alexandria', system-ui, sans-serif; }
+        .sheet { inline-size: 210mm; min-block-size: 297mm; margin: 0 auto; background: #fff; color: #171715; padding: 16mm; box-shadow: 0 2px 18px rgb(0 0 0 / .12); }
         h1 { font-size: 20pt; margin: 0 0 2mm; }
         h2 { font-size: 11pt; margin: 7mm 0 2mm; }
         p, li { font-size: 10pt; line-height: 1.7; margin: 0; }
-        .muted { color: #56706a; }
+        .muted { color: #65645f; }
         ul { padding-inline-start: 5mm; margin: 0; }
         .band { display: flex; gap: 6mm; margin-block-start: 4mm; }
-        .stat { border: 1px solid #d5e0dd; border-radius: 3mm; padding: 3mm 5mm; text-align: center; }
+        .stat { border: 1px solid #dfddd5; border-radius: 3mm; padding: 3mm 5mm; text-align: center; }
         .stat b { display: block; font-size: 15pt; }
         @media print { html, body { background: #fff; } .sheet { box-shadow: none; } }
     </style>

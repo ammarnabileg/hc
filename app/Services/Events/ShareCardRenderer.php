@@ -36,7 +36,7 @@ class ShareCardRenderer
         $suffix = (string) setting('events.share_card_renderer.og_suffix', ' · فعاليّة');
 
         return <<<SVG
-            <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" font-family="Cairo, sans-serif">
+            <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" font-family="Alexandria, sans-serif">
               <rect width="1200" height="630" fill="{$this->e($bg)}"/>
               <rect x="0" y="0" width="1200" height="10" fill="{$this->e($accent)}"/>
               <circle cx="90" cy="540" r="180" fill="{$this->e($accent)}" opacity="0.08"/>
@@ -69,7 +69,7 @@ class ShareCardRenderer
         $ticketLabel = (string) setting('events.share_card_renderer.ticket_label', 'تذكرة حضور');
 
         return <<<SVG
-            <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" font-family="Cairo, sans-serif">
+            <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" font-family="Alexandria, sans-serif">
               <rect width="1200" height="630" fill="{$this->e($bg)}"/>
               <rect x="0" y="0" width="1200" height="10" fill="{$this->e($accent)}"/>
               <text x="1120" y="130" text-anchor="end" direction="rtl" font-size="32" font-weight="700" fill="{$this->e($accent)}">{$ticketLabel}</text>

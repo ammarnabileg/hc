@@ -87,11 +87,11 @@ class ImpersonationBanner
         $csrf = e(csrf_token());
 
         return <<<HTML
-        <div role="status" style="position: sticky; inset-block-start: 0; z-index: 80; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: .75rem; padding: .6rem 1rem; background: var(--color-state-warn, #eab308); color: #241d00; font-family: 'Cairo', sans-serif; font-size: .8125rem; font-weight: 700;">
+        <div role="status" style="position: sticky; inset-block-start: 0; z-index: 80; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: .75rem; padding: .6rem 1rem; background: var(--color-state-warn, #87600b); color: #fff; font-family: 'Alexandria', sans-serif; font-size: .8125rem; font-weight: 700;">
             <span>{$text}</span>
             <form method="post" action="{$url}" style="margin: 0;">
                 <input type="hidden" name="_token" value="{$csrf}">
-                <button type="submit" style="min-block-size: 44px; border-radius: .75rem; padding: .35rem 1rem; background: #241d00; color: #fff; font-weight: 700;">{$label}</button>
+                <button type="submit" style="min-block-size: 44px; border-radius: .5rem; padding: .35rem 1rem; background: #241d00; color: #fff; font-weight: 700;">{$label}</button>
             </form>
         </div>
         HTML;

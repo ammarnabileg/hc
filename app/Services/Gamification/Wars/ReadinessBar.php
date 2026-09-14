@@ -94,12 +94,12 @@ class ReadinessBar
         $csrf = e(csrf_token());
 
         return <<<HTML
-        <div role="status" data-war-ready-bar style="position: sticky; inset-block-start: 0; z-index: 70; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: .75rem; padding: .55rem 1rem; background: var(--color-brand-800, #04372f); color: var(--color-brand-100, #d8fff7); font-family: 'Cairo', sans-serif; font-size: .8125rem; font-weight: 600; border-block-end: 1px solid var(--color-brand-500, #00d4b8);">
+        <div role="status" data-war-ready-bar style="position: sticky; inset-block-start: 0; z-index: 70; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: .75rem; padding: .55rem 1rem; background: var(--color-brand-800, #6b0f0b); color: var(--color-brand-100, #f8d9d2); font-family: 'Alexandria', sans-serif; font-size: .8125rem; font-weight: 600; border-block-end: 1px solid var(--color-brand-500, #d9231b);">
             <span aria-hidden="true">⚔️</span>
             <span>{$text}</span>
             <form method="post" action="{$url}" style="margin: 0;">
                 <input type="hidden" name="_token" value="{$csrf}">
-                <button type="submit" style="min-block-size: 44px; min-inline-size: 44px; border-radius: .75rem; padding: .35rem 1rem; background: var(--color-brand-500, #00d4b8); color: #04201c; font-weight: 700;">{$label}</button>
+                <button type="submit" style="min-block-size: 44px; min-inline-size: 44px; border-radius: .5rem; padding: .35rem 1rem; background: var(--color-brand-500, #d9231b); color: #fff; font-weight: 700;">{$label}</button>
             </form>
         </div>
         HTML;

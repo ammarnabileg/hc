@@ -49,7 +49,7 @@
                 {{-- مقاس نسبيّ A4 (210:297) — لا مقاسات حرّة كالاستوديو --}}
                 <div class="mx-auto" style="max-width: 480px">
                     <div dir="ltr" id="decor-canvas" class="relative overflow-hidden rounded-xl select-none"
-                         style="width: 100%; aspect-ratio: 210 / 297; background: #e9edec; border: 1px solid var(--border)">
+                         style="width: 100%; aspect-ratio: 210 / 297; background: #f3efe7; border: 1px solid var(--border)">
                         {{-- المحتوى المتدفّق الحقيقيّ لهذا القالب بعينه — لا طبقة زخرفيّة هنا
                              (الكانفس فوقه هو من يرسمها، فلا ازدواج بصريّ أثناء السحب) --}}
                         <iframe src="{{ route('admin.cv-templates.decor.preview', $template) }}"

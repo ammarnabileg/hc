@@ -15,7 +15,8 @@
 
 ## ✅ المُنجَز
 <!-- تلقائيّ:بداية:المنجز -->
-- **مايجريشنز (274) — والقائم منها لا يُعدَّل (قاعدة البناء §1). الأحدث:**
+- **مايجريشنز (275) — والقائم منها لا يُعدَّل (قاعدة البناء §1). الأحدث:**
+  - `2026_09_14_100010_light_mode_is_the_default_identity_now.php`
   - `2026_09_13_100010_a_marketing_admin_needs_an_independent_landing_page.php`
   - `2026_09_11_130010_a_third_hidden_topup_minimum_overrode_the_finance_screen.php`
   - `2026_09_11_120000_trim_cv_templates_to_real_designs.php`
@@ -27,8 +28,7 @@
   - `2026_09_10_100090_library_dead_watermark_and_session_settings_are_swept.php`
   - `2026_09_10_100090_a_certificate_prefix_setting_was_a_dead_promise.php`
   - `2026_09_10_100080_a_certificate_type_needs_optional_security_elements.php`
-  - `2026_09_10_100070_email_templates_need_a_real_table.php`
-  - … و262 غيرها.
+  - … و263 غيرها.
 <!-- تلقائيّ:نهاية:المنجز -->
 
 ## ⬜ المتبقّي
@@ -85,6 +85,6 @@
 
 ## 🕒 آخر تحديث
 <!-- تلقائيّ:بداية:التحديث -->
-- **آخر توليد لهذه الوثيقة:** 2026-09-13 — `php artisan docs:status`.
-- **آخر لمسة للمجلّد:** 2026-09-11 — Claude.
+- **آخر توليد لهذه الوثيقة:** 2026-09-14 — `php artisan docs:status`.
+- **آخر لمسة للمجلّد:** 2026-09-14 — Claude.
 <!-- تلقائيّ:نهاية:التحديث -->

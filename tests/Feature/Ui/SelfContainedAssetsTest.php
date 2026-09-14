@@ -59,14 +59,17 @@ class SelfContainedAssetsTest extends TestCase
     /**
      * والوجه الآخر: الخطّ العربيّ **موجودٌ فعلًا** داخل الحزمة. فلولا هذا
      * لكان «احذف رابط الـCDN» يُرضي الحارس الأوّل ويترك الأوراق بلا خطٍّ أصلًا.
+     *
+     * ⭐ الخطّ صار Alexandria (الهويّة البصريّة 2.0، v5.7) بدل Cairo — خطٌّ
+     * واحد لكلّ نصٍّ في المنصّة (2.10.1-2).
      */
     #[Test]
     public function the_arabic_font_is_bundled_locally(): void
     {
         $css = (string) file_get_contents(resource_path('css/app.css'));
 
-        $this->assertStringContainsString('@fontsource/cairo', $css,
-            'خطّ «القاهرة» مش مبنيّ داخل الحزمة — فمنع الـCDN بيسيب الأوراق بلا خطّ.');
+        $this->assertStringContainsString('@fontsource/alexandria', $css,
+            'خطّ «Alexandria» مش مبنيّ داخل الحزمة — فمنع الـCDN بيسيب الأوراق بلا خطّ.');
     }
 
     /**

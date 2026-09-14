@@ -30,7 +30,7 @@ class User extends Authenticatable
      * للأنيميشن — الأنيميشن حاضر دائمًا لأنّه روح المنصّة**» (2.3).
      */
     protected $attributes = [
-        'theme' => 'dark',
+        'theme' => 'light', // 2.10.1-1: الوضع الافتراضيّ فاتح — الهويّة 2.0 (v5.7)
         'sound_enabled' => true,
     ];
 

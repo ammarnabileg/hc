@@ -362,7 +362,7 @@
                 el.style.placeItems = 'center';
                 el.style.fontSize = '11px';
                 el.style.borderRadius = layer.shape === 'square' ? '4px' : '50%';
-                el.style.border = layer.shape === 'circle_border' ? '2px solid ' + (layer.border_color || '#00d4b8') : 'none';
+                el.style.border = layer.shape === 'circle_border' ? '2px solid ' + (layer.border_color || '#d9231b') : 'none';
                 el.textContent = T.user_image;
             } else {
                 var shift = layer.align === 'right' ? '-100%' : layer.align === 'left' ? '0%' : '-50%';

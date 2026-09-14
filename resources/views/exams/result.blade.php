@@ -112,7 +112,7 @@
             const stage = document.getElementById('peak-confetti');
             if (!peak || !stage) return;
 
-            const colors = ['#00d4b8', '#d4af37', '#45ecd7', '#e8f5f2'];
+            const colors = ['#D9231B', '#171715', '#B79C6C']; {{-- ألوان الكونفيتي (2.10.1-26) --}}
             for (let i = 0; i < {{ (int) setting('celebrations.confetti.pieces', 80) }}; i++) {
                 const piece = document.createElement('span');
                 piece.className = 'confetti-piece';

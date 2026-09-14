@@ -14,8 +14,8 @@ class GdEngine
 {
     /** خطوط النظام المرشّحة حين لا يوجد خطّ مضبوط أو مفقودًا من القرص (2.13) */
     private const FONT_CANDIDATES = [
-        'resources/fonts/Cairo.ttf',
-        '/usr/share/fonts/truetype/cairo/Cairo.ttf',
+        'public/fonts/Alexandria-Regular.ttf',
+        'resources/fonts/Alexandria.ttf',
         '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf',
         '/usr/share/fonts/truetype/freefont/FreeSerif.ttf',
     ];

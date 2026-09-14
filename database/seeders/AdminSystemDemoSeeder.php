@@ -418,7 +418,7 @@ class AdminSystemDemoSeeder extends Seeder
             ['images.short_name.units', 'images', 'عدد وحدات الاسم المختصر', 'number', '2', false],
             ['images.text.default_max_chars', 'images', 'حدّ الأحرف الافتراضيّ', 'number', '28', false],
             ['images.text.default_overflow', 'images', 'سلوك التجاوز الافتراضيّ', 'string', 'shrink', false],
-            ['images.font.path', 'images', 'مسار خطّ Cairo المضمَّن', 'string', 'fonts/Cairo-Regular.ttf', false],
+            ['images.font.path', 'images', 'مسار خطّ Alexandria المضمَّن', 'string', 'fonts/Alexandria-Regular.ttf', false],
             ['images.batch.max_users', 'images', 'أقصى عدد صور في التوليد الجماعيّ', 'number', '200', false],
             ['images.preview.cache_seconds', 'images', 'كاش المعاينة (ثوانٍ)', 'number', '60', false],
             ['images.watermark.color', 'images', 'لون تاريخ اللقطة والشعار', 'color', '#9fb3c8', false],

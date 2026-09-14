@@ -48,39 +48,42 @@ class UiDemoSeeder extends Seeder
             // ---------------- الاستخراج كصورة (12.14-هـ · 12.14-ح)
             ['images.export.default_rows', 'appearance', 'عدد صفوف «أفضل N» في الاستخراج كصورة', 'number', '10'],
             ['images.export.templates_limit', 'appearance', 'أقصى قوالب تظهر في زرّ الاستخراج', 'number', '20'],
-            ['images.board.bg_top', 'appearance', 'خلفيّة اللوحة المستخرَجة (أعلى)', 'color', '#04121d'],
-            ['images.board.bg_bottom', 'appearance', 'خلفيّة اللوحة المستخرَجة (أسفل)', 'color', '#030d17'],
-            ['images.board.text', 'appearance', 'لون نصّ اللوحة المستخرَجة', 'color', '#eaf2f8'],
-            ['images.board.muted', 'appearance', 'لون النصّ الثانويّ في اللوحة', 'color', '#9fb3c8'],
-            ['images.board.brand', 'appearance', 'لون الهويّة في اللوحة المستخرَجة', 'color', '#00d4b8'],
-            ['images.board.row', 'appearance', 'خلفيّة صفّ اللوحة', 'color', '#08192a'],
-            ['images.board.row_me', 'appearance', 'خلفيّة صفّي أنا في اللوحة', 'color', '#0b2c33'],
+            ['images.board.bg_top', 'appearance', 'خلفيّة اللوحة المستخرَجة (أعلى)', 'color', '#fcfbf8'],
+            ['images.board.bg_bottom', 'appearance', 'خلفيّة اللوحة المستخرَجة (أسفل)', 'color', '#f3efe7'],
+            ['images.board.text', 'appearance', 'لون نصّ اللوحة المستخرَجة', 'color', '#171715'],
+            ['images.board.muted', 'appearance', 'لون النصّ الثانويّ في اللوحة', 'color', '#65645f'],
+            ['images.board.brand', 'appearance', 'لون الهويّة في اللوحة المستخرَجة', 'color', '#d9231b'],
+            ['images.board.row', 'appearance', 'خلفيّة صفّ اللوحة', 'color', '#ffffff'],
+            ['images.board.row_me', 'appearance', 'خلفيّة صفّي أنا في اللوحة', 'color', '#fbece9'],
 
             /*
-             | ---------------- توكنز نظام التصميم (2.10.1) — «الهويّة والمظهر»
+             | ---------------- توكنز نظام التصميم (2.10.1 — الهويّة 2.0، v5.7) — «الهويّة والمظهر»
              |
              | كلّ قيمةٍ هنا **منصوصةٌ حرفيًّا** في 2.10.1، وتُقرأ من `DesignTokens`
-             | فتُكتَب متغيّراتٍ في `:root` تستعملها ورقة الأنماط. فالمقاس والمدّة
-             | واللون **إعدادٌ لا رقمٌ محروق** (2.13-ب) — يعدّلها المالك من شاشته.
+             | فتُكتَب متغيّراتٍ في `:root`/`:root[data-theme='dark']` تستعملها
+             | ورقة الأنماط. فالمقاس والمدّة واللون **إعدادٌ لا رقمٌ محروق**
+             | (2.13-ب) — يعدّلها المالك من شاشته.
              |
              | ⛔ ولا مفتاح يوقف الحركة: «الأنيميشن حاضر دائمًا» (2.3 · 2.14-ب)،
              | فالمُدد هنا تضبط **سرعتها** لا **وجودها**.
+             |
+             | ⛔ لا شريط تمرير مخصّص بعد الآن (2.10.1-23): أُصبح أصليًّا رفيعًا
+             | بلا إعداد — فلا `design.scrollbar.*` هنا.
+             | ⛔ ولا تدرّج للزرّ ولا للإبراز (2.10.1-1/7): لمسة حمراء صلبة —
+             | فلا `design.button.gradient`/`design.accent.gradient` هنا؛ الزرّ
+             | يقرأ `design.color.brand`/`.brand_hover` مباشرة.
              */
-            // (10) السويتش: «المسار 40×22px … الإبهام دائرة 16px بيضاء تنزلق 3px→21px»
-            ['design.switch.track_w', 'appearance', 'عرض مسار السويتش (بكسل)', 'number', '40'],
-            ['design.switch.track_h', 'appearance', 'ارتفاع مسار السويتش (بكسل)', 'number', '22'],
-            ['design.switch.thumb', 'appearance', 'قطر إبهام السويتش (بكسل)', 'number', '16'],
+            // (10) السويتش: «المسار 42×24px … الإبهام دائرة 18px بيضاء تنزلق 3px→21px»
+            ['design.switch.track_w', 'appearance', 'عرض مسار السويتش (بكسل)', 'number', '42'],
+            ['design.switch.track_h', 'appearance', 'ارتفاع مسار السويتش (بكسل)', 'number', '24'],
+            ['design.switch.thumb', 'appearance', 'قطر إبهام السويتش (بكسل)', 'number', '18'],
             ['design.switch.inset', 'appearance', 'حافّة إبهام السويتش (بكسل)', 'number', '3'],
 
-            // (18) المؤشّر المخصّص: «نقطة 8px تركوازيّة تكبر إلى 42px»
+            // (18) المؤشّر المخصّص: «نقطة 8px حمراء تكبر إلى 42px»
             ['design.cursor.dot', 'appearance', 'قطر نقطة المؤشّر المخصّص (بكسل)', 'number', '8'],
             ['design.cursor.hover', 'appearance', 'قطر المؤشّر فوق العناصر التفاعليّة (بكسل)', 'number', '42'],
 
-            // (23) شريط التمرير: «عرض 5px، مقبض --ta20، مسار --bg، radius 3px»
-            ['design.scrollbar.width', 'appearance', 'عرض شريط التمرير (بكسل)', 'number', '5'],
-            ['design.scrollbar.radius', 'appearance', 'نصف قطر مقبض شريط التمرير (بكسل)', 'number', '3'],
-
-            // (20) الحركات الثماني بمُددها المنصوصة
+            // (20) الحركات الثماني بمُددها المنصوصة — بلا تغيير عن ما قبل الهويّة 2.0
             ['design.anim.fadeup_ms', 'appearance', 'مدّة حركة fadeup (مللي ثانية)', 'number', '550'],
             ['design.anim.fadeup_shift', 'appearance', 'إزاحة ظهور fadeup (بكسل)', 'number', '16'],
             ['design.anim.float_s', 'appearance', 'مدّة حركة float (ثانية)', 'number', '5'],
@@ -92,18 +95,34 @@ class UiDemoSeeder extends Seeder
             ['design.anim.ticker_s', 'appearance', 'مدّة حركة ticker (ثانية)', 'number', '22'],
             ['design.anim.blink_s', 'appearance', 'مدّة حركة blink (ثانية)', 'number', '2'],
 
-            // (7) الأزرار: «linear-gradient(135deg,#2de0ca,#009e85)، نصّ #020e18، 700، radius ~.72rem»
-            ['design.button.gradient', 'appearance', 'تدرّج الزرّ الأساسيّ', 'string', 'linear-gradient(135deg,#2de0ca,#009e85)'],
-            ['design.button.text', 'appearance', 'لون نصّ الزرّ الأساسيّ', 'color', '#020e18'],
-            ['design.button.radius', 'appearance', 'نصف قطر الأزرار والحقول (rem)', 'string', '0.72'],
-            ['design.button.hover_opacity', 'appearance', 'شفافيّة الزرّ عند الـHover', 'string', '0.9'],
-            ['design.button.hover_scale', 'appearance', 'تكبير الزرّ عند الـHover', 'string', '1.015'],
-
-            // (3) تدرّج الإبراز — للنصوص المميّزة وأشرطة التقدّم
-            ['design.accent.gradient', 'appearance', 'تدرّج الإبراز', 'string', 'linear-gradient(135deg,#2de0ca 0%,#00d4b8 55%,#009e85 100%)'],
-
             // 2.15-ج: «الحدّ الأدنى لمساحة اللمس 44×44 بكسل»
             ['design.touch.min', 'appearance', 'الحدّ الأدنى لمساحة اللمس (بكسل)', 'number', '44'],
+
+            /*
+             | ---------------- ألوان الهويّة الأساسيّة (2.10.1-3) — فاتح + داكن
+             |
+             | كلّ دورٍ هنا **مفتاحان**: `design.color.X` للفاتح (الافتراضيّ)
+             | و`design.color.X.dark` للداكن (تجريبيّ) — بنفس اسم المتغيّر في
+             | CSS، فيتغيّر الوضعان معًا من شاشة «الهويّة والمظهر» بلا نشرٍ جديد.
+             */
+            ['design.color.bg', 'appearance', 'خلفيّة الصفحة — فاتح', 'color', '#fcfbf8'],
+            ['design.color.bg.dark', 'appearance', 'خلفيّة الصفحة — داكن', 'color', '#191917'],
+            ['design.color.surface', 'appearance', 'خلفيّة الكروت — فاتح', 'color', '#ffffff'],
+            ['design.color.surface.dark', 'appearance', 'خلفيّة الكروت — داكن', 'color', '#22221f'],
+            ['design.color.soft', 'appearance', 'خلفيّة الغسيل (Wash) — فاتح', 'color', '#f3efe7'],
+            ['design.color.soft.dark', 'appearance', 'خلفيّة الغسيل (Wash) — داكن', 'color', '#2c2b26'],
+            ['design.color.line', 'appearance', 'لون الحدود — فاتح', 'color', '#dfddd5'],
+            ['design.color.line.dark', 'appearance', 'لون الحدود — داكن', 'color', '#424139'],
+            ['design.color.ink', 'appearance', 'لون النصّ الأساسيّ — فاتح', 'color', '#171715'],
+            ['design.color.ink.dark', 'appearance', 'لون النصّ الأساسيّ — داكن', 'color', '#f7f4ec'],
+            ['design.color.muted', 'appearance', 'لون النصّ الثانويّ — فاتح', 'color', '#65645f'],
+            ['design.color.muted.dark', 'appearance', 'لون النصّ الثانويّ — داكن', 'color', '#b8b5ab'],
+            ['design.color.brand', 'appearance', 'أحمر الهويّة (الأفعال) — فاتح', 'color', '#d9231b'],
+            ['design.color.brand.dark', 'appearance', 'أحمر الهويّة (الأفعال) — داكن', 'color', '#f36b60'],
+            ['design.color.brand_hover', 'appearance', 'أحمر الهويّة عند الـHover — فاتح', 'color', '#b61b15'],
+            ['design.color.brand_hover.dark', 'appearance', 'أحمر الهويّة عند الـHover — داكن', 'color', '#ff8277'],
+            ['design.color.brand_soft', 'appearance', 'خلفيّة أحمر الهويّة الخفيفة — فاتح', 'color', '#fbece9'],
+            ['design.color.brand_soft.dark', 'appearance', 'خلفيّة أحمر الهويّة الخفيفة — داكن', 'color', '#352321'],
 
             // ---------------- الأفاتار: المقاسات الثلاثة (2.7)
             ['account.avatar.sizes', 'accounts', 'مقاسات الأفاتار المولَّدة عند الرفع', 'json', '[500,150,50]'],
@@ -121,7 +140,7 @@ class UiDemoSeeder extends Seeder
             ['cv.import.profile_label', 'cv', 'عنوان قسم البيانات الأساسيّة في معاينة الاستيراد', 'string', 'البيانات الأساسيّة'],
             ['cv.summary.max_chars', 'cv', 'أقصى طول للملخّص المهنيّ', 'number', '600'],
             ['cv.public.slug_length', 'cv', 'طول رمز الرابط العامّ للسيرة', 'number', '12'],
-            ['cv.ats.font_path', 'cv', 'مسار الخطّ المضمَّن في PDF الـATS', 'string', 'fonts/Cairo-Regular.ttf'],
+            ['cv.ats.font_path', 'cv', 'مسار الخطّ المضمَّن في PDF الـATS', 'string', 'fonts/Alexandria-Regular.ttf'],
             ['cv.ats.margin_pt', 'cv', 'هامش صفحة الـATS (نقطة)', 'number', '56'],
             ['cv.ats.title_size_pt', 'cv', 'حجم الاسم في الـATS (نقطة)', 'number', '20'],
             ['cv.ats.heading_size_pt', 'cv', 'حجم عناوين الأقسام في الـATS', 'number', '13'],

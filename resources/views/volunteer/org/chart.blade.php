@@ -480,9 +480,9 @@ const T = @json($jsText);
         ctx.fillStyle = val('--text', '#e8f5f2');
         ctx.direction = 'rtl';
         ctx.textAlign = 'right';
-        ctx.font = '800 20px Cairo, sans-serif';
+        ctx.font = '800 20px Alexandria, sans-serif';
         ctx.fillText(@json($chart['entity_name']), w - 26, 40);
-        ctx.font = '500 13px Cairo, sans-serif';
+        ctx.font = '500 13px Alexandria, sans-serif';
         ctx.fillStyle = val('--text-muted', '#9bb3ad');
         ctx.fillText(T.network_total + ' ' + DATA.network_total + ' ' + T.snapshot_at + ' ' + @json($snapshotDate), w - 26, 62);
 
@@ -515,10 +515,10 @@ const T = @json($jsText);
 
             ctx.textAlign = 'right';
             ctx.fillStyle = val('--text', '#e8f5f2');
-            ctx.font = '700 13px Cairo, sans-serif';
+            ctx.font = '700 13px Alexandria, sans-serif';
             ctx.fillText(n.name, x + NODE_W - 12, y + 26, NODE_W - 24);
             ctx.fillStyle = val('--text-muted', '#9bb3ad');
-            ctx.font = '500 11px Cairo, sans-serif';
+            ctx.font = '500 11px Alexandria, sans-serif';
             ctx.fillText(n.position, x + NODE_W - 12, y + 46, NODE_W - 24);
             if (!n.honorary) ctx.fillText(T.load + ' ' + n.load, x + NODE_W - 12, y + 66, NODE_W - 24);
         });

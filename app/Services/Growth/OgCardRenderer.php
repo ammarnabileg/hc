@@ -76,7 +76,7 @@ class OgCardRenderer
         $footerText = $footer ?? (string) setting('growth.og.footer', 'ابدأ رحلتك معنا');
 
         return <<<SVG
-            <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" font-family="Cairo, sans-serif" role="img" aria-label="{$this->e($title)}">
+            <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" font-family="Alexandria, sans-serif" role="img" aria-label="{$this->e($title)}">
               <rect width="1200" height="630" fill="{$this->e($bg)}"/>
               <rect x="0" y="0" width="1200" height="10" fill="{$this->e($accent)}"/>
               <circle cx="110" cy="520" r="190" fill="{$this->e($accent)}" opacity="0.07"/>

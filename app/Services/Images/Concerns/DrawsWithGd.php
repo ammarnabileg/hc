@@ -13,13 +13,13 @@ use App\Services\Certificates\GdEngine;
 trait DrawsWithGd
 {
     /**
-     * خطّ Cairo المضمَّن — ومساره إعداد فلا يُحرَق في الكود (2.13). ولو غاب من
+     * خطّ Alexandria المضمَّن — ومساره إعداد فلا يُحرَق في الكود (2.13). ولو غاب من
      * القرص فخطوط النظام المرشّحة نفسها التي يرتدّ إليها مصمّم الشهادات
      * (12.14 — نفس المحرّك) بدل الردّ الفوريّ بلا خطّ.
      */
     public function fontPath(): ?string
     {
-        $path = (string) setting('images.font.path', 'fonts/Cairo-Regular.ttf');
+        $path = (string) setting('images.font.path', 'fonts/Alexandria-Regular.ttf');
 
         return GdEngine::fontPath(public_path($path));
     }

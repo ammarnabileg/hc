@@ -66,6 +66,48 @@ class DesignSystemTest extends UiTestCase
             'حركات 2.10.1-20 الثماني ناقصة: '.implode(' · ', $missing));
     }
 
+    /**
+     * ⭐ إحدى عشرة حركةً جديدة (الهويّة 2.0، v5.7 — 2.10.1-20): `enter` ·
+     * `stagger` · `tabline` · `dropdown` · `unlock` · `check-draw` ·
+     * `xp-float` · `shake` · `flap` · `letter` — كلّها بمُددٍ ثابتةٍ حرفيّةٍ
+     * من نصّ الدستور (لم يُنَصّ على جعلها إعداداتٍ كالثماني الأصليّة).
+     */
+    #[Test]
+    public function the_eleven_new_animations_of_the_identity_2_0_exist(): void
+    {
+        $css = $this->css();
+
+        $expected = [
+            '.animate-enter' => '220ms',
+            '.animate-stagger' => null, // مركّبة: fadeup + تأخير تراكميّ، لا مدّة واحدة
+            '.animate-tabline' => '220ms',
+            '.animate-dropdown' => '220ms',
+            '.animate-unlock' => '550ms',
+            '.animate-check-draw' => '500ms',
+            '.animate-xp-float' => '1000ms',
+            '.animate-shake' => '400ms',
+            '.animate-flap' => '700ms',
+            '.animate-letter' => '900ms',
+        ];
+
+        $missing = [];
+
+        foreach ($expected as $class => $duration) {
+            if (! str_contains($css, $class.' {') && ! preg_match('/'.preg_quote($class, '/').'(\s|,|>)/', $css)) {
+                $missing[] = $class;
+
+                continue;
+            }
+
+            if ($duration !== null && ! str_contains($css, $duration)) {
+                $missing[] = "{$class} (بمدّة {$duration})";
+            }
+        }
+
+        $this->assertSame([], $missing,
+            'حركات الهويّة 2.0 الجديدة ناقصة أو بمدّةٍ مخالفة: '.implode(' · ', $missing));
+    }
+
     /** ومُدد الحركات **من الإعدادات** بقيمها المنصوصة — لا رقم محروق (2.13-ب). */
     #[Test]
     public function animation_durations_match_the_constitution(): void
@@ -96,9 +138,9 @@ class DesignSystemTest extends UiTestCase
     }
 
     /**
-     * (10) «المسار `40×22px`/`999px`/`rgba(255,255,255,.15)`؛ عند التفعيل →
-     * `--t`. · الإبهام دائرة `16px` بيضاء تنزلق `3px→21px` (RTL عبر
-     * `inset-inline-start`)» — وكان السويتش مستبدَلًا بـ`<select>`.
+     * (10) الهويّة 2.0 (v5.7): «المسار `42×24px`/`999px`/خلفيّة `--line`؛ عند
+     * التفعيل → `--brand`. · الإبهام دائرة `18px` بيضاء تنزلق `3px→21px`
+     * (RTL عبر `inset-inline-start`)» — وكان السويتش مستبدَلًا بـ`<select>`.
      */
     #[Test]
     public function the_switch_is_a_switch_and_matches_2_10_1_10(): void
@@ -109,12 +151,12 @@ class DesignSystemTest extends UiTestCase
             'مكوّن السويتش (2.10.1-10) غير مبنيّ في نظام التصميم.');
 
         $vars = app(DesignTokens::class)->variables();
-        $this->assertSame('40px', $vars['--sw-track-w'], 'عرض مسار السويتش خالف «40×22px».');
-        $this->assertSame('22px', $vars['--sw-track-h'], 'ارتفاع مسار السويتش خالف «40×22px».');
-        $this->assertSame('16px', $vars['--sw-thumb'], 'قطر الإبهام خالف «دائرة 16px».');
+        $this->assertSame('42px', $vars['--sw-track-w'], 'عرض مسار السويتش خالف «42×24px» (الهويّة 2.0).');
+        $this->assertSame('24px', $vars['--sw-track-h'], 'ارتفاع مسار السويتش خالف «42×24px» (الهويّة 2.0).');
+        $this->assertSame('18px', $vars['--sw-thumb'], 'قطر الإبهام خالف «دائرة 18px» (الهويّة 2.0).');
         $this->assertSame('3px', $vars['--sw-inset'], 'حافّة الإبهام خالفت «تنزلق 3px→21px».');
 
-        // ⭐ 21 **مشتقّة** (40−16−3) لا مكتوبة: لو تغيّر المسار تبعها الإبهام
+        // ⭐ 21 **مشتقّة** (42−18−3) لا مكتوبة: لو تغيّر المسار تبعها الإبهام
         $this->assertSame('21px', $vars['--sw-end'],
             'موضع الإبهام عند التفعيل خالف «3px→21px» — ولا بدّ أن يكون مشتقًّا من المسار.');
 
@@ -159,62 +201,79 @@ class DesignSystemTest extends UiTestCase
             'لا حاجز ثانٍ يخفي المؤشّر على اللمس.');
     }
 
-    /** (23) «عرض `5px`، مقبض `--ta20`، مسار `--bg`، `radius:3px`». */
+    /**
+     * (23) الهويّة 2.0 (v5.7): «أصليّ رفيع فقط — `scrollbar-width:thin` +
+     * `scrollbar-color:var(--line) transparent`» — **يُلغى** الشريط المرسوم
+     * يدويًّا (5px/`::-webkit-scrollbar`) الذي كان قبلها.
+     */
     #[Test]
-    public function the_scrollbar_of_2_10_1_23_is_five_pixels(): void
+    public function the_scrollbar_of_2_10_1_23_is_native_thin(): void
     {
         $css = $this->css();
-        $vars = app(DesignTokens::class)->variables();
 
-        $this->assertSame('5px', $vars['--sb-w'], 'عرض شريط التمرير خالف «عرض 5px».');
-        $this->assertSame('3px', $vars['--sb-r'], 'نصف قطر المقبض خالف «radius:3px».');
+        $this->assertStringContainsString('scrollbar-width: thin', $css,
+            'شريط التمرير الأصليّ الرفيع (2.10.1-23، الهويّة 2.0) غير مبنيّ.');
+        $this->assertStringContainsString('scrollbar-color: var(--line) transparent', $css,
+            'لون شريط التمرير الأصليّ لا يقرأ `--line` (2.10.1-23).');
 
-        $this->assertStringContainsString('::-webkit-scrollbar {', $css,
-            'شريط التمرير المخصّص (2.10.1-23) غير مبنيّ.');
-        $this->assertStringContainsString('inline-size: var(--sb-w', $css,
-            'عرض شريط التمرير رقمٌ محروق لا إعداد (2.13-ب).');
+        // ⛔ الشريط المرسوم يدويًّا (القديم) أُلغي بالكامل — لا ::-webkit-scrollbar بعد الآن
+        // (القياس على الكود بلا تعليقات: شرح الإلغاء نفسه يذكر الاسم القديم)
+        $this->assertStringNotContainsString('::-webkit-scrollbar', $this->code($css),
+            'شريط تمرير مخصّص (`::-webkit-scrollbar`) ما زال موجودًا رغم إلغائه في الهويّة 2.0 (2.10.1-23).');
 
-        /*
-         | ⚠️ القياس على **الكود بلا تعليقات**: أوّل صياغةٍ لهذا الحارس قاست
-         | الملفّ خامًا، فكان تعليقُنا الذي يشرح `@supports` **يُرضيه وحده** —
-         | حذفتُ القاعدة نفسها ومرّ الاختبار. طفرةٌ تمرّ = اختبارٌ وهميّ.
-         */
-        $code = $this->code($css);
-
-        /*
-         | ⚠️ `scrollbar-width` القياسيّة تعلو على `::-webkit-scrollbar` في كروم،
-         | و`thin` عرضٌ ثابت يقرّره المحرّك (~2px) — فوجودها بلا `@supports`
-         | يُلغي الخمسة **بصمت**. الحارس يمنع رجوعها.
-         */
-        $this->assertStringContainsString('@supports not selector(::-webkit-scrollbar)', $code,
-            '`scrollbar-width` بلا `@supports` تبتلع عرض 5px في كروم بلا أثر.');
-
-        // ولا `scrollbar-width` خارج ذلك الشرط أبدًا
-        $outside = preg_replace('/@supports not selector\(::-webkit-scrollbar\)\s*\{.*?\n  \}/s', '', $code);
-        $this->assertStringNotContainsString('scrollbar-width', (string) $outside,
-            '`scrollbar-width` خارج `@supports` — تعلو على 5px في كروم وتبتلعها بصمت.');
+        // والتوكنان القديمان (`--sb-w`/`--sb-r`) خرجا من DesignTokens تمامًا
+        $this->assertArrayNotHasKey('--sb-w', app(DesignTokens::class)->variables(),
+            '`--sb-w` ما زال توكنًا حيًّا رغم إلغاء الشريط المخصّص.');
     }
 
     /**
-     * (7) «**أساسيّ (btn-p):** `linear-gradient(135deg,#2de0ca,#009e85)`، نصّ
-     * `#020e18`، `700`، `radius:~.72rem`» — وكان الزرّ **مسطّحًا** بلون واحد.
+     * (7) الهويّة 2.0 (v5.7): «**أساسيّ:** خلفيّة صلبة `--brand` (لا تدرّج)،
+     * نصّ أبيض في الفاتح، وزن `600`، ارتفاع أدنى `48px`، راديوس `8px`.
+     * Hover: خلفيّة `--brand-hover`» — عكس نصّ ما قبلها الذي كان يفرض تدرّجًا.
      */
     #[Test]
-    public function the_primary_button_carries_a_gradient_not_a_flat_colour(): void
+    public function the_primary_button_is_flat_not_a_gradient(): void
     {
         $css = $this->css();
-        $vars = app(DesignTokens::class)->variables();
-
-        $this->assertSame('linear-gradient(135deg,#2de0ca,#009e85)', $vars['--btn-grad'],
-            'تدرّج الزرّ خالف نصّ 2.10.1-7.');
-        $this->assertSame('#020e18', $vars['--btn-text'], 'لون نصّ الزرّ خالف «نصّ #020e18».');
 
         $this->assertStringContainsString('.btn-p, .btn[style*=\'--color-brand-500\']', $css,
-            'صنف الزرّ الأساسيّ غير معرَّف — و285 موضعًا تكتب `btn` بلا تعريف.');
-        $this->assertStringContainsString('background-image: var(--btn-grad', $css,
-            'الزرّ الأساسيّ لا يقرأ تدرّجه من الإعدادات.');
+            'صنف الزرّ الأساسيّ غير معرَّف — و337 موضعًا تكتب `btn` بلا تعريف.');
+        $this->assertStringContainsString('background-color: var(--brand)', $css,
+            'الزرّ الأساسيّ لا يقرأ لونًا صلبًا من `--brand` (2.10.1-7، الهويّة 2.0).');
+        $this->assertStringContainsString('background-color: var(--brand-hover)', $css,
+            'هوفر الزرّ الأساسيّ لا يبدّل إلى `--brand-hover` (2.10.1-7).');
+
+        // ⛔ لا تدرّج بعد الآن على الزرّ الأساسيّ — `background-image: none` تفريغٌ متعمَّد لا تدرّج
+        $btnBlock = substr($css, (int) strpos($css, ".btn-p, .btn[style*='--color-brand-500']"), 400);
+        $this->assertStringNotContainsString('linear-gradient', $btnBlock,
+            'الزرّ الأساسيّ ما زال يحمل تدرّجًا (`linear-gradient`) رغم إلغائه في الهويّة 2.0.');
+
         $this->assertStringContainsString('.btn-g {', $css,
             'زرّ الشبح (btn-g) في 2.10.1-7 غير مبنيّ.');
+        $this->assertStringContainsString('border: 1px solid var(--line)', $css,
+            'زرّ الشبح لا يحمل حدّ `--line` (2.10.1-7، الهويّة 2.0).');
+    }
+
+    /**
+     * ⭐ ألوان الهويّة الأساسيّة (2.10.1-3) مزدوجةٌ فاتح/داكن — من الإعدادات
+     * لا رقمًا محروقًا (2.13-ب)، وتخرج في كتلتين منفصلتين من `DesignTokens`.
+     */
+    #[Test]
+    public function identity_colours_are_settings_driven_for_both_modes(): void
+    {
+        $tokens = app(DesignTokens::class);
+
+        $light = $tokens->variables();
+        $dark = $tokens->darkVariables();
+
+        $this->assertSame('#d9231b', $light['--color-brand-500'], 'أحمر الهويّة الفاتح خالف 2.10.1-3.');
+        $this->assertSame('#f36b60', $dark['--color-brand-500'], 'أحمر الهويّة الداكن خالف 2.10.1-3.');
+        $this->assertSame('#fcfbf8', $light['--surface'], 'خلفيّة الصفحة الفاتحة خالفت 2.10.1-3.');
+        $this->assertSame('#191917', $dark['--surface'], 'خلفيّة الصفحة الداكنة خالفت 2.10.1-3.');
+
+        $css = $this->css();
+        $this->assertStringContainsString(":root[data-theme='dark']", $css,
+            'لا كتلة تُحدّث ألوان الوضع الداكن — الهويّة 2.0 تفترض الفاتح لا الداكن.');
     }
 
     /** التوكنز تُحقَن في كلّ لياوت — وإلّا بقيت الورقة على قيمها الاحتياطيّة. */
