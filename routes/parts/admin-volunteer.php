@@ -252,6 +252,10 @@ Route::middleware(['auth', 'admin.panel'])->prefix('admin')->name('admin.')->gro
             ->middleware('permission:reports_volunteer.view')->name('analytics');
         Route::post('/analytics/settings', [VolunteerAdminController::class, 'saveAnalyticsSettings'])
             ->middleware('permission:reports_volunteer.view')->name('analytics.settings.save');
+
+        // ⭐ قمع التطوّع (24.4): تصدير بصلاحيّة مستقلّة `recruitment_analytics.export`
+        Route::get('/analytics/recruitment-funnel/export', [VolunteerAdminController::class, 'exportRecruitmentFunnel'])
+            ->middleware('permission:recruitment_analytics.export')->name('analytics.recruitment-funnel.export');
     });
 
     // ------------------------------------------------------ التلعيب والتحديات 🎮

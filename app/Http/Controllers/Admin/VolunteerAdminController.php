@@ -20,6 +20,7 @@ use App\Services\Admin\Volunteer\CertificateEligibility;
 use App\Services\Admin\Volunteer\SettingsWriter;
 use App\Services\Admin\Volunteer\VolunteerAnalytics;
 use App\Services\Volunteer\Org\HonoraryElement;
+use App\Services\Volunteer\People\RecruitmentFunnel;
 use App\Support\Scope\ScopeFilter;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -429,6 +430,11 @@ class VolunteerAdminController extends Controller
     public function analytics(Request $request): View
     {
         $days = VolunteerAnalytics::rangeDays((int) $request->integer('days'));
+        $user = $request->user();
+
+        // ⭐ قمع التطوّع بصلاحيّته المستقلّة `recruitment_analytics.view` — لا
+        // تُحسَب استعلاماته لمَن لا يملكها فيُخفى القسم لا يُعطَّل (2.15-أ-7).
+        $canViewFunnel = $user->allows('recruitment_analytics.view');
 
         return view('admin.volunteer.analytics', [
             'days' => $days,
@@ -439,7 +445,31 @@ class VolunteerAdminController extends Controller
             'capacity' => CapacityReport::rows(null, $request->user()),
             'granters' => VolunteerAnalytics::granterWatch($days),
             'settings' => SettingsWriter::groupRows('volunteer_analytics'),
+            'canViewFunnel' => $canViewFunnel,
+            'funnel' => $canViewFunnel ? app(RecruitmentFunnel::class)->compute($user, ['days' => $days]) : null,
+            'canExportFunnel' => $user->allows('recruitment_analytics.export'),
         ]);
+    }
+
+    /** تصدير CSV لقمع التطوّع من لوحة الأدمن — بصلاحيّة `recruitment_analytics.export` */
+    public function exportRecruitmentFunnel(Request $request): StreamedResponse
+    {
+        $days = VolunteerAnalytics::rangeDays((int) $request->integer('days'));
+        $funnel = app(RecruitmentFunnel::class);
+        $computed = $funnel->compute($request->user(), ['days' => $days]);
+        $rows = $funnel->toCsvRows($computed);
+        $filename = 'recruitment-funnel-'.now()->format('Ymd-His').'.csv';
+
+        return response()->streamDownload(function () use ($rows) {
+            $out = fopen('php://output', 'w');
+            fwrite($out, "\xEF\xBB\xBF");
+
+            foreach ($rows as $row) {
+                fputcsv($out, $row);
+            }
+
+            fclose($out);
+        }, $filename, ['Content-Type' => 'text/csv; charset=UTF-8']);
     }
 
     public function saveAnalyticsSettings(Request $request): RedirectResponse

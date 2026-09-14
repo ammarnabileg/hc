@@ -23,6 +23,11 @@
                        style="background: var(--surface-sunken)">{{ setting('volunteer.people_recruitment.header_interviews', 'تقويم المقابلات') }}</a>
                 @endcan
 
+                @can('recruitment_analytics.view')
+                    <a href="{{ route('volunteer.recruitment.analytics') }}" class="rounded-xl px-4 py-2 text-sm"
+                       style="background: var(--surface-sunken)">{{ setting('volunteer.people_recruitment.header_funnel', 'قمع التطوّع') }}</a>
+                @endcan
+
                 @can('candidates.export')
                     <a href="{{ route('volunteer.recruitment.export', $filters) }}" class="rounded-xl px-4 py-2 text-sm"
                        style="background: var(--surface-sunken)">{{ setting('volunteer.people_recruitment.header_export', 'تصدير CSV') }}</a>

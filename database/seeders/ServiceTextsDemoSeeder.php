@@ -1066,6 +1066,12 @@ class ServiceTextsDemoSeeder extends Seeder
             ['recruitment.scorecard_engine.decide_2', 'recruitment', 'الرفض بسبب مكتوب — عشان يبقى في سجلّ يُرجَع إليه.', 'string', 'الرفض بسبب مكتوب — عشان يبقى في سجلّ يُرجَع إليه.', false],
             ['recruitment.scorecard_engine.decide_3', 'recruitment', 'ناقص: :p1 — كمّلها وبعدين احفظ القرار.', 'string', 'ناقص: :p1 — كمّلها وبعدين احفظ القرار.', false],
             ['recruitment.scorecard_engine.restore_1', 'recruitment', 'النتيجة دي مفتوحة أصلًا — مفيش داعي لإعادة الفتح.', 'string', 'النتيجة دي مفتوحة أصلًا — مفيش داعي لإعادة الفتح.', false],
+            // ---- app/Services/Volunteer/People/RecruitmentFunnel.php
+            ['recruitment_funnel.export.col_stage', 'recruitment', 'عمود التصدير — المرحلة', 'string', 'المرحلة', false],
+            ['recruitment_funnel.export.col_count', 'recruitment', 'عمود التصدير — العدد', 'string', 'العدد', false],
+            ['recruitment_funnel.export.col_pct', 'recruitment', 'عمود التصدير — نسبة من البداية %', 'string', 'نسبة من البداية %', false],
+            ['recruitment_funnel.export.col_avg_days', 'recruitment', 'عمود التصدير — متوسّط الزمن حتّى المرحلة التالية', 'string', 'متوسّط الزمن حتّى المرحلة التالية (يوم)', false],
+            ['recruitment_funnel.export.col_sample', 'recruitment', 'عمود التصدير — حجم العيّنة', 'string', 'حجم العيّنة', false],
             ['recruitment.scorecard_engine.summary_1', 'recruitment', 'المهارات: :p1', 'string', 'المهارات: :p1', false],
             ['recruitment.scorecard_engine.summary_2', 'recruitment', 'تحليل الشخصيّة: :p1', 'string', 'تحليل الشخصيّة: :p1', false],
             ['recruitment.scorecard_engine.summary_3', 'recruitment', ':p1:p2: :p3/:p4 — وزن :p5', 'string', ':p1:p2: :p3/:p4 — وزن :p5', false],

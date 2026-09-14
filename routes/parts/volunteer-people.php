@@ -32,6 +32,12 @@ Route::middleware('auth')->prefix('volunteer')->name('volunteer.')->group(functi
     Route::get('/recruitment/export', [RecruitmentController::class, 'export'])
         ->middleware('permission:candidates.export')->name('recruitment.export');
 
+    // ⭐ قمع التطوّع (24.4 — تحليلات التطوّع): صلاحيّة مستقلّة عن لوحة المرشّحين
+    Route::get('/recruitment/analytics', [RecruitmentController::class, 'analytics'])
+        ->middleware('permission:recruitment_analytics.view')->name('recruitment.analytics');
+    Route::get('/recruitment/analytics/export', [RecruitmentController::class, 'exportAnalytics'])
+        ->middleware('permission:recruitment_analytics.export')->name('recruitment.analytics.export');
+
     Route::get('/recruitment/{candidate}', [RecruitmentController::class, 'show'])
         ->middleware('permission:candidates.view')->name('recruitment.show');
 

@@ -48,7 +48,7 @@
   - `volunteer-goals.php` — 39 مسارًا · 23 حارس صلاحيّة.
   - `volunteer-meetings.php` — 18 مسارًا · 12 حارس صلاحيّة.
   - `volunteer-org.php` — 12 مسارًا · 5 حارس صلاحيّة.
-  - `volunteer-people.php` — 32 مسارًا · البادئة `volunteer.` · 28 حارس صلاحيّة.
+  - `volunteer-people.php` — 34 مسارًا · البادئة `volunteer.` · 30 حارس صلاحيّة.
   - `volunteer-profile.php` — 7 مسارًا · 7 حارس صلاحيّة.
   - `wallet.php` — 23 مسارًا · البادئة `wallet.` · 13 حارس صلاحيّة.
 <!-- تلقائيّ:نهاية:المنجز -->
@@ -107,6 +107,12 @@
 
 ## 🔄 الجاري الآن
 <!-- بيدك:بداية:الجاري -->
+- **(2026-09-13) 🖥️ قمع التطوّع (24.4):** أربعة مسارات جديدة بصلاحيّة `recruitment_analytics.*`
+  المستقلّة عن `candidates.list` و`reports_volunteer.view` — `admin-volunteer.php`:
+  `GET /admin/volunteer/analytics/recruitment-funnel/export` (`recruitment_analytics.export`)؛
+  و`volunteer-people.php`: `GET /volunteer/recruitment/analytics` و`/analytics/export`
+  (`recruitment_analytics.view`/`.export`). التفصيل الكامل في
+  `app/Services/Volunteer/People/_STATUS.md`.
 - **(2026-09-13) 🖥️ المكتبة الرقميّة (24.3):** سطرٌ واحدٌ مضاف في `admin-system.php`
   داخل مجموعة `permission:store_products.edit` — `POST /store/products/{product}/file`
   باسم `admin.store.products.file.update` (`StoreAdminController::replaceProductFile`).
