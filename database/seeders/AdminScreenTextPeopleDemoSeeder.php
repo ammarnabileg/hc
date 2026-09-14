@@ -141,6 +141,42 @@ class AdminScreenTextPeopleDemoSeeder extends Seeder
             ['admin.users.partials.tab_tables.mn', 'admin_users', 'من', 'string', 'من', 'نصّ في resources/views/admin/users/partials/tab-tables.blade.php'],
             ['admin.users.partials.tab_tables.mstny_alsrf', 'admin_users', 'مستنّي الصرف', 'string', 'مستنّي الصرف', 'نصّ في resources/views/admin/users/partials/tab-tables.blade.php'],
             ['admin.users.partials.tab_tables.mstny_qbwl_alhsab', 'admin_users', 'مستنّي قبول الحساب', 'string', 'مستنّي قبول الحساب', 'نصّ في resources/views/admin/users/partials/tab-tables.blade.php'],
+
+            /*
+             | ⭐ تاب «التطوّع» بعد تاب «متقدّم» (1103 · 2886) — سجلّ المشرف:
+             | البوزشنز · التسكينات · المهامّ · VXP · تاريخ الالتزام · شهادات
+             | التطوّع · الاجتماعات. يملأه AdminVolunteerTabInjector.
+             */
+            ['admin.users.partials.tab_volunteer.acting_label', 'admin_users', 'قائم بأعمال', 'string', 'قائم بأعمال', 'نصّ في resources/views/admin/users/partials/tab-volunteer.blade.php'],
+            ['admin.users.partials.tab_volunteer.certificates_empty', 'admin_users', 'من غير شهادات تطوّع لسّه.', 'string', 'من غير شهادات تطوّع لسّه.', 'نصّ في resources/views/admin/users/partials/tab-volunteer.blade.php'],
+            ['admin.users.partials.tab_volunteer.certificates_title', 'admin_users', 'شهادات التطوّع', 'string', 'شهادات التطوّع', 'نصّ في resources/views/admin/users/partials/tab-volunteer.blade.php'],
+            ['admin.users.partials.tab_volunteer.commitment_empty', 'admin_users', 'من غير حركات على درجة الالتزام لسّه.', 'string', 'من غير حركات على درجة الالتزام لسّه.', 'نصّ في resources/views/admin/users/partials/tab-volunteer.blade.php'],
+            ['admin.users.partials.tab_volunteer.commitment_score_label', 'admin_users', 'الدرجة الحاليّة', 'string', 'الدرجة الحاليّة', 'نصّ في resources/views/admin/users/partials/tab-volunteer.blade.php'],
+            ['admin.users.partials.tab_volunteer.commitment_title', 'admin_users', 'تاريخ الالتزام (Rep)', 'string', 'تاريخ الالتزام (Rep)', 'نصّ في resources/views/admin/users/partials/tab-volunteer.blade.php'],
+            ['admin.users.partials.tab_volunteer.current_label', 'admin_users', 'حاليًّا', 'string', 'حاليًّا', 'نصّ في resources/views/admin/users/partials/tab-volunteer.blade.php'],
+            ['admin.users.partials.tab_volunteer.empty', 'admin_users', 'محدّش تطوّع من الحساب ده لسّه — التاب هيتفعّل أوّل ما يتسكّن في بوزشن.', 'string', 'محدّش تطوّع من الحساب ده لسّه — التاب هيتفعّل أوّل ما يتسكّن في بوزشن.', 'نصّ في resources/views/admin/users/partials/tab-volunteer.blade.php'],
+            ['admin.users.partials.tab_volunteer.meeting_status_excused', 'admin_users', 'غياب باعتذار', 'string', 'غياب باعتذار', 'نصّ في app/Services/Admin/Volunteer/AdminVolunteerRecord.php'],
+            ['admin.users.partials.tab_volunteer.meeting_status_registered', 'admin_users', 'حضر', 'string', 'حضر', 'نصّ في app/Services/Admin/Volunteer/AdminVolunteerRecord.php'],
+            ['admin.users.partials.tab_volunteer.meeting_status_unexcused', 'admin_users', 'غياب بلا اعتذار', 'string', 'غياب بلا اعتذار', 'نصّ في app/Services/Admin/Volunteer/AdminVolunteerRecord.php'],
+            ['admin.users.partials.tab_volunteer.meetings_empty', 'admin_users', 'من غير حضور اجتماعات لسّه.', 'string', 'من غير حضور اجتماعات لسّه.', 'نصّ في resources/views/admin/users/partials/tab-volunteer.blade.php'],
+            ['admin.users.partials.tab_volunteer.meetings_title', 'admin_users', 'الاجتماعات', 'string', 'الاجتماعات', 'نصّ في resources/views/admin/users/partials/tab-volunteer.blade.php'],
+            ['admin.users.partials.tab_volunteer.placements_empty', 'admin_users', 'من غير تسكين لسّه.', 'string', 'من غير تسكين لسّه.', 'نصّ في resources/views/admin/users/partials/tab-volunteer.blade.php'],
+            ['admin.users.partials.tab_volunteer.placements_title', 'admin_users', 'التسكينات', 'string', 'التسكينات', 'نصّ في resources/views/admin/users/partials/tab-volunteer.blade.php'],
+            ['admin.users.partials.tab_volunteer.positions_empty', 'admin_users', 'من غير بوزشن لسّه.', 'string', 'من غير بوزشن لسّه.', 'نصّ في resources/views/admin/users/partials/tab-volunteer.blade.php'],
+            ['admin.users.partials.tab_volunteer.positions_title', 'admin_users', 'البوزشنز', 'string', 'البوزشنز', 'نصّ في resources/views/admin/users/partials/tab-volunteer.blade.php'],
+            ['admin.users.partials.tab_volunteer.rows', 'admin_users', 'عدد الصفوف المعروضة في كلّ قسم بتاب التطوّع', 'number', '8', 'نصّ في app/Services/Admin/Volunteer/AdminVolunteerRecord.php'],
+            ['admin.users.partials.tab_volunteer.since_label', 'admin_users', 'من', 'string', 'من', 'نصّ في resources/views/admin/users/partials/tab-volunteer.blade.php'],
+            ['admin.users.partials.tab_volunteer.tasks_done_label', 'admin_users', 'معتمدة', 'string', 'معتمدة', 'نصّ في resources/views/admin/users/partials/tab-volunteer.blade.php'],
+            ['admin.users.partials.tab_volunteer.tasks_empty', 'admin_users', 'من غير مهامّ لسّه.', 'string', 'من غير مهامّ لسّه.', 'نصّ في resources/views/admin/users/partials/tab-volunteer.blade.php'],
+            ['admin.users.partials.tab_volunteer.tasks_no_delivery_label', 'admin_users', 'عدم تسليم', 'string', 'عدم تسليم', 'نصّ في resources/views/admin/users/partials/tab-volunteer.blade.php'],
+            ['admin.users.partials.tab_volunteer.tasks_open_label', 'admin_users', 'جارية', 'string', 'جارية', 'نصّ في resources/views/admin/users/partials/tab-volunteer.blade.php'],
+            ['admin.users.partials.tab_volunteer.tasks_title', 'admin_users', 'المهامّ', 'string', 'المهامّ', 'نصّ في resources/views/admin/users/partials/tab-volunteer.blade.php'],
+            ['admin.users.partials.tab_volunteer.until_label', 'admin_users', 'لحدّ', 'string', 'لحدّ', 'نصّ في resources/views/admin/users/partials/tab-volunteer.blade.php'],
+            ['admin.users.partials.tab_volunteer.upline_label', 'admin_users', 'الأبلاين', 'string', 'الأبلاين', 'نصّ في resources/views/admin/users/partials/tab-volunteer.blade.php'],
+            ['admin.users.partials.tab_volunteer.vxp_balance_label', 'admin_users', 'الرصيد الحاليّ', 'string', 'الرصيد الحاليّ', 'نصّ في resources/views/admin/users/partials/tab-volunteer.blade.php'],
+            ['admin.users.partials.tab_volunteer.vxp_empty', 'admin_users', 'من غير حركات VXP لسّه.', 'string', 'من غير حركات VXP لسّه.', 'نصّ في resources/views/admin/users/partials/tab-volunteer.blade.php'],
+            ['admin.users.partials.tab_volunteer.vxp_title', 'admin_users', 'VXP — نقاط الإنتاج', 'string', 'VXP — نقاط الإنتاج', 'نصّ في resources/views/admin/users/partials/tab-volunteer.blade.php'],
+
             ['admin.users.segment_members.aada', 'admin_users', 'أعضاء: ', 'string', 'أعضاء: ', 'نصّ في resources/views/admin/users/segment-members.blade.php'],
             ['admin.users.segment_members.aada_alshryha', 'admin_users', 'أعضاء الشريحة', 'string', 'أعضاء الشريحة', 'نصّ في resources/views/admin/users/segment-members.blade.php'],
             ['admin.users.segment_members.aladd', 'admin_users', 'العدد:', 'string', 'العدد:', 'نصّ في resources/views/admin/users/segment-members.blade.php'],
