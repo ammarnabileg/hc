@@ -5,11 +5,13 @@
     $button = (string) setting('home.cta.button', 'أنشئ حسابك دلوقتي');
 @endphp
 
-<section class="card relative overflow-hidden p-6 md:p-8 mb-6 text-center" aria-labelledby="home-cta-title">
-    <div class="pointer-events-none absolute inset-0" aria-hidden="true"
-         style="background-image: radial-gradient(rgb(0 212 184 / .10) 1px, transparent 1px); background-size: 32px 32px;"></div>
-
-    <div class="relative">
+{{--
+  ⛔ شبكة النقاط الخلفيّة (كانت هنا) مُلغاةٌ من الهويّة 2.0 نصًّا — «قسم
+  الزخارف مُلغًى بالكامل» (2.10.1-4)، وكانت بلون الهويّة القديمة الميّت
+  لا الأحمر الحاليّ (§25 v5.9).
+--}}
+<section class="card p-6 md:p-8 mb-6 text-center" aria-labelledby="home-cta-title">
+    <div>
         <h2 id="home-cta-title" class="text-xl md:text-2xl font-extrabold">{{ $title }}</h2>
         <p class="mt-2 text-sm" style="color: var(--text-muted)">{{ $body }}</p>
 

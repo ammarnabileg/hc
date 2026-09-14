@@ -1,8 +1,13 @@
 @php
     /**
      * البطل (Hero) — سؤال واحد للشاشة: «إيه المنصّة دي وليه أسجّل؟» (2.15-أ-1).
-     * الخلفيّة نقاط كنتور طوبوغرافيّة (2.10) مرسومة بـCSS بلا أيّ أصل خارجيّ،
-     * وكلّ نصّ فيها من `setting()` فالأدمن يعدّله بلا كود (2.13).
+     * كلّ نصّ فيها من `setting()` فالأدمن يعدّله بلا كود (2.13).
+     *
+     * ⛔ شبكة النقاط الخلفيّة (كانت هنا) مُلغاةٌ من الهويّة 2.0 نصًّا: «قسم
+     * الزخارف مُلغًى بالكامل — الضوضاء وشبكتا النقاط/الخطوط والزجاج أُلغيت
+     * نهائيًّا» (2.10.1-4)، وكانت أصلًا بلون الهويّة القديمة التركوازيّ
+     * الميّت (`rgb(0 212 184)`) لا الأحمر الحاليّ — فائتةٌ من كلّ موجات
+     * التطبيق السابقة لأنّها على صفحة الهبوط العامّة لا داخل المنصّة (§25 v5.9).
      */
     $eyebrow = (string) setting('home.hero.eyebrow', 'منصّة تعلّم وتطوّع عربيّة');
     $title = (string) setting('home.hero.title', 'اتعلّم مهارة حقيقيّة، واطلع بشهادة تقدر تثبتها.');
@@ -11,12 +16,8 @@
     $secondary = (string) setting('home.hero.secondary_cta', 'اتفرّج على التدريبات');
 @endphp
 
-<section class="card relative overflow-hidden p-6 md:p-10 mb-6" aria-labelledby="home-hero-title">
-    {{-- شبكة نقاط خفيفة — ملمس الهويّة (2.10.1-4) --}}
-    <div class="pointer-events-none absolute inset-0" aria-hidden="true"
-         style="background-image: radial-gradient(rgb(0 212 184 / .10) 1px, transparent 1px); background-size: 32px 32px;"></div>
-
-    <div class="relative max-w-3xl">
+<section class="card p-6 md:p-10 mb-6" aria-labelledby="home-hero-title">
+    <div class="max-w-3xl">
         <span class="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-bold"
               style="background: color-mix(in srgb, var(--color-brand-500) 14%, transparent); color: var(--color-brand-500)">
             @include('home.partials.icon', ['name' => 'spark', 'size' => 14])

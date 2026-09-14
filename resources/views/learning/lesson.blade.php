@@ -26,8 +26,9 @@
     @endif
 
     {{-- ⭐ شريط تقدّم لاصق أعلى التدريب (3.4-16) — موقعي لا يغيب وأنا داخل الدرس --}}
+    {{-- بلا زجاج (Glassmorphism) — خلفيّةٌ صلبة كالهيدر، لا `blur`/شفافيّة (2.10.1-14 · §25 v5.9) --}}
     <div class="sticky top-0 z-30 -mx-4 md:-mx-6 px-4 md:px-6 py-2 mb-4"
-         style="background: color-mix(in srgb, var(--surface) 92%, transparent); backdrop-filter: blur(8px); border-bottom: 1px solid var(--border)">
+         style="background: var(--surface); border-bottom: 1px solid var(--border)">
         <div class="flex items-center gap-3">
             <span class="text-xs tabular-nums shrink-0" style="color: var(--text-muted)">
                 {{ $outline['completed'] }}/{{ $outline['total'] }}

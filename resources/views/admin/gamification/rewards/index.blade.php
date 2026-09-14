@@ -61,8 +61,9 @@
 
             @foreach ($cards as $i => $card)
                 <figure class="reward-card {{ $i ? 'hidden' : '' }}" data-card="{{ $i }}">
+                    {{-- بلا تدرّجٍ زخرفيّ — خلفيّةٌ صلبة وحدّ بلون العلامة فقط (§25 v5.9) --}}
                     <div class="rounded-2xl p-6 text-center animate-fadeup"
-                         style="background: linear-gradient(160deg, var(--color-brand-800), var(--surface-raised)); border: 1px solid var(--border)">
+                         style="background: var(--brand-soft); border: 1px solid var(--color-brand-500)">
                         <div class="text-sm" style="color: var(--text-muted)">{{ $card['title'] }}</div>
                         {{-- العدّاد التصاعديّ — والرقم النهائيّ يظهر في كلّ الأحوال (2.17-أ) --}}
                         <div class="mt-2 text-4xl font-extrabold"
