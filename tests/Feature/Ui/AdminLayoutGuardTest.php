@@ -343,6 +343,7 @@ class AdminLayoutGuardTest extends UiTestCase
                 route('admin.settings.index', ['tab' => 'maintenance']),
                 route('admin.ops.updates'),
                 route('admin.ops.system'),
+                route('admin.ops.trash'),
                 route('admin.settings.index', ['tab' => 'audit']),
                 route('admin.studio.index'),
             ], null],
