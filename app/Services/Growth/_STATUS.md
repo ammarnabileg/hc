@@ -131,13 +131,13 @@
 ## 🔗 التبعيّات والملفّات المهمّة
 <!-- تلقائيّ:بداية:التبعيات -->
 - **الطبقات الأخرى لنفس المجال:** `app/Http/Controllers/Growth` · `resources/views/growth` · `routes/parts` · `tests/Feature/Growth`
-- **الاختبارات:** 14 ملفّ Feature في `tests/Feature/Growth` — شغّلها بـ`php artisan test tests/Feature/Growth`.
+- **الاختبارات:** 15 ملفّ Feature في `tests/Feature/Growth` — شغّلها بـ`php artisan test tests/Feature/Growth`.
 - **المرجع الحاكم:** `دستور اساسي.md` · **وكيف نكتب:** `docs/BUILD.md`.
 - **المجلّد الأب:** `app/Services/_STATUS.md`.
 <!-- تلقائيّ:نهاية:التبعيات -->
 
 ## 🕒 آخر تحديث
 <!-- تلقائيّ:بداية:التحديث -->
-- **آخر توليد لهذه الوثيقة:** 2026-09-09 — `php artisan docs:status`.
-- **آخر لمسة للمجلّد:** 2026-08-06 — Claude.
+- **آخر توليد لهذه الوثيقة:** 2026-09-14 — `php artisan docs:status`.
+- **آخر لمسة للمجلّد:** 2026-09-09 — Claude.
 <!-- تلقائيّ:نهاية:التحديث -->

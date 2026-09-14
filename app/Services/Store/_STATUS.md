@@ -104,13 +104,13 @@ Bump مزوَّر (`bumps[]=daily-planner-workbook`) أُهمِل والإجما
 ## 🔗 التبعيّات والملفّات المهمّة
 <!-- تلقائيّ:بداية:التبعيات -->
 - **الطبقات الأخرى لنفس المجال:** `resources/views/store` · `routes/parts` · `tests/Feature/Store`
-- **الاختبارات:** 14 ملفّ Feature في `tests/Feature/Store` — شغّلها بـ`php artisan test tests/Feature/Store`.
+- **الاختبارات:** 15 ملفّ Feature في `tests/Feature/Store` — شغّلها بـ`php artisan test tests/Feature/Store`.
 - **المرجع الحاكم:** `دستور اساسي.md` · **وكيف نكتب:** `docs/BUILD.md`.
 - **المجلّد الأب:** `app/Services/_STATUS.md`.
 <!-- تلقائيّ:نهاية:التبعيات -->
 
 ## 🕒 آخر تحديث
 <!-- تلقائيّ:بداية:التحديث -->
-- **آخر توليد لهذه الوثيقة:** 2026-09-11 — `php artisan docs:status`.
-- **آخر لمسة للمجلّد:** 2026-09-10 — Claude.
+- **آخر توليد لهذه الوثيقة:** 2026-09-14 — `php artisan docs:status`.
+- **آخر لمسة للمجلّد:** 2026-09-11 — Claude.
 <!-- تلقائيّ:نهاية:التحديث -->
