@@ -16,19 +16,17 @@
     /* الأصلان رسمتان SVG لا إيموجي (6 · 2.16-ج) — والقياس من الرسمة نفسها */
     .ghost-hero, .ghost-ghost { line-height: 0; position: absolute; z-index: 1; }
     .ghost-hero { inset-inline-start: 0; }
-    /* كلّما زادت النسبة المنقضية اقترب الشبح من المتدرّب (6) */
+    /*
+     | كلّما زادت النسبة المنقضية اقترب الشبح من المتدرّب (6). والانتقال
+     | 900ms — حرفيًّا من 2.10.1-27 (الهويّة 2.0): «Ghost Timer: انتقال موضع
+     | الشخصيّة 900ms بمنحنى --ease».
+     */
     .ghost-ghost {
         inset-inline-end: calc(var(--ghost-pos, 0%) * 0.78);
-        transition: inset-inline-end 400ms var(--ease-standard);
+        transition: inset-inline-end 900ms var(--ease-standard);
         animation: ghost-float 2.4s ease-in-out infinite;
     }
     @keyframes ghost-float { 0%, 100% { translate: 0 0; } 50% { translate: 0 -4px; } }
-    @keyframes ghost-shake {
-        0%, 100% { rotate: 0deg; }
-        25% { rotate: -8deg; }
-        75% { rotate: 8deg; }
-    }
-    .ghost-shake { animation: ghost-shake 420ms var(--ease-standard) infinite; }
 
     /* الشبح يتحرّك دائمًا — التحكّم من إعداد المستخدم داخل المنصّة (app.css). */
 

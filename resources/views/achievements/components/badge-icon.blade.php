@@ -6,7 +6,7 @@
 
 <svg width="{{ $size }}" height="{{ $size }}" viewBox="0 0 24 24" role="img"
      aria-label="{{ $unlocked ? setting('badges.icon.aria_unlocked', 'شارة مفتوحة') : setting('badges.icon.aria_locked', 'شارة مقفولة') }}"
-     fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+     fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
     {{-- قرص الميدالية --}}
     <circle cx="12" cy="9.2" r="5.8" />
     {{-- الشريطان --}}

@@ -46,7 +46,7 @@
                         title="{{ $isPinned ? (string) setting('ux.page_header.title_expr_1', 'مثبَّتة') : (string) setting('ux.page_header.title_expr_2', 'ثبّت الصفحة') }}">
                     {{-- أيقونة دبّوس SVG مرسومة داخل المشروع (2.16-ج) --}}
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="{{ $isPinned ? 'currentColor' : 'none' }}"
-                         stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                         stroke="currentColor" stroke-width="1.75" stroke-linejoin="round" aria-hidden="true" focusable="false">
                         <path d="M9 3h6l-1 6 3 3v2H7v-2l3-3-1-6z" />
                         <path d="M12 14v7" fill="none" />
                     </svg>

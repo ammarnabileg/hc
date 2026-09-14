@@ -6,7 +6,7 @@
     <div class="mx-auto mb-3" style="color: var(--color-state-warn)" aria-hidden="true">
         {{-- ساعة رمليّة مرسومة SVG — بلا مكتبة أيقونات --}}
         <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-             stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-inline: auto">
+             stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="margin-inline: auto">
             <path d="M6 3h12M6 21h12" />
             <path d="M8 3v4a4 4 0 0 0 4 4 4 4 0 0 0 4-4V3" />
             <path d="M8 21v-4a4 4 0 0 1 4-4 4 4 0 0 1 4 4v4" />

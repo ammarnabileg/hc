@@ -15,7 +15,7 @@
         <div class="mx-auto mb-4" style="color: var(--color-state-honor)" aria-hidden="true">
             {{-- أيقونة SVG مرسومة — بلا مكتبات (قاعدة الأيقونات) --}}
             <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                 stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" style="margin-inline: auto">
+                 stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="margin-inline: auto">
                 <path d="M4 7 7 17h10l3-10-4.5 3L12 4 8.5 10z" />
                 <path d="M6 20h12" />
             </svg>

@@ -44,10 +44,10 @@
                         {{-- أيقونة SVG مرسومة بهويّة المنصّة (كرة أرضيّة + قوس تحديث) — بلا أيّ مكتبة أيقونات (2.16-ج) --}}
                         <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true" class="shrink-0"
                              style="color: var(--color-brand-500)">
-                            <circle cx="8" cy="8" r="5.2" stroke="currentColor" stroke-width="1.5"/>
+                            <circle cx="8" cy="8" r="5.2" stroke="currentColor" stroke-width="1.75"/>
                             <path d="M2.8 8h10.4M8 2.8c1.5 1.6 1.5 8.8 0 10.4-1.5-1.6-1.5-8.8 0-10.4Z"
-                                  stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                            <path d="M13.4 3.4v2.4h-2.4" stroke="currentColor" stroke-width="1.5"
+                                  stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M13.4 3.4v2.4h-2.4" stroke="currentColor" stroke-width="1.75"
                                   stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
                         {{ setting('countries.source.check.button', 'فحص المصدر الآن') }}

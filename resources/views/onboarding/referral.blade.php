@@ -8,7 +8,7 @@
             {{-- أيقونة SVG مرسومة بهويّة المنصّة — بلا أيّ مكتبة أيقونات --}}
             <span aria-hidden="true" style="color: var(--color-brand-500)">
                 <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                     stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                     stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M20 12v9H4v-9" />
                     <path d="M2 7h20v5H2z" />
                     <path d="M12 21V7" />

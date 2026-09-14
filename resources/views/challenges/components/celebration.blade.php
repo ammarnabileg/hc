@@ -44,7 +44,7 @@
                     {{-- لقطة إنجاز قابلة للمشاركة (2.17-أ) — يبنيها استوديو الصور --}}
                     <a href="{{ $shareUrl }}"
                        class="btn rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
-                       style="background: var(--color-brand-500); color: #04201c">{{ setting('celebrations.screen.share_action', 'لقطة إنجاز') }}</a>
+                       style="background: var(--color-brand-500)">{{ setting('celebrations.screen.share_action', 'لقطة إنجاز') }}</a>
                 @endif
                 <button type="button" data-celebration-close
                         class="rounded-xl px-4 py-2 text-sm motion-standard"

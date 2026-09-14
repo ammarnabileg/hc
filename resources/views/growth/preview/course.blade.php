@@ -55,8 +55,8 @@
                             {{-- اللون لا يحمل المعنى وحده: قفلٌ مرسوم ونصّ (2.16-ب) --}}
                             <span class="shrink-0 inline-flex items-center gap-1 text-xs" style="color: var(--text-muted)">
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                                    <rect x="5" y="10" width="14" height="10" rx="2" stroke="currentColor" stroke-width="1.8"/>
-                                    <path d="M8 10V7a4 4 0 0 1 8 0v3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                                    <rect x="5" y="10" width="14" height="10" rx="2" stroke="currentColor" stroke-width="1.75"/>
+                                    <path d="M8 10V7a4 4 0 0 1 8 0v3" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
                                 </svg>
                                 {{ setting('growth.preview.locked_label', 'بعد التسجيل') }}
                             </span>

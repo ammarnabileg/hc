@@ -19,7 +19,7 @@
 @if ($attribution !== '')
     <p class="text-xs mt-5 pt-3" data-odbl-attribution
        style="color: var(--text-muted); border-top: 1px solid var(--border); line-height: 1.7">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"
              stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="display:inline-block; vertical-align:-1px">
             <circle cx="12" cy="12" r="9" /><path d="M12 11v5" /><path d="M12 7.6v.6" />
         </svg>

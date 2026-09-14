@@ -5,7 +5,7 @@
 <html lang="ar" dir="rtl" @if(auth()->check() && auth()->user()->theme === 'dark') data-theme="dark" @endif>
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <title>@yield('title', (string) setting('ux.layout_volunteer.yield_1', 'لوحة التطوّع'))</title>
@@ -17,7 +17,7 @@
     @include('partials.design-tokens')
     @stack('head')
 </head>
-<body class="min-h-screen">
+<body class="min-h-screen @hasSection('mobile_action') has-mobile-action @endif">
 
 {{-- شريط تقدّم التمرير (2.10.1-25) --}}
 <div class="scroll-progress" style="transform: scaleX(0)" data-scroll-progress></div>
@@ -35,7 +35,7 @@
         @include('partials.sidebar-volunteer')
     @endauth
 
-    <main class="flex-1 min-w-0 px-4 md:px-6 py-6 pb-24 md:pb-6">
+    <main id="content" class="flex-1 min-w-0 px-4 md:px-6 py-6 pb-6">
         @if (session('status'))
             <x-toast :message="session('status')" />
         @endif
@@ -55,7 +55,7 @@
 
 {{-- الفعل الرئيسيّ على الموبايل: شريط سفليّ في متناول الإبهام (2.15-ج) --}}
 @hasSection('mobile_action')
-    <div class="md:hidden fixed inset-x-0 bottom-0 z-40 p-3" style="background: var(--surface); border-top: 1px solid var(--border)">
+    <div id="mobile-primary">
         @yield('mobile_action')
     </div>
 @endif

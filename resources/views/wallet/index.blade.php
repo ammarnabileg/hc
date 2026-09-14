@@ -30,7 +30,7 @@
                     @if ($canTransfer)
                         <button type="button" data-modal-open="wallet-transfer"
                                 class="w-full flex items-center gap-2 rounded-lg px-3 py-2 text-start hover:opacity-80">
-                            <svg class="{{ $icon }}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            <svg class="{{ $icon }}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"
                                  stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                                 <path d="M4 12h13" /><path d="M13 6l6 6-6 6" />
                             </svg>
@@ -38,7 +38,7 @@
                         </button>
                         <button type="button" data-modal-open="wallet-exchange"
                                 class="w-full flex items-center gap-2 rounded-lg px-3 py-2 text-start hover:opacity-80">
-                            <svg class="{{ $icon }}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            <svg class="{{ $icon }}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"
                                  stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                                 <path d="M4 8h13l-3-3" /><path d="M20 16H7l3 3" />
                             </svg>
@@ -48,7 +48,7 @@
                     @if ($canWithdraw)
                         <button type="button" data-modal-open="wallet-withdraw"
                                 class="w-full flex items-center gap-2 rounded-lg px-3 py-2 text-start hover:opacity-80">
-                            <svg class="{{ $icon }}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            <svg class="{{ $icon }}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"
                                  stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                                 <path d="M12 3v11" /><path d="M8 10l4 4 4-4" /><path d="M4 19h16" />
                             </svg>

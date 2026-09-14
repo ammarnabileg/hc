@@ -13,11 +13,12 @@
 
 <style>
     /* الموبايل: لوحة منزلقة خارج التدفّق — الاتّجاه منطقيّ فيعمل RTL وLTR معًا */
+    /* 280px (2.10.1-13، الهويّة 2.0) — مع سقفٍ نسبيّ للشاشات الأضيق */
     [data-sidebar] {
         position: fixed;
         inset-block: 0;
         inset-inline-start: 0;
-        width: min(20rem, 86vw);
+        width: min(280px, 86vw);
         max-width: 86vw;
         z-index: 70;
         background: var(--surface);
@@ -53,7 +54,7 @@
         [dir="rtl"] [data-sidebar],
         [data-sidebar][data-open="true"] {
             position: static;
-            width: 16rem;
+            width: 248px; /* 2.10.1-13، الهويّة 2.0 */
             max-width: none;
             transform: none;
             z-index: auto;

@@ -50,7 +50,7 @@
                 <span class="shrink-0 inline-flex items-center justify-center rounded-xl"
                       style="width: 40px; height: 40px; background: {{ $challenge->color ?: 'var(--surface-sunken)' }}20; border: 1px solid var(--border)">
                     {{-- أيقونة الحرب SVG بهويّة المنصّة — ممنوع أيّ مكتبة أيقونات (2.16-ج) --}}
-                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6"
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.75"
                          stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"
                          style="color: {{ $challenge->color ?: 'var(--color-brand-500)' }}">
                         <path d="m4 20 6-6M20 4l-8 8" />

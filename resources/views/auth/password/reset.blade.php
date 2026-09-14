@@ -56,7 +56,7 @@
                             data-hide-label="{{ setting('auth.password_reset.hide_label', 'إخفاء كلمة السرّ') }}"
                             class="absolute flex items-center justify-center rounded-xl motion-standard"
                             style="inset-inline-end: .25rem; inline-size: 44px; block-size: 44px; color: var(--text-muted)">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"
                              stroke-linecap="round" stroke-linejoin="round" style="inline-size: 20px; block-size: 20px">
                             <path d="M2 12s3.5-6.5 10-6.5S22 12 22 12s-3.5 6.5-10 6.5S2 12 2 12Z" />
                             <circle cx="12" cy="12" r="2.8" />

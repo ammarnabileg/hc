@@ -106,7 +106,7 @@
                            style="min-height: 44px; background: var(--surface-sunken); border: 1px solid var(--border)">
                         <input type="radio" name="gender" value="{{ $value }}" @checked($val('gender') === $value) required>
                         <span aria-hidden="true" style="color: var(--color-brand-500)">
-                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"
                                  stroke-linecap="round" stroke-linejoin="round">
                                 <circle cx="12" cy="8" r="3.4" />
                                 @if ($value === 'male')

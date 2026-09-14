@@ -33,7 +33,7 @@
     <div class="card p-8 text-center">
         <div class="mx-auto mb-4 flex items-center justify-center" aria-hidden="true"
              style="inline-size: 56px; block-size: 56px; border-radius: 9999px; background: var(--surface-sunken, var(--surface-raised))">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"
                  stroke-linecap="round" stroke-linejoin="round"
                  style="inline-size: 28px; block-size: 28px; color: var(--color-brand-500)">
                 <rect x="4" y="10" width="16" height="10" rx="2" />

@@ -1,7 +1,7 @@
 @php
     /**
      * أيقونات المجال — **مرسومة SVG بهويّة المنصّة، وممنوع أيّ مكتبة أيقونات** (2.16-ج).
-     * سُمك خطّ موحّد 1.6 وشبكة 24 وتدعم currentColor.
+     * سُمك خطّ موحّد 1.75 وشبكة 24 وتدعم currentColor (2.10.1-21، الهويّة 2.0).
      */
     $name = $name ?? 'link';
     $box = $box ?? 16;
@@ -26,7 +26,7 @@
 @endphp
 
 <svg viewBox="0 0 24 24" width="{{ $box }}" height="{{ $box }}" fill="none" stroke="currentColor"
-     stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"
+     stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"
      class="inline-block align-[-0.15em]">
     {!! $paths[$name] ?? $paths['link'] !!}
 </svg>

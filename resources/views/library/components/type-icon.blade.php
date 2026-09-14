@@ -9,7 +9,7 @@
 @endphp
 
 <svg viewBox="0 0 24 24" width="{{ $size }}" height="{{ $size }}" fill="none" stroke="currentColor"
-     stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"
+     stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"
      @if ($label) role="img" aria-label="{{ $label }}" @endif>
     @switch($type)
         @case('course')

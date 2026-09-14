@@ -37,7 +37,7 @@
     <p class="text-xs mt-2 flex items-start gap-2" style="color: var(--text-muted)">
         <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true" class="shrink-0 mt-0.5"
              style="color: var(--color-brand-500)">
-            <path d="M4 8.5 7 11.5 12.5 5" stroke="currentColor" stroke-width="1.8"
+            <path d="M4 8.5 7 11.5 12.5 5" stroke="currentColor" stroke-width="1.75"
                   stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
         <span>{{ setting('features.ui.pinned_rule', 'لا صيانة جزئيّة لميزة بعينها — أُلغيت؛ الإطفاء يتمّ من هنا فقط.') }}</span>

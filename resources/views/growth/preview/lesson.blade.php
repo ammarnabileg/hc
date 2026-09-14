@@ -19,8 +19,8 @@
         <p class="text-xs mb-4 inline-flex items-center gap-1 rounded-full px-3 py-1"
            style="background: var(--surface-sunken); color: var(--text-muted)">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/>
-                <path d="M12 8v5l3 2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.75"/>
+                <path d="M12 8v5l3 2" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
             </svg>
             {{ setting('growth.preview.badge', 'درس معاينة مجّانيّ') }}
         </p>

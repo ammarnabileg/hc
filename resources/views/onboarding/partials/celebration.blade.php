@@ -86,7 +86,7 @@
                             data-onboarding-share="{{ $shareLink }}"
                             data-onboarding-share-text="{{ $message }}"
                             class="btn rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
-                            style="min-height: 44px; background: var(--color-brand-500); color: #04201c">
+                            style="min-height: 44px; background: var(--color-brand-500)">
                         {{ $shareLabel }}
                     </button>
                 @endif

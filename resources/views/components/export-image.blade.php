@@ -59,7 +59,7 @@
             aria-label="{{ setting('images.export_panel.aria_label_1', 'استخراج كصورة') }}" title="{{ setting('images.export_panel.title_1', 'استخراج كصورة') }}">
         {{-- أيقونة SVG مرسومة داخل المشروع — ممنوع أيّ مكتبة أيقونات (2.16-ج) --}}
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-             stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+             stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
             <rect x="3" y="4" width="18" height="14" rx="2" />
             <circle cx="8.5" cy="9" r="1.6" />
             <path d="M3 15l4.5-4 3.5 3 3-2.5L21 16" />

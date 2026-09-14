@@ -78,7 +78,7 @@
                 @if (! empty($shareUrl))
                     <a href="{{ $shareUrl }}"
                        class="btn rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
-                       style="background: var(--color-brand-500); color: #04201c">
+                       style="background: var(--color-brand-500)">
                         {{ setting('learning.celebration.share_cta', 'شارك إنجازك') }}
                     </a>
                 @endif

@@ -18,8 +18,12 @@
 
     @if ($deadline['has_deadline'])
         <div class="ghost-track" style="--ghost-pos: {{ $elapsed }}%">
-            {{-- ⭐ إليستريشن حقيقيّة لا إيموجي (6 · 2.16-ج) — وتتلوّن مع تدرّج الخطر --}}
-            <span class="ghost-hero {{ $shake ? 'ghost-shake' : '' }}" aria-hidden="true"
+            {{--
+              ⭐ إليستريشن حقيقيّة لا إيموجي (6 · 2.16-ج) — وتتلوّن مع تدرّج الخطر.
+              والاهتزاز عند الخطر `animate-shake` من كتالوج الحركة المشترك
+              (400ms×3 — 2.10.1-20/27، الهويّة 2.0) لا نسخة محلّيّة مكرّرة.
+            --}}
+            <span class="ghost-hero {{ $shake ? 'animate-shake' : '' }}" aria-hidden="true"
                   style="color: var(--text)">
                 @include('learning.partials.ghost-figure', ['figure' => 'hero', 'size' => 30])
             </span>

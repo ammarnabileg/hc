@@ -98,7 +98,7 @@
                 <a href="https://wa.me/?text={{ $titleEncoded }}%20{{ $encoded }}" target="_blank" rel="noopener nofollow"
                    class="rounded-xl px-3 py-2 text-sm inline-flex items-center gap-2 motion-standard" style="background: var(--surface-sunken)">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                        <path d="M4 20l1.3-4A8 8 0 1 1 8 18.7L4 20z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+                        <path d="M4 20l1.3-4A8 8 0 1 1 8 18.7L4 20z" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/>
                     </svg>
                     {{ setting('articles.show.text_4', 'واتساب') }}
                 </a>
@@ -106,8 +106,8 @@
                 <a href="https://www.linkedin.com/sharing/share-offsite/?url={{ $encoded }}" target="_blank" rel="noopener nofollow"
                    class="rounded-xl px-3 py-2 text-sm inline-flex items-center gap-2 motion-standard" style="background: var(--surface-sunken)">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                        <rect x="3" y="3" width="18" height="18" rx="3" stroke="currentColor" stroke-width="1.8"/>
-                        <path d="M7.5 10.5V17M7.5 7.5v.01M11.5 17v-3.6a2 2 0 0 1 4 0V17" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                        <rect x="3" y="3" width="18" height="18" rx="3" stroke="currentColor" stroke-width="1.75"/>
+                        <path d="M7.5 10.5V17M7.5 7.5v.01M11.5 17v-3.6a2 2 0 0 1 4 0V17" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
                     </svg>
                     {{ setting('articles.show.text_5', 'لينكدإن') }}
                 </a>
@@ -115,8 +115,8 @@
                 <button type="button" data-copy="{{ $shareUrl }}"
                         class="rounded-xl px-3 py-2 text-sm inline-flex items-center gap-2 motion-standard" style="background: var(--surface-sunken)">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                        <rect x="9" y="9" width="11" height="11" rx="2" stroke="currentColor" stroke-width="1.8"/>
-                        <path d="M15 5H6a2 2 0 0 0-2 2v9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                        <rect x="9" y="9" width="11" height="11" rx="2" stroke="currentColor" stroke-width="1.75"/>
+                        <path d="M15 5H6a2 2 0 0 0-2 2v9" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
                     </svg>
                     {{ setting('articles.show.text_6', 'انسخ الرابط') }}
                 </button>

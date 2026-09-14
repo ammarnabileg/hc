@@ -68,7 +68,7 @@
             @endif
             @if ($nextUrl)
                 <a href="{{ $nextUrl }}" class="btn hidden md:inline-flex items-center rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
-                   style="background: var(--color-brand-500); color: #04201c">{{ setting('learning.cta.next') }}</a>
+                   style="background: var(--color-brand-500)">{{ setting('learning.cta.next') }}</a>
             @endif
         </x-slot:action>
     </x-page-header>
@@ -162,7 +162,7 @@
                             <a href="{{ route('learning.lesson.quiz', [$course, $lesson]) }}"
                                class="btn w-full inline-flex items-center justify-center rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
                                style="background: {{ $quiz_passed ? 'var(--surface-sunken)' : 'var(--color-brand-500)' }};
-                                      color: {{ $quiz_passed ? 'var(--text)' : '#04201c' }}">
+                                      color: var(--text)">
                                 {{ $quiz_passed ? setting('learning.questions.review_cta') : setting('learning.questions.open_cta') }}
                             </a>
                         @endif
@@ -203,7 +203,7 @@
                     <form method="post" action="{{ route('learning.lesson.complete', [$course, $lesson]) }}">
                         @csrf
                         <button class="btn rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
-                                style="background: var(--color-brand-500); color: #04201c">
+                                style="background: var(--color-brand-500)">
                             {{ setting('learning.lesson.complete_cta') }}
                         </button>
                     </form>
@@ -261,6 +261,17 @@
 
 @section('mobile_action')
     <div class="flex items-center gap-2">
+        {{--
+          ⭐ زرّ دائم لإعادة فتح قائمة الدروس (2.10.1-17 · idea #17): البانل
+          `<details>` قابلٌ للطيّ، وكان طيّه على الموبايل **يخفيها بلا بديل**
+          لإعادة فتحها — هذا الزرّ ثابتٌ دائمًا مهما طُوي البانل.
+        --}}
+        <button type="button" class="inline-flex items-center justify-center rounded-xl shrink-0 motion-standard" data-toggle-lesson-panel
+                style="min-width: 44px; min-height: 44px; background: var(--surface-raised); border: 1px solid var(--border)"
+                aria-label="{{ setting('learning.lesson.panel_title') }}">
+            <x-icon name="course" size="20" />
+        </button>
+
         @if ($neighbours['previous'])
             <a href="{{ route('learning.lesson', [$course, $neighbours['previous']]) }}"
                class="btn flex items-center justify-center rounded-xl px-4 py-3 text-sm"
@@ -270,12 +281,12 @@
         @if ($neighbours['next'])
             <a href="{{ route('learning.lesson', [$course, $neighbours['next']]) }}"
                class="btn flex-1 flex items-center justify-center rounded-xl px-4 py-3 text-sm font-semibold"
-               style="background: var(--color-brand-500); color: #04201c">{{ setting('learning.cta.next') }}</a>
+               style="background: var(--color-brand-500)">{{ setting('learning.cta.next') }}</a>
         @elseif ($canComplete)
             <form method="post" action="{{ route('learning.lesson.complete', [$course, $lesson]) }}" class="flex-1">
                 @csrf
                 <button class="btn w-full rounded-xl px-4 py-3 text-sm font-semibold"
-                        style="background: var(--color-brand-500); color: #04201c">{{ setting('learning.lesson.complete_cta') }}</button>
+                        style="background: var(--color-brand-500)">{{ setting('learning.lesson.complete_cta') }}</button>
             </form>
         @endif
     </div>

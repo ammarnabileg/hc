@@ -1,4 +1,4 @@
-@props(['name' => 'spark', 'size' => 18, 'label' => null])
+@props(['name' => 'spark', 'size' => 20, 'label' => null])
 
 @php
     /*
@@ -172,7 +172,7 @@
 @endphp
 
 <svg viewBox="0 0 24 24" width="{{ $px }}" height="{{ $px }}" fill="none" stroke="currentColor"
-     stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"
+     stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"
      @if ($label) role="img" aria-label="{{ $label }}" @else aria-hidden="true" focusable="false" @endif
      {{ $attributes->merge(['class' => 'inline-block shrink-0 align-middle']) }}>
     {!! $body !!}

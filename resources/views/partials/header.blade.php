@@ -8,13 +8,19 @@
 {{-- شريط نادي الخامسة العلويّ: يظهر داخل النافذة بتوقيت المستخدم وحدها (7.2) --}}
 @include('achievements.components.club-topbar')
 
-<header class="sticky top-0 z-50 flex items-center gap-3 px-4 py-3"
+<header class="sticky top-0 z-50 flex flex-nowrap items-center gap-3 px-4 py-3"
         style="height: var(--header-h); background: var(--surface); border-bottom: 1px solid var(--border)">
 
-    <button type="button" class="md:hidden text-xl" data-drawer-toggle aria-label="{{ setting('nav.header.menu_aria', 'القائمة') }}"><x-icon name="menu" size="16" /></button>
+    <button type="button" class="md:hidden shrink-0 text-xl" data-drawer-toggle aria-label="{{ setting('nav.header.menu_aria', 'القائمة') }}"><x-icon name="menu" size="16" /></button>
 
+    {{--
+      ⭐ اسم المنصّة **يُقصّ لا يلتفّ**: بلا `min-w-0`/`truncate` كان النصّ
+      يلتفّ سطرين على الموبايل الضيّق حين يتنافس مع البحث/الجرس/الأفاتار
+      على المساحة (كلّها `shrink-0` أدناه) — فسطر الهيدر يطول رأسيًّا ويكسر
+      الالتصاق. الاسم وحده يضيق، لا العناصر التفاعليّة.
+    --}}
     <a href="{{ \Illuminate\Support\Facades\Route::has('dashboard') ? route('dashboard') : '/' }}"
-       class="font-extrabold" style="color: var(--color-brand-500)">{{ config('app.name') }}</a>
+       class="font-extrabold truncate min-w-0" style="color: var(--color-brand-500)">{{ config('app.name') }}</a>
 
     <div class="flex-1"></div>
 
@@ -24,12 +30,12 @@
     --}}
     <a href="{{ \Illuminate\Support\Facades\Route::has('search') ? route('search') : '#' }}"
        data-palette-open
-       class="inline-flex items-center justify-center rounded-xl motion-standard"
+       class="inline-flex items-center justify-center shrink-0 rounded-xl motion-standard"
        style="min-width: 44px; min-height: 44px; color: var(--text-muted)"
        aria-label="{{ setting('nav.header.search_aria', 'بحث موحّد') }}" title="{{ setting('nav.header.search_title', 'بحث موحّد (Ctrl+K)') }}">
         {{-- أيقونة SVG مرسومة داخل المشروع — ممنوع أيّ مكتبة أيقونات (2.16-ج) --}}
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-             stroke-width="1.8" stroke-linecap="round" aria-hidden="true" focusable="false">
+             stroke-width="1.75" stroke-linecap="round" aria-hidden="true" focusable="false">
             <circle cx="11" cy="11" r="7" />
             <path d="M20 20l-3.5-3.5" />
         </svg>
@@ -54,7 +60,7 @@
     @endvolunteer
 
     {{-- جرس الإشعارات بتاباته: الكلّ · المنصّة · التطوّع (2.8) --}}
-    <div class="relative" x-data="{ open: false }" data-notifications-poll
+    <div class="relative shrink-0" x-data="{ open: false }" data-notifications-poll
          data-last-id="{{ $lastNotificationId }}" data-poll-url="{{ route('notifications.poll') }}"
          data-poll-seconds="{{ (int) setting('notifications.toast.poll_seconds', 20) }}">
         <button type="button" class="relative text-xl" data-bell aria-label="{{ setting('nav.header.bell_aria', 'الإشعارات') }}">

@@ -121,7 +121,18 @@
   [dir='rtl'] { --range-dir: left; --ticker-dir: -1; }
 
   @media (max-width: 767px) {
-    :root { --header-h: 64px; } /* 2.10.1-14: 64px موبايل */
+    :root {
+      /*
+       | ⭐ 68px لا 64px (تصحيح ملفّ الهويّة 2.2 — سبتمبر 2026): الهيدر كان
+       | يتكسّر سطرين على الموبايل الضيّق باسم منصّةٍ طويل رغم القصّ (truncate)
+       | لأنّ 64px لا يتّسع لصفّ الأزرار الأربعة (قائمة/بحث/جرس/أفاتار) بارتفاع
+       | لمسٍ 44px + بادينج رأسيّ — فارتفع الهيدر نفسه إلى 68px.
+       */
+      --header-h: 68px;
+      /* ⭐ جديد: شريط التنقّل السفليّ وشريط الفعل الرئيسيّ الثابت (الموبايل فقط) */
+      --nav-height: 68px;
+      --action-height: 72px;
+    }
   }
 
   :root[data-theme='dark'] {
@@ -437,6 +448,22 @@
     color: var(--ink) !important;
   }
 
+  /*
+   | ⭐ نفس القاعدة لأيّ عنصرٍ آخر يُلوَّن ببطاقة `--color-brand-500` مباشرة
+   | من الـJS (كتابات جرس الإشعارات ونحوها) لا عبر صنف `.btn` — فيبقى
+   | التباين صحيحًا في الوضع الداكن (نصّ داكن فوق الأحمر الفاتح) بلا تكرار
+   | الشرط في كلّ مكوّنٍ يستخدمه.
+   */
+  [style*='background: var(--color-brand-500)'],
+  [style*='background:var(--color-brand-500)'] {
+    color: #fff;
+  }
+
+  :root[data-theme='dark'] [style*='background: var(--color-brand-500)'],
+  :root[data-theme='dark'] [style*='background:var(--color-brand-500)'] {
+    color: var(--ink);
+  }
+
   .btn-p:hover, .btn[style*='--color-brand-500']:hover {
     background-color: var(--brand-hover) !important;
   }
@@ -554,6 +581,90 @@
   /* لا مؤشّر بلا فأرة — ولا يُبنى أصلًا على اللمس */
   @media (pointer: coarse) {
     .hc-cursor { display: none; }
+  }
+
+  /* ================= الموبايل: تنقّل سفليّ + شريط فعل ثابت =================
+   |
+   | تصحيح ملفّ الهويّة 2.2 (سبتمبر 2026): الموبايل كان بلا بديلٍ للتنقّل حين
+   | تختفي عناصر الديسكتوب (لا سايد بار ولا فعل رئيسيّ ثابت) — «قائمة الدروس
+   | بتختفي من غير بديل ومفيش تنقّل سفليّ». الحلّ عنصران ثابتان اختياريّان:
+   | `#mobile-navigation` (أربع وجهات فقط) و`#mobile-primary` (الفعل السياقيّ).
+   | كلاهما يُحقَنان مرّةً في كلّ لياوت ويبقيان `hidden` حتى تحتاجهما الصفحة.
+   */
+  #mobile-navigation, #mobile-primary { display: none; }
+
+  @media (max-width: 767px) {
+    #mobile-navigation:not([hidden]) {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      position: fixed;
+      inset-block-end: 0;
+      inset-inline: 0;
+      padding: 6px 12px calc(6px + env(safe-area-inset-bottom));
+      min-block-size: var(--nav-height, 68px);
+      border-block-start: 1px solid var(--border);
+      background: var(--surface);
+      z-index: 35;
+    }
+
+    /*
+     | ⭐ الافتراضيّ: الشريط يلتصق بأسفل الشاشة مباشرةً (لياوتا الإدارة
+     | والتطوّع بلا تنقّلٍ سفليّ). و`.has-mobile-nav` (لياوت المتدرّب وحده،
+     | حيث `#mobile-navigation` موجودٌ فعلًا) يرفعه فوقه بدل الالتصاق.
+     */
+    #mobile-primary:not([hidden]) {
+      display: flex;
+      position: fixed;
+      inset-inline: 0;
+      inset-block-end: env(safe-area-inset-bottom);
+      padding: 10px 20px 12px;
+      min-block-size: var(--action-height, 72px);
+      background: var(--surface);
+      border-block-start: 1px solid var(--border);
+      z-index: 36;
+    }
+
+    body.has-mobile-nav #mobile-primary:not([hidden]) {
+      inset-block-end: calc(var(--nav-height, 68px) + env(safe-area-inset-bottom));
+    }
+
+    #mobile-primary > .btn { inline-size: 100%; min-block-size: 48px; }
+
+    /* المحتوى لا يختفي خلف الشريط/الشريطين الثابتين */
+    body.has-mobile-nav #content { padding-block-end: calc(24px + var(--nav-height, 68px) + env(safe-area-inset-bottom)); }
+    body.has-mobile-action #content { padding-block-end: calc(24px + var(--action-height, 72px) + env(safe-area-inset-bottom)); }
+    body.has-mobile-nav.has-mobile-action #content {
+      padding-block-end: calc(24px + var(--nav-height, 68px) + var(--action-height, 72px) + env(safe-area-inset-bottom));
+    }
+  }
+
+  .mobile-nav-item {
+    min-block-size: 54px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 4px;
+    border: none;
+    background: transparent;
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-muted);
+  }
+
+  .mobile-nav-item.active { color: var(--color-brand-500); background: var(--color-brand-50); }
+  .mobile-nav-item svg { inline-size: 21px; block-size: 21px; }
+
+  /* الشريطان الثابتان يختفيان مؤقّتًا مع ظهور لوحة المفاتيح فلا يحجبان الحقل المركَّز (2.10.1-27) */
+  .keyboard-open #mobile-navigation,
+  .keyboard-open #mobile-primary {
+    display: none !important;
+  }
+
+  @media (max-width: 767px) {
+    /* 16px لا أقلّ — وإلّا يكبّر iOS الصفحة تلقائيًّا عند التركيز فتُكسَر الهويّة */
+    input, select, textarea { font-size: 16px; }
   }
 }
 

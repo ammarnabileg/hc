@@ -151,7 +151,7 @@
                             <span data-dial-flag class="shrink-0"></span>
                             <span data-dial-code class="tabular-nums" dir="ltr"></span>
                             <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor"
-                                 stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" class="ms-auto shrink-0"
+                                 stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" class="ms-auto shrink-0"
                                  aria-hidden="true"><path d="M2.5 4.5 6 8l3.5-3.5"/></svg>
                         </button>
 

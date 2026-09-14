@@ -174,14 +174,14 @@ document.querySelectorAll('[data-stepper]').forEach((host) => {
     form?.addEventListener('input', saveDraft);
     form?.addEventListener('submit', () => { try { localStorage.removeItem(key); } catch { /* تجاهل */ } });
 
-    // ---- بناء صفّ الخطوات (2.10.1-24)
+    // ---- بناء صفّ الخطوات (2.10.1-24 — الهويّة 2.0: دوائر 40px)
     head.innerHTML = steps
         .map((_, i) => `
             <span class="flex items-center gap-2 shrink-0">
-                <span data-step-dot="${i}" class="inline-flex items-center justify-center rounded-full text-[11px] font-bold"
-                      style="width:24px;height:24px"></span>
+                <span data-step-dot="${i}" class="inline-flex items-center justify-center rounded-full text-xs font-bold"
+                      style="width:40px;height:40px"></span>
                 <span data-step-label="${i}" class="text-xs whitespace-nowrap"></span>
-                ${i < steps.length - 1 ? '<span class="inline-block" style="width:28px;height:1px;background:rgb(0 212 184 / .12)"></span>' : ''}
+                ${i < steps.length - 1 ? '<span class="inline-block" style="width:28px;height:1px;background:var(--border)"></span>' : ''}
             </span>`)
         .join('');
     head.classList.remove('hidden');
@@ -202,9 +202,9 @@ document.querySelectorAll('[data-stepper]').forEach((host) => {
             const active = i === at;
 
             dot.textContent = done ? '' : String(i + 1);
-            dot.style.background = done ? 'var(--color-brand-500)' : active ? 'rgb(0 212 184 / .12)' : 'rgb(0 212 184 / .08)';
-            dot.style.border = `1px solid ${active ? 'var(--color-brand-500)' : 'rgb(0 212 184 / .2)'}`;
-            dot.style.color = done ? '#020e18' : active ? 'var(--color-brand-500)' : 'var(--text-muted)';
+            dot.style.background = done ? 'var(--color-brand-500)' : 'transparent';
+            dot.style.border = `1px solid ${active || done ? 'var(--color-brand-500)' : 'var(--border)'}`;
+            dot.style.color = done ? '#fff' : active ? 'var(--color-brand-500)' : 'var(--text-muted)';
             if (done) dot.innerHTML = '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor"'
                 + ' stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>';
 
@@ -225,6 +225,8 @@ document.querySelectorAll('[data-stepper]').forEach((host) => {
 });
 
 // بوب-أب: فتح/إغلاق + ESC
+const closeModal = (modal) => { modal.classList.add('hidden'); modal.classList.remove('flex'); };
+
 document.addEventListener('click', (e) => {
     const opener = e.target.closest('[data-modal-open]');
     if (opener) {
@@ -233,16 +235,65 @@ document.addEventListener('click', (e) => {
     }
     if (e.target.closest('[data-modal-close]')) {
         const modal = e.target.closest('[data-modal]');
-        if (modal) { modal.classList.add('hidden'); modal.classList.remove('flex'); }
+        if (modal) closeModal(modal);
     }
 });
 document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
-        document.querySelectorAll('[data-modal]:not(.hidden)').forEach((m) => {
-            m.classList.add('hidden'); m.classList.remove('flex');
-        });
+        document.querySelectorAll('[data-modal]:not(.hidden)').forEach(closeModal);
     }
 });
+
+/*
+ | ⭐ زرّ إعادة فتح قائمة الدروس الثابت (idea #17): يبدّل سمة `open` على
+ | `.lesson-panel` — نفس آلية `<details>` النايتف، فلا حاجة لحالة JS منفصلة
+ | تتعارض مع النقر المباشر على `<summary>`.
+ */
+document.addEventListener('click', (e) => {
+    if (!e.target.closest('[data-toggle-lesson-panel]')) return;
+    const panel = document.querySelector('.lesson-panel');
+    if (panel) { panel.open = !panel.open; if (panel.open) panel.scrollIntoView({ block: 'end', behavior: 'smooth' }); }
+});
+
+/*
+ | ⭐ Bottom Sheet على الموبايل (2.10.1-17): سحبٌ لأسفل أكثر من 90px من رأس
+ | النافذة يقفلها — تفويضٌ على `.modal-head` كلّها (لا على مقبض الفتح وحده)
+ | فيعمل السحب من أيّ نقطةٍ في الرأس.
+ */
+const mobileQuery = window.matchMedia('(max-width: 767px)');
+let sheetTouchY = null;
+
+document.addEventListener('touchstart', (e) => {
+    const head = e.target.closest('.modal-head');
+    if (head && mobileQuery.matches) sheetTouchY = e.touches[0].clientY;
+}, { passive: true });
+
+document.addEventListener('touchend', (e) => {
+    if (sheetTouchY === null) return;
+    const head = e.target.closest('.modal-head');
+    const delta = e.changedTouches[0].clientY - sheetTouchY;
+    sheetTouchY = null;
+    if (head && mobileQuery.matches && delta > 90) {
+        const modal = head.closest('[data-modal]');
+        if (modal) closeModal(modal);
+    }
+}, { passive: true });
+
+/*
+ | ⭐ لوحة المفاتيح لا تغطّي المهمّة (2.10.1-27): `visualViewport` يقيس
+ | الارتفاع المرئيّ الفعليّ؛ فرقٌ أكبر من 160px عن `innerHeight` يعني أنّ
+ | لوحة مفاتيح ظاهرة — فتُخفى الأشرطة الثابتة السفليّة (`.keyboard-open`
+ | في app.css) كي لا تحجب الحقل المركَّز.
+ */
+if (window.visualViewport) {
+    const updateKeyboard = () => {
+        const vv = window.visualViewport;
+        document.documentElement.style.setProperty('--visual-height', vv.height + 'px');
+        document.body.classList.toggle('keyboard-open', window.innerHeight - vv.height > 160);
+    };
+    window.visualViewport.addEventListener('resize', updateKeyboard);
+    updateKeyboard();
+}
 
 // جرس الإشعارات وتاباته (2.8)
 const bell = document.querySelector('[data-bell]');
@@ -260,7 +311,8 @@ if (bell && panel) {
             panel.querySelectorAll('[data-bell-tab]').forEach((t) => {
                 const on = t === tab;
                 t.style.background = on ? 'var(--color-brand-500)' : 'var(--surface-sunken)';
-                t.style.color = on ? '#04201c' : 'var(--text)';
+                // لون النصّ عند التفعيل يأتي من app.css (يتبع الوضع الداكن/الفاتح تلقائيًّا)
+                t.style.color = on ? '' : 'var(--text)';
             });
             panel.querySelectorAll('[data-layer]').forEach((row) => {
                 row.style.display = layer === 'all' || row.dataset.layer === layer ? '' : 'none';

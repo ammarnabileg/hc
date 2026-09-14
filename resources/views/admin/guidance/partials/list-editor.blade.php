@@ -27,7 +27,7 @@
                         style="min-height: 44px; background: var(--surface-sunken); color: var(--text-muted)"
                         aria-label="{{ $removeLabel }}">
                     <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true" fill="none"
-                         stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+                         stroke="currentColor" stroke-width="1.75" stroke-linecap="round">
                         <path d="M3 3l8 8M11 3l-8 8" />
                     </svg>
                 </button>
@@ -45,7 +45,7 @@
                     style="min-height: 44px; background: var(--surface-sunken); color: var(--text-muted)"
                     aria-label="{{ $removeLabel }}">
                 <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true" fill="none"
-                     stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+                     stroke="currentColor" stroke-width="1.75" stroke-linecap="round">
                     <path d="M3 3l8 8M11 3l-8 8" />
                 </svg>
             </button>

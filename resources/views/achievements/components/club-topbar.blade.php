@@ -30,7 +30,7 @@
          style="background: color-mix(in srgb, var(--color-state-honor) 18%, var(--surface)); color: var(--text)">
         {{-- أيقونة الشروق: SVG مرسومة بهويّة المنصّة — بلا مكتبات (2.16-ج) --}}
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"
-             stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+             stroke="currentColor" stroke-width="1.75" stroke-linecap="round">
             <path d="M4 18h16M7 18a5 5 0 0 1 10 0M12 4v3M5 8l2 2M19 8l-2 2" />
         </svg>
 

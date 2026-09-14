@@ -68,7 +68,7 @@
                             @else
                                 {{-- قفل SVG مرسوم داخل المشروع — الرمز مع اللون دائمًا (2.16-ب) --}}
                                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                     stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"
+                                     stroke-width="1.75" stroke-linejoin="round" aria-hidden="true"
                                      style="color: var(--text-muted)">
                                     <rect x="5" y="10" width="14" height="10" rx="2" />
                                     <path d="M8 10V7a4 4 0 018 0v3" />

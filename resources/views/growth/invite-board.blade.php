@@ -12,8 +12,8 @@
                class="hidden md:inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm motion-standard"
                style="background: var(--surface-sunken)">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                    <path d="M12 4v11m0 0l-4-4m4 4l4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-                    <path d="M5 19h14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                    <path d="M12 4v11m0 0l-4-4m4 4l4-4" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M5 19h14" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
                 </svg>
                 {{ setting('growth.invite_board.text_1', 'استخرج كصورة') }}
             </a>

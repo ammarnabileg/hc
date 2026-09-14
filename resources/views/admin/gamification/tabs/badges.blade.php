@@ -17,7 +17,7 @@
                     {{-- أيقونة SVG بهويّة المنصّة — بلا أيّ مكتبة أيقونات (2.16-ج) --}}
                     <span class="shrink-0 inline-flex items-center justify-center rounded-xl"
                           style="width: 42px; height: 42px; background: var(--surface); border: 1px solid var(--border)">
-                        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6"
+                        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.75"
                              stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"
                              style="color: var(--color-brand-500)">
                             <circle cx="12" cy="9" r="5" />

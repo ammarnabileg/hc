@@ -10,7 +10,7 @@
     <div class="card w-full max-w-xl overflow-hidden" style="max-height: 70vh">
         <div class="flex items-center gap-2 px-4 py-3" style="border-bottom: 1px solid var(--border)">
             {{-- أيقونة SVG مرسومة داخل المشروع (2.16-ج) --}}
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"
                  stroke-linecap="round" aria-hidden="true" style="color: var(--text-muted)">
                 <circle cx="11" cy="11" r="7" />
                 <path d="M20 20l-3.5-3.5" />

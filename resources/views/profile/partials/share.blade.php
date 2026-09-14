@@ -26,27 +26,27 @@
                         @switch($link['key'])
                             @case('telegram')
                                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                     stroke-width="1.6" stroke-linejoin="round" focusable="false">
+                                     stroke-width="1.75" stroke-linejoin="round" focusable="false">
                                     <path d="M21 4L3 11l5 2 2 6 3-4 5 4z" />
                                     <path d="M8 13l13-9-9 11" />
                                 </svg>
                                 @break
                             @case('x')
                                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                     stroke-width="1.6" stroke-linecap="round" focusable="false">
+                                     stroke-width="1.75" stroke-linecap="round" focusable="false">
                                     <path d="M4 4l16 16M20 4L4 20" />
                                 </svg>
                                 @break
                             @case('facebook')
                                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                     stroke-width="1.6" stroke-linejoin="round" focusable="false">
+                                     stroke-width="1.75" stroke-linejoin="round" focusable="false">
                                     <rect x="3" y="3" width="18" height="18" rx="4" />
                                     <path d="M14 8h-1.5A1.5 1.5 0 0011 9.5V12H9v2.5h2V21h2.5v-6.5H16L16.5 12H13.5v-1.75c0-.4.3-.75.75-.75H16V8z" />
                                 </svg>
                                 @break
                             @default
                                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                     stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" focusable="false">
+                                     stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" focusable="false">
                                     <path d="M20 12a8 8 0 10-3.2 6.4L20 20l-1.4-3.4A7.9 7.9 0 0020 12z" />
                                     <path d="M9 9.5c0 3 2.5 5.5 5.5 5.5" />
                                 </svg>
