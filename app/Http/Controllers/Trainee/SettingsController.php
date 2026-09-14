@@ -14,6 +14,7 @@ use App\Services\Account\ConsentDirectory;
 use App\Services\Account\PrivacyFields;
 use App\Services\Account\ProfileVisibility;
 use App\Services\Account\SettingsAutosave;
+use App\Services\Ads\Consent as AdConsent;
 use App\Services\Geo\GovernorateLabels;
 use App\Services\Security\AccountDeletion;
 use Illuminate\Http\JsonResponse;
@@ -38,6 +39,7 @@ class SettingsController extends Controller
     public function __construct(
         private readonly SettingsAutosave $autosave,
         private readonly ConsentDirectory $consents,
+        private readonly AdConsent $adConsent,
     ) {}
 
     public function index(Request $request): View
@@ -103,6 +105,19 @@ class SettingsController extends Controller
             'consentBars' => $consents->mapWithKeys(
                 fn ($c) => [$c->id => $this->consents->remainingPercent($c)]
             ),
+
+            /*
+             | ⭐ سحب/تغيير موافقة التتبّع في أيّ وقت (21.3-د · 24.5) — نفس
+             | التخزين الذي يكتبه بانر أوّل زيارة (`PublicPagesController::storeConsent`
+             | عبر `route('consent.tracking')`)، فلا مصدرَي حقيقة لقرارٍ واحد.
+             */
+            'trackingEnabled' => $this->adConsent->trackingEnabled(),
+            'trackingChoice' => $this->adConsent->choice($user),
+            'trackingScopes' => $this->adConsent->scopes($user),
+            'trackingPurposes' => [
+                'ads' => (string) setting('ads.consent.purpose_ads', 'قياس الإعلانات وإعادة الاستهداف'),
+                'analytics' => (string) setting('ads.consent.purpose_analytics', 'قياس داخليّ لتحسين المنصّة'),
+            ],
 
             /*
              | ⭐ بلوك الأمان نفسه المعروض في تاب «الأمان» (2.3) — والبند 24.5 يذكره

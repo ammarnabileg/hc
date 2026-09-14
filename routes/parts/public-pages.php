@@ -40,3 +40,10 @@ Route::middleware('auth')->group(function () {
 
 // موافقة التتبّع — شرط لازم قبل تشغيل أيّ بكسل (21.3-د)
 Route::post('/consent/tracking', [PublicPagesController::class, 'storeConsent'])->name('consent.tracking');
+
+/*
+| ⭐ سياسة الخصوصيّة — **عامّة تمامًا: بلا تسجيل دخول ولا صلاحيّة** (21.3-د).
+| بانر الموافقة يظهر للزائر **قبل** أيّ حساب، فالرابط الذي يشرحه لازم يفتح
+| بلا حاجز — وكان يشير قبلًا إلى `settings.privacy` المحجوبة خلف `auth`.
+*/
+Route::get('/privacy-policy', [PublicPagesController::class, 'privacyPolicy'])->name('privacy.policy');

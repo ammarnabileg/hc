@@ -161,6 +161,35 @@ class PublicPagesController extends Controller
             : (string) setting('home.public.respond_placement_ok', 'اتسجّل ✓ شكرًا لوضوحك.'));
     }
 
+    /**
+     * ⭐ صفحة سياسة الخصوصيّة — **عامّة تمامًا: بلا تسجيل دخول ولا صلاحيّة** (21.3-د).
+     *
+     * البند الحاكم حرفيًّا: «**صفحة سياسة خصوصيّة** توضّح ما يُجمَع ولمن يُرسَل،
+     * وحقّ السحب في أيّ وقت من إعدادات الخصوصيّة والأمان». وبانر الموافقة
+     * (21.3-د) يظهر **للزائر قبل أيّ حساب**، فلو كان رابطها محجوبًا خلف `auth`
+     * (كما كان يشير قبلًا إلى `settings.privacy`) لا يقدر الزائر يفتحه أصلًا.
+     *
+     * والمحتوى كلّه من `setting()` (2.13) — والرابط لإعدادات الخصوصيّة داخل
+     * الصفحة يظهر لصاحب الحساب فقط؛ الزائر يقرأ بدله سطرًا يشرح أنّ اختياره
+     * محفوظٌ على متصفّحه وقابلٌ للتغيير من البانر، أو بتسجيل الدخول.
+     */
+    public function privacyPolicy(): View
+    {
+        return view('public.privacy-policy', [
+            'title' => (string) setting('ads.privacy_page.title', 'سياسة الخصوصيّة'),
+            'subtitle' => (string) setting('ads.privacy_page.subtitle', 'إيه اللي بنجمعه من بياناتك، ولمين بيتبعت، وإزاي تسحب موافقتك في أيّ وقت.'),
+            'collectedTitle' => (string) setting('ads.privacy_page.collected_title', 'إيه اللي بنجمعه'),
+            'collectedBody' => (string) setting('ads.privacy_page.collected_body', 'بيانات حسابك (الاسم، البريد، رقم الموبايل، بيانات ملفّك)، وبيانات استخدامك للمنصّة (الصفحات اللي بتفتحها، لحظات زيّ التسجيل والشراء)، وبيانات جهازك (عنوان IP ونوع المتصفّح) — لتشغيل حسابك وتحسين المنصّة، وللإعلان بعد موافقتك الصريحة وحدها.'),
+            'sharedTitle' => (string) setting('ads.privacy_page.shared_title', 'لمين بيتبعت'),
+            'sharedBody' => (string) setting('ads.privacy_page.shared_body', 'لو وافقت على التتبّع، بترسل أحداثٌ لمنصّات الإعلان (Meta وGoogle) لقياس الحملات وإعادة الاستهداف — مشفّرة قبل ما تتبعت ومفيش بيانات خام بتغادر خوادمنا. ولو رفضت أو ما اخترتش، بيتوقّف الإرسال فعليًّا لا شكليًّا. وباقي بياناتك بتفضل في خوادمنا ولا تتبعت لأيّ جهة تالتة من غير موافقتك.'),
+            'rightsTitle' => (string) setting('ads.privacy_page.rights_title', 'حقّك في السحب في أيّ وقت'),
+            'rightsBody' => (string) setting('ads.privacy_page.rights_body', 'تقدر توافق أو ترفض أو تخصّص أغراض التتبّع من البانر أوّل ما تدخل المنصّة، وتقدر كمان تغيّر اختيارك في أيّ وقت بعد كده من غير ما تنتظر البانر يرجع.'),
+            'withdrawTitle' => (string) setting('ads.privacy_page.withdraw_title', 'تغيير اختيارك'),
+            'withdrawCtaLabel' => (string) setting('ads.privacy_page.withdraw_cta_label', 'اذهب لإعدادات الخصوصيّة والأمان'),
+            'withdrawGuestNote' => (string) setting('ads.privacy_page.withdraw_guest_note', 'لسّه معملتش حساب؟ اختيارك بيتسجّل على المتصفّح ده، وتقدر تغيّره من بانر الموافقة في أيّ وقت. وبعد ما تسجّل حسابك، هتقدر تديره من صفحة الخصوصيّة والأمان.'),
+        ]);
+    }
+
     /** إشعارات التطوّع = مركز الإشعارات على تاب التطوّع — مصدر واحد بلا ازدواج (2.8) */
     public function volunteerNotifications(): RedirectResponse
     {
