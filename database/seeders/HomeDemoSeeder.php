@@ -142,6 +142,12 @@ class HomeDemoSeeder extends Seeder
                 'empty_state' => 'في الشاشات الفاضية',
                 'first_login' => 'أوّل دخول بعد التفعيل',
             ], JSON_UNESCAPED_UNICODE)],
+            // استيراد CSV للرسائل الإيجابيّة (2.6-ب) — أعمدة القالب المعتمَد
+            ['engagement.positive.csv_columns', 'engagement', 'أعمدة قالب CSV للرسائل الإيجابيّة', 'json', json_encode([
+                'context', 'body', 'emoji', 'language', 'sort_order', 'is_active',
+            ], JSON_UNESCAPED_UNICODE)],
+            ['engagement.positive.csv_max_rows', 'engagement', 'أقصى صفوف CSV للرسائل الإيجابيّة', 'number', '300'],
+            ['engagement.positive.csv_max_kb', 'engagement', 'أقصى حجم ملفّ CSV للرسائل الإيجابيّة (ك.ب)', 'number', '2048'],
 
             // ---------------- سهم العودة لأعلى (2.6-أ)
             ['ux.back_to_top.label', 'ux', 'وصف سهم العودة لأعلى', 'string', 'ارجع لأعلى الصفحة'],
@@ -227,8 +233,8 @@ class HomeDemoSeeder extends Seeder
 
         foreach ($rows as $index => [$context, $body, $emoji]) {
             PositiveMessage::updateOrCreate(
-                ['context' => $context, 'body_ar' => $body],
-                ['emoji' => $emoji, 'is_active' => true, 'sort_order' => $index],
+                ['context' => $context, 'body' => $body],
+                ['emoji' => $emoji, 'language' => 'ar', 'is_active' => true, 'sort_order' => $index],
             );
         }
     }

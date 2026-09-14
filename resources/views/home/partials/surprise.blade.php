@@ -71,7 +71,7 @@
                 @if ($surprise->emoji)
                     <div class="text-2xl mb-1" aria-hidden="true">{{ $surprise->emoji }}</div>
                 @endif
-                <p class="leading-relaxed">{{ $surprise->body_ar }}</p>
+                <p class="leading-relaxed">{{ $surprise->body }}</p>
             </div>
 
             <div class="mt-5 flex flex-wrap items-center justify-center gap-2">

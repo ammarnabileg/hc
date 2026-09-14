@@ -52,7 +52,7 @@ class SimplicityAndFeelTest extends TestCase
 
         PositiveMessage::create([
             'context' => 'any',
-            'body_ar' => 'إنت أحسن من إمبارح.',
+            'body' => 'إنت أحسن من إمبارح.',
             'is_active' => true,
             'sort_order' => 1,
         ]);

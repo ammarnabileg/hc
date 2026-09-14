@@ -6,6 +6,7 @@ use App\Models\PositiveMessage;
 use App\Models\Setting;
 use App\Models\Transaction;
 use App\Services\Engagement\PositiveMessages;
+use Illuminate\Http\UploadedFile;
 
 /** الرسائل الإيجابيّة (2.6-ب · 2.13 · 2.9) */
 class PositiveMessagesTest extends HomeTestCase
@@ -20,21 +21,21 @@ class PositiveMessagesTest extends HomeTestCase
     {
         PositiveMessage::query()->delete();
 
-        PositiveMessage::create(['context' => 'lesson_complete', 'body_ar' => 'رسالة الدرس', 'is_active' => true]);
-        PositiveMessage::create(['context' => 'streak_broken', 'body_ar' => 'رسالة الستريك', 'is_active' => true]);
+        PositiveMessage::create(['context' => 'lesson_complete', 'body' => 'رسالة الدرس', 'is_active' => true]);
+        PositiveMessage::create(['context' => 'streak_broken', 'body' => 'رسالة الستريك', 'is_active' => true]);
 
-        $this->assertSame('رسالة الدرس', $this->service()->forContext('lesson_complete')?->body_ar);
-        $this->assertSame('رسالة الستريك', $this->service()->forContext('streak_broken')?->body_ar);
+        $this->assertSame('رسالة الدرس', $this->service()->forContext('lesson_complete')?->body);
+        $this->assertSame('رسالة الستريك', $this->service()->forContext('streak_broken')?->body);
     }
 
     /** الموقوفة لا تظهر أبدًا — والإيقاف لا يحذف (2.6-ب) */
     public function test_paused_messages_never_show(): void
     {
         PositiveMessage::query()->delete();
-        PositiveMessage::create(['context' => 'lesson_complete', 'body_ar' => 'موقوفة', 'is_active' => false]);
+        PositiveMessage::create(['context' => 'lesson_complete', 'body' => 'موقوفة', 'is_active' => false]);
 
         $this->assertNull($this->service()->forContext('lesson_complete'));
-        $this->assertDatabaseHas('positive_messages', ['body_ar' => 'موقوفة']);
+        $this->assertDatabaseHas('positive_messages', ['body' => 'موقوفة']);
     }
 
     /** بلا تكرار ممل: النداءات المتتالية لا تعيد نفس الرسالة ما دام في المكتبة غيرها */
@@ -43,14 +44,14 @@ class PositiveMessagesTest extends HomeTestCase
         PositiveMessage::query()->delete();
 
         foreach (['أ', 'ب', 'ج'] as $body) {
-            PositiveMessage::create(['context' => 'lesson_complete', 'body_ar' => $body, 'is_active' => true]);
+            PositiveMessage::create(['context' => 'lesson_complete', 'body' => $body, 'is_active' => true]);
         }
 
         $this->startSession();
 
         $seen = [];
         for ($i = 0; $i < 3; $i++) {
-            $seen[] = $this->service()->forContext('lesson_complete')?->body_ar;
+            $seen[] = $this->service()->forContext('lesson_complete')?->body;
         }
 
         $this->assertSame(['أ', 'ب', 'ج'], collect($seen)->sort()->values()->all());
@@ -126,23 +127,23 @@ class PositiveMessagesTest extends HomeTestCase
         // إضافة
         $this->actingAs($admin)->post(route('admin.positive.store'), [
             'context' => 'lesson_complete',
-            'body_ar' => 'رسالة أضافها الأدمن',
+            'body' => 'رسالة أضافها الأدمن',
             'emoji' => '✅',
             'sort_order' => 1,
             'is_active' => 1,
         ])->assertRedirect();
 
-        $message = PositiveMessage::where('body_ar', 'رسالة أضافها الأدمن')->firstOrFail();
+        $message = PositiveMessage::where('body', 'رسالة أضافها الأدمن')->firstOrFail();
         $this->assertSame($admin->id, $message->created_by);
 
         // تعديل
         $this->actingAs($admin)->put(route('admin.positive.update', $message), [
             'context' => 'lesson_complete',
-            'body_ar' => 'نصّ بعد التعديل',
+            'body' => 'نصّ بعد التعديل',
             'is_active' => 1,
         ])->assertRedirect();
 
-        $this->assertSame('نصّ بعد التعديل', $message->fresh()->body_ar);
+        $this->assertSame('نصّ بعد التعديل', $message->fresh()->body);
 
         // إيقاف
         $this->actingAs($admin)->post(route('admin.positive.toggle', $message))->assertRedirect();
@@ -201,10 +202,10 @@ class PositiveMessagesTest extends HomeTestCase
 
         $this->actingAs($admin)->post(route('admin.positive.store'), [
             'context' => 'context_does_not_exist',
-            'body_ar' => 'رسالة بسياق غير معروف',
+            'body' => 'رسالة بسياق غير معروف',
         ])->assertStatus(422);
 
-        $this->assertDatabaseMissing('positive_messages', ['body_ar' => 'رسالة بسياق غير معروف']);
+        $this->assertDatabaseMissing('positive_messages', ['body' => 'رسالة بسياق غير معروف']);
     }
 
     /** إعدادات الميزة تُحفَظ وتسري فورًا بلا إعادة نشر (2.13-د) */
@@ -240,10 +241,84 @@ class PositiveMessagesTest extends HomeTestCase
 
         $this->actingAs($admin)->post(route('admin.positive.store'), [
             'context' => 'new_context',
-            'body_ar' => 'رسالة السياق الجديد',
+            'body' => 'رسالة السياق الجديد',
             'is_active' => 1,
         ])->assertRedirect();
 
-        $this->assertSame('رسالة السياق الجديد', $this->service()->forContext('new_context')?->body_ar);
+        $this->assertSame('رسالة السياق الجديد', $this->service()->forContext('new_context')?->body);
+    }
+
+    /** ⭐ 2.6-ب: عمود/فلتر اللغة — كان غير موجود أصلًا (§25 v5.9) */
+    public function test_admin_can_filter_messages_by_language(): void
+    {
+        $admin = $this->user('gamification_admin', 'مسؤول التلعيب');
+        PositiveMessage::query()->delete();
+
+        PositiveMessage::create(['context' => 'any', 'body' => 'رسالة عربي', 'language' => 'ar', 'is_active' => true]);
+        PositiveMessage::create(['context' => 'any', 'body' => 'English message', 'language' => 'en', 'is_active' => true]);
+
+        $response = $this->actingAs($admin)
+            ->get(route('admin.positive.index', ['language' => 'en']))
+            ->assertOk();
+
+        $response->assertSee('English message');
+        $response->assertDontSee('رسالة عربي');
+    }
+
+    /** ⭐ 2.6-ب: زرّ «نسخ» — لم يوجد أصلًا، والنسخة تُحفَظ موقوفةً حتى تُراجَع (§25 v5.9) */
+    public function test_admin_can_duplicate_a_message(): void
+    {
+        $admin = $this->user('gamification_admin', 'مسؤول التلعيب');
+
+        $message = PositiveMessage::create([
+            'context' => 'any', 'body' => 'رسالة أصليّة', 'emoji' => '✨',
+            'language' => 'ar', 'is_active' => true, 'shown_count' => 42,
+        ]);
+
+        $this->actingAs($admin)->post(route('admin.positive.duplicate', $message))->assertRedirect();
+
+        $this->assertSame(2, PositiveMessage::where('body', 'رسالة أصليّة')->count());
+
+        $copy = PositiveMessage::where('body', 'رسالة أصليّة')->where('id', '!=', $message->id)->firstOrFail();
+        $this->assertFalse($copy->is_active, 'النسخة يجب أن تُحفَظ موقوفةً لا نشطةً فورًا.');
+        $this->assertSame(0, $copy->shown_count, 'النسخة عدّادها صفر — لا ترث تاريخ الأصل.');
+    }
+
+    /** ⭐ 2.6-ب: استيراد CSV بمعاينة الصفوف قبل الاعتماد — لم يوجد أصلًا (§25 v5.9) */
+    public function test_admin_can_import_csv_with_a_preview_step_before_committing(): void
+    {
+        $admin = $this->user('gamification_admin', 'مسؤول التلعيب');
+        PositiveMessage::query()->delete();
+
+        $csv = "context,body,emoji,language,sort_order,is_active\n"
+            ."any,رسالة أولى من الملفّ,✅,ar,1,1\n"
+            ."context_does_not_exist,رسالة بسياق غلط,,ar,1,1\n"
+            ."any,,,ar,1,1\n";
+
+        $file = UploadedFile::fake()->createWithContent('messages.csv', $csv);
+
+        // خطوة المعاينة: قراءةٌ بلا أيّ حفظٍ في القاعدة بعد
+        $this->actingAs($admin)
+            ->post(route('admin.positive.import.preview'), ['file' => $file])
+            ->assertRedirect();
+
+        $this->assertSame(0, PositiveMessage::count(), 'المعاينة لا تحفظ شيئًا قبل الاعتماد.');
+
+        // خطوة الاعتماد: يُحفَظ الصفّ السليم وحده (صفّان فاسدان: سياقٌ مرفوض ونصٌّ فاضٍ)
+        $this->actingAs($admin)->post(route('admin.positive.import.confirm'))->assertRedirect();
+
+        $this->assertSame(1, PositiveMessage::count());
+        $this->assertDatabaseHas('positive_messages', ['body' => 'رسالة أولى من الملفّ', 'language' => 'ar']);
+    }
+
+    /** الاعتماد بلا معاينةٍ سابقة (جلسة منتهية) لا يحفظ شيئًا صامتًا */
+    public function test_import_confirm_without_a_prior_preview_saves_nothing(): void
+    {
+        $admin = $this->user('gamification_admin', 'مسؤول التلعيب');
+        PositiveMessage::query()->delete();
+
+        $this->actingAs($admin)->post(route('admin.positive.import.confirm'))->assertRedirect();
+
+        $this->assertSame(0, PositiveMessage::count());
     }
 }

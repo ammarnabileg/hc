@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\PositiveMessage;
 use App\Services\Admin\Volunteer\AuditTrail;
 use App\Services\Engagement\EngagementSettings;
+use App\Services\Engagement\PositiveMessageImporter;
 use App\Services\Engagement\PositiveMessages;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -15,22 +16,28 @@ use Illuminate\View\View;
  * إدارة مكتبة الرسائل الإيجابيّة (2.6-ب · 2.13).
  *
  * شاشة واحدة تجيب عن سؤال واحد: «إيه الرسائل اللي بتظهر ومتى؟» (2.15-أ-1) —
- * إضافة/تعديل/حذف/تفعيل + **ربط كلّ رسالة بسياقها**، وتحتها إعدادات الميزة.
+ * إضافة/تعديل/حذف/تفعيل/نسخ + **ربط كلّ رسالة بسياقها ولغتها**، وتحتها
+ * إعدادات الميزة.
  */
 class PositiveMessageController extends Controller
 {
-    public function __construct(private readonly PositiveMessages $messages) {}
+    public function __construct(
+        private readonly PositiveMessages $messages,
+        private readonly PositiveMessageImporter $importer,
+    ) {}
 
     public function index(Request $request): View
     {
         $contexts = $this->messages->contexts();
         $context = $request->string('context')->toString();
         $state = $request->string('state')->toString();
+        $language = $request->string('language')->toString();
 
         $query = PositiveMessage::query()
             ->when(isset($contexts[$context]), fn ($q) => $q->where('context', $context))
             ->when($state === 'active', fn ($q) => $q->where('is_active', true))
             ->when($state === 'paused', fn ($q) => $q->where('is_active', false))
+            ->when(in_array($language, ['ar', 'en'], true), fn ($q) => $q->where('language', $language))
             ->orderBy('context')
             ->orderBy('sort_order')
             ->orderByDesc('id');
@@ -40,6 +47,7 @@ class PositiveMessageController extends Controller
             'contexts' => $contexts,
             'context' => $context,
             'state' => $state,
+            'language' => $language,
             'settings' => EngagementSettings::rows(),
             'counts' => [
                 'total' => PositiveMessage::count(),
@@ -88,11 +96,25 @@ class PositiveMessageController extends Controller
 
     public function destroy(Request $request, PositiveMessage $message): RedirectResponse
     {
-        AuditTrail::log($request->user(), 'positive_messages.delete', $message, $message->only(['context', 'body_ar']), []);
+        AuditTrail::log($request->user(), 'positive_messages.delete', $message, $message->only(['context', 'body']), []);
 
         $message->delete();
 
         return back()->with('status', (string) setting('engagement.admin.destroy_ok', 'اتحذفت الرسالة ✓'));
+    }
+
+    /** نسخ رسالة — بداية سريعة لرسالةٍ شبيهة بدل كتابتها من الصفر (2.6-ب: زرّ «نسخ») */
+    public function duplicate(Request $request, PositiveMessage $message): RedirectResponse
+    {
+        $copy = $message->replicate(['shown_count']);
+        $copy->shown_count = 0;
+        $copy->is_active = false; // النسخة توقَّف افتراضيًّا — مراجعةٌ قبل النشر لا ازدواج فوريّ
+        $copy->created_by = $request->user()?->id;
+        $copy->save();
+
+        AuditTrail::log($request->user(), 'positive_messages.create', $copy, [], ['duplicated_from' => $message->id]);
+
+        return back()->with('status', (string) setting('engagement.admin.duplicate_ok', 'اتنسخت الرسالة — موقوفة لحدّ ما تراجعها ✓'));
     }
 
     public function saveSettings(Request $request): RedirectResponse
@@ -122,8 +144,49 @@ class PositiveMessageController extends Controller
         $message = $this->messages->forContext($context);
 
         return back()->with('previewEnvelope', $message
-            ? ['emoji' => $message->emoji, 'body' => $message->body_ar]
+            ? ['emoji' => $message->emoji, 'body' => $message->body]
             : ['empty' => (string) setting('engagement.admin.preview_empty', 'مفيش رسائل مفعّلة في السياق ده لسّه.')]);
+    }
+
+    /**
+     * الخطوة الأولى من الاستيراد: قراءةٌ ومعاينةٌ صفًّا بصفّ **بلا حفظٍ بعد**
+     * («بوب-أب استيراد CSV بمعاينة الصفوف قبل الاعتماد» — 2.6-ب حرفًا).
+     * الصفوف السليمة تُحفَظ في الجلسة لحين تأكيد الأدمن من `importConfirm`.
+     */
+    public function importPreview(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'file' => ['required', 'file', 'mimes:csv,txt', 'max:'.(int) setting('engagement.positive.csv_max_kb', 2048)],
+        ], [], [
+            'file' => (string) setting('engagement.admin.import_file_label', 'ملفّ CSV'),
+        ]);
+
+        $rows = $this->importer->parse($request->file('file'), $this->messages->contexts());
+
+        if ($rows === []) {
+            return back()->with('status', (string) setting('engagement.admin.import_empty', 'الملفّ فاضي — مفيش صفوفٌ نقرأها.'));
+        }
+
+        session(['positive_import_rows' => array_values(array_filter($rows, fn ($r) => $r['valid']))]);
+
+        return back()->with('importPreviewRows', $rows);
+    }
+
+    /** الخطوة الثانية: اعتماد الصفوف السليمة التي عاينها الأدمن فعلًا لا الملفّ كلّه أعمى */
+    public function importConfirm(Request $request): RedirectResponse
+    {
+        $rows = (array) session('positive_import_rows', []);
+        session()->forget('positive_import_rows');
+
+        if ($rows === []) {
+            return back()->with('status', (string) setting('engagement.admin.import_confirm_expired', 'انتهت صلاحيّة المعاينة — ارفع الملفّ تاني.'));
+        }
+
+        $imported = $this->importer->commit($rows, $request->user()?->id);
+
+        AuditTrail::log($request->user(), 'positive_messages.create', null, [], ['imported_csv' => $imported]);
+
+        return back()->with('status', strtr((string) setting('engagement.admin.import_confirm_ok', 'اتستوردت :a1 رسالة ✓'), [':a1' => (string) $imported]));
     }
 
     /**
@@ -133,13 +196,14 @@ class PositiveMessageController extends Controller
     {
         $data = $request->validate([
             'context' => ['required', 'string', 'max:48'],
-            'body_ar' => ['required', 'string', 'max:400'],
+            'body' => ['required', 'string', 'max:400'],
             'emoji' => ['nullable', 'string', 'max:16'],
+            'language' => ['nullable', 'string', 'in:ar,en'],
             'sort_order' => ['nullable', 'integer', 'min:0', 'max:9999'],
             'is_active' => ['nullable', 'boolean'],
         ], [], [
             'context' => (string) setting('engagement.admin.validated_msg', 'السياق'),
-            'body_ar' => (string) setting('engagement.admin.validated_msg_2', 'نصّ الرسالة'),
+            'body' => (string) setting('engagement.admin.validated_msg_2', 'نصّ الرسالة'),
         ]);
 
         // سياق خارج القائمة المعتمَدة = رسالة لن تظهر أبدًا — نمنعه بدل أن نتركه صامتًا
@@ -147,8 +211,9 @@ class PositiveMessageController extends Controller
 
         return [
             'context' => $data['context'],
-            'body_ar' => trim($data['body_ar']),
+            'body' => trim($data['body']),
             'emoji' => ($data['emoji'] ?? null) ?: null,
+            'language' => ($data['language'] ?? null) ?: 'ar',
             'sort_order' => (int) ($data['sort_order'] ?? 0),
             'is_active' => (bool) ($data['is_active'] ?? false),
         ];

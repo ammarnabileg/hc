@@ -29,14 +29,21 @@ Route::middleware(['auth', 'admin.panel'])->prefix('admin')->name('admin.')->gro
     Route::middleware('permission:positive_messages.list,positive_messages.view')
         ->get('/positive-messages', [PositiveMessageController::class, 'index'])->name('positive.index');
 
-    Route::middleware('permission:positive_messages.create')
-        ->post('/positive-messages', [PositiveMessageController::class, 'store'])->name('positive.store');
+    Route::middleware('permission:positive_messages.create')->group(function () {
+        Route::post('/positive-messages', [PositiveMessageController::class, 'store'])->name('positive.store');
+        // استيراد CSV (2.6-ب) — معاينة الصفوف ثمّ اعتمادٌ منفصل، لا حفظٌ فوريّ بلا مراجعة
+        Route::post('/positive-messages/import/preview', [PositiveMessageController::class, 'importPreview'])->name('positive.import.preview');
+        Route::post('/positive-messages/import/confirm', [PositiveMessageController::class, 'importConfirm'])->name('positive.import.confirm');
+    });
 
     Route::middleware('permission:positive_messages.edit')->group(function () {
         Route::put('/positive-messages/{message}', [PositiveMessageController::class, 'update'])->name('positive.update');
         Route::post('/positive-messages/{message}/toggle', [PositiveMessageController::class, 'toggle'])->name('positive.toggle');
         Route::post('/positive-messages/preview', [PositiveMessageController::class, 'preview'])->name('positive.preview');
     });
+
+    Route::middleware('permission:positive_messages.create')
+        ->post('/positive-messages/{message}/duplicate', [PositiveMessageController::class, 'duplicate'])->name('positive.duplicate');
 
     Route::middleware('permission:positive_messages.manage')->group(function () {
         Route::post('/positive-messages/settings', [PositiveMessageController::class, 'saveSettings'])->name('positive.settings');
