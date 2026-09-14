@@ -32,27 +32,33 @@
         {!! $article->body !!}
     </article>
 
-    {{-- «هل كان مفيدًا؟» — ردّ فوريّ بلا صفحة جديدة (2.17-ب) --}}
+    {{-- «هل كان مفيدًا؟» — ردّ فوريّ بلا صفحة جديدة (2.17-ب) — Toggle من «إعدادات
+         الدليل» (12.6-ج سطر 5087): موقوفًا يختفي القسم كلّه لا يتعطّل فقط (2.15-أ-7) --}}
     <section class="card p-4 mt-4 flex flex-wrap items-center gap-3" aria-label="{{ setting('help.show.aria_label_1', 'تقييم المقال') }}">
-        <span class="text-sm font-semibold">{{ setting('help.show.text_1', 'هل كان مفيدًا؟') }}</span>
+        @if ((bool) setting('help.feedback_enabled', true))
+            <div>
+                <span class="text-sm font-semibold">{{ setting('help.show.text_1', 'هل كان مفيدًا؟') }}</span>
+                <span class="block text-xs" style="color: var(--text-muted)" dir="ltr">{{ setting('help.show.text_1_en', 'Was this helpful?') }}</span>
+            </div>
 
-        <form method="post" action="{{ route('help.feedback', $article->slug) }}">
-            @csrf
-            <input type="hidden" name="helpful" value="yes">
-            <button type="submit" class="btn rounded-xl px-4 py-2 text-sm motion-standard"
-                    style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
-                <x-icon name="kudos" size="16" /> {{ setting('help.show.text_2', 'أيوه') }}
-            </button>
-        </form>
+            <form method="post" action="{{ route('help.feedback', $article->slug) }}">
+                @csrf
+                <input type="hidden" name="helpful" value="yes">
+                <button type="submit" class="btn rounded-xl px-4 py-2 text-sm motion-standard"
+                        style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
+                    <x-icon name="kudos" size="16" /> {{ setting('help.show.text_2', 'أيوه') }}
+                </button>
+            </form>
 
-        <form method="post" action="{{ route('help.feedback', $article->slug) }}">
-            @csrf
-            <input type="hidden" name="helpful" value="no">
-            <button type="submit" class="btn rounded-xl px-4 py-2 text-sm motion-standard"
-                    style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
-                <x-icon name="warning" size="16" /> {{ setting('help.show.text_3', 'لأ') }}
-            </button>
-        </form>
+            <form method="post" action="{{ route('help.feedback', $article->slug) }}">
+                @csrf
+                <input type="hidden" name="helpful" value="no">
+                <button type="submit" class="btn rounded-xl px-4 py-2 text-sm motion-standard"
+                        style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
+                    <x-icon name="warning" size="16" /> {{ setting('help.show.text_3', 'لأ') }}
+                </button>
+            </form>
+        @endif
 
         <div class="flex-1"></div>
 

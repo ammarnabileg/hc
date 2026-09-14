@@ -7,26 +7,29 @@
         subtitle="{{ setting('help.index.subtitle_1', 'إجابة سريعة من غير ما تفتح تذكرة.') }}"
         :breadcrumbs="[['label' => (string) setting('help.index.breadcrumbs_1', 'الدعم'), 'url' => route('help.index')], ['label' => (string) setting('help.index.breadcrumbs_2', 'دليل المستخدم')]]" />
 
-    {{-- بحث بارز: هو الفعل الرئيسيّ للصفحة (24.5) --}}
-    <form method="get" action="{{ route('help.index') }}" class="card p-4 mb-5">
-        <label class="block">
-            <span class="block text-sm mb-2 font-semibold">{{ setting('help.index.text_1', 'تدوّر على إيه؟') }}</span>
-            <div class="flex gap-2">
-                <input type="search" name="q" value="{{ $q }}" autofocus
-                       placeholder="{{ setting('help.index.placeholder_1', 'اكتب كلمة… مثال: الشهادة، الشحن، الستريك') }}"
-                       class="flex-1 rounded-xl px-4 py-3 text-sm"
-                       style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
-                <button type="submit" class="btn rounded-xl px-5 py-3 text-sm font-semibold motion-standard"
-                        style="background: var(--color-brand-500); color: #04201c">{{ setting('help.index.text_2', 'إبحث') }}</button>
-            </div>
-        </label>
-        @if ($category)
-            <input type="hidden" name="category" value="{{ $category }}">
-        @endif
-    </form>
+    {{-- بحث بارز: هو الفعل الرئيسيّ للصفحة (24.5) — Toggle من «إعدادات الدليل»
+         (12.6-ج سطر 5087): موقوفًا يختفي الصندوق كلّه لا يتعطّل فقط (2.15-أ-7) --}}
+    @if ($searchEnabled)
+        <form method="get" action="{{ route('help.index') }}" class="card p-4 mb-5">
+            <label class="block">
+                <span class="block text-sm mb-2 font-semibold">{{ setting('help.index.text_1', 'تدوّر على إيه؟') }}</span>
+                <div class="flex gap-2">
+                    <input type="search" name="q" value="{{ $q }}" autofocus
+                           placeholder="{{ setting('help.index.placeholder_1', 'اكتب كلمة… مثال: الشهادة، الشحن، الستريك') }}"
+                           class="flex-1 rounded-xl px-4 py-3 text-sm"
+                           style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
+                    <button type="submit" class="btn rounded-xl px-5 py-3 text-sm font-semibold motion-standard"
+                            style="background: var(--color-brand-500); color: #04201c">{{ setting('help.index.text_2', 'إبحث') }}</button>
+                </div>
+            </label>
+            @if ($category)
+                <input type="hidden" name="category" value="{{ $category }}">
+            @endif
+        </form>
+    @endif
 
-    {{-- التصنيفات كروت --}}
-    @if ($categories->isNotEmpty())
+    {{-- التصنيفات كروت — Toggle «عرض التصنيفات» من «إعدادات الدليل» (12.6-ج) --}}
+    @if ($sidebarCategoriesEnabled && $categories->isNotEmpty())
         <div class="flex flex-wrap gap-2 mb-5">
             <a href="{{ route('help.index', array_filter(['q' => $q])) }}"
                class="rounded-full px-4 py-2 text-sm motion-standard"
@@ -47,6 +50,8 @@
         <x-empty message="{{ setting('help.index.message_1', 'مفيش نتائج — جرّب كلمة تانية.') }}"
                  action="{{ setting('help.index.action_1', 'افتح تذكرة') }}"
                  :href="route('complaints.index', ['new' => 1, 'title' => $q !== '' ? strtr((string) setting('help.index.href_1', 'استفسار عن: :a1'), [':a1' => (string) ($q)]) : ''])" />
+        {{-- نصّ الحالة الفارغة (ع/إ) — 12.6-ج سطر 5087، يعدّله الأدمن من «إعدادات الدليل» --}}
+        <p class="text-xs text-center mt-2" style="color: var(--text-muted)" dir="ltr">{{ setting('help.index.message_1_en', 'No results — try another word.') }}</p>
     @else
         <div class="grid md:grid-cols-2 gap-3">
             @foreach ($articles as $article)
@@ -61,6 +66,9 @@
                 </a>
             @endforeach
         </div>
+
+        {{-- عدد المقالات/صفحة يضبطه الأدمن من «إعدادات الدليل» (12.6-ج سطر 5087) --}}
+        <div class="mt-4">{{ $articles->links() }}</div>
 
         <p class="text-sm text-center mt-6" style="color: var(--text-muted)">
             {{ setting('help.index.text_4', 'لسّه ملقيتش إجابتك؟') }}
