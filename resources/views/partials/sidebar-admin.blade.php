@@ -330,7 +330,8 @@
 <aside data-sidebar data-open="false" class="w-[248px] shrink-0" style="border-inline-start: 1px solid var(--border)">
     <div class="sticky top-0 h-screen overflow-y-auto p-4 space-y-4">
 
-        <div class="card p-3">
+        {{-- التابلت المضغوط (768-1199px — 2.10.1-13): بطاقة العنوان نصّيّة بحتة فتختفي --}}
+        <div data-compact-hide class="card p-3">
             <div class="text-sm font-extrabold">{{ setting('nav.admin.panel_title', 'لوحة الإدارة') }}</div>
             <div class="text-xs mt-0.5" style="color: var(--text-muted)">{{ $u->shortName() }}</div>
             @owner
@@ -361,10 +362,11 @@
             @endif
 
             <a href="{{ Route::has('dashboard') ? route('dashboard') : url('/') }}"
-               class="flex items-center gap-2 rounded-xl px-3 py-2 text-sm motion-standard mt-3"
+               title="{{ setting('nav.admin.back_to_account', 'رجوع لحسابي') }}"
+               class="nav-compact-row flex items-center gap-2 rounded-xl px-3 py-2 text-sm motion-standard mt-3"
                style="color: var(--text-muted)">
-                <span class="w-5 text-center">↩</span>
-                <span>{{ setting('nav.admin.back_to_account', 'رجوع لحسابي') }}</span>
+                <span class="w-5 text-center shrink-0">↩</span>
+                <span class="nav-item-label">{{ setting('nav.admin.back_to_account', 'رجوع لحسابي') }}</span>
             </a>
         </nav>
     </div>

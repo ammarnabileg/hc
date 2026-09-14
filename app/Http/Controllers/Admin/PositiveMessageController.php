@@ -112,17 +112,18 @@ class PositiveMessageController extends Controller
     }
 
     /**
-     * معاينة حيّة: يشوف الأدمن الرسالة كما يراها المستخدم قبل ما ينشرها
-     * على الناس (2.13-د — معاينة قبل الحفظ للإعدادات المؤثّرة على الواجهة).
+     * معاينة حيّة: يشوف الأدمن الرسالة **كما يراها المستخدم بالظبط** — داخل
+     * مكوّن المظروف نفسه (فتحٌ وخروج ورقة، 2.10.1-27) لا سطر توست عابر —
+     * قبل ما ينشرها على الناس (2.13-د).
      */
     public function preview(Request $request): RedirectResponse
     {
         $context = $request->string('context')->toString() ?: PositiveMessages::ANY;
         $message = $this->messages->forContext($context);
 
-        return back()->with('status', $message
-            ? trim(($message->emoji ? $message->emoji.' ' : '').$message->body_ar)
-            : (string) setting('engagement.admin.preview_empty', 'مفيش رسائل مفعّلة في السياق ده لسّه.'));
+        return back()->with('previewEnvelope', $message
+            ? ['emoji' => $message->emoji, 'body' => $message->body_ar]
+            : ['empty' => (string) setting('engagement.admin.preview_empty', 'مفيش رسائل مفعّلة في السياق ده لسّه.')]);
     }
 
     /**

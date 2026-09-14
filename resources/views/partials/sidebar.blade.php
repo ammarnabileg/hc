@@ -30,9 +30,11 @@
     <div class="sticky top-0 h-screen overflow-y-auto p-4 space-y-4">
 
         {{-- بطاقة البروفايل المصغّرة --}}
-        <a href="{{ \Illuminate\Support\Facades\Route::has('profile.me') ? route('profile.me') : '#' }}" class="card p-3 flex items-center gap-3 motion-standard hover:opacity-90">
+        <a href="{{ \Illuminate\Support\Facades\Route::has('profile.me') ? route('profile.me') : '#' }}"
+           title="{{ $u->shortName() }}"
+           class="nav-compact-row card p-3 flex items-center gap-3 motion-standard hover:opacity-90">
             <x-avatar :user="$u" size="10" />
-            <div class="min-w-0">
+            <div class="min-w-0 nav-item-label">
                 <div class="truncate font-semibold text-sm">{{ $u->shortName() }}</div>
                 <div class="text-xs truncate" style="color: var(--text-muted)">
                     #{{ $u->code }}
@@ -48,8 +50,14 @@
             </div>
         </a>
 
+        {{--
+          ⭐ التابلت المضغوط (768-1199px — 2.10.1-13): بحث السايد بار ومربّع
+          الدعوة يختفيان (80px لا يتّسع لهما، والبحث الموحّد Ctrl+K بديلٌ
+          كاملٌ متاحٌ من كلّ شاشة — 2.15-د)، والمثبَّتة تبقى أيقونات كباقي
+          التنقّل ويختفي عنوان قسمها فقط.
+        --}}
         {{-- بحث سريع: **شريط + زرّ «إبحث»** ⟵ صفحة البحث الكبيرة (13-ب · 13.1) --}}
-        <form action="{{ \Illuminate\Support\Facades\Route::has('search') ? route('search') : '#' }}" method="get"
+        <form data-compact-hide action="{{ \Illuminate\Support\Facades\Route::has('search') ? route('search') : '#' }}" method="get"
               class="flex items-stretch gap-2">
             <input type="search" name="q" placeholder="{{ setting('nav.trainee.search_placeholder', 'ابحث…') }}" aria-label="{{ setting('nav.trainee.search_aria', 'بحث سريع') }}"
                    class="flex-1 min-w-0 rounded-xl px-3 py-2 text-sm"
@@ -59,14 +67,17 @@
                     style="min-width: 44px; min-height: 44px; background: var(--color-brand-500); color: #04201c">{{ setting('nav.trainee.search_submit', 'إبحث') }}</button>
         </form>
 
-        @include('partials.sidebar-referral')
+        <div data-compact-hide>
+            @include('partials.sidebar-referral')
+        </div>
 
         {{--
           📌 الصفحات المثبَّتة (2.15-د) — **بديل معتمَد عن «آخر ما زرت» المرفوض**.
           بترتيب قابل للسحب، ويُحفَظ لكلّ مستخدم فور الإفلات.
         --}}
         @if ($pinned->isNotEmpty())
-            <div class="space-y-1" data-pins>
+            {{-- صفّها المكوَّن من رابطٍ + زرّ فكّ تثبيت لا يستوي أيقونةً واحدة في 80px --}}
+            <div data-compact-hide class="space-y-1" data-pins>
                 <div class="text-xs px-2" style="color: var(--text-muted)">{{ setting('nav.trainee.pinned_title', '📌 المثبَّتة') }}</div>
                 @foreach ($pinned as $pin)
                     <div class="flex items-center gap-1" draggable="true"

@@ -118,13 +118,13 @@
 @endphp
 
 {{-- لوحة منزلقة على الموبايل وعمود ثابت على الديسكتوب (13 · 2.15-ج) --}}
-<aside data-sidebar data-open="false" class="w-64 shrink-0" style="border-inline-start: 1px solid var(--border)">
+<aside data-sidebar data-open="false" class="w-[248px] shrink-0" style="border-inline-start: 1px solid var(--border)">
     <div class="sticky top-0 h-screen overflow-y-auto p-4 space-y-4">
 
         {{-- بطاقة هويّة مصغّرة: الاسم والكود والكيان والبوزشن + شارة Rep الثابتة (13.4-ح) --}}
-        <div class="card p-3 flex items-center gap-3">
+        <div class="nav-compact-row card p-3 flex items-center gap-3" title="{{ $u->shortName() }}">
             <x-avatar :user="$u" size="10" />
-            <div class="min-w-0">
+            <div class="min-w-0 nav-item-label">
                 <div class="truncate font-semibold text-sm flex items-center gap-1">
                     <span class="truncate">{{ $u->shortName() }}</span>
                     @include('volunteer.components.rep-badge', ['user' => $u])
@@ -202,10 +202,11 @@
 
         {{-- الرجوع لطبقة المتدرّب — بابٌ واحد واضح لا قائمة --}}
         <a href="{{ \Illuminate\Support\Facades\Route::has('dashboard') ? route('dashboard') : '/' }}"
-           class="flex items-center gap-2 rounded-xl px-3 py-2 text-sm motion-standard"
+           title="{{ setting('nav.volunteer.back_to_dashboard', 'رجوع للرئيسيّة') }}"
+           class="nav-compact-row flex items-center gap-2 rounded-xl px-3 py-2 text-sm motion-standard"
            style="color: var(--text-muted)">
-            <span class="w-5 text-center" aria-hidden="true">‹</span>
-            <span>{{ setting('nav.volunteer.back_to_dashboard', 'رجوع للرئيسيّة') }}</span>
+            <span class="w-5 text-center shrink-0" aria-hidden="true">‹</span>
+            <span class="nav-item-label">{{ setting('nav.volunteer.back_to_dashboard', 'رجوع للرئيسيّة') }}</span>
         </a>
     </div>
 </aside>

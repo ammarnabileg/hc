@@ -119,7 +119,12 @@
         <div class="mt-4">{{ $messages->links() }}</div>
     @endif
 
-    {{-- معاينة حيّة قبل ما يشوفها الناس (2.13-د) --}}
+    {{--
+      ⭐ معاينة الظرف (2.10.1-27 · §25 v5.8): كانت النتيجة سطر توست عابر —
+      «بتشوف اللي هيشوفه المستخدم بالظبط» بلا مظروفٍ يشبه ما يراه فعلًا.
+      الآن نفس مكوّن `.envelope` الذي يراه المستخدم، مفتوحًا مباشرةً (الأدمن
+      لا يحتاج ينتظر حركة الفتح ليرى النتيجة — يفتح صفحةً جديدة أصلًا).
+    --}}
     @if ($canEdit)
         <form method="post" action="{{ route('admin.positive.preview') }}" class="card p-4 mt-4 flex flex-wrap items-end gap-3">
             @csrf
@@ -131,10 +136,31 @@
                     @endforeach
                 </select>
             </label>
-            <button type="submit" class="btn rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
-                    style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">{{ setting('admin.positive.index.ashb_rsala', 'اسحب رسالة') }}</button>
+            <button type="submit" data-positive-preview class="btn rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
+                    style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">{{ setting('admin.positive.index.mianah_alzrf', 'معاينة الظرف') }}</button>
             <span class="text-xs" style="color: var(--text-muted)">{{ setting('admin.positive.index.btshwf_ally_hyshwfh_almstkhdm_balzbt', 'بتشوف اللي هيشوفه المستخدم بالظبط.') }}</span>
         </form>
+
+        @if ($preview = session('previewEnvelope'))
+            <div class="card p-6 mt-3 text-center">
+                @if (isset($preview['empty']))
+                    <p class="text-sm" style="color: var(--text-muted)">{{ $preview['empty'] }}</p>
+                @else
+                    <div class="envelope" aria-hidden="true">
+                        <div class="envelope-pocket"></div>
+                        <div class="envelope-letter-tab" style="transform: translateY(-65px)"></div>
+                        <div class="envelope-flap" style="transform: rotateX(180deg)"></div>
+                    </div>
+                    <div class="rounded-2xl p-4 mt-4 text-sm max-w-xs mx-auto"
+                         style="background: var(--surface-sunken); border: 1px solid var(--border)">
+                        @if ($preview['emoji'])
+                            <div class="text-2xl mb-1" aria-hidden="true">{{ $preview['emoji'] }}</div>
+                        @endif
+                        <p class="leading-relaxed">{{ $preview['body'] }}</p>
+                    </div>
+                @endif
+            </div>
+        @endif
     @endif
 
     @if ($canManage)

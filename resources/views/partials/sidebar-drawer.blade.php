@@ -13,13 +13,13 @@
 
 <style>
     /* الموبايل: لوحة منزلقة خارج التدفّق — الاتّجاه منطقيّ فيعمل RTL وLTR معًا */
-    /* 280px (2.10.1-13، الهويّة 2.0) — مع سقفٍ نسبيّ للشاشات الأضيق */
+    /* 320px (2.10.1-13، تصحيح الهويّة 2.2) — مع سقفٍ نسبيّ للشاشات الأضيق */
     [data-sidebar] {
         position: fixed;
         inset-block: 0;
         inset-inline-start: 0;
-        width: min(280px, 86vw);
-        max-width: 86vw;
+        width: min(320px, 88vw);
+        max-width: 88vw;
         z-index: 70;
         background: var(--surface);
         transform: translateX(-100%);
@@ -63,6 +63,46 @@
 
         [data-sidebar-backdrop],
         [data-sidebar-close] { display: none; }
+    }
+
+    /*
+     | التابلت (768-1199px، وضع `.compact` — 2.10.1-13): 80px أيقونات فقط،
+     | والاسم يظهر بـTooltip عند الهوفر (`title` على كلّ صفّ + إخفاء
+     | `.nav-item-label`). و`[data-compact-hide]` يُخفي الودجات التي لا
+     | تستوي في 80px (البحث · ويدجت الدعوة · المثبَّتة · بطاقة عنوان لوحة
+     | الإدارة) — البحث الموحّد Ctrl+K بديلٌ متاحٌ من كلّ شاشة (2.15-د).
+     |
+     | والمجموعات (`x-nav-group`) تفتح بـFlyout عائمٍ لا بتوسيعٍ في المكان
+     | يكسر عرض 80px — السكربت أسفله يحسب موضعه (`position:fixed` لا
+     | `absolute` تحديدًا لأنّ حاوية السايد بار `overflow-y:auto`، فأيّ
+     | Flyout بموضعٍ نسبيّ سينقصّ ضمنها بدل أن يعوم فوق المحتوى).
+     */
+    @media (min-width: 768px) and (max-width: 1199px) {
+        [data-sidebar] { width: 80px; }
+
+        [data-sidebar] [data-compact-hide],
+        [data-sidebar] .nav-item-label { display: none; }
+
+        [data-sidebar] .nav-compact-row { justify-content: center; }
+
+        /* استثناء: صفوف الـFlyout نفسها تبقى عاديّة (أيقونة + اسمٌ ظاهر) */
+        [data-sidebar] [data-flyout] .nav-compact-row { justify-content: flex-start; }
+        [data-sidebar] [data-flyout] .nav-item-label { display: inline; }
+
+        [data-sidebar] details[data-nav-group] { position: relative; }
+
+        [data-sidebar] details[data-nav-group][open] > [data-flyout] {
+            position: fixed;
+            margin: 0;
+            min-width: 220px;
+            max-width: 280px;
+            padding: 8px;
+            border-radius: 12px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, .18);
+            z-index: 55;
+        }
     }
 </style>
 
@@ -121,6 +161,69 @@
 
         window.addEventListener('resize', function () {
             if (!isMobile()) setOpen(false);
+        });
+    })();
+
+    /*
+     | Flyout مجموعات التابلت المضغوط (768-1199px — 2.10.1-13): `<details>`
+     | يفتح/يقفل أصيلًا بلا جافاسكربت، والسكربت هنا يتكفّل بأمرين فقط
+     | CSS وحدها لا تقدر عليهما: (1) حساب موضع الـFlyout الثابت بجانب
+     | الأيقونة، (2) إقفاله بالنقر خارجه — فلا يبقى عائمًا فوق صفحةٍ
+     | انتقل عنها المستخدم بالفأرة لا بالنقر.
+     */
+    (function () {
+        var groups = document.querySelectorAll('[data-sidebar] details[data-nav-group]');
+
+        if (!groups.length) return;
+
+        function isCompact() {
+            return window.matchMedia('(min-width: 768px) and (max-width: 1199px)').matches;
+        }
+
+        function isRtl() {
+            return getComputedStyle(document.documentElement).direction === 'rtl';
+        }
+
+        function position(det) {
+            var summary = det.querySelector(':scope > summary');
+            var flyout = det.querySelector(':scope > [data-flyout]');
+            if (!summary || !flyout) return;
+
+            if (!isCompact() || !det.open) {
+                flyout.style.top = '';
+                flyout.style.insetInlineStart = '';
+                return;
+            }
+
+            var rect = summary.getBoundingClientRect();
+            var edge = isRtl() ? (window.innerWidth - rect.left) : rect.right;
+            flyout.style.top = Math.max(8, rect.top) + 'px';
+            flyout.style.insetInlineStart = edge + 'px';
+        }
+
+        groups.forEach(function (det) {
+            det.addEventListener('toggle', function () { position(det); });
+            /* مفتوحةٌ افتراضيًّا لو صفحتها الحاليّة داخل المجموعة (anyActive) */
+            if (det.open) position(det);
+        });
+
+        window.addEventListener('resize', function () {
+            groups.forEach(position);
+        });
+
+        /* النقر خارج الـFlyout المفتوح يقفله — سلوكٌ متوقَّعٌ لعنصرٍ عائم */
+        document.addEventListener('click', function (e) {
+            if (!isCompact()) return;
+
+            groups.forEach(function (det) {
+                if (det.open && !det.contains(e.target)) det.open = false;
+            });
+        });
+
+        document.addEventListener('keydown', function (e) {
+            if (e.key !== 'Escape' || !isCompact()) return;
+
+            groups.forEach(function (det) { det.open = false; });
         });
     })();
 </script>

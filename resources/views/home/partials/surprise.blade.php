@@ -46,20 +46,28 @@
 </div>
 
 @if ($surprise)
-    {{-- الظرف: بوب-أب برأس ثابت وجسم متمرّر (2.10.1-17) وقابل للإغلاق بـESC (2.14-ب) --}}
+    {{--
+      الظرف: بوب-أب برأس ثابت وجسم متمرّر (2.10.1-17) وقابل للإغلاق بـESC
+      (2.14-ب). ومكوّن المظروف الحقيقيّ (2.10.1-27 · §25 v5.8) — غطاءٌ يدور
+      ويختفي (`animate-flap`) ثمّ تابُ رسالةٍ يصعد خلفه (`animate-letter`)،
+      كلاهما من `app.css` (700ms/900ms+200ms حرفًا كما في الدستور) — تُضاف
+      الصفوف عند الفتح لا عند التحميل، فتُعاد الحركة كلّ مرّةٍ يُفتَح الظرف.
+    --}}
     <div id="surprise-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4"
          style="background: rgb(0 0 0 / .6)" data-surprise-modal role="dialog" aria-modal="true"
          aria-label="{{ $envelopeTitle }}">
         <div class="modal-shell card w-full max-w-sm text-center p-6 animate-fadeup">
-            <div class="mx-auto mb-3 surprise-flap" style="color: var(--color-brand-500)">
-                @include('home.partials.icon', ['name' => 'envelope', 'size' => 56])
+            <div class="envelope" aria-hidden="true">
+                <div class="envelope-pocket"></div>
+                <div class="envelope-letter-tab" data-envelope-letter></div>
+                <div class="envelope-flap" data-envelope-flap></div>
             </div>
 
-            <h2 class="font-extrabold">{{ $envelopeTitle }}</h2>
+            <h2 class="font-extrabold mt-3">{{ $envelopeTitle }}</h2>
 
-            {{-- الورقة تطلع من الظرف — حركة واحدة قصيرة بإيقاع المنصّة (2.17-د) --}}
-            <div class="surprise-sheet rounded-2xl p-4 mt-4 text-sm"
-                 style="background: var(--surface-sunken); border: 1px solid var(--border)">
+            {{-- الرسالة نفسها تظهر بعد الغطاء بلحظة (2.17-د) --}}
+            <div class="rounded-2xl p-4 mt-4 text-sm" data-envelope-message
+                 style="background: var(--surface-sunken); border: 1px solid var(--border); opacity: 0">
                 @if ($surprise->emoji)
                     <div class="text-2xl mb-1" aria-hidden="true">{{ $surprise->emoji }}</div>
                 @endif
@@ -89,18 +97,6 @@
 @endif
 
 @push('scripts')
-    <style>
-        @keyframes surprise-flap { 0%,100% { transform: rotate(-3deg); } 50% { transform: rotate(3deg); } }
-        .surprise-flap { display: inline-block; animation: surprise-flap 1.6s var(--ease-standard) infinite; }
-
-        @keyframes surprise-sheet-up {
-            from { opacity: 0; transform: translateY(14px) scale(.96); }
-            to   { opacity: 1; transform: none; }
-        }
-        .surprise-sheet { animation: surprise-sheet-up 320ms var(--ease-standard) both; }
-        /* التحكّم في الحركة من إعداد المستخدم داخل المنصّة (app.css) لا من
-           تفضيل نظام التشغيل — مرفوض نصًّا في 2.3 و2.14-ب. */
-    </style>
     <script>
         (() => {
             /* سهم العودة لأعلى + التكديس الانسيابيّ فوقه (2.6-أ/ج) */
@@ -117,8 +113,37 @@
             const modal = document.querySelector('[data-surprise-modal]');
             if (!modal) return;
 
-            const open = () => { modal.classList.remove('hidden'); modal.classList.add('flex'); };
-            const close = () => { modal.classList.add('hidden'); modal.classList.remove('flex'); };
+            const flap = modal.querySelector('[data-envelope-flap]');
+            const letter = modal.querySelector('[data-envelope-letter]');
+            const message = modal.querySelector('[data-envelope-message]');
+
+            const open = () => {
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+
+                /* الغطاء (flap · 700ms) ثمّ الرسالة (letter · 900ms بتأخير 200ms
+                   داخل الحركة نفسها — 2.10.1-27) — تُعاد الصفوف كلّ فتحة */
+                flap?.classList.add('animate-flap');
+                letter?.classList.add('animate-letter');
+
+                if (message) {
+                    message.style.transition = 'opacity 300ms var(--ease-standard) 550ms';
+                    message.style.opacity = '1';
+                }
+            };
+
+            const close = () => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+
+                flap?.classList.remove('animate-flap');
+                letter?.classList.remove('animate-letter');
+
+                if (message) {
+                    message.style.transition = '';
+                    message.style.opacity = '0';
+                }
+            };
 
             document.querySelector('[data-surprise-open]')?.addEventListener('click', open);
             modal.addEventListener('click', (e) => {

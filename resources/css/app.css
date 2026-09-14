@@ -449,19 +449,31 @@
   }
 
   /*
-   | ⭐ نفس القاعدة لأيّ عنصرٍ آخر يُلوَّن ببطاقة `--color-brand-500` مباشرة
-   | من الـJS (كتابات جرس الإشعارات ونحوها) لا عبر صنف `.btn` — فيبقى
-   | التباين صحيحًا في الوضع الداكن (نصّ داكن فوق الأحمر الفاتح) بلا تكرار
-   | الشرط في كلّ مكوّنٍ يستخدمه.
+   | ⭐ نفس القاعدة لأيّ عنصرٍ آخر يُلوَّن ببطاقة `--color-brand-500`/`-600`
+   | مباشرة من الـBlade/الـJS (كتابات جرس الإشعارات، أزرار الدعوة، شارات
+   | العدّاد…) لا عبر صنف `.btn` — فيبقى التباين صحيحًا في الوضع الداكن
+   | (نصّ داكن فوق الأحمر الفاتح) بلا تكرار الشرط في كلّ مكوّنٍ يستخدمه.
+   |
+   | `!important` هنا لازمة لا زخرفة: 340+ موضعًا في القوالب يكتب معها
+   | `color: #04201c` صريحًا (بقايا الهويّة القديمة، تحقّقتُ أنّ كلّها بلا
+   | استثناء تحمل هذه القيمة الميّتة نفسها لا لونًا مقصودًا مختلفًا) — والنمط
+   | المضمَّن (inline style) يعلو أيّ قاعدة خارجيّة خارج `!important`، فبلا
+   | هذا التصعيد يبقى النصّ الداكن الميّت ظاهرًا رغم تعريف اللون الصحيح هنا.
+   | تصحيح تلك المواضع الفعليّ هو حذف `color:` الميّتة من كلّ ملفّ — مؤجَّلٌ
+   | لضخامة العدد، وهذه القاعدة تضمن الصحّة البصريّة إلى حين ذلك.
    */
   [style*='background: var(--color-brand-500)'],
-  [style*='background:var(--color-brand-500)'] {
-    color: #fff;
+  [style*='background:var(--color-brand-500)'],
+  [style*='background: var(--color-brand-600)'],
+  [style*='background:var(--color-brand-600)'] {
+    color: #fff !important;
   }
 
   :root[data-theme='dark'] [style*='background: var(--color-brand-500)'],
-  :root[data-theme='dark'] [style*='background:var(--color-brand-500)'] {
-    color: var(--ink);
+  :root[data-theme='dark'] [style*='background:var(--color-brand-500)'],
+  :root[data-theme='dark'] [style*='background: var(--color-brand-600)'],
+  :root[data-theme='dark'] [style*='background:var(--color-brand-600)'] {
+    color: var(--ink) !important;
   }
 
   .btn-p:hover, .btn[style*='--color-brand-500']:hover {
@@ -665,6 +677,51 @@
   @media (max-width: 767px) {
     /* 16px لا أقلّ — وإلّا يكبّر iOS الصفحة تلقائيًّا عند التركيز فتُكسَر الهويّة */
     input, select, textarea { font-size: 16px; }
+  }
+
+  /*
+   | ⭐ مكوّن المظروف (Envelope — 2.10.1-27 · §25 v5.8): كان غير موجودٍ في
+   | الكود إطلاقًا رغم أنّ حركتَيه `flap`/`letter` جاهزتان في طبقة الحركات
+   | أسفله منذ الهويّة 2.0 — بلا شكلٍ يستهلكهما. شكلٌ CSS خام (بلا صورة/SVG
+   | خارجيّ) **من ألوان `--brand`/`--soft`/`--line` فقط** كما ينصّ 25.
+   |
+   | البنية: `.envelope-pocket` جيب المظروف (مثلّثٌ سفليّ بـ`clip-path`)،
+   | و`.envelope-letter-tab` حافّة الرسالة داخله، و`.envelope-flap` غطاؤه
+   | العلويّ المثلّث — يدور `rotateX(180deg)` حول حافّته العليا (`flap`،
+   | 700ms) فيختفي (`backface-visibility:hidden`، نرى ظهره لا وجهه)، والتاب
+   | يصعد خلفه (`letter`، 900ms بتأخير 200ms) فيبدو خارجًا من الجيب.
+   */
+  .envelope { position: relative; width: 112px; height: 78px; margin-inline: auto; perspective: 500px; }
+
+  .envelope-pocket {
+    position: absolute;
+    inset: 0;
+    background: var(--soft);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    clip-path: polygon(0 30%, 50% 64%, 100% 30%, 100% 100%, 0 100%);
+  }
+
+  .envelope-letter-tab {
+    position: absolute;
+    inset-inline: 10px;
+    top: 8px;
+    height: 56px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+  }
+
+  .envelope-flap {
+    position: absolute;
+    inset-inline: 0;
+    top: 0;
+    height: 46px;
+    background: var(--brand);
+    clip-path: polygon(0 0, 100% 0, 50% 100%);
+    transform-origin: top center;
+    backface-visibility: hidden;
+    border-radius: 10px 10px 0 0;
   }
 }
 
