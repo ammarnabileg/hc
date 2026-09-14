@@ -15,7 +15,8 @@
 
 ## ✅ المُنجَز
 <!-- تلقائيّ:بداية:المنجز -->
-- **مايجريشنز (273) — والقائم منها لا يُعدَّل (قاعدة البناء §1). الأحدث:**
+- **مايجريشنز (274) — والقائم منها لا يُعدَّل (قاعدة البناء §1). الأحدث:**
+  - `2026_09_13_100010_a_marketing_admin_needs_an_independent_landing_page.php`
   - `2026_09_11_130010_a_third_hidden_topup_minimum_overrode_the_finance_screen.php`
   - `2026_09_11_120000_trim_cv_templates_to_real_designs.php`
   - `2026_09_11_100020_a_meeting_needs_a_recording_and_a_reasoned_cancellation.php`
@@ -27,8 +28,7 @@
   - `2026_09_10_100090_a_certificate_prefix_setting_was_a_dead_promise.php`
   - `2026_09_10_100080_a_certificate_type_needs_optional_security_elements.php`
   - `2026_09_10_100070_email_templates_need_a_real_table.php`
-  - `2026_09_10_100060_a_file_position_needs_a_shareable_invite_link.php`
-  - … و261 غيرها.
+  - … و262 غيرها.
 <!-- تلقائيّ:نهاية:المنجز -->
 
 ## ⬜ المتبقّي
@@ -85,6 +85,6 @@
 
 ## 🕒 آخر تحديث
 <!-- تلقائيّ:بداية:التحديث -->
-- **آخر توليد لهذه الوثيقة:** 2026-09-11 — `php artisan docs:status`.
+- **آخر توليد لهذه الوثيقة:** 2026-09-13 — `php artisan docs:status`.
 - **آخر لمسة للمجلّد:** 2026-09-11 — Claude.
 <!-- تلقائيّ:نهاية:التحديث -->

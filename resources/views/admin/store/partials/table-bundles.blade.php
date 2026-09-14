@@ -76,6 +76,16 @@
                                         class="inline-flex items-center justify-center rounded-lg px-2 text-xs hover:underline"
                                         style="min-height: 44px; min-width: 44px; color: var(--text-muted)">{{ setting('store.admin.bundles.copy_link_label') }}</button>
 
+                                {{--
+                                    ⭐⭐ صفحة الهبوط **المستقلّة** (12.2.3 `landing_pages`) — منفصلة عن
+                                    `bundles.edit` تمامًا (لا `BundleLanding` المبنيّة داخل شاشة البندل).
+                                --}}
+                                @canany(['landing_pages.create', 'landing_pages.edit'])
+                                    <a href="{{ route('admin.store.landing-pages.manage', ['type' => 'bundle', 'id' => $bundle->id]) }}"
+                                       class="inline-flex items-center justify-center rounded-lg px-2 text-xs hover:underline"
+                                       style="min-height: 44px; min-width: 44px; color: var(--text-muted)">{{ setting('store.admin.bundles.landing_page_label', 'صفحة هبوط مستقلّة') }}</a>
+                                @endcanany
+
                                 {{-- 2.15-أ-7: ما لا يملكه المستخدم **يُخفى** لا يُعطَّل --}}
                                 @if ($canDuplicate)
                                     <form method="post" action="{{ route('admin.store.bundles.duplicate', $bundle) }}">

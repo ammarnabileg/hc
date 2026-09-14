@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\ArticleAdminController;
 use App\Http\Controllers\Admin\FeatureFlagController;
 use App\Http\Controllers\Admin\FinanceController;
 use App\Http\Controllers\Admin\ImageStudioController;
+use App\Http\Controllers\Admin\LandingPageController;
 use App\Http\Controllers\Admin\MaintenanceController;
 use App\Http\Controllers\Admin\RefundPolicyController;
 use App\Http\Controllers\Admin\SettingsAdminController;
@@ -120,6 +121,47 @@ Route::middleware(['auth', 'admin.panel'])->prefix('admin')->name('admin.')->gro
 
     Route::middleware('permission:bundles.create')
         ->post('/store/bundles', [StoreAdminController::class, 'storeBundle'])->name('store.bundles.store');
+
+    /*
+    |--------------------------------------------------------------------------
+    | ⭐⭐ صفحات الهبوط **المستقلّة** (12.2.3 `landing_pages`) — منفصلة عن
+    | `bundles.edit`/`bundles.view`، وتُتاح للبندل **وللمنتج** معًا (بخلاف
+    | `BundleLanding` المحصورة في شاشة البندل). راجع تعليق
+    | `LandingPageController` لشرح `landing_pages.view` وسبب عدم حراسة مسار
+    | الزائر العامّ بها (ذاك في `routes/parts/store.php`).
+    |--------------------------------------------------------------------------
+    */
+    /*
+     | ⚠️ **ترتيب التسجيل مقصود**: مسارات الجزء الثابت (`/manage`، `/create`)
+     | يجب أن تُسجَّل **قبل** `GET /store/landing-pages/{landingPage}` — وإلّا
+     | لالتقطها الراوتر كـ`{landingPage}` (id = "create") فيردّ Route-Model-
+     | Binding 404 بدل أن يصل الطلب لحارس/فعل المسار الصحيح.
+     */
+    Route::middleware('permission:landing_pages.create,landing_pages.edit')
+        ->get('/store/landing-pages/manage', [LandingPageController::class, 'manage'])->name('store.landing-pages.manage');
+
+    Route::middleware('permission:landing_pages.create')->group(function () {
+        Route::get('/store/landing-pages/create', [LandingPageController::class, 'create'])->name('store.landing-pages.create');
+        Route::post('/store/landing-pages', [LandingPageController::class, 'store'])->name('store.landing-pages.store');
+    });
+
+    Route::middleware('permission:landing_pages.edit')->group(function () {
+        Route::get('/store/landing-pages/{landingPage}/edit', [LandingPageController::class, 'edit'])->name('store.landing-pages.edit');
+        Route::put('/store/landing-pages/{landingPage}', [LandingPageController::class, 'update'])->name('store.landing-pages.update');
+    });
+
+    Route::middleware('permission:landing_pages.archive')
+        ->post('/store/landing-pages/{landingPage}/archive', [LandingPageController::class, 'archive'])->name('store.landing-pages.archive');
+
+    Route::middleware('permission:landing_pages.restore')
+        ->post('/store/landing-pages/{landingPage}/restore', [LandingPageController::class, 'restore'])->name('store.landing-pages.restore');
+
+    Route::middleware('permission:landing_pages.delete')
+        ->delete('/store/landing-pages/{landingPage}', [LandingPageController::class, 'destroy'])->name('store.landing-pages.destroy');
+
+    // ⭐ `{landingPage}` المطلق آخر ما يُسجَّل من هذه المجموعة — أعمّ نمط فيها
+    Route::middleware('permission:landing_pages.view')
+        ->get('/store/landing-pages/{landingPage}', [LandingPageController::class, 'show'])->name('store.landing-pages.show');
 
     Route::middleware('permission:coupons.create')->group(function () {
         Route::post('/store/coupons', [StoreAdminController::class, 'storeCoupon'])->name('store.coupons.store');

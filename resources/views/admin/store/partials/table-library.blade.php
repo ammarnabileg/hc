@@ -101,6 +101,12 @@
                         <a href="{{ route('library.teaser', $item) }}" target="_blank" rel="noopener"
                            class="block text-xs underline">{{ setting('admin.store.partials.table_library.myana_alqary', 'معاينة القارئ') }}</a>
 
+                        {{-- ⭐⭐ صفحة هبوط **مستقلّة** لهذا المنتج (12.2.3 `landing_pages`) --}}
+                        @canany(['landing_pages.create', 'landing_pages.edit'])
+                            <a href="{{ route('admin.store.landing-pages.manage', ['type' => 'product', 'id' => $item->id]) }}"
+                               class="block text-xs underline">{{ setting('admin.store.partials.table_library.sfhat_hbwt', 'صفحة هبوط مستقلّة') }}</a>
+                        @endcanany
+
                         @can('store_products.edit')
                             {{-- استبدال الملفّ: النسخة الجديدة تصل المالكين تلقائيًّا (كاش القارئ يُبطَل) --}}
                             <details>

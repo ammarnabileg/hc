@@ -36,6 +36,15 @@
 **✅ [أُغلِقت 2026-09-13] `TrashController` جديد — سلّة المحذوفات الموحّدة
 (`soft_delete_recovery` 12.2.2 سطر 2188-2191).** التفصيل في
 `app/Services/Admin/System/_STATUS.md` و`resources/views/admin/trash/_STATUS.md`.
+- ✅ **[أُغلِقت 2026-09-13] `landing_pages.*` كانت ستّ صلاحيّاتٍ ميتة بالكامل** —
+  حيّة في `permissions.json` ومسنَدة لـ`marketing_admin` (12.2.3-ب-6) بلا أيّ
+  مسارٍ/كنترولر يحرسه واحدٌ منها؛ والمُنجَز الوحيد (`BundleLanding`) محصورٌ
+  داخل شاشة البندل ومحروسٌ بـ`bundles.edit` لا بصلاحيّة `landing_pages`، ولا
+  صفحة هبوط لمنتج متجرٍ مستقلٍّ إطلاقًا. صار `LandingPageController` (منشئ ·
+  فورم · معاينة أدمن · تعديل/نشر · أرشفة · استعادة · حذف نهائيّ) بستّة حرّاس
+  منفصلين + جدول `landing_pages` (Polymorphic بندل/منتج) + صفحة عرض عامّة
+  (`/lp/{slug}`، بلا حارس صلاحيّة عمدًا — راجع تعليق الصنف). الحارس:
+  `tests/Feature/Store/LandingPageTest.php`.
 
 **أوديت المرحلة 6 — 2026-08-03 (ما يخصّ الكنترولرات):**
 
