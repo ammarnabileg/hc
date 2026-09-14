@@ -2,16 +2,19 @@
 
 use App\Http\Controllers\Admin\OnboardingContentController;
 use App\Http\Controllers\Admin\SystemHealthController;
+use App\Http\Controllers\Admin\TrashController;
 use App\Http\Controllers\Admin\UpdatesController;
+use App\Services\Admin\System\TrashRecovery;
 use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
-| لوحة الإدارة — صفحات النظام (12.7-أ · 12.7-هـ · 12.7-و)
+| لوحة الإدارة — صفحات النظام (12.7-أ · 12.7-هـ · 12.7-و · 12.2.2)
 |--------------------------------------------------------------------------
-| ثلاث شاشات: محتوى الـOnboarding · التحديثات والترحيل · النسخ الاحتياطيّ وصحّة النظام.
-| الصلاحيّة على **كلّ** مسار (12.2.1)، والعنصر الذي لا يملكه المستخدم يُخفى ولا يُعطَّل.
-| ⛔ ولا مسار تنفيذ واحد بلا تأكيد — الحارس في الكنترولر لا في الواجهة.
+| أربع شاشات: محتوى الـOnboarding · التحديثات والترحيل · النسخ الاحتياطيّ وصحّة
+| النظام · سلّة المحذوفات الموحّدة. الصلاحيّة على **كلّ** مسار (12.2.1)، والعنصر
+| الذي لا يملكه المستخدم يُخفى ولا يُعطَّل. ⛔ ولا مسار تنفيذ واحد بلا تأكيد —
+| الحارس في الكنترولر لا في الواجهة.
 */
 
 Route::middleware(['auth', 'admin.panel'])->prefix('admin/ops')->name('admin.ops.')->group(function () {
@@ -88,4 +91,28 @@ Route::middleware(['auth', 'admin.panel'])->prefix('admin/ops')->name('admin.ops
 
     Route::middleware('permission:scheduled_jobs.manage')
         ->post('/system/schedule', [SystemHealthController::class, 'saveSchedule'])->name('system.schedule');
+
+    /*
+    |--------------------------------------------------------------------------
+    | ⭐ سلّة المحذوفات الموحّدة (12.2.2 سطر 2188-2191 — `soft_delete_recovery`)
+    |--------------------------------------------------------------------------
+    | الأربعة أفعال المنصوصة بحرفها: `.view` (عرض قبل الاسترجاع) · `.list`
+    | (الاستعراض عبر الموارد) · `.restore` (داخل النافذة الزمنيّة وحدها —
+    | الحصر داخل `TrashRecovery::restore()`) · `.delete` 🔒 (نهائيّ لا رجعة فيه).
+    | والقيد على `type` يمنع 404 متأخّرًا داخل المتحكّم لمورد غير موجود أصلًا.
+    */
+    Route::middleware('permission:soft_delete_recovery.list')
+        ->get('/trash', [TrashController::class, 'index'])->name('trash');
+
+    Route::middleware('permission:soft_delete_recovery.view')
+        ->get('/trash/{type}/{id}', [TrashController::class, 'show'])
+        ->whereNumber('id')->where('type', implode('|', array_keys(TrashRecovery::RESOURCES)))->name('trash.show');
+
+    Route::middleware('permission:soft_delete_recovery.restore')
+        ->post('/trash/{type}/{id}/restore', [TrashController::class, 'restore'])
+        ->whereNumber('id')->where('type', implode('|', array_keys(TrashRecovery::RESOURCES)))->name('trash.restore');
+
+    Route::middleware('permission:soft_delete_recovery.delete')
+        ->delete('/trash/{type}/{id}', [TrashController::class, 'destroy'])
+        ->whereNumber('id')->where('type', implode('|', array_keys(TrashRecovery::RESOURCES)))->name('trash.destroy');
 });
