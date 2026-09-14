@@ -373,6 +373,15 @@ class HttpTextDemoSeeder extends Seeder
             ['settings.admin.import_denied', 'system', 'import() — الملفّ مش JSON صالح — صدّر نسخة وقارن الشكل.', 'الملفّ مش JSON صالح — صدّر نسخة وقارن الشكل.'],
             // ---- app/Http/Controllers/Admin/StatsController.php
             ['stats.admin.export_denied', 'stats', 'export() — التاب ده مش متاح ليك.', 'التاب ده مش متاح ليك.'],
+            // ---- app/Http/Controllers/Admin/LandingPageController.php
+            ['landing_pages.admin.duplicate_msg', 'store', 'store() — لهذا العنصر صفحة هبوط بالفعل', 'لهذا العنصر صفحة هبوط بالفعل — عدّلها بدل إنشاء أخرى.'],
+            ['landing_pages.admin.store_ok', 'store', 'store() — صفحة الهبوط اتحفظت مسوّدة ✓', 'صفحة الهبوط اتحفظت مسوّدة ✓ — راجعها وانشرها.'],
+            ['landing_pages.admin.archived_edit_msg', 'store', 'edit() — صفحة مؤرشفة', 'صفحة مؤرشفة — استعدها أوّلًا قبل التعديل.'],
+            ['landing_pages.admin.update_ok', 'store', 'update() — التعديل اتحفظ ✓', 'التعديل اتحفظ ✓'],
+            ['landing_pages.admin.archive_ok', 'store', 'archive() — صفحة الهبوط اتأرشفت ✓', 'صفحة الهبوط اتأرشفت ✓'],
+            ['landing_pages.admin.not_archived_msg', 'store', 'restore() — الصفحة مش مؤرشفة أصلًا.', 'الصفحة مش مؤرشفة أصلًا.'],
+            ['landing_pages.admin.restore_ok', 'store', 'restore() — اتستعادت مسوّدة ✓', 'اتستعادت مسوّدة ✓ — راجعها وانشرها.'],
+            ['landing_pages.admin.destroy_ok', 'store', 'destroy() — صفحة الهبوط اتحذفت نهائيًّا ✓', 'صفحة الهبوط اتحذفت نهائيًّا ✓'],
             // ---- app/Http/Controllers/Admin/StoreAdminController.php
             ['store.admin.store_product_ok', 'store', 'storeProduct() — المنتج اتحفظ ✓', 'المنتج اتحفظ ✓'],
             ['store.admin.update_product_ok', 'store', 'updateProduct() — التعديل اتحفظ ✓', 'التعديل اتحفظ ✓'],
