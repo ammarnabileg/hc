@@ -76,14 +76,21 @@
     {{-- خارج الإتاحة: ماذا حدث + متى يفتح بتوقيتك مع عدّاد، والمحتوى يبقى ظاهرًا (5 · 24.5) --}}
     @include('learning.partials.availability-notice', ['availability' => $availability])
 
-    <div class="grid gap-4 lg:grid-cols-3 mb-5">
-        <div class="lg:col-span-2 card p-4">
-            @include('learning.partials.progress-bar', ['percent' => $outline['percent']])
-            <p class="text-xs mt-3" style="color: var(--text-muted)">
-                {{ setting('learning.xp.earned_label') }}: <strong style="color: var(--text)">{{ (int) $enrollment->xp_earned }}</strong>
+    {{-- تقدّمك في التدريب + الشبح — حرفيًّا من ملف الهويّة (`.grid2`) --}}
+    <div class="grid2 mb-8">
+        <div class="stack justify-center">
+            <div class="spread">
+                <h3>{{ setting('learning.course.progress_title', 'تقدّمك في التدريب') }}</h3>
+                <strong>{{ $outline['percent'] }}%</strong>
+            </div>
+            <div class="progress" role="progressbar" aria-valuenow="{{ $outline['percent'] }}" aria-valuemin="0" aria-valuemax="100">
+                <span style="--value: {{ $outline['percent'] }}%"></span>
+            </div>
+            <p class="small">
+                {{ setting('learning.xp.earned_label') }} <strong style="color: var(--ink)">{{ (int) $enrollment->xp_earned }}</strong>
                 {{ setting('learning.xp.suffix') }}
                 @if ($next_xp > 0 && $availability['open'])
-                    · {{ setting('learning.xp.next_label') }} <strong style="color: var(--color-brand-400)">+{{ $next_xp }}</strong>
+                    · {{ setting('learning.xp.next_label') }} <strong class="accent">+{{ $next_xp }}</strong>
                 @endif
             </p>
         </div>
@@ -95,108 +102,92 @@
     {{-- ⭐ دليل اجتماعيّ حيّ بأرقام حقيقيّة (3.4-45 · 3.4-49 · 2.9-7) --}}
     @include('learning.partials.social-proof', ['social' => $social])
 
-    <div class="flex items-center justify-between gap-3 flex-wrap mb-3">
-        <h2 class="text-lg font-bold">{{ setting('learning.course.outline_title') }}</h2>
+    <div class="spread mb-4">
+        <h2>{{ setting('learning.course.outline_title') }}</h2>
 
         {{-- بحث داخل الدروس بالاسم — لا فلاتر أخرى على هذه الشاشة (24.5) --}}
         <label class="block w-full sm:w-64">
             <span class="sr-only">{{ setting('learning.course.lesson_search') }}</span>
             <input type="search" data-lesson-search
-                   placeholder="{{ setting('learning.course.lesson_search') }}"
-                   class="w-full rounded-xl px-3 py-2 text-sm"
-                   style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
+                   placeholder="{{ setting('learning.course.lesson_search') }}">
         </label>
     </div>
 
-    {{-- Roadmap رأسيّ: السيكشنز وتحت كلّ سيكشن دروسه (24.5) --}}
-    <div class="roadmap space-y-4">
-        @foreach ($outline['sections'] as $index => $section)
-            @php
-                $lessonsOf = collect($section['lessons']);
-                $isDoneSection = $lessonsOf->every(fn ($l) => $l['completed']);
-                $isCurrentSection = $lessonsOf->contains(fn ($l) => $l['id'] === $outline['current_id']);
-                // ⭐ «فتح المحطّة» (3.4-23): محطّة مفتوحة لم تُلمَس بعد — هنا وقعت اللحظة
-                $justUnlocked = $isCurrentSection && ! $isDoneSection
-                    && $lessonsOf->every(fn ($l) => ! $l['completed'])
-                    && $lessonsOf->contains(fn ($l) => $l['unlocked']);
-            @endphp
+    {{-- محتوى التدريب: أقسامٌ أصيلة details/summary — حرفيًّا من ملف الهويّة --}}
+    @foreach ($outline['sections'] as $index => $section)
+        @php
+            $lessonsOf = collect($section['lessons']);
+            $isDoneSection = $lessonsOf->every(fn ($l) => $l['completed']);
+            $isCurrentSection = $lessonsOf->contains(fn ($l) => $l['id'] === $outline['current_id']);
+            // ⭐ «فتح المحطّة» (3.4-23): محطّة مفتوحة لم تُلمَس بعد — هنا وقعت اللحظة
+            $justUnlocked = $isCurrentSection && ! $isDoneSection
+                && $lessonsOf->every(fn ($l) => ! $l['completed'])
+                && $lessonsOf->contains(fn ($l) => $l['unlocked']);
+        @endphp
 
-            <section class="roadmap-node card p-4"
-                     data-done="{{ $isDoneSection ? 1 : 0 }}"
-                     data-current="{{ $isCurrentSection ? 1 : 0 }}"
-                     data-unlocked="{{ $justUnlocked ? 1 : 0 }}">
-                <h3 class="font-bold mb-3 flex items-center gap-2">
-                    <span class="text-xs rounded-full px-2 py-0.5" style="background: var(--surface-sunken); color: var(--text-muted)">
-                        {{ $index + 1 }}
-                    </span>
-                    <span>{{ $section['title'] }}</span>
-                </h3>
+        <details open data-course-section
+                  data-done="{{ $isDoneSection ? 1 : 0 }}"
+                  data-current="{{ $isCurrentSection ? 1 : 0 }}"
+                  data-unlocked="{{ $justUnlocked ? 1 : 0 }}">
+            <summary>{{ str_pad((string) ($index + 1), 2, '0', STR_PAD_LEFT) }} · {{ $section['title'] }}</summary>
 
-                <ul class="space-y-2">
-                    @foreach ($section['lessons'] as $lessonRow)
-                        @php
-                            $isCurrent = $lessonRow['id'] === $outline['current_id'];
-                            $unlocked = $lessonRow['unlocked'];
-                        @endphp
+            <div>
+                @foreach ($section['lessons'] as $lessonRow)
+                    @php
+                        $isCurrent = $lessonRow['id'] === $outline['current_id'];
+                        $unlocked = $lessonRow['unlocked'];
+                    @endphp
 
-                        <li class="rounded-xl px-3 py-2 motion-standard"
-                            data-lesson-title="{{ $lessonRow['title'] }}"
-                            @style([
-                                'background: var(--surface-sunken)',
-                                'outline: 2px solid var(--color-brand-500)' => $isCurrent,
-                            ])>
-                            <div class="flex items-center gap-2 flex-wrap">
-                                {{-- أيقونة النوع SVG بهويّة المنصّة لا إيموجي (3 · 2.16-ج) --}}
-                                <x-icon :name="$lessonRow['icon']" size="16" style="color: var(--text-muted)" />
+                    <div class="lesson-row {{ $isCurrent ? 'current' : '' }}" data-lesson-title="{{ $lessonRow['title'] }}">
+                        @if ($lessonRow['completed'])
+                            {{-- ⭐ علامة إكمال «بتتملّى» بحركة (3.4-33) — والمعنى في النصّ لا في الحركة --}}
+                            <span class="check-fill inline-flex rounded-full" style="color: var(--success)">
+                                <x-icon name="check" size="16" />
+                            </span>
+                        @elseif (! $unlocked)
+                            <x-icon name="lock" size="16" :label="setting('learning.lesson.locked_label', 'مقفول')" style="color: var(--muted)" />
+                        @else
+                            <x-icon :name="$lessonRow['icon']" size="16" style="color: {{ $isCurrent ? 'var(--brand)' : 'var(--muted)' }}" />
+                        @endif
 
-                                @if ($unlocked)
-                                    <a href="{{ route('learning.lesson', [$course, $lessonRow['id']]) }}"
-                                       class="flex-1 min-w-0 truncate text-sm hover:underline">{{ $lessonRow['title'] }}</a>
-                                @else
-                                    <span class="flex-1 min-w-0 truncate text-sm" style="color: var(--text-muted)">{{ $lessonRow['title'] }}</span>
-                                @endif
-
-                                <span class="text-xs whitespace-nowrap" style="color: var(--text-muted)">
-                                    {{ $lessonRow['duration'] }} {{ setting('learning.lesson.minutes_suffix') }}
-                                </span>
-
-                                @if ($lessonRow['completed'])
-                                    {{-- ⭐ علامة إكمال «بتتملّى» بحركة (3.4-33) — والمعنى في النصّ لا في الحركة --}}
-                                    <span class="check-fill inline-flex items-center gap-1 text-xs rounded-full px-2 py-0.5"
-                                          style="background: color-mix(in srgb, var(--color-state-ok) 16%, transparent); color: var(--color-state-ok)">
-                                        <x-icon name="check" size="13" />
-                                        <span>{{ setting('learning.lesson.done_badge') }}</span>
-                                    </span>
-                                @elseif ($isCurrent)
-                                    <x-state-badge state="warn" :label="setting('learning.lesson.current_badge')" />
-                                @elseif (! $unlocked)
-                                    <x-icon name="lock" size="14" :label="setting('learning.lesson.locked_label', 'مقفول')" style="color: var(--text-muted)" />
-                                @endif
-
-                                {{-- ⭐ حفظ الدرس (Bookmark — 3.4-34): القرار والتخزين في الخادم --}}
-                                @if ($unlocked && setting('learning.ux.bookmark_enabled', true))
-                                    <form method="post" action="{{ route('learning.lesson.bookmark', [$course, $lessonRow['id']]) }}">
-                                        @csrf
-                                        <button type="submit" class="motion-standard opacity-70 hover:opacity-100"
-                                                style="color: {{ $lessonRow['bookmarked'] ? 'var(--color-state-honor)' : 'var(--text-muted)' }}"
-                                                aria-label="{{ $lessonRow['bookmarked'] ? setting('learning.bookmark.remove', 'إزالة الحفظ') : setting('learning.bookmark.add', 'احفظ الدرس') }}"
-                                                title="{{ $lessonRow['bookmarked'] ? setting('learning.bookmark.remove', 'إزالة الحفظ') : setting('learning.bookmark.add', 'احفظ الدرس') }}">
-                                            <x-icon name="badge" size="15" />
-                                        </button>
-                                    </form>
-                                @endif
-                            </div>
-
+                        <div class="min-w-0">
+                            @if ($unlocked)
+                                <a href="{{ route('learning.lesson', [$course, $lessonRow['id']]) }}" class="hover:underline">
+                                    <h3 class="truncate">{{ $lessonRow['title'] }}</h3>
+                                </a>
+                            @else
+                                <h3 class="truncate" style="color: var(--muted)">{{ $lessonRow['title'] }}</h3>
+                            @endif
+                            <p class="small">{{ $lessonRow['duration'] }} {{ setting('learning.lesson.minutes_suffix') }}</p>
                             {{-- ⭐ الدرس المقفول يظهر بقفل وسببٍ مكتوب — لا يُخفى (24.5) --}}
                             @unless ($unlocked)
-                                <p class="text-xs mt-1" style="color: var(--text-muted)">{{ $lessonRow['lock_reason'] }}</p>
+                                <p class="small mt-1" style="color: var(--muted)">{{ $lessonRow['lock_reason'] }}</p>
                             @endunless
-                        </li>
-                    @endforeach
-                </ul>
-            </section>
-        @endforeach
-    </div>
+                        </div>
+
+                        @if ($lessonRow['completed'])
+                            <span class="small accent">{{ setting('learning.lesson.done_badge') }}</span>
+                        @elseif ($isCurrent)
+                            <span class="small accent">{{ setting('learning.lesson.current_badge') }}</span>
+                        @elseif ($unlocked)
+                            {{-- ⭐ حفظ الدرس (Bookmark — 3.4-34): القرار والتخزين في الخادم --}}
+                            @if (setting('learning.ux.bookmark_enabled', true))
+                                <form method="post" action="{{ route('learning.lesson.bookmark', [$course, $lessonRow['id']]) }}">
+                                    @csrf
+                                    <button type="submit" class="motion-standard opacity-70 hover:opacity-100"
+                                            style="color: {{ $lessonRow['bookmarked'] ? 'var(--gold)' : 'var(--muted)' }}"
+                                            aria-label="{{ $lessonRow['bookmarked'] ? setting('learning.bookmark.remove', 'إزالة الحفظ') : setting('learning.bookmark.add', 'احفظ الدرس') }}"
+                                            title="{{ $lessonRow['bookmarked'] ? setting('learning.bookmark.remove', 'إزالة الحفظ') : setting('learning.bookmark.add', 'احفظ الدرس') }}">
+                                        <x-icon name="badge" size="15" />
+                                    </button>
+                                </form>
+                            @endif
+                        @endif
+                    </div>
+                @endforeach
+            </div>
+        </details>
+    @endforeach
 
     {{-- ⭐ مشاركة إنجاز/شهادة على السوشيال (3.4-47) — بعد الإنجاز الحقيقيّ فقط --}}
     @if (setting('learning.ux.share_enabled', true) && $outline['total'] > 0 && $outline['percent'] >= (int) setting('learning.progress.complete_percent', 100))
@@ -231,43 +222,39 @@
         </section>
     @endif
 
-    {{-- بلوك الامتحان النهائيّ بحالته وشرط فتحه (24.5) --}}
-    <section class="card p-4 mt-5">
-        <div class="flex items-center justify-between gap-3 flex-wrap">
+    {{-- بلوك الامتحان النهائيّ بحالته وشرط فتحه — حرفيًّا `.panel.wash` (24.5) --}}
+    <div class="panel wash spread mt-8">
+        <div class="cluster">
+            <x-icon name="lock" size="20" style="color: var(--muted)" />
             <div>
-                <h3 class="font-bold">{{ setting('learning.exam.block_title') }}</h3>
-                <p class="text-xs mt-1" style="color: var(--text-muted)">{{ $exam['condition'] }}</p>
+                <h3>{{ setting('learning.exam.block_title') }}</h3>
+                <p class="small">{{ $exam['condition'] }}</p>
 
                 @if ($exam['lock_reason'] ?? null)
                     {{-- السبب مكتوب: ماذا حدث + متى يفتح، بساعة المستخدم (2.17 · 5) --}}
-                    <p class="text-xs mt-1" style="color: var(--color-state-idle)">{{ $exam['lock_reason'] }}</p>
-                @endif
-            </div>
-
-            <div class="flex items-center gap-2 flex-wrap">
-                <x-state-badge :state="$exam['state']" :label="$exam['label']" />
-
-                {{-- ⭐ المقفول يظهر بقفلٍ وسببٍ مكتوب لا بزرٍّ كاذب ولا بإخفاء (24.5 · 5) --}}
-                @if ($exam['exists'] && ($exam['locked'] ?? false))
-                    <span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs"
-                          style="background: var(--surface-sunken); color: var(--text-muted)">
-                        <x-icon name="lock" size="14" />
-                        <span>{{ $exam['locked_label'] }}</span>
-                    </span>
-                @elseif ($exam['exists'] && $exam['unlocked'] && $exam['url'])
-                    <a href="{{ $exam['url'] }}"
-                       class="btn inline-flex items-center rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
-                       style="background: var(--color-brand-500); color: #04201c">{{ setting('learning.exam.start_cta') }}</a>
-                @endif
-
-                @if ($certificate['exists'] && $certificate['url'])
-                    <a href="{{ $certificate['url'] }}"
-                       class="inline-flex items-center rounded-xl px-4 py-2 text-sm motion-standard"
-                       style="background: var(--surface-sunken)">{{ setting('learning.cta.certificates') }}</a>
+                    <p class="small" style="color: var(--muted)">{{ $exam['lock_reason'] }}</p>
                 @endif
             </div>
         </div>
-    </section>
+
+        <div class="cluster">
+            <x-state-badge :state="$exam['state']" :label="$exam['label']" />
+
+            {{-- ⭐ المقفول يظهر بقفلٍ وسببٍ مكتوب لا بزرٍّ كاذب ولا بإخفاء (24.5 · 5) --}}
+            @if ($exam['exists'] && ($exam['locked'] ?? false))
+                <span class="small muted inline-flex items-center gap-1">
+                    <x-icon name="lock" size="14" />
+                    <span>{{ $exam['locked_label'] }}</span>
+                </span>
+            @elseif ($exam['exists'] && $exam['unlocked'] && $exam['url'])
+                <a href="{{ $exam['url'] }}" class="btn btn-p">{{ setting('learning.exam.start_cta') }}</a>
+            @endif
+
+            @if ($certificate['exists'] && $certificate['url'])
+                <a href="{{ $certificate['url'] }}" class="btn text">{{ setting('learning.cta.certificates') }}</a>
+            @endif
+        </div>
+    </div>
 @endsection
 
 @if ($outline['current_id'] && $availability['open'])
@@ -292,7 +279,7 @@
                 document.querySelectorAll('[data-lesson-title]').forEach((row) => {
                     row.style.display = !term || row.dataset.lessonTitle.includes(term) ? '' : 'none';
                 });
-                document.querySelectorAll('.roadmap-node').forEach((node) => {
+                document.querySelectorAll('[data-course-section]').forEach((node) => {
                     const visible = [...node.querySelectorAll('[data-lesson-title]')]
                         .some((row) => row.style.display !== 'none');
                     node.style.display = visible ? '' : 'none';

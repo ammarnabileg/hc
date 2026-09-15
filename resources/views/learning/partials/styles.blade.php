@@ -30,30 +30,12 @@
 
     /* الشبح يتحرّك دائمًا — التحكّم من إعداد المستخدم داخل المنصّة (app.css). */
 
-    /* Roadmap رأسيّ بالسيكشنز (3.3 · 24.5) */
-    .roadmap { position: relative; padding-inline-start: 1.25rem; }
-    .roadmap::before {
-        content: '';
-        position: absolute;
-        inset-block: 0.75rem;
-        inset-inline-start: 0.3rem;
-        inline-size: 2px;
-        background: repeating-linear-gradient(180deg, var(--border) 0 6px, transparent 6px 12px);
-    }
-    .roadmap-node { position: relative; }
-    .roadmap-node::before {
-        content: '';
-        position: absolute;
-        inset-inline-start: -1.2rem;
-        inset-block-start: 1.05rem;
-        inline-size: 0.65rem;
-        block-size: 0.65rem;
-        border-radius: 999px;
-        background: var(--surface-sunken);
-        border: 2px solid var(--border);
-    }
-    .roadmap-node[data-done='1']::before { background: var(--color-brand-500); border-color: var(--color-brand-500); }
-    .roadmap-node[data-current='1']::before { background: var(--color-brand-300); border-color: var(--color-brand-300); }
+    {{--
+      ⭐ Roadmap (3.3 · 24.5): الخطّ الفاصل والمحطّات صارا `.roadmap`/`.road-row`
+      حرفيًّا من ملف الهويّة (app.css) — لا تكرار هنا. الباقي أدناه حركتان
+      حقيقيّتان (3.4-23 · 3.4-33) أُعيد ربطهما بعناصر ملف الهويّة نفسها بدل
+      الأصناف القديمة الملغاة، فلا تفقد الصفحة وظيفتها بتغيّر التركيب.
+    --}}
 
     /* ⭐ أنيميشن فتح المحطّة (3.4-23): المحطّة التي صارت متاحة تنبض مرّةً وتُضيء
        حلقتُها — إشارة «افتحني» لا زخرفة، ولذلك تقع مرّة واحدة ثمّ تسكن. */
@@ -62,14 +44,17 @@
         60%  { transform: scale(1.25); box-shadow: 0 0 0 6px transparent; }
         100% { transform: scale(1); box-shadow: 0 0 0 0 transparent; }
     }
-    .roadmap-node[data-unlocked='1']::before { animation: station-unlock 900ms var(--ease-standard) 2; }
+    .road-row[data-unlocked='1'] .step,
+    details[data-course-section][data-unlocked='1'] > summary {
+        animation: station-unlock 900ms var(--ease-standard) 2;
+    }
 
     /* ⭐ علامة الإكمال «بتتملّى» (3.4-33): الخلفيّة تمتلئ من البداية للنهاية مرّةً */
     @keyframes check-fill {
         from { background-size: 0% 100%; }
         to   { background-size: 100% 100%; }
     }
-    .check-fill {
+    .lesson-row .check-fill {
         background-image: linear-gradient(90deg, color-mix(in srgb, var(--color-state-ok) 22%, transparent) 0 100%);
         background-repeat: no-repeat;
         animation: check-fill 620ms var(--ease-standard) forwards;
