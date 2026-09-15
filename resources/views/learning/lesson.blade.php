@@ -74,8 +74,9 @@
         </x-slot:action>
     </x-page-header>
 
-    <div class="grid gap-4 lg:grid-cols-3">
-        <div class="lg:col-span-2 space-y-4">
+    {{-- تخطيط الدرس — حرفيًّا من ملف الهويّة (`.lesson-layout`): فيديو + محتوى، وقائمة الدروس بجواره --}}
+    <div class="lesson-layout">
+        <div class="space-y-4">
             {{-- المشغّل: iframe يوتيوب بلا أيّ SDK خارجيّ — أو النصّ/المستند --}}
             @if ($embed_url)
                 {{-- ⭐ تتبّع المشاهدة (4.1): التبليغ من المتصفّح والقرار في الخادم --}}
@@ -212,50 +213,44 @@
             </section>
         </div>
 
-        {{-- بانل قائمة الدروس قابل للطيّ — وعلى الموبايل Bottom Sheet (24.5) --}}
-        <details class="lesson-panel lg:col-span-1" open>
-            <summary class="card px-4 py-3 text-sm font-semibold cursor-pointer list-none flex items-center justify-between">
-                <span>{{ setting('learning.lesson.panel_title') }}</span>
-                <span class="text-xs" style="color: var(--text-muted)">{{ $outline['completed'] }}/{{ $outline['total'] }}</span>
+        {{-- قائمة الدروس — حرفيًّا من ملف الهويّة (`.lesson-outline`)، قابلة للطيّ وعلى الموبايل Bottom Sheet (24.5) --}}
+        <details class="lesson-panel" open>
+            <summary class="mb-4 cursor-pointer list-none flex items-center justify-between">
+                <h3 class="m-0">{{ setting('learning.lesson.panel_title') }}</h3>
+                <span class="small muted">{{ $outline['completed'] }}/{{ $outline['total'] }}</span>
             </summary>
 
-            <div class="lesson-panel-body card p-3 mt-2 space-y-3">
-                @include('learning.partials.progress-bar', ['percent' => $outline['percent'], 'compact' => true])
+            <aside class="lesson-panel-body lesson-outline">
+                <div class="mb-4">
+                    @include('learning.partials.progress-bar', ['percent' => $outline['percent'], 'compact' => true])
+                </div>
 
                 @foreach ($outline['sections'] as $section)
-                    <div>
-                        <p class="text-xs font-bold mb-1" style="color: var(--text-muted)">{{ $section['title'] }}</p>
-                        <ul class="space-y-1">
-                            @foreach ($section['lessons'] as $row)
-                                <li>
-                                    @if ($row['unlocked'])
-                                        <a href="{{ route('learning.lesson', [$course, $row['id']]) }}"
-                                           class="flex items-center gap-2 rounded-lg px-2 py-1.5 text-sm motion-standard"
-                                           @style([
-                                               'background: var(--surface-sunken)' => $row['id'] === $lesson->id,
-                                           ])>
-                                            <x-icon :name="$row['icon']" size="15" style="color: var(--text-muted)" />
-                                            <span class="flex-1 min-w-0 truncate">{{ $row['title'] }}</span>
-                                            @if ($row['bookmarked'])
-                                                <x-icon name="badge" size="14" :label="setting('learning.bookmark.saved_label', 'محفوظ')" style="color: var(--color-state-honor)" />
-                                            @endif
-                                            @if ($row['completed'])
-                                                <x-icon name="check" size="15" :label="setting('learning.lesson.done_badge')" style="color: var(--color-state-ok)" />
-                                            @endif
-                                        </a>
-                                    @else
-                                        <span class="flex items-center gap-2 rounded-lg px-2 py-1.5 text-sm"
-                                              style="color: var(--text-muted)" title="{{ $row['lock_reason'] }}">
-                                            <x-icon name="lock" size="15" />
-                                            <span class="flex-1 min-w-0 truncate">{{ $row['title'] }}</span>
-                                        </span>
-                                    @endif
-                                </li>
-                            @endforeach
-                        </ul>
-                    </div>
+                    <p class="small muted mt-4 mb-1">{{ $section['title'] }}</p>
+                    @foreach ($section['lessons'] as $row)
+                        @if ($row['unlocked'])
+                            <a href="{{ route('learning.lesson', [$course, $row['id']]) }}"
+                               class="{{ $row['id'] === $lesson->id ? 'active' : '' }}">
+                                <x-icon :name="$row['icon']" size="15" />
+                                <span class="flex-1 min-w-0 truncate">{{ $row['title'] }}</span>
+                                @if ($row['bookmarked'])
+                                    <x-icon name="badge" size="14" :label="setting('learning.bookmark.saved_label', 'محفوظ')" style="color: var(--gold)" />
+                                @endif
+                                @if ($row['completed'])
+                                    <x-icon name="check" size="15" :label="setting('learning.lesson.done_badge')" style="color: var(--success)" />
+                                @endif
+                            </a>
+                        @else
+                            <span style="color: var(--muted)" title="{{ $row['lock_reason'] }}">
+                                <x-icon name="lock" size="15" />
+                                <span class="flex-1 min-w-0 truncate">{{ $row['title'] }}</span>
+                            </span>
+                        @endif
+                    @endforeach
                 @endforeach
-            </div>
+
+                <p class="small muted mt-4">{{ setting('learning.lesson.outline_order_hint', 'تفتح الدروس بالترتيب بعد إتمام السابق.') }}</p>
+            </aside>
         </details>
     </div>
 @endsection
