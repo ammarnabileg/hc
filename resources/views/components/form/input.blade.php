@@ -10,6 +10,6 @@
     @if ($hint)<span class="block text-xs mt-1" style="color: var(--text-muted)">{{ $hint }}</span>@endif
     {{-- يعمل أيضًا حين يُعرَض المكوّن خارج دورة الطلب (Partial في اختبار مثلًا) --}}
     @if (isset($errors) && $errors->has($name))
-        <span class="block text-xs mt-1" style="color: var(--color-state-danger)">{{ $errors->first($name) }}</span>
+        <span class="field-error block mt-1">{{ $errors->first($name) }}</span>
     @endif
 </label>

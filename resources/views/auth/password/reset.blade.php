@@ -16,16 +16,16 @@
     $min = max(1, (int) setting('auth.password.min_length', 7));
 @endphp
 
-<div class="card p-6 w-full max-w-sm animate-fadeup">
-    <h1 class="text-xl font-extrabold mb-1">{{ setting('auth.password_reset.reset_title', 'اختار كلمة سرّ جديدة') }}</h1>
+<div class="panel w-full max-w-sm animate-fadeup">
+    <h1>{{ setting('auth.password_reset.reset_title', 'اختار كلمة سرّ جديدة') }}</h1>
 
     {{-- ⭐ الإيميل ظاهر للتذكير — فمَن وصله الرابط من الدعم يعرف الحساب المقصود --}}
-    <p class="text-sm mb-1">
-        <span style="color: var(--text-muted)">{{ setting('auth.password_reset.email_label', 'الحساب') }}:</span>
+    <p class="small mt-3">
+        <span class="muted">{{ setting('auth.password_reset.email_label', 'الحساب') }}:</span>
         <bdi dir="ltr" class="font-semibold">{{ $email }}</bdi>
     </p>
 
-    <p class="text-sm mb-5" style="color: var(--text-muted)">
+    <p class="small muted mt-1 mb-6">
         {{ str_replace(
             '{min}',
             (string) $min,
@@ -33,7 +33,7 @@
         ) }}
     </p>
 
-    <form method="post" action="{{ route('password.update') }}" class="space-y-3" data-password-form>
+    <form method="post" action="{{ route('password.update') }}" class="stack" style="gap: 14px" data-password-form>
         @csrf
         <input type="hidden" name="token" value="{{ $token }}">
         <input type="hidden" name="email" value="{{ $email }}">
@@ -68,14 +68,11 @@
         @endforeach
 
         {{-- سطر واحد يقول الحالة بنصّ لا بلون وحده (2.16) --}}
-        <p class="text-xs" data-password-hint
+        <p class="small muted" data-password-hint
            data-mismatch="{{ setting('auth.password_reset.mismatch_text', 'الكلمتان لسّه مش متطابقتين.') }}"
-           data-match="{{ setting('auth.password_reset.match_text', 'متطابقتين ✓') }}"
-           style="color: var(--text-muted)"></p>
+           data-match="{{ setting('auth.password_reset.match_text', 'متطابقتين ✓') }}"></p>
 
-        <button data-password-submit disabled
-                class="btn w-full rounded-xl py-2 font-semibold motion-standard"
-                style="min-block-size: 44px; background: var(--color-brand-500); color:#04201c">
+        <button data-password-submit disabled class="btn btn-p w-full">
             {{ setting('auth.password_reset.reset_action', 'غيّرها') }}
         </button>
 

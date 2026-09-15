@@ -2,7 +2,7 @@
 @section('title', (string) setting('auth.pending.section_1', 'حسابك تحت المراجعة'))
 
 @section('content')
-<div class="card p-8 w-full max-w-md text-center">
+<div class="panel w-full max-w-md text-center">
     <div class="mx-auto mb-3" style="color: var(--color-state-warn)" aria-hidden="true">
         {{-- ساعة رمليّة مرسومة SVG — بلا مكتبة أيقونات --}}
         <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -13,20 +13,20 @@
         </svg>
     </div>
 
-    <h1 class="text-xl font-extrabold mb-2">{{ setting('auth.pending.text_1', 'حسابك تحت المراجعة') }}</h1>
+    <h1>{{ setting('auth.pending.text_1', 'حسابك تحت المراجعة') }}</h1>
 
     {{-- 2.5-د-3: الأدمن يقدر يضيف فيها **كود HTML** من لوحة الإدارة (2.13) --}}
-    <div class="text-sm mb-5" style="color: var(--text-muted)">
+    <div class="small muted mt-3 mb-6">
         {!! setting('onboarding.review.html', '') !!}
     </div>
 
     @if (session('status'))
-        <p class="text-sm mb-4" style="color: var(--color-state-ok)">● {{ session('status') }}</p>
+        <p class="small mb-4" style="color: var(--success)">● {{ session('status') }}</p>
     @endif
 
     <form method="post" action="{{ route('logout') }}">
         @csrf
-        <button class="text-sm" style="color: var(--color-brand-500); min-height: 44px">{{ setting('auth.pending.text_2', 'تسجيل الخروج') }}</button>
+        <button class="btn text">{{ setting('auth.pending.text_2', 'تسجيل الخروج') }}</button>
     </form>
 </div>
 @endsection

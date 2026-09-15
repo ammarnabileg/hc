@@ -27,14 +27,14 @@
 @endphp
 
 @section('content')
-<div class="card p-6 w-full max-w-lg">
+<div class="panel w-full max-w-lg">
     {{-- خطوتان معلنتان: المستخدم يعرف أين هو وكم بقي (2.9) --}}
-    <p class="text-xs mb-2" style="color: var(--text-muted)">
+    <p class="small muted mb-2">
         {{ setting('onboarding.account.step_label', 'خطوة 1 من 2 — بيانات الدخول') }}
     </p>
-    <h1 class="text-xl font-extrabold mb-1">{{ setting('onboarding.account.title', 'إنشاء حساب — بياناتك الأساسيّة') }}</h1>
+    <h1>{{ setting('onboarding.account.title', 'إنشاء حساب — بياناتك الأساسيّة') }}</h1>
     {{-- التفعيل مجّانيّ باعتماد إداريّ — لا رسوم ولا اشتراك (2.5-د) --}}
-    <p class="text-sm mb-5" style="color: var(--text-muted)">
+    <p class="mt-3 mb-6 muted">
         {{ setting('onboarding.account.subtitle', 'التسجيل والتفعيل مجّانيّان بالكامل. هنأكّد بريدك دلوقتي، وبيانات الشهادة في الخطوة اللي بعدها.') }}
     </p>
 
@@ -53,7 +53,7 @@
     {{-- لا حرف عربيّ داخل `<script>` — النصوص تصل إليه سماتٍ على وسم (2.13-أ) --}}
     <div data-texts hidden data-send="{{ setting('auth.otp.send_label', 'إرسال') }}"></div>
 
-    <form method="post" action="{{ route('register') }}" class="space-y-4" data-account-form>
+    <form method="post" action="{{ route('register') }}" class="stack" style="gap: 16px" data-account-form>
         @csrf
         <input type="hidden" name="step" value="{{ \App\Http\Controllers\Auth\AuthController::STEP_ACCOUNT }}">
         <input type="hidden" name="offer" value="{{ $referral }}">
@@ -63,8 +63,7 @@
             <span class="block text-sm mb-1">{{ setting('onboarding.account.email_label', 'البريد الإلكترونيّ') }}</span>
             <input type="email" name="email" value="{{ $email }}" dir="ltr" autocomplete="email" required
                    class="{{ $inputClass }}" style="{{ $inputStyle }}" data-email>
-            <span class="block text-xs mt-1" data-email-note aria-live="polite"
-                  style="color: var(--color-state-danger)">@error('email'){{ '◉ '.$message }}@enderror</span>
+            <span class="field-error block mt-1" data-email-note aria-live="polite">@error('email'){{ '◉ '.$message }}@enderror</span>
         </label>
 
         {{--
@@ -93,14 +92,13 @@
                     {{-- زرّ واحد يتحوّل: «إرسال» ⟵ «تأكيد» (2.5-ب) --}}
                     <button type="submit" formaction="{{ $otpSent ? route('register.verify.confirm') : route('register.verify.send') }}"
                             formnovalidate data-otp-action data-sent="{{ $otpSent ? '1' : '0' }}"
-                            class="btn rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
-                            style="min-height: 44px; background: var(--color-brand-500); color: #04201c">
+                            class="btn btn-p">
                         {{ $otpSent ? setting('auth.otp.confirm_label', 'تأكيد') : setting('auth.otp.send_label', 'إرسال') }}
                     </button>
                 </div>
 
                 @error('code')
-                    <span class="block text-xs mt-2" style="color: var(--color-state-danger)">◉ {{ $message }}</span>
+                    <span class="field-error block mt-2">◉ {{ $message }}</span>
                 @enderror
 
                 @if ($otpSent)
@@ -184,18 +182,18 @@
                        autocomplete="tel-national" inputmode="tel" class="{{ $inputClass }}" style="{{ $inputStyle }}">
             </div>
 
-            @error('phone_iso2')<span class="block text-xs mt-1" style="color: var(--color-state-danger)">◉ {{ $message }}</span>@enderror
-            @error('phone_national')<span class="block text-xs mt-1" style="color: var(--color-state-danger)">◉ {{ $message }}</span>@enderror
-            @error('phone')<span class="block text-xs mt-1" style="color: var(--color-state-danger)">◉ {{ $message }}</span>@enderror
+            @error('phone_iso2')<span class="field-error block mt-1">◉ {{ $message }}</span>@enderror
+            @error('phone_national')<span class="field-error block mt-1">◉ {{ $message }}</span>@enderror
+            @error('phone')<span class="field-error block mt-1">◉ {{ $message }}</span>@enderror
         </div>
 
         {{-- ─────────── الباسوورد ─────────── --}}
-        <div class="grid md:grid-cols-2 gap-3">
+        <div class="form-grid">
             <label class="block">
                 <span class="block text-sm mb-1">{{ setting('onboarding.account.password_label', 'كلمة السرّ') }}</span>
                 <input type="password" name="password" autocomplete="new-password" required
                        class="{{ $inputClass }}" style="{{ $inputStyle }}">
-                @error('password')<span class="block text-xs mt-1" style="color: var(--color-state-danger)">◉ {{ $message }}</span>@enderror
+                @error('password')<span class="field-error block mt-1">◉ {{ $message }}</span>@enderror
             </label>
 
             <label class="block">
@@ -205,15 +203,14 @@
             </label>
         </div>
 
-        <button type="submit" class="btn w-full rounded-xl py-2 font-semibold motion-standard"
-                style="min-height: 44px; background: var(--color-brand-500); color:#04201c">
+        <button type="submit" class="btn btn-p w-full">
             {{ setting('onboarding.account.next_label', 'كمّل ⟵ بيانات الشهادة') }}
         </button>
     </form>
 
-    <p class="text-sm mt-4" style="color: var(--text-muted)">
+    <p class="small muted mt-4">
         {{ setting('onboarding.account.has_account', 'عندك حساب؟') }}
-        <a href="{{ route('login') }}" style="color: var(--color-brand-500)">{{ setting('onboarding.account.login_label', 'ادخل من هنا') }}</a>
+        <a href="{{ route('login') }}" class="accent">{{ setting('onboarding.account.login_label', 'ادخل من هنا') }}</a>
     </p>
 
     {{-- ⚖️ إسناد ODbL **حيث تُستهلَك البيانات** — أكواد الدول أعلاه (2.5-ج) --}}

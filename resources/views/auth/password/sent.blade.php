@@ -6,10 +6,10 @@
     الرابط والرمز وجهان لنفس الطلب (2.3): الرابط لمن يفتح بريده على نفس الجهاز،
     والرمز الرباعيّ لمن يفتحه على تليفون تاني — وكلاهما يوصل لنفس الشاشة.
 --}}
-<div class="card p-6 w-full max-w-sm animate-fadeup">
-    <h1 class="text-xl font-extrabold mb-1">{{ setting('auth.password_reset.sent_title', 'بصّ في بريدك') }}</h1>
+<div class="panel w-full max-w-sm animate-fadeup">
+    <h1>{{ setting('auth.password_reset.sent_title', 'بصّ في بريدك') }}</h1>
 
-    <p class="text-sm mb-4" style="color: var(--text-muted)">
+    <p class="small muted mt-3 mb-5">
         {{ str_replace(
             ['{email}', '{minutes}'],
             [$email, (string) $ttlMinutes],
@@ -18,11 +18,10 @@
     </p>
 
     @if (session('status'))
-        <p class="text-sm mb-4 rounded-xl px-3 py-2"
-           style="background: var(--surface-sunken); color: var(--text)">{{ session('status') }}</p>
+        <p class="small wash mb-5" style="padding: 10px 14px; border-radius: 12px">{{ session('status') }}</p>
     @endif
 
-    <form method="post" action="{{ route('password.code') }}" class="space-y-3" data-otp-form>
+    <form method="post" action="{{ route('password.code') }}" class="stack" style="gap: 14px" data-otp-form>
         @csrf
         <input type="hidden" name="email" value="{{ $email }}">
 
@@ -35,13 +34,11 @@
                    style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text); font-size: 1.5rem; letter-spacing: .5rem"
                    dir="ltr">
             @error('code')
-                <span class="block text-xs mt-1" style="color: var(--color-state-danger)">{{ $message }}</span>
+                <span class="field-error block mt-1">{{ $message }}</span>
             @enderror
         </label>
 
-        <button type="submit" data-otp-submit disabled
-                class="btn w-full rounded-xl py-2 font-semibold motion-standard"
-                style="background: var(--color-brand-500); color:#04201c; opacity:.5">
+        <button type="submit" data-otp-submit disabled class="btn btn-p w-full" style="opacity: .5">
             {{ setting('auth.password_reset.code_action', 'كمّل بالرمز') }}
         </button>
     </form>
@@ -49,9 +46,7 @@
     <form method="post" action="{{ route('password.email') }}" class="mt-3">
         @csrf
         <input type="hidden" name="email" value="{{ $email }}">
-        <button type="submit" data-otp-resend data-wait="{{ $wait }}"
-                class="btn w-full rounded-xl py-2 text-sm motion-standard"
-                style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
+        <button type="submit" data-otp-resend data-wait="{{ $wait }}" class="btn btn-g w-full">
             <span data-otp-resend-label>{{ setting('auth.password_reset.resend_label', 'ابعت تاني') }}</span>
         </button>
     </form>

@@ -28,13 +28,13 @@
 @endphp
 
 @section('content')
-<div class="card p-6 w-full max-w-xl">
-    <p class="text-xs mb-2" style="color: var(--text-muted)">
+<div class="panel w-full max-w-xl">
+    <p class="small muted mb-2">
         {{ setting('onboarding.identity.step_label', 'خطوة 2 من 2 — بيانات الشهادة') }}
         · <span dir="ltr">{{ $account['email'] ?? '' }}</span> ✓
     </p>
-    <h1 class="text-xl font-extrabold mb-1">{{ setting('onboarding.identity.title', 'بيانات الشهادات والإفادات') }}</h1>
-    <p class="text-sm mb-5" style="color: var(--text-muted)">
+    <h1>{{ setting('onboarding.identity.title', 'بيانات الشهادات والإفادات') }}</h1>
+    <p class="mt-3 mb-6 muted">
         {{ setting('onboarding.identity.subtitle', 'البيانات دي هي اللي بتطلع على شهاداتك وإفاداتك — اكتبها زيّ ما تحبّ تشوفها عليها.') }}
     </p>
 
@@ -57,7 +57,7 @@
          data-name-ar-error="{{ setting('onboarding.identity.name_ar_error', 'اكتب اسمك ثلاثيًّا بالعربيّ — الشهادة هتطلع بالاسم ده.') }}"
          data-name-en-error="{{ setting('onboarding.identity.name_en_error', 'اكتب اسمك ثلاثيًّا بالإنجليزيّ — النسخة الإنجليزيّة من الشهادة بتطلع بيه.') }}"></div>
 
-    <form method="post" action="{{ route('register') }}" class="space-y-3" data-identity-form>
+    <form method="post" action="{{ route('register') }}" class="stack" style="gap: 16px" data-identity-form>
         @csrf
         <input type="hidden" name="step" value="{{ \App\Http\Controllers\Auth\AuthController::STEP_IDENTITY }}">
         <input type="hidden" name="offer" value="{{ $referral }}">
@@ -75,17 +75,17 @@
                     </optgroup>
                 @endforeach
             </select>
-            @error('title')<span class="block text-xs mt-1" style="color: var(--color-state-danger)">◉ {{ $message }}</span>@enderror
+            @error('title')<span class="field-error block mt-1">◉ {{ $message }}</span>@enderror
         </label>
 
         {{-- 2) الاسم بالعربيّ (ثلاثيّ) · 3) الاسم بالإنجليزيّ (ثلاثيّ) --}}
-        <div class="grid md:grid-cols-2 gap-3">
+        <div class="form-grid">
             <label class="block">
                 <span class="block text-sm mb-1">{{ setting('onboarding.identity.name_ar_label', 'الاسم بالعربيّ (ثلاثيّ)') }}</span>
                 <input type="text" name="name_ar" value="{{ $val('name_ar') }}" dir="rtl" lang="ar"
                        class="{{ $inputClass }}" style="{{ $inputStyle }}" required data-required-field
                        data-script="arabic">
-                <span class="block text-xs mt-1" data-field-error style="color: var(--color-state-danger)">@error('name_ar')◉ {{ $message }}@enderror</span>
+                <span class="field-error block mt-1" data-field-error>@error('name_ar')◉ {{ $message }}@enderror</span>
             </label>
 
             <label class="block">
@@ -93,7 +93,7 @@
                 <input type="text" name="name_en" value="{{ $val('name_en') }}" dir="ltr" lang="en"
                        class="{{ $inputClass }}" style="{{ $inputStyle }}" required data-required-field
                        data-script="latin">
-                <span class="block text-xs mt-1" data-field-error style="color: var(--color-state-danger)">@error('name_en')◉ {{ $message }}@enderror</span>
+                <span class="field-error block mt-1" data-field-error>@error('name_en')◉ {{ $message }}@enderror</span>
             </label>
         </div>
 
@@ -120,11 +120,11 @@
                     </label>
                 @endforeach
             </div>
-            @error('gender')<span class="block text-xs mt-1" style="color: var(--color-state-danger)">◉ {{ $message }}</span>@enderror
+            @error('gender')<span class="field-error block mt-1">◉ {{ $message }}</span>@enderror
         </fieldset>
 
         {{-- 5) الدولة · 6) المحافظة **مبنيّة على الدولة وتُملأ تلقائيًّا** --}}
-        <div class="grid md:grid-cols-2 gap-3">
+        <div class="form-grid">
             <label class="block">
                 <span class="block text-sm mb-1">{{ setting('onboarding.identity.country_label', 'الدولة') }}</span>
                 <select name="country_id" class="{{ $inputClass }}" style="{{ $inputStyle }}" data-country data-required-field>
@@ -133,7 +133,7 @@
                         <option value="{{ $country->id }}" @selected((int) $val('country_id') === $country->id)>{{ $country->name_ar }}</option>
                     @endforeach
                 </select>
-                @error('country_id')<span class="block text-xs mt-1" style="color: var(--color-state-danger)">◉ {{ $message }}</span>@enderror
+                @error('country_id')<span class="field-error block mt-1">◉ {{ $message }}</span>@enderror
             </label>
 
             <label class="block">
@@ -153,7 +153,7 @@
                                 @selected((int) $val('governorate_id') === $governorate['id'])>{{ $governorate['name'] }}</option>
                     @endforeach
                 </select>
-                @error('governorate_id')<span class="block text-xs mt-1" style="color: var(--color-state-danger)">◉ {{ $message }}</span>@enderror
+                @error('governorate_id')<span class="field-error block mt-1">◉ {{ $message }}</span>@enderror
             </label>
         </div>
 
@@ -162,7 +162,7 @@
             <span class="block text-sm mb-1">{{ setting('onboarding.identity.address_label', 'العنوان الفرعيّ (المنطقة والشارع)') }}</span>
             <input type="text" name="address_line" value="{{ $val('address_line') }}"
                    class="{{ $inputClass }}" style="{{ $inputStyle }}" required data-required-field>
-            @error('address_line')<span class="block text-xs mt-1" style="color: var(--color-state-danger)">◉ {{ $message }}</span>@enderror
+            @error('address_line')<span class="field-error block mt-1">◉ {{ $message }}</span>@enderror
         </label>
 
         {{--
@@ -171,23 +171,20 @@
             الخادم، ويعود بكلّ ما كُتِب لأنّ الحقول تقرأ الـQuery كما تقرأ `old()`.
         --}}
         <noscript>
-            <button type="submit" formmethod="get" formaction="{{ route('register') }}" formnovalidate
-                    class="btn w-full rounded-xl py-2 text-sm motion-standard"
-                    style="min-height: 44px; background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
+            <button type="submit" formmethod="get" formaction="{{ route('register') }}" formnovalidate class="btn btn-g w-full">
                 {{ setting('onboarding.identity.load_governorates_label', 'أظهر محافظات الدولة المختارة') }}
             </button>
         </noscript>
 
         {{-- 8) زرّ الاستكمال **معطَّل حتى تكتمل كلّ البيانات** — واحتفال قويّ عند الإتمام --}}
-        <button data-submit class="btn w-full rounded-xl py-2 font-semibold motion-standard"
-                style="min-height: 44px; background: var(--color-brand-500); color:#04201c">
+        <button data-submit class="btn btn-p w-full">
             {{ setting('onboarding.identity.submit_label', 'استكمال التسجيل') }}
         </button>
     </form>
 
-    <p class="text-sm mt-4" style="color: var(--text-muted)">
+    <p class="small muted mt-4">
         {{ setting('onboarding.identity.back_question', 'عايز تعدّل بريدك أو رقمك؟') }}
-        <a href="{{ route('register') }}?back=1" data-restart style="color: var(--color-brand-500)">{{ setting('onboarding.identity.back_label', 'ارجع للخطوة الأولى') }}</a>
+        <a href="{{ route('register') }}?back=1" data-restart class="accent">{{ setting('onboarding.identity.back_label', 'ارجع للخطوة الأولى') }}</a>
     </p>
 
     {{-- ⚖️ إسناد ODbL **حيث تُستهلَك البيانات** — الدول والمحافظات أعلاه (2.5-ج) --}}

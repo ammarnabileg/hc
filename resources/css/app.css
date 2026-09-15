@@ -480,9 +480,32 @@
     background-color: var(--brand-hover) !important;
   }
 
+  /*
+   | ⭐ إصلاح ثغرة ثانية من نفس نوع `.cluster`/`.spread`: القاعدة المشتركة
+   | لأزرار `.btn`/`.btn-p`/`.btn-g` كانت ناقصةً منذ البداية — بلا
+   | `display:inline-flex`/`padding`/`align-items`/`justify-content`، فكلّ
+   | زرٍّ بلا يوتيليتيز Tailwind إضافيّة (مثل px-4 أو inline-flex) كان يُعرَض
+   | بلا حشوٍ على الإطلاق (padding:0px، تحقّقتُ في متصفّح حقيقيّ)، ويتمدّد
+   | بلا توسيطٍ حين يقع داخل حاوية Flex/Grid فتُدفَع كتابته لطرفٍ واحد
+   | ويبقى نصف الزرّ فراغًا أحمر فارغًا. أُضيفت هنا حرفيًّا من ملف الهويّة.
+   |
+   | ⚠️ فرقٌ واحدٌ متعمَّدٌ عن نصّ المرجع: هناك `white-space:nowrap` لأنّ كلّ
+   | نصوص أزراره ثابتةٌ قصيرة. هنا نصوص كثيرة من `setting()` ويمكن أن تطول
+   | (مثال حقيقيّ وُجِد بالاختبار: زرّ «أكمل من حيث توقفت» العائم في شريط
+   | الفعل السفليّ للموبايل — طالت فخرجت عن حدود الشاشة 375px بلا التفاف).
+   | فتُرِك التفاف السطرين الطبيعيّ بدل قصّ النصّ أو كسر الصفحة.
+   */
   .btn, .btn-p, .btn-g {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 10px 22px;
     border-radius: 8px;
     min-block-size: 48px;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.6;
     transition: background-color 0.18s var(--ease-standard), color 0.18s var(--ease-standard),
       border-color 0.18s var(--ease-standard), box-shadow 0.18s var(--ease-standard),
       transform 0.18s var(--ease-standard);
