@@ -35,19 +35,23 @@
         </nav>
     @endif
 
-    <div class="spread mb-3" style="gap: 8px">
-        <div class="cluster" style="gap: 4px">
-            @if ($showPin)
-                <button type="button" data-pin-toggle="{{ $pinRoute }}" data-pin-label="{{ $title }}"
-                        data-pinned="{{ $isPinned ? '1' : '0' }}" class="icon-button"
-                        aria-pressed="{{ $isPinned ? 'true' : 'false' }}"
-                        style="color: {{ $isPinned ? 'var(--color-brand-500)' : 'var(--text-muted)' }}"
-                        aria-label="{{ $isPinned ? (string) setting('ux.page_header.aria_label_expr_1', 'فكّ تثبيت الصفحة') : (string) setting('ux.page_header.aria_label_expr_2', 'ثبّت الصفحة أعلى السايد بار') }}"
-                        title="{{ $isPinned ? (string) setting('ux.page_header.title_expr_1', 'مثبَّتة') : (string) setting('ux.page_header.title_expr_2', 'ثبّت الصفحة') }}">
-                    <x-icon name="pin" size="18" />
-                </button>
-            @endif
-        </div>
+    {{--
+      ⭐ ضُمَّ زرّ التثبيت وسويتش «وضع متقدّم» في تجمّعٍ واحد (`.cluster`) بدل
+      `.spread` (تباعدٍ بأقصى الجهتين): فرادى في الصفّ كانا يتباعدان بفراغٍ
+      كبير بينهما — أيقونة تثبيت معزولة تبدو عائمة بلا سياق، خصوصًا حين لا
+      يظهر سويتش «الوضع المتقدّم» لمستخدمٍ بعينه فيبقى زرّ التثبيت وحده طرفًا.
+    --}}
+    <div class="cluster mb-3" style="gap: 10px">
+        @if ($showPin)
+            <button type="button" data-pin-toggle="{{ $pinRoute }}" data-pin-label="{{ $title }}"
+                    data-pinned="{{ $isPinned ? '1' : '0' }}" class="icon-button"
+                    aria-pressed="{{ $isPinned ? 'true' : 'false' }}"
+                    style="color: {{ $isPinned ? 'var(--color-brand-500)' : 'var(--text-muted)' }}"
+                    aria-label="{{ $isPinned ? (string) setting('ux.page_header.aria_label_expr_1', 'فكّ تثبيت الصفحة') : (string) setting('ux.page_header.aria_label_expr_2', 'ثبّت الصفحة أعلى السايد بار') }}"
+                    title="{{ $isPinned ? (string) setting('ux.page_header.title_expr_1', 'مثبَّتة') : (string) setting('ux.page_header.title_expr_2', 'ثبّت الصفحة') }}">
+                <x-icon name="pin" size="18" />
+            </button>
+        @endif
         <x-advanced-toggle />
     </div>
 
