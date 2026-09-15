@@ -50,7 +50,10 @@ class MobileLayoutTest extends TestCase
     {
         $header = (string) file_get_contents(resource_path('views/components/page-header.blade.php'));
 
-        $this->assertStringContainsString('flex flex-wrap items-center gap-2', $header,
+        // ⭐ بعد إعادة التقسيمة حرفيًّا من ملف الهويّة (f103454) صار صفّ الفعل
+        // يستخدم `.spread` بدل يوتيليتيز Tailwind الخامّ — و`.spread` نفسها
+        // تحمل `flex-wrap: wrap` تحت 767px في app.css، فيبقى صفّ الفعل يلتفّ.
+        $this->assertStringContainsString('class="spread mb-3"', $header,
             'صفّ الفعل في الترويسة مابيلتفّش — الفعل + سويتش «وضع متقدّم» بيتجاوزوا عرض الموبايل.');
     }
 

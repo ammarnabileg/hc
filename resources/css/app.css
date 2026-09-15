@@ -755,6 +755,46 @@
    | (580+ ملفًّا يقرؤونه بهذا المعنى) — فكلّ موضعٍ كان `--surface` في المرجع
    | صار هنا `--surface-raised` (بطاقة بيضاء فعلًا)، بلا أيّ تغييرٍ آخر.
    */
+  /*
+   | ⭐ أساسيّات نصّ وتخطيط عامّة من المرجع (`.cluster`/`.spread`/`.stack`/
+   | `.eyebrow`/`.small`/`.muted`/`.accent`/`.icon-button`/`.breadcrumb`
+   | وغيرها) — كانت مستخدَمة بالفعل في عشرات ملفّات الـBlade المنقولة سابقًا
+   | لكنّ تعريفها هنا سقط سهوًا، فظلّت تلك العناصر بلا تنسيقٍ في الإنتاج.
+   | أُضيفت الآن حرفيًّا من ملف الهويّة (app.js/styles.css).
+   */
+  .muted { color: var(--muted); }
+  .accent { color: var(--brand); }
+  .small, small { font-size: 13px; line-height: 1.7; }
+  .eyebrow { display: block; font-size: 13px; font-weight: 500; color: var(--muted); margin-block-end: 10px; }
+  .numeric, bdi { direction: ltr; unicode-bidi: isolate; font-variant-numeric: tabular-nums; display: inline-block; }
+
+  .stack { display: flex; flex-direction: column; gap: 24px; }
+  .cluster, .spread { display: flex; align-items: center; }
+  .cluster { gap: 12px; flex-wrap: wrap; }
+  .spread { justify-content: space-between; gap: 20px; }
+  .actions { margin-inline-start: auto; }
+  @media (max-width: 767px) {
+    .spread { flex-wrap: wrap; }
+    .actions { width: 100%; flex-wrap: nowrap; }
+    .actions > .btn { flex: 1; }
+  }
+
+  .icon-button { border: 1px solid transparent; border-radius: 8px; width: 44px; height: 44px; min-width: 44px; background: transparent; display: inline-flex; align-items: center; justify-content: center; color: var(--ink); }
+  .icon-button:hover { background: var(--soft); }
+
+  .breadcrumb { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--muted); }
+  .breadcrumb svg { width: 15px; height: 15px; }
+
+  .field-error { font-size: 13px; color: var(--danger); }
+  .save-indicator { font-size: 13px; color: var(--success); }
+  .saved { background: var(--brand-soft); color: var(--brand); }
+
+  /* هيكل تحميل placeholder (skeleton) — لحالات الانتظار قبل وصول البيانات الحقيقيّة */
+  .skeleton { height: 16px; border-radius: 4px; background: var(--line); position: relative; overflow: hidden; }
+  .skeleton:after { content: ''; position: absolute; inset: 0; transform: translateX(100%); background: linear-gradient(90deg, transparent, var(--bg), transparent); animation: skeleton-sweep 3s infinite; }
+  .skeleton-row { display: grid; grid-template-columns: 52px 1fr; gap: 16px; align-items: center; }
+  .skeleton-avatar { width: 52px; height: 52px; border-radius: 50%; }
+
   /* شريط تقدّم خطّيّ بسيط — حرفيًّا من المرجع (يملأ من اليمين تلقائيًّا في RTL) */
   .progress { height: 5px; background: var(--line); border-radius: 999px; overflow: hidden; width: 100%; }
   .progress > span { height: 100%; display: block; background: var(--brand); width: var(--value); border-radius: inherit; transition: width 900ms var(--ease-standard); }
@@ -935,6 +975,64 @@
   table.data-table { border-collapse: collapse; width: 100%; font-size: 14px; }
   table.data-table td, table.data-table th { text-align: start; padding: 15px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
   table.data-table th { font-weight: 600; color: var(--muted); font-size: 13px; }
+
+  /*
+   | ⭐ مكوّنات عامّة إضافيّة — من مرجع الهويّة الموسّع (166 شاشة) الذي يغطّي
+   | شاشات المنصّة الحقيقيّة عبر ~9 قوالب قابلة لإعادة الاستخدام. أُخذ منها
+   | المفيد فعلًا لصفحاتنا (إدارة/نماذج/كانبان/إعدادات/دخول/صفحة عامّة)،
+   | لا الشاشات التوضيحيّة نفسها ولا هيكل التنقّل الخاصّ بالمرجع.
+   */
+
+  /* مفتاح تبديل (toggle switch) — للإعدادات والنماذج الإداريّة */
+  .toggle { position: relative; display: inline-flex; width: 42px; height: 24px; min-height: 24px; border: 0; border-radius: 99px; background: var(--line); padding: 3px; }
+  .toggle:after { content: ''; display: block; width: 18px; height: 18px; border-radius: 50%; background: #fff; position: absolute; inset-inline-start: 3px; transition: inset-inline-start .2s var(--ease-standard); }
+  .toggle[aria-checked='true'] { background: var(--brand); }
+  .toggle[aria-checked='true']:after { inset-inline-start: 21px; }
+
+  /* شريط فلترة/بحث أعلى الجداول والقوائم */
+  .filter-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 24px; }
+  .filter-row .cluster { flex-wrap: wrap; }
+  @media (max-width: 767px) { .filter-row { align-items: stretch; flex-direction: column; } .filter-row .btn { width: 100%; } }
+
+  /* نموذج بيانات بعمودين — لصفحات الإنشاء/التعديل الإداريّة */
+  .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
+  .form-grid .full { grid-column: 1 / -1; }
+  @media (max-width: 767px) { .form-grid { grid-template-columns: 1fr; } }
+
+  /* لوحة كانبان — أعمدة بعناوين وعدّادات */
+  .board { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+  .board-column { border-top: 2px solid var(--line); padding-top: 14px; }
+  .board-column > div { padding: 15px 0; border-bottom: 1px solid var(--line); }
+  .board-column h3 { font-size: 15px; }
+  @media (max-width: 767px) { .board { grid-template-columns: 1fr; } }
+
+  /* غلاف تسجيل الدخول/التسجيل — بطاقة واحدة وسط الصفحة */
+  .auth-shell { max-width: 520px; margin: 5vh auto; }
+  .auth-shell .panel { padding: 34px; }
+
+  /* غلاف صفحة عامّة/قارئ — عرض قراءة مريح */
+  .public-shell { max-width: 900px; margin-inline: auto; }
+
+  /* تابات فرعيّة داخل صفحة الإعدادات */
+  .settings-nav { display: flex; gap: 24px; border-bottom: 1px solid var(--line); margin-bottom: 24px; overflow-x: auto; scrollbar-width: none; }
+  .settings-nav button { white-space: nowrap; background: none; border: 0; padding: 10px 0 14px; color: var(--muted); }
+  .settings-nav button.is-active, .settings-nav button[aria-current] { color: var(--brand); font-weight: 600; border-bottom: 2px solid var(--brand); }
+
+  /* رسم بيانيّ خطّيّ مبسّط — للوحات التحليلات */
+  .chart { height: 190px; border-bottom: 1px solid var(--line); position: relative; overflow: hidden; }
+  .chart:before { content: ''; position: absolute; inset: 18px 0 0; background: linear-gradient(180deg, transparent 24%, var(--line) 25%, transparent 26%, transparent 49%, var(--line) 50%, transparent 51%, transparent 74%, var(--line) 75%, transparent 76%); opacity: .55; }
+  .chart svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+
+  /* شريط إحصاءات 4 أعمدة — بديل أخفّ من kpi-grid لأماكن أضيق */
+  .stat-strip { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0; border-block: 1px solid var(--line); margin: 18px 0 28px; }
+  .stat-strip > div { padding: 18px 22px; border-inline-end: 1px solid var(--line); }
+  .stat-strip > div:last-child { border-inline-end: 0; }
+  .stat-strip strong { display: block; font-size: 26px; font-weight: 600; margin-top: 5px; }
+  @media (max-width: 767px) {
+    .stat-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .stat-strip > div { border-bottom: 1px solid var(--line); }
+    .stat-strip > div:nth-child(2n) { border-inline-end: 0; }
+  }
 }
 
 @layer utilities {
@@ -973,6 +1071,9 @@
     50%      { transform: translateY(calc(var(--anim-float-shift, 4px) * -1)); }
   }
   .animate-float { animation: float var(--anim-float, 5s) ease-in-out infinite; }
+
+  /* اسمٌ مختلف عن `shimmer` أعلاه عمدًا: تلك تحرّك background-position، وهذه تزيح transform لكشف الـskeleton */
+  @keyframes skeleton-sweep { to { transform: translateX(-100%); } }
 
   @keyframes shimmer {
     from { background-position: 200% 0; }
