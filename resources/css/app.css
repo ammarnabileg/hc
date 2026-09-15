@@ -484,8 +484,24 @@
     border-radius: 8px;
     min-block-size: 48px;
     transition: background-color 0.18s var(--ease-standard), color 0.18s var(--ease-standard),
-      border-color 0.18s var(--ease-standard);
+      border-color 0.18s var(--ease-standard), box-shadow 0.18s var(--ease-standard),
+      transform 0.18s var(--ease-standard);
   }
+
+  /*
+   | ⭐ لمسة بريميوم (بأمر المالك — «طوّر التصميم وخلّيه بريميم أكتر»): رفعٌ
+   | خفيف بظلٍّ ملوَّن بلون العلامة عند التحويم فقط — لا يخالف «مسطّح بلا
+   | ظلّ» في حالة السكون (2.10.1-6)، فالبطاقات والأزرار تبقى مسطّحةً تمامًا
+   | حتى يلمسها الفأرة، وعندها تشعر بعمقٍ لطيف يشبه ورقةً مرفوعة عن الطاولة.
+   */
+  @media (hover: hover) and (pointer: fine) {
+    .btn-p:hover, .btn[style*='--color-brand-500']:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px color-mix(in srgb, var(--brand) 28%, transparent);
+    }
+    .btn-g:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgb(23 23 21 / 0.06); }
+  }
+  .btn-p:active, .btn-g:active { transform: none !important; box-shadow: none !important; }
 
   .btn-g {
     border: 1px solid var(--line);
@@ -807,11 +823,14 @@
   @media (max-width: 767px) { .tabs { gap: 22px; } .tabs > * { font-size: 13px; } }
 
   /* صفّ تدريب — بديل كروت الشبكة لقائمة «تدريباتك الجارية» (24.5) */
-  .course-row { display: grid; grid-template-columns: 62px minmax(0, 1fr) 150px 175px 44px; gap: 24px; align-items: center; padding: 25px 0; border-bottom: 1px solid var(--line); }
+  .course-row { display: grid; grid-template-columns: 62px minmax(0, 1fr) 150px 175px 44px; gap: 24px; align-items: center; padding: 25px 0; border-bottom: 1px solid var(--line); transition: background-color .2s var(--ease-standard); }
+  .course-row:hover { background: color-mix(in srgb, var(--soft) 55%, transparent); }
   .course-row h3 { margin-bottom: 6px; }
   .course-row .progress { margin-top: 10px; }
   .thumb { height: 62px; display: grid; place-items: center; background: var(--soft); border-radius: 8px; color: var(--ink); position: relative; }
   .thumb svg { width: 30px; height: 30px; }
+  /* لمسة الهويّة الصغيرة — نقطة حمراء واحدة على غلاف كلّ تدريب (حرفيًّا من المرجع) */
+  .course-row .thumb:after { content: ''; position: absolute; width: 6px; height: 6px; background: var(--brand); border-radius: 50%; bottom: 10px; left: 12px; }
   @media (max-width: 767px) {
     .course-row {
       margin: 14px 0; padding: 16px; display: grid; grid-template-columns: 44px minmax(0, 1fr) 32px;
@@ -836,7 +855,8 @@
 
   /* الرودماب — محطّات مرقّمة رأسيّة لصفحة المسار (path) */
   .roadmap { counter-reset: step; }
-  .road-row { position: relative; display: grid; grid-template-columns: 42px minmax(0, 1fr) auto; gap: 22px; padding: 23px 0; }
+  .road-row { position: relative; display: grid; grid-template-columns: 42px minmax(0, 1fr) auto; gap: 22px; padding: 23px 0; transition: background-color .2s var(--ease-standard); }
+  .road-row:not(.current):hover { background: color-mix(in srgb, var(--soft) 55%, transparent); }
   .road-row:not(:last-child):before { content: ''; position: absolute; inset-inline-start: 20px; top: 62px; bottom: -16px; border-inline-start: 1px dashed var(--line); }
   .road-row .step { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--line); display: grid; place-items: center; color: var(--muted); font-size: 14px; background: var(--surface); z-index: 1; }
   .road-row.current .step { color: var(--brand); border-color: var(--brand); }
@@ -856,7 +876,8 @@
   .video-placeholder .play { width: 64px; height: 64px; background: var(--brand); color: #fff; border: 0; border-radius: 50%; display: grid; place-items: center; margin-top: 24px; }
   .video-controls { position: absolute; bottom: 0; inset-inline: 0; background: #171715; padding: 8px 18px; display: flex; align-items: center; gap: 12px; font-size: 12px; color: #faf7f0; }
   .lesson-outline { border-inline-start: 1px solid var(--line); padding-inline-start: 24px; }
-  .lesson-outline a, .lesson-outline button, .lesson-outline > span { display: flex; width: 100%; gap: 10px; align-items: center; min-height: 66px; border: 0; background: transparent; text-align: start; color: var(--muted); font-size: 13px; }
+  .lesson-outline a, .lesson-outline button, .lesson-outline > span { display: flex; width: 100%; gap: 10px; align-items: center; min-height: 66px; border: 0; background: transparent; text-align: start; color: var(--muted); font-size: 13px; transition: color .16s var(--ease-standard); }
+  .lesson-outline a:hover, .lesson-outline button:hover { color: var(--ink); }
   .lesson-outline .active { color: var(--brand); font-weight: 600; }
 
   .option { display: flex; align-items: center; gap: 14px; border: 1px solid var(--line); padding: 15px 18px; border-radius: 8px; margin: 12px 0; font-weight: 400; font-size: 16px; background: var(--surface-raised); cursor: pointer; }
@@ -878,8 +899,11 @@
   .certificate small { font-size: 12px; color: var(--muted); }
   .shelf-item { padding-bottom: 22px; border-bottom: 1px solid var(--line); }
   .shelf-item h3 { margin: 16px 0 7px; }
-  .book-cover { height: 200px; position: relative; background: var(--soft); display: flex; align-items: center; justify-content: center; flex-direction: column; padding: 24px; gap: 18px; border-inline-start: 6px solid var(--line); }
+  .book-cover { height: 200px; position: relative; background: var(--soft); display: flex; align-items: center; justify-content: center; flex-direction: column; padding: 24px; gap: 18px; border-inline-start: 6px solid var(--line); transition: border-color .2s var(--ease-standard); }
   .book-cover .icon, .book-cover svg { width: 56px; height: 56px; }
+  /* لمسة الهويّة — قرص أحمر بزاوية الغلاف (حرفيًّا من المرجع)، وحدّه الجانبيّ يتلوّن بلون العلامة عند التحويم */
+  .book-cover:after { content: ''; position: absolute; left: 18px; top: 18px; background: var(--brand); width: 18px; height: 18px; border-radius: 50%; }
+  .shelf-item:hover .book-cover { border-inline-start-color: var(--brand); }
 
   /* رصيد المحفظة (wallet) */
   .wallet-balance { padding: 36px; background: var(--soft); border-radius: 12px; margin: 24px 0; }
@@ -899,7 +923,8 @@
   .badge-strip .locked { color: var(--muted); opacity: .65; }
   .badge-strip strong { font-size: 13px; }
   .badge-strip small { font-size: 12px; color: var(--muted); }
-  .achievement-row { display: grid; grid-template-columns: 44px minmax(0, 1fr) 230px; gap: 20px; align-items: center; padding: 21px 0; border-bottom: 1px solid var(--line); }
+  .achievement-row { display: grid; grid-template-columns: 44px minmax(0, 1fr) 230px; gap: 20px; align-items: center; padding: 21px 0; border-bottom: 1px solid var(--line); transition: background-color .2s var(--ease-standard); }
+  .achievement-row:hover { background: color-mix(in srgb, var(--soft) 55%, transparent); }
   @media (max-width: 767px) {
     .profile-head { align-items: flex-start; flex-wrap: wrap; gap: 18px; }
     .badge-strip { grid-template-columns: 1fr 1fr; gap: 20px; }
