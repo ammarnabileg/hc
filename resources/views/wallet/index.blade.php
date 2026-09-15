@@ -67,78 +67,86 @@
     {{-- ثلاثة تابات (19.2): رصيدي / المعاملات / المسحوبات --}}
     @include('wallet.components.tabs', ['current' => 'balance'])
 
-    {{-- الكارت العريض: عدد الكوينز بعدّاد تصاعديّ (19.2 · 2.17-أ) --}}
-    <section class="card p-5 md:p-6 animate-fadeup">
-        <div class="flex flex-wrap items-end justify-between gap-4">
-            <div>
-                <div class="text-sm" style="color: var(--text-muted)">{{ $main?->name_ar ?? setting('wallet.index.balance_label', 'الرصيد') }}</div>
-                {{-- ⭐ الرقم النهائيّ يظهر في كلّ الأحوال ولا يعلق العدّاد أبدًا (2.17-أ) --}}
-                <div class="mt-1 text-4xl md:text-5xl font-extrabold"
-                     data-count-to="{{ number_format($mainBalance, (int) ($main?->decimals ?? 0)) }}">{{ number_format($mainBalance, (int) ($main?->decimals ?? 0)) }}</div>
+    {{--
+      ⭐ بطاقة الرصيد العريضة — حرفيًّا من ملف الهويّة (`.wallet-balance`):
+      خلفيّة هادئة + رقمٌ ضخم على جهة، وأفعال الشحن/التحويل مكدّسة على الجهة
+      الأخرى (19.2 · 2.17-أ: الرقم النهائيّ ظاهرٌ دائمًا).
+    --}}
+    <div class="wallet-balance spread">
+        <div>
+            <span class="eyebrow">{{ $main?->name_ar ?? setting('wallet.index.balance_label', 'الرصيد') }}</span>
+            <div class="balance-number" data-count-to="{{ number_format($mainBalance, (int) ($main?->decimals ?? 0)) }}">
+                {{ number_format($mainBalance, (int) ($main?->decimals ?? 0)) }}
             </div>
-            <div class="flex items-center gap-2">
-                @can('topup.create')
-                    <a href="{{ route('wallet.topup') }}"
-                       class="btn hidden md:inline-flex items-center rounded-xl px-5 py-3 text-sm font-semibold motion-standard"
-                       style="background: var(--color-brand-500); color: #04201c">{{ setting('wallet.index.topup_action', 'اشحن رصيدك') }}</a>
-                @endcan
+        </div>
+        <div class="stack" style="gap: 12px">
+            @can('topup.create')
+                <a href="{{ route('wallet.topup') }}" class="btn btn-p inline-flex items-center gap-2">
+                    <x-icon name="wallet" size="16" /> {{ setting('wallet.index.topup_action', 'اشحن رصيدك') }}
+                </a>
+            @endcan
+            <div class="cluster">
                 @if ($canTransfer)
-                    <button type="button" data-modal-open="wallet-exchange"
-                            class="btn hidden md:inline-flex items-center rounded-xl px-5 py-3 text-sm font-semibold motion-standard"
-                            style="background: var(--surface-raised); color: var(--text)">{{ setting('wallet.index.exchange_action', 'تحويل') }}</button>
+                    <button type="button" data-modal-open="wallet-transfer" class="btn text">{{ setting('wallet.transfer.title', 'إرسال حوالة') }}</button>
+                    <button type="button" data-modal-open="wallet-exchange" class="btn text">{{ setting('wallet.exchange.title', 'تحويل العملة') }}</button>
+                @endif
+                @if ($canWithdraw)
+                    <button type="button" data-modal-open="wallet-withdraw" class="btn text">{{ setting('wallet.withdraw.title', 'سحب الأرباح') }}</button>
                 @endif
             </div>
         </div>
-    </section>
+    </div>
 
-    {{-- ثلاثة كروت ثانويّة كما ينصّ 19.2: التذاكر / XP / الساعات --}}
-    <section class="grid grid-cols-2 md:grid-cols-3 gap-3 mt-4">
+    {{-- ثلاثة عملات ثانويّة كما ينصّ 19.2: التذاكر / XP / الساعات — صفّ فواصل لا كروت --}}
+    <div class="grid3 mb-8">
         @foreach ($secondary as $currency)
-            <x-kpi
-                :label="$currency->name_ar"
-                :value="number_format($balances[$currency->id] ?? 0, (int) $currency->decimals)"
-                :icon="$currency->code === 'tickets' ? 'ticket' : ($currency->code === 'xp' ? 'xp' : 'clock')"
-                :hint="$currency->code === 'hours' ? setting('wallet.index.hours_hint', 'عملة جايّة قدّام — بنعرضها من دلوقتي.') : null" />
-        @endforeach
-    </section>
-
-    {{-- سكشن الأرباح: أربعة كروت + زرّ سحب (19.2) — 🔒 لمالك المنصّة وحده --}}
-    @if ($canEarnings && $earnings)
-        <section class="mt-5">
-            <div class="flex items-center justify-between gap-3 mb-3">
-                <h2 class="font-bold">{{ setting('wallet.index.earnings_title', 'أرباحي') }}</h2>
-                @if ($canWithdraw)
-                    <button type="button" data-modal-open="wallet-withdraw"
-                            class="btn rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
-                            style="background: var(--color-brand-500); color: #04201c">{{ setting('wallet.withdraw.title', 'سحب الأرباح') }}</button>
+            @php
+                $currencyIcon = $currency->code === 'tickets' ? 'ticket' : ($currency->code === 'xp' ? 'xp' : 'clock');
+            @endphp
+            <div class="divider-row">
+                <div class="kpi-label"><x-icon :name="$currencyIcon" size="16" /> {{ $currency->name_ar }}</div>
+                <div class="kpi-value">{{ number_format($balances[$currency->id] ?? 0, (int) $currency->decimals) }}</div>
+                @if ($currency->code === 'hours')
+                    <span class="small muted">{{ setting('wallet.index.hours_hint', 'عملة جايّة قدّام — بنعرضها من دلوقتي.') }}</span>
                 @endif
             </div>
+        @endforeach
+    </div>
 
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-                <x-kpi :label="setting('wallet.earnings.ready', 'جاهزة للسحب')" :value="'$'.$num($earnings['ready'])" icon="money" />
-                <x-kpi :label="setting('wallet.earnings.in_transit', 'قيد التحويل')" :value="'$'.$num($earnings['in_transit'])" icon="hourglass" />
-                <x-kpi :label="setting('wallet.earnings.received', 'مستلمة')" :value="'$'.$num($earnings['received'])" icon="check" />
-                <x-kpi :label="setting('wallet.earnings.total', 'إجماليّة')" :value="'$'.$num($earnings['total'])" icon="chart" />
+    {{-- سكشن الأرباح: أربعة أرقام + فعل نصّيّ (19.2) — 🔒 لمالك المنصّة وحده --}}
+    @if ($canEarnings && $earnings)
+        <section class="pt-4">
+            <div class="spread">
+                <h2>{{ setting('wallet.index.earnings_title', 'أرباحي') }}</h2>
+                @if ($canWithdraw)
+                    <button type="button" data-modal-open="wallet-withdraw" class="btn text inline-flex items-center gap-2">
+                        {{ setting('wallet.withdraw.title', 'سحب الأرباح') }} <x-icon name="left" size="16" />
+                    </button>
+                @endif
+            </div>
+            <div class="earnings">
+                <div><p class="small mb-2">{{ setting('wallet.earnings.ready', 'جاهزة للسحب') }}</p><strong>${{ $num($earnings['ready']) }}</strong></div>
+                <div><p class="small mb-2">{{ setting('wallet.earnings.in_transit', 'قيد التحويل') }}</p><strong>${{ $num($earnings['in_transit']) }}</strong></div>
+                <div><p class="small mb-2">{{ setting('wallet.earnings.received', 'مستلمة') }}</p><strong>${{ $num($earnings['received']) }}</strong></div>
+                <div><p class="small mb-2">{{ setting('wallet.earnings.total', 'إجماليّة') }}</p><strong>${{ $num($earnings['total']) }}</strong></div>
             </div>
         </section>
     @endif
 
-    {{-- آخر 5 حركات — والتفاصيل الكاملة في صفحة المعاملات --}}
-    <section class="card mt-5 p-4 md:p-5">
-        <div class="flex items-center justify-between gap-3 mb-3">
-            <h2 class="font-bold">{{ setting('wallet.index.recent_title', 'آخر الحركات') }}</h2>
-            <a class="text-sm underline" href="{{ route('wallet.transactions') }}">{{ setting('wallet.index.all_transactions', 'كلّ المعاملات') }}</a>
+    {{-- آخر الحركات — والتفاصيل الكاملة في صفحة المعاملات --}}
+    <section class="pt-4">
+        <div class="spread mb-3">
+            <h2>{{ setting('wallet.index.recent_title', 'آخر الحركات') }}</h2>
+            <a class="btn text" href="{{ route('wallet.transactions') }}">{{ setting('wallet.index.all_transactions', 'كلّ المعاملات') }}</a>
         </div>
 
         @forelse ($recent as $row)
-            <div class="flex items-center justify-between gap-3 py-3 {{ $loop->last ? '' : 'border-b' }}"
-                 style="border-color: var(--border)">
+            <div class="divider-row spread">
                 <div class="min-w-0">
                     <div class="text-sm font-semibold truncate">
                         {{ \App\Http\Controllers\Trainee\WalletController::sourceLabels()[$row->source] ?? $row->source }}
                     </div>
-                    <div class="text-xs mt-0.5" style="color: var(--text-muted)"
-                         title="{{ $row->created_at?->format('Y-m-d H:i') }}">
+                    <div class="small muted mt-0.5" title="{{ $row->created_at?->format('Y-m-d H:i') }}">
                         {{ $row->created_at?->diffForHumans() }} · {{ $row->currency?->name_ar }}
                     </div>
                 </div>

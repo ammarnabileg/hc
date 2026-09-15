@@ -4,9 +4,18 @@
   الشاشة يُقدَّم عليها. والشبكة عمودان على الموبايل (2.15-ج: صفّ قابل
   للتمرير الأفقيّ أو شبكة 2×2 — لا أربعة مضغوطة) وأربعة من `md` فأعلى.
 --}}
-<div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+{{-- شريط KPI مقسوم — حرفيًّا من ملف الهويّة (`.kpi-grid`)، بلا حدّ 4 هنا (10.0-أ) --}}
+<div class="kpi-grid" style="grid-template-columns: repeat(4, minmax(0, 1fr))">
     @foreach ($overview['kpis'] as $card)
-        <x-kpi :label="$card['label']" :value="$card['value']" :icon="$card['icon']" />
+        <div class="kpi">
+            <div class="kpi-label">
+                @if (is_string($card['icon']) && preg_match('/^[a-z][a-z0-9_-]*$/', $card['icon']))
+                    <x-icon :name="$card['icon']" size="18" />
+                @endif
+                {{ $card['label'] }}
+            </div>
+            <div class="kpi-value">{{ $card['value'] }}</div>
+        </div>
     @endforeach
 </div>
 

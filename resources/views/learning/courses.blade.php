@@ -101,10 +101,61 @@
                  :action="$storeUrl ? setting('learning.empty.courses_cta') : null"
                  :href="$storeUrl" />
     @else
-        {{-- كروت رأسيّة على الموبايل بلا تمرير أفقيّ (2.15-ج) --}}
-        <div class="grid gap-4 grid-cols-1 sm:grid-cols-2 xl:grid-cols-3">
-            @foreach ($cards as $card)
-                @include('learning.partials.course-card', ['card' => $card])
+        {{-- صفوف تدريبات — حرفيًّا من ملف الهويّة المرجعيّ (`courseRows()`) لا كروت شبكة --}}
+        <div class="spread mb-2">
+            <span class="small muted">{{ count($cards) }} {{ setting('learning.courses.count_label', 'تدريبات') }}</span>
+        </div>
+        <div class="stagger">
+            @foreach ($cards as $i => $card)
+                @php
+                    $summary = $card['summary'];
+                    $availability = $card['availability'];
+                    $open = $availability['open'];
+                    $statusLabel = [
+                        'not_started' => setting('learning.status.not_started'),
+                        'active' => setting('learning.status.active'),
+                        'completed' => setting('learning.status.completed'),
+                    ][$card['status']];
+                @endphp
+                <article class="course-row" style="--i: {{ $i }}">
+                    <div class="thumb"><x-icon :name="setting('learning.icon.course', 'course')" size="30" /></div>
+
+                    <div class="min-w-0">
+                        <h3 class="truncate">{{ $card['course']->name_ar }}</h3>
+                        @if ($summary['current_title'])
+                            <p class="small truncate">{{ $summary['section_title'] }} · {{ $summary['current_title'] }}</p>
+                        @endif
+                        <div class="small muted mt-2">
+                            {{ (int) $card['enrollment']->xp_earned }} {{ setting('learning.xp.suffix') }} · {{ $statusLabel }}
+                        </div>
+                    </div>
+
+                    <div class="course-progress">
+                        <div class="spread small mb-2">
+                            <span>{{ setting('dashboard.overview.progress_label', 'التقدم') }}</span>
+                            <b>{{ (int) $summary['percent'] }}%</b>
+                        </div>
+                        <div class="progress" role="progressbar" aria-valuenow="{{ (int) $summary['percent'] }}" aria-valuemin="0" aria-valuemax="100">
+                            <span style="--value: {{ (int) $summary['percent'] }}%"></span>
+                        </div>
+                    </div>
+
+                    <div class="course-status">
+                        @unless ($open)
+                            <x-state-badge :state="$availability['state']" :label="$availability['reason']" />
+                        @else
+                            <x-state-badge :state="$card['deadline']['state']" :label="$card['deadline']['label']" />
+                        @endunless
+                        @if ($card['exam']['exists'])
+                            <p class="small mt-2"><x-state-badge :state="$card['exam']['state']" :label="$card['exam']['label']" /></p>
+                        @endif
+                    </div>
+
+                    <a href="{{ route('learning.course', $card['course']) }}" class="icon-button course-open"
+                       aria-label="{{ $open ? setting('learning.cta.continue') : setting('learning.cta.view_state') }} {{ $card['course']->name_ar }}">
+                        <x-icon :name="$open ? 'left' : 'lock'" size="18" />
+                    </a>
+                </article>
             @endforeach
         </div>
     @endif

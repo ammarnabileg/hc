@@ -8,32 +8,61 @@
     $certificatesUrl = \Illuminate\Support\Facades\Route::has('learning.certificates') ? route('learning.certificates') : null;
 @endphp
 
-@section('content')
-    <x-page-header :title="$greeting" :subtitle="setting('dashboard.page.subtitle', 'أين إنت في تدريباتك دلوقتي')">
-        <x-slot:action>
-            {{-- فعل رئيسيّ واحد بارز، والباقي في «⋯» (2.15-أ-2) --}}
-            @if ($nextLesson)
-                <a href="{{ $nextLesson['url'] }}"
-                   class="btn hidden md:inline-flex items-center justify-center rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
-                   style="background: var(--color-brand-500); color: #04201c">{{ $primaryLabel }}</a>
-            @endif
+@php
+    /*
+     | ⭐ رأس الصفحة تحوّل إلى Hero حرفيًّا من ملف الهويّة المرجعيّ: صورة محفورة
+     | خافتة + عنوان علويّ + H1 بالتحيّة + سطر فرعيّ + فعل رئيسيّ واحد. والزيادة
+     | التي لا يملكها المرجع (تثبيت الصفحة · وضع متقدّم · قائمة «⋯») بقيت بنفس
+     | وظيفتها لكن بأسلوبه: شريط أدوات رفيع من `.icon-button`/`.hc-switch` فوق
+     | الـHero لا هيدر مستقلّ يكسر تركيب الصفحة (تعليمات المالك المباشرة).
+     */
+    $pinRoute = request()->route()?->getName();
+    $pinnedRoutes = collect(auth()->user()?->pinned_pages ?? [])->pluck('route')->all();
+    $isPinned = $pinRoute && in_array($pinRoute, $pinnedRoutes, true);
+@endphp
 
+@section('content')
+    <div class="spread mb-2" style="gap: 8px">
+        <div class="cluster" style="gap: 4px">
+            @if ($pinRoute && \Illuminate\Support\Facades\Route::has($pinRoute))
+                <button type="button" data-pin-toggle="{{ $pinRoute }}" data-pin-label="{{ $greeting }}"
+                        data-pinned="{{ $isPinned ? '1' : '0' }}" class="icon-button"
+                        aria-pressed="{{ $isPinned ? 'true' : 'false' }}"
+                        style="color: {{ $isPinned ? 'var(--color-brand-500)' : 'var(--text-muted)' }}"
+                        aria-label="{{ $isPinned ? setting('ux.page_header.aria_label_expr_1', 'فكّ تثبيت الصفحة') : setting('ux.page_header.aria_label_expr_2', 'ثبّت الصفحة أعلى السايد بار') }}">
+                    <x-icon name="pin" size="18" />
+                </button>
+            @endif
             @if ($storeUrl || $certificatesUrl)
                 <details class="relative">
-                    <summary class="list-none cursor-pointer rounded-xl px-3 py-2 text-sm select-none"
-                             style="background: var(--surface-raised)" aria-label="{{ setting('dashboard.page.more_actions_aria', 'أفعال أخرى') }}">⋯</summary>
-                    <div class="card absolute end-0 mt-2 w-48 p-1 z-40">
+                    <summary class="icon-button list-none cursor-pointer select-none" aria-label="{{ setting('dashboard.page.more_actions_aria', 'أفعال أخرى') }}"><x-icon name="more" size="18" /></summary>
+                    <div class="dropdown">
                         @if ($storeUrl)
-                            <a href="{{ $storeUrl }}" class="block rounded-lg px-3 py-2 text-sm motion-standard">{{ setting('dashboard.page.more_store', 'تصفّح المتجر') }}</a>
+                            <a href="{{ $storeUrl }}">{{ setting('dashboard.page.more_store', 'تصفّح المتجر') }}</a>
                         @endif
                         @if ($certificatesUrl)
-                            <a href="{{ $certificatesUrl }}" class="block rounded-lg px-3 py-2 text-sm motion-standard">{{ setting('dashboard.page.more_certificates', 'شهاداتي') }}</a>
+                            <a href="{{ $certificatesUrl }}">{{ setting('dashboard.page.more_certificates', 'شهاداتي') }}</a>
                         @endif
                     </div>
                 </details>
             @endif
-        </x-slot:action>
-    </x-page-header>
+        </div>
+        <x-advanced-toggle />
+    </div>
+
+    <section class="hero">
+        <img class="hero-art" src="{{ asset('images/identity/editorial-engraving.webp') }}" alt="">
+        <div class="hero-copy">
+            <span class="eyebrow">{{ setting('dashboard.hero.eyebrow', 'المعرفة تبدأ بخطوة') }}</span>
+            <h1>{{ $greeting }}</h1>
+            <p>{{ setting('dashboard.page.subtitle', 'أين إنت في تدريباتك دلوقتي') }}</p>
+            @if ($nextLesson)
+                <a href="{{ $nextLesson['url'] }}" class="btn btn-p inline-flex items-center gap-2">
+                    {{ $primaryLabel }} <x-icon name="left" size="16" />
+                </a>
+            @endif
+        </div>
+    </section>
 
     @if (! $hasEnrollments)
         {{-- الحالة الفارغة: سطر واحد + زرّ واحد، تشجّع ولا تعاتب (2.15-د · 2.17-ج) --}}

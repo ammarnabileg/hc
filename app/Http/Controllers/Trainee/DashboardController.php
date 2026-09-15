@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Trainee;
 use App\Http\Controllers\Controller;
 use App\Services\Dashboard\DashboardService;
 use App\Services\Dashboard\DashboardStatsService;
+use App\Services\Learning\DeadlineService;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -17,6 +18,7 @@ class DashboardController extends Controller
     public function __construct(
         private readonly DashboardService $dashboard,
         private readonly DashboardStatsService $stats,
+        private readonly DeadlineService $deadlines,
     ) {}
 
     public function index(Request $request): View
@@ -42,11 +44,20 @@ class DashboardController extends Controller
         $data += match ($tab) {
             'details' => ['details' => $this->dashboard->details($user)],
             'stats' => $this->statsData($request, $user),
-            default => [
-                'kpis' => $this->dashboard->kpis($user),
-                'courses' => $this->dashboard->activeCourses($user),
-                'deadlines' => $this->dashboard->upcomingDeadlines($user),
-            ],
+            default => (function () use ($user) {
+                $deadlines = $this->dashboard->upcomingDeadlines($user);
+
+                return [
+                    'kpis' => $this->dashboard->kpis($user),
+                    'courses' => $this->dashboard->activeCourses($user),
+                    'deadlines' => $deadlines,
+                    // ⭐ الشبح الحقيقيّ (Ghost Timer illustration — 6 · 24.5) بجوار
+                    // أقرب موعد، بالشكل نفسه المستخدم في صفحة التدريب — مصدرٌ واحد
+                    'ghostDeadline' => $deadlines->isNotEmpty()
+                        ? $this->deadlines->forEnrollment($deadlines->first()['enrollment'])
+                        : null,
+                ];
+            })(),
         };
 
         return view('dashboard.index', $data);

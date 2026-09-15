@@ -28,23 +28,17 @@
     @include('profile.partials.share')
 
     {{--
-      تابات Sticky (2.10.1-14): نظرة عامّة · الإنجازات · الشهادات · خبراتي —
+      تابات بخطٍّ سفليّ — حرفيًّا من ملف الهويّة (`.tabs`، `<x-tabs>`):
+      نظرة عامّة · الإنجازات · الشهادات · خبراتي —
       ⭐ ثمّ تابات التطوّع (13.4-م) يحقنها **مجال التطوّع** في هذا الستاك،
       فترتيبها بعد الأربعة دائمًا وبلا أن يعرف بها غير المتطوّع (10.0-د).
     --}}
-    <div class="sticky-bar -mx-4 md:mx-0 px-4 md:px-0 py-2 mb-4" style="background: var(--surface)">
-        <div class="flex gap-2 min-w-0 overflow-x-auto no-scrollbar">
-            @foreach ($tabs as $item)
-                <a href="{{ $isOwner ? route('profile.me', ['tab' => $item['key']]) : route('u.profile', ['code' => $owner->code, 'tab' => $item['key']]) }}"
-                   class="shrink-0 rounded-full px-4 py-2 text-sm motion-standard"
-                   style="{{ $tab === $item['key']
-                        ? 'background: var(--color-brand-500); color:#04201c; font-weight:700'
-                        : 'background: var(--surface-raised); color: var(--text)' }}">{{ $item['label'] }}</a>
-            @endforeach
-
-            @stack('volunteer_profile_tabs')
-        </div>
-    </div>
+    <x-tabs :tabs="collect($tabs)->map(fn ($item) => [
+                'key' => $item['key'],
+                'label' => $item['label'],
+                'url' => $isOwner ? route('profile.me', ['tab' => $item['key']]) : route('u.profile', ['code' => $owner->code, 'tab' => $item['key']]),
+            ])->all()" :current="$tab" />
+    @stack('volunteer_profile_tabs')
 
     {{-- تحميل كسول: التاب المفتوح وحده هو المحمَّل (2.15-د) --}}
     @switch($tab)

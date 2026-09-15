@@ -1,24 +1,36 @@
-{{-- نظرة عامّة: كروت KPI ثمّ كروت التدريبات الجارية ثمّ أقرب المواعيد (24.5) --}}
+{{--
+  نظرة عامّة — تقسيمة حرفيّة من ملف الهويّة المرجعيّ (`dashboard()` في app.js):
+  شريط KPI صفٌّ واحد مقسوم ← صفوف تدريباتٍ جارية (لا كروت شبكة) ← قسم
+  «أقرب المواعيد» بجوار الشبح (Ghost Timer) في عمودين. لا تركيب من عندنا.
+--}}
 
-@php
-    // الشبكة تتبع عدد الكروت الفعليّ — والحدّ من اللوحة يقصّ (2.15-أ-3 · 14-أ)
-    $kpiColumns = count($kpis) >= 6 ? 'lg:grid-cols-3' : 'lg:grid-cols-4';
-@endphp
-
-{{-- على الموبايل: صفّ متمرّر أفقيًّا بدل الكروت مضغوطة (2.15-ج) --}}
-<div class="flex gap-3 min-w-0 overflow-x-auto no-scrollbar pb-1 sm:grid sm:grid-cols-2 {{ $kpiColumns }} sm:overflow-visible">
+<div class="kpi-grid">
     @foreach ($kpis as $kpi)
-        <div class="min-w-[13rem] sm:min-w-0">
-            <x-kpi :label="$kpi['label']" :value="$kpi['value']" :icon="$kpi['icon']" :hint="$kpi['hint']" :state="$kpi['state']" />
+        <div class="kpi">
+            <div class="kpi-label">
+                @if (is_string($kpi['icon']) && preg_match('/^[a-z][a-z0-9_-]*$/', $kpi['icon']))
+                    <x-icon :name="$kpi['icon']" size="18" />
+                @endif
+                {{ $kpi['label'] }}
+            </div>
+            <div class="kpi-value" data-count-to="{{ $kpi['value'] }}">{{ $kpi['value'] }}</div>
+            @if ($kpi['hint'])
+                <span class="small muted">{{ $kpi['hint'] }}</span>
+            @endif
+            @if ($kpi['state'])
+                <div class="mt-2"><x-state-badge :state="$kpi['state']" /></div>
+            @endif
         </div>
     @endforeach
 </div>
 
-<section class="mt-6">
-    <div class="flex items-baseline justify-between gap-2 mb-3">
-        <h2 class="font-bold">{{ setting('dashboard.overview.active_courses_title', 'تدريباتي الجارية') }}</h2>
+<section class="mt-8">
+    <div class="spread mb-4">
+        <h2>{{ setting('dashboard.overview.active_courses_title', 'تدريباتي الجارية') }}</h2>
         @if (\Illuminate\Support\Facades\Route::has('learning.courses'))
-            <a href="{{ route('learning.courses') }}" class="text-xs hover:underline" style="color: var(--color-brand-500)">{{ setting('dashboard.overview.all_courses_link', 'كلّ تدريباتي') }}</a>
+            <a href="{{ route('learning.courses') }}" class="btn text">
+                {{ setting('dashboard.overview.all_courses_link', 'كلّ تدريباتي') }} <x-icon name="left" size="16" />
+            </a>
         @endif
     </div>
 
@@ -27,33 +39,79 @@
                  :action="setting('dashboard.overview.courses_empty_action', 'تصفّح المتجر')"
                  :href="\Illuminate\Support\Facades\Route::has('store.index') ? route('store.index') : url('/')" />
     @else
-        <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-            @foreach ($courses as $row)
-                @include('dashboard.components.course-card', ['row' => $row])
+        <div class="stagger">
+            @foreach ($courses as $i => $row)
+                @php $isLocked = false; @endphp
+                <article class="course-row" style="--i: {{ $i }}">
+                    <div class="thumb"><x-icon name="course" size="30" /></div>
+
+                    <div class="min-w-0">
+                        <h3 class="truncate">{{ $row['course']->name_ar }}</h3>
+                        <p class="small truncate">
+                            @if ($row['lesson_title'])
+                                {{ $row['section_title'] }} ← {{ $row['lesson_title'] }}
+                            @else
+                                {{ setting('dashboard.course_card.all_lessons_done', 'خلّصت كلّ الدروس') }}
+                            @endif
+                        </p>
+                        <div class="small muted mt-2">
+                            {{ number_format($row['xp_earned']) }} XP ·
+                            {{ str_replace([':done', ':total'], [$row['completed_lessons'], $row['total_lessons']], (string) setting('dashboard.course_card.lessons_progress', ':done/:total درس')) }}
+                        </div>
+                    </div>
+
+                    <div class="course-progress">
+                        <div class="spread small mb-2">
+                            <span>{{ setting('dashboard.overview.progress_label', 'التقدم') }}</span>
+                            <b>{{ (int) $row['percent'] }}%</b>
+                        </div>
+                        <div class="progress" role="progressbar" aria-valuenow="{{ (int) $row['percent'] }}" aria-valuemin="0" aria-valuemax="100">
+                            <span style="--value: {{ (int) $row['percent'] }}%"></span>
+                        </div>
+                    </div>
+
+                    <div class="course-status">
+                        <x-state-badge :state="$row['timer']->state" :label="$row['timer']->label" data-countdown="{{ $row['timer']->deadline?->toIso8601String() }}" />
+                        <p class="small mt-2">
+                            <x-state-badge :state="$row['exam']['state']" :label="$row['exam']['label']" />
+                        </p>
+                    </div>
+
+                    <a href="{{ $row['next_lesson']['url'] ?? $row['course_url'] }}" class="icon-button course-open"
+                       aria-label="{{ setting('dashboard.course_card.continue_action', 'إكمال') }} {{ $row['course']->name_ar }}">
+                        <x-icon name="left" size="18" />
+                    </a>
+                </article>
             @endforeach
         </div>
     @endif
 </section>
 
-<section class="mt-6">
-    <h2 class="font-bold mb-3">{{ setting('dashboard.overview.deadlines_title', 'أقرب المواعيد') }}</h2>
+<section class="mt-8">
+    <div class="spread mb-4">
+        <h2>{{ setting('dashboard.overview.deadlines_title', 'أقرب المواعيد') }}</h2>
+        <span class="small muted">{{ setting('dashboard.overview.deadlines_hint', 'حسب توقيتك المحلي') }}</span>
+    </div>
 
     @if ($deadlines->isEmpty())
-        <div class="card p-5 text-sm" style="color: var(--text-muted)">{{ setting('dashboard.overview.deadlines_empty', 'مفيش موعد قريب — خُد وقتك.') }}</div>
+        <div class="panel small muted">{{ setting('dashboard.overview.deadlines_empty', 'مفيش موعد قريب — خُد وقتك.') }}</div>
     @else
-        <ul class="card divide-y" style="border-color: var(--border)">
-            @foreach ($deadlines as $row)
-                <li class="flex flex-wrap items-center gap-3 p-4" style="border-color: var(--border)">
-                    <span class="min-w-0 flex-1 truncate text-sm font-semibold">{{ $row['course']->name_ar }}</span>
-
-                    {{-- عدّاد ملوّن برمزه، ويحدّث نفسه حيًّا مع بقاء النصّ الخادميّ بديلًا آمنًا (2.17-أ) --}}
-                    <x-state-badge :state="$row['timer']->state"
-                                   :label="$row['timer']->label"
-                                   data-countdown="{{ $row['timer']->deadline?->toIso8601String() }}" />
-
-                    <span class="text-xs" style="color: var(--text-muted)">{{ str_replace(':percent', $row['percent'], (string) setting('dashboard.overview.deadline_percent', ':percent% مكتمل')) }}</span>
-                </li>
-            @endforeach
-        </ul>
+        <div class="grid2">
+            <div class="stack" style="gap: 16px">
+                @foreach ($deadlines as $row)
+                    <div class="cluster">
+                        <x-icon name="calendar" size="20" />
+                        <div class="min-w-0">
+                            <h3 class="truncate">{{ $row['course']->name_ar }}</h3>
+                            <p class="small">{{ str_replace(':percent', $row['percent'], (string) setting('dashboard.overview.deadline_percent', ':percent% مكتمل')) }}</p>
+                        </div>
+                        <span class="small muted" style="margin-inline-start: auto" data-countdown="{{ $row['timer']->deadline?->toIso8601String() }}">{{ $row['timer']->label }}</span>
+                    </div>
+                @endforeach
+            </div>
+            <div>
+                @include('learning.partials.ghost-timer', ['deadline' => $ghostDeadline])
+            </div>
+        </div>
     @endif
 </section>
