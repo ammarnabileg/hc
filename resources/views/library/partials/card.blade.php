@@ -1,50 +1,46 @@
 @php
-    /** كارت الرفّ (20.1): ثامبنيل · أيقونة النوع · الاسم · زرّ رئيسيّ واحد · حالة الإتاحة */
+    /**
+     * كارت الرفّ (20.1) — حرفيًّا من ملف الهويّة (`.shelf-item`/`.book-cover`):
+     * غلافٌ ملوّنٌ بشريطٍ جانبيّ + أيقونة النوع، ثمّ الاسم، ثمّ حالة الإتاحة وفعلٌ واحد.
+     */
     $blocked = ! $item['available'];
 @endphp
 
-<article class="card p-3 flex flex-col gap-2 animate-fadeup">
-    <div class="relative rounded-xl overflow-hidden aspect-4/3" style="background: var(--surface-sunken)">
+<article class="shelf-item" data-library-name="{{ $item['title'] }}">
+    <div class="book-cover">
         @if ($item['thumb'])
-            <img src="{{ $item['thumb'] }}" alt="{{ $item['title'] }}" loading="lazy" class="w-full h-full object-cover">
+            <img src="{{ $item['thumb'] }}" alt="{{ $item['title'] }}" loading="lazy"
+                 style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover">
         @else
-            <div class="w-full h-full flex items-center justify-center" style="color: var(--text-muted)">
-                @include('library.components.type-icon', ['type' => $item['icon'], 'size' => 34])
-            </div>
+            @include('library.components.type-icon', ['type' => $item['icon'], 'size' => 56])
         @endif
-
-        <span class="absolute top-2 start-2 rounded-full p-1.5 flex items-center"
-              style="background: color-mix(in srgb, var(--surface) 80%, transparent); color: var(--color-brand-400)"
-              title="{{ $item['icon'] }}">
-            @include('library.components.type-icon', ['type' => $item['icon'], 'size' => 16, 'label' => $item['icon']])
-        </span>
+        <h3>{{ $item['title'] }}</h3>
+        <span class="small muted">{{ $item['icon'] }}</span>
     </div>
 
-    <h3 class="text-sm font-semibold leading-6 line-clamp-2" title="{{ $item['title'] }}">{{ $item['title'] }}</h3>
-
-    <div class="flex items-center justify-between gap-2">
-        <x-state-badge :state="$item['availability']['state']" :label="$item['availability']['label']" />
-
+    <div class="spread mt-4">
+        <h3 class="truncate">{{ $item['title'] }}</h3>
         @if ($item['entitlement_id'])
             {{-- التفاصيل في بوب-أب لا صفحة جديدة (2.15-أ-6) --}}
-            <button type="button" class="text-xs rounded-lg px-2 py-1 motion-standard"
-                    style="background: var(--surface-sunken); color: var(--text-muted)"
-                    data-modal-open="library-item"
+            <button type="button" class="icon-button" data-modal-open="library-item"
                     data-item-url="{{ route('library.item', $item['entitlement_id']) }}"
-                    aria-label="{{ setting('library.card.more_label', 'تفاصيل العنصر') }}">⋯</button>
+                    aria-label="{{ setting('library.card.more_label', 'تفاصيل العنصر') }}">
+                <x-icon name="more" size="16" />
+            </button>
         @endif
     </div>
 
-    @if ($blocked)
-        <span class="text-xs rounded-xl px-3 py-2 text-center" style="background: var(--surface-sunken); color: var(--text-muted)">
-            {{ $item['availability']['label'] }}
-        </span>
-    @else
-        <a href="{{ $item['action_url'] }}"
-           @if ($item['icon'] === 'video' || $item['icon'] === 'audio' || $item['action_label'] === setting('library.action.download_label', 'تحميل')) target="_blank" rel="noopener" @endif
-           class="btn flex items-center justify-center rounded-xl px-3 py-2 text-sm font-semibold motion-standard"
-           style="background: var(--color-brand-500); color: #04201c">{{ $item['action_label'] }}</a>
-    @endif
+    <div class="spread mt-2">
+        <x-state-badge :state="$item['availability']['state']" :label="$item['availability']['label']" />
+
+        @unless ($blocked)
+            <a href="{{ $item['action_url'] }}"
+               @if ($item['icon'] === 'video' || $item['icon'] === 'audio' || $item['action_label'] === setting('library.action.download_label', 'تحميل')) target="_blank" rel="noopener" @endif
+               class="btn text inline-flex items-center gap-1">
+                {{ $item['action_label'] }} <x-icon name="left" size="14" />
+            </a>
+        @endunless
+    </div>
 
     {{-- مشاركة كصورة بعلامة مائيّة + رابط ريفيرال (20.4) — يُخفى لمن لا يملك الصلاحيّة --}}
     <x-export-image kind="card" :title="$item['title']"

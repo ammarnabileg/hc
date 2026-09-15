@@ -96,7 +96,7 @@
 
                 <section class="mb-5">
                     <h2 class="text-sm font-bold mb-2">{{ $tabLabels[$shelfTab] }}</h2>
-                    <div class="grid gap-3 grid-cols-2 md:grid-cols-3 xl:grid-cols-4">
+                    <div class="grid3">
                         @foreach ($shelfItems as $item)
                             @include($shelfTab === 'certificates' ? 'library.partials.certificate-badge' : 'library.partials.card', ['item' => $item])
                         @endforeach
@@ -105,7 +105,7 @@
             @endforeach
         @else
             {{-- تاب نوعٍ واحد: شبكة مرنة بلا تمرير أفقيّ على الموبايل (2.15-ج) --}}
-            <div class="grid gap-3 grid-cols-2 md:grid-cols-3 xl:grid-cols-4">
+            <div class="grid3">
                 @foreach ($items as $item)
                     @include($tab === 'certificates' ? 'library.partials.certificate-badge' : 'library.partials.card', ['item' => $item])
                 @endforeach
