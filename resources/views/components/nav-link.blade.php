@@ -41,7 +41,9 @@
        'min-block-size: var(--touch-min, 44px)',
    ])
    @if ($active) aria-current="page" @endif>
-    <span class="w-5 text-center shrink-0">{{ $icon }}</span>
+    @if ($icon)
+        <span class="w-5 text-center shrink-0 inline-flex items-center justify-center"><x-icon :name="$icon" size="20" /></span>
+    @endif
     <span class="flex-1 truncate nav-item-label">{{ $label }}</span>
     @if ((int) $badge > 0)
         <span class="text-xs rounded-full px-2 py-0.5 nav-item-label"

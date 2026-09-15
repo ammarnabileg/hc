@@ -138,66 +138,66 @@
         <nav class="space-y-1">
             {{-- 1) نظرة عامّة --}}
             @if ($overviewItems)
-                <x-nav-group :label="setting('nav.volunteer.group_overview', 'نظرة عامّة')" icon="🏠" :items="$overviewItems" />
+                <x-nav-group :label="setting('nav.volunteer.group_overview', 'نظرة عامّة')" icon="home" :items="$overviewItems" />
             @endif
 
             {{-- 2) المهام --}}
             @if ($taskItems)
-                <x-nav-group :label="setting('nav.volunteer.group_tasks', 'المهام')" icon="✅" :items="$taskItems" />
+                <x-nav-group :label="setting('nav.volunteer.group_tasks', 'المهام')" icon="task" :items="$taskItems" />
             @endif
 
             {{-- 3) المشاريع والأهداف --}}
             @if ($goalItems)
-                <x-nav-group :label="setting('nav.volunteer.group_goals', 'المشاريع والأهداف')" icon="🎯" :items="$goalItems" />
+                <x-nav-group :label="setting('nav.volunteer.group_goals', 'المشاريع والأهداف')" icon="goal" :items="$goalItems" />
             @endif
 
             {{-- 4) الأداء --}}
             @if ($performanceItems)
-                <x-nav-group :label="setting('nav.volunteer.group_performance', 'الأداء')" icon="📈" :items="$performanceItems" />
+                <x-nav-group :label="setting('nav.volunteer.group_performance', 'الأداء')" icon="chart" :items="$performanceItems" />
             @endif
 
             {{-- 5) الاجتماعات --}}
             @if ($meetingItems)
-                <x-nav-group :label="setting('nav.volunteer.group_meetings', 'الاجتماعات')" icon="🗓️" :items="$meetingItems" />
+                <x-nav-group :label="setting('nav.volunteer.group_meetings', 'الاجتماعات')" icon="calendar" :items="$meetingItems" />
             @endif
 
             {{-- 6) المعاملات --}}
             @if ($transactionItems)
-                <x-nav-group :label="setting('nav.volunteer.group_transactions', 'المعاملات')" icon="💳" :items="$transactionItems" />
+                <x-nav-group :label="setting('nav.volunteer.group_transactions', 'المعاملات')" icon="card" :items="$transactionItems" />
             @endif
 
             {{-- 7) قسمي --}}
             @if ($departmentItems)
-                <x-nav-group :label="setting('nav.volunteer.group_department', 'قسمي')" icon="🏛️" :items="$departmentItems" />
+                <x-nav-group :label="setting('nav.volunteer.group_department', 'قسمي')" icon="entity" :items="$departmentItems" />
             @endif
 
             {{-- 8) التصعيدات — لمن تحته أعضاء --}}
             @if ($escalationItems)
-                <x-nav-group :label="setting('nav.volunteer.group_escalations', 'التصعيدات')" icon="⬆️" :items="$escalationItems" />
+                <x-nav-group :label="setting('nav.volunteer.group_escalations', 'التصعيدات')" icon="escalation" :items="$escalationItems" />
             @endif
 
             {{-- 9) الأكاديمية --}}
             @if ($academyItems)
-                <x-nav-group :label="setting('nav.volunteer.group_academy', 'الأكاديمية')" icon="🎓" :items="$academyItems" />
+                <x-nav-group :label="setting('nav.volunteer.group_academy', 'الأكاديمية')" icon="training" :items="$academyItems" />
             @endif
 
             {{-- 10) المكتبة الداخليّة — رابط مفرد بلا شاشات داخليّة --}}
             @can('internal_library.list')
-                <x-nav-link route="volunteer.library" :label="setting('nav.volunteer.item_library', 'المكتبة الداخليّة')" icon="📚" />
+                <x-nav-link route="volunteer.library" :label="setting('nav.volunteer.item_library', 'المكتبة الداخليّة')" icon="library" />
             @endcan
 
             {{-- 11) التقدير --}}
             @if ($recognitionItems)
-                <x-nav-group :label="setting('nav.volunteer.group_recognition', 'التقدير')" icon="💛" :items="$recognitionItems" />
+                <x-nav-group :label="setting('nav.volunteer.group_recognition', 'التقدير')" icon="kudos" :items="$recognitionItems" />
             @endif
 
             {{-- 12) التوظيف — لفريق التوظيف --}}
             @if ($recruitmentItems)
-                <x-nav-group :label="setting('nav.volunteer.group_recruitment', 'التوظيف')" icon="🧑‍💼" :items="$recruitmentItems" />
+                <x-nav-group :label="setting('nav.volunteer.group_recruitment', 'التوظيف')" icon="placement" :items="$recruitmentItems" />
             @endif
 
             {{-- 13) إشعارات التطوّع — شخصيّة، وتظهر أيضًا كتاب في جرس الهيدر (2.8) --}}
-            <x-nav-link route="volunteer.notifications" :label="setting('nav.volunteer.item_notifications', 'إشعارات التطوّع')" icon="🔔" :badge="$volunteerUnread" />
+            <x-nav-link route="volunteer.notifications" :label="setting('nav.volunteer.item_notifications', 'إشعارات التطوّع')" icon="bell" :badge="$volunteerUnread" />
         </nav>
 
         {{-- الرجوع لطبقة المتدرّب — بابٌ واحد واضح لا قائمة --}}
@@ -205,7 +205,7 @@
            title="{{ setting('nav.volunteer.back_to_dashboard', 'رجوع للرئيسيّة') }}"
            class="nav-compact-row flex items-center gap-2 rounded-xl px-3 py-2 text-sm motion-standard"
            style="color: var(--text-muted)">
-            <span class="w-5 text-center shrink-0" aria-hidden="true">‹</span>
+            <span class="w-5 text-center shrink-0 inline-flex items-center justify-center" aria-hidden="true"><x-icon name="right" size="20" /></span>
             <span class="nav-item-label">{{ setting('nav.volunteer.back_to_dashboard', 'رجوع للرئيسيّة') }}</span>
         </a>
     </div>

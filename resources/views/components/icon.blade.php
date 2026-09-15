@@ -20,11 +20,11 @@
         'course' => '<path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H11v16H5.5A1.5 1.5 0 0 1 4 18.5z"/><path d="M20 5.5A1.5 1.5 0 0 0 18.5 4H13v16h5.5a1.5 1.5 0 0 0 1.5-1.5z"/>',
         'lesson' => '<rect x="3" y="5" width="18" height="12" rx="2"/><path d="m10.5 8.5 4 2.5-4 2.5zM8 20h8"/>',
         'video' => '<rect x="3" y="6" width="13" height="12" rx="2"/><path d="m16 10 5-3v10l-5-3z"/>',
-        'document' => '<path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4M9 12h6M9 16h4"/>',
+        'document' => '<path d="M4 2h10l6 6v14H4zM14 2v6h6M8 12h8m-8 4h6"/>', // حرفيًّا من المرجع (file)
         'article' => '<path d="M5 4h11l3 3v13H5z"/><path d="M8 10h8M8 14h8M8 18h5"/>',
         'path' => '<path d="M6 4v6a3 3 0 0 0 3 3h6a3 3 0 0 1 3 3v4"/><circle cx="6" cy="4" r="1.6"/><circle cx="18" cy="20" r="1.6"/>',
         'exam' => '<path d="M6 3h9l4 4v14H6z"/><path d="M15 3v4h4"/><path d="m9.5 13.5 1.8 1.8 3.5-3.6"/>',
-        'library' => '<path d="M4 5h5v15H4zM10 5h4v15h-4z"/><path d="m16 6 4 1-3 13-4-1z"/>',
+        'library' => '<path d="M3 3h4v18H3zM10 3h4v18h-4zM17 4l4-1 3 17-4 1z"/>', // حرفيًّا من المرجع
         'note' => '<path d="M5 4h11l3 3v13H5z"/><path d="M9 11h6M9 15h4"/>',
 
         // ---------------------------------------------- التطوّع والتنظيم
@@ -41,7 +41,7 @@
         'training' => '<path d="M12 3 3 8l9 5 9-5z"/><path d="M6.5 10.5V15c0 1.5 2.6 3 5.5 3s5.5-1.5 5.5-3v-4.5"/>',
 
         // ---------------------------------------------- المال والمعاملات
-        'wallet' => '<path d="M3 8a2 2 0 0 1 2-2h13a1 1 0 0 1 1 1v2"/><rect x="3" y="8" width="18" height="11" rx="2"/><path d="M16 13.5h2.5"/>',
+        'wallet' => '<path d="M3 6h17v15H3zM3 6V3h14v3M20 11h-6v5h6M16 13h1"/>', // حرفيًّا من المرجع
         'transaction' => '<path d="M4 8h13l-3-3M20 16H7l3 3"/>',
         'money' => '<circle cx="12" cy="12" r="8"/><path d="M12 7v10M14.5 9.5A2.5 2.5 0 0 0 12 8h-.5a2 2 0 0 0 0 4h1a2 2 0 0 1 0 4H12a2.5 2.5 0 0 1-2.5-1.5"/>',
         'card' => '<rect x="3" y="6" width="18" height="12" rx="2"/><path d="M3 10h18M6.5 14.5h3"/>',
@@ -53,7 +53,7 @@
 
         // ---------------------------------------------- التلعيب والشرف
         'xp' => '<path d="M12 3.5 14.4 9l6 .5-4.6 3.9 1.4 5.9L12 16.2 6.8 19.3l1.4-5.9L3.6 9.5 9.6 9z"/>',
-        'badge' => '<circle cx="12" cy="9" r="5"/><path d="m8.5 13.5-1 7.5 4.5-2.5 4.5 2.5-1-7.5"/>',
+        'badge' => '<path d="M8 14 5 22l7-3 7 3-3-8M19 9a7 7 0 1 1-14 0 7 7 0 0 1 14 0"/>', // حرفيًّا من المرجع (award)
         'trophy' => '<path d="M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M7 6H4v1a3 3 0 0 0 3 3M17 6h3v1a3 3 0 0 1-3 3M10 19h4M12 14v5M8 21h8"/>',
         'crown' => '<path d="M4 17h16M4 17 3 8l5 3.5L12 5l4 6.5L21 8l-1 9z"/>',
         'certificate' => '<rect x="3" y="4" width="18" height="12" rx="2"/><path d="M7 8h10M7 11h5"/><path d="m12 16-2 5 2-1.2L14 21z"/>',
@@ -64,34 +64,45 @@
 
         // ---------------------------------------------- الحساب والتواصل
         'user' => '<circle cx="12" cy="8" r="3.5"/><path d="M5 20a7 7 0 0 1 14 0"/>',
-        'people' => '<circle cx="9" cy="8" r="3.2"/><path d="M3 19a6 6 0 0 1 12 0"/><circle cx="17.5" cy="7" r="2.4"/><path d="M15.8 12.8A5.2 5.2 0 0 1 21 18"/>',
+        'people' => '<path d="M16 21v-3c0-5-12-5-12 0v3M14 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0M17 3c5 0 5 8 0 8m2 4c3 0 4 2 4 6"/>', // حرفيًّا من المرجع (users)
         'envelope' => '<rect x="3" y="6" width="18" height="13" rx="2"/><path d="m3.5 7.5 8.5 6 8.5-6"/>',
-        'bell' => '<path d="M6 10a6 6 0 0 1 12 0c0 4 1.5 5.5 1.5 5.5h-15S6 14 6 10z"/><path d="M10.5 19a1.8 1.8 0 0 0 3 0"/>',
+        'bell' => '<path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/>', // حرفيًّا من المرجع
         'phone' => '<path d="M5 4h4l1.6 4-2.2 1.6a12 12 0 0 0 6 6L16 13.4 20 15v4a1 1 0 0 1-1.1 1A16 16 0 0 1 4 5.1 1 1 0 0 1 5 4z"/>',
         'complaint' => '<path d="M4 5h16v11H9l-5 4z"/><path d="M12 8v3.5M12 13.5h.01"/>',
         'announcement' => '<path d="M4 10v4h3l7 4V6l-7 4z"/><path d="M17.5 9.5a4 4 0 0 1 0 5"/>',
         'referral' => '<circle cx="7" cy="12" r="2.5"/><circle cx="17" cy="6.5" r="2.5"/><circle cx="17" cy="17.5" r="2.5"/><path d="m9.2 10.8 5.6-3M9.2 13.2l5.6 3"/>',
-        'search' => '<circle cx="11" cy="11" r="6"/><path d="m15.5 15.5 4 4"/>',
+        'search' => '<path d="M21 21l-5-5M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0"/>', // حرفيًّا من المرجع
 
         // ---------------------------------------------- الوقت والحالة
-        'clock' => '<circle cx="12" cy="12" r="8"/><path d="M12 7.5V12l3 1.8"/>',
-        'calendar' => '<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/>',
-        'event' => '<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/>',
+        'clock' => '<path d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0M12 6v6l4 2"/>', // حرفيًّا من المرجع
+        'calendar' => '<path d="M3 5h18v16H3zM3 10h18M7 2v5m10-5v5M7 14h2m4 0h2m-8 4h2"/>', // حرفيًّا من المرجع
+        'event' => '<path d="M3 5h18v16H3zM3 10h18M7 2v5m10-5v5M7 14h2m4 0h2m-8 4h2"/>', // حرفيًّا من المرجع
         'hourglass' => '<path d="M7 3h10M7 21h10"/><path d="M7 3c0 5 5 6 5 9s-5 4-5 9M17 3c0 5-5 6-5 9s5 4 5 9"/>',
         'deadline' => '<circle cx="12" cy="13" r="7"/><path d="M12 9.5V13l2.5 1.5M9 2h6"/>',
-        'check' => '<path d="m5 12.5 4.5 4.5L19 7.5"/>',
-        'close' => '<path d="M6 6l12 12M18 6 6 18"/>',
+        'close' => '<path d="m5 5 14 14M19 5 5 19"/>', // حرفيًّا من المرجع
         'warning' => '<path d="M12 4 3 20h18z"/><path d="M12 10v4M12 17h.01"/>',
         'blocked' => '<circle cx="12" cy="12" r="8"/><path d="m6.5 6.5 11 11"/>',
-        'lock' => '<rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7.5a4 4 0 0 1 8 0V10"/>',
+        'lock' => '<path d="M5 10h14v12H5zM8 10V6a4 4 0 0 1 8 0v4M12 14v4"/>', // حرفيًّا من المرجع
         'unlock' => '<rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7.5a4 4 0 0 1 7.5-1.8"/>',
         'shield' => '<path d="M12 3 5 6v6c0 4.2 3 7.5 7 9 4-1.5 7-4.8 7-9V6z"/>',
         'eye' => '<path d="M2.5 12S6 6.5 12 6.5 21.5 12 21.5 12 18 17.5 12 17.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="2.6"/>',
 
         // ---------------------------------------------- التنقّل والأفعال
-        'home' => '<path d="m4 11 8-7 8 7v9H4z"/><path d="M10 20v-6h4v6"/>',
+        //
+        // ⭐ الأيقونات أدناه المعلَّمة «حرفيًّا من ملفّ الهويّة 2.0/2.2» منسوخة
+        // بحرفها من `paths` في app.js المرجعيّ (لا رسمٌ من عندنا) — أيّ مفهومٍ
+        // يطابق اسمًا في ذلك القاموس يأخذ **نفس قيمة `d`** حرفًا بحرف، فلا يبقى
+        // فرقٌ بين شكل الأيقونة في المرجع وشكلها هنا.
+        'home' => '<path d="M3 10 12 3l9 7M5 9v12h5v-7h4v7h5V9"/>', // حرفيًّا من المرجع
+        'book' => '<path d="M12 5v16M12 5C8 2 4 3 2 4v15c4-1 7 0 10 2 3-2 6-3 10-2V4c-4-1-7-2-10 1"/>', // حرفيًّا من المرجع
+        'bag' => '<path d="M4 7h16l1 14H3zM8 7V5a4 4 0 0 1 8 0v2"/>', // حرفيًّا من المرجع
+        'briefcase' => '<path d="M3 7h18v14H3zM8 7V3h8v4M3 13c6 3 12 3 18 0M10 13h4v4h-4z"/>', // حرفيًّا من المرجع
+        'support' => '<path d="M3 13V9a9 9 0 0 1 18 0v4M3 11H1v7h5v-7H3m18 0h2v7h-5v-7h3M19 18v3h-6"/>', // حرفيًّا من المرجع
+        'heart' => '<path d="M12 21 3 12C-4 3 7-2 12 5 17-2 28 3 21 12z"/>', // حرفيًّا من المرجع
+        'pin' => '<path d="m7 3 10 0-1 7 4 4H4l4-4zM12 14v8"/>', // حرفيًّا من المرجع
+        'check' => '<path d="m5 12 4 4L20 5"/>', // حرفيًّا من المرجع
         'dashboard' => '<rect x="3" y="3" width="7" height="8" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="11" width="7" height="10" rx="1.5"/>',
-        'settings' => '<circle cx="12" cy="12" r="3"/><path d="M12 3v2.5M12 18.5V21M4.2 7.5l2.2 1.3M17.6 15.2l2.2 1.3M4.2 16.5l2.2-1.3M17.6 8.8l2.2-1.3"/>',
+        'settings' => '<path d="M9 3h6l1 4 4 1 2 5-3 3v5h-5l-3 2-4-3H3v-5l-2-3 3-4h4zM15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0"/>', // حرفيًّا من المرجع
         'chart' => '<path d="M4 20V4M4 20h16"/><path d="m7 15 3.5-4 3 2.5L20 7"/>',
         'refresh' => '<path d="M20 11a8 8 0 1 0-.9 4.6"/><path d="M20 5v6h-6"/>',
         'link' => '<path d="M10.5 13.5a4 4 0 0 0 5.7 0l2.3-2.3a4 4 0 0 0-5.7-5.7L11.7 6.6"/><path d="M13.5 10.5a4 4 0 0 0-5.7 0l-2.3 2.3a4 4 0 0 0 5.7 5.7l1.1-1.1"/>',
@@ -99,6 +110,8 @@
         'upload' => '<path d="M12 20V10M8 13.5l4-4 4 4"/><path d="M5 5h14"/>',
         'top' => '<path d="M12 19V6M6 12l6-6 6 6"/>',
         'arrow' => '<path d="M14 6l-6 6 6 6"/>',
+        'right' => '<path d="m10 5 7 7-7 7"/>', // حرفيًّا من المرجع
+        'down' => '<path d="m5 9 7 7 7-7"/>', // حرفيًّا من المرجع
         'plus' => '<path d="M12 5v14M5 12h14"/>',
         'edit' => '<path d="M4 20h4l10-10-4-4L4 16z"/><path d="m13.5 6.5 4 4"/>',
         'trash' => '<path d="M5 7h14M10 7V5h4v2"/><path d="M6.5 7 7.5 20h9l1-13M10 11v5M14 11v5"/>',
@@ -107,9 +120,9 @@
         'info' => '<circle cx="12" cy="12" r="8"/><path d="M12 11v5M12 8h.01"/>',
         'celebrate' => '<path d="m4 20 5-12 7 7z"/><path d="M15 4.5v2M19.5 9h-2M18.5 5.5 17 7"/>',
         'globe' => '<circle cx="12" cy="12" r="8"/><path d="M4 12h16M12 4c2.5 2.6 2.5 12.4 0 16-2.5-3.6-2.5-13.4 0-16z"/>',
-        'menu' => '<path d="M4 7h16M4 12h16M4 17h16"/>',
+        'menu' => '<path d="M3 6h18M3 12h18M3 18h18"/>', // حرفيًّا من المرجع
         'spark' => '<path d="M12 4v4M12 16v4M4 12h4M16 12h4M6.5 6.5 9 9M15 15l2.5 2.5M17.5 6.5 15 9M9 15l-2.5 2.5"/>',
-        'goal' => '<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="1"/>',
+        'goal' => '<path d="M21 12a9 9 0 1 1-9-9M17 12a5 5 0 1 1-5-5M12 12l9-9m-5 0h5v5"/>', // حرفيًّا من المرجع (target)
         'exit' => '<path d="M14 4H6a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h8"/><path d="M17.5 8.5 21 12l-3.5 3.5M21 12h-9"/>',
         'folder' => '<path d="M3 7a1 1 0 0 1 1-1h5l2 2.5h8a1 1 0 0 1 1 1V18a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/>',
         'palette' => '<path d="M12 3a9 9 0 1 0 0 18c1.4 0 2-1 2-2s-.6-1.5-.6-2.2c0-.9.7-1.3 1.6-1.3H17a4 4 0 0 0 4-4c0-4.8-4-8.5-9-8.5z"/><circle cx="8" cy="11" r="1"/><circle cx="12" cy="8" r="1"/><circle cx="16" cy="11" r="1"/>',
@@ -138,7 +151,7 @@
         'تدريب' => 'course', 'courses' => 'course',
         'درس' => 'lesson', 'lessons' => 'lesson', 'play' => 'lesson',
         'حرب' => 'war', 'wars' => 'war', 'challenge' => 'war', 'challenges' => 'war', 'swords' => 'war',
-        'شارة' => 'badge', 'badges' => 'badge', 'medal' => 'badge',
+        'شارة' => 'badge', 'badges' => 'badge', 'medal' => 'badge', 'award' => 'badge', 'achievement' => 'badge',
         'إشعار' => 'bell', 'notification' => 'bell', 'notifications' => 'bell',
         'users' => 'people', 'team' => 'people', 'group' => 'people', 'network' => 'people',
         'free' => 'xp', 'star' => 'xp', 'points' => 'xp',
@@ -157,7 +170,7 @@
         'cv' => 'document', 'attestation' => 'certificate',
         'balance-scale' => 'evaluation', 'scale' => 'evaluation', 'judge' => 'evaluation',
         'first' => 'trophy', 'winner' => 'trophy', 'leaderboard' => 'trophy',
-        'heart' => 'contribution', 'like' => 'kudos', 'clap' => 'kudos',
+        'like' => 'kudos', 'clap' => 'kudos', 'donation' => 'contribution',
         'target' => 'goal', 'objective' => 'goal', 'goals' => 'goal',
         'logout' => 'exit', 'offboarding' => 'exit', 'door' => 'exit',
         'files' => 'folder', 'category' => 'folder', 'archive' => 'folder',

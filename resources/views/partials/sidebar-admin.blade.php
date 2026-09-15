@@ -67,16 +67,16 @@
     };
 
     $groups = [
-        // 👥 إدارة المستخدمين (12.13) — المجال ده بنبنيه هنا
-        ['👥', setting('nav.admin.group_users', 'إدارة المستخدمين'), $filter([
+        // إدارة المستخدمين (12.13) — المجال ده بنبنيه هنا
+        ['users', setting('nav.admin.group_users', 'إدارة المستخدمين'), $filter([
             [setting('nav.admin.item_users_list', 'قائمة المستخدمين'), 'admin.users.index', 'users.list'],
             [setting('nav.admin.item_users_approvals', 'طلبات الاعتماد'), 'admin.users.approvals', 'user_approvals.list'],
             [setting('nav.admin.item_users_segments', 'شرائح الجمهور'), 'admin.users.segments', 'user_segments.list'],
             [setting('nav.admin.item_users_roles', 'الأدوار والصلاحيّات'), 'admin.roles.index', 'roles.list'],
         ])],
 
-        // 📚 إدارة التدريب (12.4)
-        ['📚', setting('nav.admin.group_training', 'إدارة التدريب'), $filter([
+        // إدارة التدريب (12.4)
+        ['book', setting('nav.admin.group_training', 'إدارة التدريب'), $filter([
             [setting('nav.admin.item_training_paths', 'المسارات'), 'admin.paths.index', 'paths.list'],
             [setting('nav.admin.item_training_courses', 'التدريبات'), 'admin.courses.index', 'courses.list'],
             // بنك الأسئلة المركزيّ — عرضيّ عبر التدريبات كلّها (24.1-3)
@@ -89,8 +89,8 @@
             [setting('nav.admin.item_training_availability', 'الإتاحة والتوقيت'), 'admin.availability.index', 'courses.list'],
         ])],
 
-        // 🎓 إدارة الشهادات (12.5) — خمسة بنود كما نصّت 12.0، أربعةٌ منها تابات الصفحة
-        ['🎓', setting('nav.admin.group_certificates', 'إدارة الشهادات'), $filter([
+        // إدارة الشهادات (12.5) — خمسة بنود كما نصّت 12.0، أربعةٌ منها تابات الصفحة
+        ['certificate', setting('nav.admin.group_certificates', 'إدارة الشهادات'), $filter([
             [setting('nav.admin.item_certificates_accreditations', 'الاعتمادات'), 'admin.certificates.index', 'accreditations.view', ['tab' => 'accreditations']],
             [setting('nav.admin.item_certificates_types', 'الأنواع والقوالب'), 'admin.certificates.index', 'certificate_templates.view', ['tab' => 'types']],
             [setting('nav.admin.item_certificates_issue', 'إصدار شهادة'), 'admin.certificates.index', ['certificates.create', $certGate], ['tab' => 'issue']],
@@ -99,8 +99,8 @@
             [setting('nav.admin.item_certificates_verify', 'صفحة التحقّق'), 'verify.certificate', 'certificate_ledger.view'],
         ])],
 
-        // 🤝 إدارة التطوّع
-        ['🤝', setting('nav.admin.group_volunteer', 'إدارة التطوّع'), $filter([
+        // إدارة التطوّع
+        ['heart', setting('nav.admin.group_volunteer', 'إدارة التطوّع'), $filter([
             [setting('nav.admin.item_volunteer_central', 'الإدارة المركزيّة'), 'admin.volunteer.index', 'volunteer_central_settings.view'],
             // التوظيف والمرشّحون — بند صريح في 12.0 كان بلا مدخل من اللوحة (13.4-ك)
             [setting('nav.admin.item_volunteer_recruitment', 'التوظيف والمرشّحون'), 'volunteer.recruitment', 'candidates.list'],
@@ -129,15 +129,15 @@
          | ثمانية تابات مسطّحة لا تذكر بنك أسئلة الحروب ولا الريفيرال ولا
          | الرسائل الإيجابيّة، ويذكر «المستويات» وليست بندًا في 12.0 أصلًا.
          */
-        ['🎮', setting('nav.admin.group_gamification', 'التلعيب والتحديات'), $filter(
+        ['game', setting('nav.admin.group_gamification', 'التلعيب والتحديات'), $filter(
             array_map(
                 fn (array $item) => [$item['label'], $item['route'], $item['permission'], $item['params']],
                 \App\Http\Controllers\Admin\GamificationController::menu(),
             ),
         )],
 
-        // 🛒 المتجر والماليّات (12.12) — تابات المتجر الخمسة ثمّ المجموعة المحميّة
-        ['🛒', setting('nav.admin.group_store', 'المتجر والماليّات'), $filter([
+        // المتجر والماليّات (12.12) — تابات المتجر الخمسة ثمّ المجموعة المحميّة
+        ['bag', setting('nav.admin.group_store', 'المتجر والماليّات'), $filter([
             [setting('nav.admin.item_store_products', 'المنتجات والتصنيفات'), 'admin.store.index', 'store_products.list', ['tab' => 'products']],
             [setting('nav.admin.item_store_bundles', 'البندلز'), 'admin.store.index', 'bundles.list', ['tab' => 'bundles']],
             [setting('nav.admin.item_store_coupons', 'الكوبونات وOrder-bump'), 'admin.store.index', 'coupons.list', ['tab' => 'coupons']],
@@ -164,13 +164,13 @@
             ] : []),
         ])],
 
-        // 🎁 إدارة المكافآت (12.9) — بندٌ مسطّح بلا دروب-داون كما في خريطة 12.0
-        ['🎁', setting('nav.admin.group_rewards', 'إدارة المكافآت'), $filter([
+        // إدارة المكافآت (12.9) — بندٌ مسطّح بلا دروب-داون كما في خريطة 12.0
+        ['ticket', setting('nav.admin.group_rewards', 'إدارة المكافآت'), $filter([
             [setting('nav.admin.item_rewards_index', 'إدارة المكافآت'), 'admin.rewards.index', 'manual_rewards.list'],
         ]), 'flat'],
 
-        // 📅 الفعاليّات (12.11)
-        ['📅', setting('nav.admin.group_events', 'الفعاليّات'), $filter([
+        // الفعاليّات (12.11)
+        ['calendar', setting('nav.admin.group_events', 'الفعاليّات'), $filter([
             [setting('nav.admin.item_events_index', 'الفعاليّات'), 'admin.events.index', 'events.list'],
             // بند خريطة 12.0 «الفعاليّات · المسجّلون والحضور» — كان بلا شاشة جامعة.
             // والاسم من الإعدادات لا محروقًا (2.13)، وهو نفس مفتاح عنوان الشاشة
@@ -178,8 +178,8 @@
             [setting('events.registrations.page_title', 'المسجّلون والحضور'), 'admin.events.registrations.index', 'event_registrations.list'],
         ])],
 
-        // 📣 التوجيه والدعم (12.6)
-        ['📣', setting('nav.admin.group_guidance', 'التوجيه والدعم'), $filter([
+        // التوجيه والدعم (12.6)
+        ['announcement', setting('nav.admin.group_guidance', 'التوجيه والدعم'), $filter([
             [setting('nav.admin.item_guidance_announcements', 'التعليمات'), 'admin.guidance.index', 'announcements.list'],
             // الثلاثة التالية مبنيّة ومدرَجة في 12.0 وكانت **بلا أيّ رابط وارد**
             // في المشروع — و`admin.guidance.index` لا يربط أيًّا منها (12.6-ب/ج).
@@ -192,8 +192,8 @@
             [setting('nav.admin.item_guidance_growth', 'حلقات النموّ'), 'admin.growth.index', 'settings_general.view'],
         ])],
 
-        // 📊 الإحصائيّات (12.8) — تابات صفحة الإحصائيّات بترتيب 12.0
-        ['📊', setting('nav.admin.group_stats', 'الإحصائيّات'), $filter([
+        // الإحصائيّات (12.8) — تابات صفحة الإحصائيّات بترتيب 12.0
+        ['chart', setting('nav.admin.group_stats', 'الإحصائيّات'), $filter([
             [setting('nav.admin.item_stats_users', 'المستخدمون'), 'admin.stats.index', 'reports_users.view', ['tab' => 'users']],
             [setting('nav.admin.item_stats_sales', 'المبيعات'), 'admin.stats.index', ['finance.view', $statsGate], ['tab' => 'sales']],
             [setting('nav.admin.item_stats_training', 'التدريبات'), 'admin.stats.index', ['reports_training.view', $statsGate], ['tab' => 'training']],
@@ -222,7 +222,7 @@
          | صلاحيّةٍ اختُرِع له) + شرط `isPlatformOwner()` فوقه في الـspread، لا
          | فحص صلاحيّةٍ من `$can()` إطلاقًا.
          */
-        ['🧩', setting('nav.admin.group_developers', 'المطوّرين'), $filter([
+        ['link', setting('nav.admin.group_developers', 'المطوّرين'), $filter([
             [setting('nav.admin.item_developers_api', 'API'), 'admin.developers.index', 'integrations.view', ['tab' => 'api']],
             [setting('nav.admin.item_developers_webhooks', 'Webhooks'), 'admin.developers.index', 'webhooks.view', ['tab' => 'webhooks']],
             ...($u->isPlatformOwner() ? [
@@ -340,8 +340,8 @@
         </div>
 
         <nav class="space-y-1">
-            {{-- 🏠 لوحة القيادة (12.3) --}}
-            <x-nav-link route="admin.dashboard" :label="setting('nav.admin.item_dashboard', 'لوحة القيادة')" icon="🏠" />
+            {{-- لوحة القيادة (12.3) --}}
+            <x-nav-link route="admin.dashboard" :label="setting('nav.admin.item_dashboard', 'لوحة القيادة')" icon="home" />
 
             @foreach ($groups as $group)
                 @php([$icon, $label, $items] = $group)
@@ -356,16 +356,16 @@
                 @endif
             @endforeach
 
-            {{-- ⚙️ آخر قسم دائمًا --}}
+            {{-- آخر قسم دائمًا --}}
             @if ($settingsItems)
-                <x-nav-group :label="setting('nav.admin.group_settings', 'الإعدادات والنظام')" icon="⚙️" :items="$settingsItems" />
+                <x-nav-group :label="setting('nav.admin.group_settings', 'الإعدادات والنظام')" icon="settings" :items="$settingsItems" />
             @endif
 
             <a href="{{ Route::has('dashboard') ? route('dashboard') : url('/') }}"
                title="{{ setting('nav.admin.back_to_account', 'رجوع لحسابي') }}"
                class="nav-compact-row flex items-center gap-2 rounded-xl px-3 py-2 text-sm motion-standard mt-3"
                style="color: var(--text-muted)">
-                <span class="w-5 text-center shrink-0">↩</span>
+                <span class="w-5 text-center shrink-0 inline-flex items-center justify-center"><x-icon name="exit" size="20" /></span>
                 <span class="nav-item-label">{{ setting('nav.admin.back_to_account', 'رجوع لحسابي') }}</span>
             </a>
         </nav>

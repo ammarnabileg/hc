@@ -33,12 +33,8 @@
        class="inline-flex items-center justify-center shrink-0 rounded-xl motion-standard"
        style="min-width: 44px; min-height: 44px; color: var(--text-muted)"
        aria-label="{{ setting('nav.header.search_aria', 'بحث موحّد') }}" title="{{ setting('nav.header.search_title', 'بحث موحّد (Ctrl+K)') }}">
-        {{-- أيقونة SVG مرسومة داخل المشروع — ممنوع أيّ مكتبة أيقونات (2.16-ج) --}}
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-             stroke-width="1.75" stroke-linecap="round" aria-hidden="true" focusable="false">
-            <circle cx="11" cy="11" r="7" />
-            <path d="M20 20l-3.5-3.5" />
-        </svg>
+        {{-- من قاموس الأيقونات المقفول الواحد — لا رسمة منفردة خارجه (2.16-ج) --}}
+        <x-icon name="search" size="20" />
     </a>
 
     {{-- مبدّل سياق العضويّة (قسم/محافظة/ملفّ) — كلّ شيء يُقرأ داخل العضويّة النشطة --}}

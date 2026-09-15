@@ -30,7 +30,9 @@
                  'background: var(--surface-raised)' => $anyActive,
                  'min-block-size: var(--touch-min, 44px)',
              ])>
-        <span class="w-5 text-center shrink-0">{{ $icon }}</span>
+        @if ($icon)
+            <span class="w-5 text-center shrink-0 inline-flex items-center justify-center"><x-icon :name="$icon" size="20" /></span>
+        @endif
         <span class="flex-1 nav-item-label">{{ $label }}</span>
         <span class="text-xs opacity-60 group-open:rotate-90 motion-standard inline-block nav-item-label">‹</span>
     </summary>
@@ -38,7 +40,7 @@
     <div data-flyout class="mt-1 space-y-1 pe-3" style="border-inline-end: 1px solid var(--border)">
         @foreach ($items as $item)
             {{-- بعض بنود 12.0 تابٌ داخل صفحة، فتحتاج رابطًا بمعامل (`?tab=…`) لا اسم مسار مجرّدًا --}}
-            <x-nav-link :route="$item['route'] ?? null" :href="$item['href'] ?? null" :label="$item['label'] ?? ''" icon="•" />
+            <x-nav-link :route="$item['route'] ?? null" :href="$item['href'] ?? null" :label="$item['label'] ?? ''" />
         @endforeach
     </div>
 </details>
