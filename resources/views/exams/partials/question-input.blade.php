@@ -39,11 +39,11 @@
         @endfor
     </div>
 @elseif ($q->type === 'choice' && $options !== [])
-    <div class="space-y-2">
+    {{-- حرفيًّا من ملف الهويّة (`.option`): تُبرَز بخلفيّة ولون العلامة عند التحديد --}}
+    <div>
         @foreach ($options as $option)
             @php $option = is_array($option) ? ($option['text'] ?? '') : (string) $option; @endphp
-            <label class="flex items-center gap-2 rounded-xl px-3 py-2 text-sm cursor-pointer motion-standard"
-                   style="background: var(--surface-sunken)">
+            <label class="option">
                 <input type="radio" name="{{ $name }}" value="{{ $option }}" data-question="{{ $q->id }}"
                        @checked((string) $value === (string) $option)>
                 <span>{{ $option }}</span>

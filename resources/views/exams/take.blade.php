@@ -23,96 +23,90 @@
 @endsection
 
 @section('exam_timer')
-    {{-- العدّاد التنازليّ — وانتهاء الوقت يعني تسليمًا تلقائيًّا برسالة واضحة (24.5) --}}
+    {{-- العدّاد التنازليّ — حرفيًّا `.exam-time` — وانتهاء الوقت يعني تسليمًا تلقائيًّا برسالة واضحة (24.5) --}}
     <div class="text-left shrink-0">
-        <div id="exam-timer" class="text-lg font-extrabold tabular-nums" data-seconds="{{ $secondsLeft }}"
-             data-warn="{{ (int) setting('exams.timer.warn_seconds', 60) }}">--:--</div>
-        <div class="text-xs" style="color: var(--text-muted)">{{ setting('exams.labels.time_left', 'الوقت المتبقّي') }}</div>
+        <div id="exam-timer" class="exam-time numeric" data-seconds="{{ $secondsLeft }}"
+             data-warn="{{ (int) setting('exams.timer.warn_seconds', 60) }}" aria-label="{{ setting('exams.labels.time_left', 'الوقت المتبقّي') }}">--:--</div>
     </div>
 @endsection
 
 @section('content')
-    {{-- شريط تقدّم بالأسئلة (2.10.1: التركوازيّ للأفعال والتقدّم لا للحالة) --}}
-    <div class="rounded-full overflow-hidden mb-5" style="background: var(--surface-sunken); height: 8px">
-        <div class="h-full motion-standard"
-             style="width: {{ $total > 0 ? round(($answered / $total) * 100) : 0 }}%; background: var(--color-brand-500)"></div>
-    </div>
+    {{-- نقاط تقدّم الأسئلة — حرفيًّا من ملف الهويّة (`.exam-progress`) لا شريطًا خطّيًّا --}}
+    @unless ($review)
+        <div class="exam-progress" role="progressbar" aria-valuenow="{{ $index }}" aria-valuemin="1" aria-valuemax="{{ $total }}">
+            @foreach ($questions as $n => $q)
+                @php $qAnswer = $answers[(string) $q->id] ?? null; @endphp
+                <span class="{{ ($qAnswer !== null && $qAnswer !== '') ? 'done' : (($n + 1) === $index ? 'current' : '') }}">{{ $n + 1 }}</span>
+            @endforeach
+        </div>
+    @endunless
 
     <form id="exam-form" method="post" action="{{ route('exams.submit', $exam) }}" data-answer-url="{{ route('exams.answer', $exam) }}">
         @csrf
 
         @if ($review)
             {{-- شاشة المراجعة قبل التسليم: كلّ الأسئلة وإجاباتها في فورم واحد --}}
-            <div class="space-y-3">
+            <div class="stack" style="gap: 16px">
                 @foreach ($questions as $i => $q)
                     @php $value = $answers[(string) $q->id] ?? null; @endphp
-                    <div class="card p-4">
-                        <div class="flex items-start justify-between gap-3">
+                    <div class="panel">
+                        <div class="spread">
                             <div class="min-w-0">
-                                <p class="text-xs mb-1" style="color: var(--text-muted)">{{ setting('exams.labels.question', 'سؤال') }} {{ $i + 1 }}</p>
-                                <p class="text-sm">{{ $q->prompt }}</p>
+                                <span class="eyebrow">{{ setting('exams.labels.question', 'سؤال') }} {{ $i + 1 }}</span>
+                                <p>{{ $q->prompt }}</p>
                             </div>
-                            <div class="shrink-0">
-                                <x-state-badge :state="($value === null || $value === '') ? 'warn' : 'ok'"
-                                               :label="($value === null || $value === '') ? setting('exams.labels.unanswered', 'بلا إجابة') : setting('exams.labels.answered_one', 'مُجاب')" />
-                            </div>
+                            <x-state-badge :state="($value === null || $value === '') ? 'warn' : 'ok'"
+                                           :label="($value === null || $value === '') ? setting('exams.labels.unanswered', 'بلا إجابة') : setting('exams.labels.answered_one', 'مُجاب')" />
                         </div>
 
                         <div class="mt-3">
                             @include('exams.partials.question-input', ['q' => $q, 'value' => $value, 'otpLength' => $otp_lengths[$q->id] ?? 1])
                         </div>
 
-                        <a href="{{ route('exams.take', ['exam' => $exam, 'q' => $i + 1]) }}"
-                           class="inline-block mt-2 text-xs hover:underline" style="color: var(--color-brand-400)">
+                        <a href="{{ route('exams.take', ['exam' => $exam, 'q' => $i + 1]) }}" class="btn text mt-2">
                             {{ setting('exams.labels.open_question', 'افتح السؤال') }}
                         </a>
                     </div>
                 @endforeach
             </div>
 
-            <div class="mt-5 flex flex-wrap items-center gap-2">
-                <button type="submit" class="btn rounded-xl px-5 py-2 text-sm font-semibold motion-standard"
-                        style="background: var(--color-brand-500); color: #04201c">
-                    {{ setting('exams.labels.submit', 'سلّم الامتحان') }}
-                </button>
-                <a href="{{ route('exams.take', ['exam' => $exam, 'q' => 1]) }}"
-                   class="rounded-xl px-4 py-2 text-sm motion-standard" style="background: var(--surface-sunken)">
+            <div class="cluster actions mt-5">
+                <button type="submit" class="btn btn-p">{{ setting('exams.labels.submit', 'سلّم الامتحان') }}</button>
+                <a href="{{ route('exams.take', ['exam' => $exam, 'q' => 1]) }}" class="btn btn-g">
                     {{ setting('exams.labels.back_to_questions', 'ارجع للأسئلة') }}
                 </a>
             </div>
         @else
-            {{-- سؤال واحد في المرّة (24.5) --}}
-            <div class="card p-5 animate-fadeup">
-                <p class="text-xs mb-2" style="color: var(--text-muted)">
-                    {{ setting('exams.labels.question', 'سؤال') }} {{ $index }} {{ setting('exams.labels.of', 'من') }} {{ $total }}
-                </p>
-                <p class="text-base font-semibold mb-4">{{ $question->prompt }}</p>
+            {{-- سؤال واحد في المرّة — حرفيًّا `.exam-question` (24.5) --}}
+            <div class="exam-question">
+                <span class="eyebrow">{{ setting('exams.labels.question', 'سؤال') }} {{ $index }} {{ setting('exams.labels.of', 'من') }} {{ $total }}</span>
+                <h2>{{ $question->prompt }}</h2>
 
                 @include('exams.partials.question-input', ['q' => $question, 'value' => $answers[(string) $question->id] ?? null, 'otpLength' => $otp_lengths[$question->id] ?? 1])
 
-                <p id="save-hint" class="mt-3 text-xs" style="color: var(--text-muted)"></p>
+                <p id="save-hint" class="small muted mt-3"></p>
             </div>
 
-            <div class="mt-5 flex flex-wrap items-center gap-2">
-                @if ($index > 1)
-                    <a href="{{ route('exams.take', ['exam' => $exam, 'q' => $index - 1]) }}"
-                       class="rounded-xl px-4 py-2 text-sm motion-standard" style="background: var(--surface-sunken)">
-                        {{ setting('exams.labels.previous', 'السابق') }}
-                    </a>
-                @endif
+            <div class="spread pt-6" style="border-top: 1px solid var(--line)">
+                <span class="small muted">{{ setting('exams.labels.answered', 'المُجاب') }} {{ $answered }}/{{ $total }}</span>
 
-                @if ($index < $total)
-                    <a href="{{ route('exams.take', ['exam' => $exam, 'q' => $index + 1]) }}"
-                       class="btn rounded-xl px-5 py-2 text-sm font-semibold motion-standard"
-                       style="background: var(--color-brand-500); color: #04201c">
-                        {{ setting('exams.labels.next', 'التالي') }}
-                    </a>
-                @endif
+                <div class="cluster actions">
+                    @if ($index > 1)
+                        <a href="{{ route('exams.take', ['exam' => $exam, 'q' => $index - 1]) }}" class="btn btn-g">
+                            {{ setting('exams.labels.previous', 'السابق') }}
+                        </a>
+                    @endif
 
-                <a href="{{ route('exams.take', ['exam' => $exam, 'q' => 'review']) }}"
-                   class="rounded-xl px-4 py-2 text-sm motion-standard" style="background: var(--surface-sunken)">
-                    {{ setting('exams.labels.go_review', 'مراجعة والتسليم') }}
-                </a>
+                    <a href="{{ route('exams.take', ['exam' => $exam, 'q' => 'review']) }}" class="btn btn-g">
+                        {{ setting('exams.labels.go_review', 'مراجعة والتسليم') }}
+                    </a>
+
+                    @if ($index < $total)
+                        <a href="{{ route('exams.take', ['exam' => $exam, 'q' => $index + 1]) }}" class="btn btn-p">
+                            {{ setting('exams.labels.next', 'التالي') }}
+                        </a>
+                    @endif
+                </div>
             </div>
         @endif
     </form>
