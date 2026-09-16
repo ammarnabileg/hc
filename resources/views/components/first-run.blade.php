@@ -46,7 +46,7 @@
                 <span class="flex items-center gap-2">
                     {{-- زرّ إجراء الشريحة: يوصل المستخدم للمكان الذي تتكلّم عنه --}}
                     <a data-first-run-action href="{{ $first['action_url'] ?: '#' }}"
-                       @class(['btn rounded-xl px-3 text-xs motion-standard inline-flex items-center', 'hidden' => ! $first['action_url'] || ! $first['action_label']])
+                       @class(['btn rounded-xl px-3 text-xs motion-standard items-center', 'inline-flex' => $first['action_url'] && $first['action_label'], 'hidden' => ! $first['action_url'] || ! $first['action_label']])
                        style="min-height: 44px; background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">{{ $first['action_label'] }}</a>
 
                     <button type="button" data-first-run-next

@@ -573,6 +573,7 @@ const post = (url, body) =>
         if (action) {
             const linked = Boolean(step.action_url && step.action_label);
             action.classList.toggle('hidden', !linked);
+            action.classList.toggle('inline-flex', linked);
             if (linked) {
                 action.href = step.action_url;
                 action.textContent = step.action_label;
