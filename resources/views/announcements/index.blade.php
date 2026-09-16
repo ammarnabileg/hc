@@ -201,6 +201,102 @@
         });
 
         /*
+         | تفاعل على طريقة فيسبوك (13.2): الزرّ الرئيسيّ يعمل/يلغي، والبوب-أب يختار،
+         | والردّ فوريّ (2.17-ب) ثمّ يُصحَّح من الخادم بلا إعادة تحميل. الضغط المطوّل
+         | يفتح البوب-أب على اللمس، والنقر خارجَه أو Escape يقفله.
+         */
+        document.querySelectorAll('[data-react-form]').forEach((form) => {
+            const box = form.closest('[data-reactions]');
+            const labels = JSON.parse(box.dataset.labels || '{}');
+            const words = JSON.parse(box.dataset.words || '{}');
+            const main = form.querySelector('[data-react-main]');
+            const picks = Array.from(form.querySelectorAll('[data-react-pick]'));
+            const defaultEmoji = picks[0] ? picks[0].value : main.value;
+
+            const renderSummary = (mine, counts) => {
+                const entries = Object.entries(counts).filter(([, n]) => n > 0).sort((a, b) => b[1] - a[1]);
+                const total = entries.reduce((sum, [, n]) => sum + n, 0);
+                let summary = box.querySelector('[data-reactions-summary]');
+                if (!total) { if (summary) summary.remove(); return; }
+                if (!summary) {
+                    summary = document.createElement('div');
+                    summary.className = 'reactions-summary';
+                    summary.setAttribute('data-reactions-summary', '');
+                    summary.innerHTML = '<span class="reactions-icons" data-reactions-icons></span><span class="reactions-count" data-reactions-count></span>';
+                    box.prepend(summary);
+                }
+                summary.querySelector('[data-reactions-icons]').replaceChildren(...entries.slice(0, 3).map(([emoji]) => {
+                    const chip = document.createElement('span'); chip.textContent = emoji; return chip;
+                }));
+                summary.querySelector('[data-reactions-count]').textContent = mine
+                    ? (total <= 1 ? words.you : String(words.you_others).split(':n').join(total - 1))
+                    : String(words.others).split(':n').join(total);
+            };
+
+            const paint = (mine, counts) => {
+                box.dataset.mine = mine || '';
+                main.dataset.active = mine ? '1' : '0';
+                main.setAttribute('aria-pressed', mine ? 'true' : 'false');
+                main.value = mine || defaultEmoji;
+                main.querySelector('[data-react-emoji]').textContent = mine || defaultEmoji;
+                main.querySelector('[data-react-label]').textContent = labels[mine || defaultEmoji] || words.react || '';
+                picks.forEach((pick) => pick.setAttribute('aria-pressed', pick.value === mine ? 'true' : 'false'));
+                if (counts) renderSummary(mine, counts);
+            };
+
+            const close = () => {
+                box.dataset.open = 'false';
+                if (document.activeElement && form.contains(document.activeElement)) document.activeElement.blur();
+            };
+            box.addEventListener('mouseleave', () => { if (box.dataset.open === 'false') delete box.dataset.open; });
+
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const chosen = (e.submitter && e.submitter.value) || main.value;
+                const current = box.dataset.mine || '';
+                const fromPicker = !!(e.submitter && e.submitter.hasAttribute('data-react-pick'));
+                if (fromPicker && chosen === current) { close(); return; }
+
+                paint(chosen === current ? '' : chosen, null);
+                close();
+                const card = form.closest('[data-announcement]');
+                if (card) card.removeAttribute('data-unread');
+
+                try {
+                    const body = new FormData(form);
+                    body.set('reaction', chosen);
+                    const res = await fetch(form.action, {
+                        method: 'POST', body,
+                        headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+                    });
+                    if (!res.ok) throw new Error('failed');
+                    const data = await res.json();
+                    paint(data.reaction || '', data.counts || {});
+                } catch {
+                    window.location.reload();
+                }
+            });
+
+            // الضغط المطوّل (اللمس/القلم) يفتح البوب-أب بدل الإعجاب المباشر
+            let pressTimer = null, longPressed = false;
+            main.addEventListener('pointerdown', (ev) => {
+                if (ev.pointerType === 'mouse') return;
+                longPressed = false;
+                pressTimer = setTimeout(() => { pressTimer = null; longPressed = true; box.dataset.open = 'true'; }, 400);
+            });
+            ['pointerup', 'pointerleave', 'pointercancel'].forEach((name) => main.addEventListener(name, () => {
+                if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; }
+            }));
+            main.addEventListener('click', (ev) => {
+                if (longPressed) { ev.preventDefault(); longPressed = false; }
+            }, true);
+            main.addEventListener('contextmenu', (ev) => { if (box.dataset.open === 'true') ev.preventDefault(); });
+
+            document.addEventListener('pointerdown', (ev) => { if (box.dataset.open === 'true' && !box.contains(ev.target)) close(); });
+            box.addEventListener('keydown', (ev) => { if (ev.key === 'Escape') close(); });
+        });
+
+        /*
          | ردّ فوريّ لكلّ فعل (2.17-ب): الفعل يظهر فورًا، ولو فشل الخادم
          | نُرجّع الصفحة لحالتها الصحيحة بإعادة التحميل بدل ترك المستخدم في شكّ.
          */

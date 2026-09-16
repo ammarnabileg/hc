@@ -122,6 +122,16 @@ class AnnouncementDemoSeeder extends Seeder
             ['announcements.feed.max_items', 'announcements', 'سقف المنشورات الحيّة المقروءة', 'number', '200'],
             ['announcements.status.published', 'announcements', 'حالة المنشور المنشور', 'string', 'published'],
             ['announcements.reactions.allowed', 'announcements', 'الإيموجي المسموح للتفاعل', 'json', '["👍","❤️","🎉","👏","🙏"]'],
+            // ⭐ نصوص التفاعل على الكارت (2.13): لافتة كلّ إيموجي + زرّ التفاعل + ملخّص العدّ
+            ['announcements.reactions.labels', 'announcements', 'لافتة كلّ إيموجي تفاعل', 'json', json_encode([
+                '👍' => 'أعجبني', '❤️' => 'أحببته', '🎉' => 'مبروك', '👏' => 'برافو', '🙏' => 'شكرًا',
+            ], JSON_UNESCAPED_UNICODE)],
+            ['announcements.reactions.react_label', 'announcements', 'نصّ زرّ التفاعل', 'string', 'تفاعل'],
+            ['announcements.reactions.picker_aria', 'announcements', 'وصف قائمة اختيار التفاعل (aria)', 'string', 'اختار تفاعلك'],
+            ['announcements.reactions.count_you', 'announcements', 'ملخّص العدّ: أنت وحدك', 'string', 'إنت'],
+            ['announcements.reactions.count_you_others', 'announcements', 'ملخّص العدّ: أنت وآخرون (:n)', 'string', 'إنت و:n كمان'],
+            ['announcements.reactions.count_others', 'announcements', 'ملخّص العدّ: آخرون فقط (:n)', 'string', ':n'],
+            ['announcements.reactions.summary_aria', 'announcements', 'وصف ملخّص التفاعلات (aria)', 'string', 'التفاعلات'],
             ['announcements.acknowledge.label', 'announcements', 'نصّ زرّ الإقرار', 'string', 'قرأتُ وفهمت'],
             ['announcements.acknowledge.max_xp', 'announcements', 'سقف مكافأة الإقرار (XP)', 'number', '50'],
             ['announcements.acknowledge.currency', 'announcements', 'عملة مكافأة الإقرار', 'string', 'xp'],

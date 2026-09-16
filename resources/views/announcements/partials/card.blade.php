@@ -126,32 +126,78 @@
         </section>
     @endif
 
-    {{-- تفاعل إيموجي: يظهر فقط لو الأدمن سمح به لهذا المنشور (13.2) --}}
-    @if ($announcement->reactions_enabled && ! $interactive)
-        <div class="mt-3 flex flex-wrap items-center gap-2">
-            @foreach ($reactions as $emoji)
-                <span class="btn rounded-full px-3 py-1 text-sm" style="background: var(--surface-raised)">{{ $emoji }}</span>
-            @endforeach
-        </div>
-    @elseif ($announcement->reactions_enabled)
-        <div class="mt-3 flex flex-wrap items-center gap-2">
-            @foreach ($reactions as $emoji)
-                <form method="post" action="{{ route('announcements.react', $announcement) }}" data-ajax-form>
+    {{--
+     | ⭐ تفاعل إيموجي على طريقة فيسبوك (13.2): زرّ واحد «أعجبني» + بوب-أب
+     | إيموجي يطلع بالـHover/التركيز على الديسكتوب وبالضغط المطوّل على الموبايل،
+     | وفوقه ملخّص التفاعلات (أعلى إيموجي + العدد). يظهر فقط لو الأدمن سمح به.
+     | بلا جافاسكربت: الزرّ الرئيسيّ والبوب-أب أزرار إرسال حقيقيّة في فورم واحد.
+     --}}
+    @if ($announcement->reactions_enabled)
+        @php
+            $reactionLabels = (array) setting('announcements.reactions.labels', [
+                '👍' => 'أعجبني', '❤️' => 'أحببته', '🎉' => 'مبروك', '👏' => 'برافو', '🙏' => 'شكرًا',
+            ]);
+            $reactLabel = (string) setting('announcements.reactions.react_label', 'تفاعل');
+            $mine = $interactive ? (string) ($read?->reaction ?? '') : '';
+            $defaultEmoji = (string) ($reactions[0] ?? '👍');
+            $mainEmoji = $mine !== '' ? $mine : $defaultEmoji;
+            $mainLabel = (string) ($reactionLabels[$mainEmoji] ?? $reactLabel);
+            $reactionCounts = array_filter(array_map('intval', (array) $counts));
+            arsort($reactionCounts);
+            $reactionTotal = array_sum($reactionCounts);
+            $reactionWords = [
+                'react' => $reactLabel,
+                'you' => (string) setting('announcements.reactions.count_you', 'إنت'),
+                'you_others' => (string) setting('announcements.reactions.count_you_others', 'إنت و:n كمان'),
+                'others' => (string) setting('announcements.reactions.count_others', ':n'),
+            ];
+            $topEmojis = array_slice(array_keys($reactionCounts), 0, 3);
+            $summaryText = $mine !== ''
+                ? ($reactionTotal <= 1
+                    ? $reactionWords['you']
+                    : strtr($reactionWords['you_others'], [':n' => (string) ($reactionTotal - 1)]))
+                : strtr($reactionWords['others'], [':n' => (string) $reactionTotal]);
+        @endphp
+
+        <div class="reactions mt-3" data-reactions data-mine="{{ $mine }}"
+             data-labels='@json($reactionLabels)' data-words='@json($reactionWords)'>
+            @if ($reactionTotal > 0)
+                <div class="reactions-summary" data-reactions-summary aria-label="{{ setting('announcements.reactions.summary_aria', 'التفاعلات') }}">
+                    <span class="reactions-icons" data-reactions-icons>
+                        @foreach ($topEmojis as $emoji)
+                            <span>{{ $emoji }}</span>
+                        @endforeach
+                    </span>
+                    <span class="reactions-count" data-reactions-count>{{ $summaryText }}</span>
+                </div>
+            @endif
+
+            @if ($interactive)
+                <form method="post" action="{{ route('announcements.react', $announcement) }}" class="reactions-bar" data-react-form>
                     @csrf
-                    <input type="hidden" name="reaction" value="{{ $emoji }}">
-                    <button type="submit" class="btn rounded-full px-3 py-1 text-sm motion-standard"
-                            aria-label="{{ setting('announcements.card.aria_label_3', 'تفاعل') }} {{ $emoji }}"
-                            @style([
-                                'background: var(--surface-raised)',
-                                'background: var(--color-brand-600); color: #04201c' => ($read?->reaction) === $emoji,
-                            ])>
-                        {{ $emoji }}
-                        @if (! empty($counts[$emoji]))
-                            <span class="text-xs opacity-70">{{ $counts[$emoji] }}</span>
-                        @endif
+                    <button type="submit" name="reaction" value="{{ $mainEmoji }}" class="react-btn motion-standard"
+                            data-react-main data-active="{{ $mine !== '' ? '1' : '0' }}"
+                            aria-pressed="{{ $mine !== '' ? 'true' : 'false' }}">
+                        <span class="react-emoji" data-react-emoji>{{ $mainEmoji }}</span>
+                        <span data-react-label>{{ $mainLabel }}</span>
                     </button>
+
+                    <div class="react-picker" role="group" data-react-picker
+                         aria-label="{{ setting('announcements.reactions.picker_aria', 'اختار تفاعلك') }}">
+                        @foreach ($reactions as $emoji)
+                            <button type="submit" name="reaction" value="{{ $emoji }}" class="react-pick motion-standard"
+                                    data-react-pick title="{{ $reactionLabels[$emoji] ?? $reactLabel }}"
+                                    aria-label="{{ $reactionLabels[$emoji] ?? $reactLabel }}"
+                                    aria-pressed="{{ $mine === $emoji ? 'true' : 'false' }}">{{ $emoji }}</button>
+                        @endforeach
+                    </div>
                 </form>
-            @endforeach
+            @else
+                {{-- المعاينة (12.6-أ): نفس الشكل بلا فورم يكتب في القاعدة --}}
+                <div class="reactions-bar">
+                    <span class="react-btn" data-active="0"><span class="react-emoji">{{ $mainEmoji }}</span> <span>{{ $mainLabel }}</span></span>
+                </div>
+            @endif
         </div>
     @endif
 
