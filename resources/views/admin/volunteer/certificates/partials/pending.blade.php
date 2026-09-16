@@ -24,5 +24,5 @@
         @endcan
     </div>
 @empty
-    <x-empty :message="setting('admin.volunteer.certificates.mfysh_msthqyn_dlwqty_alshrwt_bthmy_qyma', 'مفيش مستحقّين دلوقتي — الشروط بتحمي قيمة الشهادة.')" />
+    <x-empty :message="setting('admin.volunteer.certificates.mfysh_msthqyn_dlwqty_alshrwt_bthmy_qyma', 'مفيش مستحقّين دلوقتي. الشروط بتحمي قيمة الشهادة.')" />
 @endforelse

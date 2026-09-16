@@ -11,7 +11,7 @@
 @section('content')
     <x-page-header
         :title="setting('wallet.index.title', 'رصيدي وشحن')"
-        :subtitle="setting('wallet.index.subtitle', 'رصيدك وأرباحك وكلّ حركة عليه — في مكان واحد.')"
+        :subtitle="setting('wallet.index.subtitle', 'رصيدك وأرباحك وكلّ حركة عليه، في مكان واحد.')"
         :breadcrumbs="[['label' => setting('wallet.index.breadcrumb_root', 'المحفظة'), 'url' => route('wallet.index')], ['label' => setting('wallet.index.title', 'رصيدي وشحن')]]">
         {{--
           ⭐ حسم التعارض: 19.2 يوجب أربعة أفعال، و2.15 يوجب فعلًا رئيسيًّا واحدًا.
@@ -107,7 +107,7 @@
                 <div class="kpi-label"><x-icon :name="$currencyIcon" size="16" /> {{ $currency->name_ar }}</div>
                 <div class="kpi-value">{{ number_format($balances[$currency->id] ?? 0, (int) $currency->decimals) }}</div>
                 @if ($currency->code === 'hours')
-                    <span class="small muted">{{ setting('wallet.index.hours_hint', 'عملة جايّة قدّام — بنعرضها من دلوقتي.') }}</span>
+                    <span class="small muted">{{ setting('wallet.index.hours_hint', 'عملة جايّة قدّام، بنعرضها من دلوقتي.') }}</span>
                 @endif
             </div>
         @endforeach
@@ -157,7 +157,7 @@
             </div>
         @empty
             {{-- الحالة الفارغة = سطر واحد + زرّ واحد، وتشجّع ولا تعاتب (2.15-د · 2.17-ج) --}}
-            <x-empty :message="setting('wallet.index.recent_empty', 'لسّه مافيش حركة على محفظتك — أوّل شحنة مستنّياك.')"
+            <x-empty :message="setting('wallet.index.recent_empty', 'لسّه مافيش حركة على محفظتك، أوّل شحنة مستنّياك.')"
                      :action="setting('wallet.index.topup_action', 'اشحن رصيدك')" :href="route('wallet.topup')" />
         @endforelse
     </section>

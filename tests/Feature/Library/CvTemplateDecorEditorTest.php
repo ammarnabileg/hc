@@ -118,7 +118,7 @@ class CvTemplateDecorEditorTest extends LibraryTestCase
         $this->actingAs($this->admin())
             ->get(route('admin.cv-templates.decor.edit', $template))
             ->assertOk()
-            ->assertSee(setting('cv.template.admin.decor_empty_hint', 'لا عناصر زخرفيّة بعد — أضف نصًّا أو صورة.'), false);
+            ->assertSee(setting('cv.template.admin.decor_empty_hint', 'لا عناصر زخرفيّة بعد. أضف نصًّا أو صورة.'), false);
     }
 
     // ------------------------------------------------------------- الحفظ

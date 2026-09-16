@@ -195,7 +195,7 @@ class EventAdminController extends Controller
         $event->forceFill(['status' => 'cancelled'])->save();
         AuditTrail::log($request->user(), 'event.cancel', $event);
 
-        return back()->with('status', (string) setting('events.admin.cancel_ok', 'اتلغت الفعاليّة ✓ — بلّغ المسجّلين من زرّ الإشعار.'));
+        return back()->with('status', (string) setting('events.admin.cancel_ok', 'اتلغت الفعاليّة ✓، بلّغ المسجّلين من زرّ الإشعار.'));
     }
 
     /** المسجّلون والحضور: عدّادات + تشيك-إن يدويّ + درجة المكافأة المستحقّة */
@@ -235,7 +235,7 @@ class EventAdminController extends Controller
         ]);
 
         if (! hash_equals((string) $event->attendance_code, trim($data['attendance_code']))) {
-            return back()->with('status', (string) setting('events.admin.check_in_denied', 'كود الحضور غلط — راجعه مع صاحب الفعاليّة وجرّب تاني.'));
+            return back()->with('status', (string) setting('events.admin.check_in_denied', 'كود الحضور غلط، راجعه مع صاحب الفعاليّة وجرّب تاني.'));
         }
 
         $registration = EventRegistration::query()
@@ -248,7 +248,7 @@ class EventAdminController extends Controller
         }
 
         if ($registration->attended) {
-            return back()->with('status', (string) setting('events.admin.check_in_empty', 'الحضور متسجّل قبل كده — ومفيش صرف مكرّر.'));
+            return back()->with('status', (string) setting('events.admin.check_in_empty', 'الحضور متسجّل قبل كده، ومفيش صرف مكرّر.'));
         }
 
         $registration->forceFill(['attended' => true, 'attended_at' => now()])->save();
@@ -268,7 +268,7 @@ class EventAdminController extends Controller
 
         AuditTrail::log($request->user(), 'event.check_in', $registration, [], ['tier' => $tier]);
 
-        return back()->with('status', strtr((string) setting('events.admin.check_in_ok', 'اتسجّل الحضور ✓ — والدرجة المصروفة: :a1 XP.'), [':a1' => (string) (($tier['xp'] ?? 0))]));
+        return back()->with('status', strtr((string) setting('events.admin.check_in_ok', 'اتسجّل الحضور ✓، والدرجة المصروفة: :a1 XP.'), [':a1' => (string) (($tier['xp'] ?? 0))]));
     }
 
     public function toggleAttendance(Request $request, EventRegistration $registration): RedirectResponse

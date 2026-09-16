@@ -129,8 +129,8 @@ class ContributionController extends Controller
             'sufficient' => $preview['sufficient'],
             'latest_internal_deadline' => $this->contributions->latestInternalDeadline($task)?->toDateTimeString(),
             'message' => $preview['sufficient']
-                ? strtr((string) setting('workflow.contribution.preview_msg', 'تمام — رصيدك بعد الخصم: :a1 VXP.'), [':a1' => (string) ($preview['balance_after'])])
-                : (string) setting('workflow.contribution.preview_msg_2', 'رصيدك مايكفّيش — قلّل القيمة أو خدها من وعاء المهمّة.'),
+                ? strtr((string) setting('workflow.contribution.preview_msg', 'تمام، رصيدك بعد الخصم: :a1 VXP.'), [':a1' => (string) ($preview['balance_after'])])
+                : (string) setting('workflow.contribution.preview_msg_2', 'رصيدك مايكفّيش، قلّل القيمة أو خدها من وعاء المهمّة.'),
         ]);
     }
 
@@ -165,7 +165,7 @@ class ContributionController extends Controller
         // «ولا يُدعى مساهمًا» طول غيابه المعذور (23-6)
         if ($this->absence->isAbsent($invitee)) {
             throw ValidationException::withMessages([
-                'code' => strtr((string) setting('workflow.tasks.invite_contributor_msg_2', ':a1 في وضع «غائب» دلوقتي — ادعُ حدًّا تاني أو استنّى رجوعه.'), [':a1' => (string) ($invitee->shortName())]),
+                'code' => strtr((string) setting('workflow.tasks.invite_contributor_msg_2', ':a1 في وضع «غائب» دلوقتي، ادعُ حدًّا تاني أو استنّى رجوعه.'), [':a1' => (string) ($invitee->shortName())]),
             ]);
         }
 
@@ -183,7 +183,7 @@ class ContributionController extends Controller
 
         $this->contributions->respond($contribution, $data['decision'] === 'accept');
 
-        return back()->with('status', $data['decision'] === 'accept' ? (string) setting('workflow.contribution.respond_msg_2', 'اتفتح البند — يلّا بينا 💪') : (string) setting('workflow.contribution.respond_ok', 'اتسجّل اعتذارك ✓'));
+        return back()->with('status', $data['decision'] === 'accept' ? (string) setting('workflow.contribution.respond_msg_2', 'اتفتح البند، يلّا بينا 💪') : (string) setting('workflow.contribution.respond_ok', 'اتسجّل اعتذارك ✓'));
     }
 
     /** ردّ نقطة تفتيش — نمط تذاكر، ومهلته ساعتان داخل نافذة النشاط */
@@ -213,7 +213,7 @@ class ContributionController extends Controller
 
         $this->contributions->deliver($contribution, $data);
 
-        return back()->with('status', strtr((string) setting('workflow.contribution.deliver_ok', 'اتسلّم البند ✓ — مهلة المالك :a1 ساعة، وبعدها اعتماد تلقائيّ.'), [':a1' => (string) ($this->contributions->ownerReviewHours())]));
+        return back()->with('status', strtr((string) setting('workflow.contribution.deliver_ok', 'اتسلّم البند ✓، مهلة المالك :a1 ساعة، وبعدها اعتماد تلقائيّ.'), [':a1' => (string) ($this->contributions->ownerReviewHours())]));
     }
 
     /** طلب سحب مساهم ⟵ الحالة 6 على محرّك التصعيد (بلا أثر على درجة أيّ طرف) */
@@ -230,7 +230,7 @@ class ContributionController extends Controller
         abort_if(
             ! $hasCheckpoints && ! $deadlinePassed,
             422,
-            (string) setting('workflow.contribution.withdraw_empty', 'مافيش نقاط تفتيش على البند ده — السحب مايتاحش قبل فوات الديدلاين الداخليّ.'),
+            (string) setting('workflow.contribution.withdraw_empty', 'مافيش نقاط تفتيش على البند ده، فالسحب مايتاحش قبل فوات الديدلاين الداخليّ.'),
         );
 
         $this->engine->open(CaseCatalog::CONTRIBUTOR_WITHDRAW, $contribution, $request->user(), [

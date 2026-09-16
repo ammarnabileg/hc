@@ -23,7 +23,7 @@
 
 @section('content')
     <x-page-header :title="setting('admin.referral_admin.index.alryfyral_walsfra', 'الريفيرال والسفراء')"
-                   :subtitle="setting('admin.referral_admin.index.myn_daa_myn_wiyh_almkafat_almalqa_wiyh_slm', 'مين دعا مين، وإيه المكافآت المعلّقة، وإيه سلّم الألقاب — في شاشة واحدة.')"
+                   :subtitle="setting('admin.referral_admin.index.myn_daa_myn_wiyh_almkafat_almalqa_wiyh_slm', 'مين دعا مين، وإيه المكافآت المعلّقة، وإيه سلّم الألقاب، كلّه في شاشة واحدة.')"
                    :breadcrumbs="[['label' => setting('admin.referral_admin.index.lwha_alidara', 'لوحة الإدارة'), 'url' => route('admin.dashboard')], ['label' => setting('admin.referral_admin.index.alryfyral_walsfra', 'الريفيرال والسفراء')]]">
         <x-slot:action>
             @if ($canManage)
@@ -111,7 +111,7 @@
 
         @if ($invites->isEmpty())
             {{-- تمييز «لسّه مافيش دعوات أصلًا» عن «الفلتر ما طابقش حاجة» (24.2) --}}
-            <x-empty :message="setting('referral_admin.empty_text', 'لسّه مافيش دعوات في المدى ده — جرّب مدى أوسع.')"
+            <x-empty :message="setting('referral_admin.empty_text', 'لسّه مافيش دعوات في المدى ده. جرّب مدى أوسع.')"
                      :filtered="$filters['q'] !== '' || $filters['status'] !== '' || $filters['payout'] !== '' || $filters['flagged'] !== '' || $filters['from'] !== '' || $filters['to'] !== ''" />
         @else
             <div class="card p-0 overflow-hidden hidden md:block">
@@ -209,7 +209,7 @@
 
         @if ($ambassadors->isEmpty())
             {{-- تمييز «لسّه محدّش وصل أصلًا» عن «الفلتر ما طابقش حاجة» (24.2) --}}
-            <x-empty :message="setting('admin.referral_admin.index.lsh_mhdsh_wsl_lawl_lqb_awl_dawa_mfala_hy', 'لسّه محدّش وصل لأوّل لقب — أوّل دعوة مفعّلة هي البداية.')"
+            <x-empty :message="setting('admin.referral_admin.index.lsh_mhdsh_wsl_lawl_lqb_awl_dawa_mfala_hy', 'لسّه محدّش وصل لأوّل لقب. أوّل دعوة مفعّلة هي البداية.')"
                      :filtered="$filters['q'] !== ''" />
         @else
             <div class="card p-0 overflow-hidden hidden md:block">
@@ -274,12 +274,12 @@
     @else
         {{-- تاب العتبات والألقاب — صفوف يعدّلها الأدمن ويحفظها دفعةً واحدة --}}
         @if (! $canTiers)
-            <x-empty :message="setting('admin.referral_admin.index.malksh_slahya_tadyl_slm_alalqab_klm_malk', 'مالكش صلاحيّة تعديل سلّم الألقاب — كلّم مالك المنصّة.')" />
+            <x-empty :message="setting('admin.referral_admin.index.malksh_slahya_tadyl_slm_alalqab_klm_malk', 'مالكش صلاحيّة تعديل سلّم الألقاب. كلّم مالك المنصّة.')" />
         @else
             <form method="post" action="{{ route('admin.referrals.tiers') }}" class="card p-4">
                 @csrf
                 <p class="text-sm mb-3" style="color: var(--text-muted)">
-                    {{ setting('admin.referral_admin.index.alqab_fqt_bla_sharat_7_6_1_waltrtyb_bytzbt', 'ألقاب فقط بلا شارات (7.6.1) — والترتيب بيتظبط تلقائيًّا حسب عدد الدعوات لمّا تحفظ.') }}
+                    {{ setting('admin.referral_admin.index.alqab_fqt_bla_sharat_7_6_1_waltrtyb_bytzbt', 'ألقاب فقط بلا شارات (7.6.1)، والترتيب بيتظبط تلقائيًّا حسب عدد الدعوات لمّا تحفظ.') }}
                 </p>
 
                 <div class="space-y-3" data-tier-rows>
@@ -323,7 +323,7 @@
             <form method="post" action="{{ route('admin.referrals.index') }}" data-payout-form>
                 @csrf
                 <p class="text-sm mb-3" style="color: var(--text-muted)">
-                    {{ setting('admin.referral_admin.index.alsrf_bytm_lma_ykwn_almdaw_fal_hsabh_walshrt', 'الصرف بيتمّ لما يكون المدعوّ فعّل حسابه — والشرط ده بيتظبط من إعدادات الشاشة.') }}
+                    {{ setting('admin.referral_admin.index.alsrf_bytm_lma_ykwn_almdaw_fal_hsabh_walshrt', 'الصرف بيتمّ لما يكون المدعوّ فعّل حسابه، والشرط ده بيتظبط من إعدادات الشاشة.') }}
                 </p>
                 <label class="block text-sm font-semibold mb-1" for="payout-note">{{ setting('admin.referral_admin.index.mlahza_akhtyarya', 'ملاحظة (اختياريّة)') }}</label>
                 <textarea name="note" id="payout-note" rows="2" maxlength="500"
@@ -339,7 +339,7 @@
                 @csrf
                 <label class="block text-sm font-semibold mb-1" for="hold-note">{{ setting('admin.referral_admin.index.sbb_altalyq', 'سبب التعليق') }}</label>
                 <textarea name="note" id="hold-note" rows="2" maxlength="500" required
-                          placeholder="{{ setting('admin.referral_admin.index.mthal_nmt_dawat_mtkrr_mn_nfs_aljhaz_mhtaj', 'مثال: نمط دعوات متكرّر من نفس الجهاز — محتاج تدقيق.') }}"
+                          placeholder="{{ setting('admin.referral_admin.index.mthal_nmt_dawat_mtkrr_mn_nfs_aljhaz_mhtaj', 'مثال: نمط دعوات متكرّر من نفس الجهاز، محتاج تدقيق.') }}"
                           class="w-full rounded-xl px-3 py-2 text-sm mb-4"
                           style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text); resize: vertical"></textarea>
                 <button type="submit" class="btn rounded-xl px-4 py-2 text-sm font-semibold motion-standard"

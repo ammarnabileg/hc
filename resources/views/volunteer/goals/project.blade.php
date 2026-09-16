@@ -9,11 +9,11 @@
 @section('content')
     <x-page-header
         :title="setting('volunteer.goals_project.tooltip', 'المشروع التشغيليّ لـ').$entityName"
-        :subtitle="setting('volunteer.goals_project.subtitle', 'وعاء إيقاع العمل اليوميّ — وهو ما يحقّق «كلّ مهمّة مربوطة ببند» بلا خنق.')"
+        :subtitle="setting('volunteer.goals_project.subtitle', 'وعاء إيقاع العمل اليوميّ، وهو ما يحقّق «كلّ مهمّة مربوطة ببند» بلا خنق.')"
         :breadcrumbs="[['label' => setting('volunteer.goals_project.label', 'الأهداف والمَعالِم'), 'url' => route('volunteer.goals')], ['label' => setting('volunteer.goals_project.title', 'المشروع التشغيليّ')]]">
         <x-slot:action>
             {{-- شارة «دائم — لا يُغلَق» (23 — 1.8) --}}
-            <x-state-badge state="honor" :label="setting('volunteer.goals_project.label_2', 'دائم — لا يُغلَق')" />
+            <x-state-badge state="honor" :label="setting('volunteer.goals_project.label_2', 'دائم ولا يُغلَق')" />
             @if ($project)
                 <x-state-badge :state="$project->approval_status === 'approved' ? 'ok' : 'idle'"
                                :label="$project->approval_status === 'approved' ? setting('volunteer.goals_project.label_3', 'الاعتماد الأوّل تمّ') : setting('volunteer.goals_project.label_4', 'بانتظار الاعتماد الأوّل')" />
@@ -63,7 +63,7 @@
     </x-filters>
 
     @if ($items->isEmpty())
-        <x-empty :message="setting('volunteer.goals_project.empty', 'المشروع التشغيليّ جاهز — لسّه بلا بنود')" :action="setting('volunteer.goals_project.action', 'شوف نوبتك')" :href="route('volunteer.recurring')" />
+        <x-empty :message="setting('volunteer.goals_project.empty', 'المشروع التشغيليّ جاهز، ولسّه بلا بنود')" :action="setting('volunteer.goals_project.action', 'شوف نوبتك')" :href="route('volunteer.recurring')" />
     @else
         <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
             @foreach ($items as $item)
@@ -120,7 +120,7 @@
 
     @push('modals')
         @foreach ($items as $item)
-            <x-modal :id="'item-'.$item->id" :title="setting('volunteer.goals_project.tooltip_2', 'سجلّ توليدات — ').$item->name">
+            <x-modal :id="'item-'.$item->id" :title="setting('volunteer.goals_project.tooltip_2', 'سجلّ توليدات: ').$item->name">
                 <div class="space-y-2 text-sm">
                     @forelse ($history[$item->id] ?? [] as $task)
                         @php

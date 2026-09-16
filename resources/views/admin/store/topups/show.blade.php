@@ -4,7 +4,7 @@
 
 @section('content')
     <x-page-header :title="setting('admin.store.topups.show.mrajaa_altlb', 'مراجعة الطلب ') . $request->number"
-                   :subtitle="setting('admin.store.topups.show.raja_aliysal_baynk_alaatmad_mqfwl_lhd_ma', 'راجع الإيصال بعينك — الاعتماد مقفول لحدّ ما تراجعه.')"
+                   :subtitle="setting('admin.store.topups.show.raja_aliysal_baynk_alaatmad_mqfwl_lhd_ma', 'راجع الإيصال بعينك. الاعتماد مقفول لحدّ ما تراجعه.')"
                    :breadcrumbs="[
                        ['label' => setting('admin.store.topups.show.lwha_alidara', 'لوحة الإدارة'), 'url' => url('/admin')],
                        ['label' => setting('admin.store.topups.show.tlbat_alshhn', 'طلبات الشحن'), 'url' => route('admin.topups.index')],
@@ -20,7 +20,7 @@
     @if ($duplicateOf)
         {{-- ⭐ الإيصال المكرَّر (نفس البصمة) يُوسَم «مكرَّرة» وينبّه — ولا يُعتمَد (19.5-ب-5) --}}
         <div class="card p-3 mb-4 text-sm" style="border: 1px solid var(--color-state-warn); color: var(--color-state-warn)">
-            {{ setting('admin.store.topups.show.aliysal_dh_mrfwa_qbl_kdh_fy_altlb', '▲ الإيصال ده مرفوع قبل كده في الطلب') }} <strong>{{ $duplicateOf->number }}</strong> {{ setting('admin.store.topups.show.altlb_hytwsm_mkrra_wmsh_hytatmd', '— الطلب هيتوسم «مكرَّرة» ومش هيتعتمد.') }}
+            {{ setting('admin.store.topups.show.aliysal_dh_mrfwa_qbl_kdh_fy_altlb', '▲ الإيصال ده مرفوع قبل كده في الطلب') }} <strong>{{ $duplicateOf->number }}</strong> {{ setting('admin.store.topups.show.altlb_hytwsm_mkrra_wmsh_hytatmd', '· الطلب هيتوسم «مكرَّرة» ومش هيتعتمد.') }}
         </div>
     @endif
 
@@ -55,7 +55,7 @@
 
             {{-- ⛔ داخليّ للأدمن فقط — لا يُعرَض للمُرسِل ولا يُعلَن كمهلة (19.5-أ) --}}
             <div class="card p-3 text-xs" style="color: {{ $internalIsLate ? 'var(--color-state-danger)' : 'var(--text-muted)' }}">
-                {!! strtr(setting('admin.store.topups.show.mwshr_dakhly_amr_altlb_v1_saaa_v2_dh_lladmn', 'مؤشّر داخليّ: عمر الطلب :v1 ساعة:v2. ده للأدمن وحده ومش معلَن للمُرسِل.'), [':v1' => e($internalAgeHours), ':v2' => e($internalIsLate ? setting('admin.store.topups.show.mtakhr', ' — متأخّر') : '')]) !!}
+                {!! strtr(setting('admin.store.topups.show.mwshr_dakhly_amr_altlb_v1_saaa_v2_dh_lladmn', 'مؤشّر داخليّ: عمر الطلب :v1 ساعة:v2. ده للأدمن وحده ومش معلَن للمُرسِل.'), [':v1' => e($internalAgeHours), ':v2' => e($internalIsLate ? setting('admin.store.topups.show.mtakhr', ' (متأخّر)') : '')]) !!}
             </div>
         </div>
 
@@ -80,7 +80,7 @@
                                 {{ setting('admin.store.topups.show.rajat_swra_aliysal', 'راجعت صورة الإيصال ✓') }}
                             </button>
                             <p class="text-xs mt-2" style="color: var(--text-muted)">
-                                {{ setting('admin.store.topups.show.mafysh_aatmad_qbl_almrajaa_hta_lw_alqyma', 'مافيش اعتماد قبل المراجعة — حتى لو القيمة مطابقة للعرض بالظبط.') }}
+                                {{ setting('admin.store.topups.show.mafysh_aatmad_qbl_almrajaa_hta_lw_alqyma', 'مافيش اعتماد قبل المراجعة، حتى لو القيمة مطابقة للعرض بالظبط.') }}
                             </p>
                         </form>
                     @else
@@ -111,7 +111,7 @@
                                 style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
                             @foreach ($offers as $offer)
                                 <option value="{{ $offer->id }}" @selected($request->topup_offer_id == $offer->id)>
-                                    {{ $offer->label_ar }} {{ setting('admin.store.topups.show.adfa', '— ادفع') }} {{ rtrim(rtrim(number_format((float) $offer->pay_amount, 2), '0'), '.') }}
+                                    {{ $offer->label_ar }} {{ setting('admin.store.topups.show.adfa', '· ادفع') }} {{ rtrim(rtrim(number_format((float) $offer->pay_amount, 2), '0'), '.') }}
                                     ⟵ {{ rtrim(rtrim(number_format((float) $offer->credit_amount, 2), '0'), '.') }} {{ setting('admin.store.topups.show.kwynz', 'كوينز (') }}{{ $offer->bonus_percent > 0 ? '+' . rtrim(rtrim(number_format((float) $offer->bonus_percent, 2), '0'), '.') . '%' : setting('admin.store.topups.show.bla_zyada', 'بلا زيادة') }})
                                 </option>
                             @endforeach
@@ -154,11 +154,11 @@
                     <h2 class="font-bold text-sm">{{ setting('admin.store.topups.show.ilgha_altlb', 'إلغاء الطلب') }}</h2>
                     <label class="block text-sm">
                         {{-- ⭐ سبب الإلغاء إلزاميّ ويصل للمستخدم بنصٍّ واضح --}}
-                        <span class="block mb-1">{{ setting('admin.store.topups.show.sbb_alilgha_ilzamy_bywsl_sahb_altlb', 'سبب الإلغاء (إلزاميّ — بيوصل صاحب الطلب)') }}</span>
+                        <span class="block mb-1">{{ setting('admin.store.topups.show.sbb_alilgha_ilzamy_bywsl_sahb_altlb', 'سبب الإلغاء (إلزاميّ، بيوصل صاحب الطلب)') }}</span>
                         <textarea name="reason" rows="2" required minlength="3"
                                   class="w-full rounded-xl px-3 py-2 text-sm"
                                   style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)"
-                                  placeholder="{{ setting('admin.store.topups.show.mthal_aliysal_msh_wadh_swrh_tany_bidaa_ahsn', 'مثال: الإيصال مش واضح — صوّره تاني بإضاءة أحسن') }}"></textarea>
+                                  placeholder="{{ setting('admin.store.topups.show.mthal_aliysal_msh_wadh_swrh_tany_bidaa_ahsn', 'مثال: الإيصال مش واضح، صوّره تاني بإضاءة أحسن') }}"></textarea>
                     </label>
                     <button class="rounded-xl px-4 py-2 text-sm font-semibold"
                             style="background: color-mix(in srgb, var(--color-state-danger) 22%, transparent); color: var(--color-state-danger)">

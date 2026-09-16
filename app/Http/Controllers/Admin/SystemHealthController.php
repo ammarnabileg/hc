@@ -64,8 +64,8 @@ class SystemHealthController extends Controller
         $result = $this->health->runCheck($request->user());
 
         return back()->with('status', $result['alerts'] === []
-            ? (string) setting('system.health.run_check_ok', 'الفحص خلص — كلّ حاجة تمام ✓')
-            : strtr((string) setting('system.health.run_check_msg', 'الفحص خلص — في :a1 تنبيه محتاج نظرة، و:a2 إشعار اتبعت.'), [':a1' => (string) (count($result['alerts'])), ':a2' => (string) ($result['notified'])]));
+            ? (string) setting('system.health.run_check_ok', 'الفحص خلص، كلّ حاجة تمام ✓')
+            : strtr((string) setting('system.health.run_check_msg', 'الفحص خلص، في :a1 تنبيه محتاج نظرة، و:a2 إشعار اتبعت.'), [':a1' => (string) (count($result['alerts'])), ':a2' => (string) ($result['notified'])]));
     }
 
     /** تصدير تقرير الصحّة وتنبيهاته (صلاحيّة `system_health.export`) */
@@ -108,7 +108,7 @@ class SystemHealthController extends Controller
         $row = $this->backups->find($backup);
 
         if (! $row || ! is_file($this->backups->pathOf($row))) {
-            return back()->withErrors(['backup' => (string) setting('system.health.download_denied', 'الملفّ ده مش موجود على القرص — يمكن اتمسح من الخادم.')]);
+            return back()->withErrors(['backup' => (string) setting('system.health.download_denied', 'الملفّ ده مش موجود على القرص، يمكن اتمسح من الخادم.')]);
         }
 
         $this->backups->markDownloaded($row, $request->user());

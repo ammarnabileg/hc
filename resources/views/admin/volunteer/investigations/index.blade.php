@@ -5,7 +5,7 @@
 @section('content')
     <x-page-header
         :title="setting('admin.volunteer.investigations.index.lgna_althqyq', 'لجنة التحقيق')"
-        :subtitle="setting('admin.volunteer.investigations.index.tfayl_bdgha_wahda_lmshrf_aam_alttwa_walmqad', 'تفعيل بضغطة واحدة لمشرف عام التطوّع — والمقعدان يتعيّنان آليًّا.')"
+        :subtitle="setting('admin.volunteer.investigations.index.tfayl_bdgha_wahda_lmshrf_aam_alttwa_walmqad', 'تفعيل بضغطة واحدة لمشرف عام التطوّع، والمقعدان يتعيّنان آليًّا.')"
         :breadcrumbs="[['label' => setting('admin.volunteer.investigations.index.alttwa', 'التطوّع'), 'url' => route('admin.volunteer.index')], ['label' => setting('admin.volunteer.investigations.index.lgna_althqyq', 'لجنة التحقيق')]]">
     </x-page-header>
 
@@ -28,7 +28,7 @@
                     @endcan
                 </article>
             @empty
-                <x-empty :message="setting('admin.volunteer.investigations.index.mfysh_mswdat_mftwha', 'مفيش مسودّات مفتوحة — كلّ حاجة تحت السيطرة.')" />
+                <x-empty :message="setting('admin.volunteer.investigations.index.mfysh_mswdat_mftwha', 'مفيش مسودّات مفتوحة. كلّ حاجة تحت السيطرة.')" />
             @endforelse
         </div>
     </section>

@@ -126,12 +126,12 @@ class ChallengeController extends Controller
             $this->matchmaking->cancelReady($user);
 
             return redirect()->route('challenges.result', $match)
-                ->with('status', (string) setting('wars.messages.withdrew_match', 'انسحبت من المواجهة — والخصم كسبها.'));
+                ->with('status', (string) setting('wars.messages.withdrew_match', 'انسحبت من المواجهة، والخصم كسبها.'));
         }
 
         $this->matchmaking->cancelReady($user);
 
-        return back()->with('status', (string) setting('wars.messages.ready_cancelled', 'اتلغى استعدادك — ارجع للساحة وقت ما تحبّ.'));
+        return back()->with('status', (string) setting('wars.messages.ready_cancelled', 'اتلغى استعدادك، ارجع للساحة وقت ما تحبّ.'));
     }
 
     /** القائمة تتحدّث تلقائيًّا لحظة دخول أحدهم حربًا أو إلغائه الاستعداد (15.1) */
@@ -252,7 +252,7 @@ class ChallengeController extends Controller
         $this->matches->withdraw($match, $user);
 
         return redirect()->route('challenges.result', $match)
-            ->with('status', (string) setting('wars.messages.withdrew_penalty', 'انسحبت — والانسحاب بيكلّف، خلّي بالك المرّة الجاية.'));
+            ->with('status', (string) setting('wars.messages.withdrew_penalty', 'انسحبت، والانسحاب بيكلّف، خلّي بالك المرّة الجاية.'));
     }
 
     /** شاشة النتيجة: فوز · خسارة · **تعادل** (15.2-5) */
@@ -356,7 +356,7 @@ class ChallengeController extends Controller
             'knowledge' => [(string) setting('challenges.screen.arena_card_msg', 'ساحة الحرب'), (string) setting('challenges.screen.arena_card_msg_2', 'اختبر مهاراتك الذهنية والسرعة، وواجه خصمك وجهًا لوجه!')],
             'survival' => [(string) setting('challenges.screen.arena_card_msg_3', 'ساحة البقاء'), (string) setting('challenges.screen.arena_card_denied', 'جاوب صح وابقى… أول غلطة تخرجك!')],
             'estimation' => [(string) setting('challenges.screen.arena_card_msg_4', 'ساحة التقدير'), (string) setting('challenges.screen.arena_card_msg_5', 'قدّر الرقم الأقرب للصح واكسب!')],
-            'focus' => [(string) setting('challenges.screen.arena_card_msg_6', 'ساحة التركيز'), (string) setting('challenges.screen.arena_card_msg_7', 'عمل عميق بلا مقاطعة — والعدّ مبنيّ على أمانتك.')],
+            'focus' => [(string) setting('challenges.screen.arena_card_msg_6', 'ساحة التركيز'), (string) setting('challenges.screen.arena_card_msg_7', 'عمل عميق بلا مقاطعة، والعدّ مبنيّ على أمانتك.')],
         ];
 
         [$anchorHeadline, $anchorTagline] = $anchors[$type] ?? $anchors['knowledge'];

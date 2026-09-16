@@ -11,7 +11,7 @@
 
 @if ($actingApprovals->isNotEmpty() || $pendingDecisions->isNotEmpty())
     <section class="card p-4 md:p-5 mb-4">
-        <h2 class="font-bold mb-3">{{ setting('admin.volunteer.org.promotion_ladder.pending_title', 'سلّم الترقية — بانتظار الاعتماد') }}</h2>
+        <h2 class="font-bold mb-3">{{ setting('admin.volunteer.org.promotion_ladder.pending_title', 'سلّم الترقية: بانتظار الاعتماد') }}</h2>
 
         @foreach ($actingApprovals as $membership)
             <div class="flex items-center justify-between gap-3 py-2 text-sm border-b" style="border-color: var(--border)">
@@ -62,7 +62,7 @@
                     <div class="truncate font-semibold">{{ setting('admin.volunteer.org.promotion_ladder.track_title', 'شغور مشرف عام مسار') }} — {{ $decision->entity?->name_ar }}</div>
                     <div class="text-xs" style="color: var(--text-muted)">
                         {{ setting('admin.volunteer.org.promotion_ladder.track_candidates', 'مرشّحو السلّم من دايركتورات المسار:') }}
-                        {{ \App\Models\User::whereIn('id', (array) $decision->candidate_user_ids)->pluck('name')->join('، ') ?: setting('admin.volunteer.org.promotion_ladder.track_no_candidates', '— لا مرشّح، والملء بكودٍ مباشر فقط.') }}
+                        {{ \App\Models\User::whereIn('id', (array) $decision->candidate_user_ids)->pluck('name')->join('، ') ?: setting('admin.volunteer.org.promotion_ladder.track_no_candidates', '· لا مرشّح، والملء بكودٍ مباشر فقط.') }}
                     </div>
                 </div>
                 @can('promotion_ladder.approve')
@@ -92,7 +92,7 @@
     @endcan
 
     @can('promotion_ladder.approve')
-        <x-modal id="decide-tie-modal" :title="setting('admin.volunteer.org.promotion_ladder.decide_title', 'حسم تعادل — قرار موثّق')">
+        <x-modal id="decide-tie-modal" :title="setting('admin.volunteer.org.promotion_ladder.decide_title', 'حسم تعادل: قرار موثّق')">
             <form method="post" action="{{ route('admin.volunteer.org.promotion-ladder.decide', 0) }}" id="decide-tie-form">
                 @csrf
                 <label class="block text-sm font-semibold mb-1" for="decide-tie-winner">{{ setting('admin.volunteer.org.promotion_ladder.decide_winner', 'مين يترقّى؟') }}</label>
@@ -113,7 +113,7 @@
         <x-modal id="resolve-track-modal" :title="setting('admin.volunteer.org.promotion_ladder.track_modal_title', 'ملء شغور مشرف عام مسار')">
             <form method="post" action="{{ route('admin.volunteer.org.promotion-ladder.resolve-track', 0) }}" id="resolve-track-form">
                 @csrf
-                <label class="block text-sm font-semibold mb-1" for="resolve-track-code">{{ setting('admin.volunteer.org.promotion_ladder.track_code_label', 'كود المرشَّح — اختر من القائمة أو اكتب كودًا آخر') }}</label>
+                <label class="block text-sm font-semibold mb-1" for="resolve-track-code">{{ setting('admin.volunteer.org.promotion_ladder.track_code_label', 'كود المرشَّح: اختر من القائمة أو اكتب كودًا آخر') }}</label>
                 <input type="text" name="winner_code" id="resolve-track-code" list="resolve-track-candidates" required
                        class="w-full rounded-xl px-3 py-2 text-sm mb-3"
                        style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">

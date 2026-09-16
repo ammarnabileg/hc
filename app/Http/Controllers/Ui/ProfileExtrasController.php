@@ -32,7 +32,7 @@ class ProfileExtrasController extends Controller
         $data = $request->validate([
             'bio' => ['nullable', 'string', 'max:'.$max],
         ], [
-            'bio.max' => strtr((string) setting('profile.extras.update_bio_msg', 'النبذة أطول من :a1 حرف — اختصرها شويّة وجرّب تاني.'), [':a1' => (string) ($max)]),
+            'bio.max' => strtr((string) setting('profile.extras.update_bio_msg', 'النبذة أطول من :a1 حرف، اختصرها شويّة وجرّب تاني.'), [':a1' => (string) ($max)]),
         ], ['bio' => (string) setting('profile.extras.update_bio_msg_2', 'النبذة')]);
 
         $user = $request->user();

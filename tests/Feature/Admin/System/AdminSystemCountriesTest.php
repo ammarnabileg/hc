@@ -104,11 +104,11 @@ class AdminSystemCountriesTest extends SystemTestCase
             ->assertOk();
 
         $response->assertSee(
-            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث/الفلتر الحاليّ — جرّب فلترًا تانيًا.'),
+            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث أو الفلتر الحاليّ. جرّب فلتر تاني.'),
             false,
         );
         $response->assertDontSee(
-            setting('admin.settings.tabs.countries.mafysh_dwl_mtabqa_wsa_albhth', 'مافيش دول مطابقة — وسّع البحث.'),
+            setting('admin.settings.tabs.countries.mafysh_dwl_mtabqa_wsa_albhth', 'مافيش دول مطابقة. وسّع البحث.'),
             false,
         );
     }
@@ -122,9 +122,9 @@ class AdminSystemCountriesTest extends SystemTestCase
             ->get(route('admin.settings.index', ['tab' => 'countries']))
             ->assertOk();
 
-        $response->assertSee('مافيش دول مطابقة — وسّع البحث.');
+        $response->assertSee('مافيش دول مطابقة. وسّع البحث.');
         $response->assertDontSee(
-            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث/الفلتر الحاليّ — جرّب فلترًا تانيًا.'),
+            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث أو الفلتر الحاليّ. جرّب فلتر تاني.'),
             false,
         );
     }

@@ -38,7 +38,7 @@ class StoreDemoSeeder extends Seeder
             ['store.filters.price_max_coins', 'سقف منزلق السعر (كوينز)', 'number', '100000'],
             ['store.free_label', 'نصّ العنصر المجّانيّ', 'string', 'مجّانيّ'],
             ['store.path.note_text', 'ملاحظة المسار غير المباع منفردًا', 'string', 'يُفتَح ضمن الباقات'],
-            ['store.empty.text', 'نصّ الحالة الفارغة', 'string', 'مفيش نتائج للفلتر ده — جرّب توسّع شويّة.'],
+            ['store.empty.text', 'نصّ الحالة الفارغة', 'string', 'مفيش نتائج للفلتر ده. جرّب توسّع شويّة.'],
             ['store.bundles.empty_text', 'نصّ الحالة الفارغة للباقات', 'string', 'مفيش باقات متاحة دلوقتي.'],
 
             // ---------------- ⭐ نصوص شاشتَي المتجر والباقات (2.13 — القاعدة الذهبيّة)
@@ -48,11 +48,11 @@ class StoreDemoSeeder extends Seeder
             ['store.bundles_link_label', 'رابط «شوف الباقات»', 'string', 'شوف الباقات'],
             ['store.owned_badge', 'شارة «تملكه بالفعل» في الشبكة وصفحة العنصر', 'string', 'تملكه بالفعل'],
             ['store.index.page_title', 'عنوان شاشة المتجر', 'string', 'المتجر'],
-            ['store.index.page_subtitle', 'سطر شرح شاشة المتجر', 'text', 'اختار اللي يفيدك — والأسعار كلّها بالكوينز.'],
+            ['store.index.page_subtitle', 'سطر شرح شاشة المتجر', 'text', 'اختار اللي يفيدك، والأسعار كلّها بالكوينز.'],
             ['store.index.empty_action_label', 'زرّ الحالة الفارغة في المتجر', 'string', 'اعرض كلّ المتجر'],
             ['store.index.results_unit_label', 'وحدة عدّ النتائج في المتجر', 'string', 'عنصر'],
             ['store.bundles.page_title', 'عنوان شاشة الباقات', 'string', 'الباقات'],
-            ['store.bundles.page_subtitle', 'سطر شرح شاشة الباقات', 'text', 'عناصر مجمّعة بسعر واحد — والتوفير مكتوب بقيمته الحقيقيّة.'],
+            ['store.bundles.page_subtitle', 'سطر شرح شاشة الباقات', 'text', 'عناصر مجمّعة بسعر واحد، والتوفير مكتوب بقيمته الحقيقيّة.'],
             ['store.bundles.empty_action_label', 'زرّ الحالة الفارغة في الباقات', 'string', 'اتفرّج على المتجر'],
             ['store.bundles.results_unit_label', 'وحدة عدّ النتائج في الباقات', 'string', 'باقة'],
             ['store.bundles.back_link_label', 'زرّ الرجوع للمتجر على الموبايل', 'string', 'ارجع للمتجر'],
@@ -115,26 +115,26 @@ class StoreDemoSeeder extends Seeder
             ['store.availability.open_badge', 'شارة «متاح الآن» بلا وقت إغلاق', 'string', 'متاح الآن'],
             ['store.availability.open_until_text', 'شارة «متاح الآن حتى وقتٍ ما»', 'string', 'متاح الآن حتى {time}'],
             ['store.availability.closed_badge', 'شارة «مغلق» بلا موعد فتحٍ قادم', 'string', 'مغلق حاليًّا'],
-            ['store.availability.opens_at_text', 'شارة «مغلق الآن — يفتح كذا»', 'string', 'مغلق الآن — يفتح {time}'],
+            ['store.availability.opens_at_text', 'شارة «مغلق الآن، يفتح كذا»', 'string', 'مغلق الآن، يفتح {time}'],
             ['store.availability.time_format', 'صيغة وقتٍ في يوم اليوم نفسه', 'string', 'H:i'],
-            ['store.availability.day_time_format', 'صيغة وقتٍ في يومٍ آخر', 'string', 'l — H:i'],
+            ['store.availability.day_time_format', 'صيغة وقتٍ في يومٍ آخر', 'string', 'l، H:i'],
 
             // ---------------- ⭐ لاندنج بيدج الباقة (18 · القسم 22)
             ['store.bundle.hero_badge', 'وسم الباقة في الهيرو', 'string', 'باقة متكاملة'],
             ['store.bundle.cta_label', 'نصّ زرّ شراء الباقة', 'string', 'احصل على الباقة كاملة'],
             ['store.bundle.price_label', 'تسمية سعر الباقة', 'string', 'سعر الباقة'],
             ['store.bundle.savings_label', 'تسمية التوفير في ميزان القيمة', 'string', 'اللي بتوفّره'],
-            ['store.bundle.owned_text', 'نصّ الباقة المملوكة', 'string', 'الباقة دي معاك بالفعل — كلّ عناصرها مفتوحة في مكتبتك.'],
+            ['store.bundle.owned_text', 'نصّ الباقة المملوكة', 'string', 'الباقة دي معاك بالفعل. كلّ عناصرها مفتوحة في مكتبتك.'],
             ['store.bundle.owned_badge', 'شارة الباقة المملوكة', 'string', 'تملكه بالفعل'],
             ['store.breadcrumb_label', 'فتات الخبز: المتجر', 'string', 'المتجر'],
             ['store.bundles.breadcrumb_label', 'فتات الخبز: الباقات', 'string', 'الباقات'],
             ['store.admin.breadcrumb_label', 'فتات خبز شاشة المتجر في الإدارة', 'string', 'المتجر'],
             // ⭐ سطرٌ يمنع الـDark Pattern بنصّه: القيمة **محسوبة** لا مكتوبة (2.9 · 18)
-            ['store.bundle.honest_note', 'سطر شفافيّة القيمة الإجماليّة', 'string', 'القيمة الإجماليّة تحت محسوبة من أسعار العناصر نفسها دلوقتي — مش رقمًا مكتوبًا باليد.'],
+            ['store.bundle.honest_note', 'سطر شفافيّة القيمة الإجماليّة', 'string', 'القيمة الإجماليّة تحت محسوبة من أسعار العناصر نفسها دلوقتي. مش رقمًا مكتوبًا باليد.'],
             ['store.bundle.faq_title', 'عنوان أسئلة ما قبل الشراء', 'string', 'أسئلة قبل ما تشتري'],
             ['store.bundle.faq', 'أسئلة ما قبل الشراء للباقة', 'json', json_encode([
-                ['q' => 'العناصر دي بتتفتح إمتى؟', 'a' => 'كلّها بتتفتح في مكتبتك فور تأكيد الشراء — مافيش انتظار ولا تفعيل يدويّ.'],
-                ['q' => 'لو اشتريت عنصرًا منها قبل كده؟', 'a' => 'اللي معاك بيفضل معاك، والباقة بتفتح باقي العناصر — وماتقدرش تشتري نفس الباقة مرّتين.'],
+                ['q' => 'العناصر دي بتتفتح إمتى؟', 'a' => 'كلّها بتتفتح في مكتبتك فور تأكيد الشراء. مافيش انتظار ولا تفعيل يدويّ.'],
+                ['q' => 'لو اشتريت عنصرًا منها قبل كده؟', 'a' => 'اللي معاك بيفضل معاك، والباقة بتفتح باقي العناصر، وماتقدرش تشتري نفس الباقة مرّتين.'],
                 ['q' => 'في استرجاع؟', 'a' => 'مافيش استرجاع نقديّ، ورصيدك بيفضل في محفظتك تشتري بيه اللي تحبّه من الموقع.'],
             ], JSON_UNESCAPED_UNICODE)],
 
@@ -158,13 +158,13 @@ class StoreDemoSeeder extends Seeder
             ['store.bundle.fact_certificate', 'حقيقة الشهادة في صفّ الثقة', 'string', 'شهادة معتمدة بعد اجتياز الامتحان'],
             ['store.bundle.fact_items', 'حقيقة عدد العناصر', 'string', '{count} عناصر في الباقة'],
             ['store.bundle.fact_lessons', 'حقيقة عدد الدروس', 'string', '{count} درسًا مسجّلًا'],
-            ['store.bundle.fact_lifetime', 'حقيقة دوام الوصول', 'string', 'وصول دائم — من غير اشتراك ولا تجديد'],
+            ['store.bundle.fact_lifetime', 'حقيقة دوام الوصول', 'string', 'وصول دائم. من غير اشتراك ولا تجديد'],
 
             // «مناسبة لـ / مش مناسبة لـ» — التأهيل قبل البيع، وواجبٌ لأنّ لا استرجاع (19.4)
             ['store.bundle.blocks.fit_enabled', 'إظهار بلوك «مناسبة لـ / مش مناسبة لـ»', 'bool', '1'],
             ['store.bundle.fit_title', 'عنوان «الباقة دي مناسبة لـ»', 'string', 'الباقة دي مناسبة لـ'],
             ['store.bundle.not_fit_title', 'عنوان «مش مناسبة لـ»', 'string', 'ومش مناسبة لـ'],
-            ['store.bundle.not_fit_note', 'سطر أمانة التأهيل', 'string', 'بنقولها بصراحة قبل ما تدفع — لأنّ مافيش استرجاع نقديّ بعد الشراء.'],
+            ['store.bundle.not_fit_note', 'سطر أمانة التأهيل', 'string', 'بنقولها بصراحة قبل ما تدفع. لأنّ مافيش استرجاع نقديّ بعد الشراء.'],
 
             // «بعد الباقة هتقدر…» — نتائج وأفعال لا مزايا
             ['store.bundle.blocks.outcomes_enabled', 'إظهار بلوك النتائج', 'bool', '1'],
@@ -179,7 +179,7 @@ class StoreDemoSeeder extends Seeder
 
             // ⭐ الشهادة **بشرطها** (8) — ولا وعد بشهادةٍ بلا امتحانٍ يجتازه
             ['store.bundle.blocks.certificate_enabled', 'إظهار بلوك الشهادة', 'bool', '1'],
-            ['store.bundle.certificate_title', 'عنوان بلوك الشهادة', 'string', 'شهادة معتمدة — بشرطها'],
+            ['store.bundle.certificate_title', 'عنوان بلوك الشهادة', 'string', 'شهادة معتمدة، بشرطها'],
             ['store.bundle.certificate_text', 'نصّ شرط الشهادة', 'text', 'التدريبات دي بتصدّر شهادة معتمدة، والشهادة مش بتيجي بمجرّد الشراء: بتتصدر بعد ما تجتاز الامتحان النهائيّ للتدريب بدرجة {score}% على الأقلّ.'],
 
             // ميزان القيمة (18)
@@ -193,19 +193,19 @@ class StoreDemoSeeder extends Seeder
             */
             ['store.bundle.blocks.availability_enabled', 'إظهار بلوك الإتاحة الحقيقيّة', 'bool', '1'],
             ['store.bundle.countdown_title', 'عنوان نافذة الإتاحة', 'string', 'نافذة الإتاحة'],
-            ['store.bundle.countdown_text', 'سطر نهاية الإتاحة', 'string', 'العرض ده بينتهي في {date} — والتاريخ ده مضبوط من لوحة الإدارة، مش عدّادًا بيبدأ من أوّل لكلّ زائر.'],
+            ['store.bundle.countdown_text', 'سطر نهاية الإتاحة', 'string', 'العرض ده بينتهي في {date}، والتاريخ ده مضبوط من لوحة الإدارة، مش عدّادًا بيبدأ من أوّل لكلّ زائر.'],
             ['store.bundle.countdown_units', 'وحدات العدّاد', 'json', json_encode([
                 'days' => 'يوم', 'hours' => 'ساعة', 'minutes' => 'دقيقة', 'seconds' => 'ثانية',
             ], JSON_UNESCAPED_UNICODE)],
-            ['store.bundle.seats_text', 'سطر المقاعد المتبقّية', 'string', 'باقي {left} مقعدًا من {limit} — الرقم ده متحسب من الطلبات المدفوعة فعلًا.'],
-            ['store.bundle.sold_out_text', 'نصّ نفاد المقاعد', 'string', 'المقاعد خلصت — الباقة دي مابقتش متاحة للشراء دلوقتي.'],
-            ['store.bundle.window_closed_text', 'نصّ انتهاء نافذة الإتاحة', 'string', 'نافذة الباقة دي قفلت — استنّى الفتحة الجاية.'],
+            ['store.bundle.seats_text', 'سطر المقاعد المتبقّية', 'string', 'باقي {left} مقعدًا من {limit}. الرقم ده متحسب من الطلبات المدفوعة فعلًا.'],
+            ['store.bundle.sold_out_text', 'نصّ نفاد المقاعد', 'string', 'المقاعد خلصت. الباقة دي مابقتش متاحة للشراء دلوقتي.'],
+            ['store.bundle.window_closed_text', 'نصّ انتهاء نافذة الإتاحة', 'string', 'نافذة الباقة دي قفلت. استنّى الفتحة الجاية.'],
             ['store.bundle.not_started_text', 'نصّ ما قبل بداية الإتاحة', 'string', 'الباقة دي لسّه ماتفتحتش للشراء.'],
 
             // الإغلاق — ماذا يحدث بعد الشراء + رابط سياسة عدم الاسترجاع **قبل** الزرّ (19.4)
             ['store.bundle.after_purchase_title', 'عنوان «بعد الشراء»', 'string', 'اللي بيحصل بعد الشراء'],
-            ['store.bundle.after_purchase_text', 'نصّ «بعد الشراء»', 'text', 'أوّل ما تأكّد الشراء بتتخصم قيمة الباقة من محفظتك، وكلّ عناصرها بتتفتح على طول في «مكتبتي» — مافيش انتظار ولا تفعيل يدويّ.'],
-            ['store.bundle.no_refund_notice', 'تنبيه عدم الاسترجاع قبل الزرّ', 'string', 'مافيش استرجاع نقديّ لأيّ مدفوعات — ورصيدك بيفضل في محفظتك تشتري بيه اللي تحبّه.'],
+            ['store.bundle.after_purchase_text', 'نصّ «بعد الشراء»', 'text', 'أوّل ما تأكّد الشراء بتتخصم قيمة الباقة من محفظتك، وكلّ عناصرها بتتفتح على طول في «مكتبتي»: مافيش انتظار ولا تفعيل يدويّ.'],
+            ['store.bundle.no_refund_notice', 'تنبيه عدم الاسترجاع قبل الزرّ', 'string', 'مافيش استرجاع نقديّ لأيّ مدفوعات، ورصيدك بيفضل في محفظتك تشتري بيه اللي تحبّه.'],
 
             // الشريط اللاصق على الموبايل — نداءٌ واحد لا ينافسه ثانٍ (2.15-أ-2)
             ['store.bundle.sticky_price_label', 'وسم السعر في الشريط اللاصق', 'string', 'سعر الباقة'],
@@ -218,13 +218,13 @@ class StoreDemoSeeder extends Seeder
             ['store.bundles.enabled', 'تفعيل البندلز', 'bool', '1'],
             ['store.bundle.anchoring_enabled', 'Toggle Anchoring (شطب السعر الطبيعيّ)', 'bool', '1'],
             ['store.bundle.total_value_enabled', 'Toggle إظهار القيمة الإجماليّة', 'bool', '1'],
-            ['store.bundle.bonus_text_en', 'قالب نصّ البونص (إنجليزيّ)', 'string', '🎁 Bonus: {item} worth {amount} — free with the bundle'],
+            ['store.bundle.bonus_text_en', 'قالب نصّ البونص (إنجليزيّ)', 'string', '🎁 Bonus: {item} worth {amount}. free with the bundle'],
 
             // ⭐ قاعدتان **مقفولتان** تُعرَضان ملاحظتين لا مفتاحين (18 · 24)
             ['store.bundle.rule_contextual_title', 'عنوان قاعدة السعر السياقيّ', 'string', 'قاعدة السعر السياقيّ 🔒'],
-            ['store.bundle.rule_contextual_text', 'نصّ قاعدة السعر السياقيّ', 'text', 'السعر الطبيعيّ بيظهر في كلّ صفحات الموقع، والاستثناء الوحيد هو صفحة البندل نفسها. فالـOverride محصور في صفحة البندل وحدها — قاعدة مقفولة مش توجّل.'],
+            ['store.bundle.rule_contextual_text', 'نصّ قاعدة السعر السياقيّ', 'text', 'السعر الطبيعيّ بيظهر في كلّ صفحات الموقع، والاستثناء الوحيد هو صفحة البندل نفسها. فالـOverride محصور في صفحة البندل وحدها. قاعدة مقفولة مش توجّل.'],
             ['store.bundle.rule_no_gift_title', 'عنوان قاعدة «لا نوع هديّة»', 'string', 'مافيش نوع «هديّة» 🔒'],
-            ['store.bundle.rule_no_gift_text', 'نصّ قاعدة «لا نوع هديّة»', 'text', 'أيّ محتوى مضمَّن في البندل بيتفتح دايمًا بحكم الشراء — و«هديّة» مصطلح تسويقيّ بس، مش نوع عنصر في النظام.'],
+            ['store.bundle.rule_no_gift_text', 'نصّ قاعدة «لا نوع هديّة»', 'text', 'أيّ محتوى مضمَّن في البندل بيتفتح دايمًا بحكم الشراء، و«هديّة» مصطلح تسويقيّ بس، مش نوع عنصر في النظام.'],
 
             /*
             |----------------------------------------------------------------
@@ -232,10 +232,10 @@ class StoreDemoSeeder extends Seeder
             |----------------------------------------------------------------
             */
             ['store.admin.bundles.per_page', 'عدد صفوف جدول البندلز', 'number', '20'],
-            ['store.admin.bundles.empty_text', 'نصّ الحالة الفارغة للبندلز', 'string', 'لا بندلز — اجمع عناصرك في عرض واحد'],
+            ['store.admin.bundles.empty_text', 'نصّ الحالة الفارغة للبندلز', 'string', 'لا بندلز. اجمع عناصرك في عرض واحد'],
             ['store.admin.bundles.error_text', 'نصّ حالة الخطأ في شاشة البندلز', 'string', 'مانقدرناش نحمّل البندلز دلوقتي.'],
-            ['store.admin.bundles.pricing_locked_text', 'نصّ قفل التسعير لغير المالك', 'string', 'حقول التسعير لمالك المنصّة وحده — مخفيّة هنا، وأيّ محاولة إرسالها بتترفض على الخادم.'],
-            ['store.admin.bundles.duplicate_suffix', 'لاحقة اسم البندل المكرَّر', 'string', '— نسخة'],
+            ['store.admin.bundles.pricing_locked_text', 'نصّ قفل التسعير لغير المالك', 'string', 'حقول التسعير لمالك المنصّة وحده. مخفيّة هنا، وأيّ محاولة إرسالها بتترفض على الخادم.'],
+            ['store.admin.bundles.duplicate_suffix', 'لاحقة اسم البندل المكرَّر', 'string', '(نسخة)'],
             ['store.admin.status_labels', 'تسميات حالات عناصر المتجر', 'json', json_encode([
                 'published' => 'نشط', 'draft' => 'مسودّة', 'archived' => 'مؤرشف',
             ], JSON_UNESCAPED_UNICODE)],
@@ -253,15 +253,15 @@ class StoreDemoSeeder extends Seeder
             ['store.admin.bundles.price_min_label', 'وسم أقلّ سعر', 'string', 'أقلّ سعر'],
             ['store.admin.bundles.price_max_label', 'وسم أعلى سعر', 'string', 'أعلى سعر'],
             ['store.admin.filter_all_label', 'خيار «الكلّ» في الفلاتر', 'string', 'الكلّ'],
-            ['store.admin.empty_text', 'نصّ الحالة الفارغة العامّة للمتجر', 'string', 'مفيش حاجة هنا لسه — ابدأ بأوّل عنصر.'],
+            ['store.admin.empty_text', 'نصّ الحالة الفارغة العامّة للمتجر', 'string', 'مفيش حاجة هنا لسه. ابدأ بأوّل عنصر.'],
             ['store.admin.new_item_label', 'زرّ عنصر جديد', 'string', '+ عنصر جديد'],
 
             // ---------------- لافتات فورم البندل (24 — لا نصّ محروق في الشاشة)
-            ['store.admin.bundles.form_subtitle', 'سطر شرح شاشة البندل', 'string', 'كلّ ما في صفحة الباقة — من عناصرها لآخر نصّ فيها.'],
-            ['store.admin.bundles.empty_items_text', 'نصّ الباقة بلا عناصر', 'string', 'الباقة لسّه فاضية — ضيف أوّل عنصر وهتتحسب قيمتها تلقائيًّا.'],
+            ['store.admin.bundles.form_subtitle', 'سطر شرح شاشة البندل', 'string', 'كلّ ما في صفحة الباقة، من عناصرها لآخر نصّ فيها.'],
+            ['store.admin.bundles.empty_items_text', 'نصّ الباقة بلا عناصر', 'string', 'الباقة لسّه فاضية. ضيف أوّل عنصر وهتتحسب قيمتها تلقائيًّا.'],
             ['store.admin.bundles.natural_price_label', 'وسم السعر الطبيعيّ', 'string', 'الطبيعيّ'],
             ['store.admin.bundles.override_label', 'وسم سعر العنصر داخل الباقة', 'string', 'سعره داخل الباقة'],
-            ['store.admin.bundles.override_hint', 'شرح Override العنصر', 'text', 'بيوصل بسعره الطبيعيّ — عدّله لو عايز سعرًا خاصًّا داخل الباقة، والـOverride ده محصور في صفحة البندل وحدها.'],
+            ['store.admin.bundles.override_hint', 'شرح Override العنصر', 'text', 'بيوصل بسعره الطبيعيّ. عدّله لو عايز سعرًا خاصًّا داخل الباقة، والـOverride ده محصور في صفحة البندل وحدها.'],
             ['store.admin.bundles.bonus_toggle_label', 'Toggle اعرضه كبونص', 'string', 'اعرضه كبونص'],
             ['store.admin.bundles.save_row_label', 'زرّ حفظ صفّ العنصر', 'string', 'احفظ'],
             ['store.admin.bundles.remove_item_label', 'زرّ إزالة العنصر', 'string', 'شيل العنصر'],
@@ -275,24 +275,24 @@ class StoreDemoSeeder extends Seeder
             ['store.admin.bundles.description_en_label', 'وسم الوصف الإنجليزيّ', 'string', 'الوصف (إنجليزيّ)'],
             ['store.admin.bundles.indexable_label', 'وسم فهرسة الصفحة', 'string', 'اسمح لمحرّكات البحث تفهرس الصفحة'],
             // ⭐ حقل صورة OG للبندل (21.1-أ) — العمود كان يُقرَأ بلا حقلٍ يكتبه
-            ['store.admin.bundles.og_image_label', 'وسم صورة OG للبندل', 'string', 'صورة المشاركة (OG) — مسار من مكتبة الوسائط'],
+            ['store.admin.bundles.og_image_label', 'وسم صورة OG للبندل', 'string', 'صورة المشاركة (OG): مسار من مكتبة الوسائط'],
             ['store.admin.bundles.og_image_hint', 'شرح صورة OG للبندل', 'text', 'الصورة اللي بتظهر لمّا حدّ يشارك رابط الباقة. سيبها فاضية وهيرجع للغلاف تلقائيًّا.'],
             ['store.admin.bundles.price_label', 'وسم سعر البندل', 'string', 'سعر البندل (كوينز)'],
             ['store.admin.bundles.discount_percent_label', 'وسم نسبة الخصم المعروضة', 'string', 'نسبة الخصم المعروضة'],
             ['store.admin.bundles.anchor_toggle_label', 'Toggle شطب السعر الطبيعيّ', 'string', 'اشطب السعر الطبيعيّ (Anchoring)'],
             ['store.admin.bundles.total_value_toggle_label', 'Toggle إظهار القيمة الإجماليّة', 'string', 'اعرض القيمة الإجماليّة'],
             ['store.admin.bundles.bonus_template_label', 'وسم قالب البونص للبندل', 'string', 'قالب نصّ البونص لهذا البندل'],
-            ['store.admin.bundles.bonus_template_hint', 'شرح قالب البونص', 'text', 'المتغيّرات: {item} · {amount} — وسيبه فاضي عشان يورث القالب العامّ.'],
+            ['store.admin.bundles.bonus_template_hint', 'شرح قالب البونص', 'text', 'المتغيّرات: {item} · {amount}، وسيبه فاضي عشان يورث القالب العامّ.'],
             ['store.admin.bundles.available_from_label', 'وسم بداية الإتاحة', 'string', 'بداية الإتاحة'],
             ['store.admin.bundles.available_until_label', 'وسم نهاية الإتاحة', 'string', 'نهاية الإتاحة'],
             ['store.admin.bundles.purchase_limit_label', 'وسم حدّ الشراء', 'string', 'حدّ الشراء (عدد المقاعد)'],
-            ['store.admin.bundles.availability_hint', 'شرح قاعدة الندرة الحقيقيّة', 'text', 'العدّاد على اللاندنج مابيظهرش خالص من غير تاريخ نهاية حقيقيّ، و«باقي N مقعدًا» مابيظهرش من غير حدّ شراء — والرقم متحسب من الطلبات المدفوعة. مافيش عدّاد وهميّ ولا ندرة مزيّفة.'],
+            ['store.admin.bundles.availability_hint', 'شرح قاعدة الندرة الحقيقيّة', 'text', 'العدّاد على اللاندنج مابيظهرش خالص من غير تاريخ نهاية حقيقيّ، و«باقي N مقعدًا» مابيظهرش من غير حدّ شراء، والرقم متحسب من الطلبات المدفوعة. مافيش عدّاد وهميّ ولا ندرة مزيّفة.'],
             ['store.admin.bundles.save_label', 'زرّ حفظ البندل', 'string', 'احفظ البندل'],
             ['store.admin.bundles.inherit_state_hint', 'شرح الحالة الموروثة للسكشن', 'string', 'الموروث دلوقتي:'],
             ['store.admin.bundles.outcomes_label', 'وسم قائمة النتائج', 'string', 'بعد الباقة هتقدر… (سطر لكلّ نتيجة)'],
             ['store.admin.bundles.fit_for_label', 'وسم قائمة «مناسبة لـ»', 'string', 'مناسبة لـ (سطر لكلّ حالة)'],
             ['store.admin.bundles.not_fit_for_label', 'وسم قائمة «مش مناسبة لـ»', 'string', 'مش مناسبة لـ (سطر لكلّ حالة)'],
-            ['store.admin.bundles.faq_label', 'وسم أسئلة البندل', 'string', 'أسئلة هذا البندل — سطر لكلّ سؤال بصيغة: السؤال | الإجابة'],
+            ['store.admin.bundles.faq_label', 'وسم أسئلة البندل', 'string', 'أسئلة هذا البندل، سطر لكلّ سؤال بصيغة: السؤال | الإجابة'],
             ['store.admin.bundles.code_slot_labels', 'تسميات موضعَي حقن الكود', 'json', json_encode([
                 'head' => 'كود داخل <head> لصفحة هذا البندل',
                 'body_end' => 'كود آخر ما قبل </body> لصفحة هذا البندل',
@@ -389,7 +389,7 @@ class StoreDemoSeeder extends Seeder
             ['store.admin.bundles.inherited_badge', 'شارة الحقل الموروث', 'string', 'موروث'],
             ['store.admin.bundles.custom_badge', 'شارة الحقل المخصّص', 'string', 'مخصّص'],
             ['store.admin.bundles.revert_label', 'زرّ الرجوع للموروث', 'string', '↺ رجّع للموروث'],
-            ['store.admin.bundles.inherit_hint', 'شرح الوراثة في الفورم', 'text', 'سيب الحقل فاضي عشان يورث النصّ العامّ — ولو كتبت فيه بيبقى مخصّصًا لهذا البندل وحده. والفاضي مش بيتخزن، فتعديلك للنصّ العامّ بيوصل كلّ بندل موروث فورًا.'],
+            ['store.admin.bundles.inherit_hint', 'شرح الوراثة في الفورم', 'text', 'سيب الحقل فاضي عشان يورث النصّ العامّ، ولو كتبت فيه بيبقى مخصّصًا لهذا البندل وحده. والفاضي مش بيتخزن، فتعديلك للنصّ العامّ بيوصل كلّ بندل موروث فورًا.'],
             ['store.admin.bundles.landing_section_title', 'عنوان قسم نصوص اللاندنج', 'string', 'نصوص اللاندنج وسكشناتها'],
             ['store.admin.bundles.preview_label', 'زرّ معاينة اللاندنج', 'string', 'معاينة اللاندنج'],
             ['store.admin.bundles.duplicate_label', 'زرّ تكرار البندل', 'string', 'تكرار بندل'],
@@ -397,12 +397,12 @@ class StoreDemoSeeder extends Seeder
             ['store.admin.bundles.archive_label', 'زرّ أرشفة البندل', 'string', 'أرشفة'],
             ['store.admin.bundles.new_label', 'زرّ بندل جديد', 'string', '+ بندل'],
             ['store.admin.bundles.saved_text', 'نصّ نجاح حفظ البندل', 'string', 'البندل اتحفظ ✓'],
-            ['store.admin.bundles.duplicated_text', 'نصّ نجاح تكرار البندل', 'string', 'اتعمل نسخة من البندل ✓ — عدّلها وانشرها.'],
-            ['store.admin.bundles.archived_text', 'نصّ نجاح الأرشفة', 'string', 'البندل اتأرشف — ومحدش هيفقد نسخته.'],
+            ['store.admin.bundles.duplicated_text', 'نصّ نجاح تكرار البندل', 'string', 'اتعمل نسخة من البندل ✓. عدّلها وانشرها.'],
+            ['store.admin.bundles.archived_text', 'نصّ نجاح الأرشفة', 'string', 'البندل اتأرشف، ومحدش هيفقد نسخته.'],
             ['store.admin.bundles.settings_saved_text', 'نصّ حفظ إعدادات البندلز', 'string', 'الإعدادات اتحفظت ✓'],
             ['store.admin.bundles.settings_reset_text', 'نصّ إرجاع الإعدادات للافتراضيّ', 'string', 'الإعدادات رجعت للافتراضيّ ✓'],
             ['store.admin.bundles.settings_title', 'عنوان بلوك إعدادات البندلز', 'string', 'إعدادات البندلز'],
-            ['store.admin.bundles.computed_value_hint', 'شرح القيمة الإجماليّة المحسوبة', 'text', 'القيمة الإجماليّة بتتحسب من أسعار عناصر الباقة لحظة العرض — مش حقلًا بيتكتب. ونسبة الخصم المعروضة بتتشتق منها ومن سعر البندل.'],
+            ['store.admin.bundles.computed_value_hint', 'شرح القيمة الإجماليّة المحسوبة', 'text', 'القيمة الإجماليّة بتتحسب من أسعار عناصر الباقة لحظة العرض. مش حقلًا بيتكتب. ونسبة الخصم المعروضة بتتشتق منها ومن سعر البندل.'],
 
             /*
             |----------------------------------------------------------------
@@ -412,17 +412,17 @@ class StoreDemoSeeder extends Seeder
             |    `</body>` مباشرة. **فقط**». والحقلان عمودان على `bundles` لا إعداد.
             | 🔒 ويحرّرهما **مالك المنصّة وحده** — وهو الحارس الوحيد، بلا شرطِ حقن.
             */
-            ['store.bundle.code_owner_only_note', 'ملاحظة حصر الكود بالمالك', 'text', 'الحقول دي بتحقن كودًا حرًّا في صفحة البندل بلا أيّ تعقيم — ولذلك بيد مالك المنصّة وحده، لأنّ جافاسكربت في الهيد بيملك جلسة كلّ من يفتح الصفحة.'],
+            ['store.bundle.code_owner_only_note', 'ملاحظة حصر الكود بالمالك', 'text', 'الحقول دي بتحقن كودًا حرًّا في صفحة البندل بلا أيّ تعقيم، ولذلك بيد مالك المنصّة وحده، لأنّ جافاسكربت في الهيد بيملك جلسة كلّ من يفتح الصفحة.'],
             ['store.bundle.code_section_title', 'عنوان قسم الكود المخصّص', 'string', 'كود مخصّص 🔒'],
 
             // ---------------- المعاينة المجّانيّة (20.3 · 21.1)
             ['store.preview.pages_text', 'نصّ صفحات العيّنة', 'string', 'أوّل {pages} صفحات مجّانيّة كمعاينة قبل الشراء.'],
-            ['store.preview.lessons_text', 'نصّ دروس المعاينة', 'string', 'أوّل {lessons} درس مجّانيّ كمعاينة — جرّب قبل ما تشتري.'],
+            ['store.preview.lessons_text', 'نصّ دروس المعاينة', 'string', 'أوّل {lessons} درس مجّانيّ كمعاينة. جرّب قبل ما تشتري.'],
             ['store.seo.index_products', 'فهرسة صفحات المنتجات', 'bool', '1'],
 
             // ---------------- الكوبونات (24.3)
             ['store.coupons.enabled', 'تفعيل أكواد الخصم', 'bool', '1'],
-            ['store.coupon.invalid_text', 'نصّ الكود غير الصالح', 'string', 'الكود ده مش صالح للطلب ده — راجعه أو أكمل من غيره.'],
+            ['store.coupon.invalid_text', 'نصّ الكود غير الصالح', 'string', 'الكود ده مش صالح للطلب ده. راجعه أو أكمل من غيره.'],
             ['store.coupon.expired_text', 'نصّ الكود المنتهي', 'string', 'الكود ده خلصت مدّته.'],
             ['store.coupon.exhausted_text', 'نصّ الكود المستنفد', 'string', 'الكود ده اتستخدم بالكامل.'],
             ['store.coupon.per_user_text', 'نصّ تجاوز حدّ المستخدم', 'string', 'استخدمت الكود ده قبل كده.'],
@@ -438,11 +438,11 @@ class StoreDemoSeeder extends Seeder
             ['store.order.number_prefix', 'بادئة رقم الطلب', 'string', 'ORD-'],
             ['store.order.number_padding', 'عدد خانات تسلسل الطلب', 'number', '6'],
             ['store.transaction.reason_text', 'سبب معاملة الشراء', 'string', 'شراء: {item}'],
-            ['store.checkout.success_text', 'نصّ نجاح الشراء', 'string', 'تمّ الشراء ✓ — طلبك رقم {number} وتلاقي شراءك في مكتبتك.'],
-            ['store.insufficient_text', 'نصّ عدم كفاية الرصيد', 'string', 'رصيدك أقلّ من قيمة الطلب — اشحن محفظتك وكمّل من نفس المكان.'],
-            ['store.owned_text', 'نصّ ما يملكه المستخدم', 'string', 'ده معاك بالفعل — تلاقيه في مكتبتك.'],
+            ['store.checkout.success_text', 'نصّ نجاح الشراء', 'string', 'تمّ الشراء ✓. طلبك رقم {number} وتلاقي شراءك في مكتبتك.'],
+            ['store.insufficient_text', 'نصّ عدم كفاية الرصيد', 'string', 'رصيدك أقلّ من قيمة الطلب. اشحن محفظتك وكمّل من نفس المكان.'],
+            ['store.owned_text', 'نصّ ما يملكه المستخدم', 'string', 'ده معاك بالفعل، تلاقيه في مكتبتك.'],
             ['store.unavailable_text', 'نصّ العنصر غير المتاح', 'string', 'العنصر ده مش متاح للشراء دلوقتي.'],
-            ['store.disabled_text', 'نصّ إقفال المتجر', 'string', 'المتجر مقفول مؤقّتًا — جرّب بعد شويّة.'],
+            ['store.disabled_text', 'نصّ إقفال المتجر', 'string', 'المتجر مقفول مؤقّتًا. جرّب بعد شويّة.'],
             ['store.topup.button_text', 'نصّ زرّ الشحن في الهيدر', 'string', 'شحن'],
             ['store.topup.sheet_button_text', 'نصّ زرّ الشحن داخل البوب-أب', 'string', 'اشحن المحفظة'],
 
@@ -450,16 +450,16 @@ class StoreDemoSeeder extends Seeder
             ['store.cart.enabled', 'تفعيل السلّة الاختياريّة', 'bool', '1'],
             ['store.cart.max_items', 'أقصى عدد عناصر في السلّة', 'number', '10'],
             ['store.cart.page_title', 'عنوان صفحة مراجعة الطلب', 'string', 'مراجعة الطلب'],
-            ['store.cart.page_subtitle', 'سطر صفحة المراجعة', 'string', 'راجع طلبك وادفع — وكلّ الأرقام محسوبة عندنا.'],
+            ['store.cart.page_subtitle', 'سطر صفحة المراجعة', 'string', 'راجع طلبك وادفع، وكلّ الأرقام محسوبة عندنا.'],
             ['store.cart.order_title', 'اسم الطلب في المعاملة', 'string', 'طلب من السلّة'],
             ['store.cart.add_label', 'زرّ الإضافة للسلّة', 'string', 'ضيفه للسلّة'],
             ['store.cart.remove_label', 'زرّ الحذف من السلّة', 'string', 'شيله'],
             ['store.cart.submit_label', 'زرّ الدفع في المراجعة', 'string', 'ادفع وأكمل'],
             ['store.cart.added_text', 'نصّ الإضافة للسلّة', 'string', 'اتضاف للسلّة ✓'],
             ['store.cart.removed_text', 'نصّ الحذف من السلّة', 'string', 'اتشال من السلّة ✓'],
-            ['store.cart.empty_text', 'نصّ السلّة الفارغة', 'string', 'سلّتك فاضية — ضيف حاجة الأوّل.'],
+            ['store.cart.empty_text', 'نصّ السلّة الفارغة', 'string', 'سلّتك فاضية. ضيف حاجة الأوّل.'],
             ['store.cart.empty_action_label', 'زرّ الحالة الفارغة في السلّة', 'string', 'اتفرّج على المتجر'],
-            ['store.cart.full_text', 'نصّ امتلاء السلّة', 'string', 'السلّة وصلت أقصى عدد — أكمل الطلب ده الأوّل.'],
+            ['store.cart.full_text', 'نصّ امتلاء السلّة', 'string', 'السلّة وصلت أقصى عدد. أكمل الطلب ده الأوّل.'],
             ['store.cart.bump_line_label', 'وسم سطر الـBump', 'string', 'إضافة للطلب'],
             ['store.cart.coupon_label', 'عنوان حقل الكوبون في المراجعة', 'string', 'كود خصم (اختياريّ)'],
             ['store.cart.subtotal_label', 'وسم المجموع', 'string', 'المجموع'],
@@ -471,8 +471,8 @@ class StoreDemoSeeder extends Seeder
             // ---------------- ⭐ أقرب عرض يكفّيك داخل بوب-أب الشراء (19.5-ب-2)
             ['store.topup.suggest_offer', 'اقتراح أقرب عرض شحن', 'bool', '1'],
             ['store.topup.suggest_methods', 'طرق الشحن المقترَحة', 'json', '["manual","gateway"]'],
-            ['store.topup.nearest_offer_text', 'نصّ أقرب عرض يكفّيك', 'text', 'ناقصك {needed} — أقرب عرض يكفّيك: ادفع {pay} وتاخد {credit} كوين (+{bonus}% إضافيّة).'],
-            ['store.topup.largest_offer_text', 'نصّ أكبر عرض متاح', 'text', 'ناقصك {needed} — وأكبر عرض عندنا دلوقتي: ادفع {pay} وتاخد {credit} كوين، وتقدر تشحن أكتر من مرّة.'],
+            ['store.topup.nearest_offer_text', 'نصّ أقرب عرض يكفّيك', 'text', 'ناقصك {needed}. أقرب عرض يكفّيك: ادفع {pay} وتاخد {credit} كوين (+{bonus}% إضافيّة).'],
+            ['store.topup.largest_offer_text', 'نصّ أكبر عرض متاح', 'text', 'ناقصك {needed}، وأكبر عرض عندنا دلوقتي: ادفع {pay} وتاخد {credit} كوين، وتقدر تشحن أكتر من مرّة.'],
 
             // ---------------- سياسة عدم الاسترجاع (19.4)
             ['store.refund.policy_title', 'عنوان صفحة سياسة الاسترجاع', 'string', 'سياسة عدم الاسترجاع'],
@@ -480,7 +480,7 @@ class StoreDemoSeeder extends Seeder
             ['store.refund.ack_required_text', 'نصّ رفض الشراء بلا إقرار', 'string', 'محتاجين إقرارك بسياسة عدم الاسترجاع الأوّل، وبعدها نكمّل الشراء.'],
             ['store.refund.link_text', 'نصّ رابط السياسة', 'string', 'اقرأ سياسة عدم الاسترجاع'],
             ['store.refund.alternative_text', 'نصّ البديل المعتمَد', 'string', 'البديل المعتمَد: رصيدك يفضل في محفظتك وتشتري بيه اللي تحبّه من الموقع.'],
-            ['store.refund.page_subtitle', 'سطر شرح صفحة السياسة', 'text', 'واضحة قبل الدفع — عشان محدّش يتفاجئ بعده.'],
+            ['store.refund.page_subtitle', 'سطر شرح صفحة السياسة', 'text', 'واضحة قبل الدفع، عشان محدّش يتفاجئ بعده.'],
             ['store.refund.meta_description', 'وصف صفحة السياسة لمحرّكات البحث', 'text', 'سياسة الاسترجاع المعتمَدة في المنصّة.'],
         ];
 
@@ -580,7 +580,7 @@ class StoreDemoSeeder extends Seeder
             [
                 'slug' => 'excel-for-work',
                 'name_ar' => 'إكسل للشغل: من الصفر للاحتراف العمليّ',
-                'description_ar' => 'تدريب عمليّ يمشي معك خطوة بخطوة في الجداول والمعادلات والتقارير — بأمثلة من شغل حقيقيّ.',
+                'description_ar' => 'تدريب عمليّ يمشي معك خطوة بخطوة في الجداول والمعادلات والتقارير. بأمثلة من شغل حقيقيّ.',
                 'price_coins' => 450,
                 'offer_price_coins' => 350,
                 'offer_ends_at' => now()->addDays(10),
@@ -661,7 +661,7 @@ class StoreDemoSeeder extends Seeder
 
     private function policyHtml(): string
     {
-        return '<p><strong>لا يوجد استرجاع نقديّ لأيّ مدفوعات</strong> — لا على شحن المحفظة، ولا على شراء تدريب أو مسار أو باقة أو منتج.</p>'
+        return '<p><strong>لا يوجد استرجاع نقديّ لأيّ مدفوعات</strong>. لا على شحن المحفظة، ولا على شراء تدريب أو مسار أو باقة أو منتج.</p>'
             .'<p>البديل المعتمَد: <strong>رصيدك يفضل في محفظتك</strong> وتشتري بيه اللي تحبّه من الموقع، فالقيمة ما بتضيعش.</p>'
             .'<p>لو حصل خطأ تقنيّ (خصم مكرّر أو عمليّة فاشلة) بنصحّح رصيدك بمعاملة موثّقة في سجلّ معاملاتك.</p>';
     }

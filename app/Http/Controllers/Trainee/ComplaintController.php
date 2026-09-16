@@ -88,13 +88,13 @@ class ComplaintController extends Controller
             'body' => ['required', 'string', 'min:10'],
             'attachment' => ['nullable', 'file', 'max:'.ComplaintService::attachmentMaxKb()],
         ], [
-            'required' => (string) setting('complaints.error.required', 'الحقل ده مطلوب — اكتبه وجرّب تاني.'),
+            'required' => (string) setting('complaints.error.required', 'الحقل ده مطلوب، اكتبه وجرّب تاني.'),
             'category.required' => (string) setting('complaints.error.category_required', 'اختار السبب من القائمة.'),
             'wants_contact.required' => (string) setting('complaints.error.wants_contact_required', 'قول لنا: ترحب إننا نتواصل معاك ولا لأ؟'),
-            'title.min' => (string) setting('complaints.error.title_min', 'العنوان قصيّر — اكتب جملة توضّح الموضوع.'),
+            'title.min' => (string) setting('complaints.error.title_min', 'العنوان قصيّر، اكتب جملة توضّح الموضوع.'),
             'body.min' => (string) setting('complaints.error.body_min', 'اكتب تفاصيل أكتر شوية عشان نقدر نساعدك.'),
             'in' => (string) setting('complaints.error.not_allowed', 'الاختيار ده مش من الخيارات المتاحة.'),
-            'attachment.max' => (string) setting('complaints.error.attachment_max', 'المرفق كبير — اختار ملفّ أصغر.'),
+            'attachment.max' => (string) setting('complaints.error.attachment_max', 'المرفق كبير، اختار ملفّ أصغر.'),
         ], [
             'type' => (string) setting('complaints.field.type_label', 'النوع'),
             'wants_contact' => (string) setting('complaints.field.wants_contact_label', 'هل ترغب في التواصل معك؟'),
@@ -111,7 +111,7 @@ class ComplaintController extends Controller
             ->with('status', str_replace(
                 ':number',
                 (string) $complaint->number,
-                (string) setting('complaints.sent_message', 'وصلتنا رسالتك — رقم التذكرة :number. هنردّ عليك في أقرب وقت.'),
+                (string) setting('complaints.sent_message', 'وصلتنا رسالتك، رقم التذكرة :number. هنردّ عليك في أقرب وقت.'),
             ));
     }
 
@@ -133,7 +133,7 @@ class ComplaintController extends Controller
         ], [
             'body.required' => (string) setting('complaints.error.reply_required', 'اكتب ردّك الأوّل.'),
             'body.min' => (string) setting('complaints.error.reply_min', 'اكتب كلمتين على الأقلّ.'),
-            'attachment.max' => (string) setting('complaints.error.attachment_max', 'المرفق كبير — اختار ملفّ أصغر.'),
+            'attachment.max' => (string) setting('complaints.error.attachment_max', 'المرفق كبير، اختار ملفّ أصغر.'),
         ], [
             'body' => (string) setting('complaints.field.reply_label', 'الردّ'),
             'attachment' => (string) setting('complaints.field.attachment_label', 'مرفق (اختياريّ)'),

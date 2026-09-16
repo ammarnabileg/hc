@@ -19,7 +19,7 @@
 @section('content')
     <x-page-header
         :title="setting('volunteer.org_department.title', 'الأعضاء والبوزشنز')"
-        :subtitle="$root ? $root->name_ar.setting('volunteer.org_department.subtitle', ' — القسم كامل بكلّ فرعيّاته') : null"
+        :subtitle="$root ? $root->name_ar.setting('volunteer.org_department.subtitle', ': القسم كامل بكلّ فرعيّاته') : null"
         :breadcrumbs="[['label' => setting('volunteer.common.breadcrumb_root', 'لوحة التطوّع'), 'url' => url('/volunteer')], ['label' => setting('volunteer.org_department.label', 'قسمي')], ['label' => setting('volunteer.org_department.title', 'الأعضاء والبوزشنز')]]">
         <x-slot:action>
             @include('volunteer.org.partials.entity-switcher', ['action' => route('volunteer.department')])
@@ -27,7 +27,7 @@
     </x-page-header>
 
     @if (! $root)
-        <x-empty :message="setting('volunteer.org_department.empty', 'لسّه مش مُسكَّن في كيان — أوّل خطوة مستنّياك')" :action="setting('volunteer.org_department.action', 'الرجوع للرئيسيّة')" :href="route('dashboard')" />
+        <x-empty :message="setting('volunteer.org_department.empty', 'لسّه مش مُسكَّن في كيان، أوّل خطوة مستنّياك')" :action="setting('volunteer.org_department.action', 'الرجوع للرئيسيّة')" :href="route('dashboard')" />
     @else
         {{-- سطر «أخوكم» الشرفيّ — خارج العدّاد وخارج الفلاتر (13.4-ص-ب) --}}
         @include('volunteer.org.partials.honorary-line', ['honorary' => $honorary])
@@ -228,7 +228,7 @@
         'open_profile' => (string) setting('volunteer.org_department.js_open_profile', 'فتح البروفايل'),
         'kudos' => (string) setting('volunteer.org_department.js_kudos', 'شكر (Kudos)'),
         'loading' => (string) setting('volunteer.org_department.js_loading', 'جارٍ التحميل…'),
-        'load_failed' => (string) setting('volunteer.org_department.js_load_failed', 'تعذّر تحميل الملفّ — جرّب تاني.'),
+        'load_failed' => (string) setting('volunteer.org_department.js_load_failed', 'تعذّر تحميل الملفّ، جرّب تاني.'),
     ];
 @endphp
 

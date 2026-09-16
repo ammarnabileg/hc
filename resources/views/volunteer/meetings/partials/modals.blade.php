@@ -6,11 +6,11 @@
 @endphp
 
 @if ($windowOpen && $status !== 'registered')
-    <x-modal :id="'register-'.$meeting->id" title="{{ setting('volunteer.meetings_modals.tooltip', 'تسجيل حضور —') }} {{ $meeting->title }}">
+    <x-modal :id="'register-'.$meeting->id" title="{{ setting('volunteer.meetings_modals.tooltip', 'تسجيل حضور:') }} {{ $meeting->title }}">
         <form method="post" action="{{ route('volunteer.meetings.register', $meeting) }}" class="space-y-3">
             @csrf
             <p class="text-sm" style="color: var(--text-muted)">
-                {{ setting('volunteer.meetings_modals.text', 'التحقّق بيتمّ على الخادم. الكود الغلط مش هياخد منك محاولتك — جرّب تاني براحتك.') }}
+                {{ setting('volunteer.meetings_modals.text', 'التحقّق بيتمّ على الخادم. الكود الغلط مش هياخد منك محاولتك، جرّب تاني براحتك.') }}
             </p>
 
             @if ($meeting->attendance_code)
@@ -42,7 +42,7 @@
 @endif
 
 @if ($meeting->status !== 'ended' && $meeting->status !== 'cancelled' && ! in_array($status, ['excused', 'excused_settled'], true))
-    <x-modal :id="'excuse-'.$meeting->id" title="{{ setting('volunteer.meetings_modals.tooltip_2', 'اعتذار مسبق —') }} {{ $meeting->title }}">
+    <x-modal :id="'excuse-'.$meeting->id" title="{{ setting('volunteer.meetings_modals.tooltip_2', 'اعتذار مسبق:') }} {{ $meeting->title }}">
         <form method="post" action="{{ route('volunteer.meetings.excuse', $meeting) }}" class="space-y-3">
             @csrf
             <p class="text-sm" style="color: var(--text-muted)">{{ setting('volunteer.meetings_modals.field_2', 'الاعتذار المسبق بيمنع خصم الغياب تمامًا.') }}</p>
@@ -59,7 +59,7 @@
 @endif
 
 @if ($canManage && $meeting->status !== 'ended' && $meeting->status !== 'cancelled')
-    <x-modal :id="'end-'.$meeting->id" title="{{ setting('volunteer.meetings_modals.tooltip_3', 'إنهاء الاجتماع —') }} {{ $meeting->title }}">
+    <x-modal :id="'end-'.$meeting->id" title="{{ setting('volunteer.meetings_modals.tooltip_3', 'إنهاء الاجتماع:') }} {{ $meeting->title }}">
         <form method="post" action="{{ route('volunteer.meetings.end', $meeting) }}"
               enctype="multipart/form-data" class="space-y-3">
             @csrf

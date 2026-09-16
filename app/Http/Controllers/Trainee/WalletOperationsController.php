@@ -84,7 +84,7 @@ class WalletOperationsController extends Controller
             return back()->withInput()->withErrors(['wallet' => $e->getMessage()]);
         }
 
-        return back()->with('status', strtr((string) setting('wallet.operations.transfer_ok', 'الحوالة اتبعتت ✓ — وصله :a1 :a2.'), [':a1' => (string) ($this->number((float) $transfer->net_amount)), ':a2' => (string) ($transfer->currency?->name_ar)]));
+        return back()->with('status', strtr((string) setting('wallet.operations.transfer_ok', 'الحوالة اتبعتت ✓، وصله :a1 :a2.'), [':a1' => (string) ($this->number((float) $transfer->net_amount)), ':a2' => (string) ($transfer->currency?->name_ar)]));
     }
 
     // --------------------------------------------------------- تحويل العملة
@@ -128,7 +128,7 @@ class WalletOperationsController extends Controller
             return back()->withInput()->withErrors(['wallet' => $e->getMessage()]);
         }
 
-        return back()->with('status', strtr((string) setting('wallet.operations.exchange_ok', 'التحويل تمّ ✓ — اتضاف لك :a1 :a2.'), [':a1' => (string) ($this->number((float) $exchange->credited_amount)), ':a2' => (string) ($exchange->to_currency?->name_ar)]));
+        return back()->with('status', strtr((string) setting('wallet.operations.exchange_ok', 'التحويل تمّ ✓، اتضاف لك :a1 :a2.'), [':a1' => (string) ($this->number((float) $exchange->credited_amount)), ':a2' => (string) ($exchange->to_currency?->name_ar)]));
     }
 
     // ---------------------------------------------------------- سحب الأرباح
@@ -166,7 +166,7 @@ class WalletOperationsController extends Controller
         }
 
         return redirect()->route('wallet.withdrawals')->with('status',
-            strtr((string) setting('wallet.operations.withdraw_ok', 'طلب السحب :a1 اتسجّل ✓ — هيوصلك $:a2 بعد المراجعة.'), [':a1' => (string) ($withdrawal->number), ':a2' => (string) ($this->number((float) $withdrawal->net_amount))]));
+            strtr((string) setting('wallet.operations.withdraw_ok', 'طلب السحب :a1 اتسجّل ✓، هيوصلك $:a2 بعد المراجعة.'), [':a1' => (string) ($withdrawal->number), ':a2' => (string) ($this->number((float) $withdrawal->net_amount))]));
     }
 
     // ------------------------------------------------------------------ داخليّ

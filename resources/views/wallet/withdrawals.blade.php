@@ -53,7 +53,7 @@
         <h2 class="font-bold mb-3">{{ setting('wallet.withdrawals.table_title', 'جدول المسحوبات') }}</h2>
 
         @if ($rows->isEmpty())
-            <x-empty :message="setting('wallet.withdrawals.empty_message', 'لسّه مافيش مسحوبات — أوّل أرباحك على بُعد دعوة واحدة.')" />
+            <x-empty :message="setting('wallet.withdrawals.empty_message', 'لسّه مافيش مسحوبات، أوّل أرباحك على بُعد دعوة واحدة.')" />
         @else
             {{-- سطح المكتب: جدول ستّة أعمدة (2.15-أ-5) ومنه عمود صورة الفاتورة (19.2) --}}
             <div class="card hidden md:block overflow-hidden">

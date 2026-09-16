@@ -97,7 +97,7 @@ class RequirementsChecker
             'required' => $required,
             'fix' => $required
                 ? strtr(setting('setup.requirements_checker.extension_4', 'فعّل الامتداد :p1 من إعدادات PHP في الاستضافة، أو اطلبه من الدعم الفنّيّ.'), [':p1' => (string) ($extension)])
-                : setting('setup.requirements_checker.extension_5', 'اختياريّ — المنصّة تشتغل بدونه، لكن تفعيله يحسّن أداء بعض الميزات.'),
+                : setting('setup.requirements_checker.extension_5', 'اختياريّ، المنصّة تشتغل بدونه، لكن تفعيله يحسّن أداء بعض الميزات.'),
         ];
     }
 

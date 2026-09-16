@@ -129,7 +129,7 @@ class CartService
                     [Coins::currencyLabel($cartCurrency), Coins::currencyLabel($itemCurrency)],
                     (string) setting(
                         'store.cart.currency_mismatch_text',
-                        'سلّتك دلوقتي بالـ{cart} والعنصر ده بالـ{item} — كمّل طلبك الأوّل وابدأ سلّة جديدة بيه.',
+                        'سلّتك دلوقتي بالـ{cart} والعنصر ده بالـ{item}، كمّل طلبك الأوّل وابدأ سلّة جديدة بيه.',
                     ),
                 ),
             ];

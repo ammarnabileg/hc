@@ -44,7 +44,7 @@ class TrackCapacityGuard
 
         throw ValidationException::withMessages([
             'entity_id' => strtr(
-                setting('volunteer_org.track_capacity_guard.assert_within_cap_1', 'عنده بالفعل :p1 عضويّة فعّالة في هذا المسار — الحدّ :p2.'),
+                setting('volunteer_org.track_capacity_guard.assert_within_cap_1', 'عنده بالفعل :p1 عضويّة فعّالة في هذا المسار، والحدّ :p2.'),
                 [':p1' => (string) $current, ':p2' => (string) $cap],
             ),
         ]);

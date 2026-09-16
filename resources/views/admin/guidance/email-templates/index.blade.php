@@ -49,7 +49,7 @@
                                 @endif
                             </div>
                             <div class="text-xs mt-1" style="color: var(--text-muted)">
-                                {{ $template->category ? ($types[$template->category] ?? $template->category) : setting('admin.guidance.email_templates.qalb_aam', 'قالبٌ عامّ — غير مربوط بنوعٍ') }}
+                                {{ $template->category ? ($types[$template->category] ?? $template->category) : setting('admin.guidance.email_templates.qalb_aam', 'قالبٌ عامّ، غير مربوط بنوعٍ') }}
                             </div>
                             @if ($template->subject)
                                 <div class="text-sm mt-2 font-semibold">{{ $template->subject }}</div>
@@ -73,7 +73,7 @@
                             @endcan
                             @can('email_templates.delete')
                                 <form method="post" action="{{ route('admin.guidance.email-templates.destroy', $template) }}"
-                                      onsubmit="return confirm('{{ setting('admin.guidance.email_templates.confirm_delete', 'هنشيل القالب ده خالص — نكمّل؟') }}')">
+                                      onsubmit="return confirm('{{ setting('admin.guidance.email_templates.confirm_delete', 'هنشيل القالب ده خالص. نكمّل؟') }}')">
                                     @csrf
                                     @method('delete')
                                     <button class="btn rounded-xl px-3 py-2 text-xs" style="background: var(--color-state-danger); color: #fff">{{ setting('admin.guidance.email_templates.hdhf', 'حذف') }}</button>
@@ -95,7 +95,7 @@
                                 <span class="block text-sm mb-1">{{ setting('admin.guidance.email_templates.alnwa_almrtbt', 'النوع المرتبط (اختياريّ)') }}</span>
                                 <select name="category" class="w-full rounded-xl px-3 py-2 text-sm"
                                         style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
-                                    <option value="">{{ setting('admin.guidance.email_templates.qalb_aam', 'قالبٌ عامّ — غير مربوط بنوعٍ') }}</option>
+                                    <option value="">{{ setting('admin.guidance.email_templates.qalb_aam', 'قالبٌ عامّ، غير مربوط بنوعٍ') }}</option>
                                     @foreach ($types as $key => $label)
                                         <option value="{{ $key }}" @selected($template->category === $key)>{{ $label }}</option>
                                     @endforeach
@@ -141,7 +141,7 @@
                     <span class="block text-sm mb-1">{{ setting('admin.guidance.email_templates.alnwa_almrtbt', 'النوع المرتبط (اختياريّ)') }}</span>
                     <select name="category" class="w-full rounded-xl px-3 py-2 text-sm"
                             style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
-                        <option value="">{{ setting('admin.guidance.email_templates.qalb_aam', 'قالبٌ عامّ — غير مربوط بنوعٍ') }}</option>
+                        <option value="">{{ setting('admin.guidance.email_templates.qalb_aam', 'قالبٌ عامّ، غير مربوط بنوعٍ') }}</option>
                         @foreach ($types as $key => $label)
                             <option value="{{ $key }}">{{ $label }}</option>
                         @endforeach

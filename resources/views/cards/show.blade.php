@@ -9,7 +9,7 @@
 
 @extends('layouts.guest')
 
-@section('title', strtr((string) setting('volunteer_card.show.section_1', 'بطاقة المتطوّع — :a1'), [':a1' => (string) ($data['name'])]))
+@section('title', strtr((string) setting('volunteer_card.show.section_1', 'بطاقة المتطوّع: :a1'), [':a1' => (string) ($data['name'])]))
 
 @php
     /**

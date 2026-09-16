@@ -41,11 +41,11 @@ class WarBankAdminTest extends ChallengeTestCase
             ->assertOk();
 
         $response->assertSee(
-            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث/الفلتر الحاليّ — جرّب فلترًا تانيًا.'),
+            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث أو الفلتر الحاليّ. جرّب فلتر تاني.'),
             false,
         );
         $response->assertDontSee(
-            setting('admin.wars.bank.index.albnk_fargh_alhrwb_ln_taml', 'البنك فارغ — الحروب لن تعمل.'),
+            setting('admin.wars.bank.index.albnk_fargh_alhrwb_ln_taml', 'البنك فارغ. الحروب لن تعمل.'),
             false,
         );
     }
@@ -61,11 +61,11 @@ class WarBankAdminTest extends ChallengeTestCase
             ->assertOk();
 
         $response->assertSee(
-            setting('admin.wars.bank.index.albnk_fargh_alhrwb_ln_taml', 'البنك فارغ — الحروب لن تعمل.'),
+            setting('admin.wars.bank.index.albnk_fargh_alhrwb_ln_taml', 'البنك فارغ. الحروب لن تعمل.'),
             false,
         );
         $response->assertDontSee(
-            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث/الفلتر الحاليّ — جرّب فلترًا تانيًا.'),
+            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث أو الفلتر الحاليّ. جرّب فلتر تاني.'),
             false,
         );
     }

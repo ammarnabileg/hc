@@ -13,13 +13,13 @@
         <button class="rounded-xl px-4 py-2 text-sm font-semibold"
                 style="background: var(--color-brand-500); color: #04201c; min-height: 44px">{{ setting('admin.ops.partials.system_backups.khd_nskha_dlwqty', 'خُد نسخة دلوقتي') }}</button>
         <p class="text-xs w-full" style="color: var(--text-muted)">
-            {!! strtr(setting('admin.ops.partials.system_backups.bnhtfz_bakhr_v1_nskha_walaqdm_bytmsh_lwhdh', 'بنحتفظ بآخر :v1 نسخة — والأقدم بيتمسح لوحده.'), [':v1' => e((int) setting('backups.keep_count', 7))]) !!}
+            {!! strtr(setting('admin.ops.partials.system_backups.bnhtfz_bakhr_v1_nskha_walaqdm_bytmsh_lwhdh', 'بنحتفظ بآخر :v1 نسخة، والأقدم بيتمسح لوحده.'), [':v1' => e((int) setting('backups.keep_count', 7))]) !!}
         </p>
     </form>
 @endcan
 
 @if (! $backups || $backups->isEmpty())
-    <x-empty :message="setting('admin.ops.partials.system_backups.mafysh_nskh_lsh_khd_nskhtk_alawla_dlwqty', 'مافيش نسخ لسه — خُد نسختك الأولى دلوقتي.')" />
+    <x-empty :message="setting('admin.ops.partials.system_backups.mafysh_nskh_lsh_khd_nskhtk_alawla_dlwqty', 'مافيش نسخ لسه. خُد نسختك الأولى دلوقتي.')" />
 @else
     <div class="card overflow-hidden">
         <table class="hidden md:table w-full text-sm">

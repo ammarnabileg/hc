@@ -97,14 +97,14 @@ class AnnouncementController extends Controller
         abort_unless($this->poll->has($announcement), 404);
 
         if ($this->poll->isClosed($announcement)) {
-            return $this->respond($request, [], (string) setting('announcements.screen.poll_msg', 'الاستطلاع اتقفل — شكرًا لمشاركتك.'));
+            return $this->respond($request, [], (string) setting('announcements.screen.poll_msg', 'الاستطلاع اتقفل، شكرًا لمشاركتك.'));
         }
 
         $data = $request->validate([
             'option_index' => ['required', 'integer', 'min:0', 'max:'.(count($this->poll->options($announcement)) - 1)],
         ], [
-            'option_index.required' => (string) setting('announcements.screen.poll_msg_2', 'اختر إجابة الأوّل — الاستطلاع محتاج اختيارك.'),
-            'option_index.max' => (string) setting('announcements.screen.poll_denied', 'الاختيار ده مش موجود في الاستطلاع — اختر من المعروض.'),
+            'option_index.required' => (string) setting('announcements.screen.poll_msg_2', 'اختر إجابة الأوّل، الاستطلاع محتاج اختيارك.'),
+            'option_index.max' => (string) setting('announcements.screen.poll_denied', 'الاختيار ده مش موجود في الاستطلاع، اختر من المعروض.'),
         ]);
 
         $this->poll->vote($announcement, $user, (int) $data['option_index']);
@@ -172,7 +172,7 @@ class AnnouncementController extends Controller
         }
 
         $message = $held > 0
-            ? strtr((string) setting('announcements.screen.read_all_ok', 'اتعلّمت كلّها كمقروءة — ما عدا :a1 توجيه حرج مستنّي إقرارك ✓'), [':a1' => (string) ($held)])
+            ? strtr((string) setting('announcements.screen.read_all_ok', 'اتعلّمت كلّها كمقروءة، ما عدا :a1 توجيه حرج مستنّي إقرارك ✓'), [':a1' => (string) ($held)])
             : (string) setting('announcements.screen.read_all_ok_2', 'اتعلّمت كلّها كمقروءة ✓');
 
         return $this->respond($request, ['unread' => $this->feed->unreadCount($user)], $message);
@@ -198,7 +198,7 @@ class AnnouncementController extends Controller
         ]);
 
         $message = $gains !== []
-            ? strtr((string) setting('announcements.screen.acknowledge_ok', 'شكرًا ليك — كسبت :a1 على إقرارك ✓'), [':a1' => (string) (implode(' و', $gains))])
+            ? strtr((string) setting('announcements.screen.acknowledge_ok', 'شكرًا ليك، كسبت :a1 على إقرارك ✓'), [':a1' => (string) (implode(' و', $gains))])
             : (string) setting('announcements.screen.acknowledge_ok_2', 'تمّ الإقرار ✓');
 
         return $this->respond(

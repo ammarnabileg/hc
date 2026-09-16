@@ -87,7 +87,7 @@
     <section class="card p-4">
         <h2 class="font-bold text-sm mb-3">{{ setting('volunteer.profile_tab_overview.heading', 'رحلتي في التطوّع') }}</h2>
         @if ($o['journey']->isEmpty())
-            <p class="text-sm" style="color: var(--text-muted)">{{ setting('volunteer.profile_tab_overview.text_10', 'لسّه بدري — أوّل محطّة مستنّياك.') }}</p>
+            <p class="text-sm" style="color: var(--text-muted)">{{ setting('volunteer.profile_tab_overview.text_10', 'لسّه بدري. أوّل محطّة مستنّياك.') }}</p>
         @else
             <ol class="space-y-3">
                 @foreach ($o['journey'] as $step)
@@ -111,7 +111,7 @@
             <span class="text-sm font-extrabold" data-count-to="{{ $o['kudos_count'] }}">{{ $o['kudos_count'] }}</span>
         </div>
         @if ($o['kudos_latest']->isEmpty())
-            <p class="text-sm" style="color: var(--text-muted)">{{ setting('volunteer.profile_tab_overview.text_11', 'لسّه مفيش شكر — أوّل واحدة جايّة.') }}</p>
+            <p class="text-sm" style="color: var(--text-muted)">{{ setting('volunteer.profile_tab_overview.text_11', 'لسّه مفيش شكر. أوّل واحدة جايّة.') }}</p>
         @else
             <ul class="space-y-3">
                 @foreach ($o['kudos_latest'] as $kudos)
@@ -130,7 +130,7 @@
     <section class="card p-4">
         <h2 class="font-bold text-sm mb-3">{{ setting('volunteer.profile_tab_overview.heading_3', 'الشهادات') }}</h2>
         @if ($o['certificates']->isEmpty())
-            <p class="text-sm" style="color: var(--text-muted)">{{ setting('volunteer.profile_tab_overview.text_12', 'لسّه بدري — أوّل شهادة مستنّياك.') }}</p>
+            <p class="text-sm" style="color: var(--text-muted)">{{ setting('volunteer.profile_tab_overview.text_12', 'لسّه بدري. أوّل شهادة مستنّياك.') }}</p>
         @else
             <ul class="space-y-2">
                 @foreach ($o['certificates'] as $certificate)

@@ -100,12 +100,12 @@ class OffboardingService
     public static function open(User $target, string $type, ?string $reason, User $actor, array $checklist = [], ?Entity $entity = null): Offboarding
     {
         if (! in_array($type, self::TYPE_KEYS, true)) {
-            throw new RuntimeException(setting('volunteer_offboarding.offboarding_service.open_1', 'نوع الخروج غير معروف — الأنواع ثلاثة لا رابع لها.'));
+            throw new RuntimeException(setting('volunteer_offboarding.offboarding_service.open_1', 'نوع الخروج غير معروف، الأنواع ثلاثة لا رابع لها.'));
         }
 
         // ⭐ الإقصاء حصرًا عبر سلّم العتبات — لا فصل بقرار فرديّ
         if ($type === 'exclusion' && ! self::reachedExclusionThreshold($target)) {
-            throw new RuntimeException(setting('volunteer_offboarding.offboarding_service.open_2', 'الإقصاء لا يكون إلّا عبر سلّم العتبات — درجة الالتزام لم تبلغ عتبة التعليق بعد.'));
+            throw new RuntimeException(setting('volunteer_offboarding.offboarding_service.open_2', 'الإقصاء لا يكون إلّا عبر سلّم العتبات، ودرجة الالتزام لم تبلغ عتبة التعليق بعد.'));
         }
 
         $noticeDays = (int) setting('volunteer.offboarding.notice_days', 7);
@@ -161,7 +161,7 @@ class OffboardingService
     public static function complete(Offboarding $record, User $actor): Offboarding
     {
         if (! self::clearanceComplete($record)) {
-            throw new RuntimeException(setting('volunteer_offboarding.offboarding_service.complete_1', 'التصفية الإلزاميّة لم تكتمل — كمّل بنود التشيك-ليست قبل الإنهاء.'));
+            throw new RuntimeException(setting('volunteer_offboarding.offboarding_service.complete_1', 'التصفية الإلزاميّة لم تكتمل، كمّل بنود التشيك-ليست قبل الإنهاء.'));
         }
 
         /*

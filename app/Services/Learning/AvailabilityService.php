@@ -68,7 +68,7 @@ class AvailabilityService
                 'opens_in' => max(0, $now->diffInSeconds($at, absolute: false)),
             ], $this->closed(
                 'idle',
-                setting('learning.lock.scheduled_reason').' — '.$this->stamp($at),
+                setting('learning.lock.scheduled_reason').'، '.$this->stamp($at),
             ));
         }
 
@@ -248,13 +248,13 @@ class AvailabilityService
                 (string) setting('learning.lock.outside_daily_reason'),
             );
 
-        return $what.' — '.setting('learning.lock.opens_at_prefix').' '.$this->stamp($next);
+        return $what.'، '.setting('learning.lock.opens_at_prefix').' '.$this->stamp($next);
     }
 
     /** طابع زمنيّ عربيّ مقروء بساعة المستخدم */
     private function stamp(CarbonImmutable $at): string
     {
-        return $at->translatedFormat((string) setting('learning.availability.stamp_format', 'l j F — H:i'));
+        return $at->translatedFormat((string) setting('learning.availability.stamp_format', 'l j F، H:i'));
     }
 
     /** @return array{open:bool,state:string,reason:?string} */

@@ -29,7 +29,7 @@
             </div>
         @else
             <p class="mt-3 text-sm" style="color: var(--text-muted)">
-                {{ setting('admin.dashboard.target_empty_text', 'ماحدّدتش هدفًا للشهر لسّه — اضبطه من إعدادات لوحة القيادة.') }}
+                {{ setting('admin.dashboard.target_empty_text', 'ماحدّدتش هدفًا للشهر لسّه. اضبطه من إعدادات لوحة القيادة.') }}
             </p>
         @endif
     </section>
@@ -43,7 +43,7 @@
         <h3 class="font-bold text-sm">{{ setting('admin.dashboard.partials.details.abrz_almwthryn', 'أبرز المؤثّرين') }}</h3>
 
         @if ($details['topReferrers']->isEmpty())
-            <p class="mt-4 text-sm" style="color: var(--text-muted)">{{ setting('admin.dashboard.partials.details.lsh_bdry_awl_dawa_mstnyak', 'لسّه بدري — أوّل دعوة مستنّياك.') }}</p>
+            <p class="mt-4 text-sm" style="color: var(--text-muted)">{{ setting('admin.dashboard.partials.details.lsh_bdry_awl_dawa_mstnyak', 'لسّه بدري. أوّل دعوة مستنّياك.') }}</p>
         @else
             <ul class="mt-3 divide-y" style="border-color: var(--border)">
                 @foreach ($details['topReferrers'] as $row)
@@ -63,7 +63,7 @@
     @include('admin.dashboard.components.heat-rows', [
         'title' => setting('admin.dashboard.partials.details.alkhryta_alhrarya_aljghrafya', 'الخريطة الحراريّة الجغرافيّة'),
         'rows' => $details['geo'],
-        'empty' => setting('admin.dashboard.partials.details.mafysh_byanat_jghrafya_lsh_aldwla_bttsjl_ma', 'مافيش بيانات جغرافيّة لسّه — الدولة بتتسجّل مع الحساب.'),
+        'empty' => setting('admin.dashboard.partials.details.mafysh_byanat_jghrafya_lsh_aldwla_bttsjl_ma', 'مافيش بيانات جغرافيّة لسّه. الدولة بتتسجّل مع الحساب.'),
         'unit' => setting('admin.dashboard.partials.details.mstkhdm', 'مستخدم'),
     ])
 
@@ -71,7 +71,7 @@
     @include('admin.dashboard.components.heat-rows', [
         'title' => setting('admin.dashboard.partials.details.akthr_altdrybat_tathra_drop_off', 'أكثر التدريبات تعثّرًا (Drop-off)'),
         'rows' => $details['dropoff'],
-        'empty' => setting('admin.dashboard.partials.details.mafysh_tathr_msjl_kl_ally_sjlwa_khlswa', 'مافيش تعثّر مسجَّل — كلّ اللي سجّلوا خلّصوا.'),
+        'empty' => setting('admin.dashboard.partials.details.mafysh_tathr_msjl_kl_ally_sjlwa_khlswa', 'مافيش تعثّر مسجَّل. كلّ اللي سجّلوا خلّصوا.'),
         'unit' => setting('admin.dashboard.partials.details.mtdrb', 'متدرّب'),
     ])
 </div>

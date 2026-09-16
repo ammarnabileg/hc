@@ -1,7 +1,7 @@
 @php
     /** نصوص السكربت — من الإعدادات لا محروقةً في الجافاسكربت (2.13-أ) */
     $hcWords = array_merge($hcWords ?? [], [
-        'cv.autosave.error_label' => (string) setting('cv.autosave.error_label', 'ما اتحفظش — راجع النت وجرّب تاني.'),
+        'cv.autosave.error_label' => (string) setting('cv.autosave.error_label', 'ما اتحفظش، راجع النت وجرّب تاني.'),
     ]);
 @endphp
 
@@ -12,7 +12,7 @@
 
 <div class="card p-4" data-step-panel="certificates" hidden>
     <form data-step-form="certificates" onsubmit="return false" class="space-y-3">
-        <p class="text-sm">{{ setting('cv.certificates.intro', 'شهاداتك بتتسحب تلقائيًّا من المنصّة — شيل اللي مش عايزه يظهر.') }}</p>
+        <p class="text-sm">{{ setting('cv.certificates.intro', 'شهاداتك بتتسحب تلقائيًّا من المنصّة، شيل اللي مش عايزه يظهر.') }}</p>
 
         @forelse ($certificates as $certificate)
             <label class="card p-3 flex items-center justify-between gap-3">
@@ -29,7 +29,7 @@
                 </span>
             </label>
         @empty
-            <p class="text-sm" style="color: var(--text-muted)">{{ setting('cv.certificates.empty', 'لسّه مافيش شهادات — أوّل تدريب هيجيبلك واحدة.') }}</p>
+            <p class="text-sm" style="color: var(--text-muted)">{{ setting('cv.certificates.empty', 'لسّه مافيش شهادات، أوّل تدريب هيجيبلك واحدة.') }}</p>
         @endforelse
     </form>
 

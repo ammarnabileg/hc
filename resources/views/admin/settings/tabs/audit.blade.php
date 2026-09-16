@@ -1,6 +1,6 @@
 {{-- سجلّ التدقيق: Append-only — لا تعديل ولا حذف من الواجهة إطلاقًا (24.3) --}}
 <div class="card p-3 text-xs flex items-center justify-between" style="color: var(--text-muted)">
-    <span>{{ setting('admin.settings.tabs.audit.llqraa_fqt_ghyr_qabl_lltadyl_aw_alhdhf', 'للقراءة فقط — غير قابل للتعديل أو الحذف.') }}</span>
+    <span>{{ setting('admin.settings.tabs.audit.llqraa_fqt_ghyr_qabl_lltadyl_aw_alhdhf', 'للقراءة فقط، غير قابل للتعديل أو الحذف.') }}</span>
     <span>{!! strtr(setting('admin.settings.tabs.audit.alahtfaz_v1_ywma_llaam_bla_hd_llmaly', 'الاحتفاظ: :v1 يومًا للعامّ · بلا حدّ للماليّ'), [':v1' => e((int) setting('audit.retention_days', 365))]) !!} <x-icon name="lock" size="16" /></span>
 </div>
 

@@ -72,11 +72,11 @@ class AdminCoreScreensTest extends TestCase
             ->get(route('admin.users.index', ['q' => 'zzzznotexist']))
             ->assertOk();
         $usersResponse->assertSee(
-            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث/الفلتر الحاليّ — جرّب فلترًا تانيًا.'),
+            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث أو الفلتر الحاليّ. جرّب فلتر تاني.'),
             false,
         );
         $usersResponse->assertDontSee(
-            setting('admin.users.empty_message', 'مفيش نتائج — امسح الفلاتر وجرّب تاني'),
+            setting('admin.users.empty_message', 'مفيش نتائج. امسح الفلاتر وجرّب تاني'),
             false,
         );
 
@@ -84,11 +84,11 @@ class AdminCoreScreensTest extends TestCase
             ->get(route('admin.users.approvals', ['q' => 'zzzznotexist']))
             ->assertOk();
         $approvalsResponse->assertSee(
-            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث/الفلتر الحاليّ — جرّب فلترًا تانيًا.'),
+            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث أو الفلتر الحاليّ. جرّب فلتر تاني.'),
             false,
         );
         $approvalsResponse->assertDontSee(
-            setting('admin.approvals.empty_message', 'مفيش طلبات معلّقة — كلّ حاجة تمام'),
+            setting('admin.approvals.empty_message', 'مفيش طلبات معلّقة. كلّ حاجة تمام'),
             false,
         );
 
@@ -96,7 +96,7 @@ class AdminCoreScreensTest extends TestCase
             ->get(route('admin.users.segments', ['q' => 'zzzznotexist']))
             ->assertOk();
         $segmentsResponse->assertSee(
-            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث/الفلتر الحاليّ — جرّب فلترًا تانيًا.'),
+            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث أو الفلتر الحاليّ. جرّب فلتر تاني.'),
             false,
         );
         $segmentsResponse->assertDontSee(
@@ -117,7 +117,7 @@ class AdminCoreScreensTest extends TestCase
         $this->actingAs($this->owner)
             ->get(route('admin.users.approvals'))
             ->assertOk()
-            ->assertSee(setting('admin.approvals.empty_message', 'مفيش طلبات معلّقة — كلّ حاجة تمام'), false);
+            ->assertSee(setting('admin.approvals.empty_message', 'مفيش طلبات معلّقة. كلّ حاجة تمام'), false);
 
         AdAudience::query()->delete();
 

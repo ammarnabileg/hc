@@ -168,7 +168,7 @@
                                       style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)"></textarea>
                         </label>
                         <p class="text-xs" style="color: var(--text-muted)">
-                            {{ setting('volunteer.goals_build_aggregate.text', 'هتتربط بكيان «') }}{{ $package->entity?->name_ar }}» {{ setting('volunteer.goals_build_aggregate.text_2', 'ومالكها دايركتوره — لا اللي بيكتبها.') }}
+                            {{ setting('volunteer.goals_build_aggregate.text', 'هتتربط بكيان «') }}{{ $package->entity?->name_ar }}» {{ setting('volunteer.goals_build_aggregate.text_2', 'ومالكها دايركتوره، لا اللي بيكتبها.') }}
                         </p>
                         <button type="submit" class="btn w-full rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
                                 style="background: var(--color-brand-500); color: #04201c">{{ setting('volunteer.goals_build_aggregate.action_6', 'أضِف المهمّة') }}</button>
@@ -181,7 +181,7 @@
             <x-modal id="raise-preview" :title="setting('volunteer.goals_build_aggregate.action', 'رفع معاينة للهدف')">
                 <form method="post" action="{{ route('volunteer.goals.build.preview', $goal) }}" class="space-y-3 text-sm">
                     @csrf
-                    <p>{{ setting('volunteer.goals_build_aggregate.text_3', 'بعد الرفع بيبقى التحرير عند القمّة، وإنت — وقد رفعتها بنفسك — بتبقى') }} <strong>{{ setting('volunteer.goals_build_aggregate.strong', 'قارئ فقط') }}</strong>.</p>
+                    <p>{{ setting('volunteer.goals_build_aggregate.text_3', 'بعد الرفع بيبقى التحرير عند القمّة، وإنت كمان، حتى لو رفعتها بنفسك، بتبقى') }} <strong>{{ setting('volunteer.goals_build_aggregate.strong', 'قارئ فقط') }}</strong>.</p>
                     <button type="submit" class="btn w-full rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
                             style="background: var(--color-brand-500); color: #04201c">{{ setting('volunteer.goals_build_aggregate.action_7', 'أيوه، ارفع المعاينة') }}</button>
                 </form>
@@ -253,7 +253,7 @@
     $jsText = [
         'saved' => (string) setting('volunteer.goals_build_aggregate.js_saved', 'اتحفظ ✓'),
         'not_saved' => (string) setting('volunteer.goals_build_aggregate.js_not_saved', 'مااتحفظش'),
-        'network_error' => (string) setting('volunteer.goals_build_aggregate.js_network_error', 'الشبكة وقعت — جرّب تاني'),
+        'network_error' => (string) setting('volunteer.goals_build_aggregate.js_network_error', 'الشبكة وقعت، جرّب تاني'),
         'was' => (string) setting('volunteer.goals_build_aggregate.js_was', 'كان:'),
         'empty_value' => (string) setting('volunteer.goals_build_aggregate.js_empty_value', '(فاضي)'),
         'no_edits' => (string) setting('volunteer.goals_build_aggregate.js_no_edits', 'مافيش تعديلات مسجّلة على الحقل ده.'),

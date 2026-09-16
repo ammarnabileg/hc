@@ -110,7 +110,7 @@ class AttendanceService
     public function excuse(Meeting $meeting, User $user, string $reason): array
     {
         if ($meeting->status === 'ended') {
-            return $this->fail(setting('meetings.attendance_service.excuse_1', 'الاجتماع انتهى — الاعتذار المسبق بيتقدّم قبل الإنهاء. سجّل حضورك لو حضرت.'));
+            return $this->fail(setting('meetings.attendance_service.excuse_1', 'الاجتماع انتهى، والاعتذار المسبق بيتقدّم قبل الإنهاء. سجّل حضورك لو حضرت.'));
         }
 
         if (! $this->scope->isAudience($user, $meeting)) {
@@ -134,7 +134,7 @@ class AttendanceService
 
         return [
             'ok' => true,
-            'message' => setting('meetings.attendance_service.excuse_4', 'وصلنا اعتذارك — مفيش أيّ خصم على درجة التزامك.'),
+            'message' => setting('meetings.attendance_service.excuse_4', 'وصلنا اعتذارك، مفيش أيّ خصم على درجة التزامك.'),
             'value' => (float) $attendance->rep_value,
         ];
     }
@@ -153,7 +153,7 @@ class AttendanceService
         }
 
         if ($meeting->status !== 'ended') {
-            return $this->fail(setting('meetings.attendance_service.register_2', 'نافذة التسجيل بتفتح بعد إنهاء الاجتماع — استنّى إشعار الإنهاء.'));
+            return $this->fail(setting('meetings.attendance_service.register_2', 'نافذة التسجيل بتفتح بعد إنهاء الاجتماع، استنّى إشعار الإنهاء.'));
         }
 
         if (! $this->windowOpen($meeting)) {
@@ -166,12 +166,12 @@ class AttendanceService
             ->first();
 
         if ($existing && $existing->status === 'registered') {
-            return $this->fail(setting('meetings.attendance_service.register_4', 'حضورك متسجّل خلاص — القيمة اتضافت قبل كده.'));
+            return $this->fail(setting('meetings.attendance_service.register_4', 'حضورك متسجّل خلاص، القيمة اتضافت قبل كده.'));
         }
 
         if (! $this->verify($meeting, $code, $answers)) {
             // بلا سطر حضور وبلا معاملة: المحاولة الصحيحة ما زالت في يده
-            return $this->fail(setting('meetings.attendance_service.register_5', 'الكود أو الإجابة مش مظبوطة. راجعها وجرّب تاني — محاولتك لسّه موجودة.'));
+            return $this->fail(setting('meetings.attendance_service.register_5', 'الكود أو الإجابة مش مظبوطة. راجعها وجرّب تاني، محاولتك لسّه موجودة.'));
         }
 
         $hours = $this->hoursAfterEnd($meeting) ?? 0.0;
@@ -227,7 +227,7 @@ class AttendanceService
          | فالحارس هنا في الخدمة لا في الواجهة وحدها.
          */
         if ($meeting->status === 'cancelled') {
-            return $this->fail(setting('meetings.attendance_service.end_6', 'الاجتماع ملغيّ — مافيش نافذة حضور لاجتماع ما انعقدش.'));
+            return $this->fail(setting('meetings.attendance_service.end_6', 'الاجتماع ملغيّ، مافيش نافذة حضور لاجتماع ما انعقدش.'));
         }
 
         $windowHours = max(1, min($windowHours, $this->maxWindowHours()));

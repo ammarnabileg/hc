@@ -174,7 +174,7 @@ class CommitteePath
             $user,
             'account',
             setting('volunteer_offboarding.committee_path.refer_1', 'اتفتح ملفّ لجنة تحقيق على درجة الالتزام'),
-            strtr(setting('volunteer_offboarding.committee_path.refer_2', ':p1 — اللجنة هتسمع منك، ومن قراراتها فرصة بـ:p2 لمعدّل الالتزام وإعادة تفعيل.'), [':p1' => (string) ($this->reasonOf($trigger, $value, $windowDays)), ':p2' => (string) (number_format(rep_rule('task.committee_chance', 1), 2))]),
+            strtr(setting('volunteer_offboarding.committee_path.refer_2', ':p1. اللجنة هتسمع منك، ومن قراراتها فرصة بـ:p2 لمعدّل الالتزام وإعادة تفعيل.'), [':p1' => (string) ($this->reasonOf($trigger, $value, $windowDays)), ':p2' => (string) (number_format(rep_rule('task.committee_chance', 1), 2))]),
             null,
             'volunteer',
         );

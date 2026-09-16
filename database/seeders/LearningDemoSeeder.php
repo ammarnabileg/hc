@@ -105,12 +105,12 @@ class LearningDemoSeeder extends Seeder
             ['learning.lesson.complete_cta', 'string', 'أنهيت الدرس'],
             ['learning.lesson.done_message', 'string', 'تمّ تسجيل إكمال الدرس'],
             ['learning.lesson.already_done_message', 'string', 'هذا الدرس مسجَّل مكتملًا من قبل'],
-            ['learning.course.done_message', 'string', 'أحسنت — أنهيت هذا التدريب بالكامل'],
+            ['learning.course.done_message', 'string', 'أحسنت. أنهيت هذا التدريب بالكامل'],
 
             // ---- لافتة التهنئة عند نصّ التدريب (3.4-19)
             ['learning.course.half_banner_percent', 'number', '50'],
-            ['learning.course.half_banner_title', 'string', 'نصّ الطريق خلص يا :name — أحسنت!'],
-            ['learning.course.half_banner_hint', 'string', 'باقي :count درس وتخلّص التدريب — كمّل وأنت في أقوى لحظاتك.'],
+            ['learning.course.half_banner_title', 'string', 'نصّ الطريق خلص يا :name، أحسنت!'],
+            ['learning.course.half_banner_hint', 'string', 'باقي :count درس وتخلّص التدريب، كمّل وأنت في أقوى لحظاتك.'],
 
             // ---- الإتاحة والقفل: السبب مكتوب دائمًا ولا يُخفى العنصر (24.5)
             ['learning.course.published_status', 'string', 'published'],
@@ -127,7 +127,7 @@ class LearningDemoSeeder extends Seeder
             ['learning.lock.outside_daily_reason', 'string', 'التدريب بيفتح يوميًّا من :from إلى :to بتوقيتك'],
             ['learning.lock.periods_over_reason', 'string', 'خلصت كلّ فترات إتاحة هذا التدريب'],
             ['learning.lock.opens_at_prefix', 'string', 'يفتح'],
-            ['learning.availability.stamp_format', 'string', 'l j F — H:i'],
+            ['learning.availability.stamp_format', 'string', 'l j F - H:i'],
             ['learning.availability.countdown_label', 'string', 'باقي على الفتح'],
             ['learning.availability.opening_now', 'string', 'بيفتح دلوقتي…'],
             ['learning.availability.day_suffix', 'string', 'ي'],
@@ -149,7 +149,7 @@ class LearningDemoSeeder extends Seeder
              | تتلوّن مع تدرّج الخطر — وشكلٌ لا يُضبَط من لوحة الإعدادات أصلًا،
              | فالمفتاح الذي لا يقرؤه أحد وعدٌ كاذب للمالك (2.13).
              */
-            ['learning.ghost.hint', 'string', 'كلّما أنجزت أبكر ابتعد الشبح —'],
+            ['learning.ghost.hint', 'string', 'كلّما أنجزت أبكر ابتعد الشبح.'],
 
             // ---- نقاط الخبرة (7)
             ['learning.xp.suffix', 'string', 'XP'],
@@ -164,7 +164,7 @@ class LearningDemoSeeder extends Seeder
 
             // ---- أسئلة الدرس (4 · 4.1)
             ['learning.questions.block_title', 'string', 'أسئلة الدرس'],
-            ['learning.questions.block_hint', 'string', 'أسئلة الدرس بوّابة الانتقال — بلا تذاكر وبلا أثر على حسابك'],
+            ['learning.questions.block_hint', 'string', 'أسئلة الدرس بوّابة الانتقال. بلا تذاكر وبلا أثر على حسابك'],
             ['learning.questions.gate_label', 'string', 'بانتظار الحلّ'],
             ['learning.questions.passed_label', 'string', 'مجتاز'],
             ['learning.questions.open_cta', 'string', 'ابدأ الحلّ'],
@@ -175,7 +175,7 @@ class LearningDemoSeeder extends Seeder
             ['learning.questions.digit_label', 'string', 'الخانة'],
             ['learning.questions.reward_label', 'string', 'مكافأة الإجابة'],
             ['learning.questions.correct_message', 'string', 'إجابة صحيحة'],
-            ['learning.questions.wrong_message', 'string', 'الإجابة غير صحيحة — راجع الدرس وأعد المحاولة'],
+            ['learning.questions.wrong_message', 'string', 'الإجابة غير صحيحة. راجع الدرس وأعد المحاولة'],
             ['learning.questions.already_message', 'string', 'أجبت عن هذا السؤال من قبل'],
             ['learning.questions.retry_hint', 'string', 'المحاولات مفتوحة، وخطؤك لا يخصم شيئًا'],
             ['learning.otp.max_length', 'number', '8'],
@@ -189,7 +189,7 @@ class LearningDemoSeeder extends Seeder
             ['learning.quiz.question_label', 'string', 'سؤال'],
             ['learning.quiz.of_label', 'string', 'من'],
             ['learning.quiz.preview_cta', 'string', 'معاينة الإجابات'],
-            ['learning.quiz.preview_hint', 'string', 'دي إجاباتك قبل التسليم — راجعها وعدّل ما تشاء'],
+            ['learning.quiz.preview_hint', 'string', 'دي إجاباتك قبل التسليم. راجعها وعدّل ما تشاء'],
             ['learning.quiz.answered_label', 'string', 'مُجاب'],
             ['learning.quiz.unanswered_label', 'string', 'بلا إجابة'],
             ['learning.quiz.no_answer_placeholder', 'string', 'لم تُجب بعد'],
@@ -198,17 +198,17 @@ class LearningDemoSeeder extends Seeder
             ['learning.quiz.correct_label', 'string', 'صحيحة'],
             ['learning.quiz.wrong_label', 'string', 'غير صحيحة'],
             ['learning.quiz.score_label', 'string', 'الإجابات الصحيحة'],
-            ['learning.quiz.passed_title', 'string', 'أحسنت — اجتزت اختبار الدرس'],
+            ['learning.quiz.passed_title', 'string', 'أحسنت. اجتزت اختبار الدرس'],
             ['learning.quiz.failed_title', 'string', 'فيه إجابات محتاجة مراجعة'],
-            ['learning.quiz.passed_message', 'string', 'اجتزت اختبار الدرس — الانتقال مفتوح'],
-            ['learning.quiz.failed_message', 'string', 'فيه إجابة غير صحيحة — راجع الدرس وأعد المحاولة'],
+            ['learning.quiz.passed_message', 'string', 'اجتزت اختبار الدرس. الانتقال مفتوح'],
+            ['learning.quiz.failed_message', 'string', 'فيه إجابة غير صحيحة. راجع الدرس وأعد المحاولة'],
             ['learning.quiz.already_passed_message', 'string', 'اجتزت اختبار هذا الدرس من قبل'],
             ['learning.quiz.retry_badge', 'string', 'إعادة'],
             ['learning.quiz.retry_cta', 'string', 'أعد الاختبار'],
             ['learning.quiz.wait_message', 'string', 'إعادة الاختبار متاحة بعد'],
             ['learning.quiz.seconds_suffix', 'string', 'ثانية'],
             ['learning.quiz.back_to_lesson', 'string', 'رجوع للدرس'],
-            ['learning.quiz.no_questions_message', 'string', 'هذا الدرس بلا أسئلة — أكمله مباشرةً'],
+            ['learning.quiz.no_questions_message', 'string', 'هذا الدرس بلا أسئلة. أكمله مباشرةً'],
 
             // ---- تعليقات الفيديو (3.1)
             ['learning.comments.title', 'string', 'تعليقات الفيديو'],
@@ -218,18 +218,18 @@ class LearningDemoSeeder extends Seeder
             ['learning.comments.per_page', 'number', '6'],
             ['learning.comments.max_length', 'number', '1000'],
             ['learning.comments.placeholder', 'string', 'اكتب سؤالك أو خلاصتك من الفيديو…'],
-            ['learning.comments.hint', 'string', 'تعليقك يفيد زملاءك — اكتب بوضوح واحترام'],
+            ['learning.comments.hint', 'string', 'تعليقك يفيد زملاءك. اكتب بوضوح واحترام'],
             ['learning.comments.submit', 'string', 'أرسل التعليق'],
             ['learning.comments.reply', 'string', 'ردّ'],
             ['learning.comments.reply_placeholder', 'string', 'اكتب ردّك…'],
             ['learning.comments.reply_submit', 'string', 'أرسل الردّ'],
             ['learning.comments.like', 'string', 'أعجبني'],
             ['learning.comments.load_more', 'string', 'تعليقات أقدم'],
-            ['learning.comments.load_error', 'string', 'تعذّر تحميل التعليقات — اضغط هنا للمحاولة مرّة أخرى'],
-            ['learning.comments.empty', 'string', 'لسّه مفيش تعليقات — كن أوّل من يشارك سؤاله'],
+            ['learning.comments.load_error', 'string', 'تعذّر تحميل التعليقات. اضغط هنا للمحاولة مرّة أخرى'],
+            ['learning.comments.empty', 'string', 'لسّه مفيش تعليقات. كن أوّل من يشارك سؤاله'],
             ['learning.comments.sent_message', 'string', 'اتنشر تعليقك ✓'],
-            ['learning.comments.empty_error', 'string', 'التعليق فاضي — اكتب سطرًا واحدًا على الأقلّ ثمّ أرسل'],
-            ['learning.comments.too_long_error', 'string', 'التعليق أطول من المسموح — اختصره ثمّ أعد الإرسال'],
+            ['learning.comments.empty_error', 'string', 'التعليق فاضي. اكتب سطرًا واحدًا على الأقلّ ثمّ أرسل'],
+            ['learning.comments.too_long_error', 'string', 'التعليق أطول من المسموح. اختصره ثمّ أعد الإرسال'],
             ['learning.comments.hide', 'string', 'إخفاء'],
             ['learning.comments.unhide', 'string', 'إظهار'],
             ['learning.comments.delete', 'string', 'حذف'],
@@ -241,15 +241,15 @@ class LearningDemoSeeder extends Seeder
 
             // ---- ملاحظات التدريب (3.2)
             ['learning.notes.title', 'string', 'ملاحظاتي على التدريب'],
-            ['learning.notes.hint', 'string', 'مساحة واحدة لكلّ دروس التدريب — تُحفَظ تلقائيًّا'],
+            ['learning.notes.hint', 'string', 'مساحة واحدة لكلّ دروس التدريب. تُحفَظ تلقائيًّا'],
             ['learning.notes.placeholder', 'string', 'اكتب خلاصتك، وستجدها في أيّ درسٍ آخر…'],
             ['learning.notes.enabled', 'bool', '1'],
             ['learning.notes.max_length', 'number', '20000'],
             ['learning.notes.autosave_delay_ms', 'number', '800'],
             ['learning.notes.saving', 'string', 'بنحفظ…'],
             ['learning.notes.saved', 'string', 'اتحفظ ✓'],
-            ['learning.notes.error', 'string', 'ما قدرناش نحفظ ملاحظتك — راجع اتصالك وسنعيد المحاولة عند أوّل تعديل'],
-            ['learning.notes.too_long_error', 'string', 'الملاحظات أطول من المسموح — اختصرها ثمّ احفظ'],
+            ['learning.notes.error', 'string', 'ما قدرناش نحفظ ملاحظتك. راجع اتصالك وسنعيد المحاولة عند أوّل تعديل'],
+            ['learning.notes.too_long_error', 'string', 'الملاحظات أطول من المسموح. اختصرها ثمّ احفظ'],
             ['learning.notes.save_cta', 'string', 'حفظ الملاحظات'],
             ['learning.notes.clear', 'string', 'مسح الملاحظات'],
             ['learning.notes.clear_confirm', 'string', 'هل تمسح كلّ ملاحظاتك على هذا التدريب؟'],
@@ -279,9 +279,9 @@ class LearningDemoSeeder extends Seeder
             // ---- «مجّاني أوّل مرّة» والـPaywall النفسيّ (16)
             ['learning.paywall.title', 'string', 'وصلت لنهاية المشاهدة المجّانيّة'],
             ['learning.paywall.badge', 'string', 'أنجزت وامتحنت'],
-            ['learning.paywall.headline', 'text', 'أنجزت «{course}» ومعك شهادته — واصِل رحلتك الكاملة واحتفظ بالتدريب معك للأبد.'],
-            ['learning.paywall.lock_reason', 'text', 'التدريب ده كان مجّانيًّا أوّل مرّة، وبعد الامتحان والشهادة بقى بالشراء — وشهادتك تفضل معك في مكتبتك زيّ ما هي.'],
-            ['learning.paywall.cta', 'string', 'اشترِ التدريب — {price}'],
+            ['learning.paywall.headline', 'text', 'أنجزت «{course}» ومعك شهادته، واصِل رحلتك الكاملة واحتفظ بالتدريب معك للأبد.'],
+            ['learning.paywall.lock_reason', 'text', 'التدريب ده كان مجّانيًّا أوّل مرّة، وبعد الامتحان والشهادة بقى بالشراء، وشهادتك تفضل معك في مكتبتك زيّ ما هي.'],
+            ['learning.paywall.cta', 'string', 'اشترِ التدريب ({price})'],
             ['learning.paywall.certificate_link', 'string', 'شهادتي'],
             ['learning.paywall.paid_sources', 'json', '["purchase","bundle"]'],
             ['learning.certificate.valid_status', 'string', 'valid'],
@@ -291,7 +291,7 @@ class LearningDemoSeeder extends Seeder
             ['learning.paths.not_owned', 'string', 'لا تملكه بعد'],
             ['learning.paths.exam_cta', 'string', 'امتحان شهادة المسار'],
             ['learning.paths.certificate_block_title', 'string', 'شهادة المسار'],
-            ['learning.paths.exam_ready_hint', 'string', 'أكملت المسار — الامتحان متاح الآن'],
+            ['learning.paths.exam_ready_hint', 'string', 'أكملت المسار. الامتحان متاح الآن'],
             ['learning.paths.exam_locked_hint', 'string', 'يظهر الامتحان بعد إكمال تدريبات المسار كاملة'],
             ['learning.path.exam_unlock_percent', 'number', '100'],
             // ⚠️ لا مفتاح لسعر امتحان المسار هنا: السعر **لكلّ مسار** ومصدره الوحيد
@@ -302,7 +302,7 @@ class LearningDemoSeeder extends Seeder
             ['learning.attachments.size_unit', 'string', 'كيلوبايت'],
             ['learning.video.embed_base', 'string', 'https://www.youtube-nocookie.com/embed'],
             ['learning.video.embed_params', 'json', '{"rel":"0","modestbranding":"1"}'],
-            ['learning.video.missing_message', 'string', 'تعذّر عرض الفيديو — استعن بمحتوى الدرس ومرفقاته، وأبلغنا لنصلحه'],
+            ['learning.video.missing_message', 'string', 'تعذّر عرض الفيديو. استعن بمحتوى الدرس ومرفقاته، وأبلغنا لنصلحه'],
 
             // ---- الإبلاغ عن مشكلة ⟵ تذكرة دعم
             ['learning.report.cta', 'string', 'الإبلاغ عن مشكلة في الدرس'],
@@ -311,7 +311,7 @@ class LearningDemoSeeder extends Seeder
             ['learning.report.lesson_any', 'string', 'التدريب كلّه'],
             ['learning.report.body_label', 'string', 'اشرح المشكلة'],
             ['learning.report.submit', 'string', 'إرسال'],
-            ['learning.report.sent_message', 'string', 'وصلنا بلاغك — فتحنا لك تذكرة دعم وسنردّ عليك'],
+            ['learning.report.sent_message', 'string', 'وصلنا بلاغك. فتحنا لك تذكرة دعم وسنردّ عليك'],
             ['learning.report.category', 'string', 'lesson'],
             ['learning.report.ticket_type', 'string', 'complaint'],
             ['learning.report.number_length', 'number', '10'],
@@ -358,10 +358,10 @@ class LearningDemoSeeder extends Seeder
             ['learning.bookmark.add', 'string', 'احفظ الدرس'],
             ['learning.bookmark.remove', 'string', 'إزالة الحفظ'],
             ['learning.bookmark.saved_label', 'string', 'محفوظ'],
-            ['learning.bookmark.saved_message', 'string', 'اتحفظ ✓ — هتلاقيه في قائمة الدروس'],
+            ['learning.bookmark.saved_message', 'string', 'اتحفظ ✓. هتلاقيه في قائمة الدروس'],
             ['learning.bookmark.removed_message', 'string', 'شِلنا الحفظ عن الدرس'],
             ['learning.lesson.locked_label', 'string', 'مقفول'],
-            ['learning.nudge.resume_message', 'string', 'لسّه فاضل شويّة في الدرس ده — تحبّ تكمّله؟'],
+            ['learning.nudge.resume_message', 'string', 'لسّه فاضل شويّة في الدرس ده، تحبّ تكمّله؟'],
             ['learning.nudge.tab_prefix', 'string', '⏸ '],
             ['learning.celebration.share_cta', 'string', 'شارك إنجازك'],
             ['learning.share.title', 'string', 'شارك إنجازك'],
@@ -413,7 +413,7 @@ class LearningDemoSeeder extends Seeder
 
     private function label(string $key): string
     {
-        return 'التعلّم — '.str_replace(['learning.', '.', '_'], ['', ' / ', ' '], $key);
+        return 'التعلّم. '.str_replace(['learning.', '.', '_'], ['', ' / ', ' '], $key);
     }
 
     /**
@@ -617,7 +617,7 @@ class LearningDemoSeeder extends Seeder
 
         $root = VideoComment::updateOrCreate(
             ['lesson_id' => $lesson->id, 'user_id' => $user->id, 'parent_id' => null],
-            ['body' => 'أوضح جزء عندي كان مثال «الجملة الواحدة» — جرّبته في رسالة عمل وفرق فعلًا.', 'likes_count' => 0],
+            ['body' => 'أوضح جزء عندي كان مثال «الجملة الواحدة»: جرّبته في رسالة عمل وفرق فعلًا.', 'likes_count' => 0],
         );
 
         VideoComment::updateOrCreate(

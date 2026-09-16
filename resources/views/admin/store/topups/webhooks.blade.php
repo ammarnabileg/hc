@@ -4,7 +4,7 @@
 
 @section('content')
     <x-page-header :title="setting('admin.store.topups.webhooks.sjl_alwebhook_alkham', 'سجلّ الـWebhook الخام')"
-                   :subtitle="setting('admin.store.topups.webhooks.kl_nda_bwqth_wiph_wjsmh_alkaml_wntyja_althqq', 'كلّ نداء بوقته وIPه وجسمه الكامل ونتيجة التحقّق — عرضٌ فقط.')"
+                   :subtitle="setting('admin.store.topups.webhooks.kl_nda_bwqth_wiph_wjsmh_alkaml_wntyja_althqq', 'كلّ نداء بوقته وIPه وجسمه الكامل ونتيجة التحقّق، عرضٌ فقط.')"
                    :breadcrumbs="[
                        ['label' => setting('admin.store.topups.webhooks.lwha_alidara', 'لوحة الإدارة'), 'url' => url('/admin')],
                        ['label' => setting('admin.store.topups.webhooks.bwaba_aldfa', 'بوّابة الدفع'), 'url' => route('admin.topups.gateway')],

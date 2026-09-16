@@ -70,7 +70,7 @@ class PathAdminController extends Controller
 
         return redirect()
             ->route('admin.paths.index')
-            ->with('status', (string) setting('paths.admin.duplicate_ok', 'اتعمل نسخة من المسار — عدّلها وانشرها ✓'));
+            ->with('status', (string) setting('paths.admin.duplicate_ok', 'اتعمل نسخة من المسار، عدّلها وانشرها ✓'));
     }
 
     /** الحذف بتأكيد — ولا يمسّ التدريبات (12.4-أ). */
@@ -80,7 +80,7 @@ class PathAdminController extends Controller
 
         return redirect()
             ->route('admin.paths.index')
-            ->with('status', (string) setting('paths.delete.success_text', 'اتشال المسار — وتدريباته زيّ ما هي ✓'));
+            ->with('status', (string) setting('paths.delete.success_text', 'اتشال المسار، وتدريباته زيّ ما هي ✓'));
     }
 
     /** سحب الصفوف لترتيب ظهور المسارات — وفشل الترتيب يسترجع السابق في الواجهة. */
@@ -123,7 +123,7 @@ class PathAdminController extends Controller
     {
         $this->paths->detach($path, $course);
 
-        return back()->with('status', (string) setting('paths.detach.success_text', 'اتشال من المسار — والتدريب زيّ ما هو ✓'));
+        return back()->with('status', (string) setting('paths.detach.success_text', 'اتشال من المسار، والتدريب زيّ ما هو ✓'));
     }
 
     public function reorderCourses(Request $request, LearningPath $path): JsonResponse|RedirectResponse

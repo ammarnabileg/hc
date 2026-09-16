@@ -78,8 +78,8 @@ class UpdatesController extends Controller
         $pending = $this->updates->pending();
 
         return back()->with('status', $pending === []
-            ? (string) setting('updates.admin.check_ok', 'إنت على أحدث إصدار ✓ — مافيش هجرات معلّقة.')
-            : strtr((string) setting('updates.admin.check_msg', 'في :a1 هجرة معلّقة — أسماؤها ظاهرة تحت.'), [':a1' => (string) (count($pending))]));
+            ? (string) setting('updates.admin.check_ok', 'إنت على أحدث إصدار ✓، مافيش هجرات معلّقة.')
+            : strtr((string) setting('updates.admin.check_msg', 'في :a1 هجرة معلّقة، أسماؤها ظاهرة تحت.'), [':a1' => (string) (count($pending))]));
     }
 
     /** [Dry-run] — يعرض ما سيُنفَّذ بالضبط **بلا تنفيذ**، وهو تصريح الدخول للتنفيذ */
@@ -89,7 +89,7 @@ class UpdatesController extends Controller
 
         return back()
             ->with('ops.dry_run', $result)
-            ->with('status', (string) setting('updates.admin.dry_run_empty', 'Dry-run خلص — ده بالظبط اللي هيتنفّذ، ولسه مافيش حاجة اتغيّرت.'));
+            ->with('status', (string) setting('updates.admin.dry_run_empty', 'Dry-run خلص، ده بالظبط اللي هيتنفّذ، ولسه مافيش حاجة اتغيّرت.'));
     }
 
     /**
@@ -105,12 +105,12 @@ class UpdatesController extends Controller
         $pending = $this->updates->pending();
 
         if ($pending === []) {
-            return back()->with('status', (string) setting('updates.admin.migrate_empty', 'مافيش هجرات معلّقة — مالناش شغل هنا.'));
+            return back()->with('status', (string) setting('updates.admin.migrate_empty', 'مافيش هجرات معلّقة، مالناش شغل هنا.'));
         }
 
         if (! $this->updates->hasFreshDryRun($request->user(), $pending)) {
             throw ValidationException::withMessages([
-                'confirm' => (string) setting('updates.admin.migrate_msg', 'شغّل Dry-run الأوّل — التنفيذ بلا معاينة ممنوع من الإعدادات.'),
+                'confirm' => (string) setting('updates.admin.migrate_msg', 'شغّل Dry-run الأوّل، التنفيذ بلا معاينة ممنوع من الإعدادات.'),
             ]);
         }
 
@@ -131,8 +131,8 @@ class UpdatesController extends Controller
         $checks = $this->updates->preflightChecks();
 
         return back()->with('status', $this->updates->preflightPasses($checks)
-            ? (string) setting('updates.admin.preflight_ok', 'كلّ الفحوص القبليّة عدّت ✓ — تقدر تكمّل.')
-            : (string) setting('updates.admin.preflight_msg', 'في فحص قبليّ ما عدّاش — راجع القائمة تحت قبل ما تحدّث.'));
+            ? (string) setting('updates.admin.preflight_ok', 'كلّ الفحوص القبليّة عدّت ✓، تقدر تكمّل.')
+            : (string) setting('updates.admin.preflight_msg', 'في فحص قبليّ ما عدّاش، راجع القائمة تحت قبل ما تحدّث.'));
     }
 
     /**
@@ -167,7 +167,7 @@ class UpdatesController extends Controller
 
         $result = $this->updates->rollback($request->user());
 
-        return back()->with('status', strtr((string) setting('updates.admin.rollback_msg_2', 'اترجعت :a1 هجرة — راجع الجدول واتأكّد.'), [':a1' => (string) (count($result['rolled']))]));
+        return back()->with('status', strtr((string) setting('updates.admin.rollback_msg_2', 'اترجعت :a1 هجرة، راجع الجدول واتأكّد.'), [':a1' => (string) (count($result['rolled']))]));
     }
 
     public function recordVersion(Request $request): RedirectResponse
@@ -230,7 +230,7 @@ class UpdatesController extends Controller
 
         if (trim((string) $request->input('confirm')) !== $phrase) {
             throw ValidationException::withMessages([
-                'confirm' => strtr((string) setting('updates.admin.confirm_denied', 'كلمة التأكيد غلط — اكتب «:phrase» بالظبط.'), [':phrase' => $phrase]),
+                'confirm' => strtr((string) setting('updates.admin.confirm_denied', 'كلمة التأكيد غلط، اكتب «:phrase» بالظبط.'), [':phrase' => $phrase]),
             ]);
         }
     }

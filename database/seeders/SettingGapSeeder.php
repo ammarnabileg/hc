@@ -23,7 +23,7 @@ use Illuminate\Support\Facades\Cache;
 class SettingGapSeeder extends Seeder
 {
     /** شرح ما التقطته الشبكة — يقول للمالك إنّ اللافتة لسّه محتاجة صياغة */
-    private const AUTO_HINT = 'التُقِط تلقائيًّا من الكود بافتراضيّه — لسّه محتاج لافتةً عربيّةً في سيدر مجاله.';
+    private const AUTO_HINT = 'التُقِط تلقائيًّا من الكود بافتراضيّه. لسّه محتاج لافتةً عربيّةً في سيدر مجاله.';
 
     public function run(): void
     {
@@ -187,7 +187,7 @@ class SettingGapSeeder extends Seeder
             ['certificates.labels.search_hint', 'بالكود أو الاسم'],
             ['certificates.labels.share', 'شارك شهادتك'],
             ['certificates.labels.share_linkedin', 'مشاركة على لينكدإن'],
-            ['certificates.labels.share_text', 'نصّ المنشور — عدّله زيّ ما تحبّ'],
+            ['certificates.labels.share_text', 'نصّ المنشور، عدّله زيّ ما تحبّ'],
             ['certificates.labels.type', 'النوع'],
             ['certificates.labels.verify_page', 'صفحة التحقّق'],
             ['certificates.labels.year', 'السنة'],
@@ -251,16 +251,16 @@ class SettingGapSeeder extends Seeder
             ['growth.preview.badge', 'درس معاينة مجّانيّ'],
             ['growth.preview.empty', 'المنهج لسّه بيتجهّز.'],
             ['growth.preview.open_label', 'شوف الدرس'],
-            ['growth.preview.register_note', 'التسجيل مجّانيّ والتفعيل باعتماد إداريّ — بلا أيّ رسوم.'],
-            ['growth.preview.upsell', 'عجبك الدرس؟ باقي التدريب بيتفتح بعد التسجيل — والتسجيل مجّانيّ.'],
-            ['growth.profile_completion.already', 'مكافأة إكمال الملفّ اتصرفت قبل كده — وبتتصرف مرّة واحدة بس.'],
-            ['growth.profile_completion.bar_done_hint', 'المكافأة اتصرفت — كمّل الباقي علشان بطاقاتك تطلع كاملة.'],
-            ['growth.profile_completion.complete', 'ملفّك كامل — تمام كده.'],
+            ['growth.preview.register_note', 'التسجيل مجّانيّ والتفعيل باعتماد إداريّ، من غير أيّ رسوم.'],
+            ['growth.preview.upsell', 'عجبك الدرس؟ باقي التدريب بيتفتح بعد التسجيل، والتسجيل مجّانيّ.'],
+            ['growth.profile_completion.already', 'مكافأة إكمال الملفّ اتصرفت قبل كده، وبتتصرف مرّة واحدة بس.'],
+            ['growth.profile_completion.bar_done_hint', 'المكافأة اتصرفت، كمّل الباقي علشان بطاقاتك تطلع كاملة.'],
+            ['growth.profile_completion.complete', 'ملفّك كامل، تمام كده.'],
             ['growth.profile_completion.cta', 'روح كمّل بياناتك'],
             ['growth.profile_completion.fields_label', 'اللي لسّه ناقص'],
             ['growth.profile_completion.progress_label', 'نسبة الاكتمال'],
-            ['growth.profile_completion.promise', 'أول ما توصل 100% هتاخد {tickets} تذاكر — مرّة واحدة.'],
-            ['growth.volunteer_kit.link_hint', 'كلّ مَن يسجّل من الرابط ده بيتحسبلك — والرابط موسوم علشان نعرف عائد كلّ قناة.'],
+            ['growth.profile_completion.promise', 'أول ما توصل 100% هتاخد {tickets} تذاكر، مرّة واحدة بس.'],
+            ['growth.volunteer_kit.link_hint', 'كلّ مَن يسجّل من الرابط ده بيتحسبلك، والرابط موسوم علشان نعرف عائد كلّ قناة.'],
             ['growth.volunteer_kit.link_label', 'رابط دعوتك'],
             ['growth.volunteer_kit.scripts_label', 'نصوص جاهزة'],
             ['growth.volunteer_kit.templates_empty', 'مافيش قوالب متاحة لك دلوقتي.'],
@@ -301,7 +301,7 @@ class SettingGapSeeder extends Seeder
             ['complaints.reasons.defaults_hint', 'الافتراضيّ:'],
             ['complaints.reasons.in_use_suffix', 'تذكرة مرتبطة'],
             ['complaints.reasons.new_placeholder', 'سبب جديد'],
-            ['complaints.reasons.page_subtitle', 'دي القائمة اللي بيختار منها المستخدم — عدّلها زيّ ما تحبّ.'],
+            ['complaints.reasons.page_subtitle', 'دي القائمة اللي بيختار منها المستخدم. عدّلها زيّ ما تحبّ.'],
             ['complaints.reasons.page_title', 'أسباب الشكاوى والمقترحات'],
             ['complaints.reasons.remove_label', 'حذف السبب'],
             ['complaints.reasons.save_label', 'حفظ الأسباب'],
@@ -320,7 +320,7 @@ class SettingGapSeeder extends Seeder
             ['cv.field.course_name_label', 'اسم الدورة'],
             ['cv.field.course_serial_label', 'رقم الشهادة (اختياريّ)'],
             ['cv.field.course_url_label', 'رابط الشهادة (اختياريّ)'],
-            ['cv.field.description_en_label', 'Description (English) — optional'],
+            ['cv.field.description_en_label', 'Description (English), optional'],
             ['cv.field.organization_label', 'المنظمة'],
             ['cv.field.provider_label', 'جهة الإصدار'],
             ['cv.field.volunteer_role_label', 'الدور'],
@@ -328,7 +328,7 @@ class SettingGapSeeder extends Seeder
             ['cv.courses.add_label', 'إضافة دورة جديدة'],
             ['cv.courses.empty_hint', 'الدورات اللي خدتها بره المنصّة كمان بتتحسب.'],
             ['cv.volunteering.add_label', 'إضافة تجربة تطوّعيّة'],
-            ['cv.volunteering.empty_hint', 'أيّ مبادرة أو عمل مجتمعيّ بيفرق — سجّله.'],
+            ['cv.volunteering.empty_hint', 'أيّ مبادرة أو عمل مجتمعيّ بيفرق، سجّله.'],
             ['cv.section.courses_label', 'الدورات التدريبيّة'],
             ['cv.section.trainings_label', 'تدريبات المنصّة المكتملة'],
             ['cv.section.volunteering_label', 'الخبرة التطوّعيّة'],
@@ -338,7 +338,7 @@ class SettingGapSeeder extends Seeder
             ['cv.section.certificate_number_prefix', 'رقم'],
             ['cv.export.confirm_label', 'أكّد وحمّل النسخة النظيفة'],
             ['cv.export.confirm_notice', 'دي معاينة بعلامة مائيّة. التحميل النهائيّ بالقالب ده هيخصم :price تذكرة (رصيدك :before ⟵ :after).'],
-            ['cv.template.selected_paid_message', 'اتغيّر القالب — المعاينة بعلامة مائيّة، و:price تذكرة هتتخصم عند التحميل.'],
+            ['cv.template.selected_paid_message', 'اتغيّر القالب. المعاينة بعلامة مائيّة، و:price تذكرة هتتخصم عند التحميل.'],
         ];
 
         return array_merge(
@@ -386,9 +386,9 @@ class SettingGapSeeder extends Seeder
             ['account.profile.experience.empty_message', 'account', 'رسالة البروفايل بلا سيرة ذاتيّة', 'string', 'لسّه مفيش سيرة ذاتيّة هنا.', 'الحالة الفارغة تشجّع ولا تعاتب (2.17).'],
             ['account.profile.experience.hidden_message', 'account', 'رسالة إخفاء الخبرات على البروفايل', 'string', 'الخبرات مش متاحة على البروفايل ده.', 'تظهر لمّا يمنع صاحب البروفايل إظهار خبراته.'],
 
-            ['admin.users.country_pin_hint', 'admin_users', 'شرح تثبيت الدولة في صفحة المستخدم', 'text', 'الكشف التلقائيّ بيتبع مكانه دلوقتي — والتثبيت اليدويّ بيعلو عليه ومابيتدهسش.', ''],
-            ['admin.users.referral_gift_note', 'admin_users', 'شرح توقيت صرف هديّة الإحالة', 'text', 'الهديّة بتتصرف للطرفين بعد قبول الحساب — مش وقت التسجيل.', ''],
-            ['admin.users.sessions_hint', 'admin_users', 'شرح بلوك الجلسات في صفحة المستخدم', 'text', 'الأجهزة المفتوح عليها الحساب دلوقتي — وإنهاء الجلسات بيقفلها كلّها.', ''],
+            ['admin.users.country_pin_hint', 'admin_users', 'شرح تثبيت الدولة في صفحة المستخدم', 'text', 'الكشف التلقائيّ بيتبع مكانه دلوقتي، والتثبيت اليدويّ بيعلو عليه ومابيتدهسش.', ''],
+            ['admin.users.referral_gift_note', 'admin_users', 'شرح توقيت صرف هديّة الإحالة', 'text', 'الهديّة بتتصرف للطرفين بعد قبول الحساب، مش وقت التسجيل.', ''],
+            ['admin.users.sessions_hint', 'admin_users', 'شرح بلوك الجلسات في صفحة المستخدم', 'text', 'الأجهزة المفتوح عليها الحساب دلوقتي، وإنهاء الجلسات بيقفلها كلّها.', ''],
 
             ['backups.schedule.kind', 'backups', 'نوع النسخة المجدولة الافتراضيّ', 'string', 'full', 'full = نسخة كاملة (قاعدة البيانات + الملفّات).'],
 
@@ -401,19 +401,19 @@ class SettingGapSeeder extends Seeder
             ['learning.video.required_percent', 'learning', 'نسبة المشاهدة المطلوبة (%)', 'number', '90', '90 = يكفي أن يصل آخر عُشر الفيديو.'],
             ['learning.video.ping_seconds', 'learning', 'دوريّة نبضة المشاهدة (ثانية)', 'number', '15', 'كلّ كم ثانية يبلّغ المشغّل الخادمَ بموضعه.'],
             ['learning.video.max_step_seconds', 'learning', 'أقصى قفزة مقبولة بين نبضتين (ثانية)', 'number', '60', 'يمنع احتساب المشاهدة بالسحب على شريط التقدّم.'],
-            ['learning.video.max_duration_seconds', 'learning', 'أقصى مدّة فيديو معتبَرة (ثانية)', 'number', '43200', '43200 = 12 ساعة — حدٌّ يمنع مدّةً تالفة من تعطيل الشرط.'],
-            ['learning.lock.watch_reason', 'learning', 'رسالة قفل الدرس قبل إتمام المشاهدة', 'text', 'خلّص الفيديو الأوّل — الدرس بيتحسب بالمشاهدة والاختبار مع بعض.', 'رسالة الخطأ تقول ماذا حدث وماذا يفعل (2.17).'],
+            ['learning.video.max_duration_seconds', 'learning', 'أقصى مدّة فيديو معتبَرة (ثانية)', 'number', '43200', '43200 = 12 ساعة. حدٌّ يمنع مدّةً تالفة من تعطيل الشرط.'],
+            ['learning.lock.watch_reason', 'learning', 'رسالة قفل الدرس قبل إتمام المشاهدة', 'text', 'خلّص الفيديو الأوّل. الدرس بيتحسب بالمشاهدة والاختبار مع بعض.', 'رسالة الخطأ تقول ماذا حدث وماذا يفعل (2.17).'],
 
-            ['exams.messages.not_enrolled', 'exams', 'رسالة دخول امتحانٍ بلا تسجيل في تدريبه', 'text', 'الامتحان ده لتدريبٍ لسّه ما سجّلتش فيه — ابدأ التدريب الأوّل وهيتفتحلك.', 'حارس 4.2: لا شهادة بلا تعلّم.'],
-            ['question_bank.messages.not_general', 'exams', 'رسالة رفض إعادة استخدام سؤالٍ غير «عام»', 'text', 'السؤال ده مش معلَّم «عام»، والامتحان النهائيّ بيتبني من الأسئلة العامّة وحدها — علّمه «عام» الأوّل.', ''],
+            ['exams.messages.not_enrolled', 'exams', 'رسالة دخول امتحانٍ بلا تسجيل في تدريبه', 'text', 'الامتحان ده لتدريبٍ لسّه ما سجّلتش فيه. ابدأ التدريب الأوّل وهيتفتحلك.', 'حارس 4.2: لا شهادة بلا تعلّم.'],
+            ['question_bank.messages.not_general', 'exams', 'رسالة رفض إعادة استخدام سؤالٍ غير «عام»', 'text', 'السؤال ده مش معلَّم «عام»، والامتحان النهائيّ بيتبني من الأسئلة العامّة وحدها. علّمه «عام» الأوّل.', ''],
 
             ['badges.icon.directory', 'gamification_badges', 'مجلّد أيقونات الشارات', 'string', 'badges', 'داخل التخزين العامّ.'],
             ['badges.icon.max_kb', 'gamification_badges', 'أقصى حجم لأيقونة الشارة (ك.ب)', 'number', '512', ''],
 
             ['volunteer.honorary.accounts_limit', 'volunteer', 'أقصى عدد حسابات شرفيّة', 'number', '20', '«أخوكم» عنصر شرفيّ بلا أثر في أيّ عدّاد (13.4-ص).'],
             ['volunteer_cert.experience.notify_title', 'volunteer_cert', 'عنوان إشعار شهادة خبرة التطوّع', 'string', 'شهادة خبرة التطوّع بتاعتك صدرت 🎖️', ''],
-            ['volunteer_cert.experience.notify_body', 'volunteer_cert', 'نصّ إشعار شهادة خبرة التطوّع', 'text', 'شكرًا على كلّ اللي قدّمته — الشهادة في مكتبتك وبتفضل سارية للأبد.', ''],
-            ['volunteer_cert.issuer_unavailable', 'volunteer_cert', 'سبب تعثّر إصدار شهادة التطوّع', 'text', 'مسار إصدار الشهادات متعثّر الآن — راجع أنّ نوع الشهادة مفعَّل في «إدارة الشهادات»، ولا تُكتَب شهادة خارج المحرّك.', 'لا شهادة تُكتَب خارج `CertificateIssuer` (12.5): الفشل يُعلَن ولا يُخبَّأ خلف وثيقةٍ بلا ترقيم ولا لقطة ولا توقيع بمفتاح.'],
+            ['volunteer_cert.experience.notify_body', 'volunteer_cert', 'نصّ إشعار شهادة خبرة التطوّع', 'text', 'شكرًا على كلّ اللي قدّمته. الشهادة في مكتبتك وبتفضل سارية للأبد.', ''],
+            ['volunteer_cert.issuer_unavailable', 'volunteer_cert', 'سبب تعثّر إصدار شهادة التطوّع', 'text', 'مسار إصدار الشهادات متعثّر الآن. راجع أنّ نوع الشهادة مفعَّل في «إدارة الشهادات»، ولا تُكتَب شهادة خارج المحرّك.', 'لا شهادة تُكتَب خارج `CertificateIssuer` (12.5): الفشل يُعلَن ولا يُخبَّأ خلف وثيقةٍ بلا ترقيم ولا لقطة ولا توقيع بمفتاح.'],
 
             ['celebrations.labels.close', 'gamification_celebrations', 'نصّ زرّ إغلاق الاحتفال', 'string', 'تمام', ''],
             ['learning.paths.friends_limit', 'paths', 'عدد الزملاء الظاهرين على المسار', 'number', '12', '12 = اثنا عشر وجهًا قبل «وغيرهم».'],
@@ -443,8 +443,8 @@ class SettingGapSeeder extends Seeder
             ['attestations.public.closed_message', 'attestations', 'رسالة قفل رابط الإفادة العامّ', 'string', 'الرابط اتقفل ✓', ''],
             ['attestations.public.slug_length', 'attestations', 'طول الرابط العامّ للإفادة (حروف)', 'number', '12', '12 = اثنا عشر حرفًا عشوائيًّا يصعب تخمينها.'],
             ['attestations.public.toggle_label', 'attestations', 'تسمية مفتاح الرابط العامّ للإفادة', 'string', 'شغّل الرابط العامّ للإفادة', ''],
-            ['attestations.public.hint', 'attestations', 'شرح الرابط العامّ للإفادة', 'text', 'الرابط مقفول لحدّ ما تشغّله بنفسك — وتقدر تقفله في أيّ وقت.', ''],
-            ['attestations.public.error_message', 'attestations', 'رسالة تعذّر تغيير حالة الرابط', 'text', 'مقدرناش نغيّر الحالة — راجع النت وجرّب تاني.', 'رسالة الخطأ = ماذا حدث + ماذا تفعل (2.17-ب).'],
+            ['attestations.public.hint', 'attestations', 'شرح الرابط العامّ للإفادة', 'text', 'الرابط مقفول لحدّ ما تشغّله بنفسك، وتقدر تقفله في أيّ وقت.', ''],
+            ['attestations.public.error_message', 'attestations', 'رسالة تعذّر تغيير حالة الرابط', 'text', 'مقدرناش نغيّر الحالة، راجع النت وجرّب تاني.', 'رسالة الخطأ = ماذا حدث + ماذا تفعل (2.17-ب).'],
 
             ['onboarding.placement.xp_reason', 'onboarding', 'سبب نقاط الخبرة في الاختبار التمهيديّ', 'string', 'إجابة صحيحة في الاختبار التمهيديّ', 'يظهر في كشف حساب النقاط.'],
             ['onboarding.placement.tickets_reason', 'onboarding', 'سبب التذاكر في الاختبار التمهيديّ', 'string', 'مكافأة سؤال في الاختبار التمهيديّ', 'يظهر في كشف حساب المحفظة.'],

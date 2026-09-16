@@ -33,7 +33,7 @@
     </div>
 
     @if ($questions->isEmpty())
-        <x-empty :message="setting('admin.question_bank.preview.mafysh_asyla_aama_nshta_alamthan_alnhayy_msh', 'مافيش أسئلة عامّة نشطة — الامتحان النهائيّ مش هيتبنى دلوقتي.')"
+        <x-empty :message="setting('admin.question_bank.preview.mafysh_asyla_aama_nshta_alamthan_alnhayy_msh', 'مافيش أسئلة عامّة نشطة. الامتحان النهائيّ مش هيتبنى دلوقتي.')"
                  :action="setting('admin.question_bank.preview.rwh_llbnk', 'روح للبنك')" :href="route('admin.question-bank.index')" />
     @else
         <ol class="space-y-3">

@@ -30,7 +30,7 @@
             <div class="text-2xl md:text-3xl font-extrabold tracking-widest" style="color: var(--color-brand-500)">
                 {{ $registration->ticket_code }}
             </div>
-            <div class="text-xs mt-2" style="color: var(--text-muted)">{{ setting('events.ticket_card.code_hint', 'كود التذكرة — اعرضه عند الاستقبال') }}</div>
+            <div class="text-xs mt-2" style="color: var(--text-muted)">{{ setting('events.ticket_card.code_hint', 'كود التذكرة: اعرضه عند الاستقبال') }}</div>
         </div>
 
         @if ($registration->attend_mode)

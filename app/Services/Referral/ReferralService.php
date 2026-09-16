@@ -304,7 +304,7 @@ class ReferralService
             return false;
         }
 
-        $this->ledger->credit($referrer, 'tickets', $amount, 'referral_bonus', setting('growth.referral_service.variable_reward_1', 'مكافأة مفاجئة — دعوة ناجحة 🎉'), $referral);
+        $this->ledger->credit($referrer, 'tickets', $amount, 'referral_bonus', setting('growth.referral_service.variable_reward_1', 'مكافأة مفاجئة من دعوة ناجحة 🎉'), $referral);
         $this->tracker->record('referral_variable_reward', $referral, $referrer->id);
 
         return true;

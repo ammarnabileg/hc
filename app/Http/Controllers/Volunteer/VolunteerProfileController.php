@@ -79,6 +79,6 @@ class VolunteerProfileController extends Controller
 
         return redirect()
             ->to('/u/'.$owner->code.'?tab='.VolunteerProfileTabs::NOTES)
-            ->with('status', (string) setting('volunteer.profile.notes.saved', 'اتحفظت الملاحظة ✓ — سرّيّة ومسجّلة في التدقيق.'));
+            ->with('status', (string) setting('volunteer.profile.notes.saved', 'اتحفظت الملاحظة ✓، سرّيّة ومسجّلة في التدقيق.'));
     }
 }

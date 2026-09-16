@@ -17,7 +17,7 @@
 @section('content')
     <x-page-header
         :title="setting('volunteer.performance_evaluations.title', 'تقييماتي')"
-        :subtitle="setting('volunteer.performance_evaluations.subtitle', 'مؤشّر القيادة: من الداونلاين للأبلاين فقط — ومجهول تمامًا.')"
+        :subtitle="setting('volunteer.performance_evaluations.subtitle', 'مؤشّر القيادة: من الداونلاين للأبلاين فقط، ومجهول تمامًا.')"
         :breadcrumbs="[['label' => setting('volunteer.performance_evaluations.label_3', 'الأداء'), 'url' => route('volunteer.performance.vxp')], ['label' => setting('volunteer.performance_evaluations.title', 'تقييماتي')]]" />
 
     <x-tabs :tabs="$tabs" :current="$tab" />
@@ -34,13 +34,13 @@
         {{-- ------------------------------------------------ تقييمي لأبلايني --}}
         <div class="card p-4 mb-4 text-sm flex items-start gap-2">
             <span aria-hidden="true"><x-icon name="eye" size="16" /></span>
-            <p>{{ setting('volunteer.performance_evaluations.text', 'مجهول تمامًا — بيظهر لأبلاينك متوسّطًا فقط، بلا أيّ كشف لهويّتك.') }}</p>
+            <p>{{ setting('volunteer.performance_evaluations.text', 'مجهول تمامًا. بيظهر لأبلاينك متوسّطًا فقط، بلا أيّ كشف لهويّتك.') }}</p>
         </div>
 
         @if ($alreadyEvaluated)
             <div class="card p-6 text-center">
                 <x-state-badge state="ok" :label="setting('volunteer.performance_evaluations.label_4', 'تمّ')" />
-                <p class="text-sm mt-3">{{ setting('volunteer.performance_evaluations.text_2', 'قيّمت') }} {{ $upline->shortName() }} {{ setting('volunteer.performance_evaluations.text_3', 'هذا الأسبوع بالفعل — الفورم بيفتح تاني أوّل الأسبوع الجاي.') }}</p>
+                <p class="text-sm mt-3">{{ setting('volunteer.performance_evaluations.text_2', 'قيّمت') }} {{ $upline->shortName() }} {{ setting('volunteer.performance_evaluations.text_3', 'هذا الأسبوع بالفعل. الفورم بيفتح تاني أوّل الأسبوع الجاي.') }}</p>
             </div>
         @else
             <form method="post" action="{{ route('volunteer.performance.evaluations.store') }}" class="card p-4 space-y-4">
@@ -97,11 +97,11 @@
         {{-- ------------------------------------------------ تقييماتي المستلَمة --}}
         {{-- ⭐ سطر ثابت يشرح العتبة — لا يظهر المتوسّط إلا بعددٍ كافٍ من المقيّمين --}}
         <p class="text-xs mb-3" style="color: var(--text-muted)">
-            {{ setting('volunteer.performance_evaluations.text_6', 'لا يظهر المتوسّط إلا بـ') }}{{ $minRaters }} {{ setting('volunteer.performance_evaluations.text_7', 'مقيّمين فأكثر — حمايةً للسرّيّة.') }}
+            {{ setting('volunteer.performance_evaluations.text_6', 'لا يظهر المتوسّط إلا بـ') }}{{ $minRaters }} {{ setting('volunteer.performance_evaluations.text_7', 'مقيّمين فأكثر. حمايةً للسرّيّة.') }}
         </p>
 
         @if (! $summary['visible'])
-            <x-empty :message="setting('volunteer.performance_evaluations.empty', 'العيّنة أقلّ من ').$minRaters.setting('volunteer.performance_evaluations.empty_2', ' مقيّمين — المتوسّط محجوب حمايةً للسرّيّة')"
+            <x-empty :message="setting('volunteer.performance_evaluations.empty', 'العيّنة أقلّ من ').$minRaters.setting('volunteer.performance_evaluations.empty_2', ' مقيّمين. المتوسّط محجوب حمايةً للسرّيّة')"
                      :action="setting('volunteer.performance_evaluations.action_2', 'ارجع للأداء')" :href="route('volunteer.performance.vxp')" />
         @else
             <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">

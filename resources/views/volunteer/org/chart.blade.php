@@ -9,7 +9,7 @@
 @section('content')
     <x-page-header
         :title="setting('volunteer.org_chart.title', 'الهيكل التنظيميّ')"
-        :subtitle="$root ? $root->name_ar.setting('volunteer.org_chart.subtitle', ' — شجرة الكيان وسلاسل الأبلاين') : null"
+        :subtitle="$root ? $root->name_ar.setting('volunteer.org_chart.subtitle', ': شجرة الكيان وسلاسل الأبلاين') : null"
         :breadcrumbs="[['label' => setting('volunteer.common.breadcrumb_root', 'لوحة التطوّع'), 'url' => url('/volunteer')], ['label' => setting('volunteer.org_chart.label', 'قسمي')], ['label' => setting('volunteer.org_chart.title', 'الهيكل التنظيميّ')]]">
         <x-slot:action>
             @include('volunteer.org.partials.entity-switcher', ['action' => route('volunteer.org')])
@@ -21,7 +21,7 @@
     </x-page-header>
 
     @if (! $root || empty($chart['nodes']))
-        <x-empty :message="setting('volunteer.org_chart.empty', 'مفيش فريق تحتك — دي شجرة كيانك لسّه في أوّلها')" :action="setting('volunteer.org_chart.action_2', 'الأعضاء والبوزشنز')" :href="route('volunteer.department')" />
+        <x-empty :message="setting('volunteer.org_chart.empty', 'مفيش فريق تحتك، دي شجرة كيانك لسّه في أوّلها')" :action="setting('volunteer.org_chart.action_2', 'الأعضاء والبوزشنز')" :href="route('volunteer.department')" />
     @else
         {{-- عدّاد شبكتك الكاملة بكلّ المستويات + أعلى رقم وصلته بلون هادئ بلا سهم نازل (13.4-م) --}}
         <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
@@ -35,7 +35,7 @@
             </div>
             <x-kpi :label="setting('volunteer.org_chart.label_2', 'أعضاء الكيان')" :value="$chart['entity_members']" icon="people" />
             <div class="card p-4 col-span-2 flex flex-col justify-center gap-2">
-                <input type="search" data-org="search" placeholder="{{ setting('volunteer.org_chart.placeholder', 'ابحث بالاسم أو الكود — نقفز للعقدة ونضيئها') }}"
+                <input type="search" data-org="search" placeholder="{{ setting('volunteer.org_chart.placeholder', 'ابحث بالاسم أو الكود، نقفز للعقدة ونضيئها') }}"
                        aria-label="{{ setting('volunteer.org_chart.aria', 'بحث في الهيكل') }}"
                        class="w-full rounded-xl px-3 py-2 text-sm"
                        style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
@@ -87,9 +87,9 @@
 @php
     /** نصوص السكربت — تُمرَّر بـ`@json` فلا يبقى حرفٌ عربيّ محروق داخله (2.13-أ) */
     $jsText = [
-        'honorary' => (string) setting('volunteer.org_chart.js_honorary', 'عنصر شرفيّ — خارج كلّ العدّادات'),
+        'honorary' => (string) setting('volunteer.org_chart.js_honorary', 'عنصر شرفيّ، خارج كلّ العدّادات'),
         'absent_until' => (string) setting('volunteer.org_chart.js_absent_until', 'غائب حتى'),
-        'delegate' => (string) setting('volunteer.org_chart.js_delegate', '— البديل:'),
+        'delegate' => (string) setting('volunteer.org_chart.js_delegate', 'البديل:'),
         'acting' => (string) setting('volunteer.org_chart.js_acting', 'قائم بأعمال'),
         'occupancy' => (string) setting('volunteer.org_chart.js_occupancy', 'إشغال'),
         'load' => (string) setting('volunteer.org_chart.js_load', 'حِمل'),
@@ -99,13 +99,13 @@
         'service_duration' => (string) setting('volunteer.org_chart.js_service_duration', 'مدّة الخدمة'),
         'certificates' => (string) setting('volunteer.org_chart.js_certificates', 'الشهادات'),
         'open_profile' => (string) setting('volunteer.org_chart.js_open_profile', 'فتح البروفايل'),
-        'load_failed' => (string) setting('volunteer.org_chart.js_load_failed', 'تعذّر تحميل التفاصيل — جرّب تاني.'),
+        'load_failed' => (string) setting('volunteer.org_chart.js_load_failed', 'تعذّر تحميل التفاصيل، جرّب تاني.'),
         'snapshot_preparing' => (string) setting('volunteer.org_chart.js_snapshot_preparing', 'جارٍ تجهيز اللقطة…'),
         'network_total' => (string) setting('volunteer.org_chart.js_network_total', 'الشبكة:'),
         'snapshot_at' => (string) setting('volunteer.org_chart.js_snapshot_at', '· لقطة'),
         'snapshot_alt' => (string) setting('volunteer.org_chart.js_snapshot_alt', 'لقطة الهيكل'),
         'save_image' => (string) setting('volunteer.org_chart.js_save_image', 'حفظ الصورة'),
-        'snapshot_failed' => (string) setting('volunteer.org_chart.js_snapshot_failed', 'تعذّر تجهيز اللقطة — جرّب تاني.'),
+        'snapshot_failed' => (string) setting('volunteer.org_chart.js_snapshot_failed', 'تعذّر تجهيز اللقطة، جرّب تاني.'),
     ];
 @endphp
 

@@ -7,13 +7,13 @@
             {{ setting('admin.ops.partials.updates_history.tsjyl', 'تسجيل') }}
         </button>
         @if (setting('updates.forward_only', true))
-            <p class="text-xs md:col-span-3" style="color: var(--text-muted)">{{ setting('admin.ops.partials.updates_history.alatjah_amama_fqt_mafysh_rjwa_lisdar_aqdm', 'الاتّجاه أمامًا فقط — مافيش رجوع لإصدار أقدم.') }}</p>
+            <p class="text-xs md:col-span-3" style="color: var(--text-muted)">{{ setting('admin.ops.partials.updates_history.alatjah_amama_fqt_mafysh_rjwa_lisdar_aqdm', 'الاتّجاه أمامًا فقط، مافيش رجوع لإصدار أقدم.') }}</p>
         @endif
     </form>
 @endcan
 
 @if (! $history || $history->isEmpty())
-    <x-empty :message="setting('admin.ops.partials.updates_history.mafysh_isdarat_msjla_lsh_sjl_isdark_alhaly', 'مافيش إصدارات مسجّلة لسه — سجّل إصدارك الحاليّ.')" />
+    <x-empty :message="setting('admin.ops.partials.updates_history.mafysh_isdarat_msjla_lsh_sjl_isdark_alhaly', 'مافيش إصدارات مسجّلة لسه. سجّل إصدارك الحاليّ.')" />
 @else
     @can('version_history.export')
         <div class="mb-3">

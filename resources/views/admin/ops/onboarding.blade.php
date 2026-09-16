@@ -4,7 +4,7 @@
 
 @section('content')
     <x-page-header :title="setting('admin.ops.onboarding.mhtwa_alonboarding', 'محتوى الـOnboarding')"
-                   :subtitle="setting('admin.ops.onboarding.awl_ma_yshwfh_almstkhdm_aljdyd_walmaayna_hy', 'أوّل ما يشوفه المستخدم الجديد — والمعاينة هي الحكم.')"
+                   :subtitle="setting('admin.ops.onboarding.awl_ma_yshwfh_almstkhdm_aljdyd_walmaayna_hy', 'أوّل ما يشوفه المستخدم الجديد، والمعاينة هي الحكم.')"
                    :breadcrumbs="[
                        ['label' => setting('admin.ops.onboarding.lwha_alidara', 'لوحة الإدارة'), 'url' => url('/admin')],
                        ['label' => setting('admin.ops.onboarding.aliadadat_walnzam', 'الإعدادات والنظام'), 'url' => route('admin.settings.index')],

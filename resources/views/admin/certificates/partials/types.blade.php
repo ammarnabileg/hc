@@ -32,7 +32,7 @@
 </div>
 
 @if ($types->isEmpty())
-    <x-empty :message="setting('admin.certificates.partials.types.mfysh_anwaa_lsh_dyf_awl_nwa', 'مفيش أنواع لسّه — ضيف أوّل نوع.')" />
+    <x-empty :message="setting('admin.certificates.partials.types.mfysh_anwaa_lsh_dyf_awl_nwa', 'مفيش أنواع لسّه. ضيف أوّل نوع.')" />
 @else
     <div class="space-y-3">
         @foreach ($types as $type)
@@ -48,7 +48,7 @@
                             {{ setting('admin.certificates.partials.types.allghat', 'اللغات:') }}
                             {{ $type->lang_ar_enabled ? setting('admin.certificates.partials.types.arbya', 'عربيّة') : '' }}
                             {{ $type->lang_en_enabled ? setting('admin.certificates.partials.types.injlyzya', 'إنجليزيّة') : '' }}
-                            {{ ! $type->lang_ar_enabled && ! $type->lang_en_enabled ? setting('admin.certificates.partials.types.mhdsh_mfal', '— محدّش مفعّل') : '' }}
+                            {{ ! $type->lang_ar_enabled && ! $type->lang_en_enabled ? setting('admin.certificates.partials.types.mhdsh_mfal', 'محدّش مفعّل') : '' }}
                         </div>
                     </div>
 

@@ -185,7 +185,7 @@
 
                     @can('certificates.create')
                         <form method="post" action="{{ route('admin.certificates.reissue', $certificate) }}"
-                              onsubmit="return confirm('{{ setting('certificates.reissue.confirm_text', 'هنبطل القديمة ونصدر مصحّحة — نكمّل؟') }}')">
+                              onsubmit="return confirm('{{ setting('certificates.reissue.confirm_text', 'هنبطل القديمة ونصدر مصحّحة. نكمّل؟') }}')">
                             @csrf
                             <button class="underline">{{ setting('admin.certificates.partials.ledger.iaada_isdar', 'إعادة إصدار') }}</button>
                         </form>
@@ -199,7 +199,7 @@
                         <form method="post" action="{{ route('admin.certificates.revoke', $certificate) }}" class="space-y-3">
                             @csrf
                             <p class="text-sm" style="color: var(--text-muted)">
-                                {{ setting('admin.certificates.partials.ledger.alilgha_lltzwyr_almthbt_walsbb_ilzamy', 'الإلغاء للتزوير المثبَت — والسبب إلزاميّ وبيتسجّل في التدقيق.') }}
+                                {{ setting('admin.certificates.partials.ledger.alilgha_lltzwyr_almthbt_walsbb_ilzamy', 'الإلغاء للتزوير المثبَت، والسبب إلزاميّ وبيتسجّل في التدقيق.') }}
                             </p>
                             <label class="block">
                                 <span class="block text-sm mb-1">{{ setting('admin.certificates.partials.ledger.alsbb', 'السبب') }}</span>

@@ -151,7 +151,7 @@ class SettingsRegistry
             'features' => [
                 'label' => setting('system.settings_registry.tabs_35', 'مفاتيح المزايا'),
                 'groups' => ['features'],
-                'hint' => setting('system.settings_registry.tabs_36', 'إطفاء أو تشغيل أيّ ميزة بلا نشر كود — ولا صيانة جزئيّة.'),
+                'hint' => setting('system.settings_registry.tabs_36', 'إطفاء أو تشغيل أيّ ميزة بلا نشر كود، وبلا صيانة جزئيّة.'),
             ],
             'countries' => [
                 'label' => setting('system.settings_registry.tabs_37', 'بيانات الدول'),
@@ -175,19 +175,19 @@ class SettingsRegistry
             ],
             // 🧩 المطوّرين — API (12.15، v5.5): مجموعة إعدادات شاشة `admin.developers.index`
             'developers' => [
-                'label' => setting('system.settings_registry.tabs_49', 'المطوّرين — API'),
+                'label' => setting('system.settings_registry.tabs_49', 'المطوّرين · API'),
                 'groups' => ['developers'],
                 'hint' => setting('system.settings_registry.tabs_50', 'تفعيل واجهة الـAPI وحدّ المعدّل الافتراضيّ ومدّة الاحتفاظ بسجلّ الطلبات.'),
             ],
             'misc' => [
                 'label' => setting('system.settings_registry.tabs_45', 'متنوّعات'),
                 'groups' => [],
-                'hint' => setting('system.settings_registry.tabs_46', 'مجموعات لم تأخذ تابها بعد — تظهر هنا كي لا يبقى إعدادٌ بلا شاشة.'),
+                'hint' => setting('system.settings_registry.tabs_46', 'مجموعات لم تأخذ تابها بعد، تظهر هنا كي لا يبقى إعدادٌ بلا شاشة.'),
             ],
             'audit' => [
                 'label' => setting('system.settings_registry.tabs_47', 'سجلّ التدقيق'),
                 'groups' => [],
-                'hint' => setting('system.settings_registry.tabs_48', 'أثر كامل لكلّ تغيير إداريّ — للقراءة فقط.'),
+                'hint' => setting('system.settings_registry.tabs_48', 'أثر كامل لكلّ تغيير إداريّ، للقراءة فقط.'),
             ],
         ];
     }
@@ -208,7 +208,7 @@ class SettingsRegistry
             'feel' => [setting('system.settings_registry.group_catalog_9', 'طبقة الإحساس'), setting('system.settings_registry.group_catalog_10', 'العدّادات والاهتزاز وصوت التوقيع.')],
             'appearance' => [setting('system.settings_registry.group_catalog_11', 'الهويّة البصريّة'), setting('system.settings_registry.group_catalog_12', 'الألوان والخطوط والمساحات والزخارف.')],
             'platform' => [setting('system.settings_registry.group_catalog_13', 'شعار المنصّة'), setting('system.settings_registry.group_catalog_14', 'الشعار الظاهر في الواجهات والمستندات.')],
-            'nav' => [setting('system.settings_registry.group_catalog_15', 'لافتات السايد بار والتنقّل'), setting('system.settings_registry.group_catalog_16', 'أسماء بنود سايد بار الإدارة والتطوّع والمتدرّب والهيدر والجرس — الاسم يُعدَّل والبنية (العدد والترتيب والوجهة) لا تُمَسّ.')],
+            'nav' => [setting('system.settings_registry.group_catalog_15', 'لافتات السايد بار والتنقّل'), setting('system.settings_registry.group_catalog_16', 'أسماء بنود سايد بار الإدارة والتطوّع والمتدرّب والهيدر والجرس، الاسم يُعدَّل والبنية (العدد والترتيب والوجهة) لا تُمَسّ.')],
             'setup' => [setting('system.settings_registry.group_catalog_17', 'التنصيب'), setting('system.settings_registry.group_catalog_18', 'خطوات التنصيب ومتطلّباته وحساب المالك الأوّل.')],
             'home' => [setting('system.settings_registry.group_catalog_19', 'الصفحة الرئيسيّة'), setting('system.settings_registry.group_catalog_20', 'البطل والأقسام والميتا وSchema.org.')],
             'engagement' => [setting('system.settings_registry.group_catalog_21', 'الرسائل الإيجابيّة'), setting('system.settings_registry.group_catalog_22', 'المفاجآت والتذاكر وسياقات الظهور.')],
@@ -246,7 +246,7 @@ class SettingsRegistry
             'kudos' => [setting('system.settings_registry.group_catalog_85', 'التقدير'), setting('system.settings_registry.group_catalog_86', 'الحدود اليوميّة ونصوص الشكر.')],
             'rewards' => [setting('system.settings_registry.group_catalog_87', 'المكافآت'), setting('system.settings_registry.group_catalog_88', 'المخزون والصرف والحدود.')],
             'events' => [setting('system.settings_registry.group_catalog_89', 'الفعاليّات'), setting('system.settings_registry.group_catalog_90', 'التسجيل والحضور وكود الحضور والتذكير.')],
-            'volunteer' => [setting('system.settings_registry.group_catalog_91', 'التطوّع — عامّ'), setting('system.settings_registry.group_catalog_92', 'القواعد المشتركة لطبقة التطوّع.')],
+            'volunteer' => [setting('system.settings_registry.group_catalog_91', 'التطوّع · عامّ'), setting('system.settings_registry.group_catalog_92', 'القواعد المشتركة لطبقة التطوّع.')],
             'volunteer_page' => [setting('system.settings_registry.group_catalog_93', 'صفحة تطوّع معنا'), setting('system.settings_registry.group_catalog_94', 'العنوان والميثاق والعدّادات وكتل المحتوى.')],
             'volunteer_org' => [setting('system.settings_registry.group_catalog_95', 'الهيكل والسعة'), setting('system.settings_registry.group_catalog_96', 'الكانفاس وعتبات الإشغال والموازن.')],
             'volunteer_rep' => [setting('system.settings_registry.group_catalog_97', 'السمعة (Rep)'), setting('system.settings_registry.group_catalog_98', 'السقوف والتصفير والاعتراض والخمول.')],
@@ -283,9 +283,9 @@ class SettingsRegistry
             'maintenance' => [setting('system.settings_registry.group_catalog_157', 'وضع الصيانة'), setting('system.settings_registry.group_catalog_158', 'المدّة والرسالة وتجميد المهل.')],
             'updates' => [setting('system.settings_registry.group_catalog_159', 'التحديثات'), setting('system.settings_registry.group_catalog_160', 'الترقية والاسترجاع.')],
             'backups' => [setting('system.settings_registry.group_catalog_161', 'النسخ الاحتياطيّ'), setting('system.settings_registry.group_catalog_162', 'الجدولة والاحتفاظ.')],
-            'finance' => [setting('system.settings_registry.group_catalog_163', '🔒 الماليّات'), setting('system.settings_registry.group_catalog_164', 'الأسعار والعمولات والسحب والاسترجاع — لمالك المنصّة وحده.')],
+            'finance' => [setting('system.settings_registry.group_catalog_163', '🔒 الماليّات'), setting('system.settings_registry.group_catalog_164', 'الأسعار والعمولات والسحب والاسترجاع، لمالك المنصّة وحده.')],
             // 🧩 المطوّرين — API (12.15، v5.5)
-            'developers' => [setting('system.settings_registry.group_catalog_165', 'المطوّرين — API'), setting('system.settings_registry.group_catalog_166', 'تفعيل الواجهة وحدّ المعدّل ونصوص شاشة مفاتيح الـAPI.')],
+            'developers' => [setting('system.settings_registry.group_catalog_165', 'المطوّرين · API'), setting('system.settings_registry.group_catalog_166', 'تفعيل الواجهة وحدّ المعدّل ونصوص شاشة مفاتيح الـAPI.')],
         ];
     }
 
@@ -297,7 +297,7 @@ class SettingsRegistry
 
     public function groupHint(string $group): string
     {
-        return $this->groupCatalog()[$group][1] ?? setting('system.settings_registry.group_hint_1', 'مجموعة بلا وصف بعد — أضِف وصفها في `groupCatalog()`.');
+        return $this->groupCatalog()[$group][1] ?? setting('system.settings_registry.group_hint_1', 'مجموعة بلا وصف بعد، أضِف وصفها في `groupCatalog()`.');
     }
 
     /** المجموعات المسنَدة لتاب ⟵ التاب (خريطة البحث الموحّد ومرجع التغطية) */
@@ -354,7 +354,7 @@ class SettingsRegistry
             $tabs['finance'] = [
                 'label' => setting('system.settings_registry.tabs_for_1', '🔒 الماليّات'),
                 'groups' => ['finance'],
-                'hint' => setting('system.settings_registry.tabs_for_2', 'مصدر الحقيقة الوحيد لكلّ رقم ماليّ — مجموعة محميّة.'),
+                'hint' => setting('system.settings_registry.tabs_for_2', 'مصدر الحقيقة الوحيد لكلّ رقم ماليّ، مجموعة محميّة.'),
             ];
         }
 
@@ -596,7 +596,7 @@ class SettingsRegistry
         if ($normalized === null) {
             return [
                 'saved' => false,
-                'message' => strtr(setting('system.settings_registry.save_3', 'القيمة خارج النطاق — :p1'), [':p1' => (string) ($this->rangeHint($setting))]),
+                'message' => strtr(setting('system.settings_registry.save_3', 'القيمة خارج النطاق: :p1'), [':p1' => (string) ($this->rangeHint($setting))]),
                 'value' => $setting->value,
             ];
         }

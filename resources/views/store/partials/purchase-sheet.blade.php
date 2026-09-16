@@ -107,7 +107,7 @@
                 {{-- ⭐ رصيد غير كافٍ: [اشحن المحفظة] هنا نفسه بلا مغادرة الصفحة (24.5) --}}
                 <div class="card p-3 space-y-2 {{ $quote['sufficient'] ? 'hidden' : '' }}" data-topup-block
                      style="border-color: var(--color-state-warn)">
-                    <p class="text-sm">{{ setting('store.insufficient_text', 'رصيدك أقلّ من قيمة الطلب — اشحن محفظتك وكمّل من نفس المكان.') }}</p>
+                    <p class="text-sm">{{ setting('store.insufficient_text', 'رصيدك أقلّ من قيمة الطلب. اشحن محفظتك وكمّل من نفس المكان.') }}</p>
 
                     {{-- ⭐ أقرب عرض يكفّيك (19.5-ب-2): بقيمته الحقيقيّة صراحةً وبلا Dark Patterns (2.9) --}}
                     <p class="text-sm {{ $suggestionText ? '' : 'hidden' }}" data-topup-suggestion

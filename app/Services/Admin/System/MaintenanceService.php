@@ -105,7 +105,7 @@ class MaintenanceService
 
         $window->update(['deadlines_recomputed' => true]);
         $this->flag(false, (string) $window->message, $actor);
-        $this->note($actor, 'system.maintenance.enabled', strtr(setting('maintenance.maintenance_service.lift_1', 'رفع الصيانة — :p1 مهلة اتعدّلت بفارق :p2 ثانية'), [':p1' => (string) ($rows), ':p2' => (string) ($seconds)]));
+        $this->note($actor, 'system.maintenance.enabled', strtr(setting('maintenance.maintenance_service.lift_1', 'رفع الصيانة: :p1 مهلة اتعدّلت بفارق :p2 ثانية'), [':p1' => (string) ($rows), ':p2' => (string) ($seconds)]));
 
         return ['seconds' => $seconds, 'rows' => $rows];
     }
@@ -183,7 +183,7 @@ class MaintenanceService
     /** رسالة ما بعد الصفر — نصّها إعداد لا نصّ محروق */
     public function overrunMessage(): string
     {
-        return (string) setting('system.maintenance.overrun_text', 'قرّبنا ننتهي — دقايق');
+        return (string) setting('system.maintenance.overrun_text', 'قرّبنا ننتهي، دقايق وبس');
     }
 
     /**

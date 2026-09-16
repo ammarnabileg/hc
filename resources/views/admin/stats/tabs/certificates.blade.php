@@ -25,7 +25,7 @@
         <h2 class="font-bold text-sm mb-2">{{ setting('stats.certificates.table.accreditations', 'حسب جهة الاعتماد') }}</h2>
 
         @if (empty($data['accreditations']))
-            <p class="text-xs" style="color: var(--text-muted)">{{ setting('stats.empty.message', 'لا بيانات في هذه الفترة — جرّب فترة أوسع') }}</p>
+            <p class="text-xs" style="color: var(--text-muted)">{{ setting('stats.empty.message', 'لا بيانات في هذه الفترة. جرّب فترة أوسع') }}</p>
         @else
             <div style="overflow-x: auto">
                 <table class="w-full text-sm">

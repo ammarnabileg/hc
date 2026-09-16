@@ -78,7 +78,7 @@ final class OverviewPanel
             'upline_alert' => $privileged && $score <= rep_rule('limit.warning_threshold', -5.0)
                 ? str_replace(':name', $owner->shortName(), (string) setting(
                     'volunteer.profile.overview.upline_alert',
-                    'درجة الالتزام عند :name وصلت لحدّ الإنذار — كلمة منك دلوقتي بتفرق.',
+                    'درجة الالتزام عند :name وصلت لحدّ الإنذار، وكلمة منك دلوقتي بتفرق.',
                 ))
                 : null,
             'next_position' => $this->nextPosition($membership, $score),
@@ -191,7 +191,7 @@ final class OverviewPanel
                 $steps->push([
                     'key' => $index === 0 ? 'placement' : 'position',
                     'label' => $index === 0
-                        ? strtr(setting('volunteer.overview_panel.journey_3', 'التسكين — :p1:p2'), [':p1' => (string) (($m->position?->name_ar ?? '')), ':p2' => (string) (($m->entity ? ' · '.$m->entity->name_ar : ''))])
+                        ? strtr(setting('volunteer.overview_panel.journey_3', 'التسكين: :p1:p2'), [':p1' => (string) (($m->position?->name_ar ?? '')), ':p2' => (string) (($m->entity ? ' · '.$m->entity->name_ar : ''))])
                         : ($m->position?->name_ar ?? '').($m->entity ? ' · '.$m->entity->name_ar : ''),
                     'at' => $m->started_at,
                 ]);

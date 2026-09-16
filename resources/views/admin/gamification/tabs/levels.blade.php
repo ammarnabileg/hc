@@ -32,7 +32,7 @@
             </span>
         </div>
     @empty
-        <x-empty :message="setting('admin.gamification.tabs.levels.mfysh_mstwyat_lsh_adf_awl_mstwa', 'مفيش مستويات لسّه — أضف أوّل مستوى.')" />
+        <x-empty :message="setting('admin.gamification.tabs.levels.mfysh_mstwyat_lsh_adf_awl_mstwa', 'مفيش مستويات لسّه. أضف أوّل مستوى.')" />
     @endforelse
 </section>
 

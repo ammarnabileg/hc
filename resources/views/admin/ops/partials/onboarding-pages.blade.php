@@ -4,7 +4,7 @@
     معاينة حيّة لكلّ صفحة — على نمط المعاينة الحيّة المنصوص لشاشة الهويّة والمظهر.
 --}}
 <div class="card p-3 mb-4 text-xs" style="color: var(--text-muted)">
-    {{ setting('admin.ops.partials.onboarding_pages.hint', 'الكود اللي بتكتبه هنا بيظهر بالحرف في الصفحة اللي بيشوفها المستخدم — والمعاينة تحت كلّ محرّر مطابقة له فورًا.') }}
+    {{ setting('admin.ops.partials.onboarding_pages.hint', 'الكود اللي بتكتبه هنا بيظهر بالحرف في الصفحة اللي بيشوفها المستخدم، والمعاينة تحت كلّ محرّر مطابقة له فورًا.') }}
 </div>
 
 <form method="post" action="{{ route('admin.ops.onboarding.pages') }}" class="space-y-4" id="onboarding-pages-form">

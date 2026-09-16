@@ -5,7 +5,7 @@
 
 @section('content')
     <x-page-header :title="$title"
-                   :subtitle="setting('store.refund.page_subtitle', 'واضحة قبل الدفع — عشان محدّش يتفاجئ بعده.')"
+                   :subtitle="setting('store.refund.page_subtitle', 'واضحة قبل الدفع، عشان محدّش يتفاجئ بعده.')"
                    :breadcrumbs="[['label' => setting('store.breadcrumb_label', 'المتجر'), 'url' => route('store.index')], ['label' => $title]]" />
 
     {{-- النصّ يُدار بالكامل من لوحة الإدارة ويقبل HTML أو نصًّا عاديًّا (19.4 · 2.13-د) --}}

@@ -57,7 +57,16 @@
 
     <div class="page-head">
         <div class="min-w-0">
-            <span class="eyebrow">{{ $eyebrow ?? setting('ux.page_head.eyebrow', 'رحلتك التعليمية') }}</span>
+            {{--
+              ⭐ العنوان العلويّ (eyebrow) زحمة مكرّرة حين يظهر فوق Breadcrumb
+              أصلًا موجود في كلّ شاشة داخليّة (2.15-د) — الاثنان يجاوبان نفس
+              سؤال «أنا فين؟». ولأنّ ولا شاشة تمرّر eyebrow مخصَّصًا (القيمة
+              الافتراضيّة «رحلتك التعليمية» دايمًا)، يظهر فقط حين لا يوجد
+              Breadcrumb (كلوحة القيادة نفسها)، أو حين يُمرَّر صراحةً.
+            --}}
+            @if ($eyebrow || ! $breadcrumbs)
+                <span class="eyebrow">{{ $eyebrow ?? setting('ux.page_head.eyebrow', 'رحلتك التعليمية') }}</span>
+            @endif
             <h1>{{ $title }}</h1>
             @if ($subtitle)
                 <p>{{ $subtitle }}</p>

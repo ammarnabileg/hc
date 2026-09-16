@@ -21,7 +21,7 @@
         </div>
 
         @if ($pendingAccounts->isEmpty())
-            <p class="mt-4 text-sm" style="color: var(--text-muted)">{{ setting('admin.approvals.empty_message', 'مفيش طلبات معلّقة — كلّ حاجة تمام') }}</p>
+            <p class="mt-4 text-sm" style="color: var(--text-muted)">{{ setting('admin.approvals.empty_message', 'مفيش طلبات معلّقة. كلّ حاجة تمام') }}</p>
         @else
             <ul class="mt-3 divide-y" style="border-color: var(--border)">
                 @foreach ($pendingAccounts as $account)
@@ -51,7 +51,7 @@
     </div>
 
     @if ($pendingWork->isEmpty())
-        <p class="mt-4 text-sm" style="color: var(--text-muted)">{{ setting('admin.dashboard.partials.overview.mfysh_haja_mstnya_astryh_shwya', 'مفيش حاجة مستنّية — استريّح شويّة.') }}</p>
+        <p class="mt-4 text-sm" style="color: var(--text-muted)">{{ setting('admin.dashboard.partials.overview.mfysh_haja_mstnya_astryh_shwya', 'مفيش حاجة مستنّية. استريّح شويّة.') }}</p>
     @else
         {{-- الجدول على الموبايل كروت رأسيّة بلا تمرير أفقيّ (2.15-ج) --}}
         <ul class="mt-3 space-y-2 md:space-y-0 md:divide-y" style="border-color: var(--border)">
@@ -125,7 +125,7 @@
         @if ($activity->isEmpty())
             {{-- الحالة الفارغة سطر واحد + زرّ واحد: «غيّر الفترة» (2.15-د · 24.1) --}}
             <div class="mt-3">
-                <x-empty :message="setting('admin.dashboard.empty_message', 'مفيش بيانات في الفترة دي — وسّع المدى')"
+                <x-empty :message="setting('admin.dashboard.empty_message', 'مفيش بيانات في الفترة دي. وسّع المدى')"
                          :action="setting('admin.dashboard.partials.overview.ghyr_alftra', 'غيّر الفترة')" :href="route('admin.dashboard')" />
             </div>
         @else

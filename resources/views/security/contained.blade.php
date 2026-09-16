@@ -58,7 +58,7 @@
             {{ str_replace(
                 '{date}',
                 $until->translatedFormat('Y-m-d H:i'),
-                setting('account.containment.returns_at', 'الحساب بيرجع لوحده يوم {date} — مش محتاج تعمل حاجة.'),
+                setting('account.containment.returns_at', 'الحساب بيرجع لوحده يوم {date}، مش محتاج تعمل حاجة.'),
             ) }}
         </p>
     @endif

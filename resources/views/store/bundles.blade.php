@@ -4,7 +4,7 @@
 
 @section('content')
     <x-page-header :title="setting('store.bundles.page_title', 'الباقات')"
-                   :subtitle="setting('store.bundles.page_subtitle', 'عناصر مجمّعة بسعر واحد — والتوفير مكتوب بقيمته الحقيقيّة.')"
+                   :subtitle="setting('store.bundles.page_subtitle', 'عناصر مجمّعة بسعر واحد، والتوفير مكتوب بقيمته الحقيقيّة.')"
                    :breadcrumbs="[['label' => setting('store.breadcrumb_label', 'المتجر'), 'url' => route('store.index')], ['label' => setting('store.bundles.breadcrumb_label', 'الباقات')]]">
         <x-slot:action>
             @include('store.partials.balance', ['balance' => $balance])

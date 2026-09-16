@@ -41,7 +41,7 @@
 
     {{-- الرسالة يكتبها الأدمن ونقرأها من الإعدادات — بلا نصّ محروق (2.13) --}}
     <p class="text-sm mb-5" style="color: var(--text-muted)">
-        {{ $state['message'] !== '' ? $state['message'] : setting('system.maintenance.message', 'بنطوّر حاجة حلوة — هنرجع قريب.') }}
+        {{ $state['message'] !== '' ? $state['message'] : setting('system.maintenance.message', 'بنطوّر حاجة حلوة، هنرجع قريب.') }}
     </p>
 
     {{--
@@ -76,7 +76,7 @@
         {{ str_replace(
             '{minutes}',
             (string) max(1, (int) round($state['refresh_seconds'] / 60)),
-            setting('system.maintenance.refresh_hint', 'الصفحة بتحدّث نفسها كلّ {minutes} دقيقة — مش محتاج تعمل حاجة.'),
+            setting('system.maintenance.refresh_hint', 'الصفحة بتحدّث نفسها كلّ {minutes} دقيقة، مش محتاج تعمل حاجة.'),
         ) }}
     </p>
 

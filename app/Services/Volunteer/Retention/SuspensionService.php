@@ -412,7 +412,7 @@ class SuspensionService
             $value,
             'behavior',
             null,
-            $this->fill(setting('volunteer.suspension.chance_reason', 'فرصة لجنة التحقيق — قرار موثَّق بمرجع اللجنة')),
+            $this->fill(setting('volunteer.suspension.chance_reason', 'فرصة لجنة التحقيق، قرار موثَّق بمرجع اللجنة')),
             $actor?->id,
         );
 
@@ -486,7 +486,7 @@ class SuspensionService
         $count = 0;
 
         foreach ($tasks as $task) {
-            if ($this->noDelivery->miss($task, $this->fill(setting('volunteer.suspension.task_reason', 'اتعلّق حساب صاحب المهمّة عند عتبة التعليق — المهمّة تدور على مالك جديد')), deduct: false)) {
+            if ($this->noDelivery->miss($task, $this->fill(setting('volunteer.suspension.task_reason', 'اتعلّق حساب صاحب المهمّة عند عتبة التعليق، والمهمّة تدور على مالك جديد')), deduct: false)) {
                 $count++;
             }
         }

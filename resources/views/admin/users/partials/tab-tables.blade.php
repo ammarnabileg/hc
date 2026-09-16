@@ -35,7 +35,7 @@
     <section class="card p-4">
         <h3 class="font-bold text-sm mb-3">{{ setting('admin.users.partials.tab_tables.almaamlat', 'المعاملات') }}</h3>
         @if ($transactions->isEmpty())
-            <p class="text-sm" style="color: var(--text-muted)">{{ setting('admin.users.partials.tab_tables.mafysh_maamlat_fy_alftra_dy_wsa_almda', 'مافيش معاملات في الفترة دي — وسّع المدى.') }}</p>
+            <p class="text-sm" style="color: var(--text-muted)">{{ setting('admin.users.partials.tab_tables.mafysh_maamlat_fy_alftra_dy_wsa_almda', 'مافيش معاملات في الفترة دي. وسّع المدى.') }}</p>
         @else
             <ul class="divide-y" style="border-color: var(--border)">
                 @foreach ($transactions as $transaction)
@@ -72,7 +72,7 @@
     <section class="card p-4">
         <h3 class="font-bold text-sm mb-1">{{ setting('admin.users.partials.tab_tables.aldawat', 'الدعوات') }}</h3>
         <p class="text-xs mb-3" style="color: var(--text-muted)">
-            {{ setting('admin.users.referral_gift_note', 'الهديّة بتتصرف للطرفين بعد قبول الحساب — مش وقت التسجيل.') }}
+            {{ setting('admin.users.referral_gift_note', 'الهديّة بتتصرف للطرفين بعد قبول الحساب، مش وقت التسجيل.') }}
         </p>
 
         @if ($referrals->isEmpty())

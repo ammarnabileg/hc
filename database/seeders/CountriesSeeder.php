@@ -46,7 +46,7 @@ class CountriesSeeder extends Seeder
         if (! is_file($path)) {
             // ملفٌّ ناقص لا يُسقِط التنصيب كلّه، لكنّه يُقال بصوتٍ عالٍ:
             // الصمت هنا يعني قوائم تسجيلٍ فارغة يكتشفها المستخدم لا نحن.
-            $this->command?->warn('    نسخة الدول مش موجودة في '.$path.' — القوائم هتفضل زيّ ما هي. ولّدها بـ: php artisan countries:check-source --force --dump=database/data/countries.json');
+            $this->command?->warn('    نسخة الدول مش موجودة في '.$path.'. القوائم هتفضل زيّ ما هي. ولّدها بـ: php artisan countries:check-source --force --dump=database/data/countries.json');
 
             return;
         }
@@ -75,7 +75,7 @@ class CountriesSeeder extends Seeder
         $keys = array_map(fn (array $row) => (string) $row['key'], $diff['added']);
 
         if ($keys === []) {
-            $this->command?->info('بيانات الدول: مطابِقة للنسخة المثبَّتة — مافيش حاجة اتغيّرت.');
+            $this->command?->info('بيانات الدول: مطابِقة للنسخة المثبَّتة. مافيش حاجة اتغيّرت.');
 
             return;
         }

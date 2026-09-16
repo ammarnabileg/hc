@@ -65,7 +65,7 @@ class RepAdminController extends Controller
             RepRuleWriter::put((string) $key, (float) $value, $request->user());
         }
 
-        return back()->with('status', (string) setting('rep.admin.save_rules_ok', 'اتحفظ ✓ — القيم الجديدة سارية من دلوقتي.'));
+        return back()->with('status', (string) setting('rep.admin.save_rules_ok', 'اتحفظ ✓، القيم الجديدة سارية من دلوقتي.'));
     }
 
     /** ↺ Reset لقيمة واحدة */
@@ -137,7 +137,7 @@ class RepAdminController extends Controller
         $user = User::query()->where('code', mb_strtoupper($data['code']))->first();
 
         if (! $user) {
-            return response()->json(['ok' => false, 'message' => (string) setting('rep.admin.preview_behavior_denied', 'الكود ده مش موجود — راجع الكود وجرّب تاني.')], 422);
+            return response()->json(['ok' => false, 'message' => (string) setting('rep.admin.preview_behavior_denied', 'الكود ده مش موجود، راجع الكود وجرّب تاني.')], 422);
         }
 
         $violation = BehaviorViolation::findOrFail($data['violation_id']);
@@ -172,7 +172,7 @@ class RepAdminController extends Controller
         $target = User::query()->where('code', mb_strtoupper($data['code']))->first();
 
         if (! $target) {
-            return back()->withInput()->with('status', (string) setting('rep.admin.record_behavior_denied', 'الكود ده مش موجود — راجع الكود وجرّب تاني.'));
+            return back()->withInput()->with('status', (string) setting('rep.admin.record_behavior_denied', 'الكود ده مش موجود، راجع الكود وجرّب تاني.'));
         }
 
         $membership = Membership::query()
@@ -194,7 +194,7 @@ class RepAdminController extends Controller
 
         return back()->with('status', $record->status === 'pending_approval'
             ? strtr((string) setting('rep.admin.record_behavior_msg', 'اتسجّلت وبتنتظر موافقة المستوى الأعلى (نافذة :a1 ساعة).'), [':a1' => (string) (setting('rep.behavior.severe_approval_window_hours', 24))])
-            : (string) setting('rep.admin.record_behavior_ok', 'اتسجّلت وطُبِّقت ✓ — والعضو وصله إشعار بالنوع والمبرّر.'));
+            : (string) setting('rep.admin.record_behavior_ok', 'اتسجّلت وطُبِّقت ✓، والعضو وصله إشعار بالنوع والمبرّر.'));
     }
 
     public function approveBehavior(Request $request, BehaviorTransaction $behaviorTransaction): RedirectResponse

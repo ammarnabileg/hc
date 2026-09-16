@@ -344,7 +344,7 @@ class ContributionService
                     (float) $contribution->vxp_value,
                     'contribution.approved',
                     $contribution,
-                    $auto ? setting('workflow.contribution_service.approve_1', 'اعتماد تلقائيّ بفوات مهلة المالك — بنقاطك كاملة') : setting('workflow.contribution_service.approve_2', 'اعتماد المالك لبند المساهمة'),
+                    $auto ? setting('workflow.contribution_service.approve_1', 'اعتماد تلقائيّ بفوات مهلة المالك، بنقاطك كاملة') : setting('workflow.contribution_service.approve_2', 'اعتماد المالك لبند المساهمة'),
                     $by?->id,
                 );
 
@@ -494,7 +494,7 @@ class ContributionService
     {
         if (! $this->batch->isApprovedForInvite($task)) {
             throw ValidationException::withMessages([
-                'code' => setting('workflow.contribution_service.guard_subtask_approval_1', 'دعوة المساهم لا تُفتَح إلا على صب-تاسك معتمد — استنّى اعتماد الدفعة من الأبلاين أوّلاً.'),
+                'code' => setting('workflow.contribution_service.guard_subtask_approval_1', 'دعوة المساهم لا تُفتَح إلا على صب-تاسك معتمد، استنّى اعتماد الدفعة من الأبلاين أوّلاً.'),
             ]);
         }
     }
@@ -505,13 +505,13 @@ class ContributionService
 
         if ($latest && $deadline->greaterThan($latest)) {
             throw ValidationException::withMessages([
-                'internal_deadline_at' => strtr(setting('workflow.contribution_service.guard_internal_deadline_1', 'الديدلاين الداخليّ لازم يكون قبل ديدلاين المهمّة بـ:p1 ساعة على الأقلّ — أقصى موعد: :p2.'), [':p1' => (string) ($this->deadlineGapHours()), ':p2' => (string) ($latest->format('Y-m-d H:i'))]),
+                'internal_deadline_at' => strtr(setting('workflow.contribution_service.guard_internal_deadline_1', 'الديدلاين الداخليّ لازم يكون قبل ديدلاين المهمّة بـ:p1 ساعة على الأقلّ. أقصى موعد: :p2.'), [':p1' => (string) ($this->deadlineGapHours()), ':p2' => (string) ($latest->format('Y-m-d H:i'))]),
             ]);
         }
 
         if ($deadline->isPast()) {
             throw ValidationException::withMessages([
-                'internal_deadline_at' => setting('workflow.contribution_service.guard_internal_deadline_2', 'اختر موعدًا في المستقبل — الموعد ده عدّى.'),
+                'internal_deadline_at' => setting('workflow.contribution_service.guard_internal_deadline_2', 'اختر موعدًا في المستقبل، الموعد ده عدّى.'),
             ]);
         }
     }
@@ -546,7 +546,7 @@ class ContributionService
         if ($source === 'owner_balance') {
             if (FlowLedger::available() && FlowLedger::balance($owner) < $vxp) {
                 throw ValidationException::withMessages([
-                    'vxp_value' => setting('workflow.contribution_service.guard_budget_1', 'رصيدك مايكفّيش القيمة دي — قلّلها أو خدها من وعاء المهمّة.'),
+                    'vxp_value' => setting('workflow.contribution_service.guard_budget_1', 'رصيدك مايكفّيش القيمة دي، قلّلها أو خدها من وعاء المهمّة.'),
                 ]);
             }
 
@@ -566,7 +566,7 @@ class ContributionService
 
         if ($allocated + $vxp > $available) {
             throw ValidationException::withMessages([
-                'vxp_value' => strtr(setting('workflow.contribution_service.guard_budget_2', 'وعاء المهمّة مايسمحش — المتاح للتوزيع :p1 VXP، ووزّعت منه :p2.'), [':p1' => (string) ($available), ':p2' => (string) ($allocated)]),
+                'vxp_value' => strtr(setting('workflow.contribution_service.guard_budget_2', 'وعاء المهمّة مايسمحش، المتاح للتوزيع :p1 VXP، ووزّعت منه :p2.'), [':p1' => (string) ($available), ':p2' => (string) ($allocated)]),
             ]);
         }
     }

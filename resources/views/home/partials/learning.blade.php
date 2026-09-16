@@ -6,7 +6,7 @@
      */
     $coursesTitle = (string) setting('home.courses.title', 'أحدث التدريبات');
     $pathsTitle = (string) setting('home.paths.title', 'المسارات');
-    $emptyText = (string) setting('home.courses.empty', 'التدريبات الأولى في الطريق — سجّل دلوقتي وتوصلك أوّل ما تنزل.');
+    $emptyText = (string) setting('home.courses.empty', 'التدريبات الأولى في الطريق. سجّل دلوقتي وتوصلك أوّل ما تنزل.');
     $freeLabel = (string) setting('home.courses.free_label', 'مجّانيّ');
 @endphp
 

@@ -88,7 +88,7 @@
             </div>
         @empty
             {{-- تمييز «لا مسجّلين أصلًا» عن «الفلتر ما طابقش حاجة» (24.2) --}}
-            <x-empty :message="setting('admin.events.registrations.la_msjlyn_bad_shark_rabt_alfaalya', 'لا مسجّلين بعد — شارك رابط الفعاليّة.')"
+            <x-empty :message="setting('admin.events.registrations.la_msjlyn_bad_shark_rabt_alfaalya', 'لا مسجّلين بعد. شارك رابط الفعاليّة.')"
                      :filtered="$filters['q'] !== '' || $filters['attended'] !== ''" />
         @endforelse
     </section>

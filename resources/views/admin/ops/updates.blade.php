@@ -4,7 +4,7 @@
 
 @section('content')
     <x-page-header :title="setting('admin.ops.updates.althdythat_waltrhyl', 'التحديثات والترحيل')"
-                   :subtitle="setting('admin.ops.updates.nqra_amna_nshwf_alawl_nakhd_nskha_nnfdh_wlw', 'نقرة آمنة: نشوف الأوّل، ناخد نسخة، ننفّذ — ولو حصل حاجة نرجع.')"
+                   :subtitle="setting('admin.ops.updates.nqra_amna_nshwf_alawl_nakhd_nskha_nnfdh_wlw', 'نقرة آمنة: نشوف الأوّل، ناخد نسخة، ننفّذ، ولو حصل حاجة نرجع.')"
                    :breadcrumbs="[
                        ['label' => setting('admin.ops.updates.lwha_alidara', 'لوحة الإدارة'), 'url' => url('/admin')],
                        ['label' => setting('admin.ops.updates.aliadadat_walnzam', 'الإعدادات والنظام'), 'url' => route('admin.settings.index')],

@@ -99,7 +99,7 @@ class TopupAdminController extends Controller
     {
         $this->review->markReceiptReviewed($topupRequest, $request->user());
 
-        return back()->with('status', (string) setting('topup.admin.mark_reviewed_msg', 'اتسجّلت مراجعة الإيصال — تقدر تكمّل الاعتماد دلوقتي.'));
+        return back()->with('status', (string) setting('topup.admin.mark_reviewed_msg', 'اتسجّلت مراجعة الإيصال، تقدر تكمّل الاعتماد دلوقتي.'));
     }
 
     /** ⭐ معاينة الرصيد قبل/بعد قبل التأكيد — والقيمة تُحسَب في الخادم دائمًا */

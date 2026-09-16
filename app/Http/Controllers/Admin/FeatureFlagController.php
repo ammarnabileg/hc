@@ -149,7 +149,7 @@ class FeatureFlagController extends Controller
 
         if ($key === '') {
             return response()->json([
-                'message' => (string) setting('features.msg.audit_missing_key', 'مافيش مفتاح ميزة في الطلب — افتح السجلّ من جنب الميزة نفسها.'),
+                'message' => (string) setting('features.msg.audit_missing_key', 'مافيش مفتاح ميزة في الطلب، افتح السجلّ من جنب الميزة نفسها.'),
             ], 422);
         }
 
@@ -186,7 +186,7 @@ class FeatureFlagController extends Controller
 
         if (! is_array($payload)) {
             return back()->withErrors([
-                'file' => (string) setting('features.msg.bad_json', 'الملفّ مش JSON صالح — صدّر نسخة وقارن الشكل.'),
+                'file' => (string) setting('features.msg.bad_json', 'الملفّ مش JSON صالح، صدّر نسخة وقارن الشكل.'),
             ]);
         }
 

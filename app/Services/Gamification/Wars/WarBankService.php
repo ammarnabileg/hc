@@ -146,7 +146,7 @@ class WarBankService
             $answer = trim((string) ($cells[1] ?? ''));
 
             if ($text === '') {
-                $errors[] = strtr(setting('gamification_wars.war_bank_service.parse_csv_1', 'فشل الاستيراد في الصفّ رقم :p1 — نصّ السؤال فاضي.'), [':p1' => (string) (($number + 1))]);
+                $errors[] = strtr(setting('gamification_wars.war_bank_service.parse_csv_1', 'فشل الاستيراد في الصفّ رقم :p1 لأنّ نصّ السؤال فاضي.'), [':p1' => (string) (($number + 1))]);
 
                 continue;
             }

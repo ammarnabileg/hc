@@ -56,26 +56,26 @@ class ExamDemoSeeder extends Seeder
             // في سيدر مجال التوظيف — مفتاح واحد لكلّ معنًى (2.13).
 
             // نصوص الامتحان — محايدة تشجّع ولا تعاتب (2.17-ج)
-            ['exams.messages.started', 'exams', 'رسالة بدء الامتحان', 'text', 'بالتوفيق — ركّز وخُد وقتك.'],
+            ['exams.messages.started', 'exams', 'رسالة بدء الامتحان', 'text', 'بالتوفيق. ركّز وخُد وقتك.'],
             ['exams.messages.autosaved', 'exams', 'رسالة الحفظ التلقائيّ', 'string', 'اتحفظ ✓'],
-            ['exams.messages.offline', 'exams', 'رسالة انقطاع الشبكة', 'text', 'الشبكة اتقطعت — إجاباتك محفوظة، وهنكمّل من مكانك أوّل ما ترجع.'],
-            ['exams.messages.offline_short', 'exams', 'رسالة انقطاع الشبكة المختصرة', 'string', 'إجاباتك محفوظة — هنبعتها أوّل ما الشبكة ترجع.'],
-            ['exams.messages.time_up', 'exams', 'رسالة انتهاء الوقت', 'text', 'خلص الوقت — سلّمنا إجاباتك تلقائيًّا.'],
+            ['exams.messages.offline', 'exams', 'رسالة انقطاع الشبكة', 'text', 'الشبكة اتقطعت، بس إجاباتك محفوظة، وهنكمّل من مكانك أوّل ما ترجع.'],
+            ['exams.messages.offline_short', 'exams', 'رسالة انقطاع الشبكة المختصرة', 'string', 'إجاباتك محفوظة، هنبعتها أوّل ما الشبكة ترجع.'],
+            ['exams.messages.time_up', 'exams', 'رسالة انتهاء الوقت', 'text', 'خلص الوقت، سلّمنا إجاباتك تلقائيًّا.'],
             ['exams.messages.passed', 'exams', 'رسالة النجاح', 'text', 'مبروك يا [الاسم] 🎉 عدّيت الامتحان.'],
-            ['exams.messages.failed', 'exams', 'رسالة الرسوب (محايدة تشجّع)', 'text', 'مش المرّة دي. راجع الدروس وجرّب تاني — ومحاولتك الجاية متاحة حسب قواعد الامتحان.'],
-            ['exams.messages.cooldown', 'exams', 'رسالة مهلة المحاولة التالية', 'text', 'لسّه بدري على المحاولة الجاية — استنّى شويّة وراجع الدروس.'],
+            ['exams.messages.failed', 'exams', 'رسالة الرسوب (محايدة تشجّع)', 'text', 'مش المرّة دي. راجع الدروس وجرّب تاني، ومحاولتك الجاية متاحة حسب قواعد الامتحان.'],
+            ['exams.messages.cooldown', 'exams', 'رسالة مهلة المحاولة التالية', 'text', 'لسّه بدري على المحاولة الجاية. استنّى شويّة وراجع الدروس.'],
             ['exams.messages.no_attempts_left', 'exams', 'رسالة نفاد المحاولات', 'text', 'خلصت محاولاتك في الامتحان ده.'],
-            ['exams.messages.insufficient_balance', 'exams', 'رسالة عدم كفاية الرصيد', 'text', 'رصيدك مايكفّيش لدخول الامتحان — اشحن محفظتك وارجع.'],
+            ['exams.messages.insufficient_balance', 'exams', 'رسالة عدم كفاية الرصيد', 'text', 'رصيدك مايكفّيش لدخول الامتحان. اشحن محفظتك وارجع.'],
             // التذاكر تُكتسَب ولا تُشحَن (7.1) — فالرسالة تدلّ على طريق الكسب لا على الشحن
-            ['exams.messages.insufficient_tickets', 'exams', 'رسالة نقص التذاكر', 'text', 'محتاج تذكرة عشان تدخل الامتحان — كمّل درسًا أو أكمل ستريكك وهترجع تلاقيها.'],
+            ['exams.messages.insufficient_tickets', 'exams', 'رسالة نقص التذاكر', 'text', 'محتاج تذكرة عشان تدخل الامتحان. كمّل درسًا أو أكمل ستريكك وهترجع تلاقيها.'],
             ['exams.messages.closed', 'exams', 'رسالة الامتحان المقفول', 'text', 'الامتحان ده مقفول دلوقتي.'],
             // ⭐ حاجز الإتاحة (5): الامتحان جزءٌ من التدريب، وسبب القفل وموعد الفتح
             // يأتيان من `AvailabilityService` بساعة المستخدم فيُلحَقان بهذا النصّ (2.17-ج)
             ['exams.messages.course_locked', 'exams', 'رسالة قفل الامتحان خارج إتاحة التدريب (5)', 'text', 'الامتحان جزء من التدريب، والتدريب مقفول دلوقتي.'],
-            ['exams.messages.reentry_notice', 'exams', 'نصّ بوب-أب ما قبل امتحان العائد (13.4-ق)', 'text', 'الامتحان ده بيثبت جاهزيّتك دلوقتي. أوّل ما تبدأ، شهادتك التأهيليّة القديمة هتتسجّل «منتهية» — مش هتتمسح، هتفضل في سجلّك بتاريخها، وبالنجاح هتصدرلك شهادة جديدة.'],
+            ['exams.messages.reentry_notice', 'exams', 'نصّ بوب-أب ما قبل امتحان العائد (13.4-ق)', 'text', 'الامتحان ده بيثبت جاهزيّتك دلوقتي. أوّل ما تبدأ، شهادتك التأهيليّة القديمة هتتسجّل «منتهية». مش هتتمسح، هتفضل في سجلّك بتاريخها، وبالنجاح هتصدرلك شهادة جديدة.'],
 
             // مسمّيات شاشة الامتحان
-            ['exams.labels.before_start', 'exams', 'عنوان ما قبل البدء', 'string', 'قبل ما تبدأ — اطّلع على الشروط'],
+            ['exams.labels.before_start', 'exams', 'عنوان ما قبل البدء', 'string', 'قبل ما تبدأ، اطّلع على الشروط'],
             ['exams.labels.confirm_title', 'exams', 'عنوان بوب-أب التأكيد', 'string', 'تأكيد دخول الامتحان'],
             ['exams.labels.ready', 'exams', 'زرّ التأكيد', 'string', 'أنا جاهز'],
             ['exams.labels.not_now', 'exams', 'زرّ التأجيل', 'string', 'مش دلوقتي'],
@@ -83,7 +83,7 @@ class ExamDemoSeeder extends Seeder
             ['exams.labels.submit', 'exams', 'زرّ التسليم', 'string', 'سلّم الامتحان'],
             ['exams.labels.review', 'exams', 'عنوان شاشة المراجعة', 'string', 'مراجعة قبل التسليم'],
             // ⭐ 4.2: «كل دخول = تذكرة» — فالافتراضيّ **بلا سقفٍ للمحاولات**، وهذا وسمه
-            ['exams.labels.attempts_unlimited', 'exams', 'وسم المحاولات بلا حدّ (4.2)', 'string', 'بلا حدّ — كلّ دخول بتذكرة'],
+            ['exams.labels.attempts_unlimited', 'exams', 'وسم المحاولات بلا حدّ (4.2)', 'string', 'بلا حدّ، كلّ دخول بتذكرة'],
 
             // ---------------- الشهادات (8 · 12.5)
             ['certificates.numbering.default_prefix', 'certificates', 'بادئة الترقيم الافتراضيّة', 'string', 'HC'],
@@ -186,30 +186,30 @@ class ExamDemoSeeder extends Seeder
             ['certificates.status.revoked_label', 'certificates', 'وسم «ملغاة»', 'string', 'ملغاة'],
             ['certificates.status.expired_line', 'certificates', 'سطر الانتهاء في مكتبتي', 'string', 'انتهى العمل بيها في'],
             ['certificates.status.expired_hint', 'certificates', 'توضيح «منتهية»', 'string', 'بعد دخولك امتحانًا أحدث. وهي مش ملغاة.'],
-            ['certificates.status.revoked_hint', 'certificates', 'توضيح «ملغاة»', 'string', 'ملغاة — والإلغاء لا يقع إلّا على تزويرٍ مثبَت.'],
+            ['certificates.status.revoked_hint', 'certificates', 'توضيح «ملغاة»', 'string', 'ملغاة، والإلغاء ما بيحصلش غير لو فيه تزوير مثبَت.'],
 
             // ---------------- صفحة التحقّق العامّة (8.1 · 21.2-ز)
             ['certificates.verify.title', 'certificates', 'عنوان صفحة التحقّق', 'string', 'التحقّق من الشهادة'],
-            ['certificates.verify.intro', 'certificates', 'وصف صفحة التحقّق', 'text', 'اكتب كود الشهادة وتأكّد من صحّتها وصلاحيّتها — بلا تسجيل دخول ولا حساب.'],
+            ['certificates.verify.intro', 'certificates', 'وصف صفحة التحقّق', 'text', 'اكتب كود الشهادة وتأكّد من صحّتها وصلاحيّتها، من غير تسجيل دخول ولا حساب.'],
             ['certificates.verify.placeholder', 'certificates', 'مثال الكود', 'string', '#HC-2026-000001'],
             ['certificates.verify.submit', 'certificates', 'زرّ التحقّق', 'string', 'تحقّق'],
             ['certificates.verify.not_found', 'certificates', 'نصّ عدم وجود الشهادة', 'text', 'مفيش شهادة بالكود ده في سجلّنا. راجع الكود، ولو شايف إنّ فيه مشكلة بلّغنا.'],
             ['certificates.verify.valid_text', 'certificates', 'نصّ الشهادة السارية', 'text', 'هذه الشهادة سارية وصادرة من المنصّة، وبياناتها مطابقة لسجلّنا.'],
             ['certificates.verify.expired_text', 'certificates', 'نصّ الشهادة المنتهية (13.4-ق)', 'text', 'هذه الشهادة منتهية: صدرت بتاريخ [تاريخ الإصدار] وانتهى العمل بها بتاريخ [تاريخ الانتهاء] بعد دخول صاحبها امتحانًا أحدث. وهي ليست ملغاة ولا مطعونًا في صحّتها.'],
             ['certificates.verify.revoked_text', 'certificates', 'نصّ الشهادة الملغاة', 'text', 'هذه الشهادة ملغاة. الإلغاء لا يقع إلّا على تزويرٍ مثبَت.'],
-            ['certificates.verify.footer', 'certificates', 'ذيل صفحة التحقّق', 'text', 'كلّ شهادة عندنا لها كود وQR وتوقيع رقميّ — والتحقّق مفتوح للجميع.'],
+            ['certificates.verify.footer', 'certificates', 'ذيل صفحة التحقّق', 'text', 'كلّ شهادة عندنا ليها كود وQR وتوقيع رقميّ، والتحقّق مفتوح للجميع.'],
 
             // ---------------- نتيجة التحقّق من التوقيع الرقميّ (8.1 · 12.5-هـ)
             // الحالة الثالثة: صفٌّ موجود وتوقيعُه لا تشتقّه بياناته — لا «سارية» ولا «غير موجودة».
             ['certificates.verify.signature_label', 'certificates', 'لافتة التوقيع الرقميّ', 'string', 'التوقيع الرقميّ'],
-            ['certificates.verify.signature_ok', 'certificates', 'وسم تطابق التوقيع', 'string', 'مطابق — البيانات دي هي اللي صدرت'],
+            ['certificates.verify.signature_ok', 'certificates', 'وسم تطابق التوقيع', 'string', 'مطابق، البيانات دي هي اللي صدرت'],
             ['certificates.verify.unverified_badge', 'certificates', 'وسم عدم تطابق التوقيع', 'string', 'التوقيع لا يطابق'],
             ['certificates.verify.unverified_title', 'certificates', 'عنوان تعذّر تأكيد الصحّة', 'string', 'ما نقدرش نأكّد صحّة الشهادة دي'],
-            ['certificates.verify.unverified_text', 'certificates', 'نصّ عدم تطابق التوقيع', 'text', 'فيه صفّ بالكود ده في سجلّنا، لكن توقيعه الرقميّ مش مطابق للتوقيع اللي بتشتقّه بياناته — يعني البيانات اتغيّرت بعد الإصدار أو الصفّ اتكتب من برّه محرّك الإصدار. عشان كده ما نقدرش نشهد بصحّتها ولا نعرض بياناتها. بلّغنا وهنراجعها.'],
+            ['certificates.verify.unverified_text', 'certificates', 'نصّ عدم تطابق التوقيع', 'text', 'فيه صفّ بالكود ده في سجلّنا، لكن توقيعه الرقميّ مش مطابق للتوقيع اللي بتشتقّه بياناته. يعني البيانات اتغيّرت بعد الإصدار، أو الصفّ اتكتب من برّه محرّك الإصدار. عشان كده ما نقدرش نشهد بصحّتها ولا نعرض بياناتها. بلّغنا وهنراجعها.'],
             ['certificates.verify.unsigned_badge', 'certificates', 'وسم الشهادة بلا توقيع', 'string', 'بلا توقيع رقميّ'],
             ['certificates.verify.unsigned_text', 'certificates', 'نصّ الشهادة بلا توقيع', 'text', 'فيه صفّ بالكود ده في سجلّنا لكنّه من غير توقيع رقميّ أصلًا، فما نقدرش نشهد إنّ بياناته هي اللي صدرت. لو استلمت نسخة بالكود ده، بلّغنا وهنراجعها.'],
             ['certificates.report.audit_action', 'certificates', 'اسم حدث بلاغ التزوير في سجلّ التدقيق', 'string', 'certificate.reported'],
-            ['certificates.report.thanks', 'certificates', 'رسالة شكر البلاغ', 'text', 'وصلنا بلاغك وهنراجعه — شكرًا إنّك ساعدتنا نحمي قيمة الشهادة.'],
+            ['certificates.report.thanks', 'certificates', 'رسالة شكر البلاغ', 'text', 'وصلنا بلاغك وهنراجعه. شكرًا إنّك ساعدتنا نحمي قيمة الشهادة.'],
 
             /*
              | ⭐ **جدول البلاغات وشاشة مراجعتها** (12.5-هـ · 24.1): «الكود ·
@@ -220,7 +220,7 @@ class ExamDemoSeeder extends Seeder
             ['certificates.reports.page_size', 'certificates', 'عدد البلاغات في الصفحة', 'number', '20'],
             ['certificates.reports.statuses', 'certificates', 'حالات البلاغ', 'json', '{"new":"جديد","dismissed":"اتجاهل","revoked":"اتلغت الشهادة","escalated":"اتصعّد"}'],
             ['certificates.reports.actions', 'certificates', 'إجراءات مراجعة البلاغ (24.1)', 'json', '{"dismissed":"تجاهل","revoked":"ألغِ الشهادة","escalated":"صعّد"}'],
-            ['certificates.reports.empty', 'certificates', 'نصّ لا بلاغات', 'string', 'مفيش بلاغات — وده خبر كويّس.'],
+            ['certificates.reports.empty', 'certificates', 'نصّ لا بلاغات', 'string', 'مفيش بلاغات، وده خبر كويّس.'],
             ['certificates.reports.pending_line', 'certificates', 'سطر البلاغات غير المراجَعة', 'string', 'فيه [العدد] بلاغًا لسّه ما اتراجعش.'],
             ['certificates.reports.count_placeholder', 'certificates', 'رمز استبدال عدد البلاغات', 'string', '[العدد]'],
             ['certificates.reports.search_label', 'certificates', 'لافتة بحث البلاغات', 'string', 'بحث'],
@@ -241,18 +241,18 @@ class ExamDemoSeeder extends Seeder
             ['certificates.reports.reviewed_text', 'certificates', 'رسالة تسجيل المراجعة', 'string', 'اتراجع البلاغ ✓'],
             ['certificates.reports.revoke_reason_label', 'certificates', 'لافتة سبب الإلغاء في المراجعة', 'string', 'سبب الإلغاء (لو اخترت الإلغاء)'],
             ['certificates.reports.default_revoke_reason', 'certificates', 'سبب الإلغاء الافتراضيّ من بلاغ', 'string', 'تزوير مثبَت ببلاغ'],
-            ['certificates.reports.revoke_forbidden_text', 'certificates', 'رسالة عدم امتلاك صلاحيّة الإلغاء', 'text', 'إلغاء الشهادة صلاحيّة منفصلة — تقدر تتجاهل البلاغ أو تصعّده.'],
+            ['certificates.reports.revoke_forbidden_text', 'certificates', 'رسالة عدم امتلاك صلاحيّة الإلغاء', 'text', 'إلغاء الشهادة صلاحيّة منفصلة. تقدر تتجاهل البلاغ أو تصعّده.'],
             ['certificates.reports.revoke_unavailable_text', 'certificates', 'رسالة لا شهادة سارية بالكود', 'text', 'مفيش شهادة سارية بالكود ده عشان تتلغي.'],
 
             // بيانات الصفحة المفهرسة (21.1-أ)
-            ['certificates.seo.meta_title', 'certificates', 'عنوان الميتا لصفحة الشهادة', 'string', '[الاسم] — [الشهادة] · شهادة معتمدة'],
-            ['certificates.seo.meta_description', 'certificates', 'وصف الميتا لصفحة الشهادة', 'text', 'شهادة [الشهادة] الصادرة لـ[الاسم] بتاريخ [التاريخ] — تحقّق من صحّتها هنا.'],
+            ['certificates.seo.meta_title', 'certificates', 'عنوان الميتا لصفحة الشهادة', 'string', '[الاسم] · [الشهادة] · شهادة معتمدة'],
+            ['certificates.seo.meta_description', 'certificates', 'وصف الميتا لصفحة الشهادة', 'text', 'شهادة [الشهادة] الصادرة لـ[الاسم] بتاريخ [التاريخ]. تحقّق من صحّتها هنا.'],
             ['certificates.seo.index_title', 'certificates', 'عنوان صفحة التحقّق بلا كود', 'string', 'التحقّق من الشهادة'],
-            ['certificates.seo.index_description', 'certificates', 'وصف صفحة التحقّق بلا كود', 'text', 'تحقّق من صحّة أيّ شهادة صادرة من المنصّة بكودها — بلا تسجيل دخول.'],
+            ['certificates.seo.index_description', 'certificates', 'وصف صفحة التحقّق بلا كود', 'text', 'تحقّق من صحّة أيّ شهادة صادرة من المنصّة بكودها، من غير ما تسجّل دخول.'],
 
             // ---------------- الاحتفال (2.14-3)
             ['celebrations.certificate.title', 'gamification_celebrations', 'عنوان احتفال الشهادة', 'string', 'مبروك يا [الاسم]'],
-            ['celebrations.certificate.message', 'gamification_celebrations', 'نصّ احتفال الشهادة', 'text', 'شهادتك الجديدة صدرت — تقدر تشاركها دلوقتي.'],
+            ['celebrations.certificate.message', 'gamification_celebrations', 'نصّ احتفال الشهادة', 'text', 'شهادتك الجديدة صدرت، تقدر تشاركها دلوقتي.'],
             ['celebrations.confetti.pieces', 'gamification_celebrations', 'عدد قطع الكونفيتي', 'number', '80'],
             // زمن بقاء الاحتفال قبل الانتقال — يستهلكه «الاحتفال القويّ» لحظة
             // إتمام التسجيل (2.5-ج) فلا يقفز المستخدم قبل أن يراه
@@ -340,7 +340,7 @@ class ExamDemoSeeder extends Seeder
         $courseExam = Exam::updateOrCreate(
             ['examable_type' => $course->getMorphClass(), 'examable_id' => $course->id],
             [
-                'title_ar' => 'الامتحان النهائيّ — أسس العمل التطوّعيّ',
+                'title_ar' => 'الامتحان النهائيّ. أسس العمل التطوّعيّ',
                 'duration_minutes' => 30,
                 // ⭐ 4.2 حرفيًّا: «**بدون مدة انتظار** … **كل دخول = تذكرة**»
                 // — فلا سقفَ للمحاولات (0) ولا انتظارَ بعد الرسوب (0)

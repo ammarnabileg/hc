@@ -483,8 +483,8 @@ class WarMatchService
             currencyCode: 'tickets',
             amount: $amount,
             source: self::LEDGER_SOURCE,
-            debitReason: strtr(setting('gamification_wars.war_match_service.transfer_1', ':p1 — خسارة'), [':p1' => (string) ($reason)]),
-            creditReason: strtr(setting('gamification_wars.war_match_service.transfer_2', ':p1 — فوز'), [':p1' => (string) ($reason)]),
+            debitReason: strtr(setting('gamification_wars.war_match_service.transfer_1', ':p1 (خسارة)'), [':p1' => (string) ($reason)]),
+            creditReason: strtr(setting('gamification_wars.war_match_service.transfer_2', ':p1 (فوز)'), [':p1' => (string) ($reason)]),
             reference: $ref,
         );
     }

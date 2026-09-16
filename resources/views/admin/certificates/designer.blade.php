@@ -1,12 +1,12 @@
 @extends('layouts.admin')
 
-@section('title', setting('admin.certificates.designer.msmm_qalb', 'مصمّم قالب — ').$type->name_ar)
+@section('title', setting('admin.certificates.designer.msmm_qalb', 'مصمّم قالب · ').$type->name_ar)
 
 @section('content')
     {{-- ⭐ مصمّم القوالب المرئيّ (12.5-ب · 24.1) — JS خام بلا أيّ مكتبة سحب أو رسم --}}
     <x-page-header
         :title="setting('admin.certificates.designer.msmm_alqalb', 'مصمّم القالب: ').$type->name_ar"
-        :subtitle="setting('admin.certificates.designer.arfa_khlfya_alshhada_wht_alnsws_fwqha_zy_ma', 'ارفع خلفيّة الشهادة وحُطّ النصوص فوقها زيّ ما تحبّ — الموضع والحجم والخطّ واللون والمحاذاة والدوران.')"
+        :subtitle="setting('admin.certificates.designer.arfa_khlfya_alshhada_wht_alnsws_fwqha_zy_ma', 'ارفع خلفيّة الشهادة وحُطّ النصوص فوقها زيّ ما تحبّ: الموضع والحجم والخطّ واللون والمحاذاة والدوران.')"
         :breadcrumbs="[
             ['label' => setting('admin.certificates.designer.alshhadat', 'الشهادات'), 'url' => route('admin.certificates.index')],
             ['label' => setting('admin.certificates.designer.alanwaa_walqwalb', 'الأنواع والقوالب'), 'url' => route('admin.certificates.index', ['tab' => 'types'])],
@@ -16,7 +16,7 @@
     {{-- الموبايل: المصمّم للشاشات الكبيرة — تنبيه صريح بدل تجربة مكسورة (2.15-ج) --}}
     <div class="lg:hidden card p-4 text-center">
         <p class="text-sm">
-            {{ setting('certificates.designer.mobile_notice', 'مصمّم القالب محتاج شاشة كبيرة — افتحه من اللابتوب عشان السحب يبقى مريح.') }}
+            {{ setting('certificates.designer.mobile_notice', 'مصمّم القالب محتاج شاشة كبيرة. افتحه من اللابتوب عشان السحب يبقى مريح.') }}
         </p>
         <a href="{{ route('admin.certificates.designer.preview', $template) }}"
            class="btn inline-block mt-3 rounded-xl px-4 py-2 text-sm font-semibold"
@@ -129,7 +129,7 @@
                         {{ setting('admin.certificates.designer.alhql', 'الحقل') }}
                         <select data-prop="field" class="w-full rounded-lg px-2 py-1 text-sm mt-1"
                                 style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
-                            <option value="">{{ setting('admin.certificates.designer.bla_hql', '— بلا حقل —') }}</option>
+                            <option value="">{{ setting('admin.certificates.designer.bla_hql', 'بلا حقل') }}</option>
                             @foreach ($fields as $key => $label)
                                 <option value="{{ $key }}">{{ $label }}</option>
                             @endforeach
@@ -222,8 +222,8 @@
                 'qr_layer_label' => setting('admin.certificates.designer.qr_althqq', 'QR التحقّق'),
                 'field_layer_label' => setting('admin.certificates.designer.hql_jdyd', 'حقل جديد'),
                 'text_layer_label' => setting('admin.certificates.designer.ns_jdyd', 'نصّ جديد'),
-                'saved_version' => setting('admin.certificates.designer.nskha_rqm', ':message — نسخة رقم :version'),
-                'save_failed' => setting('admin.certificates.designer.altsmym_ma_athfzsh_jrb_tany', 'التصميم ما اتحفظش — جرّب تاني.'),
+                'saved_version' => setting('admin.certificates.designer.nskha_rqm', ':message، نسخة رقم :version'),
+                'save_failed' => setting('admin.certificates.designer.altsmym_ma_athfzsh_jrb_tany', 'التصميم ما اتحفظش. جرّب تاني.'),
             ];
         @endphp
 

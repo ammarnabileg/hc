@@ -78,9 +78,9 @@ class VolunteerGoalsDemoSeeder extends Seeder
             ['goals.build.file_draft.form_rows', 'goals', 'عدد صفوف الدعوة في فورم المسودّة', 'number', '3'],
             ['goals.build.file_draft.notify_category', 'goals', 'تصنيف إشعار تفعيل الملفّ', 'string', 'volunteer'],
             ['goals.build.file_draft.notify_title', 'goals', 'عنوان إشعار تفعيل الملفّ', 'string', 'اتضمّيت لملفّ جديد'],
-            ['goals.build.file_draft.notify_body', 'goals', 'نصّ إشعار تفعيل الملفّ', 'text', 'اتفتح ملفّ «{file}» وإنت فيه {position} — ضمن هدف «{goal}».'],
-            ['goals.build.error.file_draft_forbidden', 'goals', 'رسالة رفض فتح ملفّ لغير مشرف مسار الملفّات', 'text', 'فتح الملفّات لمشرف عام مسار الملفّات — مش من صلاحيّتك.'],
-            ['goals.build.error.file_track_missing', 'goals', 'رسالة غياب مسار الملفّات', 'text', 'مسار الملفّات مش معرَّف في المنصّة — اضبطه من الإعدادات الأوّل.'],
+            ['goals.build.file_draft.notify_body', 'goals', 'نصّ إشعار تفعيل الملفّ', 'text', 'اتفتح ملفّ «{file}» وإنت فيه {position}، ضمن هدف «{goal}».'],
+            ['goals.build.error.file_draft_forbidden', 'goals', 'رسالة رفض فتح ملفّ لغير مشرف مسار الملفّات', 'text', 'فتح الملفّات لمشرف عام مسار الملفّات، مش من صلاحيّتك.'],
+            ['goals.build.error.file_track_missing', 'goals', 'رسالة غياب مسار الملفّات', 'text', 'مسار الملفّات مش معرَّف في المنصّة. اضبطه من الإعدادات الأوّل.'],
             ['goals.build.file_draft.invite_link_days', 'goals', 'مدّة صلاحيّة رابط دعوة الملفّ بالأيّام (0 = بلا انتهاء)', 'number', '14'],
             ['goals.build.file_draft.invite_expired', 'goals', 'رسالة رابط دعوة منتهي الصلاحيّة', 'text', 'رابط الدعوة ده منتهي الصلاحيّة.'],
             ['goals.build.file_draft.invite_already_member', 'goals', 'رسالة عضويّة سابقة عند قبول رابط الدعوة', 'text', 'إنت عضوٌ في الملفّ ده بالفعل.'],
@@ -101,7 +101,7 @@ class VolunteerGoalsDemoSeeder extends Seeder
             ['goals.build.autosave_debounce_ms', 'goals', 'مهلة الحفظ التلقائيّ بعد آخر ضغطة (مللي ثانية)', 'number', '600'],
             ['goals.build.package_default_name', 'goals', 'قالب الاسم الافتراضيّ لحزمة العمل', 'string', 'Work Package :n'],
             ['goals.build.stage_labels', 'goals', 'تسميات مراحل رحلة بناء الهدف', 'json', json_encode([
-                'draft' => 'مسودّة — لسّه محدّش شايفه',
+                'draft' => 'مسودّة: لسّه محدّش شايفه',
                 'linked' => 'اتربط بمسار',
                 'breakdown' => 'تفكيك',
                 'filling' => 'ملء الحزم',
@@ -112,13 +112,13 @@ class VolunteerGoalsDemoSeeder extends Seeder
             ['goals.build.error.criteria_required', 'goals', 'رسالة رفض حفظ هدف بلا معيار تحقّق', 'string',
                 'الهدف مش هيتحفظ من غير معيار تحقّق: حدّد مدى رقميًّا من X إلى Y، أو اكتب حالة تتفحص بنعم/لا.'],
             ['goals.build.error.tracks_required', 'goals', 'رسالة الربط بمسار', 'string',
-                'اختار مسارًا واحدًا على الأقلّ — الهدف مايظهرش لحدّ قبل الربط.'],
+                'اختار مسارًا واحدًا على الأقلّ. الهدف مايظهرش لحدّ قبل الربط.'],
             ['goals.build.error.entities_required', 'goals', 'رسالة اختيار الكيان عند ربط الحزمة', 'string',
                 'اختار كيانًا واحدًا على الأقلّ من كيانات مسارك.'],
             ['goals.build.error.entity_out_of_track', 'goals', 'رسالة رفض كيان خارج مسار المشرف', 'string',
-                'الكيان ده مش من كيانات مسارك — مينفعش تربط عليه حزمة.'],
+                'الكيان ده مش من كيانات مسارك، مينفعش تربط عليه حزمة.'],
             ['goals.build.error.locked', 'goals', 'رسالة القفل الطبقيّ بعد رفع المعاينة', 'string',
-                'الهدف اترفع معاينة — التحرير بقى عند الطبقة الأعلى وإنت قارئ بس.'],
+                'الهدف اترفع معاينة. التحرير بقى عند الطبقة الأعلى وإنت قارئ بس.'],
 
             // المشروع التشغيليّ (23 — 1.8): وعاء دائم يُنشأ تلقائيًّا مع كلّ كيان رئيسي
             ['goals.operational_project.name', 'goals', 'اسم المشروع التشغيليّ (:p1 = اسم الكيان)', 'string', 'المشروع التشغيليّ لـ:p1'],
@@ -344,7 +344,7 @@ class VolunteerGoalsDemoSeeder extends Seeder
 
         foreach ($rows as $k => [$status, $owner, $dayOffset, $vxp]) {
             $task = Task::updateOrCreate(
-                ['work_item_id' => $item->id, 'title' => $item->name.' — دفعة '.($k + 1)],
+                ['work_item_id' => $item->id, 'title' => $item->name.' (دفعة '.($k + 1).')'],
                 [
                     'entity_id' => $entity->id,
                     'owner_id' => $owner->id,
@@ -368,7 +368,7 @@ class VolunteerGoalsDemoSeeder extends Seeder
 
             foreach (['coordinator_a', 'coordinator_b'] as $n => $key) {
                 Task::updateOrCreate(
-                    ['parent_task_id' => $parent->id, 'title' => $parent->title.' — شريحة '.($n + 1)],
+                    ['parent_task_id' => $parent->id, 'title' => $parent->title.' (شريحة '.($n + 1).')'],
                     [
                         'work_item_id' => $item->id,
                         'entity_id' => $entity->id,
@@ -431,7 +431,7 @@ class VolunteerGoalsDemoSeeder extends Seeder
 
         foreach ([['coordinator_a', true, 1], ['coordinator_b', false, 2]] as [$key, $byBalancer, $day]) {
             Task::updateOrCreate(
-                ['work_item_id' => $item->id, 'title' => $item->name.' — نوبة '.$day],
+                ['work_item_id' => $item->id, 'title' => $item->name.' (نوبة '.$day.')'],
                 [
                     'entity_id' => $entity->id,
                     'owner_id' => $people[$key]->id,

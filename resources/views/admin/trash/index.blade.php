@@ -4,7 +4,7 @@
 
 @section('content')
     <x-page-header :title="setting('admin.trash.page_title', 'سلّة المحذوفات')"
-                   :subtitle="setting('admin.trash.page_subtitle', 'كلّ عنصر اتحذف مبدئيًّا عبر المنصّة — في مكان واحد.')"
+                   :subtitle="setting('admin.trash.page_subtitle', 'كلّ عنصر اتحذف مبدئيًّا عبر المنصّة، في مكان واحد.')"
                    :breadcrumbs="[
                        ['label' => setting('admin.trash.breadcrumb_admin', 'لوحة الإدارة'), 'url' => url('/admin')],
                        ['label' => setting('admin.trash.page_title', 'سلّة المحذوفات')],
@@ -14,7 +14,7 @@
     <div class="grid gap-3 grid-cols-2 lg:grid-cols-3 mb-4">
         <x-kpi :label="setting('admin.trash.kpi_total', 'إجماليّ المحذوف')" :value="$counts['total']" icon="trash" />
         <x-kpi :label="setting('admin.trash.kpi_expiring', 'قربت مهلته تخلص (≤3 أيّام)')" :value="$counts['expiring_soon']" icon="clock" />
-        <x-kpi :label="setting('admin.trash.kpi_closed', 'المهلة خلصت — للحذف النهائيّ')" :value="$counts['window_closed']" icon="lock" />
+        <x-kpi :label="setting('admin.trash.kpi_closed', 'المهلة خلصت: جاهز للحذف النهائيّ')" :value="$counts['window_closed']" icon="lock" />
     </div>
 
     {{-- فلتر المورد — رقائق أفقيّة على الموبايل بلا تمرير أفقيّ للصفحة كلّها (2.15-ج) --}}
@@ -26,11 +26,11 @@
         ])->values()->all()" />
 
     <p class="text-xs mb-3" style="color: var(--text-muted)">
-        {{ strtr((string) setting('admin.trash.retention_hint', 'العنصر قابلٌ للاسترجاع خلال :days يومًا من حذفه — وبعدها يبقى قابلًا للحذف النهائيّ فقط.'), [':days' => (string) $retentionDays]) }}
+        {{ strtr((string) setting('admin.trash.retention_hint', 'العنصر قابلٌ للاسترجاع خلال :days يومًا من حذفه، وبعدها يبقى قابلًا للحذف النهائيّ فقط.'), [':days' => (string) $retentionDays]) }}
     </p>
 
     @if ($rows->isEmpty())
-        <x-empty :message="setting('admin.trash.empty_text', 'السلّة فاضية — مفيش حاجة اتحذفت لسّه.')" :filtered="$type !== null" />
+        <x-empty :message="setting('admin.trash.empty_text', 'السلّة فاضية. مفيش حاجة اتحذفت لسّه.')" :filtered="$type !== null" />
     @else
         @include('admin.trash.partials.table')
         <div class="mt-5">{{ $rows->links() }}</div>

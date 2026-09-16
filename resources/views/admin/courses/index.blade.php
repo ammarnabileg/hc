@@ -65,7 +65,7 @@
     @if ($courses->isEmpty())
         {{-- تمييز «مفيش بيانات أصلًا» عن «الفلتر الحاليّ ما طابقش حاجة» — فلا تُعرَض
              رسالة «ابدأ بأوّل واحد» المضلّلة لمّا يكون السبب فلترًا نشطًا لا نقصًا فعليًّا. --}}
-        <x-empty :message="setting('admin.courses.index.lsh_mfysh_tdrybat_abda_bawl_wahd', 'لسّه مفيش تدريبات — ابدأ بأوّل واحد.')"
+        <x-empty :message="setting('admin.courses.index.lsh_mfysh_tdrybat_abda_bawl_wahd', 'لسّه مفيش تدريبات. ابدأ بأوّل واحد.')"
                  :action="auth()->user()->can('courses.create') ? setting('admin.courses.index.tdryb_jdyd', 'تدريب جديد') : null"
                  :href="route('admin.courses.create')"
                  :filtered="$filters['q'] !== '' || $filters['path'] !== 0 || $filters['status'] !== '' || $filters['pricing'] !== ''" />
@@ -87,7 +87,7 @@
                     </select>
                     <select name="path_id" class="rounded-xl px-3 py-2 text-sm"
                             style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
-                        <option value="">{{ setting('admin.courses.index.almsar_2', '— المسار —') }}</option>
+                        <option value="">{{ setting('admin.courses.index.almsar_2', 'المسار') }}</option>
                         @foreach ($paths as $path)
                             <option value="{{ $path->id }}">{{ $path->name_ar }}</option>
                         @endforeach

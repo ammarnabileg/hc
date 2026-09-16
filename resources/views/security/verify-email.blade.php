@@ -9,7 +9,7 @@
 <div class="card p-6 w-full max-w-sm animate-fadeup">
     <h1 class="text-xl font-extrabold mb-1">{{ setting('auth.otp.title', 'أكّد بريدك') }}</h1>
     <p class="text-sm mb-4" style="color: var(--text-muted)">
-        {{ str_replace(['{email}', '{length}'], [$email, (string) $length], setting('auth.otp.hint', 'هنبعت رمز من {length} أرقام على {email} — نتأكّد إنّه بريدك فعلًا.')) }}
+        {{ str_replace(['{email}', '{length}'], [$email, (string) $length], setting('auth.otp.hint', 'هنبعت رمز من {length} أرقام على {email}، نتأكّد إنّه بريدك فعلًا.')) }}
     </p>
 
     @if (session('status'))

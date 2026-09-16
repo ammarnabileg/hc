@@ -134,7 +134,7 @@ class CertificateBulkIssuer
                         [
                             'holder_name' => $user->name,
                             'holder_code' => $user->code,
-                            'code' => (string) setting('certificates.issue.preview_code_placeholder', '— يُولَّد عند الإصدار —'),
+                            'code' => (string) setting('certificates.issue.preview_code_placeholder', '(يُولَّد عند الإصدار)'),
                         ],
                         $this->bindings($type, $user),
                         $extra,
@@ -219,7 +219,7 @@ class CertificateBulkIssuer
                 user: $certificate->user,
                 category: 'certificate',
                 title: (string) setting('certificates.revoke.notice_title', 'تحديث على إحدى شهاداتك'),
-                body: (string) setting('certificates.revoke.notice_body', 'راجعنا شهادتك وأوقفنا العمل بها — تواصل معنا لو محتاج توضيحًا.'),
+                body: (string) setting('certificates.revoke.notice_body', 'راجعنا شهادتك وأوقفنا العمل بها. تواصل معنا لو محتاج توضيحًا.'),
             );
         }
 
@@ -388,7 +388,7 @@ class CertificateBulkIssuer
         Notifier::send(
             user: $certificate->user,
             category: 'certificate',
-            title: (string) setting('certificates.issue.notice_title', 'مبروك — صدرت شهادتك 🎓'),
+            title: (string) setting('certificates.issue.notice_title', 'مبروك، صدرت شهادتك 🎓'),
             body: (string) ($certificate->data_snapshot['certificate_name'] ?? null),
             url: Route::has('verify.certificate')
                 ? route('verify.certificate', ['code' => $certificate->code])

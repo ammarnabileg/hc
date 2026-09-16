@@ -14,7 +14,7 @@
     --}}
     <x-page-header
         :title="setting('volunteer.profile_consent_insights.title', 'طلبات إظهار التواصل')"
-        :subtitle="setting('volunteer.profile_consent_insights.subtitle', 'مؤشّر على الثقة الداخليّة — مش مجرّد عدّاد')"
+        :subtitle="setting('volunteer.profile_consent_insights.subtitle', 'مؤشّر على الثقة الداخليّة، مش مجرّد عدّاد')"
         :breadcrumbs="[['label' => setting('volunteer.common.breadcrumb_root', 'لوحة التطوّع'), 'url' => url('/volunteer')], ['label' => setting('volunteer.profile_consent_insights.label', 'الإدارة المركزيّة')], ['label' => setting('volunteer.profile_consent_insights.label_2', 'طلبات الإظهار')]]" />
 
     <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
@@ -27,7 +27,7 @@
     </div>
 
     @if ($rows->isEmpty())
-        <x-empty :message="setting('volunteer.profile_consent_insights.empty', 'مفيش طلبات في الفترة دي — التنسيق ماشي بسلاسة')" :action="setting('volunteer.profile_consent_insights.action', 'وسّع المدى')" :href="route('volunteer.profile.consent.insights', ['days' => 90])" />
+        <x-empty :message="setting('volunteer.profile_consent_insights.empty', 'مفيش طلبات في الفترة دي. التنسيق ماشي بسلاسة')" :action="setting('volunteer.profile_consent_insights.action', 'وسّع المدى')" :href="route('volunteer.profile.consent.insights', ['days' => 90])" />
     @else
         <section class="card p-4">
             <h2 class="font-bold text-sm mb-3">{{ setting('volunteer.profile_consent_insights.heading', 'سجلّ الطلبات') }}</h2>

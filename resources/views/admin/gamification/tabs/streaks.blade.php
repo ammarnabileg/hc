@@ -5,13 +5,13 @@
     <p class="text-sm" style="color: var(--text-muted)">
         {{ setting('admin.gamification.tabs.streaks.mn', 'من') }} <strong>{{ setting('streaks.club5am.window_start', '04:50') }}</strong>
         {{ setting('admin.gamification.tabs.streaks.ila', 'إلى') }} <strong>{{ setting('streaks.club5am.window_end', '05:20') }}</strong>
-        {{ setting('admin.gamification.tabs.streaks.btwqyt_almstkhdm_almhly_hsb_dwlth_walayam', 'بتوقيت المستخدم المحلّيّ حسب دولته — والأيّام') }} <strong>{{ setting('admin.gamification.tabs.streaks.lyst_shrta_an_tkwn_mttabaa', 'ليست شرطًا أن تكون متتابعة') }}</strong>.
+        {{ setting('admin.gamification.tabs.streaks.btwqyt_almstkhdm_almhly_hsb_dwlth_walayam', 'بتوقيت المستخدم المحلّيّ حسب دولته، والأيّام') }} <strong>{{ setting('admin.gamification.tabs.streaks.lyst_shrta_an_tkwn_mttabaa', 'ليست شرطًا أن تكون متتابعة') }}</strong>.
     </p>
 </section>
 
 <section class="card p-4 md:p-5 mt-4">
     <h2 class="font-bold mb-1">{{ setting('admin.gamification.tabs.streaks.slm_xp_alhdwr_almtdrj', 'سلّم XP الحضور المتدرّج') }}</h2>
-    <p class="text-xs mb-3" style="color: var(--text-muted)">{{ setting('admin.gamification.tabs.streaks.alsfwf_ghyr_mhdwda_thrr_mn_blwk_aliadadat', 'الصفوف غير محدودة — تُحرَّر من بلوك الإعدادات كـJSON.') }}</p>
+    <p class="text-xs mb-3" style="color: var(--text-muted)">{{ setting('admin.gamification.tabs.streaks.alsfwf_ghyr_mhdwda_thrr_mn_blwk_aliadadat', 'الصفوف غير محدودة. تُحرَّر من بلوك الإعدادات كـJSON.') }}</p>
 
     @forelse ($data['ladder'] as $row)
         <div class="flex items-center justify-between gap-3 py-2 text-sm {{ $loop->last ? '' : 'border-b' }}" style="border-color: var(--border)">
@@ -22,7 +22,7 @@
             <span class="font-bold">{{ $row['xp'] ?? 0 }} XP</span>
         </div>
     @empty
-        <x-empty :message="setting('admin.gamification.tabs.streaks.alslm_fady_hml_alaftradyat_mn_zr_alreset', 'السلّم فاضي — حمّل الافتراضيّات من زرّ الـReset.')" />
+        <x-empty :message="setting('admin.gamification.tabs.streaks.alslm_fady_hml_alaftradyat_mn_zr_alreset', 'السلّم فاضي. حمّل الافتراضيّات من زرّ الـReset.')" />
     @endforelse
 </section>
 

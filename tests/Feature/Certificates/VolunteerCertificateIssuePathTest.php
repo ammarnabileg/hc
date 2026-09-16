@@ -54,7 +54,7 @@ class VolunteerCertificateIssuePathTest extends AdminVolunteerTestCase
         $this->get(route('verify.certificate', ['code' => $certificate->code]))
             ->assertOk()
             ->assertSee(setting('certificates.status.valid_label', 'سارية'), false)
-            ->assertSee(setting('certificates.verify.signature_ok', 'مطابق — البيانات دي هي اللي صدرت'), false);
+            ->assertSee(setting('certificates.verify.signature_ok', 'مطابق، البيانات دي هي اللي صدرت'), false);
     }
 
     /**

@@ -112,7 +112,7 @@ class SettingsAdminController extends Controller
 
         if (! array_key_exists($tab, $tabs)) {
             return response()->json([
-                'message' => (string) setting('settings.batch.error.unknown_tab', 'التاب ده مش موجود — حدّث الصفحة وجرّب تاني.'),
+                'message' => (string) setting('settings.batch.error.unknown_tab', 'التاب ده مش موجود، حدّث الصفحة وجرّب تاني.'),
             ], 404);
         }
 
@@ -125,7 +125,7 @@ class SettingsAdminController extends Controller
 
         if ($rows->isEmpty() && $offset === 0) {
             return response()->json([
-                'message' => (string) setting('settings.batch.error.unknown_group', 'المجموعة دي مش في التاب ده — حدّث الصفحة.'),
+                'message' => (string) setting('settings.batch.error.unknown_group', 'المجموعة دي مش في التاب ده، حدّث الصفحة.'),
             ], 404);
         }
 
@@ -259,7 +259,7 @@ class SettingsAdminController extends Controller
             return response()->json([
                 'message' => (string) setting(
                     'settings.audit.error.missing_key',
-                    'مافيش مفتاح إعداد في الطلب — افتح السجلّ من جنب الحقل نفسه.',
+                    'مافيش مفتاح إعداد في الطلب، افتح السجلّ من جنب الحقل نفسه.',
                 ),
             ], 422);
         }
@@ -270,7 +270,7 @@ class SettingsAdminController extends Controller
             return response()->json([
                 'message' => (string) setting(
                     'settings.audit.error.unknown_key',
-                    'الإعداد ده مش موجود — يمكن يكون اتشال، حدّث الصفحة وجرّب تاني.',
+                    'الإعداد ده مش موجود، يمكن يكون اتشال، حدّث الصفحة وجرّب تاني.',
                 ),
             ], 404);
         }
@@ -306,7 +306,7 @@ class SettingsAdminController extends Controller
         $payload = json_decode((string) file_get_contents($request->file('file')->getRealPath()), true);
 
         if (! is_array($payload)) {
-            return back()->withErrors(['file' => (string) setting('settings.admin.import_denied', 'الملفّ مش JSON صالح — صدّر نسخة وقارن الشكل.')]);
+            return back()->withErrors(['file' => (string) setting('settings.admin.import_denied', 'الملفّ مش JSON صالح، صدّر نسخة وقارن الشكل.')]);
         }
 
         $result = $this->registry->import($payload, $request->user());

@@ -5,7 +5,7 @@
 @section('content')
     {{-- 23-0.3: النوع وسم وقالب فقط — نفس الحالات ونفس جدول Rep ونفس محرّك التصعيد --}}
     <x-page-header :title="setting('admin.task_types.index.anwaa_almham', 'أنواع المهامّ')"
-                   :subtitle="setting('admin.task_types.index.qalb_ywfr_alktaba_tshyk_lyst_jahza_wbryf', 'قالب يوفّر الكتابة: تشيك ليست جاهزة وبريف وشكل مخرجات وقيم مقترحة — بلا أيّ تغيير في السلوك.')"
+                   :subtitle="setting('admin.task_types.index.qalb_ywfr_alktaba_tshyk_lyst_jahza_wbryf', 'قالب يوفّر الكتابة: تشيك ليست جاهزة وبريف وشكل مخرجات وقيم مقترحة، بلا أيّ تغيير في السلوك.')"
                    :breadcrumbs="[
                        ['label' => setting('admin.task_types.index.lwha_alidara', 'لوحة الإدارة'), 'url' => url('/admin')],
                        ['label' => setting('admin.task_types.index.anwaa_almham', 'أنواع المهامّ')],
@@ -17,7 +17,7 @@
     </x-page-header>
 
     @if ($types->isEmpty())
-        <x-empty :message="setting('admin.task_types.index.mfysh_anwaa_lsh_abda_bawl_nwa', 'مفيش أنواع لسه — ابدأ بأوّل نوع.')" :action="setting('admin.task_types.index.nwa_jdyd', '+ نوع جديد')" href="#type-form" />
+        <x-empty :message="setting('admin.task_types.index.mfysh_anwaa_lsh_abda_bawl_nwa', 'مفيش أنواع لسه. ابدأ بأوّل نوع.')" :action="setting('admin.task_types.index.nwa_jdyd', '+ نوع جديد')" href="#type-form" />
     @else
         <div class="card overflow-hidden mb-5">
             <table class="hidden md:table w-full text-sm">
@@ -109,7 +109,7 @@
         </label>
 
         <label class="block text-sm">
-            <span class="block mb-1">{{ setting('admin.task_types.index.altshyk_lyst_bnd_fy_kl_str', 'التشيك ليست — بند في كلّ سطر') }}</span>
+            <span class="block mb-1">{{ setting('admin.task_types.index.altshyk_lyst_bnd_fy_kl_str', 'التشيك ليست: بند في كلّ سطر') }}</span>
             <textarea name="checklist" rows="4" class="w-full rounded-xl px-3 py-2 text-sm"
                       style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">{{ collect($editing?->checklist ?? [])->implode("\n") }}</textarea>
         </label>

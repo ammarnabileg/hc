@@ -1,6 +1,6 @@
 @extends('layouts.volunteer')
 
-@section('title', setting('volunteer.profile_audit.title', 'سجلّ المشرف — ').$owner->shortName())
+@section('title', setting('volunteer.profile_audit.title', 'سجلّ المشرف: ').$owner->shortName())
 
 @section('content')
     {{-- «سجلّ المشرف» (13.4-م): كلّ حركة على هذا الشخص — بمَن نفّذها ومتى، اطّلاعٌ فقط. --}}

@@ -1,7 +1,7 @@
 @php
     /** نصوص السكربت — من الإعدادات لا محروقةً في الجافاسكربت (2.13-أ) */
     $hcWords = array_merge($hcWords ?? [], [
-        'cv.template.error_label' => (string) setting('cv.template.error_label', 'مش قادرين ننفّذ دلوقتي — جرّب تاني.'),
+        'cv.template.error_label' => (string) setting('cv.template.error_label', 'مش قادرين ننفّذ دلوقتي، جرّب تاني.'),
     ]);
 @endphp
 
@@ -51,7 +51,7 @@
     <span class="text-xs block mt-2" data-template-note style="color: var(--color-state-ok)"></span>
 
     <p class="text-xs mt-2" style="color: var(--text-muted)">
-        {{ setting('cv.templates.charge_hint', 'اختيار القالب مجّانيّ — والتذاكر بتتخصم لمّا تحمّل النسخة النظيفة.') }}
+        {{ setting('cv.templates.charge_hint', 'اختيار القالب مجّانيّ، والتذاكر بتتخصم لمّا تحمّل النسخة النظيفة.') }}
     </p>
 </div>
 

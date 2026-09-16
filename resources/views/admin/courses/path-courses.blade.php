@@ -6,7 +6,7 @@
     {{-- إدارة تدريبات المسار: بحث/سحب-ترتيب/إضافة/حذف (12.4-أ) --}}
     <x-page-header
         :title="setting('admin.courses.path_courses.tdrybat', 'تدريبات: ').$path->name_ar"
-        :subtitle="setting('admin.courses.path_courses.rtb_altdrybat_jwh_almsar_walizala_hna_btfk', 'رتّب التدريبات جوّه المسار — والإزالة هنا بتفكّ الارتباط بس، التدريب بيفضل موجود.')"
+        :subtitle="setting('admin.courses.path_courses.rtb_altdrybat_jwh_almsar_walizala_hna_btfk', 'رتّب التدريبات جوّه المسار، والإزالة هنا بتفكّ الارتباط بس، التدريب بيفضل موجود.')"
         :breadcrumbs="[
             ['label' => setting('admin.courses.path_courses.almsarat', 'المسارات'), 'url' => route('admin.paths.index')],
             ['label' => $path->name_ar],
@@ -29,7 +29,7 @@
     @if ($courses->isEmpty())
         {{-- تمييز «المسار فاضي فعلًا» عن «البحث الحاليّ ما طابقش حاجة» — فلا تُعرَض
              رسالة «ضيف أوّل تدريب» المضلّلة لمّا يكون السبب بحثًا نشطًا لا فراغًا فعليًّا. --}}
-        <x-empty :message="setting('admin.courses.path_courses.almsar_lsh_fady_dyf_awl_tdryb', 'المسار لسّه فاضي — ضيف أوّل تدريب.')"
+        <x-empty :message="setting('admin.courses.path_courses.almsar_lsh_fady_dyf_awl_tdryb', 'المسار لسّه فاضي. ضيف أوّل تدريب.')"
                  :filtered="$search !== ''" />
     @else
         <div class="space-y-3" data-sortable="{{ route('admin.paths.courses.reorder', $path) }}">
@@ -49,7 +49,7 @@
                                 style="background: var(--surface-sunken)" aria-label="{{ setting('admin.courses.path_courses.tht', 'تحت') }}">↓</button>
                         @can('paths.edit')
                             <form method="post" action="{{ route('admin.paths.courses.detach', [$path, $course]) }}"
-                                  onsubmit="return confirm('{{ setting('paths.detach.confirm_text', 'هنشيله من المسار بس — التدريب هيفضل موجود. نكمّل؟') }}')">
+                                  onsubmit="return confirm('{{ setting('paths.detach.confirm_text', 'هنشيله من المسار بس، والتدريب هيفضل موجود. نكمّل؟') }}')">
                                 @csrf @method('delete')
                                 <button class="btn rounded-xl px-3 py-2 text-sm"
                                         style="background: var(--surface-sunken); color: var(--color-state-danger)">{{ setting('admin.courses.path_courses.izala', 'إزالة') }}</button>
@@ -64,7 +64,7 @@
     @can('paths.edit')
         <x-modal id="attach-courses" :title="setting('admin.courses.path_courses.adf_tdrybat_llmsar', 'أضِف تدريبات للمسار')">
             <p class="text-sm mb-3" style="color: var(--text-muted)">
-                {{ setting('admin.courses.path_courses.altdryb_yqdr_ykwn_fy_aktr_mn_msar_idafth_hna', 'التدريب يقدر يكون في أكتر من مسار — إضافته هنا ما بتشيلوش من مساراته التانية.') }}
+                {{ setting('admin.courses.path_courses.altdryb_yqdr_ykwn_fy_aktr_mn_msar_idafth_hna', 'التدريب يقدر يكون في أكتر من مسار، وإضافته هنا ما بتشيلوش من مساراته التانية.') }}
             </p>
 
             @if ($attachable->isEmpty())

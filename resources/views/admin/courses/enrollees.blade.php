@@ -14,7 +14,7 @@
         ]" />
 
     @if ($enrollments->isEmpty())
-        <x-empty :message="setting('admin.courses.enrollees.mhdsh_sjl_lsh_awl_msjl_jay', 'محدّش سجّل لسّه — أوّل مسجّل جاي.')" />
+        <x-empty :message="setting('admin.courses.enrollees.mhdsh_sjl_lsh_awl_msjl_jay', 'محدّش سجّل لسّه. أوّل مسجّل جاي.')" />
     @else
         <div class="space-y-3">
             @foreach ($enrollments as $enrollment)

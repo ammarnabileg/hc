@@ -45,7 +45,7 @@
             <h2 class="font-bold mb-3">{{ setting('wallet.topup.methods_title', 'طرق التحويل') }}</h2>
 
             @if ($transferMethods->isEmpty())
-                <x-empty :message="setting('wallet.topup.methods_empty', 'لسّه مافيش طرق تحويل متاحة — جرّب بوّابة الدفع.')"
+                <x-empty :message="setting('wallet.topup.methods_empty', 'لسّه مافيش طرق تحويل متاحة. جرّب بوّابة الدفع.')"
                          :action="setting('wallet.topup.tab_gateway', 'بوّابة الدفع')" :href="route('wallet.topup', ['tab' => 'gateway'])" />
             @else
                 <div class="grid md:grid-cols-2 gap-3">
@@ -170,13 +170,13 @@
                         <input type="file" name="receipt" accept=".jpg,.jpeg,.png,.webp,.pdf" required
                                class="w-full rounded-xl px-3 py-2 text-sm"
                                style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
-                        <span class="block text-xs mt-1" style="color: var(--text-muted)">{{ setting('wallet.topup.receipt_hint', 'مرفق إلزاميّ — صورة أو PDF.') }}</span>
+                        <span class="block text-xs mt-1" style="color: var(--text-muted)">{{ setting('wallet.topup.receipt_hint', 'مرفق إلزاميّ: صورة أو PDF.') }}</span>
                         @error('receipt')<span class="block text-xs mt-1" style="color: var(--color-state-danger)">{{ $message }}</span>@enderror
                     </label>
 
                     <div class="md:col-span-2 flex items-center justify-between gap-3 flex-wrap">
                         <p class="text-xs" style="color: var(--text-muted)">
-                            {{ setting('wallet.topup.no_refund_note', 'الشحن يزيد رصيد الكوينز، ولا استرجاع نقديّ — الرصيد يفضل في محفظتك تشتري بيه اللي يعجبك.') }}
+                            {{ setting('wallet.topup.no_refund_note', 'الشحن يزيد رصيد الكوينز، ومفيش استرجاع نقديّ. الرصيد يفضل في محفظتك تشتري بيه اللي يعجبك.') }}
                         </p>
                         <button type="submit" class="btn rounded-xl px-5 py-3 text-sm font-bold motion-standard"
                                 style="background: var(--color-brand-500); color: #04201c">{{ setting('wallet.topup.submit_action', 'ابعت الطلب') }}</button>
@@ -189,7 +189,7 @@
         {{-- ---------------------------------------------- بوّابة الدفع --}}
 
         @if ($gatewayOffers->isEmpty())
-            <x-empty :message="setting('wallet.topup.gateway_empty', 'لسّه مافيش عروض على البوّابة — جرّب التحويل اليدويّ.')"
+            <x-empty :message="setting('wallet.topup.gateway_empty', 'لسّه مافيش عروض على البوّابة. جرّب التحويل اليدويّ.')"
                      :action="setting('wallet.topup.gateway_empty_action', 'التحويل اليدويّ')" :href="route('wallet.topup', ['tab' => 'manual'])" />
         @else
             <div class="grid md:grid-cols-3 gap-3">

@@ -58,7 +58,7 @@
 
                     <label class="block">
                         <span class="block text-xs mb-1">{{ setting('ux.saved_views.text_2', 'اسم العرض') }}</span>
-                        <input type="text" name="name" maxlength="96" required placeholder="{{ setting('ux.saved_views.placeholder_1', 'مثلًا: محافظتي — آخر 7 أيّام') }}"
+                        <input type="text" name="name" maxlength="96" required placeholder="{{ setting('ux.saved_views.placeholder_1', 'مثلًا: محافظتي، آخر 7 أيّام') }}"
                                class="rounded-xl px-3 text-sm" style="min-height: 44px; background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
                     </label>
 

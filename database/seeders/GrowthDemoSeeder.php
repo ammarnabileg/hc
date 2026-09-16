@@ -62,10 +62,10 @@ class GrowthDemoSeeder extends Seeder
             ['growth.preview.enabled', 'growth', 'تفعيل المعاينة المجّانيّة', 'bool', '1', false],
             ['growth.preview.max_lessons', 'growth', 'سقف دروس المعاينة', 'number', '3', false],
             ['growth.preview.title', 'growth', 'عنوان صفحة المعاينة', 'string', 'معاينة مجّانيّة', false],
-            ['growth.preview.subtitle', 'growth', 'سطر صفحة المعاينة', 'text', 'جرّب قبل ما تسجّل — الدروس المفتوحة تحت متاحة بلا حساب.', false],
+            ['growth.preview.subtitle', 'growth', 'سطر صفحة المعاينة', 'text', 'جرّب قبل ما تسجّل. الدروس المفتوحة تحت متاحة من غير حساب.', false],
             ['growth.preview.note', 'growth', 'سطر عدد الدروس المفتوحة', 'text', 'مفتوح لك {count} درس مجّانًا كمعاينة. الباقي بيتفتح بعد ما تسجّل.', false],
             ['growth.preview.locked_label', 'growth', 'تسمية الدرس المقفول', 'string', 'بعد التسجيل', false],
-            ['growth.preview.locked_message', 'growth', 'رسالة منع الدرس المقفول', 'text', 'الدرس ده مش ضمن المعاينة المجّانيّة — سجّل حسابك وافتح التدريب كامل.', false],
+            ['growth.preview.locked_message', 'growth', 'رسالة منع الدرس المقفول', 'text', 'الدرس ده مش ضمن المعاينة المجّانيّة. سجّل حسابك وافتح التدريب كامل.', false],
             ['growth.preview.cta', 'growth', 'زرّ فتح التدريب', 'string', 'افتح التدريب كامل', false],
             ['growth.preview.embed_template', 'growth', 'قالب تضمين الفيديو', 'string', 'https://www.youtube.com/embed/{id}', false],
 
@@ -75,7 +75,7 @@ class GrowthDemoSeeder extends Seeder
             ['growth.invite_board.size', 'growth', 'عدد صفوف اللوحة', 'number', '10', false],
             ['growth.invite_board.months', 'growth', 'عدد الشهور المتاحة', 'number', '6', false],
             ['growth.invite_board.my_rank', 'growth', 'سطر ترتيبي', 'string', 'ترتيبك الشهر ده: {rank}', false],
-            ['growth.invite_board.empty', 'growth', 'الحالة الفارغة للوحة', 'text', 'مافيش دعوات مكتملة الشهر ده لسّه — ابدأ إنت.', false],
+            ['growth.invite_board.empty', 'growth', 'الحالة الفارغة للوحة', 'text', 'مافيش دعوات مكتملة الشهر ده لسّه. ابدأ إنت.', false],
 
             // ---------------- 21.1-أ · 12.14 — قوالب صورة الـOG لكلّ نوع رابط
             ['growth.og.background', 'growth', 'خلفيّة بطاقة الرابط', 'string', '#0b1512', false],
@@ -99,8 +99,8 @@ class GrowthDemoSeeder extends Seeder
             ['growth.articles.related_count', 'growth', 'عدد مقالات «اقرأ كمان»', 'number', '3', false],
             ['growth.articles.show_author', 'growth', 'إظهار اسم الكاتب', 'bool', '1', false],
             ['growth.articles.index_title', 'growth', 'عنوان مركز المقالات', 'string', 'مقالات المنصّة', false],
-            ['growth.articles.index_subtitle', 'growth', 'سطر مركز المقالات', 'text', 'محتوًى عربيّ مكتوب بأيدينا — تقرأه بلا حساب.', false],
-            ['growth.articles.empty', 'growth', 'الحالة الفارغة للمقالات', 'text', 'لسّه مافيش مقالات منشورة هنا — قريب إن شاء الله.', false],
+            ['growth.articles.index_subtitle', 'growth', 'سطر مركز المقالات', 'text', 'محتوًى عربيّ مكتوب بأيدينا. تقرأه بلا حساب.', false],
+            ['growth.articles.empty', 'growth', 'الحالة الفارغة للمقالات', 'text', 'لسّه مافيش مقالات منشورة هنا، قريب إن شاء الله.', false],
             ['growth.articles.share_label', 'growth', 'تسمية أزرار المشاركة', 'string', 'شارك المقال', false],
             ['growth.articles.related_label', 'growth', 'تسمية الربط بتدريب', 'string', 'اتعلّم الموضوع ده عمليًّا', false],
             ['growth.articles.allowed_tags', 'growth', 'وسوم HTML المسموحة في المقال', 'text',
@@ -133,10 +133,10 @@ class GrowthDemoSeeder extends Seeder
             ['growth.weekly_card.footer', 'growth', 'سطر أسفل الكارت', 'string', 'اتعلّم معنا', false],
             ['growth.weekly_card.period_days', 'growth', 'دوريّة الكارت (أيّام)', 'number', '7', false],
             ['growth.weekly_card.tips', 'growth', 'نصائح الكارت الأسبوعيّ', 'json', json_encode([
-                'ذاكر ٢٥ دقيقة وارتاح ٥ — العقل بيثبّت المعلومة في الراحة مش في الزحمة.',
+                'ذاكر ٢٥ دقيقة وارتاح ٥. العقل بيثبّت المعلومة في الراحة مش في الزحمة.',
                 'اكتب اللي فهمته بكلامك إنت. لو عرفت تشرحه، يبقى فهمته.',
                 'الاستمرار أهمّ من الشدّة: نصّ ساعة كلّ يوم أنفع من يوم كامل في الأسبوع.',
-                'راجع درس امبارح قبل ما تبدأ درس النهارده — دقيقتين بيوفّروا ساعة.',
+                'راجع درس امبارح قبل ما تبدأ درس النهارده. دقيقتين بيوفّروا ساعة.',
                 'اسأل بدري. السؤال المتأخّر بيتكلّف وقت، والسؤال البدري بيوفّره.',
             ], JSON_UNESCAPED_UNICODE), false],
             ['growth.volunteer_kit.title', 'growth', 'عنوان حزمة المحتوى', 'string', 'حزمة المحتوى', false],
@@ -146,7 +146,7 @@ class GrowthDemoSeeder extends Seeder
             ['growth.volunteer_kit.scripts', 'growth', 'النصوص الجاهزة للنشر', 'json', json_encode([
                 ['title' => 'رسالة واتساب قصيرة', 'body' => "لو بتدوّر على تدريب عربيّ جادّ ومجّانيّ التفعيل، جرّب من هنا:\n{link}"],
                 ['title' => 'منشور لينكدإن', 'body' => "بتعلّم على منصّة عربيّة بتشتغل بنظام: تدريب ⟵ امتحان ⟵ شهادة بكود تحقّق.\nلو مهتمّ، الرابط ده هيوصّلك:\n{link}"],
-                ['title' => 'ستوري', 'body' => "بنبدأ دفعة جديدة — لو ناوي تتعلّم حاجة جديدة الشهر ده، ده مكانك:\n{link}"],
+                ['title' => 'ستوري', 'body' => "بنبدأ دفعة جديدة. لو ناوي تتعلّم حاجة جديدة الشهر ده، ده مكانك:\n{link}"],
             ], JSON_UNESCAPED_UNICODE), false],
 
             // ---------------- 21.1-أ — زرّ [احصل على شهادتك] في صفحة التحقّق
@@ -170,9 +170,9 @@ class GrowthDemoSeeder extends Seeder
             ['ads.privacy_page.title', 'ads', 'صفحة الخصوصيّة: العنوان', 'string', 'سياسة الخصوصيّة', false],
             ['ads.privacy_page.subtitle', 'ads', 'صفحة الخصوصيّة: السطر تحت العنوان', 'text', 'إيه اللي بنجمعه من بياناتك، ولمين بيتبعت، وإزاي تسحب موافقتك في أيّ وقت.', false],
             ['ads.privacy_page.collected_title', 'ads', 'صفحة الخصوصيّة: عنوان «إيه اللي بنجمعه»', 'string', 'إيه اللي بنجمعه', false],
-            ['ads.privacy_page.collected_body', 'ads', 'صفحة الخصوصيّة: نصّ «إيه اللي بنجمعه»', 'text', 'بيانات حسابك (الاسم، البريد، رقم الموبايل، بيانات ملفّك)، وبيانات استخدامك للمنصّة (الصفحات اللي بتفتحها، لحظات زيّ التسجيل والشراء)، وبيانات جهازك (عنوان IP ونوع المتصفّح) — لتشغيل حسابك وتحسين المنصّة، وللإعلان بعد موافقتك الصريحة وحدها.', false],
+            ['ads.privacy_page.collected_body', 'ads', 'صفحة الخصوصيّة: نصّ «إيه اللي بنجمعه»', 'text', 'بيانات حسابك (الاسم، البريد، رقم الموبايل، بيانات ملفّك)، وبيانات استخدامك للمنصّة (الصفحات اللي بتفتحها، لحظات زيّ التسجيل والشراء)، وبيانات جهازك (عنوان IP ونوع المتصفّح). لتشغيل حسابك وتحسين المنصّة، وللإعلان بعد موافقتك الصريحة وحدها.', false],
             ['ads.privacy_page.shared_title', 'ads', 'صفحة الخصوصيّة: عنوان «لمين بيتبعت»', 'string', 'لمين بيتبعت', false],
-            ['ads.privacy_page.shared_body', 'ads', 'صفحة الخصوصيّة: نصّ «لمين بيتبعت»', 'text', 'لو وافقت على التتبّع، بترسل أحداثٌ لمنصّات الإعلان (Meta وGoogle) لقياس الحملات وإعادة الاستهداف — مشفّرة قبل ما تتبعت ومفيش بيانات خام بتغادر خوادمنا. ولو رفضت أو ما اخترتش، بيتوقّف الإرسال فعليًّا لا شكليًّا. وباقي بياناتك بتفضل في خوادمنا ولا تتبعت لأيّ جهة تالتة من غير موافقتك.', false],
+            ['ads.privacy_page.shared_body', 'ads', 'صفحة الخصوصيّة: نصّ «لمين بيتبعت»', 'text', 'لو وافقت على التتبّع، بترسل أحداثٌ لمنصّات الإعلان (Meta وGoogle) لقياس الحملات وإعادة الاستهداف. مشفّرة قبل ما تتبعت ومفيش بيانات خام بتغادر خوادمنا. ولو رفضت أو ما اخترتش، بيتوقّف الإرسال فعليًّا لا شكليًّا. وباقي بياناتك بتفضل في خوادمنا ولا تتبعت لأيّ جهة تالتة من غير موافقتك.', false],
             ['ads.privacy_page.rights_title', 'ads', 'صفحة الخصوصيّة: عنوان «حقّك في السحب»', 'string', 'حقّك في السحب في أيّ وقت', false],
             ['ads.privacy_page.rights_body', 'ads', 'صفحة الخصوصيّة: نصّ «حقّك في السحب»', 'text', 'تقدر توافق أو ترفض أو تخصّص أغراض التتبّع من البانر أوّل ما تدخل المنصّة، وتقدر كمان تغيّر اختيارك في أيّ وقت بعد كده من غير ما تنتظر البانر يرجع.', false],
             ['ads.privacy_page.withdraw_title', 'ads', 'صفحة الخصوصيّة: عنوان «تغيير اختيارك»', 'string', 'تغيير اختيارك', false],
@@ -251,9 +251,9 @@ class GrowthDemoSeeder extends Seeder
                 .'<h2>١) اختار هدف تشوفه</h2><p>هدفك الأوّل يكون حاجة تشتغل قدّامك، مش شهادة.</p>'
                 .'<h2>٢) اتعلّم أساس واحد بس</h2><p>لغة واحدة، وخلاص. التنقّل بين اللغات في الشهر الأوّل بيضيّع الوقت.</p>'
                 .'<h2>٣) اكتب كود كلّ يوم</h2><p>نصّ ساعة يوميًّا أنفع من يوم كامل في الأسبوع.</p>'
-                .'<h2>٤) راجع بصوت عالي</h2><p>اشرح اللي فهمته لحدّ تاني — ولو لنفسك.</p>',
+                .'<h2>٤) راجع بصوت عالي</h2><p>اشرح اللي فهمته لحدّ تاني، ولو لنفسك.</p>',
             'tags' => ['برمجة', 'مبتدئين'],
-            'meta_title' => 'إزّاي تبدأ تتعلّم البرمجة — دليل عمليّ للمبتدئين',
+            'meta_title' => 'إزّاي تبدأ تتعلّم البرمجة. دليل عمليّ للمبتدئين',
             'meta_description' => 'خطّة من أربع خطوات للبداية الصحّ في تعلّم البرمجة بلا تشتّت.',
             'status' => ArticleWorkflow::PUBLISHED,
             'published_at' => now()->subDays(3),
@@ -263,7 +263,7 @@ class GrowthDemoSeeder extends Seeder
             'article_category_id' => $category->id,
             'author_id' => $author->id,
             'title' => 'مسوّدة تحت الكتابة',
-            'excerpt' => 'دي مسوّدة — والمفروض ما تظهرش لأيّ زائر.',
+            'excerpt' => 'دي مسوّدة، والمفروض ما تظهرش لأيّ زائر.',
             'body' => '<p>محتوى لسّه ما اتراجعش.</p>',
             'status' => ArticleWorkflow::DRAFT,
         ]);

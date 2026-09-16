@@ -23,11 +23,11 @@
             </div>
 
             <p class="text-xs mb-3" style="color: var(--text-muted)">
-                {{ setting('admin.approvals.free_note', 'التفعيل مجّانيّ باعتماد إداريّ — ولا رسوم على الباب') }}
+                {{ setting('admin.approvals.free_note', 'التفعيل مجّانيّ باعتماد إداريّ، ولا رسوم على الباب') }}
             </p>
 
             @if (! $pending)
-                <p class="text-sm" style="color: var(--text-muted)">{{ setting('admin.users.partials.tab_admin.alhsab_atraja_khlas_mafysh_qrar_aatmad_mstny', 'الحساب اتراجع خلاص — مافيش قرار اعتماد مستنّي.') }}</p>
+                <p class="text-sm" style="color: var(--text-muted)">{{ setting('admin.users.partials.tab_admin.alhsab_atraja_khlas_mafysh_qrar_aatmad_mstny', 'الحساب اتراجع خلاص، مافيش قرار اعتماد مستنّي.') }}</p>
             @else
                 @if ($viewer->allows('user_approvals.approve'))
                     <form method="post" action="{{ route('admin.users.approve') }}" class="mb-3">
@@ -82,7 +82,7 @@
                 {{ setting('admin.users.partials.tab_admin.tayyn_dwr', 'تعيين دور') }}
             </a>
             <p class="text-xs mt-2" style="color: var(--text-muted)">
-                {{ setting('admin.roles.assign_hint', 'الدور يحدّد «ماذا» والعضويّة تحدّد «أين» — فأدوار التطوّع تُسنَد داخل عضويّة.') }}
+                {{ setting('admin.roles.assign_hint', 'الدور يحدّد «ماذا» والعضويّة تحدّد «أين»، فأدوار التطوّع تُسنَد داخل عضويّة.') }}
             </p>
         @endif
 

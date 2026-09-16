@@ -42,7 +42,7 @@
                 <div class="text-sm" style="color: var(--text-muted)">{{ setting('volunteer.performance_rep.text_3', 'يتصفّر في') }}</div>
                 <div class="text-lg font-bold mt-1">{{ $nextReset->format('Y/m/d') }} {{ setting('volunteer.performance_rep.text_4', 'الساعة') }} {{ $nextReset->format('H:i') }}</div>
                 <p class="text-xs mt-1" style="color: var(--text-muted)">
-                    {{ setting('volunteer.common.day', 'يوم') }} {{ (int) setting('rep.reset.day_of_month', 1) }} {{ setting('volunteer.performance_rep.text_4', 'الساعة') }} {{ (int) setting('rep.reset.hour', 5) }}:00{{ setting('volunteer.performance_rep.text_5', 'ص بتوقيت القاهرة — الرقم الظاهر بيرجع صفر، والسجلّ والمكتسَب التراكميّ يفضلوا زيّ ما هم.') }}
+                    {{ setting('volunteer.common.day', 'يوم') }} {{ (int) setting('rep.reset.day_of_month', 1) }} {{ setting('volunteer.performance_rep.text_4', 'الساعة') }} {{ (int) setting('rep.reset.hour', 5) }}:00{{ setting('volunteer.performance_rep.text_5', 'ص بتوقيت القاهرة. الرقم الظاهر بيرجع صفر، والسجلّ والمكتسَب التراكميّ يفضلوا زيّ ما هم.') }}
                 </p>
             </div>
 
@@ -61,7 +61,7 @@
                             <span style="color: var(--color-state-danger)">{{ $fmt($transaction->amount) }}</span>
                         </div>
                         <p class="mt-1" style="color: var(--color-state-warn)">
-                            ▲ {{ str_replace([':applied', ':rest'], [$fmt($transaction->applied_amount), rtrim(rtrim(number_format($unapplied[$transaction->id] ?? 0, 2), '0'), '.')], (string) setting('volunteer.performance_rep.text_7', 'تخطّت حدّ الخسارة اليوميّ — مسجَّلة كاملةً في السجلّ (نزل منها :applied، والباقي :rest في المكتسَب التراكميّ).')) }}
+                            ▲ {{ str_replace([':applied', ':rest'], [$fmt($transaction->applied_amount), rtrim(rtrim(number_format($unapplied[$transaction->id] ?? 0, 2), '0'), '.')], (string) setting('volunteer.performance_rep.text_7', 'تخطّت حدّ الخسارة اليوميّ، مسجَّلة كاملةً في السجلّ (نزل منها :applied، والباقي :rest في المكتسَب التراكميّ).')) }}
                         </p>
                     </div>
                 @empty
@@ -148,7 +148,7 @@
 
                             @if ($movement->exceeded_daily_cap)
                                 <p class="md:col-span-5 text-xs" style="color: var(--color-state-warn)">
-                                    ▲ {{ setting('volunteer.performance_rep.text_13', 'تخطّت حدّ الخسارة اليوميّ — مسجَّلة كاملةً') }}
+                                    ▲ {{ setting('volunteer.performance_rep.text_13', 'تخطّت حدّ الخسارة اليوميّ، مسجَّلة كاملةً') }}
                                 </p>
                             @endif
                         </div>
@@ -160,7 +160,7 @@
         {{-- كارت «كيف تكسب» — القيم من rep_rule() لا محروقة (2.13) --}}
         <aside class="card p-4 h-fit">
             <h2 class="text-sm font-semibold mb-1">{{ setting('volunteer.performance_rep.heading', 'كيف تكسب') }}</h2>
-            <p class="text-xs mb-3" style="color: var(--text-muted)">{{ setting('volunteer.performance_rep.text_14', 'القيم دي من لوحة الإدارة — بتتغيّر هنا لحظة ما تتغيّر هناك.') }}</p>
+            <p class="text-xs mb-3" style="color: var(--text-muted)">{{ setting('volunteer.performance_rep.text_14', 'القيم دي من لوحة الإدارة، بتتغيّر هنا لحظة ما تتغيّر هناك.') }}</p>
 
             <div class="space-y-1">
                 @foreach ($howToEarn as $rule)

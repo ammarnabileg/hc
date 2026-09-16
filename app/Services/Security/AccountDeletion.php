@@ -70,7 +70,7 @@ class AccountDeletion
 
         return [
             setting('security.account_deletion.data_notes_1', 'بروفايلك وبياناتك الشخصيّة هتتشال من كلّ الشاشات فورًا.'),
-            setting('security.account_deletion.data_notes_2', 'شهاداتك الصادرة هتفضل قابلة للتحقّق برقمها — دي حقّ الجهة اللي استلمتها.'),
+            setting('security.account_deletion.data_notes_2', 'شهاداتك الصادرة هتفضل قابلة للتحقّق برقمها، دي حقّ الجهة اللي استلمتها.'),
             setting('security.account_deletion.data_notes_3', 'معاملات المحفظة والمشتريات بتفضل في السجلّ الماليّ بالقانون، بلا اسمك.'),
             setting('security.account_deletion.data_notes_4', 'مساهماتك في التطوّع بتفضل باسم «عضو سابق» علشان شغل الفريق ما يتكسرش.'),
             setting('security.account_deletion.data_notes_5', 'رصيدك الحاليّ بيسقط ومش هيرجع لو رجعت تاني.'),

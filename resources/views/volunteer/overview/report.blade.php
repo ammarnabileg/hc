@@ -47,7 +47,7 @@
         <div class="text-sm mb-3">{{ setting('volunteer.overview_report.text', 'منحنى Rep اليوميّ (تراكميّ داخل الأسبوع)') }}</div>
 
         @if ($values->sum() == 0 && $events->isEmpty())
-            <p class="text-sm" style="color: var(--text-muted)">{{ setting('volunteer.overview_report.text_2', 'أسبوع هادي — مفيش حركات مسجّلة.') }}</p>
+            <p class="text-sm" style="color: var(--text-muted)">{{ setting('volunteer.overview_report.text_2', 'أسبوع هادي، مفيش حركات مسجّلة.') }}</p>
         @else
             <svg viewBox="0 0 700 160" class="w-full" style="height: 160px" role="img"
                  aria-label="{{ setting('volunteer.overview_report.aria_3', 'منحنى درجة الالتزام اليوميّ خلال الأسبوع') }}">

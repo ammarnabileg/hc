@@ -65,7 +65,7 @@ class OnboardingContentController extends Controller
 
         if ($this->content->isFull($data['screen'])) {
             return back()->withErrors([
-                'title_ar' => (string) setting('onboarding.admin.store_msg', 'وصلت للحدّ الأقصى للشرائح في الشاشة دي — امسح واحدة أو ارفع الحدّ من الإعدادات.'),
+                'title_ar' => (string) setting('onboarding.admin.store_msg', 'وصلت للحدّ الأقصى للشرائح في الشاشة دي، امسح واحدة أو ارفع الحدّ من الإعدادات.'),
             ])->withInput();
         }
 
@@ -85,7 +85,7 @@ class OnboardingContentController extends Controller
         }
 
         if (! $this->content->update($slide, $data, $request->user())) {
-            return back()->withErrors(['title_ar' => (string) setting('onboarding.admin.update_denied', 'الشريحة دي مش موجودة — يمكن اتمسحت.')]);
+            return back()->withErrors(['title_ar' => (string) setting('onboarding.admin.update_denied', 'الشريحة دي مش موجودة، يمكن اتمسحت.')]);
         }
 
         return back()->with('status', (string) setting('onboarding.admin.update_ok', 'اتحفظ ✓'));
@@ -129,7 +129,7 @@ class OnboardingContentController extends Controller
         $added = $this->content->applyTemplate($data['screen'], $request->user());
 
         return back()->with('status', $added > 0
-            ? strtr((string) setting('onboarding.admin.apply_template_ok', 'اتضافت :count مرحلة من القالب — عدّلها زيّ ما تحبّ.'), [':count' => (string) $added])
+            ? strtr((string) setting('onboarding.admin.apply_template_ok', 'اتضافت :count مرحلة من القالب، عدّلها زيّ ما تحبّ.'), [':count' => (string) $added])
             : (string) setting('onboarding.admin.apply_template_empty', 'مافيش قالب جاهز للشاشة دي لسه.'));
     }
 
@@ -144,7 +144,7 @@ class OnboardingContentController extends Controller
         $result = $this->content->saveEnabledScreens($data['screens'] ?? [], $request->user());
 
         return back()->with('status', ($result['saved'] ?? false)
-            ? strtr((string) setting('onboarding.admin.save_first_time_ok', 'اتحفظ ✓ — :a1 شاشة مفعَّلة.'), [':a1' => (string) (count($result['screens']))])
+            ? strtr((string) setting('onboarding.admin.save_first_time_ok', 'اتحفظ ✓، :a1 شاشة مفعَّلة.'), [':a1' => (string) (count($result['screens']))])
             : ($result['message'] ?? (string) setting('onboarding.admin.save_first_time_msg', 'مقدرناش نحفظ.')));
     }
 

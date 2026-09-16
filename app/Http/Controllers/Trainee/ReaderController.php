@@ -148,7 +148,7 @@ class ReaderController extends Controller
 
         abort_if($page > $this->teaserLimit($product), 403, (string) setting(
             'reader.teaser.blocked_message',
-            'دي آخر صفحة في العيّنة — اشترِ المنتج لتكمل.',
+            'دي آخر صفحة في العيّنة، اشترِ المنتج لتكمل.',
         ));
 
         return $this->streamPage($request, $product, $page, (int) setting('reader.page.width_px', 1000));
@@ -179,7 +179,7 @@ class ReaderController extends Controller
 
         abort_if($entitlement === null, 403, (string) setting(
             'reader.forbidden_message',
-            'الملفّ ده مش في مكتبتك — افتحه من المتجر الأوّل.',
+            'الملفّ ده مش في مكتبتك، افتحه من المتجر الأوّل.',
         ));
 
         abort_unless($this->guard->isAvailableNow($entitlement), 403, (string) setting(

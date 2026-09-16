@@ -440,8 +440,8 @@ class ReviewService
         FlowNotifier::send(
             $parent->owner_id ? User::query()->find($parent->owner_id) : null,
             'task',
-            setting('workflow.review_service.start_parent_merge_window_1', 'اتعمد آخر ابن — عدّاد الدمج بدأ ⏱️'),
-            strtr(setting('workflow.review_service.start_parent_merge_window_2', 'جمّع مخرجات أبنائك وسلّم قبل :p1 — العدّاد ده عليك إنت.'), [':p1' => (string) ($window->format('Y-m-d H:i'))]),
+            setting('workflow.review_service.start_parent_merge_window_1', 'اتعمد آخر ابن، عدّاد الدمج بدأ ⏱️'),
+            strtr(setting('workflow.review_service.start_parent_merge_window_2', 'جمّع مخرجات أبنائك وسلّم قبل :p1، العدّاد ده عليك إنت.'), [':p1' => (string) ($window->format('Y-m-d H:i'))]),
             route('volunteer.tasks.show', $parent),
             $window,
             requiresAction: true,

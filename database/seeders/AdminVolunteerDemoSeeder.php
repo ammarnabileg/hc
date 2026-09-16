@@ -64,10 +64,10 @@ class AdminVolunteerDemoSeeder extends Seeder
         // محتوى صفحة التطوّع التعريفيّة — يُدار بالكامل من لوحة الإدارة (13.4-أ)
         Setting::where('key', 'volunteer_page.blocks')->update([
             'value' => json_encode([
-                ['type' => 'impact', 'title' => 'أثرك بيتقاس', 'body' => 'كلّ ساعة بتديها بتوصل لمتدرّب محتاجها — وبنقيس الأثر ده ونعرضه عليك.'],
-                ['type' => 'faq', 'title' => 'محتاج أدّي وقت قدّ إيه؟', 'body' => 'الالتزام مرن — بس بنطلب صدق في المواعيد اللي تختارها بنفسك.'],
+                ['type' => 'impact', 'title' => 'أثرك بيتقاس', 'body' => 'كلّ ساعة بتديها بتوصل لمتدرّب محتاجها، وبنقيس الأثر ده ونعرضه عليك.'],
+                ['type' => 'faq', 'title' => 'محتاج أدّي وقت قدّ إيه؟', 'body' => 'الالتزام مرن، بس بنطلب صدق في المواعيد اللي تختارها بنفسك.'],
                 ['type' => 'faq', 'title' => 'هل التطوّع بيدّي شهادة؟', 'body' => 'أيوه، وشهادات التطوّع كلّها مجّانيّة بالكامل، وبتفضل سارية بعد ما تخرج.'],
-                ['type' => 'story', 'title' => 'قصّة مريم', 'body' => 'بدأت كوردنيتور وبعد سنة بقت تيم ليدر لفريق من خمسة — والرحلة كلّها موثّقة في بروفايلها.'],
+                ['type' => 'story', 'title' => 'قصّة مريم', 'body' => 'بدأت كوردنيتور وبعد سنة بقت تيم ليدر لفريق من خمسة، والرحلة كلّها موثّقة في بروفايلها.'],
             ], JSON_UNESCAPED_UNICODE),
         ]);
 
@@ -182,7 +182,7 @@ class AdminVolunteerDemoSeeder extends Seeder
             'mode' => 'hybrid',
             'starts_at' => now()->addDays(10)->setTime(19, 0),
             'ends_at' => now()->addDays(10)->setTime(21, 0),
-            'location' => 'القاهرة — مقرّ المنصّة',
+            'location' => 'القاهرة، مقرّ المنصّة',
             'join_link' => 'https://meet.example.com/open-day',
             'capacity' => 120,
             'attendance_code' => '482913',
@@ -198,7 +198,7 @@ class AdminVolunteerDemoSeeder extends Seeder
         Event::updateOrCreate(['slug' => 'content-workshop'], [
             'title_ar' => 'ورشة كتابة المحتوى التعليميّ',
             'title_en' => 'Educational Content Workshop',
-            'description' => 'ورشة عمليّة لفريق المحتوى — بأمثلة وتمارين.',
+            'description' => 'ورشة عمليّة لفريق المحتوى، بأمثلة وتمارين.',
             'mode' => 'online',
             'starts_at' => now()->addDays(3)->setTime(20, 0),
             'join_link' => 'https://meet.example.com/workshop',

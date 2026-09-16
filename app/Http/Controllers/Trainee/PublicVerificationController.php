@@ -125,7 +125,7 @@ class PublicVerificationController extends Controller
             ->route('verify.certificate', ['code' => $code])
             ->with('status', (string) setting(
                 'certificates.report.thanks',
-                'وصلنا بلاغك وهنراجعه — شكرًا إنّك ساعدتنا نحمي قيمة الشهادة.',
+                'وصلنا بلاغك وهنراجعه، شكرًا إنّك ساعدتنا نحمي قيمة الشهادة.',
             ));
     }
 

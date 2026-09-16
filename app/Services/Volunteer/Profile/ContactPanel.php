@@ -50,7 +50,7 @@ final class ContactPanel
             // شفافيّة مسبقة: العلم المسبق يمنع إحساس الخرق
             'transparency_note' => (string) setting(
                 'volunteer.profile.contact.transparency',
-                'مشرفيك يشوفوا بيانات تواصلك — ده حقّ نظاميّ للتنسيق، مش موافقة تتسحب.',
+                'مشرفيك يشوفوا بيانات تواصلك، ده حقّ نظاميّ للتنسيق، مش موافقة تتسحب.',
             ),
             'privacy_options' => PrivacyFields::visibilityLabels(),
             'pending' => $level === ViewerLevel::OWNER ? $this->consent->pendingFor($owner) : collect(),

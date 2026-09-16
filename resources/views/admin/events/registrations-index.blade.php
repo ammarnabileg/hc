@@ -23,7 +23,7 @@
     $absentLabel = setting('events.registrations.absent_label', 'غاب');
     $dateFormat = setting('events.registrations.date_format', 'Y-m-d · H:i');
     $allWord = setting('events.registrations.all_word', 'الكلّ');
-    $dash = setting('events.registrations.dash', '—');
+    $dash = setting('events.registrations.dash', '-');
 @endphp
 
 @section('content')
@@ -34,7 +34,7 @@
             : setting('events.registrations.page_title', 'المسجّلون والحضور')"
         :subtitle="$event
             ? $event->starts_at?->format($dateFormat)
-            : setting('events.registrations.page_subtitle', 'مين سجّل ومين حضر فعلًا — عبر كلّ الفعاليّات.')"
+            : setting('events.registrations.page_subtitle', 'مين سجّل ومين حضر فعلًا، عبر كلّ الفعاليّات.')"
         :breadcrumbs="[
             ['label' => setting('events.registrations.crumb_admin', 'لوحة الإدارة'), 'url' => route('admin.dashboard')],
             ['label' => setting('events.registrations.crumb_events', 'الفعاليّات'), 'url' => route('admin.events.index')],
@@ -149,7 +149,7 @@
     @if ($registrations->isEmpty())
         {{-- الحالة الفارغة: سطر واحد + زرّ واحد (2.15-د) — تشجّع ولا تعاتب (2.17-ج).
              وتمييز «لا مسجّلين أصلًا» عن «الفلتر ما طابقش حاجة» (24.2). --}}
-        <x-empty :message="setting('events.registrations.empty_text', 'لا مسجّلين بعد — شارك رابط الفعاليّة.')"
+        <x-empty :message="setting('events.registrations.empty_text', 'لا مسجّلين بعد. شارك رابط الفعاليّة.')"
                  :action="setting('events.registrations.empty_action', 'روح للفعاليّات')"
                  :href="route('admin.events.index')"
                  :filtered="$filters['q'] !== '' || $filters['event_id'] !== 0 || $filters['attended'] !== '' || $filters['attend_mode'] !== '' || $filters['checked_in'] !== ''" />
@@ -256,7 +256,7 @@
             <form method="post" action="{{ route('admin.events.scan.submit') }}" class="space-y-3">
                 @csrf
                 <p class="text-xs" style="color: var(--text-muted)">
-                    {{ setting('events.registrations.scan_hint', 'صوّر رمز المتدرّب بكاميرا موبايلك — الرابط بيفتح ويسجّل الحضور فورًا. ولو الكاميرا مش شغّالة، الصق الرمز هنا.') }}
+                    {{ setting('events.registrations.scan_hint', 'صوّر رمز المتدرّب بكاميرا موبايلك. الرابط بيفتح ويسجّل الحضور فورًا. ولو الكاميرا مش شغّالة، الصق الرمز هنا.') }}
                 </p>
 
                 <label class="block text-sm font-semibold">
@@ -310,7 +310,7 @@
                     {{ setting('events.registrations.notify_body_label', 'نصّ الإشعار') }}
                     <textarea name="body" rows="4" required
                               maxlength="{{ (int) setting('events.notice.max_chars', 2000) }}"
-                              placeholder="{{ setting('events.registrations.notify_placeholder', 'مثال: اترفع رابط التسجيل — تقدر تتفرّج عليه من صفحة الفعاليّة.') }}"
+                              placeholder="{{ setting('events.registrations.notify_placeholder', 'مثال: اترفع رابط التسجيل، تقدر تتفرّج عليه من صفحة الفعاليّة.') }}"
                               class="w-full rounded-xl px-3 py-2 text-sm mt-1"
                               style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)"></textarea>
                 </label>
@@ -354,7 +354,7 @@
                     {{ setting('events.registrations.invite_segment_label', 'الشريحة') }}
                     <select name="segment_id" required class="w-full rounded-xl px-3 py-2 text-sm mt-1"
                             style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
-                        <option value="">{{ setting('events.registrations.invite_segment_placeholder', '— اختر شريحة —') }}</option>
+                        <option value="">{{ setting('events.registrations.invite_segment_placeholder', 'اختر شريحة') }}</option>
                         @foreach ($segments as $segment)
                             <option value="{{ $segment->id }}">
                                 {{ $segment->name }} — {{ \App\Services\Admin\AudienceSegments::types()[$segment->segment_type] ?? $segment->segment_type }}
@@ -365,7 +365,7 @@
                 </label>
                 @if ($segments->isEmpty())
                     <p class="text-xs" style="color: var(--text-muted)">
-                        <a href="{{ route('admin.users.segments') }}" class="underline">{{ setting('events.registrations.invite_segment_empty', 'مفيش شرائح محفوظة لسّه — ابنِ واحدة') }}</a>
+                        <a href="{{ route('admin.users.segments') }}" class="underline">{{ setting('events.registrations.invite_segment_empty', 'مفيش شرائح محفوظة لسّه. ابنِ واحدة') }}</a>
                     </p>
                 @endif
 
@@ -373,7 +373,7 @@
                     {{ setting('events.registrations.notify_body_label', 'نصّ الإشعار') }}
                     <textarea name="body" rows="4" required
                               maxlength="{{ (int) setting('events.notice.max_chars', 2000) }}"
-                              placeholder="{{ setting('events.registrations.invite_segment_body_placeholder', 'مثال: يشرّفنا حضورك — التفاصيل في صفحة الفعاليّة.') }}"
+                              placeholder="{{ setting('events.registrations.invite_segment_body_placeholder', 'مثال: يشرّفنا حضورك، والتفاصيل في صفحة الفعاليّة.') }}"
                               class="w-full rounded-xl px-3 py-2 text-sm mt-1"
                               style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)"></textarea>
                 </label>

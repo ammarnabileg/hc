@@ -20,7 +20,7 @@
 
 @section('content')
     <x-page-header :title="setting('admin.report_schedules.index.altqaryr_almjdwla', 'التقارير المجدولة')"
-                   :subtitle="setting('admin.report_schedules.index.arf_altqryr_mra_wywsl_balbryd_kl_mra_bla_ma', 'عرّف التقرير مرّة، ويوصل بالبريد كلّ مرّة — بلا ما حد يفتكر.')"
+                   :subtitle="setting('admin.report_schedules.index.arf_altqryr_mra_wywsl_balbryd_kl_mra_bla_ma', 'عرّف التقرير مرّة، ويوصل بالبريد كلّ مرّة، بلا ما حد يفتكر.')"
                    :breadcrumbs="[['label' => setting('admin.report_schedules.index.lwha_alidara', 'لوحة الإدارة'), 'url' => route('admin.dashboard')], ['label' => setting('admin.report_schedules.index.altqaryr_almjdwla', 'التقارير المجدولة')]]">
         @if ($canCreate)
             <x-slot:action>
@@ -83,7 +83,7 @@
 
     @if ($schedules->isEmpty())
         {{-- تمييز «مافيش تقارير مجدولة أصلًا» عن «الفلتر ما طابقش حاجة» (24.2) --}}
-        <x-empty :message="setting('report_schedules.empty_text', 'مافيش تقارير مجدولة — ابعت تقريرك الأوّل تلقائيًّا.')"
+        <x-empty :message="setting('report_schedules.empty_text', 'مافيش تقارير مجدولة. ابعت تقريرك الأوّل تلقائيًّا.')"
                  :filtered="$filters['q'] !== '' || $filters['tab'] !== '' || $filters['frequency'] !== '' || $filters['status'] !== ''" />
     @else
         <div class="card p-0 overflow-hidden hidden md:block">

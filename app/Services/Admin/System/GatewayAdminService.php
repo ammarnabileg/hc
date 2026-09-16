@@ -95,7 +95,7 @@ class GatewayAdminService
         $key = (string) setting('topup.gateway.api_key', '');
 
         if ($key === '') {
-            return ['ok' => false, 'message' => setting('store.gateway_admin_service.test_connection_2', 'مفتاح API فاضي — ضيفه الأوّل ثمّ جرّب.')];
+            return ['ok' => false, 'message' => setting('store.gateway_admin_service.test_connection_2', 'مفتاح API فاضي، ضيفه الأوّل ثمّ جرّب.')];
         }
 
         $base = setting('topup.gateway.sandbox', true)
@@ -109,8 +109,8 @@ class GatewayAdminService
                 ->get($base.'getPaymentmethods');
 
             return $response->successful()
-                ? ['ok' => true, 'message' => setting('store.gateway_admin_service.test_connection_3', 'الاتّصال تمام ✓ — البوّابة ردّت بنجاح.')]
-                : ['ok' => false, 'message' => strtr(setting('store.gateway_admin_service.test_connection_4', 'البوّابة ردّت بكود :p1 — راجع المفتاح والبيئة.'), [':p1' => (string) ($response->status())])];
+                ? ['ok' => true, 'message' => setting('store.gateway_admin_service.test_connection_3', 'الاتّصال تمام ✓، البوّابة ردّت بنجاح.')]
+                : ['ok' => false, 'message' => strtr(setting('store.gateway_admin_service.test_connection_4', 'البوّابة ردّت بكود :p1، راجع المفتاح والبيئة.'), [':p1' => (string) ($response->status())])];
         } catch (Throwable $e) {
             return ['ok' => false, 'message' => strtr(setting('store.gateway_admin_service.test_connection_5', 'تعذّر الوصول للبوّابة: :p1'), [':p1' => (string) ($e->getMessage())])];
         }

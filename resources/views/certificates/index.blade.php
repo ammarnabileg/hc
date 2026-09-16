@@ -107,7 +107,7 @@
                         </p>
                     @elseif ($certificate->status === 'revoked')
                         <p class="small muted mt-2">
-                            {{ $certificate->revoked_reason ?: setting('certificates.status.revoked_hint', 'ملغاة — والإلغاء لا يقع إلّا على تزويرٍ مثبَت.') }}
+                            {{ $certificate->revoked_reason ?: setting('certificates.status.revoked_hint', 'ملغاة، والإلغاء ما بيحصلش غير لو فيه تزوير مثبَت.') }}
                         </p>
                     @endif
 

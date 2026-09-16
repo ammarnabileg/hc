@@ -104,7 +104,7 @@ class QuestionBankController extends Controller
 
         AuditTrail::log($request->user(), 'question_bank.create', $copy, [], ['source' => $question->id]);
 
-        return back()->with('status', (string) setting('question_bank.admin.duplicate_ok', 'اتعملت نسخة — راجعها وفعّلها ✓'));
+        return back()->with('status', (string) setting('question_bank.admin.duplicate_ok', 'اتعملت نسخة، راجعها وفعّلها ✓'));
     }
 
     public function move(Request $request, LessonQuestion $question): RedirectResponse
@@ -133,7 +133,7 @@ class QuestionBankController extends Controller
         if (! $question->is_general) {
             return back()->with('problem', (string) setting(
                 'question_bank.messages.not_general',
-                'السؤال ده مش معلَّم «عام»، والامتحان النهائيّ بيتبني من الأسئلة العامّة وحدها — علّمه «عام» الأوّل.',
+                'السؤال ده مش معلَّم «عام»، والامتحان النهائيّ بيتبني من الأسئلة العامّة وحدها. علّمه «عام» الأوّل.',
             ));
         }
 
@@ -142,7 +142,7 @@ class QuestionBankController extends Controller
         AuditTrail::log($request->user(), 'course_exam.edit', $question, [], $result);
 
         if ($result['attached'] === 0) {
-            return back()->with('problem', (string) setting('question_bank.admin.reuse_empty', 'السؤال موجود في الامتحانات دي بالفعل — مافيش حاجة اتضافت.'));
+            return back()->with('problem', (string) setting('question_bank.admin.reuse_empty', 'السؤال موجود في الامتحانات دي بالفعل، مافيش حاجة اتضافت.'));
         }
 
         return back()->with('status', strtr((string) setting('question_bank.admin.reuse_ok', 'اتضاف لـ:a1 امتحان ✓'), [':a1' => (string) ($result['attached'])]));
@@ -179,7 +179,7 @@ class QuestionBankController extends Controller
 
         if ($result['imported'] === 0) {
             return back()
-                ->with('problem', (string) setting('question_bank.admin.import_msg_3', 'مادخلش ولا سؤال — راجع الأخطاء تحت وصلّحها في الملفّ ثمّ ارفعه تاني.'))
+                ->with('problem', (string) setting('question_bank.admin.import_msg_3', 'مادخلش ولا سؤال، راجع الأخطاء تحت وصلّحها في الملفّ ثمّ ارفعه تاني.'))
                 ->with('import_errors', $result['errors']);
         }
 

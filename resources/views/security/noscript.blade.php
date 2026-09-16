@@ -29,7 +29,7 @@
             </ol>
 
             <p style="font-size: .8125rem; margin-block-start: .5rem; color: var(--text-muted, #65645f);">
-                {{ setting('ux.noscript.footer', 'لو المتصفّح عندك مختلف، دوّر على كلمة «JavaScript» جوّه الإعدادات — الخطوة واحدة في كلّ المتصفّحات.') }}
+                {{ setting('ux.noscript.footer', 'لو المتصفّح عندك مختلف، دوّر على كلمة «JavaScript» جوّه الإعدادات. الخطوة واحدة في كلّ المتصفّحات.') }}
             </p>
         </div>
     </div>

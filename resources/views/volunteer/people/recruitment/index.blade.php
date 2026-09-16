@@ -153,7 +153,7 @@
                            class="w-full rounded-xl px-3 py-2 text-sm"
                            style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
                 </label>
-                <p class="text-xs" style="color: var(--text-muted)">{{ setting('volunteer.people_recruitment.store_hint', 'هيدخل عمود «تقديم» مباشرةً — بلا درجة تأهيليّة، لأنّه دخل خارج المسار التلقائيّ.') }}</p>
+                <p class="text-xs" style="color: var(--text-muted)">{{ setting('volunteer.people_recruitment.store_hint', 'هيدخل عمود «تقديم» مباشرةً، بلا درجة تأهيليّة، لأنّه دخل خارج المسار التلقائيّ.') }}</p>
                 <div class="flex gap-2 pt-2">
                     <button type="submit" class="btn rounded-xl px-4 py-2 text-sm font-semibold"
                             style="background: var(--color-brand-500); color: #04201c">{{ setting('volunteer.people_recruitment.header_add', '+ مرشّح يدويّ') }}</button>
@@ -202,7 +202,7 @@
     /** نصوص السكربت — تُمرَّر بـ`@json` فلا يبقى حرفٌ عربيّ محروق داخله (2.13-أ) */
     $jsText = [
         'loading' => (string) setting('volunteer.people_recruitment.js_loading', 'بنحمّل التفاصيل…'),
-        'load_failed' => (string) setting('volunteer.people_recruitment.js_load_failed', 'تعذّر تحميل التفاصيل — جرّب تاني بعد شويّة.'),
+        'load_failed' => (string) setting('volunteer.people_recruitment.js_load_failed', 'تعذّر تحميل التفاصيل، جرّب تاني بعد شويّة.'),
     ];
 @endphp
 

@@ -4,7 +4,7 @@
 
 @section('content')
     <x-page-header :title="setting('admin.store.finance.index.almalyat', 'الماليّات')"
-                   :subtitle="setting('admin.store.finance.index.msdr_alhqyqa_alwhyd_lkl_rqm_maly_mjmwaa', 'مصدر الحقيقة الوحيد لكلّ رقم ماليّ — مجموعة محميّة لمالك المنصّة.')"
+                   :subtitle="setting('admin.store.finance.index.msdr_alhqyqa_alwhyd_lkl_rqm_maly_mjmwaa', 'مصدر الحقيقة الوحيد لكلّ رقم ماليّ، مجموعة محميّة لمالك المنصّة.')"
                    :breadcrumbs="[
                        ['label' => setting('admin.store.finance.index.lwha_alidara', 'لوحة الإدارة'), 'url' => url('/admin')],
                        ['label' => setting('admin.store.finance.index.almtjr_walmalyat', 'المتجر والماليّات'), 'url' => route('admin.store.index')],
@@ -45,7 +45,7 @@
                             'requiresReason' => true,
                         ])
                     @empty
-                        <p class="text-sm" style="color: var(--text-muted)">{{ setting('admin.store.finance.index.mjmwaa_fadya_dyf_mfatyhha_mn_sydr_almjal', 'مجموعة فاضية — ضيف مفاتيحها من سيدر المجال.') }}</p>
+                        <p class="text-sm" style="color: var(--text-muted)">{{ setting('admin.store.finance.index.mjmwaa_fadya_dyf_mfatyhha_mn_sydr_almjal', 'مجموعة فاضية. ضيف مفاتيحها من سيدر المجال.') }}</p>
                     @endforelse
                 </div>
 

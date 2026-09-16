@@ -66,7 +66,7 @@ class RecordingRewards
         return str_replace(
             [':vxp', ':rep'],
             [(string) $this->vxpValue(), rtrim(rtrim(number_format($this->repValue(), 2), '0'), '.')],
-            (string) setting('academy.recording.badge', '+:vxp VXP و+:rep Rep — مرّة واحدة'),
+            (string) setting('academy.recording.badge', '+:vxp VXP و+:rep Rep، مرّة واحدة'),
         );
     }
 
@@ -90,14 +90,14 @@ class RecordingRewards
         if (! $recording->grantsPoints()) {
             return [
                 'result' => self::RESULT_NO_OTP,
-                'message' => (string) setting('academy.recording.no_otp.message', 'التسجيل ده مالوش رمز — اتفرّج واستفيد وبس.'),
+                'message' => (string) setting('academy.recording.no_otp.message', 'التسجيل ده مالوش رمز، اتفرّج واستفيد وبس.'),
             ];
         }
 
         if (! hash_equals(trim((string) $recording->otp), trim($otp))) {
             return [
                 'result' => self::RESULT_WRONG,
-                'message' => (string) setting('academy.recording.wrong_otp.message', 'الرمز غير صحيح — راجعه في آخر التسجيل وجرّب تاني.'),
+                'message' => (string) setting('academy.recording.wrong_otp.message', 'الرمز غير صحيح، راجعه في آخر التسجيل وجرّب تاني.'),
             ];
         }
 

@@ -121,18 +121,18 @@ class WithdrawService
 
         if ($quote['amount'] < $this->minAmount()) {
             throw new WalletException(
-                strtr(setting('wallet.withdraw_service.request_2', 'أقلّ سحب $:p1 — كمّل أرباحك شويّة وارجع لنا.'), [':p1' => (string) ($this->number($this->minAmount()))])
+                strtr(setting('wallet.withdraw_service.request_2', 'أقلّ سحب $:p1، كمّل أرباحك شويّة وارجع لنا.'), [':p1' => (string) ($this->number($this->minAmount()))])
             );
         }
 
         if ($quote['net'] <= 0) {
             throw new WalletException(
-                strtr(setting('wallet.withdraw_service.request_3', 'الرسوم ($:p1) بتاكل المبلغ كلّه — زوّد قيمة السحب.'), [':p1' => (string) ($this->number($quote['fee']))])
+                strtr(setting('wallet.withdraw_service.request_3', 'الرسوم ($:p1) بتاكل المبلغ كلّه، زوّد قيمة السحب.'), [':p1' => (string) ($this->number($quote['fee']))])
             );
         }
 
         if ($this->pendingFor($user)) {
-            throw new WalletException(setting('wallet.withdraw_service.request_4', 'عندك طلب سحب لسّه تحت المراجعة — استنّى نتيجته قبل ما تبعت طلبًا جديدًا.'));
+            throw new WalletException(setting('wallet.withdraw_service.request_4', 'عندك طلب سحب لسّه تحت المراجعة، استنّى نتيجته قبل ما تبعت طلبًا جديدًا.'));
         }
 
         return DB::transaction(function () use ($user, $quote, $method, $account, $accountName) {

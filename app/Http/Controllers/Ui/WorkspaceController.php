@@ -53,7 +53,7 @@ class WorkspaceController extends Controller
             if ($pins->count() >= $max) {
                 return response()->json([
                     'ok' => false,
-                    'message' => strtr((string) setting('ux.workspace.toggle_pin_msg', 'وصلت لحدّ :a1 صفحات مثبَّتة — شيل واحدة الأوّل.'), [':a1' => (string) ($max)]),
+                    'message' => strtr((string) setting('ux.workspace.toggle_pin_msg', 'وصلت لحدّ :a1 صفحات مثبَّتة، شيل واحدة الأوّل.'), [':a1' => (string) ($max)]),
                 ], 422);
             }
 
@@ -118,7 +118,7 @@ class WorkspaceController extends Controller
             ->count();
 
         if ($count >= $max) {
-            return back()->with('status', strtr((string) setting('ux.workspace.store_view_msg_2', 'وصلت لحدّ :a1 عروض للشاشة دي — امسح واحد وجرّب تاني.'), [':a1' => (string) ($max)]));
+            return back()->with('status', strtr((string) setting('ux.workspace.store_view_msg_2', 'وصلت لحدّ :a1 عروض للشاشة دي، امسح واحد وجرّب تاني.'), [':a1' => (string) ($max)]));
         }
 
         SavedView::updateOrCreate(
@@ -198,8 +198,8 @@ class WorkspaceController extends Controller
         $on = $this->viewMode->toggle($request->user());
 
         return back()->with('status', $on
-            ? (string) setting('ux.workspace.toggle_mode_ok', 'الوضع المتقدّم اتفتح ✓ — كلّ التفاصيل ظاهرة دلوقتي.')
-            : (string) setting('ux.workspace.toggle_mode_ok_2', 'رجعنا للوضع المبسّط ✓ — التفاصيل موجودة ورا السويتش.'));
+            ? (string) setting('ux.workspace.toggle_mode_ok', 'الوضع المتقدّم اتفتح ✓، كلّ التفاصيل ظاهرة دلوقتي.')
+            : (string) setting('ux.workspace.toggle_mode_ok_2', 'رجعنا للوضع المبسّط ✓، التفاصيل موجودة ورا السويتش.'));
     }
 
     // ------------------------------------------------------------- التراجع

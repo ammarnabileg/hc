@@ -105,24 +105,24 @@ class UiDemoSeeder extends Seeder
              | و`design.color.X.dark` للداكن (تجريبيّ) — بنفس اسم المتغيّر في
              | CSS، فيتغيّر الوضعان معًا من شاشة «الهويّة والمظهر» بلا نشرٍ جديد.
              */
-            ['design.color.bg', 'appearance', 'خلفيّة الصفحة — فاتح', 'color', '#fcfbf8'],
-            ['design.color.bg.dark', 'appearance', 'خلفيّة الصفحة — داكن', 'color', '#191917'],
-            ['design.color.surface', 'appearance', 'خلفيّة الكروت — فاتح', 'color', '#ffffff'],
-            ['design.color.surface.dark', 'appearance', 'خلفيّة الكروت — داكن', 'color', '#22221f'],
-            ['design.color.soft', 'appearance', 'خلفيّة الغسيل (Wash) — فاتح', 'color', '#f3efe7'],
-            ['design.color.soft.dark', 'appearance', 'خلفيّة الغسيل (Wash) — داكن', 'color', '#2c2b26'],
-            ['design.color.line', 'appearance', 'لون الحدود — فاتح', 'color', '#dfddd5'],
-            ['design.color.line.dark', 'appearance', 'لون الحدود — داكن', 'color', '#424139'],
-            ['design.color.ink', 'appearance', 'لون النصّ الأساسيّ — فاتح', 'color', '#171715'],
-            ['design.color.ink.dark', 'appearance', 'لون النصّ الأساسيّ — داكن', 'color', '#f7f4ec'],
-            ['design.color.muted', 'appearance', 'لون النصّ الثانويّ — فاتح', 'color', '#65645f'],
-            ['design.color.muted.dark', 'appearance', 'لون النصّ الثانويّ — داكن', 'color', '#b8b5ab'],
-            ['design.color.brand', 'appearance', 'أحمر الهويّة (الأفعال) — فاتح', 'color', '#d9231b'],
-            ['design.color.brand.dark', 'appearance', 'أحمر الهويّة (الأفعال) — داكن', 'color', '#f36b60'],
-            ['design.color.brand_hover', 'appearance', 'أحمر الهويّة عند الـHover — فاتح', 'color', '#b61b15'],
-            ['design.color.brand_hover.dark', 'appearance', 'أحمر الهويّة عند الـHover — داكن', 'color', '#ff8277'],
-            ['design.color.brand_soft', 'appearance', 'خلفيّة أحمر الهويّة الخفيفة — فاتح', 'color', '#fbece9'],
-            ['design.color.brand_soft.dark', 'appearance', 'خلفيّة أحمر الهويّة الخفيفة — داكن', 'color', '#352321'],
+            ['design.color.bg', 'appearance', 'خلفيّة الصفحة: فاتح', 'color', '#fcfbf8'],
+            ['design.color.bg.dark', 'appearance', 'خلفيّة الصفحة: داكن', 'color', '#191917'],
+            ['design.color.surface', 'appearance', 'خلفيّة الكروت: فاتح', 'color', '#ffffff'],
+            ['design.color.surface.dark', 'appearance', 'خلفيّة الكروت: داكن', 'color', '#22221f'],
+            ['design.color.soft', 'appearance', 'خلفيّة الغسيل (Wash): فاتح', 'color', '#f3efe7'],
+            ['design.color.soft.dark', 'appearance', 'خلفيّة الغسيل (Wash): داكن', 'color', '#2c2b26'],
+            ['design.color.line', 'appearance', 'لون الحدود: فاتح', 'color', '#dfddd5'],
+            ['design.color.line.dark', 'appearance', 'لون الحدود: داكن', 'color', '#424139'],
+            ['design.color.ink', 'appearance', 'لون النصّ الأساسيّ: فاتح', 'color', '#171715'],
+            ['design.color.ink.dark', 'appearance', 'لون النصّ الأساسيّ: داكن', 'color', '#f7f4ec'],
+            ['design.color.muted', 'appearance', 'لون النصّ الثانويّ: فاتح', 'color', '#65645f'],
+            ['design.color.muted.dark', 'appearance', 'لون النصّ الثانويّ: داكن', 'color', '#b8b5ab'],
+            ['design.color.brand', 'appearance', 'أحمر الهويّة (الأفعال): فاتح', 'color', '#d9231b'],
+            ['design.color.brand.dark', 'appearance', 'أحمر الهويّة (الأفعال): داكن', 'color', '#f36b60'],
+            ['design.color.brand_hover', 'appearance', 'أحمر الهويّة عند الـHover: فاتح', 'color', '#b61b15'],
+            ['design.color.brand_hover.dark', 'appearance', 'أحمر الهويّة عند الـHover: داكن', 'color', '#ff8277'],
+            ['design.color.brand_soft', 'appearance', 'خلفيّة أحمر الهويّة الخفيفة: فاتح', 'color', '#fbece9'],
+            ['design.color.brand_soft.dark', 'appearance', 'خلفيّة أحمر الهويّة الخفيفة: داكن', 'color', '#352321'],
 
             // ---------------- الأفاتار: المقاسات الثلاثة (2.7)
             ['account.avatar.sizes', 'accounts', 'مقاسات الأفاتار المولَّدة عند الرفع', 'json', '[500,150,50]'],
@@ -176,7 +176,7 @@ class UiDemoSeeder extends Seeder
     private function firstRunSlides(): void
     {
         $rows = [
-            ['dashboard', 'دي رئيسيّتك', 'من هنا تشوف تدريباتك ومهامّك وكلّ جديد — بلا لفّ ولا دوران.', null, null],
+            ['dashboard', 'دي رئيسيّتك', 'من هنا تشوف تدريباتك ومهامّك وكلّ جديد. بلا لفّ ولا دوران.', null, null],
             ['dashboard', 'كمّل اللي وقفت عنده', 'الكارت الأوّل بيرجّعك لآخر درس فتحته بضغطة واحدة.', 'خُدني هناك', '/learning/courses'],
         ];
 

@@ -100,14 +100,14 @@ class TaskLoadCap
         $load = $this->loadFor($user, $membership);
 
         if ($cap !== null && $load >= $cap) {
-            return strtr(setting('workflow.task_load_cap.block_reason_1', 'وصلت لسقف انشغالك (:p1/:p2) — اعتمد مهمّة يفضى مكانها فورًا.'), [':p1' => (string) ($load), ':p2' => (string) ($cap)]);
+            return strtr(setting('workflow.task_load_cap.block_reason_1', 'وصلت لسقف انشغالك (:p1/:p2)، اعتمد مهمّة يفضى مكانها فورًا.'), [':p1' => (string) ($load), ':p2' => (string) ($cap)]);
         }
 
         $personalCap = $this->personalCap($user);
         $personalLoad = $this->personalLoad($user);
 
         if ($personalCap !== null && $personalLoad >= $personalCap) {
-            return strtr(setting('workflow.task_load_cap.body_1', 'وصلت لسقفك الشخصيّ الكلّي عبر عضويّاتك (:p1/:p2) — اقفل مهمّة قبل ما تاخد جديدة.'), [':p1' => (string) ($personalLoad), ':p2' => (string) ($personalCap)]);
+            return strtr(setting('workflow.task_load_cap.body_1', 'وصلت لسقفك الشخصيّ الكلّي عبر عضويّاتك (:p1/:p2)، اقفل مهمّة قبل ما تاخد جديدة.'), [':p1' => (string) ($personalLoad), ':p2' => (string) ($personalCap)]);
         }
 
         return null;

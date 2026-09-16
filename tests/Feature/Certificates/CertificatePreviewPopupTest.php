@@ -29,7 +29,7 @@ class CertificatePreviewPopupTest extends AdminContentTestCase
         ])->assertOk();
 
         $response->assertSee('data-sidebar', false);
-        $response->assertSee(setting('admin.certificates.preview.maayna_qbl_alisdar', 'معاينة قبل الإصدار — '), false);
+        $response->assertSee(setting('admin.certificates.preview.maayna_qbl_alisdar', 'معاينة قبل الإصدار · '), false);
     }
 
     /** ⭐ الوجه العاري يخلو من هيكل اللوحة كلّه — يصلح ليُحقَن في بوب-أب لا يفتح لوحةً داخل لوحة */
@@ -44,7 +44,7 @@ class CertificatePreviewPopupTest extends AdminContentTestCase
         ])->assertOk();
 
         $response->assertDontSee('data-sidebar', false);
-        $response->assertDontSee(setting('admin.certificates.preview.maayna_qbl_alisdar', 'معاينة قبل الإصدار — '), false);
+        $response->assertDontSee(setting('admin.certificates.preview.maayna_qbl_alisdar', 'معاينة قبل الإصدار · '), false);
     }
 
     /** والمحتوى نفسه يبقى كاملًا في الوجهين: الاسم الحقيقيّ وفورم الإصدار الحقيقيّ */

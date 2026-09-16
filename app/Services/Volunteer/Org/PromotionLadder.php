@@ -212,7 +212,7 @@ class PromotionLadder
                     ? (string) setting('volunteer.promotion_ladder.notify_acting_title', 'اتصعّدت «قائم بأعمال» 🎖️')
                     : (string) setting('volunteer.promotion_ladder.notify_title', 'مبروك الترقية 🎖️'),
                 $isActing
-                    ? (string) setting('volunteer.promotion_ladder.notify_acting_body', 'سلّم الترقية رشّحك — بكامل صلاحيّات البوزشن لحين الاعتماد.')
+                    ? (string) setting('volunteer.promotion_ladder.notify_acting_body', 'سلّم الترقية رشّحك، بكامل صلاحيّات البوزشن لحين الاعتماد.')
                     : (string) setting('volunteer.promotion_ladder.notify_body', 'سلّم الترقية رشّحك واستلمت البوزشن فورًا.'),
                 null, 'volunteer',
             );
@@ -239,7 +239,7 @@ class PromotionLadder
         Integrations::notify(
             $membership->user, 'volunteer',
             (string) setting('volunteer.promotion_ladder.notify_confirmed_title', 'اتثبّتّ في البوزشن ✓'),
-            (string) setting('volunteer.promotion_ladder.notify_confirmed_body', 'الاعتماد وصل — البوزشن بتاعك ثابت دلوقتي.'),
+            (string) setting('volunteer.promotion_ladder.notify_confirmed_body', 'الاعتماد وصل، والبوزشن بتاعك ثابت دلوقتي.'),
             null, 'volunteer',
         );
 
@@ -328,8 +328,8 @@ class PromotionLadder
         if ($gmMembership->user) {
             Integrations::notify(
                 $gmMembership->user, 'volunteer',
-                (string) setting('volunteer.promotion_ladder.notify_track_vacancy_title', 'شغور مشرف مسار — بانتظار ملئك'),
-                (string) setting('volunteer.promotion_ladder.notify_track_vacancy_body', 'رفعتُ دايركتورات المسار إليك مؤقّتًا — املأه بكودٍ مباشر أو مرشّح السلّم.'),
+                (string) setting('volunteer.promotion_ladder.notify_track_vacancy_title', 'شغور مشرف مسار، بانتظار ملئك'),
+                (string) setting('volunteer.promotion_ladder.notify_track_vacancy_body', 'رفعتُ دايركتورات المسار إليك مؤقّتًا، املأه بكودٍ مباشر أو مرشّح السلّم.'),
                 null, 'volunteer',
             );
         }

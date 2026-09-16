@@ -5,7 +5,7 @@
 @section('content')
     {{-- 13.4-ن-د: بنود يحدّدها الأدمن، يقيَّم عليها الأبلاين أسبوعيًّا من داونلاينه --}}
     <x-page-header :title="setting('leadership_criteria.page_title', 'معايير مؤشّر القيادة')"
-                   :subtitle="setting('leadership_criteria.page_subtitle', 'بنود التقييم الأسبوعيّ (Leadership Pulse) — بدرجة ووزن اختياريّ لكلّ معيار.')"
+                   :subtitle="setting('leadership_criteria.page_subtitle', 'بنود التقييم الأسبوعيّ (Leadership Pulse)، بدرجة ووزن اختياريّ لكلّ معيار.')"
                    :breadcrumbs="[
                        ['label' => setting('leadership_criteria.breadcrumb_volunteer', 'إدارة التطوّع'), 'url' => route('admin.volunteer.index')],
                        ['label' => setting('leadership_criteria.page_title', 'معايير مؤشّر القيادة')],
@@ -22,7 +22,7 @@
     </x-page-header>
 
     @if ($criteria->isEmpty())
-        <x-empty :message="setting('leadership_criteria.empty_message', 'مفيش معايير لسّه — ابدأ بأوّل معيار، وإلّا هيرفض النظام كلّ تقييم أسبوعيّ.')" />
+        <x-empty :message="setting('leadership_criteria.empty_message', 'مفيش معايير لسّه. ابدأ بأوّل معيار، وإلّا هيرفض النظام كلّ تقييم أسبوعيّ.')" />
     @else
         <div class="space-y-3">
             @foreach ($criteria as $criterion)
@@ -73,7 +73,7 @@
                                     <button type="submit" formmethod="post"
                                             formaction="{{ route('admin.volunteer.leadership-criteria.destroy', $criterion) }}"
                                             name="_method" value="DELETE"
-                                            onclick="return confirm('{{ setting('leadership_criteria.confirm_delete', 'حذف نهائيّ: يختفي المعيار تمامًا — حتى من التقييمات القديمة. الأثر لا يُتراجع عنه. متأكّد؟') }}')"
+                                            onclick="return confirm('{{ setting('leadership_criteria.confirm_delete', 'حذف نهائيّ: يختفي المعيار تمامًا، حتى من التقييمات القديمة. الأثر لا يُتراجع عنه. متأكّد؟') }}')"
                                             class="btn rounded-xl px-4 text-sm"
                                             style="min-height: 44px; background: var(--surface-sunken); color: var(--danger, #b3261e)">
                                         <input type="hidden" name="mode" value="new_and_old">
@@ -99,7 +99,7 @@
         <x-modal id="leadership-criterion-new" :title="setting('leadership_criteria.add_label', '+ معيار جديد')">
             <form id="leadership-criterion-new-form" method="post" action="{{ route('admin.volunteer.leadership-criteria.store') }}" class="space-y-3">
                 @csrf
-                <x-form.input name="key" :label="setting('leadership_criteria.field.key', 'المفتاح')" :hint="setting('leadership_criteria.field.key_hint', 'حروف إنجليزيّة صغيرة وأرقام و_ فقط — ثابت بعد الإنشاء.')" required />
+                <x-form.input name="key" :label="setting('leadership_criteria.field.key', 'المفتاح')" :hint="setting('leadership_criteria.field.key_hint', 'حروف إنجليزيّة صغيرة وأرقام و_ فقط، ثابت بعد الإنشاء.')" required />
                 <x-form.input name="label_ar" :label="setting('leadership_criteria.field.label', 'اسم المعيار')" required />
                 <x-form.input name="weight" type="number" :label="setting('leadership_criteria.field.weight', 'الوزن')" value="1" />
                 <x-form.input name="sort_order" type="number" :label="setting('leadership_criteria.field.sort', 'الترتيب')" value="0" />

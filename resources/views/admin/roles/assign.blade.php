@@ -44,7 +44,7 @@
                                 style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
                             @foreach ($roles as $role)
                                 <option value="{{ $role->id }}">
-                                    {{ $role->name_ar }}@if ($role->requires_membership) {{ setting('admin.roles.assign.yhtaj_adwya', '— يحتاج عضويّة') }} @endif
+                                    {{ $role->name_ar }}@if ($role->requires_membership) {{ setting('admin.roles.assign.yhtaj_adwya', '· يحتاج عضويّة') }} @endif
                                 </option>
                             @endforeach
                         </select>

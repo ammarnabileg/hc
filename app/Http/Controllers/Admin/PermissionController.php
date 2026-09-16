@@ -133,7 +133,7 @@ class PermissionController extends Controller
             'override_id' => $override->id,
         ]);
 
-        return back()->with('status', (string) setting('admin_roles.permissions.update_ok', 'اتحفظ الاستثناء ✓ — والمنع يغلب الإذن دائمًا'));
+        return back()->with('status', (string) setting('admin_roles.permissions.update_ok', 'اتحفظ الاستثناء ✓، والمنع يغلب الإذن دائمًا'));
     }
 
     // ------------------------------------------------------- شاشة الاستثناء الفرديّ
@@ -197,7 +197,7 @@ class PermissionController extends Controller
         return strtr(
             (string) setting(
                 'admin.roles.scope_ceiling_message',
-                'مقدرناش نحفظ «:permission» بنطاق :scope — المصفوفة (12.2.2) بتحدّد لها :scopes وبس.',
+                'مقدرناش نحفظ «:permission» بنطاق :scope، المصفوفة (12.2.2) بتحدّد لها :scopes وبس.',
             ),
             [
                 ':permission' => $permission->label_ar.' ('.$permission->key.')',

@@ -18,7 +18,7 @@
          data-egp="{{ $c['egp_rate'] }}">
     <h2 class="font-bold mb-1">{{ setting('referral.calc.title', 'احسب أرباحك المحتملة') }}</h2>
     <p class="text-xs mb-4" style="color: var(--text-muted)">
-        {{ setting('referral.calc.disclaimer', 'تقديرات توضيحيّة للواجهة — مش التزام ماليّ.') }}
+        {{ setting('referral.calc.disclaimer', 'تقديرات توضيحيّة للواجهة، مش التزام ماليّ.') }}
     </p>
 
     {{-- ثلاثة كروت نتيجة تتحدّث لحظيًّا مع كلّ سحبة (7.6.2) --}}
@@ -67,7 +67,7 @@
     {{-- شريط «دخل سلبيّ حقيقيّ» (7.6.2) --}}
     <p class="mt-5 rounded-xl px-4 py-3 text-sm text-center"
        style="background: color-mix(in srgb, var(--color-state-honor) 12%, transparent)">
-        {{ setting('referral.calc.passive_line', 'دخل سلبيّ حقيقيّ — بدون أيّ مجهود بعد الدعوة') }}
+        {{ setting('referral.calc.passive_line', 'دخل سلبيّ حقيقيّ، من غير أيّ مجهود بعد الدعوة') }}
     </p>
 </section>
 

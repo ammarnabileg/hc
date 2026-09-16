@@ -30,12 +30,12 @@
 @section('content')
 <div class="panel w-full max-w-xl">
     <p class="small muted mb-2">
-        {{ setting('onboarding.identity.step_label', 'خطوة 2 من 2 — بيانات الشهادة') }}
+        {{ setting('onboarding.identity.step_label', 'خطوة 2 من 2: بيانات الشهادة') }}
         · <span dir="ltr">{{ $account['email'] ?? '' }}</span> ✓
     </p>
     <h1>{{ setting('onboarding.identity.title', 'بيانات الشهادات والإفادات') }}</h1>
     <p class="mt-3 mb-6 muted">
-        {{ setting('onboarding.identity.subtitle', 'البيانات دي هي اللي بتطلع على شهاداتك وإفاداتك — اكتبها زيّ ما تحبّ تشوفها عليها.') }}
+        {{ setting('onboarding.identity.subtitle', 'البيانات دي هي اللي بتطلع على شهاداتك وإفاداتك، فاكتبها زيّ ما تحبّ تشوفها عليها.') }}
     </p>
 
     @if (session('status'))
@@ -52,10 +52,10 @@
          data-loading="{{ setting('onboarding.account.loading_label', 'لحظة…') }}"
          data-blocked="{{ setting('onboarding.identity.governorate_blocked', 'اختر الدولة الأوّل') }}"
          data-placeholder="{{ setting('onboarding.identity.governorate_placeholder', 'اختر المحافظة') }}"
-         data-failed="{{ setting('onboarding.identity.governorate_failed', 'تعذّر تحميل المحافظات — جرّب تاني') }}"
+         data-failed="{{ setting('onboarding.identity.governorate_failed', 'تعذّر تحميل المحافظات، جرّب تاني') }}"
          data-words-error="{{ setting('onboarding.identity.name_words_error', 'الاسم لازم يكون {words} كلمات على الأقلّ.') }}"
-         data-name-ar-error="{{ setting('onboarding.identity.name_ar_error', 'اكتب اسمك ثلاثيًّا بالعربيّ — الشهادة هتطلع بالاسم ده.') }}"
-         data-name-en-error="{{ setting('onboarding.identity.name_en_error', 'اكتب اسمك ثلاثيًّا بالإنجليزيّ — النسخة الإنجليزيّة من الشهادة بتطلع بيه.') }}"></div>
+         data-name-ar-error="{{ setting('onboarding.identity.name_ar_error', 'اكتب اسمك ثلاثيًّا بالعربيّ، عشان الشهادة هتطلع بالاسم ده.') }}"
+         data-name-en-error="{{ setting('onboarding.identity.name_en_error', 'اكتب اسمك ثلاثيًّا بالإنجليزيّ، عشان النسخة الإنجليزيّة من الشهادة بتطلع بيه.') }}"></div>
 
     <form method="post" action="{{ route('register') }}" class="stack" style="gap: 16px" data-identity-form>
         @csrf

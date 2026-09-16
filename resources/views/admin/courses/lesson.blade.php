@@ -6,7 +6,7 @@
     {{-- بناء الدرس (12.4-ج): فيديو/كود/مرفقات أو نصّ + تبويب أسئلة --}}
     <x-page-header
         :title="$lesson->title_ar"
-        :subtitle="setting('admin.courses.lesson.aldrs_fydyw_ywtywb_bkwd_wmrfqat_aw_ns_mnsq', 'الدرس فيديو يوتيوب بكود ومرفقات، أو نصّ منسّق — وتحته أسئلته.')"
+        :subtitle="setting('admin.courses.lesson.aldrs_fydyw_ywtywb_bkwd_wmrfqat_aw_ns_mnsq', 'الدرس فيديو يوتيوب بكود ومرفقات، أو نصّ منسّق، وتحته أسئلته.')"
         :breadcrumbs="[
             ['label' => setting('admin.courses.lesson.altdrybat', 'التدريبات'), 'url' => route('admin.courses.index')],
             ['label' => $course->name_ar, 'url' => route('admin.courses.edit', $course)],
@@ -181,7 +181,7 @@
                     </div>
                 </div>
             @empty
-                <x-empty :message="setting('admin.courses.lesson.mfysh_asyla_lsh_dyf_awl_swal', 'مفيش أسئلة لسّه — ضيف أوّل سؤال.')" />
+                <x-empty :message="setting('admin.courses.lesson.mfysh_asyla_lsh_dyf_awl_swal', 'مفيش أسئلة لسّه. ضيف أوّل سؤال.')" />
             @endforelse
 
             <form method="post" action="{{ route('admin.questions.store', $lesson) }}" class="space-y-3 card p-3">
@@ -223,7 +223,7 @@
         <form method="post" action="{{ route('admin.questions.import', $lesson) }}" enctype="multipart/form-data" class="space-y-3">
             @csrf
             <p class="text-sm" style="color: var(--text-muted)">
-                {!! strtr(setting('admin.courses.lesson.aamda_almlf_v1_walkhyarat_tfsl_balama', 'أعمدة الملفّ: :v1 — والخيارات تُفصَل بعلامة |'), [':v1' => e(implode(' · ', $csvColumns))]) !!}
+                {!! strtr(setting('admin.courses.lesson.aamda_almlf_v1_walkhyarat_tfsl_balama', 'أعمدة الملفّ: :v1، والخيارات تُفصَل بعلامة |'), [':v1' => e(implode(' · ', $csvColumns))]) !!}
             </p>
             <input type="file" name="file" accept=".csv,text/csv" required class="w-full text-sm">
             <button class="btn w-full rounded-xl px-4 py-3 text-sm font-semibold"

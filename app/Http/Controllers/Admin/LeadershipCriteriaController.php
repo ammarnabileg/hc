@@ -66,7 +66,7 @@ class LeadershipCriteriaController extends Controller
 
         return redirect()
             ->route('admin.volunteer.leadership-criteria.index')
-            ->with('status', (string) setting('leadership_criteria.save_ok', 'اتحفظ ✓ — المعيار هيظهر في تقييم الأسبوع الجاي.'));
+            ->with('status', (string) setting('leadership_criteria.save_ok', 'اتحفظ ✓، المعيار هيظهر في تقييم الأسبوع الجاي.'));
     }
 
     /** ⭐ `key` لا يُعدَّل بعد الإنشاء — تاريخ `criteria_scores` مفتاحه به */
@@ -87,7 +87,7 @@ class LeadershipCriteriaController extends Controller
 
         return redirect()
             ->route('admin.volunteer.leadership-criteria.index')
-            ->with('status', (string) setting('leadership_criteria.save_ok', 'اتحفظ ✓ — المعيار هيظهر في تقييم الأسبوع الجاي.'));
+            ->with('status', (string) setting('leadership_criteria.save_ok', 'اتحفظ ✓، المعيار هيظهر في تقييم الأسبوع الجاي.'));
     }
 
     /**
@@ -107,7 +107,7 @@ class LeadershipCriteriaController extends Controller
 
             return back()->with('status', (string) setting(
                 'leadership_criteria.deleted_everywhere_ok',
-                'اتحذف نهائيًّا — اختفى من كلّ التقييمات، القديمة والجديدة.',
+                'اتحذف نهائيًّا، اختفى من كلّ التقييمات القديمة والجديدة.',
             ));
         }
 
@@ -116,7 +116,7 @@ class LeadershipCriteriaController extends Controller
 
         return back()->with('status', (string) setting(
             'leadership_criteria.archived_ok',
-            'اتأرشف — التقييمات القديمة تفضل تعرض درجته موسومًا «معيار مؤرشف».',
+            'اتأرشف، والتقييمات القديمة تفضل تعرض درجته موسومًا «معيار مؤرشف».',
         ));
     }
 
@@ -127,7 +127,7 @@ class LeadershipCriteriaController extends Controller
 
         $this->audit($request, $criterion, 'leadership_criteria.restored', ['is_archived' => true], ['is_archived' => false]);
 
-        return back()->with('status', (string) setting('leadership_criteria.restore_ok', 'رجع تاني ✓ — هيظهر في التقييم من جديد.'));
+        return back()->with('status', (string) setting('leadership_criteria.restore_ok', 'رجع تاني ✓، هيظهر في التقييم من جديد.'));
     }
 
     private function audit(Request $request, LeadershipCriterion $criterion, string $action, array $old, array $new): void

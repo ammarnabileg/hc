@@ -156,7 +156,7 @@ class GoalBuildService
 
         if ($trackIds === []) {
             throw ValidationException::withMessages([
-                'tracks' => (string) setting('goals.build.error.tracks_required', 'اختار مسارًا واحدًا على الأقلّ — الهدف مايظهرش لحدّ قبل الربط.'),
+                'tracks' => (string) setting('goals.build.error.tracks_required', 'اختار مسارًا واحدًا على الأقلّ، الهدف مايظهرش لحدّ قبل الربط.'),
             ]);
         }
 
@@ -284,7 +284,7 @@ class GoalBuildService
                 throw ValidationException::withMessages([
                     'entities' => (string) setting(
                         'goals.build.error.entity_out_of_track',
-                        'الكيان ده مش من كيانات مسارك — مينفعش تربط عليه حزمة.',
+                        'الكيان ده مش من كيانات مسارك، فمينفعش تربط عليه حزمة.',
                     ),
                 ]);
             }

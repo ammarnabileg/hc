@@ -32,8 +32,8 @@
 
     $repHint = match ($repState) {
         'idle' => setting('volunteer.components_rep_badge.idle', 'لسّه مفيش درجة التزام مسجّلة'),
-        'danger' => setting('volunteer.components_rep_badge.danger', 'المؤشّر الأحمر: الدرجة تحت ').rtrim(rtrim(number_format($repRed, 2), '0'), '.').setting('volunteer.components_rep_badge.text', ' — راجع معاملاتك واتكلّم مع مسؤولك'),
-        'warn' => str_replace(':threshold', rtrim(rtrim(number_format($repWarn, 2), '0'), '.'), (string) setting('volunteer.components_rep_badge.warn', 'الدرجة تحت الصفر — فيه مجال تعوّضها قبل عتبة الإنذار (:threshold)')),
+        'danger' => setting('volunteer.components_rep_badge.danger', 'المؤشّر الأحمر: الدرجة تحت ').rtrim(rtrim(number_format($repRed, 2), '0'), '.').setting('volunteer.components_rep_badge.text', '. راجع معاملاتك واتكلّم مع مسؤولك'),
+        'warn' => str_replace(':threshold', rtrim(rtrim(number_format($repWarn, 2), '0'), '.'), (string) setting('volunteer.components_rep_badge.warn', 'الدرجة تحت الصفر، وفيه مجال تعوّضها قبل عتبة الإنذار (:threshold)')),
         'honor' => setting('volunteer.components_rep_badge.honor', 'نادي التميّز: ').rtrim(rtrim(number_format($repClub, 2), '0'), '.').setting('volunteer.components_rep_badge.text_2', ' فأعلى'),
         default => setting('volunteer.components_rep_badge.text_3', 'درجة التزام سليمة'),
     };

@@ -4,7 +4,7 @@
 
 @section('content')
     <x-page-header :title="setting('admin.articles.index.almqalat', 'المقالات')"
-                   :subtitle="setting('admin.articles.index.mswda_qyd_almrajaa_mnshwra_walkatb_ma', 'مسودّة ⟵ قيد المراجعة ⟵ منشورة — والكاتب ما ينشرش مقاله بنفسه.')"
+                   :subtitle="setting('admin.articles.index.mswda_qyd_almrajaa_mnshwra_walkatb_ma', 'مسودّة ⟵ قيد المراجعة ⟵ منشورة، والكاتب ما ينشرش مقاله بنفسه.')"
                    :breadcrumbs="[
                        ['label' => setting('admin.articles.index.lwha_alidara', 'لوحة الإدارة'), 'url' => url('/admin')],
                        ['label' => setting('admin.articles.index.almqalat', 'المقالات')],
@@ -73,7 +73,7 @@
 
     @if ($articles->isEmpty())
         {{-- تمييز «مفيش بيانات أصلًا» عن «الفلتر الحاليّ ما طابقش حاجة» (24.2) --}}
-        <x-empty :message="setting('admin.articles.index.mafysh_mqalat_lsh_aktb_awl_wahd', 'مافيش مقالات لسه — اكتب أوّل واحد.')"
+        <x-empty :message="setting('admin.articles.index.mafysh_mqalat_lsh_aktb_awl_wahd', 'مافيش مقالات لسه. اكتب أوّل واحد.')"
                  :action="setting('admin.articles.index.mqal', '+ مقال')" :href="\Illuminate\Support\Facades\Route::has('admin.articles.create') ? route('admin.articles.create') : '#'"
                  :filtered="request('q') || request('category') || request('tag') || $status !== ''" />
     @else

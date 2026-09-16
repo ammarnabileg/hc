@@ -62,7 +62,7 @@
                 @endif
 
                 <span class="text-xs" style="color: var(--text-muted)">
-                    {{ setting('admin.roles.edit.manage_btfrd', '⭐ «manage» بتفرد') }} <b>{{ setting('admin.roles.edit.khmsa', 'خمسة') }}</b> {{ setting('admin.roles.edit.afaal_insha_tadyl_hdhf_arshfa_isnad_zahra', 'أفعال (إنشاء · تعديل · حذف · أرشفة · إسناد) ظاهرةً عند الحفظ — تشوف بعينك كلّ سطر اتمنح.') }}
+                    {{ setting('admin.roles.edit.manage_btfrd', '⭐ «manage» بتفرد') }} <b>{{ setting('admin.roles.edit.khmsa', 'خمسة') }}</b> {{ setting('admin.roles.edit.afaal_insha_tadyl_hdhf_arshfa_isnad_zahra', 'أفعال (إنشاء · تعديل · حذف · أرشفة · إسناد) ظاهرةً عند الحفظ، تشوف بعينك كلّ سطر اتمنح.') }}
                 </span>
             </div>
 
@@ -159,7 +159,7 @@
                         <button type="submit" class="mt-4 rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
                                 style="background: var(--color-brand-500); color: #04201c">{{ setting('admin.roles.edit.hfz_almjmwaa', 'حفظ المجموعة') }}</button>
                     @else
-                        <p class="mt-4 text-xs" style="color: var(--text-muted)">{{ setting('admin.roles.edit.qraa_fqt_malksh_slahya_tadyl_aladwar', 'قراءة فقط — مالكش صلاحيّة تعديل الأدوار.') }}</p>
+                        <p class="mt-4 text-xs" style="color: var(--text-muted)">{{ setting('admin.roles.edit.qraa_fqt_malksh_slahya_tadyl_aladwar', 'قراءة فقط، مالكش صلاحيّة تعديل الأدوار.') }}</p>
                     @endif
                 </form>
             @endif

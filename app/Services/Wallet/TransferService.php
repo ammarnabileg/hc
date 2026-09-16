@@ -33,7 +33,7 @@ class TransferService
             'coins' => (float) setting('finance.transfer.coins_fee_percent', 15),
             'xp' => (float) setting('finance.transfer.xp_fee_percent', 85),
             'tickets' => (float) setting('finance.transfer.tickets_fee_percent', 0),
-            default => throw new WalletException(setting('wallet.transfer_service.fee_percent_1', 'العملة دي مابتتبعتش حوالة — اختر كوينز أو XP أو تذاكر.')),
+            default => throw new WalletException(setting('wallet.transfer_service.fee_percent_1', 'العملة دي مابتتبعتش حوالة، اختر كوينز أو XP أو تذاكر.')),
         };
     }
 
@@ -73,15 +73,15 @@ class TransferService
         $recipient = User::query()->where('code', $code)->first();
 
         if (! $recipient) {
-            throw new WalletException(strtr(setting('wallet.transfer_service.find_recipient_1', 'مافيش مستخدم بالكود «:p1» — راجع الكود مع صاحبه وجرّب تاني.'), [':p1' => (string) ($code)]));
+            throw new WalletException(strtr(setting('wallet.transfer_service.find_recipient_1', 'مافيش مستخدم بالكود «:p1»، راجع الكود مع صاحبه وجرّب تاني.'), [':p1' => (string) ($code)]));
         }
 
         if ($recipient->id === $sender->id) {
-            throw new WalletException(setting('wallet.transfer_service.find_recipient_2', 'ماينفعش تبعت حوالة لنفسك — اكتب كود شخصٍ آخر.'));
+            throw new WalletException(setting('wallet.transfer_service.find_recipient_2', 'ماينفعش تبعت حوالة لنفسك، اكتب كود شخصٍ آخر.'));
         }
 
         if (method_exists($recipient, 'isActive') && ! $recipient->isActive()) {
-            throw new WalletException(setting('wallet.transfer_service.find_recipient_3', 'حساب صاحب الكود ده لسّه مش مفعّل — استنّى لحدّ ما يتفعّل.'));
+            throw new WalletException(setting('wallet.transfer_service.find_recipient_3', 'حساب صاحب الكود ده لسّه مش مفعّل، استنّى لحدّ ما يتفعّل.'));
         }
 
         return $recipient;
@@ -96,11 +96,11 @@ class TransferService
         $quote = $this->quote($currencyCode, $amount);
 
         if ($quote['amount'] < $this->minAmount()) {
-            throw new WalletException(strtr(setting('wallet.transfer_service.send_1', 'أقلّ حوالة :p1 — زوّد القيمة شويّة.'), [':p1' => (string) ($this->number($this->minAmount()))]));
+            throw new WalletException(strtr(setting('wallet.transfer_service.send_1', 'أقلّ حوالة :p1، زوّد القيمة شويّة.'), [':p1' => (string) ($this->number($this->minAmount()))]));
         }
 
         if ($quote['net'] <= 0) {
-            throw new WalletException(setting('wallet.transfer_service.send_2', 'الرسوم هتاكل الحوالة كلّها — زوّد القيمة عشان يوصله حاجة.'));
+            throw new WalletException(setting('wallet.transfer_service.send_2', 'الرسوم هتاكل الحوالة كلّها، زوّد القيمة عشان يوصله حاجة.'));
         }
 
         $currency = Currency::query()->where('code', $currencyCode)->firstOrFail();
@@ -168,7 +168,7 @@ class TransferService
     private function assertCurrency(string $code): void
     {
         if (! in_array($code, self::CURRENCIES, true)) {
-            throw new WalletException(setting('wallet.transfer_service.assert_currency_1', 'العملة دي مابتتبعتش حوالة — اختر كوينز أو XP أو تذاكر.'));
+            throw new WalletException(setting('wallet.transfer_service.assert_currency_1', 'العملة دي مابتتبعتش حوالة، اختر كوينز أو XP أو تذاكر.'));
         }
     }
 

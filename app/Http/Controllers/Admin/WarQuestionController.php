@@ -131,7 +131,7 @@ class WarQuestionController extends Controller
         $result = $this->bank->import($contents, $request->user());
 
         return back()->with('status', $result['errors']
-            ? strtr((string) setting('wars.questions_admin.import_msg', ':a1 — لم يُضَف شيء.'), [':a1' => (string) ($result['errors'][0])])
+            ? strtr((string) setting('wars.questions_admin.import_msg', ':a1، ولسه مافيش حاجة اتضافت.'), [':a1' => (string) ($result['errors'][0])])
             : strtr((string) setting('wars.questions_admin.import_ok', 'اتضاف :count سؤال ✓'), [':count' => (string) $result['imported']]));
     }
 

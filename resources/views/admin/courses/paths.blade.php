@@ -26,7 +26,7 @@
     {{-- المسارات (12.4-أ · 24.1): تنظيم التدريبات في مسارات مرتّبة قابلة للنشر --}}
     <x-page-header
         :title="setting('admin.courses.paths.almsarat', 'المسارات')"
-        :subtitle="setting('admin.courses.paths.rtb_tdrybatk_fy_msarat_whdhf_almsar_ma', 'رتّب تدريباتك في مسارات — وحذف المسار ما بيحذفش تدريباته.')"
+        :subtitle="setting('admin.courses.paths.rtb_tdrybatk_fy_msarat_whdhf_almsar_ma', 'رتّب تدريباتك في مسارات، وحذف المسار ما بيحذفش تدريباته.')"
         :breadcrumbs="[['label' => setting('admin.courses.paths.lwha_alidara', 'لوحة الإدارة'), 'url' => route('admin.courses.index')], ['label' => setting('admin.courses.paths.almsarat', 'المسارات')]]">
         <x-slot:action>
             @can('paths.create')
@@ -70,7 +70,7 @@
 
     @if ($paths->isEmpty())
         {{-- تمييز «لسّه بدري أصلًا» عن «الفلتر ما طابقش حاجة» (24.2) --}}
-        <x-empty :message="setting('admin.courses.paths.lsh_bdry_adf_msark_alawl', 'لسّه بدري — أضِف مسارك الأوّل.')"
+        <x-empty :message="setting('admin.courses.paths.lsh_bdry_adf_msark_alawl', 'لسّه بدري. أضِف مسارك الأوّل.')"
                  :filtered="$filters['q'] !== '' || $filters['status'] !== ''" />
     @else
         {{-- ديسكتوب: جدول قابل لسحب الصفوف للترتيب --}}
@@ -150,7 +150,7 @@
                                         @endcan
                                         @can('paths.delete')
                                             <form method="post" action="{{ route('admin.paths.destroy', $path) }}"
-                                                  onsubmit="return confirm('{{ setting('paths.delete.confirm_text', 'هنشيل المسار — وتدريباته هتفضل زيّ ما هي. نكمّل؟') }}')">
+                                                  onsubmit="return confirm('{{ setting('paths.delete.confirm_text', 'هنشيل المسار، وتدريباته هتفضل زيّ ما هي. نكمّل؟') }}')">
                                                 @csrf @method('delete')
                                                 <button class="block w-full text-start px-2 py-1 rounded-lg text-sm"
                                                         style="color: var(--color-state-danger)">{{ setting('admin.courses.paths.hdhf', 'حذف') }}</button>
@@ -259,7 +259,7 @@
                         <input type="radio" name="forced_order" value="1"> {{ setting('admin.courses.paths.ijbary_baltrtyb', 'إجباريّ بالترتيب') }}
                     </label>
                     <label class="flex items-center gap-2 text-sm mt-1">
-                        <input type="radio" name="forced_order" value="0" checked> {{ setting('admin.courses.paths.hr_yqdr_yshwf_altdryb_altany_qbl_alawl', 'حرّ — يقدر يشوف التدريب التاني قبل الأوّل') }}
+                        <input type="radio" name="forced_order" value="0" checked> {{ setting('admin.courses.paths.hr_yqdr_yshwf_altdryb_altany_qbl_alawl', 'حرّ: يقدر يشوف التدريب التاني قبل الأوّل') }}
                     </label>
                 </fieldset>
 
@@ -276,7 +276,7 @@
                             <span class="block text-sm mb-1">{{ setting('admin.courses.paths.msar_alshhada_almstahdf', 'مسار الشهادة المستهدَف') }}</span>
                             <select name="target_path_id" class="w-full rounded-xl px-3 py-2 text-sm"
                                     style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
-                                <option value="">{{ setting('admin.courses.paths.bdwn_taalymy_srf', 'بدون — تعليميّ صِرف') }}</option>
+                                <option value="">{{ setting('admin.courses.paths.bdwn_taalymy_srf', 'بدون: تعليميّ صِرف') }}</option>
                                 @foreach ($targetablePaths as $targetable)
                                     <option value="{{ $targetable->id }}" data-target-path-option>{{ $targetable->name_ar }}</option>
                                 @endforeach

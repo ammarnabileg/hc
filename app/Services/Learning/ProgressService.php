@@ -320,7 +320,7 @@ class ProgressService
         if (! $this->watch->hasWatched($user, $lesson)) {
             return $this->refuse(setting(
                 'learning.lock.watch_reason',
-                'خلّص الفيديو الأوّل — الدرس بيتحسب بالمشاهدة والاختبار مع بعض.',
+                'خلّص الفيديو الأوّل، الدرس بيتحسب بالمشاهدة والاختبار مع بعض.',
             ));
         }
 
@@ -372,7 +372,7 @@ class ProgressService
                 amount: $xp,
                 source: self::LEDGER_SOURCE,
                 reference: $lesson,
-                reason: setting('learning.lesson.xp_reason', 'إكمال درس').' — '.$course->name_ar,
+                reason: setting('learning.lesson.xp_reason', 'إكمال درس').'، '.$course->name_ar,
                 enrollment: $enrollment,
                 ruleKey: self::LESSON_RULE,
             );
@@ -383,7 +383,7 @@ class ProgressService
                 amount: $tickets,
                 source: self::LEDGER_SOURCE,
                 reference: $lesson,
-                reason: setting('learning.lesson.tickets_reason', 'تذاكر إتمام درس').' — '.$course->name_ar,
+                reason: setting('learning.lesson.tickets_reason', 'تذاكر إتمام درس').'، '.$course->name_ar,
             );
 
             $completion->forceFill([

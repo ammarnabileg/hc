@@ -82,12 +82,12 @@ class CountryDataSync
         $countries = $payload['countries'] ?? null;
 
         if (! is_array($countries) || $countries === []) {
-            throw new RuntimeException(setting('countries.country_data_sync.import_1', 'الملفّ مالوش قايمة دول — تأكّد إنّه نسخة المصدر المعتمَد وجرّب تاني.'));
+            throw new RuntimeException(setting('countries.country_data_sync.import_1', 'الملفّ مالوش قايمة دول، تأكّد إنّه نسخة المصدر المعتمَد وجرّب تاني.'));
         }
 
         foreach ($countries as $country) {
             if (! is_array($country) || trim((string) ($country['iso2'] ?? '')) === '') {
-                throw new RuntimeException(setting('countries.country_data_sync.import_2', 'في صفّ دولة بلا كود ISO2 — النسخة ناقصة، ما نقدرش نفحصها.'));
+                throw new RuntimeException(setting('countries.country_data_sync.import_2', 'في صفّ دولة بلا كود ISO2، يعني النسخة ناقصة وما نقدرش نفحصها.'));
             }
         }
 
@@ -156,7 +156,7 @@ class CountryDataSync
         if ($url === '') {
             return $this->recordFailure('no_url', (string) setting(
                 'countries.source.error.no_url',
-                'مافيش رابط للمصدر — اضبط «رابط جلب نسخة المصدر» من الإعدادات الأوّل، وبعدها جرّب الفحص تاني.',
+                'مافيش رابط للمصدر، اضبط «رابط جلب نسخة المصدر» من الإعدادات الأوّل، وبعدها جرّب الفحص تاني.',
             ), $base);
         }
 
@@ -223,7 +223,7 @@ class CountryDataSync
             'http_status' => $status,
             'message' => (string) setting(
                 'countries.source.check.fetched_text',
-                'اتجابت نسخة المصدر ✓ — لسّه ما اتدمجتش، الفروق تحت.',
+                'اتجابت نسخة المصدر ✓، لسّه ما اتدمجتش، الفروق تحت.',
             ),
             'snapshot_id' => $snapshot->id,
         ]);
@@ -251,20 +251,20 @@ class CountryDataSync
             // المهلة وانقطاع الاتّصال: أشيع فشلٍ وأهمّه — يُقال صريحًا لا يُبتلَع
             return $fail('timeout', $this->fill((string) setting(
                 'countries.source.error.timeout',
-                'المصدر ما ردّش خلال {timeout} ثانية بعد {attempts} محاولة — جرّب تاني بعد شويّة أو زوّد المهلة من الإعدادات.',
+                'المصدر ما ردّش خلال {timeout} ثانية بعد {attempts} محاولة، جرّب تاني بعد شويّة أو زوّد المهلة من الإعدادات.',
             ), ['timeout' => $timeout, 'attempts' => $attempts]));
         } catch (Throwable $exception) {
             // أيّ عطبٍ آخر في الطلب (رابط غير صالح · DNS · شهادة) — يُقال بسببه
             return $fail('network', $this->fill((string) setting(
                 'countries.source.error.network',
-                'ما قدرناش نوصل للمصدر: {reason} — راجع الرابط في الإعدادات وجرّب تاني.',
+                'ما قدرناش نوصل للمصدر: {reason}. راجع الرابط في الإعدادات وجرّب تاني.',
             ), ['reason' => $exception->getMessage()]));
         }
 
         if ($response->failed()) {
             return $fail('http', $this->fill((string) setting(
                 'countries.source.error.http',
-                'المصدر ردّ بحالة {status} — راجع الرابط في الإعدادات أو استنّى وجرّب تاني.',
+                'المصدر ردّ بحالة {status}، راجع الرابط في الإعدادات أو استنّى وجرّب تاني.',
             ), ['status' => $response->status()]), $response->status());
         }
 
@@ -273,7 +273,7 @@ class CountryDataSync
         if (! is_array($payload)) {
             return $fail('body', (string) setting(
                 'countries.source.error.body',
-                'اللي رجع من المصدر مش JSON صالح — اتأكّد إنّ الرابط بيرجّع ملفّ النسخة نفسه مش صفحة.',
+                'اللي رجع من المصدر مش JSON صالح، اتأكّد إنّ الرابط بيرجّع ملفّ النسخة نفسه مش صفحة.',
             ), $response->status());
         }
 
@@ -435,7 +435,7 @@ class CountryDataSync
                 'snapshot_id' => null,
                 'message' => (string) setting(
                     'countries.source.check.none_text',
-                    'المصدر مطابق لبياناتنا — مافيش فروق.',
+                    'المصدر مطابق لبياناتنا، مافيش فروق.',
                 ),
             ]);
 
@@ -445,7 +445,7 @@ class CountryDataSync
         $check->update($counts + [
             'message' => $this->fill((string) setting(
                 'countries.source.check.diff_text',
-                'المصدر فيه فروق: مضاف {added} · محذوف {removed} · معدَّل {changed} — راجعها قبل الدمج.',
+                'المصدر فيه فروق: مضاف {added} · محذوف {removed} · معدَّل {changed}. راجعها قبل الدمج.',
             ), $counts),
         ]);
 
@@ -531,7 +531,7 @@ class CountryDataSync
 
         $body = $this->fill((string) setting(
             'countries.source.check.notify_body',
-            'الفحص الدوريّ لقى فروق في المصدر: مضاف {added} · محذوف {removed} · معدَّل {changed} — راجعها قبل الدمج.',
+            'الفحص الدوريّ لقى فروق في المصدر: مضاف {added} · محذوف {removed} · معدَّل {changed}. راجعها قبل الدمج.',
         ), ['added' => $check->added, 'removed' => $check->removed, 'changed' => $check->changed]);
 
         $sent = 0;
@@ -689,7 +689,7 @@ class CountryDataSync
                     'after' => $changes['after'],
                     'protected' => false,
                     'users' => (int) ($userCounts['countries'][$country->id] ?? 0),
-                    'note' => setting('countries.country_data_sync.diff_2', 'تحديث بيانات — بلا مساس بالارتباطات.'),
+                    'note' => setting('countries.country_data_sync.diff_2', 'تحديث بيانات بلا مساس بالارتباطات.'),
                 ];
             }
 
@@ -745,7 +745,7 @@ class CountryDataSync
                     // ⛔ المحافظة لا تُخفى أبدًا — محميّة دائمًا مهما كان عدد أهلها
                     'protected' => true,
                     'users' => (int) ($userCounts['governorates'][$existing->id] ?? 0),
-                    'note' => setting('countries.country_data_sync.diff_5', 'هتفضل زيّ ما هي — المحافظة لا تُخفى ولا تُحذف أبدًا.'),
+                    'note' => setting('countries.country_data_sync.diff_5', 'هتفضل زيّ ما هي، المحافظة لا تُخفى ولا تُحذف أبدًا.'),
                 ];
             }
         }
@@ -768,7 +768,7 @@ class CountryDataSync
                 'protected' => $users > 0,
                 'users' => $users,
                 'note' => $users > 0
-                    ? strtr(setting('countries.country_data_sync.diff_6', 'محميّة: مرتبطة بـ:p1 مستخدم — ما تتغيّرش.'), [':p1' => (string) ($users)])
+                    ? strtr(setting('countries.country_data_sync.diff_6', 'محميّة: مرتبطة بـ:p1 مستخدم، فمش هتتغيّر.'), [':p1' => (string) ($users)])
                     : setting('countries.country_data_sync.diff_7', 'هتتخفي بس (بلا حذف) لو وافقت.'),
             ];
         }
@@ -809,7 +809,7 @@ class CountryDataSync
         ];
 
         if ($rows->isEmpty()) {
-            return $report + ['verified' => true, 'message' => setting('countries.country_data_sync.merge_1', 'ما اخترتش أيّ صفّ — مافيش حاجة اتغيّرت.')];
+            return $report + ['verified' => true, 'message' => setting('countries.country_data_sync.merge_1', 'ما اخترتش أيّ صفّ، مافيش حاجة اتغيّرت.')];
         }
 
         $before = $this->userCounts();
@@ -839,7 +839,7 @@ class CountryDataSync
                 DB::rollBack();
             }
 
-            return $report + ['verified' => $verified, 'message' => setting('countries.country_data_sync.merge_2', 'دي معاينة — مافيش حاجة اتكتبت.')];
+            return $report + ['verified' => $verified, 'message' => setting('countries.country_data_sync.merge_2', 'دي معاينة، مافيش حاجة اتكتبت.')];
         }
 
         DB::transaction(function () use ($apply, $before) {
@@ -847,7 +847,7 @@ class CountryDataSync
 
             if (! $this->verify($before)) {
                 // ⛔ لو نقص ارتباطُ مستخدمٍ واحد — تُلغى العمليّة كلّها
-                throw new RuntimeException(setting('countries.country_data_sync.merge_3', 'التحقّق بعد الدمج فشل — رجّعنا كلّ حاجة زيّ ما كانت. جرّب تاني أو راجع النسخة.'));
+                throw new RuntimeException(setting('countries.country_data_sync.merge_3', 'التحقّق بعد الدمج فشل، فرجّعنا كلّ حاجة زيّ ما كانت. جرّب تاني أو راجع النسخة.'));
             }
         });
 

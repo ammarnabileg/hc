@@ -95,7 +95,7 @@
                             <x-state-badge :state="$pipeline->waitingState($candidate)" :label="$pipeline->waitingDays($candidate).setting('volunteer.people_placement.label_7', ' يومًا')" />
                             @if ($inactive)
                                 {{-- المُسكَّن لا يختفي — يصير غير مفعَّل ويظلّ ظاهرًا للمخوَّلين (13.4-هـ) --}}
-                                <x-state-badge state="idle" :label="setting('volunteer.people_placement.label_8', 'مُسكَّن — غير مفعَّل')" />
+                                <x-state-badge state="idle" :label="setting('volunteer.people_placement.label_8', 'مُسكَّن، غير مفعَّل')" />
                             @endif
                             @if ($candidate->renewed_readiness)
                                 <x-state-badge state="ok" :label="setting('volunteer.people_placement.label_9', 'جدّد استعداده')" />
@@ -121,7 +121,7 @@
                     @if ($line = $pipeline->returningLine($selected))
                         <p class="mt-3 rounded-xl px-3 py-2 text-xs"
                            style="background: color-mix(in srgb, var(--color-state-honor) 12%, transparent); color: var(--color-state-honor)">
-                            <span aria-hidden="true">★</span> {{ setting('volunteer.people_placement.field_3', 'عائد —') }} {{ $line }}
+                            <span aria-hidden="true">★</span> {{ setting('volunteer.people_placement.field_3', 'عائد:') }} {{ $line }}
                         </p>
                     @endif
 
@@ -178,7 +178,7 @@
                                     style="background: var(--color-brand-500); color: #04201c">{{ setting('volunteer.people_placement.action_3', 'تسكين') }}</button>
                         @elseif ($pendingRequest)
                             {{-- القفل المؤقّت: لا طلب آخر أثناء طلب معلَّق (13.4-هـ) --}}
-                            <p class="text-xs" style="color: var(--text-muted)">{{ setting('volunteer.people_placement.field_8', 'في طلب معلَّق قائم — استنّى الردّ أو اسحبه.') }}</p>
+                            <p class="text-xs" style="color: var(--text-muted)">{{ setting('volunteer.people_placement.field_8', 'في طلب معلَّق قائم. استنّى الردّ أو اسحبه.') }}</p>
                         @endif
                     </div>
                 </aside>
@@ -232,7 +232,7 @@
                 </div>
 
                 <p class="text-xs" style="color: var(--text-muted)">
-                    {{ setting('volunteer.people_placement.field_14', 'المرشّح عنده') }} {{ $placement->responseHours() }} {{ setting('volunteer.people_placement.field_15', 'ساعة يردّ — وبفواتها يرجع للقائمة تلقائيًّا.') }}
+                    {{ setting('volunteer.people_placement.field_14', 'المرشّح عنده') }} {{ $placement->responseHours() }} {{ setting('volunteer.people_placement.field_15', 'ساعة يردّ، وبفواتها يرجع للقائمة تلقائيًّا.') }}
                 </p>
 
                 <button type="submit" class="btn w-full rounded-xl px-4 py-2 text-sm font-semibold"

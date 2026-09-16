@@ -152,7 +152,7 @@ class SettingsController extends Controller
 
         if ($result['revoked'] > 0) {
             // شفافيّة مسبقة: البيانات الجديدة لا ترث موافقة قديمة (13.4-م)
-            $message = strtr((string) setting('account.settings_screen.update_field_ok_2', 'اتحفظ ✓ — ووقفنا عرض بياناتك لـ :a1 من اللي كانوا شايفينها.'), [':a1' => (string) ($result['revoked'])]);
+            $message = strtr((string) setting('account.settings_screen.update_field_ok_2', 'اتحفظ ✓، ووقفنا عرض بياناتك لـ :a1 من اللي كانوا شايفينها.'), [':a1' => (string) ($result['revoked'])]);
         }
 
         if ($request->wantsJson()) {
@@ -169,8 +169,8 @@ class SettingsController extends Controller
             'avatar' => ['nullable', 'image', 'max:'.$this->autosave->avatarMaxKb()],
             'avatar_data' => ['nullable', 'string'],
         ], [
-            'avatar.image' => (string) setting('account.settings_screen.update_avatar_denied', 'الملفّ ده مش صورة — اختار صورة وجرّب تاني.'),
-            'avatar.max' => (string) setting('account.settings_screen.update_avatar_msg', 'الصورة كبيرة شوية — اختار صورة أصغر.'),
+            'avatar.image' => (string) setting('account.settings_screen.update_avatar_denied', 'الملفّ ده مش صورة، اختار صورة وجرّب تاني.'),
+            'avatar.max' => (string) setting('account.settings_screen.update_avatar_msg', 'الصورة كبيرة شوية، اختار صورة أصغر.'),
         ], ['avatar' => (string) setting('account.settings_screen.update_avatar_msg_2', 'الصورة')]);
 
         $saved = $this->autosave->storeAvatar(
@@ -196,7 +196,7 @@ class SettingsController extends Controller
             'phone' => ['required', 'string', 'max:32'],
             'relation' => ['nullable', 'string', 'max:64'],
         ], [
-            'required' => (string) setting('account.settings_screen.store_emergency_msg_2', 'الحقل ده مطلوب — اكتبه وجرّب تاني.'),
+            'required' => (string) setting('account.settings_screen.store_emergency_msg_2', 'الحقل ده مطلوب، اكتبه وجرّب تاني.'),
             'max' => (string) setting('account.settings_screen.store_emergency_msg_3', 'القيمة دي أطول من المسموح.'),
         ], [
             'name' => (string) setting('account.settings_screen.store_emergency_msg_4', 'الاسم'),
@@ -231,12 +231,12 @@ class SettingsController extends Controller
 
         // ⭐ حارس صريح: المحافظة عامّة دائمًا ولا تُدرَج ولا تُحفَظ (12.14-د)
         if (! PrivacyFields::isControllable($data['field'])) {
-            return $this->refuse($request, (string) setting('account.settings_screen.update_privacy_field_denied_2', 'الحقل ده بيفضل عامّ على طول — مش بيتغيّر.'));
+            return $this->refuse($request, (string) setting('account.settings_screen.update_privacy_field_denied_2', 'الحقل ده بيفضل عامّ على طول، مش بيتغيّر.'));
         }
 
         // لا يُسمح بأوسع من حدّ الأدمن (24.5)
         if (PrivacyFields::rank($data['visibility']) < PrivacyFields::rank(PrivacyFields::adminFloor())) {
-            return $this->refuse($request, (string) setting('account.settings_screen.update_privacy_field_msg_2', 'الإعداد ده أوسع من المسموح — اختار خيار تاني.'));
+            return $this->refuse($request, (string) setting('account.settings_screen.update_privacy_field_msg_2', 'الإعداد ده أوسع من المسموح، اختار خيار تاني.'));
         }
 
         UserPrivacySetting::updateOrCreate(
@@ -271,7 +271,7 @@ class SettingsController extends Controller
 
         $this->consents->revoke($consent);
 
-        return back()->with('status', (string) setting('account.settings_screen.revoke_consent_ok', 'اتسحبت ✓ — بياناتك مبقتش ظاهرة له.'));
+        return back()->with('status', (string) setting('account.settings_screen.revoke_consent_ok', 'اتسحبت ✓، بياناتك مبقتش ظاهرة له.'));
     }
 
     public function updatePassword(Request $request): RedirectResponse
@@ -281,7 +281,7 @@ class SettingsController extends Controller
             'password' => ['required', 'confirmed', Password::min(8)],
         ], [
             'required' => (string) setting('account.settings_screen.update_password_msg', 'الحقل ده مطلوب.'),
-            'password.confirmed' => (string) setting('account.settings_screen.update_password_denied', 'الكلمتان مش متطابقتين — راجعهم وجرّب تاني.'),
+            'password.confirmed' => (string) setting('account.settings_screen.update_password_denied', 'الكلمتان مش متطابقتين، راجعهم وجرّب تاني.'),
             'password.min' => (string) setting('account.settings_screen.update_password_must', 'كلمة السرّ لازم تبقى 8 خانات على الأقلّ.'),
         ], [
             'current_password' => (string) setting('account.settings_screen.update_password_msg_2', 'كلمة السرّ الحاليّة'),
@@ -297,7 +297,7 @@ class SettingsController extends Controller
 
         $request->user()->forceFill(['password' => $data['password']])->save();
 
-        return back()->with('status', (string) setting('account.settings_screen.update_password_ok', 'اتغيّرت ✓ — كلمة السرّ بقت جديدة.'));
+        return back()->with('status', (string) setting('account.settings_screen.update_password_ok', 'اتغيّرت ✓، كلمة السرّ بقت جديدة.'));
     }
 
     /** إنهاء جلسة من الجلسات النشطة (24.5) */
@@ -316,7 +316,7 @@ class SettingsController extends Controller
             return redirect()->route('login')->with('status', (string) setting('account.settings_screen.end_session_msg', 'قفلنا الجلسة دي. سجّل دخولك تاني.'));
         }
 
-        return back()->with('status', (string) setting('account.settings_screen.end_session_ok', 'اتقفلت ✓ — الجهاز ده مبقاش داخل على حسابك.'));
+        return back()->with('status', (string) setting('account.settings_screen.end_session_ok', 'اتقفلت ✓، الجهاز ده مبقاش داخل على حسابك.'));
     }
 
     /**
@@ -343,7 +343,7 @@ class SettingsController extends Controller
 
         return redirect()->route('login')->with('status', (string) setting(
             'auth.logout.all_devices_done',
-            'قفلنا كلّ الجلسات ✓ — سجّل دخولك تاني.',
+            'قفلنا كلّ الجلسات ✓، سجّل دخولك تاني.',
         ));
     }
 

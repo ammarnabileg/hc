@@ -21,7 +21,7 @@
 
 @section('content')
     <x-page-header :title="setting('admin.stats.index.alihsayyat', 'الإحصائيّات')"
-                   :subtitle="setting('admin.stats.index.arqam_llard_fqt_bfltr_ftra_wahd_ala_kl', 'أرقام للعرض فقط — بفلتر فترة واحد على كلّ التابات.')"
+                   :subtitle="setting('admin.stats.index.arqam_llard_fqt_bfltr_ftra_wahd_ala_kl', 'أرقام للعرض فقط، بفلتر فترة واحد على كلّ التابات.')"
                    :breadcrumbs="[
                        ['label' => setting('admin.stats.index.lwha_alidara', 'لوحة الإدارة'), 'url' => url('/admin')],
                        ['label' => setting('admin.stats.index.alihsayyat', 'الإحصائيّات')],
@@ -29,7 +29,7 @@
         <x-slot:action>
             {{-- ⭐ «وكلّ اللوحات في المنصّة عمومًا قابلة للاستخراج كصورة» (12.14-هـ) --}}
             {{-- التاب مصفوفة [label · permission · owner_only] — العنوان منها لا منها كلّها --}}
-            <x-export-image kind="stats" :title="setting('admin.stats.index.ihsayyat', 'إحصائيّات — ').($tabs[$tab]['label'] ?? $tab)"
+            <x-export-image kind="stats" :title="setting('admin.stats.index.ihsayyat', 'إحصائيّات · ').($tabs[$tab]['label'] ?? $tab)"
                             :subtitle="$period['from']->format('Y/m/d').' — '.$period['to']->format('Y/m/d')"
                             :rows="$exportRows" />
 

@@ -163,7 +163,7 @@
                     @elseif (! $ended)
                         <p class="text-sm" style="color: var(--text-muted)">
                             {{ str_replace(':at', $presenter->joinLinkOpensAt($event)->setTimezone($tz)->format('Y-m-d · H:i'), (string) setting('events.show.join_link_opens_at', 'رابط الانضمام بيفتح :at')) }}
-                            @unless ($registration) {{ setting('events.show.join_link_members_only', '— وبيظهر للمسجَّلين.') }} @endunless
+                            @unless ($registration) {{ setting('events.show.join_link_members_only', '. وبيظهر للمسجَّلين.') }} @endunless
                         </p>
                     @endif
                 @endif
@@ -191,11 +191,11 @@
                 @if ($registration)
                     @include('events.components.ticket-card', ['registration' => $registration, 'event' => $event, 'presenter' => $presenter])
                 @elseif ($ended)
-                    <p class="text-sm" style="color: var(--text-muted)">{{ setting('events.show.ended_note', 'الفعاليّة دي خلصت — شوف تسجيلها فوق أو اختار فعاليّة قادمة.') }}</p>
+                    <p class="text-sm" style="color: var(--text-muted)">{{ setting('events.show.ended_note', 'الفعاليّة دي خلصت، شوف تسجيلها فوق أو اختار فعاليّة قادمة.') }}</p>
                 @elseif ($full)
                     <div class="text-center space-y-2">
                         <x-state-badge state="warn" :label="setting('events.show.full_badge', 'اكتمل العدد')" />
-                        <p class="text-sm" style="color: var(--text-muted)">{{ setting('events.show.full_note', 'العدد اكتمل في الفعاليّة دي. تابعنا — بننزل مواعيد جديدة.') }}</p>
+                        <p class="text-sm" style="color: var(--text-muted)">{{ setting('events.show.full_note', 'العدد اكتمل في الفعاليّة دي. تابعنا عشان بننزل مواعيد جديدة.') }}</p>
                     </div>
                 @else
                     <form method="post" action="{{ route('events.register', $event->slug) }}" class="space-y-3">
@@ -251,7 +251,7 @@
                         @if ($registration->certificate)
                             <div class="rounded-xl p-3 text-sm" style="background: var(--surface-sunken)">
                                 @include('events.components.icon', ['name' => 'certificate'])
-                                {{ setting('events.show.certificate_ready', 'شهادة الحضور اتفتحت — كودها') }}
+                                {{ setting('events.show.certificate_ready', 'شهادة الحضور اتفتحت، كودها') }}
                                 <span class="font-bold" style="color: var(--color-state-honor)">#{{ $registration->certificate->code }}</span>
                             </div>
                         @else
@@ -259,7 +259,7 @@
                         @endif
                     @elseif (! $checkinOpen)
                         <p class="text-sm" style="color: var(--text-muted)">
-                            {{ setting('events.show.checkin_closed', 'كود الحضور بيفتح مع بداية الفعاليّة. جهّز نفسك — والكود هيتعرض في الفعاليّة نفسها.') }}
+                            {{ setting('events.show.checkin_closed', 'كود الحضور بيفتح مع بداية الفعاليّة. جهّز نفسك، والكود هيتعرض في الفعاليّة نفسها.') }}
                         </p>
                     @else
                         {{--
@@ -279,7 +279,7 @@
                                      data-qr-refresh="{{ route('events.qr', $event->slug) }}"
                                      data-qr-seconds="{{ $qrRefreshSeconds }}">
                                 <p class="text-xs mt-2" style="color: var(--text-muted)">
-                                    {{ setting('events.checkin.qr_hint', 'اعرض الرمز ده للمنظّم عشان يمسحه — بيتجدّد كلّ') }}
+                                    {{ setting('events.checkin.qr_hint', 'اعرض الرمز ده للمنظّم عشان يمسحه، وبيتجدّد كلّ') }}
                                     {{ $qrRefreshSeconds }} {{ setting('events.checkin.qr_seconds_word', 'ثانية') }}.
                                 </p>
                             </div>
@@ -301,7 +301,7 @@
                         @endif
 
                         <p class="text-xs" style="color: var(--text-muted)">
-                            {{ setting('events.show.checkin_hint', 'أدخل الكود المعروض في الفعاليّة — وبيه تتفتح الشهادة والمكافأة.') }}
+                            {{ setting('events.show.checkin_hint', 'أدخل الكود المعروض في الفعاليّة، وبيه تتفتح الشهادة والمكافأة.') }}
                         </p>
 
                         <form method="post" action="{{ route('events.checkin', $event->slug) }}" class="space-y-3">
@@ -341,7 +341,7 @@
                     @include('events.components.icon', ['name' => 'gift', 'box' => 18]) {{ setting('events.show.invite_title', 'ادعُ صديقك للفعاليّة دي') }}
                 </h2>
                 <p class="text-xs" style="color: var(--text-muted)">
-                    {{ str_replace(':percent', $commissionPercent, (string) setting('events.show.invite_hint', 'صاحبك هيفتح الصفحة دي بالظبط بعد تسجيله — وليه تذكرة ترحيب، وليك :percent% من شحناته.')) }}
+                    {{ str_replace(':percent', $commissionPercent, (string) setting('events.show.invite_hint', 'صاحبك هيفتح الصفحة دي بالظبط بعد تسجيله، وليه تذكرة ترحيب، وليك :percent% من شحناته.')) }}
                 </p>
 
                 <div class="rounded-xl px-3 py-2 text-xs break-all" style="background: var(--surface-sunken)">{{ $inviteLink }}</div>

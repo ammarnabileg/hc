@@ -48,7 +48,7 @@
 
 @if ($reports->isEmpty())
     {{-- تمييز «مفيش بلاغات أصلًا» عن «الفلتر ما طابقش حاجة» (24.2) --}}
-    <x-empty :message="setting('certificates.reports.empty', 'مفيش بلاغات — وده خبر كويّس.')"
+    <x-empty :message="setting('certificates.reports.empty', 'مفيش بلاغات، وده خبر كويّس.')"
              :filtered="$reportFilters['q'] !== '' || $reportFilters['status'] !== ''" />
 @else
     <div class="space-y-3">

@@ -267,7 +267,7 @@ class CourseFormService
     {
         return DB::transaction(function () use ($course) {
             $copy = $course->replicate(['slug', 'published_at', 'created_at', 'updated_at']);
-            $suffix = (string) setting('courses.duplicate.suffix', ' — نسخة');
+            $suffix = (string) setting('courses.duplicate.suffix', ' (نسخة)');
             $copy->name_ar = $course->name_ar.$suffix;
             $copy->slug = $this->uniqueSlug($copy->name_ar);
             $copy->status = 'draft';

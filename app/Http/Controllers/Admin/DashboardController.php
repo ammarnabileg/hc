@@ -142,7 +142,7 @@ class DashboardController extends Controller
 
         Cache::forget('settings');
 
-        return back()->with('status', (string) setting('admin.dashboard.layout_saved_text', 'اتحفظ ✓ — ترتيب اللوحة للدور ده اتسجّل.'));
+        return back()->with('status', (string) setting('admin.dashboard.layout_saved_text', 'اتحفظ ✓، ترتيب اللوحة للدور ده اتسجّل.'));
     }
 
     // ------------------------------------------------------------------ داخليّ

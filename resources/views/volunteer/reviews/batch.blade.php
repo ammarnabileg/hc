@@ -25,7 +25,7 @@
     </p>
 
     @if ($items->isEmpty())
-        <x-empty :message="setting('volunteer.reviews_batch.empty', 'الدفعة فاضية — مفيش صب-تاسكات مرفوعة للمراجعة.')" />
+        <x-empty :message="setting('volunteer.reviews_batch.empty', 'الدفعة فاضية. مفيش صب-تاسكات مرفوعة للمراجعة.')" />
     @else
         <div class="space-y-3">
             @foreach ($items as $item)

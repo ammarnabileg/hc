@@ -17,7 +17,7 @@
     @unless ($fragment)
         {{-- معاينة قبل الإصدار: الشهادات تحت بعضها ببياناتها الحقيقيّة (12.5-ج) --}}
         <x-page-header
-            :title="setting('admin.certificates.preview.maayna_qbl_alisdar', 'معاينة قبل الإصدار — ').$type->name_ar"
+            :title="setting('admin.certificates.preview.maayna_qbl_alisdar', 'معاينة قبل الإصدار · ').$type->name_ar"
             :subtitle="$rows->count().setting('admin.certificates.preview.shhada_jahza_llmrajaa', ' شهادة جاهزة للمراجعة')"
             :breadcrumbs="[
                 ['label' => setting('admin.certificates.preview.alshhadat', 'الشهادات'), 'url' => route('admin.certificates.index')],
@@ -36,7 +36,7 @@
                     <div class="flex items-center justify-between mb-3 gap-2">
                         <div class="font-semibold">{{ $row['name'] }} — {{ $row['code'] }}</div>
                         @if ($row['state'] === 'warn')
-                            <x-state-badge state="warn" :label="setting('admin.certificates.preview.sdrt_lh_qbl_kdh_hntkhtaha', 'صدرت له قبل كده — هنتخطّاها')" />
+                            <x-state-badge state="warn" :label="setting('admin.certificates.preview.sdrt_lh_qbl_kdh_hntkhtaha', 'صدرت له قبل كده، هنتخطّاها')" />
                         @endif
                     </div>
 
@@ -53,7 +53,7 @@
         </div>
 
         <form method="post" action="{{ route('admin.certificates.issue') }}" class="mt-4"
-              onsubmit="return confirm('{{ setting('certificates.issue.confirm_text', 'هنصدر الشهادات دي دلوقتي — نكمّل؟') }}')">
+              onsubmit="return confirm('{{ setting('certificates.issue.confirm_text', 'هنصدر الشهادات دي دلوقتي. نكمّل؟') }}')">
             @csrf
             <input type="hidden" name="certificate_type_id" value="{{ $type->id }}">
             <input type="hidden" name="language" value="{{ $language }}">

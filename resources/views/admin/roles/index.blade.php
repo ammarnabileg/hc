@@ -4,7 +4,7 @@
 
 @section('content')
     <x-page-header :title="setting('admin.roles.index.aladwar_walslahyat', 'الأدوار والصلاحيّات')"
-                   :subtitle="setting('admin.roles.index.aldwr_tjmyaa_qdrat_almwrd_alfal_bntaqh', 'الدور تجميعة قدرات — «المورد.الفعل» بنطاقه وشرطه')"
+                   :subtitle="setting('admin.roles.index.aldwr_tjmyaa_qdrat_almwrd_alfal_bntaqh', 'الدور تجميعة قدرات: «المورد.الفعل» بنطاقه وشرطه')"
                    :breadcrumbs="[
                        ['label' => setting('admin.roles.index.lwha_alidara', 'لوحة الإدارة'), 'url' => route('admin.dashboard')],
                        ['label' => setting('admin.roles.index.almstkhdmwn', 'المستخدمون'), 'url' => route('admin.users.index')],
@@ -40,7 +40,7 @@
     </div>
 
     @if ($roles->isEmpty())
-        <x-empty :message="setting('admin.roles.empty_message', 'مفيش دور مخصّص لسّه — ابدأ بنسخ قالب')" />
+        <x-empty :message="setting('admin.roles.empty_message', 'مفيش دور مخصّص لسّه. ابدأ بنسخ قالب')" />
     @else
         <div class="card p-0 overflow-hidden hidden md:block">
             <table class="w-full text-sm">
@@ -106,7 +106,7 @@
             <form method="post" action="{{ route('admin.roles.store') }}" class="space-y-3">
                 @csrf
                 <p class="text-xs" style="color: var(--text-muted)">
-                    {{ setting('admin.roles.index.insha_dwr_jdyd_nskh_qalb_wtadylh_wmsh_hyntql', 'إنشاء دور جديد = نسخ قالب وتعديله — ومش هينتقل للنسخة إلّا اللي إنت نفسك تملكه.') }}
+                    {{ setting('admin.roles.index.insha_dwr_jdyd_nskh_qalb_wtadylh_wmsh_hyntql', 'إنشاء دور جديد = نسخ قالب وتعديله، ومش هينتقل للنسخة إلّا اللي إنت نفسك تملكه.') }}
                 </p>
 
                 <label class="block text-sm">

@@ -116,7 +116,7 @@ class PermissionExpander
 
         foreach ($skipped as $row) {
             $parts[] = $row['reason'] === 'scope'
-                ? strtr((string) setting('admin_roles.skipped.scope', '«:key» مااتحفظتش بنطاق :scope — نطاقاتها المسموحة: :scopes'), [
+                ? strtr((string) setting('admin_roles.skipped.scope', '«:key» مااتحفظتش بنطاق :scope، ونطاقاتها المسموحة: :scopes'), [
                     ':key' => (string) $row['key'],
                     ':scope' => $scope,
                     ':scopes' => implode(' · ', $row['scopes']),

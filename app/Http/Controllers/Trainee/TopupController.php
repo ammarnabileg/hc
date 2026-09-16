@@ -67,7 +67,7 @@ class TopupController extends Controller
         $user = $request->user();
 
         if (! setting('topup.manual.enabled', true)) {
-            return back()->with('status', (string) setting('topup.screen.store_manual_msg', 'التحويل اليدويّ متوقّف حاليًّا — جرّب بوّابة الدفع.'));
+            return back()->with('status', (string) setting('topup.screen.store_manual_msg', 'التحويل اليدويّ متوقّف حاليًّا، جرّب بوّابة الدفع.'));
         }
 
         // ⭐ قفل: طلب معلَّق واحد لكلّ مستخدم — إمّا يلغي القديم أو ينتظر (19.5-ب-5)
@@ -112,12 +112,12 @@ class TopupController extends Controller
     public function startGateway(Request $request, GatewayService $gateway)
     {
         if (! setting('topup.gateway.enabled', true)) {
-            return back()->with('status', (string) setting('topup.screen.start_gateway_msg', 'بوّابة الدفع متوقّفة حاليًّا — تقدر تستعمل التحويل اليدويّ.'));
+            return back()->with('status', (string) setting('topup.screen.start_gateway_msg', 'بوّابة الدفع متوقّفة حاليًّا، تقدر تستعمل التحويل اليدويّ.'));
         }
 
         // ⛔ ولا وسيلة دفعٍ مفعَّلة (19.5-ج-5) = صفحة دفعٍ بلا زرّ دفع — فلا نبدأ أصلًا
         if ($gateway->enabledMethods() === []) {
-            return back()->with('status', (string) setting('topup.screen.start_gateway_msg_4', 'مافيش وسيلة دفع مفعَّلة على البوّابة دلوقتي — استعمل التحويل اليدويّ.'));
+            return back()->with('status', (string) setting('topup.screen.start_gateway_msg_4', 'مافيش وسيلة دفع مفعَّلة على البوّابة دلوقتي، استعمل التحويل اليدويّ.'));
         }
 
         $data = $request->validate([

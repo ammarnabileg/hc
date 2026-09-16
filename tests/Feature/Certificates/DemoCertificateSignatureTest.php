@@ -74,7 +74,7 @@ class DemoCertificateSignatureTest extends TestCase
         $this->get(route('verify.certificate', ['code' => $certificate->code]))
             ->assertOk()
             // شارة «مطابق» تظهر، و«التوقيع لا يطابق» تختفي — نصّهما إعدادٌ لا محروق
-            ->assertSee((string) setting('certificates.verify.signature_ok', 'مطابق — البيانات دي هي اللي صدرت'), false)
+            ->assertSee((string) setting('certificates.verify.signature_ok', 'مطابق، البيانات دي هي اللي صدرت'), false)
             ->assertDontSee((string) setting('certificates.verify.unverified_badge', 'التوقيع لا يطابق'), false);
     }
 

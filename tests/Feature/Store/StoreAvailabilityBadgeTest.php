@@ -59,7 +59,7 @@ class StoreAvailabilityBadgeTest extends StoreTestCase
         $this->actingAs($user)->get(route('store.index'))
             ->assertOk()
             ->assertSee('نادي الفجر')
-            ->assertSee('مغلق الآن — يفتح 05:00')
+            ->assertSee('مغلق الآن، يفتح 05:00')
             ->assertDontSee('متاح الآن');
     }
 

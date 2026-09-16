@@ -19,9 +19,9 @@
     // سطر يشرح لماذا لا تُغلَق النافذة — الشفافيّة تسبق الإلزام (13.2 · 2.16)
     $ackNotice = (string) setting(
         'announcements.acknowledge.notice',
-        'توجيه حرج — لازم تقرّ بقراءته قبل ما تكمّل تصفّح المنصّة.',
+        'توجيه حرج، لازم تقرّ بقراءته قبل ما تكمّل تصفّح المنصّة.',
     );
-    $subtitle = $unread > 0 ? strtr((string) setting('announcements.index.php_1', 'عندك :a1 منشور لسّه ما اتقروش'), [':a1' => (string) ($unread)]) : (string) setting('announcements.index.php_2', 'كلّ التعليمات مقروءة — تمام ✓');
+    $subtitle = $unread > 0 ? strtr((string) setting('announcements.index.php_1', 'عندك :a1 منشور لسّه ما اتقروش'), [':a1' => (string) ($unread)]) : (string) setting('announcements.index.php_2', 'كلّ التعليمات مقروءة، تمام ✓');
 @endphp
 
 @section('content')

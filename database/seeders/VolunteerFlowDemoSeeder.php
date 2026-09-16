@@ -81,7 +81,7 @@ class VolunteerFlowDemoSeeder extends Seeder
             // ⬆️ مكتب «الاعتراضات المصعَّدة إليّ» (24.4-8) — ولا نصّ ولا رقم محروق (2.13)
             ['workflow.objection_desk.range_days', 'workflow', 'الفترة الافتراضيّة لمكتب الاعتراضات (يوم)', 'number', '30'],
             ['workflow.objection_desk.notice', 'workflow', 'تنويه مكتب الاعتراضات الثابت', 'string',
-                'لا أحد يعدّل المعاملة الأصليّة — التصحيح بمعاملة عكسيّة موثّقة.'],
+                'لا أحد يعدّل المعاملة الأصليّة. التصحيح بمعاملة عكسيّة موثّقة.'],
             ['workflow.objection_desk.empty', 'workflow', 'رسالة مكتب الاعتراضات الفارغ', 'string', 'مفيش اعتراضات عندك'],
         ];
 
@@ -238,7 +238,7 @@ class VolunteerFlowDemoSeeder extends Seeder
 
         if ($engine->openFor($task, CaseCatalog::NO_DELIVERY)->isEmpty()) {
             $engine->open(CaseCatalog::NO_DELIVERY, $task, $owner, [
-                'note' => 'المهمّة يتيمة — تدور على مالك جديد.',
+                'note' => 'المهمّة يتيمة، تدور على مالك جديد.',
             ], $supervisor);
         }
 

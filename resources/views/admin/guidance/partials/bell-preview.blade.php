@@ -8,7 +8,7 @@
 </div>
 <p class="text-xs mt-2" style="color: var(--text-muted)">
     @if ($hasTemplate)
-        {!! strtr(setting('admin.guidance.notifications.mayna_alqalb_almfaal_lnwa_v1', 'ده قالب :v1 المفعّل — بيتبدّل بالوسوم زيّ [اسم] وقت الإرسال الفعليّ.'), [':v1' => e($label)]) !!}
+        {!! strtr(setting('admin.guidance.notifications.mayna_alqalb_almfaal_lnwa_v1', 'ده قالب :v1 المفعّل، بيتبدّل بالوسوم زيّ [اسم] وقت الإرسال الفعليّ.'), [':v1' => e($label)]) !!}
     @else
         {{ setting('admin.guidance.notifications.mafysh_qalb_mfaal_lhdha_alnwa', 'مفيش قالبٌ مفعّل لهذا النوع بعد.') }}
     @endif

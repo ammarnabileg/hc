@@ -4,7 +4,7 @@
 
 @section('content')
     <x-page-header :title="setting('admin.store.topups.index.tlbat_alshhn', 'طلبات الشحن')"
-                   :subtitle="setting('admin.store.topups.index.raja_aliysal_alawl_wbadyn_aatmd', 'راجع الإيصال الأوّل — وبعدين اعتمد.')"
+                   :subtitle="setting('admin.store.topups.index.raja_aliysal_alawl_wbadyn_aatmd', 'راجع الإيصال الأوّل، وبعدين اعتمد.')"
                    :breadcrumbs="[
                        ['label' => setting('admin.store.topups.index.lwha_alidara', 'لوحة الإدارة'), 'url' => url('/admin')],
                        ['label' => setting('admin.store.topups.index.almtjr_walmalyat', 'المتجر والماليّات'), 'url' => route('admin.store.index')],
@@ -71,7 +71,7 @@
         {{-- تمييز «مافيش طلبات أصلًا» عن «الفلتر/التبويب الحاليّ ما طابقش حاجة» (24.2).
              تبويب الحالة إلزاميّ (بلا خيار افتراضيّ «الكلّ») فالمعيار هو الخروج عن
              التبويب الافتراضيّ («قيد المراجعة») لا مجرّد وجود قيمة فيه. --}}
-        <x-empty :message="setting('admin.store.topups.index.mafysh_tlbat_fy_alntaq_dh_kl_haja_hadya', 'مافيش طلبات في النطاق ده — كلّ حاجة هادية.')"
+        <x-empty :message="setting('admin.store.topups.index.mafysh_tlbat_fy_alntaq_dh_kl_haja_hadya', 'مافيش طلبات في النطاق ده. كلّ حاجة هادية.')"
                  :filtered="$filters['q'] || $filters['method'] || $filters['from'] || $filters['to'] || $filters['status'] !== \App\Services\Wallet\TopupService::PENDING" />
     @else
         <div class="card overflow-hidden">

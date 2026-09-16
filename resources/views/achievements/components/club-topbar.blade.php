@@ -34,7 +34,7 @@
             <path d="M4 18h16M7 18a5 5 0 0 1 10 0M12 4v3M5 8l2 2M19 8l-2 2" />
         </svg>
 
-        <span>{{ setting('streaks.club_bar.message', 'نادي الخامسة مفتوح دلوقتي — سجّل حضورك وخُد') }}
+        <span>{{ setting('streaks.club_bar.message', 'نادي الخامسة مفتوح دلوقتي، سجّل حضورك وخُد') }}
             <strong style="color: var(--color-state-honor)">+{{ (int) $clubXp }} XP</strong>
         </span>
 

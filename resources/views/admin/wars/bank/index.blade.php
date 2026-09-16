@@ -10,7 +10,7 @@
 
     <x-page-header
         :title="setting('admin.wars.bank.index.bnk_asyla_alhrwb', 'بنك أسئلة الحروب')"
-        :subtitle="setting('admin.wars.bank.index.asyla_alsaha_bijabatha_wdrjat_sawbtha', 'أسئلة الساحة بإجاباتها ودرجات صعوبتها — والتصحيح على الخادم دائمًا.')"
+        :subtitle="setting('admin.wars.bank.index.asyla_alsaha_bijabatha_wdrjat_sawbtha', 'أسئلة الساحة بإجاباتها ودرجات صعوبتها، والتصحيح على الخادم دائمًا.')"
         :breadcrumbs="[['label' => setting('admin.wars.bank.index.lwha_alidara', 'لوحة الإدارة'), 'url' => url('/admin')], ['label' => setting('admin.wars.bank.index.bnk_asyla_alhrwb', 'بنك أسئلة الحروب')]]">
         <x-slot:action>
             @if ($canEdit)
@@ -33,14 +33,14 @@
         <div class="card p-3 mb-4 text-sm flex items-center gap-2" style="border-color: var(--color-state-warn)">
             <span aria-hidden="true">▲</span>
             <span>
-                {!! strtr(setting('admin.wars.bank.index.almfal_v1_walhd_aladna_ltshghyl_hrb_v2', 'المفعّل :v1 والحدّ الأدنى لتشغيل حرب :v2 — الحروب مش هتشتغل لحدّ ما توصل للحدّ.'), [':v1' => e($counts['active']), ':v2' => e($minActive)]) !!}
+                {!! strtr(setting('admin.wars.bank.index.almfal_v1_walhd_aladna_ltshghyl_hrb_v2', 'المفعّل :v1 والحدّ الأدنى لتشغيل حرب :v2. الحروب مش هتشتغل لحدّ ما توصل للحدّ.'), [':v1' => e($counts['active']), ':v2' => e($minActive)]) !!}
             </span>
         </div>
     @endif
 
     @if (session('import_errors') && count(session('import_errors')))
         <div class="card p-3 mb-4 text-sm" style="border-color: var(--color-state-danger)">
-            <p class="font-bold mb-1">{{ setting('admin.wars.bank.index.alastyrad_atwqf_wla_swal_atdaf', '◉ الاستيراد اتوقف — ولا سؤال اتضاف:') }}</p>
+            <p class="font-bold mb-1">{{ setting('admin.wars.bank.index.alastyrad_atwqf_wla_swal_atdaf', '◉ الاستيراد اتوقف، ولا سؤال اتضاف:') }}</p>
             <ul class="space-y-1 text-xs">
                 @foreach (session('import_errors') as $error)
                     <li>• {{ $error }}</li>
@@ -116,7 +116,7 @@
 
     @if ($questions->isEmpty())
         {{-- تمييز «البنك فارغ أصلًا» عن «الفلتر ما طابقش حاجة» (24.2) --}}
-        <x-empty :message="setting('admin.wars.bank.index.albnk_fargh_alhrwb_ln_taml', 'البنك فارغ — الحروب لن تعمل.')"
+        <x-empty :message="setting('admin.wars.bank.index.albnk_fargh_alhrwb_ln_taml', 'البنك فارغ. الحروب لن تعمل.')"
                  :filtered="$filters['search'] !== '' || $filters['difficulty'] !== '' || $filters['status'] !== '' || $filters['source'] !== '' || $filters['missing']" />
     @else
         <form method="post" action="{{ route('admin.wars.bank.bulk') }}">

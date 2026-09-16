@@ -56,13 +56,13 @@ class EmailVerificationController extends Controller
 
         if ($email === null) {
             return back()->withInput($this->safeInput($request))->withErrors([
-                'email' => (string) setting('onboarding.account.email_invalid', 'الشكل ده مش بريد صالح — راجع الكتابة.'),
+                'email' => (string) setting('onboarding.account.email_invalid', 'الشكل ده مش بريد صالح، راجع الكتابة.'),
             ]);
         }
 
         if (User::query()->where('email', $email)->withTrashed()->exists()) {
             return back()->withInput($this->safeInput($request))->withErrors([
-                'email' => (string) setting('onboarding.account.email_taken', 'البريد ده مستعمَل قبل كده — ادخل بيه أو استرجع كلمة السرّ.'),
+                'email' => (string) setting('onboarding.account.email_taken', 'البريد ده مستعمَل قبل كده، ادخل بيه أو استرجع كلمة السرّ.'),
             ]);
         }
 
@@ -189,7 +189,7 @@ class EmailVerificationController extends Controller
                 ->withErrors($exception->validator, $exception->errorBag)
                 ->with('status', (string) setting(
                     'auth.otp.replay_failed_text',
-                    'بريدك اتأكّد ✓ بس فيه بيانات اتغيّرت وإحنا بنكمّل — صحّح المكتوب بالأحمر واضغط استكمال، ومش هنطلب منك الرمز تاني.',
+                    'بريدك اتأكّد ✓ بس فيه بيانات اتغيّرت وإحنا بنكمّل، صحّح المكتوب بالأحمر واضغط استكمال، ومش هنطلب منك الرمز تاني.',
                 ));
         }
     }

@@ -289,7 +289,7 @@ class AuthController extends Controller
         if ($email === '' || ! $this->emailVerified($request, $email)) {
             return redirect()->route('register')->with('status', (string) setting(
                 'auth.otp.error_step_lost',
-                'الجلسة رجعت لأوّل خطوة — اكتب بريدك وأكّده تاني وهنكمّل من هناك.',
+                'الجلسة رجعت لأوّل خطوة، اكتب بريدك وأكّده تاني وهنكمّل من هناك.',
             ));
         }
 
@@ -582,8 +582,8 @@ class AuthController extends Controller
             'taken' => $taken,
             'ok' => $valid && ! $taken,
             'message' => match (true) {
-                ! $valid => (string) setting('onboarding.account.email_invalid', 'الشكل ده مش بريد صالح — راجع الكتابة.'),
-                $taken => (string) setting('onboarding.account.email_taken', 'البريد ده مستعمَل قبل كده — ادخل بيه أو استرجع كلمة السرّ.'),
+                ! $valid => (string) setting('onboarding.account.email_invalid', 'الشكل ده مش بريد صالح، راجع الكتابة.'),
+                $taken => (string) setting('onboarding.account.email_taken', 'البريد ده مستعمَل قبل كده، ادخل بيه أو استرجع كلمة السرّ.'),
                 default => (string) setting('onboarding.account.email_ok', 'البريد متاح ✓'),
             },
         ]);
@@ -681,14 +681,14 @@ class AuthController extends Controller
     private function messages(): array
     {
         return [
-            'required' => (string) setting('auth.screen.messages_msg', 'الحقل ده مطلوب — من غيره الشهادة هتطلع ناقصة.'),
-            'name_ar.regex' => (string) setting('onboarding.identity.name_ar_error', 'اكتب اسمك ثلاثيًّا بالعربيّ — الشهادة هتطلع بالاسم ده.'),
-            'name_en.regex' => (string) setting('onboarding.identity.name_en_error', 'اكتب اسمك ثلاثيًّا بالإنجليزيّ — النسخة الإنجليزيّة من الشهادة بتطلع بيه.'),
+            'required' => (string) setting('auth.screen.messages_msg', 'الحقل ده مطلوب، من غيره الشهادة هتطلع ناقصة.'),
+            'name_ar.regex' => (string) setting('onboarding.identity.name_ar_error', 'اكتب اسمك ثلاثيًّا بالعربيّ، الشهادة هتطلع بالاسم ده.'),
+            'name_en.regex' => (string) setting('onboarding.identity.name_en_error', 'اكتب اسمك ثلاثيًّا بالإنجليزيّ، النسخة الإنجليزيّة من الشهادة بتطلع بيه.'),
             'title.in' => (string) setting('auth.screen.messages_msg_2', 'اختار لقبًا من القائمة.'),
             'gender.in' => (string) setting('auth.screen.messages_msg_3', 'اختار النوع من الخيارين.'),
-            'email.unique' => (string) setting('auth.screen.messages_msg_4', 'البريد ده مستعمَل قبل كده — ادخل بيه أو استرجع كلمة السرّ.'),
-            'phone.unique' => (string) setting('auth.screen.messages_msg_5', 'الرقم ده مسجَّل قبل كده — جرّب رقمًا تانيًا.'),
-            'password.confirmed' => (string) setting('auth.screen.messages_denied', 'الكلمتان مش متطابقتين — راجعهم وجرّب تاني.'),
+            'email.unique' => (string) setting('auth.screen.messages_msg_4', 'البريد ده مستعمَل قبل كده، ادخل بيه أو استرجع كلمة السرّ.'),
+            'phone.unique' => (string) setting('auth.screen.messages_msg_5', 'الرقم ده مسجَّل قبل كده، جرّب رقمًا تانيًا.'),
+            'password.confirmed' => (string) setting('auth.screen.messages_denied', 'الكلمتان مش متطابقتين، راجعهم وجرّب تاني.'),
         ];
     }
 

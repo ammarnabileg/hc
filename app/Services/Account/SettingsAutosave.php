@@ -174,13 +174,13 @@ class SettingsAutosave
     private function messages(): array
     {
         return [
-            'required' => setting('account.settings_autosave.messages_1', 'الحقل ده مطلوب — اكتب قيمة وجرّب تاني.'),
-            'name.min' => setting('account.settings_autosave.messages_2', 'الاسم قصيّر شوية — اكتب اسمك كامل.'),
-            'name.max' => setting('account.settings_autosave.messages_3', 'الاسم طويل أوي — اختصره شوية.'),
-            'email.email' => setting('account.settings_autosave.messages_4', 'البريد ده شكله مش مظبوط — راجعه وجرّب تاني.'),
+            'required' => setting('account.settings_autosave.messages_1', 'الحقل ده مطلوب، اكتب قيمة وجرّب تاني.'),
+            'name.min' => setting('account.settings_autosave.messages_2', 'الاسم قصيّر شوية، اكتب اسمك كامل.'),
+            'name.max' => setting('account.settings_autosave.messages_3', 'الاسم طويل أوي، اختصره شوية.'),
+            'email.email' => setting('account.settings_autosave.messages_4', 'البريد ده شكله مش مظبوط، راجعه وجرّب تاني.'),
             'email.unique' => setting('account.settings_autosave.messages_5', 'البريد ده مستخدَم في حساب تاني.'),
             'phone.unique' => setting('account.settings_autosave.messages_6', 'رقم الموبايل ده مستخدَم في حساب تاني.'),
-            'exists' => setting('account.settings_autosave.messages_7', 'الاختيار ده مش متاح — اختار من القائمة.'),
+            'exists' => setting('account.settings_autosave.messages_7', 'الاختيار ده مش متاح، اختار من القائمة.'),
             'in' => setting('account.settings_autosave.messages_8', 'الاختيار ده مش من الخيارات المتاحة.'),
             'boolean' => setting('account.settings_autosave.messages_9', 'الاختيار ده لازم يبقى مفعَّل أو متوقّف.'),
             'max' => setting('account.settings_autosave.messages_10', 'القيمة دي أطول من المسموح.'),

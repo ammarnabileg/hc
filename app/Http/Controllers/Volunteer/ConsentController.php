@@ -47,7 +47,7 @@ class ConsentController extends Controller
         // نفس الرسالة سواء اتسجّل الطلب أو منعه التبريد — فلا يُستدَلّ على شيء
         return back()->with('status', (string) setting(
             'volunteer.consent.request_sent',
-            'وصل طلبك — هيوصلك الردّ لمّا يتاح.',
+            'وصل طلبك، هيوصلك الردّ لمّا يتاح.',
         ));
     }
 
@@ -62,7 +62,7 @@ class ConsentController extends Controller
 
         return $this->backToContact((string) setting(
             'volunteer.profile.consent.approved_message',
-            'سهّلت التعاون 🤝 — بياناتك هتبان له للمدّة المحدّدة بس.',
+            'سهّلت التعاون 🤝، بياناتك هتبان له للمدّة المحدّدة بس.',
         ), celebrate: true);
     }
 
@@ -77,7 +77,7 @@ class ConsentController extends Controller
 
         return $this->backToContact((string) setting(
             'volunteer.profile.consent.denied_message',
-            'تمام — الطلب اتقفل، وبياناتك زيّ ما هي.',
+            'تمام، الطلب اتقفل، وبياناتك زيّ ما هي.',
         ));
     }
 

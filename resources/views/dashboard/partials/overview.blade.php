@@ -35,7 +35,7 @@
     </div>
 
     @if ($courses->isEmpty())
-        <x-empty :message="setting('dashboard.overview.courses_empty_message', 'خلّصت كلّ تدريباتك الجارية — تحفة')"
+        <x-empty :message="setting('dashboard.overview.courses_empty_message', 'خلّصت كلّ تدريباتك الجارية، تحفة')"
                  :action="setting('dashboard.overview.courses_empty_action', 'تصفّح المتجر')"
                  :href="\Illuminate\Support\Facades\Route::has('store.index') ? route('store.index') : url('/')" />
     @else
@@ -94,7 +94,7 @@
     </div>
 
     @if ($deadlines->isEmpty())
-        <div class="panel small muted">{{ setting('dashboard.overview.deadlines_empty', 'مفيش موعد قريب — خُد وقتك.') }}</div>
+        <div class="panel small muted">{{ setting('dashboard.overview.deadlines_empty', 'مفيش موعد قريب، خُد وقتك.') }}</div>
     @else
         <div class="grid2">
             <div class="stack" style="gap: 16px">

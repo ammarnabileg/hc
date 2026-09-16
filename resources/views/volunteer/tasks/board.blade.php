@@ -33,7 +33,7 @@
                      color: var(--color-state-{{ $capSymbols['color'] }})">
             <span aria-hidden="true">{{ $capSymbols['icon'] }}</span>
             @if ($summary['remaining'] === null)
-                {{ setting('volunteer.tasks_board.text', 'سحبك مفتوح — بلا سقف') }}
+                {{ setting('volunteer.tasks_board.text', 'سحبك مفتوح، بلا سقف') }}
             @else
                 {{ setting('volunteer.tasks_board.text_2', 'عندك مكان لـ') }}{{ $summary['remaining'] }}
             @endif
@@ -113,7 +113,7 @@
     @endif
 
     @if ($tasks->isEmpty())
-        <x-empty :message="setting('volunteer.tasks_board.empty', 'مفيش مهامّ عامّة متاحة حاليًّا — تابع تاب الإشعارات')"
+        <x-empty :message="setting('volunteer.tasks_board.empty', 'مفيش مهامّ عامّة متاحة حاليًّا. تابع تاب الإشعارات')"
                  :action="setting('volunteer.tasks_board.action_3', 'إشعارات التطوّع')"
                  :href="\Illuminate\Support\Facades\Route::has('volunteer.notifications') ? route('volunteer.notifications') : route('volunteer.overview')" />
     @else
@@ -187,7 +187,7 @@
 
                     <x-form.input name="suggested_vxp" :label="setting('volunteer.tasks_board.label', 'القيمة المقترحة (VXP)')" type="number" step="0.01" min="0" />
 
-                    <p class="text-xs" style="color: var(--text-muted)">{{ setting('volunteer.tasks_board.field_2', 'الترشيح يُرفَع لمشرف عام التطوّع — وهو صاحب القرار.') }}</p>
+                    <p class="text-xs" style="color: var(--text-muted)">{{ setting('volunteer.tasks_board.field_2', 'الترشيح يُرفَع لمشرف عام التطوّع، وهو صاحب القرار.') }}</p>
 
                     <div class="flex justify-end gap-2 pt-2">
                         <button type="button" data-modal-close class="rounded-xl px-4 py-2 text-sm"

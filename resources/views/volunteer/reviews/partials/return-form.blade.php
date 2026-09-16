@@ -27,7 +27,7 @@
     </label>
 
     <x-form.input name="fix_hours" :label="setting('volunteer.reviews_return_form.label', 'مهلة الإصلاح (ساعات)')" type="number" :value="$fixHours"
-                  :hint="setting('volunteer.reviews_return_form.hint', 'مهلة مستقلّة بسلّمها المستقلّ — والديدلاين الأصليّ لا يُحتسَب مرّتين.')" />
+                  :hint="setting('volunteer.reviews_return_form.hint', 'مهلة مستقلّة بسلّمها المستقلّ، والديدلاين الأصليّ لا يُحتسَب مرّتين.')" />
 
     <button type="submit" class="btn w-full rounded-xl px-4 py-2 text-sm font-semibold"
             style="background: var(--color-state-warn); color: #04201c">{{ setting('volunteer.reviews_return_form.action', 'إرجاع') }}</button>

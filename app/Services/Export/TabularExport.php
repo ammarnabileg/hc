@@ -150,7 +150,7 @@ class TabularExport
         }
 
         if (count($shown) < $total) {
-            $lines[] = strtr((string) setting('exports.pdf_truncated_line', 'معروض أوّل :shown صفًّا من :total — الملفّ الكامل بصيغة CSV أو Excel.'), [
+            $lines[] = strtr((string) setting('exports.pdf_truncated_line', 'معروض أوّل :shown صفًّا من :total، والملفّ الكامل بصيغة CSV أو Excel.'), [
                 ':shown' => (string) count($shown),
                 ':total' => (string) $total,
             ]);

@@ -20,7 +20,7 @@
                 style="background: var(--surface-sunken)">{{ setting('cv.volunteering.add_label', 'إضافة تجربة تطوّعيّة') }}</button>
 
         @if (empty($rows))
-            <p class="text-xs mt-2" style="color: var(--text-muted)">{{ setting('cv.volunteering.empty_hint', 'أيّ مبادرة أو عمل مجتمعيّ بيفرق — سجّله.') }}</p>
+            <p class="text-xs mt-2" style="color: var(--text-muted)">{{ setting('cv.volunteering.empty_hint', 'أيّ مبادرة أو عمل مجتمعيّ بيفرق، سجّله.') }}</p>
         @endif
     </form>
 </div>

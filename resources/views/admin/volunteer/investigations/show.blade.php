@@ -5,7 +5,7 @@
 @section('content')
     <x-page-header
         :title="($case->user?->name ?? '').' — '.setting('admin.volunteer.investigations.show.mlf_althqyq', 'ملفّ التحقيق')"
-        :subtitle="setting('admin.volunteer.investigations.show.mqada_allgna_yqrran_wmshrf_aam_alttwa_yhsm', 'مقعدا اللجنة يقرّران، ومشرف عام التطوّع وحده يحسم — وكلّ قرار بمبرّر مكتوب.')"
+        :subtitle="setting('admin.volunteer.investigations.show.mqada_allgna_yqrran_wmshrf_aam_alttwa_yhsm', 'مقعدا اللجنة يقرّران، ومشرف عام التطوّع وحده يحسم، وكلّ قرار بمبرّر مكتوب.')"
         :breadcrumbs="[['label' => setting('admin.volunteer.investigations.show.alttwa', 'التطوّع'), 'url' => route('admin.volunteer.index')], ['label' => setting('admin.volunteer.investigations.show.lgna_althqyq', 'لجنة التحقيق'), 'url' => route('admin.volunteer.investigations.index')], ['label' => $case->user?->name ?? '']]">
     </x-page-header>
 
@@ -73,9 +73,9 @@
                         @csrf
                         <select name="verdict" required class="w-full rounded-xl px-3 py-2 text-sm" style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
                             <option value="chance">{{ setting('admin.volunteer.investigations.show.frsa', 'فرصة (+1 لمعدّل الالتزام وإعادة تفعيل)') }}</option>
-                            <option value="recommend_dismissal">{{ setting('admin.volunteer.investigations.show.twsya_biqsa', 'توصية إقصاء — تُرفَع لمشرف عام التطوّع') }}</option>
+                            <option value="recommend_dismissal">{{ setting('admin.volunteer.investigations.show.twsya_biqsa', 'توصية إقصاء: تُرفَع لمشرف عام التطوّع') }}</option>
                         </select>
-                        <textarea name="reason" required minlength="3" maxlength="1000" rows="2" placeholder="{{ setting('admin.volunteer.investigations.show.mbrr_mktwb_ilzamy', 'مبرّر مكتوب — إلزاميّ') }}"
+                        <textarea name="reason" required minlength="3" maxlength="1000" rows="2" placeholder="{{ setting('admin.volunteer.investigations.show.mbrr_mktwb_ilzamy', 'مبرّر مكتوب: إلزاميّ') }}"
                                   class="w-full rounded-xl px-3 py-2 text-sm" style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)"></textarea>
                         <button type="submit" class="btn rounded-xl px-4 py-2 text-sm font-semibold" style="background: var(--color-brand-500); color: #04201c">{{ setting('admin.volunteer.investigations.show.sjl_alqrar', 'سجّل القرار') }}</button>
                     </form>
@@ -93,7 +93,7 @@
                             <option value="dismiss">{{ setting('admin.volunteer.investigations.show.iqsa', 'إقصاء') }}</option>
                             <option value="reject_recommendation">{{ setting('admin.volunteer.investigations.show.rfd_altwsya_frsa_bdlha', 'رفض التوصية (فرصة بدلًا منها)') }}</option>
                         </select>
-                        <textarea name="reason" required minlength="3" maxlength="1000" rows="2" placeholder="{{ setting('admin.volunteer.investigations.show.mbrr_mktwb_ilzamy', 'مبرّر مكتوب — إلزاميّ') }}"
+                        <textarea name="reason" required minlength="3" maxlength="1000" rows="2" placeholder="{{ setting('admin.volunteer.investigations.show.mbrr_mktwb_ilzamy', 'مبرّر مكتوب: إلزاميّ') }}"
                                   class="w-full rounded-xl px-3 py-2 text-sm" style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)"></textarea>
                         <button type="submit" class="btn rounded-xl px-4 py-2 text-sm font-semibold" style="background: var(--color-brand-500); color: #04201c">{{ setting('admin.volunteer.investigations.show.sjl_alqrar', 'سجّل القرار') }}</button>
                     </form>

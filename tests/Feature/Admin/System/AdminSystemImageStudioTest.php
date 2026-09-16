@@ -164,11 +164,11 @@ class AdminSystemImageStudioTest extends SystemTestCase
             ->assertOk();
 
         $response->assertSee(
-            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث/الفلتر الحاليّ — جرّب فلترًا تانيًا.'),
+            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث أو الفلتر الحاليّ. جرّب فلتر تاني.'),
             false,
         );
         $response->assertDontSee(
-            setting('admin.studio.index.mafysh_qwalb_lsh_abda_bawl_qalb', 'مافيش قوالب لسه — ابدأ بأوّل قالب.'),
+            setting('admin.studio.index.mafysh_qwalb_lsh_abda_bawl_qalb', 'مافيش قوالب لسه. ابدأ بأوّل قالب.'),
             false,
         );
     }
@@ -184,11 +184,11 @@ class AdminSystemImageStudioTest extends SystemTestCase
             ->assertOk();
 
         $response->assertSee(
-            setting('admin.studio.index.mafysh_qwalb_lsh_abda_bawl_qalb', 'مافيش قوالب لسه — ابدأ بأوّل قالب.'),
+            setting('admin.studio.index.mafysh_qwalb_lsh_abda_bawl_qalb', 'مافيش قوالب لسه. ابدأ بأوّل قالب.'),
             false,
         );
         $response->assertDontSee(
-            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث/الفلتر الحاليّ — جرّب فلترًا تانيًا.'),
+            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث أو الفلتر الحاليّ. جرّب فلتر تاني.'),
             false,
         );
     }

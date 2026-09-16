@@ -2,8 +2,8 @@
     /** نصوص السكربت — من الإعدادات لا محروقةً في الجافاسكربت (2.13-أ) */
     $hcWords = array_merge($hcWords ?? [], [
         'exams.messages.autosaved' => (string) setting('exams.messages.autosaved', 'اتحفظ ✓'),
-        'exams.messages.offline_short' => (string) setting('exams.messages.offline_short', 'إجاباتك محفوظة — هنبعتها أوّل ما الشبكة ترجع.'),
-        'exams.messages.time_up' => (string) setting('exams.messages.time_up', 'خلص الوقت — سلّمنا إجاباتك تلقائيًّا.'),
+        'exams.messages.offline_short' => (string) setting('exams.messages.offline_short', 'إجاباتك محفوظة، هنبعتها أوّل ما الشبكة ترجع.'),
+        'exams.messages.time_up' => (string) setting('exams.messages.time_up', 'خلص الوقت، سلّمنا إجاباتك تلقائيًّا.'),
     ]);
 @endphp
 

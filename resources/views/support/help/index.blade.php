@@ -47,11 +47,11 @@
     @endif
 
     @if ($articles->isEmpty())
-        <x-empty message="{{ setting('help.index.message_1', 'مفيش نتائج — جرّب كلمة تانية.') }}"
+        <x-empty message="{{ setting('help.index.message_1', 'مفيش نتائج، جرّب كلمة تانية.') }}"
                  action="{{ setting('help.index.action_1', 'افتح تذكرة') }}"
                  :href="route('complaints.index', ['new' => 1, 'title' => $q !== '' ? strtr((string) setting('help.index.href_1', 'استفسار عن: :a1'), [':a1' => (string) ($q)]) : ''])" />
         {{-- نصّ الحالة الفارغة (ع/إ) — 12.6-ج سطر 5087، يعدّله الأدمن من «إعدادات الدليل» --}}
-        <p class="text-xs text-center mt-2" style="color: var(--text-muted)" dir="ltr">{{ setting('help.index.message_1_en', 'No results — try another word.') }}</p>
+        <p class="text-xs text-center mt-2" style="color: var(--text-muted)" dir="ltr">{{ setting('help.index.message_1_en', 'No results. Try another word.') }}</p>
     @else
         <div class="grid md:grid-cols-2 gap-3">
             @foreach ($articles as $article)

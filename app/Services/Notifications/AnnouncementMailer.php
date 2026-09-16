@@ -301,7 +301,7 @@ class AnnouncementMailer
             bodyText: Str::limit((string) $body, (int) setting('announcements.email.body_limit', 2000)),
             ctaLabel: $announcement->cta_label ?: ((string) setting('announcements.email.cta_fallback_label', 'افتح التعليمات')),
             ctaUrl: $announcement->cta_url ?: (Route::has('announcements.index') ? route('announcements.index') : null),
-            footer: (string) setting('announcements.email.footer', 'وصلتك الرسالة دي لأنّك مفعّل قناة البريد — تقدر توقّفها من إعدادات حسابك.'),
+            footer: (string) setting('announcements.email.footer', 'وصلتك الرسالة دي لأنّك مفعّل قناة البريد، وتقدر توقّفها من إعدادات حسابك.'),
         );
     }
 }

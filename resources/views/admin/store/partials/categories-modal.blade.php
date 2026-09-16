@@ -19,7 +19,7 @@
                 <div class="flex items-center justify-between gap-2 mb-3">
                     <h3 class="font-bold text-sm" data-category-form-heading>{{ setting('admin.store.partials.categories_modal.idafa_tsnyf_jdyd', 'إضافة تصنيف جديد') }}</h3>
                     <button type="button" class="text-xs underline hidden" data-category-reset
-                            style="color: var(--text-muted)">{{ setting('admin.store.partials.categories_modal.alghaa_altadyl', 'إلغاء — تصنيف جديد') }}</button>
+                            style="color: var(--text-muted)">{{ setting('admin.store.partials.categories_modal.alghaa_altadyl', 'إلغاء / تصنيف جديد') }}</button>
                 </div>
 
                 <form method="post" action="{{ route('admin.store.categories.store') }}" data-category-form class="space-y-3">
@@ -36,7 +36,7 @@
         @endcanany
 
         @if ($categories->isEmpty())
-            <p class="text-sm text-center py-6" style="color: var(--text-muted)">{{ setting('admin.store.partials.categories_modal.mafysh_tsnyfat_lsh', 'مفيش تصنيفات لسّه — ابدأ بإضافة واحد فوق.') }}</p>
+            <p class="text-sm text-center py-6" style="color: var(--text-muted)">{{ setting('admin.store.partials.categories_modal.mafysh_tsnyfat_lsh', 'مفيش تصنيفات لسّه. ابدأ بإضافة واحد فوق.') }}</p>
         @else
             {{-- شجرة/قائمة قابلة للسحب لإعادة الترتيب (24.3) — نفس منطق sortable.blade.php العامّ --}}
             <div class="card overflow-hidden" data-sortable="{{ route('admin.store.categories.reorder') }}">
@@ -79,7 +79,7 @@
                                     <form method="post" action="{{ route('admin.store.categories.destroy', $category) }}"
                                           onsubmit="return confirm('{{ $category->products_count > 0
                                               ? strtr((string) setting('admin.store.partials.categories_modal.confirm_hdhf_ma_mntjat', 'هنحذف التصنيف؛ :a1 منتج هيبقى بلا تصنيف. نكمّل؟'), [':a1' => (string) $category->products_count])
-                                              : setting('admin.store.partials.categories_modal.confirm_hdhf_fady', 'هنحذف التصنيف؟ مفيش منتجات فيه — مش هيرجع تاني.') }}')">
+                                              : setting('admin.store.partials.categories_modal.confirm_hdhf_fady', 'هنحذف التصنيف؟ مفيش منتجات فيه، مش هيرجع تاني.') }}')">
                                         @csrf @method('delete')
                                         <button type="submit" class="block w-full text-start px-2 py-1 rounded-lg" style="color: var(--color-state-danger)">
                                             <x-icon name="trash" size="16" /> {{ setting('admin.store.partials.categories_modal.hdhf', 'حذف') }}

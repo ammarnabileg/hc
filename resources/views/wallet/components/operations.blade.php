@@ -36,7 +36,7 @@
                             style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
                         @foreach ($transferCurrencies as $currency)
                             <option value="{{ $currency['code'] }}" @selected(old('currency') === $currency['code'])>
-                                {{ str_replace([':name', ':fee'], [$currency['name'], $num($currency['fee'])], (string) setting('wallet.transfer.currency_option', ':name — رسوم :fee%')) }}
+                                {{ str_replace([':name', ':fee'], [$currency['name'], $num($currency['fee'])], (string) setting('wallet.transfer.currency_option', ':name (رسوم :fee%)')) }}
                             </option>
                         @endforeach
                     </select>
@@ -114,7 +114,7 @@
         <x-modal id="wallet-withdraw" :title="setting('wallet.withdraw.title', 'سحب الأرباح')">
             @if ($pendingWithdrawal)
                 <p class="text-sm">
-                    {!! str_replace(':number', '<strong>'.e($pendingWithdrawal->number).'</strong>', e(setting('wallet.withdraw.pending_note', 'عندك طلب سحب رقم :number لسّه تحت المراجعة — استنّى نتيجته وبعدين ابعت طلبًا جديدًا.'))) !!}
+                    {!! str_replace(':number', '<strong>'.e($pendingWithdrawal->number).'</strong>', e(setting('wallet.withdraw.pending_note', 'عندك طلب سحب رقم :number لسّه تحت المراجعة، استنّى نتيجته وبعدين ابعت طلبًا جديدًا.'))) !!}
                 </p>
             @else
                 <form method="POST" action="{{ route('wallet.withdraw') }}" class="space-y-4"
@@ -169,11 +169,11 @@
 @php
     // نصوص الملخّص اللحظيّ من الإعدادات لا من السكربت (2.13)
     $quoteWords = [
-        'error' => (string) setting('wallet.quote.error', 'مش قادرين نحسب دلوقتي — جرّب تاني بعد شويّة.'),
+        'error' => (string) setting('wallet.quote.error', 'مش قادرين نحسب دلوقتي، جرّب تاني بعد شويّة.'),
         'recipient' => (string) setting('wallet.quote.recipient', 'المستلِم: :name (:code)'),
         'rate' => (string) setting('wallet.quote.rate_used', 'السعر المستعمَل: 1 :from = :rate :to.'),
         'server' => (string) setting('wallet.quote.server_note', 'الأرقام دي محسوبة في الخادم، ومش هتتغيّر بعد التأكيد.'),
-        'offline' => (string) setting('wallet.quote.offline', 'الاتّصال اتقطع فمقدرناش نحسب — راجع النت وجرّب تاني.'),
+        'offline' => (string) setting('wallet.quote.offline', 'الاتّصال اتقطع فمقدرناش نحسب. راجع النت وجرّب تاني.'),
     ];
 @endphp
 <script>

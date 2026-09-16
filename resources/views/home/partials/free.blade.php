@@ -11,7 +11,7 @@
     $cvTool = (bool) setting('home.free.cv_enabled', true)
         && \Illuminate\Support\Facades\Route::has('cv.free');
     $title = (string) setting('home.free.title', 'التسجيل والتفعيل مجّانيّان');
-    $body = (string) setting('home.free.body', 'تفتح حسابك وتفعّله من غير ما تدفع مليم. اللي بفلوس هو التدريبات المدفوعة نفسها — ومكتوب سعرها قدّامك قبل ما تختار.');
+    $body = (string) setting('home.free.body', 'تفتح حسابك وتفعّله من غير ما تدفع مليم. اللي بفلوس هو التدريبات المدفوعة نفسها، وسعرها مكتوب قدّامك قبل ما تختار.');
     $points = setting('home.free.points', [
         'إنشاء الحساب مجّانيّ',
         'تفعيل الحساب مجّانيّ',
@@ -58,10 +58,10 @@
 
             <div class="min-w-0">
                 <h2 id="home-cv-tool-title" class="font-extrabold text-base md:text-lg">
-                    {{ setting('home.free.cv_title', 'منشئ سيرة ذاتيّة مجّانيّ — من غير تسجيل') }}
+                    {{ setting('home.free.cv_title', 'منشئ سيرة ذاتيّة مجّانيّ، من غير تسجيل') }}
                 </h2>
                 <p class="mt-1 text-sm" style="color: var(--text-muted)">
-                    {{ setting('home.free.cv_body', 'قالب واحد مجّانيّ: تملا بياناتك وتشوف سيرتك قدّامك لحظة بلحظة بلا حساب — والتحميل بس هو اللي بيطلب إنشاء حساب، وشغلك بيستنّاك فيه.') }}
+                    {{ setting('home.free.cv_body', 'قالب واحد مجّانيّ: تملا بياناتك وتشوف سيرتك قدّامك لحظة بلحظة من غير حساب. التحميل بس هو اللي بيطلب إنشاء حساب، وشغلك بيستنّاك فيه.') }}
                 </p>
 
                 <a href="{{ route('cv.free') }}"

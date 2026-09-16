@@ -68,11 +68,11 @@ class AdminSystemFeatureTogglesTest extends SystemTestCase
             ->assertOk();
 
         $response->assertSee(
-            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث/الفلتر الحاليّ — جرّب فلترًا تانيًا.'),
+            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث أو الفلتر الحاليّ. جرّب فلتر تاني.'),
             false,
         );
         $response->assertDontSee(
-            setting('features.ui.state.empty', 'مافيش مزايا في الفلتر ده — وسّع الفلتر شويّة.'),
+            setting('features.ui.state.empty', 'مافيش مزايا في الفلتر ده. وسّع الفلتر شويّة.'),
             false,
         );
     }

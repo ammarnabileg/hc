@@ -82,7 +82,7 @@
 
         @if ($task->delivered_at)
             <span class="text-xs cursor-help" style="color: var(--text-muted)"
-                  title="{{ setting('volunteer.tasks_show.tooltip', 'الساعة وقفت لحظة التسليم — زمن المراجعة لا يُحمَّل عليك') }}">
+                  title="{{ setting('volunteer.tasks_show.tooltip', 'الساعة وقفت لحظة التسليم، زمن المراجعة لا يُحمَّل عليك') }}">
                 <x-icon name="blocked" size="16" /> {{ setting('volunteer.tasks_show.text_3', 'العدّاد وقف:') }} {{ \Illuminate\Support\Carbon::parse($task->delivered_at)->format('Y-m-d H:i') }}
             </span>
         @endif
@@ -146,7 +146,7 @@
         <div class="card p-4">
             {{-- التودو شخصيّ: بلا اعتماد وبلا أثر على أيّ درجة (23-2.1) --}}
             <p class="text-xs mb-3" style="color: var(--text-muted)">
-                {{ setting('volunteer.tasks_show.text_9', 'تقسيمة شخصيّة ليك — بلا اعتماد وبلا أثر على أيّ درجة. عايز بندًا يتوزّع؟ اعمله صب-تاسك.') }}
+                {{ setting('volunteer.tasks_show.text_9', 'تقسيمة شخصيّة ليك، بلا اعتماد وبلا أثر على أيّ درجة. عايز بندًا يتوزّع؟ اعمله صب-تاسك.') }}
             </p>
 
             @if ($isOwner)
@@ -183,7 +183,7 @@
                     @endif
                 </div>
             @empty
-                <p class="text-sm" style="color: var(--text-muted)">{{ setting('volunteer.tasks_show.text_10', 'لسّه مفيش بنود — ابدأ بأوّل خطوة.') }}</p>
+                <p class="text-sm" style="color: var(--text-muted)">{{ setting('volunteer.tasks_show.text_10', 'لسّه مفيش بنود. ابدأ بأوّل خطوة.') }}</p>
             @endforelse
         </div>
     @elseif ($tab === 'subtasks')
@@ -208,7 +208,7 @@
                     </a>
                 </div>
             @empty
-                <p class="text-sm" style="color: var(--text-muted)">{{ setting('volunteer.tasks_show.text_15', 'مفيش صب-تاسكات — فكّك شغلك لو محتاج.') }}</p>
+                <p class="text-sm" style="color: var(--text-muted)">{{ setting('volunteer.tasks_show.text_15', 'مفيش صب-تاسكات. فكّك شغلك لو محتاج.') }}</p>
             @endforelse
         </div>
     @elseif ($tab === 'contributors')
@@ -260,13 +260,13 @@
                     @endif
                 </div>
             @empty
-                <p class="text-sm" style="color: var(--text-muted)">{{ setting('volunteer.tasks_show.text_19', 'لسّه مفيش تسليمات — أوّل تسليم بيوقف العدّاد.') }}</p>
+                <p class="text-sm" style="color: var(--text-muted)">{{ setting('volunteer.tasks_show.text_19', 'لسّه مفيش تسليمات. أوّل تسليم بيوقف العدّاد.') }}</p>
             @endforelse
         </div>
     @elseif ($tab === 'comments')
         <div class="card p-4">
             <p class="text-sm" style="color: var(--text-muted)">
-                {{ setting('volunteer.tasks_show.text_20', 'النقاش بنطاق المهمّة بيظهر هنا — ولسّه مفيش كومنتات.') }}
+                {{ setting('volunteer.tasks_show.text_20', 'النقاش بنطاق المهمّة بيظهر هنا، ولسّه مفيش كومنتات.') }}
             </p>
         </div>
     @else

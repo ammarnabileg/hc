@@ -37,7 +37,7 @@ class PasswordController extends Controller
             'email' => ['required', 'email', 'max:190'],
         ], [
             'email.required' => (string) setting('auth.password.email_msg', 'اكتب بريدك الأوّل.'),
-            'email.email' => (string) setting('auth.password.email_denied', 'الصيغة دي مش بريد صحيح — راجعها وجرّب تاني.'),
+            'email.email' => (string) setting('auth.password.email_denied', 'الصيغة دي مش بريد صحيح، راجعها وجرّب تاني.'),
         ]);
 
         $result = $this->passwords->request($data['email']);
@@ -72,7 +72,7 @@ class PasswordController extends Controller
 
         if ($email === '' || ! $this->passwords->tokenIsValid($email, $token)) {
             return redirect()->route('password.request')->withErrors([
-                'email' => (string) setting('auth.password_reset.expired_text', 'الرابط ده انتهت صلاحيّته. اطلب واحدًا جديدًا — بياخد ثانية.'),
+                'email' => (string) setting('auth.password_reset.expired_text', 'الرابط ده انتهت صلاحيّته. اطلب واحدًا جديدًا، بياخد ثانية بس.'),
             ]);
         }
 
@@ -133,7 +133,7 @@ class PasswordController extends Controller
             'password' => ['required', 'confirmed', Password::min($this->minLength())],
         ], [
             'password.required' => (string) setting('auth.password.update_msg', 'اكتب كلمة السرّ الجديدة.'),
-            'password.confirmed' => (string) setting('auth.password.update_denied', 'الكلمتان مش متطابقتين — راجعهم وجرّب تاني.'),
+            'password.confirmed' => (string) setting('auth.password.update_denied', 'الكلمتان مش متطابقتين، راجعهم وجرّب تاني.'),
             'password.min' => strtr((string) setting('auth.password.update_empty', 'كلمة السرّ لازم تبقى :a1 خانات على الأقلّ ومفيش أيّ شرط تاني.'), [':a1' => (string) ($this->minLength())]),
         ]);
 
@@ -141,7 +141,7 @@ class PasswordController extends Controller
 
         if (! $this->passwords->tokenIsValid($email, $data['token'])) {
             return redirect()->route('password.request')->withErrors([
-                'email' => (string) setting('auth.password_reset.expired_text', 'الرابط ده انتهت صلاحيّته. اطلب واحدًا جديدًا — بياخد ثانية.'),
+                'email' => (string) setting('auth.password_reset.expired_text', 'الرابط ده انتهت صلاحيّته. اطلب واحدًا جديدًا، بياخد ثانية بس.'),
             ]);
         }
 
@@ -150,7 +150,7 @@ class PasswordController extends Controller
 
         return redirect()->route('login')->with(
             'status',
-            (string) setting('auth.password_reset.done_text', 'كلمة السرّ اتغيّرت ✓ — ادخل بيها دلوقتي. وقفلنا كلّ الجلسات القديمة للأمان.'),
+            (string) setting('auth.password_reset.done_text', 'كلمة السرّ اتغيّرت ✓، ادخل بيها دلوقتي. وقفلنا كلّ الجلسات القديمة للأمان.'),
         );
     }
 }

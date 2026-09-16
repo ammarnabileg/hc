@@ -273,7 +273,7 @@ class MeetingController extends Controller
 
         return redirect()
             ->route('volunteer.tasks.show', $task)
-            ->with('status', strtr((string) setting('meetings.screen.store_minutes_task_ok', 'اتولّدت مهمّة «:a1» من بند المحضر ✓ — بقت مهمّة عاديّة بعدّادها ومراجعها.'), [':a1' => (string) $task->title]));
+            ->with('status', strtr((string) setting('meetings.screen.store_minutes_task_ok', 'اتولّدت مهمّة «:a1» من بند المحضر ✓، وبقت مهمّة عاديّة بعدّادها ومراجعها.'), [':a1' => (string) $task->title]));
     }
 
     /** ⭐ الأسئلة والـOTP: صاحب الاجتماع أو أيّ أبلاين فوقه حتى السقف (13.4-ن-ب) */
@@ -463,7 +463,7 @@ class MeetingController extends Controller
             route('volunteer.meetings.show', $meeting),
         );
 
-        return back()->with('status', (string) setting('meetings.screen.request_access_msg_3', 'اتبعت طلبك لصاحب الاجتماع — هيوصلك ردّ في الإشعارات.'));
+        return back()->with('status', (string) setting('meetings.screen.request_access_msg_3', 'اتبعت طلبك لصاحب الاجتماع، هيوصلك ردّ في الإشعارات.'));
     }
 
     // ------------------------------------------------------------------ داخليّ

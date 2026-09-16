@@ -5,7 +5,7 @@
 @section('content')
     <x-page-header
         :title="setting('admin.events.index.alfaalyat', 'الفعاليّات')"
-        :subtitle="setting('admin.events.index.allqaat_almbashra_awflayn_wawnlayn_whjyn', 'اللقاءات المباشرة أوفلاين وأونلاين وهجين — بسعتها وكود حضورها ومكافأتها المتدرّجة.')"
+        :subtitle="setting('admin.events.index.allqaat_almbashra_awflayn_wawnlayn_whjyn', 'اللقاءات المباشرة أوفلاين وأونلاين وهجين، بسعتها وكود حضورها ومكافأتها المتدرّجة.')"
         :breadcrumbs="[['label' => setting('admin.events.index.lwha_alidara', 'لوحة الإدارة'), 'url' => url('/admin')], ['label' => setting('admin.events.index.alfaalyat', 'الفعاليّات')]]">
         <x-slot:action>
             @can('events.create')
@@ -17,7 +17,7 @@
     </x-page-header>
 
     <div class="card p-3 mb-4 text-sm">
-        <x-icon name="lock" size="16" /> <strong>{{ setting('admin.events.index.kwd_alhdwr_mstmr_la_yqfl', 'كود الحضور مستمرّ لا يقفل') }}</strong> {{ setting('admin.events.index.walmkafaa_whdha_ttnaqs_ala_drjat_zmnya', '— والمكافأة وحدها تتناقص على درجات زمنيّة. وشهادة الحضور تُضبَط في إدارة الشهادات لا هنا.') }}
+        <x-icon name="lock" size="16" /> <strong>{{ setting('admin.events.index.kwd_alhdwr_mstmr_la_yqfl', 'كود الحضور مستمرّ لا يقفل') }}</strong> {{ setting('admin.events.index.walmkafaa_whdha_ttnaqs_ala_drjat_zmnya', '، والمكافأة وحدها تتناقص على درجات زمنيّة. وشهادة الحضور تُضبَط في إدارة الشهادات لا هنا.') }}
     </div>
 
     <x-filters :action="route('admin.events.index')">
@@ -113,7 +113,7 @@
         {{-- تمييز «لا فعاليّات أصلًا» عن «الفلتر/التبويب الحاليّ ما طابقش حاجة» (24.2).
              تبويب الحالة إلزاميّ (بلا خيار «الكلّ») فالمعيار هو الخروج عن التبويب
              الافتراضيّ («قادمة») لا مجرّد وجود قيمة فيه. --}}
-        <x-empty :message="setting('events.empty_message', 'لا فعاليّات — أنشئ أوّل لقاء.')"
+        <x-empty :message="setting('events.empty_message', 'لا فعاليّات. أنشئ أوّل لقاء.')"
                  :filtered="$filters['q'] !== '' || $filters['mode'] !== '' || $filters['status'] !== (string) setting('events.default_tab', 'upcoming')" />
     @else
         {{--
@@ -360,7 +360,7 @@
                                class="w-full rounded-xl px-3 py-2 text-sm mt-1"
                                style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
                     </label>
-                    <span class="block text-xs sm:col-span-2" style="color: var(--text-muted)">{{ setting('admin.events.index.alihdathyat_hint', 'اختياريّ — تُستخدَم لعرض رابط خريطة في صفحة الفعاليّة العامّة (أوفلاين/هجين).') }}</span>
+                    <span class="block text-xs sm:col-span-2" style="color: var(--text-muted)">{{ setting('admin.events.index.alihdathyat_hint', 'اختياريّ، تُستخدَم لعرض رابط خريطة في صفحة الفعاليّة العامّة (أوفلاين/هجين).') }}</span>
                 </div>
 
                 <div class="grid sm:grid-cols-3 gap-3 mt-3">
@@ -399,7 +399,7 @@
                     <label class="text-sm font-semibold">{{ setting('admin.events.index.kwbwn_khsm_akhtyary', 'كوبون خصم (اختياريّ)') }}
                         <select name="coupon_id" id="ev-coupon" class="w-full rounded-xl px-3 py-2 text-sm mt-1"
                                 style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
-                            <option value="">{{ setting('admin.events.index.bla_kwbwn', '— بلا كوبون') }}</option>
+                            <option value="">{{ setting('admin.events.index.bla_kwbwn', 'بلا كوبون') }}</option>
                             @foreach ($coupons as $coupon)
                                 <option value="{{ $coupon->id }}">{{ $coupon->code }}</option>
                             @endforeach
@@ -426,7 +426,7 @@
                     <div class="text-sm font-semibold">{{ setting('admin.events.index.nwa_shhada_alhdwr', 'نوع شهادة الحضور') }}
                         <p class="mt-1 rounded-xl px-3 py-2 text-xs font-normal leading-relaxed"
                            style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text-muted)">
-                            {{ setting('admin.events.index.bytzbt_mn', 'بيتظبط من') }} <strong>{{ setting('admin.events.index.idara_alshhadat', 'إدارة الشهادات') }}</strong> {!! strtr(setting('admin.events.index.alnwa_almrbwt_balfaalyat_hw_almftah_v1_way', '— النوع المربوط بالفعاليّات هو المفتاح «:v1»، وأيّ تعديل عليه بيسري على كلّ الفعاليّات.'), [':v1' => e(setting('events.certificate.default_type_key', 'event'))]) !!}
+                            {{ setting('admin.events.index.bytzbt_mn', 'بيتظبط من') }} <strong>{{ setting('admin.events.index.idara_alshhadat', 'إدارة الشهادات') }}</strong> {!! strtr(setting('admin.events.index.alnwa_almrbwt_balfaalyat_hw_almftah_v1_way', '· النوع المربوط بالفعاليّات هو المفتاح «:v1»، وأيّ تعديل عليه بيسري على كلّ الفعاليّات.'), [':v1' => e(setting('events.certificate.default_type_key', 'event'))]) !!}
                         </p>
                     </div>
                     <label class="text-sm font-semibold">{{ setting('admin.events.index.alhala', 'الحالة') }}

@@ -15,7 +15,7 @@
      * سؤال واحد للشاشة: «إيه اللي حصل ويخصّني؟» — وفعل رئيسيّ واحد: تعليم الكلّ كمقروء.
      */
     $emptyMessage = (string) setting('notifications.empty.message', 'مفيش إشعارات جديدة');
-    $subtitle = $unread > 0 ? strtr((string) setting('notifications.index.php_1', 'عندك :a1 إشعار غير مقروء'), [':a1' => (string) ($unread)]) : (string) setting('notifications.index.php_2', 'مفيش غير مقروء — تمام ✓');
+    $subtitle = $unread > 0 ? strtr((string) setting('notifications.index.php_1', 'عندك :a1 إشعار غير مقروء'), [':a1' => (string) ($unread)]) : (string) setting('notifications.index.php_2', 'مفيش غير مقروء، تمام ✓');
 @endphp
 
 @section('content')

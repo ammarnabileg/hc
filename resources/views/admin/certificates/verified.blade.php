@@ -5,7 +5,7 @@
 @section('content')
     {{-- نتيجة التحقّق قبل الإصدار (12.5-ج): صالح / غير موجود / صدرت له قبل كده --}}
     <x-page-header
-        :title="setting('admin.certificates.verified.thqq_mn_alakwad', 'تحقّق من الأكواد — ').$type->name_ar"
+        :title="setting('admin.certificates.verified.thqq_mn_alakwad', 'تحقّق من الأكواد · ').$type->name_ar"
         :subtitle="setting('admin.certificates.verified.raja_alntyja_wbadyn_aayn_wasdr', 'راجع النتيجة، وبعدين عاين وأصدِر.')"
         :breadcrumbs="[
             ['label' => setting('admin.certificates.verified.alshhadat', 'الشهادات'), 'url' => route('admin.certificates.index')],

@@ -111,7 +111,7 @@
 
                 <label class="flex items-center gap-2 text-sm">
                     <input type="checkbox" name="restricted" value="1">
-                    <span>{{ setting('admin.meetings_admin.partials.create_modal.mrfq_mqyd', 'مرفق مقيَّد — يظهر بقفله وزرّ «اطلب وصولًا»') }}</span>
+                    <span>{{ setting('admin.meetings_admin.partials.create_modal.mrfq_mqyd', 'مرفق مقيَّد: يظهر بقفله وزرّ «اطلب وصولًا»') }}</span>
                 </label>
             </div>
         </details>

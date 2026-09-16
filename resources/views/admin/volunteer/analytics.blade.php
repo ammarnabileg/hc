@@ -5,7 +5,7 @@
 @section('content')
     <x-page-header
         :title="setting('admin.volunteer.analytics.thlylat_alttwa', 'تحليلات التطوّع')"
-        :subtitle="setting('admin.volunteer.analytics.tsrb_ahmal_sha_alkyanat_tqryr_saa_mada_qrar', 'تسرّب · أحمال · صحّة الكيانات · تقرير سعة — مادّة قرار لا أرقام زينة.')"
+        :subtitle="setting('admin.volunteer.analytics.tsrb_ahmal_sha_alkyanat_tqryr_saa_mada_qrar', 'تسرّب · أحمال · صحّة الكيانات · تقرير سعة، مادّة قرار لا أرقام زينة.')"
         :breadcrumbs="[['label' => setting('admin.volunteer.analytics.alttwa', 'التطوّع'), 'url' => route('admin.volunteer.index')], ['label' => setting('admin.volunteer.analytics.althlylat', 'التحليلات')]]" />
 
     @include('admin.volunteer.partials.tabs', ['current' => 'analytics'])
@@ -92,7 +92,7 @@
                             @if ($duration)
                                 <p class="text-xs mt-1" style="color: var(--text-muted)">
                                     @if ($duration['avg_days'] !== null)
-                                        {!! strtr(setting('admin.volunteer.analytics.qmc_mtwsst_alzmn', 'متوسّط الزمن حتّى :to — :days يومًا (:sample مرشّحًا)'), [
+                                        {!! strtr(setting('admin.volunteer.analytics.qmc_mtwsst_alzmn', 'متوسّط الزمن حتّى :to: :days يومًا (:sample مرشّحًا)'), [
                                             ':to' => $duration['to_label'],
                                             ':days' => $duration['avg_days'],
                                             ':sample' => $duration['sample'],
@@ -110,7 +110,7 @@
     @endif
 
     <section class="card p-4 md:p-5 mt-4">
-        <h2 class="font-bold mb-3">{{ setting('admin.volunteer.analytics.tqryr_alsaa_alakthr_tkhma_walakthr_fragha', 'تقرير السعة — الأكثر تخمةً والأكثر فراغًا') }}</h2>
+        <h2 class="font-bold mb-3">{{ setting('admin.volunteer.analytics.tqryr_alsaa_alakthr_tkhma_walakthr_fragha', 'تقرير السعة: الأكثر تخمةً والأكثر فراغًا') }}</h2>
         @forelse ($capacity->sortByDesc('percent')->take((int) setting('volunteer.analytics.top_rows', 10)) as $row)
             <div class="flex items-center justify-between gap-3 py-2 text-sm {{ $loop->last ? '' : 'border-b' }}" style="border-color: var(--border)">
                 <span class="truncate">{{ $row['entity']->name_ar }}</span>

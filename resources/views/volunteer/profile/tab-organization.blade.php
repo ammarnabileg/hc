@@ -17,7 +17,7 @@
     <section class="card p-4 animate-fadeup">
         <h2 class="font-bold text-sm mb-3">{{ setting('volunteer.profile_tab_organization.heading', 'تايم-لاين البوزشنز') }}</h2>
         @if ($g['timeline']->isEmpty())
-            <p class="text-sm" style="color: var(--text-muted)">{{ setting('volunteer.profile_tab_organization.text', 'لسّه بدري — أوّل بوزشن مستنّيك.') }}</p>
+            <p class="text-sm" style="color: var(--text-muted)">{{ setting('volunteer.profile_tab_organization.text', 'لسّه بدري. أوّل بوزشن مستنّيك.') }}</p>
         @else
             <ol class="space-y-3">
                 @foreach ($g['timeline'] as $step)
@@ -45,7 +45,7 @@
     <section class="card p-4">
         <h2 class="font-bold text-sm mb-3">{{ setting('volunteer.profile_tab_organization.heading_2', 'سلسلة الأبلاين لأعلى') }}</h2>
         @if ($g['upline_chain']->isEmpty())
-            <p class="text-sm" style="color: var(--text-muted)">{{ setting('volunteer.profile_tab_organization.text_3', 'مفيش أبلاين فوقه — ده أعلى الهيكل.') }}</p>
+            <p class="text-sm" style="color: var(--text-muted)">{{ setting('volunteer.profile_tab_organization.text_3', 'مفيش أبلاين فوقه. ده أعلى الهيكل.') }}</p>
         @else
             <ol class="space-y-2">
                 @foreach ($g['upline_chain'] as $node)

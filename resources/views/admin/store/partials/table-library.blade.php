@@ -158,7 +158,7 @@
                                     </label>
 
                                     <label class="block text-xs">
-                                        <span class="block mb-1">{{ setting('admin.store.partials.table_library.fhrs_alqary_str_lkl_fsl', 'فهرس القارئ — سطر لكلّ فصل:') }} <code>{{ setting('admin.store.partials.table_library.rqm_alsfha_alanwan', 'رقم الصفحة | العنوان') }}</code></span>
+                                        <span class="block mb-1">{{ setting('admin.store.partials.table_library.fhrs_alqary_str_lkl_fsl', 'فهرس القارئ، سطر لكلّ فصل:') }} <code>{{ setting('admin.store.partials.table_library.rqm_alsfha_alanwan', 'رقم الصفحة | العنوان') }}</code></span>
                                         <textarea name="toc" rows="4" class="w-full rounded-lg px-2 py-1 font-mono"
                                                   style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">{{ $toc->toText($item) }}</textarea>
                                     </label>

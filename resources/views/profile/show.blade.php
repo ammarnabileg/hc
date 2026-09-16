@@ -4,15 +4,15 @@
         'profile.show.js_1' => (string) setting('profile.show.js_1', 'انسخ رابطك'),
         'profile.show.js_2' => (string) setting('profile.show.js_2', 'اتنسخ ✓'),
         'profile.show.js_3' => (string) setting('profile.show.js_3', 'اتحفظ ✓'),
-        'profile.show.js_4' => (string) setting('profile.show.js_4', 'مقدرناش نحفظ — جرّب تاني.'),
+        'profile.show.js_4' => (string) setting('profile.show.js_4', 'مقدرناش نحفظ، جرّب تاني.'),
         'profile.show.js_5' => (string) setting('profile.show.js_5', 'النبذة اتحدّثت'),
-        'profile.show.js_6' => (string) setting('profile.show.js_6', '🔒 مقفولة — الشرط فوق'),
+        'profile.show.js_6' => (string) setting('profile.show.js_6', '🔒 مقفولة، الشرط فوق'),
         'profile.show.js_7' => (string) setting('profile.show.js_7', '★ مفتوحة'),
     ]);
 @endphp
 
 @extends('layouts.app')
-@section('title', strtr((string) setting('profile.show.section_1', ':a1 — بروفايل'), [':a1' => (string) ($owner->shortName())]))
+@section('title', strtr((string) setting('profile.show.section_1', ':a1 · بروفايل'), [':a1' => (string) ($owner->shortName())]))
 @section('meta_description', strtr((string) setting('profile.show.section_2', 'بروفايل :a1 على :a2'), [':a1' => (string) ($owner->shortName()), ':a2' => (string) (config('app.name'))]))
 
 {{-- ⭐ صورة OG لرابط البروفايل — فيظهر كبطاقة مصمَّمة لا رابطًا أصلع (21.1-أ) --}}

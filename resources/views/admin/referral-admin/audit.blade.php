@@ -12,7 +12,7 @@
 
 @section('content')
     <x-page-header :title="setting('admin.referral_admin.audit.tdqyq_shbka', 'تدقيق شبكة: ').$referrer->name"
-                   :subtitle="setting('admin.referral_admin.audit.alarqam_hna_mwshrat_la_ahkam_rajaha_qbl_ay', 'الأرقام هنا مؤشّرات لا أحكام — راجعها قبل أيّ قرار.')"
+                   :subtitle="setting('admin.referral_admin.audit.alarqam_hna_mwshrat_la_ahkam_rajaha_qbl_ay', 'الأرقام هنا مؤشّرات لا أحكام، راجعها قبل أيّ قرار.')"
                    :breadcrumbs="[
                        ['label' => setting('admin.referral_admin.audit.lwha_alidara', 'لوحة الإدارة'), 'url' => route('admin.dashboard')],
                        ['label' => setting('admin.referral_admin.audit.alryfyral_walsfra', 'الريفيرال والسفراء'), 'url' => route('admin.referrals.index')],
@@ -37,7 +37,7 @@
         <div class="card p-4 mb-4" style="border-color: var(--color-state-warn)">
             <div class="flex items-center gap-2"><x-state-badge state="warn" :label="setting('admin.referral_admin.audit.nmt_ysthq_alnzr', 'نمط يستحقّ النظر')" /></div>
             <p class="text-sm mt-2" style="color: var(--text-muted)">
-                {!! strtr(setting('admin.referral_admin.audit.fyh_ywm_wahd_atsjl_fyh_v1_dawa_raja_alhsabat', 'فيه يوم واحد اتسجّل فيه :v1 دعوة — راجع الحسابات دي قبل صرف مكافآتها.'), [':v1' => e($audit['busiest_day'])]) !!}
+                {!! strtr(setting('admin.referral_admin.audit.fyh_ywm_wahd_atsjl_fyh_v1_dawa_raja_alhsabat', 'فيه يوم واحد اتسجّل فيه :v1 دعوة، راجع الحسابات دي قبل صرف مكافآتها.'), [':v1' => e($audit['busiest_day'])]) !!}
             </p>
         </div>
     @endif

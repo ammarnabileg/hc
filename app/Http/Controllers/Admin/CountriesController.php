@@ -27,14 +27,14 @@ class CountriesController extends Controller
         $request->validate([
             'file' => ['required', 'file', 'mimetypes:application/json,text/plain', 'max:'.(int) setting('countries.import.max_kb', 8192)],
         ], [
-            'file.required' => (string) setting('countries.admin.import_empty', 'اختر ملفّ النسخة الأوّل — من غيره مافيش حاجة نفحصها.'),
-            'file.max' => (string) setting('countries.admin.import_msg', 'الملفّ أكبر من الحدّ المسموح — اقسمه أو ارفع نسخة أصغر.'),
+            'file.required' => (string) setting('countries.admin.import_empty', 'اختر ملفّ النسخة الأوّل، من غيره مافيش حاجة نفحصها.'),
+            'file.max' => (string) setting('countries.admin.import_msg', 'الملفّ أكبر من الحدّ المسموح، اقسمه أو ارفع نسخة أصغر.'),
         ]);
 
         $payload = json_decode((string) file_get_contents($request->file('file')->getRealPath()), true);
 
         if (! is_array($payload)) {
-            return $this->back((string) setting('countries.admin.import_denied', 'الملفّ مش JSON صالح — صدّر النسخة تاني من المصدر وارفعها.'), error: true);
+            return $this->back((string) setting('countries.admin.import_denied', 'الملفّ مش JSON صالح، صدّر النسخة تاني من المصدر وارفعها.'), error: true);
         }
 
         try {
@@ -45,7 +45,7 @@ class CountriesController extends Controller
 
         $this->sync->check($snapshot);
 
-        return $this->back((string) setting('countries.admin.import_ok', 'اتحفظت النسخة واتفحصت ✓ — راجع الفروق قبل الدمج.'));
+        return $this->back((string) setting('countries.admin.import_ok', 'اتحفظت النسخة واتفحصت ✓، راجع الفروق قبل الدمج.'));
     }
 
     /** فحص التحديثات: يعيد حساب الفروق على آخر نسخة (24.3). */
@@ -54,7 +54,7 @@ class CountriesController extends Controller
         $snapshot = $this->sync->latest();
 
         if (! $snapshot) {
-            return $this->back((string) setting('countries.admin.check_empty', 'مافيش نسخة مرفوعة لسّه — ارفع نسخة المصدر الأوّل.'), error: true);
+            return $this->back((string) setting('countries.admin.check_empty', 'مافيش نسخة مرفوعة لسّه، ارفع نسخة المصدر الأوّل.'), error: true);
         }
 
         $this->sync->check($snapshot);

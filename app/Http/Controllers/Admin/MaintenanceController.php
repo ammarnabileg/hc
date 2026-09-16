@@ -36,12 +36,12 @@ class MaintenanceController extends Controller
         if ($startsAt && $startsAt->isFuture()) {
             $this->maintenance->schedule($request->user(), $data['message'], (int) $data['hours'], $startsAt);
 
-            return back()->with('status', strtr((string) setting('maintenance.admin.start_ok', 'اتجدولت الصيانة — هتبدأ لوحدها :a1 ✓'), [':a1' => (string) ($startsAt->format('Y/m/d H:i'))]));
+            return back()->with('status', strtr((string) setting('maintenance.admin.start_ok', 'اتجدولت الصيانة، هتبدأ لوحدها :a1 ✓'), [':a1' => (string) ($startsAt->format('Y/m/d H:i'))]));
         }
 
         $this->maintenance->start($request->user(), $data['message'], (int) $data['hours']);
 
-        return back()->with('status', (string) setting('maintenance.admin.start_msg', 'وضع الصيانة اشتغل — وكلّ المهل اتجمّدت من دلوقتي.'));
+        return back()->with('status', (string) setting('maintenance.admin.start_msg', 'وضع الصيانة اشتغل، وكلّ المهل اتجمّدت من دلوقتي.'));
     }
 
     /** إلغاء الصيانة المجدولة قبل موعدها. */
@@ -73,7 +73,7 @@ class MaintenanceController extends Controller
 
         return back()->with(
             'status',
-            strtr((string) setting('maintenance.admin.lift_ok', 'الصيانة اترفعت — :rows مهلة اتعاد حسابها بفارق :hours ساعة.'), [
+            strtr((string) setting('maintenance.admin.lift_ok', 'الصيانة اترفعت، :rows مهلة اتعاد حسابها بفارق :hours ساعة.'), [
                 ':rows' => (string) $result['rows'],
                 ':hours' => (string) round($result['seconds'] / 3600, 2),
             ]),

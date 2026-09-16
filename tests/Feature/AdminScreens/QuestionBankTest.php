@@ -53,7 +53,7 @@ class QuestionBankTest extends ScreensTestCase
         $emptyCard = substr($html, strpos($html, 'card p-8 text-center'), 400);
 
         $this->assertStringContainsString(
-            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث/الفلتر الحاليّ — جرّب فلترًا تانيًا.'),
+            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث أو الفلتر الحاليّ. جرّب فلتر تاني.'),
             $emptyCard,
         );
         $this->assertStringNotContainsString('لسّه مافيش أسئلة في البنك', $emptyCard);

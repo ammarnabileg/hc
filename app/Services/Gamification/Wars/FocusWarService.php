@@ -49,9 +49,9 @@ class FocusWarService
     private function cannotAfford(string $action, float $needed, float $balance): WarRuleException
     {
         $message = match ($action) {
-            'create' => strtr(setting('gamification_wars.focus_war_service.cannot_afford_1', 'إنشاء التحدّي بـ:p1 تذاكر ورصيدك :p2 — اشحن وابدأ.'), [':p1' => (string) ((int) $needed), ':p2' => (string) ((int) $balance)]),
-            'join' => strtr(setting('gamification_wars.focus_war_service.cannot_afford_2', 'الانضمام بـ:p1 تذكرة ورصيدك :p2 — اشحن وانضمّ.'), [':p1' => (string) ((int) $needed), ':p2' => (string) ((int) $balance)]),
-            default => strtr(setting('gamification_wars.focus_war_service.cannot_afford_3', 'الإلغاء محتاج :p1 تذكرة ترجع للمنضمّين ورصيدك :p2 — وفّر الفرق وارجع ألغِ.'), [':p1' => (string) ((int) $needed), ':p2' => (string) ((int) $balance)]),
+            'create' => strtr(setting('gamification_wars.focus_war_service.cannot_afford_1', 'إنشاء التحدّي بـ:p1 تذاكر ورصيدك :p2، اشحن وابدأ.'), [':p1' => (string) ((int) $needed), ':p2' => (string) ((int) $balance)]),
+            'join' => strtr(setting('gamification_wars.focus_war_service.cannot_afford_2', 'الانضمام بـ:p1 تذكرة ورصيدك :p2، اشحن وانضمّ.'), [':p1' => (string) ((int) $needed), ':p2' => (string) ((int) $balance)]),
+            default => strtr(setting('gamification_wars.focus_war_service.cannot_afford_3', 'الإلغاء محتاج :p1 تذكرة ترجع للمنضمّين ورصيدك :p2، وفّر الفرق وارجع ألغِ.'), [':p1' => (string) ((int) $needed), ':p2' => (string) ((int) $balance)]),
         };
 
         return new WarRuleException($message, max(0.0, $needed - $balance));
@@ -62,7 +62,7 @@ class FocusWarService
     {
         return (string) setting(
             'wars.focus.honesty_message',
-            'هذا التحدي أمانة بينك وبين نفسك. لو سجّلت إنجازًا ما عملتوش، إنت ما غششتش المنصة — غششت نفسك، '
+            'هذا التحدي أمانة بينك وبين نفسك. لو سجّلت إنجازًا ما عملتوش، إنت ما غششتش المنصة، إنت غششت نفسك، '
             .'وعوّدتها تاخد مكسب مش من حقها؛ وده أخطر من إنك ما تعملش حاجة أصلًا. '
             .'كن صادقًا مع نفسك… الجائزة الحقيقية مش النقاط، الجائزة هي إنت وإنت بتكبر.',
         );
@@ -82,7 +82,7 @@ class FocusWarService
         $max = $this->rules->maxActiveFocus($challenge);
 
         if ($this->activeOwnedCount($user) >= $max) {
-            throw new WarRuleException(strtr(setting('gamification_wars.focus_war_service.create_2', 'عندك :p1 تحديات نشطة — اقفل واحدًا قبل ما تضيف جديدًا.'), [':p1' => (string) ($max)]));
+            throw new WarRuleException(strtr(setting('gamification_wars.focus_war_service.create_2', 'عندك :p1 تحديات نشطة، اقفل واحدًا قبل ما تضيف جديدًا.'), [':p1' => (string) ($max)]));
         }
 
         $cost = $this->rules->focusCreateCost($challenge);
@@ -126,11 +126,11 @@ class FocusWarService
     public function join(User $user, FocusWar $war, ?Challenge $challenge = null): FocusWarMember
     {
         if ($war->status !== 'active') {
-            throw new WarRuleException(setting('gamification_wars.focus_war_service.join_1', 'التحدّي ده اتقفل — اختار واحدًا نشطًا.'));
+            throw new WarRuleException(setting('gamification_wars.focus_war_service.join_1', 'التحدّي ده اتقفل، اختار واحدًا نشطًا.'));
         }
 
         if (! $war->is_group) {
-            throw new WarRuleException(setting('gamification_wars.focus_war_service.join_2', 'التحدّي ده فرديّ — مش مفتوح للانضمام.'));
+            throw new WarRuleException(setting('gamification_wars.focus_war_service.join_2', 'التحدّي ده فرديّ ومش مفتوح للانضمام.'));
         }
 
         if ((int) $war->owner_id === (int) $user->id) {
@@ -138,7 +138,7 @@ class FocusWarService
         }
 
         if ($war->members()->where('user_id', $user->id)->exists()) {
-            throw new WarRuleException(setting('gamification_wars.focus_war_service.join_4', 'إنت منضمّ للتحدّي ده بالفعل — كمّل تركيزك.'));
+            throw new WarRuleException(setting('gamification_wars.focus_war_service.join_4', 'إنت منضمّ للتحدّي ده بالفعل، كمّل تركيزك.'));
         }
 
         // ⭐ نفس الحرب المعروضة على الشاشة (12.2.1) — Override السكشن ثمّ عمود
@@ -262,7 +262,7 @@ class FocusWarService
                     amount: $amount,
                     source: self::LEDGER_SOURCE,
                     debitReason: setting('gamification_wars.focus_war_service.cancel_3', 'استرجاع تذكرة انضمام بعد إلغاء تحدّيك'),
-                    creditReason: setting('gamification_wars.focus_war_service.cancel_4', 'استرجاع تذكرة — التحدّي اتلغى'),
+                    creditReason: setting('gamification_wars.focus_war_service.cancel_4', 'استرجاع تذكرة بعد إلغاء التحدّي'),
                     reference: $war,
                 );
 

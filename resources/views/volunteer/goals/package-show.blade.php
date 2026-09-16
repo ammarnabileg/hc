@@ -100,7 +100,7 @@
 
                     @if ($c['closed'] > 0)
                         <p class="text-xs mt-2" style="color: var(--color-state-idle)">
-                            ○ {{ $c['closed'] }} {{ setting('volunteer.goals_package_show.field_8', 'مهمّة مُغلَقة — مستبعَدة من مقام النسبة') }}
+                            ○ {{ $c['closed'] }} {{ setting('volunteer.goals_package_show.field_8', 'مهمّة مُغلَقة، مستبعَدة من مقام النسبة') }}
                         </p>
                     @endif
 
@@ -148,7 +148,7 @@
         @foreach ($distributable as $entry)
             @continue($entry['children']->isEmpty())
             @php $task = $entry['task']; $s = $entry['summary']; @endphp
-            <x-modal :id="'vxp-'.$task->id" :title="setting('volunteer.goals_package_show.tooltip', 'توزيع VXP — ').$task->title">
+            <x-modal :id="'vxp-'.$task->id" :title="setting('volunteer.goals_package_show.tooltip', 'توزيع VXP: ').$task->title">
                 <form method="post" action="{{ route('volunteer.packages.vxp', $task) }}" class="space-y-3"
                       data-vxp-form data-pool="{{ $s['pool'] }}" data-max="{{ $s['max'] }}">
                     @csrf
@@ -195,7 +195,7 @@
         @endforeach
 
         @if ($canObject)
-            <x-modal id="version-diff" :title="setting('volunteer.goals_package_show.tooltip_2', 'فرق النسخة — ما رفعتَه ↔ ما اعتُمد')">
+            <x-modal id="version-diff" :title="setting('volunteer.goals_package_show.tooltip_2', 'فرق النسخة: ما رفعتَه ↔ ما اعتُمد')">
                 <div class="space-y-3 text-sm">
                     @forelse ($versionDiff as $diff)
                         <div class="rounded-xl p-3" style="background: var(--surface-raised)">
@@ -232,7 +232,7 @@
         /** نصوص السكربت — تُمرَّر بـ`@json` فلا يبقى حرفٌ عربيّ محروق داخله (2.13-أ) */
         $jsText = [
             'total' => (string) setting('volunteer.goals_package_show.js_total', 'المجموع:'),
-            'over_max' => (string) setting('volunteer.goals_package_show.js_over_max', '— تخطّيت أقصى ما يُوزَّع (:max)'),
+            'over_max' => (string) setting('volunteer.goals_package_show.js_over_max', '. تخطّيت أقصى ما يُوزَّع (:max)'),
             'over_pool' => (string) setting('volunteer.goals_package_show.js_over_pool', 'وتخطّيت وعاء المهمّة كمان.'),
             'slice_kept' => (string) setting('volunteer.goals_package_show.js_slice_kept', '، وشريحتك المحفوظة لازم تفضل.'),
             'confirm_hint' => (string) setting('volunteer.goals_package_show.js_confirm_hint', 'وافق صراحةً على الخصم من رصيدك أو قلّل القيم.'),

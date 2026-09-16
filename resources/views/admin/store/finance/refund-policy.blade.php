@@ -11,9 +11,9 @@
 --}}
 @php($policyFormRoute ??= 'admin.finance.refund-policy')
 <div class="card p-4">
-    <p class="text-sm mb-1"><strong>{{ setting('admin.store.finance.refund_policy.la_astrjaa_nqdy_lay_mdfwaat', 'لا استرجاع نقديّ لأيّ مدفوعات') }}</strong> {{ setting('admin.store.finance.refund_policy.walrsyd_ybqa_fy_mhfza_sahbh_yshtry_bh_mn', '— والرصيد يبقى في محفظة صاحبه يشتري به من الموقع.') }}</p>
+    <p class="text-sm mb-1"><strong>{{ setting('admin.store.finance.refund_policy.la_astrjaa_nqdy_lay_mdfwaat', 'لا استرجاع نقديّ لأيّ مدفوعات') }}</strong> {{ setting('admin.store.finance.refund_policy.walrsyd_ybqa_fy_mhfza_sahbh_yshtry_bh_mn', '، والرصيد يبقى في محفظة صاحبه يشتري به من الموقع.') }}</p>
     <p class="text-xs" style="color: var(--text-muted)">
-        {{ setting('admin.store.finance.refund_policy.alastthna_alwhyd_tshyh_khta_tqny_bmaamla', 'الاستثناء الوحيد: تصحيح خطأ تقنيّ بمعاملة موثّقة بمرجعها — وليس استردادًا نقديًّا.') }}
+        {{ setting('admin.store.finance.refund_policy.alastthna_alwhyd_tshyh_khta_tqny_bmaamla', 'الاستثناء الوحيد: تصحيح خطأ تقنيّ بمعاملة موثّقة بمرجعها، وليس استردادًا نقديًّا.') }}
     </p>
 </div>
 
@@ -37,7 +37,7 @@
              style="background: var(--surface-sunken); border: 1px dashed var(--border)"></div>
 
         <label class="block text-sm">
-            <span class="block mb-1">{{ setting('admin.store.finance.refund_policy.sbb_altadyl_ilzamy_ydkhl_alaudit', 'سبب التعديل (إلزاميّ — يدخل الـAudit)') }}</span>
+            <span class="block mb-1">{{ setting('admin.store.finance.refund_policy.sbb_altadyl_ilzamy_ydkhl_alaudit', 'سبب التعديل (إلزاميّ، يدخل الـAudit)') }}</span>
             <input type="text" name="reason" required minlength="3"
                    class="w-full rounded-xl px-3 py-2 text-sm"
                    style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">

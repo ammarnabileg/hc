@@ -97,6 +97,6 @@ class HomeController extends Controller
         return back()->with('status', $granted
             ? str_replace(':count', (string) $this->positive->ticketAmount(),
                 (string) setting('engagement.positive.ticket_granted_text', 'وصلتك :count تذكرة 🎟️'))
-            : (string) setting('engagement.positive.ticket_denied_text', 'خدت تذكرة المفاجأة النهارده — نشوفك بكرة.'));
+            : (string) setting('engagement.positive.ticket_denied_text', 'خدت تذكرة المفاجأة النهارده، نشوفك بكرة.'));
     }
 }

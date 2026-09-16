@@ -34,7 +34,7 @@
     <div class="card p-3 mb-4 text-sm">
         <span style="color: var(--text-muted)">{{ setting('volunteer.goals_build_fill.text', 'سبب الهدف:') }}</span> {{ $goal->reason ?: '—' }}
         <span class="block text-xs mt-1" style="color: var(--text-muted)">
-            {{ setting('volunteer.goals_build_fill.text_2', 'ضيف مهامّك «لنفسك» بلا حدّ أقصى — ولمّا تخلص اضغط «رفع للمراجعة» فتروح لمشرف مسارك.') }}
+            {{ setting('volunteer.goals_build_fill.text_2', 'ضيف مهامّك «لنفسك» بلا حدّ أقصى، ولمّا تخلص اضغط «رفع للمراجعة» فتروح لمشرف مسارك.') }}
         </span>
     </div>
 
@@ -95,7 +95,7 @@
     @push('modals')
         @foreach ($packages as $package)
             @continue($package->build_status === 'submitted')
-            <x-modal :id="'task-'.$package->id" :title="setting('volunteer.goals_build_fill.tooltip', 'مهمّة جديدة — ').$package->name">
+            <x-modal :id="'task-'.$package->id" :title="setting('volunteer.goals_build_fill.tooltip', 'مهمّة جديدة: ').$package->name">
                 <form method="post" action="{{ route('volunteer.goals.build.tasks', $package) }}" class="space-y-3">
                     @csrf
                     <x-form.input name="title" :label="setting('volunteer.goals_build_fill.label_6', 'اسم المهمّة')" required />
@@ -103,7 +103,7 @@
                         <span class="block text-sm mb-1">{{ setting('volunteer.common.output_format', 'شكل المخرجات') }}</span>
                         <textarea name="deliverable_spec" rows="2" required class="w-full rounded-xl px-3 py-2 text-sm"
                                   style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)"></textarea>
-                        <span class="block text-xs mt-1" style="color: var(--text-muted)">{{ setting('volunteer.goals_build_fill.field', 'التسليم المتوقَّع حرفيًّا — حقل إلزاميّ في كلّ مهمّة.') }}</span>
+                        <span class="block text-xs mt-1" style="color: var(--text-muted)">{{ setting('volunteer.goals_build_fill.field', 'التسليم المتوقَّع حرفيًّا. حقل إلزاميّ في كلّ مهمّة.') }}</span>
                     </label>
                     <label class="block">
                         <span class="block text-sm mb-1">{{ setting('volunteer.goals_build_fill.field_2', 'البريف (اختياريّ)') }}</span>

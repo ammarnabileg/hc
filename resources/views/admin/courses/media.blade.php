@@ -6,7 +6,7 @@
     {{-- مكتبة الوسائط المركزيّة (12.4-د · 24.1) --}}
     <x-page-header
         :title="setting('admin.courses.media.mktba_alwsayt', 'مكتبة الوسائط')"
-        :subtitle="setting('admin.courses.media.arfa_almlf_mra_wastkhdmh_fy_ay_mkan_walmkrr', 'ارفع الملفّ مرّة واستخدمه في أيّ مكان — والمكرَّر بنكتشفه بالهاش.')"
+        :subtitle="setting('admin.courses.media.arfa_almlf_mra_wastkhdmh_fy_ay_mkan_walmkrr', 'ارفع الملفّ مرّة واستخدمه في أيّ مكان، والمكرَّر بنكتشفه بالهاش.')"
         :breadcrumbs="[['label' => setting('admin.courses.media.idara_altdryb', 'إدارة التدريب'), 'url' => route('admin.courses.index')], ['label' => setting('admin.courses.media.mktba_alwsayt', 'مكتبة الوسائط')]]">
         <x-slot:action>
             @can('media_library.create')
@@ -118,7 +118,7 @@
 
     @if ($items->isEmpty())
         {{-- تمييز «المكتبة فاضية أصلًا» عن «الفلتر ما طابقش حاجة» (24.2) --}}
-        <x-empty :message="setting('admin.courses.media.almktba_fadya_arfa_awl_mlf', 'المكتبة فاضية — ارفع أوّل ملفّ.')"
+        <x-empty :message="setting('admin.courses.media.almktba_fadya_arfa_awl_mlf', 'المكتبة فاضية. ارفع أوّل ملفّ.')"
                  :filtered="$filters['q'] !== '' || $filters['kind'] !== '' || $filters['folder'] !== '' || $filters['tag'] !== '' || $filters['unused'] || $filters['date_from'] !== '' || $filters['date_to'] !== '' || $filters['size_min'] !== '' || $filters['size_max'] !== ''" />
     @elseif ($view === 'list')
         <x-table :label="setting('admin.courses.media.mktba_alwsayt', 'مكتبة الوسائط')">

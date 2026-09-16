@@ -58,7 +58,7 @@ class InvestigationAdminController extends Controller
         $case = $this->committee->activate($row, $request->user());
 
         return redirect()->route('admin.volunteer.investigations.show', $case)
-            ->with('status', (string) setting('volunteer_investigation.admin.activate_ok', 'اتفتح ملفّ التحقيق ✓ — والمقعدان اتعيّنا آليًّا.'));
+            ->with('status', (string) setting('volunteer_investigation.admin.activate_ok', 'اتفتح ملفّ التحقيق ✓، والمقعدان اتعيّنا آليًّا.'));
     }
 
     public function show(Request $request, InvestigationCase $case): View
@@ -87,7 +87,7 @@ class InvestigationAdminController extends Controller
         $candidate = User::query()->where('code', mb_strtoupper($data['code']))->first();
 
         if (! $candidate) {
-            return back()->with('status', (string) setting('volunteer_investigation.admin.assign_denied', 'الكود ده مش موجود — راجع الكود وجرّب تاني.'));
+            return back()->with('status', (string) setting('volunteer_investigation.admin.assign_denied', 'الكود ده مش موجود، راجع الكود وجرّب تاني.'));
         }
 
         $this->committee->overrideSeat($case, $data['slot'], $candidate, $request->user());

@@ -32,7 +32,7 @@
     </div>
 
     @if (! $root)
-        <x-empty :message="setting('volunteer.org_capacity.empty', 'الهيكل صغير — لا مؤشّرات تجاوز')" :action="setting('volunteer.org_capacity.action', 'الأعضاء والبوزشنز')" :href="route('volunteer.department')" />
+        <x-empty :message="setting('volunteer.org_capacity.empty', 'الهيكل صغير، لا مؤشّرات تجاوز')" :action="setting('volunteer.org_capacity.action', 'الأعضاء والبوزشنز')" :href="route('volunteer.department')" />
     @else
         <x-tabs :tabs="$tabs" :current="$tab" />
 
@@ -59,7 +59,7 @@
                     @endforeach
                 </div>
             @empty
-                <x-empty :message="setting('volunteer.org_capacity.empty', 'الهيكل صغير — لا مؤشّرات تجاوز')" :action="setting('volunteer.org_capacity.action', 'الأعضاء والبوزشنز')" :href="route('volunteer.department')" />
+                <x-empty :message="setting('volunteer.org_capacity.empty', 'الهيكل صغير، لا مؤشّرات تجاوز')" :action="setting('volunteer.org_capacity.action', 'الأعضاء والبوزشنز')" :href="route('volunteer.department')" />
             @endforelse
 
         @elseif ($tab === 'occupancy')
@@ -88,7 +88,7 @@
             <div class="grid gap-4 lg:grid-cols-2">
                 <div class="card p-4">
                     <div class="text-sm font-bold mb-1">{{ setting('volunteer.org_capacity.text_6', 'كيانات غير صحّيّة') }}</div>
-                    <p class="text-xs mb-3" style="color: var(--text-muted)">{{ setting('volunteer.org_capacity.text_7', 'تحت الحدّ الأدنى — والاقتراح اقتراح لا إلزام.') }}</p>
+                    <p class="text-xs mb-3" style="color: var(--text-muted)">{{ setting('volunteer.org_capacity.text_7', 'تحت الحدّ الأدنى، والاقتراح اقتراح لا إلزام.') }}</p>
                     @forelse ($unhealthy as $row)
                         <div class="py-2 text-sm" style="border-top: 1px solid var(--border)">
                             <div class="flex items-center justify-between gap-2">
@@ -127,7 +127,7 @@
 
         @else
             <div class="card p-4">
-                <div class="text-sm font-bold mb-1">{{ setting('volunteer.org_capacity.text_13', 'الأحمال — الأقلّ حملًا أوّلًا') }}</div>
+                <div class="text-sm font-bold mb-1">{{ setting('volunteer.org_capacity.text_13', 'الأحمال: الأقلّ حملًا أوّلًا') }}</div>
                 <p class="text-xs mb-3" style="color: var(--text-muted)">{{ setting('volunteer.capacity.load_note', 'منطق الموازن: يقترح ولا يُلزِم') }}</p>
                 @forelse ($loads as $row)
                     <div class="flex items-center justify-between gap-2 py-2 text-sm" style="border-top: 1px solid var(--border)">
@@ -162,7 +162,7 @@
         'loading' => (string) setting('volunteer.org_capacity.js_loading', 'جارٍ التحميل…'),
         'over_limit' => (string) setting('volunteer.org_capacity.js_over_limit', 'فوق الحدّ'),
         'no_breaches' => (string) setting('volunteer.org_capacity.js_no_breaches', 'لا تجاوزات.'),
-        'load_failed' => (string) setting('volunteer.org_capacity.js_load_failed', 'تعذّر تحميل التفاصيل — جرّب تاني.'),
+        'load_failed' => (string) setting('volunteer.org_capacity.js_load_failed', 'تعذّر تحميل التفاصيل، جرّب تاني.'),
         'downline' => (string) setting('volunteer.org_capacity.js_downline', 'تحته'),
         'occupancy_rate' => (string) setting('volunteer.org_capacity.js_occupancy_rate', 'نسبة الإشغال:'),
     ];

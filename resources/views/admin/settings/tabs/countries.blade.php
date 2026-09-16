@@ -11,7 +11,7 @@
     $snapshot = $countries['snapshot'];
     $diff = $countries['diff'];
     $report = session('countries_report');
-    $attribution = (string) setting('countries.attribution', 'بيانات الدول والمحافظات من dr5hn/countries-states-cities-database — برخصة ODbL v1.0.');
+    $attribution = (string) setting('countries.attribution', 'بيانات الدول والمحافظات من dr5hn/countries-states-cities-database، برخصة ODbL v1.0.');
     $sourceUrl = trim((string) setting('countries.source_url', ''));
 
     // آخر فحص للمصدر — نجح أو فشل، وسببه مكتوب. لا يمرّ عبر
@@ -25,7 +25,7 @@
         <div>
             <div class="text-sm font-extrabold">{{ setting('admin.settings.tabs.countries.byanat_aldwl', 'بيانات الدول') }}</div>
             <p class="text-xs mt-1" style="color: var(--text-muted)">
-                {!! strtr(setting('admin.settings.tabs.countries.hdth_almsdr_v1_bad_ma_tshwf_alfrwq_bnfsk_wma', 'حدّث المصدر (:v1) بعد ما تشوف الفروق بنفسك — وما حدش بيفقد ارتباطه بدولته ولا بمحافظته.'), [':v1' => e(setting('countries.source', 'dr5hn'))]) !!}
+                {!! strtr(setting('admin.settings.tabs.countries.hdth_almsdr_v1_bad_ma_tshwf_alfrwq_bnfsk_wma', 'حدّث المصدر (:v1) بعد ما تشوف الفروق بنفسك، وما حدش بيفقد ارتباطه بدولته ولا بمحافظته.'), [':v1' => e(setting('countries.source', 'dr5hn'))]) !!}
             </p>
         </div>
 
@@ -74,9 +74,9 @@
 
     {{-- القواعد المعروضة قبل أيّ فعل — فلا يُفاجَأ المالك بعد التنفيذ (2.11) --}}
     <ul class="mt-3 text-xs space-y-1" style="color: var(--text-muted)">
-        <li>{{ setting('admin.settings.tabs.countries.la_hdhf_itlaqa_mn_hna_almhdhwf_mn_almsdr', '● لا حذف إطلاقًا من هنا — المحذوف من المصدر') }} <strong>{{ setting('admin.settings.tabs.countries.ykhfa', 'يُخفى') }}</strong> {{ setting('admin.settings.tabs.countries.bs_wsfh_byfdl_barqamh', 'بس، وصفّه بيفضل بأرقامه.') }}</li>
-        <li>● <strong>{{ setting('admin.settings.tabs.countries.almhafza_la_tkhfa_abda', 'المحافظة لا تُخفى أبدًا') }}</strong> {{ setting('admin.settings.tabs.countries.hta_lw_ghabt_an_almsdr_tfdl_zahra_wmrbwta', '— حتّى لو غابت عن المصدر تفضل ظاهرة ومربوطة بأهلها.') }}</li>
-        <li>{{ setting('admin.settings.tabs.countries.ay_dwla_aw_mhafza_mrtbta_bmstkhdm', '● أيّ دولة أو محافظة مرتبطة بمستخدم') }} <strong>{{ setting('admin.settings.tabs.countries.mhmya', 'محميّة') }}</strong> {{ setting('admin.settings.tabs.countries.aldmj_ma_bylmshash', '— الدمج ما بيلمسهاش.') }}</li>
+        <li>{{ setting('admin.settings.tabs.countries.la_hdhf_itlaqa_mn_hna_almhdhwf_mn_almsdr', '● لا حذف إطلاقًا من هنا · المحذوف من المصدر') }} <strong>{{ setting('admin.settings.tabs.countries.ykhfa', 'يُخفى') }}</strong> {{ setting('admin.settings.tabs.countries.bs_wsfh_byfdl_barqamh', 'بس، وصفّه بيفضل بأرقامه.') }}</li>
+        <li>● <strong>{{ setting('admin.settings.tabs.countries.almhafza_la_tkhfa_abda', 'المحافظة لا تُخفى أبدًا') }}</strong> {{ setting('admin.settings.tabs.countries.hta_lw_ghabt_an_almsdr_tfdl_zahra_wmrbwta', '· حتّى لو غابت عن المصدر تفضل ظاهرة ومربوطة بأهلها.') }}</li>
+        <li>{{ setting('admin.settings.tabs.countries.ay_dwla_aw_mhafza_mrtbta_bmstkhdm', '● أيّ دولة أو محافظة مرتبطة بمستخدم') }} <strong>{{ setting('admin.settings.tabs.countries.mhmya', 'محميّة') }}</strong> {{ setting('admin.settings.tabs.countries.aldmj_ma_bylmshash', '· الدمج ما بيلمسهاش.') }}</li>
     </ul>
 </div>
 
@@ -106,14 +106,14 @@
             @endif
         </div>
     @else
-        <p class="text-xs mt-2">{{ setting('countries.source.check.never_text', 'لسّه ما اتفحصش المصدر ولا مرّة — اضغط «فحص المصدر الآن».') }}</p>
+        <p class="text-xs mt-2">{{ setting('countries.source.check.never_text', 'لسّه ما اتفحصش المصدر ولا مرّة. اضغط «فحص المصدر الآن».') }}</p>
     @endif
 
     <div class="text-xs mt-2" style="color: var(--text-muted)">
         @if ($sync->checkEnabled())
-            {{ setting('admin.settings.tabs.countries.alfhs_aldwry_shghal_almwad_alqadm', 'الفحص الدوريّ شغّال — الموعد القادم') }} {{ $sync->nextCheckAt()->format('Y-m-d H:i') }} ({{ $sync->checkTimezone() }}{{ setting('admin.settings.tabs.countries.walfhs', '). والفحص') }} <strong>{{ setting('admin.settings.tabs.countries.byqf_and_alfrwq', 'بيقف عند الفروق') }}</strong> {{ setting('admin.settings.tabs.countries.aldmj_qrark_int_mn_hna', '— الدمج قرارك إنت من هنا.') }}
+            {{ setting('admin.settings.tabs.countries.alfhs_aldwry_shghal_almwad_alqadm', 'الفحص الدوريّ شغّال. الموعد القادم:') }} {{ $sync->nextCheckAt()->format('Y-m-d H:i') }} ({{ $sync->checkTimezone() }}{{ setting('admin.settings.tabs.countries.walfhs', '). والفحص') }} <strong>{{ setting('admin.settings.tabs.countries.byqf_and_alfrwq', 'بيقف عند الفروق') }}</strong> {{ setting('admin.settings.tabs.countries.aldmj_qrark_int_mn_hna', '· الدمج قرارك إنت من هنا.') }}
         @else
-            {{ setting('admin.settings.tabs.countries.alfhs_aldwry_mtwqf_mn_aliadadat_alfhs_alydwy', 'الفحص الدوريّ متوقّف من الإعدادات — الفحص اليدويّ لسّه شغّال.') }}
+            {{ setting('admin.settings.tabs.countries.alfhs_aldwry_mtwqf_mn_aliadadat_alfhs_alydwy', 'الفحص الدوريّ متوقّف من الإعدادات، بس الفحص اليدويّ لسّه شغّال.') }}
         @endif
     </div>
 </div>
@@ -187,7 +187,7 @@
     </form>
 @elseif ($snapshot)
     <div class="card p-4 mt-3">
-        <p class="text-sm">{{ setting('admin.settings.tabs.countries.alnskha_almrfwaa_mtabqa_lbyanatna_mafysh', 'النسخة المرفوعة مطابقة لبياناتنا — مافيش فروق. ✓') }}</p>
+        <p class="text-sm">{{ setting('admin.settings.tabs.countries.alnskha_almrfwaa_mtabqa_lbyanatna_mafysh', 'النسخة المرفوعة مطابقة لبياناتنا، مافيش فروق. ✓') }}</p>
     </div>
 @endif
 
@@ -222,7 +222,7 @@
 @if ($rows->isEmpty())
     {{-- سجلّ الدول ثابتٌ من الكود فلا يكون فارغًا أصلًا بلا فلتر — لكنّ :filtered
          يبقى صريحًا هنا اتّساقًا مع بقيّة الشاشات (24.2). --}}
-    <x-empty :message="setting('admin.settings.tabs.countries.mafysh_dwl_mtabqa_wsa_albhth', 'مافيش دول مطابقة — وسّع البحث.')"
+    <x-empty :message="setting('admin.settings.tabs.countries.mafysh_dwl_mtabqa_wsa_albhth', 'مافيش دول مطابقة. وسّع البحث.')"
              :filtered="$filters['q'] !== '' || $filters['status'] !== '' || $filters['with_users']" />
 @else
     {{-- كروت رأسيّة على الموبايل بلا تمرير أفقيّ (2.15-ج) --}}

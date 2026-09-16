@@ -37,7 +37,7 @@ class AdminOpsDemoSeeder extends Seeder
             ['onboarding.slides.max', 'onboarding', 'أقصى عدد شرائح لكلّ شاشة', 'number', '6'],
             ['onboarding.slides.image_max_kb', 'onboarding', 'أقصى حجم لصورة الشريحة (ك.ب)', 'number', '2048'],
             ['onboarding.slides.image_folder', 'onboarding', 'مجلّد صور الشرائح', 'string', 'onboarding'],
-            ['onboarding.slides.empty_text', 'onboarding', 'نصّ الحالة الفارغة', 'text', 'لسّه مافيش شرائح — ابدأ بأوّل واحدة أو استخدم قالبًا جاهزًا.'],
+            ['onboarding.slides.empty_text', 'onboarding', 'نصّ الحالة الفارغة', 'text', 'لسّه مافيش شرائح. ابدأ بأوّل واحدة.'],
             ['onboarding.first_time.enabled', 'onboarding', 'تفعيل «شاشة أوّل مرّة»', 'bool', '1'],
             ['onboarding.first_time.next_label', 'onboarding', 'زرّ التالي', 'string', 'التالي'],
             ['onboarding.first_time.back_label', 'onboarding', 'زرّ السابق', 'string', 'السابق'],
@@ -52,18 +52,18 @@ class AdminOpsDemoSeeder extends Seeder
             ], JSON_UNESCAPED_UNICODE)],
             ['onboarding.first_time.templates', 'onboarding', 'القوالب الجاهزة لكلّ شاشة (قابلة للتعديل)', 'json', json_encode([
                 'dashboard' => [
-                    ['title' => 'أهلًا بيك 👋', 'body' => 'دي رئيسيّتك — منها تشوف تدريباتك ومهامّك وكلّ جديد.'],
+                    ['title' => 'أهلًا بيك 👋', 'body' => 'دي رئيسيّتك، منها تشوف تدريباتك ومهامّك وكلّ جديد.'],
                     ['title' => 'ابدأ من هنا', 'body' => 'كارت «كمّل اللي وقفت عنده» بيرجّعك لآخر درس بضغطة.', 'action_label' => 'تدريباتي', 'action_url' => '/learning/courses'],
                 ],
                 'learning.courses' => [
-                    ['title' => 'تدريباتك كلّها هنا', 'body' => 'كلّ تدريب بنسبة تقدّمه ومهلته — والترتيب حسب الأقرب للتسليم.'],
+                    ['title' => 'تدريباتك كلّها هنا', 'body' => 'كلّ تدريب بنسبة تقدّمه ومهلته، والترتيب حسب الأقرب للتسليم.'],
                     ['title' => 'المهلة صديقتك', 'body' => 'الديدلاين بيبان بلون ورمز: أخضر متّسع · أصفر قرّب · أحمر فات.'],
                 ],
                 'wallet.index' => [
                     ['title' => 'محفظتك', 'body' => 'الكوينز والـXP والتذاكر في مكان واحد، وكلّ معاملة بسجلّها.'],
                 ],
                 'volunteer.overview' => [
-                    ['title' => 'لوحة التطوّع', 'body' => 'مهامّك ومهلك ودرجة التزامك — وكلّ حاجة محتاجة إجراء بتبان فوق.'],
+                    ['title' => 'لوحة التطوّع', 'body' => 'مهامّك ومهلك ودرجة التزامك، وكلّ حاجة محتاجة إجراء بتبان فوق.'],
                 ],
             ], JSON_UNESCAPED_UNICODE)],
 
@@ -85,7 +85,7 @@ class AdminOpsDemoSeeder extends Seeder
             ['updates.lock_ttl_minutes', 'updates', 'مهلة قفل التحديث (دقائق)', 'number', '30'],
             ['updates.maintenance_enabled', 'updates', 'تفعيل وضع الصيانة أثناء الترحيل', 'bool', '1'],
             ['updates.maintenance_hours', 'updates', 'ساعات صيانة التحديث المتوقّعة', 'number', '1'],
-            ['updates.maintenance_message', 'updates', 'رسالة صيانة التحديث', 'text', 'بنحدّث المنصّة دلوقتي — دقايق ونرجع.'],
+            ['updates.maintenance_message', 'updates', 'رسالة صيانة التحديث', 'text', 'بنحدّث المنصّة دلوقتي، دقايق ونرجع.'],
             ['updates.preflight.min_php', 'updates', 'أقلّ إصدار PHP مقبول', 'string', '8.2'],
             ['updates.preflight.min_free_mb', 'updates', 'أقلّ مساحة قرص فاضية للتحديث (م.ب)', 'number', '512'],
             ['updates.preflight.backup_size_factor', 'updates', 'مضاعف حجم القاعدة المطلوب فاضيًا', 'number', '3'],
@@ -100,7 +100,7 @@ class AdminOpsDemoSeeder extends Seeder
             ['updates.verify.relations_max_tables', 'updates', 'أقصى جداول يفحص علاقاتها التحقّق النهائيّ', 'number', '200'],
             ['updates.restore_on_failure', 'updates', 'استعادة تلقائيّة من النسخة عند الفشل', 'bool', '1'],
             ['updates.restore_confirm_phrase', 'updates', 'عبارة تأكيد الاستعادة من نسخة', 'string', 'استعادة'],
-            ['updates.failure_next_steps', 'updates', 'ماذا يفعل المالك بعد فشل التحديث', 'text', 'راجع سبب الفشل تحت، وابعته لمطوّر المنصّة مع اسم الهجرة. لو الاستعادة اشتغلت فالبيانات رجعت لحالتها قبل التحديث والمنصّة شغّالة عاديّ — متكرّرش التحديث قبل ما السبب يتصلّح.'],
+            ['updates.failure_next_steps', 'updates', 'ماذا يفعل المالك بعد فشل التحديث', 'text', 'راجع سبب الفشل تحت، وابعته لمطوّر المنصّة مع اسم الهجرة. لو الاستعادة اشتغلت فالبيانات رجعت لحالتها قبل التحديث والمنصّة شغّالة عاديّ. متكرّرش التحديث قبل ما السبب يتصلّح.'],
             ['updates.seed_after_migrate', 'updates', 'زرع القيم الافتراضيّة الجديدة بعد الترحيل', 'bool', '1'],
             ['updates.seed_classes', 'updates', 'سيدرات مسار الإنتاج التي تُشغَّل بعد الترحيل', 'json', json_encode(['Database\\Seeders\\SettingDefinitionsSeeder'])],
             ['updates.settings_rename_map', 'updates', 'خريطة إعادة تسمية مفاتيح الإعدادات (قديم ⟵ جديد)', 'json', '{}'],
@@ -194,7 +194,7 @@ class AdminOpsDemoSeeder extends Seeder
             ['welcome', 'أهلًا بيك معانا 👋', 'المكان ده اتعمل عشانك: تتعلّم، تتدرّب، وتاخد شهادة تفتخر بيها.', 'ابدأ الجولة', null],
             ['welcome', 'تدريب بخطوات واضحة', 'كلّ تدريب مقسّم دروسًا قصيرة، وتقدر توقف وترجع من نفس النقطة.', null, '/learning/courses'],
             ['welcome', 'مجهودك بيتحوّل نقاطًا', 'كلّ درس بيدّيك XP، والنقاط بتفتح لك تدريبات وحاجات في المتجر.', 'يلا نبدأ', '/dashboard'],
-            ['dashboard', 'دي رئيسيّتك', 'من هنا تشوف تدريباتك ومهامّك وكلّ جديد — بلا لفّ ولا دوران.', null, null],
+            ['dashboard', 'دي رئيسيّتك', 'من هنا تشوف تدريباتك ومهامّك وكلّ جديد، بلا لفّ ولا دوران.', null, null],
             ['dashboard', 'كمّل اللي وقفت عنده', 'الكارت الأوّل بيرجّعك لآخر درس فتحته بضغطة واحدة.', 'خُدني هناك', '/learning/courses'],
         ];
 
@@ -230,7 +230,7 @@ class AdminOpsDemoSeeder extends Seeder
             'version' => '1.0.0',
             'previous_version' => null,
             'event' => 'release',
-            'notes' => 'أوّل إصدار مستقرّ — الأساس اللي بنينا عليه.',
+            'notes' => 'أوّل إصدار مستقرّ، الأساس اللي بنينا عليه.',
             'migrations_count' => 0,
             'migrations' => null,
             'backup_file_id' => null,

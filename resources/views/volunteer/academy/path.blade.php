@@ -73,7 +73,7 @@
     </ol>
 
     @if ($progress['courses']->isEmpty())
-        <x-empty :message="setting('volunteer.academy_path.empty', 'المسار ده لسّه بيتجهّز — أوّل تدريب هيظهر هنا')" />
+        <x-empty :message="setting('volunteer.academy_path.empty', 'المسار ده لسّه بيتجهّز، أوّل تدريب هيظهر هنا')" />
     @endif
 @endsection
 

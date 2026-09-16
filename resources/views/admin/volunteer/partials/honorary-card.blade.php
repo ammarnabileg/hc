@@ -12,7 +12,7 @@
 @endphp
 
 <details class="card p-4 md:p-5 mt-4">
-    <summary class="cursor-pointer font-bold select-none"><x-icon name="crown" size="18" /> {{ setting('admin.volunteer.partials.honorary_card.alansr_alshrfy_akhwkm', 'العنصر الشرفيّ «أخوكم»') }} <span class="text-xs" style="color: var(--text-muted)">{{ setting('admin.volunteer.partials.honorary_card.lmalk_almnsa_whdh', '— لمالك المنصّة وحده') }}</span></summary>
+    <summary class="cursor-pointer font-bold select-none"><x-icon name="crown" size="18" /> {{ setting('admin.volunteer.partials.honorary_card.alansr_alshrfy_akhwkm', 'العنصر الشرفيّ «أخوكم»') }} <span class="text-xs" style="color: var(--text-muted)">{{ setting('admin.volunteer.partials.honorary_card.lmalk_almnsa_whdh', '· لمالك المنصّة وحده') }}</span></summary>
 
     <p class="text-xs mt-2" style="color: var(--text-muted)">
         {{ setting('admin.volunteer.partials.honorary_card.shrfy_bht_bla_slahyat_wla_ntaq_ishraf_wla', 'شرفيّ بحت: بلا صلاحيّات ولا نطاق إشراف ولا داونلاين، ولا يدخل أيّ عدّاد، ولا تُصدَر له شهادة بوزشن ولا بطاقة متطوّع.') }}
@@ -43,13 +43,13 @@
             </div>
 
             <div>
-                <label class="block text-sm font-semibold mb-1" for="hon-ar">{{ setting('admin.volunteer.partials.honorary_card.alwsf_arby', 'الوصف — عربيّ') }}</label>
+                <label class="block text-sm font-semibold mb-1" for="hon-ar">{{ setting('admin.volunteer.partials.honorary_card.alwsf_arby', 'الوصف: عربيّ') }}</label>
                 <input id="hon-ar" type="text" maxlength="60" name="settings[volunteer.honorary.label_ar]"
                        value="{{ $val('volunteer.honorary.label_ar', setting('admin.volunteer.partials.honorary_card.akhwkm', 'أخوكم')) }}" class="{{ $field }}" style="{{ $fieldStyle }}">
             </div>
 
             <div>
-                <label class="block text-sm font-semibold mb-1" for="hon-en">{{ setting('admin.volunteer.partials.honorary_card.alwsf_injlyzy', 'الوصف — إنجليزيّ') }}</label>
+                <label class="block text-sm font-semibold mb-1" for="hon-en">{{ setting('admin.volunteer.partials.honorary_card.alwsf_injlyzy', 'الوصف: إنجليزيّ') }}</label>
                 <input id="hon-en" type="text" maxlength="60" name="settings[volunteer.honorary.label_en]" dir="ltr"
                        value="{{ $val('volunteer.honorary.label_en', 'Your brother') }}" class="{{ $field }}" style="{{ $fieldStyle }}">
             </div>

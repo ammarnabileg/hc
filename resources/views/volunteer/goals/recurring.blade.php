@@ -5,7 +5,7 @@
 @section('content')
     <x-page-header
         :title="setting('volunteer.goals_recurring.title', 'نوبتي من البنود المتكرّرة')"
-        :subtitle="setting('volunteer.goals_recurring.subtitle', 'أسبوع ').$week->format('Y/m/d').setting('volunteer.goals_recurring.subtitle_2', ' — حملك الحاليّ: ').$load.setting('volunteer.goals_recurring.subtitle_3', ' مهمّة مفتوحة')"
+        :subtitle="setting('volunteer.goals_recurring.subtitle', 'أسبوع ').$week->format('Y/m/d').setting('volunteer.goals_recurring.subtitle_2', '. حملك الحاليّ: ').$load.setting('volunteer.goals_recurring.subtitle_3', ' مهمّة مفتوحة')"
         :breadcrumbs="[['label' => setting('volunteer.goals_recurring.label', 'المشروع التشغيليّ'), 'url' => route('volunteer.project')], ['label' => setting('volunteer.goals_recurring.label_2', 'نوبتي')]]">
         <x-slot:action>
             <span class="rounded-full px-3 py-1 text-xs font-bold"

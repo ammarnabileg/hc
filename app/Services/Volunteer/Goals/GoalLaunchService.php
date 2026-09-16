@@ -63,7 +63,7 @@ class GoalLaunchService
         $milestones = Milestone::query()->where('goal_id', $goal->id)->orderBy('sort_order')->orderBy('id')->get();
 
         if ($milestones->isEmpty()) {
-            return [setting('goals.goal_launch_service.gaps_1', 'الهدف بلا مَعالِم — أضِف مَعلَمًا واحدًا على الأقلّ.')];
+            return [setting('goals.goal_launch_service.gaps_1', 'الهدف بلا مَعالِم، أضِف مَعلَمًا واحدًا على الأقلّ.')];
         }
 
         $packages = WorkPackage::query()->whereIn('milestone_id', $milestones->pluck('id'))->get();

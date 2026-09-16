@@ -5,7 +5,7 @@
 @section('content')
     <x-page-header
         :title="setting('admin.gamification.index.altlayb_walthdyat', 'التلعيب والتحديات')"
-        :subtitle="setting('admin.gamification.index.aqtsad_xp_waltdhakr_walsharat_walstryks', 'اقتصاد XP والتذاكر والشارات والستريكس والليدر بورد والحروب والاحتفالات — كلّه إعدادات.')"
+        :subtitle="setting('admin.gamification.index.aqtsad_xp_waltdhakr_walsharat_walstryks', 'اقتصاد XP والتذاكر والشارات والستريكس والليدر بورد والحروب والاحتفالات، كلّه إعدادات.')"
         :breadcrumbs="[['label' => setting('admin.gamification.index.lwha_alidara', 'لوحة الإدارة'), 'url' => url('/admin')], ['label' => setting('admin.gamification.index.altlayb', 'التلعيب')]]" />
 
     {{-- وجهات مجموعة «التلعيب والتحديات» العشر (12.0 · 12.10 موسّع) — من مصدر السايد بار نفسه --}}

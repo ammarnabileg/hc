@@ -153,7 +153,7 @@ class FeatureRegistry
         $flag = $this->gate->flags()[$key] ?? null;
 
         if ($flag === null) {
-            return ['saved' => false, 'message' => (string) setting('features.msg.unknown_feature', 'الميزة دي مش موجودة — حدّث الصفحة وجرّب تاني.')];
+            return ['saved' => false, 'message' => (string) setting('features.msg.unknown_feature', 'الميزة دي مش موجودة، حدّث الصفحة وجرّب تاني.')];
         }
 
         $reason = trim((string) ($payload['reason'] ?? ''));
@@ -161,7 +161,7 @@ class FeatureRegistry
         // سببُ الإيقاف إلزاميّ: سجلٌّ بلا سبب يخبرك «مَن ومتى» ولا يخبرك **لماذا**،
         // وهو أوّل ما يُسأل عنه بعد أسبوع (24.3 — «سبب الإيقاف يدخل الـAudit»).
         if (! $enabled && $reason === '') {
-            return ['saved' => false, 'message' => (string) setting('features.msg.reason_required', 'اكتب سبب الإيقاف — هو اللي هيفضل في السجلّ ويفهّم اللي بعدك.')];
+            return ['saved' => false, 'message' => (string) setting('features.msg.reason_required', 'اكتب سبب الإيقاف، هو اللي هيفضل في السجلّ ويفهّم اللي بعدك.')];
         }
 
         $before = $this->snapshot($flag);
@@ -227,7 +227,7 @@ class FeatureRegistry
         $flag = $this->gate->flags()[$key] ?? null;
 
         if ($flag === null || ! in_array($scopeType, FeatureCatalog::SCOPE_TYPES, true) || $scopeId <= 0) {
-            return ['saved' => false, 'message' => (string) setting('features.msg.bad_scope', 'النطاق ده مش مظبوط — اختر دورًا أو شريحة موجودة.')];
+            return ['saved' => false, 'message' => (string) setting('features.msg.bad_scope', 'النطاق ده مش مظبوط، اختر دورًا أو شريحة موجودة.')];
         }
 
         $before = $this->snapshot($flag);
@@ -258,7 +258,7 @@ class FeatureRegistry
         $flag = $this->gate->flags()[$key] ?? null;
 
         if ($flag === null) {
-            return ['saved' => false, 'message' => (string) setting('features.msg.unknown_feature', 'الميزة دي مش موجودة — حدّث الصفحة وجرّب تاني.')];
+            return ['saved' => false, 'message' => (string) setting('features.msg.unknown_feature', 'الميزة دي مش موجودة، حدّث الصفحة وجرّب تاني.')];
         }
 
         $before = $this->snapshot($flag);

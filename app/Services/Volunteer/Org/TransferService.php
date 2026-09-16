@@ -81,12 +81,12 @@ class TransferService
 
         abort_if($fromEntity === null, 422, (string) setting(
             'volunteer_org.transfer_service.transfer_1',
-            'العضويّة دي بلا كيان — مفيش نقل بلا كيان أصل.',
+            'العضويّة دي بلا كيان، فمفيش نقل بلا كيان أصل.',
         ));
 
         abort_unless((int) $fromEntity->track_id === (int) $to->track_id, 422, (string) setting(
             'volunteer_org.transfer_service.transfer_2',
-            'النقل داخل المسار الواحد فقط — الانضمام لمسارٍ آخر تزويدٌ لا نقل.',
+            'النقل داخل المسار الواحد فقط، والانضمام لمسارٍ آخر تزويدٌ لا نقل.',
         ));
 
         $sameMain = $this->isSameMainDepartment($fromEntity, $to);
@@ -132,7 +132,7 @@ class TransferService
                 'volunteer',
                 (string) setting('volunteer_org.transfer_service.notify_title', 'اتنقلت لقسم جديد'),
                 $sameMain
-                    ? (string) setting('volunteer_org.transfer_service.notify_body_internal', 'اتنقلت لقسمٍ فرعيّ جديد — بنفس درجتك.')
+                    ? (string) setting('volunteer_org.transfer_service.notify_body_internal', 'اتنقلت لقسمٍ فرعيّ جديد، بنفس درجتك.')
                     : (string) setting('volunteer_org.transfer_service.notify_body_coordinator', 'بدأت بوزشن كوردنيتور في قسمك الجديد.'),
                 null,
                 'volunteer',

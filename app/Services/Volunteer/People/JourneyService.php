@@ -163,7 +163,7 @@ class JourneyService
 
         if (! $this->progress($user)['complete']) {
             throw new RuntimeException((string) setting('volunteer.journey.incomplete_message',
-                'لسّه المسار التأهيليّ مش مكتمل — كمّل اللي فاضل وهتلاقي الزرّ في انتظارك.'));
+                'لسّه المسار التأهيليّ مش مكتمل، كمّل اللي فاضل وهتلاقي الزرّ في انتظارك.'));
         }
 
         // المكافأة قبل الدخول — فمن أتمّ ودخل مباشرةً لا يفوته حقّه
@@ -219,7 +219,7 @@ class JourneyService
             throw new RuntimeException(str_replace(
                 ':date', $available->translatedFormat('j F Y'),
                 (string) setting('volunteer.journey.renew_cooldown_message',
-                    'جدّدت استعدادك من فترة قريّبة — تقدر تجدّد تاني يوم :date.'),
+                    'جدّدت استعدادك من فترة قريّبة، تقدر تجدّد تاني يوم :date.'),
             ));
         }
 
@@ -335,7 +335,7 @@ class JourneyService
                 'excluded' => false,
                 'until' => null,
                 'message' => (string) setting('volunteer_page.charter_required_message',
-                    'اقرأ ميثاق المتطوّع ووافق عليه الأوّل — بعدها يفتح لك المسار التأهيليّ.'),
+                    'اقرأ ميثاق المتطوّع ووافق عليه الأوّل، وبعدها يفتح لك المسار التأهيليّ.'),
             ];
         }
 
@@ -421,15 +421,15 @@ class JourneyService
 
             // تذكير لطيف لمن بدأ وما كمّلش — بلا إلحاح (13.4-ج)
             return $percent > 0 && $percent < 100
-                ? (string) setting('volunteer.journey.reminder_copy', 'باقي القليل على إتمام التأهيليّ — كمّل من حيث وقفت.')
+                ? (string) setting('volunteer.journey.reminder_copy', 'باقي القليل على إتمام التأهيليّ، كمّل من حيث وقفت.')
                 : (string) setting('volunteer.journey.next.qualifying', 'ابدأ المسار التأهيليّ وكمّله عشان تدخل قائمة الانتظار.');
         }
 
         return match ($current) {
             'shortlist' => (string) setting('volunteer.journey.next.shortlist', 'طلبك تحت المراجعة، وهنتواصل معاك لتحديد موعد المقابلة.'),
-            'interview' => (string) setting('volunteer.journey.next.interview', 'استعدّ لمقابلتك — هتلاقي الرابط والموعد هنا.'),
-            'final_list' => (string) setting('volunteer.journey.next.final_list', 'أنت في القائمة النهائيّة — فاضل اختيار القسم المناسب ليك.'),
-            'started' => (string) setting('volunteer.journey.next.started', 'أهلًا بيك معانا — لوحة التطوّع بقت متاحة ليك.'),
+            'interview' => (string) setting('volunteer.journey.next.interview', 'استعدّ لمقابلتك، هتلاقي الرابط والموعد هنا.'),
+            'final_list' => (string) setting('volunteer.journey.next.final_list', 'أنت في القائمة النهائيّة، فاضل اختيار القسم المناسب ليك.'),
+            'started' => (string) setting('volunteer.journey.next.started', 'أهلًا بيك معانا، لوحة التطوّع بقت متاحة ليك.'),
             default => (string) setting('volunteer.journey.next.qualifying', 'ابدأ المسار التأهيليّ وكمّله عشان تدخل قائمة الانتظار.'),
         };
     }

@@ -4,7 +4,7 @@
 
 @section('content')
     <x-page-header :title="setting('admin.articles.ads.alialan_almdfwa', 'الإعلان المدفوع')"
-                   :subtitle="setting('admin.articles.ads.alshrayh_tbna_mn_byanatna_waltsdyr_mshfr', 'الشرائح تُبنى من بياناتنا، والتصدير مشفَّر — والبيانات الخام ما تغادرش خوادمنا.')"
+                   :subtitle="setting('admin.articles.ads.alshrayh_tbna_mn_byanatna_waltsdyr_mshfr', 'الشرائح تُبنى من بياناتنا، والتصدير مشفَّر. والبيانات الخام ما تغادرش خوادمنا.')"
                    :breadcrumbs="[
                        ['label' => setting('admin.articles.ads.lwha_alidara', 'لوحة الإدارة'), 'url' => url('/admin')],
                        ['label' => setting('admin.articles.ads.alialan_almdfwa', 'الإعلان المدفوع')],
@@ -81,7 +81,7 @@
                     ])
                 @endforeach
                 <p class="text-xs" style="color: var(--text-muted)">
-                    {{ setting('admin.articles.ads.rfd_almstkhdm_llttba_bywqf_albksl_wahdath', 'رفض المستخدم للتتبّع بيوقف البكسل وأحداث الخادم له فعليًّا — مش شكليًّا.') }}
+                    {{ setting('admin.articles.ads.rfd_almstkhdm_llttba_bywqf_albksl_wahdath', 'رفض المستخدم للتتبّع بيوقف البكسل وأحداث الخادم له فعليًّا، مش شكليًّا.') }}
                 </p>
             </div>
 

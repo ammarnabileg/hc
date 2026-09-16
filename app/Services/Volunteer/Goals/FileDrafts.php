@@ -92,14 +92,14 @@ class FileDrafts
     {
         abort_unless($this->canCreate($actor), 403, (string) setting(
             'goals.build.error.file_draft_forbidden',
-            'فتح الملفّات لمشرف عام مسار الملفّات — مش من صلاحيّتك.',
+            'فتح الملفّات لمشرف عام مسار الملفّات، مش من صلاحيّتك.',
         ));
 
         $track = $this->track();
 
         abort_unless($track !== null, 422, (string) setting(
             'goals.build.error.file_track_missing',
-            'مسار الملفّات مش معرَّف في المنصّة — اضبطه من الإعدادات الأوّل.',
+            'مسار الملفّات مش معرَّف في المنصّة، اضبطه من الإعدادات الأوّل.',
         ));
 
         /*
@@ -203,7 +203,7 @@ class FileDrafts
     {
         abort_unless($this->canAssign($actor, $entity), 403, (string) setting(
             'goals.build.error.file_draft_forbidden',
-            'فتح الملفّات لمشرف عام مسار الملفّات — مش من صلاحيّتك.',
+            'فتح الملفّات لمشرف عام مسار الملفّات، مش من صلاحيّتك.',
         ));
 
         $days = (int) setting('goals.build.file_draft.invite_link_days', 14);
@@ -228,7 +228,7 @@ class FileDrafts
     {
         abort_unless($this->canAssign($actor, $entity), 403, (string) setting(
             'goals.build.error.file_draft_forbidden',
-            'فتح الملفّات لمشرف عام مسار الملفّات — مش من صلاحيّتك.',
+            'فتح الملفّات لمشرف عام مسار الملفّات، مش من صلاحيّتك.',
         ));
 
         abort_unless($entity->status === 'active', 404);
@@ -411,7 +411,7 @@ class FileDrafts
                     [$row->entity_name, $row->position_name, $goal->name],
                     (string) setting(
                         'goals.build.file_draft.notify_body',
-                        'اتفتح ملفّ «{file}» وإنت فيه {position} — ضمن هدف «{goal}».',
+                        'اتفتح ملفّ «{file}» وإنت فيه {position}، ضمن هدف «{goal}».',
                     ),
                 ),
                 route('volunteer.department'),

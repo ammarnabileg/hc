@@ -114,7 +114,7 @@ class PositiveMessageController extends Controller
 
         AuditTrail::log($request->user(), 'positive_messages.create', $copy, [], ['duplicated_from' => $message->id]);
 
-        return back()->with('status', (string) setting('engagement.admin.duplicate_ok', 'اتنسخت الرسالة — موقوفة لحدّ ما تراجعها ✓'));
+        return back()->with('status', (string) setting('engagement.admin.duplicate_ok', 'اتنسخت الرسالة، موقوفة لحدّ ما تراجعها ✓'));
     }
 
     public function saveSettings(Request $request): RedirectResponse
@@ -164,7 +164,7 @@ class PositiveMessageController extends Controller
         $rows = $this->importer->parse($request->file('file'), $this->messages->contexts());
 
         if ($rows === []) {
-            return back()->with('status', (string) setting('engagement.admin.import_empty', 'الملفّ فاضي — مفيش صفوفٌ نقرأها.'));
+            return back()->with('status', (string) setting('engagement.admin.import_empty', 'الملفّ فاضي، مفيش صفوفٌ نقرأها.'));
         }
 
         session(['positive_import_rows' => array_values(array_filter($rows, fn ($r) => $r['valid']))]);
@@ -179,7 +179,7 @@ class PositiveMessageController extends Controller
         session()->forget('positive_import_rows');
 
         if ($rows === []) {
-            return back()->with('status', (string) setting('engagement.admin.import_confirm_expired', 'انتهت صلاحيّة المعاينة — ارفع الملفّ تاني.'));
+            return back()->with('status', (string) setting('engagement.admin.import_confirm_expired', 'انتهت صلاحيّة المعاينة، ارفع الملفّ تاني.'));
         }
 
         $imported = $this->importer->commit($rows, $request->user()?->id);

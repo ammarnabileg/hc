@@ -271,7 +271,7 @@ class WarningRung
 
         if ($warning->contacted_at !== null) {
             throw ValidationException::withMessages([
-                'warning' => setting('volunteer.rep_warning.error_done', 'التواصل ده متوثَّق خلاص — مفيش توثيق تاني لنفس الإنذار.'),
+                'warning' => setting('volunteer.rep_warning.error_done', 'التواصل ده متوثَّق خلاص، مفيش توثيق تاني لنفس الإنذار.'),
             ]);
         }
 
@@ -292,7 +292,7 @@ class WarningRung
 
         if (! $isResponsible && ! $author->allows('admin_notes.create', $owner)) {
             throw ValidationException::withMessages([
-                'warning' => setting('volunteer.rep_warning.error_actor', 'التزام التواصل ده واقع على أبلاين العضويّة اللي وقعت فيها المعاملة — مش عليك.'),
+                'warning' => setting('volunteer.rep_warning.error_actor', 'التزام التواصل ده واقع على أبلاين العضويّة اللي وقعت فيها المعاملة، مش عليك.'),
             ]);
         }
 
@@ -421,7 +421,7 @@ class WarningRung
             $upline,
             'account',
             $this->fill(setting('volunteer.rep_warning.upline_title', 'إنذار درجة الالتزام لواحد من فريقك')),
-            $this->fill(setting('volunteer.rep_warning.upline_body', 'درجة الالتزام لـ:name وصلت :score — المؤشّر الأحمر شغّال. التواصل الموثَّق واقع على أبلاين العضويّة اللي وقعت فيها المعاملة، وأنت شايف الحالة عشان تسند.'), [':name' => (string) $owner->name, ':score' => $score]),
+            $this->fill(setting('volunteer.rep_warning.upline_body', 'درجة الالتزام لـ:name وصلت :score، والمؤشّر الأحمر شغّال. التواصل الموثَّق واقع على أبلاين العضويّة اللي وقعت فيها المعاملة، وأنت شايف الحالة عشان تسند.'), [':name' => (string) $owner->name, ':score' => $score]),
             null,
             'volunteer',
         );

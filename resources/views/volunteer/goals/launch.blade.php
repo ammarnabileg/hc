@@ -10,7 +10,7 @@
     --}}
     <x-page-header
         :title="setting('volunteer.goals_launch.title', 'إطلاق الهدف')"
-        :subtitle="setting('volunteer.goals_launch.subtitle', 'بالضغطة بتبدأ نافذة التفكيك لكلّ طبقة — فالعدّ يبدأ من الإشعار لا من يوم ما اتكتبت المهمّة.')"
+        :subtitle="setting('volunteer.goals_launch.subtitle', 'بالضغطة بتبدأ نافذة التفكيك لكلّ طبقة، فالعدّ يبدأ من الإشعار لا من يوم ما اتكتبت المهمّة.')"
         :breadcrumbs="[['label' => setting('volunteer.goals_launch.label', 'الأهداف والمَعالِم'), 'url' => route('volunteer.goals')], ['label' => setting('volunteer.goals_launch.title', 'إطلاق الهدف')]]" />
 
     <div class="card p-3 mb-4 text-sm">
@@ -21,7 +21,7 @@
         @can('goals.create')
             {{-- مدخل رحلة البناء (23 — 1.1 … 1.4) — وهي ما يسبق هذه الشاشة --}}
             <a class="block mt-2 text-xs hover:underline" style="color: var(--color-brand-500)"
-               href="{{ route('volunteer.goals.build') }}">{{ setting('volunteer.goals_launch.link', 'رحلة بناء الهدف — إنشاء وتفكيك وتجميع وتسعير') }}</a>
+               href="{{ route('volunteer.goals.build') }}">{{ setting('volunteer.goals_launch.link', 'رحلة بناء الهدف: إنشاء وتفكيك وتجميع وتسعير') }}</a>
         @endcan
     </div>
 
@@ -63,7 +63,7 @@
                 @endif
             </article>
         @empty
-            <x-empty :message="setting('volunteer.goals_launch.empty', 'مفيش أهداف مستنية الإطلاق — كلّها اتبعتت للتنفيذ.')"
+            <x-empty :message="setting('volunteer.goals_launch.empty', 'مفيش أهداف مستنية الإطلاق. كلّها اتبعتت للتنفيذ.')"
                      :action="setting('volunteer.goals_launch.action_2', 'شوف الأهداف الجارية')" :href="route('volunteer.goals')" />
         @endforelse
     </section>

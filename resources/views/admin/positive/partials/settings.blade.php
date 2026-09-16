@@ -10,7 +10,7 @@
     <summary class="cursor-pointer font-bold select-none"><x-icon name="settings" size="16" /> {{ setting('admin.positive.partials.settings.iadadat_alrsayl_aliyjabya', 'إعدادات الرسائل الإيجابيّة') }}</summary>
 
     <p class="text-xs mt-2" style="color: var(--text-muted)">
-        {{ setting('admin.positive.partials.settings.alnsb_dy_ahtmalat_hqyqya_tshb_lhza_thmyl', 'النِّسَب دي احتمالات حقيقيّة تُسحَب لحظة تحميل الصفحة — بلا أرقام وهميّة ولا ضغط على المستخدم (2.9).') }}
+        {{ setting('admin.positive.partials.settings.alnsb_dy_ahtmalat_hqyqya_tshb_lhza_thmyl', 'النِّسَب دي احتمالات حقيقيّة تُسحَب لحظة تحميل الصفحة، بلا أرقام وهميّة ولا ضغط على المستخدم (2.9).') }}
     </p>
 
     <form method="post" action="{{ route('admin.positive.settings') }}" class="mt-3">

@@ -52,7 +52,7 @@
             @include('volunteer.meetings.partials.icon', ['name' => 'escalation']) {{ setting('volunteer.transactions_objection_panel.heading_3', 'سلّم التصعيد') }}
         </h3>
         @if ($ladder->isEmpty())
-            <p class="text-xs" style="color: var(--text-muted)">{{ setting('volunteer.transactions_objection_panel.text_2', 'مفيش أبلاين مسجَّل — الاعتراض عند السقف مباشرةً.') }}</p>
+            <p class="text-xs" style="color: var(--text-muted)">{{ setting('volunteer.transactions_objection_panel.text_2', 'مفيش أبلاين مسجَّل، الاعتراض عند السقف مباشرةً.') }}</p>
         @else
             <ol class="space-y-2">
                 @foreach ($ladder as $step)

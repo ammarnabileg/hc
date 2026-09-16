@@ -191,7 +191,7 @@ class ObjectionController extends Controller
                 ->get()->keyBy('id'),
             'notice' => (string) setting(
                 'workflow.objection_desk.notice',
-                'لا أحد يعدّل المعاملة الأصليّة — التصحيح بمعاملة عكسيّة موثّقة.',
+                'لا أحد يعدّل المعاملة الأصليّة، التصحيح بمعاملة عكسيّة موثّقة.',
             ),
             'emptyMessage' => (string) setting('workflow.objection_desk.empty', 'مفيش اعتراضات عندك'),
         ]);

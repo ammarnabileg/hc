@@ -2,7 +2,7 @@
 
 <section class="card p-4 md:p-5">
     <h2 class="font-bold mb-1">{{ setting('admin.gamification.tabs.xp.msadr_ksb_xp_waltdhakr', 'مصادر كسب XP والتذاكر') }}</h2>
-    <p class="text-xs mb-3" style="color: var(--text-muted)">{{ setting('admin.gamification.tabs.xp.alqyma_alhd_alywmy_altfayl_walsf_alfargh', 'القيمة · الحدّ اليوميّ · التفعيل — والصفّ الفارغ يُهمَل عند الحفظ.') }}</p>
+    <p class="text-xs mb-3" style="color: var(--text-muted)">{{ setting('admin.gamification.tabs.xp.alqyma_alhd_alywmy_altfayl_walsf_alfargh', 'القيمة · الحدّ اليوميّ · التفعيل، والصفّ الفارغ يُهمَل عند الحفظ.') }}</p>
 
     <form method="post" action="{{ route('admin.gamification.xp.rows.save') }}">
         @csrf
@@ -16,7 +16,7 @@
                     @unless ($consumed)
                         <p class="col-span-2 md:col-span-5 text-xs -mt-1 mb-1 inline-flex items-start gap-1" style="color: var(--color-state-warn)">
                             <x-icon name="warning" size="13" />
-                            <span>{{ setting('admin.gamification.tabs.xp.almftah_dh_malwsh_msthlk_fy_alkwd_tadylh_msh', 'المفتاح ده مالوش مستهلك في الكود — تعديله مش هيغيّر حاجة. مكافآت النادي في تاب «الستريك» (سلّم الحضور)، ومكافأة الدعوة تذكرة مش XP.') }}</span>
+                            <span>{{ setting('admin.gamification.tabs.xp.almftah_dh_malwsh_msthlk_fy_alkwd_tadylh_msh', 'المفتاح ده مالوش مستهلك في الكود. تعديله مش هيغيّر حاجة. مكافآت النادي في تاب «الستريك» (سلّم الحضور)، ومكافأة الدعوة تذكرة مش XP.') }}</span>
                         </p>
                     @endunless
                     <label class="text-xs">{{ setting('admin.gamification.tabs.xp.almsdr', 'المصدر') }}

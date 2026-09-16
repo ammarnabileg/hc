@@ -202,7 +202,7 @@ class CheckoutController extends Controller
         return str_replace(
             '{number}',
             $number,
-            (string) setting('store.checkout.success_text', 'تمّ الشراء ✓ — طلبك رقم {number} وتلاقي شراءك في مكتبتك.'),
+            (string) setting('store.checkout.success_text', 'تمّ الشراء ✓، طلبك رقم {number} وتلاقي شراءك في مكتبتك.'),
         );
     }
 

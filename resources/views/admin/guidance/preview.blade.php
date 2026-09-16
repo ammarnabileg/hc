@@ -70,7 +70,7 @@
     <div class="card p-4 mt-4">
         <div class="text-sm font-semibold">{{ setting('admin.guidance.preview.wswm_altkhsys_aldynamyky', 'وسوم التخصيص الديناميكيّ') }}</div>
         <p class="text-xs mt-1" style="color: var(--text-muted)">
-            {{ setting('admin.guidance.preview.aktbha_fy_alns_wkl_qary_hyshwf_byanath_hw', 'اكتبها في النصّ، وكلّ قارئ هيشوف بياناته هو. والوسم اللي مالوش قيمة بيتبدّل ببديل مهذّب — محدّش هيقرا وسمًا خامًا.') }}
+            {{ setting('admin.guidance.preview.aktbha_fy_alns_wkl_qary_hyshwf_byanath_hw', 'اكتبها في النصّ، وكلّ قارئ هيشوف بياناته هو. والوسم اللي مالوش قيمة بيتبدّل ببديل مهذّب، فمحدّش هيقرا وسمًا خامًا.') }}
         </p>
         <ul class="mt-2 grid gap-1 text-xs md:grid-cols-2">
             @foreach ($tokens as $token => $meaning)

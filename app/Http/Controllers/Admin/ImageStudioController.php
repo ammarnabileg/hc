@@ -141,7 +141,7 @@ class ImageStudioController extends Controller
     public function duplicate(ImageTemplate $template): RedirectResponse
     {
         $copy = $template->replicate(['created_at', 'updated_at']);
-        $copy->name = strtr((string) setting('images.admin.duplicate_msg', ':a1 — نسخة'), [':a1' => (string) ($template->name)]);
+        $copy->name = strtr((string) setting('images.admin.duplicate_msg', ':a1 (نسخة)'), [':a1' => (string) ($template->name)]);
         $copy->is_archived = false;
         $copy->save();
 
@@ -153,7 +153,7 @@ class ImageStudioController extends Controller
     {
         $template->update(['is_archived' => true, 'is_active' => false]);
 
-        return back()->with('status', (string) setting('images.admin.archive_msg', 'القالب اتأرشف — والمنشور القديم بيفضل شغّال.'));
+        return back()->with('status', (string) setting('images.admin.archive_msg', 'القالب اتأرشف، والمنشور القديم بيفضل شغّال.'));
     }
 
     /** معاينة ببيانات مستخدم حقيقيّ — يختاره المصمّم ليرى الشكل النهائيّ فعلًا */

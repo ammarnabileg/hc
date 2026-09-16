@@ -6,7 +6,7 @@
     {{-- الشكاوى (24.3): طابور بالحالات + إسناد + ردّ + إغلاق بسبب --}}
     <x-page-header
         :title="setting('admin.guidance.complaints.alshkawa_walmqtrhat', 'الشكاوى والمقترحات')"
-        :subtitle="setting('admin.guidance.complaints.tabwr_wadh_balhalat_walrd_fy_wqth', 'طابور واضح بالحالات — والردّ في وقته.')"
+        :subtitle="setting('admin.guidance.complaints.tabwr_wadh_balhalat_walrd_fy_wqth', 'طابور واضح بالحالات، والردّ في وقته.')"
         :breadcrumbs="[['label' => setting('admin.guidance.complaints.altwjyh_waldam', 'التوجيه والدعم'), 'url' => route('admin.guidance.index')], ['label' => setting('admin.guidance.complaints.alshkawa', 'الشكاوى')]]">
         @can('complaints.edit')
             <x-slot:action>
@@ -54,7 +54,7 @@
 
     @if ($complaints->isEmpty())
         {{-- تمييز «لا شكاوى أصلًا» عن «الفلتر ما طابقش حاجة» (24.2) --}}
-        <x-empty :message="setting('admin.guidance.complaints.la_shkawa_kl_shy_hady', 'لا شكاوى — كلّ شيء هادئ.')"
+        <x-empty :message="setting('admin.guidance.complaints.la_shkawa_kl_shy_hady', 'لا شكاوى. كلّ شيء هادئ.')"
                  :filtered="$filters['q'] !== '' || $filters['status'] !== '' || $filters['category'] !== ''" />
     @else
         <div class="space-y-3">
@@ -74,7 +74,7 @@
                                 @endif
                             </div>
                             <div class="text-xs mt-1">
-                                {{ setting('admin.guidance.complaints.almayn_lh', 'المعيَّن له:') }} {{ $assigneeNames[$complaint->assigned_to] ?? setting('admin.guidance.complaints.mhdsh', '— محدّش —') }}
+                                {{ setting('admin.guidance.complaints.almayn_lh', 'المعيَّن له:') }} {{ $assigneeNames[$complaint->assigned_to] ?? setting('admin.guidance.complaints.mhdsh', 'محدّش') }}
                             </div>
                         </div>
 

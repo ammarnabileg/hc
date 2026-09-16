@@ -11,7 +11,7 @@
         'reset_done' => setting('admin.settings.partials.autosave_script.rjat_llaftrady', 'رجعت للافتراضيّ ✓'),
         'audit_by' => setting('admin.settings.partials.autosave_script.adlha', 'عدّلها'),
         'audit_none' => setting('admin.settings.partials.autosave_script.mafysh_tadyl_msjl', 'مافيش تعديل مسجَّل'),
-        'batch_failed' => setting('admin.settings.partials.autosave_script.mawsltsh_almjmwaa', 'مااوصلتش مفاتيح المجموعة — اضغط «حمّل المزيد» تاني.'),
+        'batch_failed' => setting('admin.settings.partials.autosave_script.mawsltsh_almjmwaa', 'مااوصلتش مفاتيح المجموعة. اضغط «حمّل المزيد» تاني.'),
         'batch_progress' => setting('admin.settings.partials.autosave_script.zahr_mn', 'ظاهر :shown من :total'),
         'batch_all' => setting('admin.settings.partials.autosave_script.klha_zahra', 'كلّها ظاهرة'),
     ];

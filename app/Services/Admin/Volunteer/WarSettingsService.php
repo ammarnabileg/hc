@@ -64,7 +64,7 @@ class WarSettingsService
 
     public static function lockMessage(): string
     {
-        return (string) setting('wars.lock_message', 'تعذّر الحفظ — حرب نشطة الآن، حاول بعد انتهائها.');
+        return (string) setting('wars.lock_message', 'تعذّر الحفظ، حرب نشطة الآن، حاول بعد انتهائها.');
     }
 
     /** القيم العامّة التي تظهر Placeholder في حقول الحرب */

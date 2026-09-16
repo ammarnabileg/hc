@@ -11,7 +11,7 @@
     --}}
     <x-page-header
         :title="setting('admin.volunteer.delegations.alghyabat_waltfwyd_almwqt', 'الغيابات والتفويض المؤقّت')"
-        :subtitle="setting('admin.volunteer.delegations.alghayb_almadhwr_la_ykhsm_tbatwa_wqrarath', 'الغائب المعذور لا يُخصَم تباطؤًا — وقراراته تروح لبديله لحدّ ما يرجع.')"
+        :subtitle="setting('admin.volunteer.delegations.alghayb_almadhwr_la_ykhsm_tbatwa_wqrarath', 'الغائب المعذور لا يُخصَم تباطؤًا، وقراراته تروح لبديله لحدّ ما يرجع.')"
         :breadcrumbs="[['label' => setting('admin.volunteer.delegations.alttwa', 'التطوّع'), 'url' => route('admin.volunteer.index')], ['label' => setting('admin.volunteer.delegations.alghyabat_waltfwyd', 'الغيابات والتفويض')]]" />
 
     @include('admin.volunteer.partials.tabs', ['current' => 'delegations'])
@@ -20,7 +20,7 @@
     <div class="card p-3 mb-4 text-sm space-y-1">
         <div>
             <x-icon name="info" size="16" />
-            <strong>{{ setting('admin.volunteer.delegations.alidafa_mn_alaada_walbwzshnz', 'الإضافة من «الأعضاء والبوزشنز»') }}</strong> {{ setting('admin.volunteer.delegations.yfthha_mshrf_aam_alttwa_aw_mshrf_almsar_aw', '— يفتحها مشرف عام التطوّع أو مشرف المسار أو دايركتور الكيان،') }}
+            <strong>{{ setting('admin.volunteer.delegations.alidafa_mn_alaada_walbwzshnz', 'الإضافة من «الأعضاء والبوزشنز»') }}</strong> {{ setting('admin.volunteer.delegations.yfthha_mshrf_aam_alttwa_aw_mshrf_almsar_aw', '· يفتحها مشرف عام التطوّع أو مشرف المسار أو دايركتور الكيان،') }}
             <strong>{{ setting('admin.volunteer.delegations.wla_yfthha_alshkhs_lnfsh', 'ولا يفتحها الشخص لنفسه') }}</strong> {{ setting('admin.volunteer.delegations.mnaa_llthrb', 'منعًا للتهرّب.') }}
         </div>
         <div>
@@ -35,7 +35,7 @@
         <x-kpi :label="setting('admin.volunteer.delegations.tnthy_qryba', 'تنتهي قريبًا')" :value="$kpis['ending_soon']" icon="hourglass" />
         <x-kpi :label="setting('admin.volunteer.delegations.tbda_khlal', 'تبدأ خلال ').$kpis['soon_days'].setting('admin.volunteer.delegations.ywma', ' يومًا')" :value="$kpis['upcoming']" icon="calendar" />
         <x-kpi :label="setting('admin.volunteer.delegations.bla_bdyl_nsht', 'بلا بديل نشِط')" :value="$kpis['no_delegate']" icon="warning"
-               :hint="setting('admin.volunteer.delegations.nafdha_qrar_bla_sahb_rajaha_fwra', 'نافذة قرار بلا صاحب — راجعها فورًا')" :state="$kpis['no_delegate'] > 0 ? 'danger' : 'ok'" />
+               :hint="setting('admin.volunteer.delegations.nafdha_qrar_bla_sahb_rajaha_fwra', 'نافذة قرار بلا صاحب، راجعها فورًا')" :state="$kpis['no_delegate'] > 0 ? 'danger' : 'ok'" />
     </div>
 
     {{-- 3 فلاتر ظاهرة (2.15-أ-4) --}}
@@ -112,7 +112,7 @@
                                 {{ $delegate->name }}
                                 <span class="text-xs" style="color: var(--text-muted)">— {{ $row->delegate_membership?->position?->name_ar }}</span>
                             @else
-                                <x-state-badge state="danger" :label="setting('admin.volunteer.delegations.bla_bdyl_nsht_alqrarat_malqa', 'بلا بديل نشِط — القرارات معلّقة')" />
+                                <x-state-badge state="danger" :label="setting('admin.volunteer.delegations.bla_bdyl_nsht_alqrarat_malqa', 'بلا بديل نشِط، القرارات معلّقة')" />
                             @endif
                         </dd>
                     </div>
@@ -151,7 +151,7 @@
                                         style="background: var(--color-brand-500); color: #04201c">{{ setting('admin.volunteer.delegations.anh_alghyab', 'أنهِ الغياب') }}</button>
                             </form>
                             <p class="text-xs mt-2" style="color: var(--text-muted)">
-                                {{ setting('admin.volunteer.delegations.htrja_lh_qrarath_fwra_wsaaat_mhamh_httzah', 'هترجع له قراراته فورًا، وساعات مهامّه هتتزاح بمدّة غيابه الفعليّة — لا بالمدّة المعلَنة.') }}
+                                {{ setting('admin.volunteer.delegations.htrja_lh_qrarath_fwra_wsaaat_mhamh_httzah', 'هترجع له قراراته فورًا، وساعات مهامّه هتتزاح بمدّة غيابه الفعليّة، لا بالمدّة المعلَنة.') }}
                             </p>
                         </details>
                     @endcan
@@ -161,7 +161,7 @@
             {{-- تمييز «مفيش غيابات أصلًا» عن «الفلتر/التبويب الحاليّ ما طابقش حاجة»
                  (24.2). تبويب الحالة إلزاميّ فالمعيار الخروج عن الافتراضيّ («سارية
                  الآن») لا مجرّد وجود قيمة فيه. --}}
-            <x-empty :message="setting('admin.volunteer.delegations.mfysh_ghyabat_fy_alhala_dy_alfryq_kaml', 'مفيش غيابات في الحالة دي — الفريق كامل.')"
+            <x-empty :message="setting('admin.volunteer.delegations.mfysh_ghyabat_fy_alhala_dy_alfryq_kaml', 'مفيش غيابات في الحالة دي. الفريق كامل.')"
                      :filtered="$filters['q'] !== '' || $filters['entity'] !== null || $filters['state'] !== 'current'" />
         @endforelse
     </section>

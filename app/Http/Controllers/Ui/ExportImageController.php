@@ -36,7 +36,7 @@ class ExportImageController extends Controller
     public function __invoke(Request $request): Response
     {
         if (! URL::hasValidSignature($request, true, self::UNSIGNED)) {
-            abort(403, (string) setting('images.export.invoke_denied', 'الرابط ده مش صالح — ارجع للوحة واضغط [استخراج كصورة] من جديد.'));
+            abort(403, (string) setting('images.export.invoke_denied', 'الرابط ده مش صالح، ارجع للوحة واضغط [استخراج كصورة] من جديد.'));
         }
 
         $snapshot = BoardSnapshot::decode((string) $request->query('d', ''));

@@ -6,7 +6,7 @@
 <div class="panel w-full max-w-sm animate-fadeup">
     <h1>{{ setting('auth.password_reset.request_title', 'نسيت كلمة السرّ؟') }}</h1>
     <p class="mt-3 mb-6 muted">
-        {{ setting('auth.password_reset.request_hint', 'اكتب بريدك وهنبعتلك رابط ورمز — أيّهما أسهل عليك.') }}
+        {{ setting('auth.password_reset.request_hint', 'اكتب بريدك، وهنبعتلك رابط ورمز. اختار الأسهل عليك.') }}
     </p>
 
     <form method="post" action="{{ route('password.email') }}" class="stack" style="gap: 14px">

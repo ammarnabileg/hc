@@ -102,10 +102,10 @@ class CvController extends Controller
             'balance_after' => $owned ? $balance : max(0, $balance - $price),
             'topup_url' => Route::has('wallet.tickets') ? route('wallet.tickets') : null,
             'message' => $owned
-                ? (string) setting('cv.template.selected_message', 'اتغيّر القالب — شوف المعاينة.')
+                ? (string) setting('cv.template.selected_message', 'اتغيّر القالب، شوف المعاينة.')
                 : str_replace(':price', (string) $price, (string) setting(
                     'cv.template.selected_paid_message',
-                    'اتغيّر القالب — المعاينة بعلامة مائيّة، و:price تذكرة هتتخصم عند التحميل.',
+                    'اتغيّر القالب، والمعاينة بعلامة مائيّة، و:price تذكرة هتتخصم عند التحميل.',
                 )),
         ]);
     }
@@ -257,7 +257,7 @@ class CvController extends Controller
 
         return redirect()->to($target)->with('status', (string) setting(
             'cv.guest.register_prompt',
-            'سيرتك جاهزة ومحفوظة ✓ — أنشئ حسابك دلوقتي وحمّلها PDF.',
+            'سيرتك جاهزة ومحفوظة ✓، أنشئ حسابك دلوقتي وحمّلها PDF.',
         ));
     }
 

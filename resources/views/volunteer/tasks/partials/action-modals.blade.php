@@ -111,7 +111,7 @@
 
             <p class="text-xs" style="color: var(--text-muted)">
                 {{ setting('volunteer.tasks_action_modals.text_6', 'الاعتذار المقبول أثره') }} {{ rtrim(rtrim(number_format(rep_rule('task.apology_accepted'), 2), '0'), '.') }}
-                {{ setting('volunteer.tasks_action_modals.text_7', 'على درجة الالتزام — والقرار لمراجعك.') }}
+                {{ setting('volunteer.tasks_action_modals.text_7', 'على درجة الالتزام، والقرار لمراجعك.') }}
             </p>
 
             <div class="flex justify-end gap-2 pt-2">
@@ -124,7 +124,7 @@
     </x-modal>
 
     {{-- Create Subtask دفعةً — بفحص القيد عند الحفظ (23-2.3) --}}
-    <x-modal id="subtasks-batch" :title="setting('volunteer.tasks_action_modals.tooltip_5', 'Create Subtask — دفعة')">
+    <x-modal id="subtasks-batch" :title="setting('volunteer.tasks_action_modals.tooltip_5', 'Create Subtask: دفعة')">
         <form method="post" action="{{ route('volunteer.tasks.subtasks.store', $task) }}" class="space-y-3">
             @csrf
 
@@ -188,7 +188,7 @@
                 </label>
 
                 <p class="text-xs" style="color: var(--text-muted)">
-                    {{ setting('volunteer.tasks_action_modals.text_12', 'مرّة واحدة للمهمّة، وقبل فوات نافذتك — والنظام بيتأكّد إنّ الابن متأخّر فعلًا.') }}
+                    {{ setting('volunteer.tasks_action_modals.text_12', 'مرّة واحدة للمهمّة، وقبل فوات نافذتك، والنظام بيتأكّد إنّ الابن متأخّر فعلًا.') }}
                 </p>
 
                 <div class="flex justify-end gap-2 pt-2">

@@ -87,7 +87,7 @@
 
         {{-- نصّ المنشور جاهز وقابل للتعديل قبل النسخ (21.1-أ) --}}
         <label class="block mt-3 text-xs" style="color: var(--text-muted)">
-            {{ setting('certificates.labels.share_text', 'نصّ المنشور — عدّله زيّ ما تحبّ') }}
+            {{ setting('certificates.labels.share_text', 'نصّ المنشور، عدّله زيّ ما تحبّ') }}
             <textarea rows="3" class="w-full mt-1 rounded-xl px-3 py-2 text-sm"
                       style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">{{ $shareText }}
 

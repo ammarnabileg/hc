@@ -5,7 +5,7 @@
 @section('content')
     <x-page-header
         :title="setting('volunteer.goals_packages.title', 'حزم العمل')"
-        :subtitle="setting('volunteer.goals_packages.subtitle', 'الحزم المربوطة بكيانك — وكلّ حزمة بنودها التي تُربَط بها المهامّ.')"
+        :subtitle="setting('volunteer.goals_packages.subtitle', 'الحزم المربوطة بكيانك، وكلّ حزمة بنودها التي تُربَط بها المهامّ.')"
         :breadcrumbs="[['label' => setting('volunteer.goals_packages.label', 'الأهداف والمَعالِم'), 'url' => route('volunteer.goals')], ['label' => setting('volunteer.goals_packages.title', 'حزم العمل')]]" />
 
     <x-filters :action="route('volunteer.packages')">

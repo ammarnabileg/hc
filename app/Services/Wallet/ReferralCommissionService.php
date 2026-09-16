@@ -154,7 +154,7 @@ class ReferralCommissionService
                 'layer' => 'platform',
                 'category' => 'wallet',
                 'title' => setting('wallet.referral_commission_service.record_2', 'نزلت لك عمولة دعوة ✓'),
-                'body' => strtr(setting('wallet.referral_commission_service.record_3', 'اتضاف لأرباحك $:p1 من شحن حد دعوته — جاهزة للسحب.'), [':p1' => (string) ($this->number($amountUsd))]),
+                'body' => strtr(setting('wallet.referral_commission_service.record_3', 'اتضاف لأرباحك $:p1 من شحن حد دعوته، وجاهزة للسحب.'), [':p1' => (string) ($this->number($amountUsd))]),
                 'url' => route('wallet.withdrawals'),
                 'reference_type' => $commission->getMorphClass(),
                 'reference_id' => $commission->getKey(),

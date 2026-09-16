@@ -103,7 +103,7 @@
                 @include('wallet.components.amount', ['value' => $row->applied_amount ?? $row->amount])
             </div>
         @empty
-            <x-empty :message="setting('wallet.tickets.empty_message', 'لسّه مافيش تذاكر — أوّل درس هيجيبلك أوّل تذكرة.')"
+            <x-empty :message="setting('wallet.tickets.empty_message', 'لسّه مافيش تذاكر، أوّل درس هيجيبلك أوّل تذكرة.')"
                      :action="setting('wallet.tickets.empty_action', 'ابدأ تعلّمك')" :href="route('dashboard')" />
         @endforelse
     </section>

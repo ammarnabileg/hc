@@ -15,7 +15,7 @@
 @section('content')
     <x-page-header
         :title="setting('streaks.screen.title', 'الستريك ونادي الخامسة')"
-        :subtitle="setting('streaks.screen.subtitle', 'استمراريّتك اليوميّة — يوم ورا يوم، والعادة بتتبني.')"
+        :subtitle="setting('streaks.screen.subtitle', 'استمراريّتك اليوميّة، يوم ورا يوم، والعادة بتتبني.')"
         :breadcrumbs="[['label' => setting('streaks.screen.breadcrumb_root', 'إنجازاتي')], ['label' => setting('streaks.screen.breadcrumb_self', 'الستريك')]]">
         <x-slot:action>
             {{-- ⭐ الستريك ونادي الخامسة ضمن قائمة الاستخراج كصورة (12.14-هـ) --}}
@@ -49,7 +49,7 @@
             <div class="flex items-start gap-2">
                 <x-state-badge state="honor" :label="setting('streaks.screen.reward_ready_badge', 'مكافأة جاهزة')" />
                 <p class="text-sm">
-                    {!! str_replace(':days', '<strong>'.(int) $streak->current_days.'</strong>', e(setting('streaks.screen.reward_ready_message', 'كمّلت :days يوم متواصل — تذكرة الهدية في انتظارك'))) !!} <x-icon name="ticket" size="16" />
+                    {!! str_replace(':days', '<strong>'.(int) $streak->current_days.'</strong>', e(setting('streaks.screen.reward_ready_message', 'كمّلت :days يوم متواصل، تذكرة الهدية في انتظارك'))) !!} <x-icon name="ticket" size="16" />
                 </p>
             </div>
 
@@ -69,7 +69,7 @@
         <div class="card p-4 mb-4 text-sm" style="border-color: var(--border)">
             <p class="font-semibold">{{ setting('streaks.screen.broken_title', 'ابدأ من جديد النهارده') }} <x-icon name="contribution" size="16" /></p>
             <p class="mt-1" style="color: var(--text-muted)">
-                {{ str_replace(':best', (int) $streak->best_days, (string) setting('streaks.screen.broken_message', 'الستريك اتقطع، وده بيحصل. أطول ستريك عملته (:best يوم) لسّه محفوظ ليك — وأوّل يوم في السلسلة الجديدة بيبدأ بضغطة.')) }}
+                {{ str_replace(':best', (int) $streak->best_days, (string) setting('streaks.screen.broken_message', 'الستريك اتقطع، وده بيحصل. أطول ستريك عملته (:best يوم) لسّه محفوظ ليك، وأوّل يوم في السلسلة الجديدة بيبدأ بضغطة.')) }}
             </p>
         </div>
     @endif
@@ -139,7 +139,7 @@
             </div>
 
             <ul class="mt-3 space-y-1 text-xs" style="color: var(--text-muted)">
-                <li>• {{ setting('streaks.screen.rule_not_consecutive', 'الأيّام مش لازم متتابعة — الهدف بناء العادة.') }}</li>
+                <li>• {{ setting('streaks.screen.rule_not_consecutive', 'الأيّام مش لازم متتابعة، الهدف بناء العادة.') }}</li>
                 <li>• {{ str_replace(':days', (int) $rewardEvery, (string) setting('streaks.screen.rule_reward_cycle', 'كلّ :days أيّام متواصلة = مكافأة تذكرة هدية')) }} <x-icon name="ticket" size="16" />.</li>
                 <li>• {{ setting('streaks.screen.rule_freeze', 'درع التجميد بيحمي يوم فايت من كسر السلسلة.') }}</li>
             </ul>
@@ -153,7 +153,7 @@
                         {!! str_replace(
                             [':day', ':cost'],
                             ['<strong style="color: var(--text)">'.e($freezableDay->translatedFormat('j F')).'</strong>', (int) $freezeCost],
-                            e(setting('streaks.screen.freezable_day', 'يوم :day فايت — احميه بـ:cost تذكرة قبل ما السلسلة تنكسر.')),
+                            e(setting('streaks.screen.freezable_day', 'يوم :day فايت، احميه بـ:cost تذكرة قبل ما السلسلة تنكسر.')),
                         ) !!}
                     </p>
 
@@ -167,7 +167,7 @@
                     </form>
                 @else
                     <p class="text-xs" style="color: var(--text-muted)">
-                        {{ setting('streaks.freeze.nothing_message', 'مفيش يوم فايت محتاج حماية دلوقتي — سلسلتك سليمة.') }}
+                        {{ setting('streaks.freeze.nothing_message', 'مفيش يوم فايت محتاج حماية دلوقتي. سلسلتك سليمة.') }}
                     </p>
                 @endif
 

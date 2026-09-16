@@ -8,7 +8,7 @@
 
 <div class="card p-4 mb-3 flex items-start gap-3">
     <x-state-badge state="warn" :label="setting('volunteer.profile_tab_notes.label', 'سرّيّة')" />
-    <p class="text-sm">{{ setting('volunteer.profile_tab_notes.text', 'الملاحظات دي بتتسجّل باسمك وبتاريخها في سجلّ التدقيق — واستخدامها لقرار، مش لتصفية حساب.') }}</p>
+    <p class="text-sm">{{ setting('volunteer.profile_tab_notes.text', 'الملاحظات دي بتتسجّل باسمك وبتاريخها في سجلّ التدقيق، واستخدامها لقرار، مش لتصفية حساب.') }}</p>
 </div>
 
 @if ($n['can_write'])

@@ -14,7 +14,7 @@
 @section('content')
     <x-page-header
         :title="setting('volunteer.goals.title', 'الأهداف والمَعالِم')"
-        :subtitle="setting('volunteer.goals.subtitle', 'النِّسَب بتصعد لوحدها من المهامّ — محدّش بيكتب تقرير حالة.')"
+        :subtitle="setting('volunteer.goals.subtitle', 'النِّسَب بتصعد لوحدها من المهامّ، ومحدّش بيكتب تقرير حالة.')"
         :breadcrumbs="[['label' => setting('volunteer.common.breadcrumb_root', 'لوحة التطوّع'), 'url' => url('/volunteer/goals')], ['label' => setting('volunteer.goals.title', 'الأهداف والمَعالِم')]]">
         <x-slot:action>
             @if ($completed)
@@ -212,7 +212,7 @@
                             <form method="post" action="{{ route('volunteer.goals.declare', $milestone) }}" class="space-y-2">
                                 @csrf
                                 <label class="block">
-                                    <span class="block text-xs mb-1" style="color: var(--text-muted)">{{ setting('volunteer.goals.field_13', 'الدليل المرفق (رابط أو وصف) — إلزاميّ') }}</span>
+                                    <span class="block text-xs mb-1" style="color: var(--text-muted)">{{ setting('volunteer.goals.field_13', 'الدليل المرفق (رابط أو وصف) إلزاميّ') }}</span>
                                     <textarea name="evidence" rows="3" required minlength="10"
                                               class="w-full rounded-xl px-3 py-2 text-sm"
                                               style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)"
@@ -246,7 +246,7 @@
         @endforeach
 
         @if ($completed)
-            <x-modal id="closing-report" :title="setting('volunteer.goals.tooltip', 'تقرير الإغلاق — شجرة النتائج')">
+            <x-modal id="closing-report" :title="setting('volunteer.goals.tooltip', 'تقرير الإغلاق: شجرة النتائج')">
                 <div class="space-y-2 text-sm">
                     @foreach ($goals->where('status', 'completed') as $goal)
                         <div class="rounded-xl p-3" style="background: var(--surface-raised)">

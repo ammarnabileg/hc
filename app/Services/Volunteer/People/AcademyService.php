@@ -141,7 +141,7 @@ class AcademyService
     public function completionMessage(array $progress): string
     {
         return $progress['target']
-            ? (string) setting('academy.complete.linked_message', 'أنت جاهز للامتحان — كلّ المذاكرة خلصت.')
+            ? (string) setting('academy.complete.linked_message', 'أنت جاهز للامتحان، كلّ المذاكرة خلصت.')
             : (string) setting('academy.complete.pure_message', 'أتممت المسار 🎉');
     }
 

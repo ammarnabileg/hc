@@ -25,7 +25,7 @@
 @section('content')
     <x-page-header
         :title="$meeting->title"
-        :subtitle="$meeting->scheduled_at?->format('Y-m-d · H:i').setting('volunteer.meetings_show.subtitle', ' — صاحبه ').$meeting->owner?->name"
+        :subtitle="$meeting->scheduled_at?->format('Y-m-d · H:i').setting('volunteer.meetings_show.subtitle', ': صاحبه ').$meeting->owner?->name"
         :breadcrumbs="[
             ['label' => setting('volunteer.meetings_show.label', 'الاجتماعات'), 'url' => route('volunteer.meetings')],
             ['label' => $meeting->title],
@@ -109,7 +109,7 @@
 
     @if ($tab === 'attendance')
         @if (! $canSeeFull)
-            <p class="text-xs mb-3" style="color: var(--text-muted)">{{ setting('volunteer.meetings_show.text_10', 'القائمة الكاملة للمخوَّل — وإنت شايف حالتك إنت.') }}</p>
+            <p class="text-xs mb-3" style="color: var(--text-muted)">{{ setting('volunteer.meetings_show.text_10', 'القائمة الكاملة للمخوَّل، وإنت شايف حالتك إنت.') }}</p>
         @endif
 
         @if ($rows->isEmpty())
@@ -228,7 +228,7 @@
         </div>
 
         @if ($posts->isEmpty())
-            <x-empty :message="setting('volunteer.meetings_show.empty_2', 'ابدأ أوّل بوست — النقاش بيبدأ بواحد')" />
+            <x-empty :message="setting('volunteer.meetings_show.empty_2', 'ابدأ أوّل بوست، النقاش بيبدأ بواحد')" />
         @else
             <div class="space-y-3">
                 @foreach ($posts as $post)

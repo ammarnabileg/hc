@@ -39,7 +39,7 @@
                 <span style="color: var(--text-muted)">{{ setting('learning.availability.countdown_label') }}</span>
                 <strong data-availability-countdown="{{ $opensIn }}"
                         style="color: var(--color-brand-400)">{{ $initialCountdown }}</strong>
-                <span style="color: var(--text-muted)">· {{ $opensAt->translatedFormat(setting('learning.availability.stamp_format', 'l j F — H:i')) }}</span>
+                <span style="color: var(--text-muted)">· {{ $opensAt->translatedFormat(setting('learning.availability.stamp_format', 'l j F - H:i')) }}</span>
             </div>
         @endif
 

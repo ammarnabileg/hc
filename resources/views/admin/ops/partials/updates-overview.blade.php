@@ -41,7 +41,7 @@
 
 {{-- قواعد مثبّتة تُعرَض دائمًا (2.11): لا تنفيذ بلا معاينة، ولا ترحيل بلا نسخة --}}
 <div class="card p-3 mb-4 text-xs" style="color: var(--text-muted)">
-    {{ setting('admin.ops.partials.updates_overview.kl_hjra_ttnfdh_mra_wahda_mafysh_hdhf_aama', 'كلّ هجرة تتنفّذ مرّة واحدة · مافيش حذف أعمى — الحذف بعد نقل وتحقّق · الأعمدة الجديدة بقيم افتراضيّة · رفع الكود مابيمسّش الإعدادات ولا المرفوعات ولا الأسرار · النسخة الاحتياطيّة بتتاخد وتتفحص قبل الترحيل · وضع الصيانة بيتفعّل أثناء الترحيل ويترفع بعده') }}
+    {{ setting('admin.ops.partials.updates_overview.kl_hjra_ttnfdh_mra_wahda_mafysh_hdhf_aama', 'كلّ هجرة تتنفّذ مرّة واحدة · مافيش حذف أعمى، الحذف بعد نقل وتحقّق · الأعمدة الجديدة بقيم افتراضيّة · رفع الكود مابيمسّش الإعدادات ولا المرفوعات ولا الأسرار · النسخة الاحتياطيّة بتتاخد وتتفحص قبل الترحيل · وضع الصيانة بيتفعّل أثناء الترحيل ويترفع بعده') }}
     @if (setting('updates.dry_run_required', true)) {{ setting('admin.ops.partials.updates_overview.waldry_run_ilzamy_qbl_altnfydh', '· والـDry-run إلزاميّ قبل التنفيذ') }} @endif
 </div>
 
@@ -199,7 +199,7 @@
         @if ($lastBatch === [])
             <p class="text-sm" style="color: var(--text-muted)">{{ setting('admin.ops.partials.updates_overview.mafysh_dfaa_nrja_anha', 'مافيش دفعة نرجع عنها.') }}</p>
         @else
-            <p class="text-sm mb-2">{{ setting('admin.ops.partials.updates_overview.alastrjaa_hyshyl_alhjrat_dy', 'الاسترجاع هيشيل الهجرات دي —') }} <strong>{{ setting('admin.ops.partials.updates_overview.wkl_albyanat_ally_jwaha_htrwh_wla_trja', 'وكلّ البيانات اللي جواها هتروح ولا ترجع') }}</strong>:</p>
+            <p class="text-sm mb-2">{{ setting('admin.ops.partials.updates_overview.alastrjaa_hyshyl_alhjrat_dy', 'الاسترجاع هيشيل الهجرات دي،') }} <strong>{{ setting('admin.ops.partials.updates_overview.wkl_albyanat_ally_jwaha_htrwh_wla_trja', 'وكلّ البيانات اللي جواها هتروح ولا ترجع') }}</strong>:</p>
             <ul class="mb-3">
                 @foreach ($lastBatch as $name)
                     <li class="font-mono text-xs break-all py-1">{{ $name }}</li>

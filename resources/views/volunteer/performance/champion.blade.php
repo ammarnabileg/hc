@@ -23,7 +23,7 @@
 @section('content')
     <x-page-header
         :title="setting('volunteer.performance_champion.title', 'مشرف الشهر')"
-        :subtitle="setting('volunteer.performance_champion.subtitle', 'التحديث القادم: ').$nextUpdate->format('Y/m/d H:i').setting('volunteer.performance_champion.subtitle_2', ' — واللوحة ثابتة حتى وقتها.')"
+        :subtitle="setting('volunteer.performance_champion.subtitle', 'التحديث القادم: ').$nextUpdate->format('Y/m/d H:i').setting('volunteer.performance_champion.subtitle_2', '. واللوحة ثابتة حتى وقتها.')"
         :breadcrumbs="[['label' => setting('volunteer.performance_champion.label', 'الأداء'), 'url' => route('volunteer.performance.vxp')], ['label' => setting('volunteer.performance_champion.title', 'مشرف الشهر')]]">
         {{-- ⭐ [استخراج كصورة] — بطاقة مشرف الشهر (12.14-هـ) --}}
         <x-slot:action>

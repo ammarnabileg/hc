@@ -6,7 +6,7 @@
     {{-- تحليلات عميقة: نسبة القراءة ومَن قرأ ومَن أقرّ (12.6-أ) --}}
     <x-page-header
         :title="setting('admin.guidance.analytics.thlylat', 'تحليلات: ').$announcement->title"
-        :subtitle="setting('admin.guidance.analytics.myn_qra_wmyn_aqr_waliqrar_mhswb_mra_wahda', 'مين قرأ ومين أقرّ — والإقرار محسوب مرّة واحدة لكلّ منشور.')"
+        :subtitle="setting('admin.guidance.analytics.myn_qra_wmyn_aqr_waliqrar_mhswb_mra_wahda', 'مين قرأ ومين أقرّ، والإقرار محسوب مرّة واحدة لكلّ منشور.')"
         :breadcrumbs="[
             ['label' => setting('admin.guidance.analytics.altalymat', 'التعليمات'), 'url' => route('admin.guidance.index')],
             ['label' => setting('admin.guidance.analytics.thlylat_2', 'تحليلات')],
@@ -44,13 +44,13 @@
         <div class="card p-4 mb-4">
             <div class="text-sm font-semibold flex items-center gap-2"><x-icon name="chart" size="16" /> {{ setting('admin.guidance.analytics.saaat_alqraa', 'ساعات القراءة') }}</div>
             <p class="text-xs mt-1" style="color: var(--text-muted)">
-                {!! strtr(setting('admin.guidance.analytics.mhswba_mn_v1_qraa_fy_akhr_v2_ywma_abath_fy', 'محسوبة من :v1 قراءة في آخر :v2 يومًا — ابعث في الساعة دي يوصلك أعلى قراءة.'), [':v1' => e($bestTime['sample']), ':v2' => e(setting('announcements.analytics.best_time_days', 90))]) !!}
+                {!! strtr(setting('admin.guidance.analytics.mhswba_mn_v1_qraa_fy_akhr_v2_ywma_abath_fy', 'محسوبة من :v1 قراءة في آخر :v2 يومًا. ابعث في الساعة دي يوصلك أعلى قراءة.'), [':v1' => e($bestTime['sample']), ':v2' => e(setting('announcements.analytics.best_time_days', 90))]) !!}
             </p>
             <div class="mt-3 flex items-end gap-1 min-w-0 overflow-x-auto" style="min-height: 4rem">
                 @php $peak = max(1, max($bestTime['hours'])); @endphp
                 @foreach ($bestTime['hours'] as $hour => $count)
                     <div class="flex flex-col items-center gap-1 shrink-0" style="width: 1.5rem"
-                         title="{{ strtr(setting('admin.guidance.analytics.v1_00_v2_qraa', ':v1:00 — :v2 قراءة'), [':v1' => e(str_pad((string) $hour, 2, '0', STR_PAD_LEFT)), ':v2' => e($count)]) }}">
+                         title="{{ strtr(setting('admin.guidance.analytics.v1_00_v2_qraa', ':v1:00، :v2 قراءة'), [':v1' => e(str_pad((string) $hour, 2, '0', STR_PAD_LEFT)), ':v2' => e($count)]) }}">
                         <div class="w-full rounded-t"
                              style="height: {{ max(2, (int) round(($count / $peak) * 48)) }}px; background: {{ $hour === $bestHour ? 'var(--color-brand-500)' : 'var(--surface-raised)' }}"></div>
                         <span class="text-[10px]" style="color: var(--text-muted)">{{ $hour }}</span>
@@ -64,7 +64,7 @@
         <div class="card p-4 mb-4">
             <div class="text-sm font-semibold">{{ setting('admin.guidance.analytics.ntyja_alasttlaa', 'نتيجة الاستطلاع') }}</div>
             <div class="text-xs mt-1" style="color: var(--text-muted)">
-                {{ $poll['public'] ? setting('admin.guidance.analytics.alntyja_marwda_llmstkhdmyn', 'النتيجة معروضة للمستخدمين.') : ($poll['closed'] ? setting('admin.guidance.analytics.kant_mkhfya_walasttlaa_atqfl_fbant_lhm', 'كانت مخفيّة، والاستطلاع اتقفل فبانت لهم.') : setting('admin.guidance.analytics.alntyja_mkhfya_an_almstkhdmyn_lhd_ma', 'النتيجة مخفيّة عن المستخدمين لحدّ ما الاستطلاع يقفل — وما بتوصلش متصفّحهم أصلًا.')) }}
+                {{ $poll['public'] ? setting('admin.guidance.analytics.alntyja_marwda_llmstkhdmyn', 'النتيجة معروضة للمستخدمين.') : ($poll['closed'] ? setting('admin.guidance.analytics.kant_mkhfya_walasttlaa_atqfl_fbant_lhm', 'كانت مخفيّة، والاستطلاع اتقفل فبانت لهم.') : setting('admin.guidance.analytics.alntyja_mkhfya_an_almstkhdmyn_lhd_ma', 'النتيجة مخفيّة عن المستخدمين لحدّ ما الاستطلاع يقفل، وما بتوصلش متصفّحهم أصلًا.')) }}
             </div>
             <div class="mt-3 space-y-2">
                 @foreach ($poll['options'] as $index => $option)

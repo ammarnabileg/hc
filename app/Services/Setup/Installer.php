@@ -110,7 +110,7 @@ class Installer
         $role = Role::where('key', $roleKey)->first();
 
         if (! $role) {
-            throw new RuntimeException(strtr(setting('setup.installer.create_owner_1', 'دور «:p1» مش موجود في قاعدة البيانات — يبدو إنّ خطوة تجهيز البيانات الأساسيّة ماتمّتش. ارجع لخطوة قاعدة البيانات وشغّل التجهيز تاني.'), [':p1' => (string) ($roleKey)]));
+            throw new RuntimeException(strtr(setting('setup.installer.create_owner_1', 'دور «:p1» مش موجود في قاعدة البيانات، يبدو إنّ خطوة تجهيز البيانات الأساسيّة ماتمّتش. ارجع لخطوة قاعدة البيانات وشغّل التجهيز تاني.'), [':p1' => (string) ($roleKey)]));
         }
 
         return DB::transaction(function () use ($data, $role) {

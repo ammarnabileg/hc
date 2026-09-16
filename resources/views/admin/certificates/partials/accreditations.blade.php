@@ -76,7 +76,7 @@
                             <div class="font-semibold flex items-center gap-2">
                                 {{ $accreditation->name_ar }}
                                 @if ($accreditation->is_platform)
-                                    <span title="{{ setting('admin.certificates.partials.accreditations.aatmad_almnsa_thabt_wla_ytshal', 'اعتماد المنصّة — ثابت ولا يتشال') }}" aria-label="{{ setting('admin.certificates.partials.accreditations.mqfwl', 'مقفول') }}"><x-icon name="lock" size="14" /></span>
+                                    <span title="{{ setting('admin.certificates.partials.accreditations.aatmad_almnsa_thabt_wla_ytshal', 'اعتماد المنصّة: ثابت ولا يتشال') }}" aria-label="{{ setting('admin.certificates.partials.accreditations.mqfwl', 'مقفول') }}"><x-icon name="lock" size="14" /></span>
                                 @endif
                             </div>
                             @if ($accreditation->verify_note_ar)

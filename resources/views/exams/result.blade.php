@@ -9,7 +9,7 @@
         {{-- انتهاء الوقت ⟵ تسليم تلقائيّ برسالة واضحة (24.5) --}}
         <div class="card p-3 mb-4 flex items-center gap-2 text-sm">
             <x-state-badge state="warn" label="" />
-            <span>{{ setting('exams.messages.time_up', 'خلص الوقت — سلّمنا إجاباتك تلقائيًّا.') }}</span>
+            <span>{{ setting('exams.messages.time_up', 'خلص الوقت، سلّمنا إجاباتك تلقائيًّا.') }}</span>
         </div>
     @endif
 
@@ -30,7 +30,7 @@
                 {{ str_replace((string) setting('exams.result.expr_1', '[الاسم]'), $attempt->user->name, (string) setting('exams.messages.passed', 'مبروك يا [الاسم] 🎉 عدّيت الامتحان.')) }}
             @else
                 {{-- الرسوب برسالة محايدة تشجّع ولا تعاتب (2.17-ج · 13.4-ق-و) --}}
-                {{ setting('exams.messages.failed', 'مش المرّة دي. راجع الدروس وجرّب تاني — ومحاولتك الجاية متاحة حسب قواعد الامتحان.') }}
+                {{ setting('exams.messages.failed', 'مش المرّة دي. راجع الدروس وجرّب تاني، ومحاولتك الجاية متاحة حسب قواعد الامتحان.') }}
             @endif
         </p>
 
@@ -77,7 +77,7 @@
                     {{ str_replace((string) setting('exams.result.expr_2', '[الاسم]'), $attempt->user->name, (string) setting('celebrations.certificate.title', 'مبروك يا [الاسم]')) }}
                 </h2>
                 <p class="text-sm mt-2" style="color: var(--text-muted)">
-                    {{ setting('celebrations.certificate.message', 'شهادتك الجديدة صدرت — تقدر تشاركها دلوقتي.') }}
+                    {{ setting('celebrations.certificate.message', 'شهادتك الجديدة صدرت، تقدر تشاركها دلوقتي.') }}
                 </p>
                 <div class="flex flex-wrap justify-center gap-2 mt-4">
                     <a href="{{ route('learning.certificates') }}" class="btn rounded-xl px-4 py-2 text-sm font-semibold motion-standard"

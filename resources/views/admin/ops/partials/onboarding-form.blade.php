@@ -14,7 +14,7 @@
                     <span class="block text-sm mb-1">{{ setting('admin.ops.partials.onboarding_form.alns', 'النصّ') }}</span>
                     <textarea name="body_ar" rows="3" class="w-full rounded-xl px-3 py-2 text-sm"
                               style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)"></textarea>
-                    <span class="block text-xs mt-1" style="color: var(--text-muted)">{{ setting('admin.ops.partials.onboarding_form.stryn_ala_alakthr_almstkhdm_byqra_bsraa', 'سطرين على الأكثر — المستخدم بيقرأ بسرعة.') }}</span>
+                    <span class="block text-xs mt-1" style="color: var(--text-muted)">{{ setting('admin.ops.partials.onboarding_form.stryn_ala_alakthr_almstkhdm_byqra_bsraa', 'سطرين على الأكثر، المستخدم بيقرأ بسرعة.') }}</span>
                 </label>
 
                 <div class="grid gap-3 md:grid-cols-2">

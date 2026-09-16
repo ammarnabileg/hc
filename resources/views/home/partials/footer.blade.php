@@ -1,6 +1,6 @@
 @php
     /** تذييل بسيط — روابط عامّة موجودة فعلًا فقط، فلا رابط مكسور في صفحة مفهرسة */
-    $note = (string) setting('home.footer.note', 'منصّة تعلّم وتطوّع عربيّة — بنتعلّم ونشتغل جنب بعض.');
+    $note = (string) setting('home.footer.note', 'منصّة تعلّم وتطوّع عربيّة، بنتعلّم ونشتغل جنب بعض.');
     $links = [];
 
     if (\Illuminate\Support\Facades\Route::has('verify.certificate')) {

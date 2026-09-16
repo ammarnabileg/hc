@@ -18,7 +18,7 @@
 @section('content')
     <x-page-header
         :title="setting('volunteer.goals_build_create.title', 'هدف جديد')"
-        :subtitle="setting('volunteer.goals_build_create.subtitle', 'الهدف أوّل ما يتحفظ مايشوفوش حدّ — بيظهر لحظة ما تربطه بمسار، فيوصل لمشرفي المسارات دول وحدهم.')"
+        :subtitle="setting('volunteer.goals_build_create.subtitle', 'الهدف أوّل ما يتحفظ مايشوفوش حدّ، وبيظهر لحظة ما تربطه بمسار، فيوصل لمشرفي المسارات دول وحدهم.')"
         :breadcrumbs="[['label' => setting('volunteer.goals_build_create.label', 'رحلة بناء الهدف'), 'url' => route('volunteer.goals.build')], ['label' => setting('volunteer.goals_build_create.title', 'هدف جديد')]]" />
 
     @if ($errors->any())
@@ -46,7 +46,7 @@
                 <span class="block text-sm mb-1">{{ setting('volunteer.goals_build_create.field_2', 'سبب الهدف') }}</span>
                 <textarea name="reason" rows="2" required class="w-full rounded-xl px-3 py-2 text-sm"
                           style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">{{ old('reason') }}</textarea>
-                <span class="block text-xs mt-1" style="color: var(--text-muted)">{{ setting('volunteer.goals_build_create.field_3', 'ليه بنعمل ده؟ — السبب بيمشي مع الهدف لكلّ طبقة تحته.') }}</span>
+                <span class="block text-xs mt-1" style="color: var(--text-muted)">{{ setting('volunteer.goals_build_create.field_3', 'ليه بنعمل ده؟ السبب بيمشي مع الهدف لكلّ طبقة تحته.') }}</span>
             </label>
 
             <label class="block">
@@ -92,7 +92,7 @@
                     @endforeach
                 </div>
                 <span class="block text-xs mt-1" style="color: var(--text-muted)">
-                    {{ setting('volunteer.goals_build_create.field_7', 'سيب المربّعات فاضية لو لسّه مش عايزه يظهر — تقدر تربطه بعدين من لوحة الرحلة.') }}
+                    {{ setting('volunteer.goals_build_create.field_7', 'سيب المربّعات فاضية لو لسّه مش عايزه يظهر، وتقدر تربطه بعدين من لوحة الرحلة.') }}
                 </span>
             </fieldset>
         </x-form.stepper>

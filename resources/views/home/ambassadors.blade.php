@@ -7,7 +7,7 @@
      * فتصير مكانةً تُرى لا رقمًا داخليًّا.
      */
     $title = (string) setting('ambassadors.page.title', 'سفراء المنصّة');
-    $subtitle = (string) setting('ambassadors.page.subtitle', 'اللقب بيتحسب بالدعوات المفعّلة بس — يعني ناس دخلت فعلًا وفعّلت حسابها.');
+    $subtitle = (string) setting('ambassadors.page.subtitle', 'اللقب بيتحسب بالدعوات المفعّلة بس، يعني ناس دخلت فعلًا وفعّلت حسابها.');
 @endphp
 
 @section('title', $title)
@@ -57,7 +57,7 @@
                                 <span aria-hidden="true">★</span>{{ $myTitle }}
                             </span>
                         @else
-                            <span class="text-xs" style="color: var(--text-muted)">{{ setting('ambassadors.no_title_yet', 'لسّه مابتلقّبتش — أوّل دعوة مفعّلة هي البداية.') }}</span>
+                            <span class="text-xs" style="color: var(--text-muted)">{{ setting('ambassadors.no_title_yet', 'لسّه مابتلقّبتش، أوّل دعوة مفعّلة هي البداية.') }}</span>
                         @endif
                     </div>
                 </div>
@@ -84,7 +84,7 @@
 
     {{-- اللوحة نفسها: بطاقات رأسيّة على الموبايل بلا تمرير أفقيّ (2.15-ج) --}}
     @if ($leaders->isEmpty())
-        <x-empty :message="setting('ambassadors.empty', 'لسّه محدّش وصل لأوّل لقب — تقدر تكون إنت الأوّل.')"
+        <x-empty :message="setting('ambassadors.empty', 'لسّه محدّش وصل لأوّل لقب. تقدر تكون إنت الأوّل.')"
                  :action="auth()->check() && \Illuminate\Support\Facades\Route::has('referral.index') ? setting('ambassadors.cta', 'خد رابط دعوتك') : setting('home.nav.register', 'أنشئ حسابك')"
                  :href="auth()->check() && \Illuminate\Support\Facades\Route::has('referral.index') ? route('referral.index') : route('register')" />
     @else

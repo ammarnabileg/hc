@@ -111,7 +111,7 @@
     </x-filters>
 
     @if ($rows->isEmpty())
-        <x-empty :message="setting('wallet.transactions.empty_message', 'مافيش حركات في المدى ده — وسّع المدى أو ابدأ بشحن رصيدك.')"
+        <x-empty :message="setting('wallet.transactions.empty_message', 'مافيش حركات في المدى ده. وسّع المدى أو ابدأ بشحن رصيدك.')"
                  :action="setting('wallet.index.topup_action', 'اشحن رصيدك')" :href="route('wallet.topup')" />
     @else
         {{-- سطح المكتب: الأعمدة السبعة المنصوصة في 19.2 --}}

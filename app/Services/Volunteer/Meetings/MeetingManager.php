@@ -106,7 +106,7 @@ class MeetingManager
                 User::find($id),
                 'meeting',
                 strtr((string) setting('meetings.screen.store_msg_4', 'اجتماع جديد: :a1'), [':a1' => (string) $meeting->title]),
-                strtr((string) setting('meetings.screen.store_msg_5', 'الموعد :a1 — هنفكّرك قبلها بـ:a2 ساعة.'), [
+                strtr((string) setting('meetings.screen.store_msg_5', 'الموعد :a1، هنفكّرك قبلها بـ:a2 ساعة.'), [
                     ':a1' => (string) $meeting->scheduled_at->format('Y-m-d H:i'),
                     ':a2' => (string) $hours,
                 ]),
@@ -137,14 +137,14 @@ class MeetingManager
         bool $restricted = false,
     ): array {
         if ($meeting->status === 'cancelled') {
-            return ['ok' => false, 'message' => (string) setting('meetings.manager.minutes_cancelled', 'الاجتماع ده ملغيّ — مافيش محضر لاجتماع ما انعقدش.')];
+            return ['ok' => false, 'message' => (string) setting('meetings.manager.minutes_cancelled', 'الاجتماع ده ملغيّ، مافيش محضر لاجتماع ما انعقدش.')];
         }
 
         $uploaded = $this->saveAttachments($meeting, $actor->id, $attachments, $restricted);
 
         // فورمٌ فارغ لا يُحسَب رفعًا — ولا يُلمَس الصفّ أصلًا فيبقى `updated_at` صادقًا
         if (blank($minutes) && blank($recordingUrl) && $uploaded === 0) {
-            return ['ok' => false, 'message' => (string) setting('meetings.manager.minutes_empty', 'مافيش حاجة اترفعت — اكتب المحضر أو ارفع مرفقًا أو حطّ رابط التسجيل.')];
+            return ['ok' => false, 'message' => (string) setting('meetings.manager.minutes_empty', 'مافيش حاجة اترفعت، اكتب المحضر أو ارفع مرفقًا أو حطّ رابط التسجيل.')];
         }
 
         // الفراغ لا يمحو: مَن رفع مرفقًا وحده لا يفقد محضرًا مكتوبًا قبله
@@ -213,7 +213,7 @@ class MeetingManager
         $reason = trim($reason);
 
         if ($reason === '') {
-            return ['ok' => false, 'message' => (string) setting('meetings.manager.cancel_reason_required', 'السبب مطلوب — إلغاءٌ بلا سبب يسيب الجمهور بلا إجابة.')];
+            return ['ok' => false, 'message' => (string) setting('meetings.manager.cancel_reason_required', 'السبب مطلوب، إلغاءٌ بلا سبب يسيب الجمهور بلا إجابة.')];
         }
 
         if ($meeting->status === 'cancelled') {
@@ -221,7 +221,7 @@ class MeetingManager
         }
 
         if ($meeting->status === 'ended') {
-            return ['ok' => false, 'message' => (string) setting('meetings.manager.cancel_ended', 'الاجتماع انعقد وانتهى — اللي انعقد ما بيتلغيش.')];
+            return ['ok' => false, 'message' => (string) setting('meetings.manager.cancel_ended', 'الاجتماع انعقد وانتهى، واللي انعقد ما بيتلغيش.')];
         }
 
         DB::transaction(function () use ($meeting, $actor, $reason) {
@@ -238,7 +238,7 @@ class MeetingManager
                     User::find($id),
                     'meeting',
                     strtr((string) setting('meetings.manager.cancel_notice_title', 'اتلغى اجتماع: :a1'), [':a1' => (string) $meeting->title]),
-                    strtr((string) setting('meetings.manager.cancel_notice_body', 'ألغاه :a2 — السبب: :a1'), [':a1' => $reason, ':a2' => (string) $actor->name]),
+                    strtr((string) setting('meetings.manager.cancel_notice_body', 'ألغاه :a2، السبب: :a1'), [':a1' => $reason, ':a2' => (string) $actor->name]),
                     route('volunteer.meetings.show', $meeting),
                 );
             }

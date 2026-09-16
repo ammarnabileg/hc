@@ -59,7 +59,7 @@
                 <label class="block">
                     <span class="sr-only">{{ setting('account.profile.header.bio_label', 'النبذة الشخصيّة') }}</span>
                     <textarea data-bio-field rows="2" maxlength="{{ $bioMax }}"
-                              placeholder="{{ setting('account.profile.header.bio_placeholder', 'اكتب نبذة قصيرة عنك — سطر واحد يكفي.') }}"
+                              placeholder="{{ setting('account.profile.header.bio_placeholder', 'اكتب نبذة قصيرة عنك، سطر واحد يكفي.') }}"
                               style="max-width: 420px">{{ $owner->bio }}</textarea>
                 </label>
                 <span data-bio-saved class="save-indicator" style="visibility: hidden">{{ setting('cv.autosave.saved_label', 'اتحفظ ✓') }}</span>

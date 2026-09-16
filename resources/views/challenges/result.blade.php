@@ -43,7 +43,7 @@
             <div class="card p-4 mb-4 text-sm flex items-center gap-2" role="status" style="border-color: var(--color-state-warn)">
                 <span aria-hidden="true">▲</span>
                 <span>
-                    {!! str_replace(':seconds', '<b data-decision-left>'.(int) ($decisionSecondsLeft ?? 0).'</b>', e(setting('challenges.result.waiting_note', 'سلّمت وخلّصت — باقي :seconds ثانية وتُقفَل المواجهة وتظهر النتيجة.'))) !!}
+                    {!! str_replace(':seconds', '<b data-decision-left>'.(int) ($decisionSecondsLeft ?? 0).'</b>', e(setting('challenges.result.waiting_note', 'سلّمت وخلّصت، باقي :seconds ثانية وتُقفَل المواجهة وتظهر النتيجة.'))) !!}
                 </span>
             </div>
         @endif
@@ -88,7 +88,7 @@
                     </div>
                     {{-- شرح القاعدة صراحةً: ما يكسبه الفائز هو نفسه ما يخسره الخاسر (15.2-6) --}}
                     <p class="text-xs mt-2" style="color: var(--text-muted)">
-                        {{ setting('challenges.result.zero_sum_note', 'اللي بيكسبه الفائز هو بعينه اللي بيخسره الخاسر — مفيش تذكرة بتتولد من العدم.') }}
+                        {{ setting('challenges.result.zero_sum_note', 'اللي بيكسبه الفائز هو بعينه اللي بيخسره الخاسر، مفيش تذكرة بتتولد من العدم.') }}
                         @if ($penalty > 0)
                             {{ str_replace(':n', (int) $penalty, (string) setting('challenges.result.penalty_note', 'وعقوبة الانسحاب (:n تذاكر) بتتشال من الاقتصاد ومبتروحش لحدّ.')) }}
                         @endif
@@ -97,11 +97,11 @@
 
                 @if ($result === 'draw')
                     <p class="text-sm mt-4" style="color: var(--text-muted)">
-                        {{ str_replace(':unit', $isSurvival ? setting('challenges.result.draw_unit_survival', 'الأسئلة اللي نجوتوا فيها') : setting('challenges.result.draw_unit_answers', 'الإجابات'), (string) setting('challenges.result.draw_note', 'تعادل بعدد :unit — فمحدّش خسر ومحدّش كسب.')) }}
+                        {{ str_replace(':unit', $isSurvival ? setting('challenges.result.draw_unit_survival', 'الأسئلة اللي نجوتوا فيها') : setting('challenges.result.draw_unit_answers', 'الإجابات'), (string) setting('challenges.result.draw_note', 'تعادل بعدد :unit، فمحدّش خسر ومحدّش كسب.')) }}
                     </p>
                 @elseif ($result !== 'win')
                     <p class="text-sm mt-4" style="color: var(--text-muted)">
-                        {{ setting('challenges.result.lose_note', 'مجهودك مش رايح — كلّ مواجهة بتقرّبك. جهّز نفسك وارجع الساحة.') }}
+                        {{ setting('challenges.result.lose_note', 'مجهودك مش رايح، كلّ مواجهة بتقرّبك. جهّز نفسك وارجع الساحة.') }}
                     </p>
                 @endif
             @endunless

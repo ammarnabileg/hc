@@ -85,7 +85,7 @@ class EscalationEngine
      */
     public function decide(Escalation $escalation, ?User $decider, string $decision, ?string $note = null, array $extra = []): Escalation
     {
-        abort_if($escalation->status !== 'open', 422, setting('volunteer.escalation_engine.decide_1', 'الحالة محسومة بالفعل — ولا تُعاد.'));
+        abort_if($escalation->status !== 'open', 422, setting('volunteer.escalation_engine.decide_1', 'الحالة محسومة بالفعل، ولا تُعاد.'));
 
         return DB::transaction(function () use ($escalation, $decider, $decision, $note, $extra) {
             $this->applyEffect($escalation, $decision, $decider, $extra);
@@ -443,7 +443,7 @@ class EscalationEngine
             return false;
         }
 
-        $this->quarantine($row->refresh(), strtr(setting('volunteer.escalation_engine.register_failure_2', ':p1 — بعد استنفاد :p2 محاولات.'), [':p1' => (string) ($reason), ':p2' => (string) ($max)]));
+        $this->quarantine($row->refresh(), strtr(setting('volunteer.escalation_engine.register_failure_2', ':p1، بعد استنفاد :p2 محاولات.'), [':p1' => (string) ($reason), ':p2' => (string) ($max)]));
 
         return true;
     }
@@ -500,7 +500,7 @@ class EscalationEngine
                     $user,
                     'escalation',
                     setting('volunteer.escalation_engine.quarantine_1', 'حالة اتوقفت وعايزة مراجعة يدويّة'),
-                    strtr(setting('volunteer.escalation_engine.quarantine_2', ':p1 — كلّم الأدمن عشان يراجعها.'), [':p1' => (string) ($reason)]),
+                    strtr(setting('volunteer.escalation_engine.quarantine_2', ':p1. كلّم الأدمن عشان يراجعها.'), [':p1' => (string) ($reason)]),
                     route('volunteer.escalations'),
                     requiresAction: true,
                     about: $escalation,
@@ -684,7 +684,7 @@ class EscalationEngine
             ? rep_rule('task.apology_accepted')
             : rep_rule('task.no_delivery');
 
-        FlowLedger::rep($owner, $value, 'task.apology', $escalation, $decision === 'accepted' ? setting('volunteer.escalation_engine.apply_apology_1', 'اعتذار مقبول') : setting('volunteer.escalation_engine.apply_apology_2', 'اعتذار مرفوض — عدم تسليم'));
+        FlowLedger::rep($owner, $value, 'task.apology', $escalation, $decision === 'accepted' ? setting('volunteer.escalation_engine.apply_apology_1', 'اعتذار مقبول') : setting('volunteer.escalation_engine.apply_apology_2', 'اعتذار مرفوض بسبب عدم التسليم'));
 
         $subject->forceFill(['status' => 'no_delivery'])->save();
     }
@@ -776,7 +776,7 @@ class EscalationEngine
                     $user,
                     'escalation',
                     setting('volunteer.escalation_engine.apply_broken_link_2', 'اترجّع لك الخصم المعلَّق ✓'),
-                    setting('volunteer.escalation_engine.apply_broken_link_3', 'الرابط اتأكّد إنّه شغّال — فمفيش أثر تباطؤ عليك.'),
+                    setting('volunteer.escalation_engine.apply_broken_link_3', 'الرابط اتأكّد إنّه شغّال، فمفيش أثر تباطؤ عليك.'),
                     route('volunteer.escalations'),
                     about: $escalation,
                 );
@@ -821,7 +821,7 @@ class EscalationEngine
             ->get()
             ->each(fn (Transaction $transaction) => app(LedgerService::class)->reverse(
                 $transaction,
-                setting('volunteer.escalation_engine.refund_slowdown_1', 'ردّ أثر التباطؤ المعلَّق — الرابط شغّال (23-5)'),
+                setting('volunteer.escalation_engine.refund_slowdown_1', 'ردّ أثر التباطؤ المعلَّق لأنّ الرابط شغّال (23-5)'),
             ));
     }
 
@@ -837,7 +837,7 @@ class EscalationEngine
             $missed,
             'escalation',
             setting('volunteer.escalation_engine.suspend_slowdown_1', 'أثر تباطؤ معلَّق على بلاغ رابط'),
-            setting('volunteer.escalation_engine.suspend_slowdown_2', 'القيمة معلَّقة لحدّ ما حد يتحقّق من الرابط — لو شغّال هتترفع عنك.'),
+            setting('volunteer.escalation_engine.suspend_slowdown_2', 'القيمة معلَّقة لحدّ ما حد يتحقّق من الرابط، ولو شغّال هتترفع عنك.'),
             route('volunteer.escalations'),
             about: $escalation,
         );

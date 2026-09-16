@@ -139,7 +139,7 @@ class BundleLandingTest extends StoreTestCase
             ->get(route('store.product', ['type' => 'bundle', 'slug' => $bundle->slug]))
             ->assertOk()
             ->assertSee(setting('store.bundle.includes_title'))
-            ->assertSee('🎁 بونص: دليل أسئلة المقابلات بقيمة 100 كوين — مجّانًا مع الباقة')
+            ->assertSee('🎁 بونص: دليل أسئلة المقابلات بقيمة 100 كوين، مجّانًا مع الباقة')
             ->assertDontSee('🎁 بونص: إكسل للشغل');
     }
 

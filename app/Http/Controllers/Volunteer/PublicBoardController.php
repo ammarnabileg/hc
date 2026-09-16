@@ -76,7 +76,7 @@ class PublicBoardController extends Controller
         // ⭐ نفس مصدرَي اللوحة (23 — 1.8): مباشر أو بند متكرّر رُشِّح «مهمّة عامّة»
         if (! in_array($task->source, ['public_board', 'recurring'], true) || $task->owner_id !== null) {
             throw ValidationException::withMessages([
-                'claim' => (string) setting('volunteer_page.board.claim_msg', 'المهمّة دي اتسحبت خلاص — شوف باقي اللوحة.'),
+                'claim' => (string) setting('volunteer_page.board.claim_msg', 'المهمّة دي اتسحبت خلاص، شوف باقي اللوحة.'),
             ]);
         }
 
@@ -93,7 +93,7 @@ class PublicBoardController extends Controller
 
         return redirect()
             ->route('volunteer.tasks.show', $task)
-            ->with('status', strtr((string) setting('volunteer_page.board.claim_ok', 'المهمّة بقت عليك ✓ — سقف انشغالك دلوقتي :a1.'), [':a1' => (string) ($summary['display'])]));
+            ->with('status', strtr((string) setting('volunteer_page.board.claim_ok', 'المهمّة بقت عليك ✓، سقف انشغالك دلوقتي :a1.'), [':a1' => (string) ($summary['display'])]));
     }
 
     /** ترشيح بندٍ ليصير عامًّا — يُرفَع لمشرف عام التطوّع ولا يصير عامًّا بنفسه */
@@ -120,7 +120,7 @@ class PublicBoardController extends Controller
             $item,
         );
 
-        return back()->with('status', (string) setting('volunteer_page.board.nominate_ok', 'اترفع الترشيح ✓ — مشرف عام التطوّع هو اللي يقرّر يخلّيه عامًّا.'));
+        return back()->with('status', (string) setting('volunteer_page.board.nominate_ok', 'اترفع الترشيح ✓، ومشرف عام التطوّع هو اللي يقرّر يخلّيه عامًّا.'));
     }
 
     /**
@@ -134,9 +134,9 @@ class PublicBoardController extends Controller
             'is_public_board_candidate' => false,
         ])->save();
 
-        $this->notifyNominator($workItem, (string) setting('volunteer_page.board.nominate_approve_msg', 'اتعمد ترشيحك: :a1 — بقى مهمّة عامّة.'));
+        $this->notifyNominator($workItem, (string) setting('volunteer_page.board.nominate_approve_msg', 'اتعمد ترشيحك: :a1، بقى مهمّة عامّة.'));
 
-        return back()->with('status', (string) setting('volunteer_page.board.nominate_approve_ok', 'اعتُمد الترشيح ✓ — البند بقى مهمّة عامّة.'));
+        return back()->with('status', (string) setting('volunteer_page.board.nominate_approve_ok', 'اعتُمد الترشيح ✓، البند بقى مهمّة عامّة.'));
     }
 
     /** رفض الترشيح — البند يفضل على جمهوره الحاليّ من غير تغيير */
@@ -146,7 +146,7 @@ class PublicBoardController extends Controller
 
         $this->notifyNominator($workItem, (string) setting('volunteer_page.board.nominate_reject_msg', 'اترفض ترشيحك: :a1.'));
 
-        return back()->with('status', (string) setting('volunteer_page.board.nominate_reject_ok', 'اترفض الترشيح — البند فضل على حاله.'));
+        return back()->with('status', (string) setting('volunteer_page.board.nominate_reject_ok', 'اترفض الترشيح، والبند فضل على حاله.'));
     }
 
     /** يخاطب القائد الذي رفع الترشيح لحظة اعتماده أو رفضه — لا نفسه فقط لحظة الرفع */

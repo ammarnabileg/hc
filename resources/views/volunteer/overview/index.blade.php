@@ -40,7 +40,7 @@
     </div>
 
     @if (empty($stations))
-        <x-empty :message="setting('volunteer.overview.empty', 'رحلتك لسّه في أوّلها — أوّل محطّة اكتملت بالفعل')"
+        <x-empty :message="setting('volunteer.overview.empty', 'رحلتك لسّه في أوّلها، وأوّل محطّة اكتملت بالفعل')"
                  :action="setting('volunteer.overview.action', 'شوف مهامّي')" :href="route('volunteer.tasks.index')" />
     @else
         {{-- Roadmap رأسيّ بمحطّات مرقّمة (Stepper) — مرسوم بالـCSS بلا مكتبات --}}

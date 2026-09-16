@@ -10,7 +10,7 @@
 
     <x-page-header
         :title="setting('volunteer.reviews.title', 'بانتظار مراجعتي')"
-        :subtitle="setting('volunteer.reviews.subtitle', 'طابور ما ينتظر قرارك — بنافذة كلّ عنصر.')"
+        :subtitle="setting('volunteer.reviews.subtitle', 'طابور ما ينتظر قرارك، بنافذة كلّ عنصر.')"
         :breadcrumbs="[['label' => setting('volunteer.common.breadcrumb_root', 'لوحة التطوّع'), 'url' => url('/volunteer')], ['label' => setting('volunteer.reviews.title', 'بانتظار مراجعتي')]]">
         @if ($batchRow)
             <x-slot:action>
@@ -32,7 +32,7 @@
         <x-kpi :label="setting('volunteer.reviews.label_2', 'اقتربت')" :value="$counters['warn']" icon="▲" state="warn" />
         <x-kpi :label="setting('volunteer.reviews.label_3', 'فاتت / تصعّد')" :value="$counters['danger']" icon="◉" state="danger" />
         <x-kpi :label="setting('volunteer.reviews.label_4', 'متوسّط زمن مراجعتي (ساعة)')" :value="$averageHours ?? '—'" icon="clock"
-               :hint="setting('volunteer.reviews.hint', 'مؤشّر عليك أنت — الساعة تقف لحظة تسليم المنفّذ لا لحظة اعتمادك.')" />
+               :hint="setting('volunteer.reviews.hint', 'مؤشّر عليك أنت، الساعة تقف لحظة تسليم المنفّذ لا لحظة اعتمادك.')" />
     </div>
 
     <x-filters :action="route('volunteer.reviews')">
@@ -66,7 +66,7 @@
     </x-filters>
 
     @if ($rows->isEmpty())
-        <x-empty :message="setting('volunteer.reviews.empty', 'مفيش حاجة تنتظر قرارك — كلّه تمام')" />
+        <x-empty :message="setting('volunteer.reviews.empty', 'مفيش حاجة تنتظر قرارك، كلّه تمام')" />
     @else
         <div class="space-y-3">
             @foreach ($rows as $row)
@@ -80,7 +80,7 @@
                             </p>
                             @if ($row['returns'] > 0)
                                 <p class="text-xs mt-1" style="color: var(--color-state-warn)">
-                                    ▲ {{ $row['returns'] }} {{ setting('volunteer.reviews.field_5', 'إرجاع سابق —') }}
+                                    ▲ {{ $row['returns'] }} {{ setting('volunteer.reviews.field_5', 'إرجاع سابق.') }}
                                     @if ($row['returns'] >= $escalateAfter) {{ setting('volunteer.reviews.field_6', 'القرار التالي يتصعّد.') }} @else {{ setting('volunteer.reviews.field_7', 'القرار التالي يقترب من التصعيد.') }} @endif
                                 </p>
                             @endif

@@ -101,7 +101,7 @@ class TaskTypeController extends Controller
 
         return redirect()
             ->route('admin.volunteer.task-types.index')
-            ->with('status', (string) setting('workflow.task_types.save_ok', 'اتحفظ ✓ — القالب هيتعبّى تلقائيًّا لمّا حد يختار النوع ده.'));
+            ->with('status', (string) setting('workflow.task_types.save_ok', 'اتحفظ ✓، والقالب هيتعبّى تلقائيًّا لمّا حد يختار النوع ده.'));
     }
 
     /**
@@ -114,7 +114,7 @@ class TaskTypeController extends Controller
 
         $this->audit($request, $taskType, 'task_types.edit');
 
-        return back()->with('status', $taskType->is_active ? (string) setting('workflow.task_types.toggle_ok', 'النوع اشتغل ✓') : (string) setting('workflow.task_types.toggle_denied', 'النوع اتوقف — مش هيظهر في الاختيار.'));
+        return back()->with('status', $taskType->is_active ? (string) setting('workflow.task_types.toggle_ok', 'النوع اشتغل ✓') : (string) setting('workflow.task_types.toggle_denied', 'النوع اتوقف، مش هيظهر في الاختيار.'));
     }
 
     private function audit(Request $request, TaskType $type, string $action): void

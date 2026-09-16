@@ -34,7 +34,7 @@
                 {{ setting('onboarding.placement.admin.skipped_title', 'الاختبار التمهيديّ متوقّف فعليًّا الآن') }}
             </div>
             <p class="text-xs mt-1" style="color: var(--text-muted)">
-                {{ setting('onboarding.placement.admin.skipped_warning', 'الإعداد «مفعَّل» لكن ولا سؤال نشِط في البنك — فكلّ مُسجَّل جديد يتخطّى هذه الخطوة صامتًا. أضِف سؤالًا نشِطًا أو أوقف الخطوة من الإعدادات صراحةً.') }}
+                {{ setting('onboarding.placement.admin.skipped_warning', 'الإعداد «مفعَّل» لكن ولا سؤال نشِط في البنك، فكلّ مُسجَّل جديد يتخطّى هذه الخطوة صامتًا. أضِف سؤالًا نشِطًا أو أوقف الخطوة من الإعدادات صراحةً.') }}
             </p>
         </div>
     @endif

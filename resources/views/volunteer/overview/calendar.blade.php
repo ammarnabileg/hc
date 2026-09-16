@@ -88,7 +88,7 @@
 
         {{-- شريط «اليوم»: أحداث اليوم مرتّبة زمنيًّا + تظليل ما هو خارج نافذة النشاط --}}
         <div class="card p-3">
-            <div class="text-sm mb-2">{{ setting('volunteer.overview_calendar.text_10', 'اليوم —') }} {{ now()->translatedFormat('l j F') }}</div>
+            <div class="text-sm mb-2">{{ setting('volunteer.overview_calendar.text_10', 'اليوم:') }} {{ now()->translatedFormat('l j F') }}</div>
 
             @if ($today->isEmpty())
                 <p class="text-sm" style="color: var(--text-muted)">{{ setting('volunteer.overview_calendar.text_11', 'مفيش مواعيد في المدى ده.') }}</p>

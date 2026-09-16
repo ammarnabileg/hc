@@ -61,7 +61,7 @@ class ObjectionDesk
         abort_unless(
             $this->service->isActive($objection),
             403,
-            setting('volunteer_rep.objection_desk.authorize_decision_2', 'الاعتراض ده اتقفل — والقرار لا يُعاد.'),
+            setting('volunteer_rep.objection_desk.authorize_decision_2', 'الاعتراض ده اتقفل، والقرار لا يُعاد.'),
         );
     }
 }

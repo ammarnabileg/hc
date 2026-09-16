@@ -17,7 +17,7 @@
         <div class="min-w-0 overflow-x-auto no-scrollbar">
             <svg viewBox="0 0 140 140" width="140" height="140" role="img"
                  aria-label="{{ str_replace(':percent', $donut['percent'], (string) setting('dashboard.chart.completion.aria_label', 'نسبة إكمال تدريباتك :percent٪')) }}">
-                <title>{{ str_replace(':percent', $donut['percent'], (string) setting('dashboard.chart.completion.svg_title', 'إكمال المسار — :percent٪')) }}</title>
+                <title>{{ str_replace(':percent', $donut['percent'], (string) setting('dashboard.chart.completion.svg_title', 'إكمال المسار: :percent٪')) }}</title>
 
                 <circle cx="70" cy="70" r="{{ $radius }}" fill="none" stroke="var(--surface-sunken)" stroke-width="16" />
 

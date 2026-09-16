@@ -358,7 +358,7 @@ class RolePermissionSeeder extends Seeder
             $effective = $this->resolveScope($scope, $allowed) ?? ($matrixFloor ? $this->narrowest($allowed) : null);
 
             if ($effective === null) {
-                $this->command?->warn("مفتاح سقط لتعذّر النطاق: {$permission->key} ({$scope}) — نطاقاته: ".implode(' · ', $allowed));
+                $this->command?->warn("مفتاح سقط لتعذّر النطاق: {$permission->key} ({$scope}). نطاقاته: ".implode(' · ', $allowed));
 
                 continue;
             }

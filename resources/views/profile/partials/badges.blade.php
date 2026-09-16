@@ -20,7 +20,7 @@
     @endif
 
     @if ($badges['earned']->isEmpty() && $badges['locked']->isEmpty())
-        <p class="small muted">{{ setting('account.profile.badges.empty_message', 'لسّه بدري — أوّل شارة مستنّياك.') }}</p>
+        <p class="small muted">{{ setting('account.profile.badges.empty_message', 'لسّه بدري، أوّل شارة مستنّياك.') }}</p>
     @else
         {{-- شريط الشارات — حرفيًّا من ملف الهويّة (`.badge-strip`): مفتوحة بارزة، مقفولة باهتة برمز قفل --}}
         <div class="badge-strip">

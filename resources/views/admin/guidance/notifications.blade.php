@@ -122,7 +122,7 @@
 
         {{-- حدّ الهدوء كما يُطبَّق فعلًا في الخادم (12.6-ب) — لا وعدًا على الشاشة --}}
         <p class="text-xs mt-3" style="color: var(--text-muted)">
-            {!! strtr(setting('admin.guidance.notifications.hd_alhdw_v1_ishaarat_llmstkhdm_fy_alywm', 'حدّ الهدوء: :v1 إشعارات للمستخدم في اليوم — والزيادة تتجمّع في إشعار واحد بدل ما تنهال عليه.'), [':v1' => e($rateLimit)]) !!}
+            {!! strtr(setting('admin.guidance.notifications.hd_alhdw_v1_ishaarat_llmstkhdm_fy_alywm', 'حدّ الهدوء: :v1 إشعارات للمستخدم في اليوم، والزيادة تتجمّع في إشعار واحد بدل ما تنهال عليه.'), [':v1' => e($rateLimit)]) !!}
             @if (! empty($quietLimit['exempt']))
                 <br>{{ setting('admin.guidance.notifications.mstthnaa_mn_alhd_btwsl_dayma', 'مستثناة من الحدّ (بتوصل دايمًا):') }} {{ implode(' · ', array_map(fn ($k) => $types[$k] ?? $k, $quietLimit['exempt'])) }}.
             @endif

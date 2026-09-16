@@ -57,7 +57,7 @@ class AdminCoreDemoSeeder extends Seeder
             ['admin.dashboard.top_rows', 'admin_dashboard', 'صفوف جداول «أعلى 10»', 'number', '10'],
             ['admin.dashboard.title', 'admin_dashboard', 'عنوان لوحة القيادة', 'string', 'لوحة القيادة'],
             ['admin.dashboard.subtitle', 'admin_dashboard', 'سطر شرح لوحة القيادة', 'string', 'حالة المنصّة والقرارات المستنّياك'],
-            ['admin.dashboard.empty_message', 'admin_dashboard', 'نصّ الحالة الفارغة', 'string', 'مفيش بيانات في الفترة دي — وسّع المدى'],
+            ['admin.dashboard.empty_message', 'admin_dashboard', 'نصّ الحالة الفارغة', 'string', 'مفيش بيانات في الفترة دي. وسّع المدى'],
             ['admin.dashboard.alert_withdraw', 'admin_dashboard', 'نصّ تنبيه السحوبات المتأخّرة', 'string', 'في :count طلب سحب فات عليه :hours ساعة'],
             ['admin.dashboard.alert_approvals', 'admin_dashboard', 'نصّ تنبيه الاعتمادات المتأخّرة', 'string', 'في :count حساب مستنّي اعتماد من :days يوم'],
 
@@ -67,13 +67,13 @@ class AdminCoreDemoSeeder extends Seeder
             // ---------------- تخصيص اللوحة لكلّ دور (12.3-3)
             ['admin.dashboard.role_layouts', 'admin_dashboard', 'تخصيص كروت لوحة القيادة لكلّ دور', 'json', '{}'],
             ['admin.dashboard.default_layout_role', 'admin_dashboard', 'الدور الافتراضيّ لحفظ التخصيص', 'string', 'platform_owner'],
-            ['admin.dashboard.customize_hint', 'admin_dashboard', 'سطر شرح بوب-أب تخصيص اللوحة', 'string', 'رتّب الكروت بالسحب، وشيل اللي مش محتاجه — والترتيب ده بيتحفظ لدورك أنت.'],
-            ['admin.dashboard.layout_saved_text', 'admin_dashboard', 'نصّ حفظ تخصيص اللوحة', 'string', 'اتحفظ ✓ — ترتيب اللوحة للدور ده اتسجّل.'],
+            ['admin.dashboard.customize_hint', 'admin_dashboard', 'سطر شرح بوب-أب تخصيص اللوحة', 'string', 'رتّب الكروت بالسحب، وشيل اللي مش محتاجه، والترتيب ده بيتحفظ لدورك أنت.'],
+            ['admin.dashboard.layout_saved_text', 'admin_dashboard', 'نصّ حفظ تخصيص اللوحة', 'string', 'اتحفظ ✓. ترتيب اللوحة للدور ده اتسجّل.'],
 
             // ---------------- 🔒 الهدف الشهريّ (12.3-10)
             ['admin.dashboard.monthly_target', 'admin_dashboard', 'الهدف الشهريّ للإيرادات (كوينز)', 'number', '0'],
             ['admin.dashboard.target_label', 'admin_dashboard', 'تسمية الهدف الشهريّ', 'string', 'الهدف الشهريّ'],
-            ['admin.dashboard.target_empty_text', 'admin_dashboard', 'نصّ غياب الهدف الشهريّ', 'string', 'ماحدّدتش هدفًا للشهر لسّه — اضبطه من إعدادات لوحة القيادة.'],
+            ['admin.dashboard.target_empty_text', 'admin_dashboard', 'نصّ غياب الهدف الشهريّ', 'string', 'ماحدّدتش هدفًا للشهر لسّه. اضبطه من إعدادات لوحة القيادة.'],
 
             // ---------------- الخريطة الحراريّة وسجلّ النشاطات (12.3-13 · 12.3-20)
             ['admin.dashboard.geo_rows', 'admin_dashboard', 'صفوف الخريطة الحراريّة الجغرافيّة', 'number', '8'],
@@ -84,16 +84,16 @@ class AdminCoreDemoSeeder extends Seeder
             ['admin.users.per_page', 'admin_users', 'عدد صفوف الجدول', 'number', '25'],
             ['admin.users.default_columns', 'admin_users', 'الأعمدة الافتراضيّة للجدول', 'json', '["name","code","email","status","roles","last_seen"]'],
             ['admin.users.mask_sensitive', 'admin_users', 'تقنيع البريد والموبايل', 'bool', '1'],
-            ['admin.users.empty_message', 'admin_users', 'نصّ الحالة الفارغة', 'string', 'مفيش نتائج — امسح الفلاتر وجرّب تاني'],
+            ['admin.users.empty_message', 'admin_users', 'نصّ الحالة الفارغة', 'string', 'مفيش نتائج. امسح الفلاتر وجرّب تاني'],
             // صفحة حساب المستخدم (12.1): طول جداول التابات وتاب التطوّع وصيغة ملفّ التصدير
             ['admin.users.tab_rows', 'admin_users', 'عدد صفوف جداول تابات صفحة المستخدم', 'number', '25'],
             ['admin.user_tabs.volunteer_permission', 'admin_users', 'صلاحيّة إظهار تاب التطوّع', 'string', 'memberships.view'],
             ['admin.users.export_filename', 'admin_users', 'اسم ملفّ تصدير بيانات المستخدم', 'string', 'user-{code}-{date}.json'],
             ['admin.users.export_rows', 'admin_users', 'أقصى صفوف لكلّ جدول في ملفّ التصدير', 'number', '500'],
-            ['admin.users.referral_gift_note', 'admin_users', 'سطر شرح توقيت صرف هديّة الدعوة', 'string', 'الهديّة بتتصرف للطرفين بعد قبول الحساب — مش وقت التسجيل.'],
-            ['admin.users.sessions_hint', 'admin_users', 'شرح الجلسات النشطة', 'string', 'الأجهزة المفتوح عليها الحساب دلوقتي — وإنهاء الجلسات بيقفلها كلّها.'],
-            ['admin.users.country_pin_hint', 'admin_users', 'شرح تثبيت الدولة يدويًّا', 'string', 'الكشف التلقائيّ بيتبع مكانه دلوقتي — والتثبيت اليدويّ بيعلو عليه ومابيتدهسش.'],
-            ['admin.users.notes_hint', 'admin_users', 'شرح الملاحظات الإداريّة الداخليّة', 'string', 'ملاحظات للفريق فقط — المستخدم مابيشوفهاش أبدًا.'],
+            ['admin.users.referral_gift_note', 'admin_users', 'سطر شرح توقيت صرف هديّة الدعوة', 'string', 'الهديّة بتتصرف للطرفين بعد قبول الحساب، مش وقت التسجيل.'],
+            ['admin.users.sessions_hint', 'admin_users', 'شرح الجلسات النشطة', 'string', 'الأجهزة المفتوح عليها الحساب دلوقتي، وإنهاء الجلسات بيقفلها كلّها.'],
+            ['admin.users.country_pin_hint', 'admin_users', 'شرح تثبيت الدولة يدويًّا', 'string', 'الكشف التلقائيّ بيتبع مكانه دلوقتي، والتثبيت اليدويّ بيعلو عليه ومابيتدهسش.'],
+            ['admin.users.notes_hint', 'admin_users', 'شرح الملاحظات الإداريّة الداخليّة', 'string', 'ملاحظات للفريق فقط. المستخدم مابيشوفهاش أبدًا.'],
             // عناوين أعمدة الجدول (UserDirectory::columns — 2.13-ب)
             ['admin.users.column.name', 'admin_users', 'عمود: المستخدم', 'string', 'المستخدم'],
             ['admin.users.column.code', 'admin_users', 'عمود: الكود', 'string', 'الكود'],
@@ -119,10 +119,10 @@ class AdminCoreDemoSeeder extends Seeder
             ['admin.approvals.grant_referral_gift', 'admin_approvals', 'صرف هديّة الريفيرال بعد قبول الحساب', 'bool', '1'],
             ['admin.approvals.welcome_tickets', 'admin_approvals', 'تذاكر ترحيب المدعوّ', 'number', '1'],
             ['admin.approvals.reject_reasons', 'admin_approvals', 'أسباب الرفض', 'json', '["بيانات ناقصة أو غير واضحة","الاسم غير مطابق للمستندات","تكرار حساب قائم","خارج الشريحة المستهدَفة"]'],
-            ['admin.approvals.accept_message', 'admin_approvals', 'نصّ إشعار القبول', 'string', 'تمّ قبول حسابك — أهلًا بيك معانا 🎉'],
+            ['admin.approvals.accept_message', 'admin_approvals', 'نصّ إشعار القبول', 'string', 'تمّ قبول حسابك، أهلًا بيك معانا 🎉'],
             ['admin.approvals.reject_message', 'admin_approvals', 'نصّ إشعار الرفض', 'string', 'حسابك محتاج مراجعة: :reason'],
-            ['admin.approvals.empty_message', 'admin_approvals', 'نصّ الحالة الفارغة', 'string', 'مفيش طلبات معلّقة — كلّ حاجة تمام'],
-            ['admin.approvals.free_note', 'admin_approvals', 'سطر تذكير مجّانيّة التفعيل', 'string', 'التفعيل مجّانيّ باعتماد إداريّ — ولا رسوم على الباب'],
+            ['admin.approvals.empty_message', 'admin_approvals', 'نصّ الحالة الفارغة', 'string', 'مفيش طلبات معلّقة. كلّ حاجة تمام'],
+            ['admin.approvals.free_note', 'admin_approvals', 'سطر تذكير مجّانيّة التفعيل', 'string', 'التفعيل مجّانيّ باعتماد إداريّ، ولا رسوم على الباب'],
 
             // ---------------- شرائح الجمهور (12.13 · 24.1)
             ['admin.segments.preview_rows', 'admin_segments', 'صفوف معاينة أعضاء الشريحة', 'number', '10'],
@@ -162,25 +162,25 @@ class AdminCoreDemoSeeder extends Seeder
                 'all' => 'كلّ الشروط (AND)',
                 'any' => 'أيّ شرط (OR)',
             ], JSON_UNESCAPED_UNICODE)],
-            ['admin.segments.delete_warning', 'admin_segments', 'نصّ تحذير حذف شريحة مستخدَمة', 'string', 'الشريحة دي مستخدَمة في :count مكان — أرشفها بدل ما تمسحها.'],
-            ['admin.segments.duplicate_suffix', 'admin_segments', 'لاحقة اسم النسخة المكرّرة', 'string', ' — نسخة'],
+            ['admin.segments.delete_warning', 'admin_segments', 'نصّ تحذير حذف شريحة مستخدَمة', 'string', 'الشريحة دي مستخدَمة في :count مكان، أرشفها بدل ما تمسحها.'],
+            ['admin.segments.duplicate_suffix', 'admin_segments', 'لاحقة اسم النسخة المكرّرة', 'string', ' (نسخة)'],
             ['admin.segments.summary_all', 'admin_segments', 'ملخّص الشريحة بلا شروط', 'string', 'كلّ المستخدمين'],
             ['admin.segments.type_hint', 'admin_segments', 'سطر شرح نوع الشريحة', 'string', 'الديناميكيّة بتتحدّث لوحدها مع تغيّر البيانات، والثابتة بتتجمّد على أعضائها دلوقتي.'],
-            ['admin.segments.preview_hint', 'admin_segments', 'سطر شرح حصر المعاينة بالنطاق', 'string', 'المعاينة بتتحسب في حدود نطاقك أنت — مش في المنصّة كلّها.'],
+            ['admin.segments.preview_hint', 'admin_segments', 'سطر شرح حصر المعاينة بالنطاق', 'string', 'المعاينة بتتحسب في حدود نطاقك أنت، مش في المنصّة كلّها.'],
             ['admin.segments.members_empty', 'admin_segments', 'نصّ خلوّ الشريحة من الأعضاء', 'string', 'مافيش أعضاء مطابقين دلوقتي'],
 
             // ---------------- الأدوار والصلاحيّات (12.2)
             ['admin.roles.default_scope', 'admin_roles', 'النطاق الافتراضيّ للصلاحيّة الجديدة', 'string', 'SELF'],
             ['admin.roles.rows_per_group', 'admin_roles', 'أقصى صفوف تُعرَض من المجموعة', 'number', '400'],
             ['admin.roles.audit_hover_delay_ms', 'admin_roles', 'تأخير إظهار آخر تغيير بالـHover (ملّي ثانية)', 'number', '200'],
-            ['admin.roles.escalation_message', 'admin_roles', 'نصّ رسالة منع تصعيد الامتياز', 'string', 'مقدرناش نحفظ «:permission» بنطاق :scope — مفيش حدّ يمنح صلاحيّة لا يملكها ولا نطاقًا أوسع من نطاقه. اطلبها من أدمن أعلى منك أو صغّر النطاق.'],
+            ['admin.roles.escalation_message', 'admin_roles', 'نصّ رسالة منع تصعيد الامتياز', 'string', 'مقدرناش نحفظ «:permission» بنطاق :scope. مفيش حدّ يمنح صلاحيّة لا يملكها ولا نطاقًا أوسع من نطاقه. اطلبها من أدمن أعلى منك أو صغّر النطاق.'],
             ['admin.roles.deny_message', 'admin_roles', 'نصّ قاعدة المنع يغلب الإذن', 'string', 'المنع يغلب الإذن: لو الصلاحيّة ممنوعة من أيّ مصدر، المنع يكسب.'],
             // ⭐ سقف نطاق المصفوفة (12.2.2): رفضٌ صريح لا تضييقٌ صامت
-            ['admin.roles.scope_ceiling_message', 'admin_roles', 'نصّ رفض النطاق الخارج عن سقف المصفوفة', 'string', 'مقدرناش نحفظ «:permission» بنطاق :scope — المصفوفة (12.2.2) بتحدّد لها :scopes وبس، والنطاق مابيتصغّرش في السرّ.'],
+            ['admin.roles.scope_ceiling_message', 'admin_roles', 'نصّ رفض النطاق الخارج عن سقف المصفوفة', 'string', 'مقدرناش نحفظ «:permission» بنطاق :scope. المصفوفة (12.2.2) بتحدّد لها :scopes وبس، والنطاق مابيتصغّرش في السرّ.'],
             ['admin.roles.owner_only_note', 'admin_roles', 'سطر عزل المجموعة المحميّة', 'string', 'المجموعة المحميّة (الماليّ والأسرار) لمالك المنصّة وحده ولا تظهر لغيره.'],
-            ['admin.roles.protected_message', 'admin_roles', 'نصّ منع حذف الدور المحميّ', 'string', 'دور مالك المنصّة ثابت نظاميّ — لا يُحذَف ولا يُنسَخ عنه الحذف.'],
-            ['admin.roles.assign_hint', 'admin_roles', 'سطر شرح إسناد الدور داخل عضويّة', 'string', 'الدور يحدّد «ماذا» والعضويّة تحدّد «أين» — فأدوار التطوّع تُسنَد داخل عضويّة.'],
-            ['admin.roles.empty_message', 'admin_roles', 'نصّ الحالة الفارغة', 'string', 'مفيش دور مخصّص لسّه — ابدأ بنسخ قالب'],
+            ['admin.roles.protected_message', 'admin_roles', 'نصّ منع حذف الدور المحميّ', 'string', 'دور مالك المنصّة ثابت نظاميّ، لا يُحذَف ولا يُنسَخ عنه الحذف.'],
+            ['admin.roles.assign_hint', 'admin_roles', 'سطر شرح إسناد الدور داخل عضويّة', 'string', 'الدور يحدّد «ماذا» والعضويّة تحدّد «أين»، فأدوار التطوّع تُسنَد داخل عضويّة.'],
+            ['admin.roles.empty_message', 'admin_roles', 'نصّ الحالة الفارغة', 'string', 'مفيش دور مخصّص لسّه. ابدأ بنسخ قالب'],
 
             // ---------------- تاب التطوّع في صفحة المستخدم (12.1)
             ['admin.user_tabs.volunteer_permission', 'admin_users', 'صلاحيّة إظهار تاب التطوّع', 'string', 'memberships.view'],

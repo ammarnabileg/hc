@@ -87,7 +87,7 @@ class ArbitrationService
     public function skipReason(Arbitration $arbitration): ?string
     {
         return $arbitration->conflict_of_interest_skipped
-            ? setting('volunteer.arbitration_service.skip_reason_1', 'اتخطّى مستوى أقرب لأنّ بينه وبين أحد الطرفين علاقة أبلاين/داونلاين — تنازع مصالح.')
+            ? setting('volunteer.arbitration_service.skip_reason_1', 'اتخطّى مستوى أقرب لأنّ بينه وبين أحد الطرفين علاقة أبلاين/داونلاين، يعني تنازع مصالح.')
             : null;
     }
 
@@ -128,7 +128,7 @@ class ArbitrationService
         return [
             'value' => $this->mask($phone),
             'masked' => true,
-            'hint' => setting('volunteer.arbitration_service.contact_for_3', 'التواصل بلا كشف الرقم — الرسائل تمرّ من داخل المنصّة'),
+            'hint' => setting('volunteer.arbitration_service.contact_for_3', 'التواصل بلا كشف الرقم، والرسائل تمرّ من داخل المنصّة'),
         ];
     }
 
@@ -151,7 +151,7 @@ class ArbitrationService
     {
         if ($arbitration->status !== 'open') {
             throw ValidationException::withMessages([
-                'body' => setting('volunteer.arbitration_service.message_1', 'الرسائل مقفولة على هذه القضيّة — القرار على مكتب المحكّم.'),
+                'body' => setting('volunteer.arbitration_service.message_1', 'الرسائل مقفولة على هذه القضيّة، والقرار على مكتب المحكّم.'),
             ]);
         }
 
@@ -183,7 +183,7 @@ class ArbitrationService
         [$owner, $contributor] = $this->amountsFor($arbitration, $type, $ownerAmount, $contributorAmount);
 
         $summary = match ($type) {
-            'shelved' => setting('volunteer.arbitration_service.preview_1', 'حفظ القضيّة — لا شيء يتمّ، ولا يمسّ Rep أحدًا.'),
+            'shelved' => setting('volunteer.arbitration_service.preview_1', 'حفظ القضيّة، لا شيء يتمّ، ولا يمسّ Rep أحدًا.'),
             'split' => strtr(setting('volunteer.arbitration_service.preview_2', 'قيمة وسط: :p1 VXP للمالك · :p2 VXP للمساهم.'), [':p1' => (string) ($owner), ':p2' => (string) ($contributor)]),
             'deduct' => strtr(setting('volunteer.arbitration_service.preview_3', 'خصم: :p1 VXP للمالك · :p2 VXP للمساهم.'), [':p1' => (string) ($owner), ':p2' => (string) ($contributor)]),
             default => strtr(setting('volunteer.arbitration_service.preview_4', 'منح: :p1 VXP للمالك · :p2 VXP للمساهم.'), [':p1' => (string) ($owner), ':p2' => (string) ($contributor)]),
@@ -247,7 +247,7 @@ class ArbitrationService
             FlowNotifier::send(
                 $party,
                 'arbitration',
-                setting('volunteer.arbitration_service.apply_decision_3', 'صدر قرار التحكيم — نهائيّ ولا يُعاد'),
+                setting('volunteer.arbitration_service.apply_decision_3', 'صدر قرار التحكيم، وهو نهائيّ ولا يُعاد'),
                 $justification,
                 route('volunteer.arbitrations'),
                 about: $arbitration,

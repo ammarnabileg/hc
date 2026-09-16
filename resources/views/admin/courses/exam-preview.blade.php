@@ -28,7 +28,7 @@
 @section('content')
     <x-page-header
         :title="setting('admin.courses.exam_preview.maayna_alamthan_alnhayy_2', 'معاينة الامتحان النهائيّ: ').$course->name_ar"
-        :subtitle="setting('admin.courses.exam_preview.dh_alamthan_kma_hytbna_lhdha_altdryb_bqwaadh', 'ده الامتحان كما هيتبني لهذا التدريب بقواعده المحفوظة — نفس الترتيب والعدد اللي هيشوفهم المتدرّب.')"
+        :subtitle="setting('admin.courses.exam_preview.dh_alamthan_kma_hytbna_lhdha_altdryb_bqwaadh', 'ده الامتحان كما هيتبني لهذا التدريب بقواعده المحفوظة: نفس الترتيب والعدد اللي هيشوفهم المتدرّب.')"
         :breadcrumbs="[
             ['label' => setting('admin.courses.exam_preview.altdrybat', 'التدريبات'), 'url' => route('admin.courses.index')],
             ['label' => $course->name_ar, 'url' => route('admin.courses.edit', $course)],
@@ -43,7 +43,7 @@
 
     @if ($preview['state'] === 'unconfigured')
         {{-- ⛔ بلا امتحانٍ محفوظ: إرشادٌ يقول **الخطوة التالية** لا شاشةٌ مكسورة (2.15-د · 2.17-ج) --}}
-        <x-empty :message="setting('admin.courses.exam_preview.lssh_mafysh_amthan_mhfwz_lltdryb_dh_afth_tab', 'لسّه مافيش امتحان محفوظ للتدريب ده — افتح تاب «التقييم» وحدّد درجة النجاح وعدد الأسئلة واحفظ، وهتلاقي المعاينة هنا.')"
+        <x-empty :message="setting('admin.courses.exam_preview.lssh_mafysh_amthan_mhfwz_lltdryb_dh_afth_tab', 'لسّه مافيش امتحان محفوظ للتدريب ده. افتح تاب «التقييم» وحدّد درجة النجاح وعدد الأسئلة واحفظ، وهتلاقي المعاينة هنا.')"
                  :action="setting('admin.courses.exam_preview.rwh_ltab_altqyym', 'روح لتاب التقييم')"
                  :href="route('admin.courses.edit', $course)" />
     @else
@@ -64,13 +64,13 @@
                 <x-state-badge :state="$indicator['state']"
                                :label="setting('admin.courses.exam_preview.alasyla_alaama', 'الأسئلة العامّة ').$indicator['available'].setting('admin.courses.exam_preview.mn', ' من ').$indicator['required']" />
                 @if ($preview['shortfall'] > 0)
-                    <span>{!! strtr(setting('admin.courses.exam_preview.naqs_v1_swal_alamthan_hytbny_naqsa_kda', 'ناقص :v1 سؤال — الامتحان هيتبني ناقصًا كده.'), [':v1' => e($preview['shortfall'])]) !!}</span>
+                    <span>{!! strtr(setting('admin.courses.exam_preview.naqs_v1_swal_alamthan_hytbny_naqsa_kda', 'ناقص :v1 سؤال، فالامتحان هيتبني ناقصًا كده.'), [':v1' => e($preview['shortfall'])]) !!}</span>
                 @else
                     <span style="color: var(--text-muted)">{{ setting('admin.courses.exam_preview.alamthan_ytbny_kamla_baladd_almtlwb', 'الامتحان بيتبني كاملًا بالعدد المطلوب.') }}</span>
                 @endif
             </div>
             <p class="text-xs mt-2" style="color: var(--text-muted)">
-                {{ setting('admin.courses.exam_preview.altrtyb_hna_hw_trtyb_alamthan_nfsh_sort_order', 'الترتيب هنا هو ترتيب الامتحان نفسه (sort_order ثمّ الرقم) — بلا خلط، زيّ ما المتدرّب هيشوفه بالظبط.') }}
+                {{ setting('admin.courses.exam_preview.altrtyb_hna_hw_trtyb_alamthan_nfsh_sort_order', 'الترتيب هنا هو ترتيب الامتحان نفسه (sort_order ثمّ الرقم)، بلا خلط، زيّ ما المتدرّب هيشوفه بالظبط.') }}
             </p>
         </div>
 
@@ -119,11 +119,11 @@
         @if ($preview['questions']->isEmpty())
             {{-- ⭐ وصلة البنك **تُخفى** لمن لا يملك مفتاحها لا تُعطَّل (2.15-أ-7) — والرسالة تبقى --}}
             @canany(['question_bank.list', 'question_bank.view'])
-                <x-empty :message="setting('admin.courses.exam_preview.mafysh_swal_wahd_mdmwm_lamthan_altdryb_dh', 'مافيش سؤال واحد مضموم لامتحان التدريب ده — ضُمّ أسئلة عامّة من بنك الأسئلة عشان الامتحان يتبني.')"
+                <x-empty :message="setting('admin.courses.exam_preview.mafysh_swal_wahd_mdmwm_lamthan_altdryb_dh', 'مافيش سؤال واحد مضموم لامتحان التدريب ده. ضُمّ أسئلة عامّة من بنك الأسئلة عشان الامتحان يتبني.')"
                          :action="setting('admin.courses.exam_preview.rwh_lbnk_alasyla', 'روح لبنك الأسئلة')"
                          :href="route('admin.question-bank.index', ['course' => $course->id, 'general' => '1'])" />
             @else
-                <x-empty :message="setting('admin.courses.exam_preview.mafysh_swal_wahd_mdmwm_lamthan_altdryb_dh', 'مافيش سؤال واحد مضموم لامتحان التدريب ده — ضُمّ أسئلة عامّة من بنك الأسئلة عشان الامتحان يتبني.')" />
+                <x-empty :message="setting('admin.courses.exam_preview.mafysh_swal_wahd_mdmwm_lamthan_altdryb_dh', 'مافيش سؤال واحد مضموم لامتحان التدريب ده. ضُمّ أسئلة عامّة من بنك الأسئلة عشان الامتحان يتبني.')" />
             @endcanany
         @else
             <ol class="space-y-3">
@@ -155,11 +155,11 @@
 
             @if ($preview['candidates']->isEmpty())
                 @canany(['question_bank.list', 'question_bank.view'])
-                    <x-empty :message="setting('admin.courses.exam_preview.mafysh_asyla_aama_nshta_fy_altdryb_dh_tsd', 'مافيش أسئلة عامّة نشطة في التدريب ده تسدّ النقص — علّم أسئلة دروسه بـ«سؤال عام» الأوّل.')"
+                    <x-empty :message="setting('admin.courses.exam_preview.mafysh_asyla_aama_nshta_fy_altdryb_dh_tsd', 'مافيش أسئلة عامّة نشطة في التدريب ده تسدّ النقص. علّم أسئلة دروسه بـ«سؤال عام» الأوّل.')"
                              :action="setting('admin.courses.exam_preview.rwh_lbnk_alasyla', 'روح لبنك الأسئلة')"
                              :href="route('admin.question-bank.index', ['course' => $course->id])" />
                 @else
-                    <x-empty :message="setting('admin.courses.exam_preview.mafysh_asyla_aama_nshta_fy_altdryb_dh_tsd', 'مافيش أسئلة عامّة نشطة في التدريب ده تسدّ النقص — علّم أسئلة دروسه بـ«سؤال عام» الأوّل.')" />
+                    <x-empty :message="setting('admin.courses.exam_preview.mafysh_asyla_aama_nshta_fy_altdryb_dh_tsd', 'مافيش أسئلة عامّة نشطة في التدريب ده تسدّ النقص. علّم أسئلة دروسه بـ«سؤال عام» الأوّل.')" />
                 @endcanany
             @else
                 <div class="card overflow-hidden">

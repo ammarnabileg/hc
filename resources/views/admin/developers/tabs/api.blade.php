@@ -19,7 +19,7 @@
                     {{ setting('developers.admin.plain_key_title', 'احفظ المفتاح الآن') }}
                 </div>
                 <p class="text-xs mt-1" style="color: var(--text-muted)">
-                    {{ setting('developers.admin.plain_key_warning', 'هذا هو المفتاح الكامل — لن يظهر ثانيةً بعد إغلاق هذه الرسالة.') }}
+                    {{ setting('developers.admin.plain_key_warning', 'هذا هو المفتاح الكامل، ولن يظهر ثانيةً بعد إغلاق هذه الرسالة.') }}
                 </p>
                 <code id="plain-api-key" class="block mt-2 rounded-xl px-3 py-2 text-sm select-all"
                       style="background: var(--surface-sunken); word-break: break-all">{{ $data['plainKey'] }}</code>
@@ -67,7 +67,7 @@
                        style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
             </label>
 
-            <label class="text-sm">{{ setting('developers.admin.field_rate_limit', 'حدّ الطلبات بالدقيقة (اختياريّ — فارغ يرث الحدّ العامّ)') }}
+            <label class="text-sm">{{ setting('developers.admin.field_rate_limit', 'حدّ الطلبات بالدقيقة (اختياريّ، فارغ يرث الحدّ العامّ)') }}
                 <input type="number" min="1" name="rate_limit_per_minute" value="{{ old('rate_limit_per_minute') }}"
                        placeholder="{{ $data['defaultRateLimit'] }}"
                        class="block w-full rounded-xl px-3 py-2 text-sm mt-1"
@@ -100,7 +100,7 @@
 
     @if ($data['keys']->isEmpty())
         <div class="p-4">
-            <x-empty :message="setting('developers.admin.empty_keys', 'لا مفاتيح بعد — أنشئ أوّل مفتاح API.')" />
+            <x-empty :message="setting('developers.admin.empty_keys', 'لا مفاتيح بعد. أنشئ أوّل مفتاح API.')" />
         </div>
     @else
         <div class="overflow-x-auto min-w-0">
@@ -145,14 +145,14 @@
                                     <span class="flex items-center gap-2 flex-wrap">
                                         @can('integrations.edit')
                                             <form method="post" action="{{ route('admin.developers.api-keys.rotate', $key) }}"
-                                                  onsubmit="return confirm('{{ setting('developers.admin.rotate_confirm', 'تدوير المفتاح يُبطل القديم فورًا ويصدر مفتاحًا جديدًا بنفس الاسم والصلاحيّات — تأكيد؟') }}')">
+                                                  onsubmit="return confirm('{{ setting('developers.admin.rotate_confirm', 'تدوير المفتاح يُبطل القديم فورًا ويصدر مفتاحًا جديدًا بنفس الاسم والصلاحيّات. تأكيد؟') }}')">
                                                 @csrf
                                                 <button type="submit" class="text-xs underline">{{ setting('developers.admin.rotate_cta', 'تدوير') }}</button>
                                             </form>
                                         @endcan
                                         @can('integrations.delete')
                                             <form method="post" action="{{ route('admin.developers.api-keys.revoke', $key) }}"
-                                                  onsubmit="return confirm('{{ setting('developers.admin.revoke_confirm', 'إبطال المفتاح فوريّ ولا رجعة فيه — تأكيد؟') }}')">
+                                                  onsubmit="return confirm('{{ setting('developers.admin.revoke_confirm', 'إبطال المفتاح فوريّ ولا رجعة فيه. تأكيد؟') }}')">
                                                 @csrf
                                                 @method('delete')
                                                 <button type="submit" class="text-xs underline" style="color: var(--color-state-danger)">{{ setting('developers.admin.revoke_cta', 'إبطال') }}</button>
@@ -231,7 +231,7 @@
                         <td class="px-4 py-3"><code>{{ $endpoint['method'] }}</code></td>
                         <td class="px-4 py-3"><code>{{ $endpoint['path'] }}</code></td>
                         <td class="px-4 py-3 text-xs">
-                            {{ $endpoint['scope'] ? ($scopeLabels[$endpoint['scope']] ?? $endpoint['scope']) : setting('developers.admin.catalog_no_scope', 'بلا Scope — يكفي مفتاحٌ صالح') }}
+                            {{ $endpoint['scope'] ? ($scopeLabels[$endpoint['scope']] ?? $endpoint['scope']) : setting('developers.admin.catalog_no_scope', 'بلا Scope، يكفي مفتاحٌ صالح') }}
                         </td>
                         <td class="px-4 py-3 text-xs">{{ $endpoint['description'] }}</td>
                     </tr>

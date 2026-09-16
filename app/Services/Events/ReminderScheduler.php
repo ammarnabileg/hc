@@ -422,7 +422,7 @@ class ReminderScheduler
                 $this->presenter->localStart($event, $user)->format((string) setting('events.reminder.time_format', 'Y-m-d · H:i')),
                 $this->presenter->timezone($user),
             ],
-            (string) setting('events.reminder.body_template', '«:title» يوم :time بتوقيت :timezone — جهّز نفسك ومكانك.'),
+            (string) setting('events.reminder.body_template', '«:title» يوم :time بتوقيت :timezone، جهّز نفسك ومكانك.'),
         );
     }
 

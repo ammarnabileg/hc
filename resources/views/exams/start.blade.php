@@ -2,7 +2,7 @@
 
 @section('title', $exam->title_ar)
 @section('exam_title', $exam->title_ar)
-@section('exam_meta', setting('exams.labels.before_start', 'قبل ما تبدأ — اطّلع على الشروط'))
+@section('exam_meta', setting('exams.labels.before_start', 'قبل ما تبدأ، اطّلع على الشروط'))
 
 @php
     /*
@@ -12,7 +12,7 @@
      */
     $unlimited = $attemptsLeft === null;
     $attemptsText = $unlimited
-        ? setting('exams.labels.attempts_unlimited', 'بلا حدّ — كلّ دخول بتذكرة')
+        ? setting('exams.labels.attempts_unlimited', 'بلا حدّ، كلّ دخول بتذكرة')
         : $attemptsLeft.' '.setting('exams.labels.of', 'من').' '.$attemptsLimit;
     $blocked = ! $affordable || (! $unlimited && $attemptsLeft < 1) || $cooldownUntil;
 @endphp
@@ -79,7 +79,7 @@
                     {{-- نصّ 13.4-ق-و المعتمَد: الشهادة القديمة تُسجَّل «منتهية» ولا تُمسَح --}}
                     <div class="card p-3 text-sm" style="background: var(--surface-sunken)">
                         <div class="flex items-center gap-2 mb-2"><x-state-badge state="warn" label="{{ setting('exams.labels.notice', 'انتبه') }}" /></div>
-                        <p>{{ setting('exams.messages.reentry_notice', 'الامتحان ده بيثبت جاهزيّتك دلوقتي. أوّل ما تبدأ، شهادتك التأهيليّة القديمة هتتسجّل «منتهية» — مش هتتمسح، هتفضل في سجلّك بتاريخها، وبالنجاح هتصدرلك شهادة جديدة.') }}</p>
+                        <p>{{ setting('exams.messages.reentry_notice', 'الامتحان ده بيثبت جاهزيّتك دلوقتي. أوّل ما تبدأ، شهادتك التأهيليّة القديمة هتتسجّل «منتهية». مش هتتمسح، هتفضل في سجلّك بتاريخها، وبالنجاح هتصدرلك شهادة جديدة.') }}</p>
                     </div>
                 @endif
 

@@ -1,7 +1,7 @@
 @php
     /** نصوص السكربت — من الإعدادات لا محروقةً في الجافاسكربت (2.13-أ) */
     $hcWords = array_merge($hcWords ?? [], [
-        'admin.roles.edit.mtakd_ink_aayz_tmnh_alslahya_alhsasa_dy_v1' => (string) setting('admin.roles.edit.mtakd_ink_aayz_tmnh_alslahya_alhsasa_dy_v1', 'دي صلاحيّة حسّاسة 🔒 — متأكّد إنك عايز تمنح: :v1؟'),
+        'admin.roles.edit.mtakd_ink_aayz_tmnh_alslahya_alhsasa_dy_v1' => (string) setting('admin.roles.edit.mtakd_ink_aayz_tmnh_alslahya_alhsasa_dy_v1', 'دي صلاحيّة حسّاسة 🔒. متأكّد إنك عايز تمنح: :v1؟'),
     ]);
 @endphp
 {{-- ⛔ لا توجّل للأنيميشن ولا سمة تُطفئه — «الأنيميشن حاضر دائمًا لأنّه روح

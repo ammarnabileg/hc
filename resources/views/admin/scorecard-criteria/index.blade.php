@@ -5,7 +5,7 @@
 @section('content')
     {{-- 13.4-د: معايير يضيفها الأدمن بلا حدود، يجاوب عليها المشرف بدرجة /10 --}}
     <x-page-header :title="setting('scorecard_criteria.page_title', 'معايير المقابلة')"
-                   :subtitle="setting('scorecard_criteria.page_subtitle', 'معايير نتيجة المقابلة الأولى (Scorecard) — بدرجة ووزن اختياريّ لكلّ معيار.')"
+                   :subtitle="setting('scorecard_criteria.page_subtitle', 'معايير نتيجة المقابلة الأولى (Scorecard)، بدرجة ووزن اختياريّ لكلّ معيار.')"
                    :breadcrumbs="[
                        ['label' => setting('scorecard_criteria.breadcrumb_volunteer', 'إدارة التطوّع'), 'url' => route('admin.volunteer.index')],
                        ['label' => setting('scorecard_criteria.page_title', 'معايير المقابلة')],
@@ -22,7 +22,7 @@
     </x-page-header>
 
     @if ($criteria->isEmpty())
-        <x-empty :message="setting('scorecard_criteria.empty_message', 'مفيش معايير لسّه — ابدأ بأوّل معيار.')" />
+        <x-empty :message="setting('scorecard_criteria.empty_message', 'مفيش معايير لسّه. ابدأ بأوّل معيار.')" />
     @else
         <div class="space-y-3">
             @foreach ($criteria as $criterion)
@@ -72,7 +72,7 @@
                                     <button type="submit" formmethod="post"
                                             formaction="{{ route('admin.volunteer.scorecard-criteria.destroy', $criterion) }}"
                                             name="_method" value="DELETE"
-                                            onclick="return confirm('{{ setting('scorecard_criteria.confirm_delete', 'حذف نهائيّ: يختفي المعيار تمامًا — حتى من نتائج المقابلات القديمة. الأثر لا يُتراجع عنه. متأكّد؟') }}')"
+                                            onclick="return confirm('{{ setting('scorecard_criteria.confirm_delete', 'حذف نهائيّ: يختفي المعيار تمامًا، حتى من نتائج المقابلات القديمة. الأثر لا يُتراجع عنه. متأكّد؟') }}')"
                                             class="btn rounded-xl px-4 text-sm"
                                             style="min-height: 44px; background: var(--surface-sunken); color: var(--danger, #b3261e)">
                                         <input type="hidden" name="mode" value="new_and_old">

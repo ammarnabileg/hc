@@ -12,8 +12,8 @@
     $ogImage = (string) setting('home.og.image', '');
 @endphp
 
-@section('title', setting('home.meta_title', config('app.name').' — اتعلّم واطلع بشهادة'))
-@section('meta_description', setting('home.meta_description', 'منصّة عربيّة للتعلّم والتطوّع: تدريبات ومسارات وشهادات معتمدة — والتسجيل والتفعيل مجّانيّان.'))
+@section('title', setting('home.meta_title', config('app.name').': اتعلّم واطلع بشهادة'))
+@section('meta_description', setting('home.meta_description', 'منصّة عربيّة للتعلّم والتطوّع: تدريبات ومسارات وشهادات معتمدة، والتسجيل والتفعيل مجّانيّان.'))
 
 @if ($ogImage)
     @section('og_image', str_starts_with($ogImage, 'http') ? $ogImage : url($ogImage))

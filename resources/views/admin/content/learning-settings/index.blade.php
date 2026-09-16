@@ -39,12 +39,12 @@
                     @include('admin.content.learning-settings.field', ['setting' => $setting, 'registry' => $registry, 'canEdit' => $canEdit])
                 @empty
                     {{-- حالة «فارغة» رسميّة — لا حقلٌ مختلَق بلا قارئ حقيقيّ في الكود (2.13) --}}
-                    <x-empty :message="setting('admin.content.learning_settings.index.empty', 'مجموعة فاضية — مفاتيحها لسّه بلا قارئ في الكود.')" />
+                    <x-empty :message="setting('admin.content.learning_settings.index.empty', 'مجموعة فاضية، مفاتيحها لسّه بلا قارئ في الكود.')" />
                 @endforelse
             </div>
 
             @unless ($canEdit)
-                <p class="text-xs" style="color: var(--text-muted)">{{ setting('admin.content.learning_settings.index.read_only', 'عرض فقط — بلا صلاحيّة تعديل.') }}</p>
+                <p class="text-xs" style="color: var(--text-muted)">{{ setting('admin.content.learning_settings.index.read_only', 'عرض فقط، بلا صلاحيّة تعديل.') }}</p>
             @endunless
         </div>
     </div>

@@ -102,24 +102,24 @@ class TopupReviewService
     public function approve(TopupRequest $request, User $actor, string $mode, ?int $offerId, ?float $manual, string $reason): TopupRequest
     {
         if ($request->status !== TopupService::PENDING) {
-            throw new RuntimeException(setting('store.topup_review_service.approve_1', 'الطلب ده مش في حالة «قيد التحقّق» — راجع حالته الأوّل.'));
+            throw new RuntimeException(setting('store.topup_review_service.approve_1', 'الطلب ده مش في حالة «قيد التحقّق»، راجع حالته الأوّل.'));
         }
 
         // ⛔ القاعدة الحاسمة: بلا مراجعة إيصال لا اعتماد — ولو طابقت القيمةُ العرضَ
         if (! $this->receiptReviewed($request)) {
-            throw new RuntimeException(setting('store.topup_review_service.approve_2', 'راجع صورة الإيصال الأوّل — الاعتماد مقفول لحدّ ما تراجعها.'));
+            throw new RuntimeException(setting('store.topup_review_service.approve_2', 'راجع صورة الإيصال الأوّل، الاعتماد مقفول لحدّ ما تراجعها.'));
         }
 
         if ($this->duplicateOf($request)) {
             $this->markDuplicate($request, $actor);
 
-            throw new RuntimeException(setting('store.topup_review_service.approve_3', 'الإيصال ده مرفوع قبل كده — الطلب اتوسم «مكرَّرة» ومااتعتمدش.'));
+            throw new RuntimeException(setting('store.topup_review_service.approve_3', 'الإيصال ده مرفوع قبل كده، فالطلب اتوسم «مكرَّرة» ومااتعتمدش.'));
         }
 
         $reason = trim($reason);
 
         if ($reason === '') {
-            throw new RuntimeException(setting('store.topup_review_service.approve_4', 'اكتب سبب الاعتماد — بيتسجّل في سجلّ التدقيق ويوصل صاحب الطلب.'));
+            throw new RuntimeException(setting('store.topup_review_service.approve_4', 'اكتب سبب الاعتماد، بيتسجّل في سجلّ التدقيق ويوصل صاحب الطلب.'));
         }
 
         return DB::transaction(function () use ($request, $actor, $mode, $offerId, $manual, $reason) {
@@ -156,7 +156,7 @@ class TopupReviewService
             $this->topups->notify(
                 $locked->user,
                 setting('store.topup_review_service.approve_6', 'رصيدك اتشحن ✓'),
-                strtr(setting('store.topup_review_service.approve_7', 'اتضاف لمحفظتك :p1 — :p2.'), [':p1' => (string) ($this->money($amount)), ':p2' => (string) ($label)]),
+                strtr(setting('store.topup_review_service.approve_7', 'اتضاف لمحفظتك :p1، :p2.'), [':p1' => (string) ($this->money($amount)), ':p2' => (string) ($label)]),
                 $locked,
             );
 
@@ -178,7 +178,7 @@ class TopupReviewService
         $reason = trim($reason);
 
         if ($reason === '') {
-            throw new RuntimeException(setting('store.topup_review_service.cancel_1', 'سبب الإلغاء إلزاميّ — المستخدم لازم يفهم يعدّل إيه.'));
+            throw new RuntimeException(setting('store.topup_review_service.cancel_1', 'سبب الإلغاء إلزاميّ، المستخدم لازم يفهم يعدّل إيه.'));
         }
 
         $old = $request->status;
@@ -193,7 +193,7 @@ class TopupReviewService
         $this->topups->notify(
             $request->user,
             setting('store.topup_review_service.cancel_2', 'طلب الشحن اتلغى'),
-            strtr(setting('store.topup_review_service.cancel_3', ':p1 — تقدر تعدّل وتبعت تاني من صفحة طلبات الشحن.'), [':p1' => (string) ($reason)]),
+            strtr(setting('store.topup_review_service.cancel_3', ':p1، تقدر تعدّل وتبعت تاني من صفحة طلبات الشحن.'), [':p1' => (string) ($reason)]),
             $request,
         );
 

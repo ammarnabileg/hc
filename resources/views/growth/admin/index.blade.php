@@ -4,7 +4,7 @@
 
 @section('content')
     <x-page-header title="{{ setting('growth.admin_index.title_1', 'حلقات النموّ') }}"
-                   subtitle="{{ setting('growth.admin_index.subtitle_1', 'كلّ رقم ونصّ في حلقات النموّ والاكتساب والتتبّع — من هنا لا من الكود.') }}"
+                   subtitle="{{ setting('growth.admin_index.subtitle_1', 'كلّ رقم ونصّ في حلقات النموّ والاكتساب والتتبّع، بيتعدّل من هنا مش من الكود.') }}"
                    :breadcrumbs="[
                        ['label' => (string) setting('growth.admin_index.breadcrumbs_1', 'لوحة الإدارة'), 'url' => url('/admin')],
                        ['label' => (string) setting('growth.admin_index.breadcrumbs_2', 'حلقات النموّ')],
@@ -27,7 +27,7 @@
                     'endpoint' => route('admin.growth.setting.save'),
                 ])
             @empty
-                <x-empty message="{{ setting('growth.admin_index.message_1', 'الإعدادات دي لسّه ما اتزرعتش — شغّل سيدر مجال النموّ.') }}" />
+                <x-empty message="{{ setting('growth.admin_index.message_1', 'الإعدادات دي لسّه ما اتزرعتش. شغّل سيدر مجال النموّ.') }}" />
             @endforelse
         </div>
 
@@ -82,7 +82,7 @@
                         @endforeach
                     </ul>
                     <p class="text-xs mt-3" style="color: var(--text-muted)">
-                        {{ setting('growth.admin_index.text_6', 'رفض المستخدم بيوقف البكسل وأحداث الخادم له فعليًّا — مش شكليًّا.') }}
+                        {{ setting('growth.admin_index.text_6', 'رفض المستخدم بيوقف البكسل وأحداث الخادم له فعليًّا، مش شكليًّا بس.') }}
                         و<code>ads.tracking.enabled</code> {{ setting('growth.admin_index.text_7', 'بيوقّف التتبّع كلّه بمفتاح واحد.') }}
                     </p>
                 </div>

@@ -14,7 +14,7 @@
 @section('content')
     <x-page-header
         :title="setting('volunteer.people_recruitment.analytics_title', 'قمع التطوّع')"
-        :subtitle="setting('volunteer.people_recruitment.analytics_subtitle', 'بدأ · أتمّ · مقابلة · مقبول · مُسكَّن — مع متوسّط زمن كلّ مرحلة.')"
+        :subtitle="setting('volunteer.people_recruitment.analytics_subtitle', 'بدأ · أتمّ · مقابلة · مقبول · مُسكَّن، مع متوسّط زمن كلّ مرحلة.')"
         :breadcrumbs="[['label' => setting('volunteer.common.breadcrumb_root', 'لوحة التطوّع'), 'url' => url('/volunteer')], ['label' => setting('volunteer.people_recruitment.label', 'التوظيف'), 'url' => route('volunteer.recruitment')], ['label' => setting('volunteer.people_recruitment.analytics_title', 'قمع التطوّع')]]">
         <x-slot:action>
             <div class="flex flex-wrap gap-2">
@@ -62,7 +62,7 @@
         <h2 class="font-bold mb-3">{{ setting('volunteer.people_recruitment.analytics_funnel_title', 'القمع') }}</h2>
 
         @if ($funnel['total'] === 0)
-            <x-empty :message="setting('volunteer.people_recruitment.analytics_empty', 'لا بيانات كافية في هذه الفترة — جرّب فترة أوسع.')" />
+            <x-empty :message="setting('volunteer.people_recruitment.analytics_empty', 'لا بيانات كافية في هذه الفترة، جرّب فترة أوسع.')" />
         @else
             <div class="space-y-3">
                 @foreach ($funnel['stages'] as $stage)
@@ -84,7 +84,7 @@
                         @if ($duration)
                             <p class="text-xs mt-1" style="color: var(--text-muted)">
                                 @if ($duration['avg_days'] !== null)
-                                    {!! strtr(setting('volunteer.people_recruitment.analytics_avg_time', 'متوسّط الزمن حتّى :to — :days يومًا (:sample مرشّحًا)'), [
+                                    {!! strtr(setting('volunteer.people_recruitment.analytics_avg_time', 'متوسّط الزمن حتّى :to: :days يومًا (:sample مرشّحًا)'), [
                                         ':to' => $duration['to_label'],
                                         ':days' => $duration['avg_days'],
                                         ':sample' => $duration['sample'],

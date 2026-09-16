@@ -55,7 +55,7 @@ final class PerformancePanel
                 'series' => $summary['visible'] ? $this->leadership->weeklySeries($owner) : [],
                 'note' => (string) setting(
                     'volunteer.profile.performance.anonymous_note',
-                    'التقييمات متوسّطات مجهولة — مفيش أسماء ولا درجات فرديّة.',
+                    'التقييمات متوسّطات مجهولة، مفيش أسماء ولا درجات فرديّة.',
                 ),
             ],
             'monthly' => $this->monthly($owner),
@@ -137,7 +137,7 @@ final class PerformancePanel
             'idle' => $idle,
             'note' => (string) setting(
                 'volunteer.health.retention_risk.note',
-                'داخليّ للأبلاين فقط — ولا يُعرَض للمتطوّع عن نفسه أبدًا',
+                'داخليّ للأبلاين فقط، ولا يُعرَض للمتطوّع عن نفسه أبدًا',
             ),
         ];
     }

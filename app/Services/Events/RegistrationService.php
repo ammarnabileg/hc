@@ -27,7 +27,7 @@ class RegistrationService
     public function register(Event $event, User $user, ?string $attendMode = null): array
     {
         if ($existing = $this->registrationFor($event, $user)) {
-            return $this->fail(setting('events.registration_service.register_1', 'إنت مسجّل في الفعاليّة دي بالفعل — تذكرتك تحت.'), $existing);
+            return $this->fail(setting('events.registration_service.register_1', 'إنت مسجّل في الفعاليّة دي بالفعل، تذكرتك تحت.'), $existing);
         }
 
         if ($this->presenter->hasEnded($event)) {
@@ -35,7 +35,7 @@ class RegistrationService
         }
 
         if ($this->presenter->isFull($event)) {
-            return $this->fail(setting('events.registration_service.register_3', 'اكتمل العدد في الفعاليّة دي. تابع الصفحة — بننزل مواعيد جديدة باستمرار.'));
+            return $this->fail(setting('events.registration_service.register_3', 'اكتمل العدد في الفعاليّة دي. تابع الصفحة، بننزل مواعيد جديدة باستمرار.'));
         }
 
         // الهجين: المستخدم يختار نمط الحضور عند التسجيل (13.3)
@@ -69,14 +69,14 @@ class RegistrationService
             ]));
         } catch (QueryException) {
             // القيد الفريد (event_id,user_id) هو الحارس الأخير ضدّ التسجيل المكرَّر
-            return $this->fail(setting('events.registration_service.register_10', 'إنت مسجّل في الفعاليّة دي بالفعل — تذكرتك تحت.'), $this->registrationFor($event, $user));
+            return $this->fail(setting('events.registration_service.register_10', 'إنت مسجّل في الفعاليّة دي بالفعل، تذكرتك تحت.'), $this->registrationFor($event, $user));
         }
 
         $this->tracker->record('event_register', $event, $user->id);
 
         return [
             'ok' => true,
-            'message' => setting('events.registration_service.register_11', 'تمّ تسجيلك ✓ — تذكرتك جاهزة وتقدر تشاركها.'),
+            'message' => setting('events.registration_service.register_11', 'تمّ تسجيلك ✓ وتذكرتك جاهزة وتقدر تشاركها.'),
             'registration' => $registration,
         ];
     }

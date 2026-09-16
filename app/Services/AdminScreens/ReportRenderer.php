@@ -119,7 +119,7 @@ class ReportRenderer
         }
 
         if (count($shown) < count($rows)) {
-            $lines[] = strtr((string) setting('report_schedules.pdf_truncated_line', 'معروض أوّل :shown صفًّا من :total — الملفّ الكامل بصيغة CSV.'), [
+            $lines[] = strtr((string) setting('report_schedules.pdf_truncated_line', 'معروض أوّل :shown صفًّا من :total، الملفّ الكامل بصيغة CSV.'), [
                 ':shown' => (string) count($shown),
                 ':total' => (string) count($rows),
             ]);

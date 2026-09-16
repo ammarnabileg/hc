@@ -67,7 +67,7 @@ class CertificateEligibility
             return [
                 'eligible' => false,
                 'days' => $days,
-                'reason' => setting('volunteer_cert.certificate_eligibility.check_1', 'العنصر الشرفيّ مكانه تقديريّ لا بوزشن تطوّع — ولا تُصدَر له شهادة بوزشن.'),
+                'reason' => setting('volunteer_cert.certificate_eligibility.check_1', 'العنصر الشرفيّ مكانه تقديريّ لا بوزشن تطوّع، فلا تُصدَر له شهادة بوزشن.'),
             ];
         }
 
@@ -87,7 +87,7 @@ class CertificateEligibility
                 return [
                     'eligible' => false,
                     'days' => $days,
-                    'reason' => strtr(setting('volunteer_cert.certificate_eligibility.check_3', 'درجة الالتزام سالبة الآن (:p1) — الشهادة تتطلّب رقمًا غير سالب.'), [':p1' => (string) (number_format($rep, 2))]),
+                    'reason' => strtr(setting('volunteer_cert.certificate_eligibility.check_3', 'درجة الالتزام سالبة الآن (:p1)، والشهادة تتطلّب رقمًا غير سالب.'), [':p1' => (string) (number_format($rep, 2))]),
                 ];
             }
         }
@@ -96,7 +96,7 @@ class CertificateEligibility
             return [
                 'eligible' => false,
                 'days' => $days,
-                'reason' => setting('volunteer_cert.certificate_eligibility.check_4', 'صدرت شهادة لهذا البوزشن في هذا الكيان من قبل — والترقية تُصدر الأعلى لا نسخة مكرّرة.'),
+                'reason' => setting('volunteer_cert.certificate_eligibility.check_4', 'صدرت شهادة لهذا البوزشن في هذا الكيان من قبل، والترقية تُصدر الأعلى لا نسخة مكرّرة.'),
             ];
         }
 
@@ -179,7 +179,7 @@ class CertificateEligibility
             if ($user) {
                 Integrations::notify(
                     $user, 'certificate', setting('volunteer_cert.certificate_eligibility.issue_for_membership_2', 'صدرت شهادة تطوّعك 🎖️'),
-                    strtr(setting('volunteer_cert.certificate_eligibility.issue_for_membership_3', 'شهادة :p1 — :p2'), [':p1' => (string) (($membership->position?->name_ar ?? '')), ':p2' => (string) (($membership->entity?->name_ar ?? ''))]),
+                    strtr(setting('volunteer_cert.certificate_eligibility.issue_for_membership_3', 'شهادة :p1 · :p2'), [':p1' => (string) (($membership->position?->name_ar ?? '')), ':p2' => (string) (($membership->entity?->name_ar ?? ''))]),
                     null, 'volunteer',
                 );
             }
@@ -226,7 +226,7 @@ class CertificateEligibility
             ->get();
 
         if ($memberships->isEmpty()) {
-            return ['issued' => false, 'reason' => setting('volunteer_cert.certificate_eligibility.issue_experience_3', 'لا عضويّات في سجلّه — لا مدّة خدمة تُشهَد.'), 'certificate' => null];
+            return ['issued' => false, 'reason' => setting('volunteer_cert.certificate_eligibility.issue_experience_3', 'لا عضويّات في سجلّه، فلا مدّة خدمة تُشهَد.'), 'certificate' => null];
         }
 
         $days = 0;
@@ -279,7 +279,7 @@ class CertificateEligibility
             Integrations::notify(
                 $user, 'certificate',
                 (string) setting('volunteer_cert.experience.notify_title', 'شهادة خبرة التطوّع بتاعتك صدرت 🎖️'),
-                (string) setting('volunteer_cert.experience.notify_body', 'شكرًا على كلّ اللي قدّمته — الشهادة في مكتبتك وبتفضل سارية للأبد.'),
+                (string) setting('volunteer_cert.experience.notify_body', 'شكرًا على كلّ اللي قدّمته، الشهادة في مكتبتك وبتفضل سارية للأبد.'),
                 null, 'volunteer',
             );
         }
@@ -395,7 +395,7 @@ class CertificateEligibility
                 return [
                     'eligible' => false,
                     'days' => $days,
-                    'reason' => strtr(setting('volunteer_cert.certificate_eligibility.case_file_check_2', 'درجة الالتزام سالبة الآن (:p1) — الشهادة تتطلّب رقمًا غير سالب.'), [':p1' => (string) (number_format($rep, 2))]),
+                    'reason' => strtr(setting('volunteer_cert.certificate_eligibility.case_file_check_2', 'درجة الالتزام سالبة الآن (:p1)، والشهادة تتطلّب رقمًا غير سالب.'), [':p1' => (string) (number_format($rep, 2))]),
                 ];
             }
         }
@@ -550,7 +550,7 @@ class CertificateEligibility
     {
         return (string) setting(
             'volunteer_cert.issuer_unavailable',
-            'مسار إصدار الشهادات متعثّر الآن — راجع أنّ نوع الشهادة مفعَّل في «إدارة الشهادات»، ولا تُكتَب شهادة خارج المحرّك.',
+            'مسار إصدار الشهادات متعثّر الآن، راجع أنّ نوع الشهادة مفعَّل في «إدارة الشهادات»، ولا تُكتَب شهادة خارج المحرّك.',
         );
     }
 

@@ -38,7 +38,7 @@ class WalletRatesController extends Controller
         return [
             'rates' => [
                 'label' => (string) setting('wallet.rates_admin.catalog_msg', 'أسعار الصرف (مبنيّة على الدولار)'),
-                'hint' => (string) setting('wallet.rates_admin.catalog_msg_2', 'ثلاثة أسعار فقط، وكلّ سعرٍ آخر يُشتقّ منها — فلا تتناقض الأرقام.'),
+                'hint' => (string) setting('wallet.rates_admin.catalog_msg_2', 'ثلاثة أسعار فقط، وكلّ سعرٍ آخر يُشتقّ منها فلا تتناقض الأرقام.'),
                 'fields' => [
                     'finance.rates.usd_to_coins' => [(string) setting('wallet.rates_admin.catalog_msg_3', '1$ = كام كوين'), 'number', '50'],
                     'finance.rates.ticket_to_coins' => [(string) setting('wallet.rates_admin.catalog_msg_4', '1 تذكرة = كام كوين'), 'number', '10'],
@@ -58,7 +58,7 @@ class WalletRatesController extends Controller
             ],
             'exchange' => [
                 'label' => (string) setting('wallet.rates_admin.catalog_msg_13', 'رسوم تحويل العملة'),
-                'hint' => (string) setting('wallet.rates_admin.catalog_msg_14', 'نسبة موحّدة لكلّ المسارات المسموحة — ولا استثناء لمسار.'),
+                'hint' => (string) setting('wallet.rates_admin.catalog_msg_14', 'نسبة موحّدة لكلّ المسارات المسموحة، ولا استثناء لمسار.'),
                 'fields' => [
                     'finance.exchange.fee_percent' => [(string) setting('wallet.rates_admin.catalog_msg_15', 'رسوم تحويل العملة (%)'), 'number', '5'],
                     'finance.exchange.min_amount_usd' => [(string) setting('wallet.rates_admin.catalog_msg_16', 'أقلّ قيمة تحويل (بالدولار)'), 'number', '1'],
@@ -115,7 +115,7 @@ class WalletRatesController extends Controller
         // سعر صرفٍ بصفر يعني قسمةً على صفر في كلّ مسار — نمنعه هنا لا بعد الانهيار
         if (str_starts_with($data['key'], 'finance.rates.') && (float) $data['value'] <= 0) {
             return back()->withErrors([
-                'rates' => (string) setting('wallet.rates_admin.save_must', 'سعر الصرف لازم يكون أكبر من صفر — اكتب رقمًا موجبًا وجرّب تاني.'),
+                'rates' => (string) setting('wallet.rates_admin.save_must', 'سعر الصرف لازم يكون أكبر من صفر، اكتب رقمًا موجبًا وجرّب تاني.'),
             ]);
         }
 
@@ -129,7 +129,7 @@ class WalletRatesController extends Controller
 
         $this->registry->audit($setting, $old, $result['value'], $request->user(), 'exchange_rates.edit', $data['reason']);
 
-        return back()->with('status', (string) setting('wallet.rates_admin.save_ok', 'اتحفظ ✓ — السعر الجديد يسري على العمليّات الجديدة وحدها.'));
+        return back()->with('status', (string) setting('wallet.rates_admin.save_ok', 'اتحفظ ✓، السعر الجديد يسري على العمليّات الجديدة وحدها.'));
     }
 
     // ------------------------------------------------------------------ داخليّ
@@ -159,7 +159,7 @@ class WalletRatesController extends Controller
     private function assertOwner(Request $request): void
     {
         if (! $request->user()->isPlatformOwner()) {
-            abort(403, (string) setting('wallet.rates_admin.assert_owner_msg', 'أسعار الصرف لمالك المنصّة وحده — كلّم المالك لو محتاج تعديلًا.'));
+            abort(403, (string) setting('wallet.rates_admin.assert_owner_msg', 'أسعار الصرف لمالك المنصّة وحده، كلّم المالك لو محتاج تعديلًا.'));
         }
     }
 }

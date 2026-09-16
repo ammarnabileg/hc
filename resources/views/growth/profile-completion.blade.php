@@ -38,9 +38,9 @@
 
             <p class="text-sm mt-3" style="color: var(--text-muted)">
                 @if ($state['rewarded'])
-                    {{ setting('growth.profile_completion.already', 'مكافأة إكمال الملفّ اتصرفت قبل كده — وبتتصرف مرّة واحدة بس.') }}
+                    {{ setting('growth.profile_completion.already', 'مكافأة إكمال الملفّ اتصرفت قبل كده، وبتتصرف مرّة واحدة بس.') }}
                 @else
-                    {{ str_replace('{tickets}', $state['tickets'], (string) setting('growth.profile_completion.promise', 'أول ما توصل 100% هتاخد {tickets} تذاكر — مرّة واحدة.')) }}
+                    {{ str_replace('{tickets}', $state['tickets'], (string) setting('growth.profile_completion.promise', 'أول ما توصل 100% هتاخد {tickets} تذاكر، مرّة واحدة بس.')) }}
                 @endif
             </p>
         </div>
@@ -48,7 +48,7 @@
         <h2 class="font-extrabold mt-6 mb-2">{{ setting('growth.profile_completion.fields_label', 'اللي لسّه ناقص') }}</h2>
 
         @if ($state['missing'] === [])
-            <x-empty :message="setting('growth.profile_completion.complete', 'ملفّك كامل — تمام كده.')" />
+            <x-empty :message="setting('growth.profile_completion.complete', 'ملفّك كامل، تمام كده.')" />
         @else
             <ul class="card divide-y" style="border-color: var(--border)">
                 @foreach ($state['missing'] as $key => $label)

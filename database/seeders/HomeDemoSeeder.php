@@ -31,8 +31,8 @@ class HomeDemoSeeder extends Seeder
     {
         $rows = [
             // ---------------- الصفحة الرئيسيّة العامّة: الفهرسة والميتا (21.2-ب)
-            ['home.meta_title', 'home', 'عنوان الميتا للصفحة الرئيسيّة', 'string', 'المنصّة — اتعلّم واطلع بشهادة تقدر تثبتها'],
-            ['home.meta_description', 'home', 'وصف الميتا للصفحة الرئيسيّة', 'text', 'منصّة عربيّة للتعلّم والتطوّع: تدريبات ومسارات وشهادات معتمدة، ومجتمع بيشتغل جنبك — والتسجيل والتفعيل مجّانيّان.'],
+            ['home.meta_title', 'home', 'عنوان الميتا للصفحة الرئيسيّة', 'string', 'المنصّة. اتعلّم واطلع بشهادة تقدر تثبتها'],
+            ['home.meta_description', 'home', 'وصف الميتا للصفحة الرئيسيّة', 'text', 'منصّة عربيّة للتعلّم والتطوّع: تدريبات ومسارات وشهادات معتمدة، والتسجيل والتفعيل مجّانيّان.'],
             ['home.og.image', 'home', 'صورة OG للصفحة الرئيسيّة', 'media', ''],
             ['home.brand.name', 'home', 'الاسم الظاهر في الشريط العلويّ', 'string', 'المنصّة'],
             ['home.date_format', 'home', 'صيغة التاريخ في الصفحة الرئيسيّة', 'string', 'j F Y'],
@@ -47,7 +47,7 @@ class HomeDemoSeeder extends Seeder
             ['home.nav.register', 'home', 'نصّ زرّ إنشاء الحساب', 'string', 'أنشئ حسابك'],
             ['home.hero.eyebrow', 'home', 'سطر فوق العنوان', 'string', 'منصّة تعلّم وتطوّع عربيّة'],
             ['home.hero.title', 'home', 'عنوان البطل', 'string', 'اتعلّم مهارة حقيقيّة، واطلع بشهادة تقدر تثبتها.'],
-            ['home.hero.subtitle', 'home', 'نصّ البطل', 'text', 'تدريبات عربيّة مرتّبة في مسارات، ومجتمع بيشتغل جنبك، وشهادة لكلّ إنجاز — كلّه في مكان واحد.'],
+            ['home.hero.subtitle', 'home', 'نصّ البطل', 'text', 'تدريبات عربيّة مرتّبة في مسارات، ومجتمع بيشتغل جنبك، وشهادة لكلّ إنجاز، كلّه في مكان واحد.'],
             ['home.hero.primary_cta', 'home', 'الفعل الرئيسيّ في البطل', 'string', 'ابدأ مجّانًا'],
             ['home.hero.secondary_cta', 'home', 'الفعل الثانويّ في البطل', 'string', 'اتفرّج على التدريبات'],
 
@@ -61,7 +61,7 @@ class HomeDemoSeeder extends Seeder
 
             // ---------------- التسجيل والتفعيل مجّانيّان (2.5-د)
             ['home.free.title', 'home', 'عنوان بلوك المجّانيّة', 'string', 'التسجيل والتفعيل مجّانيّان'],
-            ['home.free.body', 'home', 'نصّ بلوك المجّانيّة', 'text', 'تفتح حسابك وتفعّله من غير ما تدفع مليم. اللي بفلوس هو التدريبات المدفوعة نفسها — ومكتوب سعرها قدّامك قبل ما تختار.'],
+            ['home.free.body', 'home', 'نصّ بلوك المجّانيّة', 'text', 'تفتح حسابك وتفعّله من غير ما تدفع مليم. اللي بفلوس هو التدريبات المدفوعة نفسها، وسعرها مكتوب قدّامك قبل ما تختار.'],
             ['home.free.points', 'home', 'نقاط بلوك المجّانيّة', 'json', json_encode([
                 'إنشاء الحساب مجّانيّ',
                 'تفعيل الحساب مجّانيّ',
@@ -70,8 +70,8 @@ class HomeDemoSeeder extends Seeder
 
             // ---------------- الأداة المجّانيّة كباب دخول: منشئ الـCV بلا تسجيل (21.2-ج)
             ['home.free.cv_enabled', 'home', 'إظهار بلوك منشئ الـCV المجّانيّ', 'bool', '1'],
-            ['home.free.cv_title', 'home', 'عنوان بلوك منشئ الـCV', 'string', 'منشئ سيرة ذاتيّة مجّانيّ — من غير تسجيل'],
-            ['home.free.cv_body', 'home', 'نصّ بلوك منشئ الـCV', 'text', 'قالب واحد مجّانيّ: تملا بياناتك وتشوف سيرتك قدّامك لحظة بلحظة بلا حساب — والتحميل بس هو اللي بيطلب إنشاء حساب، وشغلك بيستنّاك فيه.'],
+            ['home.free.cv_title', 'home', 'عنوان بلوك منشئ الـCV', 'string', 'منشئ سيرة ذاتيّة مجّانيّ، من غير تسجيل'],
+            ['home.free.cv_body', 'home', 'نصّ بلوك منشئ الـCV', 'text', 'قالب واحد مجّانيّ: تملا بياناتك وتشوف سيرتك قدّامك لحظة بلحظة من غير حساب. التحميل بس هو اللي بيطلب إنشاء حساب، وشغلك بيستنّاك فيه.'],
             ['home.free.cv_cta', 'home', 'زرّ بلوك منشئ الـCV', 'string', 'ابدأ سيرتك دلوقتي'],
 
             // ---------------- التدريبات والمسارات (21.1-أ)
@@ -79,7 +79,7 @@ class HomeDemoSeeder extends Seeder
             ['home.courses.limit', 'home', 'عدد التدريبات المعروضة', 'number', '4'],
             ['home.courses.cta', 'home', 'نصّ زرّ كارت التدريب', 'string', 'ابدأ التدريب'],
             ['home.courses.free_label', 'home', 'لافتة التدريب المجّانيّ', 'string', 'مجّانيّ'],
-            ['home.courses.empty', 'home', 'الحالة الفارغة للتدريبات', 'text', 'التدريبات الأولى في الطريق — سجّل دلوقتي وتوصلك أوّل ما تنزل.'],
+            ['home.courses.empty', 'home', 'الحالة الفارغة للتدريبات', 'text', 'التدريبات الأولى في الطريق. سجّل دلوقتي وتوصلك أوّل ما تنزل.'],
             ['home.courses.empty_cta', 'home', 'زرّ الحالة الفارغة', 'string', 'أنشئ حسابك'],
             ['home.paths.title', 'home', 'عنوان قسم المسارات', 'string', 'المسارات'],
             ['home.paths.limit', 'home', 'عدد المسارات المعروضة', 'number', '3'],
@@ -94,14 +94,14 @@ class HomeDemoSeeder extends Seeder
             ['home.events.title', 'home', 'عنوان قسم الفعاليّات', 'string', 'الفعاليّات القادمة'],
             ['home.events.limit', 'home', 'عدد الفعاليّات المعروضة', 'number', '3'],
             ['home.events.cta', 'home', 'نصّ زرّ كارت الفعاليّة', 'string', 'سجّل واحجز مكانك'],
-            ['home.events.date_format', 'home', 'صيغة تاريخ الفعاليّة', 'string', 'l j F — H:i'],
+            ['home.events.date_format', 'home', 'صيغة تاريخ الفعاليّة', 'string', 'l j F - H:i'],
             ['home.events.mode_online', 'home', 'وصف الفعاليّة الأونلاين', 'string', 'أونلاين'],
             ['home.events.mode_offline', 'home', 'وصف الفعاليّة الحضوريّة', 'string', 'حضوريّ'],
             ['home.events.mode_hybrid', 'home', 'وصف الفعاليّة المختلطة', 'string', 'مختلط'],
 
             // ---------------- السفراء على الرئيسيّة (7.6.1 · 21.1-ج)
             ['home.ambassadors.title', 'home', 'عنوان قسم السفراء', 'string', 'سفراء المنصّة'],
-            ['home.ambassadors.subtitle', 'home', 'سطر قسم السفراء', 'text', 'ناس دعت أصحابها فكبر المكان بيهم — واللقب بيتحسب بالدعوات المفعّلة بس.'],
+            ['home.ambassadors.subtitle', 'home', 'سطر قسم السفراء', 'text', 'ناس دعت أصحابها فكبر المكان بيهم، واللقب بيتحسب بالدعوات المفعّلة بس.'],
             ['home.ambassadors.limit', 'home', 'عدد السفراء على الرئيسيّة', 'number', '5'],
             ['home.ambassadors.more', 'home', 'نصّ رابط اللوحة الكاملة', 'string', 'اللوحة كاملة'],
 
@@ -110,7 +110,7 @@ class HomeDemoSeeder extends Seeder
             ['home.cta.body', 'home', 'نصّ دعوة التسجيل', 'text', 'أنشئ حسابك، فعّله مجّانًا، وابدأ أوّل تدريب النهارده.'],
             ['home.cta.button', 'home', 'زرّ دعوة التسجيل', 'string', 'أنشئ حسابك دلوقتي'],
             ['home.cta.note', 'home', 'سطر تحت زرّ التسجيل', 'string', 'عندك حساب بالفعل؟'],
-            ['home.footer.note', 'home', 'سطر التذييل', 'text', 'منصّة تعلّم وتطوّع عربيّة — بنتعلّم ونشتغل جنب بعض.'],
+            ['home.footer.note', 'home', 'سطر التذييل', 'text', 'منصّة تعلّم وتطوّع عربيّة، بنتعلّم ونشتغل جنب بعض.'],
             ['home.footer.verify', 'home', 'نصّ رابط التحقّق من شهادة', 'string', 'التحقّق من شهادة'],
             ['home.footer.ambassadors', 'home', 'نصّ رابط لوحة السفراء', 'string', 'لوحة السفراء'],
 
@@ -131,7 +131,7 @@ class HomeDemoSeeder extends Seeder
             ['engagement.positive.icon_label', 'engagement', 'وصف الأيقونة لقارئ الشاشة', 'string', 'رسالة إيجابيّة مستنّياك'],
             ['engagement.positive.ticket_reason', 'engagement', 'سبب قيد تذكرة المفاجأة', 'string', 'تذكرة رسالة إيجابيّة'],
             ['engagement.positive.ticket_granted_text', 'engagement', 'رسالة نجاح التذكرة', 'string', 'وصلتك :count تذكرة 🎟️'],
-            ['engagement.positive.ticket_denied_text', 'engagement', 'رسالة انتهاء تذاكر اليوم', 'string', 'خدت تذكرة المفاجأة النهارده — نشوفك بكرة.'],
+            ['engagement.positive.ticket_denied_text', 'engagement', 'رسالة انتهاء تذاكر اليوم', 'string', 'خدت تذكرة المفاجأة النهارده. نشوفك بكرة.'],
             ['engagement.positive.contexts', 'engagement', 'سياقات الرسائل الإيجابيّة', 'json', json_encode([
                 'any' => 'أيّ لحظة',
                 'surprise' => 'الأيقونة المفاجئة',
@@ -167,14 +167,14 @@ class HomeDemoSeeder extends Seeder
             ['ambassadors.celebration.prefix', 'ambassadors', 'بادئة مفتاح احتفال اللقب', 'string', 'ambassador.'],
             ['ambassadors.notification.category', 'ambassadors', 'فئة إشعار اللقب', 'string', 'ambassador'],
             ['ambassadors.notification.title', 'ambassadors', 'عنوان إشعار اللقب', 'string', 'بقيت :label 👑'],
-            ['ambassadors.notification.body', 'ambassadors', 'نصّ إشعار اللقب', 'text', ':count دعوة مفعَّلة وصلتك للقب :label — شكرًا إنّك بتكبّر المكان معانا.'],
+            ['ambassadors.notification.body', 'ambassadors', 'نصّ إشعار اللقب', 'text', ':count دعوة مفعَّلة وصلتك للقب :label. شكرًا إنّك بتكبّر المكان معانا.'],
             ['ambassadors.invites_label', 'ambassadors', 'لافتة عدّاد الدعوات', 'string', 'دعوة مفعّلة'],
             ['ambassadors.page.title', 'ambassadors', 'عنوان لوحة السفراء', 'string', 'سفراء المنصّة'],
-            ['ambassadors.page.subtitle', 'ambassadors', 'سطر لوحة السفراء', 'text', 'اللقب بيتحسب بالدعوات المفعّلة بس — يعني ناس دخلت فعلًا وفعّلت حسابها.'],
+            ['ambassadors.page.subtitle', 'ambassadors', 'سطر لوحة السفراء', 'text', 'اللقب بيتحسب بالدعوات المفعّلة بس، يعني ناس دخلت فعلًا وفعّلت حسابها.'],
             ['ambassadors.tiers_title', 'ambassadors', 'عنوان سلّم الألقاب', 'string', 'سلّم الألقاب'],
-            ['ambassadors.no_title_yet', 'ambassadors', 'سطر مَن لم يتلقّب بعد', 'string', 'لسّه مابتلقّبتش — أوّل دعوة مفعّلة هي البداية.'],
+            ['ambassadors.no_title_yet', 'ambassadors', 'سطر مَن لم يتلقّب بعد', 'string', 'لسّه مابتلقّبتش، أوّل دعوة مفعّلة هي البداية.'],
             ['ambassadors.cta', 'ambassadors', 'زرّ رابط الدعوة', 'string', 'خد رابط دعوتك'],
-            ['ambassadors.empty', 'ambassadors', 'الحالة الفارغة للوحة', 'text', 'لسّه محدّش وصل لأوّل لقب — تقدر تكون إنت الأوّل.'],
+            ['ambassadors.empty', 'ambassadors', 'الحالة الفارغة للوحة', 'text', 'لسّه محدّش وصل لأوّل لقب. تقدر تكون إنت الأوّل.'],
         ];
 
         foreach ($rows as [$key, $group, $label, $type, $default]) {
@@ -206,7 +206,7 @@ class HomeDemoSeeder extends Seeder
             CelebrationEvent::updateOrCreate(['key' => $prefix.$key], [
                 'label_ar' => $label,
                 'tier' => 2,
-                'message_ar' => 'مبروك يا :name — بقيت :label 👑',
+                'message_ar' => 'مبروك يا :name. بقيت :label 👑',
             ]);
         }
     }
@@ -215,20 +215,20 @@ class HomeDemoSeeder extends Seeder
     private function messages(): void
     {
         $rows = [
-            ['surprise', 'إنت بتعمل شغل كويّس — كمّل بهدوء.', '🌱'],
+            ['surprise', 'إنت بتعمل شغل كويّس. كمّل بهدوء.', '🌱'],
             ['surprise', 'خطوة صغيرة النهارده أحسن من خطّة كبيرة بكرة.', '🚶'],
             ['surprise', 'مبسوطين إنّك هنا.', '💛'],
-            ['surprise', 'مش لازم تخلّص كلّ حاجة النهارده — يكفي إنّك بدأت.', '☕'],
+            ['surprise', 'مش لازم تخلّص كلّ حاجة النهارده. يكفي إنّك بدأت.', '☕'],
             ['any', 'كلّ حاجة اتعلّمتها فضلت معاك.', '📌'],
             ['any', 'الاستمرار أهمّ من السرعة.', '🧭'],
-            ['lesson_complete', 'درس خلص ✓ — ماشي صحّ.', '✅'],
+            ['lesson_complete', 'درس خلص ✓. ماشي صحّ.', '✅'],
             ['lesson_complete', 'خدت خطوة زيادة النهارده.', '👏'],
-            ['course_complete', 'تدريب كامل خلص — ده مجهود حقيقيّ.', '🎓'],
-            ['streak_broken', 'يوم فات، والباب لسّه مفتوح — ابدأ من النهارده عادي.', '🌤️'],
+            ['course_complete', 'تدريب كامل خلص. ده مجهود حقيقيّ.', '🎓'],
+            ['streak_broken', 'يوم فات، والباب لسّه مفتوح. ابدأ من النهارده عادي.', '🌤️'],
             ['streak_broken', 'الانقطاع مش فشل، والرجوع أسهل ممّا تتخيّل.', '🔁'],
-            ['exam_failed', 'المحاولة دي وضّحت لك ناقصك إيه — وده مكسب.', '🧪'],
-            ['empty_state', 'لسّه بدري — أوّل خطوة مستنّياك.', '🌅'],
-            ['first_login', 'أهلًا بيك — خد وقتك واتفرّج الأوّل.', '👋'],
+            ['exam_failed', 'المحاولة دي وضّحت لك ناقصك إيه، وده مكسب.', '🧪'],
+            ['empty_state', 'لسّه بدري. أوّل خطوة مستنّياك.', '🌅'],
+            ['first_login', 'أهلًا بيك. خد وقتك واتفرّج الأوّل.', '👋'],
         ];
 
         foreach ($rows as $index => [$context, $body, $emoji]) {

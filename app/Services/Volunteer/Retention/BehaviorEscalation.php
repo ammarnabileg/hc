@@ -114,7 +114,7 @@ class BehaviorEscalation
         BehaviorLedger::rejectPending(
             $subject,
             $decider ? setting('volunteer_offboarding.behavior_escalation.apply_1', 'اتّخِذ قرار برفض المخالفة من المستوى الأعلى.')
-                : strtr(setting('volunteer_offboarding.behavior_escalation.apply_2', 'فاتت نافذة الاعتماد (:p1 ساعة) — تسوية آليّة بالرفض.'), [':p1' => (string) ($this->windowHours())])
+                : strtr(setting('volunteer_offboarding.behavior_escalation.apply_2', 'فاتت نافذة الاعتماد (:p1 ساعة)، تسوية آليّة بالرفض.'), [':p1' => (string) ($this->windowHours())])
         );
     }
 }

@@ -116,7 +116,7 @@ class MinutesTaskService
         if ($item === null) {
             // المحضر اتعدّل بعد ما اتفتحت الشاشة: نرفض بدل ما نولّد مهمّة لبندٍ مات
             throw ValidationException::withMessages([
-                'minutes_item' => (string) setting('meetings.minutes.stale_item', 'البند ده مبقاش موجود في المحضر — اقفل الصفحة وافتحها تاني وشوف المحضر الحاليّ.'),
+                'minutes_item' => (string) setting('meetings.minutes.stale_item', 'البند ده مبقاش موجود في المحضر، اقفل الصفحة وافتحها تاني وشوف المحضر الحاليّ.'),
             ]);
         }
 

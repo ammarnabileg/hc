@@ -25,7 +25,7 @@
 
 @section('content')
     <x-page-header :title="setting('admin.question_bank.index.bnk_alasyla_walamthanat', 'بنك الأسئلة والامتحانات')"
-                   :subtitle="setting('admin.question_bank.index.mkhzn_alasyla_klh_fy_mkan_wahd_tbhth_fyh', 'مخزن الأسئلة كلّه في مكان واحد — تبحث فيه، تعيد استخدامه، وتعرف هل يكفي الامتحان النهائيّ.')"
+                   :subtitle="setting('admin.question_bank.index.mkhzn_alasyla_klh_fy_mkan_wahd_tbhth_fyh', 'مخزن الأسئلة كلّه في مكان واحد: تبحث فيه، تعيد استخدامه، وتعرف هل يكفي الامتحان النهائيّ.')"
                    :breadcrumbs="[['label' => setting('admin.question_bank.index.lwha_alidara', 'لوحة الإدارة'), 'url' => route('admin.dashboard')], ['label' => setting('admin.question_bank.index.bnk_alasyla', 'بنك الأسئلة')]]">
         <x-slot:action>
             @if ($canCreate)
@@ -69,7 +69,7 @@
                 </span>
             </div>
             <p class="text-sm mt-2" style="color: var(--text-muted)">
-                {{ setting('question_bank.low_warning_text', 'الأسئلة العامّة أقلّ من سقف الامتحان — زوّد البنك قبل ما تنشر امتحانًا.') }}
+                {{ setting('question_bank.low_warning_text', 'الأسئلة العامّة أقلّ من سقف الامتحان. زوّد البنك قبل ما تنشر امتحانًا.') }}
             </p>
         </div>
     @endif
@@ -157,7 +157,7 @@
 
     @if ($questions->isEmpty())
         {{-- تمييز «لسّه مافيش أسئلة أصلًا» عن «الفلتر ما طابقش حاجة» (24.2) --}}
-        <x-empty :message="setting('question_bank.empty_text', 'لسّه مافيش أسئلة في البنك — ابدأ بسؤال واحد وهيكبر معاك.')"
+        <x-empty :message="setting('question_bank.empty_text', 'لسّه مافيش أسئلة في البنك. ابدأ بسؤال واحد وهيكبر معاك.')"
                  :filtered="$filters['q'] !== '' || $filters['course'] !== '' || $filters['lesson'] !== '' || $filters['type'] !== '' || $filters['difficulty'] !== '' || $filters['general'] !== '' || $filters['state'] !== ''" />
     @else
         {{-- جدول 6 أعمدة على الديسكتوب · كروت رأسيّة بلا تمرير أفقيّ على الموبايل (2.15-ج) --}}
@@ -313,7 +313,7 @@
                 <label class="flex items-center gap-2 text-sm mb-2">
                     <input type="hidden" name="is_general" value="0">
                     <input type="checkbox" name="is_general" id="q-general" value="1">
-                    <span>{{ setting('admin.question_bank.index.swal_aam_ydkhl_bnk_alamthan_alnhayy', 'سؤال عامّ — يدخل بنك الامتحان النهائيّ') }}</span>
+                    <span>{{ setting('admin.question_bank.index.swal_aam_ydkhl_bnk_alamthan_alnhayy', 'سؤال عامّ: يدخل بنك الامتحان النهائيّ') }}</span>
                 </label>
 
                 <label class="flex items-center gap-2 text-sm mb-4">
@@ -333,7 +333,7 @@
             <form method="post" action="{{ route('admin.question-bank.index') }}" data-reuse-form>
                 @csrf
                 <p class="text-sm mb-3" style="color: var(--text-muted)">
-                    {{ setting('admin.question_bank.index.alswal_hytnskh_llamthanat_almkhtara_ma_rabt', 'السؤال هيتنسخ للامتحانات المختارة مع رابط بأصله — فتعديل الأصل مش هيكسر امتحانًا اتأدّى.') }}
+                    {{ setting('admin.question_bank.index.alswal_hytnskh_llamthanat_almkhtara_ma_rabt', 'السؤال هيتنسخ للامتحانات المختارة مع رابط بأصله، فتعديل الأصل مش هيكسر امتحانًا اتأدّى.') }}
                 </p>
 
                 <div class="space-y-2 mb-4 max-h-64 overflow-y-auto">
@@ -387,7 +387,7 @@
                 <label class="block text-sm font-semibold mb-1" for="import-lesson">{{ setting('admin.question_bank.index.drs_aftrady_llsfwf_bla', 'درس افتراضيّ للصفوف بلا') }} <code>lesson_id</code></label>
                 <select name="lesson_id" id="import-lesson" class="w-full rounded-xl px-3 py-2 text-sm mb-4"
                         style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
-                    <option value="">{{ setting('admin.question_bank.index.bla_drs_aftrady', '— بلا درس افتراضيّ —') }}</option>
+                    <option value="">{{ setting('admin.question_bank.index.bla_drs_aftrady', 'بلا درس افتراضيّ') }}</option>
                     @foreach ($lessons as $lesson)
                         <option value="{{ $lesson->id }}">{{ $lesson->course_name }} ← {{ $lesson->title_ar }}</option>
                     @endforeach

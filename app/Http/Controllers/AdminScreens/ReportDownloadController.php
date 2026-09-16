@@ -45,7 +45,7 @@ class ReportDownloadController extends Controller
             abort_unless(
                 (bool) $request->user()?->isPlatformOwner(),
                 403,
-                (string) setting('report_schedules.download.show_msg_3', 'التقرير ده ماليّ — لمالك المنصّة وحده.'),
+                (string) setting('report_schedules.download.show_msg_3', 'التقرير ده ماليّ، لمالك المنصّة وحده.'),
             );
         }
 

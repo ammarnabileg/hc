@@ -31,7 +31,7 @@
     @if ($isClosed)
         <div class="card p-4 mb-4 flex items-center justify-between gap-3 flex-wrap">
             <p class="text-sm flex items-center gap-2">
-                <x-state-badge state="idle" :label="setting('volunteer.people_interviews_scorecard.closed_label', 'مغلقة — قرار محفوظ')" />
+                <x-state-badge state="idle" :label="setting('volunteer.people_interviews_scorecard.closed_label', 'مغلقة، قرار محفوظ')" />
                 <span style="color: var(--text-muted)">{{ setting('volunteer.people_interviews_scorecard.closed_hint', 'اتحفظ القرار خلاص. عايز تعدّل؟ لازم إعادة فتح أوّلًا.') }}</span>
             </p>
 
@@ -55,7 +55,7 @@
                 <span class="block text-xs mb-1" style="color: var(--text-muted)">{{ setting('volunteer.people_interviews_scorecard.field', 'المهارات') }}</span>
                 <textarea name="skills_notes" rows="4" class="w-full rounded-xl px-3 py-2 text-sm"
                           style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)"
-                          placeholder="{{ setting('scorecards.skills.placeholder', 'اكتب أمثلة ملموسة شفتها في المقابلة — مش صفات عامّة.') }}"
+                          placeholder="{{ setting('scorecards.skills.placeholder', 'اكتب أمثلة ملموسة شفتها في المقابلة، مش صفات عامّة.') }}"
                           @readonly(! $canEdit)>{{ $card->skills_notes }}</textarea>
             </label>
 
@@ -195,7 +195,7 @@
     /** نصوص السكربت — تُمرَّر بـ`@json` فلا يبقى حرفٌ عربيّ محروق داخله (2.13-أ) */
     $jsText = [
         'saved' => (string) setting('volunteer.people_interviews_scorecard.js_saved', 'اتحفظ ✓'),
-        'network_error' => (string) setting('volunteer.people_interviews_scorecard.js_network_error', 'الشبكة وقعت — شغلك محفوظ هنا لحدّ ما ترجع.'),
+        'network_error' => (string) setting('volunteer.people_interviews_scorecard.js_network_error', 'الشبكة وقعت، شغلك محفوظ هنا لحدّ ما ترجع.'),
     ];
 @endphp
 

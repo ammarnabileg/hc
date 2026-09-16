@@ -49,7 +49,7 @@
     </x-filters>
 
     @if ($rows->isEmpty())
-        <x-empty :message="setting('volunteer.escalations.empty', 'مكتبك فاضي — كلّه تمام')" />
+        <x-empty :message="setting('volunteer.escalations.empty', 'مكتبك فاضي، كلّه تمام')" />
     @else
         <div class="space-y-3">
             @foreach ($rows as $case)
@@ -112,7 +112,7 @@
     @foreach ($rows as $case)
         @php $meta = $catalog[$case->case_type] ?? []; @endphp
 
-        <x-modal :id="'decide-'.$case->id" :title="($meta['label'] ?? $case->case_type).setting('volunteer.escalations.tooltip', ' — قرارك')">
+        <x-modal :id="'decide-'.$case->id" :title="($meta['label'] ?? $case->case_type).setting('volunteer.escalations.tooltip', ': قرارك')">
             <form method="post" action="{{ route('volunteer.escalations.decide', $case) }}" class="space-y-3">
                 @csrf
 
@@ -138,7 +138,7 @@
                     {{-- الحالة 8: قيمة Rep يدويّة محصورة بين الحدّين، بمبرّر إجباريّ --}}
                     <x-form.input name="rep_value" :label="setting('volunteer.escalations.label_6', 'قيمة Rep اليدويّة')" type="number" step="0.05"
                                   :min="$repMin" :max="$repMax"
-                                  :hint="setting('volunteer.escalations.hint', 'محصورة بين ').$repMax.' و'.$repMin.setting('volunteer.escalations.hint_2', ' — وتُطبَّق مع «إنهاء» فقط.')" />
+                                  :hint="setting('volunteer.escalations.hint', 'محصورة بين ').$repMax.' و'.$repMin.setting('volunteer.escalations.hint_2', '. وتُطبَّق مع «إنهاء» فقط.')" />
                     <label class="block">
                         <span class="block text-sm mb-1">{{ setting('volunteer.escalations.field_6', 'المبرّر') }} <span style="color: var(--color-state-danger)">*</span></span>
                         <textarea name="justification" rows="3" class="w-full rounded-xl px-3 py-2 text-sm"

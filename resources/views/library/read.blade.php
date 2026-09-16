@@ -53,7 +53,7 @@
     @unless ($engineAvailable)
         {{-- بديل آمن بلا كسر: نوضّح ماذا حدث وماذا يفعل (2.17-ب) --}}
         <div class="card p-3 mb-3 text-sm" role="status">
-            {{ setting('reader.fallback.message', 'محرّك عرض الـPDF مش مركّب على السيرفر دلوقتي — بنعرض لك صفحاتٍ بديلة مؤقّتًا لحدّ ما يتفعّل، وملفّك محفوظ زيّ ما هو.') }}
+            {{ setting('reader.fallback.message', 'محرّك عرض الـPDF مش مركّب على السيرفر دلوقتي، فبنعرض لك صفحات بديلة مؤقّتًا لحدّ ما يتفعّل، وملفّك محفوظ زيّ ما هو.') }}
         </div>
     @endunless
 
@@ -155,7 +155,7 @@
 
                 @if ($teaser)
                     <div class="card p-4 mt-3 text-center space-y-2" data-buy-block hidden>
-                        <p class="text-sm">{{ setting('reader.teaser.end_message', 'خلصت صفحات العيّنة — كمّل القراءة بعد الشراء.') }}</p>
+                        <p class="text-sm">{{ setting('reader.teaser.end_message', 'خلصت صفحات العيّنة، كمّل القراءة بعد الشراء.') }}</p>
                         <a href="{{ $buyUrl }}" class="btn inline-flex items-center rounded-xl px-4 py-2 text-sm font-semibold"
                            style="background: var(--color-brand-500); color: #04201c">{{ setting('reader.teaser.buy_label', 'شراء') }}</a>
                     </div>
@@ -186,7 +186,7 @@
     </div>
 
     <p class="text-xs mt-2" style="color: var(--text-muted)">
-        {{ setting('reader.protection_note', 'الملفّ ده بيتقرا جوّه الموقع بس — بلا تحميل وبلا رابط مباشر، ونسختك عليها اسمك وكودك.') }}
+        {{ setting('reader.protection_note', 'الملفّ ده بيتقرا جوّه الموقع بس، من غير تحميل ولا رابط مباشر، ونسختك عليها اسمك وكودك.') }}
     </p>
 @endsection
 

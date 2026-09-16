@@ -77,7 +77,7 @@
 
     @if ($tickets->isEmpty())
         {{-- سطر واحد + زرّ واحد **داخل** الحالة الفارغة نفسها (2.15-د) --}}
-        <x-empty :message="setting('complaints.empty_message', 'مفيش تذاكر لسّه — واحنا مستنّيين نسمع منك.')">
+        <x-empty :message="setting('complaints.empty_message', 'مفيش تذاكر لسّه، واحنا مستنّيين نسمع منك.')">
             <button type="button" data-modal-open="new-ticket"
                     class="btn inline-flex items-center rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
                     style="background: var(--color-brand-500); color: #04201c">{{ setting('complaints.new_ticket_label', 'تذكرة جديدة') }}</button>
@@ -153,7 +153,7 @@
                     @if ($closed)
                         {{-- المغلقة قراءة فقط بشارة (24.5) --}}
                         <div class="pt-3 text-sm" style="border-top: 1px solid var(--border); color: var(--text-muted)">
-                            <x-state-badge state="idle" :label="setting('complaints.closed_badge', 'مغلقة — قراءة فقط')" />
+                            <x-state-badge state="idle" :label="setting('complaints.closed_badge', 'مغلقة، قراءة فقط')" />
                             <span class="ms-2">{{ setting('complaints.closed_hint', 'لو ظهرت حاجة تانية، افتح تذكرة جديدة وهنكمّل معاك.') }}</span>
                         </div>
                     @else

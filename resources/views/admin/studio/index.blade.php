@@ -4,7 +4,7 @@
 
 @section('content')
     <x-page-header :title="setting('admin.studio.index.astwdyw_alswr', 'استوديو الصور')"
-                   :subtitle="setting('admin.studio.index.smm_mra_walmnsa_twld_alaf_alnskh_basma', 'صمّم مرّة — والمنصّة تولّد آلاف النسخ بأسماء أصحابها.')"
+                   :subtitle="setting('admin.studio.index.smm_mra_walmnsa_twld_alaf_alnskh_basma', 'صمّم مرّة، والمنصّة تولّد آلاف النسخ بأسماء أصحابها.')"
                    :breadcrumbs="[
                        ['label' => setting('admin.studio.index.lwha_alidara', 'لوحة الإدارة'), 'url' => url('/admin')],
                        ['label' => setting('admin.studio.index.astwdyw_alswr', 'استوديو الصور')],
@@ -71,7 +71,7 @@
     @if ($templates->isEmpty())
         {{-- تمييز «مافيش قوالب أصلًا» عن «الفلتر ما طابقش حاجة» (24.2) —
              استبعاد المؤرشَف افتراضيّ لا فلترًا يختاره المستخدم فلا يُحتسَب هنا. --}}
-        <x-empty :message="setting('admin.studio.index.mafysh_qwalb_lsh_abda_bawl_qalb', 'مافيش قوالب لسه — ابدأ بأوّل قالب.')"
+        <x-empty :message="setting('admin.studio.index.mafysh_qwalb_lsh_abda_bawl_qalb', 'مافيش قوالب لسه. ابدأ بأوّل قالب.')"
                  :filtered="request('q') || request('audience') || request('folder') || request('tag') || request()->boolean('archived')" />
     @else
         <div class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">

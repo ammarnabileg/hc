@@ -89,7 +89,7 @@
 <x-modal id="feature-scope-modal" :title="setting('features.ui.scope.title', 'نطاق الميزة')">
     <div class="space-y-3 text-sm">
         <p class="font-semibold" data-scope-feature-name></p>
-        <div class="text-xs" data-scope-current>{{ setting('features.ui.scope.empty', 'مافيش Override — الميزة عامّة.') }}</div>
+        <div class="text-xs" data-scope-current>{{ setting('features.ui.scope.empty', 'مافيش Override، الميزة عامّة.') }}</div>
 
         <div class="grid gap-3 sm:grid-cols-2">
             <label class="block">

@@ -43,12 +43,12 @@
 @section('content')
     <x-page-header
         :title="setting('admin.gamification.rewards.index.idara_almkafat', 'إدارة المكافآت')"
-        :subtitle="setting('admin.gamification.rewards.index.amnh_aw_akhsm_lkwd_wahd_aw_myat_dfaa_wahda', 'امنح أو اخصم لكود واحد أو مئات دفعةً واحدة — بسبب موثّق وسجلّ تدقيق.')"
+        :subtitle="setting('admin.gamification.rewards.index.amnh_aw_akhsm_lkwd_wahd_aw_myat_dfaa_wahda', 'امنح أو اخصم لكود واحد أو مئات دفعةً واحدة، بسبب موثّق وسجلّ تدقيق.')"
         :breadcrumbs="[['label' => setting('admin.gamification.rewards.index.lwha_alidara', 'لوحة الإدارة'), 'url' => url('/admin')], ['label' => setting('admin.gamification.rewards.index.almkafat', 'المكافآت')]]" />
 
     {{-- قفل معلَن: النزول تحت الصفر مسموح صراحةً (12.9) --}}
     <div class="card p-3 mb-4 text-sm">
-        <x-icon name="lock" size="16" /> <strong>{{ setting('admin.gamification.rewards.index.alkhsm_yqdr_ynzl_tht_alsfr', 'الخصم يقدر ينزل تحت الصفر') }}</strong> {{ setting('admin.gamification.rewards.index.msmwh_sraha_walakwad_alkhatya_aw_almkrra', '— مسموح صراحةً. والأكواد الخاطئة أو المكرّرة') }} <strong>{{ setting('admin.gamification.rewards.index.tstbad_btnbyh', 'تُستبعَد بتنبيه') }}</strong> {{ setting('admin.gamification.rewards.index.wla_yhsl_fshl_samt', 'ولا يحصل فشل صامت.') }}
+        <x-icon name="lock" size="16" /> <strong>{{ setting('admin.gamification.rewards.index.alkhsm_yqdr_ynzl_tht_alsfr', 'الخصم يقدر ينزل تحت الصفر') }}</strong> {{ setting('admin.gamification.rewards.index.msmwh_sraha_walakwad_alkhatya_aw_almkrra', '· مسموح صراحةً. والأكواد الخاطئة أو المكرّرة') }} <strong>{{ setting('admin.gamification.rewards.index.tstbad_btnbyh', 'تُستبعَد بتنبيه') }}</strong> {{ setting('admin.gamification.rewards.index.wla_yhsl_fshl_samt', 'ولا يحصل فشل صامت.') }}
     </div>
 
     {{-- بطاقات التهنئة بعد المنح: صورة + قيمة + حفظ الصورة + أسهم تنقّل --}}
@@ -176,7 +176,7 @@
 
                     @if ($preview['invalid'] || $preview['duplicates'])
                         <p class="text-xs mb-2" style="color: var(--color-state-danger)">
-                            {!! strtr(setting('admin.gamification.rewards.index.atstbadt_v1_rajaha_lw_almfrwd_tthsb', '◉ اتستبعدت: :v1 — راجعها لو المفروض تتحسب.'), [':v1' => e(implode('، ', array_merge($preview['invalid'], $preview['duplicates'])))]) !!}
+                            {!! strtr(setting('admin.gamification.rewards.index.atstbadt_v1_rajaha_lw_almfrwd_tthsb', '◉ اتستبعدت: :v1، راجعها لو المفروض تتحسب.'), [':v1' => e(implode('، ', array_merge($preview['invalid'], $preview['duplicates'])))]) !!}
                         </p>
                     @endif
 
@@ -250,7 +250,7 @@
                 </span>
             </div>
         @empty
-            <x-empty :message="setting('admin.gamification.rewards.index.mfysh_mnh_lsh_aktb_kwda_wahda_ala_alaql', 'مفيش منح لسّه — اكتب كودًا واحدًا على الأقلّ.')" />
+            <x-empty :message="setting('admin.gamification.rewards.index.mfysh_mnh_lsh_aktb_kwda_wahda_ala_alaql', 'مفيش منح لسّه. اكتب كودًا واحدًا على الأقلّ.')" />
         @endforelse
     </section>
 

@@ -198,7 +198,7 @@
                 </label>
             </div>
 
-            <label class="block text-sm">{{ setting('admin.gamification.tabs.reward_questions.alakhtyarat_str_lkl_akhtyar_llnwa_akhtyarat', 'الاختيارات (سطر لكلّ اختيار — للنوع «اختيارات»)') }}
+            <label class="block text-sm">{{ setting('admin.gamification.tabs.reward_questions.alakhtyarat_str_lkl_akhtyar_llnwa_akhtyarat', 'الاختيارات (سطر لكلّ اختيار، للنوع «اختيارات»)') }}
                 <textarea name="options" id="rq-options" rows="3"
                           class="w-full rounded-lg px-3 py-2 mt-1"
                           style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)"></textarea>

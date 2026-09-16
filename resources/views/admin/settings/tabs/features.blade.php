@@ -17,7 +17,7 @@
      (2.15-أ-7)، ومَن وصل بالرابط مباشرةً يُقال له ماذا يفعل لا يُترَك أمام صفحةٍ
      فارغة (2.17-ب). --}}
 @unless (auth()->user()->allows('feature_toggles.view') || auth()->user()->allows('feature_toggles.list'))
-    <x-empty :message="setting('features.ui.state.denied', 'مالكش صلاحيّة على مفاتيح المزايا — كلّم مالك المنصّة لو محتاج وصولًا.')" />
+    <x-empty :message="setting('features.ui.state.denied', 'مالكش صلاحيّة على مفاتيح المزايا. كلّم مالك المنصّة لو محتاج وصولًا.')" />
     @php return; @endphp
 @endunless
 
@@ -30,7 +30,7 @@
 
 {{-- الغرض + القاعدة المثبّتة (24.3) --}}
 <div class="card p-4">
-    <p class="text-sm">{{ setting('features.ui.purpose', 'إطفاء أو تشغيل أيّ ميزة بلا نشر كود — وده البديل الوحيد للصيانة الجزئيّة الملغاة.') }}</p>
+    <p class="text-sm">{{ setting('features.ui.purpose', 'إطفاء أو تشغيل أيّ ميزة بلا نشر كود، وده البديل الوحيد للصيانة الجزئيّة الملغاة.') }}</p>
     {{-- القاعدة المثبّتة — بأيقونة SVG مرسومة، **لا شارةَ حالة**: قاموس الألوان
          (2.16) يعطي كلّ لونٍ معنًى واحدًا، ووسمُ نصٍّ تعريفيّ بلون «موقوف»
          يُفقِد اللونَ معناه في المنصّة كلّها. --}}
@@ -40,7 +40,7 @@
             <path d="M4 8.5 7 11.5 12.5 5" stroke="currentColor" stroke-width="1.75"
                   stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
-        <span>{{ setting('features.ui.pinned_rule', 'لا صيانة جزئيّة لميزة بعينها — أُلغيت؛ الإطفاء يتمّ من هنا فقط.') }}</span>
+        <span>{{ setting('features.ui.pinned_rule', 'لا صيانة جزئيّة لميزة بعينها. أُلغيت؛ الإطفاء يتمّ من هنا فقط.') }}</span>
     </p>
 </div>
 
@@ -88,7 +88,7 @@
         {{ str_replace(
             [':count', ':hours'],
             [$features['long_outages']->count(), (int) setting('features.alert_after_hours', 24)],
-            (string) setting('features.ui.long_outage', 'فيه :count ميزة موقوفة من أكتر من :hours ساعة — راجعها.'),
+            (string) setting('features.ui.long_outage', 'فيه :count ميزة موقوفة من أكتر من :hours ساعة. راجعها.'),
         ) }}
     </div>
 @endif
@@ -127,9 +127,9 @@
 <div id="features-texts" class="hidden"
      data-texts="{{ json_encode([
          'loading' => setting('features.ui.state.loading', 'بنحمّل…'),
-         'error' => setting('features.ui.state.error', 'حصل خطأ وإحنا بنحفظ — جرّب تاني، ولو فضل زيّه بلّغ التقنيّ.'),
+         'error' => setting('features.ui.state.error', 'حصل خطأ وإحنا بنحفظ. جرّب تاني، ولو فضل زيّه بلّغ التقنيّ.'),
          'audit_empty' => setting('features.ui.popup.audit_empty', 'مافيش تبديل مسجَّل لسه.'),
-         'scope_empty' => setting('features.ui.scope.empty', 'مافيش Override — الميزة عامّة.'),
+         'scope_empty' => setting('features.ui.scope.empty', 'مافيش Override، الميزة عامّة.'),
          'scope_on' => setting('features.ui.scope.value_on', 'شغّالة'),
          'scope_off' => setting('features.ui.scope.value_off', 'موقوفة'),
      ]) }}"
@@ -144,7 +144,7 @@
     {{-- الحالة الفارغة: سطر واحد (وهي «لا تحدث» في المعتاد — لكنّ الفلتر يفرغها).
          السجلّ ثابتٌ من الكود فلا يكون فارغًا أصلًا بلا فلتر — لكنّ :filtered
          يبقى صريحًا هنا اتّساقًا مع بقيّة الشاشات (24.2). --}}
-    <x-empty :message="setting('features.ui.state.empty', 'مافيش مزايا في الفلتر ده — وسّع الفلتر شويّة.')"
+    <x-empty :message="setting('features.ui.state.empty', 'مافيش مزايا في الفلتر ده. وسّع الفلتر شويّة.')"
              :filtered="$filters['q'] !== '' || $filters['group'] !== '' || $filters['status'] !== ''" />
 @else
     <div class="card overflow-hidden" id="features-table">

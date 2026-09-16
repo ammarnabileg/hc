@@ -11,7 +11,7 @@
 
 @section('content')
     <x-page-header :title="setting('admin.report_schedules.log.sjl_irsal', 'سجلّ إرسال: ').$schedule->name"
-                   :subtitle="setting('admin.report_schedules.log.kl_tshghyl_bntyjth_wsbbh_alnjah_walfshl', 'كلّ تشغيل بنتيجته وسببه — النجاح والفشل والفراغ.')"
+                   :subtitle="setting('admin.report_schedules.log.kl_tshghyl_bntyjth_wsbbh_alnjah_walfshl', 'كلّ تشغيل بنتيجته وسببه: النجاح والفشل والفراغ.')"
                    :breadcrumbs="[
                        ['label' => setting('admin.report_schedules.log.lwha_alidara', 'لوحة الإدارة'), 'url' => route('admin.dashboard')],
                        ['label' => setting('admin.report_schedules.log.altqaryr_almjdwla', 'التقارير المجدولة'), 'url' => route('admin.report-schedules.index')],
@@ -25,7 +25,7 @@
     </x-page-header>
 
     @if ($runs->isEmpty())
-        <x-empty :message="setting('admin.report_schedules.log.aljdwla_dy_mashtghltsh_lsh_htlaqy_awl_str', 'الجدولة دي ماشتغلتش لسّه — هتلاقي أوّل سطر هنا بعد أوّل إرسال.')" />
+        <x-empty :message="setting('admin.report_schedules.log.aljdwla_dy_mashtghltsh_lsh_htlaqy_awl_str', 'الجدولة دي ماشتغلتش لسّه. هتلاقي أوّل سطر هنا بعد أوّل إرسال.')" />
     @else
         <div class="card p-0 overflow-hidden hidden md:block">
             <table class="w-full text-sm">
@@ -58,7 +58,7 @@
                                 {{-- الرابط المؤقّت يظهر فقط ما دام شغّالًا — والمنتهي يُخفى لا يُعطَّل (2.15-أ-7) --}}
                                 @if ($run->hasLiveDownload())
                                     <a href="{{ $run->downloadUrl() }}" class="block mt-1 font-semibold" style="color: var(--brand)">
-                                        {!! strtr(setting('admin.report_schedules.log.nzl_almlf_v1_lhd', 'نزّل الملفّ (:v1) — لحدّ'), [':v1' => e(strtoupper($run->download_format))]) !!} {{ $run->download_expires_at->format('Y-m-d H:i') }}
+                                        {!! strtr(setting('admin.report_schedules.log.nzl_almlf_v1_lhd', 'نزّل الملفّ (:v1)، متاح لحدّ'), [':v1' => e(strtoupper($run->download_format))]) !!} {{ $run->download_expires_at->format('Y-m-d H:i') }}
                                     </a>
                                 @endif
                             </td>
@@ -86,7 +86,7 @@
                     @endif
                     @if ($run->hasLiveDownload())
                         <a href="{{ $run->downloadUrl() }}" class="block text-xs mt-2 font-semibold" style="color: var(--brand)">
-                            {!! strtr(setting('admin.report_schedules.log.nzl_almlf_v1_lhd', 'نزّل الملفّ (:v1) — لحدّ'), [':v1' => e(strtoupper($run->download_format))]) !!} {{ $run->download_expires_at->format('Y-m-d H:i') }}
+                            {!! strtr(setting('admin.report_schedules.log.nzl_almlf_v1_lhd', 'نزّل الملفّ (:v1)، متاح لحدّ'), [':v1' => e(strtoupper($run->download_format))]) !!} {{ $run->download_expires_at->format('Y-m-d H:i') }}
                         </a>
                     @endif
                 </article>

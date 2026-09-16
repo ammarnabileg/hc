@@ -92,7 +92,7 @@ class ReportScheduleController extends Controller
 
         AuditTrail::log($request->user(), 'report_schedules.create', $schedule, [], $data);
 
-        return back()->with('status', strtr((string) setting('report_schedules.admin.store_ok', 'اتحفظت الجدولة ✓ — أوّل إرسال :a1'), [':a1' => (string) ($schedule->next_run_at?->format('Y-m-d H:i'))]));
+        return back()->with('status', strtr((string) setting('report_schedules.admin.store_ok', 'اتحفظت الجدولة ✓، أوّل إرسال :a1'), [':a1' => (string) ($schedule->next_run_at?->format('Y-m-d H:i'))]));
     }
 
     public function update(Request $request, ReportSchedule $schedule): RedirectResponse
@@ -164,7 +164,7 @@ class ReportScheduleController extends Controller
     private function guardFinancial(Request $request, string $tab): void
     {
         if ($this->scheduler->isFinancial($tab)) {
-            abort_unless((bool) $request->user()?->isPlatformOwner(), 403, (string) setting('report_schedules.admin.guard_financial_msg', 'التقرير ده ماليّ — لمالك المنصّة وحده.'));
+            abort_unless((bool) $request->user()?->isPlatformOwner(), 403, (string) setting('report_schedules.admin.guard_financial_msg', 'التقرير ده ماليّ، لمالك المنصّة وحده.'));
         }
     }
 

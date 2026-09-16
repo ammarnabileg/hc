@@ -5,7 +5,7 @@
 @section('content')
     <x-page-header
         :title="setting('admin.volunteer.certificates.shhadat_alttwa', 'شهادات التطوّع')"
-        :subtitle="setting('admin.volunteer.certificates.arbaa_anwaa_la_khams_lha_mjanya_balkaml_wbla', 'أربعة أنواع لا خامس لها — مجّانيّة بالكامل، وبلا أيّ أرقام داخليّة على الورقة.')"
+        :subtitle="setting('admin.volunteer.certificates.arbaa_anwaa_la_khams_lha_mjanya_balkaml_wbla', 'أربعة أنواع لا خامس لها، مجّانيّة بالكامل، وبلا أيّ أرقام داخليّة على الورقة.')"
         :breadcrumbs="[['label' => setting('admin.volunteer.certificates.alttwa', 'التطوّع'), 'url' => route('admin.volunteer.index')], ['label' => setting('admin.volunteer.certificates.alshhadat', 'الشهادات')]]">
         <x-slot:action>
             <div class="flex items-center gap-2 flex-wrap justify-end">
@@ -32,7 +32,7 @@
     <div class="card p-3 mb-4 text-sm space-y-1">
         <div>{{ setting('admin.volunteer.certificates.almda_fy_albwzshn', '① المدّة في البوزشن ≥') }} <strong>{{ $minDays }}</strong> {{ setting('admin.volunteer.certificates.ywma', 'يومًا (') }}<code>volunteer_cert.min_days_in_position</code>).</div>
         <div>② <strong>{{ setting('admin.volunteer.certificates.drja_alaltzam_ghyr_salba', 'درجة الالتزام غير سالبة') }}</strong> {{ setting('admin.volunteer.certificates.wqt_alisdar', 'وقت الإصدار.') }}</div>
-        <div><x-icon name="lock" size="16" /> {{ setting('admin.volunteer.certificates.shhada_wahda_lkl_bwzshn_kyan_waltrqya_tsdr', 'شهادة واحدة لكلّ (بوزشن × كيان) — والترقية تُصدر الأعلى لا نسخة مكرّرة.') }}</div>
+        <div><x-icon name="lock" size="16" /> {{ setting('admin.volunteer.certificates.shhada_wahda_lkl_bwzshn_kyan_waltrqya_tsdr', 'شهادة واحدة لكلّ (بوزشن × كيان)، والترقية تُصدر الأعلى لا نسخة مكرّرة.') }}</div>
     </div>
 
     {{-- تابا الشاشة (24.2): القوالب · السجلّ الصادر --}}
@@ -46,7 +46,7 @@
     </div>
 
     @unless (auth()->user()->allows('volunteer_certificates.edit') || auth()->user()->allows('volunteer_certificates.create'))
-        <p class="text-xs mb-3" style="color: var(--text-muted)">{{ setting('admin.volunteer.certificates.qraa_fqt', 'وضع القراءة فقط — بلا إصدار ولا إلغاء ولا تحرير قوالب.') }}</p>
+        <p class="text-xs mb-3" style="color: var(--text-muted)">{{ setting('admin.volunteer.certificates.qraa_fqt', 'وضع القراءة فقط، بلا إصدار ولا إلغاء ولا تحرير قوالب.') }}</p>
     @endunless
 
     @if ($tab === 'templates')
@@ -88,7 +88,7 @@
         <x-modal id="appreciation-form" :title="setting('admin.volunteer.certificates.isdar_shhadat_tqdyr', 'إصدار شهادة تقدير استثنائيّة')">
             <form method="post" action="{{ route('admin.volunteer.certificates.issue-appreciation') }}" class="space-y-3">
                 @csrf
-                <p class="text-sm" style="color: var(--text-muted)">{{ setting('admin.volunteer.certificates.tqdyr_hint', 'النوع الوحيد الذي يُمنَح يدويًّا — مشرف الشهر · نادي +9.5 · إنجاز خاصّ. ومتكرّرٌ بطبيعته لا يُحجَب بشهادةٍ سابقة.') }}</p>
+                <p class="text-sm" style="color: var(--text-muted)">{{ setting('admin.volunteer.certificates.tqdyr_hint', 'النوع الوحيد الذي يُمنَح يدويًّا: مشرف الشهر · نادي +9.5 · إنجاز خاصّ. ومتكرّرٌ بطبيعته لا يُحجَب بشهادةٍ سابقة.') }}</p>
 
                 <label class="block">
                     <span class="block text-sm mb-1">{{ setting('admin.volunteer.certificates.almstfyd_balkwd', 'المستفيد (بالكود)') }}</span>
@@ -111,7 +111,7 @@
     @endcan
 
     @can('volunteer_certificates.edit')
-        <x-modal id="revoke-modal" :title="setting('admin.volunteer.certificates.ilgha_shhada_lltzwyr_almthbt_whdh', 'إلغاء شهادة — للتزوير المثبَت وحده')">
+        <x-modal id="revoke-modal" :title="setting('admin.volunteer.certificates.ilgha_shhada_lltzwyr_almthbt_whdh', 'إلغاء شهادة: للتزوير المثبَت وحده')">
             <form method="post" action="{{ route('admin.volunteer.certificates.revoke', 0) }}" id="revoke-form">
                 @csrf
                 <p class="text-sm mb-3" style="color: var(--color-state-warn)">

@@ -11,7 +11,7 @@
      */
     $eyebrow = (string) setting('home.hero.eyebrow', 'منصّة تعلّم وتطوّع عربيّة');
     $title = (string) setting('home.hero.title', 'اتعلّم مهارة حقيقيّة، واطلع بشهادة تقدر تثبتها.');
-    $subtitle = (string) setting('home.hero.subtitle', 'تدريبات عربيّة مرتّبة في مسارات، ومجتمع بيشتغل جنبك، وشهادة لكلّ إنجاز — كلّه في مكان واحد.');
+    $subtitle = (string) setting('home.hero.subtitle', 'تدريبات عربيّة مرتّبة في مسارات، ومجتمع بيشتغل جنبك، وشهادة لكلّ إنجاز، كلّه في مكان واحد.');
     $primary = (string) setting('home.hero.primary_cta', 'ابدأ مجّانًا');
     $secondary = (string) setting('home.hero.secondary_cta', 'اتفرّج على التدريبات');
 @endphp

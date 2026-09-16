@@ -65,7 +65,7 @@
                     </fieldset>
                 @empty
                     <p class="text-sm" style="color: var(--text-muted)">
-                        {{ setting('onboarding.placement.empty_text', 'مافيش أسئلة دلوقتي — كمّل على طول.') }}
+                        {{ setting('onboarding.placement.empty_text', 'مافيش أسئلة دلوقتي، كمّل على طول.') }}
                     </p>
                 @endforelse
             </div>

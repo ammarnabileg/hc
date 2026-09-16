@@ -44,7 +44,7 @@
         <div class="max-w-2xl mx-auto card p-3 text-sm flex items-center gap-2" role="status"
              style="border-color: var(--color-state-warn)">
             <span aria-hidden="true">▲</span>
-            <span>{!! str_replace(':seconds', '<b data-decision-left>'.(int) ($decisionSecondsLeft ?? 0).'</b>', e(setting('challenges.play.decision_note', 'خصمك خلّص — باقي :seconds ثانية وتُقفَل المواجهة.'))) !!}</span>
+            <span>{!! str_replace(':seconds', '<b data-decision-left>'.(int) ($decisionSecondsLeft ?? 0).'</b>', e(setting('challenges.play.decision_note', 'خصمك خلّص، باقي :seconds ثانية وتُقفَل المواجهة.'))) !!}</span>
         </div>
     </div>
 
@@ -53,14 +53,14 @@
         <div class="max-w-2xl mx-auto card p-3 text-sm flex items-center gap-2" role="status"
              style="border-color: var(--color-state-warn)">
             <span aria-hidden="true">▲</span>
-            <span>{{ setting('challenges.play.offline_note', 'النت فصل — بس تقدّمك محفوظ، وأوّل ما يرجع هنكمّل من نفس المكان.') }}</span>
+            <span>{{ setting('challenges.play.offline_note', 'النت فصل، بس تقدّمك محفوظ، وأوّل ما يرجع هنكمّل من نفس المكان.') }}</span>
         </div>
     </div>
 
     <main class="flex-1 px-4 md:px-6 py-6">
         <div class="max-w-2xl mx-auto">
             @if ($total === 0)
-                <x-empty :message="setting('challenges.play.no_questions', 'المواجهة دي بلا أسئلة — سلّم وارجع بعدين.')"
+                <x-empty :message="setting('challenges.play.no_questions', 'المواجهة دي بلا أسئلة. سلّم وارجع بعدين.')"
                          :action="setting('challenges.play.no_questions_action', 'سلّم')" :href="route('challenges.mine')" />
             @else
                 <div class="space-y-4">
@@ -110,7 +110,7 @@
                     <button type="submit"
                             class="btn w-full rounded-xl px-4 py-3 text-sm font-bold motion-standard"
                             style="background: var(--color-brand-500); color: #04201c; min-height: 44px">
-                        {{ setting('challenges.play.submit_action', 'خلّصت — سلّم') }}
+                        {{ setting('challenges.play.submit_action', 'خلّصت، سلّم') }}
                     </button>
                 </form>
 
@@ -129,7 +129,7 @@
             {!! str_replace(
                 [':loss', ':penalty'],
                 ['<b>'.e(setting('challenges.play.withdraw_loss_word', 'خسارة')).'</b>', '<b>'.e(setting('challenges.play.withdraw_penalty_word', 'عقوبة انسحاب')).'</b>'],
-                e(setting('challenges.play.withdraw_modal_body', 'الانسحاب بيحسب عليك :loss وكمان :penalty — والخصم بيكسب المواجهة. لو النت بيقطع منك، مفيش داعي تنسحب: تقدّمك محفوظ وهيتحسب لوحده.')),
+                e(setting('challenges.play.withdraw_modal_body', 'الانسحاب بيحسب عليك :loss وكمان :penalty، والخصم بيكسب المواجهة. لو النت بيقطع منك، مفيش داعي تنسحب: تقدّمك محفوظ وهيتحسب لوحده.')),
             ) !!}
         </p>
         <x-slot:footer>
@@ -151,7 +151,7 @@
             // ردود الحفظ التلقائيّ من الإعدادات لا من السكربت (2.13)
             $playWords = [
                 'saved' => (string) setting('challenges.play.answer_saved', 'اتحفظ ✓'),
-                'queued' => (string) setting('challenges.play.answer_queued', 'تقدّمك محفوظ — هنبعته أوّل ما النت يرجع'),
+                'queued' => (string) setting('challenges.play.answer_queued', 'تقدّمك محفوظ، هنبعته أوّل ما النت يرجع'),
             ];
         @endphp
         <script>

@@ -295,7 +295,7 @@
              class="fixed z-40 card p-3 text-sm flex items-center gap-2 animate-fadeup"
              style="inset-inline-start: 1rem; inset-block-end: 5.5rem; max-inline-size: 22rem">
             <x-icon name="lesson" size="16" style="color: var(--color-brand-400)" />
-            <span class="flex-1">{{ setting('learning.nudge.resume_message', 'لسّه فاضل شويّة في الدرس ده — تحبّ تكمّله؟') }}</span>
+            <span class="flex-1">{{ setting('learning.nudge.resume_message', 'لسّه فاضل شويّة في الدرس ده، تحبّ تكمّله؟') }}</span>
             <button type="button" data-lesson-nudge-close class="opacity-70 hover:opacity-100"
                     aria-label="{{ setting('celebrations.labels.close', 'تمام') }}">
                 <x-icon name="close" size="14" />

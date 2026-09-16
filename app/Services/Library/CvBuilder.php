@@ -411,7 +411,7 @@ class CvBuilder
             return [
                 'ok' => false,
                 'balance' => $balance,
-                'message' => (string) setting('cv.template.insufficient_message', 'رصيد التذاكر لا يكفي — اكسب تذاكر أو اختر قالبًا آخر.'),
+                'message' => (string) setting('cv.template.insufficient_message', 'رصيد التذاكر لا يكفي، اكسب تذاكر أو اختر قالبًا آخر.'),
             ];
         }
 
@@ -421,7 +421,7 @@ class CvBuilder
             return [
                 'ok' => false,
                 'balance' => $balance,
-                'message' => (string) setting('cv.template.currency_missing_message', 'محفظة التذاكر غير مهيّأة — جرّب بعد قليل.'),
+                'message' => (string) setting('cv.template.currency_missing_message', 'محفظة التذاكر غير مهيّأة، جرّب بعد قليل.'),
             ];
         }
 
@@ -453,7 +453,7 @@ class CvBuilder
         return [
             'ok' => true,
             'balance' => $after,
-            'message' => (string) setting('cv.template.purchased_message', 'القالب بقى ملكك — استمتع.'),
+            'message' => (string) setting('cv.template.purchased_message', 'القالب بقى ملكك، استمتع.'),
         ];
     }
 

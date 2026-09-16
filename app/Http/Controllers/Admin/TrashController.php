@@ -65,7 +65,7 @@ class TrashController extends Controller
         }
 
         $message = $result['reason'] === 'window_closed'
-            ? (string) setting('admin.trash.restore_window_closed', 'انتهت مهلة الاسترجاع — العنصر متاح للحذف النهائيّ فقط.')
+            ? (string) setting('admin.trash.restore_window_closed', 'انتهت مهلة الاسترجاع، العنصر متاح للحذف النهائيّ فقط.')
             : (string) setting('admin.trash.restore_not_found', 'العنصر ده مش موجود في السلّة أصلًا.');
 
         return back()->withErrors(['trash' => $message]);
@@ -77,7 +77,7 @@ class TrashController extends Controller
         $ok = $this->trash->forceDelete($type, $id, $request->user());
 
         return back()->with('status', $ok
-            ? (string) setting('admin.trash.destroy_ok', 'اتحذف نهائيًّا — ولا يمكن التراجع.')
+            ? (string) setting('admin.trash.destroy_ok', 'اتحذف نهائيًّا، ولا يمكن التراجع.')
             : (string) setting('admin.trash.destroy_denied', 'العنصر ده مش موجود في السلّة أصلًا.'));
     }
 }

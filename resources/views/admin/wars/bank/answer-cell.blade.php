@@ -9,7 +9,7 @@
 @if (! $canSeeAnswers)
     <span class="text-xs" style="color: var(--text-muted)">••••</span>
 @elseif ($isRevealed)
-    <span class="font-bold text-sm">{{ $question->answer ?: setting('admin.wars.bank.answer_cell.bla_ijaba', '— بلا إجابة') }}</span>
+    <span class="font-bold text-sm">{{ $question->answer ?: setting('admin.wars.bank.answer_cell.bla_ijaba', 'بلا إجابة') }}</span>
 @else
     <form method="post" action="{{ route('admin.wars.bank.reveal', $question) }}" class="inline">
         @csrf

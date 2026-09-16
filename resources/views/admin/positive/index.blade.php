@@ -26,7 +26,7 @@
 
 @section('content')
     <x-page-header :title="setting('admin.positive.index.alrsayl_aliyjabya', 'الرسائل الإيجابيّة')"
-                   :subtitle="setting('admin.positive.index.klma_tshjya_fy_wqtha_bnbra_almnsa_wbla', 'كلمة تشجيع في وقتها — بنبرة المنصّة وبلا مبالغة، ولكلّ رسالة سياقها.')"
+                   :subtitle="setting('admin.positive.index.klma_tshjya_fy_wqtha_bnbra_almnsa_wbla', 'كلمة تشجيع في وقتها، بنبرة المنصّة وبلا مبالغة، ولكلّ رسالة سياقها.')"
                    :breadcrumbs="[['label' => setting('admin.positive.index.lwha_alidara', 'لوحة الإدارة'), 'url' => route('admin.dashboard')], ['label' => setting('admin.positive.index.alrsayl_aliyjabya', 'الرسائل الإيجابيّة')]]">
         <x-slot:action>
             <div class="flex items-center gap-2 flex-wrap">
@@ -89,7 +89,7 @@
 
     @if ($messages->isEmpty())
         {{-- تمييز «لسّه مافيش رسائل أصلًا» عن «الفلتر ما طابقش حاجة» (24.2) --}}
-        <x-empty :message="setting('admin.positive.index.lsh_mafysh_rsayl_adf_awl_klma_tshjya_mn_zr', 'لسّه مافيش رسائل — أضف أوّل كلمة تشجيع من زرّ «+ رسالة» فوق.')"
+        <x-empty :message="setting('admin.positive.index.lsh_mafysh_rsayl_adf_awl_klma_tshjya_mn_zr', 'لسّه مافيش رسائل. أضف أوّل كلمة تشجيع من زرّ «+ رسالة» فوق.')"
                  :filtered="$context !== '' || $state !== '' || $language !== ''" />
     @else
         <div class="card p-2">
@@ -274,7 +274,7 @@
                 @csrf
                 <input type="hidden" name="_method" value="POST" data-positive-method>
 
-                <label class="block text-sm font-semibold mb-1" for="positive-context">{{ setting('admin.positive.index.alsyaq_imta_tzhr_alrsala', 'السياق — إمتى تظهر الرسالة؟') }}</label>
+                <label class="block text-sm font-semibold mb-1" for="positive-context">{{ setting('admin.positive.index.alsyaq_imta_tzhr_alrsala', 'السياق: إمتى تظهر الرسالة؟') }}</label>
                 <select name="context" id="positive-context" required
                         class="w-full rounded-xl px-3 py-2 text-sm mb-1"
                         style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
@@ -283,7 +283,7 @@
                     @endforeach
                 </select>
                 <p class="text-xs mb-3" style="color: var(--text-muted)">
-                    {{ setting('admin.positive.index.alsyaqat_nfsha_iadad_tqdr_tzwdha_mn_iadadat', 'السياقات نفسها إعداد — تقدر تزوّدها من «إعدادات الميزة» تحت.') }}
+                    {{ setting('admin.positive.index.alsyaqat_nfsha_iadad_tqdr_tzwdha_mn_iadadat', 'السياقات نفسها إعداد، تقدر تزوّدها من «إعدادات الميزة» تحت.') }}
                 </p>
 
                 <label class="block text-sm font-semibold mb-1" for="positive-language">{{ setting('admin.positive.index.allgha', 'اللغة') }}</label>
@@ -297,11 +297,11 @@
 
                 <label class="block text-sm font-semibold mb-1" for="positive-body">{{ setting('admin.positive.index.ns_alrsala', 'نصّ الرسالة') }}</label>
                 <textarea name="body" id="positive-body" required rows="3" maxlength="400"
-                          placeholder="{{ setting('admin.positive.index.mthal_khlst_aldrs_kml_bhdw_int_mashy_sh', 'مثال: خلّصت الدرس — كمّل بهدوء، إنت ماشي صحّ.') }}"
+                          placeholder="{{ setting('admin.positive.index.mthal_khlst_aldrs_kml_bhdw_int_mashy_sh', 'مثال: خلّصت الدرس، كمّل بهدوء، إنت ماشي صحّ.') }}"
                           class="w-full rounded-xl px-3 py-2 text-sm mb-1"
                           style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text); resize: vertical"></textarea>
                 <p class="text-xs mb-3" style="color: var(--text-muted)">
-                    {{ setting('admin.positive.index.nbra_almnsa_mbsta_mhtrma_dafya_bla_mbalgha', 'نبرة المنصّة: مبسّطة محترمة دافئة — بلا مبالغة وبلا لوم للمستخدم (2.17-ج).') }}
+                    {{ setting('admin.positive.index.nbra_almnsa_mbsta_mhtrma_dafya_bla_mbalgha', 'نبرة المنصّة: مبسّطة محترمة دافئة، بلا مبالغة وبلا لوم للمستخدم (2.17-ج).') }}
                 </p>
 
                 <div class="grid grid-cols-2 gap-3 mb-3">
@@ -320,7 +320,7 @@
                 <label class="flex items-center gap-2 text-sm mb-4">
                     <input type="hidden" name="is_active" value="0">
                     <input type="checkbox" name="is_active" id="positive-active" value="1" checked>
-                    <span>{{ setting('admin.positive.index.mfala_tzhr_llmstkhdmyn', 'مفعّلة — تظهر للمستخدمين') }}</span>
+                    <span>{{ setting('admin.positive.index.mfala_tzhr_llmstkhdmyn', 'مفعّلة: تظهر للمستخدمين') }}</span>
                 </label>
 
                 <button type="submit" class="btn rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
@@ -339,7 +339,7 @@
                        class="w-full rounded-xl px-3 py-2 text-sm mb-2"
                        style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
                 <p class="text-xs mb-4" style="color: var(--text-muted)">
-                    {{ setting('admin.positive.index.aamda_alml', 'الأعمدة: context, body, emoji, language, sort_order, is_active — السطر الأوّل عناوين.') }}
+                    {{ setting('admin.positive.index.aamda_alml', 'الأعمدة: context, body, emoji, language, sort_order, is_active. السطر الأوّل عناوين.') }}
                 </p>
 
                 <button type="submit" class="btn rounded-xl px-4 py-2 text-sm font-semibold motion-standard"

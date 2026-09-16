@@ -49,7 +49,7 @@ class PlacementTestController extends Controller
 
         $message = strtr((string) setting(
             'onboarding.placement.result_text',
-            'خلّصت ✓ إجاباتك الصحيحة :score من :total — وكسبت :xp XP و:tickets تذكرة.',
+            'خلّصت ✓ إجاباتك الصحيحة :score من :total، وكسبت :xp XP و:tickets تذكرة.',
         ), [
             ':score' => (string) $result['score'],
             ':total' => (string) $result['total'],

@@ -52,7 +52,7 @@ class ScorecardCriteriaController extends Controller
 
         return redirect()
             ->route('admin.volunteer.scorecard-criteria.index')
-            ->with('status', (string) setting('scorecard_criteria.save_ok', 'اتحفظ ✓ — المعيار هيظهر في نتيجة المقابلة القادمة.'));
+            ->with('status', (string) setting('scorecard_criteria.save_ok', 'اتحفظ ✓، المعيار هيظهر في نتيجة المقابلة القادمة.'));
     }
 
     public function update(Request $request, InterviewCriterion $criterion): RedirectResponse
@@ -66,7 +66,7 @@ class ScorecardCriteriaController extends Controller
 
         return redirect()
             ->route('admin.volunteer.scorecard-criteria.index')
-            ->with('status', (string) setting('scorecard_criteria.save_ok', 'اتحفظ ✓ — المعيار هيظهر في نتيجة المقابلة القادمة.'));
+            ->with('status', (string) setting('scorecard_criteria.save_ok', 'اتحفظ ✓، المعيار هيظهر في نتيجة المقابلة القادمة.'));
     }
 
     /**
@@ -86,7 +86,7 @@ class ScorecardCriteriaController extends Controller
 
             return back()->with('status', (string) setting(
                 'scorecard_criteria.deleted_everywhere_ok',
-                'اتحذف نهائيًّا — اختفى من كلّ النتائج، القديمة والجديدة.',
+                'اتحذف نهائيًّا، اختفى من كلّ النتائج القديمة والجديدة.',
             ));
         }
 
@@ -95,7 +95,7 @@ class ScorecardCriteriaController extends Controller
 
         return back()->with('status', (string) setting(
             'scorecard_criteria.archived_ok',
-            'اتأرشف — النتائج القديمة تفضل تعرض درجته موسومًا «معيار مؤرشف».',
+            'اتأرشف، والنتائج القديمة تفضل تعرض درجته موسومًا «معيار مؤرشف».',
         ));
     }
 
@@ -106,7 +106,7 @@ class ScorecardCriteriaController extends Controller
 
         $this->audit($request, $criterion, 'scorecard_criteria.restored', ['is_archived' => true], ['is_archived' => false]);
 
-        return back()->with('status', (string) setting('scorecard_criteria.restore_ok', 'رجع تاني ✓ — هيظهر للإدخال من جديد.'));
+        return back()->with('status', (string) setting('scorecard_criteria.restore_ok', 'رجع تاني ✓، هيظهر للإدخال من جديد.'));
     }
 
     private function validated(Request $request): array

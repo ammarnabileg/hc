@@ -90,7 +90,7 @@
     </x-filters>
 
     @if ($meetings->isEmpty())
-        <x-empty :message="setting('volunteer.meetings.empty', 'مفيش اجتماعات في نطاقك — أوّل واحد لسّه جاي')" />
+        <x-empty :message="setting('volunteer.meetings.empty', 'مفيش اجتماعات في نطاقك، أوّل واحد لسّه جاي')" />
     @else
         <div class="grid gap-3 md:grid-cols-2">
             @foreach ($meetings as $meeting)

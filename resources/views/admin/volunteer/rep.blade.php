@@ -5,7 +5,7 @@
 @section('content')
     <x-page-header
         :title="setting('admin.volunteer.rep.dbt_rep', 'ضبط Rep')"
-        :subtitle="setting('admin.volunteer.rep.kl_qyma_fy_jdwl_drja_alaltzam_tadl_mn_hna', 'كلّ قيمة في جدول درجة الالتزام تُعدَّل من هنا — ولكلّ قيمة رجوعٌ لافتراضيّها.')"
+        :subtitle="setting('admin.volunteer.rep.kl_qyma_fy_jdwl_drja_alaltzam_tadl_mn_hna', 'كلّ قيمة في جدول درجة الالتزام تُعدَّل من هنا، ولكلّ قيمة رجوعٌ لافتراضيّها.')"
         :breadcrumbs="[['label' => setting('admin.volunteer.rep.alttwa', 'التطوّع'), 'url' => route('admin.volunteer.index')], ['label' => setting('admin.volunteer.rep.dbt_rep', 'ضبط Rep')]]">
         <x-slot:action>
             @can('rep_manual.create')
@@ -123,7 +123,7 @@
                 </div>
             </div>
         @empty
-            <x-empty :message="setting('admin.volunteer.rep.mfysh_mkhalfat_mkwda_lsh_adf_awl_wahda', 'مفيش مخالفات مكوَّدة لسّه — أضف أوّل واحدة.')" />
+            <x-empty :message="setting('admin.volunteer.rep.mfysh_mkhalfat_mkwda_lsh_adf_awl_wahda', 'مفيش مخالفات مكوَّدة لسّه. أضف أوّل واحدة.')" />
         @endforelse
     </section>
 
@@ -160,7 +160,7 @@
                 </div>
             </div>
         @empty
-            <x-empty :message="setting('admin.volunteer.rep.mfysh_maamlat_slwk_wdh_mwshr_kwys', 'مفيش معاملات سلوك — وده مؤشّر كويّس.')" />
+            <x-empty :message="setting('admin.volunteer.rep.mfysh_maamlat_slwk_wdh_mwshr_kwys', 'مفيش معاملات سلوك، وده مؤشّر كويّس.')" />
         @endforelse
     </section>
 
@@ -184,7 +184,7 @@
 
 @push('modals')
     @can('rep_manual.create')
-        <x-modal id="behavior-modal" :title="setting('admin.volunteer.rep.maamla_slwk_bmbrr_ilzamy', 'معاملة سلوك — بمبرّر إلزاميّ')">
+        <x-modal id="behavior-modal" :title="setting('admin.volunteer.rep.maamla_slwk_bmbrr_ilzamy', 'معاملة سلوك: بمبرّر إلزاميّ')">
             <form method="post" action="{{ route('admin.volunteer.rep.behavior.record') }}">
                 @csrf
 
@@ -203,7 +203,7 @@
 
                 <label class="block text-sm font-semibold mb-1" for="bh-justification">{{ setting('admin.volunteer.rep.almbrr_ilzamy', 'المبرّر (إلزاميّ)') }}</label>
                 <textarea name="justification" id="bh-justification" rows="3" required maxlength="1000"
-                          placeholder="{{ setting('admin.volunteer.rep.aktb_alwaqaa_bwdwh_alns_dh_hywsl_lladw_kma', 'اكتب الواقعة بوضوح — النصّ ده هيوصل للعضو كما هو.') }}"
+                          placeholder="{{ setting('admin.volunteer.rep.aktb_alwaqaa_bwdwh_alns_dh_hywsl_lladw_kma', 'اكتب الواقعة بوضوح، النصّ ده هيوصل للعضو كما هو.') }}"
                           class="w-full rounded-xl px-3 py-2 text-sm mb-3"
                           style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)"></textarea>
 
@@ -267,7 +267,7 @@
         $jsText = [
             'calculating' => setting('admin.volunteer.rep.bnhsb', 'بنحسب…'),
             'preview_line' => setting('admin.volunteer.rep.drja_alaltzam_htnzl_mn_ila', ':name: درجة الالتزام هتنزل من :before إلى :after.'),
-            'preview_failed' => setting('admin.volunteer.rep.tadhrt_almaayna_tqdr_tkml_alhfz_aady', 'تعذّرت المعاينة — تقدر تكمّل الحفظ عادي.'),
+            'preview_failed' => setting('admin.volunteer.rep.tadhrt_almaayna_tqdr_tkml_alhfz_aady', 'تعذّرت المعاينة، بس تقدر تكمّل الحفظ عادي.'),
         ];
     @endphp
 

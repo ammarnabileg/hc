@@ -37,14 +37,14 @@
         </div>
 
         <p class="text-xs mt-3" style="color: var(--text-muted)">
-            {{ setting('account.search.privacy_note', 'البحث بالبريد أو رقم الموبايل وسيلة وصول بس — النتيجة بتفتح البروفايل العامّ ومفيش أيّ بيانات حسّاسة.') }}
+            {{ setting('account.search.privacy_note', 'البحث بالبريد أو رقم الموبايل وسيلة وصول بس، والنتيجة بتفتح البروفايل العامّ من غير أيّ بيانات حسّاسة.') }}
         </p>
     </form>
 
     @if ($q === '')
         <x-empty :message="setting('account.search.empty_idle', 'اكتب كلمة وابدأ البحث.')" />
     @elseif ($total === 0)
-        <x-empty :message="setting('account.search.empty_no_results', 'مفيش نتائج — جرّب كود أو اسم تاني.')" />
+        <x-empty :message="setting('account.search.empty_no_results', 'مفيش نتائج، جرّب كود أو اسم تاني.')" />
     @else
         <p class="text-xs mb-3" style="color: var(--text-muted)">{{ str_replace(':total', $total, (string) setting('account.search.results_count', ':total نتيجة')) }}</p>
 

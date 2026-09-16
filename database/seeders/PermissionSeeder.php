@@ -96,7 +96,7 @@ class PermissionSeeder extends Seeder
         }
 
         foreach ($orphans as $text => $keys) {
-            $this->command?->warn('شرط بلا مفتاح في القائمة المقفولة: «'.$text.'» على '.count($keys).' صلاحيّة — '.implode(' · ', array_slice($keys, 0, 5)));
+            $this->command?->warn('شرط بلا مفتاح في القائمة المقفولة: «'.$text.'» على '.count($keys).' صلاحيّة. '.implode(' · ', array_slice($keys, 0, 5)));
         }
     }
 }

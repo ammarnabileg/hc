@@ -43,13 +43,13 @@ class VolunteerProfileDemoSeeder extends Seeder
             ['volunteer.profile.tab.organization', 'volunteer', 'اسم تاب الهيكل التنظيميّ', 'string', 'الهيكل التنظيميّ'],
             ['volunteer.profile.tab.performance', 'volunteer', 'اسم تاب الأداء', 'string', 'الأداء'],
             ['volunteer.profile.tab.notes', 'volunteer', 'اسم تاب الملاحظات الإداريّة', 'string', 'ملاحظات إداريّة'],
-            ['volunteer.profile.level.owner', 'volunteer', 'سطر مستوى المشاهدة — صاحب البروفايل', 'string', 'دي صفحتك — بتشوف كلّ حاجة عدا الملاحظات الإداريّة'],
-            ['volunteer.profile.level.upline', 'volunteer', 'سطر مستوى المشاهدة — الأبلاين', 'string', 'مشاهدة مشرف'],
-            ['volunteer.profile.level.admin', 'volunteer', 'سطر مستوى المشاهدة — الأدمن', 'string', 'مشاهدة إداريّة'],
-            ['volunteer.profile.level.peer', 'volunteer', 'سطر مستوى المشاهدة — الزميل', 'string', 'المشاهدة العامّة'],
+            ['volunteer.profile.level.owner', 'volunteer', 'سطر مستوى المشاهدة: صاحب البروفايل', 'string', 'دي صفحتك، بتشوف كلّ حاجة عدا الملاحظات الإداريّة'],
+            ['volunteer.profile.level.upline', 'volunteer', 'سطر مستوى المشاهدة: الأبلاين', 'string', 'مشاهدة مشرف'],
+            ['volunteer.profile.level.admin', 'volunteer', 'سطر مستوى المشاهدة: الأدمن', 'string', 'مشاهدة إداريّة'],
+            ['volunteer.profile.level.peer', 'volunteer', 'سطر مستوى المشاهدة: الزميل', 'string', 'المشاهدة العامّة'],
 
             // ---------------- أوفر فيو (13.4-م-1)
-            ['volunteer.profile.overview.upline_alert', 'volunteer', 'تنبيه الأبلاين عند حدّ الإنذار', 'string', 'درجة الالتزام عند :name وصلت لحدّ الإنذار — كلمة منك دلوقتي بتفرق.'],
+            ['volunteer.profile.overview.upline_alert', 'volunteer', 'تنبيه الأبلاين عند حدّ الإنذار', 'string', 'درجة الالتزام عند :name وصلت لحدّ الإنذار. كلمة منك دلوقتي بتفرق.'],
             ['volunteer.profile.overview.kudos_preview', 'volunteer', 'عدد الشكرات المعروضة في الأوفر فيو', 'number', '3'],
             ['volunteer.profile.overview.certificates_preview', 'volunteer', 'عدد الشهادات المعروضة', 'number', '4'],
             ['volunteer.profile.overview.tasks_preview', 'volunteer', 'عدد المهامّ الجارية المعروضة لصاحبه', 'number', '3'],
@@ -59,14 +59,14 @@ class VolunteerProfileDemoSeeder extends Seeder
             // ---------------- التواصل والموافقة (13.4-م-2)
             ['volunteer.profile.contact.request_label', 'volunteer', 'نصّ زرّ طلب الإظهار', 'string', 'اطلب إظهار :field'],
             ['volunteer.profile.contact.time_format', 'volunteer', 'صيغة عرض التوقيت المحليّ', 'string', 'g:i A'],
-            ['volunteer.profile.contact.transparency', 'volunteer', 'سطر الشفافيّة المسبقة', 'text', 'مشرفيك يشوفوا بيانات تواصلك — ده حقّ نظاميّ للتنسيق، مش موافقة تتسحب.'],
+            ['volunteer.profile.contact.transparency', 'volunteer', 'سطر الشفافيّة المسبقة', 'text', 'مشرفيك يشوفوا بيانات تواصلك، ده حقّ نظاميّ للتنسيق، مش موافقة تتسحب.'],
             ['volunteer.profile.consent.reason_max', 'volunteer', 'أقصى طول لسبب الطلب', 'number', '300'],
             ['volunteer.profile.consent.neutral', 'volunteer', 'النصّ المحايد للطالب في كلّ الحالات', 'string', 'غير متاح / انتهت المدّة'],
             ['volunteer.profile.consent.notify_title', 'volunteer', 'عنوان إشعار طلب الإظهار', 'string', ':name طالب إظهار :field'],
             ['volunteer.profile.consent.notify_body', 'volunteer', 'نصّ إشعار الطلب بسبب مكتوب', 'string', 'السبب: :reason'],
-            ['volunteer.profile.consent.notify_no_reason', 'volunteer', 'نصّ إشعار الطلب بلا سبب', 'string', 'من غير سبب مكتوب — القرار ليك.'],
-            ['volunteer.profile.consent.approved_message', 'volunteer', 'رسالة الموافقة', 'string', 'سهّلت التعاون 🤝 — بياناتك هتبان له للمدّة المحدّدة بس.'],
-            ['volunteer.profile.consent.denied_message', 'volunteer', 'رسالة الرفض الصامت لصاحب البيانات', 'string', 'تمام — الطلب اتقفل، وبياناتك زيّ ما هي.'],
+            ['volunteer.profile.consent.notify_no_reason', 'volunteer', 'نصّ إشعار الطلب بلا سبب', 'string', 'من غير سبب مكتوب، القرار ليك.'],
+            ['volunteer.profile.consent.approved_message', 'volunteer', 'رسالة الموافقة', 'string', 'سهّلت التعاون 🤝، بياناتك هتبان له للمدّة المحدّدة بس.'],
+            ['volunteer.profile.consent.denied_message', 'volunteer', 'رسالة الرفض الصامت لصاحب البيانات', 'string', 'تمام، الطلب اتقفل، وبياناتك زيّ ما هي.'],
             ['volunteer.profile.consent.ledger_size', 'volunteer', 'عدد صفوف سجلّ الطلبات', 'number', '50'],
             ['volunteer.profile.consent.outcome.granted', 'volunteer', 'نتيجة: موافقة', 'string', 'اتوافق'],
             ['volunteer.profile.consent.outcome.denied', 'volunteer', 'نتيجة: رفض', 'string', 'اترفض'],
@@ -77,14 +77,14 @@ class VolunteerProfileDemoSeeder extends Seeder
             // ---------------- الهيكل والأداء (13.4-م-3 · 13.4-م-4)
             ['volunteer.profile.org.movements_size', 'volunteer', 'عدد صفوف سجلّ الحركات التنظيميّة', 'number', '20'],
             ['volunteer.profile.performance.months', 'volunteer', 'عدد شهور التطوّر الشهريّ', 'number', '6'],
-            ['volunteer.profile.performance.anonymous_note', 'volunteer', 'سطر تنبيه مجهوليّة التقييمات', 'string', 'التقييمات متوسّطات مجهولة — مفيش أسماء ولا درجات فرديّة.'],
+            ['volunteer.profile.performance.anonymous_note', 'volunteer', 'سطر تنبيه مجهوليّة التقييمات', 'string', 'التقييمات متوسّطات مجهولة، مفيش أسماء ولا درجات فرديّة.'],
 
             // ---------------- الملاحظات الإداريّة (13.4-م-5)
             ['volunteer.profile.notes.list_size', 'volunteer', 'عدد الملاحظات المعروضة', 'number', '30'],
             ['volunteer.profile.notes.audit_size', 'volunteer', 'عدد صفوف تدقيق الملاحظات', 'number', '20'],
             ['volunteer.profile.notes.min_chars', 'volunteer', 'أدنى طول للملاحظة', 'number', '5'],
             ['volunteer.profile.notes.max_chars', 'volunteer', 'أقصى طول للملاحظة', 'number', '2000'],
-            ['volunteer.profile.notes.saved', 'volunteer', 'رسالة حفظ الملاحظة', 'string', 'اتحفظت الملاحظة ✓ — سرّيّة ومسجّلة في التدقيق.'],
+            ['volunteer.profile.notes.saved', 'volunteer', 'رسالة حفظ الملاحظة', 'string', 'اتحفظت الملاحظة ✓، سرّيّة ومسجّلة في التدقيق.'],
 
             // ---------------- تقرير الترقية (13.4-م-1)
             ['volunteer.profile.report.days', 'volunteer', 'مدى تقرير الترقية (أيّام)', 'number', '30'],

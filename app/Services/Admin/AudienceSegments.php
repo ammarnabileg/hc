@@ -342,7 +342,7 @@ class AudienceSegments
     public function duplicate(AdAudience $segment, ?User $actor = null): AdAudience
     {
         $copy = $segment->replicate(['created_at', 'updated_at', 'frozen_at', 'archived_at']);
-        $copy->name = $segment->name.(string) setting('admin.segments.duplicate_suffix', ' — نسخة');
+        $copy->name = $segment->name.(string) setting('admin.segments.duplicate_suffix', ' (نسخة)');
         $copy->archived_at = null;
         $copy->frozen_at = null;
         $copy->created_by = $actor?->id ?? $segment->created_by;
@@ -442,7 +442,7 @@ class AudienceSegments
             return (string) setting('admin.segments.summary_all', 'كلّ المستخدمين');
         }
 
-        $outer = $rule['match'] === 'any' ? setting('admin_dashboard.audience_segments.summary_2', ' — أو — ') : ' — و — ';
+        $outer = $rule['match'] === 'any' ? setting('admin_dashboard.audience_segments.summary_2', ' أو ') : ' و ';
 
         return implode($outer, array_map(
             fn ($text) => count($groupTexts) > 1 ? '('.$text.')' : $text,

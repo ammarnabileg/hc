@@ -44,7 +44,7 @@ class LearningUxSettings
             ],
             'comments' => [
                 'label' => setting('system.learning_ux_settings.groups_3', 'التعليقات'),
-                'hint' => setting('system.learning_ux_settings.groups_4', 'تعليقات الفيديو تحت الدرس — تفعيل · لايك وردّ · تحميل تدريجيّ · حدّ الطول.'),
+                'hint' => setting('system.learning_ux_settings.groups_4', 'تعليقات الفيديو تحت الدرس: تفعيل · لايك وردّ · تحميل تدريجيّ · حدّ الطول.'),
                 'keys' => [
                     'learning.comments.enabled',
                     'learning.comments.like_reply_enabled',

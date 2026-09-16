@@ -16,7 +16,7 @@
                 <textarea name="deliverable_spec" rows="2" required class="w-full rounded-xl px-3 py-2 text-sm"
                           style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)"
                           placeholder="{{ setting('volunteer.tasks_new_task_modal.placeholder', 'المخرج المطلوب بالضبط: صيغته ومكانه وطريقة تسليمه') }}"></textarea>
-                <span class="block text-xs mt-1" style="color: var(--text-muted)">{{ setting('volunteer.tasks_new_task_modal.field_2', 'إلزاميّ — المخرج الواضح يمنع الإرجاع.') }}</span>
+                <span class="block text-xs mt-1" style="color: var(--text-muted)">{{ setting('volunteer.tasks_new_task_modal.field_2', 'إلزاميّ. المخرج الواضح يمنع الإرجاع.') }}</span>
             </label>
 
             <x-form.input name="deadline_at" :label="setting('volunteer.tasks_new_task_modal.label_2', 'الديدلاين')" type="datetime-local" required />
@@ -30,7 +30,7 @@
                         <option value="{{ $item->id }}">{{ $item->name }}</option>
                     @endforeach
                 </select>
-                <span class="block text-xs mt-1" style="color: var(--text-muted)">{{ setting('volunteer.tasks_new_task_modal.field_4', 'إلزاميّ — كلّ مهمّة جديدة تتربط ببند.') }}</span>
+                <span class="block text-xs mt-1" style="color: var(--text-muted)">{{ setting('volunteer.tasks_new_task_modal.field_4', 'إلزاميّ. كلّ مهمّة جديدة تتربط ببند.') }}</span>
             </label>
 
             {{-- خيارات متقدّمة مطويّة، والفورم يعمل كاملًا بدونها (2.15-د) --}}
@@ -75,7 +75,7 @@
             </details>
 
             <p class="text-xs" style="color: var(--text-muted)">
-                *«{{ setting('volunteer.tasks_new_task_modal.text', 'مهمّة عامّة» مش هنا — إضافتها للأدمن ومشرف عام التطوّع حصرًا.') }}
+                *«{{ setting('volunteer.tasks_new_task_modal.text', 'مهمّة عامّة» مش هنا. إضافتها للأدمن ومشرف عام التطوّع حصرًا.') }}
             </p>
 
             <div class="flex justify-end gap-2 pt-2">

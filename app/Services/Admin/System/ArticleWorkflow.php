@@ -39,7 +39,7 @@ class ArticleWorkflow
     public function submitForReview(Article $article, User $actor): Article
     {
         if (! in_array($article->status, [self::DRAFT], true)) {
-            throw new RuntimeException(setting('articles.article_workflow.submit_for_review_1', 'المقال مش مسودّة — مافيش حاجة تتبعت للمراجعة.'));
+            throw new RuntimeException(setting('articles.article_workflow.submit_for_review_1', 'المقال مش مسودّة، مافيش حاجة تتبعت للمراجعة.'));
         }
 
         $old = $article->status;
@@ -55,7 +55,7 @@ class ArticleWorkflow
         $notes = trim($notes);
 
         if ($notes === '') {
-            throw new RuntimeException(setting('articles.article_workflow.request_changes_1', 'اكتب ملاحظات المراجعة — الكاتب لازم يعرف يعدّل إيه.'));
+            throw new RuntimeException(setting('articles.article_workflow.request_changes_1', 'اكتب ملاحظات المراجعة، الكاتب لازم يعرف يعدّل إيه.'));
         }
 
         $old = $article->status;
@@ -81,7 +81,7 @@ class ArticleWorkflow
         }
 
         if ($this->isAuthor($article, $actor)) {
-            throw new RuntimeException(setting('articles.article_workflow.publish_2', 'الكاتب لا ينشر مقاله بنفسه — لازم شخص تاني يراجع وينشر.'));
+            throw new RuntimeException(setting('articles.article_workflow.publish_2', 'الكاتب لا ينشر مقاله بنفسه، لازم شخص تاني يراجع وينشر.'));
         }
 
         if ($article->status !== self::IN_REVIEW) {

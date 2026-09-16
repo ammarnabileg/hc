@@ -26,7 +26,7 @@
     @if ($returningLine)
         <div class="mt-2 rounded-xl px-2 py-1.5 text-xs"
              style="background: color-mix(in srgb, var(--color-state-honor) 12%, transparent); color: var(--color-state-honor)">
-            <span aria-hidden="true">★</span> {{ setting('volunteer.people_recruitment_card.text_2', 'عائد —') }} {{ $returningLine }}
+            <span aria-hidden="true">★</span> {{ setting('volunteer.people_recruitment_card.text_2', 'عائد:') }} {{ $returningLine }}
         </div>
         {{-- سبب الخروج للمخوَّلين وحدهم، ولا يُنشَر لفريق التوظيف (13.4-ق-هـ) --}}
         @if ($canSeeExitReason && $candidate->previous_exit_type)

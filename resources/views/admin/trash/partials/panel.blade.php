@@ -46,13 +46,13 @@
                             style="background: var(--color-brand-500); color: #04201c">{{ setting('admin.trash.action_restore', 'استرجاع') }}</button>
                 </form>
             @else
-                <p class="text-xs" style="color: var(--text-muted)">{{ setting('admin.trash.restore_window_closed', 'انتهت مهلة الاسترجاع — العنصر متاح للحذف النهائيّ فقط.') }}</p>
+                <p class="text-xs" style="color: var(--text-muted)">{{ setting('admin.trash.restore_window_closed', 'انتهت مهلة الاسترجاع. العنصر متاح للحذف النهائيّ فقط.') }}</p>
             @endif
         @endcan
 
         @can('soft_delete_recovery.delete')
             <form method="post" action="{{ route('admin.ops.trash.destroy', ['type' => $row['type'], 'id' => $row['id']]) }}"
-                  onsubmit="return confirm('{{ setting('admin.trash.confirm_delete', 'حذف نهائيّ لا يمكن التراجع عنه — متأكّد؟') }}')">
+                  onsubmit="return confirm('{{ setting('admin.trash.confirm_delete', 'حذف نهائيّ لا يمكن التراجع عنه. متأكّد؟') }}')">
                 @csrf
                 @method('delete')
                 <button class="rounded-xl px-4 py-2 text-sm font-semibold"

@@ -4,7 +4,7 @@
 @section('content')
     <x-page-header
         :title="setting('challenges.focus.title', 'حرب التركيز')"
-        :subtitle="setting('challenges.focus.subtitle', 'عمل عميق بلا مقاطعة — والمكافأة دقائق تركيز مش تذاكر.')"
+        :subtitle="setting('challenges.focus.subtitle', 'عمل عميق من غير مقاطعة، والمكافأة دقائق تركيز مش تذاكر.')"
         :breadcrumbs="[['label' => setting('challenges.index.title', 'التحديات'), 'url' => route('challenges.index')], ['label' => setting('challenges.focus.title', 'حرب التركيز')]]">
         <x-slot:action>
             <button type="button" data-modal-open="focus-new"
@@ -61,11 +61,11 @@
             @endif
 
             <p class="text-xs mt-2" style="color: var(--text-muted)">
-                {{ setting('challenges.focus.live_note', 'العدّاد ماشي على ساعة السيرفر — بيكمل حتى لو قفلت الشاشة أو خرجت من التبويب.') }}
+                {{ setting('challenges.focus.live_note', 'العدّاد ماشي على ساعة السيرفر، وبيكمل حتى لو قفلت الشاشة أو خرجت من التبويب.') }}
             </p>
 
             <p class="text-xs mt-2 font-bold" data-focus-done hidden style="color: var(--color-brand-400)">
-                {{ setting('challenges.focus.live_done', 'خلصت المدّة — دقائق تركيزك اتسجّلت ✓') }}
+                {{ setting('challenges.focus.live_done', 'خلصت المدّة، دقائق تركيزك اتسجّلت ✓') }}
             </p>
         </section>
     @endforeach
@@ -84,7 +84,7 @@
     </blockquote>
 
     @if ($board->isEmpty())
-        <x-empty :message="setting('challenges.focus.empty', 'مفيش تحدّيات تركيز نشطة — ابدأ إنت أوّل واحد.')" />
+        <x-empty :message="setting('challenges.focus.empty', 'مفيش تحدّيات تركيز نشطة. ابدأ إنت أوّل واحد.')" />
     @else
         <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
             @foreach ($board as $row)
@@ -138,7 +138,7 @@
                                 </button>
                             </form>
                         @elseif ($row['joined'])
-                            <span class="flex-1 text-center text-xs py-3" style="color: var(--text-muted)">{{ setting('challenges.focus.joined_note', 'إنت منضمّ — ركّز') }} <x-icon name="shield" size="16" /></span>
+                            <span class="flex-1 text-center text-xs py-3" style="color: var(--text-muted)">{{ setting('challenges.focus.joined_note', 'إنت منضمّ، ركّز') }} <x-icon name="shield" size="16" /></span>
                         @elseif ($war->is_group)
                             <form method="post" action="{{ route('challenges.focus.join', $war) }}" class="flex-1">
                                 @csrf
@@ -186,11 +186,11 @@
 
                 <label class="flex items-center gap-2">
                     <input type="checkbox" name="is_group" value="1" class="w-5 h-5">
-                    <span>{{ setting('challenges.focus.group_toggle', 'خلّيه تحدّيًا جماعيًّا — الناس تقدر تنضمّ بتذكرة تروح لك.') }}</span>
+                    <span>{{ setting('challenges.focus.group_toggle', 'خلّيه تحدّيًا جماعيًّا، الناس تقدر تنضمّ بتذكرة تروح لك.') }}</span>
                 </label>
 
                 <p class="text-xs" style="color: var(--text-muted)">
-                    {{ str_replace([':create', ':join'], [(int) $createCost, (int) $joinCost], (string) setting('challenges.focus.economy_note', 'الإنشاء بـ:create تذاكر وغير قابلة للاسترجاع، وكلّ منضمّ بيدّيك :join تذكرة — يعني تحدّي حلو الناس تحبّه = مكسب.')) }}
+                    {{ str_replace([':create', ':join'], [(int) $createCost, (int) $joinCost], (string) setting('challenges.focus.economy_note', 'الإنشاء بـ:create تذاكر وغير قابلة للاسترجاع، وكلّ منضمّ بيدّيك :join تذكرة. يعني تحدّي حلو الناس تحبّه = مكسب.')) }}
                 </p>
             </form>
 

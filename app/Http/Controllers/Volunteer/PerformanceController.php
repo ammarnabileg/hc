@@ -113,7 +113,7 @@ class PerformanceController extends Controller
 
         $this->rep->openObjection($transaction, $request->user(), $data['reason']);
 
-        return back()->with('status', (string) setting('performance.screen.object_rep_ok', 'اترفع اعتراضك ✓ — هيتراجع خلال نافذة القرار.'));
+        return back()->with('status', (string) setting('performance.screen.object_rep_ok', 'اترفع اعتراضك ✓، هيتراجع خلال نافذة القرار.'));
     }
 
     // ------------------------------------------------------------------ مشرف الشهر
@@ -190,7 +190,7 @@ class PerformanceController extends Controller
 
         return redirect()
             ->route('volunteer.performance.evaluations', ['tab' => 'given'])
-            ->with('status', (string) setting('performance.screen.store_evaluation_ok', 'اتسجّل تقييمك ✓ — مجهول تمامًا ويظهر متوسّطًا فقط.'));
+            ->with('status', (string) setting('performance.screen.store_evaluation_ok', 'اتسجّل تقييمك ✓، مجهول تمامًا ويظهر متوسّطًا فقط.'));
     }
 
     // ------------------------------------------------------------------ داخليّ

@@ -59,7 +59,7 @@
 
     @if ($tab === 'attendance')
         @if ($rows->isEmpty())
-            <x-empty :message="setting('volunteer.meetings_attendance.empty', 'مفيش سجلّ حضور بعد — أوّل اجتماع في الطريق')" :action="setting('volunteer.meetings_attendance.action', 'شوف الاجتماعات')" :href="route('volunteer.meetings')" />
+            <x-empty :message="setting('volunteer.meetings_attendance.empty', 'مفيش سجلّ حضور بعد، أوّل اجتماع في الطريق')" :action="setting('volunteer.meetings_attendance.action', 'شوف الاجتماعات')" :href="route('volunteer.meetings')" />
         @else
             <div class="card min-w-0 overflow-x-auto hidden md:block">
                 <table class="w-full text-sm">
@@ -156,7 +156,7 @@
                                 @csrf
                                 <input type="hidden" name="transaction_id" value="{{ $row->transaction->id }}">
                                 <p class="text-xs" style="color: var(--text-muted)">
-                                    {{ setting('volunteer.meetings_attendance.field_6', 'باقي') }} {{ $left }} {{ setting('volunteer.meetings_attendance.field_7', 'يوم على مهلة الاعتراض — واعتراض واحد لكلّ معاملة.') }}
+                                    {{ setting('volunteer.meetings_attendance.field_6', 'باقي') }} {{ $left }} {{ setting('volunteer.meetings_attendance.field_7', 'يوم على مهلة الاعتراض، واعتراض واحد لكلّ معاملة.') }}
                                 </p>
                                 <textarea name="reason" rows="3" required minlength="5" placeholder="{{ setting('volunteer.meetings_attendance.placeholder_2', 'سبب الاعتراض') }}"
                                           class="w-full rounded-xl px-3 py-2 text-sm"

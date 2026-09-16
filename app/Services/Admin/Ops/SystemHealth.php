@@ -77,7 +77,7 @@ class SystemHealth
             setting('backups.system_health.disk_4', 'مساحة القرص'),
             strtr(setting('backups.system_health.disk_5', ':p1% مستخدَمة · فاضي :p2'), [':p1' => (string) ($usedPercent), ':p2' => (string) ($this->backups->humanSize((int) $free))]),
             $usedPercent >= $alert ? 'danger' : ($usedPercent >= $warn ? 'warn' : 'ok'),
-            strtr(setting('backups.system_health.disk_6', 'التنبيه عند :p1% — والتحذير المبكّر عند :p2%.'), [':p1' => (string) ($alert), ':p2' => (string) ($warn)]),
+            strtr(setting('backups.system_health.disk_6', 'التنبيه عند :p1%، والتحذير المبكّر عند :p2%.'), [':p1' => (string) ($alert), ':p2' => (string) ($warn)]),
             ['percent' => $usedPercent],
         );
     }
@@ -122,7 +122,7 @@ class SystemHealth
             setting('backups.system_health.cache_1', 'الكاش'),
             (string) config('cache.default'),
             $ok ? 'ok' : 'danger',
-            $ok ? setting('backups.system_health.cache_2', 'الكتابة والقراءة شغّالة.') : setting('backups.system_health.cache_3', 'الكاش مش بيكتب — الصفحات هتبقى أبطأ والإعدادات ممكن تتأخّر.'),
+            $ok ? setting('backups.system_health.cache_2', 'الكتابة والقراءة شغّالة.') : setting('backups.system_health.cache_3', 'الكاش مش بيكتب، فالصفحات هتبقى أبطأ والإعدادات ممكن تتأخّر.'),
         );
     }
 
@@ -131,7 +131,7 @@ class SystemHealth
         $connection = (string) config('queue.default');
 
         if (! Schema::hasTable('jobs')) {
-            return $this->row('queue', setting('backups.system_health.queue_1', 'الطوابير'), $connection, 'idle', setting('backups.system_health.queue_2', 'مافيش جدول طوابير — التنفيذ فوريّ.'));
+            return $this->row('queue', setting('backups.system_health.queue_1', 'الطوابير'), $connection, 'idle', setting('backups.system_health.queue_2', 'مافيش جدول طوابير، فالتنفيذ فوريّ.'));
         }
 
         $pending = (int) DB::table('jobs')->count();

@@ -176,11 +176,11 @@ class ReportScheduler
         $recipients = $this->recipients($schedule);
 
         if ($rows === [] && $schedule->skip_when_empty) {
-            return $this->record($schedule, 'empty', setting('stats.report_scheduler.run_1', 'مافيش بيانات في المدى ده — واخترت ألّا يُرسَل التقرير الفاضي.'), 0, 0, 1, $manual, $actor);
+            return $this->record($schedule, 'empty', setting('stats.report_scheduler.run_1', 'مافيش بيانات في المدى ده، واخترت ألّا يُرسَل التقرير الفاضي.'), 0, 0, 1, $manual, $actor);
         }
 
         if ($recipients === []) {
-            return $this->record($schedule, 'failed', setting('stats.report_scheduler.run_2', 'مافيش مستقبِلين صالحين — ضيف بريدًا أو دورًا في تبويب المستقبِلين.'), count($rows), 0, 1, $manual, $actor);
+            return $this->record($schedule, 'failed', setting('stats.report_scheduler.run_2', 'مافيش مستقبِلين صالحين، ضيف بريدًا أو دورًا في تبويب المستقبِلين.'), count($rows), 0, 1, $manual, $actor);
         }
 
         $file = $this->renderer->render($schedule, $this->capped($rows), [
@@ -204,7 +204,7 @@ class ReportScheduler
                     $schedule,
                     'sent',
                     setting('stats.report_scheduler.run_3', 'اتبعت لـ').count($recipients).setting('stats.report_scheduler.run_4', ' مستقبِل ✓')
-                        .($download !== null ? setting('stats.report_scheduler.run_5', ' — الملفّ كبير فبعتنا رابط تنزيل مؤقّت بدل المرفق.') : ''),
+                        .($download !== null ? setting('stats.report_scheduler.run_5', '، الملفّ كبير فبعتنا رابط تنزيل مؤقّت بدل المرفق.') : ''),
                     count($rows),
                     count($recipients),
                     $attempt,
@@ -223,7 +223,7 @@ class ReportScheduler
                     return $this->record(
                         $schedule,
                         'failed',
-                        strtr(setting('stats.report_scheduler.run_6', 'تعذّر الإرسال بعد :p1 محاولات — راجع إعدادات البريد ثمّ اضغط «شغّل الآن».'), [':p1' => (string) ($attempts)]),
+                        strtr(setting('stats.report_scheduler.run_6', 'تعذّر الإرسال بعد :p1 محاولات، راجع إعدادات البريد ثمّ اضغط «شغّل الآن».'), [':p1' => (string) ($attempts)]),
                         count($rows),
                         count($recipients),
                         $attempt,
@@ -302,7 +302,7 @@ class ReportScheduler
 
     private function subject(ReportSchedule $schedule): string
     {
-        return strtr((string) setting('report_schedules.subject_template', 'تقرير :name — :date'), [
+        return strtr((string) setting('report_schedules.subject_template', 'تقرير :name · :date'), [
             ':name' => $schedule->name,
             ':tab' => $schedule->report_tab,
             ':date' => now()->format('Y-m-d'),
@@ -359,7 +359,7 @@ class ReportScheduler
             $admin,
             'reports',
             strtr(setting('stats.report_scheduler.notify_failure_1', 'تقرير «:p1» ما اتبعتش'), [':p1' => (string) ($schedule->name)]),
-            strtr(setting('stats.report_scheduler.notify_failure_2', 'السبب: :p1 — راجع إعدادات البريد وجرّب «شغّل الآن».'), [':p1' => (string) (mb_substr($reason, 0, 180))]),
+            strtr(setting('stats.report_scheduler.notify_failure_2', 'السبب: :p1. راجع إعدادات البريد وجرّب «شغّل الآن».'), [':p1' => (string) (mb_substr($reason, 0, 180))]),
             route('admin.report-schedules.index'),
         );
     }

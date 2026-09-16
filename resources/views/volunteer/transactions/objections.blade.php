@@ -34,7 +34,7 @@
     </div>
 
     @if ($rows->isEmpty())
-        <x-empty message="{{ setting('volunteer.transactions_objections.empty', 'مفيش اعتراضات — والباب مفتوح') }} {{ $service->windowDays() }} {{ setting('volunteer.transactions_objections.empty_2', 'أيّام من كلّ معاملة') }}"
+        <x-empty message="{{ setting('volunteer.transactions_objections.empty', 'مفيش اعتراضات، والباب مفتوح') }} {{ $service->windowDays() }} {{ setting('volunteer.transactions_objections.empty_2', 'أيّام من كلّ معاملة') }}"
                  :action="setting('volunteer.transactions_objections.action', 'روح لمعاملاتي')" :href="route('volunteer.transactions')" />
     @else
         <div class="grid gap-4 md:grid-cols-[20rem_1fr]">

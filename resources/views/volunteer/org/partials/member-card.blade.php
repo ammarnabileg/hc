@@ -40,7 +40,7 @@
                 @if ($card['absent_until'])
                     <x-state-badge
                         state="idle"
-                        :label="setting('volunteer.org_member_card.label', 'غائب حتى ').$card['absent_until']->translatedFormat(setting('volunteer.org.date_format', 'j F')).($card['delegate'] ? setting('volunteer.org_member_card.label_2', ' — البديل: ').$card['delegate'] : '')" />
+                        :label="setting('volunteer.org_member_card.label', 'غائب حتى ').$card['absent_until']->translatedFormat(setting('volunteer.org.date_format', 'j F')).($card['delegate'] ? setting('volunteer.org_member_card.label_2', '، البديل: ').$card['delegate'] : '')" />
                 @endif
 
                 @if ($card['is_acting'])

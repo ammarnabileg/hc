@@ -315,11 +315,11 @@ class AdminContentGuidanceTest extends AdminContentTestCase
             ->assertOk();
 
         $response->assertSee(
-            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث/الفلتر الحاليّ — جرّب فلترًا تانيًا.'),
+            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث أو الفلتر الحاليّ. جرّب فلتر تاني.'),
             false,
         );
         $response->assertDontSee(
-            setting('admin.guidance.complaints.la_shkawa_kl_shy_hady', 'لا شكاوى — كلّ شيء هادئ.'),
+            setting('admin.guidance.complaints.la_shkawa_kl_shy_hady', 'لا شكاوى. كلّ شيء هادئ.'),
             false,
         );
     }
@@ -334,11 +334,11 @@ class AdminContentGuidanceTest extends AdminContentTestCase
             ->assertOk();
 
         $response->assertSee(
-            setting('admin.guidance.complaints.la_shkawa_kl_shy_hady', 'لا شكاوى — كلّ شيء هادئ.'),
+            setting('admin.guidance.complaints.la_shkawa_kl_shy_hady', 'لا شكاوى. كلّ شيء هادئ.'),
             false,
         );
         $response->assertDontSee(
-            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث/الفلتر الحاليّ — جرّب فلترًا تانيًا.'),
+            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث أو الفلتر الحاليّ. جرّب فلتر تاني.'),
             false,
         );
     }
@@ -358,11 +358,11 @@ class AdminContentGuidanceTest extends AdminContentTestCase
             ->assertOk();
 
         $response->assertSee(
-            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث/الفلتر الحاليّ — جرّب فلترًا تانيًا.'),
+            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث أو الفلتر الحاليّ. جرّب فلتر تاني.'),
             false,
         );
         $response->assertDontSee(
-            setting('admin.guidance.help.la_adla_bad_aktb_awl_wahd', 'لا أدلّة بعد — اكتب أوّل واحد.'),
+            setting('admin.guidance.help.la_adla_bad_aktb_awl_wahd', 'لا أدلّة بعد. اكتب أوّل واحد.'),
             false,
         );
     }
@@ -377,11 +377,11 @@ class AdminContentGuidanceTest extends AdminContentTestCase
             ->assertOk();
 
         $response->assertSee(
-            setting('admin.guidance.help.la_adla_bad_aktb_awl_wahd', 'لا أدلّة بعد — اكتب أوّل واحد.'),
+            setting('admin.guidance.help.la_adla_bad_aktb_awl_wahd', 'لا أدلّة بعد. اكتب أوّل واحد.'),
             false,
         );
         $response->assertDontSee(
-            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث/الفلتر الحاليّ — جرّب فلترًا تانيًا.'),
+            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث أو الفلتر الحاليّ. جرّب فلتر تاني.'),
             false,
         );
     }
@@ -401,11 +401,11 @@ class AdminContentGuidanceTest extends AdminContentTestCase
             ->assertOk();
 
         $response->assertSee(
-            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث/الفلتر الحاليّ — جرّب فلترًا تانيًا.'),
+            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث أو الفلتر الحاليّ. جرّب فلتر تاني.'),
             false,
         );
         $response->assertDontSee(
-            setting('admin.guidance.index.la_mnshwrat_abda_awl_bth', 'لا منشورات — ابدأ أوّل بثّ.'),
+            setting('admin.guidance.index.la_mnshwrat_abda_awl_bth', 'لا منشورات. ابدأ أوّل بثّ.'),
             false,
         );
     }
@@ -420,11 +420,11 @@ class AdminContentGuidanceTest extends AdminContentTestCase
             ->assertOk();
 
         $response->assertSee(
-            setting('admin.guidance.index.la_mnshwrat_abda_awl_bth', 'لا منشورات — ابدأ أوّل بثّ.'),
+            setting('admin.guidance.index.la_mnshwrat_abda_awl_bth', 'لا منشورات. ابدأ أوّل بثّ.'),
             false,
         );
         $response->assertDontSee(
-            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث/الفلتر الحاليّ — جرّب فلترًا تانيًا.'),
+            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث أو الفلتر الحاليّ. جرّب فلتر تاني.'),
             false,
         );
     }

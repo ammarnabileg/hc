@@ -41,16 +41,16 @@
 
                 @elseif (! $card['bank_ready'])
                     <p class="text-sm" style="color: var(--color-state-warn)">
-                        ▲ {{ setting('challenges.arena.bank_not_ready', 'بنك أسئلة الساحة لسّه مش جاهز — جرّب ساحة تانية دلوقتي.') }}
+                        ▲ {{ setting('challenges.arena.bank_not_ready', 'بنك أسئلة الساحة لسّه مش جاهز. جرّب ساحة تانية دلوقتي.') }}
                     </p>
 
                 @elseif ($isReadyHere)
-                    <x-state-badge state="ok" :label="setting('challenges.arena.ready_badge', 'إنت مستعدّ — استنّى محارب أو اتحدّى واحدًا')" />
+                    <x-state-badge state="ok" :label="setting('challenges.arena.ready_badge', 'إنت مستعدّ، استنّى محارب أو اتحدّى واحدًا')" />
 
                 @elseif ($readiness)
                     {{-- الاستعداد حصريّ: نوع واحد في اللحظة الواحدة (15.0) --}}
                     <p class="text-sm mb-3" style="color: var(--color-state-warn)">
-                        ▲ {{ str_replace(':arena', (string) $readiness->challenge?->name_ar, (string) setting('challenges.arena.ready_elsewhere', 'إنت مستعدّ لـ«:arena» — ألغِ استعدادك من الشريط فوق الأوّل.')) }}
+                        ▲ {{ str_replace(':arena', (string) $readiness->challenge?->name_ar, (string) setting('challenges.arena.ready_elsewhere', 'إنت مستعدّ لـ«:arena». ألغِ استعدادك من الشريط فوق الأوّل.')) }}
                     </p>
 
                 @else

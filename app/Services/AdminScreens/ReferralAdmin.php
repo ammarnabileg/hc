@@ -256,7 +256,7 @@ class ReferralAdmin
         if ($requiresProfile && $this->statusOf($referral) !== 'completed') {
             return [
                 'ok' => false,
-                'message' => setting('growth.referral_admin.payout_1', 'المدعوّ لسّه مافعّلش حسابه — المكافأة فضلت معلّقة. راجعه أو عطّل شرط استكمال البيانات من إعدادات الشاشة.'),
+                'message' => setting('growth.referral_admin.payout_1', 'المدعوّ لسّه مافعّلش حسابه، فالمكافأة فضلت معلّقة. راجعه أو عطّل شرط استكمال البيانات من إعدادات الشاشة.'),
             ];
         }
 

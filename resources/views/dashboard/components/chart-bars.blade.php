@@ -58,12 +58,12 @@
 
                 <rect x="{{ $gx + $barW + 4 }}" y="{{ round($padTop + $innerH - $earnedH, 2) }}"
                       width="{{ $barW }}" height="{{ max(1, $earnedH) }}" rx="3" fill="var(--color-brand-500)">
-                    <title>{{ str_replace([':label', ':value'], [$group['label'], $group['earned']], (string) setting('dashboard.chart.tickets.earned_tooltip', ':label — مكتسب: :value')) }}</title>
+                    <title>{{ str_replace([':label', ':value'], [$group['label'], $group['earned']], (string) setting('dashboard.chart.tickets.earned_tooltip', ':label، مكتسب: :value')) }}</title>
                 </rect>
 
                 <rect x="{{ $gx }}" y="{{ round($padTop + $innerH - $spentH, 2) }}"
                       width="{{ $barW }}" height="{{ max(1, $spentH) }}" rx="3" fill="url(#spentPattern)">
-                    <title>{{ str_replace([':label', ':value'], [$group['label'], $group['spent']], (string) setting('dashboard.chart.tickets.spent_tooltip', ':label — مصروف: :value')) }}</title>
+                    <title>{{ str_replace([':label', ':value'], [$group['label'], $group['spent']], (string) setting('dashboard.chart.tickets.spent_tooltip', ':label، مصروف: :value')) }}</title>
                 </rect>
 
                 <text x="{{ $gx + $barW + 2 }}" y="{{ $barsH - 22 }}" font-size="9" text-anchor="middle" fill="var(--text-muted)">

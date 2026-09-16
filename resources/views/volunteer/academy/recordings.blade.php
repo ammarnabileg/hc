@@ -110,7 +110,7 @@
 @php
     /** نصوص السكربت — تُمرَّر بـ`@json` فلا يبقى حرفٌ عربيّ محروق داخله (2.13-أ) */
     $jsText = [
-        'network_error' => (string) setting('volunteer.academy_recordings.js_network_error', 'الشبكة وقعت — جرّب تاني بعد شويّة.'),
+        'network_error' => (string) setting('volunteer.academy_recordings.js_network_error', 'الشبكة وقعت، جرّب تاني بعد شويّة.'),
     ];
 @endphp
 

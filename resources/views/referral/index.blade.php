@@ -1,10 +1,10 @@
 @extends('layouts.app')
 @section('title', (string) setting('referral.index.section_1', 'ادعُ أصدقاءك'))
-@section('meta_description', (string) setting('referral.index.section_2', 'ادعُ أصدقاءك واكسب عمولة على شحناتهم — ولصاحبك تذكرة ترحيب.'))
+@section('meta_description', (string) setting('referral.index.section_2', 'ادعُ أصدقاءك واكسب عمولة على شحناتهم، ولصاحبك تذكرة ترحيب.'))
 
 @section('content')
     @php
-        $shareText = trim((string) setting('referral.share.text', 'انضمّ معايا على المنصّة — هتلاقي تدريبات وشهادات حقيقيّة:')).' '.$link;
+        $shareText = trim((string) setting('referral.share.text', 'انضمّ معايا على المنصّة، هتلاقي تدريبات وشهادات حقيقيّة:')).' '.$link;
         $welcomeTickets = (int) setting('referral.welcome_tickets', 1);
     @endphp
 
@@ -19,7 +19,7 @@
     {{-- الصفحة اللي اتدعيت ليها تُفتَح لك بعد التسجيل (21.1-ج) --}}
     @if ($landingUrl)
         <div class="card p-4 mb-4 flex flex-wrap items-center justify-between gap-3">
-            <span class="text-sm">{{ strtr((string) setting('referral.index.text_1', 'اتدعيت لـ«:page» — نكمّل من هناك؟'), [':page' => (string) ($landingLabel ?? setting('referral.index.expr_1', 'صفحة معيّنة'))]) }}</span>
+            <span class="text-sm">{{ strtr((string) setting('referral.index.text_1', 'اتدعيت لـ«:page». نكمّل من هناك؟'), [':page' => (string) ($landingLabel ?? setting('referral.index.expr_1', 'صفحة معيّنة'))]) }}</span>
             <a href="{{ $landingUrl }}" class="btn rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
                style="background: var(--color-brand-500); color: #04201c">{{ setting('referral.index.text_3', 'افتح الصفحة') }}</a>
         </div>
@@ -43,7 +43,7 @@
         </div>
 
         <h2 class="mt-2 text-lg font-bold">
-            {{ str_replace(':percent', (string) $stats['percent'], (string) setting('referral.hero.title', ':percent% من إجماليّ شحن كلّ من دعوتهم — مدى الحياة')) }}
+            {{ str_replace(':percent', (string) $stats['percent'], (string) setting('referral.hero.title', ':percent% من إجماليّ شحن كلّ من دعوتهم، مدى الحياة')) }}
         </h2>
 
         <p class="mt-2 text-sm max-w-xl mx-auto" style="color: var(--text-muted)">
@@ -109,7 +109,7 @@
         <div class="card p-5 mb-4">
             <h2 class="font-bold mb-1">{{ setting('referral.index.text_6', 'ادعُ صديقك لمحتوى بعينه') }}</h2>
             <p class="text-xs mb-3" style="color: var(--text-muted)">
-                {{ strtr((string) setting('referral.index.text_7', 'الرابط ده بيفتح الصفحة نفسها لصاحبك بعد ما يسجّل — ولصاحبك :a1 تذكرة ترحيب.'), [':a1' => (string) ($welcomeTickets)]) }}
+                {{ strtr((string) setting('referral.index.text_7', 'الرابط ده بيفتح الصفحة نفسها لصاحبك بعد ما يسجّل، ولصاحبك :a1 تذكرة ترحيب.'), [':a1' => (string) ($welcomeTickets)]) }}
             </p>
 
             <ul class="space-y-2">
@@ -153,7 +153,7 @@
     </form>
 
     @if ($invited->isEmpty())
-        <x-empty message="{{ setting('referral.index.message_1', 'ابدأ بدعوة أوّل صديق — الرابط جاهز فوق.') }}" action="{{ setting('referral.index.action_1', 'افتح الفعاليّات') }}" :href="route('events.index')" />
+        <x-empty message="{{ setting('referral.index.message_1', 'ابدأ بدعوة أوّل صديق. الرابط جاهز فوق.') }}" action="{{ setting('referral.index.action_1', 'افتح الفعاليّات') }}" :href="route('events.index')" />
     @else
         {{-- ديسكتوب: جدول بأعمدة محدودة (2.15-أ-5) --}}
         <div class="card overflow-hidden hidden md:block">

@@ -44,7 +44,7 @@
 
     @if ($announcements->isEmpty())
         {{-- تمييز «لا منشورات أصلًا» عن «الفلتر ما طابقش حاجة» (24.2) --}}
-        <x-empty :message="setting('admin.guidance.index.la_mnshwrat_abda_awl_bth', 'لا منشورات — ابدأ أوّل بثّ.')"
+        <x-empty :message="setting('admin.guidance.index.la_mnshwrat_abda_awl_bth', 'لا منشورات. ابدأ أوّل بثّ.')"
                  :filtered="$filters['q'] !== '' || $filters['status'] !== '' || $filters['pinned']" />
     @else
         @php
@@ -111,7 +111,7 @@
                                             @if ($announcement->recurrence)
                                                 · {{ $frequencies[$announcement->recurrence] ?? setting('admin.guidance.index.mtkrr', 'متكرّر') }}
                                                 @if ($nextRuns[$announcement->id] ?? null)
-                                                    {{ setting('admin.guidance.index.aldwra_aljaya', '— الدورة الجاية') }} {{ $nextRuns[$announcement->id]->diffForHumans() }}
+                                                    {{ setting('admin.guidance.index.aldwra_aljaya', '· الدورة الجاية') }} {{ $nextRuns[$announcement->id]->diffForHumans() }}
                                                 @endif
                                             @endif
                                             @if ($announcement->onboarding_step)
@@ -236,7 +236,7 @@
                                 <div>
                                     {{ $frequencies[$announcement->recurrence] ?? setting('admin.guidance.index.mtkrr', 'متكرّر') }}
                                     @if ($nextRuns[$announcement->id] ?? null)
-                                        {{ setting('admin.guidance.index.aldwra_aljaya', '— الدورة الجاية') }} {{ $nextRuns[$announcement->id]->diffForHumans() }}
+                                        {{ setting('admin.guidance.index.aldwra_aljaya', '· الدورة الجاية') }} {{ $nextRuns[$announcement->id]->diffForHumans() }}
                                     @endif
                                 </div>
                             @endif
@@ -344,12 +344,12 @@
                             @endforeach
                         </select>
                         <p class="text-xs mt-1" style="color: var(--text-muted)">
-                            {{ setting('announcements.audience.segment_hint', 'الشريحة بتتحلّ لأعضائها على السيرفر لحظة الإرسال — مش لحظة الحفظ.') }}
+                            {{ setting('announcements.audience.segment_hint', 'الشريحة بتتحلّ لأعضائها على السيرفر لحظة الإرسال، مش لحظة الحفظ.') }}
                         </p>
                     </div>
                     @if ($audiences['segments']->isEmpty())
                         <p class="text-xs mt-1" style="color: var(--text-muted)">
-                            <a href="{{ route('admin.users.segments') }}" class="underline">{{ setting('announcements.audience.segments_empty', 'مفيش شرائح محفوظة لسّه — ابنِ واحدة') }}</a>
+                            <a href="{{ route('admin.users.segments') }}" class="underline">{{ setting('announcements.audience.segments_empty', 'مفيش شرائح محفوظة لسّه. ابنِ واحدة') }}</a>
                         </p>
                     @endif
 
@@ -425,7 +425,7 @@
                     </label>
 
                     <p class="text-xs" style="color: var(--text-muted)">
-                        {{ setting('announcements.email.editor_hint', 'البريد بيروح لمن بريده موثَّق ومفعّل القناة بس — والزيادة بتتأجّل احترامًا لحدّ الهدوء.') }}
+                        {{ setting('announcements.email.editor_hint', 'البريد بيروح لمن بريده موثَّق ومفعّل القناة بس، والزيادة بتتأجّل احترامًا لحدّ الهدوء.') }}
                     </p>
                 </fieldset>
 
@@ -453,7 +453,7 @@
                             {{ setting('admin.guidance.index.alntyja_aama_yshwfha_alkl', 'النتيجة عامّة يشوفها الكلّ') }}
                         </label>
                         <p class="text-xs" style="color: var(--text-muted)">
-                            {{ setting('admin.guidance.index.lw_sbtha_mqfwla_alntyja_msh_htwsl_mtsfh', 'لو سِبتها مقفولة، النتيجة **مش هتوصل متصفّح المستخدم أصلًا** لحدّ ما الاستطلاع يقفل — إخفاء حقيقيّ لا شكليّ.') }}
+                            {{ setting('admin.guidance.index.lw_sbtha_mqfwla_alntyja_msh_htwsl_mtsfh', 'لو سِبتها مقفولة، النتيجة **مش هتوصل متصفّح المستخدم أصلًا** لحدّ ما الاستطلاع يقفل. إخفاء حقيقيّ لا شكليّ.') }}
                         </p>
 
                         <x-form.input name="poll_closes_at" :label="setting('admin.guidance.index.yqfl_alasttlaa_fy', 'يقفل الاستطلاع في')" type="datetime-local" />
@@ -480,7 +480,7 @@
                         <x-form.input name="onboarding_delay_days" :label="setting('admin.guidance.index.yzhr_bad_kam_ywm_mn_altsjyl', 'يظهر بعد كام يوم من التسجيل')" type="number" value="0" />
                     </div>
                     <p class="text-xs mt-2" style="color: var(--text-muted)">
-                        {{ setting('admin.guidance.index.qalb_altkrar_nfsh_ma_bytbatsh_kl_dwra_bttla', 'قالب التكرار نفسه ما بيتبعتش — كلّ دورة بتطلع كمنشور جديد، فالقراءة والإقرار يتجدّدوا. وخطوة السلسلة ما بتظهرش غير لمّا اللي قبلها تتقري.') }}
+                        {{ setting('admin.guidance.index.qalb_altkrar_nfsh_ma_bytbatsh_kl_dwra_bttla', 'قالب التكرار نفسه ما بيتبعتش. كلّ دورة بتطلع كمنشور جديد، فالقراءة والإقرار يتجدّدوا. وخطوة السلسلة ما بتظهرش غير لمّا اللي قبلها تتقري.') }}
                     </p>
                 </details>
 

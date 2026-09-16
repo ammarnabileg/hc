@@ -42,7 +42,7 @@ class CvExtrasController extends Controller
             'file' => ['required', 'file', 'max:'.$this->importer->maxKb()],
         ], [
             'file.required' => (string) setting('cv.extras.import_msg', 'اختار ملفّ الأوّل.'),
-            'file.max' => strtr((string) setting('cv.extras.import_msg_2', 'الملفّ كبير شويّة — أقصى حجم :a1 كيلوبايت.'), [':a1' => (string) ($this->importer->maxKb())]),
+            'file.max' => strtr((string) setting('cv.extras.import_msg_2', 'الملفّ كبير شويّة، أقصى حجم :a1 كيلوبايت.'), [':a1' => (string) ($this->importer->maxKb())]),
         ], ['file' => (string) setting('cv.extras.import_msg_3', 'الملفّ')]);
 
         try {
@@ -86,7 +86,7 @@ class CvExtrasController extends Controller
         if ($raw === []) {
             return response()->json([
                 'ok' => false,
-                'message' => (string) setting('cv.extras.apply_import_empty', 'مفيش تحليل محفوظ — ارفع الملفّ تاني وراجع المعاينة.'),
+                'message' => (string) setting('cv.extras.apply_import_empty', 'مفيش تحليل محفوظ، ارفع الملفّ تاني وراجع المعاينة.'),
             ], 422);
         }
 

@@ -105,7 +105,7 @@ class LearningUxSettingsScreenTest extends AdminContentTestCase
         $this->actingAs($viewer)
             ->get(route('admin.learning-settings.index', ['group' => 'comments']))
             ->assertOk()
-            ->assertSee((string) setting('admin.content.learning_settings.index.read_only', 'عرض فقط — بلا صلاحيّة تعديل.'));
+            ->assertSee((string) setting('admin.content.learning_settings.index.read_only', 'عرض فقط، بلا صلاحيّة تعديل.'));
 
         $this->actingAs($viewer)
             ->postJson(route('admin.learning-settings.field'), ['key' => $setting->key, 'value' => 999])

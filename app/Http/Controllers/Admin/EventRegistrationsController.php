@@ -173,7 +173,7 @@ class EventRegistrationsController extends Controller
 
         return back()->with('status', (string) setting(
             $sendAt->isFuture() ? 'events.notice.scheduled_message' : 'events.notice.sent_message',
-            $sendAt->isFuture() ? 'الإشعار اتجدول ✓ — هيوصل في معاده.' : 'الإشعار اتبعت للمسجّلين ✓',
+            $sendAt->isFuture() ? 'الإشعار اتجدول ✓، هيوصل في معاده.' : 'الإشعار اتبعت للمسجّلين ✓',
         ));
     }
 
@@ -225,7 +225,7 @@ class EventRegistrationsController extends Controller
 
         return back()->with('status', (string) setting(
             $sendAt->isFuture() ? 'events.notice.segment_scheduled_message' : 'events.notice.segment_sent_message',
-            $sendAt->isFuture() ? 'الدعوة اتجدولت ✓ — هتوصل في معادها.' : 'الدعوة اتبعت لأعضاء الشريحة ✓',
+            $sendAt->isFuture() ? 'الدعوة اتجدولت ✓، هتوصل في معادها.' : 'الدعوة اتبعت لأعضاء الشريحة ✓',
         ));
     }
 

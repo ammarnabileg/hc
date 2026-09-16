@@ -99,7 +99,7 @@ class DelegationAdminController extends Controller
             'note' => $data['note'],
         ]);
 
-        return back()->with('status', (string) setting('delegation.admin.end_ok', 'اتقفل وضع «غائب» ✓ — رجعت قراراته له، وساعات مهامّه اتزاحت بمدّة غيابه الفعليّة.'));
+        return back()->with('status', (string) setting('delegation.admin.end_ok', 'اتقفل وضع «غائب» ✓، رجعت قراراته له، وساعات مهامّه اتزاحت بمدّة غيابه الفعليّة.'));
     }
 
     // ------------------------------------------------------------------ داخليّ

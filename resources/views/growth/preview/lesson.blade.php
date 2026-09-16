@@ -57,7 +57,7 @@
         {{-- دعوة صريحة بقيمتها الحقيقيّة مكتوبة — بلا مبالغة (21.1-د) --}}
         <a href="{{ auth()->check() ? $buyUrl : $registerUrl }}"
            class="card p-4 mt-4 flex items-center justify-between gap-3 motion-standard">
-            <span class="text-sm">{{ setting('growth.preview.upsell', 'عجبك الدرس؟ باقي التدريب بيتفتح بعد التسجيل — والتسجيل مجّانيّ.') }}</span>
+            <span class="text-sm">{{ setting('growth.preview.upsell', 'عجبك الدرس؟ باقي التدريب بيتفتح بعد التسجيل، والتسجيل مجّانيّ.') }}</span>
             <span class="rounded-xl px-4 py-2 text-sm font-semibold shrink-0"
                   style="background: var(--color-brand-500); color: #04201c">
                 {{ auth()->check() ? setting('growth.preview.cta', 'افتح التدريب كامل') : (string) setting('growth.preview_lesson.expr_1', 'سجّل حسابك') }}

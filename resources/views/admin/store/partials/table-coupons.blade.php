@@ -49,7 +49,7 @@
 <div class="card p-4 mt-4">
     <h2 class="font-bold text-sm mb-1">{{ setting('admin.store.partials.table_coupons.order_bump_title', 'عروض Order-bump') }}</h2>
     <p class="text-xs mb-3" style="color: var(--text-muted)">
-        {!! strtr(setting('admin.store.partials.table_coupons.aqsa_add_arwd_order_bump_fy_sfha_almrajaa_v1', 'أقصى عدد عروض Order-bump في صفحة المراجعة: :v1 — قاعدة مقفولة.'), [':v1' => e((int) setting('order_bump.max_per_checkout', 2))]) !!}
+        {!! strtr(setting('admin.store.partials.table_coupons.aqsa_add_arwd_order_bump_fy_sfha_almrajaa_v1', 'أقصى عدد عروض Order-bump في صفحة المراجعة: :v1. قاعدة مقفولة.'), [':v1' => e((int) setting('order_bump.max_per_checkout', 2))]) !!}
     </p>
 
     @if (($orderBumps ?? collect())->isNotEmpty())
@@ -131,7 +131,7 @@
             <input type="hidden" name="bump_type" data-order-bump-type="bump" value="">
 
             <x-form.input name="price_coins" data-order-bump-price step="0.01" min="0"
-                          :label="setting('admin.store.partials.table_coupons.sar_khas_akhtyary', 'سعر خاصّ (اختياريّ — الأصليّ لو فاضي)')" type="number" />
+                          :label="setting('admin.store.partials.table_coupons.sar_khas_akhtyary', 'سعر خاصّ (اختياريّ، الأصليّ لو فاضي)')" type="number" />
 
             <x-form.input name="teaser" :label="setting('admin.store.partials.table_coupons.jmla_tshwyq', 'جملة تشويق')" maxlength="255" />
 

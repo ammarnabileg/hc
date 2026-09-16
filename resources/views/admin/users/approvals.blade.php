@@ -4,7 +4,7 @@
 
 @section('content')
     <x-page-header :title="setting('admin.users.approvals.tlbat_alaatmad', 'طلبات الاعتماد')"
-                   :subtitle="setting('admin.approvals.free_note', 'التفعيل مجّانيّ باعتماد إداريّ — ولا رسوم على الباب')"
+                   :subtitle="setting('admin.approvals.free_note', 'التفعيل مجّانيّ باعتماد إداريّ، ولا رسوم على الباب')"
                    :breadcrumbs="[
                        ['label' => setting('admin.users.approvals.lwha_alidara', 'لوحة الإدارة'), 'url' => route('admin.dashboard')],
                        ['label' => setting('admin.users.approvals.almstkhdmwn', 'المستخدمون'), 'url' => route('admin.users.index')],
@@ -44,7 +44,7 @@
 
     @if ($pending->isEmpty())
         {{-- تمييز «مفيش طلبات معلّقة أصلًا» عن «الفلتر ما طابقش حاجة» (24.2) --}}
-        <x-empty :message="setting('admin.approvals.empty_message', 'مفيش طلبات معلّقة — كلّ حاجة تمام')"
+        <x-empty :message="setting('admin.approvals.empty_message', 'مفيش طلبات معلّقة. كلّ حاجة تمام')"
                  :action="setting('admin.users.approvals.rjwa_llqyada', 'رجوع للقيادة')" :href="route('admin.dashboard')"
                  :filtered="request('q') || request('age') || request('source')" />
     @else

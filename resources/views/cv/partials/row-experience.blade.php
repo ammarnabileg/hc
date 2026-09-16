@@ -37,7 +37,7 @@
 
     {{-- حقل اللغة الثانية الاختياريّ — ثنائيّة بصفر تكلفة (9) --}}
     <textarea name="data[experience][{{ $i }}][description_en]" rows="2" dir="ltr" data-lang-en hidden
-              placeholder="{{ setting('cv.field.description_en_label', 'Description (English) — optional') }}"
+              placeholder="{{ setting('cv.field.description_en_label', 'Description (English, optional)') }}"
               class="sm:col-span-2 rounded-xl px-3 py-2 text-sm" style="{{ $field }}">{{ $row['description_en'] ?? '' }}</textarea>
 
     <div class="sm:col-span-2 flex items-center justify-between">

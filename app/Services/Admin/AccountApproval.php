@@ -77,7 +77,7 @@ class AccountApproval
             Notifier::send(
                 $account,
                 'account',
-                (string) setting('admin.approvals.accept_message', 'تمّ قبول حسابك — أهلًا بيك معانا 🎉'),
+                (string) setting('admin.approvals.accept_message', 'تمّ قبول حسابك، أهلًا بيك معانا 🎉'),
                 null,
                 url('/dashboard'),
             );

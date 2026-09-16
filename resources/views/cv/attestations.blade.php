@@ -2,7 +2,7 @@
     /** نصوص السكربت — من الإعدادات لا محروقةً في الجافاسكربت (2.13-أ) */
     $hcWords = array_merge($hcWords ?? [], [
         'attestations.copied_message' => (string) setting('attestations.copied_message', 'الرابط اتنسخ ✓'),
-        'attestations.public.error_message' => (string) setting('attestations.public.error_message', 'مقدرناش نغيّر الحالة — راجع النت وجرّب تاني.'),
+        'attestations.public.error_message' => (string) setting('attestations.public.error_message', 'مقدرناش نغيّر الحالة، راجع النت وجرّب تاني.'),
     ]);
 @endphp
 
@@ -13,7 +13,7 @@
 @section('content')
     <x-page-header
         :title="setting('attestations.page.title', 'الإفادة')"
-        :subtitle="setting('attestations.page.subtitle', 'إثباتٌ موثّق من المنصّة — مجّانًا بلا تذاكر.')"
+        :subtitle="setting('attestations.page.subtitle', 'إثباتٌ موثّق من المنصّة، مجّانًا من غير تذاكر.')"
         :breadcrumbs="[
             ['label' => setting('cv.breadcrumb.experiences', 'خبراتي'), 'url' => \Illuminate\Support\Facades\Route::has('cv.index') ? route('cv.index') : url('/')],
             ['label' => setting('attestations.page.title', 'الإفادة')],
@@ -66,7 +66,7 @@
         </div>
 
         <p class="text-xs mt-2" style="color: var(--text-muted)">
-            {{ setting('attestations.public.hint', 'الرابط مقفول لحدّ ما تشغّله بنفسك — وتقدر تقفله في أيّ وقت.') }}
+            {{ setting('attestations.public.hint', 'الرابط مقفول لحدّ ما تشغّله بنفسك، وتقدر تقفله في أيّ وقت.') }}
         </p>
 
         <p class="text-xs mt-3" data-copy-note style="color: var(--color-state-ok)"></p>
@@ -133,7 +133,7 @@
 
             @if ($limitReached)
                 <p class="text-xs" style="color: var(--color-state-warn)">
-                    {{ setting('attestations.request.limit_message', 'عندك طلبات مفتوحة كتير — استنّى ردّها الأوّل.') }}
+                    {{ setting('attestations.request.limit_message', 'عندك طلبات مفتوحة كتير، استنّى ردّها الأوّل.') }}
                 </p>
             @endif
         </form>

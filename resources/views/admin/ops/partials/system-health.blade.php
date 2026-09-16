@@ -38,6 +38,6 @@
 </div>
 
 <p class="text-xs mt-4" style="color: var(--text-muted)">
-    {{ setting('admin.ops.partials.system_health.alatbat_klha_mn_aliadadat_adlha_mn', 'العتبات كلّها من الإعدادات — عدّلها من') }}
+    {{ setting('admin.ops.partials.system_health.alatbat_klha_mn_aliadadat_adlha_mn', 'العتبات كلّها من الإعدادات. عدّلها من') }}
     <a class="underline" href="{{ route('admin.settings.index', ['tab' => 'backups']) }}">{{ setting('admin.ops.partials.system_health.tab_alnskh_wsha_alnzam', 'تاب النسخ وصحّة النظام') }}</a>.
 </p>

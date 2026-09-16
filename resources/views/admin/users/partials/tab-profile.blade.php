@@ -71,7 +71,7 @@
                 <textarea name="admin_notes" rows="3" class="w-full rounded-xl px-3 py-2 text-sm"
                           style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">{{ old('admin_notes', $user->admin_notes) }}</textarea>
                 <span class="block text-xs mt-1" style="color: var(--text-muted)">
-                    {{ setting('admin.users.notes_hint', 'ملاحظات للفريق فقط — المستخدم مابيشوفهاش أبدًا.') }}
+                    {{ setting('admin.users.notes_hint', 'ملاحظات للفريق فقط. المستخدم مابيشوفهاش أبدًا.') }}
                 </span>
             </label>
 

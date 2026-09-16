@@ -89,11 +89,11 @@ class AdminVolunteerOrgAndEventsTest extends AdminVolunteerTestCase
             ->get(route('admin.volunteer.org', ['q' => 'zzzznotexist']))
             ->assertOk();
         $orgResponse->assertSee(
-            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث/الفلتر الحاليّ — جرّب فلترًا تانيًا.'),
+            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث أو الفلتر الحاليّ. جرّب فلتر تاني.'),
             false,
         );
         $orgResponse->assertDontSee(
-            setting('admin.volunteer.org.mfysh_kyanat_lsh_abda_bawl_kyan', 'مفيش كيانات لسّه — ابدأ بأوّل كيان.'),
+            setting('admin.volunteer.org.mfysh_kyanat_lsh_abda_bawl_kyan', 'مفيش كيانات لسّه. ابدأ بأوّل كيان.'),
             false,
         );
 
@@ -103,7 +103,7 @@ class AdminVolunteerOrgAndEventsTest extends AdminVolunteerTestCase
             ->get(route('admin.volunteer.org.capacity', ['track' => $trackWithoutEntities->id]))
             ->assertOk();
         $capacityResponse->assertSee(
-            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث/الفلتر الحاليّ — جرّب فلترًا تانيًا.'),
+            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث أو الفلتر الحاليّ. جرّب فلتر تاني.'),
             false,
         );
         $capacityResponse->assertDontSee(
@@ -125,11 +125,11 @@ class AdminVolunteerOrgAndEventsTest extends AdminVolunteerTestCase
             ->assertOk();
 
         $response->assertSee(
-            setting('admin.volunteer.org.mfysh_kyanat_lsh_abda_bawl_kyan', 'مفيش كيانات لسّه — ابدأ بأوّل كيان.'),
+            setting('admin.volunteer.org.mfysh_kyanat_lsh_abda_bawl_kyan', 'مفيش كيانات لسّه. ابدأ بأوّل كيان.'),
             false,
         );
         $response->assertDontSee(
-            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث/الفلتر الحاليّ — جرّب فلترًا تانيًا.'),
+            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث أو الفلتر الحاليّ. جرّب فلتر تاني.'),
             false,
         );
     }

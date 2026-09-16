@@ -182,7 +182,7 @@ class ProfileVisibility
     public function levelLabel(?string $level): string
     {
         return match ($level) {
-            self::OWNER => (string) setting('volunteer.profile.level.owner', 'دي صفحتك — بتشوف كلّ حاجة عدا الملاحظات الإداريّة'),
+            self::OWNER => (string) setting('volunteer.profile.level.owner', 'دي صفحتك، بتشوف فيها كلّ حاجة عدا الملاحظات الإداريّة'),
             self::ADMIN => (string) setting('volunteer.profile.level.admin', 'مشاهدة إداريّة'),
             self::UPLINE => (string) setting('volunteer.profile.level.upline', 'مشاهدة مشرف'),
             default => (string) setting('volunteer.profile.level.peer', 'المشاهدة العامّة'),

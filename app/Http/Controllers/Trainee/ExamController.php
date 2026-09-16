@@ -116,7 +116,7 @@ class ExamController extends Controller
         }
 
         if ($this->cooldownUntil($exam, $user)) {
-            return back()->with('status', (string) setting('exams.messages.cooldown', 'لسّه بدري على المحاولة الجاية — استنّى شويّة وراجع الدروس.'));
+            return back()->with('status', (string) setting('exams.messages.cooldown', 'لسّه بدري على المحاولة الجاية، استنّى شويّة وراجع الدروس.'));
         }
 
         $cost = $this->cost($exam);
@@ -152,7 +152,7 @@ class ExamController extends Controller
         }
 
         return redirect()->route('exams.take', ['exam' => $exam, 'q' => 1])
-            ->with('status', (string) setting('exams.messages.started', 'بالتوفيق — ركّز وخُد وقتك.'))
+            ->with('status', (string) setting('exams.messages.started', 'بالتوفيق، ركّز وخُد وقتك.'))
             ->with('attempt_id', $attempt->id);
     }
 
@@ -221,7 +221,7 @@ class ExamController extends Controller
             return response()->json([
                 'saved' => false,
                 'expired' => true,
-                'message' => (string) setting('exams.messages.time_up', 'خلص الوقت — سلّمنا إجاباتك تلقائيًّا.'),
+                'message' => (string) setting('exams.messages.time_up', 'خلص الوقت، سلّمنا إجاباتك تلقائيًّا.'),
                 'redirect' => route('exams.result', $attempt),
             ], 409);
         }
@@ -325,7 +325,7 @@ class ExamController extends Controller
 
         $message = (string) setting(
             'exams.messages.not_enrolled',
-            'الامتحان ده لتدريبٍ لسّه ما سجّلتش فيه — ابدأ التدريب الأوّل وهيتفتحلك.',
+            'الامتحان ده لتدريبٍ لسّه ما سجّلتش فيه، ابدأ التدريب الأوّل وهيتفتحلك.',
         );
 
         $course = $exam->examable;
@@ -384,8 +384,8 @@ class ExamController extends Controller
     private function insufficientMessage(Exam $exam): string
     {
         return $this->isCourseExam($exam)
-            ? (string) setting('exams.messages.insufficient_tickets', 'محتاج تذكرة عشان تدخل الامتحان — كمّل درسًا أو أكمل ستريكك وهترجع تلاقيها.')
-            : (string) setting('exams.messages.insufficient_balance', 'رصيدك مايكفّيش لدخول الامتحان — اشحن محفظتك وارجع.');
+            ? (string) setting('exams.messages.insufficient_tickets', 'محتاج تذكرة عشان تدخل الامتحان، كمّل درسًا أو أكمل ستريكك وهترجع تلاقيها.')
+            : (string) setting('exams.messages.insufficient_balance', 'رصيدك مايكفّيش لدخول الامتحان، اشحن محفظتك وارجع.');
     }
 
     private function runningAttempt(Exam $exam, User $user): ?ExamAttempt

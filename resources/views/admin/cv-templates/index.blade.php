@@ -23,7 +23,7 @@
     </x-page-header>
 
     @if ($templates->isEmpty())
-        <x-empty :message="setting('cv.template.admin.empty_message', 'مفيش قوالب لسّه — ابدأ بواحد.')" />
+        <x-empty :message="setting('cv.template.admin.empty_message', 'مفيش قوالب لسّه. ابدأ بواحد.')" />
     @else
         <div class="space-y-3">
             @foreach ($templates as $template)

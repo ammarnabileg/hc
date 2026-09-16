@@ -4,7 +4,7 @@
      * ولا نعرض إلّا مَن بلغ عتبةً فعلًا — فلا لوحة فاضية تُملأ بأسماء وهميّة (2.9-7).
      */
     $title = (string) setting('home.ambassadors.title', 'سفراء المنصّة');
-    $subtitle = (string) setting('home.ambassadors.subtitle', 'ناس دعت أصحابها فكبر المكان بيهم — واللقب بيتحسب بالدعوات المفعّلة بس.');
+    $subtitle = (string) setting('home.ambassadors.subtitle', 'ناس دعت أصحابها فكبر المكان بيهم، واللقب بيتحسب بالدعوات المفعّلة بس.');
 @endphp
 
 @if ($ambassadors->isNotEmpty())

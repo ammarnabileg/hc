@@ -100,13 +100,13 @@ class ExchangeService
 
         if ($quote['amount'] < $this->minAmount($fromCode)) {
             throw new WalletException(
-                strtr(setting('wallet.exchange_service.exchange_1', 'أقلّ تحويل :p1 :p2 — زوّد القيمة شويّة.'), [':p1' => (string) ($this->number($this->minAmount($fromCode))), ':p2' => (string) ($from->name_ar)])
+                strtr(setting('wallet.exchange_service.exchange_1', 'أقلّ تحويل :p1 :p2، زوّد القيمة شويّة.'), [':p1' => (string) ($this->number($this->minAmount($fromCode))), ':p2' => (string) ($from->name_ar)])
             );
         }
 
         if ($quote['credited'] <= 0) {
             throw new WalletException(
-                strtr(setting('wallet.exchange_service.exchange_2', 'القيمة صغيرة أوي فالناتج بيطلع صفر :p1 — زوّدها وشوف الملخّص قبل التأكيد.'), [':p1' => (string) ($to->name_ar)])
+                strtr(setting('wallet.exchange_service.exchange_2', 'القيمة صغيرة أوي فالناتج بيطلع صفر :p1، زوّدها وشوف الملخّص قبل التأكيد.'), [':p1' => (string) ($to->name_ar)])
             );
         }
 
@@ -160,15 +160,15 @@ class ExchangeService
     private function assertPath(string $from, string $to): void
     {
         if (! in_array($from, self::FROM, true)) {
-            throw new WalletException(setting('wallet.exchange_service.assert_path_1', 'التحويل بيبدأ من دولار الأرباح أو الكوينز أو التذاكر — اختر واحدة منهم.'));
+            throw new WalletException(setting('wallet.exchange_service.assert_path_1', 'التحويل بيبدأ من دولار الأرباح أو الكوينز أو التذاكر، اختر واحدة منهم.'));
         }
 
         if (! in_array($to, self::TO, true)) {
-            throw new WalletException(setting('wallet.exchange_service.assert_path_2', 'التحويل بيروح لتذاكر أو XP بس — اختر واحدة منهم.'));
+            throw new WalletException(setting('wallet.exchange_service.assert_path_2', 'التحويل بيروح لتذاكر أو XP بس، اختر واحدة منهم.'));
         }
 
         if ($from === $to) {
-            throw new WalletException(setting('wallet.exchange_service.assert_path_3', 'العملة المصدر والهدف واحدة — غيّر واحدة منهم.'));
+            throw new WalletException(setting('wallet.exchange_service.assert_path_3', 'العملة المصدر والهدف واحدة، غيّر واحدة منهم.'));
         }
     }
 

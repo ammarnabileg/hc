@@ -104,7 +104,7 @@ class RoleController extends Controller
             return redirect()
                 ->route('admin.roles.edit', ['role' => $role, 'group' => $validated['group']])
                 ->withErrors($beyond)
-                ->with('problem', (string) setting('admin_roles.screen.update_empty', 'مافيش سطر اتحفظ: في نطاقات بره سقف المصفوفة — اقرأ التفاصيل فوق وصغّرها.'));
+                ->with('problem', (string) setting('admin_roles.screen.update_empty', 'مافيش سطر اتحفظ: في نطاقات بره سقف المصفوفة، اقرأ التفاصيل فوق وصغّرها.'));
         }
 
         $result = $this->editor->save(
@@ -123,7 +123,7 @@ class RoleController extends Controller
         if ($result['rejected'] !== []) {
             return $redirect
                 ->withErrors([...$result['rejected'], ...$result['dropped']])
-                ->with('problem', (string) setting('admin_roles.screen.update_msg_2', 'في سطور مااتحفظتش عشان منع تصعيد الامتياز — اقرأ التفاصيل فوق.'));
+                ->with('problem', (string) setting('admin_roles.screen.update_msg_2', 'في سطور مااتحفظتش عشان منع تصعيد الامتياز، اقرأ التفاصيل فوق.'));
         }
 
         /*
@@ -134,10 +134,10 @@ class RoleController extends Controller
         if ($result['dropped'] !== []) {
             return $redirect
                 ->withErrors($result['dropped'])
-                ->with('problem', strtr((string) setting('admin_roles.screen.update_partial', 'اتحفظ :count سطر — بس في سطور سقطت، اقرأ التفاصيل فوق.'), [':count' => (string) $result['written']]));
+                ->with('problem', strtr((string) setting('admin_roles.screen.update_partial', 'اتحفظ :count سطر، بس في سطور سقطت، اقرأ التفاصيل فوق.'), [':count' => (string) $result['written']]));
         }
 
-        return $redirect->with('status', strtr((string) setting('admin_roles.screen.update_ok', 'اتحفظ ✓ — :count سطر صلاحيّة مفرود ظاهر قدّامك'), [':count' => (string) $result['written']]));
+        return $redirect->with('status', strtr((string) setting('admin_roles.screen.update_ok', 'اتحفظ ✓، :count سطر صلاحيّة مفرود ظاهر قدّامك'), [':count' => (string) $result['written']]));
     }
 
     /**
@@ -185,7 +185,7 @@ class RoleController extends Controller
             $errors[] = strtr(
                 (string) setting(
                     'admin.roles.scope_ceiling_message',
-                    'مقدرناش نحفظ «:permission» بنطاق :scope — المصفوفة (12.2.2) بتحدّد لها :scopes وبس.',
+                    'مقدرناش نحفظ «:permission» بنطاق :scope، المصفوفة (12.2.2) بتحدّد لها :scopes وبس.',
                 ),
                 [
                     ':permission' => $permission->label_ar.' ('.$permission->key.')',

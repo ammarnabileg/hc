@@ -183,7 +183,7 @@ class WorkspaceTest extends UiTestCase
             ->postJson(route('ui.undo', 'a-token-that-expired'))
             ->assertStatus(422)
             ->assertJson(['ok' => false])
-            ->assertJsonFragment(['message' => 'مهلة التراجع خلصت — تقدر تعدّل من الشاشة عادي.']);
+            ->assertJsonFragment(['message' => 'مهلة التراجع خلصت، تقدر تعدّل من الشاشة عادي.']);
     }
 
     public function test_undo_window_is_a_setting_not_a_hard_coded_number(): void

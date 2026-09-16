@@ -55,7 +55,7 @@ class PurchaseService
 
             // منع الشراء المكرّر لما يملكه (20.4)
             if ($this->catalog->owns($user, $type, $item)) {
-                throw PurchaseException::of('owned', 'store.owned_text', setting('store.purchase_service.purchase_2', 'ده معاك بالفعل — تلاقيه في مكتبتك.'));
+                throw PurchaseException::of('owned', 'store.owned_text', setting('store.purchase_service.purchase_2', 'ده معاك بالفعل، تلاقيه في مكتبتك.'));
             }
 
             // ⭐ إعادة الحساب في الخادم — ولا رقم من المتصفّح؛ والعملة تُعرَف منه
@@ -95,7 +95,7 @@ class PurchaseService
             );
 
             if ($quote['lines'] === []) {
-                throw PurchaseException::of('empty_cart', 'store.cart.empty_text', setting('store.purchase_service.purchase_cart_1', 'سلّتك فاضية — ضيف حاجة الأوّل.'));
+                throw PurchaseException::of('empty_cart', 'store.cart.empty_text', setting('store.purchase_service.purchase_cart_1', 'سلّتك فاضية، ضيف حاجة الأوّل.'));
             }
 
             $wallet = $this->lockedWallet($user, $quote['currency']);
@@ -110,7 +110,7 @@ class PurchaseService
     private function assertPayable(array $input): void
     {
         if (! setting('store.enabled', true)) {
-            throw PurchaseException::of('disabled', 'store.disabled_text', setting('store.purchase_service.assert_payable_1', 'المتجر مقفول مؤقّتًا — جرّب بعد شويّة.'));
+            throw PurchaseException::of('disabled', 'store.disabled_text', setting('store.purchase_service.assert_payable_1', 'المتجر مقفول مؤقّتًا، جرّب بعد شويّة.'));
         }
 
         if (! ($input['refund_ack'] ?? false)) {
@@ -140,7 +140,7 @@ class PurchaseService
             throw PurchaseException::of(
                 'insufficient',
                 'store.insufficient_text',
-                setting('store.purchase_service.commit_1', 'رصيدك أقلّ من قيمة الطلب — اشحن محفظتك وكمّل من نفس المكان.'),
+                setting('store.purchase_service.commit_1', 'رصيدك أقلّ من قيمة الطلب، اشحن محفظتك وكمّل من نفس المكان.'),
             );
         }
 

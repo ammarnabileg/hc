@@ -22,7 +22,7 @@
         $availability['open'] => (string) setting('store.availability.open_badge', 'متاح الآن'),
         $availability['opens_at'] !== null => str_replace(
             '{time}', $availability['opens_at'],
-            (string) setting('store.availability.opens_at_text', 'مغلق الآن — يفتح {time}'),
+            (string) setting('store.availability.opens_at_text', 'مغلق الآن، يفتح {time}'),
         ),
         default => (string) setting('store.availability.closed_badge', 'مغلق حاليًّا'),
     };

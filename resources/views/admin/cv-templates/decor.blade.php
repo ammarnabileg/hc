@@ -24,7 +24,7 @@
     --}}
     <x-page-header
         :title="setting('cv.template.admin.decor_page_title', 'المحرّر المرئيّ: ') . $template->name"
-        :subtitle="setting('cv.template.admin.decor_page_subtitle', 'اسحب عناصر الديكور فوق معاينة حقيقيّة لمحتوى القالب — نصٌّ أو صورة، بلا ربط ببيانات السيرة.')"
+        :subtitle="setting('cv.template.admin.decor_page_subtitle', 'اسحب عناصر الديكور فوق معاينة حقيقيّة لمحتوى القالب، نصٌّ أو صورة، بلا ربط ببيانات السيرة.')"
         :breadcrumbs="[
             ['label' => setting('cv.template.admin.section_label', 'الإعدادات والنظام'), 'url' => route('admin.settings.index')],
             ['label' => setting('cv.template.admin.page_title', 'قوالب السيرة الذاتيّة'), 'url' => route('admin.cv-templates.index')],
@@ -68,7 +68,7 @@
                     </div>
                 </div>
 
-                <p class="text-xs" style="color: var(--text-muted)">{{ setting('cv.template.admin.decor_hint', 'اسحب أيّ عنصر لتغيير موضعه — المحتوى خلفه معاينة حقيقيّة لقالب السيرة.') }}</p>
+                <p class="text-xs" style="color: var(--text-muted)">{{ setting('cv.template.admin.decor_hint', 'اسحب أيّ عنصر لتغيير موضعه، والمحتوى خلفه معاينة حقيقيّة لقالب السيرة.') }}</p>
             </div>
 
             <div class="space-y-4">
@@ -85,7 +85,7 @@
                     <ul class="space-y-1 max-h-64 overflow-y-auto rounded-xl p-2" style="background: var(--surface-sunken)"
                         data-decor-layers-panel></ul>
                     <p class="text-xs" data-decor-empty-hint style="color: var(--text-muted)">
-                        {{ setting('cv.template.admin.decor_empty_hint', 'لا عناصر زخرفيّة بعد — أضف نصًّا أو صورة.') }}
+                        {{ setting('cv.template.admin.decor_empty_hint', 'لا عناصر زخرفيّة بعد. أضف نصًّا أو صورة.') }}
                     </p>
                 </div>
 

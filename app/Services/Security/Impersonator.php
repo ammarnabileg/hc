@@ -34,7 +34,7 @@ class Impersonator
         }
 
         if ($this->isImpersonating($request)) {
-            throw new RuntimeException(setting('security.impersonator.start_2', 'إنت أصلًا بتتصفّح كمستخدم — ارجع لحسابك الأوّل.'));
+            throw new RuntimeException(setting('security.impersonator.start_2', 'إنت أصلًا بتتصفّح كمستخدم، ارجع لحسابك الأوّل.'));
         }
 
         $request->session()->put(self::SESSION_KEY, $actor->id);

@@ -4,7 +4,7 @@
 
 @section('content')
     <x-page-header :title="setting('admin.store.topups.gateway.bwaba_aldfa', 'بوّابة الدفع')"
-                   :subtitle="setting('admin.store.topups.gateway.alrsyd_ydaf_mn_alwyb_hwk_hsra_wrabt_alrjwa', 'الرصيد يُضاف من الويب هوك حصرًا — ورابط الرجوع للعرض فقط.')"
+                   :subtitle="setting('admin.store.topups.gateway.alrsyd_ydaf_mn_alwyb_hwk_hsra_wrabt_alrjwa', 'الرصيد يُضاف من الويب هوك حصرًا، ورابط الرجوع للعرض فقط.')"
                    :breadcrumbs="[
                        ['label' => setting('admin.store.topups.gateway.lwha_alidara', 'لوحة الإدارة'), 'url' => url('/admin')],
                        ['label' => setting('admin.store.topups.gateway.tlbat_alshhn', 'طلبات الشحن'), 'url' => route('admin.topups.index')],
@@ -36,13 +36,13 @@
     @unless ($maySeeSecrets)
         {{-- 🔒 المفاتيح لمالك المنصّة وحده — ولا تظهر لغيره ولو مقنَّعة (12.2.1) --}}
         <p class="text-xs mt-3" style="color: var(--text-muted)">
-            {{ setting('admin.store.topups.gateway.mfatyh_albwaba_mjmwaa_mhmya_bttdar_mn_hsab', 'مفاتيح البوّابة مجموعة محميّة — بتتدار من حساب مالك المنصّة.') }}
+            {{ setting('admin.store.topups.gateway.mfatyh_albwaba_mjmwaa_mhmya_bttdar_mn_hsab', 'مفاتيح البوّابة مجموعة محميّة، بتتدار من حساب مالك المنصّة.') }}
         </p>
     @endunless
 
     <div class="card p-4 mt-4 text-xs" style="color: var(--text-muted)">
         <p>{{ setting('admin.store.topups.gateway.alrsyd_bytdaf_mn_alwyb_hwk_whdh_walfatwra', 'الرصيد بيتضاف من الويب هوك وحده، والفاتورة الواحدة مش بتتحسب مرّتين مهما اتكرّر النداء.') }}</p>
-        <p class="mt-1">{{ setting('admin.store.topups.gateway.alnda_bhash_khaty_bytsjl_wbytfrd_wsjl', 'النداء بهاش خاطئ بيتسجّل وبيتفرض — وسجلّ الـWebhook الخام بيوضّح نتيجة كلّ تحقّق.') }}</p>
+        <p class="mt-1">{{ setting('admin.store.topups.gateway.alnda_bhash_khaty_bytsjl_wbytfrd_wsjl', 'النداء بهاش خاطئ بيتسجّل وبيتفرض، وسجلّ الـWebhook الخام بيوضّح نتيجة كلّ تحقّق.') }}</p>
     </div>
 
     @include('admin.settings.partials.autosave-script')

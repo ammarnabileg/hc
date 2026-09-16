@@ -18,7 +18,7 @@
                 @unless ($preflightOk)
                     <div class="rounded-xl p-3 text-sm"
                          style="background: color-mix(in srgb, var(--color-state-danger) 12%, transparent); color: var(--color-state-danger)">
-                        {{ setting('admin.ops.partials.updates_modals.fy_fhs_qbly_ma_adash_altnfydh_hytwqf_qbl_ma', '✗ في فحص قبليّ ما عدّاش — التنفيذ هيتوقف قبل ما يلمس حاجة. صلّح الفحص الأوّل.') }}
+                        {{ setting('admin.ops.partials.updates_modals.fy_fhs_qbly_ma_adash_altnfydh_hytwqf_qbl_ma', '✗ في فحص قبليّ ما عدّاش. التنفيذ هيتوقف قبل ما يلمس حاجة. صلّح الفحص الأوّل.') }}
                     </div>
                 @endunless
 
@@ -31,7 +31,7 @@
                 @endif
 
                 <x-form.input name="confirm" :label="strtr(setting('admin.ops.partials.updates_modals.aktb_v1_lltakyd', 'اكتب «:v1» للتأكيد'), [':v1' => e($confirmPhrase)])"
-                              :hint="setting('admin.ops.partials.updates_modals.alktaba_alydwya_mqswda_ashan_mafysh_dghta', 'الكتابة اليدويّة مقصودة — عشان مافيش ضغطة بالغلط.')" autocomplete="off" />
+                              :hint="setting('admin.ops.partials.updates_modals.alktaba_alydwya_mqswda_ashan_mafysh_dghta', 'الكتابة اليدويّة مقصودة، عشان مافيش ضغطة بالغلط.')" autocomplete="off" />
 
                 <label class="flex items-start gap-2 text-sm" style="min-height: 44px">
                     <input type="checkbox" name="understood" value="1" class="mt-1">
@@ -57,7 +57,7 @@
 
                     <div class="rounded-xl p-3 text-sm"
                          style="background: color-mix(in srgb, var(--color-state-danger) 12%, transparent); color: var(--color-state-danger)">
-                        {{ setting('admin.ops.partials.updates_modals.hnrja_albyanat_lhaltha_lhza_alnskha', '◉ هنرجّع البيانات لحالتها لحظة النسخة') }} <strong>{{ $failureReport['backup_file'] ?? '' }}</strong> {{ setting('admin.ops.partials.updates_modals.way_haja_atktbt_bad_kdh_httshal_sjl_altdqyq', '— وأيّ حاجة اتكتبت بعد كده هتتشال. سجلّ التدقيق وسجلّ النسخ مابيتمسّوش.') }}
+                        {{ setting('admin.ops.partials.updates_modals.hnrja_albyanat_lhaltha_lhza_alnskha', '◉ هنرجّع البيانات لحالتها لحظة النسخة') }} <strong>{{ $failureReport['backup_file'] ?? '' }}</strong> {{ setting('admin.ops.partials.updates_modals.way_haja_atktbt_bad_kdh_httshal_sjl_altdqyq', '، وأيّ حاجة اتكتبت بعد كده هتتشال. سجلّ التدقيق وسجلّ النسخ مابيتمسّوش.') }}
                     </div>
 
                     <label class="block">
@@ -88,7 +88,7 @@
 
                 <div class="rounded-xl p-3 text-sm"
                      style="background: color-mix(in srgb, var(--color-state-danger) 12%, transparent); color: var(--color-state-danger)">
-                    {{ setting('admin.ops.partials.updates_modals.alastrjaa_byshyl_akhr_dfaa_hjrat', '◉ الاسترجاع بيشيل آخر دفعة هجرات —') }} <strong>{{ setting('admin.ops.partials.updates_modals.walbyanat_ally_fy_jdawlha_httmsh_wla_trja', 'والبيانات اللي في جداولها هتتمسح ولا ترجع') }}</strong>.
+                    {{ setting('admin.ops.partials.updates_modals.alastrjaa_byshyl_akhr_dfaa_hjrat', '◉ الاسترجاع بيشيل آخر دفعة هجرات،') }} <strong>{{ setting('admin.ops.partials.updates_modals.walbyanat_ally_fy_jdawlha_httmsh_wla_trja', 'والبيانات اللي في جداولها هتتمسح ولا ترجع') }}</strong>.
                 </div>
 
                 @if ($lastBatch !== [])

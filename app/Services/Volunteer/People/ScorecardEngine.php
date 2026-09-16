@@ -169,13 +169,13 @@ class ScorecardEngine
         }
 
         if ($decision === 'rejected' && trim((string) $reason) === '') {
-            throw new \InvalidArgumentException(setting('recruitment.scorecard_engine.decide_2', 'الرفض بسبب مكتوب — عشان يبقى في سجلّ يُرجَع إليه.'));
+            throw new \InvalidArgumentException(setting('recruitment.scorecard_engine.decide_2', 'الرفض بسبب مكتوب، عشان يبقى في سجلّ يُرجَع إليه.'));
         }
 
         $missing = $this->missing($card);
 
         if ($missing !== []) {
-            throw new \InvalidArgumentException(strtr(setting('recruitment.scorecard_engine.decide_3', 'ناقص: :p1 — كمّلها وبعدين احفظ القرار.'), [':p1' => (string) (implode(' · ', $missing))]));
+            throw new \InvalidArgumentException(strtr(setting('recruitment.scorecard_engine.decide_3', 'ناقص: :p1. كمّلها وبعدين احفظ القرار.'), [':p1' => (string) (implode(' · ', $missing))]));
         }
 
         $card->forceFill([
@@ -215,7 +215,7 @@ class ScorecardEngine
     public function restore(InterviewScorecard $card, User $actor): InterviewScorecard
     {
         if (! $card->exists || $card->is_draft) {
-            throw new \RuntimeException(setting('recruitment.scorecard_engine.restore_1', 'النتيجة دي مفتوحة أصلًا — مفيش داعي لإعادة الفتح.'));
+            throw new \RuntimeException(setting('recruitment.scorecard_engine.restore_1', 'النتيجة دي مفتوحة أصلًا، مفيش داعي لإعادة الفتح.'));
         }
 
         $card->forceFill(['is_draft' => true])->save();
@@ -259,7 +259,7 @@ class ScorecardEngine
         $lines[] = strtr(setting('recruitment.scorecard_engine.summary_2', 'تحليل الشخصيّة: :p1'), [':p1' => (string) ((trim((string) $card->personality_notes) ?: '—'))]);
 
         foreach ($this->rows($card) as $row) {
-            $lines[] = strtr(setting('recruitment.scorecard_engine.summary_3', ':p1:p2: :p3/:p4 — وزن :p5'), [':p1' => (string) ($row['label']), ':p2' => (string) (($row['archived'] ? ' ('.self::archivedTag().')' : '')), ':p3' => (string) (($row['score'] ?? '—')), ':p4' => (string) ($this->scale()), ':p5' => (string) ($row['weight'])]);
+            $lines[] = strtr(setting('recruitment.scorecard_engine.summary_3', ':p1:p2: :p3/:p4 · وزن :p5'), [':p1' => (string) ($row['label']), ':p2' => (string) (($row['archived'] ? ' ('.self::archivedTag().')' : '')), ':p3' => (string) (($row['score'] ?? '—')), ':p4' => (string) ($this->scale()), ':p5' => (string) ($row['weight'])]);
         }
 
         $lines[] = strtr(setting('recruitment.scorecard_engine.summary_4', 'الدرجة الإجماليّة: :p1/:p2'), [':p1' => (string) ((string) $card->total_score), ':p2' => (string) ($this->scale())]);
@@ -276,7 +276,7 @@ class ScorecardEngine
     private function assertOpen(InterviewScorecard $card): void
     {
         if ($card->exists && ! $card->is_draft) {
-            throw new \RuntimeException(setting('recruitment.scorecard_engine.assert_open_1', 'النتيجة دي مقفولة — لازم تتفتح الأوّل (إعادة فتح) قبل التعديل.'));
+            throw new \RuntimeException(setting('recruitment.scorecard_engine.assert_open_1', 'النتيجة دي مقفولة، لازم تتفتح الأوّل (إعادة فتح) قبل التعديل.'));
         }
     }
 

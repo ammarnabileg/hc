@@ -60,7 +60,7 @@
 
     @if ($canDelete)
         <form method="post" action="{{ route('admin.question-bank.destroy', $question) }}"
-              onsubmit="return confirm('{{ setting('admin.question_bank.partials.row_actions.thdhf_alswal_dh_nhayya_alhdhf_malwsh_rjaa', 'تحذف السؤال ده نهائيًّا؟ الحذف مالوش رجعة — التعطيل بيوقّفه بلا ما يضيع.') }}')">
+              onsubmit="return confirm('{{ setting('admin.question_bank.partials.row_actions.thdhf_alswal_dh_nhayya_alhdhf_malwsh_rjaa', 'تحذف السؤال ده نهائيًّا؟ الحذف مالوش رجعة، والتعطيل بيوقّفه بلا ما يضيع.') }}')">
             @csrf @method('delete')
             <button type="submit" class="underline" style="color: var(--color-state-danger)">{{ setting('admin.question_bank.partials.row_actions.hdhf', 'حذف') }}</button>
         </form>

@@ -59,7 +59,7 @@
     </x-filters>
 
     @if ($rows->isEmpty())
-        <x-empty :message="setting('badges.screen.empty', 'مفيش شارات بالوصف ده — جرّب بحثًا أوسع.')" />
+        <x-empty :message="setting('badges.screen.empty', 'مفيش شارات بالوصف ده. جرّب بحثًا أوسع.')" />
     @else
         {{-- شبكة مرنة: عمودان على الموبايل بلا ازدحام --}}
         <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">

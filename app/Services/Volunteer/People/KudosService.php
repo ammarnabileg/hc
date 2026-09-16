@@ -68,23 +68,23 @@ class KudosService
     public function blockedReason(User $sender, User $receiver, string $reason): ?string
     {
         if ($sender->id === $receiver->id) {
-            return (string) setting('kudos.self.message', 'الشكر بيروح لغيرك — اختر زميلًا 🙂');
+            return (string) setting('kudos.self.message', 'الشكر بيروح لغيرك، اختر زميلًا 🙂');
         }
 
         if (trim($reason) === '') {
-            return (string) setting('kudos.reason_required.message', 'اكتب سبب الشكر — القصّة هي اللي بتفرق مش الرقم.');
+            return (string) setting('kudos.reason_required.message', 'اكتب سبب الشكر، القصّة هي اللي بتفرق مش الرقم.');
         }
 
         if ($this->thankedThisWeek($sender, $receiver)) {
-            return (string) setting('kudos.duplicate.message', 'شكرت الشخص ده الأسبوع ده بالفعل — دوّر على حد تاني يستاهل.');
+            return (string) setting('kudos.duplicate.message', 'شكرت الشخص ده الأسبوع ده بالفعل، دوّر على حد تاني يستاهل.');
         }
 
         if ($this->sentToday($sender) >= $this->dailyLimit()) {
-            return (string) setting('kudos.daily_limit.message', 'وصلت لحدّ اليوم — بكرة تقدر تشكر تاني.');
+            return (string) setting('kudos.daily_limit.message', 'وصلت لحدّ اليوم، بكرة تقدر تشكر تاني.');
         }
 
         if ($this->peopleThisWeek($sender) >= $this->weeklyPeopleLimit()) {
-            return (string) setting('kudos.weekly_limit.message', 'وصلت لحدّ الأسبوع — الأسبوع الجاي مفتوح.');
+            return (string) setting('kudos.weekly_limit.message', 'وصلت لحدّ الأسبوع، الأسبوع الجاي مفتوح.');
         }
 
         return null;

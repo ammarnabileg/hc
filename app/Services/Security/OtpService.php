@@ -100,7 +100,7 @@ class OtpService
         $row = $this->row($email, $purpose);
 
         if (! $row) {
-            return ['ok' => false, 'message' => (string) setting('auth.otp.error_missing', 'مابعتناش رمز لسّه — اضغط «إرسال» الأوّل.')];
+            return ['ok' => false, 'message' => (string) setting('auth.otp.error_missing', 'مابعتناش رمز لسّه، اضغط «إرسال» الأوّل.')];
         }
 
         $max = max(1, (int) setting('auth.otp.max_attempts', 5));

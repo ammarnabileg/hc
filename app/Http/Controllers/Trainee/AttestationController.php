@@ -81,7 +81,7 @@ class AttestationController extends Controller
             // القيد يُشرَح لحظة كسره فقط (2.15-د)
             return back()->with('status', (string) setting(
                 'attestations.request.limit_message',
-                'عندك طلبات مفتوحة كتير — استنّى ردّها الأوّل.',
+                'عندك طلبات مفتوحة كتير، استنّى ردّها الأوّل.',
             ));
         }
 
@@ -104,7 +104,7 @@ class AttestationController extends Controller
 
         return back()->with('status', (string) setting(
             'attestations.request.sent_message',
-            'طلبك وصل — هنبلّغك أوّل ما يتردّ عليه.',
+            'طلبك وصل، هنبلّغك أوّل ما يتردّ عليه.',
         ));
     }
 

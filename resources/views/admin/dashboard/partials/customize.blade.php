@@ -26,7 +26,7 @@
         <input type="hidden" name="role" value="{{ $roleKey }}">
 
         <p class="text-sm mb-3" style="color: var(--text-muted)">
-            {{ setting('admin.dashboard.customize_hint', 'رتّب الكروت بالسحب، وشيل اللي مش محتاجه — والترتيب ده بيتحفظ لدورك أنت.') }}
+            {{ setting('admin.dashboard.customize_hint', 'رتّب الكروت بالسحب، وشيل اللي مش محتاجه، والترتيب ده بيتحفظ لدورك أنت.') }}
             <span class="block mt-1">{{ setting('admin.dashboard.partials.customize.aldwr_alhaly', 'الدور الحاليّ:') }} <b>{{ $roleKey }}</b></span>
         </p>
 

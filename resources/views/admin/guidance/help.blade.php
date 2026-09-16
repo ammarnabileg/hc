@@ -20,7 +20,7 @@
     {{-- دليل المستخدم (12.6-ج): جدول + محرّر + بحث/وسوم + «هل كان مفيدًا؟» --}}
     <x-page-header
         :title="setting('admin.guidance.help.dlyl_almstkhdm', 'دليل المستخدم')"
-        :subtitle="setting('admin.guidance.help.mhtwa_almsaada_ally_byshwfh_almstkhdm_mqalat', 'محتوى المساعدة اللي بيشوفه المستخدم — مقالات وفيديوهات How-to.')"
+        :subtitle="setting('admin.guidance.help.mhtwa_almsaada_ally_byshwfh_almstkhdm_mqalat', 'محتوى المساعدة اللي بيشوفه المستخدم: مقالات وفيديوهات How-to.')"
         :breadcrumbs="[['label' => setting('admin.guidance.help.altwjyh_waldam', 'التوجيه والدعم'), 'url' => route('admin.guidance.index')], ['label' => setting('admin.guidance.help.dlyl_almstkhdm', 'دليل المستخدم')]]">
         <x-slot:action>
             <div class="flex items-center gap-2 flex-wrap">
@@ -73,7 +73,7 @@
 
     @if ($articles->isEmpty())
         {{-- تمييز «لا أدلّة أصلًا» عن «الفلتر ما طابقش حاجة» (24.2) --}}
-        <x-empty :message="setting('admin.guidance.help.la_adla_bad_aktb_awl_wahd', 'لا أدلّة بعد — اكتب أوّل واحد.')"
+        <x-empty :message="setting('admin.guidance.help.la_adla_bad_aktb_awl_wahd', 'لا أدلّة بعد. اكتب أوّل واحد.')"
                  :filtered="$filters['q'] !== '' || $filters['category'] !== '' || $filters['status'] !== ''" />
     @else
         {{-- ديسكتوب: جدول العنوان (ع/إ) · التصنيف · الحالة · إجراءات (24 · 2.15-ج) --}}

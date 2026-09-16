@@ -33,13 +33,13 @@ class TaskWorkflow
     {
         if (in_array($task->status, [TaskStatus::APPROVED, TaskStatus::CLOSED], true)) {
             throw ValidationException::withMessages([
-                'delivery' => setting('workflow.task_workflow.deliver_1', 'المهمّة مقفولة بالفعل — مفيش تسليم جديد عليها.'),
+                'delivery' => setting('workflow.task_workflow.deliver_1', 'المهمّة مقفولة بالفعل، مفيش تسليم جديد عليها.'),
             ]);
         }
 
         if (blank($payload['body'] ?? null) && blank($payload['link'] ?? null) && blank($payload['file_path'] ?? null)) {
             throw ValidationException::withMessages([
-                'delivery' => setting('workflow.task_workflow.deliver_2', 'التسليم فاضي — ارفع ملفًّا أو حطّ رابطًا أو اكتب المخرج.'),
+                'delivery' => setting('workflow.task_workflow.deliver_2', 'التسليم فاضي، ارفع ملفًّا أو حطّ رابطًا أو اكتب المخرج.'),
             ]);
         }
 
@@ -68,7 +68,7 @@ class TaskWorkflow
                     $task->reviewer,
                     'task_delivered',
                     strtr(setting('workflow.task_workflow.deliver_3', 'تسليم جديد: :p1'), [':p1' => (string) ($task->title)]),
-                    setting('workflow.task_workflow.deliver_4', 'العدّاد وقف لحظة التسليم — المراجعة عليك.'),
+                    setting('workflow.task_workflow.deliver_4', 'العدّاد وقف لحظة التسليم، المراجعة عليك.'),
                     route('volunteer.tasks.show', $task),
                     $task,
                     true,
@@ -140,19 +140,19 @@ class TaskWorkflow
 
         if ($task->deadline_at && Carbon::parse($task->deadline_at)->isPast()) {
             throw ValidationException::withMessages([
-                'extension' => setting('workflow.task_workflow.request_extension_1', 'الديدلاين فات — مفيش طلب تمديد بعده. سلّم وسجّل سببك، أو اطلب اعتذارًا.'),
+                'extension' => setting('workflow.task_workflow.request_extension_1', 'الديدلاين فات، مفيش طلب تمديد بعده. سلّم وسجّل سببك، أو اطلب اعتذارًا.'),
             ]);
         }
 
         if ((int) $task->extension_count >= $max) {
             throw ValidationException::withMessages([
-                'extension' => setting('workflow.task_workflow.request_extension_2', 'التمديد مرّة واحدة للمهمّة، وإنت استعملتها — كلّم مراجعك.'),
+                'extension' => setting('workflow.task_workflow.request_extension_2', 'التمديد مرّة واحدة للمهمّة، وإنت استعملتها. كلّم مراجعك.'),
             ]);
         }
 
         if (trim($reason) === '') {
             throw ValidationException::withMessages([
-                'reason' => setting('workflow.task_workflow.request_extension_3', 'السبب إلزاميّ — اشرح باختصار ليه محتاج وقتًا زيادة.'),
+                'reason' => setting('workflow.task_workflow.request_extension_3', 'السبب إلزاميّ، اشرح باختصار ليه محتاج وقتًا زيادة.'),
             ]);
         }
 
@@ -171,7 +171,7 @@ class TaskWorkflow
             // ⭐ التاريخ المقترَح جزءٌ من الطلب لا من القرار — وبه وحده تسري الموافقة
             'new_deadline' => $requested->toDateTimeString(),
             'reason' => $reason,
-            'note' => strtr(setting('workflow.task_workflow.request_extension_5', 'طلب: تمديد إلى :p1 — السبب: :p2'), [':p1' => (string) ($requested->format('Y-m-d H:i')), ':p2' => (string) ($reason)]),
+            'note' => strtr(setting('workflow.task_workflow.request_extension_5', 'طلب: تمديد إلى :p1، السبب: :p2'), [':p1' => (string) ($requested->format('Y-m-d H:i')), ':p2' => (string) ($reason)]),
         ]);
 
         if ($task->reviewer) {
@@ -192,13 +192,13 @@ class TaskWorkflow
     {
         if (trim($reason) === '') {
             throw ValidationException::withMessages([
-                'reason' => setting('workflow.task_workflow.apologize_1', 'اكتب سبب الاعتذار — المراجِع محتاج يفهم الموقف.'),
+                'reason' => setting('workflow.task_workflow.apologize_1', 'اكتب سبب الاعتذار، المراجِع محتاج يفهم الموقف.'),
             ]);
         }
 
         $this->openEscalation($task, $user, CaseCatalog::APOLOGY, [
             'reason' => $reason,
-            'note' => strtr(setting('workflow.task_workflow.apologize_2', 'طلب: اعتذار — السبب: :p1'), [':p1' => (string) ($reason)]),
+            'note' => strtr(setting('workflow.task_workflow.apologize_2', 'طلب: اعتذار، السبب: :p1'), [':p1' => (string) ($reason)]),
         ]);
 
         if ($task->reviewer) {
@@ -234,13 +234,13 @@ class TaskWorkflow
 
         if ($task->deadline_at && Carbon::parse($task->deadline_at)->isPast()) {
             throw ValidationException::withMessages([
-                'flag' => setting('workflow.task_workflow.flag_late_due_to_child_3', 'نافذتك فاتت — العلم يُرفَع قبل فواتها، وبعدها الحساب على إدارة الشغل.'),
+                'flag' => setting('workflow.task_workflow.flag_late_due_to_child_3', 'نافذتك فاتت. العلم يُرفَع قبل فواتها، وبعدها الحساب على إدارة الشغل.'),
             ]);
         }
 
         if (! $this->isLate($child)) {
             throw ValidationException::withMessages([
-                'flag' => setting('workflow.task_workflow.flag_late_due_to_child_4', 'الصب-تاسك ده مش متأخّر فعلًا — العلم بيتقبل على ابنٍ متأخّر بس.'),
+                'flag' => setting('workflow.task_workflow.flag_late_due_to_child_4', 'الصب-تاسك ده مش متأخّر فعلًا، العلم بيتقبل على ابنٍ متأخّر بس.'),
             ]);
         }
 

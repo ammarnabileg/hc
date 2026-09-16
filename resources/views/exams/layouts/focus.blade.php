@@ -40,7 +40,7 @@
 <div id="network-banner" class="fixed inset-x-0 bottom-0 z-50 hidden p-3">
     <div class="card p-3 max-w-3xl mx-auto flex items-center gap-2 text-sm">
         <x-state-badge state="warn" label="" />
-        <span>{{ setting('exams.messages.offline', 'الشبكة اتقطعت — إجاباتك محفوظة، وهنكمّل من مكانك أوّل ما ترجع.') }}</span>
+        <span>{{ setting('exams.messages.offline', 'الشبكة اتقطعت، بس إجاباتك محفوظة، وهنكمّل من مكانك أوّل ما ترجع.') }}</span>
     </div>
 </div>
 

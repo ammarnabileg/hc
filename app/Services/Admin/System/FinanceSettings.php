@@ -22,16 +22,16 @@ class FinanceSettings
     public function groups(): array
     {
         return [
-            'rates' => ['label' => setting('finance.finance_settings.groups_1', 'أسعار الصرف'), 'prefix' => 'finance.rates.', 'hint' => setting('finance.finance_settings.groups_2', 'مبنيّة على الدولار — وأيّ تعديل يسري على العمليّات الجديدة.')],
+            'rates' => ['label' => setting('finance.finance_settings.groups_1', 'أسعار الصرف'), 'prefix' => 'finance.rates.', 'hint' => setting('finance.finance_settings.groups_2', 'مبنيّة على الدولار، وأيّ تعديل يسري على العمليّات الجديدة.')],
             'transfer_fees' => ['label' => setting('finance.finance_settings.groups_3', 'رسوم إرسال الحوالة'), 'prefix' => 'finance.transfer.', 'hint' => setting('finance.finance_settings.groups_4', 'رسوم مرتفعة عمدًا على XP حفاظًا على نزاهة الليدر بورد.')],
             'exchange_fees' => ['label' => setting('finance.finance_settings.groups_5', 'رسوم تحويل العملة'), 'prefix' => 'finance.exchange.', 'hint' => setting('finance.finance_settings.groups_6', 'نسبة موحّدة لكلّ المسارات المسموحة.')],
             'topup' => ['label' => setting('finance.finance_settings.groups_7', 'الشحن'), 'prefix' => 'finance.topup.', 'hint' => setting('finance.finance_settings.groups_8', 'حدود العمليّة والمهل وإعادة محاولة الويب هوك.')],
             'withdraw' => ['label' => setting('finance.finance_settings.groups_9', 'السحب'), 'prefix' => 'finance.withdraw.', 'hint' => setting('finance.finance_settings.groups_10', 'الرسوم والحدود وطرق التحويل وSLA المعالجة.')],
             'referral' => ['label' => setting('finance.finance_settings.groups_11', 'عمولة الريفيرال'), 'prefix' => 'finance.referral.', 'hint' => setting('finance.finance_settings.groups_12', 'تُصرف عند نجاح الشحن إلى أرباح الداعي.')],
             // ⭐ عملة Hours (19.1 · 24 القسم 12): Toggle الإظهار في المحفظة · سعر الصرف · مصادر الكسب
-            'hours' => ['label' => setting('finance.finance_settings.groups_19', 'عملة الساعات'), 'prefix' => 'finance.hours.', 'hint' => setting('finance.finance_settings.groups_20', 'عملة محتملة مستقبلًا — الإظهار وسعر الصرف ومصادر الكسب أرقامٌ لك وحدك.')],
+            'hours' => ['label' => setting('finance.finance_settings.groups_19', 'عملة الساعات'), 'prefix' => 'finance.hours.', 'hint' => setting('finance.finance_settings.groups_20', 'عملة محتملة مستقبلًا، والإظهار وسعر الصرف ومصادر الكسب أرقامٌ لك وحدك.')],
             'pricing' => ['label' => setting('finance.finance_settings.groups_13', 'التسعير العامّ'), 'prefix' => 'finance.pricing.', 'hint' => setting('finance.finance_settings.groups_14', 'العملة الافتراضيّة وسياسة التقريب ونصّ الـPaywall.')],
-            'refund' => ['label' => setting('finance.finance_settings.groups_15', 'سياسة الاسترجاع'), 'prefix' => 'finance.refund.', 'hint' => setting('finance.finance_settings.groups_16', 'نصّ السياسة ونسختاه وأماكن ظهوره — بلا طلبات استرجاع.')],
+            'refund' => ['label' => setting('finance.finance_settings.groups_15', 'سياسة الاسترجاع'), 'prefix' => 'finance.refund.', 'hint' => setting('finance.finance_settings.groups_16', 'نصّ السياسة ونسختاه وأماكن ظهوره، بلا طلبات استرجاع.')],
             'invoice' => ['label' => setting('finance.finance_settings.groups_17', 'قالب الفاتورة'), 'prefix' => 'finance.invoice.', 'hint' => setting('finance.finance_settings.groups_18', 'الترقيم والحقول والتذييل وإشارة سياسة الاسترجاع.')],
         ];
     }
@@ -98,7 +98,7 @@ class FinanceSettings
         $reason = trim($reason);
 
         if ($reason === '') {
-            throw new RuntimeException(setting('finance.finance_settings.save_refund_policy_2', 'اكتب سبب التعديل — إلزاميّ في كلّ تغيير ماليّ.'));
+            throw new RuntimeException(setting('finance.finance_settings.save_refund_policy_2', 'اكتب سبب التعديل، إلزاميّ في كلّ تغيير ماليّ.'));
         }
 
         $setting = Setting::query()->firstOrCreate(

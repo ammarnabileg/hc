@@ -52,7 +52,7 @@ class PreviewController extends Controller
         abort_unless(
             $this->preview->allows($course, $lesson),
             403,
-            (string) setting('growth.preview.locked_message', 'الدرس ده مش ضمن المعاينة المجّانيّة — سجّل حسابك وافتح التدريب كامل.'),
+            (string) setting('growth.preview.locked_message', 'الدرس ده مش ضمن المعاينة المجّانيّة، سجّل حسابك وافتح التدريب كامل.'),
         );
 
         $lessons = $this->preview->lessons($course);

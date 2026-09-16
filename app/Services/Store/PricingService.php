@@ -225,7 +225,7 @@ class PricingService
         }
 
         $code = trim($code);
-        $invalidText = (string) setting('store.coupon.invalid_text', 'الكود ده مش صالح للطلب ده — راجعه أو أكمل من غيره.');
+        $invalidText = (string) setting('store.coupon.invalid_text', 'الكود ده مش صالح للطلب ده، راجعه أو أكمل من غيره.');
         $coupon = Coupon::query()->whereRaw('lower(code) = ?', [mb_strtolower($code)])->first();
 
         if (! $coupon || ! $coupon->is_active) {

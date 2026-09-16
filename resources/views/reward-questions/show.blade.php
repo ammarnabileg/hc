@@ -37,7 +37,7 @@
         @if ($mine)
             {{-- إجابة واحدة لكلّ مستخدم — ولا صرف مكرّر (12.10-أ) --}}
             <div class="rounded-xl p-4" style="background: var(--surface-sunken)">
-                <p class="text-sm">{{ setting('reward_questions.already_message', 'جاوبت على السؤال ده قبل كده — مكافأتك اتصرفت مرّة واحدة.') }}</p>
+                <p class="text-sm">{{ setting('reward_questions.already_message', 'جاوبت على السؤال ده قبل كده، مكافأتك اتصرفت مرّة واحدة.') }}</p>
                 <p class="text-xs mt-2" style="color: var(--text-muted)">
                     {{ setting('reward_questions.show.text_2', 'إجابتك:') }} <strong>{{ $mine->answer }}</strong>
                     @if ($mine->is_correct)

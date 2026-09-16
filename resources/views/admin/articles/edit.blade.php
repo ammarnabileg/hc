@@ -4,7 +4,7 @@
 
 @section('content')
     <x-page-header :title="$article->exists ? $article->title : setting('admin.articles.edit.mqal_jdyd', 'مقال جديد')"
-                   :subtitle="setting('admin.articles.edit.aktb_abat_llmrajaa_whd_tany_bynshr', 'اكتب، ابعت للمراجعة — وحدّ تاني بينشر.')"
+                   :subtitle="setting('admin.articles.edit.aktb_abat_llmrajaa_whd_tany_bynshr', 'اكتب، ابعت للمراجعة، وحدّ تاني بينشر.')"
                    :breadcrumbs="[
                        ['label' => setting('admin.articles.edit.lwha_alidara', 'لوحة الإدارة'), 'url' => url('/admin')],
                        ['label' => setting('admin.articles.edit.almqalat', 'المقالات'), 'url' => route('admin.articles.index')],
@@ -131,7 +131,7 @@
                         @elseif ($workflow->isAuthor($article, auth()->user()))
                             {{-- ⭐ الكاتب لا ينشر مقاله بنفسه — والقاعدة مُتحقَّقة في الخادم كذلك --}}
                             <p class="text-xs" style="color: var(--text-muted)">
-                                {{ setting('admin.articles.edit.int_katb_almqal_dh_lazm_hd_tany_yrajah', 'إنت كاتب المقال ده — لازم حدّ تاني يراجعه وينشره.') }}
+                                {{ setting('admin.articles.edit.int_katb_almqal_dh_lazm_hd_tany_yrajah', 'إنت كاتب المقال ده، فلازم حدّ تاني يراجعه وينشره.') }}
                             </p>
                         @endif
                     @endif
@@ -148,7 +148,7 @@
             </div>
 
             <div class="card p-4 text-xs" style="color: var(--text-muted)">
-                <p>{{ setting('admin.articles.edit.alarshfa_bdyl_alhdhf_dayma_falrabt_almnshwr', 'الأرشفة بديل الحذف دائمًا — فالرابط المنشور ما يتحوّلش 404 فجأة.') }}</p>
+                <p>{{ setting('admin.articles.edit.alarshfa_bdyl_alhdhf_dayma_falrabt_almnshwr', 'الأرشفة بديل الحذف دائمًا، فالرابط المنشور ما يتحوّلش 404 فجأة.') }}</p>
                 <p class="mt-1">{{ setting('admin.articles.edit.kl_tghyyr_hala_bytsjl_fy_sjl_altdqyq', 'كلّ تغيير حالة بيتسجّل في سجلّ التدقيق.') }}</p>
             </div>
         </div>

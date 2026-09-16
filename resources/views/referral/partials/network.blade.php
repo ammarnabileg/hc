@@ -27,7 +27,7 @@
 
     @if ($count === 0 && $nodes->isEmpty())
         {{-- الحالة الفارغة: سطر واحد يشجّع ولا يعاتب (2.15-د · 2.17-ج) --}}
-        <p class="text-sm" style="color: var(--text-muted)">{{ setting('referral.network.empty', 'شبكتك لسّه فاضية — أوّل صاحب تجيبه هيبان هنا.') }}</p>
+        <p class="text-sm" style="color: var(--text-muted)">{{ setting('referral.network.empty', 'شبكتك لسّه فاضية. أوّل صاحب تجيبه هيبان هنا.') }}</p>
     @else
         {{-- الرسم: أنا في النصّ والمدعوّون حولي، بـCSS خالص بلا مكتبات (2.10.1) --}}
         <div class="flex flex-wrap items-center gap-3">

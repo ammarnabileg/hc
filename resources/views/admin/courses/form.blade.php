@@ -55,7 +55,7 @@
 
     <x-page-header
         :title="$course->exists ? $course->name_ar : setting('admin.courses.form.tdryb_jdyd', 'تدريب جديد')"
-        :subtitle="setting('admin.courses.form.amla_altabat_ala_mhlk_bnhfz_mswda_tlqayya', 'املأ التابات على مهلك — بنحفظ مسودّة تلقائيًّا فما بيضيعش شغلك.')"
+        :subtitle="setting('admin.courses.form.amla_altabat_ala_mhlk_bnhfz_mswda_tlqayya', 'املأ التابات على مهلك، بنحفظ مسودّة تلقائيًّا فما بيضيعش شغلك.')"
         :breadcrumbs="[
             ['label' => setting('admin.courses.form.altdrybat', 'التدريبات'), 'url' => route('admin.courses.index')],
             ['label' => $course->exists ? $course->name_ar : setting('admin.courses.form.jdyd', 'جديد')],
@@ -69,7 +69,7 @@
             <div class="flex items-center gap-2 flex-wrap">
                 <x-state-badge state="warn" :label="setting('admin.courses.form.mswda_thryr', 'مسودّة تحرير')" />
                 <span class="flex-1">
-                    {{ setting('courses.autosave.draft_notice', 'التعديلات المحفوظة تلقائيًّا معروضة في الفورم — اضغط «حفظ» تسري على المنشور، أو تجاهلها وترجع النسخة المنشورة.') }}
+                    {{ setting('courses.autosave.draft_notice', 'التعديلات المحفوظة تلقائيًّا معروضة في الفورم. اضغط «حفظ» تسري على المنشور، أو تجاهلها وترجع النسخة المنشورة.') }}
                     @if ($course->draft_saved_at)
                         <span style="color: var(--text-muted)">{{ setting('admin.courses.form.akhr_hfz_tlqayy', '(آخر حفظ تلقائيّ') }} {{ $course->draft_saved_at->format('Y-m-d H:i') }})</span>
                     @endif
@@ -231,7 +231,7 @@
                 {{-- ⭐ «أقصى XP للدرس» = `xp_max` وحده — وهو ما تقرؤه الحاسبة فعلًا (7) --}}
                 <x-form.input name="xp_max" :label="setting('admin.courses.form.aqsa_xp_lldrs', 'أقصى XP للدرس')" type="number"
                               :value="$draftValue('xp_max', $course->xp_max ?: setting('courses.xp.max_per_lesson', 50))"
-                              :hint="setting('admin.courses.form.nqta_bdaya_altnaqs_alkhty_tnzl_ma_alwqt_hta', 'نقطة بداية التناقص الخطّيّ — تنزل مع الوقت حتى الصفر عند الديدلاين.')" />
+                              :hint="setting('admin.courses.form.nqta_bdaya_altnaqs_alkhty_tnzl_ma_alwqt_hta', 'نقطة بداية التناقص الخطّيّ، تنزل مع الوقت حتى الصفر عند الديدلاين.')" />
                 <x-form.input name="exam_pass_score" :label="setting('admin.courses.form.drja_njah_alamthan', 'درجة نجاح الامتحان')" type="number"
                               :value="$exam->pass_score ?? setting('exams.pass_score.default', 70)" />
                 <x-form.input name="exam_questions_count" :label="setting('admin.courses.form.add_asyla_alamthan', 'عدد أسئلة الامتحان')" type="number"
@@ -385,7 +385,7 @@
              | فالمحروق هناك لا يصل لوحةَ الإدارة ولا الترجمة.
              */
             $jsText = [
-                'autosave_failed' => setting('admin.courses.form.shghlk_mhfwz_andk_hnhawl_nhfzh_tany', 'شغلك محفوظ عندك — هنحاول نحفظه تاني.'),
+                'autosave_failed' => setting('admin.courses.form.shghlk_mhfwz_andk_hnhawl_nhfzh_tany', 'شغلك محفوظ عندك. هنحاول نحفظه تاني.'),
             ];
         @endphp
 

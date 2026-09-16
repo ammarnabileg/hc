@@ -58,7 +58,7 @@ class SubtaskBatch
 
         if ($rows === []) {
             throw ValidationException::withMessages([
-                'subtasks' => setting('workflow.subtask_batch.validate_1', 'الدفعة فاضية — اكتب صب-تاسك واحدًا على الأقلّ بعنوانه وديدلاينه.'),
+                'subtasks' => setting('workflow.subtask_batch.validate_1', 'الدفعة فاضية، اكتب صب-تاسك واحدًا على الأقلّ بعنوانه وديدلاينه.'),
             ]);
         }
 
@@ -79,7 +79,7 @@ class SubtaskBatch
 
         if ($limit && $maxChild->greaterThan($limit)) {
             throw ValidationException::withMessages([
-                'subtasks' => strtr(setting('workflow.subtask_batch.body_1', 'تعذّر الحفظ — القيد: أقصى ديدلاين للأبناء (:p1) + نافذة دمجك (:p2 ساعة) لازم يكون ≤ ديدلاينك (:p3). خلّي أقصى ديدلاين للأبناء :p4 أو أقرب.'), [':p1' => (string) ($maxChild->format('Y-m-d H:i')), ':p2' => (string) ($this->mergeWindowHours()), ':p3' => (string) (Carbon::parse($parent->deadline_at)->format('Y-m-d H:i')), ':p4' => (string) ($limit->format('Y-m-d H:i'))]),
+                'subtasks' => strtr(setting('workflow.subtask_batch.body_1', 'تعذّر الحفظ. القيد: أقصى ديدلاين للأبناء (:p1) + نافذة دمجك (:p2 ساعة) لازم يكون ≤ ديدلاينك (:p3). خلّي أقصى ديدلاين للأبناء :p4 أو أقرب.'), [':p1' => (string) ($maxChild->format('Y-m-d H:i')), ':p2' => (string) ($this->mergeWindowHours()), ':p3' => (string) (Carbon::parse($parent->deadline_at)->format('Y-m-d H:i')), ':p4' => (string) ($limit->format('Y-m-d H:i'))]),
             ]);
         }
 
@@ -91,7 +91,7 @@ class SubtaskBatch
 
             if ($distributed > $pool - $keepShare + 0.0001) {
                 throw ValidationException::withMessages([
-                    'subtasks' => strtr(setting('workflow.subtask_batch.body_2', 'تعذّر الحفظ — القيد: مجموع VXP الأبناء (:p1) لازم يكون ≤ وعاء مهمّتك (:p2) ناقصَ شريحتك المحفوظة (:p3%). وزّع :p4 كحدّ أقصى.'), [':p1' => (string) (round($distributed, 2)), ':p2' => (string) (round($pool, 2)), ':p3' => (string) ($this->parentMinSharePercent()), ':p4' => (string) (round($pool - $keepShare, 2))]),
+                    'subtasks' => strtr(setting('workflow.subtask_batch.body_2', 'تعذّر الحفظ. القيد: مجموع VXP الأبناء (:p1) لازم يكون ≤ وعاء مهمّتك (:p2) ناقصَ شريحتك المحفوظة (:p3%). وزّع :p4 كحدّ أقصى.'), [':p1' => (string) (round($distributed, 2)), ':p2' => (string) (round($pool, 2)), ':p3' => (string) ($this->parentMinSharePercent()), ':p4' => (string) (round($pool - $keepShare, 2))]),
                 ]);
             }
         }

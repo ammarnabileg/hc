@@ -15,7 +15,7 @@
     @if ($line)
         <p class="rounded-xl px-3 py-2 text-sm"
            style="background: color-mix(in srgb, var(--color-state-honor) 12%, transparent); color: var(--color-state-honor)">
-            <span aria-hidden="true">★</span> {{ setting('volunteer.people_recruitment_detail.text', 'عائد —') }} {{ $line }}
+            <span aria-hidden="true">★</span> {{ setting('volunteer.people_recruitment_detail.text', 'عائد:') }} {{ $line }}
         </p>
         @if ($canSeeExitReason && $candidate->previous_exit_type)
             <p class="text-xs" style="color: var(--text-muted)">{{ setting('volunteer.people_recruitment_detail.text_2', 'سبب الخروج:') }} {{ $candidate->previous_exit_type }}</p>

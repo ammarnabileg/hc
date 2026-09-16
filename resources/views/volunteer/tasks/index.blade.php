@@ -35,7 +35,7 @@
         @php $capSymbols = state_color($summary['state']); $personalSymbols = state_color($summary['personal_state']); @endphp
 
         <span class="inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-bold cursor-help"
-              title="{{ setting('volunteer.tasks.tooltip', 'سقف انشغالك في العضويّة النشطة — يُحسب على المهامّ غير المكتملة والمساهمات') }}"
+              title="{{ setting('volunteer.tasks.tooltip', 'سقف انشغالك في العضويّة النشطة، يُحسب على المهامّ غير المكتملة والمساهمات') }}"
               style="background: color-mix(in srgb, var(--color-state-{{ $capSymbols['color'] }}) 18%, transparent);
                      color: var(--color-state-{{ $capSymbols['color'] }})">
             <span aria-hidden="true">{{ $capSymbols['icon'] }}</span>
@@ -43,7 +43,7 @@
         </span>
 
         <span class="inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs cursor-help"
-              title="{{ setting('volunteer.tasks.tooltip_2', 'السقف الشخصيّ الكلّي فوق سقوف العضويّات — يمنع السحب والإنشاء عند بلوغه') }}"
+              title="{{ setting('volunteer.tasks.tooltip_2', 'السقف الشخصيّ الكلّي فوق سقوف العضويّات، يمنع السحب والإنشاء عند بلوغه') }}"
               style="background: color-mix(in srgb, var(--color-state-{{ $personalSymbols['color'] }}) 14%, transparent);
                      color: var(--color-state-{{ $personalSymbols['color'] }})">
             <span aria-hidden="true">{{ $personalSymbols['icon'] }}</span>
@@ -108,7 +108,7 @@
     </x-filters>
 
     @if ($tasks->isEmpty())
-        <x-empty :message="setting('volunteer.tasks.empty', 'مفيش مهامّ عليك دلوقتي — شوف لوحة المهام العامّة')"
+        <x-empty :message="setting('volunteer.tasks.empty', 'مفيش مهامّ عليك دلوقتي. شوف لوحة المهام العامّة')"
                  :action="setting('volunteer.tasks.action_3', 'لوحة المهام العامّة')" :href="route('volunteer.tasks.board')" />
     @elseif ($isBoardView)
         {{-- كانبان بالسحب — وعلى الموبايل يتحوّل قائمة رأسيّة بلا تمرير أفقيّ (2.15-ج) --}}
@@ -157,7 +157,7 @@
         داخل السكربت نفسه، ويصل الجافاسكربت مُحلولًا جاهزًا عبر @json (2.13).
     --}}
     @php
-        $ownerWarningTemplate = (string) setting('volunteer.tasks_new_task_modal.text_2', ':name عند :load من :cap — الإسناد فوق طاقته.');
+        $ownerWarningTemplate = (string) setting('volunteer.tasks_new_task_modal.text_2', ':name عند :load من :cap. الإسناد فوق طاقته.');
     @endphp
 
     <script>

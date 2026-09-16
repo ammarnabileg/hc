@@ -94,7 +94,7 @@ class HelpController extends Controller
         }
 
         return back()->with('status', $data['helpful'] === 'yes'
-            ? (string) setting('help.screen.feedback_msg_2', 'شكرًا لك 💛 — رأيك بيساعدنا نحسّن الدليل.')
+            ? (string) setting('help.screen.feedback_msg_2', 'شكرًا لك 💛، رأيك بيساعدنا نحسّن الدليل.')
             : (string) setting('help.screen.feedback_msg_3', 'تمام، هنشتغل على تحسين الشرح. ولو محتاج مساعدة دلوقتي افتح تذكرة.'));
     }
 }

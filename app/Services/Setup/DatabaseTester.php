@@ -61,7 +61,7 @@ class DatabaseTester
 
         return [
             'ok' => true,
-            'message' => strtr(setting('setup.database_tester.test_2', 'تمام — الاتّصال بقاعدة البيانات «:p1» نجح. تقدر تكمل.'), [':p1' => (string) ($credentials['db_database'])]),
+            'message' => strtr(setting('setup.database_tester.test_2', 'تمام، الاتّصال بقاعدة البيانات «:p1» نجح. تقدر تكمل.'), [':p1' => (string) ($credentials['db_database'])]),
         ];
     }
 

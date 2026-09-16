@@ -80,7 +80,7 @@ class CaseCatalog
                 'settlement_label' => setting('volunteer.case_catalog.all_17', 'تُغلَق'),
                 // ⭐ قاعدة نهائيّة: يصعد بلا خصم تباطؤ — مهمّة يتيمة تدور على مالك جديد
                 'no_slowdown' => true,
-                'notice' => setting('volunteer.case_catalog.all_18', 'بلا خصم تباطؤ — المهمّة يتيمة تدور على مالك جديد.'),
+                'notice' => setting('volunteer.case_catalog.all_18', 'بلا خصم تباطؤ، المهمّة يتيمة وتدور على مالك جديد.'),
             ],
             self::ARBITRATION => [
                 'label' => setting('volunteer.case_catalog.all_19', 'التحكيم بين المالك والمساهم'),
@@ -139,7 +139,7 @@ class CaseCatalog
                 'icon' => '⚖️',
                 'decisions' => ['approved' => setting('volunteer.case_catalog.all_45', 'اعتماد المخالفة'), 'rejected' => setting('volunteer.case_catalog.all_46', 'رفض المخالفة')],
                 'settlement' => 'rejected',
-                'settlement_label' => setting('volunteer.case_catalog.all_47', 'رفض — لا تُطبَّق على درجة الالتزام'),
+                'settlement_label' => setting('volunteer.case_catalog.all_47', 'رفض، ومش بتتطبّق على درجة الالتزام'),
             ],
             self::PACKAGE_OBJECTION => [
                 'label' => setting('volunteer.case_catalog.all_48', 'اعتراض على نسخة اعتماد حزمة'),
@@ -149,7 +149,7 @@ class CaseCatalog
                     'rejected' => setting('volunteer.case_catalog.all_50', 'رفض الاعتراض'),
                 ],
                 'settlement' => 'rejected',
-                'settlement_label' => setting('volunteer.case_catalog.all_51', 'رفض — الاعتماد قائم (السكوت قبول)'),
+                'settlement_label' => setting('volunteer.case_catalog.all_51', 'رفض، والاعتماد قائم (السكوت قبول)'),
             ],
         ];
     }

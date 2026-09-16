@@ -23,7 +23,7 @@
     @endphp
 
     <x-page-header :title="$bundle->name_ar"
-                   :subtitle="setting('store.admin.bundles.form_subtitle', 'كلّ ما في صفحة الباقة — من عناصرها لآخر نصّ فيها.')"
+                   :subtitle="setting('store.admin.bundles.form_subtitle', 'كلّ ما في صفحة الباقة، من عناصرها لآخر نصّ فيها.')"
                    :breadcrumbs="[
                        ['label' => setting('store.admin.breadcrumb_label', 'المتجر'), 'url' => route('admin.store.index', ['tab' => 'bundles'])],
                        ['label' => $bundle->name_ar],
@@ -57,7 +57,7 @@
             <h2 class="font-bold">{{ $sectionLabels['items'] ?? '' }}</h2>
 
             @if ($items->isEmpty())
-                <x-empty :message="setting('store.admin.bundles.empty_items_text', 'الباقة لسّه فاضية — ضيف أوّل عنصر وهتتحسب قيمتها تلقائيًّا.')" />
+                <x-empty :message="setting('store.admin.bundles.empty_items_text', 'الباقة لسّه فاضية. ضيف أوّل عنصر وهتتحسب قيمتها تلقائيًّا.')" />
             @else
                 <div class="card overflow-hidden">
                     @foreach ($items as $line)
@@ -224,7 +224,7 @@
                     ويُعاد استخدامه». والعمود كان يُقرَأ في `<head>` بلا حقلٍ يكتبه.
                 --}}
                 <div class="md:col-span-2">
-                    <x-form.input name="og_image_path" :label="setting('store.admin.bundles.og_image_label', 'صورة المشاركة (OG) — مسار من مكتبة الوسائط')"
+                    <x-form.input name="og_image_path" :label="setting('store.admin.bundles.og_image_label', 'صورة المشاركة (OG): مسار من مكتبة الوسائط')"
                                   :value="$bundle->og_image_path"
                                   :hint="setting('store.admin.bundles.og_image_hint', 'الصورة اللي بتظهر لمّا حدّ يشارك رابط الباقة. سيبها فاضية وهيرجع للغلاف تلقائيًّا.')" />
                     <div class="flex items-center gap-2 mt-2">
@@ -290,7 +290,7 @@
 
             <x-form.input name="bonus_text_template" :label="setting('store.admin.bundles.bonus_template_label', 'قالب نصّ البونص لهذا البندل')"
                           :value="$bundle->bonus_text_template" :placeholder="setting('store.bundle.bonus_text')"
-                          :hint="setting('store.admin.bundles.bonus_template_hint', 'المتغيّرات: {item} · {amount} — وسيبه فاضي عشان يورث القالب العامّ.')" />
+                          :hint="setting('store.admin.bundles.bonus_template_hint', 'المتغيّرات: {item} · {amount}، وسيبه فاضي عشان يورث القالب العامّ.')" />
         </section>
 
         {{-- ------------------------------------------------------- [الإتاحة] --}}
@@ -368,7 +368,7 @@
 
                         @if ($groupKey === 'faq')
                             <label class="block text-sm md:col-span-2">
-                                <span class="block mb-1 font-semibold">{{ setting('store.admin.bundles.faq_label', 'أسئلة هذا البندل — سطر لكلّ سؤال بصيغة: السؤال | الإجابة') }}</span>
+                                <span class="block mb-1 font-semibold">{{ setting('store.admin.bundles.faq_label', 'أسئلة هذا البندل، سطر لكلّ سؤال بصيغة: السؤال | الإجابة') }}</span>
                                 <textarea name="landing_faq" rows="5" class="w-full rounded-xl px-3 py-2 text-sm"
                                           style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text); resize: vertical">{{ collect((array) ($bundle->landing_faq ?? []))->map(fn ($r) => ($r['q'] ?? '').' | '.($r['a'] ?? ''))->implode("\n") }}</textarea>
                             </label>

@@ -5,7 +5,7 @@
 @section('content')
     <x-page-header
         :title="setting('admin.volunteer.capacity.tqryr_alsaa', 'تقرير السعة')"
-        :subtitle="setting('admin.volunteer.capacity.akthr_alaqsam_tkhma_wakthrha_fragha_lfth_qsm', 'أكثر الأقسام تخمةً وأكثرها فراغًا — لفتح قسم جديد أو دمج قسمين.')"
+        :subtitle="setting('admin.volunteer.capacity.akthr_alaqsam_tkhma_wakthrha_fragha_lfth_qsm', 'أكثر الأقسام تخمةً وأكثرها فراغًا، لفتح قسم جديد أو دمج قسمين.')"
         :breadcrumbs="[
             ['label' => setting('admin.volunteer.capacity.alttwa', 'التطوّع'), 'url' => route('admin.volunteer.index')],
             ['label' => setting('admin.volunteer.capacity.alhykl_walsaa', 'الهيكل والسعة'), 'url' => route('admin.volunteer.org')],
@@ -46,7 +46,7 @@
 
     <section class="card p-4 md:p-5 mt-4">
         <h2 class="font-bold mb-1">{{ setting('admin.volunteer.capacity.ntaq_alishraf_lkl_mswwl', 'نطاق الإشراف لكلّ مسؤول') }}</h2>
-        <p class="text-xs mb-3" style="color: var(--text-muted)">{{ setting('admin.volunteer.capacity.altjawz_tnbyh_fqt_bla_mna_wla_mbrr_ilzamy', 'التجاوز تنبيه فقط — بلا منع ولا مبرّر إلزاميّ.') }}</p>
+        <p class="text-xs mb-3" style="color: var(--text-muted)">{{ setting('admin.volunteer.capacity.altjawz_tnbyh_fqt_bla_mna_wla_mbrr_ilzamy', 'التجاوز تنبيه فقط، بلا منع ولا مبرّر إلزاميّ.') }}</p>
 
         @forelse ($spans->sortByDesc('count')->take((int) setting('volunteer.org.span_rows', 30)) as $row)
             <div class="flex items-center justify-between gap-3 py-2 text-sm {{ $loop->last ? '' : 'border-b' }}" style="border-color: var(--border)">

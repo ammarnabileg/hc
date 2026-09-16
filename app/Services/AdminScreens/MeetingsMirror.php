@@ -271,7 +271,7 @@ class MeetingsMirror
     public function grantExceptional(Meeting $meeting, User $member, string $reason, User $actor): array
     {
         if (setting('admin_meetings.exceptional_reason_required', true) && trim($reason) === '') {
-            return ['ok' => false, 'message' => setting('admin_users.meetings_mirror.grant_exceptional_1', 'السبب مطلوب — اكتب سطرًا يوضّح لماذا مُنح الحضور استثناءً.')];
+            return ['ok' => false, 'message' => setting('admin_users.meetings_mirror.grant_exceptional_1', 'السبب مطلوب، اكتب سطرًا يوضّح لماذا مُنح الحضور استثناءً.')];
         }
 
         $existing = MeetingAttendance::query()
@@ -280,7 +280,7 @@ class MeetingsMirror
             ->first();
 
         if ($existing && $existing->status === 'registered') {
-            return ['ok' => false, 'message' => setting('admin_users.meetings_mirror.grant_exceptional_2', 'العضو ده مسجَّل حضوره أصلًا — مافيش حاجة تتمنح.')];
+            return ['ok' => false, 'message' => setting('admin_users.meetings_mirror.grant_exceptional_2', 'العضو ده مسجَّل حضوره أصلًا، مافيش حاجة تتمنح.')];
         }
 
         $tier = $this->attendance->valueForHours(0);
@@ -292,7 +292,7 @@ class MeetingsMirror
                 'registered_at' => now(),
                 'hours_after_end' => 0,
                 'rep_value' => $tier['value'],
-                'excuse_reason' => strtr(setting('admin_users.meetings_mirror.grant_exceptional_3', 'حضور استثنائيّ: :p1 — منحه :p2'), [':p1' => (string) (trim($reason)), ':p2' => (string) ($actor->name)]),
+                'excuse_reason' => strtr(setting('admin_users.meetings_mirror.grant_exceptional_3', 'حضور استثنائيّ: :p1 · منحه :p2'), [':p1' => (string) (trim($reason)), ':p2' => (string) ($actor->name)]),
             ],
         );
 

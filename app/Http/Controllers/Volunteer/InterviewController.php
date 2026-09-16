@@ -118,7 +118,7 @@ class InterviewController extends Controller
 
         if ($data['status'] === 'cancelled') {
             abort_unless($request->user()->allows('interviews.delete', $interview), 403,
-                (string) setting('interviews.screen.status_forbidden_cancel', 'إلغاء المقابلة يحتاج صلاحيّة مستقلّة (interviews.delete) — لا يكفيها تعديلها.'));
+                (string) setting('interviews.screen.status_forbidden_cancel', 'إلغاء المقابلة يحتاج صلاحيّة مستقلّة (interviews.delete)، ومش كافي إنك تقدر تعدّلها.'));
         }
 
         try {
@@ -231,7 +231,7 @@ class InterviewController extends Controller
 
         return redirect()
             ->route('volunteer.interviews.scorecard', $interview)
-            ->with('status', (string) setting('interviews.screen.restore_ok', 'اتفتحت تاني ✓ — تقدر تعدّل وتاخد قرار جديد.'));
+            ->with('status', (string) setting('interviews.screen.restore_ok', 'اتفتحت تاني ✓، تقدر تعدّل وتاخد قرار جديد.'));
     }
 
     /**
@@ -251,7 +251,7 @@ class InterviewController extends Controller
 
         $binary = $this->pdf->build(
             $name,
-            strtr((string) setting('interviews.screen.export_title', 'نتيجة مقابلة — :name'), [':name' => $name]),
+            strtr((string) setting('interviews.screen.export_title', 'نتيجة مقابلة لـ:name'), [':name' => $name]),
             $this->exportSections($interview, $card),
         );
 
@@ -289,7 +289,7 @@ class InterviewController extends Controller
         $criteriaLines = [];
 
         foreach ($this->engine->rows($card->exists ? $card : null) as $row) {
-            $criteriaLines[] = strtr((string) setting('recruitment.scorecard_engine.summary_3', ':p1:p2: :p3/:p4 — وزن :p5'), [
+            $criteriaLines[] = strtr((string) setting('recruitment.scorecard_engine.summary_3', ':p1:p2: :p3/:p4 (وزن :p5)'), [
                 ':p1' => (string) $row['label'],
                 ':p2' => (string) ($row['archived'] ? ' ('.ScorecardEngine::archivedTag().')' : ''),
                 ':p3' => (string) ($row['score'] ?? '—'),

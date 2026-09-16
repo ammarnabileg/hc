@@ -13,7 +13,7 @@
 
 @section('content')
     <x-page-header
-        :title="setting('volunteer.people_kudos_wall.tooltip', 'حائط الشكر — نادي +').$thresholdText"
+        :title="setting('volunteer.people_kudos_wall.tooltip', 'حائط الشكر: نادي +').$thresholdText"
         :subtitle="setting('volunteer.people_kudos_wall.subtitle', 'السباق يتجدّد بعد ').$daysToReset.setting('volunteer.people_kudos_wall.subtitle_2', ' يومًا مع التصفير الشهريّ')"
         :breadcrumbs="[['label' => setting('volunteer.common.breadcrumb_root', 'لوحة التطوّع'), 'url' => url('/volunteer')], ['label' => setting('volunteer.people_kudos_wall.label', 'التقدير')], ['label' => setting('volunteer.people_kudos_wall.title', 'حائط الشكر')]]" />
 
@@ -43,7 +43,7 @@
         @endif
 
         @if ($posts->isEmpty())
-            <x-empty :message="setting('volunteer.people_kudos_wall.empty', 'النقاش لسّه فاضي — ابدأ إنت')" />
+            <x-empty :message="setting('volunteer.people_kudos_wall.empty', 'النقاش لسّه فاضي، ابدأ إنت')" />
         @else
             <div class="space-y-3">
                 @foreach ($posts as $post)
@@ -75,7 +75,7 @@
     @else
         @if ($members->isEmpty())
             <div class="card p-6 text-center mb-4">
-                <p class="text-sm">{{ setting('volunteer.people_kudos_wall.text', 'مفيش حد بلغ +') }}{{ $thresholdText }} {{ setting('volunteer.people_kudos_wall.text_2', 'الشهر ده لسّه — المقعد مفتوح.') }}</p>
+                <p class="text-sm">{{ setting('volunteer.people_kudos_wall.text', 'مفيش حد بلغ +') }}{{ $thresholdText }} {{ setting('volunteer.people_kudos_wall.text_2', 'الشهر ده لسّه. المقعد مفتوح.') }}</p>
             </div>
         @else
             <div class="grid gap-4 md:grid-cols-3 mb-6">

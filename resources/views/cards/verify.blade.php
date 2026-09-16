@@ -42,7 +42,7 @@
             <p class="text-xs mt-4" style="color: var(--text-muted)">
                 {{ $valid
                     ? setting('volunteer_card.verify.valid_text', 'البطاقة سارية، وصاحبها متطوّع مُسكَّن عندنا.')
-                    : setting('volunteer_card.verify.expired_text', 'البطاقة منتهية — انتهت عضويّة صاحبها، والسجلّ محفوظ.') }}
+                    : setting('volunteer_card.verify.expired_text', 'البطاقة منتهية، انتهت عضويّة صاحبها، والسجلّ محفوظ.') }}
             </p>
 
             <a href="{{ $cardUrl }}" class="btn inline-block mt-4 rounded-xl px-4 py-2 text-sm font-semibold"

@@ -10,7 +10,7 @@
     <form method="post" action="{{ route('admin.meetings.index') }}" data-questions-form class="space-y-3">
         @csrf
         <p class="text-sm" style="color: var(--text-muted)">
-            {{ setting('admin.meetings_admin.partials.manage_modals.althqq_kllh_ala_alkhadm', 'التحقّق كلّه على الخادم — والإجابة الصحيحة لا تغادره أبدًا.') }}
+            {{ setting('admin.meetings_admin.partials.manage_modals.althqq_kllh_ala_alkhadm', 'التحقّق كلّه على الخادم، والإجابة الصحيحة لا تغادره أبدًا.') }}
         </p>
 
         <label class="block text-sm">
@@ -61,7 +61,7 @@
 
         <label class="flex items-center gap-2 text-sm">
             <input type="checkbox" name="restricted" value="1">
-            <span>{{ setting('admin.meetings_admin.partials.manage_modals.mrfq_mqyd', 'مرفق مقيَّد — يظهر بقفله وزرّ «اطلب وصولًا»') }}</span>
+            <span>{{ setting('admin.meetings_admin.partials.manage_modals.mrfq_mqyd', 'مرفق مقيَّد: يظهر بقفله وزرّ «اطلب وصولًا»') }}</span>
         </label>
 
         <button type="submit" class="btn rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
@@ -73,7 +73,7 @@
     <form method="post" action="{{ route('admin.meetings.index') }}" data-pin-form class="space-y-3">
         @csrf
         <p class="text-sm" style="color: var(--text-muted)">
-            {{ setting('admin.meetings_admin.partials.manage_modals.almthbt_yalw_dayma', 'المثبَّت يعلو النقاش دائمًا — واختيار المثبَّت نفسه يفكّ تثبيته.') }}
+            {{ setting('admin.meetings_admin.partials.manage_modals.almthbt_yalw_dayma', 'المثبَّت يعلو النقاش دائمًا، واختيار المثبَّت نفسه يفكّ تثبيته.') }}
         </p>
 
         <label class="block text-sm">
@@ -91,13 +91,13 @@
     <form method="post" action="{{ route('admin.meetings.index') }}" data-cancel-form class="space-y-3">
         @csrf
         <p class="text-sm" style="color: var(--text-muted)">
-            {{ setting('admin.meetings_admin.partials.manage_modals.almlgha_la_tftah_lh_nafdha', 'الملغى لا تُفتَح له نافذة حضور ولا يُخصَم على أحدٍ غيابه — وجمهوره يوصله السبب في إشعار.') }}
+            {{ setting('admin.meetings_admin.partials.manage_modals.almlgha_la_tftah_lh_nafdha', 'الملغى لا تُفتَح له نافذة حضور ولا يُخصَم على أحدٍ غيابه، وجمهوره يوصله السبب في إشعار.') }}
         </p>
 
         <label class="block text-sm">
             <span class="block text-xs mb-1" style="color: var(--text-muted)">{{ setting('admin.meetings_admin.partials.manage_modals.sbb_alilgha', 'سبب الإلغاء') }}</span>
             <textarea name="reason" rows="3" required maxlength="500"
-                      placeholder="{{ setting('admin.meetings_admin.partials.manage_modals.mthal_taard_alqaa_ma_faalya', 'مثال: تعارض الموعد مع فعاليّة الكيان — هيتحدّد موعد جديد.') }}"
+                      placeholder="{{ setting('admin.meetings_admin.partials.manage_modals.mthal_taard_alqaa_ma_faalya', 'مثال: تعارض الموعد مع فعاليّة الكيان، هيتحدّد موعد جديد.') }}"
                       class="w-full rounded-xl px-3 py-2 text-sm"
                       style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text); resize: vertical"></textarea>
         </label>

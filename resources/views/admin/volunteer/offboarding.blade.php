@@ -5,7 +5,7 @@
 @section('content')
     <x-page-header
         :title="setting('admin.volunteer.offboarding.alawfbwrdnj', 'الأوفبوردنج')"
-        :subtitle="setting('admin.volunteer.offboarding.thlatha_anwaa_llkhrwj_la_raba_lha_waliqsa', 'ثلاثة أنواع للخروج لا رابع لها — والإقصاء حصرًا عبر سلّم العتبات.')"
+        :subtitle="setting('admin.volunteer.offboarding.thlatha_anwaa_llkhrwj_la_raba_lha_waliqsa', 'ثلاثة أنواع للخروج لا رابع لها، والإقصاء حصرًا عبر سلّم العتبات.')"
         :breadcrumbs="[['label' => setting('admin.volunteer.offboarding.alttwa', 'التطوّع'), 'url' => route('admin.volunteer.index')], ['label' => setting('admin.volunteer.offboarding.alawfbwrdnj', 'الأوفبوردنج')]]">
         <x-slot:action>
             @can('offboarding.create')
@@ -20,8 +20,8 @@
 
     {{-- قاعدتان معلَنتان — تُقرآن قبل أيّ إجراء --}}
     <div class="card p-3 mb-4 text-sm space-y-1">
-        <div><x-icon name="lock" size="16" /> <strong>{{ setting('admin.volunteer.offboarding.aliqsa', 'الإقصاء') }}</strong> {!! strtr(setting('admin.volunteer.offboarding.la_ykwn_ila_abr_slm_alatbat_atba_altalyq', 'لا يكون إلّا عبر سلّم العتبات (عتبة التعليق الحاليّة: :v1) — لا فصل بقرار فرديّ.'), [':v1' => e($exclusionThreshold)]) !!}</div>
-        <div><x-icon name="lock" size="16" /> <strong>{{ setting('admin.volunteer.offboarding.alsbb_la_ynshr_llfryq', 'السبب لا يُنشَر للفريق') }}</strong> {{ setting('admin.volunteer.offboarding.yzhr_antht_adwya_flan_fqt_waltfsyl_fy', '— يظهر «انتهت عضويّة فلان» فقط، والتفصيل في الملاحظات الإداريّة.') }}</div>
+        <div><x-icon name="lock" size="16" /> <strong>{{ setting('admin.volunteer.offboarding.aliqsa', 'الإقصاء') }}</strong> {!! strtr(setting('admin.volunteer.offboarding.la_ykwn_ila_abr_slm_alatbat_atba_altalyq', 'لا يكون إلّا عبر سلّم العتبات (عتبة التعليق الحاليّة: :v1)، لا فصل بقرار فرديّ.'), [':v1' => e($exclusionThreshold)]) !!}</div>
+        <div><x-icon name="lock" size="16" /> <strong>{{ setting('admin.volunteer.offboarding.alsbb_la_ynshr_llfryq', 'السبب لا يُنشَر للفريق') }}</strong> {{ setting('admin.volunteer.offboarding.yzhr_antht_adwya_flan_fqt_waltfsyl_fy', '· يظهر «انتهت عضويّة فلان» فقط، والتفصيل في الملاحظات الإداريّة.') }}</div>
     </div>
 
     <x-filters :action="route('admin.volunteer.offboarding')">
@@ -112,7 +112,7 @@
                     @else
                         <span class="text-xs" style="color: var(--text-muted)">
                             @if ($record->honorable_certificate_issued)
-                                <x-icon name="badge" size="16" /> {{ setting('admin.volunteer.offboarding.khrwj_mshrf_sdrt_shhada_khbra_ttwa', 'خروج مشرَّف — صدرت شهادة خبرة تطوّع.') }}
+                                <x-icon name="badge" size="16" /> {{ setting('admin.volunteer.offboarding.khrwj_mshrf_sdrt_shhada_khbra_ttwa', 'خروج مشرَّف: صدرت شهادة خبرة تطوّع.') }}
                             @else
                                 {{ setting('admin.volunteer.offboarding.la_shhada_khbra_lhdha_alnwa', 'لا شهادة خبرة لهذا النوع.') }}
                             @endif
@@ -122,7 +122,7 @@
             </article>
         @empty
             {{-- تمييز «مفيش ملفّات إنهاء أصلًا» عن «الفلتر ما طابقش حاجة» (24.2) --}}
-            <x-empty :message="setting('admin.volunteer.offboarding.mfysh_mlfat_inha_wdh_khbr_kwys', 'مفيش ملفّات إنهاء — وده خبر كويّس.')"
+            <x-empty :message="setting('admin.volunteer.offboarding.mfysh_mlfat_inha_wdh_khbr_kwys', 'مفيش ملفّات إنهاء، وده خبر كويّس.')"
                      :filtered="$filters['q'] !== '' || $filters['type'] !== ''" />
         @endforelse
     </section>
@@ -160,12 +160,12 @@
                 <label class="block text-sm font-semibold mb-1" for="ob-reason">{{ setting('admin.volunteer.offboarding.alsbb_llmlahzat_alidarya_whdha', 'السبب (للملاحظات الإداريّة وحدها)') }}</label>
                 <select name="reason" id="ob-reason" class="w-full rounded-xl px-3 py-2 text-sm mb-2"
                         style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
-                    <option value="">{{ setting('admin.volunteer.offboarding.bla_sbb', '— بلا سبب —') }}</option>
+                    <option value="">{{ setting('admin.volunteer.offboarding.bla_sbb', 'بلا سبب') }}</option>
                     @foreach ($reasons as $reason)
                         <option value="{{ $reason }}">{{ $reason }}</option>
                     @endforeach
                 </select>
-                <p class="text-xs mb-3" style="color: var(--text-muted)"><x-icon name="lock" size="16" /> {{ setting('admin.volunteer.offboarding.alsbb', 'السبب') }} <strong>{{ setting('admin.volunteer.offboarding.la_ynshr_llfryq', 'لا يُنشَر للفريق') }}</strong> {{ setting('admin.volunteer.offboarding.yzhr_antht_adwya_flan_fqt', '— يظهر «انتهت عضويّة فلان» فقط.') }}</p>
+                <p class="text-xs mb-3" style="color: var(--text-muted)"><x-icon name="lock" size="16" /> {{ setting('admin.volunteer.offboarding.alsbb', 'السبب') }} <strong>{{ setting('admin.volunteer.offboarding.la_ynshr_llfryq', 'لا يُنشَر للفريق') }}</strong> {{ setting('admin.volunteer.offboarding.yzhr_antht_adwya_flan_fqt', '· يظهر «انتهت عضويّة فلان» فقط.') }}</p>
 
                 <div class="text-sm font-semibold mb-1">{{ setting('admin.volunteer.offboarding.altsfya_alilzamya', 'التصفية الإلزاميّة') }}</div>
                 @foreach ($clearance as $index => $label)

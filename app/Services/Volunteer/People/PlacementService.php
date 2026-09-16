@@ -202,7 +202,7 @@ class PlacementService
             $this->expireIfDue($locked);
 
             if ($locked->pending_placement_request_id) {
-                throw new \RuntimeException(setting('recruitment.placement_service.request_1', 'في طلب معلَّق قائم بالفعل للمرشّح ده — استنّى ردّه أو اسحب الطلب الأوّل.'));
+                throw new \RuntimeException(setting('recruitment.placement_service.request_1', 'في طلب معلَّق قائم بالفعل للمرشّح ده، استنّى ردّه أو اسحب الطلب الأوّل.'));
             }
 
             $request = PlacementRequest::create([
@@ -224,7 +224,7 @@ class PlacementService
             if ($won === 0) {
                 $request->delete();
 
-                throw new \RuntimeException(setting('recruitment.placement_service.request_2', 'مشرف تاني سبقك بطلب تسكين للمرشّح ده في نفس اللحظة — حدّث الصفحة وشوف حالته.'));
+                throw new \RuntimeException(setting('recruitment.placement_service.request_2', 'مشرف تاني سبقك بطلب تسكين للمرشّح ده في نفس اللحظة، حدّث الصفحة وشوف حالته.'));
             }
 
             $this->audit->record($actor, 'placement.requested', $request, [], [
@@ -239,7 +239,7 @@ class PlacementService
                     $locked->user,
                     'recruitment',
                     setting('recruitment.placement_service.request_3', 'وصلك طلب تسكين'),
-                    strtr(setting('recruitment.placement_service.request_4', 'قسم :p1 — لازم تردّ خلال :p2 ساعة.'), [':p1' => (string) ($entity->name_ar), ':p2' => (string) ($this->responseHours())]),
+                    strtr(setting('recruitment.placement_service.request_4', 'قسم :p1: لازم تردّ خلال :p2 ساعة.'), [':p1' => (string) ($entity->name_ar), ':p2' => (string) ($this->responseHours())]),
                     route('volunteer.placement'),
                     $request->respond_due_at,
                     true,
@@ -255,7 +255,7 @@ class PlacementService
     {
         return DB::transaction(function () use ($request, $actor) {
             if (! in_array($request->status, ['sent', 'awaiting'], true)) {
-                throw new \RuntimeException(setting('recruitment.placement_service.withdraw_1', 'الطلب ده اتقفل خلاص — مش هينفع يتسحب.'));
+                throw new \RuntimeException(setting('recruitment.placement_service.withdraw_1', 'الطلب ده اتقفل خلاص، مش هينفع يتسحب.'));
             }
 
             $request->forceFill(['status' => 'withdrawn'])->save();
@@ -285,7 +285,7 @@ class PlacementService
             if (now()->greaterThan($locked->respond_due_at)) {
                 $this->expire($locked);
 
-                throw new \RuntimeException(setting('recruitment.placement_service.respond_2', 'المهلة فاتت والطلب رجع للقائمة — فريق التوظيف هيبعتلك من جديد.'));
+                throw new \RuntimeException(setting('recruitment.placement_service.respond_2', 'المهلة فاتت والطلب رجع للقائمة، وفريق التوظيف هيبعتلك من جديد.'));
             }
 
             $locked->forceFill([
@@ -434,7 +434,7 @@ class PlacementService
         if ($candidate->user) {
             $this->bridge->celebrate($candidate->user, 'placement.accepted', $request);
             $this->bridge->notify($candidate->user, 'recruitment', setting('recruitment.placement_service.activate_1', 'أهلًا بيك معانا 🎉'),
-                setting('recruitment.placement_service.activate_2', 'اتسكّنت في قسمك — لوحة التطوّع بقت متاحة ليك.'), route('volunteer.placement'));
+                setting('recruitment.placement_service.activate_2', 'اتسكّنت في قسمك، ولوحة التطوّع بقت متاحة ليك.'), route('volunteer.placement'));
         }
     }
 }

@@ -85,7 +85,7 @@ class ReferralAdminTest extends ScreensTestCase
         $invitesCard = substr($invitesHtml, strpos($invitesHtml, 'card p-8 text-center'), 400);
 
         $this->assertStringContainsString(
-            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث/الفلتر الحاليّ — جرّب فلترًا تانيًا.'),
+            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث أو الفلتر الحاليّ. جرّب فلتر تاني.'),
             $invitesCard,
         );
         $this->assertStringNotContainsString('لسّه مافيش دعوات في المدى ده', $invitesCard);
@@ -97,7 +97,7 @@ class ReferralAdminTest extends ScreensTestCase
         $ambassadorsCard = substr($ambassadorsHtml, strpos($ambassadorsHtml, 'card p-8 text-center'), 400);
 
         $this->assertStringContainsString(
-            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث/الفلتر الحاليّ — جرّب فلترًا تانيًا.'),
+            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث أو الفلتر الحاليّ. جرّب فلتر تاني.'),
             $ambassadorsCard,
         );
         $this->assertStringNotContainsString('لسّه محدّش وصل لأوّل لقب', $ambassadorsCard);

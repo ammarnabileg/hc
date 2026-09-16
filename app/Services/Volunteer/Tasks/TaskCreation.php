@@ -65,7 +65,7 @@ class TaskCreation
     {
         if (! $this->hasTeam($creator, $membership)) {
             throw ValidationException::withMessages([
-                'title' => (string) setting('workflow.tasks.store_msg', 'إنشاء المهامّ لمن له فريق — تقدر تعمل صب-تاسك على مهمّتك أو تدعو مساهمًا.'),
+                'title' => (string) setting('workflow.tasks.store_msg', 'إنشاء المهامّ لمن له فريق، تقدر تعمل صب-تاسك على مهمّتك أو تدعو مساهمًا.'),
             ]);
         }
 
@@ -93,7 +93,7 @@ class TaskCreation
             'owner_id' => strtr((string) setting('workflow.tasks.store_msg_4', ':a1 في وضع «غائب» دلوقتي:a2. اختار حدًّا تاني.'), [
                 ':a1' => (string) $target->shortName(),
                 ':a2' => $delegate
-                    ? strtr((string) setting('workflow.tasks.store_delegate', ' — البديل: :name'), [':name' => (string) $delegate->shortName()])
+                    ? strtr((string) setting('workflow.tasks.store_delegate', '، البديل: :name'), [':name' => (string) $delegate->shortName()])
                     : '',
             ]),
         ]);

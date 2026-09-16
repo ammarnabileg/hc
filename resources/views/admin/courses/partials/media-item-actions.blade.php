@@ -28,7 +28,7 @@
 
         @can('media_library.delete')
             <form method="post" action="{{ route('admin.media.destroy', $item) }}"
-                  onsubmit="return confirm('{{ ($usage[$item->id] ?? 0) > 0 ? setting('media.delete.in_use_warning', 'الملفّ ده مستخدَم في أماكن تانية — متأكّد؟') : setting('admin.courses.media.nshyl_almlf', 'نشيل الملفّ؟') }}')">
+                  onsubmit="return confirm('{{ ($usage[$item->id] ?? 0) > 0 ? setting('media.delete.in_use_warning', 'الملفّ ده مستخدَم في أماكن تانية. متأكّد؟') : setting('admin.courses.media.nshyl_almlf', 'نشيل الملفّ؟') }}')">
                 @csrf @method('delete')
                 @if (($usage[$item->id] ?? 0) > 0)
                     <input type="hidden" name="force" value="1">

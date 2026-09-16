@@ -14,7 +14,7 @@
 
 @if ($slides->isEmpty())
     {{-- الحالة الفارغة = سطر واحد + زرّ واحد، تشجّع ولا تعاتب (2.15-د · 2.17-ج) --}}
-    <x-empty :message="setting('onboarding.slides.empty_text', 'لسّه مافيش شرائح — ابدأ بأوّل واحدة.')"
+    <x-empty :message="setting('onboarding.slides.empty_text', 'لسّه مافيش شرائح. ابدأ بأوّل واحدة.')"
              :action="setting('admin.ops.partials.onboarding_slides.maayna_alrhla', 'معاينة الرحلة')" :href="route('admin.ops.onboarding.preview', ['screen' => $screen])" />
 @else
     <form method="post" action="{{ route('admin.ops.onboarding.reorder') }}" id="reorder-form">

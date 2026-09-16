@@ -93,7 +93,7 @@ class ImageTemplateFields
             }
 
             if (in_array($field, self::FORBIDDEN, true)) {
-                throw new RuntimeException(strtr(setting('images.image_template_fields.validate_layers_1', 'الحقل «:p1» ممنوع نهائيًّا في قوالب الصور — بيانات حسّاسة لا تُنشَر.'), [':p1' => (string) ($field)]));
+                throw new RuntimeException(strtr(setting('images.image_template_fields.validate_layers_1', 'الحقل «:p1» ممنوع نهائيًّا في قوالب الصور، دي بيانات حسّاسة لا تُنشَر.'), [':p1' => (string) ($field)]));
             }
 
             if (! $this->allows($field)) {

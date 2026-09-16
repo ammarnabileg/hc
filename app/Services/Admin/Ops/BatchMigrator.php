@@ -49,7 +49,7 @@ class BatchMigrator
     public function each(string $job, string $table, callable $handler, string $key = 'id'): array
     {
         if (! Schema::hasTable($table)) {
-            throw new RuntimeException(strtr(setting('updates.batch_migrator.each_1', 'الجدول «:p1» مش موجود — مفيش حاجة تتعالج.'), [':p1' => (string) ($table)]));
+            throw new RuntimeException(strtr(setting('updates.batch_migrator.each_1', 'الجدول «:p1» مش موجود، مفيش حاجة تتعالج.'), [':p1' => (string) ($table)]));
         }
 
         $state = $this->state($job, $table, null);
@@ -93,7 +93,7 @@ class BatchMigrator
     public function copy(string $job, string $from, string $to, array $map = [], ?callable $transform = null, string $key = 'id'): array
     {
         if (! Schema::hasTable($to)) {
-            throw new RuntimeException(strtr(setting('updates.batch_migrator.copy_1', 'الهدف «:p1» لازم يتعمل قبل النقل — مفيش نقل لمكان مش موجود.'), [':p1' => (string) ($to)]));
+            throw new RuntimeException(strtr(setting('updates.batch_migrator.copy_1', 'الهدف «:p1» لازم يتعمل قبل النقل، مفيش نقل لمكان مش موجود.'), [':p1' => (string) ($to)]));
         }
 
         $this->state($job, $from, $to);
@@ -140,7 +140,7 @@ class BatchMigrator
         $target = (int) DB::table($to)->count();
 
         if ($source !== $target) {
-            $this->finish($job, 'failed', null, strtr(setting('updates.batch_migrator.verify_1', 'المصدر :p1 صفّ والهدف :p2 — النقل ناقص.'), [':p1' => (string) ($source), ':p2' => (string) ($target)]));
+            $this->finish($job, 'failed', null, strtr(setting('updates.batch_migrator.verify_1', 'المصدر :p1 صفّ والهدف :p2، يعني النقل ناقص.'), [':p1' => (string) ($source), ':p2' => (string) ($target)]));
 
             return ['ok' => false, 'source' => $source, 'target' => $target, 'message' => strtr(setting('updates.batch_migrator.body_8', 'النقل ناقص: :p1 ⟵ :p2.'), [':p1' => (string) ($source), ':p2' => (string) ($target)])];
         }
@@ -152,7 +152,7 @@ class BatchMigrator
             if ($sourceHash !== $targetHash) {
                 $this->finish($job, 'failed', null, setting('updates.batch_migrator.body_1', 'بصمة المحتوى مختلفة بين المصدر والهدف.'));
 
-                return ['ok' => false, 'source' => $source, 'target' => $target, 'message' => setting('updates.batch_migrator.body_2', 'الأعداد متطابقة لكنّ المحتوى مختلف — مفيش حذف.')];
+                return ['ok' => false, 'source' => $source, 'target' => $target, 'message' => setting('updates.batch_migrator.body_2', 'الأعداد متطابقة لكنّ المحتوى مختلف، فمفيش حذف.')];
             }
 
             $this->finish($job, 'verified', $sourceHash, setting('updates.batch_migrator.body_3', 'الأعداد والبصمة متطابقة.'));

@@ -36,7 +36,7 @@
 
 <div class="card p-4 mt-4">
     <h2 class="text-sm font-bold mb-2">{{ setting('admin.ops.partials.onboarding_first_time.alqwalb_aljahza', 'القوالب الجاهزة') }}</h2>
-    <p class="text-xs mb-3" style="color: var(--text-muted)">{{ setting('admin.ops.partials.onboarding_first_time.alqalb_nqta_bdaya_bytdaf_kmrahl_tqdr_tadlha', 'القالب نقطة بداية — بيتضاف كمراحل تقدر تعدّلها أو تمسحها.') }}</p>
+    <p class="text-xs mb-3" style="color: var(--text-muted)">{{ setting('admin.ops.partials.onboarding_first_time.alqalb_nqta_bdaya_bytdaf_kmrahl_tqdr_tadlha', 'القالب نقطة بداية، بيتضاف كمراحل تقدر تعدّلها أو تمسحها.') }}</p>
 
     <div class="space-y-2">
         @forelse ($templates as $key => $stages)
@@ -51,7 +51,7 @@
                 @endcan
             </div>
         @empty
-            <p class="text-sm" style="color: var(--text-muted)">{{ setting('admin.ops.partials.onboarding_first_time.mafysh_qwalb_jahza_lsh_dyfha_mn_iadadat', 'مافيش قوالب جاهزة لسه — ضيفها من إعدادات الـOnboarding.') }}</p>
+            <p class="text-sm" style="color: var(--text-muted)">{{ setting('admin.ops.partials.onboarding_first_time.mafysh_qwalb_jahza_lsh_dyfha_mn_iadadat', 'مافيش قوالب جاهزة لسه. ضيفها من إعدادات الـOnboarding.') }}</p>
         @endforelse
     </div>
 </div>

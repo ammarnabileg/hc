@@ -48,7 +48,7 @@
             </div>
         </div>
 
-        <x-kpi :label="setting('volunteer.transactions.label', 'VXP التراكميّ')" :value="$vxp" icon="◆" :hint="setting('volunteer.transactions.hint', 'نقاط الإنتاج — تراكميّة لا تتصفّر')" />
+        <x-kpi :label="setting('volunteer.transactions.label', 'VXP التراكميّ')" :value="$vxp" icon="◆" :hint="setting('volunteer.transactions.hint', 'نقاط الإنتاج، تراكميّة لا تتصفّر')" />
     </div>
 
     <x-filters :action="route('volunteer.transactions')">
@@ -108,7 +108,7 @@
     </x-filters>
 
     @if ($rows->isEmpty())
-        <x-empty :message="setting('volunteer.transactions.empty', 'مفيش معاملات في المدى ده — وسّع المدى وشوف')" />
+        <x-empty :message="setting('volunteer.transactions.empty', 'مفيش معاملات في المدى ده. وسّع المدى وشوف')" />
     @else
         <div class="card min-w-0 overflow-x-auto hidden md:block">
             <table class="w-full text-sm"
@@ -245,7 +245,7 @@
                         </label>
 
                         <p class="text-xs rounded-xl p-2" style="background: var(--surface-sunken); color: var(--text-muted)">
-                            {{ setting('volunteer.transactions.field_6', 'اعتراض واحد لكلّ معاملة — وتقدر تضيف تفاصيل بعدها في صفحة الاعتراض. وبيروح لمسؤولك المباشر.') }}
+                            {{ setting('volunteer.transactions.field_6', 'اعتراض واحد لكلّ معاملة، وتقدر تضيف تفاصيل بعدها في صفحة الاعتراض. وبيروح لمسؤولك المباشر.') }}
                         </p>
 
                         <button type="submit" class="btn w-full rounded-xl px-4 py-2 text-sm font-semibold"

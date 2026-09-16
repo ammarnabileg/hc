@@ -31,7 +31,7 @@
     @if (setting('auth.session.remember_always', true))
         <p class="small muted mt-4 cluster" style="align-items: flex-start; gap: 8px">
             <span aria-hidden="true" style="color: var(--success)">●</span>
-            <span>{{ setting('auth.session.persistent_hint', 'هتفضل داخل على طول — لحدّ ما تعمل «تسجيل خروج» بنفسك.') }}</span>
+            <span>{{ setting('auth.session.persistent_hint', 'هتفضل داخل على طول لحدّ ما تعمل «تسجيل خروج» بنفسك.') }}</span>
         </p>
     @endif
 

@@ -328,19 +328,19 @@ class QuestionBank
             $type = (string) ($row['type'] ?? 'choice');
 
             if (! $lessonId || ! DB::table('lessons')->where('id', $lessonId)->exists()) {
-                $errors[] = strtr(setting('exams.question_bank.import_1', 'السطر :p1: الدرس غير موجود — اكتب رقم درس صحيح أو اختر درسًا افتراضيًّا.'), [':p1' => (string) (($index + 1))]);
+                $errors[] = strtr(setting('exams.question_bank.import_1', 'السطر :p1: الدرس غير موجود، اكتب رقم درس صحيح أو اختر درسًا افتراضيًّا.'), [':p1' => (string) (($index + 1))]);
 
                 continue;
             }
 
             if ($prompt === '') {
-                $errors[] = strtr(setting('exams.question_bank.import_2', 'السطر :p1: نصّ السؤال فاضي — السؤال بلا نصّ لا يُعرَض.'), [':p1' => (string) (($index + 1))]);
+                $errors[] = strtr(setting('exams.question_bank.import_2', 'السطر :p1: نصّ السؤال فاضي، والسؤال بلا نصّ لا يُعرَض.'), [':p1' => (string) (($index + 1))]);
 
                 continue;
             }
 
             if (! array_key_exists($type, $types)) {
-                $errors[] = strtr(setting('exams.question_bank.import_3', 'السطر :p1: نوع غير معروف «:p2» — استعمل: :p3.'), [':p1' => (string) (($index + 1)), ':p2' => (string) ($type), ':p3' => (string) (implode(' · ', array_keys($types)))]);
+                $errors[] = strtr(setting('exams.question_bank.import_3', 'السطر :p1: نوع غير معروف «:p2»، استعمل: :p3.'), [':p1' => (string) (($index + 1)), ':p2' => (string) ($type), ':p3' => (string) (implode(' · ', array_keys($types)))]);
 
                 continue;
             }

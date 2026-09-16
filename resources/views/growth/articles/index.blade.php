@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('title', setting('growth.articles.index_title', 'مقالات المنصّة'))
-@section('meta_description', setting('growth.articles.index_subtitle', 'محتوًى عربيّ مكتوب بأيدينا — نصائح ومسارات تعلّم وتجارب حقيقيّة.'))
+@section('meta_description', setting('growth.articles.index_subtitle', 'محتوًى عربيّ مكتوب بأيدينا: نصائح ومسارات تعلّم وتجارب حقيقيّة.'))
 @section('og_image', $ogImage)
 
 @if (! $indexable)
@@ -10,7 +10,7 @@
 
 @section('content')
     <x-page-header :title="setting('growth.articles.index_title', 'مقالات المنصّة')"
-                   :subtitle="setting('growth.articles.index_subtitle', 'محتوًى عربيّ مكتوب بأيدينا — تقرأه بلا حساب.')" />
+                   :subtitle="setting('growth.articles.index_subtitle', 'محتوًى عربيّ مكتوب بأيدينا، تقرأه من غير حساب.')" />
 
     {{-- فلتران ظاهران فقط: التصنيف والبحث — والباقي لا لزوم له هنا (2.15-أ-4) --}}
     <form method="get" class="card p-3 mb-5 flex flex-wrap items-center gap-2">
@@ -40,7 +40,7 @@
     </form>
 
     @if ($articles->isEmpty())
-        <x-empty :message="setting('growth.articles.empty', 'لسّه مافيش مقالات منشورة هنا — قريب إن شاء الله.')" />
+        <x-empty :message="setting('growth.articles.empty', 'لسّه مافيش مقالات منشورة هنا، قريب إن شاء الله.')" />
     @else
         <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             @foreach ($articles as $article)

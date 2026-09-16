@@ -68,7 +68,7 @@
             </label>
 
             <label class="block text-sm">
-                <span class="block mb-1">{{ setting('admin.landing_pages.form.alasela', 'الأسئلة الشائعة — سطر: سؤال | إجابة') }}</span>
+                <span class="block mb-1">{{ setting('admin.landing_pages.form.alasela', 'الأسئلة الشائعة، سطر: سؤال | إجابة') }}</span>
                 <textarea name="faq" rows="5" class="w-full rounded-xl px-3 py-2 text-sm"
                           style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text); resize: vertical">{{ old('faq', collect((array) ($landingPage->faq ?? []))->map(fn ($r) => ($r['q'] ?? '').' | '.($r['a'] ?? ''))->implode("\n")) }}</textarea>
             </label>
@@ -87,7 +87,7 @@
                         <option value="draft" @selected($landingPage->status === 'draft')>{{ setting('admin.landing_pages.form.mswda', 'مسوّدة') }}</option>
                         <option value="published" @selected($landingPage->status === 'published')>{{ setting('admin.landing_pages.form.mnshwra', 'منشورة') }}</option>
                     </select>
-                    <span class="block mt-1 text-xs" style="color: var(--text-muted)">{{ setting('admin.landing_pages.form.status_hint', 'اختَر «منشورة» بعد ما تراجع الصفحة — والرابط العامّ ما يفتحش قبلها.') }}</span>
+                    <span class="block mt-1 text-xs" style="color: var(--text-muted)">{{ setting('admin.landing_pages.form.status_hint', 'اختَر «منشورة» بعد ما تراجع الصفحة، والرابط العامّ ما يفتحش قبلها.') }}</span>
                 </label>
             @endif
 
@@ -131,7 +131,7 @@
 
                     @can('landing_pages.delete')
                         <form method="post" action="{{ route('admin.store.landing-pages.destroy', $landingPage) }}"
-                              onsubmit="return confirm('{{ setting('admin.landing_pages.form.confirm_delete', 'حذف نهائيّ بلا رجوع — متأكّد؟') }}')">
+                              onsubmit="return confirm('{{ setting('admin.landing_pages.form.confirm_delete', 'حذف نهائيّ بلا رجوع. متأكّد؟') }}')">
                             @csrf
                             @method('DELETE')
                             <button class="w-full rounded-xl px-4 py-2 text-sm" style="color: var(--color-state-danger); border: 1px solid var(--color-state-danger); background: transparent">{{ setting('admin.landing_pages.form.hthf_nhaay', 'حذف نهائيّ') }}</button>

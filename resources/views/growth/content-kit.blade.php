@@ -40,7 +40,7 @@
     <section class="card p-4 mb-4" aria-label="{{ setting('growth.content_kit.aria_label_2', 'رابط الدعوة') }}">
         <h2 class="font-extrabold mb-1">{{ setting('growth.volunteer_kit.link_label', 'رابط دعوتك') }}</h2>
         <p class="text-xs mb-3" style="color: var(--text-muted)">
-            {{ setting('growth.volunteer_kit.link_hint', 'كلّ مَن يسجّل من الرابط ده بيتحسبلك — والرابط موسوم علشان نعرف عائد كلّ قناة.') }}
+            {{ setting('growth.volunteer_kit.link_hint', 'كلّ مَن يسجّل من الرابط ده بيتحسبلك، والرابط موسوم علشان نعرف عائد كلّ قناة.') }}
         </p>
 
         <div class="flex items-center gap-2 flex-wrap">

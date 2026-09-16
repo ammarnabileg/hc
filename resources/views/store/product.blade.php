@@ -141,7 +141,7 @@
                                         {{ str_replace(
                                             ['{item}', '{amount}'],
                                             [$line['title'], Coins::label($line['list_value'])],
-                                            setting('store.bundle.bonus_text', '🎁 بونص: {item} بقيمة {amount} — مجّانًا مع الباقة'),
+                                            setting('store.bundle.bonus_text', '🎁 بونص: {item} بقيمة {amount}، مجّانًا مع الباقة'),
                                         ) }}
                                     </p>
                                 @endif
@@ -181,7 +181,7 @@
                     </div>
 
                     @if ($owned)
-                        <p class="text-sm">{{ setting('store.owned_text', 'ده معاك بالفعل — تلاقيه في مكتبتك.') }}</p>
+                        <p class="text-sm">{{ setting('store.owned_text', 'ده معاك بالفعل، تلاقيه في مكتبتك.') }}</p>
                         @if ($libraryUrl)
                             <a href="{{ $libraryUrl }}" class="text-sm hover:underline" style="color: var(--color-brand-400)">{{ setting('store.product.library_link_label', 'افتح من مكتبتي') }}</a>
                         @endif

@@ -26,7 +26,7 @@ final class CapacityReport
     {
         return (string) setting(
             'volunteer.capacity.banner',
-            'السعة غير مانعة — لا توقف تسكينًا ولا ترقيةً ولا نقلًا',
+            'السعة غير مانعة، لا توقف تسكينًا ولا ترقيةً ولا نقلًا',
         );
     }
 
@@ -174,7 +174,7 @@ final class CapacityReport
             'suggested' => $i < $suggestLimit,
             'suggestion_note' => (string) setting(
                 'volunteer.capacity.load_suggestion',
-                'مقترَح للتسكين الجديد — اقتراح لا إلزام',
+                'مقترَح للتسكين الجديد، اقتراح لا إلزام',
             ),
         ]);
     }
@@ -207,7 +207,7 @@ final class CapacityReport
                     'actual' => (int) ($direct[$m->id] ?? 0),
                     'max' => (int) $m->position->span_max,
                 ])->values(),
-            'notice' => (string) setting('volunteer.capacity.breach_notice', 'تنبيه فقط — لا يمنع الإجراء'),
+            'notice' => (string) setting('volunteer.capacity.breach_notice', 'تنبيه فقط، لا يمنع الإجراء'),
         ];
     }
 

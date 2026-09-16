@@ -22,12 +22,12 @@
     $indexCertificates = (bool) setting('growth.seo.index_certificates', true) && $signatureOk;
     $metaTitle = $certificate && $signatureOk
         ? str_replace([(string) setting('certificates.verify_page.php_1', '[الاسم]'), (string) setting('certificates.verify_page.php_2', '[الشهادة]'), (string) setting('certificates.verify_page.php_3', '[الكود]')], [$holder, $subject, $certificate->code],
-            (string) setting('certificates.seo.meta_title', '[الاسم] — [الشهادة] · شهادة معتمدة'))
+            (string) setting('certificates.seo.meta_title', '[الاسم] · [الشهادة] · شهادة معتمدة'))
         : (string) setting('certificates.seo.index_title', 'التحقّق من الشهادة');
     $metaDescription = $certificate && $signatureOk
         ? str_replace([(string) setting('certificates.verify_page.php_4', '[الاسم]'), (string) setting('certificates.verify_page.php_5', '[الشهادة]'), (string) setting('certificates.verify_page.php_6', '[التاريخ]')], [$holder, $subject, $certificate->issued_at?->format(setting('certificates.render.date_format', 'Y/m/d'))],
-            (string) setting('certificates.seo.meta_description', 'شهادة [الشهادة] الصادرة لـ[الاسم] بتاريخ [التاريخ] — تحقّق من صحّتها هنا.'))
-        : (string) setting('certificates.seo.index_description', 'تحقّق من صحّة أيّ شهادة صادرة من المنصّة بكودها — بلا تسجيل دخول.');
+            (string) setting('certificates.seo.meta_description', 'شهادة [الشهادة] الصادرة لـ[الاسم] بتاريخ [التاريخ]. تحقّق من صحّتها هنا.'))
+        : (string) setting('certificates.seo.index_description', 'تحقّق من صحّة أيّ شهادة صادرة من المنصّة بكودها، من غير ما تسجّل دخول.');
 
     // Schema.org: EducationalOccupationalCredential لتظهر نتيجةً غنيّة (21.2-ب)
     $schema = $certificate && $signatureOk ? [
@@ -87,7 +87,7 @@
         <div class="text-3xl mb-2" aria-hidden="true"><x-icon name="badge" size="16" /></div>
         <h1 class="text-2xl font-extrabold">{{ setting('certificates.verify.title', 'التحقّق من الشهادة') }}</h1>
         <p class="text-sm mt-2" style="color: var(--text-muted)">
-            {{ setting('certificates.verify.intro', 'اكتب كود الشهادة وتأكّد من صحّتها وصلاحيّتها — بلا تسجيل دخول ولا حساب.') }}
+            {{ setting('certificates.verify.intro', 'اكتب كود الشهادة وتأكّد من صحّتها وصلاحيّتها، من غير تسجيل دخول ولا حساب.') }}
         </p>
     </header>
 
@@ -143,7 +143,7 @@
             <p class="text-sm" style="color: var(--text-muted)">
                 {{ $signature === CertificateSignature::UNSIGNED
                     ? setting('certificates.verify.unsigned_text', 'فيه صفّ بالكود ده في سجلّنا لكنّه من غير توقيع رقميّ أصلًا، فما نقدرش نشهد إنّ بياناته هي اللي صدرت. لو استلمت نسخة بالكود ده، بلّغنا وهنراجعها.')
-                    : setting('certificates.verify.unverified_text', 'فيه صفّ بالكود ده في سجلّنا، لكن توقيعه الرقميّ مش مطابق للتوقيع اللي بتشتقّه بياناته — يعني البيانات اتغيّرت بعد الإصدار أو الصفّ اتكتب من برّه محرّك الإصدار. عشان كده ما نقدرش نشهد بصحّتها ولا نعرض بياناتها. بلّغنا وهنراجعها.') }}
+                    : setting('certificates.verify.unverified_text', 'فيه صفّ بالكود ده في سجلّنا، لكن توقيعه الرقميّ مش مطابق للتوقيع اللي بتشتقّه بياناته. يعني البيانات اتغيّرت بعد الإصدار، أو الصفّ اتكتب من برّه محرّك الإصدار. عشان كده ما نقدرش نشهد بصحّتها ولا نعرض بياناتها. بلّغنا وهنراجعها.') }}
             </p>
 
             <p class="text-sm mt-4">
@@ -214,7 +214,7 @@
                         <x-icon name="shield" size="16" />
                         <span>{{ setting('certificates.verify.signature_label', 'التوقيع الرقميّ') }}</span>
                     </dt>
-                    <dd><x-state-badge state="ok" :label="setting('certificates.verify.signature_ok', 'مطابق — البيانات دي هي اللي صدرت')" /></dd>
+                    <dd><x-state-badge state="ok" :label="setting('certificates.verify.signature_ok', 'مطابق، البيانات دي هي اللي صدرت')" /></dd>
                 </div>
             </dl>
 
@@ -282,7 +282,7 @@
     @endif
 
     <p class="text-xs text-center mt-8" style="color: var(--text-muted)">
-        {{ setting('certificates.verify.footer', 'كلّ شهادة عندنا لها كود وQR وتوقيع رقميّ — والتحقّق مفتوح للجميع.') }}
+        {{ setting('certificates.verify.footer', 'كلّ شهادة عندنا ليها كود وQR وتوقيع رقميّ، والتحقّق مفتوح للجميع.') }}
     </p>
 </main>
 </body>

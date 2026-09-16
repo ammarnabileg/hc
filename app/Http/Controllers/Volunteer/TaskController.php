@@ -100,7 +100,7 @@ class TaskController extends Controller
 
         return redirect()
             ->route('volunteer.tasks.show', $task)
-            ->with('status', (string) setting('workflow.tasks.store_ok', 'اتحفظت ✓ — المهمّة اتسجّلت وعدّادها شغّال.'));
+            ->with('status', (string) setting('workflow.tasks.store_ok', 'اتحفظت ✓، المهمّة اتسجّلت وعدّادها شغّال.'));
     }
 
     /** صفحة المهمّة بتاباتها السبعة (24.4-2) */
@@ -176,7 +176,7 @@ class TaskController extends Controller
 
         $this->workflow->deliver($task, $user, $data);
 
-        return back()->with('status', (string) setting('workflow.tasks.deliver_ok', 'تمّ التسليم ✓ — العدّاد وقف دلوقتي، والتقييم على وقت تسليمك.'));
+        return back()->with('status', (string) setting('workflow.tasks.deliver_ok', 'تمّ التسليم ✓، العدّاد وقف دلوقتي، والتقييم على وقت تسليمك.'));
     }
 
     /** متعثّر: مدّة ≤ الحدّ بسبب إلزاميّ، أو Blocked By (23-3.4) */
@@ -200,7 +200,7 @@ class TaskController extends Controller
             ? (string) setting('workflow.tasks.block_msg', ' وتنبيه: دي الإعادة التانية فمكافأة الالتزام على المهمّة دي بقت النصف.')
             : '';
 
-        return back()->with('status', strtr((string) setting('workflow.tasks.block_ok', 'اتسجّل التعثّر ✓ — مراجعك هيشوفه على محرّك التصعيد.:a1'), [':a1' => (string) ($note)]));
+        return back()->with('status', strtr((string) setting('workflow.tasks.block_ok', 'اتسجّل التعثّر ✓، مراجعك هيشوفه على محرّك التصعيد.:a1'), [':a1' => (string) ($note)]));
     }
 
     /** طلب تمديد: قبل الديدلاين ومرّة واحدة (23-3.5) */
@@ -216,7 +216,7 @@ class TaskController extends Controller
 
         $this->workflow->requestExtension($task, $user, $data['new_deadline'], $data['reason']);
 
-        return back()->with('status', (string) setting('workflow.tasks.extension_ok', 'اتبعت طلب التمديد ✓ — القرار عند مراجعك خلال نافذته.'));
+        return back()->with('status', (string) setting('workflow.tasks.extension_ok', 'اتبعت طلب التمديد ✓، القرار عند مراجعك خلال نافذته.'));
     }
 
     /** اعتذار — يُعرَض على الأبلاين ويمشي على محرّك التصعيد */
@@ -229,7 +229,7 @@ class TaskController extends Controller
 
         $this->workflow->apologize($task, $user, $data['reason']);
 
-        return back()->with('status', (string) setting('workflow.tasks.apology_ok', 'اتسجّل الاعتذار ✓ — مراجعك هيقرّر فيه.'));
+        return back()->with('status', (string) setting('workflow.tasks.apology_ok', 'اتسجّل الاعتذار ✓، مراجعك هيقرّر فيه.'));
     }
 
     /** رفع علم «متأخّر بسبب [ابن]» (23-3.9-4) */
@@ -242,7 +242,7 @@ class TaskController extends Controller
 
         $this->workflow->flagLateDueToChild($task, Task::findOrFail($data['child_task_id']), $user);
 
-        return back()->with('status', (string) setting('workflow.tasks.flag_ok', 'العلم اترفع ✓ — التأخير منسوب لصاحبه، ونافذتك محميّة.'));
+        return back()->with('status', (string) setting('workflow.tasks.flag_ok', 'العلم اترفع ✓، التأخير منسوب لصاحبه، ونافذتك محميّة.'));
     }
 
     /** Create Subtask دفعةً — بفحص قيد الديدلاين قبل الحفظ (23-2.3) */
@@ -256,7 +256,7 @@ class TaskController extends Controller
 
         $created = $this->batch->save($task, is_array($rows) ? $rows : [], $user);
 
-        return back()->with('status', strtr((string) setting('workflow.tasks.store_subtasks_ok', 'اتحفظت الدفعة ✓ — :a1 صب-تاسك راحوا لمراجعة أبلاينك.'), [':a1' => (string) ($created->count())]));
+        return back()->with('status', strtr((string) setting('workflow.tasks.store_subtasks_ok', 'اتحفظت الدفعة ✓، :a1 صب-تاسك راحوا لمراجعة أبلاينك.'), [':a1' => (string) ($created->count())]));
     }
 
     /** التودو: شخصيّ بلا اعتماد وبلا أثر على أيّ درجة (23-2.1) */

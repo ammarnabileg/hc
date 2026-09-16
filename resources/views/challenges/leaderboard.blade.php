@@ -61,7 +61,7 @@
     </x-filters>
 
     @if ($board['rows']->isEmpty())
-        <x-empty :message="setting('challenges.champions.empty_message', 'لسّه بدري على أوّل ترتيب — ادخل أوّل حرب وابدأ.')"
+        <x-empty :message="setting('challenges.champions.empty_message', 'لسّه بدري على أوّل ترتيب. ادخل أوّل حرب وابدأ.')"
                  :action="setting('challenges.champions.empty_action', 'التحدّيات المتاحة')" :href="route('challenges.index')" />
     @else
         {{-- صفوف كروت رأسيّة: تشتغل على الموبايل بلا تمرير أفقيّ (2.15-ج) --}}
@@ -79,7 +79,7 @@
             </div>
         @else
             <p class="text-xs mt-4 text-center" style="color: var(--text-muted)">
-                {{ setting('challenges.champions.no_rank_note', 'لسّه مالكش ترتيب في الفترة دي — أوّل تحدّي هيحطّك على اللوحة.') }}
+                {{ setting('challenges.champions.no_rank_note', 'لسّه مالكش ترتيب في الفترة دي. أوّل تحدّي هيحطّك على اللوحة.') }}
             </p>
         @endif
     @endif

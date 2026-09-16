@@ -197,7 +197,7 @@ class LessonAdminController extends Controller
         $message = strtr((string) setting('lessons.admin.import_questions_ok', 'اتستورد :a1 سؤالًا ✓'), [':a1' => (string) ($result['imported'])]);
 
         if ($result['errors'] !== []) {
-            $message .= strtr((string) setting('lessons.admin.import_questions_msg', ' — وفيه :a1 صفًّا محتاج مراجعة.'), [':a1' => (string) (count($result['errors']))]);
+            $message .= strtr((string) setting('lessons.admin.import_questions_msg', ' وفيه :a1 صفًّا محتاج مراجعة.'), [':a1' => (string) (count($result['errors']))]);
         }
 
         return back()->with('status', $message)->with('import_errors', $result['errors']);

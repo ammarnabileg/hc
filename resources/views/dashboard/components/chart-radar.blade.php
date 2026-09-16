@@ -42,7 +42,7 @@
             @foreach ($axes as $i => $axis)
                 @php [$dx, $dy] = explode(' ', $point($i, max(0.06, (float) $axis['ratio']))); @endphp
                 <circle cx="{{ $dx }}" cy="{{ $dy }}" r="3" fill="var(--color-brand-500)">
-                    <title>{{ str_replace([':label', ':level', ':value', ':unit'], [$axis['label'], $axis['level'], number_format($axis['value']), $axis['unit']], (string) setting('dashboard.chart.radar.axis_tooltip', ':label: مستوى :level — :value :unit')) }}</title>
+                    <title>{{ str_replace([':label', ':level', ':value', ':unit'], [$axis['label'], $axis['level'], number_format($axis['value']), $axis['unit']], (string) setting('dashboard.chart.radar.axis_tooltip', ':label: مستوى :level، :value :unit')) }}</title>
                 </circle>
             @endforeach
 

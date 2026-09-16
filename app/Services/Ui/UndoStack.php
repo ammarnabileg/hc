@@ -57,11 +57,11 @@ class UndoStack
 
         if (! is_array($payload)) {
             // ماذا حدث + ماذا تفعل (2.17-ب)
-            return ['ok' => false, 'message' => setting('ux.undo_stack.undo_1', 'مهلة التراجع خلصت — تقدر تعدّل من الشاشة عادي.')];
+            return ['ok' => false, 'message' => setting('ux.undo_stack.undo_1', 'مهلة التراجع خلصت، تقدر تعدّل من الشاشة عادي.')];
         }
 
         if ((int) $payload['user_id'] !== (int) $actor->id) {
-            return ['ok' => false, 'message' => setting('ux.undo_stack.undo_2', 'الفعل ده مش بتاعك — ارجع للشاشة وجرّب من هناك.')];
+            return ['ok' => false, 'message' => setting('ux.undo_stack.undo_2', 'الفعل ده مش بتاعك، ارجع للشاشة وجرّب من هناك.')];
         }
 
         /** @var class-string<Model> $class */
@@ -69,7 +69,7 @@ class UndoStack
         $model = $class::query()->find($payload['id']);
 
         if (! $model) {
-            return ['ok' => false, 'message' => setting('ux.undo_stack.undo_3', 'العنصر مبقاش موجود — مفيش حاجة نرجّعها.')];
+            return ['ok' => false, 'message' => setting('ux.undo_stack.undo_3', 'العنصر مبقاش موجود، مفيش حاجة نرجّعها.')];
         }
 
         $model->forceFill((array) $payload['before'])->save();

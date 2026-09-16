@@ -106,7 +106,7 @@ class LandingPageController extends Controller
         abort_if(
             LandingPage::query()->where('landingable_type', $landingable::class)->where('landingable_id', $landingable->id)->exists(),
             409,
-            (string) setting('landing_pages.admin.duplicate_msg', 'لهذا العنصر صفحة هبوط بالفعل — عدّلها بدل إنشاء أخرى.'),
+            (string) setting('landing_pages.admin.duplicate_msg', 'لهذا العنصر صفحة هبوط بالفعل، عدّلها بدل إنشاء أخرى.'),
         );
 
         $payload = $this->payload($data, $landingable);
@@ -122,7 +122,7 @@ class LandingPageController extends Controller
 
         return redirect()
             ->route('admin.store.landing-pages.edit', $landingPage)
-            ->with('status', (string) setting('landing_pages.admin.store_ok', 'صفحة الهبوط اتحفظت مسوّدة ✓ — راجعها وانشرها.'));
+            ->with('status', (string) setting('landing_pages.admin.store_ok', 'صفحة الهبوط اتحفظت مسوّدة ✓، راجعها وانشرها.'));
     }
 
     /** ⭐ معاينة الأدمن للسجلّ — `landing_pages.view` (راجع تعليق الصنف) */
@@ -176,7 +176,7 @@ class LandingPageController extends Controller
             : $landingPage->published_at;
 
         // العودة من «مؤرشفة» لا تمرّ من هنا (فعل `restore` وحده) — فلا نسمح بتخطّيه صامتًا
-        abort_if($landingPage->isArchived(), 409, (string) setting('landing_pages.admin.archived_edit_msg', 'صفحة مؤرشفة — استعدها أوّلًا قبل التعديل.'));
+        abort_if($landingPage->isArchived(), 409, (string) setting('landing_pages.admin.archived_edit_msg', 'صفحة مؤرشفة، استعدها أوّلًا قبل التعديل.'));
 
         $landingPage->update($payload);
 
@@ -210,7 +210,7 @@ class LandingPageController extends Controller
 
         $this->audit($request, $landingPage, 'landing_pages.restore', $old, ['status' => LandingPage::STATUS_DRAFT]);
 
-        return back()->with('status', (string) setting('landing_pages.admin.restore_ok', 'اتستعادت مسوّدة ✓ — راجعها وانشرها.'));
+        return back()->with('status', (string) setting('landing_pages.admin.restore_ok', 'اتستعادت مسوّدة ✓، راجعها وانشرها.'));
     }
 
     /** حذف نهائيّ بتأكيد — لا رجوع عنه (بخلاف الأرشفة) */

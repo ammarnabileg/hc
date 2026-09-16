@@ -5,7 +5,7 @@
 @section('content')
     <x-page-header
         :title="setting('admin.volunteer.index.alidara_almrkzya_llttwa', 'الإدارة المركزيّة للتطوّع')"
-        :subtitle="setting('admin.volunteer.index.mkan_wahd_ydbt_arqam_mnzwma_alttwa_klha_wmnh', 'مكان واحد يضبط أرقام منظومة التطوّع كلّها — ومنه محتوى صفحة التطوّع التعريفيّة.')"
+        :subtitle="setting('admin.volunteer.index.mkan_wahd_ydbt_arqam_mnzwma_alttwa_klha_wmnh', 'مكان واحد يضبط أرقام منظومة التطوّع كلّها، ومنه محتوى صفحة التطوّع التعريفيّة.')"
         :breadcrumbs="[['label' => setting('admin.volunteer.index.lwha_alidara', 'لوحة الإدارة'), 'url' => url('/admin')], ['label' => setting('admin.volunteer.index.alttwa', 'التطوّع')]]">
         <x-slot:action>
             @can('volunteer_page.edit')
@@ -33,7 +33,7 @@
         <x-kpi :label="setting('admin.volunteer.index.mttwawn_nshtwn', 'متطوّعون نشطون')" :value="$kpis['active']" icon="contribution" />
         <x-kpi :label="setting('admin.volunteer.index.shwaghr', 'شواغر')" :value="$kpis['vacancies']" icon="placement" />
         <x-kpi :label="setting('admin.volunteer.index.tjawzat_ntaq_alishraf', 'تجاوزات نطاق الإشراف')" :value="$kpis['overflows']" icon="warning"
-               :hint="setting('admin.volunteer.index.mwshr_la_mana_alsaa_la_twqf_tskyna_wla_trqya', 'مؤشّر لا مانع — السعة لا تُوقِف تسكينًا ولا ترقية.')" />
+               :hint="setting('admin.volunteer.index.mwshr_la_mana_alsaa_la_twqf_tskyna_wla_trqya', 'مؤشّر لا مانع، السعة لا تُوقِف تسكينًا ولا ترقية.')" />
         <x-kpi :label="strtr(setting('admin.volunteer.index.khrwj_akhr_v1_ywma', 'خروج آخر :v1 يومًا'), [':v1' => e($days)])" :value="$kpis['exits']" icon="exit" />
     </section>
 
@@ -74,7 +74,7 @@
                           title="{{ $membership->started_at?->format('Y-m-d') }}">{{ $membership->started_at?->diffForHumans() }}</span>
                 </div>
             @empty
-                <p class="text-sm" style="color: var(--text-muted)">{{ setting('admin.volunteer.index.lsh_bdry_awl_tskyn_mstnyk', 'لسّه بدري — أوّل تسكين مستنّيك.') }}</p>
+                <p class="text-sm" style="color: var(--text-muted)">{{ setting('admin.volunteer.index.lsh_bdry_awl_tskyn_mstnyk', 'لسّه بدري. أوّل تسكين مستنّيك.') }}</p>
             @endforelse
         </section>
 
@@ -137,7 +137,7 @@
                 @endforeach
             </div>
         @else
-            <x-empty :message="setting('volunteer_page.empty_message', 'لسّه محتوى الصفحة فاضي — ابدأ بأوّل كتلة.')" />
+            <x-empty :message="setting('volunteer_page.empty_message', 'لسّه محتوى الصفحة فاضي. ابدأ بأوّل كتلة.')" />
         @endif
     </section>
 

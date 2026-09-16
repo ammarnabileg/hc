@@ -158,7 +158,7 @@ class ReviewController extends Controller
 
         $this->reviews->editBatchItem($item, $request->user(), $data);
 
-        return back()->with('status', (string) setting('workflow.review.edit_batch_item_ok', 'اتحفظ ✓ — واتسجّل في سجلّ النسخ'));
+        return back()->with('status', (string) setting('workflow.review.edit_batch_item_ok', 'اتحفظ ✓، واتسجّل في سجلّ النسخ'));
     }
 
     public function removeBatchItem(Request $request, Task $item): RedirectResponse

@@ -73,7 +73,7 @@ class ProjectController extends Controller
             'approved_by' => $request->user()->id,
         ])->save();
 
-        return back()->with('status', (string) setting('workflow.projects.approve_ok', 'اعتُمد المشروع التشغيليّ ✓ — دائمٌ ويعمل باستمرار.'));
+        return back()->with('status', (string) setting('workflow.projects.approve_ok', 'اعتُمد المشروع التشغيليّ ✓، دائمٌ ويعمل باستمرار.'));
     }
 
     /**

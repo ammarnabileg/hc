@@ -85,7 +85,7 @@
         <form method="post" action="{{ route('settings.devices.destroy-all') }}" class="mt-3 pt-3"
               data-settings-item data-keywords="خروج من كلّ الأجهزة logout all devices"
               style="border-top: 1px solid var(--border)"
-              onsubmit="return confirm('{{ setting('account.security.logout_all_confirm', 'هنقفل كلّ الجلسات على كلّ الأجهزة — وهتحتاج تسجّل دخولك تاني. نكمّل؟') }}')">
+              onsubmit="return confirm('{{ setting('account.security.logout_all_confirm', 'هنقفل كلّ الجلسات على كلّ الأجهزة، وهتحتاج تسجّل دخولك تاني. نكمّل؟') }}')">
             @csrf
             @method('DELETE')
             <button type="submit" class="btn rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
@@ -93,7 +93,7 @@
                 <x-icon name="logout" size="16" /> {{ setting('auth.logout.all_devices_label', 'تسجيل الخروج من كلّ الأجهزة') }}
             </button>
             <p class="text-xs mt-2" style="color: var(--text-muted)">
-                {{ setting('account.security.logout_all_hint', 'بيقفل حسابك على كلّ الأجهزة — بما فيها الجهاز ده.') }}
+                {{ setting('account.security.logout_all_hint', 'بيقفل حسابك على كلّ الأجهزة، بما فيها الجهاز ده.') }}
             </p>
         </form>
     @endcan

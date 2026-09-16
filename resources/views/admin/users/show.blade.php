@@ -101,14 +101,14 @@
                     <section class="card p-4">
                         <h3 class="font-bold text-sm mb-1">{{ setting('admin.users.show.aldwla', 'الدولة') }}</h3>
                         <p class="text-xs mb-3" style="color: var(--text-muted)">
-                            {{ setting('admin.users.country_pin_hint', 'الكشف التلقائيّ بيتبع مكانه دلوقتي — والتثبيت اليدويّ بيعلو عليه ومابيتدهسش.') }}
+                            {{ setting('admin.users.country_pin_hint', 'الكشف التلقائيّ بيتبع مكانه دلوقتي، والتثبيت اليدويّ بيعلو عليه ومابيتدهسش.') }}
                         </p>
 
                         <form method="post" action="{{ route('admin.users.country', $user) }}" class="space-y-2">
                             @csrf
                             <select name="country_id" class="w-full rounded-xl px-3 py-2 text-sm"
                                     style="min-block-size: 44px; background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
-                                <option value="">{{ setting('admin.users.show.bla_tthbyt_kshf_tlqayy', '— بلا تثبيت (كشف تلقائيّ) —') }}</option>
+                                <option value="">{{ setting('admin.users.show.bla_tthbyt_kshf_tlqayy', 'بلا تثبيت (كشف تلقائيّ)') }}</option>
                                 @foreach ($countries as $country)
                                     <option value="{{ $country->id }}" @selected($user->country_id === $country->id)>{{ $country->name_ar }}</option>
                                 @endforeach

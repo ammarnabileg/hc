@@ -115,7 +115,7 @@ class AcknowledgementGate
     {
         $notice = (string) setting(
             'announcements.acknowledge.wall_notice',
-            'في توجيه مهمّ مستنّي إقرارك — اقراه وأقِرّ بيه عشان تكمّل.',
+            'في توجيه مهمّ مستنّي إقرارك، اقراه وأقِرّ بيه عشان تكمّل.',
         );
 
         if ($request->expectsJson()) {

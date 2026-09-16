@@ -48,7 +48,7 @@ class AnnouncementDemoSeeder extends Seeder
             ],
             [
                 'title' => 'ميزة جديدة: لقطة الإنجاز',
-                'body' => 'دلوقتي كلّ شهادة بتطلعلك بلقطة جاهزة للمشاركة باسمك وتاريخك — جرّبها من صفحة شهاداتي.',
+                'body' => 'دلوقتي كلّ شهادة بتطلعلك بلقطة جاهزة للمشاركة باسمك وتاريخك. جرّبها من صفحة شهاداتي.',
                 'cta_label' => 'شهاداتي',
                 'cta_url' => '/learning/certificates',
                 'audience' => ['type' => 'all'],
@@ -131,8 +131,8 @@ class AnnouncementDemoSeeder extends Seeder
             ['announcements.acknowledge.ledger_source', 'announcements', 'دلو مصدر الإقرار في دفتر الأستاذ', 'string', 'announcement'],
             // ⭐ فرض «قبل المتابعة» على الخادم (13.2): بلا هذا المفتاح يبقى الإقرار بوب-أبًا يُغلَق
             ['announcements.acknowledge.enforce', 'announcements', 'منع تصفّح المنصّة قبل إقرار التوجيه الحرج', 'bool', '1'],
-            ['announcements.acknowledge.notice', 'announcements', 'سطر شرح إلزاميّة الإقرار في البوب-أب', 'string', 'توجيه حرج — لازم تقرّ بقراءته قبل ما تكمّل تصفّح المنصّة.'],
-            ['announcements.acknowledge.wall_notice', 'announcements', 'رسالة التحويلة عند حجب التصفّح للإقرار', 'string', 'في توجيه مهمّ مستنّي إقرارك — اقراه وأقِرّ بيه عشان تكمّل.'],
+            ['announcements.acknowledge.notice', 'announcements', 'سطر شرح إلزاميّة الإقرار في البوب-أب', 'string', 'توجيه حرج. لازم تقرّ بقراءته قبل ما تكمّل تصفّح المنصّة.'],
+            ['announcements.acknowledge.wall_notice', 'announcements', 'رسالة التحويلة عند حجب التصفّح للإقرار', 'string', 'في توجيه مهمّ مستنّي إقرارك. اقراه وأقِرّ بيه عشان تكمّل.'],
             // ⚠️ الأبواب التي تبقى مفتوحة رغم الإقرار المعلّق — وإلّا صار الإقرار سجنًا
             ['announcements.acknowledge.exempt_paths', 'announcements', 'المسارات المفتوحة رغم الإقرار المعلّق', 'json', json_encode([
                 'announcements', 'announcements/*',
@@ -165,8 +165,8 @@ class AnnouncementDemoSeeder extends Seeder
                 'email' => 'بريد',
             ], JSON_UNESCAPED_UNICODE)],
             ['announcements.channels.feed_default_on', 'announcements', 'قناة التاب مفعّلة افتراضيًّا في المحرّر', 'bool', '1'],
-            ['announcements.audience.segment_hint', 'announcements', 'سطر شرح استهداف شريحة محفوظة', 'string', 'الشريحة بتتحلّ لأعضائها على السيرفر لحظة الإرسال — مش لحظة الحفظ.'],
-            ['announcements.audience.segments_empty', 'announcements', 'نصّ غياب الشرائح المحفوظة', 'string', 'مفيش شرائح محفوظة لسّه — ابنِ واحدة'],
+            ['announcements.audience.segment_hint', 'announcements', 'سطر شرح استهداف شريحة محفوظة', 'string', 'الشريحة بتتحلّ لأعضائها على السيرفر لحظة الإرسال، مش لحظة الحفظ.'],
+            ['announcements.audience.segments_empty', 'announcements', 'نصّ غياب الشرائح المحفوظة', 'string', 'مفيش شرائح محفوظة لسّه. ابنِ واحدة'],
 
             // ---------------- ⭐ قناة البريد (12.6-أ) وحدّ هدوئها (12.6-ب)
             ['announcements.email.enabled', 'announcements', 'تفعيل قناة البريد للمنشورات', 'bool', '1'],
@@ -181,7 +181,7 @@ class AnnouncementDemoSeeder extends Seeder
             ['announcements.email.subject_template', 'announcements', 'قالب عنوان الرسالة (:title)', 'string', ':title'],
             ['announcements.email.cta_fallback_label', 'announcements', 'نصّ زرّ الرسالة حين يغيب CTA', 'string', 'افتح التعليمات'],
             ['announcements.email.footer', 'announcements', 'تذييل رسالة المنشور', 'string', 'وصلتك الرسالة دي لأنّك مفعّل قناة البريد — تقدر توقّفها من إعدادات حسابك.'],
-            ['announcements.email.editor_hint', 'announcements', 'سطر شرح قناة البريد في المحرّر', 'string', 'البريد بيروح لمن بريده موثَّق ومفعّل القناة بس — والزيادة بتتأجّل احترامًا لحدّ الهدوء.'],
+            ['announcements.email.editor_hint', 'announcements', 'سطر شرح قناة البريد في المحرّر', 'string', 'البريد بيروح لمن بريده موثَّق ومفعّل القناة بس، والزيادة بتتأجّل احترامًا لحدّ الهدوء.'],
             ['announcements.email.skip_no_address', 'announcements', 'سبب الاستبعاد: بلا عنوان بريد', 'string', 'بلا عنوان بريد'],
             ['announcements.email.skip_unverified', 'announcements', 'سبب الاستبعاد: بريد غير موثَّق', 'string', 'البريد غير موثَّق'],
             ['announcements.email.skip_optout', 'announcements', 'سبب الاستبعاد: أوقف قناة البريد', 'string', 'أوقف قناة البريد'],

@@ -86,8 +86,8 @@ class ReadinessBar
 
         $text = $inMatch
             // إلغاء الاستعداد أثناء حرب نشطة ⟵ خسارة مؤكّدة + عقوبة (15.0)
-            ? strtr(setting('gamification_wars.readiness_bar.markup_2', 'إنت في مواجهة شغّالة — الإلغاء دلوقتي = خسارة :p1 + عقوبة :p2 تذكرة.'), [':p1' => (string) ($loss), ':p2' => (string) ($penalty)])
-            : strtr(setting('gamification_wars.readiness_bar.body_3', 'إنت مستعدّ لـ«:p1» — أيّ محارب يقدر يتحدّاك.'), [':p1' => (string) ($name)]);
+            ? strtr(setting('gamification_wars.readiness_bar.markup_2', 'إنت في مواجهة شغّالة، والإلغاء دلوقتي = خسارة :p1 + عقوبة :p2 تذكرة.'), [':p1' => (string) ($loss), ':p2' => (string) ($penalty)])
+            : strtr(setting('gamification_wars.readiness_bar.body_3', 'إنت مستعدّ لـ«:p1»، وأيّ محارب يقدر يتحدّاك.'), [':p1' => (string) ($name)]);
 
         $label = $inMatch ? setting('gamification_wars.readiness_bar.body_1', 'انسحب وألغِ الاستعداد') : setting('gamification_wars.readiness_bar.body_2', 'إلغاء الاستعداد');
         $url = route('challenges.unready');

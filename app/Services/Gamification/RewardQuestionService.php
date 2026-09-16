@@ -110,7 +110,7 @@ class RewardQuestionService
     /** نصّ رسالة الواتساب الجاهزة + الرابط */
     public function shareText(RewardQuestion $question): string
     {
-        return trim((string) setting('reward_questions.whatsapp_text', 'سؤال المكافأة النهارده — جاوب قبل ما الوقت يخلص:'))
+        return trim((string) setting('reward_questions.whatsapp_text', 'سؤال المكافأة النهارده، جاوب قبل ما الوقت يخلص:'))
             .' '.$this->url($question);
     }
 
@@ -251,7 +251,7 @@ class RewardQuestionService
                 'already' => true,
                 'xp' => 0,
                 'tickets' => 0,
-                'message' => (string) setting('reward_questions.already_message', 'جاوبت على السؤال ده قبل كده — مكافأتك اتصرفت مرّة واحدة.'),
+                'message' => (string) setting('reward_questions.already_message', 'جاوبت على السؤال ده قبل كده، مكافأتك اتصرفت مرّة واحدة.'),
             ];
         }
 
@@ -307,8 +307,8 @@ class RewardQuestionService
             'xp' => $granted['xp'],
             'tickets' => $granted['tickets'],
             'message' => $isCorrect
-                ? (string) setting('reward_questions.correct_message', 'إجابة صحيحة 🎉 — مكافأتك اتضافت لحسابك.')
-                : (string) setting('reward_questions.wrong_message', 'مش الإجابة الصحيحة المرّة دي — بس شكرًا إنك جاوبت بسرعة.'),
+                ? (string) setting('reward_questions.correct_message', 'إجابة صحيحة 🎉 ومكافأتك اتضافت لحسابك.')
+                : (string) setting('reward_questions.wrong_message', 'مش الإجابة الصحيحة المرّة دي، بس شكرًا إنك جاوبت بسرعة.'),
         ];
     }
 

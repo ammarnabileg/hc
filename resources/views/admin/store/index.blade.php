@@ -4,7 +4,7 @@
 
 @section('content')
     <x-page-header :title="setting('admin.store.index.almtjr_walmalyat', 'المتجر والماليّات')"
-                   :subtitle="setting('admin.store.index.kl_ma_ybaa_wkl_ma_yhsl_fy_mkan_wahd', 'كلّ ما يُباع وكلّ ما يُحصَّل — في مكان واحد.')"
+                   :subtitle="setting('admin.store.index.kl_ma_ybaa_wkl_ma_yhsl_fy_mkan_wahd', 'كلّ ما يُباع وكلّ ما يُحصَّل، في مكان واحد.')"
                    :breadcrumbs="[
                        ['label' => setting('admin.store.index.lwha_alidara', 'لوحة الإدارة'), 'url' => url('/admin')],
                        ['label' => setting('admin.store.index.almtjr_walmalyat', 'المتجر والماليّات')],
@@ -67,12 +67,12 @@
     @if ($tab === 'orders')
         {{-- ⛔ قاعدة ثابتة تُعرَض دائمًا: لا استرجاع نقديّ (19.4) — والتصحيح التقنيّ وحده البديل --}}
         <p class="text-xs mb-3" style="color: var(--text-muted)">
-            {{ setting('admin.store.index.mafysh_astrjaa_nqdy_alrsyd_yfdl_fy_mhfza', 'مافيش استرجاع نقديّ — الرصيد يفضل في محفظة صاحبه، والخطأ التقنيّ يتصحَّح بمعاملة موثّقة بمرجعها.') }}
+            {{ setting('admin.store.index.mafysh_astrjaa_nqdy_alrsyd_yfdl_fy_mhfza', 'مافيش استرجاع نقديّ، الرصيد يفضل في محفظة صاحبه، والخطأ التقنيّ يتصحَّح بمعاملة موثّقة بمرجعها.') }}
         </p>
     @elseif ($tab === 'library')
         {{-- التحليلات مجمّعة فقط — ولا سجلّ فتح فرديّ لأيّ ملفّ (مرفوض صراحةً في 20.5) --}}
         <p class="text-xs mb-3" style="color: var(--text-muted)">
-            {{ setting('admin.store.index.althlylat_mjmaa_fqt_alakthr_qraa_mtwst', 'التحليلات مجمّعة فقط (الأكثر قراءةً · متوسّط الإكمال) — مافيش سجلّ فتح فرديّ لأيّ مستخدم.') }}
+            {{ setting('admin.store.index.althlylat_mjmaa_fqt_alakthr_qraa_mtwst', 'التحليلات مجمّعة فقط (الأكثر قراءةً · متوسّط الإكمال)، مافيش سجلّ فتح فرديّ لأيّ مستخدم.') }}
         </p>
     @endif
 
@@ -80,7 +80,7 @@
         {{-- الحالة الفارغة بنصّها المنصوص في 24 لكلّ شاشة (2.15-ب) --}}
         <x-empty :message="$tab === 'bundles'
                     ? setting('store.admin.bundles.empty_text')
-                    : setting('store.admin.empty_text', 'مفيش حاجة هنا لسه — ابدأ بأوّل عنصر.')"
+                    : setting('store.admin.empty_text', 'مفيش حاجة هنا لسه. ابدأ بأوّل عنصر.')"
                  :action="$tab === 'bundles' ? setting('store.admin.bundles.new_label') : setting('store.admin.new_item_label', '+ عنصر جديد')"
                  :href="route('admin.store.index', ['tab' => $tab])" />
     @else

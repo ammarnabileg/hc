@@ -122,7 +122,7 @@
         @if (! $c['shows_emergency'])
             <p class="text-sm" style="color: var(--text-muted)">{{ setting('volunteer.profile_tab_contact.text_6', 'متاحة لمشرفيه فقط.') }}</p>
         @elseif ($c['emergency']->isEmpty())
-            <p class="text-sm" style="color: var(--text-muted)">{{ setting('volunteer.profile_tab_contact.text_7', 'مش مضافة —') }}
+            <p class="text-sm" style="color: var(--text-muted)">{{ setting('volunteer.profile_tab_contact.text_7', 'مش مضافة.') }}
                 @if ($isOwner)
                     <a href="{{ route('settings.index') }}" style="color: var(--color-brand-500)">{{ setting('volunteer.profile_tab_contact.link_3', 'أضفها من الإعدادات') }}</a>
                 @endif
@@ -148,7 +148,7 @@
             <form method="POST" action="{{ route('volunteer.profile.consent.request', ['code' => $owner->code]) }}" class="space-y-3">
                 @csrf
                 <input type="hidden" name="field" value="{{ $field['key'] }}">
-                <p class="text-sm" style="color: var(--text-muted)">{{ setting('volunteer.profile_tab_contact.text_8', 'سبب الطلب اختياريّ — بس بيسهّل القرار.') }}</p>
+                <p class="text-sm" style="color: var(--text-muted)">{{ setting('volunteer.profile_tab_contact.text_8', 'سبب الطلب اختياريّ، بس بيسهّل القرار.') }}</p>
                 <input type="text" name="reason" maxlength="{{ (int) setting('volunteer.profile.consent.reason_max', 300) }}"
                        class="w-full rounded-xl px-3 py-2 text-sm"
                        style="min-height: 44px; background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)"
@@ -166,7 +166,7 @@
     <section class="card p-4 mt-3">
         <h2 class="font-bold text-sm mb-3">{{ setting('volunteer.profile_tab_contact.heading_4', 'مين بيشوف بياناتي') }}</h2>
         @if ($granted->isEmpty())
-            <p class="text-sm" style="color: var(--text-muted)">{{ setting('volunteer.profile_tab_contact.text_9', 'محدّش دلوقتي — غير مشرفيك بحقّهم النظاميّ.') }}</p>
+            <p class="text-sm" style="color: var(--text-muted)">{{ setting('volunteer.profile_tab_contact.text_9', 'محدّش دلوقتي، غير مشرفيك بحقّهم النظاميّ.') }}</p>
         @else
             <ul class="space-y-3">
                 @foreach ($granted as $consent)

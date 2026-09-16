@@ -77,7 +77,7 @@ class RecruitmentController extends Controller
         $target = User::query()->where('code', mb_strtoupper($data['code']))->first();
 
         if (! $target) {
-            return back()->withInput()->with('status', (string) setting('volunteer.people_recruitment.store_denied', 'الكود ده مش موجود — راجع الكود وجرّب تاني.'));
+            return back()->withInput()->with('status', (string) setting('volunteer.people_recruitment.store_denied', 'الكود ده مش موجود، راجع الكود وجرّب تاني.'));
         }
 
         $existing = RecruitmentCandidate::query()->where('user_id', $target->id)->latest('id')->first();
@@ -100,7 +100,7 @@ class RecruitmentController extends Controller
         $this->audit->record($request->user(), 'candidate.added_manually', $candidate, [], ['stage' => 'applied']);
 
         return redirect()->route('volunteer.recruitment')
-            ->with('status', (string) setting('volunteer.people_recruitment.store_ok', 'اتضاف المرشّح ✓ — هيظهر في عمود «تقديم».'));
+            ->with('status', (string) setting('volunteer.people_recruitment.store_ok', 'اتضاف المرشّح ✓، هيظهر في عمود «تقديم».'));
     }
 
     /** تصدير CSV (24.4-12 — هيدر شاشة التوظيف): نفس فلاتر اللوحة الحاليّة */

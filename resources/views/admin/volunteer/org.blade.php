@@ -5,7 +5,7 @@
 @section('content')
     <x-page-header
         :title="setting('admin.volunteer.org.alhykl_walbwzshnz_walsaa', 'الهيكل والبوزشنز والسعة')"
-        :subtitle="setting('admin.volunteer.org.alkyanat_althlatha_wbwzshnatha_wmwshrat', 'الكيانات الثلاثة وبوزشناتها ومؤشّرات سعتها — والسعة مؤشّرات لا موانع.')"
+        :subtitle="setting('admin.volunteer.org.alkyanat_althlatha_wbwzshnatha_wmwshrat', 'الكيانات الثلاثة وبوزشناتها ومؤشّرات سعتها، والسعة مؤشّرات لا موانع.')"
         :breadcrumbs="[['label' => setting('admin.volunteer.org.alttwa', 'التطوّع'), 'url' => route('admin.volunteer.index')], ['label' => setting('admin.volunteer.org.alhykl_walsaa', 'الهيكل والسعة')]]">
         <x-slot:action>
             @can('org_chart.edit')
@@ -28,7 +28,7 @@
     {{-- قفل معلَن: السعة غير مانعة إطلاقًا (13.4-ف) --}}
     <div class="card p-3 mb-4 text-sm flex items-start gap-2" style="border-color: color-mix(in srgb, var(--color-state-warn) 40%, var(--border))">
         <span aria-hidden="true">▲</span>
-        <span>{{ setting('admin.volunteer.org.alsaa', 'السعة') }} <strong>{{ setting('admin.volunteer.org.mwshrat_wtnbyhat_fqt', 'مؤشّرات وتنبيهات فقط') }}</strong> {{ setting('admin.volunteer.org.la_twqf_tskyna_wla_trqya_wla_nqla_walmtjawz', '— لا تُوقِف تسكينًا ولا ترقيةً ولا نقلًا. والمتجاوز يظهر في صحّة فريقه بلا تعطيل أحد.') }}</span>
+        <span>{{ setting('admin.volunteer.org.alsaa', 'السعة') }} <strong>{{ setting('admin.volunteer.org.mwshrat_wtnbyhat_fqt', 'مؤشّرات وتنبيهات فقط') }}</strong> {{ setting('admin.volunteer.org.la_twqf_tskyna_wla_trqya_wla_nqla_walmtjawz', '· لا تُوقِف تسكينًا ولا ترقيةً ولا نقلًا. والمتجاوز يظهر في صحّة فريقه بلا تعطيل أحد.') }}</span>
     </div>
 
     @include('admin.volunteer.partials.promotion-ladder-pending', ['actingApprovals' => $actingApprovals, 'pendingDecisions' => $pendingDecisions])
@@ -114,7 +114,7 @@
             </details>
         @empty
             {{-- تمييز «مفيش كيانات أصلًا» عن «الفلتر ما طابقش حاجة» (24.2) --}}
-            <x-empty :message="setting('admin.volunteer.org.mfysh_kyanat_lsh_abda_bawl_kyan', 'مفيش كيانات لسّه — ابدأ بأوّل كيان.')"
+            <x-empty :message="setting('admin.volunteer.org.mfysh_kyanat_lsh_abda_bawl_kyan', 'مفيش كيانات لسّه. ابدأ بأوّل كيان.')"
                      :filtered="$filters['q'] !== '' || $filters['track'] !== 0" />
         @endforelse
     </section>
@@ -124,7 +124,7 @@
         <section class="card p-4 md:p-5 mt-4">
             <h2 class="font-bold mb-1">{{ setting('admin.volunteer.org.albwzshnz_ntaq_alishraf_sqf_alanshghal', 'البوزشنز · نطاق الإشراف · سقف الانشغال') }}</h2>
             <p class="text-xs mb-3" style="color: var(--text-muted)">
-                {{ setting('admin.volunteer.org.alsaa_2', 'السعة =') }} <strong>{{ setting('admin.volunteer.org.add_ashkhas', 'عدد أشخاص') }}</strong>{{ setting('admin.volunteer.org.wsqf_alanshghal', '، وسقف الانشغال =') }} <strong>{{ setting('admin.volunteer.org.add_mham', 'عدد مهامّ') }}</strong> {{ setting('admin.volunteer.org.mstqlan_tmama', '— مستقلّان تمامًا.') }}
+                {{ setting('admin.volunteer.org.alsaa_2', 'السعة =') }} <strong>{{ setting('admin.volunteer.org.add_ashkhas', 'عدد أشخاص') }}</strong>{{ setting('admin.volunteer.org.wsqf_alanshghal', '، وسقف الانشغال =') }} <strong>{{ setting('admin.volunteer.org.add_mham', 'عدد مهامّ') }}</strong> {{ setting('admin.volunteer.org.mstqlan_tmama', '· مستقلّان تمامًا.') }}
             </p>
 
             <form method="post" action="{{ route('admin.volunteer.org.positions.save') }}">
@@ -217,20 +217,20 @@
                 <select name="track_id" id="entity-track" class="w-full rounded-xl px-3 py-2 text-sm mb-3"
                         style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
                     @foreach ($tracks as $track)
-                        <option value="{{ $track->id }}">{{ $track->name_ar }}@if ($track->is_temporary) {{ setting('admin.volunteer.org.mwqt', '— مؤقّت') }} @endif</option>
+                        <option value="{{ $track->id }}">{{ $track->name_ar }}@if ($track->is_temporary) {{ setting('admin.volunteer.org.mwqt', '· مؤقّت') }} @endif</option>
                     @endforeach
                 </select>
 
                 @unless ($canOpenCaseFile)
                     <p class="text-xs mb-3" style="color: var(--color-state-warn)">
-                        {{ setting('admin.volunteer.org.almlf_almwqt_yfthh_wynhyh', '▲ الملفّ المؤقّت يفتحه ويُنهيه') }} <strong>{{ setting('admin.volunteer.org.mshrf_aam_alttwa_whdh', 'مشرف عام التطوّع وحده') }}</strong> {{ setting('admin.volunteer.org.lw_akhtrt_almsar_almwqt_hytrfd_alhfz', '— لو اخترت المسار المؤقّت هيترفض الحفظ.') }}
+                        {{ setting('admin.volunteer.org.almlf_almwqt_yfthh_wynhyh', '▲ الملفّ المؤقّت يفتحه ويُنهيه') }} <strong>{{ setting('admin.volunteer.org.mshrf_aam_alttwa_whdh', 'مشرف عام التطوّع وحده') }}</strong> {{ setting('admin.volunteer.org.lw_akhtrt_almsar_almwqt_hytrfd_alhfz', '· لو اخترت المسار المؤقّت هيترفض الحفظ.') }}
                     </p>
                 @endunless
 
                 <label class="block text-sm font-semibold mb-1" for="entity-parent">{{ setting('admin.volunteer.org.alkyan_alab_akhtyary', 'الكيان الأب (اختياريّ)') }}</label>
                 <select name="parent_id" id="entity-parent" class="w-full rounded-xl px-3 py-2 text-sm mb-3"
                         style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
-                    <option value="">{{ setting('admin.volunteer.org.bla_ab_kyan_ryysy', '— بلا أب (كيان رئيسيّ)') }}</option>
+                    <option value="">{{ setting('admin.volunteer.org.bla_ab_kyan_ryysy', 'بلا أب (كيان رئيسيّ)') }}</option>
                     @foreach ($entities as $entity)
                         <option value="{{ $entity->id }}">{{ $entity->name_ar }}</option>
                     @endforeach

@@ -52,7 +52,7 @@ class VolunteerPeopleDemoSeeder extends Seeder
              | يرحّل قيمة `volunteer.qualifying.course_id` القديمة إلى مسارها.
              */
             ['volunteer.qualifying.path_id', 'recruitment', 'المسار التأهيليّ (13.4-ب)', 'number', '0'],
-            ['volunteer.qualifying.xp_reward', 'recruitment', 'مكافأة إتمام التأهيليّ (XP) — يحكمها جدول الكسب', 'number', '1000'],
+            ['volunteer.qualifying.xp_reward', 'recruitment', 'مكافأة إتمام التأهيليّ (XP)، يحكمها جدول الكسب', 'number', '1000'],
             ['volunteer.qualifying.xp_reason', 'recruitment', 'وصف معاملة مكافأة التأهيليّ', 'string', 'مكافأة إتمام المسار التأهيليّ'],
             ['volunteer.qualifying.done_title', 'recruitment', 'عنوان إشعار إتمام التأهيليّ', 'string', 'أتممت المسار التأهيليّ 🎉'],
             ['volunteer.qualifying.done_body', 'recruitment', 'نصّ إشعار إتمام التأهيليّ', 'string', 'خطوتك الجاية: ادخل قائمة الانتظار المبدئيّة.'],
@@ -63,27 +63,27 @@ class VolunteerPeopleDemoSeeder extends Seeder
             ['volunteer.journey.step.interview', 'recruitment', 'محطّة: المقابلة', 'string', 'مقابلة'],
             ['volunteer.journey.step.final_list', 'recruitment', 'محطّة: القائمة النهائيّة', 'string', 'قائمة نهائيّة'],
             ['volunteer.journey.step.started', 'recruitment', 'محطّة: البدء', 'string', 'بدء'],
-            ['volunteer.journey.next.qualifying', 'recruitment', 'الخطوة الجاية — التأهيليّ', 'string', 'ابدأ المسار التأهيليّ وكمّله عشان تدخل قائمة الانتظار.'],
-            ['volunteer.journey.next.shortlist', 'recruitment', 'الخطوة الجاية — القائمة المبدئيّة', 'string', 'طلبك تحت المراجعة، وهنتواصل معاك لتحديد موعد المقابلة.'],
-            ['volunteer.journey.next.interview', 'recruitment', 'الخطوة الجاية — المقابلة', 'string', 'استعدّ لمقابلتك — هتلاقي الرابط والموعد هنا.'],
-            ['volunteer.journey.next.final_list', 'recruitment', 'الخطوة الجاية — القائمة النهائيّة', 'string', 'أنت في القائمة النهائيّة — فاضل اختيار القسم المناسب ليك.'],
-            ['volunteer.journey.next.started', 'recruitment', 'الخطوة الجاية — بعد التسكين', 'string', 'أهلًا بيك معانا — لوحة التطوّع بقت متاحة ليك.'],
+            ['volunteer.journey.next.qualifying', 'recruitment', 'الخطوة الجاية: التأهيليّ', 'string', 'ابدأ المسار التأهيليّ وكمّله عشان تدخل قائمة الانتظار.'],
+            ['volunteer.journey.next.shortlist', 'recruitment', 'الخطوة الجاية: القائمة المبدئيّة', 'string', 'طلبك تحت المراجعة، وهنتواصل معاك لتحديد موعد المقابلة.'],
+            ['volunteer.journey.next.interview', 'recruitment', 'الخطوة الجاية: المقابلة', 'string', 'استعدّ لمقابلتك، هتلاقي الرابط والموعد هنا.'],
+            ['volunteer.journey.next.final_list', 'recruitment', 'الخطوة الجاية: القائمة النهائيّة', 'string', 'أنت في القائمة النهائيّة، فاضل اختيار القسم المناسب ليك.'],
+            ['volunteer.journey.next.started', 'recruitment', 'الخطوة الجاية: بعد التسكين', 'string', 'أهلًا بيك معانا، لوحة التطوّع بقت متاحة ليك.'],
             ['volunteer.journey.waiting_copy', 'recruitment', 'تأطير إيجابيّ أثناء الانتظار', 'string', 'طلبك تحت المراجعة، هنتواصل معاك قريبًا.'],
-            ['volunteer.journey.reminder_copy', 'recruitment', 'تذكير لطيف لمن بدأ وما كمّلش', 'string', 'باقي القليل على إتمام التأهيليّ — كمّل من حيث وقفت.'],
-            ['volunteer.journey.incomplete_message', 'recruitment', 'رسالة التأهيليّ غير المكتمل', 'string', 'لسّه المسار التأهيليّ مش مكتمل — كمّل اللي فاضل وهتلاقي الزرّ في انتظارك.'],
+            ['volunteer.journey.reminder_copy', 'recruitment', 'تذكير لطيف لمن بدأ وما كمّلش', 'string', 'باقي القليل على إتمام التأهيليّ، كمّل من حيث وقفت.'],
+            ['volunteer.journey.incomplete_message', 'recruitment', 'رسالة التأهيليّ غير المكتمل', 'string', 'لسّه المسار التأهيليّ مش مكتمل، كمّل اللي فاضل وهتلاقي الزرّ في انتظارك.'],
             ['volunteer.journey.shortlist_title', 'recruitment', 'عنوان إشعار دخول القائمة المبدئيّة', 'string', 'دخلت قائمة الانتظار المبدئيّة ✓'],
             ['volunteer.journey.status_title', 'recruitment', 'عنوان بطاقة «حالتي»', 'string', 'حالتي'],
             ['volunteer.journey.interview_title', 'recruitment', 'عنوان بلوك المقابلة', 'string', 'موعد مقابلتك'],
             ['volunteer.journey.interview_cta', 'recruitment', 'زرّ رابط المقابلة', 'string', 'ادخل المقابلة'],
-            ['volunteer.journey.interview_no_link', 'recruitment', 'رسالة غياب رابط المقابلة', 'string', 'الرابط لسّه مش متاح — هيوصلك قبل الموعد.'],
+            ['volunteer.journey.interview_no_link', 'recruitment', 'رسالة غياب رابط المقابلة', 'string', 'الرابط لسّه مش متاح، هيوصلك قبل الموعد.'],
 
             // ---------------- «جدّد استعدادك» (13.4-هـ)
             ['volunteer.journey.renew_cta', 'recruitment', 'زرّ تجديد الاستعداد', 'string', 'جدّد استعدادك'],
             ['volunteer.journey.renew_hint', 'recruitment', 'شرح تجديد الاستعداد', 'string', 'لسّه متاح ومتحمّس؟ جدّد استعدادك فيتقدّم دورك في القائمة.'],
             ['volunteer.journey.renew_cooldown_days', 'recruitment', 'تبريد تجديد الاستعداد (يوم)', 'number', '14'],
-            ['volunteer.journey.renew_cooldown_message', 'recruitment', 'رسالة تبريد التجديد', 'string', 'جدّدت استعدادك من فترة قريّبة — تقدر تجدّد تاني يوم :date.'],
+            ['volunteer.journey.renew_cooldown_message', 'recruitment', 'رسالة تبريد التجديد', 'string', 'جدّدت استعدادك من فترة قريّبة، تقدر تجدّد تاني يوم :date.'],
             ['volunteer.journey.renew_not_waiting', 'recruitment', 'رسالة التجديد خارج الانتظار', 'string', 'التجديد بينفع وأنت في الانتظار بس.'],
-            ['volunteer.journey.renew_done', 'recruitment', 'رسالة نجاح التجديد', 'string', 'اتسجّل ✓ — استعدادك اتجدّد ودورك اتقدّم في القائمة.'],
+            ['volunteer.journey.renew_done', 'recruitment', 'رسالة نجاح التجديد', 'string', 'اتسجّل ✓، استعدادك اتجدّد ودورك اتقدّم في القائمة.'],
 
             // ---------------- التوظيف (13.4-د)
             ['recruitment.stage.applied.label', 'recruitment', 'اسم مرحلة التقديم', 'string', 'تقديم'],
@@ -95,10 +95,10 @@ class VolunteerPeopleDemoSeeder extends Seeder
             ['recruitment.score.max', 'recruitment', 'أقصى قيمة في منزلق الدرجات', 'number', '100'],
             ['recruitment.waiting.warn_days', 'recruitment', 'أيّام الانتظار قبل التنبيه', 'number', '30'],
             ['recruitment.waiting.danger_days', 'recruitment', 'أيّام الانتظار قبل الإنذار', 'number', '60'],
-            ['recruitment.returning.line', 'recruitment', 'سطر شارة «عائد»', 'string', 'كان معنا من :from إلى :to — مدّة الخدمة :duration'],
+            ['recruitment.returning.line', 'recruitment', 'سطر شارة «عائد»', 'string', 'كان معنا من :from إلى :to (مدّة الخدمة :duration)'],
 
             // ---------------- المقابلات (13.4-د)
-            ['interviews.slot_minutes', 'recruitment', 'مدّة سلوت المقابلة (دقائق) — بها يُقاس التعارض', 'number', '45'],
+            ['interviews.slot_minutes', 'recruitment', 'مدّة سلوت المقابلة (دقائق)، بها يُقاس التعارض', 'number', '45'],
             ['interviews.status.scheduled.label', 'recruitment', 'حالة: مجدولة', 'string', 'مجدولة'],
             ['interviews.status.done.label', 'recruitment', 'حالة: تمّت', 'string', 'تمّت'],
             ['interviews.status.no_show.label', 'recruitment', 'حالة: لم يحضر', 'string', 'لم يحضر'],
@@ -108,7 +108,7 @@ class VolunteerPeopleDemoSeeder extends Seeder
             ['scorecards.archived_tag', 'recruitment', 'وسم المعيار المؤرشف', 'string', 'معيار مؤرشف'],
             ['scorecards.skills.required', 'recruitment', 'المهارات حقل إجباريّ', 'bool', '1'],
             ['scorecards.skills.label', 'recruitment', 'تسمية حقل المهارات', 'string', 'المهارات'],
-            ['scorecards.skills.placeholder', 'recruitment', 'تلميح حقل المهارات', 'string', 'اكتب أمثلة ملموسة شفتها في المقابلة — مش صفات عامّة.'],
+            ['scorecards.skills.placeholder', 'recruitment', 'تلميح حقل المهارات', 'string', 'اكتب أمثلة ملموسة شفتها في المقابلة، مش صفات عامّة.'],
             ['scorecards.personality.required', 'recruitment', 'تحليل الشخصيّة حقل إجباريّ', 'bool', '1'],
             ['scorecards.personality.label', 'recruitment', 'تسمية حقل الشخصيّة', 'string', 'تحليل الشخصيّة'],
             ['scorecards.personality.placeholder', 'recruitment', 'تلميح حقل الشخصيّة', 'string', 'إزاي بيتعامل مع الضغط والاختلاف؟ اذكر موقفًا.'],
@@ -130,13 +130,13 @@ class VolunteerPeopleDemoSeeder extends Seeder
 
             // ---------------- الأكاديمية (13.4-ل)
             ['academy.recording.vxp_value', 'academy', 'VXP تسجيل بـOTP', 'number', '10'],
-            ['academy.recording.badge', 'academy', 'نصّ شارة مكافأة التسجيل', 'string', '+:vxp VXP و+:rep Rep — مرّة واحدة'],
+            ['academy.recording.badge', 'academy', 'نصّ شارة مكافأة التسجيل', 'string', '+:vxp VXP و+:rep Rep، مرّة واحدة'],
             ['academy.recording.granted.message', 'academy', 'رسالة منح نقاط التسجيل', 'string', 'تمام ✓ اتضاف لك :vxp VXP و:rep Rep.'],
-            ['academy.recording.wrong_otp.message', 'academy', 'رسالة الرمز الخطأ', 'string', 'الرمز غير صحيح — راجعه في آخر التسجيل وجرّب تاني.'],
+            ['academy.recording.wrong_otp.message', 'academy', 'رسالة الرمز الخطأ', 'string', 'الرمز غير صحيح، راجعه في آخر التسجيل وجرّب تاني.'],
             ['academy.recording.already.message', 'academy', 'رسالة الكسب المستنفَد', 'string', 'حصلت على نقاط التسجيل ده بالفعل.'],
-            ['academy.recording.no_otp.message', 'academy', 'رسالة تسجيل بلا رمز', 'string', 'التسجيل ده مالوش رمز — اتفرّج واستفيد وبس.'],
+            ['academy.recording.no_otp.message', 'academy', 'رسالة تسجيل بلا رمز', 'string', 'التسجيل ده مالوش رمز، اتفرّج واستفيد وبس.'],
             ['academy.recording.report_sla_hours', 'academy', 'مهلة الردّ على بلاغ رابط معطّل (ساعات)', 'number', '24'],
-            ['academy.complete.linked_message', 'academy', 'رسالة إكمال مسار مربوط بشهادة', 'string', 'أنت جاهز للامتحان — كلّ المذاكرة خلصت.'],
+            ['academy.complete.linked_message', 'academy', 'رسالة إكمال مسار مربوط بشهادة', 'string', 'أنت جاهز للامتحان، كلّ المذاكرة خلصت.'],
             ['academy.complete.pure_message', 'academy', 'رسالة إكمال مسار تعليميّ صِرف', 'string', 'أتممت المسار 🎉'],
 
             // ---------------- المكتبة الداخليّة (23-3.3)
@@ -152,12 +152,12 @@ class VolunteerPeopleDemoSeeder extends Seeder
             ['internal_library.access.restricted', 'internal_library', 'مستوى: مقيَّد ببوزشن فأعلى', 'string', 'مقيَّد ببوزشن فأعلى'],
 
             // ---------------- التقدير (13.4-ي)
-            ['kudos.reason.placeholder', 'kudos', 'تلميح سبب الشكر', 'string', 'احكِ الموقف نفسه — الحكاية هي اللي بتفضل.'],
-            ['kudos.reason_required.message', 'kudos', 'رسالة السبب الإلزاميّ', 'string', 'اكتب سبب الشكر — القصّة هي اللي بتفرق مش الرقم.'],
-            ['kudos.daily_limit.message', 'kudos', 'رسالة بلوغ حدّ اليوم', 'string', 'وصلت لحدّ اليوم — بكرة تقدر تشكر تاني.'],
-            ['kudos.weekly_limit.message', 'kudos', 'رسالة بلوغ حدّ الأسبوع', 'string', 'وصلت لحدّ الأسبوع — الأسبوع الجاي مفتوح.'],
-            ['kudos.duplicate.message', 'kudos', 'رسالة تكرار نفس الشخص', 'string', 'شكرت الشخص ده الأسبوع ده بالفعل — دوّر على حد تاني يستاهل.'],
-            ['kudos.self.message', 'kudos', 'رسالة شكر النفس', 'string', 'الشكر بيروح لغيرك — اختر زميلًا 🙂'],
+            ['kudos.reason.placeholder', 'kudos', 'تلميح سبب الشكر', 'string', 'احكِ الموقف نفسه، الحكاية هي اللي بتفضل.'],
+            ['kudos.reason_required.message', 'kudos', 'رسالة السبب الإلزاميّ', 'string', 'اكتب سبب الشكر، القصّة هي اللي بتفرق مش الرقم.'],
+            ['kudos.daily_limit.message', 'kudos', 'رسالة بلوغ حدّ اليوم', 'string', 'وصلت لحدّ اليوم، بكرة تقدر تشكر تاني.'],
+            ['kudos.weekly_limit.message', 'kudos', 'رسالة بلوغ حدّ الأسبوع', 'string', 'وصلت لحدّ الأسبوع، الأسبوع الجاي مفتوح.'],
+            ['kudos.duplicate.message', 'kudos', 'رسالة تكرار نفس الشخص', 'string', 'شكرت الشخص ده الأسبوع ده بالفعل، دوّر على حد تاني يستاهل.'],
+            ['kudos.self.message', 'kudos', 'رسالة شكر النفس', 'string', 'الشكر بيروح لغيرك، اختر زميلًا 🙂'],
             ['thanks_wall.approaching_gap', 'kudos', 'فجوة بلوك «اقتربت» تحت العتبة', 'number', '1.5'],
         ];
 
@@ -197,7 +197,7 @@ class VolunteerPeopleDemoSeeder extends Seeder
         $path = LearningPath::withTrashed()->firstOrCreate(['slug' => $slug], [
             'name_ar' => 'المسار التأهيليّ للتطوّع',
             'name_en' => 'Volunteer Qualifying Path',
-            'description_ar' => 'مسار واحد شامل كورسات — بإتمامه تدخل قائمة الانتظار المبدئيّة.',
+            'description_ar' => 'مسار واحد شامل كورسات، بإتمامه تدخل قائمة الانتظار المبدئيّة.',
             'status' => 'published',
             'published_at' => now(),
             'sort_order' => 0,
@@ -279,7 +279,7 @@ class VolunteerPeopleDemoSeeder extends Seeder
                 'stage' => $stages[$index % count($stages)],
                 'qualifying_score' => $score,
                 'course_scores' => ['أساسيّات التطوّع' => 95, 'مهارات التواصل' => 88],
-                'cv_summary' => 'خبرة سنتين في العمل التطوّعيّ — تنظيم فعاليّات وإدارة فرق صغيرة.',
+                'cv_summary' => 'خبرة سنتين في العمل التطوّعيّ، تنظيم فعاليّات وإدارة فرق صغيرة.',
                 'applied_at' => now()->subDays($waitDays),
                 'stage_changed_at' => now()->subDays(max(0, $waitDays - 3)),
                 'is_returning' => $returning,
@@ -335,7 +335,7 @@ class VolunteerPeopleDemoSeeder extends Seeder
             'created_by' => $host?->id,
         ]);
 
-        VolunteerRecording::updateOrCreate(['title' => 'جلسة أسئلة مفتوحة — بلا رمز'], [
+        VolunteerRecording::updateOrCreate(['title' => 'جلسة أسئلة مفتوحة (بلا رمز)'], [
             'entity_id' => $entities['media']->id,
             'url' => 'https://youtu.be/demo-2',
             'source' => 'youtube',
@@ -374,7 +374,7 @@ class VolunteerPeopleDemoSeeder extends Seeder
         ]);
 
         // مقيَّد ببوزشن فأعلى — يظهر بعنوانه وقفله ولا يُخفى (23-3.3)
-        InternalLibraryItem::updateOrCreate(['title' => 'تقييم أداء الفرق — مسودّة داخليّة'], [
+        InternalLibraryItem::updateOrCreate(['title' => 'تقييم أداء الفرق (مسودّة داخليّة)'], [
             'entity_id' => $entities['media']->id,
             'owner_id' => $owner?->id,
             'type' => 'document',

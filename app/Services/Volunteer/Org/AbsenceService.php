@@ -235,7 +235,7 @@ class AbsenceService
 
         if ($fromDate->diffInDays($toDate) + 1 > $this->maxDays()) {
             throw ValidationException::withMessages([
-                'to_date' => strtr(setting('volunteer_org.absence_service.open_2', 'أقصى غياب متّصل :p1 يومًا — قسّمها أو كلّم مشرف عام التطوّع.'), [':p1' => (string) ($this->maxDays())]),
+                'to_date' => strtr(setting('volunteer_org.absence_service.open_2', 'أقصى غياب متّصل :p1 يومًا، قسّمها أو كلّم مشرف عام التطوّع.'), [':p1' => (string) ($this->maxDays())]),
             ]);
         }
 
@@ -257,7 +257,7 @@ class AbsenceService
 
         if (! $delegate || $delegate->status !== 'active') {
             throw ValidationException::withMessages([
-                'delegate_membership_id' => setting('volunteer_org.absence_service.open_4', 'لازم بديل مفوَّض نشِط — الأبلاين المباشر أو زميل بنفس البوزشن.'),
+                'delegate_membership_id' => setting('volunteer_org.absence_service.open_4', 'لازم بديل مفوَّض نشِط، الأبلاين المباشر أو زميل بنفس البوزشن.'),
             ]);
         }
 
@@ -287,7 +287,7 @@ class AbsenceService
     {
         if ($absence->ended_at !== null) {
             throw ValidationException::withMessages([
-                'absence' => setting('volunteer_org.absence_service.end_early_1', 'الغياب ده متقفل خلاص — مفيش حاجة تتعمل تاني.'),
+                'absence' => setting('volunteer_org.absence_service.end_early_1', 'الغياب ده متقفل خلاص، مفيش حاجة تتعمل تاني.'),
             ]);
         }
 
@@ -295,7 +295,7 @@ class AbsenceService
 
         if ($membership && (int) $membership->user_id === (int) $actor->id) {
             throw ValidationException::withMessages([
-                'absence' => setting('volunteer_org.absence_service.end_early_2', 'وضع «غائب» بيقفله مشرفك مش إنت — كلّم دايركتور كيانك.'),
+                'absence' => setting('volunteer_org.absence_service.end_early_2', 'وضع «غائب» بيقفله مشرفك مش إنت، كلّم دايركتور كيانك.'),
             ]);
         }
 
@@ -339,7 +339,7 @@ class AbsenceService
 
         throw ValidationException::withMessages([
             'membership_id' => (int) $membership->user_id === (int) $actor->id
-                ? setting('volunteer_org.absence_service.assert_can_add_1', 'وضع «غائب» بيضيفه مشرفك مش إنت — كلّم دايركتور كيانك.')
+                ? setting('volunteer_org.absence_service.assert_can_add_1', 'وضع «غائب» بيضيفه مشرفك مش إنت، كلّم دايركتور كيانك.')
                 : setting('volunteer_org.absence_service.assert_can_add_2', 'الفعل ده لمشرف عام التطوّع أو مشرف المسار أو دايركتور الكيان.'),
         ]);
     }

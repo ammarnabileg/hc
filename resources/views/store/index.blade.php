@@ -4,7 +4,7 @@
 
 @section('content')
     <x-page-header :title="setting('store.index.page_title', 'المتجر')"
-                   :subtitle="setting('store.index.page_subtitle', 'اختار اللي يفيدك — والأسعار كلّها بالكوينز.')"
+                   :subtitle="setting('store.index.page_subtitle', 'اختار اللي يفيدك، والأسعار كلّها بالكوينز.')"
                    :breadcrumbs="[['label' => setting('store.home_breadcrumb_label', 'الرئيسيّة'), 'url' => \Illuminate\Support\Facades\Route::has('dashboard') ? route('dashboard') : '/'], ['label' => setting('store.breadcrumb_label', 'المتجر')]]">
         <x-slot:action>
             @include('store.partials.balance', ['balance' => $balance])
@@ -22,7 +22,7 @@
     ])
 
     @if ($cards->isEmpty())
-        <x-empty :message="setting('store.empty.text', 'مفيش نتائج للفلتر ده — جرّب توسّع شويّة.')"
+        <x-empty :message="setting('store.empty.text', 'مفيش نتائج للفلتر ده. جرّب توسّع شويّة.')"
                  :action="setting('store.index.empty_action_label', 'اعرض كلّ المتجر')"
                  :href="route('store.index')" />
     @else

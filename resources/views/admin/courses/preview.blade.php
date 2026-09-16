@@ -1,12 +1,12 @@
 @extends('layouts.admin')
 
-@section('title', setting('admin.courses.preview.maayna_ktalb_2', 'معاينة كطالب — ').$course->name_ar)
+@section('title', setting('admin.courses.preview.maayna_ktalb_2', 'معاينة كطالب · ').$course->name_ar)
 
 @section('content')
     {{-- معاينة كطالب قبل النشر (12.4-هـ) --}}
     <x-page-header
         :title="setting('admin.courses.preview.maayna_ktalb', 'معاينة كطالب: ').$course->name_ar"
-        :subtitle="setting('admin.courses.preview.dh_ally_almtdrb_hyshwfh_bla_azrar_idara', 'ده اللي المتدرّب هيشوفه — بلا أزرار إدارة.')"
+        :subtitle="setting('admin.courses.preview.dh_ally_almtdrb_hyshwfh_bla_azrar_idara', 'ده اللي المتدرّب هيشوفه، بلا أزرار إدارة.')"
         :breadcrumbs="[
             ['label' => setting('admin.courses.preview.altdrybat', 'التدريبات'), 'url' => route('admin.courses.index')],
             ['label' => $course->name_ar, 'url' => route('admin.courses.edit', $course)],
@@ -37,6 +37,6 @@
             </ul>
         </div>
     @empty
-        <x-empty :message="setting('admin.courses.preview.almhtwa_lsh_fady_abn_awl_sykshn', 'المحتوى لسّه فاضي — ابنِ أوّل سيكشن.')" />
+        <x-empty :message="setting('admin.courses.preview.almhtwa_lsh_fady_abn_awl_sykshn', 'المحتوى لسّه فاضي. ابنِ أوّل سيكشن.')" />
     @endforelse
 @endsection

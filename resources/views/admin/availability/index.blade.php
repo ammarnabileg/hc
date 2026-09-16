@@ -15,7 +15,7 @@
 
     <x-page-header
         :title="setting('admin.availability.index.alitaha_waltwqyt', 'الإتاحة والتوقيت')"
-        :subtitle="setting('admin.availability.index.ftrat_itaha_altdryb_wawqat_tshghylh_alywmya', 'فترات إتاحة التدريب وأوقات تشغيله اليوميّة — والفتح والغلق يُحسَبان بتوقيت كلّ متدرّب المحلّيّ.')"
+        :subtitle="setting('admin.availability.index.ftrat_itaha_altdryb_wawqat_tshghylh_alywmya', 'فترات إتاحة التدريب وأوقات تشغيله اليوميّة، والفتح والغلق يُحسَبان بتوقيت كلّ متدرّب المحلّيّ.')"
         :breadcrumbs="[
             ['label' => setting('admin.availability.index.lwha_alidara', 'لوحة الإدارة'), 'url' => url('/admin')],
             ['label' => setting('admin.availability.index.idara_altdryb', 'إدارة التدريب'), 'url' => route('admin.courses.index')],
@@ -28,7 +28,7 @@
         <x-kpi :label="setting('admin.availability.index.lha_jdwla_zmnya', 'لها جدولة زمنيّة')" :value="$scheduledCount" icon="calendar" />
         <x-kpi :label="setting('admin.availability.index.lha_nafdha_ywmya', 'لها نافذة يوميّة')" :value="$dailyCount" icon="clock" />
         <x-kpi :label="setting('admin.availability.index.twqytk_ant', 'توقيتك أنت')" :value="$adminTimezone" icon="globe"
-               :hint="setting('admin.availability.index.ma_trah_hna_mktwb_btwqytk_walmtdrb_yrah', 'ما تراه هنا مكتوب بتوقيتك — والمتدرّب يراه بتوقيته هو.')" />
+               :hint="setting('admin.availability.index.ma_trah_hna_mktwb_btwqytk_walmtdrb_yrah', 'ما تراه هنا مكتوب بتوقيتك، والمتدرّب يراه بتوقيته هو.')" />
     </div>
 
     {{-- 3 فلاتر ظاهرة كحدّ أقصى (2.15-أ-4) — وهنا اثنان يكفيان --}}
@@ -113,7 +113,7 @@
                 <div class="card p-4 md:p-5 mt-4">
                     <h3 class="font-bold mb-1">{{ setting('admin.availability.index.awqat_altshghyl_alywmya', 'أوقات التشغيل اليوميّة') }}</h3>
                     <p class="text-xs mb-3" style="color: var(--text-muted)">
-                        {{ setting('admin.availability.index.kharj_alsaaat_dy_altdryb', 'خارج الساعات دي التدريب') }} <strong>{{ setting('admin.availability.index.mqfwl', 'مقفول') }}</strong> {{ setting('admin.availability.index.hta_lw_ftra_alitaha_sarya_walsaaa_tqas', 'حتى لو فترة الإتاحة سارية. والساعة تُقاس') }} <strong>{{ setting('admin.availability.index.btwqyt_kl_mtdrb_almhly', 'بتوقيت كلّ متدرّب المحلّيّ') }}</strong> {{ setting('admin.availability.index.f_5_7_s_tany_khamsa_kl_mnhm_syb_alhqlyn', '— فـ«5→7 ص» تعني خامسة كلٍّ منهم. سِيب الحقلين فاضيين يبقى مفتوحًا طول اليوم.') }}
+                        {{ setting('admin.availability.index.kharj_alsaaat_dy_altdryb', 'خارج الساعات دي التدريب') }} <strong>{{ setting('admin.availability.index.mqfwl', 'مقفول') }}</strong> {{ setting('admin.availability.index.hta_lw_ftra_alitaha_sarya_walsaaa_tqas', 'حتى لو فترة الإتاحة سارية. والساعة تُقاس') }} <strong>{{ setting('admin.availability.index.btwqyt_kl_mtdrb_almhly', 'بتوقيت كلّ متدرّب المحلّيّ') }}</strong> {{ setting('admin.availability.index.f_5_7_s_tany_khamsa_kl_mnhm_syb_alhqlyn', '· فـ«5→7 ص» تعني خامسة كلٍّ منهم. سِيب الحقلين فاضيين يبقى مفتوحًا طول اليوم.') }}
                     </p>
 
                     <form method="post" action="{{ route('admin.availability.daily.save', $selected) }}"
@@ -143,7 +143,7 @@
                 <div class="card p-4 md:p-5 mt-4">
                     <h3 class="font-bold mb-1">{{ setting('admin.availability.index.ftrat_alitaha', 'فترات الإتاحة') }}</h3>
                     <p class="text-xs mb-3" style="color: var(--text-muted)">
-                        {{ setting('admin.availability.index.lltdryb_alwahd_ftrat_kthyra_1_7_ynayr_1_7', 'للتدريب الواحد فترات كثيرة (1→7 يناير، 1→7 مارس…) — والمتدرّب يوصل له أثناء إحداها فقط. وبلا أيّ فترة يبقى التدريب متاحًا في كلّ التواريخ.') }}
+                        {{ setting('admin.availability.index.lltdryb_alwahd_ftrat_kthyra_1_7_ynayr_1_7', 'للتدريب الواحد فترات كثيرة (1→7 يناير، 1→7 مارس…)، والمتدرّب يوصل له أثناء إحداها فقط. وبلا أيّ فترة يبقى التدريب متاحًا في كلّ التواريخ.') }}
                     </p>
 
                     @forelse ($periods as $period)
@@ -175,7 +175,7 @@
                         </div>
                     @empty
                         <p class="text-sm py-2" style="color: var(--text-muted)">
-                            {{ setting('admin.availability.index.mfysh_ftrat_altdryb_mtah_fy_kl_altwarykh', 'مفيش فترات — التدريب متاح في كلّ التواريخ حاليًّا.') }}
+                            {{ setting('admin.availability.index.mfysh_ftrat_altdryb_mtah_fy_kl_altwarykh', 'مفيش فترات. التدريب متاح في كلّ التواريخ حاليًّا.') }}
                         </p>
                     @endforelse
 

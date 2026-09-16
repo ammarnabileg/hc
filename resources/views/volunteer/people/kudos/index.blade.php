@@ -58,7 +58,7 @@
     </x-filters>
 
     @if ($items->isEmpty())
-        <x-empty :message="setting('volunteer.people_kudos.empty', 'مفيش شكرات بعد — ابدأ أنت')" />
+        <x-empty :message="setting('volunteer.people_kudos.empty', 'مفيش شكرات بعد، ابدأ أنت')" />
     @else
         <div class="space-y-3">
             @foreach ($items as $item)
@@ -101,7 +101,7 @@
                     <span class="block text-xs mb-1" style="color: var(--text-muted)">{{ setting('volunteer.people_kudos.field_3', 'سبب الشكر (إلزاميّ)') }}</span>
                     <textarea name="reason" rows="4" required minlength="3" class="w-full rounded-xl px-3 py-2 text-sm"
                               style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)"
-                              placeholder="{{ setting('kudos.reason.placeholder', 'احكِ الموقف نفسه — الحكاية هي اللي بتفضل.') }}">{{ old('reason') }}</textarea>
+                              placeholder="{{ setting('kudos.reason.placeholder', 'احكِ الموقف نفسه، الحكاية هي اللي بتفضل.') }}">{{ old('reason') }}</textarea>
                 </label>
 
                 <p class="text-xs" style="color: var(--text-muted)">

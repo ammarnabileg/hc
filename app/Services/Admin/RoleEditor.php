@@ -145,7 +145,7 @@ class RoleEditor
                 $rejected[] = strtr(
                     (string) setting(
                         'admin.roles.scope_ceiling_message',
-                        'مقدرناش نحفظ «:permission» بنطاق :scope — المصفوفة (12.2.2) بتحدّد لها :scopes وبس.',
+                        'مقدرناش نحفظ «:permission» بنطاق :scope، لأن المصفوفة (12.2.2) بتحدّد لها :scopes وبس.',
                     ),
                     [
                         ':permission' => $permission->label_ar.' ('.$permission->key.')',
@@ -270,11 +270,11 @@ class RoleEditor
     public function assign(User $actor, User $target, Role $role, ?Membership $membership): array
     {
         if ($role->requires_membership && ! $membership) {
-            return ['ok' => false, 'message' => setting('admin_dashboard.role_editor.assign_1', 'الدور ده دور تطوّع، فلازم تختار العضويّة اللي هيشتغل جوّاها — الدور «ماذا» والعضويّة «أين».')];
+            return ['ok' => false, 'message' => setting('admin_dashboard.role_editor.assign_1', 'الدور ده دور تطوّع، فلازم تختار العضويّة اللي هيشتغل جوّاها. الدور بيحدّد «ماذا» والعضويّة بتحدّد «فين».')];
         }
 
         if ($membership && $membership->user_id !== $target->id) {
-            return ['ok' => false, 'message' => setting('admin_dashboard.role_editor.assign_2', 'العضويّة دي مش بتاعة المستخدم ده — اختر عضويّة من عضويّاته.')];
+            return ['ok' => false, 'message' => setting('admin_dashboard.role_editor.assign_2', 'العضويّة دي مش بتاعة المستخدم ده، اختر عضويّة من عضويّاته.')];
         }
 
         // ⭐ منع تصعيد الامتياز على الإسناد: لا يُسنِد أحدٌ دورًا يحوي ما لا يملكه

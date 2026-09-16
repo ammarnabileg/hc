@@ -34,7 +34,7 @@
     {{-- ⭐ تنويه ثابت (24.4) --}}
     <div class="card p-3 mb-4 text-sm flex items-start gap-2">
         <span aria-hidden="true"><x-icon name="lock" size="16" /></span>
-        <p>VXP {{ setting('volunteer.performance_vxp.text', 'لا يتصفّر ولا يُخصَم آليًّا — الخصم بقرار محكّم أو معاملة يدويّة موثّقة فقط.') }}</p>
+        <p>VXP {{ setting('volunteer.performance_vxp.text', 'لا يتصفّر ولا يُخصَم آليًّا، الخصم بقرار محكّم أو معاملة يدويّة موثّقة فقط.') }}</p>
     </div>
 
     <x-filters :action="route('volunteer.performance.vxp')">

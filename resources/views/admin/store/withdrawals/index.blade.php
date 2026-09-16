@@ -4,7 +4,7 @@
 
 @section('content')
     <x-page-header :title="setting('admin.store.withdrawals.index.tlbat_alshb', 'طلبات السحب')"
-                   :subtitle="setting('admin.store.withdrawals.index.subtitle', 'المبلغ مخصومٌ بالفعل — الاعتماد يقفل الطلب بعد صرفه، والرفض يردّه لصاحبه.')"
+                   :subtitle="setting('admin.store.withdrawals.index.subtitle', 'المبلغ مخصومٌ بالفعل. الاعتماد يقفل الطلب بعد صرفه، والرفض يردّه لصاحبه.')"
                    :breadcrumbs="[
                        ['label' => setting('admin.store.withdrawals.index.lwha_alidara', 'لوحة الإدارة'), 'url' => url('/admin')],
                        ['label' => setting('admin.store.withdrawals.index.almtjr_walmalyat', 'المتجر والماليّات'), 'url' => route('admin.store.index')],
@@ -24,7 +24,7 @@
     ])->all()" />
 
     @if ($rows->isEmpty())
-        <x-empty :message="setting('admin.store.withdrawals.index.mafysh_tlbat', 'مافيش طلبات في النطاق ده — كلّ حاجة هادية.')" />
+        <x-empty :message="setting('admin.store.withdrawals.index.mafysh_tlbat', 'مافيش طلبات في النطاق ده. كلّ حاجة هادية.')" />
     @else
         <div class="card overflow-hidden">
             <table class="hidden md:table w-full text-sm">

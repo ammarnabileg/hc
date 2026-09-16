@@ -51,7 +51,7 @@
         <h2 class="font-bold text-sm mb-3">{{ setting('volunteer.profile_tab_performance.heading_2', 'التقييمات الأسبوعيّة') }}</h2>
         @if (! $p['evaluations']['visible'])
             <p class="text-sm" style="color: var(--text-muted)">
-                {{ setting('volunteer.profile_tab_performance.text_4', 'لسّه بدري — المتوسّط بيبان بعد') }} {{ $p['evaluations']['min_raters'] }} {{ setting('volunteer.profile_tab_performance.text_5', 'تقييمات على الأقلّ.') }}
+                {{ setting('volunteer.profile_tab_performance.text_4', 'لسّه بدري. المتوسّط بيبان بعد') }} {{ $p['evaluations']['min_raters'] }} {{ setting('volunteer.profile_tab_performance.text_5', 'تقييمات على الأقلّ.') }}
             </p>
         @else
             <div class="text-2xl font-extrabold" data-count-to="{{ $p['evaluations']['average'] }}">{{ $p['evaluations']['average'] }}</div>

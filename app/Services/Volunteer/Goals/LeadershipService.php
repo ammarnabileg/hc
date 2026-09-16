@@ -87,13 +87,13 @@ class LeadershipService
     public function submit(User $evaluator, User $evaluatee, array $scores, ?string $note = null, ?int $entityId = null): LeadershipEvaluation
     {
         if ($evaluator->id === $evaluatee->id) {
-            throw ValidationException::withMessages(['scores' => setting('goals.leadership_service.submit_1', 'التقييم يكون لأبلاينك المباشر — لا لنفسك.')]);
+            throw ValidationException::withMessages(['scores' => setting('goals.leadership_service.submit_1', 'التقييم يكون لأبلاينك المباشر، مش لنفسك.')]);
         }
 
         $criteria = $this->criteria();
 
         if ($criteria->isEmpty()) {
-            throw ValidationException::withMessages(['scores' => setting('goals.leadership_service.submit_2', 'مفيش معايير مفعَّلة حاليًّا — كلّم مشرفك.')]);
+            throw ValidationException::withMessages(['scores' => setting('goals.leadership_service.submit_2', 'مفيش معايير مفعَّلة حاليًّا، كلّم مشرفك.')]);
         }
 
         $max = $this->maxScore();
@@ -112,7 +112,7 @@ class LeadershipService
         $week = $this->weekStart();
 
         if ($this->alreadyEvaluated($evaluator, $evaluatee, $week)) {
-            throw ValidationException::withMessages(['scores' => setting('goals.leadership_service.submit_4', 'قيّمت هذا الأسبوع بالفعل — التقييم مرّة واحدة أسبوعيًّا.')]);
+            throw ValidationException::withMessages(['scores' => setting('goals.leadership_service.submit_4', 'قيّمت هذا الأسبوع بالفعل، والتقييم مرّة واحدة أسبوعيًّا.')]);
         }
 
         $average = $this->weightedAverage($clean, $criteria);

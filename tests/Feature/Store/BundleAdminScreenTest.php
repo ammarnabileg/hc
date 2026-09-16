@@ -170,7 +170,7 @@ class BundleAdminScreenTest extends StoreTestCase
 
         $this->get(route('store.product', ['type' => 'bundle', 'slug' => $bundle->slug]))
             ->assertOk()
-            ->assertSee('🎁 بونص: دليل أسئلة المقابلات بقيمة 100 كوين — مجّانًا مع الباقة')
+            ->assertSee('🎁 بونص: دليل أسئلة المقابلات بقيمة 100 كوين، مجّانًا مع الباقة')
             // والعنصر غير الموسوم **لا** يظهر كبونص
             ->assertDontSee('🎁 بونص: إكسل للشغل');
     }
@@ -204,12 +204,12 @@ class BundleAdminScreenTest extends StoreTestCase
     /** ⭐ الحالة الفارغة بنصّها **المنصوص حرفيًّا** في 24 */
     public function test_the_empty_state_uses_the_exact_constitution_text(): void
     {
-        $this->assertSame('لا بندلز — اجمع عناصرك في عرض واحد', (string) setting('store.admin.bundles.empty_text'));
+        $this->assertSame('لا بندلز. اجمع عناصرك في عرض واحد', (string) setting('store.admin.bundles.empty_text'));
 
         $this->actingAs($this->owner())
             ->get(route('admin.store.index', ['tab' => 'bundles']))
             ->assertOk()
-            ->assertSee('لا بندلز — اجمع عناصرك في عرض واحد');
+            ->assertSee('لا بندلز. اجمع عناصرك في عرض واحد');
     }
 
     /** ⭐ بلوك الإعدادات ومعه **القاعدتان المقفولتان** ملاحظتين لا مفتاحين (24) */

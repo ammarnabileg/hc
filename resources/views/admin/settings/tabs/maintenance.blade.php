@@ -56,7 +56,7 @@
 
     @if ($active)
         <p class="text-xs mt-3" style="color: var(--text-muted)">
-            {{ setting('admin.settings.tabs.maintenance.kl_almhl_waldydlaynat_mjmda_dlwqty_whtstanf', 'كلّ المهل والديدلاينات مجمّدة دلوقتي، وهتُستأنف من حيث وقفت عند الرفع — استئناف لا إلغاء.') }}
+            {{ setting('admin.settings.tabs.maintenance.kl_almhl_waldydlaynat_mjmda_dlwqty_whtstanf', 'كلّ المهل والديدلاينات مجمّدة دلوقتي، وهتُستأنف من حيث وقفت عند الرفع، استئناف لا إلغاء.') }}
         </p>
     @endif
 </div>
@@ -86,7 +86,7 @@
 
                 {{-- ⭐ «مجدول — يبدأ تلقائيًّا» (12.7-ج): سيبه فاضي تشتغل حالًا --}}
                 <label class="block text-sm">
-                    <span class="block mb-1">{{ setting('admin.settings.tabs.maintenance.wqt_albd_akhtyary_sybh_fady_tbda_hala', 'وقت البدء (اختياريّ — سيبه فاضي تبدأ حالًا)') }}</span>
+                    <span class="block mb-1">{{ setting('admin.settings.tabs.maintenance.wqt_albd_akhtyary_sybh_fady_tbda_hala', 'وقت البدء (اختياريّ، سيبه فاضي تبدأ حالًا)') }}</span>
                     <input type="datetime-local" name="starts_at" value="{{ old('starts_at') }}"
                            class="w-full rounded-xl px-3 py-2 text-sm"
                            style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
@@ -100,7 +100,7 @@
 
             {{-- ⛔ ولا صيانة جزئيّة لميزة بعينها — أُلغيت؛ الإطفاء من «مفاتيح المزايا» --}}
             <p class="text-xs" style="color: var(--text-muted)">
-                {{ setting('admin.settings.tabs.maintenance.alsyana_aama_llmnsa_klha_fqt_itfa_myza', 'الصيانة عامّة للمنصّة كلّها فقط — إطفاء ميزة بعينها بيتمّ من تاب «مفاتيح المزايا».') }}
+                {{ setting('admin.settings.tabs.maintenance.alsyana_aama_llmnsa_klha_fqt_itfa_myza', 'الصيانة عامّة للمنصّة كلّها فقط. إطفاء ميزة بعينها بيتمّ من تاب «مفاتيح المزايا».') }}
             </p>
         </form>
     @endcan
@@ -135,7 +135,7 @@
                 'endpoint' => route('admin.settings.field'),
             ])
             <p class="text-xs mt-2" style="color: var(--text-muted)">
-                {{ setting('admin.settings.tabs.maintenance.str_aw_fasla_lkl_ip_dy_alqayma_alwhyda_ally', 'سطر أو فاصلة لكلّ IP — دي القائمة الوحيدة اللي بتفتح الموقع وقت الصيانة.') }}
+                {{ setting('admin.settings.tabs.maintenance.str_aw_fasla_lkl_ip_dy_alqayma_alwhyda_ally', 'سطر أو فاصلة لكلّ IP، دي القائمة الوحيدة اللي بتفتح الموقع وقت الصيانة.') }}
             </p>
         </div>
     @endif

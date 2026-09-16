@@ -36,7 +36,7 @@ class ApiEndpointCatalog
     private static function description(string $key): string
     {
         return match ($key) {
-            'developers.api.doc.ping' => (string) setting('developers.api.doc.ping', 'فحص صلاحيّة المفتاح — يردّ OK باسم المفتاح.'),
+            'developers.api.doc.ping' => (string) setting('developers.api.doc.ping', 'فحص صلاحيّة المفتاح، بيردّ OK باسم المفتاح.'),
             'developers.api.doc.courses' => (string) setting('developers.api.doc.courses', 'قائمة التدريبات المنشورة (id · name_ar · slug) بصفحات.'),
             'developers.api.doc.certificates_verify' => (string) setting('developers.api.doc.certificates_verify', 'حالة شهادة بكودها: سارية/منتهية/مُلغاة/غير موجودة.'),
             default => '',

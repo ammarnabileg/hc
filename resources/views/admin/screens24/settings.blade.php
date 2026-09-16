@@ -15,7 +15,7 @@
         <summary class="cursor-pointer font-bold select-none"><x-icon name="settings" size="16" /> {{ $blockTitle }}</summary>
 
         <p class="text-xs mt-2" style="color: var(--text-muted)">
-            {{ setting('admin.screens24.settings.kl_rqm_wns_fy_alshasha_dy_bytzbt_mn_hna', 'كلّ رقم ونصّ في الشاشة دي بيتظبط من هنا — مافيش قيمة محروقة في الكود (2.13).') }}
+            {{ setting('admin.screens24.settings.kl_rqm_wns_fy_alshasha_dy_bytzbt_mn_hna', 'كلّ رقم ونصّ في الشاشة دي بيتظبط من هنا، مافيش قيمة محروقة في الكود (2.13).') }}
         </p>
 
         <form method="post" action="{{ $saveRoute }}" class="mt-3">

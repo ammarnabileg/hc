@@ -7,7 +7,7 @@
              */
             $jsText = [
                 'saved' => setting('admin.courses.partials.sortable.atzbt_altrtyb', 'اتظبط الترتيب ✓'),
-                'failed' => setting('admin.courses.partials.sortable.altrtyb_ma_athfzsh_jrb_tany', 'الترتيب ما اتحفظش — جرّب تاني.'),
+                'failed' => setting('admin.courses.partials.sortable.altrtyb_ma_athfzsh_jrb_tany', 'الترتيب ما اتحفظش. جرّب تاني.'),
             ];
         @endphp
 

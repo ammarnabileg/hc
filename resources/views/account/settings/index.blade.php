@@ -28,7 +28,7 @@
 @section('content')
     <x-page-header
         :title="setting('account.settings.title', 'الإعدادات')"
-        :subtitle="setting('account.settings.subtitle', 'كلّ تعديل بيتحفظ لوحده — مش محتاج تدوس حفظ.')"
+        :subtitle="setting('account.settings.subtitle', 'كلّ تعديل بيتحفظ لوحده، مش محتاج تدوس حفظ.')"
         :breadcrumbs="[['label' => setting('account.settings.breadcrumb_root', 'حسابي'), 'url' => route('settings.index')], ['label' => setting('account.settings.title', 'الإعدادات')]]" />
 
     {{-- بحث داخل الإعدادات (24.5) --}}
@@ -106,11 +106,11 @@
                          style="background: var(--surface-sunken); border: 1px solid var(--border)">
                         <h3 class="text-sm font-bold mb-1">{{ setting('account.settings.avatar_crop_title', 'اقصّ صورتك') }}</h3>
                         <p class="text-xs mb-3" style="color: var(--text-muted)">
-                            {{ setting('account.settings.avatar_crop_hint', 'حرّك الصورة جوّه المربّع واظبط التكبير — اللي بيّن جوّه بالظبط هو اللي هيتحفظ.') }}
+                            {{ setting('account.settings.avatar_crop_hint', 'حرّك الصورة جوّه المربّع واظبط التكبير، اللي بيّن جوّه بالظبط هو اللي هيتحفظ.') }}
                         </p>
 
                         <div data-avatar-stage tabindex="0" role="application"
-                             aria-label="{{ setting('account.settings.avatar_crop_stage_aria', 'منطقة القصّ — اسحب بالماوس أو بإصبعك، والأسهم تحرّك، و+ و− يكبّرا ويصغّرا.') }}"
+                             aria-label="{{ setting('account.settings.avatar_crop_stage_aria', 'منطقة القصّ: اسحب بالماوس أو بإصبعك، والأسهم تحرّك، و+ و− يكبّرا ويصغّرا.') }}"
                              class="relative mx-auto select-none motion-standard"
                              style="width: 16rem; max-width: 100%; aspect-ratio: 1 / 1; overflow: hidden; border-radius: 1rem; cursor: grab; touch-action: none; background: var(--surface-raised); border: 1px solid var(--border)">
                             <canvas data-avatar-crop-canvas class="block" style="width: 100%; height: 100%"></canvas>
@@ -156,7 +156,7 @@
                     'keywords' => 'المحافظة governorate',
                     // ⚠️ تعليق داخل تعبير PHP — لا وسوم Blade هنا وإلّا انكسر تصريف القالب.
                     // المحافظة حقل عامّ دائمًا ولا يجوز إخفاؤها (12.14-د) — تُملأ ولا تُخفى
-                    'hint' => setting('account.settings.governorate_hint', 'المحافظة بتظهر لكلّ الناس على بروفايلك — ودي قاعدة ثابتة في المنصّة.'),
+                    'hint' => setting('account.settings.governorate_hint', 'المحافظة بتظهر لكلّ الناس على بروفايلك، ودي قاعدة ثابتة في المنصّة.'),
                     'control' => '<select name="value" class="'.$inputClass.'" style="'.$inputStyle.'">'
                         .'<option value="">'.e(setting('account.settings.governorate_placeholder', 'اختر المحافظة')).'</option>'
                         .$governorates->map(fn ($g) => '<option value="'.$g->id.'"'.($user->governorate_id === $g->id ? ' selected' : '').'>'.e($governorateLabels[$g->id] ?? $g->name_ar).'</option>')->implode('')
@@ -181,7 +181,7 @@
                         {!! str_replace(
                             ':count',
                             '<strong data-consent-count>'.(int) $activeConsents.'</strong>',
-                            e(setting('account.settings.contact_warn_message', 'لو غيّرت البريد أو رقم الموبايل، هيتوقف عرض بياناتك لـ :count من اللي وافقت لهم قبل كده — والموافقة القديمة مش بتنتقل للبيانات الجديدة.')),
+                            e(setting('account.settings.contact_warn_message', 'لو غيّرت البريد أو رقم الموبايل، هيتوقف عرض بياناتك لـ :count من اللي وافقت لهم قبل كده، والموافقة القديمة مش بتنتقل للبيانات الجديدة.')),
                         ) !!}
                     </p>
                 </div>
@@ -240,7 +240,7 @@
                     'field' => 'advanced_mode',
                     'label' => setting('account.settings.field_advanced_mode', 'وضع متقدّم'),
                     'keywords' => 'وضع متقدّم advanced',
-                    'hint' => setting('account.settings.advanced_mode_hint', 'بيفتح كلّ اللي اتخفى في الصفحات — وعلى الموبايل بيفتح كصفحة كاملة.'),
+                    'hint' => setting('account.settings.advanced_mode_hint', 'بيفتح كلّ اللي اتخفى في الصفحات، وعلى الموبايل بيفتح كصفحة كاملة.'),
                     'control' => '<select name="value" class="'.$inputClass.'" style="'.$inputStyle.'">'
                         .'<option value="1"'.($user->advanced_mode ? ' selected' : '').'>'.e(setting('account.settings.toggle_on', 'مفعَّل')).'</option>'
                         .'<option value="0"'.(! $user->advanced_mode ? ' selected' : '').'>'.e(setting('account.settings.toggle_off', 'متوقّف')).'</option>'
@@ -277,7 +277,7 @@
                      | وحدها — لا رموز الدخول ولا استعادة كلمة السرّ، وإلّا
                      | حبس المستخدمُ نفسَه خارج حسابه بضغطة تفضيل.
                      */
-                    'hint' => setting('account.settings.email_channel_hint', 'ده بيوقف رسايل المنشورات على بريدك بس — رموز الدخول واستعادة كلمة السرّ هتفضل توصلك دايمًا.'),
+                    'hint' => setting('account.settings.email_channel_hint', 'ده بيوقف رسايل المنشورات على بريدك بس، ورموز الدخول واستعادة كلمة السرّ هتفضل توصلك دايمًا.'),
                     'control' => '<select name="value" class="'.$inputClass.'" style="'.$inputStyle.'">'
                         .'<option value="1"'.($user->email_optout_at === null ? ' selected' : '').'>'.e(setting('account.settings.email_channel_on', 'توصلني')).'</option>'
                         .'<option value="0"'.($user->email_optout_at !== null ? ' selected' : '').'>'.e(setting('account.settings.email_channel_off', 'متوصلنيش')).'</option>'
@@ -293,7 +293,7 @@
             <section class="card p-4 mt-4" data-settings-panel="emergency">
                 <h2 class="font-bold text-sm mb-1">{{ setting('account.settings.emergency_title', 'جهة الطوارئ (اختياريّ)') }}</h2>
                 <p class="text-xs mb-3" style="color: var(--text-muted)">
-                    {{ setting('account.settings.emergency_hint', 'بتظهر لمشرفيك وقت الحاجة بس — ومش بتظهر لباقي الناس.') }}
+                    {{ setting('account.settings.emergency_hint', 'بتظهر لمشرفيك وقت الحاجة بس، ومش بتظهر لباقي الناس.') }}
                 </p>
 
                 @forelse ($emergencyContacts as $contact)
@@ -338,7 +338,7 @@
             </section>
 
             <p class="text-xs text-center mt-4" data-settings-empty hidden style="color: var(--text-muted)">
-                {{ setting('account.settings.search_empty', 'مفيش إعداد بالاسم ده — جرّب كلمة تانية.') }}
+                {{ setting('account.settings.search_empty', 'مفيش إعداد بالاسم ده، جرّب كلمة تانية.') }}
             </p>
         </div>
     </div>
@@ -350,13 +350,13 @@
         $autosaveWords = [
             'failed' => (string) setting('account.settings.autosave_failed', 'تعذّر الحفظ'),
             'saved' => (string) setting('account.settings.saved_flag', 'اتحفظ ✓'),
-            'retry' => (string) setting('account.settings.autosave_retry', 'تعذّر الحفظ — جرّب تاني'),
+            'retry' => (string) setting('account.settings.autosave_retry', 'تعذّر الحفظ، جرّب تاني'),
         ];
 
         // ونصوص محرّر القصّ كذلك — لا نصّ عربيّ داخل السكربت (2.13)
         $cropWords = [
             'required' => (string) setting('account.settings.avatar_crop_required', 'اقصّ الصورة الأوّل عشان تقدر تحفظها.'),
-            'done' => (string) setting('account.settings.avatar_crop_done', 'تمّ القصّ ✓ — تقدر تحفظ دلوقتي.'),
+            'done' => (string) setting('account.settings.avatar_crop_done', 'تمّ القصّ ✓، تقدر تحفظ دلوقتي.'),
         ];
     @endphp
     <script>

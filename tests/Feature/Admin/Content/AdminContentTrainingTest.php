@@ -299,11 +299,11 @@ class AdminContentTrainingTest extends AdminContentTestCase
             ->assertOk();
 
         $response->assertSee(
-            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث/الفلتر الحاليّ — جرّب فلترًا تانيًا.'),
+            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث أو الفلتر الحاليّ. جرّب فلتر تاني.'),
             false,
         );
         $response->assertDontSee(
-            setting('admin.courses.media.almktba_fadya_arfa_awl_mlf', 'المكتبة فاضية — ارفع أوّل ملفّ.'),
+            setting('admin.courses.media.almktba_fadya_arfa_awl_mlf', 'المكتبة فاضية. ارفع أوّل ملفّ.'),
             false,
         );
     }
@@ -319,11 +319,11 @@ class AdminContentTrainingTest extends AdminContentTestCase
             ->assertOk();
 
         $response->assertSee(
-            setting('admin.courses.media.almktba_fadya_arfa_awl_mlf', 'المكتبة فاضية — ارفع أوّل ملفّ.'),
+            setting('admin.courses.media.almktba_fadya_arfa_awl_mlf', 'المكتبة فاضية. ارفع أوّل ملفّ.'),
             false,
         );
         $response->assertDontSee(
-            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث/الفلتر الحاليّ — جرّب فلترًا تانيًا.'),
+            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث أو الفلتر الحاليّ. جرّب فلتر تاني.'),
             false,
         );
     }
@@ -409,11 +409,11 @@ class AdminContentTrainingTest extends AdminContentTestCase
             ->assertOk();
 
         $response->assertSee(
-            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث/الفلتر الحاليّ — جرّب فلترًا تانيًا.'),
+            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث أو الفلتر الحاليّ. جرّب فلتر تاني.'),
             false,
         );
         $response->assertDontSee(
-            setting('admin.courses.paths.lsh_bdry_adf_msark_alawl', 'لسّه بدري — أضِف مسارك الأوّل.'),
+            setting('admin.courses.paths.lsh_bdry_adf_msark_alawl', 'لسّه بدري. أضِف مسارك الأوّل.'),
             false,
         );
     }
@@ -429,11 +429,11 @@ class AdminContentTrainingTest extends AdminContentTestCase
             ->assertOk();
 
         $response->assertSee(
-            setting('admin.courses.paths.lsh_bdry_adf_msark_alawl', 'لسّه بدري — أضِف مسارك الأوّل.'),
+            setting('admin.courses.paths.lsh_bdry_adf_msark_alawl', 'لسّه بدري. أضِف مسارك الأوّل.'),
             false,
         );
         $response->assertDontSee(
-            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث/الفلتر الحاليّ — جرّب فلترًا تانيًا.'),
+            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث أو الفلتر الحاليّ. جرّب فلتر تاني.'),
             false,
         );
     }
@@ -451,11 +451,11 @@ class AdminContentTrainingTest extends AdminContentTestCase
             ->assertOk();
 
         $response->assertSee(
-            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث/الفلتر الحاليّ — جرّب فلترًا تانيًا.'),
+            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث أو الفلتر الحاليّ. جرّب فلتر تاني.'),
             false,
         );
         $response->assertDontSee(
-            setting('admin.courses.index.lsh_mfysh_tdrybat_abda_bawl_wahd', 'لسّه مفيش تدريبات — ابدأ بأوّل واحد.'),
+            setting('admin.courses.index.lsh_mfysh_tdrybat_abda_bawl_wahd', 'لسّه مفيش تدريبات. ابدأ بأوّل واحد.'),
             false,
         );
     }
@@ -470,11 +470,11 @@ class AdminContentTrainingTest extends AdminContentTestCase
             ->assertOk();
 
         $response->assertSee(
-            setting('admin.courses.index.lsh_mfysh_tdrybat_abda_bawl_wahd', 'لسّه مفيش تدريبات — ابدأ بأوّل واحد.'),
+            setting('admin.courses.index.lsh_mfysh_tdrybat_abda_bawl_wahd', 'لسّه مفيش تدريبات. ابدأ بأوّل واحد.'),
             false,
         );
         $response->assertDontSee(
-            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث/الفلتر الحاليّ — جرّب فلترًا تانيًا.'),
+            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث أو الفلتر الحاليّ. جرّب فلتر تاني.'),
             false,
         );
     }
@@ -495,11 +495,11 @@ class AdminContentTrainingTest extends AdminContentTestCase
             ->assertOk();
 
         $response->assertSee(
-            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث/الفلتر الحاليّ — جرّب فلترًا تانيًا.'),
+            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث أو الفلتر الحاليّ. جرّب فلتر تاني.'),
             false,
         );
         $response->assertDontSee(
-            setting('admin.courses.path_courses.almsar_lsh_fady_dyf_awl_tdryb', 'المسار لسّه فاضي — ضيف أوّل تدريب.'),
+            setting('admin.courses.path_courses.almsar_lsh_fady_dyf_awl_tdryb', 'المسار لسّه فاضي. ضيف أوّل تدريب.'),
             false,
         );
     }
@@ -515,11 +515,11 @@ class AdminContentTrainingTest extends AdminContentTestCase
             ->assertOk();
 
         $response->assertSee(
-            setting('admin.courses.path_courses.almsar_lsh_fady_dyf_awl_tdryb', 'المسار لسّه فاضي — ضيف أوّل تدريب.'),
+            setting('admin.courses.path_courses.almsar_lsh_fady_dyf_awl_tdryb', 'المسار لسّه فاضي. ضيف أوّل تدريب.'),
             false,
         );
         $response->assertDontSee(
-            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث/الفلتر الحاليّ — جرّب فلترًا تانيًا.'),
+            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث أو الفلتر الحاليّ. جرّب فلتر تاني.'),
             false,
         );
     }
@@ -537,7 +537,7 @@ class AdminContentTrainingTest extends AdminContentTestCase
             ->assertOk();
 
         $response->assertSee(
-            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث/الفلتر الحاليّ — جرّب فلترًا تانيًا.'),
+            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث أو الفلتر الحاليّ. جرّب فلتر تاني.'),
             false,
         );
         $response->assertDontSee(setting('media.picker.empty'), false);
@@ -554,7 +554,7 @@ class AdminContentTrainingTest extends AdminContentTestCase
 
         $response->assertSee(setting('media.picker.empty'), false);
         $response->assertDontSee(
-            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث/الفلتر الحاليّ — جرّب فلترًا تانيًا.'),
+            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث أو الفلتر الحاليّ. جرّب فلتر تاني.'),
             false,
         );
     }

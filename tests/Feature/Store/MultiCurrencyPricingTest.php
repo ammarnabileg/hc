@@ -155,7 +155,7 @@ class MultiCurrencyPricingTest extends StoreTestCase
         $this->actingAs($this->trainee(0))
             ->get(route('store.product', ['type' => 'bundle', 'slug' => $bundle->slug]))
             ->assertOk()
-            ->assertSee('🎁 بونص: إكسل للشغل بقيمة 400 كوين — مجّانًا مع الباقة')
+            ->assertSee('🎁 بونص: إكسل للشغل بقيمة 400 كوين، مجّانًا مع الباقة')
             ->assertSee(setting('store.bundle.total_value_label'))
             ->assertSee('500 كوين');
     }

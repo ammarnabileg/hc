@@ -34,7 +34,7 @@
                 </p>
                 <p class="text-xs mt-0.5" style="color: var(--text-muted)">
                     @if ($barState['rewarded'])
-                        {{ setting('growth.profile_completion.bar_done_hint', 'المكافأة اتصرفت — كمّل الباقي علشان بطاقاتك تطلع كاملة.') }}
+                        {{ setting('growth.profile_completion.bar_done_hint', 'المكافأة اتصرفت، كمّل الباقي علشان بطاقاتك تطلع كاملة.') }}
                     @else
                         {{ str_replace('{tickets}', $barState['tickets'], (string) setting('growth.profile_completion.bar_hint', 'كمّله لآخره وخُد {tickets} تذاكر.')) }}
                     @endif

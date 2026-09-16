@@ -1,6 +1,6 @@
 @extends('layouts.volunteer')
 
-@section('title', setting('volunteer.profile_report.title', 'تقرير أداء — ').$owner->shortName())
+@section('title', setting('volunteer.profile_report.title', 'تقرير أداء: ').$owner->shortName())
 
 @section('content')
     {{--

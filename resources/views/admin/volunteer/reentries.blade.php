@@ -5,7 +5,7 @@
 @section('content')
     <x-page-header
         :title="setting('admin.volunteer.reentries.alaaydwn', 'العائدون')"
-        :subtitle="setting('admin.volunteer.reentries.albab_mftwh_lmn_khrj_bshrf_walamthan_yaad', 'الباب مفتوح لمن خرج بشرف — والامتحان يُعاد لإثبات جاهزيّة اليوم لا جاهزيّة الأمس.')"
+        :subtitle="setting('admin.volunteer.reentries.albab_mftwh_lmn_khrj_bshrf_walamthan_yaad', 'الباب مفتوح لمن خرج بشرف، والامتحان يُعاد لإثبات جاهزيّة اليوم لا جاهزيّة الأمس.')"
         :breadcrumbs="[['label' => setting('admin.volunteer.reentries.alttwa', 'التطوّع'), 'url' => route('admin.volunteer.index')], ['label' => setting('admin.volunteer.reentries.alaaydwn', 'العائدون')]]" />
 
     @include('admin.volunteer.partials.tabs', ['current' => 'reentries'])

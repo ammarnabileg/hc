@@ -205,7 +205,7 @@ class AmbassadorService
         $body = str_replace(
             [':label', ':count'],
             [$tier['label'], (string) $tier['threshold']],
-            (string) setting('ambassadors.notification.body', ':count دعوة مفعَّلة وصلتك للقب :label — شكرًا إنّك بتكبّر المكان معانا.'),
+            (string) setting('ambassadors.notification.body', ':count دعوة مفعَّلة وصلتك للقب :label، شكرًا إنّك بتكبّر المكان معانا.'),
         );
 
         Notifier::send(

@@ -89,7 +89,7 @@ class NotesAvailabilityGateTest extends LearningTestCase
             ->assertStatus(403)
             ->assertJson(['saved' => false, 'locked' => true])
             ->assertJsonFragment(['message' => trim(
-                setting('learning.notes.course_locked').' التدريب بيفتح يوميًّا من 05:00 إلى 07:00 بتوقيتك — يفتح الخميس 16 يوليو — 05:00'
+                setting('learning.notes.course_locked').' التدريب بيفتح يوميًّا من 05:00 إلى 07:00 بتوقيتك، يفتح الخميس 16 يوليو - 05:00'
             )]);
 
         $this->assertSame(

@@ -38,7 +38,7 @@ class RetentionDemoSeeder extends Seeder
         $rows = [
             [
                 'tasks', 'task.state8_manual', 'قرار الحالة 8 اليدويّ (الإرجاع المتكرّر)', 0.25,
-                'مدًى يدويّ بمبرّر: من +0.25 إلى −0.5 — والحدّان في workflow.repeated_return.rep_max/rep_min.',
+                'مدًى يدويّ بمبرّر: من +0.25 إلى −0.5، والحدّان في workflow.repeated_return.rep_max/rep_min.',
             ],
             [
                 'tasks', 'task.committee_chance', 'فرصة لجنة التحقيق', 1.0,
@@ -88,13 +88,13 @@ class RetentionDemoSeeder extends Seeder
             ['volunteer.rep_warning.duty_title', 'offboarding', 'عنوان إشعار الالتزام لأبلاين العضويّة الكاسرة', 'string', 'مطلوب منك تواصل موثَّق خلال :hours ساعة'],
             ['volunteer.rep_warning.duty_body', 'offboarding', 'نصّ إشعار الالتزام لأبلاين العضويّة الكاسرة', 'text', 'درجة الالتزام لـ:name وصلت :score، والمعاملة اللي كسرت الحاجز وقعت في عضويّتك معاه. كلّمه وسجّل التواصل في الملاحظات الإداريّة خلال :hours ساعة.'],
             ['volunteer.rep_warning.upline_title', 'offboarding', 'عنوان إشعار الإنذار لباقي الأبلاينز', 'string', 'إنذار درجة الالتزام لواحد من فريقك'],
-            ['volunteer.rep_warning.upline_body', 'offboarding', 'نصّ إشعار الإنذار لباقي الأبلاينز', 'text', 'درجة الالتزام لـ:name وصلت :score — المؤشّر الأحمر شغّال. التواصل الموثَّق واقع على أبلاين العضويّة اللي وقعت فيها المعاملة، وأنت شايف الحالة عشان تسند.'],
+            ['volunteer.rep_warning.upline_body', 'offboarding', 'نصّ إشعار الإنذار لباقي الأبلاينز', 'text', 'درجة الالتزام لـ:name وصلت :score. المؤشّر الأحمر شغّال. التواصل الموثَّق واقع على أبلاين العضويّة اللي وقعت فيها المعاملة، وأنت شايف الحالة عشان تسند.'],
             ['volunteer.rep_warning.breach_title', 'offboarding', 'عنوان إشعار فوات التزام التواصل', 'string', 'فاتت مهلة التواصل الموثَّق'],
             ['volunteer.rep_warning.breach_body', 'offboarding', 'نصّ إشعار فوات التزام التواصل', 'text', 'عدّت :hours ساعة ولسّه مفيش توثيق تواصل مع :name بعد إنذار درجة الالتزام. التوثيق ده بيتقرا في ملفّ لجنة التحقيق لو الدرجة كمّلت نزول.'],
             ['volunteer.rep_warning.note_body', 'offboarding', 'قالب الملاحظة الإداريّة لتوثيق التواصل', 'text', 'توثيق تواصل إنذار درجة الالتزام (:score): :body'],
             ['volunteer.rep_warning.error_missing', 'offboarding', 'رسالة: الإنذار غير موجود', 'string', 'الإنذار ده مش موجود.'],
-            ['volunteer.rep_warning.error_done', 'offboarding', 'رسالة: التواصل موثَّق بالفعل', 'string', 'التواصل ده متوثَّق خلاص — مفيش توثيق تاني لنفس الإنذار.'],
-            ['volunteer.rep_warning.error_actor', 'offboarding', 'رسالة: التوثيق ليس عليك', 'string', 'التزام التواصل ده واقع على أبلاين العضويّة اللي وقعت فيها المعاملة — مش عليك.'],
+            ['volunteer.rep_warning.error_done', 'offboarding', 'رسالة: التواصل موثَّق بالفعل', 'string', 'التواصل ده متوثَّق خلاص. مفيش توثيق تاني لنفس الإنذار.'],
+            ['volunteer.rep_warning.error_actor', 'offboarding', 'رسالة: التوثيق ليس عليك', 'string', 'التزام التواصل ده واقع على أبلاين العضويّة اللي وقعت فيها المعاملة. مش عليك.'],
 
             /*
              | ⭐ **الدرجة الأخيرة — التعليق عند −10** (23-0.2-4). ولا مهلة هنا
@@ -108,8 +108,8 @@ class RetentionDemoSeeder extends Seeder
             ['volunteer.suspension.cover_body', 'offboarding', 'نصّ إشعار تغطية البوزشن للأبلاين', 'text', 'حساب :name اتعلّق مؤقّتًا، ومسؤوليّاته الإشرافيّة في :entity بقت عندك (المراجعات ونوافذ التصعيد ودفعات الصب-تاسكات) لحدّ ما ينتهي التحقيق. عدد اللي تحته: :downline.'],
             ['volunteer.suspension.release_title', 'offboarding', 'عنوان إشعار رفع التعليق', 'string', 'رجع حسابك في التطوّع ✓'],
             ['volunteer.suspension.release_body', 'offboarding', 'نصّ إشعار رفع التعليق', 'text', 'اترفع التعليق ورجعت عضويّة قسمك شغّالة. المؤشّر الأحمر لسّه قايم كإنذار، والعضويّات الاختياريّة بتفضل مقفولة لحدّ التصفير الشهريّ.'],
-            ['volunteer.suspension.chance_reason', 'offboarding', 'سبب معاملة فرصة اللجنة في السجلّ', 'string', 'فرصة لجنة التحقيق — قرار موثَّق بمرجع اللجنة'],
-            ['volunteer.suspension.task_reason', 'offboarding', 'سبب تحويل مهامّ المعلَّق لمسار عدم التسليم', 'string', 'اتعلّق حساب صاحب المهمّة عند عتبة التعليق — المهمّة تدور على مالك جديد'],
+            ['volunteer.suspension.chance_reason', 'offboarding', 'سبب معاملة فرصة اللجنة في السجلّ', 'string', 'فرصة لجنة التحقيق. قرار موثَّق بمرجع اللجنة'],
+            ['volunteer.suspension.task_reason', 'offboarding', 'سبب تحويل مهامّ المعلَّق لمسار عدم التسليم', 'string', 'اتعلّق حساب صاحب المهمّة عند عتبة التعليق. المهمّة تدور على مالك جديد'],
             ['volunteer.suspension.hold_release_reason', 'offboarding', 'سبب تحرير الرصيد المعلَّق عند سحب مساهمة المعلَّق', 'string', 'تحرير الرصيد المعلَّق بعد سحب المساهمة عند تعليق الحساب'],
         ];
 

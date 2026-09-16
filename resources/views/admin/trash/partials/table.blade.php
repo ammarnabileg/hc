@@ -45,7 +45,7 @@
                             @can('soft_delete_recovery.delete')
                                 {{-- ⛔ حذف نهائيّ لا رجعة فيه — تأكيد المتصفّح الأساسيّ يكفي هنا، والتوثيق إلزاميّ في الخدمة --}}
                                 <form method="post" action="{{ route('admin.ops.trash.destroy', ['type' => $row['type'], 'id' => $row['id']]) }}"
-                                      onsubmit="return confirm('{{ setting('admin.trash.confirm_delete', 'حذف نهائيّ لا يمكن التراجع عنه — متأكّد؟') }}')">
+                                      onsubmit="return confirm('{{ setting('admin.trash.confirm_delete', 'حذف نهائيّ لا يمكن التراجع عنه. متأكّد؟') }}')">
                                     @csrf
                                     @method('delete')
                                     <button class="text-xs underline" style="color: var(--color-state-danger)">{{ setting('admin.trash.action_delete', 'حذف نهائيّ') }}</button>
@@ -92,7 +92,7 @@
 
                         @can('soft_delete_recovery.delete')
                             <form method="post" action="{{ route('admin.ops.trash.destroy', ['type' => $row['type'], 'id' => $row['id']]) }}"
-                                  onsubmit="return confirm('{{ setting('admin.trash.confirm_delete', 'حذف نهائيّ لا يمكن التراجع عنه — متأكّد؟') }}')">
+                                  onsubmit="return confirm('{{ setting('admin.trash.confirm_delete', 'حذف نهائيّ لا يمكن التراجع عنه. متأكّد؟') }}')">
                                 @csrf
                                 @method('delete')
                                 <button class="underline" style="color: var(--color-state-danger)">{{ setting('admin.trash.action_delete', 'حذف نهائيّ') }}</button>

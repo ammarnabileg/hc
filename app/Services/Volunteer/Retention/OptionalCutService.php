@@ -158,7 +158,7 @@ class OptionalCutService
 
         throw ValidationException::withMessages([
             'entity_id' => setting('volunteer_offboarding.optional_cut_service.assert_may_join_1', 'العضويّات الاختياريّة (المحافظات والملفات) مقفولة مؤقّتًا لهذا المتطوّع بعد بلوغه عتبة ')
-                .number_format($this->threshold(), 2).setting('volunteer_offboarding.optional_cut_service.assert_may_join_2', ' — وتُفتَح مع التصفير الشهريّ')
+                .number_format($this->threshold(), 2).setting('volunteer_offboarding.optional_cut_service.assert_may_join_2', '، وتُفتَح مع التصفير الشهريّ')
                 .($until ? strtr(setting('volunteer_offboarding.optional_cut_service.assert_may_join_3', ' يوم :p1'), [':p1' => (string) ($until)]) : '').setting('volunteer_offboarding.optional_cut_service.assert_may_join_4', '، وقسمه شغّال زيّ ما هو.'),
         ]);
     }
@@ -376,7 +376,7 @@ class OptionalCutService
         $count = 0;
 
         foreach ($tasks as $task) {
-            if ($this->noDelivery->miss($task, setting('volunteer_offboarding.optional_cut_service.hand_over_tasks_1', 'انتهت عضويّته الاختياريّة عند عتبة البتر — المهمّة تدور على مالك جديد'), deduct: false)) {
+            if ($this->noDelivery->miss($task, setting('volunteer_offboarding.optional_cut_service.hand_over_tasks_1', 'انتهت عضويّته الاختياريّة عند عتبة البتر، والمهمّة تدور على مالك جديد'), deduct: false)) {
                 $count++;
             }
         }
@@ -434,7 +434,7 @@ class OptionalCutService
 
         $body = $ended > 0
             ? strtr(setting('volunteer_offboarding.optional_cut_service.announce_3', 'درجة الالتزام وصلت :p1، فاتقفلت عضويّاتك الاختياريّة (:p2) عشان نخفّف الحمل. قسمك وحسابك شغّالين زيّ ما هما، ومهامّك هناك راحت لأبلايناتها بلا أيّ خصم جديد عليك، ونقاط الإنتاج كلّها باقية. الانضمام لمحافظة أو ملفّ يرجع مع التصفير الشهريّ.'), [':p1' => (string) (number_format($displayed, 2)), ':p2' => (string) ($ended)])
-            : strtr(setting('volunteer_offboarding.optional_cut_service.announce_4', 'درجة الالتزام وصلت :p1 — وما عندكش عضويّات اختياريّة تتقفل، فالعتبة عدّت بلا أثر. قسمك وحسابك شغّالين، والانضمام لمحافظة أو ملفّ يرجع مع التصفير الشهريّ.'), [':p1' => (string) (number_format($displayed, 2))]);
+            : strtr(setting('volunteer_offboarding.optional_cut_service.announce_4', 'درجة الالتزام وصلت :p1، وما عندكش عضويّات اختياريّة تتقفل، فالعتبة عدّت بلا أثر. قسمك وحسابك شغّالين، والانضمام لمحافظة أو ملفّ يرجع مع التصفير الشهريّ.'), [':p1' => (string) (number_format($displayed, 2))]);
 
         Notifier::send($user, 'account', $title, $body, null, 'volunteer');
     }

@@ -1,7 +1,7 @@
 @php
     /** الفعاليّات القادمة (13.3) — بموعدها الحقيقيّ، بلا عدّاد ضغط ولا ندرة مزيّفة (2.9) */
     $title = (string) setting('home.events.title', 'الفعاليّات القادمة');
-    $dateFormat = (string) setting('home.events.date_format', 'l j F — H:i');
+    $dateFormat = (string) setting('home.events.date_format', 'l j F - H:i');
     $modes = [
         'online' => (string) setting('home.events.mode_online', 'أونلاين'),
         'offline' => (string) setting('home.events.mode_offline', 'حضوريّ'),

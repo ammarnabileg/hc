@@ -70,7 +70,7 @@ class ComplaintsTest extends AccountTestCase
         $this->actingAs($user)
             ->get(route('complaints.index', ['ticket' => $complaint->id]))
             ->assertOk()
-            ->assertSee('مغلقة — قراءة فقط');
+            ->assertSee('مغلقة، قراءة فقط');
 
         $this->actingAs($user)->post(route('complaints.reply', $complaint), ['body' => 'محاولة ردّ']);
         $this->assertSame(0, ComplaintMessage::where('complaint_id', $complaint->id)->count());

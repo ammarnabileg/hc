@@ -70,16 +70,16 @@ class DashboardDemoSeeder extends Seeder
             ['dashboard.tickets.daily_max_days', 'dashboard', 'أقصى مدى تُعرَض فيه بارات التذاكر يوميًّا', 'number', '7'],
             ['dashboard.achievements.radar_max_level', 'dashboard', 'سقف الرادار المعروض (مستوى)', 'number', '6'],
             // عتبات مسارات الإنجاز الخمسة (10.1): الزيادة = base + (N−2) × step
-            ['dashboard.achievements.account.base', 'dashboard', 'عتبة مستوى الحساب — الأساس (XP)', 'number', '500'],
-            ['dashboard.achievements.account.step', 'dashboard', 'عتبة مستوى الحساب — الزيادة (XP)', 'number', '250'],
-            ['dashboard.achievements.club_5am.base', 'dashboard', 'عتبة نادي الخامسة — الأساس (يوم)', 'number', '3'],
-            ['dashboard.achievements.club_5am.step', 'dashboard', 'عتبة نادي الخامسة — الزيادة (يوم)', 'number', '2'],
-            ['dashboard.achievements.referrals.base', 'dashboard', 'عتبة الدعوات — الأساس (دعوة)', 'number', '5'],
-            ['dashboard.achievements.referrals.step', 'dashboard', 'عتبة الدعوات — الزيادة (دعوة)', 'number', '2'],
-            ['dashboard.achievements.tickets.base', 'dashboard', 'عتبة التذاكر — الأساس (تذكرة)', 'number', '15'],
-            ['dashboard.achievements.tickets.step', 'dashboard', 'عتبة التذاكر — الزيادة (تذكرة)', 'number', '10'],
-            ['dashboard.achievements.learning.base', 'dashboard', 'عتبة استمراريّة التعلّم — الأساس (درس)', 'number', '5'],
-            ['dashboard.achievements.learning.step', 'dashboard', 'عتبة استمراريّة التعلّم — الزيادة (درس)', 'number', '3'],
+            ['dashboard.achievements.account.base', 'dashboard', 'عتبة مستوى الحساب: الأساس (XP)', 'number', '500'],
+            ['dashboard.achievements.account.step', 'dashboard', 'عتبة مستوى الحساب: الزيادة (XP)', 'number', '250'],
+            ['dashboard.achievements.club_5am.base', 'dashboard', 'عتبة نادي الخامسة: الأساس (يوم)', 'number', '3'],
+            ['dashboard.achievements.club_5am.step', 'dashboard', 'عتبة نادي الخامسة: الزيادة (يوم)', 'number', '2'],
+            ['dashboard.achievements.referrals.base', 'dashboard', 'عتبة الدعوات: الأساس (دعوة)', 'number', '5'],
+            ['dashboard.achievements.referrals.step', 'dashboard', 'عتبة الدعوات: الزيادة (دعوة)', 'number', '2'],
+            ['dashboard.achievements.tickets.base', 'dashboard', 'عتبة التذاكر: الأساس (تذكرة)', 'number', '15'],
+            ['dashboard.achievements.tickets.step', 'dashboard', 'عتبة التذاكر: الزيادة (تذكرة)', 'number', '10'],
+            ['dashboard.achievements.learning.base', 'dashboard', 'عتبة استمراريّة التعلّم: الأساس (درس)', 'number', '5'],
+            ['dashboard.achievements.learning.step', 'dashboard', 'عتبة استمراريّة التعلّم: الزيادة (درس)', 'number', '3'],
             // عمر شهادة العرض عند الزرع — رقمٌ في اللوحة لا محروقًا في السيدر (2.13)
             ['dashboard.demo.certificate_age_days', 'dashboard', 'عمر شهادة العرض عند الزرع (أيّام)', 'number', '5'],
             ['wallet.currency.xp_code', 'wallet', 'كود عملة نقاط الخبرة', 'string', 'xp'],
@@ -122,10 +122,10 @@ class DashboardDemoSeeder extends Seeder
             // ---------------- تاب «نظرة عامّة»
             ['dashboard.overview.active_courses_title', 'عنوان بلوك التدريبات الجارية', 'تدريباتي الجارية'],
             ['dashboard.overview.all_courses_link', 'رابط كلّ التدريبات', 'كلّ تدريباتي'],
-            ['dashboard.overview.courses_empty_message', 'الحالة الفارغة للتدريبات الجارية', 'خلّصت كلّ تدريباتك الجارية — تحفة'],
+            ['dashboard.overview.courses_empty_message', 'الحالة الفارغة للتدريبات الجارية', 'خلّصت كلّ تدريباتك الجارية، تحفة'],
             ['dashboard.overview.courses_empty_action', 'زرّ الحالة الفارغة للتدريبات الجارية', 'تصفّح المتجر'],
             ['dashboard.overview.deadlines_title', 'عنوان بلوك أقرب المواعيد', 'أقرب المواعيد'],
-            ['dashboard.overview.deadlines_empty', 'الحالة الفارغة لأقرب المواعيد', 'مفيش موعد قريب — خُد وقتك.'],
+            ['dashboard.overview.deadlines_empty', 'الحالة الفارغة لأقرب المواعيد', 'مفيش موعد قريب، خُد وقتك.'],
             ['dashboard.overview.deadline_percent', 'نسبة إكمال التدريب في سطر الموعد (:percent)', ':percent% مكتمل'],
 
             // ---------------- كارت التدريب الجاري
@@ -151,12 +151,12 @@ class DashboardDemoSeeder extends Seeder
             ['dashboard.countdown.remaining', 'صيغة العدّاد قبل الموعد (:duration)', 'باقي :duration'],
 
             // ---------------- تاب «تفاصيل»
-            ['dashboard.details.completed_label', 'كارت التدريبات المكتملة — العنوان', 'تدريبات مكتملة'],
-            ['dashboard.details.completed_hint', 'كارت التدريبات المكتملة — التلميح', 'خلّصتها بالكامل'],
-            ['dashboard.details.active_label', 'كارت التدريبات الجارية — العنوان', 'تدريبات جارية'],
-            ['dashboard.details.active_hint', 'كارت التدريبات الجارية — التلميح', 'لسّه شغّال فيها'],
-            ['dashboard.details.rank_label', 'كارت الترتيب — العنوان', 'ترتيبك في الليدر بورد'],
-            ['dashboard.details.rank_hint', 'كارت الترتيب — التلميح (:peers)', 'من بين :peers متدرّبًا'],
+            ['dashboard.details.completed_label', 'كارت التدريبات المكتملة: العنوان', 'تدريبات مكتملة'],
+            ['dashboard.details.completed_hint', 'كارت التدريبات المكتملة: التلميح', 'خلّصتها بالكامل'],
+            ['dashboard.details.active_label', 'كارت التدريبات الجارية: العنوان', 'تدريبات جارية'],
+            ['dashboard.details.active_hint', 'كارت التدريبات الجارية: التلميح', 'لسّه شغّال فيها'],
+            ['dashboard.details.rank_label', 'كارت الترتيب: العنوان', 'ترتيبك في الليدر بورد'],
+            ['dashboard.details.rank_hint', 'كارت الترتيب: التلميح (:peers)', 'من بين :peers متدرّبًا'],
             ['dashboard.details.title', 'عنوان بلوك تفصيل التقدّم', 'تفصيل تقدّمك'],
             ['dashboard.details.lessons_done', 'تفصيل التقدّم: الدروس المكتملة', 'دروس مكتملة'],
             ['dashboard.details.lessons_total', 'تفصيل التقدّم: إجماليّ الدروس', 'إجمالي دروس تدريباتك'],
@@ -174,15 +174,15 @@ class DashboardDemoSeeder extends Seeder
             // ---------------- رسم التذاكر
             ['dashboard.chart.tickets.title', 'عنوان رسم التذاكر', 'التذاكر: مكتسب ومصروف'],
             ['dashboard.chart.tickets.aria_label', 'وصف رسم التذاكر لقارئ الشاشة', 'التذاكر المكتسبة مقابل المصروفة خلال المدى المختار'],
-            ['dashboard.chart.tickets.earned_tooltip', 'تلميح عمود المكتسب (:label · :value)', ':label — مكتسب: :value'],
-            ['dashboard.chart.tickets.spent_tooltip', 'تلميح عمود المصروف (:label · :value)', ':label — مصروف: :value'],
+            ['dashboard.chart.tickets.earned_tooltip', 'تلميح عمود المكتسب (:label · :value)', ':label، مكتسب: :value'],
+            ['dashboard.chart.tickets.spent_tooltip', 'تلميح عمود المصروف (:label · :value)', ':label، مصروف: :value'],
             ['dashboard.chart.tickets.legend_earned', 'مفتاح الرسم: المكتسب', 'مكتسب'],
             ['dashboard.chart.tickets.legend_spent', 'مفتاح الرسم: المصروف', 'مصروف'],
 
             // ---------------- دونات إكمال المسار
             ['dashboard.chart.completion.title', 'عنوان دونات إكمال المسار', 'إكمال المسار'],
             ['dashboard.chart.completion.aria_label', 'وصف الدونات لقارئ الشاشة (:percent)', 'نسبة إكمال تدريباتك :percent٪'],
-            ['dashboard.chart.completion.svg_title', 'عنوان الدونات داخل الرسم (:percent)', 'إكمال المسار — :percent٪'],
+            ['dashboard.chart.completion.svg_title', 'عنوان الدونات داخل الرسم (:percent)', 'إكمال المسار: :percent٪'],
             ['dashboard.chart.completion.center_caption', 'سطر منتصف الدونات', 'من الدروس'],
 
             // ---------------- خريطة الحضور
@@ -205,7 +205,7 @@ class DashboardDemoSeeder extends Seeder
             ['dashboard.chart.radar.max_level', 'سقف الرادار المعروض (:level)', 'السقف المعروض: مستوى :level'],
             ['dashboard.chart.radar.aria_label', 'وصف الرادار لقارئ الشاشة', 'مستوياتك في مسارات الإنجاز الخمسة'],
             ['dashboard.chart.radar.svg_title', 'عنوان الرادار داخل الرسم', 'رادار الإنجازات'],
-            ['dashboard.chart.radar.axis_tooltip', 'تلميح محور الرادار (:label · :level · :value · :unit)', ':label: مستوى :level — :value :unit'],
+            ['dashboard.chart.radar.axis_tooltip', 'تلميح محور الرادار (:label · :level · :value · :unit)', ':label: مستوى :level، :value :unit'],
             ['dashboard.chart.radar.axis_level', 'مستوى المحور تحت اسمه (:level)', 'مستوى :level'],
         ];
 
@@ -410,7 +410,7 @@ class DashboardDemoSeeder extends Seeder
         $coins = Currency::where('code', 'coins')->first();
 
         if (! $xp || ! $tickets) {
-            $this->command?->warn('العملات غير مزروعة — شغّل CoreSeeder أوّلًا.');
+            $this->command?->warn('العملات غير مزروعة. شغّل CoreSeeder أوّلًا.');
 
             return;
         }

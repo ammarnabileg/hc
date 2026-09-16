@@ -48,7 +48,7 @@ class MeetingsAdminTest extends ScreensTestCase
         $emptyCard = substr($html, $emptyCardStart, 400);
 
         $this->assertStringContainsString(
-            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث/الفلتر الحاليّ — جرّب فلترًا تانيًا.'),
+            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث أو الفلتر الحاليّ. جرّب فلتر تاني.'),
             $emptyCard,
         );
         // نصّ البداية الافتراضيّ يظهر في لوحة الإعدادات أسفل الشاشة دائمًا — فالتحقّق

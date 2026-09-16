@@ -12,7 +12,7 @@
     والنصّ والرابط **إعدادان** (2.13) يملكهما المالك من تاب «بيانات الدول».
 --}}
 @php
-    $attribution = trim((string) setting('countries.attribution', 'بيانات الدول والمحافظات من dr5hn/countries-states-cities-database — برخصة ODbL v1.0.'));
+    $attribution = trim((string) setting('countries.attribution', 'بيانات الدول والمحافظات من dr5hn/countries-states-cities-database، برخصة ODbL v1.0.'));
     $sourceUrl = trim((string) setting('countries.source_url', 'https://github.com/dr5hn/countries-states-cities-database'));
 @endphp
 

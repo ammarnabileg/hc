@@ -4,7 +4,7 @@
 @section('content')
     <x-page-header
         :title="setting('challenges.index.title', 'التحديات')"
-        :subtitle="setting('challenges.index.subtitle', 'حروب بين المحاربين — الرابح ياخد من الخاسر، ومحدّش بيكسب من العدم.')"
+        :subtitle="setting('challenges.index.subtitle', 'حروب بين المحاربين. الرابح ياخد من الخاسر، ومحدّش بيكسب من العدم.')"
         :breadcrumbs="[['label' => setting('challenges.index.breadcrumb_home', 'الرئيسيّة'), 'url' => route('dashboard')], ['label' => setting('challenges.index.title', 'التحديات')]]">
         <x-slot:action>
             <a href="{{ route('challenges.mine') }}"
@@ -66,7 +66,7 @@
     </x-filters>
 
     @if ($challenges->isEmpty())
-        <x-empty :message="setting('challenges.index.empty', 'مفيش ساحات متاحة دلوقتي — تعالى بكرة، الساحة بتتجدّد.')" />
+        <x-empty :message="setting('challenges.index.empty', 'مفيش ساحات متاحة دلوقتي. تعالى بكرة، الساحة بتتجدّد.')" />
     @else
         {{-- الكروت شبكة مرنة: عمود واحد على الموبايل بلا تمرير أفقيّ --}}
         <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">

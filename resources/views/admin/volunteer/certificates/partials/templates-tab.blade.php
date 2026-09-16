@@ -3,14 +3,14 @@
   يُحرَّر عبر مصمّم القوالب المشترك (12.5-ب) بلا نظام موازٍ لهذه الشاشة.
 --}}
 <div class="flex items-center justify-between gap-3 flex-wrap mb-3">
-    <p class="text-sm" style="color: var(--text-muted)">{{ setting('admin.volunteer.certificates.templates_intro', 'أربعة أنواعٍ ثابتة — كلّ نوعٍ له نسختان (عربيّة/إنجليزيّة) بتصميمٍ افتراضيّ جاهز، وتعدّله بحرّيّة.') }}</p>
+    <p class="text-sm" style="color: var(--text-muted)">{{ setting('admin.volunteer.certificates.templates_intro', 'أربعة أنواعٍ ثابتة، كلّ نوعٍ له نسختان (عربيّة/إنجليزيّة) بتصميمٍ افتراضيّ جاهز، وتعدّله بحرّيّة.') }}</p>
 
     @can('certificate_templates.view')
         <form method="get" action="" onsubmit="return false" class="flex items-center gap-2">
             <select id="cert-tpl-jump" class="rounded-xl px-3 py-2 text-sm"
                     style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)"
                     onchange="if (this.value) window.location = this.value">
-                <option value="">{{ setting('admin.volunteer.certificates.qalb_plus', '+ قالب — افتح مصمّمًا') }}</option>
+                <option value="">{{ setting('admin.volunteer.certificates.qalb_plus', '+ قالب، افتح مصمّمًا') }}</option>
                 @foreach ($cards as $card)
                     @if ($card['type'])
                         <option value="{{ route('admin.certificates.designer', $card['type']) }}">{{ $card['label'] }}</option>
@@ -33,7 +33,7 @@
                             {{ $card['type']->lang_ar_enabled ? setting('admin.volunteer.certificates.lang_ar', 'عربيّة') : '' }}
                             {{ $card['type']->lang_en_enabled ? setting('admin.volunteer.certificates.lang_en', 'إنجليزيّة') : '' }}
                             @if (! $card['type']->lang_ar_enabled && ! $card['type']->lang_en_enabled)
-                                {{ setting('admin.volunteer.certificates.mhdsh_mfal', '— محدّش مفعّل') }}
+                                {{ setting('admin.volunteer.certificates.mhdsh_mfal', 'محدّش مفعّل') }}
                             @endif
                         </div>
                         @if ($card['templates'])
@@ -84,7 +84,7 @@
                     @endcan
                 </div>
             @else
-                <p class="text-xs mt-3" style="color: var(--color-state-danger)">{{ setting('admin.volunteer.certificates.nwa_ghyr_mwjwd', 'النوع غير موجود في قاعدة البيانات بعد — شغّل السيدر.') }}</p>
+                <p class="text-xs mt-3" style="color: var(--color-state-danger)">{{ setting('admin.volunteer.certificates.nwa_ghyr_mwjwd', 'النوع غير موجود في قاعدة البيانات بعد. شغّل السيدر.') }}</p>
             @endif
         </div>
     @endforeach

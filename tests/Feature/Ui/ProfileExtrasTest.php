@@ -49,7 +49,7 @@ class ProfileExtrasTest extends UiTestCase
         $this->actingAs($this->trainee())
             ->patchJson(route('profile.bio'), ['bio' => str_repeat('ا', 40)])
             ->assertStatus(422)
-            ->assertJsonFragment(['bio' => ['النبذة أطول من 20 حرف — اختصرها شويّة وجرّب تاني.']]);
+            ->assertJsonFragment(['bio' => ['النبذة أطول من 20 حرف، اختصرها شويّة وجرّب تاني.']]);
     }
 
     // ------------------------------------------------------------------ المشاركة

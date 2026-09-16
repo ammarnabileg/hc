@@ -23,11 +23,11 @@
 
         <div class="min-w-40 flex-1">
             <p class="text-sm font-bold">
-                {{ str_replace(':name', auth()->user()->shortName(1), (string) setting('learning.course.half_banner_title', 'نصّ الطريق خلص يا :name — أحسنت!')) }}
+                {{ str_replace(':name', auth()->user()->shortName(1), (string) setting('learning.course.half_banner_title', 'نصّ الطريق خلص يا :name، أحسنت!')) }}
             </p>
             {{-- الرقم الحقيقيّ لا تقدير: كم درسًا باقيًا فعلًا (2.9) --}}
             <p class="text-xs mt-0.5" style="color: var(--text-muted)">
-                {{ str_replace(':count', (string) $half['remaining'], (string) setting('learning.course.half_banner_hint', 'باقي :count درس وتخلّص التدريب — كمّل وأنت في أقوى لحظاتك.')) }}
+                {{ str_replace(':count', (string) $half['remaining'], (string) setting('learning.course.half_banner_hint', 'باقي :count درس وتخلّص التدريب، كمّل وأنت في أقوى لحظاتك.')) }}
             </p>
         </div>
     </div>

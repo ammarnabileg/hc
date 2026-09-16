@@ -239,7 +239,7 @@ class GuidanceController extends Controller
             'title' => $template?->subject ? $personalizer->render($template->subject, $user) : ($types[$category] ?? $category),
             'body' => $template
                 ? $personalizer->render($template->body, $user)
-                : (string) setting('guidance.admin.bell_preview_fallback', 'مفيش قالبٌ مفعّل لهذا النوع — هيوصل بالنصّ اللي بيبعته الحدث نفسه وقتها.'),
+                : (string) setting('guidance.admin.bell_preview_fallback', 'مفيش قالبٌ مفعّل لهذا النوع، هيوصل بالنصّ اللي بيبعته الحدث نفسه وقتها.'),
             'hasTemplate' => (bool) $template,
         ]);
     }
@@ -465,8 +465,8 @@ class GuidanceController extends Controller
             'reasons' => ['required', 'array', 'min:1'],
             'reasons.*' => ['nullable', 'string', 'max:48'],
         ], [
-            'reasons.required' => (string) setting('guidance.admin.update_complaint_reasons_msg', 'سيب سببًا واحدًا على الأقلّ — الفورم محتاج قائمة يختار منها.'),
-            'reasons.*.max' => (string) setting('guidance.admin.update_complaint_reasons_msg_2', 'السبب طويل — خلّيه في كلمات.'),
+            'reasons.required' => (string) setting('guidance.admin.update_complaint_reasons_msg', 'سيب سببًا واحدًا على الأقلّ، الفورم محتاج قائمة يختار منها.'),
+            'reasons.*.max' => (string) setting('guidance.admin.update_complaint_reasons_msg_2', 'السبب طويل، خلّيه في كلمات.'),
         ]);
 
         $saved = $this->guidance->saveComplaintReasons($data['reasons'], $request->user());
@@ -564,8 +564,8 @@ class GuidanceController extends Controller
             'onboarding_step' => ['nullable', 'integer', 'min:1', 'max:'.(int) setting('announcements.onboarding.max_steps', 12)],
             'onboarding_delay_days' => ['nullable', 'integer', 'min:0', 'max:'.(int) setting('announcements.onboarding.max_delay_days', 365)],
         ], [
-            'poll_options.max' => (string) setting('guidance.admin.announcement_rules_msg', 'خيارات الاستطلاع كتيرة — قلّلها عشان القرار يبقى سهل.'),
-            'onboarding_step.max' => (string) setting('guidance.admin.announcement_rules_msg_2', 'السلسلة طويلة — خلّيها خطوات معدودة يقدر المستخدم يكمّلها.'),
+            'poll_options.max' => (string) setting('guidance.admin.announcement_rules_msg', 'خيارات الاستطلاع كتيرة، قلّلها عشان القرار يبقى سهل.'),
+            'onboarding_step.max' => (string) setting('guidance.admin.announcement_rules_msg_2', 'السلسلة طويلة، خلّيها خطوات معدودة يقدر المستخدم يكمّلها.'),
         ]);
 
         // بناء الاستطلاع صلاحيّةٌ مستقلّة في المصفوفة (`announcement_polls.create`):

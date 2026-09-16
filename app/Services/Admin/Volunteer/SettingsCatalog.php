@@ -129,7 +129,7 @@ class SettingsCatalog
     {
         return [
             'volunteer_page.hero_title' => ['volunteer_page', setting('volunteer_page.settings_catalog.volunteer_page_1', 'عنوان صفحة التطوّع'), 'string', setting('volunteer_page.settings_catalog.volunteer_page_2', 'تطوّع معنا واصنع أثرًا')],
-            'volunteer_page.hero_subtitle' => ['volunteer_page', setting('volunteer_page.settings_catalog.volunteer_page_3', 'السطر التعريفيّ'), 'text', setting('volunteer_page.settings_catalog.volunteer_page_4', 'وقتك يقدر يغيّر رحلة متدرّب كامل — ابدأ من هنا.')],
+            'volunteer_page.hero_subtitle' => ['volunteer_page', setting('volunteer_page.settings_catalog.volunteer_page_3', 'السطر التعريفيّ'), 'text', setting('volunteer_page.settings_catalog.volunteer_page_4', 'وقتك يقدر يغيّر رحلة متدرّب كامل، ابدأ من هنا.')],
             'volunteer_page.hero_media' => ['volunteer_page', setting('volunteer_page.settings_catalog.volunteer_page_5', 'رابط فيديو/صورة الأثر'), 'string', ''],
             'volunteer_page.cta_label' => ['volunteer_page', setting('volunteer_page.settings_catalog.volunteer_page_6', 'نصّ الزرّ الرئيسيّ'), 'string', setting('volunteer_page.settings_catalog.volunteer_page_7', 'ابدأ التدريب التأهيليّ')],
             'volunteer_page.charter_text' => ['volunteer_page', setting('volunteer_page.settings_catalog.volunteer_page_8', 'ميثاق المتطوّع'), 'text', setting('volunteer_page.settings_catalog.volunteer_page_9', 'أتعهّد بالالتزام بمواعيدي، وباحترام فريقي، وبالحفاظ على ما يُؤتمَن عليّ من بيانات.')],
@@ -138,7 +138,7 @@ class SettingsCatalog
             'volunteer_page.stats_offset_trainees' => ['volunteer_page', setting('volunteer_page.settings_catalog.volunteer_page_12', 'Offset عدّاد المستفيدين'), 'number', '0'],
             // كتل المحتوى: تُضاف وتُعدَّل وتُحذَف كلّها من هنا (13.4-أ)
             'volunteer_page.blocks' => ['volunteer_page', setting('volunteer_page.settings_catalog.volunteer_page_13', 'كتل المحتوى (سؤال شائع · قصّة · أثر)'), 'json', '[]'],
-            'volunteer_page.empty_message' => ['volunteer_page', setting('volunteer_page.settings_catalog.volunteer_page_14', 'رسالة الحالة الفارغة'), 'string', setting('volunteer_page.settings_catalog.volunteer_page_15', 'لسّه محتوى الصفحة فاضي — ابدأ بأوّل كتلة.')],
+            'volunteer_page.empty_message' => ['volunteer_page', setting('volunteer_page.settings_catalog.volunteer_page_14', 'رسالة الحالة الفارغة'), 'string', setting('volunteer_page.settings_catalog.volunteer_page_15', 'لسّه محتوى الصفحة فاضي، ابدأ بأوّل كتلة.')],
 
             // عناوين السكاشن وأسطر الأثر — تُقرَأ في الصفحة الحيّة نفسها (13.4-أ)
             'volunteer_page.stats_volunteers_label' => ['volunteer_page', setting('volunteer_page.settings_catalog.volunteer_page_16', 'وصف عدّاد المتطوّعين'), 'string', setting('volunteer_page.settings_catalog.volunteer_page_17', 'متطوّع معنا')],
@@ -148,8 +148,8 @@ class SettingsCatalog
             'volunteer_page.stories_title' => ['volunteer_page', setting('volunteer_page.settings_catalog.volunteer_page_24', 'عنوان قصص المتطوّعين'), 'string', setting('volunteer_page.settings_catalog.volunteer_page_25', 'حكايات من الفريق')],
             'volunteer_page.charter_title' => ['volunteer_page', setting('volunteer_page.settings_catalog.volunteer_page_26', 'عنوان الميثاق'), 'string', setting('volunteer_page.settings_catalog.volunteer_page_27', 'ميثاق المتطوّع')],
             'volunteer_page.charter_agree_label' => ['volunteer_page', setting('volunteer_page.settings_catalog.volunteer_page_28', 'زرّ الموافقة على الميثاق'), 'string', setting('volunteer_page.settings_catalog.volunteer_page_29', 'قرأت الميثاق وموافق عليه')],
-            'volunteer_page.charter_required_message' => ['volunteer_page', setting('volunteer_page.settings_catalog.volunteer_page_30', 'رسالة الميثاق قبل البدء'), 'string', setting('volunteer_page.settings_catalog.volunteer_page_31', 'اقرأ ميثاق المتطوّع ووافق عليه الأوّل — بعدها يفتح لك المسار التأهيليّ.')],
-            'volunteer_page.charter_done_message' => ['volunteer_page', setting('volunteer_page.settings_catalog.volunteer_page_32', 'رسالة بعد الموافقة'), 'string', setting('volunteer_page.settings_catalog.volunteer_page_33', 'اتسجّل ✓ — المسار التأهيليّ بقى مفتوح ليك.')],
+            'volunteer_page.charter_required_message' => ['volunteer_page', setting('volunteer_page.settings_catalog.volunteer_page_30', 'رسالة الميثاق قبل البدء'), 'string', setting('volunteer_page.settings_catalog.volunteer_page_31', 'اقرأ ميثاق المتطوّع ووافق عليه الأوّل، وبعدها يفتح لك المسار التأهيليّ.')],
+            'volunteer_page.charter_done_message' => ['volunteer_page', setting('volunteer_page.settings_catalog.volunteer_page_32', 'رسالة بعد الموافقة'), 'string', setting('volunteer_page.settings_catalog.volunteer_page_33', 'اتسجّل ✓، المسار التأهيليّ بقى مفتوح ليك.')],
         ];
     }
 
@@ -166,13 +166,13 @@ class SettingsCatalog
             'volunteer.honorary.enabled' => ['volunteer_honorary', setting('volunteer_honorary.settings_catalog.honorary_1', 'إظهار العنصر الشرفيّ «أخوكم»'), 'bool', '1'],
             // 0 = حساب مالك المنصّة (الافتراضيّ المنصوص عليه)
             'volunteer.honorary.user_id' => ['volunteer_honorary', setting('volunteer_honorary.settings_catalog.honorary_2', 'الحساب المرتبط (0 = مالك المنصّة)'), 'number', '0'],
-            'volunteer.honorary.label_ar' => ['volunteer_honorary', setting('volunteer_honorary.settings_catalog.honorary_3', 'الوصف — عربيّ'), 'string', setting('volunteer_honorary.settings_catalog.honorary_4', 'أخوكم')],
-            'volunteer.honorary.label_en' => ['volunteer_honorary', setting('volunteer_honorary.settings_catalog.honorary_5', 'الوصف — إنجليزيّ'), 'string', 'Your brother'],
+            'volunteer.honorary.label_ar' => ['volunteer_honorary', setting('volunteer_honorary.settings_catalog.honorary_3', 'الوصف (عربيّ)'), 'string', setting('volunteer_honorary.settings_catalog.honorary_4', 'أخوكم')],
+            'volunteer.honorary.label_en' => ['volunteer_honorary', setting('volunteer_honorary.settings_catalog.honorary_5', 'الوصف (إنجليزيّ)'), 'string', 'Your brother'],
             'volunteer.honorary.places' => ['volunteer_honorary', setting('volunteer_honorary.settings_catalog.honorary_6', 'أماكن الظهور (كانفاس · أعضاء · الصفحة التعريفيّة)'), 'json', '{"canvas":true,"members":true,"landing":false}'],
             'volunteer.honorary.frame_style' => ['volunteer_honorary', setting('volunteer_honorary.settings_catalog.honorary_7', 'شكل الإطار (soft · gold · dashed · none)'), 'string', 'soft'],
-            'volunteer.honorary.note' => ['volunteer_honorary', setting('volunteer_honorary.settings_catalog.honorary_8', 'سطر التوضيح تحت الاسم'), 'string', setting('volunteer_honorary.settings_catalog.honorary_9', 'عنصر شرفيّ — بلا مؤشّرات ولا يدخل أيّ عدّاد')],
+            'volunteer.honorary.note' => ['volunteer_honorary', setting('volunteer_honorary.settings_catalog.honorary_8', 'سطر التوضيح تحت الاسم'), 'string', setting('volunteer_honorary.settings_catalog.honorary_9', 'عنصر شرفيّ، بلا مؤشّرات ولا يدخل أيّ عدّاد')],
             // مُعلَن لا ليُعدَّل: لا بطاقة ولا شهادة ولا عدّاد ولا أوفبوردنج (13.4-ص-ج)
-            'volunteer.honorary.excluded_from_counters_locked' => ['volunteer_honorary', setting('volunteer_honorary.settings_catalog.honorary_10', 'خارج كلّ العدّادات والشهادات والبطاقة — مقفول'), 'bool', '1'],
+            'volunteer.honorary.excluded_from_counters_locked' => ['volunteer_honorary', setting('volunteer_honorary.settings_catalog.honorary_10', 'خارج كلّ العدّادات والشهادات والبطاقة، مقفول'), 'bool', '1'],
         ];
     }
 
@@ -234,7 +234,7 @@ class SettingsCatalog
             'volunteer.offboarding.reasons' => ['volunteer_offboarding', setting('volunteer_offboarding.settings_catalog.offboarding_reasons', 'قائمة أسباب إنهاء العضويّة المقنَّنة'), 'json', setting('volunteer_offboarding.settings_catalog.offboarding_reasons_default', '["لا وقت كافٍ","ظروف شخصيّة","عدم رضا عن التجربة","انتقال/سفر","أسباب صحّيّة","أخرى"]')],
             'volunteer.offboarding.honorable_certificate_enabled' => ['volunteer_offboarding', setting('volunteer_offboarding.settings_catalog.offboarding_9', 'شهادة خبرة عند الخروج المشرَّف'), 'bool', '1'],
             'volunteer.offboarding.reason_published_to_team' => ['volunteer_offboarding', setting('volunteer_offboarding.settings_catalog.offboarding_10', 'نشر سبب الخروج للفريق؟ (مقفول: لا يُنشَر)'), 'bool', '0'],
-            'volunteer.offboarding.team_message' => ['volunteer_offboarding', setting('volunteer_offboarding.settings_catalog.offboarding_11', 'رسالة الفريق عند الإنهاء'), 'string', setting('volunteer_offboarding.settings_catalog.offboarding_12', 'انتهت عضويّة {name} — نتمنّى له كلّ التوفيق.')],
+            'volunteer.offboarding.team_message' => ['volunteer_offboarding', setting('volunteer_offboarding.settings_catalog.offboarding_11', 'رسالة الفريق عند الإنهاء'), 'string', setting('volunteer_offboarding.settings_catalog.offboarding_12', 'انتهت عضويّة {name}، نتمنّى له كلّ التوفيق.')],
             'volunteer.offboarding.clearance_items' => ['volunteer_offboarding', setting('volunteer_offboarding.settings_catalog.offboarding_13', 'بنود التصفية الإلزاميّة'), 'json', setting('volunteer_offboarding.settings_catalog.offboarding_14', '["نقل المهامّ المفتوحة للأبلاين بنفس الديدلاينات","سحب المساهمات الجارية وتحرير الرصيد المعلَّق","حسم الاعتراضات والتحكيمات المفتوحة","تفويض الداونلاين للأبلاين فورًا","نقل الاجتماعات والبنود المتكرّرة","إبقاء مُدخَلات المكتبة الداخليّة للكيان"]')],
             'volunteer.offboarding.cumulative_window_days' => ['volunteer_offboarding', setting('volunteer_offboarding.settings_catalog.offboarding_15', 'نافذة المكتسَب التراكميّ (يوم)'), 'number', '90'],
             'volunteer.offboarding.reentry_starts_position' => ['volunteer_offboarding', setting('volunteer_offboarding.settings_catalog.offboarding_16', 'بوزشن العائد'), 'string', 'coordinator'],
@@ -257,13 +257,13 @@ class SettingsCatalog
             // ⭐ شرطا الاستحقاق المنصوصان
             'volunteer_cert.min_days_in_position' => ['volunteer_cert', setting('volunteer_cert.settings_catalog.certificates_1', 'الحدّ الأدنى للمدّة في البوزشن (يوم)'), 'number', '30'],
             'volunteer_cert.require_non_negative_rep' => ['volunteer_cert', setting('volunteer_cert.settings_catalog.certificates_2', 'اشتراط Rep غير سالب وقت الإصدار'), 'bool', '1'],
-            'volunteer_cert.one_per_position_entity' => ['volunteer_cert', setting('volunteer_cert.settings_catalog.certificates_3', 'شهادة واحدة لكلّ (بوزشن × كيان) — مقفول'), 'bool', '1'],
+            'volunteer_cert.one_per_position_entity' => ['volunteer_cert', setting('volunteer_cert.settings_catalog.certificates_3', 'شهادة واحدة لكلّ (بوزشن × كيان)، مقفول'), 'bool', '1'],
             'volunteer_cert.auto_issue' => ['volunteer_cert', setting('volunteer_cert.settings_catalog.certificates_4', 'الإصدار التلقائيّ عند الاستيفاء'), 'bool', '1'],
             'volunteer_cert.notify_on_issue' => ['volunteer_cert', setting('volunteer_cert.settings_catalog.certificates_5', 'إشعار عند الإصدار'), 'bool', '1'],
             'volunteer_cert.celebration_tier' => ['volunteer_cert', setting('volunteer_cert.settings_catalog.certificates_6', 'مستوى الاحتفال عند الإصدار (3 = ذروة)'), 'number', '3'],
-            'volunteer_cert.free_locked' => ['volunteer_cert', setting('volunteer_cert.settings_catalog.certificates_7', 'مجّانيّة 100% — مقفول'), 'bool', '1'],
-            'volunteer_cert.hide_internal_numbers' => ['volunteer_cert', setting('volunteer_cert.settings_catalog.certificates_8', 'منع أيّ أرقام داخليّة على الشهادة — مقفول'), 'bool', '1'],
-            'volunteer_cert.revoke_only_on_fraud' => ['volunteer_cert', setting('volunteer_cert.settings_catalog.certificates_9', 'الإلغاء للتزوير المثبَت وحده — مقفول'), 'bool', '1'],
+            'volunteer_cert.free_locked' => ['volunteer_cert', setting('volunteer_cert.settings_catalog.certificates_7', 'مجّانيّة 100%، مقفول'), 'bool', '1'],
+            'volunteer_cert.hide_internal_numbers' => ['volunteer_cert', setting('volunteer_cert.settings_catalog.certificates_8', 'منع أيّ أرقام داخليّة على الشهادة، مقفول'), 'bool', '1'],
+            'volunteer_cert.revoke_only_on_fraud' => ['volunteer_cert', setting('volunteer_cert.settings_catalog.certificates_9', 'الإلغاء للتزوير المثبَت وحده، مقفول'), 'bool', '1'],
             'volunteer_cert.cumulative_duration_on_reentry' => ['volunteer_cert', setting('volunteer_cert.settings_catalog.certificates_10', 'تجميع المدّة تراكميًّا عند العودة'), 'bool', '1'],
             'volunteer_cert.types' => ['volunteer_cert', setting('volunteer_cert.settings_catalog.certificates_11', 'الأنواع الأربعة وتفعيلها'), 'json', '{"volunteer_position":true,"volunteer_experience":true,"volunteer_case_file":true,"volunteer_appreciation":true}'],
             'volunteer_cert.min_days_by_position' => ['volunteer_cert', setting('volunteer_cert.settings_catalog.certificates_12', 'الحدّ الأدنى للمدّة لكلّ بوزشن (يتجاوز العامّ)'), 'json', '{}'],
@@ -306,7 +306,7 @@ class SettingsCatalog
             'tickets.midpoint_percent' => ['gamification_xp', setting('gamification_xp.settings_catalog.xp_and_tickets_7', 'نقطة المنتصف من المهلة (%)'), 'number', '50'],
             'xp_rules.decay_mode' => ['gamification_xp', setting('gamification_xp.settings_catalog.xp_and_tickets_8', 'نمط تناقص XP الدرس'), 'string', 'linear'],
             'xp_rules.decay_min' => ['gamification_xp', setting('gamification_xp.settings_catalog.xp_and_tickets_9', 'الحدّ الأدنى بعد التناقص'), 'number', '0'],
-            'xp_rules.course_xp_once_locked' => ['gamification_xp', setting('gamification_xp.settings_catalog.xp_and_tickets_10', 'XP إكمال الكورس مرّة واحدة أيًّا كان السياق — مقفول'), 'bool', '1'],
+            'xp_rules.course_xp_once_locked' => ['gamification_xp', setting('gamification_xp.settings_catalog.xp_and_tickets_10', 'XP إكمال الكورس مرّة واحدة أيًّا كان السياق، مقفول'), 'bool', '1'],
             'levels.enabled' => ['gamification_xp', setting('gamification_xp.settings_catalog.xp_and_tickets_11', 'تفعيل المستويات'), 'bool', '1'],
         ];
     }
@@ -333,18 +333,18 @@ class SettingsCatalog
 
             // نصوص الشاشة والرسائل — لا نصّ محروق في الكود (2.13)
             'streaks.club5am.xp_reason' => ['gamification_streaks', setting('gamification_streaks.settings_catalog.streaks_and_leaderboard_12', 'سبب معاملة XP الحضور'), 'string', setting('gamification_streaks.settings_catalog.streaks_and_leaderboard_13', 'حضور نادي الخامسة صباحًا')],
-            'streaks.checkin.message' => ['gamification_streaks', setting('gamification_streaks.settings_catalog.streaks_and_leaderboard_14', 'رسالة تسجيل الحضور'), 'string', setting('gamification_streaks.settings_catalog.streaks_and_leaderboard_15', 'اتسجّل ✓ — ستريكك دلوقتي :days يوم.')],
-            'streaks.checkin.club_message' => ['gamification_streaks', setting('gamification_streaks.settings_catalog.streaks_and_leaderboard_16', 'رسالة الحضور داخل النافذة'), 'string', setting('gamification_streaks.settings_catalog.streaks_and_leaderboard_17', 'اتسجّل في نادي الخامسة ✓ — +:xp XP وستريكك :days يوم.')],
+            'streaks.checkin.message' => ['gamification_streaks', setting('gamification_streaks.settings_catalog.streaks_and_leaderboard_14', 'رسالة تسجيل الحضور'), 'string', setting('gamification_streaks.settings_catalog.streaks_and_leaderboard_15', 'اتسجّل ✓، ستريكك دلوقتي :days يوم.')],
+            'streaks.checkin.club_message' => ['gamification_streaks', setting('gamification_streaks.settings_catalog.streaks_and_leaderboard_16', 'رسالة الحضور داخل النافذة'), 'string', setting('gamification_streaks.settings_catalog.streaks_and_leaderboard_17', 'اتسجّل في نادي الخامسة ✓، +:xp XP وستريكك :days يوم.')],
             'streaks.reward.reason' => ['gamification_streaks', setting('gamification_streaks.settings_catalog.streaks_and_leaderboard_18', 'سبب معاملة تذكرة المكافأة'), 'string', setting('gamification_streaks.settings_catalog.streaks_and_leaderboard_19', 'مكافأة سلسلة الحضور')],
-            'streaks.reward.claimed_message' => ['gamification_streaks', setting('gamification_streaks.settings_catalog.streaks_and_leaderboard_20', 'رسالة استلام المكافأة'), 'string', setting('gamification_streaks.settings_catalog.streaks_and_leaderboard_21', 'مبروك — :tickets تذكرة هدية اتضافت لصندوقك 🎟️')],
-            'streaks.reward.not_due_message' => ['gamification_streaks', setting('gamification_streaks.settings_catalog.streaks_and_leaderboard_22', 'رسالة المكافأة غير المستحقّة'), 'string', setting('gamification_streaks.settings_catalog.streaks_and_leaderboard_23', 'المكافأة مش متاحة دلوقتي — كمّل سلسلتك وهتلاقيها في انتظارك.')],
+            'streaks.reward.claimed_message' => ['gamification_streaks', setting('gamification_streaks.settings_catalog.streaks_and_leaderboard_20', 'رسالة استلام المكافأة'), 'string', setting('gamification_streaks.settings_catalog.streaks_and_leaderboard_21', 'مبروك، :tickets تذكرة هدية اتضافت لصندوقك 🎟️')],
+            'streaks.reward.not_due_message' => ['gamification_streaks', setting('gamification_streaks.settings_catalog.streaks_and_leaderboard_22', 'رسالة المكافأة غير المستحقّة'), 'string', setting('gamification_streaks.settings_catalog.streaks_and_leaderboard_23', 'المكافأة مش متاحة دلوقتي، كمّل سلسلتك وهتلاقيها في انتظارك.')],
             'streaks.reward.cta' => ['gamification_streaks', setting('gamification_streaks.settings_catalog.streaks_and_leaderboard_24', 'زرّ استلام المكافأة'), 'string', setting('gamification_streaks.settings_catalog.streaks_and_leaderboard_25', 'استلم تذكرة المكافأة')],
             'streaks.freeze.reason' => ['gamification_streaks', setting('gamification_streaks.settings_catalog.streaks_and_leaderboard_26', 'سبب معاملة درع التجميد'), 'string', setting('gamification_streaks.settings_catalog.streaks_and_leaderboard_27', 'درع تجميد السلسلة')],
             'streaks.freeze.cta' => ['gamification_streaks', setting('gamification_streaks.settings_catalog.streaks_and_leaderboard_28', 'زرّ شراء الدرع'), 'string', setting('gamification_streaks.settings_catalog.streaks_and_leaderboard_29', 'اشترِ درع تجميد')],
-            'streaks.freeze.done_message' => ['gamification_streaks', setting('gamification_streaks.settings_catalog.streaks_and_leaderboard_30', 'رسالة نجاح التجميد'), 'string', setting('gamification_streaks.settings_catalog.streaks_and_leaderboard_31', 'الدرع حمى يوم :day — سلسلتك كمّلت 🛡️')],
-            'streaks.freeze.nothing_message' => ['gamification_streaks', setting('gamification_streaks.settings_catalog.streaks_and_leaderboard_32', 'رسالة لا يوم يحتاج حماية'), 'string', setting('gamification_streaks.settings_catalog.streaks_and_leaderboard_33', 'مفيش يوم فايت محتاج حماية دلوقتي — سلسلتك سليمة.')],
-            'streaks.freeze.cap_message' => ['gamification_streaks', setting('gamification_streaks.settings_catalog.streaks_and_leaderboard_34', 'رسالة سقف التجميد الشهريّ'), 'string', setting('gamification_streaks.settings_catalog.streaks_and_leaderboard_35', 'وصلت أقصى :cap تجميدات الشهر ده — الشهر الجاي يبدأ رصيد جديد.')],
-            'streaks.freeze.no_tickets_message' => ['gamification_streaks', setting('gamification_streaks.settings_catalog.streaks_and_leaderboard_36', 'رسالة نقص التذاكر'), 'string', setting('gamification_streaks.settings_catalog.streaks_and_leaderboard_37', 'التذاكر مش كفاية للدرع — اكسب تذاكر من دروسك وارجع.')],
+            'streaks.freeze.done_message' => ['gamification_streaks', setting('gamification_streaks.settings_catalog.streaks_and_leaderboard_30', 'رسالة نجاح التجميد'), 'string', setting('gamification_streaks.settings_catalog.streaks_and_leaderboard_31', 'الدرع حمى يوم :day، سلسلتك كمّلت 🛡️')],
+            'streaks.freeze.nothing_message' => ['gamification_streaks', setting('gamification_streaks.settings_catalog.streaks_and_leaderboard_32', 'رسالة لا يوم يحتاج حماية'), 'string', setting('gamification_streaks.settings_catalog.streaks_and_leaderboard_33', 'مفيش يوم فايت محتاج حماية دلوقتي، سلسلتك سليمة.')],
+            'streaks.freeze.cap_message' => ['gamification_streaks', setting('gamification_streaks.settings_catalog.streaks_and_leaderboard_34', 'رسالة سقف التجميد الشهريّ'), 'string', setting('gamification_streaks.settings_catalog.streaks_and_leaderboard_35', 'وصلت أقصى :cap تجميدات الشهر ده، الشهر الجاي يبدأ رصيد جديد.')],
+            'streaks.freeze.no_tickets_message' => ['gamification_streaks', setting('gamification_streaks.settings_catalog.streaks_and_leaderboard_36', 'رسالة نقص التذاكر'), 'string', setting('gamification_streaks.settings_catalog.streaks_and_leaderboard_37', 'التذاكر مش كفاية للدرع، اكسب تذاكر من دروسك وارجع.')],
             'streaks.freeze.day_format' => ['gamification_streaks', setting('gamification_streaks.settings_catalog.streaks_and_leaderboard_38', 'صيغة عرض اليوم المحميّ'), 'string', 'j F'],
 
             'leaderboard.enabled' => ['gamification_leaderboard', setting('gamification_leaderboard.settings_catalog.streaks_and_leaderboard_39', 'تفعيل الليدر بورد'), 'bool', '1'],
@@ -376,8 +376,8 @@ class SettingsCatalog
             'reward_questions.enabled' => ['gamification_reward_questions', setting('gamification_reward_questions.settings_catalog.reward_questions_1', 'تفعيل أسئلة المكافأة'), 'bool', '1'],
             'reward_questions.default_minutes' => ['gamification_reward_questions', setting('gamification_reward_questions.settings_catalog.reward_questions_2', 'مدّة التفعيل الافتراضيّة (دقيقة)'), 'number', '60'],
             'reward_questions.token_length' => ['gamification_reward_questions', setting('gamification_reward_questions.settings_catalog.reward_questions_3', 'طول مفتاح الرابط'), 'number', '12'],
-            'reward_questions.one_answer_per_user_locked' => ['gamification_reward_questions', setting('gamification_reward_questions.settings_catalog.reward_questions_4', 'إجابة واحدة لكلّ مستخدم ومنع تكرار الصرف — مقفول'), 'bool', '1'],
-            'reward_questions.server_side_locked' => ['gamification_reward_questions', setting('gamification_reward_questions.settings_catalog.reward_questions_5', 'التصحيح في الخادم والإجابة لا تُرسَل للمتصفّح — مقفول'), 'bool', '1'],
+            'reward_questions.one_answer_per_user_locked' => ['gamification_reward_questions', setting('gamification_reward_questions.settings_catalog.reward_questions_4', 'إجابة واحدة لكلّ مستخدم ومنع تكرار الصرف، مقفول'), 'bool', '1'],
+            'reward_questions.server_side_locked' => ['gamification_reward_questions', setting('gamification_reward_questions.settings_catalog.reward_questions_5', 'التصحيح في الخادم والإجابة لا تُرسَل للمتصفّح، مقفول'), 'bool', '1'],
             'reward_questions.autoschedule_enabled' => ['gamification_reward_questions', setting('gamification_reward_questions.settings_catalog.reward_questions_6', 'جدولة الفتح التلقائيّ'), 'bool', '1'],
             'reward_questions.notify_on_open' => ['gamification_reward_questions', setting('gamification_reward_questions.settings_catalog.reward_questions_7', 'إشعار/Toast بفتح سؤال جديد'), 'bool', '1'],
             'reward_questions.show_timer' => ['gamification_reward_questions', setting('gamification_reward_questions.settings_catalog.reward_questions_8', 'إظهار التايمر فوق السؤال'), 'bool', '1'],
@@ -385,11 +385,11 @@ class SettingsCatalog
             'reward_questions.page_title' => ['gamification_reward_questions', setting('gamification_reward_questions.settings_catalog.reward_questions_10', 'عنوان صفحة السؤال'), 'string', setting('gamification_reward_questions.settings_catalog.reward_questions_11', 'سؤال المكافأة')],
             'reward_questions.page_intro' => ['gamification_reward_questions', setting('gamification_reward_questions.settings_catalog.reward_questions_12', 'شرح صفحة السؤال'), 'text', setting('gamification_reward_questions.settings_catalog.reward_questions_13', 'جاوب صحّ قبل ما الوقت يخلص وتكسب مكافأتك فورًا.')],
             'reward_questions.closed_text' => ['gamification_reward_questions', setting('gamification_reward_questions.settings_catalog.reward_questions_14', 'نصّ انتهاء الوقت'), 'string', setting('gamification_reward_questions.settings_catalog.reward_questions_15', 'انتهى وقت الإجابة')],
-            'reward_questions.correct_message' => ['gamification_reward_questions', setting('gamification_reward_questions.settings_catalog.reward_questions_16', 'رسالة الإجابة الصحيحة'), 'text', setting('gamification_reward_questions.settings_catalog.reward_questions_17', 'إجابة صحيحة 🎉 — مكافأتك اتضافت لحسابك.')],
-            'reward_questions.wrong_message' => ['gamification_reward_questions', setting('gamification_reward_questions.settings_catalog.reward_questions_18', 'رسالة الإجابة الخاطئة (تشجّع ولا تعاتب)'), 'text', setting('gamification_reward_questions.settings_catalog.reward_questions_19', 'مش الإجابة الصحيحة المرّة دي — بس شكرًا إنك جاوبت بسرعة.')],
-            'reward_questions.already_message' => ['gamification_reward_questions', setting('gamification_reward_questions.settings_catalog.reward_questions_20', 'رسالة مَن جاوب قبل كده'), 'text', setting('gamification_reward_questions.settings_catalog.reward_questions_21', 'جاوبت على السؤال ده قبل كده — مكافأتك اتصرفت مرّة واحدة.')],
+            'reward_questions.correct_message' => ['gamification_reward_questions', setting('gamification_reward_questions.settings_catalog.reward_questions_16', 'رسالة الإجابة الصحيحة'), 'text', setting('gamification_reward_questions.settings_catalog.reward_questions_17', 'إجابة صحيحة 🎉، مكافأتك اتضافت لحسابك.')],
+            'reward_questions.wrong_message' => ['gamification_reward_questions', setting('gamification_reward_questions.settings_catalog.reward_questions_18', 'رسالة الإجابة الخاطئة (تشجّع ولا تعاتب)'), 'text', setting('gamification_reward_questions.settings_catalog.reward_questions_19', 'مش الإجابة الصحيحة المرّة دي، بس شكرًا إنك جاوبت بسرعة.')],
+            'reward_questions.already_message' => ['gamification_reward_questions', setting('gamification_reward_questions.settings_catalog.reward_questions_20', 'رسالة مَن جاوب قبل كده'), 'text', setting('gamification_reward_questions.settings_catalog.reward_questions_21', 'جاوبت على السؤال ده قبل كده، مكافأتك اتصرفت مرّة واحدة.')],
             'reward_questions.ledger_reason' => ['gamification_reward_questions', setting('gamification_reward_questions.settings_catalog.reward_questions_22', 'وصف المعاملة في المحفظة'), 'string', setting('gamification_reward_questions.settings_catalog.reward_questions_23', 'إجابة صحيحة على سؤال مكافأة')],
-            'reward_questions.whatsapp_text' => ['gamification_reward_questions', setting('gamification_reward_questions.settings_catalog.reward_questions_24', 'نصّ رسالة الواتساب'), 'text', setting('gamification_reward_questions.settings_catalog.reward_questions_25', 'سؤال المكافأة النهارده — جاوب قبل ما الوقت يخلص:')],
+            'reward_questions.whatsapp_text' => ['gamification_reward_questions', setting('gamification_reward_questions.settings_catalog.reward_questions_24', 'نصّ رسالة الواتساب'), 'text', setting('gamification_reward_questions.settings_catalog.reward_questions_25', 'سؤال المكافأة النهارده، جاوب قبل ما الوقت يخلص:')],
             'reward_questions.submit_label' => ['gamification_reward_questions', setting('gamification_reward_questions.settings_catalog.reward_questions_26', 'زرّ الإرسال'), 'string', setting('gamification_reward_questions.settings_catalog.reward_questions_27', 'أرسل إجابتي')],
             'reward_questions.empty_message' => ['gamification_reward_questions', setting('gamification_reward_questions.settings_catalog.reward_questions_28', 'الحالة الفارغة'), 'string', setting('gamification_reward_questions.settings_catalog.reward_questions_29', 'لا أسئلة مكافآت بعد.')],
             'reward_questions.labels.draft' => ['gamification_reward_questions', setting('gamification_reward_questions.settings_catalog.reward_questions_30', 'وسم المسودّة'), 'string', setting('gamification_reward_questions.settings_catalog.reward_questions_31', 'مسودّة')],
@@ -422,7 +422,7 @@ class SettingsCatalog
             'wars.shared.min_active_questions' => ['gamification_wars', setting('gamification_wars.settings_catalog.wars_15', 'حدّ أدنى للأسئلة المفعّلة قبل التشغيل'), 'number', '20'],
             // ⭐ قفل الإعدادات أثناء حرب نشطة (12.10-ج)
             'wars.lock_while_active' => ['gamification_wars', setting('gamification_wars.settings_catalog.wars_16', 'قفل الإعدادات أثناء حرب نشطة'), 'bool', '1'],
-            'wars.lock_message' => ['gamification_wars', setting('gamification_wars.settings_catalog.wars_17', 'رسالة القفل'), 'string', setting('gamification_wars.settings_catalog.wars_18', 'تعذّر الحفظ — حرب نشطة الآن، حاول بعد انتهائها.')],
+            'wars.lock_message' => ['gamification_wars', setting('gamification_wars.settings_catalog.wars_17', 'رسالة القفل'), 'string', setting('gamification_wars.settings_catalog.wars_18', 'تعذّر الحفظ، حرب نشطة الآن، حاول بعد انتهائها.')],
         ];
     }
 
@@ -436,10 +436,10 @@ class SettingsCatalog
             'celebrations.peak.daily_cap' => ['gamification_celebrations', setting('gamification_celebrations.settings_catalog.celebrations_2', 'الحدّ اليوميّ لمستوى الذروة'), 'number', '3'],
             'celebrations.auto_dismiss_seconds' => ['gamification_celebrations', setting('gamification_celebrations.settings_catalog.celebrations_3', 'الانتهاء التلقائيّ (ثانية)'), 'number', '6'],
             // ⭐ الأنيميشن دائم بلا توجل — الصوت وحده له توجل (2.14-ب)
-            'celebrations.animation_always_on' => ['gamification_celebrations', setting('gamification_celebrations.settings_catalog.celebrations_4', 'الأنيميشن حاضر دائمًا — مقفول'), 'bool', '1'],
+            'celebrations.animation_always_on' => ['gamification_celebrations', setting('gamification_celebrations.settings_catalog.celebrations_4', 'الأنيميشن حاضر دائمًا، مقفول'), 'bool', '1'],
             'celebrations.sound.enabled' => ['gamification_celebrations', setting('gamification_celebrations.settings_catalog.celebrations_5', 'تفعيل الصوت (يخضع لتوجل البروفايل)'), 'bool', '1'],
-            'celebrations.tiers_locked' => ['gamification_celebrations', setting('gamification_celebrations.settings_catalog.celebrations_6', 'ثلاثة مستويات لا رابع — مقفول'), 'bool', '1'],
-            'celebrations.once_per_event' => ['gamification_celebrations', setting('gamification_celebrations.settings_catalog.celebrations_7', 'مرّة واحدة لكلّ حدث (Server-side) — مقفول'), 'bool', '1'],
+            'celebrations.tiers_locked' => ['gamification_celebrations', setting('gamification_celebrations.settings_catalog.celebrations_6', 'ثلاثة مستويات لا رابع، مقفول'), 'bool', '1'],
+            'celebrations.once_per_event' => ['gamification_celebrations', setting('gamification_celebrations.settings_catalog.celebrations_7', 'مرّة واحدة لكلّ حدث (Server-side)، مقفول'), 'bool', '1'],
             'celebrations.share_button' => ['gamification_celebrations', setting('gamification_celebrations.settings_catalog.celebrations_8', 'زرّ المشاركة في مستوى الذروة'), 'bool', '1'],
         ];
     }
@@ -450,13 +450,13 @@ class SettingsCatalog
     {
         return [
             // ⭐ الخصم ينزل تحت الصفر مسموح صراحةً (12.9)
-            'rewards.allow_negative_balance' => ['rewards', setting('rewards.settings_catalog.rewards_1', 'السماح بالنزول تحت الصفر في الخصم — مقفول ON'), 'bool', '1'],
+            'rewards.allow_negative_balance' => ['rewards', setting('rewards.settings_catalog.rewards_1', 'السماح بالنزول تحت الصفر في الخصم، مقفول ON'), 'bool', '1'],
             'rewards.batch_size' => ['rewards', setting('rewards.settings_catalog.rewards_2', 'حجم دفعة المعالجة (كود)'), 'number', '500'],
             'rewards.max_codes' => ['rewards', setting('rewards.settings_catalog.rewards_3', 'أقصى عدد أكواد في العمليّة الواحدة'), 'number', '2000'],
             'rewards.notify_recipient' => ['rewards', setting('rewards.settings_catalog.rewards_4', 'إشعار المستلِم'), 'bool', '1'],
             'rewards.celebration_tier' => ['rewards', setting('rewards.settings_catalog.rewards_5', 'مستوى الاحتفال عند المنح'), 'number', '2'],
-            'rewards.grant_message' => ['rewards', setting('rewards.settings_catalog.rewards_6', 'نصّ إشعار المنح'), 'string', setting('rewards.settings_catalog.rewards_7', 'وصلك رصيد جديد: {amount} {currency} — {reason}')],
-            'rewards.deduct_message' => ['rewards', setting('rewards.settings_catalog.rewards_8', 'نصّ إشعار الخصم'), 'string', setting('rewards.settings_catalog.rewards_9', 'اتخصم من رصيدك {amount} {currency} — {reason}')],
+            'rewards.grant_message' => ['rewards', setting('rewards.settings_catalog.rewards_6', 'نصّ إشعار المنح'), 'string', setting('rewards.settings_catalog.rewards_7', 'وصلك رصيد جديد: {amount} {currency} ({reason})')],
+            'rewards.deduct_message' => ['rewards', setting('rewards.settings_catalog.rewards_8', 'نصّ إشعار الخصم'), 'string', setting('rewards.settings_catalog.rewards_9', 'اتخصم من رصيدك {amount} {currency} ({reason})')],
             'rewards.card_enabled' => ['rewards', setting('rewards.settings_catalog.rewards_10', 'بطاقة التهنئة بعد المنح'), 'bool', '1'],
             'rewards.card_title' => ['rewards', setting('rewards.settings_catalog.rewards_11', 'عنوان بطاقة التهنئة'), 'string', setting('rewards.settings_catalog.rewards_12', 'مبروك يا {name} 🎉')],
             'rewards.currencies' => ['rewards', setting('rewards.settings_catalog.rewards_13', 'العملات المسموح منحها'), 'json', '["xp","coins","tickets"]'],
@@ -480,7 +480,7 @@ class SettingsCatalog
             'events.reminder_channels' => ['events', setting('events.settings_catalog.events_6', 'قنوات التذكير'), 'json', '["bell","toast"]'],
             'events.qr_refresh_seconds' => ['events', setting('events.settings_catalog.events_7', 'ثوانٍ تجديد QR التشيك-إن'), 'number', '30'],
             'events.online_link_minutes_before' => ['events', setting('events.settings_catalog.events_8', 'ظهور رابط الأونلاين قبل الموعد (دقيقة)'), 'number', '30'],
-            'events.attendance_code_persistent' => ['events', setting('events.settings_catalog.events_9', 'كود الحضور مستمرّ لا يقفل — مقفول'), 'bool', '1'],
+            'events.attendance_code_persistent' => ['events', setting('events.settings_catalog.events_9', 'كود الحضور مستمرّ لا يقفل، مقفول'), 'bool', '1'],
             'events.attendance.code_length' => ['events', setting('events.settings_catalog.events_10', 'طول كود الحضور'), 'number', '6'],
             'events.reward_tiers_default' => ['events', setting('events.settings_catalog.events_11', 'جدول المكافأة المتدرّجة الافتراضيّ'), 'json', '[{"hours":24,"xp":200,"tickets":1},{"hours":72,"xp":100,"tickets":0},{"hours":168,"xp":50,"tickets":0}]'],
             'events.close_registration_when_full' => ['events', setting('events.settings_catalog.events_12', 'إغلاق التسجيل عند الاكتمال (بلا قائمة انتظار)'), 'bool', '1'],
@@ -488,7 +488,7 @@ class SettingsCatalog
             'events.add_to_calendar' => ['events', setting('events.settings_catalog.events_14', 'زرّ «أضِف لتقويمي»'), 'bool', '1'],
             'events.friend_invite' => ['events', setting('events.settings_catalog.events_15', 'دعوة صديق'), 'bool', '1'],
             'events.reward_countdown' => ['events', setting('events.settings_catalog.events_16', 'عدّاد المكافأة النازل عند المستخدم'), 'bool', '1'],
-            'events.empty_message' => ['events', setting('events.settings_catalog.events_17', 'رسالة الحالة الفارغة'), 'string', setting('events.settings_catalog.events_18', 'لا فعاليّات — أنشئ أوّل لقاء.')],
+            'events.empty_message' => ['events', setting('events.settings_catalog.events_17', 'رسالة الحالة الفارغة'), 'string', setting('events.settings_catalog.events_18', 'لا فعاليّات، أنشئ أوّل لقاء.')],
         ];
     }
 
@@ -506,7 +506,7 @@ class SettingsCatalog
             'availability.detect.client_field' => ['availability', setting('availability.settings_catalog.availability_3', 'اسم حقل تلميح المتصفّح'), 'string', 'timezone'],
             'availability.detect.country_headers' => ['availability', setting('availability.settings_catalog.availability_4', 'ترويسات دولة الزائر من الطبقة الأماميّة'), 'json', '["CF-IPCountry","X-AppEngine-Country","X-Geo-Country","X-Country-Code"]'],
             'availability.timezone.preferred' => ['availability', setting('availability.settings_catalog.availability_5', 'المناطق الزمنيّة المقترحة أوّلًا'), 'json', '["Africa/Cairo","Asia/Riyadh","Asia/Dubai","Asia/Amman","Africa/Khartoum","Africa/Casablanca","Europe/London"]'],
-            'availability.timezone.saved_message' => ['availability', setting('availability.settings_catalog.availability_6', 'رسالة حفظ التوقيت'), 'string', setting('availability.settings_catalog.availability_7', 'اتحفظ ✓ — كلّ المواعيد دلوقتي بتوقيتك.')],
+            'availability.timezone.saved_message' => ['availability', setting('availability.settings_catalog.availability_6', 'رسالة حفظ التوقيت'), 'string', setting('availability.settings_catalog.availability_7', 'اتحفظ ✓، كلّ المواعيد دلوقتي بتوقيتك.')],
             'availability.admin.per_page' => ['availability', setting('availability.settings_catalog.availability_8', 'صفوف شاشة الإتاحة'), 'number', '20'],
             'availability.admin.max_periods' => ['availability', setting('availability.settings_catalog.availability_9', 'أقصى فترات إتاحة للتدريب الواحد'), 'number', '24'],
 
@@ -520,7 +520,7 @@ class SettingsCatalog
             'availability.timezone.source_manual' => ['availability', setting('availability.settings_catalog.availability_22', 'وصف المصدر: يدويّ'), 'string', setting('availability.settings_catalog.availability_23', 'التوقيت ده أنت اللي اخترته.')],
             'availability.timezone.source_auto' => ['availability', setting('availability.settings_catalog.availability_24', 'وصف المصدر: تلقائيّ'), 'string', setting('availability.settings_catalog.availability_25', 'اتكتشف تلقائيًّا حسب مكانك دلوقتي.')],
             'availability.timezone.source_country' => ['availability', setting('availability.settings_catalog.availability_26', 'وصف المصدر: دولتك'), 'string', setting('availability.settings_catalog.availability_27', 'مأخوذ من دولتك في ملفّك.')],
-            'availability.timezone.source_platform' => ['availability', setting('availability.settings_catalog.availability_28', 'وصف المصدر: المنصّة'), 'string', setting('availability.settings_catalog.availability_29', 'توقيت المنصّة الافتراضيّ — ظبّطه عشان مواعيدك تبقى مضبوطة.')],
+            'availability.timezone.source_platform' => ['availability', setting('availability.settings_catalog.availability_28', 'وصف المصدر: المنصّة'), 'string', setting('availability.settings_catalog.availability_29', 'توقيت المنصّة الافتراضيّ، ظبّطه عشان مواعيدك تبقى مضبوطة.')],
         ];
     }
 
@@ -533,12 +533,12 @@ class SettingsCatalog
             'kudos.weekly_people_limit' => ['kudos', setting('kudos.settings_catalog.kudos_2', 'حدّ الأشخاص المختلفين أسبوعيًّا'), 'number', '7'],
             'kudos.vxp_value' => ['kudos', setting('kudos.settings_catalog.kudos_3', 'قيمة الشكر بالـVXP'), 'number', '20'],
             'kudos.search_limit' => ['kudos', setting('kudos.settings_catalog.kudos_4', 'عدد نتائج البحث عن زميل'), 'number', '8'],
-            'kudos.reason.placeholder' => ['kudos', setting('kudos.settings_catalog.kudos_5', 'تلميح سبب الشكر'), 'string', setting('kudos.settings_catalog.kudos_5_v', 'احكِ الموقف نفسه — الحكاية هي اللي بتفضل.')],
-            'kudos.reason_required.message' => ['kudos', setting('kudos.settings_catalog.kudos_6', 'رسالة السبب الإلزاميّ'), 'string', setting('kudos.settings_catalog.kudos_6_v', 'اكتب سبب الشكر — القصّة هي اللي بتفرق مش الرقم.')],
-            'kudos.daily_limit.message' => ['kudos', setting('kudos.settings_catalog.kudos_7', 'رسالة بلوغ حدّ اليوم'), 'string', setting('kudos.settings_catalog.kudos_7_v', 'وصلت لحدّ اليوم — بكرة تقدر تشكر تاني.')],
-            'kudos.weekly_limit.message' => ['kudos', setting('kudos.settings_catalog.kudos_8', 'رسالة بلوغ حدّ الأسبوع'), 'string', setting('kudos.settings_catalog.kudos_8_v', 'وصلت لحدّ الأسبوع — الأسبوع الجاي مفتوح.')],
-            'kudos.duplicate.message' => ['kudos', setting('kudos.settings_catalog.kudos_9', 'رسالة تكرار نفس الشخص'), 'string', setting('kudos.settings_catalog.kudos_9_v', 'شكرت الشخص ده الأسبوع ده بالفعل — دوّر على حد تاني يستاهل.')],
-            'kudos.self.message' => ['kudos', setting('kudos.settings_catalog.kudos_10', 'رسالة شكر النفس'), 'string', setting('kudos.settings_catalog.kudos_10_v', 'الشكر بيروح لغيرك — اختر زميلًا 🙂')],
+            'kudos.reason.placeholder' => ['kudos', setting('kudos.settings_catalog.kudos_5', 'تلميح سبب الشكر'), 'string', setting('kudos.settings_catalog.kudos_5_v', 'احكِ الموقف نفسه، الحكاية هي اللي بتفضل.')],
+            'kudos.reason_required.message' => ['kudos', setting('kudos.settings_catalog.kudos_6', 'رسالة السبب الإلزاميّ'), 'string', setting('kudos.settings_catalog.kudos_6_v', 'اكتب سبب الشكر، القصّة هي اللي بتفرق مش الرقم.')],
+            'kudos.daily_limit.message' => ['kudos', setting('kudos.settings_catalog.kudos_7', 'رسالة بلوغ حدّ اليوم'), 'string', setting('kudos.settings_catalog.kudos_7_v', 'وصلت لحدّ اليوم، بكرة تقدر تشكر تاني.')],
+            'kudos.weekly_limit.message' => ['kudos', setting('kudos.settings_catalog.kudos_8', 'رسالة بلوغ حدّ الأسبوع'), 'string', setting('kudos.settings_catalog.kudos_8_v', 'وصلت لحدّ الأسبوع، الأسبوع الجاي مفتوح.')],
+            'kudos.duplicate.message' => ['kudos', setting('kudos.settings_catalog.kudos_9', 'رسالة تكرار نفس الشخص'), 'string', setting('kudos.settings_catalog.kudos_9_v', 'شكرت الشخص ده الأسبوع ده بالفعل، دوّر على حد تاني يستاهل.')],
+            'kudos.self.message' => ['kudos', setting('kudos.settings_catalog.kudos_10', 'رسالة شكر النفس'), 'string', setting('kudos.settings_catalog.kudos_10_v', 'الشكر بيروح لغيرك، اختر زميلًا 🙂')],
             'kudos.screen.store_msg' => ['kudos', setting('kudos.settings_catalog.kudos_11', 'اسم حقل «الزميل» في رسائل التحقّق'), 'string', setting('kudos.settings_catalog.kudos_11_v', 'الزميل')],
             'kudos.screen.store_msg_2' => ['kudos', setting('kudos.settings_catalog.kudos_12', 'اسم حقل «سبب الشكر» في رسائل التحقّق'), 'string', setting('kudos.settings_catalog.kudos_12_v', 'سبب الشكر')],
             'kudos.screen.store_ok' => ['kudos', setting('kudos.settings_catalog.kudos_13', 'رسالة إرسال الشكر بنجاح'), 'string', setting('kudos.settings_catalog.kudos_13_v', 'اتبعت ✓ وصلت لزميلك.')],
@@ -584,9 +584,9 @@ class SettingsCatalog
             'workflow.vxp.parent_min_share_percent' => ['workflow', setting('workflow.settings_catalog.workflow_9', 'أدنى شريحة VXP محفوظة للأب (%)'), 'number', '10'],
             // ⭐ معامل جودة الإنجاز ⟵ VXP (24.2 التاب 2 · مبدأ الفصل §6): جدول ثلاثيّ
             // قابل للتحرير — والجودة الضعيفة تحجِّم VXP وحده، ولا تمسّ Rep إطلاقًا.
-            'workflow.vxp.quality_tier_low' => ['workflow', setting('workflow.settings_catalog.workflow_10', 'معامل الجودة — المستوى الأدنى (%)'), 'number', '60'],
-            'workflow.vxp.quality_tier_mid' => ['workflow', setting('workflow.settings_catalog.workflow_11', 'معامل الجودة — المستوى المتوسّط (%)'), 'number', '80'],
-            'workflow.vxp.quality_tier_high' => ['workflow', setting('workflow.settings_catalog.workflow_12', 'معامل الجودة — المستوى الكامل (%)'), 'number', '100'],
+            'workflow.vxp.quality_tier_low' => ['workflow', setting('workflow.settings_catalog.workflow_10', 'معامل الجودة: المستوى الأدنى (%)'), 'number', '60'],
+            'workflow.vxp.quality_tier_mid' => ['workflow', setting('workflow.settings_catalog.workflow_11', 'معامل الجودة: المستوى المتوسّط (%)'), 'number', '80'],
+            'workflow.vxp.quality_tier_high' => ['workflow', setting('workflow.settings_catalog.workflow_12', 'معامل الجودة: المستوى الكامل (%)'), 'number', '100'],
         ];
     }
 }

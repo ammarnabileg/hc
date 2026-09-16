@@ -129,7 +129,7 @@ class LessonBuilder
     {
         return DB::transaction(function () use ($section) {
             $copy = $section->replicate(['created_at', 'updated_at']);
-            $copy->title_ar = $section->title_ar.(string) setting('sections.duplicate.suffix', ' — نسخة');
+            $copy->title_ar = $section->title_ar.(string) setting('sections.duplicate.suffix', ' (نسخة)');
             // النسخة تقف **بعد** آخر سيكشن في نفس التدريب، لا فوق ترتيبٍ قائم
             $copy->sort_order = ((int) Section::query()->where('course_id', $section->course_id)->max('sort_order')) + 1;
             $copy->save();
@@ -157,7 +157,7 @@ class LessonBuilder
             if ($into !== null) {
                 $copy->section_id = $into->id;
             } else {
-                $copy->title_ar = $lesson->title_ar.(string) setting('lessons.duplicate.suffix', ' — نسخة');
+                $copy->title_ar = $lesson->title_ar.(string) setting('lessons.duplicate.suffix', ' (نسخة)');
                 $copy->sort_order = ((int) Lesson::query()->where('section_id', $lesson->section_id)->max('sort_order')) + 1;
             }
 

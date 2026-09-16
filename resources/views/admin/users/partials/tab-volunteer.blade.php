@@ -11,7 +11,7 @@
 @if (! ($record['has_volunteered'] ?? false))
     <section class="card p-4">
         <p class="text-sm" style="color: var(--text-muted)">
-            {{ setting('admin.users.partials.tab_volunteer.empty', 'محدّش تطوّع من الحساب ده لسّه — التاب هيتفعّل أوّل ما يتسكّن في بوزشن.') }}
+            {{ setting('admin.users.partials.tab_volunteer.empty', 'محدّش تطوّع من الحساب ده لسّه. التاب هيتفعّل أوّل ما يتسكّن في بوزشن.') }}
         </p>
     </section>
 @else
@@ -107,7 +107,7 @@
 
     {{-- 4) VXP --}}
     <section class="card p-4">
-        <h3 class="font-bold text-sm mb-3">{{ setting('admin.users.partials.tab_volunteer.vxp_title', 'VXP — نقاط الإنتاج') }}</h3>
+        <h3 class="font-bold text-sm mb-3">{{ setting('admin.users.partials.tab_volunteer.vxp_title', 'VXP: نقاط الإنتاج') }}</h3>
         <div class="rounded-xl px-4 py-3 mb-3 inline-block" style="background: var(--surface-sunken)">
             <div class="text-xs" style="color: var(--text-muted)">{{ setting('admin.users.partials.tab_volunteer.vxp_balance_label', 'الرصيد الحاليّ') }}</div>
             <div class="font-extrabold">{{ number_format($record['vxp']['balance'], 2) }}</div>

@@ -452,7 +452,7 @@ class GamificationController extends Controller
         $message = strtr((string) setting('gamification.admin.import_reward_questions_ok', 'اتستوردت :a1 أسئلة كمسودّات ✓'), [':a1' => (string) ($result['imported'])]);
 
         if ($result['errors'] !== []) {
-            $message .= strtr((string) setting('gamification.admin.import_reward_questions_msg', ' — تخطّينا: :a1'), [':a1' => (string) (implode(' · ', array_slice($result['errors'], 0, 3)))]);
+            $message .= strtr((string) setting('gamification.admin.import_reward_questions_msg', ' وتخطّينا: :a1'), [':a1' => (string) (implode(' · ', array_slice($result['errors'], 0, 3)))]);
         }
 
         return back()->with('status', $message);

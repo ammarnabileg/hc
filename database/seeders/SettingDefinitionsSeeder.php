@@ -47,7 +47,7 @@ class SettingDefinitionsSeeder extends Seeder
             } catch (\Throwable $e) {
                 // تعريفٌ واحد متعثّر لا يوقف الباقي — والسبب يُطبَع ليُصلَح،
                 // ويكشفه `settings:coverage` بمفاتيحه الناقصة على أيّ حال.
-                $this->command?->warn("    تعثّر {$class}::{$method}() — ".$e->getMessage());
+                $this->command?->warn("    تعثّر {$class}::{$method}(): ".$e->getMessage());
             }
         }
 

@@ -4,7 +4,7 @@
 
 @section('content')
     <x-page-header :title="setting('admin.store.topups.methods.trq_althwyl_warwd_alshhn', 'طرق التحويل وعروض الشحن')"
-                   :subtitle="setting('admin.store.topups.methods.kl_mhtwa_sfha_alshhn_ytdar_mn_hna_bla_ns', 'كلّ محتوى صفحة الشحن يتدار من هنا — بلا نصّ محروق.')"
+                   :subtitle="setting('admin.store.topups.methods.kl_mhtwa_sfha_alshhn_ytdar_mn_hna_bla_ns', 'كلّ محتوى صفحة الشحن يتدار من هنا، بلا نصّ محروق.')"
                    :breadcrumbs="[
                        ['label' => setting('admin.store.topups.methods.lwha_alidara', 'لوحة الإدارة'), 'url' => url('/admin')],
                        ['label' => setting('admin.store.topups.methods.tlbat_alshhn', 'طلبات الشحن'), 'url' => route('admin.topups.index')],
@@ -33,7 +33,7 @@
                         </div>
                     </div>
                 @empty
-                    <p class="text-sm" style="color: var(--text-muted)">{{ setting('admin.store.topups.methods.mafysh_trq_thwyl_lsh_dyf_awl_wsyla', 'مافيش طرق تحويل لسه — ضيف أوّل وسيلة.') }}</p>
+                    <p class="text-sm" style="color: var(--text-muted)">{{ setting('admin.store.topups.methods.mafysh_trq_thwyl_lsh_dyf_awl_wsyla', 'مافيش طرق تحويل لسه. ضيف أوّل وسيلة.') }}</p>
                 @endforelse
             </div>
 

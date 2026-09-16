@@ -133,7 +133,7 @@ class ChallengeScreensTest extends ChallengeTestCase
             ->get(route('challenges.play', $match))
             ->assertOk()
             ->assertSee('انسحاب', false)
-            ->assertSee('خلّصت — سلّم', false);
+            ->assertSee('خلّصت، سلّم', false);
     }
 
     /** شاشة «تعادل» لها نصّها الصريح (15.2-5). */

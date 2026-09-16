@@ -90,11 +90,11 @@ class AdminEventsListScreenTest extends AdminVolunteerTestCase
             ->assertOk();
 
         $response->assertSee(
-            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث/الفلتر الحاليّ — جرّب فلترًا تانيًا.'),
+            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث أو الفلتر الحاليّ. جرّب فلتر تاني.'),
             false,
         );
         $response->assertDontSee(
-            setting('events.empty_message', 'لا فعاليّات — أنشئ أوّل لقاء.'),
+            setting('events.empty_message', 'لا فعاليّات. أنشئ أوّل لقاء.'),
             false,
         );
     }
@@ -110,11 +110,11 @@ class AdminEventsListScreenTest extends AdminVolunteerTestCase
             ->assertOk();
 
         $response->assertSee(
-            setting('events.empty_message', 'لا فعاليّات — أنشئ أوّل لقاء.'),
+            setting('events.empty_message', 'لا فعاليّات. أنشئ أوّل لقاء.'),
             false,
         );
         $response->assertDontSee(
-            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث/الفلتر الحاليّ — جرّب فلترًا تانيًا.'),
+            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث أو الفلتر الحاليّ. جرّب فلتر تاني.'),
             false,
         );
     }

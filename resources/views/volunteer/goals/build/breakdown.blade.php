@@ -67,7 +67,7 @@
                 <div class="min-w-0">
                     <h2 class="font-semibold">{{ $milestone->name }}</h2>
                     <div class="text-xs mt-1" style="color: var(--text-muted)">
-                        {{ $milestone->verification_criteria ?: setting('volunteer.goals_build_breakdown.text_5', 'بلا معيار خاصّ — يتبع معيار الهدف') }}
+                        {{ $milestone->verification_criteria ?: setting('volunteer.goals_build_breakdown.text_5', 'بلا معيار خاصّ، يتبع معيار الهدف') }}
                         @if ($milestone->due_date) · {{ setting('volunteer.goals_build_breakdown.text_6', 'ينتهي') }} {{ $milestone->due_date->format('Y/m/d') }} @endif
                     </div>
                 </div>
@@ -107,7 +107,7 @@
             @endif
         </article>
     @empty
-        <x-empty :message="setting('volunteer.goals_build_breakdown.empty', 'الهدف لسّه بلا مَعالِم — ابدأ بمَعلَم واحد.')" />
+        <x-empty :message="setting('volunteer.goals_build_breakdown.empty', 'الهدف لسّه بلا مَعالِم. ابدأ بمَعلَم واحد.')" />
     @endforelse
 
     @if ($canOpenFiles)
@@ -117,7 +117,7 @@
                 <div>
                     <h2 class="font-bold text-sm">{{ setting('volunteer.goals_build_breakdown.heading', 'مسودّات الملفّات') }}</h2>
                     <p class="text-xs mt-1" style="color: var(--text-muted)">
-                        {{ setting('volunteer.goals_build_breakdown.text_7', 'مالقيتش ملفّ شغّال مناسب؟ اعمل مسودّة واربط بيها حزمك — وهتتفعّل بدعواتها لحظة «إرسال للتنفيذ» من مشرف عام التطوّع، مش قبلها.') }}
+                        {{ setting('volunteer.goals_build_breakdown.text_7', 'مالقيتش ملفّ شغّال مناسب؟ اعمل مسودّة واربط بيها حزمك، وهتتفعّل بدعواتها لحظة «إرسال للتنفيذ» من مشرف عام التطوّع، مش قبلها.') }}
                     </p>
                 </div>
 
@@ -136,7 +136,7 @@
                                 <span class="font-semibold">{{ $draft->name_ar }}</span>
 
                                 {{-- الحالة بوسمٍ نصّيّ لا بلونٍ وحده (2.16-ج) --}}
-                                <x-state-badge state="warn" :label="setting('volunteer.goals_build_breakdown.label_8', 'مسودّة — لسّه ما اتفتحتش')" />
+                                <x-state-badge state="warn" :label="setting('volunteer.goals_build_breakdown.label_8', 'مسودّة، لسّه ما اتفتحتش')" />
                             </div>
 
                             {{-- روابط الدعوة (23-0.2 · 8.1) — انسخها وشاركها مع أيّ عضو --}}
@@ -183,7 +183,7 @@
                     @csrf
 
                     <x-form.input name="name" :label="setting('volunteer.goals_build_breakdown.label_12', 'اسم الملفّ')" required
-                                  :hint="setting('volunteer.goals_build_breakdown.hint', 'الملفّ كيان مؤقّت — بينتهي بقرار القمّة وحدها.')" />
+                                  :hint="setting('volunteer.goals_build_breakdown.hint', 'الملفّ كيان مؤقّت، بينتهي بقرار القمّة وحدها.')" />
 
                     <div class="rounded-xl p-3 text-xs space-y-1"
                          style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text-muted)">
@@ -191,7 +191,7 @@
                         <p>{{ setting('volunteer.goals_build_breakdown.text_10', 'بتتفعّل كلّها لحظة ضغط «إرسال للتنفيذ» من مشرف عام التطوّع، مش قبلها.') }}</p>
                     </div>
 
-                    <p class="text-xs" style="color: var(--text-muted)">{{ setting('volunteer.goals_build_breakdown.text_11', 'بوزشن بلا عضو ⟵ رابط دعوة يُشارَك مع أيّ عضو — إضافة مباشرة أو رابط، مش الاثنان.') }}</p>
+                    <p class="text-xs" style="color: var(--text-muted)">{{ setting('volunteer.goals_build_breakdown.text_11', 'بوزشن بلا عضو ⟵ رابط دعوة يُشارَك مع أيّ عضو، إضافة مباشرة أو رابط، مش الاثنان.') }}</p>
 
                     @for ($i = 0; $i < (int) setting('goals.build.file_draft.form_rows', 3); $i++)
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
@@ -207,7 +207,7 @@
                                 <select name="invitations[{{ $i }}][position_id]"
                                         class="w-full rounded-xl px-3 py-2 text-sm"
                                         style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text); min-height: 44px">
-                                    <option value="">{{ setting('volunteer.goals_build_breakdown.option_2', '— سطر فاضي —') }}</option>
+                                    <option value="">{{ setting('volunteer.goals_build_breakdown.option_2', '(سطر فاضي)') }}</option>
                                     @foreach ($invitablePositions as $position)
                                         <option value="{{ $position->id }}">{{ $position->name_ar }}</option>
                                     @endforeach
@@ -243,7 +243,7 @@
                                 @endforeach
                             </select>
                             <span class="block text-xs mt-1" style="color: var(--text-muted)">
-                                {{ setting('volunteer.goals_build_breakdown.field_2', 'الربط بالكيان نفسه لا بشخص الدايركتور — فتغيير الشخص لا يكسر الحزمة.') }}
+                                {{ setting('volunteer.goals_build_breakdown.field_2', 'الربط بالكيان نفسه لا بشخص الدايركتور، فتغيير الشخص لا يكسر الحزمة.') }}
                             </span>
                         </label>
 

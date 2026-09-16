@@ -29,7 +29,7 @@
     </x-page-header>
 
     @if (! $root || ! $indicators)
-        <x-empty :message="setting('volunteer.org_health.empty', 'الفريق صغير — المؤشّرات تحتاج بيانات أكثر')" :action="setting('volunteer.org_health.action_2', 'الأعضاء والبوزشنز')" :href="route('volunteer.department')" />
+        <x-empty :message="setting('volunteer.org_health.empty', 'الفريق صغير، المؤشّرات تحتاج بيانات أكثر')" :action="setting('volunteer.org_health.action_2', 'الأعضاء والبوزشنز')" :href="route('volunteer.department')" />
     @else
         <div class="card p-4 mb-4 flex items-center gap-4 flex-wrap">
             @include('volunteer.org.partials.health-ring', ['percent' => $overall])
@@ -91,7 +91,7 @@
             </div>
 
             <div class="card p-4">
-                <div class="text-sm font-bold mb-3">{{ setting('volunteer.org_health.text_9', 'لوحة القيادة — الأكثر مهامَّ قيد التنفيذ') }}</div>
+                <div class="text-sm font-bold mb-3">{{ setting('volunteer.org_health.text_9', 'لوحة القيادة: الأكثر مهامَّ قيد التنفيذ') }}</div>
                 @if ($leaderboard->isEmpty())
                     <p class="text-sm" style="color: var(--text-muted)">{{ setting('volunteer.org_health.text_10', 'مفيش مهامّ جارية دلوقتي.') }}</p>
                 @else
@@ -118,13 +118,13 @@
                             <x-state-badge state="danger" :label="$row['deadline'] ?? setting('volunteer.org_health.label_8', 'بلا موعد')" />
                         </div>
                     @empty
-                        <p class="text-sm" style="color: var(--text-muted)">{{ setting('volunteer.org_health.text_12', 'مفيش مهامّ متأخّرة — تمام ✓') }}</p>
+                        <p class="text-sm" style="color: var(--text-muted)">{{ setting('volunteer.org_health.text_12', 'مفيش مهامّ متأخّرة، تمام ✓') }}</p>
                     @endforelse
                 </div>
 
                 <div class="card p-4">
                     <div class="text-sm font-bold mb-1">{{ setting('volunteer.org_health.text_13', 'تجاوزات نطاق الإشراف') }}</div>
-                    <p class="text-xs mb-3" style="color: var(--text-muted)">{{ setting('volunteer.org_health.text_14', 'تنبيه فقط — لا يمنع تسكينًا ولا ترقيةً ولا نقلًا.') }}</p>
+                    <p class="text-xs mb-3" style="color: var(--text-muted)">{{ setting('volunteer.org_health.text_14', 'تنبيه فقط، لا يمنع تسكينًا ولا ترقيةً ولا نقلًا.') }}</p>
                     @forelse ($oversight['span_breaches'] as $row)
                         <div class="flex items-center justify-between gap-2 py-2 text-sm" style="border-top: 1px solid var(--border)">
                             <span class="min-w-0 truncate">{{ $row['name'] }} <span class="text-xs" style="color: var(--text-muted)">· {{ $row['position'] }}</span></span>
@@ -139,7 +139,7 @@
                     <div class="text-sm font-bold mb-1">{{ setting('volunteer.org_health.text_16', 'مؤشّر مخاطر الفقدان') }}</div>
                     {{-- ⛔ مؤشّر داخليّ — لا يُعرَض للمتطوّع نفسه أبدًا (13.4-م-4) --}}
                     <p class="text-xs mb-3" style="color: var(--text-muted)">
-                        {{ setting('volunteer.health.retention_risk.note', 'داخليّ للأبلاين فقط — ولا يُعرَض للمتطوّع عن نفسه أبدًا') }}
+                        {{ setting('volunteer.health.retention_risk.note', 'داخليّ للأبلاين فقط، ولا يُعرَض للمتطوّع عن نفسه أبدًا') }}
                     </p>
                     @forelse ($oversight['retention_risk'] as $row)
                         <div class="flex items-center justify-between gap-2 py-2 text-sm" style="border-top: 1px solid var(--border)">
@@ -182,7 +182,7 @@
                 <div class="card p-4">
                     <div class="text-sm font-bold mb-1">{{ setting('volunteer.org_health.text_24', 'الأعضاء الخاملون') }}</div>
                     <p class="text-xs mb-3" style="color: var(--text-muted)">
-                        {{ setting('volunteer.org_health.text_25', 'بلا نشاط') }} {{ setting('rep.inactivity.days_before_alert', 21) }} {{ setting('volunteer.org_health.text_26', 'يومًا فأكثر — ومعه عدّاد الخصم الأسبوعيّ.') }}
+                        {{ setting('volunteer.org_health.text_25', 'بلا نشاط') }} {{ setting('rep.inactivity.days_before_alert', 21) }} {{ setting('volunteer.org_health.text_26', 'يومًا فأكثر، ومعه عدّاد الخصم الأسبوعيّ.') }}
                     </p>
                     @forelse ($oversight['idle_members'] as $row)
                         <div class="flex items-center justify-between gap-2 py-2 text-sm" style="border-top: 1px solid var(--border)">
@@ -192,7 +192,7 @@
                             </span>
                         </div>
                     @empty
-                        <p class="text-sm" style="color: var(--text-muted)">{{ setting('volunteer.org_health.text_28', 'كلّ الفريق نشِط — تمام ✓') }}</p>
+                        <p class="text-sm" style="color: var(--text-muted)">{{ setting('volunteer.org_health.text_28', 'كلّ الفريق نشِط، تمام ✓') }}</p>
                     @endforelse
                 </div>
             </div>

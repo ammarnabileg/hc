@@ -22,7 +22,7 @@
         {{-- ------------------------------------------ خصوصيّة كلّ حقل (13.4-م) --}}
         <section class="card p-4">
             <h2 class="font-bold text-sm">{{ setting('account.privacy.fields_title', 'خصوصيّة كلّ حقل') }}</h2>
-            <p class="text-xs mt-1 mb-2" style="color: var(--text-muted)">{{ setting('account.privacy.fields_hint', 'اختار مين يشوف كلّ حقل — والحسّاس مقفول افتراضيًّا.') }}</p>
+            <p class="text-xs mt-1 mb-2" style="color: var(--text-muted)">{{ setting('account.privacy.fields_hint', 'اختار مين يشوف كلّ حقل، والحسّاس مقفول افتراضيًّا.') }}</p>
 
             {{--
               ⭐ المحافظة **حقل عامّ دائمًا ولا يجوز إخفاؤها** (12.14-د) —
@@ -31,7 +31,7 @@
             --}}
             <p class="text-xs rounded-xl p-2 mb-2"
                style="background: color-mix(in srgb, var(--color-brand-500) 10%, transparent); color: var(--text-muted)">
-                {{ setting('account.privacy.governorate_always_public', 'المحافظة بتفضل ظاهرة للكلّ على طول — دي قاعدة ثابتة في المنصّة.') }}
+                {{ setting('account.privacy.governorate_always_public', 'المحافظة بتفضل ظاهرة للكلّ على طول، دي قاعدة ثابتة في المنصّة.') }}
             </p>
 
             <div>
@@ -71,7 +71,7 @@
         <section class="card p-4">
             <h2 class="font-bold text-sm">{{ setting('account.privacy.consents_title', 'مَن يرى بياناتي') }}</h2>
             <p class="text-xs mt-1 mb-3" style="color: var(--text-muted)">
-                {{ setting('account.privacy.consents_hint', 'دي الموافقات اللي إنت وافقت عليها بنفسك — وتقدر تسحبها في أيّ وقت.') }}
+                {{ setting('account.privacy.consents_hint', 'دي الموافقات اللي إنت وافقت عليها بنفسك، وتقدر تسحبها في أيّ وقت.') }}
             </p>
 
             @forelse ($consents as $consent)
@@ -118,7 +118,7 @@
         <section class="card p-4 mt-4" id="tracking-consent">
             <h2 class="font-bold text-sm">{{ setting('account.privacy.tracking_title', 'الموافقة على التتبّع') }}</h2>
             <p class="text-xs mt-1 mb-3" style="color: var(--text-muted)">
-                {{ setting('account.privacy.tracking_hint', 'ده اختيارك بخصوص تتبّع الإعلانات والقياس — وتقدر تغيّره أو تسحبه في أيّ وقت.') }}
+                {{ setting('account.privacy.tracking_hint', 'ده اختيارك بخصوص تتبّع الإعلانات والقياس، وتقدر تغيّره أو تسحبه في أيّ وقت.') }}
             </p>
 
             <form method="post" action="{{ route('consent.tracking') }}" data-tracking-consent-form>
@@ -201,7 +201,7 @@
 
 @push('scripts')
     @php
-        $privacyRetry = (string) setting('account.settings.autosave_retry', 'تعذّر الحفظ — جرّب تاني');
+        $privacyRetry = (string) setting('account.settings.autosave_retry', 'تعذّر الحفظ، جرّب تاني');
     @endphp
     <script>
         const privacyRetry = @json($privacyRetry);

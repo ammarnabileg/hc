@@ -11,14 +11,14 @@
 @if ($locked)
     <div class="card p-3 mb-4 text-sm" style="border-color: color-mix(in srgb, var(--color-state-danger) 45%, var(--border))">
         ◉ {{ WarSettingsService::lockMessage() }}
-        <span style="color: var(--text-muted)">{{ setting('admin.gamification.tabs.wars.altadyl_la_ytbq_ala_jwla_jarya', '— التعديل لا يُطبَّق على جولة جارية.') }}</span>
+        <span style="color: var(--text-muted)">{{ setting('admin.gamification.tabs.wars.altadyl_la_ytbq_ala_jwla_jarya', '· التعديل لا يُطبَّق على جولة جارية.') }}</span>
     </div>
 @endif
 
 {{-- بنك أسئلة الحروب شاشة مستقلّة في نفس الدروب-داون (12.10-ب) — والرابط يُخفى بلا صلاحيّة --}}
 @can('wars_bank.list')
     <div class="card p-3 mb-4 flex flex-wrap items-center gap-3 text-sm">
-        <span>{{ setting('admin.gamification.tabs.wars.alasyla_nfsha_tdar_fy_bnk_asyla_alhrwb', 'الأسئلة نفسها تُدار في بنك أسئلة الحروب — والحروب لا تعمل ببنك فارغ.') }}</span>
+        <span>{{ setting('admin.gamification.tabs.wars.alasyla_nfsha_tdar_fy_bnk_asyla_alhrwb', 'الأسئلة نفسها تُدار في بنك أسئلة الحروب، والحروب لا تعمل ببنك فارغ.') }}</span>
         <a href="{{ route('admin.wars.bank.index') }}"
            class="btn ms-auto rounded-xl px-4 py-2 text-xs font-semibold motion-standard"
            style="background: var(--color-brand-500); color: #04201c; min-height: 44px">{{ setting('admin.gamification.tabs.wars.afth_bnk_alasyla', 'افتح بنك الأسئلة') }}</a>

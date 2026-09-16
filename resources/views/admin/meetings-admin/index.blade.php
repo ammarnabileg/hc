@@ -30,7 +30,7 @@
 
 @section('content')
     <x-page-header :title="setting('admin.meetings_admin.index.ajtmaaat_alttwa', 'اجتماعات التطوّع')"
-                   :subtitle="setting('admin.meetings_admin.index.nzra_ardya_ala_alaqsam_klha_anshy_alajtmaa', 'نظرة عرضيّة على الأقسام كلّها — أنشئ الاجتماع، وأدِر كوده وأسئلته، وارفع محضره وتسجيله، وثبّت بوسته، وأنهِه أو ألغِه بسبب.')"
+                   :subtitle="setting('admin.meetings_admin.index.nzra_ardya_ala_alaqsam_klha_anshy_alajtmaa', 'نظرة عرضيّة على الأقسام كلّها: أنشئ الاجتماع، وأدِر كوده وأسئلته، وارفع محضره وتسجيله، وثبّت بوسته، وأنهِه أو ألغِه بسبب.')"
                    :breadcrumbs="[['label' => setting('admin.meetings_admin.index.lwha_alidara', 'لوحة الإدارة'), 'url' => route('admin.dashboard')], ['label' => setting('admin.meetings_admin.index.ajtmaaat_alttwa', 'اجتماعات التطوّع')]]">
         <x-slot:action>
             <div class="flex flex-wrap items-center gap-2">
@@ -293,7 +293,7 @@
             <form method="post" action="{{ route('admin.meetings.index') }}" data-end-form>
                 @csrf
                 <p class="text-sm mb-3" style="color: var(--text-muted)">
-                    {{ setting('admin.meetings_admin.index.alinha_byfth_nafdha_tsjyl_alhdwr_waltsjyl', 'الإنهاء بيفتح نافذة تسجيل الحضور — والتسجيل خلال أوّل ساعات بيدّي درجة التزام أعلى.') }}
+                    {{ setting('admin.meetings_admin.index.alinha_byfth_nafdha_tsjyl_alhdwr_waltsjyl', 'الإنهاء بيفتح نافذة تسجيل الحضور، والتسجيل خلال أوّل ساعات بيدّي درجة التزام أعلى.') }}
                 </p>
 
                 <label class="block text-sm font-semibold mb-1" for="end-hours">{{ setting('admin.meetings_admin.index.add_saaat_alnafdha', 'عدد ساعات النافذة') }}</label>
@@ -327,7 +327,7 @@
 
                 <label class="block text-sm font-semibold mb-1" for="grant-reason">{{ setting('admin.meetings_admin.index.sbb_almnh', 'سبب المنح') }}</label>
                 <textarea name="reason" id="grant-reason" rows="2" required maxlength="500"
-                          placeholder="{{ setting('admin.meetings_admin.index.mthal_anqtaa_alnt_athna_alajtmaa_athbt_hdwrh', 'مثال: انقطاع النت أثناء الاجتماع — أثبت حضوره بالتسجيل.') }}"
+                          placeholder="{{ setting('admin.meetings_admin.index.mthal_anqtaa_alnt_athna_alajtmaa_athbt_hdwrh', 'مثال: انقطاع النت أثناء الاجتماع، أثبت حضوره بالتسجيل.') }}"
                           class="w-full rounded-xl px-3 py-2 text-sm mb-4"
                           style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text); resize: vertical"></textarea>
 

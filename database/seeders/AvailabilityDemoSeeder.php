@@ -74,7 +74,7 @@ class AvailabilityDemoSeeder extends Seeder
         if (! $course) {
             $course = Course::create([
                 'slug' => 'nadi-al-fajr',
-                'name_ar' => 'نادي الفجر — ابدأ يومك بدرس',
+                'name_ar' => 'نادي الفجر. ابدأ يومك بدرس',
                 'name_en' => 'Dawn Club',
                 'description_ar' => 'تدريب قصير يفتح ساعتين كلّ صباح: تحضر بدري، تخلّص درس، وتمشي وقد كسبت يومك.',
                 'is_free' => true,

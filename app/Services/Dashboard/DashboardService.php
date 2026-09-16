@@ -58,7 +58,7 @@ class DashboardService
                 'label' => (string) setting('dashboard.kpi.level_label', 'مستوى الحساب و XP'),
                 'value' => $xp,
                 'icon' => 'xp',
-                'hint' => strtr(setting('dashboard.dashboard_service.kpis_1', 'المستوى :p1 — :p2'), [':p1' => (string) (($level['level'] ?? 1)), ':p2' => (string) (($level['name'] ?? ''))]),
+                'hint' => strtr(setting('dashboard.dashboard_service.kpis_1', 'المستوى :p1 · :p2'), [':p1' => (string) (($level['level'] ?? 1)), ':p2' => (string) (($level['name'] ?? ''))]),
                 'state' => null,
             ],
             /*

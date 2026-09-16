@@ -13,7 +13,7 @@
     </div>
 
     <p class="text-sm mb-3" style="color: var(--text-muted)">
-        {{ setting('account.delete.intro', 'ده قرار كبير — اقرا الأوّل بيحصل إيه لبياناتك:') }}
+        {{ setting('account.delete.intro', 'ده قرار كبير. اقرا الأوّل بيحصل إيه لبياناتك:') }}
     </p>
 
     <ul class="text-sm space-y-1 mb-4 list-disc list-inside" style="color: var(--text-muted)">

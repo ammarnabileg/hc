@@ -25,7 +25,7 @@
 
         @if ($segment->frozen_at)
             <p class="text-xs mt-1" style="color: var(--text-muted)">
-                {!! strtr(setting('admin.users.segment_members.atjmdt_fy_v1_aladd_ma_bytghyrsh_btghyr', 'اتجمّدت في :v1 — العدد ما بيتغيّرش بتغيّر البيانات.'), [':v1' => e($segment->frozen_at->format('Y-m-d H:i'))]) !!}
+                {!! strtr(setting('admin.users.segment_members.atjmdt_fy_v1_aladd_ma_bytghyrsh_btghyr', 'اتجمّدت في :v1، العدد ما بيتغيّرش بتغيّر البيانات.'), [':v1' => e($segment->frozen_at->format('Y-m-d H:i'))]) !!}
             </p>
         @endif
 

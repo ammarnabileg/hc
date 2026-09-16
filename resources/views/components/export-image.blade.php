@@ -101,7 +101,7 @@
                     <span class="block mb-1">{{ setting('images.export_panel.text_7', 'القالب') }}</span>
                     <select name="template" class="w-full rounded-xl px-3 py-2"
                             style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text); min-height: 44px">
-                        <option value="0">{{ setting('images.export_panel.text_8', 'بلا قالب — تصميم المنصّة') }}</option>
+                        <option value="0">{{ setting('images.export_panel.text_8', 'بلا قالب، تصميم المنصّة بس') }}</option>
                         @foreach ($templates as $template)
                             <option value="{{ $template->id }}">{{ $template->name }}</option>
                         @endforeach
@@ -128,7 +128,7 @@
 
             {{-- سطر واحد لكلّ شرح (2.15-أ-8) --}}
             <p class="text-xs" style="color: var(--text-muted)">
-                {{ setting('images.export_panel.text_13', 'الصورة بتحمل تاريخ اللقطة وشعار المنصّة — والمحافظة بتظهر دايمًا.') }}
+                {{ setting('images.export_panel.text_13', 'الصورة بتحمل تاريخ اللقطة وشعار المنصّة، والمحافظة بتظهر دايمًا.') }}
             </p>
 
             <div class="flex flex-wrap gap-2">

@@ -34,7 +34,7 @@ class SecurityDemoSeeder extends Seeder
             ['system.maintenance.exempt_paths', 'maintenance', 'مسارات مستثناة من الصيانة', 'json', '["login","logout","webhooks\/*","up","impersonate\/stop"]'],
             ['system.maintenance.page_title', 'maintenance', 'عنوان صفحة الصيانة', 'string', 'المنصّة تحت الصيانة'],
             ['system.maintenance.countdown_label', 'maintenance', 'عنوان العدّاد', 'string', 'باقي على الرجوع'],
-            ['system.maintenance.refresh_hint', 'maintenance', 'سطر التحديث التلقائيّ', 'text', 'الصفحة بتحدّث نفسها كلّ {minutes} دقيقة — مش محتاج تعمل حاجة.'],
+            ['system.maintenance.refresh_hint', 'maintenance', 'سطر التحديث التلقائيّ', 'text', 'الصفحة بتحدّث نفسها كلّ {minutes} دقيقة، مش محتاج تعمل حاجة.'],
             ['system.maintenance.staff_link_label', 'maintenance', 'زرّ دخول فريق العمل', 'string', 'دخول فريق العمل'],
             ['system.maintenance.alert_title', 'maintenance', 'عنوان تنبيه تجاوز المدّة', 'string', 'الصيانة عدّت المدّة المعلَنة'],
             ['system.maintenance.alert_body', 'maintenance', 'نصّ تنبيه تجاوز المدّة', 'text', 'العدّاد وصل صفر والمنصّة لسّه مقفولة، والمستخدم بيشوف «قرّبنا ننتهي». مدّد المدّة أو ارفع الصيانة.'],
@@ -48,7 +48,7 @@ class SecurityDemoSeeder extends Seeder
             ['auth.otp.rate_limit.max_attempts', 'security', 'أقصى محاولات خاطئة إجماليّة قبل القفل الطويل', 'number', '15'],
             ['auth.otp.rate_limit.window_minutes', 'security', 'مدّة القفل الطويل بعد تجاوز الحدّ (دقائق)', 'number', '60'],
             ['auth.otp.title', 'security', 'عنوان شاشة التحقّق', 'string', 'أكّد بريدك'],
-            ['auth.otp.hint', 'security', 'شرح شاشة التحقّق', 'text', 'هنبعت رمز من {length} أرقام على {email} — نتأكّد إنّه بريدك فعلًا.'],
+            ['auth.otp.hint', 'security', 'شرح شاشة التحقّق', 'text', 'هنبعت رمز من {length} أرقام على {email}، نتأكّد إنّه بريدك فعلًا.'],
             ['auth.otp.send_label', 'security', 'زرّ الإرسال', 'string', 'إرسال'],
             ['auth.otp.resend_label', 'security', 'زرّ إعادة الإرسال', 'string', 'إعادة إرسال الرمز'],
             ['auth.otp.confirm_label', 'security', 'زرّ التأكيد', 'string', 'تأكيد'],
@@ -83,7 +83,7 @@ class SecurityDemoSeeder extends Seeder
             ['auth.password.min_length', 'security', 'أدنى طول لكلمة السرّ (أكثر من 6 خانات)', 'number', '7'],
             ['auth.password_reset.ttl_minutes', 'security', 'صلاحيّة رابط الاسترجاع (دقائق)', 'number', '60'],
             ['auth.password_reset.request_title', 'security', 'عنوان شاشة الطلب', 'string', 'نسيت كلمة السرّ؟'],
-            ['auth.password_reset.request_hint', 'security', 'شرح شاشة الطلب', 'text', 'اكتب بريدك وهنبعتلك رابط ورمز — أيّهما أسهل عليك.'],
+            ['auth.password_reset.request_hint', 'security', 'شرح شاشة الطلب', 'text', 'اكتب بريدك، وهنبعتلك رابط ورمز. اختار الأسهل عليك.'],
             ['auth.password_reset.request_action', 'security', 'زرّ الطلب', 'string', 'ابعتلي'],
             ['auth.password_reset.neutral_message', 'security', 'الردّ المحايد بعد الطلب', 'text', 'لو البريد ده مسجّل عندنا، هتلاقي رسالة فيها رابط ورمز خلال دقايق. بصّ في «غير الهامّ» كمان.'],
             ['auth.password_reset.sent_title', 'security', 'عنوان شاشة الإرسال', 'string', 'بصّ في بريدك'],
@@ -107,7 +107,7 @@ class SecurityDemoSeeder extends Seeder
             // ---------------- منطقة الخطر: حذف الحساب (2.3)
             ['account.delete.badge', 'account', 'شارة منطقة الخطر', 'string', 'منطقة الخطر'],
             ['account.delete.title', 'account', 'عنوان حذف الحساب', 'string', 'حذف الحساب'],
-            ['account.delete.intro', 'account', 'مقدّمة حذف الحساب', 'text', 'ده قرار كبير — اقرا الأوّل بيحصل إيه لبياناتك:'],
+            ['account.delete.intro', 'account', 'مقدّمة حذف الحساب', 'text', 'ده قرار كبير. اقرا الأوّل بيحصل إيه لبياناتك:'],
             ['account.delete.grace_days', 'account', 'مهلة التراجع (أيّام)', 'number', '30'],
             ['account.delete.grace_text', 'account', 'نصّ مهلة التراجع', 'text', 'عندك {days} يوم تقدر ترجع فيهم: كلّم الدعم وهنرجّع حسابك زيّ ما هو.'],
             ['account.delete.code_action', 'account', 'زرّ طلب الرمز', 'string', 'ابعتلي رمز التأكيد'],
@@ -134,7 +134,7 @@ class SecurityDemoSeeder extends Seeder
             ['admin.moderation.badge', 'security', 'شارة قسم الاحتواء', 'string', 'احتواء الحساب'],
             ['admin.moderation.title', 'security', 'عنوان قسم الاحتواء', 'string', 'أدوات الاحتواء'],
             ['admin.moderation.hint', 'security', 'شرح قسم الاحتواء', 'text', 'كلّ فعل هنا بيتسجّل في سجلّ التدقيق باسمك ووقته.'],
-            ['admin.moderation.link_hint', 'security', 'شرح رابط كلمة السرّ', 'text', 'الرابط ده بيظهر مرّة واحدة — انسخه دلوقتي.'],
+            ['admin.moderation.link_hint', 'security', 'شرح رابط كلمة السرّ', 'text', 'الرابط ده بيظهر مرّة واحدة. انسخه دلوقتي.'],
             ['admin.moderation.suspend_default_days', 'security', 'مدّة التعليق الافتراضيّة (أيّام)', 'number', '7'],
             ['admin.moderation.suspend_max_days', 'security', 'أقصى مدّة تعليق (أيّام)', 'number', '90'],
             ['admin.moderation.reasons', 'security', 'أسباب الاحتواء الجاهزة', 'json', json_encode([
@@ -152,7 +152,7 @@ class SecurityDemoSeeder extends Seeder
             ['account.containment.suspended_title', 'security', 'عنوان صفحة التعليق المؤقّت', 'string', 'الحساب موقوف مؤقّتًا'],
             ['account.containment.support_line', 'security', 'سطر التواصل مع الدعم', 'text', 'إذا كنت تعتقد أنه بالخطأ رجاء التواصل مع دعم المنصة'],
             ['account.containment.notice_title', 'security', 'عنوان كارت الرسالة الإداريّة', 'string', 'رسالة إدارية'],
-            ['account.containment.returns_at', 'security', 'سطر موعد رجوع الحساب', 'text', 'الحساب بيرجع لوحده يوم {date} — مش محتاج تعمل حاجة.'],
+            ['account.containment.returns_at', 'security', 'سطر موعد رجوع الحساب', 'text', 'الحساب بيرجع لوحده يوم {date}، مش محتاج تعمل حاجة.'],
             ['account.containment.logout_label', 'security', 'زرّ الخروج من صفحة الاحتواء', 'string', 'تسجيل الخروج'],
             ['account.containment.exempt_paths', 'security', 'مسارات مستثناة من جدار الاحتواء', 'json', '["logout","impersonate\/stop","up","webhooks\/*"]'],
 
@@ -165,7 +165,7 @@ class SecurityDemoSeeder extends Seeder
                 'اختار «جافاسكربت» وخلّيه «مسموح».',
                 'ارجع للصفحة دي واعمل تحديث (F5 أو سهم التحديث).',
             ], JSON_UNESCAPED_UNICODE)],
-            ['ux.noscript.footer', 'ux', 'ذيل رسالة noscript', 'text', 'لو المتصفّح عندك مختلف، دوّر على كلمة «JavaScript» جوّه الإعدادات — الخطوة واحدة في كلّ المتصفّحات.'],
+            ['ux.noscript.footer', 'ux', 'ذيل رسالة noscript', 'text', 'لو المتصفّح عندك مختلف، دوّر على كلمة «JavaScript» جوّه الإعدادات. الخطوة واحدة في كلّ المتصفّحات.'],
         ];
 
         foreach ($rows as [$key, $group, $label, $type, $default]) {
@@ -186,7 +186,7 @@ class SecurityDemoSeeder extends Seeder
     {
         if (! MaintenanceWindow::query()->exists()) {
             MaintenanceWindow::create([
-                'message' => 'بنحدّث محرّك الشهادات — هنرجع خلال ساعتين.',
+                'message' => 'بنحدّث محرّك الشهادات. هنرجع خلال ساعتين.',
                 'planned_hours' => 2,
                 'started_at' => now()->subDays(9)->setTime(2, 0),
                 'expected_end_at' => now()->subDays(9)->setTime(4, 0),

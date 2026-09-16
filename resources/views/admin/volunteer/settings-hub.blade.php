@@ -5,7 +5,7 @@
 @section('content')
     <x-page-header
         :title="setting('admin.volunteer.settings_hub.title', 'الإدارة المركزيّة للتطوّع')"
-        :subtitle="setting('admin.volunteer.settings_hub.subtitle', 'مرجعٌ واحد لكلّ أرقام منظومة التطوّع — Rep · VXP · التقييم · Kudos · الاعتراضات · الترقّي · السلوك · النوافذ · النصوص.')"
+        :subtitle="setting('admin.volunteer.settings_hub.subtitle', 'مرجعٌ واحد لكلّ أرقام منظومة التطوّع: Rep · VXP · التقييم · Kudos · الاعتراضات · الترقّي · السلوك · النوافذ · النصوص.')"
         :breadcrumbs="[['label' => setting('admin.volunteer.org.alttwa', 'التطوّع'), 'url' => route('admin.volunteer.index')], ['label' => setting('admin.volunteer.settings_hub.title', 'الإدارة المركزيّة للتطوّع')]]">
         <x-slot:action>
             @if ($canManage)
@@ -34,12 +34,12 @@
     @unless ($canManage)
         <div class="card p-3 mb-4 text-sm flex items-center gap-2" style="border-color: color-mix(in srgb, var(--text-muted) 40%, var(--border))">
             <span class="text-xs rounded-full px-2 py-0.5" style="background: var(--surface-sunken); color: var(--text-muted)">{{ setting('admin.volunteer.settings_hub.read_only_badge', 'عرض فقط') }}</span>
-            <span style="color: var(--text-muted)">{{ setting('admin.volunteer.settings_hub.read_only_notice', 'تملك صلاحيّة العرض فقط — الحفظ والـReset لمن يملك صلاحيّة الإدارة.') }}</span>
+            <span style="color: var(--text-muted)">{{ setting('admin.volunteer.settings_hub.read_only_notice', 'تملك صلاحيّة العرض فقط، الحفظ والـReset لمن يملك صلاحيّة الإدارة.') }}</span>
         </div>
     @endunless
 
     <form method="post" action="{{ route('admin.volunteer.settings-hub.save-all') }}" id="hub-form"
-          @if ($canManage) onsubmit="return confirm('{{ strtr(setting('admin.volunteer.settings_hub.impact_preview', 'التغيير هيسري فورًا على :count متطوّعًا نشطًا الآن — تأكيد الحفظ؟'), [':count' => (string) $activeVolunteersCount]) }}')" @endif>
+          @if ($canManage) onsubmit="return confirm('{{ strtr(setting('admin.volunteer.settings_hub.impact_preview', 'التغيير هيسري فورًا على :count متطوّعًا نشطًا الآن. تأكيد الحفظ؟'), [':count' => (string) $activeVolunteersCount]) }}')" @endif>
         @csrf
 
         <div class="card p-3 mb-4 flex flex-wrap items-center gap-3">
@@ -82,7 +82,7 @@
 
                 @if (empty($tab['rows']))
                     <div class="p-6 text-center text-sm" style="color: var(--text-muted)">
-                        {{ setting('admin.volunteer.settings_hub.empty_state', 'لم تُضبَط إعدادات هذا التاب بعد — تعمل بالقيم الافتراضيّة.') }}
+                        {{ setting('admin.volunteer.settings_hub.empty_state', 'لم تُضبَط إعدادات هذا التاب بعد، تعمل بالقيم الافتراضيّة.') }}
                     </div>
                 @else
                     @foreach ($tab['rows'] as $row)
@@ -157,7 +157,7 @@
 
         <x-modal id="hub-import-modal" :title="setting('admin.volunteer.settings_hub.import', 'استيراد JSON')">
             <form method="post" action="{{ route('admin.volunteer.settings-hub.import') }}" enctype="multipart/form-data"
-                  onsubmit="return confirm('{{ setting('admin.volunteer.settings_hub.import_confirm', 'الاستيراد يستبدل قيم مفاتيح الهَب الموجودة في الملفّ — تأكيد؟') }}')">
+                  onsubmit="return confirm('{{ setting('admin.volunteer.settings_hub.import_confirm', 'الاستيراد يستبدل قيم مفاتيح الهَب الموجودة في الملفّ. تأكيد؟') }}')">
                 @csrf
                 <label class="block text-sm font-semibold mb-1" for="hub-import-file">{{ setting('admin.volunteer.settings_hub.import_file_label', 'ملفّ JSON مُصدَّر من نفس الشاشة') }}</label>
                 <input type="file" name="file" id="hub-import-file" accept="application/json" required

@@ -2,9 +2,9 @@
     /** نصوص السكربت — من الإعدادات لا محروقةً في الجافاسكربت (2.13-أ) */
     $hcWords = array_merge($hcWords ?? [], [
         'cv.autosave.saved_label' => (string) setting('cv.autosave.saved_label', 'اتحفظ ✓'),
-        'cv.autosave.error_label' => (string) setting('cv.autosave.error_label', 'ما اتحفظش — راجع النت وجرّب تاني.'),
+        'cv.autosave.error_label' => (string) setting('cv.autosave.error_label', 'ما اتحفظش، راجع النت وجرّب تاني.'),
         'cv.completion.missing_prefix' => (string) setting('cv.completion.missing_prefix', 'ناقصك:'),
-        'cv.completion.done' => (string) setting('cv.completion.done', 'سيرتك مكتملة — جاهزة للتحميل.'),
+        'cv.completion.done' => (string) setting('cv.completion.done', 'سيرتك مكتملة، جاهزة للتحميل.'),
     ]);
 @endphp
 
@@ -57,7 +57,7 @@
 
     @if ($guest)
         <div class="card p-3 mb-4 text-sm" role="status">
-            {{ setting('cv.guest.note', 'إنت بتجرّب القالب المجّانيّ بلا تسجيل — التحميل بيطلب إنشاء حساب، وشغلك محفوظ لحدّ ما تسجّل.') }}
+            {{ setting('cv.guest.note', 'إنت بتجرّب القالب المجّانيّ من غير تسجيل. التحميل بيطلب إنشاء حساب، وشغلك محفوظ لحدّ ما تسجّل.') }}
         </div>
     @endif
 
@@ -102,7 +102,7 @@
             <div class="h-full motion-standard" data-completion-bar style="width: {{ $completion }}%; background: var(--color-brand-500)"></div>
         </div>
         <p class="text-xs mt-2" data-missing style="color: var(--text-muted)">
-            {{ $missing ? setting('cv.completion.missing_prefix', 'ناقصك:').' '.implode(' · ', $missing) : setting('cv.completion.done', 'سيرتك مكتملة — جاهزة للتحميل.') }}
+            {{ $missing ? setting('cv.completion.missing_prefix', 'ناقصك:').' '.implode(' · ', $missing) : setting('cv.completion.done', 'سيرتك مكتملة، جاهزة للتحميل.') }}
         </p>
     </div>
 

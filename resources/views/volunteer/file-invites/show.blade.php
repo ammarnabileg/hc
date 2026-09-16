@@ -8,7 +8,7 @@
             <h1 class="text-lg font-bold">{{ setting('volunteer.file_invites.heading', 'دعوة للانضمام') }}</h1>
 
             @if ($expired)
-                <p class="text-sm" style="color: var(--color-state-danger)">{{ setting('volunteer.file_invites.expired', 'رابط الدعوة ده منتهي الصلاحيّة — كلّم اللي بعتهولك.') }}</p>
+                <p class="text-sm" style="color: var(--color-state-danger)">{{ setting('volunteer.file_invites.expired', 'رابط الدعوة ده منتهي الصلاحيّة. كلّم اللي بعتهولك.') }}</p>
             @else
                 <p class="text-sm">
                     {{ setting('volunteer.file_invites.body', 'إنت مدعوّ تنضمّ لملفّ') }}

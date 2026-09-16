@@ -205,7 +205,7 @@ class UserController extends Controller
         $ids = $this->pickedIds($request);
 
         if ($ids === []) {
-            return back()->with('problem', (string) setting('admin_users.screen.approve_msg', 'ماحدّدتش أيّ حساب — اختر حساب أو أكتر وبعدين اعتمد.'));
+            return back()->with('problem', (string) setting('admin_users.screen.approve_msg', 'ماحدّدتش أيّ حساب، اختر حساب أو أكتر وبعدين اعتمد.'));
         }
 
         $actor = $request->user();
@@ -216,8 +216,8 @@ class UserController extends Controller
         }
 
         return back()->with('status', $done > 0
-            ? strtr((string) setting('admin_users.screen.approve_ok', 'اتعمد :count حساب ✓ — التفعيل مجّانيّ وبقرارك الإداريّ'), [':count' => (string) $done])
-            : (string) setting('admin_users.screen.approve_empty', 'مافيش حساب اتغيّر — يمكن يكونوا اتعمدوا قبل كده.'));
+            ? strtr((string) setting('admin_users.screen.approve_ok', 'اتعمد :count حساب ✓، والتفعيل مجّانيّ وبقرارك الإداريّ'), [':count' => (string) $done])
+            : (string) setting('admin_users.screen.approve_empty', 'مافيش حساب اتغيّر، يمكن يكونوا اتعمدوا قبل كده.'));
     }
 
     public function reject(Request $request): RedirectResponse
@@ -229,7 +229,7 @@ class UserController extends Controller
         $ids = $this->pickedIds($request);
 
         if ($ids === []) {
-            return back()->with('problem', (string) setting('admin_users.screen.reject_msg_2', 'ماحدّدتش أيّ حساب — اختر حساب أو أكتر وبعدين ارفض.'));
+            return back()->with('problem', (string) setting('admin_users.screen.reject_msg_2', 'ماحدّدتش أيّ حساب، اختر حساب أو أكتر وبعدين ارفض.'));
         }
 
         $actor = $request->user();
@@ -239,7 +239,7 @@ class UserController extends Controller
             $done += $this->approval->reject($actor, $account, $validated['reason']) ? 1 : 0;
         }
 
-        return back()->with('status', strtr((string) setting('admin_users.screen.reject_ok', 'اترفض :count حساب — واتبعت للمستخدم سبب واضح.'), [':count' => (string) $done]));
+        return back()->with('status', strtr((string) setting('admin_users.screen.reject_ok', 'اترفض :count حساب، واتبعت للمستخدم سبب واضح.'), [':count' => (string) $done]));
     }
 
     // ---------------------------------------------------------- طلبات الإفادة (9.1)
@@ -277,7 +277,7 @@ class UserController extends Controller
 
         $this->audit->record($request->user(), 'attestation.rejected', $attestation, $old, ['status' => 'rejected', 'reason' => $validated['reason']]);
 
-        return back()->with('status', (string) setting('admin.users.attestations.reject_ok', 'اترفض الطلب — والسبب واضح للمستخدم.'));
+        return back()->with('status', (string) setting('admin.users.attestations.reject_ok', 'اترفض الطلب، والسبب واضح للمستخدم.'));
     }
 
     // ---------------------------------------------------------- شرائح الجمهور
@@ -409,7 +409,7 @@ class UserController extends Controller
             return back()->with('problem', str_replace(
                 ':count',
                 (string) $usage->count(),
-                (string) setting('admin.segments.delete_warning', 'الشريحة دي مستخدَمة في :count مكان — أرشفها بدل ما تمسحها.'),
+                (string) setting('admin.segments.delete_warning', 'الشريحة دي مستخدَمة في :count مكان، أرشفها بدل ما تمسحها.'),
             ));
         }
 

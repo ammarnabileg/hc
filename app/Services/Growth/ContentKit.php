@@ -31,10 +31,10 @@ class ContentKit
         }
 
         return [
-            setting('growth.content_kit.tips_1', 'ذاكر ٢٥ دقيقة وارتاح ٥ — العقل بيثبّت المعلومة في الراحة مش في الزحمة.'),
+            setting('growth.content_kit.tips_1', 'ذاكر ٢٥ دقيقة وارتاح ٥، العقل بيثبّت المعلومة في الراحة مش في الزحمة.'),
             setting('growth.content_kit.tips_2', 'اكتب اللي فهمته بكلامك إنت. لو عرفت تشرحه، يبقى فهمته.'),
             setting('growth.content_kit.tips_3', 'الاستمرار أهمّ من الشدّة: نصّ ساعة كلّ يوم أنفع من يوم كامل في الأسبوع.'),
-            setting('growth.content_kit.tips_4', 'راجع درس امبارح قبل ما تبدأ درس النهارده — دقيقتين بيوفّروا ساعة.'),
+            setting('growth.content_kit.tips_4', 'راجع درس امبارح قبل ما تبدأ درس النهارده، دقيقتين بيوفّروا ساعة.'),
             setting('growth.content_kit.tips_5', 'اسأل بدري. السؤال المتأخّر بيتكلّف وقت، والسؤال البدري بيوفّره.'),
         ];
     }
@@ -94,7 +94,7 @@ class ContentKit
         $rows = is_array($configured) && $configured !== [] ? $configured : [
             ['title' => setting('growth.content_kit.scripts_1', 'رسالة واتساب قصيرة'), 'body' => setting('growth.content_kit.scripts_2', "لو بتدوّر على تدريب عربيّ جادّ ومجّانيّ التفعيل، جرّب من هنا:\n{link}")],
             ['title' => setting('growth.content_kit.scripts_3', 'منشور لينكدإن'), 'body' => setting('growth.content_kit.scripts_4', "بتعلّم على منصّة عربيّة بتشتغل بنظام: تدريب ⟵ امتحان ⟵ شهادة بكود تحقّق.\nلو مهتمّ، الرابط ده هيوصّلك:\n{link}")],
-            ['title' => setting('growth.content_kit.scripts_5', 'ستوري'), 'body' => setting('growth.content_kit.scripts_6', "بنبدأ دفعة جديدة — لو ناوي تتعلّم حاجة جديدة الشهر ده، ده مكانك:\n{link}")],
+            ['title' => setting('growth.content_kit.scripts_5', 'ستوري'), 'body' => setting('growth.content_kit.scripts_6', "بنبدأ دفعة جديدة، ولو ناوي تتعلّم حاجة جديدة الشهر ده، ده مكانك:\n{link}")],
         ];
 
         return array_values(array_map(fn ($row) => [

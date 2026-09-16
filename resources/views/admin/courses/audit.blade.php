@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', setting('admin.courses.audit.sjl_altdqyq_2', 'سجلّ التدقيق — ').$course->name_ar)
+@section('title', setting('admin.courses.audit.sjl_altdqyq_2', 'سجلّ التدقيق · ').$course->name_ar)
 
 @section('content')
     {{-- سجلّ التدقيق: مَن عدّل ماذا ومتى (12.4-هـ) --}}

@@ -247,7 +247,7 @@ class RepService
             return null; // الشريحة المحايدة لا تكتب حركةً بلا أثر
         }
 
-        $reason = strtr(setting('goals.rep_service.apply_leadership_impact_1', 'مؤشّر القيادة الأسبوعيّ — متوسّط :p1'), [':p1' => (string) (number_format($average, 2))]);
+        $reason = strtr(setting('goals.rep_service.apply_leadership_impact_1', 'مؤشّر القيادة الأسبوعيّ: متوسّط :p1'), [':p1' => (string) (number_format($average, 2))]);
 
         $transaction = $value > 0
             ? Integrations::credit($evaluatee, self::CURRENCY, $value, 'leadership', null, $reason)

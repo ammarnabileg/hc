@@ -78,7 +78,7 @@
     </section>
 
     <p class="text-xs" style="color: var(--text-muted)">
-        {{ setting('admin.store.partials.order_panel.mafysh_astrjaa_nqdy_alrsyd_yfdl_fy_mhfza', 'مافيش استرجاع نقديّ — الرصيد يفضل في محفظة صاحبه، والخطأ التقنيّ يتصحَّح بمعاملة موثّقة بمرجعها.') }}
+        {{ setting('admin.store.partials.order_panel.mafysh_astrjaa_nqdy_alrsyd_yfdl_fy_mhfza', 'مافيش استرجاع نقديّ، الرصيد يفضل في محفظة صاحبه، والخطأ التقنيّ يتصحَّح بمعاملة موثّقة بمرجعها.') }}
     </p>
 
     @if (auth()->user()?->isPlatformOwner())
@@ -89,7 +89,7 @@
             <input type="number" name="original_transaction_id" required placeholder="{{ setting('admin.store.partials.order_panel.rqm_almaamla_alaslya', 'رقم المعاملة الأصليّة') }}"
                    class="w-full rounded-xl px-3 py-2 text-sm"
                    style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
-            <textarea name="reason" required rows="2" placeholder="{{ setting('admin.store.partials.order_panel.alsbb_ytsjl_fy_sjl_altdqyq', 'السبب — يتسجّل في سجلّ التدقيق') }}"
+            <textarea name="reason" required rows="2" placeholder="{{ setting('admin.store.partials.order_panel.alsbb_ytsjl_fy_sjl_altdqyq', 'السبب: يتسجّل في سجلّ التدقيق') }}"
                       class="w-full rounded-xl px-3 py-2 text-sm"
                       style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)"></textarea>
             <button type="submit" class="btn rounded-xl px-4 py-2 text-sm font-semibold"

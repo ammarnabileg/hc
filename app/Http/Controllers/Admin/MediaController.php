@@ -63,7 +63,7 @@ class MediaController extends Controller
         );
 
         $message = $result['duplicated']
-            ? (string) setting('media.dedup.notice', 'الملفّ ده موجود عندنا — استخدمنا النسخة الحاليّة ✓')
+            ? (string) setting('media.dedup.notice', 'الملفّ ده موجود عندنا، استخدمنا النسخة الحاليّة ✓')
             : (string) setting('media.admin.store_ok', 'اترفع الملفّ ✓');
 
         if ($request->expectsJson()) {
@@ -107,7 +107,7 @@ class MediaController extends Controller
         if ($used > 0 && ! $request->boolean('force')) {
             return back()->with('status', (string) setting(
                 'media.delete.in_use_warning',
-                'الملفّ ده مستخدَم في أماكن تانية — أكّد الحذف لو متأكّد.',
+                'الملفّ ده مستخدَم في أماكن تانية، أكّد الحذف لو متأكّد.',
             ));
         }
 

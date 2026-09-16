@@ -4,7 +4,7 @@
 @section('content')
     <x-page-header
         :title="setting('challenges.mine.title', 'تحدّياتي')"
-        :subtitle="setting('challenges.mine.subtitle', 'اللي شغّال دلوقتي واللي خلص — كلّه في مكان واحد.')"
+        :subtitle="setting('challenges.mine.subtitle', 'اللي شغّال دلوقتي واللي خلص، كلّه في مكان واحد.')"
         :breadcrumbs="[['label' => setting('challenges.index.title', 'التحديات'), 'url' => route('challenges.index')], ['label' => setting('challenges.mine.title', 'تحدّياتي')]]">
         <x-slot:action>
             <a href="{{ route('challenges.index') }}"
@@ -24,7 +24,7 @@
         <div class="card p-3 mb-4 text-sm flex items-center gap-2" style="border-color: var(--color-state-warn)">
             <span aria-hidden="true">▲</span>
             <span>
-                {{ str_replace(':n', (int) $stat->loss_streak, (string) setting('challenges.mine.loss_streak_note', 'عندك :n خسارة ورا بعض — لو وصلت للحدّ هتختفي من قائمة الجاهزين (حماية ليك)، وتفضل قادر تتحدّى الناس لحدّ ما تكسر السلسلة بفوز.')) }}
+                {{ str_replace(':n', (int) $stat->loss_streak, (string) setting('challenges.mine.loss_streak_note', 'عندك :n خسارة ورا بعض. لو وصلت للحدّ هتختفي من قائمة الجاهزين (حماية ليك)، وتفضل قادر تتحدّى الناس لحدّ ما تكسر السلسلة بفوز.')) }}
             </span>
         </div>
     @endif
@@ -38,7 +38,7 @@
 
     @if ($list->isEmpty())
         <x-empty
-            :message="$tab === 'running' ? setting('challenges.mine.empty_running', 'مفيش مواجهة شغّالة دلوقتي — الساحة مستنّياك.') : setting('challenges.mine.empty_done', 'لسّه مخلّصتش مواجهة — أوّل واحدة هتبان هنا.')"
+            :message="$tab === 'running' ? setting('challenges.mine.empty_running', 'مفيش مواجهة شغّالة دلوقتي. الساحة مستنّياك.') : setting('challenges.mine.empty_done', 'لسّه مخلّصتش مواجهة. أوّل واحدة هتبان هنا.')"
             :action="setting('challenges.mine.arenas_action', 'ساحات الحرب')" :href="route('challenges.index')" />
     @else
         <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">

@@ -178,7 +178,7 @@ class VxpDistributionService
 
         foreach ($shares as $childId => $value) {
             if ((float) $value < 0) {
-                $errors[] = setting('goals.vxp_distribution_service.check_1', 'قيمة سالبة غير مقبولة — اكتب صفرًا أو أكثر.');
+                $errors[] = setting('goals.vxp_distribution_service.check_1', 'قيمة سالبة غير مقبولة، اكتب صفرًا أو أكثر.');
                 break;
             }
         }
@@ -188,7 +188,7 @@ class VxpDistributionService
 
         // القيد (أ): مجموع الأبناء ≤ وعاء المهمّة — وهذا وحده ما تُبيحه الموافقة الصريحة
         if ($overflow > 0 && ! $consentPersonal) {
-            $errors[] = strtr(setting('goals.vxp_distribution_service.check_2', 'مجموع ما توزّعه (:p1) أكبر من وعاء المهمّة (:p2) — قلّل القيم أو وافق صراحةً على الخصم من رصيدك الشخصيّ.'), [':p1' => (string) ($this->num($total)), ':p2' => (string) ($this->num($pool))]);
+            $errors[] = strtr(setting('goals.vxp_distribution_service.check_2', 'مجموع ما توزّعه (:p1) أكبر من وعاء المهمّة (:p2). قلّل القيم أو وافق صراحةً على الخصم من رصيدك الشخصيّ.'), [':p1' => (string) ($this->num($total)), ':p2' => (string) ($this->num($pool))]);
         }
 
         /*
@@ -203,14 +203,14 @@ class VxpDistributionService
          | **مغلقًا** في الافتراضيّ 10% مهما وقّع الأب على الموافقة.
          */
         if (round(min($total, $pool) - $max, 2) > 0) {
-            $errors[] = strtr(setting('goals.vxp_distribution_service.check_3', 'لازم تحتفظ بـ:p1% على الأقلّ من الوعاء لشريحتك (:p2 نقطة) — أقصى ما توزّعه :p3. وشريحتك دي مش بتتباع بموافقة.'), [':p1' => (string) ($this->num($this->parentMinSharePercent())), ':p2' => (string) ($this->num($this->reservedShare($parent))), ':p3' => (string) ($this->num($max))]);
+            $errors[] = strtr(setting('goals.vxp_distribution_service.check_3', 'لازم تحتفظ بـ:p1% على الأقلّ من الوعاء لشريحتك (:p2 نقطة). أقصى ما توزّعه :p3، وشريحتك دي مش بتتباع بموافقة.'), [':p1' => (string) ($this->num($this->parentMinSharePercent())), ':p2' => (string) ($this->num($this->reservedShare($parent))), ':p3' => (string) ($this->num($max))]);
         }
 
         if ($overflow > 0 && $consentPersonal) {
             $balance = $payer ? Integrations::balance($payer, self::CURRENCY) : 0.0;
 
             if ($balance < $overflow) {
-                $errors[] = strtr(setting('goals.vxp_distribution_service.check_4', 'رصيدك الشخصيّ (:p1) لا يكفي الفرق المطلوب (:p2) — قلّل القيم.'), [':p1' => (string) ($this->num($balance)), ':p2' => (string) ($this->num($overflow))]);
+                $errors[] = strtr(setting('goals.vxp_distribution_service.check_4', 'رصيدك الشخصيّ (:p1) لا يكفي الفرق المطلوب (:p2)، قلّل القيم.'), [':p1' => (string) ($this->num($balance)), ':p2' => (string) ($this->num($overflow))]);
             }
         }
 
@@ -278,7 +278,7 @@ class VxpDistributionService
 
                 if ($applied !== round((float) $check['overflow'], 2)) {
                     throw ValidationException::withMessages(['shares' => [
-                        strtr(setting('goals.vxp_distribution_service.distribute_2', 'الزيادة فوق الوعاء (:p1) لم تُخصَم فعلًا من رصيدك — فلم يُحفَظ التوزيع. قلّل القيم إلى داخل الوعاء أو راجع رصيدك.'), [':p1' => (string) ($this->num($check['overflow']))]),
+                        strtr(setting('goals.vxp_distribution_service.distribute_2', 'الزيادة فوق الوعاء (:p1) لم تُخصَم فعلًا من رصيدك، فلم يُحفَظ التوزيع. قلّل القيم إلى داخل الوعاء أو راجع رصيدك.'), [':p1' => (string) ($this->num($check['overflow']))]),
                     ]]);
                 }
             }

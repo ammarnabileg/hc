@@ -9,7 +9,7 @@
         'fees' => setting('library.modal.invoice_fees', 'الرسوم'),
         'method' => setting('library.modal.invoice_method', 'طريقة الدفع'),
         'noInvoice' => setting('library.modal.no_invoice', 'العنصر ده مش مربوط بطلب شراء.'),
-        'error' => setting('library.modal.error', 'مش قادرين نجيب التفاصيل دلوقتي — جرّب تاني.'),
+        'error' => setting('library.modal.error', 'مش قادرين نجيب التفاصيل دلوقتي، جرّب تاني.'),
         'copied' => setting('library.modal.copied', 'الرابط اتنسخ ✓'),
         // ⭐ زرّ [استخراج كصورة] هنا — نفس نصوص export-image.blade.php (محرّك واحد، 12.14-هـ)
         'exportLabel' => setting('images.export_panel.text_1', 'استخراج كصورة'),

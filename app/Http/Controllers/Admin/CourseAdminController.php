@@ -143,7 +143,7 @@ class CourseAdminController extends Controller
 
         return back()->with('status', (string) setting(
             'courses.autosave.discarded_label',
-            'اتشالت مسوّدة التحرير — النسخة المنشورة زيّ ما هي ✓',
+            'اتشالت مسوّدة التحرير، والنسخة المنشورة زيّ ما هي ✓',
         ));
     }
 
@@ -159,7 +159,7 @@ class CourseAdminController extends Controller
     {
         $copy = $this->courses->duplicate($course);
 
-        return redirect()->route('admin.courses.edit', $copy)->with('status', (string) setting('courses.admin.duplicate_ok', 'اتعمل نسخة — عدّلها وانشرها ✓'));
+        return redirect()->route('admin.courses.edit', $copy)->with('status', (string) setting('courses.admin.duplicate_ok', 'اتعمل نسخة، عدّلها وانشرها ✓'));
     }
 
     /** إجراءات جماعيّة — الزرّ يظهر عند الاختيار فقط (2.15-ب). */
@@ -236,7 +236,7 @@ class CourseAdminController extends Controller
     private function savedLabel(Course $course): string
     {
         return $course->status === 'published'
-            ? (string) setting('courses.save.continue_published_label', 'اتحفظ وهو منشور ✓ — كمّل تحرير')
+            ? (string) setting('courses.save.continue_published_label', 'اتحفظ وهو منشور ✓، كمّل تحرير')
             : (string) setting('courses.save.continue_label', 'اتحفظ كمسودّة ✓');
     }
 

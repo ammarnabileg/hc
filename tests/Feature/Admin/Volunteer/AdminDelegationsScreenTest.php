@@ -111,11 +111,11 @@ class AdminDelegationsScreenTest extends AdminVolunteerTestCase
             ->assertOk();
 
         $response->assertSee(
-            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث/الفلتر الحاليّ — جرّب فلترًا تانيًا.'),
+            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث أو الفلتر الحاليّ. جرّب فلتر تاني.'),
             false,
         );
         $response->assertDontSee(
-            setting('admin.volunteer.delegations.mfysh_ghyabat_fy_alhala_dy_alfryq_kaml', 'مفيش غيابات في الحالة دي — الفريق كامل.'),
+            setting('admin.volunteer.delegations.mfysh_ghyabat_fy_alhala_dy_alfryq_kaml', 'مفيش غيابات في الحالة دي. الفريق كامل.'),
             false,
         );
     }
@@ -130,11 +130,11 @@ class AdminDelegationsScreenTest extends AdminVolunteerTestCase
             ->assertOk();
 
         $response->assertSee(
-            setting('admin.volunteer.delegations.mfysh_ghyabat_fy_alhala_dy_alfryq_kaml', 'مفيش غيابات في الحالة دي — الفريق كامل.'),
+            setting('admin.volunteer.delegations.mfysh_ghyabat_fy_alhala_dy_alfryq_kaml', 'مفيش غيابات في الحالة دي. الفريق كامل.'),
             false,
         );
         $response->assertDontSee(
-            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث/الفلتر الحاليّ — جرّب فلترًا تانيًا.'),
+            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث أو الفلتر الحاليّ. جرّب فلتر تاني.'),
             false,
         );
     }

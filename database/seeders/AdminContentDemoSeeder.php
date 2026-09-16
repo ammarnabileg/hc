@@ -45,16 +45,16 @@ class AdminContentDemoSeeder extends Seeder
             ['paths.order.forced_default', 'paths', 'ترتيب المشاهدة الإجباريّ كافتراضيّ', 'bool', '0'],
             ['paths.exam.default_price_coins', 'paths', 'سعر امتحان شهادة المسار الافتراضيّ (كوينز)', 'number', '50'],
             ['paths.courses.picker_limit', 'paths', 'حدّ قائمة التدريبات المرشّحة للإضافة', 'number', '20'],
-            ['paths.delete.confirm_text', 'paths', 'نصّ تأكيد حذف المسار', 'string', 'هنشيل المسار — وتدريباته هتفضل زيّ ما هي. نكمّل؟'],
-            ['paths.delete.success_text', 'paths', 'نصّ نجاح حذف المسار', 'string', 'اتشال المسار — وتدريباته زيّ ما هي ✓'],
-            ['paths.detach.confirm_text', 'paths', 'نصّ تأكيد الإزالة من المسار', 'string', 'هنشيله من المسار بس — التدريب هيفضل موجود. نكمّل؟'],
-            ['paths.detach.success_text', 'paths', 'نصّ نجاح الإزالة من المسار', 'string', 'اتشال من المسار — والتدريب زيّ ما هو ✓'],
+            ['paths.delete.confirm_text', 'paths', 'نصّ تأكيد حذف المسار', 'string', 'هنشيل المسار، وتدريباته هتفضل زيّ ما هي. نكمّل؟'],
+            ['paths.delete.success_text', 'paths', 'نصّ نجاح حذف المسار', 'string', 'اتشال المسار، وتدريباته زيّ ما هي ✓'],
+            ['paths.detach.confirm_text', 'paths', 'نصّ تأكيد الإزالة من المسار', 'string', 'هنشيله من المسار بس، والتدريب هيفضل موجود. نكمّل؟'],
+            ['paths.detach.success_text', 'paths', 'نصّ نجاح الإزالة من المسار', 'string', 'اتشال من المسار، والتدريب زيّ ما هو ✓'],
             ['paths.statuses', 'paths', 'حالات المسار', 'json', '{"draft":"مسودّة","scheduled":"مجدول","published":"منشور","archived":"مؤرشف"}'],
             // ⭐ تكرار/نسخ (Duplicate) المسار (12.4-هـ) — نظير تكرار التدريب بالضبط
-            ['paths.duplicate.suffix', 'paths', 'لاحقة نسخة المسار المكرّر', 'string', ' — نسخة'],
+            ['paths.duplicate.suffix', 'paths', 'لاحقة نسخة المسار المكرّر', 'string', ' (نسخة)'],
             ['paths.duplicate.action_label', 'paths', 'نصّ إجراء تكرار المسار', 'string', 'تكرار المسار'],
-            ['paths.duplicate.confirm_text', 'paths', 'نصّ تأكيد تكرار المسار', 'string', 'هنعمل نسخة كاملة بتدريباته كمسودّة — نكمّل؟'],
-            ['paths.admin.duplicate_ok', 'paths', 'نصّ نجاح تكرار المسار', 'string', 'اتعمل نسخة من المسار — عدّلها وانشرها ✓'],
+            ['paths.duplicate.confirm_text', 'paths', 'نصّ تأكيد تكرار المسار', 'string', 'هنعمل نسخة كاملة بتدريباته كمسودّة. نكمّل؟'],
+            ['paths.admin.duplicate_ok', 'paths', 'نصّ نجاح تكرار المسار', 'string', 'اتعمل نسخة من المسار، عدّلها وانشرها ✓'],
 
             // ---------------- التدريبات (12.4-ب)
             ['courses.statuses', 'courses', 'حالات التدريب', 'json', '{"draft":"مسودّة","scheduled":"مجدول","published":"منشور","archived":"مؤرشف"}'],
@@ -63,12 +63,12 @@ class AdminContentDemoSeeder extends Seeder
             ['courses.autosave.label', 'courses', 'نصّ الحفظ التلقائيّ', 'string', 'اتحفظ ✓'],
             // الحفظ التلقائيّ على تدريبٍ حيّ يكتب في مسوّدة تحريرٍ جانبيّة (12.4-ب)
             ['courses.autosave.draft_label', 'courses', 'نصّ الحفظ التلقائيّ للمنشور', 'string', 'اتحفظ كمسودّة تحرير ✓'],
-            ['courses.autosave.discarded_label', 'courses', 'نصّ تجاهل مسوّدة التحرير', 'string', 'اتشالت مسوّدة التحرير — النسخة المنشورة زيّ ما هي ✓'],
-            ['courses.autosave.draft_notice', 'courses', 'شرح بانر مسوّدة التحرير المعلّقة', 'string', 'التعديلات المحفوظة تلقائيًّا معروضة في الفورم — اضغط «حفظ» تسري على المنشور، أو تجاهلها وترجع النسخة المنشورة.'],
+            ['courses.autosave.discarded_label', 'courses', 'نصّ تجاهل مسوّدة التحرير', 'string', 'اتشالت مسوّدة التحرير، النسخة المنشورة زيّ ما هي ✓'],
+            ['courses.autosave.draft_notice', 'courses', 'شرح بانر مسوّدة التحرير المعلّقة', 'string', 'التعديلات المحفوظة تلقائيًّا معروضة في الفورم. اضغط «حفظ» تسري على المنشور، أو تجاهلها وترجع النسخة المنشورة.'],
             ['courses.save.continue_label', 'courses', 'نصّ «حفظ واستمرار» للمسودّة', 'string', 'اتحفظ كمسودّة ✓'],
-            ['courses.save.continue_published_label', 'courses', 'نصّ «حفظ واستمرار» للمنشور', 'string', 'اتحفظ وهو منشور ✓ — كمّل تحرير'],
+            ['courses.save.continue_published_label', 'courses', 'نصّ «حفظ واستمرار» للمنشور', 'string', 'اتحفظ وهو منشور ✓. كمّل تحرير'],
             ['courses.autosave.debounce_ms', 'courses', 'مهلة الحفظ التلقائيّ (مللي ثانية)', 'number', '2000'],
-            ['courses.duplicate.suffix', 'courses', 'لاحقة النسخة المكرّرة', 'string', ' — نسخة'],
+            ['courses.duplicate.suffix', 'courses', 'لاحقة النسخة المكرّرة', 'string', ' (نسخة)'],
 
             // ⭐ تسميتا هدف اللمس في جدول التدريبات: الصندوق النايتف 13px ولا
             // يُكبَّر بلا تشويه، فالتسمية الملتفّة هي الهدف (2.15-ج).
@@ -76,7 +76,7 @@ class AdminContentDemoSeeder extends Seeder
             ['courses.bulk.pick_one', 'courses', 'تسمية اختيار تدريبٍ واحد', 'string', 'اختيار هذا التدريب'],
             // «تكرار/نسخ (Duplicate) لتدريب» (12.4-هـ): المسار كان بلا مدخل في الواجهة
             ['courses.duplicate.action_label', 'courses', 'نصّ إجراء تكرار التدريب', 'string', 'تكرار التدريب'],
-            ['courses.duplicate.confirm_text', 'courses', 'نصّ تأكيد تكرار التدريب', 'string', 'هنعمل نسخة كاملة بسيكشنزها ودروسها كمسودّة — نكمّل؟'],
+            ['courses.duplicate.confirm_text', 'courses', 'نصّ تأكيد تكرار التدريب', 'string', 'هنعمل نسخة كاملة بسيكشنزها ودروسها كمسودّة. نكمّل؟'],
             ['courses.xp.max_per_lesson', 'courses', 'أقصى XP للدرس', 'number', '50'],
             ['courses.availability.max_windows', 'courses', 'أقصى فترات إتاحة', 'number', '3'],
 
@@ -87,11 +87,11 @@ class AdminContentDemoSeeder extends Seeder
             ['exams.duration.default_minutes', 'exams', 'مدّة الامتحان الافتراضيّة (دقائق)', 'number', '30'],
 
             // ---------------- الدروس والأسئلة (12.4-ج)
-            ['lessons.duplicate.suffix', 'lessons', 'لاحقة الدرس المكرّر', 'string', ' — نسخة'],
+            ['lessons.duplicate.suffix', 'lessons', 'لاحقة الدرس المكرّر', 'string', ' (نسخة)'],
             // «تكرار/نسخ (Duplicate) **لسيكشن**» (12.4-هـ) — الثالث الذي كان بلا مسار
-            ['sections.duplicate.suffix', 'lessons', 'لاحقة السيكشن المكرّر', 'string', ' — نسخة'],
+            ['sections.duplicate.suffix', 'lessons', 'لاحقة السيكشن المكرّر', 'string', ' (نسخة)'],
             ['sections.duplicate.action_label', 'lessons', 'نصّ إجراء تكرار السيكشن', 'string', 'تكرار السيكشن'],
-            ['sections.duplicate.confirm_text', 'lessons', 'نصّ تأكيد تكرار السيكشن', 'string', 'هنعمل نسخة من السيكشن بدروسه وأسئلته ومرفقاته — نكمّل؟'],
+            ['sections.duplicate.confirm_text', 'lessons', 'نصّ تأكيد تكرار السيكشن', 'string', 'هنعمل نسخة من السيكشن بدروسه وأسئلته ومرفقاته. نكمّل؟'],
             ['lessons.admin.duplicate_section_ok', 'lessons', 'رسالة نجاح تكرار السيكشن', 'string', 'اتعملت نسخة من السيكشن ✓'],
             ['lessons.questions.default_xp', 'lessons', 'XP السؤال الافتراضيّ', 'number', '0'],
             ['lessons.questions.placeholder_otp', 'lessons', 'Placeholder السؤال الرقميّ', 'string', 'اكتب الرقم'],
@@ -103,7 +103,7 @@ class AdminContentDemoSeeder extends Seeder
 
             // ---------------- مكتبة الوسائط (12.4-د)
             ['media.dedup.enabled', 'media', 'منع التكرار بالهاش', 'bool', '1'],
-            ['media.dedup.notice', 'media', 'نصّ اكتشاف الملفّ المكرَّر', 'string', 'الملفّ ده موجود عندنا — استخدمنا النسخة الحاليّة ✓'],
+            ['media.dedup.notice', 'media', 'نصّ اكتشاف الملفّ المكرَّر', 'string', 'الملفّ ده موجود عندنا، استخدمنا النسخة الحاليّة ✓'],
             ['media.storage.disk', 'media', 'قرص التخزين', 'string', 'public'],
             ['media.storage.directory', 'media', 'مجلّد التخزين', 'string', 'media'],
             ['media.upload.max_kb', 'media', 'أقصى حجم للملفّ (ك.ب)', 'number', '10240'],
@@ -111,11 +111,11 @@ class AdminContentDemoSeeder extends Seeder
             ['media.grid.per_page', 'media', 'عدد البطاقات في الصفحة', 'number', '24'],
             ['media.folders.defaults', 'media', 'المجلّدات الافتراضيّة', 'json', '["أغلفة","مرفقات","شهادات","شعارات"]'],
             ['media.tags.max_per_item', 'media', 'أقصى وسوم للملفّ', 'number', '8'],
-            ['media.delete.in_use_warning', 'media', 'تحذير حذف ملفّ مستخدَم', 'string', 'الملفّ ده مستخدَم في أماكن تانية — أكّد الحذف لو متأكّد.'],
+            ['media.delete.in_use_warning', 'media', 'تحذير حذف ملفّ مستخدَم', 'string', 'الملفّ ده مستخدَم في أماكن تانية. متأكّد؟'],
 
             // ---------------- الشهادات (12.5)
             ['certificates.tabs', 'certificates', 'تبويبات إدارة الشهادات', 'json', '{"accreditations":"الاعتمادات","types":"الأنواع والقوالب","issue":"إصدار شهادة","ledger":"سجلّ الصادر"}'],
-            ['certificates.accreditation.platform_locked_text', 'certificates', 'نصّ منع حذف اعتماد المنصّة', 'string', 'اعتماد المنصّة ثابت ولا يتشال — تقدر تعطّله بس.'],
+            ['certificates.accreditation.platform_locked_text', 'certificates', 'نصّ منع حذف اعتماد المنصّة', 'string', 'اعتماد المنصّة ثابت ولا يتشال. تقدر تعطّله بس.'],
             ['certificates.accreditation.verify_note_ar', 'certificates', 'نصّ صفحة التحقّق', 'string', 'معتمدة من'],
             ['certificates.numbering.padding', 'certificates', 'طول تسلسل الترقيم', 'number', '6'],
             ['certificates.numbering.separator', 'certificates', 'فاصل الترقيم', 'string', '-'],
@@ -127,7 +127,7 @@ class AdminContentDemoSeeder extends Seeder
             ['certificates.designer.default_font_size', 'certificates', 'حجم الخطّ الافتراضيّ (على عرض 1754)', 'number', '32'],
             ['certificates.designer.default_color', 'certificates', 'لون النصّ الافتراضيّ', 'string', '#171715'],
             ['certificates.designer.saved_text', 'certificates', 'نصّ حفظ التصميم', 'string', 'اتحفظ التصميم ✓'],
-            ['certificates.designer.mobile_notice', 'certificates', 'تنبيه المصمّم على الموبايل', 'string', 'مصمّم القالب محتاج شاشة كبيرة — افتحه من اللابتوب عشان السحب يبقى مريح.'],
+            ['certificates.designer.mobile_notice', 'certificates', 'تنبيه المصمّم على الموبايل', 'string', 'مصمّم القالب محتاج شاشة كبيرة. افتحه من اللابتوب عشان السحب يبقى مريح.'],
             ['certificates.issue.batch_limit', 'certificates', 'حدّ الأكواد في الدفعة', 'number', '200'],
             ['certificates.issue.code_separators', 'certificates', 'فواصل الأكواد المقبولة', 'string', " \n\r\t,;،"],
             ['certificates.issue.error_not_found', 'certificates', 'نصّ الكود غير الموجود', 'string', 'الكود غير موجود'],
@@ -137,18 +137,18 @@ class AdminContentDemoSeeder extends Seeder
             ['certificates.bulk.status.revoked', 'certificates', 'حالة: ملغاة', 'string', 'ملغاة'],
             ['certificates.issue.error_duplicate', 'certificates', 'نصّ التكرار', 'string', 'صدرت له من قبل'],
             ['certificates.issue.notify_user', 'certificates', 'إشعار صاحب الشهادة عند الإصدار', 'bool', '1'],
-            ['certificates.issue.notice_title', 'certificates', 'عنوان إشعار الإصدار', 'string', 'مبروك — صدرت شهادتك 🎓'],
-            ['certificates.issue.confirm_text', 'certificates', 'نصّ تأكيد الإصدار', 'string', 'هنصدر الشهادات دي دلوقتي — نكمّل؟'],
+            ['certificates.issue.notice_title', 'certificates', 'عنوان إشعار الإصدار', 'string', 'مبروك، صدرت شهادتك 🎓'],
+            ['certificates.issue.confirm_text', 'certificates', 'نصّ تأكيد الإصدار', 'string', 'هنصدر الشهادات دي دلوقتي. نكمّل؟'],
             ['certificates.issue.codes_placeholder', 'certificates', 'Placeholder حقل الأكواد', 'string', 'الصق الأكواد مفصولة بمسافة أو فاصلة…'],
-            ['certificates.issue.preview_code_placeholder', 'certificates', 'نصّ الكود في المعاينة', 'string', '— يُولَّد عند الإصدار —'],
+            ['certificates.issue.preview_code_placeholder', 'certificates', 'نصّ الكود في المعاينة', 'string', '(يُولَّد عند الإصدار)'],
             ['certificates.revoke.reasons', 'certificates', 'أسباب الإلغاء', 'json', '["تزوير مثبَت","بيانات خاطئة","طلب صاحبها"]'],
             // ⭐ [2026-09-10] «تصدير/طباعة جماعيّة» سجلّ الصادر (24.1 سطر 4676 · 4678-4679)
             ['certificates.export.bulk_enabled', 'certificates', 'إتاحة التصدير/الطباعة الجماعيّة', 'bool', '1'],
             ['certificates.export.row_limit', 'certificates', 'حدّ صفوف التصدير', 'number', '500'],
             ['certificates.revoke.notice_title', 'certificates', 'عنوان إشعار الإلغاء', 'string', 'تحديث على إحدى شهاداتك'],
-            ['certificates.revoke.notice_body', 'certificates', 'نصّ إشعار الإلغاء', 'string', 'راجعنا شهادتك وأوقفنا العمل بها — تواصل معنا لو محتاج توضيحًا.'],
+            ['certificates.revoke.notice_body', 'certificates', 'نصّ إشعار الإلغاء', 'string', 'راجعنا شهادتك وأوقفنا العمل بها، تواصل معنا لو محتاج توضيحًا.'],
             ['certificates.reissue.reason', 'certificates', 'سبب إبطال القديمة عند إعادة الإصدار', 'string', 'أُعيد إصدارها مصحَّحةً'],
-            ['certificates.reissue.confirm_text', 'certificates', 'نصّ تأكيد إعادة الإصدار', 'string', 'هنبطل القديمة ونصدر مصحّحة — نكمّل؟'],
+            ['certificates.reissue.confirm_text', 'certificates', 'نصّ تأكيد إعادة الإصدار', 'string', 'هنبطل القديمة ونصدر مصحّحة. نكمّل؟'],
             ['certificates.ledger.per_page', 'certificates', 'عدد صفوف السجلّ', 'number', '20'],
             ['certificates.sources', 'certificates', 'مصادر الإصدار', 'json', '{"manual":"يدويّ","auto":"تلقائيّ","import":"مستورد"}'],
             ['certificates.preview.canvas_width', 'certificates', 'عرض لوحة المعاينة (بكسل)', 'number', '700'],
@@ -172,7 +172,7 @@ class AdminContentDemoSeeder extends Seeder
             ['announcements.acknowledge.ledger_source', 'announcements', 'دلو دفتر الأستاذ لتذاكر الإقرار', 'string', 'announcement'],
             ['announcements.pinned.max', 'announcements', 'أقصى منشورات مثبَّتة', 'number', '3'],
             ['announcements.auto_archive.days', 'announcements', 'أيّام الأرشفة التلقائيّة', 'number', '30'],
-            ['announcements.duplicate.suffix', 'announcements', 'لاحقة نسخة المنشور', 'string', ' — نسخة'],
+            ['announcements.duplicate.suffix', 'announcements', 'لاحقة نسخة المنشور', 'string', ' (نسخة)'],
             ['announcements.analytics.max_rows', 'announcements', 'أقصى صفوف التحليلات', 'number', '100'],
             ['announcements.audience.picker_limit', 'announcements', 'حدّ قائمة التدريبات في الاستهداف', 'number', '30'],
             ['announcements.push.max_recipients', 'announcements', 'أقصى مستقبلين للبثّ', 'number', '2000'],
@@ -218,7 +218,7 @@ class AdminContentDemoSeeder extends Seeder
             ['help.feedback_enabled', 'help', 'تفعيل «هل كان مفيدًا؟»', 'bool', '1'],
             ['help.sidebar_categories_enabled', 'help', 'إظهار التصنيفات فوق الأدلّة', 'bool', '1'],
             ['help.show.text_1_en', 'help', 'نصّ «هل كان مفيدًا؟» (إنجليزيّ)', 'string', 'Was this helpful?'],
-            ['help.index.message_1_en', 'help', 'نصّ الحالة الفارغة (إنجليزيّ)', 'string', 'No results — try another word.'],
+            ['help.index.message_1_en', 'help', 'نصّ الحالة الفارغة (إنجليزيّ)', 'string', 'No results. Try another word.'],
             ['help.tags', 'help', 'وسوم دليل المستخدم', 'json', '[]'],
 
             // ---------------- نصوص شاشة «إعدادات دليل المستخدم» (12.6-ج)
@@ -245,11 +245,11 @@ class AdminContentDemoSeeder extends Seeder
             ['admin_content.help_guide.tags_save', 'admin_content', 'زرّ حفظ الوسوم', 'string', 'حفظ الوسوم'],
             ['admin_content.help_guide.tags_defaults_hint', 'admin_content', 'تلميح افتراضيّ الوسوم', 'string', 'الافتراضيّ:'],
             ['admin_content.help_guide.settings_link', 'admin_content', 'زرّ الانتقال لإعدادات الدليل', 'string', 'إعدادات الدليل'],
-            ['guidance.admin.update_help_settings_ok', 'admin_content', 'updateHelpSettings() — اتحفظت إعدادات الدليل ✓', 'string', 'اتحفظت إعدادات الدليل ✓'],
-            ['guidance.admin.update_help_categories_msg', 'admin_content', 'updateHelpCategories() — سيب تصنيفًا واحدًا على الأقلّ.', 'string', 'سيب تصنيفًا واحدًا على الأقلّ.'],
-            ['guidance.admin.update_help_categories_ok', 'admin_content', 'updateHelpCategories() — اتحفظت التصنيفات ✓ (:a1)', 'string', 'اتحفظت التصنيفات ✓ (:a1)'],
-            ['guidance.admin.update_help_tags_ok', 'admin_content', 'updateHelpTags() — اتحفظت الوسوم ✓ (:a1)', 'string', 'اتحفظت الوسوم ✓ (:a1)'],
-            ['guidance.admin.reset_help_settings_ok', 'admin_content', 'resetHelpSettings() — رجعت :a1 قيمة للافتراضيّ ✓', 'string', 'رجعت :a1 قيمة للافتراضيّ ✓'],
+            ['guidance.admin.update_help_settings_ok', 'admin_content', 'updateHelpSettings(): اتحفظت إعدادات الدليل ✓', 'string', 'اتحفظت إعدادات الدليل ✓'],
+            ['guidance.admin.update_help_categories_msg', 'admin_content', 'updateHelpCategories(): سيب تصنيفًا واحدًا على الأقلّ.', 'string', 'سيب تصنيفًا واحدًا على الأقلّ.'],
+            ['guidance.admin.update_help_categories_ok', 'admin_content', 'updateHelpCategories(): اتحفظت التصنيفات ✓ (:a1)', 'string', 'اتحفظت التصنيفات ✓ (:a1)'],
+            ['guidance.admin.update_help_tags_ok', 'admin_content', 'updateHelpTags(): اتحفظت الوسوم ✓ (:a1)', 'string', 'اتحفظت الوسوم ✓ (:a1)'],
+            ['guidance.admin.reset_help_settings_ok', 'admin_content', 'resetHelpSettings(): رجعت :a1 قيمة للافتراضيّ ✓', 'string', 'رجعت :a1 قيمة للافتراضيّ ✓'],
 
             ['complaints.admin.per_page', 'complaints', 'عدد شكاوى الصفحة', 'number', '15'],
             ['complaints.reasons', 'complaints', 'أسباب الشكوى', 'json', '["أحد المشرفين","الهيكل الإداريّ وأسلوب الإدارة","اللقاءات المباشرة","اللوائح والقوانين","المحتوى التدريبيّ","خدمة العملاء","المنصّة","أخرى"]'],
@@ -260,7 +260,7 @@ class AdminContentDemoSeeder extends Seeder
             ['complaints.notify.on_reply', 'complaints', 'إشعار المستخدم عند الردّ', 'bool', '1'],
             ['complaints.notify.on_close', 'complaints', 'إشعار المستخدم عند الإغلاق', 'bool', '1'],
             ['complaints.notify.reply_title', 'complaints', 'عنوان إشعار الردّ', 'string', 'وصلك ردّ على رسالتك'],
-            ['complaints.notify.close_title', 'complaints', 'عنوان إشعار الإغلاق', 'string', 'قفلنا رسالتك — وشكرًا لوقتك'],
+            ['complaints.notify.close_title', 'complaints', 'عنوان إشعار الإغلاق', 'string', 'قفلنا رسالتك، وشكرًا لوقتك'],
             ['complaints.notify.body_limit', 'complaints', 'أقصى أحرف نصّ الإشعار', 'number', '120'],
 
             // ---------------- التدقيق
@@ -273,18 +273,18 @@ class AdminContentDemoSeeder extends Seeder
             ['media.picker.subtitle', 'media', 'شرح شاشة اختيار الوسائط', 'string', 'اضغط الملفّ عشان يتحطّ في الحقل.'],
             ['media.picker.cta', 'media', 'نصّ زرّ فتح المكتبة بجوار حقل الرفع', 'string', 'اختَر من المكتبة'],
             ['media.picker.search_placeholder', 'media', 'نصّ بحث المكتبة داخل البوب-أب', 'string', 'ابحث بالاسم…'],
-            ['media.picker.empty', 'media', 'الحالة الفارغة في بوب-أب المكتبة', 'string', 'المكتبة فاضية — ارفع أوّل ملفّ.'],
+            ['media.picker.empty', 'media', 'الحالة الفارغة في بوب-أب المكتبة', 'string', 'المكتبة فاضية. ارفع أوّل ملفّ.'],
             ['media.picker.open_library', 'media', 'نصّ زرّ فتح المكتبة كاملة', 'string', 'افتح المكتبة'],
             ['media.picker.close', 'media', 'نصّ إغلاق بوب-أب المكتبة', 'string', 'إغلاق'],
             ['media.picker.loading', 'media', 'نصّ تحميل بوب-أب المكتبة', 'string', 'بنجيب الملفّات…'],
-            ['media.picker.load_error', 'media', 'نصّ تعذّر تحميل المكتبة', 'string', 'ما قدرناش نفتح المكتبة — جرّب تاني.'],
+            ['media.picker.load_error', 'media', 'نصّ تعذّر تحميل المكتبة', 'string', 'ما قدرناش نفتح المكتبة. جرّب تاني.'],
             ['media.picker.upload_label', 'media', 'نصّ رفع ملفّ جديد داخل البوب-أب', 'string', 'ارفع جديد'],
-            ['media.picker.upload_hint', 'media', 'شرح الرفع داخل البوب-أب', 'string', 'الملفّ المكرّر مش هيترفع مرّتين — هنستخدم النسخة الموجودة.'],
+            ['media.picker.upload_hint', 'media', 'شرح الرفع داخل البوب-أب', 'string', 'الملفّ المكرّر مش هيترفع مرّتين، هنستخدم النسخة الموجودة.'],
             ['media.picker.uploading', 'media', 'نصّ أثناء الرفع', 'string', 'بنرفع…'],
-            ['media.picker.upload_error', 'media', 'نصّ تعذّر الرفع', 'string', 'ما قدرناش نرفع الملفّ — جرّب تاني.'],
+            ['media.picker.upload_error', 'media', 'نصّ تعذّر الرفع', 'string', 'ما قدرناش نرفع الملفّ. جرّب تاني.'],
             // ---------------- الاختيار المتعدّد (مرفقات الدرس — 12.4-ج · 12.4-د)
             ['media.picker.multi_cta', 'media', 'نصّ زرّ اختيار عدّة ملفّات', 'string', 'ضيف مرفقات من المكتبة'],
-            ['media.picker.multi_hint', 'media', 'شرح الاختيار المتعدّد', 'string', 'اضغط على الملفّات اللي عايزها — واختار «ضيف المحدَّد» في الآخر.'],
+            ['media.picker.multi_hint', 'media', 'شرح الاختيار المتعدّد', 'string', 'اضغط على الملفّات اللي عايزها، واختار «ضيف المحدَّد» في الآخر.'],
             ['media.picker.confirm', 'media', 'نصّ زرّ تأكيد الاختيار المتعدّد', 'string', 'ضيف المحدَّد'],
             ['media.picker.selected_none', 'media', 'نصّ «لم يُحدَّد شيء» في الاختيار المتعدّد', 'string', 'ما اخترتش حاجة لسه'],
             ['media.picker.selected_count', 'media', 'عدّاد المحدَّد ({n} = العدد)', 'string', 'محدَّد: {n}'],
@@ -317,7 +317,7 @@ class AdminContentDemoSeeder extends Seeder
     private function paths(): void
     {
         $paths = [
-            ['مسار التأسيس', 'Foundations', 'أوّل خطوة لكلّ متدرّب جديد — أساسيّات لازمة قبل أيّ تخصّص.', false, 50],
+            ['مسار التأسيس', 'Foundations', 'أوّل خطوة لكلّ متدرّب جديد، أساسيّات لازمة قبل أيّ تخصّص.', false, 50],
             ['مسار القيادة', 'Leadership', 'مهارات إدارة الفريق والاجتماعات واتّخاذ القرار.', true, 120],
         ];
 
@@ -343,7 +343,7 @@ class AdminContentDemoSeeder extends Seeder
                 'name_ar' => 'التواصل الفعّال',
                 'name_en' => 'Effective Communication',
                 'cert_name_ar' => 'شهادة التواصل الفعّال',
-                'description_ar' => 'تدريب مشترك بين أكتر من مسار — لأنّ التواصل مطلوب في كلّ حتّة.',
+                'description_ar' => 'تدريب مشترك بين أكتر من مسار، لأنّ التواصل مطلوب في كلّ حتّة.',
                 'price_coins' => 80,
                 'status' => 'published',
                 'published_at' => now(),
@@ -410,7 +410,7 @@ class AdminContentDemoSeeder extends Seeder
                 'type' => $order === 0 ? 'video' : 'document',
                 'video_provider' => $order === 0 ? 'youtube' : null,
                 'video_id' => $order === 0 ? 'dQw4w9WgXcQ' : null,
-                'content' => $order === 0 ? null : 'نصّ الدرس التجريبيّ — يشرح الفكرة في سطور قليلة.',
+                'content' => $order === 0 ? null : 'نصّ الدرس التجريبيّ، يشرح الفكرة في سطور قليلة.',
                 'sort_order' => 1,
                 'is_free_preview' => $order === 0,
             ]);
@@ -476,7 +476,7 @@ class AdminContentDemoSeeder extends Seeder
         ]);
 
         Announcement::updateOrCreate(['title' => 'سياسة الشهادات المحدَّثة'], [
-            'body' => 'قرأت السياسة الجديدة؟ أقرّ من الزرّ عشان نعرف إنّها وصلتك — والإقرار بيتحسب مرّة واحدة بس.',
+            'body' => 'قرأت السياسة الجديدة؟ أقرّ من الزرّ عشان نعرف إنّها وصلتك، والإقرار بيتحسب مرّة واحدة بس.',
             'type' => 'critical',
             'audience' => ['type' => 'role', 'keys' => ['trainee']],
             'requires_acknowledge' => true,
@@ -510,7 +510,7 @@ class AdminContentDemoSeeder extends Seeder
                 'type' => 'complaint',
                 'category' => 'المحتوى التدريبيّ',
                 'title' => 'درس الفيديو مش بيفتح عندي',
-                'body' => 'جرّبت من الموبايل واللابتوب ونفس المشكلة — الفيديو بيفضل بيلفّ.',
+                'body' => 'جرّبت من الموبايل واللابتوب ونفس المشكلة، الفيديو بيفضل بيلفّ.',
                 'status' => 'open',
                 'wants_contact' => true,
                 'contact_channel' => 'واتساب',

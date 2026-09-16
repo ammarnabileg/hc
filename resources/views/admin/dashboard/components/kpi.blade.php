@@ -13,7 +13,7 @@
     $tag = $url ? 'a' : 'div';
 @endphp
 
-<{{ $tag }} @if ($url) href="{{ $url }}" aria-label="{{ strtr(setting('admin.dashboard.components.kpi.v1_afth_altfasyl', ':v1 — افتح التفاصيل'), [':v1' => e($card['label'])]) }}" @endif
+<{{ $tag }} @if ($url) href="{{ $url }}" aria-label="{{ strtr(setting('admin.dashboard.components.kpi.v1_afth_altfasyl', ':v1، افتح التفاصيل'), [':v1' => e($card['label'])]) }}" @endif
     class="card p-4 animate-fadeup min-w-[13rem] sm:min-w-0 block motion-standard {{ $url ? 'hover:opacity-90' : '' }}"
     style="min-height: 44px" data-kpi-card="{{ $card['key'] ?? '' }}">
 

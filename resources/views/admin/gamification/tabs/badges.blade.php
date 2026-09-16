@@ -56,7 +56,7 @@
             </article>
         @empty
             <div class="sm:col-span-2 lg:col-span-3">
-                <x-empty :message="setting('admin.gamification.tabs.badges.la_sharat_bad_adf_awl_shara', 'لا شارات بعد — أضف أوّل شارة.')" />
+                <x-empty :message="setting('admin.gamification.tabs.badges.la_sharat_bad_adf_awl_shara', 'لا شارات بعد. أضف أوّل شارة.')" />
             </div>
         @endforelse
     </div>
@@ -99,13 +99,13 @@
                 </div>
 
                 {{-- 7.4: «لكلّ شارة اسم + **وصف** + صورة» — والوصف غير شرط الفتح --}}
-                <label class="block text-sm font-semibold mb-1" for="badge-description">{{ setting('admin.gamification.tabs.badges.alwsf_ma_mana_alshara', 'الوصف — ما معنى الشارة') }}</label>
+                <label class="block text-sm font-semibold mb-1" for="badge-description">{{ setting('admin.gamification.tabs.badges.alwsf_ma_mana_alshara', 'الوصف: ما معنى الشارة') }}</label>
                 <textarea name="description_ar" id="badge-description" rows="2" maxlength="500"
-                          placeholder="{{ setting('admin.gamification.tabs.badges.mthal_lashab_alkhtwa_alawla_albdaya_asab_ma', 'مثال: لأصحاب الخطوة الأولى — البداية أصعب ما في الطريق.') }}"
+                          placeholder="{{ setting('admin.gamification.tabs.badges.mthal_lashab_alkhtwa_alawla_albdaya_asab_ma', 'مثال: لأصحاب الخطوة الأولى، البداية أصعب ما في الطريق.') }}"
                           class="w-full rounded-xl px-3 py-2 text-sm mb-3"
                           style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)"></textarea>
 
-                <label class="block text-sm font-semibold mb-1" for="badge-condition">{{ setting('admin.gamification.tabs.badges.shrt_alfth_mktwb_sraha', 'شرط الفتح — مكتوب صراحةً') }}</label>
+                <label class="block text-sm font-semibold mb-1" for="badge-condition">{{ setting('admin.gamification.tabs.badges.shrt_alfth_mktwb_sraha', 'شرط الفتح: مكتوب صراحةً') }}</label>
                 <input type="text" name="condition_text_ar" id="badge-condition" required maxlength="255"
                        placeholder="{{ setting('admin.gamification.tabs.badges.mthal_akml_10_drws_fy_asbwa_wahd', 'مثال: أكمل 10 دروس في أسبوع واحد.') }}"
                        class="w-full rounded-xl px-3 py-2 text-sm mb-3"
@@ -130,7 +130,7 @@
                     </label>
                 </div>
                 <p class="text-xs mb-3" style="color: var(--text-muted)">
-                    {{ setting('admin.gamification.tabs.badges.almqayys_dy_hy_almtaha_fala_akhtr_mnha_ashan', 'المقاييس دي هي المتاحة فعلًا — اختَر منها عشان الشارة تُمنَح آليًّا لحظة استحقاقها.') }}
+                    {{ setting('admin.gamification.tabs.badges.almqayys_dy_hy_almtaha_fala_akhtr_mnha_ashan', 'المقاييس دي هي المتاحة فعلًا. اختَر منها عشان الشارة تُمنَح آليًّا لحظة استحقاقها.') }}
                 </p>
 
                 {{-- 7.4: صورة الشارة تُرفَع لا يُكتَب مسارها --}}

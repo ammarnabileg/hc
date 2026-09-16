@@ -34,5 +34,5 @@
 
 {{-- لا استردادات هنا (19.4) — والبديل تصحيحات أخطاء تقنيّة موثّقة --}}
 <p class="text-xs mt-3" style="color: var(--text-muted)">
-    {{ setting('admin.stats.tabs.sales.mafysh_amwd_astrdadat_lan_mafysh_astrjaa', 'مافيش عمود «استردادات» — لأنّ مافيش استرجاع نقديّ أصلًا؛ اللي بيتسجّل هو تصحيح الأخطاء التقنيّة.') }}
+    {{ setting('admin.stats.tabs.sales.mafysh_amwd_astrdadat_lan_mafysh_astrjaa', 'مافيش عمود «استردادات» لأنّ مافيش استرجاع نقديّ أصلًا؛ اللي بيتسجّل هو تصحيح الأخطاء التقنيّة.') }}
 </p>

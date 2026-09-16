@@ -93,7 +93,7 @@ class WalletController extends Controller
         $notes = [];
 
         if ($row->exceeded_daily_cap) {
-            $notes[] = (string) setting('wallet.notes.capped', 'تعدّت الحدّ اليوميّ — اتطبّق منها المسموح.');
+            $notes[] = (string) setting('wallet.notes.capped', 'تعدّت الحدّ اليوميّ، اتطبّق منها المسموح بس.');
         }
 
         if ($row->is_correction) {

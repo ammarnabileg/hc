@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', strtr((string) setting('cv.public_page.section_1', ':a1 — السيرة الذاتيّة'), [':a1' => (string) ($owner->shortName())]))
+@section('title', strtr((string) setting('cv.public_page.section_1', ':a1 · السيرة الذاتيّة'), [':a1' => (string) ($owner->shortName())]))
 @section('meta_description', $headline !== '' ? $headline : (strtr((string) setting('cv.public_page.section_2', 'السيرة الذاتيّة لـ:a1'), [':a1' => (string) ($owner->shortName())])))
 
 @section('content')
@@ -43,7 +43,7 @@
             </section>
         @empty
             {{-- الحالة الفارغة سطر واحد يشجّع ولا يعاتب (2.17-ج) --}}
-            <x-empty :message="setting('cv.public.empty_message', 'السيرة لسّه فاضية — صاحبها بيجهّزها.')" />
+            <x-empty :message="setting('cv.public.empty_message', 'السيرة لسّه فاضية، صاحبها بيجهّزها.')" />
         @endforelse
 
         <p class="text-xs text-center mt-4" style="color: var(--text-muted)">

@@ -47,7 +47,7 @@
 
 @can('objections.approve')
     {{-- تعديل/عكس ⟵ معاملة تصحيحيّة شفّافة بمعاينة الأثر + إشعار للعضو --}}
-    <x-modal :id="'obj-accept-'.$objection->id" :title="setting('volunteer.escalations_objection_desk_modals.tooltip_3', 'تعديل/عكس — اعتراض #').$objection->id">
+    <x-modal :id="'obj-accept-'.$objection->id" :title="setting('volunteer.escalations_objection_desk_modals.tooltip_3', 'تعديل/عكس: اعتراض #').$objection->id">
         <form method="post" action="{{ route('volunteer.escalations.objections.accept', $objection) }}" class="space-y-3">
             @csrf
             <p class="rounded-xl px-3 py-2 text-sm"

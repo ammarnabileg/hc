@@ -22,7 +22,7 @@
             <input type="text" name="title" maxlength="180" value="{{ mb_substr($item['text'], 0, 180) }}"
                    class="w-full rounded-xl px-3 py-2 text-sm"
                    style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
-            <span class="block text-xs mt-1" style="color: var(--text-muted)">{{ setting('volunteer.meetings_minutes_task.field_2', 'متعبّي من نصّ البند — عدّله لو محتاج.') }}</span>
+            <span class="block text-xs mt-1" style="color: var(--text-muted)">{{ setting('volunteer.meetings_minutes_task.field_2', 'متعبّي من نصّ البند، عدّله لو محتاج.') }}</span>
         </label>
 
         <label class="block text-sm">
@@ -30,7 +30,7 @@
             <textarea name="deliverable_spec" rows="2" required
                       class="w-full rounded-xl px-3 py-2 text-sm"
                       style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">{{ $defaultSpec }}</textarea>
-            <span class="block text-xs mt-1" style="color: var(--text-muted)">{{ setting('volunteer.tasks_new_task_modal.field_2', 'إلزاميّ — المخرج الواضح يمنع الإرجاع.') }}</span>
+            <span class="block text-xs mt-1" style="color: var(--text-muted)">{{ setting('volunteer.tasks_new_task_modal.field_2', 'إلزاميّ. المخرج الواضح يمنع الإرجاع.') }}</span>
         </label>
 
         <label class="block text-sm">
@@ -49,7 +49,7 @@
                     <option value="{{ $workItem->id }}">{{ $workItem->name }}</option>
                 @endforeach
             </select>
-            <span class="block text-xs mt-1" style="color: var(--text-muted)">{{ setting('volunteer.tasks_new_task_modal.field_4', 'إلزاميّ — كلّ مهمّة جديدة تتربط ببند.') }}</span>
+            <span class="block text-xs mt-1" style="color: var(--text-muted)">{{ setting('volunteer.tasks_new_task_modal.field_4', 'إلزاميّ. كلّ مهمّة جديدة تتربط ببند.') }}</span>
         </label>
 
         {{-- خيارات متقدّمة مطويّة، والفورم يعمل كاملًا بدونها (2.15-د) --}}
@@ -85,7 +85,7 @@
         </details>
 
         <p class="text-xs" style="color: var(--text-muted)">
-            {{ setting('volunteer.meetings_minutes_task.text_2', 'النوع «تنفيذ» — والمهمّة بعد التوليد عاديّة تمامًا: عدّاد ومراجعة وتصعيد كإخوتها.') }}
+            {{ setting('volunteer.meetings_minutes_task.text_2', 'النوع «تنفيذ»، والمهمّة بعد التوليد عاديّة تمامًا: عدّاد ومراجعة وتصعيد كإخوتها.') }}
         </p>
 
         <div class="flex justify-end gap-2 pt-2">

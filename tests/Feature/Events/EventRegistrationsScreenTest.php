@@ -59,7 +59,7 @@ class EventRegistrationsScreenTest extends EventsTestCase
         $this->actingAs($admin)
             ->get(route('admin.events.registrations.index'))
             ->assertOk()
-            ->assertSee('لا مسجّلين بعد — شارك رابط الفعاليّة.');
+            ->assertSee('لا مسجّلين بعد. شارك رابط الفعاليّة.');
     }
 
     /** ⭐ 24.2: بحثٌ بلا نتائج يقول كده صراحةً بدل «لا مسجّلين بعد». */
@@ -75,10 +75,10 @@ class EventRegistrationsScreenTest extends EventsTestCase
             ->assertOk();
 
         $response->assertSee(
-            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث/الفلتر الحاليّ — جرّب فلترًا تانيًا.'),
+            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث أو الفلتر الحاليّ. جرّب فلتر تاني.'),
             false,
         );
-        $response->assertDontSee('لا مسجّلين بعد — شارك رابط الفعاليّة.');
+        $response->assertDontSee('لا مسجّلين بعد. شارك رابط الفعاليّة.');
     }
 
     public function test_the_screen_is_hidden_from_whoever_lacks_the_permission(): void
@@ -399,11 +399,11 @@ class EventRegistrationsScreenTest extends EventsTestCase
             ->assertOk();
 
         $response->assertSee(
-            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث/الفلتر الحاليّ — جرّب فلترًا تانيًا.'),
+            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث أو الفلتر الحاليّ. جرّب فلتر تاني.'),
             false,
         );
         $response->assertDontSee(
-            setting('admin.events.registrations.la_msjlyn_bad_shark_rabt_alfaalya', 'لا مسجّلين بعد — شارك رابط الفعاليّة.'),
+            setting('admin.events.registrations.la_msjlyn_bad_shark_rabt_alfaalya', 'لا مسجّلين بعد. شارك رابط الفعاليّة.'),
             false,
         );
     }
@@ -419,11 +419,11 @@ class EventRegistrationsScreenTest extends EventsTestCase
             ->assertOk();
 
         $response->assertSee(
-            setting('admin.events.registrations.la_msjlyn_bad_shark_rabt_alfaalya', 'لا مسجّلين بعد — شارك رابط الفعاليّة.'),
+            setting('admin.events.registrations.la_msjlyn_bad_shark_rabt_alfaalya', 'لا مسجّلين بعد. شارك رابط الفعاليّة.'),
             false,
         );
         $response->assertDontSee(
-            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث/الفلتر الحاليّ — جرّب فلترًا تانيًا.'),
+            setting('ux.empty_state.filtered_message', 'مفيش نتائج تطابق البحث أو الفلتر الحاليّ. جرّب فلتر تاني.'),
             false,
         );
     }

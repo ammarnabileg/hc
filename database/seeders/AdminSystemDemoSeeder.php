@@ -117,7 +117,7 @@ class AdminSystemDemoSeeder extends Seeder
             ['store.unified_grid', 'store', 'شبكة موحّدة بلا فصل حسب النوع', 'bool', '1', false],
             ['store.admin.per_page', 'store', 'عدد الصفوف في صفحة الإدارة', 'number', '20', false],
             ['store.products_per_page', 'store', 'عدد المنتجات لكلّ صفحة', 'number', '24', false],
-            ['store.empty.text', 'store', 'نصّ الحالة الفارغة', 'text', 'مفيش نتائج للفلتر ده — جرّب توسّع شويّة.', false],
+            ['store.empty.text', 'store', 'نصّ الحالة الفارغة', 'text', 'مفيش نتائج للفلتر ده. جرّب توسّع شويّة.', false],
             ['bundles.enabled', 'store', 'تفعيل البندلز', 'bool', '1', false],
             // ⛔ 'bundles.anchoring' حُذفت (ولها هجرة حذفٍ من settings) — استُبدلت
             // بـ'store.bundle.anchoring_enabled' (تقرؤها BundleLanding فعلًا)
@@ -162,7 +162,7 @@ class AdminSystemDemoSeeder extends Seeder
             ['finance.refund.show_standalone_page', 'finance', 'صفحة سياسة مستقلّة دائمة', 'bool', '1', true],
             ['finance.refund.show_before_payment', 'finance', 'إقرار قبل إتمام الدفع', 'bool', '1', true],
             ['finance.refund.show_on_invoice', 'finance', 'إشارة في الفاتورة', 'bool', '1', true],
-            ['finance.invoice.footer_ar', 'finance', 'تذييل الفاتورة', 'text', 'شكرًا لثقتك — رصيدك يفضل معاك في محفظتك.', true],
+            ['finance.invoice.footer_ar', 'finance', 'تذييل الفاتورة', 'text', 'شكرًا لثقتك، رصيدك يفضل معاك في محفظتك.', true],
 
             // ---------------- الشحن والبوّابة (19.5)
             ['topup.credit_currency', 'store', 'عملة الشحن', 'string', 'coins', false],
@@ -238,12 +238,12 @@ class AdminSystemDemoSeeder extends Seeder
             ['exports.xlsx_row_limit', 'stats', 'سقف صفوف ملفّ Excel', 'number', '20000', false],
             ['exports.pdf_row_limit', 'stats', 'سقف صفوف ملفّ PDF', 'number', '500', false],
             ['exports.pdf_empty_line', 'stats', 'سطر الـPDF حين لا بيانات', 'string', 'مافيش بيانات في المدى ده.', false],
-            ['exports.pdf_truncated_line', 'stats', 'سطر الـPDF عند قصّ الصفوف', 'string', 'معروض أوّل :shown صفًّا من :total — الملفّ الكامل بصيغة CSV أو Excel.', false],
+            ['exports.pdf_truncated_line', 'stats', 'سطر الـPDF عند قصّ الصفوف', 'string', 'معروض أوّل :shown صفًّا من :total. الملفّ الكامل بصيغة CSV أو Excel.', false],
             ['exports.fallback_note', 'stats', 'ملاحظة تعذّر توليد الصيغة المطلوبة', 'string', 'تعذّر توليد ملفّ :format فبعتناه CSV.', false],
             ['stats.cache_minutes', 'stats', 'مدّة كاش التقرير (دقائق)', 'number', '10', false],
             ['stats.hide_finance_tab', 'stats', 'إخفاء التاب الماليّ عن غير المخوَّلين', 'bool', '1', true],
             ['stats.forbidden.message', 'stats', 'رسالة الردّ حين لا تابَّ يملكه المستخدم', 'string', 'ليس لديك صلاحيّة الوصول لهذه الصفحة.', false],
-            ['stats.empty.message', 'stats', 'نصّ الحالة الفارغة في التقارير', 'string', 'لا بيانات في هذه الفترة — جرّب فترة أوسع', false],
+            ['stats.empty.message', 'stats', 'نصّ الحالة الفارغة في التقارير', 'string', 'لا بيانات في هذه الفترة. جرّب فترة أوسع', false],
             ['stats.compare.hint', 'stats', 'تفسير خطّ المقارنة تحت الرسم', 'string', 'الخطّ المتقطّع = الفترة السابقة.', false],
 
             /*
@@ -296,12 +296,12 @@ class AdminSystemDemoSeeder extends Seeder
 
             // ---------------- وضع الصيانة (12.7-و-1)
             ['system.maintenance.enabled', 'maintenance', 'وضع الصيانة العامّ', 'bool', '0', false],
-            ['system.maintenance.message', 'maintenance', 'رسالة الصيانة', 'text', 'بنطوّر حاجة حلوة — هنرجع قريب.', false],
+            ['system.maintenance.message', 'maintenance', 'رسالة الصيانة', 'text', 'بنطوّر حاجة حلوة، هنرجع قريب.', false],
             ['system.maintenance.freeze_deadlines', 'maintenance', 'تجميد كلّ المهل أثناء الصيانة', 'bool', '1', false],
             ['system.maintenance.default_hours', 'maintenance', 'المدّة الافتراضيّة (ساعات)', 'number', '2', false],
             ['system.maintenance.max_hours', 'maintenance', 'أقصى مدّة صيانة (ساعات)', 'number', '168', false],
             ['system.maintenance.max_extend_hours', 'maintenance', 'أقصى تمديد بالمرّة (ساعات)', 'number', '24', false],
-            ['system.maintenance.overrun_text', 'maintenance', 'نصّ ما بعد الصفر', 'string', 'قرّبنا ننتهي — دقايق', false],
+            ['system.maintenance.overrun_text', 'maintenance', 'نصّ ما بعد الصفر', 'string', 'قرّبنا ننتهي، دقايق', false],
             ['system.maintenance.refresh_seconds', 'maintenance', 'تحديث صفحة الصيانة (ثوانٍ)', 'number', '120', false],
             ['system.maintenance.animation', 'maintenance', 'أنيميشن صفحة الصيانة', 'bool', '1', false],
             ['system.maintenance.allow_admin_ip', 'maintenance', 'استثناء IP الأدمن', 'bool', '1', false],
@@ -321,7 +321,7 @@ class AdminSystemDemoSeeder extends Seeder
 
             ['features.show_beta_badge', 'features', 'شارة «تجريبيّة» للمزايا الجديدة', 'bool', '1', false],
             ['features.disabled_behavior', 'features', 'سلوك الميزة الموقوفة (hide/message)', 'string', 'hide', false],
-            ['features.disabled_message', 'features', 'نصّ الميزة الموقوفة', 'text', 'الميزة دي متوقّفة مؤقّتًا — هترجع قريب.', false],
+            ['features.disabled_message', 'features', 'نصّ الميزة الموقوفة', 'text', 'الميزة دي متوقّفة مؤقّتًا، هترجع قريب.', false],
             ['articles.enabled', 'features', 'تفعيل مركز المقالات', 'bool', '1', false],
             ['images.enabled', 'features', 'تفعيل استوديو الصور', 'bool', '1', false],
             ['backups.keep_count', 'backups', 'عدد النسخ المحفوظة', 'number', '7', false],
@@ -331,20 +331,20 @@ class AdminSystemDemoSeeder extends Seeder
             ['updates.dry_run_required', 'updates', 'Dry-run إلزاميّ قبل التحديث', 'bool', '1', false],
             ['updates.batch_rows', 'updates', 'حجم دفعة الترحيل (صفوف)', 'number', '1000', false],
             ['updates.forward_only', 'updates', 'منع الرجوع لإصدار أقدم', 'bool', '1', false],
-            ['settings.audit.error.missing_key', 'system', 'رسالة سجلّ الإعداد بلا مفتاح', 'text', 'مافيش مفتاح إعداد في الطلب — افتح السجلّ من جنب الحقل نفسه.', false],
-            ['settings.audit.error.unknown_key', 'system', 'رسالة سجلّ إعدادٍ غير موجود', 'text', 'الإعداد ده مش موجود — يمكن يكون اتشال، حدّث الصفحة وجرّب تاني.', false],
+            ['settings.audit.error.missing_key', 'system', 'رسالة سجلّ الإعداد بلا مفتاح', 'text', 'مافيش مفتاح إعداد في الطلب. افتح السجلّ من جنب الحقل نفسه.', false],
+            ['settings.audit.error.unknown_key', 'system', 'رسالة سجلّ إعدادٍ غير موجود', 'text', 'الإعداد ده مش موجود. يمكن يكون اتشال، حدّث الصفحة وجرّب تاني.', false],
             // ⭐ نقطة دفعة المجموعة (التحميل الكسول — 2.15-ب): رسالتا الخطأ فيها تقولان ماذا يفعل (2.17-ب)
-            ['settings.batch.error.unknown_tab', 'system', 'رسالة دفعةٍ لتابٍ مجهول', 'text', 'التاب ده مش موجود — حدّث الصفحة وجرّب تاني.', false],
-            ['settings.batch.error.unknown_group', 'system', 'رسالة دفعةٍ لمجموعةٍ خارج التاب', 'text', 'المجموعة دي مش في التاب ده — حدّث الصفحة.', false],
+            ['settings.batch.error.unknown_tab', 'system', 'رسالة دفعةٍ لتابٍ مجهول', 'text', 'التاب ده مش موجود. حدّث الصفحة وجرّب تاني.', false],
+            ['settings.batch.error.unknown_group', 'system', 'رسالة دفعةٍ لمجموعةٍ خارج التاب', 'text', 'المجموعة دي مش في التاب ده. حدّث الصفحة.', false],
             ['countries.source', 'countries', 'مصدر بيانات الدول', 'string', 'dr5hn', false],
-            ['countries.no_auto_delete', 'countries', 'لا حذف تلقائيّ — المحذوف يُخفى فقط', 'bool', '1', false],
+            ['countries.no_auto_delete', 'countries', 'لا حذف تلقائيّ، المحذوف يُخفى فقط', 'bool', '1', false],
             // عناوين أنواع الفروق (CountryDataSync::changes — 2.13-ب)
             ['countries.sync.change.added', 'countries', 'نوع الفرق: مضاف', 'string', 'مضاف', false],
             ['countries.sync.change.removed', 'countries', 'نوع الفرق: محذوف من المصدر', 'string', 'محذوف من المصدر', false],
             ['countries.sync.change.changed', 'countries', 'نوع الفرق: معدَّل', 'string', 'معدَّل', false],
             // ---------------- 12.7-د: فحص الفروق قبل الدمج بلا فقد
             ['countries.source_url', 'countries', 'رابط المصدر', 'string', 'https://github.com/dr5hn/countries-states-cities-database', false],
-            ['countries.attribution', 'countries', 'نصّ الإسناد (ODbL)', 'text', 'بيانات الدول والمحافظات من dr5hn/countries-states-cities-database — برخصة ODbL v1.0.', false],
+            ['countries.attribution', 'countries', 'نصّ الإسناد (ODbL)', 'text', 'بيانات الدول والمحافظات من dr5hn/countries-states-cities-database، برخصة ODbL v1.0.', false],
             ['countries.admin.per_page', 'countries', 'عدد الدول في جدول الإدارة', 'number', '25', false],
             // ⭐ محافظتان بنفس الاسم العربيّ داخل الدولة نفسها (7 حالات في المصدر)
             // تخرجان سطرين متطابقين في قائمة الاختيار — فتُفَكّان **عند العرض**
@@ -377,21 +377,21 @@ class AdminSystemDemoSeeder extends Seeder
             ['countries.source.check.max_recipients', 'countries', 'أقصى عدد من يصلهم إشعار الفروق', 'number', '10', false],
             ['countries.source.check.notify_category', 'countries', 'فئة إشعار الفروق', 'string', 'system', false],
             ['countries.source.check.notify_title', 'countries', 'عنوان إشعار الفروق', 'string', 'فروق جديدة في بيانات الدول', false],
-            ['countries.source.check.notify_body', 'countries', 'نصّ إشعار الفروق', 'text', 'الفحص الدوريّ لقى فروق في المصدر: مضاف {added} · محذوف {removed} · معدَّل {changed} — راجعها قبل الدمج.', false],
+            ['countries.source.check.notify_body', 'countries', 'نصّ إشعار الفروق', 'text', 'الفحص الدوريّ لقى فروق في المصدر: مضاف {added} · محذوف {removed} · معدَّل {changed}. راجعها قبل الدمج.', false],
             // ---------------- 12.7-د: نتيجة الفحص كما تُقال للمالك (2.17-ب)
-            ['countries.source.check.fetched_text', 'countries', 'نصّ نجاح الجلب', 'text', 'اتجابت نسخة المصدر ✓ — لسّه ما اتدمجتش، الفروق تحت.', false],
-            ['countries.source.check.diff_text', 'countries', 'نصّ وجود فروق', 'text', 'المصدر فيه فروق: مضاف {added} · محذوف {removed} · معدَّل {changed} — راجعها قبل الدمج.', false],
-            ['countries.source.check.none_text', 'countries', 'نصّ «مافيش فروق»', 'text', 'المصدر مطابق لبياناتنا — مافيش فروق.', false],
-            ['countries.source.check.never_text', 'countries', 'نصّ «ما اتفحصش قبل كده»', 'text', 'لسّه ما اتفحصش المصدر ولا مرّة — اضغط «فحص المصدر الآن».', false],
+            ['countries.source.check.fetched_text', 'countries', 'نصّ نجاح الجلب', 'text', 'اتجابت نسخة المصدر ✓، لسّه ما اتدمجتش، الفروق تحت.', false],
+            ['countries.source.check.diff_text', 'countries', 'نصّ وجود فروق', 'text', 'المصدر فيه فروق: مضاف {added} · محذوف {removed} · معدَّل {changed}. راجعها قبل الدمج.', false],
+            ['countries.source.check.none_text', 'countries', 'نصّ «مافيش فروق»', 'text', 'المصدر مطابق لبياناتنا، مافيش فروق.', false],
+            ['countries.source.check.never_text', 'countries', 'نصّ «ما اتفحصش قبل كده»', 'text', 'لسّه ما اتفحصش المصدر ولا مرّة. اضغط «فحص المصدر الآن».', false],
             ['countries.source.check.label', 'countries', 'عنوان بلوك آخر فحص', 'string', 'آخر فحص للمصدر', false],
             ['countries.source.check.button', 'countries', 'نصّ زرّ الفحص اليدويّ', 'string', 'فحص المصدر الآن', false],
             // ---------------- 12.7-د: كلّ فشل شبكة له رسالة عربيّة تقول ماذا يفعل (2.17-ب)
-            ['countries.source.error.no_url', 'countries', 'رسالة: مافيش رابط مصدر', 'text', 'مافيش رابط للمصدر — اضبط «رابط جلب نسخة المصدر» من الإعدادات الأوّل، وبعدها جرّب الفحص تاني.', false],
-            ['countries.source.error.timeout', 'countries', 'رسالة: انتهت المهلة', 'text', 'المصدر ما ردّش خلال {timeout} ثانية بعد {attempts} محاولة — جرّب تاني بعد شويّة أو زوّد المهلة من الإعدادات.', false],
-            ['countries.source.error.http', 'countries', 'رسالة: حالة HTTP غير ناجحة', 'text', 'المصدر ردّ بحالة {status} — راجع الرابط في الإعدادات أو استنّى وجرّب تاني.', false],
-            ['countries.source.error.body', 'countries', 'رسالة: الجسم ليس JSON', 'text', 'اللي رجع من المصدر مش JSON صالح — اتأكّد إنّ الرابط بيرجّع ملفّ النسخة نفسه مش صفحة.', false],
+            ['countries.source.error.no_url', 'countries', 'رسالة: مافيش رابط مصدر', 'text', 'مافيش رابط للمصدر. اضبط «رابط جلب نسخة المصدر» من الإعدادات الأوّل، وبعدها جرّب الفحص تاني.', false],
+            ['countries.source.error.timeout', 'countries', 'رسالة: انتهت المهلة', 'text', 'المصدر ما ردّش خلال {timeout} ثانية بعد {attempts} محاولة. جرّب تاني بعد شويّة أو زوّد المهلة من الإعدادات.', false],
+            ['countries.source.error.http', 'countries', 'رسالة: حالة HTTP غير ناجحة', 'text', 'المصدر ردّ بحالة {status}. راجع الرابط في الإعدادات أو استنّى وجرّب تاني.', false],
+            ['countries.source.error.body', 'countries', 'رسالة: الجسم ليس JSON', 'text', 'اللي رجع من المصدر مش JSON صالح. اتأكّد إنّ الرابط بيرجّع ملفّ النسخة نفسه مش صفحة.', false],
             ['countries.source.error.shape', 'countries', 'رسالة: JSON بلا قايمة دول', 'text', 'النسخة اللي رجعت من المصدر ناقصة: {reason}', false],
-            ['countries.source.error.network', 'countries', 'رسالة: تعذّر الوصول للمصدر', 'text', 'ما قدرناش نوصل للمصدر: {reason} — راجع الرابط في الإعدادات وجرّب تاني.', false],
+            ['countries.source.error.network', 'countries', 'رسالة: تعذّر الوصول للمصدر', 'text', 'ما قدرناش نوصل للمصدر: {reason}. راجع الرابط في الإعدادات وجرّب تاني.', false],
             ['audit.per_page', 'system', 'صفوف سجلّ التدقيق', 'number', '50', false],
             ['audit.retention_days', 'system', 'مدّة الاحتفاظ بالسجلّ (أيّام)', 'number', '365', false],
             ['audit.require_reason_on_finance', 'system', 'إلزام السبب في التغييرات الماليّة', 'bool', '1', true],
@@ -430,7 +430,7 @@ class AdminSystemDemoSeeder extends Seeder
             ['images.languages', 'images', 'لغات القوالب', 'json', '{"ar":"عربيّة","en":"إنجليزيّة"}', false],
             ['images.folders.defaults', 'images', 'مجلّدات القوالب الافتراضيّة', 'json', '["تسويق","إنجازات","ليدر بورد","بطاقات"]', false],
             ['images.template.frame_label', 'images', 'عنوان حقل الفريم/الخلفيّة', 'string', 'الفريم/الخلفيّة', false],
-            ['images.template.frame_hint', 'images', 'شرح حقل الفريم', 'string', 'اختَر الفريم من المكتبة أو ارفع جديدًا — والطبقات بتتبني فوقه.', false],
+            ['images.template.frame_hint', 'images', 'شرح حقل الفريم', 'string', 'اختَر الفريم من المكتبة أو ارفع جديدًا، والطبقات بتتبني فوقه.', false],
             ['images.template.frame_clear', 'images', 'نصّ زرّ شيل الفريم', 'string', 'شيل الفريم', false],
             ['images.template.organize_label', 'images', 'عنوان بلوك التنظيم', 'string', 'التنظيم', false],
             ['images.template.folders_label', 'images', 'عنوان حقل المجلّدات', 'string', 'المجلّدات', false],
@@ -445,10 +445,10 @@ class AdminSystemDemoSeeder extends Seeder
             ['articles.admin.per_page', 'articles', 'عدد المقالات لكلّ صفحة', 'number', '20', false],
             ['articles.show_author', 'articles', 'إظهار اسم الكاتب', 'bool', '1', false],
             ['articles.index_public_pages', 'articles', 'فهرسة صفحات المقالات', 'bool', '1', false],
-            ['articles.meta_title_template', 'articles', 'قالب عنوان الميتا', 'string', '{title} — {platform}', false],
+            ['articles.meta_title_template', 'articles', 'قالب عنوان الميتا', 'string', '{title} · {platform}', false],
             // ---------------- 21.2-أ: «التصنيف **والوسوم**» — العمود كان بلا حقل
             ['articles.tags_label', 'articles', 'عنوان حقل وسوم المقال', 'string', 'الوسوم', false],
-            ['articles.tags_hint', 'articles', 'شرح حقل وسوم المقال', 'string', 'افصل بينها بفاصلة — وبتظهر آخر المقال المنشور.', false],
+            ['articles.tags_hint', 'articles', 'شرح حقل وسوم المقال', 'string', 'افصل بينها بفاصلة، وبتظهر آخر المقال المنشور.', false],
             ['articles.filters.any', 'articles', 'خيار «الكلّ» في فلتر الوسوم', 'string', 'الكلّ', false],
             ['articles.categories_label', 'articles', 'عنوان بلوك تصنيفات المقالات', 'string', 'تصنيفات المقالات', false],
             ['articles.category_name_label', 'articles', 'عنوان حقل اسم التصنيف', 'string', 'اسم التصنيف', false],
@@ -496,7 +496,7 @@ class AdminSystemDemoSeeder extends Seeder
         // [key, group, label, type, default, owner_only]
         $rows = [
             // ---------------- بلوك الإعدادات الخمسة (24.3)
-            ['features.disabled_message_en', 'features', 'نصّ الميزة الموقوفة (إنجليزيّ)', 'text', 'This feature is paused for a moment — it will be back soon.', false],
+            ['features.disabled_message_en', 'features', 'نصّ الميزة الموقوفة (إنجليزيّ)', 'text', 'This feature is paused for a moment. It will be back soon.', false],
             ['features.alert_long_outage', 'features', 'تنبيه الأدمن عند إيقاف ميزة طويلًا', 'bool', '1', false],
             ['features.alert_after_hours', 'features', 'عتبة التنبيه (ساعات)', 'number', '24', false],
             // «شارة تجريبيّة للمزايا **الجديدة**» — والجِدَّة عمرٌ لا وسمٌ يدويّ
@@ -513,24 +513,24 @@ class AdminSystemDemoSeeder extends Seeder
 
             // ---------------- رسائل الشاشة (2.17-ب: ماذا حدث + ماذا تفعل)
             ['features.msg.saved', 'features', 'رسالة الحفظ', 'string', 'اتحفظ ✓', false],
-            ['features.msg.unknown_feature', 'features', 'رسالة ميزة غير موجودة', 'text', 'الميزة دي مش موجودة — حدّث الصفحة وجرّب تاني.', false],
-            ['features.msg.reason_required', 'features', 'رسالة سبب الإيقاف الناقص', 'text', 'اكتب سبب الإيقاف — هو اللي هيفضل في السجلّ ويفهّم اللي بعدك.', false],
-            ['features.msg.bad_scope', 'features', 'رسالة نطاق غير صالح', 'text', 'النطاق ده مش مظبوط — اختر دورًا أو شريحة موجودة.', false],
+            ['features.msg.unknown_feature', 'features', 'رسالة ميزة غير موجودة', 'text', 'الميزة دي مش موجودة. حدّث الصفحة وجرّب تاني.', false],
+            ['features.msg.reason_required', 'features', 'رسالة سبب الإيقاف الناقص', 'text', 'اكتب سبب الإيقاف. هو اللي هيفضل في السجلّ ويفهّم اللي بعدك.', false],
+            ['features.msg.bad_scope', 'features', 'رسالة نطاق غير صالح', 'text', 'النطاق ده مش مظبوط. اختر دورًا أو شريحة موجودة.', false],
             ['features.msg.reset_all', 'features', 'رسالة Reset الكلّ', 'text', 'رجّعنا :count ميزة لوضعها الافتراضيّ.', false],
             ['features.msg.imported', 'features', 'رسالة الاستيراد', 'text', 'اتطبّق :applied مفتاح · اتخطّى :skipped.', false],
-            ['features.msg.bad_json', 'features', 'رسالة ملفّ JSON غير صالح', 'text', 'الملفّ مش JSON صالح — صدّر نسخة وقارن الشكل.', false],
-            ['features.msg.audit_missing_key', 'features', 'رسالة سجلّ بلا مفتاح ميزة', 'text', 'مافيش مفتاح ميزة في الطلب — افتح السجلّ من جنب الميزة نفسها.', false],
+            ['features.msg.bad_json', 'features', 'رسالة ملفّ JSON غير صالح', 'text', 'الملفّ مش JSON صالح. صدّر نسخة وقارن الشكل.', false],
+            ['features.msg.audit_missing_key', 'features', 'رسالة سجلّ بلا مفتاح ميزة', 'text', 'مافيش مفتاح ميزة في الطلب. افتح السجلّ من جنب الميزة نفسها.', false],
 
             // ---------------- نصوص الشاشة (24.3) — كلّها إعدادات لا حروف محروقة
-            ['features.ui.purpose', 'features', 'غرض الشاشة', 'text', 'إطفاء أو تشغيل أيّ ميزة بلا نشر كود — وده البديل الوحيد للصيانة الجزئيّة الملغاة.', false],
-            ['features.ui.pinned_rule', 'features', 'القاعدة المثبّتة', 'text', 'لا صيانة جزئيّة لميزة بعينها — أُلغيت؛ الإطفاء يتمّ من هنا فقط.', false],
+            ['features.ui.purpose', 'features', 'غرض الشاشة', 'text', 'إطفاء أو تشغيل أيّ ميزة بلا نشر كود، وده البديل الوحيد للصيانة الجزئيّة الملغاة.', false],
+            ['features.ui.pinned_rule', 'features', 'القاعدة المثبّتة', 'text', 'لا صيانة جزئيّة لميزة بعينها. أُلغيت؛ الإطفاء يتمّ من هنا فقط.', false],
             ['features.ui.save', 'features', 'زرّ حفظ', 'string', 'حفظ', false],
             ['features.ui.export', 'features', 'زرّ تصدير JSON', 'string', 'تصدير JSON', false],
             ['features.ui.import', 'features', 'زرّ استيراد JSON', 'string', 'استيراد JSON', false],
             ['features.ui.reset_all', 'features', 'زرّ Reset الكلّ', 'string', '↺ Reset الكلّ', false],
             ['features.ui.paused_badge', 'features', 'شارة عدد الموقوفة', 'string', 'موقوفة: :count', false],
             ['features.ui.file_label', 'features', 'لافتة ملفّ الاستيراد', 'string', 'ملفّ مفاتيح JSON', false],
-            ['features.ui.long_outage', 'features', 'تنبيه الإيقاف الطويل', 'text', 'فيه :count ميزة موقوفة من أكتر من :hours ساعة — راجعها.', false],
+            ['features.ui.long_outage', 'features', 'تنبيه الإيقاف الطويل', 'text', 'فيه :count ميزة موقوفة من أكتر من :hours ساعة. راجعها.', false],
 
             ['features.ui.filter_search', 'features', 'لافتة البحث', 'string', 'دوّر بالاسم أو بالمفتاح…', false],
             ['features.ui.filter_group', 'features', 'لافتة فلتر المجموعة', 'string', 'المجموعة', false],
@@ -565,7 +565,7 @@ class AdminSystemDemoSeeder extends Seeder
             ['features.ui.scope.value_on', 'features', 'قرار تشغيل داخل النطاق', 'string', 'شغّالة', false],
             ['features.ui.scope.value_off', 'features', 'قرار إيقاف داخل النطاق', 'string', 'موقوفة', false],
             ['features.ui.scope.clear', 'features', 'رفع الـOverride', 'string', 'ارفع الـOverride (رجّعها عامّة)', false],
-            ['features.ui.scope.empty', 'features', 'لا Override', 'string', 'مافيش Override — الميزة عامّة.', false],
+            ['features.ui.scope.empty', 'features', 'لا Override', 'string', 'مافيش Override، الميزة عامّة.', false],
 
             ['features.ui.visibility.none', 'features', 'يراها أثناء الإيقاف: لا أحد', 'string', 'لا أحد', false],
             ['features.ui.visibility.admins', 'features', 'يراها أثناء الإيقاف: الأدمن', 'string', 'الأدمن فقط', false],
@@ -596,10 +596,10 @@ class AdminSystemDemoSeeder extends Seeder
             ['features.ui.popup.audit_title', 'features', 'عنوان بوب-أب السجلّ', 'string', 'سجلّ الميزة', false],
             ['features.ui.popup.audit_empty', 'features', 'سجلّ فارغ', 'string', 'مافيش تبديل مسجَّل لسه.', false],
 
-            ['features.ui.state.empty', 'features', 'الحالة الفارغة', 'text', 'مافيش مزايا في الفلتر ده — وسّع الفلتر شويّة.', false],
+            ['features.ui.state.empty', 'features', 'الحالة الفارغة', 'text', 'مافيش مزايا في الفلتر ده. وسّع الفلتر شويّة.', false],
             ['features.ui.state.loading', 'features', 'حالة التحميل', 'string', 'بنحمّل…', false],
-            ['features.ui.state.error', 'features', 'حالة الخطأ', 'text', 'حصل خطأ وإحنا بنحفظ — جرّب تاني، ولو فضل زيّه بلّغ التقنيّ.', false],
-            ['features.ui.state.denied', 'features', 'حالة بلا صلاحيّة', 'text', 'مالكش صلاحيّة على مفاتيح المزايا — كلّم مالك المنصّة لو محتاج وصولًا.', false],
+            ['features.ui.state.error', 'features', 'حالة الخطأ', 'text', 'حصل خطأ وإحنا بنحفظ. جرّب تاني، ولو فضل زيّه بلّغ التقنيّ.', false],
+            ['features.ui.state.denied', 'features', 'حالة بلا صلاحيّة', 'text', 'مالكش صلاحيّة على مفاتيح المزايا. كلّم مالك المنصّة لو محتاج وصولًا.', false],
             ['features.ui.never', 'features', 'لا تبديل بعد', 'string', 'لسه ما اتبدّلتش', false],
             ['features.ui.settings_title', 'features', 'عنوان بلوك الإعدادات', 'string', 'إعدادات المفاتيح', false],
 
@@ -766,7 +766,7 @@ class AdminSystemDemoSeeder extends Seeder
     private function topup(): void
     {
         $methods = [
-            ['bank', 'حساب بنكيّ — بنك القاهرة', '1234567890123', 'مؤسّسة المنصّة'],
+            ['bank', 'حساب بنكيّ: بنك القاهرة', '1234567890123', 'مؤسّسة المنصّة'],
             ['wallet', 'محفظة موبايل', '01000000000', 'المنصّة'],
             ['instapay', 'إنستا باي', 'platform@instapay', 'المنصّة'],
         ];
@@ -811,7 +811,7 @@ class AdminSystemDemoSeeder extends Seeder
     private function studio(): void
     {
         ImageTemplate::updateOrCreate(
-            ['name' => 'كارت الإنجاز — مربّع'],
+            ['name' => 'كارت الإنجاز (مربّع)'],
             [
                 'purpose' => 'achievement',
                 'width_px' => 1080,

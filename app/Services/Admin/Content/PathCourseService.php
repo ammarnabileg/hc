@@ -125,7 +125,7 @@ class PathCourseService
     {
         return DB::transaction(function () use ($path, $actor) {
             $copy = $path->replicate(['slug', 'published_at', 'created_at', 'updated_at']);
-            $suffix = (string) setting('paths.duplicate.suffix', ' — نسخة');
+            $suffix = (string) setting('paths.duplicate.suffix', ' (نسخة)');
             $copy->name_ar = $path->name_ar.$suffix;
             $copy->slug = $this->uniqueSlug($copy->name_ar);
             $copy->status = 'draft';

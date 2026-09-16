@@ -128,7 +128,7 @@ class BackupManager
     public function create(string $kind, ?User $actor, bool $scheduled = false): array
     {
         if (! setting('backups.enabled', true)) {
-            return ['ok' => false, 'id' => null, 'message' => setting('backups.backup_manager.create_1', 'النسخ الاحتياطيّ متوقّف من الإعدادات — فعّله الأوّل.')];
+            return ['ok' => false, 'id' => null, 'message' => setting('backups.backup_manager.create_1', 'النسخ الاحتياطيّ متوقّف من الإعدادات، فعّله الأوّل.')];
         }
 
         $kind = array_key_exists($kind, $this->kinds()) ? $kind : 'full';
@@ -140,7 +140,7 @@ class BackupManager
         }
 
         if (! is_dir($directory) || ! is_writable($directory)) {
-            return ['ok' => false, 'id' => null, 'message' => setting('backups.backup_manager.create_2', 'مجلّد النسخ مش قابل للكتابة — راجع صلاحيّات storage.')];
+            return ['ok' => false, 'id' => null, 'message' => setting('backups.backup_manager.create_2', 'مجلّد النسخ مش قابل للكتابة، راجع صلاحيّات storage.')];
         }
 
         $stamp = now()->format('Ymd-His');
@@ -163,7 +163,7 @@ class BackupManager
         } catch (Throwable $e) {
             $id = $this->record($filename, $kind, 'failed', 0, $startedAt, null, $actor, $scheduled, $e->getMessage());
 
-            return ['ok' => false, 'id' => $id, 'message' => strtr(setting('backups.backup_manager.body_1', 'النسخة فشلت — :p1'), [':p1' => (string) ($e->getMessage())])];
+            return ['ok' => false, 'id' => $id, 'message' => strtr(setting('backups.backup_manager.body_1', 'النسخة فشلت: :p1'), [':p1' => (string) ($e->getMessage())])];
         }
 
         $size = (int) (@filesize($fullPath) ?: 0);
@@ -178,7 +178,7 @@ class BackupManager
 
         $this->prune();
 
-        return ['ok' => true, 'id' => $id, 'message' => strtr(setting('backups.backup_manager.body_2', 'النسخة اتاخدت ✓ — :p1'), [':p1' => (string) ($this->humanSize($size))])];
+        return ['ok' => true, 'id' => $id, 'message' => strtr(setting('backups.backup_manager.body_2', 'النسخة اتاخدت ✓ بحجم :p1'), [':p1' => (string) ($this->humanSize($size))])];
     }
 
     public function delete(int $id, ?User $actor): bool
@@ -268,13 +268,13 @@ class BackupManager
         }
 
         if ($backup->checksum && hash_file('sha256', $path) !== (string) $backup->checksum) {
-            return ['ok' => false, 'message' => setting('backups.backup_manager.verify_4', 'بصمة الملفّ مختلفة عن المسجَّلة — النسخة اتغيّرت أو اتلفت.'), 'tables' => 0, 'rows' => 0];
+            return ['ok' => false, 'message' => setting('backups.backup_manager.verify_4', 'بصمة الملفّ مختلفة عن المسجَّلة، يعني النسخة اتغيّرت أو اتلفت.'), 'tables' => 0, 'rows' => 0];
         }
 
         $snapshot = $this->snapshotPathOf($backup);
 
         if (! $snapshot || ! is_file($snapshot)) {
-            return ['ok' => false, 'message' => setting('backups.backup_manager.verify_5', 'مافيش لقطة بيانات مع النسخة دي — يعني مفيش استعادة تلقائيّة منها.'), 'tables' => 0, 'rows' => 0];
+            return ['ok' => false, 'message' => setting('backups.backup_manager.verify_5', 'مافيش لقطة بيانات مع النسخة دي، يعني مفيش استعادة تلقائيّة منها.'), 'tables' => 0, 'rows' => 0];
         }
 
         $header = $this->snapshotHeader($snapshot);
@@ -287,7 +287,7 @@ class BackupManager
 
         return [
             'ok' => true,
-            'message' => strtr(setting('backups.backup_manager.verify_8', 'النسخة سليمة ✓ — :p1 جدول.'), [':p1' => (string) (count($header['tables']))]),
+            'message' => strtr(setting('backups.backup_manager.verify_8', 'النسخة سليمة ✓، :p1 جدول.'), [':p1' => (string) (count($header['tables']))]),
             'tables' => count($header['tables']),
             'rows' => (int) array_sum($header['tables']),
         ];
@@ -312,7 +312,7 @@ class BackupManager
         $check = $this->verify($backup);
 
         if (! $check['ok']) {
-            return ['ok' => false, 'message' => strtr(setting('backups.backup_manager.restore_1', 'مقدرناش نستعيد — :p1'), [':p1' => (string) ($check['message'])]), 'tables' => 0, 'rows' => 0, 'skipped' => []];
+            return ['ok' => false, 'message' => strtr(setting('backups.backup_manager.restore_1', 'مقدرناش نستعيد: :p1'), [':p1' => (string) ($check['message'])]), 'tables' => 0, 'rows' => 0, 'skipped' => []];
         }
 
         $snapshot = (string) $this->snapshotPathOf($backup);
@@ -403,7 +403,7 @@ class BackupManager
 
         return [
             'ok' => true,
-            'message' => strtr(setting('backups.backup_manager.restore_3', 'الاستعادة تمّت ✓ — :p1 جدول و:p2 صفّ رجعوا لحالتهم قبل التحديث.'), [':p1' => (string) (count($targets)), ':p2' => (string) ($rows)]),
+            'message' => strtr(setting('backups.backup_manager.restore_3', 'الاستعادة تمّت ✓، :p1 جدول و:p2 صفّ رجعوا لحالتهم قبل التحديث.'), [':p1' => (string) (count($targets)), ':p2' => (string) ($rows)]),
             'tables' => count($targets),
             'rows' => $rows,
             'skipped' => $skipped,
@@ -471,7 +471,7 @@ class BackupManager
         $handle = fopen($path, 'w');
 
         if ($handle === false) {
-            throw new \RuntimeException(setting('backups.backup_manager.write_snapshot_1', 'مش قادر أكتب لقطة الاستعادة — راجع صلاحيّات مجلّد النسخ.'));
+            throw new \RuntimeException(setting('backups.backup_manager.write_snapshot_1', 'مش قادر أكتب لقطة الاستعادة، راجع صلاحيّات مجلّد النسخ.'));
         }
 
         $flags = JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE;

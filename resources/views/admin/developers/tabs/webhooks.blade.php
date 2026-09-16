@@ -27,7 +27,7 @@
                     {{ setting('developers.admin.webhook_secret_title', 'احفظ سرّ الويب-هوك الآن') }}
                 </div>
                 <p class="text-xs mt-1" style="color: var(--text-muted)">
-                    {{ setting('developers.admin.webhook_secret_warning', 'هذا هو السرّ الكامل — لن يظهر ثانيةً بعد إغلاق هذه الرسالة. استخدمه للتحقّق من توقيع HMAC في رأس X-Webhook-Signature.') }}
+                    {{ setting('developers.admin.webhook_secret_warning', 'هذا هو السرّ الكامل، ولن يظهر ثانيةً بعد إغلاق هذه الرسالة. استخدمه للتحقّق من توقيع HMAC في رأس X-Webhook-Signature.') }}
                 </p>
                 <code id="plain-webhook-secret" class="block mt-2 rounded-xl px-3 py-2 text-sm select-all"
                       style="background: var(--surface-sunken); word-break: break-all">{{ $data['plainSecret'] }}</code>
@@ -101,7 +101,7 @@
 
     @if ($data['webhooks']->isEmpty())
         <div class="p-4">
-            <x-empty :message="setting('developers.admin.webhooks_empty', 'لا ويب-هوكس بعد — سجّل أوّل ويب-هوك.')" />
+            <x-empty :message="setting('developers.admin.webhooks_empty', 'لا ويب-هوكس بعد. سجّل أوّل ويب-هوك.')" />
         </div>
     @else
         <div class="overflow-x-auto min-w-0">
@@ -160,14 +160,14 @@
                                     @endcan
                                     @can('webhooks.manage')
                                         <form method="post" action="{{ route('admin.developers.webhooks.rotate-secret', $webhook) }}"
-                                              onsubmit="return confirm('{{ setting('developers.admin.webhook_rotate_confirm', 'تدوير السرّ يُبطل القديم فورًا — تأكيد؟') }}')">
+                                              onsubmit="return confirm('{{ setting('developers.admin.webhook_rotate_confirm', 'تدوير السرّ يُبطل القديم فورًا. تأكيد؟') }}')">
                                             @csrf
                                             <button type="submit" class="text-xs underline">{{ setting('developers.admin.rotate_cta', 'تدوير') }}</button>
                                         </form>
                                     @endcan
                                     @can('webhooks.delete')
                                         <form method="post" action="{{ route('admin.developers.webhooks.destroy', $webhook) }}"
-                                              onsubmit="return confirm('{{ setting('developers.admin.webhook_delete_confirm', 'حذف الويب-هوك نهائيّ — تأكيد؟') }}')">
+                                              onsubmit="return confirm('{{ setting('developers.admin.webhook_delete_confirm', 'حذف الويب-هوك نهائيّ. تأكيد؟') }}')">
                                             @csrf
                                             @method('delete')
                                             <button type="submit" class="text-xs underline" style="color: var(--color-state-danger)">{{ setting('developers.admin.revoke_cta', 'إبطال') }}</button>
@@ -217,7 +217,7 @@
                             <td class="px-4 py-3">
                                 <x-state-badge :state="$deliveryStateOf($delivery->status)" :label="match($delivery->status) {
                                     'success' => setting('developers.admin.delivery_status_success', 'نجحت'),
-                                    'failed' => setting('developers.admin.delivery_status_failed', 'فشلت — بانتظار إعادة'),
+                                    'failed' => setting('developers.admin.delivery_status_failed', 'فشلت، بانتظار إعادة'),
                                     'exhausted' => setting('developers.admin.delivery_status_exhausted', 'استُنفدت'),
                                     default => setting('developers.admin.delivery_status_pending', 'منتظرة'),
                                 }" />

@@ -37,13 +37,13 @@ class WithdrawReviewService
     public function approve(WalletWithdrawal $withdrawal, User $actor, string $note): WalletWithdrawal
     {
         if ($withdrawal->status !== WalletWithdrawal::PENDING) {
-            throw new RuntimeException(setting('finance.withdraw_review.approve_1', 'الطلب ده مش في حالة «قيد المراجعة» — راجع حالته الأوّل.'));
+            throw new RuntimeException(setting('finance.withdraw_review.approve_1', 'الطلب ده مش في حالة «قيد المراجعة»، راجع حالته الأوّل.'));
         }
 
         $note = trim($note);
 
         if ($note === '') {
-            throw new RuntimeException(setting('finance.withdraw_review.approve_2', 'اكتب ملاحظة الصرف — بيتسجّل في سجلّ التدقيق ويوصل صاحب الطلب.'));
+            throw new RuntimeException(setting('finance.withdraw_review.approve_2', 'اكتب ملاحظة الصرف، بتتسجّل في سجلّ التدقيق وتوصل صاحب الطلب.'));
         }
 
         return DB::transaction(function () use ($withdrawal, $actor, $note) {
@@ -63,7 +63,7 @@ class WithdrawReviewService
             $this->notify(
                 $locked,
                 setting('finance.withdraw_review.approve_4', 'طلب السحب اتصرف ✓'),
-                strtr(setting('finance.withdraw_review.approve_5', 'طلبك رقم :p1 اتحوّل — :p2.'), [':p1' => (string) $locked->number, ':p2' => $note]),
+                strtr(setting('finance.withdraw_review.approve_5', 'طلبك رقم :p1 اتحوّل، :p2.'), [':p1' => (string) $locked->number, ':p2' => $note]),
             );
 
             $this->audit($locked, 'withdraw.approve', ['status' => WalletWithdrawal::PENDING], ['status' => WalletWithdrawal::PAID, 'note' => $note], $actor);
@@ -80,13 +80,13 @@ class WithdrawReviewService
     public function reject(WalletWithdrawal $withdrawal, User $actor, string $reason): WalletWithdrawal
     {
         if ($withdrawal->status !== WalletWithdrawal::PENDING) {
-            throw new RuntimeException(setting('finance.withdraw_review.reject_1', 'الطلب ده مش في حالة «قيد المراجعة» — راجع حالته الأوّل.'));
+            throw new RuntimeException(setting('finance.withdraw_review.reject_1', 'الطلب ده مش في حالة «قيد المراجعة»، راجع حالته الأوّل.'));
         }
 
         $reason = trim($reason);
 
         if ($reason === '') {
-            throw new RuntimeException(setting('finance.withdraw_review.reject_2', 'سبب الرفض إلزاميّ — المستخدم لازم يفهم يعدّل إيه.'));
+            throw new RuntimeException(setting('finance.withdraw_review.reject_2', 'سبب الرفض إلزاميّ، المستخدم لازم يفهم يعدّل إيه.'));
         }
 
         return DB::transaction(function () use ($withdrawal, $actor, $reason) {
@@ -110,7 +110,7 @@ class WithdrawReviewService
             $this->notify(
                 $locked,
                 setting('finance.withdraw_review.reject_4', 'طلب السحب اترفض'),
-                strtr(setting('finance.withdraw_review.reject_5', ':p1 — والمبلغ رجع لمحفظتك، تقدر تبعت طلبًا جديدًا.'), [':p1' => $reason]),
+                strtr(setting('finance.withdraw_review.reject_5', ':p1، والمبلغ رجع لمحفظتك، تقدر تبعت طلبًا جديدًا.'), [':p1' => $reason]),
             );
 
             $this->audit($locked, 'withdraw.reject', ['status' => WalletWithdrawal::PENDING], ['status' => WalletWithdrawal::REJECTED, 'reason' => $reason], $actor);

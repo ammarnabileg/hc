@@ -4,7 +4,7 @@
 
 @section('content')
     <x-page-header :title="setting('admin.roles.permission_assign.anwan', 'منح صلاحيّة فرديّة')"
-                   :subtitle="setting('admin.roles.permission_assign.wsf', 'الاستثناء الفرديّ يجلس فوق الأدوار — والمنع يغلب الإذن دائمًا.')"
+                   :subtitle="setting('admin.roles.permission_assign.wsf', 'الاستثناء الفرديّ يجلس فوق الأدوار، والمنع يغلب الإذن دائمًا.')"
                    :breadcrumbs="[
                        ['label' => setting('admin.roles.assign.lwha_alidara', 'لوحة الإدارة'), 'url' => route('admin.dashboard')],
                        ['label' => setting('admin.roles.assign.aladwar_walslahyat', 'الأدوار والصلاحيّات'), 'url' => route('admin.roles.index')],

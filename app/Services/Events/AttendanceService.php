@@ -95,7 +95,7 @@ class AttendanceService
         if ($registration->attended) {
             return [
                 'ok' => true,
-                'message' => setting('events.attendance_service.grant_1', 'حضورك متسجّل قبل كده ✓ — شهادتك ومكافأتك مصروفة بالفعل.'),
+                'message' => setting('events.attendance_service.grant_1', 'حضورك متسجّل قبل كده ✓ وشهادتك ومكافأتك مصروفة بالفعل.'),
                 'registration' => $registration->refresh(),
                 'certificate' => $registration->certificate,
                 'reward' => ['xp' => 0, 'tickets' => 0],
@@ -154,7 +154,7 @@ class AttendanceService
 
         return [
             'ok' => true,
-            'message' => setting('events.attendance_service.grant_3', 'اتأكّد حضورك ✓ — شهادتك ومكافأتك اتفتحت.'),
+            'message' => setting('events.attendance_service.grant_3', 'اتأكّد حضورك ✓ وشهادتك ومكافأتك اتفتحت.'),
             'registration' => $registration->refresh(),
             'certificate' => $certificate,
             'reward' => $reward,

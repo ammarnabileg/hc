@@ -29,7 +29,7 @@
     </div>
 
     @if ($points->count() < 2)
-        <p class="text-xs" style="color: var(--text-muted)">{{ setting('volunteer.profile_sparkline.text_2', 'لسّه بدري — أوّل حركة هتبان هنا.') }}</p>
+        <p class="text-xs" style="color: var(--text-muted)">{{ setting('volunteer.profile_sparkline.text_2', 'لسّه بدري. أوّل حركة هتبان هنا.') }}</p>
     @else
         <svg viewBox="0 0 {{ $width }} {{ $height }}" preserveAspectRatio="none"
              class="w-full" style="height: {{ $height }}px" role="img" aria-label="{{ $title }}">

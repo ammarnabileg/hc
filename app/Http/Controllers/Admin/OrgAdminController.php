@@ -121,7 +121,7 @@ class OrgAdminController extends Controller
 
         // ⭐ الملفّ المؤقّت يفتحه ويُنهيه مشرف عام التطوّع وحده (23-0.2)
         if ($track->is_temporary && ! $this->canOpenCaseFile($request)) {
-            return back()->with('status', (string) setting('volunteer_org.admin.save_entity_msg', 'فتح الملفّ المؤقّت لمشرف عام التطوّع وحده — كلّمه يفتحه لك.'));
+            return back()->with('status', (string) setting('volunteer_org.admin.save_entity_msg', 'فتح الملفّ المؤقّت لمشرف عام التطوّع وحده، كلّمه يفتحه لك.'));
         }
 
         $entity = isset($data['id']) ? Entity::findOrFail($data['id']) : new Entity;
@@ -179,8 +179,8 @@ class OrgAdminController extends Controller
         $closed = $entity->track?->is_temporary ? $this->closeCaseFileMemberships($entity, $request->user()) : 0;
 
         return back()->with('status', $closed
-            ? strtr((string) setting('volunteer_org.admin.archive_entity_ok_cascaded', 'اتأرشف الكيان ✓ — وأُقفلت :a1 عضويّة تلقائيًّا بمسار الأوفبوردنج.'), [':a1' => (string) $closed])
-            : (string) setting('volunteer_org.admin.archive_entity_ok', 'اتأرشف الكيان ✓ — وعضويّاته تُقفَل بمسار الأوفبوردنج.'));
+            ? strtr((string) setting('volunteer_org.admin.archive_entity_ok_cascaded', 'اتأرشف الكيان ✓، وأُقفلت :a1 عضويّة تلقائيًّا بمسار الأوفبوردنج.'), [':a1' => (string) $closed])
+            : (string) setting('volunteer_org.admin.archive_entity_ok', 'اتأرشف الكيان ✓، وعضويّاته تُقفَل بمسار الأوفبوردنج.'));
     }
 
     /**
@@ -210,7 +210,7 @@ class OrgAdminController extends Controller
 
         $files->generateInviteLink($entity, (int) $data['position_id'], $request->user());
 
-        return back()->with('status', (string) setting('volunteer_org.admin.case_file_link_ok', 'اترسم رابط الدعوة — انسخه من تحت اسم الملفّ.'));
+        return back()->with('status', (string) setting('volunteer_org.admin.case_file_link_ok', 'اترسم رابط الدعوة، انسخه من تحت اسم الملفّ.'));
     }
 
     /**
@@ -282,7 +282,7 @@ class OrgAdminController extends Controller
             AuditTrail::log($request->user(), 'position.span_update', $position, $old, $row);
         }
 
-        return back()->with('status', (string) setting('volunteer_org.admin.save_positions_ok', 'اتحفظ ✓ — والسعة مؤشّرات لا موانع.'));
+        return back()->with('status', (string) setting('volunteer_org.admin.save_positions_ok', 'اتحفظ ✓، والسعة مؤشّرات لا موانع.'));
     }
 
     public function saveSettings(Request $request): RedirectResponse
@@ -344,7 +344,7 @@ class OrgAdminController extends Controller
 
         app(PromotionLadder::class)->rejectActing($membership, $request->user(), $data['reason']);
 
-        return back()->with('status', (string) setting('volunteer_org.admin.promotion_ladder_reject_ok', 'اترَدّ الاعتماد — وسلّم الترقية أعاد الحساب فورًا.'));
+        return back()->with('status', (string) setting('volunteer_org.admin.promotion_ladder_reject_ok', 'اترَدّ الاعتماد، وسلّم الترقية أعاد الحساب فورًا.'));
     }
 
     /** ⭐ حسم تعادلٍ كامل — قرار الدايركتور (أو مشرف عام التطوّع) بمبرّر مكتوب (23-0.2) */
@@ -365,7 +365,7 @@ class OrgAdminController extends Controller
 
         app(PromotionLadder::class)->decideTie($decision, $winner, $request->user(), $data['reason']);
 
-        return back()->with('status', (string) setting('volunteer_org.admin.promotion_ladder_decide_ok', 'اتحسم التعادل — والبوزشن اتصعّد له فورًا.'));
+        return back()->with('status', (string) setting('volunteer_org.admin.promotion_ladder_decide_ok', 'اتحسم التعادل، والبوزشن اتصعّد له فورًا.'));
     }
 
     /**

@@ -14,7 +14,7 @@
         <section class="card p-4">
             <h3 class="font-bold text-sm mb-1">{{ setting('admin.users.partials.tab_security.rabt_tghyyr_klma_alsr', 'رابط تغيير كلمة السرّ') }}</h3>
             <p class="text-xs mb-3" style="color: var(--text-muted)">
-                {{ setting('admin.moderation.link_hint', 'الرابط ده بيظهر مرّة واحدة — انسخه دلوقتي.') }}
+                {{ setting('admin.moderation.link_hint', 'الرابط ده بيظهر مرّة واحدة. انسخه دلوقتي.') }}
             </p>
 
             @if (session('moderation_password_link'))
@@ -54,7 +54,7 @@
         <section class="card p-4">
             <h3 class="font-bold text-sm mb-1">{{ setting('admin.users.partials.tab_security.aljlsat_alnshta', 'الجلسات النشطة') }}</h3>
             <p class="text-xs mb-3" style="color: var(--text-muted)">
-                {{ setting('admin.users.sessions_hint', 'الأجهزة المفتوح عليها الحساب دلوقتي — وإنهاء الجلسات بيقفلها كلّها.') }}
+                {{ setting('admin.users.sessions_hint', 'الأجهزة المفتوح عليها الحساب دلوقتي، وإنهاء الجلسات بيقفلها كلّها.') }}
             </p>
 
             @if ($devices->isEmpty())

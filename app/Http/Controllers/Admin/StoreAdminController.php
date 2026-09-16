@@ -171,7 +171,7 @@ class StoreAdminController extends Controller
 
         $this->audit($request, $product, 'store_products.replace_file', $old, ['file_path' => $newPath]);
 
-        return back()->with('status', (string) setting('store.admin.replace_file_ok', 'اتبدّل الملفّ ✓ — والنسخة الجديدة وصلت لكلّ المالكين.'));
+        return back()->with('status', (string) setting('store.admin.replace_file_ok', 'اتبدّل الملفّ ✓، والنسخة الجديدة وصلت لكلّ المالكين.'));
     }
 
     /**
@@ -212,7 +212,7 @@ class StoreAdminController extends Controller
         $product->update(['status' => 'archived']);
         $this->audit($request, $product, 'store_products.archive', $old, ['status' => 'archived']);
 
-        return back()->with('status', (string) setting('store.admin.archive_product_msg', 'المنتج اتأرشف — ومحدش هيفقد نسخته.'));
+        return back()->with('status', (string) setting('store.admin.archive_product_msg', 'المنتج اتأرشف، ومحدش هيفقد نسخته.'));
     }
 
     /**
@@ -305,7 +305,7 @@ class StoreAdminController extends Controller
 
         return back()->with('status', $category->is_active
             ? (string) setting('store.admin.unarchive_category_ok', 'التصنيف رجع ظاهر ✓')
-            : (string) setting('store.admin.archive_category_ok', 'التصنيف اتخفى عن فورم المنتج الجديد — ومنتجاته زيّ ما هي ✓'));
+            : (string) setting('store.admin.archive_category_ok', 'التصنيف اتخفى عن فورم المنتج الجديد، ومنتجاته زيّ ما هي ✓'));
     }
 
     /**
@@ -322,7 +322,7 @@ class StoreAdminController extends Controller
         $this->audit($request, $category, 'product_categories.delete', $old, ['products_uncategorized' => $affected]);
 
         return back()->with('status', $affected > 0
-            ? strtr((string) setting('store.admin.destroy_category_with_products_ok', 'التصنيف اتحذف — و:a1 منتج بقى بلا تصنيف ✓'), [':a1' => (string) $affected])
+            ? strtr((string) setting('store.admin.destroy_category_with_products_ok', 'التصنيف اتحذف، و:a1 منتج بقى بلا تصنيف ✓'), [':a1' => (string) $affected])
             : (string) setting('store.admin.destroy_category_ok', 'التصنيف اتحذف ✓'));
     }
 
@@ -366,7 +366,7 @@ class StoreAdminController extends Controller
         ]);
         $this->audit($request, $bundle, 'bundles.create', [], $data);
 
-        return back()->with('status', (string) setting('store.admin.store_bundle_ok', 'البندل اتحفظ ✓ — ضيف عناصره وهتتحسب قيمته تلقائيًّا.'));
+        return back()->with('status', (string) setting('store.admin.store_bundle_ok', 'البندل اتحفظ ✓، ضيف عناصره وهتتحسب قيمته تلقائيًّا.'));
     }
 
     // ---------------------------------------------------------------- فورم البندل (24 · 18)
@@ -682,7 +682,7 @@ class StoreAdminController extends Controller
         $item = $catalog->resolve($data['item_type'], $data['item_slug']);
 
         if (! $item) {
-            return back()->withErrors(['item_slug' => (string) setting('store.admin.store_bundle_item_denied', 'العنصر ده مش موجود — اختر من القائمة.')]);
+            return back()->withErrors(['item_slug' => (string) setting('store.admin.store_bundle_item_denied', 'العنصر ده مش موجود، اختر من القائمة.')]);
         }
 
         if ($item instanceof Bundle) {
@@ -866,11 +866,11 @@ class StoreAdminController extends Controller
         ]);
 
         if (! $catalog->resolve($data['parent_type'], $data['parent_slug'])) {
-            return back()->withErrors(['parent_slug' => (string) setting('store.admin.order_bump_parent_denied', 'عنصر الأصل ده مش موجود — اختر من القائمة.')])->withInput();
+            return back()->withErrors(['parent_slug' => (string) setting('store.admin.order_bump_parent_denied', 'عنصر الأصل ده مش موجود، اختر من القائمة.')])->withInput();
         }
 
         if (! $catalog->resolve($data['bump_type'], $data['bump_slug'])) {
-            return back()->withErrors(['bump_slug' => (string) setting('store.admin.order_bump_bump_denied', 'عنصر الـBump ده مش موجود — اختر من القائمة.')])->withInput();
+            return back()->withErrors(['bump_slug' => (string) setting('store.admin.order_bump_bump_denied', 'عنصر الـBump ده مش موجود، اختر من القائمة.')])->withInput();
         }
 
         $offer = OrderBumpOffer::create($data + ['is_active' => true]);
@@ -922,7 +922,7 @@ class StoreAdminController extends Controller
 
         $this->audit($request, $order, 'invoices.correction', ['status' => $order->status], $data);
 
-        return back()->with('status', (string) setting('store.admin.correct_order_denied', 'اتسجّل تصحيح خطأ تقنيّ موثّق — مش استرجاع نقديّ.'));
+        return back()->with('status', (string) setting('store.admin.correct_order_denied', 'اتسجّل تصحيح خطأ تقنيّ موثّق، مش استرجاع نقديّ.'));
     }
 
     private function audit(Request $request, $model, string $action, array $old, array $new): void

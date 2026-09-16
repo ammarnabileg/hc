@@ -1,15 +1,15 @@
 @extends('layouts.app')
-@section('title', str_replace(':event', $event->title_ar, (string) setting('events.ticket_page.title', 'تذكرتي — :event')))
+@section('title', str_replace(':event', $event->title_ar, (string) setting('events.ticket_page.title', 'تذكرتي: :event')))
 @section('og_image', route('events.og', $event->slug))
 @section('noindex', true)
 
 @section('content')
     @php
-        $shareText = trim((string) setting('events.ticket.share_text', 'هحضر الفعاليّة دي — تعالى معايا:')).' '.route('events.show', $event->slug);
+        $shareText = trim((string) setting('events.ticket.share_text', 'هحضر الفعاليّة دي، تعالى معايا:')).' '.route('events.show', $event->slug);
     @endphp
 
     <x-page-header :title="setting('events.ticket_page.heading', 'تذكرتي')"
-                   :subtitle="setting('events.ticket_page.subtitle', 'تذكرة حضورك جاهزة للنشر — والكود ده هو إثبات دخولك.')"
+                   :subtitle="setting('events.ticket_page.subtitle', 'تذكرة حضورك جاهزة للنشر، والكود ده هو إثبات دخولك.')"
                    :breadcrumbs="[
                        ['label' => setting('events.ticket_page.breadcrumb_events', 'الفعاليّات'), 'url' => route('events.index')],
                        ['label' => $event->title_ar, 'url' => route('events.show', $event->slug)],

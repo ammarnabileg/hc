@@ -108,7 +108,7 @@ class ObjectionService
         }
 
         if ($this->existingFor($transaction)) {
-            return $this->fail(setting('volunteer_rep.objection_service.file_3', 'فيه اعتراض واحد بالفعل على المعاملة دي — تقدر تضيف تفاصيل من صفحة اعتراضاتي.'));
+            return $this->fail(setting('volunteer_rep.objection_service.file_3', 'فيه اعتراض واحد بالفعل على المعاملة دي، تقدر تضيف تفاصيل من صفحة اعتراضاتي.'));
         }
 
         // ⭐ المكتب من `HandlerChain` داخل كيان المعاملة — فالغائب يُتخطّى لبديله
@@ -172,7 +172,7 @@ class ObjectionService
                         $handler,
                         'objection',
                         setting('volunteer_rep.objection_service.run_overdue_1', 'اعتراض فات مهلته وعندك'),
-                        setting('volunteer_rep.objection_service.run_overdue_2', 'الاعتراض ده وصل سقف السلسلة — محتاج قرارك أنت.'),
+                        setting('volunteer_rep.objection_service.run_overdue_2', 'الاعتراض ده وصل سقف السلسلة، محتاج قرارك أنت.'),
                         route('volunteer.escalations.objections', ['objection' => $objection->id]),
                     );
                     $result['at_top']++;
@@ -190,7 +190,7 @@ class ObjectionService
                     $next,
                     'objection',
                     setting('volunteer_rep.objection_service.run_overdue_3', 'صعد إليك اعتراض على معاملة'),
-                    setting('volunteer_rep.objection_service.run_overdue_4', 'فاتت مهلة المستوى الأدنى — الاعتراض بقى عندك.'),
+                    setting('volunteer_rep.objection_service.run_overdue_4', 'فاتت مهلة المستوى الأدنى، الاعتراض بقى عندك.'),
                     route('volunteer.escalations.objections', ['objection' => $objection->id]),
                 );
 
@@ -218,7 +218,7 @@ class ObjectionService
     public function addMessage(Objection $objection, User $user, string $body, ?string $attachmentPath = null): array
     {
         if (! $this->isActive($objection)) {
-            return $this->fail(setting('volunteer_rep.objection_service.add_message_1', 'الاعتراض ده اتقفل — مفيش إضافات بعد القرار.'));
+            return $this->fail(setting('volunteer_rep.objection_service.add_message_1', 'الاعتراض ده اتقفل، مفيش إضافات بعد القرار.'));
         }
 
         ObjectionMessage::create([
@@ -247,7 +247,7 @@ class ObjectionService
     public function reply(Objection $objection, User $handler, string $body, ?string $attachmentPath = null): array
     {
         if (! $this->isActive($objection)) {
-            return $this->fail(setting('volunteer_rep.objection_service.reply_1', 'الاعتراض ده اتقفل — مفيش ردّ بعد القرار.'));
+            return $this->fail(setting('volunteer_rep.objection_service.reply_1', 'الاعتراض ده اتقفل، مفيش ردّ بعد القرار.'));
         }
 
         ObjectionMessage::create([
@@ -266,7 +266,7 @@ class ObjectionService
             $objection->user,
             'objection',
             setting('volunteer_rep.objection_service.reply_2', 'وصلك ردّ على اعتراضك'),
-            strtr(setting('volunteer_rep.objection_service.reply_3', ':p1 ردّ على اعتراضك — الحالة دلوقتي «قيد المراجعة».'), [':p1' => (string) ($handler->name)]),
+            strtr(setting('volunteer_rep.objection_service.reply_3', ':p1 ردّ على اعتراضك، والحالة دلوقتي «قيد المراجعة».'), [':p1' => (string) ($handler->name)]),
             route('volunteer.objections', ['objection' => $objection->id]),
         );
 
@@ -281,19 +281,19 @@ class ObjectionService
     public function escalate(Objection $objection, User $handler, string $reason): array
     {
         if (! $this->isActive($objection)) {
-            return $this->fail(setting('volunteer_rep.objection_service.escalate_1', 'الاعتراض ده اتقفل — مفيش تصعيد بعد القرار.'));
+            return $this->fail(setting('volunteer_rep.objection_service.escalate_1', 'الاعتراض ده اتقفل، مفيش تصعيد بعد القرار.'));
         }
 
         $next = $this->chain->nextHandlerAfter($handler, $this->entityOf($objection->transaction));
 
         if (! $next || (int) $next->id === (int) $handler->id) {
-            return $this->fail(setting('volunteer_rep.objection_service.escalate_2', 'أنت سقف السلسلة — الاعتراض ده قراره عندك ومش هيصعد لحدّ.'));
+            return $this->fail(setting('volunteer_rep.objection_service.escalate_2', 'أنت سقف السلسلة، الاعتراض ده قراره عندك ومش هيصعد لحدّ.'));
         }
 
         ObjectionMessage::create([
             'objection_id' => $objection->id,
             'user_id' => $handler->id,
-            'body' => strtr(setting('volunteer_rep.objection_service.escalate_3', 'صعّدتُه لـ:p1 — السبب: :p2'), [':p1' => (string) ($next->name), ':p2' => (string) ($reason)]),
+            'body' => strtr(setting('volunteer_rep.objection_service.escalate_3', 'صعّدتُه لـ:p1، والسبب: :p2'), [':p1' => (string) ($next->name), ':p2' => (string) ($reason)]),
         ]);
 
         $objection->forceFill([
@@ -306,7 +306,7 @@ class ObjectionService
             $next,
             'objection',
             setting('volunteer_rep.objection_service.escalate_4', 'صعد إليك اعتراض على معاملة'),
-            strtr(setting('volunteer_rep.objection_service.escalate_5', ':p1 صعّد الاعتراض إليك — السبب: :p2'), [':p1' => (string) ($handler->name), ':p2' => (string) ($reason)]),
+            strtr(setting('volunteer_rep.objection_service.escalate_5', ':p1 صعّد الاعتراض إليك، والسبب: :p2'), [':p1' => (string) ($handler->name), ':p2' => (string) ($reason)]),
             route('volunteer.escalations.objections', ['objection' => $objection->id]),
         );
 
@@ -314,7 +314,7 @@ class ObjectionService
             $objection->user,
             'objection',
             setting('volunteer_rep.objection_service.escalate_6', 'اتصعّد اعتراضك'),
-            strtr(setting('volunteer_rep.objection_service.escalate_7', 'الاعتراض بقى عند :p1 — وسلّم التصعيد بيوضّح المستوى الحاليّ.'), [':p1' => (string) ($next->name)]),
+            strtr(setting('volunteer_rep.objection_service.escalate_7', 'الاعتراض بقى عند :p1، وسلّم التصعيد بيوضّح المستوى الحاليّ.'), [':p1' => (string) ($next->name)]),
             route('volunteer.objections', ['objection' => $objection->id]),
         );
 
@@ -441,7 +441,7 @@ class ObjectionService
          | الكشف = تعديلٌ صامت للأصل — وهو الممنوع بعينه (13.4-ط).
          */
         if (! $correction) {
-            return $this->fail(setting('volunteer_rep.objection_service.accept_4', 'تعذّر كتابة المعاملة التصحيحيّة — والاعتراض ما اتقفلش.'));
+            return $this->fail(setting('volunteer_rep.objection_service.accept_4', 'تعذّر كتابة المعاملة التصحيحيّة، والاعتراض ما اتقفلش.'));
         }
 
         $objection->forceFill([
@@ -456,7 +456,7 @@ class ObjectionService
             $objection->user,
             'objection',
             setting('volunteer_rep.objection_service.accept_5', 'اتقبل اعتراضك ✓'),
-            strtr(setting('volunteer_rep.objection_service.accept_6', 'اتعمل تصحيح بمعاملة عكسيّة — درجتك من :p1 لـ:p2.'), [':p1' => (string) ($preview['from']), ':p2' => (string) ($preview['to'])]),
+            strtr(setting('volunteer_rep.objection_service.accept_6', 'اتعمل تصحيح بمعاملة عكسيّة، درجتك من :p1 لـ:p2.'), [':p1' => (string) ($preview['from']), ':p2' => (string) ($preview['to'])]),
             route('volunteer.objections', ['objection' => $objection->id]),
         );
 

@@ -40,7 +40,7 @@
     @endif
 
     @if ($rows->isEmpty())
-        <x-empty :message="setting('growth.invite_board.empty', 'مافيش دعوات مكتملة الشهر ده لسّه — ابدأ إنت.')"
+        <x-empty :message="setting('growth.invite_board.empty', 'مافيش دعوات مكتملة الشهر ده لسّه. ابدأ إنت.')"
                  action="{{ setting('growth.invite_board.action_1', 'ادعُ صديقك') }}"
                  :href="\Illuminate\Support\Facades\Route::has('referral.index') ? route('referral.index') : url('/referral')" />
     @else

@@ -334,7 +334,7 @@ class GuidanceComposer
     public function duplicateAnnouncement(Announcement $announcement): Announcement
     {
         $copy = $announcement->replicate(['created_at', 'updated_at']);
-        $copy->title = $announcement->title.(string) setting('announcements.duplicate.suffix', ' — نسخة');
+        $copy->title = $announcement->title.(string) setting('announcements.duplicate.suffix', ' (نسخة)');
         $copy->status = 'draft';
         $copy->is_pinned = false;
         // النسخة تبدأ نظيفة: لا تَرِث أثر دورات أبيها ولا نسبَه لقالبٍ آخر (12.6-أ)
@@ -420,7 +420,7 @@ class GuidanceComposer
                     ['key' => $key],
                     [
                         'group' => 'notifications',
-                        'label_ar' => $typeLabel.' — '.$channelLabel,
+                        'label_ar' => $typeLabel.' · '.$channelLabel,
                         'type' => 'bool',
                         'default_value' => $default ? '1' : '0',
                         'value' => $new ? '1' : '0',
@@ -679,7 +679,7 @@ class GuidanceComposer
             Notifier::send(
                 user: $complaint->user,
                 category: 'complaint',
-                title: (string) setting('complaints.notify.close_title', 'قفلنا رسالتك — وشكرًا لوقتك'),
+                title: (string) setting('complaints.notify.close_title', 'قفلنا رسالتك، وشكرًا لوقتك'),
                 body: $reason,
             );
         }

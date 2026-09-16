@@ -101,7 +101,7 @@ class VolunteerAdminController extends Controller
         SettingsWriter::putMany($settings, $request->user());
         AuditTrail::log($request->user(), 'honorary.settings.update', null, [], ['keys' => array_keys($settings)]);
 
-        return back()->with('status', (string) setting('volunteer.admin.save_honorary_ok', 'اتحفظ ✓ — إعدادات العنصر الشرفيّ اتحدّثت.'));
+        return back()->with('status', (string) setting('volunteer.admin.save_honorary_ok', 'اتحفظ ✓، إعدادات العنصر الشرفيّ اتحدّثت.'));
     }
 
     /** مفاتيح أنواع كتل صفحة التطوّع (13.4-أ) — مفاتيح داخليّة لا نصوصًا */
@@ -131,7 +131,7 @@ class VolunteerAdminController extends Controller
 
         SettingsWriter::putMany($data['settings'], $request->user());
 
-        return back()->with('status', (string) setting('volunteer.admin.save_page_ok', 'اتحفظ ✓ — محتوى صفحة التطوّع اتحدّث.'));
+        return back()->with('status', (string) setting('volunteer.admin.save_page_ok', 'اتحفظ ✓، محتوى صفحة التطوّع اتحدّث.'));
     }
 
     /** إضافة/تعديل كتلة محتوى — نفس المسار لأنّ الفرق مفتاح واحد */
@@ -151,10 +151,10 @@ class VolunteerAdminController extends Controller
 
         if ($index !== null && isset($blocks[$index])) {
             $blocks[$index] = $block;
-            $message = (string) setting('volunteer.admin.save_block_ok', 'اتحفظ ✓ — الكتلة اتعدّلت.');
+            $message = (string) setting('volunteer.admin.save_block_ok', 'اتحفظ ✓، الكتلة اتعدّلت.');
         } else {
             $blocks[] = $block;
-            $message = (string) setting('volunteer.admin.save_block_ok_2', 'اتحفظ ✓ — الكتلة اتضافت.');
+            $message = (string) setting('volunteer.admin.save_block_ok_2', 'اتحفظ ✓، الكتلة اتضافت.');
         }
 
         SettingsWriter::put('volunteer_page.blocks', array_values($blocks), $request->user());
@@ -169,7 +169,7 @@ class VolunteerAdminController extends Controller
         $blocks = self::blocks();
 
         if (! isset($blocks[$index])) {
-            return back()->with('status', (string) setting('volunteer.admin.delete_block_denied', 'الكتلة مش موجودة — يمكن اتحذفت قبل كده.'));
+            return back()->with('status', (string) setting('volunteer.admin.delete_block_denied', 'الكتلة مش موجودة، يمكن اتحذفت قبل كده.'));
         }
 
         unset($blocks[$index]);
@@ -224,7 +224,7 @@ class VolunteerAdminController extends Controller
 
         SettingsWriter::putMany($data['settings'], $request->user());
 
-        return back()->with('status', (string) setting('volunteer.admin.save_certificate_settings_ok', 'اتحفظ ✓ — شروط شهادات التطوّع اتحدّثت.'));
+        return back()->with('status', (string) setting('volunteer.admin.save_certificate_settings_ok', 'اتحفظ ✓، شروط شهادات التطوّع اتحدّثت.'));
     }
 
     /** إصدار شهادة بوزشن — يحترم شرطَي المدّة وRep */
@@ -238,7 +238,7 @@ class VolunteerAdminController extends Controller
         $result = CertificateEligibility::issueForMembership($membership, $request->user());
 
         return back()->with('status', $result['issued']
-            ? (string) setting('volunteer.admin.issue_certificate_ok', 'صدرت الشهادة ✓ — واحتفال ذروة في انتظار صاحبها.')
+            ? (string) setting('volunteer.admin.issue_certificate_ok', 'صدرت الشهادة ✓، واحتفال ذروة في انتظار صاحبها.')
             : strtr((string) setting('volunteer.admin.issue_certificate_msg', 'ما صدرتش: :a1'), [':a1' => (string) ($result['reason'])]));
     }
 
@@ -246,7 +246,7 @@ class VolunteerAdminController extends Controller
     public function autoIssueCertificates(Request $request): RedirectResponse
     {
         if (! setting('volunteer_cert.auto_issue', true)) {
-            return back()->with('status', (string) setting('volunteer.admin.auto_issue_certificates_msg', 'الإصدار التلقائيّ موقوف من الإعدادات — فعّله الأوّل.'));
+            return back()->with('status', (string) setting('volunteer.admin.auto_issue_certificates_msg', 'الإصدار التلقائيّ موقوف من الإعدادات، فعّله الأوّل.'));
         }
 
         $count = CertificateEligibility::autoIssue($request->user());
@@ -290,7 +290,7 @@ class VolunteerAdminController extends Controller
 
         CertificateEligibility::revoke($certificate, $data['reason'], $request->user());
 
-        return back()->with('status', (string) setting('volunteer.admin.revoke_certificate_msg', 'اتلغت الشهادة وسُجِّل السبب — والإقصاء وحده لا يُلغي شهادة عن عمل حقيقيّ.'));
+        return back()->with('status', (string) setting('volunteer.admin.revoke_certificate_msg', 'اتلغت الشهادة وسُجِّل السبب، والإقصاء وحده لا يُلغي شهادة عن عمل حقيقيّ.'));
     }
 
     /** ⭐ تفعيل/إيقاف نوعٍ من الأربعة — من كرت القالب نفسه لا الإعدادات وحدها فقط (24.2) */

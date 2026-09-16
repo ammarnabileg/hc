@@ -96,7 +96,7 @@ class RewardController extends Controller
         $strict = (array) setting('rewards.reasons_requiring_reference_strict', []);
 
         if (in_array($data['reason'], $strict, true) && empty($data['reference'])) {
-            return back()->withInput()->with('status', (string) setting('rewards.admin.grant_must', 'السبب ده لازم معاه مرجع المعاملة الأصليّة — اكتبه وجرّب تاني.'));
+            return back()->withInput()->with('status', (string) setting('rewards.admin.grant_must', 'السبب ده لازم معاه مرجع المعاملة الأصليّة، اكتبه وجرّب تاني.'));
         }
 
         $preview = RewardGrantService::preview(
@@ -105,7 +105,7 @@ class RewardController extends Controller
         );
 
         if ($preview['rows']->isEmpty()) {
-            return back()->withInput()->with('status', (string) setting('rewards.admin.grant_empty', 'مفيش ولا كود صحيح — راجع الأكواد وجرّب تاني.'));
+            return back()->withInput()->with('status', (string) setting('rewards.admin.grant_empty', 'مفيش ولا كود صحيح، راجع الأكواد وجرّب تاني.'));
         }
 
         $result = RewardGrantService::execute(
@@ -115,7 +115,7 @@ class RewardController extends Controller
             $request->user(),
         );
 
-        session()->flash('status', strtr((string) setting('rewards.admin.grant_ok', 'اتنفّذ ✓ — :a1 مستخدم بإجماليّ :a2'), [':a1' => (string) ($result['granted']), ':a2' => (string) ($result['total'])]));
+        session()->flash('status', strtr((string) setting('rewards.admin.grant_ok', 'اتنفّذ ✓، :a1 مستخدم بإجماليّ :a2'), [':a1' => (string) ($result['granted']), ':a2' => (string) ($result['total'])]));
 
         return view('admin.gamification.rewards.index', [
             'currencies' => $this->currencies(),
@@ -141,7 +141,7 @@ class RewardController extends Controller
 
         return back()
             ->withInput(['codes' => RewardGrantService::segmentCodes($data['segment'])])
-            ->with('status', (string) setting('rewards.admin.segment_msg', 'اتحمّلت أكواد الشريحة في الحقل — راجعها قبل التنفيذ.'));
+            ->with('status', (string) setting('rewards.admin.segment_msg', 'اتحمّلت أكواد الشريحة في الحقل، راجعها قبل التنفيذ.'));
     }
 
     public function saveSettings(Request $request): RedirectResponse

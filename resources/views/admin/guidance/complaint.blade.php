@@ -30,7 +30,7 @@
 
             @if ($complaint->wants_contact)
                 <p class="text-xs" style="color: var(--text-muted)">
-                    {{ setting('admin.guidance.complaint.yrghb_fy_altwasl_alqnaa', 'يرغب في التواصل — القناة:') }} {{ $complaint->contact_channel ?: setting('admin.guidance.complaint.ghyr_mhdda', 'غير محدَّدة') }}
+                    {{ setting('admin.guidance.complaint.yrghb_fy_altwasl_alqnaa', 'يرغب في التواصل عبر القناة:') }} {{ $complaint->contact_channel ?: setting('admin.guidance.complaint.ghyr_mhdda', 'غير محدَّدة') }}
                 </p>
             @endif
 
@@ -43,7 +43,7 @@
                     @csrf
                     <select name="assigned_to" class="flex-1 rounded-xl px-3 py-2 text-sm"
                             style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
-                        <option value="">{{ setting('admin.guidance.complaint.bla_isnad', '— بلا إسناد —') }}</option>
+                        <option value="">{{ setting('admin.guidance.complaint.bla_isnad', 'بلا إسناد') }}</option>
                         @foreach ($assignees as $assignee)
                             <option value="{{ $assignee->id }}" @selected((int) $complaint->assigned_to === $assignee->id)>
                                 {{ $assignee->name }}

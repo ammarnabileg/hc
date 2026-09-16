@@ -22,7 +22,7 @@
                 {{ setting('developers.admin.terminal_warning_title', 'تحذير: تنفيذٌ مباشر على الخادم') }}
             </div>
             <p class="text-xs mt-1" style="color: var(--text-muted)">
-                {{ setting('developers.admin.terminal_warning_body', 'أيّ أمرٍ هنا يُنفَّذ مباشرةً على الخادم — لا قيود ولا تراجع، وكلّ أمرٍ مسجَّل.') }}
+                {{ setting('developers.admin.terminal_warning_body', 'أيّ أمرٍ هنا يُنفَّذ مباشرةً على الخادم، لا قيود ولا تراجع، وكلّ أمرٍ مسجَّل.') }}
             </p>
         </div>
     </div>
@@ -61,7 +61,7 @@
             <span id="terminal-meta" class="text-xs" style="color: var(--text-muted)"></span>
         </div>
         <pre id="terminal-output" class="rounded-xl p-3 text-xs overflow-x-auto min-w-0"
-             style="background: #0b0f0d; color: #d6ffe8; min-height: 4rem; white-space: pre-wrap; word-break: break-all; font-family: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace">{{ setting('developers.admin.terminal_output_empty', 'لا مخرَجات بعد — نفّذ أمرًا لعرضها هنا.') }}</pre>
+             style="background: #0b0f0d; color: #d6ffe8; min-height: 4rem; white-space: pre-wrap; word-break: break-all; font-family: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace">{{ setting('developers.admin.terminal_output_empty', 'لا مخرَجات بعد. نفّذ أمرًا لعرضها هنا.') }}</pre>
     </section>
 
     {{-- سجلّ الأوامر السابقة (آخر 200) --}}
@@ -117,7 +117,7 @@
         $jsText = [
             'run' => (string) setting('developers.admin.terminal_run_cta', 'تنفيذ'),
             'running' => (string) setting('developers.admin.terminal_running_label', 'جارٍ التنفيذ…'),
-            'error' => (string) setting('developers.admin.terminal_error_generic', 'تعذّر تنفيذ الأمر — حاول ثانيةً.'),
+            'error' => (string) setting('developers.admin.terminal_error_generic', 'تعذّر تنفيذ الأمر. حاول ثانيةً.'),
             'exitLabel' => (string) setting('developers.admin.terminal_exit_code_label', 'كود الخروج'),
             'durationLabel' => (string) setting('developers.admin.terminal_duration_label', 'المدّة'),
             'viewOutput' => (string) setting('developers.admin.terminal_view_output_cta', 'عرض المخرَجات'),

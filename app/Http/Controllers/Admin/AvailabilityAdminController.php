@@ -80,7 +80,7 @@ class AvailabilityAdminController extends Controller
         $count = CourseAvailabilityPeriod::query()->where('course_id', $course->id)->count();
 
         if ($count >= (int) setting('availability.admin.max_periods', 24)) {
-            return back()->with('status', (string) setting('availability.admin.store_period_msg_3', 'وصلت أقصى عدد فترات لهذا التدريب — احذف فترة قديمة الأوّل.'));
+            return back()->with('status', (string) setting('availability.admin.store_period_msg_3', 'وصلت أقصى عدد فترات لهذا التدريب، احذف فترة قديمة الأوّل.'));
         }
 
         $period = CourseAvailabilityPeriod::create([

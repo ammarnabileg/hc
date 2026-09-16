@@ -63,7 +63,7 @@
         <form method="POST" action="{{ route('volunteer.kudos.store') }}" class="space-y-3">
             @csrf
             <input type="hidden" name="receiver_id" value="{{ $owner->id }}">
-            <p class="text-sm" style="color: var(--text-muted)">{{ setting('volunteer.profile_header_actions.text_2', 'السبب المكتوب هو اللي بيفرق — القصّة أقوى من العدّاد.') }}</p>
+            <p class="text-sm" style="color: var(--text-muted)">{{ setting('volunteer.profile_header_actions.text_2', 'السبب المكتوب هو اللي بيفرق. القصّة أقوى من العدّاد.') }}</p>
             <textarea name="reason" rows="3" required minlength="3" maxlength="1000"
                       class="w-full rounded-xl px-3 py-2 text-sm"
                       style="min-height: 44px; background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)"

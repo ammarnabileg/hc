@@ -4,7 +4,7 @@
 
 @section('content')
     <x-page-header :title="setting('admin.store.finance.audit.sjl_tdqyq_almalyat', 'سجلّ تدقيق الماليّات')"
-                   :subtitle="setting('admin.store.finance.audit.llqraa_fqt_ghyr_qabl_lltadyl_aw_alhdhf', 'للقراءة فقط — غير قابل للتعديل أو الحذف.')"
+                   :subtitle="setting('admin.store.finance.audit.llqraa_fqt_ghyr_qabl_lltadyl_aw_alhdhf', 'للقراءة فقط، غير قابل للتعديل أو الحذف.')"
                    :breadcrumbs="[
                        ['label' => setting('admin.store.finance.audit.lwha_alidara', 'لوحة الإدارة'), 'url' => url('/admin')],
                        ['label' => setting('admin.store.finance.audit.almalyat', 'الماليّات'), 'url' => route('admin.finance.index')],

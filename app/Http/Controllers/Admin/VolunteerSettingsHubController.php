@@ -96,7 +96,7 @@ class VolunteerSettingsHubController extends Controller
         $scoped = array_intersect_key($values, array_flip(self::allKeys()));
 
         if (! $scoped) {
-            return back()->with('status', (string) setting('admin.volunteer.settings_hub.import_empty', 'الملفّ ده مفيهوش مفتاح واحد من مفاتيح الهَب — اترفض.'));
+            return back()->with('status', (string) setting('admin.volunteer.settings_hub.import_empty', 'الملفّ ده مفيهوش مفتاح واحد من مفاتيح الهَب، هيترفض.'));
         }
 
         $count = SettingsWriter::putMany($scoped, $request->user());

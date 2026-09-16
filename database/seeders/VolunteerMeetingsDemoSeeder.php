@@ -69,7 +69,7 @@ class VolunteerMeetingsDemoSeeder extends Seeder
             ['meetings.minutes.task_type_key', 'meetings', 'مفتاح نوع المهمّة المتولّدة من بند المحضر', 'string', 'execution'],
             ['meetings.minutes.min_item_length', 'meetings', 'أقلّ طول سطرٍ حتى يُعَدّ بندًا في المحضر (حروف)', 'number', '3'],
             ['meetings.minutes.max_items', 'meetings', 'أقصى عدد بنودٍ تُعرَض من المحضر', 'number', '60'],
-            ['meetings.minutes.stale_item', 'meetings', 'رسالة: بند المحضر لم يعد موجودًا', 'string', 'البند ده مبقاش موجود في المحضر — اقفل الصفحة وافتحها تاني وشوف المحضر الحاليّ.'],
+            ['meetings.minutes.stale_item', 'meetings', 'رسالة: بند المحضر لم يعد موجودًا', 'string', 'البند ده مبقاش موجود في المحضر. اقفل الصفحة وافتحها تاني وشوف المحضر الحاليّ.'],
             ['meetings.minutes.brief_template', 'meetings', 'قالب بريف المهمّة المتولّدة من بند المحضر', 'string', 'بند من محضر اجتماع «:meeting»: :item'],
             ['rep.objection.sla_hours', 'rep', 'مهلة ردّ المسؤول على الاعتراض (ساعات)', 'number', '24'],
         ];
@@ -294,7 +294,7 @@ class VolunteerMeetingsDemoSeeder extends Seeder
         $service->file(
             $attendance->transaction,
             $user,
-            'كنت في مهمّة ميدانيّة وقت الاجتماع وبعتّ اعتذاري على الواتساب — أرفقت لقطة الرسالة.',
+            'كنت في مهمّة ميدانيّة وقت الاجتماع وبعتّ اعتذاري على الواتساب، وأرفقت لقطة الرسالة.',
         );
     }
 }

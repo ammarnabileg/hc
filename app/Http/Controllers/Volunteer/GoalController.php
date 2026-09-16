@@ -119,7 +119,7 @@ class GoalController extends Controller
 
         return redirect()->route('volunteer.goals')->with(
             'status',
-            strtr((string) setting('goals.screen.send_ok', 'اتبعت للتنفيذ ✓ — نافذة التفكيك بدأت لـ:a1 مهمّة، وبتقفل :a2.'), [':a1' => (string) ($result['stamped']), ':a2' => (string) ($result['due_at']?->format('Y-m-d H:i'))]),
+            strtr((string) setting('goals.screen.send_ok', 'اتبعت للتنفيذ ✓، ونافذة التفكيك بدأت لـ:a1 مهمّة، وبتقفل :a2.'), [':a1' => (string) ($result['stamped']), ':a2' => (string) ($result['due_at']?->format('Y-m-d H:i'))]),
         );
     }
 
@@ -151,7 +151,7 @@ class GoalController extends Controller
 
         $this->notifyTrackSupervisors($milestone);
 
-        return back()->with('status', strtr((string) setting('goals.screen.send_ok_2', 'اتسجّل إعلان التحقّق ✓ — مشرف المسار عنده :a1 ساعة للاعتماد.'), [':a1' => (string) ($hours)]));
+        return back()->with('status', strtr((string) setting('goals.screen.send_ok_2', 'اتسجّل إعلان التحقّق ✓، ومشرف المسار عنده :a1 ساعة للاعتماد.'), [':a1' => (string) ($hours)]));
     }
 
     /** اعتماد مشرف المسار للإعلان — وبه يُعلَّم المَعلَم متحقّقًا ✅ */
@@ -270,13 +270,13 @@ class GoalController extends Controller
 
             return redirect()->route('volunteer.goals.build')->with(
                 'status',
-                strtr((string) setting('goals.screen.store_ok', 'اتحفظ ✓ — واتربط بـ:a1 مسار، ووصل إشعار لـ:a2 من مشرفي المسارات المعنيّين.'), [':a1' => (string) (count($result['linked'])), ':a2' => (string) ($result['notified'])]),
+                strtr((string) setting('goals.screen.store_ok', 'اتحفظ ✓، واتربط بـ:a1 مسار، ووصل إشعار لـ:a2 من مشرفي المسارات المعنيّين.'), [':a1' => (string) (count($result['linked'])), ':a2' => (string) ($result['notified'])]),
             );
         }
 
         return redirect()->route('volunteer.goals.build')->with(
             'status',
-            (string) setting('goals.screen.store_ok_2', 'اتحفظ ✓ — ولسّه محدّش شايفه: اربطه بمسار عشان يوصل لمشرفيه.'),
+            (string) setting('goals.screen.store_ok_2', 'اتحفظ ✓، ولسّه محدّش شايفه: اربطه بمسار عشان يوصل لمشرفيه.'),
         );
     }
 
@@ -296,7 +296,7 @@ class GoalController extends Controller
             return back()->withErrors($e->errors());
         }
 
-        return back()->with('status', strtr((string) setting('goals.screen.link_tracks_ok', 'اتربط بـ:a1 مسار ✓ — وصل الإشعار لـ:a2 من مشرفي المسارات المعنيّين.'), [':a1' => (string) (count($result['linked'])), ':a2' => (string) ($result['notified'])]));
+        return back()->with('status', strtr((string) setting('goals.screen.link_tracks_ok', 'اتربط بـ:a1 مسار ✓، وصل الإشعار لـ:a2 من مشرفي المسارات المعنيّين.'), [':a1' => (string) (count($result['linked'])), ':a2' => (string) ($result['notified'])]));
     }
 
     /** 1.2 — شاشة التفكيك: مَعالِم وحزم مربوطة بكيانات **مسار المشرف وحده** */
@@ -356,7 +356,7 @@ class GoalController extends Controller
 
         $this->build->createMilestone($goal, $data, $request->user());
 
-        return back()->with('status', (string) setting('goals.screen.store_milestone_ok', 'اتضاف المَعلَم ✓ — دلوقتي اربط حزمه بكياناتك.'));
+        return back()->with('status', (string) setting('goals.screen.store_milestone_ok', 'اتضاف المَعلَم ✓، دلوقتي اربط حزمه بكياناتك.'));
     }
 
     /**
@@ -386,7 +386,7 @@ class GoalController extends Controller
             return back()->withInput()->withErrors($e->errors());
         }
 
-        return back()->with('status', strtr((string) setting('goals.screen.store_packages_ok', 'اترَبطت :a1 حزمة بكيانات مسارك ✓ — دايركتور كلّ كيان وصله إشعار.'), [':a1' => (string) ($created->count())]));
+        return back()->with('status', strtr((string) setting('goals.screen.store_packages_ok', 'اترَبطت :a1 حزمة بكيانات مسارك ✓، ودايركتور كلّ كيان وصله إشعار.'), [':a1' => (string) ($created->count())]));
     }
 
     /**
@@ -413,7 +413,7 @@ class GoalController extends Controller
 
         $entity = $this->fileDrafts->create($user, $goal, $data['name'], $data['invitations'] ?? []);
 
-        return back()->with('status', strtr((string) setting('goals.screen.store_file_draft_ok', 'اتعملت مسودّة ملفّ «:a1» ✓ — اربط بيها حزمك، وهتتفعّل بدعواتها لحظة «إرسال للتنفيذ» مش قبلها.'), [':a1' => (string) ($entity->name_ar)]));
+        return back()->with('status', strtr((string) setting('goals.screen.store_file_draft_ok', 'اتعملت مسودّة ملفّ «:a1» ✓، اربط بيها حزمك، وهتتفعّل بدعواتها لحظة «إرسال للتنفيذ» مش قبلها.'), [':a1' => (string) ($entity->name_ar)]));
     }
 
     /** 1.4 — التجميع والتسعير: تعديل مباشر بحفظ تلقائيّ + سجلّ «تمّ التعديل» */
@@ -546,7 +546,7 @@ class GoalController extends Controller
 
         $this->build->addTaskForEntity($package, $data, $request->user());
 
-        return back()->with('status', strtr((string) setting('goals.screen.store_aggregate_task_ok', 'اتضافت المهمّة على «:a1» ✓ — مربوطة بكيانها ومالكها دايركتوره.'), [':a1' => (string) ($package->name)]));
+        return back()->with('status', strtr((string) setting('goals.screen.store_aggregate_task_ok', 'اتضافت المهمّة على «:a1» ✓، مربوطة بكيانها ومالكها دايركتوره.'), [':a1' => (string) ($package->name)]));
     }
 
     /** «رفع معاينة للهدف» ⟵ القفل الطبقيّ: الحيازة للقمّة، والرافع قارئ فقط */
@@ -573,7 +573,7 @@ class GoalController extends Controller
 
         return redirect()->route('volunteer.goals.build')->with(
             'status',
-            (string) setting('goals.screen.raise_preview_ok', 'اترفعت المعاينة ✓ — التحرير بقى عند القمّة، وإنت قارئ بس دلوقتي.'),
+            (string) setting('goals.screen.raise_preview_ok', 'اترفعت المعاينة ✓، التحرير بقى عند القمّة، وإنت قارئ بس دلوقتي.'),
         );
     }
 
@@ -624,7 +624,7 @@ class GoalController extends Controller
     private function stageLabels(): array
     {
         $labels = setting('goals.build.stage_labels', [
-            'draft' => 'مسودّة — لسّه محدّش شايفه',
+            'draft' => 'مسودّة، لسّه محدّش شايفه',
             'linked' => 'اتربط بمسار',
             'breakdown' => 'تفكيك',
             'filling' => 'ملء الحزم',

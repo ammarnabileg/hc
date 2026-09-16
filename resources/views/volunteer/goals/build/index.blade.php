@@ -17,7 +17,7 @@
 @section('content')
     <x-page-header
         :title="setting('volunteer.goals_build.title', 'رحلة بناء الهدف')"
-        :subtitle="setting('volunteer.goals_build.subtitle', 'من الإنشاء للتفكيك للملء للتسعير — ومحدّش من المنفّذين شايف حاجة قبل «إرسال للتنفيذ».')"
+        :subtitle="setting('volunteer.goals_build.subtitle', 'من الإنشاء للتفكيك للملء للتسعير، ومحدّش من المنفّذين شايف حاجة قبل «إرسال للتنفيذ».')"
         :breadcrumbs="[['label' => setting('volunteer.goals_build.label', 'الأهداف والمَعالِم'), 'url' => route('volunteer.goals')], ['label' => setting('volunteer.goals_build.title', 'رحلة بناء الهدف')]]">
         @if ($canCreate)
             <x-slot:action>
@@ -49,7 +49,7 @@
                         @if ($tracks)
                             · {{ setting('volunteer.goals_build.text_2', 'مسارات:') }} {{ implode(' · ', $tracks) }}
                         @else
-                            · <span style="color: var(--color-state-warn)">{{ setting('volunteer.goals_build.text_3', 'لسّه مش مربوط بمسار — محدّش شايفه') }}</span>
+                            · <span style="color: var(--color-state-warn)">{{ setting('volunteer.goals_build.text_3', 'لسّه مش مربوط بمسار، ومحدّش شايفه') }}</span>
                         @endif
                     </div>
                 </div>
@@ -106,7 +106,7 @@
                     <form method="post" action="{{ route('volunteer.goals.build.tracks', $goal) }}" class="space-y-3 text-sm">
                         @csrf
                         <p style="color: var(--text-muted)">
-                            {{ setting('volunteer.goals_build.text_5', 'الهدف مايظهرش لحدّ قبل الربط — وبالربط بيوصل الإشعار لمشرفي المسارات دي وحدهم.') }}
+                            {{ setting('volunteer.goals_build.text_5', 'الهدف مايظهرش لحدّ قبل الربط، وبالربط بيوصل الإشعار لمشرفي المسارات دي وحدهم.') }}
                         </p>
                         @foreach ($tracks as $track)
                             <label class="flex items-center gap-2">

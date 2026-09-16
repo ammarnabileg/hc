@@ -6,7 +6,7 @@
     {{-- الأسباب قابلة للإدارة من لوحة الأدمن: إضافة/تعديل/حذف (الدستور 11) --}}
     <x-page-header
         :title="setting('complaints.reasons.page_title', 'أسباب الشكاوى والمقترحات')"
-        :subtitle="setting('complaints.reasons.page_subtitle', 'دي القائمة اللي بيختار منها المستخدم — عدّلها زيّ ما تحبّ.')"
+        :subtitle="setting('complaints.reasons.page_subtitle', 'دي القائمة اللي بيختار منها المستخدم. عدّلها زيّ ما تحبّ.')"
         :breadcrumbs="[
             ['label' => setting('complaints.admin.section_label', 'التوجيه والدعم'), 'url' => route('admin.guidance.index')],
             ['label' => setting('complaints.admin.queue_label', 'الشكاوى'), 'url' => route('admin.guidance.complaints')],

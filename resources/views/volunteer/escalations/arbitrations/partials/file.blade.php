@@ -105,7 +105,7 @@
                         <option value="award">(+) VXP {{ setting('volunteer.escalations_arbitrations_file.option', 'لطرف أو للطرفين') }}</option>
                         <option value="deduct">(−) VXP {{ setting('volunteer.escalations_arbitrations_file.option', 'لطرف أو للطرفين') }}</option>
                         <option value="split">{{ str_replace(':share', $file['settlementShare'], (string) setting('volunteer.escalations_arbitrations_file.option_2', 'قيمة وسط (:share VXP لكلٍّ)')) }}</option>
-                        <option value="shelved">{{ setting('volunteer.escalations_arbitrations_file.option_4', 'حفظ القضيّة — لا شيء يتمّ ولا يمسّ Rep') }}</option>
+                        <option value="shelved">{{ setting('volunteer.escalations_arbitrations_file.option_4', 'حفظ القضيّة، لا شيء يتمّ ولا يمسّ Rep') }}</option>
                     </select>
                 </label>
 

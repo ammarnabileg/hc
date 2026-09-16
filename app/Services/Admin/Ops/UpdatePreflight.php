@@ -64,7 +64,7 @@ class UpdatePreflight
         $ok = version_compare(PHP_VERSION, $min, '>=');
 
         return $this->row('php', setting('updates.update_preflight.php_1', 'إصدار PHP'), PHP_VERSION, $ok,
-            strtr(setting('updates.update_preflight.php_2', 'المطلوب :p1 أو أحدث — كلّم مزوّد الاستضافة يرفّعه قبل التحديث.'), [':p1' => (string) ($min)]));
+            strtr(setting('updates.update_preflight.php_2', 'المطلوب :p1 أو أحدث، كلّم مزوّد الاستضافة يرفّعه قبل التحديث.'), [':p1' => (string) ($min)]));
     }
 
     private function extensions(): array
@@ -76,7 +76,7 @@ class UpdatePreflight
         return $this->row('extensions', setting('updates.update_preflight.extensions_1', 'امتدادات PHP'),
             $missing === [] ? strtr(setting('updates.update_preflight.extensions_2', ':p1 امتداد موجود'), [':p1' => (string) (count($required))]) : strtr(setting('updates.update_preflight.extensions_3', 'ناقص: :p1'), [':p1' => (string) (implode(' · ', $missing))]),
             $missing === [],
-            setting('updates.update_preflight.extensions_4', 'نصّب الامتدادات الناقصة من الخادم — بدونها النسخة الاحتياطيّة نفسها مش هتتعمل.'));
+            setting('updates.update_preflight.extensions_4', 'نصّب الامتدادات الناقصة من الخادم، لأن بدونها النسخة الاحتياطيّة نفسها مش هتتعمل.'));
     }
 
     private function writable(): array
@@ -116,13 +116,13 @@ class UpdatePreflight
 
         if ($free === false) {
             return $this->row('disk', setting('updates.update_preflight.disk_1', 'مساحة القرص'), setting('updates.update_preflight.disk_2', 'غير متاحة للقراءة'), false,
-                strtr(setting('updates.update_preflight.disk_3', 'الخادم مش بيسمح بقراءة المساحة — اتأكّد يدويًّا إنّ فيه :p1 فاضية قبل ما تكمّل.'), [':p1' => (string) ($this->mb($needed))]));
+                strtr(setting('updates.update_preflight.disk_3', 'الخادم مش بيسمح بقراءة المساحة، اتأكّد يدويًّا إنّ فيه :p1 فاضية قبل ما تكمّل.'), [':p1' => (string) ($this->mb($needed))]));
         }
 
         return $this->row('disk', setting('updates.update_preflight.disk_4', 'مساحة القرص'),
             strtr(setting('updates.update_preflight.disk_5', 'فاضي :p1 · المطلوب :p2'), [':p1' => (string) ($this->mb((int) $free)), ':p2' => (string) ($this->mb($needed))]),
             $free >= $needed,
-            setting('updates.update_preflight.disk_6', 'فضّي مساحة أو امسح نسخًا قديمة — النسخة الاحتياطيّة المبتورة أسوأ من غيابها.'));
+            setting('updates.update_preflight.disk_6', 'فضّي مساحة أو امسح نسخًا قديمة، فالنسخة الاحتياطيّة المبتورة أسوأ من غيابها.'));
     }
 
     private function database(): array
@@ -149,7 +149,7 @@ class UpdatePreflight
         return $this->row('integrity', setting('updates.update_preflight.integrity_4', 'سلامة الإصدار الحاليّ'),
             $bad === [] ? strtr(setting('updates.update_preflight.integrity_5', ':p1 هجرة ببصمة مطابقة'), [':p1' => (string) ($this->ledger->appliedCount())]) : strtr(setting('updates.update_preflight.integrity_6', ':p1 هجرة ملفّها اتغيّر بعد تطبيقها'), [':p1' => (string) (count($bad))]),
             $bad === [],
-            $bad === [] ? setting('updates.update_preflight.integrity_7', 'كلّ هجرة زيّ ما اتطبّقت بالظبط.') : strtr(setting('updates.update_preflight.integrity_8', 'ملفّ اتعدّل بعد تطبيقه (:p1) — رجّع الملفّ لأصله أو اعمل هجرة جديدة بدل تعديل القديمة.'), [':p1' => (string) (implode(' · ', array_slice($bad, 0, 3)))]));
+            $bad === [] ? setting('updates.update_preflight.integrity_7', 'كلّ هجرة زيّ ما اتطبّقت بالظبط.') : strtr(setting('updates.update_preflight.integrity_8', 'ملفّ اتعدّل بعد تطبيقه (:p1)، رجّع الملفّ لأصله أو اعمل هجرة جديدة بدل تعديل القديمة.'), [':p1' => (string) (implode(' · ', array_slice($bad, 0, 3)))]));
     }
 
     /**
@@ -167,7 +167,7 @@ class UpdatePreflight
         return $this->row('lock', setting('updates.update_preflight.lock_free_1', 'قفل التحديث'),
             $lock ? setting('updates.update_preflight.lock_free_2', 'مقفول من ').($lock->holder_name ?? setting('updates.update_preflight.lock_free_3', 'تشغيل تاني')) : setting('updates.update_preflight.lock_free_4', 'مفتوح'),
             $lock === null,
-            setting('updates.update_preflight.lock_free_5', 'في تحديث شغّال دلوقتي — استنّاه يخلص، والقفل بيتحرّر لوحده بعد المهلة المضبوطة في الإعدادات.'));
+            setting('updates.update_preflight.lock_free_5', 'في تحديث شغّال دلوقتي، استنّاه يخلص، والقفل بيتحرّر لوحده بعد المهلة المضبوطة في الإعدادات.'));
     }
 
     // ------------------------------------------------------------------ داخليّ

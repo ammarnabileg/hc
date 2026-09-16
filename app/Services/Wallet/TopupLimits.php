@@ -109,7 +109,7 @@ class TopupLimits
 
         if ($amount < $min) {
             return strtr(
-                (string) setting('wallet.topup_limits.below_min', 'أقلّ مبلغ للشحن :p1 — زوّد القيمة وابعت تاني.'),
+                (string) setting('wallet.topup_limits.below_min', 'أقلّ مبلغ للشحن :p1، زوّد القيمة وابعت تاني.'),
                 [':p1' => $this->format($min)],
             );
         }
@@ -118,7 +118,7 @@ class TopupLimits
 
         if ($max > 0 && $amount > $max) {
             return strtr(
-                (string) setting('wallet.topup_limits.above_max', 'أقصى مبلغ للعمليّة الواحدة :p1 — قلّل القيمة أو قسّمها على أكتر من عمليّة.'),
+                (string) setting('wallet.topup_limits.above_max', 'أقصى مبلغ للعمليّة الواحدة :p1، قلّل القيمة أو قسّمها على أكتر من عمليّة.'),
                 [':p1' => $this->format($max)],
             );
         }
@@ -127,7 +127,7 @@ class TopupLimits
 
         if ($daily > 0 && $this->usedToday($user) + $amount > $daily) {
             return strtr(
-                (string) setting('wallet.topup_limits.daily_exceeded', 'الحدّ اليوميّ للشحن :p1 وانت شحنت النهارده :p2 — الباقي لك النهارده :p3، وبكرة يبدأ الحدّ من أوّله.'),
+                (string) setting('wallet.topup_limits.daily_exceeded', 'الحدّ اليوميّ للشحن :p1 وانت شحنت النهارده :p2، فالباقي لك النهارده :p3، وبكرة يبدأ الحدّ من أوّله.'),
                 [
                     ':p1' => $this->format($daily),
                     ':p2' => $this->format($this->usedToday($user)),

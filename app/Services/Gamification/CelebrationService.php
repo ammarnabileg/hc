@@ -110,7 +110,7 @@ class CelebrationService
 
     private function message(CelebrationEvent $event, User $user): string
     {
-        $template = $event->message_ar ?: setting('celebrations.default_message', 'مبروك يا :name — :label 🎉');
+        $template = $event->message_ar ?: setting('celebrations.default_message', 'مبروك يا :name، :label 🎉');
 
         return str_replace([':name', ':label'], [$user->shortName(1), $event->label_ar], $template);
     }

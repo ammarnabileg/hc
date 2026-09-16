@@ -4,7 +4,7 @@
 
 @section('content')
     <x-page-header :title="setting('admin.studio.edit.qalb', 'قالب: ') . $template->name"
-                   :subtitle="setting('admin.studio.edit.tbqat_mqasat_hqwl_mn_alqayma_almqfwla', 'طبقات · مقاسات · حقول من القائمة المقفولة — ومعاينة ببيانات حقيقيّة.')"
+                   :subtitle="setting('admin.studio.edit.tbqat_mqasat_hqwl_mn_alqayma_almqfwla', 'طبقات · مقاسات · حقول من القائمة المقفولة، ومعاينة ببيانات حقيقيّة.')"
                    :breadcrumbs="[
                        ['label' => setting('admin.studio.edit.lwha_alidara', 'لوحة الإدارة'), 'url' => url('/admin')],
                        ['label' => setting('admin.studio.edit.astwdyw_alswr', 'استوديو الصور'), 'url' => route('admin.studio.index')],
@@ -210,8 +210,8 @@
                 {{-- ⭐ معاينة بالمقاس الحقيقيّ (12.14 — نفس محرّك 12.5-ب): نفس الرسّام
                      ونفس البكسلات التي ستُنتَجها الصورة الفعليّة، لا تقريبًا بـCSS --}}
                 <p class="text-xs mt-2" style="color: var(--text-muted)">
-                    {{ setting('admin.studio.edit.maayna_balmqas_alhqyqy_nfs_alrsam', 'معاينة بالمقاس الحقيقيّ — نفس الرسّام الذي يُنتِج الصورة الفعليّة.') }}
-                    {{ setting('admin.studio.edit.kl_swra_mstkhrja_bthml_tarykh_allqta_wshaar', 'كلّ صورة مستخرَجة بتحمل تاريخ اللقطة وشعار المنصّة — فمحدش ينشر ترتيبًا قديمًا كأنّه حاليّ.') }}
+                    {{ setting('admin.studio.edit.maayna_balmqas_alhqyqy_nfs_alrsam', 'معاينة بالمقاس الحقيقيّ، بنفس الرسّام الذي يُنتِج الصورة الفعليّة.') }}
+                    {{ setting('admin.studio.edit.kl_swra_mstkhrja_bthml_tarykh_allqta_wshaar', 'كلّ صورة مستخرَجة بتحمل تاريخ اللقطة وشعار المنصّة، فمحدش ينشر ترتيبًا قديمًا كأنّه حاليّ.') }}
                 </p>
             </div>
 

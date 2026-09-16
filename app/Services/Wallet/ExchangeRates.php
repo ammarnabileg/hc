@@ -103,7 +103,7 @@ class ExchangeRates
         $value = (float) setting($key, $fallback);
 
         if ($value <= 0) {
-            throw new RuntimeException(strtr(setting('wallet.exchange_rates.positive_1', 'سعر الصرف «:p1» لازم يكون أكبر من صفر — صلّحه من شاشة أسعار الصرف.'), [':p1' => (string) ($key)]));
+            throw new RuntimeException(strtr(setting('wallet.exchange_rates.positive_1', 'سعر الصرف «:p1» لازم يكون أكبر من صفر، صلّحه من شاشة أسعار الصرف.'), [':p1' => (string) ($key)]));
         }
 
         return $value;

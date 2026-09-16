@@ -17,7 +17,7 @@
                 <x-state-badge state="honor" :label="$honorary['label']" />
             </div>
             <div class="text-xs" style="color: var(--text-muted)">
-                {{ setting('volunteer.honorary.note', 'عنصر شرفيّ — بلا مؤشّرات ولا يدخل أيّ عدّاد') }}
+                {{ setting('volunteer.honorary.note', 'عنصر شرفيّ، بلا مؤشّرات ولا يدخل أيّ عدّاد') }}
             </div>
         </div>
     </div>

@@ -30,7 +30,7 @@
         <div class="card p-3 mb-4 flex items-center gap-2 text-sm"
              style="border-inline-start: 3px solid var(--color-state-warn)">
             <span aria-hidden="true">▲</span>
-            <span>{{ setting('volunteer.contributions.text', 'تفتيش مستحقّ خلال ساعة — مهلة الردّ') }} {{ $checkpointHours }} {{ setting('volunteer.contributions.text_2', 'ساعة داخل') }} {{ $activityWindow }}.</span>
+            <span>{{ setting('volunteer.contributions.text', 'تفتيش مستحقّ خلال ساعة. مهلة الردّ') }} {{ $checkpointHours }} {{ setting('volunteer.contributions.text_2', 'ساعة داخل') }} {{ $activityWindow }}.</span>
         </div>
     @endif
 
@@ -67,7 +67,7 @@
     </x-filters>
 
     @if ($rows->isEmpty())
-        <x-empty :message="setting('volunteer.contributions.empty', 'مفيش مساهمات عليك دلوقتي — أوّل دعوة هتوصلك هنا')" />
+        <x-empty :message="setting('volunteer.contributions.empty', 'مفيش مساهمات عليك دلوقتي، أوّل دعوة هتوصلك هنا')" />
     @else
         {{-- الجداول كروت رأسيّة على الموبايل بلا تمرير أفقيّ (2.15-ج) --}}
         <div class="space-y-3">
@@ -247,7 +247,7 @@
                 <p class="text-sm mb-3">
                     {{ setting('volunteer.contributions.field_20', 'الموعد:') }} {{ $point->scheduled_at?->format('Y-m-d H:i') }} ·
                     {{ setting('volunteer.contributions.field_21', 'مهلة الردّ حتى') }} {{ $point->response_due_at?->format('Y-m-d H:i') }}
-                    <span style="color: var(--text-muted)">{{ str_replace(':window', $activityWindow, (string) setting('volunteer.contributions.activity_window_note', '(:window — وما خارجها لا يُحتسَب تأخيرًا)')) }}</span>
+                    <span style="color: var(--text-muted)">{{ str_replace(':window', $activityWindow, (string) setting('volunteer.contributions.activity_window_note', '(:window، وما خارجها لا يُحتسَب تأخيرًا)')) }}</span>
                 </p>
 
                 @if ($point->response_body)

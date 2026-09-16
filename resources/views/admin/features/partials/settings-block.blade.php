@@ -33,14 +33,14 @@
             <span class="block mb-1">{{ setting('features.ui.popup.message_ar', 'اللي المستخدم هيشوفه بدلها (عربيّ)') }} <code class="text-xs" style="color: var(--text-muted)">features.disabled_message</code></span>
             <textarea name="features__disabled_message" rows="2" @disabled(! $mayEdit)
                       class="w-full rounded-xl px-3 py-2 text-sm"
-                      style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">{{ setting('features.disabled_message', 'الميزة دي متوقّفة مؤقّتًا — هترجع قريب.') }}</textarea>
+                      style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">{{ setting('features.disabled_message', 'الميزة دي متوقّفة مؤقّتًا، هترجع قريب.') }}</textarea>
         </label>
 
         <label class="block text-sm">
             <span class="block mb-1">{{ setting('features.ui.popup.message_en', 'اللي المستخدم هيشوفه بدلها (إنجليزيّ)') }} <code class="text-xs" style="color: var(--text-muted)">features.disabled_message_en</code></span>
             <textarea name="features__disabled_message_en" rows="2" dir="ltr" @disabled(! $mayEdit)
                       class="w-full rounded-xl px-3 py-2 text-sm"
-                      style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">{{ setting('features.disabled_message_en', 'This feature is paused for a moment — it will be back soon.') }}</textarea>
+                      style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">{{ setting('features.disabled_message_en', 'This feature is paused for a moment. It will be back soon.') }}</textarea>
         </label>
     </div>
 
@@ -66,5 +66,5 @@
                 style="background: var(--surface-sunken)">{{ setting('features.ui.action.reset', '↺') }} {{ setting('features.ui.settings_title', 'إعدادات المفاتيح') }}</button>
     @endif
 
-    <p class="text-xs" style="color: var(--text-muted)">{{ setting('features.ui.pinned_rule', 'لا صيانة جزئيّة لميزة بعينها — أُلغيت؛ الإطفاء يتمّ من هنا فقط.') }}</p>
+    <p class="text-xs" style="color: var(--text-muted)">{{ setting('features.ui.pinned_rule', 'لا صيانة جزئيّة لميزة بعينها. أُلغيت؛ الإطفاء يتمّ من هنا فقط.') }}</p>
 </form>

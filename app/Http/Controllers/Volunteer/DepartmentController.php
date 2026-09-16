@@ -129,7 +129,7 @@ class DepartmentController extends Controller
         $delegate = app(AbsenceService::class)->delegateOfAbsence($absence);
 
         $note = $delegate
-            ? strtr((string) setting('volunteer_org.departments.absence_delegate', ' — البديل: :name، وكلّ القرارات هتروح له.'), [':name' => (string) $delegate->shortName()])
+            ? strtr((string) setting('volunteer_org.departments.absence_delegate', '، البديل: :name، وكلّ القرارات هتروح له.'), [':name' => (string) $delegate->shortName()])
             : '';
 
         return back()->with('status', strtr((string) setting('volunteer_org.departments.absence_ok', 'اتسجّل وضع «غائب» ✓:a1'), [':a1' => $note]));
@@ -179,7 +179,7 @@ class DepartmentController extends Controller
         // الردّ محايد دائمًا — لا يكشف قبولًا ولا رفضًا (حفظًا للعلاقة داخل الفريق)
         return back()->with('status', (string) setting(
             'volunteer.consent.request_sent',
-            'وصل طلبك — هيوصلك الردّ لمّا يتاح.',
+            'وصل طلبك، هيوصلك الردّ لمّا يتاح.',
         ));
     }
 

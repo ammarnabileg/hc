@@ -98,7 +98,7 @@ class CertificateBridge
         Notifier::send(
             user: $certificate->user,
             category: 'certificate',
-            title: (string) setting('certificates.issue.notice_title', 'مبروك — صدرت شهادتك 🎓'),
+            title: (string) setting('certificates.issue.notice_title', 'مبروك، صدرت شهادتك 🎓'),
             body: (string) ($certificate->data_snapshot['certificate_name'] ?? null),
             url: Route::has('verify.certificate')
                 ? route('verify.certificate', ['code' => $certificate->code])

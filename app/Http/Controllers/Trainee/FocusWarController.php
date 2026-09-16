@@ -97,7 +97,7 @@ class FocusWarController extends Controller
             return back()->with('status', $e->getMessage())->with('topup_needed', $e->shortfall());
         }
 
-        return redirect()->route('challenges.focus.index')->with('status', (string) setting('wars.messages.focus_started', 'التحدّي بدأ — ركّز وإحنا معاك 🧘'));
+        return redirect()->route('challenges.focus.index')->with('status', (string) setting('wars.messages.focus_started', 'التحدّي بدأ، ركّز وإحنا معاك 🧘'));
     }
 
     public function join(Request $request, FocusWar $focus_war): RedirectResponse
@@ -108,7 +108,7 @@ class FocusWarController extends Controller
             return back()->with('status', $e->getMessage())->with('topup_needed', $e->shortfall());
         }
 
-        return redirect()->route('challenges.focus.index')->with('status', (string) setting('wars.messages.focus_joined', 'انضممت — تذكرتك راحت لصاحب التحدّي 🎟️'));
+        return redirect()->route('challenges.focus.index')->with('status', (string) setting('wars.messages.focus_joined', 'انضممت، تذكرتك راحت لصاحب التحدّي 🎟️'));
     }
 
     public function cancel(Request $request, FocusWar $focus_war): RedirectResponse

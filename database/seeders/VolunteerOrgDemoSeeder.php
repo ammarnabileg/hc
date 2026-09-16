@@ -49,7 +49,7 @@ class VolunteerOrgDemoSeeder extends Seeder
             ['volunteer.org.occupancy_danger_percent', 'volunteer_org', 'عتبة الإشغال الحمراء (%)', 'number', '100'],
             ['volunteer.org.date_format', 'volunteer', 'صيغة التاريخ في شاشات قسمي', 'string', 'j F Y'],
             ['volunteer.org.service_duration.unknown', 'volunteer', 'نصّ مدّة الخدمة غير المعروفة', 'string', 'لسّه في أوّل الطريق'],
-            ['volunteer.honorary.note', 'volunteer', 'سطر توضيح العنصر الشرفيّ', 'string', 'عنصر شرفيّ — بلا مؤشّرات ولا يدخل أيّ عدّاد'],
+            ['volunteer.honorary.note', 'volunteer', 'سطر توضيح العنصر الشرفيّ', 'string', 'عنصر شرفيّ، بلا مؤشّرات ولا يدخل أيّ عدّاد'],
 
             // ---------------- التواصل والموافقة (13.4-م-2)
             ['volunteer.contact.mask_char', 'volunteer', 'رمز إخفاء الرقم', 'string', '•'],
@@ -57,7 +57,7 @@ class VolunteerOrgDemoSeeder extends Seeder
             ['volunteer.contact.whatsapp_template', 'volunteer', 'قالب رسالة واتساب', 'text', 'السلام عليكم :name، معاك زميلك من فريق التطوّع.'],
             ['volunteer.consent.request_hours', 'volunteer', 'صلاحيّة طلب إظهار الرقم (ساعات)', 'number', '72'],
             ['volunteer.consent.cooldown_hours', 'volunteer', 'تبريد إعادة الطلب (ساعات)', 'number', '72'],
-            ['volunteer.consent.request_sent', 'volunteer', 'رسالة تأكيد إرسال الطلب', 'string', 'وصل طلبك — هيوصلك الردّ لمّا يتاح.'],
+            ['volunteer.consent.request_sent', 'volunteer', 'رسالة تأكيد إرسال الطلب', 'string', 'وصل طلبك. هيوصلك الردّ لمّا يتاح.'],
 
             // ---------------- صحّة القسم (13.4-ح)
             ['volunteer.health.default_period_days', 'volunteer', 'الفترة الافتراضيّة لصحّة القسم (أيّام)', 'number', '30'],
@@ -68,18 +68,18 @@ class VolunteerOrgDemoSeeder extends Seeder
             ['volunteer.health.ring.warn_percent', 'volunteer', 'عتبة المؤشّر العامّ الصفراء (%)', 'number', '45'],
             ['volunteer.health.retention_risk.threshold', 'volunteer', 'عدد إشارات مخاطر الفقدان للتنبيه', 'number', '2'],
             ['volunteer.health.retention_risk.late_tasks', 'volunteer', 'عدد المهامّ المتأخّرة كإشارة خطر', 'number', '2'],
-            ['volunteer.health.retention_risk.note', 'volunteer', 'سطر تحذير مخاطر الفقدان', 'string', 'داخليّ للأبلاين فقط — ولا يُعرَض للمتطوّع عن نفسه أبدًا'],
+            ['volunteer.health.retention_risk.note', 'volunteer', 'سطر تحذير مخاطر الفقدان', 'string', 'داخليّ للأبلاين فقط، ولا يُعرَض للمتطوّع عن نفسه أبدًا'],
 
             // ---------------- السعة والأحمال (13.4-ف) — مؤشّرات لا موانع
-            ['volunteer.capacity.banner', 'volunteer', 'بانر السعة الثابت', 'string', 'السعة غير مانعة — لا توقف تسكينًا ولا ترقيةً ولا نقلًا'],
+            ['volunteer.capacity.banner', 'volunteer', 'بانر السعة الثابت', 'string', 'السعة غير مانعة، لا توقف تسكينًا ولا ترقيةً ولا نقلًا'],
             ['volunteer.capacity.difference_line', 'volunteer', 'سطر التفريق بين السعة وسقف الانشغال', 'string', 'السعة = عدد أشخاص · سقف الانشغال = عدد مهامّ'],
             ['volunteer.capacity.suggestion.merge', 'volunteer', 'اقتراح الدمج', 'string', 'اقتراح: دمج مع كيان مجاور'],
             ['volunteer.capacity.suggestion.drop_layer', 'volunteer', 'اقتراح إلغاء الطبقة', 'string', 'اقتراح: إلغاء الطبقة'],
-            ['volunteer.capacity.load_suggestion', 'volunteer', 'وسم الأقلّ حملًا', 'string', 'مقترَح للتسكين الجديد — اقتراح لا إلزام'],
+            ['volunteer.capacity.load_suggestion', 'volunteer', 'وسم الأقلّ حملًا', 'string', 'مقترَح للتسكين الجديد، اقتراح لا إلزام'],
             ['volunteer.capacity.load_note', 'volunteer', 'سطر شرح الأحمال', 'string', 'منطق الموازن: يقترح ولا يُلزِم'],
             ['volunteer.capacity.suggest_count', 'volunteer', 'عدد المقترَحين للتسكين الجديد', 'number', '3'],
             ['volunteer.capacity.min_entity_cap', 'volunteer', 'أدنى سقف محسوب لكيان', 'number', '5'],
-            ['volunteer.capacity.breach_notice', 'volunteer', 'نصّ تنبيه التجاوز', 'string', 'تنبيه فقط — لا يمنع الإجراء'],
+            ['volunteer.capacity.breach_notice', 'volunteer', 'نصّ تنبيه التجاوز', 'string', 'تنبيه فقط، لا يمنع الإجراء'],
 
             // ---------------- بطاقة المتطوّع (13.4-ر)
             ['volunteer_card.code_prefix', 'volunteer', 'بادئة رقم البطاقة', 'string', 'VC'],
@@ -87,7 +87,7 @@ class VolunteerOrgDemoSeeder extends Seeder
             ['volunteer_card.qr.quiet_modules', 'volunteer', 'هامش الـQR (وحدات)', 'number', '2'],
             ['volunteer_card.verify_hint', 'volunteer', 'سطر تحت الـQR', 'string', 'امسح الكود للتحقّق من البطاقة'],
             ['volunteer_card.verify.valid_text', 'volunteer', 'نصّ البطاقة السارية', 'text', 'البطاقة سارية، وصاحبها متطوّع مُسكَّن عندنا.'],
-            ['volunteer_card.verify.expired_text', 'volunteer', 'نصّ البطاقة المنتهية', 'text', 'البطاقة منتهية — انتهت عضويّة صاحبها، والسجلّ محفوظ.'],
+            ['volunteer_card.verify.expired_text', 'volunteer', 'نصّ البطاقة المنتهية', 'text', 'البطاقة منتهية، انتهت عضويّة صاحبها، والسجلّ محفوظ.'],
             ['volunteer_card.image.no_template', 'volunteer', 'صورة البطاقة: لا تصميم مُفعَّل', 'string', 'مفيش تصميم بطاقة مُفعَّل بعد.'],
             ['volunteer_card.image.invite_qr_size', 'volunteer', 'صورة البطاقة: مقاس QR الدعوة (بكسل)', 'number', '220'],
             ['volunteer_card.image.invite_qr_margin', 'volunteer', 'صورة البطاقة: هامش QR الدعوة (بكسل)', 'number', '32'],

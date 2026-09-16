@@ -160,8 +160,8 @@ class FeatureGate
         }
 
         return trim((string) ($english
-            ? setting('features.disabled_message_en', 'This feature is paused for a moment — it will be back soon.')
-            : setting('features.disabled_message', 'الميزة دي متوقّفة مؤقّتًا — هترجع قريب.')));
+            ? setting('features.disabled_message_en', 'This feature is paused for a moment, it will be back soon.')
+            : setting('features.disabled_message', 'الميزة دي متوقّفة مؤقّتًا، هترجع قريب.')));
     }
 
     /**

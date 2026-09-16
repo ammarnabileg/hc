@@ -9,7 +9,7 @@
 @section('content')
     <x-page-header
         :title="setting('wallet.rates.title', 'أسعار الصرف والرسوم')"
-        :subtitle="setting('wallet.rates.subtitle', 'مصدر الحقيقة الوحيد لكلّ رقم ماليّ في المحفظة — لمالك المنصّة وحده.')"
+        :subtitle="setting('wallet.rates.subtitle', 'مصدر الحقيقة الوحيد لكلّ رقم ماليّ في المحفظة، ولمالك المنصّة وحده.')"
         :breadcrumbs="[['label' => setting('wallet.rates.breadcrumb_root', 'المحفظة'), 'url' => route('wallet.index')], ['label' => setting('wallet.rates.breadcrumb_self', 'أسعار الصرف')]]" />
 
     @if ($errors->has('rates'))

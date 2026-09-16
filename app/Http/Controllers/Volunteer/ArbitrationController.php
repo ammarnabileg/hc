@@ -166,7 +166,7 @@ class ArbitrationController extends Controller
             ]);
         }
 
-        return back()->with('status', (string) setting('workflow.arbitration.decide_ok', 'اتسجّل القرار — نهائيّ ولا يُعاد ✓'));
+        return back()->with('status', (string) setting('workflow.arbitration.decide_ok', 'اتسجّل القرار، نهائيّ ولا يُعاد ✓'));
     }
 
     // ------------------------------------------------------------------ داخليّ

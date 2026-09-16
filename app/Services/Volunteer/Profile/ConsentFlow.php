@@ -345,7 +345,7 @@ final class ConsentFlow
 
         $body = $consent->reason
             ? str_replace(':reason', $consent->reason, (string) setting('volunteer.profile.consent.notify_body', 'السبب: :reason'))
-            : (string) setting('volunteer.profile.consent.notify_no_reason', 'من غير سبب مكتوب — القرار ليك.');
+            : (string) setting('volunteer.profile.consent.notify_no_reason', 'من غير سبب مكتوب، والقرار ليك.');
 
         $notification = Notifier::send(
             user: $owner,

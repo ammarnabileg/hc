@@ -1,5 +1,5 @@
 @extends('layouts.guest')
-@section('title', setting('onboarding.account.title', 'إنشاء حساب — بياناتك الأساسيّة'))
+@section('title', setting('onboarding.account.title', 'إنشاء حساب: بياناتك الأساسيّة'))
 
 @php
     /**
@@ -30,9 +30,9 @@
 <div class="panel w-full max-w-lg">
     {{-- خطوتان معلنتان: المستخدم يعرف أين هو وكم بقي (2.9) --}}
     <p class="small muted mb-2">
-        {{ setting('onboarding.account.step_label', 'خطوة 1 من 2 — بيانات الدخول') }}
+        {{ setting('onboarding.account.step_label', 'خطوة 1 من 2: بيانات الدخول') }}
     </p>
-    <h1>{{ setting('onboarding.account.title', 'إنشاء حساب — بياناتك الأساسيّة') }}</h1>
+    <h1>{{ setting('onboarding.account.title', 'إنشاء حساب: بياناتك الأساسيّة') }}</h1>
     {{-- التفعيل مجّانيّ باعتماد إداريّ — لا رسوم ولا اشتراك (2.5-د) --}}
     <p class="mt-3 mb-6 muted">
         {{ setting('onboarding.account.subtitle', 'التسجيل والتفعيل مجّانيّان بالكامل. هنأكّد بريدك دلوقتي، وبيانات الشهادة في الخطوة اللي بعدها.') }}
@@ -46,7 +46,7 @@
         {{-- تفعيل هديّة الدعوة: صوت واحتفال (2.5-أ) --}}
         @include('onboarding.partials.celebration', ['celebration' => ['tier' => 2, 'sound' => false, 'sound_path' => null]])
         <p class="rounded-xl p-3 mb-4 text-sm" style="background: color-mix(in srgb, var(--color-state-ok) 14%, transparent)">
-            ● {{ setting('onboarding.referral.success_text', 'تمام ✓ هديّتك اتفعّلت — كمّل تسجيلك.') }}
+            ● {{ setting('onboarding.referral.success_text', 'تمام ✓ هديّتك اتفعّلت، كمّل تسجيلك.') }}
         </p>
     @endif
 
@@ -76,7 +76,7 @@
 
             @if ($otpVerified)
                 <p class="text-sm font-semibold" data-otp-done style="color: var(--color-state-ok)">
-                    ✓ {{ setting('auth.otp.verified_text', 'بريدك اتأكّد — كمّل باقي البيانات.') }}
+                    ✓ {{ setting('auth.otp.verified_text', 'بريدك اتأكّد، كمّل باقي البيانات.') }}
                 </p>
             @else
                 <div class="flex items-end gap-2 flex-wrap">
@@ -112,7 +112,7 @@
                 @endif
 
                 <p class="text-xs mt-2" style="color: var(--text-muted)">
-                    {{ str_replace('{length}', (string) $otpLength, setting('auth.otp.inline_hint', 'هنبعت رمز من {length} أرقام على بريدك — اكتبه هنا عشان نتأكّد إنّه بريدك فعلًا.')) }}
+                    {{ str_replace('{length}', (string) $otpLength, setting('auth.otp.inline_hint', 'هنبعت رمز من {length} أرقام على بريدك، اكتبه هنا عشان نتأكّد إنّه بريدك فعلًا.')) }}
                 </p>
             @endif
         </div>
@@ -121,7 +121,7 @@
         <div class="block">
             <span class="block text-sm mb-1">{{ setting('onboarding.account.phone_label', 'رقم الموبايل') }}</span>
             <p class="text-xs mb-1" style="color: var(--text-muted)">
-                {{ setting('onboarding.account.phone_hint', 'الرقم للتواصل بس — مش هنبعتلك عليه كود تحقّق.') }}
+                {{ setting('onboarding.account.phone_hint', 'الرقم للتواصل بس، مش هنبعتلك عليه كود تحقّق.') }}
             </p>
 
             <div class="flex gap-2">

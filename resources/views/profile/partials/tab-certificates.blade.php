@@ -8,7 +8,7 @@
 @if (! $canSee)
     <x-empty :message="setting('account.profile.certificates.hidden_message', 'الشهادات مش متاحة على البروفايل ده.')" />
 @elseif ($certificates->isEmpty())
-    <x-empty :message="setting('account.profile.certificates.empty_message', 'لسّه بدري — أوّل شهادة مستنّياك.')" />
+    <x-empty :message="setting('account.profile.certificates.empty_message', 'لسّه بدري، أوّل شهادة مستنّياك.')" />
 @else
     <div class="grid md:grid-cols-2 gap-3">
         @foreach ($certificates as $certificate)

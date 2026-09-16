@@ -289,7 +289,7 @@ class VolunteerSettingsHubTest extends AdminVolunteerTestCase
         $this->actingAs($manager)
             ->post(route('admin.volunteer.settings-hub.import'), ['file' => $file])
             ->assertRedirect()
-            ->assertSessionHas('status', 'الملفّ ده مفيهوش مفتاح واحد من مفاتيح الهَب — اترفض.');
+            ->assertSessionHas('status', 'الملفّ ده مفيهوش مفتاح واحد من مفاتيح الهَب، هيترفض.');
 
         $this->assertSame('2', (string) setting('kudos.daily_limit'));
     }

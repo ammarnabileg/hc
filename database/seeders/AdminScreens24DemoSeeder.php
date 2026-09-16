@@ -85,7 +85,7 @@ class AdminScreens24DemoSeeder extends Seeder
 
             $referral->forceFill([
                 'payout_status' => $state,
-                'payout_note' => $state === 'held' ? 'نمط دعوات متقارب — محتاج تدقيق قبل الصرف.' : null,
+                'payout_note' => $state === 'held' ? 'نمط دعوات متقارب، محتاج تدقيق قبل الصرف.' : null,
                 'is_flagged' => $state === 'held',
             ])->save();
 

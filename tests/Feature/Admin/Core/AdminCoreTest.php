@@ -602,7 +602,7 @@ class AdminCoreTest extends TestCase
         $this->assertStringContainsString('data-perm-toggle][data-perm-sensitive', $html);
 
         // النصّ يصل السكربت عبر @json — مرمّزًا لا عربيًّا حرفيًّا (نفس أعلام Blade @json الافتراضيّة)
-        $expectedText = (string) setting('admin.roles.edit.mtakd_ink_aayz_tmnh_alslahya_alhsasa_dy_v1', 'دي صلاحيّة حسّاسة 🔒 — متأكّد إنك عايز تمنح: :v1؟');
+        $expectedText = (string) setting('admin.roles.edit.mtakd_ink_aayz_tmnh_alslahya_alhsasa_dy_v1', 'دي صلاحيّة حسّاسة 🔒. متأكّد إنك عايز تمنح: :v1؟');
         $this->assertStringContainsString(
             json_encode($expectedText, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT),
             $html,

@@ -29,12 +29,12 @@
     @unless ($journey['is_enabled'])
         <div class="card p-3 mb-4 text-sm flex items-center gap-2">
             <x-state-badge state="warn" :label="setting('admin.ops.onboarding_preview.mwqwfa', 'موقوفة')" />
-            <span>{{ setting('admin.ops.onboarding_preview.alshasha_dy_msh_mfala_dlwqty_almstkhdm_msh', 'الشاشة دي مش مفعّلة دلوقتي — المستخدم مش هيشوفها لحدّ ما تفعّلها.') }}</span>
+            <span>{{ setting('admin.ops.onboarding_preview.alshasha_dy_msh_mfala_dlwqty_almstkhdm_msh', 'الشاشة دي مش مفعّلة دلوقتي. المستخدم مش هيشوفها لحدّ ما تفعّلها.') }}</span>
         </div>
     @endunless
 
     @if (empty($journey['stages']))
-        <x-empty :message="setting('admin.ops.onboarding_preview.mafysh_mrahl_mfala_nardha_dyf_mrhla_alawl', 'مافيش مراحل مفعَّلة نعرضها — ضيف مرحلة الأوّل.')"
+        <x-empty :message="setting('admin.ops.onboarding_preview.mafysh_mrahl_mfala_nardha_dyf_mrhla_alawl', 'مافيش مراحل مفعَّلة نعرضها. ضيف مرحلة الأوّل.')"
                  :action="setting('admin.ops.onboarding_preview.rjwa_llthryr', 'رجوع للتحرير')" :href="route('admin.ops.onboarding', ['screen' => $screen])" />
     @else
         {{-- ⭐ نفس البوب-أب بمراحله الذي سيراه المستخدم — لا رسمًا تقريبيًّا له (2.15-د) --}}

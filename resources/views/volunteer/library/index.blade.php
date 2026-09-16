@@ -14,7 +14,7 @@
 @section('content')
     <x-page-header
         :title="setting('volunteer.library.title', 'المكتبة الداخليّة')"
-        :subtitle="$items->count().setting('volunteer.library.subtitle', ' مُدخَلًا — الفهرسة آليّة لحظة الاعتماد')"
+        :subtitle="$items->count().setting('volunteer.library.subtitle', ' مُدخَلًا. الفهرسة آليّة لحظة الاعتماد')"
         :breadcrumbs="[['label' => setting('volunteer.common.breadcrumb_root', 'لوحة التطوّع'), 'url' => url('/volunteer')], ['label' => setting('volunteer.library.title', 'المكتبة الداخليّة')]]">
         <x-slot:action>
             <a href="{{ route('volunteer.library', array_filter($filters + ['view' => $view === 'grid' ? 'list' : 'grid'])) }}"
@@ -114,7 +114,7 @@
     </x-filters>
 
     @if ($items->isEmpty())
-        <x-empty :message="setting('volunteer.library.empty', 'المكتبة لسّه بتتكوّن — أوّل مخرج معتمَد هيظهر هنا تلقائيًّا')" />
+        <x-empty :message="setting('volunteer.library.empty', 'المكتبة لسّه بتتكوّن، أوّل مخرج معتمَد هيظهر هنا تلقائيًّا')" />
     @else
         <div class="{{ $view === 'grid' ? 'grid gap-4 md:grid-cols-3' : 'space-y-3' }}">
             @foreach ($items as $item)

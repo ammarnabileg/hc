@@ -150,7 +150,7 @@ class StoreCatalog
 
         return $at->translatedFormat((string) ($at->isSameDay($now)
             ? setting('store.availability.time_format', 'H:i')
-            : setting('store.availability.day_time_format', 'l — H:i')));
+            : setting('store.availability.day_time_format', 'l، H:i')));
     }
 
     /**
@@ -632,7 +632,7 @@ class StoreCatalog
             return str_replace(
                 '{lessons}',
                 (string) (int) $item->free_preview_lessons,
-                (string) setting('store.preview.lessons_text', 'أوّل {lessons} درس مجّانيّ كمعاينة — جرّب قبل ما تشتري.'),
+                (string) setting('store.preview.lessons_text', 'أوّل {lessons} درس مجّانيّ كمعاينة، جرّب قبل ما تشتري.'),
             );
         }
 

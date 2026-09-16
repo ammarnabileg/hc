@@ -1,6 +1,6 @@
 @extends('layouts.app')
 @section('title', setting('events.index.title', 'الفعاليّات'))
-@section('meta_description', setting('events.index.meta_description', 'فعاليّات المنصّة: أونلاين وأوفلاين وهجين — سجّل واحضر واكسب شهادتك.'))
+@section('meta_description', setting('events.index.meta_description', 'فعاليّات المنصّة: أونلاين وأوفلاين وهجين. سجّل واحضر واكسب شهادتك.'))
 
 @section('content')
     @php
@@ -11,7 +11,7 @@
     @endphp
 
     <x-page-header :title="setting('events.index.title', 'الفعاليّات')"
-                   :subtitle="setting('events.index.subtitle', 'اختار فعاليّة، سجّل، واحضر — والشهادة والمكافأة بتتفتح بكود الحضور.')"
+                   :subtitle="setting('events.index.subtitle', 'اختار فعاليّة، سجّل، واحضر، والشهادة والمكافأة بتتفتح بكود الحضور.')"
                    :breadcrumbs="[['label' => setting('events.index.breadcrumb_home', 'الرئيسيّة'), 'url' => route('dashboard')], ['label' => setting('events.index.title', 'الفعاليّات')]]">
         <x-slot:action>
             {{-- مبدّل العرض: تقويم/كروت (24.5) --}}
@@ -108,7 +108,7 @@
         @include('events.components.calendar', ['calendar' => $calendar, 'weekdays' => $weekdays, 'presenter' => $presenter])
     @elseif ($events->isEmpty())
         {{-- الحالة الفارغة: سطر واحد + زرّ واحد (2.15-د) --}}
-        <x-empty :message="setting('events.index.empty_message', 'مفيش فعاليّات في المدى ده — جرّب توسّع الفترة.')"
+        <x-empty :message="setting('events.index.empty_message', 'مفيش فعاليّات في المدى ده. جرّب توسّع الفترة.')"
                  :action="setting('events.index.empty_action', 'وسّع المدى')"
                  :href="request()->fullUrlWithQuery(['period' => 'all', 'mine' => null])" />
     @else

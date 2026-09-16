@@ -87,7 +87,7 @@ class BehaviorLedger
         $minChars = (int) setting('rep.behavior.justification_min_chars', 10);
 
         if (mb_strlen(trim($justification)) < $minChars) {
-            throw new RuntimeException(strtr(setting('volunteer_rep.behavior_ledger.record_1', 'المبرّر إلزاميّ — اكتب سببًا واضحًا لا يقلّ عن :p1 حرفًا.'), [':p1' => (string) ($minChars)]));
+            throw new RuntimeException(strtr(setting('volunteer_rep.behavior_ledger.record_1', 'المبرّر إلزاميّ، اكتب سببًا واضحًا لا يقلّ عن :p1 حرفًا.'), [':p1' => (string) ($minChars)]));
         }
 
         $guard = app(BehaviorGuard::class);
