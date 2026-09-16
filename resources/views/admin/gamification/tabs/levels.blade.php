@@ -13,7 +13,7 @@
     @forelse ($data['levels'] as $level)
         <div class="flex items-center justify-between gap-3 py-2 text-sm {{ $loop->last ? '' : 'border-b' }}" style="border-color: var(--border)">
             <div class="min-w-0">
-                <span class="font-semibold">{{ setting('admin.gamification.tabs.levels.almstwa', 'المستوى') }} {{ $level->level }} — {{ $level->name_ar }}</span>
+                <span class="font-semibold">{{ setting('admin.gamification.tabs.levels.almstwa', 'المستوى') }} {{ $level->level }} · {{ $level->name_ar }}</span>
                 <div class="text-xs" style="color: var(--text-muted)">{{ setting('admin.gamification.tabs.levels.ybda_mn', 'يبدأ من') }} {{ number_format($level->min_xp) }} XP</div>
             </div>
             <span class="flex items-center gap-2 shrink-0">

@@ -16,7 +16,7 @@
 @section('content')
     <x-page-header
         :title="setting('volunteer.people_interviews_scorecard.title', 'نتيجة المقابلة')"
-        :subtitle="$candidate?->user?->name.' — '.$interview->scheduled_at->translatedFormat('j F Y')"
+        :subtitle="$candidate?->user?->name.' · '.$interview->scheduled_at->translatedFormat('j F Y')"
         :breadcrumbs="[
             ['label' => setting('volunteer.common.breadcrumb_root', 'لوحة التطوّع'), 'url' => url('/volunteer')],
             ['label' => setting('volunteer.people_interviews_scorecard.label', 'المقابلات'), 'url' => route('volunteer.interviews')],

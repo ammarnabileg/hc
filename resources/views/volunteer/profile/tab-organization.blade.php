@@ -32,7 +32,7 @@
                             </div>
                             <div class="text-xs" style="color: var(--text-muted)">
                                 {{ $step['from']?->translatedFormat($dateFormat) }}
-                                — {{ $step['to']?->translatedFormat($dateFormat) ?? setting('volunteer.profile_tab_organization.text_2', 'دلوقتي') }}
+                                · {{ $step['to']?->translatedFormat($dateFormat) ?? setting('volunteer.profile_tab_organization.text_2', 'دلوقتي') }}
                             </div>
                         </div>
                     </li>

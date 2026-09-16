@@ -139,7 +139,7 @@
                                 class="w-full rounded-xl px-2 py-2 text-sm" style="{{ $inputStyle }}">
                             @foreach ($dialCodes as $row)
                                 <option value="{{ $row['iso2'] }}"
-                                        @selected(old('phone_iso2', $defaultIso2) === $row['iso2'])>{{ $row['dial'] }} — {{ $row['name'] }}</option>
+                                        @selected(old('phone_iso2', $defaultIso2) === $row['iso2'])>{{ $row['dial'] }} · {{ $row['name'] }}</option>
                             @endforeach
                         </select>
 

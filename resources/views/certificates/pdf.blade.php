@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex">
-    <title>{{ $data['certificate_name'] ?? $certificate->code }} — {{ $certificate->code }}</title>
+    <title>{{ $data['certificate_name'] ?? $certificate->code }} · {{ $certificate->code }}</title>
 
     {{--
       البديل الطباعيّ للصورة (8): HTML خالص يطبعه المتصفّح PDF —
@@ -62,7 +62,7 @@
         @if ($certificate->status !== 'valid')
             <p class="status" data-state="{{ $certificate->status }}">
                 @if ($certificate->status === 'expired')
-                    {{ setting('certificates.status.expired_label', 'منتهية') }} —
+                    {{ setting('certificates.status.expired_label', 'منتهية') }}،
                     {{ setting('certificates.status.expired_line', 'انتهى العمل بيها في') }}
                     {{ $certificate->expired_at?->format(setting('certificates.render.date_format', 'Y/m/d')) }}
                 @else

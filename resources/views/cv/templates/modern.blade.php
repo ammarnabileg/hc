@@ -6,7 +6,21 @@
     $identity = $pulled['profile'] ?? [];
     $lang = CvBuilder::lang($data);
     $skills = collect(explode(',', (string) ($data['skills'] ?? '')))->map(fn ($s) => trim($s))->filter()->values();
-    $line = fn (array $row) => trim(($row['from'] ?? '').' — '.(($row['current'] ?? null) ? setting('cv.until_now_label', 'حتى الآن') : ($row['to'] ?? '')), ' —');
+    /*
+     | مدّة السطر بلا شرطة: «من إلى» بالعربيّة، و«لسّه مستمرّ» يقرأ «2020 حتى الآن»
+     | لا «2020 إلى حتى الآن». والطرف الغائب يسقط وحده فلا يتعلّق فاصلٌ بلا طرف.
+     */
+    $line = function (array $row) {
+        $from = trim((string) ($row['from'] ?? ''));
+        $current = (bool) ($row['current'] ?? false);
+        $to = $current ? (string) setting('cv.until_now_label', 'حتى الآن') : trim((string) ($row['to'] ?? ''));
+
+        if ($from === '' || $to === '') {
+            return $from !== '' ? $from : $to;
+        }
+
+        return $current ? $from.' '.$to : $from.' '.setting('cv.range_to_label', 'إلى').' '.$to;
+    };
     // الصورة الشخصيّة: لو غابت لا تُحسَب في العرض — بلا Placeholder (9)
     $photo = $pulled['photo'] ?? null;
 @endphp
@@ -39,7 +53,7 @@
                 <h2 style="color: #7cf7e6">{{ setting('cv.section.languages_label', 'اللغات') }}</h2>
                 <ul>
                     @foreach ($data['languages'] as $row)
-                        <li>{{ $row['language'] ?? '' }}{{ ! empty($row['level']) ? ' — '.$row['level'] : '' }}</li>
+                        <li>{{ $row['language'] ?? '' }}{{ ! empty($row['level']) ? ' · '.$row['level'] : '' }}</li>
                     @endforeach
                 </ul>
             @endif
@@ -57,7 +71,7 @@
                 @foreach ($data['experience'] as $row)
                     <div class="entry">
                         <div class="row">
-                            <strong>{{ $row['title'] ?? '' }}{{ ! empty($row['company']) ? ' — '.$row['company'] : '' }}</strong>
+                            <strong>{{ $row['title'] ?? '' }}{{ ! empty($row['company']) ? ' · '.$row['company'] : '' }}</strong>
                             <span class="muted">{{ $line($row) }}</span>
                         </div>
                         @php $note = CvBuilder::text((array) $row, 'description', $lang) @endphp
@@ -72,7 +86,7 @@
                 @foreach ($data['volunteering'] as $row)
                     <div class="entry">
                         <div class="row">
-                            <strong>{{ $row['role'] ?? '' }}{{ ! empty($row['organization']) ? ' — '.$row['organization'] : '' }}</strong>
+                            <strong>{{ $row['role'] ?? '' }}{{ ! empty($row['organization']) ? ' · '.$row['organization'] : '' }}</strong>
                             <span class="muted">{{ $line($row) }}</span>
                         </div>
                         @php $note = CvBuilder::text((array) $row, 'description', $lang) @endphp
@@ -86,7 +100,7 @@
                 @foreach ($data['education'] as $row)
                     <div class="entry">
                         <div class="row">
-                            <strong>{{ $row['degree'] ?? '' }}{{ ! empty($row['institution']) ? ' — '.$row['institution'] : '' }}</strong>
+                            <strong>{{ $row['degree'] ?? '' }}{{ ! empty($row['institution']) ? ' · '.$row['institution'] : '' }}</strong>
                             <span class="muted">{{ $line($row) }}</span>
                         </div>
                     </div>
@@ -120,7 +134,7 @@
                 <ul>
                     @foreach ($pulled['certificates'] as $certificate)
                         <li>{{ $certificate->certificate_type?->name_ar }}
-                            <span class="muted">— {{ $certificate->issued_at?->translatedFormat('F Y') }} · {{ $certificate->code }}</span>
+                            <span class="muted">· {{ $certificate->issued_at?->translatedFormat('F Y') }} · {{ $certificate->code }}</span>
                         </li>
                     @endforeach
                 </ul>

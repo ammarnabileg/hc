@@ -64,7 +64,7 @@
                             <span style="color: var(--text-muted)">{{ $typeLabels[$offer->bump_type] ?? $offer->bump_type }}:</span>
                             <strong>{{ $offer->bump_slug }}</strong>
                             @if ($offer->price_coins !== null)
-                                <span style="color: var(--color-brand-500)">— {{ rtrim(rtrim(number_format((float) $offer->price_coins, 2), '0'), '.') }}</span>
+                                <span style="color: var(--color-brand-500)">· {{ rtrim(rtrim(number_format((float) $offer->price_coins, 2), '0'), '.') }}</span>
                             @endif
                         </div>
                         @if ($offer->teaser)
@@ -122,7 +122,7 @@
                     @foreach ($orderBumpOptions ?? [] as $type => $optionRows)
                         <optgroup label="{{ $typeLabels[$type] ?? $type }}">
                             @foreach ($optionRows as $row)
-                                <option value="{{ $row['slug'] }}" data-type="{{ $type }}" data-price="{{ $row['price'] }}">{{ $row['title'] }} — {{ rtrim(rtrim(number_format((float) $row['price'], 2), '0'), '.') }}</option>
+                                <option value="{{ $row['slug'] }}" data-type="{{ $type }}" data-price="{{ $row['price'] }}">{{ $row['title'] }} · {{ rtrim(rtrim(number_format((float) $row['price'], 2), '0'), '.') }}</option>
                             @endforeach
                         </optgroup>
                     @endforeach

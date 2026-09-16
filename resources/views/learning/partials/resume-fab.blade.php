@@ -21,7 +21,7 @@
     <a href="{{ route('learning.lesson', [$resume['course'], $resume['lesson_id']]) }}"
        class="btn fixed z-40 inline-flex items-center gap-2 rounded-full px-4 py-3 text-sm font-semibold motion-standard shadow-lg"
        style="inset-inline-end: 1rem; inset-block-end: 5.5rem; background: var(--color-brand-500); color: #04201c; min-block-size: 44px"
-       title="{{ $resume['course']->name_ar }} — {{ $resume['title'] }}">
+       title="{{ $resume['course']->name_ar }} · {{ $resume['title'] }}">
         <x-icon name="lesson" size="18" />
         <span>{{ setting('learning.cta.resume_where_left', 'أكمل من حيث توقفت') }}</span>
     </a>

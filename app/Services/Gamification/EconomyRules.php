@@ -32,9 +32,9 @@ class EconomyRules
      * @var array<string, string>
      */
     public const CONSUMED_EARN = [
-        'lesson.completed' => 'XpCalculator — أقصى XP للدرس حين لا يحدّده التدريب',
-        'reward.question' => 'RewardQuestionService — قيمة سؤال المكافأة',
-        'qualifying.completed' => 'JourneyService — إتمام المسار التأهيليّ',
+        'lesson.completed' => 'XpCalculator · أقصى XP للدرس حين لا يحدّده التدريب',
+        'reward.question' => 'RewardQuestionService · قيمة سؤال المكافأة',
+        'qualifying.completed' => 'JourneyService · إتمام المسار التأهيليّ',
     ];
 
     /** هل لهذا المفتاح مستهلك في الكود؟ — تعرضه شاشة XP بجانب كلّ صفّ */

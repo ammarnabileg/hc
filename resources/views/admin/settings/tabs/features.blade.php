@@ -105,7 +105,7 @@
     <select name="fgroup" aria-label="{{ setting('features.ui.filter_group', 'المجموعة') }}"
             class="rounded-xl px-3 py-2 text-sm"
             style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
-        <option value="">{{ setting('features.ui.filter_group', 'المجموعة') }} — {{ setting('features.ui.filter_all', 'الكلّ') }}</option>
+        <option value="">{{ setting('features.ui.filter_group', 'المجموعة') }} · {{ setting('features.ui.filter_all', 'الكلّ') }}</option>
         @foreach ($groups as $key => $label)
             <option value="{{ $key }}" @selected($filters['group'] === $key)>{{ $label }}</option>
         @endforeach
@@ -114,7 +114,7 @@
     <select name="fstatus" aria-label="{{ setting('features.ui.filter_status', 'الحالة') }}"
             class="rounded-xl px-3 py-2 text-sm"
             style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
-        <option value="">{{ setting('features.ui.filter_status', 'الحالة') }} — {{ setting('features.ui.filter_all', 'الكلّ') }}</option>
+        <option value="">{{ setting('features.ui.filter_status', 'الحالة') }} · {{ setting('features.ui.filter_all', 'الكلّ') }}</option>
         <option value="on" @selected($filters['status'] === 'on')>{{ setting('features.ui.status.on', 'مشتغّل') }}</option>
         <option value="off" @selected($filters['status'] === 'off')>{{ setting('features.ui.status.off', 'موقوف') }}</option>
         <option value="partial" @selected($filters['status'] === 'partial')>{{ setting('features.ui.status.partial', 'جزئيّ') }}</option>

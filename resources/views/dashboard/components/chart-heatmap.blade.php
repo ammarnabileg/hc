@@ -47,7 +47,7 @@
                     <rect x="{{ $x }}" y="{{ $d * ($cell + $gap) }}" width="{{ $cell }}" height="{{ $cell }}" rx="3"
                           fill="{{ $fillFor($day['level']) }}"
                           fill-opacity="{{ $day['level'] === 'none' ? 1 : 0.85 }}">
-                        <title>{{ $day['label'] }} — {{ $day['level'] === 'club' ? setting('dashboard.chart.heatmap.tooltip_club', 'نادي الخامسة ★') : ($day['level'] === 'present' ? setting('dashboard.chart.heatmap.tooltip_present', 'حضور ●') : setting('dashboard.chart.heatmap.tooltip_absent', 'بلا حضور ○')) }}</title>
+                        <title>{{ $day['label'] }} · {{ $day['level'] === 'club' ? setting('dashboard.chart.heatmap.tooltip_club', 'نادي الخامسة ★') : ($day['level'] === 'present' ? setting('dashboard.chart.heatmap.tooltip_present', 'حضور ●') : setting('dashboard.chart.heatmap.tooltip_absent', 'بلا حضور ○')) }}</title>
                     </rect>
                     @if ($day['level'] === 'club')
                         <text x="{{ $x + $cell / 2 }}" y="{{ $d * ($cell + $gap) + $cell - 3 }}" font-size="9"

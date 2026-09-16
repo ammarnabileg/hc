@@ -432,7 +432,7 @@ class EscalationEngine
         }
 
         if ($attempts < $max) {
-            Log::warning('محرّك التصعيد: خطأ عابر — الحالة باقية لمحاولةٍ تالية', [
+            Log::warning('محرّك التصعيد: خطأ عابر، والحالة باقية لمحاولةٍ تالية', [
                 'escalation_id' => $row->id,
                 'case_type' => $row->case_type,
                 'attempt' => $attempts,

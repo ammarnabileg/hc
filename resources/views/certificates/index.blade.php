@@ -103,7 +103,7 @@
                         <p class="small muted mt-2">
                             {{ setting('certificates.status.expired_line', 'انتهى العمل بيها في') }}
                             {{ $certificate->expired_at?->format(setting('certificates.render.date_format', 'Y/m/d')) }}
-                            — {{ setting('certificates.status.expired_hint', 'بعد دخولك امتحانًا أحدث. وهي مش ملغاة.') }}
+                            {{ setting('certificates.status.expired_hint', 'بعد دخولك امتحانًا أحدث. وهي مش ملغاة.') }}
                         </p>
                     @elseif ($certificate->status === 'revoked')
                         <p class="small muted mt-2">

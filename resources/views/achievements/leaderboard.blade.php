@@ -17,7 +17,7 @@
 @section('content')
     <x-page-header
         :title="setting('leaderboard.title', 'الليدر بورد')"
-        :subtitle="$board['me'] ? setting('leaderboard.rank_prefix', 'ترتيبك دلوقتي').' #'.$board['me']['rank'].' '.setting('leaderboard.rank_of', 'من').' '.number_format($board['total']).' — '.$rangeLabel : setting('leaderboard.empty_hint', 'ابدأ أوّل تدريب وهتظهر هنا.')"
+        :subtitle="$board['me'] ? setting('leaderboard.rank_prefix', 'ترتيبك دلوقتي').' #'.$board['me']['rank'].' '.setting('leaderboard.rank_of', 'من').' '.number_format($board['total']).' · '.$rangeLabel : setting('leaderboard.empty_hint', 'ابدأ أوّل تدريب وهتظهر هنا.')"
         :breadcrumbs="[['label' => setting('leaderboard.breadcrumb', 'إنجازاتي')], ['label' => setting('leaderboard.title', 'الليدر بورد')]]">
         {{-- ⭐ [استخراج كصورة] في كلّ ليدر بورد (12.14-هـ) --}}
         <x-slot:action>

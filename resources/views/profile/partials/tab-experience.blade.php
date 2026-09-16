@@ -67,7 +67,7 @@
                             @php $row = (array) $row; @endphp
                             <div>
                                 <div class="flex flex-wrap items-baseline justify-between gap-2">
-                                    <strong class="text-sm">{{ collect([$row[$section['first']] ?? null, $row[$section['second']] ?? null])->filter()->implode(' — ') }}</strong>
+                                    <strong class="text-sm">{{ collect([$row[$section['first']] ?? null, $row[$section['second']] ?? null])->filter()->implode(' · ') }}</strong>
                                     <span class="text-xs" style="color: var(--text-muted)">{{ $period($row) }}</span>
                                 </div>
                                 @php $note = CvBuilder::text($row, 'description', $lang) ?: (string) ($row['major'] ?? '') @endphp
@@ -125,7 +125,7 @@
                         @php $row = (array) $row; @endphp
                         <li class="flex items-start gap-2">
                             <span aria-hidden="true" style="color: var(--color-brand-500)">•</span>
-                            <span>{{ collect([$row['language'] ?? null, $row['level'] ?? null])->filter()->implode(' — ') }}</span>
+                            <span>{{ collect([$row['language'] ?? null, $row['level'] ?? null])->filter()->implode(' · ') }}</span>
                         </li>
                     @endforeach
                 </ul>

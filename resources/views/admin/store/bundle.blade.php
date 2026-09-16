@@ -121,7 +121,7 @@
                             <optgroup label="{{ $typeLabels[$type] ?? $type }}">
                                 @foreach ($optionRows as $row)
                                     <option value="{{ $row['slug'] }}" data-type="{{ $type }}" data-price="{{ $row['price'] }}">
-                                        {{ $row['title'] }} — {{ Coins::label($row['price']) }}
+                                        {{ $row['title'] }} · {{ Coins::label($row['price']) }}
                                     </option>
                                 @endforeach
                             </optgroup>

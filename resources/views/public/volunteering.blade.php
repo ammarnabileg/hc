@@ -83,7 +83,7 @@
                 <div class="mt-4 rounded-xl p-3" style="background: var(--surface-sunken)">
                     <h3 class="text-sm font-bold">{{ $interviewTitle }}</h3>
                     <p class="text-xs mt-1" style="color: var(--text-muted)">
-                        {{ $status['interview']->scheduled_at?->translatedFormat('l j F Y — H:i') }}
+                        {{ $status['interview']->scheduled_at?->translatedFormat('l j F Y · H:i') }}
                     </p>
                     <p class="mt-1 text-sm font-semibold"
                        data-countdown-to="{{ $status['interview']->scheduled_at?->toIso8601String() }}">
@@ -106,7 +106,7 @@
                     <h3 class="text-sm font-bold">{{ setting('volunteer_page.view.text_2', 'وصلك طلب تسكين') }}</h3>
                     <p class="text-xs mt-1" style="color: var(--text-muted)">
                         {{ $status['placement']->entity?->name_ar }} · {{ $status['placement']->position?->name_ar }}
-                        — {{ strtr((string) setting('volunteer_page.view.text_3', 'الردّ خلال :a1 ساعة.'), [':a1' => (string) ($responseHours)]) }}
+                        و{{ strtr((string) setting('volunteer_page.view.text_3', 'الردّ خلال :a1 ساعة.'), [':a1' => (string) ($responseHours)]) }}
                     </p>
 
                     <div class="mt-2 flex flex-wrap gap-2">

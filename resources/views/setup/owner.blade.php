@@ -1,5 +1,5 @@
 @extends('layouts.guest')
-@section('title', (string) \App\Services\Setup\SetupSettings::text('setup.owner_view.section_1', 'تنصيب المنصّة — حساب مالك المنصّة'))
+@section('title', (string) \App\Services\Setup\SetupSettings::text('setup.owner_view.section_1', 'تنصيب المنصّة · حساب مالك المنصّة'))
 
 @section('content')
 <div class="w-full max-w-3xl">

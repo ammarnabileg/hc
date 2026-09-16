@@ -174,7 +174,7 @@
                                 <x-icon name="people" size="13" />
                                 @foreach ($row['friends'] as $friend)
                                     <span class="rounded-full px-2 py-0.5" style="background: var(--surface-sunken)">
-                                        {{ $friend['name'] }} — {{ $friend['percent'] }}%
+                                        {{ $friend['name'] }} · {{ $friend['percent'] }}%
                                     </span>
                                 @endforeach
                             </p>
@@ -224,7 +224,7 @@
 
         @if ($progress['unlocked_exam'] && $exam['exists'] && $exam['url'])
             <a href="{{ $exam['url'] }}" class="btn btn-p inline-flex items-center">
-                {{ setting('learning.paths.exam_cta') }} — {{ $exam['price'] }} {{ setting('learning.coins.suffix') }}
+                {{ setting('learning.paths.exam_cta') }} · {{ $exam['price'] }} {{ setting('learning.coins.suffix') }}
             </a>
         @elseif ($certificate['exists'])
             <x-state-badge :state="$certificate['state']" :label="$certificate['label']" />

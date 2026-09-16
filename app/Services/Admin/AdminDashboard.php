@@ -334,7 +334,7 @@ class AdminDashboard
             ->map(fn (Transaction $row) => [
                 'type' => setting('admin_dashboard.admin_dashboard.pending_work_1', 'سحب'),
                 'icon' => 'withdraw',
-                'title' => ($row->user?->shortName() ?? setting('admin_dashboard.admin_dashboard.pending_work_2', 'مستخدم')).' — '.number_format(abs((float) $row->amount)).setting('admin_dashboard.admin_dashboard.pending_work_3', ' كوينز'),
+                'title' => ($row->user?->shortName() ?? setting('admin_dashboard.admin_dashboard.pending_work_2', 'مستخدم')).' · '.number_format(abs((float) $row->amount)).setting('admin_dashboard.admin_dashboard.pending_work_3', ' كوينز'),
                 'at' => $row->created_at,
                 'state' => $row->created_at->diffInHours(now()) >= $lateHours ? 'danger' : 'warn',
                 'url' => Route::has('admin.store.index') ? route('admin.store.index') : null,

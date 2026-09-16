@@ -33,7 +33,7 @@
                         <option value="">{{ setting('admin.studio.edit.mkhss', 'مخصّص') }}</option>
                         @foreach ($presets as $key => $preset)
                             <option value="{{ $key }}" data-size="{{ $preset['width'] }}x{{ $preset['height'] }}"
-                                    @selected($template->preset === $key)>{{ $preset['label'] }} — {{ $preset['width'] }}×{{ $preset['height'] }}</option>
+                                    @selected($template->preset === $key)>{{ $preset['label'] }} · {{ $preset['width'] }}×{{ $preset['height'] }}</option>
                         @endforeach
                     </select>
                     {{-- ⭐ تغيير المقاس يعيد ترتيب الطبقات نسبيًّا فلا يفسد التصميم --}}
@@ -201,7 +201,7 @@
                     <select id="preview-user" class="w-full rounded-xl px-3 py-2 text-sm"
                             style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
                         @foreach ($sampleUsers as $user)
-                            <option value="{{ $user->id }}">{{ $user->name }} — #{{ $user->code }}</option>
+                            <option value="{{ $user->id }}">{{ $user->name }} · #{{ $user->code }}</option>
                         @endforeach
                     </select>
                 </label>

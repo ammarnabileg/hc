@@ -258,7 +258,7 @@
         <h2 class="font-bold mb-3">{{ setting('admin.gamification.rewards.index.sjl_altdqyq', 'سجلّ التدقيق') }}</h2>
         @forelse ($audit as $log)
             <div class="flex items-center justify-between gap-3 py-2 text-sm {{ $loop->last ? '' : 'border-b' }}" style="border-color: var(--border)">
-                <span class="truncate">{{ $log->user?->name ?? setting('admin.gamification.rewards.index.alnzam', 'النظام') }} — {{ $log->action }}</span>
+                <span class="truncate">{{ $log->user?->name ?? setting('admin.gamification.rewards.index.alnzam', 'النظام') }} · {{ $log->action }}</span>
                 <span class="text-xs shrink-0" style="color: var(--text-muted)">{{ $log->created_at?->diffForHumans() }}</span>
             </div>
         @empty

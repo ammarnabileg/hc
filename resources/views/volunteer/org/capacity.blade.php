@@ -70,7 +70,7 @@
                         <div class="flex items-center justify-between gap-2 text-sm mb-1">
                             <span class="font-semibold truncate">{{ $row['entity'] }}</span>
                             <span class="text-xs shrink-0" style="color: var(--text-muted)">
-                                {{ $row['members'] }} / {{ $row['cap'] }} — {{ $row['percent'] ?? '—' }}%
+                                {{ $row['members'] }} / {{ $row['cap'] }} · {{ $row['percent'] ?? '—' }}%
                             </span>
                         </div>
                         <div class="org-bar" style="block-size:8px; border-radius:999px; background: var(--surface-sunken); overflow:hidden">

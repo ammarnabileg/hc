@@ -4,7 +4,7 @@
 
 @section('content')
     <x-page-header
-        :title="($case->user?->name ?? '').' — '.setting('admin.volunteer.investigations.show.mlf_althqyq', 'ملفّ التحقيق')"
+        :title="($case->user?->name ?? '').' · '.setting('admin.volunteer.investigations.show.mlf_althqyq', 'ملفّ التحقيق')"
         :subtitle="setting('admin.volunteer.investigations.show.mqada_allgna_yqrran_wmshrf_aam_alttwa_yhsm', 'مقعدا اللجنة يقرّران، ومشرف عام التطوّع وحده يحسم، وكلّ قرار بمبرّر مكتوب.')"
         :breadcrumbs="[['label' => setting('admin.volunteer.investigations.show.alttwa', 'التطوّع'), 'url' => route('admin.volunteer.index')], ['label' => setting('admin.volunteer.investigations.show.lgna_althqyq', 'لجنة التحقيق'), 'url' => route('admin.volunteer.investigations.index')], ['label' => $case->user?->name ?? '']]">
     </x-page-header>
@@ -110,7 +110,7 @@
             @if ($case->status === 'closed')
                 <div class="card p-4 text-sm">
                     <strong>{{ setting('admin.volunteer.investigations.show.mghlq', 'مغلق') }}</strong>
-                    — {{ $case->decision === 'dismiss' ? setting('admin.volunteer.investigations.show.iqsa', 'إقصاء') : ($case->verdict === 'chance' ? setting('admin.volunteer.investigations.show.frsa', 'فرصة') : setting('admin.volunteer.investigations.show.rfd_altwsya', 'رفض التوصية')) }}
+                    · {{ $case->decision === 'dismiss' ? setting('admin.volunteer.investigations.show.iqsa', 'إقصاء') : ($case->verdict === 'chance' ? setting('admin.volunteer.investigations.show.frsa', 'فرصة') : setting('admin.volunteer.investigations.show.rfd_altwsya', 'رفض التوصية')) }}
                 </div>
             @endif
         </div>

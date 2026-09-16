@@ -154,7 +154,7 @@ class TemplateDesigner
         return CertificateTemplate::create([
             'certificate_type_id' => $type->id,
             'language' => $language,
-            'name' => $type->name_ar.' — '.($language === 'ar' ? setting('admin_content.template_designer.create_default_1', 'عربيّة') : setting('admin_content.template_designer.create_default_2', 'إنجليزيّة')),
+            'name' => $type->name_ar.' · '.($language === 'ar' ? setting('admin_content.template_designer.create_default_1', 'عربيّة') : setting('admin_content.template_designer.create_default_2', 'إنجليزيّة')),
             'width_px' => (int) setting('certificates.render.default_width_px', self::REFERENCE_WIDTH),
             'height_px' => (int) setting('certificates.render.default_height_px', 1240),
             'layers' => $this->defaultLayers($language, $type),

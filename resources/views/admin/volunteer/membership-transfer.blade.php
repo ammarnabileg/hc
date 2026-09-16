@@ -5,7 +5,7 @@
 @section('content')
     <x-page-header
         :title="setting('admin.volunteer.membership_transfer.title', 'نقل بين الأقسام')"
-        :subtitle="$membership->user?->name.' — '.($membership->position?->name_ar).' · '.($membership->entity?->name_ar)"
+        :subtitle="$membership->user?->name.' · '.($membership->position?->name_ar).' · '.($membership->entity?->name_ar)"
         :breadcrumbs="[['label' => setting('admin.volunteer.org.alttwa', 'التطوّع'), 'url' => route('admin.volunteer.index')], ['label' => setting('admin.volunteer.org.alhykl_walsaa', 'الهيكل والسعة'), 'url' => route('admin.volunteer.org')], ['label' => setting('admin.volunteer.membership_transfer.title', 'نقل بين الأقسام')]]" />
 
     <div class="card p-4 md:p-5 max-w-xl">

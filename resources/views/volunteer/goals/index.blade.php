@@ -188,7 +188,7 @@
                             <div class="text-xs mb-1" style="color: var(--text-muted)">{{ setting('volunteer.goals.field_11', 'حزمه والكيانات المرتبطة') }}</div>
                             <ul class="space-y-1">
                                 @foreach ($row['packages'] as $entry)
-                                    <li><x-icon name="bundle" size="16" /> {{ $entry['package']->name }} — {{ $entry['package']->entity?->name_ar }}
+                                    <li><x-icon name="bundle" size="16" /> {{ $entry['package']->name }} · {{ $entry['package']->entity?->name_ar }}
                                         ({{ rtrim(rtrim(number_format((float) $entry['package']->progress_percent, 1), '0'), '.') }}%)</li>
                                 @endforeach
                             </ul>
@@ -253,7 +253,7 @@
                             <div class="font-semibold">{{ $goal->name }}</div>
                             @foreach ($tree[$goal->id] ?? [] as $row)
                                 <div class="text-xs mt-1">
-                                    <x-icon :name="$row['milestone']->is_verified ? 'check' : 'task'" size="14" /> {{ $row['milestone']->is_verified ? setting('volunteer.goals.text_2', 'تحقّق') : setting('volunteer.goals.text_3', 'لم يتحقّق') }} —
+                                    <x-icon :name="$row['milestone']->is_verified ? 'check' : 'task'" size="14" /> {{ $row['milestone']->is_verified ? setting('volunteer.goals.text_2', 'تحقّق') : setting('volunteer.goals.text_3', 'لم يتحقّق') }} ·
                                     {{ $row['milestone']->name }}
                                 </div>
                             @endforeach

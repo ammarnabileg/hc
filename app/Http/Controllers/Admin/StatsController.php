@@ -107,8 +107,8 @@ class StatsController extends Controller
         $file = $export->build(
             rows: $this->stats->exportRows($tab, $period, $columns),
             format: $request->string('format')->toString(),
-            title: (string) setting('stats.export.title_prefix', 'الإحصائيّات').' — '.$label,
-            subtitle: $period['from']->format('Y/m/d').' — '.$period['to']->format('Y/m/d'),
+            title: (string) setting('stats.export.title_prefix', 'الإحصائيّات').' · '.$label,
+            subtitle: $period['from']->format('Y/m/d').' · '.$period['to']->format('Y/m/d'),
             slug: 'stats-'.$tab,
         );
 

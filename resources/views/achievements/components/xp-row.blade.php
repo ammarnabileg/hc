@@ -24,7 +24,7 @@
     <div class="min-w-0 flex-1">
         <div class="truncate text-sm font-semibold">
             {{ $row['user']->name }}
-            @if ($pinned)<span class="text-xs font-normal" style="color: var(--color-brand-400)">— {{ setting('leaderboard.you_label', 'ده إنت') }}</span>@endif
+            @if ($pinned)<span class="text-xs font-normal" style="color: var(--color-brand-400)">· {{ setting('leaderboard.you_label', 'ده إنت') }}</span>@endif
         </div>
         <div class="text-xs truncate" style="color: var(--text-muted)">
             {{ $country ? $country.' · ' : '' }}#{{ $row['user']->code }}

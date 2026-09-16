@@ -89,7 +89,7 @@
         @can('email_templates.edit')
             @foreach ($types as $key => $label)
                 @php $rowTemplate = $emailTemplates->get($key); @endphp
-                <x-modal :id="'template-'.$key" :title="setting('admin.guidance.notifications.ns_alqalb', 'نصّ القالب').' — '.$label">
+                <x-modal :id="'template-'.$key" :title="setting('admin.guidance.notifications.ns_alqalb', 'نصّ القالب').' · '.$label">
                     <form id="template-form-{{ $key }}" method="post"
                           action="{{ route('admin.guidance.notifications.matrix.template', $key) }}" class="space-y-3">
                         @csrf

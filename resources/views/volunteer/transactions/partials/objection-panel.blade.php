@@ -107,7 +107,7 @@
 
             @if ($objection->correction_transaction)
                 <p class="text-xs mt-2" style="color: var(--text-muted)">
-                    {{ setting('volunteer.transactions_objection_panel.text_5', 'معاملة تصحيحيّة #') }}{{ $objection->correction_transaction->id }} —
+                    {{ setting('volunteer.transactions_objection_panel.text_5', 'معاملة تصحيحيّة #') }}{{ $objection->correction_transaction->id }}.
                     {{ setting('volunteer.transactions_objection_panel.text_6', 'الأصل ما اتعدّلش، والتصحيح بمعاملة عكسيّة موثّقة.') }}
                 </p>
                 <x-state-badge state="ok" :label="setting('volunteer.transactions_objection_panel.label_3', 'مصحِّحة')" />

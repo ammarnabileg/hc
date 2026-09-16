@@ -45,7 +45,7 @@
         <span class="block text-sm mb-1">
             {{ setting('store.filters.price_range_label', 'نطاق السعر') }}
             <span class="text-xs" style="color: var(--text-muted)">
-                (<span data-price-min>{{ (int) $min }}</span> — <span data-price-max>{{ (int) $max }}</span>
+                (<span data-price-min>{{ (int) $min }}</span> إلى <span data-price-max>{{ (int) $max }}</span>
                 {{ $rangeLabel }})
             </span>
         </span>

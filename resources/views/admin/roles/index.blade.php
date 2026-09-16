@@ -35,7 +35,7 @@
     <div class="card p-3 mb-4 text-xs" style="color: var(--text-muted)">
         {{ setting('admin.roles.deny_message', 'المنع يغلب الإذن.') }}
         @unless (auth()->user()->isPlatformOwner())
-            — {{ setting('admin.roles.owner_only_note', 'المجموعة المحميّة لمالك المنصّة وحده.') }}
+            {{ setting('admin.roles.owner_only_note', 'المجموعة المحميّة لمالك المنصّة وحده.') }}
         @endunless
     </div>
 

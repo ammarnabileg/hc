@@ -31,7 +31,7 @@
                 <p class="text-sm" style="color: var(--text-muted)">{{ setting('admin.roles.assign.akhtr_almstkhdm_alawl_ashan_nard_adwyath', 'اختر المستخدم الأوّل عشان نعرض عضويّاته.') }}</p>
             @else
                 <div class="rounded-xl p-3 mb-3 text-sm" style="background: var(--surface-sunken)">
-                    {{ $target->name }} — #{{ $target->code }}
+                    {{ $target->name }} · #{{ $target->code }}
                 </div>
 
                 <form method="post" action="{{ route('admin.permissions.update', $target) }}" class="space-y-3">

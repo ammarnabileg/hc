@@ -36,7 +36,7 @@ class VolunteerMeetingsDemoSeeder extends Seeder
         $users = User::query()->whereHas('memberships', fn ($q) => $q->where('status', 'active'))->take(6)->get();
 
         if ($users->isEmpty()) {
-            $this->command?->warn('مفيش متطوّعين مُسكَّنين — شغّل سيدر العضويّات الأوّل.');
+            $this->command?->warn('مفيش متطوّعين مُسكَّنين. شغّل سيدر العضويّات الأوّل.');
 
             return;
         }

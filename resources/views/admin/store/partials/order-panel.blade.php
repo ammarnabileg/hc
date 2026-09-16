@@ -13,7 +13,7 @@
         <div class="min-w-0">
             <h2 class="font-bold text-base font-mono">{{ $order->number }}</h2>
             <p class="text-xs mt-1" style="color: var(--text-muted)">
-                {{ $order->created_at?->translatedFormat('j F Y — H:i') }}
+                {{ $order->created_at?->translatedFormat('j F Y · H:i') }}
             </p>
         </div>
 

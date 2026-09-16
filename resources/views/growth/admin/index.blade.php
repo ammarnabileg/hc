@@ -37,7 +37,7 @@
                     <h2 class="font-bold text-sm mb-2">{{ setting('growth.admin_index.text_1', 'حقول «أكمل ملفك»') }}</h2>
                     <ul class="text-xs space-y-1" style="color: var(--text-muted)">
                         @foreach ($completionFields as $key => $label)
-                            <li><code>{{ $key }}</code> — {{ $label }}</li>
+                            <li><code>{{ $key }}</code> · {{ $label }}</li>
                         @endforeach
                     </ul>
                     <p class="text-xs mt-2" style="color: var(--text-muted)">
@@ -54,7 +54,7 @@
                             @php $template = $ogRenderer->template($type); @endphp
                             <li class="flex items-center gap-2">
                                 <span class="inline-block w-3 h-3 rounded-full" style="background: {{ $template['accent'] }}"></span>
-                                <code>{{ $type }}</code> — {{ $template['label'] }}
+                                <code>{{ $type }}</code> · {{ $template['label'] }}
                             </li>
                         @endforeach
                     </ul>

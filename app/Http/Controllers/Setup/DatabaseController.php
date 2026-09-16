@@ -125,7 +125,7 @@ class DatabaseController extends Controller
             return back()
                 ->with('setup_log', $log)
                 ->withErrors([
-                    'migrate' => strtr((string) SetupSettings::text('setup.database.run_migrations_msg_5', 'التجهيز وقف في النصّ. الرسالة من الخادم: :a1 — راجع بيانات قاعدة البيانات وتأكّد إنّ المستخدم له صلاحيّة إنشاء الجداول، وبعدين اضغط «جرّب تاني».'), [':a1' => (string) (Str::limit($exception->getMessage(), 200))]),
+                    'migrate' => strtr((string) SetupSettings::text('setup.database.run_migrations_msg_5', 'التجهيز وقف في النصّ. راجع بيانات قاعدة البيانات وتأكّد إنّ المستخدم له صلاحيّة إنشاء الجداول، وبعدين اضغط «جرّب تاني». الرسالة من الخادم: :a1'), [':a1' => (string) (Str::limit($exception->getMessage(), 200))]),
                 ]);
         }
 
@@ -169,7 +169,7 @@ class DatabaseController extends Controller
             'db_username' => ['required', 'string', 'max:64'],
             'db_password' => ['nullable', 'string', 'max:190'],
         ], [
-            'db_database.regex' => (string) SetupSettings::text('setup.database.validated_msg', 'اسم قاعدة البيانات يقبل حروفًا إنجليزيّة وأرقامًا و«_» و«-» فقط — انسخه من لوحة الاستضافة كما هو.'),
+            'db_database.regex' => (string) SetupSettings::text('setup.database.validated_msg', 'اسم قاعدة البيانات يقبل حروفًا إنجليزيّة وأرقامًا و«_» و«-» فقط. انسخه من لوحة الاستضافة كما هو.'),
         ], [
             'db_database' => (string) SetupSettings::text('setup.database.validated_msg_4', 'اسم قاعدة البيانات'),
             'db_username' => (string) SetupSettings::text('setup.database.validated_msg_5', 'مستخدم قاعدة البيانات'),

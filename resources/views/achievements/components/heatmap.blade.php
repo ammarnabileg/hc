@@ -58,7 +58,7 @@
                     <rect x="{{ ($weeks - 1 - $w) * $step }}" y="{{ $r * $step + 16 }}"
                           width="{{ $cell }}" height="{{ $cell }}" rx="3"
                           fill="{{ $fill }}" stroke="var(--border)" stroke-width="0.5">
-                        <title>{{ $date->translatedFormat('j F Y') }} — {{ match (true) {
+                        <title>{{ $date->translatedFormat('j F Y') }} · {{ match (true) {
                             (bool) ($day['club'] ?? false) => setting('streaks.heatmap.tooltip_club', 'نادي الخامسة ★'),
                             (bool) ($day['freeze'] ?? false) => setting('streaks.heatmap.tooltip_freeze', 'يوم محميّ بدرع ▲'),
                             (bool) ($day['active'] ?? false) => setting('streaks.heatmap.tooltip_active', 'يوم نشط ●'),

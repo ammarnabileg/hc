@@ -15,7 +15,7 @@
 @section('exam_meta')
     {{-- عدد الأسئلة ورقم الحاليّ (24.5) --}}
     @if ($review)
-        {{ setting('exams.labels.review', 'مراجعة قبل التسليم') }} — {{ $answered }}/{{ $total }}
+        {{ setting('exams.labels.review', 'مراجعة قبل التسليم') }} · {{ $answered }}/{{ $total }}
     @else
         {{ setting('exams.labels.question', 'سؤال') }} {{ $index }} {{ setting('exams.labels.of', 'من') }} {{ $total }}
         · {{ setting('exams.labels.answered', 'المُجاب') }} {{ $answered }}

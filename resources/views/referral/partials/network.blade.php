@@ -43,7 +43,7 @@
                 @foreach ($nodes as $referral)
                     @php $state = $service->statusOf($referral); @endphp
                     <li class="inline-flex flex-col items-center gap-1 w-16"
-                        title="{{ $referral->referred?->name }} — {{ $state['label'] }}">
+                        title="{{ $referral->referred?->name }} · {{ $state['label'] }}">
                         <span class="rounded-full p-0.5"
                               style="outline: 2px solid var(--color-state-{{ state_color($state['state'])['color'] }})">
                             <x-avatar :user="$referral->referred" size="10" />

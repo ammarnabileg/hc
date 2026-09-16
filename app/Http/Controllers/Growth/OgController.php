@@ -77,7 +77,7 @@ class OgController extends Controller
             (string) setting('growth.invite_board.title', 'متصدّرو الدعوات'),
             array_filter([
                 $period['from']->translatedFormat('F Y'),
-                $top && $top['user'] ? '١ · '.$top['user']->shortName().' — '.$top['completed'] : null,
+                $top && $top['user'] ? '١ · '.$top['user']->shortName().' · '.$top['completed'] : null,
             ]),
         ));
     }

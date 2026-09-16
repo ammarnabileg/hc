@@ -3,7 +3,7 @@
     سطر 1517) — برابط دعوة أو بإضافة مباشرة بكود العضو. كانت `FileDrafts::
     generateInviteLink()` جاهزةً بلا أيّ زرٍّ يستدعيها بعد فتح الملفّ.
 --}}
-<x-modal :id="'case-file-assign-'.$entity->id" :title="setting('admin.volunteer.org.daawt_ado_llmlf', 'دعوة عضو للملفّ').' — '.$entity->name_ar">
+<x-modal :id="'case-file-assign-'.$entity->id" :title="setting('admin.volunteer.org.daawt_ado_llmlf', 'دعوة عضو للملفّ').' · '.$entity->name_ar">
     <form method="post" action="{{ route('admin.volunteer.org.case-files.assign', $entity) }}" class="space-y-3">
         @csrf
         <label class="block">
@@ -34,7 +34,7 @@
             <strong class="block mb-1">{{ setting('admin.volunteer.org.rwabt_aldawa_almwlda', 'روابط الدعوة المولَّدة') }}</strong>
             @foreach ($caseFileInviteLinks->get($entity->id) as $link)
                 <div class="truncate">
-                    {{ $link->position?->name_ar }} —
+                    {{ $link->position?->name_ar }} ·
                     <span style="color: var(--text-muted)">{{ $link->isExpired() ? setting('admin.volunteer.org.mnthy', 'منتهٍ') : route('volunteer.file-invites.show', $link->token) }}</span>
                 </div>
             @endforeach

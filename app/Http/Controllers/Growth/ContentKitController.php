@@ -44,7 +44,7 @@ class ContentKitController extends Controller
         $svg = $this->renderer->card(
             'tip',
             $card['tip'],
-            [$card['from']->translatedFormat('j F').' — '.$card['to']->translatedFormat('j F Y')],
+            [$card['from']->translatedFormat('j F').' · '.$card['to']->translatedFormat('j F Y')],
             (string) setting('growth.weekly_card.footer', 'اتعلّم معنا'),
         );
 

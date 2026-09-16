@@ -20,7 +20,7 @@
         {{-- ⭐ بانر إنذار هادئ بلا فضح عند تخطّي المؤشّر الأحمر (24.4) --}}
         <div class="card p-4 mb-4" style="border: 1px solid var(--color-state-warn)">
             <p class="text-sm leading-relaxed">
-                {{ setting('volunteer.performance_rep.text', 'رقمك دلوقتي تحت') }} {{ $fmt($red) }} — {{ setting('volunteer.performance_rep.text_2', 'أبلاينك هيتواصل معك خلال 48 ساعة عشان نشوف الصورة كاملة ونظبّطها سوا.') }}
+                {{ setting('volunteer.performance_rep.text', 'رقمك دلوقتي تحت') }} {{ $fmt($red) }}. {{ setting('volunteer.performance_rep.text_2', 'أبلاينك هيتواصل معك خلال 48 ساعة عشان نشوف الصورة كاملة ونظبّطها سوا.') }}
             </p>
         </div>
     @endif

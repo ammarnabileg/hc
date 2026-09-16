@@ -398,7 +398,7 @@ class ContributionService
             User::query()->find($contribution->contributor_id),
             'contribution',
             setting('workflow.contribution_service.return_item_3', 'اترجّع بندك للإصلاح'),
-            $reasons[$data['return_reason_code']].' — '.$data['review_feedback'],
+            $reasons[$data['return_reason_code']].' · '.$data['review_feedback'],
             route('volunteer.contributions'),
             now()->addMinutes((int) round($fixHours * 60)),
             requiresAction: true,

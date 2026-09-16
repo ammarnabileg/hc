@@ -92,7 +92,7 @@
                     <select name="size" class="w-full rounded-xl px-3 py-2"
                             style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text); min-height: 44px">
                         @foreach ($presets as $key => $preset)
-                            <option value="{{ $key }}">{{ $preset['label'] ?? $key }} — {{ $preset['width'] }}×{{ $preset['height'] }}</option>
+                            <option value="{{ $key }}">{{ $preset['label'] ?? $key }} · {{ $preset['width'] }}×{{ $preset['height'] }}</option>
                         @endforeach
                     </select>
                 </label>

@@ -64,7 +64,7 @@
                     <optgroup label="{{ $root->name_ar }}">
                         <option value="{{ $root->id }}" @selected((int) $filters['entity'] === (int) $root->id)>{{ $root->name_ar }}</option>
                         @foreach ($root->children as $child)
-                            <option value="{{ $child->id }}" @selected((int) $filters['entity'] === (int) $child->id)>— {{ $child->name_ar }}</option>
+                            <option value="{{ $child->id }}" @selected((int) $filters['entity'] === (int) $child->id)>· {{ $child->name_ar }}</option>
                         @endforeach
                     </optgroup>
                 @endforeach

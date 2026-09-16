@@ -54,7 +54,7 @@
             <h2 class="font-bold mb-2">{!! strtr(setting('admin.wars.bank.index.maayna_alastyrad_v1_sf', 'معاينة الاستيراد (:v1 صفّ)'), [':v1' => e(count(session('import_preview')))]) !!}</h2>
             <ul class="space-y-1 text-xs mb-3" style="color: var(--text-muted)">
                 @foreach (array_slice(session('import_preview'), 0, 8) as $row)
-                    <li>• {{ $row['text'] }} — {{ $row['difficulty'] }} / {{ $row['source'] }}</li>
+                    <li>• {{ $row['text'] }} · {{ $row['difficulty'] }} / {{ $row['source'] }}</li>
                 @endforeach
             </ul>
             <p class="text-xs" style="color: var(--text-muted)">{{ setting('admin.wars.bank.index.arfa_nfs_almlf_tany_ma_aatmd_alastyrad_ashan', 'ارفع نفس الملفّ تاني مع «اعتمد الاستيراد» عشان يتسجّل.') }}</p>

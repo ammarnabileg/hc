@@ -13,7 +13,7 @@
     @endphp
 
     <x-page-header :title="setting('learning.courses.title')"
-                   :subtitle="setting('learning.courses.subtitle').' — '.$counts['active'].' '.setting('learning.status.active').' · '.$counts['completed'].' '.setting('learning.status.completed')"
+                   :subtitle="setting('learning.courses.subtitle').' · '.$counts['active'].' '.setting('learning.status.active').' · '.$counts['completed'].' '.setting('learning.status.completed')"
                    :breadcrumbs="[
                        ['label' => setting('learning.breadcrumb.root'), 'url' => route('learning.courses')],
                        ['label' => setting('learning.courses.title')],

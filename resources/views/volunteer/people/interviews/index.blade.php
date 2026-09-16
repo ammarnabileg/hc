@@ -112,7 +112,7 @@
                             <h3 class="font-bold text-sm">{{ $interview->recruitment_candidate?->user?->name ?? setting('volunteer.people_interviews.text_4', 'مرشّح') }}</h3>
                             <p class="text-xs" style="color: var(--text-muted)">
                                 {{ setting('volunteer.people_interviews.field_2', 'المُقابِل:') }} {{ $interview->interviewer?->shortName() }} ·
-                                {{ $interview->scheduled_at->translatedFormat('l j F — g:i A') }} · {{ $countdown }}
+                                {{ $interview->scheduled_at->translatedFormat('l j F · g:i A') }} · {{ $countdown }}
                             </p>
                         </div>
                         <x-state-badge :state="$scheduler->statusState($interview->status)" :label="$statuses[$interview->status] ?? $interview->status" />
@@ -165,7 +165,7 @@
                     <select name="recruitment_candidate_id" required class="w-full rounded-xl px-3 py-2 text-sm"
                             style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
                         @foreach ($candidates as $candidate)
-                            <option value="{{ $candidate->id }}">{{ $candidate->user?->name }} — #{{ $candidate->user?->code }}</option>
+                            <option value="{{ $candidate->id }}">{{ $candidate->user?->name }} · #{{ $candidate->user?->code }}</option>
                         @endforeach
                     </select>
                 </label>

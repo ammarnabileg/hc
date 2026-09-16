@@ -233,7 +233,7 @@ class CvExtrasController extends Controller
     {
         $profile = (array) ($data['profile'] ?? []);
 
-        return trim(implode(' — ', array_filter([
+        return trim(implode(' · ', array_filter([
             (string) ($profile['job_title'] ?? ''),
             (string) ($profile['company'] ?? ''),
         ])));
@@ -315,7 +315,7 @@ class CvExtrasController extends Controller
 
         foreach ((array) ($data['courses'] ?? []) as $row) {
             $row = (array) $row;
-            $line = trim(implode(' — ', array_filter([
+            $line = trim(implode(' · ', array_filter([
                 (string) ($row['name'] ?? ''),
                 (string) ($row['provider'] ?? ''),
                 (string) ($row['date'] ?? ''),
@@ -341,7 +341,7 @@ class CvExtrasController extends Controller
         $languages = [];
 
         foreach ((array) ($data['languages'] ?? []) as $row) {
-            $line = trim(implode(' — ', array_filter([
+            $line = trim(implode(' · ', array_filter([
                 (string) ($row['language'] ?? ''),
                 (string) ($row['level'] ?? ''),
             ])));
@@ -371,7 +371,7 @@ class CvExtrasController extends Controller
         // ⭐ رقم الشهادة عمودُه **`code`** — لا `serial` (عمودٌ لا وجود له،
         // فكان الرقم يخرج فارغًا دائمًا في الـPDF وفي الرابط العامّ).
         $certificates = $pulled['certificates']->map(
-            fn ($certificate) => trim(implode(' — ', array_filter([
+            fn ($certificate) => trim(implode(' · ', array_filter([
                 $certificate->certificate_type?->name_ar ?? (string) setting('cv.section.certificate_fallback', 'شهادة'),
                 (string) ($certificate->issued_at?->format('Y/m') ?? ''),
                 filled($certificate->code)
@@ -403,7 +403,7 @@ class CvExtrasController extends Controller
                 : (string) ($row['to'] ?? ''),
         ])));
 
-        return trim(implode(' — ', array_filter([
+        return trim(implode(' · ', array_filter([
             (string) ($row[$first] ?? ''),
             (string) ($row[$second] ?? ''),
             (string) ($row[$extra] ?? ''),

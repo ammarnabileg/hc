@@ -149,7 +149,7 @@
                             @foreach ($selectedRequests as $req)
                                 <div class="rounded-xl px-3 py-2 text-sm" style="background: var(--surface-sunken)">
                                     <div class="flex items-center justify-between gap-2">
-                                        <span>{{ $req->entity?->name_ar }} — {{ $req->position?->name_ar }}</span>
+                                        <span>{{ $req->entity?->name_ar }} · {{ $req->position?->name_ar }}</span>
                                         <x-state-badge :state="$placement->statusState($req->status)" :label="$statuses[$req->status] ?? $req->status" />
                                     </div>
                                     @if (in_array($req->status, ['sent', 'awaiting'], true))
@@ -199,7 +199,7 @@
                             {{-- الممتلئ **يبان بعلامة ولا يُخفى** — مؤشّر لا مانع (13.4-ف) --}}
                             <option value="{{ $row['entity']->id }}"
                                     @selected($suggested && $suggested->id === $row['entity']->id)>
-                                {{ $row['entity']->name_ar }} — {{ setting('volunteer.people_placement.option', 'إشغال') }} {{ $row['percent'] }}%{{ $row['full'] ? setting('volunteer.people_placement.text', ' (ممتلئ ▲)') : '' }}
+                                {{ $row['entity']->name_ar }} · {{ setting('volunteer.people_placement.option', 'إشغال') }} {{ $row['percent'] }}%{{ $row['full'] ? setting('volunteer.people_placement.text', ' (ممتلئ ▲)') : '' }}
                             </option>
                         @endforeach
                     </select>
@@ -207,7 +207,7 @@
 
                 @if ($suggested)
                     <p class="text-xs" style="color: var(--text-muted)">
-                        {{ setting('volunteer.people_placement.field_10', 'اقتراحنا:') }} <strong>{{ $suggested->name_ar }}</strong> — {{ setting('volunteer.people_placement.field_11', 'الأقلّ إشغالًا دلوقتي. وإنت حرّ تختار غيره.') }}
+                        {{ setting('volunteer.people_placement.field_10', 'اقتراحنا:') }} <strong>{{ $suggested->name_ar }}</strong>، {{ setting('volunteer.people_placement.field_11', 'الأقلّ إشغالًا دلوقتي. وإنت حرّ تختار غيره.') }}
                     </p>
                 @endif
 

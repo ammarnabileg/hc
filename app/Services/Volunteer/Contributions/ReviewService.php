@@ -326,7 +326,7 @@ class ReviewService
                 $task->owner_id ? User::query()->find($task->owner_id) : null,
                 'task',
                 setting('workflow.review_service.return_task_3', 'اترجّعت مهمّتك للإصلاح'),
-                $reasons[$data['return_reason_code']].' — '.$data['review_feedback'],
+                $reasons[$data['return_reason_code']].' · '.$data['review_feedback'],
                 route('volunteer.reviews'),
                 $fixDue,
                 requiresAction: true,

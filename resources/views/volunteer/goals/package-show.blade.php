@@ -137,7 +137,7 @@
                     <button type="button" data-modal-open="vxp-{{ $entry['task']->id }}"
                             class="btn rounded-xl px-3 py-2 text-xs motion-standard"
                             style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text); min-height: 44px">
-                        {{ $entry['task']->title }} — {{ setting('volunteer.goals_package_show.action_3', 'وعاء') }} {{ rtrim(rtrim(number_format($entry['summary']['pool'], 2), '0'), '.') }}
+                        {{ $entry['task']->title }} · {{ setting('volunteer.goals_package_show.action_3', 'وعاء') }} {{ rtrim(rtrim(number_format($entry['summary']['pool'], 2), '0'), '.') }}
                     </button>
                 @endforeach
             </div>
@@ -210,7 +210,7 @@
                     @endforelse
 
                     <p class="text-xs" style="color: var(--text-muted)">
-                        {{ setting('volunteer.goals_package_show.field_18', 'مهلة الاعتراض تنتهي') }} {{ \Illuminate\Support\Carbon::parse($package->objection_due_at)->format('Y/m/d H:i') }} — {{ setting('volunteer.goals_package_show.field_19', 'والسكوت قبول.') }}
+                        {{ setting('volunteer.goals_package_show.field_18', 'مهلة الاعتراض تنتهي') }} {{ \Illuminate\Support\Carbon::parse($package->objection_due_at)->format('Y/m/d H:i') }}، {{ setting('volunteer.goals_package_show.field_19', 'والسكوت قبول.') }}
                     </p>
 
                     <form method="post" action="{{ route('volunteer.packages.object', $package) }}" class="space-y-2">

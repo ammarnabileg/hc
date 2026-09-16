@@ -17,7 +17,7 @@
     @php $dcDate = \Illuminate\Support\Carbon::parse($dcAt); @endphp
     <span class="inline-flex items-center gap-1 text-xs cursor-help"
           style="color: var(--color-state-{{ $dcSymbols['color'] }})"
-          title="{{ $dcDate->format('Y-m-d H:i') }}{{ $dcOutside ? ' — '.app(\App\Services\Volunteer\Tasks\ActivityWindow::class)->outsideHint() : '' }}">
+          title="{{ $dcDate->format('Y-m-d H:i') }}{{ $dcOutside ? ' · '.app(\App\Services\Volunteer\Tasks\ActivityWindow::class)->outsideHint() : '' }}">
         <span aria-hidden="true">{{ $dcSymbols['icon'] }}</span>
         {{-- تواريخ نسبيّة والتاريخ الكامل بالـHover (2.15-د) --}}
         <span>{{ $dcDate->diffForHumans(['options' => 0]) }}</span>

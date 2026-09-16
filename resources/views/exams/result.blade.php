@@ -22,7 +22,7 @@
         {{-- الرقم النهائيّ يظهر في كلّ الأحوال ولا يعلق العدّاد أبدًا (2.17-أ) --}}
         <div class="text-4xl font-extrabold" data-count-to="{{ (int) $attempt->score }}">{{ (int) $attempt->score }}</div>
         <p class="text-sm mt-1" style="color: var(--text-muted)">
-            {{ setting('exams.labels.your_score', 'درجتك من 100') }} — {{ setting('exams.labels.pass_score', 'درجة النجاح') }} {{ $exam->pass_score }}%
+            {{ setting('exams.labels.your_score', 'درجتك من 100') }} · {{ setting('exams.labels.pass_score', 'درجة النجاح') }} {{ $exam->pass_score }}%
         </p>
 
         <p class="mt-4 text-sm">

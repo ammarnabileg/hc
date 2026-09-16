@@ -22,7 +22,7 @@
     <div class="px-5 py-5 text-center">
         <div class="text-sm mb-1" style="color: var(--text-muted)">{{ $event->title_ar }}</div>
         <div class="text-xs mb-4" style="color: var(--text-muted)">
-            {{ $local->format('Y-m-d · H:i') }} — {{ $presenter->timezone($registration->user ?? auth()->user()) }}
+            {{ $local->format('Y-m-d · H:i') }} · {{ $presenter->timezone($registration->user ?? auth()->user()) }}
         </div>
 
         {{-- الكود بخطّ كبير: يُقرأ بالعين وبالكاميرا بلا أيّ اعتماد خارجيّ --}}

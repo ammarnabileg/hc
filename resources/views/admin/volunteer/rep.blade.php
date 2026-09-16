@@ -139,7 +139,7 @@
         @forelse ($recent as $row)
             <div class="flex items-center justify-between gap-3 py-2 text-sm {{ $loop->last ? '' : 'border-b' }}" style="border-color: var(--border)">
                 <div class="min-w-0">
-                    <div class="truncate font-semibold">{{ $row->user?->name }} — {{ $row->behavior_violation?->label_ar }}</div>
+                    <div class="truncate font-semibold">{{ $row->user?->name }} · {{ $row->behavior_violation?->label_ar }}</div>
                     <div class="text-xs" style="color: var(--text-muted)">
                         {{ setting('admin.volunteer.rep.bmarfa', 'بمعرفة') }} {{ $row->granted_by?->name }} · {{ \Illuminate\Support\Str::limit($row->justification, 70) }}
                     </div>

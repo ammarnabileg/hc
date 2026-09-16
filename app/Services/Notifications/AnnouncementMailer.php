@@ -263,7 +263,7 @@ class AnnouncementMailer
                 'reason' => Str::limit($e->getMessage(), 180),
             ])->save();
 
-            Log::warning('فشل بريد منشور — أُكمِلت الدفعة', [
+            Log::warning('فشل بريد منشور، وأُكمِلت الدفعة', [
                 'announcement_id' => $announcement->id,
                 'user_id' => $user->id,
                 'error' => $e->getMessage(),

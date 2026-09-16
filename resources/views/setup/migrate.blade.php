@@ -6,7 +6,7 @@
 @endphp
 
 @extends('layouts.guest')
-@section('title', (string) \App\Services\Setup\SetupSettings::text('setup.migrate_view.section_1', 'تنصيب المنصّة — تجهيز الجداول'))
+@section('title', (string) \App\Services\Setup\SetupSettings::text('setup.migrate_view.section_1', 'تنصيب المنصّة · تجهيز الجداول'))
 
 @section('content')
 <div class="w-full max-w-3xl">
@@ -15,7 +15,7 @@
     <div class="card p-6">
         <x-page-header
             title="{{ \App\Services\Setup\SetupSettings::text('setup.migrate_view.title_1', 'تجهيز الجداول والبيانات') }}"
-            subtitle="{{ \App\Services\Setup\SetupSettings::text('setup.migrate_view.subtitle_1', 'هنبني جداول المنصّة ونحمّل الأدوار والصلاحيّات والإعدادات — كلّه من هنا بلا تيرمينال.') }}" />
+            subtitle="{{ \App\Services\Setup\SetupSettings::text('setup.migrate_view.subtitle_1', 'هنبني جداول المنصّة ونحمّل الأدوار والصلاحيّات والإعدادات، وكلّه من هنا بلا تيرمينال.') }}" />
 
         @include('setup.partials.alert', ['keys' => ['migrate', 'setup']])
 
@@ -38,7 +38,7 @@
             </ul>
         @else
             <div class="mb-5">
-                <x-empty message="{{ \App\Services\Setup\SetupSettings::text('setup.migrate_view.message_1', 'لسّه ماشغّلناش التجهيز — اضغط الزرّ وهنمشي خطوة خطوة قدّامك.') }}" />
+                <x-empty message="{{ \App\Services\Setup\SetupSettings::text('setup.migrate_view.message_1', 'لسّه ماشغّلناش التجهيز. اضغط الزرّ وهنمشي خطوة خطوة قدّامك.') }}" />
             </div>
         @endif
 

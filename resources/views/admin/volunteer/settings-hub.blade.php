@@ -131,7 +131,7 @@
                         <span class="text-xs" style="color: var(--text-muted)">{{ $entry->created_at->diffForHumans() }}</span>
                     </div>
                     <div class="text-xs mt-1" style="color: var(--text-muted)">
-                        {{ $entry->action }} — <code>{{ data_get($entry->new_values, 'key', '—') }}</code>
+                        {{ $entry->action }} · <code>{{ data_get($entry->new_values, 'key', '—') }}</code>
                     </div>
                 </div>
             @empty

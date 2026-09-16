@@ -22,7 +22,7 @@
             <div>
                 <h2 class="font-extrabold">{{ setting('growth.weekly_card.title', 'نصيحة الأسبوع') }}</h2>
                 <p class="text-xs mt-0.5" style="color: var(--text-muted)">
-                    {{ $card['from']->translatedFormat('j F') }} — {{ $card['to']->translatedFormat('j F Y') }}
+                    {{ $card['from']->translatedFormat('j F') }} إلى {{ $card['to']->translatedFormat('j F Y') }}
                     · {{ strtr((string) setting('growth.content_kit.text_1', 'بيتغيّر كلّ :a1 يوم'), [':a1' => (string) ($periodDays)]) }}
                 </p>
             </div>

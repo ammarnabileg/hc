@@ -1,5 +1,5 @@
 @extends('layouts.guest')
-@section('title', (string) \App\Services\Setup\SetupSettings::text('setup.requirements_view.section_1', 'تنصيب المنصّة — فحص المتطلّبات'))
+@section('title', (string) \App\Services\Setup\SetupSettings::text('setup.requirements_view.section_1', 'تنصيب المنصّة · فحص المتطلّبات'))
 
 @php
     $titles = [
@@ -66,7 +66,7 @@
 
         @unless ($passed)
             <p class="text-xs mt-3" style="color: var(--text-muted)">
-                {{ \App\Services\Setup\SetupSettings::text('setup.requirements_view.text_3', 'صحّح اللي عليه ❌ من لوحة الاستضافة، وبعدين اضغط «أعد الفحص» — وهنكمّل على طول.') }}
+                {{ \App\Services\Setup\SetupSettings::text('setup.requirements_view.text_3', 'صحّح اللي عليه ❌ من لوحة الاستضافة، وبعدين اضغط «أعد الفحص» وهنكمّل على طول.') }}
             </p>
         @endunless
     </div>

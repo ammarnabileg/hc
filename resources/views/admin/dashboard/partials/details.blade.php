@@ -13,7 +13,7 @@
     @php $target = $details['target']; @endphp
     <section class="card p-4 mt-6">
         <div class="flex items-baseline justify-between gap-2 flex-wrap">
-            <h3 class="font-bold text-sm">🔒 {{ $target['label'] }} — {{ $target['month'] }}</h3>
+            <h3 class="font-bold text-sm">🔒 {{ $target['label'] }} · {{ $target['month'] }}</h3>
             <span class="text-xs" style="color: var(--text-muted)">
                 {{ number_format($target['achieved']) }} {{ setting('admin.dashboard.partials.details.mn', 'من') }} {{ number_format($target['target']) }}
                 ({{ $target['percent'] }}%)

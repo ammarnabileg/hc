@@ -187,7 +187,7 @@
 
                     <div class="rounded-xl p-3 text-xs space-y-1"
                          style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text-muted)">
-                        <p>{{ setting('volunteer.goals_build_breakdown.text_8', 'الدعوات دي بتتكتب دلوقتي و') }}<strong>{{ setting('volunteer.goals_build_breakdown.strong', 'ما بتشتغلش') }}</strong> — {{ setting('volunteer.goals_build_breakdown.text_9', 'لا عضويّة ولا إشعار.') }}</p>
+                        <p>{{ setting('volunteer.goals_build_breakdown.text_8', 'الدعوات دي بتتكتب دلوقتي و') }}<strong>{{ setting('volunteer.goals_build_breakdown.strong', 'ما بتشتغلش') }}</strong>، {{ setting('volunteer.goals_build_breakdown.text_9', 'لا عضويّة ولا إشعار.') }}</p>
                         <p>{{ setting('volunteer.goals_build_breakdown.text_10', 'بتتفعّل كلّها لحظة ضغط «إرسال للتنفيذ» من مشرف عام التطوّع، مش قبلها.') }}</p>
                     </div>
 
@@ -234,12 +234,12 @@
                             <select name="entity_id" required class="w-full rounded-xl px-3 py-2 text-sm"
                                     style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
                                 @foreach ($entities as $entity)
-                                    <option value="{{ $entity->id }}">{{ $entity->name_ar }} — {{ $entity->track?->name_ar }}</option>
+                                    <option value="{{ $entity->id }}">{{ $entity->name_ar }} · {{ $entity->track?->name_ar }}</option>
                                 @endforeach
 
                                 {{-- مسودّات هذا الهدف: قابلة للربط، **موسومةً بالنصّ** أنّها لم تُفتَح بعد --}}
                                 @foreach ($fileDrafts as $draft)
-                                    <option value="{{ $draft->id }}">{{ $draft->name_ar }} — {{ $draft->track?->name_ar }} ({{ setting('volunteer.goals_build_breakdown.option', 'مسودّة لسّه ما اتفتحتش') }})</option>
+                                    <option value="{{ $draft->id }}">{{ $draft->name_ar }} · {{ $draft->track?->name_ar }} ({{ setting('volunteer.goals_build_breakdown.option', 'مسودّة لسّه ما اتفتحتش') }})</option>
                                 @endforeach
                             </select>
                             <span class="block text-xs mt-1" style="color: var(--text-muted)">

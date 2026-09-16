@@ -61,7 +61,7 @@
                                 <option value="{{ $member['user']->id }}"
                                         data-load="{{ $member['load'] }}"
                                         data-cap="{{ $member['cap'] ?? '' }}">
-                                    {{ $member['user']->shortName() }} — {{ strtr((string) setting('volunteer.tasks_new_task_modal.option_4', ':p1 مهمّة حاليًّا'), [':p1' => (string) $member['load']]) }}
+                                    {{ $member['user']->shortName() }} · {{ strtr((string) setting('volunteer.tasks_new_task_modal.option_4', ':p1 مهمّة حاليًّا'), [':p1' => (string) $member['load']]) }}
                                     @if ($overCap)
                                         ⚠ {{ setting('volunteer.tasks_new_task_modal.option_5', 'فوق سقف دوره') }}
                                     @endif

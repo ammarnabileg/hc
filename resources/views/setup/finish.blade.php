@@ -6,7 +6,7 @@
 @endphp
 
 @extends('layouts.guest')
-@section('title', (string) \App\Services\Setup\SetupSettings::text('setup.finish_view.section_1', 'تنصيب المنصّة — الإنهاء'))
+@section('title', (string) \App\Services\Setup\SetupSettings::text('setup.finish_view.section_1', 'تنصيب المنصّة · الإنهاء'))
 
 @section('content')
 <div class="w-full max-w-3xl">
@@ -30,7 +30,7 @@
         </ul>
 
         <p class="text-sm mb-4" style="color: var(--text-muted)">
-            {{ \App\Services\Setup\SetupSettings::text('setup.finish_view.text_1', 'بعد الضغط هتتقفل كلّ صفحات التنصيب، ومحدّش هيقدر يفتحها تاني — لا أنت ولا غيرك.') }}
+            {{ \App\Services\Setup\SetupSettings::text('setup.finish_view.text_1', 'بعد الضغط هتتقفل كلّ صفحات التنصيب، ومحدّش هيقدر يفتحها تاني، لا أنت ولا غيرك.') }}
         </p>
 
         <form method="post" action="{{ route('setup.finish.install') }}" data-setup-progress>

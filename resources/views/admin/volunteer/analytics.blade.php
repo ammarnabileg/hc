@@ -128,7 +128,7 @@
         <h2 class="font-bold mb-3">{{ setting('admin.volunteer.analytics.alahmal', 'الأحمال') }}</h2>
         @forelse ($loads as $row)
             <div class="flex items-center justify-between gap-3 py-2 text-sm {{ $loop->last ? '' : 'border-b' }}" style="border-color: var(--border)">
-                <span class="truncate">{{ $row['membership']->user?->name }} — {{ $row['membership']->entity?->name_ar }}</span>
+                <span class="truncate">{{ $row['membership']->user?->name }} · {{ $row['membership']->entity?->name_ar }}</span>
                 <span class="flex items-center gap-2">
                     <span class="font-bold">{{ $row['open'] }}</span>
                     <x-state-badge :state="$row['state']" :label="$row['cap'] ? setting('admin.volunteer.analytics.sqf', 'سقف ').$row['cap'] : setting('admin.volunteer.analytics.bla_sqf', 'بلا سقف')" />

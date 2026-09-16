@@ -35,7 +35,7 @@
                 <option value="">{{ setting('admin.certificates.partials.issue.altsmym_alaftraady_alahdth', 'التصميم الافتراضيّ/الأحدث') }}</option>
                 @foreach ($templates as $template)
                     <option value="{{ $template->id }}" data-type="{{ $template->certificate_type_id }}" data-language="{{ $template->language }}" class="hidden">
-                        {{ setting('admin.certificates.partials.issue.nskha', 'نسخة') }} {{ $template->version }}{{ $template->is_default ? ' — '.setting('admin.certificates.partials.issue.alaftraadya', 'الافتراضيّة') : '' }}
+                        {{ setting('admin.certificates.partials.issue.nskha', 'نسخة') }} {{ $template->version }}{{ $template->is_default ? ' · '.setting('admin.certificates.partials.issue.alaftraadya', 'الافتراضيّة') : '' }}
                     </option>
                 @endforeach
             </select>

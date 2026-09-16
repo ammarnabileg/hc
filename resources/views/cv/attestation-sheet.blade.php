@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ setting('attestations.sheet.title', 'إفادة من المنصّة') }} — {{ $holder->name }}</title>
+    <title>{{ setting('attestations.sheet.title', 'إفادة من المنصّة') }} · {{ $holder->name }}</title>
     {{--
      | ⛔ لا خطّ من شبكةٍ خارجيّة. «القاهرة» مبنيّ داخل الحزمة أصلًا
      | (`@fontsource/cairo` في `app.css`) وتستعمله المنصّة كلّها — وكان هذا
@@ -52,7 +52,7 @@
         <h2>{{ setting('attestations.sheet.courses_title', 'التدريبات المكتملة') }}</h2>
         <ul>
             @foreach ($record['courses'] as $course)
-                <li>{{ $course['name'] }} <span class="muted">— {{ $course['completed_at']?->translatedFormat('F Y') }}</span></li>
+                <li>{{ $course['name'] }} <span class="muted">· {{ $course['completed_at']?->translatedFormat('F Y') }}</span></li>
             @endforeach
         </ul>
     @endif
@@ -63,7 +63,7 @@
             @foreach ($record['certificates'] as $certificate)
                 <li>
                     {{ $certificate->certificate_type?->name_ar }}
-                    <span class="muted">— {{ $certificate->code }}@if ($certificate->verify_url) · {{ $certificate->verify_url }}@endif</span>
+                    <span class="muted">· {{ $certificate->code }}@if ($certificate->verify_url) · {{ $certificate->verify_url }}@endif</span>
                 </li>
             @endforeach
         </ul>
@@ -78,7 +78,7 @@
         <h2>{{ setting('attestations.sheet.recommendations_title', 'إفادات موثّقة') }}</h2>
         @foreach ($approved as $attestation)
             <p>«{{ $attestation->body }}»</p>
-            <p class="muted">— {{ $attestation->from_user?->name ?? $attestation->from_name }}</p>
+            <p class="muted">{{ $attestation->from_user?->name ?? $attestation->from_name }}</p>
         @endforeach
     @endif
 

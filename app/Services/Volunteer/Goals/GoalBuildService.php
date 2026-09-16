@@ -311,7 +311,7 @@ class GoalBuildService
                 'milestone_id' => $milestone->id,
                 'entity_id' => $entity->id,
                 'name' => $name !== null && trim($name) !== ''
-                    ? trim($name).($entities->count() > 1 ? ' — '.$entity->name_ar : '')
+                    ? trim($name).($entities->count() > 1 ? ' · '.$entity->name_ar : '')
                     : $this->defaultPackageName($next),
                 'build_status' => 'filling',
                 'sort_order' => $next,

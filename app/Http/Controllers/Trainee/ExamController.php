@@ -480,7 +480,7 @@ class ExamController extends Controller
             amount: $cost['amount'],
             source: 'academy',
             reference: $exam,
-            reason: (string) setting('exams.wallet.charge_reason', 'دخول امتحان').' — '.$exam->title_ar,
+            reason: (string) setting('exams.wallet.charge_reason', 'دخول امتحان').' · '.$exam->title_ar,
         );
     }
 

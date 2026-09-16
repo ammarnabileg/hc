@@ -31,7 +31,7 @@
                 <p class="text-sm" style="color: var(--text-muted)">{{ setting('admin.roles.assign.akhtr_almstkhdm_alawl_ashan_nard_adwyath', 'اختر المستخدم الأوّل عشان نعرض عضويّاته.') }}</p>
             @else
                 <div class="rounded-xl p-3 mb-3 text-sm" style="background: var(--surface-sunken)">
-                    {{ $target->name }} — #{{ $target->code }}
+                    {{ $target->name }} · #{{ $target->code }}
                 </div>
 
                 <form method="post" action="{{ route('admin.roles.assign.store') }}" class="space-y-3">
@@ -57,7 +57,7 @@
                             <option value="">{{ setting('admin.roles.assign.bla_adwya_dwr_mnsa', 'بلا عضويّة (دور منصّة)') }}</option>
                             @foreach ($memberships as $membership)
                                 <option value="{{ $membership->id }}">
-                                    {{ $membership->entity?->name_ar ?? setting('admin.roles.assign.kyan', 'كيان') }} — {{ $membership->position?->name_ar ?? setting('admin.roles.assign.bwzshn', 'بوزشن') }}
+                                    {{ $membership->entity?->name_ar ?? setting('admin.roles.assign.kyan', 'كيان') }} · {{ $membership->position?->name_ar ?? setting('admin.roles.assign.bwzshn', 'بوزشن') }}
                                 </option>
                             @endforeach
                         </select>

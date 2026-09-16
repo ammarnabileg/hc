@@ -19,7 +19,7 @@
     @endphp
 
     <x-page-header :title="$event->title_ar"
-                   :subtitle="$local->format('Y-m-d · H:i').' — '.$localEnd->format('H:i').' ('.$tz.')'"
+                   :subtitle="$local->format('Y-m-d · H:i').' إلى '.$localEnd->format('H:i').' ('.$tz.')'"
                    :breadcrumbs="[
                        ['label' => setting('events.show.breadcrumb_home', 'الرئيسيّة'), 'url' => route('dashboard')],
                        ['label' => setting('events.show.breadcrumb_events', 'الفعاليّات'), 'url' => route('events.index')],

@@ -29,7 +29,7 @@
 
             {{-- ⭐ [استخراج كصورة] بالمكوّن المشترك القائم لا بمكوّنٍ ثانٍ (12.14-هـ) --}}
             <x-export-image kind="stats" :title="setting('admin.dashboard.title', 'لوحة القيادة')"
-                            :subtitle="$period['from']->format('Y/m/d').' — '.$period['to']->format('Y/m/d')"
+                            :subtitle="$period['from']->format('Y/m/d').' إلى '.$period['to']->format('Y/m/d')"
                             :rows="$exportRows" />
 
             @if (count($quickActions) > 1 || $canCustomize)

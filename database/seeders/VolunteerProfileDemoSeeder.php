@@ -181,7 +181,7 @@ class VolunteerProfileDemoSeeder extends Seeder
         $tl1 = User::where('code', 'VOL-TL1')->first();
 
         if (! $c1 || ! $c2 || ! $c3 || ! $tl1) {
-            $this->command?->warn('شغّل VolunteerOrgDemoSeeder الأوّل — بيانات البروفايل مبنيّة عليه.');
+            $this->command?->warn('شغّل VolunteerOrgDemoSeeder الأوّل، علشان بيانات البروفايل مبنيّة عليه.');
 
             return;
         }

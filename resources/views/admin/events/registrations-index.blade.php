@@ -357,7 +357,7 @@
                         <option value="">{{ setting('events.registrations.invite_segment_placeholder', 'اختر شريحة') }}</option>
                         @foreach ($segments as $segment)
                             <option value="{{ $segment->id }}">
-                                {{ $segment->name }} — {{ \App\Services\Admin\AudienceSegments::types()[$segment->segment_type] ?? $segment->segment_type }}
+                                {{ $segment->name }} · {{ \App\Services\Admin\AudienceSegments::types()[$segment->segment_type] ?? $segment->segment_type }}
                                 ({{ number_format((int) $segment->size) }})
                             </option>
                         @endforeach

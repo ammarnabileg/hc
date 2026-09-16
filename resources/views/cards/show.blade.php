@@ -61,7 +61,7 @@
 
                 <dt style="color: var(--text-muted)">{{ setting('volunteer_card.show.text_5', 'الدولة/المحافظة') }}</dt>
                 <dd class="text-end font-semibold">
-                    {{ trim(($data['country'] ?: '').(($data['country'] && $data['governorate']) ? ' — ' : '').($data['governorate'] ?: '')) ?: '—' }}
+                    {{ trim(($data['country'] ?: '').(($data['country'] && $data['governorate']) ? ' · ' : '').($data['governorate'] ?: '')) ?: '—' }}
                 </dd>
 
                 <dt style="color: var(--text-muted)">{{ setting('volunteer_card.show.text_6', 'تاريخ الانضمام') }}</dt>

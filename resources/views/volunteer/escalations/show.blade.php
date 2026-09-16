@@ -12,7 +12,7 @@
         ]" />
 
     <section class="card p-4 space-y-2 text-sm">
-        <p>{{ setting('volunteer.escalations_show.text', 'المستوى الحاليّ:') }} {{ $escalation->level }} — {{ $escalation->is_top_level ? setting('volunteer.escalations_show.text_2', 'السقف (48 ساعة)') : setting('volunteer.escalations_show.text_3', 'نافذة 24 ساعة') }}</p>
+        <p>{{ setting('volunteer.escalations_show.text', 'المستوى الحاليّ:') }} {{ $escalation->level }} · {{ $escalation->is_top_level ? setting('volunteer.escalations_show.text_2', 'السقف (48 ساعة)') : setting('volunteer.escalations_show.text_3', 'نافذة 24 ساعة') }}</p>
         <p>{{ setting('volunteer.escalations_show.text_4', 'تنتهي النافذة:') }} {{ $escalation->window_due_at?->format('Y-m-d H:i') }}</p>
         <p>{{ setting('volunteer.escalations_show.text_5', 'التسوية الآليّة إن فاتت نافذة السقف:') }} <strong>{{ $settlement }}</strong></p>
 

@@ -58,7 +58,7 @@
                         <input type="checkbox" name="bumps[]" value="{{ $bump['slug'] }}" class="mt-1" data-quote-trigger>
                         <span class="text-sm">
                             <span class="font-semibold">{{ $bump['title'] }}</span>
-                            <span> — {{ Coins::label($bump['price'], $currency) }}</span>
+                            <span> · {{ Coins::label($bump['price'], $currency) }}</span>
                             @if ($bump['list_price'] > $bump['price'])
                                 <span class="text-xs line-through" style="color: var(--text-muted)">{{ Coins::fmt($bump['list_price']) }}</span>
                             @endif

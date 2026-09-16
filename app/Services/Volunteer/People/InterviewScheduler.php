@@ -101,7 +101,7 @@ class InterviewScheduler
 
         if ($candidate->user) {
             $this->bridge->notify($candidate->user, 'recruitment', setting('recruitment.interview_scheduler.schedule_4', 'اتحدّد موعد مقابلتك'),
-                strtr(setting('recruitment.interview_scheduler.schedule_5', 'المقابلة يوم :p1'), [':p1' => (string) ($at->translatedFormat('l j F — g:i A'))]), null, $at);
+                strtr(setting('recruitment.interview_scheduler.schedule_5', 'المقابلة يوم :p1'), [':p1' => (string) ($at->translatedFormat('l j F · g:i A'))]), null, $at);
         }
 
         return $interview;

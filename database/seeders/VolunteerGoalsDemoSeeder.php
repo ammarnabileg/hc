@@ -45,7 +45,7 @@ class VolunteerGoalsDemoSeeder extends Seeder
 
         app(RollupService::class)->recalcGoal($goal);
 
-        $this->command?->info('بيانات مجال الأهداف والأداء جاهزة — الهدف: '.$goal->name);
+        $this->command?->info('بيانات مجال الأهداف والأداء جاهزة · الهدف: '.$goal->name);
     }
 
     // ------------------------------------------------------------------ الإعدادات

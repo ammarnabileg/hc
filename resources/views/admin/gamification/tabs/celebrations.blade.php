@@ -22,7 +22,7 @@
                 <select name="tier" class="w-full rounded-lg px-2 py-1.5 mt-1"
                         style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
                     @foreach ($data['tiers'] as $tier => $label)
-                        <option value="{{ $tier }}" @selected($event->tier === $tier)>{{ $tier }} — {{ $label }}</option>
+                        <option value="{{ $tier }}" @selected($event->tier === $tier)>{{ $tier }} · {{ $label }}</option>
                     @endforeach
                 </select>
             </label>

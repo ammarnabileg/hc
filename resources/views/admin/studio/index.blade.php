@@ -179,7 +179,7 @@
                         <option value="">{{ setting('admin.studio.index.mkhss', 'مخصّص') }}</option>
                         @foreach ($presets as $key => $preset)
                             <option value="{{ $key }}" data-size="{{ $preset['width'] }}x{{ $preset['height'] }}">
-                                {{ $preset['label'] }} — {{ $preset['width'] }}×{{ $preset['height'] }}
+                                {{ $preset['label'] }} · {{ $preset['width'] }}×{{ $preset['height'] }}
                             </option>
                         @endforeach
                     </select>

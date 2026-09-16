@@ -86,7 +86,7 @@
                 @if ($cooldownUntil)
                     <p class="text-sm" style="color: var(--text-muted)">
                         {{ setting('exams.labels.available_at', 'محاولتك الجاية متاحة') }}:
-                        <strong style="color: var(--text)">{{ $cooldownUntil->format('Y/m/d — H:i') }}</strong>
+                        <strong style="color: var(--text)">{{ $cooldownUntil->format('Y/m/d · H:i') }}</strong>
                     </p>
                 @elseif (! $unlimited && $attemptsLeft < 1)
                     <p class="text-sm" style="color: var(--text-muted)">{{ setting('exams.messages.no_attempts_left', 'خلصت محاولاتك في الامتحان ده.') }}</p>

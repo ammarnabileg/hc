@@ -95,7 +95,7 @@
                                     <a href="{{ route('admin.events.registrations', $event) }}"
                                        class="block truncate rounded px-1.5 py-0.5 text-xs"
                                        style="background: {{ $event->status === 'cancelled' ? 'var(--color-state-danger)' : 'var(--color-brand-500)' }}; color: #04201c"
-                                       title="{{ $event->title_ar }} — {{ $event->starts_at?->format('H:i') }}">
+                                       title="{{ $event->title_ar }} · {{ $event->starts_at?->format('H:i') }}">
                                         {{ $event->starts_at?->format('H:i') }} {{ $event->title_ar }}
                                     </a>
                                 @endforeach

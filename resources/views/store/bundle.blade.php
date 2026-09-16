@@ -365,13 +365,13 @@
                     يُعاد ضبطه عند التحديث — الوقت ينقص لأنّ الموعد حقيقيّ (2.9-10).
                 --}}
                 <p class="text-sm" style="color: var(--text-muted)">
-                    {{ str_replace('{date}', $landing['countdown_ends_at']->translatedFormat('j F Y — H:i'), $t['availability.countdown_text']) }}
+                    {{ str_replace('{date}', $landing['countdown_ends_at']->translatedFormat('j F Y · H:i'), $t['availability.countdown_text']) }}
                 </p>
 
                 <p class="mt-3 text-2xl font-extrabold" style="font-variant-numeric: tabular-nums"
                    data-bundle-countdown data-ends-at="{{ $landing['countdown_ends_at']->toIso8601String() }}"
                    data-units="{{ json_encode($landing['countdown_units'], JSON_UNESCAPED_UNICODE) }}">
-                    <time datetime="{{ $landing['countdown_ends_at']->toIso8601String() }}">{{ $landing['countdown_ends_at']->translatedFormat('j F Y — H:i') }}</time>
+                    <time datetime="{{ $landing['countdown_ends_at']->toIso8601String() }}">{{ $landing['countdown_ends_at']->translatedFormat('j F Y · H:i') }}</time>
                 </p>
             @endif
 

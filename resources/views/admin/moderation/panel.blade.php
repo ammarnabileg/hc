@@ -24,7 +24,7 @@
             <div class="rounded-xl px-3 py-2 mb-4 text-sm" style="background: var(--surface-sunken)">
                 <span class="font-semibold">{{ \App\Services\Admin\UserDirectory::statuses()[$user->status] ?? $user->status }}</span>
                 @if ($user->containment_reason)
-                    — {{ $user->containment_reason }}
+                    · {{ $user->containment_reason }}
                 @endif
                 @if ($user->suspended_until)
                     <span class="block text-xs mt-1" style="color: var(--text-muted)">

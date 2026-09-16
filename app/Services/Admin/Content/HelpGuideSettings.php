@@ -43,7 +43,7 @@ class HelpGuideSettings
             'help.feedback_enabled' => ['help', (string) setting('admin_content.help_guide.toggle_feedback', 'تفعيل «هل كان مفيدًا؟»'), 'bool', '1'],
             'help.show.text_1_en' => ['help', (string) setting('admin_content.help_guide.feedback_text_en', 'نصّ «هل كان مفيدًا؟» (إنجليزيّ)'), 'string', 'Was this helpful?'],
             'help.sidebar_categories_enabled' => ['help', (string) setting('admin_content.help_guide.toggle_sidebar_categories', 'إظهار التصنيفات فوق الأدلّة'), 'bool', '1'],
-            'help.index.message_1_en' => ['help', (string) setting('admin_content.help_guide.empty_text_en', 'نصّ الحالة الفارغة (إنجليزيّ)'), 'string', 'No results — try another word.'],
+            'help.index.message_1_en' => ['help', (string) setting('admin_content.help_guide.empty_text_en', 'نصّ الحالة الفارغة (إنجليزيّ)'), 'string', 'No results. Try another word.'],
         ];
     }
 

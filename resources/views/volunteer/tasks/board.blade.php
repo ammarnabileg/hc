@@ -91,7 +91,7 @@
                         <div class="text-sm">
                             <span class="font-semibold">{{ $item->name }}</span>
                             @if ($item->work_package?->entity)
-                                <span class="text-xs" style="color: var(--text-muted)">— {{ $item->work_package->entity->name_ar }}</span>
+                                <span class="text-xs" style="color: var(--text-muted)">· {{ $item->work_package->entity->name_ar }}</span>
                             @endif
                         </div>
                         <div class="flex items-center gap-2 shrink-0">

@@ -132,7 +132,7 @@ class BehaviorLedger
         if (! $severe) {
             $transaction = Integrations::post(
                 $target, self::REP, $value, 'behavior',
-                $violation->label_ar.' — '.$record->justification,
+                $violation->label_ar.' · '.$record->justification,
                 $granter, $record, 'volunteer',
             );
 
@@ -144,7 +144,7 @@ class BehaviorLedger
             // إشعار فوريّ للعضو بالنوع والمبرّر — لا مفاجآت (13.4-ن-هـ)
             Integrations::notify(
                 $target, 'objection', setting('volunteer_rep.behavior_ledger.record_3', 'معاملة سلوك على درجة الالتزام'),
-                $violation->label_ar.' — '.$record->justification, null, 'volunteer',
+                $violation->label_ar.' · '.$record->justification, null, 'volunteer',
             );
         }
 

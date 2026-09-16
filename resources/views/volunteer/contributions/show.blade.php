@@ -31,11 +31,11 @@
 
         <section class="card p-4 text-sm">
             <h2 class="font-bold mb-2">{{ setting('volunteer.contributions_show.heading_2', 'نقاط التفتيش') }}</h2>
-            <p class="text-xs mb-3" style="color: var(--text-muted)">{{ $activityWindow }} — {{ setting('volunteer.contributions_show.text_8', 'وما خارجها لا يُحتسَب تأخيرًا.') }}</p>
+            <p class="text-xs mb-3" style="color: var(--text-muted)">{{ $activityWindow }}، {{ setting('volunteer.contributions_show.text_8', 'وما خارجها لا يُحتسَب تأخيرًا.') }}</p>
 
             @forelse ($checkpoints as $point)
                 <div class="flex items-center justify-between gap-2 py-2" style="border-top: 1px solid var(--border)">
-                    <span>{{ setting('volunteer.contributions_show.text_9', 'تفتيش') }} {{ $point->sequence }} — {{ $point->scheduled_at?->format('Y-m-d H:i') }}</span>
+                    <span>{{ setting('volunteer.contributions_show.text_9', 'تفتيش') }} {{ $point->sequence }} · {{ $point->scheduled_at?->format('Y-m-d H:i') }}</span>
                     <x-state-badge :state="$point->status === 'answered' ? 'ok' : ($point->status === 'missed' ? 'danger' : 'warn')" />
                 </div>
             @empty

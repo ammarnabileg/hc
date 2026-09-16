@@ -8,7 +8,7 @@
         <h2 class="font-bold text-base">{{ $row['title'] }}</h2>
         <p class="text-xs mt-1" style="color: var(--text-muted)">
             {{ setting('admin.trash.panel_deleted_at', 'اتحذف') }}
-            {{ $row['deleted_at']?->translatedFormat('j F Y — H:i') }}
+            {{ $row['deleted_at']?->translatedFormat('j F Y · H:i') }}
             @if ($row['deleted_by'])
                 · {{ setting('admin.trash.panel_deleted_by', 'بمعرفة') }} {{ $row['deleted_by'] }}
             @endif

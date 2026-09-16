@@ -10,7 +10,7 @@
     <div class="flex justify-end mb-3">
         <x-export-image
             kind="card"
-            :title="$owner->shortName().' — '.setting('account.profile.achievements.export_title', 'إنجازاتي')"
+            :title="$owner->shortName().' · '.setting('account.profile.achievements.export_title', 'إنجازاتي')"
             :subtitle="setting('account.profile.achievements.export_subtitle', 'مستوى الحساب').' '.$owner->level"
             :rows="collect($achievements)->values()->map(fn ($track, $i) => [
                 'rank' => $track['level'],

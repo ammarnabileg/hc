@@ -90,7 +90,7 @@ class AbsenceService
         $unknown = array_values(array_diff($keys, $found->keys()->all()));
 
         if ($unknown !== []) {
-            Log::warning('إعداد «volunteer.absence.adder_positions» يسمّي بوزشنات غير موجودة — أصحابها يُرَدّون صامتًا.', [
+            Log::warning('إعداد «volunteer.absence.adder_positions» يسمّي بوزشنات غير موجودة، وأصحابها يُرَدّون صامتًا.', [
                 'setting' => 'volunteer.absence.adder_positions',
                 'unknown_keys' => $unknown,
                 'known_keys' => Position::query()->pluck('key')->all(),

@@ -92,7 +92,7 @@
 
         @if ($level !== ProfileVisibility::OWNER)
             {{-- سطر واحد يوضّح مستوى المشاهدة — سطر لكلّ شرح (2.15-أ-8) --}}
-            <p class="small muted mt-3">{{ $levelLabel }} — {{ setting('profile.header.text_4', 'البيانات الحسّاسة مخفيّة افتراضيًّا.') }}</p>
+            <p class="small muted mt-3">{{ $levelLabel }}، {{ setting('profile.header.text_4', 'البيانات الحسّاسة مخفيّة افتراضيًّا.') }}</p>
         @endif
     </div>
 

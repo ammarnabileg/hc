@@ -76,7 +76,7 @@
                         <option value="">{{ setting('volunteer.tasks_new_task_modal.option_3', 'أنا (بلا إسناد)') }}</option>
                         @foreach ($teamMembers as $member)
                             <option value="{{ $member['user']->id }}">
-                                {{ $member['user']->shortName() }} — {{ strtr((string) setting('volunteer.tasks_new_task_modal.option_4', ':p1 مهمّة حاليًّا'), [':p1' => (string) $member['load']]) }}
+                                {{ $member['user']->shortName() }} · {{ strtr((string) setting('volunteer.tasks_new_task_modal.option_4', ':p1 مهمّة حاليًّا'), [':p1' => (string) $member['load']]) }}
                             </option>
                         @endforeach
                     </select>

@@ -105,7 +105,7 @@
                 </label>
 
                 <p class="text-xs" style="color: var(--text-muted)">
-                    {{ setting('volunteer.people_kudos.field_4', 'الحدّ:') }} {{ $limitsLine }} — {{ setting('volunteer.people_kudos.field_5', 'وأشخاص مختلفون فقط.') }}
+                    {{ setting('volunteer.people_kudos.field_4', 'الحدّ:') }} {{ $limitsLine }}، {{ setting('volunteer.people_kudos.field_5', 'وأشخاص مختلفون فقط.') }}
                 </p>
 
                 <button type="submit" class="btn w-full rounded-xl px-4 py-2 text-sm font-semibold"

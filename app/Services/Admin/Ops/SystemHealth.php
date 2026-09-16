@@ -262,7 +262,7 @@ class SystemHealth
                 $alerts[] = [
                     'key' => $key,
                     'level' => 'danger',
-                    'message' => $label.': '.$row['value'].' — '.$row['hint'],
+                    'message' => $label.': '.$row['value'].' · '.$row['hint'],
                 ];
             }
         }

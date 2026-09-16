@@ -19,7 +19,7 @@
     <div class="flex flex-wrap items-center justify-between gap-2">
         <h2 class="font-bold flex items-center gap-2 min-w-0">
             @include('volunteer.meetings.partials.icon', ['name' => 'objection'])
-            <span class="truncate">{{ setting('volunteer.escalations_objection_desk_panel.heading', 'اعتراض #') }}{{ $objection->id }} — {{ $objection->user?->name }}</span>
+            <span class="truncate">{{ setting('volunteer.escalations_objection_desk_panel.heading', 'اعتراض #') }}{{ $objection->id }} · {{ $objection->user?->name }}</span>
         </h2>
         <div class="flex items-center gap-2 shrink-0">
             <x-state-badge :state="$service->statusState($objection->status)" :label="$service->statusLabel($objection->status)" />
@@ -132,7 +132,7 @@
                 </li>
             @endif
             @if ($objection->correction_transaction)
-                <li>{{ setting('volunteer.escalations_objection_desk_panel.bullet_5', 'معاملة تصحيحيّة #') }}{{ $objection->correction_transaction->id }} — {{ setting('volunteer.escalations_objection_desk_panel.bullet_6', 'والأصل كما هو.') }}</li>
+                <li>{{ setting('volunteer.escalations_objection_desk_panel.bullet_5', 'معاملة تصحيحيّة #') }}{{ $objection->correction_transaction->id }}، {{ setting('volunteer.escalations_objection_desk_panel.bullet_6', 'والأصل كما هو.') }}</li>
             @endif
         </ol>
     </details>
@@ -146,7 +146,7 @@
                 <div class="mt-2 flex items-center gap-2">
                     <x-state-badge state="ok" :label="setting('volunteer.escalations_objection_desk_panel.label_4', 'مصحِّحة')" />
                     <span class="text-xs" style="color: var(--text-muted)">
-                        {{ setting('volunteer.escalations_objection_desk_panel.bullet_5', 'معاملة تصحيحيّة #') }}{{ $objection->correction_transaction->id }} — {{ $notice }}
+                        {{ setting('volunteer.escalations_objection_desk_panel.bullet_5', 'معاملة تصحيحيّة #') }}{{ $objection->correction_transaction->id }} · {{ $notice }}
                     </span>
                 </div>
             @endif

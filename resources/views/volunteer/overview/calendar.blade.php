@@ -61,9 +61,9 @@
                                 <a href="{{ $event['url'] ?? '#' }}"
                                    class="block truncate rounded-lg px-1.5 py-0.5 mb-1 text-[11px] motion-standard"
                                    @if ($event['outside_window'])
-                                       title="{{ $event['type_label'] }}: {{ $event['title'] }} — {{ $window->outsideHint() }}"
+                                       title="{{ $event['type_label'] }}: {{ $event['title'] }} · {{ $window->outsideHint() }}"
                                    @else
-                                       title="{{ $event['type_label'] }}: {{ $event['title'] }} — {{ $event['at']->format('H:i') }}"
+                                       title="{{ $event['type_label'] }}: {{ $event['title'] }} · {{ $event['at']->format('H:i') }}"
                                    @endif
                                    style="background: color-mix(in srgb, {{ $typeColors[$event['type']] ?? 'var(--color-state-idle)' }} 18%, transparent);
                                           border: 1px solid var(--color-state-{{ $st['color'] }});
@@ -120,7 +120,7 @@
                 @foreach ($hours as $hour)
                     @php $inside = $window->containsHour($hour); @endphp
                     <div class="h-4 rounded-sm cursor-help"
-                         title="{{ $hour }}:00 — {{ $inside ? setting('volunteer.overview_calendar.inside_window', 'داخل نافذة النشاط') : $window->outsideHint() }}"
+                         title="{{ $hour }}:00 · {{ $inside ? setting('volunteer.overview_calendar.inside_window', 'داخل نافذة النشاط') : $window->outsideHint() }}"
                          style="background: {{ $inside ? 'color-mix(in srgb, var(--color-brand-500) 35%, transparent)' : 'var(--surface-sunken)' }};
                                 {{ $inside ? '' : 'background-image: repeating-linear-gradient(45deg, transparent, transparent 3px, rgb(148 163 184 / .3) 3px, rgb(148 163 184 / .3) 6px);' }}"></div>
                 @endforeach

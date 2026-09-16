@@ -74,7 +74,7 @@
         </p>
         <ul class="mt-2 grid gap-1 text-xs md:grid-cols-2">
             @foreach ($tokens as $token => $meaning)
-                <li><code>{{ $token }}</code> — {{ $meaning }}</li>
+                <li><code>{{ $token }}</code> · {{ $meaning }}</li>
             @endforeach
         </ul>
     </div>

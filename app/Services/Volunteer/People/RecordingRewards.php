@@ -142,7 +142,7 @@ class RecordingRewards
                 $recording->creator,
                 'academy',
                 setting('recruitment.recording_rewards.report_broken_1', 'بلاغ رابط معطّل'),
-                $recording->title.($reason ? ' — '.$reason : ''),
+                $recording->title.($reason ? ' · '.$reason : ''),
                 route('volunteer.academy.recordings'),
                 now()->addHours((int) setting('academy.recording.report_sla_hours', 24)),
                 true,

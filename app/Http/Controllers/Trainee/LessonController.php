@@ -133,7 +133,7 @@ class LessonController extends Controller
 
         // ردّ فوريّ يقول ما كسبه بالضبط (2.17-أ): XP وتذاكر الدرس معًا (7 · 7.1)
         $message = $result['message'].($result['xp'] > 0
-            ? ' — +'.$result['xp'].' '.setting('learning.xp.suffix')
+            ? ' · +'.$result['xp'].' '.setting('learning.xp.suffix')
             : '').(($result['tickets'] ?? 0) > 0
                 ? ' · +'.$result['tickets'].' '.setting('learning.tickets.suffix', 'تذكرة')
                 : '');

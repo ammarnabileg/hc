@@ -117,7 +117,7 @@
                                     style="background: color-mix(in srgb, var(--color-state-{{ state_color($pointState)['color'] }}) 15%, transparent);
                                            color: var(--color-state-{{ state_color($pointState)['color'] }})">
                                 {{ state_color($pointState)['icon'] }}
-                                {{ setting('volunteer.contributions.action', 'تفتيش') }} {{ $point->sequence }} — {{ $point->scheduled_at?->format('m/d H:i') }}
+                                {{ setting('volunteer.contributions.action', 'تفتيش') }} {{ $point->sequence }} · {{ $point->scheduled_at?->format('m/d H:i') }}
                             </button>
                         @empty
                             <span class="text-xs" style="color: var(--text-muted)">{{ setting('volunteer.contributions.field_5', 'بلا نقاط تفتيش على البند ده') }}</span>
@@ -198,7 +198,7 @@
                     <div><dt class="text-xs" style="color: var(--text-muted)">{{ setting('volunteer.contributions.field_16', 'المكافأة') }}</dt><dd>{{ (float) $row->vxp_value }} VXP</dd></div>
                     <div><dt class="text-xs" style="color: var(--text-muted)">{{ setting('volunteer.contributions.field', 'المالك') }}</dt><dd>{{ $owner?->name ?? '—' }}</dd></div>
                     <div><dt class="text-xs" style="color: var(--text-muted)">{{ setting('volunteer.contributions.field_17', 'المهمّة الأمّ وديدلاينها') }}</dt>
-                        <dd>{{ $task?->title ?? '—' }} — {{ $task?->deadline_at?->format('Y-m-d H:i') ?? '—' }}</dd></div>
+                        <dd>{{ $task?->title ?? '—' }} · {{ $task?->deadline_at?->format('Y-m-d H:i') ?? '—' }}</dd></div>
                     <div><dt class="text-xs" style="color: var(--text-muted)">{{ setting('volunteer.common.output_format', 'شكل المخرجات') }}</dt>
                         <dd class="whitespace-pre-line">{{ $row->deliverable_spec ?: setting('volunteer.contributions.text_3', 'لم يُحدَّد.') }}</dd></div>
                 </dl>

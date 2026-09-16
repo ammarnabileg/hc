@@ -55,7 +55,7 @@
                         <span class="flex-1 min-w-0 truncate">
                             {{ $placement['position'] }} · {{ $placement['entity'] }}
                             @if ($placement['upline'])
-                                <span class="text-xs" style="color: var(--text-muted)">— {{ setting('admin.users.partials.tab_volunteer.upline_label', 'الأبلاين') }}: {{ $placement['upline'] }}</span>
+                                <span class="text-xs" style="color: var(--text-muted)">· {{ setting('admin.users.partials.tab_volunteer.upline_label', 'الأبلاين') }}: {{ $placement['upline'] }}</span>
                             @endif
                         </span>
                         @if ($placement['is_current'])

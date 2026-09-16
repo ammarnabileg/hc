@@ -62,7 +62,7 @@
                 @foreach ($curve as $i => $point)
                     <circle cx="{{ 30 + $i * 106 }}" cy="{{ 150 - (($point['running'] - $min) / $span) * 130 }}"
                             r="4" fill="var(--color-brand-400)">
-                        <title>{{ $point['label'] }} — {{ setting('volunteer.overview_report.text_3', 'اليوم:') }} {{ $point['value'] }} · {{ setting('volunteer.overview_report.text_4', 'التراكميّ:') }} {{ $point['running'] }}</title>
+                        <title>{{ $point['label'] }} · {{ setting('volunteer.overview_report.text_3', 'اليوم:') }} {{ $point['value'] }} · {{ setting('volunteer.overview_report.text_4', 'التراكميّ:') }} {{ $point['running'] }}</title>
                     </circle>
                     <text x="{{ 30 + $i * 106 }}" y="158" text-anchor="middle" font-size="11"
                           fill="var(--text-muted)">{{ $point['label'] }}</text>

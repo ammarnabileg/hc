@@ -40,7 +40,7 @@
         @foreach ($tieDecisions as $decision)
             <div class="flex items-center justify-between gap-3 py-2 text-sm border-b" style="border-color: var(--border)">
                 <div class="min-w-0">
-                    <div class="truncate font-semibold">{{ setting('admin.volunteer.org.promotion_ladder.tie_title', 'تعادلٌ كامل') }} — {{ $decision->position?->name_ar }} · {{ $decision->entity?->name_ar }}</div>
+                    <div class="truncate font-semibold">{{ setting('admin.volunteer.org.promotion_ladder.tie_title', 'تعادلٌ كامل') }} · {{ $decision->position?->name_ar }} · {{ $decision->entity?->name_ar }}</div>
                     <div class="text-xs" style="color: var(--text-muted)">
                         {{ setting('admin.volunteer.org.promotion_ladder.tie_candidates', 'المرشّحون:') }}
                         {{ \App\Models\User::whereIn('id', (array) $decision->candidate_user_ids)->pluck('name')->join('، ') }}
@@ -59,7 +59,7 @@
         @foreach ($trackDecisions as $decision)
             <div class="flex items-center justify-between gap-3 py-2 text-sm {{ $loop->last ? '' : 'border-b' }}" style="border-color: var(--border)">
                 <div class="min-w-0">
-                    <div class="truncate font-semibold">{{ setting('admin.volunteer.org.promotion_ladder.track_title', 'شغور مشرف عام مسار') }} — {{ $decision->entity?->name_ar }}</div>
+                    <div class="truncate font-semibold">{{ setting('admin.volunteer.org.promotion_ladder.track_title', 'شغور مشرف عام مسار') }} · {{ $decision->entity?->name_ar }}</div>
                     <div class="text-xs" style="color: var(--text-muted)">
                         {{ setting('admin.volunteer.org.promotion_ladder.track_candidates', 'مرشّحو السلّم من دايركتورات المسار:') }}
                         {{ \App\Models\User::whereIn('id', (array) $decision->candidate_user_ids)->pluck('name')->join('، ') ?: setting('admin.volunteer.org.promotion_ladder.track_no_candidates', '· لا مرشّح، والملء بكودٍ مباشر فقط.') }}

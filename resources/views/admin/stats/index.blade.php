@@ -30,7 +30,7 @@
             {{-- ⭐ «وكلّ اللوحات في المنصّة عمومًا قابلة للاستخراج كصورة» (12.14-هـ) --}}
             {{-- التاب مصفوفة [label · permission · owner_only] — العنوان منها لا منها كلّها --}}
             <x-export-image kind="stats" :title="setting('admin.stats.index.ihsayyat', 'إحصائيّات · ').($tabs[$tab]['label'] ?? $tab)"
-                            :subtitle="$period['from']->format('Y/m/d').' — '.$period['to']->format('Y/m/d')"
+                            :subtitle="$period['from']->format('Y/m/d').' إلى '.$period['to']->format('Y/m/d')"
                             :rows="$exportRows" />
 
             {{-- ⭐ «تصدير CSV/Excel/PDF» (24.3-خامسًا) — والثلاثة تقع فعلًا:

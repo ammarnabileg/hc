@@ -1,5 +1,5 @@
 @extends('layouts.guest')
-@section('title', (string) \App\Services\Setup\SetupSettings::text('setup.platform_view.section_1', 'تنصيب المنصّة — بيانات المنصّة'))
+@section('title', (string) \App\Services\Setup\SetupSettings::text('setup.platform_view.section_1', 'تنصيب المنصّة · بيانات المنصّة'))
 
 @section('content')
 <div class="w-full max-w-3xl">
@@ -8,7 +8,7 @@
     <div class="card p-6">
         <x-page-header
             title="{{ \App\Services\Setup\SetupSettings::text('setup.platform_view.title_1', 'بيانات المنصّة') }}"
-            subtitle="{{ \App\Services\Setup\SetupSettings::text('setup.platform_view.subtitle_1', 'الاسم والشعار والرابط والوقت واللغة — وكلّها تتعدّل بعدين من لوحة الإدارة.') }}" />
+            subtitle="{{ \App\Services\Setup\SetupSettings::text('setup.platform_view.subtitle_1', 'الاسم والشعار والرابط والوقت واللغة، وكلّها تتعدّل بعدين من لوحة الإدارة.') }}" />
 
         @include('setup.partials.alert', ['keys' => ['setup']])
 
@@ -23,7 +23,7 @@
                 <input type="file" name="logo" accept=".png,.jpg,.jpeg,.webp,.svg"
                        class="w-full rounded-xl px-3 py-2 text-sm"
                        style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
-                <span class="block text-xs mt-1" style="color: var(--text-muted)">PNG {{ \App\Services\Setup\SetupSettings::text('setup.platform_view.text_2', 'أو JPG أو WEBP أو SVG — وتقدر ترفعه بعدين من اللوحة.') }}</span>
+                <span class="block text-xs mt-1" style="color: var(--text-muted)">PNG {{ \App\Services\Setup\SetupSettings::text('setup.platform_view.text_2', 'أو JPG أو WEBP أو SVG، وتقدر ترفعه بعدين من اللوحة.') }}</span>
                 @error('logo')<span class="block text-xs mt-1" style="color: var(--color-state-danger)">{{ $message }}</span>@enderror
             </label>
 

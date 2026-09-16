@@ -654,7 +654,7 @@ class UpdateManager
         return [
             'stage' => $stage,
             'stage_label' => $stages[$stage] ?? $stage,
-            'what' => setting('updates.update_manager.report_9', 'وقفنا عند «').($stages[$stage] ?? $stage).'»'.($migration ? strtr(setting('updates.update_manager.report_10', ' في الهجرة :p1'), [':p1' => (string) ($migration)]) : '').' — '.$error,
+            'what' => setting('updates.update_manager.report_9', 'وقفنا عند «').($stages[$stage] ?? $stage).'»'.($migration ? strtr(setting('updates.update_manager.report_10', ' في الهجرة :p1'), [':p1' => (string) ($migration)]) : '').'، '.$error,
             'migration' => $migration,
             'error' => $error,
             'actions' => $actions,

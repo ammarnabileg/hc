@@ -223,6 +223,7 @@ class LibraryDemoSeeder extends Seeder
             ['cv.field.languages_label', 'cv', 'حقل: اللغات', 'string', 'اللغات'],
             ['cv.field.language_label', 'cv', 'حقل: اللغة', 'string', 'اللغة'],
             ['cv.until_now_label', 'cv', 'حتى الآن', 'string', 'حتى الآن'],
+            ['cv.range_to_label', 'cv', 'رابط مدّة السطر في الـCV (من … إلى)', 'string', 'إلى'],
             ['cv.row.remove_label', 'cv', 'زرّ حذف البند', 'string', 'حذف'],
             ['cv.experience.add_label', 'cv', 'زرّ إضافة خبرة', 'string', 'إضافة خبرة عمل'],
             ['cv.experience.empty_hint', 'cv', 'تلميح الخبرات الفارغة', 'string', 'ابدأ بآخر وظيفة اشتغلتها.'],

@@ -190,7 +190,7 @@ class AnnouncementDemoSeeder extends Seeder
             ['announcements.email.body_limit', 'announcements', 'أقصى حروف نصّ الرسالة', 'number', '2000'],
             ['announcements.email.subject_template', 'announcements', 'قالب عنوان الرسالة (:title)', 'string', ':title'],
             ['announcements.email.cta_fallback_label', 'announcements', 'نصّ زرّ الرسالة حين يغيب CTA', 'string', 'افتح التعليمات'],
-            ['announcements.email.footer', 'announcements', 'تذييل رسالة المنشور', 'string', 'وصلتك الرسالة دي لأنّك مفعّل قناة البريد — تقدر توقّفها من إعدادات حسابك.'],
+            ['announcements.email.footer', 'announcements', 'تذييل رسالة المنشور', 'string', 'وصلتك الرسالة دي لأنّك مفعّل قناة البريد، وتقدر توقّفها من إعدادات حسابك.'],
             ['announcements.email.editor_hint', 'announcements', 'سطر شرح قناة البريد في المحرّر', 'string', 'البريد بيروح لمن بريده موثَّق ومفعّل القناة بس، والزيادة بتتأجّل احترامًا لحدّ الهدوء.'],
             ['announcements.email.skip_no_address', 'announcements', 'سبب الاستبعاد: بلا عنوان بريد', 'string', 'بلا عنوان بريد'],
             ['announcements.email.skip_unverified', 'announcements', 'سبب الاستبعاد: بريد غير موثَّق', 'string', 'البريد غير موثَّق'],

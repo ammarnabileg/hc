@@ -110,7 +110,7 @@
                         <dd>
                             @if ($delegate && $delegateActive)
                                 {{ $delegate->name }}
-                                <span class="text-xs" style="color: var(--text-muted)">— {{ $row->delegate_membership?->position?->name_ar }}</span>
+                                <span class="text-xs" style="color: var(--text-muted)">· {{ $row->delegate_membership?->position?->name_ar }}</span>
                             @else
                                 <x-state-badge state="danger" :label="setting('admin.volunteer.delegations.bla_bdyl_nsht_alqrarat_malqa', 'بلا بديل نشِط، القرارات معلّقة')" />
                             @endif
@@ -132,7 +132,7 @@
                     <p class="text-xs mt-3" style="color: var(--text-muted)">
                         <x-icon name="check" size="16" />
                         {!! strtr(setting('admin.volunteer.delegations.atqfl_mbkra_ywm_v1_bwasta', 'اتقفل مبكّرًا يوم :v1 بواسطة'), [':v1' => e($row->ended_at->format('Y-m-d'))]) !!} {{ $row->ended_by?->name ?? '—' }}
-                        @if ($row->ended_note) — {{ $row->ended_note }} @endif
+                        @if ($row->ended_note) · {{ $row->ended_note }} @endif
                     </p>
                 @elseif ($state !== 'ended')
                     {{-- المحظور يُخفى لا يُعطَّل (2.15-أ-7) --}}
@@ -175,7 +175,7 @@
                     <span class="text-xs" style="color: var(--text-muted)">{{ $entry->created_at?->format('Y-m-d H:i') }}</span>
                     <span>{{ $entry->user?->name ?? setting('admin.volunteer.delegations.alnzam', 'النظام') }} {{ setting('admin.volunteer.delegations.anha_ghyaba_mbkra', 'أنهى غيابًا مبكّرًا') }}</span>
                     @if ($entry->new_values['note'] ?? null)
-                        <span class="text-xs" style="color: var(--text-muted)">— {{ $entry->new_values['note'] }}</span>
+                        <span class="text-xs" style="color: var(--text-muted)">· {{ $entry->new_values['note'] }}</span>
                     @endif
                 </li>
             @empty

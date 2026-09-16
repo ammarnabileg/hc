@@ -31,7 +31,7 @@
                             data-badge-desc="{{ $badge->condition_text_ar }}"
                             data-badge-icon="{{ $badge->icon_path ? \Illuminate\Support\Facades\Storage::url($badge->icon_path) : '' }}"
                             data-badge-locked="0" class="badge motion-standard"
-                            aria-label="{{ $badge->name_ar }} — {{ setting('account.profile.badges.unlocked_label', 'مفتوحة') }}">
+                            aria-label="{{ $badge->name_ar }} · {{ setting('account.profile.badges.unlocked_label', 'مفتوحة') }}">
                         @if ($badge->icon_path)
                             <img src="{{ \Illuminate\Support\Facades\Storage::url($badge->icon_path) }}"
                                  alt="{{ $badge->name_ar }}" loading="lazy" class="w-full h-full object-cover rounded-full">
@@ -50,7 +50,7 @@
                             data-badge-desc="{{ $badge->condition_text_ar }}"
                             data-badge-icon="{{ $badge->icon_path ? \Illuminate\Support\Facades\Storage::url($badge->icon_path) : '' }}"
                             data-badge-locked="1" class="badge motion-standard"
-                            aria-label="{{ $badge->name_ar }} — {{ setting('account.profile.badges.locked_label', 'مقفولة') }}">
+                            aria-label="{{ $badge->name_ar }} · {{ setting('account.profile.badges.locked_label', 'مقفولة') }}">
                         <x-icon name="lock" size="24" />
                     </button>
                     <div><strong>{{ $badge->name_ar }}</strong></div>

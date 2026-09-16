@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', $lesson->title_ar.' — '.$course->name_ar)
+@section('title', $lesson->title_ar.' · '.$course->name_ar)
 @section('meta_description', \Illuminate\Support\Str::limit(strip_tags((string) $course->description_ar), 155))
 @section('og_image', $ogImage)
 

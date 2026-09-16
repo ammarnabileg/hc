@@ -119,7 +119,7 @@
                     <p>
                         @if ($task->blocked_by_task)
                             <a class="underline" href="{{ route('volunteer.tasks.show', $task->blocked_by_task) }}">
-                                #{{ $task->blocked_by_task->id }} — {{ $task->blocked_by_task->title }}
+                                #{{ $task->blocked_by_task->id }} · {{ $task->blocked_by_task->title }}
                             </a>
                         @else
                             —
@@ -191,7 +191,7 @@
             <p class="text-xs mb-3" style="color: var(--text-muted)">
                 {{ str_replace(':hours', $mergeWindowHours, (string) setting('volunteer.tasks_show.text_11', 'القيد: أقصى ديدلاين للأبناء + نافذة دمجك (:hours ساعة) ≤ ديدلاينك')) }}
                 @if ($childDeadlineLimit)
-                    — {{ setting('volunteer.tasks_show.text_13', 'يعني') }} {{ $childDeadlineLimit->format('Y-m-d H:i') }} {{ setting('volunteer.tasks_show.text_14', 'كحدّ أقصى.') }}
+                    {{ setting('volunteer.tasks_show.text_13', 'يعني') }} {{ $childDeadlineLimit->format('Y-m-d H:i') }} {{ setting('volunteer.tasks_show.text_14', 'كحدّ أقصى.') }}
                 @endif
             </p>
 
@@ -243,7 +243,7 @@
             @forelse ($submissions as $submission)
                 <div class="py-2 text-sm" style="border-top: 1px solid var(--border)">
                     <div class="flex items-center justify-between gap-2">
-                        <span>{{ setting('volunteer.tasks_show.text_18', 'نسخة') }} {{ $submission->version }} — {{ $submission->user?->shortName() }}</span>
+                        <span>{{ setting('volunteer.tasks_show.text_18', 'نسخة') }} {{ $submission->version }} · {{ $submission->user?->shortName() }}</span>
                         <span class="text-xs" style="color: var(--text-muted)">{{ $submission->created_at->diffForHumans() }}</span>
                     </div>
                     @if ($submission->link)

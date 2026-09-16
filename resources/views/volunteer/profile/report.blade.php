@@ -71,7 +71,7 @@
         </div>
 
         <p class="mt-4 text-xs" style="color: var(--text-muted)">
-            {{ setting('volunteer.profile_report.text_13', 'التقرير مسجَّل في سجلّ التدقيق برقم') }} {{ $audit_id }} — {{ setting('volunteer.profile_report.text_14', 'أرقامه من مصادرها الواحدة بلا حساب موازٍ.') }}
+            {{ setting('volunteer.profile_report.text_13', 'التقرير مسجَّل في سجلّ التدقيق برقم') }} {{ $audit_id }}. {{ setting('volunteer.profile_report.text_14', 'أرقامه من مصادرها الواحدة بلا حساب موازٍ.') }}
         </p>
     </section>
 @endsection

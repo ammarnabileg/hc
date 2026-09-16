@@ -34,7 +34,7 @@
             @foreach ($rows as $row)
                 <div class="card p-4">
                     <div class="flex items-center justify-between mb-3 gap-2">
-                        <div class="font-semibold">{{ $row['name'] }} — {{ $row['code'] }}</div>
+                        <div class="font-semibold">{{ $row['name'] }} · {{ $row['code'] }}</div>
                         @if ($row['state'] === 'warn')
                             <x-state-badge state="warn" :label="setting('admin.certificates.preview.sdrt_lh_qbl_kdh_hntkhtaha', 'صدرت له قبل كده، هنتخطّاها')" />
                         @endif

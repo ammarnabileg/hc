@@ -155,7 +155,7 @@
                                     <a href="{{ route('admin.meetings.show', $item) }}"
                                        class="block truncate rounded px-1.5 py-0.5 text-xs"
                                        style="background: {{ $item->status === 'cancelled' ? 'var(--color-state-danger)' : 'var(--color-brand-500)' }}; color: #04201c"
-                                       title="{{ $item->title }} — {{ $item->scheduled_at?->format('H:i') }}">
+                                       title="{{ $item->title }} · {{ $item->scheduled_at?->format('H:i') }}">
                                         {{ $item->scheduled_at?->format('H:i') }} {{ $item->title }}
                                     </a>
                                 @endforeach

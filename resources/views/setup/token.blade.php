@@ -1,5 +1,5 @@
 @extends('layouts.guest')
-@section('title', (string) \App\Services\Setup\SetupSettings::text('setup.token_view.section_1', 'تنصيب المنصّة — توكن التنصيب'))
+@section('title', (string) \App\Services\Setup\SetupSettings::text('setup.token_view.section_1', 'تنصيب المنصّة · توكن التنصيب'))
 
 @section('content')
 <div class="w-full max-w-3xl">
@@ -7,7 +7,7 @@
 
     <div class="card p-6">
         <x-page-header
-            title="{{ \App\Services\Setup\SetupSettings::text('setup.token_view.title_1', 'أهلًا بيك — نبدأ التنصيب') }}"
+            title="{{ \App\Services\Setup\SetupSettings::text('setup.token_view.title_1', 'أهلًا بيك، نبدأ التنصيب') }}"
             subtitle="{{ \App\Services\Setup\SetupSettings::text('setup.token_view.subtitle_1', 'خطوة أمان أولى: أثبت إنّ الخادم ده بتاعك قبل ما نفتح المعالج.') }}" />
 
         @include('setup.partials.alert', ['keys' => ['token']])

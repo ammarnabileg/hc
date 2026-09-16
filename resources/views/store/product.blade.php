@@ -44,7 +44,7 @@
                 <button type="button" data-modal-open="purchase-sheet"
                         class="btn hidden md:inline-flex items-center justify-center rounded-xl px-5 py-2.5 text-sm font-semibold motion-standard"
                         style="background: var(--color-brand-500); color: #04201c">
-                    {{ $buyLabel }} — {{ Coins::label($quote['total'], $quote['currency']) }}
+                    {{ $buyLabel }} · {{ Coins::label($quote['total'], $quote['currency']) }}
                 </button>
             @elseif (! auth()->check() && $quote['sellable'])
                 <a href="{{ route('login') }}"

@@ -51,7 +51,7 @@ class UpdatePreflight
     public function failures(array $checks): array
     {
         return array_map(
-            fn (array $row) => $row['label'].': '.$row['value'].' — '.$row['hint'],
+            fn (array $row) => $row['label'].': '.$row['value'].' · '.$row['hint'],
             array_values(array_filter($checks, fn (array $row) => $row['state'] === 'danger')),
         );
     }

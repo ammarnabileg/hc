@@ -29,7 +29,7 @@
                 <div>
                     <div class="font-semibold text-sm">{{ $results['fastest']->user?->name }}</div>
                     <p class="text-xs" style="color: var(--text-muted)">
-                        {{ $results['fastest']->answered_at?->format('Y/m/d — H:i:s') }}
+                        {{ $results['fastest']->answered_at?->format('Y/m/d · H:i:s') }}
                         · +{{ $results['fastest']->xp_awarded }} XP
                         · +{{ $results['fastest']->tickets_awarded }} {{ setting('admin.gamification.reward_questions.results.tdhkra', 'تذكرة') }}
                     </p>

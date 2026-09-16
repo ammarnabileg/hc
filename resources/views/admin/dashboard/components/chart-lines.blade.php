@@ -78,7 +78,7 @@
                 @foreach ($points as $i => $point)
                     @if ((int) $point[$line['key']] > 0)
                         <circle cx="{{ $px($i) }}" cy="{{ $py((int) $point[$line['key']]) }}" r="2.5" fill="{{ $line['color'] }}">
-                            <title>{{ $point['label'] }} — {{ $line['label'] }}: {{ number_format((int) $point[$line['key']]) }}</title>
+                            <title>{{ $point['label'] }} · {{ $line['label'] }}: {{ number_format((int) $point[$line['key']]) }}</title>
                         </circle>
                     @endif
                 @endforeach

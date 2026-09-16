@@ -17,7 +17,7 @@
             <p class="text-xs" style="color: var(--text-muted)">
                 {{ setting('volunteer.tasks_action_modals.text', 'بالتسليم دلوقتي أثرك على درجة الالتزام:') }}
                 {{ $repOnDelivery >= 0 ? '+' : '' }}{{ rtrim(rtrim(number_format($repOnDelivery, 3), '0'), '.') }}
-                — {{ setting('volunteer.tasks_action_modals.text_2', 'الساعة بتقف لحظة الضغط، وزمن المراجعة مش عليك.') }}
+                · {{ setting('volunteer.tasks_action_modals.text_2', 'الساعة بتقف لحظة الضغط، وزمن المراجعة مش عليك.') }}
             </p>
 
             <div class="flex justify-end gap-2 pt-2">
@@ -131,7 +131,7 @@
             <p class="text-xs" style="color: var(--text-muted)">
                 {{ str_replace(':hours', $mergeWindowHours, (string) setting('volunteer.tasks_action_modals.text_8', 'القيد: أقصى ديدلاين للأبناء + نافذة دمجك (:hours ساعة) ≤ ديدلاينك')) }}
                 @if ($childDeadlineLimit)
-                    — {{ setting('volunteer.tasks_action_modals.text_10', 'يعني') }} {{ $childDeadlineLimit->format('Y-m-d H:i') }} {{ setting('volunteer.tasks_action_modals.text_11', 'كحدّ أقصى.') }}
+                    {{ setting('volunteer.tasks_action_modals.text_10', 'يعني') }} {{ $childDeadlineLimit->format('Y-m-d H:i') }} {{ setting('volunteer.tasks_action_modals.text_11', 'كحدّ أقصى.') }}
                 @endif
             </p>
 
@@ -182,7 +182,7 @@
                     <select name="child_task_id" required class="w-full rounded-xl px-3 py-2 text-sm"
                             style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
                         @foreach ($subtasks as $subtask)
-                            <option value="{{ $subtask->id }}">#{{ $subtask->id }} — {{ $subtask->title }}</option>
+                            <option value="{{ $subtask->id }}">#{{ $subtask->id }} · {{ $subtask->title }}</option>
                         @endforeach
                     </select>
                 </label>

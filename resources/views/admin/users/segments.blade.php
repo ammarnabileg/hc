@@ -88,7 +88,7 @@
             @if ($preview->isNotEmpty())
                 <ul class="mt-2 text-xs space-y-1" style="color: var(--text-muted)">
                     @foreach ($preview as $member)
-                        <li class="truncate">{{ $member->shortName() }} — #{{ $member->code }}</li>
+                        <li class="truncate">{{ $member->shortName() }} · #{{ $member->code }}</li>
                     @endforeach
                 </ul>
             @endif

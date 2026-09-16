@@ -1,5 +1,5 @@
 @extends('layouts.guest')
-@section('title', (string) \App\Services\Setup\SetupSettings::text('setup.database_view.section_1', 'تنصيب المنصّة — قاعدة البيانات'))
+@section('title', (string) \App\Services\Setup\SetupSettings::text('setup.database_view.section_1', 'تنصيب المنصّة · قاعدة البيانات'))
 
 @section('content')
 <div class="w-full max-w-3xl">
@@ -8,7 +8,7 @@
     <div class="card p-6">
         <x-page-header
             title="{{ \App\Services\Setup\SetupSettings::text('setup.database_view.title_1', 'قاعدة البيانات') }}"
-            subtitle="{{ \App\Services\Setup\SetupSettings::text('setup.database_view.subtitle_1', 'انسخ البيانات من لوحة الاستضافة، وجرّب الاتّصال الأوّل — وبعدين نحفظ.') }}" />
+            subtitle="{{ \App\Services\Setup\SetupSettings::text('setup.database_view.subtitle_1', 'انسخ البيانات من لوحة الاستضافة، وجرّب الاتّصال الأوّل، وبعدين نحفظ.') }}" />
 
         @include('setup.partials.alert', ['keys' => ['connection', 'setup']])
 

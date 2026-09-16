@@ -188,7 +188,7 @@ class ReminderScheduler
 
                 $count++;
             } catch (Throwable $e) {
-                Log::warning('event notice delivery failed — batch continued', [
+                Log::warning('event notice delivery failed, batch continued', [
                     'notice_id' => $notice->id,
                     'user_id' => $user->id,
                     'error' => $e->getMessage(),
@@ -362,7 +362,7 @@ class ReminderScheduler
              */
             $row->forceFill(['status' => 'failed', 'reason' => Str::limit($e->getMessage(), 180)])->save();
 
-            Log::warning('event reminder delivery failed — batch continued', [
+            Log::warning('event reminder delivery failed, batch continued', [
                 'event_id' => $event->id,
                 'user_id' => $user->id,
                 'channel' => $channel,

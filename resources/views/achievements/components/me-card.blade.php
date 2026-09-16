@@ -42,7 +42,7 @@
             <div class="font-extrabold truncate">
                 {{ $user->name }}
                 {{-- الكارت هو صفّي أنا — والتسمية تقولها صراحةً كما في صفّ اللوحة --}}
-                <span class="text-xs font-normal" style="color: var(--color-brand-400)">— {{ setting('leaderboard.you_label', 'ده إنت') }}</span>
+                <span class="text-xs font-normal" style="color: var(--color-brand-400)">· {{ setting('leaderboard.you_label', 'ده إنت') }}</span>
             </div>
             <div class="text-xs truncate" style="color: var(--text-muted)">
                 {{ $place !== '' ? $place.' · ' : '' }}#{{ $user->code }}

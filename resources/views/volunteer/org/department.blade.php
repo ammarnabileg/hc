@@ -170,7 +170,7 @@
                                 style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
                             <option value="">{{ setting('volunteer.org_department.option', 'اختار…') }}</option>
                             @foreach ($cards as $card)
-                                <option value="{{ $card['id'] }}">{{ $card['name'] }} — {{ $card['position'] }}</option>
+                                <option value="{{ $card['id'] }}">{{ $card['name'] }} · {{ $card['position'] }}</option>
                             @endforeach
                         </select>
                     </label>
@@ -182,7 +182,7 @@
                                 style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
                             <option value="">{{ setting('volunteer.org_department.option_2', 'الأبلاين المباشر') }}</option>
                             @foreach ($cards as $card)
-                                <option value="{{ $card['id'] }}">{{ $card['name'] }} — {{ $card['position'] }}</option>
+                                <option value="{{ $card['id'] }}">{{ $card['name'] }} · {{ $card['position'] }}</option>
                             @endforeach
                         </select>
                     </label>
