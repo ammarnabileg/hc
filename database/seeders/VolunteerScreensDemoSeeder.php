@@ -1892,6 +1892,7 @@ class VolunteerScreensDemoSeeder extends Seeder
             ['volunteer.components_rep_badge.danger', 'مكوّنات مشتركة: المؤشّر الأحمر: الدرجة تحت ', 'المؤشّر الأحمر: الدرجة تحت '],
             ['volunteer.components_rep_badge.honor', 'مكوّنات مشتركة: نادي التميّز: ', 'نادي التميّز: '],
             ['volunteer.components_rep_badge.idle', 'مكوّنات مشتركة: لسّه مفيش درجة التزام مسجّلة', 'لسّه مفيش درجة التزام مسجّلة'],
+            ['volunteer.components_rep_badge.idle_display', 'مكوّنات مشتركة: كلمة الشارة لمّا مفيش درجة بعد', 'جديد'],
             ['volunteer.components_rep_badge.text', 'مكوّنات مشتركة: . راجع معاملاتك واتكلّم مع مسؤولك', '. راجع معاملاتك واتكلّم مع مسؤولك'],
             ['volunteer.components_rep_badge.text_2', 'مكوّنات مشتركة:  فأعلى', ' فأعلى'],
             ['volunteer.components_rep_badge.text_3', 'مكوّنات مشتركة: درجة التزام سليمة', 'درجة التزام سليمة'],

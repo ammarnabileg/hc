@@ -38,13 +38,14 @@
         default => setting('volunteer.components_rep_badge.text_3', 'درجة التزام سليمة'),
     };
 
-    $repDisplay = $repHasValue ? rtrim(rtrim(number_format($repValue, 2), '0'), '.') : '—';
+    // بلا درجة بعد: كلمة قصيرة من الإعدادات لا شرطة (2.13)
+    $repDisplay = $repHasValue ? rtrim(rtrim(number_format($repValue, 2), '0'), '.') : (string) setting('volunteer.components_rep_badge.idle_display', 'جديد');
 @endphp
 
 <span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs align-middle cursor-help"
       style="background: color-mix(in srgb, var(--color-state-{{ $repSymbols['color'] }}) 15%, transparent);
              color: var(--color-state-{{ $repSymbols['color'] }})"
-      title="{{ setting('volunteer.components_rep_badge.tooltip', 'درجة الالتزام') }} {{ $repDisplay }} — {{ $repHint }}"
+      title="{{ setting('volunteer.components_rep_badge.tooltip', 'درجة الالتزام') }} {{ $repDisplay }} · {{ $repHint }}"
       aria-label="{{ setting('volunteer.components_rep_badge.tooltip', 'درجة الالتزام') }} {{ $repDisplay }}. {{ $repHint }}">
     <span aria-hidden="true">{{ $repSymbols['icon'] }}</span>
     <span>{{ $repDisplay }}</span>

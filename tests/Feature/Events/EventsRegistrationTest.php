@@ -111,12 +111,13 @@ class EventsRegistrationTest extends EventsTestCase
     }
 
     /**
-     * الهيدر والسايد بار يرسمان أفاتار المستخدم الحاليّ نفسه دائمًا (`class="avatar`
-     * مرّتان بلا صلة بالمسجّلين) — فقياس أفاتارات المسجّلين نسبيّ لهذا الأساس الثابت.
+     * السايد بار يرسم أفاتار المستخدم الحاليّ نفسه دائمًا في بطاقة البروفايل
+     * (`class="avatar` مرّة واحدة بلا صلة بالمسجّلين)، والـTopbar كالمرجع بلا أفاتار،
+     * فقياس أفاتارات المسجّلين نسبيّ لهذا الأساس الثابت.
      */
     private function avatarCount(string $html): int
     {
-        return substr_count($html, 'class="avatar') - 2;
+        return substr_count($html, 'class="avatar') - 1;
     }
 
     /** ⭐ أفاتارات المسجّلين — دليل اجتماعيّ (13.3 · 24.3-سطر-5040) */

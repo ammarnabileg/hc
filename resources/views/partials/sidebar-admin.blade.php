@@ -337,9 +337,14 @@
         </a>
 
         {{-- بطاقة العنوان (`.side-profile`) — التابلت المضغوط (768-1199px — 2.10.1-13): نصّيّة بحتة فتختفي --}}
-        <div data-compact-hide class="side-profile">
-            <div class="side-name">{{ setting('nav.admin.panel_title', 'لوحة الإدارة') }}</div>
-            <div class="small muted">{{ $u->shortName() }}</div>
+        <div data-compact-hide class="side-profile" title="{{ $u->shortName() }}">
+            <div class="cluster" style="gap: 12px">
+                <x-avatar :user="$u" size="11" />
+                <div class="min-w-0">
+                    <div class="side-name truncate">{{ $u->shortName() }}</div>
+                    <div class="small muted truncate">{{ setting('nav.admin.panel_title', 'لوحة الإدارة') }}</div>
+                </div>
+            </div>
             @owner
                 <div class="mt-2"><x-state-badge state="honor" :label="setting('nav.admin.owner_badge', 'مالك المنصّة')" /></div>
             @endowner
