@@ -35,4 +35,9 @@ return [
         ],
     ],
 
+    // استخراج نصّ عربيّ من PDF (الدستور 9 · CvImporter) — Binary مُلحَق بالمشروع لا خدمة خارجيّة
+    'qalam' => [
+        'binary_path' => env('QALAM_BINARY_PATH', base_path('vendor-bin/qalam/qalam')),
+    ],
+
 ];

@@ -12,15 +12,21 @@ use ZipArchive;
  * > «يقدر يرفع ملفّ CV، والنظام **يستخرج بياناته بالكامل** ويملأها بدلًا عنه
  * > — **بعد سؤاله: تبديل ولا إضافة؟** ثمّ **معاينة + تعديل قبل الحفظ**.»
  *
- * **بلا أيّ مكتبة خارجيّة:** النصّ يُستخرَج بأدوات PHP وحدها —
+ * **بلا خدمة خارجيّة وقت التشغيل** — لا استدعاء شبكة، ولا تكلفة لكلّ ملفّ:
  *   · `.docx` بـZipArchive (وهو ملفّ ZIP فيه `word/document.xml`)
- *   · `.pdf` بفكّ ضغط تدفّقات `FlateDecode` بـ`gzuncompress` وقراءة نصوصها
+ *   · `.pdf` بـ`qalam` (‎`vendor-bin/qalam`‎، Binary مُلحَق بالمشروع يعمل بلا
+ *     إنترنت) أوّلًا، فهو يفكّ ترميز الخطوط المُضمَّنة (Identity-H — الغالبيّة
+ *     في أيّ PDF عربيّ حديث) ويُعيد ترتيب الأحرف صحيحًا؛ ولو تعذّر (Binary
+ *     غائب أو ملفّ استثنائيّ) تعمل طريقة احتياط بفكّ `FlateDecode` وقراءة
+ *     السلاسل الحرفيّة مباشرةً — أضعف لكنّها لا تُسقِط الميزة كليًّا.
  *   · `.txt` و`.md` و`.html` مباشرةً.
  * والتحليل بعدها قواعديّ (عناوين أقسام عربيّة/إنجليزيّة + أسطر) لا ذكاء
  * اصطناعيّ — لأنّ الشرط «0 تكلفة» ولا خدمة خارجيّة.
  */
 class CvImporter
 {
+    public function __construct(private readonly QalamExtractor $qalam) {}
+
     /** الامتدادات المقبولة — إعداد لا قائمة محروقة (2.13) */
     public function allowedExtensions(): array
     {
@@ -50,7 +56,7 @@ class CvImporter
 
         $text = match ($ext) {
             'docx' => $this->fromDocx($path ?: ''),
-            'pdf' => $this->fromPdf($raw),
+            'pdf' => $this->fromPdf($raw, $path ?: ''),
             'html', 'htm' => $this->fromHtml($raw),
             default => $raw,
         };
@@ -138,8 +144,21 @@ class CvImporter
         return html_entity_decode(strip_tags($xml), ENT_QUOTES | ENT_XML1, 'UTF-8');
     }
 
-    /** نصّ الـPDF: تدفّقات FlateDecode ثمّ عوامل النصّ Tj/TJ */
-    private function fromPdf(string $raw): string
+    /** نصّ الـPDF: qalam أوّلًا (ترتيب عربيّ صحيح)، فطريقة FlateDecode/Tj الاحتياطيّة لو تعذّر */
+    private function fromPdf(string $raw, string $path): string
+    {
+        if ($path !== '') {
+            $qalamText = $this->qalam->extract($path);
+
+            if ($qalamText !== null) {
+                return $qalamText;
+            }
+        }
+
+        return $this->fromPdfFallback($raw);
+    }
+
+    private function fromPdfFallback(string $raw): string
     {
         $out = [];
 

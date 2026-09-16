@@ -5,6 +5,7 @@ namespace Tests\Feature\Ui;
 use App\Models\Cv;
 use App\Services\Library\ArabicShaper;
 use App\Services\Library\CvImporter;
+use App\Services\Library\QalamExtractor;
 use Illuminate\Http\UploadedFile;
 
 /**
@@ -242,6 +243,38 @@ class CvExtrasTest extends UiTestCase
         // بلا خطّ مضمَّن: نحوّل للنسخة القابلة للطباعة بسطر يشرح ماذا يفعل (2.17-ب)
         $response->assertRedirect(route('cv.download'));
         $response->assertSessionHas('status');
+    }
+
+    /**
+     * جولة كاملة: نصدّر PDF من المنصّة نفسها، ثمّ نرفعه على أنّه CV جاهز —
+     * والنصّ الراجع لازم يكون عربيًّا صحيح الترتيب لا مقلوبًا ولا فاضيًا.
+     * (`CvImporter::fromPdf()` القديمة كانت تُرجع فاضيًا هنا تحديدًا: خطوط
+     * Identity-H المُضمَّنة تكتب نصّها بسلاسل Hex لا حرفيّة.)
+     */
+    public function test_qalam_extracts_correct_arabic_from_the_ats_pdf_round_trip(): void
+    {
+        if (! is_file(public_path((string) setting('cv.ats.font_path', 'fonts/Alexandria-Regular.ttf')))) {
+            $this->markTestSkipped('خطّ الـATS غير مضمَّن في هذه البيئة.');
+        }
+
+        if (! app(QalamExtractor::class)->isAvailable()) {
+            $this->markTestSkipped('qalam Binary غير موجود في هذه البيئة.');
+        }
+
+        $user = $this->trainee();
+
+        Cv::updateOrCreate(['user_id' => $user->id], [
+            'data' => ['profile' => ['name' => $user->name, 'job_title' => 'مطوّر واجهات'], 'skills' => 'PHP، Laravel'],
+        ]);
+
+        $pdf = $this->actingAs($user)->get(route('cv.ats'));
+        $pdf->assertOk();
+
+        $uploaded = UploadedFile::fake()->createWithContent('cv.pdf', $pdf->getContent());
+        $text = app(CvImporter::class)->extractText($uploaded);
+
+        $this->assertStringContainsString('مطوّر واجهات', $text);
+        $this->assertStringNotContainsString('ﻣﻄﻮّﺭ', $text); // أشكال عرضيّة — لو ظهرت فالترتيب انكسر
     }
 
     public function test_arabic_shaper_keeps_the_logical_text_for_ats_extraction(): void
