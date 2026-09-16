@@ -118,24 +118,32 @@
 @endphp
 
 {{-- لوحة منزلقة على الموبايل وعمود ثابت على الديسكتوب (13 · 2.15-ج) --}}
-<aside data-sidebar data-open="false" class="w-[248px] shrink-0" style="border-inline-start: 1px solid var(--border)">
-    <div class="sticky top-0 h-screen overflow-y-auto p-4 space-y-4">
+<aside data-sidebar data-open="false" class="w-[248px] shrink-0" style="border-inline-end: 1px solid var(--border)">
+    <div class="sticky top-0 h-screen overflow-y-auto px-5 pt-6 pb-4 space-y-3.5">
 
-        {{-- بطاقة هويّة مصغّرة: الاسم والكود والكيان والبوزشن + شارة Rep الثابتة (13.4-ح) --}}
-        <div class="nav-compact-row card p-3 flex items-center gap-3" title="{{ $u->shortName() }}">
-            <x-avatar :user="$u" size="10" />
-            <div class="min-w-0 nav-item-label">
-                <div class="truncate font-semibold text-sm flex items-center gap-1">
-                    <span class="truncate">{{ $u->shortName() }}</span>
-                    @include('volunteer.components.rep-badge', ['user' => $u])
-                </div>
-                <div class="text-xs truncate" style="color: var(--text-muted)">
-                    {{ $membership?->entity?->name_ar ?? setting('nav.volunteer.no_entity', 'بلا كيان') }} · {{ $membership?->position?->name_ar ?? '—' }}
+        {{-- الشعار في رأس السايد بار حرفيًّا من المرجع (`.brand`) --}}
+        <a href="{{ \Illuminate\Support\Facades\Route::has('volunteer.overview') ? route('volunteer.overview') : '/' }}" class="brand nav-compact-row">
+            <span class="brand-dot"></span>
+            <span class="brand-text nav-item-label truncate">{{ config('app.name') }}</span>
+        </a>
+
+        {{-- بطاقة هويّة مصغّرة (`.side-profile`): الاسم والكود والكيان والبوزشن + شارة Rep الثابتة (13.4-ح) --}}
+        <div class="side-profile" title="{{ $u->shortName() }}" data-compact-hide>
+            <div class="cluster" style="gap: 12px">
+                <x-avatar :user="$u" size="11" />
+                <div class="min-w-0">
+                    <div class="side-name truncate flex items-center gap-1">
+                        <span class="truncate">{{ $u->shortName() }}</span>
+                        @include('volunteer.components.rep-badge', ['user' => $u])
+                    </div>
+                    <div class="small muted truncate">
+                        {{ $membership?->entity?->name_ar ?? setting('nav.volunteer.no_entity', 'بلا كيان') }}@if ($membership?->position?->name_ar) · {{ $membership->position->name_ar }}@endif
+                    </div>
                 </div>
             </div>
         </div>
 
-        <nav class="space-y-1">
+        <nav class="nav-list">
             {{-- 1) نظرة عامّة --}}
             @if ($overviewItems)
                 <x-nav-group :label="setting('nav.volunteer.group_overview', 'نظرة عامّة')" icon="home" :items="$overviewItems" />

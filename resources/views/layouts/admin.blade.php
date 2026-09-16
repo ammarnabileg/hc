@@ -28,37 +28,40 @@
 
 <div class="scroll-progress" style="transform: scaleX(0)" data-scroll-progress></div>
 
-@include('partials.header')
-
+{{-- السايد بار عمودٌ بطول الشاشة والـTopbar داخل عمود المحتوى — كما في المرجع (`#sidebar` · `#topbar`) --}}
 <div class="flex">
     @include('partials.sidebar-admin')
 
-    <main id="content" class="flex-1 min-w-0 px-4 md:px-6 py-6 pb-6">
-        @if (session('status'))
-            <x-toast :message="session('status')" />
-        @endif
+    <div class="flex-1 min-w-0 flex flex-col">
+        @include('partials.header')
 
-        {{-- رسالة الخطأ = ماذا حدث + ماذا تفعل (2.17-ب) --}}
-        @if (session('problem'))
-            <x-toast :message="session('problem')" state="danger" />
-        @endif
+        <main id="content" class="flex-1 min-w-0 px-4 md:px-6 py-6 pb-6">
+            @if (session('status'))
+                <x-toast :message="session('status')" />
+            @endif
 
-        @if ($errors->any())
-            <div class="card p-4 mb-4" role="alert"
-                 style="border-color: var(--color-state-danger)">
-                <div class="flex items-center gap-2 mb-2">
-                    <x-state-badge state="danger" label="{{ setting('ux.layout_admin.label_1', 'مش هينفع نحفظ') }}" />
+            {{-- رسالة الخطأ = ماذا حدث + ماذا تفعل (2.17-ب) --}}
+            @if (session('problem'))
+                <x-toast :message="session('problem')" state="danger" />
+            @endif
+
+            @if ($errors->any())
+                <div class="card p-4 mb-4" role="alert"
+                     style="border-color: var(--color-state-danger)">
+                    <div class="flex items-center gap-2 mb-2">
+                        <x-state-badge state="danger" label="{{ setting('ux.layout_admin.label_1', 'مش هينفع نحفظ') }}" />
+                    </div>
+                    <ul class="text-sm space-y-1" style="color: var(--text-muted)">
+                        @foreach ($errors->all() as $message)
+                            <li>{{ $message }}</li>
+                        @endforeach
+                    </ul>
                 </div>
-                <ul class="text-sm space-y-1" style="color: var(--text-muted)">
-                    @foreach ($errors->all() as $message)
-                        <li>{{ $message }}</li>
-                    @endforeach
-                </ul>
-            </div>
-        @endif
+            @endif
 
-        @yield('content')
-    </main>
+            @yield('content')
+        </main>
+    </div>
 </div>
 
 {{-- الفعل الرئيسيّ على الموبايل في متناول الإبهام (2.15-ج) --}}

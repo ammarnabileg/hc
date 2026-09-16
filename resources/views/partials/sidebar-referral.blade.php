@@ -38,10 +38,11 @@
             {{ setting('nav.referral.copy_action', 'نسخ الرابط') }}
         </button>
 
+        {{-- ثانويّ لا أحمر: الأحمر للفعل الرئيسيّ الواحد في الصفحة، لا لويدجت يظهر في كلّ شاشة (الهويّة 2.2) --}}
         @if (\Illuminate\Support\Facades\Route::has('referral.index'))
             <a href="{{ route('referral.index') }}"
                class="flex-1 rounded-xl px-2 py-2 text-xs font-semibold text-center motion-standard flex items-center justify-center"
-               style="min-height: 44px; background: var(--color-brand-500); color: #04201c">
+               style="min-height: 44px; background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
                 {{ setting('nav.referral.invite_action', 'دعوة أصدقائك') }}
             </a>
         @endif

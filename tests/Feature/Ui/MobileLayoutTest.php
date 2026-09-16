@@ -46,15 +46,19 @@ class MobileLayoutTest extends TestCase
     }
 
     #[Test]
-    public function the_page_header_action_row_wraps(): void
+    public function the_topbar_holds_the_breadcrumb_and_the_actions(): void
     {
-        $header = (string) file_get_contents(resource_path('views/components/page-header.blade.php'));
+        $header = (string) file_get_contents(resource_path('views/partials/header.blade.php'));
 
-        // زرّ التثبيت وBreadcrumb مجموعان يمينًا في `.cluster`، وسويتش «وضع
-        // متقدّم» يسارًا، في صفّ `.spread` واحد يلتفّ تحت 767px (app.css).
-        $this->assertStringContainsString('class="spread mb-3"', $header,
-            'صفّ الترويسة مابيلتفّش تحت عرض الموبايل — Breadcrumb + التثبيت + سويتش «وضع متقدّم» بيتجاوزوا عرض الشاشة.');
+        // كالمرجع (`#topbar`): Breadcrumb على جهة البداية، والجرس والتثبيت وسويتش
+        // «وضع متقدّم» في `.top-actions` على جهة النهاية — لا في هيدر الصفحة.
+        $this->assertStringContainsString('class="breadcrumb', $header);
+        $this->assertStringContainsString('class="top-actions', $header);
+        $this->assertStringContainsString('data-pin-toggle=', $header);
         $this->assertStringContainsString('<x-advanced-toggle />', $header);
+        $this->assertStringNotContainsString('data-pin-toggle=',
+            (string) file_get_contents(resource_path('views/components/page-header.blade.php')),
+            'زرّ التثبيت رجع لهيدر الصفحة — موضعه الـTopbar كالمرجع.');
     }
 
     /**

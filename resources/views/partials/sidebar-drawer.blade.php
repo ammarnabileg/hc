@@ -122,7 +122,6 @@
         var panel = document.querySelector('[data-sidebar]');
         var backdrop = document.querySelector('[data-sidebar-backdrop]');
         var closeBtn = document.querySelector('[data-sidebar-close]');
-        var toggles = document.querySelectorAll('[data-drawer-toggle]');
 
         if (!panel || !backdrop) return;
 
@@ -137,15 +136,19 @@
             if (open) panel.focus({ preventScroll: true });
         }
 
-        toggles.forEach(function (btn) {
-            btn.addEventListener('click', function (e) {
-                /* السكربت المحزوم القديم كان يقلب `!block` على نفس الزرّ — فيتعارك
-                   معنا على نفس العنصر؛ ونحن مسجَّلون قبله فنوقفه لهذا الحدث. */
-                e.stopImmediatePropagation();
-                e.preventDefault();
-                setOpen(panel.getAttribute('data-open') !== 'true');
-            });
-        });
+        /*
+         | تفويضٌ على المستند لا ربطٌ بالزرّ نفسه: زرّ الفتح في الـTopbar، وهو
+         | يُرسَم **بعد** السايد بار في المستند (كالمرجع: الـTopbar داخل عمود
+         | المحتوى)، فلحظة تنفيذ هذا السكربت لا زرّ بعد. وطور الالتقاط (capture)
+         | يسبق معالج السكربت المحزوم القديم على الزرّ نفسه فنوقفه لهذا الحدث.
+         */
+        document.addEventListener('click', function (e) {
+            var btn = e.target.closest('[data-drawer-toggle]');
+            if (!btn) return;
+            e.stopImmediatePropagation();
+            e.preventDefault();
+            setOpen(panel.getAttribute('data-open') !== 'true');
+        }, true);
 
         backdrop.addEventListener('click', function () { setOpen(false); });
         if (closeBtn) closeBtn.addEventListener('click', function () { setOpen(false); });

@@ -2,81 +2,39 @@
 
 @php
     /*
-     | ⭐ التثبيت (Pin) — البديل المعتمَد عن «آخر ما زرت» المرفوض (2.15-د):
-     | يثبّت المستخدم الصفحات التي يستخدمها كثيرًا فتظهر أعلى السايد بار.
-     | والزرّ في هيدر الصفحة لأنّه المكان الوحيد الحاضر في كلّ شاشة.
+     | ⭐ الـBreadcrumb وزرّ التثبيت وسويتش «وضع متقدّم» ليسوا هنا: المرجع يضعهم
+     | في الـTopbar (`#topbar`: Breadcrumb على جهة البداية و`.top-actions` على
+     | جهة النهاية). فالمكوّن يشارك بيانات الصفحة مع `partials/header` — قالب
+     | الصفحة يُنفَّذ قبل الـLayout فيراها الهيدر — ويرسم `.page-head` وحدها.
      */
-    $pinRoute = request()->route()?->getName();
-    $pinnedRoutes = collect(auth()->user()?->pinned_pages ?? [])->pluck('route')->all();
-    $isPinned = $pinRoute && in_array($pinRoute, $pinnedRoutes, true);
-    $showPin = $pinnable && auth()->check() && $pinRoute && \Illuminate\Support\Facades\Route::has($pinRoute);
+    view()->share('hcPage', ['title' => $title, 'breadcrumbs' => $breadcrumbs, 'pinnable' => $pinnable]);
 @endphp
 
 {{--
   ⭐ تقسيمة `.page-head` حرفيًّا من ملف الهويّة المرجعيّ (`head()` في app.js):
   عنوان علويّ (eyebrow) + H1 + سطر فرعيّ على جهة، وفعل رئيسيّ واحد على الجهة
-  الأخرى. والتثبيت/سويتش «وضع متقدّم» ليسا في المرجع — بقيا بنفس وظيفتهما
-  في شريطٍ رفيعٍ من `.icon-button`/`.hc-switch` فوق العنوان (تعليمات المالك).
+  الأخرى.
 --}}
-<header class="mb-2">
-    {{--
-      ⭐ صفّ واحد (`.spread`): تجمّع التثبيت + Breadcrumb يمينًا (الأيقونة ثمّ
-      النصّ)، وسويتش «وضع متقدّم» يسارًا — بدل صفّين منفصلين لكلّ عنصر (تعليمات
-      المالك). التجمّع اليمينيّ يحمل عنصرًا واحدًا على الأقلّ غالبًا (Breadcrumb
-      في 2.15-د)، فلا يتكرّر عزل زرّ التثبيت وحده كما في التصميم السابق.
-    --}}
-    <div class="spread mb-3" style="gap: 10px">
-        <div class="cluster" style="gap: 10px; min-inline-size: 0">
-            @if ($showPin)
-                <button type="button" data-pin-toggle="{{ $pinRoute }}" data-pin-label="{{ $title }}"
-                        data-pinned="{{ $isPinned ? '1' : '0' }}" class="icon-button shrink-0"
-                        aria-pressed="{{ $isPinned ? 'true' : 'false' }}"
-                        style="color: {{ $isPinned ? 'var(--color-brand-500)' : 'var(--text-muted)' }}"
-                        aria-label="{{ $isPinned ? (string) setting('ux.page_header.aria_label_expr_1', 'فكّ تثبيت الصفحة') : (string) setting('ux.page_header.aria_label_expr_2', 'ثبّت الصفحة أعلى السايد بار') }}"
-                        title="{{ $isPinned ? (string) setting('ux.page_header.title_expr_1', 'مثبَّتة') : (string) setting('ux.page_header.title_expr_2', 'ثبّت الصفحة') }}">
-                    <x-icon name="pin" size="18" />
-                </button>
-            @endif
-            @if ($breadcrumbs)
-                {{-- Breadcrumb في كلّ شاشة داخليّة (2.15-د) --}}
-                <nav class="text-xs flex flex-wrap items-center gap-1" style="color: var(--text-muted)">
-                    @foreach ($breadcrumbs as $crumb)
-                        @if (! $loop->last)
-                            <a href="{{ $crumb['url'] ?? '#' }}"
-                               class="hover:underline inline-flex items-center justify-center"
-                               style="min-inline-size: var(--touch-min, 44px); min-block-size: var(--touch-min, 44px)">{{ $crumb['label'] }}</a>
-                            <span aria-hidden="true">‹</span>
-                        @else
-                            <span>{{ $crumb['label'] }}</span>
-                        @endif
-                    @endforeach
-                </nav>
-            @endif
-        </div>
-        <x-advanced-toggle />
-    </div>
-
-    <div class="page-head">
-        <div class="min-w-0">
-            {{--
-              ⭐ العنوان العلويّ (eyebrow) زحمة مكرّرة حين يظهر فوق Breadcrumb
-              أصلًا موجود في كلّ شاشة داخليّة (2.15-د) — الاثنان يجاوبان نفس
-              سؤال «أنا فين؟». ولأنّ ولا شاشة تمرّر eyebrow مخصَّصًا (القيمة
-              الافتراضيّة «رحلتك التعليمية» دايمًا)، يظهر فقط حين لا يوجد
-              Breadcrumb (كلوحة القيادة نفسها)، أو حين يُمرَّر صراحةً.
-            --}}
-            @if ($eyebrow || ! $breadcrumbs)
-                <span class="eyebrow">{{ $eyebrow ?? setting('ux.page_head.eyebrow', 'رحلتك التعليمية') }}</span>
-            @endif
-            <h1>{{ $title }}</h1>
-            @if ($subtitle)
-                <p>{{ $subtitle }}</p>
-            @endif
-        </div>
-
-        {{-- فعل رئيسيّ واحد بارز (2.15-أ-2) --}}
-        @if ($action)
-            <div class="cluster">{{ $action }}</div>
+<header class="page-head mb-2">
+    <div class="min-w-0">
+        {{--
+          ⭐ العنوان العلويّ (eyebrow) زحمة مكرّرة حين يظهر فوق Breadcrumb
+          أصلًا موجود في كلّ شاشة داخليّة (2.15-د) — الاثنان يجاوبان نفس
+          سؤال «أنا فين؟». ولأنّ ولا شاشة تمرّر eyebrow مخصَّصًا (القيمة
+          الافتراضيّة «رحلتك التعليمية» دايمًا)، يظهر فقط حين لا يوجد
+          Breadcrumb (كلوحة القيادة نفسها)، أو حين يُمرَّر صراحةً.
+        --}}
+        @if ($eyebrow || ! $breadcrumbs)
+            <span class="eyebrow">{{ $eyebrow ?? setting('ux.page_head.eyebrow', 'رحلتك التعليمية') }}</span>
+        @endif
+        <h1>{{ $title }}</h1>
+        @if ($subtitle)
+            <p>{{ $subtitle }}</p>
         @endif
     </div>
+
+    {{-- فعل رئيسيّ واحد بارز (2.15-أ-2) --}}
+    @if ($action)
+        <div class="cluster">{{ $action }}</div>
+    @endif
 </header>

@@ -21,12 +21,21 @@ use Illuminate\Support\Str;
  */
 final class SidebarMap
 {
-    /** كتلة السايد بار وحدها — وما خارجها ليس خريطة */
+    /**
+     * كتلة السايد بار وحدها — وما خارجها ليس خريطة.
+     *
+     * والشعار في رأسها (`.brand`، رابطٌ للرئيسيّة كما في ملف الهويّة) ليس بندًا
+     * من الخريطة، فيُسقَط قبل القراءة — وإلّا حُسِب بندًا أوّل زائدًا في كلّ خريطة.
+     */
     public static function aside(string $html): string
     {
         $aside = Str::between($html, '<aside data-sidebar', '</aside>');
 
-        return $aside === $html ? '' : $aside;
+        if ($aside === $html) {
+            return '';
+        }
+
+        return (string) preg_replace('/<a\b[^>]*\bclass="[^"]*\bbrand\b[^"]*"[^>]*>.*?<\/a>/s', '', $aside);
     }
 
     /**

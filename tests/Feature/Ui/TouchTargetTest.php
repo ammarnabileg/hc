@@ -74,16 +74,19 @@ class TouchTargetTest extends UiTestCase
     #[Test]
     public function the_shared_nav_components_carry_the_minimum(): void
     {
-        foreach (['nav-link', 'nav-group', 'page-header'] as $component) {
+        foreach (['nav-link', 'nav-group'] as $component) {
             $this->assertStringContainsString(
                 'min-block-size: var(--touch-min',
                 (string) file_get_contents(resource_path("views/components/{$component}.blade.php")),
                 "المكوّن {$component} لا يضمن هدف لمسٍ 44px (2.15-ج).");
         }
 
-        $this->assertStringContainsString('min-inline-size: var(--touch-min',
-            (string) file_get_contents(resource_path('views/partials/header.blade.php')),
-            'رابط الأفاتار في الهيدر كان 36px عرضًا — و2.15-ج تشترط 44 في البعدين.');
+        // روابط الـBreadcrumb في الـTopbar (انتقلت إليه من هيدر الصفحة كالمرجع): 44 في البعدين
+        $topbar = (string) file_get_contents(resource_path('views/partials/header.blade.php'));
+        $this->assertStringContainsString('min-inline-size: var(--touch-min', $topbar,
+            'رابط في الـTopbar أضيق من 44px — و2.15-ج تشترط 44 في البعدين.');
+        $this->assertStringContainsString('min-block-size: var(--touch-min', $topbar,
+            'رابط في الـTopbar أقصر من 44px (2.15-ج).');
     }
 
     /**

@@ -26,27 +26,35 @@
 {{-- لوحة منزلقة على الموبايل وعمود ثابت على الديسكتوب (13 · 2.15-ج) --}}
 <aside data-sidebar data-open="false"
        class="w-[248px] shrink-0"
-       style="border-inline-start: 1px solid var(--border)">
-    <div class="sticky top-0 h-screen overflow-y-auto p-4 space-y-4">
+       style="border-inline-end: 1px solid var(--border)">
+    <div class="sticky top-0 h-screen overflow-y-auto px-5 pt-6 pb-4 space-y-3.5">
 
-        {{-- بطاقة البروفايل المصغّرة --}}
+        {{-- الشعار في رأس السايد بار حرفيًّا من المرجع (`.brand`): نقطة حمراء + اسم بلون الحبر --}}
+        <a href="{{ \Illuminate\Support\Facades\Route::has('dashboard') ? route('dashboard') : '/' }}" class="brand nav-compact-row">
+            <span class="brand-dot"></span>
+            <span class="brand-text nav-item-label truncate">{{ config('app.name') }}</span>
+        </a>
+
+        {{-- بطاقة البروفايل حرفيًّا من المرجع (`.side-profile`): أفاتار · الاسم · #الكود · سطر المستوى/XP · البار --}}
         <a href="{{ \Illuminate\Support\Facades\Route::has('profile.me') ? route('profile.me') : '#' }}"
-           title="{{ $u->shortName() }}"
-           class="nav-compact-row card p-3 flex items-center gap-3 motion-standard hover:opacity-90">
-            <x-avatar :user="$u" size="10" />
-            <div class="min-w-0 nav-item-label">
-                <div class="truncate font-semibold text-sm">{{ $u->shortName() }}</div>
-                <div class="text-xs truncate" style="color: var(--text-muted)">
-                    #{{ $u->code }}
-                    · {{ setting('dashboard.level.prefix', 'المستوى') }} {{ $accountLevel['level'] }}
+           title="{{ $u->shortName() }}" data-compact-hide
+           class="side-profile motion-standard hover:opacity-90">
+            <div class="cluster" style="gap: 12px">
+                <x-avatar :user="$u" size="11" />
+                <div class="min-w-0">
+                    <div class="side-name truncate">{{ $u->shortName() }}</div>
+                    <div class="small muted"><bdi>#{{ $u->code }}</bdi></div>
                 </div>
-                <div class="mt-1 h-1 rounded-full overflow-hidden" style="background: var(--surface-sunken)"
-                     role="img"
-                     aria-label="{{ setting('leaderboard.xp_label', 'XP') }} {{ number_format($accountLevel['xp']) }} — {{ $accountLevel['percent'] }}{{ setting('nav.trainee.xp_progress_toward', '٪ نحو') }} {{ setting('dashboard.level.prefix', 'المستوى') }} {{ $accountLevel['level'] + 1 }}"
-                     title="{{ number_format($accountLevel['xp']) }} / {{ number_format($accountLevel['next_at']) }} {{ setting('leaderboard.xp_label', 'XP') }}">
-                    <div class="h-full" data-xp-percent="{{ $accountLevel['percent'] }}"
-                         style="width: {{ $accountLevel['percent'] }}%; background: var(--color-brand-500)"></div>
-                </div>
+            </div>
+            <div class="spread side-level">
+                <span>{{ setting('dashboard.level.prefix', 'المستوى') }} <bdi>{{ $accountLevel['level'] }}</bdi></span>
+                <span><bdi>{{ number_format($accountLevel['xp']) }} {{ setting('leaderboard.xp_label', 'XP') }}</bdi></span>
+            </div>
+            <div class="progress" role="progressbar"
+                 aria-valuenow="{{ $accountLevel['percent'] }}" aria-valuemin="0" aria-valuemax="100"
+                 aria-label="{{ setting('leaderboard.xp_label', 'XP') }} {{ number_format($accountLevel['xp']) }} · {{ $accountLevel['percent'] }}{{ setting('nav.trainee.xp_progress_toward', '٪ نحو') }} {{ setting('dashboard.level.prefix', 'المستوى') }} {{ $accountLevel['level'] + 1 }}"
+                 title="{{ number_format($accountLevel['xp']) }} / {{ number_format($accountLevel['next_at']) }} {{ setting('leaderboard.xp_label', 'XP') }}">
+                <span data-xp-percent="{{ $accountLevel['percent'] }}" style="--value: {{ $accountLevel['percent'] }}%"></span>
             </div>
         </a>
 
@@ -56,15 +64,17 @@
           كاملٌ متاحٌ من كلّ شاشة — 2.15-د)، والمثبَّتة تبقى أيقونات كباقي
           التنقّل ويختفي عنوان قسمها فقط.
         --}}
-        {{-- بحث سريع: **شريط + زرّ «إبحث»** ⟵ صفحة البحث الكبيرة (13-ب · 13.1) --}}
+        {{--
+          بحث سريع: **شريط + زرّ «إبحث»** ⟵ صفحة البحث الكبيرة (13-ب · 13.1) —
+          بشكل صفّ `.side-search` من المرجع (أيقونة + حقل + الزرّ نصًّا هادئًا لا
+          زرًّا أحمر: الأحمر للفعل الرئيسيّ الواحد في الصفحة لا لكلّ شاشة).
+        --}}
         <form data-compact-hide action="{{ \Illuminate\Support\Facades\Route::has('search') ? route('search') : '#' }}" method="get"
-              class="flex items-stretch gap-2">
-            <input type="search" name="q" placeholder="{{ setting('nav.trainee.search_placeholder', 'ابحث…') }}" aria-label="{{ setting('nav.trainee.search_aria', 'بحث سريع') }}"
-                   class="flex-1 min-w-0 rounded-xl px-3 py-2 text-sm"
-                   style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
-            <button type="submit"
-                    class="shrink-0 rounded-xl px-3 text-sm font-semibold motion-standard"
-                    style="min-width: 44px; min-height: 44px; background: var(--color-brand-500); color: #04201c">{{ setting('nav.trainee.search_submit', 'إبحث') }}</button>
+              class="side-search" role="search">
+            <x-icon name="search" size="20" />
+            <input type="search" name="q" placeholder="{{ setting('nav.trainee.search_placeholder', 'بحث سريع…') }}" aria-label="{{ setting('nav.trainee.search_aria', 'بحث سريع') }}">
+            <button type="submit" class="small font-semibold motion-standard shrink-0"
+                    style="min-width: 44px; min-height: 44px; color: var(--text-muted)">{{ setting('nav.trainee.search_submit', 'إبحث') }}</button>
         </form>
 
         <div data-compact-hide>
@@ -94,7 +104,7 @@
             </div>
         @endif
 
-        <nav class="space-y-1">
+        <nav class="nav-list">
             <x-nav-link route="dashboard" :label="setting('nav.trainee.item_dashboard', 'الرئيسيّة')" icon="home" />
             {{--
               ⭐ العدّاد يعدّ **المنشورات غير المقروءة نفسها** (13.2) لا إشعاراتها:

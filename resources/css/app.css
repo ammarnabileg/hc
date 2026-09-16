@@ -808,6 +808,41 @@
   .breadcrumb { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--muted); }
   .breadcrumb svg { width: 15px; height: 15px; }
 
+  /*
+   | ⭐ السايد بار والـTopbar حرفيًّا من ملف الهويّة (`#sidebar` · `#topbar` في
+   | styles.css المرجعيّ): الشعار `.brand` نقطة حمراء + اسم بلون الحبر، بطاقة
+   | `.side-profile` بخطّين، صفّ `.nav-item` 44px بزوايا 6 والحاليّ تعبئة
+   | `--brand-soft` مع شريط 3px على جهة البداية، والبنود في `.nav-sub` بخطٍّ
+   | رفيع. الفرق الوحيد المتعمَّد: بنود `.nav-sub` تبقى 44px لا 36 (2.15-ج).
+   */
+  .brand { font-size: 26px; font-weight: 800; display: flex; align-items: center; gap: 10px; line-height: 1.4; color: var(--ink); min-height: 44px; }
+  .brand-dot { width: 21px; height: 21px; background: var(--brand); border-radius: 50%; flex-shrink: 0; }
+  .side-profile { display: block; border-block: 1px solid var(--line); padding-block: 16px; color: var(--ink); }
+  .side-profile .progress { margin-top: 12px; }
+  .side-name { font-size: 14px; font-weight: 600; }
+  .side-level { font-size: 12px; color: var(--muted); margin-top: 10px; }
+  .side-search { min-height: 48px; display: flex; align-items: center; gap: 10px; width: 100%; padding-inline: 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface-raised); font-size: 13px; color: var(--muted); }
+  .side-search input { flex: 1; min-width: 0; background: transparent; border: 0; padding: 0; font: inherit; color: var(--ink); }
+  .side-search input:focus { outline: none; }
+  .side-search input::placeholder { color: var(--muted); }
+
+  .nav-list { display: flex; flex-direction: column; gap: 2px; }
+  .nav-item { border: 0; background: transparent; color: var(--muted); width: 100%; min-height: 44px; padding: 8px 12px; display: flex; align-items: center; gap: 12px; font-size: 14px; text-align: start; border-radius: 6px; position: relative; white-space: nowrap; }
+  .nav-item:hover { background: var(--soft); color: var(--ink); }
+  .nav-item.active { background: var(--brand-soft); color: var(--brand); font-weight: 600; }
+  .nav-item.active::before { content: ''; position: absolute; inset-inline-start: 0; inset-block: 10px; width: 3px; background: var(--brand); border-radius: 3px; }
+  .nav-item .chev { margin-inline-start: auto; width: 14px; }
+  .nav-sub { margin: 4px 24px 8px 0; padding-inline-start: 12px; border-inline-start: 1px solid var(--line); }
+  .nav-sub .nav-item { font-size: 13px; }
+  .nav-sub .nav-item.active { background: transparent; }
+  .nav-sub .nav-item.active::before { display: none; }
+
+  .top-actions { display: flex; align-items: center; gap: 8px; }
+  .mobile-brandline { font-size: 11px; font-weight: 500; color: var(--muted); display: flex; align-items: center; gap: 5px; line-height: 1.5; }
+  .mobile-brandline .brand-dot { width: 7px; height: 7px; }
+  .mobile-page-title { display: block; font-size: 14px; font-weight: 600; line-height: 1.4; }
+  @media (max-width: 767px) { .top-actions { gap: 0; } }
+
   .field-error { font-size: 13px; color: var(--danger); }
   .save-indicator { font-size: 13px; color: var(--success); }
   .saved { background: var(--brand-soft); color: var(--brand); }

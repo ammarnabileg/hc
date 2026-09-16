@@ -35,27 +35,30 @@
 {{-- شريط تقدّم التمرير (2.10.1-25) --}}
 <div class="scroll-progress" style="transform: scaleX(0)" data-scroll-progress></div>
 
-@auth
-    @include('partials.header')
-@endauth
-
+{{-- السايد بار عمودٌ بطول الشاشة والـTopbar داخل عمود المحتوى — كما في المرجع (`#sidebar` · `#topbar`) --}}
 <div class="flex">
     @auth
         @include('partials.sidebar')
     @endauth
 
-    <main id="content" class="flex-1 min-w-0 px-4 md:px-6 py-6 pb-6">
-        @if (session('status'))
-            <x-toast :message="session('status')" />
-        @endif
-
-        {{-- بار «أكمل ملفك» ومكافأته 3 تذاكر — يختفي عند 100% وله زرّ إيقاف (21.1-ب) --}}
+    <div class="flex-1 min-w-0 flex flex-col">
         @auth
-            @include('growth.components.completion-bar')
+            @include('partials.header')
         @endauth
 
-        @yield('content')
-    </main>
+        <main id="content" class="flex-1 min-w-0 px-4 md:px-6 py-6 pb-6">
+            @if (session('status'))
+                <x-toast :message="session('status')" />
+            @endif
+
+            {{-- بار «أكمل ملفك» ومكافأته 3 تذاكر — يختفي عند 100% وله زرّ إيقاف (21.1-ب) --}}
+            @auth
+                @include('growth.components.completion-bar')
+            @endauth
+
+            @yield('content')
+        </main>
+    </div>
 </div>
 
 {{-- تنقّل سفليّ على الموبايل — أربع وجهات فقط (2.10.1-13، تصحيح الهويّة 2.2) --}}

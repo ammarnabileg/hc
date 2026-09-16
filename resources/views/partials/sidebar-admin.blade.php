@@ -327,19 +327,25 @@
 @endphp
 
 {{-- لوحة منزلقة على الموبايل وعمود ثابت على الديسكتوب (13 · 2.15-ج) --}}
-<aside data-sidebar data-open="false" class="w-[248px] shrink-0" style="border-inline-start: 1px solid var(--border)">
-    <div class="sticky top-0 h-screen overflow-y-auto p-4 space-y-4">
+<aside data-sidebar data-open="false" class="w-[248px] shrink-0" style="border-inline-end: 1px solid var(--border)">
+    <div class="sticky top-0 h-screen overflow-y-auto px-5 pt-6 pb-4 space-y-3.5">
 
-        {{-- التابلت المضغوط (768-1199px — 2.10.1-13): بطاقة العنوان نصّيّة بحتة فتختفي --}}
-        <div data-compact-hide class="card p-3">
-            <div class="text-sm font-extrabold">{{ setting('nav.admin.panel_title', 'لوحة الإدارة') }}</div>
-            <div class="text-xs mt-0.5" style="color: var(--text-muted)">{{ $u->shortName() }}</div>
+        {{-- الشعار في رأس السايد بار حرفيًّا من المرجع (`.brand`) --}}
+        <a href="{{ Route::has('admin.dashboard') ? route('admin.dashboard') : '/' }}" class="brand nav-compact-row">
+            <span class="brand-dot"></span>
+            <span class="brand-text nav-item-label truncate">{{ config('app.name') }}</span>
+        </a>
+
+        {{-- بطاقة العنوان (`.side-profile`) — التابلت المضغوط (768-1199px — 2.10.1-13): نصّيّة بحتة فتختفي --}}
+        <div data-compact-hide class="side-profile">
+            <div class="side-name">{{ setting('nav.admin.panel_title', 'لوحة الإدارة') }}</div>
+            <div class="small muted">{{ $u->shortName() }}</div>
             @owner
                 <div class="mt-2"><x-state-badge state="honor" :label="setting('nav.admin.owner_badge', 'مالك المنصّة')" /></div>
             @endowner
         </div>
 
-        <nav class="space-y-1">
+        <nav class="nav-list">
             {{-- لوحة القيادة (12.3) --}}
             <x-nav-link route="admin.dashboard" :label="setting('nav.admin.item_dashboard', 'لوحة القيادة')" icon="home" />
 

@@ -12,28 +12,20 @@
     /*
      | ⭐ رأس الصفحة تحوّل إلى Hero حرفيًّا من ملف الهويّة المرجعيّ: صورة محفورة
      | خافتة + عنوان علويّ + H1 بالتحيّة + سطر فرعيّ + فعل رئيسيّ واحد. والزيادة
-     | التي لا يملكها المرجع (تثبيت الصفحة · وضع متقدّم · قائمة «⋯») بقيت بنفس
-     | وظيفتها لكن بأسلوبه: شريط أدوات رفيع من `.icon-button`/`.hc-switch` فوق
-     | الـHero لا هيدر مستقلّ يكسر تركيب الصفحة (تعليمات المالك المباشرة).
+     | التي لا يملكها المرجع: التثبيت وسويتش «وضع متقدّم» في الـTopbar (كالمرجع)،
+     | وقائمة «⋯» وحدها شريطٌ رفيع فوق الـHero لا هيدر مستقلّ يكسر تركيب الصفحة.
      */
-    $pinRoute = request()->route()?->getName();
-    $pinnedRoutes = collect(auth()->user()?->pinned_pages ?? [])->pluck('route')->all();
-    $isPinned = $pinRoute && in_array($pinRoute, $pinnedRoutes, true);
 @endphp
 
 @section('content')
-    <div class="spread mb-2" style="gap: 8px">
-        <div class="cluster" style="gap: 4px">
-            @if ($pinRoute && \Illuminate\Support\Facades\Route::has($pinRoute))
-                <button type="button" data-pin-toggle="{{ $pinRoute }}" data-pin-label="{{ $greeting }}"
-                        data-pinned="{{ $isPinned ? '1' : '0' }}" class="icon-button"
-                        aria-pressed="{{ $isPinned ? 'true' : 'false' }}"
-                        style="color: {{ $isPinned ? 'var(--color-brand-500)' : 'var(--text-muted)' }}"
-                        aria-label="{{ $isPinned ? setting('ux.page_header.aria_label_expr_1', 'فكّ تثبيت الصفحة') : setting('ux.page_header.aria_label_expr_2', 'ثبّت الصفحة أعلى السايد بار') }}">
-                    <x-icon name="pin" size="18" />
-                </button>
-            @endif
-            @if ($storeUrl || $certificatesUrl)
+    @php
+        // الـTopbar يقرأ عنوان الصفحة لزرّ التثبيت والـBreadcrumb — هذه الشاشة بلا `x-page-header`
+        view()->share('hcPage', ['title' => setting('dashboard.page.title', 'الرئيسيّة'), 'breadcrumbs' => [], 'pinnable' => true]);
+    @endphp
+
+    {{-- التثبيت وسويتش «وضع متقدّم» في الـTopbar (كالمرجع) — هنا قائمة «⋯» وحدها --}}
+    @if ($storeUrl || $certificatesUrl)
+        <div class="cluster mb-2" style="gap: 4px">
                 <details class="relative">
                     <summary class="icon-button list-none cursor-pointer select-none" aria-label="{{ setting('dashboard.page.more_actions_aria', 'أفعال أخرى') }}"><x-icon name="more" size="18" /></summary>
                     <div class="dropdown">
@@ -45,10 +37,8 @@
                         @endif
                     </div>
                 </details>
-            @endif
         </div>
-        <x-advanced-toggle />
-    </div>
+    @endif
 
     <section class="hero">
         <img class="hero-art" src="{{ asset('images/identity/editorial-engraving.webp') }}" alt="">

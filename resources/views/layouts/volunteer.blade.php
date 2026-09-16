@@ -26,31 +26,34 @@
  | الهيدر المشترك كما هو: فيه مبدّل سياق العضويّة والجرس بتاباته (2.8 · 13.4-ح)
  | — ولا يُعاد بناؤه هنا.
 --}}
-@auth
-    @include('partials.header')
-@endauth
-
+{{-- السايد بار عمودٌ بطول الشاشة والـTopbar داخل عمود المحتوى — كما في المرجع (`#sidebar` · `#topbar`) --}}
 <div class="flex">
     @auth
         @include('partials.sidebar-volunteer')
     @endauth
 
-    <main id="content" class="flex-1 min-w-0 px-4 md:px-6 py-6 pb-6">
-        @if (session('status'))
-            <x-toast :message="session('status')" />
-        @endif
+    <div class="flex-1 min-w-0 flex flex-col">
+        @auth
+            @include('partials.header')
+        @endauth
 
-        @if (session('error'))
-            <x-toast :message="session('error')" state="danger" />
-        @endif
+        <main id="content" class="flex-1 min-w-0 px-4 md:px-6 py-6 pb-6">
+            @if (session('status'))
+                <x-toast :message="session('status')" />
+            @endif
 
-        @if ($errors->any())
-            {{-- رسالة الخطأ = ماذا حدث + ماذا تفعل (2.17-ب) --}}
-            <x-toast :message="$errors->first()" state="danger" />
-        @endif
+            @if (session('error'))
+                <x-toast :message="session('error')" state="danger" />
+            @endif
 
-        @yield('content')
-    </main>
+            @if ($errors->any())
+                {{-- رسالة الخطأ = ماذا حدث + ماذا تفعل (2.17-ب) --}}
+                <x-toast :message="$errors->first()" state="danger" />
+            @endif
+
+            @yield('content')
+        </main>
+    </div>
 </div>
 
 {{-- الفعل الرئيسيّ على الموبايل: شريط سفليّ في متناول الإبهام (2.15-ج) --}}
