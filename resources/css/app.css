@@ -539,6 +539,16 @@
   .btn.text { border-color: transparent; background: transparent; padding-inline: 8px; color: var(--brand); min-block-size: auto; }
   .btn.text:hover { border-color: transparent; opacity: .85; }
 
+  /*
+   | ⚠️ الزرّ النصّيّ يلغي ارتفاع الزرّ حتى لا يصير كتلةً طويلة وسط النصّ —
+   | وهذا كان يسقط هدف اللمس إلى 42px في المحفظة والبروفايل. فالإلغاء
+   | للفأرة وحدها، واللمس يرجع إلى 44px (2.15-ج). والقاعدة هنا لا في طبقة
+   | الأساس لأنّ `.btn.text` تغلبها بترتيب الطبقات.
+   */
+  @media (pointer: coarse) {
+    .btn.text { min-block-size: var(--touch-min, 44px); }
+  }
+
   /* لمسة نصّ الهويّة (2.10.1-1) — لونٌ صلبٌ، لا `background-clip:text` بعد الآن */
   .text-accent { color: var(--brand); }
 

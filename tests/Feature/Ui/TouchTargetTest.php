@@ -112,6 +112,22 @@ class TouchTargetTest extends UiTestCase
     }
 
     /**
+     * ⭐ **الزرّ النصّيّ** (`.btn.text`): يلغي ارتفاع الزرّ حتى لا يصير كتلةً وسط
+     * النصّ، فسقط هدف لمسه إلى **42px** في المحفظة والبروفايل (سبع أهدافٍ قاسها
+     * المتصفّح على 375px). والإلغاء للفأرة وحدها، واللمس يرجع إلى 44px.
+     */
+    #[Test]
+    public function the_text_button_keeps_its_touch_target(): void
+    {
+        $css = $this->css();
+
+        $this->assertMatchesRegularExpression(
+            '/@media \(pointer: coarse\) \{\s*\.btn\.text \{[^}]*min-block-size:\s*var\(--touch-min/s',
+            $css,
+            'الزرّ النصّيّ يلغي ارتفاعه بلا استرجاعٍ على اللمس — وده بيرجّع هدف اللمس 42px (2.15-ج).');
+    }
+
+    /**
      * ⭐ **المنزلق**: مساره `6px` بنصّ 2.10.1-11 ولا يُغلَّظ. فالهدف يُفصَل عن
      * الشكل — وإلّا وقع الحارسان في تعارض: إمّا منزلقٌ سمين وإمّا إصبعٌ يخطئ.
      */
