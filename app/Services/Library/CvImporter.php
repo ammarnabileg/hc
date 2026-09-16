@@ -174,7 +174,13 @@ class CvImporter
 
                 if (preg_match_all('/\((?:\\\\.|[^\\\\()])*\)/s', $body, $texts)) {
                     foreach ($texts[0] as $chunk) {
-                        $out[] = stripcslashes(substr($chunk, 1, -1));
+                        $chunk = stripcslashes(substr($chunk, 1, -1));
+
+                        // تدفّق غير مضغوط بـFlate (خطّ مُضمَّن، صورة…) يبقى بايتات خامًا
+                        // هنا، والقوسان يلتقطان منها «نصًّا» عشوائيًّا — فيُهمَل ما ليس مقروءًا
+                        if ($this->isReadableText($chunk)) {
+                            $out[] = $chunk;
+                        }
                     }
                 }
 
@@ -185,6 +191,18 @@ class CvImporter
         }
 
         return trim(implode(' ', $out));
+    }
+
+    /** UTF-8 سليم وأغلبه أحرف مطبوعة — لا بايتات ملفّ خطّ التقطها القوسان مصادفةً */
+    private function isReadableText(string $chunk): bool
+    {
+        if (trim($chunk) === '' || ! mb_check_encoding($chunk, 'UTF-8')) {
+            return false;
+        }
+
+        $controls = preg_match_all('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/', $chunk);
+
+        return $controls <= mb_strlen($chunk) * 0.2;
     }
 
     private function fromHtml(string $raw): string
