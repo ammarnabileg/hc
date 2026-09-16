@@ -50,11 +50,11 @@ class MobileLayoutTest extends TestCase
     {
         $header = (string) file_get_contents(resource_path('views/components/page-header.blade.php'));
 
-        // زرّ التثبيت وسويتش «وضع متقدّم» مجموعان في `.cluster` واحد، وهي
-        // تحمل flex-wrap: wrap دائمًا في app.css (لا تحت 767px فقط)، فيبقى
-        // الصفّ يلتفّ في كلّ عرض.
-        $this->assertStringContainsString('class="cluster mb-3"', $header,
-            'صفّ الفعل في الترويسة مابيلتفّش — الفعل + سويتش «وضع متقدّم» بيتجاوزوا عرض الموبايل.');
+        // زرّ التثبيت وBreadcrumb مجموعان يمينًا في `.cluster`، وسويتش «وضع
+        // متقدّم» يسارًا، في صفّ `.spread` واحد يلتفّ تحت 767px (app.css).
+        $this->assertStringContainsString('class="spread mb-3"', $header,
+            'صفّ الترويسة مابيلتفّش تحت عرض الموبايل — Breadcrumb + التثبيت + سويتش «وضع متقدّم» بيتجاوزوا عرض الشاشة.');
+        $this->assertStringContainsString('<x-advanced-toggle />', $header);
     }
 
     /**
