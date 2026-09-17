@@ -41,3 +41,28 @@ Thumbs.db
 
 # جِرار كوكيز curl تتسرّب من جلسات الإثبات (اسمُها بريدُ المستخدم)
 /*@*
+
+# حزم التطوير وحدها داخل `vendor/` — والمستودع يرفع حزم التشغيل عمدًا.
+#
+# `composer install` ينزّلها كي تعمل الاختبارات وPint، و`--no-dev` لا يشيلها
+# بعد نزولها، فتظهر في كلّ `git status` بلا داعٍ. ورفعُها ليس حلًّا: كلٌّ منها
+# مستودعٌ بذاته (فيه `.git`)، فتُسجَّل gitlinks فارغة يجدها المستنسِخ بلا ملفّات.
+#
+# والقائمة من `require-dev` وحدها، وما تجرّه معها من تبعيّات تُستعمَل في الاختبار.
+/vendor/fakerphp/
+/vendor/filp/
+/vendor/hamcrest/
+/vendor/laravel/agent-detector/
+/vendor/laravel/pail/
+/vendor/laravel/pao/
+/vendor/laravel/pint/
+/vendor/mockery/
+/vendor/myclabs/
+/vendor/nunomaduro/collision/
+/vendor/phar-io/
+/vendor/phpunit/
+/vendor/sebastian/
+/vendor/staabm/
+/vendor/theseer/
+/vendor/bin/phpunit
+/vendor/bin/pint
