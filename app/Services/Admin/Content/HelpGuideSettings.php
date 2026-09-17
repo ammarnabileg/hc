@@ -169,18 +169,29 @@ class HelpGuideSettings
      * العربيّ يبقى **داخل** استدعاء `setting()` نفسه (حارس النصّ المحروق
      * 2.13-أ يُعِدُّ ما بداخل `setting()` ممتثلًا، لا ما يقع خارجه ولو في
      * مصفوفة PHP)، تمامًا كما تفعل `EngagementSettings::defaultContexts()`.
+     *
+     * ⛔ وكان يُعيد **نصًّا**، فتنفجر الشاشة بـ«Array to string conversion»:
+     * صفُّ الإعداد مُعرَّف `type = json`، و`setting()` تفكّ ترميزه فيرجع
+     * **مصفوفةً** لا نصًّا. فالقراءة هنا تقبل الشكلين وتنتهي إلى مصفوفة
+     * واحدة — وهي ما يريده الطرفان أصلًا، فلا فكَّ ترميزٍ مرّتين.
+     *
+     * @return list<string>
      */
-    private static function categoryDefaultsJson(): string
+    private static function categorySeed(): array
     {
-        return (string) setting('admin_content.help_guide.categories_seed', '["البداية","التدريبات","الشهادات","المحفظة","الحساب"]');
+        $seed = setting('admin_content.help_guide.categories_seed', '["البداية","التدريبات","الشهادات","المحفظة","الحساب"]');
+
+        if (! is_array($seed)) {
+            $seed = json_decode((string) $seed, true);
+        }
+
+        return is_array($seed) ? array_values($seed) : [];
     }
 
     /** @return list<string> */
     public static function categories(): array
     {
-        $seed = json_decode(self::categoryDefaultsJson(), true) ?: [];
-
-        return self::cleanList((array) setting('help.categories', $seed));
+        return self::cleanList((array) setting('help.categories', self::categorySeed()));
     }
 
     /** @return list<string> */
@@ -192,7 +203,7 @@ class HelpGuideSettings
     /** الافتراضيّ المعروض كمرساة تحت قائمة التصنيفات (2.13-و) */
     public static function defaultCategories(): array
     {
-        return (array) (json_decode(self::categoryDefaultsJson(), true) ?: []);
+        return self::categorySeed();
     }
 
     /**

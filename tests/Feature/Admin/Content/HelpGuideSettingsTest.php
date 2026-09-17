@@ -5,6 +5,7 @@ namespace Tests\Feature\Admin\Content;
 use App\Models\Setting;
 use App\Services\Admin\Content\HelpGuideSettings;
 use Database\Seeders\AccountDemoSeeder;
+use Illuminate\Support\Facades\Cache;
 
 /**
  * بلوك إعدادات دليل المستخدم (12.6-ج سطر 5087 — فجوة مسدودة): كانت الشاشة
@@ -37,6 +38,40 @@ class HelpGuideSettingsTest extends AdminContentTestCase
         $this->actingAs($stranger)->post(route('admin.guidance.help.settings.reset'))->assertForbidden();
         $this->actingAs($stranger)->put(route('admin.guidance.help.settings.categories'), ['categories' => ['أ']])->assertForbidden();
         $this->actingAs($stranger)->put(route('admin.guidance.help.settings.tags'), ['tags' => ['أ']])->assertForbidden();
+    }
+
+    /**
+     * ⛔ **الشاشة كانت تنفجر في التشغيل بينما الاختبارات خضراء**: صفّ البذرة
+     * `admin_content.help_guide.categories_seed` مُعرَّف `type = json`، فـ
+     * `setting()` تفكّ ترميزه وتُرجِع **مصفوفة**، والقارئ كان يصبّها في
+     * `(string)` ⟵ «Array to string conversion» ⟵ 500.
+     *
+     * ولم يُمسِكها اختبارٌ لأنّ قاعدة الاختبار تبدأ **بلا هذا الصفّ**، فتقع
+     * `setting()` على الافتراضيّ النصّيّ ولا تنفجر. فالحارس هنا يزرع الصفّ
+     * **بنوعه الحقيقيّ** أوّلًا — وهذا وحده ما يعيد إنتاج العطل.
+     */
+    public function test_the_screen_opens_when_the_seed_row_is_stored_as_json(): void
+    {
+        Setting::updateOrCreate(
+            ['key' => 'admin_content.help_guide.categories_seed'],
+            [
+                'group' => 'admin_content',
+                'label_ar' => 'بذرة تصنيفات الدليل',
+                'type' => 'json',
+                'value' => json_encode(['البداية', 'التدريبات'], JSON_UNESCAPED_UNICODE),
+                'default_value' => json_encode(['البداية', 'التدريبات'], JSON_UNESCAPED_UNICODE),
+            ],
+        );
+
+        Cache::forget('settings');
+
+        $this->actingAs($this->admin())
+            ->get(route('admin.guidance.help.settings'))
+            ->assertOk()
+            ->assertSee('البداية');
+
+        // والقارئ يُرجِع مصفوفةً في الحالتين: صفٌّ مفكوك، أو افتراضيٌّ نصّيّ
+        $this->assertSame(['البداية', 'التدريبات'], HelpGuideSettings::defaultCategories());
     }
 
     /** الحفظ يكتب القيمة فعليًّا — والشاشة تعرضها بعد التحديث. */
