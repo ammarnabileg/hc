@@ -10,6 +10,37 @@
                        ['label' => $goal->name],
                    ]" />
 
+    {{-- حال الهدف نفسه قبل شغله: النسبة والمَعالِم والنهاية ومعيار التحقّق --}}
+    <section class="card p-4 mb-4" aria-label="{{ setting('volunteer.goal_board.summary_aria', 'حالة الهدف') }}">
+        <div class="spread" style="gap: 12px; flex-wrap: wrap">
+            <span class="small muted">
+                {{ setting('volunteer.goals.field_2', 'معيار التحقّق:') }}
+                @if ($goal->verification_type === 'numeric')
+                    {{ setting('volunteer.goals.field_3', 'رقميّ من') }} <bdi>{{ rtrim(rtrim(number_format((float) $goal->target_from, 2), '0'), '.') }}</bdi>
+                    {{ setting('volunteer.common.to', 'إلى') }} <bdi>{{ rtrim(rtrim(number_format((float) $goal->target_to, 2), '0'), '.') }}</bdi>
+                @else
+                    {{ setting('volunteer.goals.field_4', 'حالة قابلة للفحص بنعم/لا') }}
+                @endif
+            </span>
+
+            <span class="small muted">
+                {{ setting('volunteer.goals.field_5', 'النهاية:') }}
+                <bdi>{{ $goal->end_date?->format('Y/m/d') ?? '—' }}</bdi>
+            </span>
+        </div>
+
+        @include('volunteer.goals.partials.progress', [
+            'percent' => (float) $goal->progress_percent,
+            'label' => setting('volunteer.goals.label_5', 'الإنجاز بالصعود الآليّ'),
+            'closed' => $closedTasks,
+        ])
+
+        <div class="mt-2 text-xs" style="color: var(--text-muted)">
+            <x-icon name="check" size="16" /> {{ setting('volunteer.goals.field_6', 'مَعالِم مكتملة:') }}
+            <span class="font-semibold" style="color: var(--text)">{{ $verified }} {{ setting('volunteer.common.from', 'من') }} {{ $milestoneTotal }}</span>
+        </div>
+    </section>
+
     {{--
       ⭐ المرشِّحات مكان التعشيش: المَعلَم ثمّ حزمه. الطبقات الخمس كما هي في
       المنطق، لكنّها هنا صفٌّ من الرقائق لا أربع نقراتٍ متتابعة (2.15-أ-6).
@@ -41,7 +72,8 @@
     {{-- اللوحة: عمودٌ لكلّ حالة مفتوحة بترتيب دورة العمل (23-3.3) --}}
     <div class="goal-board" data-goal-board>
         @foreach ($columns as $column)
-            <section class="goal-col" aria-label="{{ $column['label'] }}">
+            <section @class(['goal-col', 'goal-col-vacant' => $column['tasks']->isEmpty()])
+                     aria-label="{{ $column['label'] }}">
                 <header class="goal-col-head">
                     <span class="cluster" style="gap: 6px">
                         <x-state-badge :state="$column['state']" :label="$column['label']" />
@@ -86,7 +118,7 @@
                             @endif
                         </a>
                     @empty
-                        <p class="goal-col-empty">{{ setting('volunteer.goal_board.empty_col', 'مفيش حاجة هنا') }}</p>
+                        {{-- بلا جملةِ فراغ: العدّاد فوقه يقول صفرًا، والسطر يطوّل العمود بلا فائدة --}}
                     @endforelse
                 </div>
             </section>

@@ -159,6 +159,9 @@ class GoalController extends Controller
         }
 
         return view('volunteer.goals.show', [
+            'verified' => $milestones->where('is_verified', true)->count(),
+            'milestoneTotal' => $milestones->count(),
+            'closedTasks' => $tasks->where('status', TaskStatus::CLOSED)->count(),
             'goal' => $goal,
             'milestones' => $milestones,
             'packages' => $packages,

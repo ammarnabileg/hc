@@ -899,6 +899,8 @@
   .goal-col-count { font-size: 12px; color: var(--muted); }
   .goal-col-body { display: flex; flex-direction: column; gap: 8px; }
   .goal-col-empty { font-size: 12px; color: var(--muted); padding: 10px 2px; }
+  /* عمودٌ بلا مهامّ لا يأخذ عرض عمودٍ عامر: يضيق فتسع اللوحة شاشةً أصغر */
+  .goal-col-vacant { min-width: 128px; flex-grow: .45; }
 
   .task-card { display: flex; flex-direction: column; gap: 6px; padding: 10px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface-raised); color: var(--ink); }
   .task-card:hover { border-color: var(--brand); }
