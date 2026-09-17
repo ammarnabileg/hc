@@ -830,6 +830,37 @@
   .side-profile { display: block; border-block: 1px solid var(--line); padding-block: 20px; color: var(--ink); }
   /* هيكل السايد بار من المرجع: حشوةٌ 28/20/16 وفجوةٌ 18 بين كتله */
   .side-shell { display: flex; flex-direction: column; gap: 18px; padding: 28px 20px 16px; }
+
+  /*
+   | ⭐ سلّم المقاسات من المرجع حرفيًّا: الهيكل يضيق ويتّسع مع الشاشة، والديسكتوب
+   | الواسع (1200+) يعيد ضبط السايد بار إلى فجوةٍ أضيق وبطاقة بروفايلٍ أقصر —
+   | فالقاعدة الأساسيّة مكتوبةٌ للموبايل والتابلت لا له.
+   */
+  @media (min-width: 1200px) {
+    .side-shell { gap: 14px; padding-top: 24px; }
+    .side-profile { padding-block: 16px; }
+  }
+
+  /*
+   | حشوة المحتوى والـTopbar: 20/16 على الموبايل، 32 على التابلت، 56 على الديسكتوب
+   | مع عرضٍ أقصى 1380px يتوسّط — وكلّها أرقام المرجع لا تقديرًا.
+   */
+  #content { padding: 26px 20px 32px; }
+  #topbar { padding-inline: 16px; }
+
+  @media (max-width: 359px) {
+    #content { padding-inline: 16px; }
+    #topbar { padding-inline: 10px; }
+  }
+
+  @media (min-width: 768px) {
+    #content, #topbar { padding-inline: 32px; }
+  }
+
+  @media (min-width: 1200px) {
+    #content { max-width: 1380px; margin-inline: auto; padding: 44px 56px 40px; width: 100%; }
+    #topbar { padding-inline: 56px; }
+  }
   /* صفّ المثبَّتة من المرجع: الرابط يتمدّد وزرّ فكّ التثبيت ضيّقٌ في آخره */
   .pin-label { font-size: 12px; color: var(--muted); margin-bottom: 6px; }
   .pin-row { display: flex; align-items: center; }

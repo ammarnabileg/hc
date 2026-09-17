@@ -37,7 +37,7 @@
             @include('partials.header')
         @endauth
 
-        <main id="content" class="flex-1 min-w-0 px-4 md:px-6 py-6 pb-6">
+        <main id="content" class="flex-1 min-w-0">
             @if (session('status'))
                 <x-toast :message="session('status')" />
             @endif

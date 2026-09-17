@@ -32,7 +32,7 @@
 {{-- شريط نادي الخامسة العلويّ: يظهر داخل النافذة بتوقيت المستخدم وحدها (7.2) --}}
 @include('achievements.components.club-topbar')
 
-<header id="topbar" class="sticky top-0 z-50 flex items-center justify-between gap-5 px-4 md:px-6"
+<header id="topbar" class="sticky top-0 z-50 flex items-center justify-between gap-5"
         style="height: var(--header-h); background: var(--surface); border-bottom: 1px solid var(--border)">
 
     {{-- الموبايل: زرّ اللوحة المنزلقة + سطر الشعار الصغير + عنوان الصفحة (13 · 2.15-ج) --}}
