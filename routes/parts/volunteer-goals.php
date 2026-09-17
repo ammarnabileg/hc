@@ -26,6 +26,16 @@ Route::middleware('auth')->prefix('volunteer')->group(function () {
     // ------------------------------------------------------- الأهداف والمَعالِم
     Route::middleware('permission:goals.list,goals.view')->group(function () {
         Route::get('/goals', [GoalController::class, 'index'])->name('volunteer.goals');
+
+        /*
+        | ⭐ صفحة الهدف الواحد — لوحته. وقبلها لم يكن للهدف عنوانٌ يُفتَح: تفاصيله
+        | تُطوى داخل بطاقةٍ في القائمة، ومهامّه لا تُرى إلّا بعد فتح صفحة حزمةٍ ثمّ
+        | توسيع بند. فصارت المَعالِم والحزم **مرشِّحات** فوق لوحةٍ واحدة بأعمدة
+        | الحالات (23-3.3) — نفس الطبقات الخمس بلا تعشيشها في النقر.
+        */
+        Route::get('/goals/{goal}', [GoalController::class, 'show'])
+            ->whereNumber('goal')
+            ->name('volunteer.goals.show');
     });
 
     /*

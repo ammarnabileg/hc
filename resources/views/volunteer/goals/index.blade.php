@@ -95,7 +95,10 @@
                 <article class="card p-4 animate-fadeup">
                     <div class="flex items-start justify-between gap-3 flex-wrap">
                         <div class="min-w-0">
-                            <h2 class="font-bold text-lg">{{ $goal->name }}</h2>
+                            {{-- الاسم يفتح لوحة الهدف: صفحته الخاصّة بمهامّه مرتّبةً بحالتها --}}
+                            <h2 class="font-bold text-lg">
+                                <a class="hover:underline" href="{{ route('volunteer.goals.show', $goal) }}">{{ $goal->name }}</a>
+                            </h2>
                             <p class="text-xs mt-1" style="color: var(--text-muted)">
                                 {{-- معيار التحقّق: رقم من X إلى Y أو حالة نعم/لا (23 — 1.1) --}}
                                 {{ setting('volunteer.goals.field_2', 'معيار التحقّق:') }}

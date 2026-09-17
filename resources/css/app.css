@@ -863,6 +863,55 @@
   }
   /* صفّ المثبَّتة من المرجع: الرابط يتمدّد وزرّ فكّ التثبيت ضيّقٌ في آخره */
   .pin-label { font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+
+  /*
+   | ⭐ لوحة الهدف: عمودٌ لكلّ حالة، والمهمّة كارتٌ لا صفَّ جدول. الجدول يُقرأ
+   | والكارت يُشتغَل عليه — والحالة هنا هي المحور فتُرى بالنظرة لا بالتنقيب.
+   | والأعمدة المنتهية (معتمدة · عدم تسليم · مُغلَقة) أضيق وأخفت: تاريخٌ لا عمل.
+   |
+   | ⚠️ الأسماء `goal-*` لا `board-*`: `.board` مأخوذةٌ لشاشةٍ أخرى بثلاثة أعمدة.
+   */
+  .goal-filters { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 18px; }
+  .chip { display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 6px 12px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface-raised); color: var(--muted); font-size: 13px; }
+  .chip:hover { color: var(--ink); }
+  .chip-sub { font-size: 12px; opacity: .9; }
+  .chip-on { background: var(--brand-soft); border-color: var(--brand); color: var(--brand); font-weight: 600; }
+  .chip-count { font-size: 11px; opacity: .75; }
+
+
+  .goal-board { display: flex; gap: 12px; overflow-x: auto; align-items: flex-start; padding-bottom: 8px; }
+  /* الأعمدة تتقاسم العرض المتاح فتسع الشاشة بلا تمرير، وتضيق حتى 196px ثمّ تُمرَّر */
+  .goal-col { flex: 1 1 0; min-width: 196px; background: var(--soft); border: 1px solid var(--line); border-radius: 12px; padding: 10px; }
+  .goal-col-done { flex: 0 1 196px; }
+  .goal-col-done > summary { cursor: pointer; list-style: none; min-height: 36px; }
+  .goal-col-done > summary::-webkit-details-marker { display: none; }
+  .goal-done-group { padding-top: 4px; }
+
+  /*
+   | ⚠️ الرقاقة و«منتهية» ارتفاعهما 36px ليبقى الصفّ خفيفًا على الفأرة — وذلك
+   | وحده يُسقِط هدف اللمس تحت 44px. فالارتفاع الصغير للفأرة، واللمس يستردّ
+   | حقّه (2.15-ج). والقاعدة هنا لا في طبقة الأساس لأنّ الكلاس يغلبها بالترتيب.
+   */
+  @media (pointer: coarse) {
+    .chip, .goal-col-done > summary { min-height: var(--touch-min, 44px); }
+  }
+  .goal-col-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+  .goal-col-count { font-size: 12px; color: var(--muted); }
+  .goal-col-body { display: flex; flex-direction: column; gap: 8px; }
+  .goal-col-empty { font-size: 12px; color: var(--muted); padding: 10px 2px; }
+
+  .task-card { display: flex; flex-direction: column; gap: 6px; padding: 10px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface-raised); color: var(--ink); }
+  .task-card:hover { border-color: var(--brand); }
+  .task-card-title { font-size: 13px; font-weight: 600; line-height: 1.5; }
+  .task-card-path, .task-card-due { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; color: var(--muted); }
+  .task-card-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 11px; color: var(--muted); }
+  .task-card-vxp { font-weight: 600; color: var(--brand); }
+
+  /* الموبايل: اللوحة عمودٌ واحد يُمرَّر رأسيًّا لا أفقيًّا (2.15-ج) */
+  @media (max-width: 767px) {
+    .goal-board { flex-direction: column; overflow-x: visible; }
+    .goal-col, .goal-col-done { flex-basis: auto; width: 100%; }
+  }
   .pin-row { display: flex; align-items: center; }
   .pin-row > .pin-grow { flex: 1; min-width: 0; }
   .pin-row > button:last-child { min-width: 28px; width: 28px; background: transparent; border: 0; color: var(--muted); font-size: 12px; }

@@ -18,6 +18,7 @@ use App\Services\Volunteer\Goals\GoalBuildService;
 use App\Services\Volunteer\Goals\GoalLaunchService;
 use App\Services\Volunteer\Goals\Integrations;
 use App\Services\Volunteer\Goals\RollupService;
+use App\Services\Volunteer\Tasks\TaskStatus;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -71,6 +72,103 @@ class GoalController extends Controller
             'kpis' => $this->kpis($goals, $tree),
             'canDeclare' => $user->allows('wp_items.edit'),
             'canApprove' => $user->allows('milestones.edit'),
+        ]);
+    }
+
+    /**
+     * ⭐ **لوحة الهدف الواحد** — «فين شغل الهدف ده واقف؟» في شاشةٍ واحدة.
+     *
+     * ⛔ ما كان قبلها: الهدف بلا عنوانٍ يُفتَح. تفاصيله `<details>` داخل بطاقةٍ
+     * في القائمة، ومهامّه لا تُرى إلّا بفتح صفحة حزمةٍ ثمّ توسيع بند — أربع
+     * خطواتٍ وصفحتان للوصول إلى صفٍّ في جدول. والهدف المُرسَل للتنفيذ لا تفتح
+     * له شاشة التفكيك أصلًا (409)، فلم يكن له مكانٌ يُرى فيه.
+     *
+     * والطبقات الخمس **كما هي** (هدف ⟵ مَعلَم ⟵ حزمة ⟵ بند ⟵ مهمّة): تحوّلت
+     * من تعشيشٍ في النقر إلى **مرشِّحات** فوق لوحةٍ واحدة، وأعمدتها حالات
+     * المهمّة السبع بترتيب دورة العمل (23-3.3) كما تعرّفها `TaskStatus`.
+     */
+    public function show(Request $request, Goal $goal): View
+    {
+        $user = $request->user();
+        $entityIds = $this->scope->visibleEntityIds($user, 'goals.view');
+
+        // نفس قاعدة القائمة: لا شيء قبل «إرسال للتنفيذ» (23 — القسم 1)
+        $unfiltered = ['entity' => null, 'status' => '', 'priority' => '', 'q' => ''];
+        abort_unless($this->visibleGoals($entityIds, $unfiltered)->contains('id', $goal->id), 404);
+
+        $milestones = Milestone::query()
+            ->where('goal_id', $goal->id)
+            ->orderBy('sort_order')->orderBy('id')
+            ->get();
+
+        $packages = WorkPackage::query()
+            ->whereIn('milestone_id', $milestones->pluck('id'))
+            ->when($entityIds !== null, fn ($q) => $q->whereIn('entity_id', $entityIds ?: [0]))
+            ->with('entity')
+            ->orderBy('sort_order')->orderBy('id')
+            ->get();
+
+        // المرشِّحات: مَعلَم أو حزمة — والحزمة تضيّق داخل مَعلَمها
+        $filters = [
+            'milestone' => $request->integer('milestone') ?: null,
+            'package' => $request->integer('package') ?: null,
+            'q' => trim($request->string('q')->toString()),
+        ];
+
+        $scopedPackages = $packages
+            ->when($filters['milestone'], fn ($c) => $c->where('milestone_id', $filters['milestone']))
+            ->when($filters['package'], fn ($c) => $c->where('id', $filters['package']));
+
+        $items = WorkItem::query()
+            ->whereIn('work_package_id', $scopedPackages->pluck('id'))
+            ->orderBy('id')
+            ->get();
+
+        $tasks = Task::query()
+            ->whereIn('work_item_id', $items->pluck('id'))
+            ->when($filters['q'] !== '', fn ($q) => $q->where('title', 'like', '%'.$filters['q'].'%'))
+            ->with('owner')
+            ->orderBy('deadline_at')
+            ->get();
+
+        /*
+         | الأعمدة من `TaskStatus::boardColumns()` لا من قائمةٍ مكتوبة هنا، كي
+         | لا تفترق اللوحة عن دورة العمل لو زيدت حالة. والمنتهية (معتمدة · عدم
+         | تسليم · مُغلَقة) تُطوى افتراضيًّا: تاريخٌ لا عملٌ قائم.
+         */
+        $columns = $done = [];
+
+        foreach (TaskStatus::boardColumns() as $status) {
+            $column = [
+                'status' => $status,
+                'label' => TaskStatus::label($status),
+                'state' => TaskStatus::state($status),
+                'tasks' => $tasks->where('status', $status)->values(),
+            ];
+
+            /*
+             | المفتوحة أعمدةٌ قائمة، والمنتهية تُجمَع في عمودٍ واحد مطويّ: سبعةُ
+             | أعمدةٍ لا تسع الشاشة فتفرض تمريرًا أفقيًّا دائمًا، والثلاثة المنتهية
+             | (معتمدة · عدم تسليم · مُغلَقة) تاريخٌ يُراجَع لا عملٌ يُدار.
+             */
+            if (in_array($status, TaskStatus::OPEN, true)) {
+                $columns[] = $column;
+            } else {
+                $done[] = $column;
+            }
+        }
+
+        return view('volunteer.goals.show', [
+            'goal' => $goal,
+            'milestones' => $milestones,
+            'packages' => $packages,
+            'itemsById' => $items->keyBy('id'),
+            'packagesById' => $packages->keyBy('id'),
+            'columns' => $columns,
+            'doneColumns' => $done,
+            'doneTotal' => collect($done)->sum(fn (array $c) => $c['tasks']->count()),
+            'filters' => $filters,
+            'taskTotal' => $tasks->count(),
         ]);
     }
 
