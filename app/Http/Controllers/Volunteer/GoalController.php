@@ -740,7 +740,15 @@ class GoalController extends Controller
         return [
             'goals' => $goals->count(),
             'progress' => $goals->isEmpty() ? 0 : round($goals->avg('progress_percent'), 1),
-            'milestones' => $milestoneCount ? $verified.' / '.$milestoneCount : '0',
+            /*
+             | ⛔ كان `"$verified / $milestoneCount"` فيظهر **مقلوبًا**: خوارزميّة
+             | الاتّجاه ثنائيّ الاتّجاه تقرأ «0 / 2» في سياقٍ عربيّ فترسمها «2 / 0»
+             | — أي «2 من 0». والحرف العربيّ «من» لا يُقلَب، وهو نفسه ما تقوله
+             | بطاقة الهدف تحت الترويسة، فاتّحد اللفظان.
+             */
+            'milestones' => $milestoneCount
+                ? $verified.' '.setting('volunteer.common.from', 'من').' '.$milestoneCount
+                : '0',
             'closed' => $closedTasks,
         ];
     }

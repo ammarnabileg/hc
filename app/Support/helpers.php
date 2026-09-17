@@ -246,3 +246,27 @@ if (! function_exists('feature_state')) {
         return app(FeatureGate::class)->state($key, $user ?? auth()->user());
     }
 }
+
+if (! function_exists('ar_count')) {
+    /**
+     * صيغة العدد بالعربيّة — أربعُ صيغٍ لا اثنتان: مفرد · مثنّى · جمع قلّة
+     * (3–10) · جمع كثرة (11 فأكثر). و`:n` موضع الرقم في الصيغة.
+     *
+     * ⚠️ بغيرها تُكتَب «4 مهمّة» وهي خطأٌ صريح، صوابه «4 مهامّ». وشاشة
+     * الرئيسيّة تفعل هذا في الجافاسكربت منذ البداية (عدّاد المواعيد)، فهذه
+     * نظيرتُها في الخادم كي لا يتكرّر الخطأ في كلّ شاشةٍ تعدّ شيئًا.
+     *
+     * @param  array{one?: string, two?: string, few?: string, many?: string}  $forms
+     */
+    function ar_count(int $count, array $forms): string
+    {
+        $form = match (true) {
+            $count === 1 => $forms['one'] ?? '',
+            $count === 2 => $forms['two'] ?? '',
+            $count >= 3 && $count <= 10 => $forms['few'] ?? '',
+            default => $forms['many'] ?? '',
+        };
+
+        return str_replace(':n', (string) $count, $form);
+    }
+}

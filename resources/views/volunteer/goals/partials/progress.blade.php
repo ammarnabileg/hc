@@ -23,7 +23,13 @@
         {{-- ⭐ المُغلَقة مستبعَدة من المقام وتُوسَم صراحةً كي لا تبدو النسبة مجمَّلة --}}
         <div class="mt-1 text-xs flex items-center gap-1" style="color: var(--color-state-idle)">
             <span aria-hidden="true">○</span>
-            <span>{{ $closed }} {{ setting('volunteer.goals_progress.text_2', 'مهمّة مُغلَقة، مستبعَدة من حساب النسبة') }}</span>
+            {{-- صيغة العدد العربيّة أربع: «4 مهمّة» خطأ وصوابه «4 مهامّ» --}}
+            <span>{{ ar_count($closed, [
+                'one' => (string) setting('volunteer.goals_progress.closed_one', 'مهمّة واحدة مُغلَقة، مستبعَدة من حساب النسبة'),
+                'two' => (string) setting('volunteer.goals_progress.closed_two', 'مهمّتان مُغلَقتان، مستبعَدتان من حساب النسبة'),
+                'few' => (string) setting('volunteer.goals_progress.closed_few', ':n مهامّ مُغلَقة، مستبعَدة من حساب النسبة'),
+                'many' => (string) setting('volunteer.goals_progress.closed_many', ':n مهمّة مُغلَقة، مستبعَدة من حساب النسبة'),
+            ]) }}</span>
         </div>
     @endif
 </div>
