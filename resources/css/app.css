@@ -827,11 +827,26 @@
    */
   .brand { font-size: 26px; font-weight: 800; display: flex; align-items: center; gap: 10px; line-height: 1.4; color: var(--ink); min-height: 44px; }
   .brand-dot { width: 21px; height: 21px; background: var(--brand); border-radius: 50%; flex-shrink: 0; }
-  .side-profile { display: block; border-block: 1px solid var(--line); padding-block: 16px; color: var(--ink); }
+  .side-profile { display: block; border-block: 1px solid var(--line); padding-block: 20px; color: var(--ink); }
+  /* هيكل السايد بار من المرجع: حشوةٌ 28/20/16 وفجوةٌ 18 بين كتله */
+  .side-shell { display: flex; flex-direction: column; gap: 18px; padding: 28px 20px 16px; }
+  /* صفّ المثبَّتة من المرجع: الرابط يتمدّد وزرّ فكّ التثبيت ضيّقٌ في آخره */
+  .pin-label { font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+  .pin-row { display: flex; align-items: center; }
+  .pin-row > .pin-grow { flex: 1; min-width: 0; }
+  .pin-row > button:last-child { min-width: 28px; width: 28px; background: transparent; border: 0; color: var(--muted); font-size: 12px; }
   .side-profile .progress { margin-top: 12px; }
   .side-name { font-size: 14px; font-weight: 600; }
   .side-level { font-size: 12px; color: var(--muted); margin-top: 10px; }
-  .side-search { min-height: 48px; display: flex; align-items: center; gap: 10px; width: 100%; padding-inline: 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface-raised); font-size: 13px; color: var(--muted); }
+  /*
+   | صفّ البحث حرفيًّا من المرجع (`.side-search`): صفٌّ واحد، الأيقونة في أوّله
+   | والحقل يملأ وسطه و`space-between` تدفع الفعل إلى آخره — كما يضع المرجع
+   | تلميحه هناك. وقبلها كان الثلاثة يزدحمون في نصفٍ ونصفُه الآخر فارغ.
+   */
+  .side-search { min-height: 48px; display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%; padding-inline: 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface-raised); font-size: 13px; color: var(--muted); }
+  /* فعلُ البحث نصٌّ هادئ في آخر الصفّ لا صندوقٌ ثانٍ داخل الصندوق */
+  .side-search-go { flex-shrink: 0; background: transparent; border: 0; font-size: 12px; font-weight: 600; color: var(--muted); padding-inline: 2px; }
+  .side-search-go:hover { color: var(--ink); }
   .side-search input { flex: 1; min-width: 0; background: transparent; border: 0; padding: 0; font: inherit; color: var(--ink); }
   .side-search input:focus { outline: none; }
   .side-search input::placeholder { color: var(--muted); }

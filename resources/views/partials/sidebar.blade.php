@@ -27,7 +27,7 @@
 <aside data-sidebar data-open="false"
        class="w-[248px] shrink-0"
        style="border-inline-end: 1px solid var(--border)">
-    <div class="sticky top-0 h-screen overflow-y-auto px-5 pt-6 pb-4 space-y-3.5">
+    <div class="side-shell sticky top-0 h-screen overflow-y-auto">
 
         {{-- الشعار في رأس السايد بار حرفيًّا من المرجع (`.brand`): نقطة حمراء + اسم بلون الحبر --}}
         <a href="{{ \Illuminate\Support\Facades\Route::has('dashboard') ? route('dashboard') : '/' }}" class="brand nav-compact-row">
@@ -65,16 +65,17 @@
           التنقّل ويختفي عنوان قسمها فقط.
         --}}
         {{--
-          بحث سريع: **شريط + زرّ «إبحث»** ⟵ صفحة البحث الكبيرة (13-ب · 13.1) —
-          بشكل صفّ `.side-search` من المرجع (أيقونة + حقل + الزرّ نصًّا هادئًا لا
-          زرًّا أحمر: الأحمر للفعل الرئيسيّ الواحد في الصفحة لا لكلّ شاشة).
+          بحث سريع: **شريط + زرّ «ابحث»** ⟵ صفحة البحث الكبيرة (13-ب · 13.1) —
+          بشكل صفّ `.side-search` من المرجع: أيقونة في الأوّل، حقلٌ يملأ الوسط،
+          والفعل نصًّا هادئًا في الآخر (`space-between`) لا زرًّا أحمر — فالأحمر
+          للفعل الرئيسيّ الواحد في الصفحة لا لكلّ شاشة. والحقل يقول «بحث سريع»
+          والزرّ يقول «ابحث» فلا تتكرّر الكلمة مرّتين في صفٍّ واحد.
         --}}
         <form data-compact-hide action="{{ \Illuminate\Support\Facades\Route::has('search') ? route('search') : '#' }}" method="get"
               class="side-search" role="search">
             <x-icon name="search" size="20" />
-            <input type="search" name="q" placeholder="{{ setting('nav.trainee.search_placeholder', 'بحث سريع…') }}" aria-label="{{ setting('nav.trainee.search_aria', 'بحث سريع') }}">
-            <button type="submit" class="small font-semibold motion-standard shrink-0"
-                    style="min-width: 44px; min-height: 44px; color: var(--text-muted)">{{ setting('nav.trainee.search_submit', 'إبحث') }}</button>
+            <input type="search" name="q" placeholder="{{ setting('nav.trainee.search_placeholder', 'بحث سريع') }}" aria-label="{{ setting('nav.trainee.search_aria', 'بحث سريع') }}">
+            <button type="submit" class="side-search-go motion-standard">{{ setting('nav.trainee.search_submit', 'ابحث') }}</button>
         </form>
 
         <div data-compact-hide>
@@ -87,17 +88,15 @@
         --}}
         @if ($pinned->isNotEmpty())
             {{-- صفّها المكوَّن من رابطٍ + زرّ فكّ تثبيت لا يستوي أيقونةً واحدة في 80px --}}
-            <div data-compact-hide class="space-y-1" data-pins>
-                <div class="text-xs px-2" style="color: var(--text-muted)">{{ setting('nav.trainee.pinned_title', '📌 المثبَّتة') }}</div>
+            <div data-compact-hide data-pins>
+                <div class="pin-label px-2">{{ setting('nav.trainee.pinned_title', '📌 المثبَّتة') }}</div>
                 @foreach ($pinned as $pin)
-                    <div class="flex items-center gap-1" draggable="true"
-                         data-pin-item="{{ $pin['route'] ?? '' }}">
-                        <span class="flex-1 min-w-0">
+                    <div class="pin-row" draggable="true" data-pin-item="{{ $pin['route'] ?? '' }}">
+                        <span class="pin-grow">
                             <x-nav-link :href="$pin['url'] ?? '#'" :label="$pin['label'] ?? ''" icon="pin" />
                         </span>
                         <button type="button" data-unpin="{{ $pin['route'] ?? '' }}" data-label="{{ $pin['label'] ?? '' }}"
-                                class="shrink-0 rounded-lg text-xs motion-standard"
-                                style="min-width: 44px; min-height: 44px; color: var(--text-muted)"
+                                class="rounded-lg motion-standard"
                                 aria-label="{{ setting('nav.trainee.unpin_aria', 'فكّ تثبيت') }} {{ $pin['label'] ?? '' }}" title="{{ setting('nav.trainee.unpin_title', 'فكّ التثبيت') }}">✕</button>
                     </div>
                 @endforeach

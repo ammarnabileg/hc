@@ -328,7 +328,7 @@
 
 {{-- لوحة منزلقة على الموبايل وعمود ثابت على الديسكتوب (13 · 2.15-ج) --}}
 <aside data-sidebar data-open="false" class="w-[248px] shrink-0" style="border-inline-end: 1px solid var(--border)">
-    <div class="sticky top-0 h-screen overflow-y-auto px-5 pt-6 pb-4 space-y-3.5">
+    <div class="side-shell sticky top-0 h-screen overflow-y-auto">
 
         {{-- الشعار في رأس السايد بار حرفيًّا من المرجع (`.brand`) --}}
         <a href="{{ Route::has('admin.dashboard') ? route('admin.dashboard') : '/' }}" class="brand nav-compact-row">
