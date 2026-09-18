@@ -118,7 +118,7 @@
 @endphp
 
 {{-- لوحة منزلقة على الموبايل وعمود ثابت على الديسكتوب (13 · 2.15-ج) --}}
-<aside data-sidebar data-open="false" class="w-[248px] shrink-0" style="border-inline-end: 1px solid var(--border)">
+<aside data-sidebar data-open="false" class="app-sidebar shrink-0" style="border-inline-end: 1px solid var(--border)">
     <div class="side-shell sticky top-0 h-screen overflow-y-auto">
 
         {{-- الشعار في رأس السايد بار حرفيًّا من المرجع (`.brand`) --}}

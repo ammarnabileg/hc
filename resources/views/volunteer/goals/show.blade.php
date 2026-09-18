@@ -111,8 +111,10 @@
                             </span>
 
                             @if ($task->deadline_at)
-                                <span class="task-card-due">
-                                    <x-icon name="calendar" size="12" />
+                                {{-- الموعد يقول حالته: متأخّر · قرب · في وقته (2.16-ب: رمزٌ مع اللون) --}}
+                                @php $due = $deadlineStates[$task->id] ?? 'idle'; @endphp
+                                <span class="task-card-due" data-due="{{ $due }}">
+                                    <span aria-hidden="true">{{ state_color($due)['icon'] ?? '' }}</span>
                                     <bdi>{{ $task->deadline_at->translatedFormat('j M · H:i') }}</bdi>
                                 </span>
                             @endif

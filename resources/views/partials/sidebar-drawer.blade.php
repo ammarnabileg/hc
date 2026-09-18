@@ -78,7 +78,16 @@
      | Flyout بموضعٍ نسبيّ سينقصّ ضمنها بدل أن يعوم فوق المحتوى).
      */
     @media (min-width: 768px) and (max-width: 1199px) {
-        [data-sidebar] { width: 80px; }
+        /*
+         | ⚠️ المُحدِّدات الثلاثة هنا **نسخةٌ من قاعدة الديسكتوب أعلاه** عمدًا: تلك
+         | تحمل `[dir="rtl"] [data-sidebar]` وأولويّتها (0,2,0)، وهذه كانت
+         | `[data-sidebar]` وحدها (0,1,0) — فتغلبها في كلّ صفحةٍ عربيّة. فبقي
+         | الشريط 248px على التابلت والوضعُ المضغوط **مكتوبٌ ولا يعمل** حيث
+         | يعمل الموقع كلّه.
+         */
+        [data-sidebar],
+        [dir="rtl"] [data-sidebar],
+        [data-sidebar][data-open="true"] { width: 80px; }
 
         [data-sidebar] [data-compact-hide],
         [data-sidebar] .nav-item-label { display: none; }
@@ -204,13 +213,35 @@
             flyout.style.insetInlineStart = edge + 'px';
         }
 
+        /*
+         | ⚠️ المجموعة التي فيها الصفحة الحاليّة تُفتَح افتراضيًّا (anyActive) — وهذا
+         | صوابٌ على الديسكتوب: بنودها تتمدّد تحتها في مكانها. أمّا في 80px فهي
+         | **Flyout عائم**، فتفتح على المحتوى لحظة تحميل الصفحة وتغطّيه بلا أن
+         | يطلبها أحد. والحالة النشطة تُقرَأ من الأيقونة أصلًا، فالفتح يبقى فعلًا
+         | يطلبه المستخدم بنقرته.
+         */
+        function closeGroups() {
+            groups.forEach(function (det) { det.open = false; });
+        }
+
+        if (isCompact()) {
+            closeGroups();
+        }
+
         groups.forEach(function (det) {
             det.addEventListener('toggle', function () { position(det); });
-            /* مفتوحةٌ افتراضيًّا لو صفحتها الحاليّة داخل المجموعة (anyActive) */
             if (det.open) position(det);
         });
 
+        var wasCompact = isCompact();
+
         window.addEventListener('resize', function () {
+            /* عبور الحدّ إلى الوضع المضغوط يُنهي أيّ فتحٍ موروثٍ من الوضع الواسع */
+            if (isCompact() && ! wasCompact) {
+                closeGroups();
+            }
+
+            wasCompact = isCompact();
             groups.forEach(position);
         });
 

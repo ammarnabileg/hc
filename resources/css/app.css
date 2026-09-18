@@ -831,6 +831,9 @@
   /* هيكل السايد بار من المرجع: حشوةٌ 28/20/16 وفجوةٌ 18 بين كتله */
   .side-shell { display: flex; flex-direction: column; gap: 18px; padding: 28px 20px 16px; }
 
+  /* عرض السايد بار الأساس — وقواعد الموبايل والتابلت في `partials/sidebar-drawer` */
+  .app-sidebar { width: 248px; }
+
   /*
    | ⭐ سلّم المقاسات من المرجع حرفيًّا: الهيكل يضيق ويتّسع مع الشاشة، والديسكتوب
    | الواسع (1200+) يعيد ضبط السايد بار إلى فجوةٍ أضيق وبطاقة بروفايلٍ أقصر —
@@ -900,7 +903,9 @@
   .goal-col-body { display: flex; flex-direction: column; gap: 8px; }
   .goal-col-empty { font-size: 12px; color: var(--muted); padding: 10px 2px; }
   /* عمودٌ بلا مهامّ لا يأخذ عرض عمودٍ عامر: يضيق فتسع اللوحة شاشةً أصغر */
-  .goal-col-vacant { min-width: 128px; flex-grow: .45; }
+  .goal-col-vacant { min-width: 108px; flex-grow: .4; }
+  .task-card-due[data-due='danger'] { color: var(--color-state-danger); font-weight: 600; }
+  .task-card-due[data-due='warn'] { color: var(--color-state-warn); font-weight: 600; }
 
   .task-card { display: flex; flex-direction: column; gap: 6px; padding: 10px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface-raised); color: var(--ink); }
   .task-card:hover { border-color: var(--brand); }

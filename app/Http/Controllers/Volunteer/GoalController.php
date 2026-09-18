@@ -136,6 +136,15 @@ class GoalController extends Controller
          | لا تفترق اللوحة عن دورة العمل لو زيدت حالة. والمنتهية (معتمدة · عدم
          | تسليم · مُغلَقة) تُطوى افتراضيًّا: تاريخٌ لا عملٌ قائم.
          */
+        /*
+         | ⭐ حالة الموعد لكلّ مهمّة من `RollupService` نفسها التي تستعملها صفحة
+         | الحزمة — فلا يفترق تعريفُ «متأخّرة» و«قربت» بين شاشتين، ونافذةُ
+         | «قربت» إعدادٌ (`goals.deadline.soon_hours`) لا رقمٌ محروق هنا.
+         */
+        $deadlineStates = $tasks->mapWithKeys(fn (Task $task) => [
+            $task->id => $this->rollup->deadlineState($task->deadline_at),
+        ]);
+
         $columns = $done = [];
 
         foreach (TaskStatus::boardColumns() as $status) {
@@ -168,6 +177,7 @@ class GoalController extends Controller
             'itemsById' => $items->keyBy('id'),
             'packagesById' => $packages->keyBy('id'),
             'columns' => $columns,
+            'deadlineStates' => $deadlineStates,
             'doneColumns' => $done,
             'doneTotal' => collect($done)->sum(fn (array $c) => $c['tasks']->count()),
             'filters' => $filters,
