@@ -29,8 +29,9 @@ class ScriptCommentsTest extends TestCase
                 continue;
             }
 
-            // تعليقات Blade تُنزَع أوّلًا: هي الصيغة الصحيحة وليست مخالفة
-            $source = (string) preg_replace('/\{\{--.*?--\}\}/s', '', $source);
+            // تعليقات Blade تُنزَع أوّلًا: هي الصيغة الصحيحة وليست مخالفة.
+            // وكتل `@php` تُنزَع أيضًا: تعليق PHP فيها يأكله المفسّر ولا يصل المتصفّح
+            $source = (string) preg_replace(['/\{\{--.*?--\}\}/s', '/@php\b.*?@endphp/s', '/<\?php.*?\?>/s'], '', $source);
 
             preg_match_all('/<script\b[^>]*>(.*?)<\/script>/s', $source, $scripts, PREG_OFFSET_CAPTURE);
 

@@ -111,6 +111,7 @@ class EventDemoSeeder extends Seeder
             ['events.show.attendance_title', 'صفحة الفعاليّة: عنوان بلوك الحضور', 'الحضور'],
             ['events.show.attended_badge', 'صفحة الفعاليّة: شارة تأكيد الحضور', 'حضورك مؤكَّد'],
             ['events.show.breadcrumb_events', 'صفحة الفعاليّة: مسار الفعاليّات (منصوص في 24.5)', 'الفعاليّات'],
+            ['events.show.range_to', 'صفحة الفعاليّة: رابط الوقت (من … إلى)', 'إلى'],
             ['events.show.breadcrumb_home', 'صفحة الفعاليّة: جذر مسار التنقّل (منصوص في 24.5)', 'الرئيسيّة'],
             ['events.show.certificate_pending', 'صفحة الفعاليّة: الشهادة لم تُصدَر بعد', 'استحقاق الشهادة اتسجّل، وهتظهر أوّل ما تُصدَر.'],
             ['events.show.certificate_ready', 'صفحة الفعاليّة: الشهادة اتفتحت', 'شهادة الحضور اتفتحت، كودها'],

@@ -140,6 +140,7 @@ class GrowthDemoSeeder extends Seeder
                 'اسأل بدري. السؤال المتأخّر بيتكلّف وقت، والسؤال البدري بيوفّره.',
             ], JSON_UNESCAPED_UNICODE), false],
             ['growth.volunteer_kit.title', 'growth', 'عنوان حزمة المحتوى', 'string', 'حزمة المحتوى', false],
+            ['growth.volunteer_kit.range_to', 'growth', 'حزمة المحتوى: رابط مدى الأسبوع (من … إلى)', 'string', 'إلى', false],
             ['growth.volunteer_kit.subtitle', 'growth', 'سطر حزمة المحتوى', 'text', 'خُد الرابط والصور والنصوص الجاهزة وانشرها.', false],
             ['growth.volunteer_kit.audiences', 'growth', 'جمهور قوالب الحزمة', 'json', '["volunteers","everyone"]', false],
             ['growth.volunteer_kit.templates_limit', 'growth', 'أقصى قوالب في الحزمة', 'number', '8', false],

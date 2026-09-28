@@ -56,6 +56,7 @@ class AdminCoreDemoSeeder extends Seeder
             ['admin.dashboard.activity_rows', 'admin_dashboard', 'صفوف سجلّ النشاطات', 'number', '10'],
             ['admin.dashboard.top_rows', 'admin_dashboard', 'صفوف جداول «أعلى 10»', 'number', '10'],
             ['admin.dashboard.title', 'admin_dashboard', 'عنوان لوحة القيادة', 'string', 'لوحة القيادة'],
+            ['admin.dashboard.range_to', 'admin_dashboard', 'لوحة القيادة: رابط المدى (من … إلى)', 'string', 'إلى'],
             ['admin.dashboard.subtitle', 'admin_dashboard', 'سطر شرح لوحة القيادة', 'string', 'حالة المنصّة والقرارات المستنّياك'],
             ['admin.dashboard.empty_message', 'admin_dashboard', 'نصّ الحالة الفارغة', 'string', 'مفيش بيانات في الفترة دي. وسّع المدى'],
             ['admin.dashboard.alert_withdraw', 'admin_dashboard', 'نصّ تنبيه السحوبات المتأخّرة', 'string', 'في :count طلب سحب فات عليه :hours ساعة'],

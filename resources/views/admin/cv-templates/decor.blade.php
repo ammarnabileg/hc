@@ -149,12 +149,12 @@
         'empty_text_placeholder' => setting('cv.template.admin.decor_js_empty_text_placeholder', '(نصّ فارغ)'),
     ];
 
-    {{--
+    /*
      | الصورة المحفوظة تصل من القاعدة كمسارٍ خامّ فقط (`path`) — ونحتاج رابطها
      | الفعليّ لعرض معاينتها في الكانفس فورًا بلا انتظار اختيارٍ جديد؛ `url`
      | هنا حقلٌ مُشتقٌّ للعرض وحده، مُستبعدٌ صراحةً من حقول الحفظ (راجع
      | FIELDS_BY_TYPE في السكربت) فلا يصل الخادم أصلًا.
-     --}}
+     */
     $initialLayers = collect($template->decorLayers())->map(function (array $layer) {
         if (($layer['type'] ?? null) === 'image' && ! empty($layer['path'])) {
             $layer['url'] = \Illuminate\Support\Facades\Storage::url($layer['path']);

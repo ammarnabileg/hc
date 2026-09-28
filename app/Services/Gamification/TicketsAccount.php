@@ -124,7 +124,7 @@ class TicketsAccount
             $end = $daily ? $start->copy() : $start->copy()->addDays(6);
 
             $buckets[] = [
-                'label' => $daily ? $start->format('j/n') : $start->format('j/n').' إلى '.$end->format('j/n'),
+                'label' => $daily ? $start->format('j/n') : $start->format('j/n').' '.setting('dashboard.tickets.range_to', 'إلى').' '.$end->format('j/n'),
                 'start' => $start->toDateString(),
                 'end' => $end->toDateString(),
                 'earned' => 0,

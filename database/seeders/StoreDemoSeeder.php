@@ -62,6 +62,7 @@ class StoreDemoSeeder extends Seeder
             ['store.filters.search_label', 'فلتر: بحث', 'string', 'بحث'],
             ['store.filters.search_placeholder', 'تلميح حقل البحث', 'string', 'اكتب اسم اللي بتدوّر عليه'],
             ['store.filters.price_range_label', 'فلتر: نطاق السعر', 'string', 'نطاق السعر'],
+            ['store.filters.range_to', 'فلتر: رابط نطاق السعر (من … إلى)', 'string', 'إلى'],
             ['store.filters.price_min_label', 'وصف منزلق أقلّ سعر', 'string', 'أقلّ سعر'],
             ['store.filters.price_max_label', 'وصف منزلق أعلى سعر', 'string', 'أعلى سعر'],
             ['store.filters.apply_label', 'زرّ تطبيق الفلاتر', 'string', 'طبّق'],

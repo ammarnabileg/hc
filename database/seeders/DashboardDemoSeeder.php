@@ -68,6 +68,7 @@ class DashboardDemoSeeder extends Seeder
             ['dashboard.stats.range_options', 'dashboard', 'خيارات فلتر الفترة في الإحصائيّات', 'json', '[7,30]'],
             ['dashboard.heatmap.weeks', 'dashboard', 'عدد أسابيع خريطة الحضور', 'number', '12'],
             ['dashboard.tickets.daily_max_days', 'dashboard', 'أقصى مدى تُعرَض فيه بارات التذاكر يوميًّا', 'number', '7'],
+            ['dashboard.tickets.range_to', 'dashboard', 'بارات التذاكر: رابط مدى الأسبوع (من … إلى)', 'string', 'إلى'],
             ['dashboard.achievements.radar_max_level', 'dashboard', 'سقف الرادار المعروض (مستوى)', 'number', '6'],
             // عتبات مسارات الإنجاز الخمسة (10.1): الزيادة = base + (N−2) × step
             ['dashboard.achievements.account.base', 'dashboard', 'عتبة مستوى الحساب: الأساس (XP)', 'number', '500'],
