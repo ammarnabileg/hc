@@ -217,8 +217,13 @@
                         <details class="mt-3">
                             <summary class="text-xs cursor-pointer" style="color: var(--text-muted)">{{ setting('admin.courses.index.tfasyl_aktr', 'تفاصيل أكتر') }}</summary>
                             <div class="mt-2 text-sm space-y-1">
-                                <div>{{ setting('admin.courses.index.asm_alshhada_2', 'اسم الشهادة:') }} {{ $course->cert_name_ar ?: '—' }}</div>
-                                <div>{{ setting('admin.courses.index.almsarat', 'المسارات:') }} {{ implode('، ', $pathNames[$course->id] ?? []) ?: '—' }}</div>
+                                {{-- السطر يُكتب حين تكون له قيمة؛ «اسم الشهادة: —» عنوانٌ يتبعه لا شيء --}}
+                                @if ($course->cert_name_ar)
+                                    <div>{{ setting('admin.courses.index.asm_alshhada_2', 'اسم الشهادة:') }} {{ $course->cert_name_ar }}</div>
+                                @endif
+                                @if (! empty($pathNames[$course->id]))
+                                    <div>{{ setting('admin.courses.index.almsarat', 'المسارات:') }} {{ implode('، ', $pathNames[$course->id]) }}</div>
+                                @endif
                                 <div>{{ $counts['sections'][$course->id] ?? 0 }} {!! strtr(setting('admin.courses.index.sykshn_v1_drs', 'سيكشن · :v1 درس'), [':v1' => e($counts['lessons'][$course->id] ?? 0)]) !!}</div>
                                 @can('courses.edit')
                                     <a href="{{ route('admin.courses.edit', $course) }}" class="underline block mt-2">{{ setting('admin.courses.index.tadyl', 'تعديل') }}</a>
