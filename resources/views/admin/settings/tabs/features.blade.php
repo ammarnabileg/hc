@@ -120,7 +120,7 @@
         <option value="partial" @selected($filters['status'] === 'partial')>{{ setting('features.ui.status.partial', 'جزئيّ') }}</option>
     </select>
 
-    <button class="rounded-xl px-4 py-2 text-sm" style="background: var(--surface-raised)">{{ setting('features.ui.filter_apply', 'فلترة') }}</button>
+    <button class="btn btn-g rounded-xl px-4 py-2 text-sm">{{ setting('features.ui.filter_apply', 'فلترة') }}</button>
 </form>
 
 {{-- نصوص السكربت وروابطه — من `setting()` لا من حروفٍ داخل الجافاسكربت (2.13) --}}

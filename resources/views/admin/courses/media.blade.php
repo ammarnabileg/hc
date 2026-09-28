@@ -46,7 +46,7 @@
                 @endforeach
             </select>
         </label>
-        <button class="btn rounded-xl px-4 py-2 text-sm" style="background: var(--surface-raised)">{{ setting('admin.courses.media.tsfya', 'تصفية') }}</button>
+        <button class="btn btn-g rounded-xl px-4 py-2 text-sm">{{ setting('admin.courses.media.tsfya', 'تصفية') }}</button>
 
         <x-slot:advanced>
             <label class="block">

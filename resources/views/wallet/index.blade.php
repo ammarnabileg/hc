@@ -81,7 +81,8 @@
         </div>
         <div class="stack" style="gap: 12px">
             @can('topup.create')
-                <a href="{{ route('wallet.topup') }}" class="btn btn-p inline-flex items-center gap-2">
+                {{-- الفعل الأساسيّ الواحد في رأس الصفحة؛ زرّ البطاقة نسخةٌ في متناول اليد لا أحمر ثانٍ --}}
+                <a href="{{ route('wallet.topup') }}" class="btn btn-g inline-flex items-center gap-2">
                     <x-icon name="wallet" size="16" /> {{ setting('wallet.index.topup_action', 'اشحن رصيدك') }}
                 </a>
             @endcan

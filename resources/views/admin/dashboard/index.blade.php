@@ -91,8 +91,7 @@
             <span>{{ setting('admin.dashboard.index.mqarna_balftra_alsabqa', 'مقارنة بالفترة السابقة') }}</span>
         </label>
 
-        <button class="btn rounded-xl px-4 py-2 text-sm font-semibold"
-                style="background: var(--color-brand-500); color: #04201c; min-height: 44px">{{ setting('admin.dashboard.index.tbq', 'طبّق') }}</button>
+        <button class="btn btn-g rounded-xl px-4 py-2 text-sm font-semibold" style="min-height: 44px">{{ setting('admin.dashboard.index.tbq', 'طبّق') }}</button>
 
         <div class="flex flex-wrap items-center gap-2 basis-full">
             @foreach ($quickRanges as $range)

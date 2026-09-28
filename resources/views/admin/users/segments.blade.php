@@ -71,7 +71,7 @@
             </select>
         </label>
 
-        <button class="btn rounded-xl px-4 py-2 text-sm" style="background: var(--surface-raised)">{{ setting('admin.users.segments.tsfya', 'تصفية') }}</button>
+        <button class="btn btn-g rounded-xl px-4 py-2 text-sm">{{ setting('admin.users.segments.tsfya', 'تصفية') }}</button>
     </x-filters>
 
     {{-- ⭐ المعاينة اللحظيّة: العدد + عيّنة أعضاء (عددها إعداد) — 12.13 --}}

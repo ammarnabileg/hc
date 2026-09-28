@@ -216,7 +216,7 @@
         <input type="checkbox" name="cusers" value="1" @checked($filters['with_users'])> {{ setting('admin.settings.tabs.countries.fyha_mstkhdmwn', 'فيها مستخدمون') }}
     </label>
 
-    <button class="rounded-xl px-4 py-2 text-sm" style="background: var(--surface-raised)">{{ setting('admin.settings.tabs.countries.tsfya', 'تصفية') }}</button>
+    <button class="btn btn-g rounded-xl px-4 py-2 text-sm">{{ setting('admin.settings.tabs.countries.tsfya', 'تصفية') }}</button>
 </form>
 
 @if ($rows->isEmpty())

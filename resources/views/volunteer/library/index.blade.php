@@ -157,14 +157,12 @@
                                     @csrf
                                     <input type="text" name="reason" placeholder="{{ setting('volunteer.library.placeholder_2', 'سبب (اختياريّ)') }}" class="rounded-xl px-3 py-2 text-xs"
                                            style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
-                                    <button type="submit" class="btn rounded-xl px-3 py-2 text-sm font-semibold"
-                                            style="background: var(--color-brand-500); color: #04201c">{{ setting('volunteer.library.action', 'اطلب وصولًا') }}</button>
+                                    <button type="submit" class="btn btn-g rounded-xl px-3 py-2 text-sm font-semibold">{{ setting('volunteer.library.action', 'اطلب وصولًا') }}</button>
                                 </form>
                             @endif
                         @else
                             <a href="{{ route('volunteer.library.show', $item) }}"
-                               class="btn rounded-xl px-3 py-2 text-sm font-semibold"
-                               style="background: var(--color-brand-500); color: #04201c">{{ setting('volunteer.library.link', 'افتح') }}</a>
+                               class="btn btn-g rounded-xl px-3 py-2 text-sm font-semibold">{{ setting('volunteer.library.link', 'افتح') }}</a>
                             @if ($item->task_id)
                                 <span class="text-xs self-center" style="color: var(--text-muted)">{{ setting('volunteer.library.field_5', 'المهمّة المصدر #') }}{{ $item->task_id }}</span>
                             @endif

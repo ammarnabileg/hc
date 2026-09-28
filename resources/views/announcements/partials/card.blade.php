@@ -72,8 +72,7 @@
 
     @if ($announcement->cta_url)
         <a href="{{ $announcement->cta_url }}" target="_blank" rel="noopener"
-           class="btn inline-flex items-center rounded-xl px-4 py-2 text-sm font-semibold mt-3 motion-standard"
-           style="background: var(--color-brand-500); color: #04201c">{{ $announcement->cta_label ?: (string) setting('announcements.card.expr_1', 'افتح') }}</a>
+           class="btn btn-g inline-flex items-center rounded-xl px-4 py-2 text-sm font-semibold mt-3 motion-standard">{{ $announcement->cta_label ?: (string) setting('announcements.card.expr_1', 'افتح') }}</a>
     @endif
 
     {{--

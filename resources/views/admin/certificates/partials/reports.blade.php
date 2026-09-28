@@ -30,7 +30,7 @@
         </select>
     </label>
 
-    <button class="btn rounded-xl px-4 py-2 text-sm" style="background: var(--surface-raised)">
+    <button class="btn btn-g rounded-xl px-4 py-2 text-sm">
         {{ setting('certificates.reports.filter_button', 'تصفية') }}
     </button>
 </x-filters>

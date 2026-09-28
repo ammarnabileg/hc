@@ -68,7 +68,7 @@
                 <option value="archived" @selected($filters['status'] === 'archived')>{{ setting('admin.guidance.help.mwrshf', 'مؤرشف') }}</option>
             </select>
         </label>
-        <button class="btn rounded-xl px-4 py-2 text-sm" style="background: var(--surface-raised)">{{ setting('admin.guidance.help.tsfya', 'تصفية') }}</button>
+        <button class="btn btn-g rounded-xl px-4 py-2 text-sm">{{ setting('admin.guidance.help.tsfya', 'تصفية') }}</button>
     </x-filters>
 
     @if ($articles->isEmpty())

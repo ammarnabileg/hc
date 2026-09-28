@@ -35,8 +35,7 @@
             </label>
         @endif
 
-        <button type="submit" class="btn rounded-xl px-5 py-2 text-sm font-semibold motion-standard"
-                style="background: var(--color-brand-500); color: #04201c">{{ setting('articles.index.text_4', 'بحث') }}</button>
+        <button type="submit" class="btn btn-g rounded-xl px-5 py-2 text-sm font-semibold motion-standard">{{ setting('articles.index.text_4', 'بحث') }}</button>
     </form>
 
     @if ($articles->isEmpty())
