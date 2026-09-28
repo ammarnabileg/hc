@@ -348,10 +348,10 @@
                 modal.classList.add('flex');
             };
 
-            /*
+            {{--
              | بوب-أب واحد لكلّ فعل، ومسارُه يتبدّل بزرّ الصفّ — لا بوب-أب لكلّ
              | صفّ: صفحةٌ فيها عشرون اجتماعًا تصير مئةَ نسخةٍ من نفس الفورم.
-             */
+             --}}
             const bind = (selector, formSelector, modalId, fill) => {
                 const form = document.querySelector(formSelector);
                 document.querySelectorAll(selector).forEach((btn) => {

@@ -218,7 +218,7 @@
 
         <script>
             const HC_MEDIA_TEXT = @json($jsText);
-            /* نسخ المسار بضغطة — ردّ فوريّ لكلّ فعل (2.17-ب) */
+            {{-- نسخ المسار بضغطة — ردّ فوريّ لكلّ فعل (2.17-ب) --}}
             document.querySelectorAll('[data-copy]').forEach((input) => {
                 input.addEventListener('click', () => {
                     input.select();

@@ -293,7 +293,7 @@
 
 <script>
     const T = @json($jsText);
-/*
+{{--
  | ⭐ محرّر السحب-إفلات (12.14 — نفس محرّك 12.5-ب بكلّ إمكاناته): كانفس حقيقيّ
  | بإحداثيّات X/Y بالسحب وشبكة محاذاة (Snap)، بجافاسكربت خام بلا أيّ مكتبة
  | خارجيّة — تمامًا كمصمّم قوالب الشهادات (12.5-ب). والفرق الوحيد المتعمَّد:
@@ -305,7 +305,7 @@
  | الرقميّ يرسلها — فمتحكّم الاستوديو (`ImageStudioController::validated`)
  | ومنظّف الطبقات (`TemplateLayers::sanitize`) لا يتغيّر فيهما سطرٌ واحد؛
  | الترقية كلّها في واجهة التحرير لا في الخادم (2.13 · صفر مخاطرة على منطقٍ قائم).
- */
+ --}}
 (function () {
     var allowed = @json($allowedFields);
     var canvas = document.getElementById('studio-canvas');
@@ -337,7 +337,7 @@
         return html;
     }
 
-    /* ------------------------------------------------------ الرسم على الكانفس */
+    {{-- ------------------------------------------------------ الرسم على الكانفس --}}
     function render() {
         canvas.querySelectorAll('[data-studio-layer]').forEach(function (el) { el.remove(); });
         var scale = canvas.clientWidth / TEMPLATE_W;
@@ -381,7 +381,7 @@
         syncHiddenInputs();
     }
 
-    /* «نصّ ثابت + الحقل» — نفس منطق الخادم (App\Services\Certificates\GdEngine::layerValue) */
+    {{-- «نصّ ثابت + الحقل» — نفس منطق الخادم (App\Services\Certificates\GdEngine::layerValue) --}}
     function valueOf(layer) {
         if (!layer.field) { return layer.text || ''; }
         var stat = layer.text || '';
@@ -389,7 +389,7 @@
         return (stat + (stat && label ? ' ' : '') + label).trim();
     }
 
-    /* ------------------------------------------------------- لوحة الطبقات */
+    {{-- ------------------------------------------------------- لوحة الطبقات --}}
     function renderPanel() {
         if (!canvasPanel) { return; }
         canvasPanel.innerHTML = '';
@@ -432,7 +432,7 @@
         return btn;
     }
 
-    /* الترتيب هو ترتيب المصفوفة نفسه — نفس دلالة TemplateLayers::move() بالضبط */
+    {{-- الترتيب هو ترتيب المصفوفة نفسه — نفس دلالة TemplateLayers::move() بالضبط --}}
     function moveIndex(from, to) {
         if (to < 0 || to >= layers.length) { return; }
         if (layers[from].locked || layers[to].locked) { return; }
@@ -442,7 +442,7 @@
         render();
     }
 
-    /* ------------------------------------------------------------ الخصائص */
+    {{-- ------------------------------------------------------------ الخصائص --}}
     function schemaFor(layer) {
         if (layer.type === 'avatar') {
             return [
@@ -532,7 +532,7 @@
         render();
     });
 
-    /* -------------------------------------------------------- إضافة طبقة */
+    {{-- -------------------------------------------------------- إضافة طبقة --}}
     document.querySelectorAll('[data-studio-add]').forEach(function (btn) {
         btn.addEventListener('click', function () {
             var kind = btn.getAttribute('data-studio-add');
@@ -545,7 +545,7 @@
         });
     });
 
-    /* -------------------------------------------- السحب الحرّ + Snap (بكسل) */
+    {{-- -------------------------------------------- السحب الحرّ + Snap (بكسل) --}}
     var dragging = null;
 
     canvas.addEventListener('pointerdown', function (e) {
@@ -588,9 +588,9 @@
 
     grid && grid.classList.toggle('hidden', !snap);
 
-    /* --------------------------------------------------------- الحفظ */
-    /* ⭐ نفس حقول `layers[i][key]` المخفيّة التي كان النموذج الرقميّ يرسلها —
-       فمتحكّم الاستوديو لا يتغيّر فيه سطرٌ واحد (2.13). */
+    {{-- --------------------------------------------------------- الحفظ --}}
+    {{-- ⭐ نفس حقول `layers[i][key]` المخفيّة التي كان النموذج الرقميّ يرسلها —
+       فمتحكّم الاستوديو لا يتغيّر فيه سطرٌ واحد (2.13). --}}
     function syncHiddenInputs() {
         if (!hiddenBox) { return; }
         hiddenBox.innerHTML = '';

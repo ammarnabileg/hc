@@ -65,7 +65,7 @@
 
 @push('scripts')
     <script>
-        /* سحب الكروت للترتيب — JS خام بلا أيّ مكتبة خارجيّة (دليل البناء §4) */
+        {{-- سحب الكروت للترتيب — JS خام بلا أيّ مكتبة خارجيّة (دليل البناء §4) --}}
         (function () {
             const list = document.querySelector('[data-layout-list]');
             if (!list) return;

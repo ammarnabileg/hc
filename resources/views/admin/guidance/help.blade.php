@@ -243,7 +243,7 @@
 
     @push('scripts')
         <script>
-            /* تعبئة فورم الدليل من زرّ التعديل — بلا صفحة جديدة (2.15-أ-6) */
+            {{-- تعبئة فورم الدليل من زرّ التعديل — بلا صفحة جديدة (2.15-أ-6) --}}
             const articleForm = document.querySelector('[data-article-form]');
             const articleStoreUrl = @json(route('admin.guidance.help.store'));
 

@@ -94,7 +94,7 @@
 
     <script>
         const HC_SECURITY_TEXT = @json($jsText);
-        /* نسخ رابط تغيير كلمة السرّ — وردّ فوريّ على الزرّ (2.17-أ) */
+        {{-- نسخ رابط تغيير كلمة السرّ — وردّ فوريّ على الزرّ (2.17-أ) --}}
         (function () {
             const field = document.querySelector('[data-copy-source]');
             const button = document.querySelector('[data-copy-button]');

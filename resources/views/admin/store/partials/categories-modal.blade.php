@@ -106,7 +106,7 @@
             ];
         @endphp
         <script>
-            /* فورم واحد يتبدّل بين إضافة وتعديل تصنيف — بلا مودال ثانٍ (نمط paths.blade.php) */
+            {{-- فورم واحد يتبدّل بين إضافة وتعديل تصنيف — بلا مودال ثانٍ (نمط paths.blade.php) --}}
             (function () {
                 const HC_CATEGORY_TEXT = @json($categoryFormText);
                 const form = document.querySelector('[data-category-form]');

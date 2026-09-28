@@ -158,8 +158,8 @@
     @endphp
 
     <script>
-        /* كانبان بالسحب: الإفلات ينقل لصفحة المهمّة على الفعل الصحيح،
-           لأنّ تغيير الحالة يمرّ بأفعالها المعتمدة (تسليم/تعثّر) لا بسحبٍ صامت. */
+        {{-- كانبان بالسحب: الإفلات ينقل لصفحة المهمّة على الفعل الصحيح،
+           لأنّ تغيير الحالة يمرّ بأفعالها المعتمدة (تسليم/تعثّر) لا بسحبٍ صامت. --}}
         document.querySelectorAll('[data-kanban] [data-task-card]').forEach((card) => {
             card.addEventListener('dragstart', (e) => e.dataTransfer.setData('text/plain', card.dataset.taskCard));
         });
@@ -179,8 +179,8 @@
             });
         });
 
-        /* الإسناد المباشر لا يخترق السقف بصمت: تحذير إلزاميّ يظهر لحظة اختيار
-           عضوٍ تجاوز سقف دوره — بلا منع الإسناد (23-3.1). */
+        {{-- الإسناد المباشر لا يخترق السقف بصمت: تحذير إلزاميّ يظهر لحظة اختيار
+           عضوٍ تجاوز سقف دوره — بلا منع الإسناد (23-3.1). --}}
         (function () {
             const select = document.getElementById('new-task-owner');
             const warning = document.getElementById('new-task-owner-warning');

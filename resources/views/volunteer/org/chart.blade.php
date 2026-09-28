@@ -111,10 +111,10 @@
 
 <script>
 const T = @json($jsText);
-/* -----------------------------------------------------------------
+{{-- -----------------------------------------------------------------
  | كانفاس الهيكل التنظيميّ (13.4-م-3) — JS خام بلا أيّ مكتبة رسم.
  | الخطوط منحنية ناعمة وتتحرّك مع السحب، والمواضع تُحفَظ لكلّ مستخدم.
- ----------------------------------------------------------------- */
+ ----------------------------------------------------------------- --}}
 (() => {
     const DATA = @json($chart);
     const NODE_URL = @json(url('/volunteer/org/node'));
@@ -355,7 +355,7 @@ const T = @json($jsText);
         if (!drag) return;
         if (drag.moved) {
             saved[drag.id] = pos[drag.id];
-            try { localStorage.setItem(STORE, JSON.stringify(saved)); } catch (e) { /* التخزين المحليّ اختياريّ */ }
+            try { localStorage.setItem(STORE, JSON.stringify(saved)); } catch (e) { {{-- التخزين المحليّ اختياريّ --}} }
         } else {
             openNode(drag.id);
         }
@@ -402,7 +402,7 @@ const T = @json($jsText);
     });
     document.querySelector('[data-org="relayout"]')?.addEventListener('click', () => {
         saved = {};
-        try { localStorage.removeItem(STORE); } catch (e) { /* لا يضرّ */ }
+        try { localStorage.removeItem(STORE); } catch (e) { {{-- لا يضرّ --}} }
         layout();
         if (DATA.me) centerOn(DATA.me);
     });
@@ -436,7 +436,7 @@ const T = @json($jsText);
         try {
             best = Math.max(parseInt(localStorage.getItem(STORE + '.best') || '0', 10) || 0, DATA.network_total);
             localStorage.setItem(STORE + '.best', String(best));
-        } catch (e) { /* التخزين المحليّ اختياريّ */ }
+        } catch (e) { {{-- التخزين المحليّ اختياريّ --}} }
         bestEl.textContent = best.toLocaleString('ar-EG');
     }
 

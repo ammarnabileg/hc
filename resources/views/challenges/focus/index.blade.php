@@ -209,7 +209,7 @@
     @if ($sessions->isNotEmpty())
         @push('scripts')
             <script>
-                /*
+                {{--
                  | عدّاد حرب التركيز (15.3).
                  |
                  | ⭐ **السلطة للخادم لا للمتصفّح:** لا عدَّ تنازليًّا متراكمًا هنا — كلّ
@@ -221,7 +221,7 @@
                  |
                  | و**النصّ الصحيح مرسوم من الخادم أصلًا** (2.17-أ)، فلو تعطّل السكربت
                  | بقي الرقم صحيحًا لحظة الفتح ولا يعلق العدّاد فارغًا أبدًا.
-                 */
+                 --}}
                 (function () {
                     const cards = document.querySelectorAll('[data-focus-timer]');
                     if (!cards.length) return;
@@ -279,7 +279,7 @@
                         let finished = false;
 
                         cards.forEach((card) => {
-                            try { finished = render(card) || finished; } catch (e) { /* نصّ الخادم يبقى كما هو */ }
+                            try { finished = render(card) || finished; } catch (e) { {{-- نصّ الخادم يبقى كما هو --}} }
                         });
 
                         if (finished) settle();

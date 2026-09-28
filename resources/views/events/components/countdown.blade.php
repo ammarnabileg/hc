@@ -87,7 +87,7 @@
                     el.textContent = units.remaining.split(':parts').join(parts.join(units.joiner));
                 };
 
-                const tick = () => nodes.forEach((el) => { try { render(el); } catch (e) { /* نصّ الخادم يبقى كما هو */ } });
+                const tick = () => nodes.forEach((el) => { try { render(el); } catch (e) { {{-- نصّ الخادم يبقى كما هو --}} } });
                 tick();
                 setInterval(tick, 1000);
             })();

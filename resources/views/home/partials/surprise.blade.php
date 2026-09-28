@@ -99,7 +99,7 @@
 @push('scripts')
     <script>
         (() => {
-            /* سهم العودة لأعلى + التكديس الانسيابيّ فوقه (2.6-أ/ج) */
+            {{-- سهم العودة لأعلى + التكديس الانسيابيّ فوقه (2.6-أ/ج) --}}
             const top = document.querySelector('[data-back-to-top]');
             if (top) {
                 const threshold = Number({{ (int) setting('ux.back_to_top.after_px', 320) }}) || 320;
@@ -109,7 +109,7 @@
                 sync();
             }
 
-            /* الظرف: فتح/إغلاق بضغطة أو ESC — لا يعطّل المستخدم أبدًا (2.14-ب) */
+            {{-- الظرف: فتح/إغلاق بضغطة أو ESC — لا يعطّل المستخدم أبدًا (2.14-ب) --}}
             const modal = document.querySelector('[data-surprise-modal]');
             if (!modal) return;
 
@@ -121,8 +121,8 @@
                 modal.classList.remove('hidden');
                 modal.classList.add('flex');
 
-                /* الغطاء (flap · 700ms) ثمّ الرسالة (letter · 900ms بتأخير 200ms
-                   داخل الحركة نفسها — 2.10.1-27) — تُعاد الصفوف كلّ فتحة */
+                {{-- الغطاء (flap · 700ms) ثمّ الرسالة (letter · 900ms بتأخير 200ms
+                   داخل الحركة نفسها — 2.10.1-27) — تُعاد الصفوف كلّ فتحة --}}
                 flap?.classList.add('animate-flap');
                 letter?.classList.add('animate-letter');
 

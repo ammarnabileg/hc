@@ -107,7 +107,7 @@
     </div>
 
     <script>
-    /* مشاركة البطاقة — كلّ بطاقة تُنشَر قناة اكتساب (21.1) */
+    {{-- مشاركة البطاقة — كلّ بطاقة تُنشَر قناة اكتساب (21.1) --}}
     document.querySelector('[data-card-share]')?.addEventListener('click', async (e) => {
         const url = e.currentTarget.dataset.cardShare;
         const done = (msg) => { e.currentTarget.textContent = msg; setTimeout(() => { e.currentTarget.textContent = @json($hcWords['volunteer_card.show.js_1']); }, 2000); };

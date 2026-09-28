@@ -192,7 +192,7 @@
 
 @push('scripts')
 <script>
-/* القارئ المحميّ (20.3): كلّ صفحة صورةٌ تُطلَب لحظتها من الخادم بجلسة المالك. */
+{{-- القارئ المحميّ (20.3): كلّ صفحة صورةٌ تُطلَب لحظتها من الخادم بجلسة المالك. --}}
 (function () {
     const reader = document.querySelector('[data-reader]');
     if (!reader) return;
@@ -281,7 +281,7 @@
         reader.requestFullscreen?.().catch(() => {});
     });
 
-    /* الفهرس: القفز لصفحة الفصل، وتمييز الفصل الحاليّ بنصّ لا بلون وحده (2.16) */
+    {{-- الفهرس: القفز لصفحة الفصل، وتمييز الفصل الحاليّ بنصّ لا بلون وحده (2.16) --}}
     const tocEntries = Array.from(reader.querySelectorAll('[data-toc-entry]'));
     tocEntries.forEach((btn) => btn.addEventListener('click', () => {
         const page = parseInt(btn.dataset.tocEntry, 10);
@@ -301,7 +301,7 @@
         });
     }
 
-    /* بحثٌ واحد يفلتر الفهرس بالعنوان والمصغّرات برقم الصفحة معًا */
+    {{-- بحثٌ واحد يفلتر الفهرس بالعنوان والمصغّرات برقم الصفحة معًا --}}
     reader.querySelector('[data-toc-search]').addEventListener('input', (e) => {
         const wanted = e.target.value.trim();
         thumbs.querySelectorAll('[data-thumb]').forEach((t) => {
@@ -315,14 +315,14 @@
         });
     });
 
-    /* التقليب بالكيبورد — والاتّجاه معكوس لأنّ الواجهة RTL (2.17-د) */
+    {{-- التقليب بالكيبورد — والاتّجاه معكوس لأنّ الواجهة RTL (2.17-د) --}}
     document.addEventListener('keydown', (e) => {
         if (e.target.matches('input, textarea')) return;
         if (e.key === 'ArrowLeft') show(current + 1, 'next');
         if (e.key === 'ArrowRight') show(current - 1, 'prev');
     });
 
-    /* ردعٌ إضافيّ: لا قائمة سياق ولا سحب للصورة — والحماية الحقيقيّة في الخادم */
+    {{-- ردعٌ إضافيّ: لا قائمة سياق ولا سحب للصورة — والحماية الحقيقيّة في الخادم --}}
     stage.addEventListener('contextmenu', (e) => e.preventDefault());
     image.addEventListener('dragstart', (e) => e.preventDefault());
 

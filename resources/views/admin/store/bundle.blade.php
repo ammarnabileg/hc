@@ -427,10 +427,10 @@
             }
         })();
 
-        /*
+        {{--
          | ↺ «رجّع للموروث» — **يمسح** الحقل ولا يكتب الافتراضيّ فيه. والفارغ لا
          | يُخزَّن على الخادم، فيعود المفتاح غائبًا = وراثةٌ حيّة تتبع النصّ العامّ.
-         */
+         --}}
         document.querySelectorAll('[data-revert-field]').forEach(function (btn) {
             btn.addEventListener('click', function () {
                 var field = document.querySelector('[data-landing-text="' + btn.dataset.revertField + '"]');

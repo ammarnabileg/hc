@@ -99,6 +99,7 @@ class EventDemoSeeder extends Seeder
             ['events.index.title', 'القائمة: العنوان (منصوص في 24.5)', 'الفعاليّات'],
             ['events.index.view_calendar', 'القائمة: مبدّل العرض: تقويم', 'تقويم'],
             ['events.index.view_calendar_aria', 'القائمة: مبدّل التقويم لقارئ الشاشة', 'عرض تقويم'],
+            ['events.index.view_aria', 'القائمة: وصف مبدّل العرض', 'طريقة العرض'],
             ['events.index.view_cards', 'القائمة: مبدّل العرض: كروت', 'كروت'],
             ['events.index.view_cards_aria', 'القائمة: مبدّل الكروت لقارئ الشاشة', 'عرض كروت'],
             ['events.show.add_to_calendar', 'صفحة الفعاليّة: رابط إضافة الموعد للتقويم', 'أضِف لتقويمي'],

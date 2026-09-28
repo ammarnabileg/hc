@@ -144,7 +144,7 @@
             var outputBox = document.getElementById('terminal-output');
             var metaBox = document.getElementById('terminal-meta');
 
-            /** يُضيف صفًّا جديدًا أعلى جدول السجلّ فورًا — بلا إعادة تحميل الصفحة (يفقد المخرَجات المعروضة للتوّ) */
+            {{--* يُضيف صفًّا جديدًا أعلى جدول السجلّ فورًا — بلا إعادة تحميل الصفحة (يفقد المخرَجات المعروضة للتوّ) --}}
             function prependLogRow(command, exitCode, durationMs, output) {
                 var emptyBox = document.getElementById('terminal-log-empty');
                 var wrap = document.getElementById('terminal-log-wrap');

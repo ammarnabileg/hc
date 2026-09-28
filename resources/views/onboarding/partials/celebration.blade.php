@@ -121,7 +121,7 @@
         const box = document.querySelector('[data-onboarding-celebration]');
         if (!box) return;
 
-        /* المشاركة: واجهة النظام أوّلًا، والحافظة تراجعًا — وردٌّ فوريّ في الزرّ (2.17-ب) */
+        {{-- المشاركة: واجهة النظام أوّلًا، والحافظة تراجعًا — وردٌّ فوريّ في الزرّ (2.17-ب) --}}
         const share = box.querySelector('[data-onboarding-share]');
         if (share) {
             share.addEventListener('click', async () => {
@@ -141,7 +141,7 @@
             });
         }
 
-        /* «قابلة للتخطّي بضغطة أو ESC، وتنتهي تلقائيًّا خلال ثوانٍ» (2.14-ب) */
+        {{-- «قابلة للتخطّي بضغطة أو ESC، وتنتهي تلقائيًّا خلال ثوانٍ» (2.14-ب) --}}
         const close = () => box.remove();
         box.addEventListener('click', (e) => {
             if (e.target === box || e.target.closest('[data-onboarding-celebration-close]')) close();

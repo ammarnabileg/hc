@@ -32,7 +32,7 @@
                     field.style.opacity = '0';
                     document.body.appendChild(field);
                     field.select();
-                    try { document.execCommand('copy'); } catch (err) { /* المستخدم ينسخ يدويًّا */ }
+                    try { document.execCommand('copy'); } catch (err) { {{-- المستخدم ينسخ يدويًّا --}} }
                     document.body.removeChild(field);
                 };
 
@@ -43,7 +43,7 @@
 
                 // ردّ فوريّ لكلّ فعل (2.17-ب)
                 label.textContent = btn.dataset.copyDone;
-                if (navigator.vibrate) { try { navigator.vibrate(10); } catch (err) { /* بلا اهتزاز */ } }
+                if (navigator.vibrate) { try { navigator.vibrate(10); } catch (err) { {{-- بلا اهتزاز --}} } }
                 setTimeout(() => { label.textContent = original; }, 1800);
             });
         </script>

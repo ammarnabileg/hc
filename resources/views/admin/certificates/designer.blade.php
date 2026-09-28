@@ -229,12 +229,12 @@
 
         <script>
             const HC_DESIGNER_TEXT = @json($jsText);
-            /* =================================================================
+            {{-- =================================================================
              | مصمّم القوالب — JS خام (12.5-ب).
              |
              | الوحدات: X/Y كسور 0…1 · حجم الخطّ بكسل على عرض 1754 —
              | نفس وحدات الراسم على الخادم، فالمعاينة = الشهادة الصادرة.
-             ================================================================= */
+             ================================================================= --}}
             (function () {
                 const canvas = document.getElementById('designer-canvas');
                 if (!canvas) return;
@@ -255,7 +255,7 @@
                 const note = document.querySelector('[data-save-note]');
                 const grid = canvas.querySelector('[data-grid]');
 
-                /* ------------------------------------------------------ الرسم */
+                {{-- ------------------------------------------------------ الرسم --}}
                 function render() {
                     canvas.querySelectorAll('[data-layer]').forEach((el) => el.remove());
                     const scale = canvas.clientWidth / REFERENCE;
@@ -303,7 +303,7 @@
                     renderPanel();
                 }
 
-                /* «نصّ ثابت + الحقل» — نفس منطق الخادم بالضبط */
+                {{-- «نصّ ثابت + الحقل» — نفس منطق الخادم بالضبط --}}
                 function valueOf(layer) {
                     const dynamic = layer.field ? (SAMPLE[layer.field] ?? '') : '';
                     if (layer.field && dynamic === '') return '';
@@ -311,7 +311,7 @@
                     return `${stat}${stat && dynamic ? ' ' : ''}${dynamic}`.trim();
                 }
 
-                /* ------------------------------------------- لوحة الطبقات */
+                {{-- ------------------------------------------- لوحة الطبقات --}}
                 function renderPanel() {
                     if (!panel) return;
                     panel.innerHTML = '';
@@ -368,7 +368,7 @@
                     render();
                 }
 
-                /* ------------------------------------------------ الخصائص */
+                {{-- ------------------------------------------------ الخصائص --}}
                 function select(id) {
                     selectedId = id;
                     const layer = layers.find((l) => l.id === id);
@@ -408,7 +408,7 @@
                     render();
                 });
 
-                /* -------------------------------------------- إضافة طبقة */
+                {{-- -------------------------------------------- إضافة طبقة --}}
                 document.querySelectorAll('[data-add]').forEach((btn) => {
                     btn.addEventListener('click', () => {
                         const kind = btn.dataset.add;
@@ -438,7 +438,7 @@
                     });
                 });
 
-                /* ------------------------------------- السحب الحرّ + Snap */
+                {{-- ------------------------------------- السحب الحرّ + Snap --}}
                 let dragging = null;
 
                 canvas.addEventListener('pointerdown', (e) => {
@@ -481,7 +481,7 @@
 
                 grid?.classList.toggle('hidden', !snap);
 
-                /* ----------------------------------------------- الحفظ */
+                {{-- ----------------------------------------------- الحفظ --}}
                 document.querySelector('[data-save]')?.addEventListener('click', () => {
                     fetch(SAVE_URL, {
                         method: 'POST',

@@ -13,10 +13,10 @@
 
         <script>
             const HC_SORT_TEXT = @json($jsText);
-            /* -----------------------------------------------------------------
+            {{-- -----------------------------------------------------------------
              | سحب الصفوف للترتيب — JS خام بلا أيّ مكتبة خارجيّة (دليل البناء).
              | وفشل الحفظ يسترجع الترتيب السابق فلا يكذب على المستخدم (24.1).
-             ----------------------------------------------------------------- */
+             ----------------------------------------------------------------- --}}
             document.querySelectorAll('[data-sortable]').forEach((list) => {
                 let dragged = null;
                 const before = () => [...list.querySelectorAll('[data-sort-id]')].map((el) => el.dataset.sortId);
@@ -44,7 +44,7 @@
                     });
                 });
 
-                /* الموبايل: أزرار «فوق/تحت» بدل السحب — اللمس لا يحتمل السحب الدقيق (2.15-ج) */
+                {{-- الموبايل: أزرار «فوق/تحت» بدل السحب — اللمس لا يحتمل السحب الدقيق (2.15-ج) --}}
                 list.querySelectorAll('[data-sort-up], [data-sort-down]').forEach((btn) => {
                     btn.addEventListener('click', () => {
                         const row = btn.closest('[data-sort-id]');
@@ -78,7 +78,7 @@
                             window.hcToast?.(HC_SORT_TEXT.saved);
                         })
                         .catch(() => {
-                            /* استرجاع الترتيب السابق عند الفشل */
+                            {{-- استرجاع الترتيب السابق عند الفشل --}}
                             snapshot.forEach((id) => {
                                 const el = list.querySelector(`[data-sort-id="${id}"]`);
                                 if (el) list.appendChild(el);

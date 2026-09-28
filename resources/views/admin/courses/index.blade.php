@@ -248,7 +248,7 @@
 
     @push('scripts')
         <script>
-            /* شريط الإجراءات الجماعيّة: مخفيّ تمامًا حتى يختار المستخدم (2.15-ب) */
+            {{-- شريط الإجراءات الجماعيّة: مخفيّ تمامًا حتى يختار المستخدم (2.15-ب) --}}
             const bulkBar = document.querySelector('[data-bulk-bar]');
             const bulkItems = () => [...document.querySelectorAll('[data-bulk-item]')];
 

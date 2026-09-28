@@ -475,12 +475,12 @@
 @if ($landing['countdown_ends_at'])
 @push('scripts')
     <script>
-        /*
+        {{--
          | عدّاد **صادق** (2.9-10): يقرأ الموعد المكتوب في `data-ends-at` — وهو
          | `bundles.available_until` من الخادم — ولا يخترع مدّةً لكلّ زائر ولا
          | يُعاد ضبطه عند التحديث. وبلا موعدٍ لا يوجد العنصر في الصفحة أصلًا،
          | فالسكربت لا يجد ما يشغّله.
-         */
+         --}}
         (function () {
             document.querySelectorAll('[data-bundle-countdown]').forEach(function (node) {
                 var endsAt = Date.parse(node.dataset.endsAt);

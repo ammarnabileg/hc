@@ -178,8 +178,8 @@
 @endphp
 <script>
 const quoteWords = @json($quoteWords);
-/* ⭐ الملخّص اللحظيّ من الخادم لا من المتصفّح (19.3):
-   لا نسبة ولا رسم يُحسَب هنا — نرسل المدخلات ونعرض ما يردّه الخادم كما هو. */
+{{-- ⭐ الملخّص اللحظيّ من الخادم لا من المتصفّح (19.3):
+   لا نسبة ولا رسم يُحسَب هنا — نرسل المدخلات ونعرض ما يردّه الخادم كما هو. --}}
 (function () {
     const forms = document.querySelectorAll('[data-quote-form]');
     if (!forms.length) return;
@@ -256,7 +256,7 @@ const quoteWords = @json($quoteWords);
                     set('note', quoteWords.server);
                 }
             } catch {
-                /* رسالة الخطأ = ماذا حدث + ماذا تفعل (2.17-ب) */
+                {{-- رسالة الخطأ = ماذا حدث + ماذا تفعل (2.17-ب) --}}
                 set('note', quoteWords.offline);
             }
         };

@@ -50,7 +50,7 @@
 </section>
 
 <script>
-    /* ردّ فوريّ على النسخ — «اتنسخ ✓» في الزرّ نفسه (2.17-أ) */
+    {{-- ردّ فوريّ على النسخ — «اتنسخ ✓» في الزرّ نفسه (2.17-أ) --}}
     (function () {
         var button = document.querySelector('[data-copy-invite]');
         var field = document.querySelector('[data-invite-link]');
@@ -69,10 +69,10 @@
                 return;
             }
 
-            /* بلا واجهة الحافظة: التحديد يبقى بابًا يدويًّا مفهومًا لا رسالة خطأ */
+            {{-- بلا واجهة الحافظة: التحديد يبقى بابًا يدويًّا مفهومًا لا رسالة خطأ --}}
             field.removeAttribute('readonly');
             field.select();
-            try { document.execCommand('copy'); } catch (e) { /* المتصفّح رفض — التحديد قائم */ }
+            try { document.execCommand('copy'); } catch (e) { {{-- المتصفّح رفض — التحديد قائم --}} }
             field.setAttribute('readonly', 'readonly');
             done();
         });

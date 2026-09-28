@@ -329,7 +329,7 @@
 
     @push('scripts')
         <script>
-            /* تعبئة فورم المسار من زرّ التعديل — بلا صفحة جديدة (2.15-أ-6) */
+            {{-- تعبئة فورم المسار من زرّ التعديل — بلا صفحة جديدة (2.15-أ-6) --}}
             const pathForm = document.querySelector('[data-path-form]');
             const pathStoreUrl = @json(route('admin.paths.store'));
 

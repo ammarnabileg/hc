@@ -178,7 +178,7 @@
 
 @push('scripts')
 <script>
-/* منشئ السيرة: حفظ تلقائيّ بين الخطوات + «اتحفظ ✓» + معاينة حيّة (9 · 2.17-ب) */
+{{-- منشئ السيرة: حفظ تلقائيّ بين الخطوات + «اتحفظ ✓» + معاينة حيّة (9 · 2.17-ب) --}}
 (function () {
     const root = document.querySelector('[data-cv]');
     if (!root) return;
@@ -240,7 +240,7 @@
 
             refreshPreview();
         } catch {
-            /* رسالة الخطأ = ماذا حدث + ماذا تفعل، بلا لوم (2.17-ب) */
+            {{-- رسالة الخطأ = ماذا حدث + ماذا تفعل، بلا لوم (2.17-ب) --}}
             note.textContent = errorLabel;
             note.style.color = 'var(--color-state-warn)';
         }
@@ -278,7 +278,7 @@
     document.querySelector('[data-step-next]').addEventListener('click', () => { save(steps[index]); showStep(index + 1); });
     document.querySelector('[data-step-prev]').addEventListener('click', () => { save(steps[index]); showStep(index - 1); });
 
-    /* الأقسام المتكرّرة: زرّ إضافة + «×» للحذف (9) */
+    {{-- الأقسام المتكرّرة: زرّ إضافة + «×» للحذف (9) --}}
     document.querySelectorAll('[data-repeat]').forEach((group) => {
         const list = group.querySelector('[data-repeat-list]');
         const tpl = group.querySelector('template');
@@ -297,7 +297,7 @@
         });
     });
 
-    /* [حفظ CV] في الشريط العائم: يحفظ كلّ الخطوات دفعةً واحدة (9) */
+    {{-- [حفظ CV] في الشريط العائم: يحفظ كلّ الخطوات دفعةً واحدة (9) --}}
     const stickyNote = document.querySelector('[data-sticky-note]');
 
     document.querySelector('[data-cv-save]')?.addEventListener('click', async () => {
@@ -308,7 +308,7 @@
         }
     });
 
-    /* مفتاح AR/EN: يُظهر حقول اللغة الثانية ويحفظ الاختيار (9) */
+    {{-- مفتاح AR/EN: يُظهر حقول اللغة الثانية ويحفظ الاختيار (9) --}}
     function applyLang(code) {
         document.querySelectorAll('[data-lang-en]').forEach((el) => { el.hidden = code !== 'en'; });
         document.querySelectorAll('[data-cv-lang]').forEach((btn) => {
@@ -341,11 +341,11 @@
 
     applyLang(@json($data['lang'] ?? 'ar'));
 
-    /*
+    {{--
       إعادة الترتيب بالسحب (9). ولماذا نُعيد ترقيم أسماء الحقول بعد كلّ إفلات:
       لأنّ الاسم يحمل الفهرس (`data[experience][2][title]`) فترتيب الـDOM وحده
       لا يغيّر شيئًا — الخادم يُجمِّع بالفهرس لا بترتيب الإرسال.
-    */
+    --}}
     function reindex(list) {
         [...list.querySelectorAll('[data-repeat-row]')].forEach((row, n) => {
             row.querySelectorAll('[name]').forEach((input) => {
@@ -379,7 +379,7 @@
         });
     });
 
-    /* تاب المعاينة على الموبايل */
+    {{-- تاب المعاينة على الموبايل --}}
     document.querySelectorAll('[data-pane-tab]').forEach((tab) => tab.addEventListener('click', () => {
         const wanted = tab.dataset.paneTab;
         document.querySelectorAll('[data-pane]').forEach((pane) => { pane.hidden = pane.dataset.pane !== wanted; });

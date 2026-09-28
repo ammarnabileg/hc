@@ -238,7 +238,7 @@
 
     @push('scripts')
         <script>
-            /* تبديل حقول الدرس حسب نوعه — بلا إعادة تحميل */
+            {{-- تبديل حقول الدرس حسب نوعه — بلا إعادة تحميل --}}
             const typeSelect = document.querySelector('[data-lesson-type]');
             const videoBlock = document.querySelector('[data-lesson-video]');
 

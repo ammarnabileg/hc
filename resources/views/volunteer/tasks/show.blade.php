@@ -299,7 +299,7 @@
 
 @push('scripts')
     <script>
-        /* فتح البوب-أب المطلوب مباشرةً (?action=deliver|block) — يجي من سحب الكانبان */
+        {{-- فتح البوب-أب المطلوب مباشرةً (?action=deliver|block) — يجي من سحب الكانبان --}}
         const action = new URLSearchParams(window.location.search).get('action');
         const map = { deliver: 'deliver-task', block: 'block-task' };
         if (action && map[action]) {
@@ -307,7 +307,7 @@
             if (modal) { modal.classList.remove('hidden'); modal.classList.add('flex'); }
         }
 
-        /* دفعة الصب-تاسكات: إضافة صفّ جديد بنفس شكل الصفّ الأوّل */
+        {{-- دفعة الصب-تاسكات: إضافة صفّ جديد بنفس شكل الصفّ الأوّل --}}
         const rows = document.querySelector('[data-subtask-rows]');
         document.querySelector('[data-add-subtask-row]')?.addEventListener('click', () => {
             const first = rows.querySelector('[data-subtask-row]');

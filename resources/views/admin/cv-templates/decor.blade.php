@@ -149,12 +149,12 @@
         'empty_text_placeholder' => setting('cv.template.admin.decor_js_empty_text_placeholder', '(نصّ فارغ)'),
     ];
 
-    /*
+    {{--
      | الصورة المحفوظة تصل من القاعدة كمسارٍ خامّ فقط (`path`) — ونحتاج رابطها
      | الفعليّ لعرض معاينتها في الكانفس فورًا بلا انتظار اختيارٍ جديد؛ `url`
      | هنا حقلٌ مُشتقٌّ للعرض وحده، مُستبعدٌ صراحةً من حقول الحفظ (راجع
      | FIELDS_BY_TYPE في السكربت) فلا يصل الخادم أصلًا.
-     */
+     --}}
     $initialLayers = collect($template->decorLayers())->map(function (array $layer) {
         if (($layer['type'] ?? null) === 'image' && ! empty($layer['path'])) {
             $layer['url'] = \Illuminate\Support\Facades\Storage::url($layer['path']);
@@ -166,7 +166,7 @@
 
 <script>
     const T = @json($jsText);
-/*
+{{--
  | ⭐ المحرّر المرئيّ (Drag-drop) لقوالب الـCV (12.7-ب المرحلة 2/2) — جافاسكربت
  | خامّ بلا أيّ مكتبة خارجيّة، بنفس نموذج تفاعل محرّر الاستوديو (12.5-ب/12.14):
  | pointer events + شبكة محاذاة اختياريّة + لوحة طبقات. والفروق المتعمَّدة:
@@ -189,7 +189,7 @@
  | والحفظ يكتب **حقول layers[i][key] المخفيّة** بنفس صيغة الفورم القديمة —
  | فمتحكّم الحفظ (`CvTemplateAdminController::updateDecor`) ومنظّف الطبقات
  | (`CvTemplateDecor::sanitize`) لا يتغيّر فيهما سطرٌ واحد (2.13).
- */
+ --}}
 (function () {
     var canvas = document.getElementById('decor-canvas');
     var overlay = canvas ? canvas.querySelector('[data-decor-overlay]') : null;
@@ -221,13 +221,13 @@
     var snap = snapCheckbox ? snapCheckbox.checked : {{ $snap ? 'true' : 'false' }};
     var imageTargetField = document.getElementById('cv-decor-image-target');
 
-    /*
+    {{--
      | ⭐ z تُشتقّ دائمًا من الترتيب + «خلف المحتوى» — لا قيمةٌ حرّة تُكتَب يدويًّا.
      | «فوق» في القائمة داخل كلّ مجموعة = «أقرب للمحتوى/المشاهد» في الاثنتين:
      | فأوّل عنصرٍ «أماميّ» في القائمة يأخذ أعلى z موجب (الأقرب للمشاهد)،
      | وأوّل عنصرٍ «خلفيّ» في القائمة يأخذ أقرب z سالب للصفر (الأقرب للمحتوى
      | من الخلف)، وكلّما نزل العنصر في مجموعته ابتعد أكثر.
-     */
+     --}}
     function recomputeZ() {
         var behind = layers.filter(function (l) { return !!l.behind; });
         var front = layers.filter(function (l) { return !l.behind; });
@@ -238,7 +238,7 @@
 
     recomputeZ();
 
-    /* ------------------------------------------------------ الرسم على الكانفس */
+    {{-- ------------------------------------------------------ الرسم على الكانفس --}}
     function render() {
         overlay.querySelectorAll('[data-decor-layer]').forEach(function (el) { el.remove(); });
         var scale = canvas.clientWidth / SHEET_PX;
@@ -293,7 +293,7 @@
         syncHiddenInputs();
     }
 
-    /* ------------------------------------------------------- لوحة الطبقات */
+    {{-- ------------------------------------------------------- لوحة الطبقات --}}
     function renderPanel() {
         if (!panelEl) { return; }
         panelEl.innerHTML = '';
@@ -349,7 +349,7 @@
         render();
     }
 
-    /* ------------------------------------------------------------ الخصائص */
+    {{-- ------------------------------------------------------------ الخصائص --}}
     function schemaFor(layer) {
         if (layer.type === 'text') {
             return [
@@ -446,7 +446,7 @@
         });
     }
 
-    /* حقل اختيار الصورة: يفتح نفس بوب-أب المكتبة (admin.courses.partials.media-picker-modal) */
+    {{-- حقل اختيار الصورة: يفتح نفس بوب-أب المكتبة (admin.courses.partials.media-picker-modal) --}}
     function imagePickField(layer, field) {
         var wrap = document.createElement('div');
         wrap.className = 'space-y-1';
@@ -495,7 +495,7 @@
         select(selectedUid);
     });
 
-    /* -------------------------------------------------------- إضافة طبقة */
+    {{-- -------------------------------------------------------- إضافة طبقة --}}
     document.querySelectorAll('[data-decor-add]').forEach(function (btn) {
         btn.addEventListener('click', function () {
             var kind = btn.getAttribute('data-decor-add');
@@ -511,7 +511,7 @@
         });
     });
 
-    /* -------------------------------------------- السحب الحرّ + Snap (نسبة مئويّة) */
+    {{-- -------------------------------------------- السحب الحرّ + Snap (نسبة مئويّة) --}}
     var dragging = null;
 
     overlay.addEventListener('pointerdown', function (e) {
@@ -551,9 +551,9 @@
 
     grid && grid.classList.toggle('hidden', !snap);
 
-    /* --------------------------------------------------------- الحفظ */
-    /* ⭐ قائمة حقول بيضاء صراحةً لكلّ نوع — تطابق CvTemplateDecor::sanitize()
-       بالحرف، فلا يتسرّب أيّ حقلٍ مساعد بمحرِّر الواجهة فقط (behind/url/_hidden) للخادم. */
+    {{-- --------------------------------------------------------- الحفظ --}}
+    {{-- ⭐ قائمة حقول بيضاء صراحةً لكلّ نوع — تطابق CvTemplateDecor::sanitize()
+       بالحرف، فلا يتسرّب أيّ حقلٍ مساعد بمحرِّر الواجهة فقط (behind/url/_hidden) للخادم. --}}
     function syncHiddenInputs() {
         if (!hiddenBox) { return; }
         hiddenBox.innerHTML = '';

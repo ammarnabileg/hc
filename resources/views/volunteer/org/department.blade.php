@@ -87,11 +87,9 @@
                 <div class="flex items-center gap-2 text-sm">
                     <span style="color: var(--text-muted)">{{ setting('volunteer.org_department.field_2', 'العرض') }}</span>
                     <a href="{{ request()->fullUrlWithQuery(['view' => 'cards']) }}"
-                       class="rounded-full px-3 py-1 text-xs"
-                       style="{{ $view === 'cards' ? 'background: var(--color-brand-500); color:#04201c' : 'background: var(--surface-sunken)' }}">{{ setting('volunteer.org_department.link', 'كروت') }}</a>
+                       @class(['chip', 'chip-on' => $view === 'cards']) @if ($view === 'cards') aria-current="page" @endif>{{ setting('volunteer.org_department.link', 'كروت') }}</a>
                     <a href="{{ request()->fullUrlWithQuery(['view' => 'table']) }}"
-                       class="rounded-full px-3 py-1 text-xs"
-                       style="{{ $view === 'table' ? 'background: var(--color-brand-500); color:#04201c' : 'background: var(--surface-sunken)' }}">{{ setting('volunteer.org_department.link_2', 'جدول') }}</a>
+                       @class(['chip', 'chip-on' => $view === 'table']) @if ($view === 'table') aria-current="page" @endif>{{ setting('volunteer.org_department.link_2', 'جدول') }}</a>
                 </div>
             </x-slot:advanced>
         </x-filters>
@@ -234,7 +232,7 @@
 
 <script>
 const T = @json($jsText);
-/* فورم الغياب: المسار يحمل عضويّة الغائب، فنبنيه من الاختيار قبل الإرسال */
+{{-- فورم الغياب: المسار يحمل عضويّة الغائب، فنبنيه من الاختيار قبل الإرسال --}}
 (() => {
     const form = document.querySelector('[data-absence-form]');
     if (!form) return;
@@ -246,7 +244,7 @@ const T = @json($jsText);
     });
 })();
 
-/* بوب-أب ملفّ العضو — بلا مكتبات، وردّ فوريّ لكلّ فعل (2.17-ب) */
+{{-- بوب-أب ملفّ العضو — بلا مكتبات، وردّ فوريّ لكلّ فعل (2.17-ب) --}}
 (() => {
     const modal = document.getElementById('member-modal');
     if (!modal) return;

@@ -57,11 +57,11 @@
 @once
 @push('scripts')
     <script>
-        /*
+        {{--
          * منطق البوب-أب: يفتح، يجلب شبكة المكتبة كجزءٍ عارٍ (`?fragment=1`)،
          * وعند الاختيار يكتب المسار في الحقل الهدف ويطلق `input` و`change`
          * فيلتقطهما الحفظ التلقائيّ للفورم (12.4-ب) كأنّ المستخدم كتب بيده.
-         */
+         --}}
         (function () {
             const modal = document.querySelector('[data-picker-modal]');
             if (!modal) return;
@@ -96,7 +96,7 @@
                 picked.clear();
             }
 
-            /** عدّاد المحدَّد — نصّه إعدادٌ لا نصّ محروق (2.13) */
+            {{--* عدّاد المحدَّد — نصّه إعدادٌ لا نصّ محروق (2.13) --}}
             function syncCount() {
                 if (!counter) return;
                 counter.textContent = picked.size === 0
@@ -104,7 +104,7 @@
                     : @json(setting('media.picker.selected_count')).replace('{n}', String(picked.size));
             }
 
-            /** العلامات تُعاد رسمها بعد كلّ تحميل: الاختيار يعبر الصفحات والبحث */
+            {{--* العلامات تُعاد رسمها بعد كلّ تحميل: الاختيار يعبر الصفحات والبحث --}}
             function paintMarks() {
                 body.querySelectorAll('[data-pick-id]').forEach((card) => {
                     const on = picked.has(card.dataset.pickId);
@@ -127,7 +127,7 @@
                     });
             }
 
-            /** يكتب المسار في الحقل ويعرض معاينته — ثمّ يغلق: خطوة واحدة لا نسخ ولا لصق */
+            {{--* يكتب المسار في الحقل ويعرض معاينته — ثمّ يغلق: خطوة واحدة لا نسخ ولا لصق --}}
             function apply(path, url, isImage) {
                 if (!targetName) return close();
 
@@ -148,11 +148,11 @@
                 close();
             }
 
-            /**
+            {{--*
              * ⭐ الوضع المتعدّد: يضيف **رقائق** فيها حقولٌ مخفيّة `name[]` بآيدي
              * عنصر المكتبة — فالفورم يرسلها كما كانت ترسلها قائمة الـCheckbox
              * تمامًا، والخادم لم يتغيّر. والمكرّر لا يُضاف مرّتين.
-             */
+             --}}
             function applyMany() {
                 const box = document.querySelector('[data-media-multi="' + targetName + '"]');
                 if (!box) return close();

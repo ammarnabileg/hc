@@ -168,7 +168,7 @@ document.querySelectorAll('[data-copy]').forEach((btn) => btn.addEventListener('
     }
 }));
 
-/* الموافقة على نشر الإفادة: ردٌّ فوريّ، والإغلاق فوريّ كذلك (9.1 · 2.17-ب) */
+{{-- الموافقة على نشر الإفادة: ردٌّ فوريّ، والإغلاق فوريّ كذلك (9.1 · 2.17-ب) --}}
 (function () {
     const toggle = document.querySelector('[data-attestation-public]');
     if (!toggle) return;

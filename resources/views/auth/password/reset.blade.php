@@ -80,7 +80,7 @@
 </div>
 
 <script>
-    /* أيقونة العين + تعطيل الزرّ حتى تتطابق الكلمتان (12.1-الأمان · 2.17-أ) */
+    {{-- أيقونة العين + تعطيل الزرّ حتى تتطابق الكلمتان (12.1-الأمان · 2.17-أ) --}}
     (function () {
         const form = document.querySelector('[data-password-form]');
         if (!form) return;

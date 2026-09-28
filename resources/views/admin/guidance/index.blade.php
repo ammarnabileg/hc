@@ -518,7 +518,7 @@
 
     @push('scripts')
         <script>
-            /* شرائح الجمهور: نعرض حقل الشريحة المختارة فقط (2.15 — إخفاء التعقيد) */
+            {{-- شرائح الجمهور: نعرض حقل الشريحة المختارة فقط (2.15 — إخفاء التعقيد) --}}
             const audience = document.querySelector('[data-audience]');
             audience?.addEventListener('change', () => {
                 document.querySelectorAll('[data-audience-panel]').forEach((panel) => {

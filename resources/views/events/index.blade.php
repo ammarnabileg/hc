@@ -15,16 +15,14 @@
                    :breadcrumbs="[['label' => setting('events.index.breadcrumb_home', 'الرئيسيّة'), 'url' => route('dashboard')], ['label' => setting('events.index.title', 'الفعاليّات')]]">
         <x-slot:action>
             {{-- مبدّل العرض: تقويم/كروت (24.5) --}}
-            <div class="flex rounded-xl overflow-hidden" style="border: 1px solid var(--border)">
+            <nav class="goal-filters mb-0" aria-label="{{ setting('events.index.view_aria', 'طريقة العرض') }}">
                 <a href="{{ request()->fullUrlWithQuery(['view' => 'cards', 'month' => null]) }}"
-                   class="px-3 py-2 text-sm motion-standard"
-                   style="{{ $isCalendar ? 'background: var(--surface-raised)' : 'background: var(--color-brand-500); color:#04201c; font-weight:700' }}"
+                   @class(['chip', 'chip-on' => ! $isCalendar]) @if (! $isCalendar) aria-current="page" @endif
                    aria-label="{{ setting('events.index.view_cards_aria', 'عرض كروت') }}">@include('events.components.icon', ['name' => 'grid']) {{ setting('events.index.view_cards', 'كروت') }}</a>
                 <a href="{{ request()->fullUrlWithQuery(['view' => 'calendar']) }}"
-                   class="px-3 py-2 text-sm motion-standard"
-                   style="{{ $isCalendar ? 'background: var(--color-brand-500); color:#04201c; font-weight:700' : 'background: var(--surface-raised)' }}"
+                   @class(['chip', 'chip-on' => $isCalendar]) @if ($isCalendar) aria-current="page" @endif
                    aria-label="{{ setting('events.index.view_calendar_aria', 'عرض تقويم') }}">@include('events.components.icon', ['name' => 'calendar']) {{ setting('events.index.view_calendar', 'تقويم') }}</a>
-            </div>
+            </nav>
 
             {{-- الفعل الرئيسيّ الواحد (2.15-أ-2) --}}
             <a href="{{ request()->fullUrlWithQuery(['mine' => 1, 'period' => 'all']) }}"

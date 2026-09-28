@@ -200,11 +200,11 @@
             });
         });
 
-        /*
+        {{--
          | تفاعل على طريقة فيسبوك (13.2): الزرّ الرئيسيّ يعمل/يلغي، والبوب-أب يختار،
          | والردّ فوريّ (2.17-ب) ثمّ يُصحَّح من الخادم بلا إعادة تحميل. الضغط المطوّل
          | يفتح البوب-أب على اللمس، والنقر خارجَه أو Escape يقفله.
-         */
+         --}}
         document.querySelectorAll('[data-react-form]').forEach((form) => {
             const box = form.closest('[data-reactions]');
             const labels = JSON.parse(box.dataset.labels || '{}');
@@ -296,10 +296,10 @@
             box.addEventListener('keydown', (ev) => { if (ev.key === 'Escape') close(); });
         });
 
-        /*
+        {{--
          | ردّ فوريّ لكلّ فعل (2.17-ب): الفعل يظهر فورًا، ولو فشل الخادم
          | نُرجّع الصفحة لحالتها الصحيحة بإعادة التحميل بدل ترك المستخدم في شكّ.
-         */
+         --}}
         document.querySelectorAll('[data-ajax-form]').forEach((form) => {
             form.addEventListener('submit', async (e) => {
                 e.preventDefault();

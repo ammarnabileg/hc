@@ -391,7 +391,7 @@
 
         <script>
             const HC_COURSE_FORM_TEXT = @json($jsText);
-            /* تابات الفورم: تحميل كسول — التاب لا يُعرَض إلّا عند فتحه (2.15-د) */
+            {{-- تابات الفورم: تحميل كسول — التاب لا يُعرَض إلّا عند فتحه (2.15-د) --}}
             document.querySelectorAll('[data-form-tab]').forEach((tab) => {
                 tab.addEventListener('click', () => {
                     document.querySelectorAll('[data-form-tab]').forEach((t) => {
@@ -403,7 +403,7 @@
                     document.querySelectorAll('[data-form-panel]').forEach((panel) => {
                         panel.classList.toggle('hidden', panel.dataset.formPanel !== tab.dataset.formTab);
                     });
-                    /* الصفحة تفتح على آخر تاب فُتِح فيها (2.15-د) */
+                    {{-- الصفحة تفتح على آخر تاب فُتِح فيها (2.15-د) --}}
                     try { localStorage.setItem('hc.course.tab', tab.dataset.formTab); } catch {}
                 });
             });
@@ -413,7 +413,7 @@
                 if (last) document.querySelector(`[data-form-tab="${last}"]`)?.click();
             } catch {}
 
-            /* ⭐ حفظ تلقائيّ كمسودّة — «اتحفظ ✓» بجوار الأزرار (12.4-ب · 2.17-ب) */
+            {{-- ⭐ حفظ تلقائيّ كمسودّة — «اتحفظ ✓» بجوار الأزرار (12.4-ب · 2.17-ب) --}}
             const form = document.querySelector('[data-course-form]');
             const note = document.querySelector('[data-autosave-note]');
 

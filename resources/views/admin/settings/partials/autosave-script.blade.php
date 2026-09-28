@@ -19,10 +19,10 @@
 
 <script>
     const HC_SETTINGS_TEXT = @json($jsText);
-/*
+{{--
  | حفظ تلقائيّ + Reset + Audit بالـHover + بحث موحّد — بجافاسكربت خام،
  | **بلا أيّ مكتبة خارجيّة** (قاعدة البناء). وكلّ فعل له ردّ فوريّ (2.17-ب).
- */
+ --}}
 (function () {
     var token = document.querySelector('meta[name="csrf-token"]');
     var CSRF = token ? token.getAttribute('content') : '';
@@ -116,23 +116,23 @@
         }
     }
 
-    /*
+    {{--
      | ⭐ الربط يُعاد على **الوارد الجديد** لا على الصفحة مرّةً واحدة: الحقول
      | تصل دفعةً دفعة بعد تحميل الصفحة، وصفٌّ بلا ربطٍ حقلٌ لا يُحفَظ — وهذا
      | أخطر ما يمكن أن يكسره التحميل الكسول. و`data-wired` يمنع ربطًا مزدوجًا
      | يحفظ مرّتين.
-     */
+     --}}
     function wireAll(scope) {
         (scope || document).querySelectorAll('.setting-row').forEach(wire);
     }
 
     wireAll(document);
 
-    /*
+    {{--
      | ⭐ التحميل الكسول لكارت المجموعة (2.15-ب) + «حمّل المزيد» تدريجيًّا
      | (2.15-د ترفض «ترقيم الصفحات بدل التمرير التدريجيّ» — فلا أرقام صفحات).
      | ولا مفتاح يُحذَف: العدّاد يقول كم ظهر من كم، والزرّ يبلغ الآخِر.
-     */
+     --}}
     var BATCH_URL = '{{ route('admin.settings.batch') }}';
 
     document.querySelectorAll('details[data-group-card]').forEach(function (card) {
@@ -198,12 +198,12 @@
                 });
         }
 
-        /*
+        {{--
          | ⚠️ `loaded() === 0` شرطٌ لا زينة: كروم يُطلِق `toggle` **عند تحليل**
          | كارتٍ وُلِد مفتوحًا، فبلا الشرط كان الكارت المصيَّر من الخادم يجلب
          | دفعةً ثانية فورًا بلا طلبٍ من أحد — 50 حقلًا بدل 25 في كلّ فتحة.
          | والفتح بعد الإغلاق لا يعيد الجلب كذلك: محتواه في الـDOM أصلًا.
-         */
+         --}}
         card.addEventListener('toggle', function () { if (card.open && loaded() === 0) { load(); } });
         moreBtn && moreBtn.addEventListener('click', load);
         sync();

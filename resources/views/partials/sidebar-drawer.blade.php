@@ -126,7 +126,7 @@
 </div>
 
 <script>
-    /* اللوحة المنزلقة: زرّ الهيدر يفتح · الخلفيّة و«اقفل» وESC يقفلون (2.15-ج · 2.17) */
+    {{-- اللوحة المنزلقة: زرّ الهيدر يفتح · الخلفيّة و«اقفل» وESC يقفلون (2.15-ج · 2.17) --}}
     (function () {
         var panel = document.querySelector('[data-sidebar]');
         var backdrop = document.querySelector('[data-sidebar-backdrop]');
@@ -145,12 +145,12 @@
             if (open) panel.focus({ preventScroll: true });
         }
 
-        /*
+        {{--
          | تفويضٌ على المستند لا ربطٌ بالزرّ نفسه: زرّ الفتح في الـTopbar، وهو
          | يُرسَم **بعد** السايد بار في المستند (كالمرجع: الـTopbar داخل عمود
          | المحتوى)، فلحظة تنفيذ هذا السكربت لا زرّ بعد. وطور الالتقاط (capture)
          | يسبق معالج السكربت المحزوم القديم على الزرّ نفسه فنوقفه لهذا الحدث.
-         */
+         --}}
         document.addEventListener('click', function (e) {
             var btn = e.target.closest('[data-drawer-toggle]');
             if (!btn) return;
@@ -166,7 +166,7 @@
             if (e.key === 'Escape') setOpen(false);
         });
 
-        /* التنقّل يقفل اللوحة — فلا تبقى فوق الصفحة الجديدة */
+        {{-- التنقّل يقفل اللوحة — فلا تبقى فوق الصفحة الجديدة --}}
         panel.addEventListener('click', function (e) {
             if (isMobile() && e.target.closest('a')) setOpen(false);
         });
@@ -176,13 +176,13 @@
         });
     })();
 
-    /*
+    {{--
      | Flyout مجموعات التابلت المضغوط (768-1199px — 2.10.1-13): `<details>`
      | يفتح/يقفل أصيلًا بلا جافاسكربت، والسكربت هنا يتكفّل بأمرين فقط
      | CSS وحدها لا تقدر عليهما: (1) حساب موضع الـFlyout الثابت بجانب
      | الأيقونة، (2) إقفاله بالنقر خارجه — فلا يبقى عائمًا فوق صفحةٍ
      | انتقل عنها المستخدم بالفأرة لا بالنقر.
-     */
+     --}}
     (function () {
         var groups = document.querySelectorAll('[data-sidebar] details[data-nav-group]');
 
@@ -236,7 +236,7 @@
         var wasCompact = isCompact();
 
         window.addEventListener('resize', function () {
-            /* عبور الحدّ إلى الوضع المضغوط يُنهي أيّ فتحٍ موروثٍ من الوضع الواسع */
+            {{-- عبور الحدّ إلى الوضع المضغوط يُنهي أيّ فتحٍ موروثٍ من الوضع الواسع --}}
             if (isCompact() && ! wasCompact) {
                 closeGroups();
             }
@@ -245,7 +245,7 @@
             groups.forEach(position);
         });
 
-        /* النقر خارج الـFlyout المفتوح يقفله — سلوكٌ متوقَّعٌ لعنصرٍ عائم */
+        {{-- النقر خارج الـFlyout المفتوح يقفله — سلوكٌ متوقَّعٌ لعنصرٍ عائم --}}
         document.addEventListener('click', function (e) {
             if (!isCompact()) return;
 

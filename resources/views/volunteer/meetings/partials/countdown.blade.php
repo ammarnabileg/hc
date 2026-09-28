@@ -11,8 +11,8 @@
 
         <script>
             const T = @json($jsText);
-            /* عدّاد تنازليّ للمواعيد ونوافذ التسجيل (2.17-أ).
-               ⭐ القيمة النهائيّة تظهر في كلّ الأحوال: لو حصل أيّ خطأ يبقى نصّ الخادم كما هو. */
+            {{-- عدّاد تنازليّ للمواعيد ونوافذ التسجيل (2.17-أ).
+               ⭐ القيمة النهائيّة تظهر في كلّ الأحوال: لو حصل أيّ خطأ يبقى نصّ الخادم كما هو. --}}
             (function () {
                 const nodes = document.querySelectorAll('[data-countdown]');
                 if (!nodes.length) return;
@@ -37,7 +37,7 @@
                     });
                 };
 
-                try { tick(); setInterval(tick, 30000); } catch (e) { /* يبقى نصّ الخادم */ }
+                try { tick(); setInterval(tick, 30000); } catch (e) { {{-- يبقى نصّ الخادم --}} }
             })();
         </script>
     @endpush

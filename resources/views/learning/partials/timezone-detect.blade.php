@@ -23,7 +23,7 @@
             detected = '';
         }
 
-        /* لا نداء بلا سبب (2.7): نرسل فقط حين تختلف عن المخزّنة */
+        {{-- لا نداء بلا سبب (2.7): نرسل فقط حين تختلف عن المخزّنة --}}
         if (!token || !detected || detected === stored) return;
 
         fetch(@json(route('timezone.detect')), {

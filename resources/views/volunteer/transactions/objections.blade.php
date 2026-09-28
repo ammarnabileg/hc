@@ -82,7 +82,7 @@
 
     @push('scripts')
         <script>
-            /* التبديل فوريّ بلا انتقال صفحة (13.4-ط)، وعلى الموبايل Bottom Sheet (2.15-ج) */
+            {{-- التبديل فوريّ بلا انتقال صفحة (13.4-ط)، وعلى الموبايل Bottom Sheet (2.15-ج) --}}
             (function () {
                 const list = document.querySelector('[data-objections-list]');
                 const panels = document.querySelector('[data-objection-panels]');

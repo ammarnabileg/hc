@@ -303,14 +303,14 @@
         </div>
 
         <script>
-            /*
+            {{--
              | ⭐ «أكمل الدرس» (3.4-43) — تذكيرٌ لطيف لا تأنيب.
              |
              | 🛡️ بلا Dark Patterns (2.9): لا نمنع الخروج، ولا نكتب رسالة مُذنِبة،
              | ولا نستخدم `beforeunload` الذي يحتجز المستخدم. نغيّر عنوان التاب
              | وهو غائب، وحين يعود نعرض سطرًا واحدًا قابلًا للإغلاق — والإغلاق
              | يُحفَظ لهذه الجلسة فلا يتكرّر عليه في الدرس نفسه.
-             */
+             --}}
             (() => {
                 const nudge = document.querySelector('[data-lesson-nudge]');
                 if (!nudge) return;
@@ -342,12 +342,12 @@
     @endif
 
     <script>
-        /*
+        {{--
          | ⭐ تتبّع مشاهدة الفيديو (4.1) — بلا أيّ SDK خارجيّ (2.1).
          | الصفحة تبلّغ بموضعها كلّ بضع ثوانٍ **وهي ظاهرة فقط**، والخادم يحدّ
          | القفزة الواحدة ويقرّر متى صارت المشاهدة كافية — فالعميل يعرض ويبلّغ،
          | والقرار في الخادم حصرًا.
-         */
+         --}}
         (() => {
             const box = document.querySelector('[data-watch]');
             if (!box) return;
@@ -373,13 +373,13 @@
                     const data = await res.json();
                     if (note) note.textContent = data.watched ? @json($hcWords['learning.lesson_view.js_1']) : @json($hcWords['learning.lesson_view.js_2']) + data.percent + '%';
                     if (data.watched) done = true;
-                } catch (e) { /* الشبكة اتقطعت — التقرير التالي يكمّل من مكانه */ }
+                } catch (e) { {{-- الشبكة اتقطعت — التقرير التالي يكمّل من مكانه --}} }
             };
 
             setInterval(ping, every * 1000);
         })();
 
-        /* شريط تقدّم القراءة داخل الدرس — ويعرض 100% دائمًا عند بلوغ النهاية (2.17-أ) */
+        {{-- شريط تقدّم القراءة داخل الدرس — ويعرض 100% دائمًا عند بلوغ النهاية (2.17-أ) --}}
         (() => {
             const bar = document.querySelector('.sticky-bar [role="progressbar"] > div');
             const article = document.querySelector('[data-lesson-content]');
@@ -395,13 +395,13 @@
             if (!article) bar.style.width = '100%';
         })();
 
-        /* بانل الدروس: مفتوح على الديسكتوب، ومطويّ على الموبايل يفتح كـBottom Sheet (24.5) */
+        {{-- بانل الدروس: مفتوح على الديسكتوب، ومطويّ على الموبايل يفتح كـBottom Sheet (24.5) --}}
         (() => {
             const panel = document.querySelector('.lesson-panel');
             if (panel && window.matchMedia('(max-width: 767px)').matches) panel.open = false;
         })();
 
-        /* ملاحظات التدريب (3.2): حفظ تلقائيّ مع «اتحفظ ✓» — والفورم يعمل بدون هذا الكود */
+        {{-- ملاحظات التدريب (3.2): حفظ تلقائيّ مع «اتحفظ ✓» — والفورم يعمل بدون هذا الكود --}}
         (() => {
             const box = document.querySelector('[data-notes]');
             if (!box) return;
@@ -446,7 +446,7 @@
             window.addEventListener('beforeunload', () => { if (input && input.value !== last) save(); });
         })();
 
-        /* تعليقات الفيديو (3.1): 6 تعليقات أقدم كلّما نزل لأسفل + Skeleton أثناء الجلب */
+        {{-- تعليقات الفيديو (3.1): 6 تعليقات أقدم كلّما نزل لأسفل + Skeleton أثناء الجلب --}}
         (() => {
             const box = document.querySelector('[data-comments]');
             if (!box) return;

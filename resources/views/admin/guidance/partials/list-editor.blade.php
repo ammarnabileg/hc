@@ -74,7 +74,7 @@
 @once
     @push('scripts')
         <script>
-            /* محرّر قائمة CRUD عامّ: إضافة/حذف صفّ — بلا إعادة تحميل (2.17-ب) */
+            {{-- محرّر قائمة CRUD عامّ: إضافة/حذف صفّ — بلا إعادة تحميل (2.17-ب) --}}
             document.querySelectorAll('[data-list-editor]').forEach((form) => {
                 const list = form.querySelector('[data-list-editor-rows]');
                 const tpl = form.querySelector('[data-list-editor-template]');

@@ -74,7 +74,7 @@
 @stack('modals')
 
 <script>
-    /* آخر تغيير على الصلاحيّة يظهر بالـHover بتأخير قصير مع رابط لبروفايل المحرّر (12.2.1-ز-4) */
+    {{-- آخر تغيير على الصلاحيّة يظهر بالـHover بتأخير قصير مع رابط لبروفايل المحرّر (12.2.1-ز-4) --}}
     (function () {
         const delay = Number({{ (int) setting('admin.roles.audit_hover_delay_ms', 200) }}) || 200;
 
@@ -93,7 +93,7 @@
         });
     })();
 
-    /* الإجراء الجماعيّ يظهر عند الاختيار فقط ومخفيّ تمامًا قبله (2.15-ب) */
+    {{-- الإجراء الجماعيّ يظهر عند الاختيار فقط ومخفيّ تمامًا قبله (2.15-ب) --}}
     (function () {
         document.querySelectorAll('[data-bulk-scope]').forEach((scope) => {
             const bar = scope.querySelector('[data-bulk-bar]');
@@ -117,7 +117,7 @@
         });
     })();
 
-    /* بحث فوريّ داخل مصفوفة الصلاحيّات — شرط قبول الشاشة (12.2.1-ط) */
+    {{-- بحث فوريّ داخل مصفوفة الصلاحيّات — شرط قبول الشاشة (12.2.1-ط) --}}
     (function () {
         const field = document.querySelector('[data-perm-search]');
         if (!field) return;
@@ -139,7 +139,7 @@
         });
     })();
 
-    /* تفعيل/إلغاء مجموعة الصلاحيّات دفعة واحدة بضغطة — شرط قبول 12.2 */
+    {{-- تفعيل/إلغاء مجموعة الصلاحيّات دفعة واحدة بضغطة — شرط قبول 12.2 --}}
     (function () {
         const buttons = document.querySelectorAll('[data-perm-bulk]');
         if (!buttons.length) return;
@@ -147,18 +147,18 @@
         buttons.forEach((button) => button.addEventListener('click', () => {
             const on = button.dataset.permBulk === 'on';
 
-            /* الصفوف المخفيّة بالبحث لا تتأثّر — تشتغل على اللي قدّامك بس */
+            {{-- الصفوف المخفيّة بالبحث لا تتأثّر — تشتغل على اللي قدّامك بس --}}
             document.querySelectorAll('[data-perm-row]:not(.hidden) [data-perm-toggle]')
                 .forEach((box) => { box.checked = on; });
         }));
     })();
 
-    /*
+    {{--
      | بوب-أب تأكيد لكلّ صلاحيّة 🔒 قبل منحها — الفورم/البوب-أب لشاشة «الأدوار والصلاحيّات» (12.2).
      | 🔒 وحده كان Tooltip زخرفيًّا بلا أثر: تفعيل الـcheckbox يدخل ضمن الفورم المُرسَل بلا أيّ
      | وقفة، فيتحفظ المنح الحسّاس بضغطة واحدة زي أيّ صلاحيّة عاديّة. السحب (إلغاء التفعيل) لا
      | يحتاج نفس الاحتكاك — النصّ في 12.2 عن «تأكيد لكلّ صلاحيّة 🔒» فعل المنح لا فعل السحب.
-     */
+     --}}
     (function () {
         const boxes = document.querySelectorAll('[data-perm-toggle][data-perm-sensitive]');
         if (!boxes.length) return;
@@ -170,7 +170,7 @@
             if (box.checked && !confirmGrant(box)) box.checked = false;
         }));
 
-        /* «تفعيل المجموعة كلّها» يمرّ بنفس التأكيد سطرًا سطرًا — بعد أن يضبطها الكتلة اللي فوق كلّها ON */
+        {{-- «تفعيل المجموعة كلّها» يمرّ بنفس التأكيد سطرًا سطرًا — بعد أن يضبطها الكتلة اللي فوق كلّها ON --}}
         document.querySelectorAll('[data-perm-bulk="on"]').forEach((button) => button.addEventListener('click', () => {
             document.querySelectorAll('[data-perm-row]:not(.hidden) [data-perm-toggle][data-perm-sensitive]')
                 .forEach((box) => { if (!confirmGrant(box)) box.checked = false; });

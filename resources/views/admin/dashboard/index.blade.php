@@ -135,11 +135,11 @@
 @if ($autoRefresh)
     @push('scripts')
         <script>
-            /*
+            {{--
              | تحديث تلقائيّ للأرقام اللحظيّة (12.3-5): إعادة تحميل بفترةٍ من
              | الإعدادات. ويتوقّف حين تكون الصفحة مخفيّة أو الأدمن يكتب في حقل،
              | فلا يضيع مدخَلٌ تحت يده — ويستأنف عند العودة.
-             */
+             --}}
             (function () {
                 const seconds = {{ (int) $refreshSeconds }};
                 if (!Number.isFinite(seconds) || seconds < 15) return;

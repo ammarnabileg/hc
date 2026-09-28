@@ -51,7 +51,7 @@
 
 @push('scripts')
 <script>
-/* مفاتيح السحب التلقائيّ: ردّ فوريّ و«اتحفظ ✓» (2.17-ب) */
+{{-- مفاتيح السحب التلقائيّ: ردّ فوريّ و«اتحفظ ✓» (2.17-ب) --}}
 document.querySelectorAll('[data-pull]').forEach((box) => box.addEventListener('change', async () => {
     const note = document.querySelector('[data-pull-note]');
     if (!box.dataset.url) return;

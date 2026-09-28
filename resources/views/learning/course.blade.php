@@ -269,7 +269,7 @@
     @include('learning.partials.clock-scripts')
 
     <script>
-        /* بحث داخل الدروس بالاسم — تصفية فوريّة بلا إعادة تحميل (2.17-ب) */
+        {{-- بحث داخل الدروس بالاسم — تصفية فوريّة بلا إعادة تحميل (2.17-ب) --}}
         (() => {
             const box = document.querySelector('[data-lesson-search]');
             if (!box) return;

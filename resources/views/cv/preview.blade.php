@@ -144,7 +144,7 @@
     @endif
 
     <script>
-        /* مقاس الورقة الحقيقيّ 210mm ≈ 794px — نصغّرها لتسع الشاشة بلا تمرير أفقيّ */
+        {{-- مقاس الورقة الحقيقيّ 210mm ≈ 794px — نصغّرها لتسع الشاشة بلا تمرير أفقيّ --}}
         (function () {
             var wrap = document.querySelector('[data-sheet-scale]');
             var sheet = wrap && wrap.querySelector('.sheet');
@@ -163,7 +163,7 @@
 
             fit();
             window.addEventListener('resize', fit);
-            /* الطباعة تعود للمقاس الحقيقيّ ثمّ يُعاد الضبط بعدها */
+            {{-- الطباعة تعود للمقاس الحقيقيّ ثمّ يُعاد الضبط بعدها --}}
             window.addEventListener('beforeprint', function () { wrap.style.setProperty('--sheet-scale', 1); wrap.style.blockSize = ''; });
             window.addEventListener('afterprint', fit);
         })();
@@ -171,7 +171,7 @@
 
     @if ($print)
         <script>
-            /* [تحميل PDF]: محرّك طباعة المتصفّح — بلا أيّ مكتبة تُنزَّل من الشبكة */
+            {{-- [تحميل PDF]: محرّك طباعة المتصفّح — بلا أيّ مكتبة تُنزَّل من الشبكة --}}
             window.addEventListener('load', () => window.print());
         </script>
     @endif

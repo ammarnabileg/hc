@@ -157,10 +157,10 @@
 
 @push('scripts')
     <script>
-        /**
+        {{--*
          * ⭐ لا حساب في المتصفّح: نرسل هويّة العنصر والكوبون واختيار الـBump،
          * والخادم يرجّع الأرقام مصاغةً — فلا يمكن التلاعب بسعر أو خصم.
-         */
+         --}}
         (function () {
             const form = document.querySelector('[data-purchase-form]');
             if (!form) return;
@@ -196,7 +196,7 @@
                 if (couponMessage) couponMessage.textContent = data.coupon_message || '';
                 if (topupBlock) topupBlock.classList.toggle('hidden', !!data.sufficient);
 
-                /* أقرب عرض يكفّيك يتغيّر مع الإجماليّ — والنصّ كلّه من الخادم (19.5-ب-2) */
+                {{-- أقرب عرض يكفّيك يتغيّر مع الإجماليّ — والنصّ كلّه من الخادم (19.5-ب-2) --}}
                 if (suggestion) {
                     suggestion.textContent = data.suggestion || '';
                     suggestion.classList.toggle('hidden', !data.suggestion);

@@ -106,7 +106,7 @@
 
 @push('scripts')
 <script>
-/* تبديل صورة معيار التحقّق — إظهارٌ بصريّ فقط، والفرض على الخادم (23 — 1.1) */
+{{-- تبديل صورة معيار التحقّق — إظهارٌ بصريّ فقط، والفرض على الخادم (23 — 1.1) --}}
 (function () {
     var select = document.querySelector('[data-criteria-type]');
     if (!select) { return; }

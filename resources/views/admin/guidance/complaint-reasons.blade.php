@@ -96,7 +96,7 @@
 
 @push('scripts')
 <script>
-/* إضافة/حذف صفّ سبب — ردٌّ فوريّ بلا إعادة تحميل (2.17-ب) */
+{{-- إضافة/حذف صفّ سبب — ردٌّ فوريّ بلا إعادة تحميل (2.17-ب) --}}
 (function () {
     const form = document.querySelector('[data-reasons]');
     if (!form) return;

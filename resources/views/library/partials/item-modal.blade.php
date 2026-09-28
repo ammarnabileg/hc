@@ -53,7 +53,7 @@
 
 @push('scripts')
 <script>
-/* بوب-أب مكتبتي: يجلب التفاصيل عند الفتح — تحميل كسول لا مع الصفحة (2.15-أ) */
+{{-- بوب-أب مكتبتي: يجلب التفاصيل عند الفتح — تحميل كسول لا مع الصفحة (2.15-أ) --}}
 (function () {
     const modal = document.getElementById('library-item');
     if (!modal) return;
@@ -125,7 +125,7 @@
                     ${invoice}
                 </div>`;
         } catch {
-            /* رسالة الخطأ = ماذا حدث + ماذا تفعل (2.17-ب) */
+            {{-- رسالة الخطأ = ماذا حدث + ماذا تفعل (2.17-ب) --}}
             body.innerHTML = `<p class="text-sm">${texts.error}</p>`;
         }
     });

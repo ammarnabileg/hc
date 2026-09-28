@@ -198,7 +198,7 @@
 
 @push('scripts')
     <script>
-        /* خانات OTP: انتقال تلقائيّ بين الخانات — والفورم يعمل كاملًا بدونه */
+        {{-- خانات OTP: انتقال تلقائيّ بين الخانات — والفورم يعمل كاملًا بدونه --}}
         document.querySelectorAll('[data-otp-form] .otp-row').forEach((row) => {
             const boxes = [...row.querySelectorAll('.otp-box')];
             boxes.forEach((box, index) => {
@@ -212,7 +212,7 @@
             });
         });
 
-        /* عدّاد انتظار الإعادة (4.1): عرضٌ فقط — الحاجز الحقيقيّ في الخادم */
+        {{-- عدّاد انتظار الإعادة (4.1): عرضٌ فقط — الحاجز الحقيقيّ في الخادم --}}
         (() => {
             const box = document.querySelector('[data-quiz-wait]');
             if (!box) return;

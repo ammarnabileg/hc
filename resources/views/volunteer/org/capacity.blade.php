@@ -171,7 +171,7 @@
 @push('scripts')
 <script>
 const T = @json($jsText);
-/* بوب-أب الكيان — أرقام تُقرأ فقط، والتجاوز تنبيهٌ لا منع (13.4-ف) */
+{{-- بوب-أب الكيان — أرقام تُقرأ فقط، والتجاوز تنبيهٌ لا منع (13.4-ف) --}}
 (() => {
     const modal = document.getElementById('capacity-modal');
     if (!modal) return;

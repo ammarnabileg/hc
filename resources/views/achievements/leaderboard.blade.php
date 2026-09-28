@@ -128,7 +128,7 @@
 
 @push('scripts')
     <script>
-        /* «فترة أحدّدها» تكشف خانة الأيّام وترسلها مكان `days` — بلا صفحة ثانية (2.15) */
+        {{-- «فترة أحدّدها» تكشف خانة الأيّام وترسلها مكان `days` — بلا صفحة ثانية (2.15) --}}
         (() => {
             const select = document.querySelector('[data-leaderboard-days]');
             const custom = document.querySelector('[data-leaderboard-custom]');

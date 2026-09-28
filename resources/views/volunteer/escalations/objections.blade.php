@@ -203,7 +203,7 @@
 
 @push('scripts')
     <script>
-        /* تبديل فوريّ بلا انتقال صفحة (24.4-8)، وSkeleton أثناء إعادة الفلترة */
+        {{-- تبديل فوريّ بلا انتقال صفحة (24.4-8)، وSkeleton أثناء إعادة الفلترة --}}
         (function () {
             const list = document.querySelector('[data-desk-list]');
             const panels = document.querySelector('[data-desk-panels]');
@@ -239,7 +239,7 @@
                 });
             }
 
-            /* الحالة «تحميل»: الفلتر يُرسَل ⟵ الشبكة تُستبدَل بالـSkeleton فورًا */
+            {{-- الحالة «تحميل»: الفلتر يُرسَل ⟵ الشبكة تُستبدَل بالـSkeleton فورًا --}}
             document.querySelectorAll('form').forEach((form) => {
                 form.addEventListener('submit', () => {
                     if (!skeleton) return;

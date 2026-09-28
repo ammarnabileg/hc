@@ -204,7 +204,7 @@
 
     @push('scripts')
         <script>
-            /* تعبئة الفورم من زرّ التعديل — نفس البوب-أب لا شاشة ثانية (2.15-أ-6) */
+            {{-- تعبئة الفورم من زرّ التعديل — نفس البوب-أب لا شاشة ثانية (2.15-أ-6) --}}
             (function () {
                 const form = document.querySelector('[data-question-form]');
                 if (!form) return;
