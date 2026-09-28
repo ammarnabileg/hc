@@ -88,7 +88,7 @@
 
                         <div class="flex items-center gap-2 shrink-0">
                             <x-state-badge :state="$row['state']"
-                                           :label="setting('volunteer.reviews.label_5', 'نافذة ').$windowHours.'س: '.($row['due_at']?->format('Y-m-d H:i') ?? '—')" />
+                                           :label="setting('volunteer.reviews.label_5', 'نافذة ').$windowHours.setting('volunteer.reviews.hours_suffix', 'س').($row['due_at'] ? ': '.$row['due_at']->format('Y-m-d H:i') : '')" />
                         </div>
                     </div>
 

@@ -5,7 +5,7 @@
 @section('content')
     <x-page-header
         :title="$contribution->item_title"
-        :subtitle="setting('volunteer.contributions_show.subtitle', 'المهمّة الأمّ: ').($task?->title ?? '—')"
+        :subtitle="$task ? setting('volunteer.contributions_show.subtitle', 'المهمّة الأمّ: ').$task->title : null"
         :breadcrumbs="[
             ['label' => setting('volunteer.contributions_show.label', 'مساهماتي'), 'url' => route('volunteer.contributions')],
             ['label' => $contribution->item_title],

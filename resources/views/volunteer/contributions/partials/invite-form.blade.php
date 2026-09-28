@@ -25,7 +25,7 @@
     </label>
 
     <x-form.input name="internal_deadline_at" :label="setting('volunteer.contributions_invite_form.label_3', 'الديدلاين الداخليّ')" type="datetime-local"
-                  :hint="setting('volunteer.contributions_invite_form.hint_2', 'لازم يكون قبل ديدلاين المهمّة بـ').$service->deadlineGapHours().setting('volunteer.contributions_invite_form.hint_3', ' ساعة. أقصى موعد: ').($latest?->format('Y-m-d H:i') ?? '—')" />
+                  :hint="setting('volunteer.contributions_invite_form.hint_2', 'لازم يكون قبل ديدلاين المهمّة بـ').$service->deadlineGapHours().setting('volunteer.contributions_invite_form.hint_4', ' ساعة.').($latest ? setting('volunteer.contributions_invite_form.hint_3', ' أقصى موعد: ').$latest->format('Y-m-d H:i') : '')" />
 
     <div class="grid grid-cols-2 gap-3">
         <x-form.input name="vxp_value" :label="setting('volunteer.contributions_invite_form.label_4', 'قيمة VXP')" type="number" step="1" value="0" data-invite-vxp />
