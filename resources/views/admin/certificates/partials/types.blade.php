@@ -20,7 +20,7 @@
             <label class="flex items-center gap-1">
                 <input type="checkbox" name="lang_en_enabled" value="1"> {{ setting('admin.certificates.partials.types.injlyzya', 'إنجليزيّة') }}
             </label>
-            <button class="underline text-xs">{{ setting('admin.certificates.partials.types.tbq', 'طبّق') }}</button>
+            <button class="btn btn-g rounded-xl px-3 py-1.5 text-xs">{{ setting('admin.certificates.partials.types.tbq', 'طبّق') }}</button>
         </form>
     @endcan
 
