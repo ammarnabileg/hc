@@ -60,10 +60,7 @@
                 @foreach ($tabs as $key => $tab)
                     <button type="button" data-hub-tab="{{ $key }}" role="tab"
                             aria-selected="{{ $loop->first ? 'true' : 'false' }}"
-                            class="shrink-0 rounded-full px-4 py-2 text-sm motion-standard hub-tab-btn"
-                            style="{{ $loop->first
-                                ? 'background: var(--color-brand-500); color:#04201c; font-weight:700'
-                                : 'background: var(--surface-raised); color: var(--text)' }}">{{ $tab['label'] }}</button>
+                            @class(['chip shrink-0 hub-tab-btn', 'chip-on' => $loop->first])>{{ $tab['label'] }}</button>
                 @endforeach
             </div>
         </div>
@@ -181,9 +178,7 @@
                 tabButtons.forEach((b) => {
                     const active = b.dataset.hubTab === key;
                     b.setAttribute('aria-selected', active ? 'true' : 'false');
-                    b.style.background = active ? 'var(--color-brand-500)' : 'var(--surface-raised)';
-                    b.style.color = active ? '#04201c' : 'var(--text)';
-                    b.style.fontWeight = active ? '700' : '400';
+                    b.classList.toggle('chip-on', active);
                 });
             }
 

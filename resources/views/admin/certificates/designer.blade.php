@@ -29,10 +29,7 @@
             <div class="flex gap-2">
                 @foreach (['ar' => setting('admin.certificates.designer.alnskha_alarbya', 'النسخة العربيّة'), 'en' => setting('admin.certificates.designer.alnskha_alinjlyzya', 'النسخة الإنجليزيّة')] as $code => $label)
                     <a href="{{ route('admin.certificates.designer', [$type, 'lang' => $code]) }}"
-                       class="rounded-full px-3 py-1 text-sm motion-standard"
-                       style="{{ $language === $code
-                            ? 'background: var(--color-brand-500); color:#04201c; font-weight:700'
-                            : 'background: var(--surface-sunken); color: var(--text)' }}">{{ $label }}</a>
+                       @class(['chip', 'chip-on' => $language === $code])>{{ $label }}</a>
                 @endforeach
             </div>
 

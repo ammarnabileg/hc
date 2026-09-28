@@ -34,8 +34,7 @@
             <div class="flex lg:block gap-2 min-w-0 overflow-x-auto no-scrollbar">
                 @foreach ($groups as $key => $total)
                     <a href="{{ route('admin.roles.edit', ['role' => $role, 'group' => $key]) }}"
-                       class="shrink-0 lg:block rounded-xl px-3 py-2 text-sm motion-standard"
-                       style="{{ $group === $key ? 'background: var(--color-brand-500); color:#04201c; font-weight:700' : 'color: var(--text)' }}">
+                       @class(['chip shrink-0 lg:block', 'chip-on' => $group === $key])>
                         {{ $key }} <span class="opacity-70">({{ $total }})</span>
                     </a>
                 @endforeach

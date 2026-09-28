@@ -32,14 +32,12 @@
     @if ($sidebarCategoriesEnabled && $categories->isNotEmpty())
         <div class="flex flex-wrap gap-2 mb-5">
             <a href="{{ route('help.index', array_filter(['q' => $q])) }}"
-               class="rounded-full px-4 py-2 text-sm motion-standard"
-               style="{{ $category === '' ? 'background: var(--color-brand-500); color:#04201c; font-weight:700' : 'background: var(--surface-raised); color: var(--text)' }}">
+               @class(['chip', 'chip-on' => $category === ''])>
                 {{ setting('help.index.text_3', 'كلّ التصنيفات') }}
             </a>
             @foreach ($categories as $row)
                 <a href="{{ route('help.index', array_filter(['q' => $q, 'category' => $row->category])) }}"
-                   class="rounded-full px-4 py-2 text-sm motion-standard"
-                   style="{{ $category === $row->category ? 'background: var(--color-brand-500); color:#04201c; font-weight:700' : 'background: var(--surface-raised); color: var(--text)' }}">
+                   @class(['chip', 'chip-on' => $category === $row->category])>
                     {{ $row->category }} <span class="opacity-70">({{ $row->total }})</span>
                 </a>
             @endforeach

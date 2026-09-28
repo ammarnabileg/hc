@@ -1,11 +1,9 @@
 {{-- تاب [السجلّ الصادر] (24.2): مستحقّ ولم تُصدَر ⟵ فلاتر ⟵ جدول/كروت بالتمرير التدريجيّ --}}
 <div class="flex items-center gap-2 mb-4 text-sm">
     <a href="{{ route('admin.volunteer.certificates', ['tab' => 'ledger', 'view' => 'ledger']) }}"
-       class="rounded-xl px-3 py-1.5 motion-standard"
-       style="{{ $view === 'ledger' ? 'background: var(--color-brand-500); color:#04201c; font-weight:700' : 'background: var(--surface-sunken); color: var(--text)' }}">{{ setting('admin.volunteer.certificates.alsjl_alsadr', 'السجلّ الصادر') }}</a>
+       @class(['chip', 'chip-on' => $view === 'ledger'])>{{ setting('admin.volunteer.certificates.alsjl_alsadr', 'السجلّ الصادر') }}</a>
     <a href="{{ route('admin.volunteer.certificates', ['tab' => 'ledger', 'view' => 'pending']) }}"
-       class="rounded-xl px-3 py-1.5 motion-standard"
-       style="{{ $view === 'pending' ? 'background: var(--color-brand-500); color:#04201c; font-weight:700' : 'background: var(--surface-sunken); color: var(--text)' }}">{{ setting('admin.volunteer.certificates.msthq_wlm_tsdr', 'مستحقّ ولم تُصدَر') }}</a>
+       @class(['chip', 'chip-on' => $view === 'pending'])>{{ setting('admin.volunteer.certificates.msthq_wlm_tsdr', 'مستحقّ ولم تُصدَر') }}</a>
 </div>
 
 @if ($view === 'pending')

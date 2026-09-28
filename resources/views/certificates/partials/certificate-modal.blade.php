@@ -53,10 +53,7 @@
             <div class="flex gap-2">
                 @foreach ($languages as $language)
                     <a href="{{ route('certificates.download', $certificate->code) }}?lang={{ $language }}"
-                       class="rounded-full px-3 py-1 text-xs motion-standard"
-                       style="{{ $certificate->language === $language
-                            ? 'background: var(--color-brand-500); color:#04201c; font-weight:700'
-                            : 'background: var(--surface-sunken); color: var(--text)' }}">
+                       @class(['chip', 'chip-on' => $certificate->language === $language])>
                         {{ $language === 'ar' ? setting('certificates.labels.arabic', 'عربيّة') : setting('certificates.labels.english', 'إنجليزيّة') }}
                     </a>
                 @endforeach

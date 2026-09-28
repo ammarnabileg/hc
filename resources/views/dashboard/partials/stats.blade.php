@@ -5,10 +5,7 @@
     <span class="text-xs" style="color: var(--text-muted)">{{ setting('dashboard.stats.range_label', 'الفترة') }}</span>
     @foreach ($rangeOptions as $option)
         <a href="{{ route('dashboard', ['tab' => 'stats', 'days' => $option]) }}"
-           class="rounded-full px-3 py-1.5 text-xs motion-standard"
-           style="{{ $days === $option
-               ? 'background: var(--color-brand-500); color:#04201c; font-weight:700'
-               : 'background: var(--surface-raised); color: var(--text)' }}">
+           @class(['chip', 'chip-on' => $days === $option])>
             {{ str_replace(':days', $option, (string) setting('dashboard.stats.range_option', ':days يوم')) }}
         </a>
     @endforeach

@@ -222,9 +222,9 @@
 
         <div class="flex items-center gap-2 mb-3 text-xs">
             <a href="{{ route('volunteer.meetings.show', ['meeting' => $meeting, 'tab' => 'discussion', 'sort' => 'new']) }}"
-               class="rounded-full px-3 py-1" style="{{ $sort === 'new' ? 'background: var(--color-brand-500); color:#04201c' : 'border: 1px solid var(--border)' }}">{{ setting('volunteer.meetings_show.link_2', 'الأحدث') }}</a>
+               @class(['chip', 'chip-on' => $sort === 'new'])>{{ setting('volunteer.meetings_show.link_2', 'الأحدث') }}</a>
             <a href="{{ route('volunteer.meetings.show', ['meeting' => $meeting, 'tab' => 'discussion', 'sort' => 'top']) }}"
-               class="rounded-full px-3 py-1" style="{{ $sort === 'top' ? 'background: var(--color-brand-500); color:#04201c' : 'border: 1px solid var(--border)' }}">{{ setting('volunteer.meetings_show.link_3', 'الأعلى تصويتًا') }}</a>
+               @class(['chip', 'chip-on' => $sort === 'top'])>{{ setting('volunteer.meetings_show.link_3', 'الأعلى تصويتًا') }}</a>
         </div>
 
         @if ($posts->isEmpty())

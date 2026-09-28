@@ -32,10 +32,7 @@
         @foreach ($devices as $key => $label)
             <a href="{{ route('admin.guidance.preview', ['announcement' => $raw, 'device' => $key]) }}"
                aria-current="{{ $device === $key ? 'true' : 'false' }}"
-               class="rounded-xl px-4 py-2 text-sm motion-standard"
-               style="{{ $device === $key
-                    ? 'background: var(--color-brand-500); color:#04201c; font-weight:700'
-                    : 'background: var(--surface-raised); color: var(--text)' }}">
+               @class(['chip', 'chip-on' => $device === $key])>
                 {{ $device === $key ? '● ' : '○ ' }}{{ $label }}
             </a>
         @endforeach

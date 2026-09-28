@@ -38,11 +38,9 @@
     {{-- تابا الشاشة (24.2): القوالب · السجلّ الصادر --}}
     <div class="flex items-center gap-2 mb-4">
         <a href="{{ route('admin.volunteer.certificates', ['tab' => 'templates']) }}"
-           class="rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
-           style="{{ $tab === 'templates' ? 'background: var(--color-brand-500); color:#04201c' : 'background: var(--surface-sunken); color: var(--text)' }}">{{ setting('admin.volunteer.certificates.alqwalb', 'القوالب') }}</a>
+           @class(['chip', 'chip-on' => $tab === 'templates'])>{{ setting('admin.volunteer.certificates.alqwalb', 'القوالب') }}</a>
         <a href="{{ route('admin.volunteer.certificates', ['tab' => 'ledger']) }}"
-           class="rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
-           style="{{ $tab === 'ledger' ? 'background: var(--color-brand-500); color:#04201c' : 'background: var(--surface-sunken); color: var(--text)' }}">{{ setting('admin.volunteer.certificates.alsjl_alsadr', 'السجلّ الصادر') }}</a>
+           @class(['chip', 'chip-on' => $tab === 'ledger'])>{{ setting('admin.volunteer.certificates.alsjl_alsadr', 'السجلّ الصادر') }}</a>
     </div>
 
     @unless (auth()->user()->allows('volunteer_certificates.edit') || auth()->user()->allows('volunteer_certificates.create'))

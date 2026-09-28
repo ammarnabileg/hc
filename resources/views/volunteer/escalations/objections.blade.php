@@ -32,8 +32,7 @@
     <div class="flex flex-wrap items-center gap-2 mb-3 text-xs">
         @foreach ($counts as $status => $count)
             <a href="{{ $chip($status) }}"
-               class="rounded-full px-3 py-1 motion-standard"
-               style="{{ $filters['status'] === $status ? 'background: var(--color-brand-500); color:#04201c' : 'border: 1px solid var(--border)' }}">
+               @class(['chip', 'chip-on' => $filters['status'] === $status])>
                 {{ $service->statusLabel($status) }} ({{ $count }})
             </a>
         @endforeach

@@ -21,10 +21,7 @@
         <nav class="flex md:flex-col gap-2 min-w-0 overflow-x-auto no-scrollbar md:sticky md:top-4 md:self-start">
             @foreach ($groups as $key => $meta)
                 <a href="{{ route('admin.finance.index', ['group' => $key]) }}"
-                   class="shrink-0 rounded-xl px-3 py-2 text-sm motion-standard"
-                   style="{{ $group === $key
-                        ? 'background: var(--color-brand-500); color:#04201c; font-weight:700'
-                        : 'background: var(--surface-raised); color: var(--text)' }}">{{ $meta['label'] }}</a>
+                   @class(['chip shrink-0', 'chip-on' => $group === $key])>{{ $meta['label'] }}</a>
             @endforeach
         </nav>
 

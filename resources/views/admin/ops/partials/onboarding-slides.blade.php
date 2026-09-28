@@ -2,10 +2,7 @@
 <div class="flex gap-2 min-w-0 overflow-x-auto no-scrollbar mb-4">
     @foreach ($screens as $key => $label)
         <a href="{{ route('admin.ops.onboarding', ['tab' => 'slides', 'screen' => $key]) }}"
-           class="shrink-0 rounded-xl px-3 py-2 text-sm motion-standard"
-           style="{{ $screen === $key
-                ? 'background: var(--color-brand-500); color:#04201c; font-weight:700'
-                : 'background: var(--surface-raised); color: var(--text)' }}">
+           @class(['chip shrink-0', 'chip-on' => $screen === $key])>
             {{ $label }}
             <span class="opacity-70">({{ $counts[$key]['active'] ?? 0 }})</span>
         </a>
