@@ -915,6 +915,11 @@
   .task-card-vxp { font-weight: 600; color: var(--brand); }
 
   /* الموبايل: اللوحة عمودٌ واحد يُمرَّر رأسيًّا لا أفقيًّا (2.15-ج) */
+  /* صفّ المسؤولين: أفاتار + اسم + حِمل مفتوح، أخفّ من صفّ النطاق فوقه */
+  .goal-owners { margin-top: -8px; }
+  .chip-owner { padding-inline-start: 6px; max-width: 220px; }
+  .chip-owner .chip-count { font-weight: 700; opacity: 1; color: var(--brand); }
+
   /* حقل البحث يعيش في صفّ الرقائق نفسه ويأخذ ما تبقّى من عرضه */
   .goal-search { display: flex; align-items: center; gap: 6px; flex: 1 1 200px; min-width: 180px; min-height: 36px; padding-inline: 10px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface-raised); color: var(--muted); font-size: 13px; }
   .goal-search input { flex: 1; min-width: 0; background: transparent; border: 0; padding: 0; font: inherit; color: var(--ink); }

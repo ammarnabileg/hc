@@ -112,6 +112,7 @@ class GoalController extends Controller
         $filters = [
             'milestone' => $request->integer('milestone') ?: null,
             'package' => $request->integer('package') ?: null,
+            'owner' => $request->integer('owner') ?: null,
             'q' => trim($request->string('q')->toString()),
         ];
 
@@ -130,6 +131,25 @@ class GoalController extends Controller
             ->with('owner')
             ->orderBy('deadline_at')
             ->get();
+
+        /*
+         | ⭐ «مين شغّال على إيه»: رقاقةٌ لكلّ مسؤولٍ في النطاق ومعها عددُ مهامّه
+         | **المفتوحة** — فالعدد يقول الحِمل لا التاريخ. وتُحسَب قبل تطبيق مرشِّح
+         | المسؤول كي تبقى الرقائق كلّها ظاهرة وأنت واقفٌ على واحدة منها.
+         */
+        $owners = $tasks
+            ->filter(fn (Task $task) => $task->owner !== null)
+            ->groupBy('owner_id')
+            ->map(fn ($own) => [
+                'user' => $own->first()->owner,
+                'open' => $own->whereIn('status', TaskStatus::OPEN)->count(),
+            ])
+            ->sortByDesc('open')
+            ->values();
+
+        if ($filters['owner']) {
+            $tasks = $tasks->where('owner_id', $filters['owner'])->values();
+        }
 
         /*
          | الأعمدة من `TaskStatus::boardColumns()` لا من قائمةٍ مكتوبة هنا، كي
@@ -178,6 +198,7 @@ class GoalController extends Controller
             'packagesById' => $packages->keyBy('id'),
             'columns' => $columns,
             'deadlineStates' => $deadlineStates,
+            'owners' => $owners,
             'doneColumns' => $done,
             'doneTotal' => collect($done)->sum(fn (array $c) => $c['tasks']->count()),
             'filters' => $filters,

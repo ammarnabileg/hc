@@ -132,6 +132,42 @@ class GoalBoardTest extends GoalsTestCase
         $response->assertDontSee('كتابة السكربت الثاني');
     }
 
+    /**
+     * ⭐ «مين شغّال على إيه»: رقاقةٌ لكلّ مسؤول بحِمله **المفتوح** لا بكلّ ما مرّ
+     * به، والنقر عليها يرشّح اللوحة إلى مهامّه. وتبقى رقائق الآخرين ظاهرةً
+     * وأنت واقفٌ على واحدة — وإلّا فلا سبيل للرجوع عنها إلّا بمسح الرابط.
+     */
+    public function test_owner_chips_count_open_work_and_filter_the_board(): void
+    {
+        [$user, $tree] = $this->boardFixture();
+        $peer = $this->makeUser('زميل مشغول');
+
+        // للمستخدم: مهمّةٌ مفتوحة ومهمّةٌ معتمَدة — الحِمل المفتوح واحد لا اثنان
+        $this->makeTask($tree['item'], TaskStatus::IN_PROGRESS, $user, 10)
+            ->forceFill(['title' => 'مهمّتي المفتوحة'])->save();
+        $this->makeTask($tree['item'], TaskStatus::APPROVED, $user, 10)
+            ->forceFill(['title' => 'مهمّتي المعتمَدة'])->save();
+
+        $this->makeTask($tree['item'], TaskStatus::IN_PROGRESS, $peer, 10)
+            ->forceFill(['title' => 'مهمّة الزميل'])->save();
+
+        $all = $this->actingAs($user)->get(route('volunteer.goals.show', $tree['goal']));
+        $all->assertOk();
+        $all->assertSee('زميل مشغول');
+        $all->assertSee('مهمّتي المفتوحة');
+        $all->assertSee('مهمّة الزميل');
+
+        $mine = $this->actingAs($user)->get(route('volunteer.goals.show', [
+            'goal' => $tree['goal'], 'owner' => $user->id,
+        ]));
+
+        $mine->assertOk();
+        $mine->assertSee('مهمّتي المفتوحة');
+        $mine->assertDontSee('مهمّة الزميل');
+        // رقاقة الزميل ما زالت هناك للرجوع أو الانتقال إليه
+        $mine->assertSee('زميل مشغول');
+    }
+
     /** @return array{0: User, 1: array<string, mixed>} */
     private function boardFixture(): array
     {

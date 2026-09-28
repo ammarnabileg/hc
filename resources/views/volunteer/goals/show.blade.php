@@ -46,8 +46,10 @@
       المنطق، لكنّها هنا صفٌّ من الرقائق لا أربع نقراتٍ متتابعة (2.15-أ-6).
     --}}
     @php
-        // البحث يبقى مع الرقاقة: الانتقال بين مَعلَمٍ وحزمةٍ لا يُسقِط ما كتبه المستخدم
-        $keep = array_filter(['q' => $filters['q']]);
+        // البحث والمسؤول يبقيان مع الرقاقة: الانتقال بين مَعلَمٍ وحزمةٍ لا يُسقِطهما
+        $keep = array_filter(['q' => $filters['q'], 'owner' => $filters['owner']]);
+        // ونطاق المَعلَم/الحزمة يبقى مع رقاقة المسؤول
+        $scope = array_filter(['milestone' => $filters['milestone'], 'package' => $filters['package'], 'q' => $filters['q']]);
     @endphp
 
     <nav class="goal-filters" aria-label="{{ setting('volunteer.goal_board.filters_aria', 'ترشيح اللوحة') }}">
@@ -81,16 +83,35 @@
         <form method="get" action="{{ route('volunteer.goals.show', $goal) }}" class="goal-search" role="search">
             @if ($filters['milestone'])<input type="hidden" name="milestone" value="{{ $filters['milestone'] }}">@endif
             @if ($filters['package'])<input type="hidden" name="package" value="{{ $filters['package'] }}">@endif
+            @if ($filters['owner'])<input type="hidden" name="owner" value="{{ $filters['owner'] }}">@endif
             <x-icon name="search" size="16" />
             <input type="search" name="q" value="{{ $filters['q'] }}"
                    placeholder="{{ setting('volunteer.goal_board.search_placeholder', 'ابحث باسم المهمّة') }}"
                    aria-label="{{ setting('volunteer.goal_board.search_aria', 'بحث في مهامّ الهدف') }}">
             @if ($filters['q'] !== '')
-                <a class="goal-search-clear" href="{{ route('volunteer.goals.show', array_filter(['goal' => $goal, 'milestone' => $filters['milestone'], 'package' => $filters['package']])) }}"
+                <a class="goal-search-clear" href="{{ route('volunteer.goals.show', array_filter(['goal' => $goal, 'milestone' => $filters['milestone'], 'package' => $filters['package'], 'owner' => $filters['owner']])) }}"
                    aria-label="{{ setting('volunteer.goal_board.search_clear', 'امسح البحث') }}">✕</a>
             @endif
         </form>
     </nav>
+
+    {{--
+      ⭐ «مين شغّال على إيه»: رقاقةٌ لكلّ مسؤول ومعها حِمله المفتوح. تجيب سؤال
+      الإدارة الأوّل على البورد (مين متزحّم ومين فاضي) بنظرةٍ، والنقر يرشّح.
+    --}}
+    @if ($owners->isNotEmpty())
+        <nav class="goal-filters goal-owners" aria-label="{{ setting('volunteer.goal_board.owners_aria', 'ترشيح بالمسؤول') }}">
+            @foreach ($owners as $row)
+                <a href="{{ route('volunteer.goals.show', ['goal' => $goal] + $scope + ($filters['owner'] === $row['user']->id ? [] : ['owner' => $row['user']->id])) }}"
+                   @class(['chip', 'chip-owner', 'chip-on' => $filters['owner'] === $row['user']->id])
+                   title="{{ $row['user']->shortName() }}">
+                    <x-avatar :user="$row['user']" size="6" />
+                    <span class="truncate">{{ $row['user']->shortName() }}</span>
+                    <bdi class="chip-count">{{ $row['open'] }}</bdi>
+                </a>
+            @endforeach
+        </nav>
+    @endif
 
     {{-- اللوحة: عمودٌ لكلّ حالة مفتوحة بترتيب دورة العمل (23-3.3) --}}
     <div class="goal-board" data-goal-board>
