@@ -109,11 +109,9 @@
     @endphp
     <div class="flex items-center gap-2 mb-4">
         <a href="{{ route('admin.media.index', $mediaViewQuery + ['view' => 'grid']) }}"
-           class="rounded-xl px-4 py-2 text-sm font-semibold"
-           style="background: {{ $view === 'grid' ? 'var(--color-brand-500)' : 'var(--surface-raised)' }}; color: {{ $view === 'grid' ? '#04201c' : 'var(--text)' }}">{{ setting('admin.courses.media.shbka', 'شبكة') }}</a>
+           @class(['chip', 'chip-on' => $view === 'grid']) @if ($view === 'grid') aria-current="page" @endif>{{ setting('admin.courses.media.shbka', 'شبكة') }}</a>
         <a href="{{ route('admin.media.index', $mediaViewQuery + ['view' => 'list']) }}"
-           class="rounded-xl px-4 py-2 text-sm font-semibold"
-           style="background: {{ $view === 'list' ? 'var(--color-brand-500)' : 'var(--surface-raised)' }}; color: {{ $view === 'list' ? '#04201c' : 'var(--text)' }}">{{ setting('admin.courses.media.qaema', 'قائمة') }}</a>
+           @class(['chip', 'chip-on' => $view === 'list']) @if ($view === 'list') aria-current="page" @endif>{{ setting('admin.courses.media.qaema', 'قائمة') }}</a>
     </div>
 
     @if ($items->isEmpty())

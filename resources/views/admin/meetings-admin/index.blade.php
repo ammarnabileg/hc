@@ -117,10 +117,8 @@
         `admin/events/index.blade.php` المبنيّة لـ12.11، فلا widget ثانٍ.
     --}}
     <div class="flex items-center gap-2 my-4">
-        <a href="{{ $viewQuery('table') }}" class="rounded-xl px-4 py-2 text-sm font-semibold"
-           style="background: {{ $view === 'table' ? 'var(--color-brand-500)' : 'var(--surface-raised)' }}; color: {{ $view === 'table' ? '#04201c' : 'var(--text)' }}">{{ setting('admin.meetings_admin.index.jdwl', 'جدول') }}</a>
-        <a href="{{ $viewQuery('calendar') }}" class="rounded-xl px-4 py-2 text-sm font-semibold"
-           style="background: {{ $view === 'calendar' ? 'var(--color-brand-500)' : 'var(--surface-raised)' }}; color: {{ $view === 'calendar' ? '#04201c' : 'var(--text)' }}">{{ setting('admin.meetings_admin.index.tqwym', 'تقويم') }}</a>
+        <a href="{{ $viewQuery('table') }}" @class(['chip', 'chip-on' => $view === 'table']) @if ($view === 'table') aria-current="page" @endif>{{ setting('admin.meetings_admin.index.jdwl', 'جدول') }}</a>
+        <a href="{{ $viewQuery('calendar') }}" @class(['chip', 'chip-on' => $view === 'calendar']) @if ($view === 'calendar') aria-current="page" @endif>{{ setting('admin.meetings_admin.index.tqwym', 'تقويم') }}</a>
     </div>
 
     @if ($view === 'calendar')

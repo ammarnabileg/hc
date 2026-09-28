@@ -55,11 +55,9 @@
     --}}
     <div class="flex items-center gap-2 mb-4">
         <a href="{{ route('admin.events.index', array_filter(['q' => $filters['q'], 'mode' => $filters['mode'], 'status' => $filters['status'], 'view' => 'table'])) }}"
-           class="rounded-xl px-4 py-2 text-sm font-semibold"
-           style="background: {{ $view === 'table' ? 'var(--color-brand-500)' : 'var(--surface-raised)' }}; color: {{ $view === 'table' ? '#04201c' : 'var(--text)' }}">{{ setting('admin.events.index.jdwl', 'جدول') }}</a>
+           @class(['chip', 'chip-on' => $view === 'table']) @if ($view === 'table') aria-current="page" @endif>{{ setting('admin.events.index.jdwl', 'جدول') }}</a>
         <a href="{{ route('admin.events.index', array_filter(['q' => $filters['q'], 'mode' => $filters['mode'], 'status' => $filters['status'], 'view' => 'calendar'])) }}"
-           class="rounded-xl px-4 py-2 text-sm font-semibold"
-           style="background: {{ $view === 'calendar' ? 'var(--color-brand-500)' : 'var(--surface-raised)' }}; color: {{ $view === 'calendar' ? '#04201c' : 'var(--text)' }}">{{ setting('admin.events.index.tqwym', 'تقويم') }}</a>
+           @class(['chip', 'chip-on' => $view === 'calendar']) @if ($view === 'calendar') aria-current="page" @endif>{{ setting('admin.events.index.tqwym', 'تقويم') }}</a>
     </div>
 
     @if ($view === 'calendar')

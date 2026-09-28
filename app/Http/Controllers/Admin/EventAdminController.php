@@ -30,6 +30,8 @@ class EventAdminController extends Controller
     {
         $status = $request->string('status')->toString() ?: (string) setting('events.default_tab', 'upcoming');
         $view = $request->string('view')->toString() ?: (string) setting('events.default_view', 'table');
+        // الإعداد قد يحمل «cards» (عرض المتدرّب)، وهنا عرضان فقط: كلّ ما ليس تقويمًا جدول
+        $view = $view === 'calendar' ? 'calendar' : 'table';
 
         $baseQuery = fn () => Event::query()
             ->withCount('registrations')
