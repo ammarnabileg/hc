@@ -17,8 +17,8 @@
         <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
             <h2 class="font-bold text-sm">{{ setting('cv.tools.title', 'أدوات السيرة') }}</h2>
             <a href="{{ route('cv.ats') }}"
-               class="btn inline-flex items-center rounded-xl px-4 text-sm font-semibold motion-standard"
-               style="min-height: 44px; background: var(--color-brand-500); color: #04201c">
+               class="btn btn-g inline-flex items-center rounded-xl px-4 text-sm font-semibold motion-standard"
+               style="min-height: 44px">
                 {{ setting('cv.tools.ats_label', 'تحميل PDF متوافق مع ATS') }}
             </a>
         </div>
@@ -55,8 +55,8 @@
 
                 <div class="flex flex-wrap gap-2">
                     <button type="button" data-cv-import-mode="replace"
-                            class="btn rounded-xl px-4 text-sm font-semibold motion-standard"
-                            style="min-height: 44px; background: var(--color-brand-500); color: #04201c">{{ setting('cv.tools.replace_label', 'بدّل بياناتي') }}</button>
+                            class="btn btn-g rounded-xl px-4 text-sm font-semibold motion-standard"
+                            style="min-height: 44px">{{ setting('cv.tools.replace_label', 'بدّل بياناتي') }}</button>
                     <button type="button" data-cv-import-mode="append"
                             class="btn rounded-xl px-4 text-sm motion-standard"
                             style="min-height: 44px; background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">{{ setting('cv.tools.append_label', 'أضف عليها') }}</button>

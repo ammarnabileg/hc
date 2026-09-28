@@ -70,19 +70,17 @@
 
         <div class="flex items-center gap-2">
             {{-- مفتاح تبديل AR/EN في المنشئ — بلا أيّ API ترجمة (9) --}}
-            <div class="flex rounded-full overflow-hidden text-xs" style="border: 1px solid var(--border)" role="group"
-                 aria-label="{{ setting('cv.lang.switch_label', 'لغة العرض') }}">
+            {{-- رقاقتان كرقائق الترشيح في المنصّة: الفعّالة بلون العلامة الخافت لا الأحمر الصلب --}}
+            <div class="goal-filters mb-0" role="group" aria-label="{{ setting('cv.lang.switch_label', 'لغة العرض') }}">
                 @foreach (['ar' => setting('cv.lang.ar_label', 'عربي'), 'en' => setting('cv.lang.en_label', 'English')] as $code => $label)
-                    <button type="button" data-cv-lang="{{ $code }}" class="px-3 motion-standard"
-                            style="min-height: 44px; {{ ($data['lang'] ?? 'ar') === $code
-                                ? 'background: var(--color-brand-500); color:#04201c; font-weight:700'
-                                : 'background: transparent; color: var(--text)' }}">{{ $label }}</button>
+                    <button type="button" data-cv-lang="{{ $code }}" @class(['chip', 'chip-on' => ($data['lang'] ?? 'ar') === $code])
+                            aria-pressed="{{ ($data['lang'] ?? 'ar') === $code ? 'true' : 'false' }}">{{ $label }}</button>
                 @endforeach
             </div>
 
             <button type="button" data-cv-save
-                    class="btn rounded-xl px-4 text-sm font-semibold motion-standard"
-                    style="min-height: 44px; background: var(--color-brand-500); color: #04201c">
+                    class="btn btn-g rounded-xl px-4 text-sm font-semibold motion-standard"
+                    style="min-height: 44px">
                 {{ setting('cv.save_label', 'حفظ CV') }}
             </button>
             <span class="text-xs" data-sticky-note style="color: var(--color-state-ok)"></span>
@@ -108,10 +106,8 @@
 
     {{-- على الموبايل: المعاينة تاب منفصل (24.5) --}}
     <div class="flex gap-2 mb-3 lg:hidden">
-        <button type="button" data-pane-tab="edit" class="rounded-full px-4 py-2 text-sm font-bold"
-                style="background: var(--color-brand-500); color: #04201c">{{ setting('cv.tab.edit_label', 'التعديل') }}</button>
-        <button type="button" data-pane-tab="preview" class="rounded-full px-4 py-2 text-sm"
-                style="background: var(--surface-raised); color: var(--text)">{{ setting('cv.tab.preview_label', 'المعاينة') }}</button>
+        <button type="button" data-pane-tab="edit" class="chip chip-on" aria-pressed="true">{{ setting('cv.tab.edit_label', 'التعديل') }}</button>
+        <button type="button" data-pane-tab="preview" class="chip" aria-pressed="false">{{ setting('cv.tab.preview_label', 'المعاينة') }}</button>
     </div>
 
     <div class="grid gap-4 lg:grid-cols-2" data-cv
@@ -123,9 +119,8 @@
             {{-- Stepper بخطوات بحفظ تلقائيّ بينها (2.15-د) --}}
             <div class="min-w-0 flex gap-2 overflow-x-auto no-scrollbar mb-3">
                 @foreach ($steps as $key => $label)
-                    <button type="button" data-step-tab="{{ $key }}"
-                            class="shrink-0 rounded-full px-4 py-2 text-sm motion-standard"
-                            style="{{ $loop->first ? 'background: var(--color-brand-500); color:#04201c; font-weight:700' : 'background: var(--surface-raised); color: var(--text)' }}">
+                    <button type="button" data-step-tab="{{ $key }}" @class(['chip shrink-0', 'chip-on' => $loop->first])
+                            aria-current="{{ $loop->first ? 'step' : 'false' }}">
                         <span class="opacity-70">{{ $loop->iteration }}.</span> {{ $label }}
                     </button>
                 @endforeach
@@ -144,8 +139,7 @@
                     {{ setting('cv.step.prev_label', 'السابق') }}
                 </button>
                 <span class="text-xs" data-saved-note style="color: var(--color-state-ok)"></span>
-                <button type="button" data-step-next class="btn rounded-xl px-4 py-2 text-sm font-semibold"
-                        style="background: var(--color-brand-500); color: #04201c">{{ setting('cv.step.next_label', 'التالي') }}</button>
+                <button type="button" data-step-next class="btn btn-g rounded-xl px-4 py-2 text-sm font-semibold">{{ setting('cv.step.next_label', 'التالي') }}</button>
             </div>
 
             @unless ($guest)
@@ -205,9 +199,8 @@
             document.querySelector(`[data-step-panel="${key}"]`).hidden = n !== index;
             const tab = document.querySelector(`[data-step-tab="${key}"]`);
             const on = n === index;
-            tab.style.background = on ? 'var(--color-brand-500)' : 'var(--surface-raised)';
-            tab.style.color = on ? '#04201c' : 'var(--text)';
-            tab.style.fontWeight = on ? '700' : '400';
+            tab.classList.toggle('chip-on', on);
+            tab.setAttribute('aria-current', on ? 'step' : 'false');
         });
     }
 
@@ -313,9 +306,8 @@
         document.querySelectorAll('[data-lang-en]').forEach((el) => { el.hidden = code !== 'en'; });
         document.querySelectorAll('[data-cv-lang]').forEach((btn) => {
             const on = btn.dataset.cvLang === code;
-            btn.style.background = on ? 'var(--color-brand-500)' : 'transparent';
-            btn.style.color = on ? '#04201c' : 'var(--text)';
-            btn.style.fontWeight = on ? '700' : '400';
+            btn.classList.toggle('chip-on', on);
+            btn.setAttribute('aria-pressed', on ? 'true' : 'false');
         });
     }
 
@@ -385,9 +377,8 @@
         document.querySelectorAll('[data-pane]').forEach((pane) => { pane.hidden = pane.dataset.pane !== wanted; });
         document.querySelectorAll('[data-pane-tab]').forEach((t) => {
             const on = t === tab;
-            t.style.background = on ? 'var(--color-brand-500)' : 'var(--surface-raised)';
-            t.style.color = on ? '#04201c' : 'var(--text)';
-            t.style.fontWeight = on ? '700' : '400';
+            t.classList.toggle('chip-on', on);
+            t.setAttribute('aria-pressed', on ? 'true' : 'false');
         });
         scalePreview();
     }));

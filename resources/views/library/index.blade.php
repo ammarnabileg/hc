@@ -30,8 +30,8 @@
             ['label' => setting('library.page.title', 'مكتبتي')],
         ]">
         <x-slot:action>
-            <a href="{{ $storeUrl }}" class="btn hidden md:inline-flex items-center rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
-               style="background: var(--color-brand-500); color: #04201c">{{ setting('library.action.store_label', 'المتجر') }}</a>
+            {{-- رابطٌ إلى المتجر لا فعل الصفحة: الفعل الأحمر الوحيد هنا هو «اكتشف المتجر» في حالة الفراغ --}}
+            <a href="{{ $storeUrl }}" class="btn btn-g hidden md:inline-flex items-center rounded-xl px-4 py-2 text-sm font-semibold motion-standard">{{ setting('library.action.store_label', 'المتجر') }}</a>
         </x-slot:action>
     </x-page-header>
 
