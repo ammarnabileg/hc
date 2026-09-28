@@ -160,8 +160,9 @@
                                                         <span style="color: var(--color-state-idle)">· ○ {{ $entry['counts']['closed'] }} {{ setting('volunteer.goals.field_8', 'مُغلَقة مستبعَدة') }}</span>
                                                     @endif
                                                 </span>
+                                                {{-- إلى لوحة الهدف مرشَّحةً على الحزمة: كروتٌ بحالاتها لا جدولٌ ببنودها --}}
                                                 <a class="hover:underline" style="color: var(--color-brand-500)"
-                                                   href="{{ route('volunteer.packages.show', $entry['package']) }}">{{ setting('volunteer.goals.link', 'افتح الحزمة') }}</a>
+                                                   href="{{ route('volunteer.goals.show', ['goal' => $goal, 'package' => $entry['package']->id]) }}">{{ setting('volunteer.goals.link', 'افتح الحزمة') }}</a>
                                             </div>
                                         @endforeach
                                     </div>

@@ -19,6 +19,16 @@
             ['label' => $package->name],
         ]">
         <x-slot:action>
+            {{-- الحزمة لها مكانها في لوحة الهدف: نفس المهامّ كروتًا بحالاتها، مرشَّحةً عليها --}}
+            @php $boardGoal = $package->milestone?->goal; @endphp
+            @if ($boardGoal && $boardGoal->sent_to_execution_at)
+                <a href="{{ route('volunteer.goals.show', ['goal' => $boardGoal, 'package' => $package->id]) }}"
+                   class="btn inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
+                   style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
+                    <x-icon name="task" size="16" /> {{ setting('volunteer.goals_package_show.open_board', 'افتح في لوحة الهدف') }}
+                </a>
+            @endif
+
             @if ($canObject)
                 <button type="button" data-modal-open="version-diff"
                         class="btn inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
