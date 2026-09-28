@@ -5,7 +5,7 @@
     $s = state_color($state);
 @endphp
 
-<span {{ $attributes->merge(['class' => 'inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs']) }}
+<span {{ $attributes->merge(['class' => 'inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs whitespace-nowrap']) }}
       style="background: color-mix(in srgb, var(--color-state-{{ $s['color'] }}) 15%, transparent);
              color: var(--color-state-{{ $s['color'] }})">
     <span aria-hidden="true">{{ $s['icon'] }}</span>

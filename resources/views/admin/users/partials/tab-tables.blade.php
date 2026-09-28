@@ -25,8 +25,8 @@
                style="min-block-size: 44px; background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
     </label>
 
-    <button type="submit" class="btn rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
-            style="min-block-size: 44px; background: var(--color-brand-500); color: #04201c">{{ setting('admin.users.partials.tab_tables.fltra', 'فلترة') }}</button>
+    <button type="submit" class="btn btn-g rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
+            style="min-block-size: 44px">{{ setting('admin.users.partials.tab_tables.fltra', 'فلترة') }}</button>
 </x-filters>
 
 <div class="grid gap-4">

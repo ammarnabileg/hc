@@ -57,8 +57,7 @@
     </div>
 
     <button type="submit"
-            class="btn rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
-            style="background: var(--color-brand-500); color: #04201c">{{ setting('store.filters.apply_label', 'طبّق') }}</button>
+            class="btn btn-g rounded-xl px-4 py-2 text-sm font-semibold motion-standard">{{ setting('store.filters.apply_label', 'طبّق') }}</button>
 
     <x-slot:advanced>
         @isset($categories)

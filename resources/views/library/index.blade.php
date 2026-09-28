@@ -71,8 +71,7 @@
                 </select>
             </label>
 
-            <button type="submit" class="btn rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
-                    style="background: var(--color-brand-500); color: #04201c">{{ setting('library.filter.apply_label', 'طبّق') }}</button>
+            <button type="submit" class="btn btn-g rounded-xl px-4 py-2 text-sm font-semibold motion-standard">{{ setting('library.filter.apply_label', 'طبّق') }}</button>
 
             <x-slot:advanced>
                 <label class="block min-w-40">

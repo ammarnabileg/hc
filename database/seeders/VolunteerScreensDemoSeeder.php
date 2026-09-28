@@ -300,6 +300,7 @@ class VolunteerScreensDemoSeeder extends Seeder
             ['volunteer.tasks.field', 'المهام: تقترب ديدلايناتها', 'تقترب ديدلايناتها'],
             ['volunteer.tasks.link', 'المهام: قائمة', 'قائمة'],
             ['volunteer.tasks.link_2', 'المهام: كانبان', 'كانبان'],
+            ['volunteer.tasks.view_aria', 'المهام: وصف مبدّل العرض', 'طريقة العرض'],
             ['volunteer.tasks.option', 'المهام: كلّ الحالات', 'كلّ الحالات'],
             ['volunteer.tasks.option_2', 'المهام: كلّ الأنواع', 'كلّ الأنواع'],
             ['volunteer.tasks.placeholder', 'المهام: عنوان أو رقم مهمّة', 'عنوان أو رقم مهمّة'],

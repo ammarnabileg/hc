@@ -404,6 +404,18 @@
   [data-filters-cap='8'] > *:nth-child(n + 9):not(button):not(:has(button)) { display: none; }
 
   /*
+   | الموبايل: صفّ الفلاتر يتراصّ عموديًّا وكلّ حقلٍ وزرّ التطبيق بعرض الشاشة
+   | (حرفيًّا من المرجع: `.filter-row{flex-direction:column}` و`.btn{width:100%}`)
+   | بدل حقولٍ بثلثي العرض وزرٍّ يطفو على يسارها.
+   */
+  @media (max-width: 767px) {
+    [data-filters] > div > label { flex: 1 1 100%; }
+    [data-filters] > div > label > select,
+    [data-filters] > div > label > input { width: 100%; }
+    [data-filters] > div > button[type='submit'] { flex: 1 1 100%; }
+  }
+
+  /*
    | حدّ أعمدة الجدول (2.15-أ-5): «جدول بـ5–7 أعمدة والباقي خلف زرّ أعمدة».
    | الحدّ إعدادٌ (`ux.tables.default_columns`) والوضع المتقدّم يرفعه، فالأعمدة
    | **موجودة ومخفيّة** لا محذوفة — والقيمة تُكتب في `data-columns-cap`.

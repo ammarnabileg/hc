@@ -88,7 +88,7 @@
                 </select>
             </label>
 
-            <button type="submit" class="btn rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
+            <button type="submit" class="btn btn-g rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
                     style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">{{ setting('admin.referral_admin.index.fltra', 'فلترة') }}</button>
 
             <x-slot:advanced>
@@ -203,7 +203,7 @@
                        class="block w-full rounded-xl px-3 py-2 text-sm mt-1"
                        style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
             </label>
-            <button type="submit" class="btn rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
+            <button type="submit" class="btn btn-g rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
                     style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">{{ setting('admin.referral_admin.index.fltra', 'فلترة') }}</button>
         </x-filters>
 

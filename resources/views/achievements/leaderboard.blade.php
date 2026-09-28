@@ -107,8 +107,7 @@
                    style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
         </label>
 
-        <button type="submit" class="btn rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
-                style="background: var(--color-brand-500); color: #04201c">{{ setting('leaderboard.filter.apply', 'طبّق') }}</button>
+        <button type="submit" class="btn btn-g rounded-xl px-4 py-2 text-sm font-semibold motion-standard">{{ setting('leaderboard.filter.apply', 'طبّق') }}</button>
     </x-filters>
 
     @if ($board['rows']->isEmpty())

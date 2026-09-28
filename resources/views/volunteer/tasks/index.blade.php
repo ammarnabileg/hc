@@ -52,15 +52,13 @@
 
         <span class="flex-1"></span>
 
-        {{-- تبديل العرض: قائمة/كانبان — وعلى الموبايل الكانبان يتحوّل قائمة تلقائيًّا --}}
-        <div class="flex items-center gap-1 text-sm">
+        {{-- تبديل العرض: قائمة/كانبان — رقاقتان كرقائق لوحة الهدف، والفعّالة بلون العلامة الخافت --}}
+        <nav class="goal-filters mb-0" aria-label="{{ setting('volunteer.tasks.view_aria', 'طريقة العرض') }}">
             <a href="{{ request()->fullUrlWithQuery(['view' => 'list']) }}"
-               class="rounded-xl px-3 py-1.5"
-               style="{{ $isBoardView ? 'background: var(--surface-raised)' : 'background: var(--color-brand-500); color:#04201c' }}">{{ setting('volunteer.tasks.link', 'قائمة') }}</a>
+               @class(['chip', 'chip-on' => ! $isBoardView]) @if (! $isBoardView) aria-current="page" @endif>{{ setting('volunteer.tasks.link', 'قائمة') }}</a>
             <a href="{{ request()->fullUrlWithQuery(['view' => 'kanban']) }}"
-               class="rounded-xl px-3 py-1.5"
-               style="{{ $isBoardView ? 'background: var(--color-brand-500); color:#04201c' : 'background: var(--surface-raised)' }}">{{ setting('volunteer.tasks.link_2', 'كانبان') }}</a>
-        </div>
+               @class(['chip', 'chip-on' => $isBoardView]) @if ($isBoardView) aria-current="page" @endif>{{ setting('volunteer.tasks.link_2', 'كانبان') }}</a>
+        </nav>
     </div>
 
     {{-- 3 فلاتر ظاهرة + بحث، والباقي مطويّ (2.15-أ-4) --}}
@@ -96,8 +94,7 @@
                    style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
         </label>
 
-        <button type="submit" class="btn rounded-xl px-4 py-2 text-sm font-semibold"
-                style="background: var(--color-brand-500); color: #04201c">{{ setting('volunteer.tasks.action_2', 'فلترة') }}</button>
+        <button type="submit" class="btn btn-g rounded-xl px-4 py-2 text-sm font-semibold">{{ setting('volunteer.tasks.action_2', 'فلترة') }}</button>
 
         <x-slot:advanced>
             <label class="inline-flex items-center gap-2 text-sm">
