@@ -155,8 +155,7 @@
                     <input type="text" name="body" required placeholder="{{ setting('volunteer.tasks_show.placeholder', 'بند جديد…') }}"
                            class="flex-1 rounded-xl px-3 py-2 text-sm"
                            style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
-                    <button type="submit" class="btn rounded-xl px-4 py-2 text-sm font-semibold"
-                            style="background: var(--color-brand-500); color: #04201c">{{ setting('volunteer.tasks_show.action_8', 'إضافة') }}</button>
+                    <button type="submit" class="btn btn-g rounded-xl px-4 py-2 text-sm font-semibold">{{ setting('volunteer.tasks_show.action_8', 'إضافة') }}</button>
                 </form>
             @endif
 
@@ -233,8 +232,7 @@
                 <p class="text-sm mb-3" style="color: var(--text-muted)">{{ setting('volunteer.tasks_show.text_17', 'مفيش مساهمين على المهمّة دي.') }}</p>
                 @if ($isOwner && $canInviteContributor)
                     <button type="button" data-modal-open="invite-contributor"
-                            class="btn rounded-xl px-4 py-2 text-sm font-semibold"
-                            style="background: var(--color-brand-500); color: #04201c">{{ setting('volunteer.tasks_show.action_6', 'دعوة مساهم') }}</button>
+                            class="btn btn-g rounded-xl px-4 py-2 text-sm font-semibold">{{ setting('volunteer.tasks_show.action_6', 'دعوة مساهم') }}</button>
                 @endif
             @endforelse
         </div>

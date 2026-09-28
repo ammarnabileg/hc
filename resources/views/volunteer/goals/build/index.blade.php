@@ -66,12 +66,10 @@
             <div class="mt-3 flex items-center gap-2 flex-wrap">
                 @if ($canBreakdown)
                     <a href="{{ route('volunteer.goals.build.breakdown', $goal) }}"
-                       class="btn rounded-xl px-3 py-2 text-xs font-semibold motion-standard"
-                       style="background: var(--color-brand-500); color: #04201c">{{ setting('volunteer.goals_build.link_2', 'تفكيك الهدف') }}</a>
+                       class="btn btn-g rounded-xl px-3 py-2 text-xs font-semibold motion-standard">{{ setting('volunteer.goals_build.link_2', 'تفكيك الهدف') }}</a>
                 @elseif ($canFill)
                     <a href="{{ route('volunteer.goals.build.fill', $goal) }}"
-                       class="btn rounded-xl px-3 py-2 text-xs font-semibold motion-standard"
-                       style="background: var(--color-brand-500); color: #04201c">{{ setting('volunteer.goals_build.link_3', 'املا حزم كيانك') }}</a>
+                       class="btn btn-g rounded-xl px-3 py-2 text-xs font-semibold motion-standard">{{ setting('volunteer.goals_build.link_3', 'املا حزم كيانك') }}</a>
                 @endif
 
                 <details class="relative">

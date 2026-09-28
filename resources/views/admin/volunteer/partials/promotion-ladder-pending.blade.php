@@ -25,8 +25,7 @@
                     @can('vacancies.approve')
                         <form method="post" action="{{ route('admin.volunteer.org.promotion-ladder.confirm', $membership) }}">
                             @csrf
-                            <button type="submit" class="btn rounded-xl px-3 py-1.5 text-xs font-semibold"
-                                    style="background: var(--color-brand-500); color: #04201c">{{ setting('admin.volunteer.org.promotion_ladder.confirm', 'اعتماد') }}</button>
+                            <button type="submit" class="btn btn-g rounded-xl px-3 py-1.5 text-xs font-semibold">{{ setting('admin.volunteer.org.promotion_ladder.confirm', 'اعتماد') }}</button>
                         </form>
                     @endcan
                     @can('promotion_ladder.reject')
@@ -47,8 +46,7 @@
                     </div>
                 </div>
                 @can('promotion_ladder.approve')
-                    <button type="button" class="btn rounded-xl px-3 py-1.5 text-xs font-semibold shrink-0"
-                            style="background: var(--color-brand-500); color: #04201c"
+                    <button type="button" class="btn btn-g rounded-xl px-3 py-1.5 text-xs font-semibold shrink-0"
                             data-decide-tie data-id="{{ $decision->id }}"
                             data-candidates='@json(\App\Models\User::whereIn("id", (array) $decision->candidate_user_ids)->get(["id", "name"]))'>{{ setting('admin.volunteer.org.promotion_ladder.decide', 'احسم') }}</button>
                 @endcan
@@ -66,8 +64,7 @@
                     </div>
                 </div>
                 @can('promotion_ladder.approve')
-                    <button type="button" class="btn rounded-xl px-3 py-1.5 text-xs font-semibold shrink-0"
-                            style="background: var(--color-brand-500); color: #04201c"
+                    <button type="button" class="btn btn-g rounded-xl px-3 py-1.5 text-xs font-semibold shrink-0"
                             data-resolve-track data-id="{{ $decision->id }}"
                             data-candidates='@json(\App\Models\User::whereIn("id", (array) $decision->candidate_user_ids)->get(["code", "name"]))'>{{ setting('admin.volunteer.org.promotion_ladder.track_fill', 'املأه') }}</button>
                 @endcan

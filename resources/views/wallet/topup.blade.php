@@ -62,8 +62,7 @@
                                     <code class="flex-1 rounded-lg px-3 py-2 text-sm select-all"
                                           style="background: var(--surface-sunken)">{{ $method->account_number }}</code>
                                     {{-- ردّ فوريّ لكلّ فعل: «اتنسخ ✓» (2.17-ب) --}}
-                                    <button type="button" class="btn rounded-lg px-3 py-2 text-xs font-semibold motion-standard"
-                                            style="background: var(--color-brand-500); color: #04201c"
+                                    <button type="button" class="btn btn-g rounded-lg px-3 py-2 text-xs font-semibold motion-standard"
                                             data-copy="{{ $method->account_number }}">{{ setting('wallet.topup.copy_action', 'نسخ') }}</button>
                                 </div>
                             @endif
