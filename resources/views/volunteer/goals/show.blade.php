@@ -130,9 +130,12 @@
                         @php
                             $item = $itemsById->get($task->work_item_id);
                             $package = $item ? $packagesById->get($item->work_package_id) : null;
+                            $act = $actions->get($task->id);
                         @endphp
 
-                        <a class="task-card motion-standard" href="{{ route('volunteer.tasks.show', $task) }}">
+                        {{-- الكارت مقالةٌ لا رابطًا واحدًا: المحتوى رابطٌ للمهمّة، والأفعال أزرارٌ تحته (زرٌّ داخل رابط ماركبٌ باطل ويقفز للصفحة) --}}
+                        <article class="task-card motion-standard">
+                        <a class="task-card-main" href="{{ route('volunteer.tasks.show', $task) }}">
                             <strong class="task-card-title">{{ $task->title }}</strong>
 
                             @if ($package)
@@ -163,6 +166,29 @@
                                 </span>
                             @endif
                         </a>
+
+                        @if ($act)
+                            {{--
+                              ⭐ الفعل من الكارت: نفس نموذج صفحة المهمّة في بوب-أب، بلا مغادرة اللوحة.
+                              الزرّ يحمل هدف الفورم وأرقامه الاستشاريّة، والسكربت أسفل الصفحة يصبّها
+                              في البوب-أب المشترك لحظة الضغط — فبوب-أبان لكلّ اللوحة لا اثنان لكلّ كارت.
+                            --}}
+                            <div class="task-card-actions">
+                                <button type="button" class="task-act task-act-primary motion-standard"
+                                        data-modal-open="board-deliver" data-board-action="deliver"
+                                        data-url="{{ $act['deliver'] }}" data-title="{{ $task->title }}"
+                                        data-rep="{{ ($act['rep'] >= 0 ? '+' : '').rtrim(rtrim(number_format($act['rep'], 3), '0'), '.') }}">
+                                    {{ setting('volunteer.tasks_show.action', 'تسليم') }}
+                                </button>
+                                <button type="button" class="task-act motion-standard"
+                                        data-modal-open="board-block" data-board-action="block"
+                                        data-url="{{ $act['block'] }}" data-title="{{ $task->title }}"
+                                        data-blocks-left="{{ $act['blocksLeft'] }}" data-halves="{{ $act['halves'] ? '1' : '0' }}">
+                                    {{ setting('volunteer.tasks_show.action_2', 'متعثّر') }}
+                                </button>
+                            </div>
+                        @endif
+                        </article>
                     @empty
                         {{-- بلا جملةِ فراغ: العدّاد فوقه يقول صفرًا، والسطر يطوّل العمود بلا فائدة --}}
                     @endforelse
@@ -201,4 +227,44 @@
             </div>
         </details>
     </div>
+
+    @if ($actions->isNotEmpty())
+        @include('volunteer.goals.partials.board-modals')
+    @endif
 @endsection
+
+@if ($actions->isNotEmpty())
+    @push('scripts')
+        <script>
+            /*
+             | البوب-أب المشترك يأخذ هويّته من الزرّ الذي فتحه: هدف الفورم، اسم المهمّة،
+             | والأرقام الاستشاريّة — ويبدأ بحقولٍ فارغة كلّ مرّة كي لا يُسلَّم مخرجُ
+             | مهمّةٍ باسم أخرى. والفتح نفسه يتولّاه `data-modal-open` العامّ.
+             */
+            document.addEventListener('click', function (e) {
+                var btn = e.target.closest('[data-board-action]');
+                if (!btn) return;
+
+                var modal = document.getElementById(btn.dataset.modalOpen);
+                if (!modal) return;
+
+                var form = modal.querySelector('form');
+                form.action = btn.dataset.url;
+                form.reset();
+
+                var title = modal.querySelector('[data-board-task-title]');
+                if (title) title.textContent = btn.dataset.title || '';
+
+                if (btn.dataset.boardAction === 'deliver') {
+                    var rep = modal.querySelector('[data-board-rep]');
+                    if (rep) rep.textContent = btn.dataset.rep || '';
+                } else {
+                    var left = modal.querySelector('[data-board-blocks-left]');
+                    if (left) left.textContent = btn.dataset.blocksLeft || '0';
+                    var halves = modal.querySelector('[data-board-halves]');
+                    if (halves) halves.hidden = btn.dataset.halves !== '1';
+                }
+            });
+        </script>
+    @endpush
+@endif

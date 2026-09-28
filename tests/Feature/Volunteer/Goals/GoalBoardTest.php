@@ -168,6 +168,38 @@ class GoalBoardTest extends GoalsTestCase
         $mine->assertSee('زميل مشغول');
     }
 
+    /**
+     * ⭐ الفعل من الكارت: زرّا «تسليم» و«متعثّر» على **مهامّ المستخدم نفسه** وحدها
+     * وفي الحالات المفتوحة، يشيران إلى مسارَي الصفحة نفسهما — لا مسارًا جديدًا.
+     * ومهمّة زميلٍ لا زرّ عليها، ومهمّةٌ معتمَدة لا زرّ عليها ولو كانت له.
+     */
+    public function test_own_open_tasks_carry_the_two_actions_and_others_do_not(): void
+    {
+        [$user, $tree] = $this->boardFixture();
+        $peer = $this->makeUser('زميل');
+
+        $mine = $this->makeTask($tree['item'], TaskStatus::IN_PROGRESS, $user, 10);
+        $done = $this->makeTask($tree['item'], TaskStatus::APPROVED, $user, 10);
+        $theirs = $this->makeTask($tree['item'], TaskStatus::IN_PROGRESS, $peer, 10);
+
+        $response = $this->actingAs($user)->get(route('volunteer.goals.show', $tree['goal']));
+        $response->assertOk();
+
+        // مهمّتي المفتوحة: زرّان يشيران إلى مسارَي التسليم والتعثّر الحقيقيّين
+        $response->assertSee('data-url="'.route('volunteer.tasks.deliver', $mine).'"', false);
+        $response->assertSee('data-url="'.route('volunteer.tasks.block', $mine).'"', false);
+
+        // لا فعل على المعتمَدة ولا على مهمّة الزميل
+        $response->assertDontSee('data-url="'.route('volunteer.tasks.deliver', $done).'"', false);
+        $response->assertDontSee('data-url="'.route('volunteer.tasks.deliver', $theirs).'"', false);
+
+        // والبوب-أبان المشتركان موجودان مرّةً واحدة بحقول الصفحة نفسها
+        $response->assertSee('id="board-deliver"', false);
+        $response->assertSee('id="board-block"', false);
+        $response->assertSee('name="reason"', false);
+        $response->assertSee('name="link"', false);
+    }
+
     /** @return array{0: User, 1: array<string, mixed>} */
     private function boardFixture(): array
     {

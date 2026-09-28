@@ -18,7 +18,9 @@ use App\Services\Volunteer\Goals\GoalBuildService;
 use App\Services\Volunteer\Goals\GoalLaunchService;
 use App\Services\Volunteer\Goals\Integrations;
 use App\Services\Volunteer\Goals\RollupService;
+use App\Services\Volunteer\Tasks\TaskBlockService;
 use App\Services\Volunteer\Tasks\TaskStatus;
+use App\Services\Volunteer\Tasks\TaskWorkflow;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -44,6 +46,8 @@ class GoalController extends Controller
         private readonly BuildAccess $access,
         private readonly GoalBuildService $build,
         private readonly FileDrafts $fileDrafts,
+        private readonly TaskWorkflow $workflow,
+        private readonly TaskBlockService $blocks,
     ) {}
 
     public function index(Request $request): View
@@ -152,6 +156,24 @@ class GoalController extends Controller
         }
 
         /*
+         | ⭐ الفعل على الكارت — لمهامّ المستخدم نفسه وحدها (`authorizeOwner` في
+         | المسار)، وبنفس الأرقام الاستشاريّة التي تعرضها صفحة المهمّة في نموذجها
+         | (أثر Rep عند التسليم · المتبقّي من مرّات التعثّر · تحذير التنصيف)،
+         | محسوبةً من **الخدمات نفسها** فلا يقول البوب-أب رقمًا غير ما تقوله الصفحة.
+         | والمهامّ المنتهية لا فعلَ عليها: `deliver()` يرفض المعتمَدة والمُغلَقة.
+         */
+        $actions = $tasks
+            ->filter(fn (Task $task) => (int) $task->owner_id === (int) $user->id)
+            ->reject(fn (Task $task) => in_array($task->status, [TaskStatus::APPROVED, TaskStatus::CLOSED], true))
+            ->mapWithKeys(fn (Task $task) => [$task->id => [
+                'deliver' => route('volunteer.tasks.deliver', $task),
+                'block' => route('volunteer.tasks.block', $task),
+                'rep' => $this->workflow->deliveryRepValue($task),
+                'blocksLeft' => max(0, $this->blocks->maxBlocks() - (int) $task->blocked_count),
+                'halves' => $this->blocks->nextBlockHalvesReward($task),
+            ]]);
+
+        /*
          | الأعمدة من `TaskStatus::boardColumns()` لا من قائمةٍ مكتوبة هنا، كي
          | لا تفترق اللوحة عن دورة العمل لو زيدت حالة. والمنتهية (معتمدة · عدم
          | تسليم · مُغلَقة) تُطوى افتراضيًّا: تاريخٌ لا عملٌ قائم.
@@ -199,6 +221,8 @@ class GoalController extends Controller
             'columns' => $columns,
             'deadlineStates' => $deadlineStates,
             'owners' => $owners,
+            'actions' => $actions,
+            'maxBlockDays' => $this->blocks->maxDays(),
             'doneColumns' => $done,
             'doneTotal' => collect($done)->sum(fn (array $c) => $c['tasks']->count()),
             'filters' => $filters,
