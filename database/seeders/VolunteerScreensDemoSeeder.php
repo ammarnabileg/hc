@@ -699,7 +699,7 @@ class VolunteerScreensDemoSeeder extends Seeder
             ['volunteer.goals_package_show.placeholder', 'المشاريع والأهداف: ابحث باسم البند…', 'ابحث باسم البند…'],
             ['volunteer.goals_package_show.placeholder_2', 'المشاريع والأهداف: اكتب سبب اعتراضك…', 'اكتب سبب اعتراضك…'],
             ['volunteer.goals_package_show.subtitle', 'المشاريع والأهداف: المَعلَم الأمّ: ', 'المَعلَم الأمّ: '],
-            ['volunteer.goals_package_show.subtitle_2', 'المشاريع والأهداف:  · الكيان: ', ' · الكيان: '],
+            ['volunteer.goals_package_show.entity_label', 'المشاريع والأهداف: الكيان: ', 'الكيان: '],
             ['volunteer.goals_package_show.summary', 'المشاريع والأهداف: مهامّ البند', 'مهامّ البند'],
             ['volunteer.goals_package_show.text', 'المشاريع والأهداف: بلا مالك', 'بلا مالك'],
             ['volunteer.goals_package_show.tooltip', 'المشاريع والأهداف: توزيع VXP: ', 'توزيع VXP: '],

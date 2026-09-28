@@ -10,9 +10,20 @@
 @endphp
 
 @section('content')
+    @php
+        /*
+         | سطر التعريف يذكر ما هو موجودٌ فقط: حزمةٌ بلا مَعلَمٍ أمّ لا تكتب
+         | «المَعلَم الأمّ: —» فتترك القارئ أمام شرطةٍ يتيمة، بل تسقط الجزء كلّه.
+         */
+        $subtitleParts = collect([
+            $package->milestone?->name ? setting('volunteer.goals_package_show.subtitle', 'المَعلَم الأمّ: ').$package->milestone->name : null,
+            $package->entity?->name_ar ? setting('volunteer.goals_package_show.entity_label', 'الكيان: ').$package->entity->name_ar : null,
+        ])->filter()->implode(' · ');
+    @endphp
+
     <x-page-header
         :title="$package->name"
-        :subtitle="setting('volunteer.goals_package_show.subtitle', 'المَعلَم الأمّ: ').($package->milestone?->name ?? '—').setting('volunteer.goals_package_show.subtitle_2', ' · الكيان: ').($package->entity?->name_ar ?? '—')"
+        :subtitle="$subtitleParts"
         :breadcrumbs="[
             ['label' => setting('volunteer.goals_package_show.label', 'الأهداف والمَعالِم'), 'url' => route('volunteer.goals')],
             ['label' => setting('volunteer.goals_package_show.label_2', 'حزم العمل'), 'url' => route('volunteer.packages')],
@@ -138,7 +149,10 @@
         </div>
     @endif
 
-    @if ($distributable->isNotEmpty())
+    @php $distributableWithChildren = $distributable->filter(fn ($entry) => $entry['children']->isNotEmpty()); @endphp
+
+    {{-- العنوان لا يظهر إلّا وتحته زرٌّ واحدٌ على الأقلّ: مهمّةٌ بلا أبناء لا شيء يُوزَّع عليها --}}
+    @if ($distributableWithChildren->isNotEmpty())
         <div class="mt-5">
             <h2 class="text-sm font-bold mb-2">{{ setting('volunteer.goals_package_show.heading', 'توزيع نقاط الإنتاج على الأبناء') }}</h2>
             <div class="flex flex-wrap gap-2">
