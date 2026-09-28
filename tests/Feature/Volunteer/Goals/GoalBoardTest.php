@@ -52,6 +52,10 @@ class GoalBoardTest extends GoalsTestCase
         }
 
         $response->assertSee('منتهية');
+
+        // الأعمدة إفصاحاتٌ أصيلة تُطوى على الموبايل، ورؤوسها `summary` لا `header`
+        $response->assertSee('<details class="goal-col', false);
+        $response->assertSee('<summary class="goal-col-head">', false);
     }
 
     /**

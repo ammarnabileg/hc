@@ -116,14 +116,20 @@
     {{-- اللوحة: عمودٌ لكلّ حالة مفتوحة بترتيب دورة العمل (23-3.3) --}}
     <div class="goal-board" data-goal-board>
         @foreach ($columns as $column)
-            <section @class(['goal-col', 'goal-col-vacant' => $column['tasks']->isEmpty()])
-                     aria-label="{{ $column['label'] }}">
-                <header class="goal-col-head">
+            {{--
+              العمود `<details>` مفتوحٌ دائمًا على الديسكتوب، وعلى الموبايل — حيث تتراصّ
+              الأعمدة عموديًّا — يُطوى فتُرى رؤوس الحالات الخمس دفعةً واحدة وتفتح ما تريد،
+              بدل التمرير عبر كلّ كروت «قيد التنفيذ» للوصول إلى «متعثّرة». الطيّ على
+              الموبايل يتولّاه السكربت أسفل الصفحة لحظة التحميل.
+            --}}
+            <details @class(['goal-col', 'goal-col-vacant' => $column['tasks']->isEmpty()]) open
+                     data-goal-col aria-label="{{ $column['label'] }}">
+                <summary class="goal-col-head">
                     <span class="cluster" style="gap: 6px">
                         <x-state-badge :state="$column['state']" :label="$column['label']" />
                     </span>
                     <bdi class="goal-col-count">{{ $column['tasks']->count() }}</bdi>
-                </header>
+                </summary>
 
                 <div class="goal-col-body">
                     @forelse ($column['tasks'] as $task)
@@ -193,7 +199,7 @@
                         {{-- بلا جملةِ فراغ: العدّاد فوقه يقول صفرًا، والسطر يطوّل العمود بلا فائدة --}}
                     @endforelse
                 </div>
-            </section>
+            </details>
         @endforeach
 
         {{-- المنتهية: عمودٌ واحد مطويّ يحفظ الحالات الثلاث بأسمائها داخله --}}
@@ -232,6 +238,28 @@
         @include('volunteer.goals.partials.board-modals')
     @endif
 @endsection
+
+@push('scripts')
+    <script>
+        /*
+         | الموبايل: الأعمدة متراصّة عموديًّا، فتُطوى كلّها إلّا أوّل عمودٍ فيه شغل —
+         | رؤوس الحالات كلّها في الشاشة الأولى، وتفتح ما تريد. وعلى الديسكتوب تبقى
+         | مفتوحةً كما رُسمت من الخادم (الطيّ هناك بلا معنى: الأعمدة جنبًا إلى جنب).
+         */
+        (function () {
+            if (!window.matchMedia('(max-width: 767px)').matches) return;
+
+            var cols = document.querySelectorAll('[data-goal-col]');
+            var kept = false;
+
+            cols.forEach(function (col) {
+                var hasWork = !!col.querySelector('.task-card');
+                if (hasWork && !kept) { kept = true; return; }
+                col.open = false;
+            });
+        })();
+    </script>
+@endpush
 
 @if ($actions->isNotEmpty())
     @push('scripts')

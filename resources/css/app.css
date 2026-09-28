@@ -886,8 +886,17 @@
   /* الأعمدة تتقاسم العرض المتاح فتسع الشاشة بلا تمرير، وتضيق حتى 196px ثمّ تُمرَّر */
   .goal-col { flex: 1 1 0; min-width: 196px; background: var(--soft); border: 1px solid var(--line); border-radius: 12px; padding: 10px; }
   .goal-col-done { flex: 0 1 196px; }
-  .goal-col-done > summary { cursor: pointer; list-style: none; min-height: 36px; }
-  .goal-col-done > summary::-webkit-details-marker { display: none; }
+  /* رأس العمود `summary`: بلا علامة الإفصاح، وعلى الديسكتوب رأسٌ ثابت لا يُطوى */
+  .goal-col > summary { list-style: none; min-height: 36px; }
+  .goal-col > summary::-webkit-details-marker { display: none; }
+  .goal-col-done > summary { cursor: pointer; }
+  @media (min-width: 768px) {
+    [data-goal-col] > summary { cursor: default; pointer-events: none; }
+  }
+  @media (max-width: 767px) {
+    [data-goal-col] > summary { cursor: pointer; }
+    [data-goal-col]:not([open]) { padding-bottom: 10px; }
+  }
   .goal-done-group { padding-top: 4px; }
 
   /*
@@ -896,7 +905,7 @@
    | حقّه (2.15-ج). والقاعدة هنا لا في طبقة الأساس لأنّ الكلاس يغلبها بالترتيب.
    */
   @media (pointer: coarse) {
-    .chip, .goal-col-done > summary { min-height: var(--touch-min, 44px); }
+    .chip, .goal-col > summary { min-height: var(--touch-min, 44px); }
   }
   .goal-col-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
   .goal-col-count { font-size: 12px; color: var(--muted); }
