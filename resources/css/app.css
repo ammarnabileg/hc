@@ -915,9 +915,31 @@
   .task-card-vxp { font-weight: 600; color: var(--brand); }
 
   /* الموبايل: اللوحة عمودٌ واحد يُمرَّر رأسيًّا لا أفقيًّا (2.15-ج) */
+  /* حقل البحث يعيش في صفّ الرقائق نفسه ويأخذ ما تبقّى من عرضه */
+  .goal-search { display: flex; align-items: center; gap: 6px; flex: 1 1 200px; min-width: 180px; min-height: 36px; padding-inline: 10px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface-raised); color: var(--muted); font-size: 13px; }
+  .goal-search input { flex: 1; min-width: 0; background: transparent; border: 0; padding: 0; font: inherit; color: var(--ink); }
+  .goal-search input:focus { outline: none; }
+  .goal-search input::placeholder { color: var(--muted); }
+  .goal-search-clear { display: inline-flex; align-items: center; justify-content: center; min-width: 28px; min-height: 28px; border-radius: 50%; color: var(--muted); font-size: 12px; }
+  .goal-search-clear:hover { color: var(--ink); background: var(--soft); }
+
+  /*
+   | التابلت الصغير (768–1023): خمسة أعمدة لا تسع، والتمرير الأفقيّ في وسط
+   | صفحةٍ رأسيّة مزعج. فالأعمدة تلتفّ عمودين في الصفّ لا تُمرَّر جانبًا.
+   */
+  @media (min-width: 768px) and (max-width: 1023px) {
+    .goal-board { flex-wrap: wrap; overflow-x: visible; }
+    .goal-col, .goal-col-done, .goal-col-vacant { flex: 1 1 calc(50% - 6px); min-width: calc(50% - 6px); }
+  }
+
   @media (max-width: 767px) {
     .goal-board { flex-direction: column; overflow-x: visible; }
     .goal-col, .goal-col-done { flex-basis: auto; width: 100%; }
+    .goal-search { flex-basis: 100%; }
+  }
+  @media (pointer: coarse) {
+    .goal-search { min-height: var(--touch-min, 44px); }
+    .goal-search-clear { min-width: var(--touch-min, 44px); min-height: var(--touch-min, 44px); }
   }
   .pin-row { display: flex; align-items: center; }
   .pin-row > .pin-grow { flex: 1; min-width: 0; }

@@ -95,6 +95,43 @@ class GoalBoardTest extends GoalsTestCase
         $filtered->assertDontSee('مهمّة الحزمة الأولى');
     }
 
+    /**
+     * البحث بالاسم يعمل **داخل** النطاق المرشَّح: حزمةٌ مرشَّحة + كلمة ⟵ مهامّ
+     * تلك الحزمة التي تحمل الكلمة وحدها. والكونترولر كان يقرأ `q` من البداية
+     * بلا حقلٍ في الشاشة — فالحارس هنا يثبّت أنّ الحقل موجودٌ وأنّه لا يقفز
+     * إلى الهدف كلّه حين تكون حزمةٌ مرشَّحة.
+     */
+    public function test_searching_by_name_stays_inside_the_filtered_package(): void
+    {
+        [$user, $tree] = $this->boardFixture();
+
+        $this->makeTask($tree['item'], TaskStatus::IN_PROGRESS, $user, 10)
+            ->forceFill(['title' => 'كتابة السكربت الأوّل'])->save();
+
+        $this->makeTask($tree['item'], TaskStatus::IN_PROGRESS, $user, 10)
+            ->forceFill(['title' => 'مونتاج الحلقة'])->save();
+
+        // حزمةٌ ثانية فيها مهمّةٌ تحمل نفس الكلمة — يجب ألّا تظهر تحت ترشيح الأولى
+        $second = WorkPackage::create([
+            'milestone_id' => $tree['milestone']->id,
+            'entity_id' => $tree['package']->entity_id,
+            'name' => 'الحزمة الثانية',
+        ]);
+        $secondItem = WorkItem::create(['work_package_id' => $second->id, 'name' => 'بند ثانٍ', 'vxp_pool' => 100]);
+        $this->makeTask($secondItem, TaskStatus::IN_PROGRESS, $user, 10)
+            ->forceFill(['title' => 'كتابة السكربت الثاني'])->save();
+
+        $response = $this->actingAs($user)->get(route('volunteer.goals.show', [
+            'goal' => $tree['goal'], 'package' => $tree['package']->id, 'q' => 'السكربت',
+        ]));
+
+        $response->assertOk();
+        $response->assertSee('name="q"', false);
+        $response->assertSee('كتابة السكربت الأوّل');
+        $response->assertDontSee('مونتاج الحلقة');
+        $response->assertDontSee('كتابة السكربت الثاني');
+    }
+
     /** @return array{0: User, 1: array<string, mixed>} */
     private function boardFixture(): array
     {

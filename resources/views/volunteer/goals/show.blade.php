@@ -45,8 +45,13 @@
       ⭐ المرشِّحات مكان التعشيش: المَعلَم ثمّ حزمه. الطبقات الخمس كما هي في
       المنطق، لكنّها هنا صفٌّ من الرقائق لا أربع نقراتٍ متتابعة (2.15-أ-6).
     --}}
+    @php
+        // البحث يبقى مع الرقاقة: الانتقال بين مَعلَمٍ وحزمةٍ لا يُسقِط ما كتبه المستخدم
+        $keep = array_filter(['q' => $filters['q']]);
+    @endphp
+
     <nav class="goal-filters" aria-label="{{ setting('volunteer.goal_board.filters_aria', 'ترشيح اللوحة') }}">
-        <a href="{{ route('volunteer.goals.show', $goal) }}"
+        <a href="{{ route('volunteer.goals.show', ['goal' => $goal] + $keep) }}"
            @class(['chip', 'chip-on' => ! $filters['milestone'] && ! $filters['package']])>
             {{ setting('volunteer.goal_board.all', 'كلّ الشغل') }}
             <bdi class="chip-count">{{ $taskTotal }}</bdi>
@@ -55,18 +60,36 @@
         @foreach ($milestones as $milestone)
             @php $own = $packages->where('milestone_id', $milestone->id); @endphp
 
-            <a href="{{ route('volunteer.goals.show', ['goal' => $goal, 'milestone' => $milestone->id]) }}"
+            <a href="{{ route('volunteer.goals.show', ['goal' => $goal, 'milestone' => $milestone->id] + $keep) }}"
                @class(['chip', 'chip-on' => $filters['milestone'] === $milestone->id && ! $filters['package']])>
                 <x-icon :name="$milestone->is_verified ? 'check' : 'task'" size="14" /> {{ $milestone->name }}
             </a>
 
             @foreach ($own as $package)
-                <a href="{{ route('volunteer.goals.show', ['goal' => $goal, 'package' => $package->id]) }}"
+                <a href="{{ route('volunteer.goals.show', ['goal' => $goal, 'package' => $package->id] + $keep) }}"
                    @class(['chip', 'chip-sub', 'chip-on' => $filters['package'] === $package->id])>
                     <x-icon name="bundle" size="14" /> {{ $package->name }}
                 </a>
             @endforeach
         @endforeach
+
+        {{--
+          بحث بالاسم داخل النطاق المرشَّح (2.15-أ-4: فلاتر + بحث). الكونترولر
+          كان يقرأ `q` من البداية وما كان له حقلٌ في الشاشة — فلترٌ بلا باب.
+          والنطاق الحاليّ يمرّ معه مخفيًّا فلا يقفز البحث إلى الهدف كلّه.
+        --}}
+        <form method="get" action="{{ route('volunteer.goals.show', $goal) }}" class="goal-search" role="search">
+            @if ($filters['milestone'])<input type="hidden" name="milestone" value="{{ $filters['milestone'] }}">@endif
+            @if ($filters['package'])<input type="hidden" name="package" value="{{ $filters['package'] }}">@endif
+            <x-icon name="search" size="16" />
+            <input type="search" name="q" value="{{ $filters['q'] }}"
+                   placeholder="{{ setting('volunteer.goal_board.search_placeholder', 'ابحث باسم المهمّة') }}"
+                   aria-label="{{ setting('volunteer.goal_board.search_aria', 'بحث في مهامّ الهدف') }}">
+            @if ($filters['q'] !== '')
+                <a class="goal-search-clear" href="{{ route('volunteer.goals.show', array_filter(['goal' => $goal, 'milestone' => $filters['milestone'], 'package' => $filters['package']])) }}"
+                   aria-label="{{ setting('volunteer.goal_board.search_clear', 'امسح البحث') }}">✕</a>
+            @endif
+        </form>
     </nav>
 
     {{-- اللوحة: عمودٌ لكلّ حالة مفتوحة بترتيب دورة العمل (23-3.3) --}}
