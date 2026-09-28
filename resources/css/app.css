@@ -920,6 +920,9 @@
     .chip, .goal-col > summary { min-height: var(--touch-min, 44px); }
   }
   .goal-col-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+  /* شارة الحالة لا تلتفّ سطرين على الكروت الضيّقة، إلّا في رأس عمودٍ خالٍ ضيّق فتلتفّ بدل أن تفيض */
+  .state-badge { white-space: nowrap; }
+  .goal-col-vacant .state-badge { white-space: normal; }
   .goal-col-count { font-size: 12px; color: var(--muted); }
   .goal-col-body { display: flex; flex-direction: column; gap: 8px; }
   .goal-col-empty { font-size: 12px; color: var(--muted); padding: 10px 2px; }
