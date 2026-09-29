@@ -698,16 +698,23 @@ const post = (url, body) =>
 })();
 
 // ردّ فوريّ لكلّ فعل: Toast خفيف بلا إعادة تحميل (2.17-ب)
+// توست واحد يُعاد استعماله كالمرجع (`#toast`): النصّ يتبدّل والمؤقّت يُعاد ضبطه
+let toastTimer = null;
 function toast(text) {
     if (!text) return;
-    const el = document.createElement('div');
-    el.className = 'fixed z-[80] rounded-xl px-4 py-3 text-sm animate-fadeup';
-    el.style.cssText = 'inset-inline-end:1rem; inset-block-start:calc(var(--header-h,64px) + 12px);'
-        + 'background: var(--surface-raised); border:1px solid var(--border); color: var(--text)';
-    el.setAttribute('role', 'status');
+    let el = document.getElementById('toast');
+    if (!el) {
+        el = document.createElement('div');
+        el.id = 'toast';
+        el.className = 'toast';
+        el.setAttribute('role', 'status');
+        el.setAttribute('aria-live', 'polite');
+        document.body.appendChild(el);
+    }
+    clearTimeout(toastTimer);
     el.textContent = text;
-    document.body.appendChild(el);
-    setTimeout(() => el.remove(), 3000);
+    requestAnimationFrame(() => el.classList.add('show'));
+    toastTimer = setTimeout(() => el.classList.remove('show'), 3000);
 }
 window.platformToast = toast;
 

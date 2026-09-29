@@ -462,6 +462,20 @@
     #content { padding: 0 !important; }
   }
 
+  /*
+   | التوست حرفيًّا من المرجع (`#toast`): أسفل الشاشة في المنتصف، داكنٌ على
+   | فاتح، ينزلق للأعلى ويختفي. وعلى الموبايل يرتفع فوق الأشرطة بالمتغيّر نفسه
+   | الذي ترتفع به العائمات. كان توستًا فاتحًا أعلى اليمين لا يشبه المرجع.
+   */
+  .toast {
+    position: fixed; inset-block-end: calc(var(--float-bottom, 1rem) + 12px); left: 50%;
+    transform: translate(-50%, 20px); opacity: 0; pointer-events: none;
+    padding: 14px 22px; max-width: calc(100% - 32px); border: 1px solid var(--line); border-radius: 8px;
+    background: var(--ink); color: var(--bg); z-index: 130; font-size: 14px;
+    transition: opacity 200ms var(--ease-standard), transform 200ms var(--ease-standard);
+  }
+  .toast.show { opacity: 1; transform: translate(-50%); pointer-events: auto; }
+
   /* ================= (7) الأزرار — لونٌ صلبٌ لا تدرّج =================
    |
    | نصّ 2.10.1-7 حرفيًّا (الهويّة 2.0): «**أساسيّ:** خلفيّة صلبة `--brand`
