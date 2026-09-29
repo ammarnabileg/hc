@@ -7,6 +7,7 @@
     <summary class="text-xs cursor-pointer" style="color: var(--text-muted)">{{ setting('admin.courses.media.ijraat', 'إجراءات') }}</summary>
     <div class="mt-2 space-y-2">
         <input type="text" readonly value="{{ $item->path }}"
+               aria-label="{{ setting('admin.courses.media.path_aria', 'مسار الملفّ') }}"
                class="w-full rounded-lg px-2 py-1 text-xs" data-copy
                style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
 
@@ -14,12 +15,14 @@
             <form method="post" action="{{ route('admin.media.update', $item) }}" class="space-y-2">
                 @csrf @method('put')
                 <input type="text" name="name" value="{{ $item->name }}"
+                       aria-label="{{ setting('admin.courses.media.name_aria', 'اسم الملفّ') }}"
                        class="w-full rounded-lg px-2 py-1 text-xs"
                        style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
                 <input type="text" name="tags" value="{{ implode(',', (array) $item->tags) }}"
+                       aria-label="{{ setting('admin.courses.media.tags_aria', 'الوسوم') }}"
                        placeholder="{{ setting('admin.courses.media.wswm_mfswla_bfasla', 'وسوم مفصولة بفاصلة') }}" class="w-full rounded-lg px-2 py-1 text-xs"
                        style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
-                <input type="text" name="folder" value="{{ $item->folder }}" placeholder="{{ setting('admin.courses.media.mjld', 'مجلّد') }}"
+                <input type="text" name="folder" value="{{ $item->folder }}" aria-label="{{ setting('admin.courses.media.mjld', 'مجلّد') }}" placeholder="{{ setting('admin.courses.media.mjld', 'مجلّد') }}"
                        class="w-full rounded-lg px-2 py-1 text-xs"
                        style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
                 <button class="text-xs underline">{{ setting('admin.courses.media.hfz', 'حفظ') }}</button>

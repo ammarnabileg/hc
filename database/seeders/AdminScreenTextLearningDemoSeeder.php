@@ -300,6 +300,9 @@ class AdminScreenTextLearningDemoSeeder extends Seeder
             ['admin.courses.media.k_b', 'courses', ' ك.ب', 'string', ' ك.ب', 'نصّ في resources/views/admin/courses/media.blade.php'],
             ['admin.courses.media.lw_almlf_atrfa_qbl_kdh_hnstkhdm_alnskha', 'courses', 'لو الملفّ اترفع قبل كده هنستخدم النسخة الموجودة بدل ما نكرّره.', 'string', 'لو الملفّ اترفع قبل كده هنستخدم النسخة الموجودة بدل ما نكرّره.', 'نصّ في resources/views/admin/courses/media.blade.php'],
             ['admin.courses.media.mjld', 'courses', 'مجلّد', 'string', 'مجلّد', 'نصّ في resources/views/admin/courses/media.blade.php'],
+            ['admin.courses.media.path_aria', 'courses', 'مسار الملفّ', 'string', 'مسار الملفّ', 'نصّ في resources/views/admin/courses/media.blade.php'],
+            ['admin.courses.media.name_aria', 'courses', 'اسم الملفّ', 'string', 'اسم الملفّ', 'نصّ في resources/views/admin/courses/media.blade.php'],
+            ['admin.courses.media.tags_aria', 'courses', 'الوسوم', 'string', 'الوسوم', 'نصّ في resources/views/admin/courses/media.blade.php'],
             ['admin.courses.media.mktba_alwsayt', 'courses', 'مكتبة الوسائط', 'string', 'مكتبة الوسائط', 'نصّ في resources/views/admin/courses/media.blade.php: عنوانٌ منصوصٌ حرفيًّا في القسم 24، وتغييرُه يخالف خريطة الشاشات.'],  // ⚠️ 24
             ['admin.courses.media.mn_tarykh', 'courses', 'من تاريخ', 'string', 'من تاريخ', 'نصّ في resources/views/admin/courses/media.blade.php: فلتر التاريخ (12.4-د)'],
             ['admin.courses.media.msghra', 'courses', 'مصغّرة', 'string', 'مصغّرة', 'نصّ في resources/views/admin/courses/media.blade.php: عمود عرض القائمة (12.4-د)'],
