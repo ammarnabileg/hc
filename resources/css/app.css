@@ -438,6 +438,17 @@
     z-index: 30;
   }
 
+  /* ================= حلقة التركيز (الكيبورد) حرفيًّا من المرجع =================
+   | `:focus-visible` وحدها لا `:focus`: الفأرة لا ترى الحلقة، والكيبورد يراها على
+   | كلّ عنصرٍ قابلٍ للتركيز — حدٌّ داكن بمسافة 4px وهالة برانديّة ناعمة، بدل
+   | حلقة المتصفّح الافتراضيّة التي تختلف شكلًا ولونًا بين المتصفّحات.
+   */
+  :focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, summary:focus-visible, textarea:focus-visible {
+    outline: 2px solid var(--ink);
+    outline-offset: 4px;
+  }
+  :focus-visible { box-shadow: 0 0 0 5px var(--brand-soft); }
+
   /* ================= (7) الأزرار — لونٌ صلبٌ لا تدرّج =================
    |
    | نصّ 2.10.1-7 حرفيًّا (الهويّة 2.0): «**أساسيّ:** خلفيّة صلبة `--brand`
