@@ -20,6 +20,8 @@
            data-load-more-target="{{ $targetSelector }}"
            data-load-more-step="{{ $pageSize }}"
            data-next-offset="{{ $nextOffset }}"
+           data-loading-label="{{ setting('ux.lists.loading', 'جاري التحميل…') }}"
+           aria-live="polite"
            class="btn inline-flex items-center rounded-xl px-4 py-2 text-sm motion-standard"
            style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">{{ $label ?? setting('ux.lists.load_more', 'عرض المزيد') }}</a>
     </div>
@@ -39,11 +41,20 @@
                 if (!targets.length) return;
 
                 const step = Number(button.dataset.loadMoreStep || 0);
+                const idleLabel = button.textContent;
                 let loading = false;
+
+                {{-- حالة تحميلٍ مرئيّة ومسموعة: النصّ يتبدّل والزرّ يخفت (2.17-أ) بدل صمتٍ حتى يصل الردّ --}}
+                const setBusy = (busy) => {
+                    button.classList.toggle('is-loading', busy);
+                    button.setAttribute('aria-busy', busy ? 'true' : 'false');
+                    button.textContent = busy ? (button.dataset.loadingLabel || idleLabel) : idleLabel;
+                };
 
                 const loadMore = async () => {
                     if (loading) return;
                     loading = true;
+                    setBusy(true);
 
                     try {
                         const res = await fetch(button.href, { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
@@ -85,6 +96,7 @@
                         {{-- الشبكة اتقطعت — الزرّ فاضل مكانه ويقدر يجرّب تاني --}}
                     } finally {
                         loading = false;
+                        if (button.isConnected) setBusy(false);
                     }
                 };
 

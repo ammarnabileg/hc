@@ -476,6 +476,9 @@
   }
   .toast.show { opacity: 1; transform: translate(-50%); pointer-events: auto; }
 
+  /* زرّ «عرض المزيد» أثناء الجلب: يخفت ويمنع نقرةً ثانية، والنصّ يتبدّل من السكربت */
+  [data-load-more].is-loading { opacity: .6; pointer-events: none; cursor: progress; }
+
   /* ================= (7) الأزرار — لونٌ صلبٌ لا تدرّج =================
    |
    | نصّ 2.10.1-7 حرفيًّا (الهويّة 2.0): «**أساسيّ:** خلفيّة صلبة `--brand`
