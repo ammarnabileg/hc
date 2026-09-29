@@ -40,7 +40,7 @@
 
     <div class="flex-1 min-w-0 flex flex-col">
         @auth
-            @include('partials.header')
+            @include('partials.header', ['topbarSearch' => true])
         @endauth
 
         <main id="content" class="flex-1 min-w-0" tabindex="-1">

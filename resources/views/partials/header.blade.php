@@ -83,6 +83,18 @@
             @endif
         @endvolunteer
 
+        {{--
+          زرّ البحث الموحّد (Ctrl+K) للياوتين اللذين لا صفّ بحث في سايد بارهما (الإدارة والتطوّع):
+          بلا زرّ كانت اللوحة اختصارَ كيبورد لا يدلّ عليه شيء على الشاشة (2.15-د). الموبايل يفتح
+          شاشة البحث الكاملة من الدرج، فالزرّ للديسكتوب وحده.
+        --}}
+        @if ($topbarSearch ?? false)
+            <button type="button" data-palette-open class="icon-button hidden md:inline-flex"
+                    aria-label="{{ setting('nav.header.search_aria', 'البحث الموحّد') }}" title="Ctrl K">
+                <x-icon name="search" size="20" />
+            </button>
+        @endif
+
         {{-- جرس الإشعارات بتاباته: الكلّ · المنصّة · التطوّع (2.8) --}}
         <div class="relative" x-data="{ open: false }" data-notifications-poll
              data-last-id="{{ $lastNotificationId }}" data-poll-url="{{ route('notifications.poll') }}"

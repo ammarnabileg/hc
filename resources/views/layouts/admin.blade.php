@@ -39,7 +39,7 @@
     @include('partials.sidebar-admin')
 
     <div class="flex-1 min-w-0 flex flex-col">
-        @include('partials.header')
+        @include('partials.header', ['topbarSearch' => true])
 
         <main id="content" class="flex-1 min-w-0" tabindex="-1">
             @if (session('status'))

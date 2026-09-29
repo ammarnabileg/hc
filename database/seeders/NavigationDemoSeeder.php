@@ -263,6 +263,7 @@ class NavigationDemoSeeder extends Seeder
             ['nav.header.search_title', 'nav', 'الهيدر والجرس: بحث موحّد (Ctrl+K)', 'بحث موحّد (Ctrl+K)'],
             ['nav.header.membership_aria', 'nav', 'الهيدر والجرس: سياق العضويّة', 'سياق العضويّة'],
             ['nav.header.bell_aria', 'nav', 'الهيدر والجرس: الإشعارات', 'الإشعارات'],
+            ['nav.header.search_aria', 'nav', 'الهيدر: زرّ البحث الموحّد (الإدارة والتطوّع)', 'البحث الموحّد'],
             ['nav.header.theme_aria', 'nav', 'الهيدر والجرس: زرّ المظهر', 'المظهر: فاتح أو داكن'],
             ['nav.header.theme_title_light', 'nav', 'الهيدر والجرس: تلميح زرّ المظهر في الوضع الفاتح', 'شغّل الوضع الداكن'],
             ['nav.header.theme_title_dark', 'nav', 'الهيدر والجرس: تلميح زرّ المظهر في الوضع الداكن', 'ارجع للوضع الفاتح'],
