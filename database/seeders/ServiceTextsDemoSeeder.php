@@ -1710,7 +1710,6 @@ APP_DEBUG=false
             ['ux.command_index.pages_20', 'ux', 'بروفايلي', 'string', 'بروفايلي', false],
             ['ux.command_index.pages_21', 'ux', 'الإعدادات', 'string', 'الإعدادات', false],
             ['ux.command_index.pages_22', 'ux', 'الخصوصيّة والأمان', 'string', 'الخصوصيّة والأمان', false],
-            ['ux.command_index.pages_23', 'ux', 'لوحة التطوّع', 'string', 'لوحة التطوّع', false],
             ['ux.command_index.pages_24', 'ux', 'لوحة القيادة', 'string', 'لوحة القيادة', false],
             ['ux.command_index.pages_25', 'ux', 'قائمة المستخدمين', 'string', 'قائمة المستخدمين', false],
             ['ux.command_index.pages_26', 'ux', 'الأدوار والصلاحيّات', 'string', 'الأدوار والصلاحيّات', false],

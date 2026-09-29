@@ -76,6 +76,9 @@
             <x-icon name="search" size="20" />
             <input type="search" name="q" placeholder="{{ setting('nav.trainee.search_placeholder', 'بحث سريع') }}" aria-label="{{ setting('nav.trainee.search_aria', 'بحث سريع') }}">
             <button type="submit" class="side-search-go motion-standard">{{ setting('nav.trainee.search_submit', 'ابحث') }}</button>
+            {{-- تلميح الاختصار حرفيًّا من المرجع (`⌘ K`): يفتح البحث الموحّد، ويظهر على الديسكتوب وحده --}}
+            <kbd class="side-search-kbd hidden xl:inline-flex" data-palette-open role="button" tabindex="0"
+                 title="{{ setting('nav.trainee.search_kbd_title', 'افتح البحث الموحّد') }}">Ctrl K</kbd>
         </form>
 
         <div data-compact-hide>

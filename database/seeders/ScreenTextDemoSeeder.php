@@ -150,6 +150,11 @@ class ScreenTextDemoSeeder extends Seeder
             ['ux.command_palette.aria_label_2', 'ux', 'command-palette: البحث الموحّد', 'البحث الموحّد'],
             ['ux.command_palette.aria_label_3', 'ux', 'command-palette: إغلاق', 'إغلاق'],
             ['ux.command_palette.text_1', 'ux', 'command-palette: اكتب حرفين وهنوصّلك على طول.', 'اكتب حرفين وهنوصّلك على طول.'],
+            ['ux.command_palette.group_pages', 'ux', 'command-palette: عنوان مجموعة الصفحات', 'صفحات'],
+            ['ux.command_palette.group_people', 'ux', 'command-palette: عنوان مجموعة الأشخاص', 'أشخاص'],
+            ['ux.command_palette.group_tasks', 'ux', 'command-palette: عنوان مجموعة المهامّ', 'مهامّ'],
+            ['ux.command_palette.empty', 'ux', 'command-palette: لا نتيجة', 'مفيش نتيجة. جرّب كلمة تانية.'],
+            ['ux.command_palette.error', 'ux', 'command-palette: تعذّر البحث', 'البحث وقف لحظيًّا. جرّب تاني بعد ثانية.'],
             // ---- resources/views/components/empty.blade.php
             ['ux.empty_state.props_1', 'ux', 'empty: مفيش حاجة هنا', 'مفيش حاجة هنا'],
             ['ux.empty_state.filtered_message', 'ux', 'empty: فلترٌ نشطٌ بلا نتائج مطابقة', 'مفيش نتائج تطابق البحث أو الفلتر الحاليّ. جرّب فلتر تاني.'],

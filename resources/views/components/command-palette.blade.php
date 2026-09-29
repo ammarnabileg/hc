@@ -6,7 +6,14 @@
   السايد بار. وعلى الموبايل: أيقونة البحث في الهيدر تفتح **شاشة بحث كاملة**.
 --}}
 <div id="command-palette" class="fixed inset-0 z-[60] hidden items-start justify-center p-4 pt-24"
-     style="background: rgb(0 0 0 / .55)" data-palette role="dialog" aria-modal="true" aria-label="{{ setting('ux.command_palette.aria_label_1', 'البحث الموحّد') }}">
+     style="background: rgb(0 0 0 / .55)" data-palette role="dialog" aria-modal="true" aria-label="{{ setting('ux.command_palette.aria_label_1', 'البحث الموحّد') }}"
+     data-palette-groups="{{ json_encode([
+         'pages' => setting('ux.command_palette.group_pages', 'صفحات'),
+         'people' => setting('ux.command_palette.group_people', 'أشخاص'),
+         'tasks' => setting('ux.command_palette.group_tasks', 'مهامّ'),
+     ], JSON_UNESCAPED_UNICODE) }}"
+     data-palette-empty="{{ setting('ux.command_palette.empty', 'مفيش نتيجة. جرّب كلمة تانية.') }}"
+     data-palette-error="{{ setting('ux.command_palette.error', 'البحث وقف لحظيًّا. جرّب تاني بعد ثانية.') }}">
     <div class="card w-full max-w-xl overflow-hidden" style="max-height: 70vh">
         <div class="flex items-center gap-2 px-4 py-3" style="border-bottom: 1px solid var(--border)">
             {{-- أيقونة SVG مرسومة داخل المشروع (2.16-ج) --}}

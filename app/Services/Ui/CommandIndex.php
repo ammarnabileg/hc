@@ -24,7 +24,7 @@ class CommandIndex
      * ولماذا في الكود لا في قاعدة البيانات؟ لأنّها **خريطة السايد بار نفسها**
      * (12.0 · 24.5)، وأيّ تفريع لها يخلق مصدرَي حقيقة.
      *
-     * @return array<string, array{0:string,1:?string}>
+     * @return array<string, array{0:string,1:string|array<int,string>|null,2?:string}>
      */
     public function pages(): array
     {
@@ -53,8 +53,8 @@ class CommandIndex
             'settings.index' => [setting('ux.command_index.pages_21', 'الإعدادات'), 'user_profile.edit'],
             'settings.privacy' => [setting('ux.command_index.pages_22', 'الخصوصيّة والأمان'), 'privacy_settings.view'],
 
-            // التطوّع (24.4)
-            'volunteer.overview' => [setting('ux.command_index.pages_23', 'لوحة التطوّع'), null],
+            // التطوّع (24.4): مرآة سايد بار التطوّع نفسه (13.4-ح) — مفاتيحه ونصوصه حرفًا بحرف
+            ...$this->volunteerPages(),
 
             // الإدارة (12.0)
             // باب اللوحة قدرةٌ محسوبة لا صلاحيّة باسم شاشة (12.2.1-أ)
@@ -82,6 +82,102 @@ class CommandIndex
     }
 
     /**
+     * صفحات لوحة التطوّع — **نفس أسطر** `partials/sidebar-volunteer` بنصوصها
+     * (`nav.volunteer.item_*`) ومفاتيحها، فلا تُفهرَس شاشةٌ لا يصلها صاحبها من
+     * السايد بار ولا تغيب شاشةٌ يصلها. والمفتاح مصفوفةٌ حين يقبل المسار أيًّا منها.
+     *
+     * ⛔ قبلها: البحث الموحّد لم يعرف من التطوّع إلّا «لوحة التطوّع»، فكتابة
+     * «مهامي» أو «الأهداف» في Ctrl+K كانت تنتهي إلى «مفيش نتيجة».
+     *
+     * @return array<string, array{0:string,1:string|array<int,string>|null,2:string}>
+     */
+    public function volunteerPages(): array
+    {
+        $rows = [
+            [setting('nav.volunteer.group_overview', 'نظرة عامّة'), [
+                ['volunteer.overview', setting('nav.volunteer.item_overview_journey', 'رحلتي في التطوّع'), 'personal_reports.view'],
+                ['volunteer.report', setting('nav.volunteer.item_overview_report', 'تقريري الأسبوعيّ'), 'personal_reports.view'],
+                ['volunteer.calendar', setting('nav.volunteer.item_overview_calendar', 'تقويم نشاطي'), 'calendar.view'],
+            ]],
+            [setting('nav.volunteer.group_tasks', 'المهام'), [
+                ['volunteer.tasks.index', setting('nav.volunteer.item_tasks_mine', 'مهامّي'), 'tasks.list'],
+                ['volunteer.tasks.board', setting('nav.volunteer.item_tasks_board', 'لوحة المهام العامّة'), 'public_board.list'],
+                ['volunteer.contributions', setting('nav.volunteer.item_tasks_contributions', 'مساهماتي'), 'contributions.list'],
+                ['volunteer.reviews', setting('nav.volunteer.item_tasks_reviews', 'بانتظار مراجعتي'), ['tasks.approve', 'contributions.approve']],
+            ]],
+            [setting('nav.volunteer.group_goals', 'المشاريع والأهداف'), [
+                ['volunteer.goals', setting('nav.volunteer.item_goals_index', 'الأهداف والمَعالِم'), ['goals.list', 'goals.view']],
+                ['volunteer.goals.build', setting('nav.volunteer.item_goals_build', 'بناء الأهداف'), ['goals.create', 'milestones.create']],
+                ['volunteer.goals.launch', setting('nav.volunteer.item_goals_launch', 'إطلاق الهدف'), 'goals.approve'],
+                ['volunteer.packages', setting('nav.volunteer.item_goals_packages', 'حزم العمل وبنودها'), ['work_packages.list', 'work_packages.view']],
+                ['volunteer.project', setting('nav.volunteer.item_goals_project', 'المشروع التشغيليّ'), 'operational_projects.view'],
+                ['volunteer.recurring', setting('nav.volunteer.item_goals_recurring', 'البنود المتكرّرة'), 'recurring_items.view'],
+            ]],
+            [setting('nav.volunteer.group_performance', 'الأداء'), [
+                ['volunteer.performance.vxp', setting('nav.volunteer.item_performance_vxp', 'VXP وترتيبي'), 'leaderboards.view'],
+                ['volunteer.performance.rep', setting('nav.volunteer.item_performance_rep', 'درجة الالتزام (Rep)'), 'rep_transactions.view'],
+                ['volunteer.performance.champion', setting('nav.volunteer.item_performance_champion', 'مشرف الشهر'), 'leaderboards.view'],
+                ['volunteer.performance.evaluations', setting('nav.volunteer.item_performance_evaluations', 'تقييماتي (مؤشّر القيادة)'), 'evaluations.view'],
+            ]],
+            [setting('nav.volunteer.group_meetings', 'الاجتماعات'), [
+                ['volunteer.meetings', setting('nav.volunteer.item_meetings_index', 'القادمة والمنتهية'), ['meetings.list', 'meetings.view']],
+                ['volunteer.attendance', setting('nav.volunteer.item_meetings_attendance', 'حضوري والمحاضر'), ['meeting_attendance.view', 'meeting_minutes.view']],
+            ]],
+            [setting('nav.volunteer.group_transactions', 'المعاملات'), [
+                ['volunteer.transactions', setting('nav.volunteer.item_transactions_index', 'معاملاتي (Rep/VXP)'), ['rep_transactions.list', 'rep_transactions.view']],
+                ['volunteer.objections', setting('nav.volunteer.item_transactions_objections', 'اعتراضاتي'), ['objections.view', 'objections.list']],
+            ]],
+            [setting('nav.volunteer.group_department', 'قسمي'), [
+                ['volunteer.department', setting('nav.volunteer.item_department_members', 'الأعضاء والبوزشنز'), 'org_chart.view'],
+                ['volunteer.org', setting('nav.volunteer.item_department_org', 'الهيكل التنظيميّ'), 'org_chart.view'],
+                ['volunteer.health', setting('nav.volunteer.item_department_health', 'صحّة القسم'), 'team_health.view'],
+                ['volunteer.capacity', setting('nav.volunteer.item_department_capacity', 'السعة والأحمال'), 'capacity.view'],
+            ]],
+            [setting('nav.volunteer.group_escalations', 'التصعيدات'), [
+                ['volunteer.escalations', setting('nav.volunteer.item_escalations_index', 'يحتاج قرارك'), 'escalations.list'],
+                ['volunteer.escalations.objections', setting('nav.volunteer.item_escalations_objections', 'الاعتراضات المصعَّدة'), 'objections.list'],
+                ['volunteer.arbitrations', setting('nav.volunteer.item_escalations_arbitrations', 'التحكيمات'), 'arbitration.list'],
+            ]],
+            [setting('nav.volunteer.group_academy', 'الأكاديمية'), [
+                ['volunteer.academy', setting('nav.volunteer.item_academy_paths', 'التدريبات'), ['academy_paths.list', 'academy_paths.view']],
+                ['volunteer.academy.recordings', setting('nav.volunteer.item_academy_recordings', 'التسجيلات'), ['academy_recordings.list', 'academy_recordings.view']],
+            ]],
+            [setting('nav.volunteer.group_recognition', 'التقدير'), [
+                ['volunteer.kudos', setting('nav.volunteer.item_recognition_kudos', 'Kudos'), 'kudos.view'],
+                ['volunteer.kudos.wall', setting('nav.volunteer.item_recognition_wall', 'حائط الشكر (نادي +9.5)'), 'thanks_wall.view'],
+            ]],
+            [setting('nav.volunteer.group_recruitment', 'التوظيف'), [
+                ['volunteer.recruitment', setting('nav.volunteer.item_recruitment_candidates', 'المرشّحون (كانبان)'), 'candidates.list'],
+                ['volunteer.interviews', setting('nav.volunteer.item_recruitment_interviews', 'المقابلات والـScorecards'), ['interviews.list', 'interviews.view']],
+                ['volunteer.placement', setting('nav.volunteer.item_recruitment_placement', 'القوائم والتسكين'), 'placements.list'],
+            ]],
+        ];
+
+        $pages = [];
+
+        foreach ($rows as [$groupLabel, $items]) {
+            foreach ($items as [$route, $label, $permission]) {
+                $pages[$route] = [$label, $permission, $groupLabel];
+            }
+        }
+
+        return $pages;
+    }
+
+    /**
+     * ⭐ تطبيع عربيّ للمطابقة: تُسقَط الحركات والتطويل وتُوحَّد الهمزات والياء
+     * والتاء المربوطة، فـ«الاهداف» تجد «الأهداف والمَعالِم» و«مهامي» تجد «مهامّي».
+     * الحركات في النصوص المعروضة زينةٌ للقراءة لا شرطٌ على الكاتب.
+     */
+    public static function normalize(string $text): string
+    {
+        $text = preg_replace('/[\x{064B}-\x{065F}\x{0670}\x{0640}]/u', '', $text) ?? $text;
+        $text = strtr($text, ['أ' => 'ا', 'إ' => 'ا', 'آ' => 'ا', 'ى' => 'ي', 'ة' => 'ه', 'ئ' => 'ي', 'ؤ' => 'و']);
+
+        return Str::lower(trim($text));
+    }
+
+    /**
      * نتائج البحث الموحّد.
      *
      * @return array{pages:array,people:array,tasks:array}
@@ -103,21 +199,31 @@ class CommandIndex
     private function matchPages(User $viewer, string $term, int $limit): array
     {
         $results = [];
+        $needle = self::normalize($term);
+        $gate = Gate::forUser($viewer);
 
-        foreach ($this->pages() as $route => [$label, $permission]) {
+        foreach ($this->pages() as $route => $row) {
+            [$label, $permission] = $row;
+            $group = $row[2] ?? null;
+
             if (! Route::has($route)) {
                 continue;
             }
 
-            if ($permission !== null && ! Gate::forUser($viewer)->allows($permission)) {
-                continue; // ما لا يملكه لا يظهر له أصلًا
-            }
-
-            if ($term !== '' && ! Str::contains($label, $term) && ! Str::contains($route, Str::lower($term))) {
+            // ما لا يملكه لا يظهر له أصلًا — والمصفوفة تعني: يكفي أيٌّ منها (كالسايد بار)
+            if ($permission !== null && ! collect((array) $permission)->contains(fn (string $key) => $gate->allows($key))) {
                 continue;
             }
 
-            $results[] = ['label' => $label, 'url' => route($route), 'hint' => setting('ux.command_index.match_pages_1', 'صفحة')];
+            if ($needle !== '' && ! Str::contains(self::normalize($label.' '.($group ?? '').' '.$route), $needle)) {
+                continue;
+            }
+
+            $results[] = [
+                'label' => $label,
+                'url' => route($route),
+                'hint' => $group ?? setting('ux.command_index.match_pages_1', 'صفحة'),
+            ];
 
             if (count($results) >= $limit) {
                 break;
@@ -158,7 +264,7 @@ class CommandIndex
 
         // مهامّ المستخدم وحده — البحث الموحّد اختصار تنقّل لا نافذة على مهامّ غيره
         return Task::query()
-            ->where('title', 'like', '%'.$term.'%')
+            ->where('title', 'like', '%'.trim($term).'%')
             ->where(fn ($q) => $q->where('owner_id', $viewer->id)->orWhere('created_by', $viewer->id))
             ->latest('id')
             ->limit($limit)

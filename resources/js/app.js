@@ -418,7 +418,11 @@ const post = (url, body) =>
     palette.querySelector('[data-palette-close]')?.addEventListener('click', close);
     palette.addEventListener('click', (e) => { if (e.target === palette) close(); });
 
-    const groups = { pages: 'صفحات', people: 'أشخاص', tasks: 'مهامّ' };
+    // النصوص من الإعدادات عبر سمات العنصر (2.13) لا محروقةً في السكربت
+    let groups = { pages: 'pages', people: 'people', tasks: 'tasks' };
+    try { groups = { ...groups, ...JSON.parse(palette.dataset.paletteGroups || '{}') }; } catch (e) { /* يبقى الافتراضيّ */ }
+    const emptyText = palette.dataset.paletteEmpty || '';
+    const errorText = palette.dataset.paletteError || '';
     let timer = null;
 
     const render = (data) => {
@@ -439,7 +443,7 @@ const post = (url, body) =>
         });
         results.innerHTML = parts.length
             ? parts.join('')
-            : '<p class="p-3 text-xs" style="color: var(--text-muted)">مفيش نتيجة — جرّب كلمة تانية.</p>';
+            : `<p class="p-3 text-xs" style="color: var(--text-muted)">${emptyText}</p>`;
     };
 
     input?.addEventListener('input', () => {
@@ -448,7 +452,7 @@ const post = (url, body) =>
             fetch(`/ui/palette?q=${encodeURIComponent(input.value)}`, { headers: { Accept: 'application/json' } })
                 .then((r) => (r.ok ? r.json() : { pages: [], people: [], tasks: [] }))
                 .then(render)
-                .catch(() => { results.innerHTML = '<p class="p-3 text-xs">البحث وقف لحظيًّا — جرّب تاني بعد ثانية.</p>'; });
+                .catch(() => { results.innerHTML = `<p class="p-3 text-xs">${errorText}</p>`; });
         }, 180);
     });
 })();

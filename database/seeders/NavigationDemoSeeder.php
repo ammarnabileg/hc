@@ -203,6 +203,7 @@ class NavigationDemoSeeder extends Seeder
             ['nav.trainee.search_placeholder', 'nav', 'سايد بار المتدرّب: ابحث…', 'ابحث…'],
             ['nav.trainee.search_aria', 'nav', 'سايد بار المتدرّب: بحث سريع', 'بحث سريع'],
             ['nav.trainee.search_submit', 'nav', 'سايد بار المتدرّب: إبحث', 'إبحث'],
+            ['nav.trainee.search_kbd_title', 'nav', 'السايد بار: تلميح اختصار البحث الموحّد', 'افتح البحث الموحّد'],
             ['nav.trainee.pinned_title', 'nav', 'سايد بار المتدرّب: 📌 المثبَّتة', '📌 المثبَّتة'],
             ['nav.trainee.unpin_aria', 'nav', 'سايد بار المتدرّب: فكّ تثبيت', 'فكّ تثبيت'],
             ['nav.trainee.unpin_title', 'nav', 'سايد بار المتدرّب: فكّ التثبيت', 'فكّ التثبيت'],
