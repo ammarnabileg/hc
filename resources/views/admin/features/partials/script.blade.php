@@ -54,7 +54,7 @@
         if (!on) { return; }
         var row = rowOf(on);
         post(URLS.toggle, { key: row.key, enabled: true }).then(function (r) {
-            if (r.ok) { window.location.reload(); } else { alert(r.data.message || TEXT.error); }
+            if (r.ok) { window.location.reload(); } else { (window.platformToast || alert)(r.data.message || TEXT.error); }
         });
     });
 
@@ -207,7 +207,7 @@
         if (!button) { return; }
         var row = rowOf(button);
         post(URLS.reset, { key: row.key }).then(function (r) {
-            if (r.ok) { window.location.reload(); } else { alert(r.data.message || TEXT.error); }
+            if (r.ok) { window.location.reload(); } else { (window.platformToast || alert)(r.data.message || TEXT.error); }
         });
     });
 
