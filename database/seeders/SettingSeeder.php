@@ -90,7 +90,7 @@ class SettingSeeder extends Seeder
             // ---------------- كروت داشبورد المستخدم الستّة (14-أ) — والحدّ يقصّ لا يحذف
             // ⭐ ثلاثة أرقامٍ للتذاكر على لوحةٍ واحدة معناها ثلاثة **مقادير** لا تناقض
             // (رصيد 10.0-أ · مكتسب 10 · حركة المدى 24.5) — والتسميات تفرّقها صراحةً
-            ['dashboard.kpi.level_label', 'dashboard', 'عنوان كارت مستوى الحساب', 'string', 'مستوى الحساب وXP'],
+            ['dashboard.kpi.level_label', 'dashboard', 'عنوان كارت مستوى الحساب', 'string', 'مستوى الحساب و XP'],
             ['dashboard.kpi.tickets_label', 'dashboard', 'عنوان كارت التذاكر', 'string', 'رصيد التذاكر'],
             ['dashboard.kpi.tickets_hint', 'dashboard', 'شرح كارت التذاكر', 'string', 'رصيدك المتاح للصرف'],
             ['dashboard.level.prefix', 'dashboard', 'بادئة رقم مستوى الحساب', 'string', 'المستوى'],
