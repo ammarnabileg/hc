@@ -379,8 +379,11 @@
 
         tabs.forEach((t) => t.addEventListener('click', () => showTab(t.dataset.settingsTab)));
 
-        let initial = 'account';
-        try { initial = localStorage.getItem('settings.tab') || 'account'; } catch {}
+        {{-- رابطٌ صريح بـ?tab= يغلب التاب المحفوظ، وإلّا فآخر تابٍ فُتح (2.15-د) --}}
+        const urlTab = new URLSearchParams(window.location.search).get('tab');
+        let initial = urlTab || 'account';
+        if (!urlTab) { try { initial = localStorage.getItem('settings.tab') || 'account'; } catch {} }
+        if (!document.querySelector(`[data-settings-panel="${initial}"]`)) initial = 'account';
         showTab(initial);
 
         // بحث داخل الإعدادات: يفتح كلّ المجموعات ويُبقي المطابق فقط
