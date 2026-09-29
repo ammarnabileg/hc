@@ -73,7 +73,8 @@ document.querySelectorAll('[data-count-to]').forEach((el) => {
     const tick = () => {
         frame += 1;
         if (frame >= total) return settle();
-        el.textContent = Math.round((target * frame) / total).toLocaleString('ar-EG');
+        // أرقامٌ لاتينيّة بفواصل الآلاف كالرقم النهائيّ وكالمرجع — لا هنديّة أثناء العدّ ثمّ لاتينيّة عند الاستقرار
+        el.textContent = Math.round((target * frame) / total).toLocaleString('en-US');
         requestAnimationFrame(tick);
     };
     try { requestAnimationFrame(tick); } catch { settle(); }

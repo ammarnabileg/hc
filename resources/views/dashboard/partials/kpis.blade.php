@@ -8,7 +8,8 @@
                 @endif
                 {{ $kpi['label'] }}
             </div>
-            <div class="kpi-value" data-count-to="{{ $kpi['value'] }}">{{ $kpi['value'] }}</div>
+            @php $shown = is_numeric($kpi['value']) && (int) $kpi['value'] == $kpi['value'] ? number_format((int) $kpi['value']) : $kpi['value']; @endphp
+            <div class="kpi-value" data-count-to="{{ $shown }}">{{ $shown }}</div>
             @if ($kpi['hint'])
                 <span class="small muted">{{ $kpi['hint'] }}</span>
             @endif
