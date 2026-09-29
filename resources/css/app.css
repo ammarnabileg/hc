@@ -449,6 +449,19 @@
   }
   :focus-visible { box-shadow: 0 0 0 5px var(--brand-soft); }
 
+  /* رابط التخطّي إلى المحتوى حرفيًّا من المرجع: خارج الشاشة حتى يصله الكيبورد */
+  .skip-link { position: fixed; top: -100px; right: 16px; z-index: 150; background: var(--ink); color: var(--bg); padding: 12px; border-radius: 8px; font-weight: 600; }
+  .skip-link:focus { top: 10px; }
+  #content:focus { outline: none; }
+
+  /* الطباعة حرفيًّا من المرجع: يبقى المحتوى وحده — بلا سايد بار ولا هيدر ولا عائمات ولا أشرطة موبايل */
+  @media print {
+    aside[data-sidebar], [data-sidebar-backdrop], #topbar, #mobile-navigation, #mobile-primary,
+    [data-floating], .float-bottom, .float-bottom-2, .scroll-progress, [data-undo-host], [data-consent-banner], .skip-link { display: none !important; }
+    body { background: #fff; }
+    #content { padding: 0 !important; }
+  }
+
   /* ================= (7) الأزرار — لونٌ صلبٌ لا تدرّج =================
    |
    | نصّ 2.10.1-7 حرفيًّا (الهويّة 2.0): «**أساسيّ:** خلفيّة صلبة `--brand`

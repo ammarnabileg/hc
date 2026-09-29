@@ -184,6 +184,21 @@ class WorkspaceTest extends UiTestCase
         $this->assertFalse(collect($pages)->contains('label', 'وهم'));
     }
 
+    public function test_every_layout_opens_with_a_skip_link_to_the_content(): void
+    {
+        // رابط التخطّي أوّل ما يصله الكيبورد، والمحتوى يقبل التركيز (tabindex=-1) كي ينتقل إليه فعلًا
+        $owner = $this->trainee();
+        $owner->assignRole('platform_owner');
+
+        foreach ([route('dashboard'), route('volunteer.overview'), route('admin.dashboard')] as $url) {
+            $html = $this->actingAs($owner->fresh())->get($url)->assertOk()->getContent();
+
+            $this->assertStringContainsString('<a href="#content" class="skip-link">', $html);
+            $this->assertStringContainsString('<main id="content" class="flex-1 min-w-0" tabindex="-1">', $html);
+            $this->assertLessThan(strpos($html, '<main id="content"'), strpos($html, 'class="skip-link"'));
+        }
+    }
+
     public function test_command_palette_hides_pages_the_user_cannot_open(): void
     {
         // ما لا يملكه المستخدم لا يظهر في نتائجه أصلًا (2.15-أ-7)

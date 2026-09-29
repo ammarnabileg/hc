@@ -29,6 +29,9 @@
 </head>
 <body class="min-h-screen @auth has-mobile-nav @endauth @hasSection('mobile_action') has-mobile-action @endif">
 
+{{-- رابط التخطّي إلى المحتوى حرفيًّا من المرجع (`.skip-link`): لا يظهر إلّا حين يصله الكيبورد --}}
+<a href="#content" class="skip-link">{{ setting('nav.skip_to_content', 'تخطَّ إلى المحتوى') }}</a>
+
 {{-- التحسين التدريجيّ: رسالة وخطوات تفعيل الجافاسكربت (2.1) --}}
 @include('security.noscript')
 
@@ -46,7 +49,7 @@
             @include('partials.header')
         @endauth
 
-        <main id="content" class="flex-1 min-w-0">
+        <main id="content" class="flex-1 min-w-0" tabindex="-1">
             @if (session('status'))
                 <x-toast :message="session('status')" />
             @endif
