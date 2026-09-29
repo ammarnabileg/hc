@@ -136,7 +136,7 @@
                     <tr style="border-top: 1px solid var(--border)">
                         <td class="p-2">
                             @if (str_starts_with((string) $item->mime, 'image/'))
-                                <img src="{{ \Illuminate\Support\Facades\Storage::disk($item->disk ?: 'public')->url($item->path) }}"
+                                <img loading="lazy" decoding="async" src="{{ \Illuminate\Support\Facades\Storage::disk($item->disk ?: 'public')->url($item->path) }}"
                                      alt="{{ $item->name }}" loading="lazy"
                                      class="w-10 h-10 object-cover rounded-lg">
                             @else
@@ -163,7 +163,7 @@
             @foreach ($items as $item)
                 <div class="card p-3">
                     @if (str_starts_with((string) $item->mime, 'image/'))
-                        <img src="{{ \Illuminate\Support\Facades\Storage::disk($item->disk ?: 'public')->url($item->path) }}"
+                        <img loading="lazy" decoding="async" src="{{ \Illuminate\Support\Facades\Storage::disk($item->disk ?: 'public')->url($item->path) }}"
                              alt="{{ $item->name }}" loading="lazy"
                              class="w-full h-24 object-cover rounded-lg mb-2">
                     @else

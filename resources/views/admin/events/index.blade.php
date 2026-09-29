@@ -148,7 +148,7 @@
                             <tr style="border-top: 1px solid var(--border)">
                                 <td class="px-4 py-3">
                                     @if ($event->cover_path)
-                                        <img src="{{ \Illuminate\Support\Facades\Storage::url($event->cover_path) }}" alt=""
+                                        <img loading="lazy" decoding="async" src="{{ \Illuminate\Support\Facades\Storage::url($event->cover_path) }}" alt=""
                                              class="rounded-lg object-cover" style="width: 44px; height: 44px" loading="lazy">
                                     @else
                                         <span class="inline-flex items-center justify-center rounded-lg"
@@ -208,7 +208,7 @@
                     <div class="flex items-start justify-between gap-3 flex-wrap">
                         <div class="min-w-0 flex items-start gap-3">
                             @if ($event->cover_path)
-                                <img src="{{ \Illuminate\Support\Facades\Storage::url($event->cover_path) }}" alt=""
+                                <img loading="lazy" decoding="async" src="{{ \Illuminate\Support\Facades\Storage::url($event->cover_path) }}" alt=""
                                      class="rounded-lg object-cover shrink-0" style="width: 44px; height: 44px" loading="lazy">
                             @else
                                 <span class="inline-flex items-center justify-center rounded-lg shrink-0"

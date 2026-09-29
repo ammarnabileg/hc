@@ -95,7 +95,7 @@
                             <td class="p-3 cursor-grab select-none" aria-label="{{ setting('admin.courses.paths.mqbd_alshb', 'مقبض السحب') }}">⠿</td>
                             <td class="p-3">
                                 @if ($path->cover_path)
-                                    <img src="{{ \Illuminate\Support\Facades\Storage::url($path->cover_path) }}" alt=""
+                                    <img loading="lazy" decoding="async" src="{{ \Illuminate\Support\Facades\Storage::url($path->cover_path) }}" alt=""
                                          class="w-10 h-10 rounded-lg object-cover" loading="lazy">
                                 @else
                                     <span style="color: var(--text-muted)">—</span>
@@ -172,7 +172,7 @@
                     <div class="flex items-start justify-between gap-2">
                         <div class="flex items-start gap-2 min-w-0">
                             @if ($path->cover_path)
-                                <img src="{{ \Illuminate\Support\Facades\Storage::url($path->cover_path) }}" alt=""
+                                <img loading="lazy" decoding="async" src="{{ \Illuminate\Support\Facades\Storage::url($path->cover_path) }}" alt=""
                                      class="w-10 h-10 rounded-lg object-cover shrink-0" loading="lazy">
                             @else
                                 <span style="color: var(--text-muted)">—</span>

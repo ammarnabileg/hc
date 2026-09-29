@@ -51,7 +51,7 @@
                         {{-- معاينة القالب الفعليّة، لا مجرّد مسارها نصًّا (12.7-ب) --}}
                         <span class="block rounded-lg overflow-hidden shrink-0" style="width: 96px; aspect-ratio: 3/4; background: var(--surface-sunken)">
                             @if ($template->preview_path)
-                                <img src="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($template->preview_path) }}"
+                                <img loading="lazy" decoding="async" src="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($template->preview_path) }}"
                                      alt="{{ $template->name }}" loading="lazy" class="w-full h-full object-cover">
                             @endif
                         </span>

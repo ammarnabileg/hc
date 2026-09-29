@@ -37,7 +37,7 @@
                     <x-form.input name="video_url" :label="setting('admin.courses.lesson.rabt_alywtywb', 'رابط اليوتيوب')" :value="$lesson->video_id"
                                   :hint="setting('admin.courses.lesson.alid_walthambnyl_bytstkhrjwa_tlqayya', 'الـID والثامبنيل بيتستخرجوا تلقائيًّا.')" />
                     @if ($lesson->video_id)
-                        <img src="https://img.youtube.com/vi/{{ $lesson->video_id }}/mqdefault.jpg"
+                        <img loading="lazy" decoding="async" src="https://img.youtube.com/vi/{{ $lesson->video_id }}/mqdefault.jpg"
                              alt="{{ setting('admin.courses.lesson.maayna_alfydyw', 'معاينة الفيديو') }}" loading="lazy" class="rounded-xl max-w-full">
                     @endif
                     <label class="block">

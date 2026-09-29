@@ -135,7 +135,7 @@
                                 </td>
                                 <td class="p-3">
                                     @if ($course->cover_path)
-                                        <img src="{{ \Illuminate\Support\Facades\Storage::url($course->cover_path) }}" alt=""
+                                        <img loading="lazy" decoding="async" src="{{ \Illuminate\Support\Facades\Storage::url($course->cover_path) }}" alt=""
                                              class="w-10 h-10 rounded-lg object-cover" loading="lazy">
                                     @else
                                         <span style="color: var(--text-muted)">—</span>
@@ -197,7 +197,7 @@
                                 <input type="checkbox" name="ids[]" value="{{ $course->id }}" data-bulk-item>
                             </label>
                             @if ($course->cover_path)
-                                <img src="{{ \Illuminate\Support\Facades\Storage::url($course->cover_path) }}" alt=""
+                                <img loading="lazy" decoding="async" src="{{ \Illuminate\Support\Facades\Storage::url($course->cover_path) }}" alt=""
                                      class="w-10 h-10 rounded-lg object-cover shrink-0" loading="lazy">
                             @else
                                 <span style="color: var(--text-muted)">—</span>

@@ -9,7 +9,7 @@
     <div class="flex items-center gap-2 py-2" style="border-bottom: 1px solid var(--border)">
         <span class="org-node__avatar" aria-hidden="true">
             @if ($node['avatar'])
-                <img src="{{ $node['avatar'] }}" alt="">
+                <img loading="lazy" decoding="async" src="{{ $node['avatar'] }}" alt="">
             @else
                 {{ $node['initials'] }}
             @endif

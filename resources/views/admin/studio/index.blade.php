@@ -88,7 +88,7 @@
                                        :label="$template->is_archived ? setting('admin.studio.index.mwrshf', 'مؤرشف') : ($template->is_active ? setting('admin.studio.index.mfal', 'مفعَّل') : setting('admin.studio.index.mwqwf', 'موقوف'))" />
                     </div>
 
-                    <img src="{{ route('admin.studio.preview', $template) }}" alt="{{ strtr(setting('admin.studio.index.maayna_v1', 'معاينة :v1'), [':v1' => e($template->name)]) }}"
+                    <img loading="lazy" decoding="async" src="{{ route('admin.studio.preview', $template) }}" alt="{{ strtr(setting('admin.studio.index.maayna_v1', 'معاينة :v1'), [':v1' => e($template->name)]) }}"
                          loading="lazy" class="w-full rounded-xl" style="max-width:100%; background: var(--surface-sunken)">
 
                     @if (($template->folders ?? []) || ($template->tags ?? []))

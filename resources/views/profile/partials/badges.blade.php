@@ -33,7 +33,7 @@
                             data-badge-locked="0" class="badge motion-standard"
                             aria-label="{{ $badge->name_ar }} · {{ setting('account.profile.badges.unlocked_label', 'مفتوحة') }}">
                         @if ($badge->icon_path)
-                            <img src="{{ \Illuminate\Support\Facades\Storage::url($badge->icon_path) }}"
+                            <img loading="lazy" decoding="async" src="{{ \Illuminate\Support\Facades\Storage::url($badge->icon_path) }}"
                                  alt="{{ $badge->name_ar }}" loading="lazy" class="w-full h-full object-cover rounded-full">
                         @else
                             <x-icon name="badge" size="26" />

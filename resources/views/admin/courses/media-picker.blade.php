@@ -59,7 +59,7 @@
                         data-pick-image="{{ str_starts_with((string) $item->mime, 'image/') ? 1 : 0 }}"
                         style="min-height: 44px">
                     @if (str_starts_with((string) $item->mime, 'image/'))
-                        <img src="{{ \Illuminate\Support\Facades\Storage::disk($item->disk ?: 'public')->url($item->path) }}"
+                        <img loading="lazy" decoding="async" src="{{ \Illuminate\Support\Facades\Storage::disk($item->disk ?: 'public')->url($item->path) }}"
                              alt="{{ $item->name }}" loading="lazy" class="w-full h-24 object-cover rounded-lg mb-2">
                     @else
                         <div class="w-full h-24 rounded-lg mb-2 flex items-center justify-center text-2xl"

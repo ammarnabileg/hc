@@ -65,7 +65,7 @@
                     <tr style="border-bottom: 1px solid var(--border)">
                         <td class="p-3">
                             @if ($accreditation->logo_path)
-                                <img src="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($accreditation->logo_path) }}"
+                                <img loading="lazy" decoding="async" src="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($accreditation->logo_path) }}"
                                      alt="{{ $accreditation->name_ar }}" loading="lazy" class="w-10 h-10 object-contain rounded-lg">
                             @else
                                 <div class="w-10 h-10 rounded-lg grid place-items-center" style="background: var(--surface-sunken)"

@@ -67,7 +67,7 @@
                 <tr style="border-top: 1px solid var(--border)">
                     <td class="p-3">
                         @if ($item->cover_path)
-                            <img src="{{ Storage::disk('public')->url($item->cover_path) }}" alt=""
+                            <img loading="lazy" decoding="async" src="{{ Storage::disk('public')->url($item->cover_path) }}" alt=""
                                  class="w-10 h-10 rounded-lg object-cover" loading="lazy">
                         @else
                             <div class="w-10 h-10 rounded-lg flex items-center justify-center"
@@ -179,7 +179,7 @@
         @foreach ($rows as $item)
             <div class="p-3 text-sm flex items-start gap-3" style="border-top: 1px solid var(--border)">
                 @if ($item->cover_path)
-                    <img src="{{ Storage::disk('public')->url($item->cover_path) }}" alt=""
+                    <img loading="lazy" decoding="async" src="{{ Storage::disk('public')->url($item->cover_path) }}" alt=""
                          class="w-10 h-10 rounded-lg object-cover shrink-0" loading="lazy">
                 @else
                     <div class="w-10 h-10 rounded-lg flex items-center justify-center shrink-0"

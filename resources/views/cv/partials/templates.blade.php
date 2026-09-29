@@ -28,7 +28,7 @@
                     style="{{ $templateId === $template->id ? 'outline: 2px solid var(--color-brand-500)' : '' }}">
                 <span class="block rounded-lg mb-2 aspect-3/4 overflow-hidden" style="background: var(--surface-sunken)">
                     @if ($template->preview_path)
-                        <img src="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($template->preview_path) }}"
+                        <img loading="lazy" decoding="async" src="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($template->preview_path) }}"
                              alt="{{ $template->name }}" loading="lazy" class="w-full h-full object-cover">
                     @endif
                 </span>

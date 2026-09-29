@@ -36,7 +36,7 @@
                     <tr style="border-top: 1px solid var(--border)">
                         <td class="p-3">
                             @if ($bundle->cover_path)
-                                <img src="{{ \Illuminate\Support\Facades\Storage::url($bundle->cover_path) }}" alt=""
+                                <img loading="lazy" decoding="async" src="{{ \Illuminate\Support\Facades\Storage::url($bundle->cover_path) }}" alt=""
                                      class="rounded-lg object-cover" style="width: 44px; height: 44px" loading="lazy">
                             @else
                                 <span class="inline-flex items-center justify-center rounded-lg"
@@ -116,7 +116,7 @@
             <div class="p-3 text-sm min-w-0" style="border-top: 1px solid var(--border)">
                 <div class="flex items-start gap-3 min-w-0">
                     @if ($bundle->cover_path)
-                        <img src="{{ \Illuminate\Support\Facades\Storage::url($bundle->cover_path) }}" alt=""
+                        <img loading="lazy" decoding="async" src="{{ \Illuminate\Support\Facades\Storage::url($bundle->cover_path) }}" alt=""
                              class="rounded-lg object-cover" style="width: 44px; height: 44px" loading="lazy">
                     @else
                         <span class="inline-flex items-center justify-center rounded-lg shrink-0"
