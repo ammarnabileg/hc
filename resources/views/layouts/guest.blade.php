@@ -10,6 +10,7 @@
     {{-- الخطوط محلّيّة داخل حزمة Vite — **بلا أيّ نداء خارجيّ** (2.10.1-2) --}}
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @include('partials.design-tokens')
+    @include('partials.script-texts')
 </head>
 <body class="min-h-screen flex items-center justify-center p-4">
     {{-- التحسين التدريجيّ: رسالة وخطوات تفعيل الجافاسكربت (2.1) --}}

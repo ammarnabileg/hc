@@ -372,12 +372,34 @@ if (bell && panel) {
 
 const csrf = () => document.querySelector('meta[name="csrf-token"]')?.content || '';
 
+// نصوص السكربت من الإعدادات (partials/script-texts) لا محروقةً هنا
+let uxTexts = null;
+const uxText = (key) => {
+    if (!uxTexts) { try { uxTexts = JSON.parse(document.getElementById('ux-texts')?.textContent || '{}'); } catch { uxTexts = {}; } }
+    return uxTexts[key] || '';
+};
+
+// ⭐ كان ردٌّ غير JSON (جلسة منتهية 419 · صفحة خطأ) أو انقطاع الشبكة يُسقِط الوعد بصمت،
+// فلا توست ولا رسالة؛ الآن الجلسة المنتهية والشبكة المقطوعة تقولان ذلك للمستخدم
 const post = (url, body) =>
     fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrf(), Accept: 'application/json' },
         body: JSON.stringify(body || {}),
-    }).then((r) => r.json().then((data) => ({ ok: r.ok, data })));
+    })
+        .then((r) => r.json().catch(() => ({})).then((data) => {
+            if (r.status === 419) {
+                const message = uxText('session_expired');
+                toast(message);
+                return { ok: false, data: { ...data, message } };
+            }
+            return { ok: r.ok, data };
+        }))
+        .catch(() => {
+            const message = uxText('network_failed');
+            toast(message);
+            return { ok: false, data: { message } };
+        });
 
 // ---- البحث الموحّد (Ctrl+K) — بديل التنقّل في السايد بار
 (() => {

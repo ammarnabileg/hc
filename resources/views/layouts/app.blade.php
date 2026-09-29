@@ -28,6 +28,7 @@
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @include('partials.design-tokens')
+    @include('partials.script-texts')
     @stack('head')
 </head>
 <body class="min-h-screen @auth has-mobile-nav @endauth @hasSection('mobile_action') has-mobile-action @endif">

@@ -155,6 +155,9 @@ class ScreenTextDemoSeeder extends Seeder
             ['ux.command_palette.group_tasks', 'ux', 'command-palette: عنوان مجموعة المهامّ', 'مهامّ'],
             ['ux.command_palette.empty', 'ux', 'command-palette: لا نتيجة', 'مفيش نتيجة. جرّب كلمة تانية.'],
             ['ux.command_palette.error', 'ux', 'command-palette: تعذّر البحث', 'البحث وقف لحظيًّا. جرّب تاني بعد ثانية.'],
+            // ---- resources/views/partials/script-texts.blade.php
+            ['ux.script.session_expired', 'ux', 'السكربت المشترك: ردّ 419 (الجلسة منتهية) على طلب من الصفحة', 'الجلسة انتهت. حدّث الصفحة وكمّل.'],
+            ['ux.script.network_failed', 'ux', 'السكربت المشترك: انقطاع الشبكة أثناء طلب من الصفحة', 'النت قطع لحظة. جرّب تاني.'],
             // ---- resources/views/components/empty.blade.php
             ['ux.empty_state.props_1', 'ux', 'empty: مفيش حاجة هنا', 'مفيش حاجة هنا'],
             ['ux.empty_state.filtered_message', 'ux', 'empty: فلترٌ نشطٌ بلا نتائج مطابقة', 'مفيش نتائج تطابق البحث أو الفلتر الحاليّ. جرّب فلتر تاني.'],
