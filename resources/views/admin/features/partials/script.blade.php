@@ -194,7 +194,7 @@
                     var line = document.createElement('div');
                     line.className = 'text-xs py-2';
                     line.style.borderTop = '1px solid var(--border)';
-                    line.textContent = log.at + ' · ' + (log.by || '—') + ' · ' + log.action + (log.reason ? ' — ' + log.reason : '');
+                    line.textContent = log.at + ' · ' + (log.by || '—') + ' · ' + log.action + (log.reason ? ' · ' + log.reason : '');
                     body.appendChild(line);
                 });
             })

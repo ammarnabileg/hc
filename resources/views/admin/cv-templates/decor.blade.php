@@ -475,7 +475,7 @@
         pickBtn.dataset.mediaPick = 'cv-decor-image-target';
         pickBtn.className = 'rounded-xl px-3 py-1.5 text-xs';
         pickBtn.style.cssText = 'background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)';
-        pickBtn.textContent = layer.url ? T.pick_image : T.no_image + ' — ' + T.pick_image;
+        pickBtn.textContent = layer.url ? T.pick_image : T.no_image + ' · ' + T.pick_image;
 
         row.append(thumb, pickBtn);
         wrap.append(row);

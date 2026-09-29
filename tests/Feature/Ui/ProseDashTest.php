@@ -107,19 +107,36 @@ class ProseDashTest extends TestCase
     #[Test]
     public function no_script_string_shown_to_users_carries_an_em_dash(): void
     {
-        $source = (string) file_get_contents(resource_path('js/app.js'));
         $offenders = [];
 
-        foreach (explode("\n", $source) as $number => $line) {
-            if (! str_contains($line, '—')) {
-                continue;
+        // السكربت المشترك كاملًا، وكتل `<script>` داخل Blade (التي ينزعها الحارس الأوّل عمدًا)
+        $sources = ['resources/js/app.js' => (string) file_get_contents(resource_path('js/app.js'))];
+
+        foreach ($this->bladeFiles() as $file) {
+            $source = (string) file_get_contents($file);
+
+            if (str_contains($source, '—') && preg_match_all('/<script\b[^>]*>(.*?)<\/script>/s', $source, $blocks)) {
+                $sources[$this->relative($file)] = implode("\n", $blocks[1]);
             }
+        }
 
-            preg_match_all('/([\'"])(?:(?!\1).)*—(?:(?!\1).)*\1/u', $line, $matches);
+        foreach ($sources as $name => $source) {
+            foreach (explode("\n", $source) as $number => $line) {
+                if (! str_contains($line, '—')) {
+                    continue;
+                }
 
-            foreach ($matches[0] as $literal) {
-                if ($this->carriesProseDash($literal)) {
-                    $offenders[] = 'resources/js/app.js:'.($number + 1).'  '.trim($literal);
+                // حرفيّات النصّ وحدها: ما بين علامتَي اقتباس، لا الشرح ولا `?? '—'` اليتيمة
+                preg_match_all('/([\'"])(?:(?!\1).)*—(?:(?!\1).)*\1/u', $line, $matches);
+
+                foreach ($matches[0] as $literal) {
+                    // حرفيّةُ وصلٍ (`' — '`) لا تُقرأ وحدها لكنّها تُلصَق بين نصّين فتخرج جملةً بالشرطة؛
+                    // أمّا `'—'` اليتيمة بلا فراغين فهي خانةٌ فارغة مسموحة
+                    $isJoiner = preg_match('/^([\'"])\s+—\s+\1$/u', $literal) === 1;
+
+                    if ($isJoiner || $this->carriesProseDash($literal)) {
+                        $offenders[] = $name.':'.($number + 1).'  '.trim($literal);
+                    }
                 }
             }
         }
