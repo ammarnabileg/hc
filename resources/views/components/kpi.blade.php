@@ -10,6 +10,9 @@
      | ●▲◉○ المنصوصة في 2.16-ب) يُعرَض كما هو فلا تنكسر شاشةٌ قديمة.
      */
     $isDictionaryIcon = is_string($icon) && $icon !== '' && preg_match('/^[a-z][a-z0-9_-]*$/', $icon) === 1;
+
+    // قيمةٌ نصّيّة («لسّه في الأوّل» · اسم بوزشن) لا تُعَدّ ولا تُكبَّر كالرقم، فتلتفّ على الموبايل بحجمٍ يليق بجملة
+    $isNumeric = is_numeric(is_string($value) ? str_replace(',', '', $value) : $value);
 @endphp
 
 <div class="card p-4 animate-fadeup">
@@ -24,7 +27,8 @@
         </span>
     </div>
     {{-- عدّاد تصاعديّ (2.17-أ) — والرقم النهائيّ يظهر في كلّ الأحوال --}}
-    <div class="mt-2 text-2xl font-extrabold" data-count-to="{{ $value }}">{{ $value }}</div>
+    <div @class(['mt-2 font-extrabold', 'text-2xl' => $isNumeric, 'text-lg leading-snug' => ! $isNumeric])
+         @if ($isNumeric) data-count-to="{{ $value }}" @endif>{{ $value }}</div>
     @if ($hint)
         <div class="mt-1 text-xs cursor-help" style="color: var(--text-muted)" title="{{ $hint }}">{{ $hint }}</div>
     @endif

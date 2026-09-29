@@ -413,6 +413,11 @@
     [data-filters] > div > label > select,
     [data-filters] > div > label > input:not([type='checkbox']):not([type='radio']) { width: 100%; }
     [data-filters] > div > button[type='submit'] { flex: 1 1 100%; }
+
+    /* صفّ فلاتر لوحة القيادة (تاريخان + مقارنة + طبّق) يتراصّ بالقاعدة نفسها، فلا يطفو مربّع المقارنة بجوار حقل التاريخ */
+    [data-dashboard-filters] > label { flex: 1 1 100%; }
+    [data-dashboard-filters] > label > input:not([type='checkbox']):not([type='radio']) { width: 100%; }
+    [data-dashboard-filters] > button { flex: 1 1 100%; }
   }
 
   /*
