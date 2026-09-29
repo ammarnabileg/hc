@@ -439,15 +439,22 @@ const post = (url, body) =>
     const results = palette.querySelector('[data-palette-results]');
     const isMobile = () => window.matchMedia('(max-width: 767px)').matches;
 
+    // التركيز يعود بعد الإغلاق إلى ما كان عليه قبل الفتح (زرّ الهيدر · رقاقة Ctrl K · الحقل)
+    let paletteOpener = null;
     const open = () => {
+        if (!palette.classList.contains('hidden')) return;
+        paletteOpener = document.activeElement;
         palette.classList.remove('hidden');
         palette.classList.add('flex');
         input?.focus();
         palette.dispatchEvent(new CustomEvent('palette:open'));
     };
     const close = () => {
+        if (palette.classList.contains('hidden')) return;
         palette.classList.add('hidden');
         palette.classList.remove('flex');
+        if (paletteOpener && paletteOpener.isConnected && paletteOpener !== document.body) paletteOpener.focus();
+        paletteOpener = null;
     };
 
     // على الموبايل الأيقونة تفتح شاشة البحث الكاملة — فنترك الرابط يعمل
