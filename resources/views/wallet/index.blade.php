@@ -19,9 +19,9 @@
         --}}
         <x-slot:action>
             @can('topup.create')
+                {{-- المرجع يضع فعل الشحن الأحمر داخل بطاقة الرصيد؛ رابط الرأس نسخةٌ محايدة في متناول اليد --}}
                 <a href="{{ route('wallet.topup') }}"
-                   class="btn inline-flex items-center rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
-                   style="background: var(--color-brand-500); color: #04201c">{{ setting('wallet.index.topup_action', 'اشحن رصيدك') }}</a>
+                   class="btn btn-g inline-flex items-center rounded-xl px-4 py-2 text-sm font-semibold motion-standard">{{ setting('wallet.index.topup_action', 'اشحن رصيدك') }}</a>
             @endcan
             <details class="relative">
                 <summary class="cursor-pointer rounded-xl px-3 py-2 text-sm select-none"
@@ -81,8 +81,8 @@
         </div>
         <div class="stack" style="gap: 12px">
             @can('topup.create')
-                {{-- الفعل الأساسيّ الواحد في رأس الصفحة؛ زرّ البطاقة نسخةٌ في متناول اليد لا أحمر ثانٍ --}}
-                <a href="{{ route('wallet.topup') }}" class="btn btn-g inline-flex items-center gap-2">
+                {{-- الفعل الأساسيّ الواحد هنا داخل البطاقة كما في المرجع (شاشة المحفظة) --}}
+                <a href="{{ route('wallet.topup') }}" class="btn btn-p inline-flex items-center gap-2">
                     <x-icon name="wallet" size="16" /> {{ setting('wallet.index.topup_action', 'اشحن رصيدك') }}
                 </a>
             @endcan
