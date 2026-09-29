@@ -736,6 +736,12 @@
   .float-bottom { inset-block-end: var(--float-bottom); }
   .float-bottom-2 { inset-block-end: calc(var(--float-bottom) + 4.5rem); }
 
+  /*
+   | حقل رفع الملفّ عرضه الذاتيّ في كروم يتجاوز عمود الموبايل، فكان يوسّع
+   | نافذة التخطيط كلّها 12px أوّل رسمٍ لصفحة الإعدادات — فيُحصَر في عرض حاويه.
+   */
+  input[type='file'] { max-inline-size: 100%; }
+
   /* قوائم «⋯»: الإفصاح بلا مثلّث المتصفّح، فالزرّ هو النقاط الثلاث وحدها */
   details.relative > summary { list-style: none; }
   details.relative > summary::-webkit-details-marker { display: none; }

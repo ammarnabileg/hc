@@ -58,7 +58,7 @@
 
         <div>
             {{-- ---------------------------------------------------- الحساب --}}
-            <section class="card p-4" data-settings-panel="account">
+            <section class="card p-4" data-settings-panel="account" @if ($tab !== 'account') hidden @endif>
                 <h2 class="font-bold text-sm mb-1">{{ setting('account.settings.tab_account', 'الحساب') }}</h2>
 
                 @include('account.partials.autosave-field', [
@@ -206,12 +206,12 @@
               **منطقة الخطر**. والبند يذكرهما نصًّا داخل تاب الأمان لا في صفحة
               منفصلة — فمَن يبحث عن أمان حسابه يجده في مكان واحد.
             --}}
-            <section class="card p-4 mt-4" data-settings-panel="security">
+            <section class="card p-4 mt-4" data-settings-panel="security" @if ($tab !== 'security') hidden @endif>
                 @include('account.settings.partials.security')
             </section>
 
             {{-- ---------------------------------------------------- المظهر --}}
-            <section class="card p-4 mt-4" data-settings-panel="appearance">
+            <section class="card p-4 mt-4" data-settings-panel="appearance" @if ($tab !== 'appearance') hidden @endif>
                 <h2 class="font-bold text-sm mb-1">{{ setting('account.settings.tab_appearance', 'المظهر') }}</h2>
 
                 @include('account.partials.autosave-field', [
@@ -251,7 +251,7 @@
             {{-- ⛔ **توجّل الصوت وحده** هنا: «**Toggle للصوت فقط** في **صفحة إعدادات
                  البروفايل** … **⛔ ولا يوجد Toggle للأنيميشن — الأنيميشن حاضر دائمًا
                  لأنّه روح المنصّة**» (2.3) — فلا صفَّ حركةٍ في هذه الشاشة. --}}
-            <section class="card p-4 mt-4" data-settings-panel="sound">
+            <section class="card p-4 mt-4" data-settings-panel="sound" @if ($tab !== 'sound') hidden @endif>
                 <h2 class="font-bold text-sm mb-1">{{ setting('account.settings.tab_sound', 'الصوت') }}</h2>
 
                 @include('account.partials.autosave-field', [
@@ -289,7 +289,7 @@
             </section>
 
             {{-- ------------------------------------------- جهة الطوارئ --}}
-            <section class="card p-4 mt-4" data-settings-panel="emergency">
+            <section class="card p-4 mt-4" data-settings-panel="emergency" @if ($tab !== 'emergency') hidden @endif>
                 <h2 class="font-bold text-sm mb-1">{{ setting('account.settings.emergency_title', 'جهة الطوارئ (اختياريّ)') }}</h2>
                 <p class="text-xs mb-3" style="color: var(--text-muted)">
                     {{ setting('account.settings.emergency_hint', 'بتظهر لمشرفيك وقت الحاجة بس، ومش بتظهر لباقي الناس.') }}
