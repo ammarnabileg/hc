@@ -19,13 +19,24 @@
     {{-- شريط تقدّم التمرير — ثابتٌ على كلّ الصفحات بلا استثناء (2.10.1-25) --}}
     <div class="scroll-progress" style="transform: scaleX(0)" data-scroll-progress></div>
 
-    @if ($errors->any())
-        <div class="fixed top-4 inset-x-4 md:inset-x-auto md:w-96 md:mx-auto card p-3 text-sm"
+    @php
+        /*
+         | اللافتة العلويّة لخطأٍ لا حقلَ له في الصفحة وحده: حقلٌ رسمه x-form.input يحمل
+         | خطأه تحته (بمعرّف <name>-error)، فكانت الرسالة نفسها تظهر مرّتين — لافتةً في
+         | الأعلى وسطرًا تحت الحقل (2.15-أ-8: سطر واحد). المحتوى مرسومٌ قبل اللياوت،
+         | فنقرأه ونستثني ما ظهر فيه.
+         */
+        $renderedContent = $__env->yieldContent('content');
+        $bannerError = collect($errors->keys())
+            ->first(fn ($key) => ! str_contains($renderedContent, 'id="'.preg_replace('/[^a-zA-Z0-9_-]/', '-', $key).'-error"'));
+    @endphp
+    @if ($bannerError !== null)
+        <div class="fixed top-4 inset-x-4 md:inset-x-auto md:w-96 md:mx-auto card p-3 text-sm" role="alert"
              style="border-color: var(--color-state-danger)">
-            {{ $errors->first() }}
+            {{ $errors->first($bannerError) }}
         </div>
     @endif
-    @yield('content')
+    {!! $renderedContent !!}
 
     {{-- سهم العودة لأعلى في **كلّ الصفحات** — بلا استثناء (2.6-أ) --}}
     @include('partials.floating')
