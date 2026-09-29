@@ -528,6 +528,32 @@ const post = (url, body) =>
     window.addEventListener('resize', apply);
 })();
 
+// ---- حارس الإرسال المزدوج (2.9 · 2.17-أ): أوّل إرسال يُقفل النموذج ويُظهر الانشغال على زرّه
+// نقرتان على «ادفع» أو «سلّم» كانتا تُرسلان مرّتين؛ الآن الثانية تُهمَل والزرّ يخفت بـaria-busy.
+// النماذج التي يعترضها سكربتٌ آخر (preventDefault) لا تُمَسّ، وبعد 8 ثوانٍ يُفكّ القفل احتياطًا
+// (تنزيلٌ في تبويبٍ آخر · فشلٌ صامت) كي لا يبقى زرٌّ ميّتًا.
+document.addEventListener('submit', (e) => {
+    const form = e.target;
+    if (!(form instanceof HTMLFormElement) || e.defaultPrevented || form.hasAttribute('data-no-busy')) return;
+
+    if (form.dataset.submitting === '1') { e.preventDefault(); return; }
+    form.dataset.submitting = '1';
+
+    const button = e.submitter || form.querySelector('button[type="submit"], button:not([type]), input[type="submit"]');
+    if (button) {
+        button.classList.add('is-loading');
+        button.setAttribute('aria-busy', 'true');
+    }
+
+    // التعطيل بعد لحظة كي يُرسَل اسمُ الزرّ وقيمته مع النموذج أوّلًا
+    setTimeout(() => { if (button && form.dataset.submitting === '1') button.disabled = true; }, 0);
+
+    setTimeout(() => {
+        delete form.dataset.submitting;
+        if (button) { button.disabled = false; button.classList.remove('is-loading'); button.removeAttribute('aria-busy'); }
+    }, 8000);
+});
+
 // ---- المظهر (فاتح/داكن): يتبدّل فورًا في الصفحة ثمّ يُحفَظ للمستخدم — كالمرجع
 (() => {
     document.querySelectorAll('[data-theme-toggle]').forEach((btn) => {
