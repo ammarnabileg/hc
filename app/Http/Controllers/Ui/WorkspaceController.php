@@ -202,6 +202,29 @@ class WorkspaceController extends Controller
             : (string) setting('ux.workspace.toggle_mode_ok_2', 'رجعنا للوضع المبسّط ✓، التفاصيل موجودة ورا السويتش.'));
     }
 
+    /**
+     * المظهر (فاتح/داكن) بضغطة من الـTopbar — كالمرجع (`data-theme`)، ويُحفَظ في
+     * `users.theme` نفسه الذي تقرؤه إعدادات الحساب، فلا مصدران للتفضيل.
+     * بلا قيمةٍ مرسلة يُقلَب الحاليّ؛ ومع قيمةٍ صريحة تُثبَّت.
+     */
+    public function toggleTheme(Request $request): JsonResponse
+    {
+        $data = $request->validate(['theme' => ['nullable', 'in:light,dark']]);
+
+        $user = $request->user();
+        $theme = $data['theme'] ?? ($user->theme === 'dark' ? 'light' : 'dark');
+
+        $user->forceFill(['theme' => $theme])->saveQuietly();
+
+        return response()->json([
+            'ok' => true,
+            'theme' => $theme,
+            'message' => $theme === 'dark'
+                ? (string) setting('ux.workspace.toggle_theme_dark', 'الوضع الداكن اتفعّل ✓')
+                : (string) setting('ux.workspace.toggle_theme_light', 'رجعنا للوضع الفاتح ✓'),
+        ]);
+    }
+
     // ------------------------------------------------------------- التراجع
 
     /** التراجع خلال المهلة — والرسالة تقول ماذا حدث وماذا تفعل (2.17-ب) */

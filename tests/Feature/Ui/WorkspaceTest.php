@@ -14,6 +14,33 @@ use Illuminate\Support\Facades\Cache;
  */
 class WorkspaceTest extends UiTestCase
 {
+    // ------------------------------------------------------------ المظهر (فاتح/داكن)
+
+    /** ⭐ زرّ المظهر في الـTopbar كالمرجع: ضغطةٌ تقلب التفضيل وتحفظه في `users.theme` نفسه */
+    public function test_the_topbar_theme_button_flips_and_persists_the_theme(): void
+    {
+        $user = $this->trainee();
+        $user->forceFill(['theme' => 'light'])->saveQuietly();
+
+        $this->actingAs($user)->get(route('dashboard'))
+            ->assertOk()
+            ->assertSee('data-theme-toggle', false)
+            ->assertDontSee('data-theme="dark"', false);
+
+        $this->actingAs($user)->postJson(route('ui.theme.toggle'))
+            ->assertOk()
+            ->assertJson(['ok' => true, 'theme' => 'dark']);
+
+        $this->assertSame('dark', $user->fresh()->theme);
+
+        // الصفحة التالية تفتح داكنةً من الخادم، لا من الجافاسكربت وحدها
+        $this->actingAs($user)->get(route('dashboard'))->assertSee('data-theme="dark"', false);
+
+        // قيمةٌ صريحة تثبّت لا تقلب
+        $this->actingAs($user)->postJson(route('ui.theme.toggle'), ['theme' => 'dark'])->assertJson(['theme' => 'dark']);
+        $this->assertSame('dark', $user->fresh()->theme);
+    }
+
     // ------------------------------------------------------------ التثبيت (Pin)
 
     public function test_user_can_pin_and_unpin_a_page(): void

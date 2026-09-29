@@ -107,6 +107,18 @@
             </button>
         @endif
 
+        {{-- المظهر فاتح/داكن بضغطة، للديسكتوب/التابلت كالمرجع (`desktop-only`) — والموبايل يغيّره من إعدادات الحساب --}}
+        @php $isDark = $u->theme === 'dark'; @endphp
+        <button type="button" data-theme-toggle class="icon-button hidden md:inline-flex"
+                aria-pressed="{{ $isDark ? 'true' : 'false' }}"
+                aria-label="{{ setting('nav.header.theme_aria', 'المظهر: فاتح أو داكن') }}"
+                title="{{ $isDark ? (string) setting('nav.header.theme_title_dark', 'ارجع للوضع الفاتح') : (string) setting('nav.header.theme_title_light', 'شغّل الوضع الداكن') }}"
+                data-title-dark="{{ setting('nav.header.theme_title_dark', 'ارجع للوضع الفاتح') }}"
+                data-title-light="{{ setting('nav.header.theme_title_light', 'شغّل الوضع الداكن') }}"
+                style="color: var(--text-muted)">
+            <x-icon name="sun" size="18" />
+        </button>
+
         <x-advanced-toggle />
     </div>
 </header>

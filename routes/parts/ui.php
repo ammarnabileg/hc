@@ -42,6 +42,9 @@ Route::middleware('auth')->group(function () {
         // ⭐ سويتش «وضع متقدّم» الحاضر في كلّ صفحة — ويُحفَظ لكلّ مستخدم (2.15-أ-9)
         Route::post('/ui/mode', [WorkspaceController::class, 'toggleMode'])->name('ui.mode.toggle');
 
+        // ⭐ المظهر (فاتح/داكن) بضغطة من الـTopbar كالمرجع — ويُحفَظ لكلّ مستخدم (2.10.1-1)
+        Route::post('/ui/theme', [WorkspaceController::class, 'toggleTheme'])->name('ui.theme.toggle');
+
         // ⭐ التراجع خلال 5 ثوانٍ بعد الأفعال القابلة للتراجع
         Route::post('/ui/undo/{token}', [WorkspaceController::class, 'undo'])->name('ui.undo');
     });

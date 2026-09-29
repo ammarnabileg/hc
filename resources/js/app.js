@@ -452,6 +452,22 @@ const post = (url, body) =>
     });
 })();
 
+// ---- المظهر (فاتح/داكن): يتبدّل فورًا في الصفحة ثمّ يُحفَظ للمستخدم — كالمرجع
+(() => {
+    document.querySelectorAll('[data-theme-toggle]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+            const root = document.documentElement;
+            const dark = root.dataset.theme !== 'dark';
+            if (dark) root.dataset.theme = 'dark'; else delete root.dataset.theme;
+            btn.setAttribute('aria-pressed', dark ? 'true' : 'false');
+            btn.title = dark ? (btn.dataset.titleDark || '') : (btn.dataset.titleLight || '');
+            post('/ui/theme', { theme: dark ? 'dark' : 'light' }).then(({ ok, data }) => {
+                if (ok && data.message) toast(data.message);
+            });
+        });
+    });
+})();
+
 // ---- التثبيت (Pin): زرّ الهيدر + فكّ التثبيت + الترتيب بالسحب
 (() => {
     const toggle = (route, label, button) =>

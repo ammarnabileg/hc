@@ -890,6 +890,8 @@ class HttpTextDemoSeeder extends Seeder
             ['ux.workspace.seen_first_run_msg', 'ux', 'seenFirstRun(): هتظهرلك تاني أوّل ما تفتح الصفحة.', 'هتظهرلك تاني أوّل ما تفتح الصفحة.'],
             ['ux.workspace.seen_first_run_ok', 'ux', 'seenFirstRun(): تمام ✓', 'تمام ✓'],
             ['ux.workspace.toggle_mode_ok', 'ux', 'toggleMode(): الوضع المتقدّم اتفتح ✓. كلّ التفاصيل ظاهرة دلوقتي.', 'الوضع المتقدّم اتفتح ✓. كلّ التفاصيل ظاهرة دلوقتي.'],
+            ['ux.workspace.toggle_theme_dark', 'ux', 'toggleTheme(): الوضع الداكن اتفعّل', 'الوضع الداكن اتفعّل ✓'],
+            ['ux.workspace.toggle_theme_light', 'ux', 'toggleTheme(): رجعنا للوضع الفاتح', 'رجعنا للوضع الفاتح ✓'],
             ['ux.workspace.toggle_mode_ok_2', 'ux', 'toggleMode(): رجعنا للوضع المبسّط ✓. التفاصيل موجودة ورا السويتش.', 'رجعنا للوضع المبسّط ✓. التفاصيل موجودة ورا السويتش.'],
             // ---- app/Http/Controllers/Volunteer/AcademyController.php
             ['academy.screen.claim_msg', 'academy', 'claim(): الرمز', 'الرمز'],
