@@ -50,6 +50,22 @@ class ErrorPagesTest extends TestCase
             ->assertDontSee('Method Not Allowed', false);
     }
 
+    /**
+     * 404 تُرسَم قبل وسطاء الجلسة فلا مستخدمَ مصادَقًا؛ كوكي المظهر غير المشفّر
+     * (مرآة تفضيله) يبقي الصفحة داكنةً لمن اختار الداكن بدل وميضٍ فاتح.
+     */
+    public function test_the_not_found_page_follows_the_theme_cookie(): void
+    {
+        $this->withUnencryptedCookie('theme', 'dark')
+            ->get('/this-page-does-not-exist')
+            ->assertNotFound()
+            ->assertSee('data-theme="dark"', false);
+
+        $this->get('/this-page-does-not-exist')
+            ->assertNotFound()
+            ->assertDontSee('data-theme="dark"', false);
+    }
+
     public function test_every_error_view_extends_the_shared_shell(): void
     {
         foreach (['401', '403', '404', '405', '419', '429', '500', '503'] as $code) {

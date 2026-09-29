@@ -9,7 +9,11 @@
     وكلّ النصوص عبر `setting()` (2.13).
 --}}
 <!DOCTYPE html>
-<html lang="ar" dir="rtl" @if (auth()->check() && auth()->user()->theme === 'dark') data-theme="dark" @endif>
+@php
+    // 404 و405 تُرسَم قبل وسطاء الجلسة، فلا مستخدمَ مصادَقًا هنا غالبًا؛ الكوكي (غير المشفّر) هو المرآة
+    $errorTheme = auth()->check() ? auth()->user()->theme : request()->cookie('theme');
+@endphp
+<html lang="ar" dir="rtl" @if ($errorTheme === 'dark') data-theme="dark" @endif>
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">

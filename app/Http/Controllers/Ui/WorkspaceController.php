@@ -216,6 +216,9 @@ class WorkspaceController extends Controller
 
         $user->forceFill(['theme' => $theme])->saveQuietly();
 
+        // مرآة المظهر في كوكي غير مشفّر (bootstrap/app.php) لصفحات الأخطاء التي تُرسَم قبل المصادقة
+        cookie()->queue(cookie('theme', $theme, 60 * 24 * 365, '/', null, null, false, false, 'lax'));
+
         return response()->json([
             'ok' => true,
             'theme' => $theme,

@@ -617,6 +617,13 @@ document.addEventListener('submit', (e) => {
     }, 0);
 });
 
+// مرآة المظهر في كوكي غير مشفّر: صفحات الأخطاء (404 · 405 · 419) تُرسَم قبل المصادقة فتقرؤه هي
+const mirrorThemeCookie = () => {
+    const theme = document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light';
+    document.cookie = `theme=${theme}; path=/; max-age=31536000; SameSite=Lax`;
+};
+mirrorThemeCookie();
+
 // ---- المظهر (فاتح/داكن): يتبدّل فورًا في الصفحة ثمّ يُحفَظ للمستخدم — كالمرجع
 (() => {
     document.querySelectorAll('[data-theme-toggle]').forEach((btn) => {
@@ -624,6 +631,7 @@ document.addEventListener('submit', (e) => {
             const root = document.documentElement;
             const dark = root.dataset.theme !== 'dark';
             if (dark) root.dataset.theme = 'dark'; else delete root.dataset.theme;
+            mirrorThemeCookie();
             const meta = document.querySelector('meta[name="theme-color"]');
             if (meta) meta.content = dark ? (meta.dataset.themeColorDark || '') : (meta.dataset.themeColorLight || '');
             btn.setAttribute('aria-pressed', dark ? 'true' : 'false');

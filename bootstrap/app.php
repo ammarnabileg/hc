@@ -33,6 +33,13 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
 
         // سياق العضويّة النشطة يُحدَّد قبل أيّ تقييم صلاحيّة
+        /*
+         | كوكي المظهر (theme) بلا تشفير: مرآةٌ لتفضيل المستخدم المحفوظ تقرؤها صفحات
+         | الأخطاء التي تُرسَم قبل وسطاء الجلسة والمصادقة (404 · 405 · 419)، فلا تفتح
+         | صفحةٌ فاتحة فوق واجهةٍ داكنة. قيمتها light|dark لا سرّ فيها.
+         */
+        $middleware->encryptCookies(except: ['theme']);
+
         $middleware->web(append: [
             SetMembershipContext::class,
             EnsureNotUnderMaintenance::class,   // وضع الصيانة يقفل المنصّة فعلًا (12.7-و-1)
