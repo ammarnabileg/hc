@@ -56,14 +56,15 @@ class ErrorPagesTest extends TestCase
      */
     public function test_the_not_found_page_follows_the_theme_cookie(): void
     {
+        // بلا كوكي: فاتحة — أوّلًا، لأنّ عميل الاختبار يُبقي الكوكي غير المشفّر لبقيّة الطلبات
+        $this->get('/this-page-does-not-exist')
+            ->assertNotFound()
+            ->assertDontSee('data-theme="dark"', false);
+
         $this->withUnencryptedCookie('theme', 'dark')
             ->get('/this-page-does-not-exist')
             ->assertNotFound()
             ->assertSee('data-theme="dark"', false);
-
-        $this->get('/this-page-does-not-exist')
-            ->assertNotFound()
-            ->assertDontSee('data-theme="dark"', false);
     }
 
     public function test_every_error_view_extends_the_shared_shell(): void
