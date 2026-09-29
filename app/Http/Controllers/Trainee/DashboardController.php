@@ -38,6 +38,8 @@ class DashboardController extends Controller
             'primaryLabel' => (string) setting('dashboard.primary_action.label', 'أكمل آخر درس'),
             'nextLesson' => $hasEnrollments ? $this->dashboard->nextLesson($user) : null,
             'tabs' => $this->tabs($tab),
+            // أرقام الحساب تُعرَض دائمًا تحت الـHero كما في المرجع، حتّى قبل أوّل تدريب
+            'kpis' => $this->dashboard->kpis($user),
         ];
 
         // تحميل كسول للتابات (2.15-د): لا يُحسَب إلّا ما يُعرَض فعلًا
@@ -48,7 +50,6 @@ class DashboardController extends Controller
                 $deadlines = $this->dashboard->upcomingDeadlines($user);
 
                 return [
-                    'kpis' => $this->dashboard->kpis($user),
                     'courses' => $this->dashboard->activeCourses($user),
                     'deadlines' => $deadlines,
                     // ⭐ الشبح الحقيقيّ (Ghost Timer illustration — 6 · 24.5) بجوار
