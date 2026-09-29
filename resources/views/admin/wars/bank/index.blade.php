@@ -212,9 +212,9 @@
             <form method="post" action="{{ route('admin.wars.bank.import') }}" enctype="multipart/form-data"
                   class="card p-4 flex flex-wrap items-end gap-3">
                 @csrf
-                <label class="block">
+                <label class="block min-w-0 max-w-full">
                     <span class="block text-sm mb-1">{{ setting('admin.wars.bank.index.astyrad_dfaa_csv', 'استيراد دفعة CSV') }}</span>
-                    <input type="file" name="file" accept=".csv,text/csv" required class="text-sm">
+                    <input type="file" name="file" accept=".csv,text/csv" required class="text-sm w-full">
                 </label>
                 <label class="flex items-center gap-2 text-sm">
                     <input type="checkbox" name="confirm" value="1" class="w-5 h-5">

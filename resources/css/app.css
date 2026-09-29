@@ -742,6 +742,9 @@
    */
   input[type='file'] { max-inline-size: 100%; }
 
+  /* مفاتيح الإعدادات والمعرّفات الطويلة داخل code تنكسر عند الحاجة بدل أن توسّع عمود الموبايل */
+  code { overflow-wrap: anywhere; }
+
   /* قوائم «⋯»: الإفصاح بلا مثلّث المتصفّح، فالزرّ هو النقاط الثلاث وحدها */
   details.relative > summary { list-style: none; }
   details.relative > summary::-webkit-details-marker { display: none; }

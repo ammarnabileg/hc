@@ -58,7 +58,7 @@
     <div class="grid gap-4 lg:grid-cols-5">
 
         {{-- ============================ قائمة التدريبات --}}
-        <section class="lg:col-span-2">
+        <section class="lg:col-span-2 min-w-0">
             @forelse ($rows as $row)
                 @php $isSelected = $selected && $selected->id === $row['course']->id; @endphp
 
@@ -88,7 +88,7 @@
         </section>
 
         {{-- ============================ بانل التدريب المختار --}}
-        <section class="lg:col-span-3">
+        <section class="lg:col-span-3 min-w-0">
             @if (! $selected)
                 <x-empty :message="setting('admin.availability.index.akhtr_tdryba_mn_alqayma_ashan_tdbt_itahth', 'اختر تدريبًا من القائمة عشان تضبط إتاحته.')" />
             @else
