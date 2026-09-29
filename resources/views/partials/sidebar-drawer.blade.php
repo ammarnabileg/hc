@@ -137,12 +137,18 @@
         function isMobile() { return window.matchMedia('(max-width: 767px)').matches; }
 
         function setOpen(open) {
+            var wasOpen = panel.getAttribute('data-open') === 'true';
             panel.setAttribute('data-open', open ? 'true' : 'false');
             backdrop.setAttribute('data-open', open ? 'true' : 'false');
             if (closeBtn) closeBtn.classList.toggle('hidden', !open);
             if (closeBtn) closeBtn.classList.toggle('flex', open);
             document.documentElement.style.overflow = open ? 'hidden' : '';
             if (open) panel.focus({ preventScroll: true });
+            {{-- الإغلاق يعيد التركيز إلى زرّ القائمة في الهيدر، فلا يضيع الكيبورد خلف لوحةٍ اختفت --}}
+            if (!open && wasOpen) {
+                var toggle = document.querySelector('[data-drawer-toggle]');
+                if (toggle) toggle.focus({ preventScroll: true });
+            }
         }
 
         {{--

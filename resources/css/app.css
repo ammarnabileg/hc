@@ -448,6 +448,8 @@
     outline-offset: 4px;
   }
   :focus-visible { box-shadow: 0 0 0 5px var(--brand-soft); }
+  /* اللوحة المنزلقة تستقبل التركيز برمجيًّا عند فتحها (tabindex=-1) بلا حلقةٍ حول اللوحة كلّها */
+  [data-sidebar]:focus, [data-sidebar]:focus-visible, #content:focus-visible { outline: none; box-shadow: none; }
 
   /* رابط التخطّي إلى المحتوى حرفيًّا من المرجع: خارج الشاشة حتى يصله الكيبورد */
   .skip-link { position: fixed; top: -100px; right: 16px; z-index: 150; background: var(--ink); color: var(--bg); padding: 12px; border-radius: 8px; font-weight: 600; }
