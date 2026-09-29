@@ -535,6 +535,8 @@ const post = (url, body) =>
             const root = document.documentElement;
             const dark = root.dataset.theme !== 'dark';
             if (dark) root.dataset.theme = 'dark'; else delete root.dataset.theme;
+            const meta = document.querySelector('meta[name="theme-color"]');
+            if (meta) meta.content = dark ? (meta.dataset.themeColorDark || '') : (meta.dataset.themeColorLight || '');
             btn.setAttribute('aria-pressed', dark ? 'true' : 'false');
             btn.title = dark ? (btn.dataset.titleDark || '') : (btn.dataset.titleLight || '');
             post('/ui/theme', { theme: dark ? 'dark' : 'light' }).then(({ ok, data }) => {

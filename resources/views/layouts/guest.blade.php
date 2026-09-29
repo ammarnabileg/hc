@@ -3,6 +3,9 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    {{-- المخطّط اللونيّ حرفيًّا من المرجع، ولون إطار المتصفّح على الموبايل يتبع مظهر المستخدم --}}
+    <meta name="color-scheme" content="light dark">
+    <meta name="theme-color" content="{{ auth()->check() && auth()->user()->theme === 'dark' ? '#191917' : '#fcfbf8' }}" data-theme-color-light="#fcfbf8" data-theme-color-dark="#191917">
     <title>@yield('title', config('app.name'))</title>
     {{-- الخطوط محلّيّة داخل حزمة Vite — **بلا أيّ نداء خارجيّ** (2.10.1-2) --}}
     @vite(['resources/css/app.css', 'resources/js/app.js'])
