@@ -392,6 +392,7 @@ const post = (url, body) =>
         palette.classList.remove('hidden');
         palette.classList.add('flex');
         input?.focus();
+        palette.dispatchEvent(new CustomEvent('palette:open'));
     };
     const close = () => {
         palette.classList.add('hidden');
@@ -483,15 +484,19 @@ const post = (url, body) =>
         if (row) { const i = rowsOf().indexOf(row); if (i !== active) setActive(i); }
     });
 
+    const search = () =>
+        fetch(`/ui/palette?q=${encodeURIComponent(input?.value || '')}`, { headers: { Accept: 'application/json' } })
+            .then((r) => (r.ok ? r.json() : { pages: [], people: [], tasks: [] }))
+            .then(render)
+            .catch(() => { results.innerHTML = `<p class="p-3 text-xs">${errorText}</p>`; });
+
     input?.addEventListener('input', () => {
         clearTimeout(timer);
-        timer = setTimeout(() => {
-            fetch(`/ui/palette?q=${encodeURIComponent(input.value)}`, { headers: { Accept: 'application/json' } })
-                .then((r) => (r.ok ? r.json() : { pages: [], people: [], tasks: [] }))
-                .then(render)
-                .catch(() => { results.innerHTML = `<p class="p-3 text-xs">${errorText}</p>`; });
-        }, 180);
+        timer = setTimeout(search, 180);
     });
+
+    // عند الفتح والحقل فارغ: المثبَّتة والصفحات الأولى تظهر فورًا بلا كتابة
+    palette.addEventListener('palette:open', () => { if (!rowsOf().length) search(); });
 })();
 
 // ---- المظهر (فاتح/داكن): يتبدّل فورًا في الصفحة ثمّ يُحفَظ للمستخدم — كالمرجع

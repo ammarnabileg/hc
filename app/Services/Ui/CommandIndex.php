@@ -202,7 +202,18 @@ class CommandIndex
         $needle = self::normalize($term);
         $gate = Gate::forUser($viewer);
 
+        // ⭐ بلا كلمة: المثبَّتة أوّلًا — ما ثبّته المستخدم بيده هو أقرب ما يريده (2.15-د)
+        if ($needle === '') {
+            $results = $this->pinnedPages($viewer, $limit);
+        }
+
+        $taken = array_column($results, 'url');
+
         foreach ($this->pages() as $route => $row) {
+            if (count($results) >= $limit) {
+                break;
+            }
+
             [$label, $permission] = $row;
             $group = $row[2] ?? null;
 
@@ -219,18 +230,38 @@ class CommandIndex
                 continue;
             }
 
+            $url = route($route);
+
+            if (in_array($url, $taken, true)) {
+                continue; // ظهرت بين المثبَّتة
+            }
+
             $results[] = [
                 'label' => $label,
-                'url' => route($route),
+                'url' => $url,
                 'hint' => $group ?? setting('ux.command_index.match_pages_1', 'صفحة'),
             ];
-
-            if (count($results) >= $limit) {
-                break;
-            }
         }
 
         return $results;
+    }
+
+    /**
+     * صفحات المستخدم المثبَّتة (`users.pinned_pages`) بترتيبه، بعد التحقّق أنّ مسارها
+     * ما زال قائمًا — فالمثبَّتة رابطٌ حفظه بيده لا صفٌّ في الفهرس.
+     */
+    private function pinnedPages(User $viewer, int $limit): array
+    {
+        return collect($viewer->pinned_pages ?? [])
+            ->filter(fn ($pin) => is_array($pin) && Route::has((string) ($pin['route'] ?? '')))
+            ->take($limit)
+            ->map(fn (array $pin) => [
+                'label' => (string) ($pin['label'] ?? ''),
+                'url' => route($pin['route']),
+                'hint' => setting('ux.command_index.pinned_hint', 'مثبَّتة'),
+            ])
+            ->values()
+            ->all();
     }
 
     private function matchPeople(User $viewer, string $term, int $limit): array

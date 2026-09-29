@@ -1695,6 +1695,7 @@ APP_DEBUG=false
             // ---------------- ux
             ['ux.command_index.match_pages_1', 'ux', 'صفحة', 'string', 'صفحة', false],
             ['ux.command_index.match_tasks_1', 'ux', 'مهمّة', 'string', 'مهمّة', false],
+            ['ux.command_index.pinned_hint', 'ux', 'مثبَّتة', 'string', 'مثبَّتة', false],
             ['ux.command_index.pages_1', 'ux', 'الرئيسيّة', 'string', 'الرئيسيّة', false],
             ['ux.command_index.pages_10', 'ux', 'التحديات', 'string', 'التحديات', false],
             ['ux.command_index.pages_11', 'ux', 'الليدر بورد', 'string', 'الليدر بورد', false],

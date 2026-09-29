@@ -167,6 +167,23 @@ class WorkspaceTest extends UiTestCase
             ->assertSee('id="command-palette-results" data-palette-results role="listbox"', false);
     }
 
+    public function test_command_palette_lists_pinned_pages_first_when_the_query_is_empty(): void
+    {
+        $user = $this->trainee();
+        $user->forceFill(['pinned_pages' => [
+            ['route' => 'wallet.index', 'label' => 'محفظتي', 'url' => route('wallet.index')],
+            ['route' => 'route.does.not.exist', 'label' => 'وهم'],
+        ]])->save();
+
+        $pages = $this->actingAs($user)->getJson(route('ui.palette', ['q' => '']))->json('pages');
+
+        // المثبَّتة أوّلًا بتلميحها، والمسار الميّت يُسقَط، والصفحة لا تتكرّر بعدها
+        $this->assertSame(route('wallet.index'), $pages[0]['url']);
+        $this->assertSame('مثبَّتة', $pages[0]['hint']);
+        $this->assertSame(1, collect($pages)->where('url', route('wallet.index'))->count());
+        $this->assertFalse(collect($pages)->contains('label', 'وهم'));
+    }
+
     public function test_command_palette_hides_pages_the_user_cannot_open(): void
     {
         // ما لا يملكه المستخدم لا يظهر في نتائجه أصلًا (2.15-أ-7)
