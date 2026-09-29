@@ -3,12 +3,17 @@
 @section('title', setting('certificates.labels.my_certificates', 'شهاداتي'))
 
 @section('content')
-    <nav class="text-xs mb-2 flex flex-wrap items-center gap-1" style="color: var(--text-muted)">
-        <a href="{{ \Illuminate\Support\Facades\Route::has('learning.courses') ? route('learning.courses') : url('/dashboard') }}"
-           class="hover:underline">{{ setting('certificates.labels.learning', 'تعلّمي') }}</a>
-        <span aria-hidden="true">‹</span>
-        <span>{{ setting('certificates.labels.my_certificates', 'شهاداتي') }}</span>
-    </nav>
+    @php
+        // الـBreadcrumb في الـTopbar وحده (كالمرجع): المسار يُشارَك مع الهيدر بدل صفٍّ ثانٍ فوق الـHero
+        view()->share('hcPage', [
+            'title' => setting('certificates.labels.my_certificates', 'شهاداتي'),
+            'breadcrumbs' => [
+                ['label' => setting('certificates.labels.learning', 'تعلّمي'), 'url' => \Illuminate\Support\Facades\Route::has('learning.courses') ? route('learning.courses') : url('/dashboard')],
+                ['label' => setting('certificates.labels.my_certificates', 'شهاداتي')],
+            ],
+            'pinnable' => true,
+        ]);
+    @endphp
 
     {{-- Hero حرفيًّا من ملف الهويّة (`certificatesPage()`: «شهاداتي · إنجازات تستحق أن تبقى») --}}
     <section class="hero">

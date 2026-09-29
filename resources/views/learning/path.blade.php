@@ -12,13 +12,18 @@
         $minutes = $totalMinutes % 60;
     @endphp
 
-    <nav class="text-xs mb-2 flex flex-wrap items-center gap-1" style="color: var(--text-muted)">
-        <a href="{{ route('learning.courses') }}" class="hover:underline">{{ setting('learning.breadcrumb.root') }}</a>
-        <span aria-hidden="true">‹</span>
-        <a href="{{ route('learning.paths') }}" class="hover:underline">{{ setting('learning.paths.title') }}</a>
-        <span aria-hidden="true">‹</span>
-        <span>{{ $path->name_ar }}</span>
-    </nav>
+    @php
+        // الـBreadcrumb في الـTopbar وحده (كالمرجع): المسار يُشارَك مع الهيدر بدل صفٍّ ثانٍ فوق الـHero
+        view()->share('hcPage', [
+            'title' => $path->name_ar,
+            'breadcrumbs' => [
+                ['label' => setting('learning.breadcrumb.root'), 'url' => route('learning.courses')],
+                ['label' => setting('learning.paths.title'), 'url' => route('learning.paths')],
+                ['label' => $path->name_ar],
+            ],
+            'pinnable' => true,
+        ]);
+    @endphp
 
     {{-- ⭐ لحظة الذروة إن جاءت من إكمال درس (2.14 · 4.1) --}}
     @if (session('celebration'))
@@ -139,7 +144,8 @@
                                     <span>{{ setting('learning.paths.due_label', 'موعد الاستكمال') }}:
                                         {{ $row['deadline']['deadline_at']?->translatedFormat(setting('learning.paths.due_format', 'j F Y')) }}</span>
                                     {{-- ⭐ عدّاد تنازليّ إنلاين على الكارت (3.3) --}}
-                                    <span class="tabular-nums" data-availability-countdown="{{ $row['deadline']['seconds_left'] }}"></span>
+                                    <span class="tabular-nums" data-availability-countdown="{{ $row['deadline']['seconds_left'] }}"
+                                          data-availability-zero-text="{{ setting('learning.paths.due_passed', 'فات الموعد') }}"></span>
                                 </p>
                             @endif
 

@@ -10,10 +10,22 @@
         document.querySelectorAll('[data-availability-countdown]').forEach((node) => {
             let left = parseInt(node.dataset.availabilityCountdown, 10);
 
+            {{--
+              ⚠️ إعادة التحميل فقط حين يبلغ العدّاد الصفر **أثناء** الزيارة. عدّادٌ
+              يصل من الخادم صفرًا أو سالبًا (موعدٌ فات والتدريب ما زال مقفولًا
+              لسببٍ آخر) كان يعيد تحميل الصفحة فور فتحها بلا نهاية.
+            --}}
+            const startedPositive = Number.isFinite(left) && left > 0;
+            let reloaded = false;
+
             const render = () => {
-                if (left <= 0) {
-                    node.textContent = @json(setting('learning.availability.opening_now'));
-                    window.location.reload();
+                if (!Number.isFinite(left) || left <= 0) {
+                    {{-- عدّاد الفتح يقول «بيفتح دلوقتي»، وعدّاد الموعد يقول ما يمرّره الكارت («فات الموعد») --}}
+                    node.textContent = node.dataset.availabilityZeroText || @json(setting('learning.availability.opening_now'));
+                    if (startedPositive && !reloaded) {
+                        reloaded = true;
+                        window.location.reload();
+                    }
                     return;
                 }
 

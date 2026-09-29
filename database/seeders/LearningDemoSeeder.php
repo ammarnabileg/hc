@@ -338,6 +338,7 @@ class LearningDemoSeeder extends Seeder
             ['learning.paths.total_duration_label', 'string', 'إجماليّ المدّة'],
             ['learning.paths.hours_suffix', 'string', 'ساعة'],
             ['learning.paths.due_label', 'string', 'موعد الاستكمال'],
+            ['learning.paths.due_passed', 'string', 'فات الموعد'],
             ['learning.paths.due_format', 'string', 'j F Y'],
             ['learning.paths.certificate_cta', 'string', 'عرض الشهادة'],
             ['learning.paths.early_reward_label', 'string', 'لو أنهيت درسًا دلوقتي'],
