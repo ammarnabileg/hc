@@ -52,9 +52,12 @@
                     {{ setting('volunteer.people_placement.field_2', 'نطاق الدرجات') }} <output data-range-out>{{ $filters['score_min'] ?? $scoreFloor }}–{{ $filters['score_max'] ?? $scoreCeiling }}</output>
                 </span>
                 <div class="flex items-center gap-2">
+                    {{-- الـlabel الواحد لا يسمّي إلّا أوّل حقل، فلكلّ منزلقٍ اسمه لقارئ الشاشة --}}
                     <input type="range" name="score_min" data-range-min class="w-full" style="border: 0"
+                           aria-label="{{ setting('volunteer.people_placement.score_min_aria', 'أقلّ درجة') }}"
                            min="{{ $scoreFloor }}" max="{{ $scoreCeiling }}" step="1" value="{{ $filters['score_min'] ?? $scoreFloor }}">
                     <input type="range" name="score_max" data-range-max class="w-full" style="border: 0"
+                           aria-label="{{ setting('volunteer.people_placement.score_max_aria', 'أعلى درجة') }}"
                            min="{{ $scoreFloor }}" max="{{ $scoreCeiling }}" step="1" value="{{ $filters['score_max'] ?? $scoreCeiling }}">
                 </div>
             </label>

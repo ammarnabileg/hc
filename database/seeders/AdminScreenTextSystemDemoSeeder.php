@@ -298,6 +298,7 @@ class AdminScreenTextSystemDemoSeeder extends Seeder
             ['admin.settings.partials.field.akhr_tadyl', 'system', 'آخر تعديل', 'string', 'آخر تعديل', 'نصّ في resources/views/admin/settings/partials/field.blade.php: عنوانٌ منصوصٌ حرفيًّا في القسم 24، وتغييرُه يخالف خريطة الشاشات.'],  // ⚠️ 24
             ['admin.settings.partials.field.fal_almyza_awla', 'system', 'فعّل الميزة أوّلًا:', 'string', 'فعّل الميزة أوّلًا:', 'نصّ في resources/views/admin/settings/partials/field.blade.php'],
             ['admin.settings.partials.field.mfal', 'system', 'مفعَّل', 'string', 'مفعَّل', 'نصّ في resources/views/admin/settings/partials/field.blade.php'],
+            ['admin.settings.partials.field.reset', 'system', 'الافتراضيّ', 'string', 'الافتراضيّ', 'زرّ إعادة الإعداد إلى الافتراضيّ في resources/views/admin/settings/partials/field.blade.php (كان Reset بالإنجليزيّة)'],
             ['admin.settings.partials.field.mjmwaa_mhmya_lmalk_almnsa', 'system', 'مجموعة محميّة لمالك المنصّة', 'string', 'مجموعة محميّة لمالك المنصّة', 'نصّ في resources/views/admin/settings/partials/field.blade.php'],
             ['admin.settings.partials.field.sbb_altadyl_ilzamy', 'system', 'سبب التعديل (إلزاميّ)', 'string', 'سبب التعديل (إلزاميّ)', 'نصّ في resources/views/admin/settings/partials/field.blade.php'],
             ['admin.settings.partials.group_card.fyha_mfatyh_lmalk_almnsa_whdh', 'system', 'فيها مفاتيح لمالك المنصّة وحده', 'string', 'فيها مفاتيح لمالك المنصّة وحده', 'نصّ في resources/views/admin/settings/partials/group-card.blade.php'],

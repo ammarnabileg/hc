@@ -124,6 +124,7 @@
             @can('wars_bank.archive')
                 <div class="flex flex-wrap items-center gap-2 mb-3">
                     <select name="action" class="rounded-xl px-3 py-2 text-sm"
+                            aria-label="{{ setting('admin.wars.bank.index.bulk_action_aria', 'الإجراء الجماعيّ') }}"
                             style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
                         <option value="activate">{{ setting('admin.wars.bank.index.tfayl', 'تفعيل') }}</option>
                         <option value="draft">{{ setting('admin.wars.bank.index.thwyl_lmswda', 'تحويل لمسودّة') }}</option>

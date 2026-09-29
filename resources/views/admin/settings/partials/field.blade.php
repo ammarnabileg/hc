@@ -36,7 +36,7 @@
         <div class="flex items-center gap-2">
             {{-- Audit بالـHover بتأخير ~200ms، وعلى اللمس بضغطة على الأيقونة --}}
             <button type="button" class="text-xs opacity-60 hover:opacity-100" data-audit-trigger aria-label="{{ setting('admin.settings.partials.field.akhr_tadyl', 'آخر تعديل') }}">ⓘ</button>
-            <button type="button" class="text-xs underline" data-setting-reset><x-icon name="refresh" size="16" /> Reset</button>
+            <button type="button" class="text-xs underline" data-setting-reset><x-icon name="refresh" size="16" /> {{ setting('admin.settings.partials.field.reset', 'الافتراضيّ') }}</button>
         </div>
     </div>
 
@@ -47,12 +47,13 @@
                 <span>{{ setting('admin.settings.partials.field.mfal', 'مفعَّل') }}</span>
             </label>
         @elseif ($setting->type === 'text' || $setting->type === 'json')
-            <textarea rows="3" data-setting-input @disabled($disabled)
+            {{-- العنوان الظاهر أعلى الصفّ ليس label مرتبطًا، فالحقل يحمل اسمه لقارئ الشاشة صراحةً --}}
+            <textarea rows="3" data-setting-input @disabled($disabled) aria-label="{{ $setting->label_ar }}"
                       placeholder="{{ $setting->default_value }}"
                       class="w-full rounded-xl px-3 py-2 text-sm"
                       style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">{{ $setting->value }}</textarea>
         @else
-            <input type="{{ $setting->type === 'number' ? 'number' : 'text' }}" data-setting-input
+            <input type="{{ $setting->type === 'number' ? 'number' : 'text' }}" data-setting-input aria-label="{{ $setting->label_ar }}"
                    value="{{ $setting->is_sensitive ? '' : $setting->value }}"
                    placeholder="{{ $setting->is_sensitive ? '••••••' : $setting->default_value }}"
                    @disabled($disabled)

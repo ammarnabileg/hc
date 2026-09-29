@@ -156,6 +156,7 @@
                        class="rounded-xl px-3 py-2 text-sm"
                        style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
                 <select name="locale" class="rounded-xl px-3 py-2 text-sm"
+                        aria-label="{{ setting('admin.studio.index.locale_aria', 'لغة الأداة') }}"
                         style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
                     <option value="ar">{{ setting('admin.studio.index.arbya', 'عربيّة') }}</option>
                     <option value="en">{{ setting('admin.studio.index.injlyzya', 'إنجليزيّة') }}</option>
