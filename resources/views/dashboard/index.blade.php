@@ -54,10 +54,10 @@
         </div>
     </section>
 
-    @if (! $hasEnrollments)
-        {{-- أرقام الحساب (المستوى، التذاكر، الستريك، الشهادات) تُعرَض ولو لم يبدأ تدريبٌ بعد: المرجع يضعها تحت الـHero دائمًا --}}
-        @include('dashboard.partials.kpis')
+    {{-- أرقام الحساب (المستوى، التذاكر، الستريك، الشهادات) تحت الـHero مباشرةً وقبل التابات كما في المرجع، ولو لم يبدأ تدريبٌ بعد --}}
+    @include('dashboard.partials.kpis')
 
+    @if (! $hasEnrollments)
         {{-- الحالة الفارغة: سطر واحد + زرّ واحد، تشجّع ولا تعاتب (2.15-د · 2.17-ج) --}}
         <x-empty :message="setting('dashboard.empty.message', 'لسّه مابدأتش تدريب')"
                  :action="setting('dashboard.empty.action', 'تصفّح المتجر')"

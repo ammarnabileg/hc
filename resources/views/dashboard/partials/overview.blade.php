@@ -4,9 +4,9 @@
   «أقرب المواعيد» بجوار الشبح (Ghost Timer) في عمودين. لا تركيب من عندنا.
 --}}
 
-@include('dashboard.partials.kpis')
+{{-- شريط KPI يُعرَض في الصفحة الأمّ فوق التابات (كالمرجع) --}}
 
-<section class="mt-8">
+<section>
     <div class="spread mb-4">
         <h2>{{ setting('dashboard.overview.active_courses_title', 'تدريباتي الجارية') }}</h2>
         @if (\Illuminate\Support\Facades\Route::has('learning.courses'))
