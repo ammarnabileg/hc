@@ -534,24 +534,29 @@ const post = (url, body) =>
 // (تنزيلٌ في تبويبٍ آخر · فشلٌ صامت) كي لا يبقى زرٌّ ميّتًا.
 document.addEventListener('submit', (e) => {
     const form = e.target;
-    if (!(form instanceof HTMLFormElement) || e.defaultPrevented || form.hasAttribute('data-no-busy')) return;
+    if (!(form instanceof HTMLFormElement) || form.hasAttribute('data-no-busy')) return;
 
     if (form.dataset.submitting === '1') { e.preventDefault(); return; }
-    form.dataset.submitting = '1';
 
     const button = e.submitter || form.querySelector('button[type="submit"], button:not([type]), input[type="submit"]');
-    if (button) {
-        button.classList.add('is-loading');
-        button.setAttribute('aria-busy', 'true');
-    }
 
-    // التعطيل بعد لحظة كي يُرسَل اسمُ الزرّ وقيمته مع النموذج أوّلًا
-    setTimeout(() => { if (button && form.dataset.submitting === '1') button.disabled = true; }, 0);
-
+    // القفل بعد انتهاء توزيع الحدث كلّه: مستمعٌ آخر (ولو سُجِّل بعدنا على document) قد
+    // يعترض النموذج بـpreventDefault ويرسله بنفسه، فلا نقفل إلّا إرسالًا حقيقيًّا
     setTimeout(() => {
-        delete form.dataset.submitting;
-        if (button) { button.disabled = false; button.classList.remove('is-loading'); button.removeAttribute('aria-busy'); }
-    }, 8000);
+        if (e.defaultPrevented || !form.isConnected) return;
+
+        form.dataset.submitting = '1';
+        if (button) {
+            button.classList.add('is-loading');
+            button.setAttribute('aria-busy', 'true');
+            button.disabled = true; // بعد أن أُرسِل اسمُ الزرّ وقيمته مع النموذج
+        }
+
+        setTimeout(() => {
+            delete form.dataset.submitting;
+            if (button) { button.disabled = false; button.classList.remove('is-loading'); button.removeAttribute('aria-busy'); }
+        }, 8000);
+    }, 0);
 });
 
 // ---- المظهر (فاتح/داكن): يتبدّل فورًا في الصفحة ثمّ يُحفَظ للمستخدم — كالمرجع
