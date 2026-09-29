@@ -225,24 +225,53 @@ document.querySelectorAll('[data-stepper]').forEach((host) => {
     paint();
 });
 
-// بوب-أب: فتح/إغلاق + ESC
-const closeModal = (modal) => { modal.classList.add('hidden'); modal.classList.remove('flex'); };
+// بوب-أب: فتح/إغلاق + ESC + إدارة التركيز
+// ⭐ كان التركيز يبقى خلف الطبقة المعتمة: قارئ الشاشة والكيبورد لا يدخلان النافذة، وبعد
+// الإغلاق لا يعودان إلى الزرّ الذي فتحها. الآن: التركيز يدخل أوّل حقل (أو زرّ الإغلاق)،
+// وTab يدور داخل النافذة وحدها، والإغلاق يعيده إلى فاتحها.
+const FOCUSABLE = 'a[href], button:not([disabled]), input:not([type="hidden"]):not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+const modalOpeners = new WeakMap();
+
+const closeModal = (modal) => {
+    if (modal.classList.contains('hidden')) return;
+    modal.classList.add('hidden'); modal.classList.remove('flex');
+    const opener = modalOpeners.get(modal);
+    if (opener && opener.isConnected) opener.focus();
+};
+
+const openModal = (modal, opener) => {
+    modalOpeners.set(modal, opener || document.activeElement);
+    modal.classList.remove('hidden'); modal.classList.add('flex');
+    const first = Array.from(modal.querySelectorAll(FOCUSABLE)).find((el) => el.offsetParent !== null && !el.hasAttribute('data-modal-close'))
+        || modal.querySelector('[data-modal-close]');
+    first?.focus();
+};
 
 document.addEventListener('click', (e) => {
     const opener = e.target.closest('[data-modal-open]');
     if (opener) {
         const modal = document.getElementById(opener.dataset.modalOpen);
-        if (modal) { modal.classList.remove('hidden'); modal.classList.add('flex'); }
+        if (modal) openModal(modal, opener);
     }
     if (e.target.closest('[data-modal-close]')) {
         const modal = e.target.closest('[data-modal]');
         if (modal) closeModal(modal);
     }
 });
+
 document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
         document.querySelectorAll('[data-modal]:not(.hidden)').forEach(closeModal);
+        return;
     }
+    if (e.key !== 'Tab') return;
+    const modal = document.activeElement?.closest?.('[data-modal]:not(.hidden)');
+    if (!modal) return;
+    const items = Array.from(modal.querySelectorAll(FOCUSABLE)).filter((el) => el.offsetParent !== null);
+    if (!items.length) return;
+    const first = items[0]; const last = items[items.length - 1];
+    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
 });
 
 /*
