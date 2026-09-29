@@ -7,6 +7,7 @@ use App\Models\Setting;
 use App\Models\Transaction;
 use App\Services\Engagement\PositiveMessages;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Cache;
 
 /** الرسائل الإيجابيّة (2.6-ب · 2.13 · 2.9) */
 class PositiveMessagesTest extends HomeTestCase
@@ -256,6 +257,13 @@ class PositiveMessagesTest extends HomeTestCase
 
         PositiveMessage::create(['context' => 'any', 'body' => 'رسالة عربي', 'language' => 'ar', 'is_active' => true]);
         PositiveMessage::create(['context' => 'any', 'body' => 'English message', 'language' => 'en', 'is_active' => true]);
+
+        // الأيقونة العائمة (2.6) ترسم رسالةً من السياق العامّ في كلّ صفحة بنسبة 3%،
+        // فقد تُدرِج «رسالة عربي» في الصفحة وتُسقِط الاختبار عشوائيًّا — نعطّل السحبة هنا
+        Setting::updateOrCreate(['key' => 'engagement.positive.icon_chance_percent'], [
+            'group' => 'engagement', 'label_ar' => 'نسبة ظهور الأيقونة', 'type' => 'number', 'value' => '0', 'default_value' => '3',
+        ]);
+        Cache::forget('settings');
 
         $response = $this->actingAs($admin)
             ->get(route('admin.positive.index', ['language' => 'en']))
