@@ -99,6 +99,37 @@ class ProseDashTest extends TestCase
     }
 
     /**
+     * نفس القاعدة على **حرفيّات السكربت المشترك**: رسائل التوست الاحتياطيّة
+     * (`data.message || '…'`) تصل المستخدم حين لا يرسل الخادم رسالة، وكانت
+     * ثلاثٌ منها بالشرطة الطويلة لأنّ الحارسين أعلاه لا يقرآن الـJS.
+     * والقياس على ما بين علامتَي اقتباسٍ مفردة أو مزدوجة وحده، لا التعليقات.
+     */
+    #[Test]
+    public function no_script_string_shown_to_users_carries_an_em_dash(): void
+    {
+        $source = (string) file_get_contents(resource_path('js/app.js'));
+        $offenders = [];
+
+        foreach (explode("\n", $source) as $number => $line) {
+            if (! str_contains($line, '—')) {
+                continue;
+            }
+
+            preg_match_all('/([\'"])(?:(?!\1).)*—(?:(?!\1).)*\1/u', $line, $matches);
+
+            foreach ($matches[0] as $literal) {
+                if ($this->carriesProseDash($literal)) {
+                    $offenders[] = 'resources/js/app.js:'.($number + 1).'  '.trim($literal);
+                }
+            }
+        }
+
+        $this->assertSame([], $offenders,
+            'شرطة طويلة في نصٍّ يخرج للمستخدم من السكربت. أعِد صياغته بالعاميّة أو استعمل «·»: '
+            ."\n".implode("\n", $offenders));
+    }
+
+    /**
      * ينزع ما لا يصل الشاشة: تعليقات Blade وكتل `@php` ووسوم PHP والتعليقات
      * الـHTML والسكربت والستايل — ويحفظ أرقام الأسطر بإبقاء الأسطر الفارغة.
      */

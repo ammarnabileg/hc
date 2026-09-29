@@ -550,7 +550,7 @@ const post = (url, body) =>
 (() => {
     const toggle = (route, label, button) =>
         post('/ui/pins', { route, label }).then(({ ok, data }) => {
-            if (!ok) return toast(data.message || 'مقدرناش نثبّتها دلوقتي — جرّب تاني.');
+            if (!ok) return toast(data.message || 'مقدرناش نثبّتها دلوقتي. جرّب تاني.');
             toast(data.message);
             if (button) {
                 const pinned = data.pinned ? '1' : '0';
@@ -744,7 +744,7 @@ window.platformToast = toast;
 
         if (!res.ok || !data.ok) {
             // ماذا حدث + ماذا تفعل (2.17-ب)
-            window.platformToast?.(data.message || 'مقدرناش نقرا الملفّ — جرّب صيغة تانية.');
+            window.platformToast?.(data.message || 'مقدرناش نقرا الملفّ. جرّب صيغة تانية.');
             return;
         }
 
@@ -812,7 +812,7 @@ window.platformToast = toast;
                 body: JSON.stringify({ mode: btn.dataset.cvImportMode, preview: editedPreview }),
             });
             const data = await res.json().catch(() => ({}));
-            window.platformToast?.(data.message || 'مقدرناش نحفظ — جرّب تاني.');
+            window.platformToast?.(data.message || 'مقدرناش نحفظ. جرّب تاني.');
             if (res.ok && data.ok) window.location.reload();
         });
     });
