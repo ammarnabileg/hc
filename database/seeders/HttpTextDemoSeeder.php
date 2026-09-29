@@ -1203,6 +1203,21 @@ class HttpTextDemoSeeder extends Seeder
             ['admin_roles.permission_guard.forbidden_page_title', 'admin_roles', 'errors/403: عنوان التبويب: بلا صلاحيّة', 'بلا صلاحيّة'],
             ['admin_roles.permission_guard.forbidden_page_message', 'admin_roles', 'errors/403: نفس رسالة handle() الافتراضيّة', 'ليس لديك صلاحيّة الوصول لهذه الصفحة.'],
             ['admin_roles.permission_guard.forbidden_page_action', 'admin_roles', 'errors/403: زرّ العودة: الرجوع للوحة الرئيسيّة', 'الرجوع للوحة الرئيسيّة'],
+            ['errors.404.title', 'errors', 'errors/404: عنوان التبويب', 'الصفحة مش موجودة'],
+            ['errors.404.message', 'errors', 'errors/404: الرسالة', 'الرابط ده مش موصّل لحاجة. يمكن اتغيّر أو اتكتب غلط.'],
+            ['errors.404.action', 'errors', 'errors/404: زرّ العودة', 'ارجع للرئيسيّة'],
+            ['errors.419.title', 'errors', 'errors/419: عنوان التبويب', 'الجلسة انتهت'],
+            ['errors.419.message', 'errors', 'errors/419: الرسالة', 'الصفحة قعدت مفتوحة كتير والجلسة انتهت. افتحها تاني وكمّل.'],
+            ['errors.419.action', 'errors', 'errors/419: زرّ العودة', 'افتح الصفحة تاني'],
+            ['errors.429.title', 'errors', 'errors/429: عنوان التبويب', 'طلبات كتير'],
+            ['errors.429.message', 'errors', 'errors/429: الرسالة', 'طلبات كتير في وقت قصير. استنّى لحظة وجرّب تاني.'],
+            ['errors.429.action', 'errors', 'errors/429: زرّ العودة', 'ارجع للرئيسيّة'],
+            ['errors.500.title', 'errors', 'errors/500: عنوان التبويب', 'حصل خطأ'],
+            ['errors.500.message', 'errors', 'errors/500: الرسالة', 'حصل خطأ عندنا مش عندك. اتسجّل وهنراجعه، جرّب تاني بعد شويّة.'],
+            ['errors.500.action', 'errors', 'errors/500: زرّ العودة', 'ارجع للرئيسيّة'],
+            ['errors.503.title', 'errors', 'errors/503: عنوان التبويب', 'صيانة قصيرة'],
+            ['errors.503.message', 'errors', 'errors/503: الرسالة', 'المنصّة في صيانة قصيرة. جرّب تاني بعد دقايق.'],
+            ['errors.503.action', 'errors', 'errors/503: زرّ العودة', 'جرّب تاني'],
 
             // ═══ نصوصٌ نُقِلت بيدٍ: ثوابتُ `const` (لا تقبل `setting()`) ·
             //     نصوصٌ مزدوجة بمتغيّرات · نصٌّ كان **مفتاحَ مصفوفة** فصُيِّر قيمةً.
