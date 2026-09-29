@@ -85,14 +85,15 @@
 
         {{--
           زرّ البحث الموحّد (Ctrl+K) للياوتين اللذين لا صفّ بحث في سايد بارهما (الإدارة والتطوّع):
-          بلا زرّ كانت اللوحة اختصارَ كيبورد لا يدلّ عليه شيء على الشاشة (2.15-د). الموبايل يفتح
-          شاشة البحث الكاملة من الدرج، فالزرّ للديسكتوب وحده.
+          بلا زرّ كانت اللوحة اختصارَ كيبورد لا يدلّ عليه شيء على الشاشة (2.15-د). رابطٌ لا زرّ:
+          على الديسكتوب يعترضه السكربت ويفتح اللوحة، وعلى الموبايل (حيث اللوحة معطَّلة) يمضي
+          إلى شاشة البحث الكاملة — فلا يبقى مستخدم الإدارة والتطوّع على الموبايل بلا بحثٍ أصلًا.
         --}}
-        @if ($topbarSearch ?? false)
-            <button type="button" data-palette-open class="icon-button hidden md:inline-flex"
-                    aria-label="{{ setting('nav.header.search_aria', 'البحث الموحّد') }}" title="Ctrl K">
+        @if (($topbarSearch ?? false) && Route::has('search'))
+            <a href="{{ route('search') }}" data-palette-open class="icon-button"
+               aria-label="{{ setting('nav.header.search_aria', 'البحث الموحّد') }}" title="Ctrl K">
                 <x-icon name="search" size="20" />
-            </button>
+            </a>
         @endif
 
         {{-- جرس الإشعارات بتاباته: الكلّ · المنصّة · التطوّع (2.8) --}}

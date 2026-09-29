@@ -36,9 +36,23 @@ class ErrorPagesTest extends TestCase
             ->assertDontSee('Not Found', false);
     }
 
+    /**
+     * ⛔ GET لرابطٍ لا يقبل إلّا PUT/DELETE (admin/courses/{course}) كان يعرض صفحة
+     * مصحّح Laravel الخام، لأنّ Laravel لا يشحن قالبًا لـ405 فيسقط إلى عارض الاستثناءات.
+     */
+    public function test_a_method_not_allowed_url_renders_the_branded_page(): void
+    {
+        $response = $this->get('/admin/courses/media');
+
+        $response->assertStatus(405)
+            ->assertSee('class="card p-8 text-center"', false)
+            ->assertSee(setting('errors.405.message'), false)
+            ->assertDontSee('Method Not Allowed', false);
+    }
+
     public function test_every_error_view_extends_the_shared_shell(): void
     {
-        foreach (['403', '404', '419', '429', '500', '503'] as $code) {
+        foreach (['401', '403', '404', '405', '419', '429', '500', '503'] as $code) {
             $view = file_get_contents(resource_path("views/errors/{$code}.blade.php"));
 
             $this->assertStringContainsString("@extends('errors.minimal'", $view, "errors/{$code} خارج القالب المشترك");
