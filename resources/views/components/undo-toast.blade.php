@@ -11,8 +11,8 @@
   أيّ شاشة تُطلق `ui:undoable` بـ{token, message} فيظهر الشريط هنا.
 --}}
 <div data-undo-host data-undo-seconds="{{ $seconds }}"
-     class="fixed z-[70] hidden items-center gap-3 rounded-xl px-4 py-3 text-sm animate-fadeup"
-     style="inset-inline-start: 1rem; inset-block-end: 1rem; background: var(--surface-raised);
+     class="fixed z-[70] hidden items-center gap-3 rounded-xl px-4 py-3 text-sm animate-fadeup float-bottom"
+     style="inset-inline-start: 1rem; background: var(--surface-raised);
             border: 1px solid var(--border); color: var(--text); box-shadow: 0 8px 24px rgb(0 0 0 / .3)"
      role="status" aria-live="polite">
     <span data-undo-message></span>

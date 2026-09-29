@@ -25,8 +25,8 @@
   ولذلك نستعمل `right` الفيزيائيّة لا `inset-inline-end`: الصفحة `dir="rtl"`،
   و«نهاية السطر» فيها هي **اليسار** — فكان الاثنان يقعان في الجهة الخطأ.
 --}}
-<div class="fixed z-40 flex flex-col items-center gap-2 pointer-events-none"
-     style="right: 1rem; bottom: 1rem" data-floating>
+<div class="fixed z-40 flex flex-col items-center gap-2 pointer-events-none float-bottom"
+     style="right: 1rem" data-floating>
 
     @if ($surprise)
         <button type="button" data-surprise-open aria-label="{{ $iconLabel }}" title="{{ $iconLabel }}"

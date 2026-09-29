@@ -713,7 +713,27 @@
     body.has-mobile-nav.has-mobile-action #content {
       padding-block-end: calc(24px + var(--nav-height, 68px) + var(--action-height, 72px) + env(safe-area-inset-bottom));
     }
+
+    /*
+     | ⭐ العناصر العائمة (الرسائل الإيجابيّة · أكمل من حيث توقفت · «؟» · Undo ·
+     | لافتة الموافقة) ترتفع فوق الشريط/الشريطين بدل أن تغطّيهما — كانت تقف
+     | على 1rem من أسفل الشاشة فتجلس فوق التنقّل السفليّ وتحجب وجهته الأولى.
+     */
+    body.has-mobile-nav { --float-bottom: calc(1rem + var(--nav-height, 68px) + env(safe-area-inset-bottom)); }
+    body.has-mobile-action { --float-bottom: calc(1rem + var(--action-height, 72px) + env(safe-area-inset-bottom)); }
+    body.has-mobile-nav.has-mobile-action {
+      --float-bottom: calc(1rem + var(--nav-height, 68px) + var(--action-height, 72px) + env(safe-area-inset-bottom));
+    }
   }
+
+  /* مسافة العائمات من أسفل الشاشة: 1rem على الديسكتوب، وفوق الأشرطة على الموبايل (أعلاه) */
+  :root { --float-bottom: 1rem; }
+  .float-bottom { inset-block-end: var(--float-bottom); }
+  .float-bottom-2 { inset-block-end: calc(var(--float-bottom) + 4.5rem); }
+
+  /* قوائم «⋯»: الإفصاح بلا مثلّث المتصفّح، فالزرّ هو النقاط الثلاث وحدها */
+  details.relative > summary { list-style: none; }
+  details.relative > summary::-webkit-details-marker { display: none; }
 
   .mobile-nav-item {
     min-block-size: 54px;

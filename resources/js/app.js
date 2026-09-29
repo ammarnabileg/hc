@@ -499,6 +499,35 @@ const post = (url, body) =>
     palette.addEventListener('palette:open', () => { if (!rowsOf().length) search(); });
 })();
 
+// ---- أشرطة الموبايل الثابتة: الارتفاع الحقيقيّ يُكتَب في المتغيّرين بدل رقمٍ مفترَض
+// (التنقّل السفليّ كان 91px والرقم المفترَض 68px، فتراكب شريط الفعل عليه بضعة بكسلات)
+(() => {
+    const nav = document.getElementById('mobile-navigation');
+    const primary = document.getElementById('mobile-primary');
+    if (!nav && !primary) return;
+
+    // منطقة الأمان تُقرأ من عنصرٍ مسبار، فلا تُحسَب مرّتين (الشريط يحملها في حشوته والـCSS يضيفها)
+    const probe = document.createElement('div');
+    probe.style.cssText = 'position:fixed;visibility:hidden;padding-bottom:env(safe-area-inset-bottom)';
+    document.body.appendChild(probe);
+
+    const apply = () => {
+        const safe = parseFloat(getComputedStyle(probe).paddingBottom) || 0;
+        const set = (el, name) => {
+            if (el && !el.hidden && el.offsetHeight) document.body.style.setProperty(name, `${Math.max(0, el.offsetHeight - safe)}px`);
+        };
+        set(nav, '--nav-height');
+        set(primary, '--action-height');
+    };
+
+    apply();
+    if ('ResizeObserver' in window) {
+        const ro = new ResizeObserver(apply);
+        [nav, primary].forEach((el) => el && ro.observe(el));
+    }
+    window.addEventListener('resize', apply);
+})();
+
 // ---- المظهر (فاتح/داكن): يتبدّل فورًا في الصفحة ثمّ يُحفَظ للمستخدم — كالمرجع
 (() => {
     document.querySelectorAll('[data-theme-toggle]').forEach((btn) => {

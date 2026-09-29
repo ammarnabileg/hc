@@ -62,8 +62,8 @@
 
     {{-- زرّ «؟» يعيدها وقت ما شاء المستخدم (2.15-د) --}}
     <button type="button" data-first-run-replay="{{ $screenKey }}"
-            class="fixed z-30 inline-flex items-center justify-center rounded-full motion-standard"
-            style="inset-inline-start: 1rem; inset-block-end: 1rem; width: 44px; height: 44px;
+            class="fixed z-30 inline-flex items-center justify-center rounded-full motion-standard float-bottom"
+            style="inset-inline-start: 1rem; width: 44px; height: 44px;
                    background: var(--surface-raised); border: 1px solid var(--border); color: var(--text-muted)"
             aria-label="{{ $labels['replay'] }}" title="{{ $labels['replay'] }}">؟</button>
 @endif

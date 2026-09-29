@@ -45,7 +45,7 @@
 @include('growth.partials.tracking')
 
 @if ($askConsent)
-    <div class="fixed inset-x-3 bottom-3 z-50 card p-4 md:max-w-md md:inset-x-auto md:end-4"
+    <div class="fixed inset-x-3 z-50 card p-4 md:max-w-md md:inset-x-auto md:end-4 float-bottom"
          role="region" aria-label="{{ setting('ads.consent.banner_aria', 'الموافقة على التتبّع') }}" data-consent-banner>
         <p class="text-sm mb-3">{{ setting('ads.consent.banner_text', 'نستخدم ملفّات تعريف الارتباط لتحسين تجربتك. تقدر تقبل أو ترفض.') }}</p>
 
