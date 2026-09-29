@@ -22,7 +22,8 @@
                 <circle cx="11" cy="11" r="7" />
                 <path d="M20 20l-3.5-3.5" />
             </svg>
-            <input type="search" data-palette-input autocomplete="off"
+            <input type="search" data-palette-input autocomplete="off" role="combobox" aria-expanded="true"
+                   aria-controls="command-palette-results" aria-autocomplete="list"
                    placeholder="{{ setting('ux.command_palette.placeholder_1', 'اكتب اسم صفحة أو شخص أو مهمّة…') }}" aria-label="{{ setting('ux.command_palette.aria_label_2', 'البحث الموحّد') }}"
                    class="flex-1 bg-transparent outline-none text-sm" style="color: var(--text); min-height: 44px">
             <kbd class="text-[10px] rounded px-1.5 py-0.5 hidden sm:inline"
@@ -31,7 +32,7 @@
                     class="text-sm opacity-70 hover:opacity-100" style="min-width: 44px; min-height: 44px">✕</button>
         </div>
 
-        <div data-palette-results class="overflow-y-auto p-2 text-sm" style="max-height: calc(70vh - 60px)">
+        <div id="command-palette-results" data-palette-results role="listbox" class="overflow-y-auto p-2 text-sm" style="max-height: calc(70vh - 60px)">
             {{-- الحالة الفارغة سطر واحد يشجّع ولا يعاتب (2.17-ج) --}}
             <p class="p-3 text-xs" style="color: var(--text-muted)">{{ setting('ux.command_palette.text_1', 'اكتب حرفين وهنوصّلك على طول.') }}</p>
         </div>

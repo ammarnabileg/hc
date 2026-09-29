@@ -157,6 +157,16 @@ class WorkspaceTest extends UiTestCase
         $this->assertNotEmpty($response->json('pages'));
     }
 
+    public function test_command_palette_is_a_keyboard_navigable_listbox(): void
+    {
+        // الحقل combobox والنتائج listbox، فالأسهم وEnter يعملان بالسمات القياسيّة لا بحيلة
+        $this->actingAs($this->trainee())
+            ->get(route('dashboard'))
+            ->assertOk()
+            ->assertSee('data-palette-input autocomplete="off" role="combobox"', false)
+            ->assertSee('id="command-palette-results" data-palette-results role="listbox"', false);
+    }
+
     public function test_command_palette_hides_pages_the_user_cannot_open(): void
     {
         // ما لا يملكه المستخدم لا يظهر في نتائجه أصلًا (2.15-أ-7)

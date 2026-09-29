@@ -425,15 +425,33 @@ const post = (url, body) =>
     const errorText = palette.dataset.paletteError || '';
     let timer = null;
 
+    // ---- التنقّل بلوحة المفاتيح: الأسهم تتنقّل بين النتائج وEnter يفتح المحدَّدة
+    let active = -1;
+    const rowsOf = () => Array.from(results.querySelectorAll('[data-palette-row]'));
+    const setActive = (index) => {
+        const rows = rowsOf();
+        if (!rows.length) { active = -1; input?.removeAttribute('aria-activedescendant'); return; }
+        active = Math.max(0, Math.min(index, rows.length - 1));
+        rows.forEach((row, i) => {
+            const on = i === active;
+            row.classList.toggle('palette-active', on);
+            row.setAttribute('aria-selected', on ? 'true' : 'false');
+        });
+        input?.setAttribute('aria-activedescendant', rows[active].id);
+        rows[active].scrollIntoView({ block: 'nearest' });
+    };
+
     const render = (data) => {
         const parts = [];
+        let n = 0;
         Object.keys(groups).forEach((key) => {
             const rows = data[key] || [];
             if (!rows.length) return;
             parts.push(`<div class="px-3 pt-3 pb-1 text-[11px]" style="color: var(--text-muted)">${groups[key]}</div>`);
             rows.forEach((row) => {
                 parts.push(
-                    `<a href="${row.url}" class="flex items-center justify-between gap-2 rounded-xl px-3 py-2 motion-standard"
+                    `<a href="${row.url}" id="palette-row-${n++}" role="option" aria-selected="false" data-palette-row
+                        class="palette-row flex items-center justify-between gap-2 rounded-xl px-3 py-2 motion-standard"
                         style="min-height:44px; color: var(--text)">
                         <span class="truncate">${row.label}</span>
                         <span class="text-[11px] shrink-0" style="color: var(--text-muted)">${row.hint || ''}</span>
@@ -444,7 +462,26 @@ const post = (url, body) =>
         results.innerHTML = parts.length
             ? parts.join('')
             : `<p class="p-3 text-xs" style="color: var(--text-muted)">${emptyText}</p>`;
+        // أوّل نتيجة محدَّدة سلفًا: Enter يفتحها من غير ما ترفع إيدك عن الكيبورد
+        setActive(0);
     };
+
+    input?.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowDown') { e.preventDefault(); setActive(active + 1); }
+        else if (e.key === 'ArrowUp') { e.preventDefault(); setActive(active - 1); }
+        else if (e.key === 'Home' && rowsOf().length) { e.preventDefault(); setActive(0); }
+        else if (e.key === 'End' && rowsOf().length) { e.preventDefault(); setActive(rowsOf().length - 1); }
+        else if (e.key === 'Enter') {
+            const row = rowsOf()[active];
+            if (row) { e.preventDefault(); row.click(); }
+        }
+    });
+
+    // الفأرة تنقل التحديد بلا نقر، فلا يتضارب مؤشّران على الشاشة
+    results.addEventListener('mousemove', (e) => {
+        const row = e.target.closest?.('[data-palette-row]');
+        if (row) { const i = rowsOf().indexOf(row); if (i !== active) setActive(i); }
+    });
 
     input?.addEventListener('input', () => {
         clearTimeout(timer);

@@ -1000,6 +1000,10 @@
   .side-search-kbd { flex-shrink: 0; align-items: center; font: inherit; font-size: 10px; line-height: 1; padding: 4px 6px; border-radius: 6px; border: 1px solid var(--line); background: var(--surface-sunken); color: var(--muted); cursor: pointer; white-space: nowrap; direction: ltr; }
   .side-search-kbd:hover { color: var(--ink); }
 
+  /* لوحة الأوامر (Ctrl+K): الصفّ المحدَّد بالأسهم أو بالفأرة يحمل خلفيّة الرقاقة الناعمة لا لونًا جديدًا */
+  .palette-row:hover, .palette-row.palette-active { background: var(--soft); color: var(--ink); }
+  .palette-row.palette-active { outline: 1px solid var(--line); outline-offset: -1px; }
+
   .nav-list { display: flex; flex-direction: column; gap: 2px; }
   .nav-item { border: 0; background: transparent; color: var(--muted); width: 100%; min-height: 44px; padding: 8px 12px; display: flex; align-items: center; gap: 12px; font-size: 14px; text-align: start; border-radius: 6px; position: relative; white-space: nowrap; }
   .nav-item:hover { background: var(--soft); color: var(--ink); }
