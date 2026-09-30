@@ -54,10 +54,6 @@
         </x-slot:action>
     </x-page-header>
 
-    @if (session('status'))
-        <x-toast :message="session('status')" />
-    @endif
-
     @error('checkout')
         <x-toast :message="$message" state="danger" />
     @enderror

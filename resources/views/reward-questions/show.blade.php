@@ -11,10 +11,6 @@
         :title="setting('reward_questions.page_title', 'سؤال المكافأة')"
         :subtitle="setting('reward_questions.page_intro', 'جاوب صحّ قبل ما الوقت يخلص وتكسب مكافأتك فورًا.')" />
 
-    @if (session('status'))
-        <div class="card p-3 mb-4 text-sm animate-fadeup">{{ session('status') }}</div>
-    @endif
-
     <section class="card p-5">
         <div class="flex items-center justify-between gap-3 flex-wrap mb-4">
             <span class="flex items-center gap-2">

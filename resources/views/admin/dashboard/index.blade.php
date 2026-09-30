@@ -52,10 +52,6 @@
         </x-slot:action>
     </x-page-header>
 
-    @if (session('status'))
-        <x-toast :message="session('status')" />
-    @endif
-
     {{-- تنبيهات استباقيّة بعتباتها من الإعدادات (12.3-17) --}}
     @foreach ($alerts as $alert)
         <div class="card p-3 mb-3 flex items-center gap-2" role="status">

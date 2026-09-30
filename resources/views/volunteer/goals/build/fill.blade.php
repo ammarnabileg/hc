@@ -20,10 +20,6 @@
         :subtitle="$goal->name"
         :breadcrumbs="[['label' => setting('volunteer.goals_build_fill.label', 'رحلة بناء الهدف'), 'url' => route('volunteer.goals.build')], ['label' => setting('volunteer.goals_build_fill.title', 'ملء حزم كياني')]]" />
 
-    @if (session('status'))
-        <div class="card p-3 mb-4 text-sm"><x-state-badge state="ok" :label="setting('volunteer.goals_build_fill.label_2', 'تمام')" /> {{ session('status') }}</div>
-    @endif
-
     @if ($errors->any())
         <div class="card p-3 mb-4 text-sm" style="border: 1px solid var(--color-state-danger)">
             <x-state-badge state="danger" :label="setting('volunteer.goals_build_fill.label_3', 'مااتحفظش')" />

@@ -36,4 +36,24 @@ class FlashToastTest extends TestCase
         $this->assertSame('', trim(Blade::render('<x-toast message="" />')));
         $this->assertSame('', trim(Blade::render('<x-toast :message="null" />')));
     }
+    /** الليَاوت يرسم التوست مرّة؛ صفحةٌ ترسمه ثانيةً تُظهر الرسالة مرّتين */
+    public function test_pages_under_a_layout_do_not_render_the_status_flash_themselves(): void
+    {
+        $offenders = [];
+        $iterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator(resource_path('views')));
+
+        foreach ($iterator as $entry) {
+            if (! $entry->isFile() || ! str_ends_with($entry->getFilename(), '.blade.php') || str_contains($entry->getPathname(), '/layouts/')) {
+                continue;
+            }
+
+            $source = file_get_contents($entry->getPathname());
+
+            if (preg_match("/@extends\('layouts\.(app|admin|volunteer)'/", $source) && str_contains($source, "session('status')")) {
+                $offenders[] = str_replace(base_path().'/', '', $entry->getPathname());
+            }
+        }
+
+        $this->assertSame([], $offenders, 'صفحات ترسم session(status) مع الليَاوت: '.implode(', ', $offenders));
+    }
 }

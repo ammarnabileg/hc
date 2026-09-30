@@ -74,10 +74,6 @@
                        ['label' => $item->name_ar],
                    ]" />
 
-    @if (session('status'))
-        <x-toast :message="session('status')" />
-    @endif
-
     @error('checkout')
         <x-toast :message="$message" state="danger" />
     @enderror

@@ -30,10 +30,6 @@
         @endif
     </x-page-header>
 
-    @if (session('status'))
-        <div class="card p-3 mb-4 text-sm"><x-state-badge state="ok" :label="setting('volunteer.goals_build.label_2', 'تمام')" /> {{ session('status') }}</div>
-    @endif
-
     @forelse ($goals as $goal)
         @php
             $tracks = $tracksOf[$goal->id] ?? [];

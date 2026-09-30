@@ -31,10 +31,6 @@
         @endif
     </x-page-header>
 
-    @if (session('status'))
-        <div class="card p-3 mb-4 text-sm"><x-state-badge state="ok" :label="setting('volunteer.goals_build_breakdown.label_2', 'تمام')" /> {{ session('status') }}</div>
-    @endif
-
     @if ($errors->any())
         <div class="card p-3 mb-4 text-sm" style="border: 1px solid var(--color-state-danger)">
             <x-state-badge state="danger" :label="setting('volunteer.goals_build_breakdown.label_3', 'مااتعملش')" />

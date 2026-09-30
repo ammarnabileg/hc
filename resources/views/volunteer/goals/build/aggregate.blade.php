@@ -30,10 +30,6 @@
         @endif
     </x-page-header>
 
-    @if (session('status'))
-        <div class="card p-3 mb-4 text-sm"><x-state-badge state="ok" :label="setting('volunteer.goals_build_aggregate.label_2', 'تمام')" /> {{ session('status') }}</div>
-    @endif
-
     @unless ($canEdit)
         <div class="card p-3 mb-4 text-sm"><x-state-badge state="warn" :label="setting('volunteer.goals_build_aggregate.label_3', 'قراءة فقط')" /> {{ $lockMessage }}</div>
     @endunless

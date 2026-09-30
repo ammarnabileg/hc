@@ -25,10 +25,6 @@
         </x-slot:action>
     </x-page-header>
 
-    @if (session('status'))
-        <div class="card p-3 mb-4 text-sm" role="status">{{ session('status') }}</div>
-    @endif
-
     @if ($quote['lines'] === [])
         {{-- حالة فارغة: سطر واحد وزرّ واحد يشجّع ولا يعاتب (2.15-أ-8 · 2.17) --}}
         <x-empty :message="setting('store.cart.empty_text')"
