@@ -30,6 +30,13 @@
         .stat { border: 1px solid #dfddd5; border-radius: 3mm; padding: 3mm 5mm; text-align: center; }
         .stat b { display: block; font-size: 15pt; }
         @media print { html, body { background: #fff; } .sheet { box-shadow: none; } }
+        /* على الشاشة الضيّقة (موبايل): الورقة تملأ العرض بدل التمرير الأفقيّ؛ الطباعة تبقى A4 */
+        @media screen and (max-width: 210mm) {
+            .sheet { inline-size: 100%; min-block-size: auto; padding: 6mm 5mm; box-shadow: none; }
+            .band { flex-wrap: wrap; }
+            .stat { flex: 1 1 40%; }
+            li, p { overflow-wrap: anywhere; }
+        }
     </style>
 </head>
 <body>
