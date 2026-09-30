@@ -185,7 +185,7 @@
 
                     @can('certificates.create')
                         <form method="post" action="{{ route('admin.certificates.reissue', $certificate) }}"
-                              onsubmit="return confirm('{{ setting('certificates.reissue.confirm_text', 'هنبطل القديمة ونصدر مصحّحة. نكمّل؟') }}')">
+                              data-confirm="{{ setting('certificates.reissue.confirm_text', 'هنبطل القديمة ونصدر مصحّحة. نكمّل؟') }}">
                             @csrf
                             <button class="underline">{{ setting('admin.certificates.partials.ledger.iaada_isdar', 'إعادة إصدار') }}</button>
                         </form>

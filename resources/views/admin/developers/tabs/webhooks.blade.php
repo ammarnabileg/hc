@@ -160,14 +160,14 @@
                                     @endcan
                                     @can('webhooks.manage')
                                         <form method="post" action="{{ route('admin.developers.webhooks.rotate-secret', $webhook) }}"
-                                              onsubmit="return confirm('{{ setting('developers.admin.webhook_rotate_confirm', 'تدوير السرّ يُبطل القديم فورًا. تأكيد؟') }}')">
+                                              data-confirm="{{ setting('developers.admin.webhook_rotate_confirm', 'تدوير السرّ يُبطل القديم فورًا. تأكيد؟') }}">
                                             @csrf
                                             <button type="submit" class="text-xs underline">{{ setting('developers.admin.rotate_cta', 'تدوير') }}</button>
                                         </form>
                                     @endcan
                                     @can('webhooks.delete')
                                         <form method="post" action="{{ route('admin.developers.webhooks.destroy', $webhook) }}"
-                                              onsubmit="return confirm('{{ setting('developers.admin.webhook_delete_confirm', 'حذف الويب-هوك نهائيّ. تأكيد؟') }}')">
+                                              data-confirm="{{ setting('developers.admin.webhook_delete_confirm', 'حذف الويب-هوك نهائيّ. تأكيد؟') }}">
                                             @csrf
                                             @method('delete')
                                             <button type="submit" class="text-xs underline" style="color: var(--color-state-danger)">{{ setting('developers.admin.revoke_cta', 'إبطال') }}</button>

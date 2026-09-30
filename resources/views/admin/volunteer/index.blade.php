@@ -125,7 +125,7 @@
                                 @endcan
                                 @can('volunteer_page.manage')
                                     <form method="post" action="{{ route('admin.volunteer.page.block.delete') }}"
-                                          onsubmit="return confirm('{{ setting('admin.volunteer.index.thdhf_alktla_dy_alfal_dh_malwsh_rjwa', 'تحذف الكتلة دي؟ الفعل ده مالوش رجوع.') }}')">
+                                          data-confirm="{{ setting('admin.volunteer.index.thdhf_alktla_dy_alfal_dh_malwsh_rjwa', 'تحذف الكتلة دي؟ الفعل ده مالوش رجوع.') }}">
                                         @csrf
                                         <input type="hidden" name="index" value="{{ $i }}">
                                         <button type="submit" class="text-xs underline" style="color: var(--color-state-danger)">{{ setting('admin.volunteer.index.hdhf', 'حذف') }}</button>

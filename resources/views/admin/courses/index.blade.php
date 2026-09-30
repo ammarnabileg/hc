@@ -172,7 +172,7 @@
                                                  لأنّها تُنشئ تدريبًا جديدًا فعلًا، ومَن لا يملكها لا يرى العنصر (2.15-أ-7) --}}
                                             @can('courses.create')
                                                 <form method="post" action="{{ route('admin.courses.duplicate', $course) }}"
-                                                      onsubmit="return confirm('{{ setting('courses.duplicate.confirm_text') }}')">
+                                                      data-confirm="{{ setting('courses.duplicate.confirm_text') }}">
                                                     @csrf
                                                     <button type="submit" class="block w-full text-start px-2 py-1 text-sm">
                                                         {{ setting('courses.duplicate.action_label') }}
@@ -232,7 +232,7 @@
                                 {{-- ونفس الإجراء على الموبايل: لا ميزة تسقط بالمقاس (2.15-ج) --}}
                                 @can('courses.create')
                                     <form method="post" action="{{ route('admin.courses.duplicate', $course) }}" class="mt-2"
-                                          onsubmit="return confirm('{{ setting('courses.duplicate.confirm_text') }}')">
+                                          data-confirm="{{ setting('courses.duplicate.confirm_text') }}">
                                         @csrf
                                         <button type="submit" class="underline text-sm">
                                             {{ setting('courses.duplicate.action_label') }}

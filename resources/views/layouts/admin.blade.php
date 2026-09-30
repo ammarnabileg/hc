@@ -171,16 +171,20 @@
         if (!boxes.length) return;
 
         const template = @json($hcWords['admin.roles.edit.mtakd_ink_aayz_tmnh_alslahya_alhsasa_dy_v1']);
-        const confirmGrant = (box) => window.confirm(template.replace(':v1', box.dataset.permSensitiveLabel || ''));
+        {{-- بوب-أب المنصّة (resources/js/app.js) لا نافذة المتصفّح: وعدٌ، فالتفعيل يُرجَأ حتى «نعم» --}}
+        const confirmGrant = (box) => window.platformConfirm(template.replace(':v1', box.dataset.permSensitiveLabel || ''), box);
 
         boxes.forEach((box) => box.addEventListener('change', () => {
-            if (box.checked && !confirmGrant(box)) box.checked = false;
+            if (!box.checked) return;
+            box.checked = false;
+            confirmGrant(box).then((ok) => { box.checked = ok; });
         }));
 
         {{-- «تفعيل المجموعة كلّها» يمرّ بنفس التأكيد سطرًا سطرًا — بعد أن يضبطها الكتلة اللي فوق كلّها ON --}}
         document.querySelectorAll('[data-perm-bulk="on"]').forEach((button) => button.addEventListener('click', () => {
-            document.querySelectorAll('[data-perm-row]:not(.hidden) [data-perm-toggle][data-perm-sensitive]')
-                .forEach((box) => { if (!confirmGrant(box)) box.checked = false; });
+            const sensitive = Array.from(document.querySelectorAll('[data-perm-row]:not(.hidden) [data-perm-toggle][data-perm-sensitive]'));
+            sensitive.forEach((box) => { box.checked = false; });
+            sensitive.reduce((chain, box) => chain.then(() => confirmGrant(box)).then((ok) => { box.checked = ok; }), Promise.resolve());
         }));
     })();
 </script>
@@ -191,6 +195,7 @@
 @auth
     {{-- البحث الموحّد (Ctrl+K) والتراجع خلال ثوانٍ — على كلّ الشاشات (2.15-د) --}}
     <x-command-palette />
+    <x-confirm-modal />
     <x-undo-toast />
     <x-first-run />
 @endauth

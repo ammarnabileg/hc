@@ -46,7 +46,7 @@
                         @endcan
                         @can('badges.delete')
                             <form method="post" action="{{ route('admin.gamification.badges.delete', $badge) }}"
-                                  onsubmit="return confirm('{{ setting('admin.gamification.tabs.badges.thdhf_alshara_dy', 'تحذف الشارة دي؟') }}')">
+                                  data-confirm="{{ setting('admin.gamification.tabs.badges.thdhf_alshara_dy', 'تحذف الشارة دي؟') }}">
                                 @csrf
                                 <button type="submit" class="text-xs underline" style="color: var(--color-state-danger)">{{ setting('admin.gamification.tabs.badges.hdhf', 'حذف') }}</button>
                             </form>

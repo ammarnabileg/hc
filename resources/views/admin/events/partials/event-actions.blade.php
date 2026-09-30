@@ -27,7 +27,7 @@
                 data-reminders="{{ $event->reminders_enabled ? 1 : 0 }}">{{ setting('admin.events.index.tadyl', 'تعديل') }}</button>
         @if ($event->status !== 'cancelled')
             <form method="post" action="{{ route('admin.events.cancel', $event) }}"
-                  onsubmit="return confirm('{{ setting('admin.events.index.tlghy_alfaalya_dy', 'تلغي الفعاليّة دي؟') }}')">
+                  data-confirm="{{ setting('admin.events.index.tlghy_alfaalya_dy', 'تلغي الفعاليّة دي؟') }}">
                 @csrf
                 <button type="submit" class="underline" style="color: var(--color-state-danger)">{{ setting('admin.events.index.ilgha', 'إلغاء') }}</button>
             </form>

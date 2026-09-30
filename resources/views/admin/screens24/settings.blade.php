@@ -73,7 +73,7 @@
         </form>
 
         <form method="post" action="{{ $resetRoute }}" class="mt-3"
-              onsubmit="return confirm('{{ setting('admin.screens24.settings.trja_kl_iadadat_alshasha_dy_llaftrady', 'ترجّع كلّ إعدادات الشاشة دي للافتراضيّ؟') }}')">
+              data-confirm="{{ setting('admin.screens24.settings.trja_kl_iadadat_alshasha_dy_llaftrady', 'ترجّع كلّ إعدادات الشاشة دي للافتراضيّ؟') }}">
             @csrf
             <button type="submit" class="text-xs underline" style="color: var(--text-muted)"><x-icon name="refresh" size="16" /> {{ setting('admin.screens24.settings.rja_aliadadat_klha_llaftrady', 'رجّع الإعدادات كلّها للافتراضيّ') }}</button>
         </form>

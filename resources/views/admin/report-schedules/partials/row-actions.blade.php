@@ -45,7 +45,7 @@
 
     @if ($canDelete)
         <form method="post" action="{{ route('admin.report-schedules.destroy', $schedule) }}"
-              onsubmit="return confirm('{{ setting('admin.report_schedules.partials.row_actions.thdhf_aljdwla_dy_sjl_irsalha_hythdhf_maaha', 'تحذف الجدولة دي؟ سجلّ إرسالها هيتحذف معاها.') }}')">
+              data-confirm="{{ setting('admin.report_schedules.partials.row_actions.thdhf_aljdwla_dy_sjl_irsalha_hythdhf_maaha', 'تحذف الجدولة دي؟ سجلّ إرسالها هيتحذف معاها.') }}">
             @csrf @method('delete')
             <button type="submit" class="underline" style="color: var(--color-state-danger)">{{ setting('admin.report_schedules.partials.row_actions.hdhf', 'حذف') }}</button>
         </form>

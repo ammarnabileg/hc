@@ -90,7 +90,7 @@
         <div class="flex flex-wrap gap-2 mt-3">
             @foreach ($groups as $groupKey => $groupLabel)
                 <form method="post" action="{{ route('admin.volunteer.rep.rules.reset_group') }}"
-                      onsubmit="return confirm('{{ strtr(setting('admin.volunteer.rep.trja_llaftrady', 'ترجّع «:group» للافتراضيّ؟'), [':group' => $groupLabel]) }}')">
+                      data-confirm="{{ strtr(setting('admin.volunteer.rep.trja_llaftrady', 'ترجّع «:group» للافتراضيّ؟'), [':group' => $groupLabel]) }}">
                     @csrf
                     <input type="hidden" name="group" value="{{ $groupKey }}">
                     <button type="submit" class="text-xs underline" style="color: var(--text-muted)"><x-icon name="refresh" size="16" /> {{ $groupLabel }}</button>

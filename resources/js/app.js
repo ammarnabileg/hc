@@ -237,6 +237,7 @@ const closeModal = (modal) => {
     modal.classList.add('hidden'); modal.classList.remove('flex');
     const opener = modalOpeners.get(modal);
     if (opener && opener.isConnected) opener.focus();
+    if (modal.hasAttribute('data-confirm-modal')) settleConfirm(false);
 };
 
 const openModal = (modal, opener) => {
@@ -261,6 +262,9 @@ document.addEventListener('click', (e) => {
 
 document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
+        // بوب-أب التأكيد فوق نافذةٍ أخرى: Escape يقفل التأكيد وحده ويُبقي النافذة الأمّ
+        const confirmOpen = document.querySelector('[data-confirm-modal]:not(.hidden)');
+        if (confirmOpen) { closeModal(confirmOpen); return; }
         document.querySelectorAll('[data-modal]:not(.hidden)').forEach(closeModal);
         return;
     }
@@ -273,6 +277,80 @@ document.addEventListener('keydown', (e) => {
     if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
     else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
 });
+
+/*
+ | ⭐ تأكيد الأفعال الحسّاسة ببوب-أب المنصّة بدل `confirm()` الخام (2.16 · 2.17-ب):
+ | نافذة المتصفّح كانت بخطّه ولغته ومظهره هو لا مظهر المنصّة، ولا تعمل Bottom Sheet
+ | على الموبايل. الآن أيّ `form[data-confirm]` أو `button[data-confirm]` يُوقَف
+ | إرساله/نقره، وتُعرَض رسالته في `#confirm-modal`؛ «نعم» يعيد الإرسال نفسه
+ | (بزرّه الأصليّ فتصل قيمته)، و«رجوع»/Escape/الخلفيّة تلغيه ويعود التركيز للزرّ.
+ | `window.platformConfirm(نصّ)` وعدٌ للسكربتات التي تحتاج التأكيد قبل طلب AJAX.
+ */
+let confirmResolver = null;
+
+const settleConfirm = (ok) => {
+    const resolve = confirmResolver;
+    confirmResolver = null;
+    if (resolve) resolve(ok);
+};
+
+const platformConfirm = (message, opener) => {
+    const modal = document.getElementById('confirm-modal');
+    if (!modal) return Promise.resolve(window.confirm(message));
+
+    settleConfirm(false); // طلبٌ سابق معلّق (نادر) يُعتبر ملغًى
+    return new Promise((resolve) => {
+        confirmResolver = resolve;
+        const text = modal.querySelector('[data-confirm-message]');
+        if (text) text.textContent = message || '';
+        openModal(modal, opener);
+        modal.querySelector('[data-confirm-ok]')?.focus();
+    });
+};
+window.platformConfirm = platformConfirm;
+
+document.addEventListener('click', (e) => {
+    const ok = e.target.closest('[data-confirm-ok]');
+    if (!ok) return;
+    const modal = ok.closest('[data-confirm-modal]');
+    const resolve = confirmResolver;
+    confirmResolver = null; // قبل الإغلاق كي لا يحسبه closeModal إلغاءً
+    if (modal) closeModal(modal);
+    if (resolve) resolve(true);
+});
+
+// النماذج: في طور الالتقاط، قبل حارس الإرسال المزدوج وأيّ مستمعٍ آخر
+document.addEventListener('submit', (e) => {
+    const form = e.target;
+    if (!(form instanceof HTMLFormElement) || !form.hasAttribute('data-confirm')) return;
+    if (form.dataset.confirmed === '1') { delete form.dataset.confirmed; return; }
+
+    e.preventDefault();
+    e.stopImmediatePropagation();
+
+    const submitter = e.submitter && e.submitter.form === form ? e.submitter : null;
+    platformConfirm(form.dataset.confirm, submitter || document.activeElement).then((ok) => {
+        if (!ok || !form.isConnected) return;
+        form.dataset.confirmed = '1';
+        if (submitter) form.requestSubmit(submitter); else form.requestSubmit();
+    });
+}, true);
+
+// الأزرار والروابط: `data-confirm` على العنصر نفسه (زرّ إرسال بـformaction مثلًا)
+document.addEventListener('click', (e) => {
+    const el = e.target.closest('button[data-confirm], a[data-confirm]');
+    if (!el || el.dataset.confirmed === '1') return;
+
+    e.preventDefault();
+    e.stopImmediatePropagation();
+
+    platformConfirm(el.dataset.confirm, el).then((ok) => {
+        if (!ok || !el.isConnected) return;
+        el.dataset.confirmed = '1';
+        el.click();
+        delete el.dataset.confirmed;
+    });
+}, true);
 
 /*
  | ⭐ زرّ إعادة فتح قائمة الدروس الثابت (idea #17): يبدّل سمة `open` على

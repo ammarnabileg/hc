@@ -84,7 +84,7 @@
                     @endcan
                     @can('onboarding.delete')
                         <form method="post" action="{{ route('admin.ops.onboarding.slides.destroy', $slide->id) }}"
-                              onsubmit="return confirm('{{ setting('admin.ops.partials.onboarding_slides.nmsh_alshryha_dy_msh_htrja_tany', 'نمسح الشريحة دي؟ مش هترجع تاني.') }}')">
+                              data-confirm="{{ setting('admin.ops.partials.onboarding_slides.nmsh_alshryha_dy_msh_htrja_tany', 'نمسح الشريحة دي؟ مش هترجع تاني.') }}">
                             @csrf @method('delete')
                             <button class="rounded-xl px-3 py-2 text-xs" style="background: var(--surface-raised); min-height: 44px; color: var(--color-state-danger)">{{ setting('admin.ops.partials.onboarding_slides.hdhf', 'حذف') }}</button>
                         </form>

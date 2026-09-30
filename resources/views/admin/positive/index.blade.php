@@ -160,7 +160,7 @@
 
                                     @if ($canDelete)
                                         <form method="post" action="{{ route('admin.positive.destroy', $message) }}"
-                                              onsubmit="return confirm('{{ setting('admin.positive.index.thdhf_alrsala_dy_nhayya', 'تحذف الرسالة دي نهائيًّا؟') }}')">
+                                              data-confirm="{{ setting('admin.positive.index.thdhf_alrsala_dy_nhayya', 'تحذف الرسالة دي نهائيًّا؟') }}">
                                             @csrf @method('delete')
                                             <button type="submit" class="underline" style="color: var(--color-state-danger)">{{ setting('admin.positive.index.hdhf', 'حذف') }}</button>
                                         </form>

@@ -182,7 +182,7 @@
 
                                     @can('user_segments.delete')
                                         <form method="post" action="{{ route('admin.users.segments.destroy', $segment) }}"
-                                              onsubmit="return confirm('{{ $links->isEmpty() ? setting('admin.users.segments.tmsh_alshryha_dy', 'تمسح الشريحة دي؟') : str_replace(':count', $links->count(), setting('admin.segments.delete_warning', 'الشريحة دي مستخدَمة في :count مكان، أرشفها بدل ما تمسحها.')) }}')">
+                                              data-confirm="{{ $links->isEmpty() ? setting('admin.users.segments.tmsh_alshryha_dy', 'تمسح الشريحة دي؟') : str_replace(':count', $links->count(), setting('admin.segments.delete_warning', 'الشريحة دي مستخدَمة في :count مكان، أرشفها بدل ما تمسحها.')) }}">
                                             @csrf
                                             @method('delete')
                                             <button class="underline" style="color: var(--color-state-danger)">{{ setting('admin.users.segments.hdhf', 'حذف') }}</button>

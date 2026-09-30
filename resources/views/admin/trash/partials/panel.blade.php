@@ -52,7 +52,7 @@
 
         @can('soft_delete_recovery.delete')
             <form method="post" action="{{ route('admin.ops.trash.destroy', ['type' => $row['type'], 'id' => $row['id']]) }}"
-                  onsubmit="return confirm('{{ setting('admin.trash.confirm_delete', 'حذف نهائيّ لا يمكن التراجع عنه. متأكّد؟') }}')">
+                  data-confirm="{{ setting('admin.trash.confirm_delete', 'حذف نهائيّ لا يمكن التراجع عنه. متأكّد؟') }}">
                 @csrf
                 @method('delete')
                 <button class="rounded-xl px-4 py-2 text-sm font-semibold"

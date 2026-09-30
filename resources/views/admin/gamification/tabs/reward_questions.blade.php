@@ -138,7 +138,7 @@
 
                                         @if ($state['open'])
                                             <form method="post" action="{{ route('admin.gamification.reward-questions.close', $question) }}"
-                                                  onsubmit="return confirm('{{ setting('admin.gamification.tabs.reward_questions.tqfl_alswal_dlwqty', 'تقفل السؤال دلوقتي؟') }}')">
+                                                  data-confirm="{{ setting('admin.gamification.tabs.reward_questions.tqfl_alswal_dlwqty', 'تقفل السؤال دلوقتي؟') }}">
                                                 @csrf
                                                 <button type="submit" class="underline" style="color: var(--color-state-danger)">{{ setting('admin.gamification.tabs.reward_questions.ighlaq_fwry', 'إغلاق فوريّ') }}</button>
                                             </form>

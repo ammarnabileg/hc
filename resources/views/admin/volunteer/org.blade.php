@@ -94,7 +94,7 @@
                                             data-parent="{{ $child->parent_id }}" data-name="{{ $child->name_ar }}"
                                             data-cap="{{ $child->member_cap }}">{{ setting('admin.volunteer.org.tadyl', 'تعديل') }}</button>
                                     <form method="post" action="{{ route('admin.volunteer.org.entity.archive', $child) }}"
-                                          onsubmit="return confirm('{{ setting('admin.volunteer.org.tarshf_alkyan_dh', 'تأرشف الكيان ده؟') }}')">
+                                          data-confirm="{{ setting('admin.volunteer.org.tarshf_alkyan_dh', 'تأرشف الكيان ده؟') }}">
                                         @csrf
                                         <button type="submit" class="text-xs underline" style="color: var(--text-muted)">{{ setting('admin.volunteer.org.arshfa', 'أرشفة') }}</button>
                                     </form>

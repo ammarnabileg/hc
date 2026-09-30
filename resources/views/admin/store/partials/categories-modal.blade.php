@@ -77,9 +77,9 @@
                                 @endcan
                                 @can('product_categories.delete')
                                     <form method="post" action="{{ route('admin.store.categories.destroy', $category) }}"
-                                          onsubmit="return confirm('{{ $category->products_count > 0
+                                          data-confirm="{{ $category->products_count > 0
                                               ? strtr((string) setting('admin.store.partials.categories_modal.confirm_hdhf_ma_mntjat', 'هنحذف التصنيف؛ :a1 منتج هيبقى بلا تصنيف. نكمّل؟'), [':a1' => (string) $category->products_count])
-                                              : setting('admin.store.partials.categories_modal.confirm_hdhf_fady', 'هنحذف التصنيف؟ مفيش منتجات فيه، مش هيرجع تاني.') }}')">
+                                              : setting('admin.store.partials.categories_modal.confirm_hdhf_fady', 'هنحذف التصنيف؟ مفيش منتجات فيه، مش هيرجع تاني.') }}">
                                         @csrf @method('delete')
                                         <button type="submit" class="block w-full text-start px-2 py-1 rounded-lg" style="color: var(--color-state-danger)">
                                             <x-icon name="trash" size="16" /> {{ setting('admin.store.partials.categories_modal.hdhf', 'حذف') }}

@@ -9,7 +9,7 @@
         @endcan
         @can('backups.delete')
             <form method="post" action="{{ route('admin.ops.system.backups.destroy', $row->id) }}"
-                  onsubmit="return confirm('{{ setting('admin.ops.partials.system_backup_actions.nmsh_alnskha_dy_nhayya', 'نمسح النسخة دي نهائيًّا؟') }}')">
+                  data-confirm="{{ setting('admin.ops.partials.system_backup_actions.nmsh_alnskha_dy_nhayya', 'نمسح النسخة دي نهائيًّا؟') }}">
                 @csrf @method('delete')
                 <button class="w-full text-start px-2 py-2 rounded hover:opacity-80"
                         style="color: var(--color-state-danger)"><x-icon name="trash" size="16" /> {{ setting('admin.ops.partials.system_backup_actions.hdhf', 'حذف') }}</button>

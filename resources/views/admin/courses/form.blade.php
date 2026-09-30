@@ -313,7 +313,7 @@
                                     <button type="submit" form="section-duplicate-{{ $section->id }}"
                                             class="btn rounded-xl px-3 py-2 text-sm"
                                             style="min-height: 44px; background: var(--surface-sunken)"
-                                            onclick="return confirm('{{ setting('sections.duplicate.confirm_text') }}')">
+                                            data-confirm="{{ setting('sections.duplicate.confirm_text') }}">
                                         {{ setting('sections.duplicate.action_label') }}
                                     </button>
                                 @endcan

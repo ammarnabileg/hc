@@ -141,7 +141,7 @@
                                              لأنّها تُنشئ مسارًا جديدًا فعلًا، ومَن لا يملكها لا يرى العنصر (2.15-أ-7) --}}
                                         @can('paths.create')
                                             <form method="post" action="{{ route('admin.paths.duplicate', $path) }}"
-                                                  onsubmit="return confirm('{{ setting('paths.duplicate.confirm_text') }}')">
+                                                  data-confirm="{{ setting('paths.duplicate.confirm_text') }}">
                                                 @csrf
                                                 <button type="submit" class="block w-full text-start px-2 py-1 rounded-lg text-sm">
                                                     {{ setting('paths.duplicate.action_label') }}
@@ -150,7 +150,7 @@
                                         @endcan
                                         @can('paths.delete')
                                             <form method="post" action="{{ route('admin.paths.destroy', $path) }}"
-                                                  onsubmit="return confirm('{{ setting('paths.delete.confirm_text', 'هنشيل المسار، وتدريباته هتفضل زيّ ما هي. نكمّل؟') }}')">
+                                                  data-confirm="{{ setting('paths.delete.confirm_text', 'هنشيل المسار، وتدريباته هتفضل زيّ ما هي. نكمّل؟') }}">
                                                 @csrf @method('delete')
                                                 <button class="block w-full text-start px-2 py-1 rounded-lg text-sm"
                                                         style="color: var(--color-state-danger)">{{ setting('admin.courses.paths.hdhf', 'حذف') }}</button>
@@ -206,7 +206,7 @@
                     {{-- ونفس الإجراء على الموبايل: لا ميزة تسقط بالمقاس (2.15-ج) --}}
                     @can('paths.create')
                         <form method="post" action="{{ route('admin.paths.duplicate', $path) }}" class="mt-2"
-                              onsubmit="return confirm('{{ setting('paths.duplicate.confirm_text') }}')">
+                              data-confirm="{{ setting('paths.duplicate.confirm_text') }}">
                             @csrf
                             <button type="submit" class="underline text-sm">
                                 {{ setting('paths.duplicate.action_label') }}

@@ -24,7 +24,7 @@
                 @endcan
                 @can('achievements.manage')
                     <form method="post" action="{{ route('admin.gamification.levels.delete', $level) }}"
-                          onsubmit="return confirm('{{ setting('admin.gamification.tabs.levels.thdhf_almstwa_dh', 'تحذف المستوى ده؟') }}')">
+                          data-confirm="{{ setting('admin.gamification.tabs.levels.thdhf_almstwa_dh', 'تحذف المستوى ده؟') }}">
                         @csrf
                         <button type="submit" class="text-xs underline" style="color: var(--color-state-danger)">{{ setting('admin.gamification.tabs.levels.hdhf', 'حذف') }}</button>
                     </form>

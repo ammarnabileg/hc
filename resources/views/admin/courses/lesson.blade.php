@@ -174,7 +174,7 @@
                             <button class="text-xs underline">{{ $question->is_general ? setting('admin.courses.lesson.shylh_mn_albnk', 'شيله من البنك') : setting('admin.courses.lesson.ajalh_aama', 'اجعله عامًّا') }}</button>
                         </form>
                         <form method="post" action="{{ route('admin.questions.destroy', $question) }}"
-                              onsubmit="return confirm('{{ setting('admin.courses.lesson.nshyl_alswal', 'نشيل السؤال؟') }}')">
+                              data-confirm="{{ setting('admin.courses.lesson.nshyl_alswal', 'نشيل السؤال؟') }}">
                             @csrf @method('delete')
                             <button class="text-xs underline" style="color: var(--color-state-danger)">{{ setting('admin.courses.lesson.hdhf', 'حذف') }}</button>
                         </form>

@@ -53,7 +53,7 @@
         </div>
 
         <form method="post" action="{{ route('admin.certificates.issue') }}" class="mt-4"
-              onsubmit="return confirm('{{ setting('certificates.issue.confirm_text', 'هنصدر الشهادات دي دلوقتي. نكمّل؟') }}')">
+              data-confirm="{{ setting('certificates.issue.confirm_text', 'هنصدر الشهادات دي دلوقتي. نكمّل؟') }}">
             @csrf
             <input type="hidden" name="certificate_type_id" value="{{ $type->id }}">
             <input type="hidden" name="language" value="{{ $language }}">

@@ -167,7 +167,7 @@
                                 </form>
 
                                 <form method="post" action="{{ route('admin.availability.periods.destroy', $period) }}"
-                                      onsubmit="return confirm('{{ setting('admin.availability.index.thdhf_alftra_dy', 'تحذف الفترة دي؟') }}')">
+                                      data-confirm="{{ setting('admin.availability.index.thdhf_alftra_dy', 'تحذف الفترة دي؟') }}">
                                     @csrf @method('delete')
                                     <button class="text-xs underline" style="color: var(--color-state-danger)">{{ setting('admin.availability.index.ahdhf', 'احذف') }}</button>
                                 </form>

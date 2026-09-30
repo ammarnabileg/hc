@@ -114,10 +114,13 @@
 
         var resetGroupBtn = document.querySelector('[data-learning-reset-group]');
         resetGroupBtn && resetGroupBtn.addEventListener('click', function () {
-            if (! confirm(HC_LEARNING_SETTINGS_TEXT.reset_group_confirm)) { return; }
+            // بوب-أب المنصّة (resources/js/app.js) لا نافذة المتصفّح الخام
+            window.platformConfirm(HC_LEARNING_SETTINGS_TEXT.reset_group_confirm, resetGroupBtn).then(function (ok) {
+                if (! ok) { return; }
 
-            post('{{ route('admin.learning-settings.reset-group') }}', { group: resetGroupBtn.getAttribute('data-learning-reset-group') })
-                .then(function () { window.location.reload(); });
+                post('{{ route('admin.learning-settings.reset-group') }}', { group: resetGroupBtn.getAttribute('data-learning-reset-group') })
+                    .then(function () { window.location.reload(); });
+            });
         });
     })();
 </script>

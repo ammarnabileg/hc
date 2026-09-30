@@ -145,14 +145,14 @@
                                     <span class="flex items-center gap-2 flex-wrap">
                                         @can('integrations.edit')
                                             <form method="post" action="{{ route('admin.developers.api-keys.rotate', $key) }}"
-                                                  onsubmit="return confirm('{{ setting('developers.admin.rotate_confirm', 'تدوير المفتاح يُبطل القديم فورًا ويصدر مفتاحًا جديدًا بنفس الاسم والصلاحيّات. تأكيد؟') }}')">
+                                                  data-confirm="{{ setting('developers.admin.rotate_confirm', 'تدوير المفتاح يُبطل القديم فورًا ويصدر مفتاحًا جديدًا بنفس الاسم والصلاحيّات. تأكيد؟') }}">
                                                 @csrf
                                                 <button type="submit" class="text-xs underline">{{ setting('developers.admin.rotate_cta', 'تدوير') }}</button>
                                             </form>
                                         @endcan
                                         @can('integrations.delete')
                                             <form method="post" action="{{ route('admin.developers.api-keys.revoke', $key) }}"
-                                                  onsubmit="return confirm('{{ setting('developers.admin.revoke_confirm', 'إبطال المفتاح فوريّ ولا رجعة فيه. تأكيد؟') }}')">
+                                                  data-confirm="{{ setting('developers.admin.revoke_confirm', 'إبطال المفتاح فوريّ ولا رجعة فيه. تأكيد؟') }}">
                                                 @csrf
                                                 @method('delete')
                                                 <button type="submit" class="text-xs underline" style="color: var(--color-state-danger)">{{ setting('developers.admin.revoke_cta', 'إبطال') }}</button>

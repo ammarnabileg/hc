@@ -50,7 +50,7 @@
 
         @can('course_notes.delete')
             <form method="post" action="{{ route('learning.course.notes.clear', $course) }}"
-                  onsubmit="return confirm(@js(setting('learning.notes.clear_confirm')))">
+                  data-confirm="{{ setting('learning.notes.clear_confirm') }}">
                 @csrf
                 @method('delete')
                 <button class="inline-flex items-center gap-1 rounded-xl px-3 py-2 text-xs motion-standard"

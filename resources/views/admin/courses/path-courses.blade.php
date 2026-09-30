@@ -49,7 +49,7 @@
                                 style="background: var(--surface-sunken)" aria-label="{{ setting('admin.courses.path_courses.tht', 'تحت') }}">↓</button>
                         @can('paths.edit')
                             <form method="post" action="{{ route('admin.paths.courses.detach', [$path, $course]) }}"
-                                  onsubmit="return confirm('{{ setting('paths.detach.confirm_text', 'هنشيله من المسار بس، والتدريب هيفضل موجود. نكمّل؟') }}')">
+                                  data-confirm="{{ setting('paths.detach.confirm_text', 'هنشيله من المسار بس، والتدريب هيفضل موجود. نكمّل؟') }}">
                                 @csrf @method('delete')
                                 <button class="btn rounded-xl px-3 py-2 text-sm"
                                         style="background: var(--surface-sunken); color: var(--color-state-danger)">{{ setting('admin.courses.path_courses.izala', 'إزالة') }}</button>

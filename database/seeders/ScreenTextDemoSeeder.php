@@ -158,6 +158,9 @@ class ScreenTextDemoSeeder extends Seeder
             // ---- resources/views/partials/script-texts.blade.php
             ['ux.script.session_expired', 'ux', 'السكربت المشترك: ردّ 419 (الجلسة منتهية) على طلب من الصفحة', 'الجلسة انتهت. حدّث الصفحة وكمّل.'],
             ['ux.script.network_failed', 'ux', 'السكربت المشترك: انقطاع الشبكة أثناء طلب من الصفحة', 'النت قطع لحظة. جرّب تاني.'],
+            ['ux.confirm.title', 'ux', 'بوب-أب التأكيد المشترك: العنوان', 'متأكّد؟'],
+            ['ux.confirm.cancel', 'ux', 'بوب-أب التأكيد المشترك: زرّ الإلغاء', 'رجوع'],
+            ['ux.confirm.ok', 'ux', 'بوب-أب التأكيد المشترك: زرّ التأكيد', 'نعم، كمّل'],
             // ---- resources/views/components/empty.blade.php
             ['ux.empty_state.props_1', 'ux', 'empty: مفيش حاجة هنا', 'مفيش حاجة هنا'],
             ['ux.empty_state.filtered_message', 'ux', 'empty: فلترٌ نشطٌ بلا نتائج مطابقة', 'مفيش نتائج تطابق البحث أو الفلتر الحاليّ. جرّب فلتر تاني.'],

@@ -131,7 +131,7 @@
 
                     @can('landing_pages.delete')
                         <form method="post" action="{{ route('admin.store.landing-pages.destroy', $landingPage) }}"
-                              onsubmit="return confirm('{{ setting('admin.landing_pages.form.confirm_delete', 'حذف نهائيّ بلا رجوع. متأكّد؟') }}')">
+                              data-confirm="{{ setting('admin.landing_pages.form.confirm_delete', 'حذف نهائيّ بلا رجوع. متأكّد؟') }}">
                             @csrf
                             @method('DELETE')
                             <button class="w-full rounded-xl px-4 py-2 text-sm" style="color: var(--color-state-danger); border: 1px solid var(--color-state-danger); background: transparent">{{ setting('admin.landing_pages.form.hthf_nhaay', 'حذف نهائيّ') }}</button>

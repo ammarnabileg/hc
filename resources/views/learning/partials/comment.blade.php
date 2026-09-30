@@ -78,7 +78,7 @@
 
                 @can('video_comments.delete', $comment)
                     <form method="post" action="{{ route('learning.lesson.comments.destroy', [$course, $lesson, $comment]) }}"
-                          onsubmit="return confirm(@js(setting('learning.comments.delete_confirm')))">
+                          data-confirm="{{ setting('learning.comments.delete_confirm') }}">
                         @csrf
                         @method('delete')
                         <button class="inline-flex items-center gap-1 rounded-lg px-2 py-1.5 text-xs motion-standard"

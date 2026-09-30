@@ -88,6 +88,7 @@
 @auth
     {{-- البحث الموحّد (Ctrl+K) والتراجع خلال ثوانٍ — على كلّ الشاشات (2.15-د) --}}
     <x-command-palette />
+    <x-confirm-modal />
     <x-undo-toast />
     <x-first-run />
 @endauth

@@ -62,7 +62,7 @@
                                         <button type="submit" formmethod="post"
                                                 formaction="{{ route('admin.volunteer.leadership-criteria.destroy', $criterion) }}"
                                                 name="_method" value="DELETE"
-                                                onclick="return confirm('{{ setting('leadership_criteria.confirm_archive', 'أرشفة المعيار: يختفي من تقييم الأسبوع الجديد، والتقييمات القديمة تفضل تعرض درجته موسومًا «معيار مؤرشف». متأكّد؟') }}')"
+                                                data-confirm="{{ setting('leadership_criteria.confirm_archive', 'أرشفة المعيار: يختفي من تقييم الأسبوع الجديد، والتقييمات القديمة تفضل تعرض درجته موسومًا «معيار مؤرشف». متأكّد؟') }}"
                                                 class="btn rounded-xl px-4 text-sm"
                                                 style="min-height: 44px; background: var(--surface-sunken); color: var(--text-muted)">
                                             <input type="hidden" name="mode" value="new_only">
@@ -73,7 +73,7 @@
                                     <button type="submit" formmethod="post"
                                             formaction="{{ route('admin.volunteer.leadership-criteria.destroy', $criterion) }}"
                                             name="_method" value="DELETE"
-                                            onclick="return confirm('{{ setting('leadership_criteria.confirm_delete', 'حذف نهائيّ: يختفي المعيار تمامًا، حتى من التقييمات القديمة. الأثر لا يُتراجع عنه. متأكّد؟') }}')"
+                                            data-confirm="{{ setting('leadership_criteria.confirm_delete', 'حذف نهائيّ: يختفي المعيار تمامًا، حتى من التقييمات القديمة. الأثر لا يُتراجع عنه. متأكّد؟') }}"
                                             class="btn rounded-xl px-4 text-sm"
                                             style="min-height: 44px; background: var(--surface-sunken); color: var(--danger, #b3261e)">
                                         <input type="hidden" name="mode" value="new_and_old">

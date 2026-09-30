@@ -113,7 +113,7 @@
                                 @can('accreditations.delete')
                                     @unless ($accreditation->is_platform)
                                         <form method="post" action="{{ route('admin.certificates.accreditations.destroy', $accreditation) }}"
-                                              onsubmit="return confirm('{{ setting('admin.certificates.partials.accreditations.nshyl_alaatmad_dh', 'نشيل الاعتماد ده؟') }}')">
+                                              data-confirm="{{ setting('admin.certificates.partials.accreditations.nshyl_alaatmad_dh', 'نشيل الاعتماد ده؟') }}">
                                             @csrf @method('delete')
                                             <button class="underline" style="color: var(--color-state-danger)">{{ setting('admin.certificates.partials.accreditations.hdhf', 'حذف') }}</button>
                                         </form>

@@ -205,7 +205,7 @@
 
             @can('wars_settings.manage')
                 <form method="post" action="{{ route('admin.gamification.wars.reset', $selected) }}" class="mt-3"
-                      onsubmit="return confirm('{{ setting('admin.gamification.tabs.wars.trja_alhrb_dy_llaftrady_kl_aloverrides', 'ترجّع الحرب دي للافتراضيّ؟ كلّ الـOverrides هتتمسح.') }}')">
+                      data-confirm="{{ setting('admin.gamification.tabs.wars.trja_alhrb_dy_llaftrady_kl_aloverrides', 'ترجّع الحرب دي للافتراضيّ؟ كلّ الـOverrides هتتمسح.') }}">
                     @csrf
                     <button type="submit" class="text-xs underline" style="color: var(--text-muted)"><x-icon name="refresh" size="16" /> {{ setting('admin.gamification.tabs.wars.iaada_aldbt_llaftrady_lhdhh_alhrb', 'إعادة الضبط للافتراضيّ لهذه الحرب') }}</button>
                 </form>

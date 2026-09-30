@@ -39,7 +39,7 @@
     @endunless
 
     <form method="post" action="{{ route('admin.volunteer.settings-hub.save-all') }}" id="hub-form"
-          @if ($canManage) onsubmit="return confirm('{{ strtr(setting('admin.volunteer.settings_hub.impact_preview', 'التغيير هيسري فورًا على :count متطوّعًا نشطًا الآن. تأكيد الحفظ؟'), [':count' => (string) $activeVolunteersCount]) }}')" @endif>
+          @if ($canManage) data-confirm="{{ strtr(setting('admin.volunteer.settings_hub.impact_preview', 'التغيير هيسري فورًا على :count متطوّعًا نشطًا الآن. تأكيد الحفظ؟'), [':count' => (string) $activeVolunteersCount]) }}" @endif>
         @csrf
 
         <div class="card p-3 mb-4 flex flex-wrap items-center gap-3">
@@ -154,7 +154,7 @@
 
         <x-modal id="hub-import-modal" :title="setting('admin.volunteer.settings_hub.import', 'استيراد JSON')">
             <form method="post" action="{{ route('admin.volunteer.settings-hub.import') }}" enctype="multipart/form-data"
-                  onsubmit="return confirm('{{ setting('admin.volunteer.settings_hub.import_confirm', 'الاستيراد يستبدل قيم مفاتيح الهَب الموجودة في الملفّ. تأكيد؟') }}')">
+                  data-confirm="{{ setting('admin.volunteer.settings_hub.import_confirm', 'الاستيراد يستبدل قيم مفاتيح الهَب الموجودة في الملفّ. تأكيد؟') }}">
                 @csrf
                 <label class="block text-sm font-semibold mb-1" for="hub-import-file">{{ setting('admin.volunteer.settings_hub.import_file_label', 'ملفّ JSON مُصدَّر من نفس الشاشة') }}</label>
                 <input type="file" name="file" id="hub-import-file" accept="application/json" required

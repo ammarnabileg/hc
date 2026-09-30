@@ -73,7 +73,7 @@
                             @endcan
                             @can('email_templates.delete')
                                 <form method="post" action="{{ route('admin.guidance.email-templates.destroy', $template) }}"
-                                      onsubmit="return confirm('{{ setting('admin.guidance.email_templates.confirm_delete', 'هنشيل القالب ده خالص. نكمّل؟') }}')">
+                                      data-confirm="{{ setting('admin.guidance.email_templates.confirm_delete', 'هنشيل القالب ده خالص. نكمّل؟') }}">
                                     @csrf
                                     @method('delete')
                                     <button class="btn rounded-xl px-3 py-2 text-xs" style="background: var(--color-state-danger); color: #fff">{{ setting('admin.guidance.email_templates.hdhf', 'حذف') }}</button>

@@ -40,7 +40,7 @@
 
     @can('placement_test.delete')
         <form method="post" action="{{ route('admin.placement-test.destroy', $question) }}"
-              onsubmit="return confirm('{{ setting('onboarding.placement.admin.delete_confirm') }}')">
+              data-confirm="{{ setting('onboarding.placement.admin.delete_confirm') }}">
             @csrf @method('delete')
             <button type="submit" class="rounded-lg px-2 py-1 text-xs" style="background: var(--surface-sunken)">
                 {{ setting('onboarding.placement.admin.delete_cta') }}

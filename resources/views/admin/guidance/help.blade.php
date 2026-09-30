@@ -120,7 +120,7 @@
                                     @endcan
                                     @can('user_guide.delete')
                                         <form method="post" action="{{ route('admin.guidance.help.destroy', $article) }}"
-                                              onsubmit="return confirm('{{ setting('admin.guidance.help.nshyl_aldlyl_dh', 'نشيل الدليل ده؟') }}')">
+                                              data-confirm="{{ setting('admin.guidance.help.nshyl_aldlyl_dh', 'نشيل الدليل ده؟') }}">
                                             @csrf @method('delete')
                                             <button class="underline" style="color: var(--color-state-danger)">{{ setting('admin.guidance.help.hdhf', 'حذف') }}</button>
                                         </form>
@@ -162,7 +162,7 @@
                         @endcan
                         @can('user_guide.delete')
                             <form method="post" action="{{ route('admin.guidance.help.destroy', $article) }}"
-                                  onsubmit="return confirm('{{ setting('admin.guidance.help.nshyl_aldlyl_dh', 'نشيل الدليل ده؟') }}')">
+                                  data-confirm="{{ setting('admin.guidance.help.nshyl_aldlyl_dh', 'نشيل الدليل ده؟') }}">
                                 @csrf @method('delete')
                                 <button class="underline" style="color: var(--color-state-danger)">{{ setting('admin.guidance.help.hdhf', 'حذف') }}</button>
                             </form>

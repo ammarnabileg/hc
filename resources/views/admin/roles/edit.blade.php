@@ -15,7 +15,7 @@
 
             @if ($canDelete)
                 <form method="post" action="{{ route('admin.roles.destroy', $role) }}"
-                      onsubmit="return confirm('{{ setting('admin.roles.edit.mtakd_ink_aayz_tmsh_aldwr_dh_alijra_dh', 'متأكّد إنك عايز تمسح الدور ده؟ الإجراء ده مالوش رجعة.') }}')">
+                      data-confirm="{{ setting('admin.roles.edit.mtakd_ink_aayz_tmsh_aldwr_dh_alijra_dh', 'متأكّد إنك عايز تمسح الدور ده؟ الإجراء ده مالوش رجعة.') }}">
                     @csrf
                     @method('delete')
                     <button type="submit" class="rounded-xl px-3 py-2 text-sm motion-standard"

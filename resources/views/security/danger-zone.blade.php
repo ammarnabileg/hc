@@ -43,7 +43,7 @@
 
         {{-- خطوة 2: أكّد بالرمز الرباعيّ --}}
         <form method="post" action="{{ route('settings.danger.destroy') }}" class="flex gap-2"
-              onsubmit="return confirm('{{ setting('account.delete.confirm_text', 'متأكّد؟ الحساب هيتقفل دلوقتي.') }}')">
+              data-confirm="{{ setting('account.delete.confirm_text', 'متأكّد؟ الحساب هيتقفل دلوقتي.') }}">
             @csrf
             @method('DELETE')
             <input type="text" name="code" inputmode="numeric" autocomplete="one-time-code"

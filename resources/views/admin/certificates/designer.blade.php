@@ -194,7 +194,7 @@
 
                 @can('certificate_templates.edit')
                     <form method="post" action="{{ route('admin.certificates.designer.reset', $template) }}"
-                          onsubmit="return confirm('{{ setting('admin.certificates.designer.nrja_altsmym_alaftrady_ally_amlth_hytshal', 'نرجّع التصميم الافتراضيّ؟ اللي عملته هيتشال.') }}')">
+                          data-confirm="{{ setting('admin.certificates.designer.nrja_altsmym_alaftrady_ally_amlth_hytshal', 'نرجّع التصميم الافتراضيّ؟ اللي عملته هيتشال.') }}">
                         @csrf
                         <button class="text-xs underline"><x-icon name="refresh" size="16" /> {{ setting('admin.certificates.designer.iaada_lltsmym_alaftrady', 'إعادة للتصميم الافتراضيّ') }}</button>
                     </form>
