@@ -26,6 +26,11 @@ Route::middleware('auth')->group(function () {
         ->middleware('permission:image_export.use')
         ->name('export.image');
 
+    // ⭐ لقطة إنجاز جاهزة (الفكرة #22): بطاقة إنجازي أنا وحدي — بلا صلاحيّة الاستخراج
+    // العامّة؛ الحمولة موقَّعة والمتحكّم يرفض أيّ صفٍّ ليس لصاحب الجلسة.
+    Route::get('/export/my-achievement', ExportImageController::class)
+        ->name('export.self-card');
+
     // ============================================ مساحة العمل (2.15-د)
     Route::middleware('permission:user_profile.edit')->group(function () {
         // ⭐ التثبيت (Pin) — البديل المعتمَد عن «آخر ما زرت» المرفوض

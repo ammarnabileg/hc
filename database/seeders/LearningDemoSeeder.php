@@ -371,6 +371,8 @@ class LearningDemoSeeder extends Seeder
             ['learning.nudge.resume_message', 'string', 'لسّه فاضل شويّة في الدرس ده، تحبّ تكمّله؟'],
             ['learning.nudge.tab_prefix', 'string', '⏸ '],
             ['learning.celebration.share_cta', 'string', 'شارك إنجازك'],
+            ['learning.celebration.share_subtitle', 'string', 'بتاريخ :date'],
+            ['learning.celebration.share_snapshot_enabled', 'bool', '1'],
             ['learning.celebration.rank_line', 'string', 'ترتيبك اتحسّن من :from إلى :to'],
             ['learning.share.title', 'string', 'شارك إنجازك'],
             ['learning.share.text', 'string', 'خلّصت تدريبًا جديدًا على المنصّة 🎓'],

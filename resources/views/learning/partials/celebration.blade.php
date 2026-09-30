@@ -48,6 +48,32 @@
 
     $seconds = max(2, (int) setting('celebrations.auto_dismiss_seconds', 6));
     $xp = (int) ($celebration['xp'] ?? 0);
+
+    /*
+     | ⭐ لقطة إنجاز جاهزة (الفكرة #22): بطاقة بالاسم والإنجاز والتاريخ وهويّة
+     | المنصّة الثابتة، يبنيها استوديو الصور من حمولةٍ موقَّعة. تظهر للإنجازات من
+     | الدرجة الثانية فأعلى بعد النجاح الحقيقيّ، ولا تعيق المتابعة (رابط يفتح في
+     | تبويبٍ آخر). مَن لا يملك صلاحيّة الاستخراج لا يرى الزرّ (2.15-أ-7).
+     */
+    $shareUrl = $shareUrl ?? null;
+    $viewer = auth()->user();
+
+    $mayShare = $viewer && $tier >= 2 && (
+        \Illuminate\Support\Facades\Gate::allows('image_export.use')
+        || (bool) setting('learning.celebration.share_snapshot_enabled', true)
+    );
+
+    if (empty($shareUrl) && $mayShare) {
+        $snapshot = new \App\Services\Images\BoardSnapshot(
+            'card',
+            (string) ($celebration['message'] ?? ''),
+            str_replace(':date', now()->format('Y/m/d'), (string) setting('learning.celebration.share_subtitle', 'بتاريخ :date')),
+            [['rank' => 1, 'u' => $viewer->id, 'name' => $viewer->name, 'value' => (string) ($celebration['label'] ?? '')]],
+        );
+        // التوقيع على الحمولة وحدها؛ خيارات الشكل (top/download) خارج التوقيع كما يقرأها المتحكّم
+        $shareRoute = \Illuminate\Support\Facades\Gate::allows('image_export.use') ? 'export.image' : 'export.self-card';
+        $shareUrl = \Illuminate\Support\Facades\URL::signedRoute($shareRoute, ['d' => $snapshot->encode()]).'&top=me&download=0';
+    }
 @endphp
 
 <div data-learn-celebration role="status" aria-live="polite"
@@ -89,7 +115,7 @@
             <div class="mt-5 flex items-center justify-center gap-2 flex-wrap">
                 {{-- ⭐ مشاركة إنجاز (3.4-47) — لقطة يبنيها استوديو الصور --}}
                 @if (! empty($shareUrl))
-                    <a href="{{ $shareUrl }}"
+                    <a href="{{ $shareUrl }}" target="_blank" rel="noopener" data-celebration-share
                        class="btn rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
                        style="background: var(--color-brand-500)">
                         {{ setting('learning.celebration.share_cta', 'شارك إنجازك') }}
@@ -112,6 +138,10 @@
                 @endif
             </span>
             <span>{{ $celebration['message'] }}</span>
+            @if (! empty($shareUrl))
+                {{-- ⭐ لقطة إنجاز جاهزة (الفكرة #22) في الشريط المختصر: رابط لا يعيق المتابعة --}}
+                <a href="{{ $shareUrl }}" target="_blank" rel="noopener" data-celebration-share class="text-xs underline" style="color: var(--brand)">{{ setting('learning.celebration.share_cta', 'شارك إنجازك') }}</a>
+            @endif
             @if (! empty($celebration['rank']))
                 <span class="text-xs" data-celebration-rank style="color: var(--text-muted)">· {{ strtr((string) setting('learning.celebration.rank_line', 'ترتيبك اتحسّن من :from إلى :to'), [':from' => $celebration['rank']['from'], ':to' => $celebration['rank']['to']]) }}</span>
             @endif

@@ -42,6 +42,17 @@ class ExportImageController extends Controller
         $snapshot = BoardSnapshot::decode((string) $request->query('d', ''));
         $actor = $request->user();
 
+        /*
+         | ⭐ لقطة إنجاز جاهزة (الفكرة #22): مسار «بطاقة إنجازي» لا يطلب صلاحيّة
+         | الاستخراج العامّة، فيُقصَر على بطاقةٍ صفوفها كلّها لصاحب الجلسة نفسه.
+         */
+        if ($request->route()?->getName() === 'export.self-card') {
+            $mine = $snapshot->kind === 'card' && $snapshot->rows !== []
+                && collect($snapshot->rows)->every(fn ($row) => isset($row['u']) && (int) $row['u'] === (int) $actor?->id);
+
+            abort_unless($mine, 403, (string) setting('images.export.self_card_denied', 'البطاقة دي مش بتاعتك.'));
+        }
+
         // عدد الصفوف: أفضل 10 · أفضل 3 · صفّي أنا (12.14-هـ)
         $top = (string) $request->query('top', 'top10');
         $rows = match ($top) {

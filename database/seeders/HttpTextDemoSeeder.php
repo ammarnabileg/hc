@@ -868,6 +868,7 @@ class HttpTextDemoSeeder extends Seeder
             ['cv.extras.toggle_public_ok_2', 'cv', 'togglePublic(): الرابط اتقفل ✓', 'الرابط اتقفل ✓'],
             // ---- app/Http/Controllers/Ui/ExportImageController.php
             ['images.export.invoke_denied', 'images', '__invoke(): الرابط ده مش صالح. ارجع للوحة واضغط [استخراج كصورة] من جديد', 'الرابط ده مش صالح. ارجع للوحة واضغط [استخراج كصورة] من جديد.'],
+            ['images.export.self_card_denied', 'images', '__invoke(): بطاقة إنجاز ليست لصاحب الجلسة', 'البطاقة دي مش بتاعتك.'],
             ['images.export.invoke_msg', 'images', '__invoke(): لوحة', 'لوحة'],
             // ---- app/Http/Controllers/Ui/ProfileExtrasController.php
             ['profile.extras.update_bio_msg', 'accounts', 'updateBio(): النبذة أطول من :a1 حرف. اختصرها شويّة وجرّب تاني.', 'النبذة أطول من :a1 حرف. اختصرها شويّة وجرّب تاني.'],
