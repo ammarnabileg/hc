@@ -65,6 +65,15 @@
                             default => setting('streaks.heatmap.tooltip_idle', 'بلا نشاط ○'),
                         } }}</title>
                     </rect>
+                    {{-- ⭐ الحال بشكله لا بلونه وحده (الفكرة #5): نقطة داخل يوم النادي، ومثلّث داخل اليوم المحميّ --}}
+                    @if ($day['club'] ?? false)
+                        <circle cx="{{ ($weeks - 1 - $w) * $step + $cell / 2 }}" cy="{{ $r * $step + 16 + $cell / 2 }}" r="2.2"
+                                fill="var(--bg)" data-heat-mark="club" pointer-events="none" />
+                    @elseif ($day['freeze'] ?? false)
+                        @php $cx = ($weeks - 1 - $w) * $step + $cell / 2; $cy = $r * $step + 16 + $cell / 2; @endphp
+                        <path d="M{{ $cx }} {{ $cy - 3 }} L{{ $cx + 3 }} {{ $cy + 2.5 }} L{{ $cx - 3 }} {{ $cy + 2.5 }} Z"
+                              fill="var(--bg)" data-heat-mark="freeze" pointer-events="none" />
+                    @endif
                 @endif
             @endfor
         @endfor
@@ -85,9 +94,9 @@
         <span class="inline-block w-3 h-3 rounded" style="background: var(--color-brand-500)"></span> ● {{ setting('streaks.heatmap.legend_active', 'يوم نشط') }}
     </span>
     <span class="inline-flex items-center gap-1">
-        <span class="inline-block w-3 h-3 rounded" style="background: var(--color-state-honor)"></span> ★ {{ setting('streaks.heatmap.legend_club', 'نادي الخامسة') }}
+        <span class="inline-grid place-items-center w-3 h-3 rounded" style="background: var(--color-state-honor)"><span class="block w-1 h-1 rounded-full" style="background: var(--bg)"></span></span> ★ {{ setting('streaks.heatmap.legend_club', 'نادي الخامسة') }}
     </span>
     <span class="inline-flex items-center gap-1">
-        <span class="inline-block w-3 h-3 rounded" style="background: var(--color-state-warn)"></span> ▲ {{ setting('streaks.heatmap.legend_freeze', 'يوم محميّ بدرع') }}
+        <span class="inline-grid place-items-center w-3 h-3 rounded" style="background: var(--color-state-warn); color: var(--bg); font-size: 7px; line-height: 1">▲</span> ▲ {{ setting('streaks.heatmap.legend_freeze', 'يوم محميّ بدرع') }}
     </span>
 </div>

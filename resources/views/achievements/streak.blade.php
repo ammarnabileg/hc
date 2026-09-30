@@ -115,8 +115,9 @@
                     <li class="streak-week-day" data-week-state="{{ $state }}" @if ($day['today']) data-week-today aria-current="date" @endif
                         title="{{ $day['date'] }} · {{ $stateLabel }}">
                         <span class="streak-week-dot" aria-hidden="true">
+                            {{-- كلّ حال برمزه لا بلونه وحده (الفكرة #5): صحّ للحضور، نجمة للنادي، درع للتجميد --}}
                             @if ($state !== 'idle')
-                                <x-icon :name="$state === 'freeze' ? 'shield' : 'check'" size="14" />
+                                <x-icon :name="match ($state) { 'freeze' => 'shield', 'club' => 'star', default => 'check' }" size="14" />
                             @endif
                         </span>
                         <span class="streak-week-label">{{ $day['today'] ? setting('streaks.screen.week_today', 'النهارده') : $day['label'] }}</span>
