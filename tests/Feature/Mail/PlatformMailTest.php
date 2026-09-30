@@ -78,4 +78,24 @@ class PlatformMailTest extends UiTestCase
                 && str_contains((string) $mail->textBody, $mail->ctaUrl);
         });
     }
+    /** لا بريد يخرج خارج القالب الموحّد: Mail::raw و->html() ممنوعان في الكود */
+    public function test_no_service_sends_raw_or_ad_hoc_html_mail(): void
+    {
+        $offenders = [];
+        $iterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator(app_path()));
+
+        foreach ($iterator as $entry) {
+            if (! $entry->isFile() || ! str_ends_with($entry->getFilename(), '.php')) {
+                continue;
+            }
+
+            $code = preg_replace('#/\*.*?\*/|//[^\n]*#s', '', file_get_contents($entry->getPathname()));
+
+            if (preg_match('/Mail::raw\(|->html\(/', $code)) {
+                $offenders[] = str_replace(base_path().'/', '', $entry->getPathname());
+            }
+        }
+
+        $this->assertSame([], $offenders, 'بريد خارج القالب الموحّد في: '.implode(', ', $offenders));
+    }
 }
