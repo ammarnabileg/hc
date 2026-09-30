@@ -1078,6 +1078,9 @@
   .pin-row { display: flex; align-items: center; }
   .pin-row > .pin-grow { flex: 1; min-width: 0; }
   .pin-row > button:last-child { min-width: 28px; width: 28px; background: transparent; border: 0; color: var(--muted); font-size: 12px; }
+  .pin-row > [data-pin-up] { min-width: 28px; width: 28px; background: transparent; border: 0; color: var(--muted); display: inline-flex; align-items: center; justify-content: center; }
+  .pin-row > [data-pin-up]:disabled { opacity: .25; cursor: default; }
+  .pin-row > [data-pin-up]:not(:disabled):hover { color: var(--ink); }
   .side-profile .progress { margin-top: 12px; }
   .side-name { font-size: 14px; font-weight: 600; }
   .side-level { font-size: 12px; color: var(--muted); margin-top: 10px; }

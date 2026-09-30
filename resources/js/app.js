@@ -861,10 +861,28 @@ mirrorThemeCookie();
         const after = over.getBoundingClientRect().top < dragged.getBoundingClientRect().top;
         over.parentNode.insertBefore(dragged, after ? over : over.nextSibling);
     });
-    list.addEventListener('drop', () => {
+    const saveOrder = () => {
         const routes = [...list.querySelectorAll('[data-pin-item]')].map((el) => el.dataset.pinItem);
-        post('/ui/pins/reorder', { routes }).then(({ data }) => toast(data.message || 'اتحفظ ✓'));
-        dragged = null;
+        return post('/ui/pins/reorder', { routes }).then(({ data }) => toast(data.message || ''));
+    };
+    const paintUpButtons = () => list.querySelectorAll('[data-pin-item]').forEach((row, i) => {
+        const up = row.querySelector('[data-pin-up]');
+        if (up) up.disabled = i === 0;
+    });
+
+    list.addEventListener('drop', () => { saveOrder(); dragged = null; });
+
+    // رفع درجةً بالكيبورد (كالمرجع data-pin-up): يبقى التركيز على الزرّ نفسه بعد الانتقال
+    list.addEventListener('click', (e) => {
+        const up = e.target.closest('[data-pin-up]');
+        if (!up) return;
+        const row = up.closest('[data-pin-item]');
+        const prev = row?.previousElementSibling;
+        if (!row || !prev || !prev.matches('[data-pin-item]')) return;
+        list.insertBefore(row, prev);
+        paintUpButtons();
+        (row.querySelector('[data-pin-up]:not([disabled])') || row.querySelector('[data-unpin]'))?.focus();
+        saveOrder();
     });
 })();
 

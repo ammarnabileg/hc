@@ -98,6 +98,11 @@
                         <span class="pin-grow">
                             <x-nav-link :href="$pin['url'] ?? '#'" :label="$pin['label'] ?? ''" icon="pin" />
                         </span>
+                        {{-- رفع البند درجةً بالكيبورد (كالمرجع data-pin-up): السحب وحده لا يصل إليه قارئ الشاشة --}}
+                        <button type="button" data-pin-up="{{ $pin['route'] ?? '' }}" class="rounded-lg motion-standard" @disabled($loop->first)
+                                aria-label="{{ setting('nav.trainee.pin_up_aria', 'ارفع للأعلى') }} {{ $pin['label'] ?? '' }}" title="{{ setting('nav.trainee.pin_up_title', 'ارفع درجة') }}">
+                            <span class="inline-flex" style="transform: rotate(90deg)"><x-icon name="arrow" size="14" /></span>
+                        </button>
                         <button type="button" data-unpin="{{ $pin['route'] ?? '' }}" data-label="{{ $pin['label'] ?? '' }}"
                                 class="rounded-lg motion-standard"
                                 aria-label="{{ setting('nav.trainee.unpin_aria', 'فكّ تثبيت') }} {{ $pin['label'] ?? '' }}" title="{{ setting('nav.trainee.unpin_title', 'فكّ التثبيت') }}">✕</button>

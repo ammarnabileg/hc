@@ -73,6 +73,23 @@ class WorkspaceTest extends UiTestCase
         $this->actingAs($user)->get(route('dashboard'))->assertOk()->assertSee('المثبَّتة');
     }
 
+    /** الترتيب بالكيبورد لا بالسحب وحده (كالمرجع data-pin-up): زرّ رفع لكلّ بند، والأوّل معطَّل */
+    public function test_pinned_rows_carry_a_keyboard_move_up_button(): void
+    {
+        $user = $this->trainee();
+        $user->forceFill(['pinned_pages' => [
+            ['route' => 'achievements.leaderboard', 'label' => 'الليدر بورد', 'url' => route('achievements.leaderboard')],
+            ['route' => 'wallet.index', 'label' => 'المحفظة', 'url' => route('wallet.index')],
+        ]])->save();
+
+        $html = $this->actingAs($user)->get(route('dashboard'))->assertOk()->getContent();
+
+        $this->assertSame(2, substr_count($html, 'data-pin-up="'));
+        $this->assertMatchesRegularExpression('/data-pin-up="achievements\.leaderboard"[^>]*\sdisabled/', $html);
+        $this->assertDoesNotMatchRegularExpression('/data-pin-up="wallet\.index"[^>]*\sdisabled/', $html);
+        $this->assertStringContainsString(setting('nav.trainee.pin_up_aria').' المحفظة', $html);
+    }
+
     public function test_pinning_an_unknown_route_is_rejected(): void
     {
         $this->actingAs($this->trainee())
