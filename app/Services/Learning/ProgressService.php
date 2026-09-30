@@ -112,6 +112,10 @@ class ProgressService
         $paywall = $this->paywall->state($user, $course);
         // ⭐ الدروس المحفوظة (3.4-34) — استعلامٌ واحد للخريطة كلّها لا لكلّ صفّ
         $bookmarked = $this->bookmarks->idsFor($user, $course);
+        // ⭐ ثلاث حالات للدرس (الفكرة #18): مرحلة المشاهدة والاختبار لكلّ درس غير مكتمل، باستعلامات معدودة
+        $lessonIds = $lessons->pluck('id')->map(fn ($id) => (int) $id)->all();
+        $stages = $this->watch->stagesFor($user, $lessonIds);
+        $quizPassed = $this->questions->passedLessonIds($user, $lessonIds);
 
         $forced = (bool) $course->forced_order;
         $previousDone = true;
@@ -149,6 +153,12 @@ class ProgressService
                 'completed' => $isDone,
                 'unlocked' => $unlocked,
                 'lock_reason' => $reason,
+                // null | watching | watched | quiz_passed — والإكمال النهائيّ يبقى قرار الخادم في completed
+                'stage' => $isDone || ! $unlocked ? null : match (true) {
+                    in_array((int) $row->id, $quizPassed, true) => 'quiz_passed',
+                    isset($stages[(int) $row->id]) => $stages[(int) $row->id],
+                    default => null,
+                },
                 'is_free_preview' => (bool) $row->is_free_preview,
                 'bookmarked' => in_array((int) $row->id, $bookmarked, true),
             ];

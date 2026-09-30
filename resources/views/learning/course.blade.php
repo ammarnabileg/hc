@@ -167,6 +167,17 @@
                                 <h3 class="truncate" style="color: var(--muted)">{{ $lessonRow['title'] }}</h3>
                             @endif
                             <p class="small">{{ $lessonRow['duration'] }} {{ setting('learning.lesson.minutes_suffix') }}</p>
+                            {{-- ⭐ ثلاث حالات للدرس (الفكرة #18): بدأت المشاهدة / اكتملت / الاختبار اتعدّى — والإكمال يطابق الخادم --}}
+                            @if (! empty($lessonRow['stage']))
+                                <p class="small mt-1 inline-flex items-center gap-1" data-lesson-stage="{{ $lessonRow['stage'] }}" style="color: var(--brand)">
+                                    <x-icon :name="$lessonRow['stage'] === 'quiz_passed' ? 'check' : 'play'" size="12" />
+                                    {{ match ($lessonRow['stage']) {
+                                        'watching' => setting('learning.lesson.stage_watching', 'بدأت المشاهدة'),
+                                        'watched' => setting('learning.lesson.stage_watched', 'المشاهدة اكتملت'),
+                                        default => setting('learning.lesson.stage_quiz_passed', 'الاختبار اتعدّى'),
+                                    } }}
+                                </p>
+                            @endif
                             {{-- ⭐ الدرس المقفول يظهر بقفل وسببٍ مكتوب — لا يُخفى (24.5) --}}
                             @unless ($unlocked)
                                 <p class="small mt-1" style="color: var(--muted)">{{ $lessonRow['lock_reason'] }}</p>

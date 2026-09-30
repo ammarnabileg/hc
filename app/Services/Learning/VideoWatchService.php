@@ -41,6 +41,28 @@ class VideoWatchService
     }
 
     /**
+     * ⭐ ثلاث حالات للدرس (الفكرة #18): مرحلة المشاهدة لكلّ درس من دروسٍ بعينها
+     * باستعلامٍ واحد: `watching` بدأ ولم يكتمل، و`watched` اكتملت المشاهدة.
+     *
+     * @param  list<int>  $lessonIds
+     * @return array<int, 'watching'|'watched'>
+     */
+    public function stagesFor(User $user, array $lessonIds): array
+    {
+        if ($lessonIds === []) {
+            return [];
+        }
+
+        return LessonVideoView::query()
+            ->where('user_id', $user->id)
+            ->whereIn('lesson_id', $lessonIds)
+            ->get(['lesson_id', 'watched_seconds', 'completed_at'])
+            ->mapWithKeys(fn (LessonVideoView $v) => [(int) $v->lesson_id => $v->completed_at !== null ? 'watched' : ((int) $v->watched_seconds > 0 ? 'watching' : null)])
+            ->filter()
+            ->all();
+    }
+
+    /**
      * ⭐ أكمل دون بحث (الفكرة #11): آخر موضع محفوظ في الفيديو للمتدرّب، بالثواني،
      * ليبدأ المشغّل منه لا من الصفر. صفر حين لا سجلّ، أو اكتملت المشاهدة أصلًا،
      * أو كان الموضع أقصر من عتبة الاستئناف (فلا نقفز عن مقدّمة الفيديو لثوانٍ).

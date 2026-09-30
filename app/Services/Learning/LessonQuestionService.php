@@ -43,6 +43,46 @@ class LessonQuestionService
     }
 
     /** الدرس بلا أسئلة يُعتبَر مجتازًا — البوّابة تُقفل فقط حين توجد أسئلة (4.1) */
+    /**
+     * ⭐ ثلاث حالات للدرس (الفكرة #18): الدروس التي اجتاز المتدرّب أسئلتها كلّها،
+     * من بين دروسٍ بعينها، باستعلامين لا باستعلامٍ لكلّ صفّ. الدرس بلا أسئلة لا يُعدّ.
+     *
+     * @param  list<int>  $lessonIds
+     * @return list<int>
+     */
+    public function passedLessonIds(User $user, array $lessonIds): array
+    {
+        if ($lessonIds === []) {
+            return [];
+        }
+
+        $totals = LessonQuestion::query()
+            ->whereIn('lesson_id', $lessonIds)
+            ->selectRaw('lesson_id, count(*) as total')
+            ->groupBy('lesson_id')
+            ->pluck('total', 'lesson_id');
+
+        if ($totals->isEmpty()) {
+            return [];
+        }
+
+        $correct = LessonQuestionAnswer::query()
+            ->join('lesson_questions', 'lesson_questions.id', '=', 'lesson_question_answers.lesson_question_id')
+            ->where('lesson_question_answers.user_id', $user->id)
+            ->where('lesson_question_answers.is_correct', true)
+            ->whereIn('lesson_questions.lesson_id', $totals->keys())
+            ->selectRaw('lesson_questions.lesson_id, count(distinct lesson_questions.id) as correct')
+            ->groupBy('lesson_questions.lesson_id')
+            ->pluck('correct', 'lesson_id');
+
+        return $totals
+            ->filter(fn ($total, $lessonId) => (int) ($correct[$lessonId] ?? 0) >= (int) $total)
+            ->keys()
+            ->map(fn ($id) => (int) $id)
+            ->values()
+            ->all();
+    }
+
     public function allAnsweredCorrectly(User $user, Lesson $lesson): bool
     {
         $questions = $this->forLesson($lesson);
