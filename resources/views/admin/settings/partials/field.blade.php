@@ -62,7 +62,7 @@
         @endif
 
         {{-- مؤشّر «تم الحفظ» جنب الحقل نفسه لا أعلى الصفحة (2.13-و · 2.17-ب) --}}
-        <span class="text-xs" data-setting-status style="color: var(--color-state-ok)"></span>
+        <span class="text-xs" data-setting-status role="status" style="color: var(--color-state-ok)"></span>
     </div>
 
     @if ($requiresReason)

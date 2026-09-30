@@ -42,7 +42,7 @@
                    style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
         @endif
 
-        <span class="text-xs" data-learning-setting-status style="color: var(--color-state-ok)"></span>
+        <span class="text-xs" data-learning-setting-status role="status" style="color: var(--color-state-ok)"></span>
     </div>
 
     <div class="mt-1 text-xs" style="color: var(--text-muted)">

@@ -33,7 +33,7 @@
     @endif
 
     <div class="flex items-center gap-2 mt-1">
-        <span class="text-xs" data-build-status style="color: var(--color-state-ok)"></span>
+        <span class="text-xs" data-build-status role="status" style="color: var(--color-state-ok)"></span>
 
         {{-- «تمّ التعديل» — بالضغط بوب-أب بكلّ تعديلات هذا الحقل بعينه --}}
         <button type="button" data-build-edited data-key="{{ $key }}"

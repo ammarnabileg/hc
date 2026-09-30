@@ -70,7 +70,7 @@
             <span>{{ setting('features.ui.popup.notify', 'ابعت إشعار للمتأثّرين') }}</span>
         </label>
 
-        <p class="text-xs" data-disable-status></p>
+        <p class="text-xs" data-disable-status role="status"></p>
     </div>
 
     <x-slot:footer>
@@ -125,7 +125,7 @@
             </select>
         </label>
 
-        <p class="text-xs" data-scope-status></p>
+        <p class="text-xs" data-scope-status role="status"></p>
     </div>
 
     <x-slot:footer>
