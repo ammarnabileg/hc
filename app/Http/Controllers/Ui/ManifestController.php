@@ -32,6 +32,6 @@ class ManifestController extends Controller
                 ['src' => asset('icons/icon-192.png'), 'sizes' => '192x192', 'type' => 'image/png', 'purpose' => 'any'],
                 ['src' => asset('icons/icon-512.png'), 'sizes' => '512x512', 'type' => 'image/png', 'purpose' => 'any maskable'],
             ],
-        ], 200, ['Cache-Control' => 'public, max-age=86400'], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        ], 200, ['Cache-Control' => 'public, max-age='.max(60, (int) setting('ux.pwa.cache_seconds', 86400))], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     }
 }
