@@ -15,7 +15,8 @@
             @include('library.components.type-icon', ['type' => $item['icon'], 'size' => 56])
         @endif
         <h3>{{ $item['title'] }}</h3>
-        <span class="small muted">{{ $item['icon'] }}</span>
+        {{-- اسم النوع بالعربيّة من قاموس الأنواع لا مفتاح الأيقونة الخامّ («course») --}}
+        <span class="small muted" data-library-type="{{ $item['icon'] }}">{{ app(\App\Services\Library\LibraryShelf::class)->typeOptions()[$item['icon']] ?? $item['icon'] }}</span>
     </div>
 
     <div class="spread mt-4">

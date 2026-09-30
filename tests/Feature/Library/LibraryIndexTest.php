@@ -36,6 +36,10 @@ class LibraryIndexTest extends LibraryTestCase
         $response->assertSee(setting('library.availability.now_label', 'متاح الآن'), false);
         // تابات بعدّاداتها
         $response->assertSee(setting('library.tab.products_label', 'منتجات'), false);
+        // اسم النوع تحت الغلاف بالعربيّة من القاموس، لا مفتاح الأيقونة الخامّ
+        $response->assertSee('data-library-type="pdf"', false);
+        $response->assertDontSee('data-library-type="pdf">pdf<', false);
+        $response->assertSee(setting('library.type.pdf_label', 'PDF'), false);
     }
 
     /**
