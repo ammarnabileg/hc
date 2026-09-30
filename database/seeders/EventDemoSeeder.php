@@ -252,6 +252,7 @@ class EventDemoSeeder extends Seeder
             ['events.reminder.offset_labels', 'events', 'ألفاظ مواعيد التذكير', 'json', '{"1440":"يوم","60":"ساعة"}'],
             ['events.reminder.minutes_word', 'events', 'كلمة الدقيقة', 'string', 'دقيقة'],
             ['events.reminder.category', 'events', 'فئة إشعار الفعاليّات', 'string', 'event'],
+            ['events.reminder.mail_cta', 'events', 'بريد التذكير: نصّ زرّ فتح الفعاليّة', 'string', 'افتح الفعاليّة'],
             ['events.reminder.title_template', 'events', 'قالب عنوان التذكير', 'string', 'فاكر «:title»؟ ابتدت بعد :when'],
             ['events.reminder.body_template', 'events', 'قالب نصّ التذكير', 'text', '«:title» يوم :time بتوقيت :timezone. جهّز نفسك ومكانك.'],
             ['events.reminder.time_format', 'events', 'صيغة وقت التذكير', 'string', 'Y-m-d · H:i'],

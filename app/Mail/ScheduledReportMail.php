@@ -23,8 +23,21 @@ class ScheduledReportMail extends Mailable
 
     public function build(): self
     {
+        // القالب الموحّد للمنصّة (emails/platform)
+        $data = [
+            'subjectLine' => $this->subjectLine,
+            'heading' => $this->subjectLine,
+            'bodyText' => $this->bodyText,
+            'ctaLabel' => null,
+            'ctaUrl' => null,
+            'footer' => '',
+            'code' => null,
+            'textBody' => null,
+        ];
+
         $this->subject($this->subjectLine)
-            ->html(nl2br(e($this->bodyText)));
+            ->view('emails.platform', $data)
+            ->text('emails.platform-text', $data);
 
         if ($this->file !== null) {
             $this->attachData($this->file['content'], $this->file['name'], ['mime' => $this->file['mime']]);

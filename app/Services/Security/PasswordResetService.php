@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use App\Mail\PlatformMail;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 
@@ -108,8 +109,21 @@ class PasswordResetService
             ),
         );
 
-        Mail::raw($body, fn ($message) => $message
-            ->to((string) $user->email)
-            ->subject((string) setting('auth.password_reset.mail_subject', 'تغيير كلمة السرّ')));
+        $subject = (string) setting('auth.password_reset.mail_subject', 'تغيير كلمة السرّ');
+
+        // القالب الموحّد: زرٌّ واحد للرابط، والنصّ القديم (mail_body) بديلًا نصّيًّا
+        Mail::to((string) $user->email)->send(new PlatformMail(
+            subjectLine: $subject,
+            heading: $subject,
+            bodyText: str_replace(
+                ['{name}', '{minutes}'],
+                [$user->shortName(), (string) $this->ttlMinutes()],
+                (string) setting('auth.password_reset.mail_intro', "أهلًا {name}،\nاضغط الزرّ ده عشان تغيّر كلمة السرّ. الرابط صالح {minutes} دقيقة."),
+            ),
+            ctaLabel: (string) setting('auth.password_reset.mail_cta', 'غيّر كلمة السرّ'),
+            ctaUrl: $this->resetUrl((string) $user->email, $token),
+            footer: (string) setting('auth.password_reset.mail_outro', 'لو مش إنت اللي طلبت، اهمل الرسالة.'),
+            textBody: $body,
+        ));
     }
 }

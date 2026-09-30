@@ -36,6 +36,7 @@ class SettingSeeder extends Seeder
             ['ux.pagination.page_aria', 'ux', 'ترقيم الصفحات: وصف زرّ رقم الصفحة (:n)', 'string', 'الصفحة :n'],
             ['ux.footer.tagline', 'ux', 'تذييل الصفحة: سطر الهويّة بعد اسم المنصّة', 'string', 'تعلّم يصنع أثرًا'],
             ['ux.footer.help', 'ux', 'تذييل الصفحة: نصّ رابط المساعدة', 'string', 'مركز المساعدة'],
+            ['ux.mail.link_fallback', 'ux', 'البريد الموحّد: سطر الرابط البديل تحت الزرّ', 'string', 'لو الزرّ ما اشتغلش، انسخ الرابط ده:'],
             ['ux.otp.aria', 'ux', 'خانات رمز التحقّق: وصف المجموعة لقارئ الشاشة', 'string', 'رمز التحقّق'],
             ['ux.otp.box_aria', 'ux', 'خانات رمز التحقّق: وصف الخانة (:n :total)', 'string', 'الرقم :n من :total'],
             ['ux.undo.seconds', 'ux', 'مدّة التراجع (ثوانٍ)', 'number', '5'],

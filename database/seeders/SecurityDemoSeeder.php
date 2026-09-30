@@ -67,6 +67,9 @@ class SecurityDemoSeeder extends Seeder
             ['auth.otp.subject_delete', 'security', 'عنوان بريد رمز الحذف', 'string', 'رمز تأكيد حذف حسابك'],
             ['auth.otp.subject_password', 'security', 'عنوان بريد رمز الاسترجاع', 'string', 'رمز استرجاع كلمة السرّ'],
             ['auth.otp.body', 'security', 'نصّ بريد الرمز', 'text', "رمز التأكيد بتاعك: {code}\nلو مش إنت اللي طلبته، اهمل الرسالة دي."],
+            ['auth.otp.mail_intro', 'security', 'بريد الرمز (القالب الموحّد): السطر قبل صندوق الرمز', 'text', 'ده رمز التأكيد بتاعك:'],
+            ['auth.otp.mail_validity', 'security', 'بريد الرمز (القالب الموحّد): سطر الصلاحيّة ({minutes})', 'string', 'الرمز صالح {minutes} دقيقة.'],
+            ['auth.otp.mail_outro', 'security', 'بريد الرمز (القالب الموحّد): التذييل', 'text', 'لو مش إنت اللي طلبته، اهمل الرسالة دي.'],
 
             // ---------------- حدّ جرد البريد عند التسجيل (2.3) — راجع AuthController::checkEmail()
             // «هل هذا البريد مستعمَل؟» يكشف بريدًا مسجَّلًا لمن يسأل، وهو ثمن السؤال اللحظيّ
@@ -103,6 +106,9 @@ class SecurityDemoSeeder extends Seeder
             ['auth.password_reset.done_text', 'security', 'رسالة نجاح التغيير', 'text', 'كلمة السرّ اتغيّرت ✓، ادخل بيها دلوقتي. وقفلنا كلّ الجلسات القديمة للأمان.'],
             ['auth.password_reset.mail_subject', 'security', 'عنوان بريد الاسترجاع', 'string', 'تغيير كلمة السرّ'],
             ['auth.password_reset.mail_body', 'security', 'نصّ بريد الاسترجاع', 'text', "أهلًا {name}،\nده رابط تغيير كلمة السرّ: {url}\nالرابط صالح {minutes} دقيقة. لو مش إنت اللي طلبت، اهمل الرسالة."],
+            ['auth.password_reset.mail_intro', 'security', 'بريد الاسترجاع (القالب الموحّد): النصّ فوق الزرّ ({name} {minutes})', 'text', "أهلًا {name}،\nاضغط الزرّ ده عشان تغيّر كلمة السرّ. الرابط صالح {minutes} دقيقة."],
+            ['auth.password_reset.mail_cta', 'security', 'بريد الاسترجاع (القالب الموحّد): نصّ الزرّ', 'string', 'غيّر كلمة السرّ'],
+            ['auth.password_reset.mail_outro', 'security', 'بريد الاسترجاع (القالب الموحّد): التذييل', 'text', 'لو مش إنت اللي طلبت، اهمل الرسالة.'],
 
             // ---------------- منطقة الخطر: حذف الحساب (2.3)
             ['account.delete.badge', 'account', 'شارة منطقة الخطر', 'string', 'منطقة الخطر'],

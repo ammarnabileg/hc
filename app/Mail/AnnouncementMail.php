@@ -27,27 +27,25 @@ class AnnouncementMail extends Mailable
 
     public function build(): self
     {
-        return $this->subject($this->subjectLine)->html($this->markup());
+        // القالب الموحّد للمنصّة (emails/platform) بدل HTML مبعثر داخل الكلاس
+        $data = [
+            'subjectLine' => $this->subjectLine,
+            'heading' => $this->heading,
+            'bodyText' => $this->bodyText,
+            'ctaLabel' => $this->ctaLabel,
+            'ctaUrl' => $this->ctaUrl !== '' ? $this->ctaUrl : null,
+            'footer' => $this->footer,
+            'code' => null,
+            'textBody' => null,
+        ];
+
+        return $this->subject($this->subjectLine)
+            ->view('emails.platform', $data)
+            ->text('emails.platform-text', $data);
     }
 
     /**
      * قالب بسيط مبنيّ هنا لا في Blade: رسالة البريد نصٌّ وعنوانٌ وزرّ، ولا تحتمل
      * أصول التصميم (CSS/الخطوط) التي لا يعرضها أغلب عملاء البريد أصلًا.
      */
-    private function markup(): string
-    {
-        $html = '<div dir="rtl" style="font-family: sans-serif; line-height: 1.8; text-align: right">';
-        $html .= '<h2 style="margin:0 0 12px">'.e($this->heading).'</h2>';
-        $html .= '<div>'.nl2br(e($this->bodyText)).'</div>';
-
-        if ($this->ctaLabel !== null && $this->ctaUrl !== null && $this->ctaUrl !== '') {
-            $html .= '<p style="margin:20px 0"><a href="'.e($this->ctaUrl).'">'.e($this->ctaLabel).'</a></p>';
-        }
-
-        if ($this->footer !== '') {
-            $html .= '<hr><p style="font-size:12px; color:#666">'.e($this->footer).'</p>';
-        }
-
-        return $html.'</div>';
-    }
 }

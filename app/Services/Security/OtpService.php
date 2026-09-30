@@ -6,6 +6,7 @@ use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
+use App\Mail\PlatformMail;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
@@ -248,6 +249,21 @@ class OtpService
             (string) setting('auth.otp.body', "رمز التأكيد بتاعك: {code}\nلو مش إنت اللي طلبته، اهمل الرسالة دي."),
         );
 
-        Mail::raw($body, fn ($message) => $message->to($email)->subject($subjects[$purpose] ?? $subjects[self::PURPOSE_REGISTER]));
+        $subject = $subjects[$purpose] ?? $subjects[self::PURPOSE_REGISTER];
+
+        // القالب الموحّد: الرمز في صندوقٍ كبير، والنصّ القديم (auth.otp.body) بديلًا نصّيًّا
+        $intro = (string) setting('auth.otp.mail_intro', 'ده رمز التأكيد بتاعك:');
+        if ($this->expiryFor($purpose) !== null) {
+            $intro .= "\n".str_replace('{minutes}', (string) (int) setting('auth.otp.ttl_minutes', 15), (string) setting('auth.otp.mail_validity', 'الرمز صالح {minutes} دقيقة.'));
+        }
+
+        Mail::to($email)->send(new PlatformMail(
+            subjectLine: $subject,
+            heading: $subject,
+            bodyText: $intro,
+            footer: (string) setting('auth.otp.mail_outro', 'لو مش إنت اللي طلبته، اهمل الرسالة دي.'),
+            code: $code,
+            textBody: $body,
+        ));
     }
 }

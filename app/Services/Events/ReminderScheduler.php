@@ -16,6 +16,7 @@ use Illuminate\Database\QueryException;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use App\Mail\PlatformMail;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Throwable;
@@ -169,10 +170,13 @@ class ReminderScheduler
 
             try {
                 if ($notice->channel === self::CHANNEL_EMAIL && $user->email) {
-                    Mail::raw(
-                        $notice->body."\n\n".route('events.show', $event->slug),
-                        fn ($message) => $message->to($user->email)->subject((string) $event->title_ar),
-                    );
+                    Mail::to($user->email)->send(new PlatformMail(
+                        subjectLine: (string) $event->title_ar,
+                        heading: (string) $event->title_ar,
+                        bodyText: (string) $notice->body,
+                        ctaLabel: (string) setting('events.reminder.mail_cta', 'افتح الفعاليّة'),
+                        ctaUrl: route('events.show', $event->slug),
+                    ));
                 } else {
                     Notifier::about(
                         Notifier::send(
@@ -395,11 +399,15 @@ class ReminderScheduler
     private function sendEmail(Event $event, User $user, int $offset): void
     {
         $subject = $this->title($event, $offset);
-        $body = $this->body($event, $user)."\n\n".route('events.show', $event->slug);
 
-        Mail::raw($body, function ($message) use ($user, $subject) {
-            $message->to($user->email)->subject($subject);
-        });
+        // القالب الموحّد: الرابط زرٌّ واحد لا سطرًا خامًا في آخر النصّ
+        Mail::to($user->email)->send(new PlatformMail(
+            subjectLine: $subject,
+            heading: (string) $event->title_ar,
+            bodyText: $this->body($event, $user),
+            ctaLabel: (string) setting('events.reminder.mail_cta', 'افتح الفعاليّة'),
+            ctaUrl: route('events.show', $event->slug),
+        ));
     }
 
     /** عنوان التذكير — بقالبٍ من الإعدادات لا بجملةٍ محروقة (2.13) */
