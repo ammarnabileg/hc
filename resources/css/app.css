@@ -470,7 +470,8 @@
    | الذي ترتفع به العائمات. كان توستًا فاتحًا أعلى اليمين لا يشبه المرجع.
    */
   .toast {
-    position: fixed; inset-block-end: calc(var(--float-bottom, 1rem) + 12px); left: 50%;
+    /* فوق الأزرار العائمة لا في صفّها: على الموبايل يرتفع بقدر --float-reserve (سهم العودة · أكمل من حيث توقفت) */
+    position: fixed; inset-block-end: calc(var(--float-bottom, 1rem) + var(--float-reserve, 12px)); left: 50%;
     width: max-content; /* وإلّا انحصر في نصف العرض على الموبايل (left: 50%) فالتفّ النصّ في ثلاثة أسطر */
     transform: translate(-50%, 20px); opacity: 0; pointer-events: none;
     padding: 14px 22px; max-width: calc(100% - 32px); border: 1px solid var(--line); border-radius: 8px;
