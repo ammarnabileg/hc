@@ -51,4 +51,13 @@ class ValidationMessagesTest extends TestCase
         $this->assertStringNotContainsString('validation.', $message);
         $this->assertStringContainsString('UUID', $message);
     }
+    /** «title_ar مطلوب.» بحروفٍ لاتينيّة كان يظهر في كلّ شاشةٍ لا تمرّر أسماء حقولها */
+    public function test_common_field_names_render_with_arabic_labels(): void
+    {
+        $validator = Validator::make([], ['title_ar' => ['required'], 'sort_order' => ['required'], 'file' => ['required']]);
+
+        $this->assertSame('العنوان بالعربيّة مطلوب.', $validator->errors()->first('title_ar'));
+        $this->assertStringNotContainsString('sort_order', $validator->errors()->first('sort_order'));
+        $this->assertStringNotContainsString('file ', $validator->errors()->first('file'));
+    }
 }
