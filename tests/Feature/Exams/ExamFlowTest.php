@@ -69,6 +69,26 @@ class ExamFlowTest extends ExamTestCase
             ->assertDontSee('من 3', false);
     }
 
+    /** نقاط التقدّم روابط تقفز إلى سؤالها (كالمرجع data-exam-jump)، والحاليّ معلَّم aria-current */
+    public function test_progress_dots_link_to_their_questions(): void
+    {
+        $user = $this->trainee();
+        $exam = $this->courseExam();
+        $exam->update(['questions_count' => 2]);
+        $this->enroll($user, $exam);
+        $this->startedAttempt($exam, $user);
+
+        $html = $this->actingAs($user)
+            ->get(route('exams.take', ['exam' => $exam, 'q' => 1]))
+            ->assertOk()
+            ->getContent();
+
+        $this->assertStringContainsString('<nav class="exam-progress"', $html);
+        $this->assertMatchesRegularExpression('/aria-current="step"\s*>1<\/a>/', $html);
+        $this->assertStringContainsString(route('exams.take', ['exam' => $exam, 'q' => 2]).'"', $html);
+        $this->assertStringNotContainsString('role="progressbar"', $html);
+    }
+
     /**
      * ⭐ سؤال رقميّ مستنسَخ من درسٍ (`type='otp'`) يُعرَض بخانات OTP منفصلة —
      * لا Textarea معدَّة للمقالات (4). كان `question-input.blade.php` بلا حالة

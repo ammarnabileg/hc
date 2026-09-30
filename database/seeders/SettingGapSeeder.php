@@ -224,6 +224,7 @@ class SettingGapSeeder extends Seeder
             ['exams.labels.previous', 'السابق'],
             ['exams.labels.price', 'سعر الدخول'],
             ['exams.labels.question', 'سؤال'],
+            ['exams.labels.progress_nav', 'التنقّل بين الأسئلة'],
             ['exams.labels.result', 'نتيجة الامتحان'],
             ['exams.labels.text_answer', 'إجابتك'],
             ['exams.labels.time_left', 'الوقت المتبقّي'],

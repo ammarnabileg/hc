@@ -1282,7 +1282,9 @@
 
   /* شاشة الامتحان (exam) */
   .exam-progress { display: flex; gap: 9px; direction: rtl; justify-content: center; flex-wrap: wrap; margin: 30px 0; }
-  .exam-progress span { width: 30px; height: 30px; display: grid; place-items: center; border: 1px solid var(--line); border-radius: 50%; font-size: 12px; }
+  .exam-progress span, .exam-progress a { width: 30px; height: 30px; display: grid; place-items: center; border: 1px solid var(--line); border-radius: 50%; font-size: 12px; color: var(--text); text-decoration: none; }
+  .exam-progress a:hover { border-color: var(--brand); }
+  @media (pointer: coarse) { .exam-progress { gap: 6px; } .exam-progress a { width: 40px; height: 40px; min-block-size: 40px; font-size: 13px; } }
   .exam-progress .done { background: var(--brand); border-color: var(--brand); color: #fff; }
   .exam-progress .current { border-color: var(--brand); color: var(--brand); }
   .exam-question { margin: 34px 0; }

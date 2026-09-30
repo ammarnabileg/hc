@@ -31,14 +31,18 @@
 @endsection
 
 @section('content')
-    {{-- نقاط تقدّم الأسئلة — حرفيًّا من ملف الهويّة (`.exam-progress`) لا شريطًا خطّيًّا --}}
+    {{-- نقاط تقدّم الأسئلة — حرفيًّا من ملف الهويّة (`.exam-progress`) لا شريطًا خطّيًّا؛
+         وكلّ نقطة رابطٌ يقفز إلى سؤالها (كالمرجع `data-exam-jump`) لا مجرّد عرض --}}
     @unless ($review)
-        <div class="exam-progress" role="progressbar" aria-valuenow="{{ $index }}" aria-valuemin="1" aria-valuemax="{{ $total }}">
+        <nav class="exam-progress" aria-label="{{ setting('exams.labels.progress_nav', 'التنقّل بين الأسئلة') }}">
             @foreach ($questions as $n => $q)
                 @php $qAnswer = $answers[(string) $q->id] ?? null; @endphp
-                <span class="{{ ($qAnswer !== null && $qAnswer !== '') ? 'done' : (($n + 1) === $index ? 'current' : '') }}">{{ $n + 1 }}</span>
+                <a href="{{ route('exams.take', ['exam' => $exam, 'q' => $n + 1]) }}"
+                   class="{{ ($qAnswer !== null && $qAnswer !== '') ? 'done' : (($n + 1) === $index ? 'current' : '') }}"
+                   aria-label="{{ setting('exams.labels.question', 'سؤال') }} {{ $n + 1 }}"
+                   @if (($n + 1) === $index) aria-current="step" @endif>{{ $n + 1 }}</a>
             @endforeach
-        </div>
+        </nav>
     @endunless
 
     <form id="exam-form" method="post" action="{{ route('exams.submit', $exam) }}" data-answer-url="{{ route('exams.answer', $exam) }}">
