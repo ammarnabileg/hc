@@ -42,7 +42,8 @@
         </form>
 
         {{-- خطوة 2: أكّد بالرمز الرباعيّ --}}
-        <form method="post" action="{{ route('settings.danger.destroy') }}" class="flex gap-2"
+        {{-- flex-wrap: على 320px تنزل «احذف حسابي» سطرًا تحت خانات الرمز بدل أن تفيض عن الشاشة (الفكرة #49) --}}
+        <form method="post" action="{{ route('settings.danger.destroy') }}" class="flex flex-wrap gap-2"
               data-confirm="{{ setting('account.delete.confirm_text', 'متأكّد؟ الحساب هيتقفل دلوقتي.') }}">
             @csrf
             @method('DELETE')

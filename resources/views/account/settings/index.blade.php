@@ -39,7 +39,8 @@
                aria-label="{{ setting('account.settings.search_aria', 'بحث داخل الإعدادات') }}">
     </label>
 
-    <div class="grid md:grid-cols-[13rem_1fr] gap-4 items-start">
+    {{-- [&>*]:min-w-0: عناصر الشبكة لا تتوسّع بعرض محتواها الجوهريّ فتفيض عن 320px (الفكرة #49) --}}
+    <div class="grid md:grid-cols-[13rem_1fr] gap-4 items-start [&>*]:min-w-0">
 
         {{-- تابات جانبيّة — وعلى الموبايل رقائق أفقيّة متمرّرة (2.15-ج) --}}
         <nav class="flex md:flex-col gap-2 min-w-0 overflow-x-auto no-scrollbar md:overflow-visible" aria-label="{{ setting('account.settings.tabs_nav_aria', 'مجموعات الإعدادات') }}">
