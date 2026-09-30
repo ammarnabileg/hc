@@ -459,7 +459,8 @@
   /* الطباعة حرفيًّا من المرجع: يبقى المحتوى وحده — بلا سايد بار ولا هيدر ولا عائمات ولا أشرطة موبايل */
   @media print {
     aside[data-sidebar], [data-sidebar-backdrop], #topbar, #mobile-navigation, #mobile-primary,
-    [data-floating], .float-bottom, .float-bottom-2, .scroll-progress, [data-undo-host], [data-consent-banner], .skip-link { display: none !important; }
+    [data-floating], .float-bottom, .float-bottom-2, .scroll-progress, [data-undo-host], [data-consent-banner], .skip-link,
+    nav.pagination, .toast, #confirm-modal { display: none !important; }
     body { background: #fff; }
     #content { padding: 0 !important; }
   }
