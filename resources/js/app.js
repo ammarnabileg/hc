@@ -269,6 +269,7 @@ document.addEventListener('keydown', (e) => {
         const confirmOpen = document.querySelector('[data-confirm-modal]:not(.hidden)');
         if (confirmOpen) { closeModal(confirmOpen); return; }
         document.querySelectorAll('[data-modal]:not(.hidden)').forEach(closeModal);
+        closeDropdowns(null, true);
         return;
     }
     if (e.key !== 'Tab') return;
@@ -354,6 +355,29 @@ document.addEventListener('click', (e) => {
         delete el.dataset.confirmed;
     });
 }, true);
+
+/*
+ | القوائم المنسدلة `<details class="relative">` (إجراءات الصفّ · «المزيد»): كانت تبقى
+ | مفتوحةً بعد النقر خارجها، ولا تستجيب لـEscape، وتتراكم مفتوحةً فوق بعضها.
+ | الآن: النقر خارجها يقفلها، وEscape يقفلها ويعيد التركيز إلى زرّها، وفتح واحدة يقفل أخواتها.
+ */
+const closeDropdowns = (except, refocus) => {
+    document.querySelectorAll('details.relative[open]').forEach((d) => {
+        if (except && (d === except || d.contains(except) || except.contains(d))) return;
+        d.open = false;
+        if (refocus && d.contains(document.activeElement)) d.querySelector('summary')?.focus();
+    });
+};
+
+document.addEventListener('toggle', (e) => {
+    const d = e.target;
+    if (d instanceof HTMLDetailsElement && d.classList.contains('relative') && d.open) closeDropdowns(d, false);
+}, true);
+
+document.addEventListener('click', (e) => {
+    const inside = e.target.closest('details.relative');
+    closeDropdowns(inside, false);
+});
 
 /*
  | ⭐ زرّ إعادة فتح قائمة الدروس الثابت (idea #17): يبدّل سمة `open` على
