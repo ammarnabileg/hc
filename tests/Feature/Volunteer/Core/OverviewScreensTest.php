@@ -26,6 +26,9 @@ class OverviewScreensTest extends VolunteerCoreTestCase
         $response->assertSee('البوزشن الحاليّ');
         $response->assertSee('الشهادات');
         $response->assertSee('إجمالي VXP');
+        // أيقونة المحطّة تُرسَم SVG ولا يُطبَع اسمها نصًّا بجوار العنوان (كانت تظهر كلمة «badge»)
+        $response->assertDontSee('>badge<', false);
+        $response->assertDontSee('aria-hidden="true">badge', false);
 
         // عناصر السايد بار بلا صلاحيّة لا تظهر أصلًا
         $response->assertSee('المهام');

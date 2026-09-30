@@ -67,7 +67,8 @@
                     <div class="flex items-start justify-between gap-3 flex-wrap">
                         <div class="min-w-0">
                             <div class="font-semibold flex items-center gap-2">
-                                <span aria-hidden="true">{{ $icon }}</span>
+                                {{-- الأيقونة تُرسَم لا يُطبَع اسمها: كانت تظهر كلمة «badge» بجوار العنوان --}}
+                                <x-icon :name="$icon" size="16" style="color: var(--text-muted)" />
                                 <span>{{ $station['title'] }}</span>
                             </div>
                             @if (! empty($station['meta']))
