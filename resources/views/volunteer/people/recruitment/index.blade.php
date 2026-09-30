@@ -116,7 +116,8 @@
         <x-empty :message="setting('volunteer.people_recruitment.empty', 'مفيش مرشّحين في المرحلة دي')" :action="setting('volunteer.people_recruitment.action', 'شيل الفلاتر')" :href="route('volunteer.recruitment')" />
     @else
         {{-- الكانبان: أعمدة على الديسكتوب — وقائمة رأسيّة على الموبايل بلا تمرير أفقيّ --}}
-        <div class="grid gap-4 md:grid-cols-5" data-board>
+        {{-- [&>*]:min-w-0: أعمدة الكانبان لا تتوسّع بعرض محتواها فتفيض عن 320px (الفكرة #49) --}}
+        <div class="grid gap-4 md:grid-cols-5 [&>*]:min-w-0" data-board>
             @foreach ($stages as $key => $label)
                 <section class="card p-3" data-column="{{ $key }}"
                          @if ($canMove) ondragover="event.preventDefault()" @endif>

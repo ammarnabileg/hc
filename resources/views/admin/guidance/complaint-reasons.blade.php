@@ -23,7 +23,7 @@
             @foreach ($reasons as $reason)
                 <div class="flex items-center gap-2" data-reason-row>
                     <input type="text" name="reasons[]" value="{{ $reason }}" maxlength="48" aria-label="{{ setting('complaints.reasons.item_aria', 'سبب') }}"
-                           class="flex-1 rounded-xl px-3 text-sm"
+                           class="flex-1 min-w-0 rounded-xl px-3 text-sm"
                            style="min-height: 44px; background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
 
                     @if (($inUse[$reason] ?? 0) > 0)
@@ -51,7 +51,7 @@
             <div class="flex items-center gap-2" data-reason-row>
                 <input type="text" name="reasons[]" value="" maxlength="48" aria-label="{{ setting('complaints.reasons.item_aria', 'سبب') }}"
                        placeholder="{{ setting('complaints.reasons.new_placeholder', 'سبب جديد') }}"
-                       class="flex-1 rounded-xl px-3 text-sm"
+                       class="flex-1 min-w-0 rounded-xl px-3 text-sm"
                        style="min-height: 44px; background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
                 <button type="button" data-reason-remove class="rounded-lg px-3 text-sm"
                         style="min-height: 44px; background: var(--surface-sunken); color: var(--text-muted)"

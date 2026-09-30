@@ -16,7 +16,7 @@
 
     <div class="flex flex-wrap items-center justify-between gap-2">
         <div class="min-w-0">
-            <div class="text-sm font-semibold flex items-center gap-2">
+            <div class="text-sm font-semibold flex flex-wrap items-center gap-2 min-w-0" style="overflow-wrap: anywhere">
                 {{ $setting->label_ar }}
                 @if ($setting->is_owner_only)<span title="{{ setting('admin.settings.partials.field.mjmwaa_mhmya_lmalk_almnsa', 'مجموعة محميّة لمالك المنصّة') }}"><x-icon name="lock" size="16" /></span>@endif
             </div>
@@ -76,7 +76,8 @@
             {{-- إعدادات ميزة موقوفة تظهر معطَّلة بسطر واضح بدل تعديل بلا أثر --}}
             <span>{{ setting('admin.settings.partials.field.fal_almyza_awla', 'فعّل الميزة أوّلًا:') }} <code>{{ $toggler }}</code></span>
         @else
-            <span data-setting-example>{{ $example ?? $setting->hint }}</span>
+            {{-- مسار القارئ الطويل بلا مسافات ينكسر بدل أن يوسّع العمود على 320px (الفكرة #49) --}}
+            <span data-setting-example style="overflow-wrap: anywhere">{{ $example ?? $setting->hint }}</span>
             {{-- النطاق الرقميّ للأرقام وحدها — لا «من 0 إلى 1000000» تحت نصّ (12.7-ج) --}}
             @if ($range = $registry->rangeHint($setting))
                 <span class="opacity-70"> · {{ $range }}</span>

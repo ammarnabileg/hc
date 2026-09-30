@@ -124,7 +124,8 @@
                             </label>
                         </div>
 
-                        <div class="flex items-center gap-2">
+                        {{-- flex-wrap: ثلاثة أزرار لا تفيض عن 320px بل تلفّ (الفكرة #49) --}}
+                        <div class="flex flex-wrap items-center gap-2">
                             {{-- المحرّر المرئيّ (Drag-drop) — كانفسٌ حقيقيّ فصفحةٌ مستقلّة لا بوب-أب (12.7-ب
                                  المرحلة 2/2) — المحظور يُخفى لا يُعطَّل (2.15-أ-7) --}}
                             @can('cv_templates.edit')
