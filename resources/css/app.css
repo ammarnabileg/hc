@@ -6,16 +6,17 @@
 | (400/500/600/700/800) — الهويّة البصريّة 2.0 (v5.7). الملفّات تُحزَم مع
 | البناء (Vite) فلا يتسرّب طلبٌ لأيّ CDN ولا تتعطّل المنصّة لو انقطع الإنترنت.
 */
-@import '@fontsource/alexandria/arabic-400.css';
-@import '@fontsource/alexandria/arabic-500.css';
-@import '@fontsource/alexandria/arabic-600.css';
-@import '@fontsource/alexandria/arabic-700.css';
-@import '@fontsource/alexandria/arabic-800.css';
-@import '@fontsource/alexandria/latin-400.css';
-@import '@fontsource/alexandria/latin-500.css';
-@import '@fontsource/alexandria/latin-600.css';
-@import '@fontsource/alexandria/latin-700.css';
-@import '@fontsource/alexandria/latin-800.css';
+/*
+| ⛔ ملفّات الحزمة الفرعيّة (`arabic-400.css` + `latin-400.css`) **بلا unicode-range**:
+| وجهان بنفس الوصف للوزن الواحد فيغلب الأخير (اللاتينيّ) ولا يُطلَب ملفّ العربيّة
+| أصلًا، فكانت العربيّة كلّها تُرسَم بخطّ النظام الاحتياطيّ لا بخطّ الهويّة.
+| ملفّ الوزن (`400.css`) يعلن كلّ حزمةٍ بنطاقها فيُحمَّل العربيّ للعربيّ واللاتينيّ للاتينيّ.
+*/
+@import '@fontsource/alexandria/400.css';
+@import '@fontsource/alexandria/500.css';
+@import '@fontsource/alexandria/600.css';
+@import '@fontsource/alexandria/700.css';
+@import '@fontsource/alexandria/800.css';
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
