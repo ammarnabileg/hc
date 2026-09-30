@@ -20,9 +20,10 @@
      */
     $hasSales = collect($points)->contains(fn ($point) => array_key_exists('sales', (array) $point));
 
+    // كلّ سلسلة بشكلها لا بلونها وحده (الفكرة #5): الأولى متّصلة بنقاط، والثانية متقطّعة بمربّعات
     $series = array_values(array_filter([
-        ['key' => 'signups', 'label' => setting('admin.dashboard.components.chart_lines.msjlwn', 'مسجّلون'), 'color' => 'var(--color-brand-500)'],
-        $hasSales ? ['key' => 'sales', 'label' => setting('admin.dashboard.components.chart_lines.mbyaat', 'مبيعات'), 'color' => 'var(--color-state-honor)'] : null,
+        ['key' => 'signups', 'label' => setting('admin.dashboard.components.chart_lines.msjlwn', 'مسجّلون'), 'color' => 'var(--color-brand-500)', 'dash' => null, 'marker' => 'circle'],
+        $hasSales ? ['key' => 'sales', 'label' => setting('admin.dashboard.components.chart_lines.mbyaat', 'مبيعات'), 'color' => 'var(--color-state-honor)', 'dash' => '6 4', 'marker' => 'square'] : null,
     ]));
 
     $max = 1;
@@ -42,8 +43,16 @@
         <h3 class="font-bold text-sm">{{ setting('admin.dashboard.components.chart_lines.alhrka_abr_alwqt', 'الحركة عبر الوقت') }}</h3>
         <div class="flex items-center gap-3 text-xs" style="color: var(--text-muted)">
             @foreach ($series as $line)
-                <span class="inline-flex items-center gap-1">
-                    <span style="display:inline-block;width:10px;height:10px;border-radius:9999px;background:{{ $line['color'] }}"></span>
+                <span class="inline-flex items-center gap-1" data-chart-legend="{{ $line['key'] }}">
+                    {{-- عيّنة الخطّ نفسها في المفتاح: متّصل/متقطّع ودائرة/مربّع --}}
+                    <svg width="26" height="10" viewBox="0 0 26 10" aria-hidden="true">
+                        <line x1="1" y1="5" x2="25" y2="5" stroke="{{ $line['color'] }}" stroke-width="2" @if ($line['dash']) stroke-dasharray="{{ $line['dash'] }}" @endif />
+                        @if ($line['marker'] === 'square')
+                            <rect x="10" y="2" width="6" height="6" fill="{{ $line['color'] }}" />
+                        @else
+                            <circle cx="13" cy="5" r="3" fill="{{ $line['color'] }}" />
+                        @endif
+                    </svg>
                     {{ $line['label'] }}
                 </span>
             @endforeach
@@ -73,13 +82,20 @@
                     }
                 @endphp
                 <path d="{{ implode(' ', $d) }}" fill="none" stroke="{{ $line['color'] }}" stroke-width="2"
-                      stroke-linejoin="round" stroke-linecap="round" />
+                      stroke-linejoin="round" stroke-linecap="round" data-chart-series="{{ $line['key'] }}"
+                      @if ($line['dash']) stroke-dasharray="{{ $line['dash'] }}" @endif />
 
                 @foreach ($points as $i => $point)
                     @if ((int) $point[$line['key']] > 0)
-                        <circle cx="{{ $px($i) }}" cy="{{ $py((int) $point[$line['key']]) }}" r="2.5" fill="{{ $line['color'] }}">
-                            <title>{{ $point['label'] }} · {{ $line['label'] }}: {{ number_format((int) $point[$line['key']]) }}</title>
-                        </circle>
+                        @if ($line['marker'] === 'square')
+                            <rect x="{{ $px($i) - 2.5 }}" y="{{ $py((int) $point[$line['key']]) - 2.5 }}" width="5" height="5" fill="{{ $line['color'] }}">
+                                <title>{{ $point['label'] }} · {{ $line['label'] }}: {{ number_format((int) $point[$line['key']]) }}</title>
+                            </rect>
+                        @else
+                            <circle cx="{{ $px($i) }}" cy="{{ $py((int) $point[$line['key']]) }}" r="2.5" fill="{{ $line['color'] }}">
+                                <title>{{ $point['label'] }} · {{ $line['label'] }}: {{ number_format((int) $point[$line['key']]) }}</title>
+                            </circle>
+                        @endif
                     @endif
                 @endforeach
             @endforeach
