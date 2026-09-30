@@ -43,6 +43,7 @@
             'cert_name_ar' => setting('admin.courses.form.asm_alshhada_arby', 'اسم الشهادة (عربيّ)'),
             'cert_name_en' => setting('admin.courses.form.asm_alshhada_injlyzy', 'اسم الشهادة (إنجليزيّ)'),
             'description_ar' => setting('admin.courses.form.alwsf_arby', 'الوصف (عربيّ)'),
+            'outcome_ar' => setting('admin.courses.form.outcome_ar', 'الوعد قبل التدريب'),
             'description_en' => setting('admin.courses.form.alwsf_injlyzy', 'الوصف (إنجليزيّ)'),
             'price_coins' => setting('admin.courses.form.alsar_alasasy', 'السعر الأساسيّ'),
             'offer_price_coins' => setting('admin.courses.form.sar_alard', 'سعر العرض'),
@@ -120,6 +121,11 @@
                 <x-form.input name="cert_name_ar" :label="setting('admin.courses.form.asm_alshhada_arby', 'اسم الشهادة (عربيّ)')" :value="$draftValue('cert_name_ar', $course->cert_name_ar)" />
                 <x-form.input name="cert_name_en" :label="setting('admin.courses.form.asm_alshhada_injlyzy', 'اسم الشهادة (إنجليزيّ)')" :value="$draftValue('cert_name_en', $course->cert_name_en)" />
             </div>
+
+            {{-- ⭐ الوعد قبل التدريب (الفكرة #13): سطر واحد يكتبه محرّر المحتوى ويُراجَع، بلا وعود تلقائيّة --}}
+            <x-form.input name="outcome_ar" :label="setting('admin.courses.form.outcome_ar', 'الوعد قبل التدريب')"
+                          :value="$draftValue('outcome_ar')" maxlength="190"
+                          :hint="setting('admin.courses.form.outcome_hint', 'سطر واحد يقول إيه اللي هيقدر يعمله المتدرّب بعد التدريب. يظهر تحت عنوان التدريب.')" />
 
             <label class="block">
                 <span class="block text-sm mb-1">{{ setting('admin.courses.form.alwsf', 'الوصف') }}</span>

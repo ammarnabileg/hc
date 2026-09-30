@@ -43,6 +43,14 @@
         </x-slot:action>
     </x-page-header>
 
+    {{-- ⭐ الوعد قبل التدريب (الفكرة #13): نتيجة عمليّة واحدة يكتبها محرّر المحتوى؛ بلا وعدٍ لا سطر --}}
+    @if (filled($course->outcome_ar))
+        <p class="flex items-start gap-2 text-sm mb-4" data-course-outcome>
+            <span class="shrink-0 mt-0.5" aria-hidden="true" style="color: var(--color-brand-500)"><x-icon name="check" size="16" /></span>
+            <span><span class="font-semibold">{{ setting('learning.course.outcome_label', 'بعد التدريب هتقدر:') }}</span> <span style="color: var(--text-muted)">{{ $course->outcome_ar }}</span></span>
+        </p>
+    @endif
+
     {{-- ⭐ لحظة الذروة بعد إكمال الدرس (2.14 · 4.1) — تصل مفلوشةً من الخادم --}}
     @if (session('celebration'))
         @include('learning.partials.celebration', ['celebration' => session('celebration')])

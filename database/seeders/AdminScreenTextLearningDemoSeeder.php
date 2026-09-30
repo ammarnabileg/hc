@@ -139,6 +139,8 @@ class AdminScreenTextLearningDemoSeeder extends Seeder
             ['admin.courses.form.altsayr', 'courses', 'التسعير', 'string', 'التسعير', 'نصّ في resources/views/admin/courses/form.blade.php'],
             ['admin.courses.form.altshghyl_alywmy_mn', 'courses', 'التشغيل اليوميّ من', 'string', 'التشغيل اليوميّ من', 'نصّ في resources/views/admin/courses/form.blade.php'],
             ['admin.courses.form.alwsf', 'courses', 'الوصف', 'string', 'الوصف', 'نصّ في resources/views/admin/courses/form.blade.php'],
+            ['admin.courses.form.outcome_ar', 'courses', 'الوعد قبل التدريب', 'string', 'الوعد قبل التدريب', 'نصّ في resources/views/admin/courses/form.blade.php'],
+            ['admin.courses.form.outcome_hint', 'courses', 'تلميح حقل الوعد قبل التدريب', 'string', 'سطر واحد يقول إيه اللي هيقدر يعمله المتدرّب بعد التدريب. يظهر تحت عنوان التدريب.', 'نصّ في resources/views/admin/courses/form.blade.php'],
             ['admin.courses.form.alwsf_arby', 'courses', 'الوصف (عربيّ)', 'string', 'الوصف (عربيّ)', 'نصّ في resources/views/admin/courses/form.blade.php'],
             ['admin.courses.form.alwsf_injlyzy', 'courses', 'الوصف (إنجليزيّ)', 'string', 'الوصف (إنجليزيّ)', 'نصّ في resources/views/admin/courses/form.blade.php'],
             ['admin.courses.form.amla_altabat_ala_mhlk_bnhfz_mswda_tlqayya', 'courses', 'املأ التابات على مهلك، بنحفظ مسودّة تلقائيًّا فما بيضيعش شغلك.', 'string', 'املأ التابات على مهلك، بنحفظ مسودّة تلقائيًّا فما بيضيعش شغلك.', 'نصّ في resources/views/admin/courses/form.blade.php'],

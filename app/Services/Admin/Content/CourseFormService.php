@@ -95,6 +95,7 @@ class CourseFormService
             'cert_name_en' => $data['cert_name_en'] ?? null,
             'description_ar' => $data['description_ar'] ?? null,
             'description_en' => $data['description_en'] ?? null,
+            'outcome_ar' => filled($data['outcome_ar'] ?? null) ? $data['outcome_ar'] : null, // الوعد قبل التدريب (الفكرة #13)
             'cover_path' => $data['cover_path'] ?? ($course->cover_path ?? null),
 
             // ---------------- تاب التسعير
@@ -173,7 +174,7 @@ class CourseFormService
 
     /** الحقول التي يحفظها الحفظ التلقائيّ — الكتابيّة منها وحدها. */
     private const AUTOSAVE_FIELDS = [
-        'name_ar', 'name_en', 'cert_name_ar', 'cert_name_en', 'description_ar', 'description_en',
+        'name_ar', 'name_en', 'cert_name_ar', 'cert_name_en', 'description_ar', 'description_en', 'outcome_ar',
         'price_coins', 'offer_price_coins', 'paywall_text_ar', 'paywall_text_en',
         'deadline_days', 'xp_max',
     ];

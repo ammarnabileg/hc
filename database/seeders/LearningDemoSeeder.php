@@ -66,6 +66,7 @@ class LearningDemoSeeder extends Seeder
             ['learning.status.completed', 'string', 'مكتمل'],
             ['learning.cta.resume', 'string', 'أكمل آخر درس'],
             ['learning.cta.continue', 'string', 'أكمل'],
+            ['learning.course.outcome_label', 'string', 'بعد التدريب هتقدر:'],
             ['learning.cta.review', 'string', 'مراجعة'],
             ['learning.cta.view_state', 'string', 'عرض الحالة'],
             ['learning.cta.store', 'string', 'تصفّح المتجر'],
@@ -455,6 +456,7 @@ class LearningDemoSeeder extends Seeder
         $course = Course::updateOrCreate(['slug' => 'maharat-al-tawasul'], [
             'name_ar' => 'مهارات التواصل الفعّال',
             'name_en' => 'Effective Communication Skills',
+            'outcome_ar' => 'توصّل فكرتك في جملة واحدة، وتردّ على الاعتراض من غير ما تتوتّر.',
             'description_ar' => 'كيف توصّل فكرتك في جملة واحدة، وتستمع فتفهم قبل أن تردّ، وتكتب رسالة عمل لا تحتاج توضيحًا بعدها.',
             'is_free' => false,
             'price_coins' => 250,

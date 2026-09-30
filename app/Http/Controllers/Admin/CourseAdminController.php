@@ -271,6 +271,7 @@ class CourseAdminController extends Controller
             'cert_name_ar' => ['nullable', 'string', 'max:190'],
             'cert_name_en' => ['nullable', 'string', 'max:190'],
             'description_ar' => ['nullable', 'string'],
+            'outcome_ar' => ['nullable', 'string', 'max:190'], // الوعد قبل التدريب (الفكرة #13)
             'description_en' => ['nullable', 'string'],
             'cover_path' => ['nullable', 'string', 'max:255'],
             'path_ids' => ['nullable', 'array'],
