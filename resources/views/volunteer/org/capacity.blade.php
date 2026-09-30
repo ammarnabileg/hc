@@ -180,7 +180,7 @@ const T = @json($jsText);
     document.addEventListener('click', (e) => {
         const trigger = e.target.closest('[data-capacity]');
         if (!trigger) return;
-        modal.classList.remove('hidden'); modal.classList.add('flex');
+        window.platformModal.open(modal);
         body.innerHTML = '<p style="color: var(--text-muted)">' + T.loading + '</p>';
         fetch(trigger.dataset.capacity, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
             .then((r) => r.json())

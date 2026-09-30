@@ -351,7 +351,7 @@
             const method = modal.querySelector('[data-schedule-method]');
             const storeUrl = @json(route('admin.report-schedules.store'));
 
-            const open = () => { modal.classList.remove('hidden'); modal.classList.add('flex'); };
+            const open = () => { window.platformModal.open(modal); };
 
             document.querySelectorAll('[data-schedule-new]').forEach((btn) => {
                 btn.addEventListener('click', () => {

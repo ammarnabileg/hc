@@ -382,7 +382,7 @@
             const method = modal.querySelector('[data-positive-method]');
             const storeUrl = @json(route('admin.positive.store'));
 
-            const open = () => { modal.classList.remove('hidden'); modal.classList.add('flex'); };
+            const open = () => { window.platformModal.open(modal); };
 
             document.querySelectorAll('[data-positive-new]').forEach((btn) => {
                 btn.addEventListener('click', () => {
@@ -428,8 +428,7 @@
                 emojiEl.hidden = !emoji;
                 bodyEl.textContent = body;
 
-                modal.classList.remove('hidden');
-                modal.classList.add('flex');
+                window.platformModal.open(modal);
 
                 flap?.classList.add('animate-flap');
                 letter?.classList.add('animate-letter');
@@ -441,8 +440,7 @@
             };
 
             const close = () => {
-                modal.classList.add('hidden');
-                modal.classList.remove('flex');
+                window.platformModal.close(modal);
 
                 flap?.classList.remove('animate-flap');
                 letter?.classList.remove('animate-letter');

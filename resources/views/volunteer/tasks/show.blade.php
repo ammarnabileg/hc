@@ -302,7 +302,7 @@
         const map = { deliver: 'deliver-task', block: 'block-task' };
         if (action && map[action]) {
             const modal = document.getElementById(map[action]);
-            if (modal) { modal.classList.remove('hidden'); modal.classList.add('flex'); }
+            if (modal) { window.platformModal.open(modal); }
         }
 
         {{-- دفعة الصب-تاسكات: إضافة صفّ جديد بنفس شكل الصفّ الأوّل --}}

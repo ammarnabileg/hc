@@ -377,7 +377,7 @@ const T = @json($jsText);
     function openNode(id) {
         const n = byId.get(id);
         if (!n || n.honorary || !nodeModal) return; // العنصر الشرفيّ بلا بروفايل ولا مؤشّرات
-        nodeModal.classList.remove('hidden'); nodeModal.classList.add('flex');
+        window.platformModal.open(nodeModal);
         nodeBody.innerHTML = '<p style="color: var(--text-muted)">' + T.loading + '</p>';
         fetch(NODE_URL + '/' + id, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
             .then((r) => r.json())
@@ -445,7 +445,7 @@ const T = @json($jsText);
         const modal = document.getElementById('org-snapshot-modal');
         const box = modal?.querySelector('[data-org-snapshot]');
         if (!modal || !box) return;
-        modal.classList.remove('hidden'); modal.classList.add('flex');
+        window.platformModal.open(modal);
         box.innerHTML = '<p style="color: var(--text-muted)">' + T.snapshot_preparing + '</p>';
 
         const css = getComputedStyle(document.documentElement);

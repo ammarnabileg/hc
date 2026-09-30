@@ -252,7 +252,7 @@ const T = @json($jsText);
     const csrf = document.querySelector('meta[name="csrf-token"]')?.content ?? '';
     const consentBase = @json(url('/volunteer/department/member'));
 
-    const open = () => { modal.classList.remove('hidden'); modal.classList.add('flex'); };
+    const open = () => { window.platformModal.open(modal); };
 
     const badge = (state, label) => {
         const colors = { ok: '●', warn: '▲', danger: '◉', honor: '★', idle: '○' };

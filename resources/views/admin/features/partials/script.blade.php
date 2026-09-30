@@ -20,12 +20,12 @@
 
     function open(id) {
         var modal = document.getElementById(id);
-        if (modal) { modal.classList.remove('hidden'); modal.classList.add('flex'); }
+        if (modal) { window.platformModal.open(modal); }
     }
 
     function close(id) {
         var modal = document.getElementById(id);
-        if (modal) { modal.classList.add('hidden'); modal.classList.remove('flex'); }
+        if (modal) { window.platformModal.close(modal); }
     }
 
     function post(url, payload) {

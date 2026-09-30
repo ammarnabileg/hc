@@ -248,6 +248,9 @@ const openModal = (modal, opener) => {
     first?.focus();
 };
 
+// للسكربتات التي تفتح نافذةً برمجيًّا (تعبئة نموذج · معاينة): نفس إدارة التركيز لا classList يدويّ
+window.platformModal = { open: openModal, close: closeModal };
+
 document.addEventListener('click', (e) => {
     const opener = e.target.closest('[data-modal-open]');
     if (opener) {
