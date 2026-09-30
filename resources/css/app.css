@@ -471,12 +471,15 @@
    */
   .toast {
     position: fixed; inset-block-end: calc(var(--float-bottom, 1rem) + 12px); left: 50%;
+    width: max-content; /* وإلّا انحصر في نصف العرض على الموبايل (left: 50%) فالتفّ النصّ في ثلاثة أسطر */
     transform: translate(-50%, 20px); opacity: 0; pointer-events: none;
     padding: 14px 22px; max-width: calc(100% - 32px); border: 1px solid var(--line); border-radius: 8px;
     background: var(--ink); color: var(--bg); z-index: 130; font-size: 14px;
     transition: opacity 200ms var(--ease-standard), transform 200ms var(--ease-standard);
   }
   .toast.show { opacity: 1; transform: translate(-50%); pointer-events: auto; }
+  /* التوست المرسوم من الخادم يدخل بنفس الحركة (بلا جافاسكربت) */
+  .toast.show { @starting-style { opacity: 0; transform: translate(-50%, 20px); } }
 
   /* أيّ زرّ مشغول (إرسال نموذج · عرض المزيد): يخفت ويمنع نقرةً ثانية، والنصّ يتبدّل من السكربت حين يلزم */
   .is-loading, [data-load-more].is-loading { opacity: .6; pointer-events: none; cursor: progress; }

@@ -922,6 +922,12 @@ function toast(text) {
 }
 window.platformToast = toast;
 
+// توست الخادم بعد الفعل (components/toast): يختفي وحده بعد مدّةٍ تتناسب مع طول النصّ
+document.querySelectorAll('[data-flash-toast]').forEach((el) => {
+    const ms = Math.min(8000, 3000 + el.textContent.trim().length * 40);
+    setTimeout(() => el.classList.remove('show'), ms);
+});
+
 /* ---------------------------------------------------------------
  | أدوات السيرة الذاتيّة (9): استيراد وتحليل · الرابط العامّ
  --------------------------------------------------------------- */
