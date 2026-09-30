@@ -303,6 +303,8 @@ class LearningDemoSeeder extends Seeder
             ['learning.attachments.size_unit', 'string', 'كيلوبايت'],
             ['learning.video.embed_base', 'string', 'https://www.youtube-nocookie.com/embed'],
             ['learning.video.embed_params', 'json', '{"rel":"0","modestbranding":"1"}'],
+            ['learning.video.resume_min_seconds', 'int', '30'],
+            ['learning.video.resume_note', 'string', 'بنكمّل من الدقيقة :time'],
             ['learning.video.missing_message', 'string', 'تعذّر عرض الفيديو. استعن بمحتوى الدرس ومرفقاته، وأبلغنا لنصلحه'],
 
             // ---- الإبلاغ عن مشكلة ⟵ تذكرة دعم

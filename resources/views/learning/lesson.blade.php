@@ -82,14 +82,20 @@
                 {{-- ⭐ تتبّع المشاهدة (4.1): التبليغ من المتصفّح والقرار في الخادم --}}
                 <div class="card overflow-hidden" data-watch="{{ route('learning.lesson.watch', [$course, $lesson]) }}"
                      data-watch-duration="{{ (int) $lesson->duration_minutes * 60 }}"
-                     data-watch-every="{{ (int) setting('learning.video.ping_seconds', 15) }}">
+                     data-watch-every="{{ (int) setting('learning.video.ping_seconds', 15) }}"
+                     data-watch-start="{{ (int) ($resume_seconds ?? 0) }}">
                     <div style="position: relative; padding-block-end: 56.25%">
                         <iframe src="{{ $embed_url }}" title="{{ $lesson->title_ar }}"
                                 style="position: absolute; inset: 0; width: 100%; height: 100%; border: 0"
                                 loading="lazy" allowfullscreen
                                 referrerpolicy="strict-origin-when-cross-origin"></iframe>
                     </div>
-                    <p class="px-4 py-2 text-xs" style="color: var(--text-muted)" data-watch-note></p>
+                    <p class="px-4 py-2 text-xs" style="color: var(--text-muted)" data-watch-note>
+                        @if (! empty($resume_seconds))
+                            {{-- ⭐ أكمل دون بحث (الفكرة #11): بنكمّل من آخر موضع محفوظ لا من الصفر --}}
+                            {{ str_replace(':time', gmdate($resume_seconds >= 3600 ? 'G:i:s' : 'i:s', (int) $resume_seconds), (string) setting('learning.video.resume_note', 'بنكمّل من الدقيقة :time')) }}
+                        @endif
+                    </p>
                 </div>
             @elseif ($lesson->type === 'video')
                 {{-- خطأ تحميل الفيديو: بديل نصّيّ بدل شاشة فارغة (24.5) --}}
@@ -356,7 +362,8 @@
             const every = Math.max(5, parseInt(box.dataset.watchEvery || '15', 10));
             const duration = parseInt(box.dataset.watchDuration || '0', 10);
             const token = document.querySelector('meta[name="csrf-token"]')?.content || '';
-            let seconds = 0;
+            {{-- العدّاد يكمل من آخر موضع محفوظ (الفكرة #11) لا من الصفر --}}
+            let seconds = Math.max(0, parseInt(box.dataset.watchStart || '0', 10));
             let done = false;
 
             const ping = async () => {
@@ -377,6 +384,31 @@
             };
 
             setInterval(ping, every * 1000);
+        })();
+
+        {{--
+         | ⭐ أكمل دون بحث (الفكرة #11): آخر موضع قراءة في الدرس النصّيّ يُحفَظ في
+         | متصفّح القارئ وحده (localStorage — راحةٌ للقارئ لا حالةٌ للخادم) ويُستعاد
+         | عند العودة ما لم يكن في الرابط مرساة.
+         --}}
+        (() => {
+            const article = document.querySelector('[data-lesson-content]');
+            if (!article) return;
+
+            const key = 'hc:lesson-scroll:' + @json((int) $lesson->id);
+            let timer = null;
+
+            try {
+                const saved = parseInt(localStorage.getItem(key) || '0', 10);
+                if (saved > 200 && !location.hash) window.scrollTo({ top: saved });
+            } catch (e) { {{-- التخزين مقفول (وضع خاصّ) — نقرأ من الأوّل بلا ضرر --}} }
+
+            window.addEventListener('scroll', () => {
+                clearTimeout(timer);
+                timer = setTimeout(() => {
+                    try { localStorage.setItem(key, String(Math.round(window.scrollY))); } catch (e) {}
+                }, 250);
+            }, { passive: true });
         })();
 
         {{-- شريط تقدّم القراءة داخل الدرس — ويعرض 100% دائمًا عند بلوغ النهاية (2.17-أ) --}}

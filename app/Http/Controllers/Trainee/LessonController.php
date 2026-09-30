@@ -76,7 +76,9 @@ class LessonController extends Controller
             // ⭐ حالة الحفظ (3.4-34) — تُقرأ من الخادم فلا يختلف الزرّ عن الحقيقة
             'bookmarked' => $this->bookmarks->has($user, $lesson),
             'next_xp' => $this->xp->previewXp($course, $enrollment),
-            'embed_url' => $this->embedUrl($lesson),
+            // ⭐ أكمل دون بحث (الفكرة #11): المشغّل يبدأ من آخر موضع محفوظ
+            'resume_seconds' => $resumeSeconds = $this->watch->resumeSeconds($user, $lesson),
+            'embed_url' => $this->embedUrl($lesson, $resumeSeconds),
 
             // تعليقات الفيديو (3.1): تحت المشغّل، وأوّل دفعة فقط ثمّ تحميل تدريجيّ
             'comments' => $isVideo && $this->commentsEnabled() ? $this->comments->paginate($lesson, $user) : null,
@@ -221,7 +223,7 @@ class LessonController extends Controller
      * مشغّل يوتيوب بـiframe فقط — بلا SDK خارجيّ (شرط أداء وخصوصيّة).
      * ولذلك نبني الرابط من الـVideo ID المخزَّن لا من رابطٍ خام يُحقَن كما هو.
      */
-    private function embedUrl(Lesson $lesson): ?string
+    private function embedUrl(Lesson $lesson, int $startSeconds = 0): ?string
     {
         if ($lesson->type !== 'video' || ! $lesson->video_id) {
             return null;
@@ -233,7 +235,13 @@ class LessonController extends Controller
             return null;
         }
 
-        return rtrim((string) setting('learning.video.embed_base'), '/').'/'.$id
-            .'?'.http_build_query((array) setting('learning.video.embed_params', []));
+        $params = (array) setting('learning.video.embed_params', []);
+
+        if ($startSeconds > 0) {
+            // معيار مشغّل يوتيوب المضمَّن: `start` بالثواني (الفكرة #11)
+            $params['start'] = $startSeconds;
+        }
+
+        return rtrim((string) setting('learning.video.embed_base'), '/').'/'.$id.'?'.http_build_query($params);
     }
 }

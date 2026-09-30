@@ -9,7 +9,12 @@
     @php
         $storeUrl = \Illuminate\Support\Facades\Route::has('store.index') ? route('store.index') : null;
         $certificatesUrl = \Illuminate\Support\Facades\Route::has('learning.certificates') ? route('learning.certificates') : null;
-        $resumeUrl = $resume ? route('learning.course', $resume['course']) : null;
+        // ⭐ أكمل دون بحث (الفكرة #11): «أكمل» يفتح الدرس الفعليّ لا قائمة التدريب
+        $resumeUrl = match (true) {
+            ! $resume => null,
+            ! empty($resume['lesson_id']) => route('learning.lesson', [$resume['course'], $resume['lesson_id']]),
+            default => route('learning.course', $resume['course']),
+        };
     @endphp
 
     <x-page-header :title="setting('learning.courses.title')"
@@ -166,7 +171,7 @@
 
 @if ($resume)
     @section('mobile_action')
-        <a href="{{ route('learning.course', $resume['course']) }}"
+        <a href="{{ $resumeUrl }}"
            class="btn flex items-center justify-center w-full rounded-xl px-4 py-3 text-sm font-semibold"
            style="background: var(--color-brand-500); color: #04201c">{{ setting('learning.cta.resume') }}</a>
     @endsection

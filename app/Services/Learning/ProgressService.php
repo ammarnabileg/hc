@@ -531,7 +531,7 @@ class ProgressService
 
         foreach ($rows as $row) {
             $courseId = (int) $row->course_id;
-            $out[$courseId] ??= ['total' => 0, 'completed' => 0, 'percent' => 0, 'current_title' => null, 'section_title' => null];
+            $out[$courseId] ??= ['total' => 0, 'completed' => 0, 'percent' => 0, 'current_id' => null, 'current_title' => null, 'section_title' => null];
             $out[$courseId]['total']++;
 
             if ($row->completion_id !== null) {
@@ -542,6 +542,7 @@ class ProgressService
 
             // القسم/الدرس الحاليّ = أوّل درس غير مكتمل بالترتيب المعتمَد
             if ($out[$courseId]['current_title'] === null) {
+                $out[$courseId]['current_id'] = (int) $row->id; // «أكمل» يفتح هذا الدرس بعينه (الفكرة #11)
                 $out[$courseId]['current_title'] = $row->title_ar;
                 $out[$courseId]['section_title'] = $row->section_title;
             }

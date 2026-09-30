@@ -135,13 +135,13 @@ class LearningController extends Controller
     {
         foreach ($cards as $card) {
             if ($card['availability']['open'] && $card['status'] === 'active') {
-                return ['course' => $card['course'], 'title' => $card['summary']['current_title']];
+                return ['course' => $card['course'], 'lesson_id' => $card['summary']['current_id'] ?? null, 'title' => $card['summary']['current_title']];
             }
         }
 
         foreach ($cards as $card) {
             if ($card['availability']['open'] && $card['status'] === 'not_started') {
-                return ['course' => $card['course'], 'title' => $card['summary']['current_title']];
+                return ['course' => $card['course'], 'lesson_id' => $card['summary']['current_id'] ?? null, 'title' => $card['summary']['current_title']];
             }
         }
 

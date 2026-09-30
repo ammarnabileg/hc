@@ -41,6 +41,32 @@ class VideoWatchService
     }
 
     /**
+     * ⭐ أكمل دون بحث (الفكرة #11): آخر موضع محفوظ في الفيديو للمتدرّب، بالثواني،
+     * ليبدأ المشغّل منه لا من الصفر. صفر حين لا سجلّ، أو اكتملت المشاهدة أصلًا،
+     * أو كان الموضع أقصر من عتبة الاستئناف (فلا نقفز عن مقدّمة الفيديو لثوانٍ).
+     */
+    public function resumeSeconds(User $user, Lesson $lesson): int
+    {
+        if ($lesson->type !== 'video') {
+            return 0;
+        }
+
+        $view = LessonVideoView::query()
+            ->where('user_id', $user->id)
+            ->where('lesson_id', $lesson->id)
+            ->first(['watched_seconds', 'completed_at']);
+
+        if ($view === null || $view->completed_at !== null) {
+            return 0;
+        }
+
+        $seconds = (int) $view->watched_seconds;
+        $min = max(0, (int) setting('learning.video.resume_min_seconds', 30));
+
+        return $seconds >= $min ? $seconds : 0;
+    }
+
+    /**
      * تسجيل موضع المشاهدة المبلَّغ عنه.
      *
      * @param  int  $position  أقصى ثانية بلغها المشغّل
