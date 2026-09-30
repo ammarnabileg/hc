@@ -30,8 +30,8 @@ class AdminVolunteerWarCardSwitchTest extends AdminVolunteerTestCase
 
         // ⚠️ `hc-switch` مكوّنٌ عامّ (يظهر في هيدر أيّ صفحة إدارة كالمظهر/الصوت)،
         // وفورم `wars.save` نفسه يُطبَع أيضًا لفورم التفاصيل الكامل (زرّ حفظه
-        // وحده محروسٌ لا الفورم) — فالعلامة الفريدة هنا سويتش البطاقة تحديدًا
-        $this->assertStringNotContainsString('this.form.requestSubmit()', $viewerHtml,
+        // وحده محروسٌ لا الفورم) — فالعلامة الفريدة هنا سويتش البطاقة تحديدًا (data-war-switch)
+        $this->assertStringNotContainsString('data-war-switch', $viewerHtml,
             'مين بلا صلاحيّة تعديل شاف سويتش البطاقة الفعليّ — يُفترَض شارة عرضٍ فقط.');
 
         $editor = $this->grant($this->makeUser(), 'wars_settings.view', 'wars_settings.edit');
@@ -40,7 +40,7 @@ class AdminVolunteerWarCardSwitchTest extends AdminVolunteerTestCase
             ->assertOk()->getContent();
 
         $this->assertStringContainsString('hc-switch', $editorHtml);
-        $this->assertStringContainsString('this.form.requestSubmit()', $editorHtml, 'صاحب الصلاحيّة ما شافش سويتش البطاقة الفعليّ.');
+        $this->assertStringContainsString('data-war-switch', $editorHtml, 'صاحب الصلاحيّة ما شافش سويتش البطاقة الفعليّ.');
     }
 
     /**
