@@ -19,7 +19,7 @@
     @endphp
 
     <x-page-header :title="$event->title_ar"
-                   :subtitle="$local->format('Y-m-d · H:i').' '.setting('events.show.range_to', 'إلى').' '.$localEnd->format('H:i').' ('.$tz.')'"
+                   :subtitle="$local->format('Y-m-d · H:i').' '.setting('events.show.range_to', 'إلى').' '.$localEnd->format('H:i').' ('.$tz.')'.' · '.strtr((string) setting('events.show.timezone_note', 'بتوقيت :zone (:offset)'), [':zone' => $tz, ':offset' => app(\App\Services\Learning\UserClock::class)->offsetLabel($user)])"
                    :breadcrumbs="[
                        ['label' => setting('events.show.breadcrumb_home', 'الرئيسيّة'), 'url' => route('dashboard')],
                        ['label' => setting('events.show.breadcrumb_events', 'الفعاليّات'), 'url' => route('events.index')],

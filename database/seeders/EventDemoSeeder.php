@@ -128,6 +128,7 @@ class EventDemoSeeder extends Seeder
             ['events.show.invite_title', 'صفحة الفعاليّة: عنوان بلوك الدعوة', 'ادعُ صديقك للفعاليّة دي'],
             ['events.show.join_action', 'صفحة الفعاليّة: زرّ الدخول للفعاليّة', 'ادخل الفعاليّة'],
             ['events.show.join_link_members_only', 'صفحة الفعاليّة: تنبيه أنّ الرابط للمسجَّلين', '. وبيظهر للمسجَّلين.'],
+            ['events.show.timezone_note', 'صفحة الفعاليّة: بيان المنطقة الزمنيّة للمواعيد (:zone :offset)', 'بتوقيت :zone (:offset)'],
             ['events.show.join_link_opens_at', 'صفحة الفعاليّة: موعد فتح رابط الانضمام (:at)', 'رابط الانضمام بيفتح :at'],
             ['events.show.location_tbd', 'صفحة الفعاليّة: المكان غير المحدَّد بعد', 'المكان يتحدّد قريبًا.'],
             ['events.show.my_ticket', 'صفحة الفعاليّة: زرّ تذكرتي', 'تذكرتي'],

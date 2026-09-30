@@ -5,6 +5,7 @@ namespace App\Services\Events;
 use App\Models\Event;
 use App\Models\EventRegistration;
 use App\Models\User;
+use App\Services\Learning\UserClock;
 use Carbon\CarbonImmutable;
 use Carbon\CarbonInterface;
 
@@ -14,11 +15,15 @@ use Carbon\CarbonInterface;
  */
 class EventPresenter
 {
-    /** المنطقة الزمنيّة للمستخدم — من دولته، وإلّا منطقة المنصّة (2.13) */
+    public function __construct(private readonly UserClock $clock) {}
+
+    /**
+     * المنطقة الزمنيّة للمستخدم بنفس سُلّم ساعة التعلّم (UserClock): اختياره ⟵ المكتشَفة
+     * تلقائيًّا ⟵ دولته ⟵ المنصّة. كانت تقرأ الدولة وحدها فتتجاهل منطقته الفعليّة.
+     */
     public function timezone(?User $user): string
     {
-        return $user?->country?->timezone
-            ?: (string) setting('system.timezone', 'Africa/Cairo');
+        return $this->clock->timezoneFor($user);
     }
 
     public function localStart(Event $event, ?User $user): CarbonInterface
