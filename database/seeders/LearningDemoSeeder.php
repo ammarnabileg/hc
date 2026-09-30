@@ -157,6 +157,8 @@ class LearningDemoSeeder extends Seeder
 
             // ---- نقاط الخبرة (7)
             ['learning.xp.suffix', 'string', 'XP'],
+            ['learning.card.type_free', 'string', 'مجّاني'],
+            ['learning.card.type_paid', 'string', 'بـ:price'],
             // لاحقة التذاكر في رسالة إتمام الدرس (7.1) — نصٌّ لا يُحرَق في الكود
             ['learning.tickets.suffix', 'string', 'تذكرة'],
             ['learning.lesson.xp_reason', 'string', 'إكمال درس'],

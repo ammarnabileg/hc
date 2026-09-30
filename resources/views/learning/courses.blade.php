@@ -129,8 +129,14 @@
                         @if ($summary['current_title'])
                             <p class="small truncate">{{ $summary['section_title'] }} · {{ $summary['current_title'] }}</p>
                         @endif
-                        <div class="small muted mt-2">
-                            {{ (int) $card['enrollment']->xp_earned }} {{ setting('learning.xp.suffix') }} · {{ $statusLabel }}
+                        <div class="small muted mt-2 flex items-center gap-1 flex-wrap">
+                            <span>{{ (int) $card['enrollment']->xp_earned }} {{ setting('learning.xp.suffix') }} · {{ $statusLabel }}</span>
+                            {{-- ⭐ لغة أغلفة موحّدة (الفكرة #7): علامة نوع صغيرة بنفس الموضع في كلّ كارت --}}
+                            <span class="course-type-tag" data-course-type="{{ $card['course']->is_free ? 'free' : 'paid' }}">
+                                {{ $card['course']->is_free
+                                    ? setting('learning.card.type_free', 'مجّاني')
+                                    : str_replace(':price', \App\Services\Store\Coins::label($card['course']->price_coins), (string) setting('learning.card.type_paid', 'بـ:price')) }}
+                            </span>
                         </div>
                     </div>
 
