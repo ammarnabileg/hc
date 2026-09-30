@@ -67,8 +67,14 @@
             'card relative p-3 px-4 text-sm flex items-center gap-2 animate-fadeup' => $tier < 3,
          ])>
         @if ($tier === 3)
-            <div class="mx-auto mb-3 {{ $isLevelUp ? 'learn-levelup' : '' }}" style="color: var(--color-state-honor)">
-                <x-icon :name="$isLevelUp ? 'level' : 'celebrate'" size="56" />
+            @php $isStamp = ! $isLevelUp && in_array($celebration['key'] ?? '', ['course.completed', 'certificate.issued', 'path.completed'], true); @endphp
+            <div class="mx-auto mb-3 {{ $isLevelUp ? 'learn-levelup' : '' }} {{ $isStamp ? 'stamp-press' : '' }}" style="color: var(--color-state-honor)">
+                @if ($isStamp)
+                    {{-- ⭐ ختم الإنجاز المشترك (الفكرة #9): نفس الختم في الاحتفال وبطاقة المشاركة --}}
+                    <x-achievement-stamp size="72" />
+                @else
+                    <x-icon :name="$isLevelUp ? 'level' : 'celebrate'" size="56" />
+                @endif
             </div>
             <h2 class="text-xl font-extrabold">{{ $celebration['message'] }}</h2>
             <p class="text-sm mt-1" style="color: var(--text-muted)">{{ $celebration['label'] }}</p>
@@ -96,8 +102,14 @@
                 </button>
             </div>
         @else
-            <span aria-hidden="true" class="{{ $isLevelUp ? 'learn-levelup' : '' }}" style="color: var(--color-state-honor)">
-                <x-icon :name="$isLevelUp ? 'level' : 'celebrate'" size="18" />
+            @php $isStamp = ! $isLevelUp && in_array($celebration['key'] ?? '', ['course.completed', 'certificate.issued', 'path.completed'], true); @endphp
+            <span aria-hidden="true" class="{{ $isLevelUp ? 'learn-levelup' : '' }} {{ $isStamp ? 'stamp-press' : '' }}" style="color: var(--color-state-honor)">
+                @if ($isStamp)
+                    {{-- ⭐ ختم الإنجاز المشترك (الفكرة #9) في الشريط المختصر أيضًا --}}
+                    <x-achievement-stamp size="22" />
+                @else
+                    <x-icon :name="$isLevelUp ? 'level' : 'celebrate'" size="18" />
+                @endif
             </span>
             <span>{{ $celebration['message'] }}</span>
             @if (! empty($celebration['rank']))

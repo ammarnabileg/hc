@@ -1285,6 +1285,14 @@
   .option:has(input:checked) { background: var(--brand-soft); border-color: var(--brand); }
 
   /* شاشة الامتحان (exam) */
+  /* ⭐ ختم الإنجاز المشترك (الفكرة #9): يهبط على البطاقة كختمٍ حقيقيّ عند أوّل ظهور */
+  .achievement-stamp { display: inline-block; vertical-align: middle; }
+  .stamp-press { animation: stamp-press .55s var(--ease-standard) both; }
+  @keyframes stamp-press {
+    from { transform: scale(1.6) rotate(-10deg); opacity: 0; }
+    60% { transform: scale(.94) rotate(2deg); opacity: 1; }
+    to { transform: none; opacity: 1; }
+  }
   /* ⭐ أسبوع الاستمراريّة (الفكرة #26): سبع علامات، النهارده مطوَّق بالأحمر، والحال بلونه */
   .streak-week { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; list-style: none; margin: 0; padding: 0; }
   .streak-week-day { display: grid; justify-items: center; gap: 6px; min-height: 44px; }

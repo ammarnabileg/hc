@@ -29,7 +29,11 @@
         </div>
         <div class="flex items-center justify-between gap-3">
             <dt style="color: var(--text-muted)">{{ setting('certificates.labels.code', 'الكود') }}</dt>
-            <dd class="font-semibold tabular-nums">#{{ $certificate->code }}</dd>
+            <dd class="font-semibold tabular-nums inline-flex items-center gap-2">
+                {{-- ⭐ ختم الإنجاز المشترك (الفكرة #9) بجوار الكود لا بديلًا عنه --}}
+                <x-achievement-stamp size="22" class="shrink-0" />
+                <span>#{{ $certificate->code }}</span>
+            </dd>
         </div>
         <div class="flex items-center justify-between gap-3">
             <dt style="color: var(--text-muted)">{{ setting('certificates.labels.issued_at', 'تاريخ الإصدار') }}</dt>

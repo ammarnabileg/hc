@@ -203,12 +203,18 @@
             $shareUrl = $certificate['exists'] && $certificate['url']
                 ? url($certificate['url'])
                 : route('learning.course', $course);
-            $shareText = setting('learning.share.text').' — '.$course->name_ar;
+            $shareText = setting('learning.share.text').' · '.$course->name_ar; // بلا شرطة طويلة في نصّ يراه المستخدم
         @endphp
 
         <section class="card p-4 mt-5">
-            <h3 class="font-bold mb-1">{{ setting('learning.share.title') }}</h3>
-            <p class="text-xs mb-3" style="color: var(--text-muted)">{{ $shareText }}</p>
+            <div class="flex items-center gap-3 mb-3">
+                {{-- ⭐ ختم الإنجاز المشترك (الفكرة #9): يربط بطاقة المشاركة بلحظة الإنجاز --}}
+                <x-achievement-stamp size="48" class="shrink-0" />
+                <div class="min-w-0">
+                    <h3 class="font-bold mb-1">{{ setting('learning.share.title') }}</h3>
+                    <p class="text-xs" style="color: var(--text-muted)">{{ $shareText }}</p>
+                </div>
+            </div>
 
             <div class="flex flex-wrap gap-2">
                 <a href="https://wa.me/?text={{ urlencode($shareText.' '.$shareUrl) }}" target="_blank" rel="noopener"
