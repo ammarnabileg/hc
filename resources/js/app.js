@@ -425,6 +425,25 @@ document.querySelectorAll('[data-otp-field]').forEach((field) => {
 });
 
 /*
+ | نسخ إلى الحافظة بردٍّ فوريّ (2.17-ب) كالمرجع (`data-copy`): أيّ زرّ يحمل
+ | `data-copy-text="…"` أو `data-copy-target="#id"` ينسخ ويُظهر توست «اتنسخ ✓»؛
+ | ولو رفض المتصفّح الحافظة (سياق غير آمن) يفتح نافذة نصٍّ محدَّد لينسخه المستخدم بيده.
+ */
+document.addEventListener('click', async (e) => {
+    const el = e.target.closest('[data-copy-text], [data-copy-target]');
+    if (!el) return;
+    const source = el.dataset.copyTarget ? document.querySelector(el.dataset.copyTarget) : null;
+    const text = el.dataset.copyText ?? (source ? (source.value ?? source.textContent) : '');
+    if (!String(text).trim()) return;
+    try {
+        await navigator.clipboard.writeText(String(text).trim());
+        toast(uxText('copied'));
+    } catch {
+        window.prompt(uxText('copy_prompt'), String(text).trim());
+    }
+});
+
+/*
  | ⭐ زرّ إعادة فتح قائمة الدروس الثابت (idea #17): يبدّل سمة `open` على
  | `.lesson-panel` — نفس آلية `<details>` النايتف، فلا حاجة لحالة JS منفصلة
  | تتعارض مع النقر المباشر على `<summary>`.

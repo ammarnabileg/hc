@@ -34,7 +34,7 @@
             </div>
             <button type="button" class="btn shrink-0 rounded-xl px-3 py-2 text-xs font-semibold motion-standard"
                     style="background: var(--color-brand-500); color:#04201c"
-                    onclick="navigator.clipboard.writeText(document.getElementById('plain-webhook-secret').textContent.trim())">
+                    data-copy-target="#plain-webhook-secret">
                 {{ setting('developers.admin.plain_key_copy_cta', 'نسخ') }}
             </button>
         </div>
