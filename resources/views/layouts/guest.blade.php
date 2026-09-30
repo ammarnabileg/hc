@@ -17,7 +17,7 @@
     @include('security.noscript')
 
     {{-- شريط تقدّم التمرير — ثابتٌ على كلّ الصفحات بلا استثناء (2.10.1-25) --}}
-    <div class="scroll-progress" style="transform: scaleX(0)" data-scroll-progress></div>
+    <div class="scroll-progress" style="transform: scaleX(0)" data-scroll-progress aria-hidden="true"></div>
 
     @php
         /*

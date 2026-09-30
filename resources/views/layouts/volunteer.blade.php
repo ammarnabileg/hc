@@ -27,7 +27,7 @@
 <a href="#content" class="skip-link">{{ setting('nav.skip_to_content', 'تخطَّ إلى المحتوى') }}</a>
 
 {{-- شريط تقدّم التمرير (2.10.1-25) --}}
-<div class="scroll-progress" style="transform: scaleX(0)" data-scroll-progress></div>
+<div class="scroll-progress" style="transform: scaleX(0)" data-scroll-progress aria-hidden="true"></div>
 
 {{--
  | الهيدر المشترك كما هو: فيه مبدّل سياق العضويّة والجرس بتاباته (2.8 · 13.4-ح)

@@ -755,11 +755,20 @@
 
     #mobile-primary > .btn { inline-size: 100%; min-block-size: 48px; }
 
-    /* المحتوى لا يختفي خلف الشريط/الشريطين الثابتين */
-    body.has-mobile-nav #content { padding-block-end: calc(24px + var(--nav-height, 68px) + env(safe-area-inset-bottom)); }
-    body.has-mobile-action #content { padding-block-end: calc(24px + var(--action-height, 72px) + env(safe-area-inset-bottom)); }
+    /*
+     | المحتوى لا يختفي خلف الشريط/الشريطين الثابتين **ولا خلف الأزرار العائمة**:
+     | سهم العودة لأعلى (48px + فجوة 16px) يجلس فوق الشريط فكان يغطّي آخر سطرٍ في
+     | الصفحة (ملخّص ترقيم الصفحات · زرّ الحذف الأخير). `--float-reserve` يحجز مكانه،
+     | ويتّسع لزرٍّ ثانٍ (`.float-bottom-2`) حين يوجد.
+     */
+    :root { --float-reserve: 64px; }
+    body:has([data-floating] > :nth-child(2)) { --float-reserve: 120px; } /* أيقونة الرسائل + السهم: 48 + 8 + 48 + 16 */
+    body:has(.float-bottom-2:not(.hidden)) { --float-reserve: 136px; }
+    body #content { padding-block-end: calc(32px + var(--float-reserve)); }
+    body.has-mobile-nav #content { padding-block-end: calc(24px + var(--float-reserve) + var(--nav-height, 68px) + env(safe-area-inset-bottom)); }
+    body.has-mobile-action #content { padding-block-end: calc(24px + var(--float-reserve) + var(--action-height, 72px) + env(safe-area-inset-bottom)); }
     body.has-mobile-nav.has-mobile-action #content {
-      padding-block-end: calc(24px + var(--nav-height, 68px) + var(--action-height, 72px) + env(safe-area-inset-bottom));
+      padding-block-end: calc(24px + var(--float-reserve) + var(--nav-height, 68px) + var(--action-height, 72px) + env(safe-area-inset-bottom));
     }
 
     /*

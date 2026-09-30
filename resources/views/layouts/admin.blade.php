@@ -33,7 +33,7 @@
 {{-- رابط التخطّي إلى المحتوى حرفيًّا من المرجع (`.skip-link`): لا يظهر إلّا حين يصله الكيبورد --}}
 <a href="#content" class="skip-link">{{ setting('nav.skip_to_content', 'تخطَّ إلى المحتوى') }}</a>
 
-<div class="scroll-progress" style="transform: scaleX(0)" data-scroll-progress></div>
+<div class="scroll-progress" style="transform: scaleX(0)" data-scroll-progress aria-hidden="true"></div>
 
 {{-- السايد بار عمودٌ بطول الشاشة والـTopbar داخل عمود المحتوى — كما في المرجع (`#sidebar` · `#topbar`) --}}
 <div class="flex">

@@ -40,7 +40,7 @@
 @include('security.noscript')
 
 {{-- شريط تقدّم التمرير (2.10.1-25) --}}
-<div class="scroll-progress" style="transform: scaleX(0)" data-scroll-progress></div>
+<div class="scroll-progress" style="transform: scaleX(0)" data-scroll-progress aria-hidden="true"></div>
 
 {{-- السايد بار عمودٌ بطول الشاشة والـTopbar داخل عمود المحتوى — كما في المرجع (`#sidebar` · `#topbar`) --}}
 <div class="flex">
