@@ -24,17 +24,17 @@
         @csrf
         <label class="block">
             <span class="block text-sm mb-1">{{ setting('account.security.current_password', 'كلمة السرّ الحاليّة') }}</span>
-            <input type="password" name="current_password" required class="{{ $secInputClass }}" style="{{ $secInputStyle }}">
+            <input type="password" name="current_password" autocomplete="current-password" required class="{{ $secInputClass }}" style="{{ $secInputStyle }}">
             @error('current_password')<span class="block text-xs mt-1" style="color: var(--color-state-danger)">◉ {{ $message }}</span>@enderror
         </label>
         <label class="block">
             <span class="block text-sm mb-1">{{ setting('account.security.new_password', 'كلمة السرّ الجديدة') }}</span>
-            <input type="password" name="password" required class="{{ $secInputClass }}" style="{{ $secInputStyle }}">
+            <input type="password" name="password" autocomplete="new-password" required class="{{ $secInputClass }}" style="{{ $secInputStyle }}">
             @error('password')<span class="block text-xs mt-1" style="color: var(--color-state-danger)">◉ {{ $message }}</span>@enderror
         </label>
         <label class="block">
             <span class="block text-sm mb-1">{{ setting('account.security.confirm_password', 'تأكيد كلمة السرّ') }}</span>
-            <input type="password" name="password_confirmation" required class="{{ $secInputClass }}" style="{{ $secInputStyle }}">
+            <input type="password" name="password_confirmation" autocomplete="new-password" required class="{{ $secInputClass }}" style="{{ $secInputStyle }}">
         </label>
         <button type="submit" class="btn rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
                 style="min-height: 44px; background: var(--color-brand-500); color: #04201c">{{ setting('account.security.change_password_action', 'تغيير') }}</button>

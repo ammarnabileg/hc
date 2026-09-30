@@ -189,14 +189,14 @@
                     'field' => 'email',
                     'label' => setting('account.settings.field_email', 'البريد الإلكترونيّ'),
                     'keywords' => 'البريد الإيميل email',
-                    'control' => '<input type="email" name="value" value="'.e($user->email).'" class="'.$inputClass.'" style="'.$inputStyle.'">',
+                    'control' => '<input type="email" name="value" value="'.e($user->email).'" autocomplete="email" class="'.$inputClass.'" style="'.$inputStyle.'">',
                 ])
 
                 @include('account.partials.autosave-field', [
                     'field' => 'phone',
                     'label' => setting('account.settings.field_phone', 'رقم الموبايل'),
                     'keywords' => 'الموبايل الهاتف phone',
-                    'control' => '<input type="tel" name="value" value="'.e((string) $user->phone).'" class="'.$inputClass.'" style="'.$inputStyle.'">',
+                    'control' => '<input type="tel" name="value" value="'.e((string) $user->phone).'" autocomplete="tel" class="'.$inputClass.'" style="'.$inputStyle.'">',
                 ])
             </section>
 

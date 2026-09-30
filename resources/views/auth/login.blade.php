@@ -10,8 +10,8 @@
 
     <form method="post" action="{{ route('login') }}" class="stack" style="gap: 14px">
         @csrf
-        <x-form.input name="identifier" label="{{ setting('auth.login.label_1', 'الكود أو البريد') }}" :value="old('identifier')" required />
-        <x-form.input name="password" type="password" label="{{ setting('auth.login.label_2', 'كلمة السرّ') }}" required />
+        <x-form.input name="identifier" label="{{ setting('auth.login.label_1', 'الكود أو البريد') }}" :value="old('identifier')" autocomplete="username" required />
+        <x-form.input name="password" type="password" label="{{ setting('auth.login.label_2', 'كلمة السرّ') }}" autocomplete="current-password" required />
 
         {{--
           ⭐ 2.3: الجلسة تُحفَظ **مدى الحياة** ولا تنتهي تلقائيًّا — تفضل مفتوحة

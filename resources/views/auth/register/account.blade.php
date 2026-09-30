@@ -178,7 +178,7 @@
                     </div>
                 @endif
 
-                <input type="tel" name="phone_national" value="{{ old('phone_national') }}" dir="ltr" required
+                <input type="tel" name="phone_national" value="{{ old('phone_national') }}" dir="ltr" autocomplete="tel-national" required
                        autocomplete="tel-national" inputmode="tel" class="{{ $inputClass }}" style="{{ $inputStyle }}">
             </div>
 

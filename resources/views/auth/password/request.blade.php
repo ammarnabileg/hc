@@ -11,7 +11,7 @@
 
     <form method="post" action="{{ route('password.email') }}" class="stack" style="gap: 14px">
         @csrf
-        <x-form.input name="email" type="email" label="{{ setting('auth.password_request.label_1', 'البريد') }}" :value="old('email')" required autofocus />
+        <x-form.input name="email" type="email" label="{{ setting('auth.password_request.label_1', 'البريد') }}" :value="old('email')" autocomplete="email" required autofocus />
 
         <button class="btn btn-p w-full">
             {{ setting('auth.password_reset.request_action', 'ابعتلي') }}

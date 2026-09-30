@@ -22,9 +22,9 @@
                           hint="{{ \App\Services\Setup\SetupSettings::text('setup.owner_view.hint_2', 'هتدخل بيه، وعليه هتوصلك تنبيهات المنصّة.') }}" />
 
             <div class="grid gap-4 sm:grid-cols-2">
-                <x-form.input name="password" type="password" label="{{ \App\Services\Setup\SetupSettings::text('setup.owner_view.label_4', 'كلمة السرّ') }}" required
+                <x-form.input name="password" type="password" label="{{ \App\Services\Setup\SetupSettings::text('setup.owner_view.label_4', 'كلمة السرّ') }}" autocomplete="new-password" required
                               hint="8 {{ \App\Services\Setup\SetupSettings::text('setup.owner_view.hint_4', 'حروف على الأقلّ.') }}" />
-                <x-form.input name="password_confirmation" type="password" label="{{ \App\Services\Setup\SetupSettings::text('setup.owner_view.label_5', 'تأكيد كلمة السرّ') }}" required />
+                <x-form.input name="password_confirmation" type="password" label="{{ \App\Services\Setup\SetupSettings::text('setup.owner_view.label_5', 'تأكيد كلمة السرّ') }}" autocomplete="new-password" required />
             </div>
 
             <button class="btn rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
