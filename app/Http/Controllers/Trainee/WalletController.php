@@ -51,6 +51,8 @@ class WalletController extends Controller
             'exchange' => (string) setting('wallet.source.exchange', 'تحويل عملة'),
             'withdraw' => (string) setting('wallet.source.withdraw', 'سحب أرباح'),
             'admin' => (string) setting('wallet.source.admin', 'إجراء إداريّ'),
+            // مكافآت النموّ (إكمال الملفّ وما شابه) كانت تظهر بمفتاحها الخامّ «growth» في فلتر المصدر
+            'growth' => (string) setting('wallet.source.growth', 'مكافآت النموّ'),
         ];
     }
 

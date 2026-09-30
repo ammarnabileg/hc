@@ -22,7 +22,12 @@
                 <tr style="border-top: 1px solid var(--border)">
                     <td class="p-3 font-semibold">{{ $product->name_ar }}</td>
                     <td class="p-3">{{ $product->product_category?->name_ar ?? '—' }}</td>
-                    <td class="p-3">{{ $product->type }}</td>
+                    @php
+                        // اسم النوع بالعربيّة من قاموس الكتالوج نفسه لا المفتاح الخامّ («protected_pdf»)
+                        $typeLabels = $typeLabels ?? array_merge(...array_values(app(\App\Services\Store\StoreCatalog::class)->typeOptions()));
+                        $typeLabels['digital'] = $typeLabels['digital'] ?? ($typeLabels['product'] ?? 'digital');
+                    @endphp
+                    <td class="p-3" data-product-type="{{ $product->type }}">{{ $typeLabels[$product->type] ?? $product->type }}</td>
                     <td class="p-3">{{ Coins::label($pricing->priceOf('product', $product), $pricing->currencyOf('product', $product)) }}</td>
                     <td class="p-3"><x-state-badge :state="$product->status === 'published' ? 'ok' : ($product->status === 'draft' ? 'warn' : 'idle')" :label="$product->status === 'published' ? setting('admin.store.partials.table_products.mnshwr', 'منشور') : ($product->status === 'draft' ? setting('admin.store.partials.table_products.mswda', 'مسودّة') : setting('admin.store.partials.table_products.mwrshf', 'مؤرشف'))" /></td>
                     <td class="p-3">

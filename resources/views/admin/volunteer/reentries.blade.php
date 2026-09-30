@@ -11,7 +11,7 @@
     @include('admin.volunteer.partials.tabs', ['current' => 'reentries'])
 
     <div class="card p-3 mb-4 text-sm">
-        {{ setting('admin.volunteer.reentries.alaayd_ybda_mn_bwzshn', 'العائد يبدأ من بوزشن') }} <strong>{{ $startsPosition }}</strong>،
+        {{ setting('admin.volunteer.reentries.alaayd_ybda_mn_bwzshn', 'العائد يبدأ من بوزشن') }} <strong>{{ $startsPositionLabel ?? $startsPosition }}</strong>،
         و{{ $examRequired ? setting('admin.volunteer.reentries.dkhwl_alamthan_mn_jdyd_shrt_la_ystthna_mnh', 'دخول الامتحان من جديد شرطٌ لا يُستثنى منه أحد') : setting('admin.volunteer.reentries.alamthan_ghyr_mlzm_halya_bqrar_idary', 'الامتحان غير مُلزَم حاليًّا بقرار إداريّ') }}.
     </div>
 

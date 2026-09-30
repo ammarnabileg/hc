@@ -52,6 +52,9 @@ class LibraryDemoSeeder extends Seeder
         $rows = [
             // ---------------- مكتبتي (20)
             ['library.page.title', 'library', 'عنوان صفحة مكتبتي', 'string', 'مكتبتي'],
+            ['library.internal_type.design', 'library', 'نوع عنصر المكتبة الداخليّة: تصميم', 'string', 'تصميم'],
+            ['library.internal_type.document', 'library', 'نوع عنصر المكتبة الداخليّة: مستند', 'string', 'مستند'],
+            ['library.internal_type.plan', 'library', 'نوع عنصر المكتبة الداخليّة: خطّة', 'string', 'خطّة'],
             ['library.page.subtitle', 'library', 'سطر تعريف المكتبة', 'string', 'عندك :count عنصر بوصولٍ دائم.'],
             ['library.breadcrumb.home', 'library', 'اسم الرئيسيّة في المسار', 'string', 'الرئيسيّة'],
             ['library.shelf.default_sort', 'library', 'الفرز الافتراضيّ', 'string', 'recent'],

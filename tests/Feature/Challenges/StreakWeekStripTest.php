@@ -15,14 +15,16 @@ class StreakWeekStripTest extends ChallengeTestCase
     {
         $user = $this->trainee();
         $streaks = app(StreakService::class);
-        $streaks->checkIn($user, CarbonImmutable::now()->subDays(2));
-        $streaks->checkIn($user, CarbonImmutable::now()->subDay());
+        // بساعة المستخدم لا بساعة الخادم: قرب منتصف الليل يختلف اليومان (سقط الاختبار مرّةً في 21:xx UTC)
+        $now = CarbonImmutable::now($streaks->timezoneFor($user));
+        $streaks->checkIn($user, $now->subDays(2));
+        $streaks->checkIn($user, $now->subDay());
 
         $week = $streaks->week($user);
 
         $this->assertCount(7, $week);
         $this->assertTrue($week[6]['today']);
-        $this->assertSame(CarbonImmutable::now()->toDateString(), $week[6]['date']);
+        $this->assertSame($now->toDateString(), $week[6]['date']);
         $this->assertFalse($week[6]['active']);
         $this->assertTrue($week[5]['active']);
         $this->assertTrue($week[4]['active']);
@@ -33,10 +35,10 @@ class StreakWeekStripTest extends ChallengeTestCase
     public function test_each_day_state_carries_its_own_symbol_not_only_a_colour(): void
     {
         $user = $this->trainee();
-        $today = \Carbon\CarbonImmutable::now()->toDateString();
-        \App\Models\StreakDay::create(['user_id' => $user->id, 'day' => \Carbon\CarbonImmutable::now()->subDays(3)->toDateString(), 'club_5am' => true, 'is_freeze' => false]);
-        \App\Models\StreakDay::create(['user_id' => $user->id, 'day' => \Carbon\CarbonImmutable::now()->subDays(2)->toDateString(), 'club_5am' => false, 'is_freeze' => true]);
-        \App\Models\StreakDay::create(['user_id' => $user->id, 'day' => \Carbon\CarbonImmutable::now()->subDay()->toDateString(), 'club_5am' => false, 'is_freeze' => false]);
+        $now = CarbonImmutable::now(app(StreakService::class)->timezoneFor($user));
+        \App\Models\StreakDay::create(['user_id' => $user->id, 'day' => $now->subDays(3)->toDateString(), 'club_5am' => true, 'is_freeze' => false]);
+        \App\Models\StreakDay::create(['user_id' => $user->id, 'day' => $now->subDays(2)->toDateString(), 'club_5am' => false, 'is_freeze' => true]);
+        \App\Models\StreakDay::create(['user_id' => $user->id, 'day' => $now->subDay()->toDateString(), 'club_5am' => false, 'is_freeze' => false]);
 
         $html = $this->actingAs($user)->get(route('achievements.streak'))->assertOk()->getContent();
 
@@ -60,7 +62,7 @@ class StreakWeekStripTest extends ChallengeTestCase
     public function test_the_streak_page_renders_the_seven_marks_with_today_flagged(): void
     {
         $user = $this->trainee();
-        app(StreakService::class)->checkIn($user, CarbonImmutable::now()->subDay());
+        app(StreakService::class)->checkIn($user, CarbonImmutable::now(app(StreakService::class)->timezoneFor($user))->subDay());
 
         $html = $this->actingAs($user)->get(route('achievements.streak'))->assertOk()->getContent();
 

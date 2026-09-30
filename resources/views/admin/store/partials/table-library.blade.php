@@ -76,7 +76,19 @@
                     </td>
                     <td class="p-3 font-semibold">
                         {{ $item->name_ar }}
-                        <span class="block text-xs font-normal" style="color: var(--text-muted)">{{ $item->type }}</span>
+                        {{-- اسم النوع بالعربيّة لا مفتاحه («design» · «document» · «plan») --}}
+                        @php
+                            $libraryTypeLabels = $libraryTypeLabels ?? array_merge(
+                                array_merge(...array_values(app(\App\Services\Store\StoreCatalog::class)->typeOptions())),
+                                [
+                                    'design' => setting('library.internal_type.design', 'تصميم'),
+                                    'document' => setting('library.internal_type.document', 'مستند'),
+                                    'plan' => setting('library.internal_type.plan', 'خطّة'),
+                                ],
+                            );
+                            $libraryTypeLabels['digital'] = $libraryTypeLabels['digital'] ?? ($libraryTypeLabels['product'] ?? 'digital');
+                        @endphp
+                        <span class="block text-xs font-normal" style="color: var(--text-muted)" data-library-item-type="{{ $item->type }}">{{ $libraryTypeLabels[$item->type] ?? $item->type }}</span>
                     </td>
                     <td class="p-3 tabular-nums text-xs" style="color: var(--text-muted)">
                         @php($bytes = $item->fileSizeBytes())

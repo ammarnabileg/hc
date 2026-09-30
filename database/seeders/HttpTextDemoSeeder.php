@@ -1306,6 +1306,7 @@ class HttpTextDemoSeeder extends Seeder
             // ---- app/Http/Controllers/Trainee/WalletController.php
             ['wallet.source.academy', 'wallet', 'academy: تعلّم', 'تعلّم'],
             ['wallet.source.admin', 'wallet', 'admin: إجراء إداريّ', 'إجراء إداريّ'],
+            ['wallet.source.growth', 'wallet', 'growth: مكافآت النموّ', 'مكافآت النموّ'],
             ['wallet.source.behavior', 'wallet', 'behavior: سلوك', 'سلوك'],
             ['wallet.source.challenge', 'wallet', 'challenge: الحروب', 'الحروب'],
             ['wallet.source.exchange', 'wallet', 'exchange: تحويل عملة', 'تحويل عملة'],

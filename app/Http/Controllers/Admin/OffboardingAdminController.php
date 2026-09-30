@@ -70,7 +70,9 @@ class OffboardingAdminController extends Controller
                 ->tap(fn ($q) => app(ScopeFilter::class)->apply($q, $request->user(), 'offboarding.view'))
                 ->with('user:id,name,code')->latest('id')->limit((int) setting('volunteer.offboarding.reentry_rows', 30))->get(),
             'examRequired' => (bool) setting('volunteer.offboarding.reentry_exam_required', true),
-            'startsPosition' => (string) setting('volunteer.offboarding.reentry_starts_position', 'coordinator'),
+            'startsPosition' => $startsPosition = (string) setting('volunteer.offboarding.reentry_starts_position', 'coordinator'),
+            // اسم البوزشن بالعربيّة لا مفتاحه («كوردنيتور» لا «coordinator»)
+            'startsPositionLabel' => (string) (\App\Models\Position::query()->where('key', $startsPosition)->value('name_ar') ?: $startsPosition),
         ]);
     }
 

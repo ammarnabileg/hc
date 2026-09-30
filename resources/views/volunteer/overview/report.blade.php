@@ -94,12 +94,12 @@
                             <td class="py-2" title="{{ $event->created_at->format('Y-m-d H:i') }}">
                                 {{ $event->created_at->diffForHumans() }}
                             </td>
-                            <td class="py-2">{{ $event->reason ?? $event->source }}</td>
+                            <td class="py-2">{{ $event->reason ?? (\App\Http\Controllers\Trainee\WalletController::sourceLabels()[$event->source] ?? $event->source) }}</td>
                             <td class="py-2">
                                 <x-state-badge :state="$event->amount >= 0 ? 'ok' : 'danger'"
                                                :label="($event->amount >= 0 ? '+' : '').rtrim(rtrim(number_format((float) $event->amount, 2), '0'), '.').' '.strtoupper($event->code ?? '')" />
                             </td>
-                            <td class="py-2" style="color: var(--text-muted)">{{ $event->source }}</td>
+                            <td class="py-2" style="color: var(--text-muted)">{{ (\App\Http\Controllers\Trainee\WalletController::sourceLabels()[$event->source] ?? $event->source) }}</td>
                         </tr>
                     @endforeach
                     </tbody>
@@ -110,12 +110,12 @@
                 @foreach ($events as $event)
                     <div class="rounded-xl p-3" style="background: var(--surface-sunken)">
                         <div class="flex items-center justify-between gap-2">
-                            <span class="text-sm">{{ $event->reason ?? $event->source }}</span>
+                            <span class="text-sm">{{ $event->reason ?? (\App\Http\Controllers\Trainee\WalletController::sourceLabels()[$event->source] ?? $event->source) }}</span>
                             <x-state-badge :state="$event->amount >= 0 ? 'ok' : 'danger'"
                                            :label="($event->amount >= 0 ? '+' : '').rtrim(rtrim(number_format((float) $event->amount, 2), '0'), '.')" />
                         </div>
                         <div class="text-xs mt-1" style="color: var(--text-muted)">
-                            {{ $event->created_at->diffForHumans() }} · {{ $event->source }}
+                            {{ $event->created_at->diffForHumans() }} · {{ (\App\Http\Controllers\Trainee\WalletController::sourceLabels()[$event->source] ?? $event->source) }}
                         </div>
                     </div>
                 @endforeach
@@ -160,7 +160,7 @@
                 </div>
                 @forelse ($attention['objectionable'] as $transaction)
                     <div class="flex items-center justify-between gap-2 py-1">
-                        <span class="truncate">{{ $transaction->reason ?? $transaction->source }}</span>
+                        <span class="truncate">{{ $transaction->reason ?? (\App\Http\Controllers\Trainee\WalletController::sourceLabels()[$transaction->source] ?? $transaction->source) }}</span>
                         <span class="text-xs" style="color: var(--text-muted)">
                             {{ $transaction->created_at->diffForHumans() }}
                         </span>
