@@ -1563,3 +1563,25 @@
   }
   .animate-letter { animation: letter-reveal 900ms 200ms var(--ease-standard) forwards; }
 }
+
+/*
+ | ترقيم الصفحات (resources/views/vendor/pagination/platform.blade.php): أزرار
+ | 44px بألوان النظام لا رماديّات Tailwind، والحاليّة بلون الحبر؛ وعلى الموبايل
+ | تبقى الحاليّة والسابق/التالي فقط.
+ */
+.pagination-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-inline-size: 44px; min-block-size: 44px; padding: 0 12px;
+  border-radius: 10px; font-size: 14px; font-weight: 600;
+  color: var(--text); background: var(--surface-sunken);
+  text-decoration: none;
+  transition: background-color 150ms var(--ease-standard), color 150ms var(--ease-standard);
+}
+a.pagination-btn:hover { background: var(--soft); color: var(--ink); }
+.pagination-btn.is-current { background: var(--ink); color: var(--bg); }
+.pagination-btn.is-disabled { opacity: .4; cursor: not-allowed; }
+.pagination-dots { display: inline-flex; align-items: center; justify-content: center; min-inline-size: 28px; min-block-size: 44px; color: var(--text-muted); }
+.pagination-flip { transform: scaleX(-1); }
+@media (max-width: 767px) {
+  .pagination-page:not(.is-current) { display: none; }
+}

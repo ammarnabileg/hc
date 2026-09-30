@@ -29,6 +29,11 @@ class SettingSeeder extends Seeder
             // ⭐ زرّ التمرير التدريجيّ العامّ (13.1 · قرار §25 — ⛔ ممنوع ترقيم الصفحات)
             ['ux.lists.load_more', 'ux', 'نصّ زرّ «عرض المزيد» في التمرير التدريجيّ', 'string', 'عرض المزيد'],
             ['ux.lists.loading', 'ux', 'نصّ زرّ «عرض المزيد» أثناء جلب الصفحة التالية', 'string', 'جاري التحميل…'],
+            ['ux.pagination.aria', 'ux', 'ترقيم الصفحات: وصف الشريط لقارئ الشاشة', 'string', 'التنقّل بين الصفحات'],
+            ['ux.pagination.summary', 'ux', 'ترقيم الصفحات: ملخّص النطاق (:from :to :total)', 'string', 'من :from إلى :to من أصل :total'],
+            ['ux.pagination.previous', 'ux', 'ترقيم الصفحات: زرّ السابق', 'string', 'السابق'],
+            ['ux.pagination.next', 'ux', 'ترقيم الصفحات: زرّ التالي', 'string', 'التالي'],
+            ['ux.pagination.page_aria', 'ux', 'ترقيم الصفحات: وصف زرّ رقم الصفحة (:n)', 'string', 'الصفحة :n'],
             ['ux.undo.seconds', 'ux', 'مدّة التراجع (ثوانٍ)', 'number', '5'],
             ['ux.first_time.enabled_screens', 'ux', 'شاشات «أوّل مرّة» المفعَّلة', 'json', '[]'],
             ['ux.settings_search.max_results', 'ux', 'أقصى نتائج البحث الموحّد في الإعدادات', 'number', '40'],

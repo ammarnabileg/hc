@@ -8,6 +8,7 @@ use App\Services\Ads\PurchaseSignalObserver;
 use App\Services\Ads\TopupSignalObserver;
 use App\Services\Onboarding\SessionLifetime;
 use App\Services\Wallet\TopupCommissionObserver;
+use Illuminate\Pagination\Paginator;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -31,6 +32,10 @@ class AppServiceProvider extends ServiceProvider
          | قاعدة البيانات، وبوت المزوّدين يقع قبل `StartSession` وكتابة الكوكي.
          */
         SessionLifetime::apply();
+
+        // ترقيم الصفحات بقالب المنصّة (عربيّ · نظام التصميم · 44px) لا قالب Tailwind الافتراضيّ الإنجليزيّ
+        Paginator::defaultView('vendor.pagination.platform');
+        Paginator::defaultSimpleView('vendor.pagination.platform');
 
         /*
          | عمولة الريفيرال 7% تُلتقَط من لحظة نجاح الشحن في دفتر الأستاذ (19.3)،
