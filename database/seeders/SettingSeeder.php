@@ -34,6 +34,8 @@ class SettingSeeder extends Seeder
             ['ux.pagination.previous', 'ux', 'ترقيم الصفحات: زرّ السابق', 'string', 'السابق'],
             ['ux.pagination.next', 'ux', 'ترقيم الصفحات: زرّ التالي', 'string', 'التالي'],
             ['ux.pagination.page_aria', 'ux', 'ترقيم الصفحات: وصف زرّ رقم الصفحة (:n)', 'string', 'الصفحة :n'],
+            ['ux.footer.tagline', 'ux', 'تذييل الصفحة: سطر الهويّة بعد اسم المنصّة', 'string', 'تعلّم يصنع أثرًا'],
+            ['ux.footer.help', 'ux', 'تذييل الصفحة: نصّ رابط المساعدة', 'string', 'مركز المساعدة'],
             ['ux.undo.seconds', 'ux', 'مدّة التراجع (ثوانٍ)', 'number', '5'],
             ['ux.first_time.enabled_screens', 'ux', 'شاشات «أوّل مرّة» المفعَّلة', 'json', '[]'],
             ['ux.settings_search.max_results', 'ux', 'أقصى نتائج البحث الموحّد في الإعدادات', 'number', '40'],

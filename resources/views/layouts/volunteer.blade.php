@@ -59,6 +59,9 @@
             @endif
 
             @yield('content')
+
+
+            @include('partials.page-footer')
         </main>
     </div>
 </div>

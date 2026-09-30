@@ -1598,3 +1598,20 @@ a.pagination-btn:hover { background: var(--soft); color: var(--ink); }
 @media (max-width: 767px) {
   .pagination-page:not(.is-current) { display: none; }
 }
+
+/*
+ | تذييل الصفحة (partials/page-footer): حرفيًّا من المرجع `.page-footer`؛ داخل
+ | `#content` فيرث حشوته السفليّة على الموبايل، وعلى الموبايل يتراصّ عموديًّا.
+ */
+.page-footer {
+  display: flex; justify-content: space-between; align-items: center; gap: 20px;
+  margin-block-start: 40px; padding-block-start: 16px;
+  border-top: 1px solid var(--border);
+  font-size: 12px; color: var(--text-muted);
+}
+.page-footer a { color: inherit; text-decoration: underline; text-underline-offset: 3px; min-block-size: 44px; display: inline-flex; align-items: center; }
+.page-footer a:hover { color: var(--text); }
+@media (max-width: 767px) {
+  .page-footer { flex-direction: column; align-items: flex-start; gap: 6px; margin-block-start: 28px; }
+}
+@media print { .page-footer { display: none !important; } }
