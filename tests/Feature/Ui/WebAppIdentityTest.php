@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Ui;
 
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 /**
@@ -11,6 +12,9 @@ use Tests\TestCase;
  */
 class WebAppIdentityTest extends TestCase
 {
+    // صفحة الدخول تقرأ جداول (الرسائل الإيجابيّة والإعدادات) فلا نعتمد على حالة اختبارٍ سابق
+    use RefreshDatabase;
+
     public function test_the_icon_files_exist_and_are_not_empty(): void
     {
         foreach (['favicon.ico', 'icons/icon.svg', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/apple-touch-icon.png'] as $file) {
