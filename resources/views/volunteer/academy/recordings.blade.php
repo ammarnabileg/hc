@@ -23,7 +23,7 @@
     <x-filters :action="route('volunteer.academy.recordings')">
         <label class="text-sm">
             <span class="block text-xs mb-1" style="color: var(--text-muted)">{{ setting('volunteer.academy_recordings.field', 'الترتيب') }}</span>
-            <select name="sort" onchange="this.form.submit()" class="rounded-xl px-3 py-2 text-sm"
+            <select name="sort" data-autosubmit class="rounded-xl px-3 py-2 text-sm"
                     style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
                 <option value="newest" @selected($filters['sort'] === 'newest')>{{ setting('volunteer.academy_recordings.option', 'الأحدث') }}</option>
                 <option value="most_viewed" @selected($filters['sort'] === 'most_viewed')>{{ setting('volunteer.academy_recordings.option_2', 'الأكثر مشاهدة') }}</option>
@@ -31,7 +31,7 @@
         </label>
 
         <label class="flex items-center gap-2 text-sm">
-            <input type="checkbox" name="has_otp" value="1" @checked($filters['has_otp']) onchange="this.form.submit()">
+            <input type="checkbox" name="has_otp" value="1" @checked($filters['has_otp']) data-autosubmit>
             {{ setting('volunteer.academy_recordings.field_2', 'له رمز') }}
         </label>
 

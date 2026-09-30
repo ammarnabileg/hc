@@ -21,7 +21,7 @@
     <x-filters :action="route('volunteer.escalations')">
         <label class="text-sm">
             <span class="block text-xs mb-1" style="color: var(--text-muted)">{{ setting('volunteer.escalations.field', 'نوع الحالة') }}</span>
-            <select name="case_type" onchange="this.form.submit()" class="rounded-xl px-3 py-2 text-sm"
+            <select name="case_type" data-autosubmit class="rounded-xl px-3 py-2 text-sm"
                     style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
                 <option value="">{{ setting('volunteer.common.all', 'الكلّ') }}</option>
                 @foreach ($catalog as $type => $meta)
@@ -32,7 +32,7 @@
 
         <label class="text-sm">
             <span class="block text-xs mb-1" style="color: var(--text-muted)">{{ setting('volunteer.escalations.field_2', 'الشخص') }}</span>
-            <select name="person" onchange="this.form.submit()" class="rounded-xl px-3 py-2 text-sm"
+            <select name="person" data-autosubmit class="rounded-xl px-3 py-2 text-sm"
                     style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
                 <option value="">{{ setting('volunteer.common.all', 'الكلّ') }}</option>
                 @foreach ($requesters as $person)
@@ -43,7 +43,7 @@
 
         <label class="flex items-center gap-2 text-sm">
             <input type="checkbox" name="urgent" value="1" @checked($filters['urgent'])
-                   onchange="this.form.submit()" style="accent-color: var(--color-brand-500)">
+                   data-autosubmit style="accent-color: var(--color-brand-500)">
             {{ setting('volunteer.escalations.field_3', 'الأقرب لانتهاء النافذة') }}
         </label>
     </x-filters>

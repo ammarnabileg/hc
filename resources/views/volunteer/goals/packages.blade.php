@@ -11,7 +11,7 @@
     <x-filters :action="route('volunteer.packages')">
         <label class="text-sm">
             <span class="block text-xs mb-1" style="color: var(--text-muted)">{{ setting('volunteer.common.entity', 'الكيان') }}</span>
-            <select name="entity" onchange="this.form.submit()" class="rounded-xl px-3 py-2 text-sm"
+            <select name="entity" data-autosubmit class="rounded-xl px-3 py-2 text-sm"
                     style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
                 <option value="">{{ setting('volunteer.goals_packages.option', 'كلّ كياناتي') }}</option>
                 @foreach ($memberships as $membership)

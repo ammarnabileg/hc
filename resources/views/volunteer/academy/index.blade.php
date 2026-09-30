@@ -23,7 +23,7 @@
     <x-filters :action="route('volunteer.academy')">
         <label class="text-sm">
             <span class="block text-xs mb-1" style="color: var(--text-muted)">{{ setting('volunteer.common.status', 'الحالة') }}</span>
-            <select name="status" onchange="this.form.submit()" class="rounded-xl px-3 py-2 text-sm"
+            <select name="status" data-autosubmit class="rounded-xl px-3 py-2 text-sm"
                     style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
                 <option value="">{{ setting('volunteer.common.all', 'الكلّ') }}</option>
                 <option value="not_started" @selected($filters['status'] === 'not_started')>{{ setting('volunteer.academy.option', 'لم أبدأ') }}</option>

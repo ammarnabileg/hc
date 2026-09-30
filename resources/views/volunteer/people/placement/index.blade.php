@@ -31,7 +31,7 @@
         {{-- الترتيب Select والافتراضيّ «الأحدث أوّلًا» (13.4-هـ) --}}
         <label class="text-sm">
             <span class="block text-xs mb-1" style="color: var(--text-muted)">{{ setting('volunteer.people_placement.field', 'الترتيب') }}</span>
-            <select name="sort" onchange="this.form.submit()" class="rounded-xl px-3 py-2 text-sm"
+            <select name="sort" data-autosubmit class="rounded-xl px-3 py-2 text-sm"
                     style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
                 @foreach ($sortOptions as $key => $label)
                     <option value="{{ $key }}" @selected($sort === $key)>{{ $label }}</option>

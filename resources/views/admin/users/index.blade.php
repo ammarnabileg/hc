@@ -47,7 +47,7 @@
 
         <label class="flex flex-col gap-1">
             <span class="text-xs" style="color: var(--text-muted)">{{ setting('admin.users.index.altsjyl_khlal', 'التسجيل خلال') }}</span>
-            <select name="days" onchange="this.form.submit()" class="rounded-xl px-3 py-2 text-sm"
+            <select name="days" data-autosubmit class="rounded-xl px-3 py-2 text-sm"
                     style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
                 <option value="">{{ setting('admin.users.index.ay_wqt', 'أيّ وقت') }}</option>
                 @foreach ([7, 30, 90] as $option)

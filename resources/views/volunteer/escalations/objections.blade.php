@@ -57,7 +57,7 @@
                     <span style="color: var(--text-muted)">
                         @include('volunteer.meetings.partials.icon', ['name' => 'entity']) {{ setting('volunteer.common.entity', 'الكيان') }}
                     </span>
-                    <select name="entity" onchange="this.form.submit()" class="rounded-xl px-3 py-2 text-xs"
+                    <select name="entity" data-autosubmit class="rounded-xl px-3 py-2 text-xs"
                             style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
                         <option value="">{{ setting('volunteer.common.all_entities', 'كلّ الكيانات') }}</option>
                         @foreach ($entities as $entity)
@@ -79,7 +79,7 @@
 
         <label class="text-sm">
             <span class="block text-xs mb-1" style="color: var(--text-muted)">{{ setting('volunteer.common.status', 'الحالة') }}</span>
-            <select name="status" onchange="this.form.submit()" class="rounded-xl px-3 py-2 text-sm"
+            <select name="status" data-autosubmit class="rounded-xl px-3 py-2 text-sm"
                     style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
                 <option value="">{{ setting('volunteer.common.all', 'الكلّ') }}</option>
                 @foreach ($counts as $status => $count)

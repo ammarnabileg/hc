@@ -43,14 +43,14 @@
             <form method="get" action="{{ route('volunteer.health') }}" class="ms-auto flex items-center gap-2">
                 <input type="hidden" name="tab" value="{{ $tab }}">
                 @if ($root)<input type="hidden" name="entity" value="{{ $root->id }}">@endif
-                <select name="period" onchange="this.form.submit()" aria-label="{{ setting('volunteer.common.period', 'الفترة') }}"
+                <select name="period" data-autosubmit aria-label="{{ setting('volunteer.common.period', 'الفترة') }}"
                         class="rounded-xl px-3 py-2 text-sm"
                         style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
                     @foreach ($periods as $option)
                         <option value="{{ $option }}" @selected($period === (int) $option)>{{ $option }} {{ setting('volunteer.common.days', 'يومًا') }}</option>
                     @endforeach
                 </select>
-                <select name="sub" onchange="this.form.submit()" aria-label="{{ setting('volunteer.org_health.aria', 'الفرعيّ') }}"
+                <select name="sub" data-autosubmit aria-label="{{ setting('volunteer.org_health.aria', 'الفرعيّ') }}"
                         class="rounded-xl px-3 py-2 text-sm"
                         style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
                     <option value="">{{ setting('volunteer.org_health.option', 'كلّ الفرعيّات') }}</option>

@@ -133,7 +133,7 @@
     <form method="get" action="{{ route('referral.index') }}" class="card p-3 mb-4 flex flex-wrap items-end gap-3">
         <label class="block">
             <span class="block text-xs mb-1" style="color: var(--text-muted)">{{ setting('referral.filter.period_label', 'الفترة') }}</span>
-            <select name="days" onchange="this.form.submit()" class="rounded-xl px-3 py-2 text-sm"
+            <select name="days" data-autosubmit class="rounded-xl px-3 py-2 text-sm"
                     style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
                 @foreach ($periods as $value => $label)
                     <option value="{{ $value }}" @selected((int) $value === (int) $days)>{{ $label }}</option>
@@ -143,7 +143,7 @@
 
         <label class="block">
             <span class="block text-xs mb-1" style="color: var(--text-muted)">{{ setting('referral.filter.status_label', 'الحالة') }}</span>
-            <select name="status" onchange="this.form.submit()" class="rounded-xl px-3 py-2 text-sm"
+            <select name="status" data-autosubmit class="rounded-xl px-3 py-2 text-sm"
                     style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
                 @foreach ($statuses as $value => $label)
                     <option value="{{ $value }}" @selected($value === $status)>{{ $label }}</option>

@@ -42,7 +42,7 @@
     <x-filters :action="route('admin.volunteer.delegations')" screen="admin.delegations">
         <label class="text-sm">
             <span class="block text-xs mb-1" style="color: var(--text-muted)">{{ setting('admin.volunteer.delegations.alhala', 'الحالة') }}</span>
-            <select name="state" onchange="this.form.submit()" class="rounded-xl px-3 py-2 text-sm"
+            <select name="state" data-autosubmit class="rounded-xl px-3 py-2 text-sm"
                     style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
                 @foreach ($states as $key => $label)
                     <option value="{{ $key }}" @selected($filters['state'] === $key)>{{ $label }}</option>
@@ -52,7 +52,7 @@
 
         <label class="text-sm">
             <span class="block text-xs mb-1" style="color: var(--text-muted)">{{ setting('admin.volunteer.delegations.alkyan', 'الكيان') }}</span>
-            <select name="entity" onchange="this.form.submit()" class="rounded-xl px-3 py-2 text-sm"
+            <select name="entity" data-autosubmit class="rounded-xl px-3 py-2 text-sm"
                     style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
                 <option value="">{{ setting('admin.volunteer.delegations.alkl', 'الكلّ') }}</option>
                 @foreach ($entities as $entity)

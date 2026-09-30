@@ -37,7 +37,7 @@
 
         <label class="text-sm">
             <span class="block text-xs mb-1" style="color: var(--text-muted)">{{ setting('volunteer.common.type', 'النوع') }}</span>
-            <select name="type" onchange="this.form.submit()" class="rounded-xl px-3 py-2 text-sm"
+            <select name="type" data-autosubmit class="rounded-xl px-3 py-2 text-sm"
                     style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
                 <option value="">{{ setting('volunteer.common.all', 'الكلّ') }}</option>
                 @foreach ($types as $key => $label)
@@ -47,7 +47,7 @@
         </label>
 
         <label class="flex items-center gap-2 text-sm">
-            <input type="checkbox" name="mine" value="1" @checked((bool) $filters['owner']) onchange="this.form.submit()">
+            <input type="checkbox" name="mine" value="1" @checked((bool) $filters['owner']) data-autosubmit>
             {{ setting('volunteer.library.field_2', 'مخرجاتي') }}
         </label>
 

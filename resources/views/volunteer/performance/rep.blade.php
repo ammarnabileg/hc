@@ -74,7 +74,7 @@
     <x-filters :action="route('volunteer.performance.rep')">
         <label class="text-sm">
             <span class="block text-xs mb-1" style="color: var(--text-muted)">{{ setting('volunteer.performance_rep.field', 'المصدر') }}</span>
-            <select name="source" onchange="this.form.submit()" class="rounded-xl px-3 py-2 text-sm"
+            <select name="source" data-autosubmit class="rounded-xl px-3 py-2 text-sm"
                     style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
                 <option value="">{{ setting('volunteer.common.all', 'الكلّ') }}</option>
                 @foreach ($sources as $key => $label)
@@ -85,7 +85,7 @@
 
         <label class="text-sm">
             <span class="block text-xs mb-1" style="color: var(--text-muted)">{{ setting('volunteer.common.entity', 'الكيان') }}</span>
-            <select name="entity" onchange="this.form.submit()" class="rounded-xl px-3 py-2 text-sm"
+            <select name="entity" data-autosubmit class="rounded-xl px-3 py-2 text-sm"
                     style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
                 <option value="">{{ setting('volunteer.common.all', 'الكلّ') }}</option>
                 @foreach ($memberships as $membership)
@@ -98,7 +98,7 @@
 
         <label class="text-sm">
             <span class="block text-xs mb-1" style="color: var(--text-muted)">{{ setting('volunteer.common.period', 'الفترة') }}</span>
-            <select name="days" onchange="this.form.submit()" class="rounded-xl px-3 py-2 text-sm"
+            <select name="days" data-autosubmit class="rounded-xl px-3 py-2 text-sm"
                     style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
                 @foreach ([30 => setting('volunteer.performance_rep.foreach', '30 يومًا'), 90 => setting('volunteer.performance_rep.foreach_2', '90 يومًا')] as $value => $label)
                     <option value="{{ $value }}" @selected($filters['days'] === $value)>{{ $label }}</option>

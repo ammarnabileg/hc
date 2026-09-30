@@ -38,7 +38,7 @@
     <x-filters :action="route('volunteer.contributions')">
         <label class="text-sm">
             <span class="block text-xs mb-1" style="color: var(--text-muted)">{{ setting('volunteer.common.status', 'الحالة') }}</span>
-            <select name="status" onchange="this.form.submit()" class="rounded-xl px-3 py-2 text-sm"
+            <select name="status" data-autosubmit class="rounded-xl px-3 py-2 text-sm"
                     style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
                 <option value="">{{ setting('volunteer.common.all', 'الكلّ') }}</option>
                 @foreach ($statuses as $key => $label)
@@ -49,7 +49,7 @@
 
         <label class="text-sm">
             <span class="block text-xs mb-1" style="color: var(--text-muted)">{{ setting('volunteer.contributions.field', 'المالك') }}</span>
-            <select name="owner" onchange="this.form.submit()" class="rounded-xl px-3 py-2 text-sm"
+            <select name="owner" data-autosubmit class="rounded-xl px-3 py-2 text-sm"
                     style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
                 <option value="">{{ setting('volunteer.common.all', 'الكلّ') }}</option>
                 @foreach ($ownerOptions as $owner)

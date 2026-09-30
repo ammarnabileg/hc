@@ -69,7 +69,7 @@
         @volunteer
             @if (($userMemberships ?? collect())->count() > 1)
                 <form method="get" class="hidden sm:block">
-                    <select name="membership" onchange="this.form.submit()"
+                    <select name="membership" data-autosubmit
                             class="rounded-lg px-3 text-sm"
                             style="min-height: 44px; background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)"
                             aria-label="{{ setting('nav.header.membership_aria', 'سياق العضويّة') }}">

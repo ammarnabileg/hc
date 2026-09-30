@@ -42,7 +42,7 @@
         <x-filters :action="route('volunteer.department')">
             <label class="text-sm">
                 <span class="block text-xs mb-1" style="color: var(--text-muted)">{{ setting('volunteer.org_department.field', 'الفرعيّ') }}</span>
-                <select name="sub" onchange="this.form.submit()"
+                <select name="sub" data-autosubmit
                         class="rounded-xl px-3 py-2 text-sm"
                         style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
                     <option value="">{{ setting('volunteer.common.all', 'الكلّ') }}</option>
@@ -54,7 +54,7 @@
 
             <label class="text-sm">
                 <span class="block text-xs mb-1" style="color: var(--text-muted)">{{ setting('volunteer.common.position', 'البوزشن') }}</span>
-                <select name="position" onchange="this.form.submit()"
+                <select name="position" data-autosubmit
                         class="rounded-xl px-3 py-2 text-sm"
                         style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
                     <option value="">{{ setting('volunteer.common.all', 'الكلّ') }}</option>
@@ -66,7 +66,7 @@
 
             <label class="text-sm">
                 <span class="block text-xs mb-1" style="color: var(--text-muted)">{{ setting('volunteer.common.status', 'الحالة') }}</span>
-                <select name="status" onchange="this.form.submit()"
+                <select name="status" data-autosubmit
                         class="rounded-xl px-3 py-2 text-sm"
                         style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
                     <option value="">{{ setting('volunteer.common.all', 'الكلّ') }}</option>

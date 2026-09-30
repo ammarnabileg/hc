@@ -34,7 +34,7 @@
     <x-filters :action="route('volunteer.performance.champion')">
         <label class="text-sm">
             <span class="block text-xs mb-1" style="color: var(--text-muted)">{{ setting('volunteer.performance_champion.field', 'النطاق') }}</span>
-            <select name="entity" onchange="this.form.submit()" class="rounded-xl px-3 py-2 text-sm"
+            <select name="entity" data-autosubmit class="rounded-xl px-3 py-2 text-sm"
                     style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
                 <option value="">{{ setting('volunteer.performance_champion.option', 'كلّ المتطوّعين') }}</option>
                 @foreach ($memberships as $membership)
@@ -47,7 +47,7 @@
 
         <label class="text-sm">
             <span class="block text-xs mb-1" style="color: var(--text-muted)">{{ setting('volunteer.performance_champion.field_2', 'الشهر') }}</span>
-            <select name="month" onchange="this.form.submit()" class="rounded-xl px-3 py-2 text-sm"
+            <select name="month" data-autosubmit class="rounded-xl px-3 py-2 text-sm"
                     style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
                 <option value="">{{ setting('volunteer.performance_champion.option_2', 'النافذة الجارية') }}</option>
                 @foreach ($archive as $month)

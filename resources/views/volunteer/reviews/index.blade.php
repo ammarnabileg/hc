@@ -38,7 +38,7 @@
     <x-filters :action="route('volunteer.reviews')">
         <label class="text-sm">
             <span class="block text-xs mb-1" style="color: var(--text-muted)">{{ setting('volunteer.common.type', 'النوع') }}</span>
-            <select name="kind" onchange="this.form.submit()" class="rounded-xl px-3 py-2 text-sm"
+            <select name="kind" data-autosubmit class="rounded-xl px-3 py-2 text-sm"
                     style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
                 <option value="">{{ setting('volunteer.common.all', 'الكلّ') }}</option>
                 @foreach ($kinds as $key => $label)
@@ -49,7 +49,7 @@
 
         <label class="text-sm">
             <span class="block text-xs mb-1" style="color: var(--text-muted)">{{ setting('volunteer.reviews.field', 'الشخص') }}</span>
-            <select name="person" onchange="this.form.submit()" class="rounded-xl px-3 py-2 text-sm"
+            <select name="person" data-autosubmit class="rounded-xl px-3 py-2 text-sm"
                     style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
                 <option value="">{{ setting('volunteer.common.all', 'الكلّ') }}</option>
                 @foreach ($people as $person)
@@ -60,7 +60,7 @@
 
         <label class="flex items-center gap-2 text-sm">
             <input type="checkbox" name="urgent" value="1" @checked($filters['urgent'])
-                   onchange="this.form.submit()" style="accent-color: var(--color-brand-500)">
+                   data-autosubmit style="accent-color: var(--color-brand-500)">
             {{ setting('volunteer.reviews.field_2', 'الأقرب لانتهاء النافذة') }}
         </label>
     </x-filters>

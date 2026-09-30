@@ -102,7 +102,7 @@
                     <input type="hidden" name="compare" value="1">
                 @endif
 
-                <select name="actor" onchange="this.form.submit()" class="rounded-xl px-2 py-1 text-xs"
+                <select name="actor" data-autosubmit class="rounded-xl px-2 py-1 text-xs"
                         style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)"
                         aria-label="{{ setting('admin.dashboard.partials.overview.fltr_almwzf', 'فلتر الموظّف') }}">
                     <option value="">{{ setting('admin.dashboard.partials.overview.kl_almwzfyn', 'كلّ الموظّفين') }}</option>
@@ -111,7 +111,7 @@
                     @endforeach
                 </select>
 
-                <select name="action" onchange="this.form.submit()" class="rounded-xl px-2 py-1 text-xs"
+                <select name="action" data-autosubmit class="rounded-xl px-2 py-1 text-xs"
                         style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)"
                         aria-label="{{ setting('admin.dashboard.partials.overview.fltr_alnwa', 'فلتر النوع') }}">
                     <option value="">{{ setting('admin.dashboard.partials.overview.kl_alanwaa', 'كلّ الأنواع') }}</option>

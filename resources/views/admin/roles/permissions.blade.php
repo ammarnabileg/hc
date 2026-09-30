@@ -29,7 +29,7 @@
 
         <label class="flex flex-col gap-1">
             <span class="text-xs" style="color: var(--text-muted)">{{ setting('admin.roles.permissions.almjmwaa', 'المجموعة') }}</span>
-            <select name="group" onchange="this.form.submit()" class="rounded-xl px-3 py-2 text-sm"
+            <select name="group" data-autosubmit class="rounded-xl px-3 py-2 text-sm"
                     style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
                 @foreach ($groups as $key => $total)
                     <option value="{{ $key }}" @selected($group === $key)>{{ $key }} ({{ $total }})</option>

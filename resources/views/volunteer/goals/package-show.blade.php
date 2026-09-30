@@ -62,7 +62,7 @@
     <x-filters :action="route('volunteer.packages.show', $package)">
         <label class="text-sm">
             <span class="block text-xs mb-1" style="color: var(--text-muted)">{{ setting('volunteer.goals_package_show.field', 'حالة المهامّ') }}</span>
-            <select name="status" onchange="this.form.submit()" class="rounded-xl px-3 py-2 text-sm"
+            <select name="status" data-autosubmit class="rounded-xl px-3 py-2 text-sm"
                     style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
                 <option value="">{{ setting('volunteer.common.all', 'الكلّ') }}</option>
                 @foreach ($statuses as $key => $label)

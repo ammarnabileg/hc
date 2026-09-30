@@ -48,13 +48,13 @@
     <x-filters :action="route('announcements.index')">
         <label class="flex items-center gap-2 text-sm">
             <input type="checkbox" name="unread" value="1" @checked($filters['unread'])
-                   onchange="this.form.submit()" style="accent-color: var(--color-brand-500)">
+                   data-autosubmit style="accent-color: var(--color-brand-500)">
             {{ setting('announcements.index.text_2', 'غير المقروء') }}
         </label>
 
         <label class="text-sm">
             <span class="block text-xs mb-1" style="color: var(--text-muted)">{{ setting('announcements.index.text_3', 'النوع') }}</span>
-            <select name="type" onchange="this.form.submit()"
+            <select name="type" data-autosubmit
                     class="rounded-xl px-3 py-2 text-sm"
                     style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
                 <option value="">{{ setting('announcements.index.text_4', 'الكلّ') }}</option>

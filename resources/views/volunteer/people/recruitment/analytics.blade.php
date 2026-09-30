@@ -32,7 +32,7 @@
     <x-filters :action="route('volunteer.recruitment.analytics')">
         <label class="text-sm">
             <span class="block text-xs mb-1" style="color: var(--text-muted)">{{ setting('volunteer.people_recruitment.analytics_field_days', 'الفترة (يوم)') }}</span>
-            <select name="days" onchange="this.form.submit()" class="rounded-xl px-3 py-2 text-sm"
+            <select name="days" data-autosubmit class="rounded-xl px-3 py-2 text-sm"
                     style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
                 <option value="">{{ setting('volunteer.common.all', 'الكلّ') }}</option>
                 @foreach ([7, 30, 90] as $option)
@@ -43,7 +43,7 @@
 
         <label class="text-sm">
             <span class="block text-xs mb-1" style="color: var(--text-muted)">{{ setting('volunteer.people_recruitment.field_2', 'القسم المناسب') }}</span>
-            <select name="entity" onchange="this.form.submit()" class="rounded-xl px-3 py-2 text-sm"
+            <select name="entity" data-autosubmit class="rounded-xl px-3 py-2 text-sm"
                     style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
                 <option value="">{{ setting('volunteer.common.all', 'الكلّ') }}</option>
                 @foreach ($tree as $root)

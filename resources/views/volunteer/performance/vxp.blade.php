@@ -40,7 +40,7 @@
     <x-filters :action="route('volunteer.performance.vxp')">
         <label class="text-sm">
             <span class="block text-xs mb-1" style="color: var(--text-muted)">{{ setting('volunteer.performance_vxp.field', 'النطاق') }}</span>
-            <select name="scope" onchange="this.form.submit()" class="rounded-xl px-3 py-2 text-sm"
+            <select name="scope" data-autosubmit class="rounded-xl px-3 py-2 text-sm"
                     style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
                 @foreach ($scopes as $key => $label)
                     <option value="{{ $key }}" @selected($filters['scope'] === $key)>{{ $label }}</option>
@@ -50,7 +50,7 @@
 
         <label class="text-sm">
             <span class="block text-xs mb-1" style="color: var(--text-muted)">{{ setting('volunteer.common.period', 'الفترة') }}</span>
-            <select name="days" onchange="this.form.submit()" class="rounded-xl px-3 py-2 text-sm"
+            <select name="days" data-autosubmit class="rounded-xl px-3 py-2 text-sm"
                     style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
                 @foreach ([30 => setting('volunteer.performance_vxp.foreach', '30 يومًا'), 90 => setting('volunteer.performance_vxp.foreach_2', '90 يومًا'), 3650 => setting('volunteer.performance_vxp.foreach_3', 'كلّي')] as $value => $label)
                     <option value="{{ $value }}" @selected($filters['days'] === $value)>{{ $label }}</option>

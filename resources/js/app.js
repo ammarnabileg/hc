@@ -425,6 +425,17 @@ document.querySelectorAll('[data-otp-field]').forEach((field) => {
 });
 
 /*
+ | الفلاتر التي تُرسل نفسها عند التغيير (`data-autosubmit` على select/input): بدل
+ | `onchange="this.form.submit()"` الخام الذي يتجاوز حدث submit، فلا انشغال على الزرّ
+ | ولا حارس إرسال مزدوج. requestSubmit يمرّ بالحدث؛ ولو منعته قيود التحقّق يُرسَل مباشرة.
+ */
+document.addEventListener('change', (e) => {
+    const el = e.target.closest('[data-autosubmit]');
+    if (!el || !el.form) return;
+    if (el.form.checkValidity()) el.form.requestSubmit(); else el.form.submit();
+});
+
+/*
  | نسخ إلى الحافظة بردٍّ فوريّ (2.17-ب) كالمرجع (`data-copy`): أيّ زرّ يحمل
  | `data-copy-text="…"` أو `data-copy-target="#id"` ينسخ ويُظهر توست «اتنسخ ✓»؛
  | ولو رفض المتصفّح الحافظة (سياق غير آمن) يفتح نافذة نصٍّ محدَّد لينسخه المستخدم بيده.

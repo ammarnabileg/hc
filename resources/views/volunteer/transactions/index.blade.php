@@ -54,7 +54,7 @@
     <x-filters :action="route('volunteer.transactions')">
         <label class="text-sm">
             <span class="block text-xs mb-1" style="color: var(--text-muted)">{{ setting('volunteer.common.type', 'النوع') }}</span>
-            <select name="type" onchange="this.form.submit()" class="rounded-xl px-3 py-2 text-sm"
+            <select name="type" data-autosubmit class="rounded-xl px-3 py-2 text-sm"
                     style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
                 <option value="">{{ setting('volunteer.common.all', 'الكلّ') }}</option>
                 <option value="rep" @selected($filters['type'] === 'rep')>Rep</option>
@@ -64,7 +64,7 @@
 
         <label class="text-sm">
             <span class="block text-xs mb-1" style="color: var(--text-muted)">{{ setting('volunteer.transactions.field', 'المصدر') }}</span>
-            <select name="source" onchange="this.form.submit()" class="rounded-xl px-3 py-2 text-sm"
+            <select name="source" data-autosubmit class="rounded-xl px-3 py-2 text-sm"
                     style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
                 <option value="">{{ setting('volunteer.common.all', 'الكلّ') }}</option>
                 @foreach ($sources as $key => $label)
@@ -75,7 +75,7 @@
 
         <label class="flex items-center gap-2 text-sm">
             <input type="checkbox" name="objectable" value="1" @checked($filters['objectable'])
-                   onchange="this.form.submit()" style="accent-color: var(--color-brand-500)">
+                   data-autosubmit style="accent-color: var(--color-brand-500)">
             {{ setting('volunteer.transactions.field_2', 'قابلة للاعتراض الآن') }}
         </label>
 

@@ -41,7 +41,7 @@
 
         <label class="text-sm">
             <span class="block text-xs mb-1" style="color: var(--text-muted)">{{ setting('volunteer.common.period', 'الفترة') }}</span>
-            <select name="days" onchange="this.form.submit()" class="rounded-xl px-3 py-2 text-sm"
+            <select name="days" data-autosubmit class="rounded-xl px-3 py-2 text-sm"
                     style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
                 @foreach ([30 => setting('volunteer.people_kudos.foreach', 'آخر 30 يومًا'), 90 => setting('volunteer.people_kudos.foreach_2', 'آخر 90 يومًا'), 0 => setting('volunteer.people_kudos.foreach_3', 'من البداية')] as $days => $label)
                     <option value="{{ $days }}" @selected((int) $filters['days'] === $days)>{{ $label }}</option>

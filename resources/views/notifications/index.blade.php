@@ -63,7 +63,7 @@
                 <input type="hidden" name="tab" value="{{ $tab }}">
                 @if ($needsAction) <input type="hidden" name="need_action" value="1"> @endif
                 @if ($unreadOnly) <input type="hidden" name="unread" value="1"> @endif
-                <select name="category" onchange="this.form.submit()"
+                <select name="category" data-autosubmit
                         class="rounded-xl px-3 py-1.5 text-xs" style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
                     <option value="">{{ setting('notifications.index.filter_category_all', 'كلّ الفئات') }}</option>
                     @foreach ($availableCategories as $key => $label)

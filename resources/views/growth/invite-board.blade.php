@@ -24,7 +24,7 @@
     <form method="get" class="mb-4">
         <label>
             <span class="sr-only">{{ setting('growth.invite_board.text_2', 'الشهر') }}</span>
-            <select name="month" onchange="this.form.submit()" class="rounded-xl px-3 py-2 text-sm"
+            <select name="month" data-autosubmit class="rounded-xl px-3 py-2 text-sm"
                     style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
                 @foreach ($months as $key => $label)
                     <option value="{{ $key }}" @selected($key === $month)>{{ $label }}</option>

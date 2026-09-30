@@ -80,7 +80,7 @@
                 <h2 class="font-bold text-sm">{{ setting('streaks.screen.days_title', 'أيّامي') }}</h2>
 
                 <form method="get" action="{{ route('achievements.streak') }}">
-                    <select name="months" onchange="this.form.submit()" aria-label="{{ setting('streaks.screen.range_aria', 'المدى الزمنيّ للخريطة') }}"
+                    <select name="months" data-autosubmit aria-label="{{ setting('streaks.screen.range_aria', 'المدى الزمنيّ للخريطة') }}"
                             class="rounded-xl px-3 py-1.5 text-xs"
                             style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
                         @foreach ([
