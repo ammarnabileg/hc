@@ -1636,3 +1636,10 @@ a.pagination-btn:hover { background: var(--soft); color: var(--ink); }
 }
 .otp-field .otp-box:focus { border-color: var(--color-brand-500); box-shadow: 0 0 0 4px var(--brand-soft); outline: none; }
 @media (max-width: 400px) { .otp-field .otp-box { inline-size: 44px; } .otp-field .otp-row { gap: 6px; } }
+
+/*
+ | اتّجاه المحتوى اللاتينيّ داخل النصّ العربيّ: البريد والرابط والموبايل تُكتب
+ | LTR تلقائيًّا بحسب أوّل حرف (كـdir="auto") مع بقاء الـplaceholder العربيّ سليمًا،
+ | و<code> (مفاتيح · أكواد · روابط) لا تتقلّب أرقامه وشرطاته في سياق RTL.
+ */
+input:is([type='email'], [type='url'], [type='tel']):not([dir]), code:not([dir]), kbd:not([dir]) { unicode-bidi: plaintext; }
