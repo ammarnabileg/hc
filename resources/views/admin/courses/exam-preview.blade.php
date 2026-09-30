@@ -166,10 +166,10 @@
                     <table class="w-full text-sm">
                         <thead style="background: var(--surface-sunken)">
                             <tr class="text-start">
-                                <th class="p-3 text-start">{{ setting('admin.courses.exam_preview.alswal', 'السؤال') }}</th>
-                                <th class="p-3 text-start">{{ setting('admin.courses.exam_preview.aldrs', 'الدرس') }}</th>
-                                <th class="p-3 text-start">{{ setting('admin.courses.exam_preview.alnwa', 'النوع') }}</th>
-                                <th class="p-3 text-start">{{ setting('admin.courses.exam_preview.alswaba', 'الصعوبة') }}</th>
+                                <th scope="col" class="p-3 text-start">{{ setting('admin.courses.exam_preview.alswal', 'السؤال') }}</th>
+                                <th scope="col" class="p-3 text-start">{{ setting('admin.courses.exam_preview.aldrs', 'الدرس') }}</th>
+                                <th scope="col" class="p-3 text-start">{{ setting('admin.courses.exam_preview.alnwa', 'النوع') }}</th>
+                                <th scope="col" class="p-3 text-start">{{ setting('admin.courses.exam_preview.alswaba', 'الصعوبة') }}</th>
                             </tr>
                         </thead>
                         <tbody>

@@ -30,10 +30,10 @@
                 <table class="w-full text-sm">
                     <thead>
                         <tr style="color: var(--text-muted)">
-                            <th class="text-start p-2">{{ setting('stats.rewards.col.currency', 'العملة') }}</th>
-                            <th class="text-start p-2">{{ setting('stats.rewards.col.granted', 'الممنوح') }}</th>
-                            <th class="text-start p-2">{{ setting('stats.rewards.col.deducted', 'المخصوم') }}</th>
-                            <th class="text-start p-2">{{ setting('stats.rewards.col.net', 'الصافي') }}</th>
+                            <th scope="col" class="text-start p-2">{{ setting('stats.rewards.col.currency', 'العملة') }}</th>
+                            <th scope="col" class="text-start p-2">{{ setting('stats.rewards.col.granted', 'الممنوح') }}</th>
+                            <th scope="col" class="text-start p-2">{{ setting('stats.rewards.col.deducted', 'المخصوم') }}</th>
+                            <th scope="col" class="text-start p-2">{{ setting('stats.rewards.col.net', 'الصافي') }}</th>
                         </tr>
                     </thead>
                     <tbody>

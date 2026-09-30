@@ -122,13 +122,13 @@
         <x-table :label="setting('admin.courses.media.mktba_alwsayt', 'مكتبة الوسائط')">
             <thead>
                 <tr class="text-right text-xs" style="color: var(--text-muted)">
-                    <th class="p-2">{{ setting('admin.courses.media.msghra', 'مصغّرة') }}</th>
-                    <th class="p-2">{{ setting('admin.courses.media.alasm', 'الاسم') }}</th>
-                    <th class="p-2">{{ setting('admin.courses.media.alnwa', 'النوع') }}</th>
-                    <th class="p-2">{{ setting('admin.courses.media.almjld', 'المجلّد') }}</th>
-                    <th class="p-2">{{ setting('admin.courses.media.alhjm', 'الحجم') }}</th>
-                    <th class="p-2">{{ setting('admin.courses.media.add_alastkhdamat', 'عدد الاستخدامات') }}</th>
-                    <th class="p-2">{{ setting('admin.courses.media.ijraat', 'إجراءات') }}</th>
+                    <th scope="col" class="p-2">{{ setting('admin.courses.media.msghra', 'مصغّرة') }}</th>
+                    <th scope="col" class="p-2">{{ setting('admin.courses.media.alasm', 'الاسم') }}</th>
+                    <th scope="col" class="p-2">{{ setting('admin.courses.media.alnwa', 'النوع') }}</th>
+                    <th scope="col" class="p-2">{{ setting('admin.courses.media.almjld', 'المجلّد') }}</th>
+                    <th scope="col" class="p-2">{{ setting('admin.courses.media.alhjm', 'الحجم') }}</th>
+                    <th scope="col" class="p-2">{{ setting('admin.courses.media.add_alastkhdamat', 'عدد الاستخدامات') }}</th>
+                    <th scope="col" class="p-2">{{ setting('admin.courses.media.ijraat', 'إجراءات') }}</th>
                 </tr>
             </thead>
             <tbody>

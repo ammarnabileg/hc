@@ -188,15 +188,15 @@
             <table class="w-full text-sm">
                 <thead>
                     <tr style="background: var(--surface-sunken)">
-                        <th class="text-start px-4 py-3 font-semibold">{{ setting('admin.meetings_admin.index.alajtmaa', 'الاجتماع') }}</th>
-                        <th class="text-start px-4 py-3 font-semibold">{{ setting('admin.meetings_admin.index.alntaq', 'النطاق') }}</th>
-                        <th class="text-start px-4 py-3 font-semibold">{{ setting('admin.meetings_admin.index.almwad', 'الموعد') }}</th>
-                        <th class="text-start px-4 py-3 font-semibold">{{ setting('admin.meetings_admin.index.alhdwr', 'الحضور') }}</th>
-                        <th class="text-start px-4 py-3 font-semibold">{{ setting('admin.meetings_admin.index.nafdha_altsjyl', 'نافذة التسجيل') }}</th>
-                        <th class="text-start px-4 py-3 font-semibold">{{ setting('admin.meetings_admin.index.almhdr_walmrfqat', 'المحضر والمرفقات') }}</th>
-                        <th class="text-start px-4 py-3 font-semibold">{{ setting('admin.meetings_admin.index.altsjyl', 'التسجيل') }}</th>
-                        <th class="text-start px-4 py-3 font-semibold">{{ setting('admin.meetings_admin.index.alhala', 'الحالة') }}</th>
-                        <th class="text-start px-4 py-3 font-semibold">⋯</th>
+                        <th scope="col" class="text-start px-4 py-3 font-semibold">{{ setting('admin.meetings_admin.index.alajtmaa', 'الاجتماع') }}</th>
+                        <th scope="col" class="text-start px-4 py-3 font-semibold">{{ setting('admin.meetings_admin.index.alntaq', 'النطاق') }}</th>
+                        <th scope="col" class="text-start px-4 py-3 font-semibold">{{ setting('admin.meetings_admin.index.almwad', 'الموعد') }}</th>
+                        <th scope="col" class="text-start px-4 py-3 font-semibold">{{ setting('admin.meetings_admin.index.alhdwr', 'الحضور') }}</th>
+                        <th scope="col" class="text-start px-4 py-3 font-semibold">{{ setting('admin.meetings_admin.index.nafdha_altsjyl', 'نافذة التسجيل') }}</th>
+                        <th scope="col" class="text-start px-4 py-3 font-semibold">{{ setting('admin.meetings_admin.index.almhdr_walmrfqat', 'المحضر والمرفقات') }}</th>
+                        <th scope="col" class="text-start px-4 py-3 font-semibold">{{ setting('admin.meetings_admin.index.altsjyl', 'التسجيل') }}</th>
+                        <th scope="col" class="text-start px-4 py-3 font-semibold">{{ setting('admin.meetings_admin.index.alhala', 'الحالة') }}</th>
+                        <th scope="col" class="text-start px-4 py-3 font-semibold">⋯</th>
                     </tr>
                 </thead>
                 <tbody>

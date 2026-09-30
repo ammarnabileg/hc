@@ -48,13 +48,13 @@
             <table class="w-full text-sm">
                 <thead>
                     <tr style="border-bottom: 1px solid var(--border)">
-                        <th class="p-3 text-start">{{ setting('onboarding.placement.admin.col_prompt') }}</th>
-                        <th class="p-3 text-start">{{ setting('onboarding.placement.admin.col_kind') }}</th>
-                        <th class="p-3 text-start">{{ setting('onboarding.placement.admin.col_xp') }}</th>
-                        <th class="p-3 text-start">{{ setting('onboarding.placement.admin.col_tickets') }}</th>
-                        <th class="p-3 text-start">{{ setting('onboarding.placement.admin.col_order') }}</th>
-                        <th class="p-3 text-start">{{ setting('onboarding.placement.admin.col_status') }}</th>
-                        <th class="p-3 text-end">{{ setting('onboarding.placement.admin.col_actions') }}</th>
+                        <th scope="col" class="p-3 text-start">{{ setting('onboarding.placement.admin.col_prompt') }}</th>
+                        <th scope="col" class="p-3 text-start">{{ setting('onboarding.placement.admin.col_kind') }}</th>
+                        <th scope="col" class="p-3 text-start">{{ setting('onboarding.placement.admin.col_xp') }}</th>
+                        <th scope="col" class="p-3 text-start">{{ setting('onboarding.placement.admin.col_tickets') }}</th>
+                        <th scope="col" class="p-3 text-start">{{ setting('onboarding.placement.admin.col_order') }}</th>
+                        <th scope="col" class="p-3 text-start">{{ setting('onboarding.placement.admin.col_status') }}</th>
+                        <th scope="col" class="p-3 text-end">{{ setting('onboarding.placement.admin.col_actions') }}</th>
                     </tr>
                 </thead>
                 <tbody data-sortable="{{ route('admin.placement-test.reorder') }}">

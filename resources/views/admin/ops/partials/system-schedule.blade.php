@@ -61,10 +61,10 @@
             <table class="hidden md:table w-full text-sm">
                 <thead style="background: var(--surface-sunken)">
                     <tr class="text-xs" style="color: var(--text-muted)">
-                        <th class="text-start p-3">{{ setting('admin.ops.partials.system_schedule.alwqt', 'الوقت') }}</th>
-                        <th class="text-start p-3">{{ setting('admin.ops.partials.system_schedule.almnfdh', 'المنفِّذ') }}</th>
-                        <th class="text-start p-3">{{ setting('admin.ops.partials.system_schedule.alamlya', 'العمليّة') }}</th>
-                        <th class="text-start p-3">{{ setting('admin.ops.partials.system_schedule.altfasyl', 'التفاصيل') }}</th>
+                        <th scope="col" class="text-start p-3">{{ setting('admin.ops.partials.system_schedule.alwqt', 'الوقت') }}</th>
+                        <th scope="col" class="text-start p-3">{{ setting('admin.ops.partials.system_schedule.almnfdh', 'المنفِّذ') }}</th>
+                        <th scope="col" class="text-start p-3">{{ setting('admin.ops.partials.system_schedule.alamlya', 'العمليّة') }}</th>
+                        <th scope="col" class="text-start p-3">{{ setting('admin.ops.partials.system_schedule.altfasyl', 'التفاصيل') }}</th>
                     </tr>
                 </thead>
                 <tbody>

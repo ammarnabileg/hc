@@ -152,13 +152,13 @@
         <table class="hidden md:table w-full text-sm">
             <thead style="background: var(--surface-sunken)">
                 <tr class="text-xs" style="color: var(--text-muted)">
-                    <th class="text-start p-3">{{ setting('features.ui.col.feature', 'الميزة') }}</th>
-                    <th class="text-start p-3">{{ setting('features.ui.col.group', 'المجموعة') }}</th>
-                    <th class="text-start p-3">{{ setting('features.ui.col.toggle', 'تشغيل/إيقاف') }}</th>
-                    <th class="text-start p-3">{{ setting('features.ui.col.scope', 'النطاق') }}</th>
-                    <th class="text-start p-3">{{ setting('features.ui.col.visible', 'مين يشوفها وهي موقوفة') }}</th>
-                    <th class="text-start p-3">{{ setting('features.ui.col.last', 'آخر تبديل') }}</th>
-                    <th class="text-start p-3">{{ setting('features.ui.col.actions', 'إجراءات') }}</th>
+                    <th scope="col" class="text-start p-3">{{ setting('features.ui.col.feature', 'الميزة') }}</th>
+                    <th scope="col" class="text-start p-3">{{ setting('features.ui.col.group', 'المجموعة') }}</th>
+                    <th scope="col" class="text-start p-3">{{ setting('features.ui.col.toggle', 'تشغيل/إيقاف') }}</th>
+                    <th scope="col" class="text-start p-3">{{ setting('features.ui.col.scope', 'النطاق') }}</th>
+                    <th scope="col" class="text-start p-3">{{ setting('features.ui.col.visible', 'مين يشوفها وهي موقوفة') }}</th>
+                    <th scope="col" class="text-start p-3">{{ setting('features.ui.col.last', 'آخر تبديل') }}</th>
+                    <th scope="col" class="text-start p-3">{{ setting('features.ui.col.actions', 'إجراءات') }}</th>
                 </tr>
             </thead>
             <tbody>

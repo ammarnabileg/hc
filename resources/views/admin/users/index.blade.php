@@ -87,9 +87,9 @@
                 <thead>
                     <tr style="background: var(--surface-sunken)">
                         @foreach ($columns as $column)
-                            <th class="text-start px-4 py-3 font-semibold">{{ $allColumns[$column] }}</th>
+                            <th scope="col" class="text-start px-4 py-3 font-semibold">{{ $allColumns[$column] }}</th>
                         @endforeach
-                        <th class="px-4 py-3"></th>
+                        <th scope="col" class="px-4 py-3"></th>
                     </tr>
                 </thead>
                 <tbody>

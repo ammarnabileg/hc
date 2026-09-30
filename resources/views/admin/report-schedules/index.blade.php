@@ -102,16 +102,16 @@
                    @unless (advanced_mode()) data-columns-cap="{{ view_mode()->defaultColumns() }}" @endunless>
                 <thead>
                     <tr style="background: var(--surface-sunken)">
-                        <th class="text-start px-4 py-3 font-semibold">{{ setting('admin.report_schedules.index.alasm', 'الاسم') }}</th>
-                        <th class="text-start px-4 py-3 font-semibold">{{ setting('admin.report_schedules.index.altqryr', 'التقرير') }}</th>
-                        <th class="text-start px-4 py-3 font-semibold">{{ setting('admin.report_schedules.index.altkrar', 'التكرار') }}</th>
-                        <th class="text-start px-4 py-3 font-semibold">{{ setting('admin.report_schedules.index.akhr_irsal', 'آخر إرسال') }}</th>
-                        <th class="text-start px-4 py-3 font-semibold">{{ setting('admin.report_schedules.index.altaly', 'التالي') }}</th>
-                        <th class="text-start px-4 py-3 font-semibold">{{ setting('admin.report_schedules.index.alhala', 'الحالة') }}</th>
-                        <th class="text-start px-4 py-3 font-semibold">{{ setting('admin.report_schedules.index.alywm_walsaaa', 'اليوم والساعة') }}</th>
-                        <th class="text-start px-4 py-3 font-semibold">{{ setting('admin.report_schedules.index.alsygha', 'الصيغة') }}</th>
-                        <th class="text-start px-4 py-3 font-semibold">{{ setting('admin.report_schedules.index.almstqblwn', 'المستقبِلون') }}</th>
-                        <th class="text-start px-4 py-3 font-semibold">⋯</th>
+                        <th scope="col" class="text-start px-4 py-3 font-semibold">{{ setting('admin.report_schedules.index.alasm', 'الاسم') }}</th>
+                        <th scope="col" class="text-start px-4 py-3 font-semibold">{{ setting('admin.report_schedules.index.altqryr', 'التقرير') }}</th>
+                        <th scope="col" class="text-start px-4 py-3 font-semibold">{{ setting('admin.report_schedules.index.altkrar', 'التكرار') }}</th>
+                        <th scope="col" class="text-start px-4 py-3 font-semibold">{{ setting('admin.report_schedules.index.akhr_irsal', 'آخر إرسال') }}</th>
+                        <th scope="col" class="text-start px-4 py-3 font-semibold">{{ setting('admin.report_schedules.index.altaly', 'التالي') }}</th>
+                        <th scope="col" class="text-start px-4 py-3 font-semibold">{{ setting('admin.report_schedules.index.alhala', 'الحالة') }}</th>
+                        <th scope="col" class="text-start px-4 py-3 font-semibold">{{ setting('admin.report_schedules.index.alywm_walsaaa', 'اليوم والساعة') }}</th>
+                        <th scope="col" class="text-start px-4 py-3 font-semibold">{{ setting('admin.report_schedules.index.alsygha', 'الصيغة') }}</th>
+                        <th scope="col" class="text-start px-4 py-3 font-semibold">{{ setting('admin.report_schedules.index.almstqblwn', 'المستقبِلون') }}</th>
+                        <th scope="col" class="text-start px-4 py-3 font-semibold">⋯</th>
                     </tr>
                 </thead>
                 <tbody>

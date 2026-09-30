@@ -48,10 +48,10 @@
                 <table class="w-full text-sm">
                     <thead>
                         <tr style="background: var(--surface-sunken)">
-                            <th class="text-start px-4 py-3 font-semibold">{{ setting('admin.roles.permissions.alslahya', 'الصلاحيّة') }}</th>
-                            <th class="text-start px-4 py-3 font-semibold">{{ setting('admin.roles.permissions.almftah', 'المفتاح') }}</th>
-                            <th class="text-start px-4 py-3 font-semibold">{{ setting('admin.roles.permissions.alntaqat', 'النطاقات') }}</th>
-                            <th class="text-start px-4 py-3 font-semibold">{{ setting('admin.roles.permissions.alshrt', 'الشرط') }}</th>
+                            <th scope="col" class="text-start px-4 py-3 font-semibold">{{ setting('admin.roles.permissions.alslahya', 'الصلاحيّة') }}</th>
+                            <th scope="col" class="text-start px-4 py-3 font-semibold">{{ setting('admin.roles.permissions.almftah', 'المفتاح') }}</th>
+                            <th scope="col" class="text-start px-4 py-3 font-semibold">{{ setting('admin.roles.permissions.alntaqat', 'النطاقات') }}</th>
+                            <th scope="col" class="text-start px-4 py-3 font-semibold">{{ setting('admin.roles.permissions.alshrt', 'الشرط') }}</th>
                         </tr>
                     </thead>
                     <tbody>

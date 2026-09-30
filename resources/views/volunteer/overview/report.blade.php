@@ -82,10 +82,10 @@
                 <table class="w-full text-sm">
                     <thead>
                     <tr style="color: var(--text-muted)">
-                        <th class="text-start font-normal py-2">{{ setting('volunteer.common.date', 'التاريخ') }}</th>
-                        <th class="text-start font-normal py-2">{{ setting('volunteer.overview_report.col', 'الحدث') }}</th>
-                        <th class="text-start font-normal py-2">{{ setting('volunteer.common.value', 'القيمة') }}</th>
-                        <th class="text-start font-normal py-2">{{ setting('volunteer.common.reference', 'المرجع') }}</th>
+                        <th scope="col" class="text-start font-normal py-2">{{ setting('volunteer.common.date', 'التاريخ') }}</th>
+                        <th scope="col" class="text-start font-normal py-2">{{ setting('volunteer.overview_report.col', 'الحدث') }}</th>
+                        <th scope="col" class="text-start font-normal py-2">{{ setting('volunteer.common.value', 'القيمة') }}</th>
+                        <th scope="col" class="text-start font-normal py-2">{{ setting('volunteer.common.reference', 'المرجع') }}</th>
                     </tr>
                     </thead>
                     <tbody>

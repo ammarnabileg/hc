@@ -104,12 +104,12 @@
                    @unless (advanced_mode()) data-columns-cap="{{ view_mode()->defaultColumns() }}" @endunless>
                     <thead>
                         <tr style="color: var(--text-muted)">
-                            <th class="text-start p-3">{{ setting('volunteer.org_department.col', 'العضو') }}</th>
-                            <th class="text-start p-3">{{ setting('volunteer.common.position', 'البوزشن') }}</th>
-                            <th class="text-start p-3">{{ setting('volunteer.org_department.field', 'الفرعيّ') }}</th>
-                            <th class="text-start p-3">{{ setting('volunteer.org_department.col_2', 'الأبلاين') }}</th>
-                            <th class="text-start p-3">Rep</th>
-                            <th class="text-start p-3">{{ setting('volunteer.common.status', 'الحالة') }}</th>
+                            <th scope="col" class="text-start p-3">{{ setting('volunteer.org_department.col', 'العضو') }}</th>
+                            <th scope="col" class="text-start p-3">{{ setting('volunteer.common.position', 'البوزشن') }}</th>
+                            <th scope="col" class="text-start p-3">{{ setting('volunteer.org_department.field', 'الفرعيّ') }}</th>
+                            <th scope="col" class="text-start p-3">{{ setting('volunteer.org_department.col_2', 'الأبلاين') }}</th>
+                            <th scope="col" class="text-start p-3">Rep</th>
+                            <th scope="col" class="text-start p-3">{{ setting('volunteer.common.status', 'الحالة') }}</th>
                         </tr>
                     </thead>
                     <tbody>

@@ -165,14 +165,14 @@
                 <table class="w-full text-sm">
                     <thead>
                         <tr style="background: var(--surface-sunken)">
-                            <th class="text-start px-4 py-3 font-semibold">{{ setting('events.registrations.col_user', 'المستخدم') }}</th>
-                            <th class="text-start px-4 py-3 font-semibold">{{ setting('events.registrations.col_code', 'الكود') }}</th>
-                            <th class="text-start px-4 py-3 font-semibold">{{ setting('events.registrations.col_event', 'الفعاليّة') }}</th>
-                            <th class="text-start px-4 py-3 font-semibold">{{ setting('events.registrations.col_mode', 'نمط الحضور') }}</th>
-                            <th class="text-start px-4 py-3 font-semibold">{{ setting('events.registrations.col_state', 'حالة الحضور') }}</th>
-                            <th class="text-start px-4 py-3 font-semibold">{{ setting('events.registrations.col_checkin', 'وقت التشيك-إن') }}</th>
-                            <th class="text-start px-4 py-3 font-semibold">{{ setting('events.registrations.col_tier', 'الدرجة المستحقّة') }}</th>
-                            <th class="text-start px-4 py-3 font-semibold">⋯</th>
+                            <th scope="col" class="text-start px-4 py-3 font-semibold">{{ setting('events.registrations.col_user', 'المستخدم') }}</th>
+                            <th scope="col" class="text-start px-4 py-3 font-semibold">{{ setting('events.registrations.col_code', 'الكود') }}</th>
+                            <th scope="col" class="text-start px-4 py-3 font-semibold">{{ setting('events.registrations.col_event', 'الفعاليّة') }}</th>
+                            <th scope="col" class="text-start px-4 py-3 font-semibold">{{ setting('events.registrations.col_mode', 'نمط الحضور') }}</th>
+                            <th scope="col" class="text-start px-4 py-3 font-semibold">{{ setting('events.registrations.col_state', 'حالة الحضور') }}</th>
+                            <th scope="col" class="text-start px-4 py-3 font-semibold">{{ setting('events.registrations.col_checkin', 'وقت التشيك-إن') }}</th>
+                            <th scope="col" class="text-start px-4 py-3 font-semibold">{{ setting('events.registrations.col_tier', 'الدرجة المستحقّة') }}</th>
+                            <th scope="col" class="text-start px-4 py-3 font-semibold">⋯</th>
                         </tr>
                     </thead>
                     <tbody>

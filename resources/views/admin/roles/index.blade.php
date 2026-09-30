@@ -46,12 +46,12 @@
             <table class="w-full text-sm">
                 <thead>
                     <tr style="background: var(--surface-sunken)">
-                        <th class="text-start px-4 py-3 font-semibold">{{ setting('admin.roles.index.aldwr', 'الدور') }}</th>
-                        <th class="text-start px-4 py-3 font-semibold">{{ setting('admin.roles.index.alnwa', 'النوع') }}</th>
-                        <th class="text-start px-4 py-3 font-semibold">{{ setting('admin.roles.index.alslahyat', 'الصلاحيّات') }}</th>
-                        <th class="text-start px-4 py-3 font-semibold">{{ setting('admin.roles.index.almstkhdmwn', 'المستخدمون') }}</th>
-                        <th class="text-start px-4 py-3 font-semibold">{{ setting('admin.roles.index.akhr_tadyl', 'آخر تعديل') }}</th>
-                        <th class="px-4 py-3"></th>
+                        <th scope="col" class="text-start px-4 py-3 font-semibold">{{ setting('admin.roles.index.aldwr', 'الدور') }}</th>
+                        <th scope="col" class="text-start px-4 py-3 font-semibold">{{ setting('admin.roles.index.alnwa', 'النوع') }}</th>
+                        <th scope="col" class="text-start px-4 py-3 font-semibold">{{ setting('admin.roles.index.alslahyat', 'الصلاحيّات') }}</th>
+                        <th scope="col" class="text-start px-4 py-3 font-semibold">{{ setting('admin.roles.index.almstkhdmwn', 'المستخدمون') }}</th>
+                        <th scope="col" class="text-start px-4 py-3 font-semibold">{{ setting('admin.roles.index.akhr_tadyl', 'آخر تعديل') }}</th>
+                        <th scope="col" class="px-4 py-3"></th>
                     </tr>
                 </thead>
                 <tbody>

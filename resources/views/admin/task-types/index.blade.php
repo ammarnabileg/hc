@@ -23,12 +23,12 @@
             <table class="hidden md:table w-full text-sm">
                 <thead style="background: var(--surface-sunken)">
                     <tr class="text-xs" style="color: var(--text-muted)">
-                        <th class="text-start p-3">{{ setting('admin.task_types.index.alnwa', 'النوع') }}</th>
-                        <th class="text-start p-3">{{ setting('admin.task_types.index.altshyk_lyst', 'التشيك ليست') }}</th>
-                        <th class="text-start p-3">{{ setting('admin.task_types.index.qym_mqtrha', 'قيم مقترحة') }}</th>
-                        <th class="text-start p-3">{{ setting('admin.task_types.index.mham_alyh', 'مهامّ عليه') }}</th>
-                        <th class="text-start p-3">{{ setting('admin.task_types.index.alhala', 'الحالة') }}</th>
-                        <th class="text-start p-3"></th>
+                        <th scope="col" class="text-start p-3">{{ setting('admin.task_types.index.alnwa', 'النوع') }}</th>
+                        <th scope="col" class="text-start p-3">{{ setting('admin.task_types.index.altshyk_lyst', 'التشيك ليست') }}</th>
+                        <th scope="col" class="text-start p-3">{{ setting('admin.task_types.index.qym_mqtrha', 'قيم مقترحة') }}</th>
+                        <th scope="col" class="text-start p-3">{{ setting('admin.task_types.index.mham_alyh', 'مهامّ عليه') }}</th>
+                        <th scope="col" class="text-start p-3">{{ setting('admin.task_types.index.alhala', 'الحالة') }}</th>
+                        <th scope="col" class="text-start p-3"></th>
                     </tr>
                 </thead>
                 <tbody>

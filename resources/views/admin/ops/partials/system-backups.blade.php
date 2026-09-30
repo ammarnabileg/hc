@@ -25,12 +25,12 @@
         <table class="hidden md:table w-full text-sm">
             <thead style="background: var(--surface-sunken)">
                 <tr class="text-xs" style="color: var(--text-muted)">
-                    <th class="text-start p-3">{{ setting('admin.ops.partials.system_backups.altarykh', 'التاريخ') }}</th>
-                    <th class="text-start p-3">{{ setting('admin.ops.partials.system_backups.alnwa', 'النوع') }}</th>
-                    <th class="text-start p-3">{{ setting('admin.ops.partials.system_backups.alhjm', 'الحجم') }}</th>
-                    <th class="text-start p-3">{{ setting('admin.ops.partials.system_backups.mn_akhdhha', 'مَن أخذها') }}</th>
-                    <th class="text-start p-3">{{ setting('admin.ops.partials.system_backups.alhala', 'الحالة') }}</th>
-                    <th class="text-start p-3">{{ setting('admin.ops.partials.system_backups.ijraat', 'إجراءات') }}</th>
+                    <th scope="col" class="text-start p-3">{{ setting('admin.ops.partials.system_backups.altarykh', 'التاريخ') }}</th>
+                    <th scope="col" class="text-start p-3">{{ setting('admin.ops.partials.system_backups.alnwa', 'النوع') }}</th>
+                    <th scope="col" class="text-start p-3">{{ setting('admin.ops.partials.system_backups.alhjm', 'الحجم') }}</th>
+                    <th scope="col" class="text-start p-3">{{ setting('admin.ops.partials.system_backups.mn_akhdhha', 'مَن أخذها') }}</th>
+                    <th scope="col" class="text-start p-3">{{ setting('admin.ops.partials.system_backups.alhala', 'الحالة') }}</th>
+                    <th scope="col" class="text-start p-3">{{ setting('admin.ops.partials.system_backups.ijraat', 'إجراءات') }}</th>
                 </tr>
             </thead>
             <tbody>

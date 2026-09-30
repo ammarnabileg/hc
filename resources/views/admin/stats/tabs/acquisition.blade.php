@@ -6,12 +6,12 @@
     <table class="hidden md:table w-full text-sm">
         <thead style="background: var(--surface-sunken)">
             <tr class="text-xs" style="color: var(--text-muted)">
-                <th class="text-start p-3">{{ setting('admin.stats.tabs.acquisition.almsdr_utm_source', 'المصدر (utm_source)') }}</th>
-                <th class="text-start p-3">{{ setting('admin.stats.tabs.acquisition.zyarat', 'زيارات') }}</th>
-                <th class="text-start p-3">{{ setting('admin.stats.tabs.acquisition.tsjyl', 'تسجيل') }}</th>
-                <th class="text-start p-3">{{ setting('admin.stats.tabs.acquisition.tfayl', 'تفعيل') }}</th>
-                <th class="text-start p-3">{{ setting('admin.stats.tabs.acquisition.shra', 'شراء') }}</th>
-                <th class="text-start p-3">{{ setting('admin.stats.tabs.acquisition.althwyl', 'التحويل') }}</th>
+                <th scope="col" class="text-start p-3">{{ setting('admin.stats.tabs.acquisition.almsdr_utm_source', 'المصدر (utm_source)') }}</th>
+                <th scope="col" class="text-start p-3">{{ setting('admin.stats.tabs.acquisition.zyarat', 'زيارات') }}</th>
+                <th scope="col" class="text-start p-3">{{ setting('admin.stats.tabs.acquisition.tsjyl', 'تسجيل') }}</th>
+                <th scope="col" class="text-start p-3">{{ setting('admin.stats.tabs.acquisition.tfayl', 'تفعيل') }}</th>
+                <th scope="col" class="text-start p-3">{{ setting('admin.stats.tabs.acquisition.shra', 'شراء') }}</th>
+                <th scope="col" class="text-start p-3">{{ setting('admin.stats.tabs.acquisition.althwyl', 'التحويل') }}</th>
             </tr>
         </thead>
         <tbody>

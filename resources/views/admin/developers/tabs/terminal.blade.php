@@ -76,12 +76,12 @@
             <table class="w-full text-sm" id="terminal-log-table">
                 <thead>
                     <tr style="background: var(--surface-sunken)">
-                        <th class="text-start px-4 py-3 font-semibold">{{ setting('developers.admin.terminal_col_time', 'الوقت') }}</th>
-                        <th class="text-start px-4 py-3 font-semibold">{{ setting('developers.admin.terminal_col_user', 'مَن نفّذ') }}</th>
-                        <th class="text-start px-4 py-3 font-semibold">{{ setting('developers.admin.terminal_col_command', 'الأمر') }}</th>
-                        <th class="text-start px-4 py-3 font-semibold">{{ setting('developers.admin.terminal_col_exit_code', 'كود الخروج') }}</th>
-                        <th class="text-start px-4 py-3 font-semibold">{{ setting('developers.admin.terminal_col_duration', 'المدّة') }}</th>
-                        <th class="text-start px-4 py-3 font-semibold">{{ setting('developers.admin.col_actions', 'إجراءات') }}</th>
+                        <th scope="col" class="text-start px-4 py-3 font-semibold">{{ setting('developers.admin.terminal_col_time', 'الوقت') }}</th>
+                        <th scope="col" class="text-start px-4 py-3 font-semibold">{{ setting('developers.admin.terminal_col_user', 'مَن نفّذ') }}</th>
+                        <th scope="col" class="text-start px-4 py-3 font-semibold">{{ setting('developers.admin.terminal_col_command', 'الأمر') }}</th>
+                        <th scope="col" class="text-start px-4 py-3 font-semibold">{{ setting('developers.admin.terminal_col_exit_code', 'كود الخروج') }}</th>
+                        <th scope="col" class="text-start px-4 py-3 font-semibold">{{ setting('developers.admin.terminal_col_duration', 'المدّة') }}</th>
+                        <th scope="col" class="text-start px-4 py-3 font-semibold">{{ setting('developers.admin.col_actions', 'إجراءات') }}</th>
                     </tr>
                 </thead>
                 <tbody id="terminal-log-tbody">

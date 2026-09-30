@@ -31,10 +31,10 @@
                 <table class="w-full text-sm">
                     <thead>
                         <tr style="color: var(--text-muted)">
-                            <th class="text-start p-2">{{ setting('stats.volunteer.col.level', 'مستوى التصعيد') }}</th>
-                            <th class="text-start p-2">{{ setting('stats.volunteer.col.closed', 'حالات مغلقة') }}</th>
-                            <th class="text-start p-2">{{ setting('stats.volunteer.col.on_time', 'داخل النافذة') }}</th>
-                            <th class="text-start p-2">{{ setting('stats.volunteer.col.rate', 'نسبة الالتزام %') }}</th>
+                            <th scope="col" class="text-start p-2">{{ setting('stats.volunteer.col.level', 'مستوى التصعيد') }}</th>
+                            <th scope="col" class="text-start p-2">{{ setting('stats.volunteer.col.closed', 'حالات مغلقة') }}</th>
+                            <th scope="col" class="text-start p-2">{{ setting('stats.volunteer.col.on_time', 'داخل النافذة') }}</th>
+                            <th scope="col" class="text-start p-2">{{ setting('stats.volunteer.col.rate', 'نسبة الالتزام %') }}</th>
                         </tr>
                     </thead>
                     <tbody>

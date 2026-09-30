@@ -87,10 +87,10 @@
             <table class="w-full text-sm">
                 <thead>
                     <tr style="background: var(--surface-sunken)">
-                        <th class="text-start px-4 py-3 font-semibold">{{ setting('admin.meetings_admin.show.aladw', 'العضو') }}</th>
-                        <th class="text-start px-4 py-3 font-semibold">{{ setting('admin.meetings_admin.show.alhala', 'الحالة') }}</th>
-                        <th class="text-start px-4 py-3 font-semibold">{{ setting('admin.meetings_admin.show.wqt_altsjyl', 'وقت التسجيل') }}</th>
-                        <th class="text-start px-4 py-3 font-semibold">{{ setting('admin.meetings_admin.show.drja_alaltzam', 'درجة الالتزام') }}</th>
+                        <th scope="col" class="text-start px-4 py-3 font-semibold">{{ setting('admin.meetings_admin.show.aladw', 'العضو') }}</th>
+                        <th scope="col" class="text-start px-4 py-3 font-semibold">{{ setting('admin.meetings_admin.show.alhala', 'الحالة') }}</th>
+                        <th scope="col" class="text-start px-4 py-3 font-semibold">{{ setting('admin.meetings_admin.show.wqt_altsjyl', 'وقت التسجيل') }}</th>
+                        <th scope="col" class="text-start px-4 py-3 font-semibold">{{ setting('admin.meetings_admin.show.drja_alaltzam', 'درجة الالتزام') }}</th>
                     </tr>
                 </thead>
                 <tbody>

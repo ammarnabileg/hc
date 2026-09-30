@@ -18,12 +18,12 @@
             <table class="hidden md:table w-full text-sm">
                 <thead style="background: var(--surface-sunken)">
                     <tr class="text-xs" style="color: var(--text-muted)">
-                        <th class="text-start p-3">{{ setting('admin.store.finance.audit.alwqt', 'الوقت') }}</th>
-                        <th class="text-start p-3">{{ setting('admin.store.finance.audit.almnfdh', 'المنفِّذ') }}</th>
-                        <th class="text-start p-3">{{ setting('admin.store.finance.audit.almwrd_alfal', 'المورد.الفعل') }}</th>
-                        <th class="text-start p-3">{{ setting('admin.store.finance.audit.qbl_bad', 'قبل ← بعد') }}</th>
-                        <th class="text-start p-3">{{ setting('admin.store.finance.audit.alsbb', 'السبب') }}</th>
-                        <th class="text-start p-3">IP</th>
+                        <th scope="col" class="text-start p-3">{{ setting('admin.store.finance.audit.alwqt', 'الوقت') }}</th>
+                        <th scope="col" class="text-start p-3">{{ setting('admin.store.finance.audit.almnfdh', 'المنفِّذ') }}</th>
+                        <th scope="col" class="text-start p-3">{{ setting('admin.store.finance.audit.almwrd_alfal', 'المورد.الفعل') }}</th>
+                        <th scope="col" class="text-start p-3">{{ setting('admin.store.finance.audit.qbl_bad', 'قبل ← بعد') }}</th>
+                        <th scope="col" class="text-start p-3">{{ setting('admin.store.finance.audit.alsbb', 'السبب') }}</th>
+                        <th scope="col" class="text-start p-3">IP</th>
                     </tr>
                 </thead>
                 <tbody>

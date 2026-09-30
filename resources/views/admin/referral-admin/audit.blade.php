@@ -49,10 +49,10 @@
             <table class="w-full text-sm">
                 <thead>
                     <tr style="background: var(--surface-sunken)">
-                        <th class="text-start px-4 py-3 font-semibold">{{ setting('admin.referral_admin.audit.almdaw', 'المدعو') }}</th>
-                        <th class="text-start px-4 py-3 font-semibold">{{ setting('admin.referral_admin.audit.altarykh', 'التاريخ') }}</th>
-                        <th class="text-start px-4 py-3 font-semibold">{{ setting('admin.referral_admin.audit.alhala', 'الحالة') }}</th>
-                        <th class="text-start px-4 py-3 font-semibold">{{ setting('admin.referral_admin.audit.almkafaa', 'المكافأة') }}</th>
+                        <th scope="col" class="text-start px-4 py-3 font-semibold">{{ setting('admin.referral_admin.audit.almdaw', 'المدعو') }}</th>
+                        <th scope="col" class="text-start px-4 py-3 font-semibold">{{ setting('admin.referral_admin.audit.altarykh', 'التاريخ') }}</th>
+                        <th scope="col" class="text-start px-4 py-3 font-semibold">{{ setting('admin.referral_admin.audit.alhala', 'الحالة') }}</th>
+                        <th scope="col" class="text-start px-4 py-3 font-semibold">{{ setting('admin.referral_admin.audit.almkafaa', 'المكافأة') }}</th>
                     </tr>
                 </thead>
                 <tbody>

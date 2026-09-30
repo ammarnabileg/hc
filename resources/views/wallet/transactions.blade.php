@@ -118,13 +118,13 @@
             <table class="w-full text-sm">
                 <thead>
                     <tr style="background: var(--surface-sunken)">
-                        <th class="text-start font-semibold px-4 py-3">#</th>
-                        <th class="text-start font-semibold px-4 py-3">{{ setting('wallet.transactions.col_currency', 'العملة') }}</th>
-                        <th class="text-start font-semibold px-4 py-3">{{ setting('wallet.transactions.col_amount', 'الكمية') }}</th>
-                        <th class="text-start font-semibold px-4 py-3">{{ setting('wallet.transactions.col_flow', 'من ← إلى') }}</th>
-                        <th class="text-start font-semibold px-4 py-3">{{ setting('wallet.transactions.col_reason', 'السبب') }}</th>
-                        <th class="text-start font-semibold px-4 py-3">{{ setting('wallet.transactions.col_notes', 'ملاحظات') }}</th>
-                        <th class="text-start font-semibold px-4 py-3">{{ setting('wallet.transactions.col_date', 'التاريخ') }}</th>
+                        <th scope="col" class="text-start font-semibold px-4 py-3">#</th>
+                        <th scope="col" class="text-start font-semibold px-4 py-3">{{ setting('wallet.transactions.col_currency', 'العملة') }}</th>
+                        <th scope="col" class="text-start font-semibold px-4 py-3">{{ setting('wallet.transactions.col_amount', 'الكمية') }}</th>
+                        <th scope="col" class="text-start font-semibold px-4 py-3">{{ setting('wallet.transactions.col_flow', 'من ← إلى') }}</th>
+                        <th scope="col" class="text-start font-semibold px-4 py-3">{{ setting('wallet.transactions.col_reason', 'السبب') }}</th>
+                        <th scope="col" class="text-start font-semibold px-4 py-3">{{ setting('wallet.transactions.col_notes', 'ملاحظات') }}</th>
+                        <th scope="col" class="text-start font-semibold px-4 py-3">{{ setting('wallet.transactions.col_date', 'التاريخ') }}</th>
                     </tr>
                 </thead>
                 <tbody data-wallet-tx-desktop>

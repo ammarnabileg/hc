@@ -96,12 +96,12 @@
             <x-table :label="setting('admin.positive.index.alrsayl_aliyjabya', 'الرسائل الإيجابيّة')">
                 <thead>
                     <tr style="border-bottom: 1px solid var(--border)">
-                        <th class="p-3 text-start">{{ setting('admin.positive.index.alns', 'النصّ') }}</th>
-                        <th class="p-3 text-start">{{ setting('admin.positive.index.allgha', 'اللغة') }}</th>
-                        <th class="p-3 text-start">{{ setting('admin.positive.index.alfia', 'الفئة') }}</th>
-                        <th class="p-3 text-start">{{ setting('admin.positive.index.idd_mrat_alzhwr', 'عدد مرّات الظهور') }}</th>
-                        <th class="p-3 text-start">{{ setting('admin.positive.index.alhala', 'الحالة') }}</th>
-                        <th class="p-3 text-start">{{ setting('admin.positive.index.ijraat', 'إجراءات') }}</th>
+                        <th scope="col" class="p-3 text-start">{{ setting('admin.positive.index.alns', 'النصّ') }}</th>
+                        <th scope="col" class="p-3 text-start">{{ setting('admin.positive.index.allgha', 'اللغة') }}</th>
+                        <th scope="col" class="p-3 text-start">{{ setting('admin.positive.index.alfia', 'الفئة') }}</th>
+                        <th scope="col" class="p-3 text-start">{{ setting('admin.positive.index.idd_mrat_alzhwr', 'عدد مرّات الظهور') }}</th>
+                        <th scope="col" class="p-3 text-start">{{ setting('admin.positive.index.alhala', 'الحالة') }}</th>
+                        <th scope="col" class="p-3 text-start">{{ setting('admin.positive.index.ijraat', 'إجراءات') }}</th>
                     </tr>
                 </thead>
                 <tbody>

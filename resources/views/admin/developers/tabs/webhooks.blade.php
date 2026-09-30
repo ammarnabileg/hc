@@ -108,12 +108,12 @@
             <table class="w-full text-sm">
                 <thead>
                     <tr style="background: var(--surface-sunken)">
-                        <th class="text-start px-4 py-3 font-semibold">{{ setting('developers.admin.col_name', 'الاسم') }}</th>
-                        <th class="text-start px-4 py-3 font-semibold">{{ setting('developers.admin.webhook_col_url', 'الرابط') }}</th>
-                        <th class="text-start px-4 py-3 font-semibold">{{ setting('developers.admin.field_events', 'الأحداث المشترَك فيها') }}</th>
-                        <th class="text-start px-4 py-3 font-semibold">{{ setting('developers.admin.col_status', 'الحالة') }}</th>
-                        <th class="text-start px-4 py-3 font-semibold">{{ setting('developers.admin.webhook_col_last_run', 'آخر تشغيل ونتيجته') }}</th>
-                        <th class="text-start px-4 py-3 font-semibold">{{ setting('developers.admin.col_actions', 'إجراءات') }}</th>
+                        <th scope="col" class="text-start px-4 py-3 font-semibold">{{ setting('developers.admin.col_name', 'الاسم') }}</th>
+                        <th scope="col" class="text-start px-4 py-3 font-semibold">{{ setting('developers.admin.webhook_col_url', 'الرابط') }}</th>
+                        <th scope="col" class="text-start px-4 py-3 font-semibold">{{ setting('developers.admin.field_events', 'الأحداث المشترَك فيها') }}</th>
+                        <th scope="col" class="text-start px-4 py-3 font-semibold">{{ setting('developers.admin.col_status', 'الحالة') }}</th>
+                        <th scope="col" class="text-start px-4 py-3 font-semibold">{{ setting('developers.admin.webhook_col_last_run', 'آخر تشغيل ونتيجته') }}</th>
+                        <th scope="col" class="text-start px-4 py-3 font-semibold">{{ setting('developers.admin.col_actions', 'إجراءات') }}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -196,14 +196,14 @@
             <table class="w-full text-sm">
                 <thead>
                     <tr style="background: var(--surface-sunken)">
-                        <th class="text-start px-4 py-3 font-semibold">{{ setting('developers.admin.usage_col_time', 'الوقت') }}</th>
-                        <th class="text-start px-4 py-3 font-semibold">{{ setting('developers.admin.col_name', 'الاسم') }}</th>
-                        <th class="text-start px-4 py-3 font-semibold">{{ setting('developers.admin.deliveries_col_event', 'الحدث') }}</th>
-                        <th class="text-start px-4 py-3 font-semibold">{{ setting('developers.admin.usage_col_status', 'كود الردّ') }}</th>
-                        <th class="text-start px-4 py-3 font-semibold">{{ setting('developers.admin.deliveries_col_attempts', 'عدد المحاولات') }}</th>
-                        <th class="text-start px-4 py-3 font-semibold">{{ setting('developers.admin.col_status', 'الحالة') }}</th>
-                        <th class="text-start px-4 py-3 font-semibold">{{ setting('developers.admin.deliveries_col_payload', 'الحمولة والردّ') }}</th>
-                        <th class="text-start px-4 py-3 font-semibold">{{ setting('developers.admin.col_actions', 'إجراءات') }}</th>
+                        <th scope="col" class="text-start px-4 py-3 font-semibold">{{ setting('developers.admin.usage_col_time', 'الوقت') }}</th>
+                        <th scope="col" class="text-start px-4 py-3 font-semibold">{{ setting('developers.admin.col_name', 'الاسم') }}</th>
+                        <th scope="col" class="text-start px-4 py-3 font-semibold">{{ setting('developers.admin.deliveries_col_event', 'الحدث') }}</th>
+                        <th scope="col" class="text-start px-4 py-3 font-semibold">{{ setting('developers.admin.usage_col_status', 'كود الردّ') }}</th>
+                        <th scope="col" class="text-start px-4 py-3 font-semibold">{{ setting('developers.admin.deliveries_col_attempts', 'عدد المحاولات') }}</th>
+                        <th scope="col" class="text-start px-4 py-3 font-semibold">{{ setting('developers.admin.col_status', 'الحالة') }}</th>
+                        <th scope="col" class="text-start px-4 py-3 font-semibold">{{ setting('developers.admin.deliveries_col_payload', 'الحمولة والردّ') }}</th>
+                        <th scope="col" class="text-start px-4 py-3 font-semibold">{{ setting('developers.admin.col_actions', 'إجراءات') }}</th>
                     </tr>
                 </thead>
                 <tbody>

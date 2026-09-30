@@ -62,12 +62,12 @@
                    @unless (advanced_mode()) data-columns-cap="{{ view_mode()->defaultColumns() }}" @endunless>
                     <thead>
                         <tr style="background: var(--surface-sunken)">
-                            <th class="text-start font-semibold px-4 py-3">{{ setting('wallet.withdrawals.col_number', 'رقم الطلب') }}</th>
-                            <th class="text-start font-semibold px-4 py-3">{{ setting('wallet.withdrawals.col_date', 'التاريخ') }}</th>
-                            <th class="text-start font-semibold px-4 py-3">{{ setting('wallet.withdrawals.col_amount', 'القيمة') }}</th>
-                            <th class="text-start font-semibold px-4 py-3">{{ setting('wallet.withdrawals.col_fee', 'الرسوم') }}</th>
-                            <th class="text-start font-semibold px-4 py-3">{{ setting('wallet.withdrawals.col_status', 'الحالة') }}</th>
-                            <th class="text-start font-semibold px-4 py-3">{{ setting('wallet.withdrawals.col_receipt', 'صورة الفاتورة') }}</th>
+                            <th scope="col" class="text-start font-semibold px-4 py-3">{{ setting('wallet.withdrawals.col_number', 'رقم الطلب') }}</th>
+                            <th scope="col" class="text-start font-semibold px-4 py-3">{{ setting('wallet.withdrawals.col_date', 'التاريخ') }}</th>
+                            <th scope="col" class="text-start font-semibold px-4 py-3">{{ setting('wallet.withdrawals.col_amount', 'القيمة') }}</th>
+                            <th scope="col" class="text-start font-semibold px-4 py-3">{{ setting('wallet.withdrawals.col_fee', 'الرسوم') }}</th>
+                            <th scope="col" class="text-start font-semibold px-4 py-3">{{ setting('wallet.withdrawals.col_status', 'الحالة') }}</th>
+                            <th scope="col" class="text-start font-semibold px-4 py-3">{{ setting('wallet.withdrawals.col_receipt', 'صورة الفاتورة') }}</th>
                         </tr>
                     </thead>
                     <tbody data-wallet-wd-desktop>

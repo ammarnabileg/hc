@@ -167,13 +167,13 @@
                    @unless (advanced_mode()) data-columns-cap="{{ view_mode()->defaultColumns() }}" @endunless>
                 <thead>
                     <tr style="background: var(--surface-sunken)">
-                        <th class="text-start px-4 py-3 font-semibold">{{ setting('admin.question_bank.index.alswal', 'السؤال') }}</th>
-                        <th class="text-start px-4 py-3 font-semibold">{{ setting('admin.question_bank.index.alnwa', 'النوع') }}</th>
-                        <th class="text-start px-4 py-3 font-semibold">{{ setting('admin.question_bank.index.altdryb_aldrs', 'التدريب ← الدرس') }}</th>
-                        <th class="text-start px-4 py-3 font-semibold">{{ setting('admin.question_bank.index.aam', 'عامّ') }}</th>
-                        <th class="text-start px-4 py-3 font-semibold">{{ setting('admin.question_bank.index.alastkhdam', 'الاستخدام') }}</th>
-                        <th class="text-start px-4 py-3 font-semibold">{{ setting('admin.question_bank.index.alhala', 'الحالة') }}</th>
-                        <th class="text-start px-4 py-3 font-semibold">⋯</th>
+                        <th scope="col" class="text-start px-4 py-3 font-semibold">{{ setting('admin.question_bank.index.alswal', 'السؤال') }}</th>
+                        <th scope="col" class="text-start px-4 py-3 font-semibold">{{ setting('admin.question_bank.index.alnwa', 'النوع') }}</th>
+                        <th scope="col" class="text-start px-4 py-3 font-semibold">{{ setting('admin.question_bank.index.altdryb_aldrs', 'التدريب ← الدرس') }}</th>
+                        <th scope="col" class="text-start px-4 py-3 font-semibold">{{ setting('admin.question_bank.index.aam', 'عامّ') }}</th>
+                        <th scope="col" class="text-start px-4 py-3 font-semibold">{{ setting('admin.question_bank.index.alastkhdam', 'الاستخدام') }}</th>
+                        <th scope="col" class="text-start px-4 py-3 font-semibold">{{ setting('admin.question_bank.index.alhala', 'الحالة') }}</th>
+                        <th scope="col" class="text-start px-4 py-3 font-semibold">⋯</th>
                     </tr>
                 </thead>
                 <tbody>

@@ -121,10 +121,10 @@
         <table class="hidden md:table w-full text-sm">
             <thead style="background: var(--surface-sunken)">
                 <tr class="text-xs" style="color: var(--text-muted)">
-                    <th class="text-start p-3">{{ setting('admin.ops.partials.updates_overview.almarf', 'المعرّف') }}</th>
-                    <th class="text-start p-3">{{ setting('admin.ops.partials.updates_overview.altwqyt', 'التوقيت') }}</th>
-                    <th class="text-start p-3">Checksum</th>
-                    <th class="text-start p-3">{{ setting('admin.ops.partials.updates_overview.alhala', 'الحالة') }}</th>
+                    <th scope="col" class="text-start p-3">{{ setting('admin.ops.partials.updates_overview.almarf', 'المعرّف') }}</th>
+                    <th scope="col" class="text-start p-3">{{ setting('admin.ops.partials.updates_overview.altwqyt', 'التوقيت') }}</th>
+                    <th scope="col" class="text-start p-3">Checksum</th>
+                    <th scope="col" class="text-start p-3">{{ setting('admin.ops.partials.updates_overview.alhala', 'الحالة') }}</th>
                 </tr>
             </thead>
             <tbody>
@@ -227,11 +227,11 @@
             <table class="hidden md:table w-full text-sm">
                 <thead style="background: var(--surface-sunken)">
                     <tr class="text-xs" style="color: var(--text-muted)">
-                        <th class="text-start p-3">{{ setting('admin.ops.partials.updates_overview.alwqt', 'الوقت') }}</th>
-                        <th class="text-start p-3">{{ setting('admin.ops.partials.updates_overview.almnfdh', 'المنفِّذ') }}</th>
-                        <th class="text-start p-3">{{ setting('admin.ops.partials.updates_overview.alamlya', 'العمليّة') }}</th>
-                        <th class="text-start p-3">{{ setting('admin.ops.partials.updates_overview.altfasyl', 'التفاصيل') }}</th>
-                        <th class="text-start p-3">IP</th>
+                        <th scope="col" class="text-start p-3">{{ setting('admin.ops.partials.updates_overview.alwqt', 'الوقت') }}</th>
+                        <th scope="col" class="text-start p-3">{{ setting('admin.ops.partials.updates_overview.almnfdh', 'المنفِّذ') }}</th>
+                        <th scope="col" class="text-start p-3">{{ setting('admin.ops.partials.updates_overview.alamlya', 'العمليّة') }}</th>
+                        <th scope="col" class="text-start p-3">{{ setting('admin.ops.partials.updates_overview.altfasyl', 'التفاصيل') }}</th>
+                        <th scope="col" class="text-start p-3">IP</th>
                     </tr>
                 </thead>
                 <tbody>

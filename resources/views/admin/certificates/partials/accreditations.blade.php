@@ -57,7 +57,7 @@
                     <x-sort-th key="types" :label="setting('admin.certificates.partials.accreditations.km_nwa', 'كم نوع')" />
                     <x-sort-th key="issued" :label="setting('admin.certificates.partials.accreditations.shhadat_sadra', 'شهادات صادرة')" />
                     <x-sort-th key="status" :label="setting('admin.certificates.partials.accreditations.alhala', 'الحالة')" />
-                    <th class="p-3 text-start">{{ setting('admin.certificates.partials.accreditations.ijraat', 'إجراءات') }}</th>
+                    <th scope="col" class="p-3 text-start">{{ setting('admin.certificates.partials.accreditations.ijraat', 'إجراءات') }}</th>
                 </tr>
             </thead>
             <tbody>

@@ -107,21 +107,21 @@
                    @unless (advanced_mode()) data-columns-cap="{{ view_mode()->defaultColumns() }}" @endunless>
                     <thead style="background: var(--surface-sunken)">
                         <tr>
-                            <th class="p-3 w-8">
+                            <th scope="col" class="p-3 w-8">
                                 <label class="inline-flex items-center" aria-label="{{ setting('courses.bulk.pick_all', 'اختيار الكلّ') }}">
                                     <input type="checkbox" data-bulk-all>
                                 </label>
                             </th>
                             {{-- عمود الغلاف — التدريبات كانت بلا صورةٍ ظاهرة رغم وجود cover_path (12.4-ب) --}}
-                            <th class="p-3 text-start">{{ setting('admin.courses.index.alghlaf', 'الغلاف') }}</th>
-                            <th class="p-3 text-start">{{ setting('admin.courses.index.asm_alard', 'اسم العرض') }}</th>
-                            <th class="p-3 text-start">{{ setting('admin.courses.index.asm_alshhada', 'اسم الشهادة') }}</th>
-                            <th class="p-3 text-start">{{ setting('admin.courses.index.almsar_at', 'المسار(ات)') }}</th>
-                            <th class="p-3 text-start">{{ setting('admin.courses.index.sykshnz_drws', 'سيكشنز/دروس') }}</th>
-                            <th class="p-3 text-start">{{ setting('admin.courses.index.alsar', 'السعر') }}</th>
-                            <th class="p-3 text-start">{{ setting('admin.courses.index.almsjlwn', 'المسجّلون') }}</th>
-                            <th class="p-3 text-start">{{ setting('admin.courses.index.alhala', 'الحالة') }}</th>
-                            <th class="p-3"></th>
+                            <th scope="col" class="p-3 text-start">{{ setting('admin.courses.index.alghlaf', 'الغلاف') }}</th>
+                            <th scope="col" class="p-3 text-start">{{ setting('admin.courses.index.asm_alard', 'اسم العرض') }}</th>
+                            <th scope="col" class="p-3 text-start">{{ setting('admin.courses.index.asm_alshhada', 'اسم الشهادة') }}</th>
+                            <th scope="col" class="p-3 text-start">{{ setting('admin.courses.index.almsar_at', 'المسار(ات)') }}</th>
+                            <th scope="col" class="p-3 text-start">{{ setting('admin.courses.index.sykshnz_drws', 'سيكشنز/دروس') }}</th>
+                            <th scope="col" class="p-3 text-start">{{ setting('admin.courses.index.alsar', 'السعر') }}</th>
+                            <th scope="col" class="p-3 text-start">{{ setting('admin.courses.index.almsjlwn', 'المسجّلون') }}</th>
+                            <th scope="col" class="p-3 text-start">{{ setting('admin.courses.index.alhala', 'الحالة') }}</th>
+                            <th scope="col" class="p-3"></th>
                         </tr>
                     </thead>
                     <tbody>

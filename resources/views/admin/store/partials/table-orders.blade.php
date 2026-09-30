@@ -2,12 +2,12 @@
     <table class="hidden md:table w-full text-sm">
         <thead style="background: var(--surface-sunken)">
             <tr class="text-xs" style="color: var(--text-muted)">
-                <th class="text-start p-3">#</th>
-                <th class="text-start p-3">{{ setting('admin.store.partials.table_orders.almstkhdm', 'المستخدم') }}</th>
-                <th class="text-start p-3">{{ setting('admin.store.partials.table_orders.alijmaly', 'الإجماليّ') }}</th>
-                <th class="text-start p-3">{{ setting('admin.store.partials.table_orders.alkhsm', 'الخصم') }}</th>
-                <th class="text-start p-3">{{ setting('admin.store.partials.table_orders.alhala', 'الحالة') }}</th>
-                <th class="text-start p-3">{{ setting('admin.store.partials.table_orders.altarykh', 'التاريخ') }}</th>
+                <th scope="col" class="text-start p-3">#</th>
+                <th scope="col" class="text-start p-3">{{ setting('admin.store.partials.table_orders.almstkhdm', 'المستخدم') }}</th>
+                <th scope="col" class="text-start p-3">{{ setting('admin.store.partials.table_orders.alijmaly', 'الإجماليّ') }}</th>
+                <th scope="col" class="text-start p-3">{{ setting('admin.store.partials.table_orders.alkhsm', 'الخصم') }}</th>
+                <th scope="col" class="text-start p-3">{{ setting('admin.store.partials.table_orders.alhala', 'الحالة') }}</th>
+                <th scope="col" class="text-start p-3">{{ setting('admin.store.partials.table_orders.altarykh', 'التاريخ') }}</th>
             </tr>
         </thead>
         <tbody>

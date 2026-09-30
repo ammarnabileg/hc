@@ -51,15 +51,15 @@
     <table class="hidden md:table w-full text-sm">
         <thead style="background: var(--surface-sunken)">
             <tr class="text-xs" style="color: var(--text-muted)">
-                <th class="text-start p-3">{{ setting('admin.store.partials.table_library.alghlaf', 'الغلاف') }}</th>
-                <th class="text-start p-3">{{ setting('admin.store.partials.table_library.almlf', 'الملفّ') }}</th>
-                <th class="text-start p-3">{{ setting('admin.store.partials.table_library.alhjm', 'الحجم') }}</th>
-                <th class="text-start p-3">{{ setting('admin.store.partials.table_library.wda_alhmaya', 'وضع الحماية') }}</th>
-                <th class="text-start p-3">{{ setting('admin.store.partials.table_library.alalama_almayya', 'العلامة المائيّة') }}</th>
-                <th class="text-start p-3">{{ setting('admin.store.partials.table_library.alslahya', 'الصلاحيّة') }}</th>
-                <th class="text-start p-3">{{ setting('admin.store.partials.table_library.sfhat_alayna', 'صفحات العيّنة') }}</th>
-                <th class="text-start p-3">{{ setting('admin.store.partials.table_library.almalkwn', 'المالكون') }}</th>
-                <th class="text-start p-3">{{ setting('admin.store.partials.table_library.ijraat', 'إجراءات') }}</th>
+                <th scope="col" class="text-start p-3">{{ setting('admin.store.partials.table_library.alghlaf', 'الغلاف') }}</th>
+                <th scope="col" class="text-start p-3">{{ setting('admin.store.partials.table_library.almlf', 'الملفّ') }}</th>
+                <th scope="col" class="text-start p-3">{{ setting('admin.store.partials.table_library.alhjm', 'الحجم') }}</th>
+                <th scope="col" class="text-start p-3">{{ setting('admin.store.partials.table_library.wda_alhmaya', 'وضع الحماية') }}</th>
+                <th scope="col" class="text-start p-3">{{ setting('admin.store.partials.table_library.alalama_almayya', 'العلامة المائيّة') }}</th>
+                <th scope="col" class="text-start p-3">{{ setting('admin.store.partials.table_library.alslahya', 'الصلاحيّة') }}</th>
+                <th scope="col" class="text-start p-3">{{ setting('admin.store.partials.table_library.sfhat_alayna', 'صفحات العيّنة') }}</th>
+                <th scope="col" class="text-start p-3">{{ setting('admin.store.partials.table_library.almalkwn', 'المالكون') }}</th>
+                <th scope="col" class="text-start p-3">{{ setting('admin.store.partials.table_library.ijraat', 'إجراءات') }}</th>
             </tr>
         </thead>
         <tbody>

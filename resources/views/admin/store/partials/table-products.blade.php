@@ -9,12 +9,12 @@
     <table class="hidden md:table w-full text-sm">
         <thead style="background: var(--surface-sunken)">
             <tr class="text-xs" style="color: var(--text-muted)">
-                <th class="text-start p-3">{{ setting('admin.store.partials.table_products.almntj', 'المنتج') }}</th>
-                <th class="text-start p-3">{{ setting('admin.store.partials.table_products.altsnyf', 'التصنيف') }}</th>
-                <th class="text-start p-3">{{ setting('admin.store.partials.table_products.alnwa', 'النوع') }}</th>
-                <th class="text-start p-3">{{ setting('admin.store.partials.table_products.alsar', 'السعر') }}</th>
-                <th class="text-start p-3">{{ setting('admin.store.partials.table_products.alhala', 'الحالة') }}</th>
-                <th class="text-start p-3">{{ setting('admin.store.partials.table_products.ijraat', 'إجراءات') }}</th>
+                <th scope="col" class="text-start p-3">{{ setting('admin.store.partials.table_products.almntj', 'المنتج') }}</th>
+                <th scope="col" class="text-start p-3">{{ setting('admin.store.partials.table_products.altsnyf', 'التصنيف') }}</th>
+                <th scope="col" class="text-start p-3">{{ setting('admin.store.partials.table_products.alnwa', 'النوع') }}</th>
+                <th scope="col" class="text-start p-3">{{ setting('admin.store.partials.table_products.alsar', 'السعر') }}</th>
+                <th scope="col" class="text-start p-3">{{ setting('admin.store.partials.table_products.alhala', 'الحالة') }}</th>
+                <th scope="col" class="text-start p-3">{{ setting('admin.store.partials.table_products.ijraat', 'إجراءات') }}</th>
             </tr>
         </thead>
         <tbody>

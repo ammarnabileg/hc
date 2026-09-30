@@ -78,15 +78,15 @@
             <table class="w-full text-sm">
                 <thead style="background: var(--surface-sunken)">
                     <tr class="text-start">
-                        <th class="p-3 w-8"></th>
+                        <th scope="col" class="p-3 w-8"></th>
                         {{-- عمود صورة المسار المصغّرة — cover_path موجودٌ ومُحرَّرٌ لكنّه غير معروضٍ بالجدول (12.4-أ) --}}
-                        <th class="p-3 text-start">{{ setting('admin.courses.paths.swra_msghra', 'صورة مصغّرة') }}</th>
-                        <th class="p-3 text-start">{{ setting('admin.courses.paths.almsar', 'المسار') }}</th>
-                        <th class="p-3 text-start">{{ setting('admin.courses.paths.add_altdrybat', 'عدد التدريبات') }}</th>
-                        <th class="p-3 text-start">{{ setting('admin.courses.paths.sar_amthan_alshhada', 'سعر امتحان الشهادة') }}</th>
-                        <th class="p-3 text-start">{{ setting('admin.courses.paths.alhala', 'الحالة') }}</th>
-                        <th class="p-3 text-start">{{ setting('admin.courses.paths.altrtyb', 'الترتيب') }}</th>
-                        <th class="p-3"></th>
+                        <th scope="col" class="p-3 text-start">{{ setting('admin.courses.paths.swra_msghra', 'صورة مصغّرة') }}</th>
+                        <th scope="col" class="p-3 text-start">{{ setting('admin.courses.paths.almsar', 'المسار') }}</th>
+                        <th scope="col" class="p-3 text-start">{{ setting('admin.courses.paths.add_altdrybat', 'عدد التدريبات') }}</th>
+                        <th scope="col" class="p-3 text-start">{{ setting('admin.courses.paths.sar_amthan_alshhada', 'سعر امتحان الشهادة') }}</th>
+                        <th scope="col" class="p-3 text-start">{{ setting('admin.courses.paths.alhala', 'الحالة') }}</th>
+                        <th scope="col" class="p-3 text-start">{{ setting('admin.courses.paths.altrtyb', 'الترتيب') }}</th>
+                        <th scope="col" class="p-3"></th>
                     </tr>
                 </thead>
                 <tbody data-sortable="{{ route('admin.paths.reorder') }}">

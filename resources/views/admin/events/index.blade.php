@@ -127,14 +127,14 @@
                 <table class="w-full text-sm">
                     <thead>
                         <tr style="background: var(--surface-sunken)">
-                            <th class="text-start px-4 py-3 font-semibold">{{ setting('admin.events.index.col_ghlaf', 'الغلاف') }}</th>
-                            <th class="text-start px-4 py-3 font-semibold">{{ setting('admin.events.index.col_alanwan', 'العنوان') }}</th>
-                            <th class="text-start px-4 py-3 font-semibold">{{ setting('admin.events.index.alnwa', 'النوع') }}</th>
-                            <th class="text-start px-4 py-3 font-semibold">{{ setting('admin.events.index.col_altarykh', 'التاريخ') }}</th>
-                            <th class="text-start px-4 py-3 font-semibold">{{ setting('admin.events.index.col_alsaa_almsjlwn', 'السعة/المسجّلون') }}</th>
-                            <th class="text-start px-4 py-3 font-semibold">{{ setting('admin.events.index.col_alsar', 'السعر') }}</th>
-                            <th class="text-start px-4 py-3 font-semibold">{{ setting('admin.events.index.alhala', 'الحالة') }}</th>
-                            <th class="text-start px-4 py-3 font-semibold">{{ setting('admin.events.index.col_ijraat', 'إجراءات') }}</th>
+                            <th scope="col" class="text-start px-4 py-3 font-semibold">{{ setting('admin.events.index.col_ghlaf', 'الغلاف') }}</th>
+                            <th scope="col" class="text-start px-4 py-3 font-semibold">{{ setting('admin.events.index.col_alanwan', 'العنوان') }}</th>
+                            <th scope="col" class="text-start px-4 py-3 font-semibold">{{ setting('admin.events.index.alnwa', 'النوع') }}</th>
+                            <th scope="col" class="text-start px-4 py-3 font-semibold">{{ setting('admin.events.index.col_altarykh', 'التاريخ') }}</th>
+                            <th scope="col" class="text-start px-4 py-3 font-semibold">{{ setting('admin.events.index.col_alsaa_almsjlwn', 'السعة/المسجّلون') }}</th>
+                            <th scope="col" class="text-start px-4 py-3 font-semibold">{{ setting('admin.events.index.col_alsar', 'السعر') }}</th>
+                            <th scope="col" class="text-start px-4 py-3 font-semibold">{{ setting('admin.events.index.alhala', 'الحالة') }}</th>
+                            <th scope="col" class="text-start px-4 py-3 font-semibold">{{ setting('admin.events.index.col_ijraat', 'إجراءات') }}</th>
                         </tr>
                     </thead>
                     <tbody>

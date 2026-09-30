@@ -30,12 +30,12 @@
             <table class="hidden md:table w-full text-sm">
                 <thead style="background: var(--surface-sunken)">
                     <tr class="text-xs" style="color: var(--text-muted)">
-                        <th class="text-start p-3">{{ setting('admin.store.withdrawals.index.altlb', 'الطلب') }}</th>
-                        <th class="text-start p-3">{{ setting('admin.store.withdrawals.index.almstkhdm', 'المستخدم') }}</th>
-                        <th class="text-start p-3">{{ setting('admin.store.withdrawals.index.alqyma_alsafya', 'القيمة الصافية') }}</th>
-                        <th class="text-start p-3">{{ setting('admin.store.withdrawals.index.tryqa_althwyl', 'طريقة التحويل') }}</th>
-                        <th class="text-start p-3">{{ setting('admin.store.withdrawals.index.alhala', 'الحالة') }}</th>
-                        <th class="text-start p-3"></th>
+                        <th scope="col" class="text-start p-3">{{ setting('admin.store.withdrawals.index.altlb', 'الطلب') }}</th>
+                        <th scope="col" class="text-start p-3">{{ setting('admin.store.withdrawals.index.almstkhdm', 'المستخدم') }}</th>
+                        <th scope="col" class="text-start p-3">{{ setting('admin.store.withdrawals.index.alqyma_alsafya', 'القيمة الصافية') }}</th>
+                        <th scope="col" class="text-start p-3">{{ setting('admin.store.withdrawals.index.tryqa_althwyl', 'طريقة التحويل') }}</th>
+                        <th scope="col" class="text-start p-3">{{ setting('admin.store.withdrawals.index.alhala', 'الحالة') }}</th>
+                        <th scope="col" class="text-start p-3"></th>
                     </tr>
                 </thead>
                 <tbody>

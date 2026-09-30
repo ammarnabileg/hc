@@ -18,7 +18,7 @@
     $url = request()->fullUrlWithQuery(['sort' => $key, 'dir' => $nextDir, 'page' => null]);
 @endphp
 
-<th {{ $attributes->merge(['class' => 'p-3 text-start']) }}
+<th scope="col" {{ $attributes->merge(['class' => 'p-3 text-start']) }}
     data-sort-key="{{ $key }}"
     aria-sort="{{ $active ? ($currentDir === 'asc' ? 'ascending' : 'descending') : 'none' }}">
     <a href="{{ $url }}" class="inline-flex items-center gap-1"

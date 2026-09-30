@@ -35,9 +35,9 @@
             <x-table :label="setting('admin.users.segment_members.aada_alshryha', 'أعضاء الشريحة')" class="mt-3">
                 <thead>
                     <tr class="text-right text-xs" style="color: var(--text-muted)">
-                        <th class="p-2">{{ setting('admin.users.segment_members.alasm', 'الاسم') }}</th>
-                        <th class="p-2">{{ setting('admin.users.segment_members.alkwd', 'الكود') }}</th>
-                        <th class="p-2">{{ setting('admin.users.segment_members.alhala', 'الحالة') }}</th>
+                        <th scope="col" class="p-2">{{ setting('admin.users.segment_members.alasm', 'الاسم') }}</th>
+                        <th scope="col" class="p-2">{{ setting('admin.users.segment_members.alkwd', 'الكود') }}</th>
+                        <th scope="col" class="p-2">{{ setting('admin.users.segment_members.alhala', 'الحالة') }}</th>
                     </tr>
                 </thead>
                 <tbody>

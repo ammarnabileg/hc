@@ -26,11 +26,11 @@
         <table class="hidden md:table w-full text-sm">
             <thead style="background: var(--surface-sunken)">
                 <tr class="text-xs" style="color: var(--text-muted)">
-                    <th class="text-start p-3">{{ setting('admin.ops.partials.updates_history.alisdar', 'الإصدار') }}</th>
-                    <th class="text-start p-3">{{ setting('admin.ops.partials.updates_history.alnwa', 'النوع') }}</th>
-                    <th class="text-start p-3">{{ setting('admin.ops.partials.updates_history.alhjrat', 'الهجرات') }}</th>
-                    <th class="text-start p-3">{{ setting('admin.ops.partials.updates_history.mn_nfdh', 'مَن نفّذ') }}</th>
-                    <th class="text-start p-3">{{ setting('admin.ops.partials.updates_history.altarykh', 'التاريخ') }}</th>
+                    <th scope="col" class="text-start p-3">{{ setting('admin.ops.partials.updates_history.alisdar', 'الإصدار') }}</th>
+                    <th scope="col" class="text-start p-3">{{ setting('admin.ops.partials.updates_history.alnwa', 'النوع') }}</th>
+                    <th scope="col" class="text-start p-3">{{ setting('admin.ops.partials.updates_history.alhjrat', 'الهجرات') }}</th>
+                    <th scope="col" class="text-start p-3">{{ setting('admin.ops.partials.updates_history.mn_nfdh', 'مَن نفّذ') }}</th>
+                    <th scope="col" class="text-start p-3">{{ setting('admin.ops.partials.updates_history.altarykh', 'التاريخ') }}</th>
                 </tr>
             </thead>
             <tbody>

@@ -160,10 +160,10 @@
             <table class="w-full text-sm">
                 <thead>
                     <tr style="background: var(--surface-sunken); color: var(--text-muted)">
-                        <th class="text-start px-4 py-3 font-medium">{{ setting('referral.index.text_8', 'مَن انضمّ') }}</th>
-                        <th class="text-start px-4 py-3 font-medium">{{ setting('referral.index.text_9', 'التاريخ') }}</th>
-                        <th class="text-start px-4 py-3 font-medium">{{ setting('referral.index.text_10', 'الحالة') }}</th>
-                        <th class="text-start px-4 py-3 font-medium">{{ setting('referral.index.text_11', 'العمولة') }}</th>
+                        <th scope="col" class="text-start px-4 py-3 font-medium">{{ setting('referral.index.text_8', 'مَن انضمّ') }}</th>
+                        <th scope="col" class="text-start px-4 py-3 font-medium">{{ setting('referral.index.text_9', 'التاريخ') }}</th>
+                        <th scope="col" class="text-start px-4 py-3 font-medium">{{ setting('referral.index.text_10', 'الحالة') }}</th>
+                        <th scope="col" class="text-start px-4 py-3 font-medium">{{ setting('referral.index.text_11', 'العمولة') }}</th>
                     </tr>
                 </thead>
                 <tbody>

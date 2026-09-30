@@ -77,13 +77,13 @@
             <table class="hidden md:table w-full text-sm">
                 <thead style="background: var(--surface-sunken)">
                     <tr class="text-xs" style="color: var(--text-muted)">
-                        <th class="text-start p-3">{{ setting('admin.store.topups.index.altlb', 'الطلب') }}</th>
-                        <th class="text-start p-3">{{ setting('admin.store.topups.index.almstkhdm', 'المستخدم') }}</th>
-                        <th class="text-start p-3">{{ setting('admin.store.topups.index.alqyma_almhwla', 'القيمة المحوَّلة') }}</th>
-                        <th class="text-start p-3">{{ setting('admin.store.topups.index.tryqa_althwyl', 'طريقة التحويل') }}</th>
-                        <th class="text-start p-3">{{ setting('admin.store.topups.index.alhala', 'الحالة') }}</th>
-                        <th class="text-start p-3">{{ setting('admin.store.topups.index.alamr_dakhly', 'العمر (داخليّ)') }}</th>
-                        <th class="text-start p-3"></th>
+                        <th scope="col" class="text-start p-3">{{ setting('admin.store.topups.index.altlb', 'الطلب') }}</th>
+                        <th scope="col" class="text-start p-3">{{ setting('admin.store.topups.index.almstkhdm', 'المستخدم') }}</th>
+                        <th scope="col" class="text-start p-3">{{ setting('admin.store.topups.index.alqyma_almhwla', 'القيمة المحوَّلة') }}</th>
+                        <th scope="col" class="text-start p-3">{{ setting('admin.store.topups.index.tryqa_althwyl', 'طريقة التحويل') }}</th>
+                        <th scope="col" class="text-start p-3">{{ setting('admin.store.topups.index.alhala', 'الحالة') }}</th>
+                        <th scope="col" class="text-start p-3">{{ setting('admin.store.topups.index.alamr_dakhly', 'العمر (داخليّ)') }}</th>
+                        <th scope="col" class="text-start p-3"></th>
                     </tr>
                 </thead>
                 <tbody>

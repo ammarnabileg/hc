@@ -8,12 +8,12 @@
     <table class="hidden md:table w-full text-sm">
         <thead style="background: var(--surface-sunken)">
             <tr class="text-xs" style="color: var(--text-muted)">
-                <th class="text-start p-3">{{ setting('admin.trash.col_type', 'النوع') }}</th>
-                <th class="text-start p-3">{{ setting('admin.trash.col_item', 'العنصر') }}</th>
-                <th class="text-start p-3">{{ setting('admin.trash.col_deleted_by', 'مَن حذفه') }}</th>
-                <th class="text-start p-3">{{ setting('admin.trash.col_deleted_at', 'متى') }}</th>
-                <th class="text-start p-3">{{ setting('admin.trash.col_remaining', 'متبقٍّ للحذف النهائيّ') }}</th>
-                <th class="text-start p-3">{{ setting('admin.trash.col_actions', 'إجراءات') }}</th>
+                <th scope="col" class="text-start p-3">{{ setting('admin.trash.col_type', 'النوع') }}</th>
+                <th scope="col" class="text-start p-3">{{ setting('admin.trash.col_item', 'العنصر') }}</th>
+                <th scope="col" class="text-start p-3">{{ setting('admin.trash.col_deleted_by', 'مَن حذفه') }}</th>
+                <th scope="col" class="text-start p-3">{{ setting('admin.trash.col_deleted_at', 'متى') }}</th>
+                <th scope="col" class="text-start p-3">{{ setting('admin.trash.col_remaining', 'متبقٍّ للحذف النهائيّ') }}</th>
+                <th scope="col" class="text-start p-3">{{ setting('admin.trash.col_actions', 'إجراءات') }}</th>
             </tr>
         </thead>
         <tbody>

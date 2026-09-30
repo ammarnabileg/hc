@@ -31,11 +31,11 @@
             <table class="w-full text-sm">
                 <thead>
                     <tr style="background: var(--surface-sunken)">
-                        <th class="text-start px-4 py-3 font-semibold">{{ setting('admin.report_schedules.log.alwqt', 'الوقت') }}</th>
-                        <th class="text-start px-4 py-3 font-semibold">{{ setting('admin.report_schedules.log.alntyja', 'النتيجة') }}</th>
-                        <th class="text-start px-4 py-3 font-semibold">{{ setting('admin.report_schedules.log.alsfwf', 'الصفوف') }}</th>
-                        <th class="text-start px-4 py-3 font-semibold">{{ setting('admin.report_schedules.log.almstqblwn', 'المستقبِلون') }}</th>
-                        <th class="text-start px-4 py-3 font-semibold">{{ setting('admin.report_schedules.log.altfsyl', 'التفصيل') }}</th>
+                        <th scope="col" class="text-start px-4 py-3 font-semibold">{{ setting('admin.report_schedules.log.alwqt', 'الوقت') }}</th>
+                        <th scope="col" class="text-start px-4 py-3 font-semibold">{{ setting('admin.report_schedules.log.alntyja', 'النتيجة') }}</th>
+                        <th scope="col" class="text-start px-4 py-3 font-semibold">{{ setting('admin.report_schedules.log.alsfwf', 'الصفوف') }}</th>
+                        <th scope="col" class="text-start px-4 py-3 font-semibold">{{ setting('admin.report_schedules.log.almstqblwn', 'المستقبِلون') }}</th>
+                        <th scope="col" class="text-start px-4 py-3 font-semibold">{{ setting('admin.report_schedules.log.altfsyl', 'التفصيل') }}</th>
                     </tr>
                 </thead>
                 <tbody>

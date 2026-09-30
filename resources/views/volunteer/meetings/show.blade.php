@@ -120,11 +120,11 @@
                 <table class="w-full text-sm">
                     <thead style="color: var(--text-muted)">
                         <tr class="text-start">
-                            <th class="p-3 text-start">{{ setting('volunteer.meetings_show.col', 'العضو') }}</th>
-                            <th class="p-3 text-start">{{ setting('volunteer.common.status', 'الحالة') }}</th>
-                            <th class="p-3 text-start">{{ setting('volunteer.meetings_show.col_2', 'وقت التسجيل') }}</th>
-                            <th class="p-3 text-start">{{ setting('volunteer.meetings_show.col_3', 'بعد الانتهاء') }}</th>
-                            <th class="p-3 text-start">{{ setting('volunteer.meetings_show.col_4', 'القيمة على Rep') }}</th>
+                            <th scope="col" class="p-3 text-start">{{ setting('volunteer.meetings_show.col', 'العضو') }}</th>
+                            <th scope="col" class="p-3 text-start">{{ setting('volunteer.common.status', 'الحالة') }}</th>
+                            <th scope="col" class="p-3 text-start">{{ setting('volunteer.meetings_show.col_2', 'وقت التسجيل') }}</th>
+                            <th scope="col" class="p-3 text-start">{{ setting('volunteer.meetings_show.col_3', 'بعد الانتهاء') }}</th>
+                            <th scope="col" class="p-3 text-start">{{ setting('volunteer.meetings_show.col_4', 'القيمة على Rep') }}</th>
                         </tr>
                     </thead>
                     <tbody>

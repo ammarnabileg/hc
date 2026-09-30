@@ -70,12 +70,12 @@
                     <table class="w-full text-sm">
                         <thead>
                             <tr style="background: var(--surface-sunken)">
-                                <th class="px-4 py-3"><input type="checkbox" data-bulk-master aria-label="{{ setting('admin.users.approvals.thdyd_alkl', 'تحديد الكلّ') }}"></th>
-                                <th class="text-start px-4 py-3 font-semibold">{{ setting('admin.users.approvals.almstkhdm', 'المستخدم') }}</th>
-                                <th class="text-start px-4 py-3 font-semibold">{{ setting('admin.users.approvals.albryd', 'البريد') }}</th>
-                                <th class="text-start px-4 py-3 font-semibold">{{ setting('admin.users.approvals.aldaay', 'الداعي') }}</th>
-                                <th class="text-start px-4 py-3 font-semibold">{{ setting('admin.users.approvals.amr_altlb', 'عمر الطلب') }}</th>
-                                <th class="px-4 py-3"></th>
+                                <th scope="col" class="px-4 py-3"><input type="checkbox" data-bulk-master aria-label="{{ setting('admin.users.approvals.thdyd_alkl', 'تحديد الكلّ') }}"></th>
+                                <th scope="col" class="text-start px-4 py-3 font-semibold">{{ setting('admin.users.approvals.almstkhdm', 'المستخدم') }}</th>
+                                <th scope="col" class="text-start px-4 py-3 font-semibold">{{ setting('admin.users.approvals.albryd', 'البريد') }}</th>
+                                <th scope="col" class="text-start px-4 py-3 font-semibold">{{ setting('admin.users.approvals.aldaay', 'الداعي') }}</th>
+                                <th scope="col" class="text-start px-4 py-3 font-semibold">{{ setting('admin.users.approvals.amr_altlb', 'عمر الطلب') }}</th>
+                                <th scope="col" class="px-4 py-3"></th>
                             </tr>
                         </thead>
                         <tbody>

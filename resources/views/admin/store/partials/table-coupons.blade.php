@@ -2,12 +2,12 @@
     <table class="hidden md:table w-full text-sm">
         <thead style="background: var(--surface-sunken)">
             <tr class="text-xs" style="color: var(--text-muted)">
-                <th class="text-start p-3">{{ setting('admin.store.partials.table_coupons.alkwd', 'الكود') }}</th>
-                <th class="text-start p-3">{{ setting('admin.store.partials.table_coupons.nwa_alkhsm', 'نوع الخصم') }}</th>
-                <th class="text-start p-3">{{ setting('admin.store.partials.table_coupons.alqyma', 'القيمة') }}</th>
-                <th class="text-start p-3">{{ setting('admin.store.partials.table_coupons.almstkhdm_alhd', 'المستخدَم / الحدّ') }}</th>
-                <th class="text-start p-3">{{ setting('admin.store.partials.table_coupons.alhala', 'الحالة') }}</th>
-                <th class="text-start p-3">{{ setting('admin.store.partials.table_coupons.ijraat', 'إجراءات') }}</th>
+                <th scope="col" class="text-start p-3">{{ setting('admin.store.partials.table_coupons.alkwd', 'الكود') }}</th>
+                <th scope="col" class="text-start p-3">{{ setting('admin.store.partials.table_coupons.nwa_alkhsm', 'نوع الخصم') }}</th>
+                <th scope="col" class="text-start p-3">{{ setting('admin.store.partials.table_coupons.alqyma', 'القيمة') }}</th>
+                <th scope="col" class="text-start p-3">{{ setting('admin.store.partials.table_coupons.almstkhdm_alhd', 'المستخدَم / الحدّ') }}</th>
+                <th scope="col" class="text-start p-3">{{ setting('admin.store.partials.table_coupons.alhala', 'الحالة') }}</th>
+                <th scope="col" class="text-start p-3">{{ setting('admin.store.partials.table_coupons.ijraat', 'إجراءات') }}</th>
             </tr>
         </thead>
         <tbody>

@@ -77,10 +77,10 @@
                         <table class="w-full text-sm">
                             <thead>
                                 <tr style="background: var(--surface-sunken)">
-                                    <th class="px-3 py-2"></th>
-                                    <th class="text-start px-3 py-2 font-semibold">{{ setting('admin.roles.edit.alslahya', 'الصلاحيّة') }}</th>
-                                    <th class="text-start px-3 py-2 font-semibold">{{ setting('admin.roles.edit.alntaq', 'النطاق') }}</th>
-                                    <th class="text-start px-3 py-2 font-semibold">{{ setting('admin.roles.edit.alathr', 'الأثر') }}</th>
+                                    <th scope="col" class="px-3 py-2"></th>
+                                    <th scope="col" class="text-start px-3 py-2 font-semibold">{{ setting('admin.roles.edit.alslahya', 'الصلاحيّة') }}</th>
+                                    <th scope="col" class="text-start px-3 py-2 font-semibold">{{ setting('admin.roles.edit.alntaq', 'النطاق') }}</th>
+                                    <th scope="col" class="text-start px-3 py-2 font-semibold">{{ setting('admin.roles.edit.alathr', 'الأثر') }}</th>
                                 </tr>
                             </thead>
                             <tbody>

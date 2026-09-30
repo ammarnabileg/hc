@@ -115,16 +115,16 @@
             <table class="w-full text-sm">
                 <thead>
                     <tr style="background: var(--surface-sunken)">
-                        <th class="text-start px-4 py-3 font-semibold">{{ setting('admin.volunteer.certificates.kwd_alshhada', 'كود الشهادة') }}</th>
-                        <th class="text-start px-4 py-3 font-semibold">{{ setting('admin.volunteer.certificates.almstfyd', 'المستفيد') }}</th>
-                        <th class="text-start px-4 py-3 font-semibold">{{ setting('admin.volunteer.certificates.alnwa', 'النوع') }}</th>
-                        <th class="text-start px-4 py-3 font-semibold">{{ setting('admin.volunteer.certificates.albwzshn_alkyan', 'البوزشن/الكيان') }}</th>
-                        <th class="text-start px-4 py-3 font-semibold">{{ setting('admin.volunteer.certificates.almda', 'المدّة') }}</th>
-                        <th class="text-start px-4 py-3 font-semibold">{{ setting('admin.volunteer.certificates.ntaq_almswwlya', 'نطاق المسؤوليّة') }}</th>
-                        <th class="text-start px-4 py-3 font-semibold">{{ setting('admin.volunteer.certificates.tarykh_alisdar', 'تاريخ الإصدار') }}</th>
-                        <th class="text-start px-4 py-3 font-semibold">{{ setting('admin.volunteer.certificates.allgha', 'اللغة') }}</th>
-                        <th class="text-start px-4 py-3 font-semibold">{{ setting('admin.volunteer.certificates.alhala', 'الحالة') }}</th>
-                        <th class="text-start px-4 py-3 font-semibold">{{ setting('admin.volunteer.certificates.ijraat', 'إجراءات') }}</th>
+                        <th scope="col" class="text-start px-4 py-3 font-semibold">{{ setting('admin.volunteer.certificates.kwd_alshhada', 'كود الشهادة') }}</th>
+                        <th scope="col" class="text-start px-4 py-3 font-semibold">{{ setting('admin.volunteer.certificates.almstfyd', 'المستفيد') }}</th>
+                        <th scope="col" class="text-start px-4 py-3 font-semibold">{{ setting('admin.volunteer.certificates.alnwa', 'النوع') }}</th>
+                        <th scope="col" class="text-start px-4 py-3 font-semibold">{{ setting('admin.volunteer.certificates.albwzshn_alkyan', 'البوزشن/الكيان') }}</th>
+                        <th scope="col" class="text-start px-4 py-3 font-semibold">{{ setting('admin.volunteer.certificates.almda', 'المدّة') }}</th>
+                        <th scope="col" class="text-start px-4 py-3 font-semibold">{{ setting('admin.volunteer.certificates.ntaq_almswwlya', 'نطاق المسؤوليّة') }}</th>
+                        <th scope="col" class="text-start px-4 py-3 font-semibold">{{ setting('admin.volunteer.certificates.tarykh_alisdar', 'تاريخ الإصدار') }}</th>
+                        <th scope="col" class="text-start px-4 py-3 font-semibold">{{ setting('admin.volunteer.certificates.allgha', 'اللغة') }}</th>
+                        <th scope="col" class="text-start px-4 py-3 font-semibold">{{ setting('admin.volunteer.certificates.alhala', 'الحالة') }}</th>
+                        <th scope="col" class="text-start px-4 py-3 font-semibold">{{ setting('admin.volunteer.certificates.ijraat', 'إجراءات') }}</th>
                     </tr>
                 </thead>
                 <tbody data-cert-ledger-desktop>

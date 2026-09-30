@@ -41,9 +41,9 @@
                 <table class="w-full text-sm">
                     <thead>
                         <tr class="text-xs" style="color: var(--text-muted)">
-                            <th class="text-start p-2">{{ setting('admin.store.partials.order_panel.albnd', 'البند') }}</th>
-                            <th class="text-start p-2">{{ setting('admin.store.partials.order_panel.alkmya', 'الكمّيّة') }}</th>
-                            <th class="text-start p-2">{{ setting('admin.store.partials.order_panel.alsar', 'السعر') }}</th>
+                            <th scope="col" class="text-start p-2">{{ setting('admin.store.partials.order_panel.albnd', 'البند') }}</th>
+                            <th scope="col" class="text-start p-2">{{ setting('admin.store.partials.order_panel.alkmya', 'الكمّيّة') }}</th>
+                            <th scope="col" class="text-start p-2">{{ setting('admin.store.partials.order_panel.alsar', 'السعر') }}</th>
                         </tr>
                     </thead>
                     <tbody>

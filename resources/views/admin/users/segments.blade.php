@@ -114,14 +114,14 @@
             <x-table :label="setting('admin.users.segments.shrayh_aljmhwr', 'شرائح الجمهور')">
                 <thead>
                     <tr class="text-right text-xs" style="color: var(--text-muted)">
-                        <th class="p-2">{{ setting('admin.users.segments.alshryha', 'الشريحة') }}</th>
-                        <th class="p-2">{{ setting('admin.users.segments.mlkhs_almaayyr', 'ملخّص المعايير') }}</th>
-                        <th class="p-2">{{ setting('admin.users.segments.alaada', 'الأعضاء') }}</th>
-                        <th class="p-2">{{ setting('admin.users.segments.alnwa', 'النوع') }}</th>
-                        <th class="p-2">{{ setting('admin.users.segments.mstkhdma_fy', 'مستخدَمة في') }}</th>
-                        <th class="p-2">{{ setting('admin.users.segments.akhr_thdyth', 'آخر تحديث') }}</th>
-                        <th class="p-2">{{ setting('admin.users.segments.alhala', 'الحالة') }}</th>
-                        <th class="p-2">{{ setting('admin.users.segments.ijraat', 'إجراءات') }}</th>
+                        <th scope="col" class="p-2">{{ setting('admin.users.segments.alshryha', 'الشريحة') }}</th>
+                        <th scope="col" class="p-2">{{ setting('admin.users.segments.mlkhs_almaayyr', 'ملخّص المعايير') }}</th>
+                        <th scope="col" class="p-2">{{ setting('admin.users.segments.alaada', 'الأعضاء') }}</th>
+                        <th scope="col" class="p-2">{{ setting('admin.users.segments.alnwa', 'النوع') }}</th>
+                        <th scope="col" class="p-2">{{ setting('admin.users.segments.mstkhdma_fy', 'مستخدَمة في') }}</th>
+                        <th scope="col" class="p-2">{{ setting('admin.users.segments.akhr_thdyth', 'آخر تحديث') }}</th>
+                        <th scope="col" class="p-2">{{ setting('admin.users.segments.alhala', 'الحالة') }}</th>
+                        <th scope="col" class="p-2">{{ setting('admin.users.segments.ijraat', 'إجراءات') }}</th>
                     </tr>
                 </thead>
                 <tbody>

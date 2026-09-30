@@ -116,12 +116,12 @@
                    @unless (advanced_mode()) data-columns-cap="{{ view_mode()->defaultColumns() }}" @endunless>
                 <thead style="color: var(--text-muted)">
                     <tr>
-                        <th class="p-3 text-start">{{ setting('volunteer.transactions.col', 'التاريخ/الساعة') }}</th>
-                        <th class="p-3 text-start">{{ setting('volunteer.common.type', 'النوع') }}</th>
-                        <th class="p-3 text-start">{{ setting('volunteer.common.value', 'القيمة') }}</th>
-                        <th class="p-3 text-start">{{ setting('volunteer.common.reason', 'السبب') }}</th>
-                        <th class="p-3 text-start">{{ setting('volunteer.common.reference', 'المرجع') }}</th>
-                        <th class="p-3 text-start">{{ setting('volunteer.transactions.col_2', 'الاعتراض') }}</th>
+                        <th scope="col" class="p-3 text-start">{{ setting('volunteer.transactions.col', 'التاريخ/الساعة') }}</th>
+                        <th scope="col" class="p-3 text-start">{{ setting('volunteer.common.type', 'النوع') }}</th>
+                        <th scope="col" class="p-3 text-start">{{ setting('volunteer.common.value', 'القيمة') }}</th>
+                        <th scope="col" class="p-3 text-start">{{ setting('volunteer.common.reason', 'السبب') }}</th>
+                        <th scope="col" class="p-3 text-start">{{ setting('volunteer.common.reference', 'المرجع') }}</th>
+                        <th scope="col" class="p-3 text-start">{{ setting('volunteer.transactions.col_2', 'الاعتراض') }}</th>
                     </tr>
                 </thead>
                 <tbody>

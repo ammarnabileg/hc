@@ -49,14 +49,14 @@
             <x-table :label="setting('admin.gamification.tabs.reward_questions.bnk_asyla_almkafat', 'بنك أسئلة المكافآت')">
                 <thead>
                     <tr style="border-bottom: 1px solid var(--border)">
-                        <th class="p-3 text-start">{{ setting('admin.gamification.tabs.reward_questions.alswal', 'السؤال') }}</th>
-                        <th class="p-3 text-start">{{ setting('admin.gamification.tabs.reward_questions.alijaba', 'الإجابة') }}</th>
-                        <th class="p-3 text-start">{{ setting('admin.gamification.tabs.reward_questions.alrabt', 'الرابط') }}</th>
-                        <th class="p-3 text-start">{{ setting('admin.gamification.tabs.reward_questions.alnwa', 'النوع') }}</th>
-                        <th class="p-3 text-start">{{ setting('admin.gamification.tabs.reward_questions.mkafaa', 'المكافأة') }}</th>
-                        <th class="p-3 text-start">{{ setting('admin.gamification.tabs.reward_questions.mda_altfayl', 'مدّة التفعيل') }}</th>
-                        <th class="p-3 text-start">{{ setting('admin.gamification.tabs.reward_questions.alhala', 'الحالة') }}</th>
-                        <th class="p-3 text-start">{{ setting('admin.gamification.tabs.reward_questions.ijraat', 'إجراءات') }}</th>
+                        <th scope="col" class="p-3 text-start">{{ setting('admin.gamification.tabs.reward_questions.alswal', 'السؤال') }}</th>
+                        <th scope="col" class="p-3 text-start">{{ setting('admin.gamification.tabs.reward_questions.alijaba', 'الإجابة') }}</th>
+                        <th scope="col" class="p-3 text-start">{{ setting('admin.gamification.tabs.reward_questions.alrabt', 'الرابط') }}</th>
+                        <th scope="col" class="p-3 text-start">{{ setting('admin.gamification.tabs.reward_questions.alnwa', 'النوع') }}</th>
+                        <th scope="col" class="p-3 text-start">{{ setting('admin.gamification.tabs.reward_questions.mkafaa', 'المكافأة') }}</th>
+                        <th scope="col" class="p-3 text-start">{{ setting('admin.gamification.tabs.reward_questions.mda_altfayl', 'مدّة التفعيل') }}</th>
+                        <th scope="col" class="p-3 text-start">{{ setting('admin.gamification.tabs.reward_questions.alhala', 'الحالة') }}</th>
+                        <th scope="col" class="p-3 text-start">{{ setting('admin.gamification.tabs.reward_questions.ijraat', 'إجراءات') }}</th>
                     </tr>
                 </thead>
                 <tbody>

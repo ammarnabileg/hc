@@ -65,12 +65,12 @@
                 <table class="w-full text-sm">
                     <thead style="color: var(--text-muted)">
                         <tr>
-                            <th class="p-3 text-start">{{ setting('volunteer.meetings_attendance.col', 'الاجتماع') }}</th>
-                            <th class="p-3 text-start">{{ setting('volunteer.common.date', 'التاريخ') }}</th>
-                            <th class="p-3 text-start">{{ setting('volunteer.meetings_attendance.col_2', 'وقت تسجيلي') }}</th>
-                            <th class="p-3 text-start">{{ setting('volunteer.meetings_attendance.col_3', 'بعد الانتهاء') }}</th>
-                            <th class="p-3 text-start">{{ setting('volunteer.meetings_attendance.col_4', 'القيمة على Rep') }}</th>
-                            <th class="p-3 text-start">{{ setting('volunteer.common.entity', 'الكيان') }}</th>
+                            <th scope="col" class="p-3 text-start">{{ setting('volunteer.meetings_attendance.col', 'الاجتماع') }}</th>
+                            <th scope="col" class="p-3 text-start">{{ setting('volunteer.common.date', 'التاريخ') }}</th>
+                            <th scope="col" class="p-3 text-start">{{ setting('volunteer.meetings_attendance.col_2', 'وقت تسجيلي') }}</th>
+                            <th scope="col" class="p-3 text-start">{{ setting('volunteer.meetings_attendance.col_3', 'بعد الانتهاء') }}</th>
+                            <th scope="col" class="p-3 text-start">{{ setting('volunteer.meetings_attendance.col_4', 'القيمة على Rep') }}</th>
+                            <th scope="col" class="p-3 text-start">{{ setting('volunteer.common.entity', 'الكيان') }}</th>
                         </tr>
                     </thead>
                     <tbody>

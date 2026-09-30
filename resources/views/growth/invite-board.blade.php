@@ -49,10 +49,10 @@
             <table class="hidden md:table w-full text-sm">
                 <thead style="background: var(--surface-sunken)">
                     <tr class="text-xs" style="color: var(--text-muted)">
-                        <th class="text-start p-3">#</th>
-                        <th class="text-start p-3">{{ setting('growth.invite_board.text_3', 'الداعي') }}</th>
-                        <th class="text-start p-3">{{ setting('growth.invite_board.text_4', 'دعوات مكتملة') }}</th>
-                        <th class="text-start p-3">{{ setting('growth.invite_board.text_5', 'إجمالي الدعوات') }}</th>
+                        <th scope="col" class="text-start p-3">#</th>
+                        <th scope="col" class="text-start p-3">{{ setting('growth.invite_board.text_3', 'الداعي') }}</th>
+                        <th scope="col" class="text-start p-3">{{ setting('growth.invite_board.text_4', 'دعوات مكتملة') }}</th>
+                        <th scope="col" class="text-start p-3">{{ setting('growth.invite_board.text_5', 'إجمالي الدعوات') }}</th>
                     </tr>
                 </thead>
                 <tbody>

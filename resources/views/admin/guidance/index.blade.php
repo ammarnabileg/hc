@@ -71,7 +71,7 @@
                         <x-sort-th key="rate" :label="setting('admin.guidance.index.nsba_alqraa', 'نسبة القراءة')" />
                         <x-sort-th key="acks" :label="setting('admin.guidance.index.aliqrarat', 'الإقرارات')" />
                         <x-sort-th key="pinned" :label="setting('admin.guidance.index.mthbt_2', 'مثبَّت؟')" />
-                        <th class="p-3 text-end">{{ setting('admin.guidance.index.ijraat', 'إجراءات') }}</th>
+                        <th scope="col" class="p-3 text-end">{{ setting('admin.guidance.index.ijraat', 'إجراءات') }}</th>
                     </tr>
                 </thead>
                 <tbody>

@@ -127,11 +127,11 @@
                 <x-table :label="setting('referral_admin.screen.tab_invites', 'المدعوّون')">
                     <thead>
                         <tr style="background: var(--surface-sunken)">
-                            <th class="text-start px-4 py-3 font-semibold">{{ setting('admin.referral_admin.index.aldaay', 'الداعي') }}</th>
-                            <th class="text-start px-4 py-3 font-semibold">{{ setting('admin.referral_admin.index.almdaw', 'المدعو') }}</th>
-                            <th class="text-start px-4 py-3 font-semibold">{{ setting('admin.referral_admin.index.tarykh_aldawa', 'تاريخ الدعوة') }}</th>
-                            <th class="text-start px-4 py-3 font-semibold">{{ setting('admin.referral_admin.index.alhala', 'الحالة') }}</th>
-                            <th class="text-start px-4 py-3 font-semibold">{{ setting('admin.referral_admin.index.tdhkra_altrhyb', 'تذكرة الترحيب') }}</th>
+                            <th scope="col" class="text-start px-4 py-3 font-semibold">{{ setting('admin.referral_admin.index.aldaay', 'الداعي') }}</th>
+                            <th scope="col" class="text-start px-4 py-3 font-semibold">{{ setting('admin.referral_admin.index.almdaw', 'المدعو') }}</th>
+                            <th scope="col" class="text-start px-4 py-3 font-semibold">{{ setting('admin.referral_admin.index.tarykh_aldawa', 'تاريخ الدعوة') }}</th>
+                            <th scope="col" class="text-start px-4 py-3 font-semibold">{{ setting('admin.referral_admin.index.alhala', 'الحالة') }}</th>
+                            <th scope="col" class="text-start px-4 py-3 font-semibold">{{ setting('admin.referral_admin.index.tdhkra_altrhyb', 'تذكرة الترحيب') }}</th>
                             @if ($canSeeMoney)
                                 {{--
                                  | 🔒 «إجمالي شحنه» رقمٌ ماليّ كالعمولة تمامًا فيسير بنفس حارسها
@@ -139,10 +139,10 @@
                                  | معلَنة في صفحة الدعوات — فإظهار الأساس لغير المجموعة المحميّة
                                  | يكشف العمولة نفسها بضربةٍ واحدة، ويُبطل حجب العمود المجاور.
                                 --}}
-                                <th class="text-start px-4 py-3 font-semibold"><x-icon name="lock" size="16" /> {{ setting('admin.referral_admin.index.ijmaly_shhnh', 'إجمالي شحنه') }}</th>
-                                <th class="text-start px-4 py-3 font-semibold"><x-icon name="lock" size="16" /> {{ setting('admin.referral_admin.index.alamwla', 'العمولة') }}</th>
+                                <th scope="col" class="text-start px-4 py-3 font-semibold"><x-icon name="lock" size="16" /> {{ setting('admin.referral_admin.index.ijmaly_shhnh', 'إجمالي شحنه') }}</th>
+                                <th scope="col" class="text-start px-4 py-3 font-semibold"><x-icon name="lock" size="16" /> {{ setting('admin.referral_admin.index.alamwla', 'العمولة') }}</th>
                             @endif
-                            <th class="text-start px-4 py-3 font-semibold">⋯</th>
+                            <th scope="col" class="text-start px-4 py-3 font-semibold">⋯</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -216,12 +216,12 @@
                 <table class="w-full text-sm">
                     <thead>
                         <tr style="background: var(--surface-sunken)">
-                            <th class="text-start px-4 py-3 font-semibold">#</th>
-                            <th class="text-start px-4 py-3 font-semibold">{{ setting('admin.referral_admin.index.alsfyr', 'السفير') }}</th>
-                            <th class="text-start px-4 py-3 font-semibold">{{ setting('admin.referral_admin.index.dawat_mfala', 'دعوات مفعَّلة') }}</th>
-                            <th class="text-start px-4 py-3 font-semibold">{{ setting('admin.referral_admin.index.allqb', 'اللقب') }}</th>
-                            <th class="text-start px-4 py-3 font-semibold">{{ setting('admin.referral_admin.index.tarykh_allqb', 'تاريخ اللقب') }}</th>
-                            <th class="text-start px-4 py-3 font-semibold">⋯</th>
+                            <th scope="col" class="text-start px-4 py-3 font-semibold">#</th>
+                            <th scope="col" class="text-start px-4 py-3 font-semibold">{{ setting('admin.referral_admin.index.alsfyr', 'السفير') }}</th>
+                            <th scope="col" class="text-start px-4 py-3 font-semibold">{{ setting('admin.referral_admin.index.dawat_mfala', 'دعوات مفعَّلة') }}</th>
+                            <th scope="col" class="text-start px-4 py-3 font-semibold">{{ setting('admin.referral_admin.index.allqb', 'اللقب') }}</th>
+                            <th scope="col" class="text-start px-4 py-3 font-semibold">{{ setting('admin.referral_admin.index.tarykh_allqb', 'تاريخ اللقب') }}</th>
+                            <th scope="col" class="text-start px-4 py-3 font-semibold">⋯</th>
                         </tr>
                     </thead>
                     <tbody>

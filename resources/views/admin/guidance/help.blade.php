@@ -85,7 +85,7 @@
                         <x-sort-th key="title" :label="setting('admin.guidance.help.alanwan_arby_iinjlyzy', 'العنوان (ع/إ)')" />
                         <x-sort-th key="category" :label="setting('admin.guidance.help.altsnyf', 'التصنيف')" />
                         <x-sort-th key="status" :label="setting('admin.guidance.help.alhala', 'الحالة')" />
-                        <th class="p-3 text-end">{{ setting('admin.guidance.help.ijraat', 'إجراءات') }}</th>
+                        <th scope="col" class="p-3 text-end">{{ setting('admin.guidance.help.ijraat', 'إجراءات') }}</th>
                     </tr>
                 </thead>
                 <tbody>

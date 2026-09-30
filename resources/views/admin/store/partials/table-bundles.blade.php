@@ -20,15 +20,15 @@
         <table class="w-full text-sm">
             <thead style="background: var(--surface-sunken)">
                 <tr class="text-xs" style="color: var(--text-muted)">
-                    <th class="text-start p-3">{{ setting('store.admin.bundles.col_cover', 'الغلاف') }}</th>
-                    <th class="text-start p-3">{{ setting('store.admin.bundles.col_name', 'الاسم (ع/إ)') }}</th>
-                    <th class="text-start p-3">{{ setting('store.admin.bundles.col_items', 'عدد العناصر') }}</th>
-                    <th class="text-start p-3">{{ setting('store.admin.bundles.col_value', 'القيمة الإجماليّة') }}</th>
-                    <th class="text-start p-3">{{ setting('store.admin.bundles.col_price', 'سعر البندل') }}</th>
-                    <th class="text-start p-3">{{ setting('store.admin.bundles.col_savings', 'نسبة التوفير') }}</th>
-                    <th class="text-start p-3">{{ setting('store.admin.bundles.col_purchases', 'المشتريات') }}</th>
-                    <th class="text-start p-3">{{ setting('store.admin.bundles.col_status', 'الحالة') }}</th>
-                    <th class="text-start p-3">{{ setting('store.admin.bundles.col_actions', 'إجراءات') }}</th>
+                    <th scope="col" class="text-start p-3">{{ setting('store.admin.bundles.col_cover', 'الغلاف') }}</th>
+                    <th scope="col" class="text-start p-3">{{ setting('store.admin.bundles.col_name', 'الاسم (ع/إ)') }}</th>
+                    <th scope="col" class="text-start p-3">{{ setting('store.admin.bundles.col_items', 'عدد العناصر') }}</th>
+                    <th scope="col" class="text-start p-3">{{ setting('store.admin.bundles.col_value', 'القيمة الإجماليّة') }}</th>
+                    <th scope="col" class="text-start p-3">{{ setting('store.admin.bundles.col_price', 'سعر البندل') }}</th>
+                    <th scope="col" class="text-start p-3">{{ setting('store.admin.bundles.col_savings', 'نسبة التوفير') }}</th>
+                    <th scope="col" class="text-start p-3">{{ setting('store.admin.bundles.col_purchases', 'المشتريات') }}</th>
+                    <th scope="col" class="text-start p-3">{{ setting('store.admin.bundles.col_status', 'الحالة') }}</th>
+                    <th scope="col" class="text-start p-3">{{ setting('store.admin.bundles.col_actions', 'إجراءات') }}</th>
                 </tr>
             </thead>
             <tbody>

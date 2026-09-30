@@ -80,12 +80,12 @@
             <table class="hidden md:table w-full text-sm">
                 <thead style="background: var(--surface-sunken)">
                     <tr class="text-xs" style="color: var(--text-muted)">
-                        <th class="text-start p-3">{{ setting('admin.articles.index.alanwan', 'العنوان') }}</th>
-                        <th class="text-start p-3">{{ setting('admin.articles.index.alkatb', 'الكاتب') }}</th>
-                        <th class="text-start p-3">{{ setting('admin.articles.index.altsnyf', 'التصنيف') }}</th>
-                        <th class="text-start p-3">{{ setting('admin.articles.index.alhala', 'الحالة') }}</th>
-                        <th class="text-start p-3">{{ setting('admin.articles.index.akhr_thdyth', 'آخر تحديث') }}</th>
-                        <th class="text-start p-3">{{ setting('admin.articles.index.ijraat', 'إجراءات') }}</th>
+                        <th scope="col" class="text-start p-3">{{ setting('admin.articles.index.alanwan', 'العنوان') }}</th>
+                        <th scope="col" class="text-start p-3">{{ setting('admin.articles.index.alkatb', 'الكاتب') }}</th>
+                        <th scope="col" class="text-start p-3">{{ setting('admin.articles.index.altsnyf', 'التصنيف') }}</th>
+                        <th scope="col" class="text-start p-3">{{ setting('admin.articles.index.alhala', 'الحالة') }}</th>
+                        <th scope="col" class="text-start p-3">{{ setting('admin.articles.index.akhr_thdyth', 'آخر تحديث') }}</th>
+                        <th scope="col" class="text-start p-3">{{ setting('admin.articles.index.ijraat', 'إجراءات') }}</th>
                     </tr>
                 </thead>
                 <tbody>

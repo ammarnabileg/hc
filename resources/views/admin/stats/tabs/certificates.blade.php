@@ -31,8 +31,8 @@
                 <table class="w-full text-sm">
                     <thead>
                         <tr style="color: var(--text-muted)">
-                            <th class="text-start p-2">{{ setting('stats.certificates.col.accreditation', 'جهة الاعتماد') }}</th>
-                            <th class="text-start p-2">{{ setting('stats.certificates.col.issued', 'شهادات صادرة') }}</th>
+                            <th scope="col" class="text-start p-2">{{ setting('stats.certificates.col.accreditation', 'جهة الاعتماد') }}</th>
+                            <th scope="col" class="text-start p-2">{{ setting('stats.certificates.col.issued', 'شهادات صادرة') }}</th>
                         </tr>
                     </thead>
                     <tbody>

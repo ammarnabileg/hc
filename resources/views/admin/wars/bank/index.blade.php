@@ -144,14 +144,14 @@
                        @unless (advanced_mode()) data-columns-cap="{{ view_mode()->defaultColumns() }}" @endunless>
                     <thead>
                         <tr style="color: var(--text-muted)">
-                            <th class="p-2 text-start"><span class="sr-only">{{ setting('admin.wars.bank.index.thdyd', 'تحديد') }}</span></th>
-                            <th class="p-2 text-start">{{ setting('admin.wars.bank.index.alswal', 'السؤال') }}</th>
-                            <th class="p-2 text-start">{{ setting('admin.wars.bank.index.alijaba', 'الإجابة') }}</th>
-                            <th class="p-2 text-start">{{ setting('admin.wars.bank.index.alsawba', 'الصعوبة') }}</th>
-                            <th class="p-2 text-start">{{ setting('admin.wars.bank.index.almsdr', 'المصدر') }}</th>
-                            <th class="p-2 text-start">{{ setting('admin.wars.bank.index.alastkhdam', 'الاستخدام') }}</th>
-                            <th class="p-2 text-start">{{ setting('admin.wars.bank.index.alhala', 'الحالة') }}</th>
-                            <th class="p-2 text-start">{{ setting('admin.wars.bank.index.ijraat', 'إجراءات') }}</th>
+                            <th scope="col" class="p-2 text-start"><span class="sr-only">{{ setting('admin.wars.bank.index.thdyd', 'تحديد') }}</span></th>
+                            <th scope="col" class="p-2 text-start">{{ setting('admin.wars.bank.index.alswal', 'السؤال') }}</th>
+                            <th scope="col" class="p-2 text-start">{{ setting('admin.wars.bank.index.alijaba', 'الإجابة') }}</th>
+                            <th scope="col" class="p-2 text-start">{{ setting('admin.wars.bank.index.alsawba', 'الصعوبة') }}</th>
+                            <th scope="col" class="p-2 text-start">{{ setting('admin.wars.bank.index.almsdr', 'المصدر') }}</th>
+                            <th scope="col" class="p-2 text-start">{{ setting('admin.wars.bank.index.alastkhdam', 'الاستخدام') }}</th>
+                            <th scope="col" class="p-2 text-start">{{ setting('admin.wars.bank.index.alhala', 'الحالة') }}</th>
+                            <th scope="col" class="p-2 text-start">{{ setting('admin.wars.bank.index.ijraat', 'إجراءات') }}</th>
                         </tr>
                     </thead>
                     <tbody>
