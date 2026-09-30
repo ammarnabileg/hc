@@ -82,11 +82,7 @@
                 <div class="flex items-end gap-2 flex-wrap">
                     <label class="block flex-1" style="min-width: 8rem">
                         <span class="block text-sm mb-1">{{ setting('auth.otp.code_label', 'كود التحقّق') }}</span>
-                        <input type="text" name="code" inputmode="numeric" autocomplete="one-time-code"
-                               maxlength="{{ $otpLength }}" pattern="[0-9]{{ '{'.$otpLength.'}' }}" dir="ltr"
-                               data-otp-input data-length="{{ $otpLength }}"
-                               class="w-full rounded-xl px-3 py-2 text-center font-extrabold tabular-nums"
-                               style="min-height: 44px; background: var(--surface); border: 1px solid var(--border); color: var(--text); letter-spacing: .4rem">
+                        <x-otp-input :length="$otpLength" :label="setting('auth.otp.code_label', 'كود التحقّق')" />
                     </label>
 
                     {{-- زرّ واحد يتحوّل: «إرسال» ⟵ «تأكيد» (2.5-ب) --}}
@@ -261,7 +257,7 @@
                     action.textContent = document.querySelector('[data-texts]')?.dataset.send || '';
                     action.setAttribute('formaction', SEND);
                 }
-                if (code) code.value = '';
+                if (code) { code.value = ''; form.querySelectorAll('[data-otp-box]').forEach((b) => { b.value = ''; }); }
                 if (resend) resend.hidden = true;
             }
 
@@ -289,7 +285,7 @@
             const ready = !sent || (/^\d+$/.test(code.value) && code.value.length === LENGTH);
             action.disabled = !ready;
             action.style.opacity = ready ? '1' : '.5';
-            code.parentElement.hidden = !sent;    // الحقل يظهر بعد الإرسال
+            code.closest('label').hidden = !sent;    // الحقل يظهر بعد الإرسال
         };
 
         code?.addEventListener('input', () => {
@@ -322,7 +318,7 @@
         }
 
         // الحالة الابتدائيّة: الحقل يظهر فقط بعد أن يُبعَث الرمز فعلًا
-        if (action && code && action.dataset.sent !== '1') code.parentElement.hidden = true;
+        if (action && code && action.dataset.sent !== '1') code.closest('label').hidden = true;
         sync();
         if (email && email.value.trim()) check();
     })();

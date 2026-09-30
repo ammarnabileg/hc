@@ -1615,3 +1615,18 @@ a.pagination-btn:hover { background: var(--soft); color: var(--ink); }
   .page-footer { flex-direction: column; align-items: flex-start; gap: 6px; margin-block-start: 28px; }
 }
 @media print { .page-footer { display: none !important; } }
+
+/*
+ | رمز التحقّق كخانات (components/otp-input): حرفيًّا من المرجع `.otp` (52×54، خطّ 22px)،
+ | وعلى الأضيق تتقلّص الخانات لتسع ستّة أرقام في 320px.
+ */
+.otp-field .otp-row { display: flex; gap: 10px; direction: ltr; justify-content: center; }
+.otp-field .otp-row[hidden] { display: none; }
+.otp-field .otp-box {
+  inline-size: 52px; min-block-size: 54px; padding: 0; text-align: center;
+  font-size: 22px; font-weight: 800; font-variant-numeric: tabular-nums;
+  border-radius: 10px; border: 1px solid var(--border); background: var(--surface-sunken); color: var(--text);
+  transition: border-color 150ms var(--ease-standard), box-shadow 150ms var(--ease-standard);
+}
+.otp-field .otp-box:focus { border-color: var(--color-brand-500); box-shadow: 0 0 0 4px var(--brand-soft); outline: none; }
+@media (max-width: 400px) { .otp-field .otp-box { inline-size: 44px; } .otp-field .otp-row { gap: 6px; } }

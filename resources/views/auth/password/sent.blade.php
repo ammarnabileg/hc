@@ -27,12 +27,7 @@
 
         <label class="block">
             <span class="block text-sm mb-1">{{ setting('auth.password_reset.code_label', 'أو اكتب الرمز اللي وصلك') }}</span>
-            <input type="text" name="code" inputmode="numeric" autocomplete="one-time-code"
-                   maxlength="{{ $length }}" pattern="{{ '[0-9]{'.$length.'}' }}"
-                   data-otp-input data-length="{{ $length }}"
-                   class="w-full rounded-xl px-3 py-3 text-center font-extrabold tabular-nums"
-                   style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text); font-size: 1.5rem; letter-spacing: .5rem"
-                   dir="ltr">
+            <x-otp-input :length="$length" :label="setting('auth.password_reset.code_label', 'أو اكتب الرمز اللي وصلك')" autofocus />
             @error('code')
                 <span class="field-error block mt-1">{{ $message }}</span>
             @enderror

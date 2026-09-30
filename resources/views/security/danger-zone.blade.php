@@ -46,12 +46,7 @@
               data-confirm="{{ setting('account.delete.confirm_text', 'متأكّد؟ الحساب هيتقفل دلوقتي.') }}">
             @csrf
             @method('DELETE')
-            <input type="text" name="code" inputmode="numeric" autocomplete="one-time-code"
-                   maxlength="{{ (int) setting('auth.otp.length', 4) }}"
-                   placeholder="{{ setting('account.delete.code_placeholder', 'الرمز') }}"
-                   class="w-full rounded-xl px-3 py-2 text-center tabular-nums"
-                   style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)"
-                   dir="ltr">
+            <x-otp-input :length="(int) setting('auth.otp.length', 4)" :label="setting('account.delete.code_placeholder', 'الرمز')" class="flex-1" />
             <button type="submit"
                     class="btn shrink-0 rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
                     style="background: var(--color-state-danger); color: #fff">

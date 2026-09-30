@@ -306,12 +306,7 @@
 
                         <form method="post" action="{{ route('events.checkin', $event->slug) }}" class="space-y-3">
                             @csrf
-                            <input type="text" name="code" inputmode="numeric" autocomplete="one-time-code"
-                                   maxlength="{{ (int) setting('events.attendance.code_length', 6) }}"
-                                   placeholder="{{ str_repeat('•', (int) setting('events.attendance.code_length', 6)) }}"
-                                   class="w-full rounded-xl px-3 py-3 text-center text-2xl font-extrabold tracking-[0.5em]"
-                                   style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)"
-                                   aria-label="{{ setting('events.show.code_title', 'كود الحضور') }}" required>
+                            <x-otp-input :length="(int) setting('events.attendance.code_length', 6)" :label="setting('events.show.code_title', 'كود الحضور')" required />
 
                             @error('code')
                                 <p class="text-xs" style="color: var(--color-state-danger)">{{ $message }}</p>

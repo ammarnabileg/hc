@@ -380,6 +380,51 @@ document.addEventListener('click', (e) => {
 });
 
 /*
+ | رمز التحقّق كخانات (components/otp-input): مع الجافاسكربت تظهر الخانات ويصير
+ | الحقل الواحد مخفيًّا يحمل القيمة المجمّعة (فتبقى سكربتات الشاشات على `[data-otp-input]`).
+ | انتقالٌ تلقائيّ، Backspace يرجع خانة، الأسهم تتنقّل، واللصق/تعبئة النظام توزّع الأرقام.
+ */
+document.querySelectorAll('[data-otp-field]').forEach((field) => {
+    const hidden = field.querySelector('[data-otp-input]');
+    const row = field.querySelector('[data-otp-row]');
+    const boxes = Array.from(field.querySelectorAll('[data-otp-box]'));
+    if (!hidden || !row || !boxes.length) return;
+
+    const sync = () => {
+        hidden.value = boxes.map((b) => b.value).join('');
+        hidden.dispatchEvent(new Event('input', { bubbles: true }));
+    };
+    const fill = (start, text) => {
+        const digits = String(text).replace(/\D/g, '').split('');
+        digits.forEach((d, j) => { if (boxes[start + j]) boxes[start + j].value = d; });
+        boxes[Math.min(start + digits.length, boxes.length - 1)]?.focus();
+        sync();
+    };
+
+    boxes.forEach((box, i) => {
+        box.addEventListener('input', () => {
+            const v = box.value.replace(/\D/g, '');
+            if (v.length > 1) { box.value = ''; fill(i, v); return; } // لصق أو تعبئة النظام في خانة واحدة
+            box.value = v;
+            if (v && boxes[i + 1]) boxes[i + 1].focus();
+            sync();
+        });
+        box.addEventListener('keydown', (e) => {
+            if (e.key === 'Backspace' && !box.value && boxes[i - 1]) { e.preventDefault(); boxes[i - 1].value = ''; boxes[i - 1].focus(); sync(); }
+            else if (e.key === 'ArrowLeft' && boxes[i - 1]) { e.preventDefault(); boxes[i - 1].focus(); }
+            else if (e.key === 'ArrowRight' && boxes[i + 1]) { e.preventDefault(); boxes[i + 1].focus(); }
+        });
+        box.addEventListener('paste', (e) => { e.preventDefault(); fill(i, e.clipboardData?.getData('text') || ''); });
+        box.addEventListener('focus', () => box.select());
+    });
+
+    row.hidden = false;
+    hidden.type = 'hidden';
+    if (hidden.value) fill(0, hidden.value); // old('code') بعد خطأ تحقّق
+    if (field.hasAttribute('data-autofocus')) boxes[0].focus();
+});
+
+/*
  | ⭐ زرّ إعادة فتح قائمة الدروس الثابت (idea #17): يبدّل سمة `open` على
  | `.lesson-panel` — نفس آلية `<details>` النايتف، فلا حاجة لحالة JS منفصلة
  | تتعارض مع النقر المباشر على `<summary>`.
