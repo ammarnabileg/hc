@@ -53,7 +53,7 @@
                 @endphp
 
                 <article class="card overflow-hidden animate-fadeup flex flex-col">
-                    <a href="{{ route('learning.path', $path) }}" class="block motion-standard hover:opacity-90">
+                    <a href="{{ route('learning.path', $path) }}" class="block motion-standard hover:opacity-90" aria-label="{{ $path->name_ar }}">
                         <div class="aspect-[16/9] w-full flex items-center justify-center" style="background: var(--surface-sunken)">
                             @if ($cover)
                                 <img src="{{ $cover }}" alt="{{ $path->name_ar }}" class="w-full h-full object-cover" loading="lazy">
