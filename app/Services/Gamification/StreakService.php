@@ -432,6 +432,38 @@ class StreakService
         return $map;
     }
 
+    /**
+     * ⭐ أسبوع الاستمراريّة (الفكرة #26): آخر سبعة أيّام بساعة المستخدم، من الأقدم
+     * إلى النهارده، كلٌّ بحاله (نشط/نادي/درع) وعلامةٍ لليوم الحاليّ. التفاصيل الأطول
+     * تبقى في الخريطة الحراريّة؛ الشريط هو النظرة السريعة قبلها.
+     *
+     * @return list<array{date:string,label:string,active:bool,club:bool,freeze:bool,today:bool}>
+     */
+    public function week(User $user): array
+    {
+        $today = CarbonImmutable::parse($this->clock->now($user)->toDateString());
+        $from = $today->subDays(6);
+        $map = $this->heatmap($user, $from, $today);
+
+        $days = [];
+
+        for ($i = 0; $i < 7; $i++) {
+            $date = $from->addDays($i);
+            $key = $date->toDateString();
+
+            $days[] = [
+                'date' => $key,
+                'label' => $date->translatedFormat('D'),
+                'active' => (bool) ($map[$key]['active'] ?? false),
+                'club' => (bool) ($map[$key]['club'] ?? false),
+                'freeze' => (bool) ($map[$key]['freeze'] ?? false),
+                'today' => $i === 6,
+            ];
+        }
+
+        return $days;
+    }
+
     /** آخر أيّام النادي — لعرضها في الشرح */
     public function clubDays(User $user, int $limit = 5): Collection
     {

@@ -94,6 +94,37 @@
                 </form>
             </div>
 
+            {{-- ⭐ أسبوع الاستمراريّة (الفكرة #26): سبع علامات، النهارده مطوَّق، والحال بلونه --}}
+            <ol class="streak-week mb-4" data-streak-week
+                aria-label="{{ setting('streaks.screen.week_aria', 'آخر سبعة أيّام') }}">
+                @foreach ($week as $day)
+                    @php
+                        $state = match (true) {
+                            $day['club'] => 'club',
+                            $day['freeze'] => 'freeze',
+                            $day['active'] => 'active',
+                            default => 'idle',
+                        };
+                        $stateLabel = match ($state) {
+                            'club' => setting('streaks.screen.week_state_club', 'نادي الخامسة'),
+                            'freeze' => setting('streaks.screen.week_state_freeze', 'درع تجميد'),
+                            'active' => setting('streaks.screen.week_state_active', 'حضور'),
+                            default => setting('streaks.screen.week_state_idle', 'من غير حضور'),
+                        };
+                    @endphp
+                    <li class="streak-week-day" data-week-state="{{ $state }}" @if ($day['today']) data-week-today aria-current="date" @endif
+                        title="{{ $day['date'] }} · {{ $stateLabel }}">
+                        <span class="streak-week-dot" aria-hidden="true">
+                            @if ($state !== 'idle')
+                                <x-icon :name="$state === 'freeze' ? 'shield' : 'check'" size="14" />
+                            @endif
+                        </span>
+                        <span class="streak-week-label">{{ $day['today'] ? setting('streaks.screen.week_today', 'النهارده') : $day['label'] }}</span>
+                        <span class="sr-only">{{ $day['date'] }} · {{ $stateLabel }}</span>
+                    </li>
+                @endforeach
+            </ol>
+
             @include('achievements.components.heatmap', ['heatmap' => $heatmap, 'from' => $from, 'to' => $to])
         </section>
 

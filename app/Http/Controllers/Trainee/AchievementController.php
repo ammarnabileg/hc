@@ -130,6 +130,8 @@ class AchievementController extends Controller
             'broken' => $this->streaks->isBroken($streak),
             'recordedToday' => $this->streaks->recordedToday($user),
             'heatmap' => $this->streaks->heatmap($user, $from, $to),
+            // ⭐ أسبوع الاستمراريّة (الفكرة #26): سبع علامات فوق الخريطة
+            'week' => $this->streaks->week($user),
             'window' => $this->streaks->clubWindow(),
             'windowOpen' => $this->streaks->windowIsOpenFor($user),
             'timezone' => $this->streaks->timezoneFor($user),
