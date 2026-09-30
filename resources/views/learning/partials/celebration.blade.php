@@ -72,6 +72,13 @@
             </div>
             <h2 class="text-xl font-extrabold">{{ $celebration['message'] }}</h2>
             <p class="text-sm mt-1" style="color: var(--text-muted)">{{ $celebration['label'] }}</p>
+            @if (! empty($celebration['rank']))
+                {{-- ⭐ قبل وبعد في سطر (الفكرة #23): فرقٌ موثَّق من لوحة XP لا تخمين --}}
+                <p class="mt-2 inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold" data-celebration-rank
+                   style="background: var(--brand-soft); color: var(--brand)">
+                    <x-icon name="level" size="14" /> {{ strtr((string) setting('learning.celebration.rank_line', 'ترتيبك اتحسّن من :from إلى :to'), [':from' => $celebration['rank']['from'], ':to' => $celebration['rank']['to']]) }}
+                </p>
+            @endif
 
             <div class="mt-5 flex items-center justify-center gap-2 flex-wrap">
                 {{-- ⭐ مشاركة إنجاز (3.4-47) — لقطة يبنيها استوديو الصور --}}
@@ -93,6 +100,9 @@
                 <x-icon :name="$isLevelUp ? 'level' : 'celebrate'" size="18" />
             </span>
             <span>{{ $celebration['message'] }}</span>
+            @if (! empty($celebration['rank']))
+                <span class="text-xs" data-celebration-rank style="color: var(--text-muted)">· {{ strtr((string) setting('learning.celebration.rank_line', 'ترتيبك اتحسّن من :from إلى :to'), [':from' => $celebration['rank']['from'], ':to' => $celebration['rank']['to']]) }}</span>
+            @endif
             <button type="button" data-learn-celebration-close class="opacity-70 hover:opacity-100"
                     aria-label="{{ setting('celebrations.labels.close', 'تمام') }}">
                 <x-icon name="close" size="14" />

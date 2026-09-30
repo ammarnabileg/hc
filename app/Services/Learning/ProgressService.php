@@ -9,6 +9,7 @@ use App\Models\Lesson;
 use App\Models\LessonCompletion;
 use App\Models\User;
 use App\Services\Gamification\BadgeService;
+use App\Services\Gamification\LeaderboardRank;
 use App\Services\Gamification\CelebrationService;
 use App\Services\Gamification\EconomyLedger;
 use Illuminate\Support\Carbon;
@@ -38,6 +39,7 @@ class ProgressService
         private readonly EconomyLedger $economy,
         private readonly CelebrationService $celebrations,
         private readonly BadgeService $badges,
+        private readonly LeaderboardRank $ranks,
         private readonly BookmarkService $bookmarks,
         private readonly VideoWatchService $watch,
     ) {}
@@ -346,6 +348,7 @@ class ProgressService
 
         // المستوى قبل المنح — منه نعرف هل ارتفع بعده فنُطلِق أنيميشن Level Up (3.4-22)
         $levelBefore = (int) $user->level;
+        $xpBefore = (int) $user->xp; // ومنه ترتيبه في لوحة XP قبل المنح (الفكرة #23)
 
         // القيمتان تُجمَّدان لحظة الكتابة لا لحظة العرض (7)
         $xp = $this->xp->lessonXp($course, $enrollment);
@@ -410,7 +413,7 @@ class ProgressService
             'xp' => $xp,
             'tickets' => $tickets,
             'course_completed' => $completed,
-            'celebration' => $this->celebrate($user, $course, $lesson, $completed, $levelBefore),
+            'celebration' => $this->celebrate($user, $course, $lesson, $completed, $levelBefore, $xpBefore),
         ];
     }
 
@@ -431,7 +434,7 @@ class ProgressService
      *
      * @return array{key:string,tier:int,label:string,message:string,sound_path:?string,sound:bool}|null
      */
-    private function celebrate(User $user, Course $course, Lesson $lesson, bool $courseCompleted, int $levelBefore): ?array
+    private function celebrate(User $user, Course $course, Lesson $lesson, bool $courseCompleted, int $levelBefore, int $xpBefore = 0): ?array
     {
         $events = [$this->celebrations->fire($user, 'lesson.completed', $lesson)];
 
@@ -443,7 +446,23 @@ class ProgressService
             $events[] = $this->celebrations->fire($user, 'course.completed', $course);
         }
 
-        return $this->celebrations->highest($events);
+        $highest = $this->celebrations->highest($events);
+
+        /*
+         | ⭐ قبل وبعد في سطر (الفكرة #23): لو تقدّم ترتيبه في لوحة XP بهذا المنح
+         | نقولها رقمًا موثَّقًا (من 42 إلى 31) لا تخمينًا؛ وبلا تقدّم لا سطر.
+         */
+        if ($highest !== null) {
+            $fresh = $user->refresh();
+            $from = $this->ranks->forXp($xpBefore, (int) $fresh->id);
+            $to = $this->ranks->of($fresh);
+
+            if ($to < $from) {
+                $highest['rank'] = ['from' => $from, 'to' => $to];
+            }
+        }
+
+        return $highest;
     }
 
     /**

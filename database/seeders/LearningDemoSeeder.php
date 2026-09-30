@@ -366,6 +366,7 @@ class LearningDemoSeeder extends Seeder
             ['learning.nudge.resume_message', 'string', 'لسّه فاضل شويّة في الدرس ده، تحبّ تكمّله؟'],
             ['learning.nudge.tab_prefix', 'string', '⏸ '],
             ['learning.celebration.share_cta', 'string', 'شارك إنجازك'],
+            ['learning.celebration.rank_line', 'string', 'ترتيبك اتحسّن من :from إلى :to'],
             ['learning.share.title', 'string', 'شارك إنجازك'],
             ['learning.share.text', 'string', 'خلّصت تدريبًا جديدًا على المنصّة 🎓'],
             // نافذة «بيتعلّموا الآن»: تسجيلات تحرّكت داخلها فعلًا — لا تخمين (2.9-7)

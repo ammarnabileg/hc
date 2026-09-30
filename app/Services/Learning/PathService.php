@@ -6,6 +6,7 @@ use App\Models\Course;
 use App\Models\LearningPath;
 use App\Models\User;
 use Illuminate\Support\Collection;
+use App\Services\Gamification\LeaderboardRank;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -223,11 +224,8 @@ class PathService
             return null;
         }
 
-        $rank = DB::table('users')
-            ->where('status', 'active')
-            ->whereNull('deleted_at')
-            ->where(fn ($q) => $q->where('xp', '>', $xp)->orWhere(fn ($i) => $i->where('xp', $xp)->where('id', '<', $user->id)))
-            ->count() + 1;
+        // مصدرٌ واحد لحساب الترتيب — يشاركه سطر «قبل وبعد» في الاحتفال (الفكرة #23)
+        $rank = app(LeaderboardRank::class)->forXp($xp, (int) $user->id);
 
         return [
             'rank' => $rank,
