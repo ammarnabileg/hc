@@ -227,10 +227,13 @@ class BoardImageRenderer
 
             $cursor = $right - $gap;
 
-            // الترتيب — رقم بارز بلون الهويّة (والهويّة ليست حالة، 2.16)
-            $rankText = '#'.(int) ($row['rank'] ?? 0);
-            $this->writeText($canvas, $rankText, $cursor, $center - intdiv($nameSize, 2), $nameSize, $brand);
-            $cursor -= $this->textWidth($rankText, $nameSize) + $gap;
+            // الترتيب — رقم بارز بلون الهويّة (والهويّة ليست حالة، 2.16)؛
+            // وبطاقة الإنجاز الفرديّة (الفكرة #22) ترسل rank=0 فلا ترتيب يُرسَم
+            if ((int) ($row['rank'] ?? 0) > 0) {
+                $rankText = '#'.(int) $row['rank'];
+                $this->writeText($canvas, $rankText, $cursor, $center - intdiv($nameSize, 2), $nameSize, $brand);
+                $cursor -= $this->textWidth($rankText, $nameSize) + $gap;
+            }
 
             if ($avatars) {
                 $this->drawRowAvatar($canvas, $row['user'] ?? null, $cursor - $avatarSize, $center - intdiv($avatarSize, 2), $avatarSize);

@@ -68,7 +68,8 @@
             'card',
             (string) ($celebration['message'] ?? ''),
             str_replace(':date', now()->format('Y/m/d'), (string) setting('learning.celebration.share_subtitle', 'بتاريخ :date')),
-            [['rank' => 1, 'u' => $viewer->id, 'name' => $viewer->name, 'value' => (string) ($celebration['label'] ?? '')]],
+            // rank=0: بطاقة إنجاز لا ترتيب فيها، فلا يُرسَم رقم الصفّ
+            [['rank' => 0, 'u' => $viewer->id, 'name' => $viewer->name, 'value' => (string) ($celebration['label'] ?? '')]],
         );
         // التوقيع على الحمولة وحدها؛ خيارات الشكل (top/download) خارج التوقيع كما يقرأها المتحكّم
         $shareRoute = \Illuminate\Support\Facades\Gate::allows('image_export.use') ? 'export.image' : 'export.self-card';

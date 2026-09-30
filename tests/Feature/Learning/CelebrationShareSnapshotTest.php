@@ -55,6 +55,8 @@ class CelebrationShareSnapshotTest extends LearningTestCase
         $this->assertStringContainsString(now()->format('Y/m/d'), $snapshot->subtitle);
         $this->assertSame('سلمى', $snapshot->rows[0]['name']);
         $this->assertSame('إصدار شهادة', $snapshot->rows[0]['value']);
+        $this->assertSame(0, $snapshot->rows[0]['rank'], 'بطاقة إنجاز بلا رقم ترتيب');
+        $this->assertSame(0, $snapshot->normalizedRows(1)[0]['rank'], 'التطبيع يحترم الصفر ولا يرقّم الصفّ');
 
         // الرابط الموقَّع يفتح فعلًا صورة
         $this->get($url)->assertOk()->assertHeader('content-type', 'image/png');
