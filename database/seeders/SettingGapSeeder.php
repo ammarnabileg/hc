@@ -298,6 +298,7 @@ class SettingGapSeeder extends Seeder
             ['complaints.admin.queue_label', 'الشكاوى'],
             ['complaints.admin.section_label', 'التوجيه والدعم'],
             ['complaints.reasons.add_label', 'إضافة سبب'],
+            ['complaints.reasons.item_aria', 'سبب'],
             ['complaints.reasons.defaults_hint', 'الافتراضيّ:'],
             ['complaints.reasons.in_use_suffix', 'تذكرة مرتبطة'],
             ['complaints.reasons.new_placeholder', 'سبب جديد'],

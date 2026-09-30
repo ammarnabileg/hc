@@ -22,7 +22,7 @@
         <div class="space-y-2" data-reasons-list>
             @foreach ($reasons as $reason)
                 <div class="flex items-center gap-2" data-reason-row>
-                    <input type="text" name="reasons[]" value="{{ $reason }}" maxlength="48"
+                    <input type="text" name="reasons[]" value="{{ $reason }}" maxlength="48" aria-label="{{ setting('complaints.reasons.item_aria', 'سبب') }}"
                            class="flex-1 rounded-xl px-3 text-sm"
                            style="min-height: 44px; background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
 
@@ -49,7 +49,7 @@
 
         <template data-reason-template>
             <div class="flex items-center gap-2" data-reason-row>
-                <input type="text" name="reasons[]" value="" maxlength="48"
+                <input type="text" name="reasons[]" value="" maxlength="48" aria-label="{{ setting('complaints.reasons.item_aria', 'سبب') }}"
                        placeholder="{{ setting('complaints.reasons.new_placeholder', 'سبب جديد') }}"
                        class="flex-1 rounded-xl px-3 text-sm"
                        style="min-height: 44px; background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">

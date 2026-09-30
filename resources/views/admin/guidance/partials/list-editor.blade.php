@@ -19,7 +19,7 @@
     <div class="space-y-2" data-list-editor-rows>
         @foreach ($items as $item)
             <div class="flex items-center gap-2" data-list-editor-row>
-                <input type="text" name="{{ $fieldName }}[]" value="{{ $item }}" maxlength="{{ $maxLength }}"
+                <input type="text" name="{{ $fieldName }}[]" value="{{ $item }}" maxlength="{{ $maxLength }}" aria-label="{{ $newPlaceholder }}"
                        class="flex-1 rounded-xl px-3 text-sm"
                        style="min-height: 44px; background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
                 <button type="button" data-list-editor-remove
@@ -37,7 +37,7 @@
 
     <template data-list-editor-template>
         <div class="flex items-center gap-2" data-list-editor-row>
-            <input type="text" name="{{ $fieldName }}[]" value="" maxlength="{{ $maxLength }}"
+            <input type="text" name="{{ $fieldName }}[]" value="" maxlength="{{ $maxLength }}" aria-label="{{ $newPlaceholder }}"
                    placeholder="{{ $newPlaceholder }}"
                    class="flex-1 rounded-xl px-3 text-sm"
                    style="min-height: 44px; background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">

@@ -60,7 +60,7 @@
             @foreach ($scripts as $script)
                 <div class="card p-3 flex flex-col gap-2">
                     <p class="text-sm font-semibold">{{ $script['title'] }}</p>
-                    <textarea rows="5" class="w-full rounded-xl px-3 py-2 text-xs leading-6"
+                    <textarea rows="5" class="w-full rounded-xl px-3 py-2 text-xs leading-6" aria-label="{{ $script['title'] }}"
                               style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)"
                               data-script>{{ $script['body'] }}</textarea>
                     <button type="button" data-copy-textarea

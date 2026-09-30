@@ -405,6 +405,7 @@ class ChallengeDemoSeeder extends Seeder
             ['streaks.screen.range_1_month', 'gamification_streaks', 'خيار المدى: شهر', 'آخر شهر'],
             ['streaks.screen.range_3_months', 'gamification_streaks', 'خيار المدى: 3 شهور', 'آخر 3 شهور'],
             ['streaks.screen.range_6_months', 'gamification_streaks', 'خيار المدى: 6 شهور', 'آخر 6 شهور'],
+            ['streaks.screen.range_aria', 'gamification_streaks', 'وصف قائمة المدى لقارئ الشاشة', 'المدى الزمنيّ للخريطة'],
             ['streaks.screen.club_title', 'gamification_streaks', 'عنوان بلوك النادي', 'نادي الخامسة صباحًا'],
             ['streaks.screen.window_open', 'gamification_streaks', 'شارة النافذة المفتوحة', 'النافذة مفتوحة'],
             ['streaks.screen.window_closed', 'gamification_streaks', 'شارة النافذة المقفولة', 'النافذة مقفولة'],
