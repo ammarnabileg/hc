@@ -13,6 +13,7 @@
 
     {{-- شاشة تركيز: بلا سايد بار وبلا هيدر وبلا أيّ خطّ أو مكتبة خارجيّة (24.5) --}}
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @include('partials.head-icons')
     @stack('head')
 </head>
 <body class="min-h-screen">

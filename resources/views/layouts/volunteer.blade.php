@@ -18,6 +18,7 @@
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @include('partials.design-tokens')
+    @include('partials.head-icons')
     @include('partials.script-texts')
     @stack('head')
 </head>

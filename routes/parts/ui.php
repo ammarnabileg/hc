@@ -81,3 +81,6 @@ Route::middleware('auth')->group(function () {
 Route::get('/cv/{slug}', [CvExtrasController::class, 'publicShow'])
     ->where('slug', '[A-Za-z0-9]{6,32}')
     ->name('cv.public');
+
+// ملفّ تعريف تطبيق الويب — عامّ بلا مصادقة (يطلبه المتصفّح قبل الدخول)
+Route::get('/site.webmanifest', \App\Http\Controllers\Ui\ManifestController::class)->name('manifest');

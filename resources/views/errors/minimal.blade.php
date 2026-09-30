@@ -23,6 +23,7 @@
     {{-- الخطوط محلّيّة داخل حزمة Vite — **بلا أيّ نداء خارجيّ** (2.10.1-2) --}}
     @vite(['resources/css/app.css'])
     @include('partials.design-tokens')
+    @include('partials.head-icons')
 </head>
 <body class="min-h-screen flex items-center justify-center p-4">
 
