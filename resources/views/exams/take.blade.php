@@ -212,7 +212,8 @@
         if (left <= 0 && !submitted) {
             submitted = true;
             clearInterval(tick);
-            alert(@json($hcWords['exams.messages.time_up']));
+            // توست لا alert(): نافذة المتصفّح كانت توقف التسليم حتى يضغط المتدرّب، وصفحة النتيجة تعيد الرسالة نفسها
+            (window.platformToast || alert)(@json($hcWords['exams.messages.time_up']));
             form.submit();
         }
     }, 1000);
