@@ -5,9 +5,10 @@ namespace Tests\Feature\Ui;
 use Tests\TestCase;
 
 /**
- * ⛔ ما قبله: ملفّات الحزم الفرعيّة (`arabic-400.css` + `latin-400.css`) بلا unicode-range
- * فيغلب الوجه اللاتينيّ ولا يُطلَب ملفّ العربيّة أصلًا، فكانت العربيّة كلّها بخطّ النظام
- * الاحتياطيّ لا بخطّ الهويّة Alexandria. ملفّ الوزن يعلن كلّ حزمةٍ بنطاقها.
+ * ملفّات الحزم الفرعيّة (`arabic-400.css` + `latin-400.css`) بلا unicode-range: وجهان بنفس
+ * الوصف للوزن الواحد. Chromium يدمجهما (قِيس فعليًّا: العربيّة كانت بخطّ Alexandria)، لكنّ
+ * المواصفة تجعل الأخير يغلب فقد تسقط العربيّة إلى خطّ النظام في متصفّحٍ آخر. ملفّ الوزن
+ * يعلن كلّ حزمةٍ بنطاقها صراحةً.
  */
 class FontSubsetsTest extends TestCase
 {
@@ -20,7 +21,7 @@ class FontSubsetsTest extends TestCase
         }
 
         $this->assertDoesNotMatchRegularExpression('#@fontsource/alexandria/(arabic|latin)-\d+\.css#', $css,
-            'استيراد حزمة فرعيّة بلا unicode-range يُسقط العربيّة إلى خطّ النظام.');
+            'استيراد حزمة فرعيّة بلا unicode-range يعتمد على سلوك المتصفّح لا على المواصفة.');
 
         $index = file_get_contents(base_path('node_modules/@fontsource/alexandria/400.css'));
         $this->assertStringContainsString('unicode-range', $index);
