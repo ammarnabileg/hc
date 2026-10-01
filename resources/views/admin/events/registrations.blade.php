@@ -59,7 +59,7 @@
                 <option value="no" @selected($filters['attended'] === 'no')>{{ setting('admin.events.registrations.ghab', 'غاب') }}</option>
             </select>
         </div>
-        <button type="submit" class="btn btn-g rounded-xl px-4 py-2 text-sm font-semibold" style="background: var(--surface-raised)">{{ setting('admin.events.registrations.fltr', 'فلتر') }}</button>
+        <button type="submit" class="btn btn-g rounded-xl px-4 py-2 text-sm font-semibold" style="background: var(--surface-raised)">{{ setting('admin.events.registrations.fltr', 'طبّق') }}</button>
     </x-filters>
 
     <section class="card p-4 md:p-5">

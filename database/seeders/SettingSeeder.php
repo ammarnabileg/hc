@@ -295,7 +295,7 @@ class SettingSeeder extends Seeder
             ['complaints.filter.status_label', 'complaints', 'تسمية فلتر الحالة', 'string', 'الحالة'],
             ['complaints.filter.type_label', 'complaints', 'تسمية فلتر النوع', 'string', 'النوع'],
             ['complaints.filter.search_label', 'complaints', 'تسمية حقل البحث', 'string', 'بحث بالرقم أو العنوان'],
-            ['complaints.filter.submit_label', 'complaints', 'زرّ الفلترة', 'string', 'فلترة'],
+            ['complaints.filter.submit_label', 'complaints', 'زرّ الفلترة', 'string', 'طبّق'],
             ['complaints.filter.all_label', 'complaints', 'خيار «الكلّ» في الفلاتر', 'string', 'الكلّ'],
             ['complaints.thread_label', 'complaints', 'وصف سلسلة الردود', 'string', 'سلسلة الردود'],
             ['complaints.back_label', 'complaints', 'زرّ الرجوع على الموبايل', 'string', 'رجوع'],

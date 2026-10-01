@@ -47,7 +47,7 @@
                 @endforeach
             </select>
         </label>
-        <button class="btn btn-g rounded-xl px-4 py-2 text-sm">{{ setting('admin.courses.index.tsfya', 'تصفية') }}</button>
+        <button class="btn btn-g rounded-xl px-4 py-2 text-sm">{{ setting('admin.courses.index.tsfya', 'طبّق') }}</button>
 
         <x-slot:advanced>
             <label class="block">

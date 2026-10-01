@@ -58,7 +58,7 @@
                     @endforeach
                 </select>
             </label>
-            <button class="btn btn-g rounded-xl px-4 py-2 text-sm">{{ setting('admin.courses.paths.tsfya', 'تصفية') }}</button>
+            <button class="btn btn-g rounded-xl px-4 py-2 text-sm">{{ setting('admin.courses.paths.tsfya', 'طبّق') }}</button>
         </x-filters>
     @else
         <form method="get" class="mb-4">

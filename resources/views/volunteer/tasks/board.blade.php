@@ -66,7 +66,7 @@
             {{ setting('volunteer.tasks_board.field', 'قرب الديدلاين') }}
         </label>
 
-        <button type="submit" class="btn btn-g rounded-xl px-4 py-2 text-sm font-semibold">{{ setting('volunteer.tasks_board.action_2', 'فلترة') }}</button>
+        <button type="submit" class="btn btn-g rounded-xl px-4 py-2 text-sm font-semibold">{{ setting('volunteer.tasks_board.action_2', 'طبّق') }}</button>
     </x-filters>
 
     @if ($atCap)

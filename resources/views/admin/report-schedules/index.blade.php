@@ -67,7 +67,7 @@
         </label>
 
         <button type="submit" class="btn btn-g rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
-                style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">{{ setting('admin.report_schedules.index.fltra', 'فلترة') }}</button>
+                style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">{{ setting('admin.report_schedules.index.fltra', 'طبّق') }}</button>
 
         <x-slot:advanced>
             <label class="text-sm">{{ setting('admin.report_schedules.index.alhala', 'الحالة') }}

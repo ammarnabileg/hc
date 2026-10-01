@@ -536,7 +536,7 @@ class AdminSystemDemoSeeder extends Seeder
             ['features.ui.filter_group', 'features', 'لافتة فلتر المجموعة', 'string', 'المجموعة', false],
             ['features.ui.filter_status', 'features', 'لافتة فلتر الحالة', 'string', 'الحالة', false],
             ['features.ui.filter_all', 'features', 'خيار الكلّ في الفلاتر', 'string', 'الكلّ', false],
-            ['features.ui.filter_apply', 'features', 'زرّ تطبيق الفلاتر', 'string', 'فلترة', false],
+            ['features.ui.filter_apply', 'features', 'زرّ تطبيق الفلاتر', 'string', 'طبّق', false],
 
             ['features.ui.status.on', 'features', 'حالة مشتغّل', 'string', 'مشتغّل', false],
             ['features.ui.status.off', 'features', 'حالة موقوف', 'string', 'موقوف', false],

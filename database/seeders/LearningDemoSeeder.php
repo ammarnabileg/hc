@@ -81,7 +81,7 @@ class LearningDemoSeeder extends Seeder
             ['learning.filter.search', 'string', 'بحث'],
             ['learning.filter.search_placeholder', 'string', 'اسم التدريب'],
             ['learning.filter.all', 'string', 'الكلّ'],
-            ['learning.filter.apply', 'string', 'تطبيق'],
+            ['learning.filter.apply', 'string', 'طبّق'],
             ['learning.filter.sort', 'string', 'الترتيب'],
             ['learning.filter.sort_recent', 'string', 'الأحدث'],
             ['learning.filter.sort_name', 'string', 'الاسم'],

@@ -33,7 +33,7 @@
         </select>
     </label>
 
-    <button class="btn btn-g rounded-xl px-4 py-2 text-sm">{{ setting('admin.certificates.partials.ledger.tsfya', 'تصفية') }}</button>
+    <button class="btn btn-g rounded-xl px-4 py-2 text-sm">{{ setting('admin.certificates.partials.ledger.tsfya', 'طبّق') }}</button>
 
     @can('accreditations.create')
         <button type="button" data-modal-open="accreditation-form"

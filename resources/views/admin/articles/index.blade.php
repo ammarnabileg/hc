@@ -67,7 +67,7 @@
             </select>
         </label>
 
-        <button class="btn btn-g rounded-xl px-4 py-2 text-sm font-semibold">{{ setting('admin.articles.index.fltra', 'فلترة') }}</button>
+        <button class="btn btn-g rounded-xl px-4 py-2 text-sm font-semibold">{{ setting('admin.articles.index.fltra', 'طبّق') }}</button>
     </x-filters>
 
     @if ($articles->isEmpty())

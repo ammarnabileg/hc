@@ -87,7 +87,7 @@
         </label>
 
         <button type="submit" class="btn btn-g rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
-                style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">{{ setting('admin.meetings_admin.index.fltra', 'فلترة') }}</button>
+                style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">{{ setting('admin.meetings_admin.index.fltra', 'طبّق') }}</button>
 
         <x-slot:advanced>
             <label class="flex items-center gap-2 text-sm">

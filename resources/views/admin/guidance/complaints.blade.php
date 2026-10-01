@@ -49,7 +49,7 @@
                 @endforeach
             </select>
         </label>
-        <button class="btn btn-g rounded-xl px-4 py-2 text-sm">{{ setting('admin.guidance.complaints.tsfya', 'تصفية') }}</button>
+        <button class="btn btn-g rounded-xl px-4 py-2 text-sm">{{ setting('admin.guidance.complaints.tsfya', 'طبّق') }}</button>
     </x-filters>
 
     @if ($complaints->isEmpty())

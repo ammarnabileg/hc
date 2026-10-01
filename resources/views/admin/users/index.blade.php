@@ -56,7 +56,7 @@
             </select>
         </label>
 
-        <button type="submit" class="btn btn-g rounded-xl px-4 py-2 text-sm font-semibold motion-standard">{{ setting('admin.users.index.fltra', 'فلترة') }}</button>
+        <button type="submit" class="btn btn-g rounded-xl px-4 py-2 text-sm font-semibold motion-standard">{{ setting('admin.users.index.fltra', 'طبّق') }}</button>
 
         <x-slot:advanced>
             <label class="flex flex-col gap-1">

@@ -232,7 +232,7 @@ class AdminScreenTextLearningDemoSeeder extends Seeder
             ['admin.courses.index.tdryb_jdyd_2', 'courses', '+ تدريب جديد', 'string', '+ تدريب جديد', 'نصّ في resources/views/admin/courses/index.blade.php'],
             ['admin.courses.index.tfasyl_aktr', 'courses', 'تفاصيل أكتر', 'string', 'تفاصيل أكتر', 'نصّ في resources/views/admin/courses/index.blade.php'],
             ['admin.courses.index.tsayr_dfaa', 'courses', 'تسعير دفعة', 'string', 'تسعير دفعة', 'نصّ في resources/views/admin/courses/index.blade.php'],
-            ['admin.courses.index.tsfya', 'courses', 'تصفية', 'string', 'تصفية', 'نصّ في resources/views/admin/courses/index.blade.php'],
+            ['admin.courses.index.tsfya', 'courses', 'طبّق', 'string', 'طبّق', 'نصّ في resources/views/admin/courses/index.blade.php'],
             ['admin.courses.lesson.aamda_almlf_v1_walkhyarat_tfsl_balama', 'courses', 'أعمدة الملفّ: :v1، والخيارات تُفصَل بعلامة |', 'string', 'أعمدة الملفّ: :v1، والخيارات تُفصَل بعلامة |', 'نصّ في resources/views/admin/courses/lesson.blade.php'],
             ['admin.courses.lesson.adf_alswal', 'courses', 'أضِف السؤال', 'string', 'أضِف السؤال', 'نصّ في resources/views/admin/courses/lesson.blade.php'],
             ['admin.courses.lesson.afth_almktba', 'courses', 'افتح المكتبة', 'string', 'افتح المكتبة', 'نصّ في resources/views/admin/courses/lesson.blade.php'],
@@ -316,7 +316,7 @@ class AdminScreenTextLearningDemoSeeder extends Seeder
             ['admin.courses.media.shbka', 'courses', 'شبكة', 'string', 'شبكة', 'نصّ في resources/views/admin/courses/media.blade.php: زرّ تبديل العرض (12.4-د)'],
             ['admin.courses.media.swra', 'courses', 'صورة', 'string', 'صورة', 'نصّ في resources/views/admin/courses/media.blade.php'],
             ['admin.courses.media.swt', 'courses', 'صوت', 'string', 'صوت', 'نصّ في resources/views/admin/courses/media.blade.php'],
-            ['admin.courses.media.tsfya', 'courses', 'تصفية', 'string', 'تصفية', 'نصّ في resources/views/admin/courses/media.blade.php'],
+            ['admin.courses.media.tsfya', 'courses', 'طبّق', 'string', 'طبّق', 'نصّ في resources/views/admin/courses/media.blade.php'],
             ['admin.courses.media.wswm', 'courses', 'وسوم', 'string', 'وسوم', 'نصّ في resources/views/admin/courses/media.blade.php'],
             ['admin.courses.media.wswm_mfswla_bfasla', 'courses', 'وسوم مفصولة بفاصلة', 'string', 'وسوم مفصولة بفاصلة', 'نصّ في resources/views/admin/courses/media.blade.php'],
             ['admin.courses.partials.nav.almsarat', 'courses', 'المسارات', 'string', 'المسارات', 'نصّ في resources/views/admin/courses/partials/nav.blade.php: عنوانٌ منصوصٌ حرفيًّا في القسم 24، وتغييرُه يخالف خريطة الشاشات.'],  // ⚠️ 24
@@ -382,7 +382,7 @@ class AdminScreenTextLearningDemoSeeder extends Seeder
             ['admin.courses.paths.tht', 'courses', 'تحت', 'string', 'تحت', 'نصّ في resources/views/admin/courses/paths.blade.php'],
             ['admin.courses.paths.trtyb_almshahda', 'courses', 'ترتيب المشاهدة:', 'string', 'ترتيب المشاهدة:', 'نصّ في resources/views/admin/courses/paths.blade.php'],
             ['admin.courses.paths.trtyb_almshahda_2', 'courses', 'ترتيب المشاهدة', 'string', 'ترتيب المشاهدة', 'نصّ في resources/views/admin/courses/paths.blade.php'],
-            ['admin.courses.paths.tsfya', 'courses', 'تصفية', 'string', 'تصفية', 'نصّ في resources/views/admin/courses/paths.blade.php'],
+            ['admin.courses.paths.tsfya', 'courses', 'طبّق', 'string', 'طبّق', 'نصّ في resources/views/admin/courses/paths.blade.php'],
             ['admin.courses.preview.almhtwa_lsh_fady_abn_awl_sykshn', 'courses', 'المحتوى لسّه فاضي. ابنِ أوّل سيكشن.', 'string', 'المحتوى لسّه فاضي. ابنِ أوّل سيكشن.', 'نصّ في resources/views/admin/courses/preview.blade.php'],
             ['admin.courses.preview.altdrybat', 'courses', 'التدريبات', 'string', 'التدريبات', 'نصّ في resources/views/admin/courses/preview.blade.php: عنوانٌ منصوصٌ حرفيًّا في القسم 24، وتغييرُه يخالف خريطة الشاشات.'],  // ⚠️ 24
             ['admin.courses.preview.dh_ally_almtdrb_hyshwfh_bla_azrar_idara', 'courses', 'ده اللي المتدرّب هيشوفه، بلا أزرار إدارة.', 'string', 'ده اللي المتدرّب هيشوفه، بلا أزرار إدارة.', 'نصّ في resources/views/admin/courses/preview.blade.php'],
@@ -540,7 +540,7 @@ class AdminScreenTextLearningDemoSeeder extends Seeder
             ['admin.certificates.partials.ledger.swr_zip', 'certificates', 'صور (ZIP)', 'string', 'صور (ZIP)', 'نصّ في resources/views/admin/certificates/partials/ledger.blade.php'],
             ['admin.certificates.partials.ledger.tsdyr', 'certificates', 'تصدير', 'string', 'تصدير', 'نصّ في resources/views/admin/certificates/partials/ledger.blade.php'],
             ['admin.certificates.partials.ledger.tsdyr_tbaaa_jmaaya', 'certificates', 'تصدير/طباعة جماعيّة', 'string', 'تصدير/طباعة جماعيّة', 'نصّ في resources/views/admin/certificates/partials/ledger.blade.php: عنوانٌ منصوصٌ حرفيًّا في القسم 24، وتغييرُه يخالف خريطة الشاشات.'],  // ⚠️ 24
-            ['admin.certificates.partials.ledger.tsfya', 'certificates', 'تصفية', 'string', 'تصفية', 'نصّ في resources/views/admin/certificates/partials/ledger.blade.php'],
+            ['admin.certificates.partials.ledger.tsfya', 'certificates', 'طبّق', 'string', 'طبّق', 'نصّ في resources/views/admin/certificates/partials/ledger.blade.php'],
             ['admin.certificates.partials.types.alaatmad', 'certificates', 'الاعتماد:', 'string', 'الاعتماد:', 'نصّ في resources/views/admin/certificates/partials/types.blade.php'],
             ['admin.certificates.partials.types.alasm_arby', 'certificates', 'الاسم (عربيّ)', 'string', 'الاسم (عربيّ)', 'نصّ في resources/views/admin/certificates/partials/types.blade.php'],
             ['admin.certificates.partials.types.alasm_injlyzy', 'certificates', 'الاسم (إنجليزيّ)', 'string', 'الاسم (إنجليزيّ)', 'نصّ في resources/views/admin/certificates/partials/types.blade.php'],
@@ -641,7 +641,7 @@ class AdminScreenTextLearningDemoSeeder extends Seeder
             ['admin.question_bank.index.bnk_alasyla_walamthanat', 'exams', 'بنك الأسئلة والامتحانات', 'string', 'بنك الأسئلة والامتحانات', 'نصّ في resources/views/admin/question-bank/index.blade.php: عنوانٌ منصوصٌ حرفيًّا في القسم 24، وتغييرُه يخالف خريطة الشاشات.'],  // ⚠️ 24
             ['admin.question_bank.index.drs_aftrady_llsfwf_bla', 'exams', 'درس افتراضيّ للصفوف بلا', 'string', 'درس افتراضيّ للصفوف بلا', 'نصّ في resources/views/admin/question-bank/index.blade.php'],
             ['admin.question_bank.index.dyfh_llamthanat_almkhtara', 'exams', 'ضيفه للامتحانات المختارة', 'string', 'ضيفه للامتحانات المختارة', 'نصّ في resources/views/admin/question-bank/index.blade.php'],
-            ['admin.question_bank.index.fltra', 'exams', 'فلترة', 'string', 'فلترة', 'نصّ في resources/views/admin/question-bank/index.blade.php'],
+            ['admin.question_bank.index.fltra', 'exams', 'طبّق', 'string', 'طبّق', 'نصّ في resources/views/admin/question-bank/index.blade.php'],
             ['admin.question_bank.index.iaada_astkhdam_alswal_fy_amthan', 'exams', 'إعادة استخدام السؤال في امتحان', 'string', 'إعادة استخدام السؤال في امتحان', 'نصّ في resources/views/admin/question-bank/index.blade.php'],
             ['admin.question_bank.index.iadadat_bnk_alasyla', 'exams', 'إعدادات بنك الأسئلة', 'string', 'إعدادات بنك الأسئلة', 'نصّ في resources/views/admin/question-bank/index.blade.php'],
             ['admin.question_bank.index.khas_baldrs', 'exams', 'خاصّ بالدرس', 'string', 'خاصّ بالدرس', 'نصّ في resources/views/admin/question-bank/index.blade.php'],
@@ -807,7 +807,7 @@ class AdminScreenTextLearningDemoSeeder extends Seeder
             ['admin.articles.index.almqalat', 'articles', 'المقالات', 'string', 'المقالات', 'نصّ في resources/views/admin/articles/index.blade.php'],
             ['admin.articles.index.altsnyf', 'articles', 'التصنيف', 'string', 'التصنيف', 'نصّ في resources/views/admin/articles/index.blade.php'],
             ['admin.articles.index.bhth', 'articles', 'بحث', 'string', 'بحث', 'نصّ في resources/views/admin/articles/index.blade.php'],
-            ['admin.articles.index.fltra', 'articles', 'فلترة', 'string', 'فلترة', 'نصّ في resources/views/admin/articles/index.blade.php'],
+            ['admin.articles.index.fltra', 'articles', 'طبّق', 'string', 'طبّق', 'نصّ في resources/views/admin/articles/index.blade.php'],
             ['admin.articles.index.ijraat', 'articles', 'إجراءات', 'string', 'إجراءات', 'نصّ في resources/views/admin/articles/index.blade.php'],
             ['admin.articles.index.lwha_alidara', 'articles', 'لوحة الإدارة', 'string', 'لوحة الإدارة', 'نصّ في resources/views/admin/articles/index.blade.php'],
             ['admin.articles.index.mafysh_mqalat_lsh_aktb_awl_wahd', 'articles', 'مافيش مقالات لسه. اكتب أوّل واحد.', 'string', 'مافيش مقالات لسه. اكتب أوّل واحد.', 'نصّ في resources/views/admin/articles/index.blade.php'],

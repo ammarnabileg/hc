@@ -67,7 +67,7 @@
                    style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
         </label>
 
-        <button type="submit" class="btn btn-g rounded-xl px-4 py-2 text-sm font-semibold" style="background: var(--surface-raised)">{{ setting('admin.volunteer.delegations.fltr', 'فلتر') }}</button>
+        <button type="submit" class="btn btn-g rounded-xl px-4 py-2 text-sm font-semibold" style="background: var(--surface-raised)">{{ setting('admin.volunteer.delegations.fltr', 'طبّق') }}</button>
     </x-filters>
 
     {{-- كروت رأسيّة: بلا تمرير أفقيّ على الموبايل (2.15-ج) --}}

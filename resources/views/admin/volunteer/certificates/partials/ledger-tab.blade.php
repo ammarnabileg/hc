@@ -43,7 +43,7 @@
             </select>
         </label>
 
-        <button class="btn btn-g rounded-xl px-4 py-2 text-sm">{{ setting('admin.volunteer.certificates.tsfya', 'تصفية') }}</button>
+        <button class="btn btn-g rounded-xl px-4 py-2 text-sm">{{ setting('admin.volunteer.certificates.tsfya', 'طبّق') }}</button>
 
         @can('volunteer_certificates.list')
             <a href="{{ route('admin.volunteer.certificates.export', request()->query()) }}" class="text-sm underline">{{ setting('admin.volunteer.certificates.tsdyr_alsjl', 'تصدير السجلّ') }}</a>

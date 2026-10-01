@@ -94,7 +94,7 @@
                    style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
         </label>
 
-        <button type="submit" class="btn btn-g rounded-xl px-4 py-2 text-sm font-semibold">{{ setting('volunteer.tasks.action_2', 'فلترة') }}</button>
+        <button type="submit" class="btn btn-g rounded-xl px-4 py-2 text-sm font-semibold">{{ setting('volunteer.tasks.action_2', 'طبّق') }}</button>
 
         <x-slot:advanced>
             <label class="inline-flex items-center gap-2 text-sm">

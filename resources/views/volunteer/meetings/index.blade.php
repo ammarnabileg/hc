@@ -85,7 +85,7 @@
                        class="rounded-xl px-3 py-2 text-sm w-28"
                        style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
             </label>
-            <button type="submit" class="btn btn-g rounded-xl px-4 py-2 text-sm" style="border: 1px solid var(--border)">{{ setting('volunteer.meetings.action_2', 'تطبيق') }}</button>
+            <button type="submit" class="btn btn-g rounded-xl px-4 py-2 text-sm" style="border: 1px solid var(--border)">{{ setting('volunteer.meetings.action_2', 'طبّق') }}</button>
         </x-slot:advanced>
     </x-filters>
 

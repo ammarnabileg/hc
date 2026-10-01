@@ -55,7 +55,7 @@
                    style="background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)">
         </label>
 
-        <button class="btn btn-g rounded-xl px-4 py-2 text-sm font-semibold">{{ setting('admin.store.topups.index.fltra', 'فلترة') }}</button>
+        <button class="btn btn-g rounded-xl px-4 py-2 text-sm font-semibold">{{ setting('admin.store.topups.index.fltra', 'طبّق') }}</button>
 
         <x-slot:advanced>
             <label class="text-xs">

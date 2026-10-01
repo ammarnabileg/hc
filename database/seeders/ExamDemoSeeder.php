@@ -227,7 +227,7 @@ class ExamDemoSeeder extends Seeder
             ['certificates.reports.search_placeholder', 'certificates', 'مثال بحث البلاغات', 'string', 'كود الشهادة أو نصّ البلاغ…'],
             ['certificates.reports.status_label', 'certificates', 'لافتة حالة البلاغ', 'string', 'الحالة'],
             ['certificates.reports.all_label', 'certificates', 'خيار كلّ الحالات', 'string', 'الكلّ'],
-            ['certificates.reports.filter_button', 'certificates', 'زرّ تصفية البلاغات', 'string', 'تصفية'],
+            ['certificates.reports.filter_button', 'certificates', 'زرّ تصفية البلاغات', 'string', 'طبّق'],
             ['certificates.reports.reporter_label', 'certificates', 'لافتة المبلِّغ', 'string', 'المبلِّغ'],
             ['certificates.reports.anonymous', 'certificates', 'وسم المبلِّغ بلا حساب', 'string', 'بلا حساب'],
             ['certificates.reports.unknown_code', 'certificates', 'وسم كود بلا شهادة', 'string', 'كود بلا شهادة في سجلّنا'],

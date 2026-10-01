@@ -89,7 +89,7 @@
             </label>
 
             <button type="submit" class="btn btn-g rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
-                    style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">{{ setting('admin.referral_admin.index.fltra', 'فلترة') }}</button>
+                    style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">{{ setting('admin.referral_admin.index.fltra', 'طبّق') }}</button>
 
             <x-slot:advanced>
                 <label class="text-sm">{{ setting('admin.referral_admin.index.mn_tarykh', 'من تاريخ') }}
@@ -204,7 +204,7 @@
                        style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
             </label>
             <button type="submit" class="btn btn-g rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
-                    style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">{{ setting('admin.referral_admin.index.fltra', 'فلترة') }}</button>
+                    style="background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">{{ setting('admin.referral_admin.index.fltra', 'طبّق') }}</button>
         </x-filters>
 
         @if ($ambassadors->isEmpty())

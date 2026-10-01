@@ -296,7 +296,7 @@ class VolunteerScreensDemoSeeder extends Seeder
             ['volunteer.reviews_return_form.label', 'المهام · بانتظار مراجعتي: مهلة الإصلاح (ساعات)', 'مهلة الإصلاح (ساعات)'],
             ['volunteer.reviews_return_form.placeholder', 'المهام · بانتظار مراجعتي: اكتب بالضبط إيه اللي ناقص وإزاي يتظبط', 'اكتب بالضبط إيه اللي ناقص وإزاي يتظبط'],
             ['volunteer.tasks.action', 'المهام: مهمّة جديدة', 'مهمّة جديدة'],
-            ['volunteer.tasks.action_2', 'المهام: فلترة', 'فلترة'],
+            ['volunteer.tasks.action_2', 'المهام: فلترة', 'طبّق'],
             ['volunteer.tasks.action_3', 'المهام: لوحة المهام العامّة', 'لوحة المهام العامّة'],
             ['volunteer.tasks.empty', 'المهام: مفيش مهامّ عليك دلوقتي. شوف لوحة المهام العامّة', 'مفيش مهامّ عليك دلوقتي. شوف لوحة المهام العامّة'],
             ['volunteer.tasks.field', 'المهام: تقترب ديدلايناتها', 'تقترب ديدلايناتها'],
@@ -360,7 +360,7 @@ class VolunteerScreensDemoSeeder extends Seeder
             ['volunteer.tasks_action_modals.tooltip_6', 'المهام: دعوة مساهم', 'دعوة مساهم'],
             ['volunteer.tasks_action_modals.tooltip_7', 'المهام: رفع علم: متأخّر بسبب…', 'رفع علم: متأخّر بسبب…'],
             ['volunteer.tasks_board.action', 'المهام: رشّح بندًا', 'رشّح بندًا'],
-            ['volunteer.tasks_board.action_2', 'المهام: فلترة', 'فلترة'],
+            ['volunteer.tasks_board.action_2', 'المهام: فلترة', 'طبّق'],
             ['volunteer.tasks_board.action_3', 'المهام: إشعارات التطوّع', 'إشعارات التطوّع'],
             ['volunteer.tasks_board.action_4', 'المهام: اسحب المهمّة', 'اسحب المهمّة'],
             ['volunteer.tasks_board.action_5', 'المهام: ارفع الترشيح', 'ارفع الترشيح'],
@@ -882,7 +882,7 @@ class VolunteerScreensDemoSeeder extends Seeder
     {
         $this->put([
             ['volunteer.meetings.action', 'الاجتماعات: اجتماع جديد', 'اجتماع جديد'],
-            ['volunteer.meetings.action_2', 'الاجتماعات: تطبيق', 'تطبيق'],
+            ['volunteer.meetings.action_2', 'الاجتماعات: تطبيق', 'طبّق'],
             ['volunteer.meetings.action_3', 'الاجتماعات: أنشئ الاجتماع', 'أنشئ الاجتماع'],
             ['volunteer.meetings.empty', 'الاجتماعات: مفيش اجتماعات في نطاقك، أوّل واحد لسّه جاي', 'مفيش اجتماعات في نطاقك، أوّل واحد لسّه جاي'],
             ['volunteer.meetings.field', 'الاجتماعات: حالتي', 'حالتي'],
@@ -1067,7 +1067,7 @@ class VolunteerScreensDemoSeeder extends Seeder
     public function transactionScreenSettings(): void
     {
         $this->put([
-            ['volunteer.transactions.action', 'المعاملات: تطبيق', 'تطبيق'],
+            ['volunteer.transactions.action', 'المعاملات: تطبيق', 'طبّق'],
             ['volunteer.transactions.action_2', 'المعاملات: اعتراض', 'اعتراض'],
             ['volunteer.transactions.action_3', 'المعاملات: باقي', 'باقي'],
             ['volunteer.transactions.action_4', 'المعاملات: أيّام', 'أيّام'],

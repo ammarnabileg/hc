@@ -103,7 +103,7 @@
                     @endforeach
                 </select>
             </label>
-            <button type="submit" class="btn btn-g rounded-xl px-4 py-2 text-sm" style="border: 1px solid var(--border)">{{ setting('volunteer.transactions.action', 'تطبيق') }}</button>
+            <button type="submit" class="btn btn-g rounded-xl px-4 py-2 text-sm" style="border: 1px solid var(--border)">{{ setting('volunteer.transactions.action', 'طبّق') }}</button>
         </x-slot:advanced>
     </x-filters>
 
