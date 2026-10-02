@@ -51,7 +51,8 @@
 
     <div class="flex-1 min-w-0 flex flex-col">
         @auth
-            @include('partials.header')
+            {{-- أيقونة البحث الموحّد في الشريط كالإدارة والتطوّع: على الموبايل السايد بار (وصندوق بحثه) مخفيّ --}}
+            @include('partials.header', ['topbarSearch' => true])
         @endauth
 
         <main id="content" class="flex-1 min-w-0" tabindex="-1">

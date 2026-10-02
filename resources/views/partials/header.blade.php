@@ -9,7 +9,8 @@
     /*
      | ⭐ الـTopbar حرفيًّا من ملف الهويّة (`#topbar`): Breadcrumb على جهة البداية
      | و`.top-actions` على جهة النهاية — بلا شعار (الشعار في رأس السايد بار) ولا
-     | أفاتار (بطاقة البروفايل في السايد بار) ولا أيقونة بحث (بحث السايد بار).
+     | أفاتار (بطاقة البروفايل في السايد بار). وأيقونة البحث الموحّد في الشريط في
+     | التخطيطات الثلاثة: للمتدرّب أيضًا، فعلى الموبايل سايد باره (وصندوق بحثه) مخفيّ.
      |
      | العنوان والـBreadcrumb يصلان من `x-page-header` عبر `View::share('hcPage')`:
      | قالب الصفحة يُنفَّذ قبل الـLayout، فما شاركه المكوّن يراه هذا الجزء.
@@ -69,8 +70,9 @@
         @volunteer
             @if (($userMemberships ?? collect())->count() > 1)
                 <form method="get" class="hidden sm:block">
+                    {{-- عرضٌ محدود فلا يزاحم الـBreadcrumb على الشاشات المتوسّطة --}}
                     <select name="membership" data-autosubmit
-                            class="rounded-lg px-3 text-sm"
+                            class="rounded-lg px-3 text-sm max-w-[14rem] truncate"
                             style="min-height: 44px; background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)"
                             aria-label="{{ setting('nav.header.membership_aria', 'سياق العضويّة') }}">
                         @foreach ($userMemberships as $m)
@@ -84,7 +86,7 @@
         @endvolunteer
 
         {{--
-          زرّ البحث الموحّد (Ctrl+K) للياوتين اللذين لا صفّ بحث في سايد بارهما (الإدارة والتطوّع):
+          زرّ البحث الموحّد (Ctrl+K) في التخطيطات الثلاثة (الإدارة والتطوّع والمتدرّب):
           بلا زرّ كانت اللوحة اختصارَ كيبورد لا يدلّ عليه شيء على الشاشة (2.15-د). رابطٌ لا زرّ:
           على الديسكتوب يعترضه السكربت ويفتح اللوحة، وعلى الموبايل (حيث اللوحة معطَّلة) يمضي
           إلى شاشة البحث الكاملة — فلا يبقى مستخدم الإدارة والتطوّع على الموبايل بلا بحثٍ أصلًا.

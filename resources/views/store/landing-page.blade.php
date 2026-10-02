@@ -10,6 +10,18 @@
 @extends('layouts.app')
 
 @section('title', $landingPage->title())
+
+@php
+    // الـTopbar يقرأ المسار من هنا: المنصّة › المتجر › الصفحة (الصفحة بلا x-page-header عمدًا)
+    view()->share('hcPage', [
+        'title' => $landingPage->title(),
+        'breadcrumbs' => [
+            ['label' => setting('store.index.page_title', 'المتجر'), 'url' => route('store.index')],
+            ['label' => $landingPage->title()],
+        ],
+        'pinnable' => true,
+    ]);
+@endphp
 @section('meta_description', \Illuminate\Support\Str::limit(strip_tags($landingPage->promise()), 155))
 
 @if (! $indexable)
