@@ -95,6 +95,6 @@ class ViewMode
     /** تسمية السويتش — نصّ من الإعدادات لا محروق (2.13) */
     public function label(): string
     {
-        return (string) setting('ux.advanced_mode.label', 'وضع متقدّم');
+        return (string) setting('ux.advanced_mode.label', 'متقدّم');
     }
 }

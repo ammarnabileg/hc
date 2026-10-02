@@ -238,8 +238,8 @@
 
                 @include('account.partials.autosave-field', [
                     'field' => 'advanced_mode',
-                    'label' => setting('account.settings.field_advanced_mode', 'وضع متقدّم'),
-                    'keywords' => 'وضع متقدّم advanced',
+                    'label' => setting('account.settings.field_advanced_mode', 'متقدّم'),
+                    'keywords' => 'متقدّم advanced',
                     'hint' => setting('account.settings.advanced_mode_hint', 'بيفتح كلّ اللي اتخفى في الصفحات، وعلى الموبايل بيفتح كصفحة كاملة.'),
                     'control' => '<select name="value" class="'.$inputClass.'" style="'.$inputStyle.'">'
                         .'<option value="1"'.($user->advanced_mode ? ' selected' : '').'>'.e(setting('account.settings.toggle_on', 'مفعَّل')).'</option>'

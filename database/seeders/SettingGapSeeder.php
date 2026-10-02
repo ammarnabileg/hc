@@ -430,7 +430,7 @@ class SettingGapSeeder extends Seeder
             ['platform.identity.logo_path', 'platform', 'شعار المنصّة على العلامة المائيّة', 'media', '', 'فاضي = بلا شعار على النسخة المعاينة.'],
 
             ['ux.advanced_mode.enabled', 'ux', 'إتاحة الوضع المتقدّم', 'bool', '1', 'إطفاؤه يُبقي الجميع على الوضع المبسّط (2.15).'],
-            ['ux.advanced_mode.label', 'ux', 'تسمية الوضع المتقدّم', 'string', 'وضع متقدّم', ''],
+            ['ux.advanced_mode.label', 'ux', 'تسمية الوضع المتقدّم', 'string', 'متقدّم', ''],
             ['ux.advanced_mode.roles', 'ux', 'الأدوار التي يتاح لها الوضع المتقدّم', 'json', '[]', 'فاضية = متاح للجميع؛ وإلّا لا بدّ من أحد الأدوار.'],
             /*
              | ⛔ `ux.first_time.content` و`ux.first_time.default_template` **أُزيلا**:

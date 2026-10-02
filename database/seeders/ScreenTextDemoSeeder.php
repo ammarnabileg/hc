@@ -208,7 +208,7 @@ class ScreenTextDemoSeeder extends Seeder
             // ---- resources/views/components/sort-th.blade.php
             ['ux.sort_th.title_1', 'ux', 'sort-th: تلميح رأس العمود القابل للفرز', 'رتّب بهذا العمود'],
             // ---- resources/views/components/table.blade.php
-            ['ux.table.text_1', 'ux', 'table: بنعرض أهمّ :a1 أعمدة. «وضع متقدّم» أعلى الصفحة بيفتح الباقي', 'بنعرض أهمّ :a1 أعمدة، و«وضع متقدّم» أعلى الصفحة بيفتح الباقي.'],
+            ['ux.table.text_1', 'ux', 'table: بنعرض أهمّ :a1 أعمدة. «متقدّم» أعلى الصفحة بيفتح الباقي', 'بنعرض أهمّ :a1 أعمدة، و«متقدّم» أعلى الصفحة بيفتح الباقي.'],
             // ---- resources/views/components/undo-toast.blade.php
             ['ux.undo_toast.text_1', 'ux', 'undo-toast: زرّ التراجع في الـToast', 'تراجع'],
             // ---- resources/views/cv/public.blade.php

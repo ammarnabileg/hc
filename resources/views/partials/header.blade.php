@@ -66,24 +66,7 @@
 
     {{-- الأفعال: الجرس ثمّ التثبيت ثمّ سويتش «وضع متقدّم» في أقصى الجهة (تعليمات المالك) --}}
     <div class="top-actions shrink-0">
-        {{-- مبدّل سياق العضويّة (قسم/محافظة/ملفّ) — كلّ شيء يُقرأ داخل العضويّة النشطة --}}
-        @volunteer
-            @if (($userMemberships ?? collect())->count() > 1)
-                <form method="get" class="hidden sm:block">
-                    {{-- عرضٌ محدود فلا يزاحم الـBreadcrumb على الشاشات المتوسّطة --}}
-                    <select name="membership" data-autosubmit
-                            class="rounded-lg px-3 text-sm truncate"
-                            style="min-height: 44px; max-width: 14rem; background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)"
-                            aria-label="{{ setting('nav.header.membership_aria', 'سياق العضويّة') }}">
-                        @foreach ($userMemberships as $m)
-                            <option value="{{ $m->id }}" @selected(($activeMembership?->id) === $m->id)>
-                                {{ $m->entity?->name_ar }} · {{ $m->position?->name_ar }}
-                            </option>
-                        @endforeach
-                    </select>
-                </form>
-            @endif
-        @endvolunteer
+        {{-- مبدّل سياق العضويّة انتقل إلى بطاقة العضويّة في السايد بار (طلب المالك): الشريط للأفعال الخمسة فقط --}}
 
         {{--
           زرّ البحث الموحّد (Ctrl+K) في التخطيطات الثلاثة (الإدارة والتطوّع والمتدرّب):

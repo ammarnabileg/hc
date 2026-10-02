@@ -136,9 +136,22 @@
                         <span class="truncate">{{ $u->shortName() }}</span>
                         @include('volunteer.components.rep-badge', ['user' => $u])
                     </div>
+                    {{-- مبدّل سياق العضويّة هنا (كان في الشريط العلويّ): لمن له أكثر من عضويّة فقط --}}
+                    @if (($userMemberships ?? collect())->count() > 1)
+                        <form method="get">
+                            <select name="membership" data-autosubmit class="small w-full rounded-lg px-2 mt-1"
+                                    style="min-height: 36px; background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)"
+                                    aria-label="{{ setting('nav.header.membership_aria', 'سياق العضويّة') }}">
+                                @foreach ($userMemberships as $m)
+                                    <option value="{{ $m->id }}" @selected(($activeMembership?->id) === $m->id)>{{ $m->entity?->name_ar }} · {{ $m->position?->name_ar }}</option>
+                                @endforeach
+                            </select>
+                        </form>
+                    @else
                     <div class="small muted truncate">
                         {{ $membership?->entity?->name_ar ?? setting('nav.volunteer.no_entity', 'بلا كيان') }}@if ($membership?->position?->name_ar) · {{ $membership->position->name_ar }}@endif
                     </div>
+                    @endif
                 </div>
             </div>
         </div>

@@ -130,7 +130,7 @@ class AccountDemoSeeder extends Seeder
             ['account.settings.emergency_phone', 'الإعدادات: خانة موبايل جهة الطوارئ', 'رقم الموبايل'],
             ['account.settings.emergency_relation', 'الإعدادات: خانة صلة القرابة', 'صلة القرابة'],
             ['account.settings.emergency_title', 'الإعدادات: عنوان بلوك جهة الطوارئ', 'جهة الطوارئ (اختياريّ)'],
-            ['account.settings.field_advanced_mode', 'الإعدادات: عنوان حقل الوضع المتقدّم', 'وضع متقدّم'],
+            ['account.settings.field_advanced_mode', 'الإعدادات: عنوان حقل الوضع المتقدّم', 'متقدّم'],
             ['account.settings.field_country', 'الإعدادات: عنوان حقل الدولة', 'الدولة'],
             ['account.settings.field_email', 'الإعدادات: عنوان حقل البريد', 'البريد الإلكترونيّ'],
             ['account.settings.field_email_channel', 'الإعدادات: عنوان حقل رسايل البريد', 'رسايل البريد'],

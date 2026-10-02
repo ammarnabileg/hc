@@ -66,10 +66,11 @@ class TopBarConsistencyTest extends VolunteerCoreTestCase
         $this->assertUnifiedTopBar($this->actingAs($owner)->get(route('admin.dashboard'))->assertOk()->getContent(), 'الإدارة');
     }
 
-    public function test_the_membership_selector_is_width_bounded_so_it_never_crowds_the_breadcrumb(): void
+    public function test_the_bar_carries_no_membership_selector_and_the_toggle_says_advanced(): void
     {
         $html = file_get_contents(resource_path('views/partials/header.blade.php'));
 
-        $this->assertMatchesRegularExpression('/<select name="membership"[^>]*style="[^"]*max-width: 14rem/', $html);
+        $this->assertStringNotContainsString('name="membership"', $html, 'المبدّل انتقل إلى السايد بار');
+        $this->assertSame('متقدّم', app(\App\Services\Ux\ViewMode::class)->label());
     }
 }
