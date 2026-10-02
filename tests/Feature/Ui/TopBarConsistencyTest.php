@@ -70,6 +70,6 @@ class TopBarConsistencyTest extends VolunteerCoreTestCase
     {
         $html = file_get_contents(resource_path('views/partials/header.blade.php'));
 
-        $this->assertMatchesRegularExpression('/<select name="membership"[^>]*class="[^"]*max-w-\[14rem\]/', $html);
+        $this->assertMatchesRegularExpression('/<select name="membership"[^>]*style="[^"]*max-width: 14rem/', $html);
     }
 }

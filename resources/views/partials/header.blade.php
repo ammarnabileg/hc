@@ -72,8 +72,8 @@
                 <form method="get" class="hidden sm:block">
                     {{-- عرضٌ محدود فلا يزاحم الـBreadcrumb على الشاشات المتوسّطة --}}
                     <select name="membership" data-autosubmit
-                            class="rounded-lg px-3 text-sm max-w-[14rem] truncate"
-                            style="min-height: 44px; background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)"
+                            class="rounded-lg px-3 text-sm truncate"
+                            style="min-height: 44px; max-width: 14rem; background: var(--surface-raised); border: 1px solid var(--border); color: var(--text)"
                             aria-label="{{ setting('nav.header.membership_aria', 'سياق العضويّة') }}">
                         @foreach ($userMemberships as $m)
                             <option value="{{ $m->id }}" @selected(($activeMembership?->id) === $m->id)>
