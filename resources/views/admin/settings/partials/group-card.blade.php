@@ -63,7 +63,7 @@
 
     <div class="mt-4 flex items-center gap-3 {{ $count > $batch ? '' : 'hidden' }}" data-group-more-row>
         <button type="button" class="rounded-xl px-3 py-2 text-sm" data-group-more
-                style="background: var(--surface-raised); color: var(--text)">{{ setting('admin.settings.partials.group_card.hml_almzyd', 'حمّل المزيد') }}</button>
+                style="background: var(--surface-raised); color: var(--text)">{{ setting('admin.settings.partials.group_card.hml_almzyd', 'عرض المزيد') }}</button>
         <span class="text-xs" data-group-progress style="color: var(--text-muted)"></span>
     </div>
 </details>

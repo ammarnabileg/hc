@@ -204,7 +204,7 @@ class ScreenTextDemoSeeder extends Seeder
             ['ux.saved_views.text_1', 'ux', 'saved-views: احفظ العرض', 'احفظ العرض'],
             ['ux.saved_views.text_2', 'ux', 'saved-views: اسم العرض', 'اسم العرض'],
             ['ux.saved_views.placeholder_1', 'ux', 'saved-views: مثلًا: محافظتي، آخر 7 أيّام', 'مثلًا: محافظتي، آخر 7 أيّام'],
-            ['ux.saved_views.text_3', 'ux', 'saved-views: احفظ', 'احفظ'],
+            ['ux.saved_views.text_3', 'ux', 'saved-views: احفظ', 'حفظ'],
             // ---- resources/views/components/sort-th.blade.php
             ['ux.sort_th.title_1', 'ux', 'sort-th: تلميح رأس العمود القابل للفرز', 'رتّب بهذا العمود'],
             // ---- resources/views/components/table.blade.php
@@ -255,7 +255,7 @@ class ScreenTextDemoSeeder extends Seeder
             ['growth.content_kit.text_1', 'growth', 'content-kit: بيتغيّر كلّ :a1 يوم', 'بيتغيّر كلّ :a1 يوم'],
             ['growth.content_kit.text_2', 'growth', 'content-kit: نزّل الصورة', 'نزّل الصورة'],
             ['growth.content_kit.aria_label_2', 'growth', 'content-kit: رابط الدعوة', 'رابط الدعوة'],
-            ['growth.content_kit.text_3', 'growth', 'content-kit: انسخ', 'انسخ'],
+            ['growth.content_kit.text_3', 'growth', 'content-kit: انسخ', 'نسخ'],
             ['growth.content_kit.aria_label_3', 'growth', 'content-kit: نصوص جاهزة', 'نصوص جاهزة'],
             ['growth.content_kit.text_4', 'growth', 'content-kit: انسخ النصّ', 'انسخ النصّ'],
             ['growth.content_kit.aria_label_4', 'growth', 'content-kit: قوالب الصور', 'قوالب الصور'],

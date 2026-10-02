@@ -130,7 +130,7 @@ class WalletDemoSeeder extends Seeder
             ['wallet.rates.preview_withdraw_fee_net', '«أسعار الصرف والرسوم»: معاينة رسوم السحب والصافي (:fee · :net)', 'رسوم $:fee ⟵ يوصله :net'],
             ['wallet.rates.reason_label', '«أسعار الصرف والرسوم»: عنوان سبب التعديل', 'سبب التعديل'],
             ['wallet.rates.reason_placeholder', '«أسعار الصرف والرسوم»: تلميح سبب التعديل', 'اكتب ليه بتغيّر الرقم ده'],
-            ['wallet.rates.save_action', '«أسعار الصرف والرسوم»: زرّ الحفظ', 'احفظ'],
+            ['wallet.rates.save_action', '«أسعار الصرف والرسوم»: زرّ الحفظ', 'حفظ'],
             ['wallet.rates.subtitle', '«أسعار الصرف والرسوم»: السطر تحت العنوان', 'مصدر الحقيقة الوحيد لكلّ رقم ماليّ في المحفظة، ولمالك المنصّة وحده.'],
             ['wallet.rates.title', '«أسعار الصرف والرسوم»: العنوان', 'أسعار الصرف والرسوم'],
             ['wallet.tabs.balance', '«تابات المحفظة»: تاب رصيدي', 'رصيدي'],

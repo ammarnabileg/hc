@@ -26,7 +26,7 @@
         </label>
 
         <button class="btn w-full rounded-xl px-4 py-3 text-sm font-semibold"
-                style="background: var(--color-brand-500); color: #04201c">{{ setting('admin.volunteer.org.abat_2', 'ابعت') }}</button>
+                style="background: var(--color-brand-500); color: #04201c">{{ setting('admin.volunteer.org.abat_2', 'إرسال') }}</button>
     </form>
 
     @if ($caseFileInviteLinks->get($entity->id, collect())->isNotEmpty())

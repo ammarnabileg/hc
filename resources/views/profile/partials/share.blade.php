@@ -65,7 +65,7 @@
                        style="min-height: 44px; background: var(--surface-sunken); border: 1px solid var(--border); color: var(--text)">
                 <button type="button" data-copy-profile="{{ $profileUrl }}"
                         class="btn rounded-xl px-4 text-sm font-semibold motion-standard"
-                        style="min-height: 44px; background: var(--color-brand-500); color: #04201c">{{ setting('account.profile.share.copy_label', 'انسخ') }}</button>
+                        style="min-height: 44px; background: var(--color-brand-500); color: #04201c">{{ setting('account.profile.share.copy_label', 'نسخ') }}</button>
             </div>
         </label>
     </div>

@@ -96,7 +96,7 @@
                     <form method="post" action="{{ route('admin.wars.bank.delete', $question) }}">
                         @csrf
                         <button type="submit" class="rounded-xl px-4 py-2.5 text-sm motion-standard"
-                                style="background: var(--surface-sunken); color: var(--color-state-danger); min-height: 44px">{{ setting('admin.wars.bank.form.ahdhf', 'احذف') }}</button>
+                                style="background: var(--surface-sunken); color: var(--color-state-danger); min-height: 44px">{{ setting('admin.wars.bank.form.ahdhf', 'حذف') }}</button>
                     </form>
                 @endcan
             @else
@@ -108,7 +108,7 @@
                         style="background: var(--surface-sunken); color: var(--text); min-height: 44px">{{ setting('admin.wars.bank.form.ilgha', 'إلغاء') }}</button>
                 <button type="submit" form="{{ $id }}-form"
                         class="btn rounded-xl px-4 py-2.5 text-sm font-semibold motion-standard"
-                        style="background: var(--color-brand-500); color: #04201c; min-height: 44px">{{ setting('admin.wars.bank.form.ahfz', 'احفظ') }}</button>
+                        style="background: var(--color-brand-500); color: #04201c; min-height: 44px">{{ setting('admin.wars.bank.form.ahfz', 'حفظ') }}</button>
             </div>
         </div>
     </x-slot:footer>

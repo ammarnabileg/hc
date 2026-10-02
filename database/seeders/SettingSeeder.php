@@ -477,7 +477,7 @@ class SettingSeeder extends Seeder
             ['account.profile.badges.modal_title', 'account', 'عنوان بوب-أب الشارة', 'string', 'الشارة'],
             ['account.profile.share.title', 'account', 'عنوان بوب-أب المشاركة', 'string', 'مشاركة الحساب'],
             ['account.profile.share.link_label', 'account', 'تسمية رابط الحساب العامّ', 'string', 'رابط الحساب العامّ'],
-            ['account.profile.share.copy_label', 'account', 'زرّ نسخ الرابط', 'string', 'انسخ'],
+            ['account.profile.share.copy_label', 'account', 'زرّ نسخ الرابط', 'string', 'نسخ'],
             ['platform.identity.logo_path', 'platform', 'مسار لوجو المنصّة (للعلامة المائيّة)', 'string', ''],
         ];
 

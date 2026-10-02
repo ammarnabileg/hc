@@ -264,7 +264,7 @@ class StoreDemoSeeder extends Seeder
             ['store.admin.bundles.override_label', 'وسم سعر العنصر داخل الباقة', 'string', 'سعره داخل الباقة'],
             ['store.admin.bundles.override_hint', 'شرح Override العنصر', 'text', 'بيوصل بسعره الطبيعيّ. عدّله لو عايز سعرًا خاصًّا داخل الباقة، والـOverride ده محصور في صفحة البندل وحدها.'],
             ['store.admin.bundles.bonus_toggle_label', 'Toggle اعرضه كبونص', 'string', 'اعرضه كبونص'],
-            ['store.admin.bundles.save_row_label', 'زرّ حفظ صفّ العنصر', 'string', 'احفظ'],
+            ['store.admin.bundles.save_row_label', 'زرّ حفظ صفّ العنصر', 'string', 'حفظ'],
             ['store.admin.bundles.remove_item_label', 'زرّ إزالة العنصر', 'string', 'شيل العنصر'],
             ['store.admin.bundles.add_item_title', 'عنوان إضافة عنصر', 'string', 'ضيف عنصر'],
             ['store.admin.bundles.item_label', 'وسم اختيار العنصر', 'string', 'العنصر'],

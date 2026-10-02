@@ -335,7 +335,7 @@
 
                 <button type="submit" class="btn w-full rounded-xl px-4 py-3 text-sm font-bold motion-standard"
                         style="background: var(--color-brand-500); color: #04201c">
-                    {{ setting('events.registrations.notify_submit', 'ابعت') }}
+                    {{ setting('events.registrations.notify_submit', 'إرسال') }}
                 </button>
             </form>
         </x-modal>
@@ -398,7 +398,7 @@
 
                 <button type="submit" class="btn w-full rounded-xl px-4 py-3 text-sm font-bold motion-standard"
                         style="background: var(--color-brand-500); color: #04201c">
-                    {{ setting('events.registrations.notify_submit', 'ابعت') }}
+                    {{ setting('events.registrations.notify_submit', 'إرسال') }}
                 </button>
             </form>
         </x-modal>

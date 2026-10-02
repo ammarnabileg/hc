@@ -123,7 +123,7 @@
                         <x-slot:footer>
                             <button type="submit" form="email-template-edit-form-{{ $template->id }}"
                                     class="btn w-full rounded-xl px-4 py-3 text-sm font-semibold"
-                                    style="background: var(--color-brand-500); color: #04201c">{{ setting('admin.guidance.email_templates.hfz', 'احفظ') }}</button>
+                                    style="background: var(--color-brand-500); color: #04201c">{{ setting('admin.guidance.email_templates.hfz', 'حفظ') }}</button>
                         </x-slot:footer>
                     </x-modal>
                 @endcan

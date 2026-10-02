@@ -114,7 +114,7 @@
                     <x-slot:footer>
                         <button type="submit" form="template-form-{{ $key }}"
                                 class="btn w-full rounded-xl px-4 py-3 text-sm font-semibold"
-                                style="background: var(--color-brand-500); color: #04201c">{{ setting('admin.guidance.email_templates.hfz', 'احفظ') }}</button>
+                                style="background: var(--color-brand-500); color: #04201c">{{ setting('admin.guidance.email_templates.hfz', 'حفظ') }}</button>
                     </x-slot:footer>
                 </x-modal>
             @endforeach
@@ -209,7 +209,7 @@
                 </div>
 
                 <button class="btn w-full rounded-xl px-4 py-3 text-sm font-semibold"
-                        style="background: var(--color-brand-500); color: #04201c">{{ setting('admin.guidance.notifications.abat', 'ابعت') }}</button>
+                        style="background: var(--color-brand-500); color: #04201c">{{ setting('admin.guidance.notifications.abat', 'إرسال') }}</button>
             </form>
         </x-modal>
     @endcan

@@ -75,7 +75,7 @@
                             </td>
                             <td class="px-4 py-3 text-end">
                                 <a href="{{ route('admin.roles.edit', $role) }}" class="text-xs hover:underline"
-                                   style="color: var(--color-brand-500)">{{ setting('admin.roles.index.thryr', 'تحرير') }}</a>
+                                   style="color: var(--color-brand-500)">{{ setting('admin.roles.index.thryr', 'تعديل') }}</a>
                             </td>
                         </tr>
                     @endforeach

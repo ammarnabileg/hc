@@ -63,7 +63,7 @@
                     </label>
 
                     <button type="submit" class="btn rounded-xl px-4 text-sm font-semibold motion-standard"
-                            style="min-height: 44px; background: var(--color-brand-500); color: #04201c">{{ setting('ux.saved_views.text_3', 'احفظ') }}</button>
+                            style="min-height: 44px; background: var(--color-brand-500); color: #04201c">{{ setting('ux.saved_views.text_3', 'حفظ') }}</button>
                 </form>
             </details>
         @endif

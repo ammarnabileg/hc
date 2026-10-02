@@ -27,7 +27,7 @@
         <div class="flex items-center gap-2 mt-4">
             <button type="submit"
                     class="btn rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
-                    style="background: var(--color-brand-500); color: #04201c">{{ setting('admin.volunteer.partials.settings_card.ahfz', 'احفظ') }}</button>
+                    style="background: var(--color-brand-500); color: #04201c">{{ setting('admin.volunteer.partials.settings_card.ahfz', 'حفظ') }}</button>
             <span class="text-xs" style="color: var(--text-muted)">{{ setting('admin.volunteer.partials.settings_card.altadyl_ysry_fwra_ala_almnsa_klha', 'التعديل يسري فورًا على المنصّة كلّها.') }}</span>
         </div>
     </form>

@@ -48,7 +48,7 @@
                   style="background: var(--surface-sunken)">{{ $link }}</code>
             <button type="button" data-copy="{{ $link }}"
                     class="rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
-                    style="background: var(--color-brand-500); color: #04201c">{{ setting('growth.content_kit.text_3', 'انسخ') }}</button>
+                    style="background: var(--color-brand-500); color: #04201c">{{ setting('growth.content_kit.text_3', 'نسخ') }}</button>
         </div>
     </section>
 

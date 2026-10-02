@@ -46,7 +46,7 @@
                 </label>
                 @can('celebrations.edit')
                     <button type="submit" class="btn rounded-xl px-3 py-1.5 text-xs font-semibold"
-                            style="background: var(--surface-raised)">{{ setting('admin.gamification.tabs.celebrations.ahfz', 'احفظ') }}</button>
+                            style="background: var(--surface-raised)">{{ setting('admin.gamification.tabs.celebrations.ahfz', 'حفظ') }}</button>
                 @endcan
             </div>
         </form>

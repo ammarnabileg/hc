@@ -56,7 +56,7 @@
 
         <div class="flex items-center gap-2 mt-4">
             <button type="submit" class="btn rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
-                    style="background: var(--color-brand-500); color: #04201c">{{ setting('admin.positive.partials.settings.ahfz', 'احفظ') }}</button>
+                    style="background: var(--color-brand-500); color: #04201c">{{ setting('admin.positive.partials.settings.ahfz', 'حفظ') }}</button>
             <span class="text-xs" style="color: var(--text-muted)">{{ setting('admin.positive.partials.settings.altadyl_ysry_fwra_bla_iaada_nshr', 'التعديل يسري فورًا بلا إعادة نشر.') }}</span>
         </div>
     </form>

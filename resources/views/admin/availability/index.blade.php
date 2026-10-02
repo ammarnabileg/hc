@@ -135,7 +135,7 @@
                         </label>
 
                         <button class="btn rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
-                                style="background: var(--color-brand-500); color: #04201c">{{ setting('admin.availability.index.ahfz', 'احفظ') }}</button>
+                                style="background: var(--color-brand-500); color: #04201c">{{ setting('admin.availability.index.ahfz', 'حفظ') }}</button>
                     </form>
                 </div>
 
@@ -169,7 +169,7 @@
                                 <form method="post" action="{{ route('admin.availability.periods.destroy', $period) }}"
                                       data-confirm="{{ setting('admin.availability.index.thdhf_alftra_dy', 'تحذف الفترة دي؟') }}">
                                     @csrf @method('delete')
-                                    <button class="text-xs underline" style="color: var(--color-state-danger)">{{ setting('admin.availability.index.ahdhf', 'احذف') }}</button>
+                                    <button class="text-xs underline" style="color: var(--color-state-danger)">{{ setting('admin.availability.index.ahdhf', 'حذف') }}</button>
                                 </form>
                             </div>
                         </div>

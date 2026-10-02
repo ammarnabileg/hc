@@ -320,7 +320,7 @@ class EventDemoSeeder extends Seeder
             ['events.registrations.notify_placeholder', 'events', 'مثال نصّ الإشعار', 'text', 'مثال: اترفع رابط التسجيل، تقدر تتفرّج عليه من صفحة الفعاليّة.'],
             ['events.registrations.notify_channel_label', 'events', 'عنوان قناة الإشعار', 'string', 'القناة'],
             ['events.registrations.notify_when_label', 'events', 'عنوان موعد الإشعار', 'string', 'الموعد (سيبه فاضي = دلوقتي)'],
-            ['events.registrations.notify_submit', 'events', 'زرّ إرسال الإشعار', 'string', 'ابعت'],
+            ['events.registrations.notify_submit', 'events', 'زرّ إرسال الإشعار', 'string', 'إرسال'],
             ['events.registrations.channel_bell', 'events', 'قناة الجرس', 'string', 'الجرس'],
             ['events.registrations.channel_email', 'events', 'قناة البريد', 'string', 'البريد'],
 

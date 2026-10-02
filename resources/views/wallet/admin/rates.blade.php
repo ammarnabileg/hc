@@ -73,7 +73,7 @@
 
                         <div class="md:col-span-2">
                             <button type="submit" class="btn w-full rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
-                                    style="background: var(--color-brand-500); color: #04201c">{{ setting('wallet.rates.save_action', 'احفظ') }}</button>
+                                    style="background: var(--color-brand-500); color: #04201c">{{ setting('wallet.rates.save_action', 'حفظ') }}</button>
                         </div>
 
                         <p class="md:col-span-12 text-xs" style="color: var(--text-muted)">

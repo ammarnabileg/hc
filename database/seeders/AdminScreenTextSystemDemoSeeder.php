@@ -302,7 +302,7 @@ class AdminScreenTextSystemDemoSeeder extends Seeder
             ['admin.settings.partials.field.mjmwaa_mhmya_lmalk_almnsa', 'system', 'مجموعة محميّة لمالك المنصّة', 'string', 'مجموعة محميّة لمالك المنصّة', 'نصّ في resources/views/admin/settings/partials/field.blade.php'],
             ['admin.settings.partials.field.sbb_altadyl_ilzamy', 'system', 'سبب التعديل (إلزاميّ)', 'string', 'سبب التعديل (إلزاميّ)', 'نصّ في resources/views/admin/settings/partials/field.blade.php'],
             ['admin.settings.partials.group_card.fyha_mfatyh_lmalk_almnsa_whdh', 'system', 'فيها مفاتيح لمالك المنصّة وحده', 'string', 'فيها مفاتيح لمالك المنصّة وحده', 'نصّ في resources/views/admin/settings/partials/group-card.blade.php'],
-            ['admin.settings.partials.group_card.hml_almzyd', 'system', 'حمّل المزيد', 'string', 'حمّل المزيد', 'نصّ في resources/views/admin/settings/partials/group-card.blade.php: زرّ الدفعة التالية (تمريرٌ تدريجيّ لا ترقيم صفحات، 2.15-د).'],
+            ['admin.settings.partials.group_card.hml_almzyd', 'system', 'عرض المزيد', 'string', 'عرض المزيد', 'نصّ في resources/views/admin/settings/partials/group-card.blade.php: زرّ الدفعة التالية (تمريرٌ تدريجيّ لا ترقيم صفحات، 2.15-د).'],
             ['admin.settings.tabs.audit.alahtfaz_v1_ywma_llaam_bla_hd_llmaly', 'system', 'الاحتفاظ: :v1 يومًا للعامّ · بلا حدّ للماليّ', 'string', 'الاحتفاظ: :v1 يومًا للعامّ · بلا حدّ للماليّ', 'نصّ في resources/views/admin/settings/tabs/audit.blade.php'],
             ['admin.settings.tabs.audit.almnfdh', 'system', 'المنفِّذ', 'string', 'المنفِّذ', 'نصّ في resources/views/admin/settings/tabs/audit.blade.php'],
             ['admin.settings.tabs.audit.almwrd_alfal', 'system', 'المورد.الفعل', 'string', 'المورد.الفعل', 'نصّ في resources/views/admin/settings/tabs/audit.blade.php'],
@@ -567,7 +567,7 @@ class AdminScreenTextSystemDemoSeeder extends Seeder
             ['admin.guidance.index.ytkrr_hta', 'help', 'يتكرّر حتّى', 'string', 'يتكرّر حتّى', 'نصّ في resources/views/admin/guidance/index.blade.php'],
             ['admin.guidance.index.ywrshf_fy', 'help', 'يُؤرشَف في', 'string', 'يُؤرشَف في', 'نصّ في resources/views/admin/guidance/index.blade.php'],
             ['admin.guidance.index.yzhr_bad_kam_ywm_mn_altsjyl', 'help', 'يظهر بعد كام يوم من التسجيل', 'string', 'يظهر بعد كام يوم من التسجيل', 'نصّ في resources/views/admin/guidance/index.blade.php'],
-            ['admin.guidance.notifications.abat', 'help', 'ابعت', 'string', 'ابعت', 'نصّ في resources/views/admin/guidance/notifications.blade.php'],
+            ['admin.guidance.notifications.abat', 'help', 'إرسال', 'string', 'إرسال', 'نصّ في resources/views/admin/guidance/notifications.blade.php'],
             ['admin.guidance.notifications.adbt_alanwaa_wabat_ishaara_ydwya_ljmhwr_mhdd', 'help', 'اضبط الأنواع، وابعت إشعارًا يدويًّا لجمهور محدَّد.', 'string', 'اضبط الأنواع، وابعت إشعارًا يدويًّا لجمهور محدَّد.', 'نصّ في resources/views/admin/guidance/notifications.blade.php'],
             ['admin.guidance.notifications.alanwan', 'help', 'العنوان', 'string', 'العنوان', 'نصّ في resources/views/admin/guidance/notifications.blade.php'],
             ['admin.guidance.notifications.alishaarat', 'help', 'الإشعارات', 'string', 'الإشعارات', 'نصّ في resources/views/admin/guidance/notifications.blade.php: عنوانٌ منصوصٌ حرفيًّا في القسم 24، وتغييرُه يخالف خريطة الشاشات.'],  // ⚠️ 24
@@ -622,7 +622,7 @@ class AdminScreenTextSystemDemoSeeder extends Seeder
             ['admin.guidance.email_templates.aleenwan', 'help', 'عنوان الرسالة (اختياريّ)', 'string', 'عنوان الرسالة (اختياريّ)', 'نصّ في resources/views/admin/guidance/email-templates/index.blade.php'],
             ['admin.guidance.email_templates.mhtwa_alqalb', 'help', 'محتوى القالب', 'string', 'محتوى القالب', 'نصّ في resources/views/admin/guidance/email-templates/index.blade.php'],
             ['admin.guidance.email_templates.wswm_mtaha', 'help', 'الوسوم المتاحة:', 'string', 'الوسوم المتاحة:', 'نصّ في resources/views/admin/guidance/email-templates/index.blade.php'],
-            ['admin.guidance.email_templates.hfz', 'help', 'احفظ', 'string', 'احفظ', 'نصّ في resources/views/admin/guidance/email-templates/index.blade.php'],
+            ['admin.guidance.email_templates.hfz', 'help', 'حفظ', 'string', 'حفظ', 'نصّ في resources/views/admin/guidance/email-templates/index.blade.php'],
             ['admin.guidance.email_templates.idafa', 'help', 'إضافة', 'string', 'إضافة', 'نصّ في resources/views/admin/guidance/email-templates/index.blade.php'],
             ['admin.guidance.email_templates.mlf_csv', 'help', 'ملفّ CSV بنفس ترويسة التصدير', 'string', 'ملفّ CSV بنفس ترويسة التصدير', 'نصّ في resources/views/admin/guidance/email-templates/index.blade.php'],
             ['admin.guidance.email_templates.created_message', 'help', 'اتضاف القالب «:a1» ✓', 'string', 'اتضاف القالب «:a1» ✓', 'نصّ في app/Http/Controllers/Admin/EmailTemplateAdminController.php'],
@@ -848,7 +848,7 @@ class AdminScreenTextSystemDemoSeeder extends Seeder
     public function screens24ScreenTextSettings(): void
     {
         $this->write([
-            ['admin.screens24.settings.ahfz', 'admin_content', 'احفظ', 'string', 'احفظ', 'نصّ في resources/views/admin/screens24/settings.blade.php'],
+            ['admin.screens24.settings.ahfz', 'admin_content', 'حفظ', 'string', 'حفظ', 'نصّ في resources/views/admin/screens24/settings.blade.php'],
             ['admin.screens24.settings.alaftrady', 'admin_content', '· الافتراضيّ:', 'string', '· الافتراضيّ:', 'نصّ في resources/views/admin/screens24/settings.blade.php'],
             ['admin.screens24.settings.altadyl_ysry_fwra_bla_iaada_nshr', 'admin_content', 'التعديل يسري فورًا بلا إعادة نشر.', 'string', 'التعديل يسري فورًا بلا إعادة نشر.', 'نصّ في resources/views/admin/screens24/settings.blade.php'],
             ['admin.screens24.settings.iadadat_alshasha', 'admin_content', 'إعدادات الشاشة', 'string', 'إعدادات الشاشة', 'نصّ في resources/views/admin/screens24/settings.blade.php'],

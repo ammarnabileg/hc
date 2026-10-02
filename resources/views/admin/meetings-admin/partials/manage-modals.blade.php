@@ -34,7 +34,7 @@
         </fieldset>
 
         <button type="submit" class="btn rounded-xl px-4 py-2 text-sm font-semibold motion-standard"
-                style="background: var(--color-brand-500); color: #04201c">{{ setting('admin.meetings_admin.partials.manage_modals.ahfz', 'احفظ') }}</button>
+                style="background: var(--color-brand-500); color: #04201c">{{ setting('admin.meetings_admin.partials.manage_modals.ahfz', 'حفظ') }}</button>
     </form>
 </x-modal>
 
